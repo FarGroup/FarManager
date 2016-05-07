@@ -256,7 +256,7 @@ virtual bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const override
 
 static void AdjustMouseEvents(INPUT_RECORD* Buffer, size_t Length, short Delta, short MaxX)
 {
-	for (auto& i: make_range(Buffer, Buffer + Length))
+	for (auto& i: make_range(Buffer, Length))
 	{
 		if (i.EventType == MOUSE_EVENT)
 		{
@@ -303,7 +303,7 @@ virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 	{
 		const auto Delta = GetDelta();
 
-		for (auto& i: make_range(Buffer, Buffer + Length))
+		for (auto& i: make_range(Buffer, Length))
 		{
 			if (i.EventType == MOUSE_EVENT)
 			{

@@ -272,16 +272,11 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 
 	return EnumWithQuoutes(Menu, Module, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
+		for (const auto& i: split<std::vector<string>>(Global->Opt->Exec.strExcludeCmds))
 		{
-			std::vector<string> ExcludeCmds;
-			split(ExcludeCmds, Global->Opt->Exec.strExcludeCmds);
-
-			for (const auto& i: ExcludeCmds)
+			if (!StrCmpNI(Token.data(), i.data(), Token.size()))
 			{
-				if (!StrCmpNI(Token.data(), i.data(), Token.size()))
-				{
-					Inserter(i);
-				}
+				Inserter(i);
 			}
 		}
 
@@ -289,13 +284,9 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 			const auto strPathEnv(os::env::get_variable(L"PATH"));
 			if (!strPathEnv.empty())
 			{
-				std::vector<string> PathList;
-				split(PathList, strPathEnv);
+				const auto PathExtList = split<std::vector<string>>(os::env::get_pathext());
 
-				std::vector<string> PathExtList;
-				split(PathExtList, os::env::get_pathext());
-
-				for (const auto& Path: PathList)
+				for (const auto& Path: split<std::vector<string>>(strPathEnv))
 				{
 					string str = Path;
 					AddEndSlash(str);

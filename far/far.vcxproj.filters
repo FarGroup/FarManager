@@ -956,6 +956,9 @@
     <ClInclude Include="common\enum_substrings.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\zip_view.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc">

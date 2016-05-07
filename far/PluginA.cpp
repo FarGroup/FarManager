@@ -489,14 +489,18 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 	if (pnmA && ppnmW && iCount)
 	{
 		std::unique_ptr<PanelMode[]> pnmW(new PanelMode[iCount]());
-		std::vector<string> Strings;
-		const auto Handler = [&Strings](const oldfar::PanelMode& Src, PanelMode& Dest)
+		const auto SrcRange = make_range(pnmA, iCount);
+		auto DstRange = make_range(pnmW.get(), iCount);
+		for (auto i: zip(SrcRange, DstRange))
 		{
+			const auto& Src = std::get<0>(i);
+			auto& Dest = std::get<1>(i);
+
 			size_t iColumnCount = 0;
 			if (Src.ColumnTypes)
 			{
-				split(Strings, wide(Src.ColumnTypes), 0, L",");
-				iColumnCount = Strings.size();
+				// BUGBUG why not just count commas?
+				iColumnCount = split<std::vector<string>>(wide(Src.ColumnTypes), 0, L",").size();
 			}
 
 			Dest.ColumnTypes = AnsiToUnicode(Src.ColumnTypes);
@@ -509,8 +513,7 @@ static void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW,
 			if (Src.DetailedStatus) Dest.Flags |= PMFLAGS_DETAILEDSTATUS;
 			if (Src.AlignExtensions) Dest.Flags |= PMFLAGS_ALIGNEXTENSIONS;
 			if (Src.CaseConversion) Dest.Flags |= PMFLAGS_CASECONVERSION;
-		};
-		for_each_zip(Handler, pnmA, pnmA + iCount, pnmW.get());
+		}
 
 		*ppnmW = pnmW.release();
 	}
@@ -612,11 +615,15 @@ static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo* Info
 	delete[] static_cast<char*>(UserData);
 }
 
-static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanelItem *PanelItemA, size_t ItemsNumber)
+static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const range<oldfar::PluginPanelItem*>& PanelItemA)
 {
-	std::unique_ptr<PluginPanelItem[]> Result(new PluginPanelItem[ItemsNumber]());
-	const auto Handler = [](const auto& Src, auto& Dst)
+	std::unique_ptr<PluginPanelItem[]> Result(new PluginPanelItem[PanelItemA.size()]());
+	auto DstRange = make_range(Result.get(), PanelItemA.size());
+	for(auto i: zip(PanelItemA, DstRange))
 	{
+		const auto& Src = std::get<0>(i);
+		auto& Dst = std::get<1>(i);
+
 		Dst.Flags = 0;
 		if (Src.Flags&oldfar::PPIF_PROCESSDESCR)
 			Dst.Flags |= PPIF_PROCESSDESCR;
@@ -660,7 +667,6 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const oldfar::PluginPanel
 		Dst.FileName = AnsiToUnicode(Src.FindData.cFileName);
 		Dst.AlternateFileName = AnsiToUnicode(Src.FindData.cAlternateFileName);
 	};
-	for_each_zip(Handler, PanelItemA, PanelItemA + ItemsNumber, Result.get());
 	return Result.release();
 }
 
@@ -847,8 +853,14 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 	if (!VBuf || !VBufA)
 		return;
 
-	const auto Handler = [NoCvt](const auto& Src, auto& Dst)
+	const auto SrcRange = make_range(VBufA, Size);
+	auto DstRange = make_range(VBuf, Size);
+
+	for (auto i: zip(SrcRange, DstRange))
 	{
+		const auto& Src = std::get<0>(i);
+		auto& Dst = std::get<1>(i);
+
 		if (NoCvt)
 		{
 			Dst.Char = Src.Char.UnicodeChar;
@@ -859,7 +871,6 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 		}
 		Dst.Attributes = colors::ConsoleColorToFarColor(Src.Attributes);
 	};
-	for_each_zip(Handler, VBufA, VBufA + Size, VBuf);
 }
 
 static auto AnsiVBufToUnicode(const oldfar::FarDialogItem &diA)
@@ -3372,21 +3383,22 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 {
 	try
 	{
-		std::vector<oldfar::FarDialogItem> diA(ItemsNumber);
+		auto ItemsRange = make_range(Item, ItemsNumber);
+
+		std::vector<oldfar::FarDialogItem> diA(ItemsRange.size());
 
 		// to save DIF_SETCOLOR state
-		const auto Handler = [](auto& diA_i, const auto& Item_i)
+		for (auto i: zip(diA, ItemsRange))
 		{
-			diA_i.Flags = Item_i.Flags;
-		};
-		for_each_zip(Handler, ALL_RANGE(diA), Item);
+			std::get<0>(i).Flags = std::get<1>(i).Flags;
+		}
 
-		std::vector<FarDialogItem> di(ItemsNumber);
-		std::vector<FarList> l(ItemsNumber);
+		std::vector<FarDialogItem> di(ItemsRange.size());
+		std::vector<FarList> l(ItemsRange.size());
 
-		for (int i=0; i<ItemsNumber; i++)
+		for (auto i: zip(ItemsRange, di, l))
 		{
-			AnsiDialogItemToUnicode(Item[i],di[i],l[i]);
+			std::apply(AnsiDialogItemToUnicode, i);
 		}
 
 		DWORD DlgFlags = 0;
@@ -3407,7 +3419,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 			DlgFlags|=FDLG_NONMODAL;
 
 		int ret = -1;
-		HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? wide(HelpTopic).data() : nullptr), di.data(), ItemsNumber, 0, DlgFlags, DlgProcA, Param);
+		HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? wide(HelpTopic).data() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
 		DialogData NewDialogData;
 		NewDialogData.DlgProc=DlgProc;
 		NewDialogData.hDlg=hDlg;
@@ -4092,7 +4104,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 				string strSequence=L"Keys(\"";
 				string strKeyText;
-				for (const auto& Key: make_range(ksA->Sequence, ksA->Sequence + ksA->Count))
+				for (const auto& Key: make_range(ksA->Sequence, ksA->Count))
 				{
 					if (KeyToText(OldKeyToKey(Key), strKeyText))
 					{
@@ -5494,7 +5506,7 @@ int PluginA::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 
 		if (es && ItemsNumber)
 		{
-			Info->PanelItem = ConvertAnsiPanelItemsToUnicode(pVFDPanelItemA, ItemsNumber);
+			Info->PanelItem = ConvertAnsiPanelItemsToUnicode(make_range(pVFDPanelItemA, ItemsNumber));
 		}
 	}
 
@@ -5632,7 +5644,7 @@ int PluginA::GetFindData(GetFindDataInfo* Info)
 		Info->ItemsNumber = ItemsNumber;
 		if (es && ItemsNumber)
 		{
-			Info->PanelItem = ConvertAnsiPanelItemsToUnicode(pFDPanelItemA, ItemsNumber);
+			Info->PanelItem = ConvertAnsiPanelItemsToUnicode(make_range(pFDPanelItemA, ItemsNumber));
 		}
 	}
 	return es;

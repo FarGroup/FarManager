@@ -278,8 +278,7 @@ void Message::Init(
 
 		// а теперь проврапим
 		FarFormatText(strErrStr, static_cast<int>(LenErrStr), strErrStr, L"\n", 0); //?? MaxLength ??
-		std::vector<string> ErrorStrings;
-		split(ErrorStrings, strErrStr, 0, L"\n");
+		const auto ErrorStrings = split<std::vector<string>>(strErrStr, 0, L"\n");
 		MessageStrings.insert(MessageStrings.end(), ALL_CONST_RANGE(ErrorStrings));
 	}
 

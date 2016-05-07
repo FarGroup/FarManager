@@ -140,8 +140,7 @@ void ShellMakeDir(Panel *SrcPanel)
 			InsertQuote(Unquote(strDirName));
 		}
 
-		std::vector<string> DirList;
-		split(DirList, strDirName, STLF_UNIQUE);
+		const auto DirList = split<std::vector<string>>(strDirName, STLF_UNIQUE);
 		if (DirList.empty())
 		{
 			Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectDirList), MSG(MOk));

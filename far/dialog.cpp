@@ -262,13 +262,13 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 	return size;
 }
 
-void ItemToItemEx(const FarDialogItem* Items, DialogItemEx *ItemsEx, size_t Count, bool Short)
+void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<DialogItemEx*>& ItemsEx, bool Short)
 {
-	if (!Items || !ItemsEx)
-		return;
-
-	const auto Handler = [Short](const auto& Item, auto& ItemEx)
+	for (auto i: zip(Items, ItemsEx))
 	{
+		const auto& Item = std::get<0>(i);
+		auto& ItemEx = std::get<1>(i);
+
 		static_cast<FarDialogItem&>(ItemEx) = Item;
 
 		if(!Short)
@@ -291,8 +291,7 @@ void ItemToItemEx(const FarDialogItem* Items, DialogItemEx *ItemsEx, size_t Coun
 		{
 			ItemEx.ListItems=nullptr;
 		}
-	};
-	for_each_zip(Handler, Items, Items + Count, ItemsEx);
+	}
 }
 
 intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -344,44 +343,38 @@ bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
 }
 
 
-Dialog::Dialog(private_tag):
-	bInitOK(),
-	DataDialog(),
-	m_handler()
-{}
-
-void Dialog::Construct(DialogItemEx* const* SrcItem, size_t SrcItemCount)
+void Dialog::Construct(const range<DialogItemEx*>& SrcItems)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 1"));
-	SavedItems = *SrcItem;
-	const auto Src = *SrcItem;
+	SavedItems = SrcItems.data();
 
-	Items.resize(SrcItemCount);
-	Items.assign(Src, Src + SrcItemCount);
+	Items.resize(SrcItems.size());
+	Items.assign(ALL_CONST_RANGE(SrcItems));
 
 	// Items[i].Auto.Owner points to SrcItems, we need to update:
-	const auto ItemHandler = [&](auto& item, const auto& initItem)
+	for (auto i: zip(Items, SrcItems))
 	{
-		const auto AutoHandler = [&](auto& itemAuto, const auto& initAuto)
+		for (auto j : zip(std::get<0>(i).Auto, std::get<1>(i).Auto))
 		{
-			const auto ItemNumber = std::find_if(Src, Src + SrcItemCount, [&](const auto& i) { return &i == initAuto.Owner; }) - Src;
-			itemAuto.Owner = &Items[ItemNumber];
-		};
-		for_each_zip(AutoHandler, ALL_RANGE(item.Auto), initItem.Auto.begin());
-	};
-	for_each_zip(ItemHandler, ALL_RANGE(Items), Src);
+			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&](const auto& SrcItem)
+			{
+				return &SrcItem == std::get<1>(j).Owner;
+			});
+			std::get<0>(j).Owner = &Items[SrcItemIterator - SrcItems.begin()];
+		}
+	}
 
 	Init();
 }
 
-void Dialog::Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount)
+void Dialog::Construct(const range<const FarDialogItem*>& SrcItems)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 2"));
 	SavedItems = nullptr;
 
-	Items.resize(SrcItemCount);
+	Items.resize(SrcItems.size());
 	//BUGBUG add error check
-	ItemToItemEx(*SrcItem, Items.data(), SrcItemCount);
+	ItemsToItemsEx(SrcItems, make_range(Items.data(), Items.size()));
 	Init();
 }
 
@@ -5926,10 +5919,12 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (!Param2)
 				return FALSE;
 
-			if (Type != static_cast<FarDialogItem*>(Param2)->Type) // пока нефига менять тип
+			const auto Item = static_cast<const FarDialogItem*>(Param2);
+
+			if (Type != Item->Type) // пока нефига менять тип
 				return FALSE;
 
-			ItemToItemEx(static_cast<FarDialogItem*>(Param2), CurItem, 1, Msg != DM_SETDLGITEM);
+			ItemsToItemsEx(make_range(Item, 1), make_range(CurItem, 1), Msg != DM_SETDLGITEM);
 
 			CurItem->Type=Type;
 

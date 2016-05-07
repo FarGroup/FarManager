@@ -329,6 +329,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\swapable.hpp" />
     <ClInclude Include="common\any.hpp" />
     <ClInclude Include="codepage_selection.hpp" />
+    <ClInclude Include="common\zip_view.hpp" />
     <ClInclude Include="configdb.hpp" />
     <ClInclude Include="disabled_warnings.hpp" />
     <ClInclude Include="disable_warnings_in_std_begin.hpp" />

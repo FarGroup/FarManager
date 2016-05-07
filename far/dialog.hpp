@@ -113,13 +113,13 @@ struct DialogItemEx: public FarDialogItem
 };
 
 bool IsKeyHighlighted(const string& Str, int Key, int Translate, int AmpPos = -1);
-void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);
+void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<DialogItemEx*>& ItemsEx, bool Short = false);
 
 template<size_t N>
 auto MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 {
 	std::vector<DialogItemEx> Items(N);
-	ItemToItemEx(InitData, Items.data(), N);
+	ItemsToItemsEx(make_range(InitData), make_range(Items.data(), Items.size()));
 	return Items;
 }
 
@@ -138,31 +138,23 @@ public:
 	template<class T, class O>
 	static dialog_ptr create(T&& Src, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), O* object, void* InitParam = nullptr)
 	{
-		return std::make_shared<Dialog>(private_tag(), Src, object, function, InitParam);
+		auto Handler = (object && function)? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler();
+		return std::make_shared<Dialog>(private_tag(), Src, Handler, InitParam);
 	}
 
 	template<class T>
-	static dialog_ptr create(T&& Src, dialog_handler handler = nullptr, void* InitParam = nullptr)
+	static dialog_ptr create(T&& Src, const dialog_handler& handler = nullptr, void* InitParam = nullptr)
 	{
-		const auto Dlg = std::make_shared<Dialog>(private_tag());
-		Dlg->DataDialog = InitParam;
-		Dlg->m_handler = handler;
-
-		const auto Ptr = Src.data();
-		Dlg->Construct(&Ptr, Src.size());
-		return Dlg;
+		return std::make_shared<Dialog>(private_tag(), Src, handler, InitParam);
 	}
 
-	Dialog(private_tag);
-
-	template<class T, class O>
-	Dialog(private_tag, T&& Src, O* object, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), void* InitParam):
+	template<class T>
+	Dialog(private_tag, T&& Src, const dialog_handler& Handler, void* InitParam):
 		bInitOK(),
 		DataDialog(InitParam),
-		m_handler((object && function) ? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2){ return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler())
+		m_handler(Handler)
 	{
-		const auto Ptr = Src.data();
-		Construct(&Ptr, Src.size());
+		Construct(make_range(Src.data(), Src.size()));
 	}
 
 	virtual ~Dialog();
@@ -245,9 +237,8 @@ private:
 	void AddToList();
 	void RemoveFromList();
 
-	// double pointer to avoid auto cast from DialogItemEx* to FarDialogItem*
-	void Construct(DialogItemEx* const* SrcItem, size_t SrcItemCount);
-	void Construct(const FarDialogItem* const* SrcItem, size_t SrcItemCount);
+	void Construct(const range<DialogItemEx*>& SrcItems);
+	void Construct(const range<const FarDialogItem*>& SrcItems);
 	void Init();
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& Str) const;

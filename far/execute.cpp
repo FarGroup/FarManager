@@ -211,8 +211,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 		// нулевой проход - смотрим исключения
 		// Берем "исключения" из реестра, которые должны исполняться директом,
 		// например, некоторые внутренние команды ком. процессора.
-		std::vector<string> ExcludeCmdsList;
-		split(ExcludeCmdsList, os::env::expand_strings(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
+		const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
 		{
@@ -226,8 +225,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 			string strFullName=Module;
 			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
 			string strPathExt = os::env::get_pathext();
-			std::vector<string> PathExtList;
-			split(PathExtList, strPathExt, STLF_UNIQUE);
+			const auto PathExtList = split<std::vector<string>>(strPathExt, STLF_UNIQUE);
 
 			for (const auto& i: PathExtList) // первый проход - в текущем каталоге
 			{
@@ -256,9 +254,7 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 				const auto strPathEnv(os::env::get_variable(L"PATH"));
 				if (!strPathEnv.empty())
 				{
-					std::vector<string> Strings;
-					split(Strings, strPathEnv, STLF_UNIQUE);
-					for (const auto& Path: Strings)
+					for (const auto& Path: split<std::vector<string>>(strPathEnv, STLF_UNIQUE))
 					{
 						for (const auto& Ext: PathExtList)
 						{
@@ -468,8 +464,7 @@ static const wchar_t *GetShellActionImpl(const string& FileName, string& strActi
 	{
 		RetPtr = EmptyToNull(strAction.data());
 		LONG RetEnum = ERROR_SUCCESS;
-		std::vector<string> ActionList;
-		split(ActionList, strAction, STLF_UNIQUE);
+		const auto ActionList = split<std::vector<string>>(strAction, STLF_UNIQUE);
 
 		if (RetPtr && !ActionList.empty())
 		{
@@ -1275,8 +1270,7 @@ bool IsBatchExtType(const string& ExtPtr)
 	string strExecuteBatchType = os::env::expand_strings(Global->Opt->Exec.strExecuteBatchType);
 	if (strExecuteBatchType.empty())
 		strExecuteBatchType = L".BAT;.CMD";
-	std::vector<string> BatchExtList;
-	split(BatchExtList, strExecuteBatchType, STLF_UNIQUE);
+	const auto BatchExtList = split<std::vector<string>>(strExecuteBatchType, STLF_UNIQUE);
 	return std::any_of(CONST_RANGE(BatchExtList, i) {return !StrCmpI(i, ExtPtr);});
 }
 

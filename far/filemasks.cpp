@@ -259,8 +259,7 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 		const auto strSysPathExt(os::env::get_variable(L"PATHEXT"));
 		if (!strSysPathExt.empty())
 		{
-			std::vector<string> MaskList;
-			split(MaskList, strSysPathExt, STLF_UNIQUE);
+			const auto MaskList = split<std::vector<string>>(strSysPathExt, STLF_UNIQUE);
 			if (!MaskList.empty())
 			{
 				string strFarPathExt;
@@ -293,7 +292,7 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 	}
 	else
 	{
-		split(Masks, expmasks, STLF_PACKASTERISKS | STLF_PROCESSBRACKETS | STLF_SORT | STLF_UNIQUE);
+		Masks = split<std::vector<string>>(expmasks, STLF_PACKASTERISKS | STLF_PROCESSBRACKETS | STLF_SORT | STLF_UNIQUE);
 		return !Masks.empty();
 	}
 }

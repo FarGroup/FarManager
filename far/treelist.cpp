@@ -153,9 +153,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	string strPath;
 	strDest = L"";
 
-	std::vector<string> Strings;
-	split(Strings, Global->Opt->Tree.strExceptPath, STLF_UNIQUE, L";");
-	for (const auto& i: Strings)
+	for (const auto& i: split<std::vector<string>>(Global->Opt->Tree.strExceptPath, STLF_UNIQUE, L";"))
 	{
 		if (strRootDir == i)
 		{
@@ -348,7 +346,7 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	return TRUE;
 }
 
-static struct tree_less
+static struct
 {
 	bool operator()(const string& a, const string& b, decltype(StrCmpNNI) comparer = StrCmpNNI) const
 	{
@@ -382,15 +380,16 @@ static struct tree_less
 		}
 		return comparer(Str1, -1, Str2, -1) < 0;
 	}
-} TreeLess;
+}
+TreeItemLess;
 
-static struct list_less
+static struct
 {
 	bool operator()(const TreeList::TreeItem& a, const TreeList::TreeItem& b) const
 	{
 		const auto comparer = StaticSortNumeric? (StaticSortCaseSensitive ? NumStrCmpN : NumStrCmpNI) : (StaticSortCaseSensitive ? StrCmpNN : StrCmpNNI);
 
-		return TreeLess(a.strName, b.strName, comparer);
+		return TreeItemLess(a.strName, b.strName, comparer);
 	}
 }
 ListLess;
@@ -439,7 +438,7 @@ public:
 private:
 	struct cache_less
 	{
-		bool operator()(const string& a, const string& b) const { return TreeLess(a, b); }
+		bool operator()(const string& a, const string& b) const { return TreeItemLess(a, b); }
 	};
 
 	typedef std::set<string, cache_less> cache_set;

@@ -345,6 +345,7 @@ void print_opcodes()
 typedef unsigned __int64 MACROFLAGS_MFLAGS;
 enum: MACROFLAGS_MFLAGS
 {
+	MFLAGS_NONE                    =0,
 	// public flags, read from/saved to config
 	MFLAGS_PUBLIC_MASK             =0x000000000FFFFFFF,
 	MFLAGS_ENABLEOUTPUT            =0x0000000000000001, // не подавлять обновление экрана во время выполнения макроса
@@ -700,7 +701,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				{
 					string strKey;
 					KeyToText(MacroKey, strKey);
-					Flags |= (m_Recording==MACROSTATE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
+					Flags |= m_Recording == MACROSTATE_RECORDING_COMMON? MFLAGS_NONE : MFLAGS_NOSENDKEYSTOPLUGINS;
 					LM_ProcessRecordedMacro(m_StartMode,strKey,m_RecCode,Flags,m_RecDescription);
 				}
 
@@ -1240,33 +1241,60 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	if (Dlg->GetExitCode()!=MS_BUTTON_OK)
 		return FALSE;
 
-	Flags=MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected?MFLAGS_ENABLEOUTPUT:0;
-	Flags|=MacroSettingsDlg[MS_CHECKBOX_START].Selected?MFLAGS_RUNAFTERFARSTART:0;
+	enum key_id
+	{
+		key_output,
+		key_start,
+		key_pluginpanel,
+		key_folders,
+		key_selection,
+		key_cmdline,
+		key_selblock,
+
+		key_count
+	};
+
+	static const MACROFLAGS_MFLAGS Mapping[][3] =
+	{
+		// [ ] [x] [?]
+		{ MFLAGS_NONE, MFLAGS_ENABLEOUTPUT, MFLAGS_NONE },
+		{ MFLAGS_NONE, MFLAGS_RUNAFTERFARSTART, MFLAGS_NONE },
+		{ MFLAGS_NOPLUGINPANELS, MFLAGS_NOFILEPANELS, MFLAGS_NONE },
+		{ MFLAGS_NOFOLDERS, MFLAGS_NOFILES, MFLAGS_NONE },
+		{ MFLAGS_NOSELECTION, MFLAGS_SELECTION, MFLAGS_NONE },
+		{ MFLAGS_NOTEMPTYCOMMANDLINE, MFLAGS_EMPTYCOMMANDLINE, MFLAGS_NONE },
+		{ MFLAGS_EDITNOSELECTION, MFLAGS_EDITSELECTION, MFLAGS_NONE },
+	};
+
+	static_assert(key_count == std::size(Mapping), "incorrect size");
+
+	auto get_flag = [&](MACROSETTINGSDLG ControlId, key_id KeyId)
+	{
+		return Mapping[KeyId][MacroSettingsDlg[ControlId].Selected];
+	};
+
+	Flags =
+		get_flag(MS_CHECKBOX_OUPUT, key_output) |
+		get_flag(MS_CHECKBOX_START, key_start) |
+		get_flag(MS_CHECKBOX_CMDLINE, key_cmdline) |
+		get_flag(MS_CHECKBOX_SELBLOCK, key_selblock);
 
 	if (MacroSettingsDlg[MS_CHECKBOX_A_PANEL].Selected)
 	{
-		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected==2?0:
-		       (MacroSettingsDlg[MS_CHECKBOX_A_PLUGINPANEL].Selected==0?MFLAGS_NOPLUGINPANELS:MFLAGS_NOFILEPANELS);
-		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected==2?0:
-		       (MacroSettingsDlg[MS_CHECKBOX_A_FOLDERS].Selected==0?MFLAGS_NOFOLDERS:MFLAGS_NOFILES);
-		Flags|=MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected==2?0:
-		       (MacroSettingsDlg[MS_CHECKBOX_A_SELECTION].Selected==0?MFLAGS_NOSELECTION:MFLAGS_SELECTION);
+		Flags |=
+			get_flag(MS_CHECKBOX_A_PLUGINPANEL, key_pluginpanel) |
+			get_flag(MS_CHECKBOX_A_FOLDERS, key_folders) |
+			get_flag(MS_CHECKBOX_A_SELECTION, key_selection);
 	}
 
 	if (MacroSettingsDlg[MS_CHECKBOX_P_PANEL].Selected)
 	{
-		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected==2?0:
-		       (MacroSettingsDlg[MS_CHECKBOX_P_PLUGINPANEL].Selected==0?MFLAGS_PNOPLUGINPANELS:MFLAGS_PNOFILEPANELS);
-		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected==2?0:
-		       (MacroSettingsDlg[MS_CHECKBOX_P_FOLDERS].Selected==0?MFLAGS_PNOFOLDERS:MFLAGS_PNOFILES);
-		Flags|=MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected==2?0:
-		       (MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected==0?MFLAGS_PNOSELECTION:MFLAGS_PSELECTION);
+		Flags |=
+			get_flag(MS_CHECKBOX_P_PLUGINPANEL, key_pluginpanel) |
+			get_flag(MS_CHECKBOX_P_FOLDERS, key_folders) |
+			get_flag(MS_CHECKBOX_P_SELECTION, key_selection);
 	}
 
-	Flags|=MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected==2?0:
-	       (MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected==0?MFLAGS_NOTEMPTYCOMMANDLINE:MFLAGS_EMPTYCOMMANDLINE);
-	Flags|=MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==2?0:
-	       (MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==0?MFLAGS_EDITNOSELECTION:MFLAGS_EDITSELECTION);
 	return TRUE;
 }
 

@@ -191,11 +191,11 @@ static DWORD SHErrorToWinError(DWORD SHError)
 	return WinError;
 }
 
-static bool MoveToRecycleBinInternal(LPCWSTR Object)
+static bool MoveToRecycleBinInternal(const string& Objects)
 {
 	SHFILEOPSTRUCT fop={};
 	fop.wFunc=FO_DELETE;
-	fop.pFrom=Object;
+	fop.pFrom = Objects.data();
 	fop.pTo = L"\0\0";
 	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT|FOF_ALLOWUNDO;
 	DWORD Result=SHFileOperation(&fop);
@@ -538,26 +538,21 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 			while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
 			{
-				if (!(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
-				{
-					if (FileAttr&FILE_ATTRIBUTE_DIRECTORY)
-					{
-						DirInfoData Data = {};
+				++ItemsCount;
 
-						if (GetDirInfo(MSG(MDeletingTitle), strSelName, Data, MessageDelay, nullptr, GETDIRINFO_NOREDRAW) > 0)
-						{
-							ItemsCount+=Data.FileCount+Data.DirCount+1;
-						}
-						else
-						{
-							Cancel=true;
-						}
-						MessageDelay = getdirinfo_no_delay;
+				if (FileAttr&FILE_ATTRIBUTE_DIRECTORY && !(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
+				{
+					DirInfoData Data = {};
+
+					if (GetDirInfo(MSG(MDeletingTitle), strSelName, Data, MessageDelay, nullptr, GETDIRINFO_NOREDRAW) > 0)
+					{
+						ItemsCount+=Data.FileCount+Data.DirCount+1;
 					}
 					else
 					{
-						ItemsCount++;
+						Cancel=true;
 					}
+					MessageDelay = getdirinfo_no_delay;
 				}
 			}
 		}
@@ -1063,7 +1058,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 
 	strFullName.push_back(L'\0'); // make strFullName end with DOUBLE zero
 
-	if (MoveToRecycleBinInternal(strFullName.data()))
+	if (MoveToRecycleBinInternal(strFullName))
 	{
 		ret = DELETE_SUCCESS;
 		return true;

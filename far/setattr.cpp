@@ -904,19 +904,22 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 									KnownReparsePoint = true;
 
-									ListItems.resize(DfsInfo->NumberOfStorages);
-									Links.resize(DfsInfo->NumberOfStorages);
+									auto DfsStorages = make_range(DfsInfo->Storage, DfsInfo->NumberOfStorages);
+									ListItems.resize(DfsStorages.size());
+									Links.resize(DfsStorages.size());
 
-									const auto Handler = [](auto& Link, auto& Item, const auto& Storage)
+									for (auto i: zip(Links, ListItems, DfsStorages))
 									{
+										auto& Link = std::get<0>(i);
+										auto& Item = std::get<1>(i);
+										const auto& Storage = std::get<2>(i);
+
 										Link = string(L"\\\\") + Storage.ServerName + L'\\' + Storage.ShareName;
 										Item.Text = Link.data();
 										Item.Flags =
 											((Storage.State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
 											((Storage.State & DFS_STORAGE_STATE_OFFLINE)? LIF_GRAYED : LIF_NONE);
 									};
-
-									for_each_zip(Handler, ALL_RANGE(Links), ListItems.begin(), DfsInfo->Storage);
 
 									NameList.Items = ListItems.data();
 									NameList.ItemsNumber = DfsInfo->NumberOfStorages;

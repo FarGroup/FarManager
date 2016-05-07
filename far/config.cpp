@@ -874,7 +874,7 @@ void Options::SetFolderInfoFiles()
 	}
 }
 
-static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
+static void ResetViewModes(const range<PanelViewSettings*>& Modes, int Index = -1)
 {
 	static const struct
 	{
@@ -1045,11 +1045,12 @@ static void ResetViewModes(PanelViewSettings* Modes, int Index = -1)
 
 	if (Index < 0)
 	{
-		for_each_zip(InitMode, ALL_CONST_RANGE(InitialModes), Modes);
+		for (auto i : zip(InitialModes, Modes))
+			std::apply(InitMode, i);
 	}
 	else
 	{
-		InitMode(InitialModes[Index], *Modes);
+		InitMode(InitialModes[Index], Modes.front());
 	}
 }
 
@@ -1287,7 +1288,7 @@ void Options::SetFilePanelModes()
 			}
 			else
 			{
-				ResetViewModes(&NewSettings, ModeNumber);
+				ResetViewModes(make_range(&NewSettings, 1), ModeNumber);
 			}
 
 			if (AddNewMode)
@@ -1561,7 +1562,7 @@ Options::Options():
 
 	Macro.DisableMacro=0;
 
-	ResetViewModes(m_ViewSettings.data());
+	ResetViewModes(make_range(m_ViewSettings.data(), m_ViewSettings.size()));
 }
 
 Options::~Options()
@@ -2019,14 +2020,16 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	};
 	static_assert(std::size(GuidOptions) == std::size(DefaultKnownGuids), "incomplete GuidOptions array");
 
-	const auto Handler = [](auto& a, const auto& b)
+	for(auto i: zip(DefaultKnownGuids, GuidOptions))
 	{
+		auto& a = std::get<0>(i);
+		auto& b = std::get<1>(i);
+
 		a.second = GuidToStr(a.first);
 		b->Default = a.second.data();
 		b->Id = a.first;
 		b->StrId = a.second;
 	};
-	for_each_zip(Handler, ALL_RANGE(DefaultKnownGuids), GuidOptions);
 
 	InitConfig();
 

@@ -2567,9 +2567,7 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 		InitString = strRoot;
 	}
 
-	std::vector<string> Strings;
-	split(Strings, InitString, STLF_UNIQUE);
-	for (const auto& i: Strings)
+	for (const auto& i: split<std::vector<string>>(InitString, STLF_UNIQUE))
 	{
 		DoScanTree(Dlg, i);
 	}

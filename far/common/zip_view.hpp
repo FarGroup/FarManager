@@ -1,0 +1,112 @@
+#ifndef ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884
+#define ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884
+#pragma once
+
+/*
+Copyright © 2016 Far Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+3. The name of the authors may not be used to endorse or promote products
+derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+namespace detail
+{
+	struct increment { template<typename T> auto operator()(T& Object) const { return ++Object; } };
+	struct decrement { template<typename T> auto operator()(T& Object) const { return --Object; } };
+
+	template<typename... args>
+	class zip_iterator
+	{
+	public:
+		zip_iterator(): m_Tuple() {}
+		zip_iterator(const args&... Args): m_Tuple(Args...) {}
+		auto& operator++() { return alter_all(increment{}); }
+		auto& operator--() { return alter_all(decrement{}); }
+		auto operator==(const zip_iterator& rhs) const { return m_Tuple == rhs.m_Tuple; }
+		auto operator!=(const zip_iterator& rhs) const { return !(*this == rhs); }
+		auto operator*() const { return dereference(std::make_index_sequence<sizeof...(args)>{}); }
+
+	private:
+		template<size_t index = 0, ENABLE_IF(index < sizeof...(args)), typename operation>
+		auto& alter_all(operation Operation)
+		{
+			Operation(std::get<index>(m_Tuple));
+			alter_all<index + 1>(Operation);
+			return *this;
+		}
+
+		template<size_t index, ENABLE_IF(index >= sizeof...(args)), typename operation>
+		void alter_all(operation) {}
+
+		template<size_t... index>
+		auto dereference(std::index_sequence<index...>) const
+		{
+			return std::tie(*std::get<index>(m_Tuple)...);
+		}
+
+		std::tuple<args...> m_Tuple;
+	};
+
+	inline void check() {}
+
+	template<typename arg, typename... args>
+	void check(arg&& Arg, args&&... Args)
+	{
+		static_assert(std::is_lvalue_reference<arg>::value, "argument must be lvalue");
+		check(std::forward<args>(Args)...);
+	}
+}
+
+template<typename... args>
+class zip_view
+{
+public:
+	using iterator = detail::zip_iterator<decltype(std::begin(std::declval<args>()))...>;
+
+	zip_view(args&&... Args):
+		m_Begin(std::begin(Args)...),
+		m_End(std::end(Args)...)
+	{
+		detail::check(std::forward<args>(Args)...);
+	}
+
+	auto begin() { return m_Begin; }
+	auto end() { return m_End; }
+
+	auto begin() const { return m_Begin; }
+	auto end() const { return m_End; }
+
+	auto cbegin() const { return m_Begin; }
+	auto cend() const { return m_End; }
+
+private:
+	iterator m_Begin, m_End;
+};
+
+template<typename... args>
+auto zip(args&&... Args)
+{
+	return zip_view<args...>(std::forward<args>(Args)...);
+}
+
+#endif // ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884

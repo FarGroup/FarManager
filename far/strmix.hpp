@@ -160,10 +160,11 @@ enum STL_FLAGS
 void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter);
 
 template <class Container>
-void split(Container& C, const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
+auto split(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
 {
-	C.clear();
+	Container C;
 	split(InitString, Flags, Separators, [&](string&& str) { C.emplace(C.end(), std::move(str)); });
+	return C;
 }
 
 template<class container>
@@ -192,9 +193,7 @@ unsigned long long StringToFlags(const string& strFlags, const container& From, 
 	auto Flags = decltype(std::begin(From)->first)();
 	if (!strFlags.empty())
 	{
-		std::vector<string> Strings;
-		split(Strings, strFlags, STLF_UNIQUE, Separators);
-		for (const auto& i: Strings)
+		for (const auto& i: split<std::vector<string>>(strFlags, STLF_UNIQUE, Separators))
 		{
 			const auto ItemIterator = std::find_if(CONST_RANGE(From, j)
 			{

@@ -82,13 +82,10 @@ protected:
 		bool Step() const;
 		bool StepAndReset();
 
-		template<typename T>
-		SQLiteStmt& Bind(T&& Arg) { return BindImpl(std::forward<T>(Arg)); }
-
-		template<typename T, class... Args>
-		SQLiteStmt& Bind(T&& arg, Args&&... args)
+		template<typename arg, typename... args>
+		auto& Bind(arg&& Arg, args&&... Args)
 		{
-			return Bind(std::forward<T>(arg)), Bind(std::forward<Args>(args)...);
+			return BindImpl(std::forward<arg>(Arg)), Bind(std::forward<args>(Args)...);
 		}
 
 		const wchar_t *GetColText(int Col) const;
@@ -99,6 +96,8 @@ protected:
 		ColumnType GetColType(int Col) const;
 
 	private:
+		auto& Bind() { return *this; }
+
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(__int64 Value);
 		SQLiteStmt& BindImpl(const wchar_t* Value, bool bStatic = true);

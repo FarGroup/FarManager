@@ -84,8 +84,8 @@ void xlat_initialize()
 
 					const auto SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
 
-					for_each_zip(SetIfEmpty, ALL_RANGE(XLat.Table), Tables);
-					for_each_zip(SetIfEmpty, ALL_RANGE(XLat.Rules), Rules);
+					for (auto i: zip(XLat.Table, Tables)) std::apply(SetIfEmpty, i);
+					for (auto i: zip(XLat.Rules, Rules)) std::apply(SetIfEmpty, i);
 				}
 			}
 		}
@@ -95,9 +95,7 @@ void xlat_initialize()
 	if (!XLat.strLayouts.empty())
 	{
 		size_t I = 0;
-		std::vector<string> Strings;
-		split(Strings, XLat.strLayouts, STLF_UNIQUE);
-		for (const auto& i: Strings)
+		for (const auto& i: split<std::vector<string>>(XLat.strLayouts, STLF_UNIQUE))
 		{
 			DWORD res = std::stoul(i, nullptr, 16);
 			XLat.Layouts[I] = (HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res, res));

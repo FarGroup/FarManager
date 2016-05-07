@@ -823,9 +823,7 @@ F8CP::F8CP(bool viewer):
 	if (cps != L"-1")
 	{
 		std::unordered_set<UINT> used_cps;
-		std::vector<string> f8list;
-		split(f8list, cps, 0);
-		std::for_each(CONST_RANGE(f8list, str_cp)
+		for(const auto& str_cp: split<std::vector<string>>(cps, 0))
 		{
 			auto s = Upper(str_cp);
 			UINT cp = 0;
@@ -854,7 +852,7 @@ F8CP::F8CP(bool viewer):
 				m_F8CpOrder.emplace_back(cp);
 				used_cps.emplace(cp);
 			}
-		});
+		}
 	}
 	if (m_F8CpOrder.empty())
 	{

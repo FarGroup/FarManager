@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/monitored.hpp"
 #include "common/enum_substrings.hpp"
+#include "common/zip_view.hpp"
 
 // TODO: clean up & split
 

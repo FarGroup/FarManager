@@ -110,7 +110,7 @@ void VMenu::init(const MenuDataEx *Data, int ItemsCount, DWORD Flags)
 	// инициализируем перед добавлением элемента
 	UpdateMaxLengthFromTitles();
 
-	for (const auto& i: make_range(Data, Data + ItemsCount))
+	for (const auto& i: make_range(Data, ItemsCount))
 	{
 		MenuItemEx NewItem;
 
@@ -2955,18 +2955,20 @@ std::vector<string> VMenu::AddHotkeys(const range<MenuDataEx*>& MenuItems)
 		return std::max(Value, wcslen(i.Name));
 	});
 
-	const auto Handler = [MaxLength](MenuDataEx& Item, string& Str)
+	for (auto i: zip(MenuItems, Result))
 	{
+		auto& Item = std::get<0>(i);
+		auto& Str = std::get<1>(i);
+
 		if (Item.Flags & LIF_SEPARATOR || !Item.AccelKey)
-			return;
+			continue;
 
 		string Key;
 		KeyToLocalizedText(Item.AccelKey, Key);
 		const auto Hl = HiStrlen(Item.Name) != wcslen(Item.Name);
 		Str = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Item.Name << Key;
 		Item.Name = Str.data();
-	};
-	for_each_zip(Handler, ALL_RANGE(MenuItems), Result.begin());
+	}
 
 	return Result;
 }

@@ -4085,8 +4085,7 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 			}
 		};
 
-		std::vector<string> InputStrings;
-		split(InputStrings, InputString, STLF_ALLOWEMPTY);
+		const auto InputStrings = split<std::vector<string>>(InputString, STLF_ALLOWEMPTY);
 		if (InputStrings.empty())
 			return;
 

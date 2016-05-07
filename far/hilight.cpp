@@ -381,7 +381,7 @@ static void ApplyBlackOnBlackColor(HighlightFiles::highlight_item::colors_array:
 
 static void ApplyBlackOnBlackColors(HighlightFiles::highlight_item::colors_array& Colors)
 {
-	for_each_zip(ApplyBlackOnBlackColor, ALL_RANGE(Colors), PalColor);
+	for (auto i: zip(Colors, PalColor)) std::apply(ApplyBlackOnBlackColor, i);
 }
 
 static void ApplyColors(HighlightFiles::highlight_item& DestColors, const HighlightFiles::highlight_item& Src)
@@ -412,12 +412,14 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 		Dst.Flags |= Src.Flags&FCF_EXTENDEDFLAGS;
 	};
 
-	const auto Handler = [&](auto& Dst, const auto& Src)
+	for (auto i: zip(SrcColors.Color, DestColors.Color))
 	{
-		ApplyColor(Dst.FileColor, Src.FileColor);
-		ApplyColor(Dst.MarkColor, Src.MarkColor);
-	};
-	for_each_zip(Handler, ALL_RANGE(DestColors.Color), std::cbegin(SrcColors.Color));
+		const auto& SrcItem = std::get<0>(i);
+		auto& DstItem = std::get<1>(i);
+
+		ApplyColor(DstItem.FileColor, SrcItem.FileColor);
+		ApplyColor(DstItem.MarkColor, SrcItem.MarkColor);
+	}
 
 	//Унаследуем пометку из Src если она не прозрачная
 	if (!SrcColors.Mark.Transparent)
@@ -487,7 +489,7 @@ const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListI
 	});
 
 	// Called from FileList::GetShowColor dynamically instead
-	//for_each_zip(ApplyFinalColor, ALL_RANGE(item.Color), PalColor);
+	//for (auto i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
 	if (item.Mark.Transparent)

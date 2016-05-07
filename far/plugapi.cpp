@@ -1086,7 +1086,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				}
 
 				plugin_dialog(private_tag, const range<const FarDialogItem*>& Src, FARWINDOWPROC DlgProc, void* InitParam):
-					Dialog(Dialog::private_tag(), Src, DlgProc? this : nullptr, DlgProc ? &plugin_dialog::Proc : nullptr, InitParam),
+					Dialog(Dialog::private_tag(), Src, DlgProc? [this](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return Proc(Dlg, Msg, Param1, Param2); } : dialog_handler(), InitParam),
 					m_Proc(DlgProc)
 				{}
 
@@ -1094,7 +1094,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				FARWINDOWPROC m_Proc;
 			};
 
-			const auto FarDialog = plugin_dialog::create(make_range(Item, Item + ItemsNumber), DlgProc, Param);
+			const auto FarDialog = plugin_dialog::create(make_range(Item, ItemsNumber), DlgProc, Param);
 
 			if (FarDialog->InitOK())
 			{
@@ -1272,13 +1272,11 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 
 		if (Flags & FMSG_ALLINONE)
 		{
-			std::vector<string> Strings;
-			split(Strings, reinterpret_cast<const wchar_t*>(Items), STLF_NOTRIM | STLF_ALLOWEMPTY | STLF_NOUNQUOTE | STLF_NOQUOTING, L"\n");
-			AssignStrings(Strings);
+			AssignStrings(split<std::vector<string>>(reinterpret_cast<const wchar_t*>(Items), STLF_NOTRIM | STLF_ALLOWEMPTY | STLF_NOUNQUOTE | STLF_NOQUOTING, L"\n"));
 		}
 		else
 		{
-			AssignStrings(make_range(Items, Items + ItemsNumber));
+			AssignStrings(make_range(Items, ItemsNumber));
 		}
 
 		Plugin* PluginNumber = GuidToPlugin(PluginId);

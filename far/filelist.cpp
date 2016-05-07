@@ -975,7 +975,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				if (mps->Mode == 2)
 				{
-					split(itemsList, mps->Item->asString(), STLF_UNIQUE, L"\r\n");
+					split<decltype(itemsList)>(mps->Item->asString(), STLF_UNIQUE, L"\r\n");
 					if (itemsList.empty())
 						return Result;
 				}
@@ -4744,7 +4744,7 @@ void FileList::SelectSortMode()
 	bool PlusPressed = false;
 
 	{
-		const auto MenuStrings = VMenu::AddHotkeys(make_range(SortMenu.data(), SortMenu.data() + SortMenu.size()));
+		const auto MenuStrings = VMenu::AddHotkeys(make_range(SortMenu.data(), SortMenu.size()));
 
 		const auto SortModeMenu = VMenu2::create(MSG(MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
 		SortModeMenu->SetHelp(L"PanelCmdSort");

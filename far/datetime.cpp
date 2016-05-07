@@ -546,8 +546,7 @@ string MkStrFTime(const wchar_t *Format)
 void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Separator)
 {
 	const wchar_t Separators[] = { Separator, 0 };
-	std::vector<string> Components;
-	split(Components, Src, STLF_ALLOWEMPTY, Separators);
+	const auto Components = split<std::vector<string>>(Src, STLF_ALLOWEMPTY, Separators);
 	assert(Components.size() == Count);
 	std::transform(ALL_CONST_RANGE(Components), Dst, [](const auto& i) { return i.empty()? -1 : std::stoul(i); });
 }

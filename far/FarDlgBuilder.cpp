@@ -656,7 +656,7 @@ void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FA
 
 intptr_t DialogBuilder::DoShowDialog()
 {
-	const auto Dlg = Dialog::create(make_range(m_DialogItems, m_DialogItems + m_DialogItemsCount), m_handler, nullptr);
+	const auto Dlg = Dialog::create(make_range(m_DialogItems, m_DialogItemsCount), m_handler, nullptr);
 	Dlg->SetHelp(m_HelpTopic);
 	Dlg->SetPosition(-1, -1, m_DialogItems [0].X2+4, m_DialogItems [0].Y2+2);
 	if (m_Mode)

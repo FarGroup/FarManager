@@ -116,7 +116,7 @@ public:
 	virtual function_address GetFunction(plugin_instance Instance, const export_name& Name) = 0;
 
 	PluginManager* GetOwner() const { return m_owner; }
-	const auto ExportsNames() const { return m_ExportsNames; }
+	const auto& ExportsNames() const { return m_ExportsNames; }
 
 protected:
 	range<const export_name*> m_ExportsNames;

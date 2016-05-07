@@ -542,9 +542,12 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
-	const auto Handler = [&](const auto& i, PaletteColors pal)
+	for (auto i: zip(Colors.Color, PalColor))
 	{
-		Color = i.FileColor;
+		auto& CurColor= std::get<0>(i);
+		const auto pal = std::get<1>(i);
+
+		Color = CurColor.FileColor;
 
 		if (!COLORVALUE(Color.BackgroundColor) && !COLORVALUE(Color.ForegroundColor))
 		{
@@ -567,21 +570,20 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const Highli
 			// inherit only color mode, not style
 			VBufColorExample[15*VBufRow+1].Attributes.Flags = Color.Flags&FCF_4BITMASK;
 			VBufColorExample[15*VBufRow+1].Char = Colors.Mark.Char;
-			if (COLORVALUE(i.MarkColor.ForegroundColor) || COLORVALUE(i.MarkColor.BackgroundColor))
+			if (COLORVALUE(CurColor.MarkColor.ForegroundColor) || COLORVALUE(CurColor.MarkColor.BackgroundColor))
 			{
-				VBufColorExample[15*VBufRow+1].Attributes=i.MarkColor;
+				VBufColorExample[15 * VBufRow + 1].Attributes = CurColor.MarkColor;
 			}
 			else
 			{
 				// apply all except color mode
-				VBufColorExample[15*VBufRow+1].Attributes.Flags |= i.MarkColor.Flags & FCF_EXTENDEDFLAGS;
+				VBufColorExample[15 * VBufRow + 1].Attributes.Flags |= CurColor.MarkColor.Flags & FCF_EXTENDEDFLAGS;
 			}
 		}
 
 		VBufColorExample[15 * VBufRow].Attributes = VBufColorExample[15 * VBufRow + 14].Attributes = colors::PaletteColorToFarColor(COL_PANELBOX);
 		++VBufRow;
-	};
-	for_each_zip(Handler, ALL_CONST_RANGE(Colors.Color), PalColor);
+	}
 }
 
 void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)

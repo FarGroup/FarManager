@@ -675,7 +675,7 @@ bool file_walker::InitWalk(size_t BlockSize)
 				const bool QueryResult = IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &QueryRange, sizeof(QueryRange), Ranges, sizeof(Ranges), &BytesReturned);
 				if((QueryResult || GetLastError() == ERROR_MORE_DATA) && BytesReturned)
 				{
-					for (const auto& i: make_range(Ranges, Ranges + BytesReturned / sizeof(*Ranges)))
+					for (const auto& i: make_range(Ranges, BytesReturned / sizeof(*Ranges)))
 					{
 						AllocSize += i.Length.QuadPart;
 						const UINT64 RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;

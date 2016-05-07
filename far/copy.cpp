@@ -821,9 +821,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 				if (MultiCopy)
 				{
-					std::vector<string> DestList;
-					split(DestList, strOldFolder, STLF_UNIQUE);
-
+					const auto DestList = split<std::vector<string>>(strOldFolder, STLF_UNIQUE);
 					if (!DestList.empty())
 						strNewFolder = DestList.front();
 				}
@@ -1257,7 +1255,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	if (!Ask)
 	{
 		strCopyDlgValue = os::env::expand_strings(CopyDlg[ID_SC_TARGETEDIT].strData);
-		split(m_DestList, InsertQuote(Unquote(strCopyDlgValue)), STLF_UNIQUE);
+		m_DestList = split<std::vector<string>>(InsertQuote(Unquote(strCopyDlgValue)), STLF_UNIQUE);
 		if (m_DestList.empty())
 			Ask=TRUE;
 	}
@@ -1347,7 +1345,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 					InsertQuote(Unquote(strCopyDlgValue));
 				}
 
-				split(m_DestList, strCopyDlgValue, STLF_UNIQUE);
+				m_DestList = split<std::vector<string>>(strCopyDlgValue, STLF_UNIQUE);
 				if (!m_DestList.empty())
 				{
 					// Запомнить признак использования фильтра. KM
@@ -1507,7 +1505,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	*/
 	{
 		Flags&=~FCOPY_MOVE;
-		split(m_DestList, strCopyDlgValue, STLF_UNIQUE);
+		m_DestList = split<std::vector<string>>(strCopyDlgValue, STLF_UNIQUE);
 		if (!m_DestList.empty())
 		{
 			string strNameTmp;

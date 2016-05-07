@@ -213,7 +213,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 		if (!dwExportAddr)
 			return false;
 
-		for (const auto& Section: make_range(IMAGE_FIRST_SECTION(pPEHeader), IMAGE_FIRST_SECTION(pPEHeader) + pPEHeader->FileHeader.NumberOfSections))
+		for (const auto& Section: make_range(IMAGE_FIRST_SECTION(pPEHeader), pPEHeader->FileHeader.NumberOfSections))
 		{
 			if ((Section.VirtualAddress == dwExportAddr) ||
 				((Section.VirtualAddress <= dwExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > dwExportAddr)))
@@ -463,11 +463,10 @@ bool Plugin::SaveToCache()
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
 
-	const auto Handler = [&PlCache, &id](const auto& i, const auto& Export)
+	for (auto i: zip(m_Factory->ExportsNames(), Exports))
 	{
-		PlCache->SetExportState(id, i.UName, Export.second);
-	};
-	for_each_zip(Handler, ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.cbegin());
+		PlCache->SetExportState(id, std::get<0>(i).UName, std::get<1>(i).second);
+	}
 
 	return true;
 }

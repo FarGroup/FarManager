@@ -80,6 +80,12 @@ auto make_range(iterator_type i_begin, iterator_type i_end)
 	return range<iterator_type>(i_begin, i_end);
 }
 
+template<class iterator_type>
+auto make_range(iterator_type i_begin, size_t Size)
+{
+	return range<iterator_type>(i_begin, i_begin + Size);
+}
+
 template<class container>
 auto make_range(container& Container)
 {

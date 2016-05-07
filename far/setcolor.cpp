@@ -385,7 +385,7 @@ static void SetItemColors(const color_item* Items, size_t Size)
 {
 	const auto ItemsMenu = VMenu2::create(MSG(MSetColorItemsTitle), nullptr, 0);
 
-	for (const auto& i: make_range(Items, Items + Size))
+	for (const auto& i: make_range(Items, Size))
 	{
 		ItemsMenu->AddItem(MSG(i.LngId));
 	}

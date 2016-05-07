@@ -41,32 +41,6 @@ inline F for_each_cnt(I First, I Last, F Func)
 	return Func;
 }
 
-namespace detail
-{
-	template <typename iterator>
-	void advance_all(iterator& Iterator)
-	{
-		++Iterator;
-	}
-
-	template <typename iterator, typename... iterators>
-	void advance_all(iterator& Iterator, iterators&... Iterators)
-	{
-		++Iterator;
-		advance_all(Iterators...);
-	}
-}
-
-template <typename function, typename iterator, typename ... iterators>
-function for_each_zip(function Function, iterator Begin, iterator End, iterators... Iterators)
-{
-	for (; Begin != End; ++Begin, detail::advance_all(Iterators...))
-	{
-		Function(*Begin, *Iterators...);
-	}
-	return Function;
-}
-
 template<class T>
 inline void repeat(size_t count, const T& f)
 {
