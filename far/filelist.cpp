@@ -975,7 +975,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				if (mps->Mode == 2)
 				{
-					split<decltype(itemsList)>(mps->Item->asString(), STLF_UNIQUE, L"\r\n");
+					itemsList = split<decltype(itemsList)>(mps->Item->asString(), STLF_UNIQUE, L"\r\n");
 					if (itemsList.empty())
 						return Result;
 				}

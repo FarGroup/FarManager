@@ -38,10 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace ucd
 {
-WARNING_PUSH(1)
+WARNING_PUSH(2)
 
 WARNING_DISABLE_GCC("-Wcast-qual")
-WARNING_DISABLE_GCC("-Wuseless-cast")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 
