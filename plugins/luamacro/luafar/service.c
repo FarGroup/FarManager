@@ -4483,6 +4483,7 @@ static int far_AdvControl(lua_State *L)
 			{
 				case WTYPE_DIALOG:
 				case WTYPE_VMENU:
+				case WTYPE_COMBOBOX:
 					NewDialogData(L, Info, CAST(HANDLE, wi.Id), FALSE);
 					lua_setfield(L, -2, "Id");
 					break;
