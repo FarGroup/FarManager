@@ -494,7 +494,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				case WTYPE_DIALOG:
 				case WTYPE_VMENU:
 				case WTYPE_HELP:
-				//case WTYPE_COMBOBOX:
+				case WTYPE_COMBOBOX:
 				//case WTYPE_FINDFOLDER:
 				//case WTYPE_GRABBER:
 				//case WTYPE_HMENU:
@@ -716,6 +716,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					case WTYPE_VMENU:
 					case WTYPE_DIALOG:
 						wi->Id=(intptr_t)f.get(); // BUGBUG
+						break;
+					case WTYPE_COMBOBOX:
+						wi->Id=(intptr_t)std::static_pointer_cast<VMenu>(f)->GetDialog(); // BUGBUG
 						break;
 					default:
 						wi->Id=0;
@@ -2358,7 +2361,7 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 
 		case FCT_COLUMN:
 			return SetClipboardVText(Data, Data? wcslen(Data) : 0);
-		
+
 		default:
 			return FALSE;
 		}
@@ -2667,7 +2670,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 			default:
 				return FALSE;
 			}
-			
+
 			Filter = new FileFilter(GetHostPanel(hHandle), (FAR_FILE_FILTER_TYPE)Param1);
 			*((HANDLE *)Param2) = (HANDLE)Filter;
 			return TRUE;

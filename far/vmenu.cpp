@@ -2852,6 +2852,13 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 	return nullptr;
 }
 
+FARMACROAREA VMenu::GetMacroArea() const
+{
+	if (IsComboBox())
+		return MACROAREA_DIALOG;
+	return SimpleModal::GetMacroArea();
+}
+
 int VMenu::GetTypeAndName(string &strType, string &strName)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);

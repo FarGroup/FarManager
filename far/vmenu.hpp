@@ -189,6 +189,7 @@ public:
 	virtual void Show() override;
 	virtual void Hide() override;
 	virtual string GetTitle() const override;
+	virtual FARMACROAREA GetMacroArea() const override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu; }
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -263,6 +264,7 @@ public:
 	void SetId(const GUID& Id);
 	const GUID& Id() const;
 	bool IsComboBox() const { return ParentDialog && CheckFlags(VMENU_COMBOBOX); }
+	Dialog *GetDialog() {return ParentDialog;}
 
 	template<class predicate>
 	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
