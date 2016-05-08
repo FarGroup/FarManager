@@ -3,6 +3,62 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 08.05.2016 13:27:59 +0200 - build 4665
+
+1. correction of 4638.1: the macro area for combo box is "Dialog".
+
+2. publish WTYPE_COMBOBOX window type. ACTL_GETWINDOWINFO returns the handle of parent dialog in Id.
+
+drkns 08.05.2016 01:12:06 +0200 - build 4664
+
+1. Correction of 4663.2.
+
+2. Raise the level of warnings for third party libraries.
+
+drkns 07.05.2016 17:45:49 +0200 - build 4663
+
+1. Correction of total deletion indicator calculation.
+
+2. Refactoring.
+
+drkns 04.05.2016 23:22:57 +0200 - build 4662
+
+1. After 4435 the expansion of variables did not work in directory creation dialog.
+
+2. Refactoring.
+
+drkns 04.05.2016 10:20:21 +0200 - build 4661
+
+1. Correction of 4656.2.
+
+2. A pair of minor issues.
+
+drkns 03.05.2016 16:58:07 +0200 - build 4660
+
+1. Correction of 4656.2.
+
+drkns 03.05.2016 13:51:34 +0200 - build 4659
+
+1. 0003229: Removing mounted VHDX files from the drive menu makes file locked
+
+drkns 03.05.2016 11:28:32 +0200 - build 4658
+
+1. 0003228: Shell command CD does not find a path in case of the line ending with a space character
+
+drkns 02.05.2016 19:51:44 +0200 - build 4657
+
+1. Forum: Execute in FAR command line: notepad %FARHOME%\changelog and get "The system cannot find the path specified." error
+
+2. Refactoring.
+
+drkns 02.05.2016 12:23:29 +0200 - build 4656
+
+1. 0003227: Folders would not open in explorer with Shift+Enter
+
+2. FCTL_GETUSERSCREEN / FCTL_SETUSERSCREEN must be working more correctly now.
+
+3. Refactoring.
+
 drkns 30.04.2016 20:54:00 +0200 - build 4655
 
 1. 0003225: Freeze on "close" button press from modal editor
