@@ -390,7 +390,7 @@ bool Clipboard::GetHDROPAsText(string& data) const
 			}
 			else
 			{
-				for (const auto& i: (enum_substrings(StartA)))
+				for (const auto& i: enum_substrings(StartA))
 				{
 					data.append(wide(std::string(i.data(), i.size()), CP_ACP)).append(L"\r\n");
 				}

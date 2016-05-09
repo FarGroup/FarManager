@@ -35,36 +35,31 @@ namespace detail
 	struct decrement { template<typename T> auto operator()(T& Object) const { return --Object; } };
 
 	template<typename... args>
-	class zip_iterator
+	struct traits
 	{
-	public:
-		zip_iterator(): m_Tuple() {}
-		zip_iterator(const args&... Args): m_Tuple(Args...) {}
-		auto& operator++() { return alter_all(increment{}); }
-		auto& operator--() { return alter_all(decrement{}); }
-		auto operator==(const zip_iterator& rhs) const { return m_Tuple == rhs.m_Tuple; }
-		auto operator!=(const zip_iterator& rhs) const { return !(*this == rhs); }
-		auto operator*() const { return dereference(std::make_index_sequence<sizeof...(args)>{}); }
+		using iterator_category = std::common_type_t<typename std::iterator_traits<args>::iterator_category...>;
+		using pointer = std::tuple<args...>;
+		using difference_type = ptrdiff_t;
 
-	private:
-		template<size_t index = 0, ENABLE_IF(index < sizeof...(args)), typename operation>
-		auto& alter_all(operation Operation)
+		template<size_t... index>
+		static auto dereference_impl(std::index_sequence<index...>, pointer Tuple)
 		{
-			Operation(std::get<index>(m_Tuple));
-			alter_all<index + 1>(Operation);
-			return *this;
+			return std::tie(*std::get<index>(Tuple)...);
+		}
+		static auto dereference(pointer Tuple) { return dereference_impl(std::make_index_sequence<sizeof...(args)>{}, Tuple); }
+
+		using reference = decltype(dereference(pointer()));
+		using value_type = reference;
+
+		template<size_t index = 0, ENABLE_IF(index < sizeof...(args)), typename operation>
+		static void alter_all(operation Operation, pointer& Tuple)
+		{
+			Operation(std::get<index>(Tuple));
+			alter_all<index + 1>(Operation, Tuple);
 		}
 
 		template<size_t index, ENABLE_IF(index >= sizeof...(args)), typename operation>
-		void alter_all(operation) {}
-
-		template<size_t... index>
-		auto dereference(std::index_sequence<index...>) const
-		{
-			return std::tie(*std::get<index>(m_Tuple)...);
-		}
-
-		std::tuple<args...> m_Tuple;
+		static void alter_all(operation, pointer&) {}
 	};
 
 	inline void check() {}
@@ -78,10 +73,33 @@ namespace detail
 }
 
 template<typename... args>
+class zip_iterator:
+	public std::iterator<
+		typename detail::traits<args...>::iterator_category,
+		typename detail::traits<args...>::value_type,
+		typename detail::traits<args...>::difference_type,
+		typename detail::traits<args...>::pointer,
+		typename detail::traits<args...>::reference
+	>
+{
+public:
+	zip_iterator(): m_Tuple() {}
+	zip_iterator(const args&... Args): m_Tuple(Args...) {}
+	auto& operator++() { detail::traits<args...>::alter_all(detail::increment{}, m_Tuple); return *this; }
+	auto& operator--() { detail::traits<args...>::alter_all(detail::decrement{}, m_Tuple); return *this; }
+	auto operator==(const zip_iterator& rhs) const { return m_Tuple == rhs.m_Tuple; }
+	auto operator!=(const zip_iterator& rhs) const { return !(*this == rhs); }
+	auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
+
+private:
+	typename zip_iterator::pointer m_Tuple;
+};
+
+template<typename... args>
 class zip_view
 {
 public:
-	using iterator = detail::zip_iterator<decltype(std::begin(std::declval<args>()))...>;
+	using iterator = zip_iterator<decltype(std::begin(std::declval<args>()))...>;
 
 	zip_view(args&&... Args):
 		m_Begin(std::begin(Args)...),
@@ -90,14 +108,11 @@ public:
 		detail::check(std::forward<args>(Args)...);
 	}
 
-	auto begin() { return m_Begin; }
-	auto end() { return m_End; }
-
 	auto begin() const { return m_Begin; }
 	auto end() const { return m_End; }
 
-	auto cbegin() const { return m_Begin; }
-	auto cend() const { return m_End; }
+	auto cbegin() const { return begin(); }
+	auto cend() const { return end(); }
 
 private:
 	iterator m_Begin, m_End;

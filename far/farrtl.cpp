@@ -321,22 +321,22 @@ void* operator new[](size_t size, const std::nothrow_t& nothrow_value, const cha
 	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::vector, Function, File, Line);
 }
 
-void operator delete(void* block)
+void operator delete(void* block) noexcept
 {
 	return memcheck::DebugDeallocator(block, memcheck::allocation_type::scalar);
 }
 
-void operator delete[](void* block)
+void operator delete[](void* block) noexcept
 {
 	return memcheck::DebugDeallocator(block, memcheck::allocation_type::vector);
 }
 
-void operator delete(void* block, size_t size)
+void operator delete(void* block, size_t size) noexcept
 {
 	return memcheck::DebugDeallocator(block, memcheck::allocation_type::scalar);
 }
 
-void operator delete[](void* block, size_t size)
+void operator delete[](void* block, size_t size) noexcept
 {
 	return memcheck::DebugDeallocator(block, memcheck::allocation_type::vector);
 }

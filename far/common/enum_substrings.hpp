@@ -37,7 +37,7 @@ namespace detail
 	template<class container>
 	auto Begin(const container& Container) { return std::begin(Container); }
 	template<class char_type>
-	const auto Begin(const char_type* Container) { return Container; }
+	auto Begin(const char_type* Container) { return Container; }
 	template<class char_type>
 	auto Begin(char_type* Container) { return Container; }
 
@@ -51,7 +51,7 @@ namespace detail
 // Stops on double \0 or if end of container is reached.
 
 template<class provider>
-class enum_substrings_t: public enumerator<enum_substrings_t<provider>, range<decltype(&*detail::Begin(*(std::decay_t<provider>*)nullptr))>>
+class enum_substrings_t: public enumerator<enum_substrings_t<provider>, range<decltype(&*detail::Begin(std::declval<std::decay_t<provider>>()))>>
 {
 public:
 	NONCOPYABLE(enum_substrings_t);
