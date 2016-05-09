@@ -718,7 +718,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 						wi->Id=(intptr_t)f.get(); // BUGBUG
 						break;
 					case WTYPE_COMBOBOX:
-						wi->Id=(intptr_t)std::static_pointer_cast<VMenu>(f)->GetDialog(); // BUGBUG
+						wi->Id=(intptr_t)std::static_pointer_cast<VMenu>(f)->GetDialog().get(); // BUGBUG
 						break;
 					default:
 						wi->Id=0;

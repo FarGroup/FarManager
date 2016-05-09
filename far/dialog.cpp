@@ -739,7 +739,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
-				Items[I].ListPtr = VMenu::create({}, nullptr, 0, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, this);
+				Items[I].ListPtr = VMenu::create({}, nullptr, 0, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, std::static_pointer_cast<Dialog>(shared_from_this()));
 			}
 
 				auto& ListPtr = Items[I].ListPtr;
@@ -793,7 +793,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 				if (Type == DI_COMBOBOX)
 				{
-					Items[I].ListPtr = VMenu::create({}, nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, this);
+					Items[I].ListPtr = VMenu::create({}, nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, std::static_pointer_cast<Dialog>(shared_from_this()));
 					Items[I].ListPtr->SetVDialogItemID(I);
 				}
 			}

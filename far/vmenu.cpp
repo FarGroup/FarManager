@@ -68,7 +68,7 @@ MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 	return Result;
 }
 
-VMenu::VMenu(private_tag, const string& Title, int MaxHeight, Dialog *ParentDialog) :
+VMenu::VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentDialog) :
 	strTitle(Title),
 	SelectPos(-1),
 	SelectPosResult(-1),
@@ -91,7 +91,7 @@ VMenu::VMenu(private_tag, const string& Title, int MaxHeight, Dialog *ParentDial
 {
 }
 
-vmenu_ptr VMenu::create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags, Dialog *ParentDialog)
+vmenu_ptr VMenu::create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
 {
 	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), Title, MaxHeight, ParentDialog);
 	VmenuPtr->init(Data, ItemCount, Flags);
@@ -282,7 +282,8 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct > 0 && Pos < SelectPos) || (Direct<0 && Pos>SelectPos)))
 		Pos = SelectPos;
 
-	if (Pos != SelectPos && ParentDialog && !ParentDialog->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && ParentDialog->IsInited() && !ParentDialog->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
+	auto Parent = GetDialog();
+	if (Pos != SelectPos && Parent && !Parent->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
 	{
 		UpdateItemFlags(SelectPos, Items[SelectPos].Flags|LIF_SELECTED);
 		return -1;
@@ -714,9 +715,7 @@ void VMenu::FilterStringUpdated()
 
 void VMenu::FilterUpdateHeight(bool bShrink)
 {
-	VMenu2 *Parent = nullptr;
-	if (ParentDialog && ParentDialog->GetType() == windowtype_menu)
-		Parent = static_cast<VMenu2*>(ParentDialog);
+	auto Parent = std::dynamic_pointer_cast<VMenu2>(GetDialog());
 
 	if (WasAutoHeight || Parent)
 	{
@@ -729,9 +728,9 @@ void VMenu::FilterUpdateHeight(bool bShrink)
 			NewY2 = ScrY;
 		if (NewY2 > m_Y2 || (bShrink && NewY2 < m_Y2))
 		{
-		  if (Parent)
+			if (Parent)
 				Parent->Resize();
-		  else
+			else
 				SetPosition(m_X1,m_Y1,m_X2,NewY2);
 		}
 	}
@@ -1104,7 +1103,8 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 	auto LocalKey = Key();
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	if (IsComboBox() && !ParentDialog->GetDropDownOpened())
+	auto Parent = GetDialog();
+	if (IsComboBox() && !Parent->GetDropDownOpened())
 	{
 		Close(-1);
 		return FALSE;
@@ -1113,7 +1113,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTKEY))
 	{
 		auto Event = Key.Event();
-		if (!ParentDialog->DlgProc(DN_INPUT, 0, &Event))
+		if (!Parent->DlgProc(DN_INPUT, 0, &Event))
 			return TRUE;
 	}
 
@@ -1123,7 +1123,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTKEY))
 	{
 		auto Event = Key.Event();
-		if (ParentDialog->DlgProc(DN_CONTROLINPUT, ParentDialog->GetDlgFocusPos(), &Event))
+		if (Parent->DlgProc(DN_CONTROLINPUT, Parent->GetDlgFocusPos(), &Event))
 			return TRUE;
 	}
 
@@ -1201,7 +1201,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (!ParentDialog || CheckFlags(VMENU_COMBOBOX))
+			if (!Parent || CheckFlags(VMENU_COMBOBOX))
 				ProcessEnter();
 			break;
 		}
@@ -1212,7 +1212,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			{
 				Close(-1);
 			}
-			else if(!ParentDialog)
+			else if(!Parent)
 			{
 				SetExitCode(-1);
 			}
@@ -1453,11 +1453,11 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			int NewPos=SelectPos;
 
 			bool IsHotkey=true;
-			if (!CheckKeyHiOrAcc(LocalKey, 0, 0, !(ParentDialog && !ParentDialog->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX)), NewPos))
+			if (!CheckKeyHiOrAcc(LocalKey, 0, 0, !(Parent && !Parent->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX)), NewPos))
 			{
 				if (LocalKey == KEY_SHIFTF1 || LocalKey == KEY_F1)
 				{
-					if (ParentDialog)
+					if (Parent)
 						;//ParentDialog->ProcessKey(Key);
 					else
 						ShowHelp();
@@ -1466,15 +1466,15 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					if (!CheckKeyHiOrAcc(LocalKey,1,FALSE,!(ParentDialog && !ParentDialog->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)),NewPos))
-						if (!CheckKeyHiOrAcc(LocalKey,1,TRUE,!(ParentDialog && !ParentDialog->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)),NewPos))
+					if (!CheckKeyHiOrAcc(LocalKey,1,FALSE,!(Parent && !Parent->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)),NewPos))
+						if (!CheckKeyHiOrAcc(LocalKey,1,TRUE,!(Parent && !Parent->CheckDialogMode(DMODE_ISMENU) && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)),NewPos))
 							IsHotkey=false;
 				}
 			}
 
-			if (IsHotkey && ParentDialog)
+			if (IsHotkey && Parent)
 			{
-				if (ParentDialog->SendMessage(DN_LISTHOTKEY,DialogItemID,ToPtr(NewPos)))
+				if (Parent->SendMessage(DN_LISTHOTKEY,DialogItemID,ToPtr(NewPos)))
 				{
 					ShowMenu(true);
 					ClearDone();
@@ -1506,7 +1506,8 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	if (IsComboBox() && !ParentDialog->GetDropDownOpened())
+	auto Parent = GetDialog();
+	if (IsComboBox() && !Parent->GetDropDownOpened())
 	{
 		Close(-1);
 		return FALSE;
@@ -1519,7 +1520,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		INPUT_RECORD Event = {};
 		Event.EventType = MOUSE_EVENT;
 		Event.Event.MouseEvent = *MouseEvent;
-		if (!ParentDialog->DlgProc(DN_INPUT, 0, &Event))
+		if (!Parent->DlgProc(DN_INPUT, 0, &Event))
 			return TRUE;
 	}
 
@@ -2522,7 +2523,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate,bool ChangePos, i
 				ShowMenu(true);
 			}
 
-			if ((!ParentDialog  || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && ItemCanBeEntered(Items[SelectPos].Flags))
+			if ((!GetDialog() || CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)) && ItemCanBeEntered(Items[SelectPos].Flags))
 			{
 				SetExitCode(NewPos);
 			}

@@ -1668,11 +1668,16 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_DLGINFOID:        // Dlg->Info.Id
 		case MCODE_V_DLGINFOOWNER:     // Dlg->Info.Owner
 		{
-			if (CurrentWindow && CurrentWindow->GetType()==windowtype_menu)
+			if (CurrentWindow && CurrentWindow)
 			{
-				int idx = Global->WindowManager->IndexOfStack(CurrentWindow);
-				if(idx>0)
-					CurrentWindow = Global->WindowManager->GetModalWindow(idx-1);
+				if (CurrentWindow->GetType()==windowtype_menu)
+				{
+					int idx = Global->WindowManager->IndexOfStack(CurrentWindow);
+					if(idx>0)
+						CurrentWindow = Global->WindowManager->GetModalWindow(idx-1);
+				}
+				else if (CurrentWindow->GetType()==windowtype_combobox)
+					CurrentWindow = std::static_pointer_cast<VMenu>(CurrentWindow)->GetDialog();
 			}
 			if (!CurrentWindow || CurrentWindow->GetType()!=windowtype_dialog)
 				return (CheckCode==MCODE_V_DLGINFOID || CheckCode==MCODE_V_DLGINFOOWNER) ? PassString(L"", Data) : 0;

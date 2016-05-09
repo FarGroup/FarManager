@@ -181,9 +181,9 @@ class VMenu: public SimpleModal
 {
 	struct private_tag {};
 public:
-	static vmenu_ptr create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, Dialog *ParentDialog = nullptr);
+	static vmenu_ptr create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
-	VMenu(private_tag, const string& Title, int MaxHeight, Dialog *ParentDialog);
+	VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentDialog);
 	virtual ~VMenu();
 
 	virtual void Show() override;
@@ -263,8 +263,8 @@ public:
 	void SetVDialogItemID(size_t NewDialogItemID) { DialogItemID = NewDialogItemID; }
 	void SetId(const GUID& Id);
 	const GUID& Id() const;
-	bool IsComboBox() const { return ParentDialog && CheckFlags(VMENU_COMBOBOX); }
-	Dialog *GetDialog() {return ParentDialog;}
+	bool IsComboBox() const { return GetDialog() && CheckFlags(VMENU_COMBOBOX); }
+	dialog_ptr GetDialog() const {return ParentDialog.lock();}
 
 	template<class predicate>
 	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
@@ -322,7 +322,7 @@ private:
 	BitFlags VMFlags;
 	BitFlags VMOldFlags;
 	// Для LisBox - родитель в виде диалога
-	Dialog *ParentDialog;
+	std::weak_ptr<Dialog> ParentDialog;
 	size_t DialogItemID;
 	mutable CriticalSection CS;
 	bool bFilterEnabled;
