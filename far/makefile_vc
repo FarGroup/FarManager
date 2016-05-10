@@ -117,6 +117,7 @@ LINK_OBJS = \
 	"$(INTDIR)\console.obj" \
 	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\copy.obj" \
+	"$(INTDIR)\copy_progress.obj" \
 	"$(INTDIR)\ctrlobj.obj" \
 	"$(INTDIR)\cvtname.obj" \
 	"$(INTDIR)\datetime.obj" \

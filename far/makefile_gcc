@@ -34,6 +34,7 @@ SRCS = \
 	console.cpp \
 	constitle.cpp \
 	copy.cpp \
+	copy_progress.cpp \
 	ctrlobj.cpp \
 	cvtname.cpp \
 	datetime.cpp \

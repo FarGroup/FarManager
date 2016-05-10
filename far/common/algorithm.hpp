@@ -4,6 +4,9 @@
 #pragma once
 
 /*
+algorithm.hpp
+*/
+/*
 Copyright © 2014 Far Group
 All rights reserved.
 

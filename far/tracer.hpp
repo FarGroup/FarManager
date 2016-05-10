@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 /*
 tracer.hpp
 */
 /*
-Copyright � 2016 Far Group
+Copyright © 2016 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

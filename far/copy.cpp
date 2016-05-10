@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "language.hpp"
 #include "manager.hpp"
+#include "copy_progress.hpp"
 
 enum
 {
@@ -131,12 +132,6 @@ enum COPYSECURITYOPTIONS
 	CSO_COPY_SESSIONSECURITY       = 0x00000020,  // Copy: сохранять состояние "access rights" внутри сессии?
 };
 
-
-/* Общее время ожидания пользователя */
-extern long WaitUserTime;
-
-static int OrigScrX, OrigScrY;
-
 static int CopySecurityCopy=-1;
 static int CopySecurityMove=-1;
 
@@ -180,369 +175,6 @@ enum CopyMode
 	CM_SEPARATOR,
 	CM_ASKRO,
 };
-
-// CopyProgress start
-// гнать это отсюда в отдельный файл после разбора кучи глобальных переменных вверху
-class CopyProgress: noncopyable
-{
-public:
-	CopyProgress(bool Move, bool Total, bool Time);
-	void CreateBackground();
-	bool Cancelled() const { return IsCancelled; }
-	void SetScanName(const string& Name);
-	void SetNames(const string& Src, const string& Dst);
-	void SetProgressValue(UINT64 CompletedSize, UINT64 TotalSize)
-	{
-		SetProgress(false, CompletedSize, TotalSize);
-		Flush();
-	}
-
-	void UpdateTotalProgress()
-	{
-		auto BytesDone = GetBytesDone();
-		if (m_Total)
-		{
-			SetProgress(true, BytesDone, m_Bytes.Total);
-		}
-		auto SizeToGo = (m_Bytes.Total > BytesDone)? (m_Bytes.Total - BytesDone) : 0;
-		if (m_Time)
-		{
-			UpdateTime(BytesDone, SizeToGo);
-		}
-		Flush();
-	}
-
-	bool TotalVisible() const { return m_Total; }
-
-	void UpdateCurrentBytesInfo(uint64_t NewValue);
-	void UpdateAllBytesInfo(uint64_t FileSize);
-
-private:
-	void Flush();
-	void DrawNames();
-	void CreateScanBackground();
-	void SetProgress(bool TotalProgress, UINT64 CompletedSize, UINT64 TotalSize);
-	void UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo);
-	uint64_t GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
-	size_t GetCanvasWidth() const { return Rect.Right - Rect.Left - 9; };
-
-	clock_t m_CopyStartTime;
-	IndeterminateTaskBar TB;
-	wakeful W;
-	SMALL_RECT Rect;
-	string Bar;
-	size_t BarSize;
-	bool Move;
-	bool m_Total;
-	bool m_Time;
-	bool BgInit,ScanBgInit;
-	bool IsCancelled;
-	FarColor Color;
-	int Percents;
-	time_check TimeCheck;
-	time_check m_SpeedUpdateCheck;
-	FormatString strSrc, strDst;
-	string strTime;
-	string m_TimeLeft;
-	string m_Speed;
-	string strFiles;
-	/* Для того, что бы время при ожидании пользователя тикало, а remaining/speed нет */
-	long m_CalcTime;
-
-	// BUGBUG
-public:
-	time_check SecurityTimeCheck;
-
-	struct
-	{
-		size_t Copied;
-		size_t Total;
-	}
-	m_Files;
-
-	struct
-	{
-		uint64_t Total;
-		uint64_t Copied;
-		uint64_t Skipped;
-		uint64_t CurrCopied;
-	}
-	m_Bytes;
-};
-
-static void GetTimeText(DWORD Time,string &strTimeText)
-{
-	DWORD Sec=Time;
-	DWORD Min=Sec/60;
-	Sec-=(Min*60);
-	DWORD Hour=Min/60;
-	Min-=(Hour*60);
-	strTimeText = FormatString() << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Hour << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Min << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Sec;
-}
-
-void CopyProgress::UpdateAllBytesInfo(uint64_t FileSize)
-{
-	m_Bytes.Copied += m_Bytes.CurrCopied;
-	if (m_Bytes.CurrCopied < FileSize)
-	{
-		m_Bytes.Skipped += FileSize - m_Bytes.CurrCopied;
-	}
-}
-
-void CopyProgress::UpdateCurrentBytesInfo(uint64_t NewValue)
-{
-	m_Bytes.Copied -= m_Bytes.CurrCopied;
-	m_Bytes.CurrCopied = NewValue;
-	m_Bytes.Copied += m_Bytes.CurrCopied;
-}
-
-void CopyProgress::Flush()
-{
-	if (TimeCheck)
-	{
-		if (!IsCancelled)
-		{
-			if (CheckForEscSilent())
-			{
-				Global->CtrlObject->Cp()->Lock();
-				IsCancelled=ConfirmAbortOp()!=0;
-				Global->CtrlObject->Cp()->Unlock();
-			}
-		}
-
-		if (m_Total || (m_Files.Total == 1))
-		{
-			ConsoleTitle::SetFarTitle(
-				L"{"
-				+ std::to_wstring(m_Total? ToPercent(GetBytesDone(), m_Bytes.Total) : Percents)
-				+ L"%} "
-				+ MSG(Move? MCopyMovingTitle : MCopyCopyingTitle)
-				);
-		}
-	}
-}
-
-CopyProgress::CopyProgress(bool Move, bool Total, bool Time):
-	m_CopyStartTime(),
-	Rect(),
-	BarSize(52),
-	Move(Move),
-	m_Total(Total),
-	m_Time(Time),
-	BgInit(false),
-	ScanBgInit(false),
-	IsCancelled(false),
-	Color(colors::PaletteColorToFarColor(COL_DIALOGTEXT)),
-	Percents(0),
-	TimeCheck(time_check::immediate, GetRedrawTimeout()),
-	m_SpeedUpdateCheck(time_check::immediate, 3000 * CLOCKS_PER_SEC / 1000),
-	SecurityTimeCheck(time_check::immediate, GetRedrawTimeout()),
-	m_Files(),
-	m_Bytes()
-{
-}
-
-void CopyProgress::SetScanName(const string& Name)
-{
-	if (!ScanBgInit)
-	{
-		CreateScanBackground();
-	}
-
-	GotoXY(Rect.Left+5,Rect.Top+3);
-	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Rect.Right-Rect.Left-9)<<Name;
-	Flush();
-}
-
-void CopyProgress::CreateScanBackground()
-{
-	Bar = make_progressbar(BarSize, 0, false, false);
-	Message m(MSG_LEFTALIGN, MSG(Move ? MMoveDlgTitle : MCopyDlgTitle), { MSG(MCopyScanning), Bar }, {});
-	int MX1,MY1,MX2,MY2;
-	m.GetMessagePosition(MX1,MY1,MX2,MY2);
-	Rect.Left=MX1;
-	Rect.Right=MX2;
-	Rect.Top=MY1;
-	Rect.Bottom=MY2;
-	ScanBgInit=true;
-}
-
-void CopyProgress::CreateBackground()
-{
-	Bar = make_progressbar(BarSize, 0, false, false);
-
-	const auto Title = MSG(Move? MMoveDlgTitle : MCopyDlgTitle);
-
-	std::vector<string> Items =
-	{
-		MSG(Move ? MCopyMoving : MCopyCopying),
-		L"", // source name
-		MSG(MCopyTo),
-		L"", // dest path
-		Bar,
-		string(L"\x1") + MSG(MCopyDlgTotal),
-		L"", // files [total] <processed>
-		L""  // bytes [total] <processed>
-	};
-
-	// total progress bar
-	if (m_Total)
-	{
-		Items.emplace_back(Bar);
-	}
-
-	// time & speed
-	if (m_Time)
-	{
-		Items.emplace_back(L"\x1");
-		Items.emplace_back(L"");
-	}
-
-	Message m(MSG_LEFTALIGN, Title, Items, {});
-
-	int MX1,MY1,MX2,MY2;
-	m.GetMessagePosition(MX1,MY1,MX2,MY2);
-	Rect.Left=MX1;
-	Rect.Right=MX2;
-	Rect.Top=MY1;
-	Rect.Bottom=MY2;
-	BgInit=true;
-	DrawNames();
-}
-
-void CopyProgress::DrawNames()
-{
-	Text(Rect.Left+5,Rect.Top+3,Color,strSrc);
-	Text(Rect.Left+5,Rect.Top+5,Color,strDst);
-	Text(Rect.Left + 5, Rect.Top + 8, Color, strFiles);
-}
-
-static string FormatCounter(LNGID CounterId, LNGID AnotherId, uint64_t CurrentValue, uint64_t TotalValue, bool ShowTotal, size_t MaxWidth)
-{
-	string Label = MSG(CounterId);
-	const auto PaddedLabelSize = std::max(Label.size(), wcslen(MSG(AnotherId))) + 1;
-	Label.resize(PaddedLabelSize, L' ');
-
-	auto StrCurrent = InsertCommas(CurrentValue);
-	auto StrTotal = ShowTotal? InsertCommas(TotalValue) : string();
-
-	auto Value = ShowTotal? string_format(L"%1 / %2", StrCurrent, StrTotal) : StrCurrent;
-	if (MaxWidth > PaddedLabelSize)
-	{
-		const auto PaddedValueSize = MaxWidth - PaddedLabelSize;
-		if (PaddedValueSize > Value.size())
-		{
-			Value.insert(0, PaddedValueSize - Value.size(), L' ');
-		}
-	}
-	return Label + Value;
-}
-
-void CopyProgress::SetNames(const string& Src, const string& Dst)
-{
-	if (!BgInit)
-	{
-		CreateBackground();
-	}
-
-	if (m_Time)
-	{
-		if (!m_Files.Copied)
-		{
-			m_CopyStartTime = clock();
-			WaitUserTime = m_CalcTime = 0;
-		}
-	}
-
-	const int NameWidth = static_cast<int>(GetCanvasWidth());
-	auto tmp = Src;
-	TruncPathStr(tmp, NameWidth);
-	strSrc.clear();
-	strSrc<<fmt::LeftAlign()<<fmt::ExactWidth(NameWidth)<<tmp;
-	tmp = Dst;
-	TruncPathStr(tmp, NameWidth);
-	strDst.clear();
-	strDst<<fmt::LeftAlign()<<fmt::ExactWidth(NameWidth)<<tmp;
-
-	strFiles = FormatCounter(MCopyFilesTotalInfo, MCopyBytesTotalInfo, m_Files.Copied, m_Files.Total, m_Total, GetCanvasWidth() - 5);
-
-	DrawNames();
-	Flush();
-}
-
-void CopyProgress::SetProgress(bool TotalProgress, UINT64 CompletedSize, UINT64 TotalSize)
-{
-	if (!BgInit)
-	{
-		CreateBackground();
-	}
-
-	const auto Result = FormatCounter(MCopyBytesTotalInfo, MCopyFilesTotalInfo, GetBytesDone(), m_Bytes.Total, m_Total, GetCanvasWidth() - 5);
-	Text(Rect.Left + 5, Rect.Top + 9, Color, Result);
-
-	const COORD BarCoord = { static_cast<SHORT>(Rect.Left + 5), static_cast<SHORT>(Rect.Top + (TotalProgress ? 10 : 6)) };
-	const size_t BarLength = Rect.Right - Rect.Left - 9;
-
-	Percents = ToPercent(std::min(CompletedSize, TotalSize), TotalSize);
-	Bar = make_progressbar(BarLength, Percents, true, m_Total == TotalProgress);
-
-	Text(BarCoord.X, BarCoord.Y, Color, Bar);
-}
-
-void CopyProgress::UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo)
-{
-	const auto CurrentTime = clock();
-
-	if (WaitUserTime!=-1) // -1 => находимся в процессе ожидания ответа юзера
-	{
-		m_CalcTime = CurrentTime - m_CopyStartTime - WaitUserTime;
-	}
-
-	string tmp[3];
-
-	const auto CalcTime = m_CalcTime / CLOCKS_PER_SEC;
-
-	if (!CalcTime)
-	{
-		const auto Placeholder = L"        ";
-		tmp[0] = tmp[1] = tmp[2] = Placeholder;
-	}
-	else
-	{
-		SizeDone -= m_Bytes.Skipped;
-
-		const auto CPS = SizeDone / CalcTime;
-
-		string strCalcTimeStr;
-		GetTimeText(CalcTime, strCalcTimeStr);
-
-		if (m_SpeedUpdateCheck)
-		{
-			if (SizeToGo)
-			{
-				const auto TimeLeft = static_cast<DWORD>(CPS? SizeToGo / CPS : 0);
-				GetTimeText(TimeLeft, m_TimeLeft);
-			}
-
-			m_Speed = FileSizeToStr(CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);
-			if (!m_Speed.empty() && m_Speed.front() == L' ' && std::iswdigit(m_Speed.back()))
-			{
-				m_Speed.erase(0, 1);
-				m_Speed += L" ";
-			}
-		}
-
-		tmp[0] = FormatString() << fmt::ExactWidth(8) << strCalcTimeStr;
-		tmp[1] = FormatString() << fmt::ExactWidth(8) << m_TimeLeft;
-		tmp[2] = FormatString() << fmt::ExactWidth(8) << m_Speed;
-	}
-
-	strTime = string_format(MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
-	Text(Rect.Left + 5, Rect.Top + (m_Total? 12 : 11), Color, strTime);
-}
-// CopyProgress end
-
-
 
 /* $ 25.05.2002 IS
  + Всегда работаем с реальными _длинными_ именами, в результате чего
@@ -628,59 +260,14 @@ static void GenerateName(string &strName, const string& Path)
 	}
 }
 
-static void PR_ShellCopyMsg();
-
-struct CopyPreRedrawItem : public PreRedrawItem
-{
-	CopyPreRedrawItem():
-		PreRedrawItem(PR_ShellCopyMsg),
-		CP()
-	{}
-
-	CopyProgress* CP;
-};
-
-static void PR_ShellCopyMsg()
-{
-	if (!PreRedrawStack().empty())
-	{
-		const auto item = dynamic_cast<CopyPreRedrawItem*>(PreRedrawStack().top());
-		item->CP->CreateBackground();
-	}
-}
-
-BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
+void CheckAndUpdateConsole()
 {
 	const auto hWnd = Console().GetWindow();
-	const auto curZoomedState = IsZoomed(hWnd);
-	const auto curIconicState = IsIconic(hWnd);
-
-	if (ZoomedState!=curZoomedState && IconicState==curIconicState)
+	if (ZoomedState != IsZoomed(hWnd) && IconicState == IsIconic(hWnd))
 	{
-		ZoomedState=curZoomedState;
+		ZoomedState = !ZoomedState;
 		ChangeVideoMode(ZoomedState);
-		const auto Window = Global->WindowManager->GetBottomWindow();
-		int LockCount=-1;
-
-		while (Window->Locked())
-		{
-			LockCount++;
-			Window->Unlock();
-		}
-
-		Global->WindowManager->ResizeAllWindows();
-		Global->WindowManager->PluginCommit();
-
-		while (LockCount > 0)
-		{
-			Window->Lock();
-			LockCount--;
-		}
-
-		IsChangeConsole=TRUE;
 	}
-
-	return IsChangeConsole;
 }
 
 enum
@@ -937,8 +524,6 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 
 	ZoomedState=IsZoomed(Console().GetWindow());
 	IconicState=IsIconic(Console().GetWindow());
-	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
-	Global->CtrlObject->Cp()->Lock();
 	bool ShowTotalCopySize = Global->Opt->CMOpt.CopyShowTotal;
 	int DestPlugin=ToPlugin;
 	ToPlugin=FALSE;
@@ -1576,7 +1161,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				}
 
 				if (!CP)
-					CP = std::make_unique<CopyProgress>(Move != 0, ShowTotalCopySize, ShowCopyTime);
+					CP = std::make_unique<copy_progress>(Move != 0, ShowTotalCopySize, ShowCopyTime);
 
 				CP->m_Bytes.CurrCopied = 0;
 
@@ -1606,14 +1191,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 							Flags|=FCOPY_COPYSYMLINKCONTENTS;
 				}
 
-
-				int I;
-				{
-					auto item = std::make_unique<CopyPreRedrawItem>();
-					item->CP = CP.get();
-					SCOPED_ACTION(TPreRedrawFuncGuard)(std::move(item));
-					I=CopyFileTree(strNameTmp);
-				}
+				const auto I = CopyFileTree(strNameTmp);
 
 				if (OldCopySymlinkContents)
 					Flags|=FCOPY_COPYSYMLINKCONTENTS;
@@ -1722,8 +1300,6 @@ ShellCopy::~ShellCopy()
 {
 	_tran(SysLog(L"[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
 
-	// $ 26.05.2001 OT Разрешить перерисовку панелей
-	Global->CtrlObject->Cp()->Unlock();
 	Global->CtrlObject->Cp()->Refresh();
 }
 
@@ -1751,7 +1327,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	if (!CP->m_Bytes.Total)
 	{
 		//  ! Не сканируем каталоги при создании линков
-		if (CP->TotalVisible() && !(Flags&FCOPY_LINK) && !CalcTotalSize())
+		if (CP->IsTotalVisible() && !(Flags&FCOPY_LINK) && !CalcTotalSize())
 			return COPY_FAILURE;
 	}
 	else
@@ -2191,7 +1767,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 {
 	CP->m_Bytes.CurrCopied = 0; // Сбросить текущий прогресс
 
-	if (CP->Cancelled())
+	if (CP->IsCancelled())
 	{
 		return COPY_CANCEL;
 	}
@@ -2680,7 +2256,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					{
 						CP->m_Bytes.CurrCopied = SrcData.nFileSize;
 						CP->UpdateAllBytesInfo(SrcData.nFileSize);
-						CP->UpdateTotalProgress();
 					}
 
 					AskDelete=0;
@@ -2996,9 +2571,6 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcData,
                              string &strDestName,DWORD &DestAttr,int Append)
 {
-	OrigScrX=ScrX;
-	OrigScrY=ScrY;
-
 	if ((Flags&FCOPY_LINK))
 	{
 		if (RPT==RP_HARDLINK)
@@ -3178,24 +2750,13 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 
 		do
 		{
-			BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
-
-			if (CP->Cancelled())
+			if (CP->IsCancelled())
 			{
 				AbortOp=true;
 			}
 
-			IsChangeConsole=CheckAndUpdateConsole(IsChangeConsole);
-
-			if (IsChangeConsole)
-			{
-				OrigScrX=ScrX;
-				OrigScrY=ScrY;
-				PR_ShellCopyMsg();
-			}
-
+			CheckAndUpdateConsole();
 			CP->SetProgressValue(CP->m_Bytes.CurrCopied, SrcData.nFileSize);
-			CP->UpdateTotalProgress();
 
 			if (AbortOp)
 			{
@@ -3228,8 +2789,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 				int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 										MSG(MCopyReadError),SrcName.data(),
 										MSG(MRetry),MSG(MCancel));
-				PR_ShellCopyMsg();
-
 				if (!MsgCode)
 					continue;
 
@@ -3292,7 +2851,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 									{ strDestName },
 									{ MSG(MSplit), MSG(MSkip), MSG(MRetry), MSG(MCancel) },
 									L"CopyFiles");
-								PR_ShellCopyMsg();
 
 								if (MsgCode==2)
 								{
@@ -3320,7 +2878,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 												int MsgCode2 = Message(MSG_WARNING,2,MSG(MWarning),
 													MSG(MCopyErrorDiskFull),strDestName.data(),
 													MSG(MRetry),MSG(MCancel));
-												PR_ShellCopyMsg();
 
 												if (MsgCode2)
 												{
@@ -3427,7 +2984,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 
 			CP->UpdateCurrentBytesInfo(SrcFile.GetChunkOffset() + SrcFile.GetChunkSize());
 			CP->SetProgressValue(CP->m_Bytes.CurrCopied, SrcData.nFileSize);
-			CP->UpdateTotalProgress();
 		}
 		while(SrcFile.Step());
 	}
@@ -3950,9 +3506,9 @@ bool ShellCopy::SetSecurity(const string& FileName, const os::FAR_SECURITY_DESCR
 	return true;
 }
 
-static BOOL ShellCopySecuryMsg(const CopyProgress* CP, const string& Name)
+static BOOL ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 {
-	if (Name.empty() || CP->SecurityTimeCheck)
+	if (Name.empty() || CP->m_SecurityTimeCheck)
 	{
 		static int Width=30;
 		int WidthTemp;
@@ -3971,7 +3527,7 @@ static BOOL ShellCopySecuryMsg(const CopyProgress* CP, const string& Name)
 		CenterStr(strOutFileName, strOutFileName,Width+4);
 		Message(0,0,MSG(MMoveDlgTitle),MSG(MCopyPrepareSecury),strOutFileName.data());
 
-		if (CP->Cancelled())
+		if (CP->IsCancelled())
 		{
 			return FALSE;
 		}
@@ -4057,22 +3613,13 @@ DWORD ShellCopy::CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytes
 	// // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
 	// // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
 	bool Abort = false;
-	if (CP->Cancelled())
+	if (CP->IsCancelled())
 	{
 		// // _LOGCOPYR(SysLog(L"2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
 		Abort=true;
 	}
 
-	if (CheckAndUpdateConsole(OrigScrX!=ScrX || OrigScrY!=ScrY))
-	{
-		OrigScrX=ScrX;
-		OrigScrY=ScrY;
-		PR_ShellCopyMsg();
-	}
-
-	CP->UpdateCurrentBytesInfo(TotalBytesTransferred);
-	CP->SetProgressValue(TotalBytesTransferred, TotalFileSize);
-
+	CheckAndUpdateConsole();
 	//fix total size
 	if (dwStreamNumber == 1 && hSourceFile != m_FileHandleForStreamSizeFix)
 	{
@@ -4081,7 +3628,8 @@ DWORD ShellCopy::CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytes
 		m_FileHandleForStreamSizeFix = hSourceFile;
 	}
 
-	CP->UpdateTotalProgress();
+	CP->UpdateCurrentBytesInfo(TotalBytesTransferred);
+	CP->SetProgressValue(TotalBytesTransferred, TotalFileSize);
 
 	return Abort?PROGRESS_CANCEL:PROGRESS_CONTINUE;
 }
@@ -4093,10 +3641,6 @@ bool ShellCopy::CalcTotalSize()
 	unsigned __int64 FileSize;
 	// Для фильтра
 	os::FAR_FIND_DATA fd;
-
-	auto item = std::make_unique<CopyPreRedrawItem>();
-	item->CP = CP.get();
-	SCOPED_ACTION(TPreRedrawFuncGuard)(std::move(item));
 
 	CP->m_Bytes.Total = 0;
 	CP->m_Bytes.CurrCopied = 0;

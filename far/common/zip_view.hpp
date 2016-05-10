@@ -1,9 +1,12 @@
-#ifndef ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884
+﻿#ifndef ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884
 #define ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884
 #pragma once
 
 /*
-Copyright � 2016 Far Group
+zip_view.hpp
+*/
+/*
+Copyright © 2016 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

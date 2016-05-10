@@ -166,6 +166,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </CustomBuild>
     <ClCompile Include="codepage_selection.cpp" />
     <ClCompile Include="configdb.cpp" />
+    <ClCompile Include="copy_progress.cpp" />
     <ClCompile Include="diskmenu.cpp" />
     <ClCompile Include="elevation.cpp" />
     <ClCompile Include="cache.cpp" />
@@ -331,6 +332,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="codepage_selection.hpp" />
     <ClInclude Include="common\zip_view.hpp" />
     <ClInclude Include="configdb.hpp" />
+    <ClInclude Include="copy_progress.hpp" />
     <ClInclude Include="disabled_warnings.hpp" />
     <ClInclude Include="disable_warnings_in_std_begin.hpp" />
     <ClInclude Include="disable_warnings_in_std_end.hpp" />

@@ -1,4 +1,4 @@
-#ifndef PANELFWD_HPP_DD0AF087_5711_436F_AC96_26B471446E97
+﻿#ifndef PANELFWD_HPP_DD0AF087_5711_436F_AC96_26B471446E97
 #define PANELFWD_HPP_DD0AF087_5711_436F_AC96_26B471446E97
 #pragma once
 
@@ -7,7 +7,7 @@ panelfwd.hpp
 
 */
 /*
-Copyright � 2016 Far Group
+Copyright © 2016 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

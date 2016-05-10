@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 
 class Dialog;
-class CopyProgress;
+class copy_progress;
 class FileFilter;
 
 enum COPY_CODES: int;
@@ -69,7 +69,7 @@ private:
 	static intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-	std::unique_ptr<CopyProgress> CP;
+	std::unique_ptr<copy_progress> CP;
 	std::unique_ptr<FileFilter> m_Filter;
 	DWORD Flags;
 	panel_ptr SrcPanel, DestPanel;

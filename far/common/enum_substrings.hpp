@@ -3,6 +3,9 @@
 #pragma once
 
 /*
+enum_substrings.hpp
+*/
+/*
 Copyright © 2016 Far Group
 All rights reserved.
 

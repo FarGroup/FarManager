@@ -3,6 +3,9 @@
 #pragma once
 
 /*
+scope_exit.hpp
+*/
+/*
 Copyright © 2014 Far Group
 All rights reserved.
 

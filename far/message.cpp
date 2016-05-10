@@ -562,7 +562,7 @@ void Message::Init(
 	     макроса запретом отрисовки (bugz#533).
 	*/
 
-	if (Buttons.empty())
+	if (Buttons.empty() && !(Flags & MSG_NOFLUSH))
 	{
 		if (Global->ScrBuf->GetLockCount()>0 && !Global->CtrlObject->Macro.PeekKey())
 			Global->ScrBuf->SetLockCount(0);
