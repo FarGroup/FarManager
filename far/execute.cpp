@@ -352,8 +352,11 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 			if (Result) // некоторые "подмены" данных
 			{
-				GetImageSubsystem(strFullName,ImageSubsystem);
-				strDest=strFullName;
+				Result = GetImageSubsystem(strFullName,ImageSubsystem);
+				if (Result)
+				{
+					strDest = strFullName;
+				}
 			}
 		}
 	}
