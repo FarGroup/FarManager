@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
-#include "constitle.hpp"
 
 enum
 {

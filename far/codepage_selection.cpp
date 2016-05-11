@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "FarDlgBuilder.hpp"
 #include "DlgGuid.hpp"
-#include "constitle.hpp"
 #include "strmix.hpp"
 
 codepages& Codepages()

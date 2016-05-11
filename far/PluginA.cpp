@@ -49,9 +49,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "language.hpp"
 #include "filepanels.hpp"
+#include "strmix.hpp"
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
-#include "strmix.hpp"
 
 DECLARE_PLUGIN_FUNCTION(iClosePanel,          void   (WINAPI*)(HANDLE hPlugin))
 DECLARE_PLUGIN_FUNCTION(iCompare,             int    (WINAPI*)(HANDLE hPlugin, const wrapper::oldfar::PluginPanelItem *Item1, const wrapper::oldfar::PluginPanelItem *Item2, unsigned int Mode))

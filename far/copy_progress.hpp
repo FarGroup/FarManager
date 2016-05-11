@@ -111,8 +111,6 @@ public:
 		uint64_t CurrCopied;
 	}
 	m_Bytes;
-
-	uint64_t m_LastCopied, m_LastTotal;
 };
 
 #endif // COPY_PROGRESS_HPP_3D1EAAD8_8353_459C_8826_33AAAE06D01F

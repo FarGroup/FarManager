@@ -416,7 +416,7 @@ Dialog::~Dialog()
 	_DIALOG(SysLog(L"[%p] Dialog::~Dialog()",this));
 	DeleteDialogObjects();
 
-	Hide();
+	Dialog::Hide();
 	if (Global)
 	{
 		if (Global->Opt->Clock && Global->WindowManager->IsPanelsActive(true))
@@ -4527,31 +4527,6 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 			return FALSE;
 		case DN_ENTERIDLE:
 			return 0;     // always 0
-		case DM_GETDIALOGINFO:
-		{
-			bool Result=false;
-
-			if (Param2)
-			{
-				if (IdExist)
-				{
-					const auto di = reinterpret_cast<DialogInfo*>(Param2);
-
-					if (CheckStructSize(di))
-					{
-						di->Id=m_Id;
-						di->Owner=FarGuid;
-						Result=true;
-						if (PluginOwner)
-						{
-							di->Owner = PluginOwner->GetGUID();
-						}
-					}
-				}
-			}
-
-			return Result;
-		}
 		default:
 			break;
 	}
@@ -4888,7 +4863,19 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_GETDIALOGINFO:
 		{
-			return DlgProc(DM_GETDIALOGINFO,Param1,Param2);
+			if (IdExist)
+			{
+				if (const auto di = reinterpret_cast<DialogInfo*>(Param2))
+				{
+					if (CheckStructSize(di))
+					{
+						di->Id = m_Id;
+						di->Owner = PluginOwner? PluginOwner->GetGUID() : FarGuid;
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 		/*****************************************************************/
 		// Param1=0, Param2=FarDialogItemData, Ret=size (without '\0')

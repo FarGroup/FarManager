@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "window.hpp"
 #include "scrbuf.hpp"
-#include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
@@ -80,7 +79,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 #include "dirinfo.hpp"
 #include "language.hpp"
-#include "desktop.hpp"
 #include "viewer.hpp"
 #include "datetime.hpp"
 

@@ -67,7 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "stddlg.hpp"
 #include "vmenu2.hpp"
-#include "constitle.hpp"
 #include "usermenu.hpp"
 #include "filemasks.hpp"
 #include "plugins.hpp"

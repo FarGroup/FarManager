@@ -50,12 +50,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "plugins.hpp"
 #include "colormix.hpp"
+#include "strmix.hpp"
 
 #define PRINTER_INFO_LEVEL 4
 #define GENERATE_PRINTER_INFO(prefix, value) prefix##value##W
 #define PRINTER_INFO_X(level) GENERATE_PRINTER_INFO(PRINTER_INFO_, level)
 #define PRINTER_INFO PRINTER_INFO_X(PRINTER_INFO_LEVEL)
-#include "strmix.hpp"
 
 static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int PrinterNumber)
 {

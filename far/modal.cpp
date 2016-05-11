@@ -36,10 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "modal.hpp"
-#include "keys.hpp"
 #include "help.hpp"
-#include "lockscrn.hpp"
-#include "keyboard.hpp"
 
 SimpleModal::SimpleModal(): m_EndLoop(false)
 {

@@ -157,7 +157,6 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 					{
 						break;
 					}
-					ptr = nextpos;
 				}
 				ptr = SkipSeparators(ptr, End);
 				nextpos = SkipMasks(ptr, End);

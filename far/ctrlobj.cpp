@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "plugins.hpp"
 #include "desktop.hpp"
-#include "menubar.hpp"
 #include "colormix.hpp"
 
 ControlObject::ControlObject()

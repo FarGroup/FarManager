@@ -36,13 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "execute.hpp"
 #include "keyboard.hpp"
-#include "filepanels.hpp"
 #include "ctrlobj.hpp"
-#include "scrbuf.hpp"
 #include "chgprior.hpp"
 #include "cmdline.hpp"
 #include "imports.hpp"
-#include "manager.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -51,9 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "console.hpp"
 #include "language.hpp"
-#include "colormix.hpp"
-#include "desktop.hpp"
-#include "keybar.hpp"
 
 struct IMAGE_HEADERS
 {

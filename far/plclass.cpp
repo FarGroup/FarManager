@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "processname.hpp"
 #include "language.hpp"
-#include "scrbuf.hpp"
 
 DECLARE_PLUGIN_FUNCTION(iClosePanel,          void     (WINAPI*)(const ClosePanelInfo *Info))
 DECLARE_PLUGIN_FUNCTION(iCompare,             intptr_t (WINAPI*)(const CompareInfo *Info))

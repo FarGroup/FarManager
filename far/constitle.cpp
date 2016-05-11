@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "config.hpp"
 #include "synchro.hpp"
-#include "console.hpp"
 #include "farversion.hpp"
 #include "scrbuf.hpp"
 #include "strmix.hpp"

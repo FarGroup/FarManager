@@ -235,7 +235,7 @@ class separator
 {
 public:
 	separator():m_value(L' '){}
-	const string Get()
+	string Get()
 	{
 		wchar_t c = m_value;
 		m_value = BoxSymbols[BS_V1];

@@ -318,8 +318,16 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 }
 
 FileEditor::FileEditor(private_tag):
+	F4KeyOnly(),
+	AttrStr(),
+	m_FileAttributes(),
+	FileAttributesModified(),
 	m_bClosing(),
+	bEE_READ_Sent(),
+	bLoaded(),
+	m_bAddSignature(),
 	BadConversion(false),
+	m_codepage(CP_DEFAULT),
 	f8cps(false)
 {
 }
@@ -1939,7 +1947,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 								{
 									BOOL UseDefChar = FALSE;
 									WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, &i, 1, nullptr, 0, nullptr, &UseDefChar);
-									return UseDefChar == TRUE;
+									return UseDefChar != FALSE;
 								});
 
 								if (BadCharIterator != SaveStr.cend())

@@ -59,7 +59,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "filestr.hpp"
 #include "mix.hpp"
-#include "constitle.hpp"
 #include "console.hpp"
 #include "RegExp.hpp"
 #include "colormix.hpp"

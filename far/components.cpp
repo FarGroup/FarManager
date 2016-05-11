@@ -63,7 +63,6 @@ namespace components
 		if (!list)
 		{
 			list = item;
-			ptr = list;
 		}
 		else
 		{

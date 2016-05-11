@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "strmix.hpp"
-#include "keyboard.hpp"
 #include "mix.hpp"
 #include "console.hpp"
 #include "panelmix.hpp"

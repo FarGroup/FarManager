@@ -62,7 +62,8 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_SpeedUpdateCheck(time_check::immediate, 3000 * CLOCKS_PER_SEC / 1000),
 	m_SecurityTimeCheck(time_check::immediate, GetRedrawTimeout()),
 	m_Files(),
-	m_Bytes()
+	m_Bytes(),
+	m_CalcTime()
 {
 	m_CurrentBar = make_progressbar(m_CurrentBarSize, 0, false, false);
 	m_TotalBar = make_progressbar(m_TotalBarSize, 0, false, false);
@@ -184,9 +185,6 @@ void copy_progress::Flush()
 
 void copy_progress::SetProgressValue(UINT64 CompletedSize, UINT64 TotalSize)
 {
-	m_LastCopied = CompletedSize;
-	m_LastTotal = TotalSize;
-
 	SetCurrentProgress(CompletedSize, TotalSize);
 
 	auto BytesDone = GetBytesDone();

@@ -65,7 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "pathmix.hpp"
 #include "processname.hpp"
-#include "constitle.hpp"
 #include "cache.hpp"
 #include "filestr.hpp"
 #include "wakeful.hpp"

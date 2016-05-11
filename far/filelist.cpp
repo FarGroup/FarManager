@@ -78,7 +78,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "processname.hpp"
 #include "mix.hpp"
-#include "constitle.hpp"
 #include "elevation.hpp"
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"

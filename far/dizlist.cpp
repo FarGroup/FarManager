@@ -144,7 +144,7 @@ void DizList::Read(const string& Path, const string* DizName)
 					{
 						auto NameBegin = DizText.cbegin();
 						auto NameEnd = DizText.cend();
-						auto DescBegin = DizText.cend();
+						auto DescBegin = NameEnd;
 
 						if (DizText.front() == L'"')
 						{

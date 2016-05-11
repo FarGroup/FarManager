@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "namelist.hpp"
 #include "scantree.hpp"
 #include "manager.hpp"
-#include "scrbuf.hpp"
 #include "filemasks.hpp"
 #include "filefilter.hpp"
 #include "farexcpt.hpp"
