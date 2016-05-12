@@ -51,16 +51,16 @@ default_clipboard_mode::mode default_clipboard_mode::get()
 }
 
 //-----------------------------------------------------------------------------
-enum FAR_CLIPBOARD_FORMAT: int
+enum class Clipboard::clipboard_format: unsigned
 {
-	FCF_VERTICALBLOCK_OEM,
-	FCF_VERTICALBLOCK_UNICODE,
-	FCF_CFSTR_PREFERREDDROPEFFECT,
-	FCF_MSDEVCOLUMNSELECT,
-	FCF_BORLANDIDEVBLOCK,
-	FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH,
+	vertical_block_oem,
+	vertical_block_unicode,
+	preferred_drop_effect,
+	ms_dev_column_select,
+	borland_ide_dev_block,
+	notepad_plusplus_binary_text_length,
 
-	FCF_COUNT
+	count
 };
 
 //-----------------------------------------------------------------------------
@@ -75,7 +75,7 @@ public:
 
 	virtual ~system_clipboard()
 	{
-		Close();
+		system_clipboard::Close();
 	}
 
 	virtual bool Open() override
@@ -113,16 +113,16 @@ public:
 	}
 
 private:
-	system_clipboard() {}
+	system_clipboard() = default;
 
-	virtual HANDLE GetData(UINT uFormat) const override
+	virtual HANDLE GetData(unsigned uFormat) const override
 	{
 		assert(m_Opened);
 
 		return GetClipboardData(uFormat);
 	}
 
-	virtual bool SetData(UINT uFormat, os::memory::global::ptr&& hMem) override
+	virtual bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
 	{
 		assert(m_Opened);
 
@@ -142,7 +142,7 @@ private:
 		return false;
 	}
 
-	virtual UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format) const override
+	virtual unsigned RegisterFormat(clipboard_format Format) const override
 	{
 		static const wchar_t* FormatNames[] =
 		{
@@ -154,12 +154,12 @@ private:
 			L"Notepad++ binary text length",
 		};
 
-		static_assert(std::size(FormatNames) == FCF_COUNT, "Wrong size of FormatNames");
-		assert(Format < FCF_COUNT);
-		return RegisterClipboardFormat(FormatNames[Format]);
+		static_assert(std::size(FormatNames) == static_cast<unsigned>(clipboard_format::count), "Wrong size of FormatNames");
+		assert(Format < clipboard_format::count);
+		return RegisterClipboardFormat(FormatNames[static_cast<unsigned>(Format)]);
 	}
 
-	virtual bool IsFormatAvailable(UINT Format) const override
+	virtual bool IsFormatAvailable(unsigned Format) const override
 	{
 		return IsClipboardFormatAvailable(Format) != FALSE;
 	}
@@ -177,7 +177,7 @@ public:
 
 	virtual ~internal_clipboard()
 	{
-		Close();
+		internal_clipboard::Close();
 	}
 
 	virtual bool Open() override
@@ -212,9 +212,9 @@ public:
 	}
 
 private:
-	internal_clipboard() {}
+	internal_clipboard() = default;
 
-	virtual HANDLE GetData(UINT uFormat) const override
+	virtual HANDLE GetData(unsigned uFormat) const override
 	{
 		assert(m_Opened);
 
@@ -227,7 +227,7 @@ private:
 		return nullptr;
 	}
 
-	virtual bool SetData(UINT uFormat, os::memory::global::ptr&& hMem) override
+	virtual bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
 	{
 		assert(m_Opened);
 
@@ -239,17 +239,17 @@ private:
 		return false;
 	}
 
-	virtual UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format) const override
+	virtual unsigned RegisterFormat(clipboard_format Format) const override
 	{
-		return Format + 0xFC; // magic number stands for "Far Clipboard"
+		return static_cast<unsigned>(Format) + 0xFC; // magic number stands for "Far Clipboard"
 	}
 
-	virtual bool IsFormatAvailable(UINT Format) const override
+	virtual bool IsFormatAvailable(unsigned Format) const override
 	{
 		return Format && m_InternalData.count(Format);
 	}
 
-	std::unordered_map<UINT, os::memory::global::ptr> m_InternalData;
+	std::unordered_map<unsigned, os::memory::global::ptr> m_InternalData;
 };
 
 //-----------------------------------------------------------------------------
@@ -270,7 +270,7 @@ bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 			{
 				// 'Notepad++ binary text length'
 				auto binary_length = static_cast<uint32_t>(Size);
-				SetData(RegisterFormat(FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH), os::memory::global::copy(binary_length));
+				SetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length), os::memory::global::copy(binary_length));
 			}
 		}
 		else
@@ -287,7 +287,7 @@ bool Clipboard::SetVText(const wchar_t *Data, size_t Size)
 
 	if (Result && Data)
 	{
-		const auto FarVerticalBlock = RegisterFormat(FCF_VERTICALBLOCK_UNICODE);
+		const auto FarVerticalBlock = RegisterFormat(clipboard_format::vertical_block_unicode);
 
 		if (!FarVerticalBlock)
 			return false;
@@ -296,9 +296,9 @@ bool Clipboard::SetVText(const wchar_t *Data, size_t Size)
 
 		// 'Borland IDE Block Type'
 		char Cx02 = '\x02';
-		SetData(RegisterFormat(FCF_BORLANDIDEVBLOCK), os::memory::global::copy(Cx02));
+		SetData(RegisterFormat(clipboard_format::borland_ide_dev_block), os::memory::global::copy(Cx02));
 		// 'MSDEVColumnSelect'
-		SetData(RegisterFormat(FCF_MSDEVCOLUMNSELECT), nullptr);
+		SetData(RegisterFormat(clipboard_format::ms_dev_column_select), nullptr);
 	}
 	return Result;
 }
@@ -326,7 +326,7 @@ bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
 					{
 						if (auto hMemoryMove = os::memory::global::copy<DWORD>(DROPEFFECT_MOVE))
 						{
-							if(SetData(RegisterFormat(FCF_CFSTR_PREFERREDDROPEFFECT), std::move(hMemoryMove)))
+							if(SetData(RegisterFormat(clipboard_format::preferred_drop_effect), std::move(hMemoryMove)))
 							{
 								Result = true;
 							}
@@ -352,7 +352,7 @@ bool Clipboard::GetText(string& data) const
 			Result = true;
 			data = ClipAddr.get();
 			size_t len = string::npos;
-			if (auto hClipDataLen = GetData(RegisterFormat(FCF_NOTEPADPLUSPLUS_BINARYTEXTLENGTH)))
+			if (auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length)))
 			{
 				if (const auto ClipLength = os::memory::global::lock<const uint32_t*>(hClipDataLen))
 					len = static_cast<size_t>(ClipLength.get()[0]);
@@ -405,16 +405,16 @@ bool Clipboard::GetVText(string& data) const
 {
 	bool Result = false;
 
-	bool ColumnSelect = IsFormatAvailable(RegisterFormat(FCF_VERTICALBLOCK_UNICODE));
+	bool ColumnSelect = IsFormatAvailable(RegisterFormat(clipboard_format::vertical_block_unicode));
 
 	if (!ColumnSelect)
 	{
-		ColumnSelect = IsFormatAvailable(RegisterFormat(FCF_MSDEVCOLUMNSELECT));
+		ColumnSelect = IsFormatAvailable(RegisterFormat(clipboard_format::ms_dev_column_select));
 	}
 
 	if (!ColumnSelect)
 	{
-		if (const auto hClipData = GetData(RegisterFormat(FCF_BORLANDIDEVBLOCK)))
+		if (const auto hClipData = GetData(RegisterFormat(clipboard_format::borland_ide_dev_block)))
 			if (const auto ClipAddr = os::memory::global::lock<const char*>(hClipData))
 				ColumnSelect = *ClipAddr == 0x02;
 	}
@@ -425,7 +425,7 @@ bool Clipboard::GetVText(string& data) const
 	}
 	else
 	{
-		const auto Far1xVerticalBlock = RegisterFormat(FCF_VERTICALBLOCK_OEM);
+		const auto Far1xVerticalBlock = RegisterFormat(clipboard_format::vertical_block_oem);
 		if (const auto hClipData = GetData(Far1xVerticalBlock))
 		{
 			if (const auto OemData = os::memory::global::lock<const char*>(hClipData))

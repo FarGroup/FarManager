@@ -80,7 +80,7 @@ static inline void updateCallCount(allocation_type type, bool increment)
 	case allocation_type::scalar: CallNewDeleteScalar += op; break;
 	case allocation_type::vector: CallNewDeleteVector += op; break;
 	default:
-		throw std::runtime_error("unknown allocation type");
+		throw MAKE_FAR_EXCEPTION("unknown allocation type");
 	}
 }
 
@@ -154,7 +154,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 		sType = "operator new[]";
 		break;
 	default:
-		throw std::runtime_error("unknown allocation type");
+		throw MAKE_FAR_EXCEPTION("unknown allocation type");
 	};
 
 	return std::string(File) + ':' + std::to_string(Line) + " -> " + Function + ':' + sType + " (" + std::to_string(Size) + " bytes)";

@@ -112,7 +112,7 @@ public:
 	oem_plugin_factory(PluginManager* Owner):
 		native_plugin_factory(Owner)
 	{
-		static const plugin_factory::export_name ExportsNames[] =
+		static const export_name ExportsNames[] =
 		{
 			WA(""), // GetGlobalInfo not used
 			WA("SetStartupInfo"),

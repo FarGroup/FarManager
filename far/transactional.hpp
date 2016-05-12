@@ -35,8 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class transactional
 {
 public:
-
-	virtual ~transactional() {}
+	virtual ~transactional() = default;
 	virtual bool BeginTransaction() = 0;
 	virtual bool EndTransaction() = 0;
 	virtual bool RollbackTransaction() = 0;

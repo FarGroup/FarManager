@@ -49,7 +49,7 @@ basicconsole():
 	m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE))
 {}
 
-virtual ~basicconsole() {}
+virtual ~basicconsole() = default;
 
 virtual bool Allocate() const override
 {

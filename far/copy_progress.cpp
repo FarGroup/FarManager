@@ -60,10 +60,10 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_Color(colors::PaletteColorToFarColor(COL_DIALOGTEXT)),
 	m_TimeCheck(time_check::immediate, GetRedrawTimeout()),
 	m_SpeedUpdateCheck(time_check::immediate, 3000 * CLOCKS_PER_SEC / 1000),
+	m_CalcTime(),
 	m_SecurityTimeCheck(time_check::immediate, GetRedrawTimeout()),
 	m_Files(),
-	m_Bytes(),
-	m_CalcTime()
+	m_Bytes()
 {
 	m_CurrentBar = make_progressbar(m_CurrentBarSize, 0, false, false);
 	m_TotalBar = make_progressbar(m_TotalBarSize, 0, false, false);

@@ -55,7 +55,7 @@ namespace detail
 	class i_event_handler
 	{
 	public:
-		virtual ~i_event_handler() {}
+		virtual ~i_event_handler() = default;
 		virtual void operator()(const any&) const = 0;
 	};
 

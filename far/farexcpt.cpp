@@ -159,11 +159,11 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 	{
 		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,MSG(MExcTrappedException)},
 		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(MExcException)},
-		{DI_TEXT,    18,2, 75,2,0,nullptr,nullptr,0,Exception},
+		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception},
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
 		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,strAddr.data()},
 		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
-		{DI_TEXT,    18,4, 75,4,0,nullptr,nullptr,0,Function},
+		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Function},
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
 		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
@@ -526,10 +526,16 @@ bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin
 
 bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module)
 {
-	EXCEPTION_RECORD ExceptionRecord;
-	CONTEXT ContextRecord;
-	tracer::get_exception_context(&e, ExceptionRecord, ContextRecord);
+	EXCEPTION_RECORD ExceptionRecord {};
+	CONTEXT ContextRecord {};
 	EXCEPTION_POINTERS xp = { &ExceptionRecord, &ContextRecord };
+	if (!tracer::get_exception_context(&e, ExceptionRecord, ContextRecord))
+	{
+		// std::exception to EXCEPTION_POINTERS translation relies on Microsoft C++ exception implementation.
+		// It won't work in gcc etc.
+		// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
+		xp.ExceptionRecord->ExceptionCode = EXCEPTION_MICROSOFT_CPLUSPLUS;
+	}
 	return ProcessGenericException(&xp, Function, Module, e.what());
 }
 
@@ -704,7 +710,7 @@ static int ExceptionTestHook(Manager::Key key)
 		case -1:
 			return TRUE;
 		case 0:
-			throw std::runtime_error("test error");
+			throw MAKE_FAR_EXCEPTION("test error");
 		case 1:
 			zero_const.i = *zero_const.iptr;
 			break;

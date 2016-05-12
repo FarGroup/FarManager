@@ -736,7 +736,7 @@ static const std::pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
 {
 public:
-	explicit HighlightHierarchicalConfigDb(const string& DbName, bool Local = false):HierarchicalConfigDb(DbName, Local) {}
+	using HierarchicalConfigDb::HierarchicalConfigDb;
 
 private:
 	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::XMLElement& e) override
@@ -834,7 +834,7 @@ public:
 		{
 			const auto Blob = Stmt.GetColBlob(0);
 			if (Blob.size() != sizeof(Value))
-				throw std::runtime_error("incorrect blob size");
+				throw MAKE_FAR_EXCEPTION("incorrect blob size");
 			Value = *static_cast<const FarColor*>(Blob.data());
 		}
 		Stmt.Reset();
@@ -854,7 +854,7 @@ public:
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
 			const auto Blob = stmtEnumAllValues.GetColBlob(1);
 			if (Blob.size() != sizeof(FarColor))
-				throw std::runtime_error("incorrect blob size");
+				throw MAKE_FAR_EXCEPTION("incorrect blob size");
 			auto& Color = *static_cast<const FarColor*>(Blob.data());
 			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
 			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
@@ -1315,7 +1315,7 @@ public:
 		{
 			const auto Blob = Stmt.GetColBlob(0);
 			if (Blob.size() != sizeof(*Version))
-				throw std::runtime_error("incorrect blob size");
+				throw MAKE_FAR_EXCEPTION("incorrect blob size");
 			*Version = *static_cast<const VersionInfo*>(Blob.data());
 		}
 		Stmt.Reset();
@@ -1330,7 +1330,7 @@ public:
 		{
 			const auto Blob = Stmt.GetColBlob(0);
 			if (Blob.size() != sizeof(*Version))
-				throw std::runtime_error("incorrect blob size");
+				throw MAKE_FAR_EXCEPTION("incorrect blob size");
 			*Version = *static_cast<const VersionInfo*>(Blob.data());
 		}
 		Stmt.Reset();
@@ -2450,7 +2450,7 @@ bool config_provider::Export(const string& File)
 
 bool config_provider::ServiceMode(const string& Filename)
 {
-	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw std::logic_error("unexpected mode");
+	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION("unexpected service mode");
 }
 
 bool config_provider::Import(const string& Filename)

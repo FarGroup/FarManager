@@ -38,11 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "modal.hpp"
 #include "help.hpp"
 
-SimpleModal::SimpleModal(): m_EndLoop(false)
-{
-}
-
-
 void SimpleModal::Process()
 {
 	Global->WindowManager->ExecuteWindow(shared_from_this());

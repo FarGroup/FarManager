@@ -35,7 +35,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum MENUMODE: int;
 
 class UserMenu: noncopyable
 {
@@ -56,7 +55,9 @@ private:
 	void SaveMenu(const string& MenuFileName);
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-	MENUMODE m_MenuMode;
+	enum class menu_mode: int;
+
+	menu_mode m_MenuMode;
 	bool m_MenuModified;
 	bool m_ItemChanged;
 	uintptr_t m_MenuCP;

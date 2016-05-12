@@ -91,7 +91,7 @@ struct DialogItemEx: public FarDialogItem
 	std::vector<DialogItemAutomation> Auto;
 	void *ObjPtr;
 	vmenu_ptr ListPtr;
-	class DlgUserControl *UCData;
+	struct DlgUserControl *UCData;
 
 	DialogItemEx();
 	~DialogItemEx();

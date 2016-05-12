@@ -74,21 +74,11 @@ enum DLGITEMINTERNALFLAGS
 	DLGIIF_COMBOBOXNOREDRAWEDIT     = 0x00000008, // не прорисовывать строку редактирования при изменениях в комбо
 };
 
-class DlgUserControl
+struct DlgUserControl
 {
-	public:
-		COORD CursorPos;
-		bool CursorVisible;
-		DWORD CursorSize;
-
-	public:
-		DlgUserControl():
-			CursorVisible(false),
-			CursorSize(static_cast<DWORD>(-1))
-		{
-			CursorPos.X=CursorPos.Y=-1;
-		}
-		~DlgUserControl() {};
+	COORD CursorPos  {-1, -1};
+	bool CursorVisible {};
+	DWORD CursorSize {DWORD(-1)};
 };
 
 //////////////////////////////////////////////////////////////////////////

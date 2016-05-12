@@ -44,8 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
-	HandleWrapper::~HandleWrapper() {}
-
 	namespace detail
 	{
 		class i_find_handle_impl
@@ -55,9 +53,9 @@ namespace os
 		};
 		i_find_handle_impl::~i_find_handle_impl() = default;
 
-		void detail::find_handle_closer::operator()(HANDLE Handle) const { delete static_cast<i_find_handle_impl*>(Handle); }
-		void detail::handle_closer::operator()(HANDLE Handle) const { if (Handle) CloseHandle(Handle); }
-		void detail::find_volume_handle_closer::operator()(HANDLE Handle) const { if (Handle) FindVolumeClose(Handle); }
+		void find_handle_closer::operator()(HANDLE Handle) const { delete static_cast<i_find_handle_impl*>(Handle); }
+		void handle_closer::operator()(HANDLE Handle) const { if (Handle) CloseHandle(Handle); }
+		void find_volume_handle_closer::operator()(HANDLE Handle) const { if (Handle) FindVolumeClose(Handle); }
 		struct os_find_handle_closer { void operator()(HANDLE Handle) const { if (Handle) FindClose(Handle); } };
 
 		class far_find_handle_impl: public i_find_handle_impl
@@ -83,7 +81,7 @@ namespace os
 		class os_find_handle_impl: public i_find_handle_impl
 		{
 		public:
-			os_find_handle_impl(HANDLE Handle): m_Handle(Handle) {}
+			explicit os_find_handle_impl(HANDLE Handle): m_Handle(Handle) {}
 			HANDLE hative_handle() const { return m_Handle.native_handle(); }
 
 		private:
@@ -1956,7 +1954,7 @@ DWORD GetAppPathsRedirectionFlag()
 		string value::GetString() const
 		{
 			if (!detail::IsStringType(m_Type))
-				throw std::runtime_error("bad value type");
+				throw MAKE_FAR_EXCEPTION("bad value type");
 
 			string Result;
 			GetValue(*m_Key, m_Name.data(), Result);
@@ -1966,7 +1964,7 @@ DWORD GetAppPathsRedirectionFlag()
 		unsigned int value::GetUnsigned() const
 		{
 			if (m_Type != REG_DWORD)
-				throw std::runtime_error("bad value type");
+				throw MAKE_FAR_EXCEPTION("bad value type");
 
 			unsigned int Result = 0;
 			GetValue(*m_Key, m_Name.data(), Result);
@@ -1976,7 +1974,7 @@ DWORD GetAppPathsRedirectionFlag()
 		uint64_t value::GetUnsigned64() const
 		{
 			if (m_Type != REG_QWORD)
-				throw std::runtime_error("bad value type");
+				throw MAKE_FAR_EXCEPTION("bad value type");
 
 			uint64_t Result = 0;
 			GetValue(*m_Key, m_Name.data(), Result);
@@ -2134,18 +2132,13 @@ DWORD GetAppPathsRedirectionFlag()
 			const auto GetResult = []
 			{
 				SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
-				try
+				if (const auto AdministratorsGroup = make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS))
 				{
-					os::sid_object AdministratorsGroup(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
 					BOOL IsMember = FALSE;
 					if (CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember)
 					{
 						return true;
 					}
-				}
-				catch (const FarRecoverableException&)
-				{
-					// TODO: Log
 				}
 				return false;
 			};

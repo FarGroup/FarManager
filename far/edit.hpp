@@ -237,9 +237,7 @@ protected:
 	class edit_string: public string
 	{
 	public:
-		edit_string() {}
-		edit_string(const wchar_t* Data, size_t Size): string(Data, Size) {}
-
+		using string::string;
 		int size() const { return static_cast<int>(string::size()); }
 	};
 	edit_string m_Str;

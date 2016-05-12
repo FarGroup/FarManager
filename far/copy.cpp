@@ -3499,6 +3499,7 @@ bool ShellCopy::SetSecurity(const string& FileName, const os::FAR_SECURITY_DESCR
 	return true;
 }
 
+// BUGBUG move to copy_progress
 static BOOL ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 {
 	if (Name.empty() || CP->m_SecurityTimeCheck)

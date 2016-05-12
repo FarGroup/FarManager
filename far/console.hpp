@@ -46,7 +46,7 @@ enum CLEAR_REGION
 class console: noncopyable
 {
 public:
-	virtual ~console(){};
+	virtual ~console() = default;
 
 	virtual bool Allocate() const = 0;
 	virtual bool Free() const = 0;
@@ -138,7 +138,7 @@ public:
 	bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill);
 
 protected:
-	console(){};
+	console() = default;
 
 private:
 	virtual bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const = 0;

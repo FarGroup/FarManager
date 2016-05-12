@@ -46,7 +46,7 @@ class representation_destination;
 class representable: noncopyable
 {
 public:
-	virtual ~representable() {}
+	virtual ~representable() = default;
 	virtual void Export(representation_destination& Representation) = 0;
 	virtual void Import(const representation_source& Representation) = 0;
 };
@@ -54,7 +54,7 @@ public:
 class GeneralConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~GeneralConfig() {}
+	virtual ~GeneralConfig() = default;
 
 	virtual bool SetValue(const string& Key, const string& Name, const string& Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) = 0;
@@ -98,7 +98,7 @@ public:
 	int_values_enumerator GetIntValuesEnumerator(const string& key) { return int_values_enumerator(*this, key); }
 
 protected:
-	GeneralConfig() {}
+	GeneralConfig() = default;
 };
 
 class HierarchicalConfig: public representable, virtual public transactional, public conditional<HierarchicalConfig>
@@ -153,8 +153,8 @@ public:
 	virtual bool Flush() = 0;
 
 protected:
-	HierarchicalConfig() {}
-	virtual ~HierarchicalConfig() {}
+	HierarchicalConfig() = default;
+	virtual ~HierarchicalConfig() = default;
 
 	static key make_key(uint64_t Key) { return key(Key); }
 };
@@ -172,19 +172,19 @@ typedef std::unique_ptr<HierarchicalConfig, detail::HierarchicalConfigDeleter> H
 class ColorsConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~ColorsConfig() {}
+	virtual ~ColorsConfig() = default;
 	virtual bool SetValue(const string& Name, const FarColor& Value) = 0;
 	virtual bool GetValue(const string& Name, FarColor& Value) = 0;
 
 protected:
-	ColorsConfig() {}
+	ColorsConfig() = default;
 };
 
 class AssociationsConfig: public representable, virtual public transactional {
 
 public:
 
-	virtual ~AssociationsConfig() {}
+	virtual ~AssociationsConfig() = default;
 	virtual bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask) = 0;
 	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned __int64 *id, string &strMask) = 0;
 	virtual bool GetMask(unsigned __int64 id, string &strMask) = 0;
@@ -197,13 +197,13 @@ public:
 	virtual bool DelType(unsigned __int64 id) = 0;
 
 protected:
-	AssociationsConfig() {}
+	AssociationsConfig() = default;
 };
 
 class PluginsCacheConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~PluginsCacheConfig() {}
+	virtual ~PluginsCacheConfig() = default;
 	virtual unsigned __int64 CreateCache(const string& CacheName) = 0;
 	virtual unsigned __int64 GetCacheID(const string& CacheName) const = 0;
 	virtual bool DeleteCache(const string& CacheName) = 0;
@@ -240,7 +240,7 @@ public:
 	virtual bool IsCacheEmpty() const = 0;
 
 protected:
-	PluginsCacheConfig() {}
+	PluginsCacheConfig() = default;
 };
 
 class PluginsHotkeysConfig: public representable, virtual public transactional
@@ -253,14 +253,14 @@ public:
 		CONFIG_MENU,
 	};
 
-	virtual ~PluginsHotkeysConfig() {}
+	virtual ~PluginsHotkeysConfig() = default;
 	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) = 0;
 	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
 	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) = 0;
 	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
 
 protected:
-	PluginsHotkeysConfig() {}
+	PluginsHotkeysConfig() = default;
 };
 
 enum history_record_type: int;
@@ -268,7 +268,7 @@ enum history_record_type: int;
 class HistoryConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~HistoryConfig() {}
+	virtual ~HistoryConfig() = default;
 
 	//command,view,edit,folder,dialog history
 	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string& HistoryName, unsigned __int64 *id, string &strName, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
@@ -299,7 +299,7 @@ public:
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) = 0;
 
 protected:
-	HistoryConfig() {}
+	HistoryConfig() = default;
 };
 
 enum dbcheck: int;

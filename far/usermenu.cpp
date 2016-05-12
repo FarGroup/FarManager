@@ -70,11 +70,11 @@ enum
 
 
 // Режимы показа меню (Menu mode)
-enum MENUMODE: int
+enum class UserMenu::menu_mode: int
 {
-	MM_LOCAL,  // Локальное меню
-	MM_USER,   // Пользовательское меню
-	MM_GLOBAL, // Глобальное меню
+	local,
+	user,
+	global,
 };
 
 // Коды выхода из меню (Exit codes)
@@ -233,7 +233,7 @@ static void DeserializeMenu(UserMenu::menu_container& Menu, os::fs::file& File, 
 }
 
 UserMenu::UserMenu(bool ChooseMenuType):
-	m_MenuMode(MM_LOCAL),
+	m_MenuMode(menu_mode::local),
 	m_MenuModified(false),
 	m_ItemChanged(false),
 	m_MenuCP(default_menu_file_codepage)
@@ -242,7 +242,7 @@ UserMenu::UserMenu(bool ChooseMenuType):
 }
 
 UserMenu::UserMenu(const string& MenuFileName):
-	m_MenuMode(MM_LOCAL),
+	m_MenuMode(menu_mode::local),
 	m_MenuModified(false),
 	m_ItemChanged(false),
 	m_MenuCP(default_menu_file_codepage)
@@ -250,9 +250,7 @@ UserMenu::UserMenu(const string& MenuFileName):
 	ProcessUserMenu(false, MenuFileName);
 }
 
-UserMenu::~UserMenu()
-{
-}
+UserMenu::~UserMenu() = default;
 
 void UserMenu::SaveMenu(const string& MenuFileName)
 {
@@ -320,38 +318,12 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 	}
 }
 
-static string GetMenuTitle(MENUMODE MenuMode)
-{
-	string strMenuTitle;
-
-	switch (MenuMode)
-	{
-	case MM_LOCAL:
-		strMenuTitle = MSG(MLocalMenuTitle);
-		break;
-
-	case MM_GLOBAL:
-		strMenuTitle = MSG(MMainMenuTitle);
-		strMenuTitle += L" (";
-		strMenuTitle += MSG(MMainMenuGlobal);
-		strMenuTitle += L")";
-		break;
-
-	default:
-		strMenuTitle = MSG(MMainMenuTitle);
-		strMenuTitle += L" (";
-		strMenuTitle += MSG(MMainMenuUser);
-		strMenuTitle += L")";
-	}
-	return strMenuTitle;
-}
-
 void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	auto strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
 	// по умолчанию меню - это FarMenu.ini
-	m_MenuMode = MM_LOCAL;
+	m_MenuMode = menu_mode::local;
 	m_MenuModified = false;
 
 	if (ChooseMenuType)
@@ -363,7 +335,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 		if (!EditChoice)
 		{
-			m_MenuMode = MM_GLOBAL;
+			m_MenuMode = menu_mode::global;
 			strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 		}
 	}
@@ -396,12 +368,12 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 			DeserializeMenu(m_Menu, MenuFile, m_MenuCP);
 			MenuFile.Close();
 		}
-		else if (m_MenuMode != MM_USER)
+		else if (m_MenuMode != menu_mode::user)
 		{
 			// Файл не открылся. Смотрим дальше.
-			if (m_MenuMode == MM_GLOBAL) // был в %FARHOME%?
+			if (m_MenuMode == menu_mode::global) // был в %FARHOME%?
 			{
-				m_MenuMode = MM_USER;
+				m_MenuMode = menu_mode::user;
 				strMenuFilePath = Global->Opt->ProfilePath;
 				continue;
 			}
@@ -422,14 +394,30 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 				}
 
 				FirstRun = false;
-				m_MenuMode = MM_GLOBAL;
+				m_MenuMode = menu_mode::global;
 				strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 				continue;
 			}
 		}
 
+		string MenuTitle;
+
+		switch (m_MenuMode)
+		{
+		case menu_mode::local:
+			MenuTitle = MSG(MLocalMenuTitle);
+			break;
+
+		case menu_mode::global:
+			MenuTitle = MSG(MMainMenuTitle) + L" ("s + MSG(MMainMenuGlobal) + L")"s;
+			break;
+
+		case menu_mode::user:
+			MenuTitle = MSG(MMainMenuTitle) + L" ("s + MSG(MMainMenuUser) + L")"s;
+		}
+
 		// вызываем меню
-		ExitCode=ProcessSingleMenu(m_Menu, 0, m_Menu, strMenuFileFullPath, GetMenuTitle(m_MenuMode));
+		ExitCode=ProcessSingleMenu(m_Menu, 0, m_Menu, strMenuFileFullPath, MenuTitle);
 
 		// ...запишем изменения обратно в файл
 		SaveMenu(strMenuFileFullPath);
@@ -440,7 +428,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 				// Показать меню родительского каталога
 			case EC_PARENT_MENU:
 			{
-				if (m_MenuMode == MM_LOCAL)
+				if (m_MenuMode == menu_mode::local)
 				{
 					if(!IsRootPath(strMenuFilePath))
 					{
@@ -452,12 +440,12 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 						}
 					}
 
-					m_MenuMode = MM_GLOBAL;
+					m_MenuMode = menu_mode::global;
 					strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 				}
 				else
 				{
-					m_MenuMode = MM_USER;
+					m_MenuMode = menu_mode::user;
 					strMenuFilePath = Global->Opt->ProfilePath;
 				}
 
@@ -469,19 +457,19 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 				// $ 14.07.2000 VVM: Shift+F2 переключает Главное меню/локальное в цикле
 				switch (m_MenuMode)
 				{
-					case MM_LOCAL:
-						m_MenuMode = MM_GLOBAL;
+					case menu_mode::local:
+						m_MenuMode = menu_mode::global;
 						strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 						break;
 
-					case MM_GLOBAL:
-						m_MenuMode = MM_USER;
+					case menu_mode::global:
+						m_MenuMode = menu_mode::user;
 						strMenuFilePath = Global->Opt->ProfilePath;
 						break;
 
-					default: // MM_USER
+					case menu_mode::user:
 						strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
-						m_MenuMode=MM_LOCAL;
+						m_MenuMode = menu_mode::local;
 				}
 
 				break;
@@ -718,7 +706,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 				case KEY_BS: // Показать меню из родительского каталога только в MM_LOCAL режиме
 
-					if (m_MenuMode == MM_LOCAL)
+					if (m_MenuMode == menu_mode::local)
 					{
 						ReturnCode=EC_PARENT_MENU;
 						UserMenu->Close(-1);

@@ -37,7 +37,7 @@ namespace detail
 	class any_base
 	{
 	public:
-		virtual ~any_base() {}
+		virtual ~any_base() = default;
 		virtual std::unique_ptr<any_base> clone() const = 0;
 	};
 
@@ -82,7 +82,7 @@ public:
 
 	any& operator=(const any& rhs)
 	{
-		any Tmp(rhs);
+		auto Tmp(rhs);
 		using std::swap;
 		swap(*this, Tmp);
 		return *this;
@@ -137,7 +137,7 @@ T& any_cast(any& Any)
 	const auto Result = any_cast<T>(&Any);
 	if (!Result)
 	{
-		throw std::bad_cast();
+		throw MAKE_FAR_EXCEPTION("bad any_cast");
 	}
 	return *Result;
 }

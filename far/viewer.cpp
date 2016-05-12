@@ -2308,7 +2308,7 @@ static int process_back(int BufferSize, int pos, int64_t& fpos, const F& Reader,
 
 	if (nr != static_cast<int>(BufferSize / sizeof(T)))
 	{
-		throw std::runtime_error("wrong size");
+		throw MAKE_FAR_EXCEPTION("wrong size");
 	}
 
 	if (!pos)
@@ -2415,7 +2415,7 @@ void Viewer::Up( int nlines, bool adjust )
 					if (process_back<char>(buff_size, j, fpos, BufferReader, eol))
 						break;
 				}
-				catch (const std::runtime_error&)
+				catch (const far_exception&)
 				{
 					return; //??? error handling
 				}
@@ -2431,7 +2431,7 @@ void Viewer::Up( int nlines, bool adjust )
 					if (process_back<wchar_t>(buff_size, j, fpos, BufferReader, eol))
 						break;
 				}
-				catch (const std::runtime_error&)
+				catch (const far_exception&)
 				{
 					return; //??? error handling
 				}

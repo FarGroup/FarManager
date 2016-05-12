@@ -1455,7 +1455,7 @@ string str_printf(const wchar_t * format, ...)
 char IntToHex(int h)
 {
 	if (h > 15)
-		throw std::runtime_error("not a hex char");
+		throw MAKE_FAR_EXCEPTION("not a hex char");
 	if (h >= 10)
 		return 'A' + h - 10;
 	return '0' + h;
@@ -1472,7 +1472,7 @@ int HexToInt(char h)
 	if (std::iswdigit(h))
 		return h - '0';
 
-	throw std::runtime_error("not a hex char");
+	throw MAKE_FAR_EXCEPTION("not a hex char");
 }
 
 template<class S, class C>
@@ -1504,7 +1504,7 @@ static auto HexStringToBlobT(const C* Hex, size_t Size, C Separator)
 {
 	// Size shall be either 3 * N + 2 or even
 	if (Size && (Separator? Size % 3 != 2 : Size & 1))
-		throw std::runtime_error("incomplete hex string");
+		throw MAKE_FAR_EXCEPTION("incomplete hex string");
 
 	const auto SeparatorSize = Separator? 1 : 0;
 	const auto StepSize = 2 + SeparatorSize;

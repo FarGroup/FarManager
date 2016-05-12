@@ -70,7 +70,7 @@ class BaseFormat
 {
 protected:
 	BaseFormat();
-	virtual ~BaseFormat() {}
+	virtual ~BaseFormat() = default;
 
 	virtual BaseFormat& Flush() { return *this; }
 

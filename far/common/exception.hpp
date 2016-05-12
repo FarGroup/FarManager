@@ -1,10 +1,12 @@
-﻿#pragma once
+#ifndef EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF
+#define EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF
+#pragma once
 
 /*
-tracer.hpp
+exception.hpp
 */
 /*
-Copyright © 2016 Far Group
+Copyright � 2016 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,40 +32,35 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
-#include "farexcpt.hpp"
+namespace detail
+{
+	class exception_impl
+	{
+	public:
+		exception_impl(const std::string& Message, const char* Function, const char* File, int Line):
+			m_Message(Message),
+			m_FullMessage(Message + " (at "s + Function + ", "s + File + ":"s + std::to_string(Line) + ")"s)
+		{
+		}
 
-class tracer: noncopyable
+		const std::string& get_message() const noexcept { return m_Message; }
+		const std::string& get_full_message() const noexcept { return m_FullMessage; }
+	private:
+		std::string m_Message;
+		std::string m_FullMessage;
+	};
+}
+
+class far_exception: public detail::exception_impl, public std::runtime_error
 {
 public:
-	tracer();
-	~tracer();
-
-	static tracer* GetInstance();
-
-	void store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo);
-
-	static std::vector<string> get(const void* CppObject);
-	static std::vector<string> get(const EXCEPTION_POINTERS* e);
-	static string get_one(const void* Address);
-
-	static bool get_exception_context(const void* CppObject, EXCEPTION_RECORD& ExceptionRecord, CONTEXT& ContextRecord);
-
-private:
-	struct exception_context
+	far_exception(const std::string& Message, const char* Function, const char* File, int Line):
+		exception_impl(Message, Function, File, Line),
+		std::runtime_error(get_full_message().data())
 	{
-		EXCEPTION_RECORD ExceptionRecord;
-		CONTEXT ContextRecord;
-	};
-
-	bool get_context(const void* CppObject, exception_context& Context) const;
-
-	static bool SymInitialise();
-	static void SymCleanup();
-
-	static tracer* sTracer;
-	mutable CriticalSection m_CS;
-	std::unordered_map<const void*, exception_context> m_CppMap;
-	veh_handler m_Handler;
-	static bool m_SymInitialised;
+	}
 };
+
+#define MAKE_FAR_EXCEPTION(Message) far_exception(Message, __FUNCTION__, __FILE__, __LINE__)
+
+#endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

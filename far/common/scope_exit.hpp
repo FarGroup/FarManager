@@ -38,7 +38,7 @@ namespace detail
 	class scope_guard
 	{
 	public:
-		scope_guard(F&& f): m_f(std::move(f)) {}
+		explicit scope_guard(F&& f): m_f(std::move(f)) {}
 		~scope_guard() { m_f(); }
 
 	private:

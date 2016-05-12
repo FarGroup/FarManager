@@ -965,6 +965,9 @@
     <ClInclude Include="copy_progress.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common\exception.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc">

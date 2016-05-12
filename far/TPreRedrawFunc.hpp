@@ -41,7 +41,7 @@ struct PreRedrawItem: noncopyable
 	typedef std::function<void()> handler_type;
 
 	PreRedrawItem(const handler_type& PreRedrawFunc) : m_PreRedrawFunc(PreRedrawFunc) {}
-	virtual ~PreRedrawItem(){}
+	virtual ~PreRedrawItem() = default;
 
 	handler_type m_PreRedrawFunc;
 };
@@ -57,7 +57,7 @@ public:
 private:
 	friend TPreRedrawFunc& PreRedrawStack();
 
-	TPreRedrawFunc() {}
+	TPreRedrawFunc() = default;
 	std::stack<std::unique_ptr<PreRedrawItem>> Items;
 };
 

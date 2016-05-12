@@ -41,9 +41,10 @@ public:
 	class const_iterator: public std::iterator<std::forward_iterator_tag, T>
 	{
 	public:
-		typedef const T value_type;
+		using value_type = const T;
 
-		const_iterator(Derived* collection = nullptr, size_t index = -1): m_collection(collection), m_index(index), m_value() {}
+		const_iterator(Derived* collection, size_t index): m_collection(collection), m_index(index), m_value() {}
+		const_iterator(): const_iterator(nullptr, -1) {}
 		const_iterator(const const_iterator& rhs): m_collection(rhs.m_collection), m_index(rhs.m_index), m_value(rhs.m_value) {}
 		const_iterator& operator =(const const_iterator& rhs) { m_collection = rhs.m_collection; m_index = rhs.m_index; m_value = rhs.m_value; return *this;}
 		value_type* operator ->() const { return &m_value; }
@@ -63,10 +64,9 @@ public:
 	class iterator: public const_iterator
 	{
 	public:
-		typedef T value_type;
+		using value_type = T;
+		using const_iterator::const_iterator;
 
-		iterator(Derived* collection = nullptr, size_t index = -1): const_iterator(collection, index) {}
-		iterator(const iterator& rhs): const_iterator(rhs) {}
 		value_type* operator ->() { return const_cast<T*>(const_iterator::operator->()); }
 		value_type& operator *() { return const_cast<T&>(const_iterator::operator*()); }
 		iterator& operator ++() { const_iterator::operator++(); return *this; }

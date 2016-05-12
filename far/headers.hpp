@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <queue>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <numeric>
 #include <regex>
 #include <set>

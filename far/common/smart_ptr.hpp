@@ -64,8 +64,8 @@ public:
 	NONCOPYABLE(block_ptr);
 	TRIVIALLY_MOVABLE(block_ptr);
 
-	block_ptr(){}
-	block_ptr(size_t size, bool init = false):char_ptr(size, init){}
+	using char_ptr::char_ptr;
+	block_ptr() = default;
 	T* get() const {return reinterpret_cast<T*>(char_ptr::get());}
 	T* operator->() const noexcept { return get(); }
 	T& operator*() const {return *get();}
@@ -103,7 +103,7 @@ typedef std::unique_ptr<FILE, detail::file_closer> file_ptr;
 
 namespace detail
 {
-	struct nop_deleter { void operator()(void* ptr) const {} };
+	struct nop_deleter { void operator()(void*) const {} };
 }
 
 template<class T>

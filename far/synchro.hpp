@@ -52,17 +52,7 @@ private:
 	CRITICAL_SECTION m_object;
 };
 
-template<class T> class lock_guard: noncopyable
-{
-public:
-	explicit lock_guard(T& object): m_object(object) { m_object.lock(); }
-	~lock_guard() { m_object.unlock(); }
-
-private:
-	T& m_object;
-};
-
-typedef lock_guard<CriticalSection> CriticalSectionLock;
+using CriticalSectionLock = std::lock_guard<CriticalSection>;
 
 template<class T, class S>
 string make_name(const S& HashPart, const S& TextPart)
@@ -119,7 +109,7 @@ private:
 	void check_joinable()
 	{
 		if (!joinable())
-			throw std::runtime_error("Thread is not joinable");
+			throw MAKE_FAR_EXCEPTION("Thread is not joinable");
 	}
 
 	template<class T>
@@ -130,7 +120,7 @@ private:
 		if (!m_Handle)
 		{
 			delete Param;
-			throw std::runtime_error("Can't create thread"); // TODO: std::system_error
+			throw MAKE_FAR_EXCEPTION("Can't create thread");
 		}
 	}
 
@@ -193,7 +183,7 @@ private:
 	{
 		if (!m_Handle)
 		{
-			throw std::runtime_error("not initialized properly");
+			throw MAKE_FAR_EXCEPTION("Event not initialized properly");
 		}
 	}
 };
@@ -204,9 +194,6 @@ template<class T> class SyncedQueue: noncopyable {
 
 public:
 	typedef T value_type;
-
-	SyncedQueue() {}
-	~SyncedQueue() {}
 
 	bool Empty()
 	{
@@ -254,7 +241,6 @@ public:
 		wait_all
 	};
 	MultiWaiter() { Objects.reserve(10); }
-	~MultiWaiter() {}
 	void Add(const os::HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.native_handle()); }
 	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }

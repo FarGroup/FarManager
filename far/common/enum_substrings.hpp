@@ -60,15 +60,15 @@ public:
 	NONCOPYABLE(enum_substrings_t);
 	TRIVIALLY_MOVABLE(enum_substrings_t);
 
-	enum_substrings_t(const provider& Provider): m_Provider(&Provider), m_Offset() {}
+	explicit enum_substrings_t(const provider& Provider): m_Provider(&Provider), m_Offset() {}
 
 	bool get(size_t Index, typename enum_substrings_t<provider>::value_type& Value)
 	{
 		const auto Begin = detail::Begin(*m_Provider) + (Index? m_Offset : 0);
 		auto End = Begin;
 		bool IsEnd;
-		for (; (IsEnd = detail::IsEnd(*m_Provider, End)) == false && *End; ++End);
-
+		for (; (IsEnd = detail::IsEnd(*m_Provider, End)) == false && *End; ++End)
+			;
 		if (End != Begin)
 		{
 			const auto Ptr = &*Begin;

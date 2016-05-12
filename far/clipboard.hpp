@@ -46,13 +46,11 @@ private:
 	static mode m_Mode;
 };
 
-enum FAR_CLIPBOARD_FORMAT: int;
-
 class Clipboard
 {
 public:
 	static Clipboard& GetInstance(default_clipboard_mode::mode Mode);
-	virtual ~Clipboard() {}
+	virtual ~Clipboard() = default;
 
 	virtual bool Open() = 0;
 	virtual bool Close() = 0;
@@ -72,15 +70,15 @@ public:
 	bool GetVText(string& data) const;
 
 protected:
-	Clipboard(): m_Opened() {}
+	enum class clipboard_format: unsigned;
 
-	bool m_Opened;
+	bool m_Opened {};
 
 private:
-	virtual bool SetData(UINT uFormat, os::memory::global::ptr&& hMem) = 0;
-	virtual HANDLE GetData(UINT uFormat) const = 0;
-	virtual UINT RegisterFormat(FAR_CLIPBOARD_FORMAT Format) const = 0;
-	virtual bool IsFormatAvailable(UINT Format) const = 0;
+	virtual bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) = 0;
+	virtual HANDLE GetData(unsigned uFormat) const = 0;
+	virtual unsigned RegisterFormat(clipboard_format Format) const = 0;
+	virtual bool IsFormatAvailable(unsigned Format) const = 0;
 
 	bool GetHDROPAsText(string& data) const;
 };

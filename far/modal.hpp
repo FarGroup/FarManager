@@ -42,8 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Modal: public window
 {
 protected:
-	Modal(){}
-	~Modal(){}
+	Modal() = default;
+	~Modal() = default;
 };
 
 class SimpleModal: public Modal
@@ -58,8 +58,8 @@ public:
 	void ShowHelp();
 
 protected:
-	SimpleModal();
-	virtual ~SimpleModal() {}
+	SimpleModal() = default;
+	virtual ~SimpleModal() = default;
 
 	void SetDone(void);
 	void Close(int Code);
@@ -67,7 +67,7 @@ protected:
 	string m_HelpTopic;
 
 private:
-	bool m_EndLoop;
+	bool m_EndLoop {};
 };
 
 #endif // MODAL_HPP_A6E3BDC6_D983_486E_98E6_E5956E64CC15

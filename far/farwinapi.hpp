@@ -97,6 +97,8 @@ namespace os
 		handle m_Handle;
 	};
 
+	inline HandleWrapper::~HandleWrapper() = default;
+
 	enum
 	{
 		NT_MAX_PATH = 32768
@@ -137,27 +139,18 @@ namespace os
 		}
 	};
 
-	class sid_object: noncopyable
+	namespace detail
 	{
-	public:
-		sid_object(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
-		{
-			if (!AllocateAndInitializeSid(IdentifierAuthority, SubAuthorityCount, SubAuthority0, SubAuthority1, SubAuthority2, SubAuthority3, SubAuthority4, SubAuthority5, SubAuthority6, SubAuthority7, &m_value))
-			{
-				throw FarRecoverableException("unable to allocate and initialize SID");
-			}
-		}
+		struct sid_deleter { void operator()(PSID Sid) const noexcept { if (Sid) FreeSid(Sid); } };
+	}
 
-		~sid_object()
-		{
-			FreeSid(m_value);
-		}
+	using sid_ptr = std::unique_ptr<std::remove_pointer_t<PSID>, detail::sid_deleter>;
 
-		PSID get() const { return m_value; }
-
-	private:
-		PSID m_value;
-	};
+	inline sid_ptr make_sid(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
+	{
+		PSID Sid;
+		return sid_ptr(AllocateAndInitializeSid(IdentifierAuthority, SubAuthorityCount, SubAuthority0, SubAuthority1, SubAuthority2, SubAuthority3, SubAuthority4, SubAuthority5, SubAuthority6, SubAuthority7, &Sid)? Sid : nullptr);
+	}
 
 	NTSTATUS GetLastNtStatus();
 	string GetCurrentDirectory();
@@ -213,9 +206,12 @@ namespace os
 
 	namespace fs
 	{
-		class enum_file: noncopyable, public enumerator<enum_file, FAR_FIND_DATA>
+		class enum_file: public enumerator<enum_file, FAR_FIND_DATA>
 		{
 		public:
+			NONCOPYABLE(enum_file);
+			TRIVIALLY_MOVABLE(enum_file);
+
 			enum_file(const string& Object, bool ScanSymLink = true);
 			bool get(size_t index, value_type& value);
 
@@ -225,9 +221,12 @@ namespace os
 			bool m_ScanSymLink;
 		};
 
-		class enum_name: noncopyable, public enumerator<enum_name, string>
+		class enum_name: public enumerator<enum_name, string>
 		{
 		public:
+			NONCOPYABLE(enum_name);
+			TRIVIALLY_MOVABLE(enum_name);
+
 			enum_name(const string& Object): m_Object(Object) {}
 			bool get(size_t index, value_type& value);
 
@@ -236,9 +235,12 @@ namespace os
 			find_handle m_Handle;
 		};
 
-		class enum_stream: noncopyable, public enumerator<enum_stream, WIN32_FIND_STREAM_DATA>
+		class enum_stream: public enumerator<enum_stream, WIN32_FIND_STREAM_DATA>
 		{
 		public:
+			NONCOPYABLE(enum_stream);
+			TRIVIALLY_MOVABLE(enum_stream);
+
 			enum_stream(const string& Object): m_Object(Object) {}
 			bool get(size_t index, value_type& value);
 
@@ -247,9 +249,12 @@ namespace os
 			find_handle m_Handle;
 		};
 
-		class enum_volume: noncopyable, public enumerator<enum_volume, string>
+		class enum_volume: public enumerator<enum_volume, string>
 		{
 		public:
+			NONCOPYABLE(enum_volume);
+			TRIVIALLY_MOVABLE(enum_volume);
+
 			enum_volume() {};
 			bool get(size_t index, value_type& value);
 

@@ -3047,9 +3047,9 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 							using std::swap;
 							swap(*Global->Lang, NewLanguage);
 						}
-						catch (const std::exception& e)
+						catch (const far_exception& e)
 						{
-							Message(MSG_WARNING, 1, MSG(MError), wide(e.what(), CP_UTF8).data(), MSG(MOk));
+							Message(MSG_WARNING, 1, MSG(MError), wide(e.get_message(), CP_UTF8).data(), MSG(MOk));
 							strLanguage = SavedLanguage;
 						}
 

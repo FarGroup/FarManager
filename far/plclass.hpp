@@ -128,7 +128,7 @@ using plugin_factory_ptr = std::unique_ptr<plugin_factory>;
 class native_plugin_factory : public plugin_factory
 {
 public:
-	native_plugin_factory(PluginManager* owner) : plugin_factory(owner) {}
+	using plugin_factory::plugin_factory;
 
 	virtual bool IsPlugin(const string& filename) const override;
 	virtual plugin_instance Create(const string& filename) override;

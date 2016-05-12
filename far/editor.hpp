@@ -396,7 +396,7 @@ private:
 class EditorContainer
 {
 public:
-	virtual ~EditorContainer() {}
+	virtual ~EditorContainer() = default;
 	virtual Editor* GetEditor(void) = 0;
 };
 

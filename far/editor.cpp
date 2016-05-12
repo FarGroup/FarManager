@@ -4643,7 +4643,7 @@ void Editor::GetRowCol(const string& argv, int& row, int& col)
 			col = is_match_empty(b_col_sign)?x-1:col+x;
 		}
 	}
-	else throw std::invalid_argument("invalid syntax");
+	else throw MAKE_FAR_EXCEPTION("invalid syntax");
 }
 
 struct Editor::EditorUndoData

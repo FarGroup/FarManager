@@ -185,25 +185,26 @@ bool elevation::Initialize()
 			{
 				if (InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
 				{
-					os::sid_object AdminSID(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
-
-					EXPLICIT_ACCESS ea = {};
-					ea.grfAccessPermissions = GENERIC_READ|GENERIC_WRITE;
-					ea.grfAccessMode = SET_ACCESS;
-					ea.grfInheritance= NO_INHERITANCE;
-					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-					ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-					ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
-					PACL pRawACL = nullptr;
-					if (SetEntriesInAcl(1, &ea, nullptr, &pRawACL) == ERROR_SUCCESS)
+					if (const auto AdminSID = os::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS))
 					{
-						const auto pACL = os::memory::local::ptr(pRawACL);
-
-						if(SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
+						EXPLICIT_ACCESS ea = {};
+						ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE;
+						ea.grfAccessMode = SET_ACCESS;
+						ea.grfInheritance = NO_INHERITANCE;
+						ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+						ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+						ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
+						PACL pRawACL = nullptr;
+						if (SetEntriesInAcl(1, &ea, nullptr, &pRawACL) == ERROR_SUCCESS)
 						{
-							SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
-							const auto strPipe = L"\\\\.\\pipe\\" + strPipeID;
-							m_pipe.reset(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE|PIPE_READMODE_BYTE|PIPE_WAIT, 1, 0, 0, 0, &sa));
+							const auto pACL = os::memory::local::ptr(pRawACL);
+
+							if (SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
+							{
+								SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
+								const auto strPipe = L"\\\\.\\pipe\\" + strPipeID;
+								m_pipe.reset(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
+							}
 						}
 					}
 				}

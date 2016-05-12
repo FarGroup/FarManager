@@ -106,8 +106,8 @@ class Option
 {
 public:
 	template<class T>
-	explicit Option(const T& Value): m_Value(Value) {}
-	virtual ~Option(){}
+	Option(const T& Value): m_Value(Value) {}
+	virtual ~Option() = default;
 
 	virtual string toString() const = 0;
 	virtual void fromString(const string& value) = 0;
@@ -162,9 +162,7 @@ public:
 class BoolOption: public OptionImpl<bool, BoolOption>
 {
 public:
-	BoolOption() {}
-	BoolOption(const bool& Value): OptionImpl(Value) {}
-	BoolOption(const BoolOption& Value): OptionImpl(Value) {}
+	using OptionImpl<bool, BoolOption>::OptionImpl;
 
 	virtual string toString() const override { return Get() ? L"true" : L"false"; }
 	virtual void fromString(const string& value) override;
@@ -182,9 +180,7 @@ public:
 class Bool3Option: public OptionImpl<long long, Bool3Option>
 {
 public:
-	Bool3Option() {}
-	Bool3Option(const int& Value): OptionImpl(Value){}
-	Bool3Option(const Bool3Option& Value): OptionImpl(Value){}
+	using OptionImpl<long long, Bool3Option>::OptionImpl;
 
 	virtual string toString() const override { int v = Get(); return v ? (v == 1 ? L"true" : L"other") : L"false"; }
 	virtual void fromString(const string& value) override;
@@ -202,9 +198,7 @@ public:
 class IntOption: public OptionImpl<long long, IntOption>
 {
 public:
-	IntOption() {}
-	IntOption(long long Value): OptionImpl(Value){}
-	IntOption(const IntOption& Value): OptionImpl(Value){}
+	using OptionImpl<long long, IntOption>::OptionImpl;
 
 	virtual string toString() const override { return std::to_wstring(Get()); }
 	virtual void fromString(const string& value) override;
@@ -231,9 +225,7 @@ public:
 class StringOption: public OptionImpl<string, StringOption>
 {
 public:
-	StringOption() {}
-	StringOption(const StringOption& Value): OptionImpl(Value) {}
-	StringOption(const string& Value): OptionImpl(Value) {}
+	using OptionImpl<string, StringOption>::OptionImpl;
 
 	virtual string toString() const override { return Get(); }
 	virtual void fromString(const string& value) override { Set(value); }

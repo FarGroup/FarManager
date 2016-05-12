@@ -283,7 +283,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 void SQLiteDb::Initialize(const string& DbName, bool Local)
 {
 	Mutex m(make_name<Mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data());
-	SCOPED_ACTION(lock_guard<Mutex>)(m);
+	SCOPED_ACTION(std::lock_guard<Mutex>)(m);
 
 	m_Name = DbName;
 	init_status = 0;
@@ -336,7 +336,7 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(const wchar_t* Stmt) const
 	sqlite::sqlite3_stmt* pStmt;
 	if (sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt, -1, &pStmt, nullptr) != SQLITE_OK)
 	{
-		throw std::runtime_error("SQLiteDb::create_stmt failed");
+		throw MAKE_FAR_EXCEPTION("SQLiteDb::create_stmt failed");
 	}
 	return SQLiteStmt(pStmt);
 }
