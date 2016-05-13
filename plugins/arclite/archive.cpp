@@ -285,60 +285,61 @@ void ArcAPI::load_libs(const wstring& path) {
     }
     else
       FreeLibrary(arc_lib.h_module);
-
-    // load codecs
-    n_format_libs = arc_libs.size();
-    if (n_format_libs >= 1) {
-      dir = add_trailing_slash(dir) + L"Codecs";
-      auto look_codecs = add_trailing_slash(dir) + L"*";
-      FileEnum codecs_enum(look_codecs);
-      while (codecs_enum.next_nt(more) && more && !codecs_enum.data().is_dir()) {
-        ArcLib arc_lib;
-        arc_lib.module_path = add_trailing_slash(dir) + codecs_enum.data().cFileName;
-        arc_lib.h_module = LoadLibraryW(arc_lib.module_path.c_str());
-        if (arc_lib.h_module == nullptr)
-          continue;
-        arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(GetProcAddress(arc_lib.h_module, "CreateObject"));
-        arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(GetProcAddress(arc_lib.h_module, "CreateDecoder"));
-        arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(GetProcAddress(arc_lib.h_module, "CreateEncoder"));
-        arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
-        arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
-        arc_lib.GetNumberOfFormats = nullptr;
-        arc_lib.GetHandlerProperty = nullptr;
-        arc_lib.GetHandlerProperty2 = nullptr;
-        arc_lib.GetIsArc = nullptr;
-        arc_lib.SetCodecs = nullptr;
-        arc_lib.version = 0;
-        auto n_start_codecs = arc_codecs.size();
-        if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
-          UInt32 numMethods = 1;
-          bool ok = true;
-          if (arc_lib.GetNumberOfMethods)
-            ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
-          for (UInt32 i = 0; ok && i < numMethods; ++i) {
-            CDllCodecInfo info;
-            info.LibIndex = static_cast<UInt32>(arc_libs.size());
-            info.CodecIndex = i;
-            if (GetCoderInfo(arc_lib.GetMethodProperty, i, info))
-              arc_codecs.push_back(info);
-          }
-        }
-        if (n_start_codecs < arc_codecs.size())
-          arc_libs.push_back(arc_lib);
-        else
-          FreeLibrary(arc_lib.h_module);
-      }
-    }
-    if (arc_codecs.size() > 0) {
-      compressinfo = new MyCompressCodecsInfo(arc_libs, arc_codecs);
-      for (size_t i = 0; i < n_format_libs; ++i) {
-        if (arc_libs[i].SetCodecs)
-           arc_libs[i].SetCodecs(compressinfo);
-      }
-    }
   }
 }
 
+void ArcAPI::load_codecs(const wstring& path) {
+  if (n_base_format_libs <= 0)
+    return;
+
+  FileEnum codecs_enum(path);
+  wstring dir = extract_file_path(path);
+  bool more;
+  while (codecs_enum.next_nt(more) && more && !codecs_enum.data().is_dir()) {
+    ArcLib arc_lib;
+    arc_lib.module_path = add_trailing_slash(dir) + codecs_enum.data().cFileName;
+    arc_lib.h_module = LoadLibraryW(arc_lib.module_path.c_str());
+    if (arc_lib.h_module == nullptr)
+      continue;
+    arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(GetProcAddress(arc_lib.h_module, "CreateObject"));
+    arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(GetProcAddress(arc_lib.h_module, "CreateDecoder"));
+    arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(GetProcAddress(arc_lib.h_module, "CreateEncoder"));
+    arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
+    arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
+    arc_lib.GetNumberOfFormats = nullptr;
+    arc_lib.GetHandlerProperty = nullptr;
+    arc_lib.GetHandlerProperty2 = nullptr;
+    arc_lib.GetIsArc = nullptr;
+    arc_lib.SetCodecs = nullptr;
+    arc_lib.version = 0;
+    auto n_start_codecs = arc_codecs.size();
+    if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
+      UInt32 numMethods = 1;
+      bool ok = true;
+      if (arc_lib.GetNumberOfMethods)
+        ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
+      for (UInt32 i = 0; ok && i < numMethods; ++i) {
+        CDllCodecInfo info;
+        info.LibIndex = static_cast<UInt32>(arc_libs.size());
+        info.CodecIndex = i;
+        if (GetCoderInfo(arc_lib.GetMethodProperty, i, info))
+          arc_codecs.push_back(info);
+      }
+    }
+    if (n_start_codecs < arc_codecs.size())
+      arc_libs.push_back(arc_lib);
+    else
+      FreeLibrary(arc_lib.h_module);
+  }
+
+  if (arc_codecs.size() > 0) {
+    compressinfo = new MyCompressCodecsInfo(arc_libs, arc_codecs);
+    for (size_t i = 0; i < n_base_format_libs; ++i) {
+      if (arc_libs[i].SetCodecs)
+        arc_libs[i].SetCodecs(compressinfo);
+    }
+  }
+}
 
 struct SfxModuleInfo {
   const wchar_t* module_name;
@@ -421,8 +422,9 @@ static bool ParseSignatures(const Byte *data, size_t size, vector<ByteVector> &s
 }
 
 void ArcAPI::load() {
-  load_libs(add_trailing_slash(Far::get_plugin_module_path()) + L"*.dll");
-  find_sfx_modules(add_trailing_slash(Far::get_plugin_module_path()) + L"*.sfx");
+  auto dll_path = add_trailing_slash(Far::get_plugin_module_path());
+  load_libs(dll_path + L"*.dll");
+  find_sfx_modules(dll_path + L"*.sfx");
   if (arc_libs.empty() || sfx_modules.empty()) {
     wstring _7zip_path;
     Key _7zip_key;
@@ -430,18 +432,33 @@ void ArcAPI::load() {
     if (_7zip_path.empty())
       _7zip_key.open_nt(HKEY_LOCAL_MACHINE, L"Software\\7-Zip", KEY_QUERY_VALUE, false) && _7zip_key.query_str_nt(_7zip_path, L"Path");
     if (!_7zip_path.empty()) {
-      if (arc_libs.empty())
-        load_libs(add_trailing_slash(_7zip_path) + L"7z.dll");
-      if (sfx_modules.empty())
-        find_sfx_modules(add_trailing_slash(_7zip_path) + L"*.sfx");
+      _7zip_path = add_trailing_slash(_7zip_path);
+      if (arc_libs.empty()) {
+        dll_path = _7zip_path;
+        load_libs(_7zip_path + L"7z.dll");
+		}
+      if (!arc_libs.empty() && sfx_modules.empty())
+        find_sfx_modules(_7zip_path + L"*.sfx");
     }
   }
   if (arc_libs.empty()) {
     wstring _7z_dll_path;
     IGNORE_ERRORS(_7z_dll_path = search_path(L"7z.dll"));
-    if (!_7z_dll_path.empty())
+    if (!_7z_dll_path.empty()) {
       load_libs(_7z_dll_path);
+      if (!arc_libs.empty()) {
+        dll_path = add_trailing_slash((_7z_dll_path));
+        if (sfx_modules.empty())
+          find_sfx_modules(dll_path + L"*.sfx");
+      }
+    }
   }
+
+  n_base_format_libs = n_format_libs = arc_libs.size();
+  load_libs(dll_path + L"Formats\\*.format");
+  n_format_libs = arc_libs.size();
+  load_codecs(dll_path + L"Codecs\\*.codec");
+
   for (unsigned i = 0; i < n_format_libs; i++) {
     const ArcLib& arc_lib = arc_libs[i];
 

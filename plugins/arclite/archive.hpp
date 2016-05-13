@@ -121,15 +121,17 @@ class MyCompressCodecsInfo;
 class ArcAPI {
 private:
   ArcLibs arc_libs;
+  size_t n_base_format_libs;
   size_t n_format_libs;
   ArcCodecs arc_codecs;
   MyCompressCodecsInfo *compressinfo;
   ArcFormats arc_formats;
   SfxModules sfx_modules;
   static ArcAPI* arc_api;
-  ArcAPI() { compressinfo = nullptr; }
+  ArcAPI() { n_base_format_libs = n_base_format_libs = 0; compressinfo = nullptr; }
   ~ArcAPI();
   void load_libs(const wstring& path);
+  void load_codecs(const wstring& path);
   void find_sfx_modules(const wstring& path);
   void load();
   static ArcAPI* get();
