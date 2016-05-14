@@ -648,7 +648,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				m_RecCode.clear();
 				m_RecDescription.clear();
 				Global->ScrBuf->Flush();
-				Global->WaitInFastFind--;
 				return true;
 			}
 			else
@@ -708,7 +707,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				m_RecCode.clear();
 				m_RecDescription.clear();
 				Global->ScrBuf->RestoreMacroChar();
-				Global->WaitInFastFind++;
 
 				if (Global->Opt->AutoSaveSetup)
 					SaveMacros(false); // записать только изменения!

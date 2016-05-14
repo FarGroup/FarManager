@@ -2507,16 +2507,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 
 		if (KeyCode>='0' && KeyCode<='9')
 		{
-			if (Global->WaitInFastFind > 0 &&
-			        Global->CtrlObject->Macro.GetState() < MACROSTATE_RECORDING &&
-			        !Global->CtrlObject->Macro.MacroExists(KEY_ALTSHIFT0+KeyCode-'0',MACROAREA_SEARCH,true))
-			{
-				return Modif|Char;
-			}
-			else
-			{
-				return Modif|KeyCode;
-			}
+			return Modif|KeyCode;
 		}
 
 		if (!Global->WaitInMainLoop && KeyCode>='A' && KeyCode<='Z')
@@ -2794,7 +2785,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 
 		if (Char)
 		{
-			if (!Global->Opt->ShiftsKeyRules || Global->WaitInFastFind > 0)
+			if (!Global->Opt->ShiftsKeyRules)
 				return ModifAlt|Upper(Char);
 			else if (Global->WaitInMainLoop)
 				return ModifAlt|Char;

@@ -266,7 +266,7 @@ protected:
 	Panel(window_ptr Owner);
 	virtual void ClearAllItem(){}
 
-	void FastFind(int FirstKey);
+	void FastFind(const Manager::Key& FirstKey);
 	void DrawSeparator(int Y);
 	void ShowScreensCount();
 	string GetTitleForDisplay();

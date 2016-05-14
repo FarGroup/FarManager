@@ -1445,7 +1445,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if ((LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535) || (LocalKey>=KEY_RALT_BASE+0x01 && LocalKey<=KEY_RALT_BASE+65535) ||
 			        (LocalKey>=KEY_ALTSHIFT_BASE+0x01 && LocalKey<=KEY_ALTSHIFT_BASE+65535) || (LocalKey>=KEY_RALTSHIFT_BASE+0x01 && LocalKey<=KEY_RALTSHIFT_BASE+65535))
 			{
-				FastFind(LocalKey);
+				FastFind(Key);
 
 				if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 					ProcessKey(Manager::Key(KEY_ENTER));

@@ -136,9 +136,9 @@ class Search: public Modal
 	struct private_tag {};
 
 public:
-	static search_ptr create(Panel* Owner, int FirstKey);
+	static search_ptr create(Panel* Owner, const Manager::Key& FirstKey);
 
-	Search(private_tag, Panel* Owner, int FirstKey);
+	Search(private_tag, Panel* Owner, const Manager::Key& FirstKey);
 
 	void Process(void);
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -153,7 +153,7 @@ private:
 	void init(void);
 
 	Panel* m_Owner;
-	int m_FirstKey;
+	Manager::Key m_FirstKey;
 	std::unique_ptr<EditControl> m_FindEdit;
 	Manager::Key m_KeyToProcess;
 	virtual void DisplayObject(void) override;
@@ -163,7 +163,7 @@ private:
 	void Close(void);
 };
 
-Search::Search(private_tag, Panel* Owner, int FirstKey):
+Search::Search(private_tag, Panel* Owner, const Manager::Key& FirstKey):
 	m_Owner(Owner),
 	m_FirstKey(FirstKey),
 	m_FindEdit(),
@@ -181,7 +181,7 @@ void Search::InitPositionAndSize(void)
 	m_FindEdit->SetPosition(FindX+2,FindY+1,FindX+19,FindY+1);
 }
 
-search_ptr Search::create(Panel* Owner, int FirstKey)
+search_ptr Search::create(Panel* Owner, const Manager::Key& FirstKey)
 {
 	const auto SearchPtr = std::make_shared<Search>(private_tag(), Owner, FirstKey);
 	SearchPtr->init();
@@ -203,7 +203,7 @@ void Search::init(void)
 void Search::Process(void)
 {
 	Global->WindowManager->ExecuteWindow(shared_from_this());
-	if(m_FirstKey) Global->WindowManager->CallbackWindow([this](){ ProcessKey(Manager::Key(m_FirstKey)); });
+	Global->WindowManager->CallbackWindow([this](){ ProcessKey(m_FirstKey); });
 	Global->WindowManager->ExecuteModal(shared_from_this());
 }
 
@@ -408,17 +408,15 @@ void Search::Close(void)
 	Global->WindowManager->DeleteWindow(shared_from_this());
 }
 
-void Panel::FastFind(int FirstKey)
+void Panel::FastFind(const Manager::Key& FirstKey)
 {
 	// // _SVS(CleverSysLog Clev(L"Panel::FastFind"));
 	Manager::Key KeyToProcess;
-	Global->WaitInFastFind++;
 	{
 		const auto search = Search::create(this, FirstKey);
 		search->Process();
 		KeyToProcess=search->KeyToProcess();
 	}
-	Global->WaitInFastFind--;
 	Show();
 	Parent()->GetKeybar().Redraw();
 	Global->ScrBuf->Flush();

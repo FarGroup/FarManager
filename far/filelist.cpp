@@ -2567,24 +2567,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			        !(LocalKey&EXTENDED_KEY_BASE)
 			   )
 			{
-				//_SVS(SysLog(L">FastFind: Key=%s",_FARKEY_ToName(Key)));
-				// Скорректируем уже здесь нужные клавиши, т.к. WaitInFastFind
-				// в это время еще равно нулю.
-				static const char Code[]=")!@#$%^&*(";
-
-				if (LocalKey >= KEY_ALTSHIFT0 && LocalKey <= KEY_ALTSHIFT9)
-					LocalKey=(DWORD)Code[LocalKey-KEY_ALTSHIFT0];
-				else if (LocalKey >= KEY_RALTSHIFT0 && LocalKey <= KEY_RALTSHIFT9)
-					LocalKey=(DWORD)Code[LocalKey-KEY_RALTSHIFT0];
-				else if ((LocalKey&(~(KEY_ALT|KEY_RALT|KEY_SHIFT))) == '/')
-					LocalKey='?';
-				else if ((LocalKey == KEY_ALTSHIFT+'-') || (LocalKey == KEY_RALT+KEY_SHIFT+'-'))
-					LocalKey='_';
-				else if ((LocalKey == KEY_ALTSHIFT+'=') || (LocalKey == KEY_RALT+KEY_SHIFT+'='))
-					LocalKey='+';
-
-				//_SVS(SysLog(L"<FastFind: Key=%s",_FARKEY_ToName(Key)));
-				FastFind(LocalKey);
+				FastFind(Key);
 			}
 			else
 				break;

@@ -72,8 +72,6 @@ global::global():
 	// идет процесс назначения клавиши в макросе?
 	IsProcessAssignMacroKey=FALSE;
 	PluginPanelsCount = 0;
-	// идет процесс быстрого поиска в панелях?
-	WaitInFastFind=FALSE;
 	// мы крутимся в основном цикле?
 	WaitInMainLoop=FALSE;
 	StartIdleTime=0;

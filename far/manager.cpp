@@ -607,7 +607,6 @@ bool Manager::HaveAnyMessage() const
 
 void Manager::EnterMainLoop()
 {
-	Global->WaitInFastFind=0;
 	StartManager = true;
 
 	for (;;)
@@ -633,10 +632,8 @@ void Manager::ProcessMainLoop()
 	{
 		// Mantis#0000073: Не работает автоскролинг в QView
 		Global->WaitInMainLoop=IsPanelsActive(true);
-		//WaitInFastFind++;
 		INPUT_RECORD rec;
 		int Key=GetInputRecord(&rec);
-		//WaitInFastFind--;
 		Global->WaitInMainLoop=FALSE;
 
 		if (EndLoop)

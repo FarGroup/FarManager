@@ -60,7 +60,6 @@ public:
 
 	clock_t StartIdleTime;
 	int WaitInMainLoop;
-	int WaitInFastFind;
 	string g_strFarModuleName;
 	string g_strFarINI;
 	string g_strFarPath;
