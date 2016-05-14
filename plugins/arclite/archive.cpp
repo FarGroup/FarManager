@@ -436,7 +436,7 @@ void ArcAPI::load() {
       if (arc_libs.empty()) {
         dll_path = _7zip_path;
         load_libs(_7zip_path + L"7z.dll");
-		}
+      }
       if (!arc_libs.empty() && sfx_modules.empty())
         find_sfx_modules(_7zip_path + L"*.sfx");
     }
@@ -447,7 +447,7 @@ void ArcAPI::load() {
     if (!_7z_dll_path.empty()) {
       load_libs(_7z_dll_path);
       if (!arc_libs.empty()) {
-        dll_path = add_trailing_slash((_7z_dll_path));
+        dll_path = add_trailing_slash(extract_file_path(_7z_dll_path));
         if (sfx_modules.empty())
           find_sfx_modules(dll_path + L"*.sfx");
       }
