@@ -152,7 +152,6 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 		{
 			// ошибка чтения
 		}*/
-		ModuleFile.Close();
 	}
 
 	/*else
@@ -185,18 +184,7 @@ static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strTyp
 	return false;
 }
 
-/*
-Функция FindModule пытается найти исполняемый модуль (в т.ч. и по
-%PATHEXT%). В случае успеха заменяет в Module порцию, ответственную за
-исполняемый модуль на найденное значение, копирует результат в strDest и
-пытается проверить заголовок PE на ГУЕВОСТЬ (чтобы запустить процесс
-в отдельном окне и не ждать завершения).
-В случае неудачи strDest не заполняется!
-Return: true/false - нашли/не нашли
-Команда в функцию передается уже без кавычек. Ничего не меняем.
-И подменять ничего не надо, т.к. все параметры мы отсекли раньше
-*/
-static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
+static bool FindObject(const string& Module, string &strDest, bool &Internal)
 {
 	bool Result=false;
 
@@ -209,7 +197,6 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
 		{
-			ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_CUI;
 			Result=true;
 			Internal = true;
 		}
@@ -344,13 +331,9 @@ static bool FindModule(const string& Module, string &strDest,DWORD &ImageSubsyst
 				}
 			}
 
-			if (Result) // некоторые "подмены" данных
+			if (Result)
 			{
-				Result = GetImageSubsystem(strFullName,ImageSubsystem);
-				if (Result)
-				{
-					strDest = strFullName;
-				}
+				strDest = strFullName;
 			}
 		}
 	}
@@ -628,7 +611,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 		}
 
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
-		if (strType.empty() && (hCRKey = os::reg::open_key(HKEY_CLASSES_ROOT, Ext.data(), KEY_QUERY_VALUE)))
+		if (strType.empty() && (hCRKey = os::reg::open_key(HKEY_CLASSES_ROOT, Ext.data(), KEY_QUERY_VALUE)) != nullptr)
 		{
 			if (os::reg::GetValue(hCRKey, L"", strFoundValue) && IsProperProgID(strFoundValue))
 			{
@@ -725,13 +708,15 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			return false;
 		};
 
-		DWORD dwSubSystem;
-		bool Internal = false;
-
 		const auto ModuleName = Unquote(os::env::expand_strings(strNewCmdStr));
 		auto FoundModuleName = ModuleName;
 
-		if (FindModule(ModuleName, FoundModuleName, dwSubSystem, Internal) || GetSubsystemFromShellAction(ModuleName, dwSubSystem))
+		bool Internal = false;
+
+		DWORD dwSubSystem;
+		if (FindObject(ModuleName, FoundModuleName, Internal) &&
+			(GetImageSubsystem(FoundModuleName, dwSubSystem) || GetSubsystemFromShellAction(ModuleName, dwSubSystem))
+			)
 		{
 			if (Internal)
 			{
