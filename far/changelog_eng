@@ -3,6 +3,56 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.05.2016 22:00:35 +0200 - build 4674
+
+1. Correction of 4668.
+
+zg 15.05.2016 17:37:36 +0200 - build 4673
+
+1. remove window drawing lock.
+
+zg 15.05.2016 00:33:49 +0200 - build 4672
+
+1. forum: symbols "бюжэхъё" are not entered in "fast find" window.
+
+drkns 13.05.2016 00:33:18 +0200 - build 4671
+
+1. Correction of processing exceptions for gcc.
+
+2. Additional information in exceptions thrown manually (function, file, line).
+
+3. Refactoring.
+
+drkns 11.05.2016 23:59:21 +0200 - build 4670
+
+1. Correction of processing DM_GETDIALOGINFО.
+
+2. Warnings.
+
+3. Remove unused #include.
+
+drkns 10.05.2016 22:45:32 +0200 - build 4669
+
+1. Copy progress indication is slightly redone.
+   In theory, all drawing bugs should be fixed.
+   In reality, anything is possible as usual.
+
+2. Missing standard headers in some *.hpp.
+
+drkns 10.05.2016 18:04:22 +0200 - build 4668
+
+1. Forum: Enter on an office document in panels makes Far wait for the document close.
+
+drkns 09.05.2016 15:17:11 +0200 - build 4667
+
+1. clang warnings.
+
+2. A couple of minor issues.
+
+zg 09.05.2016 14:00:08 +0200 - build 4666
+
+1. correction of 4638.1: Dlg.* in opened combo box.
+
 zg 08.05.2016 13:27:59 +0200 - build 4665
 
 1. correction of 4638.1: the macro area for combo box is "Dialog".
