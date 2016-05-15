@@ -802,8 +802,7 @@ void Help::FastShow()
 	if (!IsVisible())
 		return;
 
-	if (!Locked())
-		DrawWindowFrame();
+	DrawWindowFrame();
 
 	CorrectPosition();
 	StackData->strSelTopic.clear();
@@ -823,13 +822,9 @@ void Help::FastShow()
 		}
 		else if (i==FixCount && FixCount>0)
 		{
-			if (!Locked())
-			{
-				GotoXY(m_X1,m_Y1+i+1);
-				SetColor(COL_HELPBOX);
-				ShowSeparator(m_X2-m_X1+1,1);
-			}
-
+			GotoXY(m_X1,m_Y1+i+1);
+			SetColor(COL_HELPBOX);
+			ShowSeparator(m_X2-m_X1+1,1);
 			continue;
 		}
 		else
@@ -858,11 +853,8 @@ void Help::FastShow()
 		}
 	}
 
-	if (!Locked())
-	{
-		SetColor(COL_HELPSCROLLBAR);
-		ScrollBarEx(m_X2, m_Y1 + FixSize + 1, m_Y2 - m_Y1 - FixSize - 1, StackData->TopStr, HelpList.size() - FixCount);
-	}
+	SetColor(COL_HELPSCROLLBAR);
+	ScrollBarEx(m_X2, m_Y1 + FixSize + 1, m_Y2 - m_Y1 - FixSize - 1, StackData->TopStr, HelpList.size() - FixCount);
 }
 
 void Help::DrawWindowFrame()
@@ -1080,10 +1072,7 @@ void Help::OutString(const wchar_t *Str)
 			if (StrLength(OutStr) + WhereX() > m_X2)
 				OutStr[m_X2 - WhereX()] = 0;
 
-			if (Locked())
-				GotoXY(WhereX()+StrLength(OutStr),WhereY());
-			else
-				Text(OutStr);
+			Text(OutStr);
 
 			OutPos=0;
 		}
@@ -1114,7 +1103,7 @@ void Help::OutString(const wchar_t *Str)
 		}
 	}
 
-	if (!Locked() && WhereX()<m_X2)
+	if (WhereX()<m_X2)
 	{
 		SetColor(CurColor);
 		Global->FS << fmt::MinWidth(m_X2-WhereX())<<L"";
@@ -1798,7 +1787,6 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	int SaveCurY=StackData->CurY;
 	int SaveTopStr=StackData->TopStr;
 	StackData->strSelTopic.clear();
-	Lock();
 
 	if (!ErrorHelp) while (StackData->strSelTopic.empty())
 		{
@@ -1851,8 +1839,6 @@ void Help::MoveToReference(int Forward,int CurScreen)
 					StackData->strSelTopic.clear();
 			}
 		}
-
-	Unlock();
 
 	if (StackData->strSelTopic.empty())
 	{

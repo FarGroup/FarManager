@@ -66,8 +66,6 @@ grabber_ptr Grabber::create()
 
 void Grabber::init()
 {
-	const auto CurrentWindow = Global->WindowManager->GetCurrentWindow();
-	CurrentWindow->Lock();
 	SaveScr = std::make_unique<SaveScreen>();
 	bool Visible=false;
 	DWORD Size=0;
@@ -87,7 +85,6 @@ void Grabber::init()
 	DisplayObject();
 	Process();
 	SaveScr.reset();
-	CurrentWindow->Unlock();
 	Global->WindowManager->RefreshWindow();
 }
 

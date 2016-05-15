@@ -392,10 +392,6 @@ void ElevationApproveDlgSync(const EAData& Data)
 	Dlg->SetPosition(-1, -1, DlgX, DlgY);
 	Dlg->SetDialogMode(DMODE_FULLSHADOW | DMODE_NOPLUGINS);
 	const auto Current = Global->WindowManager->GetCurrentWindow();
-	if(Current)
-	{
-		Current->Lock();
-	}
 	const auto Lock = Global->ScrBuf->GetLockCount();
 	Global->ScrBuf->SetLockCount(0);
 
@@ -406,10 +402,6 @@ void ElevationApproveDlgSync(const EAData& Data)
 	Dlg->Process();
 	ConsoleTitle::SetFarTitle(OldTitle);
 	Global->ScrBuf->SetLockCount(Lock);
-	if(Current)
-	{
-		Current->Unlock();
-	}
 
 	Data.AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
 	Data.IsApproved = Dlg->GetExitCode() == AAD_BUTTON_OK;

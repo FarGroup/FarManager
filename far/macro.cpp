@@ -3320,9 +3320,6 @@ static bool menushowFunc(FarMacroCall* Data)
 
 	window_ptr Window;
 
-	if ((Window = Global->WindowManager->GetBottomWindow()) )
-		Window->Lock();
-
 	int PrevSelectedPos=Menu->GetSelectPos();
 	DWORD LastKey=0;
 	bool CheckFlag;
@@ -3460,10 +3457,6 @@ static bool menushowFunc(FarMacroCall* Data)
 				Result=L"";
 		}
 	}
-
-	if (Window)
-		Window->Unlock();
-
 	PassValue(Result, Data);
 	return true;
 }

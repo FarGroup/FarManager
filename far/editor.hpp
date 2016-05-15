@@ -59,7 +59,7 @@ public:
 	void SetCacheParams(EditorPosCache &pc, bool count_bom = false);
 	void GetCacheParams(EditorPosCache &pc);
 	bool TryCodePage(uintptr_t codepage, int &X, int &Y);
-	bool SetCodePage(uintptr_t codepage, bool *BOM=nullptr); //BUGBUG
+	bool SetCodePage(uintptr_t codepage, bool *BOM=nullptr, bool ShowMe=true); //BUGBUG
 	uintptr_t GetCodePage() const; //BUGBUG
 	void KeepInitParameters();
 	void SetStartPos(int LineNum, int CharNum);

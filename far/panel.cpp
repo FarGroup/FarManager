@@ -720,9 +720,6 @@ void Panel::Hide()
 
 void Panel::Show()
 {
-	if (Locked())
-		return;
-
 	if (!GetModalMode())
 	{
 		const auto AnotherPanel = Parent()->GetAnotherPanel(this);

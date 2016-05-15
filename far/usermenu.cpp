@@ -667,7 +667,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_RALTF4:
 				{
 					os::fs::file MenuFile;
-					Global->CtrlObject->Cp()->Unlock();
 					{
 						SaveMenu(MenuFileName);
 						const auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);

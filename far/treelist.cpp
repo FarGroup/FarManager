@@ -912,15 +912,7 @@ int TreeList::ReadTree()
 		if (CheckForEscSilent())
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
-			const auto f = Global->WindowManager->GetCurrentWindow();
-			if (f)
-				f->Lock();
-
 			AscAbort=ConfirmAbortOp();
-
-			if (f)
-				f->Unlock();
-
 			FirstCall=TRUE;
 		}
 

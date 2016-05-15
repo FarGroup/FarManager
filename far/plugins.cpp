@@ -300,11 +300,6 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 			const auto Window = Global->WindowManager->GetModalWindow(i);
 			if((Window->GetType()==windowtype_dialog && std::static_pointer_cast<Dialog>(Window)->GetPluginOwner() == pPlugin) || Window->GetType()==windowtype_help)
 			{
-				Window->Lock();
-				if(i)
-				{
-					Global->WindowManager->GetModalWindow(i-1)->Lock();
-				}
 				Global->WindowManager->DeleteWindow(Window);
 				Global->WindowManager->PluginCommit();
 			}

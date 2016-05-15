@@ -2324,14 +2324,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTHOME:    case KEY_SHIFTNUMPAD7:
 		{
 			InternalProcessKey++;
-			Lock();
-
 			while (m_CurFile>0)
 				ProcessKey(Manager::Key(KEY_SHIFTUP));
-
 			ProcessKey(Manager::Key(KEY_SHIFTUP));
 			InternalProcessKey--;
-			Unlock();
 
 			if (SelectedFirst)
 				SortFileList(TRUE);
@@ -2342,14 +2338,11 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTEND:     case KEY_SHIFTNUMPAD1:
 		{
 			InternalProcessKey++;
-			Lock();
-
 			while (m_CurFile < static_cast<int>(m_ListData.size() - 1))
 				ProcessKey(Manager::Key(KEY_SHIFTDOWN));
 
 			ProcessKey(Manager::Key(KEY_SHIFTDOWN));
 			InternalProcessKey--;
-			Unlock();
 
 			if (SelectedFirst)
 				SortFileList(TRUE);
@@ -2362,13 +2355,11 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		{
 			N=m_Columns*m_Height-1;
 			InternalProcessKey++;
-			Lock();
 
 			while (N--)
 				ProcessKey(Manager::Key(LocalKey==KEY_SHIFTPGUP||LocalKey==KEY_SHIFTNUMPAD9? KEY_SHIFTUP:KEY_SHIFTDOWN));
 
 			InternalProcessKey--;
-			Unlock();
 
 			if (SelectedFirst)
 				SortFileList(TRUE);
@@ -2386,7 +2377,6 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			{
 				N=m_Height;
 				InternalProcessKey++;
-				Lock();
 
 				while (N--)
 					ProcessKey(Manager::Key(LocalKey==KEY_SHIFTLEFT || LocalKey==KEY_SHIFTNUMPAD4? KEY_SHIFTUP:KEY_SHIFTDOWN));
@@ -2398,7 +2388,6 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					SortFileList(TRUE);
 
 				InternalProcessKey--;
-				Unlock();
 
 				if (SelectedFirst)
 					SortFileList(TRUE);
@@ -7463,12 +7452,6 @@ void FileList::DisplayObject()
 
 void FileList::ShowFileList(int Fast)
 {
-	if (Locked())
-	{
-		CorrectPosition();
-		return;
-	}
-
 	string strTitle;
 	string strInfoCurDir;
 

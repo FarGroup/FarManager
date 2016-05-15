@@ -71,9 +71,6 @@ public:
 	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;}
 	virtual void Refresh(void);
 
-	void Lock();
-	void Unlock();
-	bool Locked();
 	void Redraw();
 	bool IsVisible() const {return m_Flags.Check(FSCROBJ_VISIBLE);}
 	void SetVisible(bool Visible) {m_Flags.Change(FSCROBJ_VISIBLE,Visible);}
@@ -87,7 +84,6 @@ protected:
 	// KEEP ALIGNED!
 	std::weak_ptr<window> m_Owner;
 	BitFlags m_Flags;
-	int nLockCount;
 	SHORT m_X1, m_Y1, m_X2, m_Y2;
 };
 

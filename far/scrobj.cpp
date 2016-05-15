@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
 	m_Owner(Owner),
-	nLockCount(),
 	m_X1(),
 	m_Y1(),
 	m_X2(),
@@ -52,24 +51,6 @@ SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
 
 SimpleScreenObject::~SimpleScreenObject()
 {
-}
-
-void SimpleScreenObject::Lock()
-{
-	nLockCount++;
-}
-
-void SimpleScreenObject::Unlock()
-{
-	if (nLockCount > 0)
-		nLockCount--;
-	else
-		nLockCount = 0;
-}
-
-bool SimpleScreenObject::Locked()
-{
-	return (nLockCount > 0) || (GetOwner()?GetOwner()->Locked():false);
 }
 
 void SimpleScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
@@ -102,9 +83,6 @@ void SimpleScreenObject::Hide()
 
 void SimpleScreenObject::Show()
 {
-	if (Locked())
-		return;
-
 	if (!m_Flags.Check(FSCROBJ_SETPOSITIONDONE))
 		return;
 
@@ -143,9 +121,6 @@ ScreenObject::~ScreenObject()
 
 void ScreenObject::Show()
 {
-	if (Locked())
-		return;
-
 	if (!m_Flags.Check(FSCROBJ_SETPOSITIONDONE))
 		return;
 

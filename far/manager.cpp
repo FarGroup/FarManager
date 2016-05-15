@@ -1091,23 +1091,17 @@ void Manager::RefreshCommit(window_ptr_ref Param)
 	const auto process = [](const windows& List, int Index)
 	{
 		const auto first = std::next(List.begin(), Index);
-		const auto ItemIterator = std::find_if(first, List.end(), [](const auto& i) { return i->Locked(); });
-
-		//если одно из окон заблокировано, большого смысла в перерисовке пока нет
-		if (ItemIterator == List.end())
+		std::for_each(first, List.end(), [](const auto& i)
 		{
-			std::for_each(first, List.end(), [](const auto& i)
-			{
-				i->Refresh();
-				if
-				(
-					(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
-					||
-					(Global->WaitInMainLoop && Global->Opt->Clock)
-				)
-					ShowTime(1);
-			});
-		}
+			i->Refresh();
+			if
+			(
+				(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
+				||
+				(Global->WaitInMainLoop && Global->Opt->Clock)
+			)
+				ShowTime(1);
+		});
 	};
 
 	if (WindowIndex >= 0)
@@ -1205,22 +1199,8 @@ void Manager::ImmediateHide()
 		}
 		else
 		{
-			int UnlockCount=0;
-
-			while (m_windows.back()->Locked())
-			{
-				m_windows.back()->Unlock();
-				UnlockCount++;
-			}
-
 			RefreshWindow(m_windows.back());
 			Commit();
-
-			repeat(UnlockCount, [this]()
-			{
-				m_windows.back()->Lock();
-			});
-
 			if (m_modalWindows.size() > 1)
 			{
 				for (const auto& i: make_range(m_modalWindows.cbegin(), m_modalWindows.cend() - 1))

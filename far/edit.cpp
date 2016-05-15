@@ -804,18 +804,13 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
 		{
-			Lock();
-
 			while (m_CurPos>0)
 				RecurseProcessKey(KEY_SHIFTLEFT);
-
-			Unlock();
 			Show();
 			return TRUE;
 		}
 		case KEY_SHIFTEND:  case KEY_SHIFTNUMPAD1:
 		{
-			Lock();
 			int Len;
 
 			if (!Mask.empty())
@@ -836,8 +831,6 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 				LastCurPos=m_CurPos;
 			}
-
-			Unlock();
 			Show();
 			return TRUE;
 		}
@@ -891,7 +884,6 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 
 			{
-				Lock();
 				SCOPED_ACTION(auto)(CallbackSuppressor());
 
 				// BUGBUG
@@ -911,7 +903,6 @@ int Edit::ProcessKey(const Manager::Key& Key)
 						break;
 				}
 
-				Unlock();
 			}
 			Changed(true);
 			Show();
@@ -920,13 +911,9 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLQ:
 		case KEY_RCTRLQ:
 		{
-			Lock();
-
 			if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && (m_SelStart != -1 || m_Flags.Check(FEDITLINE_CLEARFLAG)))
 				RecurseProcessKey(KEY_DEL);
-
 			ProcessCtrlQ();
-			Unlock();
 			Show();
 			return TRUE;
 		}
@@ -973,8 +960,6 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				return FALSE;
 			{
 				SCOPED_ACTION(auto)(CallbackSuppressor());
-				Lock();
-
 				if (!Mask.empty())
 				{
 					int MaskLen = static_cast<int>(Mask.size());
@@ -1012,8 +997,6 @@ int Edit::ProcessKey(const Manager::Key& Key)
 							break;
 					}
 				}
-
-				Unlock();
 			}
 			Changed(true);
 			Show();

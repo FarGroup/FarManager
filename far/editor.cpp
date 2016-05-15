@@ -233,7 +233,7 @@ void Editor::DisplayObject()
 
 void Editor::ShowEditor()
 {
-	if (Locked() || Lines.empty())
+	if (Lines.empty())
 		return;
 
 	Color = colors::PaletteColorToFarColor(COL_EDITORTEXT);
@@ -992,7 +992,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTHOME:   case KEY_CTRLSHIFTNUMPAD7:
 		case KEY_RCTRLSHIFTHOME:  case KEY_RCTRLSHIFTNUMPAD7:
 		{
-			Lock();
 			Pasting++;
 
 			while (m_it_CurLine != Lines.begin())
@@ -1004,7 +1003,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				ProcessKey(Manager::Key(KEY_SHIFTHOME));
 
 			Pasting--;
-			Unlock();
 			Show();
 			return TRUE;
 		}
@@ -1013,7 +1011,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTEND:    case KEY_CTRLSHIFTNUMPAD1:
 		case KEY_RCTRLSHIFTEND:   case KEY_RCTRLSHIFTNUMPAD1:
 		{
-			Lock();
 			Pasting++;
 
 			while (!IsLastLine(m_it_CurLine))
@@ -1025,15 +1022,12 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				ProcessKey(Manager::Key(KEY_SHIFTEND));
 
 			Pasting--;
-			Unlock();
 			Show();
 			return TRUE;
 		}
 		case KEY_SHIFTPGUP:       case KEY_SHIFTNUMPAD9:
 		{
 			Pasting++;
-			Lock();
-
 			repeat(m_Y2 - m_Y1, [this]
 			{
 				ProcessKey(Manager::Key(KEY_SHIFTUP));
@@ -1048,15 +1042,12 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			});
 
 			Pasting--;
-			Unlock();
 			Show();
 			return TRUE;
 		}
 		case KEY_SHIFTPGDN:       case KEY_SHIFTNUMPAD3:
 		{
 			Pasting++;
-			Lock();
-
 			repeat(m_Y2 - m_Y1, [this]
 			{
 				ProcessKey(Manager::Key(KEY_SHIFTDOWN));
@@ -1071,18 +1062,15 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			});
 
 			Pasting--;
-			Unlock();
 			Show();
 			return TRUE;
 		}
 		case KEY_SHIFTHOME:       case KEY_SHIFTNUMPAD7:
 		{
 			Pasting++;
-			Lock();
 			m_it_CurLine->Select(0,SelAtBeginning?SelEnd:SelStart);
 			ProcessKey(Manager::Key(KEY_HOME));
 			Pasting--;
-			Unlock();
 			Show();
 			return TRUE;
 		}
@@ -1091,7 +1079,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		{
 			{
 				Pasting++;
-				Lock();
 				int CurLength=m_it_CurLine->GetLength();
 
 				if (!SelAtBeginning || SelFirst)
@@ -1109,8 +1096,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				m_it_CurLine->SetRightCoord(XX2);
 				ProcessKey(Manager::Key(KEY_END));
 				Pasting--;
-				Unlock();
-
 				if (EdOpt.PersistentBlocks)
 					Show();
 				else
@@ -1209,8 +1194,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				int SkipSpace=TRUE;
 				Pasting++;
-				Lock();
-
 				for (;;)
 				{
 					const auto& Str = m_it_CurLine->GetString();
@@ -1253,9 +1236,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					SkipSpace=FALSE;
 					ProcessKey(Manager::Key(KEY_SHIFTLEFT));
 				}
-
 				Pasting--;
-				Unlock();
 				Show();
 			}
 			return TRUE;
@@ -1268,8 +1249,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				int SkipSpace=TRUE;
 				Pasting++;
-				Lock();
-
 				for (;;)
 				{
 					const auto& Str = m_it_CurLine->GetString();
@@ -1292,9 +1271,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 					SkipSpace=FALSE;
 					ProcessKey(Manager::Key(KEY_SHIFTRIGHT));
 				}
-
 				Pasting--;
-				Unlock();
 				Show();
 			}
 			return TRUE;
@@ -1350,17 +1327,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 				if (SelEnd!=-1)
 					SelEnd = NextLine->TabPosToReal(SelEnd);
-
-				/*
-				if(!EdOpt.CursorBeyondEOL && SelEnd > NextLine->GetLength())
-				{
-					SelEnd = NextLine->GetLength();
-				}
-				if(!EdOpt.CursorBeyondEOL && SelStart > NextLine->GetLength())
-				{
-					SelStart = NextLine->GetLength();
-				}
-				*/
 			}
 			else //расширяем выделение
 			{
@@ -1384,13 +1350,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				SelStart = NextLine->GetLength();
 			}
-
-			/*
-			if(!SelStart && !SelEnd)
-				NextLine->RemoveSelection();
-			else
-			*/
-				NextLine->Select(SelStart,SelEnd);
+			NextLine->Select(SelStart,SelEnd);
 			Down();
 			Show();
 			return TRUE;
@@ -2111,9 +2071,7 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				Lock();
 				Undo(LocalKey()==KEY_CTRLSHIFTZ || LocalKey()==KEY_RCTRLSHIFTZ);
-				Unlock();
 				Show();
 			}
 
@@ -2256,8 +2214,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				int SkipSpace=TRUE;
 				Pasting++;
-				Lock();
-
 				for (;;)
 				{
 					const auto& Str = m_it_CurLine->GetString();
@@ -2288,7 +2244,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				}
 
 				Pasting--;
-				Unlock();
 				Show();
 			}
 			return TRUE;
@@ -2298,8 +2253,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			{
 				int SkipSpace=TRUE;
 				Pasting++;
-				Lock();
-
 				for (;;)
 				{
 					const auto& Str = m_it_CurLine->GetString();
@@ -2324,7 +2277,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 				}
 
 				Pasting--;
-				Unlock();
 				Show();
 			}
 			return TRUE;
@@ -2396,12 +2348,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTHOME:
 		{
 			Pasting++;
-			Lock();
-
 			while (m_it_CurLine->GetCurPos()>0)
 				ProcessKey(Manager::Key(KEY_ALTSHIFTLEFT));
-
-			Unlock();
 			Pasting--;
 			Show();
 			return TRUE;
@@ -2412,8 +2360,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTEND:
 		{
 			Pasting++;
-			Lock();
-
 			if (m_it_CurLine->GetCurPos()<m_it_CurLine->GetLength())
 				while (m_it_CurLine->GetCurPos()<m_it_CurLine->GetLength())
 					ProcessKey(Manager::Key(KEY_ALTSHIFTRIGHT));
@@ -2421,8 +2367,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			if (m_it_CurLine->GetCurPos()>m_it_CurLine->GetLength())
 				while (m_it_CurLine->GetCurPos()>m_it_CurLine->GetLength())
 					ProcessKey(Manager::Key(KEY_ALTSHIFTLEFT));
-
-			Unlock();
 			Pasting--;
 			Show();
 			return TRUE;
@@ -2433,12 +2377,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTPGUP:
 		{
 			Pasting++;
-			Lock();
-
 			for (int I=m_Y1; I<m_Y2; I++)
 				ProcessKey(Manager::Key(KEY_ALTSHIFTUP));
-
-			Unlock();
 			Pasting--;
 			Show();
 			return TRUE;
@@ -2449,12 +2389,8 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTPGDN:
 		{
 			Pasting++;
-			Lock();
-
 			for (int I=m_Y1; I<m_Y2; I++)
 				ProcessKey(Manager::Key(KEY_ALTSHIFTDOWN));
-
-			Unlock();
 			Pasting--;
 			Show();
 			return TRUE;
@@ -2462,27 +2398,21 @@ int Editor::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLALTPGUP:   case KEY_CTRLALTNUMPAD9:
 		case KEY_CTRLALTHOME:   case KEY_CTRLALTNUMPAD7:
 		{
-			Lock();
 			Pasting++;
-
 			auto PrevLine = Lines.end();
 			while (m_it_CurLine != Lines.begin() && PrevLine != m_it_CurLine)
 			{
 				PrevLine = m_it_CurLine;
 				ProcessKey(Manager::Key(KEY_ALTUP));
 			}
-
 			Pasting--;
-			Unlock();
 			Show();
 			return TRUE;
 		}
 		case KEY_CTRLALTPGDN:   case KEY_CTRLALTNUMPAD3:
 		case KEY_CTRLALTEND:    case KEY_CTRLALTNUMPAD1:
 		{
-			Lock();
 			Pasting++;
-
 			auto PrevLine = Lines.end();
 			while (!IsLastLine(m_it_CurLine) && PrevLine != m_it_CurLine)
 			{
@@ -2491,7 +2421,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			}
 
 			Pasting--;
-			Unlock();
 			Show();
 			return TRUE;
 		}
@@ -2569,7 +2498,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 			int OldCurPos=CurPos;
 			size_t SBegin, SEnd;
 			Pasting++;
-			Lock();
 			UnmarkBlock();
 
 			// CurLine->TableSet ??? => UseDecodeTable?CurLine->TableSet:nullptr !!!
@@ -2589,7 +2517,6 @@ int Editor::ProcessKey(const Manager::Key& Key)
 
 			CurPos=OldCurPos; // возвращаем обратно
 			Pasting--;
-			Unlock();
 			Show();
 			return TRUE;
 		}
@@ -3696,11 +3623,9 @@ BOOL Editor::Search(int Next)
 					if (EdOpt.SearchSelFound && !ReplaceMode)
 					{
 						Pasting++;
-						Lock();
 						UnmarkBlock();
 						BeginStreamMarking(CurPtr);
 						CurPtr->Select(m_FoundPos, m_FoundPos + m_FoundSize);
-						Unlock();
 						Pasting--;
 					}
 
@@ -3948,12 +3873,10 @@ BOOL Editor::Search(int Next)
 						if (EdOpt.SearchSelFound)
 						{
 							Pasting++;
-							Lock();
 							// if (!EdOpt.PersistentBlocks)
 							UnmarkBlock();
 							BeginStreamMarking(m_it_CurLine);
 							m_it_CurLine->Select(coord.Pos, coord.Pos + coord.SearchLen);
-							Unlock();
 							Pasting--;
 						}
 						if (EdOpt.SearchCursorAtEnd)
@@ -4002,12 +3925,9 @@ BOOL Editor::Search(int Next)
 			if (EdOpt.SearchSelFound)
 			{
 				Pasting++;
-				Lock();
-				// if (!EdOpt.PersistentBlocks)
 				UnmarkBlock();
 				BeginStreamMarking(m_it_CurLine);
 				m_it_CurLine->Select(coord.Pos, coord.Pos + coord.SearchLen);
-				Unlock();
 				Pasting--;
 			}
 			if (EdOpt.SearchCursorAtEnd)
@@ -4059,8 +3979,6 @@ void Editor::Paste(const string& Data)
 		int SaveOvertype=m_Flags.Check(FEDITOR_OVERTYPE);
 		UnmarkBlock();
 		Pasting++;
-		Lock();
-
 		if (m_Flags.Check(FEDITOR_OVERTYPE))
 		{
 			m_Flags.Clear(FEDITOR_OVERTYPE);
@@ -4158,7 +4076,6 @@ void Editor::Paste(const string& Data)
 		}
 
 		Pasting--;
-		Unlock();
 		AddUndoData(UNDO_END);
 	}
 }
@@ -5273,8 +5190,6 @@ void Editor::VPaste(const string& Data)
 		int SaveOvertype=m_Flags.Check(FEDITOR_OVERTYPE);
 		UnmarkBlock();
 		Pasting++;
-		Lock();
-
 		if (m_Flags.Check(FEDITOR_OVERTYPE))
 		{
 			m_Flags.Clear(FEDITOR_OVERTYPE);
@@ -5354,7 +5269,6 @@ void Editor::VPaste(const string& Data)
 		m_it_CurLine = m_it_AnyBlockStart;
 		m_it_CurLine->SetTabCurPos(StartPos);
 		Pasting--;
-		Unlock();
 		AddUndoData(UNDO_END);
 	}
 }
@@ -5517,8 +5431,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				TurnOffMarkingBlock();
 				const wchar_t *Str=(const wchar_t *)Param2;
 				Pasting++;
-				Lock();
-
 				while (*Str)
 				{
 					if(L'\n'==*Str)
@@ -5533,8 +5445,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					}
 					++Str;
 				}
-
-				Unlock();
 				Pasting--;
 			}
 
@@ -5719,7 +5629,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				_ECTLLOG(SysLog(L"  LeftPos       = %d",Pos->LeftPos));
 				_ECTLLOG(SysLog(L"  Overtype      = %d",Pos->Overtype));
 				_ECTLLOG(SysLog(L"}"));
-				Lock();
 
 				// выставим флаг об изменении поз
 				m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
@@ -5764,8 +5673,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					m_Flags.Change(FEDITOR_OVERTYPE,Pos->Overtype!=0);
 					m_it_CurLine->SetOvertypeMode(m_Flags.Check(FEDITOR_OVERTYPE));
 				}
-
-				Unlock();
 				return TRUE;
 			}
 
@@ -6137,9 +6044,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						return TRUE;
 					case EUR_UNDO:
 					case EUR_REDO:
-						Lock();
 						Undo(eur->Command==EUR_REDO);
-						Unlock();
 						return TRUE;
 				}
 			}
@@ -7042,12 +6947,8 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		if (m_it_CurLine.Number() == pc.cur.Line - pc.cur.ScreenLine)
 		{
-			Lock();
-
 			repeat(pc.cur.ScreenLine, [this](){ ProcessKey(Manager::Key(KEY_DOWN)); });
-
 			m_it_CurLine->SetTabCurPos(pc.cur.LinePos);
-			Unlock();
 		}
 
 		m_it_CurLine->SetLeftPos(pc.cur.LeftPos);
@@ -7072,7 +6973,6 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		if (pc.cur.Line >= pc.cur.ScreenLine)
 		{
-			Lock();
 			GoToLine(pc.cur.Line-pc.cur.ScreenLine);
 			m_it_TopScreen = m_it_CurLine;
 
@@ -7083,7 +6983,6 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 			else
 				m_it_CurLine->SetTabCurPos(pc.cur.LinePos);
 			m_it_CurLine->SetLeftPos(pc.cur.LeftPos);
-			Unlock();
 		}
 	}
 }
@@ -7237,7 +7136,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 	return true;
 }
 
-bool Editor::SetCodePage(uintptr_t codepage, bool *BOM)
+bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 {
 	if ( m_codepage == codepage )
 		return true;
@@ -7265,7 +7164,7 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM)
 
 	m_codepage = codepage;
 
-	Show();
+	if (ShowMe) Show(); //BUGBUG: костыль для того, чтобы не было перерисовки в FileEditor::Init.
 	return Result == 0; // BUGBUG, more details
 }
 
@@ -7308,11 +7207,8 @@ int Editor::GetCurCol() const
 
 void Editor::SetCurPos(int NewCol, int NewRow)
 {
-	Lock();
 	GoToLine(NewRow);
 	m_it_CurLine->SetTabCurPos(NewCol);
-	//CurLine->SetLeftPos(LeftPos); ???
-	Unlock();
 }
 
 void Editor::DrawScrollbar()

@@ -377,7 +377,7 @@ void Dialog::Init()
 	m_CanLoseFocus = FALSE;
 	//Номер плагина, вызвавшего диалог (-1 = Main)
 	PluginOwner = nullptr;
-	DialogMode.Set(DMODE_ISCANMOVE);
+	DialogMode.Set(DMODE_ISCANMOVE|DMODE_VISIBLE);
 	SetDropDownOpened(FALSE);
 	IsEnableRedraw=0;
 	m_FocusPos=(size_t)-1;
@@ -487,19 +487,16 @@ void Dialog::Show()
 	_DIALOG(CleverSysLog CL(L"Dialog::Show()"));
 	_DIALOG(SysLog(L"[%p] Dialog::Show()",this));
 
-	if (!DialogMode.Check(DMODE_OBJECTS_INITED))
+	if (!DialogMode.Check(DMODE_OBJECTS_INITED) || !DialogMode.Check(DMODE_VISIBLE))
 		return;
 
-	if (!Locked() && DialogMode.Check(DMODE_RESIZED) && !PreRedrawStack().empty())
+	if (DialogMode.Check(DMODE_RESIZED) && !PreRedrawStack().empty())
 	{
 		const auto item = PreRedrawStack().top();
 		item->m_PreRedrawFunc();
 	}
 
 	DialogMode.Clear(DMODE_RESIZED);
-
-	if (Locked())
-		return;
 
 	DialogMode.Set(DMODE_SHOW);
 	ScreenObjectWithShadow::Show();
@@ -1553,9 +1550,6 @@ void Dialog::ShowDialog(size_t ID)
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::ShowDialog()"));
 	_DIALOG(SysLog(L"Locked()=%d, DMODE_SHOW=%d DMODE_DRAWING=%d",Locked(),DialogMode.Check(DMODE_SHOW),DialogMode.Check(DMODE_DRAWING)));
-
-	if (Locked())
-		return;
 
 	string strStr;
 	int X,Y;
@@ -4723,28 +4717,20 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_SHOWDIALOG:
 		{
-//      if(!IsEnableRedraw)
+			if (Param1)
 			{
-				if (Param1)
+				if (!IsVisible())
 				{
-					/* $ 20.04.2002 KM
-					  Залочим прорисовку при прятании диалога, в противном
-					  случае ОТКУДА менеджер узнает, что отрисовывать
-					  объект нельзя!
-					*/
-					if (!IsVisible())
-					{
-						Unlock();
-						Show();
-					}
+					DialogMode.Set(DMODE_VISIBLE);
+					Show();
 				}
-				else
+			}
+			else
+			{
+				if (IsVisible())
 				{
-					if (IsVisible())
-					{
-						Hide();
-						Lock();
-					}
+					Hide();
+					DialogMode.Clear(DMODE_VISIBLE);
 				}
 			}
 			return 0;

@@ -428,23 +428,11 @@ void FileEditor::Init(
 {
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
-	class SmartLock: ::noncopyable
-	{
-	public:
-		SmartLock(Editor *e): m_editor(e) { m_editor->Lock(); }
-		~SmartLock() { m_editor->Unlock(); }
-
-	private:
-		Editor *m_editor;
-	};
-
 	int BlankFileName = Name == MSG(MNewFileName) || Name.empty();
 	bEE_READ_Sent = false;
 	bLoaded = false;
 	m_bAddSignature = false;
 	m_editor = std::make_unique<Editor>(shared_from_this());
-
-	SCOPED_ACTION(SmartLock)(m_editor.get());
 
 	m_codepage = codepage;
 	m_editor->SetCodePage(m_codepage);
@@ -671,7 +659,7 @@ void FileEditor::Init(
 		if (m_codepage==CP_DEFAULT || m_codepage == CP_REDETECT)
 			m_codepage = GetDefaultCodePage();
 
-		m_editor->SetCodePage(m_codepage);
+		m_editor->SetCodePage(m_codepage, nullptr, false);
 		break;
 	}
 
@@ -763,7 +751,7 @@ void FileEditor::Show()
 
 void FileEditor::DisplayObject()
 {
-	if (!m_editor->Locked()&&!m_bClosing)
+	if (!m_bClosing)
 	{
 		if (m_editor->m_Flags.Check(Editor::FEDITOR_ISRESIZEDCONSOLE))
 		{
@@ -1696,8 +1684,6 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 bool FileEditor::ReloadFile(uintptr_t codepage)
 {
-	m_editor->Lock();
-
 	const auto save_codepage(m_codepage), save_codepage1(m_editor->m_codepage);
 	const auto save_bAddSignature(m_bAddSignature);
 	const auto save_BadConversiom(BadConversion);
@@ -1730,8 +1716,6 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
 		m_editor->m_Flags.Clear(Editor::FEDITOR_MODIFIED);
 	}
-
-	m_editor->Unlock();
 	Show();
 	return loaded != FALSE;
 }
@@ -2311,7 +2295,7 @@ string FileEditor::GetTitle() const
 
 void FileEditor::ShowStatus()
 {
-	if (m_editor->Locked() || !Global->Opt->EdOpt.ShowTitleBar)
+	if (!Global->Opt->EdOpt.ShowTitleBar)
 		return;
 
 	SetColor(COL_EDITORSTATUS);
