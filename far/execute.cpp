@@ -693,7 +693,12 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		{
 			if (const auto ExtPtr = wcsrchr(PointToName(Str), L'.'))
 			{
-				if (!(!StrCmpI(ExtPtr, L".exe") || !StrCmpI(ExtPtr, L".com") || IsBatchExtType(ExtPtr)))
+				if (IsBatchExtType(ExtPtr))
+				{
+					Subsystem = IMAGE_SUBSYSTEM_WINDOWS_CUI;
+					return true;
+				}
+				else
 				{
 					DWORD SaError = 0, SaSubSystem = 0;
 					Verb = GetShellAction(Str, SaSubSystem, SaError);
