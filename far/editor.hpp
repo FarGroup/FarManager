@@ -206,6 +206,7 @@ private:
 	void ScrollUp();
 	BOOL Search(int Next);
 	void GoToLine(int Line);
+	void GoToLineAndShow(int Line);
 	void GoToPosition();
 	void TextChanged(bool State);
 	int CalcDistance(const numbered_iterator& From, const numbered_iterator& To) const;

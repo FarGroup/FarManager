@@ -643,12 +643,12 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 								const auto _NumLine = m_it_CurLine.Number();
 								int _CurPos=m_it_CurLine->GetTabCurPos();
 
-								GoToLine(iLine);
+								GoToLineAndShow(iLine);
 								m_it_CurLine->SetCurPos(m_it_CurLine->TabPosToReal(iPos));
 
 								if (!EdOpt.CursorBeyondEOL && m_it_CurLine->GetCurPos() > m_it_CurLine->GetLength())
 								{
-									GoToLine(_NumLine);
+									GoToLineAndShow(_NumLine);
 									m_it_CurLine->SetCurPos(m_it_CurLine->TabPosToReal(_CurPos));
 									return 0;
 								}
@@ -2844,7 +2844,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else
 		{
 			while (IsMouseButtonPressed())
-				GoToLine((m_LinesCount-1)*(IntKeyState.MouseY-m_Y1)/(m_Y2-m_Y1));
+				GoToLineAndShow((m_LinesCount-1)*(IntKeyState.MouseY-m_Y1)/(m_Y2-m_Y1));
 		}
 
 		return TRUE;
@@ -4451,8 +4451,13 @@ void Editor::GoToLine(int Line)
 //  if (!EdOpt.PersistentBlocks)
 //     UnmarkBlock();
 // </GOTO_UNMARK>
-	Show();
 	return;
+}
+
+void Editor::GoToLineAndShow(int Line)
+{
+	GoToLine(Line);
+	Show();
 }
 
 void Editor::GoToPosition()
@@ -4768,7 +4773,7 @@ void Editor::Undo(int redo)
 	{
 		if (ud->m_Type != UNDO_BEGIN && ud->m_Type != UNDO_END)
 		{
-			GoToLine(ud->m_StrNum);
+			GoToLineAndShow(ud->m_StrNum);
 		}
 
 		switch (ud->m_Type)
@@ -6973,7 +6978,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		if (pc.cur.Line >= pc.cur.ScreenLine)
 		{
-			GoToLine(pc.cur.Line-pc.cur.ScreenLine);
+			GoToLineAndShow(pc.cur.Line-pc.cur.ScreenLine);
 			m_it_TopScreen = m_it_CurLine;
 
 			repeat(pc.cur.ScreenLine, [this](){ ProcessKey(Manager::Key(KEY_DOWN)); });
@@ -7207,7 +7212,7 @@ int Editor::GetCurCol() const
 
 void Editor::SetCurPos(int NewCol, int NewRow)
 {
-	GoToLine(NewRow);
+	GoToLineAndShow(NewRow);
 	m_it_CurLine->SetTabCurPos(NewCol);
 }
 
