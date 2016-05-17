@@ -139,9 +139,6 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
 
     if (CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 32768))
     {
-      SetStdHandle(STD_OUTPUT_HANDLE,hChildStdoutWr);
-      SetStdHandle(STD_ERROR_HANDLE,hChildStdoutWr);
-
       if (Silent)
       {
         /*hScreen=Info.SaveScreen(0,0,-1,0);
@@ -154,24 +151,18 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
         Info.Message(Info.ModuleNumber,0,NULL,MsgItems,
                       ARRAYSIZE(MsgItems),0);
       }
+      SetStdHandle(STD_OUTPUT_HANDLE,hChildStdoutWr);
+      SetStdHandle(STD_ERROR_HANDLE,hChildStdoutWr);
     }
     else
       HideOutput=FALSE;
   }
   else
   {
-    GetConsoleScreenBufferInfo(StdOutput,&csbi);
-
-    char Blank[1024];
-    FSF.sprintf(Blank,"%*s",csbi.dwSize.X,"");
-    for (int Y=0;Y<csbi.dwSize.Y;Y++)
-      Info.Text(0,Y,LIGHTGRAY,Blank);
-    Info.Text(0,0,0,NULL);
-
-    COORD C;
-    C.X=0;
-    C.Y=csbi.dwCursorPosition.Y;
-    SetConsoleCursorPosition(StdOutput,C);
+    Info.Control(hPlugin, FCTL_GETUSERSCREEN, NULL);
+    GetConsoleScreenBufferInfo(StdOutput, &csbi);
+    COORD C = { 0, csbi.dwCursorPosition.Y };
+    SetConsoleCursorPosition(StdOutput, C);
   }
 
 
@@ -263,17 +254,6 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
   SetConsoleMode(StdInput,ConsoleMode);
   if (!HideOutput)
   {
-    SMALL_RECT src;
-    COORD dest;
-    CHAR_INFO fill;
-    src.Left=0;
-    src.Top=2;
-    src.Right=csbi.dwSize.X;
-    src.Bottom=csbi.dwSize.Y;
-    dest.X=dest.Y=0;
-    fill.Char.AsciiChar=' ';
-    fill.Attributes=7;
-    ScrollConsoleScreenBuffer(StdOutput,&src,NULL,dest,&fill);
     Info.Control(hPlugin,FCTL_SETUSERSCREEN,NULL);
   }
   if (hScreen)
