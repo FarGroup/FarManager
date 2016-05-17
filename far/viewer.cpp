@@ -1079,7 +1079,7 @@ string Viewer::GetTitle() const
 	return strTitle.empty()? strFullFileName : strTitle;
 }
 
-void Viewer::ShowStatus()
+void Viewer::ShowStatus() const
 {
 	if (HostFileViewer)
 		HostFileViewer->ShowStatus();
@@ -2475,7 +2475,7 @@ void Viewer::Up( int nlines, bool adjust )
 	}
 }
 
-int Viewer::GetStrBytesNum(const wchar_t *Str, int Length)
+int Viewer::GetStrBytesNum(const wchar_t *Str, int Length) const
 {
 	int ch_size = getCharSize();
 	if (ch_size > 0)
@@ -3797,7 +3797,7 @@ bool Viewer::vseek(__int64 Offset, int Whence)
 	return ViewFile.SetPointer(Offset, nullptr, Whence);
 }
 
-__int64 Viewer::vtell()
+__int64 Viewer::vtell() const
 {
 	auto Ptr = ViewFile.GetPointer();
 
@@ -3807,7 +3807,7 @@ __int64 Viewer::vtell()
 	return Ptr;
 }
 
-bool Viewer::veof()
+bool Viewer::veof() const
 {
 	if (vgetc_ready && vgetc_ib < vgetc_cb)
 		return false;

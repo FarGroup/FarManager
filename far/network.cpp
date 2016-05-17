@@ -58,13 +58,13 @@ os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
 	FN_RETURN_TYPE(AddSavedNetworkDisks) Result;
 	HANDLE hEnum;
 
-	if (!WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, nullptr, &hEnum))
+	if (WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, nullptr, &hEnum) == NO_ERROR)
 	{
+		SCOPE_EXIT{ WNetCloseEnum(hEnum); };
+
 		DWORD bufsz = 16*1024;
 		block_ptr<NETRESOURCE> netResource(bufsz);
 
-		if (netResource)
-		{
 			for (;;)
 			{
 				DWORD size=1;
@@ -91,9 +91,6 @@ os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
 					break;
 				}
 			}
-		}
-
-		WNetCloseEnum(hEnum);
 	}
 	return Result;
 }

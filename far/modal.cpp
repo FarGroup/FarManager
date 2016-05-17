@@ -79,7 +79,7 @@ void SimpleModal::SetHelp(const wchar_t *Topic)
 }
 
 
-void SimpleModal::ShowHelp()
+void SimpleModal::ShowHelp() const
 {
 	if (!m_HelpTopic.empty())
 		Help::create(m_HelpTopic);

@@ -45,16 +45,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 desktop::desktop(private_tag)
 {
 	SetCanLoseFocus(TRUE);
-	SetPosition(0, 0, ScrX, ScrY);
+	desktop::SetPosition(0, 0, ScrX, ScrY);
 }
 
 desktop_ptr desktop::create()
 {
 	return std::make_shared<desktop>(private_tag());
-}
-
-desktop::~desktop()
-{
 }
 
 void desktop::ResizeConsole()

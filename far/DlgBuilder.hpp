@@ -967,7 +967,7 @@ public:
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr, FARDIALOGFLAGS aFlags = FDLG_NONE)
 			: Info(aInfo), DialogHandle(nullptr), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
 		{
-			AddBorder(GetLangString(TitleMessageID));
+			AddBorder(PluginDialogBuilder::GetLangString(TitleMessageID));
 		}
 
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr, FARDIALOGFLAGS aFlags = FDLG_NONE)

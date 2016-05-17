@@ -40,43 +40,47 @@ public:
 	TRIVIALLY_COPYABLE(matrix);
 	TRIVIALLY_MOVABLE(matrix);
 
-	class row
+	template<class pointer>
+	class row_t
 	{
 	public:
-		typedef T value_type;
-		typedef T* iterator;
-		typedef const T* const_iterator;
-		typedef T& reference;
-		typedef const T& const_reference;
+		using iterator = pointer;
+		using const_iterator = typename std::add_const_t<row_t>::iterator;
+		using value_type = typename std::iterator_traits<iterator>::value_type;
+		using reference = typename std::iterator_traits<iterator>::reference;
 
-		row(T* row, size_t size): m_row(row), m_size(size) {}
+		row_t(iterator Row, size_t Size): m_row(Row), m_size(Size) {}
 
-		size_t size() const { return m_size; }
+		auto size() const { return m_size; }
 
 		// assert for <= is ok, &row[size] can be used as an 'end' iterator
-		reference operator[](size_t n) { assert(n <= m_size); return m_row[n]; }
-		const_reference operator[](size_t n) const { assert(n <= m_size); return m_row[n]; }
-		reference front() { assert(m_size != 0); return m_row[0]; }
-		reference back() { assert(m_size != 0); return m_row[m_size - 1]; }
+		decltype(auto) operator[](size_t n) { assert(n <= m_size); return m_row[n]; }
+		decltype(auto) operator[](size_t n) const { assert(n <= m_size); return m_row[n]; }
+		decltype(auto) front() const { assert(m_size != 0); return m_row[0]; }
+		decltype(auto) back() const { assert(m_size != 0); return m_row[m_size - 1]; }
 
-		T* data() { return m_row; }
-		const T* data() const { return m_row; }
+		auto data() { return m_row; }
+		auto data() const { return m_row; }
 
-		iterator begin() { return m_row; }
-		iterator end() { return m_row + m_size; }
+		auto begin() { return m_row; }
+		auto end() { return m_row + m_size; }
 
-		const_iterator cbegin() const { return m_row; }
-		const_iterator cend() const { return m_row + m_size; }
+		auto begin() const { return m_row; }
+		auto end() const { return m_row + m_size; }
 
-		const_iterator begin() const { return m_row; }
-		const_iterator end() const { return m_row + m_size; }
+		auto cbegin() const { return m_row; }
+		auto cend() const { return m_row + m_size; }
 
-		bool operator==(const row& rhs) const { return m_size == rhs.m_size && std::equal(m_row, m_row + m_size, rhs.m_row); }
-		bool operator!=(const row& rhs) const { return !(*this == rhs); }
+		bool operator==(const row_t& rhs) const { return m_size == rhs.m_size && std::equal(m_row, m_row + m_size, rhs.m_row); }
+		bool operator!=(const row_t& rhs) const { return !(*this == rhs); }
+
 	private:
-		T* m_row;
+		iterator m_row;
 		size_t m_size;
 	};
+
+	using row = row_t<T*>;
+	using const_row = row_t<const T*>;
 
 	matrix(): m_rows(), m_cols() {}
 	matrix(size_t rows, size_t cols) { allocate(rows, cols); }
@@ -93,25 +97,28 @@ public:
 	}
 
 	// assert for <= is ok, &matirx[size] can be used as an 'end' iterator
-	row operator[](size_t n) { assert(n <= m_rows); return row(m_buffer.data() + m_cols * n, m_cols); }
-	const row operator[](size_t n) const { assert(n <= m_rows); return row(const_cast<T*>(m_buffer.data()) + m_cols * n, m_cols); }
+	auto operator[](size_t n) { assert(n <= m_rows); return row(m_buffer.data() + m_cols * n, m_cols); }
+	auto operator[](size_t n) const { assert(n <= m_rows); return const_row(m_buffer.data() + m_cols * n, m_cols); }
 
-	size_t height() const { return m_rows; }
-	size_t width() const { return m_cols; }
+	auto height() const { return m_rows; }
+	auto width() const { return m_cols; }
 
-	row front() { assert(m_rows != 0); return (*this)[0]; }
-	row back() { assert(m_rows != 0); return (*this)[m_rows - 1]; }
+	auto front() { assert(m_rows != 0); return (*this)[0]; }
+	auto back() { assert(m_rows != 0); return (*this)[m_rows - 1]; }
 
-	bool empty() const { return m_buffer.empty(); }
-	size_t size() const { return m_buffer.size(); }
+	auto front() const { assert(m_rows != 0); return (*this)[0]; }
+	auto back() const { assert(m_rows != 0); return (*this)[m_rows - 1]; }
 
-	T* data() { return m_buffer.data(); }
-	const T* data() const { return m_buffer.data(); }
+	auto empty() const { return m_buffer.empty(); }
+	auto size() const { return m_buffer.size(); }
+
+	auto data() { return m_buffer.data(); }
+	auto data() const { return m_buffer.data(); }
 
 	// TODO: iterator interface
 
-	std::vector<T>& vector() { return m_buffer; }
-	const std::vector<T>& vector() const { return m_buffer; }
+	auto& vector() { return m_buffer; }
+	auto& vector() const { return m_buffer; }
 
 private:
 	std::vector<T> m_buffer;

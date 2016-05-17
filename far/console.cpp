@@ -765,7 +765,7 @@ private:
 	mutable string m_Title;
 };
 
-bool console::ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill)
+bool console::ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const
 {
 	bool Result = false;
 

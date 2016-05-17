@@ -639,7 +639,7 @@ void TreeList::DisplayTree(int Fast)
 	RefreshTitle(); // не забудем прорисовать заголовок
 }
 
-void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos)
+void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos) const
 {
 	if (WhereX()>m_X2-4)
 		GotoXY(m_X2-4,WhereY());

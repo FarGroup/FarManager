@@ -84,7 +84,7 @@ public:
 	void GetPrev(string &strStr);
 	void GetNext(string &strStr);
 	bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
-	bool GetAllSimilar(VMenu2 &HistoryMenu,const string& Str);
+	bool GetAllSimilar(VMenu2 &HistoryMenu,const string& Str) const;
 	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 	void ResetPosition() { m_CurrentItem = 0; }
 	bool DeleteIfUnlocked(unsigned __int64 id);

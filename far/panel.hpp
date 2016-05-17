@@ -247,12 +247,12 @@ public:
 	bool SaveShortcutFolder(int Pos, bool Add) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);
 	int ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent);
-	bool IsMouseInClientArea(const MOUSE_EVENT_RECORD *MouseEvent);
+	bool IsMouseInClientArea(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	panel_type GetType() const {return m_Type;}
 	void SetUpdateMode(int Mode) {m_EnableUpdate=Mode;}
 	bool MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers);
 	int SetCurPath();
-	BOOL NeedUpdatePanel(const Panel *AnotherPanel);
+	BOOL NeedUpdatePanel(const Panel *AnotherPanel) const;
 	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
 	void SetFullScreen() { m_ViewSettings.Flags |= PVS_FULLSCREEN; }
 	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string &strDest, int UNC, int ShortNameAsIs = TRUE) const;
@@ -267,9 +267,9 @@ protected:
 	virtual void ClearAllItem(){}
 
 	void FastFind(const Manager::Key& FirstKey);
-	void DrawSeparator(int Y);
-	void ShowScreensCount();
-	string GetTitleForDisplay();
+	void DrawSeparator(int Y) const;
+	void ShowScreensCount() const;
+	string GetTitleForDisplay() const;
 
 	static bool IsDragging();
 

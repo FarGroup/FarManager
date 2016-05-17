@@ -66,7 +66,7 @@ private:
 	virtual void DisplayObject() override;
 
 	void init(string &strResultFolder);
-	void DrawEdit();
+	void DrawEdit() const;
 	void SetCoords();
 
 	std::shared_ptr<TreeList> Tree;

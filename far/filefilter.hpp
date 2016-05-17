@@ -68,9 +68,9 @@ public:
 	static void Save(bool always);
 
 private:
-	void ProcessSelection(VMenu2 *FilterList);
-	enumFileFilterFlagsType GetFFFT();
-	int  GetCheck(const FileFilterParams& FFP);
+	void ProcessSelection(VMenu2 *FilterList) const;
+	enumFileFilterFlagsType GetFFFT() const;
+	int  GetCheck(const FileFilterParams& FFP) const;
 	static void SwapPanelFlags(FileFilterParams& CurFilterData);
 	static int  ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check);
 

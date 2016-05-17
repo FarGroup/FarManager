@@ -675,9 +675,9 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 				{
 					const auto Chr = Upper(*++it);
 
-					const auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, i)
+					const auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, Item)
 					{
-						return i.first == Chr;
+						return Item.first == Chr;
 					});
 
 					if (ItemIterator != std::cend(ChrFmt))

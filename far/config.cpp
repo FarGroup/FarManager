@@ -1339,7 +1339,7 @@ struct FARConfigItem
 		return Item;
 	}
 
-	bool Edit(bool Hex)
+	bool Edit(bool Hex) const
 	{
 		DialogBuilder Builder;
 		Builder.AddText((string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):").data());

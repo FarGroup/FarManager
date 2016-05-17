@@ -238,7 +238,7 @@ FilePanels::~FilePanels()
 {
 }
 
-void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
+void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const
 {
 	if (Global->Opt->WidthDecrement < -(ScrX/2-10))
 		Global->Opt->WidthDecrement=-(ScrX/2-10);
@@ -884,7 +884,7 @@ panel_ptr FilePanels::ChangePanelToFilled(panel_ptr Current, panel_type NewType)
 	return Current;
 }
 
-panel_ptr FilePanels::GetAnotherPanel(const Panel* Current)
+panel_ptr FilePanels::GetAnotherPanel(const Panel* Current) const
 {
 	if (Current==LeftPanel().get())
 		return RightPanel();
@@ -1279,7 +1279,7 @@ Viewer* FilePanels::GetById(int ID)
 	return result;
 }
 
-CommandLine* FilePanels::GetCmdLine(void)
+CommandLine* FilePanels::GetCmdLine(void) const
 {
 	return CmdLine.get();
 }

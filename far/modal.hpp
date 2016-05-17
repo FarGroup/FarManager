@@ -55,7 +55,7 @@ public:
 	void ClearDone();
 	void Process();
 	void SetHelp(const wchar_t *Topic);
-	void ShowHelp();
+	void ShowHelp() const;
 
 protected:
 	SimpleModal() = default;

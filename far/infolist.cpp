@@ -125,7 +125,7 @@ InfoList::InfoList(private_tag, window_ptr Owner):
 
 InfoList::~InfoList()
 {
-	CloseFile();
+	InfoList::CloseFile();
 }
 
 // перерисовка, только если мы текущее окно

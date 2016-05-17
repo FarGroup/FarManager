@@ -47,7 +47,7 @@ public:
 	bool Signaled() const;
 
 private:
-	void WatchRegister();
+	void WatchRegister() const;
 
 	string m_Directory;
 	FILETIME m_PreviousLastWriteTime;

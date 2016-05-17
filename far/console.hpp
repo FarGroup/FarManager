@@ -135,7 +135,7 @@ public:
 
 	virtual bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const = 0;
 
-	bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill);
+	bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const;
 
 protected:
 	console() = default;

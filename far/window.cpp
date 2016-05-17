@@ -61,7 +61,7 @@ window::~window()
 	_OT(SysLog(L"[%p] window::~window()", this));
 }
 
-void window::UpdateKeyBar()
+void window::UpdateKeyBar() const
 {
 	if (m_windowKeyBar && m_KeyBarVisible)
 		m_windowKeyBar->RedrawIfChanged();

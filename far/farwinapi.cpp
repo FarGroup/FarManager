@@ -56,6 +56,7 @@ namespace os
 		void find_handle_closer::operator()(HANDLE Handle) const { delete static_cast<i_find_handle_impl*>(Handle); }
 		void handle_closer::operator()(HANDLE Handle) const { if (Handle) CloseHandle(Handle); }
 		void find_volume_handle_closer::operator()(HANDLE Handle) const { if (Handle) FindVolumeClose(Handle); }
+		void find_notification_handle_closer::operator()(HANDLE Handle) const { if (Handle) FindCloseChangeNotification(Handle); }
 		struct os_find_handle_closer { void operator()(HANDLE Handle) const { if (Handle) FindClose(Handle); } };
 
 		class far_find_handle_impl: public i_find_handle_impl
@@ -291,7 +292,7 @@ namespace fs
 
 	}
 
-	bool file_status::check(DWORD Data)
+	bool file_status::check(DWORD Data) const
 	{
 		return m_Data != INVALID_FILE_ATTRIBUTES && m_Data & Data;
 	}
@@ -333,7 +334,7 @@ enum_file::enum_file(const string& Object, bool ScanSymLink):
 	}
 }
 
-bool enum_file::get(size_t index, value_type& FindData)
+bool enum_file::get(size_t index, value_type& FindData) const
 {
 	bool Result = false;
 	if (!index)
@@ -387,7 +388,7 @@ bool enum_file::get(size_t index, value_type& FindData)
 
 //-------------------------------------------------------------------------
 
-bool enum_name::get(size_t index, value_type& value)
+bool enum_name::get(size_t index, value_type& value) const
 {
 	if (!index)
 	{
@@ -402,7 +403,7 @@ bool enum_name::get(size_t index, value_type& value)
 
 //-------------------------------------------------------------------------
 
-bool enum_stream::get(size_t index, value_type& value)
+bool enum_stream::get(size_t index, value_type& value) const
 {
 	if (!index)
 	{
@@ -417,7 +418,7 @@ bool enum_stream::get(size_t index, value_type& value)
 
 //-------------------------------------------------------------------------
 
-bool enum_volume::get(size_t index, value_type& value)
+bool enum_volume::get(size_t index, value_type& value) const
 {
 	wchar_t VolumeName[50];
 	if (!index)
@@ -556,44 +557,44 @@ bool file::SetEnd()
 	return ok;
 }
 
-bool file::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
+bool file::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime) const
 {
 	return GetFileTimeEx(Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
-bool file::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
+bool file::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime) const
 {
 	return SetFileTimeEx(Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
-bool file::GetSize(UINT64& Size)
+bool file::GetSize(UINT64& Size) const
 {
 	return GetFileSizeEx(Handle.native_handle(), Size);
 }
 
-bool file::FlushBuffers()
+bool file::FlushBuffers() const
 {
 	return FlushFileBuffers(Handle.native_handle()) != FALSE;
 }
 
-bool file::GetInformation(BY_HANDLE_FILE_INFORMATION& info)
+bool file::GetInformation(BY_HANDLE_FILE_INFORMATION& info) const
 {
 	return GetFileInformationByHandle(Handle.native_handle(), &info) != FALSE;
 }
 
-bool file::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped)
+bool file::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped) const
 {
 	return ::DeviceIoControl(Handle.native_handle(), IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 }
 
-bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
+bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const
 {
 	DWORD Result = Imports().GetStorageDependencyInformation(Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
 
-bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status)
+bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status) const
 {
 	IO_STATUS_BLOCK IoStatusBlock;
 	PUNICODE_STRING pNameString = nullptr;
@@ -618,7 +619,7 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 	return (Result == STATUS_SUCCESS) && (di->NextEntryOffset != 0xffffffffUL);
 }
 
-bool file::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status)
+bool file::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status) const
 {
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Result = Imports().NtQueryInformationFile(Handle.native_handle(), &IoStatusBlock, FileInformation, Length, FileInformationClass);
@@ -635,7 +636,7 @@ void file::Close()
 	Handle.close();
 }
 
-bool file::Eof()
+bool file::Eof() const
 {
 	const auto Ptr = GetPointer();
 	uint64_t Size=0;

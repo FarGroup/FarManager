@@ -576,7 +576,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		strColumnWidths.pop_back();
 }
 
-const string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
+string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 {
 	string OutStr;
 
@@ -592,7 +592,7 @@ const string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 	return FormatString() << fmt::LeftAlign() << fmt::ExactWidth(Width) << OutStr;
 }
 
-const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned __int64 Flags,int Width)
+string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned __int64 Flags,int Width)
 {
 	FormatString strResult;
 
@@ -660,7 +660,7 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 	return strResult;
 }
 
-const string FormatStr_Size(__int64 Size, const string& strName,
+string FormatStr_Size(__int64 Size, const string& strName,
 							DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
 							unsigned __int64 Flags,int Width,const wchar_t *CurDir)
 {

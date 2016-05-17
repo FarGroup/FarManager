@@ -106,17 +106,17 @@ public:
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);
 	int ProcessKey(Key key);
-	int ProcessMouse(const MOUSE_EVENT_RECORD *me);
+	int ProcessMouse(const MOUSE_EVENT_RECORD *me) const;
 	void PluginsMenu() const; // вызываем меню по F11
 	void SwitchToPanels();
-	window_ptr GetCurrentWindow() { return m_currentWindow; }
+	window_ptr GetCurrentWindow() const { return m_currentWindow; }
 	window_ptr GetWindow(size_t Index) const;
-	int IndexOf(window_ptr_ref Window);
-	int IndexOfStack(window_ptr_ref Window);
+	int IndexOf(window_ptr_ref Window) const;
+	int IndexOfStack(window_ptr_ref Window) const;
 	window_ptr GetBottomWindow() { return m_windows.back(); }
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
-	void InitKeyBar();
+	void InitKeyBar() const;
 	bool InModal(void) const { return !m_modalWindows.empty(); }
 	void ResizeAllWindows();
 	size_t GetModalWindowCount() const { return m_modalWindows.size(); }
@@ -127,7 +127,7 @@ public:
 	static long GetCurrentWindowType() { return CurrentWindowType; }
 	static bool ShowBackground();
 
-	void UpdateMacroArea(void);
+	void UpdateMacroArea() const;
 
 	Viewer* GetCurrentViewer(void) const;
 	FileEditor* GetCurrentEditor(void) const;

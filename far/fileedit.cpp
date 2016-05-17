@@ -2211,7 +2211,7 @@ int FileEditor::GetCanLoseFocus(int DynamicMode) const
 	return TRUE;
 }
 
-void FileEditor::SetLockEditor(BOOL LockMode)
+void FileEditor::SetLockEditor(BOOL LockMode) const
 {
 	if (LockMode)
 		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
@@ -2293,7 +2293,7 @@ string FileEditor::GetTitle() const
 	return strLocalTitle;
 }
 
-void FileEditor::ShowStatus()
+void FileEditor::ShowStatus() const
 {
 	if (!Global->Opt->EdOpt.ShowTitleBar)
 		return;
@@ -2420,7 +2420,7 @@ DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 
 /* true - панель обновили
 */
-bool FileEditor::UpdateFileList()
+bool FileEditor::UpdateFileList() const
 {
 	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	const wchar_t *FileName = PointToName(strFullFileName);
@@ -2464,7 +2464,7 @@ void FileEditor::GetEditorOptions(Options::EditorOptions& EdOpt) const
 	EdOpt = m_editor->EdOpt;
 }
 
-void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt)
+void FileEditor::SetEditorOptions(const Options::EditorOptions& EdOpt) const
 {
 	m_editor->SetOptions(EdOpt);
 }
@@ -2780,14 +2780,14 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 	int result=m_editor->EditorControl(Command,Param1,Param2);
 	if (result&&Param2&&ECTL_GETINFO==Command)
 	{
-		EditorInfo *Info=(EditorInfo *)Param2;
+		const auto Info=static_cast<EditorInfo*>(Param2);
 		if (CheckStructSize(Info)&&m_bAddSignature)
 			Info->Options|=EOPT_BOM;
 	}
 	return result;
 }
 
-bool FileEditor::LoadFromCache(EditorPosCache &pc)
+bool FileEditor::LoadFromCache(EditorPosCache &pc) const
 {
 	string strCacheName;
 
@@ -2810,7 +2810,7 @@ bool FileEditor::LoadFromCache(EditorPosCache &pc)
 	return false;
 }
 
-void FileEditor::SaveToCache()
+void FileEditor::SaveToCache() const
 {
 	EditorPosCache pc;
 	m_editor->GetCacheParams(pc);

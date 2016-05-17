@@ -102,7 +102,7 @@ struct Shortcuts::shortcut
 	}
 	bool operator!=(const shortcut& Item) const { return !(*this == Item); }
 
-	shortcut clone()
+	shortcut clone() const
 	{
 		return shortcut(strName, strFolder, strPluginFile, strPluginData, PluginGuid);
 	}

@@ -50,7 +50,7 @@ public:
 		init();
 	}
 
-	void Invalidate()
+	void Invalidate() const
 	{
 		m_Valid = false;
 	}

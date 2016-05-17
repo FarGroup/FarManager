@@ -324,7 +324,7 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void FolderTree::DrawEdit()
+void FolderTree::DrawEdit() const
 {
 	int FindY=m_Y2-2;
 	const wchar_t *SearchTxt=MSG(MFoldTreeSearch);

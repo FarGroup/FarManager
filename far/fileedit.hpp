@@ -86,9 +86,9 @@ public:
 	virtual void Show() override;
 	virtual Editor* GetEditor(void) override;
 
-	void ShowStatus();
-	void SetLockEditor(BOOL LockMode);
-	bool IsFullScreen() { return m_Flags.Check(FFILEEDIT_FULLSCREEN); }
+	void ShowStatus() const;
+	void SetLockEditor(BOOL LockMode) const;
+	bool IsFullScreen() const { return m_Flags.Check(FFILEEDIT_FULLSCREEN); }
 	void SetNamesList(NamesList& Names);
 	void SetEnableF6(bool AEnableF6) { m_Flags.Change(FFILEEDIT_ENABLEF6, AEnableF6); InitKeyBar(); }
 	// Добавлено для поиска по AltF7. При редактировании найденного файла из
@@ -99,7 +99,7 @@ public:
 	int  SetCodePage(uintptr_t cp, bool redetect_default, bool ascii2def);
 	BOOL IsFileChanged() const { return m_editor->IsFileChanged(); }
 	void GetEditorOptions(Options::EditorOptions& EdOpt) const;
-	void SetEditorOptions(const Options::EditorOptions& EdOpt);
+	void SetEditorOptions(const Options::EditorOptions& EdOpt) const;
 	void SetPluginTitle(const string* PluginTitle);
 	int GetId() const { return m_editor->EditorID; }
 	FileEditor* GetById(int ID) { return GetId()==ID?this:nullptr; }
@@ -138,12 +138,12 @@ private:
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
 	DWORD EditorGetFileAttributes(const string& Name);
 	void SetPluginData(const string* PluginData);
-	const wchar_t *GetPluginData() { return strPluginData.data(); }
-	bool LoadFromCache(EditorPosCache &pc);
-	void SaveToCache();
+	const wchar_t *GetPluginData() const { return strPluginData.data(); }
+	bool LoadFromCache(EditorPosCache &pc) const;
+	void SaveToCache() const;
 	void ReadEvent(void);
 	int  ProcessQuitKey(int FirstSave, BOOL NeedQuestion = TRUE, bool DeleteWindow = true);
-	bool UpdateFileList();
+	bool UpdateFileList() const;
 
 	static uintptr_t GetDefaultCodePage();
 

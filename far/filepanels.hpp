@@ -76,16 +76,16 @@ public:
 	panel_ptr ActivePanel() const { return m_Panels[m_ActivePanelIndex].m_Panel; }
 	panel_ptr PassivePanel() const { return m_Panels[!m_ActivePanelIndex].m_Panel; }
 
-	bool IsLeft(const Panel* What) { return What == LeftPanel().get(); }
-	bool IsRight(const Panel* What) { return What == RightPanel().get(); }
-	bool IsLeft(const panel_ptr& What) { return What == LeftPanel(); }
-	bool IsRight(const panel_ptr& What) { return What == RightPanel(); }
+	bool IsLeft(const Panel* What) const { return What == LeftPanel().get(); }
+	bool IsRight(const Panel* What) const { return What == RightPanel().get(); }
+	bool IsLeft(const panel_ptr& What) const { return What == LeftPanel(); }
+	bool IsRight(const panel_ptr& What) const { return What == RightPanel(); }
 	bool IsLeftActive() const { return m_ActivePanelIndex == panel_left; }
 	bool IsRightActive() const { return m_ActivePanelIndex == panel_right; }
 
 
-	panel_ptr GetAnotherPanel(panel_ptr Current) { return GetAnotherPanel(Current.get()); }
-	panel_ptr GetAnotherPanel(const Panel* Current);
+	panel_ptr GetAnotherPanel(panel_ptr Current) const { return GetAnotherPanel(Current.get()); }
+	panel_ptr GetAnotherPanel(const Panel* Current) const;
 	panel_ptr ChangePanelToFilled(panel_ptr Current, panel_type NewType);
 	panel_ptr ChangePanel(panel_ptr Current, panel_type NewType, int CreateNew, int Force);
 	void GoToFile(const string& FileName);
@@ -93,8 +93,8 @@ public:
 	void SetActivePanel(panel_ptr p) { return SetActivePanel(p.get()); }
 	void SetActivePanel(Panel* p);
 
-	KeyBar& GetKeybar() { return *m_windowKeyBar; }
-	CommandLine* GetCmdLine(void);
+	KeyBar& GetKeybar() const { return *m_windowKeyBar; }
+	CommandLine* GetCmdLine() const;
 
 private:
 
@@ -102,7 +102,7 @@ private:
 	void SetActivePanelInternal(panel_ptr p);
 
 	panel_ptr CreatePanel(panel_type Type);
-	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen);
+	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const;
 	int SetAnhoterPanelFocus();
 	int SwapPanels();
 

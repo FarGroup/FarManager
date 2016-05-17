@@ -90,7 +90,7 @@ public:
 	{
 	public:
 		keybar_area(std::vector<keybar_item>* Items): m_Items(Items) {}
-		string& operator[](fkeys Key) { return (*m_Items)[Key].first; }
+		string& operator[](fkeys Key) const { return (*m_Items)[Key].first; }
 
 	private:
 		std::vector<keybar_item>* m_Items;

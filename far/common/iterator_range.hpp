@@ -37,44 +37,48 @@ class range
 {
 public:
 	using iterator = iterator_type;
+	using value_type = typename std::iterator_traits<iterator>::value_type;
 	using reverse_iterator = std::reverse_iterator<iterator>;
 	using reference = typename std::iterator_traits<iterator>::reference;
 	using pointer = typename std::iterator_traits<iterator>::pointer;
-	using value_type = typename std::iterator_traits<iterator>::value_type;
 
-	range():
-		m_begin(),
-		m_end()
-	{}
+	range() = default;
 
 	range(iterator i_begin, iterator i_end):
 		m_begin(i_begin),
 		m_end(i_end)
 	{}
 
-	iterator begin() const { return m_begin; }
-	iterator end() const { return m_end; }
-	reverse_iterator rbegin() const { return reverse_iterator(m_end); }
-	reverse_iterator rend() const { return reverse_iterator(m_begin); }
+	auto begin() { return m_begin; }
+	auto end() { return m_end; }
 
-	reference operator[](size_t n) { return *(m_begin + n); }
-	reference operator[](size_t n) const { return *(m_begin + n); }
+	auto begin() const { return m_begin; }
+	auto end() const { return m_end; }
 
-	reference front() { return *m_begin; }
-	reference front() const { return *m_begin; }
+	auto rbegin() { return reverse_iterator(m_end); }
+	auto rend() { return reverse_iterator(m_begin); }
 
-	reference back() { return *std::prev(m_end); }
-	reference back() const { return *std::prev(m_end); }
+	auto rbegin() const { return reverse_iterator(m_end); }
+	auto rend() const { return reverse_iterator(m_begin); }
 
-	pointer data() { return &*m_begin; }
-	pointer data() const { return &*m_begin; }
+	auto& operator[](size_t n) { return *(m_begin + n); }
+	auto& operator[](size_t n) const { return *(m_begin + n); }
+
+	auto& front() { return *m_begin; }
+	auto& back() { return *std::prev(m_end); }
+
+	auto& front() const { return *m_begin; }
+	auto& back() const { return *std::prev(m_end); }
+
+	auto data() { return &*m_begin; }
+	auto data() const { return &*m_begin; }
 
 	bool empty() const { return m_begin == m_end; }
 	size_t size() const { return m_end - m_begin; }
 
 private:
-	iterator m_begin;
-	iterator m_end;
+	iterator m_begin {};
+	iterator m_end {};
 };
 
 template<class iterator_type>
@@ -103,20 +107,24 @@ public:
 
 	i_iterator(const T& value): m_value(value) {}
 	i_iterator(const i_iterator& rhs): m_value(rhs.m_value) {}
-	i_iterator& operator=(const i_iterator& rhs) { m_value = rhs.m_value; return *this; }
-	const value_type* operator->() const { return &m_value; }
-	const value_type& operator*() const { return m_value; }
-	i_iterator& operator++() { ++m_value; return *this; }
-	i_iterator& operator--() { --m_value; return *this; }
-	i_iterator& operator+=(size_t n) { m_value += n; return *this; }
-	i_iterator& operator-=(size_t n) { m_value -= n; return *this; }
-	i_iterator operator++(int) { return m_value++; }
-	i_iterator operator--(int) { return m_value--; }
-	i_iterator operator+(size_t n) const { return m_value + n; }
-	i_iterator operator-(size_t n) const { return m_value - n; }
-	ptrdiff_t operator-(const i_iterator& rhs) const { return m_value - rhs.m_value; }
-	bool operator==(const i_iterator& rhs) const { return m_value == rhs.m_value; }
-	bool operator<(const i_iterator& rhs) const { return m_value < rhs.m_value; }
+
+	auto& operator=(const i_iterator& rhs) { m_value = rhs.m_value; return *this; }
+
+	auto operator->() const { return &m_value; }
+	auto& operator*() const { return m_value; }
+
+	auto& operator++() { ++m_value; return *this; }
+	auto& operator--() { --m_value; return *this; }
+
+	auto& operator+=(size_t n) { m_value += n; return *this; }
+	auto& operator-=(size_t n) { m_value -= n; return *this; }
+
+	auto operator+(size_t n) const { return i_iterator(m_value + n); }
+	auto operator-(size_t n) const { return i_iterator(m_value - n); }
+
+	auto operator-(const i_iterator& rhs) const { return m_value - rhs.m_value; }
+	auto operator==(const i_iterator& rhs) const { return m_value == rhs.m_value; }
+	auto operator<(const i_iterator& rhs) const { return m_value < rhs.m_value; }
 
 private:
 	T m_value;

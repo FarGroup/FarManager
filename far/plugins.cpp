@@ -328,7 +328,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 	return nResult;
 }
 
-bool PluginManager::IsPluginUnloaded(Plugin* pPlugin)
+bool PluginManager::IsPluginUnloaded(Plugin* pPlugin) const
 {
 	return std::find(UnloadedPlugins.cbegin(), UnloadedPlugins.cend(), pPlugin) != UnloadedPlugins.cend();
 }
@@ -1913,13 +1913,13 @@ int PluginManager::UseFarCommand(PluginHandle* hPlugin,int CommandType)
 }
 
 
-void PluginManager::ReloadLanguage()
+void PluginManager::ReloadLanguage() const
 {
 	std::for_each(ALL_CONST_RANGE(SortedPlugins), std::mem_fn(&Plugin::CloseLang));
 	ConfigProvider().PlCacheCfg()->DiscardCache();
 }
 
-void PluginManager::LoadIfCacheAbsent()
+void PluginManager::LoadIfCacheAbsent() const
 {
 	if (ConfigProvider().PlCacheCfg()->IsCacheEmpty())
 	{

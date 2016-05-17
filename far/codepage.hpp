@@ -162,9 +162,9 @@ public:
 	raw_eol(uintptr_t Codepage): m_Cr(to(Codepage, L'\r')), m_Lf(to(Codepage, L'\n')) {}
 
 	template <class T>
-	T cr() const;
+	T cr() const = delete;
 	template <class T>
-	T lf() const;
+	T lf() const = delete;
 
 private:
 	static char to(uintptr_t Codepage, wchar_t WideChar)

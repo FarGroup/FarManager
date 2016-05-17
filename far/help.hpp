@@ -73,10 +73,10 @@ private:
 	void AddTitle(const string& Title);
 	static void HighlightsCorrection(string &strStr);
 	void FastShow();
-	void DrawWindowFrame();
+	void DrawWindowFrame() const;
 	void OutString(const wchar_t *Str);
 	int  StringLen(const string& Str);
-	void CorrectPosition();
+	void CorrectPosition() const;
 	bool IsReferencePresent();
 	bool GetTopic(int realX, int realY, string& strTopic);
 	void MoveToReference(int Forward,int CurScreen);

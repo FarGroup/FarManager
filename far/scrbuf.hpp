@@ -91,8 +91,6 @@ public:
 	void Scroll(size_t Count);
 	void Flush(flush_type FlushType = flush_type::all);
 
-	void PartialUnconditionalFlush(int NumberOfLines);
-
 private:
 	CriticalSection CS;
 	FAR_CHAR_INFO MacroChar;

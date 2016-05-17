@@ -857,7 +857,7 @@ void Help::FastShow()
 	ScrollBarEx(m_X2, m_Y1 + FixSize + 1, m_Y2 - m_Y1 - FixSize - 1, StackData->TopStr, HelpList.size() - FixCount);
 }
 
-void Help::DrawWindowFrame()
+void Help::DrawWindowFrame() const
 {
 	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HELPTEXT));
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_HELPBOX),DOUBLE_BOX);
@@ -1110,7 +1110,7 @@ void Help::OutString(const wchar_t *Str)
 	}
 }
 
-void Help::CorrectPosition()
+void Help::CorrectPosition() const
 {
 	if (StackData->CurX>m_X2-m_X1-2)
 		StackData->CurX=m_X2-m_X1-2;

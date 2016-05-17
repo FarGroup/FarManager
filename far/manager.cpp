@@ -833,7 +833,7 @@ static bool FilterMouseMoveNoise(const MOUSE_EVENT_RECORD* MouseEvent)
 	return true;
 }
 
-int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 {
 	int ret=FALSE;
 
@@ -916,13 +916,13 @@ window_ptr Manager::GetWindow(size_t Index) const
 	return m_windows[Index];
 }
 
-int Manager::IndexOfStack(window_ptr_ref Window)
+int Manager::IndexOfStack(window_ptr_ref Window) const
 {
 	const auto ItemIterator = std::find(ALL_CONST_RANGE(m_modalWindows), Window);
 	return ItemIterator != m_modalWindows.cend()? ItemIterator - m_modalWindows.cbegin() : -1;
 }
 
-int Manager::IndexOf(window_ptr_ref Window)
+int Manager::IndexOf(window_ptr_ref Window) const
 {
 	const auto ItemIterator = std::find(ALL_CONST_RANGE(m_windows), Window);
 	return ItemIterator != m_windows.cend() ? ItemIterator - m_windows.cbegin() : -1;
@@ -1228,12 +1228,12 @@ void Manager::ResizeAllWindows()
 	Global->ScrBuf->Unlock();
 }
 
-void Manager::InitKeyBar()
+void Manager::InitKeyBar() const
 {
 	std::for_each(ALL_CONST_RANGE(m_windows), std::mem_fn(&window::InitKeyBar));
 }
 
-void Manager::UpdateMacroArea(void)
+void Manager::UpdateMacroArea() const
 {
 	if (m_currentWindow) Global->CtrlObject->Macro.SetArea(m_currentWindow->GetMacroArea());
 }

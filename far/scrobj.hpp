@@ -52,7 +52,6 @@ enum
 class SimpleScreenObject: noncopyable
 {
 public:
-	SimpleScreenObject(window_ptr Owner);
 	virtual ~SimpleScreenObject();
 
 	int ObjWidth() const {return m_X2 - m_X1 + 1;}
@@ -76,6 +75,9 @@ public:
 	void SetVisible(bool Visible) {m_Flags.Change(FSCROBJ_VISIBLE,Visible);}
 	void SetRestoreScreenMode(bool Mode) {m_Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);}
 	window_ptr GetOwner() const {return m_Owner.lock();}
+
+protected:
+	SimpleScreenObject(window_ptr Owner);
 
 private:
 	virtual void DisplayObject() = 0;

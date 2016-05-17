@@ -3628,7 +3628,7 @@ DWORD ShellCopy::CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytes
 	return Abort?PROGRESS_CANCEL:PROGRESS_CONTINUE;
 }
 
-bool ShellCopy::CalcTotalSize()
+bool ShellCopy::CalcTotalSize() const
 {
 	string strSelName, strSelShortName;
 	DWORD FileAttr;

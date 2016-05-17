@@ -96,32 +96,32 @@ codepages::~codepages()
 {}
 
 // Получаем кодовую страницу для элемента в меню
-inline uintptr_t codepages::GetMenuItemCodePage(size_t Position)
+inline uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
 {
 	const auto DataPtr = CodePagesMenu->GetUserDataPtr<uintptr_t>(Position);
 	return DataPtr? *DataPtr : 0;
 }
 
-inline size_t codepages::GetListItemCodePage(size_t Position)
+inline size_t codepages::GetListItemCodePage(size_t Position) const
 {
 	const auto DataPtr = dialog->GetListItemDataPtr<uintptr_t>(control, Position);
 	return DataPtr? *DataPtr : 0;
 }
 
 // Проверяем попадает или нет позиция в диапазон стандартных кодовых страниц (правильность работы для разделителей не гарантируется)
-inline bool codepages::IsPositionStandard(UINT position)
+inline bool codepages::IsPositionStandard(UINT position) const
 {
 	return position <= (UINT)CodePagesMenu->size() - favoriteCodePages - (favoriteCodePages?1:0) - normalCodePages - (normalCodePages?1:0);
 }
 
 // Проверяем попадает или нет позиция в диапазон избранных кодовых страниц (правильность работы для разделителей не гарантируется)
-inline bool codepages::IsPositionFavorite(UINT position)
+inline bool codepages::IsPositionFavorite(UINT position) const
 {
 	return !IsPositionStandard(position) && !IsPositionNormal(position);
 }
 
 // Проверяем попадает или нет позиция в диапазон обыкновенных кодовых страниц (правильность работы для разделителей не гарантируется)
-inline bool codepages::IsPositionNormal(UINT position)
+inline bool codepages::IsPositionNormal(UINT position) const
 {
 	return position >= static_cast<UINT>(CodePagesMenu->size() - normalCodePages);
 }
@@ -142,7 +142,7 @@ string codepages::FormatCodePageString(uintptr_t CodePage, const string& CodePag
 }
 
 // Добавляем таблицу символов
-void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom)
+void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom) const
 {
 	if (CallbackCallSource == CodePagesFill)
 	{
@@ -229,7 +229,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 }
 
 // Добавляем стандартную таблицу символов
-void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position, bool enabled)
+void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position, bool enabled) const
 {
 	bool checked = false;
 
@@ -243,7 +243,7 @@ void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codeP
 }
 
 // Добавляем разделитель
-void codepages::AddSeparator(LPCWSTR Label, size_t position)
+void codepages::AddSeparator(LPCWSTR Label, size_t position) const
 {
 	if (CallbackCallSource == CodePagesFill)
 	{

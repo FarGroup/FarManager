@@ -131,7 +131,7 @@ void VMenu::init(const MenuDataEx *Data, int ItemsCount, DWORD Flags)
 
 VMenu::~VMenu()
 {
-	Hide();
+	VMenu::Hide();
 	clear();
 
 	if (Global->WindowManager->GetCurrentWindow() == CurrentWindow)
@@ -1964,7 +1964,7 @@ void VMenu::DisplayObject()
 	ShowMenu(true);
 }
 
-void VMenu::DrawTitles()
+void VMenu::DrawTitles() const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -2401,7 +2401,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 	return -1;
 }
 
-wchar_t VMenu::GetHighlights(const MenuItemEx *_item)
+wchar_t VMenu::GetHighlights(const MenuItemEx *_item) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
@@ -2567,7 +2567,7 @@ string VMenu::GetTitle() const
 	return strTitle;
 }
 
-string &VMenu::GetBottomTitle(string &strDest)
+string &VMenu::GetBottomTitle(string &strDest) const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 

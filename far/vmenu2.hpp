@@ -99,7 +99,7 @@ private:
 	int Call(int Msg, void *param);
 	LISTITEMFLAGS GetItemFlags(int Position = -1);
 	string GetMenuTitle(bool bottom = false);
-	VMenu &ListBox() { return *GetAllItem()[0].ListPtr; }
+	VMenu& ListBox() const { return *GetAllItem()[0].ListPtr; }
 
 	int MaxHeight;
 	int cancel;

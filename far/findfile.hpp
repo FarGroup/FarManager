@@ -68,14 +68,14 @@ public:
 	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
 	static bool IsWordDiv(const wchar_t symbol);
 	// BUGBUG
-	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
+	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData) const;
 
 private:
-	string &PrepareDriveNameStr(string &strSearchFromRoot);
+	string &PrepareDriveNameStr(string &strSearchFromRoot) const;
 	void AdvancedDialog();
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg);
+	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
@@ -163,7 +163,7 @@ private:
 	void ArchiveSearch(Dialog* Dlg, const string& ArcName);
 	void DoScanTree(Dialog* Dlg, const string& strRoot);
 	void ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags, int& RecurseLevel);
-	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, PluginPanelItem& FindData);
+	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, PluginPanelItem& FindData) const;
 
 
 	FindFiles* m_Owner;

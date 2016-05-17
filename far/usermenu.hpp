@@ -52,7 +52,7 @@ private:
 	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem);
 	bool EditMenu(menu_container& Menu, menu_container::iterator* MenuItem, bool Create);
 	int ProcessSingleMenu(menu_container& Menu, int MenuPos, menu_container& MenuRoot, const string& MenuFileName, const string& Title);
-	void SaveMenu(const string& MenuFileName);
+	void SaveMenu(const string& MenuFileName) const;
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	enum class menu_mode: int;

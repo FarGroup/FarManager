@@ -158,8 +158,8 @@ private:
 	Manager::Key m_KeyToProcess;
 	virtual void DisplayObject(void) override;
 	virtual string GetTitle() const override { return {}; }
-	void ProcessName(const string& Src);
-	void ShowBorder(void);
+	void ProcessName(const string& Src) const;
+	void ShowBorder(void) const;
 	void Close(void);
 };
 
@@ -363,7 +363,7 @@ int Search::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return TRUE;
 }
 
-void Search::ShowBorder(void)
+void Search::ShowBorder(void) const
 {
 	SetColor(COL_DIALOGTEXT);
 	GotoXY(m_X1+1,m_Y1+1);
@@ -382,7 +382,7 @@ void Search::DisplayObject(void)
 	m_FindEdit->Show();
 }
 
-void Search::ProcessName(const string& Src)
+void Search::ProcessName(const string& Src) const
 {
 	auto Buffer = m_FindEdit->GetString();
 	Buffer = Unquote(Buffer + Src);
@@ -443,7 +443,7 @@ void Panel::OnFocusChange(bool Get)
 	Redraw();
 }
 
-bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent)
+bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent) const
 {
 	return IsVisible() &&
 		InRange(m_X1, MouseEvent->dwMousePosition.X, m_X2) &&
@@ -760,7 +760,7 @@ void Panel::ShowConsoleTitle()
 	ConsoleTitle::SetFarTitle(m_Title);
 }
 
-void Panel::DrawSeparator(int Y)
+void Panel::DrawSeparator(int Y) const
 {
 	if (Y<m_Y2)
 	{
@@ -770,7 +770,7 @@ void Panel::DrawSeparator(int Y)
 	}
 }
 
-string Panel::GetTitleForDisplay()
+string Panel::GetTitleForDisplay() const
 {
 	string Title(1, L' ');
 	Title.append(GetTitle());
@@ -779,7 +779,7 @@ string Panel::GetTitleForDisplay()
 	return Title;
 }
 
-void Panel::ShowScreensCount()
+void Panel::ShowScreensCount() const
 {
 	if (Global->Opt->ShowScreensNumber && !m_X1)
 	{
@@ -1244,7 +1244,7 @@ int Panel::GetCurBaseName(string &strName, string &strShortName) const
 	return FALSE;
 }
 
-BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel)
+BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel) const
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&

@@ -29,65 +29,47 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #if (defined(_MSC_VER) || defined(__GNUC__)) && !defined(_WIN64)
-#ifndef FAR_USE_INTERNALS
-#define FAR_USE_INTERNALS
-#endif // END FAR_USE_INTERNALS
-#ifdef FAR_USE_INTERNALS
 #include "disable_warnings_in_std_begin.hpp"
-//----------------------------------------------------------------------------
-#endif // END FAR_USE_INTERNALS
-
 #include <windows.h>
-
-#ifdef FAR_USE_INTERNALS
-//----------------------------------------------------------------------------
 #include "disable_warnings_in_std_end.hpp"
-#endif // END FAR_USE_INTERNALS
 
-#if defined(_MSC_VER)
+#include "common/compiler.hpp"
+
+#if COMPILER == C_CL || COMPILER == C_INTEL
 #pragma optimize("gty", on)
 #endif
 
-#ifdef __GNUC__
-#pragma GCC diagnostic ignored "-Wcast-qual"
-#endif // __GNUC__
+WARNING_DISABLE_GCC("-Wcast-qual")
 
 //-----------------------------------------------------------------------------
-static
-#ifdef __GNUC__
-thread_local
-#else
-__declspec(thread)
-#endif
-PVOID saveval;
+static thread_local PVOID saveval;
 
-typedef decltype(&Wow64DisableWow64FsRedirection) DISABLE;
-typedef decltype(&Wow64RevertWow64FsRedirection) REVERT;
-typedef decltype(&IsWow64Process) ISWOW;
+using DISABLE = decltype(&Wow64DisableWow64FsRedirection);
+using REVERT = decltype(&Wow64RevertWow64FsRedirection);
 
-struct WOW
+static const volatile struct WOW
 {
-	DISABLE disable;
-	REVERT revert;
-};
+	static BOOL WINAPI e_disable(PVOID*) { return FALSE; }
+	static BOOL WINAPI e_revert(PVOID) { return FALSE; }
 
-static BOOL WINAPI e_disable(PVOID* p) { return FALSE; }
-static BOOL WINAPI e_revert(PVOID p) { return FALSE; }
-
-volatile const WOW wow = { e_disable, e_revert };
+	DISABLE disable { e_disable };
+	REVERT revert { e_revert };
+}
+wow;
 
 //-----------------------------------------------------------------------------
-#ifdef __GNUC__
-extern "C" void wow_restore(void) __asm__("wow_restore");
-extern "C" PVOID wow_disable(void) __asm__("wow_disable");
-#endif 
 
-extern "C" void wow_restore(void)
+#if COMPILER == C_GCC || COMPILER == C_CLANG
+extern "C" void wow_restore() __asm__("wow_restore");
+extern "C" PVOID wow_disable() __asm__("wow_disable");
+#endif
+
+extern "C" void wow_restore()
 {
 	wow.revert(saveval);
 }
 
-extern "C" PVOID wow_disable(void)
+extern "C" PVOID wow_disable()
 {
 	PVOID p;
 	wow.disable(&p);
@@ -95,44 +77,14 @@ extern "C" PVOID wow_disable(void)
 }
 
 //-----------------------------------------------------------------------------
-static void init_hook(void);
-static void WINAPI HookProc(PVOID h, DWORD dwReason, PVOID u)
-{
-	switch (dwReason)
-	{
-		case DLL_PROCESS_ATTACH:
-			init_hook();
-		case DLL_THREAD_ATTACH:
-			saveval = wow_disable();
-		default:
-			break;
-	}
-}
-
-#ifdef _MSC_VER
-#pragma const_seg(".CRT$XLY")
-#endif
-extern "C" const PIMAGE_TLS_CALLBACK hook_wow64_tlscb
-#ifdef __GNUC__
-__attribute__((section(".CRT$XLY")))
-#endif
-= HookProc;
-#ifdef _MSC_VER
-#pragma const_seg()
-#endif
-
-// for ulink
-#pragma comment(linker, "/include:_hook_wow64_tlscb")
-
-//-----------------------------------------------------------------------------
 static void
-#ifdef __GNUC__
+#if COMPILER == C_GCC || COMPILER == C_CLANG
 // Unfortunately GCC doesn't support this attribute on x86
 //__attribute__((naked))
 #else
 __declspec(naked)
 #endif
-hook_ldr(void)
+hook_ldr()
 {
 #ifdef __GNUC__
 #define ASM_BLOCK_BEGIN __asm__(
@@ -172,7 +124,7 @@ hook_ldr(void)
 }
 
 //-----------------------------------------------------------------------------
-static void init_hook(void)
+static void init_hook()
 {
 	DWORD p;
 	static const wchar_t k32_w[] = L"kernel32", ntd_w[] = L"ntdll";
@@ -182,23 +134,21 @@ static void init_hook(void)
 	                  ldr_c[] = "LdrLoadDll";
 	WOW rwow;
 	BOOL b=FALSE;
-	ISWOW IsWow = NULL;
-#ifdef __GNUC__
-#pragma pack(1)
-#else
-#pragma pack(push,1)
-#endif
+
+	using ISWOW = decltype(&IsWow64Process);
+
+	ISWOW IsWow = nullptr;
+
+PACK_PUSH(1)
 	struct
 	{
-		BYTE  cod;
-		DWORD off;
-	} data = { 0xE8, (DWORD)(SIZE_T)((LPCH)hook_ldr - sizeof(data)) };
-#ifdef __GNUC__
-#pragma pack()
-#else
-#pragma pack(pop)
-#endif
-	union
+		BYTE  cod { 0xE8 };
+		DWORD off { (DWORD)(SIZE_T)((LPCH)hook_ldr - sizeof(*this)) };
+	}
+	data;
+PACK_POP()
+
+union
 	{
 		HMODULE h;
 		FARPROC f;
@@ -206,13 +156,13 @@ static void init_hook(void)
 		DWORD   d;
 	} ur;
 
-	if ((ur.h = GetModuleHandleW(k32_w)) == NULL
-	        || (IsWow = (ISWOW)GetProcAddress(ur.h, wow_c)) == NULL
+	if ((ur.h = GetModuleHandleW(k32_w)) == nullptr
+	        || (IsWow = (ISWOW)GetProcAddress(ur.h, wow_c)) == nullptr
 	        || !(IsWow(GetCurrentProcess(), &b) && b)
-	        || (rwow.disable = (DISABLE)GetProcAddress(ur.h, dis_c)) == NULL
-	        || (rwow.revert = (REVERT)GetProcAddress(ur.h, rev_c)) == NULL
-	        || (ur.h = GetModuleHandleW(ntd_w)) == NULL
-	        || (ur.f = GetProcAddress(ur.h, ldr_c)) == NULL) return;
+	        || (rwow.disable = (DISABLE)GetProcAddress(ur.h, dis_c)) == nullptr
+	        || (rwow.revert = (REVERT)GetProcAddress(ur.h, rev_c)) == nullptr
+	        || (ur.h = GetModuleHandleW(ntd_w)) == nullptr
+	        || (ur.f = GetProcAddress(ur.h, ldr_c)) == nullptr) return;
 
 	if (*(LPBYTE)ur.p != 0x68     // push m32
 	        && (*(LPDWORD)ur.p != 0x8B55FF8B || ((LPBYTE)ur.p)[4] != 0xEC)) return;
@@ -250,5 +200,34 @@ static void init_hook(void)
 	const_cast<WOW&>(wow) = rwow;
 	VirtualProtect((void*)&wow, sizeof(wow), data.off, &p);
 }
+
+//-----------------------------------------------------------------------------
+static void WINAPI HookProc(PVOID, DWORD dwReason, PVOID)
+{
+	switch (dwReason)
+	{
+	case DLL_PROCESS_ATTACH:
+		init_hook();
+	case DLL_THREAD_ATTACH:
+		saveval = wow_disable();
+	default:
+		break;
+	}
+}
+
+#if COMPILER == C_CL || COMPILER == C_INTEL
+#pragma const_seg(".CRT$XLY")
+#endif
+extern "C" const PIMAGE_TLS_CALLBACK hook_wow64_tlscb
+#if COMPILER == C_GCC || COMPILER == C_CLANG
+__attribute__((section(".CRT$XLY")))
+#endif
+= HookProc;
+#if COMPILER == C_CL || COMPILER == C_INTEL
+#pragma const_seg()
+#endif
+
+// for ulink
+#pragma comment(linker, "/include:_hook_wow64_tlscb")
 
 #endif

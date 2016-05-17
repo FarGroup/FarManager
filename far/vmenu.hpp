@@ -203,7 +203,7 @@ public:
 	void ResetCursor();
 	void SetTitle(const string& Title);
 	void SetBottomTitle(const wchar_t *BottomTitle);
-	string &GetBottomTitle(string &strDest);
+	string &GetBottomTitle(string &strDest) const;
 	void SetDialogStyle(bool Style) { ChangeFlags(VMENU_WARNDIALOG, Style); SetColors(nullptr); }
 	void SetUpdateRequired(bool SetUpdate) { ChangeFlags(VMENU_UPDATEREQUIRED, SetUpdate); }
 	void SetBoxType(int BoxType);
@@ -289,11 +289,11 @@ private:
 	virtual void DisplayObject() override;
 
 	void ShowMenu(bool IsParent = false);
-	void DrawTitles();
+	void DrawTitles() const;
 	int GetItemPosition(int Position) const;
 	bool CheckKeyHiOrAcc(DWORD Key,int Type,int Translate,bool ChangePos,int& NewPos);
 	int CheckHighlights(wchar_t Chr,int StartPos=0);
-	wchar_t GetHighlights(const MenuItemEx *_item);
+	wchar_t GetHighlights(const MenuItemEx *_item) const;
 	bool ShiftItemShowPos(int Pos,int Direct);
 	bool ItemCanHaveFocus(UINT64 Flags) const;
 	bool ItemCanBeEntered(UINT64 Flags) const;

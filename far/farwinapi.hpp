@@ -73,11 +73,13 @@ namespace os
 		struct handle_closer { void operator()(HANDLE Handle) const; };
 		struct find_handle_closer { void operator()(HANDLE Handle) const; };
 		struct find_volume_handle_closer { void operator()(HANDLE Handle) const; };
+		struct find_notification_handle_closer { void operator()(HANDLE Handle) const; };
 	}
 
 	using handle = detail::handle_t<detail::handle_closer>;
 	using find_handle = detail::handle_t<detail::find_handle_closer>;
 	using find_volume_handle = detail::handle_t<detail::find_volume_handle_closer>;
+	using find_notification_handle = detail::handle_t<detail::find_notification_handle_closer>;
 
 	class HandleWrapper
 	{
@@ -213,11 +215,11 @@ namespace os
 			TRIVIALLY_MOVABLE(enum_file);
 
 			enum_file(const string& Object, bool ScanSymLink = true);
-			bool get(size_t index, value_type& value);
+			bool get(size_t index, value_type& value) const;
 
 		private:
 			string m_Object;
-			find_handle m_Handle;
+			mutable find_handle m_Handle;
 			bool m_ScanSymLink;
 		};
 
@@ -228,11 +230,11 @@ namespace os
 			TRIVIALLY_MOVABLE(enum_name);
 
 			enum_name(const string& Object): m_Object(Object) {}
-			bool get(size_t index, value_type& value);
+			bool get(size_t index, value_type& value) const;
 
 		private:
 			string m_Object;
-			find_handle m_Handle;
+			mutable find_handle m_Handle;
 		};
 
 		class enum_stream: public enumerator<enum_stream, WIN32_FIND_STREAM_DATA>
@@ -242,11 +244,11 @@ namespace os
 			TRIVIALLY_MOVABLE(enum_stream);
 
 			enum_stream(const string& Object): m_Object(Object) {}
-			bool get(size_t index, value_type& value);
+			bool get(size_t index, value_type& value) const;
 
 		private:
 			string m_Object;
-			find_handle m_Handle;
+			mutable find_handle m_Handle;
 		};
 
 		class enum_volume: public enumerator<enum_volume, string>
@@ -256,10 +258,10 @@ namespace os
 			TRIVIALLY_MOVABLE(enum_volume);
 
 			enum_volume() {};
-			bool get(size_t index, value_type& value);
+			bool get(size_t index, value_type& value) const;
 
 		private:
-			find_volume_handle m_Handle;
+			mutable find_volume_handle m_Handle;
 		};
 
 		class file: public conditional<file>
@@ -282,19 +284,19 @@ namespace os
 			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
 			bool SetPointer(int64_t DistanceToMove, uint64_t* NewFilePointer, DWORD MoveMethod);
-			uint64_t GetPointer(){ return Pointer; }
+			uint64_t GetPointer() const { return Pointer; }
 			bool SetEnd();
-			bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
-			bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
-			bool GetSize(UINT64& Size);
-			bool FlushBuffers();
-			bool GetInformation(BY_HANDLE_FILE_INFORMATION& info);
-			bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr);
-			bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
-			bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr);
-			bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr);
+			bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime) const;
+			bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime) const;
+			bool GetSize(UINT64& Size) const;
+			bool FlushBuffers() const;
+			bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;
+			bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr) const;
+			bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const;
+			bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr) const;
+			bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr) const;
 			void Close();
-			bool Eof();
+			bool Eof() const;
 			const string& GetName() const { return name; }
 			HANDLE native_handle() const { return Handle.native_handle(); }
 
@@ -341,7 +343,7 @@ namespace os
 			file_status(const string& Object);
 			file_status(const wchar_t* Object);
 
-			bool check(DWORD Data);
+			bool check(DWORD Data) const;
 
 		private:
 			DWORD m_Data;
@@ -436,7 +438,7 @@ namespace os
 		public:
 			enum_key(const key& Key): m_KeyRef(Key) {}
 			enum_key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(open_key(RootKey, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam)), m_KeyRef(m_Key) {}
-			bool get(size_t Index, value_type& Value) { return m_KeyRef && EnumKey(m_KeyRef, Index, Value); }
+			bool get(size_t Index, value_type& Value) const { return m_KeyRef && EnumKey(m_KeyRef, Index, Value); }
 
 		private:
 			const key m_Key;
@@ -448,7 +450,7 @@ namespace os
 		public:
 			enum_value(const key& Key): m_KeyRef(Key) {}
 			enum_value(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(open_key(RootKey, SubKey, KEY_QUERY_VALUE | Sam)), m_KeyRef(m_Key) {}
-			bool get(size_t Index, value_type& Value) { return m_KeyRef && EnumValue(m_KeyRef, Index, Value); }
+			bool get(size_t Index, value_type& Value) const { return m_KeyRef && EnumValue(m_KeyRef, Index, Value); }
 
 		private:
 			const key m_Key;
@@ -559,7 +561,7 @@ namespace os
 			namespace detail
 			{
 				struct deleter { void operator()(HGLOBAL MemoryBlock) const { GlobalFree(MemoryBlock); } };
-				struct unlocker { void operator()(const void* MemoryBlock) { GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock)); } };
+				struct unlocker { void operator()(const void* MemoryBlock) const { GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock)); } };
 			};
 
 			using ptr = std::unique_ptr<std::remove_pointer_t<HGLOBAL>, detail::deleter>;

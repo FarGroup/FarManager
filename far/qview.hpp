@@ -65,7 +65,7 @@ private:
 	virtual Viewer* GetViewer(void) override {return QView.get();}
 	virtual Viewer* GetById(int ID) override;
 
-	void PrintText(const string& Str);
+	void PrintText(const string& Str) const;
 	void DynamicUpdateKeyBar() const;
 
 	unique_ptr_with_ondestroy<Viewer> QView;

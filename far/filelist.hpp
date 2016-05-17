@@ -242,11 +242,11 @@ public:
 
 	PluginHandle* OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 	void ProcessHostFile();
-	bool GetPluginInfo(PluginInfo *PInfo);
+	bool GetPluginInfo(PluginInfo *PInfo) const;
 	void PluginGetPanelInfo(PanelInfo &Info);
 	size_t PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item);
 	size_t PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem *Item);
-	void PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths);
+	void PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths) const;
 	void PluginBeginSelection();
 	void PluginSetSelection(int ItemNumber,bool Selection);
 	void PluginClearSelection(int SelectedItemNumber);

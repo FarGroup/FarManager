@@ -57,11 +57,11 @@ public:
 	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
 
 	void SetCacheParams(EditorPosCache &pc, bool count_bom = false);
-	void GetCacheParams(EditorPosCache &pc);
+	void GetCacheParams(EditorPosCache &pc) const;
 	bool TryCodePage(uintptr_t codepage, int &X, int &Y);
 	bool SetCodePage(uintptr_t codepage, bool *BOM=nullptr, bool ShowMe=true); //BUGBUG
 	uintptr_t GetCodePage() const; //BUGBUG
-	void KeepInitParameters();
+	void KeepInitParameters() const;
 	void SetStartPos(int LineNum, int CharNum);
 	bool IsFileModified() const;
 	bool IsFileChanged() const;

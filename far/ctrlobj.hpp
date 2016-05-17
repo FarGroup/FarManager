@@ -55,8 +55,8 @@ public:
 	~ControlObject();
 
 	void Init(int DirCount);
-	FilePanels *Cp();
-	window_ptr Panels(void);
+	FilePanels *Cp() const;
+	window_ptr Panels() const;
 	void CreateDummyFilePanels();
 	static void ShowCopyright(DWORD Flags=0);
 
@@ -68,7 +68,7 @@ public:
 	std::unique_ptr<History> CmdHistory;
 	std::unique_ptr<History> FolderHistory;
 	std::unique_ptr<History> ViewHistory;
-	CommandLine* CmdLine(void);
+	CommandLine* CmdLine() const;
 
 private:
 	filepanels_ptr FPanels;

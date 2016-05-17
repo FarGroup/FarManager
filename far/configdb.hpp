@@ -81,7 +81,7 @@ public:
 	{
 	public:
 		values_enumerator(GeneralConfig& provider, const string& key): m_provider(provider), m_key(key) {}
-		bool get(size_t index, typename values_enumerator::value_type& value)
+		bool get(size_t index, typename values_enumerator::value_type& value) const
 		{
 			return m_provider.EnumValues(m_key, static_cast<DWORD>(index), value.first, value.second);
 		}
@@ -310,7 +310,7 @@ public:
 	enum class mode { m_default, m_import, m_export };
 	config_provider(mode Mode = mode::m_default);
 	~config_provider();
-	int ShowProblems();
+	int ShowProblems() const;
 	bool ServiceMode(const string& File);
 
 	void AddThread(Thread&& thread);

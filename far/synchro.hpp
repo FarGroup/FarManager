@@ -106,7 +106,7 @@ public:
 	}
 
 private:
-	void check_joinable()
+	void check_joinable() const
 	{
 		if (!joinable())
 			throw MAKE_FAR_EXCEPTION("Thread is not joinable");

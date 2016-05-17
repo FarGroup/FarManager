@@ -79,11 +79,11 @@ public:
 		архива для клавиши F2 сделать вызов ShiftF2.
 	*/
 	void SetSaveToSaveAs(bool ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
-	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
+	int  ViewerControl(int Command, intptr_t Param1, void *Param2) const;
 	bool IsFullScreen() const {return FullScreen;}
 	__int64 GetViewFileSize() const;
 	__int64 GetViewFilePos() const;
-	void ShowStatus();
+	void ShowStatus() const;
 	int GetId() const { return m_View->ViewerID; }
 	void OnReload(void);
 	void ReadEvent(void);

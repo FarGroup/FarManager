@@ -106,7 +106,7 @@ private:
 	int CacheFindUp(__int64 start);
 	void ShowHex();
 	void ShowDump();
-	void ShowStatus();
+	void ShowStatus() const;
 	/* $ 27.04.2001 DJ
 		функции для рисования скроллбара, для корректировки ширины в
 		зависимости от наличия скроллбара и для корректировки позиции файла
@@ -132,12 +132,12 @@ private:
 	int read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize);
 	int vread(wchar_t *Buf, int Count, wchar_t *Buf2 = nullptr);
 	bool vseek(__int64 Offset, int Whence);
-	__int64 vtell();
+	__int64 vtell() const;
 	bool vgetc(wchar_t *ch);
-	bool veof();
+	bool veof() const;
 	wchar_t vgetc_prev();
 	void SetFileSize();
-	int GetStrBytesNum(const wchar_t *Str, int Length);
+	int GetStrBytesNum(const wchar_t *Str, int Length) const;
 	bool isBinaryFile(uintptr_t cp);
 	void SavePosition();
 	intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);

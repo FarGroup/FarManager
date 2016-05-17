@@ -4343,7 +4343,7 @@ void Dialog::SetHelp(const string& Topic)
 	HelpTopic = Topic;
 }
 
-void Dialog::ShowHelp()
+void Dialog::ShowHelp() const
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 

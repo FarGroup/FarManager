@@ -252,7 +252,7 @@ UserMenu::UserMenu(const string& MenuFileName):
 
 UserMenu::~UserMenu() = default;
 
-void UserMenu::SaveMenu(const string& MenuFileName)
+void UserMenu::SaveMenu(const string& MenuFileName) const
 {
 	if (m_MenuModified)
 	{

@@ -164,17 +164,17 @@ void ControlObject::ShowCopyright(DWORD Flags)
 	}
 }
 
-FilePanels* ControlObject::Cp()
+FilePanels* ControlObject::Cp() const
 {
 	return FPanels.get();
 }
 
-window_ptr ControlObject::Panels(void)
+window_ptr ControlObject::Panels() const
 {
 	return FPanels;
 }
 
-CommandLine* ControlObject::CmdLine(void)
+CommandLine* ControlObject::CmdLine() const
 {
 	return FPanels->GetCmdLine();
 }

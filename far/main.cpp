@@ -398,7 +398,8 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		ServiceResult = ElevationMain(Args[1], std::wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
 		return true;
 	}
-	else if (InRange(size_t(2), Args.size(), size_t(5)) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
+
+	if (InRange(size_t(2), Args.size(), size_t(5)) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
 	{
 		bool Export = isArg(Args[0], L"export");
 		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
@@ -408,7 +409,8 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		ServiceResult = !ConfigProvider().ServiceMode(Args[1]);
 		return true;
 	}
-	else if (InRange(size_t(1), Args.size(), size_t(3)) && isArg(Args[0], L"clearcache"))
+
+	if (InRange(size_t(1), Args.size(), size_t(3)) && isArg(Args[0], L"clearcache"))
 	{
 		string strProfilePath(Args.size() > 1 ? Args[1] : L"");
 		string strLocalProfilePath(Args.size() > 2 ? Args[2] : L"");
@@ -417,6 +419,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		ServiceResult = 0;
 		return true;
 	}
+
 	return false;
 }
 
@@ -441,7 +444,7 @@ static void SetDriveMenuHotkeys()
 	{
 		static const struct
 		{
-			const wchar_t* PluginId; // BUGBUG, GUID?
+			const wchar_t* PluginId;
 			GUID MenuId;
 			const wchar_t* Hotkey;
 		}

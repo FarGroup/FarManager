@@ -96,12 +96,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Type(const Type&) = delete; \
 Type& operator=(const Type&) = delete; \
 
-#define COPY_AND_SWAP(Type, ...) \
-Type& operator=(__VA_ARGS__ rhs) { Type Tmp(rhs); using std::swap; swap(*this, Tmp); return *this; }
+#define COPY_AND_SWAP(...) \
+auto& operator=(__VA_ARGS__ rhs) { std::remove_reference_t<decltype(*this)> Tmp(rhs); using std::swap; swap(*this, Tmp); return *this; }
 
 #define TRIVIALLY_COPYABLE(Type) \
 Type(const Type&) = default; \
-COPY_AND_SWAP(Type, const Type&)
+COPY_AND_SWAP(const Type&)
 
 #define TRIVIALLY_MOVABLE(Type) \
 Type(Type&&) = default; \

@@ -63,7 +63,7 @@ private:
 	bool GetSecurity(const string& FileName, os::FAR_SECURITY_DESCRIPTOR& sd);
 	bool SetSecurity(const string& FileName, const os::FAR_SECURITY_DESCRIPTOR& sd);
 	int SetRecursiveSecurity(const string& FileName,const os::FAR_SECURITY_DESCRIPTOR& sd);
-	bool CalcTotalSize();
+	bool CalcTotalSize() const;
 	bool ShellSetAttr(const string& Dest,DWORD Attr);
 	void SetDestDizPath(const string& DestPath);
 	static intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);

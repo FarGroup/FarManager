@@ -78,7 +78,7 @@ public:
 
 	void SetCanLoseFocus(int Mode) { m_CanLoseFocus=Mode; }
 	int GetExitCode() const { return m_ExitCode; }
-	void UpdateKeyBar();
+	void UpdateKeyBar() const;
 	int IsTitleBarVisible() const {return m_TitleBarVisible;}
 	int IsTopWindow() const;
 	bool HasSaveScreen() const;

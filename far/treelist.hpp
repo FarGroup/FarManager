@@ -123,7 +123,7 @@ private:
 
 	int ReadTree();
 	void DisplayTree(int Fast);
-	void DisplayTreeName(const wchar_t *Name, size_t Pos);
+	void DisplayTreeName(const wchar_t *Name, size_t Pos) const;
 	void Up(int Count);
 	void Down(int Count);
 	void Scroll(int Count);

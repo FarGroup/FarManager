@@ -214,7 +214,7 @@ $(OBJDIR)%.o: %.c
 
 $(OBJDIR)hook_wow64.o: hook_wow64.cpp
 	@echo $<
-	$(CC) $(CCFLAGS) -masm=intel -fomit-frame-pointer -c -o $@ $<
+	$(CXX) $(CCFLAGS) -masm=intel -fomit-frame-pointer -c -o $@ $<
 
 $(OBJDIR)initguid.o: initguid.cpp
 	@echo $<

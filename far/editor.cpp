@@ -207,7 +207,7 @@ void Editor::SwapState(Editor& swap_state)
 	GlobalEOL.swap(swap_state.GlobalEOL);
 }
 
-void Editor::KeepInitParameters()
+void Editor::KeepInitParameters() const
 {
 	// Установлен глобальный режим поиска 16-ричных данных?
 	if (Global->GetSearchHex())
@@ -6992,7 +6992,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 	}
 }
 
-void Editor::GetCacheParams(EditorPosCache &pc)
+void Editor::GetCacheParams(EditorPosCache &pc) const
 {
 	pc.cur.Line = m_it_CurLine.Number();
 	pc.cur.ScreenLine = CalcDistance(m_it_TopScreen, m_it_CurLine);

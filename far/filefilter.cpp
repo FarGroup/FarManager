@@ -413,7 +413,7 @@ bool FileFilter::FilterEdit()
 	return ExitCode != -1;
 }
 
-enumFileFilterFlagsType FileFilter::GetFFFT()
+enumFileFilterFlagsType FileFilter::GetFFFT() const
 {
 	switch (m_FilterType)
 	{
@@ -428,7 +428,7 @@ enumFileFilterFlagsType FileFilter::GetFFFT()
 	}
 }
 
-int FileFilter::GetCheck(const FileFilterParams& FFP)
+int FileFilter::GetCheck(const FileFilterParams& FFP) const
 {
 	DWORD Flags = FFP.GetFlags(GetFFFT());
 
@@ -450,7 +450,7 @@ int FileFilter::GetCheck(const FileFilterParams& FFP)
 	return 0;
 }
 
-void FileFilter::ProcessSelection(VMenu2 *FilterList)
+void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 {
 	const auto FFFT = GetFFFT();
 
@@ -849,7 +849,8 @@ void FileFilter::Save(bool always)
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	if (!(root = cfg->CreateKey(cfg->root_key(), L"Filters")))
+	root = cfg->CreateKey(cfg->root_key(), L"Filters");
+	if (!root)
 	{
 		return;
 	}

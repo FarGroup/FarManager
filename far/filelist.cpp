@@ -415,9 +415,9 @@ FileList::~FileList()
 		while (PopPlugin(FALSE))
 			;
 
-	StopFSWatcher();
+	FileList::StopFSWatcher();
 
-	ClearAllItem();
+	FileList::ClearAllItem();
 
 	DeleteListData(m_ListData);
 }
@@ -879,7 +879,7 @@ int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
 	return FALSE;
 }
 
-bool FileList::GetPluginInfo(PluginInfo *PInfo)
+bool FileList::GetPluginInfo(PluginInfo *PInfo) const
 {
 	if (GetMode() == panel_mode::PLUGIN_PANEL && m_hPlugin && m_hPlugin->pPlugin)
 	{
@@ -6419,7 +6419,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 	return result;
 }
 
-void FileList::PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths)
+void FileList::PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths) const
 {
 	ViewSettingsToText(m_ViewSettings.PanelColumns, strColumnTypes, strColumnWidths);
 }

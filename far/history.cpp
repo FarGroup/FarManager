@@ -615,7 +615,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 	return false;
 }
 
-bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str)
+bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str) const
 {
 	int Length=static_cast<int>(Str.size());
 	DWORD index=0;

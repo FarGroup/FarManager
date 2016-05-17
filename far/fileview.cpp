@@ -483,7 +483,7 @@ bool FileViewer::CanFastHide() const
 	return (Global->Opt->AllCtrlAltShiftRule & CASR_VIEWER) != 0;
 }
 
-int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
+int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2) const
 {
 	_VCTLLOG(CleverSysLog SL(L"FileViewer::ViewerControl()"));
 	_VCTLLOG(SysLog(L"(Command=%s, Param2=[%d/0x%08X])",_VCTL_ToName(Command),(int)Param2,Param2));
@@ -505,7 +505,7 @@ __int64 FileViewer::GetViewFilePos() const
 	return m_View->GetViewFilePos();
 }
 
-void FileViewer::ShowStatus()
+void FileViewer::ShowStatus() const
 {
 	if (!IsTitleBarVisible())
 		return;

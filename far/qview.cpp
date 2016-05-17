@@ -83,7 +83,7 @@ QuickView::QuickView(private_tag, window_ptr Owner):
 
 QuickView::~QuickView()
 {
-	CloseFile();
+	QuickView::CloseFile();
 }
 
 
@@ -534,7 +534,7 @@ void QuickView::QViewDelTempName()
 }
 
 
-void QuickView::PrintText(const string& Str)
+void QuickView::PrintText(const string& Str) const
 {
 	if (WhereY()>m_Y2-3 || WhereX()>m_X2-2)
 		return;

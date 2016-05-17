@@ -60,7 +60,7 @@ public:
 	void SetObjectColor(PaletteColors Color = COL_DIALOGEDIT, PaletteColors SelColor = COL_DIALOGEDITSELECTED, PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
 	void SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
 	void GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged) const;
-	int GetDropDownBox() {return m_Flags.Check(FEDITLINE_DROPDOWNBOX);}
+	int GetDropDownBox() const {return m_Flags.Check(FEDITLINE_DROPDOWNBOX);}
 	void SetDropDownBox(bool NewDropDownBox) {m_Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 	virtual int GetMaxLength() const override {return MaxLength;}
 	void SetMaxLength(int Length) {MaxLength=Length;}

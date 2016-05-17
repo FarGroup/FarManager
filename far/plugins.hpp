@@ -123,7 +123,7 @@ public:
 	void GetContentData(const std::vector<Plugin*>& Plugins, const string& FilePath, const std::vector<const wchar_t*>& Names, std::vector<const wchar_t*>& Values, std::unordered_map<string,string>& ContentData) const;
 	Plugin* LoadPluginExternal(const string& ModuleName, bool LoadToMem);
 	int UnloadPluginExternal(Plugin* hPlugin);
-	bool IsPluginUnloaded(Plugin* pPlugin);
+	bool IsPluginUnloaded(Plugin* pPlugin) const;
 	void LoadPlugins();
 
 private:
@@ -164,7 +164,7 @@ public:
 	void Configure(int StartPos=0);
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
 	bool GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
-	void ReloadLanguage();
+	void ReloadLanguage() const;
 	int ProcessCommandLine(const string& Command, panel_ptr Target = nullptr);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
@@ -182,7 +182,7 @@ private:
 	friend class Plugin;
 
 	void LoadModels();
-	void LoadIfCacheAbsent();
+	void LoadIfCacheAbsent() const;
 	Plugin* LoadPlugin(const string& ModuleName, const os::FAR_FIND_DATA &FindData, bool LoadToMem);
 	Plugin* AddPlugin(std::unique_ptr<Plugin>&& pPlugin);
 	bool RemovePlugin(Plugin *pPlugin);

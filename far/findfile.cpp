@@ -131,7 +131,7 @@ public:
 	}
 
 
-	ArcListItem* GetFindFileArcItem()
+	ArcListItem* GetFindFileArcItem() const
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		return FindFileArcItem;
@@ -181,7 +181,7 @@ public:
 		return FindList.size();
 	}
 
-	void GetFindMessage(string& To)
+	void GetFindMessage(string& To) const
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		To=strFindMessage;
@@ -495,7 +495,7 @@ void background_searcher::ReleaseInFileSearch()
 	}
 }
 
-string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot)
+string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot) const
 {
 	auto strCurDir = Global->CtrlObject->CmdLine()->GetCurDir();
 	GetPathRoot(strCurDir,strCurDir);
@@ -1853,7 +1853,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListItem* FindItem, Dialog* Dlg)
+void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListItem* FindItem, Dialog* Dlg) const
 {
 	if (!os::fs::exists(strSearchFileName))
 		return;
@@ -1943,7 +1943,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 }
 
 // Called from thread
-void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLastDirName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLastDirName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData) const
 {
 	if (!Dlg)
 		return;
@@ -2170,7 +2170,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 }
 
 // Called from thread
-void background_searcher::AddMenuRecord(Dialog* Dlg, const string& FullName, string& LastDirName, PluginPanelItem& FindData)
+void background_searcher::AddMenuRecord(Dialog* Dlg, const string& FullName, string& LastDirName, PluginPanelItem& FindData) const
 {
 	os::FAR_FIND_DATA fdata;
 	PluginPanelItemToFindDataEx(FindData, fdata);

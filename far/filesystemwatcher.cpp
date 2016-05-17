@@ -66,18 +66,18 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 		m_CurrentLastWriteTime = m_PreviousLastWriteTime;
 }
 
-void FileSystemWatcher::WatchRegister()
+void FileSystemWatcher::WatchRegister() const
 {
-	HANDLE Handle=FindFirstChangeNotification(m_Directory.data(), m_WatchSubtree,
+	os::find_notification_handle Handle(FindFirstChangeNotification(m_Directory.data(), m_WatchSubtree,
 									FILE_NOTIFY_CHANGE_FILE_NAME|
 									FILE_NOTIFY_CHANGE_DIR_NAME|
 									FILE_NOTIFY_CHANGE_ATTRIBUTES|
 									FILE_NOTIFY_CHANGE_SIZE|
-									FILE_NOTIFY_CHANGE_LAST_WRITE);
+									FILE_NOTIFY_CHANGE_LAST_WRITE));
 	m_WatchRegistered.Set();
 
 	MultiWaiter waiter;
-	waiter.Add(Handle);
+	waiter.Add(Handle.native_handle());
 	waiter.Add(m_Done);
 	if (waiter.Wait(MultiWaiter::wait_any) == WAIT_OBJECT_0)
 	{
@@ -86,7 +86,6 @@ void FileSystemWatcher::WatchRegister()
 	}
 
 	m_DoneDone.Set();
-	FindCloseChangeNotification(Handle);
 }
 
 void FileSystemWatcher::Watch(bool got_focus, bool check_time)

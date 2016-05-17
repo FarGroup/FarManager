@@ -93,7 +93,7 @@ public:
 		SetRoot(*root);
 	}
 
-	tinyxml::XMLElement& GetRoot() { return *m_Root; }
+	tinyxml::XMLElement& GetRoot() const { return *m_Root; }
 
 	tinyxml::XMLElement& CreateChild(tinyxml::XMLElement& Parent, const char* Name)
 	{
@@ -130,7 +130,7 @@ public:
 		m_base(&base)
 	{}
 
-	bool get(size_t index, value_type& value)
+	bool get(size_t index, value_type& value) const
 	{
 		value = index? value->NextSiblingElement(m_name) :
 		        m_base? m_base->FirstChildElement(m_name) : nullptr;
@@ -403,7 +403,7 @@ public:
 		Initialize(DbName, Local);
 	}
 
-	virtual ~HierarchicalConfigDb() { EndTransaction(); AsyncDone.Set(); }
+	virtual ~HierarchicalConfigDb() { HierarchicalConfigDb::EndTransaction(); AsyncDone.Set(); }
 
 	virtual void AsyncFinish() override
 	{
@@ -684,7 +684,7 @@ private:
 		}
 	}
 
-	void AsyncDelete()
+	void AsyncDelete() const
 	{
 		delete this;
 	}
@@ -1491,7 +1491,7 @@ private:
 		return b;
 	}
 
-	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, const string& Text, const GUID& Guid)
+	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, const string& Text, const GUID& Guid) const
 	{
 		return Statement(stmtSetMenuItem).Bind(id, type, index, GuidToStr(Guid), Text).StepAndReset();
 	}
@@ -1776,12 +1776,12 @@ class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 		}
 	}
 
-	bool AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData)
+	bool AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData) const
 	{
 		return Statement(stmtAdd).Bind(TypeHistory, HistoryName, Type, Lock, Name, GetCurrentUTCTimeInUI64(), strGuid, strFile, strData).StepAndReset();
 	}
 
-	bool DeleteInternal(unsigned __int64 id)
+	bool DeleteInternal(unsigned __int64 id) const
 	{
 		return Statement(stmtDel).Bind(id).StepAndReset();
 	}
@@ -2502,7 +2502,7 @@ void config_provider::ClearPluginsCache()
 	PluginsCacheConfigDb().DiscardCache();
 }
 
-int config_provider::ShowProblems()
+int config_provider::ShowProblems() const
 {
 	int rc = 0;
 	if (!m_Problems.empty())
