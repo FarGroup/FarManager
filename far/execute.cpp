@@ -87,12 +87,7 @@ static bool GetImageType(const string& FileName, image_type& ImageType)
 						}
 						PeHeader;
 
-						struct
-						{
-							WORD Signature;
-							IMAGE_OS2_HEADER Os2Header;
-						}
-						NeHeader;
+						IMAGE_OS2_HEADER Os2Header;
 					}
 					ImageHeader;
 
@@ -123,9 +118,9 @@ static bool GetImageType(const string& FileName, image_type& ImageType)
 								}
 							}
 						}
-						else if (ImageHeader.NeHeader.Signature == IMAGE_OS2_SIGNATURE)
+						else if (ImageHeader.Os2Header.ne_magic == IMAGE_OS2_SIGNATURE)
 						{
-							const auto& Os2Header = ImageHeader.NeHeader.Os2Header;
+							const auto& Os2Header = ImageHeader.Os2Header;
 
 							if (!(HIBYTE(Os2Header.ne_flags) & 0x80)) // DLL or driver
 							{
@@ -135,7 +130,7 @@ static bool GetImageType(const string& FileName, image_type& ImageType)
 									NE_WIN386 = 0x4,
 								};
 
-								if (Os2Header.ne_exetyp == NE_WIN386 || Os2Header.ne_exetyp == NE_WIN386)
+								if (Os2Header.ne_exetyp == NE_WINDOWS || Os2Header.ne_exetyp == NE_WIN386)
 								{
 									Result = image_type::graphical;
 								}
