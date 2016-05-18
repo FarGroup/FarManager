@@ -3022,7 +3022,9 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 		return DelPtr;
 	}
 
+	auto CurPos = m_it_CurLine->GetTabCurPos();
 	UpdateIterator(m_it_CurLine);
+	m_it_CurLine->SetTabCurPos(CurPos);
 	UpdateIterator(m_it_AnyBlockStart);
 	UpdateIterator(m_it_TopScreen);
 	UpdateIterator(m_it_LastGetLine);
