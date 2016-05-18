@@ -273,27 +273,6 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 	return isModeFound;
 }
 
-void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs)
-{
-	string strName(Name);
-	QuoteSpace(strName);
-
-	execute_info Info;
-	Info.Command = strName;
-	Info.WaitMode = AlwaysWaitFinish? Info.wait_finish : Info.no_wait;
-	Info.NewWindow = true;
-	Info.ExecMode = Info.direct;
-	Info.RunAs = RunAs;
-
-	Global->CtrlObject->CmdLine()->ExecString(Info);
-
-	if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
-	{
-		const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
-		Global->CtrlObject->CmdHistory->AddToHistory(strName, HR_DEFAULT, nullptr, nullptr, curDir.data());
-	}
-}
-
 /*
   Используется для запуска внешнего редактора и вьювера
 */

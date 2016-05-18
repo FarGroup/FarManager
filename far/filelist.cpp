@@ -89,6 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "panelctype.hpp"
 #include "diskmenu.hpp"
+#include "execute.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static panel_sort ListSortMode(panel_sort::UNSORTED);
@@ -1648,9 +1649,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				return TRUE;
 			}
 
-			ProcessEnter(1,LocalKey==KEY_SHIFTENTER||LocalKey==KEY_SHIFTNUMENTER, true,
-					LocalKey == KEY_CTRLALTENTER || LocalKey == KEY_RCTRLRALTENTER || LocalKey == KEY_CTRLRALTENTER || LocalKey == KEY_RCTRLALTENTER ||
-					LocalKey == KEY_CTRLALTNUMENTER || LocalKey == KEY_RCTRLRALTNUMENTER || LocalKey == KEY_CTRLRALTNUMENTER || LocalKey == KEY_RCTRLALTNUMENTER, OFP_NORMAL);
+			ProcessEnter(true, (LocalKey & KEY_SHIFT) != 0, true, (LocalKey & KEY_CTRL || LocalKey & KEY_RCTRL) && (LocalKey & KEY_ALT || LocalKey & KEY_RALT), OFP_NORMAL);
 			return TRUE;
 		}
 		case KEY_CTRLBACKSLASH:
@@ -2533,7 +2532,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLSHIFTPGDN:
 		case KEY_CTRLSHIFTNUMPAD3:
 		case KEY_RCTRLSHIFTNUMPAD3:
-			ProcessEnter(0,0,!(LocalKey&KEY_SHIFT), false, OFP_ALTERNATIVE);
+			ProcessEnter(false, false, !(LocalKey&KEY_SHIFT), false, OFP_ALTERNATIVE);
 			return TRUE;
 
 		case KEY_APPS:
@@ -2593,47 +2592,41 @@ void FileList::Select(FileListItem& SelItem, int Selection)
 
 void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type)
 {
-	string strFileName, strShortFileName;
-
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
 		return;
 
-	FileListItem *CurPtr = &m_ListData[m_CurFile];
-	strFileName = CurPtr->strName;
+	auto& CurItem = m_ListData[m_CurFile];
+	auto strFileName = CurItem.strName;
+	auto strShortFileName = CurItem.strShortName.empty()? CurItem.strName : CurItem.strShortName;
 
-	if (!CurPtr->strShortName.empty())
-		strShortFileName = CurPtr->strShortName;
-	else
-		strShortFileName = CurPtr->strName;
-
-	if (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+	if (CurItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 	{
-		BOOL IsRealName=FALSE;
+		auto IsRealName = true;
 
 		if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 		{
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(m_hPlugin, &m_CachedOpenPanelInfo);
-			IsRealName = m_CachedOpenPanelInfo.Flags&OPIF_REALNAMES;
+			IsRealName = (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES) != 0;
 		}
 
 		// Shift-Enter на каталоге вызывает проводник
-		if ((m_PanelMode != panel_mode::PLUGIN_PANEL || IsRealName) && SeparateWindow)
+		if (IsRealName && SeparateWindow)
 		{
 			string strFullPath;
 
-			if (!IsAbsolutePath(CurPtr->strName))
+			if (!IsAbsolutePath(CurItem.strName))
 			{
 				strFullPath = m_CurDir;
 				AddEndSlash(strFullPath);
 
 				/* 23.08.2001 VVM
 				  ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского */
-				if (!TestParentFolderName(CurPtr->strName))
-					strFullPath += CurPtr->strName;
+				if (!TestParentFolderName(CurItem.strName))
+					strFullPath += CurItem.strName;
 			}
 			else
 			{
-				strFullPath = CurPtr->strName;
+				strFullPath = CurItem.strName;
 			}
 
 			QuoteSpace(strFullPath);
@@ -2643,7 +2636,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			const auto CheckFullScreen = IsFullScreen();
 			const auto OldParent = Parent();
-			ChangeDir(CurPtr->strName,false,true,CurPtr);
+			ChangeDir(CurItem.strName, false, true, &CurItem);
 
 			//"this" может быть удалён в ChangeDir
 			const auto ActivePanel = OldParent->ActivePanel();
@@ -2658,99 +2651,65 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	}
 	else
 	{
-		bool PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
+		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
+		SCOPE_EXIT{ if (PluginMode) DeleteFileWithFolder(strFileName); };
 
 		if (PluginMode)
 		{
 			string strTempDir;
-
 			if (!FarMkTempEx(strTempDir))
 				return;
 
 			os::CreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
-			FileListToPluginItem(*CurPtr, PanelItem);
-			int Result=Global->CtrlObject->Plugins->GetFile(m_hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
-			FreePluginPanelItem(PanelItem);
+			FileListToPluginItem(CurItem, PanelItem);
+			SCOPE_EXIT{ FreePluginPanelItem(PanelItem); };
 
-			if (!Result)
-			{
-				os::RemoveDirectory(strTempDir);
+			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem, strTempDir, strFileName, OPM_SILENT | OPM_VIEW))
 				return;
-			}
 
 			ConvertNameToShort(strFileName,strShortFileName);
 		}
 
-		if (EnableExec && SetCurPath() && !SeparateWindow &&
-		        ProcessLocalFileTypes(strFileName,strShortFileName,FILETYPE_EXEC,PluginMode)) //?? is was var!
+
+		if (EnableExec)
 		{
-			if (PluginMode)
-				DeleteFileWithFolder(strFileName);
-
-			return;
-		}
-
-		const wchar_t *ExtPtr = wcsrchr(strFileName.data(), L'.');
-		int ExeType=FALSE,BatType=FALSE;
-
-		if (ExtPtr)
-		{
-			ExeType=!StrCmpI(ExtPtr, L".exe") || !StrCmpI(ExtPtr, L".com");
-			BatType=IsBatchExtType(ExtPtr);
-		}
-
-		if (EnableExec && (ExeType || BatType))
-		{
-			QuoteSpace(strFileName);
-
-			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
-				Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
-
-			execute_info Info;
-			Info.Command = strFileName;
-			Info.WaitMode = PluginMode? Info.wait_finish : Info.no_wait;
-			Info.NewWindow = SeparateWindow;
-			Info.RunAs = RunAs;
-
-			Parent()->GetCmdLine()->ExecString(Info);
-
-			if (PluginMode)
-				DeleteFileWithFolder(strFileName);
-		}
-		else if (SetCurPath())
-		{
-			HANDLE hOpen = nullptr;
-
-			if (EnableAssoc &&
-			        !EnableExec &&     // не запускаем и не в отдельном окне,
-			        !SeparateWindow && // следовательно это Ctrl-PgDn
-			        ProcessLocalFileTypes(strFileName,strShortFileName,FILETYPE_ALTEXEC,
-			                              PluginMode)
-			   )
-			{
-				if (PluginMode)
-				{
-					DeleteFileWithFolder(strFileName);
-				}
-
+			// Enter
+			if (!SetCurPath())
 				return;
-			}
 
-			if (SeparateWindow || (hOpen = OpenFilePlugin(&strFileName,TRUE, Type)) == nullptr ||
-			        hOpen==PANEL_STOP)
+			if (!SeparateWindow && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_EXEC, PluginMode))
+				return;
+
+			const auto IsItExecutable = IsExecutable(strFileName);
+
+			if (!IsItExecutable && !SeparateWindow && OpenFilePlugin(&strFileName, TRUE, Type))
+				return;
+
+			if (SeparateWindow || Global->Opt->UseRegisteredTypes)
 			{
-				if (EnableExec && hOpen!=PANEL_STOP)
-					if (SeparateWindow || Global->Opt->UseRegisteredTypes)
-						ProcessGlobalFileTypes(strFileName, PluginMode, RunAs);
+				QuoteSpace(strFileName);
 
-				if (PluginMode)
-				{
-					DeleteFileWithFolder(strFileName);
-				}
+				execute_info Info;
+				Info.Command = strFileName;
+				Info.WaitMode = PluginMode? Info.wait_finish : Info.no_wait;
+				Info.NewWindow = SeparateWindow;
+				Info.RunAs = RunAs;
+
+				Parent()->GetCmdLine()->ExecString(Info);
+				
+				const auto ExclusionFlag = IsItExecutable? EXCLUDECMDHISTORY_NOTPANEL : EXCLUDECMDHISTORY_NOTWINASS;
+				if (!(Global->Opt->ExcludeCmdHistory & ExclusionFlag) && !PluginMode)
+					Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
 			}
+		}
+		else
+		{
+			// CtrlPgDn
+			if (EnableAssoc && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTEXEC, PluginMode))
+				return;
 
-			return;
+			OpenFilePlugin(&strFileName, TRUE, Type);
 		}
 	}
 }
@@ -3135,7 +3094,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			ShowFileList(TRUE);
 			FlushInputBuffer();
-			ProcessEnter(true, IntKeyState.ShiftPressed!=0, true, false, OFP_NORMAL);
+			ProcessEnter(true, IntKeyState.ShiftPressed!=0, true, (IntKeyState.AltPressed || IntKeyState.RightAltPressed) && (IntKeyState.CtrlPressed || IntKeyState.RightCtrlPressed), OFP_NORMAL);
 			return TRUE;
 		}
 		else

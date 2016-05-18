@@ -41,7 +41,7 @@ void OpenFolderInShell(const string& Folder);
 
 bool Execute(struct execute_info& Info, bool FolderRun, bool Silent, const std::function<void()>& ConsoleActivator = nullptr);
 
-bool IsBatchExtType(const string&ExtPtr);
+bool IsExecutable(const string& Filename);
 
 bool ExpandOSAliases(string &strStr);
 

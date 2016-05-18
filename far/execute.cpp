@@ -49,21 +49,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "language.hpp"
 
-struct IMAGE_HEADERS
+enum class image_type
 {
-	DWORD Signature;
-	IMAGE_FILE_HEADER FileHeader;
-	union
-	{
-		IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
-		IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
-	};
+	unknown,
+	console,
+	graphical,
 };
 
-static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
+static bool GetImageType(const string& FileName, image_type& ImageType)
 {
-	bool Result=false;
-	ImageSubsystem=IMAGE_SUBSYSTEM_UNKNOWN;
+	auto Result = image_type::unknown;
 	os::fs::file ModuleFile;
 	if(ModuleFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 	{
@@ -74,91 +69,90 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 		{
 			if (DOSHeader.e_magic==IMAGE_DOS_SIGNATURE)
 			{
-				//ImageSubsystem = IMAGE_SUBSYSTEM_DOS_EXECUTABLE;
-				Result=true;
+				Result = image_type::console;
 
 				if (ModuleFile.SetPointer(DOSHeader.e_lfanew,nullptr,FILE_BEGIN))
 				{
-					IMAGE_HEADERS PEHeader;
-
-					if (ModuleFile.Read(&PEHeader, sizeof(PEHeader), ReadSize) && ReadSize==sizeof(PEHeader))
+					union
 					{
-						if (PEHeader.Signature==IMAGE_NT_SIGNATURE)
+						struct
 						{
-							switch (PEHeader.OptionalHeader32.Magic)
+							DWORD Signature;
+							IMAGE_FILE_HEADER FileHeader;
+							union
 							{
-								case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
+								IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
+								IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
+							};
+						}
+						PeHeader;
+
+						struct
+						{
+							WORD Signature;
+							IMAGE_OS2_HEADER Os2Header;
+						}
+						NeHeader;
+					}
+					ImageHeader;
+
+					if (ModuleFile.Read(&ImageHeader, sizeof(ImageHeader), ReadSize) && ReadSize==sizeof(ImageHeader))
+					{
+						if (ImageHeader.PeHeader.Signature == IMAGE_NT_SIGNATURE)
+						{
+							const auto& PeHeader = ImageHeader.PeHeader;
+
+							if (!(PeHeader.FileHeader.Characteristics & IMAGE_FILE_DLL))
+							{
+								auto ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
+
+								switch (PeHeader.OptionalHeader32.Magic)
 								{
-									ImageSubsystem=PEHeader.OptionalHeader32.Subsystem;
-								}
-								break;
+								case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
+									ImageSubsystem = PeHeader.OptionalHeader32.Subsystem;
+									break;
 
 								case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
-								{
-									ImageSubsystem=PEHeader.OptionalHeader64.Subsystem;
+									ImageSubsystem = PeHeader.OptionalHeader64.Subsystem;
+									break;
 								}
-								break;
 
-								/*default:
-									{
-										// unknown magic
-									}*/
+								if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+								{
+									Result = image_type::graphical;
+								}
 							}
 						}
-						else if ((WORD)PEHeader.Signature==IMAGE_OS2_SIGNATURE)
+						else if (ImageHeader.NeHeader.Signature == IMAGE_OS2_SIGNATURE)
 						{
-							/*
-							NE,  хмм...  а как определить что оно ГУЕВОЕ?
+							const auto& Os2Header = ImageHeader.NeHeader.Os2Header;
 
-							Andrzej Novosiolov <andrzej@se.kiev.ua>
-							AN> ориентироваться по флагу "Target operating system" NE-заголовка
-							AN> (1 байт по смещению 0x36). Если там Windows (значения 2, 4) - подразумеваем
-							AN> GUI, если OS/2 и прочая экзотика (остальные значения) - подразумеваем консоль.
-							*/
-							const auto OS2Hdr = reinterpret_cast<const IMAGE_OS2_HEADER*>(&PEHeader);
-							if (OS2Hdr->ne_exetyp==2 || OS2Hdr->ne_exetyp==4)
+							if (!(HIBYTE(Os2Header.ne_flags) & 0x80)) // DLL or driver
 							{
-								ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_GUI;
+								enum
+								{
+									NE_WINDOWS = 0x2,
+									NE_WIN386 = 0x4,
+								};
+
+								if (Os2Header.ne_exetyp == NE_WIN386 || Os2Header.ne_exetyp == NE_WIN386)
+								{
+									Result = image_type::graphical;
+								}
 							}
 						}
-
-						/*else
-						{
-							// unknown signature
-						}*/
 					}
-
-					/*else
-					{
-						// обломс вышел с чтением следующего заголовка ;-(
-					}*/
 				}
-
-				/*else
-				{
-					// видимо улетели куда нить в трубу, т.к. dos_head.e_lfanew указал
-					// слишком в неправдоподобное место (например это чистой воды DOS-файл)
-				}*/
 			}
-
-			/*else
-			{
-				// это не исполняемый файл - у него нету заголовка MZ, например, NLM-модуль
-				// TODO: здесь можно разбирать POSIX нотацию, например "/usr/bin/sh"
-			}*/
 		}
-
-		/*else
-		{
-			// ошибка чтения
-		}*/
 	}
 
-	/*else
+	if (Result != image_type::unknown)
 	{
-		// ошибка открытия
-	}*/
-	return Result;
+		ImageType = Result;
+		return true;
+	}
+	return false;
 }
 
 static bool IsProperProgID(const string& ProgID)
@@ -205,8 +199,8 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 		{
 			string strFullName=Module;
 			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
-			string strPathExt = os::env::get_pathext();
-			const auto PathExtList = split<std::vector<string>>(strPathExt, STLF_UNIQUE);
+			const auto strPathExt = L";" + os::env::get_pathext();
+			const auto PathExtList = split<std::vector<string>>(strPathExt, STLF_UNIQUE | STLF_ALLOWEMPTY);
 
 			for (const auto& i: PathExtList) // первый проход - в текущем каталоге
 			{
@@ -403,21 +397,14 @@ static bool RunAsSupported(LPCWSTR Name)
 	return !Extension.empty() && GetShellType(Extension, Type) && os::reg::open_key(HKEY_CLASSES_ROOT, Type.append(L"\\shell\\runas\\command").data(), KEY_QUERY_VALUE);
 }
 
-/*
-по имени файла (по его расширению) получить команду активации
-Дополнительно смотрится гуевость команды-активатора
-(чтобы не ждать завершения)
-*/
-
 // TODO: rewrite
-static const wchar_t *GetShellActionImpl(const string& FileName, string& strAction, DWORD& ImageSubsystem,DWORD& Error)
+static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& FileName, string& strAction, string& Application, DWORD& Error)
 {
 	string strValue;
 	string strNewValue;
 	const wchar_t *RetPtr;
 	const wchar_t command_action[]=L"\\command";
 	Error = ERROR_SUCCESS;
-	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
 	const auto ExtPtr = wcsrchr(FileName.data(), L'.');
 	if (!ExtPtr)
@@ -521,7 +508,6 @@ static const wchar_t *GetShellActionImpl(const string& FileName, string& strActi
 	{
 		strValue += command_action;
 
-		// а теперь проверим ГУЕвость запускаемой проги
 		if (os::reg::GetValue(HKEY_CLASSES_ROOT, strValue, L"", strNewValue) && !strNewValue.empty())
 		{
 			strNewValue = os::env::expand_strings(strNewValue);
@@ -544,7 +530,7 @@ static const wchar_t *GetShellActionImpl(const string& FileName, string& strActi
 					strNewValue.resize(pos);
 			}
 
-			GetImageSubsystem(strNewValue,ImageSubsystem);
+			Application = strNewValue;
 		}
 		else
 		{
@@ -556,10 +542,10 @@ static const wchar_t *GetShellActionImpl(const string& FileName, string& strActi
 	return RetPtr;
 }
 
-string GetShellAction(const string& FileName, DWORD& ImageSubsystem, DWORD& Error)
+string GetShellActionAndAssociatedApplication(const string& FileName, string& Application, DWORD& Error)
 {
 	string Action;
-	return NullToEmpty(GetShellActionImpl(FileName, Action, ImageSubsystem, Error));
+	return NullToEmpty(GetShellActionAndAssociatedApplicationImpl(FileName, Action, Application, Error));
 }
 
 bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
@@ -689,28 +675,43 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 	else if (Info.ExecMode == Info.detect)
 	{
-		auto GetSubsystemFromShellAction = [&Verb](const string& Str, DWORD& Subsystem)
+		auto GetAssociatedImageType = [&Verb](const string& Str, image_type& ImageType)
 		{
-			if (const auto ExtPtr = wcsrchr(PointToName(Str), L'.'))
+			if (IsExecutable(Str))
 			{
-				if (IsBatchExtType(ExtPtr))
-				{
-					Subsystem = IMAGE_SUBSYSTEM_WINDOWS_CUI;
-					return true;
-				}
-				else
-				{
-					DWORD SaError = 0, SaSubSystem = 0;
-					Verb = GetShellAction(Str, SaSubSystem, SaError);
+				// We shouldn't get here if it's a PE image - only if bat / cmd
+				ImageType = image_type::console;
+				return true;
+			}
+			else
+			{
+				DWORD SaError = 0;
+				string Application;
+				Verb = GetShellActionAndAssociatedApplication(Str, Application, SaError);
 
-					if (!Verb.empty() && SaError != ERROR_NO_ASSOCIATION)
-					{
-						Subsystem = SaSubSystem;
-						return true;
-					}
+				if (!Verb.empty() && !Application.empty() && SaError != ERROR_NO_ASSOCIATION)
+				{
+					return GetImageType(Application, ImageType);
 				}
 			}
 			return false;
+		};
+
+		auto GetImageTypeFallback = [](image_type& ImageType)
+		{
+			// Object is found, but its type is unknown.
+			// Decision is controversial:
+
+			// - we can say it's console to be ready for some output
+			// ImageType = image_type::console;
+			// return true;
+
+			// - we can say it's graphical and launch it in a neat silent way
+			ImageType = image_type::graphical;
+			return true;
+
+			// - we can give up and let comspec take it
+			// return false;
 		};
 
 		const auto ModuleName = Unquote(os::env::expand_strings(strNewCmdStr));
@@ -718,10 +719,9 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 		bool Internal = false;
 
-		DWORD dwSubSystem;
-		if (FindObject(ModuleName, FoundModuleName, Internal) &&
-			(GetImageSubsystem(FoundModuleName, dwSubSystem) || GetSubsystemFromShellAction(ModuleName, dwSubSystem))
-			)
+		auto ImageType = image_type::unknown;
+
+		if (FindObject(ModuleName, FoundModuleName, Internal))
 		{
 			if (Internal)
 			{
@@ -729,14 +729,14 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 				Info.ExecMode = Info.external;
 				strNewCmdStr = Info.Command;
 			}
-			else
+			else if (GetImageType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType) || GetImageTypeFallback(ImageType))
 			{
 				// We can run it directly
 				Info.ExecMode = Info.direct;
 				strNewCmdStr = FoundModuleName;
 				strNewCmdPar = os::env::expand_strings(strNewCmdPar);
 
-				if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+				if (ImageType == image_type::graphical)
 				{
 					Silent = true;
 					Info.NewWindow = true;
@@ -812,11 +812,12 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 		auto GetVerb = [&Verb](const string& Str)
 		{
-			DWORD DummySubsystem, DummyError;
-			return GetShellAction(Str, DummySubsystem, DummyError);
+			DWORD DummyError;
+			string DummyString;
+			return GetShellActionAndAssociatedApplication(Str, DummyString, DummyError);
 		};
 
-		seInfo.lpVerb = IsDirectory? nullptr : (Verb.empty()? Verb = GetVerb(strNewCmdStr) : Verb).data();
+		seInfo.lpVerb = IsDirectory? nullptr : EmptyToNull((Verb.empty()? Verb = GetVerb(strNewCmdStr) : Verb).data());
 	}
 	else
 	{
@@ -1249,16 +1250,17 @@ bool ExtractIfExistCommand(string &strCommandText)
 	return Result;
 }
 
-/*
-Проверить "Это батник?"
-*/
-bool IsBatchExtType(const string& ExtPtr)
+bool IsExecutable(const string& Filename)
 {
-	string strExecuteBatchType = os::env::expand_strings(Global->Opt->Exec.strExecuteBatchType);
-	if (strExecuteBatchType.empty())
-		strExecuteBatchType = L".BAT;.CMD";
-	const auto BatchExtList = split<std::vector<string>>(strExecuteBatchType, STLF_UNIQUE);
-	return std::any_of(CONST_RANGE(BatchExtList, i) {return !StrCmpI(i, ExtPtr);});
+	auto DotPos = Filename.find_last_of('.');
+	if (DotPos == string::npos || DotPos == Filename.size() - 1)
+		return false;
+
+	auto Extension = Lower(Filename.substr(DotPos + 1));
+
+	// these guys have specific association in Windows Registry: "%1" %*
+	// That means we can't find the associated program etc., so they shall be hard-coded.
+	return Extension == L"exe" || Extension == L"com" || Extension == L"bat" || Extension == L"cmd";
 }
 
 bool ExpandOSAliases(string &strStr)

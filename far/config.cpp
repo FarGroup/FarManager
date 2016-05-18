@@ -81,8 +81,6 @@ static const wchar_t WordDiv0[] = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
 // Стандартный набор разделителей для функции Xlat
 static const wchar_t WordDivForXlat0[] = L" \t!#$%^&*()+|=\\/@?";
 
-static const wchar_t constBatchExt[] = L".BAT;.CMD;";
-
 static const int DefaultTabSize = 8;
 
 
@@ -1889,7 +1887,6 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystemException,L"Used", OPT_DEF(ExceptUsed, false)},
 
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"~", OPT_DEF(Exec.strHomeDir, L"%FARHOME%")},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"BatchType", OPT_DEF(Exec.strExecuteBatchType, constBatchExt)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"ExcludeCmds", OPT_DEF(Exec.strExcludeCmds, L"")},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"FullTitle", OPT_DEF(Exec.ExecuteFullTitle, false)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"RestoreCP", OPT_DEF(Exec.RestoreCPAfterExecute, true)},
@@ -2128,9 +2125,6 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	// для дисков юзер может только отменять показ
 	Policies.ShowHiddenDrives&=OptPolicies_ShowHiddenDrives;
 	*/
-
-	if (Exec.strExecuteBatchType.empty()) // предохраняемся
-		Exec.strExecuteBatchType=constBatchExt;
 
 	xlat_initialize();
 

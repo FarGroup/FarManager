@@ -53,7 +53,6 @@ enum FILETYPE_MODE
  */
 bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceInternal);
 
-void ProcessGlobalFileTypes(const string& Name, bool AlwaysWaitFinish, bool RunAs);
 bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish);
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish);
 void EditFileTypes();
