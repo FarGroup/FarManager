@@ -2686,7 +2686,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!IsItExecutable && !SeparateWindow && OpenFilePlugin(&strFileName, TRUE, Type))
 				return;
 
-			if (SeparateWindow || Global->Opt->UseRegisteredTypes)
+			if (IsItExecutable || SeparateWindow || Global->Opt->UseRegisteredTypes)
 			{
 				QuoteSpace(strFileName);
 
