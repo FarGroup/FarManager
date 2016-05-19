@@ -271,10 +271,8 @@ BOOL Manager::ExitAll()
 
 void Manager::RefreshAll()
 {
-	if (!m_windows.empty())
-	{
-		RefreshWindow(m_windows.front());
-	}
+	std::for_each(CONST_RANGE(m_windows, ii) { RefreshWindow(ii); });
+	std::for_each(CONST_RANGE(m_modalWindows, ii) { RefreshWindow(ii); });
 }
 
 void Manager::CloseAll()
@@ -1223,8 +1221,7 @@ void Manager::ResizeAllWindows()
 	std::for_each(ALL_CONST_RANGE(m_windows), std::mem_fn(&window::ResizeConsole));
 	std::for_each(ALL_CONST_RANGE(m_modalWindows), std::mem_fn(&window::ResizeConsole));
 
-	ImmediateHide();
-	RefreshWindow();
+	RefreshAll();
 	Global->ScrBuf->Unlock();
 }
 
