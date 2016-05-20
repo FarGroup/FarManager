@@ -989,7 +989,6 @@ local function test_Far_GetConfig()
     "System.Exception.FarEventSvc", "string",
     "System.Exception.Used", "boolean",
     "System.Executor.~", "string",
-    "System.Executor.BatchType", "string",
     "System.Executor.ComspecArguments", "string",
     "System.Executor.ExcludeCmds", "string",
     "System.Executor.FullTitle", "boolean",
