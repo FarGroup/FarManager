@@ -192,9 +192,9 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 
 		if (!Result)
 		{
-			string strFullName=Module;
-			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
-			const auto strPathExt = L";" + os::env::get_pathext();
+			auto strFullName = Module;
+			const auto ModuleExt = wcsrchr(PointToName(Module), L'.');
+			const auto strPathExt = os::env::get_pathext() + L";;"; // ";;" to also try no extension if nothing else matches
 			const auto PathExtList = split<std::vector<string>>(strPathExt, STLF_UNIQUE | STLF_ALLOWEMPTY);
 
 			for (const auto& i: PathExtList) // первый проход - в текущем каталоге
