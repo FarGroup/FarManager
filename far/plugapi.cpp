@@ -878,7 +878,18 @@ intptr_t WINAPI apiMenuFn(
 
 		int ExitCode;
 		{
-			const auto FarMenu = VMenu2::create(NullToEmpty(Title), nullptr, 0, MaxHeight);
+			DWORD MenuFlags = 0;
+
+			if (Flags & FMENU_SHOWAMPERSAND)
+				MenuFlags |= VMENU_SHOWAMPERSAND;
+
+			if (Flags & FMENU_WRAPMODE)
+				MenuFlags |= VMENU_WRAPMODE;
+
+			if (Flags & FMENU_CHANGECONSOLETITLE)
+				MenuFlags |= VMENU_CHANGECONSOLETITLE;
+
+			const auto FarMenu = VMenu2::create(NullToEmpty(Title), nullptr, 0, MaxHeight, MenuFlags);
 			FarMenu->SetPosition(X,Y,0,0);
 			if(Id)
 			{
@@ -898,19 +909,6 @@ intptr_t WINAPI apiMenuFn(
 			if (Bottom)
 				FarMenu->SetBottomTitle(Bottom);
 
-			// общие флаги меню
-			DWORD MenuFlags=0;
-
-			if (Flags & FMENU_SHOWAMPERSAND)
-				MenuFlags|=VMENU_SHOWAMPERSAND;
-
-			if (Flags & FMENU_WRAPMODE)
-				MenuFlags|=VMENU_WRAPMODE;
-
-			if (Flags & FMENU_CHANGECONSOLETITLE)
-				MenuFlags|=VMENU_CHANGECONSOLETITLE;
-
-			FarMenu->SetMenuFlags(MenuFlags);
 			size_t Selected=0;
 
 			for (size_t i=0; i < ItemsNumber; i++)
