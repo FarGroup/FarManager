@@ -48,6 +48,7 @@ class History;
 // Флаги текущего режима диалога
 enum DIALOG_MODES
 {
+	DMODE_NONE                  =0x00000000,
 	DMODE_OBJECTS_INITED        =0x00000001, // элементы инициализарованы?
 	DMODE_OBJECTS_CREATED       =0x00000002, // объекты (Edit,...) созданы?
 	DMODE_WARNINGSTYLE          =0x00000004, // Warning Dialog Style?

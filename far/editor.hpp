@@ -281,6 +281,7 @@ private:
 	numbered_iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), EndIterator()); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
+	bool ProcessKeyInternal(const Manager::Key& Key, bool& Refresh);
 
 	template<class F>
 	void UpdateIteratorAndKeepPos(numbered_iterator& Iter, const F& Func);

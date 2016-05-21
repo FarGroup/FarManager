@@ -1,4 +1,12 @@
-﻿drkns 20.05.2016 21:57:30 +0200 - build 4684
+﻿zg 21.05.2016 04:45:34 +0200 - build 4685
+
+1. с форума: Измеряем время исполнения CtrlAltEnd, находясь в начале файла %FARHOME%\changelog.
+
+2. медленная работа ECTL_INSERTTEXT после 4673.
+
+3. gcc warning.
+
+drkns 20.05.2016 21:57:30 +0200 - build 4684
 
 1. 0003099: В функции Menu не всегда работает флаг FMENU_CHANGECONSOLETITLE
 

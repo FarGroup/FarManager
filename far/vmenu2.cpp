@@ -343,7 +343,7 @@ vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t It
 	VMenu2Ptr->InitDialogObjects();
 	VMenu2Ptr->SetMacroMode(MACROAREA_MENU);
 
-	VMenu2Ptr->SetDialogMode(DMODE_ISMENU | (Flags & VMENU_CHANGECONSOLETITLE? 0 : DMODE_KEEPCONSOLETITLE));
+	VMenu2Ptr->SetDialogMode(DMODE_ISMENU | (Flags & VMENU_CHANGECONSOLETITLE? DMODE_NONE : DMODE_KEEPCONSOLETITLE));
 
 	VMenu2Ptr->SetTitle(Title);
 	VMenu2Ptr->SendMessage(DM_SETINPUTNOTIFY, 1, nullptr);
