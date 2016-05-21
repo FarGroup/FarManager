@@ -4615,7 +4615,7 @@ prepended the backslash #\#.
     Pay attention that all slashes and backslashes in regular expression must
 be prepended with the symbol #\# to differ from other special symbols or with
 the end of expression. An example: the string "big\white/scary" looks in the
-form of regular expression like "big\\white\/scary".
+form of regular expression like "big\\\\white\/scary".
 
     #Metacharacters#
 
