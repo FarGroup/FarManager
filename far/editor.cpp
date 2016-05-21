@@ -3396,7 +3396,7 @@ BOOL Editor::Search(int Next)
 	string strSearchStr, strReplaceStr;
 	static string strLastReplaceStr;
 	string strMsgStr;
-	bool Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,Match,UserBreak;
+	bool Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,Match,UserBreak,RefreshMe = false;
 	std::unique_ptr<undo_block> UndoBlock;
 
 	if (Next && strLastSearchStr.empty())
@@ -3712,8 +3712,8 @@ BOOL Editor::Search(int Next)
 									{
 										m_Flags.Clear(FEDITOR_OVERTYPE);
 										m_it_CurLine->SetOvertypeMode(false);
-										ProcessKey(Manager::Key(KEY_DEL));
-										ProcessKey(Manager::Key(KEY_TAB));
+										ProcessKeyInternal(Manager::Key(KEY_DEL), RefreshMe);
+										ProcessKeyInternal(Manager::Key(KEY_TAB), RefreshMe);
 										m_Flags.Set(FEDITOR_OVERTYPE);
 										m_it_CurLine->SetOvertypeMode(true);
 										continue;
@@ -3725,11 +3725,11 @@ BOOL Editor::Search(int Next)
 									*/
 									if (Ch==L'\r')
 									{
-										ProcessKey(Manager::Key(KEY_DEL));
+										ProcessKeyInternal(Manager::Key(KEY_DEL), RefreshMe);
 									}
 
 									if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
-										ProcessKey(Manager::Key(Ch));
+										ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
 								}
 
 								bool NeedUpdateCurPtr = false;
@@ -3744,14 +3744,14 @@ BOOL Editor::Search(int Next)
 										int Ch=strReplaceStrCurrent[I];
 										NeedUpdateCurPtr = Ch == KEY_ENTER;
 										if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
-											ProcessKey(Manager::Key(Ch));
+											ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
 									}
 								}
 								else
 								{
 									for (; SearchLength; SearchLength--)
 									{
-										ProcessKey(Manager::Key(KEY_DEL));
+										ProcessKeyInternal(Manager::Key(KEY_DEL), RefreshMe);
 									}
 								}
 
@@ -3878,7 +3878,7 @@ BOOL Editor::Search(int Next)
 					break;
 				case KEY_CTRLUP: case KEY_RCTRLUP:
 				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
-					ProcessKey(Manager::Key(Key));
+					ProcessKeyInternal(Manager::Key(Key), RefreshMe);
 					break;
 				case KEY_F5:
 					MenuZoomed=!MenuZoomed;
@@ -3896,7 +3896,7 @@ BOOL Editor::Search(int Next)
 					if ((Key>=KEY_CTRL0 && Key<=KEY_CTRL9) || (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
 					   (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9))
 					{
-						ProcessKey(Manager::Key(Key));
+						ProcessKeyInternal(Manager::Key(Key), RefreshMe);
 					}
 					else
 					{
@@ -3996,6 +3996,7 @@ void Editor::Paste(const string& Data)
 				keep_eol = nullptr;
 		}
 
+		bool RefreshMe = false;
 		for (size_t i = 0, size = Data.size(); i != size; )
 		{
 			if (IsEol(Data[i]))
@@ -4004,7 +4005,7 @@ void Editor::Paste(const string& Data)
 				StartPos=0;
 				EdOpt.AutoIndent = false;
 				const auto PrevLine = m_it_CurLine;
-				ProcessKey(Manager::Key(KEY_ENTER));
+				ProcessKeyInternal(Manager::Key(KEY_ENTER), RefreshMe);
 
 				int eol_len = 1;   // LF or CR
 				if (Data[i] == L'\r' && i + 1 != size)
@@ -4072,12 +4073,13 @@ void Editor::Paste(const string& Data)
 
 void Editor::ProcessChar(wchar_t Char)
 {
+	bool RefreshMe = false;
 	if (Char != L'\0')
-		ProcessKey(Manager::Key(Char));
+		ProcessKeyInternal(Manager::Key(Char), RefreshMe);
 	else
 	{
 		auto cur_pos = m_it_CurLine->GetCurPos();
-		ProcessKey(Manager::Key(L' '));
+		ProcessKeyInternal(Manager::Key(L' '), RefreshMe);
 		auto& line = m_it_CurLine->m_Str;
 		if (line.size() > cur_pos && line[cur_pos] == L' ')
 			line[cur_pos] = L'\0';
@@ -4758,12 +4760,13 @@ void Editor::Undo(int redo)
 
 	UnmarkBlock();
 	auto ud=ustart;
+	bool RefreshMe = false;
 
 	for (;;)
 	{
 		if (ud->m_Type != UNDO_BEGIN && ud->m_Type != UNDO_END)
 		{
-			GoToLineAndShow(ud->m_StrNum);
+			GoToLine(ud->m_StrNum);
 		}
 
 		switch (ud->m_Type)
@@ -4778,14 +4781,14 @@ void Editor::Undo(int redo)
 
 				if (m_it_CurLine.Number() < ud->m_StrNum)
 				{
-					ProcessKey(Manager::Key(KEY_END));
-					ProcessKey(Manager::Key(KEY_ENTER));
+					ProcessKeyInternal(Manager::Key(KEY_END), RefreshMe);
+					ProcessKeyInternal(Manager::Key(KEY_ENTER), RefreshMe);
 				}
 				else
 				{
-					ProcessKey(Manager::Key(KEY_HOME));
-					ProcessKey(Manager::Key(KEY_ENTER));
-					ProcessKey(Manager::Key(KEY_UP));
+					ProcessKeyInternal(Manager::Key(KEY_HOME), RefreshMe);
+					ProcessKeyInternal(Manager::Key(KEY_ENTER), RefreshMe);
+					ProcessKeyInternal(Manager::Key(KEY_UP), RefreshMe);
 				}
 
 				Pasting--;
@@ -5224,20 +5227,21 @@ void Editor::VPaste(const string& Data)
 
 				VBlockSizeY++;
 
+				bool RefreshMe = false;
 				if (IsLastLine(m_it_CurLine))
 				{
 					if (i + NewLineLen < size)
 					{
-						ProcessKey(Manager::Key(KEY_END));
-						ProcessKey(Manager::Key(KEY_ENTER));
+						ProcessKeyInternal(Manager::Key(KEY_END), RefreshMe);
+						ProcessKeyInternal(Manager::Key(KEY_ENTER), RefreshMe);
 
 						// Mantis 0002966: Неправильная вставка вертикального блока в конце файла
-							repeat(StartPos, [this]{ ProcessKey(Manager::Key(L' ')); });
+							repeat(StartPos, [this, &RefreshMe]{ ProcessKeyInternal(Manager::Key(L' '), RefreshMe); });
 					}
 				}
 				else
 				{
-					ProcessKey(Manager::Key(KEY_DOWN));
+					ProcessKeyInternal(Manager::Key(KEY_DOWN), RefreshMe);
 					m_it_CurLine->SetTabCurPos(StartPos);
 					m_it_CurLine->SetOvertypeMode(false);
 				}
@@ -6042,6 +6046,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					case EUR_UNDO:
 					case EUR_REDO:
 						Undo(eur->Command==EUR_REDO);
+						Refresh();
 						return TRUE;
 				}
 			}
@@ -6944,7 +6949,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		if (m_it_CurLine.Number() == pc.cur.Line - pc.cur.ScreenLine)
 		{
-			repeat(pc.cur.ScreenLine, [this](){ ProcessKey(Manager::Key(KEY_DOWN)); });
+			repeat(pc.cur.ScreenLine, [this](){ bool RefreshMe = false; ProcessKeyInternal(Manager::Key(KEY_DOWN), RefreshMe); });
 			m_it_CurLine->SetTabCurPos(pc.cur.LinePos);
 		}
 
@@ -6973,7 +6978,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 			GoToLineAndShow(pc.cur.Line-pc.cur.ScreenLine);
 			m_it_TopScreen = m_it_CurLine;
 
-			repeat(pc.cur.ScreenLine, [this](){ ProcessKey(Manager::Key(KEY_DOWN)); });
+			repeat(pc.cur.ScreenLine, [this](){ bool RefreshMe = false; ProcessKeyInternal(Manager::Key(KEY_DOWN), RefreshMe); });
 
 			if(translateTabs)
 				m_it_CurLine->SetCurPos(pc.cur.LinePos);
