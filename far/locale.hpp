@@ -41,6 +41,7 @@ namespace locale
 	wchar_t GetDecimalSeparator();
 	wchar_t GetThousandSeparator();
 	string GetValue(LCID lcid, LCTYPE id);
+	string GetTimeFormat();
 }
 
 #endif // LOCALE_HPP_C358EF79_F894_425E_B689_C4F4131DBE76

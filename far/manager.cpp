@@ -1098,7 +1098,7 @@ void Manager::RefreshCommit(window_ptr_ref Param)
 				||
 				(Global->WaitInMainLoop && Global->Opt->Clock)
 			)
-				ShowTime(1);
+				ShowTime();
 		});
 	};
 

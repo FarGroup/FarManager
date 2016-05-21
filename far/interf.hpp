@@ -109,7 +109,7 @@ enum BOX_DEF_SYMBOLS
 	BS_COUNT
 };
 
-void ShowTime(int ShowAlways);
+void ShowTime();
 
 /*$ 14.02.2001 SKV
   Инитить ли палитру default значениями.

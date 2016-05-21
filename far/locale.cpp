@@ -86,3 +86,15 @@ string locale::GetValue(LCID lcid, LCTYPE id)
 	}
 	return Result;
 }
+
+string locale::GetTimeFormat()
+{
+	wchar_t TimeBuffer[MAX_PATH]{};
+	if (const auto TimeBufferSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, TimeBuffer, static_cast<int>(std::size(TimeBuffer))))
+	{
+		return string(TimeBuffer, TimeBufferSize - 1);
+	}
+
+	// TODO: log
+	return {};
+}

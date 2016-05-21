@@ -382,7 +382,6 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 					SetTempViewName(L"");
 					SetExitCode(0);
 				}
-				ShowTime(2);
 			}
 
 			return TRUE;
@@ -514,7 +513,7 @@ void FileViewer::ShowStatus() const
 	int NameLength = ScrX+1 - 40;
 
 	if (Global->Opt->ViewerEditorClock && IsFullScreen())
-		NameLength -= 3+5;
+		NameLength -= 3 + static_cast<int>(Global->CurrentTime.size());
 
 	NameLength = std::max(NameLength, 20);
 
@@ -536,7 +535,7 @@ void FileViewer::ShowStatus() const
 	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(m_View->Width+(m_View->ViOpt.ShowScrollbar?1:0))<<strStatus;
 
 	if (Global->Opt->ViewerEditorClock && IsFullScreen())
-		ShowTime(FALSE);
+		ShowTime();
 }
 
 void FileViewer::OnChangeFocus(bool focus)

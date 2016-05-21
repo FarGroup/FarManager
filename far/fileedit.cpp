@@ -908,8 +908,6 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							strTitle.empty() ? nullptr : strTitle.data(),
 							delete_on_close, shared_from_this());
 					}
-
-					ShowTime(2);
 				}
 
 				return TRUE;
@@ -2302,9 +2300,15 @@ void FileEditor::ShowStatus() const
 	GotoXY(m_X1,m_Y1); //??
 	string strLineStr;
 	string strLocalTitle = GetTitle();
-	int NameLength = (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)) ? 15:21;
+	int NameLength = 21;
+
 	if (m_X2 > 80)
-		NameLength += (m_X2-80);
+		NameLength += (m_X2 - 80);
+
+	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
+		NameLength -= static_cast<int>(Global->CurrentTime.size() + 1);
+
+	NameLength = std::max(0, NameLength);
 
 	if (!strPluginTitle.empty() || !strTitle.empty())
 		TruncPathStr(strLocalTitle, (ObjWidth()<NameLength?ObjWidth():NameLength));
@@ -2335,7 +2339,9 @@ void FileEditor::ShowStatus() const
 		fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->m_it_CurLine->GetCurPos()+1<<L' '<<
 		fmt::MinWidth(3)<<strAttr;
 
-	int StatusWidth=ObjWidth() - ((Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
+	int StatusWidth = ObjWidth();
+	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
+		StatusWidth -= static_cast<int>(Global->CurrentTime.size());
 
 	if (StatusWidth<0)
 		StatusWidth=0;
@@ -2347,7 +2353,8 @@ void FileEditor::ShowStatus() const
 
 		if (CurPos < Str.size())
 		{
-			GotoXY(m_X2-((Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)) ? 14:8)-(!m_editor->EdOpt.CharCodeBase?3:0),m_Y1);
+			const int ClockSize = Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size() + 1) : 0;
+			GotoXY(m_X2 - 14 - ClockSize - (!m_editor->EdOpt.CharCodeBase?3:0), m_Y1);
 			SetColor(COL_EDITORSTATUS);
 			/* $ 27.02.2001 SVS
 			Показываем в зависимости от базы */
@@ -2393,7 +2400,7 @@ void FileEditor::ShowStatus() const
 	}
 
 	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
-		ShowTime(FALSE);
+		ShowTime();
 }
 
 /* $ 13.02.2001

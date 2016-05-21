@@ -746,13 +746,18 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		}
 	}
 
+	if (Info.WaitMode == Info.wait_finish)
+	{
+		// It's better to show console rather than non-responding panels
+		Silent = false;
+	}
+
 	bool Visible=false;
 	DWORD CursorSize=0;
 	SMALL_RECT ConsoleWindowRect;
 	COORD ConsoleSize={};
 	int ConsoleCP = CP_OEMCP;
 	int ConsoleOutputCP = CP_OEMCP;
-	int add_show_clock = 0;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
@@ -760,7 +765,6 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	const auto strCurDir = os::GetCurrentDirectory();
 	seInfo.lpDirectory=strCurDir.data();
 	seInfo.nShow = SW_SHOWNORMAL;
-
 
 	if(!Silent)
 	{
@@ -976,7 +980,6 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		Result = true;
 
 	}
-	Global->ProcessShowClock -= add_show_clock;
 
 	SetFarConsoleMode(TRUE);
 	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает

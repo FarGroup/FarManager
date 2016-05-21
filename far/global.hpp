@@ -73,7 +73,7 @@ public:
 	BOOL IsProcessAssignMacroKey;
 	size_t PluginPanelsCount;
 	BOOL ProcessException;
-	BOOL ProcessShowClock;
+	string CurrentTime;
 	const wchar_t *HelpFileMask;
 	bool OnlyEditorViewerUsed; // -e or -v
 #if defined(SYSLOG)

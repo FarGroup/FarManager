@@ -40,7 +40,7 @@ public:
 	TRIVIALLY_MOVABLE(array_ptr);
 
 	array_ptr() : m_size() {}
-	array_ptr(size_t size, bool init = false) : m_array(init? new T[size]() : new T[size]), m_size(size) {}
+	array_ptr(size_t size, bool init = false) { reset(size, init); }
 
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
 	void reset() { m_array.reset(); m_size = 0; }

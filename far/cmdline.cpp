@@ -883,7 +883,6 @@ public:
 		m_Activated(),
 		m_Consolised()
 	{
-		++Global->ProcessShowClock;
 	}
 
 	void Activate()
@@ -962,7 +961,6 @@ public:
 		Global->WindowManager->SubmergeWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->ActivateWindow(m_CurrentWindow);
 		Global->WindowManager->ResizeAllWindows();
-		--Global->ProcessShowClock;
 	}
 
 private:
@@ -1038,7 +1036,7 @@ void CommandLine::ExecString(execute_info& Info)
 			}
 		}
 		if (Global->Opt->Clock)
-			ShowTime(0);
+			ShowTime();
 
 		if (!Silent)
 		{

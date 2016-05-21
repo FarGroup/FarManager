@@ -84,7 +84,6 @@ global::global():
 	AllowCancelExit=TRUE;
 	DisablePluginsOutput=FALSE;
 	ProcessException=FALSE;
-	ProcessShowClock=FALSE;
 	HelpFileMask=L"*.hlf";
 #if defined(SYSLOG)
 	StartSysLog=0;

@@ -7659,8 +7659,8 @@ void FileList::ShowFileList(int Fast)
 
 	strTitle = GetTitle();
 	int TitleX2 = m_X2;
-	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && m_X1 + strTitle.size() + 2 >= static_cast<size_t>(ScrX-5))
-		TitleX2 = std::min(ScrX-5,(int)m_X2);
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && m_X1 + strTitle.size() + 2 >= ScrX - Global->CurrentTime.size())
+		TitleX2 = std::min(static_cast<int>(ScrX - Global->CurrentTime.size()),(int)m_X2);
 
 	int MaxSize=TitleX2-m_X1-1;
 	int XShift = 0;
@@ -7681,8 +7681,8 @@ void FileList::ShowFileList(int Fast)
 	const int TitleSize = static_cast<int>(strTitle.size());
 	int TitleX = m_X1 + 1 + XShift + (TitleX2 - m_X1 - XShift - TitleSize) / 2;
 
-	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + TitleSize > ScrX - 5)
-		TitleX = ScrX - 5 - TitleSize;
+	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + TitleSize > ScrX - static_cast<int>(Global->CurrentTime.size()))
+		TitleX = ScrX - static_cast<int>(Global->CurrentTime.size()) - TitleSize;
 
 	SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 	GotoXY(TitleX, m_Y1);

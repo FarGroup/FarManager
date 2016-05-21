@@ -803,7 +803,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 	if (LocalKey()==KEY_IDLE)
 	{
 		if (Global->Opt->ViewerEditorClock && HostFileEditor && HostFileEditor->IsFullScreen() && Global->Opt->EdOpt.ShowTitleBar)
-			ShowTime(FALSE);
+			ShowTime();
 
 		return TRUE;
 	}

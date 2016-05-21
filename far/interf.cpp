@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 #include "TaskBar.hpp"
+#include "locale.hpp"
 
 consoleicons& ConsoleIcons()
 {
@@ -549,40 +550,20 @@ void GetVideoMode(COORD& Size)
 	_OT(ViewConsoleInfo());
 }
 
-void ShowTime(int ShowAlways)
+void ShowTime()
 {
-	static SYSTEMTIME lasttm={};
-
-	if (ShowAlways==2)
-	{
-		ClearStruct(lasttm);
-		return;
-	}
-
 	if (Global->ScreenSaverActive)
 		return;
 
-	SYSTEMTIME tm;
-	matrix<FAR_CHAR_INFO> colon(1, 1);
-	GetLocalTime(&tm);
-	GetText(ScrX - 4 + 2, 0, ScrX - 4 + 2, 0, colon);
-	if (!ShowAlways && lasttm.wMinute == tm.wMinute && lasttm.wHour == tm.wHour && colon[0][0].Char == L':')
-		return;
-
-	Global->ProcessShowClock++;
-
-	lasttm=tm;
-	string strClockText = str_printf(L"%02d:%02d",tm.wHour,tm.wMinute);
-	GotoXY(ScrX-4,0);
+	Global->CurrentTime = locale::GetTimeFormat();
 
 	if (const auto CurrentWindow = Global->WindowManager->GetCurrentWindow())
 	{
+		GotoXY(static_cast<int>(ScrX + 1 - Global->CurrentTime.size()), 0);
 		int ModType=CurrentWindow->GetType();
 		SetColor(ModType==windowtype_viewer?COL_VIEWERCLOCK:(ModType==windowtype_editor?COL_EDITORCLOCK:COL_CLOCK));
-		Text(strClockText);
+		Text(Global->CurrentTime);
 	}
-
-	Global->ProcessShowClock--;
 }
 
 void GotoXY(int X,int Y)

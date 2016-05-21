@@ -357,9 +357,9 @@ void ScreenBuf::Flush(flush_type FlushType)
 				SetMacroChar(Where, L'A', B_LIGHTRED | F_WHITE);
 			}
 
-			if (Global->WaitInMainLoop && Global->Opt->Clock && !Global->ProcessShowClock)
+			if (Global->WaitInMainLoop && Global->Opt->Clock)
 			{
-				ShowTime(FALSE);
+				ShowTime();
 			}
 
 			std::vector<SMALL_RECT>WriteList;

@@ -638,7 +638,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	                                 Global->CtrlObject->Macro.GetArea()==MACROAREA_SEARCH));
 
 	if (EnableShowTime)
-		ShowTime(1);
+		ShowTime();
 
 	Global->ScrBuf->Flush();
 
@@ -711,7 +711,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			clock_t CurTime=clock();
 
 			if (EnableShowTime)
-				ShowTime(0);
+				ShowTime();
 
 			if (Global->WaitInMainLoop)
 			{
@@ -863,7 +863,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	Console().ReadInput(rec, 1, ReadCount);
 
 	if (EnableShowTime)
-		ShowTime(1);
+		ShowTime();
 
 	bool SizeChanged=false;
 	if(Global->Opt->WindowMode)

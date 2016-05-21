@@ -68,7 +68,7 @@ namespace detail
 	inline void check() {}
 
 	template<typename arg, typename... args>
-	void check(arg&& Arg, args&&... Args)
+	void check(arg&&, args&&... Args)
 	{
 		static_assert(std::is_lvalue_reference<arg>::value, "argument must be lvalue");
 		check(std::forward<args>(Args)...);
