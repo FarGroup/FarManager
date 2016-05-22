@@ -3,6 +3,72 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.05.2016 21:51:25 +0200 - build 4688
+
+1. 0003245: Crash after Shift-F2 in User Menu
+
+2. Refactoring.
+
+drkns 21.05.2016 20:30:22 +0200 - build 4687
+
+1. On #0003244 - show clock according to OS regional settings.
+
+zg 21.05.2016 11:27:47 +0200 - build 4686
+
+1. forum: severe slowdown for UNDO/REDO in editor.
+
+2. slowdown for built-in replace after 4673.
+
+zg 21.05.2016 04:45:34 +0200 - build 4685
+
+1. forum: Measure execution time for CtrlAltEnd at the beginning of %FARHOME%\changelog file.
+
+2. slow ECTL_INSERTTEXT after 4673.
+
+3. gcc warning.
+
+drkns 20.05.2016 21:57:30 +0200 - build 4684
+
+1. 0003099: FMENU_CHANGECONSOLETITLE flag may not work in Menu function
+
+drkns 20.05.2016 21:16:12 +0200 - build 4683
+
+1. #0003243 user menu items in which .cmd is invoked now start in separate window.
+
+drkns 19.05.2016 19:03:12 +0200 - build 4682
+
+1. Correction of 4679.
+
+zg 19.05.2016 18:08:09 +0200 - build 4681
+
+1. artifacts on altf9 in a combo box.
+
+drkns 19.05.2016 01:35:59 +0200 - build 4680
+
+1. Correction of 4679.
+
+drkns 19.05.2016 00:40:27 +0200 - build 4679
+
+1. Continue launcher experimens:
+   - launch type (console with waiting / silent with no waiting) is now defined for system associations too.
+   - System.Executor.BatchType is gone, everything should work automatically.
+
+zg 18.05.2016 19:37:11 +0200 - build 4678
+
+1. under certain conditions the cursor position in current line was incorrect after ECTL_DELETESTRING.
+
+drkns 17.05.2016 20:41:13 +0200 - build 4677
+
+1. Refactoring - add some const.
+
+zg 17.05.2016 13:03:38 +0200 - build 4676
+
+1. correction 4673 for ECTL_SETPOSITION.
+
+drkns 16.05.2016 22:55:36 +0200 - build 4675
+
+1. Another correction for launcher.
+
 drkns 15.05.2016 22:00:35 +0200 - build 4674
 
 1. Correction of 4668.
