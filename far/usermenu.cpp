@@ -321,7 +321,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
-	auto strMenuFilePath = Global->CtrlObject->CmdLine()->GetCurDir();
+	auto strMenuFilePath = Global->CtrlObject->Cp()->ActivePanel()->GetCurDir();
 	// по умолчанию меню - это FarMenu.ini
 	m_MenuMode = menu_mode::local;
 	m_MenuModified = false;
@@ -385,7 +385,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 					if(!IsRootPath(strMenuFilePath))
 					{
 						const auto pos = FindLastSlash(strMenuFilePath);
-						if (pos != string::npos)
+						if (pos && pos != string::npos)
 						{
 							strMenuFilePath.resize(pos - 1);
 							continue;

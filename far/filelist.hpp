@@ -129,10 +129,9 @@ struct PluginsListItem
 	NONCOPYABLE(PluginsListItem);
 	TRIVIALLY_MOVABLE(PluginsListItem);
 
-	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, const string& PrevOriginalCurDir, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(hPlugin),
 		m_HostFile(HostFile),
-		m_PrevOriginalCurDir(PrevOriginalCurDir),
 		m_Modified(Modified),
 		m_PrevViewMode(PrevViewMode),
 		m_PrevSortMode(PrevSortMode),
@@ -145,7 +144,6 @@ struct PluginsListItem
 
 	PluginHandle* m_Plugin;
 	string m_HostFile;
-	string m_PrevOriginalCurDir;
 	int m_Modified;
 	int m_PrevViewMode;
 	panel_sort m_PrevSortMode;

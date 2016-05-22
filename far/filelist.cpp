@@ -948,15 +948,6 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return 0;
 		}
 
-		case MCODE_V_APANEL_PATH0:
-		case MCODE_V_PPANEL_PATH0:
-		{
-			if (PluginsList.empty())
-				return 0;
-			*(string *)vParam = PluginsList.back().m_PrevOriginalCurDir;
-			return 1;
-		}
-
 		case MCODE_F_PANEL_SELECT:
 		{
 			// vParam = MacroPanelSelect*, iParam = 0
@@ -5356,7 +5347,7 @@ void FileList::ClearAllItem()
 
 void FileList::PushPlugin(PluginHandle* hPlugin,const string& HostFile)
 {
-	PluginsList.emplace_back(hPlugin, HostFile, strOriginalCurDir, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_NumericSort, m_CaseSensitiveSort, m_DirectoriesFirst, m_ViewSettings);
+	PluginsList.emplace_back(hPlugin, HostFile, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_NumericSort, m_CaseSensitiveSort, m_DirectoriesFirst, m_ViewSettings);
 	++Global->PluginPanelsCount;
 }
 
@@ -5380,7 +5371,6 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	if (!PluginsList.empty())
 	{
 		m_hPlugin = PluginsList.back().m_Plugin;
-		strOriginalCurDir=CurPlugin.m_PrevOriginalCurDir;
 
 		if (EnableRestoreViewMode)
 		{

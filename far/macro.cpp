@@ -1516,7 +1516,6 @@ private:
 intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 {
 	intptr_t ret=0;
-	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
 	// проверка на область
@@ -1586,9 +1585,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
 		{
+			string Value;
 			if (Global->CtrlObject->CmdLine())
-				strFileName = Global->CtrlObject->CmdLine()->GetString();
-			return PassString(strFileName, Data);
+				Value = Global->CtrlObject->CmdLine()->GetString();
+			return PassString(Value, Data);
 		}
 
 		case MCODE_C_APANEL_ROOT:  // APanel.Root
@@ -1698,9 +1698,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			const auto SelPanel = CheckCode == MCODE_C_APANEL_ISEMPTY?ActivePanel:PassivePanel;
 			if (SelPanel)
 			{
-				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
+				string Filename;
+				SelPanel->GetFileName(Filename, SelPanel->GetCurrentPos(), FileAttr);
 				size_t GetFileCount=SelPanel->GetFileCount();
-				ret=(!GetFileCount || (GetFileCount == 1 && TestParentFolderName(strFileName))) ? 1:0;
+				ret = !GetFileCount || (GetFileCount == 1 && TestParentFolderName(Filename));
 			}
 			return PassBoolean(ret, Data);
 		}
@@ -1746,7 +1747,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			const auto SelPanel = CheckCode == MCODE_C_APANEL_FOLDER?ActivePanel:PassivePanel;
 			if (SelPanel)
 			{
-				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
+				string Filename;
+				SelPanel->GetFileName(Filename, SelPanel->GetCurrentPos(), FileAttr);
 
 				if (FileAttr != INVALID_FILE_ATTRIBUTES)
 					ret=(FileAttr&FILE_ATTRIBUTE_DIRECTORY)?1:0;
@@ -1765,14 +1767,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_PPANEL_CURRENT: // PPanel.Current
 		{
 			const auto SelPanel = CheckCode == MCODE_V_APANEL_CURRENT ? ActivePanel : PassivePanel;
-			const wchar_t *ptr = L"";
-			if (SelPanel )
+			string Filename;
+			if (SelPanel)
 			{
-				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
-				if (FileAttr != INVALID_FILE_ATTRIBUTES)
-					ptr = strFileName.data();
+				SelPanel->GetFileName(Filename, SelPanel->GetCurrentPos(), FileAttr);
 			}
-			return PassString(ptr, Data);
+			return PassString(Filename, Data);
 		}
 
 		case MCODE_V_APANEL_SELCOUNT: // APanel.SelCount
@@ -1868,51 +1868,45 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_APANEL_PATH0:           // APanel.Path0
 		case MCODE_V_PPANEL_PATH0:           // PPanel.Path0
 		{
-			const auto SelPanel = CheckCode == MCODE_V_APANEL_PATH0 ? ActivePanel : PassivePanel;
-			const wchar_t *ptr = L"";
-			if (SelPanel )
+			string Filename;
+			if (const auto SelPanel = CheckCode == MCODE_V_APANEL_PATH0? ActivePanel : PassivePanel)
 			{
-				if (!SelPanel->VMProcess(CheckCode,&strFileName,0))
-					strFileName = SelPanel->GetCurDir();
-				ptr = strFileName.data();
+				Filename = SelPanel->GetCurDir();
 			}
-			return PassString(ptr, Data);
+			return PassString(Filename, Data);
 		}
 
 		case MCODE_V_APANEL_PATH: // APanel.Path
 		case MCODE_V_PPANEL_PATH: // PPanel.Path
 		{
-			const auto SelPanel = CheckCode == MCODE_V_APANEL_PATH ? ActivePanel : PassivePanel;
-			const wchar_t *ptr = L"";
-			if (SelPanel)
+			string Filename;
+			if (const auto SelPanel = CheckCode == MCODE_V_APANEL_PATH? ActivePanel : PassivePanel)
 			{
 				if (SelPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 				{
 					OpenPanelInfo Info={};
 					Info.StructSize=sizeof(OpenPanelInfo);
 					SelPanel->GetOpenPanelInfo(&Info);
-					strFileName = NullToEmpty(Info.CurDir);
+					Filename = NullToEmpty(Info.CurDir);
 				}
 				else
-					strFileName = SelPanel->GetCurDir();
+					Filename = SelPanel->GetCurDir();
 
-				DeleteEndSlash(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
-				ptr = strFileName.data();
+				DeleteEndSlash(Filename); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
 			}
-			return PassString(ptr, Data);
+			return PassString(Filename, Data);
 		}
 
 		case MCODE_V_APANEL_UNCPATH: // APanel.UNCPath
 		case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
 		{
-			const wchar_t *ptr = L"";
-			if (_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,strFileName,L""))
+			string Filename;
+			if (_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH? KEY_ALTSHIFTBRACKET : KEY_ALTSHIFTBACKBRACKET, Filename, L""))
 			{
-				UnquoteExternal(strFileName);
-				DeleteEndSlash(strFileName);
-				ptr = strFileName.data();
+				UnquoteExternal(Filename);
+				DeleteEndSlash(Filename);
 			}
-			return PassString(ptr, Data);
+			return PassString(Filename, Data);
 		}
 
 		//FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
@@ -1931,22 +1925,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (SelPanel  && SelPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 			{
-				strFileName = SelPanel->GetCurDir();
-				GetPathRoot(strFileName, strFileName);
-				UINT DriveType=FAR_GetDriveType(strFileName, 0);
-
-				// BUGBUG: useless, GetPathRoot expands subst itself
-
-				/*if (ParsePath(strFileName) == PATH_DRIVELETTER)
-				{
-					string strRemoteName;
-					strFileName.SetLength(2);
-
-					if (GetSubstName(DriveType,strFileName,strRemoteName))
-						DriveType=DRIVE_SUBSTITUTE;
-				}*/
-
-				ret = DriveType;
+				auto Filename = SelPanel->GetCurDir();
+				GetPathRoot(Filename, Filename);
+				ret = FAR_GetDriveType(Filename, 0);
 			}
 
 			return ret;
@@ -1969,25 +1950,26 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_TITLE: // Title
 		{
 			const auto f = Global->WindowManager->GetCurrentWindow();
+			string Filename;
 
 			if (std::dynamic_pointer_cast<FilePanels>(f))
 			{
-				strFileName = ActivePanel->GetTitle();
+				Filename = ActivePanel->GetTitle();
 			}
 			else if (f)
 			{
 				string strType;
 
-				switch (f->GetTypeAndName(strType,strFileName))
+				switch (f->GetTypeAndName(strType, Filename))
 				{
 					case windowtype_editor:
 					case windowtype_viewer:
-						strFileName = f->GetTitle();
+						Filename = f->GetTitle();
 						break;
 				}
 			}
-			RemoveExternalSpaces(strFileName);
-			return PassString(strFileName, Data);
+			RemoveExternalSpaces(Filename);
+			return PassString(Filename, Data);
 		}
 
 		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
@@ -2011,7 +1993,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_MENUINFOID: // Menu.Info.Id
 		{
 			int CurArea=GetArea();
-			const wchar_t* ptr = L"";
+			string Filename;
 
 			if (CheckCode==MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType()==windowtype_menu)
 			{
@@ -2029,19 +2011,18 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						case MCODE_V_MENU_VALUE:
 							if (f->VMProcess(CheckCode,&NewStr))
 							{
-								strFileName = HiText2Str(NewStr);
-								RemoveExternalSpaces(strFileName);
-								ptr=strFileName.data();
+								Filename = HiText2Str(NewStr);
+								RemoveExternalSpaces(Filename);
 							}
 							break;
 						case MCODE_V_MENUINFOID:
-							ptr=reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(f->VMProcess(CheckCode)));
+							Filename = reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(f->VMProcess(CheckCode)));
 							break;
 					}
 				}
 			}
 
-			return PassString(ptr, Data);
+			return PassString(Filename, Data);
 		}
 
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
@@ -2062,41 +2043,42 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_EDITORFILENAME: // Editor.FileName
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
-			const wchar_t* ptr = nullptr;
-			if (CheckCode == MCODE_V_EDITORSELVALUE)
-				ptr=L"";
-
 			if (GetArea()==MACROAREA_EDITOR && Global->WindowManager->GetCurrentEditor() && Global->WindowManager->GetCurrentEditor()->IsVisible())
 			{
-				if (CheckCode == MCODE_V_EDITORFILENAME)
+				switch (CheckCode)
 				{
-					string strType;
-					Global->WindowManager->GetCurrentEditor()->GetTypeAndName(strType, strFileName);
-					ptr=strFileName.data();
-				}
-				else if (CheckCode == MCODE_V_EDITORSELVALUE)
-				{
-					Global->WindowManager->GetCurrentEditor()->VMProcess(CheckCode,&strFileName);
-					ptr=strFileName.data();
-				}
-				else
+				case MCODE_V_EDITORFILENAME:
+					{
+						string Type, Filename;
+						Global->WindowManager->GetCurrentEditor()->GetTypeAndName(Type, Filename);
+						return PassString(Filename, Data);
+					}
+
+				case MCODE_V_EDITORSELVALUE:
+					{
+						string Value;
+						Global->WindowManager->GetCurrentEditor()->VMProcess(CheckCode, &Value);
+						return PassString(Value, Data);
+					}
+
+				default:
 					return Global->WindowManager->GetCurrentEditor()->VMProcess(CheckCode);
+				}
 			}
 
-			return ptr ? PassString(ptr, Data) : 0;
+			return CheckCode == MCODE_V_EDITORSELVALUE? PassString(L"", Data) : 0;
 		}
 
 		case MCODE_V_HELPFILENAME:  // Help.FileName
 		case MCODE_V_HELPTOPIC:     // Help.Topic
 		case MCODE_V_HELPSELTOPIC:  // Help.SelTopic
 		{
-			const wchar_t* ptr=L"";
+			string Value;
 			if (GetArea() == MACROAREA_HELP)
 			{
-				CurrentWindow->VMProcess(CheckCode,&strFileName,0);
-				ptr=strFileName.data();
+				CurrentWindow->VMProcess(CheckCode, &Value, 0);
 			}
-			return PassString(ptr, Data);
+			return PassString(Value, Data);
 		}
 
 		case MCODE_V_VIEWERFILENAME: // Viewer.FileName
@@ -2107,14 +2089,15 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (CheckCode == MCODE_V_VIEWERFILENAME)
 				{
-					Global->WindowManager->GetCurrentViewer()->GetFileName(strFileName);//GetTypeAndName(nullptr,FileName);
-					return PassString(strFileName, Data);
+					string Filename;
+					Global->WindowManager->GetCurrentViewer()->GetFileName(Filename);//GetTypeAndName(nullptr,FileName);
+					return PassString(Filename, Data);
 				}
 				else
 					return PassNumber(Global->WindowManager->GetCurrentViewer()->VMProcess(MCODE_V_VIEWERSTATE), Data);
 			}
 
-			return (CheckCode == MCODE_V_VIEWERFILENAME) ? PassString(L"", Data) : 0;
+			return CheckCode == MCODE_V_VIEWERFILENAME? PassString(L"", Data) : 0;
 		}
 
 		// =========================================================================
