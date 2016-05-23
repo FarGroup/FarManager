@@ -1741,40 +1741,30 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			return TRUE;
 		}
 		case KEY_UP: case KEY_NUMPAD8:
-		{
-			{
-				m_Flags.Set(FEDITOR_NEWUNDO);
-				int PrevMaxPos=MaxRightPos;
-				Up();
-
-				Refresh = true;
-
-				if (PrevMaxPos>m_it_CurLine->GetTabCurPos())
-				{
-					m_it_CurLine->SetTabCurPos(PrevMaxPos);
-					m_it_CurLine->FastShow();
-					m_it_CurLine->SetTabCurPos(PrevMaxPos);
-					Refresh = true;
-				}
-			}
-			return TRUE;
-		}
 		case KEY_DOWN: case KEY_NUMPAD2:
 		{
 			{
 				m_Flags.Set(FEDITOR_NEWUNDO);
 				int PrevMaxPos=MaxRightPos;
-				Down();
+				const auto LastTopScreen = m_it_TopScreen;
+				if (LocalKey() == KEY_UP || LocalKey() == KEY_NUMPAD8)
+					Up();
+				else
+					Down();
 
-				Refresh = true;
+				if (m_it_TopScreen!=LastTopScreen)
+				{
+					m_it_CurLine->SetHorizontalPosition(m_X1, XX2);
+					m_it_CurLine->FixLeftPos();
+				}
 
 				if (PrevMaxPos>m_it_CurLine->GetTabCurPos())
 				{
 					m_it_CurLine->SetTabCurPos(PrevMaxPos);
 					m_it_CurLine->FastShow();
 					m_it_CurLine->SetTabCurPos(PrevMaxPos);
-					Refresh = true;
 				}
+				Refresh = true;
 			}
 			return TRUE;
 		}
