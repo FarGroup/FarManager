@@ -2588,6 +2588,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				{
 					Pasting++;
 					ProcessKeyInternal(Manager::Key(KEY_HOME), Refresh);
+					if (!EdOpt.CursorBeyondEOL) MaxRightPos = m_it_CurLine->GetCurPos();
 					ProcessKeyInternal(Manager::Key(KEY_DOWN), Refresh);
 					Pasting--;
 
