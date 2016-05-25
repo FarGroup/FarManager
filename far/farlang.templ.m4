@@ -3574,11 +3574,11 @@ MEditConfigSelFound
 
 MEditConfigCursorAtEnd
 "Курсор в ко&нце"
-"Cu&rsor at end"
-upd:"Cursor at end"
+"Cu&rsor at the end"
+upd:"Cursor at the end"
 "Pfeile am Ende"
-upd:"Cursor at end"
-upd:"Cursor at end"
+upd:"Cursor at the end"
+upd:"Cursor at the end"
 "Cursor al final"
 "Kurzor na konci"
 "Cursore Alla &Fine"

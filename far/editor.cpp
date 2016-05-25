@@ -3697,7 +3697,7 @@ BOOL Editor::Search(int Next)
 								int I=0;
 								for (; SearchLength && I<static_cast<int>(strReplaceStrCurrent.size()); ++I, --SearchLength)
 								{
-									int Ch=strReplaceStrCurrent[I];
+									const auto Ch = strReplaceStrCurrent[I];
 
 									if (Ch==KEY_TAB)
 									{
@@ -3719,7 +3719,7 @@ BOOL Editor::Search(int Next)
 										ProcessKeyInternal(Manager::Key(KEY_DEL), RefreshMe);
 									}
 
-									if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
+									if (Ch!=KEY_BS)
 										ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
 								}
 
@@ -3732,9 +3732,9 @@ BOOL Editor::Search(int Next)
 
 									for (; I<static_cast<int>(strReplaceStrCurrent.size()); I++)
 									{
-										int Ch=strReplaceStrCurrent[I];
+										const auto Ch = strReplaceStrCurrent[I];
 										NeedUpdateCurPtr = Ch == KEY_ENTER;
-										if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
+										if (Ch!=KEY_BS)
 											ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
 									}
 								}
@@ -3774,12 +3774,12 @@ BOOL Editor::Search(int Next)
 									CurPtr->Select(LocalCurPos, LocalCurPos + static_cast<int>(strReplaceStrCurrent.size()));
 								}
 
-								if (at_end)
-									at_end = static_cast<int>(strReplaceStrCurrent.size());
-
 								Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 								TextChanged(1);
 							}
+
+							if (at_end)
+								at_end = static_cast<int>(strReplaceStrCurrent.size());
 
 							Pasting--;
 						}
