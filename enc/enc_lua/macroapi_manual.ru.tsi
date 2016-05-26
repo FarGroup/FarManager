@@ -2172,7 +2172,7 @@ lv=2
 dt=Text
 nm=package.nounload
 ctime=3578403115
-mtime=3578408569
+mtime=3673450781
 <article>
 #_<markdown>
 #_
@@ -2185,7 +2185,7 @@ mtime=3578408569
 #_
 #_        package.nounload.mylib = true
 #_
-#_то модуль `mylib` не будет удалён их `package.loaded` при операциях выгрузки или перезагрузки 
+#_то модуль `mylib` не будет удалён из `package.loaded` при операциях выгрузки или перезагрузки 
 #_макросов.
 #_
 #_@@@
