@@ -326,12 +326,13 @@ void ScreenBuf::Flush(flush_type FlushType)
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
-		if (FlushType & flush_type::screen && !SBFlags.Check(SBFLAGS_FLUSHED))
+		if (FlushType & flush_type::screen)
 		{
-			auto SetMacroChar = [](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
+			auto SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
 			{
 				Where.Char = Char;
 				Where.Attributes = colors::ConsoleColorToFarColor(Color);
+				SBFlags.Clear(SBFLAGS_FLUSHED);
 			};
 
 			if (Global->CtrlObject &&
@@ -357,13 +358,15 @@ void ScreenBuf::Flush(flush_type FlushType)
 				SetMacroChar(Where, L'A', B_LIGHTRED | F_WHITE);
 			}
 
-			if (Global->WaitInMainLoop && Global->Opt->Clock)
+			if (!SBFlags.Check(SBFLAGS_FLUSHED))
 			{
-				ShowTime();
-			}
+				if (Global->WaitInMainLoop && Global->Opt->Clock)
+				{
+					ShowTime();
+				}
 
-			std::vector<SMALL_RECT>WriteList;
-			bool Changes=false;
+				std::vector<SMALL_RECT>WriteList;
+				bool Changes=false;
 
 				if (Global->Opt->ClearType)
 				{
@@ -452,29 +455,30 @@ void ScreenBuf::Flush(flush_type FlushType)
 					}
 				}
 
-			if (Changes)
-			{
-				std::for_each(CONST_RANGE(WriteList, i)
+				if (Changes)
 				{
-					COORD BufferCoord = { i.Left, i.Top };
-					SMALL_RECT WriteRegion = i;
-					Console().WriteOutput(Buf, BufferCoord, WriteRegion);
-				});
-				Console().Commit();
-				Shadow = Buf;
-			}
+					std::for_each(CONST_RANGE(WriteList, i)
+					{
+						COORD BufferCoord = { i.Left, i.Top };
+						SMALL_RECT WriteRegion = i;
+						Console().WriteOutput(Buf, BufferCoord, WriteRegion);
+					});
+					Console().Commit();
+					Shadow = Buf;
+				}
 
-			if (MacroCharUsed)
-			{
-				Buf[0][0] = MacroChar;
-			}
+				if (MacroCharUsed)
+				{
+					Buf[0][0] = MacroChar;
+				}
 
-			if (ElevationCharUsed)
-			{
-				Buf.back().back() = ElevationChar;
-			}
+				if (ElevationCharUsed)
+				{
+					Buf.back().back() = ElevationChar;
+				}
 
-			SBFlags.Set(SBFLAGS_FLUSHED);
+				SBFlags.Set(SBFLAGS_FLUSHED);
+			}
 		}
 
 		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
