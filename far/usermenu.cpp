@@ -681,7 +681,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					MenuRoot.clear();
 					DeserializeMenu(MenuRoot, MenuFile, m_MenuCP);
 					MenuFile.Close();
-					m_MenuModified=true;
 					ReturnCode=0;
 					UserMenu->Close(-1);
 

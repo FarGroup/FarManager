@@ -1993,36 +1993,36 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_MENUINFOID: // Menu.Info.Id
 		{
 			int CurArea=GetArea();
-			string Filename;
 
 			if (CheckCode==MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType()==windowtype_menu)
 			{
-				return PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID))), Data);
+				return PassString(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID))), Data);
 			}
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
 			{
 				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
-					string NewStr;
+					string Value;
 
 					switch(CheckCode)
 					{
 						case MCODE_V_MENU_VALUE:
-							if (f->VMProcess(CheckCode,&NewStr))
+							if (f->VMProcess(CheckCode, &Value))
 							{
-								Filename = HiText2Str(NewStr);
-								RemoveExternalSpaces(Filename);
+								Value = HiText2Str(Value);
+								RemoveExternalSpaces(Value);
+								return PassString(Value, Data);
 							}
 							break;
+
 						case MCODE_V_MENUINFOID:
-							Filename = reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(f->VMProcess(CheckCode)));
-							break;
+							return PassString(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(f->VMProcess(CheckCode))), Data);
 					}
 				}
 			}
 
-			return PassString(Filename, Data);
+			return PassString(nullptr, Data);
 		}
 
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
