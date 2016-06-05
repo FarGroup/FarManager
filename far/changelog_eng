@@ -3,6 +3,17 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 02.06.2016 01:51:47 +0200 - build 4695
+
+1. forum: If a macro is being written in dialog (press Ctrl.) then the record indicator does not appear at once,
+   only after additional key press.
+
+drkns 01.06.2016 22:51:16 +0200 - build 4694
+
+1. Forum: Menu.Id in dialogs could cause crash.
+
+2. So not save farmenu.ini after Alt-F4 to keep broken menu files.
+
 drkns 25.05.2016 20:16:03 +0200 - build 4693
 
 1. For [x] Cursor at the end, replacement to a string containing \t worked incorrectly in editor.
