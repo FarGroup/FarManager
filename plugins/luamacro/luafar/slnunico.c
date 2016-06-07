@@ -1318,10 +1318,11 @@ static int unic_match(lua_State *L)
 
 static int gmatch_aux(lua_State *L)
 {
-	MatchState *ms = (MatchState*)lua_tostring(L, lua_upvalueindex(4));
+	MatchState *ms = (MatchState*)lua_touserdata(L, lua_upvalueindex(4));
 	const char *p = lua_tostring(L, lua_upvalueindex(2));
 	const char *src;
 
+	ms->L = L; /* important, as gmatch and gmatch_aux can be called from different coroutines */
 	for(src = ms->src_init + (size_t)lua_tointeger(L, lua_upvalueindex(3));
 	        src <= ms->src_end;
 	        advance(&src, ms->mb))
@@ -1349,16 +1350,16 @@ static int gmatch_aux(lua_State *L)
 static int gmatch(lua_State *L)
 {
 	size_t len;
-	MatchState ms;
-	ms.L = L;
-	ms.src_init = luaL_checklstring(L, 1, &len);
-	ms.src_end = ms.src_init + len;
-	ms.mode = get_mode(L);
-	ms.mb = MODE_MBYTE(ms.mode);
-	luaL_checkstring(L, 2);
+	MatchState *ms;
+
 	lua_settop(L, 2);
 	lua_pushinteger(L, 0);
-	lua_pushlstring(L, (char*)&ms, sizeof(MatchState));
+	ms = (MatchState*) lua_newuserdata(L, sizeof(MatchState));
+	ms->src_init = luaL_checklstring(L, 1, &len);
+	ms->src_end = ms->src_init + len;
+	ms->mode = get_mode(L);
+	ms->mb = MODE_MBYTE(ms->mode);
+	luaL_checkstring(L, 2);
 	lua_pushcclosure(L, gmatch_aux, 4);
 	return 1;
 }

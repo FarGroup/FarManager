@@ -1667,6 +1667,18 @@ local function test_issue_3129()
   assert(k == 3)
 end
 
+local function test_gmatch_coro()
+  local function yieldFirst(it)
+    return coroutine.wrap(function()
+      coroutine.yield(it())
+    end)
+  end
+
+  local it = ("1 2 3"):gmatch("(%d+)")
+  local head = yieldFirst(it)
+  assert(head() == "1")
+end
+
 function MT.test_luafar()
   test_AdvControl()
   test_bit64()
@@ -1675,6 +1687,7 @@ function MT.test_luafar()
   test_MacroControl()
   test_RegexControl()
   test_issue_3129()
+  test_gmatch_coro()
 end
 
 -- Test in particular that Plugin.Call (a so-called "restricted" function) works properly
