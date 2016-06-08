@@ -259,7 +259,7 @@ void CheckAndUpdateConsole()
 	if (ZoomedState != IsZoomed(hWnd) && IconicState == IsIconic(hWnd))
 	{
 		ZoomedState = !ZoomedState;
-		ChangeVideoMode(ZoomedState);
+		ChangeVideoMode(ZoomedState != FALSE);
 	}
 }
 

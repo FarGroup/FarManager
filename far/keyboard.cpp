@@ -658,7 +658,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		if (ZoomedState!=IsZoomed(Console().GetWindow()) && IconicState==IsIconic(Console().GetWindow()))
 		{
 			ZoomedState=!ZoomedState;
-			ChangeVideoMode(ZoomedState);
+			ChangeVideoMode(ZoomedState != FALSE);
 		}
 
 		if (!(LoopCount & 15))
@@ -896,6 +896,11 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			if (Global->WindowManager)
 			{
+				if (PScrX + 1 != CurSize.X || PScrY + 1 != CurSize.Y)
+				{
+					ChangeVideoMode(-CurSize.Y, CurSize.X);
+				}
+
 				// апдейтим панели (именно они сейчас!)
 				SCOPED_ACTION(LockScreen);
 

@@ -438,8 +438,17 @@ void FlushInputBuffer()
 
 void SetVideoMode()
 {
-	if (!IsConsoleFullscreen() && Global->Opt->AltF9)
+	if (!IsConsoleFullscreen() && Global->Opt->AltF9) // hardware full-screen check
 	{
+		DWORD dmode = 0;
+		if (IsWindows10OrGreater() && Console().GetDisplayMode(dmode) && (dmode & CONSOLE_FULLSCREEN) != 0) // win10 graphic full-screen
+		{
+#ifndef _WIN64
+			::SetConsoleDisplayMode(Console().GetOutputHandle(), CONSOLE_WINDOWED_MODE, nullptr); // turn off full-screen
+#else
+			return; // don't know how to turn off full-screen mode on Win10 x64 -- so just do not change video mode
+#endif
+		}
 		ChangeVideoMode(InitSize.X==CurSize.X && InitSize.Y==CurSize.Y);
 	}
 	else
@@ -448,11 +457,11 @@ void SetVideoMode()
 	}
 }
 
-void ChangeVideoMode(int Maximized)
+void ChangeVideoMode(bool Maximize)
 {
 	COORD coordScreen;
 
-	if (Maximized)
+	if (Maximize)
 	{
 		SendMessage(Console().GetWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,0);
 		coordScreen = Console().GetLargestWindowSize();
@@ -470,7 +479,7 @@ void ChangeVideoMode(int Maximized)
 
 void ChangeVideoMode(int NumLines,int NumColumns)
 {
-	short xSize=NumColumns,ySize=NumLines;
+	short xSize = NumColumns, ySize = NumLines >= 0 ? NumLines : -NumLines;
 
 	COORD Size;
 	Console().GetSize(Size);
@@ -511,7 +520,8 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 		Console().SetSize(coordScreen);
 	}
 
-	GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
+	if (NumLines > 0)
+		GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
 }
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)

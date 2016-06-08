@@ -250,3 +250,12 @@ IsWindowsServer()
 	return !VerifyVersionInfoW(&osvi, VER_PRODUCT_TYPE, dwlConditionMask);
 }
 #endif
+
+#ifndef _WIN32_WINNT_WIN10
+#define _WIN32_WINNT_WIN10 0xA00
+VERSIONHELPERAPI
+IsWindows10OrGreater()
+{
+	return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0);
+}
+#endif

@@ -88,22 +88,34 @@ virtual HWND GetWindow() const override
 
 virtual bool GetSize(COORD& Size) const override
 {
-	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		return false;
+
+	Size.X = ConsoleScreenBufferInfo.srWindow.Right - ConsoleScreenBufferInfo.srWindow.Left + 1;
+	Size.Y = ConsoleScreenBufferInfo.srWindow.Bottom - ConsoleScreenBufferInfo.srWindow.Top + 1;
+
+	if (!Global->Opt->WindowMode)
 	{
-		if(Global->Opt->WindowMode)
+		auto style = ::GetWindowLong(GetWindow(), GWL_STYLE);
+		if (style & (WS_HSCROLL | WS_VSCROLL))
 		{
-			Size.X=ConsoleScreenBufferInfo.srWindow.Right-ConsoleScreenBufferInfo.srWindow.Left+1;
-			Size.Y=ConsoleScreenBufferInfo.srWindow.Bottom-ConsoleScreenBufferInfo.srWindow.Top+1;
+			RECT cr;
+			::GetClientRect(GetWindow(), &cr);
+			if (style & WS_HSCROLL)
+			{
+				auto ch_height = (cr.bottom - cr.top) / Size.Y;
+				Size.Y = (cr.bottom + ::GetSystemMetrics(SM_CYHSCROLL) - cr.top) / ch_height;
+			}
+			if (style & WS_VSCROLL)
+			{
+				auto ch_width = (cr.right - cr.left) / Size.X;
+				Size.X = (cr.right + ::GetSystemMetrics(SM_CXVSCROLL) - cr.left) / ch_width;
+			}
 		}
-		else
-		{
-			Size=ConsoleScreenBufferInfo.dwSize;
-		}
-		Result=true;
 	}
-	return Result;
+
+	return true;
 }
 
 virtual bool SetSize(COORD Size) const override

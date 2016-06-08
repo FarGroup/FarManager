@@ -122,7 +122,7 @@ void SetFarConsoleMode(BOOL SetsActiveBuffer=FALSE);
 void ChangeConsoleMode(int Mode, int Choose=0);
 void FlushInputBuffer();
 void SetVideoMode();
-void ChangeVideoMode(int Maximized);
+void ChangeVideoMode(bool Maximize);
 void ChangeVideoMode(int NumLines,int NumColumns);
 void GetVideoMode(COORD& Size);
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
