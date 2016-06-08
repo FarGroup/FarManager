@@ -1,4 +1,8 @@
-﻿shmuel 08.06.2016 00:23:44 +0200 - build 571
+﻿shmuel 08.06.2016 15:00:53 +0200 - build 572
+
+1. LuaFAR: far.Timer(N, ...) при N<1 подвешивал Far.
+
+shmuel 08.06.2016 00:23:44 +0200 - build 571
 
 1. LuaFAR: fix unicode.utf8.gmatch and add a specific test for it.
 

@@ -5321,7 +5321,7 @@ static int far_Timer(lua_State *L)
 	pd = GetPluginData(L);
 	td->Info = pd->Info;
 	td->PluginGuid = pd->PluginId;
-	td->interval = interval < 0 ? 0 : interval;
+	td->interval = interval < 1 ? 1 : interval;
 
 	lua_pushvalue(L, -2);
 	td->tabRef = luaL_ref(L, LUA_REGISTRYINDEX);
