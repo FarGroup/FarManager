@@ -6966,7 +6966,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 		if (pc.cur.Line >= pc.cur.ScreenLine)
 		{
-			GoToLineAndShow(pc.cur.Line-pc.cur.ScreenLine);
+			GoToLine(pc.cur.Line-pc.cur.ScreenLine);
 			m_it_TopScreen = m_it_CurLine;
 
 			repeat(pc.cur.ScreenLine, [this](){ bool RefreshMe = false; ProcessKeyInternal(Manager::Key(KEY_DOWN), RefreshMe); });
