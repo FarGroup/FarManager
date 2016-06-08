@@ -336,18 +336,21 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 */
 static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
-	auto Begin = CmdStr.cbegin() + CmdStr.find_first_not_of(L' ');
-	auto End = CmdStr.cend();
+	if (Global->Opt->Exec.ComspecConditionRe.Pattern != Global->Opt->Exec.ComspecCondition.Get())
+	{
+		Global->Opt->Exec.ComspecConditionRe.Re.assign(Global->Opt->Exec.ComspecCondition.Get(), std::regex::optimize);
+		Global->Opt->Exec.ComspecConditionRe.Pattern = Global->Opt->Exec.ComspecCondition;
+	}
+
+	if (std::regex_search(CmdStr, Global->Opt->Exec.ComspecConditionRe.Re))
+		return false;
+
+	const auto Begin = CmdStr.cbegin() + CmdStr.find_first_not_of(L' ');
+	const auto End = CmdStr.cend();
+	auto CmdEnd = End;
 	auto ParamsBegin = End;
+	auto InQuotes = false;
 
-	// Разделим собственно команду для исполнения и параметры.
-	// При этом заодно определим наличие символов переопределения потоков
-	// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
-
-	static const wchar_t ending_chars[] = L" <>|&";
-
-	bool InQuotes = false;
-	bool TooComplex = false;
 	for (auto i = Begin; i != End; ++i)
 	{
 		if (*i == L'"')
@@ -355,35 +358,17 @@ static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strN
 			InQuotes = !InQuotes;
 		}
 
-		if (!InQuotes)
+		if (!InQuotes && *i == L' ')
 		{
-			if (const auto ending = wcschr(ending_chars, *i))
-			{
-				if (ParamsBegin == End)
-				{
-					ParamsBegin = i;
-				}
-				if (ending >= ending_chars + 1)
-				{
-					TooComplex = true;
-					break;
-				}
-			}
+			CmdEnd = i;
+			ParamsBegin = i + 1;
+			break;
 		}
 	}
 
-	strNewCmdStr.assign(Begin, ParamsBegin);
-
-	if (ParamsBegin != End) // Мы нашли параметры и отделяем мух от котлет
-	{
-		//AY: первый пробел между командой и параметрами не нужен, он добавляется заново в Execute.
-		if (*ParamsBegin == L' ')
-		{
-			++ParamsBegin;
-		}
-		strNewCmdPar.assign(ParamsBegin, End);
-	}
-	return !TooComplex;
+	strNewCmdStr.assign(Begin, CmdEnd);
+	strNewCmdPar.assign(ParamsBegin, End);
+	return true;
 }
 
 static bool RunAsSupported(LPCWSTR Name)
@@ -1266,7 +1251,8 @@ bool ExpandOSAliases(string &strStr)
 	string strNewCmdStr;
 	string strNewCmdPar;
 
-	PartCmdLine(strStr, strNewCmdStr, strNewCmdPar);
+	if (!PartCmdLine(strStr, strNewCmdStr, strNewCmdPar))
+		return false;
 
 	const wchar_t* ExeName=PointToName(Global->g_strFarModuleName);
 	wchar_t_ptr Buffer(4096);

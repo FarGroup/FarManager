@@ -592,6 +592,13 @@ public:
 		BoolOption ExecuteFullTitle;
 		StringOption strExecuteBatchType;
 		StringOption strExcludeCmds;
+		struct
+		{
+			string Pattern;
+			std::wregex Re;
+		}
+		ComspecConditionRe;
+		StringOption ComspecCondition;
 		StringOption ComspecArguments;
 		BoolOption   UseHomeDir; // cd ~
 		StringOption strHomeDir; // cd ~
