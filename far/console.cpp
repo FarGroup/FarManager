@@ -97,7 +97,7 @@ virtual bool GetSize(COORD& Size) const override
 
 	if (!Global->Opt->WindowMode)
 	{
-		auto style = ::GetWindowLong(GetWindow(), GWL_STYLE);
+		auto style = ::GetWindowLongPtr(GetWindow(), GWL_STYLE);
 		if (style & (WS_HSCROLL | WS_VSCROLL))
 		{
 			RECT cr;

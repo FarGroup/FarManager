@@ -441,19 +441,14 @@ void SetVideoMode()
 	if (!IsConsoleFullscreen() && Global->Opt->AltF9) // hardware full-screen check
 	{
 		DWORD dmode = 0;
-		if (IsWindows10OrGreater() && Console().GetDisplayMode(dmode) && (dmode & CONSOLE_FULLSCREEN) != 0) // win10 graphic full-screen
-		{
-#ifndef _WIN64
-			::SetConsoleDisplayMode(Console().GetOutputHandle(), CONSOLE_WINDOWED_MODE, nullptr); // turn off full-screen
-#else
-			return; // don't know how to turn off full-screen mode on Win10 x64 -- so just do not change video mode
-#endif
-		}
+		if (IsWindows10OrGreater() && Console().GetDisplayMode(dmode) && (dmode & CONSOLE_FULLSCREEN) != 0)
+			return; // ignore Alt-F9 in Win10 full-screen mode
+
 		ChangeVideoMode(InitSize.X==CurSize.X && InitSize.Y==CurSize.Y);
 	}
 	else
 	{
-		ChangeVideoMode(ScrY==24?50:25,80);
+		ChangeVideoMode(ScrY == 24 ? 50 : 25, 80);
 	}
 }
 
