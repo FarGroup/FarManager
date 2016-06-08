@@ -16,7 +16,7 @@ Macro
     ei=editor.GetInfo!
     id=ei.EditorID
     if words[id] then words[id]=nil
-    else      
+    else
       pos=ei.CurPos
       line=editor.GetString!.StringText
       if pos<=line\len()+1
@@ -29,14 +29,14 @@ Event
   action:(id,event,param)->
     if event==F.EE_REDRAW
       if words[id]
-        ei=editor.GetInfo!
+        ei=editor.GetInfo id
         start,finish=ei.TopScreenLine,math.min ei.TopScreenLine+ei.WindowSizeY,ei.TotalLines
         for ii=start,finish
-          line,pos=editor.GetString(-1,ii).StringText,1
+          line,pos=editor.GetString(id,ii).StringText,1
           while true
             jj,kk,curr=line\cfind("([%w_]+)",pos)
             if not jj then break
             if not OptCaseSensitive then curr=curr\lower!
-            if curr==words[id] then editor.AddColor ei.EditorID,ii,jj,kk,F.ECF_AUTODELETE,color,100,colorguid
+            if curr==words[id] then editor.AddColor id,ii,jj,kk,F.ECF_AUTODELETE,color,100,colorguid
             pos=kk+1
     elseif event==F.EE_CLOSE then words[id]=nil
