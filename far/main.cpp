@@ -458,7 +458,7 @@ static void SetDriveMenuHotkeys()
 
 		std::for_each(CONST_RANGE(DriveMenuHotkeys, i)
 		{
-			ConfigProvider().PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, PluginsHotkeysConfig::DRIVE_MENU, i.Hotkey);
+			ConfigProvider().PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, PluginsHotkeysConfig::hotkey_type::drive_menu, i.Hotkey);
 		});
 
 		ConfigProvider().GeneralCfg()->SetValue(L"Interface", L"InitDriveMenuHotkeys", 0ull);
@@ -598,23 +598,26 @@ static int mainImpl(const range<wchar_t**>& Args)
 #endif // NO_WRAPPER
 
 				case L'S':
-					if (!StrCmpNI(Arg + 1, L"set:", 4))
 					{
-						if (const auto EqualPtr = wcschr(Arg + 1, L'='))
+						constexpr auto SetParam = L"set:"_sl;
+						if (!StrCmpNI(Arg + 1, SetParam.data(), SetParam.size()))
 						{
-							Overridden.emplace_back(string(Arg + 1 + 4, EqualPtr), EqualPtr + 1);
+							if (const auto EqualPtr = wcschr(Arg + 1, L'='))
+							{
+								Overridden.emplace_back(string(Arg + 1 + 4, EqualPtr), EqualPtr + 1);
+							}
 						}
-					}
-					else if (Iter + 1 != Args.end())
-					{
-						strProfilePath = *++Iter;
-						const auto Next = Iter + 1;
-						if (Next != Args.end() && *Next[0] != L'-'  && *Next[0] != L'/')
+						else if (Iter + 1 != Args.end())
 						{
-							strLocalProfilePath = *Next;
-							Iter = Next;
+							strProfilePath = *++Iter;
+							const auto Next = Iter + 1;
+							if (Next != Args.end() && *Next[0] != L'-'  && *Next[0] != L'/')
+							{
+								strLocalProfilePath = *Next;
+								Iter = Next;
+							}
 						}
-					}
+						}
 					break;
 
 				case L'T':
@@ -800,6 +803,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 int wmain(int Argc, wchar_t *Argv[])
 {
+	{
+		int a[] = { 1, 2, 3 };
+		writable_blob_view z(a, sizeof(a));
+		z[0] = 'q';
+		z[1] = 'w';
+	}
+
 	tracer Tracer;
 
 	try

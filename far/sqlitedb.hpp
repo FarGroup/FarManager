@@ -46,14 +46,14 @@ class SQLiteDb: noncopyable, virtual transactional
 {
 public:
 	SQLiteDb();
-	virtual ~SQLiteDb();
+	virtual ~SQLiteDb() = default;
 
-	enum ColumnType
+	enum class column_type
 	{
-		TYPE_INTEGER,
-		TYPE_STRING,
-		TYPE_BLOB,
-		TYPE_UNKNOWN
+		unknown,
+		integer,
+		string,
+		blob,
 	};
 
 	bool IsNew() const { return db_exists <= 0; }
@@ -92,8 +92,8 @@ protected:
 		const char *GetColTextUTF8(int Col) const;
 		int GetColInt(int Col) const;
 		unsigned __int64 GetColInt64(int Col) const;
-		blob GetColBlob(int Col) const;
-		ColumnType GetColType(int Col) const;
+		blob_view GetColBlob(int Col) const;
+		column_type GetColType(int Col) const;
 
 	private:
 		auto& Bind() { return *this; }
@@ -103,7 +103,7 @@ protected:
 		SQLiteStmt& BindImpl(const wchar_t* Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(const string& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(string&& Value);
-		SQLiteStmt& BindImpl(const blob& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(const blob_view& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
 		SQLiteStmt& BindImpl(unsigned __int64 Value) { return BindImpl(static_cast<__int64>(Value)); }
 		template<class T>
@@ -120,7 +120,7 @@ protected:
 	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
 	template<size_t ExpectedSize, class T, size_t N>
-	static void CheckStmt(const T (&Stmts)[N])
+	static void CheckStmt(const T(&)[N])
 	{
 		static_assert(N == ExpectedSize, "Not all statements initialized");
 	}

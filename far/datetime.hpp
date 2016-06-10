@@ -35,6 +35,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+inline auto get_local_time() { SYSTEMTIME Time; GetLocalTime(&Time); return Time; }
+inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time; }
+inline auto get_utc_time_as_filetime() { FILETIME Time; GetSystemTimeAsFileTime(&Time); return Time; }
+
 DWORD ConvertYearToFull(DWORD ShortYear);
 
 void OnIntlSettingsChange();
@@ -47,16 +51,21 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 string StrFTime(const wchar_t* Format, const tm* t);
 string MkStrFTime(const wchar_t* Format = nullptr);
 
-inline uint64_t FileTimeToUI64(const FILETIME& ft)
+inline auto FileTimeToUI64(const FILETIME& ft)
 {
 	return ULARGE_INTEGER {ft.dwLowDateTime, ft.dwHighDateTime}.QuadPart;
 }
 
-inline FILETIME UI64ToFileTime(uint64_t time)
+inline auto UI64ToFileTime(LARGE_INTEGER time)
 {
-	ULARGE_INTEGER i;
+	return FILETIME{ time.LowPart, static_cast<DWORD>(time.HighPart) };
+}
+
+inline auto UI64ToFileTime(uint64_t time)
+{
+	LARGE_INTEGER i;
 	i.QuadPart = time;
-	return FILETIME { i.LowPart, i.HighPart };
+	return UI64ToFileTime(i);
 }
 
 inline int CompareFileTime(const FILETIME& a, const FILETIME& b)
@@ -82,9 +91,7 @@ inline bool operator<(const FILETIME& a, const FILETIME& b)
 
 inline uint64_t GetCurrentUTCTimeInUI64()
 {
-	FILETIME Timestamp;
-	GetSystemTimeAsFileTime(&Timestamp); // in UTC
-	return FileTimeToUI64(Timestamp);
+	return FileTimeToUI64(get_utc_time_as_filetime());
 }
 
 bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst);
@@ -95,8 +102,8 @@ bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft);
 class time_check: noncopyable, public conditional<time_check>
 {
 public:
-	enum time_check_mode { delayed, immediate };
-	time_check(time_check_mode Mode, clock_t Interval): m_Begin(Mode == delayed ? clock() : 0), m_Interval(Interval) {}
+	enum class mode { delayed, immediate };
+	time_check(mode Mode, clock_t Interval): m_Begin(Mode == mode::delayed ? clock() : 0), m_Interval(Interval) {}
 
 	void reset(clock_t Value = clock()) const { m_Begin = Value; }
 

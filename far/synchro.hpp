@@ -62,7 +62,28 @@ string make_name(const S& HashPart, const S& TextPart)
 	return Str;
 }
 
-class Thread: public os::HandleWrapper
+class HandleWrapper
+{
+public:
+	NONCOPYABLE(HandleWrapper);
+	TRIVIALLY_MOVABLE(HandleWrapper);
+
+	explicit HandleWrapper(HANDLE Handle = nullptr): m_Handle(Handle) {}
+	virtual ~HandleWrapper() = 0;
+
+	bool Wait(DWORD Milliseconds = INFINITE) const { return m_Handle.wait(Milliseconds); }
+	bool Signaled() const { return m_Handle.signaled(); }
+	void Close() { m_Handle.close(); }
+	auto native_handle() const { return m_Handle.native_handle(); }
+
+protected:
+	os::handle m_Handle;
+};
+
+inline HandleWrapper::~HandleWrapper() = default;
+
+
+class Thread: public HandleWrapper
 {
 public:
 	NONCOPYABLE(Thread);
@@ -140,7 +161,7 @@ private:
 	unsigned int m_ThreadId;
 };
 
-class Mutex: public os::HandleWrapper
+class Mutex: public HandleWrapper
 {
 public:
 	NONCOPYABLE(Mutex);
@@ -157,7 +178,7 @@ public:
 	bool unlock() const { return ReleaseMutex(m_Handle.native_handle()) != FALSE; }
 };
 
-class Event: public os::HandleWrapper
+class Event: public HandleWrapper
 {
 public:
 	NONCOPYABLE(Event);
@@ -241,7 +262,7 @@ public:
 		wait_all
 	};
 	MultiWaiter() { Objects.reserve(10); }
-	void Add(const os::HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.native_handle()); }
+	void Add(const HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.native_handle()); }
 	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
 	void Clear() {Objects.clear();}

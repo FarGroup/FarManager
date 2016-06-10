@@ -145,7 +145,7 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 					result=TRUE;
 				break;
 			case FST_DATA:
-				if (PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, blob(Item.Data.Data, Item.Data.Size)))
+				if (PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, make_blob_view(Item.Data.Data, Item.Data.Size)))
 					result = TRUE;
 				break;
 			default:
@@ -186,7 +186,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 				break;
 			case FST_DATA:
 				{
-					writable_blob data;
+					writable_blob_view data;
 					if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, data))
 					{
 						result = TRUE;
@@ -314,7 +314,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 	if(Enum.Root<m_Keys.size())
 	{
 		FarSettingsName item;
-		DWORD Index=0,Type;
+		DWORD Index = 0;
 		string strName;
 
 		const auto& root = m_Keys[Enum.Root];
@@ -325,19 +325,23 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			NewEnumItem.add(item, strName);
 		}
 		Index=0;
+		int Type;
 		while (PluginsCfg->EnumValues(root, Index++, strName, Type))
 		{
-			item.Type=FST_UNKNOWN;
-			switch (Type)
+			switch (static_cast<SQLiteDb::column_type>(Type))
 			{
-			case SQLiteDb::TYPE_INTEGER:
+			case SQLiteDb::column_type::integer:
 				item.Type = FST_QWORD;
 				break;
-			case SQLiteDb::TYPE_STRING:
+			case SQLiteDb::column_type::string:
 				item.Type = FST_STRING;
 				break;
-			case SQLiteDb::TYPE_BLOB:
+			case SQLiteDb::column_type::blob:
 				item.Type = FST_DATA;
+				break;
+			case SQLiteDb::column_type::unknown:
+			default:
+				item.Type = FST_UNKNOWN;
 				break;
 			}
 			if(item.Type!=FST_UNKNOWN)

@@ -1966,7 +1966,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 		return KEY_IDLE;
 	}
 
-	static time_check TimeCheck(time_check::delayed, 50);
+	static time_check TimeCheck(time_check::mode::delayed, 50);
 
 	if (!AltValue)
 	{

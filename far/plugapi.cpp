@@ -1602,7 +1602,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 			auto Items = std::make_unique<std::vector<PluginPanelItem>>();
 
-			time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
+			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 			bool MsgOut = false;
 			while (ScTree.GetNextName(FindData,strFullName))
 			{

@@ -366,7 +366,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 				FILETIME CurrentTime;
 				if(Param1 == SA_BUTTON_CURRENT)
 				{
-					GetSystemTimeAsFileTime(&CurrentTime);
+					CurrentTime = get_utc_time_as_filetime();
 					Value = &CurrentTime;
 				}
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_LASTWRITE, Value);
@@ -455,7 +455,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (reinterpret_cast<intptr_t>(Param2)==-1)
 				{
-					GetSystemTimeAsFileTime(&ft);
+					ft = get_utc_time_as_filetime();
 				}
 				else
 				{
@@ -1410,7 +1410,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					SCOPED_ACTION(wakeful);
 					bool Cancel=false;
 
-					time_check TimeCheck(time_check::immediate, GetRedrawTimeout());
+					time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 					bool SingleFileDone=false;
 					while ((SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData):!SingleFileDone) && !Cancel)
 					{
@@ -1551,7 +1551,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								ScanTree ScTree(false);
 								ScTree.SetFindPath(strSelName,L"*");
-								time_check TreeTimeCheck(time_check::delayed, GetRedrawTimeout());
+								time_check TreeTimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 								string strFullName;
 
 								while (ScTree.GetNextName(FindData,strFullName))

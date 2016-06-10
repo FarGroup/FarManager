@@ -1028,6 +1028,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
    Исходная строка (CmdLine) не модифицируется!!! - на что явно указывает const
                                                     IS 20.03.2002 :-)
 */
+
 static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 {
 	if (CmdLine.empty())
@@ -1053,9 +1054,14 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			++PtrCmd;
 	}
 
+	constexpr auto Token_If = L"IF "_sl;
+	constexpr auto Token_Not = L"NOT "_sl;
+	constexpr auto Token_Exist = L"EXIST "_sl;
+	constexpr auto Token_Defined = L"DEFINED "_sl;
+
 	for (;;)
 	{
-		if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3)) //??? IF/I не обрабатывается
+		if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd, Token_If.data(), Token_If.size())) //??? IF/I не обрабатывается
 			break;
 
 		PtrCmd+=3;
@@ -1066,7 +1072,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 		if (!*PtrCmd)
 			break;
 
-		if (!StrCmpNI(PtrCmd,L"NOT ",4))
+		if (!StrCmpNI(PtrCmd, Token_Not.data(), Token_Not.size()))
 		{
 			Not=TRUE;
 
@@ -1079,7 +1085,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				break;
 		}
 
-		if (*PtrCmd && !StrCmpNI(PtrCmd,L"EXIST ",6))
+		if (*PtrCmd && !StrCmpNI(PtrCmd, Token_Exist.data(), Token_Exist.size()))
 		{
 
 			PtrCmd+=6;
@@ -1149,7 +1155,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			}
 		}
 		// "IF [NOT] DEFINED variable command"
-		else if (*PtrCmd && !StrCmpNI(PtrCmd,L"DEFINED ",8))
+		else if (*PtrCmd && !StrCmpNI(PtrCmd, Token_Defined.data(), Token_Defined.size()))
 		{
 
 			PtrCmd+=8;

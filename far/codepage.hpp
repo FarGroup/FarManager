@@ -105,22 +105,18 @@ inline bool IsNoFlagsCodepage(uintptr_t cp) { return (cp >= 50220 && cp <= 50222
 class MultibyteCodepageDecoder: noncopyable
 {
 public:
-	MultibyteCodepageDecoder(): m_Codepage(), m_Size() {}
-
 	bool SetCP(uintptr_t Codepage);
 	uintptr_t GetCP() const { return m_Codepage; }
 	size_t GetSize() const { return m_Size; }
-
 	size_t GetChar(const char* Buffer, size_t Size, wchar_t& Char, bool* End = nullptr) const;
-
 
 private:
 	std::vector<char> len_mask; //[256]
 	std::vector<wchar_t> m1;    //[256]
 	std::vector<wchar_t> m2;  //[65536]
 
-	uintptr_t m_Codepage;
-	size_t m_Size;
+	uintptr_t m_Codepage {};
+	size_t m_Size {};
 };
 
 //#############################################################################

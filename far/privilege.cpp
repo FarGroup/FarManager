@@ -38,82 +38,85 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os { namespace security {
 
-static os::handle OpenCurrentProcessToken(DWORD DesiredAccess)
+static handle OpenCurrentProcessToken(DWORD DesiredAccess)
 {
 	HANDLE Handle;
-	return os::handle(OpenProcessToken(GetCurrentProcess(), DesiredAccess, &Handle)? Handle : nullptr);
+	return handle(OpenProcessToken(GetCurrentProcess(), DesiredAccess, &Handle)? Handle : nullptr);
 }
 
-privilege::privilege(const std::vector<const wchar_t*>& PrivilegeNames):
-	m_Token(OpenCurrentProcessToken(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY)),
-	m_Changed(false)
+privilege::privilege(const wchar_t* const* Names, size_t Size)
 {
-	if (m_Token)
+	if (!Size)
+		return;
+
+	m_Token = OpenCurrentProcessToken(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
+
+	// TODO: log if failed
+	if (!m_Token)
+		return;
+
+	block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Size - 1));
+	NewState->PrivilegeCount = static_cast<DWORD>(Size);
+
+	std::transform(Names, Names + Size, std::begin(NewState->Privileges), [](const auto& i)
 	{
-		block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (PrivilegeNames.size() - 1));
-		NewState->PrivilegeCount = static_cast<DWORD>(PrivilegeNames.size());
-
-		std::transform(ALL_CONST_RANGE(PrivilegeNames), std::begin(NewState->Privileges), [](const auto& i)
-		{
-			LUID_AND_ATTRIBUTES laa = { {}, SE_PRIVILEGE_ENABLED };
-			LookupPrivilegeValue(nullptr, i, &laa.Luid);
-			// TODO: log if failed
-			return laa;
-		});
-
-		m_SavedState.reset(NewState.size());
-
-		DWORD ReturnLength;
+		LUID_AND_ATTRIBUTES laa = { {}, SE_PRIVILEGE_ENABLED };
+		LookupPrivilegeValue(nullptr, i, &laa.Luid);
 		// TODO: log if failed
-		if (AdjustTokenPrivileges(m_Token.native_handle(), FALSE, NewState.get(), static_cast<DWORD>(NewState.size()), m_SavedState.get(), &ReturnLength) && GetLastError() == ERROR_SUCCESS)
-		{
-			m_Changed = true;
-		}
-	}
+		return laa;
+	});
+
+	m_SavedState.reset(NewState.size());
+
+	DWORD ReturnLength;
+	// TODO: log if failed
+	m_Changed = AdjustTokenPrivileges(m_Token.native_handle(), FALSE, NewState.get(), static_cast<DWORD>(NewState.size()), m_SavedState.get(), &ReturnLength) && m_SavedState->PrivilegeCount;
 }
 
 privilege::~privilege()
 {
-	if(m_Token)
-	{
-		SCOPED_ACTION(GuardLastError);
-		if(m_Changed)
-		{
-			AdjustTokenPrivileges(m_Token.native_handle(), FALSE, m_SavedState.get(), static_cast<DWORD>(m_SavedState.size()), nullptr, nullptr);
-		}
-	}
+	if (!m_Token || !m_Changed)
+		return;
+
+	SCOPED_ACTION(GuardLastError);
+	AdjustTokenPrivileges(m_Token.native_handle(), FALSE, m_SavedState.get(), static_cast<DWORD>(m_SavedState.size()), nullptr, nullptr);
 }
 
-bool privilege::is_set(const wchar_t* PrivilegeName)
+bool privilege::check(const wchar_t* const* Names, size_t Size)
 {
-	bool Result=false;
-	TOKEN_PRIVILEGES State={1};
-	if (LookupPrivilegeValue(nullptr,PrivilegeName,&State.Privileges[0].Luid))
+	const auto Token{ OpenCurrentProcessToken(TOKEN_QUERY) };
+	if (!Token)
+		return false;
+
+	DWORD TokenInformationLength{};
+	if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, nullptr, 0, &TokenInformationLength) || !TokenInformationLength)
+		return false;
+
+	block_ptr<TOKEN_PRIVILEGES> TokenInformation{ TokenInformationLength };
+	if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.get(), TokenInformationLength, &TokenInformationLength))
+		return false;
+
+	const auto PrivilegesEnd{ TokenInformation->Privileges + TokenInformation->PrivilegeCount };
+
+	TOKEN_PRIVILEGES State{ static_cast<DWORD>(Size) };
+
+	for (size_t i = 0; i != Size; ++i)
 	{
-		if (const auto Token = OpenCurrentProcessToken(TOKEN_QUERY))
+		auto& Luid = State.Privileges[i].Luid;
+
+		if (!LookupPrivilegeValue(nullptr, Names[i], &Luid))
+			return false;
+
+		const auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&Luid](const auto& Item)
 		{
-			DWORD TokenInformationLength=0;
-			GetTokenInformation(Token.native_handle(), TokenPrivileges, nullptr, 0, &TokenInformationLength);
-			if (TokenInformationLength)
-			{
-				block_ptr<TOKEN_PRIVILEGES> TokenInformation(TokenInformationLength);
-				if(TokenInformation)
-				{
-					if (GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.get(), TokenInformationLength, &TokenInformationLength))
-					{
-						const auto PrivilegesEnd = TokenInformation->Privileges + TokenInformation->PrivilegeCount;
-						const auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&Luid = State.Privileges[0].Luid](const auto& i)
-						{
-							return i.Luid.LowPart == Luid.LowPart && i.Luid.HighPart == Luid.HighPart;
-						});
-						if (ItemIterator != PrivilegesEnd)
-							Result = (ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED|SE_PRIVILEGE_ENABLED_BY_DEFAULT)) != 0;
-					}
-				}
-			}
-		}
+			return Item.Luid.LowPart == Luid.LowPart && Item.Luid.HighPart == Luid.HighPart;
+		});
+
+		if (ItemIterator == PrivilegesEnd || !(ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT)))
+			return false;
 	}
-	return Result;
+
+	return true;
 }
 
 }}

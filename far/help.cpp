@@ -518,7 +518,8 @@ m1:
 
 			if (m_TopicFound)
 			{
-				if (!StrCmpNI(strReadStr.data(),L"<!Macro:",8) && Global->CtrlObject)
+				const auto MacroTag = L"<!Macro:"_sl;
+				if (!StrCmpNI(strReadStr.data(), MacroTag.data(), MacroTag.size()) && Global->CtrlObject)
 				{
 					const auto PosTab = strReadStr.find(L'>');
 					if (PosTab != string::npos && strReadStr[PosTab - 1] != L'!')

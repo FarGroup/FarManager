@@ -37,19 +37,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace pipe
 {
-	static bool ReadPipe(HANDLE Pipe, void* Data, size_t DataSize)
+	static bool ReadPipe(const os::handle& Pipe, void* Data, size_t DataSize)
 	{
 		DWORD n;
-		return ReadFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n == DataSize;
+		return ReadFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &n, nullptr) && n == DataSize;
 	}
 
-	static bool WritePipe(HANDLE Pipe, const void* Data, size_t DataSize)
+	static bool WritePipe(const os::handle& Pipe, const void* Data, size_t DataSize)
 	{
 		DWORD n;
-		return WriteFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n == DataSize;
+		return WriteFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &n, nullptr) && n == DataSize;
 	}
 
-	bool Read(HANDLE Pipe, void* Data, size_t DataSize)
+	bool Read(const os::handle& Pipe, void* Data, size_t DataSize)
 	{
 		bool Result = false;
 		size_t ReadSize = 0;
@@ -61,7 +61,7 @@ namespace pipe
 		return Result;
 	}
 
-	bool Read(HANDLE Pipe, string& Data)
+	bool Read(const os::handle& Pipe, string& Data)
 	{
 		bool Result = false;
 		size_t DataSize = 0;
@@ -84,12 +84,12 @@ namespace pipe
 		return Result;
 	}
 
-	bool Write(HANDLE Pipe, const void* Data, size_t DataSize)
+	bool Write(const os::handle& Pipe, const void* Data, size_t DataSize)
 	{
 		return WritePipe(Pipe, &DataSize, sizeof(DataSize)) && WritePipe(Pipe, Data, DataSize);
 	}
 
-	bool Write(HANDLE Pipe, const string& Data)
+	bool Write(const os::handle& Pipe, const string& Data)
 	{
 		return Write(Pipe, Data.data(), (Data.size() + 1)*sizeof(wchar_t));
 	}

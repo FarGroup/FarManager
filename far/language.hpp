@@ -57,7 +57,7 @@ protected:
 private:
 	virtual size_t size() const { return m_Messages.size(); }
 	virtual void reserve(size_t size) { m_Messages.reserve(size); }
-	virtual void add(string&& str) { m_Messages.emplace_back(str); }
+	virtual void add(string&& str) { m_Messages.emplace_back(std::move(str)); }
 
 	std::vector<string> m_Messages;
 	string m_FileName;
@@ -72,7 +72,7 @@ bool SelectHelpLanguage();
 template<class T>
 LNGID operator+(LNGID Id, T Shift)
 {
-	return static_cast<LNGID>(static_cast<DWORD>(Id)+static_cast<DWORD>(Shift));
+	return static_cast<LNGID>(static_cast<std::underlying_type_t<LNGID>>(Id) + Shift);
 }
 
 inline LNGID operator++(LNGID& Id, int)

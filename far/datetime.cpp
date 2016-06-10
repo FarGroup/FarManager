@@ -724,10 +724,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 	{
 		strDateText.resize(TextMonth ? 6 : 5);
 
-		SYSTEMTIME lt;
-		GetLocalTime(&lt);
-
-		if (lt.wYear!=st.wYear)
+		if (get_local_time().wYear != st.wYear)
 			strTimeText = str_printf(L"%5d",st.wYear);
 	}
 }
@@ -758,52 +755,43 @@ bool Utc2Local(SYSTEMTIME &st, FILETIME &lft)
 	return SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst) && SystemTimeToFileTime(&lst, &lft);
 }
 
-static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
+static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 {
 	if (Imports().TzSpecificLocalTimeToSystemTime)
 	{
 		return Imports().TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
 	}
-	else
+
+	tm ltm;
+	ltm.tm_year = lst.wYear - 1900;
+	ltm.tm_mon  = lst.wMonth - 1;
+	ltm.tm_mday = lst.wDay;
+	ltm.tm_hour = lst.wHour;
+	ltm.tm_min  = lst.wMinute;
+	ltm.tm_sec  = lst.wSecond;
+	ltm.tm_wday = lst.wDayOfWeek;
+	ltm.tm_yday = -1;
+	ltm.tm_isdst = -1;
+
+	const auto gtim = mktime(&ltm);
+	if (gtim == static_cast<time_t>(-1))
+		return false;
+
+	if (const auto ptm = gmtime(&gtim))
 	{
-		bool ok = false;
-
-		tm ltm;
-		ltm.tm_year = lst.wYear - 1900;
-		ltm.tm_mon  = lst.wMonth - 1;
-		ltm.tm_mday = lst.wDay;
-		ltm.tm_hour = lst.wHour;
-		ltm.tm_min  = lst.wMinute;
-		ltm.tm_sec  = lst.wSecond;
-		ltm.tm_wday = lst.wDayOfWeek;
-		ltm.tm_yday = -1;
-		ltm.tm_isdst = -1;
-		time_t gtim = mktime(&ltm);
-		if (gtim != (time_t)-1)
-		{
-			if (const auto ptm = gmtime(&gtim))
-			{
-				ust.wYear   = ptm->tm_year + 1900;
-				ust.wMonth  = ptm->tm_mon + 1;
-				ust.wDay    = ptm->tm_mday;
-				ust.wHour   = ptm->tm_hour;
-				ust.wMinute = ptm->tm_min;
-				ust.wSecond = ptm->tm_sec;
-				ust.wDayOfWeek = ptm->tm_wday;
-				ust.wMilliseconds = lst.wMilliseconds;
-				ok = true;
-			}
-			else
-			{
-				FILETIME lft, uft;
-				ok = FALSE != SystemTimeToFileTime(&lst, &lft)
-				  && FALSE != LocalFileTimeToFileTime(&lft, &uft)
-				  && FALSE != FileTimeToSystemTime(&uft, &ust);
-			}
-		}
-
-		return ok;
+		ust.wYear   = ptm->tm_year + 1900;
+		ust.wMonth  = ptm->tm_mon + 1;
+		ust.wDay    = ptm->tm_mday;
+		ust.wHour   = ptm->tm_hour;
+		ust.wMinute = ptm->tm_min;
+		ust.wSecond = ptm->tm_sec;
+		ust.wDayOfWeek = ptm->tm_wday;
+		ust.wMilliseconds = lst.wMilliseconds;
+		return true;
 	}
+
+	FILETIME lft, uft;
+	return SystemTimeToFileTime(&lst, &lft) && LocalFileTimeToFileTime(&lft, &uft) && FileTimeToSystemTime(&uft, &ust);
 }
 
 bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st)

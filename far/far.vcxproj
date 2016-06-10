@@ -314,6 +314,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\algorithm.hpp" />
+    <ClInclude Include="common\blob_view.hpp" />
     <ClInclude Include="common\compiler.hpp" />
     <ClInclude Include="common\enum_substrings.hpp" />
     <ClInclude Include="common\exception.hpp" />
@@ -328,6 +329,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\rel_ops.hpp" />
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
+    <ClInclude Include="common\string_literal.hpp" />
     <ClInclude Include="common\swapable.hpp" />
     <ClInclude Include="common\any.hpp" />
     <ClInclude Include="codepage_selection.hpp" />

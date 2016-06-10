@@ -4755,7 +4755,7 @@ void FileList::SelectSortMode()
 	{
 		const auto Switch = [&](bool CurrentState)
 		{
-			return PlusPressed? true : InvertPressed? !CurrentState : false;
+			return PlusPressed || (InvertPressed && !CurrentState);
 		};
 
 		switch (SortCode - std::size(SortModes) - extra - 1) // -1 for separator
@@ -6746,7 +6746,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		}
 	}
 
-	time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
+	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
 	std::all_of(CONST_RANGE(Find, fdata)
 	{

@@ -286,16 +286,16 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 				}
 
 				std::string Buffer;
-				blob MenuBlob;
+				blob_view MenuBlob;
 				if (m_MenuCP == CP_UNICODE)
 				{
 					// no translation
-					MenuBlob = blob(SerializedMenu.data(), SerializedMenu.size() * sizeof(wchar_t));
+					MenuBlob = make_blob_view(SerializedMenu.data(), SerializedMenu.size() * sizeof(wchar_t));
 				}
 				else
 				{
 					Buffer = unicode::to(m_MenuCP, SerializedMenu);
-					MenuBlob = blob(Buffer.data(), Buffer.size());
+					MenuBlob = make_blob_view(Buffer.data(), Buffer.size());
 				}
 
 				size_t Written;

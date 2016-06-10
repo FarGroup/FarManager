@@ -633,13 +633,11 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 		{
 			if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK) //Current и Blank
 			{
-				FILETIME ft;
 				string strDate, strTime;
 
 				if (Param1==ID_FF_CURRENT)
 				{
-					GetSystemTimeAsFileTime(&ft);
-					ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,2);
+					ConvertDate(get_utc_time_as_filetime(), strDate, strTime, 12, FALSE, FALSE, 2);
 				}
 				else
 				{

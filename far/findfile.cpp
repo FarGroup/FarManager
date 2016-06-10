@@ -2944,7 +2944,7 @@ FindFiles::FindFiles():
 	FileMaskForFindFile(std::make_unique<filemasks>()),
 	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE)),
 	itd(std::make_unique<InterThreadData>()),
-	m_TimeCheck(time_check::immediate, GetRedrawTimeout())
+	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout())
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
 

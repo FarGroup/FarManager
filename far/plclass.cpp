@@ -137,19 +137,20 @@ bool native_plugin_factory::IsPlugin(const string& filename) const
 	if (!CmpName(L"*.dll", filename.data(), false))
 		return false;
 
-	bool Result = false;
-	if (const auto ModuleFile = os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
-	{
-		if (const auto ModuleMapping = os::handle(CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr)))
-		{
-			if (const auto Data = MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0))
-			{
-				Result = IsPlugin2(Data);
-				UnmapViewOfFile(Data);
-			}
-		}
-	}
-	return Result;
+	const auto ModuleFile = os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	if (!ModuleFile)
+		return false;
+
+	const auto ModuleMapping = os::handle(CreateFileMapping(ModuleFile.native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
+	if (!ModuleMapping)
+		return false;
+
+	const auto Data = MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0);
+	if (!Data)
+		return false;
+
+	SCOPE_EXIT{ UnmapViewOfFile(Data); };
+	return IsPlugin2(Data);
 }
 
 plugin_factory::plugin_instance native_plugin_factory::Create(const string& filename)

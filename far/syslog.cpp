@@ -116,8 +116,7 @@ static const wchar_t *MakeSpace()
 
 static wchar_t *PrintTime(wchar_t *timebuf,size_t size)
 {
-	SYSTEMTIME st;
-	GetLocalTime(&st);
+	const auto st = get_local_time();
 //  sprintf(timebuf,"%02d.%02d.%04d %2d:%02d:%02d.%03d",
 //      st.wDay,st.wMonth,st.wYear,st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 	_snwprintf(timebuf,size,L"%02u:%02u:%02u.%03u",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
@@ -142,8 +141,7 @@ static FILE* PrintBaner(FILE *fp,const wchar_t *Category,const wchar_t *Title)
 FILE * OpenLogStream(const string& file)
 {
 #if defined(SYSLOG)
-	SYSTEMTIME st;
-	GetLocalTime(&st);
+	const auto st = get_local_time();
 	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file.data(),st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t,ccs=UTF-8",_SH_DENYWR);
 #else
 	return nullptr;

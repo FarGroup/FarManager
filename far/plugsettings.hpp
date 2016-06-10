@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class AbstractSettings: noncopyable
 {
 public:
-	virtual ~AbstractSettings() = default;;
+	virtual ~AbstractSettings() = default;
 	virtual bool IsValid() const = 0;
 	virtual int Set(const FarSettingsItem& Item) = 0;
 	virtual int Get(FarSettingsItem& Item) = 0;

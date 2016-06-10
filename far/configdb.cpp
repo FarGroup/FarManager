@@ -183,7 +183,7 @@ public:
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool SetValue(const string& Key, const string& Name, const blob& Value) override
+	virtual bool SetValue(const string& Key, const string& Name, const blob_view& Value) override
 	{
 		return SetValueT(Key, Name, Value);
 	}
@@ -198,17 +198,17 @@ public:
 
 	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) override
 	{
-		return GetValueT<TYPE_INTEGER>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
+		return GetValueT<column_type::integer>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
 	}
 
 	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t* Default) override
 	{
-		return GetValueT<TYPE_STRING>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
+		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
 	virtual bool GetValue(const string& Key, const string& Name, string& Value, const string& Default) override
 	{
-		return GetValueT<TYPE_STRING>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
+		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
 	virtual bool DeleteValue(const string& Key, const string& Name) override
@@ -239,22 +239,25 @@ public:
 			e.SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0));
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1));
 
-			switch (stmtEnumAllValues.GetColType(2))
+			switch (static_cast<column_type>(stmtEnumAllValues.GetColType(2)))
 			{
-				case TYPE_INTEGER:
+				case column_type::integer:
 					e.SetAttribute("type", "qword");
 					e.SetAttribute("value", to_hex_string(stmtEnumAllValues.GetColInt64(2)).data());
 					break;
-				case TYPE_STRING:
+
+				case column_type::string:
 					e.SetAttribute("type", "text");
 					e.SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2));
 					break;
-				default:
-				{
-					e.SetAttribute("type", "hex");
-					const auto Blob = stmtEnumAllValues.GetColBlob(2);
-					e.SetAttribute("value", BlobToHexString(Blob.data(), Blob.size()).data());
-				}
+
+				case column_type::blob:
+				case column_type::unknown:
+					{
+						e.SetAttribute("type", "hex");
+						const auto Blob = stmtEnumAllValues.GetColBlob(2);
+						e.SetAttribute("value", BlobToHexString(Blob.data(), Blob.size()).data());
+					}
 			}
 		}
 
@@ -288,7 +291,7 @@ public:
 			else if (!strcmp(type,"hex"))
 			{
 				const auto Blob = HexStringToBlob(value);
-				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
+				SetValue(Key, Name, make_blob_view(Blob.data(), Blob.size()));
 			}
 			else
 			{
@@ -306,7 +309,7 @@ protected:
 private:
 	virtual const char* GetKeyName() const = 0;
 
-	template<int TypeId, class getter_t, class T, class DT>
+	template<column_type TypeId, class getter_t, class T, class DT>
 	bool GetValueT(const string& Key, const string& Name, T& Value, const DT& Default, getter_t Getter)
 	{
 		auto& Stmt = Statement(stmtGetValue);
@@ -490,7 +493,7 @@ public:
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(const key& Root, const string& Name, const blob& Value) override
+	virtual bool SetValue(const key& Root, const string& Name, const blob_view& Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
@@ -505,7 +508,7 @@ public:
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool GetValue(const key& Root, const string& Name, writable_blob& Value) override
+	virtual bool GetValue(const key& Root, const string& Name, writable_blob_view& Value) override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColBlob);
 	}
@@ -538,7 +541,7 @@ public:
 		return false;
 	}
 
-	virtual bool EnumValues(const key& Root, DWORD Index, string& Name, DWORD& Type) override
+	virtual bool EnumValues(const key& Root, DWORD Index, string& Name, int& Type) override
 	{
 		auto& Stmt = Statement(stmtEnumValues);
 		if (Index == 0)
@@ -547,7 +550,7 @@ public:
 		if (Statement(stmtEnumValues).Step())
 		{
 			Name = Stmt.GetColText(0);
-			Type = Stmt.GetColType(1);
+			Type = static_cast<int>(Stmt.GetColType(1));
 			return true;
 		}
 
@@ -592,22 +595,25 @@ private:
 			const auto name = Stmt.GetColTextUTF8(0);
 			e.SetAttribute("name", name);
 
-			switch (Stmt.GetColType(1))
+			switch (static_cast<column_type>(Stmt.GetColType(1)))
 			{
-			case TYPE_INTEGER:
+			case column_type::integer:
 				e.SetAttribute("type", "qword");
 				e.SetAttribute("value", to_hex_string(Stmt.GetColInt64(1)).data());
 				break;
-			case TYPE_STRING:
+
+			case column_type::string:
 				e.SetAttribute("type", "text");
 				e.SetAttribute("value", Stmt.GetColTextUTF8(1));
 				break;
-			default:
-			{
-				const auto Blob = Stmt.GetColBlob(1);
-				SerializeBlob(name, Blob.data(), Blob.size(), e);
-			}
-			break;
+
+			case column_type::blob:
+			case column_type::unknown:
+				{
+					const auto Blob = Stmt.GetColBlob(1);
+					SerializeBlob(name, Blob.data(), Blob.size(), e);
+				}
+				break;
 			}
 		}
 		Stmt.Reset();
@@ -668,13 +674,13 @@ private:
 			else if (value && !strcmp(type, "hex"))
 			{
 				const auto Blob = HexStringToBlob(value);
-				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
+				SetValue(Key, Name, make_blob_view(Blob.data(), Blob.size()));
 			}
 			else
 			{
 				// custom types, value is optional
 				const auto Blob = DeserializeBlob(name, type, value, *e);
-				SetValue(Key, Name, blob(Blob.data(), Blob.size()));
+				SetValue(Key, Name, make_blob_view(Blob.data(), Blob.size()));
 			}
 		}
 
@@ -818,7 +824,7 @@ public:
 
 	virtual bool SetValue(const string& Name, const FarColor& Value) override
 	{
-		const auto StmtStepAndReset = [&](statement_id StmtId) { return Statement(StmtId).Bind(Name, blob(&Value, sizeof(Value))).StepAndReset(); };
+		const auto StmtStepAndReset = [&](statement_id StmtId) { return Statement(StmtId).Bind(Name, make_blob_view(Value)).StepAndReset(); };
 
 		bool b = StmtStepAndReset(stmtUpdateValue);
 		if (!b || !Changes())
@@ -835,7 +841,7 @@ public:
 			const auto Blob = Stmt.GetColBlob(0);
 			if (Blob.size() != sizeof(Value))
 				throw MAKE_FAR_EXCEPTION("incorrect blob size");
-			Value = *static_cast<const FarColor*>(Blob.data());
+			Value = *reinterpret_cast<const FarColor*>(Blob.data());
 		}
 		Stmt.Reset();
 		return b;
@@ -855,7 +861,7 @@ public:
 			const auto Blob = stmtEnumAllValues.GetColBlob(1);
 			if (Blob.size() != sizeof(FarColor))
 				throw MAKE_FAR_EXCEPTION("incorrect blob size");
-			auto& Color = *static_cast<const FarColor*>(Blob.data());
+			auto& Color = *reinterpret_cast<const FarColor*>(Blob.data());
 			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
 			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
 			e.SetAttribute("flags", Utf8String(FlagsToString(Color.Flags, ColorFlagNames)).data());
@@ -1316,7 +1322,7 @@ public:
 			const auto Blob = Stmt.GetColBlob(0);
 			if (Blob.size() != sizeof(*Version))
 				throw MAKE_FAR_EXCEPTION("incorrect blob size");
-			*Version = *static_cast<const VersionInfo*>(Blob.data());
+			*Version = *reinterpret_cast<const VersionInfo*>(Blob.data());
 		}
 		Stmt.Reset();
 		return b;
@@ -1331,7 +1337,7 @@ public:
 			const auto Blob = Stmt.GetColBlob(0);
 			if (Blob.size() != sizeof(*Version))
 				throw MAKE_FAR_EXCEPTION("incorrect blob size");
-			*Version = *static_cast<const VersionInfo*>(Blob.data());
+			*Version = *reinterpret_cast<const VersionInfo*>(Blob.data());
 		}
 		Stmt.Reset();
 		return b;
@@ -1409,12 +1415,12 @@ public:
 
 	virtual bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version) override
 	{
-		return Statement(stmtSetMinFarVersion).Bind(id, blob(Version, sizeof(*Version))).StepAndReset();
+		return Statement(stmtSetMinFarVersion).Bind(id, make_blob_view(*Version)).StepAndReset();
 	}
 
 	virtual bool SetVersion(unsigned __int64 id, const VersionInfo *Version) override
 	{
-		return Statement(stmtSetVersion).Bind(id, blob(Version, sizeof(*Version))).StepAndReset();
+		return Statement(stmtSetVersion).Bind(id, make_blob_view(*Version)).StepAndReset();
 	}
 
 	virtual bool SetGuid(unsigned __int64 id, const string& Guid) override
@@ -1571,34 +1577,34 @@ public:
 		;
 	}
 
-	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) override
+	virtual bool HotkeysPresent(hotkey_type HotKeyType) override
 	{
 		auto& Stmt = Statement(stmtCheckForHotkeys);
-		int count = 0;
-		if (Stmt.Bind((int)HotKeyType).Step())
-			count = Stmt.GetColInt(0);
+		auto Result = false;
+		if (Stmt.Bind(static_cast<std::underlying_type_t<hotkey_type>>(HotKeyType)).Step())
+			Result = Stmt.GetColInt(0) != 0;
 		Stmt.Reset();
-		return count!=0;
+		return Result;
 	}
 
-	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) override
+	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) override
 	{
 		auto& Stmt = Statement(stmtGetHotkey);
 		string strHotKey;
-		if (Stmt.Bind(PluginKey, GuidToStr(MenuGuid), HotKeyType).Step())
+		if (Stmt.Bind(PluginKey, GuidToStr(MenuGuid), static_cast<std::underlying_type_t<hotkey_type>>(HotKeyType)).Step())
 			strHotKey = Stmt.GetColText(0);
 		Stmt.Reset();
 		return strHotKey;
 	}
 
-	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) override
+	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, const string& HotKey) override
 	{
-		return Statement(stmtSetHotkey).Bind(PluginKey, GuidToStr(MenuGuid), HotKeyType, HotKey).StepAndReset();
+		return Statement(stmtSetHotkey).Bind(PluginKey, GuidToStr(MenuGuid), static_cast<std::underlying_type_t<hotkey_type>>(HotKeyType), HotKey).StepAndReset();
 	}
 
-	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) override
+	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) override
 	{
-		return Statement(stmtDelHotkey).Bind(PluginKey, GuidToStr(MenuGuid), HotKeyType).StepAndReset();
+		return Statement(stmtDelHotkey).Bind(PluginKey, GuidToStr(MenuGuid), static_cast<std::underlying_type_t<hotkey_type>>(HotKeyType)).StepAndReset();
 	}
 
 	virtual void Export(representation_destination& Representation) override
@@ -1618,15 +1624,21 @@ public:
 			stmtEnumAllHotkeysPerKey.Bind(Key);
 			while (stmtEnumAllHotkeysPerKey.Step())
 			{
-				auto& e = Representation.CreateChild(p, "hotkey");
-
-				const char *type;
-				switch (stmtEnumAllHotkeysPerKey.GetColInt(1))
+				const char *type = nullptr;
+				switch (static_cast<hotkey_type>(stmtEnumAllHotkeysPerKey.GetColInt(1)))
 				{
-					case DRIVE_MENU: type = "drive"; break;
-					case CONFIG_MENU: type = "config"; break;
-					default: type = "plugins";
+				case hotkey_type::drive_menu: type = "drive"; break;
+				case hotkey_type::config_menu: type = "config"; break;
+				case hotkey_type::plugins_menu: type = "plugins"; break;
 				}
+
+				if (!type)
+				{
+					// TODO: log
+					continue;
+				}
+
+				auto& e = Representation.CreateChild(p, "hotkey");
 				e.SetAttribute("menu", type);
 				e.SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0));
 				const auto hotkey = stmtEnumAllHotkeysPerKey.GetColTextUTF8(2);
@@ -1662,14 +1674,13 @@ public:
 					continue;
 
 				string Hotkey = wide(hotkey, CP_UTF8);
-				HotKeyTypeEnum type;
+
 				if (!strcmp(stype,"drive"))
-					type = DRIVE_MENU;
+					SetHotkey(Key, Guid, hotkey_type::drive_menu, Hotkey);
 				else if (!strcmp(stype,"config"))
-					type = CONFIG_MENU;
-				else
-					type = PLUGINS_MENU;
-				SetHotkey(Key, Guid, type, Hotkey);
+					SetHotkey(Key, Guid, hotkey_type::config_menu, Hotkey);
+				else if (!strcmp(stype, "plugins"))
+					SetHotkey(Key, Guid, hotkey_type::plugins_menu, Hotkey);
 			}
 
 		}

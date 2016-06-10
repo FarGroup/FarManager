@@ -146,8 +146,12 @@ int GetLangParam(os::fs::file& LangFile,const string& ParamName,string *strParam
 				break;
 			}
 		}
-		else if (!StrCmpNI(ReadStr.data(), L"@Contents", 9))
-			break;
+		else
+		{
+			constexpr auto ContentsTag = L"@Contents"_sl;
+			if (!StrCmpNI(ReadStr.data(), ContentsTag.data(), ContentsTag.size()))
+				break;
+		}
 	}
 
 	LangFile.SetPointer(OldPos, nullptr, FILE_BEGIN);
@@ -232,15 +236,15 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
 */
 int GetOptionsParam(os::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
-	int Length=StrLength(L".Options");
 	const auto CurFilePos = SrcFile.GetPointer();
 	string ReadStr;
 	GetFileString GetStr(SrcFile, nCodePage);
+	const auto OptionsTag = L".Options"_sl;
 	while (GetStr.GetString(ReadStr))
 	{
-		if (!StrCmpNI(ReadStr.data(), L".Options", Length))
+		if (!StrCmpNI(ReadStr.data(), OptionsTag.data(), OptionsTag.size()))
 		{
-			string strFullParamName = ReadStr.substr(Length);
+			string strFullParamName = ReadStr.substr(OptionsTag.size());
 			RemoveExternalSpaces(strFullParamName);
 			size_t pos = strFullParamName.rfind(L'=');
 			if (pos != string::npos)

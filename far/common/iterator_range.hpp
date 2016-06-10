@@ -44,7 +44,7 @@ public:
 
 	range() = default;
 
-	range(iterator i_begin, iterator i_end):
+	constexpr range(iterator i_begin, iterator i_end):
 		m_begin(i_begin),
 		m_end(i_end)
 	{}
@@ -52,29 +52,29 @@ public:
 	auto begin() { return m_begin; }
 	auto end() { return m_end; }
 
-	auto begin() const { return m_begin; }
-	auto end() const { return m_end; }
+	constexpr auto begin() const { return m_begin; }
+	constexpr auto end() const { return m_end; }
 
 	auto rbegin() { return reverse_iterator(m_end); }
 	auto rend() { return reverse_iterator(m_begin); }
 
-	auto rbegin() const { return reverse_iterator(m_end); }
-	auto rend() const { return reverse_iterator(m_begin); }
+	constexpr auto rbegin() const { return reverse_iterator(m_end); }
+	constexpr auto rend() const { return reverse_iterator(m_begin); }
 
 	auto& operator[](size_t n) { return *(m_begin + n); }
-	auto& operator[](size_t n) const { return *(m_begin + n); }
+	constexpr auto& operator[](size_t n) const { return *(m_begin + n); }
 
 	auto& front() { return *m_begin; }
 	auto& back() { return *std::prev(m_end); }
 
-	auto& front() const { return *m_begin; }
-	auto& back() const { return *std::prev(m_end); }
+	constexpr auto& front() const { return *m_begin; }
+	constexpr auto& back() const { return *std::prev(m_end); }
 
 	auto data() { return &*m_begin; }
-	auto data() const { return &*m_begin; }
+	constexpr auto data() const { return &*m_begin; }
 
-	bool empty() const { return m_begin == m_end; }
-	size_t size() const { return m_end - m_begin; }
+	constexpr bool empty() const { return m_begin == m_end; }
+	constexpr size_t size() const { return m_end - m_begin; }
 
 private:
 	iterator m_begin {};

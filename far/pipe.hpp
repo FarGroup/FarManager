@@ -37,10 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace pipe
 {
 	// reads size first, then data
-	bool Read(HANDLE Pipe, void* Data, size_t DataSize);
+	bool Read(const os::handle& Pipe, void* Data, size_t DataSize);
 
 	template<typename T>
-	bool Read(HANDLE Pipe, T& Data)
+	bool Read(const os::handle& Pipe, T& Data)
 	{
 		static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
 		static_assert(std::is_trivially_copyable<T>::value, "This template requires a POD type");
@@ -48,13 +48,13 @@ namespace pipe
 		return Read(Pipe, &Data, sizeof(Data));
 	}
 
-	bool Read(HANDLE Pipe, string& Data);
+	bool Read(const os::handle& Pipe, string& Data);
 
 	// writes size first, then data
-	bool Write(HANDLE Pipe, const void* Data, size_t DataSize);
+	bool Write(const os::handle& Pipe, const void* Data, size_t DataSize);
 
 	template<typename T>
-	bool Write(HANDLE Pipe, const T& Data)
+	bool Write(const os::handle& Pipe, const T& Data)
 	{
 		static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
 		static_assert(std::is_trivially_copyable<T>::value, "This template requires a POD type");
@@ -62,7 +62,7 @@ namespace pipe
 		return Write(Pipe, &Data, sizeof(Data));
 	}
 
-	bool Write(HANDLE Pipe, const string& Data);
+	bool Write(const os::handle& Pipe, const string& Data);
 }
 
 #endif // PIPE_HPP_C460EC90_9861_4D55_B47D_D1E8F6EEBC78

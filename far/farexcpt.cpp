@@ -612,15 +612,10 @@ veh_handler::~veh_handler()
 	Imports().RemoveVectoredExceptionHandler(m_Handler);
 }
 
-inline void SETranslator(UINT Code, EXCEPTION_POINTERS* ExceptionInfo)
-{
-	throw SException(Code, ExceptionInfo);
-}
-
 void EnableSeTranslation()
 {
 #ifdef _MSC_VER
-	_set_se_translator(SETranslator);
+	_set_se_translator([](UINT Code, EXCEPTION_POINTERS* ExceptionInfo) { throw SException(Code, ExceptionInfo); });
 #endif
 }
 
@@ -651,40 +646,35 @@ static int ExceptionTestHook(Manager::Key key)
 		key() == KEY_RCTRLALTAPPS
 		)
 	{
-		static const struct ECODE
+		static const wchar_t* Names[] =
 		{
-			NTSTATUS Code;
-			const wchar_t *Name;
-		}
-		ECode[] =
-		{
-			{ 0, L"C++ std::exception", },
-			{ EXCEPTION_ACCESS_VIOLATION, L"Access Violation (Read)" },
-			{ EXCEPTION_ACCESS_VIOLATION, L"Access Violation (Write)" },
-			{ EXCEPTION_INT_DIVIDE_BY_ZERO, L"Divide by zero" },
-			{ EXCEPTION_ILLEGAL_INSTRUCTION, L"Illegal instruction" },
-			{ EXCEPTION_STACK_OVERFLOW, L"Stack Overflow" },
-			{ EXCEPTION_FLT_DIVIDE_BY_ZERO, L"Floating-point divide by zero" },
-			{ EXCEPTION_BREAKPOINT, L"Breakpoint" },
+			L"C++ std::exception",
+			L"Access Violation (Read)",
+			L"Access Violation (Write)",
+			L"Divide by zero",
+			L"Illegal instruction",
+			L"Stack Overflow",
+			L"Floating-point divide by zero",
+			L"Breakpoint",
 #ifdef _M_IA64
-			{ EXCEPTION_DATATYPE_MISALIGNMENT, L"Alignment fault (IA64 specific)", },
+			L"Alignment fault (IA64 specific)",
 #endif
 			/*
-			{EXCEPTION_FLT_OVERFLOW,"EXCEPTION_FLT_OVERFLOW"},
-			{EXCEPTION_SINGLE_STEP,"EXCEPTION_SINGLE_STEP",},
-			{EXCEPTION_ARRAY_BOUNDS_EXCEEDED,"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",},
-			{EXCEPTION_FLT_DENORMAL_OPERAND,"EXCEPTION_FLT_DENORMAL_OPERAND",},
-			{EXCEPTION_FLT_INEXACT_RESULT,"EXCEPTION_FLT_INEXACT_RESULT",},
-			{EXCEPTION_FLT_INVALID_OPERATION,"EXCEPTION_FLT_INVALID_OPERATION",},
-			{EXCEPTION_FLT_STACK_CHECK,"EXCEPTION_FLT_STACK_CHECK",},
-			{EXCEPTION_FLT_UNDERFLOW,"EXCEPTION_FLT_UNDERFLOW",},
-			{EXCEPTION_INT_OVERFLOW,"EXCEPTION_INT_OVERFLOW",0},
-			{EXCEPTION_PRIV_INSTRUCTION,"EXCEPTION_PRIV_INSTRUCTION",0},
-			{EXCEPTION_IN_PAGE_ERROR,"EXCEPTION_IN_PAGE_ERROR",0},
-			{EXCEPTION_NONCONTINUABLE_EXCEPTION,"EXCEPTION_NONCONTINUABLE_EXCEPTION",0},
-			{EXCEPTION_INVALID_DISPOSITION,"EXCEPTION_INVALID_DISPOSITION",0},
-			{EXCEPTION_GUARD_PAGE,"EXCEPTION_GUARD_PAGE",0},
-			{EXCEPTION_INVALID_HANDLE,"EXCEPTION_INVALID_HANDLE",0},
+			L"EXCEPTION_FLT_OVERFLOW",
+			L"EXCEPTION_SINGLE_STEP",
+			L"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",
+			L"EXCEPTION_FLT_DENORMAL_OPERAND",
+			L"EXCEPTION_FLT_INEXACT_RESULT",
+			L"EXCEPTION_FLT_INVALID_OPERATION",
+			L"EXCEPTION_FLT_STACK_CHECK",
+			L"EXCEPTION_FLT_UNDERFLOW",
+			L"EXCEPTION_INT_OVERFLOW",
+			L"EXCEPTION_PRIV_INSTRUCTION",
+			L"EXCEPTION_IN_PAGE_ERROR",
+			L"EXCEPTION_NONCONTINUABLE_EXCEPTION",
+			L"EXCEPTION_INVALID_DISPOSITION",
+			L"EXCEPTION_GUARD_PAGE",
+			L"EXCEPTION_INVALID_HANDLE",
 			*/
 		};
 		static union
@@ -698,9 +688,9 @@ static int ExceptionTestHook(Manager::Key key)
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1, -1, 0, 0);
 
-		std::for_each(CONST_RANGE(ECode, i)
+		std::for_each(CONST_RANGE(Names, i)
 		{
-			ModalMenu->AddItem(i.Name);
+			ModalMenu->AddItem(i);
 		});
 
 		int ExitCode = ModalMenu->Run();
@@ -752,7 +742,7 @@ static int ExceptionTestHook(Manager::Key key)
 #endif
 		}
 
-		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", ECode[ExitCode].Name, L"", MSG(MOk));
+		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", Names[ExitCode], L"", MSG(MOk));
 		return TRUE;
 	}
 	return FALSE;

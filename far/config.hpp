@@ -164,10 +164,10 @@ class BoolOption: public OptionImpl<bool, BoolOption>
 public:
 	using OptionImpl<bool, BoolOption>::OptionImpl;
 
-	virtual string toString() const override { return Get() ? L"true" : L"false"; }
+	virtual string toString() const override { return Get() ? L"true"s : L"false"s; }
 	virtual void fromString(const string& value) override;
 	virtual string ExInfo() const override { return {}; }
-	virtual string typeToString() const override { return L"boolean"; }
+	virtual string typeToString() const override { return L"boolean"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -182,10 +182,10 @@ class Bool3Option: public OptionImpl<long long, Bool3Option>
 public:
 	using OptionImpl<long long, Bool3Option>::OptionImpl;
 
-	virtual string toString() const override { int v = Get(); return v ? (v == 1 ? L"true" : L"other") : L"false"; }
+	virtual string toString() const override { int v = Get(); return v ? (v == 1 ? L"true"s : L"other"s) : L"false"s; }
 	virtual void fromString(const string& value) override;
 	virtual string ExInfo() const override { return {}; }
-	virtual string typeToString() const override { return L"3-state"; }
+	virtual string typeToString() const override { return L"3-state"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -203,7 +203,7 @@ public:
 	virtual string toString() const override { return std::to_wstring(Get()); }
 	virtual void fromString(const string& value) override;
 	virtual string ExInfo() const override;
-	virtual string typeToString() const override { return L"integer"; }
+	virtual string typeToString() const override { return L"integer"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -230,7 +230,7 @@ public:
 	virtual string toString() const override { return Get(); }
 	virtual void fromString(const string& value) override { Set(value); }
 	virtual string ExInfo() const override { return {}; }
-	virtual string typeToString() const override { return L"string"; }
+	virtual string typeToString() const override { return L"string"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 

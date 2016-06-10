@@ -1996,11 +1996,11 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
 	static std::pair<GUID, string> DefaultKnownGuids[] =
 	{
-		{ NetworkGuid, L"" },
-		{ EMenuGuid, L"" },
-		{ ArcliteGuid, L"" },
-		{ LuamacroGuid, L"" },
-		{ NetBoxGuid, L"" },
+		{ NetworkGuid, {} },
+		{ EMenuGuid, {} },
+		{ ArcliteGuid, {} },
+		{ LuamacroGuid, {} },
+		{ NetBoxGuid, {} },
 	};
 
 	static_assert(std::size(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption), "incomplete DefaultKnownGuids array");

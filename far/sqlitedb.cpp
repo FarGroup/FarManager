@@ -124,7 +124,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(string&& Value)
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const blob& Value, bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const blob_view& Value, bool bStatic)
 {
 	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
@@ -150,23 +150,23 @@ unsigned __int64 SQLiteDb::SQLiteStmt::GetColInt64(int Col) const
 	return sqlite::sqlite3_column_int64(m_Stmt.get(), Col);
 }
 
-blob SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
+blob_view SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
 {
-	return blob(sqlite::sqlite3_column_blob(m_Stmt.get(), Col), sqlite::sqlite3_column_bytes(m_Stmt.get(), Col));
+	return make_blob_view(sqlite::sqlite3_column_blob(m_Stmt.get(), Col), sqlite::sqlite3_column_bytes(m_Stmt.get(), Col));
 }
 
-SQLiteDb::ColumnType SQLiteDb::SQLiteStmt::GetColType(int Col) const
+SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
 {
 	switch (sqlite::sqlite3_column_type(m_Stmt.get(), Col))
 	{
 	case SQLITE_INTEGER:
-		return TYPE_INTEGER;
+		return column_type::integer;
 	case SQLITE_TEXT:
-		return TYPE_STRING;
+		return column_type::string;
 	case SQLITE_BLOB:
-		return TYPE_BLOB;
+		return column_type::blob;
 	default:
-		return TYPE_UNKNOWN;
+		return column_type::unknown;
 	}
 }
 
@@ -177,15 +177,10 @@ SQLiteDb::SQLiteDb():
 {
 }
 
-SQLiteDb::~SQLiteDb()
-{
-}
-
 static bool can_create_file(const string& fname)
 {
 	return os::fs::file().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
 }
-
 
 void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 {

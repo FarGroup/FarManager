@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 
 struct VersionInfo;
-class blob;
 class representation_source;
 class representation_destination;
 
@@ -59,7 +58,7 @@ public:
 	virtual bool SetValue(const string& Key, const string& Name, const string& Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) = 0;
-	virtual bool SetValue(const string& Key, const string& Name, const blob& Value) = 0;
+	virtual bool SetValue(const string& Key, const string& Name, const blob_view& Value) = 0;
 	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
 	bool SetValue(const string& Key, const string& Name, const T& Value)
 	{
@@ -127,29 +126,28 @@ public:
 	virtual bool SetValue(const key& Root, const string& Name, const string& Value) = 0;
 	virtual bool SetValue(const key& Root, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const key& Root, const string& Name, unsigned long long Value) = 0;
-	virtual bool SetValue(const key& Root, const string& Name, const blob& Value) = 0;
+	virtual bool SetValue(const key& Root, const string& Name, const blob_view& Value) = 0;
 	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
 	bool SetValue(const key& Root, const string& Name, const T& Value)
 	{
-		static_assert(std::is_pod<T>::value, "This template requires a POD type");
-		return SetValue(Root, Name, blob(&Value, sizeof(Value)));
+		return SetValue(Root, Name, make_blob_view(Value));
 	}
 
 	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) = 0;
 	virtual bool GetValue(const key& Root, const string& Name, string &strValue) = 0;
-	virtual bool GetValue(const key& Root, const string& Name, writable_blob& Value) = 0;
+	virtual bool GetValue(const key& Root, const string& Name, writable_blob_view& Value) = 0;
 	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
 	bool GetValue(const key& Root, const string& Name, T& Value)
 	{
 		static_assert(std::is_pod<T>::value, "This template requires a POD type");
-		writable_blob Blob(&Value, sizeof(Value));
+		writable_blob_view Blob(&Value, sizeof(Value));
 		return GetValue(Root, Name, Blob);
 	}
 
 	virtual bool DeleteKeyTree(const key& Key) = 0;
 	virtual bool DeleteValue(const key& Root, const string& Name) = 0;
 	virtual bool EnumKeys(const key& Root, DWORD Index, string &strName) = 0;
-	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, DWORD& Type) = 0;
+	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, int& Type) = 0;
 	virtual bool Flush() = 0;
 
 protected:
@@ -246,18 +244,18 @@ protected:
 class PluginsHotkeysConfig: public representable, virtual public transactional
 {
 public:
-	enum HotKeyTypeEnum
+	enum class hotkey_type: int
 	{
-		DRIVE_MENU,
-		PLUGINS_MENU,
-		CONFIG_MENU,
+		drive_menu,
+		plugins_menu,
+		config_menu,
 	};
 
 	virtual ~PluginsHotkeysConfig() = default;
-	virtual bool HotkeysPresent(HotKeyTypeEnum HotKeyType) = 0;
-	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
-	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType, const string& HotKey) = 0;
-	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
+	virtual bool HotkeysPresent(hotkey_type HotKeyType) = 0;
+	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
+	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, const string& HotKey) = 0;
+	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
 
 protected:
 	PluginsHotkeysConfig() = default;

@@ -45,7 +45,6 @@ private:
 		unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
 		bool operator!() const noexcept { return get_pointer() == stub; }
-		operator bool() const { return !!*this; }
 
 	private:
 		T get_pointer() const
@@ -70,7 +69,7 @@ private:
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
-private: struct name_##NAME { static const char* get() { return #NAME; } };\
+private: struct name_##NAME { static auto get() { return #NAME; } };\
 public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME, ImportedFunctions::stub_##NAME> NAME;
 
 	// ntdll

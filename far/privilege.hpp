@@ -37,18 +37,29 @@ namespace os
 {
 	namespace security
 	{
-		class privilege: noncopyable
+		class privilege
 		{
 		public:
-			privilege(const std::vector<const wchar_t*>& PrivilegeNames);
+			NONCOPYABLE(privilege);
+			TRIVIALLY_MOVABLE(privilege);
+
+			template<class... args>
+			privilege(args... Args): privilege({ Args... }) {}
+			privilege(const std::initializer_list<const wchar_t*>& Names): privilege(Names.begin(), Names.size()) {}
+			privilege(const std::vector<const wchar_t*>& Names): privilege(Names.data(), Names.size()) {}
+			privilege(const wchar_t* const* Names, size_t Size);
 			~privilege();
 
-			static bool is_set(const wchar_t* PrivilegeName);
+			template<class... args>
+			static bool check(args... Args) { return check({ Args... }); }
+			static bool check(const std::initializer_list<const wchar_t*>& Names) { return check(Names.begin(), Names.size()); }
+			static bool check(const std::vector<const wchar_t*>& Names) { return check(Names.data(), Names.size()); }
+			static bool check(const wchar_t* const* Names, size_t Size);
 
 		private:
-			const handle m_Token;
+			handle m_Token;
 			block_ptr<TOKEN_PRIVILEGES> m_SavedState;
-			bool m_Changed;
+			bool m_Changed {};
 		};
 
 	}

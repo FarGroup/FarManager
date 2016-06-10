@@ -156,7 +156,7 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	AdjustSelPosition(),
 	redraw_selection(),
 	m_bQuickView(bQuickView),
-	m_IdleCheck(std::make_unique<time_check>(time_check::delayed, 500)),
+	m_IdleCheck(std::make_unique<time_check>(time_check::mode::delayed, 500)),
 	vread_buffer(std::max(MaxViewLineBufferSize(), size_t(8192))),
 	lcache_first(-1),
 	lcache_last(-1),
@@ -436,7 +436,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 		case DRIVE_RAMDISK:   update_check_period = +1;  break; // ram-drive: 1 msec
 		default:              update_check_period = -1;  break; // unknown: never
 	}
-	m_TimeCheck = std::make_unique<time_check>(time_check::delayed, update_check_period);
+	m_TimeCheck = std::make_unique<time_check>(time_check::mode::delayed, update_check_period);
 
 	if (!HostFileViewer) ReadEvent();
 
@@ -3538,7 +3538,7 @@ void Viewer::Search(int Next,int FirstChar)
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(false, 0);
 
-		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
+		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		for (;;)
 		{
 			SEARCHER_RESULT found = (this->*searcher)(&sd);

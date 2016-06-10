@@ -80,10 +80,6 @@ FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	UpdateCurrentTime();
 }
 
-FileFilter::~FileFilter()
-{
-}
-
 bool FileFilter::FilterEdit()
 {
 	if (bMenuOpen)
@@ -289,7 +285,7 @@ bool FileFilter::FilterEdit()
 
 				SelPos = std::min(FilterData().size(), SelPos);
 
-				auto& NewFilter = *FilterData().emplace(FilterData().begin() + SelPos);
+				FileFilterParams NewFilter;
 
 				if (Key==KEY_F5)
 				{
@@ -313,7 +309,6 @@ bool FileFilter::FilterEdit()
 					}
 					else
 					{
-						FilterData().erase(FilterData().begin() + SelPos);
 						break;
 					}
 				}
@@ -325,14 +320,11 @@ bool FileFilter::FilterEdit()
 
 				if (FileFilterConfig(&NewFilter))
 				{
-					MenuItemEx ListItem(MenuString(&NewFilter));
+					const auto FilterIterator = FilterData().emplace(FilterData().begin() + SelPos, std::move(NewFilter));
+					MenuItemEx ListItem(MenuString(&*FilterIterator));
 					FilterList->AddItem(ListItem,static_cast<int>(SelPos));
 					FilterList->SetSelectPos(static_cast<int>(SelPos),1);
 					bNeedUpdate=true;
-				}
-				else
-				{
-					FilterData().erase(FilterData().begin() + SelPos);
 				}
 				break;
 			}
@@ -525,12 +517,12 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 
 			if (Check && !CurFilterData)
 			{
-				auto& NewFilter = *TempFilterData().emplace(TempFilterData().begin() + j);
+				FileFilterParams NewFilter;
 				NewFilter.SetMask(1, Mask);
 				//Авто фильтры они только для файлов, папки не должны к ним подходить
 				NewFilter.SetAttr(1, 0, FILE_ATTRIBUTE_DIRECTORY);
+				CurFilterData = &*TempFilterData().emplace(TempFilterData().begin() + j, std::move(NewFilter));
 				j++;
-				CurFilterData = &NewFilter;
 			}
 		}
 

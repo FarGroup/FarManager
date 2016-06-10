@@ -53,7 +53,7 @@ public:
 	void TakeSnapshot();
 
 private:
-	virtual string GetTitle() const override { return L"Desktop"; } // TODO: localization
+	virtual string GetTitle() const override { return L"Desktop"s; } // TODO: localization
 	virtual void DisplayObject() override;
 
 	std::unique_ptr<SaveScreen> m_Background;

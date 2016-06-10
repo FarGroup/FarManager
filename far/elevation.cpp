@@ -81,6 +81,8 @@ enum ELEVATION_COMMAND: int
 
 static const wchar_t ElevationArgument[] = L"/service:elevation";
 
+static auto CreateBackupRestorePrivilege() { return privilege(SE_BACKUP_NAME, SE_RESTORE_NAME); }
+
 elevation::elevation():
 	m_suppressions(),
 	m_pid(),
@@ -119,24 +121,24 @@ void elevation::ResetApprove()
 
 bool elevation::Write(const void* Data,size_t DataSize) const
 {
-	return pipe::Write(m_pipe.native_handle(), Data, DataSize);
+	return pipe::Write(m_pipe, Data, DataSize);
 }
 
 template<typename T>
 bool elevation::Read(T& Data) const
 {
-	return pipe::Read(m_pipe.native_handle(), Data);
+	return pipe::Read(m_pipe, Data);
 }
 
 template<typename T>
 bool elevation::Write(const T& Data) const
 {
-	return pipe::Write(m_pipe.native_handle(), Data);
+	return pipe::Write(m_pipe, Data);
 }
 
 bool elevation::SendCommand(ELEVATION_COMMAND Command)
 {
-	return Initialize() && pipe::Write(m_pipe.native_handle(), Command);
+	return Initialize() && pipe::Write(m_pipe, Command);
 }
 
 struct ERRORCODES
@@ -418,7 +420,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 	// request for backup&restore privilege is useless if the user already has them
 	{
 		SCOPED_ACTION(GuardLastError);
-		if (AskApprove && is_admin() && privilege::is_set(SE_BACKUP_NAME) && privilege::is_set(SE_RESTORE_NAME))
+		if (AskApprove && is_admin() && privilege::check(SE_BACKUP_NAME, SE_RESTORE_NAME))
 		{
 			AskApprove = false;
 			return true;
@@ -461,7 +463,7 @@ bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& O
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = (TemplateObject.empty()?CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX) && Write(TemplateObject) && Write(Object))
@@ -485,7 +487,7 @@ bool elevation::fRemoveDirectory(const string& Object)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = RemoveDirectory(Object.data()) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_REMOVEDIRECTORY) && Write(Object))
@@ -508,7 +510,7 @@ bool elevation::fDeleteFile(const string& Object)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = DeleteFile(Object.data()) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_DELETEFILE) && Write(Object))
@@ -550,7 +552,7 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
 		}
 		// BUGBUG: Cancel ignored
@@ -586,7 +588,7 @@ bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_MOVEFILEEX) && Write(From) && Write(To) && Write(Flags))
@@ -609,7 +611,7 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = GetFileAttributes(Object.data());
 		}
 		else if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES) && Write(Object))
@@ -632,7 +634,7 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = SetFileAttributes(Object.data(), FileAttributes) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES) && Write(Object) && Write(FileAttributes))
@@ -655,7 +657,7 @@ bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSE
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
 		}
 		// BUGBUG: SecurityAttributes ignored.
@@ -679,7 +681,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = os::CreateSymbolicLinkInternal(Object, Target, Flags);
 		}
 		else if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK) && Write(Object) && Write(Target) && Write(Flags))
@@ -702,7 +704,7 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = SHFileOperation(&FileOpStruct);
 		}
 		else
@@ -731,7 +733,7 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = SetOwnerInternal(Object, Owner);
 		}
 		else if(SendCommand(C_FUNCTION_SETOWNER) && Write(Object) && Write(Owner))
@@ -754,7 +756,7 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = CreateFile(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		}
 		// BUGBUG: SecurityAttributes ignored
@@ -779,7 +781,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = os::SetFileEncryptionInternal(Object.data(), Encrypt);
 		}
 		else if(SendCommand(C_FUNCTION_SETENCRYPTION) && Write(Object) && Write(Encrypt))
@@ -802,7 +804,7 @@ bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& V
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = os::DetachVirtualDiskInternal(Object, VirtualStorageType);
 		}
 		else if (SendCommand(C_FUNCTION_DETACHVIRTUALDISK) && Write(Object) && Write(VirtualStorageType))
@@ -825,7 +827,7 @@ bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBy
 	{
 		if(is_admin())
 		{
-			SCOPED_ACTION(privilege)({SE_BACKUP_NAME, SE_RESTORE_NAME});
+			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 			Result = GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
 		}
 		else if(SendCommand(C_FUNCTION_GETDISKFREESPACEEX) && Write(Object))
@@ -937,19 +939,19 @@ private:
 
 	bool Write(const void* Data,size_t DataSize) const
 	{
-		return pipe::Write(m_Pipe.native_handle(), Data, DataSize);
+		return pipe::Write(m_Pipe, Data, DataSize);
 	}
 
 	template<typename T>
 	bool Read(T& Data) const
 	{
-		return pipe::Read(m_Pipe.native_handle(), Data);
+		return pipe::Read(m_Pipe, Data);
 	}
 
 	template<typename T>
 	bool Write(const T& Data) const
 	{
-		return pipe::Write(m_Pipe.native_handle(), Data);
+		return pipe::Write(m_Pipe, Data);
 	}
 
 	void ExitHandler() const

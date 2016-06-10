@@ -3542,7 +3542,7 @@ BOOL Editor::Search(int Next)
 			InplaceLower(strSearchStrLower);
 		}
 
-		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
+		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		int StartLine = m_it_CurLine.Number();
 		SCOPED_ACTION(IndeterminateTaskBar);
 		SCOPED_ACTION(wakeful);

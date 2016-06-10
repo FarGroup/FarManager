@@ -817,17 +817,17 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 					}
 				}
 
-				blob Blob;
+				blob_view Blob;
 				std::string Buffer;
 
 				if (CodePage==CP_UNICODE)
 				{
-					Blob = blob(strFileName.data(), strFileName.size() * sizeof(wchar_t));
+					Blob = make_blob_view(strFileName.data(), strFileName.size() * sizeof(wchar_t));
 				}
 				else
 				{
 					Buffer = unicode::to(CodePage, strFileName);
-					Blob = blob(Buffer.data(), Buffer.size());
+					Blob = make_blob_view(Buffer.data(), Buffer.size());
 				}
 
 				size_t NumberOfBytesWritten = 0;

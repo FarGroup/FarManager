@@ -81,26 +81,6 @@ namespace os
 	using find_volume_handle = detail::handle_t<detail::find_volume_handle_closer>;
 	using find_notification_handle = detail::handle_t<detail::find_notification_handle_closer>;
 
-	class HandleWrapper
-	{
-	public:
-		NONCOPYABLE(HandleWrapper);
-		TRIVIALLY_MOVABLE(HandleWrapper);
-
-		explicit HandleWrapper(HANDLE Handle = nullptr): m_Handle(Handle) {}
-		virtual ~HandleWrapper() = 0;
-
-		bool Wait(DWORD Milliseconds = INFINITE) const { return m_Handle.wait(Milliseconds); }
-		bool Signaled() const { return m_Handle.signaled(); }
-		void Close() { m_Handle.reset(); }
-		auto native_handle() const { return m_Handle.native_handle(); }
-
-	protected:
-		handle m_Handle;
-	};
-
-	inline HandleWrapper::~HandleWrapper() = default;
-
 	enum
 	{
 		NT_MAX_PATH = 32768

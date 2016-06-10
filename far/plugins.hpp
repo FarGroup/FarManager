@@ -175,7 +175,7 @@ public:
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
 	static int UseFarCommand(PluginHandle* hPlugin, int CommandType);
 	static const GUID& GetGUID(const PluginHandle* hPlugin);
-	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const string& DlgPluginTitle);
+	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::hotkey_type HotKeyType, const string& DlgPluginTitle);
 	static void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
 
 private:

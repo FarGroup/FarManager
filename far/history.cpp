@@ -197,8 +197,6 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			bool HLock;
 			unsigned __int64 id;
 			unsigned __int64 Time;
-			SYSTEMTIME st;
-			GetLocalTime(&st);
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
 			const auto GetTitle = [](auto Type)

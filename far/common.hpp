@@ -54,7 +54,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/monitored.hpp"
 #include "common/enum_substrings.hpp"
+#include "common/string_literal.hpp"
 #include "common/zip_view.hpp"
+#include "common/blob_view.hpp"
 
 // TODO: clean up & split
 
@@ -166,54 +168,6 @@ auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Rele
 {
 	return raii_wrapper<owner, acquire, release>(Owner, Acquire, Release);
 }
-
-class blob
-{
-public:
-	blob(): m_Data(), m_Size() {}
-	template<class T>
-	blob(const T& Data, size_t Size): m_Data(Data), m_Size(Size)
-	{
-		static_assert(std::is_pod<T>::value, "This template requires a POD type");
-	}
-	const void* data() const { return m_Data; }
-	size_t size() const { return m_Size; }
-
-protected:
-	const void* m_Data;
-	size_t m_Size;
-};
-
-class writable_blob: public blob
-{
-public:
-	writable_blob(): m_Allocated() {}
-	writable_blob(void* Data, size_t Size): blob(Data, Size), m_Allocated(){}
-	~writable_blob()
-	{
-		if (m_Allocated)
-			delete[] static_cast<const char*>(m_Data);
-	}
-
-	writable_blob& operator=(const blob& rhs)
-	{
-		if (m_Data)
-		{
-			if (size() != rhs.size())
-				throw MAKE_FAR_EXCEPTION("incorrect blob size");
-		}
-		else
-		{
-			m_Data = new char[rhs.size()];
-			m_Allocated = true;
-			m_Size = rhs.size();
-		}
-		memcpy(const_cast<void*>(m_Data), rhs.data(), size());
-		return *this;
-	}
-private:
-	bool m_Allocated;
-};
 
 namespace enum_helpers
 {

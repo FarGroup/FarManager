@@ -1582,7 +1582,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		UINT64 FileSize=0;
 		EditFile.GetSize(FileSize);
-		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
+		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
 		GetFileString GetStr(EditFile, m_codepage);
 		wchar_t *Str;
@@ -2009,7 +2009,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 		}
 
-		time_check TimeCheck(time_check::delayed, GetRedrawTimeout());
+		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		size_t LineNumber = -1;
 		CachedWrite Cache(EditFile);
 

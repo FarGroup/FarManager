@@ -62,21 +62,13 @@ namespace os
 		class far_find_handle_impl: public i_find_handle_impl
 		{
 		public:
-			far_find_handle_impl():
-				NextOffset(),
-				BufferSize(),
-				Extended(),
-				ReadDone()
-			{
-			}
-
 			fs::file Object;
 			block_ptr<BYTE> BufferBase;
 			block_ptr<BYTE> Buffer2;
-			ULONG NextOffset;
-			ULONG BufferSize;
-			bool Extended;
-			bool ReadDone;
+			ULONG NextOffset {};
+			ULONG BufferSize {};
+			bool Extended {};
+			bool ReadDone {};
 		};
 
 		class os_find_handle_impl: public i_find_handle_impl
@@ -141,10 +133,10 @@ static auto FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 					{
 						const auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
 						FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
-						FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime.QuadPart);
-						FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime.QuadPart);
-						FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo->LastWriteTime.QuadPart);
-						FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo->ChangeTime.QuadPart);
+						FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime);
+						FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime);
+						FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo->LastWriteTime);
+						FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo->ChangeTime);
 						FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
 						FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 						FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
@@ -230,10 +222,10 @@ static bool FindNextFileInternal(const find_handle& Find, FAR_FIND_DATA& FindDat
 	if(Status)
 	{
 		FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
-		FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime.QuadPart);
-		FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime.QuadPart);
-		FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo->LastWriteTime.QuadPart);
-		FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo->ChangeTime.QuadPart);
+		FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime);
+		FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime);
+		FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo->LastWriteTime);
+		FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo->ChangeTime);
 		FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
 		FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
@@ -314,7 +306,7 @@ namespace fs
 
 	bool is_not_empty_directory(const string& Object)
 	{
-		os::fs::enum_file Find(Object + L"\\*");
+		enum_file Find(Object + L"\\*");
 		return Find.begin() != Find.end();
 	}
 
@@ -1677,11 +1669,7 @@ void EnableLowFragmentationHeap()
 bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	fs::file dir;
-	if (dir.Open(FileName,FILE_READ_ATTRIBUTES,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
-	{
-		return dir.GetTime(CreationTime,LastAccessTime,LastWriteTime,ChangeTime);
-	}
-	return false;
+	return dir.Open(FileName,FILE_READ_ATTRIBUTES,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING) && dir.GetTime(CreationTime,LastAccessTime,LastWriteTime,ChangeTime);
 }
 
 bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
@@ -1697,19 +1685,19 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 	{
 		if(CreationTime)
 		{
-			*CreationTime = UI64ToFileTime(fbi->CreationTime.QuadPart);
+			*CreationTime = UI64ToFileTime(fbi->CreationTime);
 		}
 		if(LastAccessTime)
 		{
-			*LastAccessTime = UI64ToFileTime(fbi->LastAccessTime.QuadPart);
+			*LastAccessTime = UI64ToFileTime(fbi->LastAccessTime);
 		}
 		if(LastWriteTime)
 		{
-			*LastWriteTime = UI64ToFileTime(fbi->LastWriteTime.QuadPart);
+			*LastWriteTime = UI64ToFileTime(fbi->LastWriteTime);
 		}
 		if(ChangeTime)
 		{
-			*ChangeTime = UI64ToFileTime(fbi->ChangeTime.QuadPart);
+			*ChangeTime = UI64ToFileTime(fbi->ChangeTime);
 		}
 		Result = true;
 	}
