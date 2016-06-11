@@ -803,13 +803,6 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 int wmain(int Argc, wchar_t *Argv[])
 {
-	{
-		int a[] = { 1, 2, 3 };
-		writable_blob_view z(a, sizeof(a));
-		z[0] = 'q';
-		z[1] = 'w';
-	}
-
 	tracer Tracer;
 
 	try

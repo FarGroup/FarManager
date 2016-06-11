@@ -84,103 +84,118 @@ static const wchar_t ElevationArgument[] = L"/service:elevation";
 static auto CreateBackupRestorePrivilege() { return privilege(SE_BACKUP_NAME, SE_RESTORE_NAME); }
 
 elevation::elevation():
-	m_suppressions(),
-	m_pid(),
-	IsApproved(false),
-	AskApprove(true),
-	Elevation(false),
-	DontAskAgain(false),
-	Recurse(false)
+	m_Suppressions(),
+	m_ProcessId(),
+	m_IsApproved(false),
+	m_AskApprove(true),
+	m_Elevation(false),
+	m_DontAskAgain(false),
+	m_Recurse(false)
 {
 }
 
 elevation::~elevation()
 {
-	if (m_pipe)
+	if (m_Pipe)
 	{
-		if (m_process)
+		if (m_Process)
 		{
-			SendCommand(C_SERVICE_EXIT);
+			execute(0, [this] { SendCommand(C_SERVICE_EXIT); return 0; });
 		}
-		DisconnectNamedPipe(m_pipe.native_handle());
+		DisconnectNamedPipe(m_Pipe.native_handle());
 	}
 }
 
 void elevation::ResetApprove()
 {
-	if(!DontAskAgain)
+	if(!m_DontAskAgain)
 	{
-		AskApprove=true;
-		if(Elevation)
+		m_AskApprove=true;
+		if(m_Elevation)
 		{
-			Elevation=false;
+			m_Elevation=false;
 			Global->ScrBuf->RestoreElevationChar();
 		}
 	}
 }
 
-bool elevation::Write(const void* Data,size_t DataSize) const
+void elevation::Write(const blob_view& Data) const
 {
-	return pipe::Write(m_pipe, Data, DataSize);
+	if (!pipe::Write(m_Pipe, Data.data(), Data.size()))
+		throw MAKE_FAR_EXCEPTION("Pipe write error");
 }
 
 template<typename T>
-bool elevation::Read(T& Data) const
+T elevation::Read() const
 {
-	return pipe::Read(m_pipe, Data);
+	T Data;
+	if (!pipe::Read(m_Pipe, Data))
+		throw MAKE_FAR_EXCEPTION("Pipe read error");
+	return Data;
 }
 
-template<typename T>
-bool elevation::Write(const T& Data) const
+template<typename T, typename... args>
+void elevation::Write(const T& Data, args... Args) const
 {
-	return pipe::Write(m_pipe, Data);
+	if (!pipe::Write(m_Pipe, Data))
+		throw MAKE_FAR_EXCEPTION("Pipe write error");
+	Write(std::forward<args>(Args)...);
 }
 
-bool elevation::SendCommand(ELEVATION_COMMAND Command)
+template<typename... args>
+void elevation::SendCommand(ELEVATION_COMMAND Command, args... Args) const
 {
-	return Initialize() && pipe::Write(m_pipe, Command);
+	Write(Command);
+	Write(std::forward<args>(Args)...);
 }
 
-struct ERRORCODES
+struct error_codes
 {
-	struct
-	{
-		DWORD Win32Error;
-		NTSTATUS NtError;
-	}
-	Codes;
-
-	ERRORCODES()
-	{
-		Codes.Win32Error = GetLastError();
-		Codes.NtError = Imports().RtlGetLastNtStatus();
-	}
-	
-	ERRORCODES(DWORD InitWin32Error, NTSTATUS InitNtError)
-	{
-		Codes.Win32Error = InitWin32Error;
-		Codes.NtError = InitNtError;
-	}
+	DWORD Win32Error{ GetLastError() };
+	NTSTATUS NtError{ Imports().RtlGetLastNtStatus() };
 };
 
-bool elevation::ReceiveLastError() const
+void elevation::RetrieveLastError() const
 {
-	ERRORCODES ErrorCodes(ERROR_SUCCESS, STATUS_SUCCESS);
-	const bool Result = Read(ErrorCodes.Codes);
-	SetLastError(ErrorCodes.Codes.Win32Error);
-	Imports().RtlNtStatusToDosError(ErrorCodes.Codes.NtError);
-	return Result;
+	const auto ErrorCodes = Read<error_codes>();
+	SetLastError(ErrorCodes.Win32Error);
+	Imports().RtlNtStatusToDosError(ErrorCodes.NtError);
 }
+
+template<typename T>
+T elevation::RetrieveLastErrorAndResult() const
+{
+	RetrieveLastError();
+	return Read<T>();
+}
+
+template<typename T, typename F>
+T elevation::execute(T Fallback, const F& Function)
+{
+	if (!Initialize())
+		return Fallback;
+
+	try
+	{
+		return Function();
+	}
+	catch(const far_exception&)
+	{
+		// TODO: log
+		return Fallback;
+	}
+}
+
 
 bool elevation::Initialize()
 {
 	bool Result=false;
-	if (!m_pipe)
+	if (!m_Pipe)
 	{
 		GUID Id;
 		if(CoCreateGuid(&Id) == S_OK)
 		{
-			strPipeID = GuidToStr(Id);
+			m_PipeName = GuidToStr(Id);
 			SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
 
 			if (const auto pSD = os::memory::local::alloc<PSECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH))
@@ -204,8 +219,8 @@ bool elevation::Initialize()
 							if (SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
 							{
 								SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
-								const auto strPipe = L"\\\\.\\pipe\\" + strPipeID;
-								m_pipe.reset(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
+								const auto strPipe = L"\\\\.\\pipe\\" + m_PipeName;
+								m_Pipe.reset(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
 							}
 						}
 					}
@@ -213,47 +228,47 @@ bool elevation::Initialize()
 			}
 		}
 	}
-	if (m_pipe)
+	if (m_Pipe)
 	{
-		if(m_process)
+		if(m_Process)
 		{
-			if (!m_process.signaled())
+			if (!m_Process.signaled())
 			{
 				Result = true;
 			}
 			else
 			{
-				m_process.close();
+				m_Process.close();
 			}
 		}
 		if(!Result)
 		{
 			SCOPED_ACTION(IndeterminateTaskBar);
-			DisconnectNamedPipe(m_pipe.native_handle());
+			DisconnectNamedPipe(m_Pipe.native_handle());
 
-			BOOL InJob = FALSE;
-			if (!m_job)
+			bool InJob = false;
+			if (!m_Job)
 			{
 				// IsProcessInJob not exist in win2k. use QueryInformationJobObject(nullptr, ...) instead.
 				// IsProcessInJob(GetCurrentProcess(), nullptr, &InJob);
 
 				JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli={};
-				InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr);
+				InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr) != FALSE;
 				if (!InJob)
 				{
-					m_job.reset(CreateJobObject(nullptr, nullptr));
-					if (m_job)
+					m_Job.reset(CreateJobObject(nullptr, nullptr));
+					if (m_Job)
 					{
 						jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
-						if (SetInformationJobObject(m_job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+						if (SetInformationJobObject(m_Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 						{
-							AssignProcessToJobObject(m_job.native_handle(), GetCurrentProcess());
+							AssignProcessToJobObject(m_Job.native_handle(), GetCurrentProcess());
 						}
 					}
 				}
 			}
 
-			string Param = string(ElevationArgument) + L" " + strPipeID + L' ' + std::to_wstring(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES) ? L'1' : L'0');
+			string Param = string(ElevationArgument) + L" " + m_PipeName + L' ' + std::to_wstring(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES) ? L'1' : L'0');
 
 			SHELLEXECUTEINFO info =
 			{
@@ -267,29 +282,27 @@ bool elevation::Initialize()
 			};
 			if (ShellExecuteEx(&info) && info.hProcess)
 			{
-				m_process.reset(info.hProcess);
-				if (!InJob && m_job)
+				m_Process.reset(info.hProcess);
+				if (!InJob && m_Job)
 				{
-					AssignProcessToJobObject(m_job.native_handle(), m_process.native_handle());
+					AssignProcessToJobObject(m_Job.native_handle(), m_Process.native_handle());
 				}
 				Event AEvent(Event::automatic, Event::nonsignaled);
 				OVERLAPPED Overlapped;
 				AEvent.Associate(Overlapped);
-				ConnectNamedPipe(m_pipe.native_handle(), &Overlapped);
+				ConnectNamedPipe(m_Pipe.native_handle(), &Overlapped);
 				MultiWaiter Waiter;
 				Waiter.Add(AEvent);
-				Waiter.Add(m_process.native_handle());
+				Waiter.Add(m_Process.native_handle());
 				switch (Waiter.Wait(MultiWaiter::wait_any, 15000))
 				{
 				case WAIT_OBJECT_0:
 					{
 						DWORD NumberOfBytesTransferred;
-						if (GetOverlappedResult(m_pipe.native_handle(), &Overlapped, &NumberOfBytesTransferred, FALSE))
+						if (GetOverlappedResult(m_Pipe.native_handle(), &Overlapped, &NumberOfBytesTransferred, FALSE))
 						{
-							if (Read(m_pid))
-							{
-								Result = true;
-							}
+							Read(m_ProcessId);
+							Result = true;
 						}
 					}
 					break;
@@ -297,7 +310,7 @@ bool elevation::Initialize()
 				case WAIT_OBJECT_0 + 1:
 					{
 						DWORD ExitCode;
-						SetLastError(GetExitCodeProcess(m_process.native_handle(), &ExitCode)? ExitCode : ERROR_GEN_FAILURE);
+						SetLastError(GetExitCodeProcess(m_Process.native_handle(), &ExitCode)? ExitCode : ERROR_GEN_FAILURE);
 					}
 					break;
 
@@ -307,11 +320,11 @@ bool elevation::Initialize()
 
 				if(!Result)
 				{
-					if (!m_process.signaled())
+					if (!m_Process.signaled())
 					{
-						TerminateProcess(m_process.native_handle(), 0);
-						m_process.close();
-						m_job.close();
+						TerminateProcess(m_Process.native_handle(), 0);
+						m_Process.close();
+						m_Job.close();
 						SetLastError(ERROR_PROCESS_ABORTED);
 					}
 				}
@@ -322,7 +335,7 @@ bool elevation::Initialize()
 			}
 		}
 	}
-	Elevation=Result;
+	m_Elevation=Result;
 	return Result;
 }
 
@@ -412,7 +425,7 @@ void ElevationApproveDlgSync(const EAData& Data)
 
 bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 {
-	if (m_suppressions)
+	if (m_Suppressions)
 		return false;
 
 	Console().FlushInputBuffer();
@@ -420,21 +433,21 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 	// request for backup&restore privilege is useless if the user already has them
 	{
 		SCOPED_ACTION(GuardLastError);
-		if (AskApprove && is_admin() && privilege::check(SE_BACKUP_NAME, SE_RESTORE_NAME))
+		if (m_AskApprove && is_admin() && privilege::check(SE_BACKUP_NAME, SE_RESTORE_NAME))
 		{
-			AskApprove = false;
+			m_AskApprove = false;
 			return true;
 		}
 	}
 
 	if(!(is_admin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
-		AskApprove && !DontAskAgain && !Recurse &&
+		m_AskApprove && !m_DontAskAgain && !m_Recurse &&
  		Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		Recurse = true;
+		m_Recurse = true;
 		SCOPED_ACTION(GuardLastError);
 		SCOPED_ACTION(TaskBarPause);
-		EAData Data(Object, Why, AskApprove, IsApproved, DontAskAgain);
+		EAData Data(Object, Why, m_AskApprove, m_IsApproved, m_DontAskAgain);
 		if(!Global->IsMainThread())
 		{
 			Event SyncEvent(Event::automatic, Event::nonsignaled);
@@ -450,409 +463,359 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		{
 			ElevationApproveDlgSync(Data);
 		}
-		Recurse = false;
+		m_Recurse = false;
 	}
-	return IsApproved;
+	return m_IsApproved;
 }
 
 bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredCreate, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = (TemplateObject.empty()?CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
-		}
-		else if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX) && Write(TemplateObject) && Write(Object))
-		{
-			// BUGBUG: SecurityAttributes ignored
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return (TemplateObject.empty()?CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_CREATEDIRECTORYEX, TemplateObject, Object);
+		// BUGBUG: SecurityAttributes ignored
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 bool elevation::fRemoveDirectory(const string& Object)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredDelete, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredDelete, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = RemoveDirectory(Object.data()) != FALSE;
-		}
-		else if(SendCommand(C_FUNCTION_REMOVEDIRECTORY) && Write(Object))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return RemoveDirectory(Object.data()) != FALSE;
 	}
-	return Result;
+
+	return execute(false, [&]
+	{
+		SendCommand(C_FUNCTION_REMOVEDIRECTORY, Object);
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 bool elevation::fDeleteFile(const string& Object)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredDelete, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredDelete, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = DeleteFile(Object.data()) != FALSE;
-		}
-		else if(SendCommand(C_FUNCTION_DELETEFILE) && Write(Object))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return DeleteFile(Object.data()) != FALSE;
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_DELETEFILE, Object);
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 {
-	if(ProgressRoutine)
-	{
-		LARGE_INTEGER TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred;
-		DWORD StreamNumber, CallbackReason;
-		// BUGBUG: SourceFile, DestinationFile ignored
-		intptr_t Data;
-		if(Read(TotalFileSize) && Read(TotalBytesTransferred) && Read(StreamSize) && Read(StreamBytesTransferred) && Read(StreamNumber) && Read(CallbackReason) && Read(Data))
-		{
-			int Result=ProgressRoutine(TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred, StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, reinterpret_cast<void*>(Data));
-			if(Write(CallbackMagic))
-			{
-				Write(Result);
-			}
-		}
-	}
+	if (!ProgressRoutine)
+		return;
+
+	const auto TotalFileSize = Read<LARGE_INTEGER>();
+	const auto TotalBytesTransferred = Read<LARGE_INTEGER>();
+	const auto StreamSize = Read<LARGE_INTEGER>();
+	const auto StreamBytesTransferred = Read<LARGE_INTEGER>();
+	const auto StreamNumber = Read<DWORD>();
+	const auto CallbackReason = Read<DWORD>();
+	const auto Data = Read<intptr_t>();
+	// BUGBUG: SourceFile, DestinationFile ignored
+
+	const auto Result = ProgressRoutine(TotalFileSize, TotalBytesTransferred, StreamSize, StreamBytesTransferred, StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, reinterpret_cast<void*>(Data));
+
+	Write(CallbackMagic);
+	Write(Result);
 }
 
 bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result = false;
-	if(ElevationApproveDlg(MElevationRequiredCopy, From))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredCopy, From))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
-		}
-		// BUGBUG: Cancel ignored
-		else if(SendCommand(C_FUNCTION_COPYFILEEX) && Write(From) && Write(To) && Write(&ProgressRoutine, sizeof(ProgressRoutine)) && Write(reinterpret_cast<intptr_t>(Data)) && Write(Flags))
-		{
-			int OpResult = 0;
-			if(Read(OpResult))
-			{
-				if (OpResult == CallbackMagic)
-				{
-					while(OpResult == CallbackMagic)
-					{
-						fCallbackRoutine(ProgressRoutine);
-						Read(OpResult);
-					}
-				}
-				if(OpResult != CallbackMagic)
-				{
-					Result = OpResult != 0;
-					ReceiveLastError();
-				}
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_COPYFILEEX, From, To, reinterpret_cast<intptr_t>(ProgressRoutine), reinterpret_cast<intptr_t>(Data), Flags);
+		// BUGBUG: Cancel ignored
+
+		while (Read<int>() == CallbackMagic)
+		{
+			fCallbackRoutine(ProgressRoutine);
+		}
+
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredMove, From))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredMove, From))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
-		}
-		else if(SendCommand(C_FUNCTION_MOVEFILEEX) && Write(From) && Write(To) && Write(Flags))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return MoveFileEx(From.data(), To.data(), Flags) != FALSE;
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_MOVEFILEEX, From, To, Flags);
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 DWORD elevation::fGetFileAttributes(const string& Object)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	DWORD Result = INVALID_FILE_ATTRIBUTES;
-	if(ElevationApproveDlg(MElevationRequiredGetAttributes, Object))
+	static const auto Fallback = INVALID_FILE_ATTRIBUTES;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredGetAttributes, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = GetFileAttributes(Object.data());
-		}
-		else if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES) && Write(Object))
-		{
-			DWORD OpResult = INVALID_FILE_ATTRIBUTES;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return GetFileAttributes(Object.data());
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_GETFILEATTRIBUTES, Object);
+		return RetrieveLastErrorAndResult<DWORD>();
+	});
 }
 
 bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredSetAttributes, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredSetAttributes, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = SetFileAttributes(Object.data(), FileAttributes) != FALSE;
-		}
-		else if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES) && Write(Object) && Write(FileAttributes))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return SetFileAttributes(Object.data(), FileAttributes) != FALSE;
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_SETFILEATTRIBUTES, Object, FileAttributes);
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredHardLink, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredHardLink, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
-		}
-		// BUGBUG: SecurityAttributes ignored.
-		else if(SendCommand(C_FUNCTION_CREATEHARDLINK) && Write(Object) && Write(Target))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_CREATEHARDLINK, Object, Target);
+		// BUGBUG: SecurityAttributes ignored.
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredSymLink, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredSymLink, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = os::CreateSymbolicLinkInternal(Object, Target, Flags);
-		}
-		else if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK) && Write(Object) && Write(Target) && Write(Flags))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult != 0;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return os::CreateSymbolicLinkInternal(Object, Target, Flags);
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_CREATESYMBOLICLINK, Object, Target, Flags);
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	int Result = 0x78; //DE_ACCESSDENIEDSRC
-	if(ElevationApproveDlg(MElevationRequiredRecycle, FileOpStruct.pFrom))
+	static const auto DE_ACCESSDENIEDSRC = 0x78;
+	static const auto Fallback = DE_ACCESSDENIEDSRC;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredRecycle, FileOpStruct.pFrom))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = SHFileOperation(&FileOpStruct);
-		}
-		else
-		{
-			if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN) && Write(FileOpStruct)
-			   && Write(FileOpStruct.pFrom, FileOpStruct.pFrom? (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t) : 0) // achtung! +1
-			   && Write(FileOpStruct.pTo, FileOpStruct.pTo? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)) // achtung! +1
-			{
-				int OpResult = 0;
-				if(Read(OpResult) && Read(FileOpStruct.fAnyOperationsAborted))
-				{
-					// achtung! no "last error" here
-					Result = OpResult;
-				}
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return SHFileOperation(&FileOpStruct);
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_MOVETORECYCLEBIN, FileOpStruct,
+			make_blob_view(FileOpStruct.pFrom, FileOpStruct.pFrom ? (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t) : 0), // achtung! +1
+			make_blob_view(FileOpStruct.pTo, FileOpStruct.pTo ? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)); // achtung! +1
+
+		Read(FileOpStruct.fAnyOperationsAborted);
+		// achtung! no "last error" here
+		return Read<int>();
+	});
 }
 
 bool elevation::fSetOwner(const string& Object, const string& Owner)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredSetOwner, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredSetOwner, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = SetOwnerInternal(Object, Owner);
-		}
-		else if(SendCommand(C_FUNCTION_SETOWNER) && Write(Object) && Write(Owner))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return SetOwnerInternal(Object, Owner);
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_SETOWNER, Object, Owner);
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	HANDLE Result=INVALID_HANDLE_VALUE;
-	if(ElevationApproveDlg(MElevationRequiredOpen, Object))
+	static const auto Fallback = INVALID_HANDLE_VALUE;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredOpen, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = CreateFile(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
-		}
-		// BUGBUG: SecurityAttributes ignored
-		// BUGBUG: TemplateFile ignored
-		else if(SendCommand(C_FUNCTION_CREATEFILE) && Write(Object) && Write(DesiredAccess) && Write(ShareMode) && Write(CreationDistribution) && Write(FlagsAndAttributes))
-		{
-			intptr_t OpResult;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = ToPtr(OpResult);
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return CreateFile(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 	}
-	return Result;
+
+	return execute(INVALID_HANDLE_VALUE, [&]
+	{
+		SendCommand(C_FUNCTION_CREATEFILE, Object, DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes);
+		// BUGBUG: SecurityAttributes & TemplateFile ignored
+		return ToPtr(RetrieveLastErrorAndResult<intptr_t>());
+	});
 }
 
 bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(Encrypt? MElevationRequiredEncryptFile : MElevationRequiredDecryptFile, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(Encrypt ? MElevationRequiredEncryptFile : MElevationRequiredDecryptFile, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = os::SetFileEncryptionInternal(Object.data(), Encrypt);
-		}
-		else if(SendCommand(C_FUNCTION_SETENCRYPTION) && Write(Object) && Write(Encrypt))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return os::SetFileEncryptionInternal(Object.data(), Encrypt);
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_SETENCRYPTION, Object, Encrypt);
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredCreate, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = os::DetachVirtualDiskInternal(Object, VirtualStorageType);
-		}
-		else if (SendCommand(C_FUNCTION_DETACHVIRTUALDISK) && Write(Object) && Write(VirtualStorageType))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return os::DetachVirtualDiskInternal(Object, VirtualStorageType);
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_DETACHVIRTUALDISK, Object, VirtualStorageType);
+		return RetrieveLastErrorAndResult<bool>();
+	});
 }
 
 bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBytesAvailableToCaller, ULARGE_INTEGER* TotalNumberOfBytes, ULARGE_INTEGER* TotalNumberOfFreeBytes)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredList, Object))
+	static const auto Fallback = false;
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(MElevationRequiredList, Object))
+		return Fallback;
+
+	if(is_admin())
 	{
-		if(is_admin())
-		{
-			SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-			Result = GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
-		}
-		else if(SendCommand(C_FUNCTION_GETDISKFREESPACEEX) && Write(Object))
-		{
-			bool OpResult = false;
-			if(Read(OpResult) && ReceiveLastError())
-			{
-				Result = OpResult;
-			}
-			if(Result)
-			{
-				ULARGE_INTEGER Buffer;
-				Read(Buffer);
-				if (FreeBytesAvailableToCaller)
-					*FreeBytesAvailableToCaller = Buffer;
-				Read(Buffer);
-				if (TotalNumberOfBytes)
-					*TotalNumberOfBytes = Buffer;
-				Read(Buffer);
-				if (TotalNumberOfFreeBytes)
-					*TotalNumberOfFreeBytes = Buffer;
-			}
-		}
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
 	}
-	return Result;
+
+	return execute(Fallback, [&]
+	{
+		SendCommand(C_FUNCTION_GETDISKFREESPACEEX, Object);
+		const auto Result = RetrieveLastErrorAndResult<bool>();
+		if (Result)
+		{
+			ULARGE_INTEGER Buffer;
+			Read(Buffer);
+			if (FreeBytesAvailableToCaller)
+				*FreeBytesAvailableToCaller = Buffer;
+			Read(Buffer);
+			if (TotalNumberOfBytes)
+				*TotalNumberOfBytes = Buffer;
+			Read(Buffer);
+			if (TotalNumberOfFreeBytes)
+				*TotalNumberOfFreeBytes = Buffer;
+		}
+		return Result;
+	});
 }
 
 
@@ -914,10 +877,13 @@ public:
 					ParentProcess.close();
 					if(TrustedServer)
 					{
-						if(Write(GetCurrentProcessId()))
+						Write(GetCurrentProcessId());
+						ParentPID = PID;
+						for (;;)
 						{
-							ParentPID = PID;
-							for (int Command; Read(Command) && Process(Command););
+							const auto Command = Read<int>();
+							if (!Process(Command))
+								break;
 						}
 					}
 				}
@@ -937,21 +903,26 @@ private:
 	mutable bool Exit;
 	typedef std::pair<const class elevated*, void*> copy_progress_routine_param;
 
-	bool Write(const void* Data,size_t DataSize) const
+	void Write(const void* Data,size_t DataSize) const
 	{
-		return pipe::Write(m_Pipe, Data, DataSize);
+		if (!pipe::Write(m_Pipe, Data, DataSize))
+			throw MAKE_FAR_EXCEPTION("Pipe write error");
 	}
 
 	template<typename T>
-	bool Read(T& Data) const
+	T Read() const
 	{
-		return pipe::Read(m_Pipe, Data);
+		T Data;
+		if (!pipe::Read(m_Pipe, Data))
+			throw MAKE_FAR_EXCEPTION("Pipe read error");
+		return Data;
 	}
 
 	template<typename T>
-	bool Write(const T& Data) const
+	void Write(const T& Data) const
 	{
-		return pipe::Write(m_Pipe, Data);
+		if (!pipe::Write(m_Pipe, Data))
+			throw MAKE_FAR_EXCEPTION("Pipe write error");
 	}
 
 	void ExitHandler() const
@@ -961,269 +932,223 @@ private:
 
 	void CreateDirectoryExHandler() const
 	{
-		string TemplateObject;
-		if(Read(TemplateObject))
-		{
-			string Object;
-			if(Read(Object))
-			{
-				// BUGBUG, SecurityAttributes ignored
-				const bool Result = TemplateObject.empty() ? CreateDirectory(Object.data(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), nullptr) != FALSE;
-				const ERRORCODES ErrorCodes;
-				if(Write(Result))
-				{
-					Write(ErrorCodes.Codes);
-				}
-			}
-		}
+		const auto TemplateObject = Read<string>();
+		const auto Object = Read<string>();
+		// BUGBUG, SecurityAttributes ignored
+
+		const auto Result = TemplateObject.empty()? CreateDirectory(Object.data(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), nullptr) != FALSE;
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void RemoveDirectoryHandler() const
 	{
-		string Object;
-		if(Read(Object))
-		{
-			const bool Result = RemoveDirectory(Object.data()) != FALSE;
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+
+		const auto Result = RemoveDirectory(Object.data()) != FALSE;
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void DeleteFileHandler() const
 	{
-		string Object;
-		if(Read(Object))
-		{
-			const bool Result = DeleteFile(Object.data()) != FALSE;
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+
+		const auto Result = DeleteFile(Object.data()) != FALSE;
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void CopyFileExHandler() const
 	{
-		string From, To;
-		intptr_t UserCopyProgressRoutine, Data;
-		DWORD Flags = 0;
+		const auto From = Read<string>();
+		const auto To = Read<string>();
+		const auto UserCopyProgressRoutine = Read<intptr_t>();
+		const auto Data = Read<intptr_t>();
+		const auto Flags = Read<DWORD>();
 		// BUGBUG: Cancel ignored
-		if(Read(From) && Read(To) && Read(UserCopyProgressRoutine) && Read(Data) && Read(Flags))
-		{
-			copy_progress_routine_param Param(this, reinterpret_cast<void*>(Data));
-			int Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+
+		copy_progress_routine_param Param(this, reinterpret_cast<void*>(Data));
+		const auto Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags) != FALSE;
+
+		Write(0); // not CallbackMagic
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void MoveFileExHandler() const
 	{
-		string From, To;
-		DWORD Flags = 0;
-		if(Read(From) && Read(To) && Read(Flags))
-		{
-			const bool Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto From = Read<string>();
+		const auto To = Read<string>();
+		const auto Flags = Read<DWORD>();
+
+		const auto Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void GetFileAttributesHandler() const
 	{
-		string Object;
-		if(Read(Object))
-		{
-			const DWORD Result = GetFileAttributes(Object.data());
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+
+		const auto Result = GetFileAttributes(Object.data());
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void SetFileAttributesHandler() const
 	{
-		string Object;
-		DWORD Attributes = 0;
-		if(Read(Object) && Read(Attributes))
-		{
-			const bool Result = SetFileAttributes(Object.data(), Attributes) != FALSE;
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+		const auto Attributes = Read<DWORD>();
+
+		const auto Result = SetFileAttributes(Object.data(), Attributes) != FALSE;
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void CreateHardLinkHandler() const
 	{
-		string Object, Target;
-		if(Read(Object) && Read(Target))
-		{
-			// BUGBUG: SecurityAttributes ignored.
-			const bool Result = CreateHardLink(Object.data(), Target.data(), nullptr) != FALSE;
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+		const auto Target = Read<string>();
+		// BUGBUG: SecurityAttributes ignored.
+
+		const auto Result = CreateHardLink(Object.data(), Target.data(), nullptr) != FALSE;
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void CreateSymbolicLinkHandler() const
 	{
-		string Object, Target;
-		DWORD Flags = 0;
-		if(Read(Object) && Read(Target) && Read(Flags))
-		{
-			const bool Result = os::CreateSymbolicLinkInternal(Object, Target, Flags);
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+		const auto Target = Read<string>();
+		const auto Flags = Read<DWORD>();
+
+		const auto Result = os::CreateSymbolicLinkInternal(Object, Target, Flags);
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void MoveToRecycleBinHandler() const
 	{
-		SHFILEOPSTRUCT Struct;
-		string From, To;
-		if(Read(Struct) && Read(From) && Read(To))
-		{
-			Struct.pFrom = From.data();
-			Struct.pTo = To.data();
-			if(Write(SHFileOperation(&Struct)))
-			{
-				Write(Struct.fAnyOperationsAborted);
-			}
-		}
+		auto Struct = Read<SHFILEOPSTRUCT>();
+		const auto From = Read<string>();
+		const auto To = Read<string>();
+
+		Struct.pFrom = From.data();
+		Struct.pTo = To.data();
+
+		const auto Result = SHFileOperation(&Struct);
+
+		Write(Struct.fAnyOperationsAborted);
+		Write(Result);
 	}
 
 	void SetOwnerHandler() const
 	{
-		string Object, Owner;
-		if(Read(Object) && Read(Owner))
-		{
-			const bool Result = SetOwnerInternal(Object, Owner);
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+		const auto Owner = Read<string>();
+
+		const auto Result = SetOwnerInternal(Object, Owner);
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void CreateFileHandler() const
 	{
-		string Object;
-		DWORD DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes;
+		const auto Object = Read<string>();
+		const auto DesiredAccess = Read<DWORD>();
+		const auto ShareMode = Read<DWORD>();
+		const auto CreationDistribution = Read<DWORD>();
+		const auto FlagsAndAttributes = Read<DWORD>();
 		// BUGBUG: SecurityAttributes, TemplateFile ignored
-		if(Read(Object) && Read(DesiredAccess) && Read(ShareMode) && Read(CreationDistribution) && Read(FlagsAndAttributes))
+
+		auto Duplicate = INVALID_HANDLE_VALUE;
+		if (const auto Handle = os::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr))
 		{
-			HANDLE Duplicate = INVALID_HANDLE_VALUE;
-			if (const os::handle Handle = os::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr))
+			if (const auto ParentProcess = os::handle(OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID)))
 			{
-				if (const auto ParentProcess = os::handle(OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID)))
-				{
-					DuplicateHandle(GetCurrentProcess(), Handle.native_handle(), ParentProcess.native_handle(), &Duplicate, 0, FALSE, DUPLICATE_SAME_ACCESS);
-				}
-			}
-			const ERRORCODES ErrorCodes;
-			if (Write(reinterpret_cast<intptr_t>(Duplicate)))
-			{
-				Write(ErrorCodes.Codes);
+				DuplicateHandle(GetCurrentProcess(), Handle.native_handle(), ParentProcess.native_handle(), &Duplicate, 0, FALSE, DUPLICATE_SAME_ACCESS);
 			}
 		}
+
+		Write(error_codes{});
+		Write(reinterpret_cast<intptr_t>(Duplicate));
 	}
 
 	void SetEncryptionHandler() const
 	{
-		string Object;
-		bool Encrypt = false;
-		if(Read(Object) && Read(Encrypt))
-		{
-			const bool Result = os::SetFileEncryptionInternal(Object.data(), Encrypt);
-			const ERRORCODES ErrorCodes;
-			if(Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+		const auto Encrypt = Read<bool>();
+
+		const auto Result = os::SetFileEncryptionInternal(Object.data(), Encrypt);
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void DetachVirtualDiskHandler() const
 	{
-		string Object;
-		VIRTUAL_STORAGE_TYPE VirtualStorateType;
-		if (Read(Object) && Read(VirtualStorateType))
-		{
-			const bool Result = os::DetachVirtualDiskInternal(Object, VirtualStorateType);
-			const ERRORCODES ErrorCodes;
-			if (Write(Result))
-			{
-				Write(ErrorCodes.Codes);
-			}
-		}
+		const auto Object = Read<string>();
+		auto VirtualStorageType = Read<VIRTUAL_STORAGE_TYPE>();
+
+		const auto Result = os::DetachVirtualDiskInternal(Object, VirtualStorageType);
+
+		Write(error_codes{});
+		Write(Result);
 	}
 
 	void GetDiskFreeSpaceExHandler() const
 	{
+		const auto Object = Read<string>();
+
 		ULARGE_INTEGER FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes;
-		string Object;
-		if(Read(Object))
+		const auto Result = GetDiskFreeSpaceEx(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
+
+		Write(error_codes{});
+		Write(Result);
+
+		if(Result)
 		{
-			const bool Result = GetDiskFreeSpaceEx(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
-			const ERRORCODES ErrorCodes;
-			if (Write(Result) && Write(ErrorCodes.Codes))
-			{
-				if(Result)
-				{
-					Write(FreeBytesAvailableToCaller);
-					Write(TotalNumberOfBytes);
-					Write(TotalNumberOfFreeBytes);
-				}
-			}
+			Write(FreeBytesAvailableToCaller);
+			Write(TotalNumberOfBytes);
+			Write(TotalNumberOfFreeBytes);
 		}
 	}
 
 	static DWORD WINAPI CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 	{
-		int Result=0;
 		const auto Param = reinterpret_cast<const copy_progress_routine_param*>(Data);
 		const auto Context = Param->first;
+
+		Context->Write(CallbackMagic);
+		Context->Write(TotalFileSize);
+		Context->Write(TotalBytesTransferred);
+		Context->Write(StreamSize);
+		Context->Write(StreamBytesTransferred);
+		Context->Write(StreamNumber);
+		Context->Write(CallbackReason);
+		Context->Write(reinterpret_cast<intptr_t>(Param->second));
 		// BUGBUG: SourceFile, DestinationFile ignored
-		if (Context->Write(CallbackMagic) && Context->Write(TotalFileSize) && Context->Write(TotalBytesTransferred) && Context->Write(StreamSize) && Context->Write(StreamBytesTransferred) && Context->Write(StreamNumber) && Context->Write(CallbackReason) && Context->Write(reinterpret_cast<intptr_t>(Param->second)))
+
+		for(;;)
 		{
-			for(;;)
+			const auto Result = Context->Read<int>();
+			if (Result == CallbackMagic)
 			{
-				Context->Read(Result);
-				if (Result == CallbackMagic)
-				{
-					Context->Read(Result);
-					break;
-				}
-				else
-				{
-					// nested call from ProgressRoutine()
-					Context->Process(Result);
-				}
+				return Context->Read<int>();
 			}
+			// nested call from ProgressRoutine()
+			Context->Process(Result);
 		}
-		return Result;
 	}
 
 	bool Process(int Command) const
@@ -1254,7 +1179,15 @@ private:
 
 		static_assert(std::size(Handlers) == C_COMMANDS_COUNT, "not all commands handled");
 
-		(this->*Handlers[Command])();
+		try
+		{
+			(this->*Handlers[Command])();
+		}
+		catch(...)
+		{
+			// TODO: log
+			Exit = true;
+		}
 
 		return !Exit;
 	}

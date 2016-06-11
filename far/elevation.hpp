@@ -51,7 +51,7 @@ public:
 	elevation();
 	~elevation();
 	void ResetApprove();
-	bool Elevated() const {return Elevation;}
+	bool Elevated() const {return m_Elevation;}
 
 	bool fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes);
 	bool fRemoveDirectory(const string& Object);
@@ -73,37 +73,54 @@ public:
 	class suppress: noncopyable
 	{
 	public:
-		suppress(): m_owner(Global? Global->Elevation : nullptr) { if (m_owner) ++m_owner->m_suppressions; }
-		~suppress() { if (m_owner) --m_owner->m_suppressions; }
+		suppress(): m_owner(Global? Global->Elevation : nullptr) { if (m_owner) ++m_owner->m_Suppressions; }
+		~suppress() { if (m_owner) --m_owner->m_Suppressions; }
 
 	private:
 		elevation* m_owner;
 	};
 
 private:
-	bool Write(const void* Data, size_t DataSize) const;
+	void Write(const blob_view& Data) const;
+
 	template<typename T>
-	bool Read(T& Data) const;
+	T Read() const;
+
 	template<typename T>
-	bool Write(const T& Data) const;
-	bool SendCommand(ELEVATION_COMMAND Command);
-	bool ReceiveLastError() const;
+	void Read(T& Data) const { Data = Read<T>(); }
+
+	static void Write() {};
+
+	template<typename T, typename... args>
+	void Write(const T& Data, args... Args) const;
+
+	template<typename... args>
+	void SendCommand(ELEVATION_COMMAND Command, args... Args) const;
+
+	void RetrieveLastError() const;
+
+	template<typename T>
+	T RetrieveLastErrorAndResult() const;
+
 	bool Initialize();
 	bool ElevationApproveDlg(LNGID Why, const string& Object);
 
-	std::atomic_ulong m_suppressions;
-	os::handle m_pipe;
-	os::handle m_process;
-	os::handle m_job;
-	int m_pid;
+	template<typename T, typename F>
+	T execute(T Fallback, const F& Function);
 
-	bool IsApproved;
-	bool AskApprove;
-	bool Elevation;
-	bool DontAskAgain;
-	bool Recurse;
-	CriticalSection CS;
-	string strPipeID;
+	std::atomic_ulong m_Suppressions;
+	os::handle m_Pipe;
+	os::handle m_Process;
+	os::handle m_Job;
+	int m_ProcessId;
+
+	bool m_IsApproved;
+	bool m_AskApprove;
+	bool m_Elevation;
+	bool m_DontAskAgain;
+	bool m_Recurse;
+	CriticalSection m_CS;
+	string m_PipeName;
 };
 
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus = true);
