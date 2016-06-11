@@ -5240,60 +5240,29 @@ static int far_FarClock(lua_State *L)
 	return 1;
 }
 
-DWORD WINAPI TimerThreadFunc (void *data)
+void CALLBACK TimerCallback(void *lpParameter, BOOLEAN TimerOrWaitFired)
 {
-	FILETIME tCurrent;
-	UINT64 lStart, lCurrent;
+	TTimerData *td = (TTimerData*)lpParameter;
 	TSynchroData *sd;
-	TTimerData *td = (TTimerData*)data;
-	int interval_copy = td->interval;
-	td->interval_changed = 0;
-	memcpy(&lStart, &td->tStart, sizeof(lStart));
-
-	for(; !td->needClose; lStart += interval_copy * 10000LL)
+	(void)TimerOrWaitFired;
+	if (td->needClose)
 	{
-		while(!td->needClose)
-		{
-			int iElapsed;
-			GetSystemTimeAsFileTime(&tCurrent);
-			memcpy(&lCurrent, &tCurrent, sizeof(lCurrent));
-
-			if(td->interval_changed)
-			{
-				interval_copy = td->interval;
-				lStart = lCurrent;
-				td->interval_changed = 0;
-			}
-
-			iElapsed = CAST(int, (lCurrent - lStart) / 10000);
-
-			if(iElapsed + 5 < interval_copy)
-			{
-				Sleep(10);
-			}
-			else break;
-		}
-
-		if(!td->needClose && td->enabled)
-		{
-			sd = CreateSynchroData(td, LUAFAR_TIMER_CALL, 0);
-			td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
-		}
+		DeleteTimerQueueTimer(NULL, td->hnd, NULL);
+		sd = CreateSynchroData(td, LUAFAR_TIMER_UNREF, 0);
+		td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
 	}
-
-	sd = CreateSynchroData(td, LUAFAR_TIMER_UNREF, 0);
-	td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
-	return 0;
+	else if (td->enabled)
+	{
+		sd = CreateSynchroData(td, LUAFAR_TIMER_CALL, 0);
+		td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
+	}
 }
 
 static int far_Timer(lua_State *L)
 {
 	TPluginData *pd;
 	TTimerData *td;
-	FILETIME ft;
 	int interval, index, tabSize;
-
-	GetSystemTimeAsFileTime(&ft); // do this immediately, for greater accuracy
 
 	interval = (int)luaL_checkinteger(L, 1);
 	luaL_checktype(L, 2, LUA_TFUNCTION);
@@ -5325,12 +5294,10 @@ static int far_Timer(lua_State *L)
 
 	lua_pushvalue(L, -2);
 	td->tabRef = luaL_ref(L, LUA_REGISTRYINDEX);
-	td->tStart = ft;
-	td->interval_changed = 1;
 	td->needClose = 0;
 	td->enabled = 1;
 
-	if (CreateThread(NULL, 0, TimerThreadFunc, td, 0, NULL))
+	if (CreateTimerQueueTimer(&td->hnd,NULL,TimerCallback,td,td->interval,td->interval,WT_EXECUTEDEFAULT))
 		return 1;
 
 	luaL_unref(L, LUA_REGISTRYINDEX, td->tabRef);
@@ -5378,12 +5345,7 @@ static int timer_index(lua_State *L)
 	else if(!strcmp(method, "Enabled"))
 		lua_pushboolean(L, td->enabled);
 	else if(!strcmp(method, "Interval"))
-	{
-		while(td->interval_changed)
-			SwitchToThread();
-
 		lua_pushinteger(L, td->interval);
-	}
 	else if(!strcmp(method, "OnTimer"))
 	{
 		lua_rawgeti(L, LUA_REGISTRYINDEX, td->tabRef);
@@ -5410,12 +5372,8 @@ static int timer_newindex(lua_State *L)
 	else if(!strcmp(method, "Interval"))
 	{
 		int interval = (int)luaL_checkinteger(L, 3);
-
-		while(td->interval_changed)
-			SwitchToThread();
-
-		td->interval = interval < 0 ? 0 : interval;
-		td->interval_changed = 1;
+		td->interval = interval < 1 ? 1 : interval;
+		ChangeTimerQueueTimer(NULL, td->hnd, td->interval, td->interval);
 	}
 	else if(!strcmp(method, "OnTimer"))
 	{

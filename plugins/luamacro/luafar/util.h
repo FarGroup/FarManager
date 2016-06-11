@@ -35,11 +35,11 @@ typedef struct
 {
 	GUID* PluginGuid;
 	struct PluginStartupInfo *Info;
-	int interval, interval_changed;
+	int interval;
 	int tabRef;
-	FILETIME tStart;
 	int needClose;
 	int enabled;
+	HANDLE hnd;
 } TTimerData;
 
 typedef struct
