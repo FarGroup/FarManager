@@ -2681,15 +2681,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			{
 				execute_info Info;
 				Info.Command = strFileName;
-				Info.WaitMode = PluginMode? Info.wait_finish : Info.no_wait;
+				Info.WaitMode = PluginMode? execute_info::wait_mode::wait_finish : execute_info::wait_mode::no_wait;
 				Info.NewWindow = SeparateWindow;
+				Info.SourceMode = execute_info::source_mode::known;
 				Info.RunAs = RunAs;
 
-				// Here we definitely know that we're about to launch an actual file,
-				// (as manually typed commands are processed elsewhere), so launcher shall NOT try to search for it.
-				// However, we can't simply set ExecMode to 'direct' as we need to know image type anyway
-				// to launch it silently or in console mode.
-				// So, to avoid introducing some new additional weird flags, we just use the full file name:
 				ConvertNameToFull(Info.Command, Info.Command);
 				QuoteSpace(Info.Command);
 
@@ -4928,7 +4924,7 @@ bool FileList::ApplyCommand()
 
 			execute_info Info;
 			Info.Command = strConvertedCommand;
-			Info.WaitMode = ListFileUsed? Info.wait_idle : Info.no_wait;
+			Info.WaitMode = ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 
 			Parent()->GetCmdLine()->ExecString(Info);
 			//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))

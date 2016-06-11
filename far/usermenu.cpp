@@ -801,7 +801,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 						execute_info Info;
 						Info.Command = strCommand;
-						Info.WaitMode = ListFileUsed? Info.wait_idle : Info.no_wait;
+						Info.WaitMode = ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 
 						Global->CtrlObject->CmdLine()->ExecString(Info);
 					}

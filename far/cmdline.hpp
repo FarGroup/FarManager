@@ -40,14 +40,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct execute_info
 {
-	enum wait_mode { no_wait, wait_idle, wait_finish };
-	enum exec_mode { detect, direct, external };
+	enum class wait_mode { no_wait, wait_idle, wait_finish };
+	enum class exec_mode { detect, direct, external };
+	enum class source_mode { unknown, known };
 
 	string Command;
-	wait_mode WaitMode = no_wait;
-	bool NewWindow = false;
-	exec_mode ExecMode = detect;
-	bool RunAs = false;
+	wait_mode WaitMode{ wait_mode::no_wait };
+	bool NewWindow{};
+	exec_mode ExecMode{ exec_mode::detect };
+	source_mode SourceMode{ source_mode::unknown };
+	bool RunAs{};
 };
 
 class execution_context;

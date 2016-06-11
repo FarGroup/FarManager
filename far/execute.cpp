@@ -194,7 +194,12 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 		{
 			auto strFullName = Module;
 			const auto ModuleExt = wcsrchr(PointToName(Module), L'.');
-			const auto strPathExt = os::env::get_pathext() + L";;"; // ";;" to also try no extension if nothing else matches
+			auto strPathExt = os::env::get_pathext();
+			if (Global->Opt->UseRegisteredTypes)
+			{
+				// ";;" to also try no extension if nothing else matches
+				strPathExt += L";;";
+			}
 			const auto PathExtList = split<std::vector<string>>(strPathExt, STLF_UNIQUE | STLF_ALLOWEMPTY);
 
 			for (const auto& i: PathExtList) // первый проход - в текущем каталоге
@@ -600,7 +605,8 @@ void OpenFolderInShell(const string& Folder)
 	execute_info Info;
 	Info.Command = Folder;
 	Info.NewWindow = true;
-	Info.ExecMode = Info.direct;
+	Info.ExecMode = execute_info::exec_mode::direct;
+	Info.SourceMode = execute_info::source_mode::known;
 
 	Execute(Info, true, true);
 }
@@ -611,11 +617,15 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	string strNewCmdStr;
 	string strNewCmdPar;
 
-	if (!PartCmdLine(Info.Command, strNewCmdStr, strNewCmdPar))
+	if (Info.SourceMode == execute_info::source_mode::known)
+	{
+		strNewCmdStr = Info.Command;
+	}
+	else if (!PartCmdLine(Info.Command, strNewCmdStr, strNewCmdPar))
 	{
 		// Complex expression (pipe or redirection): fallback to comspec as is
 		strNewCmdStr = Info.Command;
-		Info.ExecMode = Info.external;
+		Info.ExecMode = execute_info::exec_mode::external;
 	}
 
 	bool IsDirectory = false;
@@ -642,18 +652,19 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		{
 			strNewCmdStr = Unquoted;
 			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
-			Info.ExecMode = Info.direct;
+			Info.ExecMode = execute_info::exec_mode::direct;
+			Info.SourceMode = execute_info::source_mode::known;
 			FolderRun=true;
 		}
 	}
 
 	string Verb;
 
-	if (FolderRun && Info.ExecMode == Info.direct)
+	if (FolderRun && Info.ExecMode == execute_info::exec_mode::direct)
 	{
 		AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
 	}
-	else if (Info.ExecMode == Info.detect)
+	else if (Info.ExecMode == execute_info::exec_mode::detect)
 	{
 		auto GetAssociatedImageType = [&Verb](const string& Str, image_type& ImageType)
 		{
@@ -701,18 +712,18 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 		auto ImageType = image_type::unknown;
 
-		if (FindObject(ModuleName, FoundModuleName, Internal))
+		if (Info.SourceMode == execute_info::source_mode::known || FindObject(ModuleName, FoundModuleName, Internal))
 		{
 			if (Internal)
 			{
 				// Internal comspec command (one of ExcludeCmds): fallback to comspec as is
-				Info.ExecMode = Info.external;
+				Info.ExecMode = execute_info::exec_mode::external;
 				strNewCmdStr = Info.Command;
 			}
 			else if (GetImageType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType) || GetImageTypeFallback(ImageType))
 			{
 				// We can run it directly
-				Info.ExecMode = Info.direct;
+				Info.ExecMode = execute_info::exec_mode::direct;
 				strNewCmdStr = FoundModuleName;
 				strNewCmdPar = os::env::expand_strings(strNewCmdPar);
 
@@ -726,12 +737,12 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		else
 		{
 			// Found nothing: fallback to comspec as is
-			Info.ExecMode = Info.external;
+			Info.ExecMode = execute_info::exec_mode::external;
 			strNewCmdStr = Info.Command;
 		}
 	}
 
-	if (Info.WaitMode == Info.wait_finish)
+	if (Info.WaitMode == execute_info::wait_mode::wait_finish)
 	{
 		// It's better to show console rather than non-responding panels
 		Silent = false;
@@ -775,18 +786,18 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	// ShellExecuteEx Win8.1+ wrongly opens symlinks in a separate console window
 	// Workaround: execute through %comspec%
-	if (Info.ExecMode == Info.direct && !Info.NewWindow && IsWindows8Point1OrGreater())
+	if (Info.ExecMode == execute_info::exec_mode::direct && !Info.NewWindow && IsWindows8Point1OrGreater())
 	{
 		os::fs::file_status fstatus(strNewCmdStr);
 		if (os::fs::is_file(fstatus) && fstatus.check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
-			Info.ExecMode = Info.external;
+			Info.ExecMode = execute_info::exec_mode::external;
 		}
 	}
 
 	string strComspec, ComSpecParams;
 
-	if (Info.ExecMode == Info.direct)
+	if (Info.ExecMode == execute_info::exec_mode::direct)
 	{
 		seInfo.lpFile = strNewCmdStr.data();
 		if(!strNewCmdPar.empty())
@@ -867,7 +878,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	{
 		if (Process)
 		{
-			if (Info.WaitMode == Info.wait_finish || !Info.NewWindow)
+			if (Info.WaitMode == execute_info::wait_mode::wait_finish || !Info.NewWindow)
 			{
 				if (Global->Opt->ConsoleDetachKey.empty())
 				{
@@ -955,7 +966,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					}
 				}
 			}
-			if(Info.WaitMode == Info.wait_idle)
+			if(Info.WaitMode == execute_info::wait_mode::wait_idle)
 			{
 				WaitForInputIdle(Process.native_handle(), INFINITE);
 			}
@@ -991,7 +1002,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	if (!Result)
 	{
 		std::vector<string> Strings;
-		if (Info.ExecMode == Info.direct)
+		if (Info.ExecMode == execute_info::exec_mode::direct)
 			Strings = { MSG(MCannotExecute), strNewCmdStr };
 		else
 			Strings = { MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar) };
@@ -1003,7 +1014,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			L"ErrCannotExecute",
 			nullptr,
 			nullptr,
-			{ Info.ExecMode == Info.direct? strNewCmdStr : strComspec });
+			{ Info.ExecMode == execute_info::exec_mode::direct? strNewCmdStr : strComspec });
 	}
 
 	return Result;

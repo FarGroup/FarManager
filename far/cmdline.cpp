@@ -848,7 +848,7 @@ void CommandLine::ShowViewEditHistory()
 				{
 					execute_info Info;
 					Info.Command = strStr;
-					Info.WaitMode = Type == HR_EXTERNAL_WAIT? Info.wait_finish : Info.no_wait;
+					Info.WaitMode = Type == HR_EXTERNAL_WAIT? execute_info::wait_mode::wait_finish : execute_info::wait_mode::no_wait;
 
 					ExecString(Info);
 					break;
@@ -1057,7 +1057,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 	FarChDir(m_CurDir);
 
-	if (Info.ExecMode != Info.direct)
+	if (Info.ExecMode != execute_info::exec_mode::direct && Info.SourceMode != execute_info::source_mode::known)
 	{
 		if (!Info.Command.empty() && Info.Command[0] == L'@')
 		{
