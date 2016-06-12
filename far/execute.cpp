@@ -341,14 +341,24 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 */
 static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
-	if (Global->Opt->Exec.ComspecConditionRe.Pattern != Global->Opt->Exec.ComspecCondition.Get())
+	auto UseFallbackCondition = false;
+	try
 	{
-		Global->Opt->Exec.ComspecConditionRe.Re.assign(Global->Opt->Exec.ComspecCondition.Get(), std::regex::optimize);
-		Global->Opt->Exec.ComspecConditionRe.Pattern = Global->Opt->Exec.ComspecCondition;
-	}
+		if (Global->Opt->Exec.ComspecConditionRe.Pattern != Global->Opt->Exec.ComspecCondition.Get())
+		{
+			Global->Opt->Exec.ComspecConditionRe.Re.assign(Global->Opt->Exec.ComspecCondition.Get(), std::regex::optimize);
+			Global->Opt->Exec.ComspecConditionRe.Pattern = Global->Opt->Exec.ComspecCondition;
+		}
 
-	if (std::regex_search(CmdStr, Global->Opt->Exec.ComspecConditionRe.Re))
-		return false;
+		if (std::regex_search(CmdStr, Global->Opt->Exec.ComspecConditionRe.Re))
+			return false;
+	}
+	catch(const std::regex_error&)
+	{
+		// - regex is provided by user and it might be incorrect
+		// - string might be too long
+		UseFallbackCondition = true;
+	}
 
 	const auto Begin = CmdStr.cbegin() + CmdStr.find_first_not_of(L' ');
 	const auto End = CmdStr.cend();
@@ -361,6 +371,11 @@ static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strN
 		if (*i == L'"')
 		{
 			InQuotes = !InQuotes;
+		}
+
+		if (!InQuotes && UseFallbackCondition && wcschr(L"<>|&", *i))
+		{
+			return false;
 		}
 
 		if (!InQuotes && *i == L' ')
