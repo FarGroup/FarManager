@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 
 class GeneralConfig;
+class RegExp;
 
 enum
 {
@@ -595,7 +596,7 @@ public:
 		struct
 		{
 			string Pattern;
-			std::wregex Re;
+			std::unique_ptr<RegExp> Re;
 		}
 		ComspecConditionRe;
 		StringOption ComspecCondition;

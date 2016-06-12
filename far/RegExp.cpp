@@ -3858,6 +3858,13 @@ int RegExp::SearchEx(const wchar_t* datastart, const wchar_t* textstart, const w
 	return res;
 }
 
+bool RegExp::Search(const string& Str) const
+{
+	RegExpMatch Match;
+	intptr_t Count = 1;
+	return Search(Str.data(), Str.data() + Str.size(), &Match, Count) != 0;
+}
+
 void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 {
 	if (havelookahead)return;

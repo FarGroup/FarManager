@@ -341,23 +341,38 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 */
 static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
-	auto UseFallbackCondition = false;
-	try
+	auto UseDefaultCondition = true;
+
+	// Custom comspec condition logic, gives the user ability to provide his own rules in form of regular expression, for example ^(?:[^"]|"[^"]*")*?[<>|&]
+
+	// Do not use std::regex here.
+	// VC implementation has limited complexity and throws regex_error on long strings.
+	// gcc implementation is total rubbish - it just causes a stack overflow. Shame on them.
+
+	// If anything goes wrong, e. g. pattern is incorrect or search failed - default condition (checking for presence of <>|& characters outside the quotes) will be used.
+	if (!Global->Opt->Exec.ComspecCondition.empty())
 	{
 		if (Global->Opt->Exec.ComspecConditionRe.Pattern != Global->Opt->Exec.ComspecCondition.Get())
 		{
-			Global->Opt->Exec.ComspecConditionRe.Re.assign(Global->Opt->Exec.ComspecCondition.Get(), std::regex::optimize);
+			Global->Opt->Exec.ComspecConditionRe.Re.reset();
+			auto Re = std::make_unique<RegExp>();
+			if (Re->Compile(Global->Opt->Exec.ComspecCondition.data(), OP_OPTIMIZE))
+			{
+				Global->Opt->Exec.ComspecConditionRe.Re = std::move(Re);
+			}
 			Global->Opt->Exec.ComspecConditionRe.Pattern = Global->Opt->Exec.ComspecCondition;
 		}
 
-		if (std::regex_search(CmdStr, Global->Opt->Exec.ComspecConditionRe.Re))
-			return false;
-	}
-	catch(const std::regex_error&)
-	{
-		// - regex is provided by user and it might be incorrect
-		// - string might be too long
-		UseFallbackCondition = true;
+		if (Global->Opt->Exec.ComspecConditionRe.Re)
+		{
+			if (Global->Opt->Exec.ComspecConditionRe.Re->Search(CmdStr))
+				return false;
+
+			if (Global->Opt->Exec.ComspecConditionRe.Re->LastError() == errNone)
+			{
+				UseDefaultCondition = false;
+			}
+		}
 	}
 
 	const auto Begin = CmdStr.cbegin() + CmdStr.find_first_not_of(L' ');
@@ -373,16 +388,25 @@ static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strN
 			InQuotes = !InQuotes;
 		}
 
-		if (!InQuotes && UseFallbackCondition && wcschr(L"<>|&", *i))
+		if (!InQuotes && UseDefaultCondition && wcschr(L"<>|&", *i))
 		{
 			return false;
 		}
 
 		if (!InQuotes && *i == L' ')
 		{
-			CmdEnd = i;
-			ParamsBegin = i + 1;
-			break;
+			// First unquoted space is definitely a command / parameter separator, iterators shall be updated now (and only once):
+			if (CmdEnd == End)
+			{
+				CmdEnd = i;
+				ParamsBegin = i + 1;
+			}
+
+			// However, if we are in 'default condition' mode, we can't exit early as there still might be unquoted special characters in the tail.
+			if (!UseDefaultCondition)
+			{
+				break;
+			}
 		}
 	}
 

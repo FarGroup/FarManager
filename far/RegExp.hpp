@@ -209,6 +209,8 @@ public:
 		*/
 		int SearchEx(const wchar_t* datastart, const wchar_t* textstart, const wchar_t* textend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 
+		bool Search(const string& Str) const;
+
 		/*! Get last error
 		    \return code of the last error
 		    Check REError for explanation
