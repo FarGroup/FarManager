@@ -2902,7 +2902,10 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwMousePosition.Y==m_Y1-1)
 	{
 		while (IsMouseButtonPressed() && IntKeyState.MouseY==m_Y1-1)
+		{
 			ProcessKey(Manager::Key(KEY_UP));
+			Global->WindowManager->PluginCommit();
+		}
 
 		return TRUE;
 	}
@@ -2911,7 +2914,10 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwMousePosition.Y==m_Y2+1)
 	{
 		while (IsMouseButtonPressed() && IntKeyState.MouseY==m_Y2+1)
+		{
 			ProcessKey(Manager::Key(KEY_DOWN));
+			Global->WindowManager->PluginCommit();
+		}
 
 		return TRUE;
 	}
