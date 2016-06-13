@@ -3,6 +3,52 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 13.06.2016 19:32:18 +0200 - build 4706
+
+1. Forum: an issue with panels in Fullscreen view
+
+zg 12.06.2016 21:04:46 +0200 - build 4705
+
+1. visual issues with mouse scrolling in editor after 4685.
+
+drkns 12.06.2016 16:32:43 +0200 - build 4704
+
+1. Ещё раз 0003254:
+   - System.Executor.ComspecCondition is empty by default and built-in logic is used (<>|& are outside the quotes like before).
+   - inner RegExp is used because std::regex implementations in supported compilers are far from good (especially in gcc).
+
+drkns 12.06.2016 14:55:52 +0200 - build 4703
+
+1. 0003254: Far 3.0 build 4700-4702 crashes on long file lists (!&)
+
+drkns 11.06.2016 22:55:07 +0200 - build 4702
+
+1. Another correction of launcher.
+
+drkns 11.06.2016 20:05:25 +0200 - build 4701
+
+1. Refactoring.
+
+drkns 10.06.2016 23:49:57 +0200 - build 4700
+
+1. Refactoring.
+
+drkns 09.06.2016 01:50:33 +0200 - build 4699
+
+1. Once more #0003223: Add System.Executor.ComspecCondition parameter defining when a command should be run via comspec.
+
+w17 08.06.2016 21:15:44 +0300 - build 4698
+
+1. Correction of 4697 - do not try to switch Win10 full-screen mode off, do nothing on Alt-F9 for it.
+
+w17 08.06.2016 17:25:01 +0300 - build 4697
+
+1. Try to handle Win10 full-screen mode correctly.
+
+zg 08.06.2016 15:46:48 +0200 - build 4696
+
+1. correction of 4676.
+
 zg 02.06.2016 01:51:47 +0200 - build 4695
 
 1. forum: If a macro is being written in dialog (press Ctrl.) then the record indicator does not appear at once,
