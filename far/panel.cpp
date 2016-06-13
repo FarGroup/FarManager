@@ -730,7 +730,7 @@ void Panel::Show()
 				SaveScr->AppendArea(AnotherPanel->SaveScr.get());
 			}
 
-			//if (AnotherPanel->IsFocused())
+			if (AnotherPanel->IsFocused())
 			{
 				if (AnotherPanel->IsFullScreen())
 				{
