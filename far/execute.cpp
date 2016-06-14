@@ -707,10 +707,19 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	{
 		auto GetAssociatedImageType = [&Verb](const string& Str, image_type& ImageType)
 		{
-			if (IsExecutable(Str))
+			auto GetAssociatedImageTypeForBatCmd = [](const string& BarCmdStr, image_type& BatCmdImageType)
 			{
-				// We shouldn't get here if it's a PE image - only if bat / cmd
-				ImageType = image_type::console;
+				if (IsExecutable(BarCmdStr))
+				{
+					// We shouldn't get here if it's a PE image - only if bat / cmd
+					BatCmdImageType = image_type::console;
+					return true;
+				}
+				return false;
+			};
+
+			if (GetAssociatedImageTypeForBatCmd(Str, ImageType))
+			{
 				return true;
 			}
 			else
@@ -721,7 +730,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 				if (!Verb.empty() && !Application.empty() && SaError != ERROR_NO_ASSOCIATION)
 				{
-					return GetImageType(Application, ImageType);
+					return GetImageType(Application, ImageType) || GetAssociatedImageTypeForBatCmd(Application, ImageType);
 				}
 			}
 			return false;
