@@ -76,7 +76,6 @@ Plist::Plist()
 	LastUpdateTime=0;
 	bInit = false; // force initialize when opening the panel
 	*HostName = 0;
-	pPerfThread = 0;
 	dwPluginThread = GetCurrentThreadId();
 	PluginSettings settings(MainGuid, Info.SettingsControl);
 	SortMode = settings.Get(0,L"SortMode", SM_UNSORTED); //SM_CUSTOM;
@@ -111,9 +110,9 @@ void Plist::InitializePanelModes()
 	DefaultModes[NPANELMODES] =
 	{
 		/*0*/ {L"N,X15T,X16T,X17T,X18S", L"12,0,0,0,4"}, // I/O
-		/*1*/ {L"N,XI,XP,X0S,X6", L"0,4,2,3,9"}, // General info
+		/*1*/ {L"N,XI,XB,XP,X0S,X6", L"0,4,2,2,3,9"}, // General info
 		/*2*/ {L"N,N",L"0,0"},// Names only
-		/*3*/ {L"N,XI,XC,D,T",L"0,4,4,0,0"},    // Startup: PID/Date/Time
+		/*3*/ {L"N,XI,XB,XC,D,T",L"0,4,2,4,0,0"},    // Startup: PID/Date/Time
 		/*4*/ {L"N,XI,X4,X6",L"0,4,9,9"}, // Memory (basic)
 		/*5*/ {L"N,XI,X4,X6,X10,X12,X0,X1,X2",L"12,4,0,0,0,0,8,8,8"},     // Extended Memory/Time
 		/*6*/ {L"N,ZD",L"12,0"}, // Descriptions
@@ -125,9 +124,9 @@ void Plist::InitializePanelModes()
 	DefaultModesRemote[NPANELMODES] =
 	{
 		/*0*/ {L"N,X15T,X16T,X17T,X18S", L"12,0,0,0,4"}, // I/O
-		/*1*/ {L"N,XI,XP,X0S,X6", L"0,4,2,3,9"}, // General info
+		/*1*/ {L"N,XI,XB,XP,X0S,X6", L"0,4,2,2,3,9"}, // General info
 		/*2*/ {L"N,N",L"0,0"},// Names only
-		/*3*/ {L"N,XI,XC,D,T",L"0,4,4,0,0"},    // Startup: PID/Date/Time
+		/*3*/ {L"N,XI,XB,XC,D,T",L"0,4,2,4,0,0"},    // Startup: PID/Date/Time
 		/*4*/ {L"N,XI,X4,X6",L"0,4,9,9"}, // Memory (basic)
 		/*5*/ {L"N,XI,X4,X6,X10,X12,X0,X1,X2",L"12,4,0,0,0,0,8,8,8"},     // Extended Memory/Time
 		/*6*/ {L"N,ZD",L"12,0"}, // Descriptions
@@ -293,8 +292,6 @@ void Plist::GeneratePanelModes()
 	{
 		TranslateMode(ProcPanelModesLocal[iMode], (LPTSTR)PanelModesLocal[iMode].ColumnTypes);
 		TranslateMode(ProcPanelModesRemote[iMode], (LPTSTR)PanelModesRemote[iMode].ColumnTypes);
-		/*TranslateMode(ProcPanelStModesNT[iMode], PanelModesNT[iMode].StatusColumnTypes);
-		if(!NT) TranslateMode(ProcPanelStModes9x[iMode], PanelModes9x[iMode].StatusColumnTypes);*/
 	}
 }
 
@@ -539,7 +536,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 					break;
 				case L'c':
 				case L'C':
-					pDesc = ((ProcessDataNT *)CurItem.UserData.Data)->CommandLine;
+					pDesc = static_cast<ProcessData*>(CurItem.UserData.Data)->CommandLine;
 
 					break;
 				default:
@@ -555,10 +552,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 			delete[] pBuf;
 		}
 
-		ProcessPerfData* pd = 0;
-
-		if (pPerfThread)
-			pd = pPerfThread->GetProcessData(pdata.dwPID, (DWORD)CurItem.NumberOfLinks);
+		const auto pd = pPerfThread->GetProcessData(pdata.dwPID, (DWORD)CurItem.NumberOfLinks);
 
 		const int DataOffset = sizeof(wchar_t*) * MAX_CUSTOM_COLS;
 		int Widths[MAX_CUSTOM_COLS];
@@ -603,18 +597,14 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 					{
 						case L'P': case L'p': dwData = pdata.dwPrBase; break;
 						case L'I': case L'i': dwData = pdata.dwPID;
-
-							if (!pPerfThread) nBase = 16;
-
 							break;
+
 						case L'C': case L'c': dwData = pdata.dwParentPID;
-
-							if (!pPerfThread) nBase = 16;
-
 							break;
+
 					//	case L'W': case L'w': dwData = hwnd; nBase = 16; break;
 						case L'T': case L't': dwData = (DWORD)CurItem.NumberOfLinks; break;
-						case L'B': case L'b': dwData = pdata.uAppType; break;
+						case L'B': case L'b': dwData = pdata.Bitness; break;
 
 						case L'G': case L'g': if (pd) dwData = pd->dwGDIObjects; break;
 
@@ -693,7 +683,7 @@ void Plist::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 	delete PanelItem;
 }
 
-int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST WTYPE DestPath,OPERATION_MODES OpMode, _Opt& Opt)
+int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move, const wchar_t** DestPath,OPERATION_MODES OpMode, _Opt& Opt)
 {
 	static const wchar_t invalid_chars[] = L":*?\\/\"<>;|";
 
@@ -704,14 +694,14 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 	{
 		PluginPanelItem &CurItem = PanelItem[I];
 		ProcessData *pdata=(ProcessData *)CurItem.UserData.Data;
-		ProcessDataNT PData;
+		ProcessData PData;
 
 		if (!pdata)
 		{
 			PData.dwPID = FSF.atoi(CurItem.AlternateFileName);
 			ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, (DWORD)CurItem.NumberOfLinks);
 
-			if (ppd && GetPDataNT(PData, *ppd))
+			if (ppd && GetPData(PData, *ppd))
 				pdata = &PData;
 
 			if (!pdata)
@@ -720,7 +710,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 
 		// may be 0 if called from FindFile
 		wchar_t FileName[MAX_PATH];
-		lstrcpyn(FileName, WDEREF DestPath, ARRAYSIZE(FileName));
+		lstrcpyn(FileName, *DestPath, ARRAYSIZE(FileName));
 
 		if (!(OpMode&0x10000))
 		{
@@ -746,11 +736,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 
 		fputc(0xFEFF, InfoFile);
 		wchar_t AppType[100];
-
-		if (!pPerfThread && pdata->uAppType)
-			FSF.sprintf(AppType,L", %d%s",pdata->uAppType,GetMsg(MBits));
-		else
-			*AppType=0;
+		FSF.sprintf(AppType,L", %d%s",pdata->Bitness,GetMsg(MBits));
 
 		wchar_t ModuleName[MAX_PATH];
 		lstrcpy(ModuleName, CurItem.FileName);
@@ -758,22 +744,19 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 
 		if (pdata && *pdata->FullPath)
 		{
-			fprintf(InfoFile,L"%s %s\n",PrintTitle(MTitleFullPath),OUT_STRING(pdata->FullPath));
+			fprintf(InfoFile,L"%s %s\n",PrintTitle(MTitleFullPath), pdata->FullPath);
 			PrintVersionInfo(InfoFile, pdata->FullPath);
 		}
 
-		fprintf(InfoFile, pPerfThread ? L"%s %d\n":L"%s %08X\n",PrintTitle(MTitlePID),pdata->dwPID);
+		fprintf(InfoFile, L"%s %d\n", PrintTitle(MTitlePID), pdata->dwPID);
 		fprintf(InfoFile, L"%s ", PrintTitle(MTitleParentPID));
 
-		if (pPerfThread)
 		{
 			Lock l(pPerfThread);
 			ProcessPerfData* pParentData = pPerfThread->GetProcessData(pdata->dwParentPID, 0);
 			wchar_t* pName = pdata->dwParentPID && pParentData ? pParentData->ProcessName : 0;
 			fprintf(InfoFile, pName ? L"%u  (%s)\n" : L"%u\n",pdata->dwParentPID, pName);
 		}
-		else
-			fprintf(InfoFile, L"%08X\n",pdata->dwParentPID);
 
 		fprintf(InfoFile,L"%s %d\n",PrintTitle(MTitlePriority),pdata->dwPrBase);
 		fprintf(InfoFile,L"%s %u\n",PrintTitle(MTitleThreads),CurItem.NumberOfLinks);
@@ -811,9 +794,9 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 
 		if (!*HostName) // local only
 		{
-			if (*((ProcessDataNT*)pdata)->CommandLine)
+			if (*pdata->CommandLine)
 			{
-				fprintf(InfoFile, L"\n%s:\n%s\n", GetMsg(MCommandLine), OUT_STRING(((ProcessDataNT*)pdata)->CommandLine));
+				fprintf(InfoFile, L"\n%s:\n%s\n", GetMsg(MCommandLine), pdata->CommandLine);
 			}
 
 			DebugToken token;
@@ -845,7 +828,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 			}
 		}// NT && !*HostName
 
-		if (Opt.ExportPerformance && pPerfThread)
+		if (Opt.ExportPerformance)
 			DumpNTCounters(InfoFile, *pPerfThread, pdata->dwPID, (DWORD)CurItem.NumberOfLinks);
 
 		if (!*HostName && pdata->hwnd)
@@ -1034,8 +1017,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODE
 		}
 	}
 
-	if (pPerfThread)
-		pPerfThread->SmartReread();
+	pPerfThread->SmartReread();
 
 	return TRUE;
 }
@@ -1043,7 +1025,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODE
 
 int Plist::ProcessEvent(intptr_t Event,void *Param)
 {
-	if (Event==FE_IDLE && (pPerfThread && pPerfThread->Updated() /*|| !pPerfThread&&GetTickCount()-LastUpdateTime>1000*/))
+	if (Event==FE_IDLE && (pPerfThread->Updated() /*|| !pPerfThread&&GetTickCount()-LastUpdateTime>1000*/))
 		Reread();
 
 	if (Event==FE_CLOSE)
@@ -1170,9 +1152,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 
 	if ((ControlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) && Key==L'R')
 	{
-		if (pPerfThread)
-			pPerfThread->SmartReread();
-
+		pPerfThread->SmartReread();
 		return FALSE;
 	}
 
@@ -1274,7 +1254,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 
 		wchar_t FileName[MAX_PATH];
 		FSF.MkTemp(FileName, ARRAYSIZE(FileName), L"prc");
-		WCONST wchar_t *lpFileName=FileName;
+		const wchar_t *lpFileName=FileName;
 		Size=Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),0);
 		PPI=(PluginPanelItem*)new char[Size];
 		if (PPI)
@@ -1282,7 +1262,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),&gpi);
 
-			if (GetFiles(PPI, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
+			if (GetFiles(PPI, 1, 0, &lpFileName, OPM_VIEW|0x10000, LocalOpt))
 			{
 				//TODO: viewer crashed on exit!
 				Info.Viewer(FileName,PPI->FileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE,CP_DEFAULT);
@@ -1534,8 +1514,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		}
 		Control(FCTL_SETSELECTION,&PInfo);
 		*/
-		if (pPerfThread)
-			pPerfThread->SmartReread();
+		pPerfThread->SmartReread();
 
 		Reread();
 		return TRUE;
@@ -1590,7 +1569,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 			//      {MUseSortGroups,0}, {MShowSelectedFirst,-1}
 		};
 #define NSTATICITEMS (ARRAYSIZE(StaticItems))
-		int nMoreData = pPerfThread ? ARRAYSIZE(Counters) + 1 : 0;
+		int nMoreData = ARRAYSIZE(Counters) + 1;
 		PanelInfo pi = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&pi);
 		wchar_t cIndicator = pi.Flags&PFLAGS_REVERSESORTORDER ? L'-' : L'+';
@@ -1625,8 +1604,6 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 
 		int nItems = NSTATICITEMS;
 
-		if (pPerfThread)
-		{
 			Items[nItems++].Flags |= MIF_SEPARATOR;
 			const PerfLib* pl = pPerfThread->GetPerfLib();
 
@@ -1667,7 +1644,6 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 						nItems++;
 					}
 				}
-		}
 
 		// Show sort menu
 		int rc= Menu(FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE, GetMsg(MSortBy), 0, 0, 0, Items, nItems);

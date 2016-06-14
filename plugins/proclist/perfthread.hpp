@@ -52,7 +52,7 @@ struct ProcessPerfData
 	wchar_t       CommandLine[MAX_CMDLINE];
 	FILETIME    ftCreation;
 	DWORD       dwGDIObjects, dwUSERObjects;
-	BOOL        bProcessIsWow64;
+	int         Bitness;
 };
 
 struct PerfLib
@@ -99,7 +99,7 @@ class WMIConnection
 class PerfThread
 {
 		friend class Lock;
-
+		int DefaultBitness;
 		static DWORD WINAPI ThreadProc(LPVOID lpParm);
 		DWORD WINAPI ThreadProc();
 

@@ -276,9 +276,9 @@ HANDLE OpenProcessForced(DebugToken* token, DWORD dwFlags, DWORD dwProcessId, BO
 	return hProcess;
 }
 
-bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
+bool GetPData(ProcessData& DATA, ProcessPerfData& pd)
 {
-	DATA.Size = sizeof(ProcessDataNT);
+	DATA.Size = sizeof(ProcessData);
 	DATA.dwPID = pd.dwProcessId;
 	DATA.dwPrBase = pd.dwProcessPriority;
 	DATA.dwParentPID = pd.dwCreatingPID;
@@ -289,6 +289,7 @@ bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
 
 	lstrcpyn(DATA.FullPath, pFullPath, ARRAYSIZE(DATA.FullPath));
 	lstrcpyn(DATA.CommandLine, pd.CommandLine, ARRAYSIZE(DATA.CommandLine));
+	DATA.Bitness = pd.Bitness;
 	return true;
 }
 
@@ -329,8 +330,7 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 			lstrcpy((wchar_t*)CurItem.Owner, pd.Owner);
 		}
 
-		CurItem.UserData.Data = new ProcessDataNT;
-		memset(CurItem.UserData.Data, 0, sizeof(ProcessDataNT));
+		CurItem.UserData.Data = new ProcessData();
 
 		if (!pd.ftCreation.dwHighDateTime && pd.dwElapsedTime)
 		{
@@ -353,13 +353,10 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 		FSF.itoa(pd.dwProcessId, (wchar_t*)CurItem.AlternateFileName, 10);
 
 		CurItem.NumberOfLinks = pd.dwThreads;
-		GetPDataNT(*(ProcessDataNT*)CurItem.UserData.Data, pd);
+		GetPData(*static_cast<ProcessData*>(CurItem.UserData.Data), pd);
 
 		if (pd.dwProcessId==0 && pd.dwThreads >5) //_Total
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
-
-		if (pd.bProcessIsWow64)
-			CurItem.FileAttributes |= FILE_ATTRIBUTE_READONLY;
 	}//for
 
 	return TRUE;
@@ -367,7 +364,7 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 
 void GetOpenProcessData(HANDLE hProcess, wchar_t* pProcessName, DWORD cbProcessName,
                           wchar_t* pFullPath, DWORD cbFullPath, wchar_t* pCommandLine, DWORD cbCommandLine,
-                          wchar_t** ppEnvStrings, CURDIR_STR_TYPE** psCurDir)
+                          wchar_t** ppEnvStrings, wchar_t** psCurDir)
 {
 	ModuleData Data={};
 	char *pEnd;
@@ -649,7 +646,7 @@ wchar_t* PrintTime(ULONGLONG ul100ns, bool bDays)
 
 wchar_t* PrintNTUptime(void*p)
 {
-	return PrintTime((ULONG)((ProcessDataNT*)p)->dwElapsedTime);
+	return PrintTime((ULONG)(static_cast<ProcessData*>(p))->dwElapsedTime);
 }
 
 void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwThreads)
@@ -712,14 +709,14 @@ void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWORD dwTh
 
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment)
 {
-	CURDIR_STR_TYPE* sCurDir=0;
+	wchar_t* sCurDir=0;
 	wchar_t *pEnvStrings = 0;
 	GetOpenProcessData(hProcess, 0,0,0,0,0,0, bExportEnvironment ? &pEnvStrings : 0, &sCurDir);
 	fputc(L'\n',InfoFile);
 
 	if (sCurDir)
 	{
-		fprintf(InfoFile,L"%s %s\n\n",Plist::PrintTitle(MCurDir),OUT_CVT(sCurDir));
+		fprintf(InfoFile, L"%s %s\n\n", Plist::PrintTitle(MCurDir), sCurDir);
 		delete[] sCurDir;
 	}
 
@@ -784,7 +781,7 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& Opt)
 			if (ReadProcessMemory(hProcess, Data.FullDllName.Buffer, wszModuleName, sz,0))
 			{
 				int len2=0;
-				fprintf2(len2, InfoFile, L" %s", OUT_STRING(wszModuleName));
+				fprintf2(len2, InfoFile, L" %s", wszModuleName);
 				len += len2;
 				wchar_t   *pVersion, *pDesc;
 				LPBYTE  pBuf;

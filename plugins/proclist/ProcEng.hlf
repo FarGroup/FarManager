@@ -271,13 +271,10 @@ types can be used in this plugin:
    #XI# - Process ID
    #XC# - Creating (parent) process ID
    #XT# - Number of threads
-   #XG# - GDI Objects (local Win2000/XP only)
-   #XU# - USER Objects (local Win2000/XP only)
-   #XB# - 16/32 bits (Windows 9x/ME only)
+   #XG# - GDI Objects (local only)
+   #XU# - USER Objects (local only)
+   #XB# - 16/32 bits
    #X0...X21[S][T]# - performance counters (see below).
-
-   Under Win9x/ME, performance counters are used only for remote process
-browsing.
 
    #Description columns:#
 
@@ -360,8 +357,6 @@ $^#Configuration#
 
  #Performance data#       Output all performance data counters for
                         this process.
-                        Under Win9x/ME is used only for remote
-                        process browsing.
 
  #Handles#                List all handles opened by the process.
                         Warning: this uses undocumented features

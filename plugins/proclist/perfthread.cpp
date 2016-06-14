@@ -63,9 +63,24 @@ static int getcounter(wchar_t*p)
 	return FSF.atoi(p2+1);
 }
 
+static bool Is64BitWindows()
+{
+#if defined(_WIN64)
+	return true;  // 64-bit programs run only on Win64
+#else
+	// 32-bit programs run on both 32-bit and 64-bit Windows
+	// so must sniff
+	BOOL f64 = FALSE;
+	return pIsWow64Process(GetCurrentProcess(), &f64) && f64;
+#endif
+}
+
 PerfThread::PerfThread(Plist& plist, LPCTSTR hostname, LPCTSTR pUser, LPCTSTR pPasw) : PlistPlugin(plist)
 {
-	memset(this, 0, sizeof(*this));
+	memset(this, 0, sizeof(*this)); // BUGBUG!
+
+	DefaultBitness = Is64BitWindows()? 64 : 32;
+
 	dwRefreshMsec = 500;
 
 	if (pUser && *pUser)
@@ -276,7 +291,9 @@ void PerfThread::Refresh()
 		ProcessPerfData& Task = (*pNewPData)[i];
 		// get the process id
 		PPERF_COUNTER_BLOCK pCounter = (PPERF_COUNTER_BLOCK)((DWORD_PTR)pInst + pInst->ByteLength);
-		Task.bProcessIsWow64 = FALSE;
+
+		Task.Bitness = DefaultBitness;
+
 		Task.dwProcessId = *((LPDWORD)((DWORD_PTR)pCounter + dwProcessIdCounter));
 		Task.dwProcessPriority = *((LPDWORD)((DWORD_PTR)pCounter + dwPriorityCounter));
 		Task.dwThreads = dwThreadCounter ? *((LPDWORD)((DWORD_PTR)pCounter + dwThreadCounter)) : 0;
@@ -364,7 +381,7 @@ void PerfThread::Refresh()
 				BOOL wow64;
 
 				if (pIsWow64Process(hProcess, &wow64) && wow64)
-					Task.bProcessIsWow64 = TRUE;
+					Task.Bitness = 32;
 
 				CloseHandle(hProcess);
 			}

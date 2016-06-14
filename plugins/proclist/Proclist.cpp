@@ -39,7 +39,6 @@ PNtQueryInformationFile pNtQueryInformationFile = fNtQueryInformationFile;
 static BOOL WINAPI fIsWow64Process(HANDLE, PBOOL) { return FALSE; }
 PIsWow64Process pIsWow64Process = fIsWow64Process;
 
-
 static DWORD WINAPI fGetGuiResources(HANDLE, DWORD) { return 0; }
 PGetGuiResources pGetGuiResources = fGetGuiResources;
 

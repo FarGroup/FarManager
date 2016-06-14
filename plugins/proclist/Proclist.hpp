@@ -3,11 +3,6 @@
 #include <stdio.h>
 #include <plugin.hpp>
 
-#define WCONST const
-#define WTYPE wchar_t**
-#define WDEREF *
-#define WADDR &
-
 #ifdef _MSC_VER
 #pragma hdrstop
 #  pragma comment( lib, "version.lib" )
@@ -101,7 +96,7 @@ class Plist
 		void GetOpenPanelInfo(struct OpenPanelInfo *Info);
 		int SetDirectory(wchar_t *Dir,int OpMode);
 		int GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
-		             int Move,WCONST WTYPE DestPath,OPERATION_MODES OpMode, _Opt& opt=::Opt);
+		             int Move, const wchar_t** DestPath,OPERATION_MODES OpMode, _Opt& opt=::Opt);
 		int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
 		int ProcessEvent(intptr_t Event,void *Param);
 		int Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode);
@@ -139,12 +134,8 @@ struct ProcessData
 	DWORD dwPID;
 	DWORD dwParentPID;
 	DWORD dwPrBase;
-	UINT  uAppType;
+	int Bitness;
 	wchar_t FullPath[MAX_PATH];
-};
-
-struct ProcessDataNT : ProcessData
-{
 	DWORD dwElapsedTime;
 	wchar_t CommandLine[MAX_CMDLINE];
 };
@@ -195,14 +186,9 @@ class DebugToken
 		static void CloseToken();
 };
 
-static inline const wchar_t *__chk_wca(const wchar_t *arg) { return arg; }
-#define OUT_STRING(p) __chk_wca(p)
-#define CURDIR_STR_TYPE wchar_t
-#define OUT_CVT(pp)   __chk_wca(pp)
-
 void GetOpenProcessData(HANDLE hProcess, wchar_t* pProcessName=0, DWORD cbProcessName=0,
                           wchar_t* pFullPath=0, DWORD cbFullPath=0, wchar_t* pCommandLine=0, DWORD cbCommandLine=0,
-                          wchar_t** ppEnvStrings=0, CURDIR_STR_TYPE** pCurDir=0);
+                          wchar_t** ppEnvStrings=0, wchar_t** pCurDir=0);
 
 HANDLE OpenProcessForced(DebugToken* token, DWORD dwFlags, DWORD dwProcessId, BOOL bInh = FALSE);
 
@@ -211,16 +197,14 @@ enum { SM_CUSTOM=64, SM_PID, SM_PARENTPID, SM_PRIOR, SM_PERFCOUNTER,  SM_PERSEC=
 extern wchar_t CustomColumns[10][10];
 
 BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& PThread);
-DWORD GetHeapSize(DWORD dwPID);
 wchar_t* PrintNTUptime(void*p);
 wchar_t* PrintTime(ULONGLONG ul100ns, bool bDays=true);
 void DumpNTCounters(HANDLE InfoFile, PerfThread& PThread, DWORD dwPid, DWORD dwThreads);
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
 void PrintModules(HANDLE InfoFile, DWORD dwPID, _Opt& opt);
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread=0);
-extern bool GetPData95(ProcessData& pdata);
 struct ProcessPerfData;
-extern bool GetPDataNT(ProcessDataNT& pdata, ProcessPerfData& pd);
+bool GetPData(struct ProcessData& pdata, ProcessPerfData& pd);
 
 //------
 // dynamic binding
