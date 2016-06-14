@@ -167,7 +167,7 @@ lv=2
 dt=Text
 nm=Customizing the generic plugin
 ctime=3612528153
-mtime=3639821503
+mtime=3675075603
 <article>
 #_<markdown>
 #_
@@ -177,9 +177,9 @@ mtime=3639821503
 #_- **`TARGET`** - name of the resulting DLL, e.g.: "`TARGET = helloworld.dll`".
 #_
 #_- **`FAR_EXPORTS`** - list of functions that should be exported by the plugin (in uppercase, whitespace-separated, final letter `W` removed), e.g.:<br>
-#_  "`FAR_EXPORTS = OPEN EXITFAR`".<br>
+#_  "`FAR_EXPORTS = OPEN PROCESSEDITORINPUT`".<br>
 #_The following functions are always exported, so there's no need to include them in the list:
-#_`GetGlobalInfoW`, `SetStartupInfoW`, `GetPluginInfoW` and `ProcessSynchroEventW`.
+#_`GetGlobalInfoW`, `SetStartupInfoW`, `GetPluginInfoW`, `ExitFARW` and `ProcessSynchroEventW`.
 #_
 #_- **`FARDIR`** - the root directory of Far Manager source tree, e.g. "`FARDIR = C:\farmanager`".
 #_
@@ -188,6 +188,7 @@ mtime=3639821503
 #_- **`MYLDFLAGS`** - list of additional linking-stage flags
 #_
 #_@@@
+#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
 #_{getglobalinfow}: http://api.farmanager.com/ru/exported_functions/getglobalinfow.html
 #_{getplugininfow}: http://api.farmanager.com/ru/exported_functions/getplugininfow.html
 #_{processsynchroeventw}: http://api.farmanager.com/ru/exported_functions/processsynchroeventw.html

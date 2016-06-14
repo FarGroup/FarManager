@@ -308,7 +308,6 @@ void LUAPLUG GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 #endif
 //---------------------------------------------------------------------------
 
-#ifdef EXPORT_EXITFAR
 void LUAPLUG ExitFARW(const struct ExitInfo *Info)
 {
 	if (IS_PLUGIN_READY(G))
@@ -320,7 +319,6 @@ void LUAPLUG ExitFARW(const struct ExitInfo *Info)
 		LEAVE_CS(G);
 	}
 }
-#endif
 //---------------------------------------------------------------------------
 
 #ifdef EXPORT_COMPARE
