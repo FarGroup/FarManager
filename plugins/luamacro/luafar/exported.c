@@ -1222,10 +1222,17 @@ intptr_t LF_SetFindList(lua_State* L, const struct SetFindListInfo *Info)
 
 void LF_ExitFAR(lua_State* L, const struct ExitInfo *Info)
 {
+	HANDLE TimerQueue = NULL;
 	(void)Info;
 
 	if(GetExportFunction(L, "ExitFAR"))    //+1: Func
 		pcall_msg(L, 0, 0);                  //+0
+
+	lua_getfield(L, LUA_REGISTRYINDEX, LREG_FARTIMERQUEUE); //+1
+	TimerQueue = lua_touserdata(L, -1);
+	lua_pop(L, 1);                         //+0
+	if (TimerQueue)
+		DeleteTimerQueueEx(TimerQueue, NULL);
 }
 
 void getPluginMenuItems(lua_State* L, struct PluginMenuItem *pmi, const char* namestrings,

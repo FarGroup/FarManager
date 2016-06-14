@@ -24,6 +24,7 @@ _CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, uns
 
 #define LUAFAR_TIMER_CALL  0x1
 #define LUAFAR_TIMER_UNREF 0x2
+#define LREG_FARTIMERQUEUE "FarTimerQueue"
 
 typedef struct
 {
@@ -39,7 +40,8 @@ typedef struct
 	int tabRef;
 	int needClose;
 	int enabled;
-	HANDLE hnd;
+	HANDLE hQueue;
+	HANDLE hTimer;
 } TTimerData;
 
 typedef struct

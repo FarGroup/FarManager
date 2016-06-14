@@ -5247,7 +5247,7 @@ void CALLBACK TimerCallback(void *lpParameter, BOOLEAN TimerOrWaitFired)
 	(void)TimerOrWaitFired;
 	if (td->needClose)
 	{
-		DeleteTimerQueueTimer(NULL, td->hnd, NULL);
+		DeleteTimerQueueTimer(td->hQueue, td->hTimer, NULL);
 		sd = CreateSynchroData(td, LUAFAR_TIMER_UNREF, 0);
 		td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
 	}
@@ -5297,7 +5297,11 @@ static int far_Timer(lua_State *L)
 	td->needClose = 0;
 	td->enabled = 1;
 
-	if (CreateTimerQueueTimer(&td->hnd,NULL,TimerCallback,td,td->interval,td->interval,WT_EXECUTEDEFAULT))
+	lua_getfield(L, LUA_REGISTRYINDEX, LREG_FARTIMERQUEUE);
+	td->hQueue = lua_touserdata(L, -1);
+	lua_pop(L, 1);
+
+	if (td->hQueue && CreateTimerQueueTimer(&td->hTimer,td->hQueue,TimerCallback,td,td->interval,td->interval,WT_EXECUTEDEFAULT))
 		return 1;
 
 	luaL_unref(L, LUA_REGISTRYINDEX, td->tabRef);
@@ -5373,7 +5377,7 @@ static int timer_newindex(lua_State *L)
 	{
 		int interval = (int)luaL_checkinteger(L, 3);
 		td->interval = interval < 1 ? 1 : interval;
-		ChangeTimerQueueTimer(NULL, td->hnd, td->interval, td->interval);
+		ChangeTimerQueueTimer(td->hQueue, td->hTimer, td->interval, td->interval);
 	}
 	else if(!strcmp(method, "OnTimer"))
 	{
@@ -5961,6 +5965,13 @@ end";
 
 static int luaopen_far(lua_State *L)
 {
+	HANDLE TimerQueue = CreateTimerQueue();
+	if (TimerQueue)
+	{
+		lua_pushlightuserdata(L, TimerQueue);
+		lua_setfield(L, LUA_REGISTRYINDEX, LREG_FARTIMERQUEUE);
+	}
+
 	lua_newtable(L);
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_DN_STORAGE);
 
