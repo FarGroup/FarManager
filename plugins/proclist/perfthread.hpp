@@ -143,7 +143,7 @@ class PerfThread
 		LPCTSTR GetHostName() const { return HostName; }
 		bool Updated() { bool bRet=bUpdated; bUpdated=false; return bRet; }
 		bool IsWMIConnected() { return WMI; }
-		static void GetProcessOwnerInfo(DWORD dwPid, wchar_t* pUser, wchar_t* UserSid, wchar_t* pDomain, int& nSession);
+		int GetDefaultBitness() const { return DefaultBitness; }
 		wchar_t UserName[64];
 		wchar_t Password[64];
 };

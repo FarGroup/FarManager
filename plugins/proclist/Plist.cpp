@@ -357,6 +357,10 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 
 		if (pd.dwProcessId==0 && pd.dwThreads >5) //_Total
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
+
+		if (pd.Bitness != Thread.GetDefaultBitness())
+			CurItem.FileAttributes |= FILE_ATTRIBUTE_READONLY;
+
 	}//for
 
 	return TRUE;
