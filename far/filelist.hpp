@@ -280,6 +280,7 @@ private:
 	void ToBegin();
 	void ToEnd();
 	void MoveCursor(int offset);
+	void MoveCursorAndShow(int offset);
 	void Scroll(int offset);
 	void CorrectPosition();
 	void ShowFileList(int Fast);
@@ -327,6 +328,9 @@ private:
 	void InitFSWatcher(bool CheckTree);
 	bool IsColumnDisplayed(std::function<bool(const column&)> Compare) const;
 	void UpdateHeight();
+	enum direction { up, down };
+	void MoveSelection(direction Direction);
+
 
 	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times = nullptr);

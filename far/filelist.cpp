@@ -459,13 +459,18 @@ void FileList::ToEnd()
 void FileList::MoveCursor(int offset)
 {
 	m_CurFile = std::min(std::max(0, m_CurFile + offset), static_cast<int>(m_ListData.size() - 1));
+}
+
+void FileList::MoveCursorAndShow(int offset)
+{
+	MoveCursor(offset);
 	ShowFileList(TRUE);
 }
 
 void FileList::Scroll(int offset)
 {
 	m_CurTopFile += offset;
-	MoveCursor(offset);
+	MoveCursorAndShow(offset);
 }
 
 void FileList::CorrectPosition()
@@ -2268,20 +2273,20 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			ToEnd();
 			return TRUE;
 		case KEY_UP:           case KEY_NUMPAD8:
-			MoveCursor(-1);
+			MoveCursorAndShow(-1);
 			return TRUE;
 		case KEY_DOWN:         case KEY_NUMPAD2:
-			MoveCursor(1);
+			MoveCursorAndShow(1);
 			return TRUE;
 		case KEY_PGUP:         case KEY_NUMPAD9:
 			N=m_Columns*m_Height-1;
 			m_CurTopFile-=N;
-			MoveCursor(-N);
+			MoveCursorAndShow(-N);
 			return TRUE;
 		case KEY_PGDN:         case KEY_NUMPAD3:
 			N=m_Columns*m_Height-1;
 			m_CurTopFile+=N;
-			MoveCursor(N);
+			MoveCursorAndShow(N);
 			return TRUE;
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
@@ -2290,7 +2295,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				if (m_CurTopFile>=m_Height && m_CurFile-m_CurTopFile<m_Height)
 					m_CurTopFile-=m_Height;
 
-				MoveCursor(-m_Height);
+				MoveCursorAndShow(-m_Height);
 				return TRUE;
 			}
 
@@ -2302,7 +2307,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				if (m_CurFile+m_Height < static_cast<int>(m_ListData.size()) && m_CurFile-m_CurTopFile>=(m_Columns-1)*(m_Height))
 					m_CurTopFile+=m_Height;
 
-				MoveCursor(m_Height);
+				MoveCursorAndShow(m_Height);
 				return TRUE;
 			}
 
@@ -2315,8 +2320,8 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		{
 			InternalProcessKey++;
 			while (m_CurFile>0)
-				ProcessKey(Manager::Key(KEY_SHIFTUP));
-			ProcessKey(Manager::Key(KEY_SHIFTUP));
+				MoveSelection(up);
+			MoveSelection(up);
 			InternalProcessKey--;
 
 			if (SelectedFirst)
@@ -2329,9 +2334,9 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		{
 			InternalProcessKey++;
 			while (m_CurFile < static_cast<int>(m_ListData.size() - 1))
-				ProcessKey(Manager::Key(KEY_SHIFTDOWN));
+				MoveSelection(down);
 
-			ProcessKey(Manager::Key(KEY_SHIFTDOWN));
+			MoveSelection(down);
 			InternalProcessKey--;
 
 			if (SelectedFirst)
@@ -2347,7 +2352,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			InternalProcessKey++;
 
 			while (N--)
-				ProcessKey(Manager::Key(LocalKey==KEY_SHIFTPGUP||LocalKey==KEY_SHIFTNUMPAD9? KEY_SHIFTUP:KEY_SHIFTDOWN));
+				MoveSelection(LocalKey == KEY_SHIFTPGUP || LocalKey == KEY_SHIFTNUMPAD9 ? up : down);
 
 			InternalProcessKey--;
 
@@ -2369,7 +2374,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				InternalProcessKey++;
 
 				while (N--)
-					ProcessKey(Manager::Key(LocalKey==KEY_SHIFTLEFT || LocalKey==KEY_SHIFTNUMPAD4? KEY_SHIFTUP:KEY_SHIFTDOWN));
+					MoveSelection(LocalKey == KEY_SHIFTLEFT || LocalKey == KEY_SHIFTNUMPAD4 ? up : down);
 
 				assert(m_CurFile < static_cast<int>(m_ListData.size()));
 				Select(m_ListData[m_CurFile], ShiftSelection);
@@ -2391,30 +2396,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTUP:      case KEY_SHIFTNUMPAD8:
 		case KEY_SHIFTDOWN:    case KEY_SHIFTNUMPAD2:
 		{
-			if (m_ListData.empty())
-				return TRUE;
-
-			assert(m_CurFile < static_cast<int>(m_ListData.size()));
-			CurPtr = &m_ListData[m_CurFile];
-
-			if (ShiftSelection==-1)
-			{
-				// .. is never selected
-				if (m_CurFile < static_cast<int>(m_ListData.size() - 1) && TestParentFolderName(CurPtr->strName))
-					ShiftSelection = !m_ListData[m_CurFile+1].Selected;
-				else
-					ShiftSelection=!CurPtr->Selected;
-			}
-
-			Select(*CurPtr, ShiftSelection);
-
-			if (LocalKey==KEY_SHIFTUP || LocalKey == KEY_SHIFTNUMPAD8)
-				MoveCursor(-1);
-			else
-				MoveCursor(1);
-
-			if (SelectedFirst && !InternalProcessKey)
-				SortFileList(TRUE);
+			MoveSelection(LocalKey == KEY_SHIFTUP || LocalKey == KEY_SHIFTNUMPAD8 ? up : down);
 
 			ShowFileList(TRUE);
 			return TRUE;
@@ -2428,7 +2410,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			CurPtr = &m_ListData[m_CurFile];
 			Select(*CurPtr,!CurPtr->Selected);
 			bool avoid_up_jump = SelectedFirst && (m_CurFile > 0) && (m_CurFile+1 == static_cast<int>(m_ListData.size())) && CurPtr->Selected;
-			MoveCursor(1);
+			MoveCursorAndShow(1);
 
 			if (SelectedFirst)
 			{
@@ -2690,7 +2672,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				QuoteSpace(Info.Command);
 
 				Parent()->GetCmdLine()->ExecString(Info);
-				
+
 				const auto ExclusionFlag = IsItExecutable? EXCLUDECMDHISTORY_NOTPANEL : EXCLUDECMDHISTORY_NOTWINASS;
 				if (!(Global->Opt->ExcludeCmdHistory & ExclusionFlag) && !PluginMode)
 					Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
@@ -3137,7 +3119,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		while (IsMouseButtonPressed() && IntKeyState.MouseY<=m_Y1+1)
 		{
-			MoveCursor(-1);
+			MoveCursorAndShow(-1);
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
@@ -3161,7 +3143,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y2-2)
 		{
-			MoveCursor(1);
+			MoveCursorAndShow(1);
 
 			if (IntKeyState.MouseButtonState==RIGHTMOST_BUTTON_PRESSED)
 			{
@@ -8752,4 +8734,32 @@ content_data_ptr FileList::GetContentData(const string& Item) const
 		Global->CtrlObject->Plugins->GetContentData(m_ContentPlugins, Item, m_ContentNamesPtrs, m_ContentValues, *Result.get());
 	}
 	return Result;
+}
+
+void FileList::MoveSelection(direction Direction)
+{
+	if (m_ListData.empty())
+		return;
+
+	assert(m_CurFile < static_cast<int>(m_ListData.size()));
+	auto CurPtr = &m_ListData[m_CurFile];
+
+	if (ShiftSelection==-1)
+	{
+		// .. is never selected
+		if (m_CurFile < static_cast<int>(m_ListData.size() - 1) && TestParentFolderName(CurPtr->strName))
+			ShiftSelection = !m_ListData[m_CurFile+1].Selected;
+		else
+			ShiftSelection=!CurPtr->Selected;
+	}
+
+	Select(*CurPtr, ShiftSelection);
+
+	if (Direction == up)
+		MoveCursor(-1);
+	else
+		MoveCursor(1);
+
+	if (SelectedFirst && !InternalProcessKey)
+		SortFileList(TRUE);
 }
