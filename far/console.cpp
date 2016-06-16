@@ -152,7 +152,7 @@ virtual bool SetSize(COORD Size) const override
 	}
 	else
 	{
-		Result=SetConsoleScreenBufferSize(GetOutputHandle(), Size)!=FALSE;
+		Result = SetConsoleScreenBufferSize(GetOutputHandle(), Size) != FALSE;
 	}
 	return Result;
 }

@@ -285,6 +285,7 @@ void RegisterConsoleScrollHook()
 		registered = true;
 	}
 }
+
 void InitConsole(int FirstInit)
 {
 	RegisterConsoleScrollHook();
@@ -312,21 +313,16 @@ void InitConsole(int FirstInit)
 	Console().SetControlHandler(CtrlHandler, true);
 	Console().GetMode(Console().GetInputHandle(),InitialConsoleMode);
 	Global->strInitTitle = Console().GetPhysicalTitle();
-	Console().GetWindowRect(InitWindowRect);
-	Console().GetSize(InitialSize);
+	CONSOLE_SCREEN_BUFFER_INFO cbi;
+	GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &cbi);
+	InitWindowRect = cbi.srWindow;
+	InitialSize = cbi.dwSize;
 	Console().GetCursorInfo(InitialCursorInfo);
-
 	SetFarConsoleMode();
 
-	/* $ 09.04.2002 DJ
-	   если размер консольного буфера больше размера окна, выставим
-	   их равными
-	*/
 	if (FirstInit)
 	{
-		SMALL_RECT WindowRect;
-		Console().GetWindowRect(WindowRect);
-		Console().GetSize(InitSize);
+		InitSize = InitialSize;
 
 		if(Global->Opt->WindowMode)
 		{
@@ -334,17 +330,14 @@ void InitConsole(int FirstInit)
 		}
 		else
 		{
-			if (WindowRect.Left || WindowRect.Top || WindowRect.Right != InitSize.X-1 || WindowRect.Bottom != InitSize.Y-1)
+			if (InitWindowRect.Left || InitWindowRect.Top || InitWindowRect.Right != InitSize.X-1 || InitWindowRect.Bottom != InitSize.Y-1)
 			{
-				COORD newSize;
-				newSize.X = WindowRect.Right - WindowRect.Left + 1;
-				newSize.Y = WindowRect.Bottom - WindowRect.Top + 1;
-				Console().SetSize(newSize);
 				Console().GetSize(InitSize);
+				Console().SetSize(InitSize);
 			}
 		}
 		if (IsZoomed(Console().GetWindow()))
-			ChangeVideoMode(1);
+			ChangeVideoMode(true);
 	}
 
 	GetVideoMode(CurSize);
@@ -352,6 +345,7 @@ void InitConsole(int FirstInit)
 
 	ConsoleIcons().setFarIcons();
 }
+
 void CloseConsole()
 {
 	Global->ScrBuf->Flush();
@@ -484,7 +478,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	srWindowRect.Bottom = ySize-1;
 	srWindowRect.Left = srWindowRect.Top = 0;
 
-	COORD coordScreen={xSize,ySize};
+	COORD coordScreen = {xSize, ySize};
 
 	if (xSize>Size.X || ySize > Size.Y)
 	{
@@ -517,6 +511,20 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 
 	if (NumLines > 0)
 		GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
+}
+
+bool IsConsoleSizeChanged()
+{
+	COORD ConSize;
+	Console().GetSize(ConSize);
+	bool changed = ConSize.Y != ScrY+1 || ConSize.X != ScrX+1;
+	if (!changed && !Global->Opt->WindowMode)
+	{
+		SMALL_RECT sr;
+		Console().GetWindowRect(sr);
+		changed = sr.Top != 0 || sr.Left != 0 || sr.Bottom != ScrY || sr.Right != ScrX;
+	}
+	return changed;
 }
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)

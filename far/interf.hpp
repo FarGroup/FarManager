@@ -201,6 +201,7 @@ string HiText2Str(const string& Str);
 void RemoveHighlights(string& Str);
 
 bool IsConsoleFullscreen();
+bool IsConsoleSizeChanged();
 
 class consoleicons:noncopyable
 {

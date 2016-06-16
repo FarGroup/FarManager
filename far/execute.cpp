@@ -1033,16 +1033,13 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	CONSOLE_CURSOR_INFO cci = { CursorSize, Visible };
 	Console().SetCursorInfo(cci);
 
-	COORD ConSize;
-	Console().GetSize(ConSize);
-	if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
+	if (IsConsoleSizeChanged())
 	{
-		ChangeVideoMode(ConSize.Y, ConSize.X);
+		ChangeVideoMode(ScrY, ScrX);
 	}
 
 	if (Global->Opt->Exec.RestoreCPAfterExecute)
 	{
-		// восстановим CP-консоли после исполнения проги
 		Console().SetInputCodepage(ConsoleCP);
 		Console().SetOutputCodepage(ConsoleOutputCP);
 	}

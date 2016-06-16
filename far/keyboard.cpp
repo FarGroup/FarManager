@@ -865,19 +865,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	if (EnableShowTime)
 		ShowTime();
 
-	bool SizeChanged=false;
-	if(Global->Opt->WindowMode)
-	{
-		SMALL_RECT CurConRect;
-		Console().GetWindowRect(CurConRect);
-		if(CurConRect.Bottom-CurConRect.Top!=ScrY || CurConRect.Right-CurConRect.Left!=ScrX)
-		{
-			SizeChanged=true;
-		}
-	}
-
-	/*& 17.05.2001 OT Изменился размер консоли, генерим клавишу*/
-	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || SizeChanged)
+	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || IsConsoleSizeChanged())
 	{
 		int PScrX=ScrX;
 		int PScrY=ScrY;
@@ -896,7 +884,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			if (Global->WindowManager)
 			{
-				if (PScrX + 1 != CurSize.X || PScrY + 1 != CurSize.Y)
+				if ((PScrX + 1 != CurSize.X || PScrY + 1 != CurSize.Y) && IsWindows10OrGreater())
 				{
 					ChangeVideoMode(-CurSize.Y, CurSize.X);
 				}
