@@ -707,9 +707,9 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	{
 		auto GetAssociatedImageType = [&Verb](const string& Str, image_type& ImageType)
 		{
-			auto GetAssociatedImageTypeForBatCmd = [](const string& BarCmdStr, image_type& BatCmdImageType)
+			auto GetAssociatedImageTypeForBatCmd = [](const string& BatCmdStr, image_type& BatCmdImageType)
 			{
-				if (IsExecutable(BarCmdStr))
+				if (IsExecutable(BatCmdStr))
 				{
 					// We shouldn't get here if it's a PE image - only if bat / cmd
 					BatCmdImageType = image_type::console;

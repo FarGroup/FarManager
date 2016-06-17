@@ -53,9 +53,9 @@ WARNING_DISABLE_GCC("-Wcast-qual")
 static int rand_s(unsigned int* randomValue)
 {
 	typedef BOOLEAN (WINAPI *SystemFunction036)(PVOID Buffer, ULONG Size);
-	const SystemFunction036 RtlGetRandomPtr = (SystemFunction036)GetProcAddress(GetModuleHandle(L"advapi32"), "SystemFunction036");
-	if (RtlGetRandomPtr)
-		return RtlGetRandomPtr(randomValue, sizeof(*randomValue));
+	const SystemFunction036 RtlGenRandomPtr = (SystemFunction036)GetProcAddress(GetModuleHandle(L"advapi32"), "SystemFunction036");
+	if (RtlGenRandomPtr)
+		return RtlGenRandomPtr(randomValue, sizeof(*randomValue));
 	
 	*randomValue = rand();
 	return 0;
