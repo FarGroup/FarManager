@@ -313,16 +313,16 @@ void InitConsole(int FirstInit)
 	Console().SetControlHandler(CtrlHandler, true);
 	Console().GetMode(Console().GetInputHandle(),InitialConsoleMode);
 	Global->strInitTitle = Console().GetPhysicalTitle();
-	CONSOLE_SCREEN_BUFFER_INFO cbi;
-	GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &cbi);
-	InitWindowRect = cbi.srWindow;
-	InitialSize = cbi.dwSize;
+	Console().GetWindowRect(InitWindowRect);
+	Console().GetSize(InitialSize);
 	Console().GetCursorInfo(InitialCursorInfo);
 	SetFarConsoleMode();
 
 	if (FirstInit)
 	{
-		InitSize = InitialSize;
+		SMALL_RECT WindowRect;
+		Console().GetWindowRect(WindowRect);
+		Console().GetSize(InitSize);
 
 		if(Global->Opt->WindowMode)
 		{
@@ -330,10 +330,13 @@ void InitConsole(int FirstInit)
 		}
 		else
 		{
-			if (InitWindowRect.Left || InitWindowRect.Top || InitWindowRect.Right != InitSize.X-1 || InitWindowRect.Bottom != InitSize.Y-1)
+			if (WindowRect.Left || WindowRect.Top || WindowRect.Right != InitSize.X - 1 || WindowRect.Bottom != InitSize.Y - 1)
 			{
+				COORD newSize;
+				newSize.X = WindowRect.Right - WindowRect.Left + 1;
+				newSize.Y = WindowRect.Bottom - WindowRect.Top + 1;
+				Console().SetSize(newSize);
 				Console().GetSize(InitSize);
-				Console().SetSize(InitSize);
 			}
 		}
 		if (IsZoomed(Console().GetWindow()))
@@ -356,14 +359,7 @@ void CloseConsole()
 	Console().SetSize(InitialSize);
 
 	COORD CursorPos = {};
-
-	// Console().GetCursorPosition() returns virtual position, here we need a real one.
-	// TODO: Shall console return virtual WindowRect too?
-	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-	if (GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &ConsoleScreenBufferInfo))
-	{
-		CursorPos = ConsoleScreenBufferInfo.dwCursorPosition;
-	}
+	Console().GetCursorPosition(CursorPos);
 	SHORT Height = InitWindowRect.Bottom-InitWindowRect.Top, Width = InitWindowRect.Right-InitWindowRect.Left;
 	if (CursorPos.Y > InitWindowRect.Bottom || CursorPos.Y < InitWindowRect.Top)
 		InitWindowRect.Top = std::max(0, CursorPos.Y-Height);
@@ -485,7 +481,7 @@ void ChangeVideoMode(bool Maximize)
 
 void ChangeVideoMode(int NumLines,int NumColumns)
 {
-	short xSize = NumColumns, ySize = NumLines >= 0 ? NumLines : -NumLines;
+	short xSize = NumColumns, ySize = NumLines;
 
 	COORD Size;
 	Console().GetSize(Size);
@@ -526,22 +522,15 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 		Console().SetSize(coordScreen);
 	}
 
-	if (NumLines > 0)
-		GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
+	GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
 }
 
 bool IsConsoleSizeChanged()
 {
 	COORD ConSize;
 	Console().GetSize(ConSize);
-	bool changed = ConSize.Y != ScrY+1 || ConSize.X != ScrX+1;
-	if (!changed && !Global->Opt->WindowMode)
-	{
-		SMALL_RECT sr;
-		Console().GetWindowRect(sr);
-		changed = sr.Top != 0 || sr.Left != 0 || sr.Bottom != ScrY || sr.Right != ScrX;
-	}
-	return changed;
+	// GetSize returns virtual size, so this covers WindowMode=true too
+	return ConSize.Y != ScrY+1 || ConSize.X != ScrX+1;
 }
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)

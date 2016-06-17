@@ -834,11 +834,11 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		ShiftState=FALSE;
 		Console().ReadInput(rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
-		//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
-		if (CalcKey == KEY_GOTFOCUS)
-			RestoreConsoleWindowRect();
-		else
-			SaveConsoleWindowRect();
+		if (!IsWindows10OrGreater())
+		{
+			//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
+			CalcKey == KEY_GOTFOCUS? RestoreConsoleWindowRect() : SaveConsoleWindowRect();
+		}
 
 		return CalcKey;
 	}
@@ -869,7 +869,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	{
 		int PScrX=ScrX;
 		int PScrY=ScrY;
-		Sleep(1);
+
 		GetVideoMode(CurSize);
 		bool NotIgnore=Global->Opt->WindowMode && (rec->Event.WindowBufferSizeEvent.dwSize.X!=CurSize.X || rec->Event.WindowBufferSizeEvent.dwSize.Y!=CurSize.Y);
 		if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y && !NotIgnore)
@@ -880,15 +880,41 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		{
 			PrevScrX=PScrX;
 			PrevScrY=PScrY;
-			Sleep(1);
+
+			if (Global->Opt->WindowMode)
+			{
+				if (IsWindows10OrGreater())
+				{
+					// Give console window some time to settle down or weird things might happen
+					Sleep(200);
+				}
+
+				COORD Size;
+				if (Console().GetSize(Size))
+				{
+					if (!Global->Opt->WindowModeStickyX || !Global->Opt->WindowModeStickyY)
+					{
+						// TODO: Do not use console functions directly
+						// Add a way to bypass console buffer abstraction layer
+						CONSOLE_SCREEN_BUFFER_INFO csbi;
+						if (GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &csbi))
+						{
+							if (!Global->Opt->WindowModeStickyX)
+							{
+								Size.X = csbi.dwSize.X;
+							}
+							if (!Global->Opt->WindowModeStickyY)
+							{
+								Size.Y = csbi.dwSize.Y;
+							}
+						}
+					}
+					SetConsoleScreenBufferSize(Console().GetOutputHandle(), Size);
+				}
+			}
 
 			if (Global->WindowManager)
 			{
-				if ((PScrX + 1 != CurSize.X || PScrY + 1 != CurSize.Y) && IsWindows10OrGreater())
-				{
-					ChangeVideoMode(-CurSize.Y, CurSize.X);
-				}
-
 				// апдейтим панели (именно они сейчас!)
 				SCOPED_ACTION(LockScreen);
 

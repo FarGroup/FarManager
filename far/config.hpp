@@ -846,6 +846,8 @@ public:
 	int UseExceptionHandler;
 	int ElevationMode;
 	int WindowMode;
+	BoolOption WindowModeStickyX;
+	BoolOption WindowModeStickyY;
 
 	const std::vector<PanelViewSettings>& ViewSettings;
 
