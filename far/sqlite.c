@@ -31,6 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "disable_warnings_in_std_begin.hpp"
+#include <windows.h>
+#include "disable_warnings_in_std_end.hpp"
+
 #include "common/preprocessor.hpp"
 
 WARNING_PUSH(3)
@@ -41,6 +45,21 @@ WARNING_DISABLE_MSC(4703) // https://msdn.microsoft.com/en-us/library/jj851030.a
 WARNING_DISABLE_GCC("-Warray-bounds")
 WARNING_DISABLE_GCC("-Wunused-but-set-variable")
 WARNING_DISABLE_GCC("-Wcast-qual")
+
+// SQlite 3.12 suddenly started using rand_s function, which depends on RtlGenRandom (SystemFunction036), which is not available in Win2k.
+// It would be better to hook only SystemFunction036 via our vc_crt_fix* facilities, but ucrt devs load it via GetProcAddress and call abort() if it's not available,
+// which is, of course, a truly splendid design decision, my hat's off to them.
+// So, no other choice but to craft the whole thing manually:
+static int rand_s(unsigned int* randomValue)
+{
+	typedef BOOLEAN (WINAPI *SystemFunction036)(PVOID Buffer, ULONG Size);
+	const SystemFunction036 RtlGetRandomPtr = (SystemFunction036)GetProcAddress(GetModuleHandle(L"advapi32"), "SystemFunction036");
+	if (RtlGetRandomPtr)
+		return RtlGetRandomPtr(randomValue, sizeof(*randomValue));
+	
+	*randomValue = rand();
+	return 0;
+}
 
 #include "thirdparty/sqlite/sqlite3.c"
 
