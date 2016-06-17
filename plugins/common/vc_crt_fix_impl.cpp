@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <windows.h>
 
 template<typename T>
-inline T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
+T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
 	const auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
 	return Address? reinterpret_cast<T>(Address) : Replacement;
@@ -207,11 +207,11 @@ extern "C" USHORT WINAPI QueryDepthSListWrapper(PSLIST_HEADER ListHead)
 	return Function(ListHead);
 }
 
-// RtlGenRandom (VC2015)
-// RtlGenRandom is used in rand_s implementation in ucrt.
-// As long as we don't use the rand_s in the code (which is easy: it's non-standard, requires _CRT_RAND_S to be defined first and not recommended in general)
-// this function is never called so it's ok to provide this dummy implementation only to have the _SystemFunction036@8 symbol in binary to make their loader happy.
-extern "C" BOOLEAN WINAPI SystemFunction036(PVOID Buffer, ULONG Size)
+// disable VS2015 telemetry
+extern "C"
 {
-	return TRUE;
-}
+	void __vcrt_initialize_telemetry_provider() {}
+	void __telemetry_main_invoke_trigger() {}
+	void __telemetry_main_return_trigger() {}
+	void __vcrt_uninitialize_telemetry_provider() {}
+};
