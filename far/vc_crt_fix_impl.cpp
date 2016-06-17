@@ -218,15 +218,6 @@ extern "C" USHORT WINAPI QueryDepthSListWrapper(PSLIST_HEADER ListHead)
 	return Function(ListHead);
 }
 
-// RtlGenRandom (VC2015)
-// RtlGenRandom is used in rand_s implementation in ucrt.
-// As long as we don't use the rand_s in the code (which is easy: it's non-standard, requires _CRT_RAND_S to be defined first and not recommended in general)
-// this function is never called so it's ok to provide this dummy implementation only to have the _SystemFunction036@8 symbol in binary to make their loader happy.
-extern "C" BOOLEAN WINAPI SystemFunction036(PVOID Buffer, ULONG Size)
-{
-	return TRUE;
-}
-
 // disable VS2015 telemetry
 extern "C"
 {
