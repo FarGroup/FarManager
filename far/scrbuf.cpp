@@ -612,7 +612,8 @@ void ScreenBuf::Scroll(size_t Count)
 
 		Console().ScrollNonClientArea(Count, Fill);
 
-		Region.Top = Region.Bottom = static_cast<SHORT>(-static_cast<SHORT>(Count));
+		Region.Top = static_cast<SHORT>(-static_cast<SHORT>(Count));
+		Region.Bottom = -1;
 		Console().WriteOutput(BufferBlock, Region);
 	}
 

@@ -354,8 +354,16 @@ void CloseConsole()
 
 	Console().SetTitle(Global->strInitTitle);
 	Console().SetSize(InitialSize);
+
 	COORD CursorPos = {};
-	Console().GetCursorPosition(CursorPos);
+
+	// Console().GetCursorPosition() returns virtual position, here we need a real one.
+	// TODO: Shall console return virtual WindowRect too?
+	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
+	if (GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &ConsoleScreenBufferInfo))
+	{
+		CursorPos = ConsoleScreenBufferInfo.dwCursorPosition;
+	}
 	SHORT Height = InitWindowRect.Bottom-InitWindowRect.Top, Width = InitWindowRect.Right-InitWindowRect.Left;
 	if (CursorPos.Y > InitWindowRect.Bottom || CursorPos.Y < InitWindowRect.Top)
 		InitWindowRect.Top = std::max(0, CursorPos.Y-Height);
@@ -363,8 +371,17 @@ void CloseConsole()
 		InitWindowRect.Left = std::max(0, CursorPos.X-Width);
 	InitWindowRect.Bottom = InitWindowRect.Top + Height;
 	InitWindowRect.Right = InitWindowRect.Left + Width;
-	Console().SetWindowRect(InitWindowRect);
-	Console().SetSize(InitialSize);
+
+	SMALL_RECT CurrentRect{};
+	Console().GetWindowRect(CurrentRect);
+	if (CurrentRect.Left != InitWindowRect.Left ||
+		CurrentRect.Top != InitWindowRect.Top ||
+		CurrentRect.Right != InitWindowRect.Right ||
+		CurrentRect.Bottom != InitWindowRect.Bottom)
+	{
+		Console().SetWindowRect(InitWindowRect);
+		Console().SetSize(InitialSize);
+	}
 
 	KeyQueue().clear();
 	ConsoleIcons().restorePreviousIcons();
