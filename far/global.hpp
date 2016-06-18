@@ -74,7 +74,7 @@ public:
 	size_t PluginPanelsCount;
 	BOOL ProcessException;
 	string CurrentTime;
-	size_t LastShownTimeSize;
+	size_t LastShownTimeSize{};
 	const wchar_t *HelpFileMask;
 	bool OnlyEditorViewerUsed; // -e or -v
 #if defined(SYSLOG)
