@@ -578,10 +578,19 @@ void ShowTime()
 
 	if (const auto CurrentWindow = Global->WindowManager->GetCurrentWindow())
 	{
+		// TODO: This is rubbish, consider moving the clock drawing to the ScrBuf
+		if (Global->CurrentTime.size() < Global->LastShownTimeSize)
+		{
+			const auto CurrentClockPos = ScrX + 1 - static_cast<int>(Global->LastShownTimeSize);
+			matrix<FAR_CHAR_INFO> Char(1, 1);
+			Global->ScrBuf->Read(CurrentClockPos - 1, 0, CurrentClockPos - 1, 0, Char);
+			Global->ScrBuf->FillRect(CurrentClockPos, 0, CurrentClockPos + static_cast<int>(Global->LastShownTimeSize), 0, Char[0][0].Char, Char[0][0].Attributes);
+		}
 		GotoXY(static_cast<int>(ScrX + 1 - Global->CurrentTime.size()), 0);
 		int ModType=CurrentWindow->GetType();
 		SetColor(ModType==windowtype_viewer?COL_VIEWERCLOCK:(ModType==windowtype_editor?COL_EDITORCLOCK:COL_CLOCK));
 		Text(Global->CurrentTime);
+ 		Global->LastShownTimeSize = Global->CurrentTime.size();
 	}
 }
 
