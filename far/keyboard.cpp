@@ -83,6 +83,8 @@ static clock_t KeyPressedLastTime;
 static int ShiftState=0;
 static int LastShiftEnterPressed=FALSE;
 
+static bool LastConsoleFullscreen = false;
+
 /* ----------------------------------------------------------------- */
 static const std::pair<int, int> Table_KeyToVK[] =
 {
@@ -867,6 +869,10 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || IsConsoleSizeChanged())
 	{
+		auto IsFullscreen = [] { DWORD DisplayMode = 0; return IsWindows10OrGreater() && Console().GetDisplayMode(DisplayMode) && DisplayMode & CONSOLE_FULLSCREEN; };
+
+		SCOPE_EXIT { LastConsoleFullscreen = IsFullscreen(); };
+
 		int PScrX=ScrX;
 		int PScrY=ScrY;
 
@@ -883,12 +889,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			if (Global->Opt->WindowMode)
 			{
-				if (IsWindows10OrGreater())
-				{
-					// Give console window some time to settle down or weird things might happen
-					Sleep(200);
-				}
-
 				COORD Size;
 				if (Console().GetSize(Size))
 				{
@@ -909,6 +909,34 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 							}
 						}
 					}
+
+					if (LastConsoleFullscreen && !IsFullscreen())
+					{
+						// Exiting fullscreen in Windows 10 is broken:
+						// They try to fit the window with scrollbars into old size (witout scrollbars),
+						// thus reducing the window dimensions by (scrollbar_size / console_character_size).
+						// This doesn't happen with regular maximize/restore though.
+						// Windows gets better and better every day.
+
+						CONSOLE_FONT_INFO FontInfo;
+						if (GetCurrentConsoleFont(Console().GetOutputHandle(), FALSE, &FontInfo))
+						{
+							const auto FixX = Round(static_cast<SHORT>(GetSystemMetrics(SM_CXVSCROLL)), FontInfo.dwFontSize.X);
+							const auto FixY = Round(static_cast<SHORT>(GetSystemMetrics(SM_CYHSCROLL)), FontInfo.dwFontSize.Y);
+
+							Size.X += FixX;
+							Size.Y += FixY;
+
+							SMALL_RECT WindowRect;
+							if (Console().GetWindowRect(WindowRect))
+							{
+								WindowRect.Right += FixX;
+								WindowRect.Bottom += FixY;
+								Console().SetWindowRect(WindowRect);
+							}
+						}
+					}
+
 					SetConsoleScreenBufferSize(Console().GetOutputHandle(), Size);
 				}
 			}
