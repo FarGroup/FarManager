@@ -118,12 +118,14 @@ public:
 	// попадает ли файл fd под условие установленного фильтра.
 	// Возвращает true  - попадает;
 	//            false - не попадает.
-	bool FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime) const;
+	bool FileInFilter(const FileListItem* fli, const FileList* Owner, unsigned __int64 CurrentTime) const;
 	bool FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
 	bool FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const;
 
 
 private:
+	bool FileInFilter(struct filter_file_object& Object, unsigned __int64 CurrentTime, const std::function<void(filter_file_object&)>& Getter) const;
+
 	string m_strTitle;
 
 	struct fmask

@@ -466,7 +466,7 @@ void HighlightFiles::UpdateCurrentTime()
 	CurrentTime = GetCurrentUTCTimeInUI64();
 }
 
-const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListItem& Item, bool UseAttrHighlighting)
+const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting)
 {
 	SCOPED_ACTION(elevation::suppress);
 
@@ -478,7 +478,7 @@ const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListI
 	{
 		if (!(UseAttrHighlighting && i.IsMaskUsed()))
 		{
-			if (i.FileInFilter(&Item, CurrentTime))
+			if (i.FileInFilter(&Item, Owner, CurrentTime))
 			{
 				ApplyColors(item, i.GetColors());
 				if (!i.GetContinueProcessing())
@@ -498,10 +498,10 @@ const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListI
 	return &*Colors.emplace(item).first;
 }
 
-int HighlightFiles::GetGroup(const FileListItem *fli)
+int HighlightFiles::GetGroup(const FileListItem *fli, const FileList* Owner)
 {
 	const auto Begin = HiData.cbegin() + FirstCount, End = Begin + UpperCount + LowerCount;
-	const auto It = std::find_if(Begin, End, [&](const auto& i) { return i.FileInFilter(fli, CurrentTime); });
+	const auto It = std::find_if(Begin, End, [&](const auto& i) { return i.FileInFilter(fli, Owner, CurrentTime); });
 	return It != End? It->GetSortGroup() : DEFAULT_SORT_GROUP;
 }
 

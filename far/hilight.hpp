@@ -86,8 +86,8 @@ public:
 	HighlightFiles();
 
 	void UpdateCurrentTime();
-	const highlight_item* GetHiColor(const FileListItem& Item, bool UseAttrHighlighting = false);
-	int GetGroup(const FileListItem *fli);
+	const highlight_item* GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting = false);
+	int GetGroup(const FileListItem *fli, const FileList* Owner);
 	void HiEdit(int MenuPos);
 	void UpdateHighlighting(bool RefreshMasks = false);
 	void Save(bool always);

@@ -200,32 +200,78 @@ wchar_t FileFilterParams::GetMarkChar() const
 	return FHighlight.Colors.Mark.Char;
 }
 
-bool FileFilterParams::FileInFilter(const FileListItem* fli, unsigned __int64 CurrentTime) const
+struct filter_file_object
 {
-	os::FAR_FIND_DATA fde;
-	fde.dwFileAttributes=fli->FileAttr;
-	fde.ftCreationTime=fli->CreationTime;
-	fde.ftLastAccessTime=fli->AccessTime;
-	fde.ftLastWriteTime=fli->WriteTime;
-	fde.ftChangeTime=fli->ChangeTime;
-	fde.nFileSize=fli->FileSize;
-	fde.nAllocationSize=fli->AllocationSize;
-	fde.strFileName=fli->strName;
-	fde.strAlternateFileName=fli->strShortName;
-	return FileInFilter(fde, CurrentTime, &fli->strName);
+	string Name;
+	unsigned long long Size;
+	FILETIME CreationTime;
+	FILETIME ModificationTime;
+	FILETIME AccessTime;
+	FILETIME ChangeTime;
+	DWORD Attributes;
+	int NumberOfLinks;
+};
+
+bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Owner, unsigned __int64 CurrentTime) const
+{
+	filter_file_object Object;
+	Object.Attributes = fli->FileAttr;
+	Object.Size = fli->FileSize;
+	Object.CreationTime = fli->CreationTime;
+	Object.ModificationTime = fli->WriteTime;
+	Object.AccessTime = fli->AccessTime;
+	Object.ChangeTime = fli->ChangeTime;
+	Object.Name = fli->strName;
+
+	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
+	{
+		Item.NumberOfLinks = fli->NumberOfLinks(Owner);
+	});
 }
 
 bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName) const
+{
+	filter_file_object Object;
+	Object.Attributes = fde.dwFileAttributes;
+	Object.Size = fde.nFileSize;
+	Object.CreationTime = fde.ftCreationTime;
+	Object.ModificationTime = fde.ftLastWriteTime;
+	Object.AccessTime = fde.ftLastAccessTime;
+	Object.ChangeTime = fde.ftChangeTime;
+	Object.Name = fde.strFileName;
+
+	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
+	{
+		Item.NumberOfLinks = FullName? GetNumberOfLinks(*FullName) : 1;
+	});
+}
+
+bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const
+{
+	filter_file_object Object;
+	Object.Attributes = fd.FileAttributes;
+	Object.Size = fd.FileSize;
+	Object.CreationTime = fd.CreationTime;
+	Object.ModificationTime = fd.LastWriteTime;
+	Object.AccessTime = fd.LastAccessTime;
+	Object.ChangeTime = fd.ChangeTime;
+	Object.Name = fd.FileName;
+	Object.NumberOfLinks = fd.NumberOfLinks;
+
+	return FileInFilter(Object, CurrentTime, nullptr);
+}
+
+bool FileFilterParams::FileInFilter(filter_file_object& Object, unsigned __int64 CurrentTime, const std::function<void(filter_file_object&)>& Getter) const
 {
 	// Режим проверки атрибутов файла включен?
 	if (FAttr.Used)
 	{
 		// Проверка попадания файла по установленным атрибутам
-		if ((fde.dwFileAttributes & FAttr.AttrSet) != FAttr.AttrSet)
+		if ((Object.Attributes & FAttr.AttrSet) != FAttr.AttrSet)
 			return false;
 
 		// Проверка попадания файла по отсутствующим атрибутам
-		if (fde.dwFileAttributes & FAttr.AttrClear)
+		if (Object.Attributes & FAttr.AttrClear)
 			return false;
 	}
 
@@ -234,13 +280,13 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 	{
 		if (!FSize.SizeAbove.empty())
 		{
-			if (fde.nFileSize < FSize.SizeAboveReal) // Размер файла меньше минимального разрешённого по фильтру?
+			if (Object.Size < FSize.SizeAboveReal) // Размер файла меньше минимального разрешённого по фильтру?
 				return false;                          // Не пропускаем этот файл
 		}
 
 		if (!FSize.SizeBelow.empty())
 		{
-			if (fde.nFileSize > FSize.SizeBelowReal) // Размер файла больше максимального разрешённого по фильтру?
+			if (Object.Size > FSize.SizeBelowReal) // Размер файла больше максимального разрешённого по фильтру?
 				return false;                          // Не пропускаем этот файл
 		}
 	}
@@ -249,12 +295,15 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 	// Пока что, при включенном условии, срабатывание происходит при случае "ссылок больше чем одна"
 	if (FHardLinks.Used)
 	{
-		if (fde.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		if (Object.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			return false;
 		}
 
-		if (!FullName || GetNumberOfLinks(*FullName) < 2)
+		if (Getter)
+			Getter(Object);
+
+		if (Object.NumberOfLinks < 2)
 		{
 			return false;
 		}
@@ -267,49 +316,57 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 
 		if (after || before)
 		{
-			const FILETIME *ft;
+			const FILETIME* ft = nullptr;
 
 			switch (FDate.DateType)
 			{
 				case FDATE_CREATED:
-					ft=&fde.ftCreationTime;
+					ft = &Object.CreationTime;
 					break;
 				case FDATE_OPENED:
-					ft=&fde.ftLastAccessTime;
+					ft = &Object.AccessTime;
 					break;
 				case FDATE_CHANGED:
-					ft=&fde.ftChangeTime;
+					ft = &Object.ChangeTime;
 					break;
-				default: //case FDATE_MODIFIED:
-					ft=&fde.ftLastWriteTime;
+				case FDATE_MODIFIED:
+					ft = &Object.ModificationTime;
+					break;
+
+				// dummy label to make compiler happy
+				case FDATE_COUNT:
+					break;
 			}
 
-			if (FDate.bRelative)
+			if (ft)
 			{
+				if (FDate.bRelative)
+				{
+					if (after)
+						after = CurrentTime - after;
+
+					if (before)
+						before = CurrentTime - before;
+				}
+
+				const auto ftime = FileTimeToUI64(*ft);
+
+				// Есть введённая пользователем начальная дата?
 				if (after)
-					after = CurrentTime - after;
+				{
+					// Дата файла меньше начальной даты по фильтру?
+					if (ftime < after)
+						// Не пропускаем этот файл
+						return false;
+				}
 
+				// Есть введённая пользователем конечная дата?
 				if (before)
-					before = CurrentTime - before;
-			}
-
-			const auto ftime = FileTimeToUI64(*ft);
-
-			// Есть введённая пользователем начальная дата?
-			if (after)
-			{
-				// Дата файла меньше начальной даты по фильтру?
-				if (ftime < after)
-					// Не пропускаем этот файл
-					return false;
-			}
-
-			// Есть введённая пользователем конечная дата?
-			if (before)
-			{
-				// Дата файла больше конечной даты по фильтру?
-				if (ftime > before)
-					return false;
+				{
+					// Дата файла больше конечной даты по фильтру?
+					if (ftime > before)
+						return false;
+				}
 			}
 		}
 	}
@@ -321,7 +378,7 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 		// при считывании директории
 
 		// Файл не попадает под маску введённую в фильтре?
-		if (!FMask.FilterMask.Compare(fde.strFileName))
+		if (!FMask.FilterMask.Compare(Object.Name))
 			// Не пропускаем этот файл
 			return false;
 	}
@@ -329,13 +386,6 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 	// Да! Файл выдержал все испытания и будет допущен к использованию
 	// в вызвавшей эту функцию операции.
 	return true;
-}
-
-bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const
-{
-	os::FAR_FIND_DATA fde;
-	PluginPanelItemToFindDataEx(fd, fde);
-	return FileInFilter(fde, CurrentTime, &fde.strFileName);
 }
 
 //Централизованная функция для создания строк меню различных фильтров.

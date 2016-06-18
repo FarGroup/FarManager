@@ -6850,7 +6850,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				TotalFileSize += PluginPtr->FileSize;
 				i.PrevSelected = i.Selected=0;
 				i.ShowFolderSize = 0;
-				i.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&i);
+				i.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&i, this);
 
 				if (!TestParentFolderName(PluginPtr->FileName))
 				{
@@ -7132,7 +7132,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		FileListItem NewItem = PanelData[i];
 		NewItem.Position = i;
 
-		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem);
+		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem, this);
 
 		const auto IsTwoDots = (!TwoDotsPtr || !(TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)) && TestParentFolderName(NewItem.strName);
 		const auto IsDir = (NewItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -7334,7 +7334,7 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 
 		std::for_each(RANGE(m_ListData, i)
 		{
-			i.SortGroup = Global->CtrlObject->HiFiles->GetGroup(&i);
+			i.SortGroup = Global->CtrlObject->HiFiles->GetGroup(&i, this);
 		});
 	}
 }
@@ -7750,7 +7750,7 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 			if (!m_ListData[Position].Colors)
 			{
 				const auto UseAttrHighlighting = m_PanelMode == panel_mode::PLUGIN_PANEL && m_CachedOpenPanelInfo.Flags & OPIF_USEATTRHIGHLIGHTING;
-				m_ListData[Position].Colors = Global->CtrlObject->HiFiles->GetHiColor(m_ListData[Position], UseAttrHighlighting);
+				m_ListData[Position].Colors = Global->CtrlObject->HiFiles->GetHiColor(m_ListData[Position], this, UseAttrHighlighting);
 			}
 
 			auto Colors = m_ListData[Position].Colors->Color[Pos];
