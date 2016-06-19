@@ -272,7 +272,7 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 
 	return EnumWithQuoutes(Menu, Module, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		for (const auto& i: split<std::vector<string>>(Global->Opt->Exec.strExcludeCmds))
+		for (const auto& i: split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds)))
 		{
 			if (!StrCmpNI(Token.data(), i.data(), Token.size()))
 			{
