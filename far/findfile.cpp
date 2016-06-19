@@ -468,7 +468,7 @@ void background_searcher::InitInFileSearch()
 			// Формируем hex-строку для поиска
 			if (SearchHex)
 			{
-				hexFindString = HexStringToBlob(strFindStr.data());
+				hexFindString = HexStringToBlob(strFindStr.data(), 0);
 			}
 
 			// Инициализируем данные для аглоритма поиска
@@ -777,9 +777,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					}
 					else
 					{
-						string strSrc(Src);
-						RemoveTrailingSpaces(strSrc); // BUGBUG: trailing spaces in DI_FIXEDIT. TODO: Fix in Dialog class.
-						const auto Blob = HexStringToBlob(strSrc.data(), L' ');
+						const auto Blob = HexStringToBlob(Dialog::ExtractHexString(Src).data(), 0);
 						strDataStr.assign(ALL_CONST_RANGE(Blob));
 					}
 
@@ -3111,8 +3109,7 @@ FindFiles::FindFiles():
 
 		if (SearchHex)
 		{
-			strFindStr = FindAskDlg[FAD_EDIT_HEX].strData;
-			RemoveTrailingSpaces(strFindStr);
+			strFindStr = Dialog::ExtractHexString(FindAskDlg[FAD_EDIT_HEX].strData);
 		}
 		else
 			strFindStr = FindAskDlg[FAD_EDIT_TEXT].strData;

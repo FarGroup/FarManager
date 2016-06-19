@@ -2719,8 +2719,8 @@ static auto hex2ss(const wchar_t *from, size_t len, intptr_t *pos = nullptr)
 	string strFrom(from, len);
 	RemoveTrailingSpaces(strFrom);
 	if (pos)
-		*pos /= 3;
-	return HexStringToBlob(strFrom.data(), L' ');
+		*pos /= 2;
+	return HexStringToBlob(strFrom.data(), 0);
 }
 
 void Viewer::SearchTextTransform(string &to, const wchar_t *from, size_t from_len, bool hex2text, intptr_t &pos)
@@ -3425,8 +3425,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 		if (SearchHex)
 		{
-			strSearchStr = SearchDlg[SD_EDIT_HEX].strData;
-			RemoveTrailingSpaces(strSearchStr); // BUGBUG: trailing spaces in DI_FIXEDIT. TODO: Fix in Dialog class.
+			strSearchStr = Dialog::ExtractHexString(SearchDlg[SD_EDIT_HEX].strData);
 		}
 		else
 		{

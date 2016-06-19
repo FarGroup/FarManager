@@ -6221,3 +6221,11 @@ void Dialog::ShowConsoleTitle()
 {
 	ConsoleTitle::SetFarTitle(DialogMode.Check(DMODE_KEEPCONSOLETITLE)? m_ConsoleTitle : GetTitle());
 }
+
+string Dialog::ExtractHexString(const string& DialogHexString)
+{
+	auto Result{ DialogHexString };
+	RemoveTrailingSpaces(Result); // BUGBUG: trailing spaces in DI_FIXEDIT. TODO: Fix in Dialog class.
+	Result.erase(std::remove(ALL_RANGE(Result), L' '), Result.end());
+	return Result;
+}

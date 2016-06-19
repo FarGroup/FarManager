@@ -132,10 +132,6 @@ void global::StoreSearchString(const string& Str, bool Hex)
 {
 	m_SearchHex = Hex;
 	m_SearchString = Str;
-	if (m_SearchHex)
-	{
-		m_SearchString.erase(std::remove(ALL_RANGE(m_SearchString), L' '), m_SearchString.end());
-	}
 }
 
 
