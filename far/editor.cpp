@@ -3618,7 +3618,7 @@ BOOL Editor::Search(int Next)
 
 					int at_end = EdOpt.SearchCursorAtEnd ? SearchLength : 0;
 
-					int Skip=FALSE;
+					bool Skip=false, ZeroLength=false;
 
 					// Отступим на четверть и проверим на перекрытие диалогом замены
 					int FromTop=(ScrY-2)/4;
@@ -3649,12 +3649,12 @@ BOOL Editor::Search(int Next)
 						if (!ReplaceAll)
 						{
 							Show();
-							SHORT CurX,CurY;
-							GetCursorPos(CurX,CurY);
+							SHORT CurX, CurY;
+							GetCursorPos(CurX, CurY);
 							int lpos = CurPtr->LeftPos;
 							int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
-							ChangeBlockColor(CurX,CurY, endX,CurY, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
-							string strQSearchStr(CurPtr->GetString().data() + CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
+							ChangeBlockColor(CurX, CurY, endX, CurY, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
+							string strQSearchStr(CurPtr->GetString().data() + CurPtr->GetCurPos(), SearchLength), strQReplaceStr = strReplaceStrCurrent;
 
 							// do not use InsertQuote, AI is not suitable here
 							strQSearchStr.insert(0, 1, L'"');
@@ -3662,22 +3662,25 @@ BOOL Editor::Search(int Next)
 							strQReplaceStr.insert(0, 1, L'"');
 							strQReplaceStr.push_back(L'"');
 
-							std::unique_ptr<PreRedrawItem> pitem(PreRedrawStack().empty()? nullptr : PreRedrawStack().pop());
+							if (!SearchLength && !strReplaceStrCurrent.length())
+								ZeroLength = true;
 
-							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
-											strQSearchStr.data(),MSG(MEditAskReplaceWith),strQReplaceStr.data(),
-											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
+							std::unique_ptr<PreRedrawItem> pitem(PreRedrawStack().empty() ? nullptr : PreRedrawStack().pop());
+
+							MsgCode = Message(0, 4, MSG(MEditReplaceTitle), MSG(MEditAskReplace),
+											strQSearchStr.data(), MSG(MEditAskReplaceWith), strQReplaceStr.data(),
+											MSG(MEditReplace), MSG(MEditReplaceAll), MSG(MEditSkip), MSG(MEditCancel));
 							if (pitem)
 							{
 								PreRedrawStack().push(std::move(pitem));
 							}
-							if (MsgCode==1)
+							if (MsgCode == 1)
 								ReplaceAll = true;
 
-							if (MsgCode==2)
-								Skip=TRUE;
+							if (MsgCode == 2)
+								Skip = true;
 
-							if (MsgCode<0 || MsgCode==3)
+							if (MsgCode < 0 || MsgCode == 3)
 							{
 								UserBreak = true;
 								break;
@@ -3798,9 +3801,14 @@ BOOL Editor::Search(int Next)
 						break;
 
 					CurPos = m_it_CurLine->GetCurPos();
-					CurPos += (Skip && !ReverseSearch ? 1:0);
-					if (!Skip && ReverseSearch)
+					if ((Skip || ZeroLength) && !ReverseSearch)
+					{
+						CurPos++;
+					}
+					if (!(Skip || ZeroLength) && ReverseSearch)
+					{
 						(m_it_CurLine = CurPtr = m_FoundLine)->SetCurPos(CurPos = m_FoundPos);
+					}
 				}
 			}
 			else
