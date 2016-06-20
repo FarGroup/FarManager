@@ -3,6 +3,66 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.06.2016 00:20:17 +0200 - build 4719
+
+1. Variables in ExcludeCmds would not expand when used in autocompletion.
+
+drkns 20.06.2016 00:15:19 +0200 - build 4718
+
+1. #0003257: (far 3.0.4700.x64) Exception in Viewer when searching HEX values
+
+t-rex 19.06.2016 21:15:20 +0200 - build 4717
+
+1. Mantis#2467: Endless regular expression replace in editor
+
+2. Broken build for VC2015 update 3 for some reason (it appears to be a bug in the latter one)
+
+drkns 18.06.2016 18:09:29 +0200 - build 4716
+
+1. Correction of 4715.
+
+drkns 18.06.2016 13:55:55 +0200 - build 4715
+
+1. Forum: incorrect drawing of clock according to regional settings.
+
+drkns 18.06.2016 12:52:50 +0200 - build 4714
+
+1. Forum: hard link icons on passive panel disappear after copying or moving.
+
+drkns 18.06.2016 11:51:33 +0200 - build 4713
+
+1. Workaround for a bug of leaving the fullscreen mode in Windows 10.
+
+drkns 17.06.2016 22:38:32 +0200 - build 4712
+
+1. Partial rollback of previous experiments with console modes.
+
+2. Extend WindowMode: add two StickyX parameters (true by default) and StickyY (false by default)
+   defining which axes the size has to adjust to (and, respectively, where the scrollbars must not be).
+
+drkns 17.06.2016 17:44:53 +0200 - build 4711
+
+1. A couple of bugs for WindowMode.
+
+drkns 17.06.2016 15:12:33 +0200 - build 4710
+
+1. Restore compatibility with Win2k.
+
+w17 16.06.2016 19:27:33 +0300 - build 4709
+
+1. Again, the correction of 4697.
+   Track Win10 full screen mode switching with "[ ] Wrap text output on resize" console setting
+   Restore the original size of console buffer on exit
+   ConEmu should not break for System.WindowMode = false
+
+zg 15.06.2016 22:27:05 +0200 - build 4708
+
+1. forum: ShiftEnd and ShiftHome slow work in panels.
+
+drkns 14.06.2016 18:31:09 +0200 - build 4707
+
+1. System associations having bat or cmd as "associated program" would start in separate window.
+
 drkns 13.06.2016 19:32:18 +0200 - build 4706
 
 1. Forum: an issue with panels in Fullscreen view
@@ -126,7 +186,7 @@ drkns 19.05.2016 01:35:59 +0200 - build 4680
 
 drkns 19.05.2016 00:40:27 +0200 - build 4679
 
-1. Continue launcher experimens:
+1. Continue launcher experiments:
    - launch type (console with waiting / silent with no waiting) is now defined for system associations too.
    - System.Executor.BatchType is gone, everything should work automatically.
 
