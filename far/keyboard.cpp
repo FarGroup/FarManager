@@ -83,8 +83,6 @@ static clock_t KeyPressedLastTime;
 static int ShiftState=0;
 static int LastShiftEnterPressed=FALSE;
 
-static bool LastConsoleFullscreen = false;
-
 /* ----------------------------------------------------------------- */
 static const std::pair<int, int> Table_KeyToVK[] =
 {
@@ -869,9 +867,13 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || IsConsoleSizeChanged())
 	{
-		auto IsFullscreen = [] { DWORD DisplayMode = 0; return IsWindows10OrGreater() && Console().GetDisplayMode(DisplayMode) && DisplayMode & CONSOLE_FULLSCREEN; };
+		// BUGBUG If initial mode was fullscreen - first transition will not be detected
+		static auto StoredConsoleFullscreen = false;
 
-		SCOPE_EXIT { LastConsoleFullscreen = IsFullscreen(); };
+		DWORD DisplayMode = 0;
+		const auto CurrentConsoleFullscreen = IsWindows10OrGreater() && Console().GetDisplayMode(DisplayMode) && DisplayMode & CONSOLE_FULLSCREEN;
+		const auto TransitionFromFullScreen = StoredConsoleFullscreen && !CurrentConsoleFullscreen;
+		StoredConsoleFullscreen = CurrentConsoleFullscreen;
 
 		int PScrX=ScrX;
 		int PScrY=ScrY;
@@ -887,59 +889,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			PrevScrX=PScrX;
 			PrevScrY=PScrY;
 
-			if (Global->Opt->WindowMode)
-			{
-				COORD Size;
-				if (Console().GetSize(Size))
-				{
-					if (!Global->Opt->WindowModeStickyX || !Global->Opt->WindowModeStickyY)
-					{
-						// TODO: Do not use console functions directly
-						// Add a way to bypass console buffer abstraction layer
-						CONSOLE_SCREEN_BUFFER_INFO csbi;
-						if (GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &csbi))
-						{
-							if (!Global->Opt->WindowModeStickyX)
-							{
-								Size.X = csbi.dwSize.X;
-							}
-							if (!Global->Opt->WindowModeStickyY)
-							{
-								Size.Y = csbi.dwSize.Y;
-							}
-						}
-					}
-
-					if (LastConsoleFullscreen && !IsFullscreen())
-					{
-						// Exiting fullscreen in Windows 10 is broken:
-						// They try to fit the window with scrollbars into old size (witout scrollbars),
-						// thus reducing the window dimensions by (scrollbar_size / console_character_size).
-						// This doesn't happen with regular maximize/restore though.
-						// Windows gets better and better every day.
-
-						CONSOLE_FONT_INFO FontInfo;
-						if (GetCurrentConsoleFont(Console().GetOutputHandle(), FALSE, &FontInfo))
-						{
-							const auto FixX = Round(static_cast<SHORT>(GetSystemMetrics(SM_CXVSCROLL)), FontInfo.dwFontSize.X);
-							const auto FixY = Round(static_cast<SHORT>(GetSystemMetrics(SM_CYHSCROLL)), FontInfo.dwFontSize.Y);
-
-							Size.X += FixX;
-							Size.Y += FixY;
-
-							SMALL_RECT WindowRect;
-							if (Console().GetWindowRect(WindowRect))
-							{
-								WindowRect.Right += FixX;
-								WindowRect.Bottom += FixY;
-								Console().SetWindowRect(WindowRect);
-							}
-						}
-					}
-
-					SetConsoleScreenBufferSize(Console().GetOutputHandle(), Size);
-				}
-			}
+			AdjustConsoleScreenBufferSize(TransitionFromFullScreen);
 
 			if (Global->WindowManager)
 			{

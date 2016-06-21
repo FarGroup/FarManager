@@ -203,6 +203,8 @@ void RemoveHighlights(string& Str);
 bool IsConsoleFullscreen();
 bool IsConsoleSizeChanged();
 
+void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen);
+
 class consoleicons:noncopyable
 {
 public:

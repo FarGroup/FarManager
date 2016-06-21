@@ -327,6 +327,7 @@ void InitConsole(int FirstInit)
 		if(Global->Opt->WindowMode)
 		{
 			Console().ResetPosition();
+			AdjustConsoleScreenBufferSize(false);
 		}
 		else
 		{
@@ -1290,4 +1291,61 @@ void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
 	fix(0, X2, ScrX);
 	fix(0, Y1, ScrY);
 	fix(0, Y2, ScrY);
+}
+
+void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
+{
+	if (!Global->Opt->WindowMode)
+		return;
+
+	COORD Size;
+	if (!Console().GetSize(Size))
+		return;
+
+	if (!Global->Opt->WindowModeStickyX || !Global->Opt->WindowModeStickyY)
+	{
+		// TODO: Do not use console functions directly
+		// Add a way to bypass console buffer abstraction layer
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &csbi))
+		{
+			if (!Global->Opt->WindowModeStickyX)
+			{
+				Size.X = csbi.dwSize.X;
+			}
+			if (!Global->Opt->WindowModeStickyY)
+			{
+				Size.Y = csbi.dwSize.Y;
+			}
+		}
+	}
+
+	if (TransitionFromFullScreen)
+	{
+		// Exiting fullscreen in Windows 10 is broken:
+		// They try to fit the window with scrollbars into old size (witout scrollbars),
+		// thus reducing the window dimensions by (scrollbar_size / console_character_size).
+		// This doesn't happen with regular maximize/restore though.
+		// Windows gets better and better every day.
+
+		CONSOLE_FONT_INFO FontInfo;
+		if (GetCurrentConsoleFont(Console().GetOutputHandle(), FALSE, &FontInfo))
+		{
+			const auto FixX = Round(static_cast<SHORT>(GetSystemMetrics(SM_CXVSCROLL)), FontInfo.dwFontSize.X);
+			const auto FixY = Round(static_cast<SHORT>(GetSystemMetrics(SM_CYHSCROLL)), FontInfo.dwFontSize.Y);
+
+			Size.X += FixX;
+			Size.Y += FixY;
+
+			SMALL_RECT WindowRect;
+			if (Console().GetWindowRect(WindowRect))
+			{
+				WindowRect.Right += FixX;
+				WindowRect.Bottom += FixY;
+				Console().SetWindowRect(WindowRect);
+			}
+		}
+	}
+
+	SetConsoleScreenBufferSize(Console().GetOutputHandle(), Size);
 }

@@ -42,6 +42,7 @@ WARNING_DISABLE_GCC("-Warray-bounds")
 WARNING_DISABLE_GCC("-Wunused-but-set-variable")
 WARNING_DISABLE_GCC("-Wcast-qual")
 
+#ifdef _MSC_VER
 #include <windows.h>
 
 // SQlite 3.12 suddenly started using rand_s function, which depends on RtlGenRandom (SystemFunction036), which is not available in Win2k.
@@ -58,6 +59,7 @@ static int rand_s(unsigned int* randomValue)
 	*randomValue = rand();
 	return 0;
 }
+#endif
 
 #include "thirdparty/sqlite/sqlite3.c"
 
