@@ -1,9 +1,9 @@
-﻿.Language=English,English
+.Language=English,English
 
-"Ok"
-"Cancel"
+"&Ok"
+"&Cancel"
 "Error"
-"Yes"
+"&Yes"
 
 "Network browser"
 
@@ -30,15 +30,15 @@
 
 "No free disk letters available"
 
-"User name"
-"User password"
+"User &name"
+"User &password"
 
 "Permanent connection to"
 "Temporary connection to"
 "F6 - temporary"
 "F6 - permanent"
 
-"Network"
+"Net"
 "Network name"
 "*:"
 "Comment"
@@ -47,15 +47,15 @@
 "Add to &Disks menu"
 "Add to &Plugins menu"
 "Disks menu &hotkey ('1'-'9'). Leave empty to autoassign"
-"&Show local network"
+"Show &local network"
 "Shares"
 "Show share &full name"
 "Hidden Shares"
-"Never show"
-"Make hidden"
-"Always show"
-"Show pri&nters"
-"Show \"..\" in the providers"
+"&Never show"
+"&Show as hidden"
+"&Always show"
+"Show p&rinters"
+"Show \"&..\" in the providers"
 "&Browse up to favorites if possible"
 "Check resource &reachability"
 
@@ -69,7 +69,7 @@
 "Favorites"
 "Favorites Folder"
 
-"Remember &password"
+"&Remember password"
 
 "Remove from Favorites"
 "Remove \"%s\" from Favorites"

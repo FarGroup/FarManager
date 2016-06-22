@@ -838,27 +838,33 @@ void NetBrowser::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 			kbl[j].Key.VirtualKeyCode = FKeys[i];
 			kbl[j].Key.ControlKeyState = FKeys[i+1];
 
-			if (FKeys[i+2] != (WORD)-1)
+			switch (FKeys[i + 2])
 			{
-				kbl[j].Text = kbl[j].LongText = GetMsg(FKeys[i+2]);
-			}
-			else if (FKeys[i+2])
-			{
-				if (FKeys[i] == VK_F4)
-				{
-					kbl[j].Text = kbl[j].LongText = (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_DOMAIN)?GetMsg(MF4):L"";
-				}
-				else if (FKeys[i] == VK_F8)
-				{
-					kbl[j].Text = kbl[j].LongText = CheckFavoriteItem(PCurResource)?GetMsg(MF8Fav):L"";
-				}
-			}
-			else
-			{
+			case 0:
 				kbl[j].Text = kbl[j].LongText = L"";
+				break;
+
+			case static_cast<WORD>(-1):
+				switch (FKeys[i])
+				{
+				case VK_F4:
+					kbl[j].Text = kbl[j].LongText = (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_DOMAIN) ? GetMsg(MF4) : L"";
+					break;
+
+				case VK_F8:
+					kbl[j].Text = kbl[j].LongText = CheckFavoriteItem(PCurResource) ? GetMsg(MF8Fav) : L"";
+					break;
+
+				default:
+					break;
+				}
+				break;
+
+			default:
+				kbl[j].Text = kbl[j].LongText = GetMsg(FKeys[i+2]);
+				break;
 			}
 		}
-
 		Info->KeyBar=&kbt;
 	}
 }
