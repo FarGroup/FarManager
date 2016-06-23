@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "console.hpp"
 #include "language.hpp"
+#include "filetype.hpp"
 
 enum class image_type
 {
@@ -652,7 +653,7 @@ void OpenFolderInShell(const string& Folder)
 	Execute(Info, true, true);
 }
 
-bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::function<void()>& ConsoleActivator)
+void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::function<void()>& ConsoleActivator)
 {
 	bool Result = false;
 	string strNewCmdStr;
@@ -770,17 +771,37 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 				Info.ExecMode = execute_info::exec_mode::external;
 				strNewCmdStr = Info.Command;
 			}
-			else if (GetImageType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType) || GetImageTypeFallback(ImageType))
+			else
 			{
-				// We can run it directly
-				Info.ExecMode = execute_info::exec_mode::direct;
-				strNewCmdStr = FoundModuleName;
-				strNewCmdPar = os::env::expand_strings(strNewCmdPar);
-
-				if (ImageType == image_type::graphical)
+				auto FoundModuleNameShort = FoundModuleName;
+				ConvertNameToShort(FoundModuleNameShort, FoundModuleNameShort);
+				const auto LastX = WhereX(), LastY = WhereY();
+				if (ProcessLocalFileTypes(FoundModuleName, FoundModuleNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, [&](execute_info& AssocInfo)
 				{
-					Silent = true;
-					Info.NewWindow = true;
+					GotoXY(LastX, LastY);
+					if (!strNewCmdPar.empty())
+					{
+						AssocInfo.Command.append(L" ").append(strNewCmdPar);
+					}
+					Execute(AssocInfo, FolderRun, Silent, ConsoleActivator);
+				}))
+				{
+					return;
+				}
+				GotoXY(LastX, LastY);
+
+				if (GetImageType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType) || GetImageTypeFallback(ImageType))
+				{
+					// We can run it directly
+					Info.ExecMode = execute_info::exec_mode::direct;
+					strNewCmdStr = FoundModuleName;
+					strNewCmdPar = os::env::expand_strings(strNewCmdPar);
+
+					if (ImageType == image_type::graphical)
+					{
+						Silent = true;
+						Info.NewWindow = true;
+					}
 				}
 			}
 		}
@@ -873,7 +894,7 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			if (strComspec.empty())
 			{
 				Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
-				return false;
+				return;
 			}
 		}
 
@@ -1067,8 +1088,6 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			nullptr,
 			{ Info.ExecMode == execute_info::exec_mode::direct? strNewCmdStr : strComspec });
 	}
-
-	return Result;
 }
 
 

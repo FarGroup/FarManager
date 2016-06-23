@@ -89,15 +89,10 @@ size_t GetDescriptionWidth()
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
 */
-bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish)
+bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, const std::function<void(execute_info&)>& Launcher)
 {
 	string strCommand, strDescription, strMask;
 	{
-		const auto TypesMenu = VMenu2::create(MSG(MSelectAssocTitle), nullptr, 0, ScrY - 4);
-		TypesMenu->SetHelp(L"FileAssoc");
-		TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
-		TypesMenu->SetId(SelectAssocMenuId);
-
 		int ActualCmdCount=0; // отображаемых ассоциаций в меню
 		filemasks FMask; // для работы с масками файлов
 
@@ -105,6 +100,8 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		DWORD Index=0;
 		unsigned __int64 id;
 		string FileName = PointToName(Name);
+
+		std::vector<MenuItemEx> MenuItems;
 
 		while (ConfigProvider().AssocConfig()->EnumMasksForType(Mode,Index++,&id,strMask))
 		{
@@ -144,7 +141,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			MenuItemEx TypesMenuItem(strDescription);
 			TypesMenuItem.SetSelect(Index==1);
 			TypesMenuItem.UserData = strCommand;
-			TypesMenu->AddItem(TypesMenuItem);
+			MenuItems.push_back(std::move(TypesMenuItem));
 		}
 
 		if (!CommandCount)
@@ -154,6 +151,15 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			return true;
 
 		int ExitCode=0;
+
+		const auto TypesMenu = VMenu2::create(MSG(MSelectAssocTitle), nullptr, 0, ScrY - 4);
+		TypesMenu->SetHelp(L"FileAssoc");
+		TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
+		TypesMenu->SetId(SelectAssocMenuId);
+		for (auto& Item : MenuItems)
+		{
+			TypesMenu->AddItem(std::move(Item));
+		}
 
 		if (ActualCmdCount>1)
 		{
@@ -187,9 +193,9 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		Info.Command = strCommand;
 		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 
-		Global->CtrlObject->CmdLine()->ExecString(Info);
+		Launcher? Launcher(Info) : Global->CtrlObject->CmdLine()->ExecString(Info);
 
-		if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
+		if (AddToHistory && !(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 		{
 			const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
 			Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, nullptr, curDir.data());

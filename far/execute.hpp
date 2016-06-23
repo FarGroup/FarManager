@@ -39,7 +39,7 @@ bool GetShellType(const string&Ext, string &strType, ASSOCIATIONTYPE aType=AT_FI
 
 void OpenFolderInShell(const string& Folder);
 
-bool Execute(struct execute_info& Info, bool FolderRun, bool Silent, const std::function<void()>& ConsoleActivator = nullptr);
+void Execute(struct execute_info& Info, bool FolderRun, bool Silent, const std::function<void()>& ConsoleActivator = nullptr);
 
 bool IsExecutable(const string& Filename);
 
