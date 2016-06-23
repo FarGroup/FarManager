@@ -593,6 +593,8 @@ public:
 		BoolOption ExecuteFullTitle;
 		StringOption strExecuteBatchType;
 		StringOption strExcludeCmds;
+		StringOption Comspec;
+		StringOption ComspecArguments;
 		struct
 		{
 			string Pattern;
@@ -600,7 +602,6 @@ public:
 		}
 		ComspecConditionRe;
 		StringOption ComspecCondition;
-		StringOption ComspecArguments;
 		BoolOption   UseHomeDir; // cd ~
 		StringOption strHomeDir; // cd ~
 	};

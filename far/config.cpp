@@ -1894,8 +1894,9 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"RestoreCP", OPT_DEF(Exec.RestoreCPAfterExecute, true)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseAppPath", OPT_DEF(Exec.ExecuteUseAppPath, true)},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"UseHomeDir", OPT_DEF(Exec.UseHomeDir, true)},
-		{FSSF_PRIVATE,       NKeySystemExecutor,L"ComspecCondition", OPT_DEF(Exec.ComspecCondition, L"")},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"Comspec", OPT_DEF(Exec.Comspec, L"%COMSPEC%")},
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"ComspecArguments", OPT_DEF(Exec.ComspecArguments, L"/S /C \"{0}\"")},
+		{FSSF_PRIVATE,       NKeySystemExecutor,L"ComspecCondition", OPT_DEF(Exec.ComspecCondition, L"")},
 
 		{FSSF_PRIVATE,       NKeyViewer,L"AutoDetectCodePage", OPT_DEF(ViOpt.AutoDetectCodePage, true)},
 		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", OPT_DEF(ViOpt.DefaultCodePage, GetACP())},

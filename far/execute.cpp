@@ -350,25 +350,27 @@ static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strN
 	// gcc implementation is total rubbish - it just causes a stack overflow. Shame on them.
 
 	// If anything goes wrong, e. g. pattern is incorrect or search failed - default condition (checking for presence of <>|& characters outside the quotes) will be used.
-	if (!Global->Opt->Exec.ComspecCondition.empty())
+	const auto Condition = os::env::expand_strings(Global->Opt->Exec.ComspecCondition);
+	if (!Condition.empty())
 	{
-		if (Global->Opt->Exec.ComspecConditionRe.Pattern != Global->Opt->Exec.ComspecCondition.Get())
+		auto& Re = Global->Opt->Exec.ComspecConditionRe;
+
+		if (Re.Pattern != Condition)
 		{
-			Global->Opt->Exec.ComspecConditionRe.Re.reset();
-			auto Re = std::make_unique<RegExp>();
-			if (Re->Compile(Global->Opt->Exec.ComspecCondition.data(), OP_OPTIMIZE))
+			Re.Re = std::make_unique<RegExp>();
+			if (!Re.Re->Compile(Condition.data(), OP_OPTIMIZE))
 			{
-				Global->Opt->Exec.ComspecConditionRe.Re = std::move(Re);
+				Re.Re.reset();
 			}
-			Global->Opt->Exec.ComspecConditionRe.Pattern = Global->Opt->Exec.ComspecCondition;
+			Re.Pattern = Condition;
 		}
 
-		if (Global->Opt->Exec.ComspecConditionRe.Re)
+		if (Re.Re)
 		{
-			if (Global->Opt->Exec.ComspecConditionRe.Re->Search(CmdStr))
+			if (Re.Re->Search(CmdStr))
 				return false;
 
-			if (Global->Opt->Exec.ComspecConditionRe.Re->LastError() == errNone)
+			if (Re.Re->LastError() == errNone)
 			{
 				UseDefaultCondition = false;
 			}
@@ -864,14 +866,18 @@ bool Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 	else
 	{
-		strComspec = os::env::get_variable(L"COMSPEC");
+		strComspec = os::env::expand_strings(Global->Opt->Exec.Comspec);
 		if (strComspec.empty())
 		{
-			Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
-			return false;
+			strComspec = os::env::get_variable(L"COMSPEC");
+			if (strComspec.empty())
+			{
+				Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
+				return false;
+			}
 		}
 
-		ComSpecParams = Global->Opt->Exec.ComspecArguments;
+		ComSpecParams = os::env::expand_strings(Global->Opt->Exec.ComspecArguments);
 		ReplaceStrings(ComSpecParams, L"{0}", Info.Command);
 
 		seInfo.lpFile = strComspec.data();
