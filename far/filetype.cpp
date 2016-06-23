@@ -89,7 +89,7 @@ size_t GetDescriptionWidth()
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
 */
-bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, const std::function<void(execute_info&)>& Launcher)
+bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, bool RunAs, const std::function<void(execute_info&)>& Launcher)
 {
 	string strCommand, strDescription, strMask;
 	{
@@ -192,6 +192,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		execute_info Info;
 		Info.Command = strCommand;
 		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+		Info.RunAs = RunAs;
 
 		Launcher? Launcher(Info) : Global->CtrlObject->CmdLine()->ExecString(Info);
 

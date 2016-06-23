@@ -53,7 +53,7 @@ enum FILETYPE_MODE
  */
 bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceInternal);
 
-bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory = true, const std::function<void(struct execute_info&)>& Launcher = nullptr);
+bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory = true, bool RunAs = false, const std::function<void(struct execute_info&)>& Launcher = nullptr);
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish);
 void EditFileTypes();
 

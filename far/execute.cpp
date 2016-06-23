@@ -659,6 +659,9 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	string strNewCmdStr;
 	string strNewCmdPar;
 
+	// Info.NewWindow may be changed later
+	const auto IgnoreInternalAssociations = Info.NewWindow;
+
 	if (Info.SourceMode == execute_info::source_mode::known)
 	{
 		strNewCmdStr = Info.Command;
@@ -773,22 +776,27 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			}
 			else
 			{
-				auto FoundModuleNameShort = FoundModuleName;
-				ConvertNameToShort(FoundModuleNameShort, FoundModuleNameShort);
-				const auto LastX = WhereX(), LastY = WhereY();
-				if (ProcessLocalFileTypes(FoundModuleName, FoundModuleNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, [&](execute_info& AssocInfo)
+				if (!IgnoreInternalAssociations)
 				{
-					GotoXY(LastX, LastY);
-					if (!strNewCmdPar.empty())
+					auto FoundModuleNameShort = FoundModuleName;
+					ConvertNameToShort(FoundModuleNameShort, FoundModuleNameShort);
+					const auto LastX = WhereX(), LastY = WhereY();
+					if (ProcessLocalFileTypes(FoundModuleName, FoundModuleNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, Info.RunAs, [&](execute_info& AssocInfo)
 					{
-						AssocInfo.Command.append(L" ").append(strNewCmdPar);
+						GotoXY(LastX, LastY);
+
+						if (!strNewCmdPar.empty())
+						{
+							AssocInfo.Command.append(L" ").append(strNewCmdPar);
+						}
+
+						Execute(AssocInfo, FolderRun, Silent, ConsoleActivator);
+					}))
+					{
+						return;
 					}
-					Execute(AssocInfo, FolderRun, Silent, ConsoleActivator);
-				}))
-				{
-					return;
+					GotoXY(LastX, LastY);
 				}
-				GotoXY(LastX, LastY);
 
 				if (GetImageType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType) || GetImageTypeFallback(ImageType))
 				{

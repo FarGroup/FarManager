@@ -2651,7 +2651,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!SetCurPath())
 				return;
 
-			if (!SeparateWindow && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_EXEC, PluginMode))
+			if (!SeparateWindow && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_EXEC, PluginMode, true, RunAs))
 				return;
 
 			const auto IsItExecutable = IsExecutable(strFileName);
