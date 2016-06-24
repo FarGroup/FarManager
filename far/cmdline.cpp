@@ -893,7 +893,7 @@ public:
 		m_Activated = true;
 
 		Global->WindowManager->ActivateWindow(Global->CtrlObject->Desktop);
-		Global->WindowManager->ShowBackground();
+		Global->WindowManager->PluginCommit();
 
 		// ShowCommand is false when there is no "command" - class instantiated by FCTL_GETUSERSCREEN.
 		if (m_ShowCommand)

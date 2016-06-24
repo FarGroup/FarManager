@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
+#include "window.hpp"
 
 enum
 {
@@ -328,34 +329,37 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 		if (FlushType & flush_type::screen)
 		{
-			auto SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
+			if (!(Global->WindowManager && Global->WindowManager->GetCurrentWindow() && Global->WindowManager->GetCurrentWindow()->GetType() == windowtype_desktop))
 			{
-				Where.Char = Char;
-				Where.Attributes = colors::ConsoleColorToFarColor(Color);
-				SBFlags.Clear(SBFLAGS_FLUSHED);
-			};
+				auto SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
+				{
+					Where.Char = Char;
+					Where.Attributes = colors::ConsoleColorToFarColor(Color);
+					SBFlags.Clear(SBFLAGS_FLUSHED);
+				};
 
-			if (Global->CtrlObject &&
-				(Global->CtrlObject->Macro.IsRecording() ||
-				(Global->CtrlObject->Macro.IsExecuting() && Global->Opt->Macro.ShowPlayIndicator))
-				)
-			{
-				auto& Where = Buf[0][0];
-				MacroChar = Where;
-				MacroCharUsed = true;
+				if (Global->CtrlObject &&
+					(Global->CtrlObject->Macro.IsRecording() ||
+					(Global->CtrlObject->Macro.IsExecuting() && Global->Opt->Macro.ShowPlayIndicator))
+					)
+				{
+					auto& Where = Buf[0][0];
+					MacroChar = Where;
+					MacroCharUsed = true;
 
-				Global->CtrlObject->Macro.IsRecording()?
-					SetMacroChar(Where, L'R', B_LIGHTRED | F_WHITE) :
-					SetMacroChar(Where, L'P', B_GREEN | F_WHITE);
-			}
+					Global->CtrlObject->Macro.IsRecording() ?
+						SetMacroChar(Where, L'R', B_LIGHTRED | F_WHITE) :
+						SetMacroChar(Where, L'P', B_GREEN | F_WHITE);
+				}
 
-			if (Global->Elevation->Elevated())
-			{
-				auto& Where = Buf.back().back();
-				ElevationChar = Where;
-				ElevationCharUsed = true;
+				if (Global->Elevation->Elevated())
+				{
+					auto& Where = Buf.back().back();
+					ElevationChar = Where;
+					ElevationCharUsed = true;
 
-				SetMacroChar(Where, L'A', B_LIGHTRED | F_WHITE);
+					SetMacroChar(Where, L'A', B_LIGHTRED | F_WHITE);
+				}
 			}
 
 			if (!SBFlags.Check(SBFLAGS_FLUSHED))
