@@ -873,34 +873,21 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::max(5, std::min(95, NewSize)) : DEFAULT_CMDLINE_WIDTH;
 }
 
-class execution_context: noncopyable
+class execution_context: noncopyable, public i_execution_context
 {
 public:
-	execution_context(const string& Command, bool ShowCommand = true):
-		m_CurrentWindow(Global->WindowManager->GetCurrentWindow()),
-		m_Command(Command),
-		m_ShowCommand(ShowCommand),
-		m_Activated(),
-		m_Consolised()
-	{
-	}
-
-	void Activate()
+	void Activate() override
 	{
 		if (m_Activated)
 			return;
 
 		m_Activated = true;
+		++Global->SuppressClock;
+
+		m_CurrentWindow = Global->WindowManager->GetCurrentWindow();
 
 		Global->WindowManager->ActivateWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->PluginCommit();
-
-		// ShowCommand is false when there is no "command" - class instantiated by FCTL_GETUSERSCREEN.
-		if (m_ShowCommand)
-		{
-			Global->CtrlObject->CmdLine()->DrawFakeCommand(m_Command);
-			ScrollScreen(1);
-		}
 
 		Global->CtrlObject->Desktop->TakeSnapshot();
 		int X1, Y1, X2, Y2;
@@ -908,9 +895,25 @@ public:
 		GotoXY(0, Y1);
 	}
 
-	void ConsoleContext()
+	void DrawCommand(const string& Command) override
 	{
-		Activate();
+		Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
+		ScrollScreen(1);
+
+		m_Command = Command;
+		m_ShowCommand = true;
+		m_Finalised = false;
+
+		Global->CtrlObject->Desktop->TakeSnapshot();
+		int X1, Y1, X2, Y2;
+		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);
+		GotoXY(0, Y1);
+	}
+
+	void Consolise() override
+	{
+		assert(m_Activated);
+
 		if (m_Consolised)
 			return;
 		m_Consolised = true;
@@ -930,14 +933,12 @@ public:
 		Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 	}
 
-	const string& Command() const
-	{
-		return m_Command;
-	}
-
-	~execution_context()
+	void DrawEpilog() override
 	{
 		if (!m_Activated)
+			return;
+
+		if (m_Finalised)
 			return;
 
 		if (m_Consolised)
@@ -948,6 +949,8 @@ public:
 			}
 			Console().Commit();
 			Global->ScrBuf->FillBuf();
+
+			m_Consolised = false;
 		}
 
 		// Empty command means that user simply pressed Enter in command line, in this case we don't want additional scrolling
@@ -958,20 +961,31 @@ public:
 		}
 
 		Global->CtrlObject->Desktop->TakeSnapshot();
+
+		m_Finalised = true;
+	}
+
+	~execution_context() override
+	{
+		if (!m_Activated)
+			return;
+
 		Global->WindowManager->SubmergeWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->ActivateWindow(m_CurrentWindow);
 		Global->WindowManager->ResizeAllWindows();
+		--Global->SuppressClock;
 	}
 
 private:
-	const window_ptr m_CurrentWindow;
-	const string m_Command;
-	const bool m_ShowCommand;
-	bool m_Activated;
-	bool m_Consolised;
+	window_ptr m_CurrentWindow;
+	string m_Command;
+	bool m_ShowCommand{};
+	bool m_Activated{};
+	bool m_Finalised{};
+	bool m_Consolised{};
 };
 
-static bool ProcessFarCommands(const string& Command, execution_context& ExecutionContext)
+static bool ProcessFarCommands(const string& Command, const std::function<void(bool)>& ConsoleActivatior)
 {
 	if (!StrCmpI(Command.data(), L"far:config"))
 	{
@@ -1008,7 +1022,7 @@ static bool ProcessFarCommands(const string& Command, execution_context& Executi
 			}
 		}
 
-		ExecutionContext.ConsoleContext();
+		ConsoleActivatior(true);
 		Console().Write(strOut);
 
 		return true;
@@ -1022,8 +1036,12 @@ void CommandLine::ExecString(execute_info& Info)
 	bool Silent = false;
 	bool IsUpdateNeeded = false;
 
+	const auto ExecutionContext = GetExecutionContext();
+
 	SCOPE_EXIT
 	{
+		ExecutionContext->DrawEpilog();
+
 		if (!IsUpdateNeeded)
 			return;
 
@@ -1044,12 +1062,20 @@ void CommandLine::ExecString(execute_info& Info)
 		}
 	};
 
-	execution_context ExecutionContext(Info.Command);
+	bool CommandDrawn = false;
+	auto DrawCommand = [&]
+	{
+		if (CommandDrawn)
+			return;
+		ExecutionContext->DrawCommand(Info.Command);
+		CommandDrawn = true;
+	};
 
 	if (Info.Command.empty())
 	{
 		// Just scroll the screen
-		ExecutionContext.Activate();
+		ExecutionContext->Activate();
+		DrawCommand();
 		return;
 	}
 
@@ -1072,30 +1098,39 @@ void CommandLine::ExecString(execute_info& Info)
 
 		if (!Info.NewWindow && !Info.RunAs)
 		{
-			if (ProcessFarCommands(Info.Command, ExecutionContext))
+			auto Activator = [&](bool DoConsolise)
+			{
+				ExecutionContext->Activate();
+				DrawCommand();
+				if (DoConsolise)
+					ExecutionContext->Consolise();
+			};
+
+			if (ProcessFarCommands(Info.Command, Activator))
 				return;
 
 			if (Global->CtrlObject->Plugins->ProcessCommandLine(Info.Command))
 				return;
 
-			if (ProcessOSCommands(Info.Command, ExecutionContext))
+			if (ProcessOSCommands(Info.Command, Activator))
 				return;
 		}
 	}
 
 	if (!Silent)
 	{
-		ConsoleTitle::SetFarTitle(ExecutionContext.Command());
+		ConsoleTitle::SetFarTitle(Info.Command);
 	}
 
-	ExecutionContext.Activate();
-	Execute(Info, false, Silent, [&ExecutionContext](){ ExecutionContext.ConsoleContext(); });
-	
+	ExecutionContext->Activate();
+	DrawCommand();
+	Execute(Info, false, Silent, [&ExecutionContext](){ ExecutionContext->Consolise(); });
+
 	// BUGBUG do we really need to update panels at all?
 	IsUpdateNeeded = true;
 }
 
-bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_context& ExecutionContext)
+bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<void(bool)>& ConsoleActivatior)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 	
@@ -1122,7 +1157,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 
 	const auto FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
 
-	ExecutionContext.Activate();
+	ConsoleActivatior(false);
 
 	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || !CmdLine.find_first_not_of(L' ', 2)))
 	{
@@ -1174,7 +1209,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, class execution_conte
 
 			if (!strOut.empty())
 			{
-				ExecutionContext.ConsoleContext();
+				ConsoleActivatior(true);
 				Console().Write(strOut);
 			}
 
@@ -1407,10 +1442,27 @@ void CommandLine::LockUpdatePanel(bool Mode)
 
 void CommandLine::EnterPluginExecutionContext()
 {
-	(m_PluginExecutionContext = std::make_unique<execution_context>(string(), false))->ConsoleContext();
+	m_PluginExecutionContext = GetExecutionContext();
+	m_PluginExecutionContext->Activate();
+	m_PluginExecutionContext->Consolise();
 }
 
 void CommandLine::LeavePluginExecutionContext()
 {
+	m_PluginExecutionContext->DrawEpilog();
 	m_PluginExecutionContext.reset();
+}
+
+const std::shared_ptr<i_execution_context> CommandLine::GetExecutionContext()
+{
+	if (auto Result = m_ExecutionContext.lock())
+	{
+		return Result;
+	}
+	else
+	{
+		Result = std::make_shared<execution_context>();
+		m_ExecutionContext = Result;
+		return Result;
+	}
 }

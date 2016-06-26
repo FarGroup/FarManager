@@ -52,7 +52,15 @@ struct execute_info
 	bool RunAs{};
 };
 
-class execution_context;
+class i_execution_context
+{
+public:
+	virtual void Activate() = 0;
+	virtual void DrawCommand(const string& Command) = 0;
+	virtual void DrawEpilog() = 0;
+	virtual void Consolise() = 0;
+	virtual ~i_execution_context() = default;
+};
 
 class CommandLine:public SimpleScreenObject
 {
@@ -86,11 +94,12 @@ public:
 	void DrawFakeCommand(const string& FakeCommand);
 	void EnterPluginExecutionContext();
 	void LeavePluginExecutionContext();
+	const std::shared_ptr<i_execution_context> GetExecutionContext();
 
 private:
 	virtual void DisplayObject() override;
 	size_t DrawPrompt();
-	bool ProcessOSCommands(const string& CmdLine, execution_context& ExecutionContext);
+	bool ProcessOSCommands(const string& CmdLine, const std::function<void(bool)>& ConsoleActivatior);
 	std::list<std::pair<string, FarColor>> GetPrompt();
 	static bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
 
@@ -103,7 +112,8 @@ private:
 	int LastCmdPartLength;
 	string m_CurCmdStr;
 	std::stack<string> ppstack;
-	std::unique_ptr<execution_context> m_PluginExecutionContext;
+	std::weak_ptr<i_execution_context> m_ExecutionContext;
+	std::shared_ptr<i_execution_context> m_PluginExecutionContext;
 };
 
 #endif // CMDLINE_HPP_7E68C776_4AA9_4A24_BE9F_7F7FA6D50F30

@@ -753,6 +753,8 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		const auto strCmdLineDir = Global->CtrlObject->CmdLine()->GetCurDir();
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(true);
 
+		const auto ConsoleContext = Global->CtrlObject->CmdLine()->GetExecutionContext();
+
 		// Цикл исполнения команд меню (CommandX)
 		std::for_each(CONST_RANGE((*CurrentMenuItem)->Commands, str)
 		{

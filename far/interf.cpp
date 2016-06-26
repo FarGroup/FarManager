@@ -572,7 +572,7 @@ void GetVideoMode(COORD& Size)
 
 void ShowTime()
 {
-	if (Global->ScreenSaverActive)
+	if (Global->ScreenSaverActive || Global->SuppressClock)
 		return;
 
 	Global->CurrentTime = locale::GetTimeFormat();

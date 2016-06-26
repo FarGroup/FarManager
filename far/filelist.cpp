@@ -4898,42 +4898,45 @@ bool FileList::ApplyCommand()
 	++UpdateDisabled;
 	GetSelName(nullptr,FileAttr);
 	Parent()->GetCmdLine()->LockUpdatePanel(true);
-	while (GetSelName(&strSelName,FileAttr,&strSelShortName) && !CheckForEsc())
 	{
-		string strListName, strAnotherListName;
-		string strShortListName, strAnotherShortListName;
-		string strConvertedCommand = strCommand;
-		int PreserveLFN=SubstFileName(nullptr,strConvertedCommand,strSelName, strSelShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-		bool ListFileUsed=!strListName.empty()||!strAnotherListName.empty()||!strShortListName.empty()||!strAnotherShortListName.empty();
-
-		if (!strConvertedCommand.empty())
+		const auto ExecutionContext = Parent()->GetCmdLine()->GetExecutionContext();
+		while (GetSelName(&strSelName, FileAttr, &strSelShortName) && !CheckForEsc())
 		{
-			SCOPED_ACTION(PreserveLongName)(strSelShortName, PreserveLFN);
+			string strListName, strAnotherListName;
+			string strShortListName, strAnotherShortListName;
+			string strConvertedCommand = strCommand;
+			int PreserveLFN = SubstFileName(nullptr, strConvertedCommand, strSelName, strSelShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
+			bool ListFileUsed = !strListName.empty() || !strAnotherListName.empty() || !strShortListName.empty() || !strAnotherShortListName.empty();
 
-			execute_info Info;
-			Info.Command = strConvertedCommand;
-			Info.WaitMode = ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+			if (!strConvertedCommand.empty())
+			{
+				SCOPED_ACTION(PreserveLongName)(strSelShortName, PreserveLFN);
 
-			Parent()->GetCmdLine()->ExecString(Info);
-			//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
-			//	Global->CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
+				execute_info Info;
+				Info.Command = strConvertedCommand;
+				Info.WaitMode = ListFileUsed ? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+
+				Parent()->GetCmdLine()->ExecString(Info);
+
+				//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
+				//	Global->CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
+			}
+
+			ClearLastGetSelection();
+
+			if (!strListName.empty())
+				os::DeleteFile(strListName);
+
+			if (!strAnotherListName.empty())
+				os::DeleteFile(strAnotherListName);
+
+			if (!strShortListName.empty())
+				os::DeleteFile(strShortListName);
+
+			if (!strAnotherShortListName.empty())
+				os::DeleteFile(strAnotherShortListName);
 		}
-
-		ClearLastGetSelection();
-
-		if (!strListName.empty())
-			os::DeleteFile(strListName);
-
-		if (!strAnotherListName.empty())
-			os::DeleteFile(strAnotherListName);
-
-		if (!strShortListName.empty())
-			os::DeleteFile(strShortListName);
-
-		if (!strAnotherShortListName.empty())
-			os::DeleteFile(strAnotherShortListName);
 	}
-
 	Parent()->GetCmdLine()->LockUpdatePanel(false);
 	Parent()->GetCmdLine()->Show();
 	if (Global->Opt->ShowKeyBar)
