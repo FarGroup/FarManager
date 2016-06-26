@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 26.06.2016 16:37:24 +0200 - build 4726
+
+1. Extend Panel.SetCustomSortMode() function capabilities.
+
+drkns 24.06.2016 23:19:28 +0200 - build 4725
+
+1. Forum: administrative rights indicator stays on screen at program launch for some reason.
+
+drkns 24.06.2016 01:39:45 +0200 - build 4724
+
+1. Continuation of 4723 - exception for ShiftEnter and support for 'run as'.
+
+drkns 24.06.2016 01:15:01 +0200 - build 4723
+
+1. Highly experimental feature: built-in associations are applied to command line.
+
+drkns 23.06.2016 22:46:27 +0200 - build 4722
+
+1. Correction of 4710.
+
+drkns 23.06.2016 21:09:03 +0200 - build 4721
+
+1. New parameter: far:config -> System.Executor.Comspec defining the command processor used (%comspec% by default).
+
+2. System.Executor.ComspecArguments and System.Executor.ComspecCondition support environment variables.
+
+drkns 21.06.2016 21:33:36 +0200 - build 4720
+
+1. Continuation of 4712.
+
+2. gcc warning.
+
 drkns 20.06.2016 00:20:17 +0200 - build 4719
 
 1. Variables in ExcludeCmds would not expand when used in autocompletion.
