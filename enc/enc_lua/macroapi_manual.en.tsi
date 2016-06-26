@@ -817,7 +817,7 @@ lv=3
 dt=Text
 nm=CustomSortMenu
 ctime=3585577926
-mtime=3607097005
+mtime=3676119480
 <article>
 #_Panel.CustomSortMenu ()
 #_
@@ -832,6 +832,9 @@ mtime=3607097005
 #_  Pressing **Enter** will set the selected sort mode in the active panel,
 #_  pressing **CtrlEnter** - in the passive panel, **CtrlShiftEnter** - in both panels.
 #_
+#_  Keys **Add** and **Subtract** work as in the "Sort by" menu in Far Manager.
+#_  Also supported are modifiers **Ctrl** and **CtrlShift** that determine choice
+#_  of panels for setting sort mode on them.
 #_
 </article>
 </node>
@@ -947,13 +950,17 @@ lv=3
 dt=Text
 nm=SetCustomSortMode
 ctime=3585499487
-mtime=3607097174
+mtime=3676118654
 <article>
-#_Panel.SetCustomSortMode (Mode, whatpanel)
+#_Panel.SetCustomSortMode (Mode, whatpanel [, order])
 #_
 #_**Parameters:**
 #_  Mode:         sorting mode, an integer >=100 and <=0x7FFFFFFF
 #_  whatpanel:    0=active panel, 1=passive panel
+#_  order:        "auto"    - standard choice of sort direction (default)
+#_                "current" - keep current sort direction in the panel
+#_                "direct"  - set direct sort mode
+#_                "reverse" - set reverse sort mode
 #_
 #_**Returns:**
 #_  Nothing

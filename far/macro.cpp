@@ -2260,7 +2260,19 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				{
 					int SortMode = (int)Data->Values[1].Double;
 					bool InvertByDefault = Data->Values[2].Boolean != 0;
-					panel->SetCustomSortMode(SortMode, false, InvertByDefault);
+					sort_order Order = SO_AUTO;
+					if (Data->Count>=4 && Data->Values[3].Type==FMVT_DOUBLE)
+					{
+						switch (static_cast<int>(Data->Values[3].Double))
+						{
+							default:
+							case 0: Order=SO_AUTO; break;
+							case 1: Order=SO_KEEPCURRENT; break;
+							case 2: Order=SO_DIRECT; break;
+							case 3: Order=SO_REVERSE; break;
+						}
+					}
+					panel->SetCustomSortMode(SortMode, Order, InvertByDefault);
 				}
 			}
 			break;

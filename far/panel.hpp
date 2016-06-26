@@ -122,6 +122,14 @@ enum class panel_sort
 	COUNT
 };
 
+enum sort_order
+{
+	SO_AUTO,
+	SO_KEEPCURRENT,
+	SO_DIRECT,
+	SO_REVERSE,
+};
+
 class VMenu2;
 class Edit;
 struct PanelMenuItem;
@@ -209,7 +217,7 @@ public:
 	virtual bool GetPrevDirectoriesFirst() const { return m_DirectoriesFirst; }
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
 	virtual void SetSortMode(panel_sort Mode, bool KeepOrder = false) { m_SortMode = Mode; }
-	virtual void SetCustomSortMode(int SortMode, bool KeepOrder = false, bool InvertByDefault = false) {}
+	virtual void SetCustomSortMode(int SortMode, sort_order Order = SO_AUTO, bool InvertByDefault = false) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
 	virtual void IfGoHome(wchar_t Drive) {}
 	virtual void UpdateKeyBar() = 0;

@@ -3346,13 +3346,19 @@ void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 	ApplySortMode(Mode);
 }
 
-void FileList::SetCustomSortMode(int Mode, bool KeepOrder, bool InvertByDefault)
+void FileList::SetCustomSortMode(int Mode, sort_order Order, bool InvertByDefault)
 {
 	if (Mode >= static_cast<int>(panel_sort::COUNT))
 	{
-		if (!KeepOrder)
+		switch (Order)
 		{
-			m_ReverseSortOrder = (static_cast<int>(m_SortMode) == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault;
+			default:
+			case SO_AUTO:
+				m_ReverseSortOrder = (static_cast<int>(m_SortMode) == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault;
+				break;
+			case SO_KEEPCURRENT: break;
+			case SO_DIRECT: m_ReverseSortOrder = false; break;
+			case SO_REVERSE: m_ReverseSortOrder = true; break;
 		}
 
 		ApplySortMode(panel_sort(Mode));
@@ -4717,15 +4723,15 @@ void FileList::SelectSortMode()
 		if (custom_sort::CanSort(mode))
 		{
 			bool InvertByDefault = mpr->Values[index+1].Boolean != 0;
-			bool KeepOrder = false;
+			sort_order Order = SO_AUTO;
 
 			if (!InvertPressed)
 			{
 				m_ReverseSortOrder = !PlusPressed;
-				KeepOrder = true;
+				Order = SO_KEEPCURRENT;
 			}
 
-			SetCustomSortMode(mode, KeepOrder, InvertByDefault);
+			SetCustomSortMode(mode, Order, InvertByDefault);
 		}
 	}
 	// sort options

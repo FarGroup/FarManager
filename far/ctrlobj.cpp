@@ -99,8 +99,8 @@ void ControlObject::Init(int DirCount)
 	FarChDir(FPanels->ActivePanel()->GetCurDir());
 
 	Macro.LoadMacros(true);
-	FPanels->LeftPanel()->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, true);
-	FPanels->RightPanel()->SetCustomSortMode(Global->Opt->RightPanel.SortMode, true);
+	FPanels->LeftPanel()->SetCustomSortMode(Global->Opt->LeftPanel.SortMode, SO_KEEPCURRENT);
+	FPanels->RightPanel()->SetCustomSortMode(Global->Opt->RightPanel.SortMode, SO_KEEPCURRENT);
 	Global->WindowManager->SwitchToPanels();  // otherwise panels are empty
 }
 

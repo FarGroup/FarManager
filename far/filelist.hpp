@@ -178,7 +178,7 @@ public:
 	virtual void SortFileList(int KeepPosition) override;
 	virtual void SetViewMode(int ViewMode) override;
 	virtual void SetSortMode(panel_sort SortMode, bool KeepOrder = false) override;
-	virtual void SetCustomSortMode(int SortMode, bool KeepOrder = false, bool InvertByDefault = false) override;
+	virtual void SetCustomSortMode(int SortMode, sort_order Order = SO_AUTO, bool InvertByDefault = false) override;
 	virtual void ChangeSortOrder(bool Reverse) override;
 	virtual void ChangeNumericSort(bool Mode) override;
 	virtual void ChangeCaseSensitiveSort(bool Mode) override;

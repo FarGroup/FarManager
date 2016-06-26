@@ -118,33 +118,54 @@ local function CanDoPanelSort (SortMode)
   end
 end
 
-local function SetCustomSortMode (nMode, whatpanel)
+--	SO_AUTO,
+--	SO_KEEPCURRENT,
+--	SO_DIRECT,
+--	SO_REVERSE,
+local function SetCustomSortMode (nMode, whatpanel, order)
   if CanChangeSortMode then
     if CanDoPanelSort(nMode) then
+      if     order=="auto"    then order=0
+      elseif order=="current" then order=1
+      elseif order=="direct"  then order=2
+      elseif order=="reverse" then order=3
+      else order = 0
+      end
       local Settings = CustomSortModes[nMode]
       whatpanel = whatpanel==1 and 1 or 0
-      Shared.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault)
+      Shared.MacroCallFar(MCODE_F_SETCUSTOMSORTMODE, whatpanel, nMode, Settings.InvertByDefault, order)
     end
   end
 end
 
 local function CustomSortMenu()
   local Id = win.Uuid("C323FBCF-6803-4F2C-B8B4-E576E7F125DC")
-  local items, bkeys = {}, {{BreakKey="C+RETURN"},{BreakKey="CS+RETURN"}}
+  local items, bkeys = {}, {
+    { BreakKey="C+RETURN",    order="auto" },
+    { BreakKey="CS+RETURN",   order="auto" },
+    { BreakKey="ADD",         order="direct" },
+    { BreakKey="C+ADD",       order="direct" },
+    { BreakKey="CS+ADD",      order="direct" },
+    { BreakKey="SUBTRACT",    order="reverse" },
+    { BreakKey="C+SUBTRACT",  order="reverse" },
+    { BreakKey="CS+SUBTRACT", order="reverse" },
+  }
+  local pinfo = panel.GetPanelInfo(nil,1)
   for k,v in pairs(CustomSortModes) do
-    items[#items+1] = { text=v.Description and tostring(v.Description) or Msg.PSDefaultMenuItemText..k; Mode=k; }
+    local item = { text=v.Description and tostring(v.Description) or Msg.PSDefaultMenuItemText..k; Mode=k; }
+    if pinfo.SortMode == k then
+      item.selected = true
+      item.checked = band(pinfo.Flags,F.PFLAGS_REVERSESORTORDER)==0 and "+" or "-"
+    end
+    items[#items+1] = item
   end
   table.sort(items, function(a,b) return a.Mode < b.Mode end)
   local r, pos = far.Menu({Title=Msg.PSMenuTitle, Id=Id}, items, bkeys)
   if r and (pos > 0) then
-    if r.BreakKey == "C+RETURN" then
-      SetCustomSortMode(items[pos].Mode,1)
-    elseif r.BreakKey == "CS+RETURN" then
-      SetCustomSortMode(items[pos].Mode,0)
-      SetCustomSortMode(items[pos].Mode,1)
-    else
-      SetCustomSortMode(r.Mode,0)
-    end
+    local apanel = not r.BreakKey or r.BreakKey:find("^CS%+") or not r.BreakKey:find("+")
+    local ppanel = r.BreakKey and r.BreakKey:find("^CS?%+")
+    if ppanel then SetCustomSortMode(items[pos].Mode, 1, r.order) end
+    if apanel then SetCustomSortMode(items[pos].Mode, 0, r.order) end
   end
 end
 
