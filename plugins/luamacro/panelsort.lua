@@ -118,10 +118,6 @@ local function CanDoPanelSort (SortMode)
   end
 end
 
---	SO_AUTO,
---	SO_KEEPCURRENT,
---	SO_DIRECT,
---	SO_REVERSE,
 local function SetCustomSortMode (nMode, whatpanel, order)
   if CanChangeSortMode then
     if CanDoPanelSort(nMode) then
@@ -162,7 +158,7 @@ local function CustomSortMenu()
   table.sort(items, function(a,b) return a.Mode < b.Mode end)
   local r, pos = far.Menu({Title=Msg.PSMenuTitle, Id=Id}, items, bkeys)
   if r and (pos > 0) then
-    local apanel = not r.BreakKey or r.BreakKey:find("^CS%+") or not r.BreakKey:find("+")
+    local apanel = not r.BreakKey or r.BreakKey:find("^CS%+") or not r.BreakKey:find("%+")
     local ppanel = r.BreakKey and r.BreakKey:find("^CS?%+")
     if ppanel then SetCustomSortMode(items[pos].Mode, 1, r.order) end
     if apanel then SetCustomSortMode(items[pos].Mode, 0, r.order) end
