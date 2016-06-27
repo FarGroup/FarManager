@@ -888,11 +888,6 @@ public:
 
 		Global->WindowManager->ActivateWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->PluginCommit();
-
-		Global->CtrlObject->Desktop->TakeSnapshot();
-		int X1, Y1, X2, Y2;
-		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);
-		GotoXY(0, Y1);
 	}
 
 	void DrawCommand(const string& Command) override
@@ -902,12 +897,8 @@ public:
 
 		m_Command = Command;
 		m_ShowCommand = true;
-		m_Finalised = false;
 
-		Global->CtrlObject->Desktop->TakeSnapshot();
-		int X1, Y1, X2, Y2;
-		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);
-		GotoXY(0, Y1);
+		DoPrologue();
 	}
 
 	void Consolise() override
@@ -933,7 +924,16 @@ public:
 		Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 	}
 
-	void DrawEpilog() override
+	void DoPrologue() override
+	{
+		Global->CtrlObject->Desktop->TakeSnapshot();
+		int X1, Y1, X2, Y2;
+		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);
+		GotoXY(0, Y1);
+		m_Finalised = false;
+	}
+
+	void DoEpilogue() override
 	{
 		if (!m_Activated)
 			return;
@@ -1040,7 +1040,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 	SCOPE_EXIT
 	{
-		ExecutionContext->DrawEpilog();
+		ExecutionContext->DoEpilogue();
 
 		if (!IsUpdateNeeded)
 			return;
@@ -1444,12 +1444,13 @@ void CommandLine::EnterPluginExecutionContext()
 {
 	m_PluginExecutionContext = GetExecutionContext();
 	m_PluginExecutionContext->Activate();
+	m_PluginExecutionContext->DoPrologue();
 	m_PluginExecutionContext->Consolise();
 }
 
 void CommandLine::LeavePluginExecutionContext()
 {
-	m_PluginExecutionContext->DrawEpilog();
+	m_PluginExecutionContext->DoEpilogue();
 	m_PluginExecutionContext.reset();
 }
 

@@ -57,7 +57,8 @@ class i_execution_context
 public:
 	virtual void Activate() = 0;
 	virtual void DrawCommand(const string& Command) = 0;
-	virtual void DrawEpilog() = 0;
+	virtual void DoPrologue() = 0;
+	virtual void DoEpilogue() = 0;
 	virtual void Consolise() = 0;
 	virtual ~i_execution_context() = default;
 };

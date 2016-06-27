@@ -776,8 +776,13 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			}
 			else
 			{
-				if (!IgnoreInternalAssociations)
+				static unsigned ProcessingAsssociation = 0;
+
+				if (!IgnoreInternalAssociations && !ProcessingAsssociation)
 				{
+					++ProcessingAsssociation;
+					SCOPE_EXIT{ --ProcessingAsssociation; };
+
 					auto FoundModuleNameShort = FoundModuleName;
 					ConvertNameToShort(FoundModuleNameShort, FoundModuleNameShort);
 					const auto LastX = WhereX(), LastY = WhereY();
@@ -790,7 +795,8 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 							AssocInfo.Command.append(L" ").append(strNewCmdPar);
 						}
 
-						Execute(AssocInfo, FolderRun, Silent, ConsoleActivator);
+						Global->CtrlObject->CmdLine()->ExecString(AssocInfo);
+						//Execute(AssocInfo, FolderRun, Silent, ConsoleActivator);
 					}))
 					{
 						return;
