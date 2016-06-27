@@ -1,3 +1,7 @@
+zg 28.06.2016 00:01:31 +0200 - build 98
+
+1. поддержка фаровской истории.
+
 drkns 22.06.2016 21:50:58 +0200 - build 97
 
 1. Некорректно отображались надписи на линейке клавиш.
@@ -13,7 +17,7 @@ drkns 01.05.2014 12:39:45 +0200 - build 95
 1. Mantis#0002654: TechInfo #35: Network/HiddenSharesAsHidden
    Редизайн настроек.
 
-svs 23.04.2014 14:23:34 +0400 - build 
+svs 23.04.2014 14:23:34 +0400 - build
 
 1. Mantis#0002654: TechInfo #35: Network/HiddenSharesAsHidden
    Уточнение хелпа
@@ -245,7 +249,7 @@ zg 24.02.2009 01:21:28 +0200 - build 48
 
 svs 19.02.2009 13:27:04 +0300 - build 47
 
-1. Mantis#0000747: Плагины align, proclist и network: функция SetRegKey неверно вычисляет размер буфера в Unicode версии. 
+1. Mantis#0000747: Плагины align, proclist и network: функция SetRegKey неверно вычисляет размер буфера в Unicode версии.
    (from alexeypa)
 
 drkns 27.01.2009 16:09:51 +0200 - build 46

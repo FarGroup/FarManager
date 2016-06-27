@@ -705,7 +705,7 @@ void NetBrowser::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 
 #endif
 	Info->StructSize=sizeof(*Info);
-	Info->Flags=OPIF_ADDDOTS|OPIF_RAWSELECTION|OPIF_SHOWPRESERVECASE;
+	Info->Flags=OPIF_ADDDOTS|OPIF_RAWSELECTION|OPIF_SHOWPRESERVECASE|OPIF_SHORTCUT;
 	Info->HostFile=NULL;
 
 	if (PCurResource == NULL)
