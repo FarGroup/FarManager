@@ -65,11 +65,11 @@ public:
 	explicit TVar(const wchar_t*);
 	explicit TVar(double);
 
-	COPY_AND_SWAP(long long);
-	COPY_AND_SWAP(const string&);
-	COPY_AND_SWAP(const wchar_t*);
-	COPY_AND_SWAP(int);
-	COPY_AND_SWAP(double);
+	COPY_AND_MOVE(long long);
+	COPY_AND_MOVE(const string&);
+	COPY_AND_MOVE(const wchar_t*);
+	COPY_AND_MOVE(int);
+	COPY_AND_MOVE(double);
 
 
 	TVar& operator+=(const TVar& b)  { return *this = *this + b; }

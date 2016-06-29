@@ -972,7 +972,7 @@ public:
 
 		Global->WindowManager->SubmergeWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->ActivateWindow(m_CurrentWindow);
-		Global->WindowManager->ResizeAllWindows();
+		Global->WindowManager->PluginCommit();
 		--Global->SuppressClock;
 	}
 
@@ -1442,6 +1442,9 @@ void CommandLine::LockUpdatePanel(bool Mode)
 
 void CommandLine::EnterPluginExecutionContext()
 {
+	if (m_PluginExecutionContext)
+		return;
+
 	m_PluginExecutionContext = GetExecutionContext();
 	m_PluginExecutionContext->Activate();
 	m_PluginExecutionContext->DoPrologue();
@@ -1450,6 +1453,9 @@ void CommandLine::EnterPluginExecutionContext()
 
 void CommandLine::LeavePluginExecutionContext()
 {
+	if (!m_PluginExecutionContext)
+		return;
+
 	m_PluginExecutionContext->DoEpilogue();
 	m_PluginExecutionContext.reset();
 }

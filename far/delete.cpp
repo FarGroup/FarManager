@@ -404,8 +404,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		bool bHilite = Global->Opt->DelOpt.HighlightSelected;
 		int mshow = std::min(std::max((int)Global->Opt->DelOpt.ShowSelected, 1), ScrY/2);
 
-		std::vector<string> items;
-		items.emplace_back(strDeleteFilesMsg);
+		std::vector<string> items{ strDeleteFilesMsg };
 
 		if (SelCount == 1)
 		{
