@@ -1442,21 +1442,48 @@ void CommandLine::LockUpdatePanel(bool Mode)
 
 void CommandLine::EnterPluginExecutionContext()
 {
-	if (m_PluginExecutionContext)
-		return;
+	if (!m_PluginExecutionContextInvocations)
+	{
+		m_PluginExecutionContext = GetExecutionContext();
+		m_PluginExecutionContext->Activate();
+	}
+	else
+	{
+		m_PluginExecutionContext->DoEpilogue();
+	}
 
-	m_PluginExecutionContext = GetExecutionContext();
-	m_PluginExecutionContext->Activate();
 	m_PluginExecutionContext->DoPrologue();
 	m_PluginExecutionContext->Consolise();
+
+	++m_PluginExecutionContextInvocations;
 }
 
 void CommandLine::LeavePluginExecutionContext()
 {
-	if (!m_PluginExecutionContext)
+	if (m_PluginExecutionContextInvocations)
+		--m_PluginExecutionContextInvocations;
+
+	if (m_PluginExecutionContext)
+	{
+		m_PluginExecutionContext->DoEpilogue();
+	}
+	else
+	{
+		// FCTL_SETUSERSCREEN without corresponding FCTL_GETUSERSCREEN
+		// Old (1.x) behaviour emulation:
+		if (Global->Opt->ShowKeyBar)
+		{
+			Console().Write(L"\n");
+		}
+		Console().Commit();
+		Global->ScrBuf->FillBuf();
+		ScrollScreen(1);
+		Global->CtrlObject->Desktop->TakeSnapshot();
+	}
+
+	if (m_PluginExecutionContextInvocations)
 		return;
 
-	m_PluginExecutionContext->DoEpilogue();
 	m_PluginExecutionContext.reset();
 }
 
