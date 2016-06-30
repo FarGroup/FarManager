@@ -69,6 +69,7 @@ public:
 	bool GlobalSearchReverse;
 	int ScreenSaverActive;
 	std::atomic<unsigned> SuppressClock{};
+	std::atomic<unsigned> SuppressIndicators{};
 	int CloseFAR, CloseFARMenu, AllowCancelExit;
 	int DisablePluginsOutput;
 	BOOL IsProcessAssignMacroKey;

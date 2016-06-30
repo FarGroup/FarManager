@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
-#include "window.hpp"
 
 enum
 {
@@ -329,7 +328,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 		if (FlushType & flush_type::screen)
 		{
-			if (!(Global->WindowManager && Global->WindowManager->GetCurrentWindow() && Global->WindowManager->GetCurrentWindow()->GetType() == windowtype_desktop))
+			if (!Global->SuppressIndicators)
 			{
 				auto SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
 				{

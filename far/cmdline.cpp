@@ -882,6 +882,7 @@ public:
 			return;
 
 		m_Activated = true;
+		++Global->SuppressIndicators;
 		++Global->SuppressClock;
 
 		m_CurrentWindow = Global->WindowManager->GetCurrentWindow();
@@ -971,9 +972,13 @@ public:
 			return;
 
 		Global->WindowManager->SubmergeWindow(Global->CtrlObject->Desktop);
-		Global->WindowManager->ActivateWindow(m_CurrentWindow);
+		if (Global->WindowManager->GetCurrentWindow() == Global->CtrlObject->Desktop)
+		{
+			Global->WindowManager->ActivateWindow(m_CurrentWindow);
+		}
 		Global->WindowManager->PluginCommit();
 		--Global->SuppressClock;
+		--Global->SuppressIndicators;
 	}
 
 private:

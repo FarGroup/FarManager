@@ -1154,7 +1154,8 @@ void Manager::ReplaceCommit(window_ptr_ref Old, window_ptr_ref New)
 
 void Manager::SubmergeCommit(window_ptr_ref Param)
 {
-	std::rotate(m_windows.begin(), m_windows.begin() + IndexOf(Param), m_windows.end());
+	const auto Position = m_windows.begin() + IndexOf(Param);
+	std::rotate(m_windows.begin(), Position, Position + 1);
 }
 
 bool Manager::AddWindow(window_ptr_ref Param)
