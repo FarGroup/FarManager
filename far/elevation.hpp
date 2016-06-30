@@ -105,8 +105,8 @@ private:
 	bool Initialize();
 	bool ElevationApproveDlg(LNGID Why, const string& Object);
 
-	template<typename T, typename F>
-	T execute(T Fallback, const F& Function);
+	template<typename T, typename F1, typename F2>
+	auto execute(LNGID Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler);
 
 	std::atomic_ulong m_Suppressions;
 	os::handle m_Pipe;

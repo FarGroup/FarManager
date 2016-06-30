@@ -100,7 +100,14 @@ elevation::~elevation()
 	{
 		if (m_Process)
 		{
-			execute(0, [this] { SendCommand(C_SERVICE_EXIT); return 0; });
+			try
+			{
+				SendCommand(C_SERVICE_EXIT);
+			}
+			catch (const far_exception&)
+			{
+				// TODO: log
+			}
 		}
 		DisconnectNamedPipe(m_Pipe.native_handle());
 	}
@@ -169,15 +176,25 @@ T elevation::RetrieveLastErrorAndResult() const
 	return Read<T>();
 }
 
-template<typename T, typename F>
-T elevation::execute(T Fallback, const F& Function)
+template<typename T, typename F1, typename F2>
+auto elevation::execute(LNGID Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
 {
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	if (!ElevationApproveDlg(Why, Object))
+		return Fallback;
+
+	if (is_admin())
+	{
+		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
+		return PrivilegedHander();
+	}
+
 	if (!Initialize())
 		return Fallback;
 
 	try
 	{
-		return Function();
+		return ElevatedHandler();
 	}
 	catch(const far_exception&)
 	{
@@ -185,7 +202,6 @@ T elevation::execute(T Fallback, const F& Function)
 		return Fallback;
 	}
 }
-
 
 bool elevation::Initialize()
 {
@@ -470,63 +486,48 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 
 bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredCreate, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return (TemplateObject.empty()?CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_CREATEDIRECTORYEX, TemplateObject, Object);
-		// BUGBUG: SecurityAttributes ignored
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredCreate, Object,
+		false,
+		[&]
+		{
+			return (TemplateObject.empty()? CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_CREATEDIRECTORYEX, TemplateObject, Object);
+			// BUGBUG: SecurityAttributes ignored
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 bool elevation::fRemoveDirectory(const string& Object)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredDelete, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return RemoveDirectory(Object.data()) != FALSE;
-	}
-
-	return execute(false, [&]
-	{
-		SendCommand(C_FUNCTION_REMOVEDIRECTORY, Object);
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredDelete, Object,
+		false,
+		[&]
+		{
+			return RemoveDirectory(Object.data()) != FALSE;
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_REMOVEDIRECTORY, Object);
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 bool elevation::fDeleteFile(const string& Object)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredDelete, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return DeleteFile(Object.data()) != FALSE;
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_DELETEFILE, Object);
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredDelete, Object,
+		false,
+		[&]
+		{
+			return DeleteFile(Object.data()) != FALSE;
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_DELETEFILE, Object);
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
@@ -551,271 +552,211 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 
 bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredCopy, From))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_COPYFILEEX, From, To, reinterpret_cast<intptr_t>(ProgressRoutine), reinterpret_cast<intptr_t>(Data), Flags);
-		// BUGBUG: Cancel ignored
-
-		while (Read<int>() == CallbackMagic)
+	return execute(MElevationRequiredCopy, From,
+		false,
+		[&]
 		{
-			fCallbackRoutine(ProgressRoutine);
-		}
+			return CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_COPYFILEEX, From, To, reinterpret_cast<intptr_t>(ProgressRoutine), reinterpret_cast<intptr_t>(Data), Flags);
+			// BUGBUG: Cancel ignored
 
-		return RetrieveLastErrorAndResult<bool>();
-	});
+			while (Read<int>() == CallbackMagic)
+			{
+				fCallbackRoutine(ProgressRoutine);
+			}
+
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredMove, From))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return MoveFileEx(From.data(), To.data(), Flags) != FALSE;
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_MOVEFILEEX, From, To, Flags);
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredMove, From,
+		false,
+		[&]
+		{
+			return MoveFileEx(From.data(), To.data(), Flags) != FALSE;
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_MOVEFILEEX, From, To, Flags);
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 DWORD elevation::fGetFileAttributes(const string& Object)
 {
-	static const auto Fallback = INVALID_FILE_ATTRIBUTES;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredGetAttributes, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return GetFileAttributes(Object.data());
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_GETFILEATTRIBUTES, Object);
-		return RetrieveLastErrorAndResult<DWORD>();
-	});
+	return execute(MElevationRequiredGetAttributes, Object,
+		INVALID_FILE_ATTRIBUTES,
+		[&]
+		{
+			return GetFileAttributes(Object.data());
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_GETFILEATTRIBUTES, Object);
+			return RetrieveLastErrorAndResult<DWORD>();
+		});
 }
 
 bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredSetAttributes, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return SetFileAttributes(Object.data(), FileAttributes) != FALSE;
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_SETFILEATTRIBUTES, Object, FileAttributes);
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredSetAttributes, Object,
+		false,
+		[&]
+		{
+			return SetFileAttributes(Object.data(), FileAttributes) != FALSE;
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_SETFILEATTRIBUTES, Object, FileAttributes);
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredHardLink, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_CREATEHARDLINK, Object, Target);
-		// BUGBUG: SecurityAttributes ignored.
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredHardLink, Object,
+		false,
+		[&]
+		{
+			return CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_CREATEHARDLINK, Object, Target);
+			// BUGBUG: SecurityAttributes ignored.
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredSymLink, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return os::CreateSymbolicLinkInternal(Object, Target, Flags);
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_CREATESYMBOLICLINK, Object, Target, Flags);
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredSymLink, Object,
+		false,
+		[&]
+		{
+			return os::CreateSymbolicLinkInternal(Object, Target, Flags);
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_CREATESYMBOLICLINK, Object, Target, Flags);
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	static const auto DE_ACCESSDENIEDSRC = 0x78;
-	static const auto Fallback = DE_ACCESSDENIEDSRC;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredRecycle, FileOpStruct.pFrom))
-		return Fallback;
+	return execute(MElevationRequiredRecycle, FileOpStruct.pFrom,
+		DE_ACCESSDENIEDSRC,
+		[&]
+		{
+			return SHFileOperation(&FileOpStruct);
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_MOVETORECYCLEBIN, FileOpStruct,
+				make_blob_view(FileOpStruct.pFrom, FileOpStruct.pFrom ? (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t) : 0), // achtung! +1
+				make_blob_view(FileOpStruct.pTo, FileOpStruct.pTo ? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)); // achtung! +1
 
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return SHFileOperation(&FileOpStruct);
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_MOVETORECYCLEBIN, FileOpStruct,
-			make_blob_view(FileOpStruct.pFrom, FileOpStruct.pFrom ? (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t) : 0), // achtung! +1
-			make_blob_view(FileOpStruct.pTo, FileOpStruct.pTo ? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)); // achtung! +1
-
-		Read(FileOpStruct.fAnyOperationsAborted);
-		// achtung! no "last error" here
-		return Read<int>();
-	});
+			Read(FileOpStruct.fAnyOperationsAborted);
+			// achtung! no "last error" here
+			return Read<int>();
+		});
 }
 
 bool elevation::fSetOwner(const string& Object, const string& Owner)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredSetOwner, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return SetOwnerInternal(Object, Owner);
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_SETOWNER, Object, Owner);
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredSetOwner, Object,
+		false,
+		[&]
+		{
+			return SetOwnerInternal(Object, Owner);
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_SETOWNER, Object, Owner);
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
 {
-	static const auto Fallback = INVALID_HANDLE_VALUE;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredOpen, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return CreateFile(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
-	}
-
-	return execute(INVALID_HANDLE_VALUE, [&]
-	{
-		SendCommand(C_FUNCTION_CREATEFILE, Object, DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes);
-		// BUGBUG: SecurityAttributes & TemplateFile ignored
-		return ToPtr(RetrieveLastErrorAndResult<intptr_t>());
-	});
+	return execute(MElevationRequiredOpen, Object,
+		INVALID_HANDLE_VALUE,
+		[&]
+		{
+			return CreateFile(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_CREATEFILE, Object, DesiredAccess, ShareMode, CreationDistribution, FlagsAndAttributes);
+			// BUGBUG: SecurityAttributes & TemplateFile ignored
+			return ToPtr(RetrieveLastErrorAndResult<intptr_t>());
+		});
 }
 
 bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(Encrypt ? MElevationRequiredEncryptFile : MElevationRequiredDecryptFile, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return os::SetFileEncryptionInternal(Object.data(), Encrypt);
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_SETENCRYPTION, Object, Encrypt);
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(Encrypt? MElevationRequiredEncryptFile : MElevationRequiredDecryptFile, Object,
+		false,
+		[&]
+		{
+			return os::SetFileEncryptionInternal(Object.data(), Encrypt);
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_SETENCRYPTION, Object, Encrypt);
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredCreate, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return os::DetachVirtualDiskInternal(Object, VirtualStorageType);
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_DETACHVIRTUALDISK, Object, VirtualStorageType);
-		return RetrieveLastErrorAndResult<bool>();
-	});
+	return execute(MElevationRequiredCreate, Object,
+		false,
+		[&]
+		{
+			return os::DetachVirtualDiskInternal(Object, VirtualStorageType);
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_DETACHVIRTUALDISK, Object, VirtualStorageType);
+			return RetrieveLastErrorAndResult<bool>();
+		});
 }
 
 bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBytesAvailableToCaller, ULARGE_INTEGER* TotalNumberOfBytes, ULARGE_INTEGER* TotalNumberOfFreeBytes)
 {
-	static const auto Fallback = false;
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
-	if (!ElevationApproveDlg(MElevationRequiredList, Object))
-		return Fallback;
-
-	if(is_admin())
-	{
-		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
-		return GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
-	}
-
-	return execute(Fallback, [&]
-	{
-		SendCommand(C_FUNCTION_GETDISKFREESPACEEX, Object);
-		const auto Result = RetrieveLastErrorAndResult<bool>();
-		if (Result)
+	return execute(MElevationRequiredList, Object,
+		false,
+		[&]
 		{
-			ULARGE_INTEGER Buffer;
-			Read(Buffer);
-			if (FreeBytesAvailableToCaller)
-				*FreeBytesAvailableToCaller = Buffer;
-			Read(Buffer);
-			if (TotalNumberOfBytes)
-				*TotalNumberOfBytes = Buffer;
-			Read(Buffer);
-			if (TotalNumberOfFreeBytes)
-				*TotalNumberOfFreeBytes = Buffer;
-		}
-		return Result;
-	});
+			return GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
+		},
+		[&]
+		{
+			SendCommand(C_FUNCTION_GETDISKFREESPACEEX, Object);
+			const auto Result = RetrieveLastErrorAndResult<bool>();
+			if (Result)
+			{
+				ULARGE_INTEGER Buffer;
+				Read(Buffer);
+				if (FreeBytesAvailableToCaller)
+					*FreeBytesAvailableToCaller = Buffer;
+				Read(Buffer);
+				if (TotalNumberOfBytes)
+					*TotalNumberOfBytes = Buffer;
+				Read(Buffer);
+				if (TotalNumberOfFreeBytes)
+					*TotalNumberOfFreeBytes = Buffer;
+			}
+			return Result;
+		});
 }
 
 

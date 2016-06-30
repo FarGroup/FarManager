@@ -68,8 +68,8 @@ public:
 	bool GlobalSearchWholeWords; // значение "Whole words" для поиска
 	bool GlobalSearchReverse;
 	int ScreenSaverActive;
-	std::atomic<unsigned> SuppressClock{};
-	std::atomic<unsigned> SuppressIndicators{};
+	std::atomic_ulong SuppressClock{};
+	std::atomic_ulong SuppressIndicators{};
 	int CloseFAR, CloseFARMenu, AllowCancelExit;
 	int DisablePluginsOutput;
 	BOOL IsProcessAssignMacroKey;
