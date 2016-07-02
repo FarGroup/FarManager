@@ -641,6 +641,9 @@ namespace os
 
 	typedef std::bitset<26> drives_set;
 
+	inline bool is_standard_drive_letter(wchar_t Letter) { return InRange(L'A', Upper(Letter), L'Z'); }
+	inline int get_drive_number(wchar_t Letter) { return Upper(Letter) - L'A'; }
+
 	class hp_clock
 	{
 	public:

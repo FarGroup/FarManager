@@ -204,9 +204,9 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 	{
 		return os::GetVolumeNameForVolumeMountPoint(item, strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0;
 	});
-	if (ItemIterator != Strings.cend())
+	if (ItemIterator != Strings.cend() && os::is_standard_drive_letter(ItemIterator->front()))
 	{
-		Result = BIT(ItemIterator->front() - L'A');
+		Result = BIT(os::get_drive_number(ItemIterator->front()));
 	}
 	return Result;
 }
@@ -439,8 +439,10 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 
 int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 {
-	string DevName(L"?:");
-	DevName[0] = Disk;
+	if (!os::is_standard_drive_letter(Disk))
+		return -1;
+	
+	string DevName{ Disk, L':' };
 	if (GetVHDInfo(DevName, DevName))
 	{
 		// Removing VHD disk as hotplug is a very bad idea.
@@ -451,7 +453,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 
 	SCOPED_ACTION(GuardLastError);
 	const auto Info = GetHotplugDevicesInfo();
-	const size_t DiskNumber = Upper(Disk) - L'A';
+	const size_t DiskNumber = os::get_drive_number(Disk);
 	const auto ItemIterator = std::find_if(CONST_RANGE(Info, i) {return i.Disks[DiskNumber];});
 	return ItemIterator != Info.cend()? RemoveHotplugDevice(*ItemIterator, Flags) : -1;
 }

@@ -72,13 +72,11 @@ os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
 				memset(netResource.get(),0,bufsz);
 				DWORD res = WNetEnumResource(hEnum, &size, netResource.get(), &bufsz);
 
-				if (res == NO_ERROR && size > 0 && netResource->lpLocalName )
+				if (res == NO_ERROR && size && netResource->lpLocalName)
 				{
-					wchar_t letter = Lower(netResource->lpLocalName[0]);
-
-					if (letter >= L'a' && letter <= L'z' && !wcscmp(netResource->lpLocalName+1, L":"))
+					if (os::is_standard_drive_letter(netResource->lpLocalName[0]) && netResource->lpLocalName[1] == L':')
 					{
-						size_t index = letter - L'a';
+						const auto index = os::get_drive_number(netResource->lpLocalName[0]);
 						if (!Mask[index])
 						{
 							Mask[index] = 1;

@@ -339,8 +339,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
 static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 {
-	string DiskLetter(L"?:");
-	DiskLetter[0] = Drive;
+	const string DiskLetter{ Drive, L':' };
 
 	switch (DriveType)
 	{
@@ -774,7 +773,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		std::for_each(CONST_RANGE(Items, i)
 		{
 			MenuItemEx ChDiskItem;
-			int DiskNumber = i.Letter[1] - L'A';
+			const auto DiskNumber = os::get_drive_number(i.Letter[1]);
 			if (FirstCall)
 			{
 				ChDiskItem.SetSelect(DiskNumber == Pos);
@@ -880,9 +879,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				if (item && !item->bIsPlugin)
 				{
-					string DosDeviceName(L"?:\\");
-					DosDeviceName[0] = item->cDrive;
-					OpenFolderInShell(DosDeviceName);
+					OpenFolderInShell({ item->cDrive, L':', L'\\' });
 				}
 			}
 			break;
@@ -942,8 +939,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					if (!item->bIsPlugin)
 					{
-						string DeviceName(L"?:\\");
-						DeviceName[0] = item->cDrive;
+						string DeviceName{ item->cDrive, L':', L'\\' };
 						ShellSetFileAttributes(nullptr, &DeviceName);
 					}
 					else
@@ -1116,10 +1112,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	if (Global->Opt->CloseCDGate && mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType))
 	{
-		string RootDir(L"?:");
-		RootDir[0] = mitem->cDrive;
-
-		if (!os::IsDiskInDrive(RootDir))
+		if (!os::IsDiskInDrive({ mitem->cDrive, L':' }))
 		{
 			if (!EjectVolume(mitem->cDrive, EJECT_READY | EJECT_NO_MESSAGE))
 			{
@@ -1240,9 +1233,9 @@ void ChangeDisk(panel_ptr Owner)
 	bool FirstCall = true;
 
 	const auto& CurDir = Owner->GetCurDir();
-	if (!CurDir.empty() && CurDir[1] == L':')
+	if (!CurDir.empty() && CurDir[1] == L':' && os::is_standard_drive_letter(CurDir[0]))
 	{
-		Pos = std::max(0, Upper(CurDir[0]) - L'A');
+		Pos = os::get_drive_number(CurDir[0]);
 	}
 
 	while (Pos != -1)

@@ -78,7 +78,7 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 		{
 			os::drives_set NetworkDrives;
 			AddSavedNetworkDisks(NetworkDrives);
-			IsNetworkDrive = NetworkDrives[Drive[1] - L'A'];
+			IsNetworkDrive = os::is_standard_drive_letter(Drive[1]) && NetworkDrives[os::get_drive_number(Drive[1])];
 		}
 	}
 	else

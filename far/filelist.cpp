@@ -6969,9 +6969,7 @@ void FileList::InitFSWatcher(bool CheckTree)
 
 	if (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC)
 	{
-		wchar_t RootDir[4]=L" :\\";
-		RootDir[0] = m_CurDir[(Type == PATH_DRIVELETTER)? 0 : 4];
-		DriveType=FAR_GetDriveType(RootDir);
+		DriveType = FAR_GetDriveType({ m_CurDir[(Type == PATH_DRIVELETTER) ? 0 : 4], L':', L'\\' });
 	}
 
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)

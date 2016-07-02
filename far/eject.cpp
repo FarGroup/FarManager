@@ -181,10 +181,8 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 bool IsEjectableMedia(wchar_t Letter)
 {
 	bool Result = false;
-	string name(L"\\\\.\\?:");
-	name[4] = Letter;
 	os::fs::file file;
-	if (file.Open(name, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+	if (file.Open({ L'\\', L'\\', L'.', L'\\', Letter, L':' }, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 	{
 		DISK_GEOMETRY dg;
 		DWORD Bytes;
