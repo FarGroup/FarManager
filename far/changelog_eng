@@ -3,6 +3,51 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.07.2016 21:15:27 +0200 - build 4736
+
+1. Temporary files could be deleted prematurely.
+
+drkns 03.07.2016 19:11:29 +0200 - build 4735
+
+1. Crash in viewer search under certain circumstances.
+
+drkns 03.07.2016 18:07:21 +0200 - build 4734
+
+1. Refactoring.
+
+drkns 02.07.2016 15:10:30 +0200 - build 4733
+
+1. 0003261: Crash on ф: in command line
+
+drkns 01.07.2016 01:13:59 +0200 - build 4732
+
+1. Refactoring.
+
+drkns 30.06.2016 10:25:43 +0200 - build 4731
+
+1. Continue experimental changes in launcher.
+
+drkns 29.06.2016 21:51:02 +0200 - build 4730
+
+1. Continue experiments:
+   - allow FCTL_<G|S>ETUSERSCREEN nested calls.
+   - support for FCTL_SETUSERSCREEN without prior FCTL_GETUSERSCREEN (it worked before).
+
+drkns 29.06.2016 09:41:59 +0200 - build 4729
+
+1. 'Protection' from nested calls in FCTL_<G|S>ETUSERSCREEN.
+
+2. Minor issues.
+
+drkns 27.06.2016 22:43:25 +0200 - build 4728
+
+1. Continue experimental changes in launcher.
+
+drkns 27.06.2016 00:46:22 +0200 - build 4727
+
+1. Continue experimental changes in launcher.
+   Ctrl-G and User Menu multiline commands should work better now.
+
 shmuel 26.06.2016 16:37:24 +0200 - build 4726
 
 1. Extend Panel.SetCustomSortMode() function capabilities.
