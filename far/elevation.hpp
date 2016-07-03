@@ -92,10 +92,10 @@ private:
 	static void Write() {};
 
 	template<typename T, typename... args>
-	void Write(const T& Data, args... Args) const;
+	void Write(const T& Data, args&&... Args) const;
 
 	template<typename... args>
-	void SendCommand(ELEVATION_COMMAND Command, args... Args) const;
+	void SendCommand(ELEVATION_COMMAND Command, args&&... Args) const;
 
 	void RetrieveLastError() const;
 

@@ -44,14 +44,14 @@ namespace os
 			TRIVIALLY_MOVABLE(privilege);
 
 			template<class... args>
-			privilege(args... Args): privilege({ Args... }) {}
+			privilege(args&&... Args): privilege({ std::forward<args>(Args)... }) {}
 			privilege(const std::initializer_list<const wchar_t*>& Names): privilege(Names.begin(), Names.size()) {}
 			privilege(const std::vector<const wchar_t*>& Names): privilege(Names.data(), Names.size()) {}
 			privilege(const wchar_t* const* Names, size_t Size);
 			~privilege();
 
 			template<class... args>
-			static bool check(args... Args) { return check({ Args... }); }
+			static bool check(args&&... Args) { return check({ std::forward<args>(Args)... }); }
 			static bool check(const std::initializer_list<const wchar_t*>& Names) { return check(Names.begin(), Names.size()); }
 			static bool check(const std::vector<const wchar_t*>& Names) { return check(Names.data(), Names.size()); }
 			static bool check(const wchar_t* const* Names, size_t Size);

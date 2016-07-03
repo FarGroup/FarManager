@@ -278,10 +278,10 @@ namespace os
 			void Close();
 			bool Eof() const;
 			const string& GetName() const { return name; }
-			HANDLE native_handle() const { return Handle.native_handle(); }
+			const auto& handle() const { return Handle; }
 
 		private:
-			handle Handle;
+			os::handle Handle;
 			uint64_t Pointer;
 			bool NeedSyncPointer;
 			string name;

@@ -159,12 +159,12 @@ enum STL_FLAGS
 
 void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter);
 
-template <class Container>
+template <typename container>
 auto split(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
 {
-	Container C;
-	split(InitString, Flags, Separators, [&](string&& str) { C.emplace(C.end(), std::move(str)); });
-	return C;
+	container Container;
+	split(InitString, Flags, Separators, [&](string&& Str) { emplace(Container, std::move(Str)); });
+	return Container;
 }
 
 template<class container>

@@ -142,7 +142,7 @@ T elevation::Read() const
 }
 
 template<typename T, typename... args>
-void elevation::Write(const T& Data, args... Args) const
+void elevation::Write(const T& Data, args&&... Args) const
 {
 	if (!pipe::Write(m_Pipe, Data))
 		throw MAKE_FAR_EXCEPTION("Pipe write error");
@@ -150,7 +150,7 @@ void elevation::Write(const T& Data, args... Args) const
 }
 
 template<typename... args>
-void elevation::SendCommand(ELEVATION_COMMAND Command, args... Args) const
+void elevation::SendCommand(ELEVATION_COMMAND Command, args&&... Args) const
 {
 	Write(Command);
 	Write(std::forward<args>(Args)...);

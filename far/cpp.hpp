@@ -96,6 +96,8 @@ namespace std
 	{
 		return il.begin();
 	}
+
+	template<typename...> using void_t = void;
 }
 #endif
 

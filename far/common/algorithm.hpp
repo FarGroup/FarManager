@@ -166,4 +166,29 @@ template <class Key, class T, class Hash, class KeyEqual, class Alloc, class Pre
 void erase_if(std::unordered_multimap<Key, T, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
 
 
+namespace detail
+{
+	template<typename T, typename = std::void_t<>>
+	struct has_emplace_hint: std::false_type {};
+
+	template<typename T>
+	struct has_emplace_hint<T, std::void_t<decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()))>>: std::true_type {};
+
+	template<typename T>
+	using has_emplace_hint_t = typename has_emplace_hint<T>::type;
+}
+
+// Unified container emplace
+template<typename container, typename... args>
+std::enable_if_t<detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
+{
+	Container.emplace_hint(Container.end(), std::forward<args>(Args)...);
+}
+
+template<typename container, typename... args>
+std::enable_if_t<!detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
+{
+	Container.emplace(Container.end(), std::forward<args>(Args)...);
+}
+
 #endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0
