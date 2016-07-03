@@ -2597,11 +2597,11 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					EditorSetPosition esp={sizeof(EditorSetPosition)};
 					esp.CurPos = -1;
 					Dlg->SendMessage(DM_GETEDITPOSITION, sd_src, &esp);
-					const wchar_t *ps = (const wchar_t *)Dlg->SendMessage(DM_GETCONSTTEXTPTR, sd_src, nullptr);
 					FarDialogItemData item = {sizeof(FarDialogItemData)};
 					Dlg->SendMessage(DM_GETTEXT, sd_src, &item);
+					const auto HexString = Dialog::ExtractHexString({ reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, sd_src, nullptr)), item.PtrLength });
 					string strTo;
-					Data->viewer->SearchTextTransform(strTo, ps, item.PtrLength, !new_hex, esp.CurPos);
+					Data->viewer->SearchTextTransform(strTo, HexString, !new_hex, esp.CurPos);
 					item.PtrLength = strTo.size();
 					item.PtrData = UNSAFE_CSTR(strTo);
 					Dlg->SendMessage(DM_SETTEXT, sd_dst, &item);
@@ -2714,20 +2714,20 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	}
 }
 
-static auto hex2ss(const wchar_t *from, size_t len, intptr_t *pos = nullptr)
+static auto hex2ss(const string& from, intptr_t *pos = nullptr)
 {
-	string strFrom(from, len);
+	string strFrom(from);
 	RemoveTrailingSpaces(strFrom);
 	if (pos)
 		*pos /= 2;
 	return HexStringToBlob(strFrom.data(), 0);
 }
 
-void Viewer::SearchTextTransform(string &to, const wchar_t *from, size_t from_len, bool hex2text, intptr_t &pos)
+void Viewer::SearchTextTransform(string &to, const string& from, bool hex2text, intptr_t &pos)
 {
 	if (hex2text)
 	{
-		auto Bytes = hex2ss(from, from_len, &pos);
+		auto Bytes = hex2ss(from, &pos);
 		if (IsUnicodeCodePage(m_Codepage))
 		{
 			int v = CP_REVERSEBOM == m_Codepage ? 1 : 0;
@@ -2756,7 +2756,7 @@ void Viewer::SearchTextTransform(string &to, const wchar_t *from, size_t from_le
 		char Buffer[128];
 		size_t Size;
 		int ps = 0, pd = 0, p0 = pos, p1 = -1;
-		for (size_t i=0; i < from_len; ++i)
+		for (size_t i = 0, FromSize = from.size(); i != FromSize; ++i)
 		{
 			if (ps == p0)
 				p1 = pd;
@@ -3446,7 +3446,7 @@ void Viewer::Search(int Next,int FirstChar)
 	sd.search_len = (int)strSearchStr.size();
 	if (true == (LastSearchHex = SearchHex))
 	{
-		search_bytes = hex2ss(strSearchStr.data(), strSearchStr.size());
+		search_bytes = hex2ss(strSearchStr);
 		sd.search_len = (int)search_bytes.size();
 		sd.search_bytes = search_bytes.data();
 		sd.ch_size = 1;

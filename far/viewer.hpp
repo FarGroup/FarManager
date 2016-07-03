@@ -91,7 +91,7 @@ public:
 	bool ProcessDisplayMode(VIEWER_MODE_TYPE newMode, bool isRedraw = true);
 	int ProcessWrapMode(int newMode, bool isRedraw = true);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);
-	void SearchTextTransform(string& to, const wchar_t *from, size_t from_len, bool hex2text, intptr_t &pos);
+	void SearchTextTransform(string& to, const string& from, bool hex2text, intptr_t &pos);
 	int GetId(void) const { return ViewerID; }
 	void OnDestroy(void);
 
