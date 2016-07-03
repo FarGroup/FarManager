@@ -2624,8 +2624,9 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	}
 	else
 	{
+		PluginHandle* OpenedPlugin = nullptr;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
-		SCOPE_EXIT{ if (PluginMode) DeleteFileWithFolder(strFileName); };
+		SCOPE_EXIT{ if (PluginMode && !OpenedPlugin) DeleteFileWithFolder(strFileName); };
 
 		if (PluginMode)
 		{
@@ -2656,7 +2657,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 			const auto IsItExecutable = IsExecutable(strFileName);
 
-			if (!IsItExecutable && !SeparateWindow && OpenFilePlugin(&strFileName, TRUE, Type))
+			if (!IsItExecutable && !SeparateWindow && (OpenedPlugin = OpenFilePlugin(&strFileName, TRUE, Type)) != nullptr)
 				return;
 
 			if (IsItExecutable || SeparateWindow || Global->Opt->UseRegisteredTypes)
