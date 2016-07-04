@@ -756,6 +756,15 @@ int ustring_SetCurrentDir (lua_State *L)
 	return SysErrorReturn(L);
 }
 
+int ustring_GetKeyState (lua_State *L)
+{
+	int nVirtKey = luaL_checkinteger(L, 1);
+	int state = GetKeyState(nVirtKey);
+	lua_pushboolean(L, state&0x8000); // Is key down?
+	lua_pushboolean(L, state&0x0001); // Is key toggled?
+	return 2;
+}
+
 const luaL_Reg ustring_funcs[] =
 {
 	{"EnumSystemCodePages", ustring_EnumSystemCodePages},
@@ -764,6 +773,7 @@ const luaL_Reg ustring_funcs[] =
 	{"GetCurrentDir",       ustring_GetCurrentDir},
 	{"GetDriveType",        ustring_GetDriveType},
 	{"GetFileAttr",         ustring_GetFileAttr},
+	{"GetKeyState",         ustring_GetKeyState},
 	{"GetLogicalDriveStrings",ustring_GetLogicalDriveStrings},
 	{"GetOEMCP",            ustring_GetOEMCP},
 	{"GlobalMemoryStatus",  ustring_GlobalMemoryStatus},

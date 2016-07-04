@@ -10546,6 +10546,28 @@ nm=win.GetEnv
 </article>
 </node>
 <node>
+id=522
+lv=3
+dt=Text
+nm=win.GetKeyState
+ctime=3676815434
+mtime=3676815631
+<article>
+#_keyDown, keyToggled = win.GetKeyState (nVirtKey)
+#_
+#_**Parameters:**
+#_  nVirtKey:    integer
+#_
+#_**Returns:**
+#_  keyDown:     boolean
+#_  keyToggled:  boolean
+#_
+#_**Windows API used:**
+#_  GetKeyState
+#_
+</article>
+</node>
+<node>
 id=315
 lv=3
 dt=Text
