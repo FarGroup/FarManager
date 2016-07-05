@@ -190,10 +190,9 @@ int CmpFullNames(const string& Src,const string& Dest)
 {
 	const auto ToFull = [](const string& in)
 	{
-		string out;
 		// получим полные пути с учетом символических связей
 		// (ConvertNameToReal eliminates short names too)
-		ConvertNameToReal(in, out);
+		auto out = ConvertNameToReal(in);
 		DeleteEndSlash(out);
 		return out;
 	};
@@ -209,23 +208,21 @@ bool CheckNulOrCon(const wchar_t *Src)
 	return (!StrCmpNI(Src,L"nul",3) || !StrCmpNI(Src,L"con",3)) && (IsSlash(Src[3])||!Src[3]);
 }
 
-string& GetParentFolder(const string& Src, string &strDest)
+string GetParentFolder(const string& Src)
 {
-	ConvertNameToReal(Src,strDest);
-	CutToSlash(strDest,true);
-	return strDest;
+	auto Result = ConvertNameToReal(Src);
+	CutToSlash(Result, true);
+	return Result;
 }
 
 int CmpFullPath(const string& Src, const string& Dest)
 {
 	const auto ToFull = [](const string& in)
 	{
-		string out;
-		GetParentFolder(in, out);
+		auto out = GetParentFolder(in);
 		DeleteEndSlash(out);
 		// избавимся от коротких имен
-		ConvertNameToReal(out, out);
-		return out;
+		return ConvertNameToReal(out);
 	};
 
 	return !StrCmpI(ToFull(Src), ToFull(Dest));
@@ -1174,12 +1171,8 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				// собственно - один проход копирования
 				// Mantis#45: Необходимо привести копирование ссылок на папки с NTFS на FAT к более логичному виду
 				{
-					string strRootDir;
-					ConvertNameToFull(strNameTmp,strRootDir);
-					GetPathRoot(strRootDir, strRootDir);
 					DWORD FileSystemFlags=0;
-
-					if (os::GetVolumeInformation(strRootDir,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
+					if (os::GetVolumeInformation(GetPathRoot(ConvertNameToFull(strNameTmp)), nullptr, nullptr, nullptr, &FileSystemFlags, nullptr))
 						if (!(FileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
 							Flags|=FCOPY_COPYSYMLINKCONTENTS;
 				}
@@ -1344,7 +1337,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		bool dst_abspath = copy_to_null || IsAbsolutePath(strDest);
 		if (!dst_abspath && ((strDest.size() > 2 && strDest[1] == L':') || (!strDest.empty() && IsSlash(strDest[0]))))
 		{
-			ConvertNameToFull(strDest, strDest);
+			strDest = ConvertNameToFull(strDest);
 			dst_abspath = true;
 		}
 
@@ -1378,13 +1371,13 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		bool check_samedisk = false, dest_changed = false;
 		if (first || strSrcDriveRoot.empty() || (src_abspath && StrCmpNI(strSelName.data(), strSrcDriveRoot.data(), strSrcDriveRoot.size())))
 		{
-			GetPathRoot(src_abspath ? strSelName : SrcPanel->GetCurDir(), strSrcDriveRoot);
+			strSrcDriveRoot = GetPathRoot(src_abspath? strSelName : SrcPanel->GetCurDir());
 			SrcDriveType = FAR_GetDriveType(strSrcDriveRoot);
 			check_samedisk = true;
 		}
 		if (!copy_to_null && (first || strDestDriveRoot.empty() || StrCmpNI(strDest.data(), strDestDriveRoot.data(), strDestDriveRoot.size())))
 		{
-			GetPathRoot(strDest, strDestDriveRoot);
+			strDestDriveRoot = GetPathRoot(strDest);
 			DestDriveType = FAR_GetDriveType(strDestDriveRoot);
 			DestMountLen = GetMountPointLen(strDest, strDestDriveRoot);
 			check_samedisk = dest_changed = true;
@@ -1896,9 +1889,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (SetAttr!=DestAttr)
 						ShellSetAttr(strDestPath,SetAttr);
 
-					string strSrcFullName;
-					ConvertNameToFull(Src,strSrcFullName);
-					return (strDestPath == strSrcFullName)? COPY_SKIPPED : COPY_SUCCESS;
+					return ConvertNameToFull(Src) == strDestPath? COPY_SKIPPED : COPY_SUCCESS;
 				}
 
 				int Type=os::GetFileTypeByName(strDestPath);
@@ -1909,8 +1900,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			if (Rename)
 			{
-				string strSrcFullName,strDestFullName;
-				ConvertNameToFull(Src,strSrcFullName);
+				auto strSrcFullName = ConvertNameToFull(Src);
 				os::FAR_SECURITY_DESCRIPTOR sd;
 
 				// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
@@ -1923,7 +1913,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					else if (!os::fs::exists(strDest)) // если каталога нет...
 					{
 						// ...получаем секьюрити родителя
-						if (GetSecurity(GetParentFolder(strDest,strDestFullName), sd))
+						if (GetSecurity(GetParentFolder(strDest), sd))
 							IsSetSecuty=TRUE;
 					}
 					else if (GetSecurity(strDest,sd)) // иначе получаем секьюрити Dest`а
@@ -1943,8 +1933,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						else
 							strCopiedName = PointToName(strDestPath);
 
-						ConvertNameToFull(strDest, strDestFullName);
-						TreeList::RenTreeName(strSrcFullName,strDestFullName);
+						TreeList::RenTreeName(strSrcFullName, ConvertNameToFull(strDest));
 						return SameName? COPY_SKIPPED : COPY_SUCCESS_MOVE;
 					}
 					else
@@ -2192,8 +2181,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 				if (!Append)
 				{
-					string strSrcFullName;
-					ConvertNameToFull(Src,strSrcFullName);
+					const auto strSrcFullName = ConvertNameToFull(Src);
 
 					if (NWFS_Attr)
 						os::SetFileAttributes(strSrcFullName,SrcData.dwFileAttributes&(~FILE_ATTRIBUTE_READONLY));
@@ -2208,10 +2196,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							IsSetSecuty=FALSE;
 						else if (!os::fs::exists(strDest)) // если каталога нет...
 						{
-							string strDestFullName;
-
 							// ...получаем секьюрити родителя
-							if (GetSecurity(GetParentFolder(strDest,strDestFullName), sd))
+							if (GetSecurity(GetParentFolder(strDest), sd))
 								IsSetSecuty=TRUE;
 						}
 						else if (GetSecurity(strDest, sd)) // иначе получаем секьюрити Dest`а
@@ -2496,8 +2482,7 @@ COPY_CODES ShellCopy::CheckStreams(const string& Src,const string& DestPath)
 
 int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 {
-	string FullName;
-	ConvertNameToFull(Name, FullName);
+	const auto FullName = ConvertNameToFull(Name);
 	if (Attr & FILE_ATTRIBUTE_READONLY)
 	{
 		int MsgCode;
@@ -2691,8 +2676,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 			return COPY_FAILURE;
 		}
 
-		string strDriveRoot;
-		GetPathRoot(strDestName,strDriveRoot);
+		const auto strDriveRoot = GetPathRoot(strDestName);
 
 		if (SrcData.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)
 		{
@@ -2829,8 +2813,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 					if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
 						strDestName.size() > 1 && strDestName[1]==L':')
 					{
-						string strDriveRoot;
-						GetPathRoot(strDestName,strDriveRoot);
+						const auto strDriveRoot = GetPathRoot(strDestName);
 						UINT64 FreeSize=0;
 
 						if (os::GetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
@@ -3004,10 +2987,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 
 		if (!IsWindowsVistaOrGreater() && IsWindowsServer()) // WS2003-Share SetFileTime BUG
 		{
-			string strRoot;
-			GetPathRoot(strDestName, strRoot);
-			int DriveType = FAR_GetDriveType(strRoot, 0);
-			if (DriveType == DRIVE_REMOTE)
+			if (FAR_GetDriveType(GetPathRoot(strDestName), 0) == DRIVE_REMOTE)
 			{
 				if (DestFile.Open(strDestName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING,flags_attrs))
 				{
@@ -3025,7 +3005,7 @@ void ShellCopy::SetDestDizPath(const string& DestPath)
 {
 	if (!(Flags&FCOPY_DIZREAD))
 	{
-		ConvertNameToFull(DestPath, strDestDizPath);
+		strDestDizPath = ConvertNameToFull(DestPath);
 		CutToSlash(strDestDizPath);
 
 		if (strDestDizPath.empty())
@@ -3261,13 +3241,12 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 					FILETIME SrcLastWriteTime = SrcData.ftLastWriteTime;
 					if (Flags&FCOPY_COPYSYMLINKCONTENTS && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 					{
-						string RealName;
-						ConvertNameToReal(SrcName, RealName);
 						os::FAR_FIND_DATA FindData;
-						os::GetFindDataEx(RealName, FindData);
-						SrcSize = FindData.nFileSize;
-						SrcLastWriteTime = FindData.ftLastWriteTime;
-
+						if (os::GetFindDataEx(ConvertNameToReal(SrcName), FindData))
+						{
+							SrcSize = FindData.nFileSize;
+							SrcLastWriteTime = FindData.ftLastWriteTime;
+						}
 					}
 					FormatString strSrcSizeText;
 					strSrcSizeText << SrcSize;
@@ -3283,8 +3262,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 					WarnCopyDlgData[WDLG_SRCFILEBTN].Data = strSrcFileStr.data();
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data = strDestFileStr.data();
 					auto WarnCopyDlg = MakeDialogItemsEx(WarnCopyDlgData);
-					string strFullSrcName;
-					ConvertNameToFull(SrcName, strFullSrcName);
+					const auto strFullSrcName = ConvertNameToFull(SrcName);
 					file_names_for_overwrite_dialog WFN = { &strFullSrcName, &strDestName, &strRenamedFilesPath };
 					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
@@ -3389,8 +3367,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 					WarnCopyDlgData[WDLG_APPEND].Type=DI_TEXT;
 					WarnCopyDlgData[WDLG_APPEND].Data=L"";
 					auto WarnCopyDlg = MakeDialogItemsEx(WarnCopyDlgData);
-					string strSrcName;
-					ConvertNameToFull(SrcData.strFileName,strSrcName);
+					const auto strSrcName = ConvertNameToFull(SrcData.strFileName);
 					file_names_for_overwrite_dialog WFN[] = { &strSrcName, &strDestName };
 					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
@@ -3696,20 +3673,10 @@ bool ShellCopy::CalcTotalSize() const
 */
 bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 {
-	string strRoot;
-	ConvertNameToFull(Dest,strRoot);
-	GetPathRoot(strRoot,strRoot);
-
-	if (!os::fs::exists(strRoot)) // Неудача, когда сетевой путь, да еще и симлинк
+	auto strRoot = GetPathRoot(ConvertNameToFull(Dest));
+	if (!os::fs::exists(strRoot))
 	{
-		// ... в этом случае проверим AS IS
-		ConvertNameToFull(Dest,strRoot);
-		GetPathRoot(strRoot,strRoot);
-
-		if (!os::fs::exists(strRoot))
-		{
-			return false;
-		}
+		return false;
 	}
 
 	DWORD FileSystemFlagsDst=0;

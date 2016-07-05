@@ -433,8 +433,7 @@ void PluginManager::LoadPlugins()
 			}
 
 			// Получим реальное значение полного длинного пути
-			ConvertNameToFull(strFullName,strFullName);
-			ConvertNameToLong(strFullName,strFullName);
+			strFullName = ConvertNameToLong(ConvertNameToFull(strFullName));
 			strPluginsDir = strFullName;
 
 			// ставим на поток очередной путь из списка...
@@ -509,7 +508,7 @@ PluginHandle* PluginManager::OpenFilePlugin(
 
 	if (Name)
 	{
-		ConvertNameToFull(*Name,strFullName);
+		strFullName = ConvertNameToFull(*Name);
 		Name = &strFullName;
 	}
 

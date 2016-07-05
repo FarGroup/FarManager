@@ -214,7 +214,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 
 				if (os::fs::is_file(strTmpName))
 				{
-					ConvertNameToFull(strTmpName,strFullName);
+					strFullName = ConvertNameToFull(strTmpName);
 					Result=true;
 					break;
 				}
@@ -695,8 +695,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 		if (strNewCmdPar.empty() && IsDirectory)
 		{
-			strNewCmdStr = Unquoted;
-			ConvertNameToFull(strNewCmdStr, strNewCmdStr);
+			strNewCmdStr = ConvertNameToFull(Unquoted);
 			Info.ExecMode = execute_info::exec_mode::direct;
 			Info.SourceMode = execute_info::source_mode::known;
 			FolderRun=true;
@@ -783,8 +782,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					++ProcessingAsssociation;
 					SCOPE_EXIT{ --ProcessingAsssociation; };
 
-					auto FoundModuleNameShort = FoundModuleName;
-					ConvertNameToShort(FoundModuleNameShort, FoundModuleNameShort);
+					const auto FoundModuleNameShort = ConvertNameToShort(FoundModuleName);
 					const auto LastX = WhereX(), LastY = WhereY();
 					if (ProcessLocalFileTypes(FoundModuleName, FoundModuleNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, Info.RunAs, [&](execute_info& AssocInfo)
 					{
@@ -938,9 +936,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		}
 		else
 		{
-			string RealPath;
-			ConvertNameToReal(strCurDir, RealPath);
-			NeedFixCurDir = SetCurrentDirectory(RealPath.data()) != FALSE;
+			NeedFixCurDir = SetCurrentDirectory(ConvertNameToReal(strCurDir).data()) != FALSE;
 		}
 	}
 
@@ -1231,7 +1227,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				}
 				else
 				{
-					ConvertNameToFull(strFullPath, strFullPath);
+					strFullPath = ConvertNameToFull(strFullPath);
 					FileExists = os::fs::exists(strFullPath);
 				}
 

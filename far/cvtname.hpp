@@ -35,17 +35,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-void ConvertNameToFull(const string &Src, string &strDest, const wchar_t* CurrentDirectory = nullptr);
+string ConvertNameToFull(const string &Object);
 
-void ConvertNameToReal(const string &Src, string &strDest);
+string ConvertNameToReal(const string& Object);
 
-void ConvertNameToShort(const string &Src, string &strDest);
+string ConvertNameToShort(const string &Object);
 
-void ConvertNameToLong(const string &Src, string &strDest);
+string ConvertNameToLong(const string &Object);
 
-void ConvertNameToUNC(string &strFileName);
+string ConvertNameToUNC(const string &Object);
 
-string& PrepareDiskPath(string &strPath, bool CheckFullPath=true);
+void PrepareDiskPath(string &strPath, bool CheckFullPath=true);
 
 size_t GetMountPointLen(const string& abs_path, const string& drive_root);
 

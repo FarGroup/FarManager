@@ -38,7 +38,6 @@ class CachedRead: noncopyable
 {
 public:
 	CachedRead(os::fs::file& file, size_t buffer_size = 0);
-	~CachedRead();
 	void AdjustAlignment(); // file have to be opened already
 	bool Read(void* Data, size_t DataSize, size_t* BytesRead);
 	bool FillBuffer();

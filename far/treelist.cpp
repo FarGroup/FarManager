@@ -1859,11 +1859,9 @@ void TreeList::AddTreeName(const string& Name)
 	if (Name.empty())
 		return;
 
-	string strFullName;
-	ConvertNameToFull(Name, strFullName);
-	string strRoot = ExtractPathRoot(strFullName);
-	const wchar_t* NamePtr = strFullName.data();
-	NamePtr += strRoot.size() - 1;
+	const auto strFullName = ConvertNameToFull(Name);
+	const auto strRoot = ExtractPathRoot(strFullName);
+	const auto NamePtr = strFullName.data() + strRoot.size() - 1;
 
 	if (!ContainsSlash(NamePtr))
 	{
@@ -1871,7 +1869,6 @@ void TreeList::AddTreeName(const string& Name)
 	}
 
 	ReadCache(strRoot);
-
 	TreeCache().add(NamePtr);
 }
 
@@ -1882,13 +1879,11 @@ void TreeList::DelTreeName(const string& Name)
 	if (Name.empty())
 		return;
 
-	string strFullName;
-	ConvertNameToFull(Name, strFullName);
-	string strRoot = ExtractPathRoot(strFullName);
-	const wchar_t* NamePtr = strFullName.data();
-	NamePtr += strRoot.size() - 1;
-	ReadCache(strRoot);
+	const auto strFullName = ConvertNameToFull(Name);
+	const auto strRoot = ExtractPathRoot(strFullName);
+	const auto NamePtr = strFullName.data() + strRoot.size() - 1;
 
+	ReadCache(strRoot);
 	TreeCache().remove(NamePtr);
 }
 
@@ -1897,11 +1892,8 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 
-	string SrcNameFull, DestNameFull;
-	ConvertNameToFull(strSrcName, SrcNameFull);
-	ConvertNameToFull(strDestName, DestNameFull);
-	string strSrcRoot = ExtractPathRoot(SrcNameFull);
-	string strDestRoot = ExtractPathRoot(DestNameFull);
+	const auto strSrcRoot = ExtractPathRoot(ConvertNameToFull(strSrcName));
+	const auto strDestRoot = ExtractPathRoot(ConvertNameToFull(strDestName));
 
 	if (StrCmpI(strSrcRoot, strDestRoot))
 	{
@@ -1920,25 +1912,24 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 
 void TreeList::ReadSubTree(const string& Path)
 {
+	if (!os::fs::is_directory(Path))
+		return;
+
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false);
-	os::FAR_FIND_DATA fdata;
-	string strDirName;
-	string strFullName;
-	int Count=0;
 
-	if (!os::fs::is_directory(Path))
-		return;
-
-	ConvertNameToFull(Path, strDirName);
+	const auto strDirName = ConvertNameToFull(Path);
 	AddTreeName(strDirName);
 	int FirstCall=TRUE, AscAbort=FALSE;
 	ScTree.SetFindPath(strDirName,L"*",0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
 
+	os::FAR_FIND_DATA fdata;
+	string strFullName;
+	int Count = 0;
 	while (ScTree.GetNextName(fdata, strFullName))
 	{
 		if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)

@@ -2061,9 +2061,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 
 	Palette.Load();
-	GlobalUserMenuDir = GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath);
-	GlobalUserMenuDir = os::env::expand_strings(GlobalUserMenuDir);
-	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
+	GlobalUserMenuDir = ConvertNameToFull(os::env::expand_strings(GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath)));
 	AddEndSlash(GlobalUserMenuDir);
 
 	if(WindowMode == -1)

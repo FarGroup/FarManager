@@ -497,8 +497,7 @@ void background_searcher::ReleaseInFileSearch()
 
 string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot) const
 {
-	auto strCurDir = Global->CtrlObject->CmdLine()->GetCurDir();
-	GetPathRoot(strCurDir,strCurDir);
+	auto strCurDir = GetPathRoot(Global->CtrlObject->CmdLine()->GetCurDir());
 	DeleteEndSlash(strCurDir);
 
 	if (
@@ -2510,9 +2509,13 @@ void background_searcher::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UIN
 
 void background_searcher::DoPrepareFileList(Dialog* Dlg)
 {
-	auto strRoot = Global->CtrlObject->CmdLine()->GetCurDir();
-	if (strRoot.find_first_of(L";,") != string::npos)
-		InsertQuote(strRoot);
+	auto GetCurDir = []
+	{
+		auto CurDir = Global->CtrlObject->CmdLine()->GetCurDir();
+		if (CurDir.find_first_of(L";,") != string::npos)
+			InsertQuote(CurDir);
+		return CurDir;
+	};
 
 	string InitString;
 
@@ -2522,8 +2525,7 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 	}
 	else if (SearchMode==FINDAREA_ROOT)
 	{
-		GetPathRoot(strRoot,strRoot);
-		InitString = strRoot;
+		InitString = GetPathRoot(GetCurDir());
 	}
 	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
 	{
@@ -2561,7 +2563,7 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 	}
 	else
 	{
-		InitString = strRoot;
+		InitString = GetCurDir();
 	}
 
 	for (const auto& i: split<std::vector<string>>(InitString, STLF_UNIQUE))

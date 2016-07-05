@@ -473,8 +473,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		Error == ERROR_LOCK_VIOLATION ||
 		Error == ERROR_DRIVE_LOCKED)
 	{
-		string FullName;
-		ConvertNameToFull(Object, FullName);
+		const auto FullName = ConvertNameToFull(Object);
 		pfiu = CreateIFileIsInUse(FullName);
 		if (pfiu)
 		{

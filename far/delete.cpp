@@ -321,13 +321,10 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	DWORD FileAttr;
 	// Удаление в корзину только для  FIXED-дисков
 	{
-		string strRoot;
 		SrcPanel->GetSelName(nullptr,FileAttr);
 		SrcPanel->GetSelName(&strSelName,FileAttr);
-		ConvertNameToFull(strSelName, strRoot);
-		GetPathRoot(strRoot,strRoot);
 
-		if (Global->Opt->DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
+		if (Global->Opt->DeleteToRecycleBin && FAR_GetDriveType(GetPathRoot(ConvertNameToFull(strSelName))) != DRIVE_FIXED)
 			Global->Opt->DeleteToRecycleBin = false;
 	}
 
@@ -371,8 +368,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	//   Обработка "удаления" линков
 	if ((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
 	{
-		string strJuncName;
-		ConvertNameToFull(strSelName,strJuncName);
+		auto strJuncName = ConvertNameToFull(strSelName);
 
 		if (GetReparsePointInfo(strJuncName, strJuncName)) // ? SelName ?
 		{
@@ -579,8 +575,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			{
 				if (!DeleteAllFolders && !cannot_recycle_try_delete_folder)
 				{
-					string strFullName;
-					ConvertNameToFull(strSelName, strFullName);
+					const auto strFullName = ConvertNameToFull(strSelName);
 
 					if (os::fs::is_not_empty_directory(strFullName))
 					{
@@ -856,8 +851,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent)
 {
 	ProcessedItems++;
-	string strFullName;
-	ConvertNameToFull(Name, strFullName);
+	const auto strFullName = ConvertNameToFull(Name);
 	int MsgCode=0;
 
 	for (;;)
@@ -952,8 +946,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 {
 	ProcessedItems++;
-	string strFullName;
-	ConvertNameToFull(Name,strFullName);
+	const auto strFullName = ConvertNameToFull(Name);
 
 	bool Success = false;
 	while(!Success)
@@ -1012,8 +1005,7 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 #include "fileattr.hpp"
 bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret)
 {
-	string strFullName;
-	ConvertNameToFull(Name, strFullName);
+	auto strFullName = ConvertNameToFull(Name);
 
 	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
 	if (!IsWindowsVistaOrGreater() && os::fs::is_directory(Name))
@@ -1025,7 +1017,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 
 		bool MessageShown = false;
 		int SkipMode = -1;
-
+		
 		while (ScTree.GetNextName(FindData,strFullName2))
 		{
 			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)

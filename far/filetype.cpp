@@ -293,10 +293,8 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	// It makes no sense at all to add command containing temporary files to the history - they are doomed anyway
 	if (!ListFileUsed)
 	{
-		string strFullName;
-		ConvertNameToFull(Name, strFullName);
-		string strFullShortName;
-		ConvertNameToShort(strFullName, strFullShortName);
+		const auto strFullName = ConvertNameToFull(Name);
+		const auto strFullShortName = ConvertNameToShort(strFullName);
 		string strFullExecStr = Command;
 		SubstFileName(nullptr, strFullExecStr, strFullName, strFullShortName);
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);

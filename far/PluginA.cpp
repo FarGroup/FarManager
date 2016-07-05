@@ -2191,8 +2191,7 @@ static int WINAPI ConvertNameToRealA(const char *Src, char *Dest, int DestSize) 
 {
 	try
 	{
-		string strDest;
-		ConvertNameToReal(wide(Src), strDest);
+		const auto strDest = ConvertNameToReal(wide(Src));
 
 		if (!Dest)
 			return (int)strDest.size();

@@ -908,14 +908,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			}
 			else
 			{
-				if (!IsRootPath(m_CurDir))
-				{
-					string strDriveRoot;
-					GetPathRoot(m_CurDir, strDriveRoot);
-					return !StrCmpI(m_CurDir, strDriveRoot);
-				}
-
-				return 1;
+				return IsRootPath(m_CurDir)? 1 : !StrCmpI(m_CurDir, GetPathRoot(m_CurDir));
 			}
 		}
 		case MCODE_C_EOF:
@@ -1788,7 +1781,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 						if (!strFileName.empty())
 						{
-							ConvertNameToShort(Unquote(strFileName), strShortFileName);
+							strShortFileName = ConvertNameToShort(Unquote(strFileName));
 
 							if (IsAbsolutePath(strFileName))
 							{
@@ -1887,7 +1880,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						}
 					}
 
-					ConvertNameToShort(strFileName,strShortFileName);
+					strShortFileName = ConvertNameToShort(strFileName);
 				}
 
 				/* $ 08.04.2002 IS
@@ -2642,7 +2635,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem, strTempDir, strFileName, OPM_SILENT | OPM_VIEW))
 				return;
 
-			ConvertNameToShort(strFileName,strShortFileName);
+			strShortFileName = ConvertNameToShort(strFileName);
 		}
 
 
@@ -2669,7 +2662,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				Info.SourceMode = execute_info::source_mode::known;
 				Info.RunAs = RunAs;
 
-				ConvertNameToFull(Info.Command, Info.Command);
+				Info.Command = ConvertNameToFull(Info.Command);
 				QuoteSpace(Info.Command);
 
 				Parent()->GetCmdLine()->ExecString(Info);
@@ -2777,7 +2770,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		}
 
 		if (!ResolvePath)
-			ConvertNameToFull(strSetDir,strSetDir);
+			strSetDir = ConvertNameToFull(strSetDir);
 		PrepareDiskPath(strSetDir, ResolvePath);
 
 		if (HasPathPrefix(strSetDir) && strSetDir[5] == L':' && !strSetDir[6])
@@ -2856,13 +2849,8 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 	}
 	else
 	{
-		{
-			string strFullNewDir;
-			ConvertNameToFull(strSetDir, strFullNewDir);
-
-			if (StrCmpI(strFullNewDir, m_CurDir))
-				Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
-		}
+		if (StrCmpI(ConvertNameToFull(strSetDir), m_CurDir))
+			Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
 
 		if (dot2Present)
 		{
@@ -3236,11 +3224,8 @@ void FileList::SetViewMode(int Mode)
 	bool NewDiz=IsColumnDisplayed(DIZ_COLUMN);
 	bool NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
 	int ResortRequired=FALSE;
-	string strDriveRoot;
 	DWORD FileSystemFlags = 0;
-	GetPathRoot(m_CurDir,strDriveRoot);
-
-	if (NewPacked && os::GetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&FileSystemFlags,nullptr))
+	if (NewPacked && os::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, &FileSystemFlags, nullptr))
 		if (!(FileSystemFlags&FILE_FILE_COMPRESSION))
 			NewPacked = false;
 
@@ -4233,14 +4218,10 @@ void FileList::CompareDir()
 	if (m_PanelMode == panel_mode::NORMAL_PANEL && Another->m_PanelMode == panel_mode::NORMAL_PANEL)
 	{
 		string strFileSystemName1, strFileSystemName2;
-		string strRoot1, strRoot2;
-		GetPathRoot(m_CurDir, strRoot1);
-		GetPathRoot(Another->m_CurDir, strRoot2);
-
-		if (os::GetVolumeInformation(strRoot1,nullptr,nullptr,nullptr,nullptr,&strFileSystemName1) &&
-		        os::GetVolumeInformation(strRoot2,nullptr,nullptr,nullptr,nullptr,&strFileSystemName2))
-			if (StrCmpI(strFileSystemName1, strFileSystemName2))
-				CompareFatTime=TRUE;
+		CompareFatTime =
+			os::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, nullptr, &strFileSystemName1) &&
+			os::GetVolumeInformation(GetPathRoot(Another->m_CurDir), nullptr, nullptr, nullptr, nullptr, &strFileSystemName2) &&
+			StrCmpI(strFileSystemName1, strFileSystemName2);
 	}
 
 	// теперь начнем цикл по снятию выделений
@@ -6592,7 +6573,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 			if (m_CurDir == strOldCurDir) //?? i??
 			{
-				GetPathRoot(strOldCurDir,strOldCurDir);
+				strOldCurDir = GetPathRoot(strOldCurDir);
 
 				if (!os::IsDiskInDrive(strOldCurDir))
 					IfGoHome(strOldCurDir.front());
@@ -6648,10 +6629,8 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		DeleteListData(m_ListData);
 
 	DWORD FileSystemFlags = 0;
-	string PathRoot;
-	GetPathRoot(m_CurDir, PathRoot);
 	string FileSystemName;
-	os::GetVolumeInformation(PathRoot, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName);
+	os::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName);
 
 	m_ListData.clear();
 

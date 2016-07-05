@@ -1921,16 +1921,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_PPANEL_DRIVETYPE: // PPanel.DriveType - пассивная панель: тип привода
 		{
 			const auto SelPanel = CheckCode == MCODE_V_APANEL_DRIVETYPE ? ActivePanel : PassivePanel;
-			ret=-1;
 
 			if (SelPanel  && SelPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 			{
-				auto Filename = SelPanel->GetCurDir();
-				GetPathRoot(Filename, Filename);
-				ret = FAR_GetDriveType(Filename, 0);
+				return FAR_GetDriveType(GetPathRoot(SelPanel->GetCurDir()), 0);
 			}
 
-			return ret;
+			return -1;
 		}
 
 		case MCODE_V_APANEL_ITEMCOUNT: // APanel.ItemCount

@@ -285,11 +285,11 @@ void InfoList::DisplayObject()
 			if (GetReparsePointInfo(m_CurDir, strJuncName))
 			{
 				NormalizeSymlinkName(strJuncName);
-				GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
+				strDriveRoot = GetPathRoot(strJuncName); //"\??\D:\Junc\Src\"
 			}
 		}
 		else
-			GetPathRoot(m_CurDir, strDriveRoot);
+			strDriveRoot = GetPathRoot(m_CurDir);
 
 		if (os::GetVolumeInformation(strDriveRoot,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
@@ -1084,7 +1084,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 int InfoList::GetCurName(string &strName, string &strShortName) const
 {
 	strName = strDizFileName;
-	ConvertNameToShort(strName, strShortName);
+	strShortName = ConvertNameToShort(strName);
 	return TRUE;
 }
 

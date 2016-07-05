@@ -713,10 +713,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 	if (!DlgParam.Plugin)
 	{
-		auto strRootPathName = os::GetCurrentDirectory();
-		GetPathRoot(strRootPathName,strRootPathName);
-
-		if (os::GetVolumeInformation(strRootPathName, nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
+		if (os::GetVolumeInformation(GetPathRoot(os::GetCurrentDirectory()), nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
 		{
 			if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 			{
@@ -976,10 +973,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[SA_CHECKBOX_REPARSEPOINT].Flags |= DIF_DISABLE;
 
 				DlgParam.FileSystemFlags=0;
-				string strRoot;
-				GetPathRoot(strSelName,strRoot);
-
-				if (os::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
+				if (os::GetVolumeInformation(GetPathRoot(strSelName), nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
 				{
 					if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 					{
@@ -1006,8 +1000,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[SA_TEXT_NAME].Flags|=DIF_HIDDEN;
 					AttrDlg[SA_COMBO_HARDLINK].Flags&=~DIF_HIDDEN;
 
-					string strRoot;
-					GetPathRoot(strSelName, strRoot);
+					auto strRoot = GetPathRoot(strSelName);
 					DeleteEndSlash(strRoot);
 
 					Links.reserve(NameList.ItemsNumber);

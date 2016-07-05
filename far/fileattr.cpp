@@ -223,10 +223,8 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 
 			if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && LastError==ERROR_NOT_SUPPORTED)   // FIX: Mantis#223
 			{
-				string strDriveRoot;
-				GetPathRoot(Name, strDriveRoot);
-
-				if (GetDriveType(strDriveRoot.data())==DRIVE_REMOTE) break;
+				if (GetDriveType(GetPathRoot(Name).data()) == DRIVE_REMOTE)
+					break;
 			}
 		}
 

@@ -40,10 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void GetFullName(const string& Name, string &strFullName)
 {
-	if (Name[0]==L'<')
-		strFullName = Name;
-	else
-		ConvertNameToFull(Name,strFullName);
+	strFullName = Name[0] == L'<'? Name : ConvertNameToFull(Name);
 }
 
 void FilePositionCache::CompactHistory()

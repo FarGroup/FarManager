@@ -153,11 +153,8 @@ void ShellMakeDir(Panel *SrcPanel)
 		{
 			// TODO: almost the same code in dirmix::CreatePath()
 
-			strDirName = i;
-			strOriginalDirName = strDirName;
-
-			ConvertNameToFull(strDirName, strDirName);
-
+			strOriginalDirName = i;
+			strDirName = ConvertNameToFull(i);
 			DeleteEndSlash(strDirName);
 			bool bSuccess = false;
 

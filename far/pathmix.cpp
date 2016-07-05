@@ -46,7 +46,7 @@ void NTPath::Transform()
 	{
 		if(!HasPathPrefix(Data))
 		{
-			ConvertNameToFull(Data,Data);
+			Data = ConvertNameToFull(Data);
 
 			if (!HasPathPrefix(Data))
 			{

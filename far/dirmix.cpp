@@ -85,13 +85,9 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	{
 		if (ChangeDir)
 		{
-			strCurDir = NewDir;
-
-			if (IsRelativeRoot(strCurDir))
-				strCurDir = os::GetCurrentDirectory(); // здесь берем корень
-
+			strCurDir = IsRelativeRoot(NewDir)? os::GetCurrentDirectory(): NewDir;
 			ReplaceSlashToBackslash(strCurDir);
-			ConvertNameToFull(NewDir,strCurDir);
+			strCurDir = ConvertNameToFull(strCurDir);
 			PrepareDiskPath(strCurDir,false); // resolving not needed, very slow
 			rc=os::SetCurrentDirectory(strCurDir);
 		}
@@ -154,8 +150,7 @@ int TestFolder(const string& Path)
 
 	// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
 	// поэтому посмотрим на Root
-	GetPathRoot(Path,strFindPath);
-
+	strFindPath = GetPathRoot(Path);
 	if (strFindPath == Path)
 	{
 		// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
@@ -232,8 +227,7 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 
 void CreatePath(const string &InputPath, bool Simple)
 {
-	string Path(InputPath);
-	ConvertNameToFull(InputPath, Path);
+	const auto Path = ConvertNameToFull(InputPath);
 	size_t DirOffset = 0;
 	ParsePath(Path, &DirOffset);
 	string Part;

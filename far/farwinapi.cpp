@@ -344,7 +344,7 @@ bool enum_file::get(size_t index, value_type& FindData) const
 				string strReal(m_Object);
 				// only links in path should be processed, not the object name itself
 				CutToSlash(strReal);
-				ConvertNameToReal(strReal, strReal);
+				strReal = ConvertNameToReal(strReal);
 				AddEndSlash(strReal);
 				strReal+=PointToName(m_Object);
 				strReal = NTPath(strReal);
@@ -1140,8 +1140,8 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 					FindData.dwReserved0=0;
 				}
 
-				FindData.strFileName=PointToName(FileName);
-				ConvertNameToShort(FileName,FindData.strAlternateFileName);
+				FindData.strFileName = PointToName(FileName);
+				FindData.strAlternateFileName = ConvertNameToShort(FileName);
 				return true;
 			}
 		}

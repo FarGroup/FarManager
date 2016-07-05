@@ -215,8 +215,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 			case RP_JUNCTION:
 			case RP_VOLMOUNT:
 			{
-				string strPrintName;
-				ConvertNameToFull(Target,strPrintName);
+				const auto strPrintName = ConvertNameToFull(Target);
 				auto strSubstituteName = KernelPath(NTPath(strPrintName));
 				block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 				rdb->ReparseTag=IO_REPARSE_TAG_MOUNT_POINT;
@@ -457,7 +456,7 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 				strVolumePath = StorageDependencyInfo->Version2Entries[0].HostVolumeName;
 				strVolumePath += StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath;
 				// trick: ConvertNameToReal also converts \\?\{GUID} to drive letter, if possible.
-				ConvertNameToReal(strVolumePath, strVolumePath);
+				strVolumePath = ConvertNameToReal(strVolumePath);
 			}
 		}
 	}
@@ -465,11 +464,9 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 }
 
 
-void GetPathRoot(const string& Path, string &strRoot)
+string GetPathRoot(const string& Path)
 {
-	string RealPath;
-	ConvertNameToReal(Path, RealPath);
-	strRoot = ExtractPathRoot(RealPath);
+	return ExtractPathRoot(ConvertNameToReal(Path));
 }
 
 bool ModifyReparsePoint(const string& Object,const string& NewData)
@@ -485,8 +482,7 @@ bool ModifyReparsePoint(const string& Object,const string& NewData)
 		{
 		case IO_REPARSE_TAG_MOUNT_POINT:
 			{
-				string strPrintName;
-				ConvertNameToFull(NewData, strPrintName);
+				const auto strPrintName = ConvertNameToFull(NewData);
 				const auto strSubstituteName = KernelPath(NTPath(strPrintName));
 				FillResult=FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName);
 			}
@@ -574,9 +570,9 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 			LinkType=RP_VOLMOUNT;
 		}
 		else
-			ConvertNameToFull(Target, strFullTarget);
+			strFullTarget = ConvertNameToFull(Target);
 
-		ConvertNameToFull(LinkName, strFullLink);
+		strFullLink = ConvertNameToFull(LinkName);
 
 		if (IsSlash(strFullLink.back()))
 		{

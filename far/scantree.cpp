@@ -56,8 +56,7 @@ public:
 
 static bool LinkToRealPath(const string& Src, string& Real)
 {
-	string Test;
-	ConvertNameToReal(Src, Test);
+	auto Test = ConvertNameToReal(Src);
 	if (!Test.empty())
 	{
 		Test = NTPath(Test);
@@ -93,7 +92,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	strFindPath = Path;
 	strFindPathOriginal = strFindPath;
 	AddEndSlash(strFindPathOriginal);
-	ConvertNameToReal(strFindPath, strFindPath);
+	strFindPath = ConvertNameToReal(strFindPath);
 	strFindPath = NTPath(strFindPath);
 	ScanItems.back().RealPath = strFindPath;
 	VisitedDirs.emplace(strFindPath);

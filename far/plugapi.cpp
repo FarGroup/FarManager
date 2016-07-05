@@ -1586,8 +1586,6 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 		if (Global->WindowManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 			return FALSE;
 
-		string strDirName;
-		ConvertNameToFull(Dir, strDirName);
 		{
 			const auto PR_FarGetDirListMsg = [](){ Message(0, 0, L"", MSG(MPreparingList)); };
 
@@ -1596,7 +1594,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			os::FAR_FIND_DATA FindData;
 			string strFullName;
 			ScanTree ScTree(false);
-			ScTree.SetFindPath(strDirName,L"*");
+			ScTree.SetFindPath(ConvertNameToFull(Dir), L"*");
 			*pItemsNumber=0;
 			*pPanelItem=nullptr;
 
@@ -2272,12 +2270,12 @@ size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t 
 			break;
 
 		case CPM_REAL:
-			ConvertNameToReal(Src, strDest);
+			strDest = ConvertNameToReal(Src);
 			break;
 
 		case CPM_FULL:
 		default:
-			ConvertNameToFull(Src, strDest);
+			strDest = ConvertNameToFull(Src);
 			break;
 		}
 
@@ -2331,8 +2329,7 @@ size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 {
 	try
 	{
-		string strPath(Path), strRoot;
-		GetPathRoot(strPath,strRoot);
+		const auto strRoot = GetPathRoot(Path);
 
 		if (DestSize && Root)
 			xwcsncpy(Root,strRoot.data(),DestSize);
@@ -2560,9 +2557,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			{
 				if (Param2)
 				{
-					string strPath;
-					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					return reinterpret_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(strPath, Command == PCTL_FORCEDLOADPLUGIN));
+					return reinterpret_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2)), Command == PCTL_FORCEDLOADPLUGIN));
 				}
 			}
 			break;
@@ -2578,8 +2573,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 
 			case PFM_MODULENAME:
 			{
-				string strPath;
-				ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
+				const auto strPath = ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2));
 				const auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 				{
 					return !StrCmpI(i->GetModuleName(), strPath);

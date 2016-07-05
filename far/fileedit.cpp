@@ -1061,7 +1061,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							}
 						}
 
-						ConvertNameToFull(strSaveAsName, strFullSaveAsName);  //BUGBUG, не проверяем имя на правильность
+						strFullSaveAsName = ConvertNameToFull(strSaveAsName);  //BUGBUG, не проверяем имя на правильность
 						//это не про нас, про нас ниже, все куда страшнее
 						/*string strFileNameTemp = strSaveAsName;
 
@@ -2248,7 +2248,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 
 	if (strFileName != MSG(MNewFileName))
 	{
-		ConvertNameToFull(strFileName, strFullFileName);
+		strFullFileName = ConvertNameToFull(strFileName);
 		string strFilePath=strFullFileName;
 
 		if (CutToParent(strFilePath))

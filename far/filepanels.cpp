@@ -1035,23 +1035,24 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 	return NewPanel;
 }
 
-int  FilePanels::GetTypeAndName(string &strType, string &strName)
+int FilePanels::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(MScreensPanels);
-	string strFullName, strShortName;
 
 	switch (ActivePanel()->GetType())
 	{
-		case panel_type::TREE_PANEL:
-		case panel_type::QVIEW_PANEL:
-		case panel_type::FILE_PANEL:
-		case panel_type::INFO_PANEL:
-			ActivePanel()->GetCurName(strFullName, strShortName);
-			ConvertNameToFull(strFullName, strFullName);
-			break;
+	case panel_type::TREE_PANEL:
+	case panel_type::QVIEW_PANEL:
+	case panel_type::FILE_PANEL:
+	case panel_type::INFO_PANEL:
+		{
+			string strShortName;
+			ActivePanel()->GetCurName(strName, strShortName);
+			strName = ConvertNameToFull(strName);
+		}
+		break;
 	}
 
-	strName = strFullName;
 	return windowtype_panels;
 }
 

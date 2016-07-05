@@ -654,8 +654,7 @@ int Panel::SetCurPath()
 	{
 		while (!FarChDir(m_CurDir))
 		{
-			string strRoot;
-			GetPathRoot(m_CurDir, strRoot);
+			const auto strRoot = GetPathRoot(m_CurDir);
 
 			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || os::IsDiskInDrive(strRoot))
 			{
@@ -816,23 +815,13 @@ void Panel::RefreshTitle()
 
 string Panel::GetTitle() const
 {
-	string strTitle;
-	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-	{
-		OpenPanelInfo Info;
-		GetOpenPanelInfo(&Info);
-		strTitle = NullToEmpty(Info.PanelTitle);
-		RemoveExternalSpaces(strTitle);
-	}
-	else
-	{
-		if (m_ShowShortNames)
-			ConvertNameToShort(m_CurDir,strTitle);
-		else
-			strTitle = m_CurDir;
+	if (m_PanelMode == panel_mode::NORMAL_PANEL)
+		return m_ShowShortNames? ConvertNameToShort(m_CurDir) : m_CurDir;
 
-	}
-
+	OpenPanelInfo Info;
+	GetOpenPanelInfo(&Info);
+	string strTitle = NullToEmpty(Info.PanelTitle);
+	RemoveExternalSpaces(strTitle);
 	return strTitle;
 }
 
@@ -1443,7 +1432,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 	string strFileName = strDest;
 	if (FindSlash(Name) == string::npos && FindSlash(ShortName) == string::npos)
 	{
-		ConvertNameToFull(strFileName, strFileName);
+		strFileName = ConvertNameToFull(strFileName);
 	}
 
 	/* BUGBUG весь этот if какая то чушь
@@ -1467,12 +1456,12 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD
 	*/
 
 	if (m_ShowShortNames && ShortNameAsIs)
-		ConvertNameToShort(strFileName,strFileName);
+		strFileName = ConvertNameToShort(strFileName);
 
 	/* $ 29.01.2001 VVM
 	  + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
 	if (UNC)
-		ConvertNameToUNC(strFileName);
+		strFileName = ConvertNameToUNC(strFileName);
 
 	// $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
 	if (Global->Opt->PanelCtrlFRule)

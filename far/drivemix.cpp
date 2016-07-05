@@ -74,16 +74,11 @@ os::drives_set FarGetLogicalDrives()
 
 int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType)
 {
-	string strSrcRoot, strDestRoot;
 	DWORD SrcVolumeNumber=0, DestVolumeNumber=0;
 	string strSrcVolumeName, strDestVolumeName;
 	DWORD SrcFileSystemFlags, DestFileSystemFlags;
-	strSrcRoot=SrcPath;
-	strDestRoot=DestPath;
-	ConvertNameToUNC(strSrcRoot);
-	ConvertNameToUNC(strDestRoot);
-	GetPathRoot(strSrcRoot,strSrcRoot);
-	GetPathRoot(strDestRoot,strDestRoot);
+	const auto strSrcRoot = GetPathRoot(ConvertNameToUNC(SrcPath));
+	const auto strDestRoot = GetPathRoot(ConvertNameToUNC(DestPath));
 	int DestDriveType=FAR_GetDriveType(strDestRoot, TRUE);
 
 	if (!os::GetVolumeInformation(strSrcRoot, &strSrcVolumeName, &SrcVolumeNumber, nullptr, &SrcFileSystemFlags, nullptr))

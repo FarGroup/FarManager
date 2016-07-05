@@ -98,24 +98,20 @@ static void PR_DrawGetDirInfoMsg()
 
 int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags)
 {
-	string strFullDirName, strDriveRoot;
-	string strFullName, strCurDirName, strLastDirName;
-	ConvertNameToFull(DirName, strFullDirName);
 	SaveScreen SaveScr;
 	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScr);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
 	SCOPED_ACTION(IndeterminateTaskBar)(MessageDelay != getdirinfo_infinite_delay);
 	SCOPED_ACTION(wakeful);
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
-	os::FAR_FIND_DATA FindData;
 	clock_t StartTime=clock();
 	SetCursorType(false, 0);
-	GetPathRoot(strFullDirName,strDriveRoot);
 	/* $ 20.03.2002 DJ
 	   для . - покажем имя родительского каталога
 	*/
 	const wchar_t *ShowDirName = DirName.data();
 
+	const auto strFullDirName = ConvertNameToFull(DirName);
 	if (DirName.size() ==1 && DirName[0] == L'.')
 	{
 		const auto pos = FindLastSlash(strFullDirName);
@@ -131,12 +127,9 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 
 	DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
-	if (GetDiskFreeSpace(strDriveRoot.data(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
+	if (GetDiskFreeSpace(GetPathRoot(strFullDirName).data(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
 		Data.ClusterSize=SectorsPerCluster*BytesPerSector;
 
-	// Временные хранилища имён каталогов
-	strLastDirName.clear();
-	strCurDirName.clear();
 	Data.DirCount=Data.FileCount=0;
 	Data.FileSize=Data.AllocationSize=Data.FilesSlack=Data.MFTOverhead=0;
 	ScTree.SetFindPath(DirName,L"*");
@@ -144,9 +137,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	bool CheckHardlinks = false;
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
-	string Root;
-	GetPathRoot(DirName, Root);
-	if(os::GetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
+	if(os::GetVolumeInformation(GetPathRoot(DirName), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
 	{
 		if (!IsWindows7OrGreater())
 		{
@@ -157,6 +148,10 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 			CheckHardlinks = (FileSystemFlags&FILE_SUPPORTS_HARD_LINKS) != 0;
 		}
 	}
+	string strFullName;
+	// Временные хранилища имён каталогов
+	string strCurDirName, strLastDirName;
+	os::FAR_FIND_DATA FindData;
 	while (ScTree.GetNextName(FindData,strFullName))
 	{
 		// Mantis#0002692

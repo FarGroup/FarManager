@@ -236,7 +236,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 					if (SubstData.PassivePanel && (!pAnotherListName->empty() || SubstData.AnotherPanel->MakeListFile(*pAnotherListName, ShortN0, Modifers)))
 					{
 						if (ShortN0)
-							ConvertNameToShort(*pAnotherListName, *pAnotherListName);
+							*pAnotherListName = ConvertNameToShort(*pAnotherListName);
 
 						strOut += *pAnotherListName;
 					}
@@ -244,7 +244,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 					if (!SubstData.PassivePanel && (!pListName->empty() || SubstData.ActivePanel->MakeListFile(*pListName, ShortN0, Modifers)))
 					{
 						if (ShortN0)
-							ConvertNameToShort(*pListName,*pListName);
+							*pListName = ConvertNameToShort(*pListName);
 
 						strOut += *pListName;
 					}
@@ -292,7 +292,6 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	if (!StrCmpN(CurStr,L"!:",2))
 	{
 		string strCurDir;
-		string strRootDir;
 
 		if (*SubstData.Name && SubstData.Name[1]==L':')
 			strCurDir = SubstData.Name;
@@ -301,7 +300,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		else
 			strCurDir = SubstData.strCmdDir;
 
-		GetPathRoot(strCurDir,strRootDir);
+		auto strRootDir = GetPathRoot(strCurDir);
 		DeleteEndSlash(strRootDir);
 		strOut += strRootDir;
 		CurStr+=2;
@@ -334,7 +333,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		}
 
 		if (ShortN0)
-			ConvertNameToShort(strCurDir,strCurDir);
+			strCurDir = ConvertNameToShort(strCurDir);
 
 		AddEndSlash(strCurDir);
 
@@ -798,11 +797,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				{
 					if (Modifers.find(L'F') != string::npos && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
 					{
-						string strTempFileName(m_CurDir);
-
-						if (ShortNames)
-							ConvertNameToShort(strTempFileName,strTempFileName);
-
+						auto strTempFileName = ShortNames? ConvertNameToShort(m_CurDir) : m_CurDir;
 						AddEndSlash(strTempFileName);
 						strTempFileName+=strFileName; //BUGBUG ?
 						strFileName=strTempFileName;

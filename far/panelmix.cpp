@@ -143,10 +143,9 @@ int CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
 
 	if (AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL)
 	{
-		string strFullName;
 		string strAnotherCurDir(AnotherPanel->GetCurDir());
 		AddEndSlash(strAnotherCurDir);
-		ConvertNameToFull(SelName, strFullName);
+		auto strFullName = ConvertNameToFull(SelName);
 		AddEndSlash(strFullName);
 
 		if (strAnotherCurDir.find(strFullName) != string::npos)
@@ -259,7 +258,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 							SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, TRUE, ShortNameAsIs);
 
 						if (SrcPanel->GetShowShortNamesMode() && ShortNameAsIs)
-							ConvertNameToShort(strPathName,strPathName);
+							strPathName = ConvertNameToShort(strPathName);
 					}
 					else
 					{

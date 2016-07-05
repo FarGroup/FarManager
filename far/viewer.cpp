@@ -329,7 +329,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 	}
 	Reader.AdjustAlignment();
 
-	ConvertNameToFull(strFileName,strFullFileName);
+	strFullFileName = ConvertNameToFull(strFileName);
 	os::GetFindDataEx(strFileName, ViewFindData);
 	uintptr_t CachedCodePage=0;
 
@@ -422,8 +422,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 	ChangeViewKeyBar();
 	AdjustWidth();
 
-	string strRoot;
-	GetPathRoot(strFullFileName, strRoot);
+	const auto strRoot = GetPathRoot(strFullFileName);
 	int DriveType = FAR_GetDriveType(strRoot, 2); // media inserted here
 	int update_check_period = -1;
 	switch (DriveType) //??? make it configurable
@@ -3663,7 +3662,7 @@ void Viewer::GetFileName(string &strName) const
 void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
 {
 	if (!Name.empty())
-		ConvertNameToFull(Name,strTempViewName);
+		strTempViewName = ConvertNameToFull(Name);
 	else
 	{
 		strTempViewName.clear();

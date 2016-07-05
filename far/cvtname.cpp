@@ -201,9 +201,11 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 		Dest = std::move(strDest);
 }
 
-void ConvertNameToFull(const string& Src, string &strDest, LPCWSTR CurrentDirectory)
+string ConvertNameToFull(const string& Object)
 {
-	MixToFullPath(Src, strDest, CurrentDirectory? CurrentDirectory : os::GetCurrentDirectory());
+	string strDest;
+	MixToFullPath(Object, strDest, os::GetCurrentDirectory());
+	return strDest;
 }
 
 // try to replace volume GUID (if present) with drive letter
@@ -306,14 +308,13 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
   Note that Src can be partially non-existent.
 */
-void ConvertNameToReal(const string& Src, string &strDest)
+string ConvertNameToReal(const string& Object)
 {
 	SCOPED_ACTION(elevation::suppress);
 
 	// Получим сначала полный путь до объекта обычным способом
-	string FullPath;
-	ConvertNameToFull(Src, FullPath);
-	strDest = FullPath;
+	const auto FullPath = ConvertNameToFull(Object);
+	auto strDest = FullPath;
 
 	string Path = FullPath;
 	os::handle File;
@@ -352,16 +353,16 @@ void ConvertNameToReal(const string& Src, string &strDest)
 			strDest = FinalFilePath;
 		}
 	}
+	return strDest;
 }
 
-void ConvertNameToShort(const string& Src, string &strDest)
+string ConvertNameToShort(const string& Object)
 {
-
+	string strDest;
 	const auto GetShortName = [&strDest](const string& str)
 	{
-		WCHAR Buffer[MAX_PATH];
-		DWORD Size = GetShortPathName(str.data(), Buffer, static_cast<DWORD>(std::size(Buffer)));
-		if (Size)
+		wchar_t Buffer[MAX_PATH];
+		if (auto Size = GetShortPathName(str.data(), Buffer, static_cast<DWORD>(std::size(Buffer))))
 		{
 			if (Size < std::size(Buffer))
 			{
@@ -378,15 +379,14 @@ void ConvertNameToShort(const string& Src, string &strDest)
 		return false;
 	};
 
-	if(!GetShortName(Src))
+	if(!GetShortName(Object))
 	{
-		strDest = Src;
+		strDest = Object;
 
-		bool Prefixed = HasPathPrefix(Src);
+		bool Prefixed = HasPathPrefix(Object);
 		if (!Prefixed)
 		{
-			string NtName = NTPath(Src);
-			if (GetShortName(NtName))
+			if (GetShortName(NTPath(Object)))
 			{
 				switch (ParsePath(strDest))
 				{
@@ -405,41 +405,34 @@ void ConvertNameToShort(const string& Src, string &strDest)
 			}
 		}
 	}
+	return strDest;
 }
 
-void ConvertNameToLong(const string& Src, string &strDest)
+string ConvertNameToLong(const string& Object)
 {
-	WCHAR Buffer[MAX_PATH];
-	DWORD nSize = GetLongPathName(Src.data(), Buffer, static_cast<DWORD>(std::size(Buffer)));
-
-	if (nSize)
+	wchar_t Buffer[MAX_PATH];
+	if (auto Size = GetLongPathName(Object.data(), Buffer, static_cast<DWORD>(std::size(Buffer))))
 	{
-		if (nSize < std::size(Buffer))
+		if (Size < std::size(Buffer))
 		{
-			strDest.assign(Buffer, nSize);
+			return{ Buffer, Size };
 		}
 		else
 		{
-			wchar_t_ptr vBuffer(nSize);
-			nSize = GetLongPathName(Src.data(), vBuffer.get(), nSize);
-			strDest.assign(vBuffer.get(), nSize);
+			wchar_t_ptr vBuffer(Size);
+			Size = GetLongPathName(Object.data(), vBuffer.get(), Size);
+			return{ vBuffer.get(), Size };
 		}
 	}
-	else
-	{
-		strDest = Src;
-	}
+	return Object;
 }
 
-void ConvertNameToUNC(string &strFileName)
+string ConvertNameToUNC(const string& Object)
 {
-	ConvertNameToFull(strFileName,strFileName);
+	auto strFileName = ConvertNameToFull(Object);
 	// Посмотрим на тип файловой системы
 	string strFileSystemName;
-	string strTemp;
-	GetPathRoot(strFileName,strTemp);
-
-	if (!os::GetVolumeInformation(strTemp,nullptr,nullptr,nullptr,nullptr,&strFileSystemName))
+	if (!os::GetVolumeInformation(GetPathRoot(strFileName), nullptr, nullptr, nullptr, nullptr, &strFileSystemName))
 		strFileSystemName.clear();
 
 	DWORD uniSize = 1024;
@@ -455,12 +448,11 @@ void ConvertNameToUNC(string &strFileName)
 			case NO_ERROR:
 				strFileName = uni->lpUniversalName;
 				break;
+
 			case ERROR_MORE_DATA:
 				uni.reset(uniSize);
-
 				if (WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
 					strFileName = uni->lpUniversalName;
-
 				break;
 		}
 	}
@@ -469,6 +461,7 @@ void ConvertNameToUNC(string &strFileName)
 		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
 		// Здесь, если не получилось получить UniversalName и если это
 		// мапленный диск - получаем как для меню выбора дисков
+		string strTemp;
 		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName[0],strTemp))
 		{
 			const auto SlashPos = FindSlash(strFileName);
@@ -482,12 +475,12 @@ void ConvertNameToUNC(string &strFileName)
 		}
 	}
 
-	ConvertNameToReal(strFileName,strFileName);
+	return ConvertNameToReal(strFileName);
 }
 
 // Косметические преобразования строки пути.
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
-string& PrepareDiskPath(string &strPath, bool CheckFullPath)
+void PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
 	// elevation not required during cosmetic operation
 	SCOPED_ACTION(elevation::suppress);
@@ -507,7 +500,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 			if (CheckFullPath)
 			{
-				ConvertNameToFull(strPath, strPath);
+				strPath = ConvertNameToFull(strPath);
 
 				size_t DirOffset = 0;
 				const auto Type = ParsePath(strPath, &DirOffset);
@@ -553,6 +546,4 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 			}
 		}
 	}
-
-	return strPath;
 }

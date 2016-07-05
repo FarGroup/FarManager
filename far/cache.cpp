@@ -45,10 +45,6 @@ CachedRead::CachedRead(os::fs::file& file, size_t buffer_size):
 {
 }
 
-CachedRead::~CachedRead()
-{
-}
-
 void CachedRead::AdjustAlignment()
 {
 	if (!file)

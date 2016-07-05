@@ -1471,7 +1471,7 @@ int Help::JumpTopic()
 		strFullPath.append(L"\\").append(strNewTopic, IsSlash(strNewTopic.front())? 1 : 0, string::npos);
 		BOOL EndSlash = IsSlash(strFullPath.back());
 		DeleteEndSlash(strFullPath);
-		ConvertNameToFull(strFullPath,strNewTopic);
+		strNewTopic = ConvertNameToFull(strFullPath);
 		strFullPath = str_printf(EndSlash? HelpFormatLink : HelpFormatLinkModule, strNewTopic.data(), wcschr(StackData->strSelTopic.data()+2, HelpEndLink)+1);
 		StackData->strSelTopic = strFullPath;
 	}

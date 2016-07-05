@@ -104,10 +104,10 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 	if (got_focus)
 	{
 		bool isFAT = false;
-		string strRoot, strFileSystem;
-		GetPathRoot(m_Directory, strRoot);
+		const auto strRoot = GetPathRoot(m_Directory);
 		if (!strRoot.empty())
 		{
+			string strFileSystem;
 			if (os::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
 				isFAT = !strFileSystem.compare(0, 3, L"FAT", 3);
 		}

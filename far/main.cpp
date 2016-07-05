@@ -300,7 +300,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 	if (!strTemplatePath.empty())
 	{
-		ConvertNameToFull(Unquote(os::env::expand_strings(strTemplatePath)), strTemplatePath);
+		strTemplatePath = ConvertNameToFull(Unquote(os::env::expand_strings(strTemplatePath)));
 		DeleteEndSlash(strTemplatePath);
 
 		if (os::fs::is_directory(strTemplatePath))
@@ -314,11 +314,11 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (!strProfilePath.empty())
 	{
-		ConvertNameToFull(Unquote(os::env::expand_strings(strProfilePath)), strProfilePath);
+		strProfilePath = ConvertNameToFull(Unquote(os::env::expand_strings(strProfilePath)));
 	}
 	if (!strLocalProfilePath.empty())
 	{
-		ConvertNameToFull(Unquote(os::env::expand_strings(strLocalProfilePath)), strLocalProfilePath);
+		strLocalProfilePath = ConvertNameToFull(Unquote(os::env::expand_strings(strLocalProfilePath)));
 	}
 
 	if (strProfilePath.empty())
@@ -356,10 +356,10 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		}
 		else
 		{
-			string strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
-			string strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
-			ConvertNameToFull(Unquote(os::env::expand_strings(strUserProfileDir)), Global->Opt->ProfilePath);
-			ConvertNameToFull(Unquote(os::env::expand_strings(strUserLocalProfileDir)), Global->Opt->LocalProfilePath);
+			const auto strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
+			const auto strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
+			Global->Opt->ProfilePath = ConvertNameToFull(Unquote(os::env::expand_strings(strUserProfileDir)));
+			Global->Opt->LocalProfilePath = ConvertNameToFull(Unquote(os::env::expand_strings(strUserLocalProfileDir)));
 		}
 	}
 	else
@@ -494,7 +494,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	if (os::GetModuleFileName(nullptr, Global->g_strFarModuleName))
 	{
-		ConvertNameToLong(Global->g_strFarModuleName, Global->g_strFarModuleName);
+		Global->g_strFarModuleName = ConvertNameToLong(Global->g_strFarModuleName);
 		PrepareDiskPath(Global->g_strFarModuleName);
 	}
 
@@ -704,9 +704,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 				}
 				else
 				{
-					string ArgvI = Unquote(os::env::expand_strings(Arg));
-					ConvertNameToFull(ArgvI, ArgvI);
-
+					auto ArgvI = ConvertNameToFull(Unquote(os::env::expand_strings(Arg)));
 					if (os::fs::exists(ArgvI))
 					{
 						DestNames[CntDestName++] = ArgvI;
@@ -752,7 +750,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	os::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
 
 	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
-		ConvertNameToFull(Unquote(os::env::expand_strings(Global->Opt->LoadPlug.strCustomPluginsPath)), Global->Opt->LoadPlug.strCustomPluginsPath);
+		Global->Opt->LoadPlug.strCustomPluginsPath = ConvertNameToFull(Unquote(os::env::expand_strings(Global->Opt->LoadPlug.strCustomPluginsPath)));
 
 	UpdateErrorMode();
 
