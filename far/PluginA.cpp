@@ -3231,8 +3231,11 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 					if (Ret)
 					{
-						UnicodeToOEM(ListTitle.Title,OldListTitle->Title,OldListTitle->TitleLen);
-						UnicodeToOEM(ListTitle.Bottom,OldListTitle->Bottom,OldListTitle->BottomLen);
+						if (OldListTitle->Title)
+							UnicodeToOEM(ListTitle.Title, OldListTitle->Title, OldListTitle->TitleLen);
+
+						if (OldListTitle->Bottom)
+							UnicodeToOEM(ListTitle.Bottom, OldListTitle->Bottom, OldListTitle->BottomLen);
 					}
 
 					delete[] ListTitle.Title;
@@ -4068,12 +4071,10 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 						switch (Param1)
 						{
 							case MSSC_CHECK:
-							{
 								kmA->MacroResult.ErrMsg1 = "";
 								kmA->MacroResult.ErrMsg2 = "";
 								kmA->MacroResult.ErrMsg3 = "";
-							}
-
+								// fall-through
 							case MSSC_POST:
 								delete[] mtW.SequenceText;
 								break;

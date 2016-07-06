@@ -1203,7 +1203,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				PtrCmd++;
 			}
 
-			if (PtrCmd && *PtrCmd && *PtrCmd == L' ')
+			if (*PtrCmd == L' ')
 			{
 //_SVS(SysLog(L"Cmd='%s'", strCmd.data()));
 				strExpandedStr = os::env::expand_strings(Unquote(strCmd.assign(CmdStart, PtrCmd - CmdStart)));
@@ -1266,7 +1266,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			{
 				PtrCmd=wcschr(PtrCmd,L' ');
 
-				if (PtrCmd && *PtrCmd && *PtrCmd == L' ')
+				if (PtrCmd && *PtrCmd == L' ')
 				{
 					strCmd.assign(CmdStart,PtrCmd-CmdStart);
 

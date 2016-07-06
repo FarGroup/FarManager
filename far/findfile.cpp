@@ -2836,7 +2836,7 @@ bool FindFiles::FindFilesProcess()
 						string strArcPath=strArcName;
 						CutToSlash(strArcPath);
 						FindPanel->SetCurDir(strArcPath,true);
-						FindExitItem->Arc->hPlugin = std::static_pointer_cast<FileList>(FindPanel)->OpenFilePlugin(&strArcName, FALSE, OFP_SEARCH);
+						FindExitItem->Arc->hPlugin = std::static_pointer_cast<FileList>(FindPanel)->OpenFilePlugin(strArcName, FALSE, OFP_SEARCH);
 						if (FindExitItem->Arc->hPlugin==PANEL_STOP)
 							FindExitItem->Arc->hPlugin = nullptr;
 					}

@@ -1509,9 +1509,14 @@ static auto HexStringToBlobT(const C* Hex, size_t Size, C Separator)
 	const auto SeparatorSize = Separator? 1 : 0;
 	const auto StepSize = 2 + SeparatorSize;
 	const auto AlignedSize = Size + SeparatorSize;
+	const auto BlobSize = AlignedSize / StepSize;
 
 	std::vector<char> Blob;
-	Blob.reserve(AlignedSize / StepSize);
+
+	if (!BlobSize)
+		return Blob;
+
+	Blob.reserve(BlobSize);
 	for (size_t i = 0; i != AlignedSize; i += StepSize)
 	{
 		Blob.emplace_back(HexToInt(Hex[i]) << 4 | HexToInt(Hex[i + 1]));

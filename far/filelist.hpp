@@ -238,7 +238,7 @@ public:
 	const FileListItem* GetItem(size_t Index) const;
 	const FileListItem* GetLastSelectedItem() const;
 
-	PluginHandle* OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
+	PluginHandle* OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type);
 	void ProcessHostFile();
 	bool GetPluginInfo(PluginInfo *PInfo) const;
 	void PluginGetPanelInfo(PanelInfo &Info);
@@ -308,7 +308,7 @@ private:
 	bool ApplyCommand();
 	void DescribeFiles();
 	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot = true);
-	PluginHandle* OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
+	PluginHandle* OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 	int PreparePanelView(PanelViewSettings *PanelView);
 	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
 	void PrepareViewSettings(int ViewMode);

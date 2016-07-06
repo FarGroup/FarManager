@@ -545,7 +545,11 @@ void ShellSetFileAttributesMsg(const string& Name)
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<AttrPreRedrawItem*>(PreRedrawStack().top());
-		item->Name = Name;
+		assert(item);
+		if (item)
+		{
+			item->Name = Name;
+		}
 	}
 }
 
@@ -610,7 +614,11 @@ void PR_ShellSetFileAttributesMsg()
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<const AttrPreRedrawItem*>(PreRedrawStack().top());
-		ShellSetFileAttributesMsg(item->Name);
+		assert(item);
+		if (item)
+		{
+			ShellSetFileAttributesMsg(item->Name);
+		}
 	}
 }
 

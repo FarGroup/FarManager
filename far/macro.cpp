@@ -1949,7 +1949,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			const auto f = Global->WindowManager->GetCurrentWindow();
 			string Filename;
 
-			if (std::dynamic_pointer_cast<FilePanels>(f))
+			if (std::dynamic_pointer_cast<FilePanels>(f) && ActivePanel)
 			{
 				Filename = ActivePanel->GetTitle();
 			}

@@ -3504,14 +3504,6 @@ static BOOL ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 		}
 	}
 
-	//BUGBUG, not used
-	/*
-	if (!PreRedrawStack().empty())
-	{
-		auto item = dynamic_cast<CopyPreRedrawItem*>(PreRedrawStack().top());
-		item->name = Name;
-	}
-	*/
 	return TRUE;
 }
 
@@ -3586,7 +3578,6 @@ DWORD ShellCopy::CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytes
 	bool Abort = false;
 	if (CP->IsCancelled())
 	{
-		// // _LOGCOPYR(SysLog(L"2='%s'/0x%08X  3='%s'/0x%08X  Flags=0x%08X",(char*)PreRedrawParam.Param2,PreRedrawParam.Param2,(char*)PreRedrawParam.Param3,PreRedrawParam.Param3,PreRedrawParam.Flags));
 		Abort=true;
 	}
 

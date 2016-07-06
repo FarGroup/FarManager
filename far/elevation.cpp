@@ -660,7 +660,7 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 		[&]
 		{
 			SendCommand(C_FUNCTION_MOVETORECYCLEBIN, FileOpStruct,
-				make_blob_view(FileOpStruct.pFrom, FileOpStruct.pFrom ? (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t) : 0), // achtung! +1
+				make_blob_view(FileOpStruct.pFrom, (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t)), // achtung! +1
 				make_blob_view(FileOpStruct.pTo, FileOpStruct.pTo ? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)); // achtung! +1
 
 			Read(FileOpStruct.fAnyOperationsAborted);

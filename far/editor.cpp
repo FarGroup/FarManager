@@ -6843,10 +6843,14 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<EditorPreRedrawItem*>(PreRedrawStack().top());
-		item->Title = Title;
-		item->Msg = Msg;
-		item->Name = Name;
-		item->Percent = Percent;
+		assert(item);
+		if (item)
+		{
+			item->Title = Title;
+			item->Msg = Msg;
+			item->Name = Name;
+			item->Percent = Percent;
+		}
 	}
 }
 
@@ -6855,7 +6859,11 @@ void Editor::PR_EditorShowMsg()
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<const EditorPreRedrawItem*>(PreRedrawStack().top());
-		Editor::EditorShowMsg(item->Title, item->Msg, item->Name, item->Percent);
+		assert(item);
+		if (item)
+		{
+			Editor::EditorShowMsg(item->Title, item->Msg, item->Name, item->Percent);
+		}
 	}
 }
 
@@ -7102,7 +7110,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			}
 			else
 			{
-				int max_len = codepage == CP_UTF8 ? 3 : 2;
+				const int max_len = 2;
 				for (size_t j = 0; j != total_len; )
 				{
 					int len;

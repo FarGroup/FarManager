@@ -2650,7 +2650,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 			const auto IsItExecutable = IsExecutable(strFileName);
 
-			if (!IsItExecutable && !SeparateWindow && (OpenedPlugin = OpenFilePlugin(&strFileName, TRUE, Type)) != nullptr)
+			if (!IsItExecutable && !SeparateWindow && (OpenedPlugin = OpenFilePlugin(strFileName, TRUE, Type)) != nullptr)
 				return;
 
 			if (IsItExecutable || SeparateWindow || Global->Opt->UseRegisteredTypes)
@@ -2678,7 +2678,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (EnableAssoc && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTEXEC, PluginMode))
 				return;
 
-			OpenFilePlugin(&strFileName, TRUE, Type);
+			OpenFilePlugin(strFileName, TRUE, Type);
 		}
 	}
 }
@@ -3223,7 +3223,6 @@ void FileList::SetViewMode(int Mode)
 	bool NewStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
 	bool NewDiz=IsColumnDisplayed(DIZ_COLUMN);
 	bool NewAccessTime=IsColumnDisplayed(ADATE_COLUMN);
-	int ResortRequired=FALSE;
 	DWORD FileSystemFlags = 0;
 	if (NewPacked && os::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, &FileSystemFlags, nullptr))
 		if (!(FileSystemFlags&FILE_FILE_COMPRESSION))
@@ -3275,16 +3274,6 @@ void FileList::SetViewMode(int Mode)
 //    SetScreenPosition();
 		ViewSettingsToText(m_ViewSettings.PanelColumns, strColumnTypes, strColumnWidths);
 		ProcessPluginEvent(FE_CHANGEVIEWMODE, UNSAFE_CSTR(strColumnTypes));
-	}
-
-	if (ResortRequired)
-	{
-		SortFileList(TRUE);
-		ShowFileList(TRUE);
-		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-
-		if (AnotherPanel->GetType() == panel_type::TREE_PANEL)
-			AnotherPanel->Redraw();
 	}
 }
 
@@ -5064,7 +5053,7 @@ bool FileList::GetPrevDirectoriesFirst() const
 	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevDirectoriesFirst:m_DirectoriesFirst;
 }
 
-PluginHandle* FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
+PluginHandle* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
 {
 	if (!PushPrev && m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
@@ -5084,11 +5073,11 @@ PluginHandle* FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPE
 	{
 		if (PushPrev)
 		{
-			PrevDataList.emplace_back(FileName? *FileName : L"", std::move(m_ListData), m_CurTopFile);
+			PrevDataList.emplace_back(FileName, std::move(m_ListData), m_CurTopFile);
 		}
 
 		bool WasFullscreen = IsFullScreen();
-		SetPluginMode(hNewPlugin, FileName ? *FileName : L"");  // SendOnFocus??? true???
+		SetPluginMode(hNewPlugin, FileName);  // SendOnFocus??? true???
 		m_PanelMode = panel_mode::PLUGIN_PANEL;
 		UpperFolderTopFile=m_CurTopFile;
 		m_CurFile=0;
@@ -5655,16 +5644,16 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 }
 
 
-PluginHandle* FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
+PluginHandle* FileList::OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
 {
 	PluginHandle* Result = nullptr;
-	if(!FileName->empty() && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+	if(!FileName.empty() && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
 		SetCurPath();
 		_ALGO(SysLog(L"close AnotherPanel file"));
 		Parent()->GetAnotherPanel(this)->CloseFile();
 		_ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
-		Result = Global->CtrlObject->Plugins->OpenFilePlugin(FileName, 0, Type);
+		Result = Global->CtrlObject->Plugins->OpenFilePlugin(&FileName, 0, Type);
 		_ALGO(SysLog(L"}"));
 	}
 	return Result;
@@ -5963,7 +5952,7 @@ void FileList::PluginHostGetFiles()
 	{
 		PluginHandle* hCurPlugin;
 
-		if ((hCurPlugin=OpenPluginForFile(&strSelName,FileAttr, OFP_EXTRACT))!=nullptr &&
+		if ((hCurPlugin = OpenPluginForFile(strSelName, FileAttr, OFP_EXTRACT)) != nullptr &&
 		        hCurPlugin!=PANEL_STOP)
 		{
 			int OpMode=OPM_TOPLEVEL;
@@ -6211,7 +6200,7 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 {
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;
-	const auto hNewPlugin = OpenPluginForFile(&Item->strName, Item->FileAttr, OFP_COMMANDS);
+	const auto hNewPlugin = OpenPluginForFile(Item->strName, Item->FileAttr, OFP_COMMANDS);
 
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
@@ -6525,7 +6514,11 @@ void ReadFileNamesMsg(const string& Msg)
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<FileListPreRedrawItem*>(PreRedrawStack().top());
-		item->Msg = Msg;
+		assert(item);
+		if (item)
+		{
+			item->Msg = Msg;
+		}
 	}
 }
 
@@ -6534,7 +6527,11 @@ static void PR_ReadFileNamesMsg()
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<const FileListPreRedrawItem*>(PreRedrawStack().top());
-		ReadFileNamesMsg(item->Msg);
+		assert(item);
+		if (item)
+		{
+			ReadFileNamesMsg(item->Msg);
+		}
 	}
 }
 

@@ -137,11 +137,15 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 
 	if (!PreRedrawStack().empty())
 	{
-		auto item = dynamic_cast<DelPreRedrawItem*>(PreRedrawStack().top());
-		item->name = Name;
-		item->Mode = Mode;
-		item->Percent = Percent;
-		item->WipePercent = WipePercent;
+		const auto item = dynamic_cast<DelPreRedrawItem*>(PreRedrawStack().top());
+		assert(item);
+		if (item)
+		{
+			item->name = Name;
+			item->Mode = Mode;
+			item->Percent = Percent;
+			item->WipePercent = WipePercent;
+		}
 	}
 }
 
@@ -150,7 +154,11 @@ static void PR_ShellDeleteMsg()
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<const DelPreRedrawItem*>(PreRedrawStack().top());
-		ShellDeleteMsg(item->name, item->Mode, item->Percent, item->WipePercent);
+		assert(item);
+		if (item)
+		{
+			ShellDeleteMsg(item->name, item->Mode, item->Percent, item->WipePercent);
+		}
 	}
 }
 

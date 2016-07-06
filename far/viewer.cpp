@@ -2688,7 +2688,11 @@ static void PR_ViewerSearchMsg()
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<const ViewerPreRedrawItem*>(PreRedrawStack().top());
-		ViewerSearchMsg(item->name, item->percent, item->hex);
+		assert(item);
+		if (item)
+		{
+			ViewerSearchMsg(item->name, item->percent, item->hex);
+		}
 	}
 }
 
@@ -2707,9 +2711,13 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<ViewerPreRedrawItem*>(PreRedrawStack().top());
-		item->name = MsgStr;
-		item->percent = Percent;
-		item->hex = SearchHex;
+		assert(item);
+		if (item)
+		{
+			item->name = MsgStr;
+			item->percent = Percent;
+			item->hex = SearchHex;
+		}
 	}
 }
 

@@ -1106,8 +1106,8 @@ public:
 			if (!mask)
 				continue;
 
-			string Mask = wide(mask, CP_UTF8);
-			string Description = wide(description, CP_UTF8);
+			const auto Mask = wide(mask, CP_UTF8);
+			const auto Description = wide(NullToEmpty(description), CP_UTF8);
 
 			id = AddType(id, Mask, Description);
 			if (!id)

@@ -81,9 +81,13 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, UINT64 S
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<DirInfoPreRedrawItem*>(PreRedrawStack().top());
-		item->Title = Title;
-		item->Name = Name;
-		item->Size = Size;
+		assert(item);
+		if (item)
+		{
+			item->Title = Title;
+			item->Name = Name;
+			item->Size = Size;
+		}
 	}
 }
 
@@ -92,7 +96,11 @@ static void PR_DrawGetDirInfoMsg()
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<const DirInfoPreRedrawItem*>(PreRedrawStack().top());
-		DrawGetDirInfoMsg(item->Title.data(), item->Name.data(), item->Size);
+		assert(item);
+		if (item)
+		{
+			DrawGetDirInfoMsg(item->Title.data(), item->Name.data(), item->Size);
+		}
 	}
 }
 
@@ -288,8 +296,12 @@ static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
-		item->Name = Name;
-		item->Flags = Flags;
+		assert(item);
+		if (item)
+		{
+			item->Name = Name;
+			item->Flags = Flags;
+		}
 	}
 }
 
@@ -298,7 +310,11 @@ static void PR_FarGetPluginDirListMsg()
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<const PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
-		FarGetPluginDirListMsg(item->Name, item->Flags);
+		assert(item);
+		if (item)
+		{
+			FarGetPluginDirListMsg(item->Name, item->Flags);
+		}
 	}
 }
 

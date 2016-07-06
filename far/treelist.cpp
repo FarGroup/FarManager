@@ -748,7 +748,11 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 		if (!PreRedrawStack().empty())
 		{
 			const auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
-			item->TreeCount = TreeCount;
+			assert(item);
+			if (item)
+			{
+				item->TreeCount = TreeCount;
+			}
 		}
 		TreeStartTime = clock();
 	}
@@ -762,7 +766,11 @@ static void PR_MsgReadTree()
 	{
 		int FirstCall = 1;
 		const auto item = dynamic_cast<const TreePreRedrawItem*>(PreRedrawStack().top());
-		MsgReadTree(item->TreeCount, FirstCall);
+		assert(item);
+		if (item)
+		{
+			MsgReadTree(item->TreeCount, FirstCall);
+		}
 	}
 }
 
