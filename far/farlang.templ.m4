@@ -17199,7 +17199,7 @@ MSetAttrOffline
 "Автономний"
 
 MSetAttrReparsePoint
-"точка повторного анализа"
+"Точка повторного анализа"
 "Reparse point"
 "Reparse point"
 "Analysepunkt"
