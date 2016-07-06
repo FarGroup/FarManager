@@ -85,10 +85,14 @@ Options::Options():
   update_level(5),
   update_method(),
   update_solid(true),
+  update_encrypt(false),
   update_show_password(false),
   update_encrypt_header(triUndef),
+  update_create_sfx(false),
   update_sfx_options(),
+  update_enable_volumes(false),
   update_volume_size(),
+  update_move_files(false),
   update_ignore_errors(false),
   update_overwrite(oaAsk),
   update_append_ext(false),
@@ -176,10 +180,16 @@ void Options::load() {
   GET_VALUE(update_level, int);
   GET_VALUE(update_method, str);
   GET_VALUE(update_solid, bool);
+  GET_VALUE(update_advanced, str);
+  GET_VALUE(update_encrypt, bool);
   GET_VALUE(update_show_password, bool);
   GET_VALUE(update_encrypt_header, int);
+  GET_VALUE(update_password, str);
+  GET_VALUE(update_create_sfx, bool);
   load_sfx_options(key, update_sfx_options);
+  GET_VALUE(update_enable_volumes, bool);
   GET_VALUE(update_volume_size, str);
+  GET_VALUE(update_move_files, bool);
   GET_VALUE(update_ignore_errors, bool);
   GET_VALUE(update_overwrite, int);
   GET_VALUE(update_append_ext, bool);
@@ -220,10 +230,16 @@ void Options::save() const {
   SET_VALUE(update_level, int);
   SET_VALUE(update_method, str);
   SET_VALUE(update_solid, bool);
+  SET_VALUE(update_advanced, str);
+  SET_VALUE(update_encrypt, bool);
   SET_VALUE(update_show_password, bool);
   SET_VALUE(update_encrypt_header, int);
+  SET_VALUE(update_password, str);
+  SET_VALUE(update_create_sfx, bool);
   save_sfx_options(key, update_sfx_options);
+  SET_VALUE(update_enable_volumes, bool);
   SET_VALUE(update_volume_size, str);
+  SET_VALUE(update_move_files, bool);
   SET_VALUE(update_ignore_errors, bool);
   SET_VALUE(update_overwrite, int);
   SET_VALUE(update_append_ext, bool);

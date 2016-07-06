@@ -143,7 +143,7 @@ public:
     return get()->arc_formats;
   }
   static const ArcCodecs& codecs() {
-	  return get()->arc_codecs;
+    return get()->arc_codecs;
   }
   static const SfxModules& sfx() {
     return get()->sfx_modules;

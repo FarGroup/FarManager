@@ -15,10 +15,16 @@ struct Options {
   unsigned update_level;
   wstring update_method;
   bool update_solid;
+  wstring update_advanced;
+  bool update_encrypt;
   bool update_show_password;
   TriState update_encrypt_header;
+  wstring update_password;
+  bool update_create_sfx;
   SfxOptions update_sfx_options;
+  bool update_enable_volumes;
   wstring update_volume_size;
+  bool update_move_files;
   bool update_ignore_errors;
   OverwriteAction update_overwrite;
   bool update_append_ext;

@@ -492,15 +492,26 @@ public:
         options.arc_type = c_7z;
       else
         options.arc_type = arc_types.front();
-      options.sfx_options = g_options.update_sfx_options;
       options.level = g_options.update_level;
       options.method = g_options.update_method;
       options.solid = g_options.update_solid;
-      options.encrypt = false;
-      options.encrypt_header = g_options.update_encrypt_header;
-      options.volume_size = g_options.update_volume_size;
       options.append_ext = g_options.update_append_ext;
-    }
+
+      options.advanced = g_options.update_advanced;
+
+      options.encrypt = g_options.update_encrypt;
+      options.encrypt_header = g_options.update_encrypt_header;
+      if (options.encrypt)
+        options.password = g_options.update_password;
+
+      options.create_sfx = g_options.update_create_sfx;
+      options.sfx_options = g_options.update_sfx_options;
+
+      options.enable_volumes = g_options.update_enable_volumes;
+      options.volume_size = g_options.update_volume_size;
+
+      options.move_files = g_options.update_move_files;
+	 }
     else {
       options.arc_type = archive->arc_chain.back().type; // required to set update properties
       archive->load_update_props();
@@ -513,11 +524,11 @@ public:
       options.overwrite = g_options.update_overwrite;
       if (op_mode & OPM_EDIT)
         options.overwrite = oaOverwrite;
+      options.move_files = move != 0;
+      options.create_sfx = false;
+      options.enable_volumes = false;
     }
-    options.create_sfx = false;
-    options.enable_volumes = false;
     options.show_password = g_options.update_show_password;
-    options.move_files = move != 0;
     CHECK(get_app_option(FSSF_SYSTEM, c_copy_opened_files_option, options.open_shared));
 
     options.ignore_errors = g_options.update_ignore_errors;

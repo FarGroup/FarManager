@@ -1133,13 +1133,19 @@ private:
       read_controls(options);
       if (new_arc) {
         g_options.update_arc_format_name = ArcAPI::formats().at(options.arc_type).name;
+        g_options.update_create_sfx = options.create_sfx;
         g_options.update_sfx_options = options.sfx_options;
+        g_options.update_enable_volumes = options.enable_volumes;
         g_options.update_volume_size = options.volume_size;
         g_options.update_level = options.level;
         g_options.update_method = options.method;
         g_options.update_solid = options.solid;
+		  g_options.update_advanced = options.advanced;
+        g_options.update_encrypt = options.encrypt;
         g_options.update_encrypt_header = options.encrypt_header;
+        g_options.update_password = options.password;
         g_options.update_append_ext = options.append_ext;
+        g_options.update_move_files = options.move_files;
       }
       else {
         g_options.update_overwrite = options.overwrite;
