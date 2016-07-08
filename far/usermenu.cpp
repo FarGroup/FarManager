@@ -430,14 +430,9 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 			{
 				if (m_MenuMode == menu_mode::local)
 				{
-					if(!IsRootPath(strMenuFilePath))
+					if (CutToParent(strMenuFilePath))
 					{
-						const auto pos = FindLastSlash(strMenuFilePath);
-						if (pos != string::npos)
-						{
-							strMenuFilePath.resize(pos - 1);
-							continue;
-						}
+						continue;
 					}
 
 					m_MenuMode = menu_mode::global;
