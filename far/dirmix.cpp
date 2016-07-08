@@ -85,9 +85,9 @@ BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 	{
 		if (ChangeDir)
 		{
-			strCurDir = IsRelativeRoot(NewDir)? os::GetCurrentDirectory(): NewDir;
+			strCurDir = ConvertNameToFull(NewDir);
 			ReplaceSlashToBackslash(strCurDir);
-			strCurDir = ConvertNameToFull(strCurDir);
+			AddEndSlash(strCurDir);
 			PrepareDiskPath(strCurDir,false); // resolving not needed, very slow
 			rc=os::SetCurrentDirectory(strCurDir);
 		}
