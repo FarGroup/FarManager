@@ -382,14 +382,9 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 				if (!FirstRun)
 				{
 					// подымаемся выше...
-					if(!IsRootPath(strMenuFilePath))
+					if (CutToParent(strMenuFilePath))
 					{
-						const auto pos = FindLastSlash(strMenuFilePath);
-						if (pos && pos != string::npos)
-						{
-							strMenuFilePath.resize(pos - 1);
-							continue;
-						}
+						continue;
 					}
 				}
 
