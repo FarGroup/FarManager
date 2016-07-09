@@ -5207,19 +5207,19 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	if (FileVersion->Read())
 	{
 		const wchar_t* Value;
-		if ((Value = FileVersion->GetStringValue(L"InternalName")) != nullptr || (Value = FileVersion->GetStringValue(L"OriginalName")) != nullptr)
+		if (((Value = FileVersion->GetStringValue(L"InternalName")) != nullptr || (Value = FileVersion->GetStringValue(L"OriginalName")) != nullptr) && *Value)
 		{
 			Info->Title = Value;
 		}
 
-		if ((Value = FileVersion->GetStringValue(L"CompanyName")) != nullptr || (Value = FileVersion->GetStringValue(L"LegalCopyright")) != nullptr)
+		if (((Value = FileVersion->GetStringValue(L"CompanyName")) != nullptr || (Value = FileVersion->GetStringValue(L"LegalCopyright")) != nullptr) && *Value)
 		{
 			Info->Author = Value;
 		}
 
-		if (const auto Description = FileVersion->GetStringValue(L"FileDescription"))
+		if ((Value = FileVersion->GetStringValue(L"FileDescription")) != nullptr && *Value)
 		{
-			Info->Description = Description;
+			Info->Description = Value;
 		}
 
 		if (const auto Uuid = FileVersion->GetStringValue(L"PluginGUID"))
