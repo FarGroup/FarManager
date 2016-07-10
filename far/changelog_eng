@@ -3,6 +3,30 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.07.2016 22:56:35 +0200 - build 4742
+
+1. Ansi plugins with insufficiently good resources could fail to load.
+
+drkns 09.07.2016 01:21:52 +0200 - build 4741
+
+1. Another bug at the same place.
+
+drkns 08.07.2016 22:07:58 +0200 - build 4740
+
+1. Incorrect processing of backspace in local user menu.
+
+drkns 08.07.2016 09:12:06 +0200 - build 4739
+
+1. 0003265: "cd \ " does not work in command line
+
+drkns 06.07.2016 23:04:32 +0200 - build 4738
+
+1. Coverity warnings.
+
+drkns 06.07.2016 00:46:21 +0200 - build 4737
+
+1. Refactoring.
+
 drkns 03.07.2016 21:15:27 +0200 - build 4736
 
 1. Temporary files could be deleted prematurely.
