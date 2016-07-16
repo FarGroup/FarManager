@@ -1449,15 +1449,12 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 					if (LocalKey==KEY_CTRLF || LocalKey==KEY_RCTRLF || LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF)
 					{
-						if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-						{
-							Global->CtrlObject->Plugins->GetOpenPanelInfo(m_hPlugin,&m_CachedOpenPanelInfo);
-						}
-
 						if (m_PanelMode != panel_mode::PLUGIN_PANEL)
 							CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF);
 						else
 						{
+							Global->CtrlObject->Plugins->GetOpenPanelInfo(m_hPlugin, &m_CachedOpenPanelInfo);
+
 							string strFullName = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
 
 							if (Global->Opt->PanelCtrlFRule && (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE))
@@ -1739,8 +1736,6 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			_ALGO(CleverSysLog clv(L"Edit/View"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(m_PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(LocalKey)));
 
-			BOOL RefreshedPanel=TRUE;
-
 			if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(m_hPlugin,&m_CachedOpenPanelInfo);
 
@@ -1749,28 +1744,23 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 			if ((LocalKey==KEY_SHIFTF4 || !m_ListData.empty()) && SetCurPath())
 			{
-				int Edit=(LocalKey==KEY_F4 || LocalKey==KEY_ALTF4 || LocalKey==KEY_RALTF4 || LocalKey==KEY_SHIFTF4 || LocalKey==KEY_CTRLSHIFTF4 || LocalKey==KEY_RCTRLSHIFTF4);
-				BOOL Modaling=FALSE; ///
-				int UploadFile=TRUE;
 				string strPluginData;
-				string strFileName;
-				string strShortFileName;
-				string strHostFile=NullToEmpty(m_CachedOpenPanelInfo.HostFile);
-				string strInfoCurDir=NullToEmpty(m_CachedOpenPanelInfo.CurDir);
-				bool PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
+				bool PluginMode =
+					m_PanelMode == panel_mode::PLUGIN_PANEL &&
+					!Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE) &&
+					!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES);
 
 				if (PluginMode)
 				{
-					if (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES)
-						PluginMode = false;
-					else
-						strPluginData = L'<' + strHostFile + L':' + strInfoCurDir + L'>';
+					const string strHostFile = NullToEmpty(m_CachedOpenPanelInfo.HostFile);
+					const string strInfoCurDir = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
+					strPluginData = L'<' + strHostFile + L':' + strInfoCurDir + L'>';
 				}
 
-				if (!PluginMode)
-					strPluginData.clear();
-
 				uintptr_t codepage = CP_DEFAULT;
+				const auto Edit = (LocalKey == KEY_F4 || LocalKey == KEY_ALTF4 || LocalKey == KEY_RALTF4 || LocalKey == KEY_SHIFTF4 || LocalKey == KEY_CTRLSHIFTF4 || LocalKey == KEY_RCTRLSHIFTF4);
+				string strFileName;
+				string strShortFileName;
 
 				if (LocalKey==KEY_SHIFTF4)
 				{
@@ -1830,16 +1820,12 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						if (Edit)
 							return ProcessKey(Manager::Key(KEY_CTRLA));
 
-						CountDirSize(m_CachedOpenPanelInfo.Flags);
+						CountDirSize(!PluginMode);
 						return TRUE;
 					}
 
 					strFileName = CurPtr->strName;
-
-					if (!CurPtr->strShortName.empty())
-						strShortFileName = CurPtr->strShortName;
-					else
-						strShortFileName = CurPtr->strName;
+					strShortFileName = !CurPtr->strShortName.empty()? CurPtr->strShortName : CurPtr->strName;
 				}
 
 				string strTempDir, strTempName;
@@ -1889,6 +1875,9 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				   должно быт равно false, т.к. внутренний viewer сам все удалит.
 				*/
 				bool DeleteViewedFile=PluginMode && !Edit;
+				BOOL Modaling = FALSE;
+				int UploadFile = TRUE;
+				BOOL RefreshedPanel = TRUE;
 
 				if (!strFileName.empty())
 				{
@@ -4922,7 +4911,7 @@ bool FileList::ApplyCommand()
 }
 
 
-void FileList::CountDirSize(UINT64 PluginFlags)
+void FileList::CountDirSize(bool IsRealNames)
 {
 	unsigned long SelDirCount=0;
 	DirInfoData Data = {};
@@ -4979,11 +4968,8 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 		if (i.Selected && (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			SelDirCount++;
-			if ((m_PanelMode == panel_mode::PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
-			        GetPluginDirInfo(m_hPlugin, i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
-			        ||
-					((m_PanelMode != panel_mode::PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-			         GetDirInfo(MSG(MDirInfoViewTitle), i.strName, Data, MessageDelay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
+			if ((!IsRealNames && GetPluginDirInfo(m_hPlugin, i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
+			     (IsRealNames && GetDirInfo(MSG(MDirInfoViewTitle), i.strName, Data, MessageDelay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
 			{
 				SelFileSize -= i.FileSize;
 				SelFileSize += Data.FileSize;
@@ -5000,17 +4986,14 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 	if (!SelDirCount)
 	{
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
-		if ((m_PanelMode == panel_mode::PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
-		        GetPluginDirInfo(m_hPlugin,m_ListData[m_CurFile].strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
-		        ||
-		        ((m_PanelMode!=panel_mode::PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-		         GetDirInfo(MSG(MDirInfoViewTitle),
-		                    TestParentFolderName(m_ListData[m_CurFile].strName) ? L".":m_ListData[m_CurFile].strName,
+		auto& CurFile = m_ListData[m_CurFile];
+		if ((!IsRealNames && GetPluginDirInfo(m_hPlugin, CurFile.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
+		     (IsRealNames && GetDirInfo(MSG(MDirInfoViewTitle), TestParentFolderName(CurFile.strName)? L"." : CurFile.strName,
 		                    Data, getdirinfo_default_delay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
 		{
-			m_ListData[m_CurFile].FileSize = Data.FileSize;
-			m_ListData[m_CurFile].AllocationSize = Data.AllocationSize;
-			m_ListData[m_CurFile].ShowFolderSize=1;
+			CurFile.FileSize = Data.FileSize;
+			CurFile.AllocationSize = Data.AllocationSize;
+			CurFile.ShowFolderSize = 1;
 		}
 	}
 

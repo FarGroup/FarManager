@@ -295,7 +295,7 @@ private:
 	void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
 	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
 	bool ChangeDir(const string& NewDir,bool ResolvePath=false,bool IsUpdated=true,const FileListItem *CurPtr=nullptr);
-	void CountDirSize(UINT64 PluginFlags);
+	void CountDirSize(bool IsRealNames);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
 	void MoveSelection(std::vector<FileListItem>& From, std::vector<FileListItem>& To);
