@@ -4788,6 +4788,9 @@ $ #Запрос привилегий администратора#
 
 @KeyMacro
 $ #Macro command #
+    By default macros are loaded from files with #.lua# and #.moon# extensions residing in folder
+#%FARPROFILE%\\Macros\\scripts#. See more details in #%FARHOME%\\Encyclopedia\\macroapi_manual.en.chm#.
+
     Keyboard macro commands or macro commands - are recorded sequences of key
 presses that can be used to perform repetitive task unlimited number of times
 by pressing a single hotkey.

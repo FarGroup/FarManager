@@ -43,6 +43,424 @@ mtime=3661282778
 </article>
 </node>
 <node>
+id=94
+lv=1
+dt=Text
+nm=Loading macrofiles
+ctime=3618592117
+mtime=3618593410
+<article>
+#_<markdown>
+#_
+#_* [Regular macros](75.html) and [event handlers](78.html) are loaded from Lua-files (extension `*.lua`) and/or MoonScript files (extension `*.moon`). Further we will call these files *macrofiles*. The macros are loaded when macrofiles are executed by [LuaMacro][LuaMacro] plugin.
+#_
+#_* Macrofiles are loaded from sequence of directories (recursively with their subdirectories),
+#_  determined by one of the following ways (in order of priorities):
+#_  1. A sequence of directories, specified explicitly (in a command or a function argument)
+#_  1. The value of `MacroPath` variable in the file [`luamacro.ini`](93.html)
+#_  1. The directory `%FARPROFILE%\Macros\scripts`<br><br>
+#_
+#_* Far Manager itself **never** makes any changes to the above mentioned directories. The files are added, removed, renamed and edited solely by the user.
+#_
+#_* One macrofile can contain arbitrary number of macros and event handlers.
+#_
+#_* When a macrofile is executed it receives one argument - the full pathname of this macrofile.
+#_    If we define a variable at top of the macrofile, e.g.<br>
+#_    `local MacroFileName = ...`<br>
+#_    then this variable will be available to all the macros and event handlers defined in that file.
+#_
+#_* If macrofiles are loaded from a sequence of trees `root1;root2;...`,
+#_  that means that:
+#_  - The tree `root2` loads only after loading `root1`
+#_  - For each tree `rootN` the first macrofile run is `rootN\_macroinit.lua`
+#_    if such a file exists. For the rest of macrofiles in the given tree order
+#_    of execution is not defined.<br><br>
+#_
+#_[LuaMacro]: 7.html
+#_
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=67
+lv=1
+dt=Text
+nm=Format of macros and event handlers
+ctime=3568746613
+mtime=3600517601
+<article>
+#_@@@
+#_At the stage of loading macros all regular and keyboard macro files are run one by one.
+#_
+</article>
+</node>
+<node>
+id=75
+lv=2
+dt=Text
+nm=Regular macros
+ctime=3580139016
+mtime=3666203724
+<article>
+#_<markdown>
+#_
+#_A macro is loaded by the global function `Macro` that receives one argument - a table containing parameters of the macro. On successful completion the function returns `true`.
+#_
+#_```
+#_  Macro {
+#_    area         = "Shell Info Tree";                         -- string
+#_    key          = "CtrlF11 ShiftHome";                       -- string (optional field)
+#_    description  = "Macro example";                           -- string (optional field)
+#_    flags        = "NoPluginPanels EmptyCommandLine";         -- string (optional field)
+#_    filemask     = "*.txt,*.cpp";                             -- string (optional field)
+#_    priority     = 50;                                        -- number (optional field)
+#_    sortpriority = 50;                                        -- number (optional field)
+#_    condition    = function(key) return Far.Height>30 end;    -- function (optional field)
+#_    action       = function() msgbox("","Macro example") end; -- function
+#_  }
+#_```
+#_
+#_1. The field `area` should contain names of one or more areas, separated by whitespaces.
+#_
+#_1. The field `key` can contain names of one or more keys, separated by whitespaces.<br>
+#_   Keys can contain modifiers: `Ctrl,LCtrl,RCtrl,Alt,RAlt,LAlt,Shift`.<br>
+#_   `Ctrl` means "any of `LCtrl,RCtrl`", the same goes for `Alt`.
+#_   The order of modifiers can be arbitrary.<br><br>
+#_   Alternatively, the field `key` can be specified as a regular expression, enclosed in
+#_   slashes (`/`).
+#_   * In this case `/Ctrl/` will not work when `RCtrl` is pressed, it should be specified
+#_     explicitly `/[LR]Ctrl/` etc.
+#_   * Also in this case it is necessary to maintain the order in the sequence
+#_     `Ctrl`,`Alt`,`Shift`,<br>e.g. `/[LR]Alt[LR]CtrlF1/` would never work.<br><br>
+#_
+#_1. Optional field `flags` may contain a set of [flags][flags] separated with spaces.
+#_   Some changes in names or interpretation of flags are described [here][api changes].
+#_
+#_1. Optional field `priority` - a number in the range 0 to 100. The default value = 50.<br>
+#_   Macros added via `MCTL_ADDMACRO` have priority = 50.
+#_
+#_1. Optional field `sortpriority` - a number in the range 0 to 100. The default value = 50.<br>
+#_   This field affects the order of macros in the macro selection menu.
+#_
+#_1. Optional field `filemask` - a string.<br>
+#_   It is applicable only for `Editor` and `Viewer` areas. It is processed according to
+#_   the same rules that Far Manager applies for file masks when searching from panels, etc.
+#_   If name of the file open in editor or viewer does not match the given mask, the macro
+#_   will not execute.
+#_
+#_1. Optional field `condition` - a function.
+#_   * It is called with one argument: the name of pressed key.
+#_     For auto-started macros it is called with no arguments.
+#_   * If the function returns `false`/`nil`/nothing, the macro will not execute.
+#_   * If it returns a number then this number is used instead of `priority`.
+#_   * In other cases of return value (e.g., `true`) `priority` is used.<br><br>
+#_
+#_1. Field `action` - a function.<br>
+#_   If the macro has passed successfully all preliminary checks (area, flags, file mask, priority)
+#_   then this functgion is called.
+#_
+#_1. More than one macro for (`key`,`area`) combination is allowed. In this case a macro with highest priority is executed. If there are multiple macros having the same priority then the macro selection menu is displayed.<br>
+#_   The auto-starting macros are executed all, one by one, independently from priorities. The order of their execution is not defined.
+#_
+#_[flags]: http://api.farmanager.com/ru/macro/techinfo.html#register
+#_[api changes]: 38.html
+#_
+#_@@@
+#_{far.height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
+#_{info}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Info
+#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
+#_{shell}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Shell
+#_{tree}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Tree
+#_
+</article>
+</node>
+<node>
+id=76
+lv=2
+dt=Text
+nm=Keyboard macros
+ctime=3580139029
+mtime=3607111000
+<article>
+#_<markdown>
+#_
+#_* Keyboard macros are usually used for quick recording and replaying key-press sequences.
+#_  These macros are less powerful than regular macros and for the long-term use regular
+#_  macros should be preferred.
+#_
+#_* Keyboard macros are loaded from Lua-files (extension `*.lua`), residing in the directory<br>
+#_  `%FARPROFILE%\Macros\internal`.
+#_
+#_* Far Manager automatically creates, modifies and deletes files in this directory
+#_  in accordance with operations conducted on keyboard macros. It is **not** recommended
+#_  to manually edit these files, except for their deletion.
+#_
+#_* Modifications to keyboard macros become permanent either after executing<br>
+#_  `MacroControl(MCTL_SAVEALL)`, or automatically (when the "Auto save setup" option is on).
+#_
+#_* The field "area" may contain only one area name.
+#_
+#_* The field "key" may contain only one key name.<br>
+#_  In key names only modifiers `Ctrl,Alt,Shift` may be used, modifiers
+#_  `LCtrl,RCtrl,LAlt,RAlt` are not supported. Regular expressions are not supported.
+#_
+#_* It is not allowed to have more than one keyboard macro for a (`key`,`area`) combination.
+#_
+#_* Keyboard macros have higher priority than all other macros.
+#_  This avoids the need of resolving conflicts when one creates a temporary macro
+#_  (the typical use case of keyboard macros).
+#_
+#_@@@
+#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
+#_{mctl_saveall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_SAVEALL
+#_
+#_
+</article>
+</node>
+<node>
+id=78
+lv=2
+dt=Text
+nm=Event handlers
+ctime=3580139337
+mtime=3655200145
+<article>
+#_<markdown>
+#_
+#_Like [regular macros][1], event handlers are loaded from Lua-files (extension `*.lua`), residing in the directory<br> `%FARPROFILE%\Macros\scripts` and its subdirectories. Each Lua-file may contain both macros and event handlers.
+#_
+#_Loading a handler occurs when the global function `Event` is called. It receives one argument - a table containing parameters of the event handler. On successful completion the function returns `true`.
+#_
+#_```
+#_Event {
+#_  group       = "EditorEvent";         -- string
+#_  description = "Event example";       -- string (optional field)
+#_  filemask    = "*.txt,*.cpp";         -- string (optional field)
+#_  priority    = 50;                    -- number (optional field)
+#_  condition   = function() ...... end; -- function (optional field)
+#_  action      = function() ...... end; -- function
+#_}
+#_```
+#_
+#_The field `group` can have one of the following values:<br>
+#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent", "ConsoleInput"`.<br>
+#_These names are derived from names of the corresponding functions, exported by the plugin, e.g.:<br>
+#_        export.ProcessDialogEvent -> DialogEvent
+#_The functions `condition` and `action` are called with the same parameters as the corresponding exported functions are called (see LuaFAR manual).
+#_
+#_When there are multiple event handlers for the same event (i.e. handlers with the same `group` value), these handlers will be called one after one: a handler having higher priority is called first. Priorities are evaluated dynamically accounting for `condition()` results if any, the same way it is done for macros.
+#_
+#_The `ExitFAR` handler is called in the following cases: (a) exit from Far Manager,
+#_(b) unloading LuaMacro plugin, \(c) unloading or reloading macros.
+#_
+#_[1]: 75.html
+#_
+#_@@@
+#_
+#_
+</article>
+</node>
+<node>
+id=90
+lv=2
+dt=Text
+nm=Adding items to plugins' menus
+ctime=3613740592
+mtime=3641412371
+<article>
+#_<markdown>
+#_
+#_Like the [regular macros][1], the added menu items are loaded from Lua- and MoonScript-files,  residing in the directory `%FARPROFILE%\Macros\scripts` and its subdirectories.
+#_
+#_A menu item is loaded by the global function `MenuItem` that takes one argument - a table with parameters. The function returns `true` on success.
+#_
+#_```
+#_MenuItem {
+#_  description = "Menu item";                        -- string (optional field)
+#_  menu   = "Plugins Disks Config";                  -- string
+#_  area   = "Shell Editor Viewer Dialog Menu";       -- string (optional field)
+#_  guid   = "A435D567-AD64-4DD1-8C61-28CB90358817";  -- string
+#_  text   = function(menu,area) return "Hello!" end; -- string, or function
+#_  action = function(OpenFrom,Item) ...... end;      -- function
+#_}
+#_```
+#_The fields `description` and `area` are optional with the default values being an empty string. Other fields are mandatory.
+#_
+#_* The field `menu` is the list of Far Manager menus the given menu item should be added to. The valid values of list elements are `"Plugins"`, `"Disks"` and `"Config"` that stand for plugins menu, disk menu and plugins configuration menu respectively.
+#_
+#_* The field `area` is the list of areas, where the given menu item should be added to the **plugins menu** when it is envoked. This field is used only if the field `menu` contains `Plugins`. The valid values of list elements coincide with the names of macro areas.
+#_
+#_* The field `guid` contains a unique identifier (GUID) of the given menu item.
+#_
+#_* The field `text`: if it is a string then that string is used as the menu item's text.<br>
+#_  Otherwise it should be a function. The menu item is added only if the function returned a string value.<br>
+#_  The function receives 2 arguments:
+#_  1. *menu* - type of the menu (either of: `"Plugins"`, `"Disks"` or `"Config"`)
+#_  2. *area* - name of the current macroarea.<br><br>
+#_
+#_* The field `action` is the function that is called upon activation of the given menu item. It takes the same arguments as the function `export.Open` (see `luafar_manual.chm`), except `Guid`. If the function is called from the plugins configuration menu then both the arguments have `nil` value. The returned value is not used.
+#_
+#_[1]: 75.html
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=96
+lv=2
+dt=Text
+nm=Adding command line prefixes
+ctime=3636459316
+mtime=3636460034
+<article>
+#_<markdown>
+#_
+#_Like the [regular macros][1], the added command line prefixes are loaded from Lua- and MoonScript-files,  residing in the directory `%FARPROFILE%\Macros\scripts` and its subdirectories.
+#_
+#_Prefixes are loaded by the global function `CommandLine` that takes one argument - a table with parameters. The function returns the number of successfully loaded prefixes.
+#_
+#_```
+#_CommandLine {
+#_  description = "Adding prefixes";                  -- string (optional field)
+#_  prefixes = "abc:def:1234";                        -- string
+#_  action = function(prefix,text) ...... end;        -- function
+#_}
+#_```
+#_* The field `prefixes` is a list of prefixes delimited by colons. Spaces are not allowed.
+#_
+#_* The field `action` is the function that is called when the command line begins with one of the registered prefixes. It takes 2 arguments: `prefix` is the actual prefix in lower case; `text` is the rest of the command line with leading and trailing spaces stripped.
+#_
+#_[1]: 75.html
+#_@@@
+#_
+</article>
+</node>
+<node>
+id=77
+lv=2
+dt=Text
+nm=Lua modules
+ctime=3580139041
+mtime=3600534120
+<article>
+#_<markdown>
+#_
+#_Lua modules can be placed in `%FARPROFILE%\Macros\modules` and its subdirectories, as
+#_
+#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`
+#_
+#_is automatically included in `package.path`.
+#_
+</article>
+</node>
+<node>
+id=7
+lv=1
+dt=Text
+nm=LuaMacro plugin
+ctime=3551991405
+mtime=3617997203
+<article>
+#_<markdown>
+#_This plugin is necessary for macros to work, therefore it should be installed. The same is true regarding the runtime (*lua51.dll*, *luafar3.dll* and *lpeg.dll*) that is necessary for plugin's work.
+#_
+#_When Far Manager exits the LuaMacro plugin is unloaded after all other plugins, in order to be able to process `MCTL_XXX` requests from `ExitFARW` functions of other plugins.
+#_
+#_@@@
+#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
+#_
+</article>
+</node>
+<node>
+id=92
+lv=2
+dt=Text
+nm=Command line operations
+ctime=3617997112
+mtime=3637689351
+<article>
+#_<markdown>
+#_* `macro: load [path]`<br>
+#_  (Re)load macrofiles. An optional parameter `path` has the same meaning as the field
+#_  `Path` in struct `FarMacroLoad`.
+#_* `macro: save`<br>
+#_   Save the created or modified [keyboard][1] macros.
+#_* `macro: unload`<br>
+#_   Unload macros (except those created with operation `MCTL_ADDMACRO`) and event handlers.
+#_* `macro: about`<br>
+#_   Show versions of the plugin and the libraries it is using.
+#_* `lua: [=] <code>`
+#_* `moon: [=] <code>`<br>
+#_   Execute the code `<code>` written correspondingly in Lua or MoonScript.<br>
+#_   If `<code>` is preceded with a character `=` then `far.Show()` is called, e.g.:<br>
+#_   `lua:=5+2,6,"foo"` is equivalent to `lua:far.Show(5+2,6,"foo")`.
+#_* `lua: [=] @<filename> [<args>]`
+#_* `moon: [=] @<filename> [<args>]`<br>
+#_   Execute the script `<filename>` written correspondingly in Lua or MoonScript.<br>
+#_   - For passing arguments to the script they should be specified after the file name,
+#_     separated with whitespace.
+#_   - Arguments are a sequence of expressions delimited with commas.
+#_   - The expressions must be written in the same programming language as the script.
+#_   - The global (within the environment of the script) variable `_filename` contains
+#_     the file name.
+#_
+#_**Note 1:**<br>
+#_Prefix `lm:` can be used instead of prefix `macro:` - they are equivalent.
+#_
+#_**Note 2:**<br>
+#_There are also `luas:` and `moons:` prefixes that can be used instead of respectively `lua:` and `moon:`.
+#_In that case no macro is created and the code is executed immediately ("synchronously").
+#_If the code terminates in a normal way then `CmdLine.Result` is a table containing an array of returned
+#_values and the field `n` of the table is the number of returned values. If the code execution is
+#_interrupted by an error the value of `CmdLine.Result` is `nil`.
+#_
+#_**Note 3:**<br>
+#_[Additional][2] command line prefixes can be defined and loaded from macrofiles.
+#_
+#_[1]: 76.html
+#_[2]: 96.html
+#_
+#_@@@
+#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
+#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
+#_{farmacroload}: http://api.farmanager.com/ru/structures/farmacroload.html
+#_
+</article>
+</node>
+<node>
+id=93
+lv=2
+dt=Text
+nm=File luamacro.ini
+ctime=3617998172
+mtime=3618041778
+<article>
+#_<markdown>
+#_The file `luamacro.ini` contains some plugin's settings. If the file is missing, or some setting is missing then the plugin will use the default value for the given setting.
+#_
+#_* `MacroPath`<br>
+#_  Defines paths from which macrofiles are loaded.<br>
+#_  It is a sequence of 0 or more paths separated with semicolons.<br>
+#_  The default value is `%FARPROFILE%\Macros\scripts`.
+#_
+</article>
+</node>
+<node>
+id=97
+lv=2
+dt=Text
+nm=File luafar_init.lua
+ctime=3639831305
+mtime=3639833929
+<article>
+#_<markdown>
+#_Plugin LuaMacro runs the file `%FARPROFILE%\luafar_init.lua` (if that file exists) before loading its default script.
+#_See description of this feature in LuaFAR manual.
+</article>
+</node>
+<node>
 id=42
 lv=1
 dt=Text
@@ -1560,424 +1978,6 @@ mtime=3607110549
 #_{state}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/viewer.html#Viewer.State
 #_
 #_
-</article>
-</node>
-<node>
-id=94
-lv=1
-dt=Text
-nm=Loading macrofiles
-ctime=3618592117
-mtime=3618593410
-<article>
-#_<markdown>
-#_
-#_* [Regular macros](75.html) and [event handlers](78.html) are loaded from Lua-files (extension `*.lua`) and/or MoonScript files (extension `*.moon`). Further we will call these files *macrofiles*. The macros are loaded when macrofiles are executed by [LuaMacro][LuaMacro] plugin.
-#_
-#_* Macrofiles are loaded from sequence of directories (recursively with their subdirectories),
-#_  determined by one of the following ways (in order of priorities):
-#_  1. A sequence of directories, specified explicitly (in a command or a function argument)
-#_  1. The value of `MacroPath` variable in the file [`luamacro.ini`](93.html)
-#_  1. The directory `%FARPROFILE%\Macros\scripts`<br><br>
-#_
-#_* Far Manager itself **never** makes any changes to the above mentioned directories. The files are added, removed, renamed and edited solely by the user.
-#_
-#_* One macrofile can contain arbitrary number of macros and event handlers.
-#_
-#_* When a macrofile is executed it receives one argument - the full pathname of this macrofile.
-#_    If we define a variable at top of the macrofile, e.g.<br>
-#_    `local MacroFileName = ...`<br>
-#_    then this variable will be available to all the macros and event handlers defined in that file.
-#_
-#_* If macrofiles are loaded from a sequence of trees `root1;root2;...`,
-#_  that means that:
-#_  - The tree `root2` loads only after loading `root1`
-#_  - For each tree `rootN` the first macrofile run is `rootN\_macroinit.lua`
-#_    if such a file exists. For the rest of macrofiles in the given tree order
-#_    of execution is not defined.<br><br>
-#_
-#_[LuaMacro]: 7.html
-#_
-#_@@@
-#_
-</article>
-</node>
-<node>
-id=67
-lv=1
-dt=Text
-nm=Format of macros and event handlers
-ctime=3568746613
-mtime=3600517601
-<article>
-#_@@@
-#_At the stage of loading macros all regular and keyboard macro files are run one by one.
-#_
-</article>
-</node>
-<node>
-id=75
-lv=2
-dt=Text
-nm=Regular macros
-ctime=3580139016
-mtime=3666203724
-<article>
-#_<markdown>
-#_
-#_A macro is loaded by the global function `Macro` that receives one argument - a table containing parameters of the macro. On successful completion the function returns `true`.
-#_
-#_```
-#_  Macro {
-#_    area         = "Shell Info Tree";                         -- string
-#_    key          = "CtrlF11 ShiftHome";                       -- string (optional field)
-#_    description  = "Macro example";                           -- string (optional field)
-#_    flags        = "NoPluginPanels EmptyCommandLine";         -- string (optional field)
-#_    filemask     = "*.txt,*.cpp";                             -- string (optional field)
-#_    priority     = 50;                                        -- number (optional field)
-#_    sortpriority = 50;                                        -- number (optional field)
-#_    condition    = function(key) return Far.Height>30 end;    -- function (optional field)
-#_    action       = function() msgbox("","Macro example") end; -- function
-#_  }
-#_```
-#_
-#_1. The field `area` should contain names of one or more areas, separated by whitespaces.
-#_
-#_1. The field `key` can contain names of one or more keys, separated by whitespaces.<br>
-#_   Keys can contain modifiers: `Ctrl,LCtrl,RCtrl,Alt,RAlt,LAlt,Shift`.<br>
-#_   `Ctrl` means "any of `LCtrl,RCtrl`", the same goes for `Alt`.
-#_   The order of modifiers can be arbitrary.<br><br>
-#_   Alternatively, the field `key` can be specified as a regular expression, enclosed in
-#_   slashes (`/`).
-#_   * In this case `/Ctrl/` will not work when `RCtrl` is pressed, it should be specified
-#_     explicitly `/[LR]Ctrl/` etc.
-#_   * Also in this case it is necessary to maintain the order in the sequence
-#_     `Ctrl`,`Alt`,`Shift`,<br>e.g. `/[LR]Alt[LR]CtrlF1/` would never work.<br><br>
-#_
-#_1. Optional field `flags` may contain a set of [flags][flags] separated with spaces.
-#_   Some changes in names or interpretation of flags are described [here][api changes].
-#_
-#_1. Optional field `priority` - a number in the range 0 to 100. The default value = 50.<br>
-#_   Macros added via `MCTL_ADDMACRO` have priority = 50.
-#_
-#_1. Optional field `sortpriority` - a number in the range 0 to 100. The default value = 50.<br>
-#_   This field affects the order of macros in the macro selection menu.
-#_
-#_1. Optional field `filemask` - a string.<br>
-#_   It is applicable only for `Editor` and `Viewer` areas. It is processed according to
-#_   the same rules that Far Manager applies for file masks when searching from panels, etc.
-#_   If name of the file open in editor or viewer does not match the given mask, the macro
-#_   will not execute.
-#_
-#_1. Optional field `condition` - a function.
-#_   * It is called with one argument: the name of pressed key.
-#_     For auto-started macros it is called with no arguments.
-#_   * If the function returns `false`/`nil`/nothing, the macro will not execute.
-#_   * If it returns a number then this number is used instead of `priority`.
-#_   * In other cases of return value (e.g., `true`) `priority` is used.<br><br>
-#_
-#_1. Field `action` - a function.<br>
-#_   If the macro has passed successfully all preliminary checks (area, flags, file mask, priority)
-#_   then this functgion is called.
-#_
-#_1. More than one macro for (`key`,`area`) combination is allowed. In this case a macro with highest priority is executed. If there are multiple macros having the same priority then the macro selection menu is displayed.<br>
-#_   The auto-starting macros are executed all, one by one, independently from priorities. The order of their execution is not defined.
-#_
-#_[flags]: http://api.farmanager.com/ru/macro/techinfo.html#register
-#_[api changes]: 38.html
-#_
-#_@@@
-#_{far.height}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Height
-#_{info}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Info
-#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
-#_{msgbox}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#msgbox
-#_{shell}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Shell
-#_{tree}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Tree
-#_
-</article>
-</node>
-<node>
-id=76
-lv=2
-dt=Text
-nm=Keyboard macros
-ctime=3580139029
-mtime=3607111000
-<article>
-#_<markdown>
-#_
-#_* Keyboard macros are usually used for quick recording and replaying key-press sequences.
-#_  These macros are less powerful than regular macros and for the long-term use regular
-#_  macros should be preferred.
-#_
-#_* Keyboard macros are loaded from Lua-files (extension `*.lua`), residing in the directory<br>
-#_  `%FARPROFILE%\Macros\internal`.
-#_
-#_* Far Manager automatically creates, modifies and deletes files in this directory
-#_  in accordance with operations conducted on keyboard macros. It is **not** recommended
-#_  to manually edit these files, except for their deletion.
-#_
-#_* Modifications to keyboard macros become permanent either after executing<br>
-#_  `MacroControl(MCTL_SAVEALL)`, or automatically (when the "Auto save setup" option is on).
-#_
-#_* The field "area" may contain only one area name.
-#_
-#_* The field "key" may contain only one key name.<br>
-#_  In key names only modifiers `Ctrl,Alt,Shift` may be used, modifiers
-#_  `LCtrl,RCtrl,LAlt,RAlt` are not supported. Regular expressions are not supported.
-#_
-#_* It is not allowed to have more than one keyboard macro for a (`key`,`area`) combination.
-#_
-#_* Keyboard macros have higher priority than all other macros.
-#_  This avoids the need of resolving conflicts when one creates a temporary macro
-#_  (the typical use case of keyboard macros).
-#_
-#_@@@
-#_{macrocontrol}: http://api.farmanager.com/ru/service_functions/macrocontrol.html
-#_{mctl_saveall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_SAVEALL
-#_
-#_
-</article>
-</node>
-<node>
-id=78
-lv=2
-dt=Text
-nm=Event handlers
-ctime=3580139337
-mtime=3655200145
-<article>
-#_<markdown>
-#_
-#_Like [regular macros][1], event handlers are loaded from Lua-files (extension `*.lua`), residing in the directory<br> `%FARPROFILE%\Macros\scripts` and its subdirectories. Each Lua-file may contain both macros and event handlers.
-#_
-#_Loading a handler occurs when the global function `Event` is called. It receives one argument - a table containing parameters of the event handler. On successful completion the function returns `true`.
-#_
-#_```
-#_Event {
-#_  group       = "EditorEvent";         -- string
-#_  description = "Event example";       -- string (optional field)
-#_  filemask    = "*.txt,*.cpp";         -- string (optional field)
-#_  priority    = 50;                    -- number (optional field)
-#_  condition   = function() ...... end; -- function (optional field)
-#_  action      = function() ...... end; -- function
-#_}
-#_```
-#_
-#_The field `group` can have one of the following values:<br>
-#_`"DialogEvent", "EditorEvent", "EditorInput", "ExitFAR", "ViewerEvent", "ConsoleInput"`.<br>
-#_These names are derived from names of the corresponding functions, exported by the plugin, e.g.:<br>
-#_        export.ProcessDialogEvent -> DialogEvent
-#_The functions `condition` and `action` are called with the same parameters as the corresponding exported functions are called (see LuaFAR manual).
-#_
-#_When there are multiple event handlers for the same event (i.e. handlers with the same `group` value), these handlers will be called one after one: a handler having higher priority is called first. Priorities are evaluated dynamically accounting for `condition()` results if any, the same way it is done for macros.
-#_
-#_The `ExitFAR` handler is called in the following cases: (a) exit from Far Manager,
-#_(b) unloading LuaMacro plugin, \(c) unloading or reloading macros.
-#_
-#_[1]: 75.html
-#_
-#_@@@
-#_
-#_
-</article>
-</node>
-<node>
-id=90
-lv=2
-dt=Text
-nm=Adding items to plugins' menus
-ctime=3613740592
-mtime=3641412371
-<article>
-#_<markdown>
-#_
-#_Like the [regular macros][1], the added menu items are loaded from Lua- and MoonScript-files,  residing in the directory `%FARPROFILE%\Macros\scripts` and its subdirectories.
-#_
-#_A menu item is loaded by the global function `MenuItem` that takes one argument - a table with parameters. The function returns `true` on success.
-#_
-#_```
-#_MenuItem {
-#_  description = "Menu item";                        -- string (optional field)
-#_  menu   = "Plugins Disks Config";                  -- string
-#_  area   = "Shell Editor Viewer Dialog Menu";       -- string (optional field)
-#_  guid   = "A435D567-AD64-4DD1-8C61-28CB90358817";  -- string
-#_  text   = function(menu,area) return "Hello!" end; -- string, or function
-#_  action = function(OpenFrom,Item) ...... end;      -- function
-#_}
-#_```
-#_The fields `description` and `area` are optional with the default values being an empty string. Other fields are mandatory.
-#_
-#_* The field `menu` is the list of Far Manager menus the given menu item should be added to. The valid values of list elements are `"Plugins"`, `"Disks"` and `"Config"` that stand for plugins menu, disk menu and plugins configuration menu respectively.
-#_
-#_* The field `area` is the list of areas, where the given menu item should be added to the **plugins menu** when it is envoked. This field is used only if the field `menu` contains `Plugins`. The valid values of list elements coincide with the names of macro areas.
-#_
-#_* The field `guid` contains a unique identifier (GUID) of the given menu item.
-#_
-#_* The field `text`: if it is a string then that string is used as the menu item's text.<br>
-#_  Otherwise it should be a function. The menu item is added only if the function returned a string value.<br>
-#_  The function receives 2 arguments:
-#_  1. *menu* - type of the menu (either of: `"Plugins"`, `"Disks"` or `"Config"`)
-#_  2. *area* - name of the current macroarea.<br><br>
-#_
-#_* The field `action` is the function that is called upon activation of the given menu item. It takes the same arguments as the function `export.Open` (see `luafar_manual.chm`), except `Guid`. If the function is called from the plugins configuration menu then both the arguments have `nil` value. The returned value is not used.
-#_
-#_[1]: 75.html
-#_@@@
-#_
-</article>
-</node>
-<node>
-id=96
-lv=2
-dt=Text
-nm=Adding command line prefixes
-ctime=3636459316
-mtime=3636460034
-<article>
-#_<markdown>
-#_
-#_Like the [regular macros][1], the added command line prefixes are loaded from Lua- and MoonScript-files,  residing in the directory `%FARPROFILE%\Macros\scripts` and its subdirectories.
-#_
-#_Prefixes are loaded by the global function `CommandLine` that takes one argument - a table with parameters. The function returns the number of successfully loaded prefixes.
-#_
-#_```
-#_CommandLine {
-#_  description = "Adding prefixes";                  -- string (optional field)
-#_  prefixes = "abc:def:1234";                        -- string
-#_  action = function(prefix,text) ...... end;        -- function
-#_}
-#_```
-#_* The field `prefixes` is a list of prefixes delimited by colons. Spaces are not allowed.
-#_
-#_* The field `action` is the function that is called when the command line begins with one of the registered prefixes. It takes 2 arguments: `prefix` is the actual prefix in lower case; `text` is the rest of the command line with leading and trailing spaces stripped.
-#_
-#_[1]: 75.html
-#_@@@
-#_
-</article>
-</node>
-<node>
-id=77
-lv=2
-dt=Text
-nm=Lua modules
-ctime=3580139041
-mtime=3600534120
-<article>
-#_<markdown>
-#_
-#_Lua modules can be placed in `%FARPROFILE%\Macros\modules` and its subdirectories, as
-#_
-#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`
-#_
-#_is automatically included in `package.path`.
-#_
-</article>
-</node>
-<node>
-id=7
-lv=1
-dt=Text
-nm=LuaMacro plugin
-ctime=3551991405
-mtime=3617997203
-<article>
-#_<markdown>
-#_This plugin is necessary for macros to work, therefore it should be installed. The same is true regarding the runtime (*lua51.dll*, *luafar3.dll* and *lpeg.dll*) that is necessary for plugin's work.
-#_
-#_When Far Manager exits the LuaMacro plugin is unloaded after all other plugins, in order to be able to process `MCTL_XXX` requests from `ExitFARW` functions of other plugins.
-#_
-#_@@@
-#_{exitfarw}: http://api.farmanager.com/ru/exported_functions/exitfarw.html
-#_
-</article>
-</node>
-<node>
-id=92
-lv=2
-dt=Text
-nm=Command line operations
-ctime=3617997112
-mtime=3637689351
-<article>
-#_<markdown>
-#_* `macro: load [path]`<br>
-#_  (Re)load macrofiles. An optional parameter `path` has the same meaning as the field
-#_  `Path` in struct `FarMacroLoad`.
-#_* `macro: save`<br>
-#_   Save the created or modified [keyboard][1] macros.
-#_* `macro: unload`<br>
-#_   Unload macros (except those created with operation `MCTL_ADDMACRO`) and event handlers.
-#_* `macro: about`<br>
-#_   Show versions of the plugin and the libraries it is using.
-#_* `lua: [=] <code>`
-#_* `moon: [=] <code>`<br>
-#_   Execute the code `<code>` written correspondingly in Lua or MoonScript.<br>
-#_   If `<code>` is preceded with a character `=` then `far.Show()` is called, e.g.:<br>
-#_   `lua:=5+2,6,"foo"` is equivalent to `lua:far.Show(5+2,6,"foo")`.
-#_* `lua: [=] @<filename> [<args>]`
-#_* `moon: [=] @<filename> [<args>]`<br>
-#_   Execute the script `<filename>` written correspondingly in Lua or MoonScript.<br>
-#_   - For passing arguments to the script they should be specified after the file name,
-#_     separated with whitespace.
-#_   - Arguments are a sequence of expressions delimited with commas.
-#_   - The expressions must be written in the same programming language as the script.
-#_   - The global (within the environment of the script) variable `_filename` contains
-#_     the file name.
-#_
-#_**Note 1:**<br>
-#_Prefix `lm:` can be used instead of prefix `macro:` - they are equivalent.
-#_
-#_**Note 2:**<br>
-#_There are also `luas:` and `moons:` prefixes that can be used instead of respectively `lua:` and `moon:`.
-#_In that case no macro is created and the code is executed immediately ("synchronously").
-#_If the code terminates in a normal way then `CmdLine.Result` is a table containing an array of returned
-#_values and the field `n` of the table is the number of returned values. If the code execution is
-#_interrupted by an error the value of `CmdLine.Result` is `nil`.
-#_
-#_**Note 3:**<br>
-#_[Additional][2] command line prefixes can be defined and loaded from macrofiles.
-#_
-#_[1]: 76.html
-#_[2]: 96.html
-#_
-#_@@@
-#_{mctl_addmacro}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_ADDMACRO
-#_{mctl_loadall}: http://api.farmanager.com/ru/service_functions/macrocontrol.html#MCTL_LOADALL
-#_{farmacroload}: http://api.farmanager.com/ru/structures/farmacroload.html
-#_
-</article>
-</node>
-<node>
-id=93
-lv=2
-dt=Text
-nm=File luamacro.ini
-ctime=3617998172
-mtime=3618041778
-<article>
-#_<markdown>
-#_The file `luamacro.ini` contains some plugin's settings. If the file is missing, or some setting is missing then the plugin will use the default value for the given setting.
-#_
-#_* `MacroPath`<br>
-#_  Defines paths from which macrofiles are loaded.<br>
-#_  It is a sequence of 0 or more paths separated with semicolons.<br>
-#_  The default value is `%FARPROFILE%\Macros\scripts`.
-#_
-</article>
-</node>
-<node>
-id=97
-lv=2
-dt=Text
-nm=File luafar_init.lua
-ctime=3639831305
-mtime=3639833929
-<article>
-#_<markdown>
-#_Plugin LuaMacro runs the file `%FARPROFILE%\luafar_init.lua` (if that file exists) before loading its default script.
-#_See description of this feature in LuaFAR manual.
 </article>
 </node>
 <node>
