@@ -149,6 +149,7 @@ priority    │ %s
 condition   │ %s
 action      │ %s
 code        │ %s
+id          │ %s
 %s
 %s]]) :format(m.description or "id="..m.id,
               m.area,
@@ -158,6 +159,7 @@ code        │ %s
               m.condition and tostring(m.condition) or "",
               m.action and tostring(m.action) or "",
               code,
+              m.id,
               "\1",
               m.FileName or "<"..Msg.MBNoFileNameAvail..">")
     far.Message(str,Msg.MBTitleMacro,nil,"l")
@@ -169,6 +171,7 @@ filemask    │ %s
 priority    │ %s
 condition   │ %s
 action      │ %s
+id          │ %s
 %s
 %s]]) :format(m.description or "",
               m.group,
@@ -176,6 +179,7 @@ action      │ %s
               m.priority or "",
               m.condition and tostring(m.condition) or "",
               m.action and tostring(m.action) or "",
+              m.id,
               "\1",
               m.FileName)
     far.Message(str,Msg.MBTitleEventHandler,nil,"l")

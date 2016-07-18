@@ -8,7 +8,7 @@
 
 // macro browser help window
 "F1         show this help window"
-"F3         show info about macro/event"
+"F3         show info about macro/event handler"
 "F4         open file in editor"
 "AltF4      open file in modal editor"
 "CtrlPgUp   locate file in active panel"
@@ -16,7 +16,7 @@
 "CtrlF2     sort macros by key"
 "CtrlF3     sort macros by description"
 "Enter      execute selected macro"
-"CtrlH      hide inactive macros"
+"CtrlH      hide/show inactive macros"
 
 // macro browser separators
 "Macros"
