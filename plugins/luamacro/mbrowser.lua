@@ -53,7 +53,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
             s=s..(ars[v] and areaCodes[v] or ".")
           end
           m.codedArea=s
-          m.description=m.description and norm_utf8(m.description) or "id="..m.id
+          m.description=m.description and norm_utf8(m.description) or "index="..m.index
           m.key=norm_utf8(m.key)
           macros[#macros+1]=m
           local keylen = m.key:len()
@@ -62,7 +62,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
         end
       end
     else
-      m.description=m.description and norm_utf8(m.description) or "id="..m.id
+      m.description=m.description and norm_utf8(m.description) or "index="..m.index
       events[#events+1]=m
     end
   end

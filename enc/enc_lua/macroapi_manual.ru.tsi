@@ -101,7 +101,7 @@ lv=2
 dt=Text
 nm=Стационарные макросы
 ctime=3580139016
-mtime=3666203478
+mtime=3678014959
 <article>
 #_<markdown>
 #_
@@ -118,6 +118,7 @@ mtime=3666203478
 #_    sortpriority = 50;                                        -- number (опциональное поле)
 #_    condition    = function(key) return Far.Height>30 end;    -- function (опциональное поле)
 #_    action       = function() msgbox("","Macro example") end; -- function
+#_    id           = "F0109446-AA63-4873-AEC3-17AEE993AA53";    -- string (опциональное поле)
 #_  }
 #_```
 #_
@@ -226,7 +227,7 @@ lv=2
 dt=Text
 nm=Обработчики событий
 ctime=3580139337
-mtime=3655200078
+mtime=3678018855
 <article>
 #_<markdown>
 #_
@@ -236,12 +237,13 @@ mtime=3655200078
 #_
 #_```
 #_Event {
-#_  group       = "EditorEvent";         -- string
-#_  description = "Event example";       -- string (опциональное поле)
-#_  filemask    = "*.txt,*.cpp";         -- string (опциональное поле)
-#_  priority    = 50;                    -- number (опциональное поле)
-#_  condition   = function() ...... end; -- function (опциональное поле)
-#_  action      = function() ...... end; -- function
+#_  group       = "EditorEvent";                          -- string
+#_  description = "Event example";                        -- string (опциональное поле)
+#_  filemask    = "*.txt,*.cpp";                          -- string (опциональное поле)
+#_  priority    = 50;                                     -- number (опциональное поле)
+#_  condition   = function() ...... end;                  -- function (опциональное поле)
+#_  action      = function() ...... end;                  -- function
+#_  id          = "F0109446-AA63-4873-AEC3-17AEE993AA53"; -- string (опциональное поле)
 #_}
 #_```
 #_

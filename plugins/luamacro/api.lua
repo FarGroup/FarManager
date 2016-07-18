@@ -411,7 +411,7 @@ function mf.eval (str, mode, lang)
 
     local macro = utils.GetMacro(area,key,usecommon,false)
     if not macro then return -2 end
-    if not macro.id then return -3 end
+    if not macro.index then return -3 end
 
     return Eval_FixReturn(yieldcall("eval", macro, key))
   end

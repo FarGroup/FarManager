@@ -60,6 +60,7 @@ local Events
 local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewerevent", "consoleinput"}
 local AddedMenuItems
 local AddedPrefixes
+local IdSet
 
 package.nounload = {lpeg=true}
 local initial_modules = {}
@@ -160,6 +161,17 @@ local function ReadIniFile (filename)
   end
   fp:close()
   return t
+end
+
+local function AddId (trg, src)
+  trg.id = "<no id>"
+  if type(src.id)=="string" then
+    local lstr = src.id:lower()
+    if not IdSet[lstr] then
+      IdSet[lstr] = true
+      trg.id = src.id
+    end
+  end
 end
 
 local function EV_Handler (macros, filename, ...)
@@ -379,6 +391,7 @@ local function AddRegularMacro (srctable, FileName)
     if type(priority)=="number" then
       macro.sortpriority = priority>100 and 100 or priority<0 and 0 or priority
     end
+    AddId(macro, srctable)
 
     if FileName then
       macro.FileName = FileName
@@ -389,8 +402,8 @@ local function AddRegularMacro (srctable, FileName)
       macro.language = srctable.language
     end
 
-    macro.id = #LoadedMacros+1
-    LoadedMacros[macro.id] = macro
+    macro.index = #LoadedMacros+1
+    LoadedMacros[macro.index] = macro
     return macro
   end
 end
@@ -427,8 +440,8 @@ local function AddRecordedMacro (srctable, filename)
   macro.flags = StringToFlags(srctable.flags, filename)
   if type(macro.description)~="string" then macro.description=nil end
 
-  macro.id = #LoadedMacros+1
-  LoadedMacros[macro.id] = macro
+  macro.index = #LoadedMacros+1
+  LoadedMacros[macro.index] = macro
 end
 
 local AddEvent_fields = {"group","action","description","priority","condition","filemask"}
@@ -451,9 +464,10 @@ local function AddEvent (srctable, FileName)
   if type(macro.priority)~="number" then macro.priority=50
   elseif macro.priority>100 then macro.priority=100 elseif macro.priority<0 then macro.priority=0
   end
+  AddId(macro, srctable)
 
-  macro.id = #LoadedMacros+1
-  LoadedMacros[macro.id] = macro
+  macro.index = #LoadedMacros+1
+  LoadedMacros[macro.index] = macro
   return macro
 end
 
@@ -486,8 +500,8 @@ local function AddMenuItem (srctable, FileName)
       item.action = srctable.action
       item.description = type(srctable.description)=="string" and srctable.description or ""
       item.FileName = FileName
-      item.id = #AddedMenuItems + 1
-      AddedMenuItems[item.id] = item
+      item.index = #AddedMenuItems + 1
+      AddedMenuItems[item.index] = item
       AddedMenuItems[item.guid] = item
       return true
     end
@@ -628,6 +642,7 @@ local function LoadMacros (unload, paths)
   LoadedMacros = {}
   AddedMenuItems = {}
   AddedPrefixes = { [1]="" }
+  IdSet = {}
   if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
 
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
@@ -650,8 +665,8 @@ local function LoadMacros (unload, paths)
             table.insert(newAreas[a][k], m)
             if not IdUpdated[m] then
               IdUpdated[m] = true
-              m.id = #LoadedMacros+1
-              LoadedMacros[m.id] = m
+              m.index = #LoadedMacros+1
+              LoadedMacros[m.index] = m
             end
           end
         end
@@ -832,7 +847,7 @@ local function GetFromMenu (macrolist)
   for i,macro in ipairs(macrolist) do
     local descr = macro.description
     if not descr or descr=="" then
-      descr = ("< No description: Id=%d >"):format(macro.id)
+      descr = ("< No description: Index=%d >"):format(macro.index)
     end
     menuitems[i] = { text=descr, macro=macro }
   end
@@ -1023,8 +1038,8 @@ local function ProcessRecordedMacro (Mode, Key, code, flags, description)
     needsave=true
   }
   local existing = Areas[area][keys[1]] and Areas[area][keys[1]].recorded
-  macro.id = existing and existing.id or #LoadedMacros+1
-  LoadedMacros[macro.id] = macro
+  macro.index = existing and existing.index or #LoadedMacros+1
+  LoadedMacros[macro.index] = macro
 
   for i=1,numkeys do
     local k = keys[i]
@@ -1090,10 +1105,10 @@ local function RunStartMacro()
   return true
 end
 
-local function GetMacroCopy (id)
-  if LoadedMacros[id] then
+local function GetMacroCopy (index)
+  if LoadedMacros[index] then
     local t={}
-    for k,v in pairs(LoadedMacros[id]) do t[k]=v end
+    for k,v in pairs(LoadedMacros[index]) do t[k]=v end
     return t
   end
   return nil

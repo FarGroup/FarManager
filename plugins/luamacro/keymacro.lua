@@ -310,7 +310,7 @@ end
 local function TryToPostMacro (Mode, TextKey, IntKey)
   local m = utils.GetMacro(Mode, TextKey, true, false)
   if m then
-    if m.id then
+    if m.index then
       KeyMacro.PostNewMacro(m, m.flags, TextKey, false)
       CurState.HistoryDisableMask = 0
       CurState.IntKey = IntKey
