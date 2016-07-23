@@ -902,7 +902,7 @@ public:
 		DoPrologue();
 	}
 
-	void Consolise() override
+	void Consolise(bool SetTextColour = true) override
 	{
 		assert(m_Activated);
 
@@ -922,7 +922,8 @@ public:
 		// BUGBUG, implement better & safer way to do this
 		Global->ScrBuf->SetLockCount(LockCount);
 
-		Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+		if (SetTextColour)
+			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 	}
 
 	void DoPrologue() override
@@ -1458,7 +1459,7 @@ void CommandLine::EnterPluginExecutionContext()
 	}
 
 	m_PluginExecutionContext->DoPrologue();
-	m_PluginExecutionContext->Consolise();
+	m_PluginExecutionContext->Consolise(!m_PluginExecutionContextInvocations);
 
 	++m_PluginExecutionContextInvocations;
 }
