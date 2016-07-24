@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.07.2016 12:48:09 +0200 - build 4744
+
+1. Do not reset text color for inner FCTL_GETUSERSCREEN calls.
+
+drkns 16.07.2016 13:51:54 +0200 - build 4743
+
+1. Sometimes, with a bit of luck, call for editor after using a panel plugin could cause crash.
+
 drkns 09.07.2016 22:56:35 +0200 - build 4742
 
 1. Ansi plugins with insufficiently good resources could fail to load.
