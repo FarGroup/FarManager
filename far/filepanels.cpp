@@ -1194,14 +1194,6 @@ bool FilePanels::CanFastHide() const
 	return (Global->Opt->AllCtrlAltShiftRule & CASR_PANEL) != 0;
 }
 
-void FilePanels::Refresh()
-{
-	window::Refresh();
-	PassivePanel()->UpdateIfChanged(false);
-	ActivePanel()->UpdateIfChanged(false);
-	ActivePanel()->SetCurPath();
-}
-
 void FilePanels::GoToFile(const string& FileName)
 {
 	if (FindSlash(FileName) != string::npos)

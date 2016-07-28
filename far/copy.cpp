@@ -1285,8 +1285,6 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 ShellCopy::~ShellCopy()
 {
 	_tran(SysLog(L"[%p] ShellCopy::~ShellCopy(), CopyBufer=%p",this,CopyBuffer));
-
-	Global->CtrlObject->Cp()->Refresh();
 }
 
 COPY_CODES ShellCopy::CopyFileTree(const string& Dest)

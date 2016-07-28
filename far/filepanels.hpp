@@ -62,7 +62,6 @@ public:
 	virtual void ShowConsoleTitle() override;
 	virtual void ResizeConsole() override;
 	virtual bool CanFastHide() const override;
-	virtual void Refresh() override;
 	virtual FARMACROAREA GetMacroArea() const override;
 	virtual void Show() override;
 	virtual void DisplayObject() override;
