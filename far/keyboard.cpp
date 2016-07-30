@@ -947,6 +947,8 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			{KEY_RCTRL,VK_CONTROL,MODIF_RCTRL,true}
 		};
 		std::for_each(ALL_CONST_RANGE(Keys), [&CalcKey](const KeysData& A){if (CalcKey == A.FarKey && !PressedLast.Check(A.Modif)) CalcKey=KEY_NONE;});
+		const size_t AllModif = KEY_CTRL | KEY_ALT | KEY_SHIFT | KEY_RCTRL | KEY_RALT;
+		if ((CalcKey&AllModif) && !(CalcKey&~AllModif) && !PressedLast.Check(MODIF_SHIFT | MODIF_ALT | MODIF_RALT | MODIF_CTRL | MODIF_RCTRL)) CalcKey=KEY_NONE;
 		PressedLast.ClearAll();
 		if (rec->Event.KeyEvent.bKeyDown)
 		{
@@ -1968,7 +1970,6 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 	if (!rec->Event.KeyEvent.bKeyDown)
 	{
 		KeyCodeForALT_LastPressed=0;
-		const auto ModifPressed = CtrlState&(LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED | LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED | SHIFT_PRESSED);
 
 		switch (KeyCode)
 		{
@@ -2016,16 +2017,15 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 
 					return AltValue;
 				}
-				else if (!ModifPressed)
+				else
 				{
-					return (CtrlState&ENHANCED_KEY)?KEY_RALT:KEY_ALT;
+					return Modif|((CtrlState&ENHANCED_KEY)?KEY_RALT:KEY_ALT);
 				}
 				break;
 			case VK_CONTROL:
-				if (!ModifPressed) return (CtrlState&ENHANCED_KEY)?KEY_RCTRL:KEY_CTRL;
-				break;
+				return Modif|((CtrlState&ENHANCED_KEY)?KEY_RCTRL:KEY_CTRL);
 			case VK_SHIFT:
-				if (!ModifPressed) return KEY_SHIFT;
+				return Modif|KEY_SHIFT;
 				break;
 		}
 		return KEY_NONE;
