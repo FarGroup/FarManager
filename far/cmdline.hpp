@@ -95,7 +95,7 @@ public:
 	void DrawFakeCommand(const string& FakeCommand);
 	void EnterPluginExecutionContext();
 	void LeavePluginExecutionContext();
-	const std::shared_ptr<i_execution_context> GetExecutionContext();
+	std::shared_ptr<i_execution_context> GetExecutionContext();
 
 private:
 	virtual void DisplayObject() override;

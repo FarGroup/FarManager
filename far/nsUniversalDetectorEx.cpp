@@ -45,7 +45,7 @@ WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 
 
-#include "thirdparty/ucd/nsCore.h"
+#include "thirdparty/ucd/nscore.h"
 #include "thirdparty/ucd/nsError.h"
 #include "thirdparty/ucd/nsUniversalDetector.h"
 #include "thirdparty/ucd/CharDistribution.cpp"

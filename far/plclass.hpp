@@ -92,10 +92,17 @@ enum PLUGINWORKFLAGS
 extern PluginStartupInfo NativeInfo;
 extern FarStandardFunctions NativeFSF;
 
-class plugin_factory: noncopyable
+class i_plugin_module
 {
 public:
-	using plugin_instance = void*;
+	virtual ~i_plugin_module() = default;
+};
+
+class plugin_factory
+{
+public:
+	plugin_factory(PluginManager* owner);
+	using plugin_module_ptr = std::unique_ptr<i_plugin_module>;
 	using function_address = void*;
 	using exports_array = std::array<std::pair<function_address, bool>, ExportsCount>;
 
@@ -105,17 +112,16 @@ public:
 		const char* AName;
 	};
 
-	plugin_factory(PluginManager* owner);
 	virtual ~plugin_factory() = default;
 
 	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename);
 
 	virtual bool IsPlugin(const string& filename) const = 0;
-	virtual plugin_instance Create(const string& filename) = 0;
-	virtual bool Destroy(plugin_instance module) = 0;
-	virtual function_address GetFunction(plugin_instance Instance, const export_name& Name) = 0;
+	virtual plugin_module_ptr Create(const string& filename) = 0;
+	virtual bool Destroy(plugin_module_ptr& module) = 0;
+	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) = 0;
 
-	PluginManager* GetOwner() const { return m_owner; }
+	auto GetOwner() const { return m_owner; }
 	const auto& ExportsNames() const { return m_ExportsNames; }
 
 protected:
@@ -125,15 +131,25 @@ protected:
 
 using plugin_factory_ptr = std::unique_ptr<plugin_factory>;
 
+class native_plugin_module: public i_plugin_module
+{
+public:
+	NONCOPYABLE(native_plugin_module);
+	native_plugin_module(const string& Name): m_Module(Name, true) {}
+
+	os::rtdl::module m_Module;
+};
+
 class native_plugin_factory : public plugin_factory
 {
 public:
+	NONCOPYABLE(native_plugin_factory);
 	using plugin_factory::plugin_factory;
 
 	virtual bool IsPlugin(const string& filename) const override;
-	virtual plugin_instance Create(const string& filename) override;
-	virtual bool Destroy(plugin_instance module) override;
-	virtual function_address GetFunction(plugin_instance Instance, const export_name& Name) override;
+	virtual plugin_module_ptr Create(const string& filename) override;
+	virtual bool Destroy(plugin_module_ptr& module) override;
+	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override;
 
 private:
 	// the rest shouldn't be here, just an optimization for OEM plugins
@@ -151,14 +167,12 @@ namespace detail
 {
 	struct ExecuteStruct
 	{
-		ExecuteStruct& operator =(intptr_t value) { Result = value; return *this; }
-		ExecuteStruct& operator =(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
+		void operator=(intptr_t value) { Result = value; }
+		void operator=(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); }
 		operator intptr_t() const { return Result; }
 		operator void*() const { return ToPtr(Result); }
-
 		EXPORTS_ENUM id;
-
-		intptr_t Default, Result;
+		intptr_t Result;
 	};
 
 	template<typename function, typename... args, ENABLE_IF(std::is_void<std::result_of_t<function(args...)>>::value)>
@@ -177,6 +191,7 @@ namespace detail
 class Plugin: noncopyable
 {
 public:
+	NONCOPYABLE(Plugin);
 	Plugin(plugin_factory* Factory, const string& ModuleName);
 	virtual ~Plugin();
 
@@ -227,7 +242,8 @@ public:
 	virtual bool InitLang(const string& Path);
 	void CloseLang();
 
-	bool has(size_t ExportIndex) const { return Exports[ExportIndex].second; }
+	bool has(EXPORTS_ENUM id) const { return Exports[id].second; }
+	bool has(const detail::ExecuteStruct& es) const { return has(es.id); }
 
 	const string& GetModuleName() const { return m_strModuleName; }
 	const string& GetCacheName() const  { return m_strCacheName; }
@@ -254,29 +270,38 @@ public:
 	bool RemoveDialog(window_ptr_ref Dlg);
 
 protected:
-	using ExecuteStruct = detail::ExecuteStruct;
+	template<EXPORTS_ENUM ExportId>
+	struct ExecuteStruct: detail::ExecuteStruct
+	{
+		ExecuteStruct(intptr_t FallbackValue = 0)
+		{
+			id = ExportId;
+			Result = FallbackValue;
+		}
+		using export_id = std::integral_constant<EXPORTS_ENUM, ExportId>;
+	};
 
-	template<EXPORTS_ENUM id, class... args>
-	void ExecuteFunction(ExecuteStruct& es, args&&... Args)
+	template<typename T, class... args>
+	void ExecuteFunction(T& es, args&&... Args)
 	{
 		Prologue(); ++Activity;
 		SCOPE_EXIT{ --Activity; Epilogue(); };
 
 		try
 		{
-			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<id>>(Exports[id].first), std::forward<args>(Args)...);
+			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value>>(Exports[T::export_id::value].first), std::forward<args>(Args)...);
 		}
-		catch (const SException &e)
+		catch (const SException& e)
 		{
-			ProcessSEHException(e.GetInfo(), m_Factory->ExportsNames()[es.id].UName, this)? HandleFailure(es) : throw;
+			ProcessSEHException(e.GetInfo(), m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
 		}
-		catch (const std::exception &e)
+		catch (const std::exception& e)
 		{
-			ProcessStdException(e, m_Factory->ExportsNames()[es.id].UName, this)? HandleFailure(es) : throw;
+			ProcessStdException(e, m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
 		}
 	}
 
-	void HandleFailure(ExecuteStruct& es);
+	void HandleFailure(EXPORTS_ENUM id);
 
 	virtual void Prologue() {}
 	virtual void Epilogue() {}
@@ -307,7 +332,7 @@ private:
 
 	BitFlags WorkFlags;      // рабочие флаги текущего плагина
 
-	plugin_factory::plugin_instance m_Instance;
+	plugin_factory::plugin_module_ptr m_Instance;
 
 	VersionInfo MinFarVersion;
 	VersionInfo PluginVersion;

@@ -54,10 +54,10 @@ namespace os
 		i_find_handle_impl::~i_find_handle_impl() = default;
 
 		void find_handle_closer::operator()(HANDLE Handle) const { delete static_cast<i_find_handle_impl*>(Handle); }
-		void handle_closer::operator()(HANDLE Handle) const { if (Handle) CloseHandle(Handle); }
-		void find_volume_handle_closer::operator()(HANDLE Handle) const { if (Handle) FindVolumeClose(Handle); }
-		void find_notification_handle_closer::operator()(HANDLE Handle) const { if (Handle) FindCloseChangeNotification(Handle); }
-		struct os_find_handle_closer { void operator()(HANDLE Handle) const { if (Handle) FindClose(Handle); } };
+		void handle_closer::operator()(HANDLE Handle) const { CloseHandle(Handle); }
+		void find_volume_handle_closer::operator()(HANDLE Handle) const { FindVolumeClose(Handle); }
+		void find_notification_handle_closer::operator()(HANDLE Handle) const { FindCloseChangeNotification(Handle); }
+		struct os_find_handle_closer { void operator()(HANDLE Handle) const { FindClose(Handle); } };
 
 		class far_find_handle_impl: public i_find_handle_impl
 		{
@@ -456,7 +456,7 @@ bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSE
 	return Handle? true : false;
 }
 
-inline void file::SyncPointer()
+void file::SyncPointer()
 {
 	if(NeedSyncPointer)
 	{
@@ -636,6 +636,14 @@ bool file::Eof() const
 	return Ptr >= Size;
 }
 //-------------------------------------------------------------------------
+struct file_walker::Chunk
+{
+	UINT64 Offset;
+	DWORD Size;
+
+	Chunk(UINT64 Offset, DWORD Size): Offset(Offset), Size(Size) {}
+};
+
 file_walker::file_walker():
 	FileSize(0),
 	AllocSize(0),
@@ -645,6 +653,8 @@ file_walker::file_walker():
 	Sparse(false)
 {
 }
+
+file_walker::~file_walker() = default;
 
 bool file_walker::InitWalk(size_t BlockSize)
 {
@@ -695,7 +705,6 @@ bool file_walker::InitWalk(size_t BlockSize)
 	}
 	return Result;
 }
-
 
 bool file_walker::Step()
 {
@@ -1752,11 +1761,10 @@ bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInforma
 
 bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
-	HANDLE RawHandle;
-	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &RawHandle);
+	handle Handle;
+	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &ptr_setter(Handle));
 	if (Result == ERROR_SUCCESS)
 	{
-		handle Handle(RawHandle);
 		Result = Imports().DetachVirtualDisk(Handle.native_handle(), DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
 		if (Result != ERROR_SUCCESS)
 		{
@@ -1989,10 +1997,9 @@ DWORD GetAppPathsRedirectionFlag()
 		provider::block::block()
 		{
 			m_Data = nullptr;
-			HANDLE RawHandle = nullptr;
-			if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &RawHandle))
+			handle TokenHandle;
+			if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &ptr_setter(TokenHandle)))
 			{
-				os::handle TokenHandle(RawHandle);
 				CreateEnvironmentBlock(reinterpret_cast<void**>(&m_Data), TokenHandle.native_handle(), TRUE);
 			}
 		}
@@ -2077,29 +2084,25 @@ DWORD GetAppPathsRedirectionFlag()
 
 	namespace rtdl
 	{
-		module::~module()
+		void module::module_deleter::operator()(HMODULE Module) const
 		{
-			if (m_loaded)
-			{
-				FreeLibrary(m_module);
-			}
+			FreeLibrary(Module);
 		}
 
 		HMODULE module::get_module() const
 		{
-			if (!m_tried && !m_module)
+			if (!m_tried && !m_module && !m_name.empty())
 			{
 				m_tried = true;
-				m_module = LoadLibrary(m_name);
+				m_module.reset(LoadLibrary(m_name.data()));
 
 				if (!m_module && m_AlternativeLoad && IsAbsolutePath(m_name))
 				{
-					m_module = LoadLibraryEx(m_name, nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+					m_module.reset(LoadLibraryEx(m_name.data(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH));
 				}
 				// TODO: log if nullptr
-				m_loaded = m_module != nullptr;
 			}
-			return m_module;
+			return m_module.get();
 		}
 	}
 

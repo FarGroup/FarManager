@@ -228,7 +228,7 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	cfg->GetValue(key, HLS.DateType, DateType);
 	unsigned __int64 DateRelative = 0;
 	cfg->GetValue(key, HLS.DateRelative, DateRelative);
-	HData.SetDate(UseDate!=0, (DWORD)DateType, DateAfter, DateBefore, DateRelative!=0);
+	HData.SetDate(UseDate!=0, static_cast<enumFDateType>(DateType), DateAfter, DateBefore, DateRelative!=0);
 
 	string strSizeAbove;
 	cfg->GetValue(key,HLS.SizeAbove,strSizeAbove);

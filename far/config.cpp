@@ -126,12 +126,12 @@ static const wchar_t NKeyViewEditHistory[] = L"History.ViewEditHistory";
 static const wchar_t NKeyFolderHistory[] = L"History.FolderHistory";
 static const wchar_t NKeyDialogHistory[] = L"History.DialogHistory";
 
-static inline size_t DisplayModeToReal(size_t Mode)
+static size_t DisplayModeToReal(size_t Mode)
 {
 	return Mode < predefined_panel_modes_count? (Mode == 9? 0 : Mode + 1) : Mode - 1;
 };
 
-static inline size_t RealModeToDisplay(size_t Mode)
+static size_t RealModeToDisplay(size_t Mode)
 {
 	return Mode < predefined_panel_modes_count? (Mode == 0? 9 : Mode - 1) : Mode + 1;
 };
@@ -1326,7 +1326,7 @@ struct FARConfigItem
 		string Type = Value->typeToString();
 		Type.resize(std::max(Type.size(), size_t(7)), L' ');
 
-		ListItemString = string(KeyName) + L"." + ValName;
+		ListItemString = KeyName + L"."s + ValName;
 		ListItemString.resize(std::max(ListItemString.size(), size_t(42)), L' ');
 		ListItemString += BoxSymbols[BS_V1] + Type + BoxSymbols[BS_V1] + Value->toString() + Value->ExInfo();
 		if(!Value->IsDefault(Default))
@@ -1340,7 +1340,7 @@ struct FARConfigItem
 	bool Edit(bool Hex) const
 	{
 		DialogBuilder Builder;
-		Builder.AddText((string(KeyName) + L"." + ValName + L" (" + Value->typeToString() + L"):").data());
+		Builder.AddText((KeyName + L"."s + ValName + L" ("s + Value->typeToString() + L"):"s).data());
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
@@ -1359,7 +1359,7 @@ struct FARConfigItem
 	}
 };
 
-inline bool ParseIntValue(const string& sValue, long long& iValue)
+static bool ParseIntValue(const string& sValue, long long& iValue)
 {
 	bool Result = false;
 
@@ -1401,7 +1401,7 @@ inline bool ParseIntValue(const string& sValue, long long& iValue)
 
 
 template<class base_type, class derived>
-bool OptionImpl<base_type, derived>::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default)
+bool detail::OptionImpl<base_type, derived>::ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default)
 {
 	base_type CfgValue;
 	const auto Result = Storage->GetValue(KeyName, ValueName, CfgValue, any_cast<base_type>(Default));
@@ -1410,7 +1410,7 @@ bool OptionImpl<base_type, derived>::ReceiveValue(GeneralConfig* Storage, const 
 }
 
 template<class base_type, class derived>
-bool OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const
+bool detail::OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const
 {
 	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
 }

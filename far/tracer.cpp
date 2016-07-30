@@ -171,7 +171,7 @@ bool tracer::get_exception_context(const void* CppObject, EXCEPTION_RECORD& Exce
 std::vector<string> tracer::get(const void* CppObject)
 {
 	exception_context Context;
-	if (!tracer::GetInstance()->get_context(CppObject, Context))
+	if (!GetInstance()->get_context(CppObject, Context))
 	{
 		return {};
 	}

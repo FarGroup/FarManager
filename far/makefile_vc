@@ -268,23 +268,23 @@ DEFINES=\
 DISABLED_WARNINGS=/FI disabled_warnings.hpp
 
 # common
-CPPFLAG1=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHa /Gy /GF /Fd"$(INTDIR)\\" /J /Zc:inline /Zc:rvalueCast /Zc:strictStrings /c
+CPPFLAGS=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHa /Gy /GF /Fd"$(INTDIR)\\" /J /Zc:inline /Zc:rvalueCast /Zc:strictStrings /c
 LINKFLAGS=/nologo /subsystem:console /release /nxcompat /largeaddressaware /dynamicbase /map /out:"$(OUTDIR)\Far.exe"
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
 # config-specific
 !ifdef DEBUG
-CPPFLAG1=$(CPPFLAG1) /MTd /Od /Zi
+CPPFLAGS=$(CPPFLAGS) /MTd /Od /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 ULINKFLAGS=$(ULINKFLAGS) -v
 !else
-CPPFLAG1=$(CPPFLAG1) /MT /O2
+CPPFLAGS=$(CPPFLAGS) /MT /O2
 !ifndef LINK_ULINK
-CPPFLAG1=$(CPPFLAG1) /GL
+CPPFLAGS=$(CPPFLAGS) /GL
 !endif
 !ifndef NO_RELEASE_PDB
-CPPFLAG1=$(CPPFLAG1) /Zi
+CPPFLAGS=$(CPPFLAGS) /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 !endif
 LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF /ltcg
@@ -293,17 +293,17 @@ LINKFLAGS=$(LINKFLAGS) /ltcg:status
 !endif
 !endif
 !ifdef ASM_LISTING
-CPPFLAG1=$(CPPFLAG1) /FAcs /Fa"$(CODDIR)\\"
+CPPFLAGS=$(CPPFLAGS) /FAcs /Fa"$(CODDIR)\\"
 !endif
 !ifdef USE_ANALYZE
-CPPFLAG1=$(CPPFLAG1) /analyze
+CPPFLAGS=$(CPPFLAGS) /analyze
 !endif
 
 
 # platform-specific
 !ifdef X86
 !ifndef DEBUG
-CPPFLAG1=$(CPPFLAG1) /Oy-
+CPPFLAGS=$(CPPFLAGS) /Oy-
 !endif
 LINKFLAGS=$(LINKFLAGS) /machine:i386
 OS_VERSION=5.0
@@ -320,16 +320,16 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 
 # compiler-specific
 !if defined (X86)
-CPPFLAG1=$(CPPFLAG1) /arch:IA32
+CPPFLAGS=$(CPPFLAGS) /arch:IA32
 !endif
 
 !ifdef ICL
 CPP = icl
 LINK = xilink
-CPPFLAG1 = $(CPPFLAG1) /Qstd=c++11 /Qdiag-disable:672,869,2415,3280
+CPPFLAGS = $(CPPFLAGS) /Qstd=c++11 /Qdiag-disable:672,869,2415,3280
 !endif
 
-CPPFLAGS = $(CPPFLAG1) /Fo"$(INTDIR)\\"
+CPPFLAGS = $(CPPFLAGS) /Fo"$(INTDIR)\\"
 
 ALL: AllDirs lng depfile include docs $(TEST_OBJS)
 	$(MAKE) /nologo /f makefile_vc build USEDEPS=1

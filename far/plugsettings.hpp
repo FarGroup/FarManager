@@ -49,8 +49,8 @@ public:
 	static AbstractSettings* CreatePluginSettings(const GUID& Guid, bool Local);
 
 protected:
-	wchar_t* Add(const string& String);
-	void* Add(const void* Data, size_t Size);
+	const wchar_t* Add(const string& String);
+	const void* Add(const void* Data, size_t Size);
 
 private:
 	void* Allocate(size_t Size);

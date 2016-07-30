@@ -43,15 +43,13 @@ enum FM_FLAGS
 class filemasks
 {
 public:
+	NONCOPYABLE(filemasks);
+
 	filemasks();
 	~filemasks();
 
-	filemasks(const filemasks&) = delete;
-	filemasks& operator=(const filemasks&) = delete;
-
 	filemasks(filemasks&&);
 	filemasks& operator=(filemasks&&);
-
 
 	bool Set(const string& Masks, DWORD Flags = 0);
 	bool Compare(const string& Name) const;

@@ -705,7 +705,7 @@ int Viewer::getCharSize() const
 		return m_Codepage == MB.GetCP()? -static_cast<int>(MB.GetSize()) : +1;
 }
 
-static inline int getChSize( UINT cp )
+static int getChSize( UINT cp )
 {
 	if ( CP_UNICODE == cp || CP_REVERSEBOM == cp )
 		return +2;
@@ -1098,7 +1098,7 @@ static bool is_word_div(const wchar_t ch)
 		std::find(ALL_CONST_RANGE(extra_div), ch) != std::cend(extra_div);
 }
 
-static inline bool wrapped_char(const wchar_t ch)
+static bool wrapped_char(const wchar_t ch)
 {
 	static const wchar_t wrapped_chars[] = {L',', L';', L'>', L')'}; // word-wrap enabled after it
 	return IsSpaceOrEos(ch) || std::find(ALL_CONST_RANGE(wrapped_chars), ch) != std::cend(wrapped_chars);

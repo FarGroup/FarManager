@@ -203,7 +203,7 @@ FileListItem::FileListItem()
 	m_Owner.assign(1, values::uninitialised(wchar_t()));
 }
 
-static inline string GetItemFullName(const FileListItem& Item, const FileList* Owner)
+static string GetItemFullName(const FileListItem& Item, const FileList* Owner)
 {
 	return Owner->GetCurDir() + L"\\"s + (TestParentFolderName(Item.strName) ? L""s : Item.strName);
 }
@@ -5636,7 +5636,7 @@ PluginHandle* FileList::OpenPluginForFile(const string& FileName, DWORD FileAttr
 		_ALGO(SysLog(L"close AnotherPanel file"));
 		Parent()->GetAnotherPanel(this)->CloseFile();
 		_ALGO(SysLog(L"call Plugins.OpenFilePlugin {"));
-		Result = Global->CtrlObject->Plugins->OpenFilePlugin(&FileName, 0, Type);
+		Result = Global->CtrlObject->Plugins->OpenFilePlugin(&FileName, OPM_NONE, Type);
 		_ALGO(SysLog(L"}"));
 	}
 	return Result;
@@ -5981,7 +5981,7 @@ void FileList::PluginPutFilesToNew()
 	_ALGO(CleverSysLog clv(L"FileList::PluginPutFilesToNew()"));
 	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
 	_ALGO(SysLog(L"call Plugins.OpenFilePlugin(nullptr, 0)"));
-	const auto hNewPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(nullptr, 0, OFP_CREATE);
+	const auto hNewPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(nullptr, OPM_NONE, OFP_CREATE);
 
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{

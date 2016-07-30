@@ -51,7 +51,7 @@ struct PreserveStyleToken
 	int TypeMask;
 };
 
-static inline bool IsPreserveStyleTokenSeparator(wchar_t C)
+static bool IsPreserveStyleTokenSeparator(wchar_t C)
 {
 	return wcschr(PreserveStyleTokenSeparators, C) != nullptr;
 }

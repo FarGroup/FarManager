@@ -36,10 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "drivemix.hpp"
 #include "config.hpp"
-#include "flink.hpp"
-#include "cddrv.hpp"
-#include "strmix.hpp"
-#include "pathmix.hpp"
 
 /*
   FarGetLogicalDrives
@@ -55,77 +51,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 os::drives_set FarGetLogicalDrives()
 {
 	static unsigned int LogicalDrivesMask = 0;
-	unsigned int NoDrives=0;
+	if (!LogicalDrivesMask || !Global->Opt->RememberLogicalDrives)
+		LogicalDrivesMask = GetLogicalDrives();
 
-	if ((!Global->Opt->RememberLogicalDrives) || !LogicalDrivesMask)
-		LogicalDrivesMask=GetLogicalDrives();
-
+	unsigned int NoDrivesMask = 0;
 	if (!Global->Opt->Policies.ShowHiddenDrives)
 	{
 		static const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
 		std::any_of(CONST_RANGE(Roots, i)
 		{
-			return os::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrives);
+			return os::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrivesMask);
 		});
 	}
 
-	return static_cast<int>(LogicalDrivesMask&(~NoDrives));
-}
-
-int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType)
-{
-	DWORD SrcVolumeNumber=0, DestVolumeNumber=0;
-	string strSrcVolumeName, strDestVolumeName;
-	DWORD SrcFileSystemFlags, DestFileSystemFlags;
-	const auto strSrcRoot = GetPathRoot(ConvertNameToUNC(SrcPath));
-	const auto strDestRoot = GetPathRoot(ConvertNameToUNC(DestPath));
-	int DestDriveType=FAR_GetDriveType(strDestRoot, TRUE);
-
-	if (!os::GetVolumeInformation(strSrcRoot, &strSrcVolumeName, &SrcVolumeNumber, nullptr, &SrcFileSystemFlags, nullptr))
-		return FALSE;
-
-	if (!os::GetVolumeInformation(strDestRoot, &strDestVolumeName, &DestVolumeNumber, nullptr, &DestFileSystemFlags, nullptr))
-		return FALSE;
-
-	if (CheckedType == CHECKEDPROPS_ISSAMEDISK)
-	{
-		if (DestPath.find_first_of(L"\\:") == string::npos)
-			return TRUE;
-
-		if (((IsSlash(strSrcRoot[0]) && IsSlash(strSrcRoot[1])) || (IsSlash(strDestRoot[0]) && IsSlash(strDestRoot[1]))) &&
-		        StrCmpI(strSrcRoot, strDestRoot))
-			return FALSE;
-
-		if (SrcPath.empty() || DestPath.empty() || (SrcPath[1]!=L':' && DestPath[1]!=L':'))  //????
-			return TRUE;
-
-		if (Upper(strDestRoot[0])==Upper(strSrcRoot[0]))
-			return TRUE;
-
-		unsigned __int64 SrcTotalSize, DestTotalSize;
-
-		if (!os::GetDiskSize(SrcPath, &SrcTotalSize, nullptr, nullptr))
-			return FALSE;
-
-		if (!os::GetDiskSize(DestPath, &DestTotalSize, nullptr, nullptr))
-			return FALSE;
-
-		if (!SrcVolumeNumber
-			|| SrcVolumeNumber != DestVolumeNumber
-			|| StrCmpI(strSrcVolumeName, strDestVolumeName)
-			|| SrcTotalSize != DestTotalSize)
-			return FALSE;
-	}
-	else if (CheckedType == CHECKEDPROPS_ISDST_ENCRYPTION)
-	{
-		if (!(DestFileSystemFlags&FILE_SUPPORTS_ENCRYPTION))
-			return FALSE;
-
-		if (!(DestDriveType==DRIVE_REMOVABLE || DestDriveType==DRIVE_FIXED || DestDriveType==DRIVE_REMOTE))
-			return FALSE;
-	}
-
-	return TRUE;
+	return LogicalDrivesMask & ~NoDrivesMask;
 }
 
 bool IsDriveTypeRemote(UINT DriveType)

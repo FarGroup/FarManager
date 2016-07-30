@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/compiler.hpp"
 #include "common/preprocessor.hpp"
+#include "common/movable.hpp"
 #include "common/exception.hpp"
 #include "common/noncopyable.hpp"
 #include "common/swapable.hpp"
@@ -138,9 +139,9 @@ size_t make_hash(const T& value)
 }
 
 template <class T>
-inline T Round(const T &a, const T &b) { return a / b + (a%b * 2 > b ? 1 : 0); }
+T Round(const T &a, const T &b) { return a / b + (a%b * 2 > b ? 1 : 0); }
 
-inline void* ToPtr(intptr_t T){ return reinterpret_cast<void*>(T); }
+inline void* ToPtr(intptr_t Value){ return reinterpret_cast<void*>(Value); }
 
 template<class T>
 bool InRange(const T& from, const T& what, const T& to)

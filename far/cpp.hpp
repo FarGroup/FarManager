@@ -119,4 +119,22 @@ namespace std
 	}
 }
 
+#ifdef __GNUC__
+#if _GCC_VER < GCC_VER_(6,0,0)
+namespace __cxxabiv1
+{
+	struct __cxa_eh_globals;
+	extern "C" __cxa_eh_globals* __cxa_get_globals() noexcept;
+}
+
+namespace std
+{
+	inline int uncaught_exceptions() noexcept
+	{
+		return *reinterpret_cast<const unsigned int*>(static_cast<const char*>(static_cast<const void*>(__cxxabiv1::__cxa_get_globals())) + sizeof(void*));
+	}
+}
+#endif
+#endif
+
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

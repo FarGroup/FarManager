@@ -47,6 +47,7 @@ class file_version;
 class PluginA: public Plugin
 {
 public:
+	NONCOPYABLE(PluginA);
 	PluginA(plugin_factory* Factory, const string& ModuleName);
 	~PluginA();
 
@@ -96,8 +97,8 @@ public:
 	const char *GetMsgA(LNGID nID) const;
 
 private:
-	virtual void Prologue() override { Plugin::Prologue(); SetFileApisToOEM(); ++OEMApiCnt; }
-	virtual void Epilogue() override { Plugin::Epilogue(); --OEMApiCnt; if(!OEMApiCnt) SetFileApisToANSI(); }
+	virtual void Prologue() override;
+	virtual void Epilogue() override;
 
 	void FreePluginInfo();
 	void ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest);

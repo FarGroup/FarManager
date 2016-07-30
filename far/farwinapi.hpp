@@ -47,6 +47,7 @@ namespace os
 		public:
 			NONCOPYABLE(handle_t);
 			TRIVIALLY_MOVABLE(handle_t);
+			using pointer = HANDLE;
 
 			explicit handle_t(HANDLE Handle = nullptr) { reset(Handle); }
 
@@ -123,7 +124,7 @@ namespace os
 
 	namespace detail
 	{
-		struct sid_deleter { void operator()(PSID Sid) const noexcept { if (Sid) FreeSid(Sid); } };
+		struct sid_deleter { void operator()(PSID Sid) const noexcept { FreeSid(Sid); } };
 	}
 
 	using sid_ptr = std::unique_ptr<std::remove_pointer_t<PSID>, detail::sid_deleter>;
@@ -287,13 +288,14 @@ namespace os
 			string name;
 			DWORD share_mode;
 
-			inline void SyncPointer();
+			void SyncPointer();
 		};
 
 		class file_walker: public file
 		{
 		public:
 			file_walker();
+			~file_walker();
 			bool InitWalk(size_t BlockSize);
 			bool Step();
 			UINT64 GetChunkOffset() const;
@@ -301,12 +303,7 @@ namespace os
 			int GetPercent() const;
 
 		private:
-			struct Chunk
-			{
-				UINT64 Offset;
-				DWORD Size;
-				Chunk(UINT64 Offset, DWORD Size):Offset(Offset), Size(Size) {}
-			};
+			struct Chunk;
 			std::vector<Chunk> ChunkList;
 			UINT64 FileSize;
 			UINT64 AllocSize;
@@ -345,16 +342,7 @@ namespace os
 				return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
 			}
 
-			struct hkey_deleter
-			{
-				void operator()(HKEY Key) const
-				{
-					if (Key)
-					{
-						RegCloseKey(Key);
-					}
-				}
-			};
+			struct hkey_deleter { void operator()(HKEY Key) const { RegCloseKey(Key); } };
 		}
 
 		using key = std::unique_ptr<std::remove_pointer_t<HKEY>, detail::hkey_deleter>;
@@ -493,17 +481,17 @@ namespace os
 	// Run-Time Dynamic Linking
 	namespace rtdl
 	{
-		class module: noncopyable, public conditional<module>
+		class module: public conditional<module>
 		{
 		public:
-			module(const wchar_t* name, bool AlternativeLoad = false):
-				m_name(name),
-				m_module(),
-				m_loaded(),
+			NONCOPYABLE(module);
+			TRIVIALLY_MOVABLE(module);
+
+			module(string name, bool AlternativeLoad = false):
+				m_name(std::move(name)),
 				m_tried(),
 				m_AlternativeLoad(AlternativeLoad)
 			{}
-			~module();
 
 			void* GetProcAddress(const char* name) const { return reinterpret_cast<void*>(::GetProcAddress(get_module(), name)); }
 			bool operator!() const noexcept { return !get_module(); }
@@ -511,11 +499,13 @@ namespace os
 		private:
 			HMODULE get_module() const;
 
-			const wchar_t* m_name;
-			mutable HMODULE m_module;
-			mutable bool m_loaded;
+			struct module_deleter { void operator()(HMODULE Module) const; };
+			using module_ptr = std::unique_ptr<std::remove_pointer_t<HMODULE>, module_deleter>;
+
+			string m_name;
+			mutable module_ptr m_module;
 			mutable bool m_tried;
-			const bool m_AlternativeLoad;
+			bool m_AlternativeLoad;
 		};
 
 		template<typename T>
@@ -616,10 +606,7 @@ namespace os
 			};
 
 			template<class T>
-			using ptr_t = std::unique_ptr<T, detail::deleter<T>>;
-
-			template<class T>
-			auto ptr(T* RawPtr) { return ptr_t<T>(RawPtr); }
+			using ptr = std::unique_ptr<T, detail::deleter<T>>;
 		}
 	}
 
@@ -628,16 +615,33 @@ namespace os
 		bool is_admin();
 	}
 
-	class co_initialize: noncopyable
+	namespace com
 	{
-	public:
-		co_initialize(): m_hr(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)) {}
-		~co_initialize() { if (SUCCEEDED(m_hr)) CoUninitialize(); }
-		operator HRESULT() const { return m_hr; }
+		class co_initialize: noncopyable
+		{
+		public:
+			co_initialize(): m_hr(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)) {}
+			~co_initialize() { if (SUCCEEDED(m_hr)) CoUninitialize(); }
+			operator HRESULT() const { return m_hr; }
 
-	private:
-		const HRESULT m_hr;
-	};
+		private:
+			const HRESULT m_hr;
+		};
+
+		namespace detail
+		{
+			template<typename T>
+			struct releaser
+			{
+				void operator()(T* Object) const
+				{
+					Object->Release();
+				}
+			};
+		}
+		template<typename T>
+		using ptr = std::unique_ptr<T, detail::releaser<T>>;
+	}
 
 	typedef std::bitset<26> drives_set;
 

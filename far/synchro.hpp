@@ -62,14 +62,11 @@ string make_name(const S& HashPart, const S& TextPart)
 	return Str;
 }
 
-class HandleWrapper
+class waitable
 {
 public:
-	NONCOPYABLE(HandleWrapper);
-	TRIVIALLY_MOVABLE(HandleWrapper);
-
-	explicit HandleWrapper(HANDLE Handle = nullptr): m_Handle(Handle) {}
-	virtual ~HandleWrapper() = 0;
+	NONCOPYABLE(waitable);
+	TRIVIALLY_MOVABLE(waitable);
 
 	bool Wait(DWORD Milliseconds = INFINITE) const { return m_Handle.wait(Milliseconds); }
 	bool Signaled() const { return m_Handle.signaled(); }
@@ -77,13 +74,11 @@ public:
 	auto native_handle() const { return m_Handle.native_handle(); }
 
 protected:
+	explicit waitable(HANDLE Handle = nullptr): m_Handle(Handle) {}
 	os::handle m_Handle;
 };
 
-inline HandleWrapper::~HandleWrapper() = default;
-
-
-class Thread: public HandleWrapper
+class Thread: public waitable
 {
 public:
 	NONCOPYABLE(Thread);
@@ -99,7 +94,7 @@ public:
 		Starter(std::bind(std::forward<T>(Function), std::forward<Args>(args)...));
 	}
 
-	virtual ~Thread()
+	~Thread()
 	{
 		if (joinable())
 		{
@@ -161,15 +156,13 @@ private:
 	unsigned int m_ThreadId;
 };
 
-class Mutex: public HandleWrapper
+class Mutex: public waitable
 {
 public:
 	NONCOPYABLE(Mutex);
 	TRIVIALLY_MOVABLE(Mutex);
 
-	Mutex(const wchar_t* Name = nullptr): HandleWrapper(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
-
-	virtual ~Mutex() = default;
+	Mutex(const wchar_t* Name = nullptr): waitable(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
 
 	static const wchar_t *GetNamespace() { return L"Far_Manager_Mutex_"; }
 
@@ -178,7 +171,7 @@ public:
 	bool unlock() const { return ReleaseMutex(m_Handle.native_handle()) != FALSE; }
 };
 
-class Event: public HandleWrapper
+class Event: public waitable
 {
 public:
 	NONCOPYABLE(Event);
@@ -188,8 +181,7 @@ public:
 	enum event_state { nonsignaled, signaled };
 
 	Event() = default;
-	Event(event_type Type, event_state InitialState, const wchar_t* Name = nullptr): HandleWrapper(CreateEvent(nullptr, Type == manual, InitialState == signaled, EmptyToNull(Name))) {}
-	virtual ~Event() = default;
+	Event(event_type Type, event_state InitialState, const wchar_t* Name = nullptr): waitable(CreateEvent(nullptr, Type == manual, InitialState == signaled, EmptyToNull(Name))) {}
 
 	static const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }
 
@@ -209,48 +201,50 @@ private:
 	}
 };
 
-template<class T> class SyncedQueue: noncopyable {
-	std::queue<T> Queue;
-	CriticalSection csQueueAccess;
-
+template<class T> class SyncedQueue: noncopyable
+{
 public:
 	typedef T value_type;
 
-	bool Empty()
+	bool Empty() const
 	{
-		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
-		return Queue.empty();
+		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		return m_Queue.empty();
 	}
 
 	void Push(const T& item)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
-		Queue.push(item);
+		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		m_Queue.push(item);
 	}
 
 	void Push(T&& item)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
-		Queue.push(std::forward<T>(item));
+		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		m_Queue.push(std::forward<T>(item));
 	}
 
 	bool PopIfNotEmpty(T& To)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
-		if (!Queue.empty())
+		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		if (!m_Queue.empty())
 		{
-			To = std::move(Queue.front());
-			Queue.pop();
+			To = std::move(m_Queue.front());
+			m_Queue.pop();
 			return true;
 		}
 		return false;
 	}
 
-	size_t Size()
+	size_t Size() const
 	{
-		SCOPED_ACTION(CriticalSectionLock)(csQueueAccess);
-		return Queue.size();
+		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		return m_Queue.size();
 	}
+
+private:
+	std::queue<T> m_Queue;
+	mutable CriticalSection m_QueueCS;
 };
 
 class MultiWaiter: noncopyable
@@ -262,7 +256,7 @@ public:
 		wait_all
 	};
 	MultiWaiter() { Objects.reserve(10); }
-	void Add(const HandleWrapper& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.native_handle()); }
+	void Add(const waitable& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.native_handle()); }
 	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
 	void Clear() {Objects.clear();}

@@ -76,11 +76,11 @@ private:
 	codepages();
 
 	string& FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const;
-	inline size_t GetMenuItemCodePage(size_t Position = -1) const;
-	inline size_t GetListItemCodePage(size_t Position) const;
-	inline bool IsPositionStandard(UINT position) const;
-	inline bool IsPositionFavorite(UINT position) const;
-	inline bool IsPositionNormal(UINT position) const;
+	size_t GetMenuItemCodePage(size_t Position = -1) const;
+	size_t GetListItemCodePage(size_t Position) const;
+	bool IsPositionStandard(UINT position) const;
+	bool IsPositionFavorite(UINT position) const;
+	bool IsPositionNormal(UINT position) const;
 	string FormatCodePageString(uintptr_t CodePage, const string& CodePageName, bool IsCodePageNameCustom) const;
 	void AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom) const;
 	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position = -1, bool enabled = true) const;

@@ -61,14 +61,7 @@ enum
 	DRIVE_NOT_INIT              =255,
 };
 
-enum CHECKEDPROPS_TYPE
-{
-	CHECKEDPROPS_ISSAMEDISK,
-	CHECKEDPROPS_ISDST_ENCRYPTION,
-};
-
 bool IsDriveTypeRemote(UINT DriveType);
 os::drives_set FarGetLogicalDrives();
-int CheckDisksProps(const string& SrcPath, const string&DestPath, int CheckedType);
 
 #endif // DRIVEMIX_HPP_55D4E32D_1B01_4FDB_879E_E5CB54401677

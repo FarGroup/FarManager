@@ -55,6 +55,7 @@ struct conditional
 {
 	explicit operator bool() const
 	{
+		static_assert(std::is_base_of<conditional, T>::value, "T must be derived from conditional");
 		return !static_cast<const T&>(*this).operator!();
 	}
 };

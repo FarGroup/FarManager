@@ -153,26 +153,26 @@ bool native_plugin_factory::IsPlugin(const string& filename) const
 	return IsPlugin2(Data);
 }
 
-plugin_factory::plugin_instance native_plugin_factory::Create(const string& filename)
+plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& filename)
 {
-	auto Module = std::make_unique<os::rtdl::module>(filename.data(), true);
-	if (!*Module)
+	auto Module = std::make_unique<native_plugin_module>(filename);
+	if (!Module->m_Module)
 	{
 		Global->CatchError();
 		Module.reset();
 	}
-	return Module.release();
+	return Module;
 }
 
-bool native_plugin_factory::Destroy(plugin_factory::plugin_instance instance)
+bool native_plugin_factory::Destroy(plugin_factory::plugin_module_ptr& instance)
 {
-	delete static_cast<os::rtdl::module*>(instance);
+	instance.reset();
 	return true;
 }
 
-plugin_factory::function_address native_plugin_factory::GetFunction(plugin_factory::plugin_instance Instance, const plugin_factory::export_name& Name)
+plugin_factory::function_address native_plugin_factory::GetFunction(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
 {
-	return Name.AName? static_cast<os::rtdl::module*>(Instance)->GetProcAddress(Name.AName) : nullptr;
+	return Name.AName? static_cast<native_plugin_module*>(Instance.get())->m_Module.GetProcAddress(Name.AName) : nullptr;
 }
 
 bool native_plugin_factory::FindExport(const char* ExportName) const
@@ -238,6 +238,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 	}
 	catch (const SException&)
 	{
+		// TODO: log
 	}
 	return false;
 }
@@ -775,11 +776,11 @@ bool Plugin::IsPanelPlugin()
 
 bool Plugin::SetStartupInfo(PluginStartupInfo *Info)
 {
-	ExecuteStruct es = {iSetStartupInfo};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iSetStartupInfo> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iSetStartupInfo>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 
 		if (bPendingRemove)
 		{
@@ -791,11 +792,11 @@ bool Plugin::SetStartupInfo(PluginStartupInfo *Info)
 
 bool Plugin::GetGlobalInfo(GlobalInfo *gi)
 {
-	ExecuteStruct es = {iGetGlobalInfo};
-	if (has(es.id))
+	ExecuteStruct<iGetGlobalInfo> es;
+	if (has(es))
 	{
-		gi->Instance = m_Instance;
-		ExecuteFunction<iGetGlobalInfo>(es, gi);
+		gi->Instance = m_Instance.get();
+		ExecuteFunction(es, gi);
 		return !bPendingRemove;
 	}
 	return false;
@@ -846,241 +847,241 @@ void* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, siz
 
 void* Plugin::Analyse(AnalyseInfo *Info)
 {
-	ExecuteStruct es = {iAnalyse};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iAnalyse> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iAnalyse>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 {
-	ExecuteStruct es = {iCloseAnalyse};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iCloseAnalyse> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iCloseAnalyse>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 }
 
 void* Plugin::Open(OpenInfo* Info)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	ExecuteStruct es = {iOpen};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iOpen> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iOpen>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::SetFindList(SetFindListInfo* Info)
 {
-	ExecuteStruct es = {iSetFindList};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iSetFindList> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iSetFindList>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
 {
-	ExecuteStruct es = {iProcessEditorInput};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessEditorInput> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessEditorInput>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessEditorEvent};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessEditorEvent> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessEditorEvent>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessViewerEvent};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessViewerEvent> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessViewerEvent>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessDialogEvent};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessDialogEvent> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessDialogEvent>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessSynchroEvent};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessSynchroEvent> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessSynchroEvent>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
-	ExecuteStruct es = {iProcessConsoleInput};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessConsoleInput> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessConsoleInput>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 {
-	ExecuteStruct es = {iGetVirtualFindData};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetVirtualFindData> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iGetVirtualFindData>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 void Plugin::FreeVirtualFindData(FreeFindDataInfo* Info)
 {
-	ExecuteStruct es = {iFreeVirtualFindData};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iFreeVirtualFindData> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iFreeVirtualFindData>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 }
 
 int Plugin::GetFiles(GetFilesInfo* Info)
 {
-	ExecuteStruct es = {iGetFiles, -1};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetFiles> es(-1);
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iGetFiles>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::PutFiles(PutFilesInfo* Info)
 {
-	ExecuteStruct es = {iPutFiles, -1};
+	ExecuteStruct<iPutFiles> es(-1);
 
-	if (has(es.id) && !Global->ProcessException)
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iPutFiles>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::DeleteFiles(DeleteFilesInfo* Info)
 {
-	ExecuteStruct es = {iDeleteFiles};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iDeleteFiles> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iDeleteFiles>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::MakeDirectory(MakeDirectoryInfo* Info)
 {
-	ExecuteStruct es = {iMakeDirectory, -1};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iMakeDirectory> es(-1);
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iMakeDirectory>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
 {
-	ExecuteStruct es = {iProcessHostFile};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessHostFile> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessHostFile>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessPanelEvent};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessPanelEvent> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessPanelEvent>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::Compare(CompareInfo* Info)
 {
-	ExecuteStruct es = {iCompare, -2};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iCompare> es(-2);
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iCompare>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::GetFindData(GetFindDataInfo* Info)
 {
-	ExecuteStruct es = {iGetFindData};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetFindData> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iGetFindData>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 void Plugin::FreeFindData(FreeFindDataInfo* Info)
 {
-	ExecuteStruct es = {iFreeFindData};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iFreeFindData> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iFreeFindData>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 }
 
 int Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
 {
-	ExecuteStruct es = {iProcessPanelInput};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessPanelInput> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iProcessPanelInput>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
@@ -1088,44 +1089,44 @@ int Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
 
 void Plugin::ClosePanel(ClosePanelInfo* Info)
 {
-	ExecuteStruct es = {iClosePanel};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iClosePanel> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iClosePanel>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 }
 
 
 int Plugin::SetDirectory(SetDirectoryInfo* Info)
 {
-	ExecuteStruct es = {iSetDirectory};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iSetDirectory> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iSetDirectory>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 void Plugin::GetOpenPanelInfo(OpenPanelInfo* Info)
 {
-	ExecuteStruct es = {iGetOpenPanelInfo};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetOpenPanelInfo> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iGetOpenPanelInfo>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 }
 
 
 int Plugin::Configure(ConfigureInfo* Info)
 {
-	ExecuteStruct es = {iConfigure};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iConfigure> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iConfigure>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
@@ -1133,11 +1134,11 @@ int Plugin::Configure(ConfigureInfo* Info)
 
 bool Plugin::GetPluginInfo(PluginInfo* Info)
 {
-	ExecuteStruct es = {iGetPluginInfo};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetPluginInfo> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iGetPluginInfo>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 		if (!bPendingRemove)
 			return true;
 	}
@@ -1146,60 +1147,67 @@ bool Plugin::GetPluginInfo(PluginInfo* Info)
 
 int Plugin::GetContentFields(const GetContentFieldsInfo *Info)
 {
-	ExecuteStruct es = {iGetContentFields};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetContentFields> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		const_cast<GetContentFieldsInfo*>(Info)->Instance = m_Instance;
-		ExecuteFunction<iGetContentFields>(es, Info);
+		const_cast<GetContentFieldsInfo*>(Info)->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 int Plugin::GetContentData(GetContentDataInfo *Info)
 {
-	ExecuteStruct es = {iGetContentData};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetContentData> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iGetContentData>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 	return es;
 }
 
 void Plugin::FreeContentData(const GetContentDataInfo *Info)
 {
-	ExecuteStruct es = {iFreeContentData};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iFreeContentData> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		const_cast<GetContentDataInfo*>(Info)->Instance = m_Instance;
-		ExecuteFunction<iFreeContentData>(es, Info);
+		const_cast<GetContentDataInfo*>(Info)->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 }
 
 void Plugin::ExitFAR(ExitInfo *Info)
 {
-	ExecuteStruct es = {iExitFAR};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iExitFAR> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		Info->Instance = m_Instance;
-		ExecuteFunction<iExitFAR>(es, Info);
+		Info->Instance = m_Instance.get();
+		ExecuteFunction(es, Info);
 	}
 }
 
-void Plugin::HandleFailure(ExecuteStruct& es)
+void Plugin::HandleFailure(EXPORTS_ENUM id)
 {
-	m_Factory->GetOwner()->UnloadPlugin(this, es.id);
-	es.Result = es.Default;
+	m_Factory->GetOwner()->UnloadPlugin(this, id);
 	Global->ProcessException = FALSE;
 }
 
+class custom_plugin_module: public i_plugin_module
+{
+public:
+	NONCOPYABLE(custom_plugin_module);
+	custom_plugin_module(void* Opaque) : m_Opaque(Opaque) {}
+	void* m_Opaque;
+};
 
 class custom_plugin_factory: public plugin_factory
 {
 public:
+	NONCOPYABLE(custom_plugin_factory);
 	custom_plugin_factory(PluginManager* Owner, const string& Filename):
 		plugin_factory(Owner),
-		m_Module(Filename.data()),
+		m_Module(Filename),
 		m_Imports(m_Module),
 		m_Success(false)
 	{
@@ -1224,7 +1232,7 @@ public:
 			// TODO: notification
 			throw;
 		}
-	};
+	}
 
 	~custom_plugin_factory()
 	{
@@ -1258,11 +1266,11 @@ public:
 		}
 	}
 
-	virtual plugin_instance Create(const string& Filename) override
+	virtual plugin_module_ptr Create(const string& Filename) override
 	{
 		try
 		{
-			return m_Imports.pCreateInstance(Filename.data());
+			return std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
 		}
 		catch (const SException&)
 		{
@@ -1272,11 +1280,13 @@ public:
 		}
 	}
 
-	virtual bool Destroy(plugin_instance Module) override
+	virtual bool Destroy(plugin_module_ptr& Module) override
 	{
 		try
 		{
-			return m_Imports.pDestroyInstance(Module) != FALSE;
+			const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->m_Opaque) != FALSE;
+			Module.reset();
+			return Result;
 		}
 		catch (const SException&)
 		{
@@ -1286,11 +1296,11 @@ public:
 		}
 	}
 
-	virtual function_address GetFunction(plugin_instance Instance, const export_name& Name) override
+	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
 	{
 		try
 		{
-			return Name.UName? m_Imports.pGetFunctionAddress(static_cast<HANDLE>(Instance), Name.UName) : nullptr;
+			return Name.UName? m_Imports.pGetFunctionAddress(static_cast<HANDLE>(static_cast<custom_plugin_module*>(Instance.get())->m_Opaque), Name.UName) : nullptr;
 		}
 		catch (const SException&)
 		{

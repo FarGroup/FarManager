@@ -43,8 +43,9 @@ namespace detail
 		{
 		}
 
-		const std::string& get_message() const noexcept { return m_Message; }
-		const std::string& get_full_message() const noexcept { return m_FullMessage; }
+		const auto& get_message() const noexcept { return m_Message; }
+		const auto& get_full_message() const noexcept { return m_FullMessage; }
+
 	private:
 		std::string m_Message;
 		std::string m_FullMessage;
@@ -56,7 +57,7 @@ class far_exception: public detail::exception_impl, public std::runtime_error
 public:
 	far_exception(const std::string& Message, const char* Function, const char* File, int Line):
 		exception_impl(Message, Function, File, Line),
-		std::runtime_error(get_full_message().data())
+		std::runtime_error(get_full_message())
 	{
 	}
 };

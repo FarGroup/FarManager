@@ -834,7 +834,7 @@ static void ReadLines(os::fs::file& TreeFile, const std::function<void(string&)>
 }
 
 template<class string_type, class container_type, class opener_type>
-static inline void WriteTree(string_type& Name, const container_type& Container, const opener_type& Opener, size_t offset)
+static void WriteTree(string_type& Name, const container_type& Container, const opener_type& Opener, size_t offset)
 {
 	// получим и сразу сбросим атрибуты (если получится)
 	DWORD SavedAttributes = os::GetFileAttributes(Name);

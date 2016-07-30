@@ -106,8 +106,6 @@ struct FARConfigItem;
 class Option
 {
 public:
-	template<class T>
-	Option(const T& Value): m_Value(Value) {}
 	virtual ~Option() = default;
 
 	virtual string toString() const = 0;
@@ -123,7 +121,11 @@ public:
 
 protected:
 	template<class T>
+	Option(const T& Value): m_Value(Value) {}
+
+	template<class T>
 	const T& GetT() const { return any_cast<T>(m_Value); }
+
 	template<class T>
 	void SetT(const T& NewValue) { if (GetT<T>() != NewValue) m_Value = NewValue; }
 
@@ -138,29 +140,32 @@ private:
 	monitored<any> m_Value;
 };
 
-template<class base_type, class derived>
-class OptionImpl: public Option
+namespace detail
 {
-public:
-	typedef base_type underlying_type;
+	template<class base_type, class derived>
+	class OptionImpl: public Option
+	{
+	public:
+		typedef base_type underlying_type;
 
-	OptionImpl(): Option(base_type()) {}
-	OptionImpl(const base_type& Value): Option(Value) {}
-	OptionImpl(const derived& Value): Option(Value.Get()) {}
+		OptionImpl(): Option(base_type()) {}
+		OptionImpl(const base_type& Value): Option(Value) {}
+		OptionImpl(const derived& Value): Option(Value.Get()) {}
 
-	const base_type& Get() const { return GetT<base_type>(); }
-	void Set(const base_type& Value) { SetT(Value); }
+		const base_type& Get() const { return GetT<base_type>(); }
+		void Set(const base_type& Value) { SetT(Value); }
 
-	virtual bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
-	virtual void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
+		virtual bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
+		virtual void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
 
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
+		virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
+		virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 
-	//operator const base_type&() const { return Get(); }
-};
+		//operator const base_type&() const { return Get(); }
+	};
+}
 
-class BoolOption: public OptionImpl<bool, BoolOption>
+class BoolOption: public detail::OptionImpl<bool, BoolOption>
 {
 public:
 	using OptionImpl<bool, BoolOption>::OptionImpl;
@@ -178,7 +183,7 @@ public:
 	operator bool() const { return Get(); }
 };
 
-class Bool3Option: public OptionImpl<long long, Bool3Option>
+class Bool3Option: public detail::OptionImpl<long long, Bool3Option>
 {
 public:
 	using OptionImpl<long long, Bool3Option>::OptionImpl;
@@ -196,7 +201,7 @@ public:
 	operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
 };
 
-class IntOption: public OptionImpl<long long, IntOption>
+class IntOption: public detail::OptionImpl<long long, IntOption>
 {
 public:
 	using OptionImpl<long long, IntOption>::OptionImpl;
@@ -223,7 +228,7 @@ public:
 	operator long long() const { return Get(); }
 };
 
-class StringOption: public OptionImpl<string, StringOption>
+class StringOption: public detail::OptionImpl<string, StringOption>
 {
 public:
 	using OptionImpl<string, StringOption>::OptionImpl;

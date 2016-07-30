@@ -44,17 +44,17 @@ public:
 
 	monitored(T&& Value) noexcept: m_Value(std::move(Value)), m_Touched() {}
 
-	monitored& operator=(const T& Value) { m_Value = Value; m_Touched = true; return *this; }
-	monitored& operator=(const monitored& rhs) { m_Value = rhs.m_Value; m_Touched = true; return *this; }
+	auto& operator=(const T& Value) { m_Value = Value; m_Touched = true; return *this; }
+	auto& operator=(const monitored& rhs) { m_Value = rhs.m_Value; m_Touched = true; return *this; }
 
-	monitored& operator=(T&& Value) noexcept { m_Value = std::move(Value); m_Touched = true; return *this; }
+	auto& operator=(T&& Value) noexcept { m_Value = std::move(Value); m_Touched = true; return *this; }
 
-	T& value() { return m_Value; }
-	const T& value() const { return m_Value; }
+	auto& value() { return m_Value; }
+	const auto& value() const { return m_Value; }
 	operator T&() { return m_Value; }
 	operator const T&() const { return m_Value; }
 
-	bool touched() const noexcept { return m_Touched; }
+	auto touched() const noexcept { return m_Touched; }
 
 	void forget() noexcept { m_Touched = false; }
 

@@ -1699,7 +1699,7 @@ public:
 
 class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 {
-	static inline uint64_t DaysToUI64(int Days)
+	static uint64_t DaysToUI64(int Days)
 	{
 		return Days * 24ull * 60ull * 60ull * 10000000ull;
 	}

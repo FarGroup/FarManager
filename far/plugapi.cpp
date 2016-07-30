@@ -82,7 +82,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "viewer.hpp"
 #include "datetime.hpp"
 
-static inline Plugin* GuidToPlugin(const GUID* Id) { return (Id && Global->CtrlObject) ? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr; }
+static Plugin* GuidToPlugin(const GUID* Id)
+{
+	return Id && Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr;
+}
 
 static Panel* GetHostPanel(HANDLE Handle)
 {
@@ -1559,11 +1562,12 @@ static void ClearDirList(std::vector<PluginPanelItem>& Items)
 
 namespace magic
 {
-	static auto CastVectorToRawData(std::unique_ptr<std::vector<PluginPanelItem>>&& Items)
+	template<typename T>
+	static auto CastVectorToRawData(std::unique_ptr<std::vector<T>>&& Items)
 	{
-		std::tuple<PluginPanelItem*, size_t> Result;
+		std::tuple<T*, size_t> Result;
 		std::get<1>(Result) = Items->size();
-		PluginPanelItem Item;
+		T Item;
 		Item.Reserved[0] = reinterpret_cast<intptr_t>(Items.get());
 		Items->emplace_back(Item);
 		std::get<0>(Result) = Items->data();
@@ -1571,11 +1575,12 @@ namespace magic
 		return Result;
 	}
 
-	static auto CastRawDataToVector(PluginPanelItem* RawItems, size_t Size)
+	template<typename T>
+	static auto CastRawDataToVector(T* RawItems, size_t Size)
 	{
-		auto Items = reinterpret_cast<std::vector<PluginPanelItem>*>(RawItems[Size].Reserved[0]);
+		auto Items = reinterpret_cast<std::vector<T>*>(RawItems[Size].Reserved[0]);
 		Items->pop_back(); // not needed anymore
-		return std::unique_ptr<std::vector<PluginPanelItem>>(Items);
+		return std::unique_ptr<std::vector<T>>(Items);
 	}
 }
 

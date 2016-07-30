@@ -801,8 +801,6 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 int wmain(int Argc, wchar_t *Argv[])
 {
-	tracer Tracer;
-
 	try
 	{
 		atexit(PrintMemory);
@@ -815,7 +813,7 @@ int wmain(int Argc, wchar_t *Argv[])
 		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 		// Must be static - dependent static objects exist
-		static SCOPED_ACTION(os::co_initialize);
+		static SCOPED_ACTION(os::com::co_initialize);
 		return mainImpl(make_range(Argv + 1, Argv + Argc));
 	}
 	catch (const SException& e)

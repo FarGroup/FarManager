@@ -225,12 +225,12 @@ static int NumStrCmp_base(const wchar_t *s1, size_t n1, const wchar_t *s2, size_
 	return 0;
 }
 
-static inline int NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
+static auto NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 {
 	return NumStrCmp_base(s1, n1, s2, n2, StrCmpNC);
 }
 
-static inline int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase)
+static auto NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase)
 {
 	return NumStrCmp_base(s1, n1, s2, n2, IgnoreCase? StrCmpNI : StrCmpN);
 }

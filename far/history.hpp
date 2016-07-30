@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 
 class Dialog;
-class VMenu2;
 class HistoryConfig;
 
 enum history_type
@@ -84,7 +83,7 @@ public:
 	void GetPrev(string &strStr);
 	void GetNext(string &strStr);
 	bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
-	bool GetAllSimilar(VMenu2 &HistoryMenu,const string& Str) const;
+	std::vector<std::tuple<string, unsigned long long, bool>> GetAllSimilar(const string& Str) const;
 	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 	void ResetPosition() { m_CurrentItem = 0; }
 	bool DeleteIfUnlocked(unsigned __int64 id);

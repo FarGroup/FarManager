@@ -46,13 +46,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "sqlitedb.hpp"
 
-wchar_t* AbstractSettings::Add(const string& String)
+const wchar_t* AbstractSettings::Add(const string& String)
 {
-	const auto size = (String.size() + 1) * sizeof(wchar_t);
-	return static_cast<wchar_t*>(Add(String.data(), size));
+	return static_cast<const wchar_t*>(Add(String.data(), (String.size() + 1) * sizeof(wchar_t)));
 }
 
-void* AbstractSettings::Add(const void* Data, size_t Size)
+const void* AbstractSettings::Add(const void* Data, size_t Size)
 {
 	return memcpy(Allocate(Size), Data, Size);
 }

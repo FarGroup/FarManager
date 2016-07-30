@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // for_each with embedded counter
 template<class I, class F>
-inline F for_each_cnt(I First, I Last, F Func)
+F for_each_cnt(I First, I Last, F Func)
 {
 	for (size_t Cnt = 0; First != Last; ++First, ++Cnt)
 	{
@@ -45,7 +45,7 @@ inline F for_each_cnt(I First, I Last, F Func)
 }
 
 template<class T>
-inline void repeat(size_t count, const T& f)
+void repeat(size_t count, const T& f)
 {
 	for(size_t i = 0; i != count; ++i)
 	{

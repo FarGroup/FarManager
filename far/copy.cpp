@@ -1142,7 +1142,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 
 				if (Move) // при перемещении "тотал" так же скидывается для "того же диска"
 				{
-					if (CheckDisksProps(strSrcDir,strNameTmp,CHECKEDPROPS_ISSAMEDISK))
+					if (GetPathRoot(strSrcDir) == GetPathRoot(strNameTmp))
 						ShowTotalCopySize = false;
 					if (SelCount==1 && FolderPresent && CheckUpdateAnotherPanel(SrcPanel,strSelName))
 					{
@@ -1171,10 +1171,9 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				// собственно - один проход копирования
 				// Mantis#45: Необходимо привести копирование ссылок на папки с NTFS на FAT к более логичному виду
 				{
-					DWORD FileSystemFlags=0;
-					if (os::GetVolumeInformation(GetPathRoot(ConvertNameToFull(strNameTmp)), nullptr, nullptr, nullptr, &FileSystemFlags, nullptr))
-						if (!(FileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
-							Flags|=FCOPY_COPYSYMLINKCONTENTS;
+					DWORD FilesystemFlags;
+					if (os::GetVolumeInformation(GetPathRoot(strNameTmp), nullptr, nullptr, nullptr, &FilesystemFlags, nullptr) && !(FilesystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
+						Flags|=FCOPY_COPYSYMLINKCONTENTS;
 				}
 
 				const auto I = CopyFileTree(strNameTmp);
@@ -1382,7 +1381,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		}
 		if (move_rename && !copy_to_null && check_samedisk)
 		{
-			SameDisk = CheckDisksProps(src_abspath ? strSelName : SrcPanel->GetCurDir(), strDest, CHECKEDPROPS_ISSAMEDISK) != 0;
+			SameDisk = GetPathRoot(src_abspath? strSelName : SrcPanel->GetCurDir()) == GetPathRoot(strDest);
 		}
 
 		if (first && !copy_to_null && (dst_abspath || !src_abspath) && !UseWildCards
@@ -1588,11 +1587,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			  )
 		{
 			int SubCopyCode;
-			string strSubName;
 			string strFullName;
 			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
-			strSubName = strSelName;
-			strSubName += L"\\";
+			auto strSubName = strSelName + L"\\";
 
 			if (DestAttr==INVALID_FILE_ATTRIBUTES)
 				KeepPathPos=(int)strSubName.size();
@@ -2560,9 +2557,10 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 		}
 	}
 
+	DWORD FilesystemFlags;
 	if ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
-	        !CheckDisksProps(SrcName,strDestName,CHECKEDPROPS_ISDST_ENCRYPTION)
-	   )
+		os::GetVolumeInformation(GetPathRoot(strDestName), nullptr, nullptr, nullptr, &FilesystemFlags, nullptr) &&
+		!(FilesystemFlags & FILE_SUPPORTS_ENCRYPTION))
 	{
 		int MsgCode;
 
@@ -2678,16 +2676,13 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 
 		if (SrcData.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE)
 		{
-			DWORD VolFlags=0;
-			if(os::GetVolumeInformation(strDriveRoot,nullptr,nullptr,nullptr,&VolFlags,nullptr))
+			DWORD VolFlags;
+			if(os::GetVolumeInformation(strDriveRoot, nullptr, nullptr, nullptr, &VolFlags, nullptr) && VolFlags & FILE_SUPPORTS_SPARSE_FILES)
 			{
-				if(VolFlags&FILE_SUPPORTS_SPARSE_FILES)
+				DWORD Temp;
+				if (DestFile.IoControl(FSCTL_SET_SPARSE, nullptr, 0, nullptr, 0, &Temp))
 				{
-					DWORD Temp;
-					if (DestFile.IoControl(FSCTL_SET_SPARSE, nullptr, 0, nullptr, 0, &Temp))
-					{
-						CopySparse=true;
-					}
+					CopySparse=true;
 				}
 			}
 		}
@@ -3662,13 +3657,13 @@ bool ShellCopy::CalcTotalSize() const
 */
 bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 {
-	auto strRoot = GetPathRoot(ConvertNameToFull(Dest));
+	auto strRoot = GetPathRoot(Dest);
 	if (!os::fs::exists(strRoot))
 	{
 		return false;
 	}
 
-	DWORD FileSystemFlagsDst=0;
+	DWORD FileSystemFlagsDst;
 	int GetInfoSuccess=os::GetVolumeInformation(strRoot,nullptr,nullptr,nullptr,&FileSystemFlagsDst,nullptr);
 
 	if (GetInfoSuccess)

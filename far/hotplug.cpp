@@ -57,50 +57,50 @@ A device is considered a HotPlug device if the following are TRUE:
 - does NOT have Capability CM_DEVCAP_DOCKDEVICE
 */
 
-class dev_info:noncopyable
+namespace detail
 {
+	struct devinfo_handle_closer { void operator()(HDEVINFO Handle) const { SetupDiDestroyDeviceInfoList(Handle); } };
+}
+
+class dev_info: noncopyable, public conditional<dev_info>
+{
+	using devinfo_handle = os::detail::handle_t<detail::devinfo_handle_closer>;
+
 public:
-	dev_info():
-		m_info(INVALID_HANDLE_VALUE)
-	{}
-
-	~dev_info()
-	{
-		if (m_info != INVALID_HANDLE_VALUE)
-			SetupDiDestroyDeviceInfoList(m_info);
-	}
-
-	bool Create(DEVINST DevInst)
+	dev_info(DEVINST DevInst)
 	{
 		wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
 		if (CM_Get_Device_ID(DevInst, szDeviceID, static_cast<ULONG>(std::size(szDeviceID)), 0) == CR_SUCCESS)
 		{
-			m_id = szDeviceID;
-			m_info = SetupDiGetClassDevs(&GUID_DEVINTERFACE_VOLUME, m_id.data(), nullptr, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
+			m_info.reset(SetupDiGetClassDevs(&GUID_DEVINTERFACE_VOLUME, szDeviceID, nullptr, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT));
+			if (m_info)
+			{
+				m_id = szDeviceID;
+			}
 		}
-		// TODO: log if failed
-		return m_info != INVALID_HANDLE_VALUE;
 	}
+
+	bool operator!() const noexcept { return !m_info; }
 
 	bool OpenDeviceInfo(SP_DEVINFO_DATA& info_data) const
 	{
-		return SetupDiOpenDeviceInfo(m_info, m_id.data(), nullptr, 0, &info_data) != FALSE;
+		return SetupDiOpenDeviceInfo(m_info.native_handle(), m_id.data(), nullptr, 0, &info_data) != FALSE;
 	}
 
 	bool GetDeviceRegistryProperty(SP_DEVINFO_DATA& info_data, DWORD Property, PDWORD PropertyRegDataType, PBYTE PropertyBuffer, DWORD PropertyBufferSize, PDWORD RequiredSize) const
 	{
-		return SetupDiGetDeviceRegistryProperty(m_info, &info_data, Property, PropertyRegDataType, PropertyBuffer, PropertyBufferSize, RequiredSize) != FALSE;
+		return SetupDiGetDeviceRegistryProperty(m_info.native_handle(), &info_data, Property, PropertyRegDataType, PropertyBuffer, PropertyBufferSize, RequiredSize) != FALSE;
 	}
 
 	bool EnumDeviceInterfaces(const GUID& InterfaceClassGuid, DWORD MemberIndex, SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
 	{
-		return SetupDiEnumDeviceInterfaces(m_info, nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
+		return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
 
 	class device_interfaces: public enumerator<device_interfaces, SP_DEVICE_INTERFACE_DATA>
 	{
 	public:
-		device_interfaces(HDEVINFO& info, const GUID& InterfaceClassGuid):
+		device_interfaces(const devinfo_handle& info, const GUID& InterfaceClassGuid):
 			m_info(info),
 			m_InterfaceClassGuid(InterfaceClassGuid)
 		{}
@@ -108,11 +108,11 @@ public:
 		bool get(size_t index, value_type& value) const
 		{
 			value.cbSize = sizeof(value);
-			return SetupDiEnumDeviceInterfaces(m_info, nullptr, &m_InterfaceClassGuid, static_cast<int>(index), &value) != FALSE;
+			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &m_InterfaceClassGuid, static_cast<int>(index), &value) != FALSE;
 		}
 
 	private:
-		HDEVINFO& m_info;
+		const devinfo_handle& m_info;
 		const GUID& m_InterfaceClassGuid;
 	};
 
@@ -125,12 +125,12 @@ public:
 	{
 		string result;
 		DWORD RequiredSize = 0;
-		SetupDiGetDeviceInterfaceDetail(m_info, &DeviceInterfaceData, nullptr, 0, &RequiredSize, nullptr);
+		SetupDiGetDeviceInterfaceDetail(m_info.native_handle(), &DeviceInterfaceData, nullptr, 0, &RequiredSize, nullptr);
 		if(RequiredSize)
 		{
 			block_ptr<SP_DEVICE_INTERFACE_DETAIL_DATA> DData(RequiredSize);
 			DData->cbSize = sizeof(*DData);
-			if(SetupDiGetDeviceInterfaceDetail(m_info, &DeviceInterfaceData, DData.get(), RequiredSize, nullptr, nullptr))
+			if(SetupDiGetDeviceInterfaceDetail(m_info.native_handle(), &DeviceInterfaceData, DData.get(), RequiredSize, nullptr, nullptr))
 			{
 				result = DData->DevicePath;
 			}
@@ -139,7 +139,7 @@ public:
 	}
 
 private:
-	HDEVINFO m_info;
+	devinfo_handle m_info;
 	string m_id;
 };
 
@@ -149,8 +149,8 @@ static bool IsChildDeviceHotplug(DEVINST hDevInst)
 	DEVINST hDevChild;
 	if (CM_Get_Child(&hDevChild,hDevInst,0)==CR_SUCCESS)
 	{
-		dev_info Info;
-		if (Info.Create(hDevChild))
+		dev_info Info(hDevChild);
+		if (Info)
 		{
 			SP_DEVINFO_DATA DeviceInfoData = { sizeof(DeviceInfoData) };
 			if (Info.OpenDeviceInfo(DeviceInfoData))
@@ -169,8 +169,8 @@ static bool IsChildDeviceHotplug(DEVINST hDevInst)
 static bool IsDeviceHotplug(DEVINST hDevInst)
 {
 	bool Result = false;
-	dev_info Info;
-	if (Info.Create(hDevInst))
+	dev_info Info(hDevInst);
+	if (Info)
 	{
 		SP_DEVINFO_DATA DeviceInfoData = {sizeof(DeviceInfoData)};
 		if(Info.OpenDeviceInfo(DeviceInfoData))
@@ -214,11 +214,10 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 {
 	DWORD dwMask = 0;
-	dev_info Info;
-	if (Info.Create(hDevInst))
+	dev_info Info(hDevInst);
+	if (Info)
 	{
-		auto interfaces = Info.GetDeviceInterfaces(GUID_DEVINTERFACE_VOLUME);
-		std::for_each(RANGE(interfaces, i)
+		for (auto& i: Info.GetDeviceInterfaces(GUID_DEVINTERFACE_VOLUME))
 		{
 			auto strMountPoint = Info.GetDevicePath(i);
 			if (!strMountPoint.empty())
@@ -230,7 +229,7 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 					dwMask |= DriveMaskFromVolumeName(strVolumeName);
 				}
 			}
-		});
+		}
 	}
 	return dwMask;
 }
@@ -298,8 +297,8 @@ static os::drives_set GetDisksForDevice(DEVINST hDevInst)
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue, bool bSearchChild)
 {
 	bool Result = false;
-	dev_info Info;
-	if (Info.Create(hDevInst))
+	dev_info Info(hDevInst);
+	if (Info)
 	{
 		SP_DEVINFO_DATA DeviceInfoData = {sizeof(DeviceInfoData)};
 		if(Info.OpenDeviceInfo(DeviceInfoData))
@@ -453,7 +452,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 
 	SCOPED_ACTION(GuardLastError);
 	const auto Info = GetHotplugDevicesInfo();
-	const size_t DiskNumber = os::get_drive_number(Disk);
+	const auto DiskNumber = os::get_drive_number(Disk);
 	const auto ItemIterator = std::find_if(CONST_RANGE(Info, i) {return i.Disks[DiskNumber];});
 	return ItemIterator != Info.cend()? RemoveHotplugDevice(*ItemIterator, Flags) : -1;
 }

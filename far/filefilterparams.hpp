@@ -87,7 +87,7 @@ public:
 
 	void SetTitle(const string& Title);
 	void SetMask(bool Used, const string& Mask);
-	void SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
+	void SetDate(bool Used, enumFDateType DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
 	void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
 	void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
 	void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);

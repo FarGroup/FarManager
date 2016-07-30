@@ -320,10 +320,7 @@ static void PR_FarGetPluginDirListMsg()
 
 static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const PluginPanelItem *CurPanelItem, const string& strPluginSearchPath)
 {
-	string strFullName;
-	strFullName = strPluginSearchPath;
-	strFullName += CurPanelItem->FileName;
-
+	auto strFullName = strPluginSearchPath + CurPanelItem->FileName;
 	std::replace(ALL_RANGE(strFullName), L'\x1', L'\\');
 
 	PluginDirList.emplace_back(*CurPanelItem);
@@ -350,12 +347,9 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;
 	int AbortOp=FALSE;
-	string strDirName;
-	strDirName = strPluginSearchPath;
-
+	auto strDirName = strPluginSearchPath;
 	std::replace(ALL_RANGE(strDirName), L'\x1', L'\\');
 	DeleteEndSlash(strDirName);
-
 	TruncStr(strDirName,30);
 	CenterStr(strDirName,strDirName,30);
 
@@ -461,8 +455,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, st
 		SCOPED_ACTION(SaveScreen);
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PluginDirInfoPreRedrawItem>());
 		{
-			string strDirName;
-			strDirName = Dir;
+			auto strDirName = Dir;
 			TruncStr(strDirName,30);
 			CenterStr(strDirName,strDirName,30);
 			SetCursorType(false, 0);

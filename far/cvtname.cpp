@@ -432,8 +432,7 @@ string ConvertNameToUNC(const string& Object)
 	auto strFileName = ConvertNameToFull(Object);
 	// Посмотрим на тип файловой системы
 	string strFileSystemName;
-	if (!os::GetVolumeInformation(GetPathRoot(strFileName), nullptr, nullptr, nullptr, nullptr, &strFileSystemName))
-		strFileSystemName.clear();
+	os::GetVolumeInformation(GetPathRoot(strFileName), nullptr, nullptr, nullptr, nullptr, &strFileSystemName);
 
 	DWORD uniSize = 1024;
 	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);

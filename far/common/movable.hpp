@@ -1,12 +1,16 @@
-﻿#ifndef NULL_ITERATOR_HPP_18FC84FA_D7EE_47C4_9979_72EC06E57C37
-#define NULL_ITERATOR_HPP_18FC84FA_D7EE_47C4_9979_72EC06E57C37
+﻿#ifndef MOVABLE_HPP_A063CBC7_C7FC_470D_901E_620E0D6A2D51
+#define MOVABLE_HPP_A063CBC7_C7FC_470D_901E_620E0D6A2D51
 #pragma once
 
 /*
-null_iterator.hpp
+movable.hpp
+
+Helper class to set variable to default value after move,
+e. g. to use default move ctor/operator=, but skip any custom logic in dtor dependent on this variable
+
 */
 /*
-Copyright © 2014 Far Group
+Copyright © 2016 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,26 +36,32 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template <class T>
-class null_iterator_t: public std::iterator<std::forward_iterator_tag, T>
+template<typename T, T Default = T{}>
+class movable
 {
 public:
-	null_iterator_t(T* Data): m_Data(Data) {}
-	auto& operator++() { ++m_Data; return *this; }
-	auto operator++(int) { return null_iterator_t(m_Data++); }
-	auto& operator*() { return *m_Data; }
-	auto operator->() noexcept { return m_Data; }
-	auto& operator*() const { return *m_Data; }
-	auto operator->() const noexcept { return m_Data; }
-	static const auto& end() { static T Empty{}; static null_iterator_t Iter(&Empty); return Iter; }
-	bool operator==(const null_iterator_t& rhs) const { return (!*m_Data && !*rhs.m_Data) || m_Data == rhs.m_Data; }
-	bool operator!=(const null_iterator_t& rhs) const { return !(*this == rhs); }
+	movable(T Value): m_Value(Value){}
+	auto& operator=(T Value) { m_Value = Value; return *this; }
+
+	movable(const movable& rhs) { *this = rhs; }
+	auto& operator=(const movable& rhs) { m_Value = rhs.m_Value; return *this; }
+
+	movable(movable&& rhs) { *this = std::move(rhs); }
+	auto& operator=(movable&& rhs) { m_Value = rhs.m_Value; rhs.m_Value = Default; return *this; }
+
+	auto& operator*() const { return m_Value; }
+	auto& operator*() { return m_Value; }
 
 private:
-	T* m_Data;
+	T m_Value;
 };
 
-template <class T>
-auto null_iterator(T* Data) { return null_iterator_t<T>(Data); }
+namespace detail
+{
+	struct nop_deleter { void operator()(void*) const {} };
+}
 
-#endif // NULL_ITERATOR_HPP_18FC84FA_D7EE_47C4_9979_72EC06E57C37
+template<class T>
+using movalbe_ptr = std::unique_ptr<T, detail::nop_deleter>;
+
+#endif // MOVABLE_HPP_A063CBC7_C7FC_470D_901E_620E0D6A2D51

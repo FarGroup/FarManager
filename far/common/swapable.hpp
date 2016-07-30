@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<class T>
 struct swapable
 {
-	friend inline void swap(T& a, T& b) noexcept
+	friend void swap(T& a, T& b) noexcept
 	{
 		a.swap(b);
 	}

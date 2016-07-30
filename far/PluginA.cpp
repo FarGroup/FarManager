@@ -84,31 +84,40 @@ DECLARE_PLUGIN_FUNCTION(iProcessDialogEvent,  int    (WINAPI*)(int Event, void *
 namespace wrapper
 {
 
-static inline auto UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
+static auto UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
 {
 	return static_cast<int>(unicode::to(CP_OEMCP, src, wcslen(src) + 1, dst, lendst));
 }
 
 template<size_t N>
-static inline auto UnicodeToOEM(const wchar_t* src, char(&dst)[N])
+static auto UnicodeToOEM(const wchar_t* src, char(&dst)[N])
 {
 	return UnicodeToOEM(src, dst, N);
 }
 
-static inline auto OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
+static auto OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
 {
 	return static_cast<int>(unicode::from(CP_OEMCP, src, strlen(src) + 1, dst, lendst));
 }
 
 template<size_t N>
-static inline auto OEMToUnicode(const char* src, wchar_t(&dst)[N])
+static auto OEMToUnicode(const char* src, wchar_t(&dst)[N])
 {
 	return OEMToUnicode(src, dst, N);
 }
 
+
+class oem_plugin_module: public native_plugin_module
+{
+public:
+	NONCOPYABLE(oem_plugin_module);
+	using native_plugin_module::native_plugin_module;
+};
+
 class oem_plugin_factory: public native_plugin_factory
 {
 public:
+	NONCOPYABLE(oem_plugin_factory);
 	oem_plugin_factory(PluginManager* Owner):
 		native_plugin_factory(Owner)
 	{
@@ -187,9 +196,9 @@ plugin_factory_ptr CreateOemPluginFactory(PluginManager* Owner)
 	return std::make_unique<oem_plugin_factory>(Owner);
 }
 
-static inline int IsSpaceA(int x) { return x==' '  || x=='\t'; }
-static inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
-static inline int IsSlashA(int x) { return x=='\\' || x=='/'; }
+static int IsSpaceA(int x) { return x==' '  || x=='\t'; }
+static int IsEolA(int x)   { return x=='\r' || x=='\n'; }
+static int IsSlashA(int x) { return x=='\\' || x=='/'; }
 
 static unsigned char LowerToUpper[256];
 static unsigned char UpperToLower[256];
@@ -781,7 +790,7 @@ static char *InsertQuoteA(char *Str)
 	return Str;
 }
 
-static inline auto GetPluginGuid(intptr_t n) { return &reinterpret_cast<Plugin*>(n)->GetGUID(); }
+static auto GetPluginGuid(intptr_t n) { return &reinterpret_cast<Plugin*>(n)->GetGUID(); }
 
 struct DialogData
 {
@@ -2269,18 +2278,18 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir, const char *Mask, ol
 		FAR_SEARCH_A_CALLBACK_PARAM CallbackParam;
 		CallbackParam.Func = Func;
 		CallbackParam.Param = Param;
-		int newFlags = 0;
 
-		if (Flags&oldfar::FRS_RETUPDIR)
-			newFlags |= FRS_RETUPDIR;
+		static const std::pair<oldfar::FRSMODE, FRSMODE> FlagsMap[] =
+		{
+			OLDFAR_TO_FAR_MAP(FRS_RETUPDIR),
+			OLDFAR_TO_FAR_MAP(FRS_RECUR),
+			OLDFAR_TO_FAR_MAP(FRS_SCANSYMLINK),
+		};
 
-		if (Flags&oldfar::FRS_RECUR)
-			newFlags |= FRS_RECUR;
+		auto NewFlags = FRS_NONE;
+		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
-		if (Flags&oldfar::FRS_SCANSYMLINK)
-			newFlags |= FRS_SCANSYMLINK;
-
-		NativeFSF.FarRecursiveSearch(wide(InitDir).data(), wide(Mask).data(), FarRecursiveSearchA_Callback, newFlags, static_cast<void *>(&CallbackParam));
+		NativeFSF.FarRecursiveSearch(wide(InitDir).data(), wide(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, static_cast<void *>(&CallbackParam));
 	}
 	catch (...)
 	{
@@ -2293,10 +2302,10 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 {
 	try
 	{
-		string strD = os::env::expand_strings(wide(src));
-		DWORD len = (DWORD)std::min(strD.size(), size - 1);
+		const auto strD = os::env::expand_strings(wide(src));
+		const auto len = std::min(strD.size(), size - 1);
 		UnicodeToOEM(strD.data(), dest, len + 1);
-		return len;
+		return static_cast<DWORD>(len);
 	}
 	catch (...)
 	{
@@ -2348,7 +2357,7 @@ static void WINAPI FarTextA(int X, int Y, int ConColor, const char *Str) noexcep
 {
 	try
 	{
-		FarColor Color = colors::ConsoleColorToFarColor(ConColor);
+		const auto Color = colors::ConsoleColorToFarColor(ConColor);
 		return NativeInfo.Text(X, Y, &Color, Str ? wide(Str).data() : nullptr);
 	}
 	catch (...)
@@ -5104,6 +5113,21 @@ PluginA::~PluginA()
 	FreeOpenPanelInfo();
 }
 
+void PluginA::Prologue()
+{
+	Plugin::Prologue();
+	SetFileApisToOEM();
+	++OEMApiCnt;
+}
+
+void PluginA::Epilogue()
+{
+	--OEMApiCnt;
+	if (!OEMApiCnt)
+		SetFileApisToANSI();
+	Plugin::Epilogue();
+}
+
 static oldfar::FarStandardFunctions StandardFunctions =
 {
 	sizeof(StandardFunctions),
@@ -5258,8 +5282,8 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 
 bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 {
-	ExecuteStruct es = {iSetStartupInfo};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iSetStartupInfo> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		auto InfoCopy = StartupInfo;
 		auto FsfCopy = StandardFunctions;
@@ -5274,7 +5298,7 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 		else
 			os::env::set_variable(L"FARUSER", Global->strRegUser);
 
-		ExecuteFunction<iSetStartupInfo>(es, &InfoCopy);
+		ExecuteFunction(es, &InfoCopy);
 
 		if (bPendingRemove)
 		{
@@ -5286,10 +5310,10 @@ bool PluginA::SetStartupInfo(PluginStartupInfo* Info)
 
 bool PluginA::CheckMinFarVersion()
 {
-	ExecuteStruct es = {iGetMinFarVersion};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetMinFarVersion> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		ExecuteFunction<iGetMinFarVersion>(es);
+		ExecuteFunction(es);
 		if (bPendingRemove)
 		{
 			return false;
@@ -5313,9 +5337,9 @@ void* PluginA::Open(OpenInfo* Info)
 
 	CheckScreenLock();
 
-	ExecuteStruct es = {iOpen};
+	ExecuteStruct<iOpen> es;
 
-	if (Load() && has(es.id) && !Global->ProcessException)
+	if (Load() && has(es) && !Global->ProcessException)
 	{
 		std::unique_ptr<char[]> Buffer;
 		intptr_t Ptr = 0;
@@ -5393,7 +5417,7 @@ void* PluginA::Open(OpenInfo* Info)
 			break;
 		}
 
-		ExecuteFunction<iOpen>(es, OpenFromA, Ptr);
+		ExecuteFunction(es, OpenFromA, Ptr);
 	}
 
 	return TranslateResult(es);
@@ -5401,23 +5425,23 @@ void* PluginA::Open(OpenInfo* Info)
 
 void* PluginA::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
 {
-	ExecuteStruct es = {iOpenFilePlugin};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iOpenFilePlugin> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
 		std::unique_ptr<char[]> NameA(Name? UnicodeToAnsi(Name) : nullptr);
-		ExecuteFunction<iOpenFilePlugin>(es, NameA.get(), Data, static_cast<int>(DataSize));
+		ExecuteFunction(es, NameA.get(), Data, static_cast<int>(DataSize));
 	}
 	return TranslateResult(es);
 }
 
 int PluginA::SetFindList(SetFindListInfo* Info)
 {
-	ExecuteStruct es = {iSetFindList};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iSetFindList> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(Info->PanelItem, PanelItemA, Info->ItemsNumber);
-		ExecuteFunction<iSetFindList>(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber));
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber));
 		FreePanelItemA(PanelItemA, Info->ItemsNumber);
 	}
 	return es;
@@ -5425,8 +5449,8 @@ int PluginA::SetFindList(SetFindListInfo* Info)
 
 int PluginA::ProcessEditorInput(ProcessEditorInputInfo* Info)
 {
-	ExecuteStruct es = {iProcessEditorInput};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessEditorInput> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
 		const INPUT_RECORD *Ptr = &Info->Rec;
 		INPUT_RECORD OemRecord;
@@ -5436,15 +5460,15 @@ int PluginA::ProcessEditorInput(ProcessEditorInputInfo* Info)
 			CharToOemBuff(&Info->Rec.Event.KeyEvent.uChar.UnicodeChar,&OemRecord.Event.KeyEvent.uChar.AsciiChar,1);
 			Ptr=&OemRecord;
 		}
-		ExecuteFunction<iProcessEditorInput>(es, Ptr);
+		ExecuteFunction(es, Ptr);
 	}
 	return es;
 }
 
 int PluginA::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessEditorEvent};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessEditorEvent> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
 		switch(Info->Event)
 		{
@@ -5455,7 +5479,7 @@ int PluginA::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 			case EE_READ:
 			case EE_SAVE:
 			case EE_REDRAW:
-				ExecuteFunction<iProcessEditorEvent>(es, Info->Event, Info->Param);
+				ExecuteFunction(es, Info->Event, Info->Param);
 				break;
 		}
 	}
@@ -5464,8 +5488,8 @@ int PluginA::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 
 int PluginA::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessViewerEvent};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessViewerEvent> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
 		switch(Info->Event)
 		{
@@ -5474,7 +5498,7 @@ int PluginA::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 			case VE_KILLFOCUS:
 				Info->Param = &Info->ViewerID;
 			case VE_READ:
-				ExecuteFunction<iProcessViewerEvent>(es, Info->Event, Info->Param);
+				ExecuteFunction(es, Info->Event, Info->Param);
 				break;
 		}
 	}
@@ -5483,25 +5507,25 @@ int PluginA::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 
 int PluginA::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessDialogEvent};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessDialogEvent> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		ExecuteFunction<iProcessDialogEvent>(es, Info->Event, Info->Param);
+		ExecuteFunction(es, Info->Event, Info->Param);
 	}
 	return es;
 }
 
 int PluginA::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 {
-	ExecuteStruct es = {iGetVirtualFindData};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetVirtualFindData> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		pVFDPanelItemA = nullptr;
 		size_t Size = wcslen(Info->Path) + 1;
 		char_ptr PathA(Size);
 		UnicodeToOEM(Info->Path, PathA.get(), Size);
 		int ItemsNumber = 0;
-		ExecuteFunction<iGetVirtualFindData>(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());
+		ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());
 		Info->ItemsNumber = ItemsNumber;
 
 		if (es && ItemsNumber)
@@ -5517,24 +5541,24 @@ void PluginA::FreeVirtualFindData(FreeFindDataInfo* Info)
 {
 	FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
-	ExecuteStruct es = {iFreeVirtualFindData};
-	if (has(es.id) && !Global->ProcessException && pVFDPanelItemA)
+	ExecuteStruct<iFreeVirtualFindData> es;
+	if (has(es) && !Global->ProcessException && pVFDPanelItemA)
 	{
-		ExecuteFunction<iFreeVirtualFindData>(es, Info->hPanel, pVFDPanelItemA, static_cast<int>(Info->ItemsNumber));
+		ExecuteFunction(es, Info->hPanel, pVFDPanelItemA, static_cast<int>(Info->ItemsNumber));
 		pVFDPanelItemA = nullptr;
 	}
 }
 
 int PluginA::GetFiles(GetFilesInfo* Info)
 {
-	ExecuteStruct es = {iGetFiles, -1};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetFiles> es(-1);
+	if (has(es) && !Global->ProcessException)
 	{
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(Info->PanelItem, PanelItemA, Info->ItemsNumber);
 		char DestA[oldfar::NM];
 		UnicodeToOEM(Info->DestPath, DestA);
-		ExecuteFunction<iGetFiles>(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, Info->OpMode);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, Info->OpMode);
 		static wchar_t DestW[oldfar::NM];
 		OEMToUnicode(DestA, DestW);
 		Info->DestPath=DestW;
@@ -5545,12 +5569,12 @@ int PluginA::GetFiles(GetFilesInfo* Info)
 
 int PluginA::PutFiles(PutFilesInfo* Info)
 {
-	ExecuteStruct es = {iPutFiles, -1};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iPutFiles> es(-1);
+	if (has(es) && !Global->ProcessException)
 	{
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(Info->PanelItem, PanelItemA, Info->ItemsNumber);
-		ExecuteFunction<iPutFiles>(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, Info->OpMode);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, Info->OpMode);
 		FreePanelItemA(PanelItemA, Info->ItemsNumber);
 	}
 	return es;
@@ -5558,12 +5582,12 @@ int PluginA::PutFiles(PutFilesInfo* Info)
 
 int PluginA::DeleteFiles(DeleteFilesInfo* Info)
 {
-	ExecuteStruct es = {iDeleteFiles};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iDeleteFiles> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(Info->PanelItem, PanelItemA, Info->ItemsNumber);
-		ExecuteFunction<iDeleteFiles>(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->OpMode);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->OpMode);
 		FreePanelItemA(PanelItemA, Info->ItemsNumber);
 	}
 	return es;
@@ -5571,12 +5595,12 @@ int PluginA::DeleteFiles(DeleteFilesInfo* Info)
 
 int PluginA::MakeDirectory(MakeDirectoryInfo* Info)
 {
-	ExecuteStruct es = {iMakeDirectory, -1};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iMakeDirectory> es(-1);
+	if (has(es) && !Global->ProcessException)
 	{
 		char NameA[oldfar::NM];
 		UnicodeToOEM(Info->Name, NameA);
-		ExecuteFunction<iMakeDirectory>(es, Info->hPanel, NameA, Info->OpMode);
+		ExecuteFunction(es, Info->hPanel, NameA, Info->OpMode);
 		static wchar_t NameW[oldfar::NM];
 		OEMToUnicode(NameA, NameW);
 		Info->Name=NameW;
@@ -5586,12 +5610,12 @@ int PluginA::MakeDirectory(MakeDirectoryInfo* Info)
 
 int PluginA::ProcessHostFile(ProcessHostFileInfo* Info)
 {
-	ExecuteStruct es = {iProcessHostFile};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessHostFile> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(Info->PanelItem, PanelItemA, Info->ItemsNumber);
-		ExecuteFunction<iProcessHostFile>(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->OpMode);
+		ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->OpMode);
 		FreePanelItemA(PanelItemA, Info->ItemsNumber);
 	}
 	return es;
@@ -5599,15 +5623,15 @@ int PluginA::ProcessHostFile(ProcessHostFileInfo* Info)
 
 int PluginA::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 {
-	ExecuteStruct es = {iProcessPanelEvent};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessPanelEvent> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		PVOID ParamA = Info->Param;
 
 		if (Info->Param && (Info->Event == FE_COMMAND || Info->Event == FE_CHANGEVIEWMODE))
 			ParamA = UnicodeToAnsi((const wchar_t *)Info->Param);
 
-		ExecuteFunction<iProcessPanelEvent>(es, Info->hPanel, Info->Event, ParamA);
+		ExecuteFunction(es, Info->hPanel, Info->Event, ParamA);
 
 		if (ParamA && (Info->Event == FE_COMMAND || Info->Event == FE_CHANGEVIEWMODE))
 			delete[] static_cast<char*>(ParamA);
@@ -5617,14 +5641,14 @@ int PluginA::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 
 int PluginA::Compare(CompareInfo* Info)
 {
-	ExecuteStruct es = {iCompare, -2};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iCompare> es(-2);
+	if (has(es) && !Global->ProcessException)
 	{
 		oldfar::PluginPanelItem *Item1A = nullptr;
 		oldfar::PluginPanelItem *Item2A = nullptr;
 		ConvertPanelItemsArrayToAnsi(Info->Item1, Item1A, 1);
 		ConvertPanelItemsArrayToAnsi(Info->Item2, Item2A, 1);
-		ExecuteFunction<iCompare>(es, Info->hPanel, Item1A, Item2A, Info->Mode);
+		ExecuteFunction(es, Info->hPanel, Item1A, Item2A, Info->Mode);
 		FreePanelItemA(Item1A,1);
 		FreePanelItemA(Item2A,1);
 	}
@@ -5633,13 +5657,13 @@ int PluginA::Compare(CompareInfo* Info)
 
 int PluginA::GetFindData(GetFindDataInfo* Info)
 {
-	ExecuteStruct es = {iGetFindData};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetFindData> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		pFDPanelItemA = nullptr;
 		int ItemsNumber = 0;
 		//BUGBUG, translate OpMode
-		ExecuteFunction<iGetFindData>(es, Info->hPanel, &pFDPanelItemA, &ItemsNumber, Info->OpMode);
+		ExecuteFunction(es, Info->hPanel, &pFDPanelItemA, &ItemsNumber, Info->OpMode);
 
 		Info->ItemsNumber = ItemsNumber;
 		if (es && ItemsNumber)
@@ -5654,18 +5678,18 @@ void PluginA::FreeFindData(FreeFindDataInfo* Info)
 {
 	FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
-	ExecuteStruct es = {iFreeFindData};
-	if (has(es.id) && !Global->ProcessException && pFDPanelItemA)
+	ExecuteStruct<iFreeFindData> es;
+	if (has(es) && !Global->ProcessException && pFDPanelItemA)
 	{
-		ExecuteFunction<iFreeFindData>(es, Info->hPanel, pFDPanelItemA, static_cast<int>(Info->ItemsNumber));
+		ExecuteFunction(es, Info->hPanel, pFDPanelItemA, static_cast<int>(Info->ItemsNumber));
 		pFDPanelItemA = nullptr;
 	}
 }
 
 int PluginA::ProcessPanelInput(ProcessPanelInputInfo* Info)
 {
-	ExecuteStruct es = {iProcessPanelInput};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iProcessPanelInput> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		int VirtKey;
 		int dwControlState;
@@ -5680,28 +5704,28 @@ int PluginA::ProcessPanelInput(ProcessPanelInputInfo* Info)
 		if (dwControlState&PKF_RCONTROL)
 			dwControlState = (dwControlState & (~PKF_RCONTROL)) | PKF_CONTROL;
 
-		ExecuteFunction<iProcessPanelInput>(es, Info->hPanel, VirtKey|(Prepocess?PKF_PREPROCESS:0), dwControlState);
+		ExecuteFunction(es, Info->hPanel, VirtKey|(Prepocess?PKF_PREPROCESS:0), dwControlState);
 	}
 	return es;
 }
 
 void PluginA::ClosePanel(ClosePanelInfo* Info)
 {
-	ExecuteStruct es = {iClosePanel};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iClosePanel> es;
+	if (has(es) && !Global->ProcessException)
 	{
-		ExecuteFunction<iClosePanel>(es, Info->hPanel);
+		ExecuteFunction(es, Info->hPanel);
 	}
 	FreeOpenPanelInfo();
 }
 
 int PluginA::SetDirectory(SetDirectoryInfo* Info)
 {
-	ExecuteStruct es = {iSetDirectory};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iSetDirectory> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		char *DirA = UnicodeToAnsi(Info->Dir);
-		ExecuteFunction<iSetDirectory>(es, Info->hPanel, DirA, Info->OpMode);
+		ExecuteFunction(es, Info->hPanel, DirA, Info->OpMode);
 		delete[] DirA;
 	}
 	return es;
@@ -5839,21 +5863,21 @@ void PluginA::GetOpenPanelInfo(OpenPanelInfo *pInfo)
 {
 	pInfo->StructSize = sizeof(OpenPanelInfo);
 
-	ExecuteStruct es = {iGetOpenPanelInfo};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetOpenPanelInfo> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		oldfar::OpenPanelInfo InfoA={};
-		ExecuteFunction<iGetOpenPanelInfo>(es, pInfo->hPanel, &InfoA);
+		ExecuteFunction(es, pInfo->hPanel, &InfoA);
 		ConvertOpenPanelInfo(InfoA,pInfo);
 	}
 }
 
 int PluginA::Configure(ConfigureInfo* Info)
 {
-	ExecuteStruct es = {iConfigure};
-	if (Load() && has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iConfigure> es;
+	if (Load() && has(es) && !Global->ProcessException)
 	{
-		ExecuteFunction<iConfigure>(es, Info->Guid->Data1);
+		ExecuteFunction(es, Info->Guid->Data1);
 	}
 	return es;
 }
@@ -5936,11 +5960,11 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 {
 	ClearStruct(*pi);
 
-	ExecuteStruct es = {iGetPluginInfo};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iGetPluginInfo> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		oldfar::PluginInfo InfoA={sizeof(InfoA)};
-		ExecuteFunction<iGetPluginInfo>(es, &InfoA);
+		ExecuteFunction(es, &InfoA);
 
 		if (!bPendingRemove)
 		{
@@ -5954,11 +5978,11 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 
 void PluginA::ExitFAR(ExitInfo *Info)
 {
-	ExecuteStruct es = {iExitFAR};
-	if (has(es.id) && !Global->ProcessException)
+	ExecuteStruct<iExitFAR> es;
+	if (has(es) && !Global->ProcessException)
 	{
 		// ExitInfo ignored for ansi plugins
-		ExecuteFunction<iExitFAR>(es);
+		ExecuteFunction(es);
 	}
 }
 

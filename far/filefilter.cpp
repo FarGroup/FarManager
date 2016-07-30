@@ -764,7 +764,7 @@ void FileFilter::InitFilter()
 		cfg->GetValue(key, L"DateType", DateType);
 		unsigned __int64 RelativeDate = 0;
 		cfg->GetValue(key, L"RelativeDate", RelativeDate);
-		NewItem.SetDate(UseDate != 0, (DWORD)DateType, DateAfter, DateBefore, RelativeDate != 0);
+		NewItem.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateAfter, DateBefore, RelativeDate != 0);
 
 		strSizeAbove.clear();
 		cfg->GetValue(key,L"SizeAboveS",strSizeAbove);

@@ -120,7 +120,7 @@ cp_map::value_type::second_type GetCodePageInfo(UINT cp)
 	return found->second;
 }
 
-static inline bool IsValid(UINT cp)
+static bool IsValid(UINT cp)
 {
 	if (cp==CP_ACP || cp==CP_OEMCP || cp==CP_MACCP || cp==CP_THREAD_ACP || cp==CP_SYMBOL)
 		return false;
@@ -650,7 +650,7 @@ unfinished:
 	return nw;
 }
 
-static inline int Utf8_GetChar(const char *src, size_t U_length, wchar_t* wc)
+static int Utf8_GetChar(const char *src, size_t U_length, wchar_t* wc)
 {
 	// BUGBUG
 	int length = static_cast<int>(U_length);

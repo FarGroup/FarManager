@@ -392,7 +392,7 @@ static bool ToDouble(__int64 v, double *d)
 	return false;
 }
 
-inline const wchar_t* GetMacroLanguage(FARKEYMACROFLAGS Flags)
+static const wchar_t* GetMacroLanguage(FARKEYMACROFLAGS Flags)
 {
 	switch(Flags & KMFLAGS_LANGMASK)
 	{
@@ -434,13 +434,13 @@ int KeyMacro::IsDisableOutput()
 	return MacroPluginOp(2.0,false,&Ret) ? Ret.ReturnType : 0;
 }
 
-static inline DWORD SetHistoryDisableMask(DWORD Mask)
+static DWORD SetHistoryDisableMask(DWORD Mask)
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(3.0,(double)Mask,&Ret) ? Ret.ReturnType : 0;
 }
 
-static inline DWORD GetHistoryDisableMask()
+static DWORD GetHistoryDisableMask()
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(3.0,false,&Ret) ? Ret.ReturnType : 0;
@@ -458,7 +458,7 @@ static bool IsTopMacroOutputDisabled()
 	return MacroPluginOp(5.0,false,&Ret) ? !!Ret.ReturnType : false;
 }
 
-static inline bool IsPostMacroEnabled()
+static bool IsPostMacroEnabled()
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(6.0,false,&Ret) && Ret.ReturnType==1;
@@ -477,7 +477,7 @@ static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 	return CallMacroPlugin(&info);
 }
 
-static inline panel_ptr TypeToPanel(int Type)
+static panel_ptr TypeToPanel(int Type)
 {
 	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	const auto PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
@@ -1427,7 +1427,7 @@ static int PassString (const wchar_t *str, FarMacroCall* Data)
 	return 1;
 }
 
-static inline int PassString(const string& str, FarMacroCall* Data)
+static int PassString(const string& str, FarMacroCall* Data)
 {
 	return PassString(str.data(), Data);
 }
@@ -2386,13 +2386,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		{
 			auto Params = parseParams(3, Data);
 			__int64 Result=-1;
-			__int64 tmpMode=0;
 			__int64 tmpDir=0;
 
 			if (CheckCode == MCODE_F_MENU_SELECT)
 				tmpDir=Params[2].asInteger();
 
-			tmpMode=Params[1].asInteger();
+			__int64 tmpMode=Params[1].asInteger();
 
 			if (CheckCode == MCODE_F_MENU_SELECT)
 				tmpMode |= (tmpDir << 8);
@@ -5001,10 +5000,9 @@ static bool pluginexistFunc(FarMacroCall* Data)
 static bool pluginloadFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
-	TVar Ret(0ll);
 	TVar& ForceLoad(Params[1]);
 	const auto& DllPath = Params[0].asString();
-	Ret = pluginapi::apiPluginsControl(nullptr, !ForceLoad.asInteger()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, const_cast<wchar_t*>(DllPath.data()));
+	TVar Ret(pluginapi::apiPluginsControl(nullptr, !ForceLoad.asInteger()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, const_cast<wchar_t*>(DllPath.data())));
 	PassValue(Ret, Data);
 	return Ret.asInteger()!=0;
 }

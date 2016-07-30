@@ -85,7 +85,7 @@ struct DlgUserControl
 /*
    Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"
 */
-static inline bool CanGetFocus(int Type)
+static bool CanGetFocus(int Type)
 {
 	switch (Type)
 	{

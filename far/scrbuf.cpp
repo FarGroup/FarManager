@@ -55,7 +55,7 @@ enum
 // #define DIRECT_SCREEN_OUT
 //#endif
 
-static inline bool is_visible(int X1, int Y1, int X2, int Y2)
+static bool is_visible(int X1, int Y1, int X2, int Y2)
 {
 	return X1 <= ScrX && Y1 <= ScrY && X2 >= 0 && Y2 >= 0;
 }

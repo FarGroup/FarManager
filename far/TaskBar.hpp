@@ -1,6 +1,7 @@
 ﻿#ifndef TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
 #define TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
 #pragma once
+#include "farwinapi.hpp"
 
 /*
 TaskBar.hpp
@@ -37,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class taskbar: noncopyable
 {
 public:
-	~taskbar();
 	TBPFLAG GetProgressState() const;
 	void SetProgressState(TBPFLAG tbpFlags);
 	void SetProgressValue(UINT64 Completed, UINT64 Total);
@@ -50,7 +50,7 @@ private:
 
 	TBPFLAG State;
 
-	ITaskbarList3* pTaskbarList;
+	os::com::ptr<ITaskbarList3> mTaskbarList;
 };
 
 taskbar& Taskbar();

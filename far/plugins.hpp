@@ -95,7 +95,7 @@ public:
 
 	// API functions
 	PluginHandle* Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
-	PluginHandle* OpenFilePlugin(const string* Name, int OpMode, OPENFILEPLUGINTYPE Type);
+	PluginHandle* OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type);
 	PluginHandle* OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
 	static void ClosePanel(PluginHandle* hPlugin);
 	static void GetOpenPanelInfo(PluginHandle* hPlugin, OpenPanelInfo *Info);
@@ -158,7 +158,7 @@ public:
 	Plugin *FindPlugin(const GUID& SysID) const;
 
 #ifndef NO_WRAPPER
-	size_t OemPluginsPresent() const { return OemPluginsCount > 0; }
+	bool OemPluginsPresent() const { return OemPluginsCount > 0; }
 #endif // NO_WRAPPER
 	bool IsPluginsLoaded() const { return m_PluginsLoaded; }
 	void Configure(int StartPos=0);
@@ -181,7 +181,7 @@ public:
 private:
 	friend class Plugin;
 
-	void LoadModels();
+	void LoadFactories();
 	void LoadIfCacheAbsent() const;
 	Plugin* LoadPlugin(const string& ModuleName, const os::FAR_FIND_DATA &FindData, bool LoadToMem);
 	Plugin* AddPlugin(std::unique_ptr<Plugin>&& pPlugin);

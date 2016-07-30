@@ -1630,7 +1630,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								Global->DisablePluginsOutput=TRUE;
 								{
 									SCOPED_ACTION(CriticalSectionLock)(PluginCS);
-									FindItem->Arc->hPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, 0, OFP_SEARCH);
+									FindItem->Arc->hPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, OPM_NONE, OFP_SEARCH);
 								}
 								Global->DisablePluginsOutput=SavePluginsOutput;
 

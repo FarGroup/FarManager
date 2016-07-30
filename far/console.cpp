@@ -529,7 +529,7 @@ virtual bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLe
 
 virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const override
 {
-	std::unordered_map<string, std::unordered_map<string, string>> Result;
+	FN_RETURN_TYPE(console::GetAllAliases) Result;
 	if (const auto ExeLength = GetConsoleAliasExesLength())
 	{
 		std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t));

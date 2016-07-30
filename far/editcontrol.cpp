@@ -421,8 +421,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 		{
-			if(pHistory->GetAllSimilar(*ComplMenu,strTemp))
+			auto Items = pHistory->GetAllSimilar(strTemp);
+			if (!Items.empty())
 			{
+				for (auto& i : Items)
+				{
+					MenuItemEx Item;
+					Item.strName = std::move(std::get<0>(i));
+					Item.UserData = std::get<1>(i);
+					Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
+					ComplMenu->AddItem(std::move(Item));
+				}
 				ComplMenu->SetTitle(MSG(MCompletionHistoryTitle));
 			}
 		}
@@ -539,8 +548,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 								{
 									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 									{
-										if(pHistory->GetAllSimilar(*ComplMenu,strTemp))
+										auto Items = pHistory->GetAllSimilar(strTemp);
+										if (!Items.empty())
 										{
+											for (auto& i : Items)
+											{
+												MenuItemEx Item;
+												Item.strName = std::move(std::get<0>(i));
+												Item.UserData = std::get<1>(i);
+												Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
+												ComplMenu->AddItem(std::move(Item));
+											}
 											ComplMenu->SetTitle(MSG(MCompletionHistoryTitle));
 										}
 									}

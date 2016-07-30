@@ -34,18 +34,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
+	template<typename R>
+	using clean_type = std::remove_cv_t<std::remove_reference_t<R>>;
+
 	template <class F> struct return_type;
 
 	template <class R, class... A>
 	struct return_type<R(*)(A...)>
 	{
-		using type = std::remove_const_t<std::remove_reference_t<R>>;
+		using type = clean_type<R>;
 	};
 
 	template <class R, class C, class... A>
 	struct return_type<R(C::*)(A...)>
 	{
-		using type = std::remove_const_t<std::remove_reference_t<R>>;
+		using type = clean_type<R>;
+	};
+
+	template <class R, class C, class... A>
+	struct return_type<R(C::*)(A...) const>
+	{
+		using type = clean_type<R>;
 	};
 }
 

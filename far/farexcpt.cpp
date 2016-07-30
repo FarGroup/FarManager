@@ -276,7 +276,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 	if (Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
 	{
-		os::rtdl::module m(Global->Opt->strExceptEventSvc.data());
+		os::rtdl::module m(Global->Opt->strExceptEventSvc);
 
 		if (m)
 		{

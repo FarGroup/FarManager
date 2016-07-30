@@ -203,10 +203,9 @@ void InfoList::DisplayObject()
 		PrintText(MInfoCompName);
 		PrintInfo(strComputerName);
 
-		LPSERVER_INFO_101 RawServerPointer;
-		if (NetServerGetInfo(nullptr, 101, reinterpret_cast<LPBYTE*>(&RawServerPointer)) == NERR_Success)
+		os::memory::netapi::ptr<SERVER_INFO_101> ServerInfo;
+		if (NetServerGetInfo(nullptr, 101, reinterpret_cast<LPBYTE*>(&ptr_setter(ServerInfo))) == NERR_Success)
 		{
-			const auto ServerInfo = os::memory::netapi::ptr(RawServerPointer);
 			if(ServerInfo->sv101_comment && *ServerInfo->sv101_comment)
 			{
 				GotoXY(m_X1+2,CurY++);
@@ -233,10 +232,9 @@ void InfoList::DisplayObject()
 		wchar_t UserNameBuffer[UNLEN+1];
 		if (GetUserName(UserNameBuffer, &dwSize))
 		{
-			LPUSER_INFO_1 RawUserPointer;
-			if (NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&RawUserPointer)) == NERR_Success)
+			os::memory::netapi::ptr<USER_INFO_1> UserInfo;
+			if (NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
 			{
-				const auto UserInfo = os::memory::netapi::ptr(RawUserPointer);
 				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 				{
 					GotoXY(m_X1+2,CurY++);

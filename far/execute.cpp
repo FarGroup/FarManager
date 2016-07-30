@@ -123,7 +123,8 @@ static bool GetImageType(const string& FileName, image_type& ImageType)
 						{
 							const auto& Os2Header = ImageHeader.Os2Header;
 
-							if (!(HIBYTE(Os2Header.ne_flags) & 0x80)) // DLL or driver
+							enum { DllOrDriverFlag = BIT(7) };
+							if (!(HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag))
 							{
 								enum
 								{
@@ -582,21 +583,16 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 
 	if (IsWindowsVistaOrGreater())
 	{
-		IApplicationAssociationRegistration* pAAR;
-		HRESULT hr = Imports().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
-
-		if (SUCCEEDED(hr))
+		os::com::ptr<IApplicationAssociationRegistration> AAR;
+		if (SUCCEEDED(Imports().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
 		{
 			wchar_t *p;
-
-			if (pAAR->QueryCurrentDefault(Ext.data(), aType, AL_EFFECTIVE, &p) == S_OK)
+			if (AAR->QueryCurrentDefault(Ext.data(), aType, AL_EFFECTIVE, &p) == S_OK)
 			{
 				bVistaType = true;
 				strType = p;
 				CoTaskMemFree(p);
 			}
-
-			pAAR->Release();
 		}
 	}
 
@@ -1027,8 +1023,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 										Console().Free();
 										Console().Allocate();
 
-										HWND hWnd = Console().GetWindow();
-										if (hWnd)   // если окно имело HOTKEY, то старое должно его забыть.
+										if (const auto hWnd = Console().GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
 											SendMessage(hWnd, WM_SETHOTKEY, 0, 0);
 
 										Console().SetSize(ConsoleSize);

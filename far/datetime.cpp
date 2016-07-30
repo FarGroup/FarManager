@@ -662,9 +662,8 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 			strTimeText = str_printf(L"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
 		else
 		{
-			string strFullTime;
-			strFullTime = str_printf(L"%02d%c%02d%c%02d%c%03d",st.wHour,TimeSeparator,
-			                   st.wMinute,TimeSeparator,st.wSecond,DecimalSeparator,st.wMilliseconds);
+			const auto strFullTime = str_printf(L"%02d%c%02d%c%02d%c%03d",
+				st.wHour, TimeSeparator, st.wMinute, TimeSeparator, st.wSecond, DecimalSeparator, st.wMilliseconds);
 			strTimeText = str_printf(L"%.*s",TimeLength, strFullTime.data());
 		}
 	}

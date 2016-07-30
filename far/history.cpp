@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "language.hpp"
 #include "keys.hpp"
-#include "vmenu2.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "config.hpp"
@@ -613,9 +612,10 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 	return false;
 }
 
-bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str) const
+std::vector<std::tuple<string, unsigned long long, bool>> History::GetAllSimilar(const string& Str) const
 {
-	int Length=static_cast<int>(Str.size());
+	FN_RETURN_TYPE(History::GetAllSimilar) Result;
+	const auto Length = Str.size();
 	DWORD index=0;
 	string strHName,strHGuid,strHFile,strHData;
 	history_record_type HType;
@@ -626,22 +626,10 @@ bool History::GetAllSimilar(VMenu2 &HistoryMenu,const string& Str) const
 	{
 		if (!StrCmpNI(Str.data(),strHName.data(),Length))
 		{
-			MenuItemEx NewItem(strHName);
-			NewItem.UserData = id;
-			if(HLock)
-			{
-				NewItem.Flags|=LIF_CHECKED;
-			}
-			HistoryMenu.AddItem(NewItem);
+			Result.emplace_back(strHName, id, HLock);
 		}
 	}
-	if(HistoryMenu.size() == 1 && HistoryMenu.at(0).strName.size() == static_cast<size_t>(Length))
-	{
-		HistoryMenu.clear();
-		return false;
-	}
-
-	return true;
+	return Result;
 }
 
 bool History::DeleteIfUnlocked(unsigned __int64 id)

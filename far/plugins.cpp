@@ -363,7 +363,7 @@ Plugin *PluginManager::FindPlugin(const string& ModuleName) const
 	return ItemIterator == SortedPlugins.cend()? nullptr : *ItemIterator;
 }
 
-void PluginManager::LoadModels()
+void PluginManager::LoadFactories()
 {
 	PluginFactories.emplace_back(std::make_unique<native_plugin_factory>(this));
 #ifndef NO_WRAPPER
@@ -393,7 +393,7 @@ void PluginManager::LoadPlugins()
 	SCOPED_ACTION(IndeterminateTaskBar)(false);
 	m_PluginsLoaded = false;
 
-	LoadModels();
+	LoadFactories();
 
 	if (Global->Opt->LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
 	{
@@ -470,11 +470,7 @@ void PluginManager::LoadPluginsFromCache()
 	}
 }
 
-PluginHandle* PluginManager::OpenFilePlugin(
-	const string* Name,
-	int OpMode,	//!!! potential future error: OPERATION_MODES is __int64
-	OPENFILEPLUGINTYPE Type
-)
+PluginHandle* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type)
 {
 	struct PluginInfo
 	{
@@ -513,13 +509,13 @@ PluginHandle* PluginManager::OpenFilePlugin(
 	}
 
 	bool ShowMenu = Global->Opt->PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Global->Opt->PluginConfirm.OpenFilePlugin != 0;
-	bool ShowWarning = !OpMode;
+	bool ShowWarning = OpMode == OPM_NONE;
 	 //у анси плагинов OpMode нет.
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
 
 	os::fs::file file;
-	AnalyseInfo Info={sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
+	AnalyseInfo Info={sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, OpMode};
 	std::vector<BYTE> Buffer(Global->Opt->PluginMaxReadData);
 
 	bool DataRead = false;
@@ -711,9 +707,7 @@ PluginHandle* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 		Info.Guid = &FarGuid;
 		Info.Data = 0;
 
-		HANDLE hPlugin = i->Open(&Info);
-
-		if (hPlugin)
+		if (const auto hPlugin = i->Open(&Info))
 		{
 			PluginHandle handle;
 			handle.hPlugin = hPlugin;
@@ -1004,8 +998,7 @@ int PluginManager::GetFile(PluginHandle* hPlugin, PluginPanelItem *PanelItem, co
 
 	int GetCode = hPlugin->pPlugin->GetFiles(&Info);
 
-	string strFindPath;
-	strFindPath = Info.DestPath;
+	string strFindPath = Info.DestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
 	os::fs::enum_file Find(strFindPath);

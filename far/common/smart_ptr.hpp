@@ -101,13 +101,22 @@ namespace detail
 
 typedef std::unique_ptr<FILE, detail::file_closer> file_ptr;
 
-namespace detail
+template<class T>
+class ptr_setter_t
 {
-	struct nop_deleter { void operator()(void*) const {} };
-}
+public:
+	NONCOPYABLE(ptr_setter_t)
+	TRIVIALLY_MOVABLE(ptr_setter_t)
+	ptr_setter_t(T& Ptr): m_Ptr(&Ptr) {}
+	~ptr_setter_t() { if (m_Ptr) m_Ptr->reset(m_RawPtr); }
+	auto operator&() { return &m_RawPtr; }
+
+private:
+	movalbe_ptr<T> m_Ptr;
+	typename T::pointer m_RawPtr{};
+};
 
 template<class T>
-using movalbe_ptr = std::unique_ptr<T, detail::nop_deleter>;
-
+auto ptr_setter(T& Ptr) { return ptr_setter_t<T>(Ptr); }
 
 #endif // SMART_PTR_HPP_DE65D1E8_C925_40F7_905A_B7E3FF40B486

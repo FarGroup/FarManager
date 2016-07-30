@@ -96,32 +96,32 @@ codepages::~codepages()
 {}
 
 // Получаем кодовую страницу для элемента в меню
-inline uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
+uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
 {
 	const auto DataPtr = CodePagesMenu->GetUserDataPtr<uintptr_t>(Position);
 	return DataPtr? *DataPtr : 0;
 }
 
-inline size_t codepages::GetListItemCodePage(size_t Position) const
+size_t codepages::GetListItemCodePage(size_t Position) const
 {
 	const auto DataPtr = dialog->GetListItemDataPtr<uintptr_t>(control, Position);
 	return DataPtr? *DataPtr : 0;
 }
 
 // Проверяем попадает или нет позиция в диапазон стандартных кодовых страниц (правильность работы для разделителей не гарантируется)
-inline bool codepages::IsPositionStandard(UINT position) const
+bool codepages::IsPositionStandard(UINT position) const
 {
 	return position <= (UINT)CodePagesMenu->size() - favoriteCodePages - (favoriteCodePages?1:0) - normalCodePages - (normalCodePages?1:0);
 }
 
 // Проверяем попадает или нет позиция в диапазон избранных кодовых страниц (правильность работы для разделителей не гарантируется)
-inline bool codepages::IsPositionFavorite(UINT position) const
+bool codepages::IsPositionFavorite(UINT position) const
 {
 	return !IsPositionStandard(position) && !IsPositionNormal(position);
 }
 
 // Проверяем попадает или нет позиция в диапазон обыкновенных кодовых страниц (правильность работы для разделителей не гарантируется)
-inline bool codepages::IsPositionNormal(UINT position) const
+bool codepages::IsPositionNormal(UINT position) const
 {
 	return position >= static_cast<UINT>(CodePagesMenu->size() - normalCodePages);
 }

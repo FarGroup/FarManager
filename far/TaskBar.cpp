@@ -43,41 +43,26 @@ taskbar& Taskbar()
 }
 
 taskbar::taskbar():
-	State(TBPF_NOPROGRESS),
-	pTaskbarList()
+	State(TBPF_NOPROGRESS)
 {
-	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER,
-#if COMPILER == C_GCC
-		IID_ITaskbarList3, IID_PPV_ARGS_Helper(&pTaskbarList)
-#else
-		IID_PPV_ARGS(&pTaskbarList)
-#endif
-		);
-}
-
-taskbar::~taskbar()
-{
-	if (pTaskbarList)
-	{
-		pTaskbarList->Release();
-	}
+	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(mTaskbarList)));
 }
 
 void taskbar::SetProgressState(TBPFLAG tbpFlags)
 {
-	if (pTaskbarList)
+	if (mTaskbarList)
 	{
 		State=tbpFlags;
-		pTaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
+		mTaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
 	}
 }
 
 void taskbar::SetProgressValue(UINT64 Completed, UINT64 Total)
 {
-	if (pTaskbarList)
+	if (mTaskbarList)
 	{
 		State=TBPF_NORMAL;
-		pTaskbarList->SetProgressValue(Console().GetWindow(),Completed,Total);
+		mTaskbarList->SetProgressValue(Console().GetWindow(),Completed,Total);
 	}
 }
 

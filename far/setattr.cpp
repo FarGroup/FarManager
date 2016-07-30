@@ -902,11 +902,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							else if (ReparseTag == IO_REPARSE_TAG_DFS)
 							{
 								string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
-								PDFS_INFO_3 RawDfsInfoPointer;
-								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&RawDfsInfoPointer)) == NERR_Success)
+								os::memory::netapi::ptr<DFS_INFO_3> DfsInfo;
+								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
 								{
-									const auto DfsInfo = os::memory::netapi::ptr(RawDfsInfoPointer);
-
 									KnownReparsePoint = true;
 
 									auto DfsStorages = make_range(DfsInfo->Storage, DfsInfo->NumberOfStorages);

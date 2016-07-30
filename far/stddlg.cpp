@@ -409,62 +409,52 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 	return TRUE;
 }
 
-IFileIsInUse* CreateIFileIsInUse(const string& File)
+static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 {
-	IFileIsInUse *pfiu = nullptr;
-	IRunningObjectTable *prot;
-	if (SUCCEEDED(GetRunningObjectTable(0, &prot)))
+	os::com::ptr<IRunningObjectTable> rot;
+	if (FAILED(GetRunningObjectTable(0, &ptr_setter(rot))))
+		return nullptr;
+
+	os::com::ptr<IMoniker> mkFile;
+	if (FAILED(CreateFileMoniker(File.data(), &ptr_setter(mkFile))))
+		return nullptr;
+
+	os::com::ptr<IEnumMoniker> enumMk;
+	if (FAILED(rot->EnumRunning(&ptr_setter(enumMk))))
+		return nullptr;
+
+	for(;;)
 	{
-		IMoniker *pmkFile;
-		if (SUCCEEDED(CreateFileMoniker(File.data(), &pmkFile)))
-		{
-			IEnumMoniker *penumMk;
-			if (SUCCEEDED(prot->EnumRunning(&penumMk)))
-			{
-				HRESULT hr = E_FAIL;
-				ULONG celt;
-				IMoniker *pmk;
-				while (FAILED(hr) && (penumMk->Next(1, &pmk, &celt) == S_OK))
-				{
-					DWORD dwType;
-					if (SUCCEEDED(pmk->IsSystemMoniker(&dwType)) && dwType == MKSYS_FILEMONIKER)
-					{
-						IMoniker *pmkPrefix;
-						if (SUCCEEDED(pmkFile->CommonPrefixWith(pmk, &pmkPrefix)))
-						{
-							if (pmkFile->IsEqual(pmkPrefix) == S_OK)
-							{
-								IUnknown *punk;
-								if (prot->GetObject(pmk, &punk) == S_OK)
-								{
-									hr = punk->QueryInterface(
-#if COMPILER == C_GCC
-										IID_IFileIsInUse, IID_PPV_ARGS_Helper(&pfiu)
-#else
-										IID_PPV_ARGS(&pfiu)
-#endif
-										);
-									punk->Release();
-								}
-							}
-							pmkPrefix->Release();
-						}
-					}
-					pmk->Release();
-				}
-				penumMk->Release();
-			}
-			pmkFile->Release();
-		}
-		prot->Release();
+		os::com::ptr<IMoniker> mk;
+		ULONG celt;
+		if (enumMk->Next(1, &ptr_setter(mk), &celt) != S_OK)
+			return nullptr;
+
+		DWORD dwType;
+		if (FAILED(mk->IsSystemMoniker(&dwType)) || dwType != MKSYS_FILEMONIKER)
+			continue;
+
+		os::com::ptr<IMoniker> mkPrefix;
+		if (FAILED(mkFile->CommonPrefixWith(mk.get(), &ptr_setter(mkPrefix))))
+			continue;
+
+		if (mkFile->IsEqual(mkPrefix.get()) != S_OK)
+			continue;
+
+		os::com::ptr<IUnknown> unk;
+		if (rot->GetObject(mk.get(), &ptr_setter(unk)) != S_OK)
+			continue;
+
+		FN_RETURN_TYPE(CreateIFileIsInUse) fiu;
+		if (SUCCEEDED(unk->QueryInterface(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(fiu)))))
+			return fiu;
 	}
-	return pfiu;
 }
 
 int OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip)
 {
 	std::vector<string> Msg;
-	IFileIsInUse *pfiu = nullptr;
+	os::com::ptr<IFileIsInUse> fiu;
 	LNGID Reason = MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
 	DWORD Error = Global->CaughtError();
@@ -474,11 +464,11 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		Error == ERROR_DRIVE_LOCKED)
 	{
 		const auto FullName = ConvertNameToFull(Object);
-		pfiu = CreateIFileIsInUse(FullName);
-		if (pfiu)
+		fiu = CreateIFileIsInUse(FullName);
+		if (fiu)
 		{
 			FILE_USAGE_TYPE UsageType = FUT_GENERIC;
-			pfiu->GetUsage(&UsageType);
+			fiu->GetUsage(&UsageType);
 			switch(UsageType)
 			{
 			case FUT_PLAYING:
@@ -492,7 +482,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 				break;
 			}
 			DWORD Capabilities = 0;
-			pfiu->GetCapabilities(&Capabilities);
+			fiu->GetCapabilities(&Capabilities);
 			if(Capabilities&OF_CAP_CANSWITCHTO)
 			{
 				SwitchBtn = true;
@@ -502,7 +492,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 				CloseBtn = true;
 			}
 			LPWSTR AppName = nullptr;
-			if(SUCCEEDED(pfiu->GetAppName(&AppName)))
+			if(SUCCEEDED(fiu->GetAppName(&AppName)))
 			{
 				Msg.emplace_back(AppName);
 			}
@@ -589,7 +579,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 			if(Result == 0)
 			{
 				HWND Wnd = nullptr;
-				if (pfiu && SUCCEEDED(pfiu->GetSwitchToHWND(&Wnd)))
+				if (fiu && SUCCEEDED(fiu->GetSwitchToHWND(&Wnd)))
 				{
 					SetForegroundWindow(Wnd);
 					if (IsIconic(Wnd))
@@ -606,17 +596,12 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		if(CloseBtn && Result == 0)
 		{
 			// close & retry
-			if (pfiu)
+			if (fiu)
 			{
-				pfiu->CloseFile();
+				fiu->CloseFile();
 			}
 		}
 		break;
-	}
-
-	if (pfiu)
-	{
-		pfiu->Release();
 	}
 
 	return Result;

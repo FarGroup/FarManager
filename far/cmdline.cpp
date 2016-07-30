@@ -560,12 +560,12 @@ int CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return CmdStr.ProcessMouse(MouseEvent);
 }
 
-inline COLORREF ARGB2ABGR(COLORREF Color)
+static COLORREF ARGB2ABGR(COLORREF Color)
 {
 	return (Color & 0xFF000000) | ((Color & 0x00FF0000) >> 16) | (Color & 0x0000FF00) | ((Color & 0x000000FF) << 16);
 }
 
-static inline bool AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
+static bool AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
 {
 	if (!Color.empty())
 	{
@@ -1493,7 +1493,7 @@ void CommandLine::LeavePluginExecutionContext()
 	m_PluginExecutionContext.reset();
 }
 
-const std::shared_ptr<i_execution_context> CommandLine::GetExecutionContext()
+std::shared_ptr<i_execution_context> CommandLine::GetExecutionContext()
 {
 	if (auto Result = m_ExecutionContext.lock())
 	{

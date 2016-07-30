@@ -54,8 +54,8 @@ static_assert(alignof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT, "MEMINFO not alig
 static MEMINFO FirstMemBlock = {};
 static MEMINFO* LastMemBlock = &FirstMemBlock;
 
-static inline auto ToReal(void* address) { return static_cast<MEMINFO*>(address) - 1; }
-static inline void* ToUser(MEMINFO* address) { return address + 1; }
+static auto ToReal(void* address) { return static_cast<MEMINFO*>(address) - 1; }
+static void* ToUser(MEMINFO* address) { return address + 1; }
 
 static void CheckChain()
 {
@@ -72,7 +72,7 @@ static void CheckChain()
 #endif
 }
 
-static inline void updateCallCount(allocation_type type, bool increment)
+static void updateCallCount(allocation_type type, bool increment)
 {
 	int op = increment? 1 : -1;
 	switch(type)
@@ -86,7 +86,7 @@ static inline void updateCallCount(allocation_type type, bool increment)
 
 static const int EndMarker = 0xDEADBEEF;
 
-static inline int& GetMarker(MEMINFO* Info)
+static int& GetMarker(MEMINFO* Info)
 {
 	return *reinterpret_cast<int*>(reinterpret_cast<char*>(Info)+Info->Size-sizeof(EndMarker));
 }
@@ -160,7 +160,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 	return std::string(File) + ':' + std::to_string(Line) + " -> " + Function + ':' + sType + " (" + std::to_string(Size) + " bytes)";
 }
 
-thread_local bool inside_far_bad_alloc = false;
+static thread_local bool inside_far_bad_alloc = false;
 
 class far_bad_alloc: public std::bad_alloc
 {
@@ -190,7 +190,7 @@ private:
 	std::string m_What;
 };
 
-static inline size_t GetRequiredSize(size_t RequestedSize)
+static size_t GetRequiredSize(size_t RequestedSize)
 {
 	return sizeof(MEMINFO) + RequestedSize + sizeof(EndMarker);
 }
@@ -286,7 +286,7 @@ void* operator new(size_t size)
 	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::scalar, __FUNCTION__, __FILE__, __LINE__);
 }
 
-void* operator new(size_t size, const std::nothrow_t& nothrow_value) noexcept
+void* operator new(size_t size, const std::nothrow_t&) noexcept
 {
 	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::scalar, __FUNCTION__, __FILE__, __LINE__);
 }
@@ -296,7 +296,7 @@ void* operator new[](size_t size)
 	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::vector, __FUNCTION__, __FILE__, __LINE__);
 }
 
-void* operator new[](size_t size, const std::nothrow_t& nothrow_value) noexcept
+void* operator new[](size_t size, const std::nothrow_t&) noexcept
 {
 	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::vector, __FUNCTION__, __FILE__, __LINE__);
 }
@@ -306,7 +306,7 @@ void* operator new(size_t size, const char* Function, const char* File, int Line
 	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::scalar, Function, File, Line);
 }
 
-void* operator new(size_t size, const std::nothrow_t& nothrow_value, const char* Function, const char* File, int Line) noexcept
+void* operator new(size_t size, const std::nothrow_t&, const char* Function, const char* File, int Line) noexcept
 {
 	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::scalar, Function, File, Line);
 }
@@ -316,7 +316,7 @@ void* operator new[](size_t size, const char* Function, const char* File, int Li
 	return memcheck::DebugAllocator(size, false, memcheck::allocation_type::vector, Function, File, Line);
 }
 
-void* operator new[](size_t size, const std::nothrow_t& nothrow_value, const char* Function, const char* File, int Line) noexcept
+void* operator new[](size_t size, const std::nothrow_t&, const char* Function, const char* File, int Line) noexcept
 {
 	return memcheck::DebugAllocator(size, true, memcheck::allocation_type::vector, Function, File, Line);
 }
