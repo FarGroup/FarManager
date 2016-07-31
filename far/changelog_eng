@@ -3,6 +3,19 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.07.2016 21:27:07 +0200 - build 4747
+
+1. Refactoring.
+
+zg 30.07.2016 20:43:15 +0200 - build 4746
+
+1. [Wishes 0002857]: Recognize pressing combinations of multiple modifiers.
+
+drkns 29.07.2016 01:34:39 +0200 - build 4745
+
+1. File panels would re-read their content for some reason (with all the side effects like sudden change of current directory of the process) on window redraw
+   which could happen anytime in general.
+
 drkns 23.07.2016 12:48:09 +0200 - build 4744
 
 1. Do not reset text color for inner FCTL_GETUSERSCREEN calls.
