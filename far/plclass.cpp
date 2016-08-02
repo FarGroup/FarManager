@@ -487,8 +487,7 @@ Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
 	Activity(0),
 	bPendingRemove(false),
 	m_strModuleName(ModuleName),
-	m_strCacheName(ModuleName),
-	m_Instance(nullptr)
+	m_strCacheName(ModuleName)
 {
 	ReplaceBackslashToSlash(m_strCacheName);
 	SetGuid(FarGuid);

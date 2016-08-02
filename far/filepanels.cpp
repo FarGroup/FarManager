@@ -80,8 +80,8 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 	}
 	else
 	{
-		FilePanelsPtr->m_Panels[panel_left].m_Panel.reset(new dummy_panel(FilePanelsPtr));
-		FilePanelsPtr->m_Panels[panel_right].m_Panel.reset(new dummy_panel(FilePanelsPtr));
+		FilePanelsPtr->m_Panels[panel_left].m_Panel = std::make_unique<dummy_panel>(FilePanelsPtr);
+		FilePanelsPtr->m_Panels[panel_right].m_Panel = std::make_unique<dummy_panel>(FilePanelsPtr);
 	}
 	return FilePanelsPtr;
 }

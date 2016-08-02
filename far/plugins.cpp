@@ -368,7 +368,7 @@ void PluginManager::LoadFactories()
 	PluginFactories.emplace_back(std::make_unique<native_plugin_factory>(this));
 #ifndef NO_WRAPPER
 	if (Global->Opt->LoadPlug.OEMPluginsSupport)
-		PluginFactories.emplace_back(wrapper::CreateOemPluginFactory(this));
+		PluginFactories.emplace_back(CreateOemPluginFactory(this));
 #endif // NO_WRAPPER
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);

@@ -310,6 +310,7 @@ protected:
 
 	std::unordered_set<window_ptr> m_dialogs;
 	plugin_factory* m_Factory;
+	plugin_factory::plugin_module_ptr m_Instance;
 	std::unique_ptr<Language> PluginLang;
 	size_t Activity;
 	bool bPendingRemove;
@@ -331,8 +332,6 @@ private:
 	string m_strCacheName;
 
 	BitFlags WorkFlags;      // рабочие флаги текущего плагина
-
-	plugin_factory::plugin_module_ptr m_Instance;
 
 	VersionInfo MinFarVersion;
 	VersionInfo PluginVersion;
