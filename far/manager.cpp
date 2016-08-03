@@ -435,9 +435,9 @@ window_ptr Manager::WindowMenu()
 			MenuItemEx ModalMenuItem;
 
 			if (n < 10)
-				strNumText = string_format(L"&%1. ", n);
+				strNumText = string_format(L"&{0}. ", n);
 			else if (n < 36)
-				strNumText = string_format(L"&%1. ", wchar_t(L'A' + n - 10));
+				strNumText = string_format(L"&{0}. ", wchar_t(L'A' + n - 10));
 			else
 				strNumText = L"&   ";
 

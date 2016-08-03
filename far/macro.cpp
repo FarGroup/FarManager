@@ -5187,12 +5187,12 @@ M1:
 				if (Data.Area==MACROAREA_COMMON)
 				{
 					MessageTemplate = SetChange? MMacroCommonDeleteKey : MMacroCommonReDefinedKey;
-					//"Общая макроклавиша '%1'   будет удалена : уже определена."
+					//"Общая макроклавиша '{0}'   будет удалена : уже определена."
 				}
 				else
 				{
 					MessageTemplate = SetChange? MMacroDeleteKey : MMacroReDefinedKey;
-					//"Макроклавиша '%1'   будет удалена : уже определена."
+					//"Макроклавиша '{0}'   будет удалена : уже определена."
 				}
 				const auto strBuf = string_format(MessageTemplate, strKeyText);
 

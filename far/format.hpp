@@ -144,51 +144,54 @@ private:
 
 enum LNGID: int;
 
-namespace detail {
-// TODO: rename
-// TODO: %n -> {n}
-class LangString:public BaseFormat, public string
+namespace detail
 {
-public:
-	LangString():Iteration(0) {};
-	LangString(LNGID MessageId);
-	LangString(const string& str);
-	LangString(string&& str);
-	template<class T>
-	LangString& operator<<(const T& param) {return static_cast<LangString&>(BaseFormat::operator<<(param));}
+	class formatter: public BaseFormat
+	{
+	public:
+		formatter(LNGID MessageId);
+		formatter(string Str): m_Data(std::move(Str)) {}
+		string&& str() { return std::move(m_Data); }
+		template<class T>
+		formatter& operator<<(const T& param) {return static_cast<formatter&>(BaseFormat::operator<<(param));}
 
-private:
-	virtual void Commit(const string& Data) override;
-	size_t Iteration;
-};
+	protected:
+		string m_Data;
+		size_t Iteration{};
+
+	private:
+		virtual void Commit(const string& Data) override;
+	};
+
+	class old_style_formatter: public formatter
+	{
+	public:
+		old_style_formatter(string Str): formatter(std::move(Str)) {}
+
+	private:
+		virtual void Commit(const string& Data) override;
+	};
 }
 
 namespace detail
 {
-	template<class C, class Arg>
-	void string_format_impl(C& Container, Arg&& arg)
+	template<typename formatter>
+	void string_format_impl(formatter&) {}
+
+	template<typename formatter, typename arg, typename... args>
+	void string_format_impl(formatter& Formatter, arg&& Arg, args&&... Args)
 	{
-		Container << arg;
+		Formatter << Arg;
+		string_format_impl(Formatter, std::forward<args>(Args)...);
 	}
 }
 
-namespace detail
+template<typename formatter = detail::formatter, typename T, typename... args>
+string string_format(const T& Format, args&&... Args)
 {
-	template<class C, class Arg1, class... Args>
-	void string_format_impl(C& Container, Arg1&& arg1, Args&&... args)
-	{
-		Container << arg1;
-		string_format_impl(Container, std::forward<Args>(args)...);
-	}
-}
-
-template<class T, class... Args>
-string string_format(const T& Format, Args&&... args)
-{
-	detail::LangString Container(Format);
-	detail::string_format_impl(Container, std::forward<Args>(args)...);
-	// slicing is ok
-	return Container;
+	formatter Formatter(Format);
+	detail::string_format_impl(Formatter, std::forward<args>(Args)...);
+	return Formatter.str();
 }
 
 #endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC

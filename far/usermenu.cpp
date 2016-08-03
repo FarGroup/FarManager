@@ -128,24 +128,17 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 	string Result;
 	for (const auto& i: Menu)
 	{
-		Result += i.strHotKey;
-		Result += L":  ";
-		Result += i.strLabel;
-		Result += L"\r\n";
+		Result += string_format(L"{0}: {1}\r\n", i.strHotKey, i.strLabel);
 
 		if (i.Submenu)
 		{
-			Result += L"{\r\n";
-			Result += SerializeMenu(i.Menu);
-			Result += L"}\r\n";
+			Result += string_format(L"{\r\n{0}}\r\n", SerializeMenu(i.Menu));
 		}
 		else
 		{
 			for (const auto& str: i.Commands)
 			{
-				Result += L"    ";
-				Result += str;
-				Result += L"\r\n";
+				Result += string_format(L"    {0}\r\n", str);
 			}
 		}
 	}

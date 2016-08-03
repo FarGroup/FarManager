@@ -1214,7 +1214,7 @@ static string AddHotkey(const string& Item, const string& Hotkey)
 {
 	return Hotkey.empty()?
 		L"   " + Item :
-		string_format(L"&%1%2  %3", Hotkey.front(), Hotkey.front() == L'&' ? L"&" : L"", Item);
+		string_format(L"&{0}{1}  {2}", Hotkey.front(), Hotkey.front() == L'&' ? L"&" : L"", Item);
 }
 
 /* $ 29.05.2001 IS

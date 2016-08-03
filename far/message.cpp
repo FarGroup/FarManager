@@ -214,7 +214,7 @@ void Message::Init(
 		{
 			for (const auto& i: Inserts)
 			{
-				strErrStr = string_format(strErrStr, i);
+				strErrStr = string_format<detail::old_style_formatter>(strErrStr, i);
 			}
 		}
 	}

@@ -906,8 +906,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			}
 		}
 
-		ComSpecParams = os::env::expand_strings(Global->Opt->Exec.ComspecArguments);
-		ReplaceStrings(ComSpecParams, L"{0}", Info.Command);
+		ComSpecParams = string_format(os::env::expand_strings(Global->Opt->Exec.ComspecArguments), Info.Command);
 
 		seInfo.lpFile = strComspec.data();
 		seInfo.lpParameters = ComSpecParams.data();

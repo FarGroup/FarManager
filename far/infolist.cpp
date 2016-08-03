@@ -422,7 +422,7 @@ void InfoList::DisplayObject()
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoMemoryLoad);
-			PrintInfo(string_format(L"%1%", ms.dwMemoryLoad));
+			PrintInfo(string_format(L"{0}%", ms.dwMemoryLoad));
 
 			ULONGLONG TotalMemoryInKilobytes=0;
 			if(Imports().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))

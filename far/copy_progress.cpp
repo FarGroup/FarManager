@@ -135,7 +135,7 @@ static string FormatCounter(LNGID CounterId, LNGID AnotherId, uint64_t CurrentVa
 	auto StrCurrent = InsertCommas(CurrentValue);
 	auto StrTotal = ShowTotal? InsertCommas(TotalValue) : string();
 
-	auto Value = ShowTotal? string_format(L"%1 / %2", StrCurrent, StrTotal) : StrCurrent;
+	auto Value = ShowTotal? string_format(L"{0} / {1}", StrCurrent, StrTotal) : StrCurrent;
 	if (MaxWidth > PaddedLabelSize)
 	{
 		const auto PaddedValueSize = MaxWidth - PaddedLabelSize;

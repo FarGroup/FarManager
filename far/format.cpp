@@ -241,29 +241,21 @@ void FormatScreen::Commit(const string& Data)
 	Text(Data);
 }
 
-namespace detail {
-
-LangString::LangString(enum LNGID MessageId):
-	Iteration(0)
+namespace detail
 {
-	assign(MSG(MessageId));
-}
+	formatter::formatter(LNGID MessageId):
+		m_Data(MSG(MessageId))
+	{
+	}
 
-LangString::LangString(const string& str):
-	Iteration(0)
-{
-	assign(str);
-}
+	void formatter::Commit(const string& Data)
+	{
+		ReplaceStrings(m_Data, L"{"_sl + std::to_wstring(Iteration++) + L"}"_sl, Data);
+	}
 
-LangString::LangString(string&& str):
-	Iteration(0)
-{
-	assign(std::move(str));
-}
-
-void LangString::Commit(const string& Data)
-{
-	ReplaceStrings(*this, L"%" + std::to_wstring(++Iteration), Data);
-}
+	void old_style_formatter::Commit(const string& Data)
+	{
+		ReplaceStrings(m_Data, L"%"_sl + std::to_wstring(++Iteration), Data);
+	}
 
 }

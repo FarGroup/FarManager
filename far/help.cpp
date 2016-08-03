@@ -1932,7 +1932,7 @@ void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 
 			if (Result)
 			{
-				AddLine(string_format(L"   ~%1~%2@",strEntryName, strCurTopic));
+				AddLine(string_format(L"   ~{0}~{1}@",strEntryName, strCurTopic));
 				strCurTopic.clear();
 				strEntryName.clear();
 				TopicFound=false;
