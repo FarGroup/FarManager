@@ -181,15 +181,15 @@ namespace detail
 	template<typename formatter, typename arg, typename... args>
 	void string_format_impl(formatter& Formatter, arg&& Arg, args&&... Args)
 	{
-		Formatter << Arg;
+		Formatter << std::forward<arg>(Arg);
 		string_format_impl(Formatter, std::forward<args>(Args)...);
 	}
 }
 
 template<typename formatter = detail::formatter, typename T, typename... args>
-string string_format(const T& Format, args&&... Args)
+string string_format(T&& Format, args&&... Args)
 {
-	formatter Formatter(Format);
+	formatter Formatter(std::forward<T>(Format));
 	detail::string_format_impl(Formatter, std::forward<args>(Args)...);
 	return Formatter.str();
 }

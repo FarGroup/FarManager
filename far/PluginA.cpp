@@ -430,7 +430,7 @@ static wchar_t **AnsiArrayToUnicodeMagic(const char* const* lpaszAnsiString, siz
 	auto Result = std::make_unique<wchar_t*[]>(iCount + 1);
 	Result[0] = static_cast<wchar_t*>(ToPtr(iCount));
 	std::transform(lpaszAnsiString, lpaszAnsiString + iCount, Result.get() + 1, AnsiToUnicode);
-	return Result.release();
+	return Result.release() + 1;
 }
 
 static void FreeUnicodeArrayMagic(const wchar_t* const* Array)
