@@ -801,12 +801,15 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 int wmain(int Argc, wchar_t *Argv[])
 {
+	atexit(PrintMemory);
+#if defined(SYSLOG)
+	atexit(PrintSysLogStat);
+#endif
+
+	tracer Tracer;
+
 	try
 	{
-		atexit(PrintMemory);
-#if defined(SYSLOG)
-		atexit(PrintSysLogStat);
-#endif
 		setlocale(LC_ALL, "");
 		EnableSeTranslation();
 		SCOPED_ACTION(veh_handler)(VectoredExceptionHandler);

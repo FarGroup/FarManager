@@ -6225,7 +6225,15 @@ void Dialog::ShowConsoleTitle()
 string Dialog::ExtractHexString(const string& DialogHexString)
 {
 	auto Result{ DialogHexString };
-	RemoveTrailingSpaces(Result); // BUGBUG: trailing spaces in DI_FIXEDIT. TODO: Fix in Dialog class.
+	// TODO: Fix these and trailing spaces in Dialog class?
 	Result.erase(std::remove(ALL_RANGE(Result), L' '), Result.end());
+	if (Result.size() & 1)
+	{
+		// Odd length - hex string is not valid.
+		// This is an UI helper, so we don't want to throw.
+		// Fixing it gracefully and in 1.7x compatible way:
+		// "12 34 5" -> "12 34 05"
+		Result.insert(Result.end() - 1, L'0');
+	}
 	return Result;
 }
