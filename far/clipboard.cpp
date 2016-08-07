@@ -144,19 +144,24 @@ private:
 
 	virtual unsigned RegisterFormat(clipboard_format Format) const override
 	{
-		static const wchar_t* FormatNames[] =
+		static std::pair<const wchar_t*, unsigned> FormatNames[] =
 		{
-			L"FAR_VerticalBlock",
-			L"FAR_VerticalBlock_Unicode",
-			CFSTR_PREFERREDDROPEFFECT,
-			L"MSDEVColumnSelect",
-			L"Borland IDE Block Type",
-			L"Notepad++ binary text length",
+			{ L"FAR_VerticalBlock", 0 },
+			{ L"FAR_VerticalBlock_Unicode", 0 },
+			{ CFSTR_PREFERREDDROPEFFECT, 0 },
+			{ L"MSDEVColumnSelect", 0 },
+			{ L"Borland IDE Block Type", 0 },
+			{ L"Notepad++ binary text length", 0 },
 		};
 
 		static_assert(std::size(FormatNames) == static_cast<unsigned>(clipboard_format::count), "Wrong size of FormatNames");
 		assert(Format < clipboard_format::count);
-		return RegisterClipboardFormat(FormatNames[static_cast<unsigned>(Format)]);
+		auto& FormatData = FormatNames[static_cast<unsigned>(Format)];
+		if (!FormatData.second)
+		{
+			FormatData.second = RegisterClipboardFormat(FormatData.first);
+		}
+		return FormatData.second;
 	}
 
 	virtual bool IsFormatAvailable(unsigned Format) const override
@@ -341,34 +346,30 @@ bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
 	return Result;
 }
 
-bool Clipboard::GetText(string& data) const
+bool Clipboard::GetText(string& Data) const
 {
-	bool Result = false;
-
 	if (auto hClipData = GetData(CF_UNICODETEXT))
 	{
 		if (const auto ClipAddr = os::memory::global::lock<const wchar_t*>(hClipData))
 		{
-			Result = true;
-			data = ClipAddr.get();
-			size_t len = string::npos;
+			size_t DataSize = string::npos;
 			if (auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length)))
 			{
 				if (const auto ClipLength = os::memory::global::lock<const uint32_t*>(hClipDataLen))
-					len = static_cast<size_t>(ClipLength.get()[0]);
+				{
+					DataSize = static_cast<size_t>(*ClipLength.get());
+				}
 			}
-			if (len == string::npos)
-				data = ClipAddr.get();
-			else
-				data.assign(ClipAddr.get(), len);
+			Data.assign(ClipAddr.get(), DataSize == string::npos? wcslen(ClipAddr.get()) : DataSize);
+			return true;
 		}
 	}
 	else
 	{
-		Result = GetHDROPAsText(data);
+		return GetHDROPAsText(Data);
 	}
 
-	return Result;
+	return false;
 }
 
 bool Clipboard::GetHDROPAsText(string& data) const
