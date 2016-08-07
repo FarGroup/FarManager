@@ -96,6 +96,7 @@ class i_plugin_module
 {
 public:
 	virtual ~i_plugin_module() = default;
+	virtual void* get_opaque() const = 0;
 };
 
 class plugin_factory
@@ -136,6 +137,7 @@ class native_plugin_module: public i_plugin_module
 public:
 	NONCOPYABLE(native_plugin_module);
 	native_plugin_module(const string& Name): m_Module(Name, true) {}
+	virtual void* get_opaque() const override { return nullptr; }
 
 	os::rtdl::module m_Module;
 };
