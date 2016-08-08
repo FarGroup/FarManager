@@ -3,6 +3,33 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.08.2016 21:59:50 +0200 - build 4753
+
+1. Adapters were broken after 4747.
+
+drkns 07.08.2016 15:01:50 +0200 - build 4752
+
+1. A couple of optimizations for clipboard processing.
+
+drkns 06.08.2016 14:56:47 +0200 - build 4751
+
+1. Correction of processing of incorrect hex strings in dialogs.
+
+2. Exception diagnostics was broken in one of previous builds.
+
+drkns 04.08.2016 22:16:44 +0200 - build 4750
+
+1. Correction of 4748.
+
+drkns 03.08.2016 23:30:06 +0200 - build 4749
+
+1. %1, %2, %3... are replaced with {0}, {1}, {2} in code and language files...
+   If you had your own lng then you have to replace those by yourself.
+
+drkns 02.08.2016 22:18:59 +0200 - build 4748
+
+1. Refactoring.
+
 drkns 30.07.2016 21:27:07 +0200 - build 4747
 
 1. Refactoring.
