@@ -41,8 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "components.hpp"
 #include "strmix.hpp"
+#include "codepage.hpp"
 
-static string getInfo() { return L"SQLite, version " + wide(SQLITE_VERSION) + L"; SQLite unicode extension, version " + wide(sqlite_unicode::SQLite_Unicode_Version);; }
+static auto getInfo() { return L"SQLite, version " + unicode::from(CP_ACP, SQLITE_VERSION) + L"; SQLite unicode extension, version " + unicode::from(CP_ACP, sqlite_unicode::SQLite_Unicode_Version); }
 SCOPED_ACTION(components::component)(getInfo);
 
 static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
@@ -196,7 +197,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	const auto v2_opener = [WAL](const string& Name, sqlite::sqlite3*& pDb)
 	{
-		return sqlite::sqlite3_open_v2(Utf8String(Name).data(), &pDb, WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr);
+		return sqlite::sqlite3_open_v2(unicode::to(CP_UTF8, Name).data(), &pDb, WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr);
 	};
 
 	const auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener)
@@ -385,5 +386,5 @@ int SQLiteDb::GetLastErrorCode() const
 
 string SQLiteDb::GetLastErrorString() const
 {
-	return wide(sqlite::sqlite3_errmsg(m_Db.get()));
+	return unicode::from(CP_ACP, sqlite::sqlite3_errmsg(m_Db.get()));
 }

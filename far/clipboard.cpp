@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "clipboard.hpp"
 #include "console.hpp"
-#include "strmix.hpp"
+#include "codepage.hpp"
 
 default_clipboard_mode::mode default_clipboard_mode::m_Mode = default_clipboard_mode::system;
 
@@ -393,7 +393,7 @@ bool Clipboard::GetHDROPAsText(string& data) const
 			{
 				for (const auto& i: enum_substrings(StartA))
 				{
-					data.append(wide(std::string(i.data(), i.size()), CP_ACP)).append(L"\r\n");
+					data.append(unicode::from(CP_ACP, i)).append(L"\r\n");
 				}
 			}
 			Result = true;
@@ -431,7 +431,7 @@ bool Clipboard::GetVText(string& data) const
 		{
 			if (const auto OemData = os::memory::global::lock<const char*>(hClipData))
 			{
-				data = wide(OemData.get());
+				data = unicode::from(CP_OEMCP, OemData.get());
 				Result = true;
 			}
 		}

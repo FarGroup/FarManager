@@ -428,7 +428,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 			strBuf.append(L" (");
 			if (Message)
 			{
-				strBuf.append(L"std::exception: ").append(wide(Message, CP_UTF8));
+				strBuf.append(L"std::exception: ").append(unicode::from(CP_UTF8, Message));
 			}
 			else
 			{

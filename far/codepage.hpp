@@ -40,49 +40,67 @@ namespace unicode
 	#define NOT_PTR(T) typename T, ENABLE_IF(!std::is_pointer<T>::value)
 
 	size_t to(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
+
 	template<NOT_PTR(T)>
-	size_t to(uintptr_t Codepage, const T& Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
+	auto to(uintptr_t Codepage, const T& Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
 	{
 		return to(Codepage, Data.data(), Data.size(), Buffer, BufferSize, UsedDefaultChar);
 	}
+
 	template<NOT_PTR(T)>
-	size_t to(uintptr_t Codepage, const wchar_t* Data, size_t Size, T& Buffer, bool* UsedDefaultChar = nullptr)
+	auto to(uintptr_t Codepage, const wchar_t* Data, size_t Size, T& Buffer, bool* UsedDefaultChar = nullptr)
 	{
 		return to(Codepage, Data, Size, Buffer.data(), Buffer.size(), UsedDefaultChar);
 	}
+
 	template<NOT_PTR(T), NOT_PTR(Y)>
-	size_t to(uintptr_t Codepage, const T& Data, Y& Buffer, bool* UsedDefaultChar = nullptr)
+	auto to(uintptr_t Codepage, const T& Data, Y& Buffer, bool* UsedDefaultChar = nullptr)
 	{
 		return to(Codepage, Data.data(), Data.size(), Buffer.data(), Buffer.size(), UsedDefaultChar);
 	}
 
 	std::string to(uintptr_t Codepage, const wchar_t* Data, size_t Size, bool* UsedDefaultChar = nullptr);
+
+	inline auto to(uintptr_t Codepage, const wchar_t* Data, bool* UsedDefaultChar = nullptr)
+	{
+		return to(Codepage, Data, wcslen(Data), UsedDefaultChar);
+	}
+
 	template<NOT_PTR(T)>
-	std::string to(uintptr_t Codepage, const T& Data, bool* UsedDefaultChar = nullptr)
+	auto to(uintptr_t Codepage, const T& Data, bool* UsedDefaultChar = nullptr)
 	{
 		return to(Codepage, Data.data(), Data.size(), UsedDefaultChar);
 	}
 
 	size_t from(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize);
+
 	template<NOT_PTR(T)>
-	size_t from(uintptr_t Codepage, const T& Data, wchar_t* Buffer, size_t BufferSize)
+	auto from(uintptr_t Codepage, const T& Data, wchar_t* Buffer, size_t BufferSize)
 	{
 		return from(Codepage, Data.data(), Data.size(), Buffer, BufferSize);
 	}
+
 	template<NOT_PTR(T)>
-	size_t from(uintptr_t Codepage, const char* Data, size_t Size, T& Buffer)
+	auto from(uintptr_t Codepage, const char* Data, size_t Size, T& Buffer)
 	{
 		return from(Codepage, Data, Size, Buffer.data(), Buffer.size());
 	}
+
 	template<NOT_PTR(T), NOT_PTR(Y)>
-	size_t from(uintptr_t Codepage, const T& Data, Y& Buffer)
+	auto from(uintptr_t Codepage, const T& Data, Y& Buffer)
 	{
 		return from(Codepage, Data.data(), Data.size(), Buffer.data(), Buffer.size());
 	}
 
 	string from(uintptr_t Codepage, const char* Data, size_t Size);
+
+	inline auto from(uintptr_t Codepage, const char* Data)
+	{
+		return from(Codepage, Data, strlen(Data));
+	}
+
 	template<NOT_PTR(T)>
-	string from(uintptr_t Codepage, const T& Data)
+	auto from(uintptr_t Codepage, const T& Data)
 	{
 		return from(Codepage, Data.data(), Data.size());
 	}

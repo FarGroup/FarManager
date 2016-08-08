@@ -213,7 +213,7 @@ void Editor::KeepInitParameters() const
 	if (Global->GetSearchHex())
 	{
 		// BUGBUG, it's unclear how to represent unicode in hex
-		const auto AnsiStr = narrow(strLastSearchStr);
+		const auto AnsiStr = unicode::to(m_codepage, strLastSearchStr);
 		Global->StoreSearchString(BlobToHexWString(AnsiStr.data(), AnsiStr.size(), 0), true);
 	}
 	else

@@ -1271,16 +1271,6 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	return false;
 }
 
-string wide_n(const char *str, size_t size, uintptr_t codepage)
-{
-	return unicode::from(codepage, str, size);
-}
-
-std::string narrow_n(const wchar_t* str, size_t size, uintptr_t codepage)
-{
-	return unicode::to(codepage, str, size);
-}
-
 string str_vprintf(const wchar_t * format, va_list argptr)
 {
 	wchar_t_ptr buffer;

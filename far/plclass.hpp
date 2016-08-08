@@ -195,7 +195,7 @@ class Plugin: noncopyable
 public:
 	NONCOPYABLE(Plugin);
 	Plugin(plugin_factory* Factory, const string& ModuleName);
-	virtual ~Plugin();
+	virtual ~Plugin() = default;
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
 	virtual bool SetStartupInfo(PluginStartupInfo *Info);

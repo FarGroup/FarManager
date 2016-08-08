@@ -493,10 +493,6 @@ Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
 	SetGuid(FarGuid);
 }
 
-Plugin::~Plugin()
-{
-}
-
 void Plugin::SetGuid(const GUID& Guid)
 {
 	m_Guid = Guid;

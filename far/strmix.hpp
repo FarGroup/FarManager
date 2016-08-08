@@ -124,17 +124,6 @@ inline int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data()
 inline int StrCmpI(const wchar_t* a, const string& b) { return ::StrCmpI(a, b.data()); }
 inline int StrCmpI(const string& a, const wchar_t* b) { return ::StrCmpI(a.data(), b); }
 
-string wide_n(const char *str, size_t size, uintptr_t codepage = CP_OEMCP);
-inline string wide(const char *str, uintptr_t codepage = CP_OEMCP) { return wide_n(str, strlen(str), codepage); }
-inline string wide(const std::string& str, uintptr_t codepage = CP_OEMCP) { return wide_n(str.data(), str.size(), codepage); }
-
-std::string narrow_n(const wchar_t *str, size_t size, uintptr_t codepage = CP_OEMCP);
-inline std::string narrow(const wchar_t *str, uintptr_t codepage = CP_OEMCP) { return narrow_n(str, wcslen(str), codepage); }
-inline std::string narrow(const string& str, uintptr_t codepage = CP_OEMCP) { return narrow_n(str.data(), str.size(), codepage); }
-
-template<class T>
-std::string Utf8String(const T& Str) { return narrow(Str, CP_UTF8); }
-
 string str_printf(const wchar_t * format, ...);
 string str_vprintf(const wchar_t * format, va_list argptr);
 

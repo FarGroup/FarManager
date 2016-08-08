@@ -8,6 +8,7 @@ farrtl.cpp
 #pragma hdrstop
 
 #include "strmix.hpp"
+#include "codepage.hpp"
 
 #ifdef MEMCHECK
 #undef DuplicateString
@@ -226,7 +227,7 @@ static string FindStr(const void* Data, size_t Size)
 
 	if (std::all_of(ABegin, AEnd, [](char c){ return c >= ' ' || IsEol(c); }))
 	{
-		return string(wide(std::string(ABegin, AEnd)));
+		return string(unicode::from(CP_ACP, ABegin, AEnd - ABegin));
 	}
 
 	const auto WBegin = reinterpret_cast<const wchar_t*>(Data), WEnd = WBegin + Size / sizeof(wchar_t);

@@ -2751,7 +2751,7 @@ void Viewer::SearchTextTransform(string &to, const string& from, bool hex2text, 
 		}
 		else
 		{
-			to = wide_n(Bytes.data(), Bytes.size(), m_Codepage);
+			to = unicode::from(m_Codepage, Bytes);
 			if ( pos >= 0 )
 			{
 				pos = unicode::from(m_Codepage, Bytes.data(), pos, nullptr, 0);

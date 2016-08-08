@@ -771,7 +771,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (Param2)
 					{
 						// BUGBUG, it's unclear how to represent unicode in hex
-						const auto AnsiStr = narrow(Src);
+						const auto AnsiStr = unicode::to(CodePage, Src);
 						strDataStr = BlobToHexWString(AnsiStr.data(), AnsiStr.size(), 0);
 					}
 					else

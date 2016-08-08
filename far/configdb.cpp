@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "sqlitedb.hpp"
 #include "strmix.hpp"
+#include "codepage.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
 #include "datetime.hpp"
@@ -277,8 +278,8 @@ public:
 			if (!key || !name || !type || !value)
 				continue;
 
-			const auto Key = wide(key, CP_UTF8);
-			const auto Name = wide(name, CP_UTF8);
+			const auto Key = unicode::from(CP_UTF8, key);
+			const auto Name = unicode::from(CP_UTF8, name);
 
 			if (!strcmp(type,"qword"))
 			{
@@ -286,7 +287,7 @@ public:
 			}
 			else if (!strcmp(type,"text"))
 			{
-				SetValue(Key, Name, wide(value, CP_UTF8));
+				SetValue(Key, Name, unicode::from(CP_UTF8, value));
 			}
 			else if (!strcmp(type,"hex"))
 			{
@@ -640,12 +641,12 @@ private:
 		const auto key_name = key.Attribute("name");
 		if (!key_name)
 			return;
-		const auto KeyName = wide(key_name, CP_UTF8);
+		const auto KeyName = unicode::from(CP_UTF8, key_name);
 		const auto key_description = key.Attribute("description");
 		string KeyDescription;
 		if (key_description)
 		{
-			KeyDescription = wide(key_description, CP_UTF8);
+			KeyDescription = unicode::from(CP_UTF8, key_description);
 		}
 		const auto Key = CreateKey(root, KeyName, key_description? &KeyDescription : nullptr);
 		if (!Key.get())
@@ -660,7 +661,7 @@ private:
 			if (!name || !type)
 				continue;
 
-			string Name = wide(name, CP_UTF8);
+			string Name = unicode::from(CP_UTF8, name);
 
 			if (value && !strcmp(type, "qword"))
 			{
@@ -668,7 +669,7 @@ private:
 			}
 			else if (value && !strcmp(type, "text"))
 			{
-				string Value = wide(value, CP_UTF8);
+				string Value = unicode::from(CP_UTF8, value);
 				SetValue(Key, Name, Value);
 			}
 			else if (value && !strcmp(type, "hex"))
@@ -761,7 +762,7 @@ private:
 			e.SetAttribute("type", "color");
 			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
 			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
-			e.SetAttribute("flags", Utf8String(FlagsToString(Color.Flags, ColorFlagNames)).data());
+			e.SetAttribute("flags", unicode::to(CP_UTF8, FlagsToString(Color.Flags, ColorFlagNames)).data());
 		}
 		else
 		{
@@ -780,7 +781,7 @@ private:
 			if (const auto foreground = e.Attribute("foreground"))
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
 			if (const auto flags = e.Attribute("flags"))
-				Color.Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
+				Color.Flags = StringToFlags(unicode::from(CP_UTF8, flags), ColorFlagNames);
 
 			std::vector<char> Blob(sizeof(FarColor));
 			std::memcpy(Blob.data(), &Color, sizeof(Color));
@@ -864,7 +865,7 @@ public:
 			auto& Color = *reinterpret_cast<const FarColor*>(Blob.data());
 			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
 			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
-			e.SetAttribute("flags", Utf8String(FlagsToString(Color.Flags, ColorFlagNames)).data());
+			e.SetAttribute("flags", unicode::to(CP_UTF8, FlagsToString(Color.Flags, ColorFlagNames)).data());
 		}
 
 		stmtEnumAllValues.Reset();
@@ -883,14 +884,14 @@ public:
 			if (!name)
 				continue;
 
-			string Name = wide(name, CP_UTF8);
+			const auto Name = unicode::from(CP_UTF8, name);
 
 			if(background && foreground && flags)
 			{
 				FarColor Color = {};
 				Color.BackgroundColor = std::strtoul(background, nullptr, 16);
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
-				Color.Flags = StringToFlags(wide(flags, CP_UTF8), ColorFlagNames);
+				Color.Flags = StringToFlags(unicode::from(CP_UTF8, flags), ColorFlagNames);
 				SetValue(Name, Color);
 			}
 			else
@@ -1106,8 +1107,8 @@ public:
 			if (!mask)
 				continue;
 
-			const auto Mask = wide(mask, CP_UTF8);
-			const auto Description = wide(NullToEmpty(description), CP_UTF8);
+			const auto Mask = unicode::from(CP_UTF8, mask);
+			const auto Description = unicode::from(CP_UTF8, NullToEmpty(description));
 
 			id = AddType(id, Mask, Description);
 			if (!id)
@@ -1127,7 +1128,7 @@ public:
 				if (se->QueryIntAttribute("enabled", &enabled) != tinyxml::XML_NO_ERROR)
 					continue;
 
-				SetCommand(id, type, wide(command, CP_UTF8), enabled != 0);
+				SetCommand(id, type, unicode::from(CP_UTF8, command), enabled != 0);
 			}
 
 		}
@@ -1660,7 +1661,7 @@ public:
 			if (!key)
 				continue;
 
-			string Key = wide(key, CP_UTF8);
+			const auto Key = unicode::from(CP_UTF8, key);
 
 			for (const auto& se: xml_enum(*e, "hotkey"))
 			{
@@ -1670,10 +1671,10 @@ public:
 
 				GUID Guid;
 
-				if (!stype || !guid || !StrToGuid(wide(guid, CP_UTF8), Guid))
+				if (!stype || !guid || !StrToGuid(unicode::from(CP_UTF8, guid), Guid))
 					continue;
 
-				string Hotkey = wide(hotkey, CP_UTF8);
+				const auto Hotkey = unicode::from(CP_UTF8, hotkey);
 
 				if (!strcmp(stype,"drive"))
 					SetHotkey(Key, Guid, hotkey_type::drive_menu, Hotkey);
@@ -2374,7 +2375,7 @@ enum dbcheck: int
 
 HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string& guid, bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", Utf8String(guid).data(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", unicode::to(CP_UTF8, guid).data(), Local, true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
@@ -2423,7 +2424,7 @@ bool config_provider::Export(const string& File)
 {
 	representation_destination Representation;
 	auto& root = Representation.GetRoot();
-	root.SetAttribute("version", Utf8String(std::to_wstring(FAR_VERSION.Major) + L"." + std::to_wstring(FAR_VERSION.Minor) + L"." + std::to_wstring(FAR_VERSION.Build)).data());
+	root.SetAttribute("version", (std::to_string(FAR_VERSION.Major) + "." + std::to_string(FAR_VERSION.Minor) + "." + std::to_string(FAR_VERSION.Build)).data());
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);
@@ -2449,7 +2450,7 @@ bool config_provider::Export(const string& File)
 			if (std::regex_search(i.strFileName, uuid_regex()))
 			{
 				auto& PluginRoot = Representation.CreateChild(e, "plugin");
-				PluginRoot.SetAttribute("guid", Utf8String(i.strFileName).data());
+				PluginRoot.SetAttribute("guid", unicode::to(CP_UTF8, i.strFileName).data());
 				Representation.SetRoot(PluginRoot);
 				CreatePluginsConfig(i.strFileName)->Export(Representation);
 			}
@@ -2496,7 +2497,7 @@ bool config_provider::Import(const string& Filename)
 		const auto guid = plugin->Attribute("guid");
 		if (!guid)
 			continue;
-		auto Guid = Upper(wide(guid, CP_UTF8));
+		const auto Guid = Upper(unicode::from(CP_UTF8, guid));
 
 		if (std::regex_search(Guid, uuid_regex()))
 		{
