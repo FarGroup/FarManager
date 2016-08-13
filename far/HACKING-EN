@@ -1,40 +1,48 @@
 ﻿RULES
 ~~~~~
 
+Sections below will help you get familiar with our development process.
+
+
 Submitting patches
 ~~~~~~~~~~~~~~~~~~
-First, please, read all the sections below to get familiar with our build
-system and rules.
 When you feel comfortable with the code and decide to make your contribution
 to the project, please follow those guidelines:
+
 1. One logical change per patch, the smaller the patch the easier it is for us
    to review and commit it.
 2. Try to keep inline with the overall style of the code.
 3. Provide detailed changelog for your patch.
-4. If your patch requires updating the documentation (help, Enc., etc.),
+4. If your patch requires updating the documentation (help, Encyclopedia, etc.)
    please provide the needed updates.
 5. Patches should be submitted as a collection of diff files, the best and
    easiest way to create a patch is:
    svn diff > file.diff
    Please create the patch against the latest code from the repository.
-6. Patches should be submitted through our bug tracker:
+6. Patches should be submitted to our bug tracker:
    http://bugs.farmanager.com
-7. If you plan on creating large patches or want to keep current with the
+   Development forum:
+   http://forum.farmanager.com/viewforum.php?f=54
+7. If you plan to create large patches or want to keep current with the
    development of Far Manager, subscribe to the Developers mailing list
    http://groups.google.com/group/fardeven (fardeven@googlegroups.com).
-8. Frequent patchers will be eligible for full SVN access, by our discretion.
-9. Be patient, we are new to Open Source :)
+8. Frequent patchers will be eligible for full repository access, by our discretion.
 
 
 Compilation
 ~~~~~~~~~~~
-1. To compile with VC you can either use the VS project file or makefile_vc.
-   For example, to build with the makefile run the following command:
-   nmake /f makefile_vc
+1. To compile with Visual Studio you can either use the IDE project or makefile.
+   Example for msbuild & vcxproj:
+     msbuild /property:Configuration=Release;platform=x64 far.vcxproj
 
-2. To compile with GCC you can use makefile_gcc.
-   For example, to build with Mingw run the following command:
-   mingw32-make -f makefile_gcc
+   Example for nmake & makefile:
+     nmake /f makefile_vc
+
+2. To compile with GCC you can use makefile.
+   Example for MinGW & makefile:
+     mingw32-make -f makefile_gcc
+
+Also see comments in makefile_* for additional build parameters.
 
 
 Changelog - "changelog" file
@@ -47,14 +55,14 @@ Changelog - "changelog" file
    warp 05.12.2006 01:39:38 +0300 - build 2149
 4. Changes not always require a build increase (i.e. cosmetic or non code
    related changes).
-5. Macro example:
+5. Sample macro to generate the header:
 Macro {
-  area="Editor"; key="Ctrl`"; flags="DisableOutput"; description="changelog"; action = function()
+  area="Editor"; key="Ctrl`"; action = function()
 Keys("CtrlHome End CtrlLeft")
 build=mf.int(mf.substr(Editor.Value,Editor.RealPos-1))+1;
 Keys("CtrlHome")
 print(mf.date("name %d.%m0.%Y %H:%M:%S %Z - build ")) print(build)
-for RCounter=4,1,-1 do Keys("Enter") end
+for RCounter=4,1,-1 do  Keys("Enter") end
 Keys("Up Up 1 . Space")
   end;
 }
@@ -63,36 +71,32 @@ Keys("Up Up 1 . Space")
 farversion.m4
 ~~~~~~~~~~~~~
 1. This file contains information used to generate Far version:
-   a. BUILDTYPE, a string that defines the build type, can be:
-      - `'      - empty string - release version
+   a. BUILDTYPE, a string that defines the build type:
+      - `'      - empty string (release version)
       - `alpha' - alpha version
       - `beta'  - beta version
       - `RC'    - release candidate
-      - `AnyThingElse' - intended for Far versions which code has not been
-        committed yet to the SVN so we and the users will not be confused.
+      - `AnythingElse' - intended for Far versions which code has not been
+        committed yet to the repository so we and the users will not be confused.
         Far version will look something like that:
-        FarVersion alpha AnyThingElse based on build BuildNumber
-   b. MAJOR - MAJOR Far version (i.e. 2).
-   c. MINOR - MINOR Far version (i.e. 0).
+        FarVersion alpha AnythingElse based on build BuildNumber
+   b. MAJOR - major Far version (i.e. 2).
+   c. MINOR - minor Far version (i.e. 0).
 
 
 vbuild.m4
 ~~~~~~~~~
 1. If the build number in "vbuild.m4"  was changed then after committing the
-   changes to the SVN you should call "svn_tag_build.bat".
+   changes to the repository you should call "svn_tag_build.bat".
 
 
 Adding new lines to language files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. If you've added a new line to language files, you need to add the "upd:"
-   prefix in farlang.templ.m4 to its variants that you did not translate.
-
-
-
-GCC - ensuring "successful" compilation with GCC
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1. Instead of postfixes i64 and ui64 use postfixes ll and ull.
+1. Lng files are generated automatically.
+   All changes must be made in farlang.templ.m4.
+   If you don't know how to translate your changes to other languages,
+   use the english version with the "upd:" prefix.
 
 
 x64 - ensuring "successful" compilation for x86 and x64

@@ -38,32 +38,32 @@ in ~file associations~@:FileAssoc@, and in dialog ~Apply Command~@:ApplyCmd@ (#C
 
 @Load
 $ #The Load command#
-   Команда #load# позволяет загрузить плагин одним из 2-х способов:
+   The #load# command allows to load plugins manually.
 
-   1. Путь к плагину непосредственно в команде
+   - Plugin path can be provided as a command argument:
 
-      #load:имя_DLL_модуля#
+      #load:DLL_module_name#
 
-   2. Путь к плагину берётся из заданного файла "#имяфайла#"
+   - or picked from provided "#filename#":
 
-      #load: <имяфайла#
+      #load: <filename#
 
 
    See also: ~unload~@Unload@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Unload
 $ #The Unload command#
-   Команда #unload# позволяет выгрузить плагин одним из 2-х способов:
+   The #unload# command allows to unload plugins manually.
 
-   1. Путь к плагину непосредственно в команде
+   - Plugin path can be provided as a command argument:
 
       #unload:DLL_module_name#
 
-   2. Путь к плагину берётся из заданного файла "#filename#"
+   - or picked from provided "#filename#":
 
       #unload: <filename#
 
-   Вместо полного пути к DLL-модулю можно указать GUID плагина.
+   Plugin GUID can also be used instead of full DLL path.
 
 
    See also: ~load~@Load@ | ~Notes~@Remark@ | ~Contents~@Contents@
