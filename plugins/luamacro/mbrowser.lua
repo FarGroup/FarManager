@@ -151,15 +151,16 @@ action      │ %s
 code        │ %s
 id          │ %s
 %s
-%s]]) :format(m.description or "id="..m.id,
+%s]]) :format(m.description or "index="..m.index,
               m.area,
               m.key,
               utils.FlagsToString(m.flags),
-              m.filemask or "", m.priority or "",
+              m.filemask or "",
+              m.priority or "",
               m.condition and tostring(m.condition) or "",
               m.action and tostring(m.action) or "",
               code,
-              m.id,
+              m.id or "",
               "\1",
               m.FileName or "<"..Msg.MBNoFileNameAvail..">")
     far.Message(str,Msg.MBTitleMacro,nil,"l")
