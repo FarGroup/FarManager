@@ -1268,7 +1268,13 @@ public:
 	{
 		try
 		{
-			return std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
+			auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
+			if (!Module->get_opaque())
+			{
+				Global->CatchError();
+				Module.reset();
+			}
+			return Module;
 		}
 		catch (const SException&)
 		{
