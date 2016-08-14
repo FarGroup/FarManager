@@ -68,12 +68,12 @@ inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return
 
 size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize, const wchar_t* ReplStr, size_t ReplStrSize, bool IgnoreCase = false, size_t Count = string::npos);
 
-inline size_t ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase = false, size_t Count = string::npos)
+inline auto ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase = false, size_t Count = string::npos)
 {
 	return ReplaceStrings(strStr, FindStr.data(), FindStr.size(), ReplStr.data(), ReplStr.size(), IgnoreCase, Count);
 }
 
-inline size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, const wchar_t* ReplStr, bool IgnoreCase = false, size_t Count = string::npos)
+inline auto ReplaceStrings(string &strStr, const wchar_t* FindStr, const wchar_t* ReplStr, bool IgnoreCase = false, size_t Count = string::npos)
 {
 	return ReplaceStrings(strStr, FindStr, wcslen(FindStr), ReplStr, wcslen(ReplStr), IgnoreCase, Count);
 }
@@ -136,14 +136,14 @@ inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data
 
 enum STL_FLAGS
 {
-	STLF_PACKASTERISKS   = BIT(0), // вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
-	STLF_PROCESSBRACKETS = BIT(1), // учитывать квадратные скобки при анализе строки инициализации
-	STLF_ALLOWEMPTY      = BIT(2), // allow empty items
-	STLF_UNIQUE          = BIT(3), // убирать дублирующиеся элементы
-	STLF_SORT            = BIT(4), // отсортировать (с учетом регистра)
-	STLF_NOTRIM          = BIT(5), // не удалять пробелы
-	STLF_NOUNQUOTE       = BIT(6), // не раскавычивать
-	STLF_NOQUOTING       = BIT(7), // do not give special meaning for quotes
+	STLF_PACKASTERISKS   = bit(0), // вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
+	STLF_PROCESSBRACKETS = bit(1), // учитывать квадратные скобки при анализе строки инициализации
+	STLF_ALLOWEMPTY      = bit(2), // allow empty items
+	STLF_UNIQUE          = bit(3), // убирать дублирующиеся элементы
+	STLF_SORT            = bit(4), // отсортировать (с учетом регистра)
+	STLF_NOTRIM          = bit(5), // не удалять пробелы
+	STLF_NOUNQUOTE       = bit(6), // не раскавычивать
+	STLF_NOQUOTING       = bit(7), // do not give special meaning for quotes
 };
 
 void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter);
@@ -157,7 +157,7 @@ auto split(const string& InitString, DWORD Flags = 0, const wchar_t* Separators 
 }
 
 template<class container>
-string FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
+auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
 {
 	string strFlags;
 	std::for_each(CONST_RANGE(From, i)
@@ -177,21 +177,23 @@ string FlagsToString(unsigned long long Flags, const container& From, wchar_t Se
 }
 
 template<class container>
-unsigned long long StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ")
+auto StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ")
 {
-	auto Flags = decltype(std::begin(From)->first)();
-	if (!strFlags.empty())
+	decltype(std::begin(From)->first) Flags {};
+
+	if (strFlags.empty())
+		return Flags;
+
+	for (const auto& i: split<std::vector<string>>(strFlags, STLF_UNIQUE, Separators))
 	{
-		for (const auto& i: split<std::vector<string>>(strFlags, STLF_UNIQUE, Separators))
+		const auto ItemIterator = std::find_if(CONST_RANGE(From, j)
 		{
-			const auto ItemIterator = std::find_if(CONST_RANGE(From, j)
-			{
-				return !StrCmpI(i, j.second);
-			});
-			if (ItemIterator != std::cend(From))
-				Flags |= ItemIterator->first;
-		}
+			return !StrCmpI(i, j.second);
+		});
+		if (ItemIterator != std::cend(From))
+			Flags |= ItemIterator->first;
 	}
+
 	return Flags;
 }
 
@@ -204,13 +206,11 @@ std::vector<char> HexStringToBlob(const char* Hex, char Separator = ',');
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
 std::vector<char> HexStringToBlob(const wchar_t* Hex, wchar_t Separator = L',');
 
-
 template<class S, class T>
-S to_hex_string_t(T Value)
+auto to_hex_string_t(T Value)
 {
 	static_assert(std::is_integral<T>::value, "Integral value required");
-	S Result;
-	Result.resize(sizeof(T) * 2, '0');
+	S Result(sizeof(T) * 2, '0');
 	for (int i = sizeof(T) * 2 - 1; i >= 0; --i, Value >>= 4)
 		Result[i] = IntToHex(Value & 0xF);
 	return Result;

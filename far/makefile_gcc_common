@@ -10,7 +10,7 @@ DIRBIT ?= 32
 
 ifndef DEBUG
  DIRNAME=Release
- DEBUGFLAGS=-O3 -fomit-frame-pointer -DNDEBUG
+ DEBUGFLAGS=-O3 -fomit-frame-pointer -DNDEBUG -flto
  DEBUGLINKFLAGS=-Xlinker -s -Xlinker -x -Xlinker --gc-sections
 else
  DIRNAME=Debug
@@ -60,6 +60,7 @@ LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
 DEFINES = -D UNICODE -D _UNICODE
 CFLAGS = -m$(DIRBIT) $(DEBUGFLAGS) -fdiagnostics-show-option -pipe -funsigned-char $(DEFINES)
 CFLAGS += \
+-masm=intel \
 -Wall \
 -Wextra \
 -Wcast-qual \
@@ -70,7 +71,7 @@ CFLAGS += \
 -Wno-unused-parameter \
 -Wno-missing-field-initializers \
 
-CCFLAGS = $(CFLAGS) -std=c++14 \
+CCFLAGS = $(CFLAGS) -std=c++1z \
 -Wnon-virtual-dtor \
 -Woverloaded-virtual \
 -Wzero-as-null-pointer-constant \

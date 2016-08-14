@@ -410,7 +410,7 @@ void Language::init(const string& Path, int CountNeed)
 	//   Проведем проверку на количество строк в LNG-файлах
 	if (CountNeed != -1 && CountNeed != static_cast<int>(size()))
 	{
-		throw MAKE_FAR_EXCEPTION(unicode::to(CP_UTF8, m_FileName) + ": language data is incorrect or damaged");
+		throw MAKE_FAR_EXCEPTION(encoding::utf8::get_bytes(m_FileName) + ": language data is incorrect or damaged");
 	}
 
 	// try to load Far<LNG>.lng.custom file(s)

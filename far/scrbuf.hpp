@@ -41,9 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum class flush_type
 {
-	screen = BIT(0),
-	cursor = BIT(1),
-	title  = BIT(2),
+	screen = bit(0),
+	cursor = bit(1),
+	title  = bit(2),
 
 	all = screen | cursor | title
 };

@@ -71,11 +71,11 @@ static int KeyCodeForALT_LastPressed=0;
 static MOUSE_EVENT_RECORD lastMOUSE_EVENT_RECORD;
 enum MODIF_PRESSED_LAST
 {
-	MODIF_SHIFT =0x00000001,
-	MODIF_ALT   =0x00000002,
-	MODIF_RALT  =0x00000004,
-	MODIF_CTRL  =0x00000008,
-	MODIF_RCTRL =0x00000010,
+	MODIF_SHIFT = bit(0),
+	MODIF_ALT   = bit(1),
+	MODIF_RALT  = bit(2),
+	MODIF_CTRL  = bit(3),
+	MODIF_RCTRL = bit(4),
 };
 static TBitFlags<size_t> PressedLast;
 

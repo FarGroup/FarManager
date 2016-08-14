@@ -51,9 +51,6 @@
     <ClCompile Include="cmdline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="codepage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="colormix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -115,6 +112,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="eject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="encoding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="execute.cpp">
@@ -455,9 +455,6 @@
     <ClInclude Include="cmdline.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="codepage.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="colormix.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -525,6 +522,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="eject.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="encoding.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="execute.hpp">

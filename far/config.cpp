@@ -3045,7 +3045,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 						}
 						catch (const far_exception& e)
 						{
-							Message(MSG_WARNING, 1, MSG(MError), unicode::from(CP_UTF8, e.get_message()).data(), MSG(MOk));
+							Message(MSG_WARNING, 1, MSG(MError), encoding::utf8::get_chars(e.get_message()).data(), MSG(MOk));
 							strLanguage = SavedLanguage;
 						}
 

@@ -195,7 +195,10 @@ namespace \
 #define SELF_TEST(code)
 #endif
 
-#define BIT(number) (1 << (number))
+constexpr auto bit(size_t Number)
+{
+	return 1 << Number;
+}
 
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE

@@ -82,11 +82,11 @@ enum EXPORTS_ENUM
 
 enum PLUGINWORKFLAGS
 {
-	PIWF_LOADED        = BIT(0), // DLL загружена
-	PIWF_CACHED        = BIT(1), // кешируется
-	PIWF_PRELOADED     = BIT(2), //
-	PIWF_DONTLOADAGAIN = BIT(3), // не загружать плагин снова, ставится в результате проверки требуемой версии фара
-	PIWF_DATALOADED    = BIT(4), // LoadData успешно выполнилась
+	PIWF_LOADED        = bit(0), // DLL загружена
+	PIWF_CACHED        = bit(1), // кешируется
+	PIWF_PRELOADED     = bit(2), //
+	PIWF_DONTLOADAGAIN = bit(3), // не загружать плагин снова, ставится в результате проверки требуемой версии фара
+	PIWF_DATALOADED    = bit(4), // LoadData успешно выполнилась
 };
 
 extern PluginStartupInfo NativeInfo;

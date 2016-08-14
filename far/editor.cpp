@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "colormix.hpp"
 #include "vmenu2.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "DlgGuid.hpp"
 #include "RegExp.hpp"
 #include "plugins.hpp"
@@ -213,7 +213,7 @@ void Editor::KeepInitParameters() const
 	if (Global->GetSearchHex())
 	{
 		// BUGBUG, it's unclear how to represent unicode in hex
-		const auto AnsiStr = unicode::to(m_codepage, strLastSearchStr);
+		const auto AnsiStr = encoding::get_bytes(m_codepage, strLastSearchStr);
 		Global->StoreSearchString(BlobToHexWString(AnsiStr.data(), AnsiStr.size(), 0), true);
 	}
 	else
@@ -4904,7 +4904,7 @@ int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
 	const auto TotalSize = std::accumulate(Lines.cbegin(), m_it_TopScreen.cbase(), bom, [&](auto Value, const auto& line)
 	{
 		const auto& Str = line.GetString();
-		return Value + (Multiplier != Unknown? Str.size() : unicode::to(m_codepage, Str, nullptr, 0)) + wcslen(line.GetEOL());
+		return Value + (Multiplier != Unknown? Str.size() : encoding::get_bytes_count(m_codepage, Str)) + wcslen(line.GetEOL());
 	});
 
 	return Multiplier != Unknown? TotalSize * Multiplier : TotalSize;
@@ -6943,7 +6943,7 @@ void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 
 			if (m_codepage == CP_UTF8)
 			{
-				TotalSize += unicode::to(CP_UTF8, SaveStr, nullptr, 0);
+				TotalSize += encoding::utf8::get_bytes_count(SaveStr);
 			}
 			else
 			{
@@ -7027,7 +7027,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (3 * static_cast<size_t>(edit->m_Str.size()) + 1 > decoded.size())
 			decoded.resize(256 + 4 * edit->m_Str.size());
 
-		const size_t length = unicode::to(m_codepage, edit->m_Str, decoded, lpUsedDefaultChar);
+		const size_t length = encoding::get_bytes(m_codepage, edit->m_Str, decoded, lpUsedDefaultChar);
 		if (!length || UsedDefaultChar)
 		{
 			Ret |= SETCP_WC2MBERROR;
@@ -7037,9 +7037,9 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
 		{
-			Utf::Errs errs;
-			Utf::ToWideChar(codepage, decoded.data(), length, nullptr, 0, &errs);
-			if (errs.count > 0)
+			Utf::errors errs;
+			Utf::get_chars(codepage, decoded.data(), length, nullptr, 0, &errs);
+			if (errs.Conversion.Error)
 				Ret |= SETCP_MB2WCERROR;
 		}
 		else
@@ -7053,7 +7053,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (check_only)
 			return Ret;
 
-		edit->m_Str.assign(unicode::from(codepage, decoded.data(), length));
+		edit->m_Str.assign(encoding::get_chars(codepage, decoded.data(), length));
 	}
 
 	if (!check_only)
@@ -7092,7 +7092,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				wchar_offsets.emplace_back(total_len);
 				char *s = decoded.data() + total_len;
 
-				const size_t len = unicode::to(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
+				const size_t len = encoding::get_bytes(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
 				if (!len || def)
 				{
 					X = j;
@@ -7101,12 +7101,16 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				total_len += len;
 			}
 
-			int err_pos = -1;
+			std::pair<bool, size_t> Error {};
 			if (codepage == CP_UTF8 || codepage == CP_UTF7)
 			{
-				Utf::Errs errs;
-				Utf::ToWideChar(codepage, decoded.data(), total_len, nullptr,0, &errs);
-				err_pos = errs.first_src;
+				Utf::errors errs;
+				Utf::get_chars(codepage, decoded.data(), total_len, nullptr, 0, &errs);
+				if (errs.Conversion.Error)
+				{
+					Error.first = true;
+					Error.second = errs.Conversion.Position;
+				}
 			}
 			else
 			{
@@ -7132,15 +7136,16 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 					}
 					else
 					{
-						err_pos = static_cast<int>(j);
+						Error.first = true;
+						Error.second = j;
 						break;
 					}
 				}
 			}
 
-			if (err_pos >= 0)
+			if (Error.first)
 			{
-				const auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), static_cast<size_t>(err_pos));
+				const auto low_pos = std::lower_bound(wchar_offsets.begin(), wchar_offsets.end(), Error.second);
 				if (low_pos != wchar_offsets.end())
 					X = static_cast<int>(low_pos - wchar_offsets.begin());
 			}

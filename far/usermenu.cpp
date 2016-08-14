@@ -287,7 +287,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 				}
 				else
 				{
-					Buffer = unicode::to(m_MenuCP, SerializedMenu);
+					Buffer = encoding::get_bytes(m_MenuCP, SerializedMenu);
 					MenuBlob = make_blob_view(Buffer.data(), Buffer.size());
 				}
 

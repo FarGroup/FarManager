@@ -206,7 +206,7 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 	});
 	if (ItemIterator != Strings.cend() && os::is_standard_drive_letter(ItemIterator->front()))
 	{
-		Result = BIT(os::get_drive_number(ItemIterator->front()));
+		Result = bit(os::get_drive_number(ItemIterator->front()));
 	}
 	return Result;
 }

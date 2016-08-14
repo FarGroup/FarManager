@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "filestr.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "cache.hpp"
 
 DizList::DizList():
@@ -244,7 +244,7 @@ static auto Find_t(T& Map, const string& Name, const string& ShortName, uintptr_
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
 	if (Iterator == Map.end() && !IsUnicodeOrUtfCodePage(Codepage) && Codepage != CP_DEFAULT)
 	{
-		const auto strRecoded = unicode::from(Codepage, unicode::to(Codepage, Name));
+		const auto strRecoded = encoding::get_chars(Codepage, encoding::get_bytes(Codepage, Name));
 		if (strRecoded == Name)
 		{
 			return Iterator;
@@ -370,7 +370,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				const auto Size = dump.size() * (CodePage == CP_UTF8? 3 : 1); //UTF-8, up to 3 bytes per char support
 				char_ptr DizText(Size);
 
-				if (const auto BytesCount = unicode::to(CodePage, dump, DizText.get(), Size))
+				if (const auto BytesCount = encoding::get_bytes(CodePage, dump, DizText.get(), Size))
 				{
 					if(Cache.Write(DizText.get(), BytesCount))
 					{

@@ -6441,7 +6441,7 @@ void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList
 // Флаги для ReadDiz()
 enum ReadDizFlags
 {
-	RDF_NO_UPDATE         = 0x00000001UL,
+	RDF_NO_UPDATE         = bit(0),
 };
 
 void FileList::Update(int Mode)

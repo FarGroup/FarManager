@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "farexcpt.hpp"
 #include "syslog.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "cddrv.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"
@@ -771,7 +771,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (Param2)
 					{
 						// BUGBUG, it's unclear how to represent unicode in hex
-						const auto AnsiStr = unicode::to(CodePage, Src);
+						const auto AnsiStr = encoding::get_bytes(CodePage, Src);
 						strDataStr = BlobToHexWString(AnsiStr.data(), AnsiStr.size(), 0);
 					}
 					else
@@ -1171,7 +1171,7 @@ bool background_searcher::LookForString(const string& Name)
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					bufferCount = unicode::from(i.CodePage, readBufferA.data(), readBlockSize, readBuffer);
+					bufferCount = encoding::get_chars(i.CodePage, readBufferA.data(), readBlockSize, readBuffer);
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)

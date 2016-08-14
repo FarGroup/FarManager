@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "codepage_selection.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "vmenu2.hpp"
 #include "keys.hpp"
 #include "language.hpp"
@@ -67,15 +67,15 @@ enum CodePagesCallbackCallSource: int
 // Стандартные элементы меню кодовых страниц
 enum StandardCodePagesMenuItems
 {
-	SearchAll = BIT(0), // Find-in-Files dialog
-	AutoCP    = BIT(1), // show <Autodetect> item
-	OEM       = BIT(2), // show OEM codepage
-	ANSI      = BIT(3), // show ANSI codepage
-	UTF8      = BIT(4), // show UTF-8 codepage
-	UTF16LE   = BIT(5), // show UTF-16 LE codepage
-	UTF16BE   = BIT(6), // show UTF-16 BE codepage
-	VOnly     = BIT(7), // show only viewer-supported codepages
-	DefaultCP = BIT(8), // show <Default> item
+	SearchAll = bit(0), // Find-in-Files dialog
+	AutoCP    = bit(1), // show <Autodetect> item
+	OEM       = bit(2), // show OEM codepage
+	ANSI      = bit(3), // show ANSI codepage
+	UTF8      = bit(4), // show UTF-8 codepage
+	UTF16LE   = bit(5), // show UTF-16 LE codepage
+	UTF16BE   = bit(6), // show UTF-16 BE codepage
+	VOnly     = bit(7), // show only viewer-supported codepages
+	DefaultCP = bit(8), // show <Default> item
 
 	AllStandard = OEM | ANSI | UTF8 | UTF16BE | UTF16LE
 };

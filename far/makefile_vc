@@ -108,7 +108,6 @@ LINK_OBJS = \
 	"$(INTDIR)\chgprior.obj" \
 	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\cmdline.obj" \
-	"$(INTDIR)\codepage.obj" \
 	"$(INTDIR)\codepage_selection.obj" \
 	"$(INTDIR)\colormix.obj" \
 	"$(INTDIR)\components.obj" \
@@ -135,6 +134,7 @@ LINK_OBJS = \
 	"$(INTDIR)\editor.obj" \
 	"$(INTDIR)\eject.obj" \
 	"$(INTDIR)\elevation.obj" \
+	"$(INTDIR)\encoding.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\FarDlgBuilder.obj" \
 	"$(INTDIR)\farexcpt.obj" \

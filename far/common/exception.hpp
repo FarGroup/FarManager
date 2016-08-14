@@ -62,6 +62,7 @@ public:
 	}
 };
 
-#define MAKE_FAR_EXCEPTION(Message) far_exception(Message, __FUNCTION__, __FILE__, __LINE__)
+#define MAKE_EXCEPTION(ExceptionType, Message) ExceptionType(Message, __FUNCTION__, __FILE__, __LINE__)
+#define MAKE_FAR_EXCEPTION(Message) MAKE_EXCEPTION(far_exception, Message)
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

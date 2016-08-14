@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservestyle.hpp"
 #include "locale.hpp"
 #include "stddlg.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "regex_helpers.hpp"
 
 namespace strmix
@@ -750,7 +750,7 @@ FarFormatText( "Эта строка содержит ооооооооооооо�
 
 enum FFTMODE
 {
-	FFTM_BREAKLONGWORD = 0x00000001,
+	FFTM_BREAKLONGWORD = bit(0),
 };
 
 string& FarFormatText(const string& SrcText,      // источник

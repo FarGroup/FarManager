@@ -32,7 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef NO_WRAPPER
 
 #include "plugins.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "chgprior.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
@@ -84,7 +84,7 @@ DECLARE_PLUGIN_FUNCTION(iProcessDialogEvent,  int    (WINAPI*)(int Event, void *
 
 static auto UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
 {
-	return static_cast<int>(unicode::to(CP_OEMCP, src, wcslen(src) + 1, dst, lendst));
+	return static_cast<int>(encoding::oem::get_bytes(src, wcslen(src) + 1, dst, lendst));
 }
 
 template<size_t N>
@@ -96,12 +96,12 @@ static auto UnicodeToOEM(const wchar_t* src, char(&dst)[N])
 template<typename T>
 static auto UnicodeToOEM(const T& Str)
 {
-	return unicode::to(CP_OEMCP, Str);
+	return encoding::oem::get_bytes(Str);
 }
 
 static auto OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
 {
-	return static_cast<int>(unicode::from(CP_OEMCP, src, strlen(src) + 1, dst, lendst));
+	return static_cast<int>(encoding::oem::get_chars(src, strlen(src) + 1, dst, lendst));
 }
 
 template<size_t N>
@@ -113,7 +113,7 @@ static auto OEMToUnicode(const char* src, wchar_t(&dst)[N])
 template<typename T>
 static auto OEMToUnicode(const T& Str)
 {
-	return unicode::from(CP_OEMCP, Str);
+	return encoding::oem::get_chars(Str);
 }
 
 class file_version: noncopyable
@@ -379,7 +379,7 @@ static void AnsiToUnicodeBin(const char* AnsiString, wchar_t* UnicodeString, siz
 	{
 		// BUGBUG, error checking
 		*UnicodeString = 0;
-		unicode::from(CodePage, AnsiString, Length, UnicodeString, Length);
+		encoding::get_chars(CodePage, AnsiString, Length, UnicodeString, Length);
 	}
 }
 
@@ -410,7 +410,7 @@ static char *UnicodeToAnsiBin(const wchar_t* UnicodeString, size_t nLength, uint
 	if (nLength)
 	{
 		// BUGBUG, error checking
-		unicode::to(CodePage, UnicodeString, nLength, Result.get(), nLength);
+		encoding::get_bytes(CodePage, UnicodeString, nLength, Result.get(), nLength);
 	}
 
 	return Result.release();
@@ -474,7 +474,7 @@ static DWORD OldKeyToKey(DWORD dOldKey)
 		{
 			char OemChar = static_cast<char>(CleanKey);
 			wchar_t WideChar = 0;
-			if (unicode::from(CP_OEMCP, &OemChar, 1, &WideChar, 1))
+			if (encoding::oem::get_chars(&OemChar, 1, &WideChar, 1))
 				dOldKey = (dOldKey^CleanKey) | WideChar;
 		}
 	}
@@ -500,7 +500,7 @@ static DWORD KeyToOldKey(DWORD dKey)
 		{
 			wchar_t WideChar = static_cast<wchar_t>(CleanKey);
 			char OemChar = 0;
-			if (unicode::to(CP_OEMCP, &WideChar, 1, &OemChar, 1))
+			if (encoding::oem::get_bytes(&WideChar, 1, &OemChar, 1))
 				dKey = (dKey^CleanKey) | OemChar;
 		}
 	}
@@ -1476,8 +1476,8 @@ static void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength
 {
 	if (szBuffer && nLength > 0)
 	{
-		const auto TempTable(unicode::from(nCPin, szBuffer, nLength));
-		unicode::to(nCPout, TempTable.data(), nLength, szBuffer, nLength);
+		const auto TempTable(encoding::get_chars(nCPin, szBuffer, nLength));
+		encoding::get_bytes(nCPout, TempTable.data(), nLength, szBuffer, nLength);
 	}
 };
 
@@ -4438,7 +4438,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 						case KEY_EVENT:
 						{
 							wchar_t res;
-							if (unicode::from(CP_OEMCP, &pIR->Event.KeyEvent.uChar.AsciiChar, 1, &res, 1))
+							if (encoding::oem::get_chars(&pIR->Event.KeyEvent.uChar.AsciiChar, 1, &res, 1))
 								pIR->Event.KeyEvent.uChar.UnicodeChar=res;
 						}
 						default:
@@ -4467,7 +4467,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 						case KEY_EVENT:
 						{
 							char res;
-							if (unicode::to(CP_OEMCP, &pIR->Event.KeyEvent.uChar.UnicodeChar, 1, &res, 1))
+							if (encoding::oem::get_bytes(&pIR->Event.KeyEvent.uChar.UnicodeChar, 1, &res, 1))
 								pIR->Event.KeyEvent.uChar.UnicodeChar=res;
 						}
 					}
@@ -4903,9 +4903,9 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			UnicodeToOEM(sTableName.data(), TableSet->TableName, std::size(TableSet->TableName) - 1);
 			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin(reinterpret_cast<char*>(TableSet->DecodeTable), sizeof(TableSet->DecodeTable), nCP));
 			CharLowerBuff(us.get(), sizeof(TableSet->DecodeTable));
-			unicode::to(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), sizeof(TableSet->DecodeTable));
+			encoding::get_bytes(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), sizeof(TableSet->DecodeTable));
 			CharUpperBuff(us.get(), sizeof(TableSet->DecodeTable));
-			unicode::to(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->UpperTable), sizeof(TableSet->DecodeTable));
+			encoding::get_bytes(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->UpperTable), sizeof(TableSet->DecodeTable));
 			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, reinterpret_cast<char *>(TableSet->DecodeTable), sizeof(TableSet->DecodeTable));
 			MultiByteRecode(CP_OEMCP, static_cast<UINT>(nCP), reinterpret_cast<char *>(TableSet->EncodeTable), sizeof(TableSet->EncodeTable));
 			return Command;

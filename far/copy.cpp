@@ -93,36 +93,36 @@ enum COPY_CODES: int
 
 enum COPY_FLAGS
 {
-	FCOPY_NONE                 = 0,
-	FCOPY_COPYTONUL               = 0x00000001, // Признак копирования в NUL
-	FCOPY_CURRENTONLY             = 0x00000002, // Только текущий?
-	FCOPY_ONLYNEWERFILES          = 0x00000004, // Copy only newer files
-	FCOPY_OVERWRITENEXT           = 0x00000008, // Overwrite all
-	FCOPY_LINK                    = 0x00000010, // создание линков
-	FCOPY_MOVE                    = 0x00000040, // перенос/переименование
-	FCOPY_DIZREAD                 = 0x00000080, //
-	FCOPY_COPYSECURITY            = 0x00000100, // [x] Copy access rights
-	FCOPY_VOLMOUNT                = 0x00000400, // операция монтирования тома
-	FCOPY_STREAMSKIP              = 0x00000800, // потоки
-	FCOPY_STREAMALL               = 0x00001000, // потоки
-	FCOPY_SKIPSETATTRFLD          = 0x00002000, // больше не пытаться ставить атрибуты для каталогов - когда нажали Skip All
-	FCOPY_COPYSYMLINKCONTENTS     = 0x00004000, // Копировать содержимое символических связей?
-	FCOPY_COPYPARENTSECURITY      = 0x00008000, // Накладывать родительские права, в случае если мы не копируем права доступа
-	FCOPY_LEAVESECURITY           = 0x00010000, // Move: [?] Ничего не делать с правами доступа
-	FCOPY_DECRYPTED_DESTINATION   = 0x00020000, // для криптованных файлов - расшифровывать...
-	FCOPY_USESYSTEMCOPY           = 0x00040000, // использовать системную функцию копирования
-	FCOPY_COPYLASTTIME            = 0x10000000, // При копировании в несколько каталогов устанавливается для последнего.
-	FCOPY_UPDATEPPANEL            = 0x80000000, // необходимо обновить пассивную панель
+	FCOPY_NONE                    = 0,
+	FCOPY_COPYTONUL               = bit(0), // Признак копирования в NUL
+	FCOPY_CURRENTONLY             = bit(1), // Только текущий?
+	FCOPY_ONLYNEWERFILES          = bit(2), // Copy only newer files
+	FCOPY_OVERWRITENEXT           = bit(3), // Overwrite all
+	FCOPY_LINK                    = bit(4), // создание линков
+	FCOPY_MOVE                    = bit(5), // перенос/переименование
+	FCOPY_DIZREAD                 = bit(6), //
+	FCOPY_COPYSECURITY            = bit(7), // [x] Copy access rights
+	FCOPY_VOLMOUNT                = bit(8), // операция монтирования тома
+	FCOPY_STREAMSKIP              = bit(9), // потоки
+	FCOPY_STREAMALL               = bit(10), // потоки
+	FCOPY_SKIPSETATTRFLD          = bit(11), // больше не пытаться ставить атрибуты для каталогов - когда нажали Skip All
+	FCOPY_COPYSYMLINKCONTENTS     = bit(12), // Копировать содержимое символических связей?
+	FCOPY_COPYPARENTSECURITY      = bit(13), // Накладывать родительские права, в случае если мы не копируем права доступа
+	FCOPY_LEAVESECURITY           = bit(14), // Move: [?] Ничего не делать с правами доступа
+	FCOPY_DECRYPTED_DESTINATION   = bit(15), // для криптованных файлов - расшифровывать...
+	FCOPY_USESYSTEMCOPY           = bit(16), // использовать системную функцию копирования
+	FCOPY_COPYLASTTIME            = bit(17), // При копировании в несколько каталогов устанавливается для последнего.
+	FCOPY_UPDATEPPANEL            = bit(18), // необходимо обновить пассивную панель
 };
 
 enum COPYSECURITYOPTIONS
 {
-	CSO_MOVE_SETCOPYSECURITY       = 0x00000001,  // Move: по умолчанию выставлять опцию "Copy access rights"?
-	CSO_MOVE_SETINHERITSECURITY    = 0x00000003,  // Move: по умолчанию выставлять опцию "Inherit access rights"?
-	CSO_MOVE_SESSIONSECURITY       = 0x00000004,  // Move: сохранять состояние "access rights" внутри сессии?
-	CSO_COPY_SETCOPYSECURITY       = 0x00000008,  // Copy: по умолчанию выставлять опцию "Copy access rights"?
-	CSO_COPY_SETINHERITSECURITY    = 0x00000018,  // Copy: по умолчанию выставлять опцию "Inherit access rights"?
-	CSO_COPY_SESSIONSECURITY       = 0x00000020,  // Copy: сохранять состояние "access rights" внутри сессии?
+	CSO_MOVE_SETCOPYSECURITY       = bit(0),          // Move: по умолчанию выставлять опцию "Copy access rights"?
+	CSO_MOVE_SETINHERITSECURITY    = bit(0) | bit(1), // Move: по умолчанию выставлять опцию "Inherit access rights"?
+	CSO_MOVE_SESSIONSECURITY       = bit(2),          // Move: сохранять состояние "access rights" внутри сессии?
+	CSO_COPY_SETCOPYSECURITY       = bit(3),          // Copy: по умолчанию выставлять опцию "Copy access rights"?
+	CSO_COPY_SETINHERITSECURITY    = bit(3) | bit(4), // Copy: по умолчанию выставлять опцию "Inherit access rights"?
+	CSO_COPY_SESSIONSECURITY       = bit(5),          // Copy: сохранять состояние "access rights" внутри сессии?
 };
 
 static int CopySecurityCopy=-1;

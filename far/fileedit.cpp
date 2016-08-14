@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fileedit.hpp"
 #include "keyboard.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -767,20 +767,20 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (OpCode == MCODE_V_EDITORSTATE)
 	{
-		DWORD MacroEditState=0;
-		MacroEditState|=m_Flags.Check(FFILEEDIT_NEW)?0x00000001:0;
-		MacroEditState|=m_Flags.Check(FFILEEDIT_ENABLEF6)?0x00000002:0;
-		MacroEditState|=m_Flags.Check(FFILEEDIT_DELETEONCLOSE)?0x00000004:0;
-		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?0x00000008:0;
-		MacroEditState|=m_editor->IsStreamSelection()? 0x00000010 : 0;
-		MacroEditState|=m_editor->IsVerticalSelection()? 0x00000020 : 0;
-		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_WASCHANGED)?0x00000040:0;
-		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_OVERTYPE)?0x00000080:0;
-		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)?0x00000100:0;
-		MacroEditState|=m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?0x00000200:0;
-		MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
-		MacroEditState|=Global->OnlyEditorViewerUsed ? 0x08000000 | 0x00000800 : 0;
-		MacroEditState|=!GetCanLoseFocus()?0x00000800:0;
+		DWORD MacroEditState = 0;
+		MacroEditState |= m_Flags.Check(FFILEEDIT_NEW)?                                   bit(0) : 0;
+		MacroEditState |= m_Flags.Check(FFILEEDIT_ENABLEF6)?                              bit(1) : 0;
+		MacroEditState |= m_Flags.Check(FFILEEDIT_DELETEONCLOSE)?                         bit(2) : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?              bit(3) : 0;
+		MacroEditState |= m_editor->IsStreamSelection()?                                  bit(4) : 0;
+		MacroEditState |= m_editor->IsVerticalSelection()?                                bit(5) : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_WASCHANGED)?            bit(6) : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_OVERTYPE)?              bit(7) : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_CURPOSCHANGEDBYPLUGIN)? bit(8) : 0;
+		MacroEditState |= m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?              bit(9) : 0;
+		MacroEditState |= m_editor->EdOpt.PersistentBlocks?                               bit(10) : 0;
+		MacroEditState |= !GetCanLoseFocus()?                                             bit(11) : 0;
+		MacroEditState |= Global->OnlyEditorViewerUsed ?                                  bit(27) | bit(11) : 0;
 		return MacroEditState;
 	}
 
@@ -2056,9 +2056,9 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				{
 					if (Size)
 					{
-						const auto EncodedSize = unicode::to(codepage, Data, Size, nullptr, 0);
+						const auto EncodedSize = encoding::get_bytes_count(codepage, Data, Size);
 						Buffer.resize(EncodedSize);
-						unicode::to(codepage, Data, Size, Buffer);
+						encoding::get_bytes(codepage, Data, Size, Buffer);
 						if (!Cache.Write(Buffer.data(), Buffer.size()))
 						{
 							bError = true;

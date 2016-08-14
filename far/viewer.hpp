@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "config.hpp"
 #include "cache.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "codepage_selection.hpp"
 
 class FileViewer;

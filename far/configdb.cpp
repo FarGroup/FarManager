@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "sqlitedb.hpp"
 #include "strmix.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
 #include "datetime.hpp"
@@ -278,8 +278,8 @@ public:
 			if (!key || !name || !type || !value)
 				continue;
 
-			const auto Key = unicode::from(CP_UTF8, key);
-			const auto Name = unicode::from(CP_UTF8, name);
+			const auto Key = encoding::utf8::get_chars(key);
+			const auto Name = encoding::utf8::get_chars(name);
 
 			if (!strcmp(type,"qword"))
 			{
@@ -287,7 +287,7 @@ public:
 			}
 			else if (!strcmp(type,"text"))
 			{
-				SetValue(Key, Name, unicode::from(CP_UTF8, value));
+				SetValue(Key, Name, encoding::utf8::get_chars(value));
 			}
 			else if (!strcmp(type,"hex"))
 			{
@@ -641,12 +641,12 @@ private:
 		const auto key_name = key.Attribute("name");
 		if (!key_name)
 			return;
-		const auto KeyName = unicode::from(CP_UTF8, key_name);
+		const auto KeyName = encoding::utf8::get_chars(key_name);
 		const auto key_description = key.Attribute("description");
 		string KeyDescription;
 		if (key_description)
 		{
-			KeyDescription = unicode::from(CP_UTF8, key_description);
+			KeyDescription = encoding::utf8::get_chars(key_description);
 		}
 		const auto Key = CreateKey(root, KeyName, key_description? &KeyDescription : nullptr);
 		if (!Key.get())
@@ -661,7 +661,7 @@ private:
 			if (!name || !type)
 				continue;
 
-			string Name = unicode::from(CP_UTF8, name);
+			string Name = encoding::utf8::get_chars(name);
 
 			if (value && !strcmp(type, "qword"))
 			{
@@ -669,7 +669,7 @@ private:
 			}
 			else if (value && !strcmp(type, "text"))
 			{
-				string Value = unicode::from(CP_UTF8, value);
+				string Value = encoding::utf8::get_chars(value);
 				SetValue(Key, Name, Value);
 			}
 			else if (value && !strcmp(type, "hex"))
@@ -762,7 +762,7 @@ private:
 			e.SetAttribute("type", "color");
 			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
 			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
-			e.SetAttribute("flags", unicode::to(CP_UTF8, FlagsToString(Color.Flags, ColorFlagNames)).data());
+			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).data());
 		}
 		else
 		{
@@ -781,7 +781,7 @@ private:
 			if (const auto foreground = e.Attribute("foreground"))
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
 			if (const auto flags = e.Attribute("flags"))
-				Color.Flags = StringToFlags(unicode::from(CP_UTF8, flags), ColorFlagNames);
+				Color.Flags = StringToFlags(encoding::utf8::get_chars(flags), ColorFlagNames);
 
 			std::vector<char> Blob(sizeof(FarColor));
 			std::memcpy(Blob.data(), &Color, sizeof(Color));
@@ -865,7 +865,7 @@ public:
 			auto& Color = *reinterpret_cast<const FarColor*>(Blob.data());
 			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
 			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
-			e.SetAttribute("flags", unicode::to(CP_UTF8, FlagsToString(Color.Flags, ColorFlagNames)).data());
+			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).data());
 		}
 
 		stmtEnumAllValues.Reset();
@@ -884,14 +884,14 @@ public:
 			if (!name)
 				continue;
 
-			const auto Name = unicode::from(CP_UTF8, name);
+			const auto Name = encoding::utf8::get_chars(name);
 
 			if(background && foreground && flags)
 			{
 				FarColor Color = {};
 				Color.BackgroundColor = std::strtoul(background, nullptr, 16);
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
-				Color.Flags = StringToFlags(unicode::from(CP_UTF8, flags), ColorFlagNames);
+				Color.Flags = StringToFlags(encoding::utf8::get_chars(flags), ColorFlagNames);
 				SetValue(Name, Color);
 			}
 			else
@@ -1107,8 +1107,8 @@ public:
 			if (!mask)
 				continue;
 
-			const auto Mask = unicode::from(CP_UTF8, mask);
-			const auto Description = unicode::from(CP_UTF8, NullToEmpty(description));
+			const auto Mask = encoding::utf8::get_chars(mask);
+			const auto Description = encoding::utf8::get_chars(NullToEmpty(description));
 
 			id = AddType(id, Mask, Description);
 			if (!id)
@@ -1128,7 +1128,7 @@ public:
 				if (se->QueryIntAttribute("enabled", &enabled) != tinyxml::XML_NO_ERROR)
 					continue;
 
-				SetCommand(id, type, unicode::from(CP_UTF8, command), enabled != 0);
+				SetCommand(id, type, encoding::utf8::get_chars(command), enabled != 0);
 			}
 
 		}
@@ -1661,7 +1661,7 @@ public:
 			if (!key)
 				continue;
 
-			const auto Key = unicode::from(CP_UTF8, key);
+			const auto Key = encoding::utf8::get_chars(key);
 
 			for (const auto& se: xml_enum(*e, "hotkey"))
 			{
@@ -1671,10 +1671,10 @@ public:
 
 				GUID Guid;
 
-				if (!stype || !guid || !StrToGuid(unicode::from(CP_UTF8, guid), Guid))
+				if (!stype || !guid || !StrToGuid(encoding::utf8::get_chars(guid), Guid))
 					continue;
 
-				const auto Hotkey = unicode::from(CP_UTF8, hotkey);
+				const auto Hotkey = encoding::utf8::get_chars(hotkey);
 
 				if (!strcmp(stype,"drive"))
 					SetHotkey(Key, Guid, hotkey_type::drive_menu, Hotkey);
@@ -2367,15 +2367,15 @@ HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck Db
 enum dbcheck: int
 {
 	CHECK_NONE       = 0,
-	CHECK_FILTERS    = BIT(0),
-	CHECK_HIGHLIGHT  = BIT(1),
-	CHECK_SHORTCUTS  = BIT(2),
-	CHECK_PANELMODES = BIT(3),
+	CHECK_FILTERS    = bit(0),
+	CHECK_HIGHLIGHT  = bit(1),
+	CHECK_SHORTCUTS  = bit(2),
+	CHECK_PANELMODES = bit(3),
 };
 
 HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string& guid, bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", unicode::to(CP_UTF8, guid).data(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, L"PluginsData\\" + guid + L".db", encoding::utf8::get_bytes(guid).data(), Local, true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
@@ -2450,7 +2450,7 @@ bool config_provider::Export(const string& File)
 			if (std::regex_search(i.strFileName, uuid_regex()))
 			{
 				auto& PluginRoot = Representation.CreateChild(e, "plugin");
-				PluginRoot.SetAttribute("guid", unicode::to(CP_UTF8, i.strFileName).data());
+				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.strFileName).data());
 				Representation.SetRoot(PluginRoot);
 				CreatePluginsConfig(i.strFileName)->Export(Representation);
 			}
@@ -2497,7 +2497,7 @@ bool config_provider::Import(const string& Filename)
 		const auto guid = plugin->Attribute("guid");
 		if (!guid)
 			continue;
-		const auto Guid = Upper(unicode::from(CP_UTF8, guid));
+		const auto Guid = Upper(encoding::utf8::get_chars(guid));
 
 		if (std::regex_search(Guid, uuid_regex()))
 		{

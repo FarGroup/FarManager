@@ -3,7 +3,7 @@
 #pragma once
 
 /*
-codepage.hpp
+encoding.hpp
 
 Работа с кодовыми страницами
 */
@@ -35,77 +35,123 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace unicode
+namespace encoding
 {
 	#define NOT_PTR(T) typename T, ENABLE_IF(!std::is_pointer<T>::value)
 
-	size_t to(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
+	size_t get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
 
-	template<NOT_PTR(T)>
-	auto to(uintptr_t Codepage, const T& Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
+	inline auto get_bytes_count(uintptr_t Codepage, const wchar_t* Data, size_t Size)
 	{
-		return to(Codepage, Data.data(), Data.size(), Buffer, BufferSize, UsedDefaultChar);
+		return get_bytes(Codepage, Data, Size, nullptr, 0);
 	}
 
 	template<NOT_PTR(T)>
-	auto to(uintptr_t Codepage, const wchar_t* Data, size_t Size, T& Buffer, bool* UsedDefaultChar = nullptr)
+	auto get_bytes(uintptr_t Codepage, const T& Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
 	{
-		return to(Codepage, Data, Size, Buffer.data(), Buffer.size(), UsedDefaultChar);
+		return get_bytes(Codepage, Data.data(), Data.size(), Buffer, BufferSize, UsedDefaultChar);
+	}
+
+	template<NOT_PTR(T)>
+	auto get_bytes_count(uintptr_t Codepage, const T& Data)
+	{
+		return get_bytes(Codepage, Data.data(), Data.size(), nullptr, 0);
+	}
+
+	template<NOT_PTR(T)>
+	auto get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, T& Buffer, bool* UsedDefaultChar = nullptr)
+	{
+		return get_bytes(Codepage, Data, Size, Buffer.data(), Buffer.size(), UsedDefaultChar);
 	}
 
 	template<NOT_PTR(T), NOT_PTR(Y)>
-	auto to(uintptr_t Codepage, const T& Data, Y& Buffer, bool* UsedDefaultChar = nullptr)
+	auto get_bytes(uintptr_t Codepage, const T& Data, Y& Buffer, bool* UsedDefaultChar = nullptr)
 	{
-		return to(Codepage, Data.data(), Data.size(), Buffer.data(), Buffer.size(), UsedDefaultChar);
+		return get_bytes(Codepage, Data.data(), Data.size(), Buffer.data(), Buffer.size(), UsedDefaultChar);
 	}
 
-	std::string to(uintptr_t Codepage, const wchar_t* Data, size_t Size, bool* UsedDefaultChar = nullptr);
+	std::string get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, bool* UsedDefaultChar = nullptr);
 
-	inline auto to(uintptr_t Codepage, const wchar_t* Data, bool* UsedDefaultChar = nullptr)
+	inline auto get_bytes(uintptr_t Codepage, const wchar_t* Data, bool* UsedDefaultChar = nullptr)
 	{
-		return to(Codepage, Data, wcslen(Data), UsedDefaultChar);
-	}
-
-	template<NOT_PTR(T)>
-	auto to(uintptr_t Codepage, const T& Data, bool* UsedDefaultChar = nullptr)
-	{
-		return to(Codepage, Data.data(), Data.size(), UsedDefaultChar);
-	}
-
-	size_t from(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize);
-
-	template<NOT_PTR(T)>
-	auto from(uintptr_t Codepage, const T& Data, wchar_t* Buffer, size_t BufferSize)
-	{
-		return from(Codepage, Data.data(), Data.size(), Buffer, BufferSize);
+		return get_bytes(Codepage, Data, wcslen(Data), UsedDefaultChar);
 	}
 
 	template<NOT_PTR(T)>
-	auto from(uintptr_t Codepage, const char* Data, size_t Size, T& Buffer)
+	auto get_bytes(uintptr_t Codepage, const T& Data, bool* UsedDefaultChar = nullptr)
 	{
-		return from(Codepage, Data, Size, Buffer.data(), Buffer.size());
+		return get_bytes(Codepage, Data.data(), Data.size(), UsedDefaultChar);
+	}
+
+	size_t get_chars(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize);
+	
+	inline auto get_chars_count(uintptr_t Codepage, const char* Data, size_t Size)
+	{
+		return get_chars(Codepage, Data, Size, nullptr, 0);
+	}
+
+	template<NOT_PTR(T)>
+	auto get_chars(uintptr_t Codepage, const T& Data, wchar_t* Buffer, size_t BufferSize)
+	{
+		return get_chars(Codepage, Data.data(), Data.size(), Buffer, BufferSize);
+	}
+
+	template<NOT_PTR(T)>
+	auto get_chars_count(uintptr_t Codepage, const T& Data)
+	{
+		return get_chars(Codepage, Data.data(), Data.size(), nullptr, 0);
+	}
+
+	template<NOT_PTR(T)>
+	auto get_chars(uintptr_t Codepage, const char* Data, size_t Size, T& Buffer)
+	{
+		return get_chars(Codepage, Data, Size, Buffer.data(), Buffer.size());
 	}
 
 	template<NOT_PTR(T), NOT_PTR(Y)>
-	auto from(uintptr_t Codepage, const T& Data, Y& Buffer)
+	auto get_chars(uintptr_t Codepage, const T& Data, Y& Buffer)
 	{
-		return from(Codepage, Data.data(), Data.size(), Buffer.data(), Buffer.size());
+		return get_chars(Codepage, Data.data(), Data.size(), Buffer.data(), Buffer.size());
 	}
 
-	string from(uintptr_t Codepage, const char* Data, size_t Size);
+	string get_chars(uintptr_t Codepage, const char* Data, size_t Size);
 
-	inline auto from(uintptr_t Codepage, const char* Data)
+	inline auto get_chars(uintptr_t Codepage, const char* Data)
 	{
-		return from(Codepage, Data, strlen(Data));
+		return get_chars(Codepage, Data, strlen(Data));
 	}
 
 	template<NOT_PTR(T)>
-	auto from(uintptr_t Codepage, const T& Data)
+	auto get_chars(uintptr_t Codepage, const T& Data)
 	{
-		return from(Codepage, Data.data(), Data.size());
+		return get_chars(Codepage, Data.data(), Data.size());
 	}
 
 #undef NOT_PTR
+
+	namespace detail
+	{
+		template<int Codepage>
+		class codepage
+		{
+		public:
+			template<class... args>
+			static auto get_bytes_count(args&&... Args) { return encoding::get_bytes_count(Codepage, std::forward<args>(Args)...); }
+
+			template<class... args>
+			static auto get_bytes(args&&... Args) { return encoding::get_bytes(Codepage, std::forward<args>(Args)...); }
+
+			template<class... args>
+			static auto get_chars_count(args&&... Args) { return encoding::get_chars_count(Codepage, std::forward<args>(Args)...); }
+
+			template<class... args>
+			static auto get_chars(args&&... Args) { return encoding::get_chars(Codepage, std::forward<args>(Args)...); }
+		};
+	}
+
+	using utf8 = detail::codepage<CP_UTF8>;
+	using ansi = detail::codepage<CP_ACP>;
+	using oem = detail::codepage<CP_OEMCP>;
 }
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
@@ -146,25 +192,29 @@ namespace Utf
 	const wchar_t CONTINUE_CHAR = L'\x203A'; // Single Right-Pointing Angle Quotation Mark
 
 
-	struct Errs
+	struct errors
 	{
-		int first_src;
-		int first_out;
-		int count;
-		bool small_buff;
+		struct
+		{
+			bool Error{};
+			size_t Position{};
+		}
+		Conversion;
 	};
 
-	int ToWideChar(uintptr_t cp, const char *src, size_t len, wchar_t* out, size_t wlen, Errs *errs);
+	size_t get_chars(uintptr_t Codepage, const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, errors* Errors);
 }
 
-namespace Utf7 {
-	int ToWideChar(const char *src, size_t len, wchar_t* out, size_t wlen, Utf::Errs *errs);
-}
-
-namespace Utf8 {
-	int ToWideChar(const char *s, size_t nc, wchar_t *w1, wchar_t *w2, size_t wlen, int &tail);
-	int ToWideChar(const char *src, size_t len, wchar_t* out, size_t wlen, Utf::Errs *errs);
-	size_t ToMultiByte(const wchar_t *src, size_t len, char *dst);
+namespace Utf8
+{
+	// returns the number of decoded chars, 1 or 2. Moves the DataIterator forward as required.
+	size_t get_char(const char*& DataIterator, const char* const DataEnd, wchar_t& First, wchar_t& Second);
+	// returns the number of decoded chars, up to the BufferSize. Stops on buffer overflow. Tail contains the number of unprocessed bytes.
+	size_t get_chars(const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, int& Tail);
+	// returns the required buffer size. Fills Buffer up to the BufferSize.
+	size_t get_chars(const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, Utf::errors* Errors);
+	// returns the required buffer size. Fills Buffer up to the BufferSize.
+	size_t get_bytes(const wchar_t* Str, size_t StrSize, char* Buffer, size_t BufferSize);
 }
 
 //#############################################################################
@@ -184,7 +234,7 @@ private:
 	static char to(uintptr_t Codepage, wchar_t WideChar)
 	{
 		char Char = WideChar;
-		unicode::to(Codepage, &WideChar, 1, &Char, 1);
+		encoding::get_bytes(Codepage, &WideChar, 1, &Char, 1);
 		return Char;
 	}
 

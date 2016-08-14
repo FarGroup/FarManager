@@ -25,7 +25,6 @@ SRCS = \
 	chgprior.cpp \
 	clipboard.cpp \
 	cmdline.cpp \
-	codepage.cpp \
 	codepage_selection.cpp \
 	colormix.cpp \
 	components.cpp \
@@ -52,6 +51,7 @@ SRCS = \
 	editor.cpp \
 	eject.cpp \
 	elevation.cpp \
+	encoding.cpp \
 	execute.cpp \
 	FarDlgBuilder.cpp \
 	farexcpt.cpp \
@@ -214,7 +214,7 @@ $(OBJDIR)%.o: %.c
 
 $(OBJDIR)hook_wow64.o: hook_wow64.cpp
 	@echo $<
-	$(CXX) $(CCFLAGS) -masm=intel -fomit-frame-pointer -c -o $@ $<
+	$(CXX) $(CCFLAGS) -fomit-frame-pointer -c -o $@ $<
 
 $(OBJDIR)initguid.o: initguid.cpp
 	@echo $<

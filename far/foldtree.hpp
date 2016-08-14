@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "modal.hpp"
-#include "config.hpp"
 
 class TreeList;
 class EditControl;

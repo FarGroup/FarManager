@@ -174,7 +174,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="chgprior.cpp" />
     <ClCompile Include="clipboard.cpp" />
     <ClCompile Include="cmdline.cpp" />
-    <ClCompile Include="codepage.cpp" />
     <ClCompile Include="colormix.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="config.cpp" />
@@ -198,6 +197,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="editcontrol.cpp" />
     <ClCompile Include="editor.cpp" />
     <ClCompile Include="eject.cpp" />
+    <ClCompile Include="encoding.cpp" />
     <ClCompile Include="execute.cpp" />
     <ClCompile Include="farexcpt.cpp" />
     <ClCompile Include="farrtl.cpp" />
@@ -348,7 +348,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="chgprior.hpp" />
     <ClInclude Include="clipboard.hpp" />
     <ClInclude Include="cmdline.hpp" />
-    <ClInclude Include="codepage.hpp" />
     <ClInclude Include="colormix.hpp" />
     <ClInclude Include="common.hpp" />
     <ClInclude Include="components.hpp" />
@@ -373,6 +372,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="editcontrol.hpp" />
     <ClInclude Include="editor.hpp" />
     <ClInclude Include="eject.hpp" />
+    <ClInclude Include="encoding.hpp" />
     <ClInclude Include="execute.hpp" />
     <ClInclude Include="exitcode.hpp" />
     <ClInclude Include="FarDlgBuilder.hpp" />

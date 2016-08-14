@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "viewer.hpp"
-#include "codepage.hpp"
+#include "encoding.hpp"
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
@@ -741,12 +741,10 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 	}
 	else if (m_Codepage == CP_UTF8)
 	{
-		std::vector<wchar_t> w1(ClientWidth);
-		std::vector<wchar_t> w2(ClientWidth);
+		std::vector<wchar_t> Buffer(ClientWidth);
 		int dummy_tail;
-		int nw = Utf8::ToWideChar(Src, Size, w1.data(), w2.data(), ClientWidth, dummy_tail);
-		bool first = true;
-		for (int iw = 0; OutStr.size() < ClientWidth && iw < nw; ++iw)
+		const auto WideCharsNumber = Utf8::get_chars(Src, Size, Buffer.data(), ClientWidth, dummy_tail);
+		for (size_t iw = 0; OutStr.size() < ClientWidth && iw != WideCharsNumber; ++iw)
 		{
 			if (tail)
 			{
@@ -755,16 +753,8 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 				continue;
 			}
 
-			if (first && w1[iw] == Utf::REPLACE_CHAR && w2[iw] == L'?')
-			{
-				OutStr.push_back(Utf::CONTINUE_CHAR); // это может быть не совсем корректно для 'плохих' utf-8
-			}                                         // но усложнять из-за этого код на мой взгляд не стоит...
-			else
-			{
-				first = false;
-				OutStr.push_back(w1[iw] == Utf::BOM_CHAR? Utf::REPLACE_CHAR : w1[iw]); // BOM can be Zero Length
-			}
-			const auto clen = unicode::to(CP_UTF8, w2.data() + iw, 1, nullptr, 0);
+			OutStr.push_back(Buffer[iw] == Utf::BOM_CHAR? Utf::REPLACE_CHAR : Buffer[iw]); // BOM can be Zero Length
+			const auto clen = encoding::utf8::get_bytes_count(Buffer.data() + iw, 1);
 			const auto PaddingSize = std::min(clen - 1, static_cast<size_t>(ClientWidth) - OutStr.size());
 			OutStr.append(PaddingSize, Utf::CONTINUE_CHAR);
 			tail = static_cast<int>(clen - 1 - PaddingSize); // char continues on the next line?
@@ -800,7 +790,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 	}
 	else
 	{
-		OutStr = unicode::from(m_Codepage, Src, Size);
+		OutStr = encoding::get_chars(m_Codepage, Src, Size);
 	}
 
 	OutStr.resize(ClientWidth, L' ');
@@ -1461,14 +1451,15 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return !FilePos || !ViewFile;
 		case MCODE_V_VIEWERSTATE:
 		{
-			DWORD MacroViewerState = 0x00000004; // always UNICODE
-			MacroViewerState |= ViOpt.AutoDetectCodePage ? 0x00000001 : 0; //autodetect
-			MacroViewerState |= m_Wrap                  ? 0x00000008 : 0; //wrap mode
-			MacroViewerState |= m_WordWrap              ? 0x00000010 : 0; //word wrap
-			MacroViewerState |= m_DisplayMode == VMT_HEX? 0x00000020 : 0; //hex mode
-			MacroViewerState |= m_DisplayMode == VMT_DUMP? 0x00000040 : 0; //dump mode
-			MacroViewerState |= Global->OnlyEditorViewerUsed ? 0x08000000 | 0x00000800 : 0;
-			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
+			DWORD MacroViewerState = 0;
+			MacroViewerState |= ViOpt.AutoDetectCodePage?                             bit(0) : 0;
+			MacroViewerState |= IsUnicodeCodePage(m_Codepage)?                        bit(2) : 0;
+			MacroViewerState |= m_Wrap?                                               bit(3) : 0;
+			MacroViewerState |= m_WordWrap?                                           bit(4) : 0;
+			MacroViewerState |= m_DisplayMode == VMT_HEX?                             bit(5) : 0;
+			MacroViewerState |= m_DisplayMode == VMT_DUMP?                            bit(6) : 0;
+			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()? bit(11) : 0;
+			MacroViewerState |= Global->OnlyEditorViewerUsed?                         bit(27) | bit(11) : 0;
 			return MacroViewerState;
 		}
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
@@ -2480,7 +2471,7 @@ int Viewer::GetStrBytesNum(const wchar_t *Str, int Length) const
 	if (ch_size > 0)
 		return Length * ch_size;
 	else
-		return static_cast<int>(unicode::to(m_Codepage, Str, Length, nullptr, 0));
+		return static_cast<int>(encoding::get_bytes_count(m_Codepage, Str, Length));
 }
 
 void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
@@ -2751,10 +2742,10 @@ void Viewer::SearchTextTransform(string &to, const string& from, bool hex2text, 
 		}
 		else
 		{
-			to = unicode::from(m_Codepage, Bytes);
+			to = encoding::get_chars(m_Codepage, Bytes);
 			if ( pos >= 0 )
 			{
-				pos = unicode::from(m_Codepage, Bytes.data(), pos, nullptr, 0);
+				pos = encoding::get_chars_count(m_Codepage, Bytes.data(), pos);
 			}
 		}
 	}
@@ -2779,7 +2770,7 @@ void Viewer::SearchTextTransform(string &to, const string& from, bool hex2text, 
 					Size = 2; Buffer[0] = (char)HIBYTE(ch); Buffer[1] = (char)LOBYTE(ch);
 				break;
 				default:
-					Size = unicode::to(m_Codepage, &ch, 1, Buffer, 4);
+					Size = encoding::get_bytes(m_Codepage, &ch, 1, Buffer, 4);
 				break;
 			}
 
@@ -3739,7 +3730,8 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		if (m_Codepage == CP_UTF8)
 		{
 			int tail;
-			ReadSize = (DWORD)Utf8::ToWideChar(TmpBuf, ConvertSize, Buf,Buf2, Count, tail);
+			ReadSize = Utf8::get_chars(TmpBuf, ConvertSize, Buf, Count, tail);
+			std::copy_n(Buf, ReadSize, Buf2);
 			if (tail)
 				Reader.Unread(tail);
 		}
@@ -3778,7 +3770,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		}
 		else
 		{
-			ReadSize = unicode::from(m_Codepage, TmpBuf, ConvertSize, Buf, Count);
+			ReadSize = encoding::get_chars(m_Codepage, TmpBuf, ConvertSize, Buf, Count);
 		}
 	}
 
@@ -3872,12 +3864,13 @@ bool Viewer::vgetc(wchar_t *pCh)
 		break;
 		case CP_UTF8:
 		{
-			int tail;
 			wchar_t w[2];
-			int nw = Utf8::ToWideChar((const char *)vgetc_buffer+vgetc_ib, vgetc_cb-vgetc_ib, w,nullptr, -2,tail);
-			vgetc_ib = vgetc_cb - tail;
+			const char* Iterator = vgetc_buffer + vgetc_ib;
+			const char* End = vgetc_buffer + vgetc_cb;
+			const auto WideCharsNumber = Utf8::get_char(Iterator, End, w[0], w[1]);
+			vgetc_ib = Iterator - vgetc_buffer;
 			*pCh = w[0];
-			if (nw > 1)
+			if (WideCharsNumber > 1)
 				vgetc_composite = w[1];
 			break;
 		}
@@ -3906,7 +3899,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 			}
 			else
 			{
-				unicode::from(m_Codepage, vgetc_buffer + vgetc_ib, 1, pCh, 1);
+				encoding::get_chars(m_Codepage, vgetc_buffer + vgetc_ib, 1, pCh, 1);
 				++vgetc_ib;
 			}
 		break;
@@ -3961,8 +3954,8 @@ wchar_t Viewer::vgetc_prev()
 			{
 				int tail = 0;
 				wchar_t CharBuffer[4];
-				int Length = Utf8::ToWideChar(RawBuffer, BytesRead, CharBuffer, nullptr, std::size(CharBuffer), tail);
-				if (!tail && Length > 0)
+				const auto Length = Utf8::get_chars(RawBuffer, BytesRead, CharBuffer, std::size(CharBuffer), tail);
+				if (!tail && Length)
 				{
 					Result = CharBuffer[Length - 1];
 				}
@@ -3972,7 +3965,7 @@ wchar_t Viewer::vgetc_prev()
 		default:
 			if (CharSize == 1)
 			{
-				unicode::from(m_Codepage, RawBuffer, 1, &Result, 1);
+				encoding::get_chars(m_Codepage, RawBuffer, 1, &Result, 1);
 			}
 			else
 			{

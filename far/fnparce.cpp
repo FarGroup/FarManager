@@ -821,7 +821,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				}
 				else
 				{
-					Buffer = unicode::to(CodePage, strFileName);
+					Buffer = encoding::get_bytes(CodePage, strFileName);
 					Blob = make_blob_view(Buffer.data(), Buffer.size());
 				}
 

@@ -184,14 +184,14 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 
 			if (ExitCode)
 			{
-				Utf::Errs errs;
-				int len = Utf::ToWideChar(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), m_wStr.size(), &errs);
+				Utf::errors errs;
+				const auto len = Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), m_wStr.size(), &errs);
 
-				SomeDataLost = SomeDataLost || errs.count > 0;
-				if (errs.small_buff)
+				SomeDataLost = SomeDataLost || errs.Conversion.Error;
+				if (len > m_wStr.size())
 				{
-					std::vector<wchar_t>(len + 1).swap(m_wStr);
-					Utf::ToWideChar(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), len, nullptr);
+					resize_nomove(m_wStr, len + 1);
+					Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), len, nullptr);
 				}
 
 				m_wStr.resize(len+1);
@@ -235,17 +235,17 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				}
 				if (bGet)
 				{
-					nResultLength = unicode::from(m_CodePage, CharStr, m_wStr);
-					if (!nResultLength)
+					nResultLength = encoding::get_chars(m_CodePage, CharStr, m_wStr);
+					if (nResultLength > m_wStr.size())
 					{
-						Result = GetLastError();
+						Result = ERROR_INSUFFICIENT_BUFFER;
 					}
 				}
 				if (Result == ERROR_INSUFFICIENT_BUFFER)
 				{
-					nResultLength = unicode::from(m_CodePage, CharStr, nullptr, 0);
+					nResultLength = encoding::get_chars_count(m_CodePage, CharStr);
 					m_wStr.resize(nResultLength);
-					nResultLength = unicode::from(m_CodePage, CharStr, m_wStr);
+					encoding::get_chars(m_CodePage, CharStr, m_wStr);
 				}
 
 				m_wStr.resize(nResultLength);
