@@ -63,7 +63,7 @@ $ #The Unload command#
 
       #unload: <filename#
 
-   Plugin GUID can also be used instead of full DLL path.
+   Plugin GUID can also be used instead of DLL path.
 
 
    See also: ~load~@Load@ | ~Notes~@Remark@ | ~Contents~@Contents@
