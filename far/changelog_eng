@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.08.2016 09:23:14 +0200 - build 4758
+
+1. More paranoid options for GCC.
+
+drkns 14.08.2016 15:28:56 +0200 - build 4757
+
+1. Refactoring for everything encoding related.
+
+2. -flto for GCC. Suddenly Far.exe lost ~750 K of size.
+
+drkns 13.08.2016 17:07:34 +0200 - build 4756
+
+1. Another correction of 4747.
+
+svs 09.08.2016 10:31:09 +0300 - build 4755
+
+1. SQLite 3.14.0
+
+drkns 08.08.2016 23:38:23 +0200 - build 4754
+
+1. Refactoring.
+
 drkns 07.08.2016 21:59:50 +0200 - build 4753
 
 1. Adapters were broken after 4747.
