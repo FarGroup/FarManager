@@ -36,6 +36,7 @@ namespace tinyxml_impl
 WARNING_PUSH()
 
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+WARNING_DISABLE_GCC("-Wsuggest-override")
 
 #include "thirdparty/tinyxml2/tinyxml2.h"
 

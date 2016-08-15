@@ -43,6 +43,7 @@ WARNING_PUSH(2)
 WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
+WARNING_DISABLE_GCC("-Wsuggest-override")
 
 
 #include "thirdparty/ucd/nscore.h"

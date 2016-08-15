@@ -46,14 +46,14 @@ class DizViewer: public Viewer
 		virtual ~DizViewer() {}
 
 	public:
-		virtual int ProcessKey(const Manager::Key& Key)
+		virtual int ProcessKey(const Manager::Key& Key) override
 		{
 			InRecursion++;
 			int res=Viewer::ProcessKey(Key);
 			InRecursion--;
 			return res;
 		}
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override
 		{
 			InRecursion++;
 			int res=Viewer::ProcessMouse(MouseEvent);
