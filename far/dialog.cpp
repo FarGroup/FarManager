@@ -392,7 +392,7 @@ void Dialog::Init()
 	}
 
 	IdExist=false;
-	ClearStruct(m_Id);
+	m_Id = {};
 	bInitOK = true;
 }
 
@@ -838,6 +838,8 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				ItemFlags&=~DIF_HISTORY;
 			}
 
+			bool SetUnchanged = false;
+
 			if (Type==DI_FIXEDIT)
 			{
 				//   DIF_HISTORY имеет более высокий приоритет, чем DIF_MASKEDIT
@@ -879,11 +881,11 @@ size_t Dialog::InitDialogObjects(size_t ID)
 					DialogEdit->SetEditBeyondEnd(false);
 
 					if (!DialogMode.Check(DMODE_OBJECTS_INITED))
-						DialogEdit->SetClearFlag(1);
+						SetUnchanged = true;
 				}
 
 			if (Items[I].Type == DI_COMBOBOX)
-				DialogEdit->SetClearFlag(1);
+				SetUnchanged = true;
 
 			/* $ 01.08.2000 SVS
 			   Еже ли стоит флаг DIF_USELASTHISTORY и непустая строка ввода,
@@ -934,6 +936,9 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 			if (ItemFlags&DIF_READONLY)
 				DialogEdit->SetReadOnly(1);
+
+			if (SetUnchanged)
+				DialogEdit->SetClearFlag(true);
 		}
 		else if (Type == DI_USERCONTROL)
 		{
@@ -4117,7 +4122,7 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 	INPUT_RECORD rec;
 	if(!KeyToInputRecord(Key,&rec))
 	{
-		ClearStruct(rec);
+		rec = {};
 	}
 
 	for (size_t I=0; I<Items.size(); I++)
@@ -4267,7 +4272,7 @@ void Dialog::Process()
 	_DIALOG(CleverSysLog CL(L"Dialog::Process()"));
 //  if(DialogMode.Check(DMODE_SMALLDIALOG))
 	SetRestoreScreenMode(true);
-	ClearStruct(PrevMouseRecord);
+	PrevMouseRecord = {};
 	ClearDone();
 	InitDialog();
 	std::unique_ptr<TaskBarError> TBE;
@@ -5013,7 +5018,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								const auto& ListMenuItem = ListBox->at(ListItems->ItemIndex);
 								//ListItems->ItemIndex=1;
 								FarListItem *Item=&ListItems->Item;
-								ClearStruct(*Item);
+								*Item = {};
 								Item->Flags=ListMenuItem.Flags;
 								Item->Text=ListMenuItem.strName.data();
 								/*

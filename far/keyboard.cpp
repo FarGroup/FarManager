@@ -740,7 +740,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			if (!Global->WaitInMainLoop && LoopCount==64)
 			{
 				LastEventIdle=TRUE;
-				ClearStruct(*rec);
+				*rec = {};
 				rec->EventType=KEY_EVENT;
 				return KEY_IDLE;
 			}
@@ -750,7 +750,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		{
 			if (MessageManager().dispatch())
 			{
-				ClearStruct(*rec);
+				*rec = {};
 				return KEY_NONE;
 			}
 		}
@@ -1054,7 +1054,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 						irec.Rec=*rec;
 						if (Global->CtrlObject->Macro.ProcessEvent(&irec))
 						{
-							ClearStruct(*rec);
+							*rec = {};
 							return KEY_NONE;
 						}
 					}
@@ -1866,7 +1866,7 @@ int IsShiftKey(DWORD Key)
 unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 {
 	FarKeyboardState _IntKeyState=IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
-	ClearStruct(IntKeyState);
+	IntKeyState = {};
 	DWORD Ret=CalcKeyCode(rec,RealKey,NotMacros);
 	IntKeyState=_IntKeyState;
 	return Ret;

@@ -2844,7 +2844,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 {
 	if (FItem && MItem)
 	{
-		ClearStruct(*FItem);
+		*FItem = {};
 		FItem->Flags = MItem->Flags;
 		FItem->Text = MItem->strName.data();
 		return FItem;

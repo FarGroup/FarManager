@@ -199,7 +199,7 @@ bool CanSort(int SortMode)
 
 FileListItem::FileListItem()
 {
-	ClearStruct(static_cast<detail::FileListItemPod&>(*this));
+	static_cast<detail::FileListItemPod&>(*this) = {};
 	m_Owner.assign(1, values::uninitialised(wchar_t()));
 }
 
@@ -6087,7 +6087,7 @@ void FileList::GetOpenPanelInfo(OpenPanelInfo *Info) const
 {
 	_ALGO(CleverSysLog clv(L"FileList::GetOpenPanelInfo()"));
 	//_ALGO(SysLog(L"FileName='%s'",(FileName?FileName:"(nullptr)")));
-	ClearStruct(*Info);
+	*Info = {};
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(m_hPlugin,Info);

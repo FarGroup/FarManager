@@ -99,7 +99,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 		if(DefRec.EventType)
 		{
 			INPUT_RECORD rec=DefRec;
-			ClearStruct(DefRec);
+			DefRec = {};
 			if(!Call(DN_INPUT, &rec))
 				Dlg->SendMessage( DM_KEY, 1, &rec);
 		}

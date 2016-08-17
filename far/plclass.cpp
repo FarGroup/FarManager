@@ -673,7 +673,7 @@ bool Plugin::LoadFromCache(const os::FAR_FIND_DATA &FindData)
 
 		if (!PlCache->GetVersion(id, &PluginVersion))
 		{
-			ClearStruct(PluginVersion);
+			PluginVersion = {};
 		}
 		VersionString = VersionToString(PluginVersion);
 

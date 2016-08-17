@@ -1097,7 +1097,7 @@ static void AnsiDialogItemToUnicodeSafe(const oldfar::FarDialogItem &diA, FarDia
 
 static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogItem &di, FarList &l)
 {
-	ClearStruct(di);
+	di = {};
 	AnsiDialogItemToUnicodeSafe(diA, di);
 
 	switch (di.Type)
@@ -1401,7 +1401,7 @@ static void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 	if (PIA->SelectedItems)
 		FreePanelItemA(PIA->SelectedItems, PIA->SelectedItemsNumber);
 
-	ClearStruct(*PIA);
+	*PIA = {};
 }
 
 struct oldPanelInfoContainer: noncopyable
@@ -3632,7 +3632,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				}
 				else
 				{
-					ClearStruct(*static_cast<oldfar::PanelInfo*>(Param));
+					*static_cast<oldfar::PanelInfo*>(Param) = {};
 				}
 
 				Reenter--;
@@ -3645,7 +3645,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 					return FALSE;
 
 				const auto OldPI = static_cast<oldfar::PanelInfo*>(Param);
-				ClearStruct(*OldPI);
+				*OldPI = {};
 
 				if (Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO)
 					hPlugin=PANEL_PASSIVE;
@@ -4361,7 +4361,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 				if (ret)
 				{
-					ClearStruct(*oei);
+					*oei = {};
 					if (const size_t FileNameSize = NativeInfo.EditorControl(-1, ECTL_GETFILENAME, 0, nullptr))
 					{
 						wchar_t_ptr FileName(FileNameSize);
@@ -5351,7 +5351,7 @@ private:
 
 	virtual bool GetPluginInfo(PluginInfo *pi) override
 	{
-		ClearStruct(*pi);
+		*pi = {};
 
 		ExecuteStruct<iGetPluginInfo> es;
 		if (has(es) && !Global->ProcessException)
@@ -5812,7 +5812,7 @@ private:
 
 		delete[] PI.CommandPrefix;
 
-		ClearStruct(PI);
+		PI = {};
 	}
 
 	void ConvertPluginInfo(const oldfar::PluginInfo &Src, PluginInfo *Dest)
@@ -5878,7 +5878,7 @@ private:
 		FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
 		delete OPI.KeyBar;
 		delete[] OPI.ShortcutData;
-		ClearStruct(OPI);
+		OPI = {};
 	}
 
 	void ConvertOpenPanelInfo(const oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest)

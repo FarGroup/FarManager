@@ -296,16 +296,16 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 			if (p)
 			{
 				static PluginStartupInfo LocalStartupInfo;
-				ClearStruct(LocalStartupInfo);
+				LocalStartupInfo = {};
 				static FarStandardFunctions LocalStandardFunctions;
-				ClearStruct(LocalStandardFunctions);
+				LocalStandardFunctions = {};
 				CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
 				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.data();
 				static PLUGINRECORD PlugRec;
 
 				if (PluginModule)
 				{
-					ClearStruct(PlugRec);
+					PlugRec = {};
 					PlugRec.TypeRec=RTYPE_PLUGIN;
 					PlugRec.SizeRec=sizeof(PLUGINRECORD);
 					PlugRec.ModuleName = PluginModule->GetModuleName().data();

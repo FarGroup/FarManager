@@ -98,6 +98,8 @@ void EditControl::Show()
 
 void EditControl::Changed(bool DelBlock)
 {
+	m_Flags.Clear(FEDITLINE_CLEARFLAG);
+
 	if(m_Callback.Active && !m_CallbackSuppressionsCount)
 	{
 		if(m_Callback.m_Callback)
@@ -763,6 +765,16 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 			Show();
 		}
 	}
+}
+
+int EditControl::ProcessKey(const Manager::Key& Key)
+{
+	const auto Result = Edit::ProcessKey(Key);
+	if (Result)
+	{
+		ECFlags.Clear(FEDITLINE_CLEARFLAG);
+	}
+	return Result;
 }
 
 int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)

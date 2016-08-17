@@ -891,7 +891,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if(!CheckStructSize(Info))
 				break;
 
-			ClearStruct(*Info);
+			*Info = {};
 			Info->StructSize = sizeof(PanelInfo);
 
 			UpdateIfRequired();

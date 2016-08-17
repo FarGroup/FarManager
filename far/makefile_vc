@@ -422,7 +422,7 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 <<
 
 .asm{$(INTDIR)}.obj:
-	ml /nologo /c /Fo$@ $<
+	$(AS) /nologo /c /Fo$@ $<
 
 $(RES_FILE): far.rc Far.ico FarA.ico bootstrap\Far.exe.manifest
 	@echo Compiling resource file

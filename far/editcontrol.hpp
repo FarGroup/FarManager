@@ -48,6 +48,7 @@ class EditControl:public Edit
 	typedef std::function<int(const Manager::Key& Key)> parent_processkey_t;
 public:
 	EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey = nullptr, Callback* aCallback = nullptr, History* iHistory = nullptr, FarList* iList = nullptr, DWORD iFlags = 0);
+	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void Show() override;
 	virtual void Changed(bool DelBlock=false) override;
@@ -64,6 +65,8 @@ public:
 	void SetDropDownBox(bool NewDropDownBox) {m_Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 	virtual int GetMaxLength() const override {return MaxLength;}
 	void SetMaxLength(int Length) {MaxLength=Length;}
+	void SetClearFlag(bool Flag) { m_Flags.Change(FEDITLINE_CLEARFLAG, Flag); }
+	int GetClearFlag() const { return m_Flags.Check(FEDITLINE_CLEARFLAG); }
 
 	enum ECFLAGS
 	{

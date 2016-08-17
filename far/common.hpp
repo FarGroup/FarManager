@@ -112,19 +112,10 @@ bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T)
 template <typename T>
 bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 
-template<typename T>
-void ClearStruct(T& s) noexcept
-{
-	static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
-	static_assert(std::is_pod<T>::value, "This template requires a POD type");
-	memset(&s, 0, sizeof(s));
-}
-
 template<typename T, size_t N>
 void ClearArray(T(&a)[N]) noexcept
 {
-	static_assert(std::is_pod<T>::value, "This template requires a POD type");
-	memset(a, 0, sizeof(a));
+	std::fill_n(a, N, T{});
 }
 
 template<class T>

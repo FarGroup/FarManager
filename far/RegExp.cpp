@@ -449,7 +449,7 @@ struct RegExp::REOpCode: public REOpCode_data
 {
 	REOpCode()
 	{
-		ClearStruct(*static_cast<REOpCode_data*>(this));
+		*static_cast<REOpCode_data*>(this) = {};
 	}
 
 	~REOpCode()

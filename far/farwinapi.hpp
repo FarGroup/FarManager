@@ -108,10 +108,10 @@ namespace os
 
 		void Clear()
 		{
-			ClearStruct(ftCreationTime);
-			ClearStruct(ftLastAccessTime);
-			ClearStruct(ftLastWriteTime);
-			ClearStruct(ftChangeTime);
+			ftCreationTime = {};
+			ftLastAccessTime = {};
+			ftLastWriteTime = {};
+			ftChangeTime = {};
 			nFileSize=0;
 			nAllocationSize=0;
 			FileId = 0;

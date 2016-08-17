@@ -201,7 +201,7 @@ static void* DebugAllocator(size_t size, bool Noexcept, allocation_type type,con
 	size_t realSize = GetRequiredSize(size);
 	if (const auto Info = static_cast<MEMINFO*>(malloc(realSize)))
 	{
-		*Info = MEMINFO { type, Line, File, Function, realSize };
+		*Info = { type, Line, File, Function, realSize };
 		GetMarker(Info) = EndMarker;
 		RegisterBlock(Info);
 		return ToUser(Info);

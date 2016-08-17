@@ -1130,7 +1130,7 @@ void PluginManager::GetOpenPanelInfo(PluginHandle* hPlugin, OpenPanelInfo *Info)
 	if (!Info)
 		return;
 
-	ClearStruct(*Info);
+	*Info = {};
 
 	Info->StructSize = sizeof(OpenPanelInfo);
 	Info->hPanel = hPlugin->hPlugin;

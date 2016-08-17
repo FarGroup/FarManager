@@ -109,7 +109,7 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 
 static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
 {
-	ClearStruct(*pSptwb);
+	*pSptwb = {};
 
 	pSptwb->Spt.PathId = 0;
 	pSptwb->Spt.TargetId = 1;
