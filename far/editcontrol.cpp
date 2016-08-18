@@ -770,9 +770,10 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 int EditControl::ProcessKey(const Manager::Key& Key)
 {
 	const auto Result = Edit::ProcessKey(Key);
-	if (Result)
+	if (Result && m_Flags.Check(FEDITLINE_CLEARFLAG))
 	{
-		ECFlags.Clear(FEDITLINE_CLEARFLAG);
+		m_Flags.Clear(FEDITLINE_CLEARFLAG);
+		Show();
 	}
 	return Result;
 }
