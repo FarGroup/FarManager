@@ -67,7 +67,7 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/J /Zc:inline /Zc:rvalueCast /Zc:strictStrings %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J /Zc:strictStrings,throwingNew,referenceBinding %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Async</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -83,6 +83,8 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
       <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
     </ClCompile>
     <ResourceCompile>
       <Culture>0x0409</Culture>
