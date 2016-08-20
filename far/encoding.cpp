@@ -801,5 +801,11 @@ size_t Utf8::get_bytes(const wchar_t* const Data, size_t const DataSize, char* c
 
 void swap_bytes(const void* const Src, void* const Dst, const size_t SizeInBytes)
 {
+	if (!SizeInBytes)
+	{
+		// Ucrt for unknown reason aggressively validates that 'source' and 'destination' are not nullptr even if 'bytes' is 0.
+		// It's safer to not call it.
+		return;
+	}
 	_swab(reinterpret_cast<char*>(const_cast<void*>(Src)), reinterpret_cast<char*>(Dst), static_cast<int>(SizeInBytes));
 }
