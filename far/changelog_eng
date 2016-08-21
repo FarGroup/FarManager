@@ -3,6 +3,33 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.08.2016 14:01:57 +0200 - build 4764
+
+1. Correction of 4757.1.
+
+drkns 19.08.2016 09:45:27 +0200 - build 4763
+
+1. Correction of 4762.
+
+drkns 18.08.2016 22:11:54 +0200 - build 4762
+
+1. Continuation of 0003274.
+
+drkns 18.08.2016 21:15:20 +0200 - build 4761
+
+1. Correction of 4760.1.
+
+drkns 18.08.2016 02:34:26 +0200 - build 4760
+
+1. 0003274: Changing keyboard layout with Ctrl-Shift in input fields incorrectly denotes the beginning of field modification
+   Processing FEDITLINE_CLEARFLAG moved partially to EditControl.
+
+2. Other minor refactoring.
+
+svs 17.08.2016 20:23:57 +0300 - build 4759
+
+1. SQLite 3.14.1
+
 drkns 15.08.2016 09:23:14 +0200 - build 4758
 
 1. More paranoid options for GCC.
