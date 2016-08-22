@@ -758,7 +758,7 @@ int ustring_SetCurrentDir (lua_State *L)
 
 int ustring_GetKeyState (lua_State *L)
 {
-	int nVirtKey = luaL_checkinteger(L, 1);
+	int nVirtKey = (int)luaL_checkinteger(L, 1);
 	int state = GetKeyState(nVirtKey);
 	lua_pushboolean(L, state&0x8000); // Is key down?
 	lua_pushboolean(L, state&0x0001); // Is key toggled?
