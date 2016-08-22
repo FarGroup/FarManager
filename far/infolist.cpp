@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "infolist.hpp"
 #include "macroopcode.hpp"
 #include "flink.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "keys.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"

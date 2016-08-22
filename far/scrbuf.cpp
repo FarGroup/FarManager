@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "scrbuf.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "ctrlobj.hpp"
 #include "interf.hpp"
 #include "config.hpp"

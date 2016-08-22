@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "language.hpp"
 #include "dialog.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "colormix.hpp"
 #include "lasterror.hpp"
 #include "privilege.hpp"

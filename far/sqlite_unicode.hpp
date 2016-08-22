@@ -1,11 +1,14 @@
+﻿#ifndef SQLITE_UNICODE_HPP_0E8E028C_E38A_4397_BD3E_849A86B5D8A5
+#define SQLITE_UNICODE_HPP_0E8E028C_E38A_4397_BD3E_849A86B5D8A5
+#pragma once
+
 /*
-sqlite.hpp
+sqlite_unicode.hpp
 
-sqlite wrapper
-
+sqlite_unicode wrapper
 */
 /*
-Copyright � 2015 Far Group
+Copyright © 2015 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,3 +41,5 @@ using namespace sqlite;
 
 extern "C" const char SQLite_Unicode_Version[];
 }
+
+#endif // SQLITE_UNICODE_HPP_0E8E028C_E38A_4397_BD3E_849A86B5D8A5

@@ -2,19 +2,11 @@
 #define DLGBUILDER_HPP_E8B6F5CA_37A9_403A_A3F0_9ED7271B2BA7
 #pragma once
 
-#ifndef FAR_USE_INTERNALS
-#define FAR_USE_INTERNALS
-#endif // END FAR_USE_INTERNALS
-#ifndef __cplusplus
-#error C++ only
-#endif
-
 /*
-  DlgBuilder.hpp
+DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager <%VERSION%>
+Dynamic construction of dialogs for FAR Manager <%VERSION%>
 */
-
 /*
 Copyright © 2009 Far Group
 All rights reserved.
@@ -40,7 +32,19 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+EXCEPTION:
+Far Manager plugins that use this header file can be distributed under any
+other possible license with no implications from the above license on them.
 */
+
+#ifndef FAR_USE_INTERNALS
+#define FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
+
+#ifndef __cplusplus
+#error C++ only
+#endif
 
 // Элемент выпадающего списка в диалоге.
 struct DialogBuilderListItem

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"

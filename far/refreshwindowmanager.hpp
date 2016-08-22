@@ -3,7 +3,7 @@
 #pragma once
 
 /*
-RefreshWindowManager.hpp
+refreshwindowmanager.hpp
 
 Класс для рефрешки
 */

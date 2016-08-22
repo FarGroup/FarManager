@@ -1,3 +1,7 @@
+﻿#ifndef TINYXML_HPP_268E08DA_CDE4_4ADA_B082_64745EE1D62E
+#define TINYXML_HPP_268E08DA_CDE4_4ADA_B082_64745EE1D62E
+#pragma once
+
 /*
 tinyxml.hpp
 
@@ -5,7 +9,7 @@ tinyxml wrapper
 
 */
 /*
-Copyright � 2011 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,3 +49,5 @@ WARNING_POP()
 }
 
 namespace tinyxml = tinyxml_impl::tinyxml2;
+
+#endif // TINYXML_HPP_268E08DA_CDE4_4ADA_B082_64745EE1D62E

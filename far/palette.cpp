@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "palette.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "colormix.hpp"
 #include "configdb.hpp"
 

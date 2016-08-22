@@ -1,3 +1,7 @@
+﻿#ifndef SQLITE_HPP_83511762_721C_4CB4_A7E3_C98B3605D2E2
+#define SQLITE_HPP_83511762_721C_4CB4_A7E3_C98B3605D2E2
+#pragma once
+
 /*
 sqlite.hpp
 
@@ -5,7 +9,7 @@ sqlite wrapper
 
 */
 /*
-Copyright � 2011 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -44,3 +48,5 @@ static const auto transient_destructor = SQLITE_TRANSIENT;
 
 WARNING_POP()
 }
+
+#endif // SQLITE_HPP_83511762_721C_4CB4_A7E3_C98B3605D2E2

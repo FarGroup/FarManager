@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "treelist.hpp"
 #include "keyboard.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "keys.hpp"
 #include "filepanels.hpp"
 #include "filelist.hpp"

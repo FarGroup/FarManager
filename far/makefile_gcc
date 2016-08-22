@@ -284,9 +284,9 @@ $(EXEDIR)Far.exe.example.ini: Far.exe.example.ini
 	$(MSG)
 	$(CP) Far.exe.example.ini $@
 
-$(FARINCLUDE)farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)farcolor.hpp: farcolor.hpp farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
-	$(M4) -DINPUT=colors.hpp headers.m4 > $@
+	$(M4) -DINPUT=farcolor.hpp headers.m4 > $@
 
 $(FARINCLUDE)plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
 	$(MSG)

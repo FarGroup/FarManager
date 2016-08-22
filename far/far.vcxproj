@@ -498,23 +498,23 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="Include\plugin.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="colors.hpp">
-      <Message>Transforming %(Identity) to redistributable form...</Message>
-      <Command>tools\m4 -P -DFARBIT=$(FarBit) -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
-      <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>Include\farcolor.hpp;%(Outputs)</Outputs>
-    </CustomBuild>
     <CustomBuild Include="DlgBuilder.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
       <Command>tools\m4 -P -DFARBIT=$(FarBit) -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>Include\DlgBuilder.hpp;%(Outputs)</Outputs>
+      <Outputs>Include\%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="farcolor.hpp">
+      <Message>Transforming %(Identity) to redistributable form...</Message>
+      <Command>tools\m4 -P -DFARBIT=$(FarBit) -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="plugin.hpp">
       <Message>Transforming %(Identity) to redistributable form...</Message>
       <Command>tools\m4 -P -DFARBIT=$(FarBit) -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>Include\plugin.hpp;%(Outputs)</Outputs>
+      <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="Far.exe.example.ini">
       <FileType>Document</FileType>

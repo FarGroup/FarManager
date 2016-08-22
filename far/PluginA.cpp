@@ -1,4 +1,7 @@
 ﻿/*
+PluginA.cpp
+*/
+/*
 Copyright © 1996 Eugene Roshal
 Copyright © 2000 Far Group
 All rights reserved.

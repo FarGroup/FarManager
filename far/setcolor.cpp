@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "setcolor.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"

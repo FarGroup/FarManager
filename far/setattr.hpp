@@ -3,7 +3,7 @@
 #pragma once
 
 /*
-setattr.cpp
+setattr.hpp
 
 Установка атрибутов файлов
 */

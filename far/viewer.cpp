@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "keys.hpp"
 #include "help.hpp"
 #include "dialog.hpp"

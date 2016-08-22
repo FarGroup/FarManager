@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "keys.hpp"
 #include "chgprior.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "fileedit.hpp"

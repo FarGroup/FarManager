@@ -1026,9 +1026,6 @@
     <CustomBuild Include="bootstrap\farlang.templ">
       <Filter>Generated Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="colors.hpp">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="copyright.inc.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
@@ -1037,6 +1034,9 @@
     </CustomBuild>
     <CustomBuild Include="far.rc.inc.m4">
       <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="farcolor.hpp">
+      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="FarEng.hlf.m4">
       <Filter>Dependencies</Filter>

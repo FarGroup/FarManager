@@ -3,7 +3,7 @@
 #pragma once
 
 /*
-exception.cpp
+farexcpt.hpp
 
 Все про исключения
 */

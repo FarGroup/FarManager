@@ -1,6 +1,7 @@
 ﻿#ifndef KEYS_HPP_C9983354_D8EA_4A70_9E16_722A332B503D
 #define KEYS_HPP_C9983354_D8EA_4A70_9E16_722A332B503D
 #pragma once
+
 /*
 keys.hpp
 
@@ -10,7 +11,6 @@ keys.hpp
   Новые пвсевдоклавиши, типа KEY_FOCUS_CHANGED и KEY_CONSOLE_BUFFER_RESIZE
   добавлять между KEY_END_FKEY и KEY_END_SKEY
 */
-
 /*
 Copyright © 1996 Eugene Roshal
 Copyright © 2000 Far Group

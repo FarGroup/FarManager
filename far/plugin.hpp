@@ -1,16 +1,12 @@
-#ifndef PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
+﻿#ifndef PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
 #define PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
 #pragma once
 
-#ifndef FAR_USE_INTERNALS
-#define FAR_USE_INTERNALS
-#endif // END FAR_USE_INTERNALS
 /*
-  plugin.hpp
+plugin.hpp
 
-  Plugin API for Far Manager <%VERSION%>
+Plugin API for Far Manager <%VERSION%>
 */
-
 /*
 Copyright © 1996 Eugene Roshal
 Copyright © 2000 Far Group
@@ -42,6 +38,10 @@ EXCEPTION:
 Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
+
+#ifndef FAR_USE_INTERNALS
+#define FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
 
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0

@@ -3,7 +3,7 @@
 #pragma once
 
 /*
-diskmenu.cpp
+diskmenu.hpp
 */
 /*
 Copyright © 2016 Far Group

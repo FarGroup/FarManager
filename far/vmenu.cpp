@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "chgprior.hpp"
 #include "dialog.hpp"
 #include "savescr.hpp"

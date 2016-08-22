@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "config.hpp"
 #include "dialog.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "colormix.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"

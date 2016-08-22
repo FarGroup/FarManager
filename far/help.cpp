@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "help.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "macroopcode.hpp"

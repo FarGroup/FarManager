@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "message.hpp"
 #include "ctrlobj.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "dialog.hpp"
 #include "scrbuf.hpp"
 #include "keys.hpp"

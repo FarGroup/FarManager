@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "savescr.hpp"
-#include "colors.hpp"
+#include "farcolor.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "console.hpp"

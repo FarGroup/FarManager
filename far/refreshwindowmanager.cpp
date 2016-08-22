@@ -1,5 +1,5 @@
 ﻿/*
-RefreshWindowManager.cpp
+refreshwindowmanager.cpp
 
 Класс для рефрешки
 */

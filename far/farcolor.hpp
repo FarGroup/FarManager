@@ -1,25 +1,12 @@
-﻿#ifndef COLORS_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
-#define COLORS_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
+﻿#ifndef FARCOLOR_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
+#define FARCOLOR_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
 #pragma once
 
-#ifndef FAR_USE_INTERNALS
-#define FAR_USE_INTERNALS
-#endif // END FAR_USE_INTERNALS
-#ifdef FAR_USE_INTERNALS
 /*
-colors.hpp
+farcolor.hpp
 
-Цвета
-
+Colors Index for FAR Manager <%VERSION%>
 */
-#else // ELSE FAR_USE_INTERNALS
-/*
-  farcolor.hpp
-
-  Colors Index for FAR Manager <%VERSION%>
-*/
-#endif // END FAR_USE_INTERNALS
-
 /*
 Copyright © 1996 Eugene Roshal
 Copyright © 2000 Far Group
@@ -51,6 +38,10 @@ EXCEPTION:
 Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
+
+#ifndef FAR_USE_INTERNALS
+#define FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
 
 #ifdef FAR_USE_INTERNALS
 /*
@@ -273,4 +264,4 @@ enum PaletteColors
 	COL_LASTPALETTECOLOR
 };
 
-#endif // COLORS_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
+#endif // FARCOLOR_HPP_57151931_4591_44A5_92CF_8E51D1FBC57E
