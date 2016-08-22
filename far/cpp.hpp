@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/compiler.hpp"
 
-#if COMPILER == C_GCC
+#if COMPILER == C_GCC && !defined(__cpp_lib_nonmember_container_access)
 namespace std
 {
 	template <class C>
@@ -101,6 +101,7 @@ namespace std
 }
 #endif
 
+#if COMPILER != C_GCC || !defined(__cpp_lib_apply)
 namespace std
 {
 	namespace detail
@@ -118,9 +119,9 @@ namespace std
 		return detail::apply_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>{});
 	}
 }
+#endif
 
-#ifdef __GNUC__
-#if _GCC_VER < GCC_VER_(6,0,0)
+#if COMPILER == C_GCC && !defined(__cpp_lib_uncaught_exceptions)
 namespace __cxxabiv1
 {
 	struct __cxa_eh_globals;
@@ -134,7 +135,6 @@ namespace std
 		return *reinterpret_cast<const unsigned int*>(static_cast<const char*>(static_cast<const void*>(__cxxabiv1::__cxa_get_globals())) + sizeof(void*));
 	}
 }
-#endif
 #endif
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

@@ -67,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cctype>
 #include <cfloat>
 #include <climits>
+#include <cmath>
 #include <cstdint>
 #include <ctime>
 #include <cwctype>

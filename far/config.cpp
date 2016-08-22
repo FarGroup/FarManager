@@ -2424,7 +2424,7 @@ void Options::ReadPanelModes()
 		if (!strStatusColumnTitles.empty())
 			TextToViewSettings(strStatusColumnTitles, strStatusColumnWidths, i.StatusColumns);
 
-			i.Flags = Flags;
+		i.Flags = Flags;
 
 		return true;
 	};
