@@ -1723,11 +1723,13 @@ static int far_Menu(lua_State *L)
 				if(strchr(buf,'A')) mod |= LEFT_ALT_PRESSED;
 
 				if(strchr(buf,'S')) mod |= SHIFT_PRESSED;
-
-				// replace on stack: break key name with virtual key name
-				lua_pop(L, 1);
-				lua_pushstring(L, vk);        // vk=-4; bk=-3;bki=-2;vknm=-1;
 			}
+			else
+				vk = buf;
+
+			// replace on stack: break key name with virtual key name
+			lua_pop(L, 1);
+			lua_pushstring(L, vk);        // vk=-4; bk=-3;bki=-2;vknm=-1;
 
 			// get virtual key and break key values
 			lua_rawget(L,-4);               // vk=-4; bk=-3;
