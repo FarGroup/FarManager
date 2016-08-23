@@ -2,16 +2,11 @@
 #define DLGBUILDER_HPP_E8B6F5CA_37A9_403A_A3F0_9ED7271B2BA7
 #pragma once
 
-#ifndef __cplusplus
-#error C++ only
-#endif
-
 /*
-  DlgBuilder.hpp
+DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 4665
+Dynamic construction of dialogs for FAR Manager 3.0 build 4765
 */
-
 /*
 Copyright © 2009 Far Group
 All rights reserved.
@@ -38,6 +33,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+
+#ifndef __cplusplus
+#error C++ only
+#endif
 
 // Элемент выпадающего списка в диалоге.
 struct DialogBuilderListItem
@@ -79,7 +79,7 @@ struct CheckBoxBinding: public DialogItemBinding<T>
 	public:
 		CheckBoxBinding(int *aValue, int aMask) : Value(aValue), Mask(aMask) { }
 
-		virtual void SaveValue(T *Item, int RadioGroupIndex)
+		virtual void SaveValue(T *Item, int RadioGroupIndex) override
 		{
 			if (!Mask)
 			{
@@ -104,7 +104,7 @@ struct RadioButtonBinding: public DialogItemBinding<T>
 	public:
 		RadioButtonBinding(int *aValue) : Value(aValue) { }
 
-		virtual void SaveValue(T *Item, int RadioGroupIndex)
+		virtual void SaveValue(T *Item, int RadioGroupIndex) override
 		{
 			if (Item->Selected)
 				*Value = RadioGroupIndex;
@@ -231,7 +231,6 @@ class DialogBuilderBase
 						Width++;
 					return Width;
 				}
-				break;
 
 			default:
 				break;
@@ -690,7 +689,7 @@ public:
 	{
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
 		if (!Mask)
@@ -719,7 +718,7 @@ class PluginRadioButtonBinding: public DialogAPIBinding
 		{
 		}
 
-		virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+		virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 		{
 			if (Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr))
 				*Value = RadioGroupIndex;
@@ -738,7 +737,7 @@ public:
 	{
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		lstrcpynW(Value, DataPtr, MaxSize);
@@ -766,7 +765,7 @@ public:
 		Mask[MaskWidth] = L'\0';
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = Info.FSF->atoi(DataPtr);
@@ -804,7 +803,7 @@ public:
 		Mask[MaskWidth] = L'\0';
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = static_cast<unsigned int>(Info.FSF->atoi64(DataPtr));
@@ -848,7 +847,7 @@ public:
 		delete List;
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
+	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		if (SelectedIndex)
 		{
@@ -877,23 +876,23 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		void* UserParam;
 		FARDIALOGFLAGS Flags;
 
-		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text)
+		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text) override
 		{
 			memset(Item, 0, sizeof(FarDialogItem));
 			Item->Data = Text;
 		}
 
-		virtual int TextWidth(const FarDialogItem &Item)
+		virtual int TextWidth(const FarDialogItem &Item) override
 		{
 			return lstrlenW(Item.Data);
 		}
 
-		virtual const wchar_t *GetLangString(int MessageID)
+		virtual const wchar_t *GetLangString(int MessageID) override
 		{
 			return Info.GetMsg(&PluginId, MessageID);
 		}
 
-		virtual intptr_t DoShowDialog()
+		virtual intptr_t DoShowDialog() override
 		{
 			intptr_t Width = m_DialogItems[0].X2+4;
 			intptr_t Height = m_DialogItems[0].Y2+2;
@@ -901,12 +900,12 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return Info.DialogRun(DialogHandle);
 		}
 
-		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(int *Value, int Mask)
+		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(int *Value, int Mask) override
 		{
 			return new PluginCheckBoxBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Mask);
 		}
 
-		virtual DialogItemBinding<FarDialogItem> *CreateRadioButtonBinding(BOOL *Value)
+		virtual DialogItemBinding<FarDialogItem> *CreateRadioButtonBinding(BOOL *Value) override
 		{
 			return new PluginRadioButtonBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value);
 		}
@@ -964,7 +963,7 @@ public:
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr, FARDIALOGFLAGS aFlags = FDLG_NONE)
 			: Info(aInfo), DialogHandle(nullptr), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
 		{
-			AddBorder(GetLangString(TitleMessageID));
+			AddBorder(PluginDialogBuilder::GetLangString(TitleMessageID));
 		}
 
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr, FARDIALOGFLAGS aFlags = FDLG_NONE)
@@ -978,7 +977,7 @@ public:
 			Info.DialogFree(DialogHandle);
 		}
 
-		virtual FarDialogItem *AddIntEditField(int *Value, int Width)
+		virtual FarDialogItem *AddIntEditField(int *Value, int Width) override
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;
@@ -992,7 +991,7 @@ public:
 			return Item;
 		}
 
-		virtual FarDialogItem *AddUIntEditField(unsigned int *Value, int Width)
+		virtual FarDialogItem *AddUIntEditField(unsigned int *Value, int Width) override
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;

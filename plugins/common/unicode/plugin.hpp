@@ -1,13 +1,13 @@
+// validator: no-bom
 #ifndef PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
 #define PLUGIN_HPP_3FC978E9_63BE_4FC2_8F96_8188B0AF8363
 #pragma once
 
 /*
-  plugin.hpp
+plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 4665
+Plugin API for Far Manager 3.0 build 4765
 */
-
 /*
 Copyright © 1996 Eugene Roshal
 Copyright © 2000 Far Group
@@ -40,10 +40,11 @@ Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
 
+
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 4665
+#define FARMANAGERVERSION_BUILD 4765
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
