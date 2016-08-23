@@ -3233,7 +3233,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		else // found
 		{
 			sd->MatchPos = fpos;
-			sd->search_len = GetStrBytesNum(t_line+off, m[0].end - m[0].start);
+			sd->search_len = GetStrBytesNum(t_line + off + m[0].start, m[0].end - m[0].start);
 			return Search_Found;
 		}
 	}

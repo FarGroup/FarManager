@@ -706,7 +706,7 @@ size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* c
 	}
 
 	Tail = DataEnd - DataIterator;
-	return BufferEnd - BufferIterator;
+	return BufferIterator - Buffer;
 }
 
 size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
