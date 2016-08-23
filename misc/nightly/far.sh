@@ -53,10 +53,10 @@ return 0
 function buildfar {
 cd $1 || return 1
 mkdir -p Include
-dos2unix colors.hpp
+dos2unix farcolor.hpp
 dos2unix plugin.hpp
 dos2unix DlgBuilder.hpp
-m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=colors.hpp headers.m4 | unix2dos > Include/farcolor.hpp
+m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=farcolor.hpp headers.m4 | unix2dos > Include/farcolor.hpp
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=plugin.hpp headers.m4 | unix2dos > Include/plugin.hpp
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=DlgBuilder.hpp headers.m4 | unix2dos > Include/DlgBuilder.hpp
 
