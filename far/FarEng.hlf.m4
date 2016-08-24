@@ -266,6 +266,9 @@ Overrides Far.exe.ini.
   #/ro-#
   Normal (Read-Write) mode of Far configuration - overrides Far.exe.ini.
 
+  #/set:<parameter>=<value>#
+  Override the configuration parameter, see ~far:config~@FarConfig@ for details.
+
   It is possible to specify at most two paths (to folders, files or archives) or
 two commands with plugin prefix in the command line. The first path applies to the
 active panel, the second path - to the passive one:
