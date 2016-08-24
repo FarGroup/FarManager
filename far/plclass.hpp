@@ -292,17 +292,22 @@ protected:
 		Prologue(); ++Activity;
 		SCOPE_EXIT{ --Activity; Epilogue(); };
 
+		const auto ProcessException = [&](const auto& Handler, auto&&... ProcArgs)
+		{
+			Handler(ProcArgs..., m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
+		};
+
 		try
 		{
 			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value>>(Exports[T::export_id::value].first), std::forward<args>(Args)...);
 		}
-		catch (const SException& e)
-		{
-			ProcessSEHException(e.GetInfo(), m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
-		}
 		catch (const std::exception& e)
 		{
-			ProcessStdException(e, m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
+			ProcessException(ProcessStdException, e);
+		}
+		catch (...)
+		{
+			ProcessException(ProcessUnknownException);
 		}
 	}
 

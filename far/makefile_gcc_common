@@ -76,6 +76,7 @@ CFLAGS += \
 CCFLAGS = $(CFLAGS) -std=c++1z \
 -Wnon-virtual-dtor \
 -Woverloaded-virtual \
+-Wctor-dtor-privacy \
 -Wzero-as-null-pointer-constant \
 -Wsuggest-final-types \
 -Wsuggest-final-methods \

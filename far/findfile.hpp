@@ -124,6 +124,7 @@ private:
 	time_check m_TimeCheck;
 	// BUGBUG
 	class background_searcher* m_Searcher;
+	std::exception_ptr m_ExceptionPtr;
 };
 
 class background_searcher: noncopyable
@@ -147,6 +148,8 @@ public:
 	void Resume() const { PauseEvent.Set(); }
 	void Stop() const { StopEvent.Set(); }
 	bool Stopped() const { return StopEvent.Signaled(); }
+
+	auto ExceptionPtr() const { return m_ExceptionPtr; }
 
 private:
 	void InitInFileSearch();
@@ -196,5 +199,7 @@ private:
 
 	Event PauseEvent;
 	Event StopEvent;
+
+	std::exception_ptr m_ExceptionPtr;
 };
 #endif // FINDFILE_HPP_8601893C_E4B7_4EC6_A79F_9C6E491FF5ED

@@ -519,24 +519,39 @@ void RestoreGPFaultUI()
 	SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
 }
 
-bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *PluginModule)
-{
-	return ProcessGenericException(xp, Function, PluginModule, nullptr);
-}
-
 bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module)
 {
-	EXCEPTION_RECORD ExceptionRecord {};
-	CONTEXT ContextRecord {};
+	EXCEPTION_RECORD ExceptionRecord{};
+	CONTEXT ContextRecord{};
 	EXCEPTION_POINTERS xp = { &ExceptionRecord, &ContextRecord };
-	if (!tracer::get_exception_context(&e, ExceptionRecord, ContextRecord))
+
+	EXCEPTION_POINTERS* XpPtr;
+
+	if (const auto se = dynamic_cast<const SException*>(&e))
 	{
-		// std::exception to EXCEPTION_POINTERS translation relies on Microsoft C++ exception implementation.
-		// It won't work in gcc etc.
-		// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
-		xp.ExceptionRecord->ExceptionCode = EXCEPTION_MICROSOFT_CPLUSPLUS;
+		XpPtr = se->GetInfo();
 	}
-	return ProcessGenericException(&xp, Function, Module, e.what());
+	else
+	{
+		if (!tracer::get_exception_context(&e, ExceptionRecord, ContextRecord))
+		{
+			// std::exception to EXCEPTION_POINTERS translation relies on Microsoft C++ exception implementation.
+			// It won't work in gcc etc.
+			// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
+			xp.ExceptionRecord->ExceptionCode = EXCEPTION_MICROSOFT_CPLUSPLUS;
+		}
+		XpPtr = &xp;
+	}
+	return ProcessGenericException(XpPtr, Function, Module, e.what());
+}
+
+bool ProcessUnknownException(const wchar_t* Function, Plugin* Module)
+{
+	EXCEPTION_RECORD ExceptionRecord{};
+	CONTEXT ContextRecord{};
+	EXCEPTION_POINTERS xp = { &ExceptionRecord, &ContextRecord };
+
+	return ProcessGenericException(&xp, Function, Module, nullptr);
 }
 
 LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
@@ -550,22 +565,22 @@ LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 }
 
 
-static DWORD WINAPI ProcessSEHExceptionWrapper(EXCEPTION_POINTERS* xp)
+static DWORD WINAPI ProcessGenericExceptionWrapper(EXCEPTION_POINTERS* xp)
 {
-	ProcessSEHException(xp, nullptr);
+	ProcessGenericException(xp, nullptr, nullptr, nullptr);
 	return 0;
 }
 
 LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp)
 {
-	// restore stack & call ProcessSEHExceptionWrapper
+	// restore stack & call ProcessGenericExceptionWrapper
 	if (xp->ExceptionRecord->ExceptionCode == (DWORD)STATUS_STACK_OVERFLOW)
 	{
 #if 1 // it is much better way than hack stack and modify original context
 //#ifdef _M_IA64
 		// TODO: Bad way to restore IA64 stacks (CreateThread)
 		// Can you do smartly? See REMINDER file, section IA64Stacks
-		static HANDLE hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)ProcessSEHExceptionWrapper, xp, 0, nullptr);
+		static HANDLE hThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(ProcessGenericExceptionWrapper), xp, 0, nullptr);
 		if (hThread)
 		{
 			WaitForSingleObject(hThread, INFINITE);
@@ -587,14 +602,14 @@ LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp)
 		//stack.args[2] = ...
 		//stack.args[3] = ...
 		xp->ContextRecord->Esp = reinterpret_cast<DWORD_PTR>(&stack.ret_addr);
-		xp->ContextRecord->Eip = reinterpret_cast<DWORD_PTR>(&ProcessSEHExceptionWrapper);
+		xp->ContextRecord->Eip = reinterpret_cast<DWORD_PTR>(&ProcessGenericExceptionWrapper);
 #else
 		xp->ContextRecord->Rcx = reinterpret_cast<DWORD_PTR>(xp);
 		//xp->ContextRecord->Rdx = ...
 		//xp->ContextRecord->R8  = ...
 		//xp->ContextRecord->R9  = ...
 		xp->ContextRecord->Rsp = reinterpret_cast<DWORD_PTR>(&stack.ret_addr);
-		xp->ContextRecord->Rip = reinterpret_cast<DWORD_PTR>(&ProcessSEHExceptionWrapper);
+		xp->ContextRecord->Rip = reinterpret_cast<DWORD_PTR>(&ProcessGenericExceptionWrapper);
 #endif
 		return EXCEPTION_CONTINUE_EXECUTION;
 #endif
@@ -646,9 +661,28 @@ static int ExceptionTestHook(Manager::Key key)
 		key() == KEY_RCTRLALTAPPS
 		)
 	{
+		enum class exception_types
+		{
+			cpp_std,
+			cpp_unknown,
+			access_violation_read,
+			access_violation_write,
+			divide_by_zero,
+			illegal_instruction,
+			stack_overflow,
+			fp_divide_by_zero,
+			breakpoint,
+#ifdef _M_IA64
+			alignment_fault,
+#endif
+
+			count
+		};
+
 		static const wchar_t* Names[] =
 		{
 			L"C++ std::exception",
+			L"C++ unknown exception",
 			L"Access Violation (Read)",
 			L"Access Violation (Write)",
 			L"Divide by zero",
@@ -677,6 +711,9 @@ static int ExceptionTestHook(Manager::Key key)
 			L"EXCEPTION_INVALID_HANDLE",
 			*/
 		};
+
+		static_assert(std::size(Names) == static_cast<size_t>(exception_types::count), "Incomplete Names array");
+
 		static union
 		{
 			int     i;
@@ -694,23 +731,32 @@ static int ExceptionTestHook(Manager::Key key)
 		});
 
 		int ExitCode = ModalMenu->Run();
-
-		switch (ExitCode)
-		{
-		case -1:
+		if (ExitCode == -1)
 			return TRUE;
-		case 0:
+
+		switch (static_cast<exception_types>(ExitCode))
+		{
+		case exception_types::cpp_std:
 			throw MAKE_FAR_EXCEPTION("test error");
-		case 1:
+			break;
+
+		case exception_types::cpp_unknown:
+			throw 42;
+			break;
+
+		case exception_types::access_violation_read:
 			zero_const.i = *zero_const.iptr;
 			break;
-		case 2:
+
+		case exception_types::access_violation_write:
 			*zero_const.iptr = 0;
 			break;
-		case 3:
+
+		case exception_types::divide_by_zero:
 			zero_const.i = 1 / zero_const.i;
 			break;
-		case 4:
+
+		case exception_types::illegal_instruction:
 #if COMPILER == C_CL || COMPILER == C_INTEL
 #ifdef _M_IA64
 			const int REG_IA64_IntR0 = 1024;
@@ -722,24 +768,32 @@ static int ExceptionTestHook(Manager::Key key)
 			asm("ud2");
 #endif
 			break;
-		case 5:
+
+		case exception_types::stack_overflow:
 			Test_EXCEPTION_STACK_OVERFLOW(nullptr);
 			break;
-		case 6:
+
+		case exception_types::fp_divide_by_zero:
 			zero_const.d = 1.0 / zero_const.d;
 			break;
-		case 7:
+
+		case exception_types::breakpoint:
 			DebugBreak();
 			break;
+
 #ifdef _M_IA64
-		case 8:
-		{
-			BYTE temp[10] = {};
-			double* val;
-			val = (double*)(&temp[3]);
-			printf("%lf\n", *val);
-		}
+		case exception_types::alignment_fault:
+			{
+				BYTE temp[10] = {};
+				double* val;
+				val = (double*)(&temp[3]);
+				printf("%lf\n", *val);
+				break;
+			}
 #endif
+		case exception_types::count:
+			// makes no sense, just to make compiler happy
+			break;
 		}
 
 		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", Names[ExitCode], L"", MSG(MOk));

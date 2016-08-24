@@ -1064,9 +1064,12 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	CONSOLE_CURSOR_INFO cci = { CursorSize, Visible };
 	Console().SetCursorInfo(cci);
 
-	if (IsConsoleSizeChanged())
 	{
-		ChangeVideoMode(ScrY, ScrX);
+		COORD ConSize;
+		if (Console().GetSize(ConSize) && (ConSize.X != ScrX + 1 || ConSize.Y != ScrY + 1))
+		{
+			ChangeVideoMode(ConSize.Y, ConSize.X);
+		}
 	}
 
 	if (Global->Opt->Exec.RestoreCPAfterExecute)

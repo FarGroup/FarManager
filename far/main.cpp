@@ -766,18 +766,6 @@ static int mainImpl(const range<wchar_t**>& Args)
 	{
 		Result = MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 	}
-	catch (const SException& e)
-	{
-		if (ProcessSEHException(e.GetInfo(), L"mainImpl"))
-		{
-			std::terminate();
-		}
-		else
-		{
-			RestoreGPFaultUI();
-			throw;
-		}
-	}
 	catch (const std::exception& e)
 	{
 		if (ProcessStdException(e, L"mainImpl"))
@@ -818,18 +806,6 @@ int wmain(int Argc, wchar_t *Argv[])
 		// Must be static - dependent static objects exist
 		static SCOPED_ACTION(os::com::co_initialize);
 		return mainImpl(make_range(Argv + 1, Argv + Argc));
-	}
-	catch (const SException& e)
-	{
-		if (ProcessSEHException(e.GetInfo(), L"wmain"))
-		{
-			std::terminate();
-		}
-		else
-		{
-			SetUnhandledExceptionFilter(nullptr);
-			throw;
-		}
 	}
 	catch (const std::exception& e)
 	{

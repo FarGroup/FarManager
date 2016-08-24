@@ -37,8 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Plugin;
 
-bool ProcessSEHException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *Module = nullptr);
 bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module = nullptr);
+bool ProcessUnknownException(const wchar_t* Function, Plugin* Module = nullptr);
 
 LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo);
 

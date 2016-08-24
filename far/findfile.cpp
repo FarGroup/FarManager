@@ -1373,6 +1373,17 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+
+	if (!m_ExceptionPtr)
+	{
+		m_ExceptionPtr = m_Searcher->ExceptionPtr();
+		if (m_ExceptionPtr)
+		{
+			Dlg->SendMessage(DM_CLOSE, 0, nullptr);
+			return TRUE;
+		}
+	}
+
 	auto& ListBox = Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
 
 	static bool Recurse=false;
@@ -2628,16 +2639,9 @@ unsigned int background_searcher::ThreadRoutine(THREADPARAM* Param)
 		Param->PluginMode? DoPreparePluginList(Param->Dlg, false) : DoPrepareFileList(Param->Dlg);
 		ReleaseInFileSearch();
 	}
-	catch (const SException& e)
+	catch (...)
 	{
-		if (ProcessSEHException(e.GetInfo(), L"FindFiles::ThreadRoutine"))
-		{
-			std::terminate();
-		}
-		else
-		{
-			throw;
-		}
+		m_ExceptionPtr = std::current_exception();
 	}
 	return 0;
 }
@@ -2754,9 +2758,20 @@ bool FindFiles::FindFilesProcess()
 			
 			Thread FindThread(&Thread::join, &background_searcher::ThreadRoutine, &BC, &Param);
 			Dlg->Process();
+
+			// BUGBUG
+			m_Searcher = nullptr;
+
+			if (!m_ExceptionPtr)
+			{
+				m_ExceptionPtr = BC.ExceptionPtr();
+			}
+
+			if (m_ExceptionPtr)
+			{
+				std::rethrow_exception(m_ExceptionPtr);
+			}
 		}
-		// BUGBUG
-		m_Searcher = nullptr;
 
 		switch (Dlg->GetExitCode())
 		{
