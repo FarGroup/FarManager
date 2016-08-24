@@ -13,7 +13,7 @@
       <UniqueIdentifier>{0d74ff07-ebff-40b7-839c-6953ed4c6e2e}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
     </Filter>
-    <Filter Include="Header Files\SDK">
+    <Filter Include="Header Files\sdk">
       <UniqueIdentifier>{581cdf3b-8152-4a6b-8f7c-56cdd69d68a1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files">
@@ -773,11 +773,11 @@
     <ClInclude Include="scrsaver.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sdk\sdk.common.h">
-      <Filter>Header Files\SDK</Filter>
+    <ClInclude Include="sdk\sdk_common.h">
+      <Filter>Header Files\sdk</Filter>
     </ClInclude>
-    <ClInclude Include="sdk\sdk.vc.h">
-      <Filter>Header Files\SDK</Filter>
+    <ClInclude Include="sdk\sdk_vc.h">
+      <Filter>Header Files\sdk</Filter>
     </ClInclude>
     <ClInclude Include="setattr.hpp">
       <Filter>Header Files</Filter>

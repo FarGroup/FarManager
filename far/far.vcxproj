@@ -491,8 +491,8 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="windowsfwd.hpp" />
     <ClInclude Include="wm_listener.hpp" />
     <ClInclude Include="xlat.hpp" />
-    <ClInclude Include="sdk\sdk.common.h" />
-    <ClInclude Include="sdk\sdk.vc.h" />
+    <ClInclude Include="sdk\sdk_common.h" />
+    <ClInclude Include="sdk\sdk_vc.h" />
     <ClInclude Include="Include\farcolor.hpp" />
     <ClInclude Include="lang.hpp" />
     <ClInclude Include="Include\plugin.hpp" />
