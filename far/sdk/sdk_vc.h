@@ -1,7 +1,9 @@
-﻿#pragma once
+﻿#ifndef SDK_VC_H_47CB8DA7_19E2_4E69_96EA_CF89EFAD00D7
+#define SDK_VC_H_47CB8DA7_19E2_4E69_96EA_CF89EFAD00D7
+#pragma once
 
 /*
-sdk.vc.h
+sdk_vc.h
 
 Типы и определения, отсутствующие SDK (Microsoft).
 */
@@ -87,3 +89,5 @@ const FILE_INFORMATION_CLASS FileBothDirectoryInformation=(FILE_INFORMATION_CLAS
 const FILE_INFORMATION_CLASS FileBasicInformation=(FILE_INFORMATION_CLASS)4;
 const FILE_INFORMATION_CLASS FileStreamInformation=(FILE_INFORMATION_CLASS)22;
 const FILE_INFORMATION_CLASS FileIdBothDirectoryInformation=(FILE_INFORMATION_CLASS)37;
+
+#endif // SDK_VC_H_47CB8DA7_19E2_4E69_96EA_CF89EFAD00D7

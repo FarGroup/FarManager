@@ -4,6 +4,7 @@ import os.path
 import re
 
 def check(filename):
+	#print(filename)
 	with open(filename, encoding="utf-8") as f:
 		content = f.read().splitlines()
 		basename = os.path.basename(filename)
@@ -31,7 +32,7 @@ def check(filename):
 		if CheckBom and not IsBom:
 			Raise()
 
-		if extension == ".hpp" and CheckIncludeGuards:
+		if extension in [".hpp", ".h"] and CheckIncludeGuards:
 			LockGuardName = "{0}_{1}".format(name.upper(), extension[1:].upper())
 			LockGuardTemplate1 = "#ifndef " + LockGuardName
 			LockGuardTemplate2 = "#define " + LockGuardName
@@ -115,7 +116,7 @@ def check(filename):
 			LicI +=1
 			LineNumber += 1
 
-		if extension == ".hpp" and content[LineNumber] == "":
+		if extension in [".hpp", ".h"] and content[LineNumber] == "":
 			LineNumber += 1
 			LicI = 0
 			while LicI < len(LicenseException):
@@ -132,13 +133,16 @@ def check(filename):
 		LineNumber += 1
 
 
-extensions = ('.cpp', '.hpp', '.c')
+def get_list(dir):
+	return [ os.path.join(dir, f) for f in os.listdir(dir)]
 
-files = os.listdir(".") + [ os.path.join("common", f) for f in os.listdir("common")]
-for file in files:
-	ext = os.path.splitext(file)[-1].lower()
-	if ext in extensions:
-		try:
-			check(file)
-		except Exception as e:
-			print(e)
+if __name__ == "__main__":
+	extensions = ('.cpp', '.hpp', '.c', '.h')
+	files = get_list(".") + get_list("common") + get_list("sdk")
+	for file in files:
+		ext = os.path.splitext(file)[-1].lower()
+		if ext in extensions:
+			try:
+				check(file)
+			except Exception as e:
+				print(e)

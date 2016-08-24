@@ -1,7 +1,9 @@
-﻿#pragma once
+﻿#ifndef SDK_COMMON_H_8710A968_FB61_435A_B9F6_166D668B92A9
+#define SDK_COMMON_H_8710A968_FB61_435A_B9F6_166D668B92A9
+#pragma once
 
 /*
-sdk.common.h
+sdk_common.h
 
 Типы и определения, отсутствующие в SDK.
 */
@@ -259,3 +261,5 @@ IsWindows10OrGreater()
 	return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0);
 }
 #endif
+
+#endif // SDK_COMMON_H_8710A968_FB61_435A_B9F6_166D668B92A9

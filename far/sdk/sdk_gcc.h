@@ -1,7 +1,9 @@
-﻿#pragma once
+﻿#ifndef SDK_GCC_H_EA5F3F70_C987_4240_AA25_3016DB39C651
+#define SDK_GCC_H_EA5F3F70_C987_4240_AA25_3016DB39C651
+#pragma once
 
 /*
-sdk.gcc.h
+sdk_gcc.h
 
 Типы и определения, отсутствующие в SDK (GCC).
 */
@@ -709,3 +711,5 @@ EXTERN_C NET_API_STATUS NET_API_FUNCTION NetDfsGetInfo(LPWSTR DfsEntryPath, LPWS
 #ifndef ERROR_UNHANDLED_EXCEPTION
 #define ERROR_UNHANDLED_EXCEPTION 574L
 #endif
+
+#endif // SDK_GCC_H_EA5F3F70_C987_4240_AA25_3016DB39C651
