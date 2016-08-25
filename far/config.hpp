@@ -161,7 +161,7 @@ namespace detail
 			{
 				return false;
 			}
-			Set(Value);
+			SetT(Value);
 			return true;
 		}
 
