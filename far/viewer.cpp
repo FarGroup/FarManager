@@ -4015,7 +4015,8 @@ void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
 		if (PrevMode == -1)
 			PrevMode = m_DisplayMode == VMT_HEX? RB_HEX : RB_DEC;
 
-		IntOption InputMode(PrevMode);
+		IntOption InputMode;
+		InputMode.Set(PrevMode);
 		static const int MsgIds[] = { MGoToPercent, MGoToHex, MGoToDecimal };
 
 		DialogBuilder Builder(MViewerGoTo, L"ViewerGotoPos");

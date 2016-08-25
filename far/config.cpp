@@ -777,19 +777,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 
 	Builder.AddOKCancel();
 
-	if (Builder.ShowDialog())
-	{
-		if (!Local)
-		{
-			if (!ViOpt.MaxLineSize)
-				ViOpt.MaxLineSize = Options::ViewerOptions::eDefLineSize;
-			else
-				ViOpt.MaxLineSize = std::min(std::max((__int64)ViewerOptions::eMinLineSize, ViOpt.MaxLineSize.Get()), (__int64)ViewerOptions::eMaxLineSize);
-		}
-
-		if (ViOptRef.TabSize<1 || ViOptRef.TabSize>512)
-			ViOptRef.TabSize = DefaultTabSize;
-	}
+	Builder.ShowDialog();
 }
 
 void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
@@ -845,11 +833,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 
 	Builder.AddOKCancel();
 
-	if (Builder.ShowDialog())
-	{
-		if (EdOptRef.TabSize<1 || EdOptRef.TabSize>512)
-			EdOptRef.TabSize = DefaultTabSize;
-	}
+	Builder.ShowDialog();
 }
 
 void Options::SetFolderInfoFiles()
@@ -1550,6 +1534,62 @@ Options::Options():
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
 {
+	const auto TabSizeValidator = [](long long TabSize)
+	{
+		return InRange(1ll, TabSize, 512ll) ? TabSize : DefaultTabSize;
+	};
+
+	EdOpt.TabSize.SetValidator(TabSizeValidator);
+	ViOpt.TabSize.SetValidator(TabSizeValidator);
+
+	ViOpt.MaxLineSize.SetValidator([](long long Value)
+	{
+		return Value?
+			std::max(static_cast<long long>(ViewerOptions::eMinLineSize), std::min(Value, static_cast<long long>(ViewerOptions::eMaxLineSize))) :
+			static_cast<long long>(ViewerOptions::eDefLineSize);
+	});
+
+	PluginMaxReadData.SetValidator([](long long Value) { return std::max(Value, 0x20000ll); });
+
+	// Исключаем случайное стирание разделителей
+	EdOpt.strWordDiv.SetValidator([](const string& Value) { return Value.empty()? WordDiv0 : Value; });
+	XLat.strWordDivForXlat.SetValidator([](const string& Value) { return Value.empty()? WordDivForXlat0 : Value; });
+
+	PanelRightClickRule.SetValidator([](long long Value) { return Value %= 3; });
+	PanelCtrlAltShiftRule.SetValidator([](long long Value) { return Value %= 3; });
+
+	HelpTabSize.SetValidator([](long long Value) { return DefaultTabSize; }); // пока жестко пропишем...
+
+	const auto MacroKeyValidator = [](const string& Value, DWORD& Key, const string& DefaultValue, DWORD DefaultKey)
+	{
+		if ((Key = KeyNameToKey(Value)) == static_cast<DWORD>(-1))
+		{
+			Key = DefaultKey;
+			return DefaultValue;
+		}
+		return Value;
+	};
+
+	Macro.strKeyMacroCtrlDot.SetValidator([&](const string& Value)
+	{
+		return MacroKeyValidator(Value, Macro.KeyMacroCtrlDot, L"Ctrl.", KEY_CTRLDOT);
+	});
+
+	Macro.strKeyMacroRCtrlDot.SetValidator([&](const string& Value)
+	{
+		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlDot, L"RCtrl.", KEY_RCTRLDOT);
+	});
+
+	Macro.strKeyMacroCtrlShiftDot.SetValidator([&](const string& Value)
+	{
+		return MacroKeyValidator(Value, Macro.KeyMacroCtrlShiftDot, L"CtrlShift.", KEY_CTRLSHIFTDOT);
+	});
+
+	Macro.strKeyMacroRCtrlShiftDot.SetValidator([&](const string& Value)
+	{
+		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlShiftDot, L"RCtrlShift.", KEY_RCTRL | KEY_SHIFT | KEY_DOT);
+	});
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;
@@ -2070,55 +2110,6 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	}
 
 	ElevationMode = StoredElevationMode;
-
-	if (PluginMaxReadData < 0x1000)
-		PluginMaxReadData=0x20000;
-
-	if (!ViOpt.MaxLineSize)
-		ViOpt.MaxLineSize = ViewerOptions::eDefLineSize;
-	else if (ViOpt.MaxLineSize < ViewerOptions::eMinLineSize)
-		ViOpt.MaxLineSize = ViewerOptions::eMinLineSize;
-	else if (ViOpt.MaxLineSize > ViewerOptions::eMaxLineSize)
-		ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
-
-	// Исключаем случайное стирание разделителей ;-)
-	if (EdOpt.strWordDiv.empty())
-		EdOpt.strWordDiv = WordDiv0;
-
-	// Исключаем случайное стирание разделителей
-	if (XLat.strWordDivForXlat.empty())
-		XLat.strWordDivForXlat = WordDivForXlat0;
-
-	PanelRightClickRule%=3;
-	PanelCtrlAltShiftRule%=3;
-
-	if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
-		EdOpt.TabSize = DefaultTabSize;
-
-	if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
-		ViOpt.TabSize = DefaultTabSize;
-
-	HelpTabSize = DefaultTabSize; // пока жестко пропишем...
-
-	static const struct
-	{
-		StringOption* ConfigPtr;
-		DWORD* RuntimePtr;
-		DWORD Default;
-	}
-	MacroControlKeys[] =
-	{
-		{ &Macro.strKeyMacroCtrlDot, &Macro.KeyMacroCtrlDot, KEY_CTRLDOT },
-		{ &Macro.strKeyMacroRCtrlDot, &Macro.KeyMacroRCtrlDot, KEY_RCTRLDOT },
-		{ &Macro.strKeyMacroCtrlShiftDot, &Macro.KeyMacroCtrlShiftDot, KEY_CTRLSHIFTDOT },
-		{ &Macro.strKeyMacroRCtrlShiftDot, &Macro.KeyMacroRCtrlShiftDot, KEY_RCTRL | KEY_SHIFT | KEY_DOT },
-	};
-
-	for (const auto& i: MacroControlKeys)
-	{
-		if ((*i.RuntimePtr = KeyNameToKey(*i.ConfigPtr)) == static_cast<DWORD>(-1))
-			*i.RuntimePtr = i.Default;
-	}
 
 	ReadPanelModes();
 

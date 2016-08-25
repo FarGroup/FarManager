@@ -146,14 +146,24 @@ namespace detail
 	class OptionImpl: public Option
 	{
 	public:
-		typedef base_type underlying_type;
+		using underlying_type = base_type;
+		using validator_type = std::function<base_type(const base_type&)>;
 
 		OptionImpl(): Option(base_type()) {}
-		OptionImpl(const base_type& Value): Option(Value) {}
-		OptionImpl(const derived& Value): Option(Value.Get()) {}
+
+		void SetValidator(const validator_type& Validator) { m_Validator = Validator; }
 
 		const base_type& Get() const { return GetT<base_type>(); }
-		void Set(const base_type& Value) { SetT(Value); }
+		void Set(const base_type& Value) { SetT(Validate(Value)); }
+		bool TrySet(const base_type& Value)
+		{
+			if (Validate(Value) != Value)
+			{
+				return false;
+			}
+			Set(Value);
+			return true;
+		}
 
 		virtual bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
 		virtual void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
@@ -162,6 +172,10 @@ namespace detail
 		virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }
+	private:
+		base_type Validate(const base_type& Value) const { return m_Validator? m_Validator(Value) : Value; }
+
+		validator_type m_Validator;
 	};
 }
 
@@ -222,8 +236,6 @@ public:
 	IntOption& operator^=(long long Value){Set(Get()^Value); return *this;}
 	IntOption& operator--(){Set(Get()-1); return *this;}
 	IntOption& operator++(){Set(Get()+1); return *this;}
-	IntOption operator--(int){long long Current = Get(); Set(Current-1); return Current;}
-	IntOption operator++(int){long long Current = Get(); Set(Current+1); return Current;}
 
 	operator long long() const { return Get(); }
 };
