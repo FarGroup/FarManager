@@ -4039,6 +4039,8 @@ static bool editorsetFunc(FarMacroCall* Data)
 			if (Value.isString() || Value.asInteger() != -1)
 				longState=0;
 		}
+		if (Index == 0 && longState == 0)
+			longState = -1;
 
 		Options::EditorOptions EdOpt;
 		Global->WindowManager->GetCurrentEditor()->GetEditorOptions(EdOpt);
@@ -4092,7 +4094,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 				case 0:  // TabSize;
 					if (longState>=1 && longState<=512)
 						EdOpt.TabSize = longState;
-					else if (longState!=0 && longState!=-1)
+					else
 						Ret = -1;
 					break;
 				case 1:  // ExpandTabs;
