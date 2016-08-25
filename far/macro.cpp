@@ -4090,7 +4090,11 @@ static bool editorsetFunc(FarMacroCall* Data)
 			switch (Index)
 			{
 				case 0:  // TabSize;
-					EdOpt.TabSize=longState; break;
+					if (longState>=1 && longState<=512)
+						EdOpt.TabSize = longState;
+					else if (longState!=0 && longState!=-1)
+						Ret = -1;
+					break;
 				case 1:  // ExpandTabs;
 					EdOpt.ExpandTabs=longState; break;
 				case 2:  // PersistentBlocks;
