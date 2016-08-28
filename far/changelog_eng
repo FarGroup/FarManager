@@ -3,6 +3,50 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.08.2016 14:55:58 +0200 - build 4770
+
+1. Add proper validation for configuration parameters so that checks are not scattered all over the code.
+
+2. Editor.Set second parameter is now optional (-1 by default).
+
+shmuel 25.08.2016 14:24:34 +0200 - build 4769
+
+1. Another correction of 4767.
+
+shmuel 25.08.2016 13:53:19 +0200 - build 4768
+
+1. Correction of 4767.
+
+shmuel 25.08.2016 13:27:23 +0200 - build 4767
+
+1. MacroAPI: Editor.Set(0) call would set the tabulation length to zero which caused a crash.
+
+drkns 25.08.2016 00:57:25 +0200
+
+1. Continue headers validation.
+
+drkns 24.08.2016 18:08:24 +0200 - build 4766
+
+1. Correction of exception processing.
+
+2. After 4709, changing of the console size with "mode x, y" did not work.
+
+drkns 23.08.2016 11:20:47 +0200 - build 4765
+
+1. Viewer search in UTF8 files was broken.
+
+2. Viewer regex search was broken.
+
+drkns 22.08.2016 22:01:40 +0200
+
+1. GCC 6.
+
+drkns 22.08.2016 11:43:23 +0200
+
+1. Regular headings in all cpp/hpp files.
+
+2. A script is added for validation of #1.
+
 drkns 20.08.2016 14:01:57 +0200 - build 4764
 
 1. Correction of 4757.1.
