@@ -1630,6 +1630,30 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					break;
 			}
 		}
+		if (FShift&KEY_SHIFT)
+		{
+			const struct KeysData
+			{
+				DWORD FarKey;
+				wchar_t Char;
+			} Keys[]=
+			{
+				{'0',')'},{'1','!'},{'2','@'},{'3','#'},{'4','$'},
+				{'5','%'},{'6','^'},{'7','&'},{'8','*'},{'9','('},
+				{'`','~'},{'-','_'},{'=','+'},{'\\','|'},{'[','{'},
+				{']','}'},{';',':'},{'\'','"'},{',','<'},{'.','>'},
+				{'/','?'}
+			};
+			std::for_each(ALL_CONST_RANGE(Keys), [&FKey](const KeysData& A){if (FKey == A.FarKey) FKey=A.Char;});
+			const auto ItemIterator = std::find_if(CONST_RANGE(Keys, Item)
+			{
+				return Item.FarKey == FKey;
+			});
+			if (ItemIterator != std::cend(Keys))
+			{
+				FKey = ItemIterator->Char;
+			}
+		}
 	}
 
 	if (Rec)
