@@ -487,9 +487,8 @@ void attach_debugger()
 	if (IsDebuggerPresent())
 		return;
 
-	RestoreGPFaultUI();
-
 	// Get process ID and create the command line
+	// TODO: configurable
 	auto Cmd = std::wstring(L"vsjitdebugger.exe -p ") + std::to_wstring(GetCurrentProcessId());
 
 	// Start debugger process
@@ -511,12 +510,11 @@ void attach_debugger()
 			DebugBreak();
 		}
 	}
-	SetErrorMode(Global->ErrorMode);
 }
 
 void RestoreGPFaultUI()
 {
-	SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
+	SetErrorMode(Global? Global->ErrorMode & ~SEM_NOGPFAULTERRORBOX : 0);
 }
 
 bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module)
@@ -564,59 +562,6 @@ LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-
-static DWORD WINAPI ProcessGenericExceptionWrapper(EXCEPTION_POINTERS* xp)
-{
-	ProcessGenericException(xp, nullptr, nullptr, nullptr);
-	return 0;
-}
-
-LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp)
-{
-	// restore stack & call ProcessGenericExceptionWrapper
-	if (xp->ExceptionRecord->ExceptionCode == (DWORD)STATUS_STACK_OVERFLOW)
-	{
-#if 1 // it is much better way than hack stack and modify original context
-//#ifdef _M_IA64
-		// TODO: Bad way to restore IA64 stacks (CreateThread)
-		// Can you do smartly? See REMINDER file, section IA64Stacks
-		static HANDLE hThread = CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(ProcessGenericExceptionWrapper), xp, 0, nullptr);
-		if (hThread)
-		{
-			WaitForSingleObject(hThread, INFINITE);
-			CloseHandle(hThread);
-		}
-		TerminateProcess(GetCurrentProcess(), 1);
-#else
-		static struct
-		{
-			BYTE stack_space[32768];
-			DWORD_PTR ret_addr;
-			DWORD_PTR args[4];
-		}
-		stack;
-		stack.ret_addr = 0;
-#ifndef _WIN64
-		stack.args[0] = reinterpret_cast<DWORD_PTR>(xp);
-		//stack.args[1] = ...
-		//stack.args[2] = ...
-		//stack.args[3] = ...
-		xp->ContextRecord->Esp = reinterpret_cast<DWORD_PTR>(&stack.ret_addr);
-		xp->ContextRecord->Eip = reinterpret_cast<DWORD_PTR>(&ProcessGenericExceptionWrapper);
-#else
-		xp->ContextRecord->Rcx = reinterpret_cast<DWORD_PTR>(xp);
-		//xp->ContextRecord->Rdx = ...
-		//xp->ContextRecord->R8  = ...
-		//xp->ContextRecord->R9  = ...
-		xp->ContextRecord->Rsp = reinterpret_cast<DWORD_PTR>(&stack.ret_addr);
-		xp->ContextRecord->Rip = reinterpret_cast<DWORD_PTR>(&ProcessGenericExceptionWrapper);
-#endif
-		return EXCEPTION_CONTINUE_EXECUTION;
-#endif
-	}
-	return EXCEPTION_CONTINUE_SEARCH;
-}
-
 veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
 	m_Handler(Imports().AddVectoredExceptionHandler(TRUE, Handler))
 {
@@ -625,13 +570,6 @@ veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
 veh_handler::~veh_handler()
 {
 	Imports().RemoveVectoredExceptionHandler(m_Handler);
-}
-
-void EnableSeTranslation()
-{
-#ifdef _MSC_VER
-	_set_se_translator([](UINT Code, EXCEPTION_POINTERS* ExceptionInfo) { throw SException(Code, ExceptionInfo); });
-#endif
 }
 
 #if defined(FAR_ALPHA_VERSION)
@@ -814,4 +752,42 @@ bool IsCppException(const EXCEPTION_POINTERS* e)
 {
 	static const auto MSCPPExceptionCode = 0xE06D7363;
 	return e->ExceptionRecord->ExceptionCode == MSCPPExceptionCode;
+}
+
+thread_local bool StackOverflowHappened;
+
+void ResetStackOverflowIfNeeded()
+{
+	if (StackOverflowHappened)
+	{
+		if (!_resetstkoflw())
+		{
+			std::terminate();
+		}
+	}
+}
+
+int SehFilter(int Code, EXCEPTION_POINTERS* Info, const wchar_t* Function, Plugin* Module)
+{
+	if (Code == EXCEPTION_STACK_OVERFLOW)
+	{
+		bool Result = false;
+		{
+			Thread(&Thread::join, [&] { Result = ProcessGenericException(Info, nullptr, nullptr, nullptr); });
+		}
+		if (Result)
+		{
+			StackOverflowHappened = true;
+			return EXCEPTION_EXECUTE_HANDLER;
+		}
+	}
+	else
+	{
+		if (ProcessGenericException(Info, Function, Module, nullptr))
+			return EXCEPTION_EXECUTE_HANDLER;
+	}
+
+	SetUnhandledExceptionFilter(nullptr);
+	RestoreGPFaultUI();
+	return EXCEPTION_CONTINUE_SEARCH;
 }

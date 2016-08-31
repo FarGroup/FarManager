@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4503) // https://msdn.microsoft.com/en-us/library/074af4b6.aspx 'identifier' : decorated name length exceeded, name was truncated
 #pragma warning(disable: 4512) // https://msdn.microsoft.com/en-us/library/hsyx7kbz.aspx 'class' : assignment operator could not be generated
 #pragma warning(disable: 4514) // https://msdn.microsoft.com/en-us/library/cw9x3tcf.aspx 'function' : unreferenced inline function has been removed
+#pragma warning(disable: 4571) // https://msdn.microsoft.com/en-us/library/55s8esw4.aspx Informational: catch(...) semantics changed since Visual C++ 7.1; structured exceptions (SEH) are no longer caught
 #pragma warning(disable: 4623) // https://msdn.microsoft.com/en-us/library/8dk81ahy.aspx 'derived class' : default constructor was implicitly defined as deleted because a base class default constructor is inaccessible or deleted
 #pragma warning(disable: 4625) // https://msdn.microsoft.com/en-us/library/306zwa5e.aspx 'derived class' : copy constructor could not be generated because a base class copy constructor is inaccessible
 #pragma warning(disable: 4626) // https://msdn.microsoft.com/en-us/library/6ay4xcyd.aspx 'derived class' : assignment operator could not be generated because a base class assignment operator is inaccessible

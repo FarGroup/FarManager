@@ -66,13 +66,44 @@ private:
 	void* m_Handler;
 };
 
-LONG WINAPI VectoredExceptionHandler(EXCEPTION_POINTERS *xp);
-
-void EnableSeTranslation();
 void attach_debugger();
 
 void RegisterTestExceptionsHook();
 
 bool IsCppException(const EXCEPTION_POINTERS* e);
+
+template<class function, class filter, class handler>
+auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
+{
+#if COMPILER == C_GCC
+	// GCC doesn't support these currently
+	return Callable();
+#else
+	__try
+	{
+		return Callable();
+	}
+	__except (Filter(GetExceptionCode(), GetExceptionInformation()))
+	{
+		void ResetStackOverflowIfNeeded();
+
+		ResetStackOverflowIfNeeded();
+		return Handler();
+	}
+#endif
+}
+
+template<class function, class handler>
+auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const wchar_t* Function, Plugin* Module = nullptr)
+{
+	int SehFilter(int, EXCEPTION_POINTERS*, const wchar_t*, Plugin*);
+	return seh_invoke(std::forward<function>(Callable), [&](auto Code, auto Info) { return SehFilter(Code, Info, Function, Module); }, std::forward<handler>(Handler));
+}
+
+template<class function, class handler>
+auto seh_invoke_no_ui(function&& Callable, handler&& Handler)
+{
+	return seh_invoke(std::forward<function>(Callable), [](auto, auto) { return EXCEPTION_EXECUTE_HANDLER; }, std::forward<handler>(Handler));
+}
 
 #endif // FAREXCPT_HPP_F7B85E85_71DD_483D_BD7F_B26B8566AC8E

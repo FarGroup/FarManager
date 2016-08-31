@@ -1634,15 +1634,7 @@ static int WINAPI LocalIsalphanum(unsigned Ch) noexcept
 
 static unsigned WINAPI LocalUpper(unsigned LowerChar) noexcept
 {
-	try
-	{
-		return LowerChar < 256 ? LowerToUpper[LowerChar] : LowerChar;
-	}
-	catch (...)
-	{
-		// TODO: log
-		return LowerChar;
-	}
+	return LowerChar < 256 ? LowerToUpper[LowerChar] : LowerChar;
 }
 
 static void WINAPI LocalUpperBuf(char *Buf, int Length) noexcept
@@ -1659,15 +1651,7 @@ static void WINAPI LocalUpperBuf(char *Buf, int Length) noexcept
 
 static unsigned WINAPI LocalLower(unsigned UpperChar) noexcept
 {
-	try
-	{
-		return UpperChar < 256 ? UpperToLower[UpperChar] : UpperChar;
-	}
-	catch (...)
-	{
-		// TODO: log
-		return UpperChar;
-	}
+	return UpperChar < 256 ? UpperToLower[UpperChar] : UpperChar;
 }
 
 static void WINAPI LocalLowerBuf(char *Buf, int Length) noexcept
@@ -1763,15 +1747,7 @@ static char* WINAPI RemoveTrailingSpacesA(char *Str) noexcept
 
 static char *WINAPI FarItoaA(int value, char *string, int radix) noexcept
 {
-	try
-	{
-		return _itoa(value, string, radix);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return string;
-	}
+	return _itoa(value, string, radix);
 }
 
 static char *WINAPI FarItoa64A(__int64 value, char *string, int radix) noexcept
@@ -1885,15 +1861,7 @@ static char* WINAPI RemoveLeadingSpacesA(char *Str) noexcept
 
 static char* WINAPI RemoveExternalSpacesA(char *Str) noexcept
 {
-	try
-	{
-		return RemoveTrailingSpacesA(RemoveLeadingSpacesA(Str));
-	}
-	catch (...)
-	{
-		// TODO: log
-		return Str;
-	}
+	return RemoveTrailingSpacesA(RemoveLeadingSpacesA(Str));
 }
 
 static char* WINAPI TruncStrA(char *Str, int MaxLength) noexcept

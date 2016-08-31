@@ -287,7 +287,7 @@ protected:
 	};
 
 	template<typename T, class... args>
-	void ExecuteFunction(T& es, args&&... Args)
+	void ExecuteFunctionSeh(T& es, args&&... Args)
 	{
 		Prologue(); ++Activity;
 		SCOPE_EXIT{ --Activity; Epilogue(); };
@@ -309,6 +309,21 @@ protected:
 		{
 			ProcessException(ProcessUnknownException);
 		}
+	}
+
+	template<typename T, class... args>
+	void ExecuteFunction(T& es, args&&... Args)
+	{
+		seh_invoke_with_ui(
+		[&]
+		{
+			ExecuteFunctionSeh(es, std::forward<args>(Args)...);
+		},
+		[this]
+		{
+			HandleFailure(T::export_id::value);
+		},
+		m_Factory->ExportsNames()[T::export_id::value].UName, this);
 	}
 
 	void HandleFailure(EXPORTS_ENUM id);

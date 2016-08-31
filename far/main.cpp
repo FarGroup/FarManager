@@ -467,6 +467,12 @@ static void SetDriveMenuHotkeys()
 
 static int mainImpl(const range<wchar_t**>& Args)
 {
+	setlocale(LC_ALL, "");
+	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
+
+	// Must be static - dependent static objects exist
+	static SCOPED_ACTION(os::com::co_initialize);
+
 	SCOPED_ACTION(global);
 
 	auto NoElevetionDuringBoot = std::make_unique<elevation::suppress>();
@@ -760,11 +766,9 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	NoElevetionDuringBoot.reset();
 
-	int Result = 1;
-
 	try
 	{
-		Result = MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
+		return MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 	}
 	catch (const std::exception& e)
 	{
@@ -774,20 +778,15 @@ static int mainImpl(const range<wchar_t**>& Args)
 		}
 		else
 		{
-			RestoreGPFaultUI();
 			throw;
 		}
 	}
 	// Absence of catch (...) block here is deliberate:
 	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
 	// and processed as SEH exceptions in more advanced way
-
-	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
-
-	return Result;
 }
 
-int wmain(int Argc, wchar_t *Argv[])
+static int wmain_seh(int Argc, wchar_t *Argv[])
 {
 	atexit(PrintMemory);
 #if defined(SYSLOG)
@@ -795,16 +794,10 @@ int wmain(int Argc, wchar_t *Argv[])
 #endif
 
 	tracer Tracer;
+	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 	try
 	{
-		setlocale(LC_ALL, "");
-		EnableSeTranslation();
-		SCOPED_ACTION(veh_handler)(VectoredExceptionHandler);
-		SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
-
-		// Must be static - dependent static objects exist
-		static SCOPED_ACTION(os::com::co_initialize);
 		return mainImpl(make_range(Argv + 1, Argv + Argc));
 	}
 	catch (const std::exception& e)
@@ -815,6 +808,7 @@ int wmain(int Argc, wchar_t *Argv[])
 		}
 		else
 		{
+			RestoreGPFaultUI();
 			SetUnhandledExceptionFilter(nullptr);
 			throw;
 		}
@@ -822,8 +816,20 @@ int wmain(int Argc, wchar_t *Argv[])
 	// Absence of catch (...) block here is deliberate:
 	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
 	// and processed as SEH exceptions in more advanced way
+}
 
-	// return 1;
+int wmain(int Argc, wchar_t *Argv[])
+{
+	return seh_invoke_with_ui(
+	[=]
+	{
+		return wmain_seh(Argc, Argv);
+	},
+	[]() -> int
+	{
+		std::terminate();
+	},
+	L"wmain");
 }
 
 #if COMPILER == C_GCC

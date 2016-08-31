@@ -143,8 +143,6 @@ private:
 	template<class T>
 	static unsigned int WINAPI Wrapper(void* p)
 	{
-		EnableSeTranslation();
-
 		const auto pParam = reinterpret_cast<T*>(p);
 		auto Param = std::move(*pParam);
 		delete pParam;

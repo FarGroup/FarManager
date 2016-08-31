@@ -1564,18 +1564,19 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 	{
 		const auto GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags)
 		{
-			try
+			// It seems that Microsoft has forgotten to put an exception handler around this function.
+			// It causes EXCEPTION_ACCESS_VIOLATION (read from 0) in kernel32 under certain conditions,
+			// e.g. badly written file system drivers or weirdly formatted volumes.
+			return seh_invoke_no_ui(
+			[&]
 			{
-				// It seems that Microsoft has forgotten to put an exception handler around this function.
-				// It causes EXCEPTION_ACCESS_VIOLATION (read from 0) in kernel32 under certain conditions,
-				// e.g. badly written file system drivers or weirdly formatted volumes.
 				return Imports().GetFinalPathNameByHandle(File, Buffer, Size, Flags);
-			}
-			catch (const SException&)
+			},
+			[]
 			{
 				SetLastError(ERROR_UNHANDLED_EXCEPTION);
 				return 0ul;
-			}
+			});
 		};
 
 		wchar_t Buffer[MAX_PATH];

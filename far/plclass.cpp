@@ -183,7 +183,7 @@ bool native_plugin_factory::FindExport(const char* ExportName) const
 
 bool native_plugin_factory::IsPlugin2(const void* Module) const
 {
-	try
+	return seh_invoke_no_ui([&]
 	{
 		const auto pDOSHeader = reinterpret_cast<const IMAGE_DOS_HEADER*>(Module);
 		if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
@@ -235,12 +235,13 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 				}
 			}
 		}
-	}
-	catch (const SException&)
+		return false;
+	},
+	[]
 	{
 		// TODO: log
-	}
-	return false;
+		return false;
+	});
 }
 
 static BOOL PrepareModulePath(const string& ModuleName)
@@ -1209,42 +1210,27 @@ public:
 		m_Imports(m_Module),
 		m_Success(false)
 	{
-		try
-		{
-			GlobalInfo Info = { sizeof(Info) };
+		GlobalInfo Info = { sizeof(Info) };
 
-			if (m_Imports.IsValid() &&
-				m_Imports.pInitialize(&Info) &&
-				Info.StructSize &&
-				Info.Title && *Info.Title &&
-				Info.Description && *Info.Description &&
-				Info.Author && *Info.Author)
-			{
-				m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
-
-				// TODO: store info, show message if version is bad
-			}
-		}
-		catch (const SException&)
+		if (m_Imports.IsValid() &&
+			m_Imports.pInitialize(&Info) &&
+			Info.StructSize &&
+			Info.Title && *Info.Title &&
+			Info.Description && *Info.Description &&
+			Info.Author && *Info.Author)
 		{
-			// TODO: notification
-			throw;
+			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
+
+			// TODO: store info, show message if version is bad
 		}
 	}
 
 	~custom_plugin_factory()
 	{
-		try
+		if (m_Success)
 		{
-			if (m_Success)
-			{
-				ExitInfo Info = { sizeof(Info) };
-				m_Imports.pFree(&Info);
-			}
-		}
-		catch (const SException&)
-		{
-			// TODO: notification
+			ExitInfo Info = { sizeof(Info) };
+			m_Imports.pFree(&Info);
 		}
 	}
 
@@ -1252,65 +1238,30 @@ public:
 
 	virtual bool IsPlugin(const string& Filename) const override
 	{
-		try
-		{
-			return m_Imports.pIsPlugin(Filename.data()) != FALSE;
-		}
-		catch (const SException&)
-		{
-			// TODO: notification
-			throw;
-			//return false;
-		}
+		return m_Imports.pIsPlugin(Filename.data()) != FALSE;
 	}
 
 	virtual plugin_module_ptr Create(const string& Filename) override
 	{
-		try
+		auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
+		if (!Module->get_opaque())
 		{
-			auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
-			if (!Module->get_opaque())
-			{
-				Global->CatchError();
-				Module.reset();
-			}
-			return Module;
+			Global->CatchError();
+			Module.reset();
 		}
-		catch (const SException&)
-		{
-			// TODO: notification
-			throw;
-			//return nullptr;
-		}
+		return Module;
 	}
 
 	virtual bool Destroy(plugin_module_ptr& Module) override
 	{
-		try
-		{
-			const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->get_opaque()) != FALSE;
-			Module.reset();
-			return Result;
-		}
-		catch (const SException&)
-		{
-			// TODO: notification
-			throw;
-			//return false;
-		}
+		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->get_opaque()) != FALSE;
+		Module.reset();
+		return Result;
 	}
 
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
 	{
-		try
-		{
-			return Name.UName? m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), Name.UName) : nullptr;
-		}
-		catch (const SException&)
-		{
-			// TODO: notification
-			throw;
-		}
+		return Name.UName? m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), Name.UName) : nullptr;
 	}
 
 private:
