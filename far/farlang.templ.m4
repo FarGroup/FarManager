@@ -22380,18 +22380,6 @@ upd:"Unload plugin"
 "Scarica Plugin"
 "Вивантажити плагін"
 
-MExcDebugger
-"Отладка"
-"Debug"
-"Debug"
-"Fehlerprotokoll"
-upd:"Debug"
-upd:"Debug"
-"Depurador"
-"Ladiť"
-"Debug"
-"Налагодження"
-
 MExcStack
 "Стек"
 "Stack"

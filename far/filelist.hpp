@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filesystemwatcher.hpp"
 
 class FileFilter;
+class Plugin;
 
 namespace detail
 {

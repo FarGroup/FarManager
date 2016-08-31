@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "synchro.hpp"
-#include "farexcpt.hpp"
 
 class tracer: noncopyable
 {
@@ -66,7 +65,17 @@ private:
 	static tracer* sTracer;
 	mutable CriticalSection m_CS;
 	std::unordered_map<const void*, exception_context> m_CppMap;
-	veh_handler m_Handler;
+
+	class veh_handler: noncopyable
+	{
+	public:
+		veh_handler(PVECTORED_EXCEPTION_HANDLER Handler);
+		~veh_handler();
+
+	private:
+		void* m_Handler;
+	}
+	m_Handler;
 	static bool m_SymInitialised;
 };
 

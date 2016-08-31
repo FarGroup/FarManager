@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "filemasks.hpp"
 #include "filefilter.hpp"
-#include "farexcpt.hpp"
 #include "syslog.hpp"
 #include "encoding.hpp"
 #include "cddrv.hpp"

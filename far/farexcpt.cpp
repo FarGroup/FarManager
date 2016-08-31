@@ -51,12 +51,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
+#include "datetime.hpp"
 
 void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 #define EXCEPTION_MICROSOFT_CPLUSPLUS ((NTSTATUS)0xE06D7363)
 
-#define LAST_BUTTON 14
+enum exception_dialog
+{
+	ed_doublebox,
+	ed_text_exception,
+	ed_edit_exception,
+	ed_text_address,
+	ed_edit_address,
+	ed_text_function,
+	ed_edit_function,
+	ed_text_module,
+	ed_edit_module,
+	ed_separator,
+	ed_button_terminate,
+	ed_button_stack,
+	ed_button_minidump,
+	ed_button_ignore,
+
+	ed_first_button = ed_button_terminate,
+	ed_last_button = ed_button_ignore
+};
 
 static void ShowStackTrace(const std::vector<string>& Symbols)
 {
@@ -71,6 +91,20 @@ static void ShowStackTrace(const std::vector<string>& Symbols)
 			std::wcerr << Str << L'\n';
 		}
 		std::wcerr.flush();
+	}
+}
+
+static void write_minidump(EXCEPTION_POINTERS *ex_pointers)
+{
+	if (Imports().MiniDumpWriteDump)
+	{
+		// TODO: subdirectory && timestamp
+		os::fs::file DumpFile;
+		if (DumpFile.Open(Global->Opt->LocalProfilePath + L"\\Far.mdmp", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
+		{
+			MINIDUMP_EXCEPTION_INFORMATION Mei = { GetCurrentThreadId(), ex_pointers };
+			Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.handle().native_handle(), MiniDumpWithFullMemory, ex_pointers ? &Mei : nullptr, nullptr, nullptr);
+		}
 	}
 }
 
@@ -95,18 +129,20 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 		case DN_CONTROLINPUT:
 		{
-			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
-			if (record->EventType==KEY_EVENT)
+			const auto record = static_cast<const INPUT_RECORD *>(Param2);
+			if (record->EventType == KEY_EVENT)
 			{
-				int key = InputRecordToKey(record);
-				if (Param1==10 && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
+				const auto key = InputRecordToKey(record);
+
+				if (Param1 == ed_first_button && (key == KEY_LEFT || key == KEY_NUMPAD4 || key == KEY_SHIFTTAB))
 				{
-					Dlg->SendMessage(DM_SETFOCUS, LAST_BUTTON, nullptr);
+					Dlg->SendMessage(DM_SETFOCUS, ed_last_button, nullptr);
 					return TRUE;
 				}
-				else if (Param1==LAST_BUTTON && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
+
+				if (Param1 == ed_last_button && (key == KEY_RIGHT || key == KEY_NUMPAD6 || key == KEY_TAB))
 				{
-					Dlg->SendMessage(DM_SETFOCUS, 10, nullptr);
+					Dlg->SendMessage(DM_SETFOCUS, ed_first_button, nullptr);
 					return TRUE;
 				}
 			}
@@ -115,15 +151,16 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 		case DN_CLOSE:
 		{
+			const auto xp = reinterpret_cast<EXCEPTION_POINTERS*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+
 			switch (Param1)
 			{
-			case 11: // debug
-				// It's better to attach debugger ASAP, closing the dialog causes too much work in window manager
-				attach_debugger();
+			case ed_button_stack:
+				ShowStackTrace(tracer::get(xp));
 				return FALSE;
 
-			case 12: // stack
-				ShowStackTrace(tracer::get(reinterpret_cast<const EXCEPTION_POINTERS*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr))));
+			case ed_button_minidump:
+				write_minidump(xp);
 				return FALSE;
 			}
 		}
@@ -143,7 +180,6 @@ static bool LanguageLoaded()
 enum reply
 {
 	reply_handle,
-	reply_debug,
 	reply_minidump,
 	reply_ignore,
 };
@@ -168,7 +204,6 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, MSG(PluginModule? MExcUnload : MExcTerminate)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcStack)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcMinidump)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
@@ -181,14 +216,11 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 
 	switch (Dlg->GetExitCode())
 	{
-	case 10:
+	case ed_button_terminate:
 		return reply_handle;
-	case 11:
-		return reply_debug;
-	// case 12 is handled in DlgProc entirely
-	case 13:
+	case ed_button_minidump:
 		return reply_minidump;
-	default: //case 14:
+	default:
 		return reply_ignore;
 	}
 }
@@ -249,24 +281,6 @@ enum FARRECORDTYPE
 {
 	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
 };
-
-static void write_minidump(EXCEPTION_POINTERS *ex_pointers)
-{
-#if 0
-	if (::IsDebuggerPresent())
-		return;
-#endif
-	if (Imports().MiniDumpWriteDump)
-	{
-		// TODO: subdirectory && timestamp
-		os::fs::file DumpFile;
-		if (DumpFile.Open(Global->Opt->LocalProfilePath + L"\\Far.mdmp", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
-		{
-			MINIDUMP_EXCEPTION_INFORMATION Mei = { GetCurrentThreadId(), ex_pointers };
-			Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.handle().native_handle(), MiniDumpWithFullMemory, ex_pointers ? &Mei : nullptr, nullptr, nullptr);
-		}
-	}
-}
 
 static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *PluginModule, const char* Message)
 {
@@ -397,13 +411,13 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 			switch (xr->ExceptionInformation[0])
 			{
-				case 0:
+				case 0: // read
 					Offset = 0;
 					break;
-				case 1:
+				case 1: // write
 					Offset = 1;
 					break;
-				case 8:
+				case 8: // execute
 					Offset = 2;
 					break;
 			}
@@ -446,7 +460,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 		Exception = strBuf.data();
 	}
 
-	reply MsgCode = reply_handle;
+	reply MsgCode;
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
@@ -468,47 +482,9 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 	case reply_handle: // terminate / unload
 		return true;
 
-	case reply_minidump: // write %FARLOCALPROFILE%\Far.mdmp and terminate
-		write_minidump(xp);
-		return true;
-
-	case reply_debug:
-		attach_debugger();
-		return false;
-
 	case reply_ignore:
 	default:
 		return false;
-	}
-}
-
-void attach_debugger()
-{
-	if (IsDebuggerPresent())
-		return;
-
-	// Get process ID and create the command line
-	// TODO: configurable
-	auto Cmd = std::wstring(L"vsjitdebugger.exe -p ") + std::to_wstring(GetCurrentProcessId());
-
-	// Start debugger process
-	STARTUPINFO si = { sizeof(si) };
-	PROCESS_INFORMATION pi = {};
-	if (CreateProcess(nullptr, &Cmd[0], nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
-	{
-		// Wait for the debugger to attach
-		while (!IsDebuggerPresent() && WaitForSingleObject(pi.hProcess, 0) != WAIT_OBJECT_0)
-			Sleep(500);
-
-		// Close debugger process handles to eliminate resource leak
-		CloseHandle(pi.hThread);
-		CloseHandle(pi.hProcess);
-
-		if (IsDebuggerPresent())
-		{
-			// Stop execution so the debugger can take over
-			DebugBreak();
-		}
 	}
 }
 
@@ -521,33 +497,24 @@ bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugi
 {
 	EXCEPTION_RECORD ExceptionRecord{};
 	CONTEXT ContextRecord{};
-	EXCEPTION_POINTERS xp = { &ExceptionRecord, &ContextRecord };
+	EXCEPTION_POINTERS xp{ &ExceptionRecord, &ContextRecord };
 
-	EXCEPTION_POINTERS* XpPtr;
+	if (!tracer::get_exception_context(&e, ExceptionRecord, ContextRecord))
+	{
+		// std::exception to EXCEPTION_POINTERS translation relies on Microsoft C++ exception implementation.
+		// It won't work in gcc etc.
+		// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
+		xp.ExceptionRecord->ExceptionCode = EXCEPTION_MICROSOFT_CPLUSPLUS;
+	}
 
-	if (const auto se = dynamic_cast<const SException*>(&e))
-	{
-		XpPtr = se->GetInfo();
-	}
-	else
-	{
-		if (!tracer::get_exception_context(&e, ExceptionRecord, ContextRecord))
-		{
-			// std::exception to EXCEPTION_POINTERS translation relies on Microsoft C++ exception implementation.
-			// It won't work in gcc etc.
-			// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
-			xp.ExceptionRecord->ExceptionCode = EXCEPTION_MICROSOFT_CPLUSPLUS;
-		}
-		XpPtr = &xp;
-	}
-	return ProcessGenericException(XpPtr, Function, Module, e.what());
+	return ProcessGenericException(&xp, Function, Module, e.what());
 }
 
 bool ProcessUnknownException(const wchar_t* Function, Plugin* Module)
 {
 	EXCEPTION_RECORD ExceptionRecord{};
 	CONTEXT ContextRecord{};
-	EXCEPTION_POINTERS xp = { &ExceptionRecord, &ContextRecord };
+	EXCEPTION_POINTERS xp{ &ExceptionRecord, &ContextRecord };
 
 	return ProcessGenericException(&xp, Function, Module, nullptr);
 }
@@ -562,16 +529,6 @@ LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
-veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
-	m_Handler(Imports().AddVectoredExceptionHandler(TRUE, Handler))
-{
-}
-
-veh_handler::~veh_handler()
-{
-	Imports().RemoveVectoredExceptionHandler(m_Handler);
-}
-
 #if defined(FAR_ALPHA_VERSION)
 WARNING_PUSH()
 
@@ -581,7 +538,7 @@ WARNING_DISABLE_CLANG("-Winfinite-recursion")
 static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 {
 	char Buffer[2048]; /* чтобы быстрее рвануло */
-	strcpy(Buffer, "zzzz");
+
 	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
 
 	// "side effect" to prevent deletion of this function call due to C4718.
@@ -750,8 +707,7 @@ void RegisterTestExceptionsHook()
 
 bool IsCppException(const EXCEPTION_POINTERS* e)
 {
-	static const auto MSCPPExceptionCode = 0xE06D7363;
-	return e->ExceptionRecord->ExceptionCode == MSCPPExceptionCode;
+	return e->ExceptionRecord->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
 }
 
 thread_local bool StackOverflowHappened;

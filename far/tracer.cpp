@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "tracer.hpp"
 #include "imports.hpp"
+#include "farexcpt.hpp"
 
 static auto GetBackTrace(const EXCEPTION_POINTERS* ExceptionInfo)
 {
@@ -101,7 +102,7 @@ static auto GetSymbols(const std::vector<const void*>& BackTrace)
 	return Result;
 }
 
-LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
+static LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 {
 	if (IsCppException(xp))
 	{
@@ -119,6 +120,16 @@ tracer* tracer::sTracer;
 tracer* tracer::GetInstance()
 {
 	return sTracer;
+}
+
+tracer::veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
+	m_Handler(Imports().AddVectoredExceptionHandler(TRUE, Handler))
+{
+}
+
+tracer::veh_handler::~veh_handler()
+{
+	Imports().RemoveVectoredExceptionHandler(m_Handler);
 }
 
 tracer::tracer():
@@ -175,7 +186,7 @@ std::vector<string> tracer::get(const void* CppObject)
 	{
 		return {};
 	}
-	EXCEPTION_POINTERS xp = { &Context.ExceptionRecord, &Context.ContextRecord };
+	const EXCEPTION_POINTERS xp{ &Context.ExceptionRecord, &Context.ContextRecord };
 
 	SymInitialise();
 	SCOPE_EXIT{ SymCleanup(); };

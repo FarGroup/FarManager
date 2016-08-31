@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 #include "windowsfwd.hpp"
+#include "farexcpt.hpp"
 
 class PluginManager;
 class Plugin;

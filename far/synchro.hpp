@@ -35,7 +35,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "farexcpt.hpp"
 #include "pathmix.hpp"
 
 class CriticalSection: noncopyable

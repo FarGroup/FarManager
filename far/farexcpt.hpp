@@ -44,30 +44,6 @@ LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo);
 
 void RestoreGPFaultUI();
 
-class SException: public std::exception
-{
-public:
-	SException(int Code, EXCEPTION_POINTERS* Info):m_Code(Code), m_Info(Info) {}
-	int GetCode() const { return m_Code; }
-	EXCEPTION_POINTERS* GetInfo() const { return m_Info; }
-
-private:
-	int m_Code;
-	EXCEPTION_POINTERS* m_Info;
-};
-
-class veh_handler: noncopyable
-{
-public:
-	veh_handler(PVECTORED_EXCEPTION_HANDLER Handler);
-	~veh_handler();
-
-private:
-	void* m_Handler;
-};
-
-void attach_debugger();
-
 void RegisterTestExceptionsHook();
 
 bool IsCppException(const EXCEPTION_POINTERS* e);
