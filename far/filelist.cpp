@@ -7815,7 +7815,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	{
 		string strFreeSize, strTotalSize;
 		auto strFormSize = size2str(TotalFileSize, 6, short_mode);
-		if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & OPIF_REALNAMES)))
+		if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & (OPIF_REALNAMES | OPIF_USEFREESIZE))))
 			strFreeSize = (FreeDiskSize != static_cast<unsigned __int64>(-1)) ? size2str(FreeDiskSize, 0, short_mode) : L"?";
 
 		if (Global->Opt->ShowPanelTotals)
