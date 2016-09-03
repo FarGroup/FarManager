@@ -249,14 +249,14 @@ static void DebugDeallocator(void* block, allocation_type type)
 
 static string FindStr(const void* Data, size_t Size)
 {
-	const auto ABegin = reinterpret_cast<const char*>(Data), AEnd = ABegin + Size;
+	const auto ABegin = reinterpret_cast<const char*>(Data), AEnd = ABegin + Size - 1;
 
 	if (std::all_of(ABegin, AEnd, [](char c){ return c >= ' ' || IsEol(c); }))
 	{
 		return string(encoding::ansi::get_chars(ABegin, AEnd - ABegin));
 	}
 
-	const auto WBegin = reinterpret_cast<const wchar_t*>(Data), WEnd = WBegin + Size / sizeof(wchar_t);
+	const auto WBegin = reinterpret_cast<const wchar_t*>(Data), WEnd = WBegin + (Size - 1) / sizeof(wchar_t);
 
 	if (std::all_of(WBegin, WEnd, [](wchar_t c){ return c >= L' ' || IsEol(c); }))
 	{

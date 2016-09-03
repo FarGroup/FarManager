@@ -1555,11 +1555,6 @@ void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 	}
 }
 
-static void ClearDirList(std::vector<PluginPanelItem>& Items)
-{
-	std::for_each(ALL_RANGE(Items), FreePluginPanelItem);
-}
-
 namespace magic
 {
 	template<typename T>
@@ -1613,7 +1608,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 				{
 					if (CheckForEsc())
 					{
-						ClearDirList(*Items);
+						FreePluginPanelItems(*Items);
 						return FALSE;
 					}
 
@@ -1626,9 +1621,9 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 				}
 
 				FindData.strFileName = strFullName;
-				PluginPanelItem Item;
-				FindDataExToPluginPanelItem(FindData, Item);
-				Items->emplace_back(Item);
+				PluginPanelItemHolderNonOwning Item;
+				FindDataExToPluginPanelItemHolder(FindData, Item);
+				Items->emplace_back(Item.Item);
 			}
 
 			std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
@@ -1666,7 +1661,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noex
 	try
 	{
 		auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
-		ClearDirList(*Items);
+		FreePluginPanelItems(*Items);
 	}
 	catch (...)
 	{
@@ -2903,11 +2898,9 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 		{
 			if (FMask.Compare(FindData.strFileName))
 			{
-				PluginPanelItem fdata;
-				FindDataExToPluginPanelItem(FindData, fdata);
-
-				Found = !Func(&fdata,strFullName.data(),Param);
-				FreePluginPanelItem(fdata);
+				PluginPanelItemHolder fdata;
+				FindDataExToPluginPanelItemHolder(FindData, fdata);
+				Found = !Func(&fdata.Item, strFullName.data(), Param);
 			}
 		}
 	}

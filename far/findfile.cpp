@@ -2801,17 +2801,17 @@ bool FindFiles::FindFilesProcess()
 							{
 								i.FindData.strFileName = i.Arc->strArcName;
 							}
-							PluginPanelItem pi;
-							FindDataExToPluginPanelItem(i.FindData, pi);
+							PluginPanelItemHolderNonOwning pi;
+							FindDataExToPluginPanelItemHolder(i.FindData, pi);
 
 							if (IsArchive)
-								pi.FileAttributes = 0;
+								pi.Item.FileAttributes = 0;
 
-							if (pi.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+							if (pi.Item.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 							{
-								DeleteEndSlash(const_cast<wchar_t*>(pi.FileName));
+								DeleteEndSlash(const_cast<wchar_t*>(pi.Item.FileName));
 							}
-							PanelItems.emplace_back(pi);
+							PanelItems.emplace_back(pi.Item);
 						}
 					}
 				});
@@ -2827,7 +2827,7 @@ bool FindFiles::FindFilesProcess()
 					NewPanel->Show();
 				}
 
-				std::for_each(ALL_RANGE(PanelItems), FreePluginPanelItem);
+				FreePluginPanelItems(PanelItems);
 				break;
 			}
 			case FD_BUTTON_GOTO:

@@ -318,15 +318,15 @@ struct FileList::PrevDataItem
 	NONCOPYABLE(PrevDataItem);
 	TRIVIALLY_MOVABLE(PrevDataItem);
 
-	PrevDataItem(const string& rhsPrevName, std::vector<FileListItem>&& rhsPrevListData, int rhsPrevTopFile):
+	PrevDataItem(const string& rhsPrevName, list_data&& rhsPrevListData, int rhsPrevTopFile):
 		strPrevName(rhsPrevName),
+		PrevListData(std::move(rhsPrevListData)),
 		PrevTopFile(rhsPrevTopFile)
 	{
-		PrevListData.swap(rhsPrevListData);
 	}
 
 	string strPrevName;
-	std::vector<FileListItem> PrevListData;
+	list_data PrevListData;
 	int PrevTopFile;
 };
 
@@ -420,19 +420,19 @@ FileList::~FileList()
 
 	FileList::ClearAllItem();
 
-	DeleteListData(m_ListData);
+	m_ListData.clear();
 }
 
 
-void FileList::DeleteListData(std::vector<FileListItem>& ListData)
+void FileList::list_data::clear()
 {
-	std::for_each(CONST_RANGE(ListData, i)
+	std::for_each(CONST_RANGE(Items, i)
 	{
-		if (m_PanelMode == panel_mode::PLUGIN_PANEL)
+		if (m_Plugin)
 		{
 			if (i.Callback)
 			{
-				FarPanelItemFreeInfo info = { sizeof(FarPanelItemFreeInfo), m_hPlugin };
+				FarPanelItemFreeInfo info = { sizeof(FarPanelItemFreeInfo), m_Plugin };
 				i.Callback(i.UserData, &info);
 			}
 			delete[] i.DizText;
@@ -440,7 +440,8 @@ void FileList::DeleteListData(std::vector<FileListItem>& ListData)
 		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
 	});
 
-	ListData.clear();
+	Items.clear();
+	m_Plugin = nullptr;
 }
 
 void FileList::ToBegin()
@@ -558,14 +559,12 @@ public:
 
 		if (hSortPlugin)
 		{
-			PluginPanelItem pi1, pi2;
+			PluginPanelItemHolder pi1, pi2;
 			m_Owner->FileListToPluginItem(a, pi1);
 			m_Owner->FileListToPluginItem(b, pi2);
-			pi1.Flags = a.Selected? PPIF_SELECTED : 0;
-			pi2.Flags = b.Selected? PPIF_SELECTED : 0;
-			RetCode = Global->CtrlObject->Plugins->Compare(hSortPlugin, &pi1, &pi2, static_cast<int>(ListSortMode) + (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED)));
-			FreePluginPanelItem(pi1);
-			FreePluginPanelItem(pi2);
+			pi1.Item.Flags = a.Selected? PPIF_SELECTED : 0;
+			pi2.Item.Flags = b.Selected? PPIF_SELECTED : 0;
+			RetCode = Global->CtrlObject->Plugins->Compare(hSortPlugin, &pi1.Item, &pi2.Item, static_cast<int>(ListSortMode) + (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED)));
 			if (RetCode!=-2 && RetCode)
 				return less_opt(RetCode < 0);
 		}
@@ -1854,12 +1853,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 					if (!NewFile)
 					{
-						PluginPanelItem PanelItem;
+						PluginPanelItemHolder PanelItem;
 						FileListToPluginItem(*CurPtr, PanelItem);
-						int Result=Global->CtrlObject->Plugins->GetFile(m_hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW));
-						FreePluginPanelItem(PanelItem);
 
-						if (!Result)
+						if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | (Edit?OPM_EDIT:OPM_VIEW)))
 						{
 							os::RemoveDirectory(strTempDir);
 							return TRUE;
@@ -1935,7 +1932,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 						if (PluginMode && UploadFile)
 						{
-							PluginPanelItem PanelItem;
+							PluginPanelItemHolder PanelItem;
 							const auto strSaveDir = os::GetCurrentDirectory();
 
 							if (!os::fs::exists(strTempName))
@@ -1953,7 +1950,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 							if (FileNameToPluginItem(strTempName, PanelItem))
 							{
-								int PutCode = Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem, 1, false, OPM_EDIT);
+								int PutCode = Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem.Item, 1, false, OPM_EDIT);
 
 								if (PutCode==1 || PutCode==2)
 									SetPluginModified();
@@ -2617,11 +2614,10 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				return;
 
 			os::CreateDirectory(strTempDir,nullptr);
-			PluginPanelItem PanelItem;
+			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(CurItem, PanelItem);
-			SCOPE_EXIT{ FreePluginPanelItem(PanelItem); };
 
-			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem, strTempDir, strFileName, OPM_SILENT | OPM_VIEW))
+			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW))
 				return;
 
 			strShortFileName = ConvertNameToShort(strFileName);
@@ -4118,10 +4114,9 @@ void FileList::UpdateViewPanel()
 				return;
 
 			os::CreateDirectory(strTempDir,nullptr);
-			PluginPanelItem PanelItem;
+			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(*CurPtr, PanelItem);
-			int Result=Global->CtrlObject->Plugins->GetFile(m_hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);
-			FreePluginPanelItem(PanelItem);
+			int Result = Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW);
 
 			if (!Result)
 			{
@@ -4423,6 +4418,11 @@ void FileList::RefreshTitle()
 	}
 
 	m_Title += L"}";
+}
+
+size_t FileList::GetFileCount() const
+{
+	return m_ListData.size();
 }
 
 void FileList::ClearSelection()
@@ -5278,10 +5278,6 @@ const FileListItem* FileList::GetItem(size_t Index) const
 
 void FileList::ClearAllItem()
 {
-	std::for_each(RANGE(PrevDataList, i)
-	{
-		DeleteListData(i.PrevListData);
-	});
 	PrevDataList.clear();
 }
 
@@ -5300,7 +5296,7 @@ void FileList::PushPlugin(PluginHandle* hPlugin,const string& HostFile)
 
 int FileList::PopPlugin(int EnableRestoreViewMode)
 {
-	DeleteListData(m_ListData);
+	m_ListData.clear();
 
 	if (PluginsList.empty())
 	{
@@ -5331,17 +5327,18 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 		if (CurPlugin.m_Modified)
 		{
-			PluginPanelItem PanelItem={};
+			PluginPanelItemHolder PanelItem={};
 			const auto strSaveDir = os::GetCurrentDirectory();
 
 			if (FileNameToPluginItem(CurPlugin.m_HostFile, PanelItem))
 			{
-				Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem, 1, false, 0);
+				Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem.Item, 1, false, 0);
 			}
 			else
 			{
-				PanelItem.FileName = PointToName(CurPlugin.m_HostFile);
-				Global->CtrlObject->Plugins->DeleteFiles(m_hPlugin,&PanelItem,1,0);
+				PluginPanelItem Item;
+				Item.FileName = PointToName(CurPlugin.m_HostFile);
+				Global->CtrlObject->Plugins->DeleteFiles(m_hPlugin, &Item, 1, 0);
 			}
 
 			FarChDir(strSaveDir);
@@ -5397,7 +5394,7 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 			if (UsePrev)
 				strName = Item.strPrevName;
 
-			DeleteListData(Item.PrevListData);
+			Item.PrevListData.clear();
 
 			if (SelectedFirst)
 				SortFileList(FALSE);
@@ -5423,7 +5420,7 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 		m_CurFile = m_CurTopFile = 0;
 }
 
-int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem& pi)
+int FileList::FileNameToPluginItem(const string& Name, PluginPanelItemHolder& pi)
 {
 	string strTempDir = Name;
 
@@ -5435,7 +5432,7 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem& pi)
 
 	if (os::GetFindDataEx(Name, fdata))
 	{
-		FindDataExToPluginPanelItem(fdata, pi);
+		FindDataExToPluginPanelItemHolder(fdata, pi);
 		return TRUE;
 	}
 
@@ -5443,8 +5440,10 @@ int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem& pi)
 }
 
 
-void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItem& pi) const
+void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& Holder) const
 {
+	auto& pi = Holder.Item;
+
 	pi.FileName = DuplicateString(fi.strName.data());
 	pi.AlternateFileName = DuplicateString(fi.strShortName.data());
 	pi.FileSize=fi.FileSize;
@@ -5659,21 +5658,24 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 	DWORD FileAttr;
 	GetSelName(nullptr,FileAttr);
 
+	const auto ConvertAndAddToList = [&](const FileListItem& What)
+	{
+		PluginPanelItemHolderNonOwning NewItem;
+		FileListToPluginItem(What, NewItem);
+		ItemList.emplace_back(NewItem.Item);
+	};
+
 	while (GetSelName(&strSelName,FileAttr))
 	{
 		if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName)) && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < m_ListData.size())
 		{
-			PluginPanelItem NewItem;
-			FileListToPluginItem(m_ListData[LastSelPosition], NewItem);
-			ItemList.emplace_back(NewItem);
+			ConvertAndAddToList(m_ListData[LastSelPosition]);
 		}
 	}
 
 	if (AddTwoDot && ItemList.empty() && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
 	{
-		PluginPanelItem NewItem;
-		FileListToPluginItem(m_ListData[0], NewItem);
-		ItemList.emplace_back(NewItem);
+		ConvertAndAddToList(m_ListData[0]);
 	}
 
 	LastSelPosition=OldLastSelPosition;
@@ -5684,7 +5686,7 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 
 void FileList::DeletePluginItemList(std::vector<PluginPanelItem> &ItemList)
 {
-	std::for_each(ALL_RANGE(ItemList), FreePluginPanelItem);
+	FreePluginPanelItems(ItemList);
 	ItemList.clear();
 }
 
@@ -5769,10 +5771,11 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 				if (Move)
 					SrcDiz->Flush(L"");
 
-				PluginPanelItem PanelItem;
-
+				PluginPanelItemHolder PanelItem;
 				if (FileNameToPluginItem(strDizName, PanelItem))
-					Global->CtrlObject->Plugins->PutFiles(DestPanel->m_hPlugin, &PanelItem, 1, false, OPM_SILENT | OPM_DESCR);
+				{
+					Global->CtrlObject->Plugins->PutFiles(DestPanel->m_hPlugin, &PanelItem.Item, 1, false, OPM_SILENT | OPM_DESCR);
+				}
 				else if (Delete)
 				{
 					PluginPanelItem pi={};
@@ -6603,16 +6606,14 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		OldData.swap(m_ListData);
+		OldData = std::move(m_ListData);
 	}
-	else
-		DeleteListData(m_ListData);
+
+	m_ListData.initialise(nullptr);
 
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
 	os::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName);
-
-	m_ListData.clear();
 
 	m_HardlinksSupported = true;
 	m_StreamsSupported = true;
@@ -6703,7 +6704,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{
 			{
-				auto NewItem = VALUE_TYPE(m_ListData)();
+				FileListItem NewItem{};
 
 				NewItem.FileAttr = fdata.dwFileAttributes;
 				NewItem.CreationTime = fdata.ftCreationTime;
@@ -6853,8 +6854,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 			strGetSel = OldData[GetSelPosition].strName;
 
 		MoveSelection(OldData, m_ListData);
-		DeleteListData(OldData);
 	}
+
+	OldData.clear();
 
 	if (m_SortGroups)
 		ReadSortGroups(false);
@@ -6958,7 +6960,7 @@ struct search_list_less
 }
 SearchListLess;
 
-void FileList::MoveSelection(std::vector<FileListItem>& From, std::vector<FileListItem>& To)
+void FileList::MoveSelection(FileList::list_data& From, FileList::list_data& To)
 {
 	m_SelFileCount=0;
 	m_SelDirCount = 0;
@@ -7002,7 +7004,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	}
 
 	DizRead=FALSE;
-	std::vector<FileListItem> OldData;
+	decltype(m_ListData) OldData;
 	string strCurName, strNextCurName;
 	StopFSWatcher();
 	LastCurFile=-1;
@@ -7066,12 +7068,10 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
-		OldData.swap(m_ListData);
+		OldData = std::move(m_ListData);
 	}
-	else
-	{
-		DeleteListData(m_ListData);
-	}
+
+	m_ListData.initialise(m_hPlugin);
 
 	if (!m_Filter)
 		m_Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
@@ -7179,7 +7179,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 			strGetSel = OldData[GetSelPosition].strName;
 
 		MoveSelection(OldData, m_ListData);
-		DeleteListData(OldData);
+		OldData.clear();
 	}
 
 	if (!KeepSelection && PrevSelFileCount>0)

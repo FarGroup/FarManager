@@ -51,9 +51,30 @@ bool FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, BOOL WithTempPa
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& Dest);
 
-void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA& Src, PluginPanelItem& Dest);
+class PluginPanelItemHolder
+{
+public:
+	NONCOPYABLE(PluginPanelItemHolder);
+
+	PluginPanelItemHolder() = default;
+	~PluginPanelItemHolder();
+
+	PluginPanelItem Item;
+};
+
+class PluginPanelItemHolderNonOwning: public PluginPanelItemHolder
+{
+public:
+	~PluginPanelItemHolderNonOwning()
+	{
+		Item = {};
+	}
+};
+
+void FindDataExToPluginPanelItemHolder(const os::FAR_FIND_DATA& Src, PluginPanelItemHolder& Dest);
 
 void FreePluginPanelItem(const PluginPanelItem& Data);
+void FreePluginPanelItems(std::vector<PluginPanelItem>& Items);
 
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
 

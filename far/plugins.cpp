@@ -70,10 +70,6 @@ static const wchar_t PluginsFolderName[] = L"Plugins";
 
 static void ReadUserBackgound(SaveScreen *SaveScr)
 {
-	FilePanels *FPanel = Global->CtrlObject->Cp();
-	FPanel->LeftPanel()->ProcessingPluginCommand++;
-	FPanel->RightPanel()->ProcessingPluginCommand++;
-
 	if (Global->KeepUserScreen)
 	{
 		if (SaveScr)
@@ -82,9 +78,6 @@ static void ReadUserBackgound(SaveScreen *SaveScr)
 		Global->ScrBuf->FillBuf();
 		Global->CtrlObject->Desktop->TakeSnapshot();
 	}
-
-	FPanel->LeftPanel()->ProcessingPluginCommand--;
-	FPanel->RightPanel()->ProcessingPluginCommand--;
 }
 
 static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)

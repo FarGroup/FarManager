@@ -110,8 +110,10 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& 
 	Dest.dwReserved0 = 0;
 }
 
-void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA& Src, PluginPanelItem& Dest)
+void FindDataExToPluginPanelItemHolder(const os::FAR_FIND_DATA& Src, PluginPanelItemHolder& Holder)
 {
+	auto& Dest = Holder.Item;
+
 	Dest.CreationTime = Src.ftCreationTime;
 	Dest.LastAccessTime = Src.ftLastAccessTime;
 	Dest.LastWriteTime = Src.ftLastWriteTime;
@@ -133,10 +135,20 @@ void FindDataExToPluginPanelItem(const os::FAR_FIND_DATA& Src, PluginPanelItem& 
 	ClearArray(Dest.Reserved);
 }
 
+PluginPanelItemHolder::~PluginPanelItemHolder()
+{
+	FreePluginPanelItem(Item);
+}
+
 void FreePluginPanelItem(const PluginPanelItem& Data)
 {
 	delete[] Data.FileName;
 	delete[] Data.AlternateFileName;
+}
+
+void FreePluginPanelItems(std::vector<PluginPanelItem>& Items)
+{
+	std::for_each(ALL_RANGE(Items), FreePluginPanelItem);
 }
 
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber)

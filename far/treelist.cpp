@@ -1242,22 +1242,23 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 
 				if (ToPlugin==1)
 				{
-					PluginPanelItem Item;
+					PluginPanelItemHolder Item;
 					int ItemNumber=1;
 					const auto hAnotherPlugin = AnotherPanel->GetPluginHandle();
-					FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, Item);
-					int PutCode=Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item, ItemNumber, Move != 0, 0);
+					if (FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, Item))
+					{
+						int PutCode = Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin, &Item.Item, ItemNumber, Move != 0, 0);
 
-					if (PutCode==1 || PutCode==2)
-						AnotherPanel->SetPluginModified();
+						if (PutCode == 1 || PutCode == 2)
+							AnotherPanel->SetPluginModified();
+						if (Move)
+							ReadSubTree(m_ListData[m_CurFile].strName);
 
-					if (Move)
-						ReadSubTree(m_ListData[m_CurFile].strName);
-
-					Update(0);
-					Redraw();
-					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
-					AnotherPanel->Redraw();
+						Update(0);
+						Redraw();
+						AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+						AnotherPanel->Redraw();
+					}
 				}
 			}
 

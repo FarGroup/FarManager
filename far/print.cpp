@@ -211,15 +211,13 @@ void PrintFiles(FileList* SrcPanel)
 					os::CreateDirectory(strTempDir,nullptr);
 					if (const auto ListItem = SrcPanel->GetLastSelectedItem())
 					{
-						PluginPanelItem PanelItem;
+						PluginPanelItemHolder PanelItem;
 						SrcPanel->FileListToPluginItem(*ListItem, PanelItem);
 
-						if (Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
+						if (Global->CtrlObject->Plugins->GetFile(hPlugin, &PanelItem.Item, strTempDir, strTempName, OPM_SILENT))
 							FileName = strTempName;
 						else
 							os::RemoveDirectory(strTempDir);
-
-						FreePluginPanelItem(PanelItem);
 					}
 				}
 			}

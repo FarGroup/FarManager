@@ -231,7 +231,7 @@ public:
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
 	virtual void RefreshTitle() override;
-	virtual size_t GetFileCount() const override { return m_ListData.size(); }
+	virtual size_t GetFileCount() const override;
 	virtual void UpdateKeyBar() override;
 	virtual void IfGoHome(wchar_t Drive) override;
 	virtual bool GetSelectedFirstMode() const override { return SelectedFirst; }
@@ -255,8 +255,8 @@ public:
 	string GetPluginPrefix() const;
 
 	size_t FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* pi) const;
-	static int FileNameToPluginItem(const string& Name,PluginPanelItem& pi);
-	void FileListToPluginItem(const FileListItem& fi,PluginPanelItem& pi) const;
+	static int FileNameToPluginItem(const string& Name, class PluginPanelItemHolder& pi);
+	void FileListToPluginItem(const FileListItem& fi,PluginPanelItemHolder& pi) const;
 	static bool IsModeFullScreen(int Mode);
 
 	struct PrevDataItem;
@@ -266,6 +266,9 @@ protected:
 
 private:
 	friend class FileListItem;
+
+	class list_data;
+
 	bool HardlinksSupported() const { return m_HardlinksSupported; }
 	bool StreamsSupported() const { return m_StreamsSupported; }
 	const string& GetComputerName() const { return m_ComputerName; }
@@ -277,7 +280,6 @@ private:
 	virtual int GetCurBaseName(string &strName, string &strShortName) const override;
 
 	void ApplySortMode(panel_sort Mode);
-	void DeleteListData(std::vector<FileListItem>& ListData);
 	void ToBegin();
 	void ToEnd();
 	void MoveCursor(int offset);
@@ -299,7 +301,7 @@ private:
 	void CountDirSize(bool IsRealNames);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
-	void MoveSelection(std::vector<FileListItem>& From, std::vector<FileListItem>& To);
+	void MoveSelection(list_data& From, list_data& To);
 	void PushPlugin(PluginHandle* hPlugin,const string& HostFile);
 	int PopPlugin(int EnableRestoreViewMode);
 	void PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess);
@@ -347,7 +349,47 @@ private:
 
 	string strOriginalCurDir;
 	string strPluginDizName;
-	std::vector<FileListItem> m_ListData;
+
+	class list_data
+	{
+	public:
+		NONCOPYABLE(list_data);
+		TRIVIALLY_MOVABLE(list_data);
+
+		using value_type = FileListItem;
+
+		list_data() {}
+		~list_data() { clear(); }
+
+		void initialise(PluginHandle* ph) { clear(); m_Plugin = ph; }
+
+		void clear();
+		decltype(auto) size() const { return Items.size(); }
+		decltype(auto) empty() const { return Items.empty(); }
+		decltype(auto) begin() const { return Items.begin(); }
+		decltype(auto) end() const { return Items.end(); }
+		decltype(auto) begin() { return Items.begin(); }
+		decltype(auto) end() { return Items.end(); }
+		decltype(auto) cbegin() { return Items.cbegin(); }
+		decltype(auto) cend() { return Items.cend(); }
+		decltype(auto) front() const { return Items.front(); }
+		decltype(auto) back() const { return Items.back(); }
+		decltype(auto) front() { return Items.front(); }
+		decltype(auto) back() { return Items.back(); }
+		decltype(auto) operator[](size_t Index) const { return Items[Index]; }
+		decltype(auto) operator[](size_t Index) { return Items[Index]; }
+		decltype(auto) data() const { return Items.data(); }
+		decltype(auto) resize(size_t Size) { return Items.resize(Size); }
+		decltype(auto) reserve(size_t Size) { return Items.reserve(Size); }
+		template<typename... args>
+		decltype(auto) emplace_back(args&&... Args) { return Items.emplace_back(std::forward<args>(Args)...); }
+		template<typename T>
+		decltype(auto) push_back(T&& Value) { return Items.push_back(std::forward<T>(Value)); }
+	private:
+		std::vector<FileListItem> Items;
+		PluginHandle* m_Plugin{};
+	}
+	m_ListData;
 	PluginHandle* m_hPlugin;
 	std::list<PrevDataItem> PrevDataList;
 	std::list<PluginsListItem> PluginsList;

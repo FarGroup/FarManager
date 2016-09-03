@@ -114,7 +114,8 @@ void reorder(T& Values, Y& Indices)
 		T TmpValues;
 		TmpValues.reserve(Values.size());
 		std::transform(ALL_CONST_RANGE(Indices), std::back_inserter(TmpValues), [&Values](const auto Index) { return std::move(Values[Index]); });
-		Values.swap(TmpValues);
+		using std::swap;
+		swap(Values, TmpValues);
 	}
 }
 
