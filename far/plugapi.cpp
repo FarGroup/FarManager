@@ -1273,7 +1273,10 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 		}
 		else
 		{
-			AssignStrings(make_range(Items, ItemsNumber));
+			std::vector<const wchar_t*> ItemsCopy(ItemsNumber);
+			// They believe nullptr works as empty string /o
+			std::transform(Items, Items + ItemsNumber, ItemsCopy.begin(), NullToEmpty<wchar_t>);
+			AssignStrings(ItemsCopy);
 		}
 
 		Plugin* PluginNumber = GuidToPlugin(PluginId);

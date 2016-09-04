@@ -569,8 +569,8 @@ static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 		int VirtKey, ControlState;
 		TranslateKeyToVK(MacroKey, VirtKey, ControlState, rec);
 		rec->EventType =
-			InRange(KEY_MACRO_BASE, MacroKey, KEY_MACRO_ENDBASE) ||
-			InRange(KEY_OP_BASE, MacroKey, KEY_OP_ENDBASE) ||
+			InRange(KEY_MACRO_BASE, static_cast<far_key_code>(MacroKey), KEY_MACRO_ENDBASE) ||
+			InRange(KEY_OP_BASE, static_cast<far_key_code>(MacroKey), KEY_OP_ENDBASE) ||
 			(MacroKey&~0xFF000000) >= KEY_END_FKEY?
 			0 : KEY_EVENT;
 
@@ -788,7 +788,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		return ProcessMacroEvent();
 	}
 
-	const auto EnableShowTime = Global->Opt->Clock && (Global->WaitInMainLoop || Global->CtrlObject && Global->CtrlObject->Macro.GetArea() == MACROAREA_SEARCH);
+	const auto EnableShowTime = Global->Opt->Clock && (Global->WaitInMainLoop || (Global->CtrlObject && Global->CtrlObject->Macro.GetArea() == MACROAREA_SEARCH));
 
 	if (EnableShowTime)
 		ShowTime();
@@ -2238,9 +2238,9 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 	if (!IntKeyState.CtrlPressed() && !IntKeyState.AltPressed())
 	{
 		// Shift or none - characters only
-		if (KeyCode == VK_SHIFT)
+		if (!Char || KeyCode == VK_SHIFT)
 			return KEY_NONE;
-		return Char? Char : KEY_NONE;
+		return Char;
 	}
 
 	if (InRange(L'0',  KeyCode, L'9') || InRange(L'A', KeyCode, L'Z'))
