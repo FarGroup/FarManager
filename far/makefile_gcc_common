@@ -10,7 +10,10 @@ DIRBIT ?= 32
 
 ifndef DEBUG
  DIRNAME=Release
- DEBUGFLAGS=-O3 -fomit-frame-pointer -DNDEBUG -flto -flto-odr-type-merging
+ DEBUGFLAGS=-O3 -fomit-frame-pointer -DNDEBUG
+ifeq ($(USE_LTO),1)
+ DEBUGFLAGS += -flto -flto-odr-type-merging
+endif
  DEBUGLINKFLAGS=-Xlinker -s -Xlinker -x -Xlinker --gc-sections
 else
  DIRNAME=Debug
@@ -78,8 +81,6 @@ CCFLAGS = $(CFLAGS) -std=c++1z \
 -Woverloaded-virtual \
 -Wctor-dtor-privacy \
 -Wzero-as-null-pointer-constant \
--Wsuggest-final-types \
--Wsuggest-final-methods \
 -Wsuggest-override \
 
 LNKFLAGS = -m$(DIRBIT) -static-libgcc -static $(DEBUGLINKFLAGS)
