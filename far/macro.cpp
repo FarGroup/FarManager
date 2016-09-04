@@ -866,10 +866,6 @@ bool KeyMacro::GetMacroKeyInfo(const string& StrArea, int Pos, string &strKeyNam
 	return false;
 }
 
-void KeyMacro::SendDropProcess()
-{//FIXME
-}
-
 bool KeyMacro::CheckWaitKeyFunc() const
 {
 	return m_WaitKey != 0;
@@ -3117,10 +3113,6 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	TempBuf += L"\n";
 	TempBuf += text;
 	int Result=pluginapi::apiMessageFn(&FarGuid,&FarGuid,Flags,nullptr,(const wchar_t * const *)UNSAFE_CSTR(TempBuf),0,0)+1;
-	/*
-	if (Result <= -1) // Break?
-		Global->CtrlObject->Macro.SendDropProcess();
-	*/
 	PassNumber(Result, Data);
 	return true;
 }
@@ -3374,7 +3366,6 @@ static bool menushowFunc(FarMacroCall* Data)
 			}
 
 			case KEY_BREAK:
-				Global->CtrlObject->Macro.SendDropProcess();
 				Menu->Close(-1);
 				break;
 
@@ -3523,7 +3514,7 @@ static bool panelselectFunc(FarMacroCall* Data)
 	return Result != -1;
 }
 
-static bool _fattrFunc(int Type, FarMacroCall* Data)
+static bool fattrFuncImpl(int Type, FarMacroCall* Data)
 {
 	bool Ret=false;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
@@ -3576,25 +3567,25 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 // N=fattr(S)
 static bool fattrFunc(FarMacroCall* Data)
 {
-	return _fattrFunc(0, Data);
+	return fattrFuncImpl(0, Data);
 }
 
 // N=fexist(S)
 static bool fexistFunc(FarMacroCall* Data)
 {
-	return _fattrFunc(2, Data);
+	return fattrFuncImpl(2, Data);
 }
 
 // N=panel.fattr(S)
 static bool panelfattrFunc(FarMacroCall* Data)
 {
-	return _fattrFunc(1, Data);
+	return fattrFuncImpl(1, Data);
 }
 
 // N=panel.fexist(S)
 static bool panelfexistFunc(FarMacroCall* Data)
 {
-	return _fattrFunc(3, Data);
+	return fattrFuncImpl(3, Data);
 }
 
 // N=FLock(Nkey,NState)

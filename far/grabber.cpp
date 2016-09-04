@@ -123,7 +123,7 @@ static wchar_t GetChar(const FAR_CHAR_INFO& Cell)
 		}
 	}
 
-	if (Global->Opt->NoGraphics && InRange(BoxSymbols[BS_V1], static_cast<wchar_t>(Chr2), BoxSymbols[BS_LT_H1V1]))
+	if (Global->Opt->NoGraphics && InRange(BoxSymbols[BS_V1], Chr2, BoxSymbols[BS_LT_H1V1]))
 	{
 		if (Chr2 == BoxSymbols[BS_V1] || Chr2 == BoxSymbols[BS_V2])
 		{
@@ -358,14 +358,14 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 	{
 		if ((LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && ResetArea)
 			Reset();
-		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey&KEY_SHIFT) && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed)
+		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey&KEY_SHIFT) && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed())
 			ResetArea = true;
 	}
 	else
 	{
-		if ((IntKeyState.ShiftPressed || LocalKey!=KEY_SHIFT) && (LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.AltPressed && ResetArea)
+		if ((IntKeyState.ShiftPressed() || LocalKey!=KEY_SHIFT) && (LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.AltPressed() && ResetArea)
 			Reset();
-		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.ShiftPressed && !IntKeyState.AltPressed && !(LocalKey&KEY_SHIFT) && LocalKey != KEY_F1 && LocalKey != KEY_SPACE)
+		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed() && !(LocalKey&KEY_SHIFT) && LocalKey != KEY_F1 && LocalKey != KEY_SPACE)
 			ResetArea = true;
 	}
 

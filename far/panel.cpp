@@ -510,7 +510,7 @@ int  Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 			SrcDragPanel=this;
 			DragX=MouseEvent->dwMousePosition.X;
 			DragY=MouseEvent->dwMousePosition.Y;
-			DragMove=IntKeyState.ShiftPressed;
+			DragMove = IntKeyState.ShiftPressed();
 		}
 	}
 

@@ -629,7 +629,6 @@ public:
 	BoolOption ShowKeyBar;
 	BoolOption ScreenSaver;
 	IntOption ScreenSaverTime;
-	BoolOption UseVk_oem_x;
 	BoolOption ShowHidden;
 	BoolOption ShortcutAlwaysChdir;
 	BoolOption Highlight;
@@ -751,12 +750,6 @@ public:
 
 	BoolOption ExceptUsed;
 	StringOption strExceptEventSvc;
-	/*
-	Правило на счет выбора механизма трансляции
-	Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
-	модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
-	*/
-	BoolOption ShiftsKeyRules;
 	IntOption CursorSize[4];
 
 	CodeXLAT XLat;

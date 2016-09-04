@@ -1018,7 +1018,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 										*/
 										CloseHandle(hInput);
 										CloseHandle(hOutput);
-										KeyQueue().clear();
+										ClearKeyQueue();
 										Console().Free();
 										Console().Allocate();
 

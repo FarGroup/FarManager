@@ -80,7 +80,6 @@ public:
 	static bool MacroExists(int Key, FARMACROAREA Area, bool UseCommon);
 	static void RunStartMacro();
 	static bool SaveMacros(bool always);
-	static void SendDropProcess();
 	static void SetMacroConst(int ConstIndex, __int64 Value);
 	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS Flags, DWORD AKey = 0);
 

@@ -109,7 +109,7 @@ private:
 	std::vector<std::vector<keybar_item>> Items;
 	string strLanguage;
 	KEYBARAREA CustomArea;
-	int AltState,CtrlState,ShiftState;
+	bool AltState, CtrlState, ShiftState;
 	bool CustomLabelsReaded;
 };
 

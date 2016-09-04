@@ -75,7 +75,23 @@ public:
 	BOOL IsProcessAssignMacroKey;
 	size_t PluginPanelsCount;
 	BOOL ProcessException;
-	string CurrentTime;
+
+	class far_clock
+	{
+	public:
+		NONCOPYABLE(far_clock);
+		far_clock();
+		const string& get() const;
+		size_t size() const;
+		void update();
+
+	private:
+		string m_CurrentTime;
+	
+	};
+
+	far_clock CurrentTime;
+
 	size_t LastShownTimeSize{};
 	const wchar_t *HelpFileMask;
 	bool OnlyEditorViewerUsed; // -e or -v

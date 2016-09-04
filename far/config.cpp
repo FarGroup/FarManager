@@ -1536,7 +1536,7 @@ Options::Options():
 {
 	const auto TabSizeValidator = [](long long TabSize)
 	{
-		return InRange(1ll, TabSize, 512ll) ? TabSize : DefaultTabSize;
+		return InRange(1, TabSize, 512)? TabSize : DefaultTabSize;
 	};
 
 	EdOpt.TabSize.SetValidator(TabSizeValidator);
@@ -1726,12 +1726,10 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyInterface, L"Mouse", OPT_DEF(Mouse, true)},
 		{FSSF_PRIVATE,       NKeyInterface, L"SetIcon", OPT_DEF(SetIcon, false)},
 		{FSSF_PRIVATE,       NKeyInterface, L"SetAdminIcon", OPT_DEF(SetAdminIcon, true)},
-		{FSSF_PRIVATE,       NKeyInterface, L"ShiftsKeyRules", OPT_DEF(ShiftsKeyRules, true)},
 		{FSSF_PRIVATE,       NKeyInterface, L"ShowDotsInRoot", OPT_DEF(ShowDotsInRoot, false)},
 		{FSSF_INTERFACE,     NKeyInterface, L"ShowMenuBar", OPT_DEF(ShowMenuBar, false)},
 		{FSSF_PRIVATE,       NKeyInterface, L"RedrawTimeout", OPT_DEF(RedrawTimeout, 200)},
 		{FSSF_PRIVATE,       NKeyInterface, L"TitleAddons", OPT_DEF(strTitleAddons, L"%Ver.%Build %Platform %Admin")},
-		{FSSF_PRIVATE,       NKeyInterface, L"UseVk_oem_x", OPT_DEF(UseVk_oem_x, true)},
 		{FSSF_PRIVATE,       NKeyInterface, L"ViewerTitleFormat", OPT_DEF(strViewerTitleFormat, L"%Lng %File")},
 
 		{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"Append", OPT_DEF(AutoComplete.AppendCompletion, false)},

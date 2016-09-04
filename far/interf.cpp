@@ -380,7 +380,7 @@ void CloseConsole()
 		Console().SetSize(InitialSize);
 	}
 
-	KeyQueue().clear();
+	ClearKeyQueue();
 	ConsoleIcons().restorePreviousIcons();
 	CancelIoInProgress().Close();
 }
@@ -526,14 +526,6 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
 }
 
-bool IsConsoleSizeChanged()
-{
-	COORD ConSize;
-	Console().GetSize(ConSize);
-	// GetSize returns virtual size, so this covers WindowMode=true too
-	return ConSize.Y != ScrY+1 || ConSize.X != ScrX+1;
-}
-
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 {
 	COORD Size={};
@@ -575,7 +567,7 @@ void ShowTime()
 	if (Global->ScreenSaverActive || Global->SuppressClock)
 		return;
 
-	Global->CurrentTime = locale::GetTimeFormat();
+	Global->CurrentTime.update();
 
 	if (const auto CurrentWindow = Global->WindowManager->GetCurrentWindow())
 	{
@@ -590,7 +582,7 @@ void ShowTime()
 		GotoXY(static_cast<int>(ScrX + 1 - Global->CurrentTime.size()), 0);
 		int ModType=CurrentWindow->GetType();
 		SetColor(ModType==windowtype_viewer?COL_VIEWERCLOCK:(ModType==windowtype_editor?COL_EDITORCLOCK:COL_CLOCK));
-		Text(Global->CurrentTime);
+		Text(Global->CurrentTime.get());
  		Global->LastShownTimeSize = Global->CurrentTime.size();
 	}
 }

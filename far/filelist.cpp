@@ -1188,7 +1188,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		}
 	}
 
-	if (!IntKeyState.ShiftPressed && ShiftSelection!=-1)
+	if (!IntKeyState.ShiftPressed() && ShiftSelection!=-1)
 	{
 		if (SelectedFirst)
 		{
@@ -3024,7 +3024,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			{
 				FlushInputBuffer(); // !!!
 				INPUT_RECORD rec;
-				ProcessKeyToInputRecord(VK_RETURN,IntKeyState.ShiftPressed ? PKF_SHIFT:0,&rec);
+				ProcessKeyToInputRecord(VK_RETURN,IntKeyState.ShiftPressed()? PKF_SHIFT:0,&rec);
 				int ProcessCode=Global->CtrlObject->Plugins->ProcessKey(m_hPlugin,&rec,false);
 				ProcessPluginCommand();
 
@@ -3043,7 +3043,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			ShowFileList(TRUE);
 			FlushInputBuffer();
-			ProcessEnter(true, IntKeyState.ShiftPressed!=0, true, (IntKeyState.AltPressed || IntKeyState.RightAltPressed) && (IntKeyState.CtrlPressed || IntKeyState.RightCtrlPressed), OFP_NORMAL);
+			ProcessEnter(true, IntKeyState.ShiftPressed(), true, IntKeyState.OnlyCtrlAltPressed(), OFP_NORMAL);
 			return TRUE;
 		}
 		else

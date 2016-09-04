@@ -134,8 +134,8 @@ T Round(const T &a, const T &b) { return a / b + (a%b * 2 > b ? 1 : 0); }
 
 inline void* ToPtr(intptr_t Value){ return reinterpret_cast<void*>(Value); }
 
-template<class T>
-bool InRange(const T& from, const T& what, const T& to)
+template<class T, class Y>
+bool InRange(const T& from, const Y& what, const T& to)
 {
 	return from <= what && what <= to;
 };

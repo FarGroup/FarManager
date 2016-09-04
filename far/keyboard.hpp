@@ -37,13 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	SKEY_VK_KEYS           = 0x40000000,
-	SKEY_IDLE              = 0x80000000,
-	SKEY_NOTMACROS         = 0x00000001,
-};
-
-enum
-{
 	MOUSE_ANY_BUTTON_PRESSED =
 		FROM_LEFT_1ST_BUTTON_PRESSED|
 		FROM_LEFT_2ND_BUTTON_PRESSED|
@@ -52,27 +45,43 @@ enum
 		RIGHTMOST_BUTTON_PRESSED,
 };
 
-std::deque<DWORD>& KeyQueue();
+void ClearKeyQueue();
 
-struct FarKeyboardState {
-	int AltPressed;
-	int CtrlPressed;
-	int ShiftPressed;
-	int RightAltPressed;
-	int RightCtrlPressed;
-	int RightShiftPressed;
+struct FarKeyboardState
+{
+	bool LeftAltPressed;
+	bool LeftCtrlPressed;
+	bool LeftShiftPressed;
+	bool RightAltPressed;
+	bool RightCtrlPressed;
+	bool RightShiftPressed;
 	DWORD MouseButtonState;
 	DWORD PrevMouseButtonState;
-	int PrevLButtonPressed;
-	int PrevRButtonPressed;
-	int PrevMButtonPressed;
+	bool PrevLButtonPressed;
+	bool PrevRButtonPressed;
+	bool PrevMButtonPressed;
 	SHORT PrevMouseX;
 	SHORT PrevMouseY;
 	SHORT MouseX;
 	SHORT MouseY;
 	int PreMouseEventFlags;
 	int MouseEventFlags;
-	int ReturnAltValue;   // только что был ввод Alt-Цифира?
+	bool ReturnAltValue;   // только что был ввод Alt-Цифира?
+
+	bool AltPressed() const { return LeftAltPressed || RightAltPressed; }
+	bool CtrlPressed() const { return LeftCtrlPressed || RightCtrlPressed; }
+	bool ShiftPressed() const { return LeftShiftPressed || RightShiftPressed; }
+
+	bool OnlyAltPressed() const { return !CtrlPressed() && AltPressed() &&  !ShiftPressed(); }
+	bool OnlyCtrlPressed() const { return CtrlPressed() && !AltPressed() && !ShiftPressed(); }
+	bool OnlyShiftPressed() const { return !CtrlPressed() && !AltPressed() && ShiftPressed(); }
+
+	bool OnlyAltShiftPressed() const { return !CtrlPressed() && AltPressed() && ShiftPressed(); }
+	bool OnlyCtrlShiftPressed() const { return CtrlPressed() && !AltPressed() && ShiftPressed(); }
+	bool OnlyCtrlAltPressed() const { return CtrlPressed() && AltPressed() && !ShiftPressed(); }
+	bool OnlyCtrlAltShiftPressed() const { return CtrlPressed() && AltPressed() && ShiftPressed(); }
+
+	bool NonePressed() const { return !CtrlPressed() && !AltPressed() && !ShiftPressed(); }
 };
 
 extern FarKeyboardState IntKeyState;
@@ -96,11 +105,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=false,bool ProcessMouse
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro=true);
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro=true);
 bool IsRepeatedKey();
-unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros = nullptr);
-unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros = nullptr);
+unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros = nullptr);
+unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros = nullptr);
 DWORD WaitKey(DWORD KeyWait=(DWORD)-1,DWORD delayMS=0,bool ExcludeMacro=true);
 int SetFLockState(UINT vkKey, int State);
-int WriteInput(int Key,DWORD Flags=0);
+bool WriteInput(int Key);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);
 bool CheckForEsc();

@@ -955,7 +955,11 @@ void Manager::DeleteCommit(window_ptr_ref Param)
 		{
 			if (GetCurrentWindow()==Param)
 			{
-				ActivateCommit(m_windows.back());
+				// ActivateCommit accepts a reference,
+				// so when it alter m_windows reference to m_windows.back() will be invalidated.
+				// PtrCopy will keep the window alive as much as needed.
+				const auto PtrCopy = m_windows.back();
+				ActivateCommit(PtrCopy);
 			}
 			else
 			{

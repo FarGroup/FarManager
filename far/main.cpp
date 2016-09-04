@@ -399,7 +399,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		return true;
 	}
 
-	if (InRange(size_t(2), Args.size(), size_t(5)) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
+	if (InRange(2u, Args.size(), 5u) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
 	{
 		bool Export = isArg(Args[0], L"export");
 		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
@@ -410,7 +410,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 		return true;
 	}
 
-	if (InRange(size_t(1), Args.size(), size_t(3)) && isArg(Args[0], L"clearcache"))
+	if (InRange(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"))
 	{
 		string strProfilePath(Args.size() > 1 ? Args[1] : L"");
 		string strLocalProfilePath(Args.size() > 2 ? Args[2] : L"");

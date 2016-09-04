@@ -323,9 +323,6 @@ int GetString(
 		Dlg->Process();
 
 		ExitCode=Dlg->GetExitCode();
-
-		if (ExitCode == -2 && Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO)
-			Global->CtrlObject->Macro.SendDropProcess();
 	}
 
 	if (ExitCode == 2 || ExitCode == 4 || (addCheckBox && ExitCode == 6))

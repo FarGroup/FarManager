@@ -55,9 +55,9 @@ KeyBar::KeyBar(window_ptr Owner):
 	SimpleScreenObject(Owner),
 	Items(KBL_GROUP_COUNT),
 	CustomArea(),
-	AltState(0),
-	CtrlState(0),
-	ShiftState(0),
+	AltState(),
+	CtrlState(),
+	ShiftState(),
 	CustomLabelsReaded(false)
 {
 	std::for_each(RANGE(Items, i)
@@ -71,7 +71,10 @@ KeyBar::KeyBar(window_ptr Owner):
 void KeyBar::DisplayObject()
 {
 	GotoXY(m_X1,m_Y1);
-	AltState=CtrlState=ShiftState=0;
+	AltState = IntKeyState.AltPressed();
+	CtrlState = IntKeyState.CtrlPressed();
+	ShiftState = IntKeyState.ShiftPressed();
+
 	int KeyWidth=(m_X2-m_X1-1)/12;
 
 	if (KeyWidth<8)
@@ -90,60 +93,23 @@ void KeyBar::DisplayObject()
 
 		string Label;
 
-
-		if (IntKeyState.ShiftPressed)
+		static const std::pair<bool(FarKeyboardState::*)() const, keybar_group> Mapping[] =
 		{
-			ShiftState=IntKeyState.ShiftPressed;
+			{ &FarKeyboardState::NonePressed, KBL_MAIN },
+			{ &FarKeyboardState::OnlyAltPressed, KBL_ALT },
+			{ &FarKeyboardState::OnlyCtrlPressed, KBL_CTRL },
+			{ &FarKeyboardState::OnlyShiftPressed, KBL_SHIFT },
+			{ &FarKeyboardState::OnlyCtrlAltPressed, KBL_CTRLALT },
+			{ &FarKeyboardState::OnlyAltShiftPressed, KBL_ALTSHIFT },
+			{ &FarKeyboardState::OnlyCtrlShiftPressed, KBL_CTRLSHIFT },
+			{ &FarKeyboardState::OnlyCtrlAltShiftPressed, KBL_CTRLALTSHIFT },
+		};
 
-			if (IntKeyState.CtrlPressed)
-			{
-				CtrlState=IntKeyState.CtrlPressed;
+		static_assert(std::size(Mapping) == KBL_GROUP_COUNT, "Incomplete mapping");
 
-				if (!IntKeyState.AltPressed) // Ctrl-Alt-Shift - это особый случай :-)
-				{
-					Label = Items[KBL_CTRLSHIFT][i].first;
-				}
-				else if (!(Global->Opt->CASRule&1) || !(Global->Opt->CASRule&2))
-				{
-					Label = Items[KBL_CTRLALTSHIFT][i].first;
-				}
-			}
-			else if (IntKeyState.AltPressed)
-			{
-				Label = Items[KBL_ALTSHIFT][i].first;
-
-				AltState=IntKeyState.AltPressed;
-			}
-			else
-			{
-				Label = Items[KBL_SHIFT][i].first;
-			}
-		}
-		else if (IntKeyState.CtrlPressed)
-		{
-			CtrlState=IntKeyState.CtrlPressed;
-
-			if (IntKeyState.AltPressed)
-			{
-				Label = Items[KBL_CTRLALT][i].first;
-
-				AltState=IntKeyState.AltPressed;
-			}
-			else
-			{
-				Label = Items[KBL_CTRL][i].first;
-			}
-		}
-		else if (IntKeyState.AltPressed)
-		{
-			AltState=IntKeyState.AltPressed;
-
-			Label = Items[KBL_ALT][i].first;
-		}
-		else
-		{
-			Label = Items[KBL_MAIN][i].first;
-		}
+		const auto State = std::find_if(ALL_CONST_RANGE(Mapping), [&](const auto& Item) { return (IntKeyState.*Item.first)(); });
+		// State should always be valid so check is excessive, but style is style
+		Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
 
 		if (Label.find(L'|') != string::npos)
 		{
@@ -385,9 +351,10 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void KeyBar::RedrawIfChanged()
 {
-	if (IntKeyState.ShiftPressed!=ShiftState ||
-	        IntKeyState.CtrlPressed!=CtrlState ||
-	        IntKeyState.AltPressed!=AltState)
+	if (
+		IntKeyState.ShiftPressed() != ShiftState ||
+		IntKeyState.CtrlPressed() != CtrlState ||
+		IntKeyState.AltPressed() != AltState)
 	{
 		//_SVS("KeyBar::RedrawIfChanged()");
 		Redraw();

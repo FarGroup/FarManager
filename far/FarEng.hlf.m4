@@ -5715,19 +5715,6 @@ $ #far:config Interface.RedrawTimeout#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
-@Interface.ShiftsKeyRules
-$ #far:config Interface.ShiftsKeyRules#
-    Параметр позволяет выбрать механизм обработки клавиш в неанглоязычной раскладке клавиатуры с 
-модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-.
-
-     1 - ^<wrap>использовать усовершенствованный механизм обработки клавиш. 
-         Например, Alt-НеЛатинскийСимвол будет транслироваться в Alt-ЛатинскийСимвол (кроме быстрого поиска в панелях),
-     0 - ^<wrap>использовать механизм, совместимый с Far версии 1.70 beta 2 и ниже.
-
-    По умолчанию значение = 1.
-
-    Изменение этого параметра возможно через ~far:config~@FarConfig@
-
 @TitleFormat
 $ #far:config Interface.ViewerTitleFormat, Interface.EditorTitleFormat#
     Параметры "Interface.ViewerTitleFormat" и "Interface.EditorTitleFormat" позволяют задавать 

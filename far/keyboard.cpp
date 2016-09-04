@@ -66,7 +66,7 @@ static std::array<short, WCHAR_MAX + 1> KeyToVKey;
 static std::array<wchar_t, 512> VKeyToASCII;
 
 static unsigned int AltValue=0;
-static int KeyCodeForALT_LastPressed=0;
+static unsigned int KeyCodeForALT_LastPressed=0;
 
 static MOUSE_EVENT_RECORD lastMOUSE_EVENT_RECORD;
 enum MODIF_PRESSED_LAST
@@ -80,22 +80,8 @@ enum MODIF_PRESSED_LAST
 static TBitFlags<size_t> PressedLast;
 
 static clock_t KeyPressedLastTime;
-static int ShiftState=0;
-static int LastShiftEnterPressed=FALSE;
 
 /* ----------------------------------------------------------------- */
-static const std::pair<int, int> Table_KeyToVK[] =
-{
-	{KEY_BREAK,         VK_CANCEL},
-	{KEY_BS,            VK_BACK},
-	{KEY_TAB,           VK_TAB},
-	{KEY_ENTER,         VK_RETURN},
-	{KEY_NUMENTER,      VK_RETURN}, //????
-	{KEY_ESC,           VK_ESCAPE},
-	{KEY_SPACE,         VK_SPACE},
-	{KEY_NUMPAD5,       VK_CLEAR},
-};
-
 struct TFKey
 {
 	DWORD Key;
@@ -107,7 +93,7 @@ struct TFKey
 	bool operator ==(DWORD rhsKey) const {return Key == rhsKey;}
 };
 
-static TFKey FKeys1[]=
+static const TFKey FKeys1[]=
 {
 	{KEY_LAUNCH_MEDIA_SELECT,  MKeyLaunchMediaSelect, 17, L"LaunchMediaSelect",        L"LAUNCHMEDIASELECT"},
 	{KEY_BROWSER_FAVORITES,    MKeyBrowserFavorites,  16, L"BrowserFavorites",         L"BROWSERFAVORITES"},
@@ -226,7 +212,7 @@ enum modifs
 
 	m_count
 };
-static TFKey ModifKeyName[]=
+static const TFKey ModifKeyName[]=
 {
 	{KEY_RCTRL,    MKeyRCtrl,  5, L"RCtrl",  L"RCTRL"},
 	{KEY_CTRL,     MKeyCtrl,   4, L"Ctrl",   L"CTRL"},
@@ -240,7 +226,7 @@ static TFKey ModifKeyName[]=
 static_assert(std::size(ModifKeyName) == m_count, "Incomplete ModifKeyName array");
 
 #if defined(SYSLOG)
-static TFKey SpecKeyName[]=
+static const TFKey SpecKeyName[]=
 {
 	{ KEY_CONSOLE_BUFFER_RESIZE, LNGID(-1), 19, L"ConsoleBufferResize", L"CONSOLEBUFFERRESIZE"},
 	{ KEY_OP_SELWORD,            LNGID(-1), 10, L"OP_SelWord",          L"OP_SELWORD"},
@@ -270,13 +256,10 @@ static auto& Layout()
 */
 void InitKeysArray()
 {
-	int LayoutNumber = GetKeyboardLayoutList(0, nullptr);
-
-	if (LayoutNumber)
+	if (const auto LayoutNumber = GetKeyboardLayoutList(0, nullptr))
 	{
 		Layout().resize(LayoutNumber);
-		LayoutNumber = GetKeyboardLayoutList(LayoutNumber, Layout().data());
-		Layout().resize(LayoutNumber); // if less than expected
+		Layout().resize(GetKeyboardLayoutList(LayoutNumber, Layout().data())); // if less than expected
 	}
 	else // GetKeyboardLayoutList can return 0 in telnet mode
 	{
@@ -419,7 +402,7 @@ unsigned int InputRecordToKey(const INPUT_RECORD *r)
 		INPUT_RECORD Rec=*r; // НАДО!, т.к. внутри CalcKeyCode
 		//   структура INPUT_RECORD модифицируется!
 
-		return ShieldCalcKeyCode(&Rec,FALSE,nullptr);
+		return ShieldCalcKeyCode(&Rec, false);
 	}
 
 	return KEY_NONE;
@@ -428,8 +411,8 @@ unsigned int InputRecordToKey(const INPUT_RECORD *r)
 
 bool KeyToInputRecord(int Key, INPUT_RECORD *Rec)
 {
-  int VirtKey, ControlState;
-  return TranslateKeyToVK(Key, VirtKey, ControlState, Rec) != 0;
+	int VirtKey, ControlState;
+	return TranslateKeyToVK(Key, VirtKey, ControlState, Rec) != 0;
 }
 
 //BUGBUG - временная затычка
@@ -486,25 +469,42 @@ DWORD IsMouseButtonPressed()
 	return IntKeyState.MouseButtonState;
 }
 
-static DWORD KeyMsClick2ButtonState(DWORD Key,DWORD& Event)
+static auto ButtonStateToKeyMsClick(DWORD ButtonState)
 {
-	Event=0;
+	switch (ButtonState)
+	{
+	case FROM_LEFT_1ST_BUTTON_PRESSED:
+		return KEY_MSLCLICK;
+	case RIGHTMOST_BUTTON_PRESSED:
+		return KEY_MSRCLICK;
+	case FROM_LEFT_2ND_BUTTON_PRESSED:
+		return KEY_MSM1CLICK;
+	case FROM_LEFT_3RD_BUTTON_PRESSED:
+		return KEY_MSM2CLICK;
+	case FROM_LEFT_4TH_BUTTON_PRESSED:
+		return KEY_MSM3CLICK;
+	default:
+		return KEY_NONE;
+	}
+}
 
+static auto KeyMsClickToButtonState(DWORD Key)
+{
 	switch (Key)
 	{
-		case KEY_MSLCLICK:
-			return FROM_LEFT_1ST_BUTTON_PRESSED;
-		case KEY_MSM1CLICK:
-			return FROM_LEFT_2ND_BUTTON_PRESSED;
-		case KEY_MSM2CLICK:
-			return FROM_LEFT_3RD_BUTTON_PRESSED;
-		case KEY_MSM3CLICK:
-			return FROM_LEFT_4TH_BUTTON_PRESSED;
-		case KEY_MSRCLICK:
-			return RIGHTMOST_BUTTON_PRESSED;
+	case KEY_MSLCLICK:
+		return FROM_LEFT_1ST_BUTTON_PRESSED;
+	case KEY_MSM1CLICK:
+		return FROM_LEFT_2ND_BUTTON_PRESSED;
+	case KEY_MSM2CLICK:
+		return FROM_LEFT_3RD_BUTTON_PRESSED;
+	case KEY_MSM3CLICK:
+		return FROM_LEFT_4TH_BUTTON_PRESSED;
+	case KEY_MSRCLICK:
+		return RIGHTMOST_BUTTON_PRESSED;
+	default:
+		return 0;
 	}
-
-	return 0;
 }
 
 static bool was_repeat = false;
@@ -515,143 +515,299 @@ bool IsRepeatedKey()
 	return was_repeat;
 }
 
-static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro);
-
-DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
+// "дополнительная" очередь кодов клавиш
+static auto& KeyQueue()
 {
-	DWORD Key = __GetInputRecord(rec,ExcludeMacro,ProcessMouse,AllowSynchro);
+	static std::deque<DWORD> s_KeyQueue;
+	return s_KeyQueue;
+}
 
-	if (Key)
-	{
-		if (Global->CtrlObject)
-		{
-			ProcessConsoleInputInfo Info={sizeof(Info),PCIF_NONE,*rec};
-
-			if (Global->WaitInMainLoop)
-				Info.Flags|=PCIF_FROMMAIN;
-			switch (Global->CtrlObject->Plugins->ProcessConsoleInput(&Info))
-			{
-				case 1:
-					Key=KEY_NONE;
-					KeyToInputRecord(Key, rec);
-					break;
-				case 2:
-					*rec=Info.Rec;
-					Key=CalcKeyCode(rec,FALSE);
-					break;
-			}
-		}
-	}
-	return Key;
+void ClearKeyQueue()
+{
+	KeyQueue().clear();
 }
 
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
 {
-	FARMACROAREA MArea = Global->CtrlObject->Macro.GetArea();
+	const auto SavedArea = Global->CtrlObject->Macro.GetArea();
+	SCOPE_EXIT{ Global->CtrlObject->Macro.SetArea(SavedArea); };
+
 	Global->CtrlObject->Macro.SetArea(MACROAREA_LAST); // чтобы не срабатывали макросы :-)
-	DWORD Key = GetInputRecord(rec, false, false, AllowSynchro);
-	Global->CtrlObject->Macro.SetArea(MArea);
-	return Key;
+	return GetInputRecord(rec, false, false, AllowSynchro);
 }
 
+static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
+{
+	if (!Global->CtrlObject && Global->CtrlObject->Cp())
+		return false;
 
-static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
+	Global->CtrlObject->Macro.RunStartMacro();
+
+	if (const auto MacroKey = Global->CtrlObject->Macro.GetKey())
+	{
+		static int LastMsClickMacroKey = 0;
+		if (const auto MsClickKey = KeyMsClickToButtonState(MacroKey))
+		{
+			// Ахтунг! Для мышиной клавиши вернем значение MOUSE_EVENT, соответствующее _последнему_ событию мыши.
+			rec->EventType = MOUSE_EVENT;
+			rec->Event.MouseEvent = lastMOUSE_EVENT_RECORD;
+			rec->Event.MouseEvent.dwButtonState = MsClickKey;
+			rec->Event.MouseEvent.dwEventFlags = 0;
+			LastMsClickMacroKey = MacroKey;
+			Result = MacroKey;
+			return true;
+		}
+
+		// если предыдущая клавиша мышиная - сбросим состояние панели Drag
+		if (KeyMsClickToButtonState(LastMsClickMacroKey))
+		{
+			LastMsClickMacroKey = 0;
+			Panel::EndDrag();
+		}
+
+		Global->ScrBuf->Flush();
+		int VirtKey, ControlState;
+		TranslateKeyToVK(MacroKey, VirtKey, ControlState, rec);
+		rec->EventType =
+			InRange(KEY_MACRO_BASE, MacroKey, KEY_MACRO_ENDBASE) ||
+			InRange(KEY_OP_BASE, MacroKey, KEY_OP_ENDBASE) ||
+			(MacroKey&~0xFF000000) >= KEY_END_FKEY?
+			0 : KEY_EVENT;
+
+		if (!(MacroKey&KEY_SHIFT))
+			IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed = 0;
+
+		Result = MacroKey;
+		return true;
+	}
+
+
+	// BUGBUG should it be here?
+	if (Global->WindowManager->HaveAnyMessage())
+	{
+		Global->WindowManager->PluginCommit();
+	}
+	return false;
+}
+
+static void DropConsoleInputEvent()
+{
+	INPUT_RECORD rec;
+	size_t ReadCount;
+	Console().ReadInput(&rec, 1, ReadCount);
+}
+
+static void UpdateIntKeyState(DWORD CtrlState)
+{
+	IntKeyState.LeftCtrlPressed = (CtrlState & LEFT_CTRL_PRESSED) != 0;
+	IntKeyState.LeftAltPressed = (CtrlState & LEFT_ALT_PRESSED) != 0;
+	IntKeyState.LeftShiftPressed = (CtrlState & SHIFT_PRESSED) != 0;
+	IntKeyState.RightCtrlPressed = (CtrlState & RIGHT_CTRL_PRESSED) != 0;
+	IntKeyState.RightAltPressed = (CtrlState & RIGHT_ALT_PRESSED) != 0;
+	IntKeyState.RightShiftPressed = (CtrlState & SHIFT_PRESSED) != 0; // ???
+}
+
+static DWORD ProcessFocusEvent(bool Got)
+{
+	/* $ 28.04.2001 VVM
+	+ Не только обработаем сами смену фокуса, но и передадим дальше */
+	PressedLast.ClearAll();
+
+	UpdateIntKeyState(0);
+
+	IntKeyState.MouseButtonState = 0;
+
+	const auto CalcKey = Got? KEY_GOTFOCUS : KEY_KILLFOCUS;
+
+	if (!IsWindows10OrGreater())
+	{
+		//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
+		CalcKey == KEY_GOTFOCUS? RestoreConsoleWindowRect() : SaveConsoleWindowRect();
+	}
+	return CalcKey;
+}
+
+static DWORD ProcessBufferSizeEvent(COORD Size)
+{
+	// BUGBUG If initial mode was fullscreen - first transition will not be detected
+	static auto StoredConsoleFullscreen = false;
+
+	DWORD DisplayMode = 0;
+	const auto CurrentConsoleFullscreen = IsWindows10OrGreater() && Console().GetDisplayMode(DisplayMode) && DisplayMode & CONSOLE_FULLSCREEN;
+	const auto TransitionFromFullScreen = StoredConsoleFullscreen && !CurrentConsoleFullscreen;
+	StoredConsoleFullscreen = CurrentConsoleFullscreen;
+
+	int PScrX = ScrX;
+	int PScrY = ScrY;
+
+	GetVideoMode(CurSize);
+	const auto Ignore = !Global->Opt->WindowMode || (Size.X == CurSize.X && Size.Y == CurSize.Y);
+	if (PScrX + 1 == CurSize.X && PScrY + 1 == CurSize.Y && Ignore)
+	{
+		return KEY_NONE;
+	}
+
+	PrevScrX = PScrX;
+	PrevScrY = PScrY;
+
+	AdjustConsoleScreenBufferSize(TransitionFromFullScreen);
+
+	if (Global->WindowManager)
+	{
+		// апдейтим панели (именно они сейчас!)
+		SCOPED_ACTION(LockScreen);
+
+		if (Global->GlobalSaveScrPtr)
+			Global->GlobalSaveScrPtr->Discard();
+
+		Global->WindowManager->ResizeAllWindows();
+		Global->WindowManager->GetCurrentWindow()->Show();
+		// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
+		if (!PreRedrawStack().empty())
+		{
+			PreRedrawStack().top()->m_PreRedrawFunc();
+		}
+	}
+
+	return KEY_CONSOLE_BUFFER_RESIZE;
+}
+
+static const far_key_code WheelKeys[][2] =
+{
+	{ KEY_MSWHEEL_DOWN, KEY_MSWHEEL_UP },
+	{ KEY_MSWHEEL_LEFT, KEY_MSWHEEL_RIGHT }
+};
+
+static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool ExcludeMacro, bool ProcessMouse, DWORD& CalcKey)
+{
+	lastMOUSE_EVENT_RECORD = MouseEvent;
+	IntKeyState.PreMouseEventFlags = std::exchange(IntKeyState.MouseEventFlags, MouseEvent.dwEventFlags);
+	const auto CtrlState = MouseEvent.dwControlKeyState;
+	KeyMacro::SetMacroConst(constMsCtrlState, CtrlState);
+	KeyMacro::SetMacroConst(constMsEventFlags, IntKeyState.MouseEventFlags);
+	KeyMacro::SetMacroConst(constMsLastCtrlState, CtrlState);
+
+	UpdateIntKeyState(CtrlState);
+
+	const auto BtnState = MouseEvent.dwButtonState;
+	KeyMacro::SetMacroConst(constMsButton, MouseEvent.dwButtonState);
+
+	if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
+	{
+		IntKeyState.PrevMouseButtonState = IntKeyState.MouseButtonState;
+	}
+
+	IntKeyState.MouseButtonState = BtnState;
+	IntKeyState.PrevMouseX = IntKeyState.MouseX;
+	IntKeyState.PrevMouseY = IntKeyState.MouseY;
+	IntKeyState.MouseX = MouseEvent.dwMousePosition.X;
+	IntKeyState.MouseY = MouseEvent.dwMousePosition.Y;
+	KeyMacro::SetMacroConst(constMsX, IntKeyState.MouseX);
+	KeyMacro::SetMacroConst(constMsY, IntKeyState.MouseY);
+
+	/* $ 26.04.2001 VVM
+	+ Обработка колесика мышки. */
+
+	const auto GetModifiers = [CtrlState]
+	{
+		return
+			(CtrlState & SHIFT_PRESSED? KEY_SHIFT : NO_KEY) |
+			(CtrlState & LEFT_CTRL_PRESSED? KEY_CTRL : NO_KEY) |
+			(CtrlState & RIGHT_CTRL_PRESSED? KEY_RCTRL : NO_KEY) |
+			(CtrlState & LEFT_ALT_PRESSED? KEY_ALT : NO_KEY) |
+			(CtrlState & RIGHT_ALT_PRESSED? KEY_RALT : NO_KEY);
+	};
+
+	if (IntKeyState.MouseEventFlags == MOUSE_WHEELED || IntKeyState.MouseEventFlags == MOUSE_HWHEELED)
+	{
+		const auto& WheelKeysPair = WheelKeys[IntKeyState.MouseEventFlags == MOUSE_HWHEELED? 1 : 0];
+		const auto Key = WheelKeysPair[static_cast<short>(HIWORD(MouseEvent.dwButtonState)) > 0? 1 : 0];
+		CalcKey = Key | GetModifiers();
+	}
+
+	if ((!ExcludeMacro || ProcessMouse) && Global->CtrlObject && (ProcessMouse || !(Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting())))
+	{
+		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
+		{
+			const auto MsCalcKey = ButtonStateToKeyMsClick(MouseEvent.dwButtonState);
+			if (MsCalcKey != KEY_NONE)
+			{
+				CalcKey = MsCalcKey | GetModifiers();
+
+				// для WaitKey()
+				if (ProcessMouse)
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
 {
 	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
-	static int LastEventIdle=FALSE;
-	size_t ReadCount;
-	DWORD LoopCount=0,CalcKey;
-	int NotMacros=FALSE;
-	struct FAR_INPUT_RECORD irec={};
 
 	if (AllowSynchro)
 		MessageManager().dispatch();
 
-	if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Cp())
+	DWORD CalcKey;
+
+	if (!ExcludeMacro)
 	{
-		Global->CtrlObject->Macro.RunStartMacro();
-		int MacroKey=Global->CtrlObject->Macro.GetKey();
-
-		if (MacroKey)
+		if (ProcessMacros(rec, CalcKey))
 		{
-			DWORD EventState;
-			static int LastMsClickMacroKey=0;
-			if (const auto MsClickKey = KeyMsClick2ButtonState(MacroKey, EventState))
-			{
-				// Ахтунг! Для мышиной клавиши вернем значение MOUSE_EVENT, соответствующее _последнему_ событию мыши.
-				rec->EventType=MOUSE_EVENT;
-				rec->Event.MouseEvent=lastMOUSE_EVENT_RECORD;
-				rec->Event.MouseEvent.dwButtonState=MsClickKey;
-				rec->Event.MouseEvent.dwEventFlags=EventState;
-				LastMsClickMacroKey=MacroKey;
-				return MacroKey;
-			}
-			else
-			{
-				// если предыдущая клавиша мышиная - сбросим состояние панели Drag
-				if (KeyMsClick2ButtonState(LastMsClickMacroKey,EventState))
-				{
-					LastMsClickMacroKey=0;
-					Panel::EndDrag();
-				}
-
-				Global->ScrBuf->Flush();
-				int VirtKey,ControlState;
-				TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
-				rec->EventType=((((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE) || ((unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:KEY_EVENT;
-
-				if (!(MacroKey&KEY_SHIFT))
-					IntKeyState.ShiftPressed=0;
-
-				return MacroKey;
-			}
-		}
-		else if (Global->WindowManager->HaveAnyMessage())
-		{
-			Global->WindowManager->PluginCommit();
+			return CalcKey;
 		}
 	}
+
+	auto NotMacros = false;
+
+	const auto ProcessMacroEvent = [&]
+	{
+		if (NotMacros || ExcludeMacro)
+			return CalcKey;
+
+		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)", __LINE__, _FARKEY_ToName(CalcKey)));
+
+		FAR_INPUT_RECORD irec = { CalcKey, *rec };
+		if (!Global->CtrlObject || !Global->CtrlObject->Macro.ProcessEvent(&irec))
+			return CalcKey;
+
+		rec->EventType = 0;
+		return static_cast<DWORD>(KEY_NONE);
+	};
 
 	if (KeyQueue().size())
 	{
 		CalcKey=KeyQueue().front();
 		KeyQueue().pop_front();
-		NotMacros=CalcKey&0x80000000?1:0;
-		CalcKey&=~0x80000000;
-
-		if (!NotMacros)
-		{
-			_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-			irec.IntKey=CalcKey;
-			irec.Rec=*rec;
-			if (!ExcludeMacro && Global->CtrlObject && Global->CtrlObject->Macro.ProcessEvent(&irec))
-			{
-				rec->EventType=0;
-				CalcKey=KEY_NONE;
-			}
-		}
-
-		return CalcKey;
+		NotMacros = (CalcKey & 0x80000000) != 0;
+		CalcKey &= ~0x80000000;
+		return ProcessMacroEvent();
 	}
 
-	int EnableShowTime=Global->Opt->Clock && (Global->WaitInMainLoop || (Global->CtrlObject &&
-	                                 Global->CtrlObject->Macro.GetArea()==MACROAREA_SEARCH));
+	const auto EnableShowTime = Global->Opt->Clock && (Global->WaitInMainLoop || Global->CtrlObject && Global->CtrlObject->Macro.GetArea() == MACROAREA_SEARCH);
 
 	if (EnableShowTime)
 		ShowTime();
 
 	Global->ScrBuf->Flush();
 
+	static auto LastEventIdle = false;
+
 	if (!LastEventIdle)
 		Global->StartIdleTime=clock();
 
-	LastEventIdle=FALSE;
+	LastEventIdle = false;
 
 	BOOL ZoomedState=IsZoomed(Console().GetWindow());
 	BOOL IconicState=IsIconic(Console().GetWindow());
 
 	bool FullscreenState=IsConsoleFullscreen();
 
+	DWORD LoopCount = 0;
 	for (;;)
 	{
 		// "Реакция" на максимизацию/восстановление окна консоли
@@ -668,7 +824,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				SetFarConsoleMode();
 			}
 
-			bool CurrentFullscreenState=IsConsoleFullscreen();
+			const auto CurrentFullscreenState = IsConsoleFullscreen();
 			if(CurrentFullscreenState && !FullscreenState)
 			{
 				ChangeVideoMode(25,80);
@@ -676,18 +832,14 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			FullscreenState=CurrentFullscreenState;
 		}
 
+		size_t ReadCount;
 		Console().PeekInput(rec, 1, ReadCount);
-
-		/* $ 26.04.2001 VVM
-		   ! Убрал подмену колесика */
 		if (ReadCount)
 		{
 			//check for flock
 			if (rec->EventType==KEY_EVENT && !rec->Event.KeyEvent.wVirtualScanCode && (rec->Event.KeyEvent.wVirtualKeyCode==VK_NUMLOCK||rec->Event.KeyEvent.wVirtualKeyCode==VK_CAPITAL||rec->Event.KeyEvent.wVirtualKeyCode==VK_SCROLL))
 			{
-				INPUT_RECORD pinp;
-				size_t nread;
-				Console().ReadInput(&pinp, 1, nread);
+				DropConsoleInputEvent();
 				was_repeat = false;
 				last_pressed_keycode = (WORD)-1;
 				continue;
@@ -739,7 +891,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			if (!Global->WaitInMainLoop && LoopCount==64)
 			{
-				LastEventIdle=TRUE;
+				LastEventIdle = true;
 				*rec = {};
 				rec->EventType=KEY_EVENT;
 				return KEY_IDLE;
@@ -801,19 +953,13 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			//
 			if (PrevVKKeyCode2==VK_RETURN && PrevVKKeyCode==VK_SHIFT  && !rec->Event.KeyEvent.bKeyDown)
 			{
-				INPUT_RECORD pinp;
-				size_t nread;
-				Console().ReadInput(&pinp, 1, nread); // Удалим из очереди...
+				DropConsoleInputEvent();
 				return KEY_NONE;
 			}
 		}
 
-		IntKeyState.CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
-		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
-		IntKeyState.ShiftPressed=(CtrlState & SHIFT_PRESSED);
-		IntKeyState.RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
-		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
-		IntKeyState.RightShiftPressed=(CtrlState & SHIFT_PRESSED); //???
+		UpdateIntKeyState(CtrlState);
+
 		KeyPressedLastTime=CurClock;
 	}
 	else
@@ -822,112 +968,47 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		last_pressed_keycode = (WORD)-1;
 	}
 
-	if (rec->EventType==FOCUS_EVENT)
-	{
-		/* $ 28.04.2001 VVM
-		  + Не только обработаем сами смену фокуса, но и передадим дальше */
-		PressedLast.ClearAll();
-		IntKeyState.ShiftPressed=FALSE;
-		IntKeyState.CtrlPressed=FALSE;
-		IntKeyState.AltPressed=FALSE;
-		IntKeyState.MouseButtonState=0;
-		ShiftState=FALSE;
-		Console().ReadInput(rec, 1, ReadCount);
-		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
-		if (!IsWindows10OrGreater())
-		{
-			//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
-			CalcKey == KEY_GOTFOCUS? RestoreConsoleWindowRect() : SaveConsoleWindowRect();
-		}
-
-		return CalcKey;
-	}
-
 	IntKeyState.ReturnAltValue=FALSE;
-	CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
+	CalcKey=CalcKeyCode(rec, true, &NotMacros);
 
-	if (IntKeyState.ReturnAltValue && !NotMacros)
+	if (IntKeyState.ReturnAltValue)
 	{
-		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-		irec.IntKey=CalcKey;
-		irec.Rec=*rec;
-		if (Global->CtrlObject && Global->CtrlObject->Macro.ProcessEvent(&irec))
-		{
-			rec->EventType=0;
-			CalcKey=KEY_NONE;
-		}
-
-		return CalcKey;
+		return ProcessMacroEvent();
 	}
 
-	Console().ReadInput(rec, 1, ReadCount);
+	{
+		size_t ReadCount;
+		Console().ReadInput(rec, 1, ReadCount);
+	}
 
 	if (EnableShowTime)
 		ShowTime();
 
-	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || IsConsoleSizeChanged())
+	if (rec->EventType == FOCUS_EVENT)
 	{
-		// BUGBUG If initial mode was fullscreen - first transition will not be detected
-		static auto StoredConsoleFullscreen = false;
+		return ProcessFocusEvent(rec->Event.FocusEvent.bSetFocus != FALSE);
+	}
 
-		DWORD DisplayMode = 0;
-		const auto CurrentConsoleFullscreen = IsWindows10OrGreater() && Console().GetDisplayMode(DisplayMode) && DisplayMode & CONSOLE_FULLSCREEN;
-		const auto TransitionFromFullScreen = StoredConsoleFullscreen && !CurrentConsoleFullscreen;
-		StoredConsoleFullscreen = CurrentConsoleFullscreen;
-
-		int PScrX=ScrX;
-		int PScrY=ScrY;
-
-		GetVideoMode(CurSize);
-		bool NotIgnore=Global->Opt->WindowMode && (rec->Event.WindowBufferSizeEvent.dwSize.X!=CurSize.X || rec->Event.WindowBufferSizeEvent.dwSize.Y!=CurSize.Y);
-		if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y && !NotIgnore)
-		{
-			return KEY_NONE;
-		}
-		else
-		{
-			PrevScrX=PScrX;
-			PrevScrY=PScrY;
-
-			AdjustConsoleScreenBufferSize(TransitionFromFullScreen);
-
-			if (Global->WindowManager)
-			{
-				// апдейтим панели (именно они сейчас!)
-				SCOPED_ACTION(LockScreen);
-
-				if (Global->GlobalSaveScrPtr)
-					Global->GlobalSaveScrPtr->Discard();
-
-				Global->WindowManager->ResizeAllWindows();
-				Global->WindowManager->GetCurrentWindow()->Show();
-				// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
-				if (!PreRedrawStack().empty())
-				{
-					PreRedrawStack().top()->m_PreRedrawFunc();
-				}
-			}
-
-			return KEY_CONSOLE_BUFFER_RESIZE;
-		}
+	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
+	{
+		return ProcessBufferSizeEvent(rec->Event.WindowBufferSizeEvent.dwSize);
 	}
 
 	if (rec->EventType==KEY_EVENT)
 	{
 		DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
 		DWORD KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
-		IntKeyState.CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
-		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
-		IntKeyState.RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
-		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
+
+		UpdateIntKeyState(CtrlState);
+
 		KeyMacro::SetMacroConst(constMsLastCtrlState,CtrlState);
 
 		// Для NumPad!
 		if ((CalcKey&(KEY_CTRL|KEY_SHIFT|KEY_ALT|KEY_RCTRL|KEY_RALT)) == KEY_SHIFT &&
 		        (CalcKey&KEY_MASKF) >= KEY_NUMPAD0 && (CalcKey&KEY_MASKF) <= KEY_NUMPAD9)
-			IntKeyState.ShiftPressed=SHIFT_PRESSED;
+			IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed = true;
 		else
-			IntKeyState.ShiftPressed=(CtrlState & SHIFT_PRESSED);
+			IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed = (CtrlState & SHIFT_PRESSED) != 0;
 
 		if (!KeyCode)
 			return KEY_NONE;
@@ -960,128 +1041,39 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 	if (rec->EventType==MOUSE_EVENT)
 	{
-		lastMOUSE_EVENT_RECORD=rec->Event.MouseEvent;
-		IntKeyState.PreMouseEventFlags=IntKeyState.MouseEventFlags;
-		IntKeyState.MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
-		DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
-		KeyMacro::SetMacroConst(constMsCtrlState,CtrlState);
-		KeyMacro::SetMacroConst(constMsEventFlags,IntKeyState.MouseEventFlags);
-		KeyMacro::SetMacroConst(constMsLastCtrlState,CtrlState);
+		if (ProcessMouseEvent(rec->Event.MouseEvent, ExcludeMacro, ProcessMouse, CalcKey))
+			return CalcKey;
+	}
 
-		IntKeyState.CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
-		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
-		IntKeyState.ShiftPressed=(CtrlState & SHIFT_PRESSED);
-		IntKeyState.RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
-		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
-		IntKeyState.RightShiftPressed=(CtrlState & SHIFT_PRESSED);
-		DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
-		KeyMacro::SetMacroConst(constMsButton,rec->Event.MouseEvent.dwButtonState);
+	return ProcessMacroEvent();
+}
 
-		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
+DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse, bool AllowSynchro)
+{
+	DWORD Key = GetInputRecordImpl(rec, ExcludeMacro, ProcessMouse, AllowSynchro);
+
+	if (Key)
+	{
+		if (Global->CtrlObject)
 		{
-			IntKeyState.PrevMouseButtonState=IntKeyState.MouseButtonState;
-		}
+			ProcessConsoleInputInfo Info = { sizeof(Info), PCIF_NONE, *rec };
 
-		IntKeyState.MouseButtonState=BtnState;
-		IntKeyState.PrevMouseX=IntKeyState.MouseX;
-		IntKeyState.PrevMouseY=IntKeyState.MouseY;
-		IntKeyState.MouseX=rec->Event.MouseEvent.dwMousePosition.X;
-		IntKeyState.MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
-		KeyMacro::SetMacroConst(constMsX,IntKeyState.MouseX);
-		KeyMacro::SetMacroConst(constMsY,IntKeyState.MouseY);
-
-		/* $ 26.04.2001 VVM
-		   + Обработка колесика мышки. */
-		if (IntKeyState.MouseEventFlags == MOUSE_WHEELED)
-		{ // Обработаем колесо и заменим на спец.клавиши
-			short zDelta = HIWORD(rec->Event.MouseEvent.dwButtonState);
-			CalcKey = (zDelta>0)?KEY_MSWHEEL_UP:KEY_MSWHEEL_DOWN;
-			/* $ 27.04.2001 SVS
-			   Не были учтены шифтовые клавиши при прокрутке колеса, из-за чего
-			   нельзя было использовать в макросах нечто вроде "ShiftMsWheelUp"
-			*/
-			CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:NO_KEY)|
-			           (CtrlState&LEFT_CTRL_PRESSED?KEY_CTRL:NO_KEY)|
-			           (CtrlState&RIGHT_CTRL_PRESSED?KEY_RCTRL:NO_KEY)|
-			           (CtrlState&LEFT_ALT_PRESSED?KEY_ALT:NO_KEY)|
-			           (CtrlState&RIGHT_ALT_PRESSED?KEY_RALT:NO_KEY);
-		}
-
-		// Обработка горизонтального колесика (NT>=6)
-		if (IntKeyState.MouseEventFlags == MOUSE_HWHEELED)
-		{
-			short zDelta = HIWORD(rec->Event.MouseEvent.dwButtonState);
-			CalcKey = (zDelta>0)?KEY_MSWHEEL_RIGHT:KEY_MSWHEEL_LEFT;
-			CalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:NO_KEY)|
-			           (CtrlState&LEFT_CTRL_PRESSED?KEY_CTRL:NO_KEY)|
-			           (CtrlState&RIGHT_CTRL_PRESSED?KEY_RCTRL:NO_KEY)|
-			           (CtrlState&LEFT_ALT_PRESSED?KEY_ALT:NO_KEY)|
-			           (CtrlState&RIGHT_ALT_PRESSED?KEY_RALT:NO_KEY);
-		}
-
-		if (rec->EventType==MOUSE_EVENT && (!ExcludeMacro||ProcessMouse) && Global->CtrlObject && (ProcessMouse || !(Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting())))
-		{
-			if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
+			if (Global->WaitInMainLoop)
+				Info.Flags |= PCIF_FROMMAIN;
+			switch (Global->CtrlObject->Plugins->ProcessConsoleInput(&Info))
 			{
-				DWORD MsCalcKey=0;
-
-				if (rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED)
-					MsCalcKey=KEY_MSRCLICK;
-				else if (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
-					MsCalcKey=KEY_MSLCLICK;
-				else if (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED)
-					MsCalcKey=KEY_MSM1CLICK;
-				else if (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_3RD_BUTTON_PRESSED)
-					MsCalcKey=KEY_MSM2CLICK;
-				else if (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED)
-					MsCalcKey=KEY_MSM3CLICK;
-
-				if (MsCalcKey)
-				{
-					MsCalcKey |= (CtrlState&SHIFT_PRESSED?KEY_SHIFT:NO_KEY)|
-					             (CtrlState&LEFT_CTRL_PRESSED?KEY_CTRL:NO_KEY)|
-					             (CtrlState&RIGHT_CTRL_PRESSED?KEY_RCTRL:NO_KEY)|
-					             (CtrlState&LEFT_ALT_PRESSED?KEY_ALT:NO_KEY)|
-					             (CtrlState&RIGHT_ALT_PRESSED?KEY_RALT:NO_KEY);
-
-					// для WaitKey()
-					if (ProcessMouse)
-						return MsCalcKey;
-					else
-					{
-						_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(MsCalcKey)));
-						irec.IntKey=MsCalcKey;
-						irec.Rec=*rec;
-						if (Global->CtrlObject->Macro.ProcessEvent(&irec))
-						{
-							*rec = {};
-							return KEY_NONE;
-						}
-					}
-				}
+			case 1:
+				Key = KEY_NONE;
+				KeyToInputRecord(Key, rec);
+				break;
+			case 2:
+				*rec = Info.Rec;
+				Key = CalcKeyCode(rec, false);
+				break;
 			}
 		}
 	}
-
-	{
-		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-		irec.IntKey=CalcKey;
-		irec.Rec=*rec;
-		if (!NotMacros && Global->CtrlObject && Global->CtrlObject->Macro.ProcessEvent(&irec))
-		{
-			rec->EventType=0;
-			CalcKey=KEY_NONE;
-		}
-	}
-
-	return CalcKey;
-}
-
-// "дополнительная" очередь кодов клавиш
-std::deque<DWORD>& KeyQueue()
-{
-	static FN_RETURN_TYPE(KeyQueue) s_KeyQueue;
-	return s_KeyQueue;
+	return Key;
 }
 
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
@@ -1095,7 +1087,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 		int VirtKey,ControlState;
 		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
 	}
-	else if ((!ExcludeMacro) && (Key=Global->CtrlObject->Macro.PeekKey()) != 0)
+	else if (!ExcludeMacro && (Key=Global->CtrlObject->Macro.PeekKey()) != 0)
 	{
 		int VirtKey,ControlState;
 		ReadCount=TranslateKeyToVK(Key,VirtKey,ControlState,rec)?1:0;
@@ -1108,7 +1100,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	if (!ReadCount)
 		return 0;
 
-	return CalcKeyCode(rec,TRUE); // ShieldCalcKeyCode?
+	return CalcKeyCode(rec, true); // ShieldCalcKeyCode?
 }
 
 /* $ 24.08.2000 SVS
@@ -1132,7 +1124,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 
 		if (KeyWait == (DWORD)-1)
 		{
-			if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY || IsInternalKeyReal(Key&(~KEY_CTRLMASK)))
+			if ((Key&~KEY_CTRLMASK) < KEY_END_FKEY || IsInternalKeyReal(Key&~KEY_CTRLMASK))
 				break;
 		}
 		else if (Key == KeyWait)
@@ -1150,44 +1142,14 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 	return Key;
 }
 
-int WriteInput(int Key,DWORD Flags)
+bool WriteInput(int Key)
 {
-	if (Flags&(SKEY_VK_KEYS|SKEY_IDLE))
-	{
-		INPUT_RECORD Rec;
-		size_t WriteCount;
+	if (KeyQueue().size() > 1024)
+		return false;
 
-		if (Flags&SKEY_IDLE)
-		{
-			Rec.EventType=FOCUS_EVENT;
-			Rec.Event.FocusEvent.bSetFocus=TRUE;
-		}
-		else
-		{
-			Rec.EventType=KEY_EVENT;
-			Rec.Event.KeyEvent.bKeyDown=1;
-			Rec.Event.KeyEvent.wRepeatCount=1;
-			Rec.Event.KeyEvent.wVirtualKeyCode=Key;
-			Rec.Event.KeyEvent.wVirtualScanCode=MapVirtualKey(Rec.Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
-
-			if (Key < 0x30 || Key > 0x5A) // 0-9:;<=>?@@ A..Z  //?????
-				Key=0;
-
-			Rec.Event.KeyEvent.uChar.UnicodeChar=Rec.Event.KeyEvent.uChar.AsciiChar=Key;
-			Rec.Event.KeyEvent.dwControlKeyState=0;
-		}
-
-		return Console().WriteInput(&Rec, 1, WriteCount);
-	}
-	else if (KeyQueue().size() < 1024)
-	{
-		KeyQueue().emplace_back(Key | (Flags&SKEY_NOTMACROS ? 0x80000000 : 0));
-		return TRUE;
-	}
-	else
-		return FALSE;
+	KeyQueue().emplace_back(Key);
+	return true;
 }
-
 
 bool CheckForEscSilent()
 {
@@ -1217,12 +1179,8 @@ bool CheckForEscSilent()
 		if (Key==KEY_ESC)
 			return true;
 		if (Key==KEY_BREAK)
-		{
-			if (Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO)
-				Global->CtrlObject->Macro.SendDropProcess();
 			return true;
-		}
-		else if (Key==KEY_ALTF9 || Key==KEY_RALTF9)
+		if (Key==KEY_ALTF9 || Key==KEY_RALTF9)
 			Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF9));
 	}
 
@@ -1250,29 +1208,25 @@ using add_separator = void(string&);
 
 static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
 {
-	const auto AddText = [&](modifs ModId)
+	static const std::pair<far_key_code, modifs> Mapping[] =
 	{
-		AddSeparator(strName);
-		strName += ToText(ModifKeyName + ModId);
+		{ KEY_CTRL, m_ctrl },
+		{ KEY_RCTRL, m_rctrl },
+		{ KEY_ALT, m_alt },
+		{ KEY_RALT, m_ralt },
+		{ KEY_SHIFT, m_shift },
+		{ KEY_M_SPEC, m_spec },
+		{ KEY_M_OEM, m_oem },
 	};
 
-	if (Key & KEY_CTRL)
-		AddText(m_ctrl);
-	else if (Key & KEY_RCTRL)
-		AddText(m_rctrl);
-
-	if (Key & KEY_ALT)
-		AddText(m_alt);
-	else if (Key & KEY_RALT)
-		AddText(m_ralt);
-
-	if (Key & KEY_SHIFT)
-		AddText(m_shift);
-
-	if (Key & KEY_M_SPEC)
-		AddText(m_spec);
-	else if (Key & KEY_M_OEM)
-		AddText(m_oem);
+	for (const auto& i:  Mapping)
+	{
+		if (Key & i.first)
+		{
+			AddSeparator(strName);
+			strName += ToText(ModifKeyName + i.second);
+		}
+	}
 }
 
 
@@ -1297,12 +1251,8 @@ int KeyNameToKey(const string& Name)
 
 	DWORD Key=0;
 
-   if (Name.size() > 1) // если не один символ
+	if (Name.size() > 1) // если не один символ
 	{
-		// Это макроклавиша? -- ??? Это ещё актуально ???
-		if (Name[0] == L'$')
-		return -1;// KeyNameMacroToKey(Name);
-
 		if (Name[0] == L'%')
 		return -1;
 
@@ -1515,6 +1465,18 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
 	bool KeyInTable = false;
 	{
+		static const std::pair<int, int> Table_KeyToVK[] =
+		{
+			{ KEY_BREAK, VK_CANCEL },
+			{ KEY_BS, VK_BACK },
+			{ KEY_TAB, VK_TAB },
+			{ KEY_ENTER, VK_RETURN },
+			{ KEY_NUMENTER, VK_RETURN }, //????
+			{ KEY_ESC, VK_ESCAPE },
+			{ KEY_SPACE, VK_SPACE },
+			{ KEY_NUMPAD5, VK_CLEAR },
+		};
+
 		const auto ItemIterator = std::find_if(CONST_RANGE(Table_KeyToVK, i) { return static_cast<DWORD>(i.first) == FKey; });
 		if (ItemIterator != std::cend(Table_KeyToVK))
 		{
@@ -1581,7 +1543,9 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 				{KEY_RCTRL, VK_RCONTROL},
 				{KEY_RALT, VK_RMENU},
 			};
-			const auto ItemIterator = std::find_if(CONST_RANGE(ExtKeyMap, i) { return i.first == static_cast<far_key_code>(FShift); });
+
+			// In case of CtrlShift, CtrlAlt, AltShift, CtrlAltShift there is no unambiguous mapping.
+			const auto ItemIterator = std::find_if(CONST_RANGE(ExtKeyMap, i) { return (i.first & FShift) != 0; });
 			if (ItemIterator != std::cend(ExtKeyMap))
 				VirtKey = ItemIterator->second;
 		}
@@ -1723,19 +1687,11 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 						break;
 
 					case KEY_MSLCLICK:
-						ButtonState=FROM_LEFT_1ST_BUTTON_PRESSED;
-						break;
 					case KEY_MSRCLICK:
-						ButtonState=RIGHTMOST_BUTTON_PRESSED;
-						break;
 					case KEY_MSM1CLICK:
-						ButtonState=FROM_LEFT_2ND_BUTTON_PRESSED;
-						break;
 					case KEY_MSM2CLICK:
-						ButtonState=FROM_LEFT_3RD_BUTTON_PRESSED;
-						break;
 					case KEY_MSM3CLICK:
-						ButtonState=FROM_LEFT_4TH_BUTTON_PRESSED;
+						ButtonState = KeyMsClickToButtonState(FKey);
 						break;
 				}
 
@@ -1887,23 +1843,179 @@ int IsShiftKey(DWORD Key)
 	return std::find(ALL_CONST_RANGE(ShiftKeys), Key) != std::cend(ShiftKeys);
 }
 
-unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
+unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 {
-	FarKeyboardState _IntKeyState=IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
+	const auto SavedIntKeyState = IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
 	IntKeyState = {};
-	DWORD Ret=CalcKeyCode(rec,RealKey,NotMacros);
-	IntKeyState=_IntKeyState;
+	DWORD Ret=CalcKeyCode(rec, RealKey, NotMacros);
+	IntKeyState = SavedIntKeyState;
 	return Ret;
 }
 
-unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
+int GetDirectlyMappedKey(int VKey)
+{
+	switch (VKey)
+	{
+	case VK_BROWSER_BACK: return KEY_BROWSER_BACK;
+	case VK_BROWSER_FORWARD: return KEY_BROWSER_FORWARD;
+	case VK_BROWSER_REFRESH: return KEY_BROWSER_REFRESH;
+	case VK_BROWSER_STOP: return KEY_BROWSER_STOP;
+	case VK_BROWSER_SEARCH: return KEY_BROWSER_SEARCH;
+	case VK_BROWSER_FAVORITES: return KEY_BROWSER_FAVORITES;
+	case VK_BROWSER_HOME: return KEY_BROWSER_HOME;
+	case VK_VOLUME_MUTE: return KEY_VOLUME_MUTE;
+	case VK_VOLUME_DOWN: return KEY_VOLUME_DOWN;
+	case VK_VOLUME_UP: return KEY_VOLUME_UP;
+	case VK_MEDIA_NEXT_TRACK: return KEY_MEDIA_NEXT_TRACK;
+	case VK_MEDIA_PREV_TRACK: return KEY_MEDIA_PREV_TRACK;
+	case VK_MEDIA_STOP: return KEY_MEDIA_STOP;
+	case VK_MEDIA_PLAY_PAUSE: return KEY_MEDIA_PLAY_PAUSE;
+	case VK_LAUNCH_MAIL: return KEY_LAUNCH_MAIL;
+	case VK_LAUNCH_MEDIA_SELECT: return KEY_LAUNCH_MEDIA_SELECT;
+	case VK_LAUNCH_APP1: return KEY_LAUNCH_APP1;
+	case VK_LAUNCH_APP2: return KEY_LAUNCH_APP2;
+	case VK_APPS: return KEY_APPS;
+	case VK_LWIN: return KEY_LWIN;
+	case VK_RWIN: return KEY_RWIN;
+	case VK_BACK: return KEY_BS;
+	case VK_TAB: return KEY_TAB;
+	case VK_ADD: return KEY_ADD;
+	case VK_SUBTRACT: return KEY_SUBTRACT;
+	case VK_ESCAPE: return KEY_ESC;
+	case VK_CAPITAL: return KEY_CAPSLOCK;
+	case VK_NUMLOCK: return KEY_NUMLOCK;
+	case VK_SCROLL: return KEY_SCROLLLOCK;
+	case VK_DIVIDE: return KEY_DIVIDE;
+	case VK_CANCEL: return KEY_BREAK;
+	case VK_MULTIPLY: return KEY_MULTIPLY;
+	case VK_SLEEP: return KEY_STANDBY;
+	case VK_SNAPSHOT: return KEY_PRNTSCRN;
+	default: return 0;
+	}
+}
+
+// These VK_* map to different characters if Shift (and only Shift) is pressed
+int GetMappedCharacter(int VKey)
+{
+	switch (VKey)
+	{
+	case VK_OEM_PERIOD: return KEY_DOT;
+	case VK_OEM_COMMA: return KEY_COMMA;
+	case VK_OEM_MINUS: return '-';
+	case VK_OEM_PLUS: return '=';
+	// BUGBUG hard-coded for US keyboard
+	case VK_OEM_1: return KEY_SEMICOLON;
+	case VK_OEM_2: return KEY_SLASH;
+	case VK_OEM_3: return '`';
+	case VK_OEM_4: return KEY_BRACKET;
+	case VK_OEM_5: return KEY_BACKSLASH;
+	case VK_OEM_6: return KEY_BACKBRACKET;
+	case VK_OEM_7: return '\'';
+	case VK_OEM_102: return KEY_BACKSLASH; // <> \|
+	default: return 0;
+	}
+};
+
+static int GetNumpadKey(const int KeyCode, const int CtrlState, const int Modif)
+{
+	static const struct numpad_mapping
+	{
+		int VCode;
+		int FarCodeNumpad;
+		int FarCodeEnhached;
+		int FarCodeForNumLock;
+	}
+	NumpadMapping[] =
+	{
+		{ VK_NUMPAD0, KEY_NUMPAD0, KEY_INS, '0' },
+		{ VK_NUMPAD1, KEY_NUMPAD1, KEY_END, '1' },
+		{ VK_NUMPAD2, KEY_NUMPAD2, KEY_DOWN, '2' },
+		{ VK_NUMPAD3, KEY_NUMPAD3, KEY_PGDN, '3' },
+		{ VK_NUMPAD4, KEY_NUMPAD4, KEY_LEFT, '4' },
+		{ VK_NUMPAD5, KEY_NUMPAD5, KEY_CLEAR, '5' },
+		{ VK_NUMPAD6, KEY_NUMPAD6, KEY_RIGHT, '6' },
+		{ VK_NUMPAD7, KEY_NUMPAD7, KEY_HOME, '7' },
+		{ VK_NUMPAD8, KEY_NUMPAD8, KEY_UP, '8' },
+		{ VK_NUMPAD9, KEY_NUMPAD9, KEY_PGUP, '9' },
+		{ VK_DECIMAL, KEY_NUMDEL, KEY_DEL, KEY_DECIMAL },
+	};
+
+	const auto GetMappingIndex = [KeyCode]
+	{
+		switch (KeyCode)
+		{
+		case VK_INSERT: case VK_NUMPAD0: return 0;
+		case VK_END:    case VK_NUMPAD1: return 1;
+		case VK_DOWN:   case VK_NUMPAD2: return 2;
+		case VK_NEXT:   case VK_NUMPAD3: return 3;
+		case VK_LEFT:   case VK_NUMPAD4: return 4;
+		case VK_CLEAR:  case VK_NUMPAD5: return 5;
+		case VK_RIGHT:  case VK_NUMPAD6: return 6;
+		case VK_HOME:   case VK_NUMPAD7: return 7;
+		case VK_UP:     case VK_NUMPAD8: return 8;
+		case VK_PRIOR:  case VK_NUMPAD9: return 9;
+		case VK_DELETE: case VK_DECIMAL: return 10;
+		default:
+			return -1;
+		}
+	};
+
+	const auto MappingIndex = GetMappingIndex();
+	if (MappingIndex == -1)
+		return 0;
+
+	const auto& Mapping = NumpadMapping[MappingIndex];
+
+	if (CtrlState & ENHANCED_KEY)
+	{
+		return Modif | Mapping.FarCodeEnhached;
+	}
+
+	if ((CtrlState & NUMLOCK_ON) && !Modif && KeyCode == Mapping.VCode)
+	{
+		return Mapping.FarCodeForNumLock;
+	}
+
+	return Modif | Mapping.FarCodeNumpad;
+};
+
+static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
+{
+	switch (MouseEvent.dwEventFlags)
+	{
+	case 0:
+	{
+		const auto MsKey = ButtonStateToKeyMsClick(MouseEvent.dwButtonState);
+		if (MsKey != KEY_NONE)
+		{
+			return MsKey;
+		}
+	}
+	break;
+
+	case MOUSE_WHEELED:
+	case MOUSE_HWHEELED:
+	{
+		const auto& WheelKeysPair = WheelKeys[MouseEvent.dwEventFlags == MOUSE_HWHEELED? 1 : 0];
+		const auto Key = WheelKeysPair[static_cast<short>(HIWORD(MouseEvent.dwButtonState)) > 0? 1 : 0];
+		return Key;
+	}
+
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 {
 	_SVS(CleverSysLog Clev(L"CalcKeyCode"));
 	_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
-	UINT CtrlState=(rec->EventType==MOUSE_EVENT)?rec->Event.MouseEvent.dwControlKeyState:rec->Event.KeyEvent.dwControlKeyState;
-	UINT ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
-	UINT KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
-	WCHAR Char=rec->Event.KeyEvent.uChar.UnicodeChar;
+	const UINT CtrlState=(rec->EventType==MOUSE_EVENT)?rec->Event.MouseEvent.dwControlKeyState:rec->Event.KeyEvent.dwControlKeyState;
+	const UINT ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
+	const UINT KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
+	const WCHAR Char=rec->Event.KeyEvent.uChar.UnicodeChar;
 
 	if (NotMacros)
 		*NotMacros = (CtrlState&0x80000000) != 0;
@@ -1913,59 +2025,20 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 
 	if (!RealKey)
 	{
-		IntKeyState.CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
-		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
-		IntKeyState.ShiftPressed=(CtrlState & SHIFT_PRESSED);
-		IntKeyState.RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
-		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
-		IntKeyState.RightShiftPressed=(CtrlState & SHIFT_PRESSED);
+		UpdateIntKeyState(CtrlState);
 	}
 
-	const auto Modif=(IntKeyState.ShiftPressed?KEY_SHIFT:NO_KEY)
-		|(IntKeyState.CtrlPressed?(IntKeyState.RightCtrlPressed?KEY_RCTRL:KEY_CTRL):NO_KEY)
-		|(IntKeyState.AltPressed?(IntKeyState.RightAltPressed?KEY_RALT:KEY_ALT):NO_KEY);
-	const auto ModifAlt=(IntKeyState.RightAltPressed?KEY_RALT:(IntKeyState.AltPressed?KEY_ALT:NO_KEY));
-	const auto ModifCtrl=(IntKeyState.RightCtrlPressed?KEY_RCTRL:(IntKeyState.CtrlPressed?KEY_CTRL:NO_KEY));
+	const auto ModifCtrl = IntKeyState.RightCtrlPressed? KEY_RCTRL : IntKeyState.CtrlPressed()? KEY_CTRL : NO_KEY;
+	const auto ModifAlt = IntKeyState.RightAltPressed? KEY_RALT: IntKeyState.AltPressed()? KEY_ALT : NO_KEY;
+	const auto ModifShift = IntKeyState.RightShiftPressed? KEY_SHIFT : IntKeyState.ShiftPressed() ? KEY_SHIFT : NO_KEY;
+	const auto Modif = ModifCtrl | ModifAlt | ModifShift;
 
 	if (rec->EventType==MOUSE_EVENT)
 	{
-		if (!(rec->Event.MouseEvent.dwEventFlags==MOUSE_WHEELED || rec->Event.MouseEvent.dwEventFlags==MOUSE_HWHEELED || rec->Event.MouseEvent.dwEventFlags==0))
+		if (const auto MouseKey = GetMouseKey(rec->Event.MouseEvent))
 		{
-			return KEY_NONE;
+			return Modif | MouseKey;
 		}
-
-		if (rec->Event.MouseEvent.dwEventFlags==MOUSE_WHEELED)
-		{
-			if (((short)(HIWORD(rec->Event.MouseEvent.dwButtonState))) > 0)
-				return Modif|KEY_MSWHEEL_UP;
-			else if (((short)(HIWORD(rec->Event.MouseEvent.dwButtonState))) < 0)
-				return Modif|KEY_MSWHEEL_DOWN;
-		}
-		else if (rec->Event.MouseEvent.dwEventFlags==MOUSE_HWHEELED)
-		{
-			if (((short)(HIWORD(rec->Event.MouseEvent.dwButtonState))) > 0)
-				return Modif|KEY_MSWHEEL_RIGHT;
-			else if (((short)(HIWORD(rec->Event.MouseEvent.dwButtonState))) < 0)
-				return Modif|KEY_MSWHEEL_LEFT;
-		}
-		else if (rec->Event.MouseEvent.dwEventFlags==0)
-		{
-			switch (rec->Event.MouseEvent.dwButtonState)
-			{
-			case FROM_LEFT_1ST_BUTTON_PRESSED:
-				return Modif|KEY_MSLCLICK;
-			case RIGHTMOST_BUTTON_PRESSED:
-				return Modif|KEY_MSRCLICK;
-			case FROM_LEFT_2ND_BUTTON_PRESSED:
-				return Modif|KEY_MSM1CLICK;
-			case FROM_LEFT_3RD_BUTTON_PRESSED:
-				return Modif|KEY_MSM2CLICK;
-			case FROM_LEFT_4TH_BUTTON_PRESSED:
-				return Modif|KEY_MSM3CLICK;
-			}
-		}
-
-		return KEY_NONE;
 	}
 
 	if (rec->Event.KeyEvent.wVirtualKeyCode >= 0xFF && RealKey)
@@ -2002,9 +2075,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 				{
 					if (RealKey)
 					{
-						INPUT_RECORD TempRec;
-						size_t ReadCount;
-						Console().ReadInput(&TempRec, 1, ReadCount);
+						DropConsoleInputEvent();
 					}
 					IntKeyState.ReturnAltValue=TRUE;
 					AltValue&=0xFFFF;
@@ -2041,16 +2112,13 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 
 					return AltValue;
 				}
-				else
-				{
-					return Modif|((CtrlState&ENHANCED_KEY)?KEY_RALT:KEY_ALT);
-				}
-				break;
+				return Modif|((CtrlState&ENHANCED_KEY)?KEY_RALT:KEY_ALT);
+
 			case VK_CONTROL:
 				return Modif|((CtrlState&ENHANCED_KEY)?KEY_RCTRL:KEY_CTRL);
+
 			case VK_SHIFT:
 				return Modif|KEY_SHIFT;
-				break;
 		}
 		return KEY_NONE;
 	}
@@ -2073,11 +2141,15 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 	//ralt+a/ralt+shift+a
 	//ralt+c/ralt+shift+c
 	//и т.д.
-	if ((CtrlState & 9)==9)
+	if ((CtrlState & (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED)) == (LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED))
 	{
-		if (Char>=' ')
+		if (Char >= ' ')
+		{
 			return Char;
-		else if (RealKey && ScanCode && !Char && (KeyCode && KeyCode != VK_MENU))
+		}
+
+		if (RealKey && ScanCode && !Char && (KeyCode && KeyCode != VK_MENU))
+		{
 			//Это шаманство для ввода всяческих букв с тильдами, акцентами и прочим.
 			//Например на Шведской раскладке, "AltGr+VK_OEM_1" вообще не должно обрабатываться фаром, т.к. это DeadKey
 			//Dn, 1, Vk="VK_CONTROL" [17/0x0011], Scan=0x001D uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000008 (Casac - ecns)
@@ -2090,70 +2162,30 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 			//Dn, 1, Vk="VK_A" [65/0x0041], Scan=0x001E uChar=[U='у' (0x00E3): A='' (0xE3)] Ctrl=0x00000000 (casac - ecns)
 			//Up, 1, Vk="VK_A" [65/0x0041], Scan=0x001E uChar=[U='a' (0x0061): A='a' (0x61)] Ctrl=0x00000000 (casac - ecns)
 			return KEY_NONE;
-		else
-			IntKeyState.CtrlPressed=0;
+		}
+
+		IntKeyState.LeftCtrlPressed = IntKeyState.RightCtrlPressed = 0;
 	}
 
 	if (KeyCode==VK_MENU)
 		AltValue=0;
 
-	if (Char && !IntKeyState.CtrlPressed && !IntKeyState.AltPressed)
+	if (InRange<unsigned>(VK_F1, KeyCode, VK_F24))
+		return Modif + KEY_F1 + (KeyCode - VK_F1);
+
+	if (IntKeyState.OnlyAltPressed())
 	{
-		if (KeyCode==VK_OEM_3 && !Global->Opt->UseVk_oem_x)
-			return IntKeyState.ShiftPressed ? '~':'`';
-
-		if (KeyCode==VK_OEM_7 && !Global->Opt->UseVk_oem_x)
-			return IntKeyState.ShiftPressed ? '"':'\'';
-	}
-
-	if (Char<L' ' && (IntKeyState.CtrlPressed || IntKeyState.AltPressed))
-	{
-		switch (KeyCode)
-		{
-			case VK_OEM_COMMA:
-				Char=L',';
-				break;
-			case VK_OEM_PERIOD:
-				Char=L'.';
-				break;
-			case VK_OEM_4:
-				if (!Global->Opt->UseVk_oem_x)
-					Char=L'[';
-				break;
-			case VK_OEM_5:
-				if (!Global->Opt->UseVk_oem_x)
-					Char=L'\\';
-				break;
-			case VK_OEM_6:
-				if (!Global->Opt->UseVk_oem_x)
-					Char=L']';
-				break;
-			case VK_OEM_7:
-				if (!Global->Opt->UseVk_oem_x)
-					Char=L'\"';
-				break;
-		}
-	}
-
-	if (KeyCode>=VK_F1 && KeyCode<=VK_F24)
-		return Modif+KEY_F1+((KeyCode-VK_F1));
-
-	int NotShift=!IntKeyState.CtrlPressed && !IntKeyState.AltPressed && !IntKeyState.ShiftPressed;
-
-	if (IntKeyState.AltPressed && !IntKeyState.CtrlPressed && !IntKeyState.ShiftPressed)
-	{
-		if (!(CtrlState & ENHANCED_KEY)
-		   )
+		if (!(CtrlState & ENHANCED_KEY))
 		{
 			static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
 
-			for (int I=0; I<int(std::size(ScanCodes)); I++)
+			for (size_t i = 0; i != std::size(ScanCodes); ++i)
 			{
-				if (ScanCodes[I]==ScanCode)
+				if (ScanCodes[i]==ScanCode)
 				{
-					if (RealKey && (unsigned int)KeyCodeForALT_LastPressed != KeyCode)
+					if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
 					{
-						AltValue=AltValue*10+I;
+						AltValue = AltValue * 10 + static_cast<int>(i);
 						KeyCodeForALT_LastPressed=KeyCode;
 					}
 
@@ -2164,664 +2196,32 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 		}
 	}
 
-	/*
-	NumLock=Off
-	  Down
-	    CtrlState=0100 KeyCode=0028 ScanCode=00000050 AsciiChar=00         ENHANCED_KEY
-	    CtrlState=0100 KeyCode=0028 ScanCode=00000050 AsciiChar=00
-	  Num2
-	    CtrlState=0000 KeyCode=0028 ScanCode=00000050 AsciiChar=00
-	    CtrlState=0000 KeyCode=0028 ScanCode=00000050 AsciiChar=00
-
-	  Ctrl-8
-	    CtrlState=0008 KeyCode=0026 ScanCode=00000048 AsciiChar=00
-	  Ctrl-Shift-8               ^^!!!
-	    CtrlState=0018 KeyCode=0026 ScanCode=00000048 AsciiChar=00
-
-	------------------------------------------------------------------------
-	NumLock=On
-
-	  Down
-	    CtrlState=0120 KeyCode=0028 ScanCode=00000050 AsciiChar=00         ENHANCED_KEY
-	    CtrlState=0120 KeyCode=0028 ScanCode=00000050 AsciiChar=00
-	  Num2
-	    CtrlState=0020 KeyCode=0062 ScanCode=00000050 AsciiChar=32
-	    CtrlState=0020 KeyCode=0062 ScanCode=00000050 AsciiChar=32
-
-	  Ctrl-8
-	    CtrlState=0028 KeyCode=0068 ScanCode=00000048 AsciiChar=00
-	  Ctrl-Shift-8               ^^!!!
-	    CtrlState=0028 KeyCode=0026 ScanCode=00000048 AsciiChar=00
-	*/
-
-	/* ------------------------------------------------------------- */
 	switch (KeyCode)
 	{
-		case VK_INSERT:
-		case VK_NUMPAD0:
+	case VK_RETURN:
+		return Modif | ((CtrlState & ENHANCED_KEY)? KEY_NUMENTER : KEY_ENTER);
 
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_INS;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD0)
-				return '0';
+	case VK_PAUSE:
+		return Modif | ((CtrlState & ENHANCED_KEY)? KEY_NUMLOCK : KEY_PAUSE);
 
-			return Modif|KEY_NUMPAD0;
-		case VK_DOWN:
-		case VK_NUMPAD2:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_DOWN;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD2)
-				return '2';
-
-			return Modif|KEY_NUMPAD2;
-		case VK_LEFT:
-		case VK_NUMPAD4:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_LEFT;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD4)
-				return '4';
-
-			return Modif|KEY_NUMPAD4;
-		case VK_RIGHT:
-		case VK_NUMPAD6:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_RIGHT;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD6)
-				return '6';
-
-			return Modif|KEY_NUMPAD6;
-		case VK_UP:
-		case VK_NUMPAD8:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_UP;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD8)
-				return '8';
-
-			return Modif|KEY_NUMPAD8;
-		case VK_END:
-		case VK_NUMPAD1:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_END;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD1)
-				return '1';
-
-			return Modif|KEY_NUMPAD1;
-		case VK_HOME:
-		case VK_NUMPAD7:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_HOME;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD7)
-				return '7';
-
-			return Modif|KEY_NUMPAD7;
-		case VK_NEXT:
-		case VK_NUMPAD3:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_PGDN;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD3)
-				return '3';
-
-			return Modif|KEY_NUMPAD3;
-		case VK_PRIOR:
-		case VK_NUMPAD9:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_PGUP;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD9)
-				return '9';
-
-			return Modif|KEY_NUMPAD9;
-		case VK_CLEAR:
-		case VK_NUMPAD5:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_NUMPAD5;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_NUMPAD5)
-				return '5';
-
-			return Modif|KEY_NUMPAD5;
-		case VK_DELETE:
-		case VK_DECIMAL:
-
-			if (CtrlState&ENHANCED_KEY)
-			{
-				return Modif|KEY_DEL;
-			}
-			else if ((CtrlState&NUMLOCK_ON) && NotShift && KeyCode == VK_DECIMAL)
-				return KEY_DECIMAL;
-
-			return Modif|KEY_NUMDEL;
+	case VK_SPACE:
+		if (Char == L' ' || !Char)
+			return Modif | KEY_SPACE;
+		return Char;
 	}
 
-	switch (KeyCode)
+	if (const auto NumpadKey = GetNumpadKey(KeyCode, CtrlState, Modif))
 	{
-		case VK_RETURN:
-			LastShiftEnterPressed = (Modif&KEY_SHIFT) != 0;
-			return Modif|((CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER);
-		case VK_BROWSER_BACK:
-			return Modif|KEY_BROWSER_BACK;
-		case VK_BROWSER_FORWARD:
-			return Modif|KEY_BROWSER_FORWARD;
-		case VK_BROWSER_REFRESH:
-			return Modif|KEY_BROWSER_REFRESH;
-		case VK_BROWSER_STOP:
-			return Modif|KEY_BROWSER_STOP;
-		case VK_BROWSER_SEARCH:
-			return Modif|KEY_BROWSER_SEARCH;
-		case VK_BROWSER_FAVORITES:
-			return Modif|KEY_BROWSER_FAVORITES;
-		case VK_BROWSER_HOME:
-			return Modif|KEY_BROWSER_HOME;
-		case VK_VOLUME_MUTE:
-			return Modif|KEY_VOLUME_MUTE;
-		case VK_VOLUME_DOWN:
-			return Modif|KEY_VOLUME_DOWN;
-		case VK_VOLUME_UP:
-			return Modif|KEY_VOLUME_UP;
-		case VK_MEDIA_NEXT_TRACK:
-			return Modif|KEY_MEDIA_NEXT_TRACK;
-		case VK_MEDIA_PREV_TRACK:
-			return Modif|KEY_MEDIA_PREV_TRACK;
-		case VK_MEDIA_STOP:
-			return Modif|KEY_MEDIA_STOP;
-		case VK_MEDIA_PLAY_PAUSE:
-			return Modif|KEY_MEDIA_PLAY_PAUSE;
-		case VK_LAUNCH_MAIL:
-			return Modif|KEY_LAUNCH_MAIL;
-		case VK_LAUNCH_MEDIA_SELECT:
-			return Modif|KEY_LAUNCH_MEDIA_SELECT;
-		case VK_LAUNCH_APP1:
-			return Modif|KEY_LAUNCH_APP1;
-		case VK_LAUNCH_APP2:
-			return Modif|KEY_LAUNCH_APP2;
-		case VK_APPS:
-			return Modif|KEY_APPS;
-		case VK_LWIN:
-			return Modif|KEY_LWIN;
-		case VK_RWIN:
-			return Modif|KEY_RWIN;
-		case VK_BACK:
-			return Modif|KEY_BS;
-		case VK_SPACE:
-			if (Char == L' ' || !Char)
-				return Modif|KEY_SPACE;
-			return Char;
-		case VK_TAB:
-			return Modif|KEY_TAB;
-		case VK_ADD:
-			return Modif|KEY_ADD;
-		case VK_SUBTRACT:
-			return Modif|KEY_SUBTRACT;
-		case VK_ESCAPE:
-			return Modif|KEY_ESC;
+		// Modif is added from within GetNumpadKey conditionally
+		return NumpadKey;
 	}
 
-	switch (KeyCode)
+	if(const auto MappedKey = GetDirectlyMappedKey(KeyCode))
 	{
-		case VK_CAPITAL:
-			return Modif|KEY_CAPSLOCK;
-		case VK_NUMLOCK:
-			return Modif|KEY_NUMLOCK;
-		case VK_SCROLL:
-			return Modif|KEY_SCROLLLOCK;
+		return Modif | MappedKey;
 	}
 
-	/* ------------------------------------------------------------- */
-	if (IntKeyState.CtrlPressed && IntKeyState.AltPressed && IntKeyState.ShiftPressed)
-	{
-
-		_SVS(if (KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAltShift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
-
-		if (KeyCode>='A' && KeyCode<='Z')
-			return Modif|KeyCode;
-
-		if (Global->Opt->ShiftsKeyRules) //???
-			switch (KeyCode)
-			{
-				case VK_OEM_3:
-					return Modif+'`';
-				case VK_OEM_MINUS:
-					return Modif+'-';
-				case VK_OEM_PLUS:
-					return Modif+'=';
-				case VK_OEM_5:
-					return Modif+KEY_BACKSLASH;
-				case VK_OEM_6:
-					return Modif+KEY_BACKBRACKET;
-				case VK_OEM_4:
-					return Modif+KEY_BRACKET;
-				case VK_OEM_7:
-					return Modif+'\'';
-				case VK_OEM_1:
-					return Modif+KEY_SEMICOLON;
-				case VK_OEM_2:
-					return Modif+KEY_SLASH;
-				case VK_OEM_PERIOD:
-					return Modif+KEY_DOT;
-				case VK_OEM_COMMA:
-					return Modif+KEY_COMMA;
-				case VK_OEM_102: // <> \|
-					return Modif+KEY_BACKSLASH;
-			}
-
-		switch (KeyCode)
-		{
-			case VK_DIVIDE:
-				return Modif|KEY_DIVIDE;
-			case VK_MULTIPLY:
-				return Modif|KEY_MULTIPLY;
-			case VK_CANCEL:
-				return Modif|KEY_BREAK;
-			case VK_SLEEP:
-				return Modif|KEY_STANDBY;
-			case VK_SNAPSHOT:
-				return Modif|KEY_PRNTSCRN;
-		}
-
-		if (Char)
-			return Modif|Char;
-
-		if (KeyCode==VK_CONTROL || KeyCode==VK_MENU || KeyCode==VK_SHIFT)
-			return KEY_NONE;
-
-		if (KeyCode)
-			return Modif|KeyCode;
-	}
-
-	/* ------------------------------------------------------------- */
-	if (IntKeyState.CtrlPressed && IntKeyState.AltPressed)
-	{
-
-		_SVS(if (KeyCode!=VK_CONTROL && KeyCode!=VK_MENU) SysLog(L"CtrlAlt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
-
-		if (KeyCode>='A' && KeyCode<='Z')
-			return Modif|KeyCode;
-
-		if (Global->Opt->ShiftsKeyRules) //???
-			switch (KeyCode)
-			{
-				case VK_OEM_3:
-					return Modif+'`';
-				case VK_OEM_MINUS:
-					return Modif+'-';
-				case VK_OEM_PLUS:
-					return Modif+'=';
-				case VK_OEM_5:
-					return Modif+KEY_BACKSLASH;
-				case VK_OEM_6:
-					return Modif+KEY_BACKBRACKET;
-				case VK_OEM_4:
-					return Modif+KEY_BRACKET;
-				case VK_OEM_7:
-					return Modif+'\'';
-				case VK_OEM_1:
-					return Modif+KEY_SEMICOLON;
-				case VK_OEM_2:
-					return Modif+KEY_SLASH;
-				case VK_OEM_PERIOD:
-					return Modif+KEY_DOT;
-				case VK_OEM_COMMA:
-					return Modif+KEY_COMMA;
-				case VK_OEM_102: // <> \|
-					return Modif+KEY_BACKSLASH;
-			}
-
-		switch (KeyCode)
-		{
-			case VK_DIVIDE:
-				return Modif|KEY_DIVIDE;
-			case VK_MULTIPLY:
-				return Modif|KEY_MULTIPLY;
-				// KEY_EVENT_RECORD: Dn, 1, Vk="VK_CANCEL" [3/0x0003], Scan=0x0046 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x0000014A (CAsac - EcnS)
-			case VK_PAUSE:
-				return Modif|KEY_PAUSE;
-			case VK_CANCEL:
-				return Modif|KEY_BREAK;
-			case VK_SLEEP:
-				return Modif|KEY_STANDBY;
-			case VK_SNAPSHOT:
-				return Modif|KEY_PRNTSCRN;
-		}
-
-		if (Char)
-			return Modif|Char;
-
-		if (KeyCode==VK_CONTROL || KeyCode==VK_MENU)
-			return KEY_NONE;
-
-		if (KeyCode)
-			return Modif|KeyCode;
-	}
-
-	/* ------------------------------------------------------------- */
-	if (IntKeyState.AltPressed && IntKeyState.ShiftPressed)
-	{
-
-		_SVS(if (KeyCode!=VK_MENU && KeyCode!=VK_SHIFT) SysLog(L"AltShift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
-
-		if (KeyCode>='0' && KeyCode<='9')
-		{
-			return Modif|KeyCode;
-		}
-
-		if (!Global->WaitInMainLoop && KeyCode>='A' && KeyCode<='Z')
-			return Modif|KeyCode;
-
-		if (Global->Opt->ShiftsKeyRules) //???
-			switch (KeyCode)
-			{
-				case VK_OEM_3:
-					return Modif+'`';
-				case VK_OEM_MINUS:
-					return Modif+'_';
-				case VK_OEM_PLUS:
-					return Modif+'=';
-				case VK_OEM_5:
-					return Modif+KEY_BACKSLASH;
-				case VK_OEM_6:
-					return Modif+KEY_BACKBRACKET;
-				case VK_OEM_4:
-					return Modif+KEY_BRACKET;
-				case VK_OEM_7:
-					return Modif+'\'';
-				case VK_OEM_1:
-					return Modif+KEY_SEMICOLON;
-				case VK_OEM_2:
-					return Modif+KEY_SLASH;
-				case VK_OEM_PERIOD:
-					return Modif+KEY_DOT;
-				case VK_OEM_COMMA:
-					return Modif+KEY_COMMA;
-				case VK_OEM_102: // <> \|
-					return Modif+KEY_BACKSLASH;
-			}
-
-		switch (KeyCode)
-		{
-			case VK_DIVIDE:
-				return Modif|KEY_DIVIDE;
-			case VK_MULTIPLY:
-				return Modif|KEY_MULTIPLY;
-			case VK_PAUSE:
-				return Modif|KEY_PAUSE;
-			case VK_SLEEP:
-				return Modif|KEY_STANDBY;
-			case VK_SNAPSHOT:
-				return Modif|KEY_PRNTSCRN;
-		}
-
-		if (Char)
-			return Modif|Char;
-
-		if (KeyCode==VK_MENU || KeyCode==VK_SHIFT)
-			return KEY_NONE;
-
-		if (KeyCode)
-			return Modif|KeyCode;
-	}
-
-	/* ------------------------------------------------------------- */
-	if (IntKeyState.CtrlPressed && IntKeyState.ShiftPressed)
-	{
-
-		_SVS(if (KeyCode!=VK_CONTROL && KeyCode!=VK_SHIFT) SysLog(L"CtrlShift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
-
-		if (KeyCode>='0' && KeyCode<='9')
-			return Modif|KeyCode;
-
-		if (KeyCode>='A' && KeyCode<='Z')
-			return Modif|KeyCode;
-
-		switch (KeyCode)
-		{
-			case VK_OEM_PERIOD:
-				return Modif|KEY_DOT;
-			case VK_OEM_4:
-				return Modif|KEY_BRACKET;
-			case VK_OEM_6:
-				return Modif|KEY_BACKBRACKET;
-			case VK_OEM_2:
-				return Modif|KEY_SLASH;
-			case VK_OEM_5:
-				return Modif|KEY_BACKSLASH;
-			case VK_DIVIDE:
-				return Modif|KEY_DIVIDE;
-			case VK_MULTIPLY:
-				return Modif|KEY_MULTIPLY;
-			case VK_SLEEP:
-				return Modif|KEY_STANDBY;
-			case VK_SNAPSHOT:
-				return Modif|KEY_PRNTSCRN;
-		}
-
-		if (Global->Opt->ShiftsKeyRules) //???
-			switch (KeyCode)
-			{
-				case VK_OEM_3:
-					return Modif+'`';
-				case VK_OEM_MINUS:
-					return Modif+'-';
-				case VK_OEM_PLUS:
-					return Modif+'=';
-				case VK_OEM_7:
-					return Modif+'\'';
-				case VK_OEM_1:
-					return Modif+KEY_SEMICOLON;
-				case VK_OEM_COMMA:
-					return Modif+KEY_COMMA;
-				case VK_OEM_102: // <> \|
-					return Modif+KEY_BACKSLASH;
-			}
-
-		if (Char)
-			return Modif|Char;
-
-		if (KeyCode==VK_CONTROL || KeyCode==VK_SHIFT)
-			return KEY_NONE;
-
-		if (KeyCode)
-			return Modif|KeyCode;
-	}
-
-	/* ------------------------------------------------------------- */
-	if ((CtrlState & RIGHT_CTRL_PRESSED)==RIGHT_CTRL_PRESSED)
-	{
-		if (KeyCode>='0' && KeyCode<='9')
-			return KEY_RCTRL0+KeyCode-'0';
-	}
-
-	/* ------------------------------------------------------------- */
-	if (!IntKeyState.CtrlPressed && !IntKeyState.AltPressed && !IntKeyState.ShiftPressed)
-	{
-		switch (KeyCode)
-		{
-			case VK_DIVIDE:
-				return KEY_DIVIDE;
-			case VK_CANCEL:
-				Global->CtrlObject->Macro.SendDropProcess();
-				return KEY_BREAK;
-			case VK_MULTIPLY:
-				return KEY_MULTIPLY;
-			case VK_PAUSE:
-				return KEY_PAUSE;
-			case VK_SLEEP:
-				return KEY_STANDBY;
-			case VK_SNAPSHOT:
-				return KEY_PRNTSCRN;
-		}
-	}
-	else if (KeyCode == VK_CANCEL && IntKeyState.CtrlPressed && !IntKeyState.AltPressed && !IntKeyState.ShiftPressed)
-	{
-		Global->CtrlObject->Macro.SendDropProcess();
-		return ModifCtrl|KEY_BREAK;
-	}
-
-	/* ------------------------------------------------------------- */
-	if (IntKeyState.CtrlPressed)
-	{
-
-		_SVS(if (KeyCode!=VK_CONTROL) SysLog(L"Ctrl -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
-
-		if (KeyCode>='0' && KeyCode<='9')
-			return ModifCtrl|KeyCode;
-
-		if (KeyCode>='A' && KeyCode<='Z')
-			return ModifCtrl|KeyCode;
-
-		switch (KeyCode)
-		{
-			case VK_OEM_COMMA:
-				return ModifCtrl|KEY_COMMA;
-			case VK_OEM_PERIOD:
-				return ModifCtrl|KEY_DOT;
-			case VK_OEM_2:
-				return ModifCtrl|KEY_SLASH;
-			case VK_OEM_4:
-				return ModifCtrl|KEY_BRACKET;
-			case VK_OEM_5:
-				return ModifCtrl|KEY_BACKSLASH;
-			case VK_OEM_6:
-				return ModifCtrl|KEY_BACKBRACKET;
-			case VK_OEM_7:
-				return ModifCtrl+'\''; // KEY_QUOTE
-			case VK_MULTIPLY:
-				return ModifCtrl|KEY_MULTIPLY;
-			case VK_DIVIDE:
-				return ModifCtrl|KEY_DIVIDE;
-			case VK_PAUSE:
-				if (CtrlState&ENHANCED_KEY)
-					return ModifCtrl|KEY_NUMLOCK;
-				Global->CtrlObject->Macro.SendDropProcess();
-				return KEY_BREAK;
-			case VK_SLEEP:
-				return ModifCtrl|KEY_STANDBY;
-			case VK_SNAPSHOT:
-				return ModifCtrl|KEY_PRNTSCRN;
-			case VK_OEM_102: // <> \|
-				return ModifCtrl|KEY_BACKSLASH;
-		}
-
-		if (Global->Opt->ShiftsKeyRules) //???
-			switch (KeyCode)
-			{
-				case VK_OEM_3:
-					return ModifCtrl+'`';
-				case VK_OEM_MINUS:
-					return ModifCtrl+'-';
-				case VK_OEM_PLUS:
-					return ModifCtrl+'=';
-				case VK_OEM_1:
-					return ModifCtrl+KEY_SEMICOLON;
-			}
-
-		if (KeyCode)
-		{
-			if (KeyCode == VK_CONTROL) return KEY_NONE;
-
-			if (!RealKey && KeyCode==VK_CONTROL)
-				return KEY_NONE;
-
-			return ModifCtrl|KeyCode;
-		}
-
-		if (Char)
-			return ModifCtrl|Char;
-	}
-
-	/* ------------------------------------------------------------- */
-	if (IntKeyState.AltPressed)
-	{
-
-		_SVS(if (KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
-
-		if (Global->Opt->ShiftsKeyRules) //???
-			switch (KeyCode)
-			{
-				case VK_OEM_3:
-					return ModifAlt+'`';
-				case VK_OEM_MINUS:
-					return ModifAlt+'-';
-				case VK_OEM_PLUS:
-					return ModifAlt+'=';
-				case VK_OEM_5:
-					return ModifAlt+KEY_BACKSLASH;
-				case VK_OEM_6:
-					return ModifAlt+KEY_BACKBRACKET;
-				case VK_OEM_4:
-					return ModifAlt+KEY_BRACKET;
-				case VK_OEM_7:
-					return ModifAlt+'\'';
-				case VK_OEM_1:
-					return ModifAlt+KEY_SEMICOLON;
-				case VK_OEM_2:
-					return ModifAlt+KEY_SLASH;
-				case VK_OEM_102: // <> \|
-					return ModifAlt+KEY_BACKSLASH;
-			}
-
-		switch (KeyCode)
-		{
-			case VK_OEM_COMMA:
-				return ModifAlt|KEY_COMMA;
-			case VK_OEM_PERIOD:
-				return ModifAlt|KEY_DOT;
-			case VK_DIVIDE:
-				return ModifAlt|KEY_DIVIDE;
-			case VK_MULTIPLY:
-				return ModifAlt|KEY_MULTIPLY;
-			case VK_PAUSE:
-				return ModifAlt+KEY_PAUSE;
-			case VK_SLEEP:
-				return ModifAlt|KEY_STANDBY;
-			case VK_SNAPSHOT:
-				return ModifAlt|KEY_PRNTSCRN;
-		}
-
-		if (Char)
-		{
-			if (!Global->Opt->ShiftsKeyRules)
-				return ModifAlt|Upper(Char);
-			else if (Global->WaitInMainLoop)
-				return ModifAlt|Char;
-		}
-
-		if (KeyCode == VK_MENU) return KEY_NONE;
-
-		if (!RealKey && KeyCode==VK_MENU)
-			return KEY_NONE;
-
-		if (KeyCode)
-			return ModifAlt|KeyCode;
-	}
-
-	if (!IntKeyState.CtrlPressed && !IntKeyState.AltPressed && (KeyCode >= VK_OEM_1 && KeyCode <= VK_OEM_8) && !Char)
+	if (!IntKeyState.CtrlPressed() && !IntKeyState.AltPressed() && (KeyCode >= VK_OEM_1 && KeyCode <= VK_OEM_8) && !Char)
 	{
 		//Это шаманство для того, чтобы фар не реагировал на DeadKeys (могут быть нажаты с Shift-ом)
 		//которые используются для ввода символов с диакритикой (тильды, шапки, и пр.)
@@ -2835,32 +2235,21 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, int RealKey, int *NotMacros)
 		return KEY_NONE;
 	}
 
-	if (IntKeyState.ShiftPressed)
+	if (!IntKeyState.CtrlPressed() && !IntKeyState.AltPressed())
 	{
-		_SVS(if (KeyCode!=VK_SHIFT) SysLog(L"Shift -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
-		switch (KeyCode)
-		{
-
-			case VK_OEM_MINUS:
-				return (Char>=' ')?Char:KEY_SHIFT|'-';
-			case VK_OEM_PLUS:
-				return (Char>=' ')?Char:KEY_SHIFT|'+';
-			case VK_DIVIDE:
-				return KEY_SHIFT|KEY_DIVIDE;
-			case VK_MULTIPLY:
-				return KEY_SHIFT|KEY_MULTIPLY;
-			case VK_PAUSE:
-				return KEY_SHIFT|KEY_PAUSE;
-			case VK_SLEEP:
-				return KEY_SHIFT|KEY_STANDBY;
-			case VK_SNAPSHOT:
-				return KEY_SHIFT|KEY_PRNTSCRN;
-		}
-
-		if (KeyCode == VK_SHIFT) return KEY_NONE;
+		// Shift or none - characters only
+		if (KeyCode == VK_SHIFT)
+			return KEY_NONE;
+		return Char? Char : KEY_NONE;
 	}
 
-	if (Char && (ModifAlt || ModifCtrl))
-		return Modif|Char;
-	return Char? Char : static_cast<unsigned int>(KEY_NONE);
+	if (InRange(L'0',  KeyCode, L'9') || InRange(L'A', KeyCode, L'Z'))
+		return Modif | KeyCode;
+
+	if (const auto OemKey = GetMappedCharacter(KeyCode))
+	{
+		return Modif + OemKey;
+	}
+
+	return Char? Modif | Char : KEY_NONE;
 }

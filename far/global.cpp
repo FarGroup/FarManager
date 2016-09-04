@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
+#include "locale.hpp"
 
 thread_local DWORD global::m_LastError = ERROR_SUCCESS;
 thread_local NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
@@ -132,6 +133,26 @@ void global::StoreSearchString(const string& Str, bool Hex)
 {
 	m_SearchHex = Hex;
 	m_SearchString = Str;
+}
+
+global::far_clock::far_clock()
+{
+	update();
+}
+
+const string& global::far_clock::get() const
+{
+	return m_CurrentTime;
+}
+
+size_t global::far_clock::size() const
+{
+	return m_CurrentTime.size();
+}
+
+void global::far_clock::update()
+{
+	m_CurrentTime = locale::GetTimeFormat();
 }
 
 
