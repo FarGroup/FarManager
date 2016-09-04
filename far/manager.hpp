@@ -112,15 +112,13 @@ public:
 	window_ptr GetCurrentWindow() const { return m_currentWindow; }
 	window_ptr GetWindow(size_t Index) const;
 	int IndexOf(window_ptr_ref Window) const;
-	int IndexOfStack(window_ptr_ref Window) const;
-	window_ptr GetBottomWindow() { return m_windows.back(); }
+	window_ptr GetBottomWindow() { return m_NonModalSize ? m_windows[m_NonModalSize - 1] : nullptr; }
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar() const;
-	bool InModal(void) const { return !m_modalWindows.empty(); }
+	bool InModal(void) const { return m_NonModalSize < m_windows.size(); }
+	bool IsModal(size_t Index) const { return Index >= m_NonModalSize; }
 	void ResizeAllWindows();
-	size_t GetModalWindowCount() const { return m_modalWindows.size(); }
-	window_ptr GetModalWindow(size_t index) const { return m_modalWindows[index]; }
 
 	void AddGlobalKeyHandler(const std::function<int(const Key&)>& Handler);
 
@@ -172,20 +170,11 @@ private:
 	bool AddWindow(window_ptr_ref Param);
 	void SwitchWindow(DirectionType Direction);
 
-	window_ptr m_currentWindow;     // текущее окно. Оно может находиться как в немодальном, так и в модальном контейнере, его можно получить с помощью WindowManager->GetCurrentWindow();
+	window_ptr m_currentWindow;     // текущее окно. Его можно получить с помощью WindowManager->GetCurrentWindow();
 	typedef std::vector<window_ptr> windows;
 	void* GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const;
-	windows m_modalWindows;
 	windows m_windows;
-	// текущее немодальное окно можно получить с помощью WindowManager->GetBottomWindow();
-	/* $ 15.05.2002 SKV
-		Так как есть полумодалы, что б не было путаницы,
-		заведём счётчик модальных editor/viewer'ов.
-		Дёргать его  надо ручками перед вызовом ExecuteModal.
-		А автоматом нельзя, так как ExecuteModal вызывается
-		1) не только для настоящих модалов (как это ни пародоксально),
-		2) не только для editor/viewer'ов.
-	*/
+	size_t m_NonModalSize;
 	bool EndLoop;            // Признак выхода из цикла
 	int ModalExitCode;
 	bool StartManager;

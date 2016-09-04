@@ -288,9 +288,9 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 
 	if (pPlugin && (From != iExitFAR))   //схитрим, если упали в EXITFAR, не полезем в рекурсию, мы и так в Unload
 	{
-		for(int i = static_cast<int>(Global->WindowManager->GetModalWindowCount()-1); i >= 0; --i)
+		for(int i = static_cast<int>(Global->WindowManager->GetWindowCount()-1); i >= 0; --i)
 		{
-			const auto Window = Global->WindowManager->GetModalWindow(i);
+			const auto Window = Global->WindowManager->GetWindow(i);
 			if((Window->GetType()==windowtype_dialog && std::static_pointer_cast<Dialog>(Window)->GetPluginOwner() == pPlugin) || Window->GetType()==windowtype_help)
 			{
 				Global->WindowManager->DeleteWindow(Window);

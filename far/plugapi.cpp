@@ -657,18 +657,14 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if (wi->Pos == -1)
 				{
 					f = Global->WindowManager->GetCurrentWindow();
-					modal=(Global->WindowManager->IndexOfStack(f)>=0);
+					modal=Global->WindowManager->InModal();
 				}
 				else
 				{
 					if (wi->Pos >= 0 && wi->Pos < static_cast<intptr_t>(Global->WindowManager->GetWindowCount()))
 					{
 						f = Global->WindowManager->GetWindow(wi->Pos);
-					}
-					else if(wi->Pos >= static_cast<intptr_t>(Global->WindowManager->GetWindowCount()) && wi->Pos < static_cast<intptr_t>(Global->WindowManager->GetWindowCount() + Global->WindowManager->GetModalWindowCount()))
-					{
-						f = Global->WindowManager->GetModalWindow(wi->Pos - Global->WindowManager->GetWindowCount());
-						modal=true;
+						modal = Global->WindowManager->IsModal(wi->Pos);
 					}
 				}
 
@@ -696,7 +692,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				}
 
 				if(-1==wi->Pos) wi->Pos = Global->WindowManager->IndexOf(f);
-				if(-1==wi->Pos) wi->Pos = Global->WindowManager->IndexOfStack(f) + Global->WindowManager->GetWindowCount();
 				wi->Type=WindowTypeToPluginWindowType(f->GetType());
 				wi->Flags=0;
 				if (f->IsFileModified())
@@ -732,7 +727,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_GETWINDOWCOUNT:
-			return Global->WindowManager->GetWindowCount() + Global->WindowManager->GetModalWindowCount();
+			return Global->WindowManager->GetWindowCount();
 
 		case ACTL_SETCURRENTWINDOW:
 		{
@@ -1965,23 +1960,14 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 	}
 	else
 	{
-		static const std::pair<decltype(&Manager::GetWindow), decltype(&Manager::GetWindowCount)> Functions[] =
+		const size_t count = Global->WindowManager->GetWindowCount();
+		for (size_t ii = 0; ii < count; ++ii)
 		{
-			{ &Manager::GetWindow, &Manager::GetWindowCount },
-			{ &Manager::GetModalWindow, &Manager::GetModalWindowCount },
-		};
-
-		for (const auto& i: Functions)
-		{
-			const size_t count = (*Global->WindowManager.*i.second)();
-			for (size_t j = 0; j < count; ++j)
+			if (const auto CurrentWindow = std::dynamic_pointer_cast<window_type>(Global->WindowManager->GetWindow(ii)))
 			{
-				if (const auto CurrentWindow = std::dynamic_pointer_cast<window_type>((*Global->WindowManager.*i.first)(j)))
+				if (const auto CurrentControlWindow = CurrentWindow->GetById(Id))
 				{
-					if (const auto CurrentControlWindow = CurrentWindow->GetById(Id))
-					{
-						return (CurrentControlWindow->*Control)(Command, Param1, Param2);
-					}
+					return (CurrentControlWindow->*Control)(Command, Param1, Param2);
 				}
 			}
 		}

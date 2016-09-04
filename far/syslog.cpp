@@ -656,27 +656,14 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 				fwprintf(fp,L"\twindow nullptr\n");
 		});
 
-		fwprintf(fp,L"**** Stack modal windows ***\nModalStack.size()=%zu\n",Man->m_modalWindows.size());
-
-		std::for_each(CONST_RANGE(Man->m_modalWindows, i)
-		{
-			if (i)
-			{
-				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\tModalStack Item %p  Type='%s' Name='%s'\n", i.get(), Type.data(), Name.data());
-			}
-			else
-				fwprintf(fp,L"\tModalStack Item nullptr\n");
-		});
-
 		fwprintf(fp,L"**** Detail... ***\n");
 
-		if (!Man->m_currentWindow)
+		if (!Man->GetCurrentWindow())
 			Type.clear(), Name.clear();
 		else
-			Man->m_currentWindow->GetTypeAndName(Type,Name);
+			Man->GetCurrentWindow()->GetTypeAndName(Type,Name);
 
-		fwprintf(fp,L"\tCurrentWindow=%p (Type='%s' Name='%s')\n", Man->m_currentWindow.get(), Type.data(), Name.data());
+		fwprintf(fp,L"\tCurrentWindow=%p (Type='%s' Name='%s')\n", Man->GetCurrentWindow().get(), Type.data(), Name.data());
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}

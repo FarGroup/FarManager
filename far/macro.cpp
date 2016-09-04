@@ -1669,9 +1669,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (CurrentWindow->GetType()==windowtype_menu)
 				{
-					int idx = Global->WindowManager->IndexOfStack(CurrentWindow);
+					int idx = Global->WindowManager->IndexOf(CurrentWindow);
 					if(idx>0)
-						CurrentWindow = Global->WindowManager->GetModalWindow(idx-1);
+						CurrentWindow = Global->WindowManager->GetWindow(idx-1);
 				}
 				else if (CurrentWindow->GetType()==windowtype_combobox)
 					CurrentWindow = std::static_pointer_cast<VMenu>(CurrentWindow)->GetDialog();
