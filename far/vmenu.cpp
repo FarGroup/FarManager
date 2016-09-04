@@ -1902,6 +1902,8 @@ void VMenu::DisplayObject()
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
+	auto Parent = GetDialog();
+	if (Parent && !Parent->IsRedrawEnabled()) return;
 	ClearFlags(VMENU_UPDATEREQUIRED);
 
 	if (CheckFlags(VMENU_REFILTERREQUIRED)!=0)

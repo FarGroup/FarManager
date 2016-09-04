@@ -379,7 +379,7 @@ void Dialog::Init()
 	PluginOwner = nullptr;
 	DialogMode.Set(DMODE_ISCANMOVE|DMODE_VISIBLE);
 	SetDropDownOpened(FALSE);
-	IsEnableRedraw=0;
+	m_DisableRedraw=0;
 	m_FocusPos=(size_t)-1;
 	PrevFocusPos=(size_t)-1;
 
@@ -1563,7 +1563,7 @@ void Dialog::ShowDialog(size_t ID)
 	bool DrawFullDialog = false;
 
 	//   Если не разрешена отрисовка, то вываливаем.
-	if (IsEnableRedraw ||                // разрешена прорисовка ?
+	if (m_DisableRedraw ||                // разрешена прорисовка ?
 	        (ID+1 > Items.size()) ||             // а номер в рамках дозволенного?
 	        DialogMode.Check(DMODE_DRAWING) || // диалог рисуется?
 	        !DialogMode.Check(DMODE_SHOW) ||   // если не видим, то и не отрисовываем.
@@ -4701,16 +4701,16 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_ENABLEREDRAW:
 		{
-			int Prev=IsEnableRedraw;
+			int Prev=m_DisableRedraw;
 
 			if (Param1 == TRUE)
-				IsEnableRedraw++;
+				m_DisableRedraw++;
 			else if (Param1 == FALSE)
-				IsEnableRedraw--;
+				m_DisableRedraw--;
 
 			//Edit::DisableEditOut(IsEnableRedraw);
 
-			if (!IsEnableRedraw && Prev != IsEnableRedraw)
+			if (!m_DisableRedraw && Prev != m_DisableRedraw)
 				if (DialogMode.Check(DMODE_OBJECTS_INITED))
 				{
 					ShowDialog();

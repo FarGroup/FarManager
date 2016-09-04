@@ -212,6 +212,7 @@ public:
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	static bool IsValid(Dialog* Handle);
 	int GetDropDownOpened() const { return DropDownOpened; }
+	bool IsRedrawEnabled() const { return m_DisableRedraw == 0; }
 
 	template<class T>
 	void SetListItemData(size_t ListId, size_t ItemId, const T& Data)
@@ -287,7 +288,7 @@ private:
 	class Plugin* PluginOwner;       // Плагин, для формирования HelpTopic
 	size_t m_FocusPos;               // всегда известно какой элемент в фокусе
 	size_t PrevFocusPos;           // всегда известно какой элемент был в фокусе
-	int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
+	int m_DisableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
 	BitFlags DialogMode;        // Флаги текущего режима диалога
 	void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
 	std::vector<DialogItemEx> Items; // массив элементов диалога
