@@ -3,6 +3,50 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.09.2016 00:52:20 +0200 - build 4779
+
+1. It happens that there are plugins which assume that Message can be passed nullptr instead of "".
+
+2. GCC warnings.
+
+drkns 04.09.2016 23:49:35 +0200 - build 4778
+
+1. Refactoring of keyboard.cpp. Dropped much copypasta. Miracles are possible.
+
+2. Correction of displaying of clock at start.
+
+3. 4777 could crash on certain windows close.
+
+zg 04.09.2016 21:21:02 +0200 - build 4777
+
+1. refactoring of the window manager.
+
+zg 04.09.2016 15:37:13 +0200 - build 4776
+
+1. do not redraw lists and open combo boxes if dialog redrawing is disabled.
+
+drkns 03.09.2016 18:19:14 +0200 - build 4775
+
+1. Crash after certain manipulations with plugin panels.
+
+2. A leak.
+
+zg 01.09.2016 17:39:45 +0200 - build 4774
+
+1. 0003288: ShowTotalSize for Plugin.
+
+drkns 01.09.2016 01:21:07 +0200 - build 4773
+
+1. Continuation of 4772.
+
+drkns 31.08.2016 03:08:55 +0200 - build 4772
+
+1. Rethinking the concept of exception handling again.
+
+zg 29.08.2016 19:46:17 +0200 - build 4771
+
+1. FSF.FarNameToInputRecord would fill KeyEvent.uChar.UnicodeChar incorrectly for keys like "AltShift8".
+
 drkns 25.08.2016 14:55:58 +0200 - build 4770
 
 1. Add proper validation for configuration parameters so that checks are not scattered all over the code.
