@@ -522,16 +522,11 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 					else
 						AnotherPanel=ChangePanel(AnotherPanel,NewType,FALSE,FALSE);
 
-					/* $ 07.09.2001 VVM
-					  ! При возврате из CTRL+Q, CTRL+L восстановим каталог, если активная панель - дерево. */
-					if (ActivePanel()->GetType() == panel_type::TREE_PANEL)
+					if (ActivePanel() == AnotherPanel && (AnotherPanel->GetType() == panel_type::FILE_PANEL || AnotherPanel->GetType() == panel_type::TREE_PANEL))
 					{
-						string strCurDir(ActivePanel()->GetCurDir());
-						AnotherPanel->SetCurDir(strCurDir, true);
-						AnotherPanel->Update(0);
+						os::SetCurrentDirectory(AnotherPanel->GetCurDir());
 					}
-					else
-						AnotherPanel->Update(UPDATE_KEEP_SELECTION);
+					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 
 					AnotherPanel->Show();
 				}
