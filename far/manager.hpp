@@ -109,7 +109,7 @@ public:
 	int ProcessMouse(const MOUSE_EVENT_RECORD *me) const;
 	void PluginsMenu() const; // вызываем меню по F11
 	void SwitchToPanels();
-	window_ptr GetCurrentWindow() const { return m_currentWindow; }
+	window_ptr GetCurrentWindow() const { return m_windows.empty() ? nullptr : m_windows.back(); }
 	window_ptr GetWindow(size_t Index) const;
 	int IndexOf(window_ptr_ref Window) const;
 	window_ptr GetBottomWindow() { return m_NonModalSize ? m_windows[m_NonModalSize - 1] : nullptr; }
@@ -155,6 +155,7 @@ private:
 	void InsertCommit(window_ptr_ref Param);
 	void DeleteCommit(window_ptr_ref Param);
 	void ActivateCommit(window_ptr_ref Param);
+	void DoActivation(window_ptr_ref Old, window_ptr_ref New);
 	void RefreshCommit(window_ptr_ref Param);
 	void DeactivateCommit(window_ptr_ref Param);
 	void ExecuteCommit(window_ptr_ref Param);
@@ -170,7 +171,6 @@ private:
 	bool AddWindow(window_ptr_ref Param);
 	void SwitchWindow(DirectionType Direction);
 
-	window_ptr m_currentWindow;     // текущее окно. Его можно получить с помощью WindowManager->GetCurrentWindow();
 	typedef std::vector<window_ptr> windows;
 	void* GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const;
 	windows m_windows;

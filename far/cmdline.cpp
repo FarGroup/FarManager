@@ -885,8 +885,6 @@ public:
 		++Global->SuppressIndicators;
 		++Global->SuppressClock;
 
-		m_CurrentWindow = Global->WindowManager->GetCurrentWindow();
-
 		Global->WindowManager->ActivateWindow(Global->CtrlObject->Desktop);
 		Global->WindowManager->PluginCommit();
 	}
@@ -909,7 +907,7 @@ public:
 		if (m_Consolised)
 			return;
 		m_Consolised = true;
-		
+
 		Global->ScrBuf->MoveCursor(0, WhereY());
 		SetInitialCursorType();
 
@@ -973,17 +971,12 @@ public:
 			return;
 
 		Global->WindowManager->SubmergeWindow(Global->CtrlObject->Desktop);
-		if (Global->WindowManager->GetCurrentWindow() == Global->CtrlObject->Desktop)
-		{
-			Global->WindowManager->ActivateWindow(m_CurrentWindow);
-		}
 		Global->WindowManager->PluginCommit();
 		--Global->SuppressClock;
 		--Global->SuppressIndicators;
 	}
 
 private:
-	window_ptr m_CurrentWindow;
 	string m_Command;
 	bool m_ShowCommand{};
 	bool m_Activated{};
@@ -1139,7 +1132,7 @@ void CommandLine::ExecString(execute_info& Info)
 bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<void(bool)>& ConsoleActivatior)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
-	
+
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 

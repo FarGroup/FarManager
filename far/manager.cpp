@@ -203,7 +203,6 @@ static void RegisterCASHook(Manager& WindowManager)
 }
 
 Manager::Manager():
-	m_currentWindow(nullptr),
 	m_NonModalSize(0),
 	EndLoop(false),
 	ModalExitCode(-1),
@@ -252,7 +251,11 @@ BOOL Manager::ExitAll()
 
 void Manager::RefreshAll()
 {
-	std::for_each(CONST_RANGE(m_windows, ii) { RefreshWindow(ii); });
+	if (!m_windows.empty())
+	{
+		const auto PtrCopy = m_windows.front();
+		RefreshWindow(PtrCopy);
+	}
 }
 
 void Manager::CloseAll()
@@ -915,9 +918,17 @@ void Manager::InsertCommit(window_ptr_ref Param)
 	_MANAGER(SysLog(L"InsertedWindow=%p",Param));
 	if (Param && AddWindow(Param))
 	{
+		auto CurrentWindow = GetCurrentWindow();
 		m_windows.insert(m_windows.begin()+m_NonModalSize,Param);
 		++m_NonModalSize;
-		ActivateCommit(Param);
+		if (InModal())
+		{
+			RefreshWindow(Param);
+		}
+		else
+		{
+			DoActivation(CurrentWindow, Param);
+		}
 	}
 }
 
@@ -935,7 +946,8 @@ void Manager::DeleteCommit(window_ptr_ref Param)
 		return;
 	}
 
-	if (GetCurrentWindow()==Param) DeactivateCommit(Param);
+	auto CurrentWindow = GetCurrentWindow();
+	if (CurrentWindow == Param) DeactivateCommit(Param);
 	Param->OnDestroy();
 
 	int WindowIndex=IndexOf(Param);
@@ -948,22 +960,22 @@ void Manager::DeleteCommit(window_ptr_ref Param)
 
 		if (m_windows.empty())
 		{
-			m_currentWindow = nullptr;
 			CurrentWindowType = -1;
 		}
 		else
 		{
-			if (GetCurrentWindow()==Param)
+			if (CurrentWindow == Param)
 			{
 				// ActivateCommit accepts a reference,
 				// so when it alter m_windows reference to m_windows.back() will be invalidated.
 				// PtrCopy will keep the window alive as much as needed.
 				const auto PtrCopy = m_windows.back();
-				ActivateCommit(PtrCopy);
+				DoActivation(CurrentWindow, PtrCopy);
 			}
 			else
 			{
-				RefreshWindow(m_windows.back());
+				const auto PtrCopy = m_windows.back();
+				RefreshWindow(PtrCopy);
 			}
 		}
 	}
@@ -991,8 +1003,12 @@ void Manager::ActivateCommit(window_ptr_ref Param)
 		RefreshCommit(Param);
 		return;
 	}
+	DoActivation(GetCurrentWindow(), Param);
+}
 
-	int WindowIndex=IndexOf(Param);
+void Manager::DoActivation(window_ptr_ref Old, window_ptr_ref New)
+{
+	int WindowIndex=IndexOf(New);
 
 	assert(WindowIndex >= 0);
 	if (static_cast<size_t>(WindowIndex) < m_NonModalSize)
@@ -1002,15 +1018,14 @@ void Manager::ActivateCommit(window_ptr_ref Param)
 	else
 	{
 		m_windows.erase(m_windows.begin() + WindowIndex);
-		m_windows.emplace_back(Param);
+		m_windows.emplace_back(New);
 	}
 
-	DeactivateCommit(GetCurrentWindow());
-	m_currentWindow=Param;
+	DeactivateCommit(Old);
 	CurrentWindowType = GetCurrentWindow()->GetType();
 	UpdateMacroArea();
-	RefreshCommit(Param);
-	Param->OnChangeFocus(true);
+	RefreshCommit(New);
+	New->OnChangeFocus(true);
 }
 
 void Manager::RefreshCommit(window_ptr_ref Param)
@@ -1057,8 +1072,9 @@ void Manager::ExecuteCommit(window_ptr_ref Param)
 
 	if (Param && AddWindow(Param))
 	{
+	    auto CurrentWindow = GetCurrentWindow();
 		m_windows.emplace_back(Param);
-		ActivateCommit(Param);
+		DoActivation(CurrentWindow, Param);
 	}
 }
 
@@ -1080,8 +1096,18 @@ void Manager::ReplaceCommit(window_ptr_ref Old, window_ptr_ref New)
 
 void Manager::SubmergeCommit(window_ptr_ref Param)
 {
+	auto Old = GetCurrentWindow();
 	const auto Position = m_windows.begin() + IndexOf(Param);
 	std::rotate(m_windows.begin(), Position, Position + 1);
+	auto New = GetCurrentWindow();
+	if (Old != New)
+	{
+		DoActivation(Old, New);
+	}
+	else
+	{
+		RefreshAll();
+	}
 }
 
 bool Manager::AddWindow(window_ptr_ref Param)
