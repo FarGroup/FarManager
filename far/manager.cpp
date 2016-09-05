@@ -206,7 +206,8 @@ Manager::Manager():
 	m_NonModalSize(0),
 	EndLoop(false),
 	ModalExitCode(-1),
-	StartManager(false)
+	StartManager(false),
+	m_DesktopModalled(0)
 {
 	m_windows.reserve(1024);
 	RegisterCASHook(*this);
@@ -547,9 +548,14 @@ void Manager::ReplaceWindow(window_ptr_ref Old, window_ptr_ref New)
 	m_Queue.emplace([=]{ ReplaceCommit(Old, New); });
 }
 
-void Manager::SubmergeWindow(window_ptr_ref Window)
+void Manager::ModalDesktopWindow()
 {
-	CheckAndPushWindow(Window, &Manager::SubmergeCommit);
+	CheckAndPushWindow(Global->CtrlObject->Desktop, &Manager::ModalDesktopCommit);
+}
+
+void Manager::UnModalDesktopWindow()
+{
+	CheckAndPushWindow(Global->CtrlObject->Desktop, &Manager::UnModalDesktopCommit);
 }
 
 void Manager::SwitchToPanels()
@@ -1094,20 +1100,37 @@ void Manager::ReplaceCommit(window_ptr_ref Old, window_ptr_ref New)
 	}
 }
 
-void Manager::SubmergeCommit(window_ptr_ref Param)
+void Manager::ModalDesktopCommit(window_ptr_ref Param)
 {
-	auto Old = GetCurrentWindow();
-	const auto Position = m_windows.begin() + IndexOf(Param);
-	std::rotate(m_windows.begin(), Position, Position + 1);
-	auto New = GetCurrentWindow();
-	if (Old != New)
+	if (m_DesktopModalled++ == 0)
 	{
-		DoActivation(Old, New);
+		auto Old = GetCurrentWindow();
+		assert(Old != Param);
+		assert(IndexOf(Param) >= 0);
+		const auto Position = m_windows.begin() + IndexOf(Param);
+		std::rotate(Position, Position + 1, m_windows.end());
+		--m_NonModalSize;
+		DoActivation(Old, Param);
 	}
-	else
+}
+
+void Manager::UnModalDesktopCommit(window_ptr_ref Param)
+{
+	if (--m_DesktopModalled == 0)
 	{
-		RefreshAll();
+		auto Old = GetCurrentWindow();
+		assert(IndexOf(Param) >= 0);
+		assert(static_cast<size_t>(IndexOf(Param)) >= m_NonModalSize);
+		const auto Position = m_windows.begin() + IndexOf(Param);
+		std::rotate(m_windows.begin(), Position, Position + 1);
+		++m_NonModalSize;
+		auto New = GetCurrentWindow();
+		if (Old != New)
+		{
+			DoActivation(Old, New);
+		}
 	}
+	RefreshAll();
 }
 
 bool Manager::AddWindow(window_ptr_ref Param)

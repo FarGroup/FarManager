@@ -885,7 +885,7 @@ public:
 		++Global->SuppressIndicators;
 		++Global->SuppressClock;
 
-		Global->WindowManager->ActivateWindow(Global->CtrlObject->Desktop);
+		Global->WindowManager->ModalDesktopWindow();
 		Global->WindowManager->PluginCommit();
 	}
 
@@ -970,7 +970,7 @@ public:
 		if (!m_Activated)
 			return;
 
-		Global->WindowManager->SubmergeWindow(Global->CtrlObject->Desktop);
+		Global->WindowManager->UnModalDesktopWindow();
 		Global->WindowManager->PluginCommit();
 		--Global->SuppressClock;
 		--Global->SuppressIndicators;

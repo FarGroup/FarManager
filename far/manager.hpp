@@ -77,7 +77,8 @@ public:
 	void ActivateWindow(window_ptr_ref Activated);
 	void RefreshWindow(window_ptr_ref Refreshed = nullptr);
 	void ReplaceWindow(window_ptr_ref Old, window_ptr_ref New);
-	void SubmergeWindow(window_ptr_ref Window);
+	void ModalDesktopWindow();
+	void UnModalDesktopWindow();
 	void CallbackWindow(const std::function<void(void)>& Callback);
 	//! Функции для запуска модальных окон.
 	void ExecuteWindow(window_ptr_ref Executed);
@@ -160,7 +161,8 @@ private:
 	void DeactivateCommit(window_ptr_ref Param);
 	void ExecuteCommit(window_ptr_ref Param);
 	void ReplaceCommit(window_ptr_ref Old, window_ptr_ref New);
-	void SubmergeCommit(window_ptr_ref Param);
+	void ModalDesktopCommit(window_ptr_ref Param);
+	void UnModalDesktopCommit(window_ptr_ref Param);
 	int GetModalExitCode() const;
 
 	using window_callback = void (Manager::*)(window_ptr_ref);
@@ -178,6 +180,7 @@ private:
 	bool EndLoop;            // Признак выхода из цикла
 	int ModalExitCode;
 	bool StartManager;
+	int m_DesktopModalled;
 	static std::atomic_long CurrentWindowType;
 	std::queue<std::function<void()>> m_Queue;
 	std::vector<std::function<int(const Key&)>> m_GlobalKeyHandlers;
