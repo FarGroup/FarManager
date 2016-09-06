@@ -910,7 +910,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
     if areatable and areatable[key] then
       local m = areatable[key].recorded
       if m and not m.disabled and (argCheckOnly or MacroCallFar(MCODE_F_CHECKALL,argMode,m.flags,nil,nil)) then
-        return m, areaname
+        return m, areaname, true
       end
     end
   end
@@ -1007,9 +1007,10 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
 end
 
 local function GetMacroWrapper (argMode, argKey, argUseCommon)
-  local macro,area = GetMacro(argMode, argKey, argUseCommon, true)
+  local macro,area,kb_macro = GetMacro(argMode, argKey, argUseCommon, true)
   if macro then
-    LastMessage = pack(GetAreaCode(area), macro.code or "", macro.description or "", macro.flags)
+    kb_macro = not not kb_macro -- convert to boolean
+    LastMessage = pack(GetAreaCode(area), macro.code or "", macro.description or "", macro.flags, kb_macro)
     return LastMessage
   end
 end

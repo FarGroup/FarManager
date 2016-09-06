@@ -1060,7 +1060,7 @@ function MT.test_Far()
   assert(type(Far.KeyBar_Show(0))=="number")
   assert(type(Far.Window_Scroll)=="function")
 
-  test_Far_GetConfig()
+  -- test_Far_GetConfig()
 end
 
 local function test_CheckAndGetHotKey()

@@ -578,6 +578,7 @@ struct GetMacroData
 	const wchar_t *Code;
 	const wchar_t *Description;
 	MACROFLAGS_MFLAGS Flags;
+	bool IsKeaboardMacro;
 };
 
 static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Area, const string& TextKey, bool UseCommon)
@@ -586,13 +587,14 @@ static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Area, const string& Tex
 	FarMacroCall fmc={sizeof(FarMacroCall),std::size(InValues),InValues,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_GETMACRO,&fmc};
 
-	if (CallMacroPlugin(&info) && info.Ret.Count>=4)
+	if (CallMacroPlugin(&info) && info.Ret.Count>=5)
 	{
 		const FarMacroValue* Values = info.Ret.Values;
 		Data->Area        = (FARMACROAREA)(int)Values[0].Double;
 		Data->Code        = Values[1].Type==FMVT_STRING ? Values[1].String : L"";
 		Data->Description = Values[2].Type==FMVT_STRING ? Values[2].String : L"";
 		Data->Flags       = (MACROFLAGS_MFLAGS)Values[3].Double;
+		Data->IsKeaboardMacro = Values[4].Boolean;
 		return true;
 	}
 	return false;
@@ -5170,7 +5172,7 @@ M1:
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;
-		if (LM_GetMacro(&Data,KMParam->Area,strKeyText,true))
+		if (LM_GetMacro(&Data,KMParam->Area,strKeyText,true) && Data.IsKeaboardMacro)
 		{
 			// общие макросы учитываем только при удалении.
 			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON)
