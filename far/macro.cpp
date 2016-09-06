@@ -594,7 +594,7 @@ static bool LM_GetMacro(GetMacroData* Data, FARMACROAREA Area, const string& Tex
 		Data->Code        = Values[1].Type==FMVT_STRING ? Values[1].String : L"";
 		Data->Description = Values[2].Type==FMVT_STRING ? Values[2].String : L"";
 		Data->Flags       = (MACROFLAGS_MFLAGS)Values[3].Double;
-		Data->IsKeaboardMacro = Values[4].Boolean;
+		Data->IsKeaboardMacro = Values[4].Boolean != 0;
 		return true;
 	}
 	return false;
