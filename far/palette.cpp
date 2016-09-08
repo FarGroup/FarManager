@@ -233,10 +233,10 @@ void palette::Set(size_t StartOffset, FarColor* Value, size_t Count)
 
 void palette::CopyTo(FarColor* Destination, size_t Size) const
 {
-	if (Size >= CurrentPalette.size())
-	{
-		std::copy(ALL_CONST_RANGE(CurrentPalette), Destination);
-	}
+	if (Size < CurrentPalette.size())
+		return;
+
+	std::copy(ALL_CONST_RANGE(CurrentPalette), Destination);
 }
 
 void palette::Load()
@@ -250,14 +250,14 @@ void palette::Load()
 
 void palette::Save(bool always)
 {
-	if (always || PaletteChanged)
-	{
-		SCOPED_ACTION(auto)(ConfigProvider().ColorsCfg()->ScopedTransaction());
+	if (!PaletteChanged && !always)
+		return;
 
-		for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
-		{
-			ConfigProvider().ColorsCfg()->SetValue(Init[index].Name, i);
-		});
-		PaletteChanged = false;
-	}
+	SCOPED_ACTION(auto)(ConfigProvider().ColorsCfg()->ScopedTransaction());
+
+	for_each_cnt(CONST_RANGE(CurrentPalette, i, size_t index)
+	{
+		ConfigProvider().ColorsCfg()->SetValue(Init[index].Name, i);
+	});
+	PaletteChanged = false;
 }

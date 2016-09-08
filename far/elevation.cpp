@@ -96,34 +96,36 @@ elevation::elevation():
 
 elevation::~elevation()
 {
-	if (m_Pipe)
+	if (!m_Pipe)
+		return;
+
+	if (m_Process)
 	{
-		if (m_Process)
+		try
 		{
-			try
-			{
-				SendCommand(C_SERVICE_EXIT);
-			}
-			catch (const far_exception&)
-			{
-				// TODO: log
-			}
+			SendCommand(C_SERVICE_EXIT);
 		}
-		DisconnectNamedPipe(m_Pipe.native_handle());
+		catch (const far_exception&)
+		{
+			// TODO: log
+		}
 	}
+
+	DisconnectNamedPipe(m_Pipe.native_handle());
 }
 
 void elevation::ResetApprove()
 {
-	if(!m_DontAskAgain)
-	{
-		m_AskApprove=true;
-		if(m_Elevation)
-		{
-			m_Elevation=false;
-			Global->ScrBuf->RestoreElevationChar();
-		}
-	}
+	if (m_DontAskAgain)
+		return;
+
+	m_AskApprove=true;
+
+	if (!m_Elevation)
+		return;
+
+	m_Elevation=false;
+	Global->ScrBuf->RestoreElevationChar();
 }
 
 void elevation::Write(const blob_view& Data) const
@@ -783,15 +785,8 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 class elevated:noncopyable
 {
 public:
-	elevated():
-		ParentPID(0),
-		Exit(false)
-	{}
-
 	int Run(const wchar_t* guid, DWORD PID, bool UsePrivileges)
 	{
-		int Result = ERROR_SUCCESS;
-
 		SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 
 		std::vector<const wchar_t*> Privileges{ SE_TAKE_OWNERSHIP_NAME, SE_DEBUG_NAME, SE_CREATE_SYMBOLIC_LINK_NAME };
@@ -803,46 +798,51 @@ public:
 
 		SCOPED_ACTION(privilege)(Privileges);
 
-		const auto strPipe = string(L"\\\\.\\pipe\\") + guid;
-		WaitNamedPipe(strPipe.data(), NMPWAIT_WAIT_FOREVER);
-		m_Pipe.reset(CreateFile(strPipe.data(),GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
-		if (m_Pipe)
+		const auto PipeName = string(L"\\\\.\\pipe\\") + guid;
+		WaitNamedPipe(PipeName.data(), NMPWAIT_WAIT_FOREVER);
+		m_Pipe.reset(CreateFile(PipeName.data(),GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
+		if (!m_Pipe)
+			return GetLastError();
+
 		{
+			// basic security checks
 			ULONG ServerProcessId;
-			if(!Imports().GetNamedPipeServerProcessId || (Imports().GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) && ServerProcessId == PID))
-			{
-				if (auto ParentProcess = os::handle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID)))
-				{
-					string strCurrentProcess, strParentProcess;
-					bool TrustedServer = os::GetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && os::GetModuleFileNameEx(ParentProcess.native_handle(), nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess, strParentProcess));
-					ParentProcess.close();
-					if(TrustedServer)
-					{
-						Write(GetCurrentProcessId());
-						ParentPID = PID;
-						for (;;)
-						{
-							const auto Command = Read<int>();
-							if (!Process(Command))
-								break;
-						}
-					}
-				}
-			}
-			m_Pipe.close();
+			if (Imports().GetNamedPipeServerProcessId && (!Imports().GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) || ServerProcessId != PID))
+				return GetLastError();
+
+			auto ParentProcess = os::handle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID));
+			if (!ParentProcess)
+				return GetLastError();
+
+			string ParentProcessFileName;
+			if (!os::GetModuleFileNameEx(ParentProcess.native_handle(), nullptr, ParentProcessFileName))
+				return GetLastError();
+
+			string CurrentProcessFileName;
+			if (!os::GetModuleFileNameEx(GetCurrentProcess(), nullptr, CurrentProcessFileName))
+				return GetLastError();
+
+			if (StrCmpI(CurrentProcessFileName, ParentProcessFileName))
+				return -1;
 		}
-		else
+
+		Write(GetCurrentProcessId());
+		m_ParentPid = PID;
+
+		for (;;)
 		{
-			Result = GetLastError();
+			if (!Process(Read<int>()))
+				break;
 		}
-		return Result;
+
+		return 0;
 	}
 
 private:
 	os::handle m_Pipe;
-	DWORD ParentPID;
-	mutable bool Exit;
-	typedef std::pair<const class elevated*, void*> copy_progress_routine_param;
+	DWORD m_ParentPid{};
+	mutable bool m_Active{true};
+	using copy_progress_routine_param = std::pair<const class elevated*, void*>;
 
 	void Write(const void* Data,size_t DataSize) const
 	{
@@ -868,7 +868,7 @@ private:
 
 	void ExitHandler() const
 	{
-		Exit = true;
+		m_Active = false;
 	}
 
 	void CreateDirectoryExHandler() const
@@ -1015,7 +1015,7 @@ private:
 		auto Duplicate = INVALID_HANDLE_VALUE;
 		if (const auto Handle = os::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr))
 		{
-			if (const auto ParentProcess = os::handle(OpenProcess(PROCESS_DUP_HANDLE, FALSE, ParentPID)))
+			if (const auto ParentProcess = os::handle(OpenProcess(PROCESS_DUP_HANDLE, FALSE, m_ParentPid)))
 			{
 				DuplicateHandle(GetCurrentProcess(), Handle.native_handle(), ParentProcess.native_handle(), &Duplicate, 0, FALSE, DUPLICATE_SAME_ACCESS);
 			}
@@ -1096,8 +1096,6 @@ private:
 	{
 		assert(Command < C_COMMANDS_COUNT);
 
-		Exit = false;
-
 		static const decltype(&elevated::ExitHandler) Handlers[] =
 		{
 			&elevated::ExitHandler,
@@ -1123,14 +1121,13 @@ private:
 		try
 		{
 			(this->*Handlers[Command])();
+			return m_Active;
 		}
 		catch(...)
 		{
 			// TODO: log
-			Exit = true;
+			return false;
 		}
-
-		return !Exit;
 	}
 };
 

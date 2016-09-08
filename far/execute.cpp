@@ -177,164 +177,137 @@ static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strTyp
 
 static bool FindObject(const string& Module, string &strDest, bool &Internal)
 {
-	bool Result=false;
+	if (Module.empty())
+		return false;
 
-	if (!Module.empty())
+	// нулевой проход - смотрим исключения
+	// Берем "исключения" из реестра, которые должны исполняться директом,
+	// например, некоторые внутренние команды ком. процессора.
+	const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
+
+	if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
 	{
-		// нулевой проход - смотрим исключения
-		// Берем "исключения" из реестра, которые должны исполняться директом,
-		// например, некоторые внутренние команды ком. процессора.
-		const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
+		Internal = true;
+		return true;
+	}
 
-		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
+	auto strFullName = Module;
+	const auto ModuleExt = wcsrchr(PointToName(Module), L'.');
+	auto strPathExt = os::env::get_pathext();
+	if (Global->Opt->UseRegisteredTypes)
+	{
+		// ";;" to also try no extension if nothing else matches
+		strPathExt += L";;";
+	}
+	const auto PathExtList = split<std::vector<string>>(strPathExt, STLF_UNIQUE | STLF_ALLOWEMPTY);
+
+	for (const auto& i: PathExtList) // первый проход - в текущем каталоге
+	{
+		string strTmpName=strFullName;
+
+		if (!ModuleExt)
 		{
-			Result=true;
-			Internal = true;
+			strTmpName += i;
 		}
 
-		if (!Result)
+		if (os::fs::is_file(strTmpName))
 		{
-			auto strFullName = Module;
-			const auto ModuleExt = wcsrchr(PointToName(Module), L'.');
-			auto strPathExt = os::env::get_pathext();
-			if (Global->Opt->UseRegisteredTypes)
+			strDest = ConvertNameToFull(strTmpName);
+			return true;
+		}
+
+		if (ModuleExt)
+		{
+			break;
+		}
+	}
+
+	// второй проход - по правилам SearchPath
+	const auto strPathEnv(os::env::get_variable(L"PATH"));
+	if (!strPathEnv.empty())
+	{
+		for (const auto& Path: split<std::vector<string>>(strPathEnv, STLF_UNIQUE))
+		{
+			for (const auto& Ext: PathExtList)
 			{
-				// ";;" to also try no extension if nothing else matches
-				strPathExt += L";;";
-			}
-			const auto PathExtList = split<std::vector<string>>(strPathExt, STLF_UNIQUE | STLF_ALLOWEMPTY);
-
-			for (const auto& i: PathExtList) // первый проход - в текущем каталоге
-			{
-				string strTmpName=strFullName;
-
-				if (!ModuleExt)
+				string Dest;
+				if (os::SearchPath(Path.data(), strFullName, Ext.data(), Dest))
 				{
-					strTmpName += i;
-				}
-
-				if (os::fs::is_file(strTmpName))
-				{
-					strFullName = ConvertNameToFull(strTmpName);
-					Result=true;
-					break;
-				}
-
-				if (ModuleExt)
-				{
-					break;
-				}
-			}
-
-			if (!Result) // второй проход - по правилам SearchPath
-			{
-				const auto strPathEnv(os::env::get_variable(L"PATH"));
-				if (!strPathEnv.empty())
-				{
-					for (const auto& Path: split<std::vector<string>>(strPathEnv, STLF_UNIQUE))
+					if (os::fs::is_file(Dest))
 					{
-						for (const auto& Ext: PathExtList)
-						{
-							string Dest;
-
-							if (os::SearchPath(Path.data(), strFullName, Ext.data(), Dest))
-							{
-								if (os::fs::is_file(Dest))
-								{
-									strFullName=Dest;
-									Result=true;
-									break;
-								}
-							}
-						}
-						if(Result)
-							break;
+						strDest = Dest;
+						return true;
 					}
 				}
-
-				if (!Result)
-				{
-					for (const auto& Ext: PathExtList)
-					{
-						string Dest;
-
-						if (os::SearchPath(nullptr, strFullName, Ext.data(), Dest))
-						{
-							if (os::fs::is_file(Dest))
-							{
-								strFullName=Dest;
-								Result=true;
-								break;
-							}
-						}
-					}
-				}
-
-				// третий проход - лезем в реестр в "App Paths"
-				if (!Result && Global->Opt->Exec.ExecuteUseAppPath && strFullName.find(L'\\') == string::npos)
-				{
-					static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-					// В строке Module заменить исполняемый модуль на полный путь, который
-					// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
-					// Сначала смотрим в HKCU, затем - в HKLM
-					static const HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
-					strFullName=RegPath;
-					strFullName+=Module;
-
-					DWORD samDesired = KEY_QUERY_VALUE;
-
-					for (size_t i=0; i<std::size(RootFindKey); i++)
-					{
-						if (i==std::size(RootFindKey)-1)
-						{
-							if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
-							{
-								samDesired|=RedirectionFlag;
-							}
-							else
-							{
-								break;
-							}
-						}
-
-						if (os::reg::GetValue(RootFindKey[i], strFullName, L"", strFullName, samDesired))
-						{
-							strFullName = Unquote(os::env::expand_strings(strFullName));
-							Result=true;
-							break;
-						}
-					}
-
-					if (!Result)
-					{
-						Result = std::any_of(CONST_RANGE(PathExtList, Ext)
-						{
-							strFullName=RegPath;
-							strFullName+=Module;
-							strFullName+=Ext;
-
-							return std::any_of(CONST_RANGE(RootFindKey, i)
-							{
-								if (os::reg::GetValue(i, strFullName, L"", strFullName))
-								{
-									strFullName = Unquote(os::env::expand_strings(strFullName));
-									return true;
-								}
-								return false;
-							});
-						});
-					}
-				}
-			}
-
-			if (Result)
-			{
-				strDest = strFullName;
 			}
 		}
 	}
 
-	return Result;
+	for (const auto& Ext: PathExtList)
+	{
+		string Dest;
+		if (os::SearchPath(nullptr, strFullName, Ext.data(), Dest))
+		{
+			if (os::fs::is_file(Dest))
+			{
+				strDest = Dest;
+				return true;
+			}
+		}
+	}
+
+	// третий проход - лезем в реестр в "App Paths"
+	if (Global->Opt->Exec.ExecuteUseAppPath && strFullName.find(L'\\') == string::npos)
+	{
+		static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+		// В строке Module заменить исполняемый модуль на полный путь, который
+		// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
+		// Сначала смотрим в HKCU, затем - в HKLM
+		static const HKEY RootFindKey[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE };
+		strFullName = RegPath;
+		strFullName += Module;
+
+		DWORD samDesired = KEY_QUERY_VALUE;
+
+		for (size_t i = 0; i < std::size(RootFindKey); i++)
+		{
+			if (i == std::size(RootFindKey) - 1)
+			{
+				if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
+				{
+					samDesired |= RedirectionFlag;
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			if (os::reg::GetValue(RootFindKey[i], strFullName, L"", strFullName, samDesired))
+			{
+				strDest = Unquote(os::env::expand_strings(strFullName));
+				return true;
+			}
+		}
+
+		return std::any_of(CONST_RANGE(PathExtList, Ext)
+		{
+			strFullName = RegPath;
+			strFullName += Module;
+			strFullName += Ext;
+
+			return std::any_of(CONST_RANGE(RootFindKey, i)
+			{
+				if (!os::reg::GetValue(i, strFullName, L"", strFullName))
+					return false;
+
+				strDest = Unquote(os::env::expand_strings(strFullName));
+				return true;
+			});
+		});
+	}
+
+	return false;
 }
 
 /*

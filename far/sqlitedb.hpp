@@ -80,7 +80,6 @@ protected:
 
 		SQLiteStmt& Reset();
 		bool Step() const;
-		bool StepAndReset();
 
 		template<typename arg, typename... args>
 		auto& Bind(arg&& Arg, args&&... Args)
@@ -113,6 +112,13 @@ protected:
 		std::unique_ptr<sqlite::sqlite3_stmt, stmt_deleter> m_Stmt;
 		int m_Param;
 	};
+
+	struct statement_reset
+	{
+		void operator()(SQLiteStmt* Statement) const { Statement->Reset(); }
+	};
+
+	using auto_statement = std::unique_ptr<SQLiteStmt, statement_reset>;
 
 	typedef std::pair<size_t, const wchar_t*> stmt_init_t;
 
@@ -147,7 +153,7 @@ protected:
 	const string& GetPath() const { return m_Path; }
 	const string& GetName() const { return m_Name; }
 
-	SQLiteStmt& Statement(size_t Index) const { return m_Statements[Index]; }
+	auto AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
 
 private:
 	void Close();

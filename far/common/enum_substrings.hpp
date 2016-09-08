@@ -69,14 +69,13 @@ public:
 		bool IsEnd;
 		for (; (IsEnd = detail::IsEnd(*m_Provider, End)) == false && *End; ++End)
 			;
-		if (End != Begin)
-		{
-			const auto Ptr = &*Begin;
-			Value = typename enum_substrings_t<provider>::value_type(Ptr, Ptr + (End - Begin));
-			m_Offset += Value.size() + (IsEnd? 0 : 1);
-			return true;
-		}
-		return false;
+		if (End == Begin)
+			return false;
+
+		const auto Ptr = &*Begin;
+		Value = typename enum_substrings_t<provider>::value_type(Ptr, Ptr + (End - Begin));
+		m_Offset += Value.size() + (IsEnd? 0 : 1);
+		return true;
 	}
 
 private:

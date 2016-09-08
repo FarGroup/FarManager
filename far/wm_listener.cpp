@@ -144,26 +144,24 @@ void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";
 	UnregisterClass(wc.lpszClassName, nullptr);
-	if(RegisterClassEx(&wc))
+	if (!RegisterClassEx(&wc))
+		return;
+
+	SCOPE_EXIT{ UnregisterClass(wc.lpszClassName, nullptr); };
+
+	m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
+	ReadyEvent->Set();
+	if (!m_Hwnd)
+		return;
+
+	// for PBT_POWERSETTINGCHANGE
+	const auto hpn = Imports().RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+	SCOPE_EXIT{ if (hpn) Imports().UnregisterPowerSettingNotification(hpn); };
+
+	MSG Msg;
+	while(!m_exitEvent.Signaled() && GetMessage(&Msg, nullptr, 0, 0) > 0)
 	{
-		m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
-		ReadyEvent->Set();
-		if(m_Hwnd)
-		{
-			// for PBT_POWERSETTINGCHANGE
-			HPOWERNOTIFY hpn=Imports().RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
-
-			MSG Msg;
-			while(!m_exitEvent.Signaled() && GetMessage(&Msg, nullptr, 0, 0) > 0)
-			{
-				TranslateMessage(&Msg);
-				DispatchMessage(&Msg);
-			}
-
-			if (hpn) // for PBT_POWERSETTINGCHANGE
-				Imports().UnregisterPowerSettingNotification(hpn);
-
-		}
-		UnregisterClass(wc.lpszClassName, nullptr);
+		TranslateMessage(&Msg);
+		DispatchMessage(&Msg);
 	}
 }

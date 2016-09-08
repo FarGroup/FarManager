@@ -113,81 +113,83 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 			cfg->DeleteKeyTree(root);
 	}
 
-	if (!cfg->FindByName(cfg->root_key(), HighlightKeyName))
+	if (cfg->FindByName(cfg->root_key(), HighlightKeyName))
+		return;
+
+	const auto root = cfg->CreateKey(cfg->root_key(), HighlightKeyName);
+	if (!root)
+		return;
+
+	static const wchar_t* const Masks[]=
 	{
-		if (const auto root = cfg->CreateKey(cfg->root_key(), HighlightKeyName))
+		/* 0 */ L"*.*",
+		/* 1 */ L"<arc>",
+		/* 2 */ L"<temp>",
+		/* $ 25.09.2001  IS
+			Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
+			являются родительскими (их имена - две точки).
+		*/
+		/* 3 */ L"*.*|..", // маска для каталогов
+		/* 4 */ L"..",     // такие каталоги окрашивать как простые файлы
+		/* 5 */ L"<exec>",
+	};
+
+	static struct DefaultData
+	{
+		const wchar_t *Mask;
+		bool IgnoreMask;
+		DWORD IncludeAttr;
+		BYTE InitNC;
+		BYTE InitCC;
+		FarColor NormalColor;
+		FarColor CursorColor;
+	}
+	StdHighlightData[]=
+	{
+		/* 0 */{Masks[0], false, FILE_ATTRIBUTE_HIDDEN, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
+		/* 1 */{Masks[0], false, FILE_ATTRIBUTE_SYSTEM, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
+		/* 2 */{Masks[3], false, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
+		/* 3 */{Masks[4], false, FILE_ATTRIBUTE_DIRECTORY, 0, 0},
+		/* 4 */{Masks[5], false, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN},
+		/* 5 */{Masks[1], false, 0, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA},
+		/* 6 */{Masks[2], false, 0, B_BLUE|F_BROWN, B_CYAN|F_BROWN},
+		// это настройка для каталогов на тех панелях, которые должны раскрашиваться
+		// без учета масок (например, список хостов в "far navigator")
+		/* 7 */{Masks[0], true, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
+	};
+
+	size_t Index = 0;
+	for (auto& i: StdHighlightData)
+	{
+		i.NormalColor = colors::ConsoleColorToFarColor(i.InitNC);
+		MAKE_TRANSPARENT(i.NormalColor.BackgroundColor);
+		i.CursorColor = colors::ConsoleColorToFarColor(i.InitCC);
+		MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
+
+		const auto Key = cfg->CreateKey(root, L"Group" + std::to_wstring(Index++));
+		if (!Key)
+			break;
+		cfg->SetValue(Key, HLS.Mask, i.Mask);
+		cfg->SetValue(Key, HLS.IgnoreMask, i.IgnoreMask);
+		cfg->SetValue(Key, HLS.IncludeAttributes, i.IncludeAttr);
+
+		cfg->SetValue(Key, HLS.NormalColor, i.NormalColor);
+		cfg->SetValue(Key, HLS.CursorColor, i.CursorColor);
+
+		static const wchar_t* const Names[] =
 		{
-			static const wchar_t* const Masks[]=
-			{
-				/* 0 */ L"*.*",
-				/* 1 */ L"<arc>",
-				/* 2 */ L"<temp>",
-				/* $ 25.09.2001  IS
-					Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
-					являются родительскими (их имена - две точки).
-				*/
-				/* 3 */ L"*.*|..", // маска для каталогов
-				/* 4 */ L"..",     // такие каталоги окрашивать как простые файлы
-				/* 5 */ L"<exec>",
-			};
-			static struct DefaultData
-			{
-				const wchar_t *Mask;
-				bool IgnoreMask;
-				DWORD IncludeAttr;
-				BYTE InitNC;
-				BYTE InitCC;
-				FarColor NormalColor;
-				FarColor CursorColor;
-			}
-			StdHighlightData[]=
-			{
-				/* 0 */{Masks[0], false, FILE_ATTRIBUTE_HIDDEN, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
-				/* 1 */{Masks[0], false, FILE_ATTRIBUTE_SYSTEM, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
-				/* 2 */{Masks[3], false, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
-				/* 3 */{Masks[4], false, FILE_ATTRIBUTE_DIRECTORY, 0, 0},
-				/* 4 */{Masks[5], false, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN},
-				/* 5 */{Masks[1], false, 0, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA},
-				/* 6 */{Masks[2], false, 0, B_BLUE|F_BROWN, B_CYAN|F_BROWN},
-				// это настройка для каталогов на тех панелях, которые должны раскрашиваться
-				// без учета масок (например, список хостов в "far navigator")
-				/* 7 */{Masks[0], true, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
-			};
+			HLS.SelectedColor,
+			HLS.SelectedCursorColor,
+			HLS.MarkCharNormalColor,
+			HLS.MarkCharSelectedColor,
+			HLS.MarkCharCursorColor,
+			HLS.MarkCharSelectedCursorColor,
+		};
 
-			size_t Index = 0;
-			for (auto& i: StdHighlightData)
-			{
-				i.NormalColor = colors::ConsoleColorToFarColor(i.InitNC);
-				MAKE_TRANSPARENT(i.NormalColor.BackgroundColor);
-				i.CursorColor = colors::ConsoleColorToFarColor(i.InitCC);
-				MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
-
-				const auto Key = cfg->CreateKey(root, L"Group" + std::to_wstring(Index++));
-				if (!Key)
-					break;
-				cfg->SetValue(Key, HLS.Mask, i.Mask);
-				cfg->SetValue(Key, HLS.IgnoreMask, i.IgnoreMask);
-				cfg->SetValue(Key, HLS.IncludeAttributes, i.IncludeAttr);
-
-				cfg->SetValue(Key, HLS.NormalColor, i.NormalColor);
-				cfg->SetValue(Key, HLS.CursorColor, i.CursorColor);
-
-				static const wchar_t* const Names[] =
-				{
-					HLS.SelectedColor,
-					HLS.SelectedCursorColor,
-					HLS.MarkCharNormalColor,
-					HLS.MarkCharSelectedColor,
-					HLS.MarkCharCursorColor,
-					HLS.MarkCharSelectedCursorColor,
-				};
-
-				for (const auto& j: Names)
-				{
-					static const FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
-					cfg->SetValue(Key, j, DefaultColor);
-				}
-			}
+		for (const auto& j: Names)
+		{
+			static const FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
+			cfg->SetValue(Key, j, DefaultColor);
 		}
 	}
 }
@@ -312,27 +314,28 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 	HiData.clear();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 
-	std::for_each(CONST_RANGE(GroupItems, Item)
+	for(const auto& Item: GroupItems)
 	{
-		if (const auto root = cfg->FindByName(cfg->root_key(), Item.KeyName))
+		const auto root = cfg->FindByName(cfg->root_key(), Item.KeyName);
+		if (!root)
+			continue;
+
+		for (int i=0;; ++i)
 		{
-			for (int i=0;; ++i)
-			{
-				const auto key = cfg->FindByName(root, Item.GroupName + std::to_wstring(i));
-				if (!key)
-					break;
+			const auto key = cfg->FindByName(root, Item.GroupName + std::to_wstring(i));
+			if (!key)
+				break;
 
-				string strMask;
-				if (!cfg->GetValue(key,HLS.Mask,strMask))
-					break;
+			string strMask;
+			if (!cfg->GetValue(key,HLS.Mask,strMask))
+				break;
 
-				FileFilterParams NewItem;
-				LoadFilter(cfg, key, NewItem, strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
-				HiData.emplace_back(std::move(NewItem));
-				++*Item.Count;
-			}
+			FileFilterParams NewItem;
+			LoadFilter(cfg, key, NewItem, strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
+			HiData.emplace_back(std::move(NewItem));
+			++*Item.Count;
 		}
-	});
+	}
 }
 
 
@@ -890,17 +893,17 @@ void HighlightFiles::Save(bool always)
 		{false, HighlightKeyName, fmtLastGroup, FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount},
 	};
 
-	std::for_each(CONST_RANGE(Data, i)
+	for(const auto& i: Data)
 	{
-		if ((root = cfg->CreateKey(cfg->root_key(), i.KeyName)))
+		root = cfg->CreateKey(cfg->root_key(), i.KeyName);
+		if (!root)
+			continue; // TODO: log
+
+		for (int j = i.from; j != i.to; ++j)
 		{
-			for (int j = i.from; j != i.to; ++j)
-			{
-				if (const auto Key = cfg->CreateKey(root, i.GroupName + std::to_wstring(j - i.from)))
-					SaveFilter(cfg.get(), Key, &HiData[j], i.IsSort);
-				// else diagnostics
-			}
+			if (const auto Key = cfg->CreateKey(root, i.GroupName + std::to_wstring(j - i.from)))
+				SaveFilter(cfg.get(), Key, &HiData[j], i.IsSort);
+			// TODO: log
 		}
-		// else diagnostics
-	});
+	}
 }

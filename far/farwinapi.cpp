@@ -1163,25 +1163,17 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 
 bool GetFileSizeEx(HANDLE hFile, UINT64 &Size)
 {
-	bool Result=false;
-
 	if (::GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size)))
-	{
-		Result=true;
-	}
-	else
-	{
-		GET_LENGTH_INFORMATION gli;
-		DWORD BytesReturned;
+		return true;
 
-		if (::DeviceIoControl(hFile,IOCTL_DISK_GET_LENGTH_INFO,nullptr,0,&gli,sizeof(gli),&BytesReturned,nullptr))
-		{
-			Size=gli.Length.QuadPart;
-			Result=true;
-		}
-	}
+	GET_LENGTH_INFORMATION gli;
+	DWORD BytesReturned;
 
-	return Result;
+	if (!::DeviceIoControl(hFile, IOCTL_DISK_GET_LENGTH_INFO, nullptr, 0, &gli, sizeof(gli), &BytesReturned, nullptr))
+		return false;
+
+	Size=gli.Length.QuadPart;
+	return true;
 }
 
 bool IsDiskInDrive(const string& Root)
@@ -1644,36 +1636,34 @@ bool QueryDosDevice(const string& DeviceName, string &Path)
 
 bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& VolumeName)
 {
-	bool Result=false;
 	WCHAR VolumeNameBuffer[50];
 	NTPath strVolumeMountPoint(VolumeMountPoint);
 	AddEndSlash(strVolumeMountPoint);
-	if(::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.data(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
-	{
-		VolumeName=VolumeNameBuffer;
-		Result=true;
-	}
-	return Result;
+	if (!::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.data(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
+		return false;
+
+	VolumeName=VolumeNameBuffer;
+	return true;
 }
 
 void EnableLowFragmentationHeap()
 {
-	if (Imports().HeapSetInformation)
+	if (!Imports().HeapSetInformation)
+		return;
+
+	std::vector<HANDLE> Heaps(10);
+	DWORD ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+	if(ActualNumHeaps > Heaps.size())
 	{
-		std::vector<HANDLE> Heaps(10);
-		DWORD ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
-		if(ActualNumHeaps > Heaps.size())
-		{
-			Heaps.resize(ActualNumHeaps);
-			ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
-		}
 		Heaps.resize(ActualNumHeaps);
-		std::for_each(CONST_RANGE(Heaps, i)
-		{
-			ULONG HeapFragValue = 2;
-			Imports().HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
-		});
+		ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
 	}
+	Heaps.resize(ActualNumHeaps);
+	std::for_each(CONST_RANGE(Heaps, i)
+	{
+		ULONG HeapFragValue = 2;
+		Imports().HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+	});
 }
 
 bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
@@ -1684,34 +1674,33 @@ bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETI
 
 bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
-	bool Result = false;
 	const ULONG Length = 40;
 	BYTE Buffer[Length] = {};
 	const auto fbi = reinterpret_cast<FILE_BASIC_INFORMATION*>(Buffer);
 	IO_STATUS_BLOCK IoStatusBlock;
 	NTSTATUS Status = Imports().NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
 	::SetLastError(Imports().RtlNtStatusToDosError(Status));
-	if (Status == STATUS_SUCCESS)
+	if (Status != STATUS_SUCCESS)
+		return false;
+
+	if(CreationTime)
 	{
-		if(CreationTime)
-		{
-			*CreationTime = UI64ToFileTime(fbi->CreationTime);
-		}
-		if(LastAccessTime)
-		{
-			*LastAccessTime = UI64ToFileTime(fbi->LastAccessTime);
-		}
-		if(LastWriteTime)
-		{
-			*LastWriteTime = UI64ToFileTime(fbi->LastWriteTime);
-		}
-		if(ChangeTime)
-		{
-			*ChangeTime = UI64ToFileTime(fbi->ChangeTime);
-		}
-		Result = true;
+		*CreationTime = UI64ToFileTime(fbi->CreationTime);
 	}
-	return Result;
+	if(LastAccessTime)
+	{
+		*LastAccessTime = UI64ToFileTime(fbi->LastAccessTime);
+	}
+	if(LastWriteTime)
+	{
+		*LastWriteTime = UI64ToFileTime(fbi->LastWriteTime);
+	}
+	if(ChangeTime)
+	{
+		*ChangeTime = UI64ToFileTime(fbi->ChangeTime);
+	}
+
+	return true;
 }
 
 bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
@@ -1764,19 +1753,20 @@ bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& Virtu
 {
 	handle Handle;
 	DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object.data(), VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &ptr_setter(Handle));
-	if (Result == ERROR_SUCCESS)
-	{
-		Result = Imports().DetachVirtualDisk(Handle.native_handle(), DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
-		if (Result != ERROR_SUCCESS)
-		{
-			SetLastError(Result);
-		}
-	}
-	else
+	if (Result != ERROR_SUCCESS)
 	{
 		SetLastError(Result);
+		return false;
 	}
-	return Result == ERROR_SUCCESS;
+
+	Result = Imports().DetachVirtualDisk(Handle.native_handle(), DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
+	if (Result != ERROR_SUCCESS)
+	{
+		SetLastError(Result);
+		return false;
+	}
+
+	return true;
 }
 
 bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)

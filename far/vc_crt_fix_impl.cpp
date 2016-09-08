@@ -86,20 +86,18 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 	{
 		static BOOL WINAPI GetModuleHandleExW(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
 		{
-			BOOL Result = FALSE;
 			if (Flags)
 			{
 				SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+				return FALSE;
 			}
-			else
-			{
-				*Module = GetModuleHandleW(ModuleName);
-				if (*Module)
-				{
-					Result = TRUE;
-				}
-			}
-			return Result;
+
+			const auto Handle = GetModuleHandleW(ModuleName);
+			if (!Handle)
+				return FALSE;
+
+			*Module = Handle;
+			return TRUE;
 		}
 	};
 

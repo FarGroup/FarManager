@@ -51,37 +51,29 @@ namespace pipe
 
 	bool Read(const os::handle& Pipe, void* Data, size_t DataSize)
 	{
-		bool Result = false;
 		size_t ReadSize = 0;
-		if (ReadPipe(Pipe, &ReadSize, sizeof(ReadSize)))
-		{
-			assert(ReadSize == DataSize);
-			Result = ReadPipe(Pipe, Data, DataSize);
-		}
-		return Result;
+		if (!ReadPipe(Pipe, &ReadSize, sizeof(ReadSize)))
+			return false;
+
+		assert(ReadSize == DataSize);
+		return ReadPipe(Pipe, Data, DataSize);
 	}
 
 	bool Read(const os::handle& Pipe, string& Data)
 	{
-		bool Result = false;
 		size_t DataSize = 0;
-		if (ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
-		{
-			if (DataSize)
-			{
-				wchar_t_ptr Buffer(DataSize / sizeof(wchar_t));
-				if (ReadPipe(Pipe, Buffer.get(), DataSize))
-				{
-					Data.assign(Buffer.get(), Buffer.size() - 1);
-					Result = true;
-				}
-			}
-			else
-			{
-				Result = true;
-			}
-		}
-		return Result;
+		if (!ReadPipe(Pipe, &DataSize, sizeof(DataSize)))
+			return false;
+
+		if (!DataSize)
+			return true;
+
+		wchar_t_ptr Buffer(DataSize / sizeof(wchar_t));
+		if (!ReadPipe(Pipe, Buffer.get(), DataSize))
+			return false;
+
+		Data.assign(Buffer.get(), Buffer.size() - 1);
+		return true;
 	}
 
 	bool Write(const os::handle& Pipe, const void* Data, size_t DataSize)

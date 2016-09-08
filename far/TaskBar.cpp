@@ -50,20 +50,20 @@ taskbar::taskbar():
 
 void taskbar::SetProgressState(TBPFLAG tbpFlags)
 {
-	if (mTaskbarList)
-	{
-		State=tbpFlags;
-		mTaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
-	}
+	if (!mTaskbarList)
+		return;
+
+	State=tbpFlags;
+	mTaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
 }
 
 void taskbar::SetProgressValue(UINT64 Completed, UINT64 Total)
 {
-	if (mTaskbarList)
-	{
-		State=TBPF_NORMAL;
-		mTaskbarList->SetProgressValue(Console().GetWindow(),Completed,Total);
-	}
+	if (!mTaskbarList)
+		return;
+
+	State=TBPF_NORMAL;
+	mTaskbarList->SetProgressValue(Console().GetWindow(),Completed,Total);
 }
 
 TBPFLAG taskbar::GetProgressState() const
@@ -75,16 +75,15 @@ void taskbar::Flash()
 {
 	WINDOWINFO WI={sizeof(WI)};
 
-	if (GetWindowInfo(Console().GetWindow(),&WI))
-	{
-		if (WI.dwWindowStatus!=WS_ACTIVECAPTION)
-		{
-			FLASHWINFO FWI={sizeof(FWI),Console().GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
-			FlashWindowEx(&FWI);
-		}
-	}
-}
+	if (!GetWindowInfo(Console().GetWindow(), &WI))
+		return;
 
+	if (WI.dwWindowStatus == WS_ACTIVECAPTION)
+		return;
+
+	FLASHWINFO FWI={sizeof(FWI),Console().GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
+	FlashWindowEx(&FWI);
+}
 
 
 IndeterminateTaskBar::IndeterminateTaskBar(bool EndFlash):

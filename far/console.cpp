@@ -108,53 +108,46 @@ virtual bool GetSize(COORD& Size) const override
 
 virtual bool SetSize(COORD Size) const override
 {
-	bool Result=false;
-	if(Global->Opt->WindowMode)
-	{
-		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
-		csbi.srWindow.Left=0;
-		csbi.srWindow.Right=Size.X-1;
-		csbi.srWindow.Bottom=csbi.dwSize.Y-1;
-		csbi.srWindow.Top=csbi.srWindow.Bottom-(Size.Y-1);
-		COORD WindowCoord={static_cast<SHORT>(csbi.srWindow.Right-csbi.srWindow.Left+1), static_cast<SHORT>(csbi.srWindow.Bottom-csbi.srWindow.Top+1)};
-		if(WindowCoord.X>csbi.dwSize.X || WindowCoord.Y>csbi.dwSize.Y)
-		{
-			WindowCoord.X=std::max(WindowCoord.X,csbi.dwSize.X);
-			WindowCoord.Y=std::max(WindowCoord.Y,csbi.dwSize.Y);
-			SetConsoleScreenBufferSize(GetOutputHandle(), WindowCoord);
+	if(!Global->Opt->WindowMode)
+		return SetConsoleScreenBufferSize(GetOutputHandle(), Size) != FALSE;
 
-			if(WindowCoord.X>csbi.dwSize.X)
-			{
-				// windows sometimes uses existing colors to init right region of screen buffer
-				FarColor Color;
-				Console().GetTextAttributes(Color);
-				Console().ClearExtraRegions(Color, CR_RIGHT);
-			}
-		}
-		if(SetWindowRect(csbi.srWindow))
-		{
-			csbi.dwSize.X = Size.X;
-			Result=SetConsoleScreenBufferSize(GetOutputHandle(), csbi.dwSize)!=FALSE;
-		}
-	}
-	else
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+	csbi.srWindow.Left=0;
+	csbi.srWindow.Right=Size.X-1;
+	csbi.srWindow.Bottom=csbi.dwSize.Y-1;
+	csbi.srWindow.Top=csbi.srWindow.Bottom-(Size.Y-1);
+	COORD WindowCoord={static_cast<SHORT>(csbi.srWindow.Right-csbi.srWindow.Left+1), static_cast<SHORT>(csbi.srWindow.Bottom-csbi.srWindow.Top+1)};
+	if(WindowCoord.X>csbi.dwSize.X || WindowCoord.Y>csbi.dwSize.Y)
 	{
-		Result = SetConsoleScreenBufferSize(GetOutputHandle(), Size) != FALSE;
+		WindowCoord.X=std::max(WindowCoord.X,csbi.dwSize.X);
+		WindowCoord.Y=std::max(WindowCoord.Y,csbi.dwSize.Y);
+		SetConsoleScreenBufferSize(GetOutputHandle(), WindowCoord);
+
+		if(WindowCoord.X>csbi.dwSize.X)
+		{
+			// windows sometimes uses existing colors to init right region of screen buffer
+			FarColor Color;
+			Console().GetTextAttributes(Color);
+			Console().ClearExtraRegions(Color, CR_RIGHT);
+		}
 	}
-	return Result;
+
+	if (!SetWindowRect(csbi.srWindow))
+		return false;
+
+	csbi.dwSize.X = Size.X;
+	return SetConsoleScreenBufferSize(GetOutputHandle(), csbi.dwSize) != FALSE;
 }
 
 virtual bool GetWindowRect(SMALL_RECT& ConsoleWindow) const override
 {
-	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
-	{
-		ConsoleWindow=ConsoleScreenBufferInfo.srWindow;
-		Result=true;
-	}
-	return Result;
+	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		return false;
+
+	ConsoleWindow=ConsoleScreenBufferInfo.srWindow;
+	return true;
 }
 
 virtual bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const override
@@ -164,17 +157,15 @@ virtual bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const override
 
 virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const override
 {
-	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
-	{
-		WorkingRect.Bottom=csbi.dwSize.Y-1;
-		WorkingRect.Left=0;
-		WorkingRect.Right=WorkingRect.Left+ScrX;
-		WorkingRect.Top=WorkingRect.Bottom-ScrY;
-		Result=true;
-	}
-	return Result;
+	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+		return false;
+
+	WorkingRect.Bottom = csbi.dwSize.Y - 1;
+	WorkingRect.Left = 0;
+	WorkingRect.Right = WorkingRect.Left + ScrX;
+	WorkingRect.Top = WorkingRect.Bottom - ScrY;
+	return true;
 }
 
 virtual string GetPhysicalTitle() const override
@@ -204,18 +195,12 @@ virtual bool SetTitle(const string& Title) const override
 
 virtual bool GetKeyboardLayoutName(string &strName) const override
 {
-	bool Result=false;
 	wchar_t Buffer[KL_NAMELENGTH];
-	if (Imports().GetConsoleKeyboardLayoutNameW(Buffer))
-	{
-		Result=true;
-		strName = Buffer;
-	}
-	else
-	{
-		strName.clear();
-	}
-	return Result;
+	if (!Imports().GetConsoleKeyboardLayoutNameW(Buffer))
+		return false;
+
+	strName = Buffer;
+	return true;
 }
 
 virtual uintptr_t GetInputCodepage() const override
@@ -318,7 +303,6 @@ virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 
 virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
 {
-	bool Result=false;
 	int Delta=Global->Opt->WindowMode?GetDelta():0;
 	ReadRegion.Top+=Delta;
 	ReadRegion.Bottom+=Delta;
@@ -343,13 +327,15 @@ virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_
 		{
 			ReadRegion=SavedReadRegion;
 			ReadRegion.Top = static_cast<SHORT>(Start+i);
-			Result = ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer[i].data(), BufferSize, BufferCoord, &ReadRegion) != FALSE;
+			if (!ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer[i].data(), BufferSize, BufferCoord, &ReadRegion))
+				return false;
 		}
 		BufferSize.Y = SavedY;
 	}
 	else
 	{
-		Result=ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &ReadRegion)!=FALSE;
+		if (!ReadConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &ReadRegion))
+			return false;
 	}
 
 	auto& ConsoleBufferVector = ConsoleBuffer.vector();
@@ -364,12 +350,11 @@ virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_
 		ReadRegion.Bottom-=Delta;
 	}
 
-	return Result;
+	return true;
 }
 
 virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
 {
-	bool Result=false;
 	int Delta=Global->Opt->WindowMode?GetDelta():0;
 	WriteRegion.Top+=Delta;
 	WriteRegion.Bottom+=Delta;
@@ -400,13 +385,15 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 		{
 			WriteRegion=SavedWriteRegion;
 			WriteRegion.Top = static_cast<SHORT>(Start + i);
-			Result = WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer[i].data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
+			if (!WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer[i].data(), BufferSize, BufferCoord, &WriteRegion))
+				return false;
 		}
 		BufferSize.Y = SavedY;
 	}
 	else
 	{
-		Result=WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &WriteRegion)!=FALSE;
+		if (!WriteConsoleOutput(GetOutputHandle(), ConsoleBuffer.data(), BufferSize, BufferCoord, &WriteRegion))
+			return false;
 	}
 
 	if(Global->Opt->WindowMode)
@@ -415,7 +402,7 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 		WriteRegion.Bottom-=Delta;
 	}
 
-	return Result;
+	return true;
 }
 
 virtual bool Write(LPCWSTR Buffer) const override
@@ -430,19 +417,13 @@ virtual bool Write(const string& Buffer) const override
 
 virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const override
 {
-	bool Result = false;
 	DWORD NumberOfCharsWritten;
-	HANDLE OutputHandle = GetOutputHandle();
+	const auto OutputHandle = GetOutputHandle();
+
 	DWORD Mode;
-	if(GetMode(OutputHandle, Mode))
-	{
-		Result =  WriteConsole(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite), &NumberOfCharsWritten, nullptr)!=FALSE;
-	}
-	else
-	{
-		Result = WriteFile(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite*sizeof(wchar_t)), &NumberOfCharsWritten, nullptr)!=FALSE;
-	}
-	return Result;
+	return GetMode(OutputHandle, Mode)?
+	       WriteConsole(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite), &NumberOfCharsWritten, nullptr) != FALSE :
+	       WriteFile(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite*sizeof(wchar_t)), &NumberOfCharsWritten, nullptr) != FALSE;
 }
 
 virtual bool Commit() const override
@@ -453,14 +434,12 @@ virtual bool Commit() const override
 
 virtual bool GetTextAttributes(FarColor& Attributes) const override
 {
-	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
-	{
-		Attributes = colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
-		Result=true;
-	}
-	return Result;
+	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		return false;
+
+	Attributes = colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
+	return true;
 }
 
 virtual bool SetTextAttributes(const FarColor& Attributes) const override
@@ -480,23 +459,20 @@ virtual bool SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const o
 
 virtual bool GetCursorPosition(COORD& Position) const override
 {
-	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		return false;
+
+	Position = ConsoleScreenBufferInfo.dwCursorPosition;
+	if (Global->Opt->WindowMode)
 	{
-		Position=ConsoleScreenBufferInfo.dwCursorPosition;
-		if(Global->Opt->WindowMode)
-		{
-			Position.Y-=GetDelta();
-		}
-		Result=true;
+		Position.Y -= GetDelta();
 	}
-	return Result;
+	return true;
 }
 
 virtual bool SetCursorPosition(COORD Position) const override
 {
-
 	if(Global->Opt->WindowMode)
 	{
 		ResetPosition();
@@ -767,16 +743,13 @@ private:
 
 bool console::ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const
 {
-	bool Result = false;
-
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	if (GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi) != FALSE)
-	{
-		SMALL_RECT ScrollRectangle = { 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>(csbi.dwSize.Y - (ScrY + 1) - 1) };
-		COORD DestinationOigin = { 0, static_cast<SHORT>(-static_cast<SHORT>(NumLines)) };
-		Result = ScrollScreenBuffer(ScrollRectangle, nullptr, DestinationOigin, Fill) != FALSE;
-	}
-	return Result;
+	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+		return false;
+
+	SMALL_RECT ScrollRectangle = { 0, 0, static_cast<SHORT>(csbi.dwSize.X - 1), static_cast<SHORT>(csbi.dwSize.Y - (ScrY + 1) - 1) };
+	COORD DestinationOigin = { 0, static_cast<SHORT>(-static_cast<SHORT>(NumLines)) };
+	return ScrollScreenBuffer(ScrollRectangle, nullptr, DestinationOigin, Fill) != FALSE;
 }
 
 
@@ -785,102 +758,74 @@ class extendedconsole:public basicconsole
 public:
 	virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
 	{
-		bool Result = false;
 		if(Imports.pReadOutput)
 		{
 			const COORD SizeCoord = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
-			Result = Imports.pReadOutput(Buffer.data(), SizeCoord, BufferCoord, &ReadRegion) != FALSE;
+			return Imports.pReadOutput(Buffer.data(), SizeCoord, BufferCoord, &ReadRegion) != FALSE;
 		}
-		else
-		{
-			Result = basicconsole::ReadOutput(Buffer, BufferCoord, ReadRegion);
-		}
-		return Result;
+
+		return basicconsole::ReadOutput(Buffer, BufferCoord, ReadRegion);
 	}
 
 	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
 	{
-		bool Result = false;
 		if(Imports.pWriteOutput)
 		{
 			const COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
-			Result = Imports.pWriteOutput(Buffer.data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
+			return Imports.pWriteOutput(Buffer.data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
 		}
-		else
-		{
-			Result = basicconsole::WriteOutput(Buffer, BufferCoord, WriteRegion);
-		}
-		return Result;
+
+		return basicconsole::WriteOutput(Buffer, BufferCoord, WriteRegion);
 	}
 
 	virtual bool Commit() const override
 	{
-		bool Result = false;
 		if(Imports.pCommit)
 		{
-			Result = Imports.pCommit() != FALSE;
+			return Imports.pCommit() != FALSE;
 		}
-		else
-		{
-			Result = basicconsole::Commit();
-		}
-		return Result;
+
+		return basicconsole::Commit();
 	}
 
 	virtual bool GetTextAttributes(FarColor& Attributes) const override
 	{
-		bool Result = false;
 		if(Imports.pGetTextAttributes)
 		{
-			Result = Imports.pGetTextAttributes(&Attributes) != FALSE;
+			return Imports.pGetTextAttributes(&Attributes) != FALSE;
 		}
-		else
-		{
-			Result = basicconsole::GetTextAttributes(Attributes);
-		}
-		return Result;
+
+		return basicconsole::GetTextAttributes(Attributes);
 	}
 
 	virtual bool SetTextAttributes(const FarColor& Attributes) const override
 	{
-		bool Result = false;
 		if(Imports.pSetTextAttributes)
 		{
-			Result = Imports.pSetTextAttributes(&Attributes) != FALSE;
+			return Imports.pSetTextAttributes(&Attributes) != FALSE;
 		}
-		else
-		{
-			Result = basicconsole::SetTextAttributes(Attributes);
-		}
-		return Result;
+
+		return basicconsole::SetTextAttributes(Attributes);
 	}
 
 	virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const override
 	{
-		bool Result = false;
 		if(Imports.pClearExtraRegions)
 		{
-			Result = Imports.pClearExtraRegions(&Color, Mode) != FALSE;
+			return Imports.pClearExtraRegions(&Color, Mode) != FALSE;
 		}
-		else
-		{
-			Result = basicconsole::ClearExtraRegions(Color, Mode);
-		}
-		return Result;
+
+		return basicconsole::ClearExtraRegions(Color, Mode);
 	}
 
 	virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const override
 	{
-		bool Result = false;
 		if(Imports.pGetColorDialog)
 		{
-			Result = Imports.pGetColorDialog(&Color, Centered, AddTransparent) != FALSE;
+			return Imports.pGetColorDialog(&Color, Centered, AddTransparent) != FALSE;
 		}
-		else
-		{
-			Result = basicconsole::GetColorDialog(Color, Centered, AddTransparent);
-		}
-		return Result;
+
+		return basicconsole::GetColorDialog(Color, Centered, AddTransparent);
 	}
 
 private:

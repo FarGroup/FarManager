@@ -88,13 +88,6 @@ bool SQLiteDb::SQLiteStmt::Step() const
 	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_ROW;
 }
 
-bool SQLiteDb::SQLiteStmt::StepAndReset()
-{
-	const bool b = sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_DONE;
-	Reset();
-	return b;
-}
-
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(int Value)
 {
 	sqlite::sqlite3_bind_int(m_Stmt.get(), m_Param++, Value);

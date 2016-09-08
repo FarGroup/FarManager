@@ -555,70 +555,70 @@ void ShellSetFileAttributesMsg(const string& Name)
 
 bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& OSrcDate,const string& OSrcTime)
 {
-	bool Result=false;
 	os::FAR_FIND_DATA ffd;
+	if (!os::GetFindDataEx(Name, ffd))
+		return false;
 
-	if (os::GetFindDataEx(Name, ffd))
+	FILETIME* Times[] =
 	{
-		LPFILETIME Times[]={&ffd.ftLastWriteTime, &ffd.ftCreationTime, &ffd.ftLastAccessTime, &ffd.ftChangeTime};
-		LPFILETIME OriginalFileTime=Times[Type];
-		SYSTEMTIME ost={};
-		if(Utc2Local(*OriginalFileTime,ost))
-		{
-			WORD DateN[3]={};
-			GetFileDateAndTime(OSrcDate, DateN, std::size(DateN), locale::GetDateSeparator());
-			WORD TimeN[4]={};
-			GetFileDateAndTime(OSrcTime, TimeN, std::size(TimeN), locale::GetTimeSeparator());
-			SYSTEMTIME st={};
+		&ffd.ftLastWriteTime,
+		&ffd.ftCreationTime,
+		&ffd.ftLastAccessTime,
+		&ffd.ftChangeTime
+	};
 
-			switch (locale::GetDateFormat())
-			{
-				case 0:
-					st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:ost.wMonth;
-					st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:ost.wDay;
-					st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
-					break;
-				case 1:
-					st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:ost.wDay;
-					st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
-					st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
-					break;
-				default:
-					st.wYear =DateN[0]!=(WORD)-1?DateN[0]:ost.wYear;
-					st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
-					st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:ost.wDay;
-					break;
-			}
+	auto& OriginalFileTime = *Times[Type];
+	SYSTEMTIME ost;
+	if (!Utc2Local(OriginalFileTime, ost))
+		return false;
 
-			st.wHour         = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
-			st.wMinute       = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
-			st.wSecond       = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
-			st.wMilliseconds = TimeN[3]!=(WORD)-1? (TimeN[3]):ost.wMilliseconds;
+	WORD DateN[3]{};
+	GetFileDateAndTime(OSrcDate, DateN, std::size(DateN), locale::GetDateSeparator());
+	WORD TimeN[4]{};
+	GetFileDateAndTime(OSrcTime, TimeN, std::size(TimeN), locale::GetTimeSeparator());
 
-			if (st.wYear<100)
-			{
-				st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
-			}
+	SYSTEMTIME st{};
 
-			if (Local2Utc(st, FileTime))
-			{
-				Result= FileTime != *OriginalFileTime;
-			}
-		}
+	enum indicies { i_day, i_month, i_year };
+	std::array<indicies, 3> Indicies;
+
+	switch (locale::GetDateFormat())
+	{
+	case 0:  Indicies = { i_month, i_day, i_year }; break;
+	case 1:  Indicies = { i_day, i_month, i_year }; break;
+	default: Indicies = { i_year, i_month, i_day }; break;
 	}
-	return Result;
+
+	st.wDay   = DateN[Indicies[0]] != static_cast<WORD>(-1)? DateN[Indicies[0]] : ost.wDay;
+	st.wMonth = DateN[Indicies[1]] != static_cast<WORD>(-1)? DateN[Indicies[1]] : ost.wMonth;
+	st.wYear  = DateN[Indicies[2]] != static_cast<WORD>(-1)? DateN[Indicies[2]] : ost.wYear;
+
+	st.wHour         = TimeN[0] != static_cast<WORD>(-1)? TimeN[0] : ost.wHour;
+	st.wMinute       = TimeN[1] != static_cast<WORD>(-1)? TimeN[1] : ost.wMinute;
+	st.wSecond       = TimeN[2] != static_cast<WORD>(-1)? TimeN[2] : ost.wSecond;
+	st.wMilliseconds = TimeN[3] != static_cast<WORD>(-1)? TimeN[3] : ost.wMilliseconds;
+
+	if (st.wYear < 100)
+	{
+		st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
+	}
+
+	if (!Local2Utc(st, FileTime))
+		return false;
+
+	return FileTime != OriginalFileTime;
 }
 
 void PR_ShellSetFileAttributesMsg()
 {
-	if (!PreRedrawStack().empty())
+	if (PreRedrawStack().empty())
+		return;
+
+	const auto item = dynamic_cast<const AttrPreRedrawItem*>(PreRedrawStack().top());
+	assert(item);
+	if (item)
 	{
-		const auto item = dynamic_cast<const AttrPreRedrawItem*>(PreRedrawStack().top());
-		assert(item);
-		if (item)
-		{
-			ShellSetFileAttributesMsg(item->Name);
-		}
+		ShellSetFileAttributesMsg(item->Name);
 	}
 }
 

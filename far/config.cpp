@@ -1345,42 +1345,42 @@ struct FARConfigItem
 
 static bool ParseIntValue(const string& sValue, long long& iValue)
 {
-	bool Result = false;
-
 	try
 	{
 		iValue = std::stoll(sValue);
-		Result = true;
+		return true;
 	}
 	catch (const std::exception&)
 	{
 		try
 		{
 			iValue = std::stoull(sValue);
-			Result = true;
+			return true;
 		}
 		catch (const std::exception&)
 		{
 			if (!StrCmpI(sValue, L"false"))
 			{
 				iValue = 0;
-				Result = true;
+				return true;
 			}
-			else if (!StrCmpI(sValue, L"true"))
+
+			if (!StrCmpI(sValue, L"true"))
 			{
 				iValue = 1;
-				Result = true;
+				return true;
 			}
-			else if (!StrCmpI(sValue, L"other"))
+
+			if (!StrCmpI(sValue, L"other"))
 			{
 				iValue = 2;
-				Result = true;
+				return true;
 			}
-			// TODO: else log
+			// TODO: log
 		}
 	}
 
-	return Result;
+	return false;
 }
 
 

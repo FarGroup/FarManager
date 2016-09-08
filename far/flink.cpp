@@ -52,54 +52,67 @@ bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 	return os::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.data(), VolumeName.data());
 }
 
-bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb, const string& PrintName, const string& SubstituteName)
+static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& PrintName, const string& SubstituteName)
 {
-	bool Result=false;
-	rdb->Reserved=0;
 
 	switch (rdb->ReparseTag)
 	{
-		case IO_REPARSE_TAG_MOUNT_POINT:
-			{
-				auto& Buffer = rdb->MountPointReparseBuffer;
-				Buffer.SubstituteNameOffset = 0;
-				Buffer.SubstituteNameLength = static_cast<WORD>(SubstituteName.size() * sizeof(wchar_t));
-				Buffer.PrintNameOffset = rdb->MountPointReparseBuffer.SubstituteNameLength + 1 * sizeof(wchar_t);
-				Buffer.PrintNameLength = static_cast<WORD>(PrintName.size() * sizeof(wchar_t));
-				rdb->ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) + Buffer.PrintNameOffset + Buffer.PrintNameLength + 1 * sizeof(wchar_t) - REPARSE_DATA_BUFFER_HEADER_SIZE;
+	// IO_REPARSE_TAG_MOUNT_POINT and IO_REPARSE_TAG_SYMLINK buffers are filled in a little different ways:
+	// different order of print and substitute names and additional zero bytes in IO_REPARSE_TAG_MOUNT_POINT.
+	// No particular reason to do that, but Windows for some reason does and we just mimic its approach to make
+	// reparse points created by Far indistinguishable from created by, say, mklink.
 
-				if (rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE <= static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE / sizeof(wchar_t)))
-				{
-					std::copy(ALL_CONST_RANGE(SubstituteName), Buffer.PathBuffer + Buffer.SubstituteNameOffset / sizeof(wchar_t));
-					Buffer.PathBuffer[(Buffer.SubstituteNameOffset + Buffer.SubstituteNameLength) / sizeof(wchar_t)] = 0;
-					std::copy(ALL_CONST_RANGE(PrintName), Buffer.PathBuffer + Buffer.PrintNameOffset / sizeof(wchar_t));
-					Buffer.PathBuffer[(Buffer.PrintNameOffset + Buffer.PrintNameLength) / sizeof(wchar_t)] = 0;
-					Result = true;
-				}
-				break;
-			}
-		case IO_REPARSE_TAG_SYMLINK:
-			{
-				auto& Buffer = rdb->SymbolicLinkReparseBuffer;
-				Buffer.PrintNameOffset = 0;
-				Buffer.PrintNameLength = static_cast<WORD>(PrintName.size() * sizeof(wchar_t));
-				Buffer.SubstituteNameOffset = rdb->MountPointReparseBuffer.PrintNameLength;
-				Buffer.SubstituteNameLength = static_cast<WORD>(SubstituteName.size() * sizeof(wchar_t));
-				rdb->ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer) + Buffer.SubstituteNameOffset + Buffer.SubstituteNameLength - REPARSE_DATA_BUFFER_HEADER_SIZE;
+	case IO_REPARSE_TAG_MOUNT_POINT:
+		{
+			const size_t SubstituteNameOffset = 0;
+			const size_t SubstituteNameLength = SubstituteName.size() * sizeof(wchar_t);
+			const size_t PrintNameOffset = SubstituteNameLength + 1 * sizeof(wchar_t);
+			const size_t PrintNameLength = PrintName.size() * sizeof(wchar_t);
+			const size_t ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) - REPARSE_DATA_BUFFER_HEADER_SIZE + PrintNameOffset + PrintNameLength + 1 * sizeof(wchar_t);
 
-				if (rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE <= static_cast<USHORT>(MAXIMUM_REPARSE_DATA_BUFFER_SIZE / sizeof(wchar_t)))
-				{
-					std::copy(ALL_CONST_RANGE(SubstituteName), Buffer.PathBuffer + Buffer.SubstituteNameOffset / sizeof(wchar_t));
-					std::copy(ALL_CONST_RANGE(PrintName), Buffer.PathBuffer + Buffer.PrintNameOffset / sizeof(wchar_t));
-					Result=true;
-				}
-				break;
-			}
-		default:
-			break;
+			if (ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE > MAXIMUM_REPARSE_DATA_BUFFER_SIZE)
+				return false;
+
+			rdb->ReparseDataLength = static_cast<USHORT>(ReparseDataLength);
+			rdb->Reserved = 0;
+
+			auto& Buffer = rdb->MountPointReparseBuffer;
+			Buffer.SubstituteNameOffset = static_cast<USHORT>(SubstituteNameOffset);
+			Buffer.SubstituteNameLength = static_cast<USHORT>(SubstituteNameLength);
+			Buffer.PrintNameOffset = static_cast<USHORT>(PrintNameOffset);
+			Buffer.PrintNameLength = static_cast<USHORT>(PrintNameLength);
+			*std::copy(ALL_CONST_RANGE(SubstituteName), Buffer.PathBuffer + SubstituteNameOffset / sizeof(wchar_t)) = 0;
+			*std::copy(ALL_CONST_RANGE(PrintName), Buffer.PathBuffer + PrintNameOffset / sizeof(wchar_t)) = 0;
+			return true;
+		}
+
+	case IO_REPARSE_TAG_SYMLINK:
+		{
+			const size_t PrintNameOffset = 0;
+			const size_t PrintNameLength = PrintName.size() * sizeof(wchar_t);
+			const size_t SubstituteNameOffset = PrintNameLength;
+			const size_t SubstituteNameLength = SubstituteName.size() * sizeof(wchar_t);
+			const size_t ReparseDataLength = offsetof(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer) - REPARSE_DATA_BUFFER_HEADER_SIZE + SubstituteNameOffset + SubstituteNameLength;
+
+			if (ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE > MAXIMUM_REPARSE_DATA_BUFFER_SIZE)
+				return false;
+
+			rdb->ReparseDataLength = static_cast<USHORT>(ReparseDataLength);
+			rdb->Reserved = 0;
+
+			auto& Buffer = rdb->SymbolicLinkReparseBuffer;
+			Buffer.SubstituteNameOffset = static_cast<USHORT>(SubstituteNameOffset);
+			Buffer.SubstituteNameLength = static_cast<USHORT>(SubstituteNameLength);
+			Buffer.PrintNameOffset = static_cast<USHORT>(PrintNameOffset);
+			Buffer.PrintNameLength = static_cast<USHORT>(PrintNameLength);
+			std::copy(ALL_CONST_RANGE(SubstituteName), Buffer.PathBuffer + SubstituteNameOffset / sizeof(wchar_t));
+			std::copy(ALL_CONST_RANGE(PrintName), Buffer.PathBuffer + PrintNameOffset / sizeof(wchar_t));
+			return true;
+		}
+
+	default:
+		return false;
 	}
-
-	return Result;
 }
 
 static DWORD GetDesiredAccessForReparsePointChange()
@@ -108,41 +121,43 @@ static DWORD GetDesiredAccessForReparsePointChange()
 	return DesiredAccess;
 }
 
-bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
+static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rdb)
 {
-	bool Result=false;
-	if (IsReparseTagValid(rdb->ReparseTag))
+	if (!IsReparseTagValid(rdb->ReparseTag))
+		return false;
+
+	SCOPED_ACTION(os::security::privilege)(SE_CREATE_SYMBOLIC_LINK_NAME);
+
+	const auto Attributes = os::GetFileAttributes(Object);
+	if(Attributes&FILE_ATTRIBUTE_READONLY)
 	{
-		SCOPED_ACTION(os::security::privilege)(SE_CREATE_SYMBOLIC_LINK_NAME);
-
-		const auto Attributes = os::GetFileAttributes(Object);
-		if(Attributes&FILE_ATTRIBUTE_READONLY)
-		{
-			os::SetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
-		}
-		const auto SetBuffer = [&](bool ForceElevation)
-		{
-			os::fs::file fObject;
-			DWORD dwBytesReturned;
-			return fObject.Open(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation) &&
-				fObject.IoControl(FSCTL_SET_REPARSE_POINT, rdb, rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0, &dwBytesReturned);
-		};
-
-		Result = SetBuffer(false);
-
-		if (!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		{
-			// Open() succeeded, but IoControl() failed. We can't handle this automatically :(
-			Result = SetBuffer(true);
-		}
-		if(Attributes&FILE_ATTRIBUTE_READONLY)
-		{
-			os::SetFileAttributes(Object, Attributes);
-		}
-
+		os::SetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
 	}
 
-	return Result;
+	SCOPE_EXIT
+	{
+		if (Attributes&FILE_ATTRIBUTE_READONLY)
+			os::SetFileAttributes(Object, Attributes);
+	};
+
+	const auto SetBuffer = [&](bool ForceElevation)
+	{
+		os::fs::file fObject;
+		DWORD dwBytesReturned;
+		return fObject.Open(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation) &&
+			fObject.IoControl(FSCTL_SET_REPARSE_POINT, rdb, rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0, &dwBytesReturned);
+	};
+
+	if (SetBuffer(false))
+		return true;
+
+	if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
+	{
+		// Open() succeeded, but IoControl() failed. We can't handle this automatically :(
+		return SetBuffer(true);
+	}
+
+	return false;
 }
 
 bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type)
@@ -236,100 +251,77 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 	return Result;
 }
 
-bool GetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
+static bool GetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rdb)
 {
-	bool Result=false;
 	const auto FileAttr = os::GetFileAttributes(Object);
+	if (FileAttr == INVALID_FILE_ATTRIBUTES || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+		return false;
 
-	if (FileAttr!=INVALID_FILE_ATTRIBUTES && (FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
-	{
-		os::fs::file fObject;
-		if(fObject.Open(Object,0,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT))
-		{
-			DWORD dwBytesReturned;
-			if(fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE, &dwBytesReturned) && IsReparseTagValid(rdb->ReparseTag))
-			{
-				Result=true;
-			}
-		}
-	}
+	os::fs::file fObject;
+	if (!fObject.Open(Object, 0, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		return false;
 
-	return Result;
+	DWORD dwBytesReturned;
+	return fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE, &dwBytesReturned) && IsReparseTagValid(rdb->ReparseTag);
 }
 
 bool DeleteReparsePoint(const string& Object)
 {
-	bool Result=false;
 	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	if (GetREPARSE_DATA_BUFFER(Object, rdb.get()))
-	{
-		os::fs::file fObject;
-		if (fObject.Open(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
-		{
-			DWORD dwBytes;
-			REPARSE_GUID_DATA_BUFFER rgdb = {rdb->ReparseTag};
-			Result=fObject.IoControl(FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytes);
-		}
-	}
-	return Result;
+	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
+		return false;
+
+	os::fs::file fObject;
+	if (!fObject.Open(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+		return false;
+
+	DWORD dwBytes;
+	REPARSE_GUID_DATA_BUFFER rgdb{rdb->ReparseTag};
+	return fObject.IoControl(FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytes);
 }
 
 bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD ReparseTag)
 {
-	WORD NameLength=0;
 	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
+		return false;
 
-	if (GetREPARSE_DATA_BUFFER(Object,rdb.get()))
+	if (ReparseTag)
+		*ReparseTag=rdb->ReparseTag;
+
+	const auto Extract = [&](const auto& Buffer)
 	{
 		const wchar_t *PathBuffer = nullptr;
+		auto NameLength = Buffer.PrintNameLength / sizeof(wchar_t);
 
-		if (ReparseTag)
-			*ReparseTag=rdb->ReparseTag;
-
-		switch (rdb->ReparseTag)
+		if (NameLength)
 		{
-		case IO_REPARSE_TAG_SYMLINK:
-			{
-				NameLength = rdb->SymbolicLinkReparseBuffer.PrintNameLength/sizeof(wchar_t);
-
-				if (NameLength)
-				{
-					PathBuffer = &rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
-				}
-				else
-				{
-					NameLength = rdb->SymbolicLinkReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
-					PathBuffer = &rdb->SymbolicLinkReparseBuffer.PathBuffer[rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
-				}
-			}
-			break;
-
-		case IO_REPARSE_TAG_MOUNT_POINT:
-			{
-				NameLength = rdb->MountPointReparseBuffer.PrintNameLength/sizeof(wchar_t);
-
-				if (NameLength)
-				{
-					PathBuffer = &rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.PrintNameOffset/sizeof(wchar_t)];
-				}
-				else
-				{
-					NameLength = rdb->MountPointReparseBuffer.SubstituteNameLength/sizeof(wchar_t);
-					PathBuffer = &rdb->MountPointReparseBuffer.PathBuffer[rdb->MountPointReparseBuffer.SubstituteNameOffset/sizeof(wchar_t)];
-				}
-			}
-			break;
-
-		default:
-			break;
+			PathBuffer = &Buffer.PathBuffer[Buffer.PrintNameOffset / sizeof(wchar_t)];
 		}
-		if(NameLength)
+		else
 		{
-			strDestBuff.assign(PathBuffer, NameLength);
+			NameLength = Buffer.SubstituteNameLength / sizeof(wchar_t);
+			PathBuffer = &Buffer.PathBuffer[Buffer.SubstituteNameOffset / sizeof(wchar_t)];
 		}
+
+		if (!NameLength)
+			return false;
+
+		strDestBuff.assign(PathBuffer, NameLength);
+		return true;
+	};
+
+	switch (rdb->ReparseTag)
+	{
+	case IO_REPARSE_TAG_SYMLINK:
+		return Extract(rdb->SymbolicLinkReparseBuffer);
+
+	case IO_REPARSE_TAG_MOUNT_POINT:
+		return Extract(rdb->MountPointReparseBuffer);
+
+	default:
+		return false;
 	}
-
-	return NameLength != 0;
 }
 
 int GetNumberOfLinks(const string& Name, bool negative_if_error)
@@ -346,7 +338,6 @@ int GetNumberOfLinks(const string& Name, bool negative_if_error)
 	}
 	return NumberOfLinks;
 }
-
 
 int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 {
@@ -463,7 +454,6 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 	return Result;
 }
 
-
 string GetPathRoot(const string& Path)
 {
 	return ExtractPathRoot(ConvertNameToReal(Path));
@@ -471,56 +461,52 @@ string GetPathRoot(const string& Path)
 
 bool ModifyReparsePoint(const string& Object,const string& NewData)
 {
-	bool Result=false;
 	block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
+		return false;
 
-	if (GetREPARSE_DATA_BUFFER(Object,rdb.get()))
+	switch (rdb->ReparseTag)
 	{
-		bool FillResult=false;
-
-		switch (rdb->ReparseTag)
+	case IO_REPARSE_TAG_MOUNT_POINT:
 		{
-		case IO_REPARSE_TAG_MOUNT_POINT:
+			const auto strPrintName = ConvertNameToFull(NewData);
+			const auto strSubstituteName = KernelPath(NTPath(strPrintName));
+			if (!FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
 			{
-				const auto strPrintName = ConvertNameToFull(NewData);
-				const auto strSubstituteName = KernelPath(NTPath(strPrintName));
-				FillResult=FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName);
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				return false;
 			}
-			break;
+		}
+		break;
 
-		case IO_REPARSE_TAG_SYMLINK:
+	case IO_REPARSE_TAG_SYMLINK:
+		{
+			const auto& strPrintName = NewData;
+			auto strSubstituteName = NewData;
+
+			if (IsAbsolutePath(NewData))
 			{
-				const auto& strPrintName = NewData;
-				auto strSubstituteName = NewData;
-
-				if (IsAbsolutePath(NewData))
-				{
-					strSubstituteName = KernelPath(NTPath(strSubstituteName));
-					rdb->SymbolicLinkReparseBuffer.Flags=0;
-				}
-				else
-				{
-					rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
-				}
-
-				FillResult=FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName);
+				strSubstituteName = KernelPath(NTPath(strSubstituteName));
+				rdb->SymbolicLinkReparseBuffer.Flags=0;
 			}
-			break;
+			else
+			{
+				rdb->SymbolicLinkReparseBuffer.Flags=SYMLINK_FLAG_RELATIVE;
+			}
 
-		default:
-			break;
+			if (!FillREPARSE_DATA_BUFFER(rdb.get(), strPrintName, strSubstituteName))
+			{
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				return false;
+			}
 		}
+		break;
 
-		if (FillResult)
-		{
-			Result=SetREPARSE_DATA_BUFFER(Object,rdb.get());
-		}
-		else
-		{
-			SetLastError(ERROR_INSUFFICIENT_BUFFER);
-		}
+	default:
+		return false;
 	}
-	return Result;
+
+	return SetREPARSE_DATA_BUFFER(Object,rdb.get());
 }
 
 bool DuplicateReparsePoint(const string& Src,const string& Dst)
@@ -531,14 +517,14 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (!strLinkName.compare(0, 4, L"\\??\\"))
-	{
-		strLinkName[1] = L'\\';
-		if (ParsePath(strLinkName) == PATH_DRIVELETTERUNC)
-		{
-			strLinkName.erase(0, 4);
-		}
-	}
+	if (strLinkName.compare(0, 4, L"\\??\\"))
+		return;
+
+	strLinkName[1] = L'\\';
+	if (ParsePath(strLinkName) != PATH_DRIVELETTERUNC)
+		return;
+
+	strLinkName.erase(0, 4);
 }
 
 // Кусок для создания SymLink для каталогов.

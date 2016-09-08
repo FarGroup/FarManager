@@ -51,27 +51,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void GetColor(PaletteColors PaletteIndex)
 {
-	FarColor NewColor = Global->Opt->Palette[PaletteIndex];
+	auto NewColor = Global->Opt->Palette[PaletteIndex];
 
-	if (Console().GetColorDialog(NewColor))
-	{
-		Global->Opt->Palette.Set(PaletteIndex, &NewColor, 1);
-		Global->ScrBuf->Lock(); // отменяем всякую прорисовку
-		Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->LeftPanel()->Redraw();
-		Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->RightPanel()->Redraw();
+	if (!Console().GetColorDialog(NewColor))
+		return;
 
+	Global->Opt->Palette.Set(PaletteIndex, &NewColor, 1);
+	Global->ScrBuf->Lock(); // отменяем всякую прорисовку
+	Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+	Global->CtrlObject->Cp()->LeftPanel()->Redraw();
+	Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
+	Global->CtrlObject->Cp()->RightPanel()->Redraw();
 
-		Global->WindowManager->ResizeAllWindows(); // рефрешим
-		Global->WindowManager->PluginCommit(); // коммитим.
+	Global->WindowManager->ResizeAllWindows(); // рефрешим
+	Global->WindowManager->PluginCommit(); // коммитим.
 
-		if (Global->Opt->Clock)
-			ShowTime();
+	if (Global->Opt->Clock)
+		ShowTime();
 
-		Global->ScrBuf->Unlock(); // разрешаем прорисовку
-		Global->WindowManager->PluginCommit(); // коммитим.
-	}
+	Global->ScrBuf->Unlock(); // разрешаем прорисовку
+	Global->WindowManager->PluginCommit(); // коммитим.
 }
 
 enum list_mode

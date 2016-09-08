@@ -1262,17 +1262,12 @@ int HiFindNextVisualPos(const string& Str, int Pos, int Direct)
 
 bool IsConsoleFullscreen()
 {
-	bool Result=false;
-	static bool Supported = Console().IsFullscreenSupported();
-	if(Supported)
-	{
-		DWORD ModeFlags=0;
-		if(Console().GetDisplayMode(ModeFlags) && ModeFlags&CONSOLE_FULLSCREEN_HARDWARE)
-		{
-			Result=true;
-		}
-	}
-	return Result;
+	static const auto Supported = Console().IsFullscreenSupported();
+	if (!Supported)
+		return false;
+
+	DWORD ModeFlags=0;
+	return Console().GetDisplayMode(ModeFlags) && ModeFlags & CONSOLE_FULLSCREEN_HARDWARE;
 }
 
 void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
