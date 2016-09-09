@@ -989,7 +989,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		return ProcessFocusEvent(rec->Event.FocusEvent.bSetFocus != FALSE);
 	}
 
-	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT)
+	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || IsConsoleSizeChanged())
 	{
 		return ProcessBufferSizeEvent(rec->Event.WindowBufferSizeEvent.dwSize);
 	}
