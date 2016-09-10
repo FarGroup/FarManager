@@ -118,6 +118,7 @@ count for seconds is only 5 bits wide.
 
 */
 
+PACK_PUSH(1)
 struct RecHeader
 {
   BYTE  HeadId;                // special archive marker = 0x1A or 0xFE
@@ -128,7 +129,10 @@ struct RecHeader
                                //                   3  Security envelope,
                                //                   4  Error correction codes (not implemented in PAK 2.xx)
 };
+PACK_POP()
+PACK_CHECK(RecHeader, 1);
 
+PACK_PUSH(1)
 struct ARCHeader
 {
   BYTE  HeadId;                // special archive marker = 0x1A or 0xFE
@@ -140,15 +144,20 @@ struct ARCHeader
   WORD  CRC16;                 // 16-bit CRC
   DWORD OrigSize;              // Original file size
 };
+PACK_POP()
+PACK_CHECK(ARCHeader, 1);
 
+
+PACK_PUSH(1)
 struct PAKExtHeader
 {
-  struct RecHeader RHead;
+  RecHeader RHead;
   WORD  FileId;                // # of file in archive to which this record refers, or 0 for the entire archive.
   DWORD RecSize;               // size of record
   //BYTE  Data[];              // Original file size
 };
-
+PACK_POP()
+PACK_CHECK(PAKExtHeader, 1);
 
 enum {ARC_FORMAT};
 
@@ -170,12 +179,12 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
     I=(pMZHeader->e_cp-1)*512+pMZHeader->e_cblp;
   }
 */
-  if(DataSize > (int)(sizeof(struct RecHeader)+sizeof(struct ARCHeader)))
+  if(DataSize > (int)(sizeof(RecHeader)+sizeof(ARCHeader)))
   {
-    const struct ARCHeader *D=(const struct ARCHeader*)(Data+I);
+    const ARCHeader *D=(const ARCHeader*)(Data+I);
     if (D->HeadId == ARCMARK &&
         D->Type <= 11 && //???
-        DataSize >= (int)(D->CompSize+sizeof(struct ARCHeader)))
+        DataSize >= (int)(D->CompSize+sizeof(ARCHeader)))
     {
       SFXSize=I;
       ArcType=ARC_FORMAT;
@@ -211,7 +220,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 }
 
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
   ARCHeader Header;
   DWORD ReadSize;
@@ -295,7 +304,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   Info->Comment=ArcComment;
   return(CloseHandle(ArcHandle));

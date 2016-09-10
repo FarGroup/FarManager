@@ -15,10 +15,13 @@
 
 
 // OS ID - Host OS
-static struct OSIDType{
+static const struct OSIDType
+{
   BYTE Type;
   char Name[15];
-} OSID[]={
+}
+OSID[]=
+{
   {'M',"MS-DOS"},   {'2',"OS/2"},     {'9',"OS9"},
   {'K',"OS/68K"},   {'3',"OS/386"},   {'H',"HUMAN"},
   {'U',"Unix"},     {'C',"CP/M"},     {'F',"FLEX"},
@@ -27,10 +30,13 @@ static struct OSIDType{
 };
 
 // Dictionary size
-static struct DictSizeType{
+static const struct DictSizeType
+{
   BYTE Type[2];
   short Size;
-} DictSize[]={
+}
+DictSize[]=
+{
   {{'h','0'},0},   {{'h','1'},4},
   {{'h','2'},8},   {{'h','3'},8},
   {{'h','4'},4},   {{'h','5'},8},
@@ -50,12 +56,14 @@ void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
   *(__int64*)ft = EPOCH_BIAS + time * 10000000ll;
 }
 
-void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
+void  WINAPI _export SetFarInfo(const PluginStartupInfo *Info)
 {
   ;
 }
 
-struct LZH_Level0 {
+PACK_PUSH(1)
+struct LZH_Level0
+{
 /* 00 */ BYTE  HeadSize;      // Header Size in Bytes
 /* 01 */ BYTE  CheckSum;      // Header Checksum
 /* 02 */ BYTE  HeadID[3];     // Header ID Code
@@ -75,8 +83,12 @@ Level 0
    24+(f) (n)bytes  Compressed data
 */
 };
+PACK_POP()
+PACK_CHECK(LZH_Level0, 1);
 
-struct LZH_Level1 {
+PACK_PUSH(1)
+struct LZH_Level1
+{
 /* 00 */ BYTE  HeadSize;      // Header Size in Bytes
 /* 01 */ BYTE  CheckSum;      // Header Checksum
 /* 02 */ BYTE  HeadID[3];     // Header ID Code
@@ -103,10 +115,12 @@ Level 1
           (n)bytes  Compressed data
 */
 };
+PACK_POP()
+PACK_CHECK(LZH_Level1, 1);
 
-
-
-struct LZH_Level2 {
+PACK_PUSH(1)
+struct LZH_Level2
+{
 /* 00 */ WORD  HeadSize;      // Total size of archived file header (h)
 /* 02 */ BYTE  HeadID[3];     // Header ID Code
 /* 05 */ BYTE  Method;        // Compression Method
@@ -130,14 +144,16 @@ Level 2
         (n)bytes  Compressed data
 */
 };
+PACK_POP()
+PACK_CHECK(LZH_Level2, 1);
 
 typedef union {
-  struct LZH_Level0 l0;
-  struct LZH_Level1 l1;
-  struct LZH_Level2 l2;
+  LZH_Level0 l0;
+  LZH_Level1 l1;
+  LZH_Level2 l2;
 } LZH_Header;
 
-BOOL CheckLZHHeader(struct LZH_Level0 *lzh)
+BOOL CheckLZHHeader(LZH_Level0 *lzh)
 {
   return lzh->HeadID[0]=='-' && lzh->HeadID[1]=='l' && (lzh->HeadID[2]=='h' || lzh->HeadID[2]=='z') &&
         ((lzh->Method>='0' && lzh->Method<='9') || lzh->Method=='d' || lzh->Method=='s') &&
@@ -149,11 +165,11 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 {
   for (int I=0;I<DataSize-5;I++)
   {
-    struct LZH_Level0 *lzh=(struct LZH_Level0*)(Data+I);
+    LZH_Level0 *lzh=(LZH_Level0*)(Data+I);
     if(CheckLZHHeader(lzh))
     {
       const unsigned char *D=Data+I;
-      if(lzh->FLevel == 0 && D[21] > 0 && D[22] != 0 && (lzh->HeadSize-2-(int)D[21]) == sizeof(struct LZH_Level0)-1)
+      if(lzh->FLevel == 0 && D[21] > 0 && D[22] != 0 && (lzh->HeadSize-2-(int)D[21]) == sizeof(LZH_Level0)-1)
       {
         SFXSize=I;
         return(TRUE);
@@ -183,7 +199,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   return(TRUE);
 }
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
   LZH_Header LzhHeader;
 
@@ -201,7 +217,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   if (NextPosition > FileSize)
     return(GETARC_UNEXPEOF);
 
-  if (!ReadFile(ArcHandle,&LzhHeader.l0,sizeof(struct LZH_Level0),&ReadSize,NULL))
+  if (!ReadFile(ArcHandle,&LzhHeader.l0,sizeof(LZH_Level0),&ReadSize,NULL))
     return(GETARC_READERROR);
 
   if(ReadSize<=10 || !CheckLZHHeader(&LzhHeader.l0))
@@ -419,7 +435,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   if(Info)
     Info->SFXSize=SFXSize;

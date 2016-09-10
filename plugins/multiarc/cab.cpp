@@ -17,6 +17,7 @@ typedef BYTE u1;
 typedef WORD u2;
 typedef DWORD u4;
 
+PACK_PUSH(1)
 struct CFHEADER
 {
   u4 signature;
@@ -33,7 +34,10 @@ struct CFHEADER
   u2 setID;
   u2 iCabinet;
 };
+PACK_POP()
+PACK_CHECK(CFHEADER, 1);
 
+PACK_PUSH(1)
 struct CFFILE
 {
   u4 cbFile;
@@ -44,6 +48,9 @@ struct CFFILE
   u2 attribs;
   u1 szName[256];
 };
+PACK_POP()
+PACK_CHECK(CFFILE, 1);
+
 
 static HANDLE ArcHandle;
 static DWORD SFXSize,FilesNumber;
@@ -53,12 +60,12 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 {
   int I;
 
-  for( I=0; I <= (int)(DataSize-sizeof(struct CFHEADER)); I++ )
+  for( I=0; I <= (int)(DataSize-sizeof(CFHEADER)); I++ )
   {
     const unsigned char *D=Data+I;
     if (D[0]=='M' && D[1]=='S' && D[2]=='C' && D[3]=='F')
     {
-      struct CFHEADER *Header=(struct CFHEADER *)(Data+I);
+      CFHEADER *Header=(CFHEADER *)(Data+I);
       if (Header->cbCabinet>sizeof(Header) && Header->coffFiles>sizeof(Header) &&
           Header->coffFiles<0xffff && Header->versionMajor>0 &&
           Header->versionMajor<0x10 && Header->cFolders>0)
@@ -74,7 +81,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 
 BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
-  struct CFHEADER MainHeader;
+  CFHEADER MainHeader;
   DWORD ReadSize;
   int I;
 
@@ -127,7 +134,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   while (FilesNumber && (MainHeader.flags & 1))
   {
     char *EndPos;
-    struct CFFILE FileHeader;
+    CFFILE FileHeader;
 
     if (!ReadFile( ArcHandle, &FileHeader, sizeof(FileHeader), &ReadSize, NULL )
         || ReadSize < 18)
@@ -154,9 +161,9 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 }
 
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
-  struct CFFILE FileHeader;
+  CFFILE FileHeader;
 
   DWORD ReadSize;
   char *EndPos;
@@ -202,7 +209,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   Info->SFXSize=SFXSize;
   return(CloseHandle(ArcHandle));

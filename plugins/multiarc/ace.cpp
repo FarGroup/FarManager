@@ -18,16 +18,20 @@
 
 //#define CALC_CRC
 
-static struct OSIDType{
+static const struct OSIDType
+{
   BYTE Type;
   char Name[15];
-} OSID[]={
+}
+ OSID[]=
+{
   {0,"MS-DOS"},   {1,"OS/2"},     {2,"Win32"},
   {3,"Unix"},     {4,"MAC-OS"},   {5,"Win NT"},
   {6,"Primos"},   {7,"APPLE GS"}, {8,"ATARI"},
   {9,"VAX VMS"},  {10,"AMIGA"},   {11,"NEXT"},
 };
 
+PACK_PUSH(1)
 struct ACEHEADER
 {
   WORD  CRC16;        // CRC16 over block
@@ -42,10 +46,13 @@ struct ACEHEADER
   DWORD AcrTime;      // date and time in MS-DOS format
   BYTE  Reserved[8];  // 8 bytes reserved for the future
 };
+PACK_POP()
+PACK_CHECK(ACEHEADER, 1);
+
 
 static HANDLE ArcHandle;
 static DWORD NextPosition,FileSize,SFXSize;
-static struct ACEHEADER MainHeader;
+static ACEHEADER MainHeader;
 int HostOS=0, UnpVer=0;
 
 #if defined(CALC_CRC)
@@ -80,19 +87,15 @@ static DWORD getcrc(DWORD crc,BYTE *addr,int len)
 
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
-  for (int I=0;I<(int)(DataSize-sizeof(struct ACEHEADER));I++)
+  for (int I=0;I<(int)(DataSize-sizeof(ACEHEADER));I++)
   {
     const unsigned char *D=Data+I;
     if (D[0]=='*' && D[1]=='*' && D[2]=='A' && D[3]=='C' && D[4]=='E' && D[5]=='*' && D[6]=='*' )
     {
-      struct ACEHEADER *Header=(struct ACEHEADER *)(Data+I-7);
+      ACEHEADER *Header=(ACEHEADER *)(Data+I-7);
 #if defined(CALC_CRC)
       DWORD crc=CRC_MASK;
       crc=getcrc(crc,&Header->HeaderType,Header->HeaderSize);
-#endif
-
-#ifndef offsetof
-#define offsetof( s_name, m_name )  (_SIZE_T)&(((s_name _FAR *)0)->m_name)
 #endif
 
       if (Header->HeaderType == 0
@@ -150,13 +153,16 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 
 
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
+PACK_PUSH(1)
   struct ACEHEADERBLOCK
   {
     WORD  CRC16;
     WORD  HeaderSize;
   } Block;
+PACK_POP()
+PACK_CHECK(ACEHEADERBLOCK, 1);
   HANDLE hHeap=GetProcessHeap();
 
   DWORD ReadSize;
@@ -207,6 +213,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 
     if(*TempBuf == 1) // File block
     {
+PACK_PUSH(1)
       struct ACEHEADERFILE
       {
         BYTE  HeaderType;
@@ -223,7 +230,10 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         WORD  FileNameSize;
         char  FileName[1];
       } *FileHeader;
-      FileHeader=(struct ACEHEADERFILE*)TempBuf;
+PACK_POP()
+PACK_CHECK(ACEHEADERFILE, 1);
+
+      FileHeader=(ACEHEADERFILE*)TempBuf;
       if(FileHeader->HeaderFlags&1)
       {
         Item->FindData.dwFileAttributes=FileHeader->FileAttr;
@@ -255,14 +265,17 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
         break;
       }
     }
+PACK_PUSH(1)
     struct ACERECORDS
     {
       BYTE  HeaderType;    // header type of recovery records is 2
       WORD  HeaderFlags;   // Bit 0   1 (RecSize field present)
       DWORD RecSize;
     } *RecHeader;
+PACK_POP()
+PACK_CHECK(ACERECORDS, 1);
 
-    RecHeader=(struct ACERECORDS*)TempBuf;
+    RecHeader=(ACERECORDS*)TempBuf;
     if(RecHeader->HeaderFlags&1)
       NextPosition+=RecHeader->RecSize;
     HeapFree(hHeap,0,TempBuf);
@@ -272,7 +285,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   if(Info)
   {

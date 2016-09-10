@@ -15,7 +15,6 @@ DOCS = Custom.ini
 !endif
 
 USERCPP = /I".\libpcre"
-CPP_UNALIGN=1
 
 !include ..\makefile_vc_def_inc
 

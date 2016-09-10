@@ -15,8 +15,6 @@ $(OBJDIR)\ArcReg.obj \
 $(OBJDIR)\global.obj
 DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg arcspa.lng
 
-CPP_UNALIGN=1
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

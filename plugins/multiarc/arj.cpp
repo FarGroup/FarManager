@@ -116,6 +116,7 @@ BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int Dat
 
 BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 {
+PACK_PUSH(1)
   struct ARJHd1
   {
     WORD Mark;            // header id (main and local file) = 0x60 0xEA
@@ -162,6 +163,8 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
        4   1st extended header's CRC (not present when 0 extended header size)
     */
   } ArjHeader;
+PACK_POP()
+PACK_CHECK(ARJHd1, 1);
 
   DWORD ReadSize;
   WORD ARJComm,ExtHdSize;
@@ -198,8 +201,9 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 }
 
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
+PACK_PUSH(1)
   struct ARJHd2
   {
     WORD Mark;              // header id (main and local file) = 0x60 0xEA
@@ -258,6 +262,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
        ?   compressed file
     */
   } ArjHeader;
+PACK_POP()
+PACK_CHECK(ARJHd2, 1);
 
   DWORD ReadSize;
 
@@ -330,7 +336,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   Info->SFXSize=SFXSize;
   Info->Volume=ArcVolume;

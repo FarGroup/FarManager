@@ -18,6 +18,7 @@ static ULARGE_INTEGER SFXSize,NextPosition,FileSize;
 static int ArcComment,FirstRecord;
 static bool bTruncated;
 
+PACK_PUSH(1)
 struct ZipHeader
 {
   DWORD Signature;
@@ -34,6 +35,9 @@ struct ZipHeader
   // FileName[];
   // ExtraField[];
 };
+PACK_POP()
+PACK_CHECK(ZipHeader, 1);
+
 
 const size_t MIN_HEADER_LEN=sizeof(ZipHeader);
 
@@ -136,9 +140,10 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 }
 
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
-  struct ZipHd1
+PACK_PUSH(1)
+  struct ZipHdr1
   {
     DWORD Mark;
     BYTE UnpVer;
@@ -152,8 +157,11 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     WORD NameLen;
     WORD AddLen;
   } ZipHd1;
+PACK_POP()
+PACK_CHECK(ZipHdr1, 1);
 
-  struct ZipHd2
+PACK_PUSH(1)
+  struct ZipHdr2
   {
     DWORD Mark;
     BYTE PackVer;
@@ -174,6 +182,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     DWORD Attr;
     DWORD Offset;
   } ZipHeader;
+PACK_POP()
+PACK_CHECK(ZipHdr2, 1);
 
   DWORD ReadSize;
 
@@ -278,12 +288,15 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
   for( ExtraFieldEnd.QuadPart = GetFilePosition(ArcHandle) + ZipHeader.AddLen;
        ExtraFieldEnd.QuadPart > GetFilePosition(ArcHandle); )
   {
+PACK_PUSH(1)
     struct ExtraBlockHeader
     {
       WORD Type;
       WORD Length;
     }
     BlockHead;
+PACK_POP()
+PACK_CHECK(ExtraBlockHeader, 1);
 
     if (!ReadFile(ArcHandle, &BlockHead, sizeof(BlockHead), &ReadSize,NULL)
             || ReadSize!=sizeof(BlockHead) )
@@ -299,12 +312,15 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
            NTFSExtraBlockEnd.QuadPart > GetFilePosition(ArcHandle);
       )
       {
+PACK_PUSH(1)
         struct NTFSAttributeHeader
         {
           WORD Tag;
           WORD Length;
         }
         AttrHead;
+PACK_POP()
+PACK_CHECK(NTFSAttributeHeader, 1);
 
         if (!ReadFile(ArcHandle, &AttrHead, sizeof(AttrHead), &ReadSize,NULL)
                 || ReadSize!=sizeof(AttrHead) )
@@ -315,6 +331,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
           SetFilePointer(ArcHandle, AttrHead.Length, NULL, FILE_CURRENT);
         else
         { // Read file times
+PACK_PUSH(1)
           struct TimesAttribute
           {
             FILETIME Modification;
@@ -322,6 +339,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
             FILETIME Creation;
           }
           Times;
+PACK_POP()
+PACK_CHECK(TimesAttribute, 1);
 
           if (!ReadFile(ArcHandle, &Times, sizeof(Times), &ReadSize,NULL)
                   || ReadSize!=sizeof(Times) )
@@ -339,6 +358,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     else
     if (0x1==BlockHead.Type) // ZIP64
     {
+PACK_PUSH(1)
      struct ZIP64Descriptor
      {
        ULARGE_INTEGER OriginalSize;             //    8 bytes               Original uncompressed file size
@@ -347,6 +367,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
        DWORD          DiskStartNumber;          //    4 bytes               Number of the disk on which this file starts
      }
      ZIP64;
+PACK_POP()
+PACK_CHECK(ZIP64Descriptor, 1);
 
      if (!ReadFile(ArcHandle, &ZIP64, BlockHead.Length, &ReadSize,NULL)
              || ReadSize!=BlockHead.Length )
@@ -398,7 +420,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   if(Info)
   {

@@ -38,10 +38,10 @@ enum HEADER_TYPE {
   ENDARC_HEAD=0x7b
 };
 
-typedef HANDLE (PASCAL *RAROPENARCHIVEEX)(struct RAROpenArchiveDataEx *ArchiveData);
+typedef HANDLE (PASCAL *RAROPENARCHIVEEX)(RAROpenArchiveDataEx *ArchiveData);
 typedef int (PASCAL *RARCLOSEARCHIVE)(HANDLE hArcData);
 typedef void (PASCAL *RARSETCALLBACK)(HANDLE hArcData,UNRARCALLBACK Callback,LPARAM UserData);
-typedef int (PASCAL *RARREADHEADEREX)(HANDLE hArcData,struct RARHeaderDataEx *HeaderData);
+typedef int (PASCAL *RARREADHEADEREX)(HANDLE hArcData,RARHeaderDataEx *HeaderData);
 typedef int (PASCAL *RARPROCESSFILE)(HANDLE hArcData,int Operation,char *DestPath,char *DestName);
 
 #ifndef _WIN64
@@ -60,8 +60,8 @@ static bool MissingVolume;
 static BOOL UsedUnRAR_DLL=FALSE;
 static HANDLE hArcData;
 static int RHCode,PFCode;
-static struct RAROpenArchiveDataEx OpenArchiveData;
-static struct RARHeaderDataEx HeaderData;
+static RAROpenArchiveDataEx OpenArchiveData;
+static RARHeaderDataEx HeaderData;
 
 static RAROPENARCHIVEEX pRAROpenArchiveEx=NULL;
 static RARCLOSEARCHIVE pRARCloseArchive=NULL;
@@ -85,7 +85,7 @@ void DecodeFileName(const char *Name,BYTE *EncName,int EncSize,wchar_t *NameW,in
 #define  Min(x,y) (((x)<(y)) ? (x):(y))
 
 
-void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info)
+void  WINAPI SetFarInfo(const PluginStartupInfo *Info)
 {
    FarInputBox=Info->InputBox;
    FarGetMsg=Info->GetMsg;
@@ -212,7 +212,7 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 }
 
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
   RHCode=pRARReadHeaderEx(hArcData,&HeaderData);
   if (RHCode!=0)
@@ -254,7 +254,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   Info->SFXSize=SFXSize;
   Info->Volume=Flags & 1;

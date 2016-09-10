@@ -13,8 +13,6 @@
 #USERCPP - user defined switches for the compiler (added after the default
 #          ones).
 #
-#CPP_UNALIGN - use 1byte alignment insead of 8bytes
-#
 #ADDOBJDIR - you can set it to /dir if the temporary folder for the plugin
 #            compiled files is a folder inside the default temporary folder.
 #            This is used in ftp for building *.fll.
@@ -147,11 +145,6 @@ ULOUT=-Tpd+
 ULOUT=-Tpd+
 !else
 ULOUT=-Tpd -Rv
-!endif
-
-!ifdef CPP_UNALIGN
-CPP_ALIGN=/Zp1
-CPPFLAGS=$(CPPFLAGS) $(CPP_ALIGN)
 !endif
 
 !ifdef INCLUDECRT

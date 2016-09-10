@@ -25,15 +25,6 @@ using namespace PCRE;
 #undef isxdigit
 #define isxdigit(c) (((c)>='0' && (c)<='9') || ((c)>='a' && (c)<='f') || ((c)>='A' && (c)<='F'))
 
-typedef union {
-  __int64 i64;
-  struct {
-    DWORD LowPart;
-    LONG  HighPart;
-  } Part;
-} FAR_INT64;
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // Forward declarations
 
@@ -51,10 +42,10 @@ int StringToInt(const char *str);
 __int64 StringToInt64(const char *str);
 int StringToIntHex(const char *str);
 void ParseListingItemRegExp(Match match,
-    struct PluginPanelItem *Item, struct ArcItemInfo *Info,
+    PluginPanelItem *Item, ArcItemInfo *Info,
     SYSTEMTIME &stModification, SYSTEMTIME &stCreation, SYSTEMTIME &stAccess);
 void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
-    struct PluginPanelItem *Item, struct ArcItemInfo *Info,
+    PluginPanelItem *Item, ArcItemInfo *Info,
     SYSTEMTIME &stModification, SYSTEMTIME &stCreation, SYSTEMTIME &stAccess);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -352,7 +343,7 @@ FARSTDLOCALUPPER    LUpper;
 ///////////////////////////////////////////////////////////////////////////////
 // Exported functions
 
-void WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
+void WINAPI _export SetFarInfo(const PluginStartupInfo *Info)
 {
     LStricmp = Info->FSF->LStricmp;
     LStrnicmp = Info->FSF->LStrnicmp;
@@ -548,7 +539,7 @@ BOOL WINAPI _export OpenArchive(const char *Name, int *Type)
 }
 
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item, struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
     char Str[512];
     StringList *CurFormatNode = Format;
@@ -650,7 +641,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item, struct ArcItemInfo *
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo * Info)
+BOOL WINAPI _export CloseArchive(ArcInfo * Info)
 {
     if(IgnoreErrors)
         Info->Flags |= AF_IGNOREERRORS;
@@ -993,7 +984,7 @@ int StringToIntHex(const char *str)
 }
 
 void ParseListingItemRegExp(Match match,
-    struct PluginPanelItem *Item, struct ArcItemInfo *Info,
+    PluginPanelItem *Item, ArcItemInfo *Info,
     SYSTEMTIME &stModification, SYSTEMTIME &stCreation, SYSTEMTIME &stAccess)
 {
 
@@ -1002,13 +993,13 @@ void ParseListingItemRegExp(Match match,
     if(const char *p = match["description"])
         lstrcat(Info->Description, p);
 
-    FAR_INT64 SizeFile;
-    SizeFile.i64 = StringToInt64(match["size"]);
-    Item->FindData.nFileSizeLow  = SizeFile.Part.LowPart;
-    Item->FindData.nFileSizeHigh = SizeFile.Part.HighPart;
-    SizeFile.i64 = StringToInt64(match["packedSize"]);
-    Item->PackSize               = SizeFile.Part.LowPart;
-    Item->PackSizeHigh           = SizeFile.Part.HighPart;
+    LARGE_INTEGER SizeFile;
+    SizeFile.QuadPart = StringToInt64(match["size"]);
+    Item->FindData.nFileSizeLow  = SizeFile.LowPart;
+    Item->FindData.nFileSizeHigh = SizeFile.HighPart;
+    SizeFile.QuadPart = StringToInt64(match["packedSize"]);
+    Item->PackSize               = SizeFile.LowPart;
+    Item->PackSizeHigh           = SizeFile.HighPart;
 
     for(const char *p = match["attr"]; p && *p; ++p)
     {
@@ -1081,7 +1072,7 @@ void ParseListingItemRegExp(Match match,
 
 
 void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
-    struct PluginPanelItem *Item, struct ArcItemInfo *Info,
+    PluginPanelItem *Item, ArcItemInfo *Info,
     SYSTEMTIME &stModification, SYSTEMTIME &stCreation, SYSTEMTIME &stAccess)
 {
 
@@ -1090,7 +1081,7 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
     OptionalPart = OP_OUTSIDE;
     int IsChapter = 0;
 
-    FAR_INT64 SizeFile;
+    LARGE_INTEGER SizeFile;
 
     for(; *CurStr && *CurFormat; CurFormat++, CurStr++)
     {
@@ -1129,11 +1120,11 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
         case 'z':
             if(isdigit(*CurStr))
             {
-                SizeFile.Part.LowPart=Item->FindData.nFileSizeLow;
-                SizeFile.Part.HighPart=Item->FindData.nFileSizeHigh;
-                SizeFile.i64=SizeFile.i64 * 10 + (*CurStr - '0');
-                Item->FindData.nFileSizeLow=SizeFile.Part.LowPart;
-                Item->FindData.nFileSizeHigh=SizeFile.Part.HighPart;
+                SizeFile.LowPart=Item->FindData.nFileSizeLow;
+                SizeFile.HighPart=Item->FindData.nFileSizeHigh;
+                SizeFile.QuadPart = SizeFile.QuadPart * 10 + (*CurStr - '0');
+                Item->FindData.nFileSizeLow=SizeFile.LowPart;
+                Item->FindData.nFileSizeHigh=SizeFile.HighPart;
             }
             else if(OP_INSIDE == OptionalPart)
             {
@@ -1144,11 +1135,11 @@ void ParseListingItemPlain(const char *CurFormat, const char *CurStr,
         case 'p':
             if(isdigit(*CurStr))
             {
-                SizeFile.Part.LowPart=Item->PackSize;
-                SizeFile.Part.HighPart=Item->PackSizeHigh;
-                SizeFile.i64=SizeFile.i64 * 10 + (*CurStr - '0');
-                Item->PackSize=SizeFile.Part.LowPart;
-                Item->PackSizeHigh=SizeFile.Part.HighPart;
+                SizeFile.LowPart=Item->PackSize;
+                SizeFile.HighPart=Item->PackSizeHigh;
+                SizeFile.QuadPart = SizeFile.QuadPart * 10 + (*CurStr - '0');
+                Item->PackSize=SizeFile.LowPart;
+                Item->PackSizeHigh=SizeFile.HighPart;
             }
             else if(OP_INSIDE == OptionalPart)
             {

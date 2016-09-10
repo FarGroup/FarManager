@@ -74,12 +74,9 @@
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(ProjectName).vc.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libCRT.lib;chkstk.obj;kernel32.lib;user32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>chkstk.obj;kernel32.lib;user32.lib;advapi32.lib</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Console</SubSystem>
-      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <NoEntryPoint>true</NoEntryPoint>
-      <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine Condition="'$(Platform)'=='Win32'">MachineX86</TargetMachine>
       <TargetMachine Condition="'$(Platform)'=='x64'">MachineX64</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
@@ -92,9 +89,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>..\common\CRT\debug.32.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -102,9 +96,6 @@
       <PreprocessorDefinitions>DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>..\common\CRT\debug.64.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -113,9 +104,6 @@
       <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
       <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>..\common\CRT\final.32.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
     <PostBuildEvent>
       <Message>Fixing subsystem version</Message>
       <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
@@ -127,9 +115,6 @@
       <PreprocessorDefinitions>NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
     </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>..\common\CRT\final.64.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
     <PostBuildEvent>
       <Message>Fixing subsystem version</Message>
       <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>

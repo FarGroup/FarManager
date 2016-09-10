@@ -72,16 +72,12 @@
       <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
       <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
-      <StructMemberAlignment>1Byte</StructMemberAlignment>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>$(ProjectName).vc.def</ModuleDefinitionFile>
-      <AdditionalDependencies>libCRT.lib;libpcre.lib;chkstk.obj;kernel32.lib;user32.lib</AdditionalDependencies>
+      <AdditionalDependencies>libpcre.lib;chkstk.obj;kernel32.lib;user32.lib</AdditionalDependencies>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Console</SubSystem>
-      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <NoEntryPoint>true</NoEntryPoint>
-      <MergeSections>.rdata=.text</MergeSections>
       <TargetMachine Condition="'$(Platform)'=='Win32'">MachineX86</TargetMachine>
       <TargetMachine Condition="'$(Platform)'=='x64'">MachineX64</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
@@ -95,7 +91,7 @@
       <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\common\CRT\debug.32.v$(VisualStudioVersion);.\libpcre\debug.32.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\libpcre\debug.32.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y .\custom.ini "$(OutDir)"\</Command>
@@ -108,7 +104,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\common\CRT\debug.64.v$(VisualStudioVersion);.\libpcre\debug.64.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\libpcre\debug.64.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy /Y .\custom.ini "$(OutDir)"\</Command>
@@ -122,7 +118,7 @@
       <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\common\CRT\final.32.v$(VisualStudioVersion);.\libpcre\final.32.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\libpcre\final.32.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Message>Fixing subsystem version</Message>
@@ -137,7 +133,7 @@ copy /Y .\custom.ini "$(OutDir)"\</Command>
       <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\common\CRT\final.64.v$(VisualStudioVersion);.\libpcre\final.64.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>.\libpcre\final.64.v$(VisualStudioVersion);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Message>Fixing subsystem version</Message>

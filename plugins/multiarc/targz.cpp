@@ -21,6 +21,7 @@
 
 #else
 
+PACK_PUSH(1)
 struct posix_header
 {                               /* byte offset */
   char name[100];               /*   0 = 0x000 */
@@ -41,6 +42,9 @@ struct posix_header
   char prefix[155];             /* 345 = 0x159 */
                                 /* 500 = 0x1F4 */
 };
+PACK_POP()
+PACK_CHECK(posix_header, 1);
+
 
 #define TMAGIC   "ustar"    // ustar and a null
 #define TMAGLEN  6
@@ -67,10 +71,12 @@ enum archive_format
 
 
 #define BLOCKSIZE 512
-typedef union block {
+typedef union block
+{
   char  buffer[BLOCKSIZE];
-  struct posix_header header;
-} TARHeader;
+  posix_header header;
+}
+TARHeader;
 
 /* Identifies the *next* file on the tape as having a long linkname.  */
 #define GNUTYPE_LONGLINK 'K'
@@ -93,26 +99,16 @@ typedef union block {
 
 enum {TAR_FORMAT,GZ_FORMAT,Z_FORMAT,BZ_FORMAT};
 
-typedef union {
-  __int64 i64;
-  struct {
-    DWORD LowPart;
-    LONG  HighPart;
-  } Part;
-} FAR_INT64;
-
-
-
 int IsTarHeader(const unsigned char *Data,int DataSize);
 __int64 GetOctal(const char *Str);
-int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
-int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
+int GetArcItemGZIP(PluginPanelItem *Item, ArcItemInfo *Info);
+int GetArcItemTAR(PluginPanelItem *Item, ArcItemInfo *Info);
 char *AdjustTARFileName(char *FileName);
 static __int64 Oct2Size (const char *where0, size_t digs0);
 
 HANDLE ArcHandle;
 DWORD SFXSize;
-FAR_INT64 NextPosition,FileSize;
+LARGE_INTEGER NextPosition, FileSize;
 int ArcType;
 enum archive_format TarArchiveFormat;
 char ZipName[NM];
@@ -127,7 +123,7 @@ typedef void * (__cdecl *MAMALLOC)(size_t size);
 MAFREE MA_free;
 MAMALLOC MA_malloc;
 
-void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
+void  WINAPI _export SetFarInfo(const PluginStartupInfo *Info)
 {
   LStricmp=Info->FSF->LStricmp;
   MA_free=(MAFREE)Info->FSF->Reserved[1];
@@ -191,9 +187,9 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
     return(FALSE);
   *Type=ArcType;
 
-  FileSize.Part.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.Part.HighPart);
+  FileSize.LowPart=GetFileSize(ArcHandle,(LPDWORD) &FileSize.HighPart);
 
-  NextPosition.i64=0;
+  NextPosition.QuadPart=0;
   return(TRUE);
 }
 
@@ -202,7 +198,7 @@ DWORD WINAPI _export GetSFXPos(void)
   return SFXSize;
 }
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
   if (ArcType!=TAR_FORMAT)
   {
@@ -210,8 +206,8 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     {
       if (ArcType==BZ_FORMAT)
       {
-        Item->PackSize=Item->FindData.nFileSizeLow=FileSize.Part.LowPart;
-        Item->PackSizeHigh=Item->FindData.nFileSizeHigh=FileSize.Part.HighPart;
+        Item->PackSize=Item->FindData.nFileSizeLow=FileSize.LowPart;
+        Item->PackSizeHigh=Item->FindData.nFileSizeHigh=FileSize.HighPart;
         lstrcpy(Item->FindData.cFileName,ZipName);
         *ZipName=0;
         return(GETARC_SUCCESS);
@@ -225,9 +221,10 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int GetArcItemGZIP(PluginPanelItem *Item, ArcItemInfo *Info)
 {
   DWORD ReadSize;
+PACK_PUSH(1)
   struct GZHeader
   {
     BYTE Mark[2];
@@ -237,19 +234,21 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
     BYTE ExtraFlags;
     BYTE HostOS;
   } Header;
+PACK_POP()
+PACK_CHECK(GZHeader, 1);
 
   if (!ReadFile(ArcHandle,&Header,sizeof(Header),&ReadSize,NULL))
     return(GETARC_READERROR);
 
-  Item->PackSize=FileSize.Part.LowPart;
-  Item->PackSizeHigh=FileSize.Part.HighPart;
+  Item->PackSize=FileSize.LowPart;
+  Item->PackSizeHigh=FileSize.HighPart;
 
   if (ArcType==Z_FORMAT)
   {
     lstrcpy(Item->FindData.cFileName,ZipName);
     *ZipName=0;
-    Item->FindData.nFileSizeLow=FileSize.Part.LowPart;
-    Item->FindData.nFileSizeHigh=FileSize.Part.HighPart;
+    Item->FindData.nFileSizeLow=FileSize.LowPart;
+    Item->FindData.nFileSizeHigh=FileSize.HighPart;
     return(GETARC_SUCCESS);
   }
 
@@ -286,7 +285,7 @@ int GetArcItemGZIP(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 }
 
 
-int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int GetArcItemTAR(PluginPanelItem *Item, ArcItemInfo *Info)
 {
   TARHeader TAR_hdr;
   DWORD ReadSize;
@@ -294,12 +293,12 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
   char *LongName = NULL;
   do
   {
-    NextPosition.Part.LowPart=SetFilePointer(ArcHandle,NextPosition.Part.LowPart,&NextPosition.Part.HighPart,FILE_BEGIN);
+    NextPosition.LowPart=SetFilePointer(ArcHandle,NextPosition.LowPart,&NextPosition.HighPart,FILE_BEGIN);
 
-    if (NextPosition.i64 == (__int64)-1 && GetLastError() != NO_ERROR)
+    if (NextPosition.QuadPart == (__int64)-1 && GetLastError() != NO_ERROR)
       return(GETARC_READERROR);
 
-    if (NextPosition.i64 > FileSize.i64)
+    if (NextPosition.QuadPart > FileSize.QuadPart)
       return(GETARC_UNEXPEOF);
 
     if (!ReadFile(ArcHandle,&TAR_hdr,sizeof(TAR_hdr),&ReadSize,NULL))
@@ -364,29 +363,29 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 
       UnixTimeToFileTime((DWORD)GetOctal(TAR_hdr.header.mtime),&Item->FindData.ftLastWriteTime);
     }
-    FAR_INT64 TarItemSize;
-    TarItemSize.i64=Oct2Size(TAR_hdr.header.size,sizeof(TAR_hdr.header.size));
-    Item->PackSize=Item->FindData.nFileSizeLow=TarItemSize.Part.LowPart;
-    Item->PackSizeHigh=Item->FindData.nFileSizeHigh=TarItemSize.Part.HighPart;
+    LARGE_INTEGER TarItemSize;
+    TarItemSize.QuadPart=Oct2Size(TAR_hdr.header.size,sizeof(TAR_hdr.header.size));
+    Item->PackSize=Item->FindData.nFileSizeLow=TarItemSize.LowPart;
+    Item->PackSizeHigh=Item->FindData.nFileSizeHigh=TarItemSize.HighPart;
 
     lstrcpy(Info->HostOS,TarArchiveFormat==POSIX_FORMAT?"POSIX":(TarArchiveFormat==V7_FORMAT?"V7":""));
     Info->UnpVer=256+11+(TarArchiveFormat >= POSIX_FORMAT?1:0); //!!!
 
-    FAR_INT64 PrevPosition=NextPosition;
+	LARGE_INTEGER PrevPosition=NextPosition;
     // for LNKTYPE - only sizeof(TAR_hdr)
-    NextPosition.i64+=(__int64)sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE? 0 : TarItemSize.i64);
+    NextPosition.QuadPart+=(__int64)sizeof(TAR_hdr)+(TAR_hdr.header.typeflag == LNKTYPE? 0 : TarItemSize.QuadPart);
 
-    if (NextPosition.i64 & 511ll)
-      NextPosition.i64+=512ll-(NextPosition.i64 & 511ll);
+    if (NextPosition.QuadPart & 511ll)
+      NextPosition.QuadPart+=512ll-(NextPosition.QuadPart & 511ll);
 
-    if (PrevPosition.i64 >= NextPosition.i64)
+    if (PrevPosition.QuadPart >= NextPosition.QuadPart)
       return(GETARC_BROKEN);
 
     // TODO: GNUTYPE_LONGLINK
     if (TAR_hdr.header.typeflag == GNUTYPE_LONGNAME || TAR_hdr.header.typeflag == GNUTYPE_LONGLINK)
     {
-      PrevPosition.i64+=(__int64)sizeof(TAR_hdr);
-      SetFilePointer (ArcHandle,PrevPosition.Part.LowPart,&PrevPosition.Part.HighPart,FILE_BEGIN);
+      PrevPosition.QuadPart+=(__int64)sizeof(TAR_hdr);
+      SetFilePointer (ArcHandle,PrevPosition.LowPart,&PrevPosition.HighPart,FILE_BEGIN);
       // we can't have two LONGNAME records in a row without a file between them
       if (LongName != NULL)
         return GETARC_BROKEN;
@@ -407,7 +406,7 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   return(CloseHandle(ArcHandle));
 }
@@ -522,12 +521,12 @@ BOOL WINAPI _export GetDefaultCommands(int Type,int Command,char *Dest)
 int IsTarHeader(const BYTE *Data,int DataSize)
 {
   size_t I;
-  struct posix_header *Header;
+  posix_header *Header;
 
-  if (DataSize<(int)sizeof(struct posix_header))
+  if (DataSize<(int)sizeof(posix_header))
     return(FALSE);
 
-  Header=(struct posix_header *)Data;
+  Header=(posix_header *)Data;
 
   if(!lstrcmp (Header->magic, TMAGIC))
     TarArchiveFormat = POSIX_FORMAT;

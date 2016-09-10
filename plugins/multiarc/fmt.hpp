@@ -1,5 +1,5 @@
-#ifndef __FARFMT_HPP__
-#define __FARFMT_HPP__
+#ifndef FARFMT_HPP
+#define FARFMT_HPP
 /*
   FMT.HPP
 
@@ -9,23 +9,24 @@
   Copyrigth (c) 2000-2008 FAR group
 */
 
-#if !defined(_WIN64)
-#if defined(__BORLANDC__)
-  #pragma option -a2
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack(2)
-  #if defined(__LCC__)
-    #define _export __declspec(dllexport)
-  #endif
-#else
-  #pragma pack(push,2)
-  #if _MSC_VER
-    #ifdef _export
-      #undef _export
-    #endif
-    #define _export
-  #endif
+#ifdef __GNUC__
+#define STR_PRAGMA(x) _Pragma(#x)
 #endif
+
+#ifdef __GNUC__
+#define PACK_PUSH(n) STR_PRAGMA(pack(push ,n))
+#define PACK_POP() STR_PRAGMA(pack(pop))
+#else
+#define PACK_PUSH(n) __pragma(pack(push, n))
+#define PACK_POP() __pragma(pack(pop))
+#endif
+
+#ifdef __cplusplus
+#define PACK_CHECK(type, n) static_assert(alignof(type) == n, "Wrong alignment")
+#endif
+
+#if !defined(_WIN64)
+PACK_PUSH(2)
 #endif
 
 enum GETARC_CODE
@@ -69,35 +70,27 @@ struct ArcInfo
 };
 
 
-#if defined(__BORLANDC__) || defined(_MSC_VER) || defined(__GNUC__) || defined(__WATCOMC__)
 #ifdef __cplusplus
 extern "C"{
 #endif
 
-DWORD WINAPI _export LoadFormatModule(const char *ModuleName);
-void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info);
+DWORD WINAPI LoadFormatModule(const char *ModuleName);
+void  WINAPI SetFarInfo(const struct PluginStartupInfo *Info);
 
-BOOL  WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize);
-DWORD WINAPI _export GetSFXPos(void);
-BOOL  WINAPI _export OpenArchive(const char *Name,int *TypeArc);
-int   WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
-BOOL  WINAPI _export CloseArchive(struct ArcInfo *Info);
-BOOL  WINAPI _export GetFormatName(int TypeArc,char *FormatName,char *DefaultExt);
-BOOL  WINAPI _export GetDefaultCommands(int TypeArc,int Command,char *Dest);
+BOOL  WINAPI IsArchive(const char *Name,const unsigned char *Data,int DataSize);
+DWORD WINAPI GetSFXPos(void);
+BOOL  WINAPI OpenArchive(const char *Name,int *TypeArc);
+int   WINAPI GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info);
+BOOL  WINAPI CloseArchive(struct ArcInfo *Info);
+BOOL  WINAPI GetFormatName(int TypeArc,char *FormatName,char *DefaultExt);
+BOOL  WINAPI GetDefaultCommands(int TypeArc,int Command,char *Dest);
 
 #ifdef __cplusplus
 };
 #endif
-#endif
 
 #if !defined(_WIN64)
-#if defined(__BORLANDC__)
-  #pragma option -a.
-#elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-  #pragma pack()
-#else
-  #pragma pack(pop)
-#endif
+PACK_POP()
 #endif
 
-#endif /* __FARFMT_HPP__ */
+#endif // FARFMT_HPP

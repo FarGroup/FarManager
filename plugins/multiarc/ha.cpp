@@ -25,7 +25,7 @@ void WINAPI UnixTimeToFileTime( DWORD time, FILETIME * ft )
   *(__int64*)ft = EPOCH_BIAS + time * 10000000ll;
 }
 
-void  WINAPI _export SetFarInfo(const struct PluginStartupInfo *Info)
+void  WINAPI _export SetFarInfo(const PluginStartupInfo *Info)
 {
   ;
 }
@@ -57,8 +57,9 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
 }
 
 
-int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
+int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
 {
+PACK_PUSH(1)
   struct HaHeader
   {
     BYTE Type;
@@ -67,6 +68,9 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
     DWORD CRC;
     DWORD FileTime;
   } Header;
+PACK_POP()
+PACK_CHECK(HaHeader, 1);
+
   DWORD ReadSize;
   NextPosition=SetFilePointer(ArcHandle,NextPosition,NULL,FILE_BEGIN);
   if (NextPosition==0xFFFFFFFF)
@@ -108,7 +112,7 @@ int WINAPI _export GetArcItem(struct PluginPanelItem *Item,struct ArcItemInfo *I
 }
 
 
-BOOL WINAPI _export CloseArchive(struct ArcInfo *Info)
+BOOL WINAPI _export CloseArchive(ArcInfo *Info)
 {
   return(CloseHandle(ArcHandle));
 }
