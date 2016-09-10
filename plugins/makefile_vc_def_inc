@@ -13,7 +13,7 @@
 #USERCPP - user defined switches for the compiler (added after the default
 #          ones).
 #
-#CPP_UNALIGN - use 1byte alignment insead of 8bytes in 32bit compiling
+#CPP_UNALIGN - use 1byte alignment insead of 8bytes
 #
 #ADDOBJDIR - you can set it to /dir if the temporary folder for the plugin
 #            compiled files is a folder inside the default temporary folder.
@@ -146,11 +146,12 @@ ULOUT=-Tpd+
 !elseif "$(BUILD_PLATFORM)" == "IA64"
 ULOUT=-Tpd+
 !else
+ULOUT=-Tpd -Rv
+!endif
+
 !ifdef CPP_UNALIGN
 CPP_ALIGN=/Zp1
-!endif
 CPPFLAGS=$(CPPFLAGS) $(CPP_ALIGN)
-ULOUT=-Tpd -Rv
 !endif
 
 !ifdef INCLUDECRT

@@ -1,3 +1,7 @@
+w17 10.09.2016 23:28:39 +0300 - build 198
+
+1. StructMemberAlignment == 1 for all *.fmt
+
 drkns 17.05.2016 12:54:55 +0200 - build 197
 
 1. Используем FCTL_GETUSERSCREEN для корректной работы в Far 3.

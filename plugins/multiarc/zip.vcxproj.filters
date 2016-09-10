@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="zip.cpp">
+    <ClCompile Include="..\common\vc_crt_fix_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\vc_crt_fix_impl.cpp">
+    <ClCompile Include="$(ProjectName).cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -28,12 +28,12 @@
     </MASM>
   </ItemGroup>
   <ItemGroup>
-    <None Include="zip.vc.def">
+    <None Include="$(ProjectName).vc.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="zip.rc">
+    <ResourceCompile Include="$(ProjectName).rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
