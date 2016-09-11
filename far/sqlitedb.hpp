@@ -80,6 +80,7 @@ protected:
 
 		SQLiteStmt& Reset();
 		bool Step() const;
+		bool FinalStep() const;
 
 		template<typename arg, typename... args>
 		auto& Bind(arg&& Arg, args&&... Args)
