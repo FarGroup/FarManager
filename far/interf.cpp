@@ -53,7 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 #include "TaskBar.hpp"
-#include "locale.hpp"
 
 consoleicons& ConsoleIcons()
 {

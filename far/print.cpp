@@ -130,7 +130,7 @@ void PrintFiles(FileList* SrcPanel)
 
 	block_ptr<PRINTER_INFO> pi(Needed);
 
-	if (!EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS,nullptr,PRINTER_INFO_LEVEL,(LPBYTE)pi.get(),Needed,&Needed,&Returned))
+	if (!EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, PRINTER_INFO_LEVEL, reinterpret_cast<BYTE*>(pi.get()), Needed, &Needed, &Returned))
 	{
 		Global->CatchError();
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotEnumeratePrinters),MSG(MOk));
@@ -170,9 +170,9 @@ void PrintFiles(FileList* SrcPanel)
 			strPrinterName = *NamePtr;
 	}
 
-	HANDLE hPrinter;
+	os::printer_handle Printer;
 
-	if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &hPrinter,nullptr))
+	if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
 	{
 		Global->CatchError();
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
@@ -229,7 +229,7 @@ void PrintFiles(FileList* SrcPanel)
 			{
 				DOC_INFO_1 di1 = {UNSAFE_CSTR(FileName)};
 
-				if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
+				if (StartDocPrinter(Printer.native_handle(), 1, reinterpret_cast<BYTE*>(&di1)))
 				{
 					char Buffer[8192];
 					size_t Read;
@@ -238,14 +238,14 @@ void PrintFiles(FileList* SrcPanel)
 
 					while (SrcFile.Read(Buffer, sizeof(Buffer), Read) && Read > 0)
 					{
-						if (!WritePrinter(hPrinter, Buffer, static_cast<DWORD>(Read), &Written))
+						if (!WritePrinter(Printer.native_handle(), Buffer, static_cast<DWORD>(Read), &Written))
 						{
 							Global->CatchError();
 							Success = FALSE;
 							break;
 						}
 					}
-					EndDocPrinter(hPrinter);
+					EndDocPrinter(Printer.native_handle());
 				}
 				SrcFile.Close();
 			}
@@ -264,8 +264,6 @@ void PrintFiles(FileList* SrcPanel)
 					break;
 			}
 		}
-
-		ClosePrinter(hPrinter);
 	}
 
 	SrcPanel->Redraw();

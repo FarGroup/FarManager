@@ -105,6 +105,11 @@ static bool CanGetFocus(int Type)
 	}
 }
 
+static bool IsEmulatedEditorLine(const DialogItemEx& Item)
+{
+	return Item.Type == DI_EDIT && Item.Flags & DIF_EDITOR;
+}
+
 bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 {
 	auto Str = str.data();
@@ -768,12 +773,6 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		// "редакторы" - разговор особый...
 		else if (IsEdit(Type))
 		{
-			// сбросим флаг DIF_EDITOR для строки ввода, отличной от DI_EDIT,
-			// DI_FIXEDIT и DI_PSWEDIT
-			if (Type != DI_COMBOBOX)
-				if ((ItemFlags&DIF_EDITOR) && Type != DI_EDIT && Type != DI_FIXEDIT && Type != DI_PSWEDIT)
-					ItemFlags&=~DIF_EDITOR;
-
 			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
 				Items[I].ObjPtr=new DlgEdit(shared_from_this(),I,Type == DI_MEMOEDIT?DLGEDIT_MULTILINE:DLGEDIT_SINGLELINE);
@@ -787,7 +786,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 			const auto DialogEdit = static_cast<DlgEdit*>(Items[I].ObjPtr);
 			// Mantis#58 - символ-маска с кодом 0х0А - пропадает
-			//DialogEdit->SetDialogParent((Type != DI_COMBOBOX && (ItemFlags & DIF_EDITOR) || (Items[I].Type==DI_PSWEDIT || Items[I].Type==DI_FIXEDIT))?
+			//DialogEdit->SetDialogParent((IsEmulatedEditorLine(Items[I]) || (Items[I].Type==DI_PSWEDIT || Items[I].Type==DI_FIXEDIT))?
 			//                            FEDITLINE_PARENT_SINGLELINE:FEDITLINE_PARENT_MULTILINE);
 			DialogEdit->SetDialogParent(Type == DI_MEMOEDIT?FEDITLINE_PARENT_MULTILINE:FEDITLINE_PARENT_SINGLELINE);
 			DialogEdit->SetReadOnly(0);
@@ -876,7 +875,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				// Последовательно определенные поля ввода (edit controls),
 				// имеющие этот флаг группируются в редактор с возможностью
 				// вставки и удаления строк
-				if (!(ItemFlags & DIF_EDITOR) && Items[I].Type != DI_COMBOBOX)
+				if (!IsEmulatedEditorLine(Items[I]) && Items[I].Type != DI_COMBOBOX)
 				{
 					DialogEdit->SetEditBeyondEnd(false);
 
@@ -929,7 +928,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				DialogEdit->SetCurPos(0);
 
 			// Для обычных строк отрубим постоянные блоки
-			if (!(ItemFlags&DIF_EDITOR))
+			if (!IsEmulatedEditorLine(Items[I]))
 				DialogEdit->SetPersistentBlocks(Global->Opt->Dialogs.EditBlock);
 
 			DialogEdit->SetDelRemovesBlocks(Global->Opt->Dialogs.DelRemovesBlocks);
@@ -2668,14 +2667,12 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (Items[m_FocusPos].Type != DI_COMBOBOX
-			        && IsEdit(Items[m_FocusPos].Type)
-			        && (Items[m_FocusPos].Flags & DIF_EDITOR) && !(Items[m_FocusPos].Flags & DIF_READONLY))
+			if (IsEmulatedEditorLine(Items[m_FocusPos]) && !(Items[m_FocusPos].Flags & DIF_READONLY))
 			{
 				size_t I, EditorLastPos;
 
 				for (EditorLastPos=I=m_FocusPos; I < Items.size(); I++)
-					if (IsEdit(Items[I].Type) && (Items[I].Flags & DIF_EDITOR))
+					if (IsEmulatedEditorLine(Items[I]))
 						EditorLastPos=I;
 					else
 						break;
@@ -2861,6 +2858,14 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				return TRUE;
 			}
 
+		case KEY_F11:
+			if (!Global->IsProcessAssignMacroKey)
+			{
+				if (!CheckDialogMode(DMODE_NOPLUGINS))
+					doGlobalProcessKey = true;
+			}
+			break;
+
 			// ???
 			// ЭТО перед default последний!!!
 		case KEY_PGDN:   case KEY_NUMPAD3:
@@ -2868,7 +2873,11 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			if (Items[m_FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
 				return TRUE;
 
-			if (!(Items[m_FocusPos].Flags & DIF_EDITOR))
+			if (IsEmulatedEditorLine(Items[m_FocusPos]))
+				// для DIF_EDITOR будет обработано ниже
+				// fall through
+				;
+			else
 			{
 				const auto ItemIterator = std::find_if(CONST_RANGE(Items, i)
 				{
@@ -2882,17 +2891,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				}
 				return TRUE;
 			}
-			break;
 
-		case KEY_F11:
-			if (!Global->IsProcessAssignMacroKey)
-			{
-				if(!CheckDialogMode(DMODE_NOPLUGINS))
-					doGlobalProcessKey = true;
-			}
-			break;
-
-			// для DIF_EDITOR будет обработано ниже
 		default:
 		{
 			//if(Items[FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
@@ -2924,14 +2923,16 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				{
 					return TRUE;
 				}
-				else if (LocalKey() == KEY_CTRLU || LocalKey() == KEY_RCTRLU)
+
+				if (LocalKey() == KEY_CTRLU || LocalKey() == KEY_RCTRLU)
 				{
 					edt->SetClearFlag(0);
 					edt->RemoveSelection();
 					edt->Show();
 					return TRUE;
 				}
-				else if ((Items[m_FocusPos].Flags & DIF_EDITOR) && !(Items[m_FocusPos].Flags & DIF_READONLY))
+
+				if (IsEmulatedEditorLine(Items[m_FocusPos]) && !(Items[m_FocusPos].Flags & DIF_READONLY))
 				{
 					switch (LocalKey())
 					{
@@ -2939,7 +2940,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						{	// В начале строки????
 							if (!edt->GetCurPos())
 							{	// а "выше" тоже DIF_EDITOR?
-								if (m_FocusPos > 0 && (Items[m_FocusPos-1].Flags & DIF_EDITOR))
+								if (m_FocusPos > 0 && IsEmulatedEditorLine(Items[m_FocusPos - 1]))
 								{	// добавляем к предыдущему и...
 									bool last = false;
 									const auto prev = static_cast<DlgEdit*>(Items[m_FocusPos - 1].ObjPtr);
@@ -2948,7 +2949,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 									for (size_t I = m_FocusPos; !last && I < Items.size(); ++I)
 									{
 										const auto next = static_cast<DlgEdit*>(Items[I].ObjPtr);
-										last = (0 == (Items[I].Flags & DIF_EDITOR));
+										last = !IsEmulatedEditorLine(Items[I]);
 										if (!last)
 										{
 											strStr += next->GetString();
@@ -2977,7 +2978,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 							bool empty = true, last = false;
 							for (size_t I = m_FocusPos+1; !last && I < Items.size(); ++I)
 							{
-								last = (0 == (Items[I].Flags & DIF_EDITOR));
+								last = !IsEmulatedEditorLine(Items[I]);
 								string strNext;
 								if (!last)
 									strNext = static_cast<DlgEdit*>(Items[I].ObjPtr)->GetString();
@@ -2997,7 +2998,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						case KEY_NUMDEL:
 						case KEY_DEL:
 						{
-							if (m_FocusPos<Items.size()+1 && (Items[m_FocusPos+1].Flags & DIF_EDITOR))
+							if (m_FocusPos<Items.size() + 1 && IsEmulatedEditorLine(Items[m_FocusPos + 1]))
 							{
 								int CurPos=edt->GetCurPos();
 								int Length=edt->GetLength();
@@ -3035,10 +3036,10 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						{
 							size_t I = m_FocusPos;
 
-							while (Items[I].Flags & DIF_EDITOR)
+							while (IsEmulatedEditorLine(Items[I]))
 								I=ChangeFocus(I,(LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)?-1:1,FALSE);
 
-							if (!(Items[I].Flags & DIF_EDITOR))
+							if (!IsEmulatedEditorLine(Items[I]))
 								I=ChangeFocus(I,(LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)?1:-1,FALSE);
 
 							ChangeFocus2(I);
@@ -3669,7 +3670,7 @@ int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 	size_t OldPos=m_FocusPos;
 	unsigned PrevPos=0;
 
-	if (IsEdit(Items[m_FocusPos].Type) && (Items[m_FocusPos].Flags & DIF_EDITOR))
+	if (IsEmulatedEditorLine(Items[m_FocusPos]))
 		PrevPos = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->GetCurPos();
 
 	size_t I=ChangeFocus(m_FocusPos,Up? -1:1,FALSE);
@@ -3677,7 +3678,7 @@ int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 	Items[I].Flags|=DIF_FOCUS;
 	ChangeFocus2(I);
 
-	if (IsEdit(Items[I].Type) && (Items[I].Flags & DIF_EDITOR))
+	if (IsEmulatedEditorLine(Items[m_FocusPos]))
 		static_cast<DlgEdit*>(Items[I].ObjPtr)->SetCurPos(PrevPos);
 
 	if (Items[m_FocusPos].Type == DI_RADIOBUTTON && (Items[I].Flags & DIF_MOVESELECT))
@@ -3699,11 +3700,11 @@ int Dialog::Do_ProcessTab(bool Next)
 	if (Items.size() > 1)
 	{
 		// Здесь с фокусом ОООЧЕНЬ ТУМАННО!!!
-		if (Items[m_FocusPos].Flags & DIF_EDITOR)
+		if (IsEmulatedEditorLine(Items[m_FocusPos]))
 		{
 			I=m_FocusPos;
 
-			while (Items[I].Flags & DIF_EDITOR)
+			while (IsEmulatedEditorLine(Items[I]))
 				I=ChangeFocus(I,Next ? 1:-1,TRUE);
 		}
 		else
@@ -3711,8 +3712,8 @@ int Dialog::Do_ProcessTab(bool Next)
 			I=ChangeFocus(m_FocusPos,Next ? 1:-1,TRUE);
 
 			if (!Next)
-				while (I>0 && (Items[I].Flags & DIF_EDITOR) &&
-				        (Items[I-1].Flags & DIF_EDITOR) &&
+				while (I>0 && IsEmulatedEditorLine(Items[I]) &&
+				        IsEmulatedEditorLine(Items[I-1]) &&
 				        !static_cast<DlgEdit*>(Items[I].ObjPtr)->GetLength())
 					I--;
 		}

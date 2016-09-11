@@ -57,6 +57,7 @@ namespace os
 		void handle_closer::operator()(HANDLE Handle) const { CloseHandle(Handle); }
 		void find_volume_handle_closer::operator()(HANDLE Handle) const { FindVolumeClose(Handle); }
 		void find_notification_handle_closer::operator()(HANDLE Handle) const { FindCloseChangeNotification(Handle); }
+		void printer_handle_closer::operator()(HANDLE Handle) const { ClosePrinter(Handle); }
 		struct os_find_handle_closer { void operator()(HANDLE Handle) const { FindClose(Handle); } };
 
 		class far_find_handle_impl: public i_find_handle_impl

@@ -73,12 +73,14 @@ namespace os
 		struct find_handle_closer { void operator()(HANDLE Handle) const; };
 		struct find_volume_handle_closer { void operator()(HANDLE Handle) const; };
 		struct find_notification_handle_closer { void operator()(HANDLE Handle) const; };
+		struct printer_handle_closer { void operator()(HANDLE Handle) const; };
 	}
 
 	using handle = detail::handle_t<detail::handle_closer>;
 	using find_handle = detail::handle_t<detail::find_handle_closer>;
 	using find_volume_handle = detail::handle_t<detail::find_volume_handle_closer>;
 	using find_notification_handle = detail::handle_t<detail::find_notification_handle_closer>;
+	using printer_handle = detail::handle_t<detail::printer_handle_closer>;
 
 	enum
 	{

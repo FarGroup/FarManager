@@ -72,8 +72,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PACK_PUSH(n) __pragma(pack(push, n))
 #define PACK_POP() __pragma(pack(pop))
 #elif COMPILER == C_GCC || COMPILER == C_CLANG
-#define PACK_PUSH(n) STR_PRAGMA(pack(n))
-#define PACK_POP() STR_PRAGMA(pack())
+#define PACK_PUSH(n) STR_PRAGMA(pack(push, n))
+#define PACK_POP() STR_PRAGMA(pack(pop))
 #endif
 //----------------------------------------------------------------------------
 #if COMPILER == C_CL || COMPILER == C_INTEL

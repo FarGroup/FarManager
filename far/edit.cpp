@@ -112,6 +112,7 @@ void Edit::DisplayObject()
 {
 	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
+		m_Flags.Clear(FEDITLINE_CLEARFLAG);  // при дроп-даун нам не нужно никакого unchanged text
 		m_SelStart=0;
 		m_SelEnd = m_Str.size(); // а также считаем что все выделено -
 		//    надо же отличаться от обычных Edit
