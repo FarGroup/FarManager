@@ -3,6 +3,62 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.09.2016 23:35:38 +0200 - build 4789
+
+1. Correction of 4788.3.
+
+2. Minor issues.
+
+drkns 12.09.2016 19:23:16 +0200 - build 4788
+
+1. Displaying a dialog while loading a plugin could leave console caption empty.
+
+2. DM_SETTEXT during DN_INITDIALOG would reset 'unchanged' in input string fields.
+
+3. Global replacement __int64 -> long long and other refactoring.
+
+drkns 11.09.2016 18:53:56 +0200 - build 4787
+
+1. 0003299: starting from 3.0.4784 x86 a new association would not be saved after editing
+
+drkns 11.09.2016 04:28:53 +0200 - build 4786
+
+1. 0003294: Empty combo box line
+
+2. Correction of DIF_EDITOR processing in dialogs.
+
+3. Minor issues.
+
+drkns 09.09.2016 23:40:13 +0200 - build 4785
+
+1. After 4778, WindowMode was broken.
+
+drkns 08.09.2016 23:08:42 +0200 - build 4784
+
+1. Refactoring.
+
+2. TinyXML-2 4.0.1.
+
+shmuel 06.09.2016 09:16:24 +0200 - build 4783
+
+1. For recording/modifying/deleting keyboard macros with Ctrl.Ctrl. :
+   a) Existing stationary macros bound on the same combination (area,key) are equated to
+      built-in Far keyboard combinations, i.e. Far doesn't ask for them to be deleted or redefined.
+   b) The behavior for existing keyboard macros hasn't been changed.
+
+drkns 05.09.2016 20:21:32 +0200 - build 4782
+
+1. Forum: copying didn't work after Ctrl+L Tab Ctrl+L.
+
+zg 05.09.2016 19:25:21 +0200 - build 4781
+
+1. forum: If FCTL_GETUSERSCREEN is called while a dialog is shown (same for a menu or help),
+   then the dialog stays in clipboard for some reason.
+
+zg 05.09.2016 12:27:54 +0200 - build 4780
+
+1. continuation of 4777.
+
 drkns 05.09.2016 00:52:20 +0200 - build 4779
 
 1. It happens that there are plugins which assume that Message can be passed nullptr instead of "".
