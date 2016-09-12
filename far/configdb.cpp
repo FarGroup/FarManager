@@ -80,6 +80,13 @@ private:
 	tinyxml::XMLHandle m_Root;
 };
 
+static auto& CreateChild(tinyxml::XMLElement& Parent, const char* Name)
+{
+	const auto e = Parent.GetDocument()->NewElement(Name);
+	Parent.LinkEndChild(e);
+	return *e;
+}
+
 class representation_destination
 {
 public:
@@ -96,13 +103,6 @@ public:
 	}
 
 	tinyxml::XMLElement& GetRoot() const { return *m_Root; }
-
-	tinyxml::XMLElement& CreateChild(tinyxml::XMLElement& Parent, const char* Name)
-	{
-		const auto e = m_Document.NewElement(Name);
-		Parent.LinkEndChild(e);
-		return *e;
-	}
 
 	void SetRoot(tinyxml::XMLElement& Root) { m_Root = &Root; }
 
@@ -236,13 +236,13 @@ private:
 
 	virtual void Export(representation_destination& Representation) override
 	{
-		auto& root = Representation.CreateChild(Representation.GetRoot(), GetKeyName());
+		auto& root = CreateChild(Representation.GetRoot(), GetKeyName());
 
 		auto stmtEnumAllValues = create_stmt(L"SELECT key, name, value FROM general_config ORDER BY key, name;");
 
 		while (stmtEnumAllValues.Step())
 		{
-			auto& e = Representation.CreateChild(root, "setting");
+			auto& e = CreateChild(root, "setting");
 
 			e.SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0));
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1));
@@ -547,7 +547,7 @@ protected:
 
 	virtual void Export(representation_destination& Representation) override
 	{
-		Export(Representation, root_key(), Representation.CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
+		Export(Representation, root_key(), CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
 	}
 
 	virtual std::vector<char> DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e)
@@ -570,7 +570,7 @@ protected:
 		Stmt->Bind(Key.get());
 		while (Stmt->Step())
 		{
-			auto& e = Representation.CreateChild(XmlKey, "value");
+			auto& e = CreateChild(XmlKey, "value");
 
 			const auto name = Stmt->GetColTextUTF8(0);
 			e.SetAttribute("name", name);
@@ -601,7 +601,7 @@ protected:
 		stmtEnumSubKeys.Bind(Key.get());
 		while (stmtEnumSubKeys.Step())
 		{
-			auto& e = Representation.CreateChild(XmlKey, "key");
+			auto& e = CreateChild(XmlKey, "key");
 
 			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1));
 			if (const auto description = stmtEnumSubKeys.GetColTextUTF8(2))
@@ -824,13 +824,13 @@ private:
 
 	virtual void Export(representation_destination& Representation) override
 	{
-		auto& root = Representation.CreateChild(Representation.GetRoot(), "colors");
+		auto& root = CreateChild(Representation.GetRoot(), "colors");
 
 		auto stmtEnumAllValues = create_stmt(L"SELECT name, value FROM colors ORDER BY name;");
 
 		while (stmtEnumAllValues.Step())
 		{
-			auto& e = Representation.CreateChild(root, "object");
+			auto& e = CreateChild(root, "object");
 
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
 			const auto Blob = stmtEnumAllValues.GetColBlob(1);
@@ -1025,14 +1025,14 @@ private:
 
 	virtual void Export(representation_destination& Representation) override
 	{
-		auto& root = Representation.CreateChild(Representation.GetRoot(), "associations");
+		auto& root = CreateChild(Representation.GetRoot(), "associations");
 
 		auto stmtEnumAllTypes = create_stmt(L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
 		auto stmtEnumCommandsPerFiletype = create_stmt(L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
 
 		while (stmtEnumAllTypes.Step())
 		{
-			auto& e = Representation.CreateChild(root, "filetype");
+			auto& e = CreateChild(root, "filetype");
 
 			e.SetAttribute("mask", stmtEnumAllTypes.GetColTextUTF8(1));
 			e.SetAttribute("description", stmtEnumAllTypes.GetColTextUTF8(2));
@@ -1040,7 +1040,7 @@ private:
 			stmtEnumCommandsPerFiletype.Bind(stmtEnumAllTypes.GetColInt64(0));
 			while (stmtEnumCommandsPerFiletype.Step())
 			{
-				auto& se = Representation.CreateChild(e, "command");
+				auto& se = CreateChild(e, "command");
 
 				se.SetAttribute("type", stmtEnumCommandsPerFiletype.GetColInt(0));
 				se.SetAttribute("enabled", stmtEnumCommandsPerFiletype.GetColInt(1));
@@ -1525,14 +1525,14 @@ private:
 
 	virtual void Export(representation_destination& Representation) override
 	{
-		auto& root = Representation.CreateChild(Representation.GetRoot(), "pluginhotkeys");
+		auto& root = CreateChild(Representation.GetRoot(), "pluginhotkeys");
 
 		auto stmtEnumAllPluginKeys = create_stmt(L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
 		auto stmtEnumAllHotkeysPerKey = create_stmt(L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
 
 		while (stmtEnumAllPluginKeys.Step())
 		{
-			auto& p = Representation.CreateChild(root, "plugin");
+			auto& p = CreateChild(root, "plugin");
 
 			string Key = stmtEnumAllPluginKeys.GetColText(0);
 			p.SetAttribute("key", stmtEnumAllPluginKeys.GetColTextUTF8(0));
@@ -1554,7 +1554,7 @@ private:
 					continue;
 				}
 
-				auto& e = Representation.CreateChild(p, "hotkey");
+				auto& e = CreateChild(p, "hotkey");
 				e.SetAttribute("menu", type);
 				e.SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0));
 				const auto hotkey = stmtEnumAllHotkeysPerKey.GetColTextUTF8(2);
@@ -2281,17 +2281,17 @@ bool config_provider::Export(const string& File)
 	ColorsCfg()->Export(Representation);
 	AssocConfig()->Export(Representation);
 	PlHotkeyCfg()->Export(Representation);
-	Representation.SetRoot(Representation.CreateChild(root, "filters"));
+	Representation.SetRoot(CreateChild(root, "filters"));
 	CreateFiltersConfig()->Export(Representation);
-	Representation.SetRoot(Representation.CreateChild(root, "highlight"));
+	Representation.SetRoot(CreateChild(root, "highlight"));
 	CreateHighlightConfig()->Export(Representation);
-	Representation.SetRoot(Representation.CreateChild(root, "panelmodes"));
+	Representation.SetRoot(CreateChild(root, "panelmodes"));
 	CreatePanelModeConfig()->Export(Representation);
-	Representation.SetRoot(Representation.CreateChild(root, "shortcuts"));
+	Representation.SetRoot(CreateChild(root, "shortcuts"));
 	CreateShortcutsConfig()->Export(Representation);
 
 	{ //TODO: export for local plugin settings
-		auto& e = Representation.CreateChild(root, "pluginsconfig");
+		auto& e = CreateChild(root, "pluginsconfig");
 		os::fs::enum_file ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
 		std::for_each(RANGE(ff, i)
 		{
@@ -2299,7 +2299,7 @@ bool config_provider::Export(const string& File)
 			InplaceUpper(i.strFileName);
 			if (std::regex_search(i.strFileName, uuid_regex()))
 			{
-				auto& PluginRoot = Representation.CreateChild(e, "plugin");
+				auto& PluginRoot = CreateChild(e, "plugin");
 				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.strFileName).data());
 				Representation.SetRoot(PluginRoot);
 				CreatePluginsConfig(i.strFileName)->Export(Representation);

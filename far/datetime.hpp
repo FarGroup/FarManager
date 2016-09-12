@@ -70,7 +70,7 @@ inline auto UI64ToFileTime(unsigned long long time)
 
 inline int CompareFileTime(const FILETIME& a, const FILETIME& b)
 {
-	const auto Result = FileTimeToUI64(a) - FileTimeToUI64(b);
+	const long long Result = FileTimeToUI64(a) - FileTimeToUI64(b);
 	return Result ? (Result > 0 ? 1 : -1) : 0;
 }
 

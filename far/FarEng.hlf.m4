@@ -4599,7 +4599,7 @@ to child processes:
 
 @RegExp
 $ #Regular expressions#
-    The regular expressions syntax is almost equal to Perl regexp`s.
+    The regular expressions syntax is almost equal to Perl regexps.
 
     General form: #regexp# or /#regexp#/#options#.
 
@@ -5668,7 +5668,7 @@ $ #far:config Editor.CharCodeBase#
 
       0 - восьмеричное значение (3 символа с ведущим нулями)
       1 - десятеричное значение (3 символа с ведущими пробелами)
-      2 - шестнадцатеричное значение (2 символа под цифру + символ 'h')
+      2 - шестнадцатеричное значение (2 символа под цифру + символ ''h')
 
     По умолчанию значение = 1 (десятеричное значение).
 
