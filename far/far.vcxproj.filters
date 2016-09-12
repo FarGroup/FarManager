@@ -5,6 +5,10 @@
       <UniqueIdentifier>{ee8269df-ee5e-4cb1-b5e2-41705afcbbb0}</UniqueIdentifier>
       <Extensions>m4</Extensions>
     </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{f8a0dd65-1b22-4c9a-b42c-418fb7254f7b}</UniqueIdentifier>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{0d74ff07-ebff-40b7-839c-6953ed4c6e2e}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
@@ -988,6 +992,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="bootstrap\farlang.templ">
+      <Filter>Generated Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="copyright.inc.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
