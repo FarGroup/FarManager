@@ -84,7 +84,7 @@ static void GetTimeText(DWORD Time, string &strTimeText)
 	strTimeText = FormatString() << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Hour << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Min << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Sec;
 }
 
-void copy_progress::UpdateAllBytesInfo(uint64_t FileSize)
+void copy_progress::UpdateAllBytesInfo(unsigned long long FileSize)
 {
 	m_Bytes.Copied += m_Bytes.CurrCopied;
 	if (m_Bytes.CurrCopied < FileSize)
@@ -94,7 +94,7 @@ void copy_progress::UpdateAllBytesInfo(uint64_t FileSize)
 	Flush();
 }
 
-void copy_progress::UpdateCurrentBytesInfo(uint64_t NewValue)
+void copy_progress::UpdateCurrentBytesInfo(unsigned long long NewValue)
 {
 	m_Bytes.Copied -= m_Bytes.CurrCopied;
 	m_Bytes.CurrCopied = NewValue;
@@ -126,7 +126,7 @@ void copy_progress::FlushScan()
 	Global->ScrBuf->Flush();
 }
 
-static string FormatCounter(LNGID CounterId, LNGID AnotherId, uint64_t CurrentValue, uint64_t TotalValue, bool ShowTotal, size_t MaxWidth)
+static string FormatCounter(LNGID CounterId, LNGID AnotherId, unsigned long long CurrentValue, unsigned long long TotalValue, bool ShowTotal, size_t MaxWidth)
 {
 	string Label = MSG(CounterId);
 	const auto PaddedLabelSize = std::max(Label.size(), wcslen(MSG(AnotherId))) + 1;

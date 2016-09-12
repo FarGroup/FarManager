@@ -57,7 +57,7 @@ public:
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
 
 	int OpenFile(const string& Name,int warning);
 	void SetViewKeyBar(KeyBar *ViewKeyBar);
@@ -73,17 +73,17 @@ public:
 	void SetTempViewName(const string& Name, BOOL DeleteFolder);
 	void SetTitle(const string& Title);
 	string GetTitle() const;
-	void SetFilePos(__int64 Pos);
-	__int64 GetFilePos() const { return FilePos; }
-	__int64 GetViewFilePos() const { return FilePos; }
-	__int64 GetViewFileSize() const { return FileSize; }
+	void SetFilePos(long long Pos);
+	long long GetFilePos() const { return FilePos; }
+	long long GetViewFilePos() const { return FilePos; }
+	long long GetViewFileSize() const { return FileSize; }
 	void SetPluginData(const wchar_t *PluginData);
 	void SetNamesList(NamesList& List);
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;}
-	void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,UINT64 Flags=0);
-	void GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags) const;
-	void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
+	void GoTo(int ShowDlg=TRUE,long long NewPos=0,UINT64 Flags=0);
+	void GetSelectedParam(long long &Pos, long long &Length, DWORD &Flags) const;
+	void SelectText(const long long &MatchPos,const long long &SearchLength, const DWORD Flags=0x1);
 	bool GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
 	void SetShowScrollbar(bool newValue) { ViOpt.ShowScrollbar=newValue; }
 	uintptr_t GetCodePage() const { return m_Codepage; }
@@ -102,8 +102,8 @@ private:
 	virtual void DisplayObject() override;
 	void ShowPage(int nMode);
 	void Up(int n, bool adjust);
-	void CacheLine(__int64 start, int length, bool have_eol);
-	int CacheFindUp(__int64 start);
+	void CacheLine(long long start, int length, bool have_eol);
+	int CacheFindUp(long long start);
 	void ShowHex();
 	void ShowDump();
 	void ShowStatus() const;
@@ -117,9 +117,9 @@ private:
 	void AdjustFilePos();
    bool CheckChanged();
 	void ReadString(ViewerString *pString, int MaxSize, bool update_cache=true);
-	__int64 EndOfScreen(int line);
-	__int64 BegOfScreen();
-	__int64 XYfilepos(int col, int row);
+	long long EndOfScreen(int line);
+	long long BegOfScreen();
+	long long XYfilepos(int col, int row);
 	void ChangeViewKeyBar();
 	void Search(int Next,int FirstChar);
 	struct search_data;
@@ -131,8 +131,8 @@ private:
 	SEARCHER_RESULT search_regex_backward( search_data* sd );
 	int read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize);
 	int vread(wchar_t *Buf, int Count, wchar_t *Buf2 = nullptr);
-	bool vseek(__int64 Offset, int Whence);
-	__int64 vtell() const;
+	bool vseek(long long Offset, int Whence);
+	long long vtell() const;
 	bool vgetc(wchar_t *ch);
 	bool veof() const;
 	wchar_t vgetc_prev();
@@ -184,7 +184,7 @@ private:
 	string strLastSearchStr;
 	bool LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
 	int LastSearchDirection;
-	__int64 StartSearchPos;
+	long long StartSearchPos;
 
 	uintptr_t m_DefCodepage;
 	uintptr_t m_Codepage;
@@ -195,14 +195,14 @@ private:
 
 	MultibyteCodepageDecoder MB;
 
-	__int64 FilePos;
-	__int64 SecondPos;
-	__int64 FileSize;
-	__int64 LastSelectPos, LastSelectSize;
+	long long FilePos;
+	long long SecondPos;
+	long long FileSize;
+	long long LastSelectPos, LastSelectSize;
 
-	__int64 LeftPos;
+	long long LeftPos;
 	bool LastPage;
-	__int64 SelectPos,SelectSize, ManualSelectPos;
+	long long SelectPos,SelectSize, ManualSelectPos;
 	DWORD SelectFlags;
 	int ShowStatusLine;
 	int m_HideCursor;
@@ -234,9 +234,9 @@ private:
 
 	std::vector<char> vread_buffer;
 
-	__int64  lcache_first;
-	__int64  lcache_last;
-	std::vector<__int64> lcache_lines;
+	long long  lcache_first;
+	long long  lcache_last;
+	std::vector<long long> lcache_lines;
 	int      lcache_count;
 	int      lcache_base;
 	bool     lcache_ready;
@@ -252,9 +252,9 @@ private:
 	struct ViewerString
 	{
 		string Data;
-		__int64 nFilePos;
-		__int64 nSelStart;
-		__int64 nSelEnd;
+		long long nFilePos;
+		long long nSelStart;
+		long long nSelEnd;
 		int  linesize;
 		int  have_eol;
 		bool bSelection;

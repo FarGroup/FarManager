@@ -73,7 +73,7 @@ public:
 		};
 
 	public:
-		typedef std::array<color, HIGHLIGHT_COUNT> colors_array;
+		using colors_array = std::array<color, HIGHLIGHT_COUNT>;
 		colors_array Color;
 		mark Mark;
 
@@ -116,7 +116,7 @@ private:
 	std::vector<FileFilterParams> HiData;
 
 	int FirstCount, UpperCount, LowerCount, LastCount;
-	unsigned __int64 CurrentTime;
+	unsigned long long CurrentTime;
 	bool Changed;
 };
 

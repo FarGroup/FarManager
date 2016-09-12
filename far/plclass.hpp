@@ -272,8 +272,8 @@ public:
 	bool SaveToCache();
 	bool IsPanelPlugin();
 	bool Active() const {return Activity != 0;}
-	void AddDialog(window_ptr_ref Dlg);
-	bool RemoveDialog(window_ptr_ref Dlg);
+	void AddDialog(const window_ptr& Dlg);
+	bool RemoveDialog(const window_ptr& Dlg);
 
 protected:
 	template<EXPORTS_ENUM ExportId>

@@ -111,7 +111,7 @@ void Panel::ChangeDirToCurrent()
 	SetCurDir(os::GetCurrentDirectory(), true);
 }
 
-__int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long Panel::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	return 0;
 }

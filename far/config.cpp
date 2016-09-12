@@ -2402,7 +2402,7 @@ void Options::ReadPanelModes()
 		cfg->GetValue(Key, ModesStatusColumnTitlesName, strStatusColumnTitles);
 		cfg->GetValue(Key, ModesStatusColumnWidthsName, strStatusColumnWidths);
 
-		unsigned __int64 Flags=0;
+		unsigned long long Flags=0;
 		cfg->GetValue(Key, ModesFlagsName, Flags);
 
 		cfg->GetValue(Key, ModesNameName, i.Name);

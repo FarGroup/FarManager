@@ -61,7 +61,7 @@ inline auto UI64ToFileTime(LARGE_INTEGER time)
 	return FILETIME{ time.LowPart, static_cast<DWORD>(time.HighPart) };
 }
 
-inline auto UI64ToFileTime(uint64_t time)
+inline auto UI64ToFileTime(unsigned long long time)
 {
 	LARGE_INTEGER i;
 	i.QuadPart = time;
@@ -70,7 +70,7 @@ inline auto UI64ToFileTime(uint64_t time)
 
 inline int CompareFileTime(const FILETIME& a, const FILETIME& b)
 {
-	__int64 Result = FileTimeToUI64(a) - FileTimeToUI64(b);
+	const auto Result = FileTimeToUI64(a) - FileTimeToUI64(b);
 	return Result ? (Result > 0 ? 1 : -1) : 0;
 }
 
@@ -89,7 +89,7 @@ inline bool operator<(const FILETIME& a, const FILETIME& b)
 	return CompareFileTime(a, b) < 0;
 }
 
-inline uint64_t GetCurrentUTCTimeInUI64()
+inline unsigned long long GetCurrentUTCTimeInUI64()
 {
 	return FileTimeToUI64(get_utc_time_as_filetime());
 }

@@ -1236,7 +1236,7 @@ void PluginManager::Configure(int StartPos)
 				for (const auto& i: SortedPlugins)
 				{
 					bool bCached = i->CheckWorkFlags(PIWF_CACHED);
-					unsigned __int64 id = 0;
+					unsigned long long id = 0;
 
 					PluginInfo Info = {sizeof(Info)};
 					if (bCached)
@@ -1397,7 +1397,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				{
 					bool bCached = i->CheckWorkFlags(PIWF_CACHED);
 					UINT64 IFlags;
-					unsigned __int64 id = 0;
+					unsigned long long id = 0;
 
 					PluginInfo Info = {sizeof(Info)};
 					if (bCached)
@@ -1623,7 +1623,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	string strPluginPrefix;
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		unsigned __int64 id = ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
+		unsigned long long id = ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
 		strPluginPrefix = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
 	}
 	else
@@ -1727,12 +1727,12 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 	string Prefix;
 	PLUGIN_FLAGS Flags = 0;
 
-	typedef std::pair<std::vector<string>, std::vector<GUID>> menu_items;
+	using menu_items = std::pair<std::vector<string>, std::vector<GUID>>;
 	menu_items MenuItems, DiskItems, ConfItems;
 
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		unsigned __int64 id = ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
+		unsigned long long id = ConfigProvider().PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
 		Flags = ConfigProvider().PlCacheCfg()->GetFlags(id);
 		Prefix = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
 
@@ -1940,7 +1940,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 
 		if (i->CheckWorkFlags(PIWF_CACHED))
 		{
-			unsigned __int64 id = ConfigProvider().PlCacheCfg()->GetCacheID(i->GetCacheName());
+			unsigned long long id = ConfigProvider().PlCacheCfg()->GetCacheID(i->GetCacheName());
 			strPluginPrefix = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
 			PluginFlags = ConfigProvider().PlCacheCfg()->GetFlags(id);
 		}

@@ -62,7 +62,7 @@ public:
 	string strLastStr;
 	int LastPartLength;
 
-	BitFlags& Flags();
+	BitFlags& Flags() const;
 
 	DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type);
 	virtual ~DlgEdit();
@@ -78,7 +78,7 @@ public:
 	virtual void ShowConsoleTitle() override;
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;
-	virtual __int64  VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
 
 	void  SetDialogParent(DWORD Sets);
 	void  SetDropDownBox(bool NewDropDownBox);
@@ -98,7 +98,7 @@ public:
 	void  SetEditBeyondEnd(bool Mode);
 
 	void  SetClearFlag(bool Flag);
-	int   GetClearFlag() const;
+	bool  GetClearFlag() const;
 
 	void  Changed();
 	void  SetString(const string& Str);
@@ -143,7 +143,7 @@ public:
 	void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}
 	void AutoComplete(bool Manual,bool DelBlock){return lineEdit->AutoComplete(Manual,DelBlock);}
 
-	bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
+	bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false) const;
 
 	const std::unique_ptr<History>& GetHistory() const { return iHistory; }
 	void SetHistory(const string& Name);
@@ -161,7 +161,7 @@ private:
 
 	virtual void DisplayObject() override;
 	static void EditChange(void* aParam);
-	void DoEditChange();
+	void DoEditChange() const;
 	Dialog* GetDialog(void)const;
 };
 

@@ -71,7 +71,7 @@ FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
 }
 
 fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int DisableHistory, int DisableEdit,
-                                  __int64 ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
+                                  long long ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
                                   uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, window_ptr Update)
 {
 	const auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), DisableEdit, Title);
@@ -127,7 +127,7 @@ fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int Disa
 
 
 void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
-	__int64 ViewStartPos,const wchar_t *PluginData,
+	long long ViewStartPos,const wchar_t *PluginData,
 	NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update)
 {
 	m_View = std::make_unique<Viewer>(shared_from_this(), false, aCodePage);
@@ -231,7 +231,7 @@ void FileViewer::DisplayObject()
 	m_View->Show();
 }
 
-__int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long FileViewer::VMProcess(int OpCode,void *vParam,long long iParam)
 {
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
@@ -363,11 +363,11 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 						return TRUE;
 				}
 				Edit.Close();
-				__int64 FilePos=m_View->GetFilePos();
+				long long FilePos=m_View->GetFilePos();
 				DWORD flags = (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0);
 				const auto ShellEditor = FileEditor::create(
 					strViewFileName, cp, flags, -2,
-					static_cast<int>(FilePos), // TODO: Editor StartChar should be __int64
+					static_cast<int>(FilePos), // TODO: Editor StartChar should be long long
 					str_title.empty() ? nullptr: &str_title,
 					-1,-1, -1, -1, delete_on_close, shared_from_this());
 
@@ -494,12 +494,12 @@ int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2) const
 	return m_View->GetTitle();
 }
 
-__int64 FileViewer::GetViewFileSize() const
+long long FileViewer::GetViewFileSize() const
 {
 	return m_View->GetViewFileSize();
 }
 
-__int64 FileViewer::GetViewFilePos() const
+long long FileViewer::GetViewFilePos() const
 {
 	return m_View->GetViewFilePos();
 }

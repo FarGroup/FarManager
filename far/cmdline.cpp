@@ -164,7 +164,7 @@ void CommandLine::SetCurPos(int Pos, int LeftPos, bool Redraw)
 		CmdStr.Redraw();
 }
 
-__int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long CommandLine::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	if (OpCode >= MCODE_C_CMDLINE_BOF && OpCode <= MCODE_C_CMDLINE_SELECTED)
 		return CmdStr.VMProcess(OpCode-MCODE_C_CMDLINE_BOF+MCODE_C_BOF,vParam,iParam);

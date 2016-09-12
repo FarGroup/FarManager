@@ -67,7 +67,7 @@ string GetPathRoot(const string& Path);
 // в параметре sid поле cStreamName не актуально, т.к. готовое имя потока
 //    передается в параметре StreamName
 //typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
-//int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
+//int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum, long long* SizeStreams);
 
 bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount);
 

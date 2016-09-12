@@ -118,13 +118,13 @@ public:
 	// попадает ли файл fd под условие установленного фильтра.
 	// Возвращает true  - попадает;
 	//            false - не попадает.
-	bool FileInFilter(const FileListItem* fli, const FileList* Owner, unsigned __int64 CurrentTime) const;
-	bool FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
-	bool FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const;
+	bool FileInFilter(const FileListItem* fli, const FileList* Owner, unsigned long long CurrentTime) const;
+	bool FileInFilter(const os::FAR_FIND_DATA& fde, unsigned long long CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
+	bool FileInFilter(const PluginPanelItem& fd, unsigned long long CurrentTime) const;
 
 
 private:
-	bool FileInFilter(struct filter_file_object& Object, unsigned __int64 CurrentTime, const std::function<void(filter_file_object&)>& Getter) const;
+	bool FileInFilter(struct filter_file_object& Object, unsigned long long CurrentTime, const std::function<void(filter_file_object&)>& Getter) const;
 
 	string m_strTitle;
 
@@ -142,8 +142,8 @@ private:
 
 	struct
 	{
-		uint64_t DateAfter;
-		uint64_t DateBefore;
+		unsigned long long DateAfter;
+		unsigned long long DateBefore;
 		enumFDateType DateType;
 		bool Used;
 		bool bRelative;
@@ -151,8 +151,8 @@ private:
 
 	struct f_size
 	{
-		unsigned __int64 SizeAboveReal; // Здесь всегда будет размер в байтах
-		unsigned __int64 SizeBelowReal; // Здесь всегда будет размер в байтах
+		unsigned long long SizeAboveReal; // Здесь всегда будет размер в байтах
+		unsigned long long SizeBelowReal; // Здесь всегда будет размер в байтах
 		string SizeAbove; // Здесь всегда будет размер как его ввёл юзер
 		string SizeBelow; // Здесь всегда будет размер как его ввёл юзер
 		bool Used;

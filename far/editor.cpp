@@ -503,7 +503,7 @@ struct Editor::InternalEditorBookmark
 	intptr_t LeftPos;
 };
 
-__int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	int CurPos=m_it_CurLine->GetCurPos();
 
@@ -560,7 +560,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return GotoSessionBookmark((int)iParam-1);
 		case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
 		{
-			__int64 Ret=-1;
+			long long Ret=-1;
 			InternalEditorBookmark ebm = {};
 			const auto iMode = reinterpret_cast<intptr_t>(vParam);
 
@@ -4875,11 +4875,11 @@ bool Editor::IsFileModified() const
 }
 
 // используется в FileEditor
-int64_t Editor::GetCurPos(bool file_pos, bool add_bom) const
+long long Editor::GetCurPos(bool file_pos, bool add_bom) const
 {
 	enum { Unknown = -1 };
 	int Multiplier = 1;
-	uint64_t bom = 0;
+	unsigned long long bom = 0;
 
 	if (file_pos)
 	{
@@ -7215,9 +7215,9 @@ void Editor::SetClearFlag(int Flag)
 {
 }
 
-int Editor::GetClearFlag() const
+bool Editor::GetClearFlag() const
 {
-	return 0;
+	return false;
 }
 
 int Editor::GetCurCol() const

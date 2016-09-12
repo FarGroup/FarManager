@@ -252,7 +252,7 @@ template<>
 inline wchar_t raw_eol::lf<wchar_t>() const { return L'\n'; }
 
 // {Codepage: (MaxCharSize, Name)}
-typedef std::unordered_map<UINT, std::pair<UINT, string>> cp_map;
+using cp_map = std::unordered_map<UINT, std::pair<UINT, string>>;
 const cp_map& InstalledCodepages();
 cp_map::value_type::second_type GetCodePageInfo(UINT cp);
 

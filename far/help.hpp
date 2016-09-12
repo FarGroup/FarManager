@@ -56,7 +56,7 @@ public:
 	virtual bool CanFastHide() const override; // Введена для нужд CtrlAltShift
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_help; }
-	virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam) override;
+	virtual long long VMProcess(int OpCode, void* vParam, long long iParam) override;
 
 	BOOL GetError() const {return ErrorHelp;}
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);

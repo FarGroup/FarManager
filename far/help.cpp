@@ -1134,7 +1134,7 @@ void Help::CorrectPosition() const
 	StackData->TopStr = std::max(0, std::min(StackData->TopStr, static_cast<int>(HelpList.size()) - FixCount - (m_Y2 - m_Y1 - 1 - FixSize)));
 }
 
-__int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long Help::VMProcess(int OpCode,void* vParam, long long iParam)
 {
 	switch (OpCode)
 	{

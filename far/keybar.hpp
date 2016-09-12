@@ -84,7 +84,7 @@ public:
 	void SetLabels(LNGID StartIndex);
 	void SetCustomLabels(KEYBARAREA Area);
 
-	typedef std::pair<string, string> keybar_item;
+	using keybar_item = std::pair<string, string>;
 
 	class keybar_area
 	{

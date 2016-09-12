@@ -68,7 +68,7 @@ struct PanelViewSettings
 	std::vector<column> PanelColumns;
 	std::vector<column> StatusColumns;
 	string Name;
-	unsigned __int64 Flags;
+	unsigned long long Flags;
 };
 
 enum
@@ -171,7 +171,7 @@ public:
 	virtual PluginHandle* GetPluginHandle() const {return nullptr;}
 	virtual void RefreshTitle();
 	virtual string GetTitle() const;
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual long long VMProcess(int OpCode, void* vParam=nullptr, long long iParam=0) override;
 	virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;}
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
 	virtual void ChangeDirToCurrent();
@@ -181,7 +181,7 @@ public:
 	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) { return FALSE; }
 	virtual void UngetSelName() {}
 	virtual void ClearLastGetSelection() {}
-	virtual unsigned __int64 GetLastSelectedSize() const { return -1; }
+	virtual unsigned long long GetLastSelectedSize() const { return -1; }
 	virtual int GetCurName(string &strName, string &strShortName) const;
 	virtual int GetCurBaseName(string &strName, string &strShortName) const;
 	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return FALSE; }

@@ -736,8 +736,8 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const range<oldfar::Plugi
 		Dst.CreationTime = Src.FindData.ftCreationTime;
 		Dst.LastAccessTime = Src.FindData.ftLastAccessTime;
 		Dst.LastWriteTime = Src.FindData.ftLastWriteTime;
-		Dst.FileSize = static_cast<unsigned __int64>(Src.FindData.nFileSizeLow) + (static_cast<unsigned __int64>(Src.FindData.nFileSizeHigh) << 32);
-		Dst.AllocationSize = static_cast<unsigned __int64>(Src.PackSize) + (static_cast<unsigned __int64>(Src.PackSizeHigh) << 32);
+		Dst.FileSize = static_cast<unsigned long long>(Src.FindData.nFileSizeLow) + (static_cast<unsigned long long>(Src.FindData.nFileSizeHigh) << 32);
+		Dst.AllocationSize = static_cast<unsigned long long>(Src.PackSize) + (static_cast<unsigned long long>(Src.PackSizeHigh) << 32);
 		Dst.FileName = AnsiToUnicode(Src.FindData.cFileName);
 		Dst.AlternateFileName = AnsiToUnicode(Src.FindData.cAlternateFileName);
 	};
@@ -1415,9 +1415,9 @@ struct oldPanelInfoContainer: noncopyable
 	oldfar::PanelInfo Info;
 };
 
-static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root, const wchar_t* Name)
+static long long GetSetting(FARSETTINGS_SUBFOLDERS Root, const wchar_t* Name)
 {
-	__int64 result = 0;
+	long long result = 0;
 	FarSettingsCreate settings = { sizeof(FarSettingsCreate), FarGuid, INVALID_HANDLE_VALUE };
 	HANDLE Settings = NativeInfo.SettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, 0, &settings)? settings.Handle : nullptr;
 	if (Settings)
@@ -1750,7 +1750,7 @@ static char *WINAPI FarItoaA(int value, char *string, int radix) noexcept
 	return _itoa(value, string, radix);
 }
 
-static char *WINAPI FarItoa64A(__int64 value, char *string, int radix) noexcept
+static char *WINAPI FarItoa64A(long long value, char *string, int radix) noexcept
 {
 	try
 	{
@@ -1776,7 +1776,7 @@ static int WINAPI FarAtoiA(const char *s) noexcept
 	}
 }
 
-static __int64 WINAPI FarAtoi64A(const char *s) noexcept
+static long long WINAPI FarAtoi64A(const char *s) noexcept
 {
 	try
 	{

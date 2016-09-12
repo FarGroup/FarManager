@@ -760,7 +760,7 @@ struct __XXX_Name
 
 struct __XXX64_Name
 {
-	unsigned __int64 Val;
+	unsigned long long Val;
 	const wchar_t *Name;
 };
 

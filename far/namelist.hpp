@@ -51,7 +51,7 @@ public:
 	bool empty() const { return Names.empty(); }
 
 private:
-	typedef std::vector<string> names_list;
+	using names_list = std::vector<string>;
 	names_list Names;
 	names_list::const_iterator CurPos;
 };

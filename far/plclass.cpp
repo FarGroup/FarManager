@@ -727,12 +727,12 @@ void Plugin::ClearExports()
 	Exports.fill({ nullptr, false });
 }
 
-void Plugin::AddDialog(window_ptr_ref Dlg)
+void Plugin::AddDialog(const window_ptr& Dlg)
 {
 	m_dialogs.emplace(Dlg);
 }
 
-bool Plugin::RemoveDialog(window_ptr_ref Dlg)
+bool Plugin::RemoveDialog(const window_ptr& Dlg)
 {
 	const auto ItemIterator = m_dialogs.find(Dlg);
 	if (ItemIterator != m_dialogs.cend())

@@ -996,12 +996,12 @@ bool CheckFileSizeStringFormat(const string& FileSizeStr)
 	return std::regex_search(FileSizeStr, SizeRegex);
 }
 
-unsigned __int64 ConvertFileSizeString(const string& FileSizeStr)
+unsigned long long ConvertFileSizeString(const string& FileSizeStr)
 {
 	if (!CheckFileSizeStringFormat(FileSizeStr))
 		return 0;
 
-	unsigned __int64 n = std::stoull(FileSizeStr);
+	auto n = std::stoull(FileSizeStr);
 	wchar_t c = ::Upper(FileSizeStr.back());
 
 	// http://en.wikipedia.org/wiki/SI_prefix
@@ -1301,7 +1301,7 @@ string str_printf(const wchar_t * format, ...)
 	class UserDefinedList
 	{
 	public:
-		typedef std::pair<string, size_t> value_type;
+		using value_type = std::pair<string, size_t>;
 
 		UserDefinedList(const string& List, DWORD InitFlags, const wchar_t* InitSeparators)
 		{

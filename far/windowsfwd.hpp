@@ -47,20 +47,18 @@ class Grabber;
 class HMenu;
 class Search;
 
-typedef std::shared_ptr<window> window_ptr;
-typedef std::shared_ptr<desktop> desktop_ptr;
-typedef std::shared_ptr<FilePanels> filepanels_ptr;
-typedef std::shared_ptr<FileViewer> fileviewer_ptr;
-typedef std::shared_ptr<FileEditor> fileeditor_ptr;
-typedef std::shared_ptr<Dialog> dialog_ptr;
-typedef std::shared_ptr<VMenu> vmenu_ptr;
-typedef std::shared_ptr<VMenu2> vmenu2_ptr;
-typedef std::shared_ptr<Help> help_ptr;
-typedef std::shared_ptr<FolderTree> foldertree_ptr;
-typedef std::shared_ptr<Grabber> grabber_ptr;
-typedef std::shared_ptr<HMenu> hmenu_ptr;
-typedef std::shared_ptr<Search> search_ptr;
-
-typedef const window_ptr& window_ptr_ref;
+using window_ptr = std::shared_ptr<window>;
+using desktop_ptr = std::shared_ptr<desktop>;
+using filepanels_ptr = std::shared_ptr<FilePanels>;
+using fileviewer_ptr = std::shared_ptr<FileViewer>;
+using fileeditor_ptr = std::shared_ptr<FileEditor>;
+using dialog_ptr = std::shared_ptr<Dialog>;
+using vmenu_ptr = std::shared_ptr<VMenu>;
+using vmenu2_ptr = std::shared_ptr<VMenu2>;
+using help_ptr = std::shared_ptr<Help>;
+using foldertree_ptr = std::shared_ptr<FolderTree>;
+using grabber_ptr = std::shared_ptr<Grabber>;
+using hmenu_ptr = std::shared_ptr<HMenu>;
+using search_ptr = std::shared_ptr<Search>;
 
 #endif // WINDOWSFWD_HPP_5F5E7997_B435_44BD_83DF_300F2E8BB155

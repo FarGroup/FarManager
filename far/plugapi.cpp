@@ -202,7 +202,7 @@ wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix) noexcept
 	}
 }
 
-wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, int radix) noexcept
+wchar_t *WINAPI apiItoa64(long long value, wchar_t *string, int radix) noexcept
 {
 	try
 	{
@@ -228,7 +228,7 @@ int WINAPI apiAtoi(const wchar_t *s) noexcept
 	}
 }
 
-__int64 WINAPI apiAtoi64(const wchar_t *s) noexcept
+long long WINAPI apiAtoi64(const wchar_t *s) noexcept
 {
 	try
 	{
@@ -367,7 +367,7 @@ intptr_t WINAPI apiInputBox(
     wchar_t *DestText,
     size_t DestSize,
     const wchar_t *HelpTopic,
-    unsigned __int64 Flags
+    unsigned long long Flags
 ) noexcept
 {
 	try
@@ -856,7 +856,7 @@ intptr_t WINAPI apiMenuFn(
     intptr_t X,
     intptr_t Y,
     intptr_t MaxHeight,
-    unsigned __int64 Flags,
+    unsigned long long Flags,
     const wchar_t *Title,
     const wchar_t *Bottom,
     const wchar_t *HelpTopic,
@@ -1047,7 +1047,7 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 
 HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2,
                             const wchar_t *HelpTopic, const FarDialogItem *Item,
-                            size_t ItemsNumber, intptr_t Reserved, unsigned __int64 Flags,
+                            size_t ItemsNumber, intptr_t Reserved, unsigned long long Flags,
                             FARWINDOWPROC DlgProc, void* Param) noexcept
 {
 	try
@@ -1199,7 +1199,7 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
 	}
 }
 
-intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int64 Flags,const wchar_t *HelpTopic,
+intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long long Flags,const wchar_t *HelpTopic,
                         const wchar_t * const *Items,size_t ItemsNumber,
                         intptr_t ButtonsNumber) noexcept
 {
@@ -1683,7 +1683,7 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItems, si
 }
 
 intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
-                     intptr_t X1,intptr_t Y1,intptr_t X2, intptr_t Y2,unsigned __int64 Flags, uintptr_t CodePage) noexcept
+                     intptr_t X1,intptr_t Y1,intptr_t X2, intptr_t Y2,unsigned long long Flags, uintptr_t CodePage) noexcept
 {
 	try
 	{
@@ -1762,7 +1762,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 	}
 }
 
-intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage) noexcept
+intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned long long Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage) noexcept
 {
 	try
 	{
@@ -2403,7 +2403,7 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 	}
 }
 
-unsigned __int64 WINAPI apiFarClock() noexcept
+unsigned long long WINAPI apiFarClock() noexcept
 {
 	try
 	{
@@ -2831,11 +2831,11 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 	}
 }
 
-size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize) noexcept
+size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize) noexcept
 {
 	try
 	{
-		static const std::pair<unsigned __int64, unsigned __int64> FlagsPair[] =
+		static const std::pair<unsigned long long, unsigned long long> FlagsPair[] =
 		{
 			{FFFS_COMMAS,         COLUMN_COMMAS},         // Вставлять разделитель между тысячами
 			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000
@@ -2845,7 +2845,7 @@ size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMAT
 			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWBYTESINDEX}, // Показывать суффиксы B,K,M,G,T,P,E
 		};
 
-		unsigned __int64 FinalFlags=Flags & COLUMN_MINSIZEINDEX_MASK;
+		unsigned long long FinalFlags=Flags & COLUMN_MINSIZEINDEX_MASK;
 		std::for_each(CONST_RANGE(FlagsPair, i)
 		{
 			if (Flags & i.first)
@@ -2868,7 +2868,7 @@ size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMAT
 	}
 }
 
-void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSUSERFUNC Func, unsigned __int64 Flags, void *Param) noexcept
+void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSUSERFUNC Func, unsigned long long Flags, void *Param) noexcept
 {
 	try
 	{

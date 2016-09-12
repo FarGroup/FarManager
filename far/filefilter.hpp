@@ -75,7 +75,7 @@ private:
 
 	Panel *m_HostPanel;
 	FAR_FILE_FILTER_TYPE m_FilterType;
-	unsigned __int64 CurrentTime;
+	unsigned long long CurrentTime;
 };
 
 #endif // FILEFILTER_HPP_DC322D87_FC69_401A_8EF8_9710B11909CB

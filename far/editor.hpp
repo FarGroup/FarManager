@@ -54,7 +54,7 @@ public:
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
+	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
 
 	void SetCacheParams(EditorPosCache &pc, bool count_bom = false);
 	void GetCacheParams(EditorPosCache &pc) const;
@@ -65,7 +65,7 @@ public:
 	void SetStartPos(int LineNum, int CharNum);
 	bool IsFileModified() const;
 	bool IsFileChanged() const;
-	int64_t GetCurPos(bool file_pos = false, bool add_bom = false) const;
+	long long GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
 	void PrepareResizedConsole() { m_Flags.Set(FEDITOR_ISRESIZEDCONSOLE); }
@@ -119,7 +119,7 @@ public:
 	bool GetOvertypeMode() const;
 	void SetEditBeyondEnd(int Mode);
 	void SetClearFlag(int Flag);
-	int GetClearFlag() const;
+	bool GetClearFlag() const;
 	int GetCurCol() const;
 	int GetCurRow() const { return static_cast<int>(m_it_CurLine.Number()); }
 	void SetCurPos(int NewCol, int NewRow = -1);
@@ -146,12 +146,12 @@ private:
 	friend class FileEditor;
 	friend class undo_block;
 
-	typedef std::list<Edit> editor_container;
-	typedef editor_container::iterator iterator;
-	typedef editor_container::const_iterator const_iterator;
+	using editor_container = std::list<Edit>;
+	using iterator = editor_container::iterator;
+	using const_iterator = editor_container::const_iterator;
 
 	struct InternalEditorSessionBookMark;
-	typedef std::list<InternalEditorSessionBookMark> bookmark_list;
+	using bookmark_list = std::list<InternalEditorSessionBookMark>;
 
 	struct InternalEditorBookmark;
 
@@ -193,8 +193,8 @@ private:
 		size_t m_Number;
 	};
 
-	typedef numbered_iterator_t<iterator, const_iterator> numbered_iterator;
-	typedef numbered_iterator_t<const_iterator> numbered_const_iterator;
+	using numbered_iterator = numbered_iterator_t<iterator, const_iterator>;
+	using numbered_const_iterator = numbered_iterator_t<const_iterator>;
 
 	virtual void DisplayObject() override;
 	void ShowEditor();

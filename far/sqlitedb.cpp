@@ -99,7 +99,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(int Value)
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(__int64 Value)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(long long Value)
 {
 	sqlite::sqlite3_bind_int64(m_Stmt.get(), m_Param++, Value);
 	return *this;
@@ -144,7 +144,7 @@ int SQLiteDb::SQLiteStmt::GetColInt(int Col) const
 	return sqlite::sqlite3_column_int(m_Stmt.get(), Col);
 }
 
-unsigned __int64 SQLiteDb::SQLiteStmt::GetColInt64(int Col) const
+unsigned long long SQLiteDb::SQLiteStmt::GetColInt64(int Col) const
 {
 	return sqlite::sqlite3_column_int64(m_Stmt.get(), Col);
 }
@@ -354,7 +354,7 @@ bool SQLiteDb::Changes() const
 	return sqlite::sqlite3_changes(m_Db.get()) != 0;
 }
 
-unsigned __int64 SQLiteDb::LastInsertRowID() const
+unsigned long long SQLiteDb::LastInsertRowID() const
 {
 	return sqlite::sqlite3_last_insert_rowid(m_Db.get());
 }

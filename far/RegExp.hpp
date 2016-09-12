@@ -93,7 +93,7 @@ enum
 };
 
 //! Hash table with match info
-typedef std::unordered_map<std::wstring, RegExpMatch> MatchHash;
+using MatchHash = std::unordered_map<std::wstring, RegExpMatch>;
 
 /*! Regular expressions support class.
 
@@ -229,7 +229,7 @@ public:
 		    and named brackets.
 		*/
 		int GetBracketsCount() const {return bracketscount;}
-		typedef bool(*BracketHandler)(void* data,int action,int brindex,int start,int end);
+		using BracketHandler = bool(*)(void* data,int action,int brindex,int start,int end);
 		void SetBracketHandler(BracketHandler bh,void* data)
 		{
 			brhandler=bh;

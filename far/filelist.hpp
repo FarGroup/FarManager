@@ -80,7 +80,7 @@ namespace detail
 	};
 }
 
-typedef std::unique_ptr<std::unordered_map<string, string>> content_data_ptr;
+using content_data_ptr = std::unique_ptr<std::unordered_map<string, string>>;
 
 class FileListItem: public detail::FileListItemPod
 {
@@ -121,7 +121,7 @@ private:
 	mutable string m_Owner;
 	mutable DWORD m_NumberOfLinks = values::uninitialised(m_NumberOfLinks);
 	mutable DWORD m_NumberOfStreams = values::uninitialised(m_NumberOfStreams);
-	mutable uint64_t m_StreamsSize = values::uninitialised(m_StreamsSize);
+	mutable unsigned long long m_StreamsSize = values::uninitialised(m_StreamsSize);
 	mutable content_data_ptr m_ContentData;
 };
 
@@ -168,7 +168,7 @@ public:
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void Update(int Mode) override;
 	virtual bool UpdateIfChanged(bool Idle) override;
@@ -225,7 +225,7 @@ public:
 	virtual int GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::FAR_FIND_DATA *fde = nullptr) override;
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
-	virtual unsigned __int64 GetLastSelectedSize() const override;
+	virtual unsigned long long GetLastSelectedSize() const override;
 	virtual PluginHandle* GetPluginHandle() const override;
 	virtual size_t GetRealSelCount() const override;
 	virtual void SetPluginModified() override;
@@ -292,7 +292,7 @@ private:
 	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
-	int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned __int64 RightAlign, int ShowStatus, DWORD dwFileAttr) const;
+	int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
 	void Select(FileListItem& SelItem, int Selection);
 	long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
 	void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
@@ -401,9 +401,9 @@ private:
 	long GetSelPosition,LastSelPosition;
 	size_t m_TotalFileCount; // files only
 	size_t m_TotalDirCount; // directories only
-	unsigned __int64 SelFileSize;
-	unsigned __int64 TotalFileSize;
-	unsigned __int64 FreeDiskSize;
+	unsigned long long SelFileSize;
+	unsigned long long TotalFileSize;
+	unsigned long long FreeDiskSize;
 	clock_t LastUpdateTime;
 	int m_Height;
 	int m_Columns;

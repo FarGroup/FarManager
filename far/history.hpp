@@ -86,7 +86,7 @@ public:
 	std::vector<std::tuple<string, unsigned long long, bool>> GetAllSimilar(const string& Str) const;
 	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 	void ResetPosition() { m_CurrentItem = 0; }
-	bool DeleteIfUnlocked(unsigned __int64 id);
+	bool DeleteIfUnlocked(unsigned long long id);
 	bool ReadLastItem(const string& HistoryName, string &strStr) const;
 	bool IsOnTop() const { return !m_CurrentItem; }
 
@@ -103,7 +103,7 @@ private:
 	bool m_EnableAdd;
 	bool m_KeepSelectedPos;
 	int m_RemoveDups;
-	unsigned __int64 m_CurrentItem;
+	unsigned long long m_CurrentItem;
 };
 
 #endif // HISTORY_HPP_B662E92D_BF1B_4B20_AD60_8959531FA6EE

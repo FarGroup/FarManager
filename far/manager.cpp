@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 std::atomic_long Manager::CurrentWindowType(-1);
 
-bool Manager::window_comparer::operator()(window_ptr_ref lhs, window_ptr_ref rhs) const
+bool Manager::window_comparer::operator()(const window_ptr& lhs, const window_ptr& rhs) const
 {
 	return lhs->ID() < rhs->ID();
 }
@@ -270,12 +270,12 @@ void Manager::CloseAll()
 	m_windows.clear();
 }
 
-void Manager::PushWindow(window_ptr_ref Param, window_callback Callback)
+void Manager::PushWindow(const window_ptr& Param, window_callback Callback)
 {
 	m_Queue.emplace([=]{ (this->*Callback)(Param); });
 }
 
-void Manager::CheckAndPushWindow(window_ptr_ref Param, window_callback Callback)
+void Manager::CheckAndPushWindow(const window_ptr& Param, window_callback Callback)
 {
 	//assert(Param);
 	if (Param&&!Param->IsDeleting()) PushWindow(Param,Callback);
@@ -286,7 +286,7 @@ void Manager::CallbackWindow(const std::function<void(void)>& Callback)
 	m_Queue.emplace(Callback);
 }
 
-void Manager::InsertWindow(window_ptr_ref Inserted)
+void Manager::InsertWindow(const window_ptr& Inserted)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::InsertWindow(window *Inserted, int Index)"));
 	_MANAGER(SysLog(L"Inserted=%p, Index=%i",Inserted, Index));
@@ -294,7 +294,7 @@ void Manager::InsertWindow(window_ptr_ref Inserted)
 	CheckAndPushWindow(Inserted,&Manager::InsertCommit);
 }
 
-void Manager::DeleteWindow(window_ptr_ref Deleted)
+void Manager::DeleteWindow(const window_ptr& Deleted)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteWindow(window *Deleted)"));
 	_MANAGER(SysLog(L"Deleted=%p",Deleted));
@@ -305,13 +305,13 @@ void Manager::DeleteWindow(window_ptr_ref Deleted)
 	Window->SetDeleting();
 }
 
-void Manager::RedeleteWindow(window_ptr_ref Deleted)
+void Manager::RedeleteWindow(const window_ptr& Deleted)
 {
 	m_Queue.emplace(nullptr);
 	PushWindow(Deleted,&Manager::DeleteCommit);
 }
 
-void Manager::ExecuteNonModal(window_ptr_ref NonModal)
+void Manager::ExecuteNonModal(const window_ptr& NonModal)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteNonModal ()"));
 	if (!NonModal) return;
@@ -328,7 +328,7 @@ void Manager::ExecuteNonModal(window_ptr_ref NonModal)
 	}
 }
 
-void Manager::ExecuteModal(window_ptr_ref Executed)
+void Manager::ExecuteModal(const window_ptr& Executed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteModal (window *Executed)"));
 	_MANAGER(SysLog(L"Executed=%p",Executed));
@@ -496,7 +496,7 @@ bool Manager::ShowBackground()
 	return true;
 }
 
-void Manager::ActivateWindow(window_ptr_ref Activated)
+void Manager::ActivateWindow(const window_ptr& Activated)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateWindow(window *Activated)"));
 	_MANAGER(SysLog(L"Activated=%i",Activated));
@@ -528,7 +528,7 @@ void Manager::SwitchWindow(DirectionType Direction)
 	ActivateWindow(*pos);
 }
 
-void Manager::RefreshWindow(window_ptr_ref Refreshed)
+void Manager::RefreshWindow(const window_ptr& Refreshed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshWindow(window *Refreshed)"));
 	_MANAGER(SysLog(L"Refreshed=%p",Refreshed));
@@ -536,14 +536,14 @@ void Manager::RefreshWindow(window_ptr_ref Refreshed)
 	CheckAndPushWindow(Refreshed?Refreshed:GetCurrentWindow(),&Manager::RefreshCommit);
 }
 
-void Manager::ExecuteWindow(window_ptr_ref Executed)
+void Manager::ExecuteWindow(const window_ptr& Executed)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteWindow(window *Executed)"));
 	_MANAGER(SysLog(L"Executed=%p",Executed));
 	CheckAndPushWindow(Executed,&Manager::ExecuteCommit);
 }
 
-void Manager::ReplaceWindow(window_ptr_ref Old, window_ptr_ref New)
+void Manager::ReplaceWindow(const window_ptr& Old, const window_ptr& New)
 {
 	m_Queue.emplace([=]{ ReplaceCommit(Old, New); });
 }
@@ -898,7 +898,7 @@ window_ptr Manager::GetWindow(size_t Index) const
 	return m_windows[Index];
 }
 
-int Manager::IndexOf(window_ptr_ref Window) const
+int Manager::IndexOf(const window_ptr& Window) const
 {
 	const auto ItemIterator = std::find(ALL_CONST_RANGE(m_windows), Window);
 	return ItemIterator != m_windows.cend() ? ItemIterator - m_windows.cbegin() : -1;
@@ -918,7 +918,7 @@ void Manager::Commit(void)
 	}
 }
 
-void Manager::InsertCommit(window_ptr_ref Param)
+void Manager::InsertCommit(const window_ptr& Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::InsertCommit()"));
 	_MANAGER(SysLog(L"InsertedWindow=%p",Param));
@@ -938,7 +938,7 @@ void Manager::InsertCommit(window_ptr_ref Param)
 	}
 }
 
-void Manager::DeleteCommit(window_ptr_ref Param)
+void Manager::DeleteCommit(const window_ptr& Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeleteCommit()"));
 	_MANAGER(SysLog(L"DeletedWindow=%p",Param));
@@ -999,7 +999,7 @@ void Manager::DeleteCommit(window_ptr_ref Param)
 	assert(size==1);
 }
 
-void Manager::ActivateCommit(window_ptr_ref Param)
+void Manager::ActivateCommit(const window_ptr& Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ActivateCommit()"));
 	_MANAGER(SysLog(L"ActivatedWindow=%p",Param));
@@ -1012,7 +1012,7 @@ void Manager::ActivateCommit(window_ptr_ref Param)
 	DoActivation(GetCurrentWindow(), Param);
 }
 
-void Manager::DoActivation(window_ptr_ref Old, window_ptr_ref New)
+void Manager::DoActivation(const window_ptr& Old, const window_ptr& New)
 {
 	int WindowIndex=IndexOf(New);
 
@@ -1034,7 +1034,7 @@ void Manager::DoActivation(window_ptr_ref Old, window_ptr_ref New)
 	New->OnChangeFocus(true);
 }
 
-void Manager::RefreshCommit(window_ptr_ref Param)
+void Manager::RefreshCommit(const window_ptr& Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::RefreshCommit()"));
 	_MANAGER(SysLog(L"RefreshedWindow=%p",Param));
@@ -1061,7 +1061,7 @@ void Manager::RefreshCommit(window_ptr_ref Param)
 	});
 }
 
-void Manager::DeactivateCommit(window_ptr_ref Param)
+void Manager::DeactivateCommit(const window_ptr& Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::DeactivateCommit()"));
 	_MANAGER(SysLog(L"DeactivatedWindow=%p",Param));
@@ -1071,7 +1071,7 @@ void Manager::DeactivateCommit(window_ptr_ref Param)
 	}
 }
 
-void Manager::ExecuteCommit(window_ptr_ref Param)
+void Manager::ExecuteCommit(const window_ptr& Param)
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExecuteCommit()"));
 	_MANAGER(SysLog(L"ExecutedWindow=%p",Param));
@@ -1084,7 +1084,7 @@ void Manager::ExecuteCommit(window_ptr_ref Param)
 	}
 }
 
-void Manager::ReplaceCommit(window_ptr_ref Old, window_ptr_ref New)
+void Manager::ReplaceCommit(const window_ptr& Old, const window_ptr& New)
 {
 	int WindowIndex = IndexOf(Old);
 
@@ -1100,7 +1100,7 @@ void Manager::ReplaceCommit(window_ptr_ref Old, window_ptr_ref New)
 	}
 }
 
-void Manager::ModalDesktopCommit(window_ptr_ref Param)
+void Manager::ModalDesktopCommit(const window_ptr& Param)
 {
 	if (m_DesktopModalled++ == 0)
 	{
@@ -1114,7 +1114,7 @@ void Manager::ModalDesktopCommit(window_ptr_ref Param)
 	}
 }
 
-void Manager::UnModalDesktopCommit(window_ptr_ref Param)
+void Manager::UnModalDesktopCommit(const window_ptr& Param)
 {
 	if (--m_DesktopModalled == 0)
 	{
@@ -1133,7 +1133,7 @@ void Manager::UnModalDesktopCommit(window_ptr_ref Param)
 	RefreshAll();
 }
 
-bool Manager::AddWindow(window_ptr_ref Param)
+bool Manager::AddWindow(const window_ptr& Param)
 {
 	return m_Added.emplace(Param).second;
 }

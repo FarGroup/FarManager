@@ -187,7 +187,7 @@ void DizList::Read(const string& Path, const string* DizName)
 	m_DizFileName.clear();
 }
 
-const wchar_t* DizList::Get(const string& Name, const string& ShortName, const __int64 FileSize) const
+const wchar_t* DizList::Get(const string& Name, const string& ShortName, const long long FileSize) const
 {
 	const auto Iterator = Find(Name, ShortName);
 

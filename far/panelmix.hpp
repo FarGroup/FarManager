@@ -45,12 +45,12 @@ int  CheckUpdateAnotherPanel(panel_ptr SrcPanel,const string& SelName);
 int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
 
 string FormatStr_Attribute(DWORD FileAttributes, size_t Width);
-string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned __int64 Flags,int Width);
-string FormatStr_Size(__int64 Size, const string& strName,
-						DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
-						unsigned __int64 Flags,int Width,const wchar_t *CurDir=nullptr);
+string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned long long Flags, int Width);
+string FormatStr_Size(long long Size, const string& strName,
+	DWORD FileAttributes, DWORD ShowFolderSize, DWORD ReparseTag, int ColumnType,
+	unsigned long long Flags, int Width, const wchar_t* CurDir = nullptr);
 void TextToViewSettings(const string& ColumnTitles, const string& ColumnWidths, std::vector<column>& Destination);
 void ViewSettingsToText(const std::vector<column>& Source, string& strColumnTitles, string& strColumnWidths);
-int GetDefaultWidth(uint64_t Type);
+int GetDefaultWidth(unsigned long long Type);
 
 #endif // PANELMIX_HPP_AF7AAF02_56C0_4E41_B1D9_D1F1A5B4025D

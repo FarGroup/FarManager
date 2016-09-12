@@ -758,7 +758,7 @@ bool VMenu::ShouldSendKeyToFilter(int Key) const
 	return false;
 }
 
-__int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	switch (OpCode)
 	{
@@ -915,7 +915,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 		case MCODE_F_MENU_FILTER:
 		{
-			__int64 RetValue = 0;
+			long long RetValue = 0;
 			/*
 			Action
 			  0 - фильтр

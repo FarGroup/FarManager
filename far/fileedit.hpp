@@ -75,14 +75,14 @@ class FileEditor: public window,public EditorContainer
 
 public:
 	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
-	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, window_ptr_ref Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
+	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, const window_ptr& Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 
 	FileEditor(private_tag);
 	virtual ~FileEditor();
 
 	virtual BOOL IsFileModified() const override { return m_editor->IsFileModified(); }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
+	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual void Show() override;
 	virtual Editor* GetEditor(void) override;
 
@@ -128,7 +128,7 @@ private:
 	void SetDeleteOnClose(int NewMode);
 	int ReProcessKey(const Manager::Key& Key, int CalledFromControl = TRUE);
 	bool AskOverwrite(const string& FileName);
-	void Init(const string& Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, window_ptr_ref Update, EDITOR_FLAGS OpenModeExstFile);
+	void Init(const string& Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile);
 	int LoadFile(const string& Name, int &UserBreak);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!

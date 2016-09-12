@@ -100,7 +100,7 @@ public:
 	static void FlushCache();
 
 private:
-	virtual __int64 VMProcess(int OpCode, void *vParam = nullptr, __int64 iParam = 0) override;
+	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual bool SetCurDir(const string& NewDir, bool ClosePanel, bool IsUpdated = true) override;
 	virtual int GetCurName(string &strName, string &strShortName) const override;
 	virtual void UpdateViewPanel() override;

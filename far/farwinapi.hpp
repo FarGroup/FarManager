@@ -93,9 +93,9 @@ namespace os
 		FILETIME ftLastAccessTime;
 		FILETIME ftLastWriteTime;
 		FILETIME ftChangeTime;
-		unsigned __int64 nFileSize;
-		unsigned __int64 nAllocationSize;
-		unsigned __int64 FileId;
+		unsigned long long nFileSize;
+		unsigned long long nAllocationSize;
+		unsigned long long FileId;
 		string strFileName;
 		string strAlternateFileName;
 		DWORD dwFileAttributes;
@@ -152,7 +152,7 @@ namespace os
 	bool MoveFileEx(const string& ExistingFileName, const string& NewFileName, DWORD dwFlags);
 	bool IsDiskInDrive(const string& Root);
 	int GetFileTypeByName(const string& Name);
-	bool GetDiskSize(const string& Path, unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree);
+	bool GetDiskSize(const string& Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
 	find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName);
 	bool FindNextFileName(const find_handle& hFindStream, string& LinkName);
 	bool CreateDirectory(const string& PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
@@ -173,7 +173,7 @@ namespace os
 	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName);
 	bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
 	void EnableLowFragmentationHeap();
-	typedef block_ptr<SECURITY_DESCRIPTOR> FAR_SECURITY_DESCRIPTOR;
+	using FAR_SECURITY_DESCRIPTOR = block_ptr<SECURITY_DESCRIPTOR>;
 	bool GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 	bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 	bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
@@ -264,8 +264,8 @@ namespace os
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
 			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
-			bool SetPointer(int64_t DistanceToMove, uint64_t* NewFilePointer, DWORD MoveMethod);
-			uint64_t GetPointer() const { return Pointer; }
+			bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod);
+			unsigned long long GetPointer() const { return Pointer; }
 			bool SetEnd();
 			bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime) const;
 			bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime) const;
@@ -283,7 +283,7 @@ namespace os
 
 		private:
 			os::handle Handle;
-			uint64_t Pointer;
+			unsigned long long Pointer;
 			bool NeedSyncPointer;
 			string name;
 			DWORD share_mode;
@@ -359,7 +359,7 @@ namespace os
 
 			string GetString() const;
 			unsigned int GetUnsigned() const;
-			uint64_t GetUnsigned64() const;
+			unsigned long long GetUnsigned64() const;
 
 		private:
 			friend bool EnumValue(const key&, size_t, value&);
@@ -375,10 +375,10 @@ namespace os
 		bool GetValue(const key& Key, const wchar_t* Name);
 		bool GetValue(const key& Key, const wchar_t* Name, string& Value);
 		bool GetValue(const key& Key, const wchar_t* Name, unsigned int& Value);
-		bool GetValue(const key& Key, const wchar_t* Name, uint64_t& Value);
+		bool GetValue(const key& Key, const wchar_t* Name, unsigned long long& Value);
 
 #define IS_SAME(T1, T2) std::is_same<T1, T2>::value
-#define CHECK_TYPE(T) static_assert(IS_SAME(T, string) || IS_SAME(T, unsigned int) || IS_SAME(T, uint64_t), "this type is not supported");
+#define CHECK_TYPE(T) static_assert(IS_SAME(T, string) || IS_SAME(T, unsigned int) || IS_SAME(T, unsigned long long), "this type is not supported");
 
 		template<class T>
 		bool GetValue(const key& Key, const string& Name, T& Value) { CHECK_TYPE(T); return GetValue(Key, Name.data(), Value); }
@@ -643,7 +643,7 @@ namespace os
 		using ptr = std::unique_ptr<T, detail::releaser<T>>;
 	}
 
-	typedef std::bitset<26> drives_set;
+	using drives_set = std::bitset<26>;
 
 	inline bool is_standard_drive_letter(wchar_t Letter) { return InRange(L'A', Upper(Letter), L'Z'); }
 	inline int get_drive_number(wchar_t Letter) { return Upper(Letter) - L'A'; }
@@ -660,7 +660,7 @@ namespace os
 			microseconds = 1000000,
 		};
 
-		uint64_t query(factor Factor) const
+		unsigned long long query(factor Factor) const
 		{
 			const auto Diff = call_function(QueryPerformanceCounter) - m_StartTime;
 			const auto Frequency = get_frequency();
@@ -671,20 +671,20 @@ namespace os
 
 	private:
 		template<class T>
-		static uint64_t call_function(const T& Getter)
+		static unsigned long long call_function(const T& Getter)
 		{
 			LARGE_INTEGER Value;
 			Getter(&Value);
 			return Value.QuadPart;
 		};
 
-		static uint64_t get_frequency()
+		static unsigned long long get_frequency()
 		{
 			static const auto Frequency = call_function(QueryPerformanceFrequency);
 			return Frequency;
 		}
 
-		uint64_t m_StartTime;
+		unsigned long long m_StartTime;
 	};
 }
 

@@ -165,7 +165,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 				break;
 			case FST_QWORD:
 				{
-					unsigned __int64 value;
+					unsigned long long value;
 					if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, value))
 					{
 						result=TRUE;
@@ -509,10 +509,10 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 	DWORD Index=0;
 	string strName,strGuid,strFile,strData;
 
-	unsigned __int64 id;
+	unsigned long long id;
 	history_record_type HType;
 	bool HLock;
-	unsigned __int64 Time;
+	unsigned long long Time;
 	FarSettingsHistoryItems NewEnumItem;
 	while (HistoryRef(Type)->Enum(Index++, Type, HistoryName, &id, strName, &HType, &HLock, &Time, strGuid, strFile, strData))
 	{

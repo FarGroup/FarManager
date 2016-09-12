@@ -273,7 +273,7 @@ TVar::TVar():
 {
 }
 
-TVar::TVar(__int64 v) :
+TVar::TVar(long long v) :
 	inum(v),
 	dnum(),
 	vType(vtInteger)
@@ -333,7 +333,7 @@ const string& TVar::toString()
 	return str;
 }
 
-__int64 TVar::toInteger()
+long long TVar::toInteger()
 {
 	inum = asInteger();
 	vType = vtInteger;
@@ -447,7 +447,7 @@ static bool _cmp_Eq(TVarType vt,const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a == *(const __int64*)b; break;
+		case vtInteger: r = *(const long long*)a == *(const long long*)b; break;
 		case vtDouble:  r = fabs(*(const double*)a - *(const double*)b) < DBL_EPSILON; break;
 		case vtString:  r = !StrCmp((const wchar_t*)a, (const wchar_t*)b); break;
 	}
@@ -462,7 +462,7 @@ static bool _cmp_Lt(TVarType vt,const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a < *(const __int64*)b; break;
+		case vtInteger: r = *(const long long*)a < *(const long long*)b; break;
 		case vtDouble:  r = *(const double*)a < *(const double*)b; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) < 0; break;
 	}
@@ -477,7 +477,7 @@ static bool _cmp_Gt(TVarType vt, const void *a, const void *b)
 	switch (vt)
 	{
 		case vtUnknown:
-		case vtInteger: r = *(const __int64*)a > *(const __int64*)b; break;
+		case vtInteger: r = *(const long long*)a > *(const long long*)b; break;
 		case vtDouble:  r = *(const double*)a > *(const double*)b; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) > 0; break;
 	}
@@ -488,7 +488,7 @@ static bool _cmp_Gt(TVarType vt, const void *a, const void *b)
 bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 {
 	bool r = true;
-	__int64 bi;
+	long long bi;
 	double bd;
 
 	switch (a.vType)
@@ -658,7 +658,7 @@ TVar operator%(const TVar& a, const TVar& b)
 						case tsStr:   r = a;     break;
 						case tsInt:
 						{
-							__int64 bi=b.asInteger();
+							long long bi=b.asInteger();
 							r = bi ? a.inum % bi : 0; break;
 						}
 						case tsFloat:
@@ -715,7 +715,7 @@ TVar operator%(const TVar& a, const TVar& b)
 				r = a;
 			else if (tsA == tsInt && tsB == tsInt)
 			{
-				__int64 bi=b.asInteger();
+				long long bi=b.asInteger();
 				r = bi ? (a.asInteger() % bi) : 0;
 			}
 			else

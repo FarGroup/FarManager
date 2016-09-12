@@ -299,7 +299,7 @@ void QuickView::DisplayObject()
 }
 
 
-__int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long QuickView::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	if (!Directory && QView)
 		return QView->VMProcess(OpCode,vParam,iParam);
@@ -365,7 +365,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 
 		if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
 		{
-			//__int64 Pos;
+			//long long Pos;
 			//int Length;
 			//DWORD Flags;
 			//QView->GetSelectedParam(Pos,Length,Flags);

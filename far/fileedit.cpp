@@ -342,7 +342,7 @@ fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD 
 	return FileEditorPtr;
 }
 
-fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, window_ptr_ref Update, EDITOR_FLAGS OpenModeExstFile)
+fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile)
 {
 	auto FileEditorPtr = std::make_shared<FileEditor>(private_tag());
 	FileEditorPtr->m_Flags.Set(InitFlags);
@@ -422,7 +422,7 @@ void FileEditor::Init(
     int StartChar,
     const string* PluginData,
     int DeleteOnClose,
-	window_ptr_ref Update,
+	const window_ptr& Update,
     EDITOR_FLAGS OpenModeExstFile
 )
 {
@@ -763,7 +763,7 @@ void FileEditor::DisplayObject()
 	}
 }
 
-__int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	if (OpCode == MCODE_V_EDITORSTATE)
 	{

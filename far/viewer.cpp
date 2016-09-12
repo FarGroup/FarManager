@@ -222,13 +222,13 @@ wchar_t Viewer::ZeroChar() const
 
 struct Viewer::ViewerUndoData
 {
-	ViewerUndoData(__int64 UndoAddr, __int64 UndoLeft):
+	ViewerUndoData(long long UndoAddr, long long UndoLeft):
 		UndoAddr(UndoAddr),
 		UndoLeft(UndoLeft)
 	{
 	}
-	__int64 UndoAddr;
-	__int64 UndoLeft;
+	long long UndoAddr;
+	long long UndoLeft;
 };
 
 void Viewer::SavePosition()
@@ -341,8 +341,8 @@ int Viewer::OpenFile(const string& Name,int warning)
 		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
 		if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos)
 		{
-			__int64 NewFilePos=std::max(poscache.cur.FilePos, 0LL);
-			__int64 NewLeftPos=poscache.cur.LeftPos;
+			long long NewFilePos=std::max(poscache.cur.FilePos, 0LL);
+			long long NewLeftPos=poscache.cur.LeftPos;
 			if (found && !m_DisplayMode.touched()) // keep Mode if file listed (Gray+-)
 			{
 				if (poscache.ViewModeAndWrapState & m_mode_changed)
@@ -490,9 +490,9 @@ bool Viewer::CheckChanged()
 	if ( changed )
 		ViewFindData = NewViewFindData;
 	else {
-		if ( !ViewFile.GetSize(NewViewFindData.nFileSize) || FileSize == static_cast<__int64>(NewViewFindData.nFileSize) )
+		if ( !ViewFile.GetSize(NewViewFindData.nFileSize) || FileSize == static_cast<long long>(NewViewFindData.nFileSize) )
 			return TRUE;
-		changed = FileSize > static_cast<__int64>(NewViewFindData.nFileSize); // true if file shrank
+		changed = FileSize > static_cast<long long>(NewViewFindData.nFileSize); // true if file shrank
 	}
 
 	SetFileSize();
@@ -617,7 +617,7 @@ void Viewer::ShowPage(int nMode)
 
 			if (SelectSize >= 0 && i.bSelection)
 			{
-				__int64 SelX1;
+				long long SelX1;
 
 				if (LeftPos > i.nSelStart)
 					SelX1 = m_X1;
@@ -638,7 +638,7 @@ void Viewer::ShowPage(int nMode)
 				{
 					SetColor(COL_VIEWERSELECTEDTEXT);
 					GotoXY(static_cast<int>(m_X1+SelX1),Y);
-					__int64 Length = i.nSelEnd - i.nSelStart;
+					long long Length = i.nSelEnd - i.nSelStart;
 
 					if (LeftPos > i.nSelStart)
 						Length = i.nSelEnd - LeftPos;
@@ -880,7 +880,7 @@ void Viewer::ShowHex()
 
 		auto OutStr = str_printf(L"%010I64X: ", vtell());
 		int SelStart = static_cast<int>(OutStr.size()), SelEnd = SelStart;
-		__int64 fpos = vtell();
+		long long fpos = vtell();
 
 		if (fpos > SelectPos)
 			bSelStartFound = true;
@@ -1023,7 +1023,7 @@ void Viewer::ShowHex()
 		if (bSelStartFound && bSelEndFound)
 		{
 			SetColor(COL_VIEWERSELECTEDTEXT);
-			GotoXY((int)((__int64)m_X1+SelStart-HexLeftPos),Y);
+			GotoXY((int)((long long)m_X1+SelStart-HexLeftPos),Y);
 			Global->FS << fmt::MaxWidth(SelEnd - SelStart + 1) << OutStr.data() + static_cast<size_t>(SelStart);
 		}
 	}
@@ -1270,9 +1270,9 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 }
 
 
-__int64 Viewer::EndOfScreen(int line)
+long long Viewer::EndOfScreen(int line)
 {
-	__int64 pos;
+	long long pos;
 
 	if (m_DisplayMode == VMT_TEXT)
 	{
@@ -1313,9 +1313,9 @@ __int64 Viewer::EndOfScreen(int line)
 	return pos;
 }
 
-__int64 Viewer::BegOfScreen()
+long long Viewer::BegOfScreen()
 {
-	__int64 pos = FilePos;
+	long long pos = FilePos;
 
 	if (m_DisplayMode == VMT_TEXT && !m_Wrap && LeftPos > 0)
 	{
@@ -1323,7 +1323,7 @@ __int64 Viewer::BegOfScreen()
 		int col = 0;
 		wchar_t ch;
 		pos = -1;
-		__int64 prev_pos;
+		long long prev_pos;
 		for (;;)
 		{
 			prev_pos = vtell();
@@ -1348,9 +1348,9 @@ __int64 Viewer::BegOfScreen()
 	return pos;
 }
 
-__int64 Viewer::XYfilepos(int col, int row)
+long long Viewer::XYfilepos(int col, int row)
 {
-	__int64 pos = -1;
+	long long pos = -1;
 
 	int csz = getChSize(m_Codepage);
 	switch (m_DisplayMode)
@@ -1437,7 +1437,7 @@ __int64 Viewer::XYfilepos(int col, int row)
 }
 
 
-__int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long Viewer::VMProcess(int OpCode,void *vParam,long long iParam)
 {
 	switch (OpCode)
 	{
@@ -1565,7 +1565,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			if (SelectSize >= 0 && ViewFile)
 			{
 				wchar_t_ptr SelData(SelectSize);
-				__int64 CurFilePos=vtell();
+				long long CurFilePos=vtell();
 				vseek(SelectPos, FILE_BEGIN);
 				vread(SelData.get(), (int)SelectSize);
 				SetClipboardText(SelData.get(), SelectSize);
@@ -1735,7 +1735,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			{
 				if (nCodePage == CP_DEFAULT)
 				{
-					__int64 fpos = vtell();
+					long long fpos = vtell();
 					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && IsCodePageSupported(nCodePage);
 					vseek(fpos, FILE_BEGIN);
 					if (!detect)
@@ -1941,7 +1941,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				{
 					if (!m_Wrap)
 					{
-						LeftPos = std::min(LeftPos + 20, static_cast<int64_t>(MaxViewLineSize()));
+						LeftPos = std::min(LeftPos + 20, static_cast<long long>(MaxViewLineSize()));
 					}
 				}
 				else
@@ -2147,7 +2147,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (GetAsyncKeyState(VK_SHIFT)<0 && GetAsyncKeyState(VK_CONTROL)>=0 && GetAsyncKeyState(VK_MENU)>=0)
 	{
-		__int64 filepos = XYfilepos(IntKeyState.MouseX-m_X1, IntKeyState.MouseY-m_Y1), mpos = -1;
+		long long filepos = XYfilepos(IntKeyState.MouseX-m_X1, IntKeyState.MouseY-m_Y1), mpos = -1;
 		if (filepos < 0)
 			return FALSE;
 
@@ -2183,7 +2183,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void Viewer::CacheLine( __int64 start, int length, bool have_eol )
+void Viewer::CacheLine( long long start, int length, bool have_eol )
 {
 	assert(start >= 0 && length >= 0);
 	if (!length) // empty lines beyond EOF
@@ -2263,7 +2263,7 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 	}
 }
 
-int Viewer::CacheFindUp( __int64 start )
+int Viewer::CacheFindUp( long long start )
 {
 	if ( lcache_ready
 		&& (lcache_wrap != static_cast<int>(m_Wrap) || lcache_wwrap != static_cast<int>(m_WordWrap) || lcache_width != Width)
@@ -2291,7 +2291,7 @@ int Viewer::CacheFindUp( __int64 start )
 static const int portion_size = 250;
 
 template<typename T, typename F>
-static int process_back(int BufferSize, int pos, int64_t& fpos, const F& Reader, const raw_eol& eol)
+static int process_back(int BufferSize, int pos, long long& fpos, const F& Reader, const raw_eol& eol)
 {
 	T Buffer[portion_size/sizeof(T)];
 	int nr = Reader(Buffer, BufferSize);
@@ -2349,7 +2349,7 @@ void Viewer::Up( int nlines, bool adjust )
 		return;
 	}
 
-	__int64 fpos = FilePos;
+	long long fpos = FilePos;
 
 	int i = CacheFindUp(fpos);
 	if ( i >= 0 )
@@ -2380,13 +2380,13 @@ void Viewer::Up( int nlines, bool adjust )
 			return;
 		}
 
-		__int64 fpos1 = fpos;
+		long long fpos1 = fpos;
 
 		// backward CR-LF search
 		//
 		for (int j = 0; j < max_backward_size/portion_size; ++j )
 		{
-			buff_size = (fpos > (__int64)portion_size ? portion_size : (int)fpos);
+			buff_size = (fpos > (long long)portion_size ? portion_size : (int)fpos);
 			if ( buff_size <= 0 )
 				break;
 			fpos -= buff_size;
@@ -3069,7 +3069,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 		}
 		else
 		{
-			__int64 to1 = cpos - nb - 3*(slen + ww - 1);
+			long long to1 = cpos - nb - 3*(slen + ww - 1);
 			if (to1 < 0)
 				to1 = 0;
 			int nb1 = static_cast<int>(cpos - nb - to1);
@@ -3526,7 +3526,7 @@ void Viewer::Search(int Next,int FirstChar)
 	}
 	LastSearchDirection = search_direction;
 
-	if (!sd.search_len || (__int64)sd.search_len > FileSize)
+	if (!sd.search_len || (long long)sd.search_len > FileSize)
 		return;
 
 	sd.CurPos = LastSelectPos;
@@ -3676,7 +3676,7 @@ void Viewer::SetTitle(const string& Title)
 	strTitle = Title;
 }
 
-void Viewer::SetFilePos(__int64 Pos)
+void Viewer::SetFilePos(long long Pos)
 {
 	FilePos=Pos;
 	AdjustFilePos();
@@ -3777,7 +3777,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 	return (int)ReadSize;
 }
 
-bool Viewer::vseek(__int64 Offset, int Whence)
+bool Viewer::vseek(long long Offset, int Whence)
 {
 	if (FILE_CURRENT == Whence)
 	{
@@ -3795,7 +3795,7 @@ bool Viewer::vseek(__int64 Offset, int Whence)
 	return ViewFile.SetPointer(Offset, nullptr, Whence);
 }
 
-__int64 Viewer::vtell() const
+long long Viewer::vtell() const
 {
 	auto Ptr = ViewFile.GetPointer();
 
@@ -3993,7 +3993,7 @@ enum input_mode
 	RB_DEC = 2,
 };
 
-void Viewer::GoTo(int ShowDlg, __int64 Offset, UINT64 Flags)
+void Viewer::GoTo(int ShowDlg, long long Offset, UINT64 Flags)
 {
 	long long NewLeftPos = -1;
 
@@ -4177,7 +4177,7 @@ void Viewer::SetFileSize()
 }
 
 
-void Viewer::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags) const
+void Viewer::GetSelectedParam(long long &Pos, long long &Length, DWORD &Flags) const
 {
 	Pos=SelectPos;
 	Length=SelectSize;
@@ -4187,7 +4187,7 @@ void Viewer::GetSelectedParam(__int64 &Pos, __int64 &Length, DWORD &Flags) const
 // Flags=0x01 - показывать [делать Show()]
 //       0x02 - "обратный поиск" ?
 //
-void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, const DWORD flags)
+void Viewer::SelectText(const long long &match_pos,const long long &search_len, const DWORD flags)
 {
 	if (!ViewFile)
 		return;
@@ -4318,7 +4318,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			ViewerSelect *vs=(ViewerSelect *)Param2;
 			if (CheckStructSize(vs))
 			{
-				__int64 SPos=vs->BlockStartPos;
+				long long SPos=vs->BlockStartPos;
 				int SSize=vs->BlockLen;
 
 				if (SPos < FileSize)

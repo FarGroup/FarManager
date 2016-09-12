@@ -616,7 +616,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 								{
 									if(ComplMenu->size() > 1)
 									{
-										const auto CurrentRecordPtr = ComplMenu->GetUserDataPtr<unsigned __int64>();
+										const auto CurrentRecordPtr = ComplMenu->GetUserDataPtr<unsigned long long>();
 										if(CurrentRecordPtr && pHistory->DeleteIfUnlocked(*CurrentRecordPtr))
 										{
 											ComplMenu->DeleteItem(ComplMenu->GetSelectPos());

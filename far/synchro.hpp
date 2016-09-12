@@ -201,7 +201,7 @@ private:
 template<class T> class SyncedQueue: noncopyable
 {
 public:
-	typedef T value_type;
+	using value_type = T;
 
 	bool Empty() const
 	{

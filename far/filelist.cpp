@@ -231,7 +231,7 @@ DWORD FileListItem::NumberOfLinks(const FileList* Owner) const
 	return m_NumberOfLinks;
 }
 
-static void GetStreamsCountAndSize(const FileList* Owner, const FileListItem& Item, uint64_t& StreamsSize, DWORD& NumberOfStreams, bool Supported)
+static void GetStreamsCountAndSize(const FileList* Owner, const FileListItem& Item, unsigned long long& StreamsSize, DWORD& NumberOfStreams, bool Supported)
 {
 	if (!Supported)
 	{
@@ -569,7 +569,7 @@ public:
 				return less_opt(RetCode < 0);
 		}
 
-		__int64 RetCode64;
+		long long RetCode64;
 
 		const auto CompareTime = [&a, &b](const FILETIME FileListItem::*time)
 		{
@@ -894,7 +894,7 @@ bool FileList::GetPluginInfo(PluginInfo *PInfo) const
 	return false;
 }
 
-__int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 {
 	switch (OpCode)
 	{
@@ -948,7 +948,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_PANEL_SELECT:
 		{
 			// vParam = MacroPanelSelect*, iParam = 0
-			__int64 Result=-1;
+			long long Result=-1;
 			MacroPanelSelect *mps=(MacroPanelSelect *)vParam;
 
 			if (m_ListData.empty())
@@ -3546,7 +3546,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 #if defined(Mantis_698)
 	if (ListPos < FileCount)
 	{
-		unsigned __int64 *ColumnTypes=m_ViewSettings.ColumnType;
+		unsigned long long *ColumnTypes=m_ViewSettings.ColumnType;
 		int ColumnCount=m_ViewSettings.ColumnCount;
 		int *ColumnWidths=m_ViewSettings.ColumnWidth;
 
@@ -3574,7 +3574,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 				{
 					case NAME_COLUMN:
 					{
-						unsigned __int64 ViewFlags=ColumnTypes[K];
+						unsigned long long ViewFlags=ColumnTypes[K];
 						const wchar_t *NamePtr = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty() ? m_ListData[ListPos].strShortName:m_ListData[ListPos].strName;
 
 						string strNameCopy;
@@ -3824,7 +3824,7 @@ void FileList::UngetSelName()
 }
 
 
-unsigned __int64 FileList::GetLastSelectedSize() const
+unsigned long long FileList::GetLastSelectedSize() const
 {
 	if (LastSelPosition>=0 && LastSelPosition < static_cast<int>(m_ListData.size()))
 		return m_ListData[LastSelPosition].FileSize;
@@ -7816,7 +7816,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		string strFreeSize, strTotalSize;
 		auto strFormSize = size2str(TotalFileSize, 6, short_mode);
 		if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & (OPIF_REALNAMES | OPIF_USEFREESIZE))))
-			strFreeSize = (FreeDiskSize != static_cast<unsigned __int64>(-1)) ? size2str(FreeDiskSize, 0, short_mode) : L"?";
+			strFreeSize = (FreeDiskSize != static_cast<unsigned long long>(-1)) ? size2str(FreeDiskSize, 0, short_mode) : L"?";
 
 		if (Global->Opt->ShowPanelTotals)
 		{
@@ -7862,7 +7862,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	}
 }
 
-int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned __int64 RightAlign,int ShowStatus,DWORD FileAttr) const
+int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned long long RightAlign,int ShowStatus,DWORD FileAttr) const
 {
 	strDest.reserve(MaxLength);
 
@@ -8282,7 +8282,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case NAME_COLUMN:
 						{
 							int Width=ColumnWidth;
-							unsigned __int64 ViewFlags=Columns[K].type;
+							unsigned long long ViewFlags=Columns[K].type;
 
 							if ((ViewFlags & COLUMN_MARK) && Width>2)
 							{
@@ -8328,7 +8328,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							}
 
 							int CurLeftPos=0;
-							unsigned __int64 RightAlign=(ViewFlags & (COLUMN_RIGHTALIGN|COLUMN_RIGHTALIGNFORCE));
+							unsigned long long RightAlign=(ViewFlags & (COLUMN_RIGHTALIGN|COLUMN_RIGHTALIGNFORCE));
 							int LeftBracket=FALSE,RightBracket=FALSE;
 
 							if (!ShowStatus && LeftPos)
@@ -8439,7 +8439,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							}
 							if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
 
-							unsigned __int64 ViewFlags=Columns[K].type;
+							unsigned long long ViewFlags=Columns[K].type;
 							if (ViewFlags&COLUMN_RIGHTALIGN)
 								Global->FS << fmt::RightAlign()<<fmt::ExactWidth(ColumnWidth)<<ExtPtr;
 							else

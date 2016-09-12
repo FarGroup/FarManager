@@ -272,7 +272,7 @@ void DlgEdit::SetClearFlag(bool Flag)
 		lineEdit->SetClearFlag(Flag);
 }
 
-int DlgEdit::GetClearFlag() const
+bool DlgEdit::GetClearFlag() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -640,7 +640,7 @@ void DlgEdit::SetReadOnly(bool NewReadOnly)
 		lineEdit->SetReadOnly(NewReadOnly);
 }
 
-BitFlags& DlgEdit::Flags()
+BitFlags& DlgEdit::Flags() const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -695,7 +695,7 @@ void DlgEdit::ResizeConsole()
 		lineEdit->ResizeConsole();
 }
 
-__int64 DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long DlgEdit::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -713,7 +713,7 @@ void DlgEdit::EditChange(void* aParam)
 	static_cast<DlgEdit*>(aParam)->DoEditChange();
 }
 
-void DlgEdit::DoEditChange()
+void DlgEdit::DoEditChange() const
 {
 	const auto dialog = GetDialog();
 	_DIALOG(CleverSysLog CL(L"DlgEdit::DoEditChange()"));
@@ -724,7 +724,7 @@ void DlgEdit::DoEditChange()
 	}
 }
 
-bool DlgEdit::HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
+bool DlgEdit::HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend) const
 {
 	return iHistory?iHistory->GetSimilar(strStr, LastCmdPartLength, bAppend):false;
 }

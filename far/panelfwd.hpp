@@ -39,12 +39,10 @@ class TreeList;
 class InfoList;
 class QuickView;
 
-typedef std::shared_ptr<Panel> panel_ptr;
-typedef std::shared_ptr<FileList> file_panel_ptr;
-typedef std::shared_ptr<TreeList> tree_panel_ptr;
-typedef std::shared_ptr<InfoList> info_panel_ptr;
-typedef std::shared_ptr<QuickView> qview_panel_ptr;
-
-typedef const panel_ptr& panel_ptr_ref;
+using panel_ptr = std::shared_ptr<Panel>;
+using file_panel_ptr = std::shared_ptr<FileList>;
+using tree_panel_ptr = std::shared_ptr<TreeList>;
+using info_panel_ptr = std::shared_ptr<InfoList>;
+using qview_panel_ptr = std::shared_ptr<QuickView>;
 
 #endif // PANELFWD_HPP_DD0AF087_5711_436F_AC96_26B471446E97

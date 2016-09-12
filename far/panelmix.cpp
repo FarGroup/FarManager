@@ -591,7 +591,7 @@ string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 	return FormatString() << fmt::LeftAlign() << fmt::ExactWidth(Width) << OutStr;
 }
 
-string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned __int64 Flags,int Width)
+string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned long long Flags, int Width)
 {
 	FormatString strResult;
 
@@ -659,9 +659,9 @@ string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned __int
 	return strResult;
 }
 
-string FormatStr_Size(__int64 Size, const string& strName,
+string FormatStr_Size(long long Size, const string& strName,
 							DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
-							unsigned __int64 Flags,int Width,const wchar_t *CurDir)
+							unsigned long long Flags,int Width,const wchar_t *CurDir)
 {
 	FormatString strResult;
 
@@ -794,7 +794,7 @@ string FormatStr_Size(__int64 Size, const string& strName,
 	return strResult;
 }
 
-int GetDefaultWidth(uint64_t Type)
+int GetDefaultWidth(unsigned long long Type)
 {
 	int ColumnType = Type & 0xff;
 	int Width = (ColumnType > CUSTOM_COLUMN0) ? 0 : ColumnInfo[ColumnType].DefaultWidth;

@@ -58,7 +58,7 @@ size_t GetDescriptionWidth()
 {
 	size_t Width = 0;
 	DWORD Index=0;
-	unsigned __int64 id;
+	unsigned long long id;
 	string strMask;
 	string strDescription;
 	filemasks FMask;
@@ -98,7 +98,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 		int CommandCount=0;
 		DWORD Index=0;
-		unsigned __int64 id;
+		unsigned long long id;
 		string FileName = PointToName(Name);
 
 		std::vector<MenuItemEx> MenuItems;
@@ -322,7 +322,7 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 	DWORD Index=0;
 	string strMask;
 	string strTitle;
-	unsigned __int64 id;
+	unsigned long long id;
 
 	while (ConfigProvider().AssocConfig()->EnumMasks(Index++,&id,strMask))
 	{
@@ -408,7 +408,7 @@ intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
+bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 {
 	const int DlgX=76,DlgY=23;
 	FarDialogItem EditDlgData[]=
@@ -484,7 +484,7 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 	return false;
 }
 
-bool DeleteTypeRecord(unsigned __int64 DeletePos)
+bool DeleteTypeRecord(unsigned long long DeletePos)
 {
 	string strMask;
 	ConfigProvider().AssocConfig()->GetMask(DeletePos,strMask);
@@ -527,7 +527,7 @@ void EditFileTypes()
 				case KEY_DEL:
 					if (MenuPos<NumLine)
 					{
-						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos))
+						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned long long>(MenuPos))
 						{
 							Changed = DeleteTypeRecord(*IdPtr);
 						}
@@ -538,7 +538,7 @@ void EditFileTypes()
 				case KEY_INS:
 					if (MenuPos - 1 >= 0)
 					{
-						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos - 1))
+						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned long long>(MenuPos - 1))
 						{
 							Changed = EditTypeRecord(*IdPtr, true);
 						}
@@ -554,7 +554,7 @@ void EditFileTypes()
 				case KEY_F4:
 					if (MenuPos<NumLine)
 					{
-						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos))
+						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned long long>(MenuPos))
 						{
 							Changed = EditTypeRecord(*IdPtr, false);
 						}
@@ -570,9 +570,9 @@ void EditFileTypes()
 						!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && MenuPos == static_cast<int>(TypesMenu->size() - 1)))
 					{
 						int NewMenuPos=MenuPos+((Key==KEY_CTRLUP || Key==KEY_RCTRLUP)?-1:+1);
-						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned __int64>(MenuPos))
+						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned long long>(MenuPos))
 						{
-							if (const auto IdPtr2 = TypesMenu->GetUserDataPtr<unsigned __int64>(NewMenuPos))
+							if (const auto IdPtr2 = TypesMenu->GetUserDataPtr<unsigned long long>(NewMenuPos))
 							{
 								if (ConfigProvider().AssocConfig()->SwapPositions(*IdPtr, *IdPtr2))
 								{

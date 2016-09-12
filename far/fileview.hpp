@@ -43,11 +43,12 @@ class FileViewer:public window,public ViewerContainer
 	struct private_tag {};
 public:
 	static fileviewer_ptr create(const string& Name, int EnableSwitch = FALSE, int DisableHistory = FALSE,
-		int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
-		NamesList *ViewNamesList=nullptr,bool ToSaveAs=false,uintptr_t aCodePage=CP_DEFAULT,
-		const wchar_t *Title=nullptr, int DeleteOnClose=0, window_ptr Update=nullptr);
+		int DisableEdit = FALSE, long long ViewStartPos = -1, const wchar_t* PluginData = nullptr,
+		NamesList* ViewNamesList = nullptr, bool ToSaveAs = false, uintptr_t aCodePage = CP_DEFAULT,
+		const wchar_t* Title = nullptr, int DeleteOnClose = 0, window_ptr Update = nullptr);
+
 	static fileviewer_ptr create(const string& Name, int EnableSwitch, int DisableHistory,
-		const wchar_t *Title,int X1,int Y1,int X2,int Y2,uintptr_t aCodePage=CP_DEFAULT);
+		const wchar_t *Title, int X1, int Y1, int X2, int Y2, uintptr_t aCodePage = CP_DEFAULT);
 
 	FileViewer(private_tag, int DisableEdit, const wchar_t *Title);
 	virtual ~FileViewer();
@@ -55,7 +56,7 @@ public:
 	virtual void InitKeyBar() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
 	virtual void ShowConsoleTitle() override;
 	virtual void OnDestroy() override;
 	virtual void OnChangeFocus(bool focus) override;
@@ -81,8 +82,8 @@ public:
 	void SetSaveToSaveAs(bool ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2) const;
 	bool IsFullScreen() const {return FullScreen;}
-	__int64 GetViewFileSize() const;
-	__int64 GetViewFilePos() const;
+	long long GetViewFileSize() const;
+	long long GetViewFilePos() const;
 	void ShowStatus() const;
 	int GetId() const { return m_View->ViewerID; }
 	void OnReload(void);
@@ -93,7 +94,7 @@ private:
 	virtual void Show() override;
 	virtual void DisplayObject() override;
 
-	void Init(const string& Name, int EnableSwitch, int DisableHistory, __int64 ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update = nullptr);
+	void Init(const string& Name, int EnableSwitch, int DisableHistory, long long ViewStartPos, const wchar_t *PluginData, NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update = nullptr);
 
 	std::unique_ptr<Viewer> m_View;
 	int RedrawTitle;

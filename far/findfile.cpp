@@ -1050,7 +1050,7 @@ bool background_searcher::LookForString(const string& Name)
 	// Количество считанных из файла байт
 	size_t readBlockSize = 0;
 	// Количество прочитанных из файла байт
-	unsigned __int64 alreadyRead = 0;
+	unsigned long long alreadyRead = 0;
 	// Смещение на которое мы отступили при переходе между блоками
 	size_t offset = 0;
 

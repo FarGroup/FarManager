@@ -725,7 +725,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
 			{
-				unsigned __int64 TotalSize = 0, UserFree = 0;
+				unsigned long long TotalSize = 0, UserFree = 0;
 
 				if (ShowDisk && os::GetDiskSize(strRootDir, &TotalSize, nullptr, &UserFree))
 				{

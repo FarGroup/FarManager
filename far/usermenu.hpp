@@ -45,7 +45,7 @@ public:
 	UserMenu(const string& MenuFileName);
 	~UserMenu();
 
-	typedef std::list<UserMenuItem> menu_container;
+	using menu_container = std::list<UserMenuItem>;
 
 private:
 	void ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName);

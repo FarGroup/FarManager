@@ -80,8 +80,8 @@ struct EditorPosCache: noncopyable
 
 struct viewer_bookmark
 {
-	__int64 FilePos;
-	__int64 LeftPos;
+	long long FilePos;
+	long long LeftPos;
 	viewer_bookmark():
 		FilePos(POS_NONE),
 		LeftPos(POS_NONE)

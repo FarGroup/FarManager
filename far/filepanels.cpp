@@ -368,7 +368,7 @@ int FilePanels::SwapPanels()
 	return Ret;
 }
 
-__int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long FilePanels::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{

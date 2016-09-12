@@ -59,6 +59,6 @@ private:
 	T m_Flags;
 };
 
-typedef TBitFlags<DWORD> BitFlags;
+using BitFlags = TBitFlags<DWORD>;
 
 #endif // BITFLAGS_HPP_0F0A29FB_5389_4343_9C50_A84459FAF9D2

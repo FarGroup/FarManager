@@ -341,7 +341,7 @@ void print_opcodes()
 }
 #endif
 
-typedef unsigned __int64 MACROFLAGS_MFLAGS;
+using MACROFLAGS_MFLAGS = unsigned long long;
 enum: MACROFLAGS_MFLAGS
 {
 	MFLAGS_NONE                    =0,
@@ -382,7 +382,7 @@ struct DlgParam
 	bool Changed;
 };
 
-static bool ToDouble(__int64 v, double *d)
+static bool ToDouble(long long v, double *d)
 {
 	if ((v >= 0 && v <= 0x1FFFFFFFFFFFFFLL) || (v < 0 && v >= -0x1FFFFFFFFFFFFFLL))
 	{
@@ -526,9 +526,9 @@ bool KeyMacro::SaveMacros(bool /*always*/)
 	return CallMacroPlugin(&info);
 }
 
-static __int64 msValues[constMsLAST];
+static long long msValues[constMsLAST];
 
-void KeyMacro::SetMacroConst(int ConstIndex, __int64 Value)
+void KeyMacro::SetMacroConst(int ConstIndex, long long Value)
 {
 	msValues[ConstIndex] = Value;
 }
@@ -1440,7 +1440,7 @@ static int PassNumber (double dbl, FarMacroCall* Data)
 	return 1;
 }
 
-static int PassInteger (__int64 Int, FarMacroCall* Data)
+static int PassInteger (long long Int, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -2314,7 +2314,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			TVar& p1(Params[0]);
 			TVar& p2(Params[1]);
 
-			__int64 Result=0;
+			long long Result=0;
 
 			if (const auto f = Global->WindowManager->GetCurrentWindow())
 			{
@@ -2339,10 +2339,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
-					__int64 MenuItemPos=tmpVar.asInteger()-1;
+					long long MenuItemPos=tmpVar.asInteger()-1;
 					if (CheckCode == MCODE_F_MENU_GETHOTKEY)
 					{
-						__int64 Result = f->VMProcess(CheckCode,nullptr,MenuItemPos);
+						long long Result = f->VMProcess(CheckCode,nullptr,MenuItemPos);
 						if (Result)
 						{
 
@@ -2383,13 +2383,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S[,N])
 		{
 			auto Params = parseParams(3, Data);
-			__int64 Result=-1;
-			__int64 tmpDir=0;
+			long long Result=-1;
+			long long tmpDir=0;
 
 			if (CheckCode == MCODE_F_MENU_SELECT)
 				tmpDir=Params[2].asInteger();
 
-			__int64 tmpMode=Params[1].asInteger();
+			long long tmpMode=Params[1].asInteger();
 
 			if (CheckCode == MCODE_F_MENU_SELECT)
 				tmpMode |= (tmpDir << 8);
@@ -3166,7 +3166,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	bool bExitAfterNavigate = (Flags & 0x400) != 0;
 	int X = -1;
 	int Y = -1;
-	unsigned __int64 MenuFlags = VMENU_WRAPMODE;
+	unsigned long long MenuFlags = VMENU_WRAPMODE;
 
 	int nLeftShift=0;
 	if (bAutoNumbering)
@@ -3481,11 +3481,11 @@ static bool panelselectFunc(FarMacroCall* Data)
 	int Mode=(int)Params[2].asInteger();
 	DWORD Action=(int)Params[1].asInteger();
 	int typePanel=(int)Params[0].asInteger();
-	__int64 Result=-1;
+	long long Result=-1;
 
 	if (const auto SelPanel = TypeToPanel(typePanel))
 	{
-		__int64 Index=-1;
+		long long Index=-1;
 		if (Mode == 1)
 		{
 			Index=ValItems.asInteger();
@@ -3745,12 +3745,12 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 			{
 				switch (InfoID)
 				{
-					case 0: Ret=(__int64)DlgItem.size(); break;
+					case 0: Ret=(long long)DlgItem.size(); break;
 					case 2: Ret=Rect.Left; break;
 					case 3: Ret=Rect.Top; break;
 					case 4: Ret=Rect.Right; break;
 					case 5: Ret=Rect.Bottom; break;
-					case 6: Ret=(__int64)Dlg->GetDlgFocusPos()+1; break;
+					case 6: Ret=(long long)Dlg->GetDlgFocusPos()+1; break;
 					default: Ret=0; Ret.SetType(vtUnknown); break;
 				}
 			}
@@ -3822,7 +3822,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 
 					break;
 				}
-				case 8: Ret=(__int64)ItemFlags; break;
+				case 8: Ret=(long long)ItemFlags; break;
 				case 9: Ret=(Item.Flags&DIF_DEFAULTBUTTON)!=0; break;
 				case 10:
 				{
@@ -3848,7 +3848,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		}
 		else if (Index >= DlgItem.size())
 		{
-			Ret=(__int64)InfoID;
+			Ret=(long long)InfoID;
 		}
 		else
 			CallDialog=false;
@@ -4042,43 +4042,43 @@ static bool editorsetFunc(FarMacroCall* Data)
 		switch (Index)
 		{
 			case 0:  // TabSize;
-				Ret=(__int64)EdOpt.TabSize; break;
+				Ret=(long long)EdOpt.TabSize; break;
 			case 1:  // ExpandTabs;
-				Ret=(__int64)EdOpt.ExpandTabs; break;
+				Ret=(long long)EdOpt.ExpandTabs; break;
 			case 2:  // PersistentBlocks;
-				Ret=(__int64)EdOpt.PersistentBlocks; break;
+				Ret=(long long)EdOpt.PersistentBlocks; break;
 			case 3:  // DelRemovesBlocks;
-				Ret=(__int64)EdOpt.DelRemovesBlocks; break;
+				Ret=(long long)EdOpt.DelRemovesBlocks; break;
 			case 4:  // AutoIndent;
-				Ret=(__int64)EdOpt.AutoIndent; break;
+				Ret=(long long)EdOpt.AutoIndent; break;
 			case 5:  // AutoDetectCodePage;
-				Ret=(__int64)EdOpt.AutoDetectCodePage; break;
+				Ret=(long long)EdOpt.AutoDetectCodePage; break;
 			case 7:  // CursorBeyondEOL;
-				Ret=(__int64)EdOpt.CursorBeyondEOL; break;
+				Ret=(long long)EdOpt.CursorBeyondEOL; break;
 			case 8:  // BSLikeDel;
-				Ret=(__int64)EdOpt.BSLikeDel; break;
+				Ret=(long long)EdOpt.BSLikeDel; break;
 			case 9:  // CharCodeBase;
-				Ret=(__int64)EdOpt.CharCodeBase; break;
+				Ret=(long long)EdOpt.CharCodeBase; break;
 			case 10: // SavePos;
-				Ret=(__int64)EdOpt.SavePos; break;
+				Ret=(long long)EdOpt.SavePos; break;
 			case 11: // SaveShortPos;
-				Ret=(__int64)EdOpt.SaveShortPos; break;
+				Ret=(long long)EdOpt.SaveShortPos; break;
 			case 12: // char WordDiv[256];
 				Ret=TVar(EdOpt.strWordDiv); break;
 			case 14: // AllowEmptySpaceAfterEof;
-				Ret=(__int64)EdOpt.AllowEmptySpaceAfterEof; break;
+				Ret=(long long)EdOpt.AllowEmptySpaceAfterEof; break;
 			case 15: // ShowScrollBar;
-				Ret=(__int64)EdOpt.ShowScrollBar; break;
+				Ret=(long long)EdOpt.ShowScrollBar; break;
 			case 16: // EditOpenedForWrite;
-				Ret=(__int64)EdOpt.EditOpenedForWrite; break;
+				Ret=(long long)EdOpt.EditOpenedForWrite; break;
 			case 17: // SearchSelFound;
-				Ret=(__int64)EdOpt.SearchSelFound; break;
+				Ret=(long long)EdOpt.SearchSelFound; break;
 			case 18: // SearchRegexp;
-				Ret=(__int64)EdOpt.SearchRegexp; break;
+				Ret=(long long)EdOpt.SearchRegexp; break;
 			case 20: // ShowWhiteSpace;
 				Ret=static_cast<INT64>(EdOpt.ShowWhiteSpace); break;
 			default:
-				Ret=(__int64)-1L;
+				Ret=(long long)-1L;
 		}
 
 		if (longState != -1)
@@ -4261,7 +4261,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 	int InSelection=(int)Params[2].asInteger();
 	long idxItem=(long)Params[1].asInteger();
 	int typePanel=(int)Params[0].asInteger();
-	__int64 Ret=0;
+	long long Ret=0;
 
 	if (const auto SelPanel = TypeToPanel(typePanel))
 	{
@@ -4332,16 +4332,16 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 						// </Mantis#0000289>
 
 						if ( !InSelection )
-							Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+							Ret=(long long)(SelPanel->GetCurrentPos()+1);
 						else
-							Ret=(__int64)(idxFoundItem+1);
+							Ret=(long long)(idxFoundItem+1);
 					}
 				}
 			}
 			else // = 0 - вернем текущую позицию
 			{
 				if ( !InSelection )
-					Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+					Ret=(long long)(SelPanel->GetCurrentPos()+1);
 				else
 				{
 					long CurPos=SelPanel->GetCurrentPos();
@@ -4351,7 +4351,7 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 						{
 							if (I == static_cast<size_t>(CurPos))
 							{
-								Ret=(__int64)(idxFoundItem+1);
+								Ret=(long long)(idxFoundItem+1);
 								break;
 							}
 							idxFoundItem++;
@@ -4426,7 +4426,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 	const auto& fileName=Val.asString();
 
 	//const auto CurrentWindow=WindowManager->GetCurrentWindow();
-	__int64 Ret=0;
+	long long Ret=0;
 
 	if (const auto SelPanel = TypeToPanel(typePanel))
 	{
@@ -4443,7 +4443,7 @@ static bool panelsetposFunc(FarMacroCall* Data)
 				SelPanel->UpdateIfChanged(false);
 				Global->WindowManager->RefreshWindow(Global->WindowManager->GetCurrentWindow());
 				// </Mantis#0000289>
-				Ret=(__int64)(SelPanel->GetCurrentPos()+1);
+				Ret=(long long)(SelPanel->GetCurrentPos()+1);
 			}
 		}
 	}
@@ -5034,12 +5034,12 @@ static bool testfolderFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(1, Data);
 	TVar& tmpVar(Params[0]);
-	__int64 Ret=TSTFLD_ERROR;
+	long long Ret=TSTFLD_ERROR;
 
 	if (tmpVar.isString())
 	{
 		SCOPED_ACTION(elevation::suppress);
-		Ret=(__int64)TestFolder(tmpVar.asString());
+		Ret=(long long)TestFolder(tmpVar.asString());
 	}
 
 	PassNumber(Ret, Data);

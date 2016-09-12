@@ -111,7 +111,7 @@ public:
 	NONCOPYABLE(Edit);
 	TRIVIALLY_MOVABLE(Edit);
 
-	typedef std::function<bool(const ColorItem&)> delete_color_condition;
+	using delete_color_condition = std::function<bool(const ColorItem&)>;
 
 	Edit(window_ptr Owner);
 	virtual ~Edit() = default;
@@ -119,7 +119,7 @@ public:
 	void FastShow(const ShowInfo* Info=nullptr);
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
 	virtual void Changed(bool DelBlock=false){};
 	void SetDelRemovesBlocks(bool Mode) {m_Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
 	int GetDelRemovesBlocks() const {return m_Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }

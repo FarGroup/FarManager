@@ -138,7 +138,7 @@ bool CachedRead::Unread(size_t BytesUnread)
 	if (BytesUnread + BytesLeft <= ReadSize)
 	{
 		BytesLeft += BytesUnread;
-		const __int64 off = BytesUnread;
+		const long long off = BytesUnread;
 		file.SetPointer(-off, &LastPtr, FILE_CURRENT);
 		return true;
 	}

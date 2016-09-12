@@ -500,7 +500,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		return;
 
 	string strSelName;
-	uint64_t SingleSelectedFileSize = 0;
+	unsigned long long SingleSelectedFileSize = 0;
 
 	if (SelCount==1)
 	{
@@ -2160,7 +2160,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		for (;;)
 		{
 			int CopyCode=0;
-			unsigned __int64 SaveTotalSize = CP->m_Bytes.Copied;
+			unsigned long long SaveTotalSize = CP->m_Bytes.Copied;
 
 			if (!(Flags&FCOPY_COPYTONUL) && Rename)
 			{
@@ -2650,7 +2650,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 	}
 
 	os::fs::file DestFile;
-	uint64_t AppendPos=0;
+	unsigned long long AppendPos=0;
 	DWORD flags_attrs=0;
 
 	bool CopySparse=false;
@@ -3230,7 +3230,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 				else
 				{
 					FormatString strSrcFileStr, strDestFileStr;
-					unsigned __int64 SrcSize = SrcData.nFileSize;
+					unsigned long long SrcSize = SrcData.nFileSize;
 					FILETIME SrcLastWriteTime = SrcData.ftLastWriteTime;
 					if (Flags&FCOPY_COPYSYMLINKCONTENTS && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 					{
@@ -3243,7 +3243,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 					}
 					FormatString strSrcSizeText;
 					strSrcSizeText << SrcSize;
-					unsigned __int64 DestSize = DestData.nFileSize;
+					unsigned long long DestSize = DestData.nFileSize;
 					FormatString strDestSizeText;
 					strDestSizeText << DestSize;
 					string strDateText, strTimeText;
@@ -3341,10 +3341,10 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 
 					string strDateText,strTimeText;
 					FormatString strSrcFileStr, strDestFileStr;
-					unsigned __int64 SrcSize = SrcData.nFileSize;
+					unsigned long long SrcSize = SrcData.nFileSize;
 					FormatString strSrcSizeText;
 					strSrcSizeText<<SrcSize;
-					unsigned __int64 DestSize = DestData.nFileSize;
+					unsigned long long DestSize = DestData.nFileSize;
 					FormatString strDestSizeText;
 					strDestSizeText<<DestSize;
 					ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
@@ -3564,7 +3564,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	return COPY_SUCCESS;
 }
 
-DWORD ShellCopy::CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytesTransferred, uint64_t StreamSize, uint64_t StreamBytesTransferred, DWORD dwStreamNumber, DWORD dwCallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile)
+DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD dwStreamNumber, DWORD dwCallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile)
 {
 	// // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
 	// // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
@@ -3593,7 +3593,7 @@ bool ShellCopy::CalcTotalSize() const
 {
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
-	unsigned __int64 FileSize;
+	unsigned long long FileSize;
 	// Для фильтра
 	os::FAR_FIND_DATA fd;
 
@@ -3637,7 +3637,7 @@ bool ShellCopy::CalcTotalSize() const
 
 			FileSize = SrcPanel->GetLastSelectedSize();
 
-			if (FileSize != (unsigned __int64)-1)
+			if (FileSize != (unsigned long long)-1)
 			{
 				CP->m_Bytes.Total += FileSize;
 				++CP->m_Files.Total;

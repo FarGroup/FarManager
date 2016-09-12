@@ -105,7 +105,7 @@ bool FileFilter::FilterEdit()
 
 	if (m_FilterType != FFT_CUSTOM)
 	{
-		typedef std::list<std::pair<string, int>> extension_list;
+		using extension_list = std::list<std::pair<string, int>>;
 		extension_list Extensions;
 
 		{
@@ -750,7 +750,7 @@ void FileFilter::InitFilter()
 
 		strMask.clear();
 		cfg->GetValue(key,L"Mask",strMask);
-		unsigned __int64 UseMask = 1;
+		unsigned long long UseMask = 1;
 		cfg->GetValue(key, L"UseMask", UseMask);
 		NewItem.SetMask(UseMask != 0, strMask);
 
@@ -758,11 +758,11 @@ void FileFilter::InitFilter()
 		cfg->GetValue(key,L"DateAfter", DateAfter);
 		cfg->GetValue(key,L"DateBefore", DateBefore);
 
-		unsigned __int64 UseDate = 0;
+		unsigned long long UseDate = 0;
 		cfg->GetValue(key, L"UseDate", UseDate);
-		unsigned __int64 DateType = 0;
+		unsigned long long DateType = 0;
 		cfg->GetValue(key, L"DateType", DateType);
-		unsigned __int64 RelativeDate = 0;
+		unsigned long long RelativeDate = 0;
 		cfg->GetValue(key, L"RelativeDate", RelativeDate);
 		NewItem.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateAfter, DateBefore, RelativeDate != 0);
 
@@ -770,23 +770,23 @@ void FileFilter::InitFilter()
 		cfg->GetValue(key,L"SizeAboveS",strSizeAbove);
 		strSizeBelow.clear();
 		cfg->GetValue(key,L"SizeBelowS",strSizeBelow);
-		unsigned __int64 UseSize = 0;
+		unsigned long long UseSize = 0;
 		cfg->GetValue(key, L"UseSize", UseSize);
 		NewItem.SetSize(UseSize != 0, strSizeAbove, strSizeBelow);
 
-		unsigned __int64 UseHardLinks = 0;
+		unsigned long long UseHardLinks = 0;
 		cfg->GetValue(key, L"UseHardLinks", UseHardLinks);
-		unsigned __int64 HardLinksAbove = 0;
+		unsigned long long HardLinksAbove = 0;
 		cfg->GetValue(key, L"HardLinksAbove", HardLinksAbove);
-		unsigned __int64 HardLinksBelow = 0;
+		unsigned long long HardLinksBelow = 0;
 		cfg->GetValue(key, L"HardLinksAbove", HardLinksBelow);
 		NewItem.SetHardLinks(UseHardLinks != 0, HardLinksAbove, HardLinksBelow);
 
-		unsigned __int64 UseAttr = 1;
+		unsigned long long UseAttr = 1;
 		cfg->GetValue(key, L"UseAttr", UseAttr);
-		unsigned __int64 AttrSet = 0;
+		unsigned long long AttrSet = 0;
 		cfg->GetValue(key, L"AttrSet", AttrSet);
-		unsigned __int64 AttrClear = FILE_ATTRIBUTE_DIRECTORY;
+		unsigned long long AttrClear = FILE_ATTRIBUTE_DIRECTORY;
 		cfg->GetValue(key, L"AttrClear", AttrClear);
 		NewItem.SetAttr(UseAttr != 0, (DWORD)AttrSet, (DWORD)AttrClear);
 

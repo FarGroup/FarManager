@@ -112,7 +112,7 @@ void HMenu::UpdateSelectPos()
 	}
 }
 
-__int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	UpdateSelectPos();
 
@@ -157,7 +157,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		}
 		case MCODE_F_MENU_ITEMSTATUS: // N=Menu.ItemStatus([N])
 		{
-			__int64 RetValue=-1;
+			long long RetValue = -1;
 
 			if (iParam == -1)
 				iParam=SelectPos;

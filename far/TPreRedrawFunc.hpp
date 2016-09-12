@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct PreRedrawItem: noncopyable
 {
-	typedef std::function<void()> handler_type;
+	using handler_type = std::function<void()>;
 
 	PreRedrawItem(const handler_type& PreRedrawFunc) : m_PreRedrawFunc(PreRedrawFunc) {}
 	virtual ~PreRedrawItem() = default;

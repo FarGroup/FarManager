@@ -438,10 +438,10 @@ private:
 		bool operator()(const string& a, const string& b) const { return TreeItemLess(a, b); }
 	};
 
-	typedef std::set<string, cache_less> cache_set;
+	using cache_set = std::set<string, cache_less>;
 
 public:
-	typedef cache_set::const_iterator const_iterator;
+	using const_iterator = cache_set::const_iterator;
 	const_iterator begin() const { return m_Names.cbegin(); }
 	const_iterator end() const { return m_Names.cend(); }
 
@@ -1079,7 +1079,7 @@ bool TreeList::FillLastData()
 	return true;
 }
 
-__int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long TreeList::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	switch (OpCode)
 	{

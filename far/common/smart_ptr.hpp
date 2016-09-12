@@ -54,8 +54,8 @@ private:
 	size_t m_size;
 };
 
-typedef array_ptr<wchar_t> wchar_t_ptr;
-typedef array_ptr<char> char_ptr;
+using wchar_t_ptr = array_ptr<wchar_t>;
+using char_ptr = array_ptr<char>;
 
 template<class T>
 class block_ptr:public char_ptr
@@ -99,7 +99,7 @@ namespace detail
 	};
 }
 
-typedef std::unique_ptr<FILE, detail::file_closer> file_ptr;
+using file_ptr = std::unique_ptr<FILE, detail::file_closer>;
 
 template<class T>
 class ptr_setter_t

@@ -56,7 +56,7 @@ enum MACRODISABLEONLOAD
 
 struct MacroPanelSelect
 {
-	__int64 Index;
+	long long Index;
 	TVar    *Item;
 	int     Action;
 	DWORD   ActionFlags;
@@ -80,7 +80,7 @@ public:
 	static bool MacroExists(int Key, FARMACROAREA Area, bool UseCommon);
 	static void RunStartMacro();
 	static bool SaveMacros(bool always);
-	static void SetMacroConst(int ConstIndex, __int64 Value);
+	static void SetMacroConst(int ConstIndex, long long Value);
 	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS Flags, DWORD AKey = 0);
 
 	intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);

@@ -110,7 +110,7 @@ void xlat_initialize()
 	}
 }
 
-wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned __int64 Flags)
+wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 {
 	const auto& XLat = Global->Opt->XLat;
 

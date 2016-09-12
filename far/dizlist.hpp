@@ -45,7 +45,7 @@ public:
 	void Set(const string& Name, const string& ShortName, const string& DizText);
 	bool Erase(const string& Name, const string& ShortName);
 
-	const wchar_t* Get(const string& Name, const string& ShortName, const __int64 FileSize) const;
+	const wchar_t* Get(const string& Name, const string& ShortName, const long long FileSize) const;
 
 	void Reset();
 	bool Flush(const string& Path, const string *DizName=nullptr);
@@ -55,7 +55,7 @@ public:
 private:
 	struct hasher { size_t operator()(const string& Key) const; };
 	struct key_equal { bool operator()(const string& a, const string& b) const; };
-	typedef std::unordered_multimap<string, std::list<string>, hasher, key_equal> desc_map;
+	using desc_map = std::unordered_multimap<string, std::list<string>, hasher, key_equal>;
 
 	desc_map::iterator Insert(const string& Name);
 	desc_map::iterator Find(const string& Name, const string& ShortName);

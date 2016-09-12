@@ -5,10 +5,6 @@
       <UniqueIdentifier>{ee8269df-ee5e-4cb1-b5e2-41705afcbbb0}</UniqueIdentifier>
       <Extensions>m4</Extensions>
     </Filter>
-    <Filter Include="Generated Files">
-      <UniqueIdentifier>{f8a0dd65-1b22-4c9a-b42c-418fb7254f7b}</UniqueIdentifier>
-      <SourceControlFiles>False</SourceControlFiles>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{0d74ff07-ebff-40b7-839c-6953ed4c6e2e}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl</Extensions>
@@ -23,10 +19,6 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{4899c339-df6a-472f-863a-80899a0de10f}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
-    </Filter>
-    <Filter Include="Generated Files\API">
-      <UniqueIdentifier>{924a87c5-4f04-4527-8f62-82592f9fe4e3}</UniqueIdentifier>
-      <SourceControlFiles>False</SourceControlFiles>
     </Filter>
     <Filter Include="Header Files\common">
       <UniqueIdentifier>{ca030415-47e9-45af-a4e4-d9f85f7b220e}</UniqueIdentifier>
@@ -872,15 +864,6 @@
     <ClInclude Include="vmenu2.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\DlgBuilder.hpp">
-      <Filter>Generated Files\API</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\farcolor.hpp">
-      <Filter>Generated Files\API</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\plugin.hpp">
-      <Filter>Generated Files\API</Filter>
-    </ClInclude>
     <ClInclude Include="common\algorithm.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -979,24 +962,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bootstrap\lang.inc">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="bootstrap\far.rc.inc">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="bootstrap\Far.exe.manifest">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="bootstrap\copyright.inc">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="bootstrap\farversion.inc">
-      <Filter>Generated Files</Filter>
-    </None>
-    <None Include="bootstrap\lang.ini">
-      <Filter>Generated Files</Filter>
-    </None>
     <None Include="Far.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -1023,9 +988,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="bootstrap\farlang.templ">
-      <Filter>Generated Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="copyright.inc.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>

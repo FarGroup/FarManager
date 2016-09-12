@@ -62,7 +62,7 @@ namespace detail
 	class event_handler: public i_event_handler
 	{
 	public:
-		typedef std::function<void()> handler_type;
+		using handler_type = std::function<void()>;
 
 		event_handler(const handler_type& Handler):
 			m_Handler(Handler)
@@ -81,7 +81,7 @@ namespace detail
 	class parametrized_event_handler: public i_event_handler
 	{
 	public:
-		typedef std::function<void(const any&)> handler_type;
+		using handler_type = std::function<void(const any&)>;
 
 		parametrized_event_handler(const handler_type& Handler):
 			m_Handler(Handler)
@@ -101,7 +101,7 @@ namespace detail
 class message_manager: noncopyable
 {
 public:
-	typedef std::multimap<string, const detail::i_event_handler*> handlers_map;
+	using handlers_map = std::multimap<string, const detail::i_event_handler*>;
 
 	handlers_map::iterator subscribe(event_id EventId, const detail::i_event_handler& EventHandler);
 	handlers_map::iterator subscribe(const string& EventName, const detail::i_event_handler& EventHandler);
@@ -123,7 +123,7 @@ public:
 private:
 	friend message_manager& MessageManager();
 
-	typedef SyncedQueue<std::pair<string, any>> message_queue;
+	using message_queue = SyncedQueue<std::pair<string, any>>;
 
 	message_manager();
 
@@ -159,7 +159,7 @@ namespace detail
 	};
 }
 
-typedef detail::listener_t<detail::event_handler> listener;
-typedef detail::listener_t<detail::parametrized_event_handler> listener_ex;
+using listener = detail::listener_t<detail::event_handler>;
+using listener_ex = detail::listener_t<detail::parametrized_event_handler>;
 
 #endif // NOTIFICATION_HPP_B0BB0D31_61E8_49C3_AA4F_E8C1D7D71A25

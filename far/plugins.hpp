@@ -70,7 +70,7 @@ enum OPENFILEPLUGINTYPE: int
 };
 
 // параметры вызова макрофункций plugin.call и т.п.
-typedef unsigned int CALLPLUGINFLAGS;
+using CALLPLUGINFLAGS = unsigned int;
 static const CALLPLUGINFLAGS
 	CPT_MENU        = 0x00000001L,
 	CPT_CONFIGURE   = 0x00000002L,
@@ -127,11 +127,11 @@ public:
 	void LoadPlugins();
 
 private:
-	typedef std::multiset<Plugin*, plugin_less> plugins_set;
+	using plugins_set = std::multiset<Plugin*, plugin_less>;
 
 public:
-	typedef Plugin* value_type;
-	typedef plugins_set::const_iterator iterator;
+	using value_type = Plugin*;
+	using iterator = plugins_set::const_iterator;
 
 	iterator begin() const { return SortedPlugins.cbegin(); }
 	iterator end() const { return SortedPlugins.cend(); }

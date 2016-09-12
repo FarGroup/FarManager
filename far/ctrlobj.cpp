@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "desktop.hpp"
 #include "colormix.hpp"
+#include "scrbuf.hpp"
 
 ControlObject::ControlObject()
 {
@@ -86,10 +87,10 @@ void ControlObject::Init(int DirCount)
 
 	Global->WindowManager->InsertWindow(FPanels); // before PluginCommit()
 
-	const auto strOldTitle = Console().GetTitle();
+	const auto strOldTitle = Global->ScrBuf->GetTitle();
 	Global->WindowManager->PluginCommit();
 	Plugins->LoadPlugins();
-	Console().SetTitle(strOldTitle);
+	Global->ScrBuf->SetTitle(strOldTitle);
 
 	FPanels->LeftPanel()->Update(0);
 	FPanels->RightPanel()->Update(0);

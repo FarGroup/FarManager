@@ -502,7 +502,7 @@ bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBy
 	return Result;
 }
 
-bool file::SetPointer(int64_t DistanceToMove, uint64_t* NewFilePointer, DWORD MoveMethod)
+bool file::SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod)
 {
 	const auto OldPointer = Pointer;
 	switch (MoveMethod)
@@ -515,7 +515,7 @@ bool file::SetPointer(int64_t DistanceToMove, uint64_t* NewFilePointer, DWORD Mo
 		break;
 	case FILE_END:
 		{
-			uint64_t Size = 0;
+			unsigned long long Size = 0;
 			GetSize(Size);
 			Pointer = Size+DistanceToMove;
 		}
@@ -632,7 +632,7 @@ void file::Close()
 bool file::Eof() const
 {
 	const auto Ptr = GetPointer();
-	uint64_t Size=0;
+	unsigned long long Size=0;
 	GetSize(Size);
 	return Ptr >= Size;
 }
@@ -1197,7 +1197,7 @@ int GetFileTypeByName(const string& Name)
 	return FILE_TYPE_UNKNOWN;
 }
 
-bool GetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
+bool GetDiskSize(const string& Path,unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree)
 {
 	NTPath strPath(Path);
 	AddEndSlash(strPath);
@@ -1926,7 +1926,7 @@ DWORD GetAppPathsRedirectionFlag()
 			return Result;
 		}
 
-		bool GetValue(const key& Key, const wchar_t* Name, uint64_t& Value)
+		bool GetValue(const key& Key, const wchar_t* Name, unsigned long long& Value)
 		{
 			bool Result = false;
 			std::vector<char> Buffer;
@@ -1960,12 +1960,12 @@ DWORD GetAppPathsRedirectionFlag()
 			return Result;
 		}
 
-		uint64_t value::GetUnsigned64() const
+		unsigned long long value::GetUnsigned64() const
 		{
 			if (m_Type != REG_QWORD)
 				throw MAKE_FAR_EXCEPTION("bad value type");
 
-			uint64_t Result = 0;
+			unsigned long long Result = 0;
 			GetValue(*m_Key, m_Name.data(), Result);
 			return Result;
 		}

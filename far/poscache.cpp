@@ -61,7 +61,7 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 
 	bool ret = false;
 
-	unsigned __int64 id = 0;
+	unsigned long long id = 0;
 
 	if (Global->Opt->EdOpt.SavePos)
 		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
@@ -91,7 +91,7 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	unsigned __int64 id = 0;
+	unsigned long long id = 0;
 
 	if (Global->Opt->EdOpt.SavePos || Global->Opt->EdOpt.SaveShortPos)
 		id = ConfigProvider().HistoryCfg()->GetEditorPos(strFullName, &poscache.cur.Line, &poscache.cur.LinePos, &poscache.cur.ScreenLine, &poscache.cur.LeftPos, &poscache.CodePage);
@@ -128,7 +128,7 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
 
 	bool ret = false;
-	unsigned __int64 id = 0;
+	unsigned long long id = 0;
 
 	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
 		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName,
@@ -162,7 +162,7 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	unsigned __int64 id = 0;
+	unsigned long long id = 0;
 
 	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode || Global->Opt->ViOpt.SaveShortPos)
 		id = ConfigProvider().HistoryCfg()->GetViewerPos(strFullName, &poscache.cur.FilePos, &poscache.cur.LeftPos, &poscache.ViewModeAndWrapState, &poscache.CodePage);

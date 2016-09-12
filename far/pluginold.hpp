@@ -1431,8 +1431,8 @@ PACK_PUSH(2)
 	typedef int (WINAPI *FARSTDGETFILEOWNER)(const char *Computer,const char *Name,char *Owner);
 	typedef int (WINAPI *FARSTDGETNUMBEROFLINKS)(const char *Name);
 	typedef int (WINAPI *FARSTDATOI)(const char *s);
-	typedef __int64(WINAPI *FARSTDATOI64)(const char *s);
-	typedef char   *(WINAPI *FARSTDITOA64)(__int64 value, char *string, int radix);
+	typedef long long(WINAPI *FARSTDATOI64)(const char *s);
+	typedef char   *(WINAPI *FARSTDITOA64)(long long value, char *string, int radix);
 	typedef char   *(WINAPI *FARSTDITOA)(int value, char *string, int radix);
 	typedef char   *(WINAPI *FARSTDLTRIM)(char *Str);
 	typedef char   *(WINAPI *FARSTDRTRIM)(char *Str);

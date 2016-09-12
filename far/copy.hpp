@@ -50,7 +50,7 @@ class ShellCopy: noncopyable
 public:
 	ShellCopy(panel_ptr SrcPanel, int Move, int Link, int CurrentOnly, int Ask, int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir = false);
 	~ShellCopy();
-	DWORD CopyProgressRoutine(uint64_t TotalFileSize, uint64_t TotalBytesTransferred, uint64_t StreamSize, uint64_t StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile);
+	DWORD CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile);
 
 private:
 	COPY_CODES CopyFileTree(const string&  Dest);

@@ -91,7 +91,7 @@ protected:
 		const wchar_t *GetColText(int Col) const;
 		const char *GetColTextUTF8(int Col) const;
 		int GetColInt(int Col) const;
-		unsigned __int64 GetColInt64(int Col) const;
+		unsigned long long GetColInt64(int Col) const;
 		blob_view GetColBlob(int Col) const;
 		column_type GetColType(int Col) const;
 
@@ -99,13 +99,13 @@ protected:
 		auto& Bind() { return *this; }
 
 		SQLiteStmt& BindImpl(int Value);
-		SQLiteStmt& BindImpl(__int64 Value);
+		SQLiteStmt& BindImpl(long long Value);
 		SQLiteStmt& BindImpl(const wchar_t* Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(const string& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(string&& Value);
 		SQLiteStmt& BindImpl(const blob_view& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
-		SQLiteStmt& BindImpl(unsigned __int64 Value) { return BindImpl(static_cast<__int64>(Value)); }
+		SQLiteStmt& BindImpl(unsigned long long Value) { return BindImpl(static_cast<long long>(Value)); }
 		template<class T>
 		SQLiteStmt& BindImpl(const transient_t<T>& Value) { return BindImpl(Value.m_Value, false); }
 
@@ -121,7 +121,7 @@ protected:
 
 	using auto_statement = std::unique_ptr<SQLiteStmt, statement_reset>;
 
-	typedef std::pair<size_t, const wchar_t*> stmt_init_t;
+	using stmt_init_t = std::pair<size_t, const wchar_t*>;
 
 	template<class T>
 	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
@@ -141,7 +141,7 @@ protected:
 	bool SetWALJournalingMode() const;
 	bool EnableForeignKeysConstraints() const;
 	bool Changes() const;
-	unsigned __int64 LastInsertRowID() const;
+	unsigned long long LastInsertRowID() const;
 
 	virtual bool BeginTransaction() override;
 	virtual bool EndTransaction() override;
@@ -162,7 +162,7 @@ private:
 	bool PrepareStatements(const stmt_init_t* Init, size_t Size);
 
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };
-	typedef std::unique_ptr<sqlite::sqlite3, db_closer> database_ptr;
+	using database_ptr = std::unique_ptr<sqlite::sqlite3, db_closer>;
 
 	// must be destroyed last
 	database_ptr m_Db;

@@ -49,8 +49,8 @@ public:
 	void SetScanName(const string& Name);
 	void SetNames(const string& Src, const string& Dst);
 	void SetProgressValue(UINT64 CompletedSize, UINT64 TotalSize);
-	void UpdateCurrentBytesInfo(uint64_t NewValue);
-	void UpdateAllBytesInfo(uint64_t FileSize);
+	void UpdateCurrentBytesInfo(unsigned long long NewValue);
+	void UpdateAllBytesInfo(unsigned long long FileSize);
 
 private:
 	bool CheckEsc();
@@ -61,7 +61,7 @@ private:
 	void SetCurrentProgress(UINT64 CompletedSize, UINT64 TotalSize);
 	void SetTotalProgress(UINT64 CompletedSize, UINT64 TotalSize);
 	void UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo);
-	uint64_t GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
+	unsigned long long GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
 	static size_t GetCanvasWidth();
 
 	clock_t m_CopyStartTime;
@@ -105,10 +105,10 @@ public:
 
 	struct
 	{
-		uint64_t Total;
-		uint64_t Copied;
-		uint64_t Skipped;
-		uint64_t CurrCopied;
+		unsigned long long Total;
+		unsigned long long Copied;
+		unsigned long long Skipped;
+		unsigned long long CurrCopied;
 	}
 	m_Bytes;
 };

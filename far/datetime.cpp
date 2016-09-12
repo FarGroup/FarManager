@@ -606,7 +606,7 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	// преобразование в "удобоваримый" формат
 	if (bRelative)
 	{
-		uint64_t time;
+		unsigned long long time;
 		time = st.wMilliseconds;
 		time += (UINT64)st.wSecond * 1000;
 		time += (UINT64)st.wMinute * 1000 * 60;

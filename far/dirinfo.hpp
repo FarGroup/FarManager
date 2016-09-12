@@ -68,9 +68,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 
 struct PluginHandle;
 
-int GetPluginDirInfo(PluginHandle* hPlugin,const string& DirName,unsigned long &DirCount,
-                     unsigned long &FileCount,unsigned __int64 &FileSize,
-                     unsigned __int64 &CompressedFileSize);
+int GetPluginDirInfo(PluginHandle* hPlugin,const string& DirName, unsigned long& DirCount, unsigned long& FileCount,unsigned long long& FileSize, unsigned long long& CompressedFileSize);
 
 int GetPluginDirList(class Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, std::vector<PluginPanelItem>& Items);
 void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items);

@@ -135,7 +135,7 @@ protected:
 	struct private_tag {};
 
 public:
-	typedef std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)> dialog_handler;
+	using dialog_handler = std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)>;
 
 	template<class T, class O>
 	static dialog_ptr create(T&& Src, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), O* object, void* InitParam = nullptr)
@@ -163,7 +163,7 @@ public:
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) override;
+	virtual long long VMProcess(int OpCode, void *vParam=nullptr, long long iParam = 0) override;
 	virtual void Show() override;
 	virtual void Hide() override;
 	virtual void SetExitCode(int Code) override;
@@ -237,7 +237,7 @@ private:
 
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override;
-	typedef std::unordered_set<Dialog*> dialogs_set;
+	using dialogs_set = std::unordered_set<Dialog*>;
 	static dialogs_set& DialogsList();
 	void AddToList();
 	void RemoveFromList();

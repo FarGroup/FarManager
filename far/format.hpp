@@ -47,22 +47,22 @@ namespace fmt
 		static const T DefaultValue = Default;
 	};
 
-	typedef ManipulatorTemplate<size_t, 0> MinWidth;
-	typedef ManipulatorTemplate<size_t, static_cast<size_t>(-1)> MaxWidth;
-	typedef ManipulatorTemplate<size_t, 1 /*any*/> ExactWidth;
-	typedef ManipulatorTemplate<wchar_t, L' '> FillChar;
-	typedef ManipulatorTemplate<int, 10> Radix;
+	using MinWidth = ManipulatorTemplate<size_t, 0>;
+	using MaxWidth = ManipulatorTemplate<size_t, static_cast<size_t>(-1)>;
+	using ExactWidth = ManipulatorTemplate<size_t, 1 /*any*/>;
+	using FillChar = ManipulatorTemplate<wchar_t, L' '>;
+	using Radix = ManipulatorTemplate<int, 10>;
 
 	enum AlignType
 	{
 		A_LEFT,
 		A_RIGHT,
 	};
-	typedef ManipulatorTemplate<AlignType, A_RIGHT> Align;
+	using Align = ManipulatorTemplate<AlignType, A_RIGHT>;
 
 	template<AlignType T>class SimpleAlign {};
-	typedef SimpleAlign<A_LEFT> LeftAlign;
-	typedef SimpleAlign<A_RIGHT> RightAlign;
+	using LeftAlign = SimpleAlign<A_LEFT>;
+	using RightAlign = SimpleAlign<A_RIGHT>;
 
 	class Flush {};
 };

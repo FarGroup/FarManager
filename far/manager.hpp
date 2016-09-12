@@ -72,20 +72,20 @@ public:
 
 	// Эти функции можно безопасно вызывать практически из любого места кода
 	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
-	void InsertWindow(window_ptr_ref NewWindow);
-	void DeleteWindow(window_ptr_ref Deleted = nullptr);
-	void ActivateWindow(window_ptr_ref Activated);
-	void RefreshWindow(window_ptr_ref Refreshed = nullptr);
-	void ReplaceWindow(window_ptr_ref Old, window_ptr_ref New);
+	void InsertWindow(const window_ptr& NewWindow);
+	void DeleteWindow(const window_ptr& Deleted = nullptr);
+	void ActivateWindow(const window_ptr& Activated);
+	void RefreshWindow(const window_ptr& Refreshed = nullptr);
+	void ReplaceWindow(const window_ptr& Old, const window_ptr& New);
 	void ModalDesktopWindow();
 	void UnModalDesktopWindow();
 	void CallbackWindow(const std::function<void(void)>& Callback);
 	//! Функции для запуска модальных окон.
-	void ExecuteWindow(window_ptr_ref Executed);
+	void ExecuteWindow(const window_ptr& Executed);
 	//! Входит в новый цикл обработки событий
-	void ExecuteModal(window_ptr_ref Executed);
+	void ExecuteModal(const window_ptr& Executed);
 	//! Запускает немодальное окно в модальном режиме
-	void ExecuteNonModal(window_ptr_ref NonModal);
+	void ExecuteNonModal(const window_ptr& NonModal);
 	void RefreshAll();
 	void CloseAll();
 	/* $ 29.12.2000 IS
@@ -112,7 +112,7 @@ public:
 	void SwitchToPanels();
 	window_ptr GetCurrentWindow() const { return m_windows.empty() ? nullptr : m_windows.back(); }
 	window_ptr GetWindow(size_t Index) const;
-	int IndexOf(window_ptr_ref Window) const;
+	int IndexOf(const window_ptr& Window) const;
 	window_ptr GetBottomWindow() { return m_NonModalSize ? m_windows[m_NonModalSize - 1] : nullptr; }
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
@@ -137,9 +137,9 @@ public:
 private:
 	struct window_comparer
 	{
-		bool operator()(window_ptr_ref lhs, window_ptr_ref rhs) const;
+		bool operator()(const window_ptr& lhs, const window_ptr& rhs) const;
 	};
-	typedef std::set<window_ptr, window_comparer> sorted_windows;
+	using sorted_windows = std::set<window_ptr, window_comparer>;
 	sorted_windows GetSortedWindows(void) const;
 
 #if defined(SYSLOG)
@@ -153,27 +153,27 @@ private:
 	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
 	// Функции, "подмастерья начальника" - Commit'a
 	// Иногда вызываются не только из него и из других мест
-	void InsertCommit(window_ptr_ref Param);
-	void DeleteCommit(window_ptr_ref Param);
-	void ActivateCommit(window_ptr_ref Param);
-	void DoActivation(window_ptr_ref Old, window_ptr_ref New);
-	void RefreshCommit(window_ptr_ref Param);
-	void DeactivateCommit(window_ptr_ref Param);
-	void ExecuteCommit(window_ptr_ref Param);
-	void ReplaceCommit(window_ptr_ref Old, window_ptr_ref New);
-	void ModalDesktopCommit(window_ptr_ref Param);
-	void UnModalDesktopCommit(window_ptr_ref Param);
+	void InsertCommit(const window_ptr& Param);
+	void DeleteCommit(const window_ptr& Param);
+	void ActivateCommit(const window_ptr& Param);
+	void DoActivation(const window_ptr& Old, const window_ptr& New);
+	void RefreshCommit(const window_ptr& Param);
+	void DeactivateCommit(const window_ptr& Param);
+	void ExecuteCommit(const window_ptr& Param);
+	void ReplaceCommit(const window_ptr& Old, const window_ptr& New);
+	void ModalDesktopCommit(const window_ptr& Param);
+	void UnModalDesktopCommit(const window_ptr& Param);
 	int GetModalExitCode() const;
 
-	using window_callback = void (Manager::*)(window_ptr_ref);
+	using window_callback = void (Manager::*)(const window_ptr&);
 
-	void PushWindow(window_ptr_ref Param, window_callback Callback);
-	void CheckAndPushWindow(window_ptr_ref Param, window_callback Callback);
-	void RedeleteWindow(window_ptr_ref Deleted);
-	bool AddWindow(window_ptr_ref Param);
+	void PushWindow(const window_ptr& Param, window_callback Callback);
+	void CheckAndPushWindow(const window_ptr& Param, window_callback Callback);
+	void RedeleteWindow(const window_ptr& Deleted);
+	bool AddWindow(const window_ptr& Param);
 	void SwitchWindow(DirectionType Direction);
 
-	typedef std::vector<window_ptr> windows;
+	using windows = std::vector<window_ptr>;
 	void* GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const;
 	windows m_windows;
 	size_t m_NonModalSize;

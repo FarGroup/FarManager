@@ -212,7 +212,7 @@ struct filter_file_object
 	int NumberOfLinks;
 };
 
-bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Owner, unsigned __int64 CurrentTime) const
+bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Owner, unsigned long long CurrentTime) const
 {
 	filter_file_object Object;
 	Object.Attributes = fli->FileAttr;
@@ -229,7 +229,7 @@ bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Own
 	});
 }
 
-bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int64 CurrentTime,const string* FullName) const
+bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned long long CurrentTime,const string* FullName) const
 {
 	filter_file_object Object;
 	Object.Attributes = fde.dwFileAttributes;
@@ -246,7 +246,7 @@ bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned __int
 	});
 }
 
-bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime) const
+bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned long long CurrentTime) const
 {
 	filter_file_object Object;
 	Object.Attributes = fd.FileAttributes;
@@ -261,7 +261,7 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 
 	return FileInFilter(Object, CurrentTime, nullptr);
 }
 
-bool FileFilterParams::FileInFilter(filter_file_object& Object, unsigned __int64 CurrentTime, const std::function<void(filter_file_object&)>& Getter) const
+bool FileFilterParams::FileInFilter(filter_file_object& Object, unsigned long long CurrentTime, const std::function<void(filter_file_object&)>& Getter) const
 {
 	// Режим проверки атрибутов файла включен?
 	if (FAttr.Used)

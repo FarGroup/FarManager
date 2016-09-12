@@ -385,7 +385,7 @@ void InfoList::DisplayObject()
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
 		/* #2.2 - disk info: size */
-		unsigned __int64 TotalSize, UserFree;
+		unsigned long long TotalSize, UserFree;
 
 		if (os::GetDiskSize(m_CurDir,&TotalSize, nullptr, &UserFree))
 		{
@@ -579,7 +579,7 @@ void InfoList::DisplayObject()
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
-__int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long InfoList::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	if (DizView)
 		return DizView->VMProcess(OpCode,vParam,iParam);
@@ -785,7 +785,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 
 			if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
 			{
-				__int64 Pos, Length;
+				long long Pos, Length;
 				DWORD Flags;
 				DizView->GetSelectedParam(Pos,Length,Flags);
 				//ShellUpdatePanels(nullptr,FALSE);

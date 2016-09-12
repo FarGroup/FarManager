@@ -69,8 +69,8 @@ struct write_t
 	size_t m_size;
 };
 
-typedef write_t<0> write_max;
-typedef write_t<1> write_exact;
+using write_max = write_t<0>;
+using write_exact = write_t<1>;
 
 inline std::wostream& operator <<(std::wostream& stream, const write_max& p)
 {

@@ -101,7 +101,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 	string strName(Str),strGuid,strFile(NullToEmpty(File)),strData(NullToEmpty(Data));
 	if(Guid) strGuid=GuidToStr(*Guid);
 
-	unsigned __int64 DeleteId = 0;
+	unsigned long long DeleteId = 0;
 
 	const bool ignore_data = m_TypeHistory == HISTORYTYPE_CMD;
 
@@ -111,8 +111,8 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		string strHName,strHGuid,strHFile,strHData;
 		history_record_type HType;
 		bool HLock;
-		unsigned __int64 id;
-		unsigned __int64 Time;
+		unsigned long long id;
+		unsigned long long Time;
 		while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 		{
 			if (EqualType(Type,HType))
@@ -172,7 +172,7 @@ history_return_type History::Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg
 
 history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *pstrData, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, history_record_type &Type, Dialog *Dlg)
 {
-	unsigned __int64 SelectedRecord = 0;
+	unsigned long long SelectedRecord = 0;
 	string strSelectedRecordName,strSelectedRecordGuid,strSelectedRecordFile,strSelectedRecordData;
 	history_record_type SelectedRecordType = HR_DEFAULT;
 	FarListPos Pos={sizeof(FarListPos)};
@@ -194,8 +194,8 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			string strHName,strHGuid,strHFile,strHData;
 			history_record_type HType;
 			bool HLock;
-			unsigned __int64 id;
-			unsigned __int64 Time;
+			unsigned long long id;
+			unsigned long long Time;
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
 			const auto GetTitle = [](auto Type)
@@ -304,7 +304,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
-			const auto CurrentRecordPtr = HistoryMenu.GetUserDataPtr<unsigned __int64>(Pos.SelectPos);
+			const auto CurrentRecordPtr = HistoryMenu.GetUserDataPtr<unsigned long long>(Pos.SelectPos);
 			const auto CurrentRecord = CurrentRecordPtr? *CurrentRecordPtr : 0;
 			int KeyProcessed = 1;
 
@@ -323,8 +323,8 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 						string strHName,strHGuid,strHFile,strHData;
 						history_record_type HType;
 						bool HLock;
-						unsigned __int64 id;
-						unsigned __int64 Time;
+						unsigned long long id;
+						unsigned long long Time;
 						while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 						{
 							if (HLock) // залоченные не трогаем
@@ -483,7 +483,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 		if (MenuExitCode >= 0)
 		{
-			SelectedRecord = *HistoryMenu.GetUserDataPtr<unsigned __int64>(MenuExitCode);
+			SelectedRecord = *HistoryMenu.GetUserDataPtr<unsigned long long>(MenuExitCode);
 
 			if (!SelectedRecord)
 				return HRT_CANCEL;
@@ -584,7 +584,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 
 	int i=0;
 	string strName;
-	unsigned __int64 HistoryItem=HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, strName);
+	unsigned long long HistoryItem=HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, strName);
 	while (HistoryItem != m_CurrentItem)
 	{
 		if (!HistoryItem)
@@ -620,8 +620,8 @@ std::vector<std::tuple<string, unsigned long long, bool>> History::GetAllSimilar
 	string strHName,strHGuid,strHFile,strHData;
 	history_record_type HType;
 	bool HLock;
-	unsigned __int64 id;
-	unsigned __int64 Time;
+	unsigned long long id;
+	unsigned long long Time;
 	while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
 		if (!StrCmpNI(Str.data(),strHName.data(),Length))
@@ -632,7 +632,7 @@ std::vector<std::tuple<string, unsigned long long, bool>> History::GetAllSimilar
 	return Result;
 }
 
-bool History::DeleteIfUnlocked(unsigned __int64 id)
+bool History::DeleteIfUnlocked(unsigned long long id)
 {
 	bool b = false;
 	if (id && !HistoryCfgRef()->IsLocked(id))

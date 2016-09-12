@@ -103,7 +103,7 @@ template<class T>
 class i_iterator: public std::iterator<std::random_access_iterator_tag, T>, public rel_ops<i_iterator<T>>
 {
 public:
-	typedef T value_type;
+	using value_type = T;
 
 	i_iterator(const T& value): m_value(value) {}
 	i_iterator(const i_iterator& rhs): m_value(rhs.m_value) {}

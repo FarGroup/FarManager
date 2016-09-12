@@ -186,7 +186,7 @@ private:
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool SetValue(const string& Key, const string& Name, unsigned __int64 Value) override
+	virtual bool SetValue(const string& Key, const string& Name, unsigned long long Value) override
 	{
 		return SetValueT(Key, Name, Value);
 	}
@@ -925,7 +925,7 @@ private:
 		;
 	}
 
-	virtual bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask) override
+	virtual bool EnumMasks(DWORD Index, unsigned long long *id, string &strMask) override
 	{
 		auto Stmt = AutoStatement(stmtEnumMasks);
 		if (Index == 0)
@@ -940,7 +940,7 @@ private:
 		return true;
 	}
 
-	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned __int64 *id, string &strMask) override
+	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned long long *id, string &strMask) override
 	{
 		auto Stmt = AutoStatement(stmtEnumMasksForType);
 		if (Index == 0)
@@ -955,7 +955,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetMask(unsigned __int64 id, string &strMask) override
+	virtual bool GetMask(unsigned long long id, string &strMask) override
 	{
 		const auto Stmt = AutoStatement(stmtGetMask);
 		if (!Stmt->Bind(id).Step())
@@ -965,7 +965,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetDescription(unsigned __int64 id, string &strDescription) override
+	virtual bool GetDescription(unsigned long long id, string &strDescription) override
 	{
 		const auto Stmt = AutoStatement(stmtGetDescription);
 		if (!Stmt->Bind(id).Step())
@@ -975,7 +975,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetCommand(unsigned __int64 id, int Type, string &strCommand, bool *Enabled = nullptr) override
+	virtual bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled = nullptr) override
 	{
 		const auto Stmt = AutoStatement(stmtGetCommand);
 		if (!Stmt->Bind(id, Type).Step())
@@ -987,12 +987,12 @@ private:
 		return true;
 	}
 
-	virtual bool SetCommand(unsigned __int64 id, int Type, const string& Command, bool Enabled) override
+	virtual bool SetCommand(unsigned long long id, int Type, const string& Command, bool Enabled) override
 	{
 		return AutoStatement(stmtSetCommand)->Bind(id, Type, Enabled, Command).FinalStep();
 	}
 
-	virtual bool SwapPositions(unsigned __int64 id1, unsigned __int64 id2) override
+	virtual bool SwapPositions(unsigned long long id1, unsigned long long id2) override
 	{
 		const auto Stmt = AutoStatement(stmtGetWeight);
 		if (!Stmt->Bind(id1).Step())
@@ -1008,17 +1008,17 @@ private:
 		return AutoStatement(stmtSetWeight)->Bind(weight1, id2).FinalStep() && AutoStatement(stmtSetWeight)->Bind(weight2, id1).FinalStep();
 	}
 
-	virtual unsigned __int64 AddType(unsigned __int64 after_id, const string& Mask, const string& Description) override
+	virtual unsigned long long AddType(unsigned long long after_id, const string& Mask, const string& Description) override
 	{
 		return AutoStatement(stmtReorder)->Bind(after_id).FinalStep() && AutoStatement(stmtAddType)->Bind(after_id, Mask, Description).FinalStep()? LastInsertRowID() : 0;
 	}
 
-	virtual bool UpdateType(unsigned __int64 id, const string& Mask, const string& Description) override
+	virtual bool UpdateType(unsigned long long id, const string& Mask, const string& Description) override
 	{
 		return AutoStatement(stmtUpdateType)->Bind(Mask, Description, id).FinalStep();
 	}
 
-	virtual bool DelType(unsigned __int64 id) override
+	virtual bool DelType(unsigned long long id) override
 	{
 		return AutoStatement(stmtDelType)->Bind(id).FinalStep();
 	}
@@ -1058,7 +1058,7 @@ private:
 
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		Exec("DELETE FROM filetypes;"); //delete all before importing
-		unsigned __int64 id = 0;
+		unsigned long long id = 0;
 		for (const auto& e: xml_enum(base, "filetype"))
 		{
 			const auto mask = e->Attribute("mask");
@@ -1206,12 +1206,12 @@ private:
 	virtual void Import(const representation_source&) override {}
 	virtual void Export(representation_destination&) override {}
 
-	virtual unsigned __int64 CreateCache(const string& CacheName) override
+	virtual unsigned long long CreateCache(const string& CacheName) override
 	{
 		return AutoStatement(stmtCreateCache)->Bind(CacheName).FinalStep()? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned __int64 GetCacheID(const string& CacheName) const override
+	virtual unsigned long long GetCacheID(const string& CacheName) const override
 	{
 		const auto Stmt = AutoStatement(stmtFindCacheName);
 		return Stmt->Bind(CacheName).Step()?
@@ -1225,18 +1225,18 @@ private:
 		return AutoStatement(stmtDelCache)->Bind(CacheName).FinalStep();
 	}
 
-	virtual bool IsPreload(unsigned __int64 id) const override
+	virtual bool IsPreload(unsigned long long id) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetPreloadState);
 		return Stmt->Bind(id).Step() && Stmt->GetColInt(0) != 0;
 	}
 
-	virtual string GetSignature(unsigned __int64 id) const override
+	virtual string GetSignature(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetSignature, id);
 	}
 
-	virtual bool GetExportState(unsigned __int64 id, const wchar_t* ExportName) const override
+	virtual bool GetExportState(unsigned long long id, const wchar_t* ExportName) const override
 	{
 		if (!*ExportName)
 			return false;
@@ -1245,128 +1245,128 @@ private:
 		return Stmt->Bind(id, ExportName).Step() && Stmt->GetColInt(0);
 	}
 
-	virtual string GetGuid(unsigned __int64 id) const override
+	virtual string GetGuid(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetGuid, id);
 	}
 
-	virtual string GetTitle(unsigned __int64 id) const override
+	virtual string GetTitle(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetTitle, id);
 	}
 
-	virtual string GetAuthor(unsigned __int64 id) const override
+	virtual string GetAuthor(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetAuthor, id);
 	}
 
-	virtual string GetDescription(unsigned __int64 id) const override
+	virtual string GetDescription(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetDescription, id);
 	}
 
-	virtual bool GetMinFarVersion(unsigned __int64 id, VersionInfo *Version) const override
+	virtual bool GetMinFarVersion(unsigned long long id, VersionInfo *Version) const override
 	{
 		return GetVersionImpl(stmtGetMinFarVersion, id, Version);
 	}
 
-	virtual bool GetVersion(unsigned __int64 id, VersionInfo *Version) const override
+	virtual bool GetVersion(unsigned long long id, VersionInfo *Version) const override
 	{
 		return GetVersionImpl(stmtGetVersion, id, Version);
 	}
 
-	virtual bool GetDiskMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const override
+	virtual bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const override
+	virtual bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, GUID& Guid) const override
+	virtual bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, GUID& Guid) const override
 	{
 		return GetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
-	virtual string GetCommandPrefix(unsigned __int64 id) const override
+	virtual string GetCommandPrefix(unsigned long long id) const override
 	{
 		return GetTextFromID(stmtGetPrefix, id);
 	}
 
-	virtual unsigned __int64 GetFlags(unsigned __int64 id) const override
+	virtual unsigned long long GetFlags(unsigned long long id) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetFlags);
 		return Stmt->Bind(id).Step()? Stmt->GetColInt64(0) : 0;
 	}
 
-	virtual bool SetPreload(unsigned __int64 id, bool Preload) override
+	virtual bool SetPreload(unsigned long long id, bool Preload) override
 	{
 		return AutoStatement(stmtSetPreloadState)->Bind(id, Preload).FinalStep();
 	}
 
-	virtual bool SetSignature(unsigned __int64 id, const string& Signature) override
+	virtual bool SetSignature(unsigned long long id, const string& Signature) override
 	{
 		return AutoStatement(stmtSetSignature)->Bind(id, Signature).FinalStep();
 	}
 
-	virtual bool SetDiskMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) override
+	virtual bool SetDiskMenuItem(unsigned long long id, size_t index, const string& Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) override
+	virtual bool SetPluginsMenuItem(unsigned long long id, size_t index, const string& Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const string& Text, const GUID& Guid) override
+	virtual bool SetPluginsConfigMenuItem(unsigned long long id, size_t index, const string& Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetCommandPrefix(unsigned __int64 id, const string& Prefix) override
+	virtual bool SetCommandPrefix(unsigned long long id, const string& Prefix) override
 	{
 		return AutoStatement(stmtSetPrefix)->Bind(id, Prefix).FinalStep();
 	}
 
-	virtual bool SetFlags(unsigned __int64 id, unsigned __int64 Flags) override
+	virtual bool SetFlags(unsigned long long id, unsigned long long Flags) override
 	{
 		return AutoStatement(stmtSetFlags)->Bind(id, Flags).FinalStep();
 	}
 
-	virtual bool SetExportState(unsigned __int64 id, const wchar_t* ExportName, bool Exists) override
+	virtual bool SetExportState(unsigned long long id, const wchar_t* ExportName, bool Exists) override
 	{
 		return *ExportName && AutoStatement(stmtSetExportState)->Bind(id, ExportName, Exists).FinalStep();
 	}
 
-	virtual bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version) override
+	virtual bool SetMinFarVersion(unsigned long long id, const VersionInfo *Version) override
 	{
 		return AutoStatement(stmtSetMinFarVersion)->Bind(id, make_blob_view(*Version)).FinalStep();
 	}
 
-	virtual bool SetVersion(unsigned __int64 id, const VersionInfo *Version) override
+	virtual bool SetVersion(unsigned long long id, const VersionInfo *Version) override
 	{
 		return AutoStatement(stmtSetVersion)->Bind(id, make_blob_view(*Version)).FinalStep();
 	}
 
-	virtual bool SetGuid(unsigned __int64 id, const string& Guid) override
+	virtual bool SetGuid(unsigned long long id, const string& Guid) override
 	{
 		return AutoStatement(stmtSetGuid)->Bind(id, Guid).FinalStep();
 	}
 
-	virtual bool SetTitle(unsigned __int64 id, const string& Title) override
+	virtual bool SetTitle(unsigned long long id, const string& Title) override
 	{
 		return AutoStatement(stmtSetTitle)->Bind(id, Title).FinalStep();
 	}
 
-	virtual bool SetAuthor(unsigned __int64 id, const string& Author) override
+	virtual bool SetAuthor(unsigned long long id, const string& Author) override
 	{
 		return AutoStatement(stmtSetAuthor)->Bind(id, Author).FinalStep();
 	}
 
-	virtual bool SetDescription(unsigned __int64 id, const string& Description) override
+	virtual bool SetDescription(unsigned long long id, const string& Description) override
 	{
 		return AutoStatement(stmtSetDescription)->Bind(id, Description).FinalStep();
 	}
@@ -1398,7 +1398,7 @@ private:
 		DRIVE_MENU
 	};
 
-	bool GetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, string &Text, GUID& Guid) const
+	bool GetMenuItem(unsigned long long id, MenuItemTypeEnum type, size_t index, string &Text, GUID& Guid) const
 	{
 		const auto Stmt = AutoStatement(stmtGetMenuItem);
 		if (!Stmt->Bind(id, type, index).Step())
@@ -1408,18 +1408,18 @@ private:
 		return StrToGuid(Stmt->GetColText(1), Guid);
 	}
 
-	bool SetMenuItem(unsigned __int64 id, MenuItemTypeEnum type, size_t index, const string& Text, const GUID& Guid) const
+	bool SetMenuItem(unsigned long long id, MenuItemTypeEnum type, size_t index, const string& Text, const GUID& Guid) const
 	{
 		return AutoStatement(stmtSetMenuItem)->Bind(id, type, index, GuidToStr(Guid), Text).FinalStep();
 	}
 
-	string GetTextFromID(size_t StatementIndex, unsigned __int64 id) const
+	string GetTextFromID(size_t StatementIndex, unsigned long long id) const
 	{
 		auto Stmt = AutoStatement(StatementIndex);
 		return Stmt->Bind(id).Step()? Stmt->GetColText(0) : string{};
 	}
 
-	bool GetVersionImpl(size_t StatementIndex, unsigned __int64 id, VersionInfo *Version) const
+	bool GetVersionImpl(size_t StatementIndex, unsigned long long id, VersionInfo *Version) const
 	{
 		const auto Stmt = AutoStatement(StatementIndex);
 		if (!Stmt->Bind(id).Step())
@@ -1621,7 +1621,7 @@ public:
 	}
 
 private:
-	static uint64_t DaysToUI64(int Days)
+	static unsigned long long DaysToUI64(int Days)
 	{
 		return Days * 24ull * 60ull * 60ull * 10000000ull;
 	}
@@ -1635,7 +1635,7 @@ private:
 
 	struct AsyncWorkItem
 	{
-		unsigned __int64 DeleteId;
+		unsigned long long DeleteId;
 		unsigned int TypeHistory;
 		string HistoryName;
 		string strName;
@@ -1714,12 +1714,12 @@ private:
 		return AutoStatement(stmtAdd)->Bind(TypeHistory, HistoryName, Type, Lock, Name, GetCurrentUTCTimeInUI64(), strGuid, strFile, strData).FinalStep();
 	}
 
-	bool DeleteInternal(unsigned __int64 id) const
+	bool DeleteInternal(unsigned long long id) const
 	{
 		return AutoStatement(stmtDel)->Bind(id).FinalStep();
 	}
 
-	unsigned long long GetPrevImpl(unsigned int TypeHistory, const string& HistoryName, unsigned __int64 id, string& Name, const std::function<unsigned long long()>& Fallback)
+	unsigned long long GetPrevImpl(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string& Name, const std::function<unsigned long long()>& Fallback) const
 	{
 		WaitAllAsync();
 		Name.clear();
@@ -1813,13 +1813,13 @@ private:
 		;
 	}
 
-	virtual bool Delete(unsigned __int64 id) override
+	virtual bool Delete(unsigned long long id) override
 	{
 		WaitAllAsync();
 		return DeleteInternal(id);
 	}
 
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string& HistoryName, unsigned __int64 *id, string &Name, history_record_type* Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse = false) override
+	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string& HistoryName, unsigned long long *id, string &Name, history_record_type* Type, bool *Lock, unsigned long long *Time, string &strGuid, string &strFile, string &strData, bool Reverse = false) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
@@ -1842,7 +1842,7 @@ private:
 		return true;
 	}
 
-	virtual bool DeleteAndAddAsync(unsigned __int64 DeleteId, unsigned int TypeHistory, const string& HistoryName, string Name, int Type, bool Lock, string &strGuid, string &strFile, string &strData) override
+	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string& HistoryName, string Name, int Type, bool Lock, string &strGuid, string &strFile, string &strData) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
@@ -1896,7 +1896,7 @@ private:
 		return true;
 	}
 
-	virtual bool Get(unsigned __int64 id, string& Name) override
+	virtual bool Get(unsigned long long id, string& Name) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetName);
@@ -1907,7 +1907,7 @@ private:
 		return true;
 	}
 
-	virtual bool Get(unsigned __int64 id, string& Name, history_record_type& Type, string &strGuid, string &strFile, string &strData) override
+	virtual bool Get(unsigned long long id, string& Name, history_record_type& Type, string &strGuid, string &strFile, string &strData) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetNameAndType);
@@ -1929,13 +1929,13 @@ private:
 		return Stmt->Bind(TypeHistory, HistoryName).Step()? static_cast<DWORD>(Stmt-> GetColInt(0)) : 0;
 	}
 
-	virtual bool FlipLock(unsigned __int64 id) override
+	virtual bool FlipLock(unsigned long long id) override
 	{
 		WaitAllAsync();
 		return AutoStatement(stmtSetLock)->Bind(!IsLocked(id), id).FinalStep();
 	}
 
-	virtual bool IsLocked(unsigned __int64 id) override
+	virtual bool IsLocked(unsigned long long id) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetLock);
@@ -1948,7 +1948,7 @@ private:
 		return AutoStatement(stmtDelUnlocked)->Bind(TypeHistory, HistoryName).FinalStep();
 	}
 
-	virtual unsigned __int64 GetNext(unsigned int TypeHistory, const string& HistoryName, unsigned __int64 id, string& Name) override
+	virtual unsigned long long GetNext(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string& Name) override
 	{
 		WaitAllAsync();
 		Name.clear();
@@ -1964,23 +1964,23 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	virtual unsigned __int64 GetPrev(unsigned int TypeHistory, const string& HistoryName, unsigned __int64 id, string& Name) override
+	virtual unsigned long long GetPrev(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string& Name) override
 	{
 		return GetPrevImpl(TypeHistory, HistoryName, id, Name, [&]() { return Get(id, Name)? id : 0; });
 	}
 
-	virtual unsigned __int64 CyclicGetPrev(unsigned int TypeHistory, const string& HistoryName, unsigned __int64 id, string& Name) override
+	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string& Name) override
 	{
 		return GetPrevImpl(TypeHistory, HistoryName, id, Name, [&]() { return 0; });
 	}
 
-	virtual unsigned __int64 SetEditorPos(const string& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) override
+	virtual unsigned long long SetEditorPos(const string& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		return AutoStatement(stmtSetEditorPos)->Bind(Name, GetCurrentUTCTimeInUI64(), Line, LinePos, ScreenLine, LeftPos, (int)CodePage).FinalStep()? LastInsertRowID() : 0;
+		return AutoStatement(stmtSetEditorPos)->Bind(Name, GetCurrentUTCTimeInUI64(), Line, LinePos, ScreenLine, LeftPos, CodePage).FinalStep()? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned __int64 GetEditorPos(const string& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) override
+	virtual unsigned long long GetEditorPos(const string& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetEditorPos);
@@ -1995,13 +1995,13 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	virtual bool SetEditorBookmark(unsigned __int64 id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
+	virtual bool SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
 	{
 		WaitCommitAsync();
 		return AutoStatement(stmtSetEditorBookmark)->Bind(id, i, Line, LinePos, ScreenLine, LeftPos).FinalStep();
 	}
 
-	virtual bool GetEditorBookmark(unsigned __int64 id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
+	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetEditorBookmark);
@@ -2015,13 +2015,13 @@ private:
 		return true;
 	}
 
-	virtual unsigned __int64 SetViewerPos(const string& Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, uintptr_t CodePage) override
+	virtual unsigned long long SetViewerPos(const string& Name, long long FilePos, long long LeftPos, int Hex_Wrap, uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
 		return AutoStatement(stmtSetViewerPos)->Bind(Name, GetCurrentUTCTimeInUI64(), FilePos, LeftPos, Hex_Wrap, CodePage).FinalStep()? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned __int64 GetViewerPos(const string& Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, uintptr_t *CodePage) override
+	virtual unsigned long long GetViewerPos(const string& Name, long long *FilePos, long long *LeftPos, int *Hex, uintptr_t *CodePage) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetViewerPos);
@@ -2036,13 +2036,13 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	virtual bool SetViewerBookmark(unsigned __int64 id, size_t i, __int64 FilePos, __int64 LeftPos) override
+	virtual bool SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) override
 	{
 		WaitCommitAsync();
 		return AutoStatement(stmtSetViewerBookmark)->Bind(id, i, FilePos, LeftPos).FinalStep();
 	}
 
-	virtual bool GetViewerBookmark(unsigned __int64 id, size_t i, __int64 *FilePos, __int64 *LeftPos) override
+	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetViewerBookmark);

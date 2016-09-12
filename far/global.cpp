@@ -118,7 +118,7 @@ global::~global()
 	Global = nullptr;
 }
 
-uint64_t global::FarUpTime() const
+unsigned long long global::FarUpTime() const
 {
 	return m_FarUpTime.query(os::hp_clock::microseconds);
 }

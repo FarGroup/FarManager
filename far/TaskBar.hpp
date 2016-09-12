@@ -92,7 +92,7 @@ private:
 	TBPFLAG PrevState;
 };
 
-typedef TaskBarState<TBPF_PAUSED> TaskBarPause;
-typedef TaskBarState<TBPF_ERROR> TaskBarError;
+using TaskBarPause = TaskBarState<TBPF_PAUSED>;
+using TaskBarError = TaskBarState<TBPF_ERROR>;
 
 #endif // TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1

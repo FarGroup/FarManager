@@ -467,7 +467,7 @@ int Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 	return RetCode;
 }
 
-__int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
 {
 	switch (OpCode)
 	{

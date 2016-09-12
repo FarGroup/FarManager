@@ -627,7 +627,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	size_t I;
 	FARDIALOGITEMTYPES Type;
 	size_t InitItemCount;
-	unsigned __int64 ItemFlags;
+	unsigned long long ItemFlags;
 	_DIALOG(CleverSysLog CL(L"Dialog::InitDialogObjects()"));
 	bool AllElements = false;
 
@@ -1095,7 +1095,7 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 	if (I >= Items.size())
 		return FALSE;
 
-	unsigned __int64 ItemFlags=Items[I].Flags;
+	unsigned long long ItemFlags=Items[I].Flags;
 	int Type=Items[I].Type;
 	int Len=0;
 	Rect.Left=Items[I].X1;
@@ -2291,7 +2291,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 	return FALSE;
 }
 
-__int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
+long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::VMProcess()"));
 	switch (OpCode)
@@ -2393,7 +2393,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_ITEMCOUNT:
 		case MCODE_V_CURPOS:
 		{
-			__int64 Ret=0;
+			long long Ret=0;
 			switch (Items[m_FocusPos].Type)
 			{
 				case DI_COMBOBOX:
@@ -5797,7 +5797,9 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						if (CurItem->ObjPtr)
 						{
 							const auto EditLine = static_cast<DlgEdit*>(CurItem->ObjPtr);
-							bool ReadOnly=EditLine->GetReadOnly();
+							const auto ReadOnly = EditLine->GetReadOnly();
+							const auto IsUnchanged = EditLine->GetClearFlag();
+
 							EditLine->SetReadOnly(0);
 							{
 								SCOPED_ACTION(SetAutocomplete)(EditLine);
@@ -5805,8 +5807,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							}
 							EditLine->SetReadOnly(ReadOnly);
 
-							if (DialogMode.Check(DMODE_OBJECTS_INITED)) // не меняем clear-флаг, пока не проиницализировались
-								EditLine->SetClearFlag(0);
+							// не меняем clear-флаг, пока не проиницализировались
+							EditLine->SetClearFlag(DialogMode.Check(DMODE_OBJECTS_INITED)? true : IsUnchanged);
 						}
 
 						break;
@@ -6049,7 +6051,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (IsEdit(Type))
 			{
 				const auto EditLine = static_cast<DlgEdit*>(CurItem->ObjPtr);
-				int ClearFlag=EditLine->GetClearFlag();
+				const auto ClearFlag = EditLine->GetClearFlag();
 
 				if (reinterpret_cast<intptr_t>(Param2) >= 0)
 				{

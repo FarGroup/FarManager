@@ -67,7 +67,7 @@ public:
 	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
 	virtual void SetScreenPosition();
 	virtual void ResizeConsole() {};
-	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;}
+	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam=0) {return 0;}
 	virtual void Refresh(void);
 
 	void Redraw();

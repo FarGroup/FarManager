@@ -45,7 +45,7 @@ class VMenu2;
 class EditControl:public Edit
 {
 	struct Callback;
-	typedef std::function<int(const Manager::Key& Key)> parent_processkey_t;
+	using parent_processkey_t = std::function<int(const Manager::Key& Key)>;
 public:
 	EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey = nullptr, Callback* aCallback = nullptr, History* iHistory = nullptr, FarList* iList = nullptr, DWORD iFlags = 0);
 	virtual int ProcessKey(const Manager::Key& Key) override;
@@ -66,7 +66,7 @@ public:
 	virtual int GetMaxLength() const override {return MaxLength;}
 	void SetMaxLength(int Length) {MaxLength=Length;}
 	void SetClearFlag(bool Flag) { m_Flags.Change(FEDITLINE_CLEARFLAG, Flag); }
-	int GetClearFlag() const { return m_Flags.Check(FEDITLINE_CLEARFLAG); }
+	bool GetClearFlag() const { return m_Flags.Check(FEDITLINE_CLEARFLAG); }
 
 	enum ECFLAGS
 	{

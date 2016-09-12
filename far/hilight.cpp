@@ -209,13 +209,13 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	//настройки старых версий фара.
 	if (bSortGroup)
 	{
-		unsigned __int64 UseMask = 1;
+		unsigned long long UseMask = 1;
 		cfg->GetValue(key, HLS.UseMask, UseMask);
 		HData.SetMask(UseMask!=0, Mask);
 	}
 	else
 	{
-		unsigned __int64 IgnoreMask = 0;
+		unsigned long long IgnoreMask = 0;
 		cfg->GetValue(key, HLS.IgnoreMask, IgnoreMask);
 		HData.SetMask(IgnoreMask==0, Mask);
 	}
@@ -224,11 +224,11 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	cfg->GetValue(key,HLS.DateAfter, DateAfter);
 	FILETIME DateBefore = {};
 	cfg->GetValue(key,HLS.DateBefore, DateBefore);
-	unsigned __int64 UseDate = 0;
+	unsigned long long UseDate = 0;
 	cfg->GetValue(key, HLS.UseDate, UseDate);
-	unsigned __int64 DateType = 0;
+	unsigned long long DateType = 0;
 	cfg->GetValue(key, HLS.DateType, DateType);
-	unsigned __int64 DateRelative = 0;
+	unsigned long long DateRelative = 0;
 	cfg->GetValue(key, HLS.DateRelative, DateRelative);
 	HData.SetDate(UseDate!=0, static_cast<enumFDateType>(DateType), DateAfter, DateBefore, DateRelative!=0);
 
@@ -236,35 +236,35 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	cfg->GetValue(key,HLS.SizeAbove,strSizeAbove);
 	string strSizeBelow;
 	cfg->GetValue(key,HLS.SizeBelow,strSizeBelow);
-	unsigned __int64 UseSize = 0;
+	unsigned long long UseSize = 0;
 	cfg->GetValue(key, HLS.UseSize, UseSize);
 	HData.SetSize(UseSize!=0, strSizeAbove, strSizeBelow);
 
-	unsigned __int64 UseHardLinks = 0;
+	unsigned long long UseHardLinks = 0;
 	cfg->GetValue(key, HLS.UseHardLinks, UseHardLinks);
-	unsigned __int64 HardLinksAbove = 0;
+	unsigned long long HardLinksAbove = 0;
 	cfg->GetValue(key, HLS.HardLinksAbove, HardLinksAbove);
-	unsigned __int64 HardLinksBelow = 0;
+	unsigned long long HardLinksBelow = 0;
 	cfg->GetValue(key, HLS.HardLinksBelow, HardLinksBelow);
 	HData.SetHardLinks(UseHardLinks!=0,HardLinksAbove,HardLinksBelow);
 
 	if (bSortGroup)
 	{
-		unsigned __int64 UseAttr = 1;
+		unsigned long long UseAttr = 1;
 		cfg->GetValue(key, HLS.UseAttr, UseAttr);
-		unsigned __int64 AttrSet = 0;
+		unsigned long long AttrSet = 0;
 		cfg->GetValue(key, HLS.AttrSet, AttrSet);
-		unsigned __int64 AttrClear = FILE_ATTRIBUTE_DIRECTORY;
+		unsigned long long AttrClear = FILE_ATTRIBUTE_DIRECTORY;
 		cfg->GetValue(key, HLS.AttrClear, AttrClear);
 		HData.SetAttr(UseAttr!=0, (DWORD)AttrSet, (DWORD)AttrClear);
 	}
 	else
 	{
-		unsigned __int64 UseAttr = 1;
+		unsigned long long UseAttr = 1;
 		cfg->GetValue(key, HLS.UseAttr, UseAttr);
-		unsigned __int64 IncludeAttributes = 0;
+		unsigned long long IncludeAttributes = 0;
 		cfg->GetValue(key, HLS.IncludeAttributes, IncludeAttributes);
-		unsigned __int64 ExcludeAttributes = 0;
+		unsigned long long ExcludeAttributes = 0;
 		cfg->GetValue(key, HLS.ExcludeAttributes, ExcludeAttributes);
 		HData.SetAttr(UseAttr!=0, (DWORD)IncludeAttributes, (DWORD)ExcludeAttributes);
 	}
@@ -281,7 +281,7 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	cfg->GetValue(key,HLS.MarkCharCursorColor, Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].MarkColor);
 	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].MarkColor);
 
-	unsigned __int64 MarkChar;
+	unsigned long long MarkChar;
 	if (cfg->GetValue(key, HLS.MarkChar, MarkChar))
 	{
 		Colors.Mark.Char = LOWORD(MarkChar);
@@ -289,7 +289,7 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	}
 	HData.SetColors(Colors);
 
-	unsigned __int64 ContinueProcessing = 0;
+	unsigned long long ContinueProcessing = 0;
 	cfg->GetValue(key, HLS.ContinueProcessing, ContinueProcessing);
 	HData.SetContinueProcessing(ContinueProcessing!=0);
 }
