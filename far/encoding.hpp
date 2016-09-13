@@ -156,6 +156,7 @@ namespace encoding
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
 
+inline bool IsVirtualCodePage(uintptr_t cp) { return cp == CP_DEFAULT || cp == CP_REDETECT || cp == CP_SET; }
 inline bool IsUnicodeCodePage(uintptr_t cp) { return cp == CP_UNICODE || cp == CP_REVERSEBOM; }
 inline bool IsStandardCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == GetOEMCP() || cp == GetACP(); }
 inline bool IsUnicodeOrUtfCodePage(uintptr_t cp) { return IsUnicodeCodePage(cp) || cp==CP_UTF8 || cp==CP_UTF7; }
@@ -255,6 +256,5 @@ inline wchar_t raw_eol::lf<wchar_t>() const { return L'\n'; }
 using cp_map = std::unordered_map<UINT, std::pair<UINT, string>>;
 const cp_map& InstalledCodepages();
 cp_map::value_type::second_type GetCodePageInfo(UINT cp);
-
 
 #endif // ENCODING_HPP_44AE7032_AF79_4A6F_A2ED_529BC1A38758

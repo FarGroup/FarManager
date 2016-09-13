@@ -766,19 +766,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				{
 					Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 					const auto Src = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param2 ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
-					string strDataStr;
-					if (Param2)
-					{
-						// BUGBUG, it's unclear how to represent unicode in hex
-						const auto AnsiStr = encoding::get_bytes(CodePage, Src);
-						strDataStr = BlobToHexWString(AnsiStr.data(), AnsiStr.size(), 0);
-					}
-					else
-					{
-						const auto Blob = HexStringToBlob(Dialog::ExtractHexString(Src).data(), 0);
-						strDataStr.assign(ALL_CONST_RANGE(Blob));
-					}
-
+					const auto strDataStr = ConvertHexString(Src, CodePage, !Param2);
 					Dlg->SendMessage(DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
 					const auto iParam = reinterpret_cast<intptr_t>(Param2);
 					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!iParam));
@@ -3125,7 +3113,7 @@ FindFiles::FindFiles():
 
 		if (SearchHex)
 		{
-			strFindStr = Dialog::ExtractHexString(FindAskDlg[FAD_EDIT_HEX].strData);
+			strFindStr = ExtractHexString(FindAskDlg[FAD_EDIT_HEX].strData);
 		}
 		else
 			strFindStr = FindAskDlg[FAD_EDIT_TEXT].strData;

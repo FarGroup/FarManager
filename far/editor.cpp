@@ -3881,10 +3881,16 @@ BOOL Editor::Search(int Next)
 						Show();
 					}
 					break;
+
 				case KEY_CTRLUP: case KEY_RCTRLUP:
 				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
 					ProcessKeyInternal(Manager::Key(Key), RefreshMe);
+					if (RefreshMe)
+					{
+						Refresh();
+					}
 					break;
+
 				case KEY_F5:
 					MenuZoomed=!MenuZoomed;
 					if(MenuZoomed)

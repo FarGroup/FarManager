@@ -236,9 +236,13 @@ size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, 
 	case CP_UTF8:
 		return Utf8::get_bytes(Data, DataSize, Buffer, BufferSize);
 
+	case CP_UNICODE:
+		memcpy(Buffer, Data, std::min(DataSize * sizeof(wchar_t), BufferSize));
+		return DataSize * sizeof(wchar_t);
+
 	case CP_REVERSEBOM:
-			swap_bytes(Data, Buffer, std::min(DataSize * sizeof(wchar_t), BufferSize));
-			return DataSize * sizeof(wchar_t);
+		swap_bytes(Data, Buffer, std::min(DataSize * sizeof(wchar_t), BufferSize));
+		return DataSize * sizeof(wchar_t);
 
 	default:
 		{
@@ -276,6 +280,10 @@ size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, siz
 
 	case CP_UTF7:
 		return Utf7::get_chars(Data, DataSize, Buffer, BufferSize, nullptr);
+
+	case CP_UNICODE:
+		memcpy(Buffer, Data, std::min(DataSize, BufferSize * sizeof(wchar_t)));
+		return DataSize / sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
 		swap_bytes(Data, Buffer, std::min(DataSize, BufferSize * sizeof(wchar_t)));

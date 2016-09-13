@@ -226,8 +226,6 @@ public:
 		return Items[ListId].ListPtr->GetUserDataPtr<T>(static_cast<int>(ItemId));
 	}
 
-	static string ExtractHexString(const string& DialogHexString);
-
 protected:
 	size_t InitDialogObjects(size_t ID = (size_t)-1);
 

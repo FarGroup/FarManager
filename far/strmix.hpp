@@ -222,6 +222,9 @@ auto to_hex_string(T Value) { return to_hex_string_t<std::string>(Value); }
 template<class T>
 auto to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
 
+string ExtractHexString(const string& HexString);
+string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex);
+
 struct string_i_less
 {
 	bool operator()(const string& a, const string& b) const

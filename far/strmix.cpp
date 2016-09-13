@@ -1534,5 +1534,35 @@ std::vector<char> HexStringToBlob(const wchar_t* Hex, wchar_t Separator)
 	return HexStringToBlobT(Hex, wcslen(Hex), Separator);
 }
 
+string ExtractHexString(const string& HexString)
+{
+	auto Result{ HexString };
+	// TODO: Fix these and trailing spaces in Dialog class?
+	Result.erase(std::remove(ALL_RANGE(Result), L' '), Result.end());
+	if (Result.size() & 1)
+	{
+		// Odd length - hex string is not valid.
+		// This is an UI helper, so we don't want to throw.
+		// Fixing it gracefully and in 1.7x compatible way:
+		// "12 34 5" -> "12 34 05"
+		Result.insert(Result.end() - 1, L'0');
+	}
+	return Result;
+}
+
+string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
+{
+	const auto CompatibleCp = IsVirtualCodePage(Codepage)? CP_ACP : Codepage;
+	if (FromHex)
+	{
+		const auto Blob = HexStringToBlob(ExtractHexString(From).data(), 0);
+		return encoding::get_chars(CompatibleCp, Blob.data(), Blob.size());
+	}
+	else
+	{
+		const auto Blob = encoding::get_bytes(CompatibleCp, From);
+		return BlobToHexWString(Blob.data(), Blob.size(), 0);
+	}
+}
 
 }

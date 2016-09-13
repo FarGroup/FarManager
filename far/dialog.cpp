@@ -2846,6 +2846,15 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLDOWN:    case KEY_CTRLNUMPAD2:
 		case KEY_RCTRLDOWN:   case KEY_RCTRLNUMPAD2:
 			return ProcessOpenComboBox(Items[m_FocusPos].Type, &Items[m_FocusPos], m_FocusPos);
+
+		case KEY_F11:
+			if (!Global->IsProcessAssignMacroKey)
+			{
+				if (!CheckDialogMode(DMODE_NOPLUGINS))
+					doGlobalProcessKey = true;
+			}
+			break;
+
 			// ЭТО перед default предпоследний!!!
 		case KEY_END:  case KEY_NUMPAD1:
 
@@ -2857,14 +2866,6 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->ProcessKey(Key);
 				return TRUE;
 			}
-
-		case KEY_F11:
-			if (!Global->IsProcessAssignMacroKey)
-			{
-				if (!CheckDialogMode(DMODE_NOPLUGINS))
-					doGlobalProcessKey = true;
-			}
-			break;
 
 			// ???
 			// ЭТО перед default последний!!!
@@ -6228,20 +6229,4 @@ void Dialog::SetDeleting(void)
 void Dialog::ShowConsoleTitle()
 {
 	ConsoleTitle::SetFarTitle(DialogMode.Check(DMODE_KEEPCONSOLETITLE)? m_ConsoleTitle : GetTitle());
-}
-
-string Dialog::ExtractHexString(const string& DialogHexString)
-{
-	auto Result{ DialogHexString };
-	// TODO: Fix these and trailing spaces in Dialog class?
-	Result.erase(std::remove(ALL_RANGE(Result), L' '), Result.end());
-	if (Result.size() & 1)
-	{
-		// Odd length - hex string is not valid.
-		// This is an UI helper, so we don't want to throw.
-		// Fixing it gracefully and in 1.7x compatible way:
-		// "12 34 5" -> "12 34 05"
-		Result.insert(Result.end() - 1, L'0');
-	}
-	return Result;
 }

@@ -2589,9 +2589,8 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					Dlg->SendMessage(DM_GETEDITPOSITION, sd_src, &esp);
 					FarDialogItemData item = {sizeof(FarDialogItemData)};
 					Dlg->SendMessage(DM_GETTEXT, sd_src, &item);
-					const auto HexString = Dialog::ExtractHexString({ reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, sd_src, nullptr)), item.PtrLength });
-					string strTo;
-					Data->viewer->SearchTextTransform(strTo, HexString, !new_hex, esp.CurPos);
+					const string Src(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, sd_src, nullptr)), item.PtrLength);
+					const auto strTo = ConvertHexString(Src, m_Codepage, !new_hex);
 					item.PtrLength = strTo.size();
 					item.PtrData = UNSAFE_CSTR(strTo);
 					Dlg->SendMessage(DM_SETTEXT, sd_dst, &item);
@@ -2719,66 +2718,6 @@ static auto hex2ss(const string& from, intptr_t *pos = nullptr)
 	if (pos)
 		*pos /= 2;
 	return HexStringToBlob(strFrom.data(), 0);
-}
-
-void Viewer::SearchTextTransform(string &to, const string& from, bool hex2text, intptr_t &pos)
-{
-	if (hex2text)
-	{
-		auto Bytes = hex2ss(from, &pos);
-		if (IsUnicodeCodePage(m_Codepage))
-		{
-			int v = CP_REVERSEBOM == m_Codepage ? 1 : 0;
-			if (Bytes.size() & 1)
-				Bytes.emplace_back('\0');
-
-			for (size_t i = 0; i < Bytes.size(); i += 2)
-			{
-				wchar_t ch = MAKEWORD(Bytes[i+v], Bytes[i+1-v]);
-				to += ch;
-			}
-			if ( pos >= 0 )
-				pos /= 2;
-		}
-		else
-		{
-			to = encoding::get_chars(m_Codepage, Bytes);
-			if ( pos >= 0 )
-			{
-				pos = encoding::get_chars_count(m_Codepage, Bytes.data(), pos);
-			}
-		}
-	}
-	else // text2hex
-	{
-		char Buffer[128];
-		size_t Size;
-		int ps = 0, pd = 0, p0 = pos, p1 = -1;
-		for (size_t i = 0, FromSize = from.size(); i != FromSize; ++i)
-		{
-			if (ps == p0)
-				p1 = pd;
-			++ps;
-			wchar_t ch = from[i];
-
-			switch (m_Codepage)
-			{
-				case CP_UNICODE:
-					Size = 2; Buffer[0] = (char)LOBYTE(ch); Buffer[1] = (char)HIBYTE(ch);
-				break;
-				case CP_REVERSEBOM:
-					Size = 2; Buffer[0] = (char)HIBYTE(ch); Buffer[1] = (char)LOBYTE(ch);
-				break;
-				default:
-					Size = encoding::get_bytes(m_Codepage, &ch, 1, Buffer, 4);
-				break;
-			}
-
-			to += BlobToHexWString(Buffer, Size, 0);
-			pd += static_cast<int>(Size) * 3;
-		}
-		pos = p1;
-	}
 }
 
 struct Viewer::search_data
@@ -3423,7 +3362,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 		if (SearchHex)
 		{
-			strSearchStr = Dialog::ExtractHexString(SearchDlg[SD_EDIT_HEX].strData);
+			strSearchStr = ExtractHexString(SearchDlg[SD_EDIT_HEX].strData);
 		}
 		else
 		{
@@ -3731,9 +3670,16 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		{
 			int tail;
 			ReadSize = Utf8::get_chars(TmpBuf, ConvertSize, Buf, Count, tail);
-			std::copy_n(Buf, ReadSize, Buf2);
+
+			if (Buf2)
+			{
+				std::copy_n(Buf, ReadSize, Buf2);
+			}
+
 			if (tail)
+			{
 				Reader.Unread(tail);
+			}
 		}
 		else if (m_Codepage == MB.GetCP())
 		{
