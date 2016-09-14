@@ -1097,7 +1097,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
       }
     }
     bool bDisabled=0!=(mii.fState&MFS_DISABLED);
-
+    int grphid = -1;
     if (mii.fType==MFT_STRING)
     {
       int nLen=GetMenuString(hMenu, i, NULL, 0, MF_BYPOSITION);
@@ -1109,10 +1109,63 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
         return false;
       }
     }
+    else if (mii.fType&MFT_OWNERDRAW)
+    {
+      grphid = LNG_MT_OWNERDRAWN;
+    }
     else
     {
       assert(0);
       continue;
+    }
+    if (grphid != -1)
+    {
+      if (m_enHelptext != AS_HELPTEXT /*&& m_enHelptext != AS_VERB*/) {
+        auto_sz szSub;
+        if (GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_HELPTEXT, &szSub)
+            || GetAdditionalString(pPreferredMenu, mii.wID-MENUID_CMDOFFSET, AS_VERB, &szSub))
+        {
+          szItem=L"{";
+
+          wchar_t *Buf = new wchar_t[szSub.Len() + 1]();
+          //ѕолучаем из shell32.dll шаблон, по которому формируютс€ эти подсказки,
+          //(строковый ресурс #5380, "Opens the document with %s."),
+          //и убираем его из сабжевых строк. ƒл€ XP/2003.
+          LoadString(GetModuleHandle(L"shell32.dll"),5380,Buf,int(szSub.Len()+1));
+          int i=0;
+          while(Buf[i] && Buf[i]!=L'%')
+            i++;
+          if (Buf[i] == L'%' && !wcsncmp(Buf,szSub,i))
+          {
+            lstrcpy(Buf,szSub);
+            m_fsf.Unquote(Buf+i);
+            szSub=Buf+i;
+          }
+          delete[] Buf;
+
+          //Ќа практике выходит что иногда выход€т VERB'ы вида
+          //AboutA&bout и т.п., вот тут немного AI чтоб это убрать.
+          if (szSub.Len() > 3) //а просто так
+          {
+            auto_sz szLeft, szRight;
+
+            szLeft = szSub;
+            szLeft.Trunc(szLeft.Len()/2);
+            szRight = ((LPCWSTR)szSub)+szSub.Len()/2;
+            if (szLeft.CompareExcluding(szRight, L'&'))
+            {
+              //if (szLeft.Len() > szRight.Len())
+                //szSub = szLeft;
+              //else
+                szSub = szRight;
+            }
+          }
+
+          szItem+=szSub;
+          szItem+=L"}";
+        }
+      }
+      if (0==szItem.Len()) szItem = GetMsg(grphid);
     }
     if (m_enHelptext != AS_NONE) {
       auto_sz szAddInfo;
