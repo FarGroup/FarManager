@@ -455,7 +455,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 				m_Enum.emplace_back(std::move(NewEnumItem));
 				return TRUE;
 			}
-			break;
+
 		default:
 			if(Enum.Root>=FSSF_COUNT)
 			{
@@ -465,8 +465,8 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 					return FillHistory(HISTORYTYPE_DIALOG, m_Keys[root], Enum, FilterNone);
 				}
 			}
+			return FALSE;
 	}
-	return FALSE;
 }
 
 int FarSettings::Delete(const FarSettingsValue& Value)

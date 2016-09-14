@@ -776,7 +776,7 @@ UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePag
 	return favoriteCodePages;
 }
 
-bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize) const
+bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize)
 {
 	if (CodePage == CP_DEFAULT || IsStandardCodePage(CodePage))
 		return true;
@@ -846,7 +846,7 @@ F8CP::F8CP(bool viewer):
 					cp = 0;
 				}
 			}
-			if (cp && Codepages().IsCodePageSupported(cp, viewer ? 2:20) && used_cps.find(cp) == used_cps.end())
+			if (cp && codepages::IsCodePageSupported(cp, viewer ? 2:20) && used_cps.find(cp) == used_cps.end())
 			{
 				m_F8CpOrder.emplace_back(cp);
 				used_cps.emplace(cp);

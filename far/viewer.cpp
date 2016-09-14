@@ -106,7 +106,7 @@ static int ViewerID=0;
 
 static bool IsCodePageSupported(uintptr_t cp)
 {
-	return Codepages().IsCodePageSupported(cp, 2);
+	return codepages::IsCodePageSupported(cp, 2);
 }
 
 // seems like this initialization list is toooooo long

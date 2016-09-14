@@ -303,9 +303,9 @@ bool FileFilter::FilterEdit()
 					}
 					else if (SelPos2 > FilterData().size() + 2)
 					{
-						NewFilter.SetMask(1, *FilterList->GetUserDataPtr<string>(SelPos2-1));
+						NewFilter.SetMask(true, *FilterList->GetUserDataPtr<string>(SelPos2-1));
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
-						NewFilter.SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
+						NewFilter.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 					}
 					else
 					{
@@ -315,7 +315,7 @@ bool FileFilter::FilterEdit()
 				else
 				{
 					//AY: Раз создаём новый фильтр то думаю будет логично если он будет только для файлов
-					NewFilter.SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
+					NewFilter.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 				}
 
 				if (FileFilterConfig(&NewFilter))
@@ -520,7 +520,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 				FileFilterParams NewFilter;
 				NewFilter.SetMask(1, Mask);
 				//Авто фильтры они только для файлов, папки не должны к ним подходить
-				NewFilter.SetAttr(1, 0, FILE_ATTRIBUTE_DIRECTORY);
+				NewFilter.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 				CurFilterData = &*TempFilterData().emplace(TempFilterData().begin() + j, std::move(NewFilter));
 				j++;
 			}
@@ -810,7 +810,7 @@ void FileFilter::InitFilter()
 
 		NewItem.SetMask(1, strMask);
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
-		NewItem.SetAttr(1, 0, FILE_ATTRIBUTE_DIRECTORY);
+		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 		DWORD Flags[FFFT_COUNT] = {};
 		cfg->GetValue(key,L"FFlags", Flags);
 

@@ -566,34 +566,36 @@ protected:
 
 	void Export(representation_destination& Representation, const key& Key, tinyxml::XMLElement& XmlKey)
 	{
-		const auto Stmt = AutoStatement(stmtEnumValues);
-		Stmt->Bind(Key.get());
-		while (Stmt->Step())
 		{
-			auto& e = CreateChild(XmlKey, "value");
-
-			const auto name = Stmt->GetColTextUTF8(0);
-			e.SetAttribute("name", name);
-
-			switch (static_cast<column_type>(Stmt->GetColType(1)))
+			const auto Stmt = AutoStatement(stmtEnumValues);
+			Stmt->Bind(Key.get());
+			while (Stmt->Step())
 			{
-			case column_type::integer:
-				e.SetAttribute("type", "qword");
-				e.SetAttribute("value", to_hex_string(Stmt->GetColInt64(1)).data());
-				break;
+				auto& e = CreateChild(XmlKey, "value");
 
-			case column_type::string:
-				e.SetAttribute("type", "text");
-				e.SetAttribute("value", Stmt->GetColTextUTF8(1));
-				break;
+				const auto name = Stmt->GetColTextUTF8(0);
+				e.SetAttribute("name", name);
 
-			case column_type::blob:
-			case column_type::unknown:
+				switch (static_cast<column_type>(Stmt->GetColType(1)))
 				{
-					const auto Blob = Stmt->GetColBlob(1);
-					SerializeBlob(name, Blob.data(), Blob.size(), e);
+				case column_type::integer:
+					e.SetAttribute("type", "qword");
+					e.SetAttribute("value", to_hex_string(Stmt->GetColInt64(1)).data());
+					break;
+
+				case column_type::string:
+					e.SetAttribute("type", "text");
+					e.SetAttribute("value", Stmt->GetColTextUTF8(1));
+					break;
+
+				case column_type::blob:
+				case column_type::unknown:
+					{
+						const auto Blob = Stmt->GetColBlob(1);
+						SerializeBlob(name, Blob.data(), Blob.size(), e);
+					}
+					break;
 				}
-				break;
 			}
 		}
 

@@ -133,7 +133,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 			AmpPos++;
 	}
 
-	int UpperStrKey=Upper((int)Str[AmpPos]);
+	int UpperStrKey=Upper(Str[AmpPos]);
 
 	if (Key < 0xFFFF)
 	{

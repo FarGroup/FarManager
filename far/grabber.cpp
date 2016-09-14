@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
-#include "window.hpp"
 #include "interf.hpp"
 #include "clipboard.hpp"
 #include "config.hpp"

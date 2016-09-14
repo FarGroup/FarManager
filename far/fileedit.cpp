@@ -1360,7 +1360,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 		}
 	}
 
-	if (cp == CP_DEFAULT || !Codepages().IsCodePageSupported(cp))
+	if (cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp))
 	{
 		Message(MSG_WARNING, 1, MSG(MEditTitle), string_format(MEditorCPNotSupported, cp).data(), MSG(MOk));
 		return EC_CP_NOT_SUPPORTED;
@@ -1546,7 +1546,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			m_editor->m_Flags.Swap(Editor::FEDITOR_LOCKMODE);
 		}
 
-		if (bCached && pc.CodePage && !Codepages().IsCodePageSupported(pc.CodePage))
+		if (bCached && pc.CodePage && !codepages::IsCodePageSupported(pc.CodePage))
 			pc.CodePage = 0;
 
 		m_editor->GlobalEOL = Editor::GetDefaultEOL();
@@ -1566,7 +1566,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				uintptr_t dwCP = 0;
 				testBOM = false;
 				bool Detect = GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0)
-					&& Codepages().IsCodePageSupported(dwCP);
+					&& codepages::IsCodePageSupported(dwCP);
 
 				if (Detect)
 					m_codepage = dwCP;
@@ -2885,7 +2885,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 uintptr_t FileEditor::GetDefaultCodePage()
 {
 	intptr_t cp = Global->Opt->EdOpt.DefaultCodePage;
-	if (cp < 0 || !Codepages().IsCodePageSupported(cp))
+	if (cp < 0 || !codepages::IsCodePageSupported(cp))
 		cp = GetACP();
 	return cp;
 }

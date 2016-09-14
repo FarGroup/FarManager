@@ -36,9 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "stddlg.hpp"
 #include "dialog.hpp"
-#include "ctrlobj.hpp"
 #include "strmix.hpp"
-#include "macro.hpp"
 #include "imports.hpp"
 #include "message.hpp"
 #include "language.hpp"

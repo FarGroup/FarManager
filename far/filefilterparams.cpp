@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "datetime.hpp"
 #include "strmix.hpp"
-#include "mix.hpp"
 #include "console.hpp"
 #include "flink.hpp"
 #include "language.hpp"
@@ -60,7 +59,7 @@ FileFilterParams::FileFilterParams():
 	FHighlight(),
 	FFlags()
 {
-	SetMask(1,L"*");
+	SetMask(true, L"*");
 
 	std::for_each(RANGE(FHighlight.Colors.Color, i)
 	{

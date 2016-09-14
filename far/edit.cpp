@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "ctrlobj.hpp"
-#include "plugins.hpp"
 #include "scrbuf.hpp"
 #include "interf.hpp"
 #include "clipboard.hpp"

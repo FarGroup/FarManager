@@ -79,8 +79,8 @@ os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
 						const auto index = os::get_drive_number(netResource->lpLocalName[0]);
 						if (!Mask[index])
 						{
-							Mask[index] = 1;
-							Result[index] = 1;
+							Mask[index] = true;
+							Result[index] = true;
 						}
 					}
 				}

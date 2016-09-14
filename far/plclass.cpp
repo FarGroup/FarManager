@@ -502,12 +502,11 @@ void Plugin::SetGuid(const GUID& Guid)
 
 static string VersionToString(const VersionInfo& PluginVersion)
 {
-	const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
-	FormatString strVersion;
-	strVersion << PluginVersion.Major << L"." << PluginVersion.Minor << L"." << PluginVersion.Revision << L" (build " << PluginVersion.Build <<L")";
+	static const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
+	auto strVersion = string_format(L"{0}.{1}.{2} (build {3})", PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
 	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
 	{
-		strVersion << Stage[PluginVersion.Stage];
+		strVersion += Stage[PluginVersion.Stage];
 	}
 	return strVersion;
 }

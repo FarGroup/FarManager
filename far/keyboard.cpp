@@ -326,9 +326,9 @@ void InitKeysArray()
 		//***********
 		//Имея мапирование юникод -> VK строим обратное мапирование
 		//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
-		for (WCHAR i=1, x=0; i < 0x80; i++)
+		for (WCHAR i=1; i < 0x80; i++)
 		{
-			x = KeyToVKey[i];
+			auto x = KeyToVKey[i];
 
 			if (x && !VKeyToASCII[x])
 				VKeyToASCII[x]=Upper(i);

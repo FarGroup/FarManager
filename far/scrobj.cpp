@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "savescr.hpp"
 #include "interf.hpp"
-#include "window.hpp"
 
 SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
 	m_Owner(Owner),

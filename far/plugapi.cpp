@@ -413,14 +413,14 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 		{
 			if (!*ModuleName || *reinterpret_cast<const GUID*>(ModuleName) == FarGuid)
 			{
-				Flags |= FHELP_FARHELP;
+				OFlags |= FHELP_FARHELP;
 				strTopic = HelpTopic + ((*HelpTopic == L':') ? 1 : 0);
 			}
 			else
 			{
 				if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName)))
 				{
-					Flags |= FHELP_CUSTOMPATH;
+					OFlags |= FHELP_CUSTOMPATH;
 					strTopic = Help::MakeLink(ExtractFilePath(plugin->GetModuleName()), HelpTopic);
 				}
 			}

@@ -173,10 +173,9 @@ int ScreenSaver()
 	Console().GetCursorInfo(CursorInfo);
 	{
 		SCOPED_ACTION(SaveScreen);
-		SetCursorType(0,10);
+		SetCursorType(false, 10);
 		srand(67898);
-		FarColor Color = colors::ConsoleColorToFarColor(F_LIGHTGRAY|B_BLACK);
-		SetScreen(0,0,ScrX,ScrY,L' ', Color);
+		SetScreen(0, 0, ScrX, ScrY, L' ', colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
 		std::for_each(RANGE(Star, i)
 		{
