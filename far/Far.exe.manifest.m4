@@ -46,10 +46,10 @@
 		<supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
 	</application>
 </compatibility>
-<application>
+<asmv3:application>
 	<windowsSettings xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
 		<dpiAware>true</dpiAware>
 		<longPathAware>true</longPathAware>
 	</windowsSettings>
-</application>
+</asmv3:application>
 </assembly>
