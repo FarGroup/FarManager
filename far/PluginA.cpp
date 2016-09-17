@@ -5162,7 +5162,8 @@ private:
 				oldpluginapi::FarGetReparsePointInfoA,
 			};
 
-			static constexpr oldfar::PluginStartupInfo StartupInfo =
+			// NOT static, see VS bug #3103404
+			constexpr oldfar::PluginStartupInfo StartupInfo =
 			{
 				sizeof(StartupInfo),
 				"", // ModuleName, dynamic
