@@ -192,7 +192,7 @@ string &QuoteOuterSpace(string &strStr)
 }
 
 
-static const int DotsLen = 3;
+static constexpr int DotsLen = 3;
 
 string& TruncStrFromEnd(string &strStr, int maxLength)
 {
@@ -1307,7 +1307,7 @@ string str_printf(const wchar_t * format, ...)
 		{
 			BitFlags Flags(InitFlags);
 			string strSeparators(InitSeparators);
-			static const wchar_t Brackets[] = L"[]";
+			static constexpr wchar_t Brackets[] = L"[]";
 
 			if (!List.empty() &&
 				strSeparators.find(L'\"') == string::npos &&

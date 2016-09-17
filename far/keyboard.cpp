@@ -93,7 +93,7 @@ struct TFKey
 	bool operator ==(DWORD rhsKey) const {return Key == rhsKey;}
 };
 
-static const TFKey FKeys1[]=
+static constexpr TFKey FKeys1[]=
 {
 	{KEY_LAUNCH_MEDIA_SELECT,  MKeyLaunchMediaSelect, 17, L"LaunchMediaSelect",        L"LAUNCHMEDIASELECT"},
 	{KEY_BROWSER_FAVORITES,    MKeyBrowserFavorites,  16, L"BrowserFavorites",         L"BROWSERFAVORITES"},
@@ -212,7 +212,7 @@ enum modifs
 
 	m_count
 };
-static const TFKey ModifKeyName[]=
+static constexpr TFKey ModifKeyName[]=
 {
 	{KEY_RCTRL,    MKeyRCtrl,  5, L"RCtrl",  L"RCTRL"},
 	{KEY_CTRL,     MKeyCtrl,   4, L"Ctrl",   L"CTRL"},
@@ -226,7 +226,7 @@ static const TFKey ModifKeyName[]=
 static_assert(std::size(ModifKeyName) == m_count, "Incomplete ModifKeyName array");
 
 #if defined(SYSLOG)
-static const TFKey SpecKeyName[]=
+static constexpr TFKey SpecKeyName[]=
 {
 	{ KEY_CONSOLE_BUFFER_RESIZE, LNGID(-1), 19, L"ConsoleBufferResize", L"CONSOLEBUFFERRESIZE"},
 	{ KEY_OP_SELWORD,            LNGID(-1), 10, L"OP_SelWord",          L"OP_SELWORD"},
@@ -672,7 +672,7 @@ static DWORD ProcessBufferSizeEvent(COORD Size)
 	return KEY_CONSOLE_BUFFER_RESIZE;
 }
 
-static const far_key_code WheelKeys[][2] =
+static constexpr far_key_code WheelKeys[][2] =
 {
 	{ KEY_MSWHEEL_DOWN, KEY_MSWHEEL_UP },
 	{ KEY_MSWHEEL_LEFT, KEY_MSWHEEL_RIGHT }
@@ -1208,7 +1208,7 @@ using add_separator = void(string&);
 
 static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
 {
-	static const std::pair<far_key_code, modifs> Mapping[] =
+	static constexpr std::pair<far_key_code, modifs> Mapping[] =
 	{
 		{ KEY_CTRL, m_ctrl },
 		{ KEY_RCTRL, m_rctrl },
@@ -1465,7 +1465,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
 	bool KeyInTable = false;
 	{
-		static const std::pair<int, int> Table_KeyToVK[] =
+		static constexpr std::pair<int, int> Table_KeyToVK[] =
 		{
 			{ KEY_BREAK, VK_CANCEL },
 			{ KEY_BS, VK_BACK },
@@ -1534,7 +1534,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		}
 		else if (!FKey)
 		{
-			static const std::pair<far_key_code, DWORD> ExtKeyMap[]=
+			static constexpr std::pair<far_key_code, DWORD> ExtKeyMap[]=
 			{
 				{KEY_SHIFT, VK_SHIFT},
 				{KEY_CTRL, VK_CONTROL},
@@ -1654,7 +1654,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0)|
 					    (FKey==KEY_DECIMAL?NUMLOCK_ON:0);
 
-					static const DWORD ExtKey[] = {KEY_PGUP, KEY_PGDN, KEY_END, KEY_HOME, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_INS, KEY_DEL, KEY_NUMENTER};
+					static constexpr DWORD ExtKey[] = {KEY_PGUP, KEY_PGDN, KEY_END, KEY_HOME, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_INS, KEY_DEL, KEY_NUMENTER};
 					const auto ItemIterator = std::find(ALL_CONST_RANGE(ExtKey), FKey);
 					if (ItemIterator != std::cend(ExtKey))
 						Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
@@ -1728,7 +1728,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 
 int IsNavKey(DWORD Key)
 {
-	static const std::pair<DWORD, DWORD> NavKeysMap[] =
+	static constexpr std::pair<DWORD, DWORD> NavKeysMap[] =
 	{
 		{0,KEY_CTRLC},
 		{0,KEY_RCTRLC},
@@ -1755,7 +1755,7 @@ int IsNavKey(DWORD Key)
 
 int IsShiftKey(DWORD Key)
 {
-	static const DWORD ShiftKeys[] =
+	static constexpr DWORD ShiftKeys[] =
 	{
 		KEY_SHIFTLEFT,          KEY_SHIFTNUMPAD4,
 		KEY_SHIFTRIGHT,         KEY_SHIFTNUMPAD6,
@@ -1918,7 +1918,7 @@ int GetMappedCharacter(int VKey)
 
 static int GetNumpadKey(const int KeyCode, const int CtrlState, const int Modif)
 {
-	static const struct numpad_mapping
+	static constexpr struct numpad_mapping
 	{
 		int VCode;
 		int FarCodeNumpad;

@@ -67,7 +67,7 @@ public:
 		bool operator!=(const iterator_t& rhs) const { return !(*this == rhs); }
 
 	private:
-		static const size_t invalid_index { size_t(-1) };
+		static constexpr size_t invalid_index { size_t(-1) };
 
 		owner m_Owner {};
 		size_t m_Index { invalid_index };

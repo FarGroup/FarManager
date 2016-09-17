@@ -35,10 +35,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-const int POS_NONE = -1;
+enum
+{
+	POS_NONE = -1
+};
 
 // Количество закладок в редакторе/вьювере на одну позицию
-const size_t BOOKMARK_COUNT = 10;
+enum
+{
+	BOOKMARK_COUNT = 10
+};
 
 template<class T>
 class Bookmarks: public std::array<T, BOOKMARK_COUNT>
@@ -51,6 +57,7 @@ public:
 
 	void Clear()
 	{
+		// gcc bug, this-> required
 		this->fill(T());
 	}
 };

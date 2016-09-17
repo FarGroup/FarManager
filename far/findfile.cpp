@@ -2281,7 +2281,7 @@ void background_searcher::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 		while (!Stopped() && ScTree.GetNextName(FindData, strFullName))
 		{
-			os::find_handle FindStream;
+			os::find_file_handle FindStream;
 
 			Sleep(0);
 			PauseEvent.Wait();
@@ -2979,8 +2979,8 @@ FindFiles::FindFiles():
 		const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 		PluginMode = ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL && ActivePanel->IsVisible();
 		PrepareDriveNameStr(strSearchFromRoot);
-		static const wchar_t MasksHistoryName[] = L"Masks", TextHistoryName[] = L"SearchText";
-		static const wchar_t HexMask[]=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
+		static constexpr wchar_t MasksHistoryName[] = L"Masks", TextHistoryName[] = L"SearchText";
+		static constexpr wchar_t HexMask[]=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
 		const wchar_t VSeparator[] = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1], 0 };
 		FarDialogItem FindAskDlgData[]=
 		{

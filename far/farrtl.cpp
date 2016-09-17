@@ -111,7 +111,7 @@ static void updateCallCount(allocation_type type, bool increment)
 	}
 }
 
-static const int EndMarker = 0xDEADBEEF;
+static constexpr int EndMarker = 0xDEADBEEF;
 
 static int& GetMarker(MEMINFO* Info)
 {

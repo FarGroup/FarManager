@@ -62,7 +62,7 @@ enum PSCR_RECTYPE
 	PSCR_RT_PLUGINDATA,
 };
 
-static const wchar_t* const RecTypeName[]=
+static constexpr const wchar_t* const RecTypeName[]=
 {
 	L"Shortcut",
 	L"Name",
@@ -71,8 +71,8 @@ static const wchar_t* const RecTypeName[]=
 	L"PluginData",
 };
 
-static const wchar_t FolderShortcutsKey[] = L"Shortcuts";
-static const wchar_t HelpFolderShortcuts[] = L"FolderShortcuts";
+static constexpr wchar_t FolderShortcutsKey[] = L"Shortcuts";
+static constexpr wchar_t HelpFolderShortcuts[] = L"FolderShortcuts";
 
 
 struct Shortcuts::shortcut

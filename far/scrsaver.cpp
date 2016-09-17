@@ -56,7 +56,7 @@ struct star
 
 static std::array<star, 16> Star;
 
-static const wchar_t StarSymbol[]=
+static constexpr wchar_t StarSymbol[]=
 {
 	L'\x25A0',
 	L'\x2219',
@@ -141,7 +141,7 @@ static void ShowSaver(int Step)
 			return x * rand() / (RAND_MAX + 1);
 		};
 		
-		static const int Colors[]={F_MAGENTA,F_RED,F_BLUE};
+		static constexpr int Colors[]={ F_MAGENTA, F_RED,F_BLUE };
 		NotStar->Type=random(77)<3 ? STAR_PLANET:STAR_NORMAL;
 		NotStar->X=(ScrX/2-ScrX/4+random(ScrX/2))*100;
 		NotStar->Y=(ScrY/2-ScrY/4+random(ScrY/2))*100;

@@ -111,7 +111,7 @@ static int PrepareHotKey(string &strHotKey)
 	return FuncNum;
 }
 
-static const wchar_t LocalMenuFileName[] = L"FarMenu.ini";
+static constexpr wchar_t LocalMenuFileName[] = L"FarMenu.ini";
 
 struct UserMenu::UserMenuItem
 {

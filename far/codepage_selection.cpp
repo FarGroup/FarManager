@@ -52,8 +52,8 @@ codepages& Codepages()
 }
 
 // Ключ где хранятся имена кодовых страниц
-static const wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
-static const wchar_t FavoriteCodePagesKey[] = L"CodePages.Favorites";
+static constexpr wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
+static constexpr wchar_t FavoriteCodePagesKey[] = L"CodePages.Favorites";
 
 // Источник вызова каллбака прохода по кодовым страницам
 enum CodePagesCallbackCallSource: int

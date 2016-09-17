@@ -1,3 +1,11 @@
+drkns 17.09.2016 22:13:26 +0200 - build 4793
+
+1. constexpr.
+
+2. longPathAware = true для Windows 10.
+
+3. Рефакторинг.
+
 drkns 15.09.2016 02:23:25 +0200 - build 4792
 
 1. Уточнение 4784.1.

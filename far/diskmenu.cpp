@@ -668,7 +668,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_NETNAME))
 			{
-				static const std::pair<int, LNGID> DrTMsg[] =
+				static constexpr std::pair<int, LNGID> DrTMsg[] =
 				{
 					{ DRIVE_REMOVABLE, MChangeDriveRemovable },
 					{ DRIVE_FIXED, MChangeDriveFixed },

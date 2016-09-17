@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "lasterror.hpp"
 
-const wchar_t LangFileMask[] = L"*.lng";
+static constexpr wchar_t LangFileMask[] = L"*.lng";
 
 bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
 {

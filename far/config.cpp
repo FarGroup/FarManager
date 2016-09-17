@@ -73,58 +73,58 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "diskmenu.hpp"
 
-static const size_t predefined_panel_modes_count = 10;
+static constexpr size_t predefined_panel_modes_count = 10;
 
 // Стандартный набор разделителей
-static const wchar_t WordDiv0[] = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
+static constexpr wchar_t WordDiv0[] = L"~!%^&*()+|{}:\"<>?`-=\\[];',./";
 
 // Стандартный набор разделителей для функции Xlat
-static const wchar_t WordDivForXlat0[] = L" \t!#$%^&*()+|=\\/@?";
+static constexpr wchar_t WordDivForXlat0[] = L" \t!#$%^&*()+|=\\/@?";
 
-static const int DefaultTabSize = 8;
+static constexpr int DefaultTabSize = 8;
 
 
 #if defined(TREEFILE_PROJECT)
-static const wchar_t constLocalDiskTemplate[] = L"LD.%D.%SN.tree";
-static const wchar_t constNetDiskTemplate[] = L"ND.%D.%SN.tree";
-static const wchar_t constNetPathTemplate[] = L"NP.%SR.%SH.tree";
-static const wchar_t constRemovableDiskTemplate[] = L"RD.%SN.tree";
-static const wchar_t constCDDiskTemplate[] = L"CD.%L.%SN.tree";
+static constexpr const wchar_t constLocalDiskTemplate[] = L"LD.%D.%SN.tree";
+static constexpr const wchar_t constNetDiskTemplate[] = L"ND.%D.%SN.tree";
+static constexpr const wchar_t constNetPathTemplate[] = L"NP.%SR.%SH.tree";
+static constexpr const wchar_t constRemovableDiskTemplate[] = L"RD.%SN.tree";
+static constexpr const wchar_t constCDDiskTemplate[] = L"CD.%L.%SN.tree";
 #endif
 
-static const wchar_t NKeyScreen[] = L"Screen";
-static const wchar_t NKeyCmdline[] = L"Cmdline";
-static const wchar_t NKeyInterface[] = L"Interface";
-static const wchar_t NKeyInterfaceCompletion[] = L"Interface.Completion";
-static const wchar_t NKeyViewer[] = L"Viewer";
-static const wchar_t NKeyDialog[] = L"Dialog";
-static const wchar_t NKeyEditor[] = L"Editor";
-static const wchar_t NKeyXLat[] = L"XLat";
-static const wchar_t NKeySystem[] = L"System";
-static const wchar_t NKeySystemException[] = L"System.Exception";
-static const wchar_t NKeySystemKnownIDs[] = L"System.KnownIDs";
-static const wchar_t NKeySystemExecutor[] = L"System.Executor";
-static const wchar_t NKeySystemNowell[] = L"System.Nowell";
-static const wchar_t NKeyHelp[] = L"Help";
-static const wchar_t NKeyLanguage[] = L"Language";
-static const wchar_t NKeyConfirmations[] = L"Confirmations";
-static const wchar_t NKeyPluginConfirmations[] = L"PluginConfirmations";
-static const wchar_t NKeyPanel[] = L"Panel";
-static const wchar_t NKeyPanelLeft[] = L"Panel.Left";
-static const wchar_t NKeyPanelRight[] = L"Panel.Right";
-static const wchar_t NKeyPanelLayout[] = L"Panel.Layout";
-static const wchar_t NKeyPanelTree[] = L"Panel.Tree";
-static const wchar_t NKeyPanelInfo[] = L"Panel.Info";
-static const wchar_t NKeyLayout[] = L"Layout";
-static const wchar_t NKeyDescriptions[] = L"Descriptions";
-static const wchar_t NKeyKeyMacros[] = L"Macros";
-static const wchar_t NKeyPolicies[] = L"Policies";
-static const wchar_t NKeyCodePages[] = L"CodePages";
-static const wchar_t NKeyVMenu[] = L"VMenu";
-static const wchar_t NKeyCommandHistory[] = L"History.CommandHistory";
-static const wchar_t NKeyViewEditHistory[] = L"History.ViewEditHistory";
-static const wchar_t NKeyFolderHistory[] = L"History.FolderHistory";
-static const wchar_t NKeyDialogHistory[] = L"History.DialogHistory";
+static constexpr const wchar_t NKeyScreen[] = L"Screen";
+static constexpr const wchar_t NKeyCmdline[] = L"Cmdline";
+static constexpr const wchar_t NKeyInterface[] = L"Interface";
+static constexpr const wchar_t NKeyInterfaceCompletion[] = L"Interface.Completion";
+static constexpr const wchar_t NKeyViewer[] = L"Viewer";
+static constexpr const wchar_t NKeyDialog[] = L"Dialog";
+static constexpr const wchar_t NKeyEditor[] = L"Editor";
+static constexpr const wchar_t NKeyXLat[] = L"XLat";
+static constexpr const wchar_t NKeySystem[] = L"System";
+static constexpr const wchar_t NKeySystemException[] = L"System.Exception";
+static constexpr const wchar_t NKeySystemKnownIDs[] = L"System.KnownIDs";
+static constexpr const wchar_t NKeySystemExecutor[] = L"System.Executor";
+static constexpr const wchar_t NKeySystemNowell[] = L"System.Nowell";
+static constexpr const wchar_t NKeyHelp[] = L"Help";
+static constexpr const wchar_t NKeyLanguage[] = L"Language";
+static constexpr const wchar_t NKeyConfirmations[] = L"Confirmations";
+static constexpr const wchar_t NKeyPluginConfirmations[] = L"PluginConfirmations";
+static constexpr const wchar_t NKeyPanel[] = L"Panel";
+static constexpr const wchar_t NKeyPanelLeft[] = L"Panel.Left";
+static constexpr const wchar_t NKeyPanelRight[] = L"Panel.Right";
+static constexpr const wchar_t NKeyPanelLayout[] = L"Panel.Layout";
+static constexpr const wchar_t NKeyPanelTree[] = L"Panel.Tree";
+static constexpr const wchar_t NKeyPanelInfo[] = L"Panel.Info";
+static constexpr const wchar_t NKeyLayout[] = L"Layout";
+static constexpr const wchar_t NKeyDescriptions[] = L"Descriptions";
+static constexpr const wchar_t NKeyKeyMacros[] = L"Macros";
+static constexpr const wchar_t NKeyPolicies[] = L"Policies";
+static constexpr const wchar_t NKeyCodePages[] = L"CodePages";
+static constexpr const wchar_t NKeyVMenu[] = L"VMenu";
+static constexpr const wchar_t NKeyCommandHistory[] = L"History.CommandHistory";
+static constexpr const wchar_t NKeyViewEditHistory[] = L"History.ViewEditHistory";
+static constexpr const wchar_t NKeyFolderHistory[] = L"History.FolderHistory";
+static constexpr const wchar_t NKeyDialogHistory[] = L"History.DialogHistory";
 
 static size_t DisplayModeToReal(size_t Mode)
 {
@@ -328,7 +328,7 @@ void Options::AutoCompleteSettings()
 
 void Options::InfoPanelSettings()
 {
-	static const DialogBuilderListItem UNListItems[]=
+	static constexpr DialogBuilderListItem UNListItems[]=
 	{
 		{ MConfigInfoPanelUNUnknown, NameUnknown },                            // 0  - unknown name type
 		{ MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
@@ -341,7 +341,7 @@ void Options::InfoPanelSettings()
 		{ MConfigInfoPanelUNDnsDomain, NameDnsDomain },                        // 12 - DNS domain name + SAM username eg: engineering.widget.com\JohnDoe
 	};
 
-	static const DialogBuilderListItem CNListItems[] =
+	static constexpr DialogBuilderListItem CNListItems[] =
 	{
 		{ MConfigInfoPanelCNNetBIOS, ComputerNameNetBIOS },                                     // The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
 		{ MConfigInfoPanelCNDnsHostname, ComputerNameDnsHostname },                             // The DNS name of the local computer or the cluster associated with the local computer.
@@ -385,7 +385,7 @@ void Options::InfoPanelSettings()
 
 static void ApplyDefaultMaskGroups()
 {
-	static const std::pair<string, string> Sets[] =
+	static constexpr std::pair<const wchar_t*, const wchar_t*> Sets[] =
 	{
 		{L"arc", L"*.rar,*.zip,*.[zj],*.[bg7x]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"},
 		{L"temp", L"*.bak,*.tmp"},
@@ -583,18 +583,18 @@ void Options::DialogSettings()
 void Options::VMenuSettings()
 {
 
-	static const DialogBuilderListItem CAListItems[]=
+	static constexpr DialogBuilderListItem CAListItems[]=
 	{
 		{ MConfigVMenuClickCancel, VMENUCLICK_CANCEL },  // Cancel menu
 		{ MConfigVMenuClickApply,  VMENUCLICK_APPLY  },  // Execute selected item
 		{ MConfigVMenuClickIgnore, VMENUCLICK_IGNORE },  // Do nothing
 	};
 
-	static const std::pair<LNGID, IntOption*> DialogItems[] =
+	static constexpr std::pair<LNGID, IntOption VMenuOptions::*> DialogItems[] =
 	{
-		{ MConfigVMenuLBtnClick, &VMenu.LBtnClick },
-		{ MConfigVMenuRBtnClick, &VMenu.RBtnClick },
-		{ MConfigVMenuMBtnClick, &VMenu.MBtnClick },
+		{ MConfigVMenuLBtnClick, &VMenuOptions::LBtnClick },
+		{ MConfigVMenuRBtnClick, &VMenuOptions::RBtnClick },
+		{ MConfigVMenuMBtnClick, &VMenuOptions::MBtnClick },
 	};
 
 	DialogBuilder Builder(MConfigVMenuTitle, L"VMenuSettings");
@@ -602,7 +602,7 @@ void Options::VMenuSettings()
 	std::for_each(CONST_RANGE(DialogItems, i)
 	{
 		Builder.AddText(i.first);
-		Builder.AddComboBox(*i.second, nullptr, 40, CAListItems, std::size(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+		Builder.AddComboBox(VMenu.*i.second, nullptr, 40, CAListItems, std::size(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	});
 
 	Builder.AddOKCancel();
@@ -694,7 +694,7 @@ void Options::SetDizConfig()
 	Builder.AddTextAfter(StartPos, MCfgDizStartPos);
 	Builder.AddSeparator();
 
-	static const int DizOptions[] = { MCfgDizNotUpdate, MCfgDizUpdateIfDisplayed, MCfgDizAlwaysUpdate };
+	static constexpr int DizOptions[] = { MCfgDizNotUpdate, MCfgDizUpdateIfDisplayed, MCfgDizAlwaysUpdate };
 	Builder.AddRadioButtons(Diz.UpdateMode, 3, DizOptions);
 	Builder.AddSeparator();
 
@@ -795,7 +795,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 	}
 
 	Builder.AddText(MEditConfigExpandTabsTitle);
-	static const DialogBuilderListItem ExpandTabsItems[] =
+	static constexpr DialogBuilderListItem ExpandTabsItems[] =
 	{
 		{ MEditConfigDoNotExpandTabs, EXPAND_NOTABS },
 		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
@@ -1045,7 +1045,7 @@ void Options::SetFilePanelModes()
 
 	for(;;)
 	{
-		static const LNGID PredefinedNames[] =
+		static constexpr LNGID PredefinedNames[] =
 		{
 			MMenuBriefView,
 			MMenuMediumView,
@@ -1299,9 +1299,7 @@ struct FARConfigItem
 	Option* Value;   // адрес переменной, куда помещаем данные
 	any Default;
 
-	string ListItemString;
-
-	FarListItem MakeListItem()
+	FarListItem MakeListItem(string& ListItemString) const
 	{
 		FarListItem Item;
 		Item.Flags = 0;
@@ -1496,11 +1494,11 @@ public:
 	NONCOPYABLE(farconfig);
 	TRIVIALLY_MOVABLE(farconfig);
 
-	using iterator = FARConfigItem*;
-	using const_iterator = const FARConfigItem*;
+	using iterator = const FARConfigItem*;
+	using const_iterator = iterator;
 	using value_type = FARConfigItem;
 
-	farconfig(FARConfigItem* Items, size_t Size, GeneralConfig* cfg):
+	farconfig(const FARConfigItem* Items, size_t Size, GeneralConfig* cfg):
 		m_items(Items),
 		m_size(Size),
 		m_cfg(cfg)
@@ -1512,12 +1510,12 @@ public:
 	const_iterator cbegin() const { return begin(); }
 	const_iterator cend() const { return end(); }
 	size_t size() const { return m_size; }
-	value_type& operator[](size_t i) const { return m_items[i]; }
+	auto& operator[](size_t i) const { return m_items[i]; }
 
 	GeneralConfig* GetConfig() const { return m_cfg; }
 
 private:
-	value_type* m_items;
+	const FARConfigItem* m_items;
 	size_t m_size;
 	GeneralConfig* m_cfg;
 };
@@ -1606,7 +1604,7 @@ Options::~Options()
 
 void Options::InitConfigData()
 {
-	static const wchar_t DefaultBoxSymbols[] =
+	static constexpr wchar_t DefaultBoxSymbols[] =
 	{
 		L'\x2591', L'\x2592', L'\x2593', L'\x2502', L'\x2524', L'\x2561', L'\x2562', L'\x2556',
 		L'\x2555', L'\x2563', L'\x2551', L'\x2557', L'\x255D', L'\x255C', L'\x255B', L'\x2510',
@@ -1622,7 +1620,7 @@ void Options::InitConfigData()
 
 	#define OPT_DEF(option, def) &option, std::remove_reference_t<decltype(option)>::underlying_type(def)
 
-	static FARConfigItem RoamingData[] =
+	static const FARConfigItem RoamingData[] =
 	{
 		{FSSF_PRIVATE,       NKeyCmdline, L"AutoComplete", OPT_DEF(CmdLine.AutoComplete, true)},
 		{FSSF_PRIVATE,       NKeyCmdline, L"EditBlock", OPT_DEF(CmdLine.EditBlock, false)},
@@ -1974,7 +1972,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyXLat,L"WordDivForXlat", OPT_DEF(XLat.strWordDivForXlat, WordDivForXlat0)},
 	};
 
-	static FARConfigItem LocalData[] =
+	static const FARConfigItem LocalData[] =
 	{
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", OPT_DEF(LeftPanel.CurFile, L"")},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", OPT_DEF(LeftPanel.Folder, L"")},
@@ -2307,7 +2305,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			{
 				Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
 				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
-				flu.Item = Config[CurrentConfig][ListInfo.SelectPos].MakeListItem();
+				flu.Item = Config[CurrentConfig][ListInfo.SelectPos].MakeListItem((*m_ConfigStrings)[ListInfo.SelectPos]);
 				Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
 				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
 				Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
@@ -2336,7 +2334,11 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 
 	std::vector<FarListItem> items;
 	items.reserve(Config[CurrentConfig].size());
-	std::transform(ALL_CONST_RANGE(Config[CurrentConfig]), std::back_inserter(items), [](auto& i) { return i.MakeListItem(); });
+	std::vector<string> Strings(Config[CurrentConfig].size());
+	m_ConfigStrings = &Strings;
+	SCOPE_EXIT{ m_ConfigStrings = nullptr; };
+	const auto ConfigData = zip(Config[CurrentConfig], Strings);
+	std::transform(ALL_CONST_RANGE(ConfigData), std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
 
 	FarList Items={sizeof(FarList), items.size(), items.data()};
 
@@ -2372,13 +2374,13 @@ void Options::DeleteViewSettings(size_t Index)
 	m_ViewSettingsChanged = true;
 }
 
-static const wchar_t CustomModesKeyName[] = L"CustomModes";
-static const wchar_t ModesNameName[] = L"Name";
-static const wchar_t ModesColumnTitlesName[] = L"ColumnTitles";
-static const wchar_t ModesColumnWidthsName[] = L"ColumnWidths";
-static const wchar_t ModesStatusColumnTitlesName[] = L"StatusColumnTitles";
-static const wchar_t ModesStatusColumnWidthsName[] = L"StatusColumnWidths";
-static const wchar_t ModesFlagsName[] = L"Flags";
+static constexpr wchar_t CustomModesKeyName[] = L"CustomModes";
+static constexpr wchar_t ModesNameName[] = L"Name";
+static constexpr wchar_t ModesColumnTitlesName[] = L"ColumnTitles";
+static constexpr wchar_t ModesColumnWidthsName[] = L"ColumnWidths";
+static constexpr wchar_t ModesStatusColumnTitlesName[] = L"StatusColumnTitles";
+static constexpr wchar_t ModesStatusColumnWidthsName[] = L"StatusColumnWidths";
+static constexpr wchar_t ModesFlagsName[] = L"Flags";
 
 void Options::ReadPanelModes()
 {

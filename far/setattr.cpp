@@ -788,7 +788,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		AttrDlg[SA_EDIT_WTIME].strMask=AttrDlg[SA_EDIT_CTIME].strMask=AttrDlg[SA_EDIT_ATIME].strMask=AttrDlg[SA_EDIT_XTIME].strMask=strTMask;
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
-		static const std::pair<SETATTRDLG, DWORD> AttributePair[] =
+		static constexpr std::pair<SETATTRDLG, DWORD> AttributePair[] =
 		{
 			{SA_CHECKBOX_RO,FILE_ATTRIBUTE_READONLY},
 			{SA_CHECKBOX_ARCHIVE,FILE_ATTRIBUTE_ARCHIVE},

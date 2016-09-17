@@ -259,7 +259,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 	// третий проход - лезем в реестр в "App Paths"
 	if (Global->Opt->Exec.ExecuteUseAppPath && strFullName.find(L'\\') == string::npos)
 	{
-		static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+		static constexpr wchar_t RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
 		// В строке Module заменить исполняемый модуль на полный путь, который
 		// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
 		// Сначала смотрим в HKCU, затем - в HKLM

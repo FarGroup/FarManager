@@ -89,7 +89,7 @@ std::unique_ptr<Plugin> plugin_factory::CreatePlugin(const string& filename)
 plugin_factory::plugin_factory(PluginManager* owner):
 	m_owner(owner)
 {
-	static const export_name ExportsNames[] =
+	static constexpr export_name ExportsNames[] =
 	{
 		WA("GetGlobalInfoW"),
 		WA("SetStartupInfoW"),
@@ -502,7 +502,7 @@ void Plugin::SetGuid(const GUID& Guid)
 
 static string VersionToString(const VersionInfo& PluginVersion)
 {
-	static const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
+	static constexpr const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
 	auto strVersion = string_format(L"{0}.{1}.{2} (build {3})", PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
 	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
 	{
@@ -744,7 +744,7 @@ bool Plugin::RemoveDialog(const window_ptr& Dlg)
 
 bool Plugin::IsPanelPlugin()
 {
-	static const int PanelExports[] =
+	static constexpr int PanelExports[] =
 	{
 		iSetFindList,
 		iGetFindData,

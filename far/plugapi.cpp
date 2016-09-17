@@ -2835,7 +2835,7 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 {
 	try
 	{
-		static const std::pair<unsigned long long, unsigned long long> FlagsPair[] =
+		static constexpr std::pair<unsigned long long, unsigned long long> FlagsPair[] =
 		{
 			{FFFS_COMMAS,         COLUMN_COMMAS},         // Вставлять разделитель между тысячами
 			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000

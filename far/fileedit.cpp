@@ -1311,16 +1311,18 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 	return TRUE;
 }
 
-static const int
-	EC_CP_RELOAD             = +2,
-	EC_CP_SET                = +1,
-	EC_CP_NOT_CHANGED        =  0,
-	EC_CP_NOT_CACHED         = -1,
-	EC_CP_NOT_DETECTED       = -2,
-	EC_CP_NOT_SUPPORTED      = -3,
+enum
+{
+	EC_CP_RELOAD = +2,
+	EC_CP_SET = +1,
+	EC_CP_NOT_CHANGED = 0,
+	EC_CP_NOT_CACHED = -1,
+	EC_CP_NOT_DETECTED = -2,
+	EC_CP_NOT_SUPPORTED = -3,
 	EC_CP_NOTRELOAD_MODIFIED = -4,
-	EC_CP_CANNOT_RELOAD      = -5,
-   EC_CP_CANNOT_SET         = -6;
+	EC_CP_CANNOT_RELOAD = -5,
+	EC_CP_CANNOT_SET = -6,
+};
 
 int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 {

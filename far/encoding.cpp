@@ -326,22 +326,22 @@ size_t Utf::get_chars(uintptr_t const Codepage, const char* const Data, size_t c
 //	        0                         6                         2         2
 // base64: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdrfghijklmnopqrstuvwxyz0123456789+/
 
-static const int ill = 0x0100; // illegal
-static const int dir = 0x0200; // direct
-static const int opt = 0x0400; // optional direct
-static const int b64 = 0x0800; // base64 symbol
-static const int pls = 0x1000; // +
-static const int mns = 0x2000; // -
+static constexpr int ill = 0x0100; // illegal
+static constexpr int dir = 0x0200; // direct
+static constexpr int opt = 0x0400; // optional direct
+static constexpr int b64 = 0x0800; // base64 symbol
+static constexpr int pls = 0x1000; // +
+static constexpr int mns = 0x2000; // -
 
-static const int ILL = ill + 255;
-static const int DIR = dir + 255;
-static const int OPT = opt + 255;
-static const int PLS = pls + b64 + 62;
-static const int MNS = mns + dir + 255;
+static constexpr int ILL = ill + 255;
+static constexpr int DIR = dir + 255;
+static constexpr int OPT = opt + 255;
+static constexpr int PLS = pls + b64 + 62;
+static constexpr int MNS = mns + dir + 255;
 
 constexpr short D(int n) { return dir + b64 + n; }
 
-static const short m7[128] =
+static constexpr short m7[128] =
 //  x00   x01   x02   x03   x04   x05   x06   x07   x08   x09   x0a   x0b   x0c   x0d   x0e   x0f
 {   ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  ILL,  DIR,  DIR,  ILL,  ILL,  DIR,  ILL,  ILL
 

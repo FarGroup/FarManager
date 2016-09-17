@@ -4514,7 +4514,7 @@ void FileList::SelectSortMode()
 
 	std::vector<MenuDataEx> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
 
-	static const MenuDataEx MenuSeparator = { L"",LIF_SEPARATOR };
+	static constexpr MenuDataEx MenuSeparator = { L"",LIF_SEPARATOR };
 
 	OpenMacroPluginInfo ompInfo = { MCT_GETCUSTOMSORTMODES,nullptr };
 	MacroPluginReturn* mpr = nullptr;
@@ -4542,7 +4542,7 @@ void FileList::SelectSortMode()
 		}
 	}
 
-	static const panel_sort SortModes[] =
+	static constexpr panel_sort SortModes[] =
 	{
 		panel_sort::BY_NAME,
 		panel_sort::BY_EXT,
@@ -7505,7 +7505,7 @@ void FileList::ShowFileList(int Fast)
 		const wchar_t *Ch = nullptr;
 		if (m_SortMode < panel_sort::COUNT)
 		{
-			static const std::pair<panel_sort, LNGID> ModeNames[] =
+			static constexpr std::pair<panel_sort, LNGID> ModeNames[] =
 			{
 				{panel_sort::UNSORTED, MMenuUnsorted},
 				{panel_sort::BY_NAME, MMenuSortByName},
@@ -7727,7 +7727,7 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 
 		if (!HighlightingEnabled || (!ColorAttr.ForegroundColor && !ColorAttr.BackgroundColor)) // black on black, default
 		{
-			static const PaletteColors PalColor[] = {COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR};
+			static constexpr PaletteColors PalColor[] = {COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR};
 			ColorAttr=colors::PaletteColorToFarColor(PalColor[Pos]);
 		}
 	}

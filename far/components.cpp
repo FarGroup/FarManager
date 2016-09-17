@@ -92,7 +92,7 @@ namespace components
 		static FN_RETURN_TYPE(GetComponentsInfo) sList;
 		if (sList.empty())
 		{
-			auto& ComponentsList = GetComponentsList();
+			const auto& ComponentsList = GetComponentsList();
 			std::transform(ALL_CONST_RANGE(ComponentsList), std::inserter(sList, sList.end()), [](const auto& i)
 			{
 				return i();

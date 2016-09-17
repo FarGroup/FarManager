@@ -165,7 +165,7 @@ void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size
 
 WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType)
 {
-	static const std::pair<window_type, WINDOWINFO_TYPE> TypesMap[] =
+	static constexpr std::pair<window_type, WINDOWINFO_TYPE> TypesMap[] =
 	{
 		{windowtype_desktop,    WTYPE_DESKTOP},
 		{windowtype_panels,     WTYPE_PANELS},

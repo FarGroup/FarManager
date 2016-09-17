@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
-const size_t PID_LENGTH = 6;
+static constexpr size_t PID_LENGTH = 6;
 
 struct ProcInfo
 {

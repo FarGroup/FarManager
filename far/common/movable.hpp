@@ -46,8 +46,8 @@ public:
 	movable(const movable& rhs) { *this = rhs; }
 	auto& operator=(const movable& rhs) { m_Value = rhs.m_Value; return *this; }
 
-	movable(movable&& rhs) { *this = std::move(rhs); }
-	auto& operator=(movable&& rhs) { m_Value = rhs.m_Value; rhs.m_Value = Default; return *this; }
+	movable(movable&& rhs) noexcept { *this = std::move(rhs); }
+	auto& operator=(movable&& rhs) noexcept { m_Value = rhs.m_Value; rhs.m_Value = Default; return *this; }
 
 	auto& operator*() const { return m_Value; }
 	auto& operator*() { return m_Value; }

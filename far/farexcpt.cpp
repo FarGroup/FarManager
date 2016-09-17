@@ -341,7 +341,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 		return true;
 	}
 
-	static const struct
+	static constexpr struct
 	{
 		NTSTATUS Code;     // код исключения
 		const wchar_t* DefaultMsg; // Lng-files may not be loaded yet
@@ -573,7 +573,7 @@ static int ExceptionTestHook(Manager::Key key)
 			count
 		};
 
-		static const wchar_t* Names[] =
+		static constexpr const wchar_t* Names[] =
 		{
 			L"C++ std::exception",
 			L"C++ unknown exception",

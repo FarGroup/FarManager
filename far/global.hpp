@@ -43,7 +43,7 @@ public:
 	~global();
 
 	HANDLE MainThreadHandle() const {return m_MainThreadHandle.native_handle();}
-	inline bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
+	bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
 	unsigned long long FarUpTime() const;
 	static const wchar_t* Version();
 	static const wchar_t* Copyright();

@@ -191,7 +191,7 @@ public:
 	oem_plugin_factory(PluginManager* Owner):
 		native_plugin_factory(Owner)
 	{
-		static const export_name ExportsNames[] =
+		static constexpr export_name ExportsNames[] =
 		{
 			WA(""), // GetGlobalInfo not used
 			WA("SetStartupInfo"),
@@ -613,7 +613,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 {
 	if (kbtA && kbtW)
 	{
-		static const std::pair<decltype(&oldfar::KeyBarTitles::Titles), int> LabelsMap[] =
+		static constexpr std::pair<decltype(&oldfar::KeyBarTitles::Titles), int> LabelsMap[] =
 		{
 			{ &oldfar::KeyBarTitles::Titles, 0 },
 			{ &oldfar::KeyBarTitles::CtrlTitles, LEFT_CTRL_PRESSED },
@@ -956,7 +956,7 @@ static FAR_CHAR_INFO* AnsiVBufToUnicode(const oldfar::FarDialogItem &diA)
 	return VBuf.release();
 }
 
-static const std::pair<oldfar::LISTITEMFLAGS, LISTITEMFLAGS> ListFlagsMap[] =
+static constexpr std::pair<oldfar::LISTITEMFLAGS, LISTITEMFLAGS> ListFlagsMap[] =
 {
 	OLDFAR_TO_FAR_MAP(LIF_SELECTED),
 	OLDFAR_TO_FAR_MAP(LIF_CHECKED),
@@ -987,7 +987,7 @@ static void AnsiListItemToUnicode(const oldfar::FarListItem* liA, FarListItem* l
 	}
 }
 
-static const std::pair<oldfar::FarDialogItemFlags, FARDIALOGFLAGS> DialogItemFlagsMap[] =
+static constexpr std::pair<oldfar::FarDialogItemFlags, FARDIALOGFLAGS> DialogItemFlagsMap[] =
 {
 	OLDFAR_TO_FAR_MAP(DIF_BOXCOLOR),
 	OLDFAR_TO_FAR_MAP(DIF_GROUP),
@@ -1381,7 +1381,7 @@ static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInf
 
 	PIA->Flags = 0;
 
-	static const std::pair<oldfar::PANELINFOFLAGS, PANELINFOFLAGS> FlagsMap[] =
+	static constexpr std::pair<oldfar::PANELINFOFLAGS, PANELINFOFLAGS> FlagsMap[] =
 	{
 		OLDFAR_TO_FAR_MAP(PFLAGS_SHOWHIDDEN),
 		OLDFAR_TO_FAR_MAP(PFLAGS_HIGHLIGHT),
@@ -2287,7 +2287,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir, const char *Mask, ol
 		CallbackParam.Func = Func;
 		CallbackParam.Param = Param;
 
-		static const std::pair<oldfar::FRSMODE, FRSMODE> FlagsMap[] =
+		static constexpr std::pair<oldfar::FRSMODE, FRSMODE> FlagsMap[] =
 		{
 			OLDFAR_TO_FAR_MAP(FRS_RETUPDIR),
 			OLDFAR_TO_FAR_MAP(FRS_RECUR),
@@ -2390,7 +2390,7 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 {
 	try
 	{
-		static const std::pair<oldfar::INPUTBOXFLAGS, INPUTBOXFLAGS> FlagsMap[] =
+		static constexpr std::pair<oldfar::INPUTBOXFLAGS, INPUTBOXFLAGS> FlagsMap[] =
 		{
 			OLDFAR_TO_FAR_MAP(FIB_ENABLEEMPTY),
 			OLDFAR_TO_FAR_MAP(FIB_PASSWORD),
@@ -2445,7 +2445,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 			std::transform(Items, Items + ItemsNumber, std::back_inserter(AnsiItems), [](const char* Item){ return std::unique_ptr<wchar_t[]>(AnsiToUnicode(Item)); });
 		}
 
-		static const std::pair<oldfar::FARMESSAGEFLAGS, FARMESSAGEFLAGS> FlagsMap[] =
+		static constexpr std::pair<oldfar::FARMESSAGEFLAGS, FARMESSAGEFLAGS> FlagsMap[] =
 		{
 			OLDFAR_TO_FAR_MAP(FMSG_WARNING),
 			OLDFAR_TO_FAR_MAP(FMSG_ERRORTYPE),
@@ -2517,7 +2517,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 {
 	try
 	{
-		static const std::pair<oldfar::FARMENUFLAGS, FARMENUFLAGS> FlagsMap[] =
+		static constexpr std::pair<oldfar::FARMENUFLAGS, FARMENUFLAGS> FlagsMap[] =
 		{
 			OLDFAR_TO_FAR_MAP(FMENU_SHOWAMPERSAND),
 			OLDFAR_TO_FAR_MAP(FMENU_WRAPMODE),
@@ -2537,7 +2537,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		{
 			const auto p = reinterpret_cast<const oldfar::FarMenuItemEx*>(Item);
 
-			static const std::pair<oldfar::MENUITEMFLAGS, MENUITEMFLAGS> ItemFlagsMap[] =
+			static constexpr std::pair<oldfar::MENUITEMFLAGS, MENUITEMFLAGS> ItemFlagsMap[] =
 			{
 				OLDFAR_TO_FAR_MAP(MIF_SELECTED),
 				OLDFAR_TO_FAR_MAP(MIF_CHECKED),
@@ -4986,7 +4986,7 @@ static void RegisterSendKeyToPluginHook()
 	}
 }
 
-static const std::pair<oldfar::OPERATION_MODES, OPERATION_MODES> OperationModesMap[] =
+static constexpr std::pair<oldfar::OPERATION_MODES, OPERATION_MODES> OperationModesMap[] =
 {
 	OLDFAR_TO_FAR_MAP(OPM_SILENT),
 	OLDFAR_TO_FAR_MAP(OPM_FIND),
@@ -5108,7 +5108,7 @@ private:
 		ExecuteStruct<iSetStartupInfo> es;
 		if (has(es) && !Global->ProcessException)
 		{
-			static const oldfar::FarStandardFunctions StandardFunctions =
+			static constexpr oldfar::FarStandardFunctions StandardFunctions =
 			{
 				sizeof(StandardFunctions),
 				oldpluginapi::FarAtoiA,
@@ -5162,7 +5162,7 @@ private:
 				oldpluginapi::FarGetReparsePointInfoA,
 			};
 
-			static const oldfar::PluginStartupInfo StartupInfo =
+			static constexpr oldfar::PluginStartupInfo StartupInfo =
 			{
 				sizeof(StartupInfo),
 				"", // ModuleName, dynamic
@@ -5791,7 +5791,7 @@ private:
 		FreePluginInfo();
 		PI.StructSize = sizeof(PI);
 
-		static const std::pair<oldfar::PLUGIN_FLAGS, PLUGIN_FLAGS> PluginFlagsMap[] =
+		static constexpr std::pair<oldfar::PLUGIN_FLAGS, PLUGIN_FLAGS> PluginFlagsMap[] =
 		{
 			OLDFAR_TO_FAR_MAP(PF_PRELOAD),
 			OLDFAR_TO_FAR_MAP(PF_DISABLEPANELS),
@@ -5858,7 +5858,7 @@ private:
 		OPI.StructSize = sizeof(OPI);
 		OPI.Flags = OPIF_NONE;
 
-		static const std::pair<oldfar::OPENPANELINFO_FLAGS, OPENPANELINFO_FLAGS> PanelInfoFlagsMap[] =
+		static constexpr std::pair<oldfar::OPENPANELINFO_FLAGS, OPENPANELINFO_FLAGS> PanelInfoFlagsMap[] =
 		{
 			OLDFAR_TO_FAR_MAP(OPIF_ADDDOTS),
 			OLDFAR_TO_FAR_MAP(OPIF_RAWSELECTION),

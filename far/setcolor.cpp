@@ -98,7 +98,7 @@ static void SetItemColors(const color_item* Items, size_t Size);
 
 void SetColors()
 {
-	static const color_item
+	static constexpr color_item
 	PanelItems[] =
 	{
 		{ MSetColorPanelNormal,                COL_PANELTEXT },
@@ -310,29 +310,24 @@ void SetColors()
 	};
 
 	{
-		static const struct
+		static constexpr struct
 		{
 			LNGID MenuId;
-			const color_item* Subitems;
-			size_t SubItemsSize;
+			const range<const color_item*> Subitems;
 		}
 		Groups[] =
 		{
-			#define NAME_AND_SIZE(x) x, std::size(x)
-
-			{ MSetColorPanel,                    NAME_AND_SIZE(PanelItems) },
-			{ MSetColorDialog,                   NAME_AND_SIZE(DialogItems) },
-			{ MSetColorWarning,                  NAME_AND_SIZE(WarnDialogItems) },
-			{ MSetColorMenu,                     NAME_AND_SIZE(MenuItems) },
-			{ MSetColorHMenu,                    NAME_AND_SIZE(HMenuItems) },
-			{ MSetColorKeyBar,                   NAME_AND_SIZE(KeyBarItems) },
-			{ MSetColorCommandLine,              NAME_AND_SIZE(CommandLineItems) },
-			{ MSetColorClock,                    NAME_AND_SIZE(ClockItems) },
-			{ MSetColorViewer,                   NAME_AND_SIZE(ViewerItems) },
-			{ MSetColorEditor,                   NAME_AND_SIZE(EditorItems) },
-			{ MSetColorHelp,                     NAME_AND_SIZE(HelpItems) },
-
-			#undef NAME_AND_SIZE
+			{ MSetColorPanel,       make_range(PanelItems) },
+			{ MSetColorDialog,      make_range(DialogItems) },
+			{ MSetColorWarning,     make_range(WarnDialogItems) },
+			{ MSetColorMenu,        make_range(MenuItems) },
+			{ MSetColorHMenu,       make_range(HMenuItems) },
+			{ MSetColorKeyBar,      make_range(KeyBarItems) },
+			{ MSetColorCommandLine, make_range(CommandLineItems) },
+			{ MSetColorClock,       make_range(ClockItems) },
+			{ MSetColorViewer,      make_range(ViewerItems) },
+			{ MSetColorEditor,      make_range(EditorItems) },
+			{ MSetColorHelp,        make_range(HelpItems) },
 		};
 
 		const auto GroupsMenu = VMenu2::create(MSG(MSetColorGroupsTitle), nullptr, 0);
@@ -361,7 +356,7 @@ void SetColors()
 			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= std::size(Groups))
 				return 0;
 			GroupsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
-			SetItemColors(Groups[ItemsCode].Subitems, Groups[ItemsCode].SubItemsSize);
+			SetItemColors(Groups[ItemsCode].Subitems.data(), Groups[ItemsCode].Subitems.size());
 			return 1;
 		});
 

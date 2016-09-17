@@ -44,7 +44,7 @@ namespace fmt
 		static T GetDefault() { return DefaultValue; }
 	private:
 		const T Value;
-		static const T DefaultValue = Default;
+		static constexpr T DefaultValue = Default;
 	};
 
 	using MinWidth = ManipulatorTemplate<size_t, 0>;

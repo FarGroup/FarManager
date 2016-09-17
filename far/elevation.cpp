@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace os::security;
 
-const int CallbackMagic= 0xCA11BAC6;
+static constexpr int CallbackMagic= 0xCA11BAC6;
 
 enum ELEVATION_COMMAND: int
 {
@@ -79,7 +79,7 @@ enum ELEVATION_COMMAND: int
 	C_COMMANDS_COUNT
 };
 
-static const wchar_t ElevationArgument[] = L"/service:elevation";
+static constexpr wchar_t ElevationArgument[] = L"/service:elevation";
 
 static auto CreateBackupRestorePrivilege() { return privilege(SE_BACKUP_NAME, SE_RESTORE_NAME); }
 
@@ -652,7 +652,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 
 int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
-	static const auto DE_ACCESSDENIEDSRC = 0x78;
+	static constexpr auto DE_ACCESSDENIEDSRC = 0x78;
 	return execute(MElevationRequiredRecycle, FileOpStruct.pFrom,
 		DE_ACCESSDENIEDSRC,
 		[&]
@@ -1096,7 +1096,7 @@ private:
 	{
 		assert(Command < C_COMMANDS_COUNT);
 
-		static const decltype(&elevated::ExitHandler) Handlers[] =
+		static constexpr decltype(&elevated::ExitHandler) Handlers[] =
 		{
 			&elevated::ExitHandler,
 			&elevated::CreateDirectoryExHandler,

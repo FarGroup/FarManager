@@ -119,7 +119,7 @@ void ClearArray(T(&a)[N]) noexcept
 }
 
 template<class T>
-auto NullToEmpty(const T* Str) { static const T empty {}; return Str? Str : &empty; }
+auto NullToEmpty(const T* Str) { static constexpr T empty {}; return Str? Str : &empty; }
 template<class T>
 auto EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
 

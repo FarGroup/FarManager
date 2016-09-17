@@ -80,7 +80,7 @@ public:
 	T* operator->() const noexcept { return ptr.operator->(); }
 	T& operator*() const { return *ptr; }
 	bool operator!() const noexcept { return !ptr; }
-	unique_ptr_with_ondestroy& operator=(std::unique_ptr<T>&& value) noexcept{ OnDestroy(); ptr = std::move(value); return *this; }
+	unique_ptr_with_ondestroy& operator=(std::unique_ptr<T>&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
 
 private:
 	void OnDestroy(void) { if (ptr) ptr->OnDestroy(); }

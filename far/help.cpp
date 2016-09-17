@@ -57,13 +57,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "keybar.hpp"
 
-static const wchar_t FoundContents[]=L"__FoundContents__";
-static const wchar_t PluginContents[]=L"__PluginContents__";
-static const wchar_t HelpOnHelpTopic[]=L":Help";
-static const wchar_t HelpContents[]=L"Contents";
+static constexpr wchar_t FoundContents[]=L"__FoundContents__";
+static constexpr wchar_t PluginContents[]=L"__PluginContents__";
+static constexpr wchar_t HelpOnHelpTopic[]=L":Help";
+static constexpr wchar_t HelpContents[]=L"Contents";
 
-static const wchar_t HelpBeginLink = L'<';
-static const wchar_t HelpEndLink = L'>';
+static constexpr wchar_t HelpBeginLink = L'<';
+static constexpr wchar_t HelpEndLink = L'>';
 
 enum HELPDOCUMENTSHELPTYPE
 {
@@ -99,8 +99,8 @@ public:
 
 static int RunURL(const string& Protocol, const string& URLPath);
 
-static const wchar_t HelpFormatLink[] = L"<%s\\>%s";
-static const wchar_t HelpFormatLinkModule[] = L"<%s>%s";
+static constexpr wchar_t HelpFormatLink[] = L"<%s\\>%s";
+static constexpr wchar_t HelpFormatLinkModule[] = L"<%s>%s";
 
 
 struct Help::StackHelpData
@@ -1628,7 +1628,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if ((MsX<m_X1 || MsY<m_Y1 || MsX>m_X2 || MsY>m_Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
-		static const int HELPMODE_CLICKOUTSIDE = 0x20000000; // было нажатие мыши вне хелпа?
+		static constexpr int HELPMODE_CLICKOUTSIDE = 0x20000000; // было нажатие мыши вне хелпа?
 
 		if (m_Flags.Check(HELPMODE_CLICKOUTSIDE))
 		{

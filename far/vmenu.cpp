@@ -2265,7 +2265,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (!(Items[I].Flags & LIF_DISABLE))
 				{
-					static const vmenu_colors ItemColors[][2] =
+					static constexpr vmenu_colors ItemColors[][2] =
 					{
 						{ VMenuColorHilite, VMenuColorHSelect },
 						{ VMenuColorGrayed, VMenuColorSelGrayed },
@@ -2651,7 +2651,7 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 		}
 		else
 		{
-			static const PaletteColors StdColor[2][3][VMENU_COLOR_COUNT]=
+			static constexpr PaletteColors StdColor[2][3][VMENU_COLOR_COUNT]=
 			{
 				// Not VMENU_WARNDIALOG
 				{

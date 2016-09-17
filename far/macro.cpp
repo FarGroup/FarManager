@@ -1249,7 +1249,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 		key_count
 	};
 
-	static const MACROFLAGS_MFLAGS Mapping[][3] =
+	static constexpr MACROFLAGS_MFLAGS Mapping[][3] =
 	{
 		// [ ] [x] [?]
 		{ MFLAGS_NONE, MFLAGS_ENABLEOUTPUT, MFLAGS_NONE },
@@ -5072,7 +5072,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		KMParam=reinterpret_cast<DlgParam*>(Param2);
 		LastKey=0;
 		// <Клавиши, которые нельзя ввести в диалоге назначения>
-		static const DWORD PreDefKeyMain[]=
+		static constexpr DWORD PreDefKeyMain[]=
 		{
 			//KEY_CTRLDOWN,KEY_RCTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,KEY_RCTRLF5,
 			KEY_CTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,
@@ -5084,7 +5084,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			Dlg->SendMessage(DM_LISTADDSTR, 2, UNSAFE_CSTR(strKeyText));
 		});
 
-		static const DWORD PreDefKey[]=
+		static constexpr DWORD PreDefKey[]=
 		{
 			KEY_MSWHEEL_UP,KEY_MSWHEEL_DOWN,KEY_MSWHEEL_LEFT,KEY_MSWHEEL_RIGHT,
 			KEY_MSLCLICK,KEY_MSRCLICK,KEY_MSM1CLICK,KEY_MSM2CLICK,KEY_MSM3CLICK,
@@ -5092,7 +5092,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 			KEY_MSLDBLCLICK,KEY_MSRDBLCLICK,KEY_MSM1DBLCLICK,KEY_MSM2DBLCLICK,KEY_MSM3DBLCLICK,
 #endif
 		};
-		static const DWORD PreDefModKey[]=
+		static constexpr DWORD PreDefModKey[]=
 		{
 			//0,KEY_CTRL,KEY_RCTRL,KEY_SHIFT,KEY_ALT,KEY_RALT,KEY_CTRLSHIFT,KEY_RCTRLSHIFT,KEY_CTRLALT,KEY_RCTRLRALT,KEY_CTRLRALT,KEY_RCTRLALT,KEY_ALTSHIFT,KEY_RALTSHIFT,
 			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,

@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "elevation.hpp"
 
-static const struct
+static constexpr struct
 {
 	const wchar_t *UseAttr,*IncludeAttributes,*ExcludeAttributes,*AttrSet,*AttrClear,
 	*IgnoreMask,*UseMask,*Mask,
@@ -98,12 +98,12 @@ HLS =
 	L"HighlightEdit",L"HighlightList"
 };
 
-static const wchar_t fmtFirstGroup[]=L"Group";
-static const wchar_t fmtUpperGroup[]=L"UpperGroup";
-static const wchar_t fmtLowerGroup[]=L"LowerGroup";
-static const wchar_t fmtLastGroup[]=L"LastGroup";
-static const wchar_t SortGroupsKeyName[]=L"SortGroups";
-static const wchar_t HighlightKeyName[]=L"Highlight";
+static constexpr wchar_t fmtFirstGroup[]=L"Group";
+static constexpr wchar_t fmtUpperGroup[]=L"UpperGroup";
+static constexpr wchar_t fmtLowerGroup[]=L"LowerGroup";
+static constexpr wchar_t fmtLastGroup[]=L"LastGroup";
+static constexpr wchar_t SortGroupsKeyName[]=L"SortGroups";
+static constexpr wchar_t HighlightKeyName[]=L"Highlight";
 
 static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
@@ -120,7 +120,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	if (!root)
 		return;
 
-	static const wchar_t* const Masks[]=
+	static constexpr const wchar_t* const Masks[]=
 	{
 		/* 0 */ L"*.*",
 		/* 1 */ L"<arc>",
@@ -176,7 +176,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 		cfg->SetValue(Key, HLS.NormalColor, i.NormalColor);
 		cfg->SetValue(Key, HLS.CursorColor, i.CursorColor);
 
-		static const wchar_t* const Names[] =
+		static constexpr const wchar_t* const Names[] =
 		{
 			HLS.SelectedColor,
 			HLS.SelectedCursorColor,
@@ -188,7 +188,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 
 		for (const auto& j: Names)
 		{
-			static const FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
+			static constexpr FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
 			cfg->SetValue(Key, j, DefaultColor);
 		}
 	}
@@ -296,7 +296,7 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 
 void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 {
-	static const struct
+	const struct
 	{
 		int Delta;
 		const wchar_t* KeyName;
@@ -345,7 +345,7 @@ void HighlightFiles::ClearData()
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 }
 
-static const DWORD PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
+static constexpr DWORD PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
 static void ApplyDefaultStartingColors(HighlightFiles::highlight_item& Colors)
 {

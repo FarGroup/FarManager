@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #define dpf(x) Console().Write(str_printf x)
 
-const wchar_t *ops[]=
+static constexpr const wchar_t* ops[]=
 {
 	L"opNone",
 	L"opLineStart",
@@ -1787,7 +1787,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 	if (bracketscount<matchcount)matchcount=bracketscount;
 
-	static const RegExpMatch def_match = { -1, -1 };
+	static constexpr RegExpMatch def_match = { -1, -1 };
 	std::fill_n(match, matchcount, def_match);
 
 	for(const auto* op = code.data(), *end = op + code.size(); op != end; ++op)

@@ -40,8 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage_selection.hpp"
 #include "strmix.hpp"
 
-const size_t DELTA = 1024;
-const size_t ReadBufCount = 0x2000;
+static constexpr size_t DELTA = 1024;
+static constexpr size_t ReadBufCount = 0x2000;
 
 enum EolType
 {

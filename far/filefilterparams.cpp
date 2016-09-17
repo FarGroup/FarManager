@@ -1053,7 +1053,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		for (int i=ID_FF_DATETYPE; i <= ID_FF_BLANK; i++)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 
-	static const std::pair<enumFileFilterConfig, DWORD> AttributeMapping[] =
+	static constexpr std::pair<enumFileFilterConfig, DWORD> AttributeMapping[] =
 	{
 		{ ID_FF_READONLY, FILE_ATTRIBUTE_READONLY },
 		{ ID_FF_ARCHIVE, FILE_ATTRIBUTE_ARCHIVE },

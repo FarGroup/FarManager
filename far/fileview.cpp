@@ -518,7 +518,7 @@ void FileViewer::ShowStatus() const
 	NameLength = std::max(NameLength, 20);
 
 	TruncPathStr(strName, NameLength);
-	static const wchar_t StatusFormat[] = L"%-*s %c %5u %13I64u %7.7s %-4I64d %3d%%";
+	static constexpr wchar_t StatusFormat[] = L"%-*s %c %5u %13I64u %7.7s %-4I64d %3d%%";
 	string strStatus = str_printf(
 	    StatusFormat,
 	    NameLength,

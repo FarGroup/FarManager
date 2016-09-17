@@ -42,38 +42,27 @@ public:
 	using reference = typename std::iterator_traits<iterator>::reference;
 	using pointer = typename std::iterator_traits<iterator>::pointer;
 
-	range() = default;
+	constexpr range() = default;
 
 	constexpr range(iterator i_begin, iterator i_end):
 		m_begin(i_begin),
 		m_end(i_end)
 	{}
 
-	auto begin() { return m_begin; }
-	auto end() { return m_end; }
+	constexpr bool empty() const { return m_begin == m_end; }
 
 	constexpr auto begin() const { return m_begin; }
 	constexpr auto end() const { return m_end; }
 
-	auto rbegin() { return reverse_iterator(m_end); }
-	auto rend() { return reverse_iterator(m_begin); }
-
 	constexpr auto rbegin() const { return reverse_iterator(m_end); }
 	constexpr auto rend() const { return reverse_iterator(m_begin); }
-
-	auto& operator[](size_t n) { return *(m_begin + n); }
-	constexpr auto& operator[](size_t n) const { return *(m_begin + n); }
-
-	auto& front() { return *m_begin; }
-	auto& back() { return *std::prev(m_end); }
 
 	constexpr auto& front() const { return *m_begin; }
 	constexpr auto& back() const { return *std::prev(m_end); }
 
-	auto data() { return &*m_begin; }
-	constexpr auto data() const { return &*m_begin; }
+	constexpr auto& operator[](size_t n) const { return *(m_begin + n); }
 
-	constexpr bool empty() const { return m_begin == m_end; }
+	constexpr auto data() const { return &*m_begin; }
 	constexpr size_t size() const { return m_end - m_begin; }
 
 private:
@@ -82,19 +71,19 @@ private:
 };
 
 template<class iterator_type>
-auto make_range(iterator_type i_begin, iterator_type i_end)
+constexpr auto make_range(iterator_type i_begin, iterator_type i_end)
 {
 	return range<iterator_type>(i_begin, i_end);
 }
 
 template<class iterator_type>
-auto make_range(iterator_type i_begin, size_t Size)
+constexpr auto make_range(iterator_type i_begin, size_t Size)
 {
 	return range<iterator_type>(i_begin, i_begin + Size);
 }
 
 template<class container>
-auto make_range(container& Container)
+constexpr auto make_range(container& Container)
 {
 	return make_range(std::begin(Container), std::end(Container));
 }

@@ -92,8 +92,8 @@ public:
 	auto& operator--() { detail::traits<args...>::alter_all(detail::decrement{}, m_Tuple); return *this; }
 	auto operator==(const zip_iterator& rhs) const { return m_Tuple == rhs.m_Tuple; }
 	auto operator!=(const zip_iterator& rhs) const { return !(*this == rhs); }
+	auto operator<(const zip_iterator& rhs) const { return m_Tuple < rhs.m_Tuple; }
 	auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
-
 private:
 	typename zip_iterator::pointer m_Tuple;
 };

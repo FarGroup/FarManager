@@ -71,6 +71,7 @@ namespace os
 
 		struct handle_closer { void operator()(HANDLE Handle) const; };
 		struct find_handle_closer { void operator()(HANDLE Handle) const; };
+		struct find_file_handle_closer { void operator()(HANDLE Handle) const; };
 		struct find_volume_handle_closer { void operator()(HANDLE Handle) const; };
 		struct find_notification_handle_closer { void operator()(HANDLE Handle) const; };
 		struct printer_handle_closer { void operator()(HANDLE Handle) const; };
@@ -78,6 +79,7 @@ namespace os
 
 	using handle = detail::handle_t<detail::handle_closer>;
 	using find_handle = detail::handle_t<detail::find_handle_closer>;
+	using find_file_handle = detail::handle_t<detail::find_file_handle_closer>;
 	using find_volume_handle = detail::handle_t<detail::find_volume_handle_closer>;
 	using find_notification_handle = detail::handle_t<detail::find_notification_handle_closer>;
 	using printer_handle = detail::handle_t<detail::printer_handle_closer>;
@@ -164,8 +166,8 @@ namespace os
 	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD dwFlags);
 	bool SetFileEncryption(const string& Name, bool Encrypt);
 	bool CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
-	find_handle FindFirstStream(const string& FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID lpFindStreamData, DWORD dwFlags = 0);
-	bool FindNextStream(const find_handle& hFindStream, LPVOID lpFindStreamData);
+	find_file_handle FindFirstStream(const string& FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID lpFindStreamData, DWORD dwFlags = 0);
+	bool FindNextStream(const find_file_handle& hFindStream, LPVOID lpFindStreamData);
 	std::vector<string> GetLogicalDriveStrings();
 	bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath);
 	bool SearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest);
@@ -200,7 +202,7 @@ namespace os
 
 		private:
 			string m_Object;
-			mutable find_handle m_Handle;
+			mutable find_file_handle m_Handle;
 			bool m_ScanSymLink;
 		};
 
@@ -229,7 +231,7 @@ namespace os
 
 		private:
 			string m_Object;
-			mutable find_handle m_Handle;
+			mutable find_file_handle m_Handle;
 		};
 
 		class enum_volume: public enumerator<enum_volume, string>
@@ -274,8 +276,8 @@ namespace os
 			bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;
 			bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr) const;
 			bool GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const;
-			bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr) const;
-			bool NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr) const;
+			bool NtQueryDirectoryFile(PVOID FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr) const;
+			bool NtQueryInformationFile(PVOID FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr) const;
 			void Close();
 			bool Eof() const;
 			const string& GetName() const { return name; }

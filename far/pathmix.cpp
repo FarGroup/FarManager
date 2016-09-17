@@ -605,7 +605,7 @@ void TestPathParser()
     assert(PathStartsWith(L"\\", L""));
     assert(!PathStartsWith(L"C:\\path\\file", L""));
 
-	const wchar_t* TestRoots[] =
+	static constexpr const wchar_t* TestRoots[] =
 	{
 		L"",
 		L"C:",
@@ -617,7 +617,7 @@ void TestPathParser()
 		L"\\\\?\\pipe\\",
 	};
 
-	const struct
+	static constexpr struct
 	{
 		const wchar_t* InputPath;
 		const wchar_t* ExpectedPath;

@@ -43,8 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "strmix.hpp"
 
-static const wchar_t ExcludeMaskSeparator = L'|';
-static const wchar_t RE_start = L'/', RE_end = L'/';
+static constexpr wchar_t ExcludeMaskSeparator = L'|';
+static constexpr wchar_t RE_start = L'/', RE_end = L'/';
 
 static auto SkipSeparators(const string::const_iterator& Iterator, const string::const_iterator& End)
 {

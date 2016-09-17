@@ -656,7 +656,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 			auto& strDestStr = i.first;
 			const auto strExpandedDestStr = os::env::expand_strings(strDestStr);
 			strDestStr.clear();
-			static const std::pair<wchar_t, wchar_t> ChrFmt[] =
+			static constexpr std::pair<wchar_t, wchar_t> ChrFmt[] =
 			{
 				{L'A', L'&'},   // $A - & (Ampersand)
 				{L'B', L'|'},   // $B - | (pipe)
@@ -1188,7 +1188,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
 		{
 			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
-			static const wchar_t CharsToFind[] = L"|>";
+			static constexpr wchar_t CharsToFind[] = L"|>";
 			if (std::find_first_of(ALL_CONST_RANGE(strCmdLine), ALL_CONST_RANGE(CharsToFind)) != strCmdLine.cend())
 				return false;
 

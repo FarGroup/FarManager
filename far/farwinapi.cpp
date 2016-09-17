@@ -53,12 +53,12 @@ namespace os
 		};
 		i_find_handle_impl::~i_find_handle_impl() = default;
 
-		void find_handle_closer::operator()(HANDLE Handle) const { delete static_cast<i_find_handle_impl*>(Handle); }
 		void handle_closer::operator()(HANDLE Handle) const { CloseHandle(Handle); }
+		void find_handle_closer::operator()(HANDLE Handle) const { FindClose(Handle); }
+		void find_file_handle_closer::operator()(HANDLE Handle) const { delete static_cast<i_find_handle_impl*>(Handle); }
 		void find_volume_handle_closer::operator()(HANDLE Handle) const { FindVolumeClose(Handle); }
 		void find_notification_handle_closer::operator()(HANDLE Handle) const { FindCloseChangeNotification(Handle); }
 		void printer_handle_closer::operator()(HANDLE Handle) const { ClosePrinter(Handle); }
-		struct os_find_handle_closer { void operator()(HANDLE Handle) const { FindClose(Handle); } };
 
 		class far_find_handle_impl: public i_find_handle_impl
 		{
@@ -67,127 +67,115 @@ namespace os
 			block_ptr<BYTE> BufferBase;
 			block_ptr<BYTE> Buffer2;
 			ULONG NextOffset {};
-			ULONG BufferSize {};
 			bool Extended {};
 			bool ReadDone {};
 		};
 
-		class os_find_handle_impl: public i_find_handle_impl
+		class os_find_handle_impl: public i_find_handle_impl, public handle_t<find_handle_closer>
 		{
-		public:
-			explicit os_find_handle_impl(HANDLE Handle): m_Handle(Handle) {}
-			HANDLE hative_handle() const { return m_Handle.native_handle(); }
-
-		private:
-			handle_t<os_find_handle_closer> m_Handle;
+			using handle_t<find_handle_closer>::handle_t;
 		};
 	}
 
-static auto FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
+static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, FAR_FIND_DATA& FindData, bool IsExtended)
 {
-	find_handle Result;
+	FindData.dwFileAttributes = DirectoryInfo.FileAttributes;
+	FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo.CreationTime);
+	FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo.LastAccessTime);
+	FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo.LastWriteTime);
+	FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo.ChangeTime);
+	FindData.nFileSize = DirectoryInfo.EndOfFile.QuadPart;
+	FindData.nAllocationSize = DirectoryInfo.AllocationSize.QuadPart;
+	FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
 
-	if(!Name.empty() && !IsSlash(Name.back()))
+	if (IsExtended)
 	{
-			auto Handle = std::make_unique<detail::far_find_handle_impl>();
-
-			string strDirectory(Name);
-			CutToSlash(strDirectory);
-			if(Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
-			{
-
-				// for network paths buffer size must be <= 64k
-				Handle->BufferSize = 0x10000;
-				Handle->BufferBase.reset(Handle->BufferSize);
-				if (Handle->BufferBase)
-				{
-					LPCWSTR NamePtr = PointToName(Name);
-					Handle->Extended = true;
-
-					bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, FileIdBothDirectoryInformation, false, NamePtr, true);
-					if (QueryResult) // try next read immediately to avoid M#2128 bug
-					{
-						Handle->Buffer2.reset(Handle->BufferSize);
-						bool QueryResult2 = Handle->Object.NtQueryDirectoryFile(Handle->Buffer2.get(), Handle->BufferSize, FileIdBothDirectoryInformation, false, NamePtr, false);
-						if (!QueryResult2)
-						{
-							Handle->Buffer2.reset();
-							if (GetLastError() != ERROR_INVALID_LEVEL)
-								Handle->ReadDone = true;
-							else
-								QueryResult = false;
-						}
-					}
-
-					if(!QueryResult)
-					{
-						Handle->Extended = false;
-
-						// re-create handle to avoid weird bugs with some network emulators
-						Handle->Object.Close();
-						if(Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
-						{
-							QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, FileBothDirectoryInformation, false, NamePtr, true);
-						}
-					}
-					if(QueryResult)
-					{
-						const auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
-						FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
-						FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime);
-						FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime);
-						FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo->LastWriteTime);
-						FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo->ChangeTime);
-						FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
-						FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
-						FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
-
-						if(Handle->Extended)
-						{
-							FindData.FileId = DirectoryInfo->FileId.QuadPart;
-							FindData.strFileName.assign(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
-							FindData.strAlternateFileName.assign(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
-						}
-						else
-						{
-							FindData.FileId = 0;
-							const auto DirectoryInfoSimple = reinterpret_cast<const FILE_BOTH_DIR_INFORMATION*>(DirectoryInfo);
-							FindData.strFileName.assign(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
-							FindData.strAlternateFileName.assign(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
-						}
-
-						// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
-						if(!FindData.strFileName.empty() && !FindData.strFileName.back())
-						{
-							FindData.strFileName.pop_back();
-						}
-						if(!FindData.strAlternateFileName.empty() && !FindData.strAlternateFileName.back())
-						{
-							FindData.strAlternateFileName.pop_back();
-						}
-
-						Handle->NextOffset = DirectoryInfo->NextEntryOffset;
-						Result.reset(Handle.release());
-					}
-					else
-					{
-						Handle->BufferBase.reset();
-					}
-				}
-			}
-			else
-			{
-				// fix error code if we looking for FILE(S) in non-existent directory, not directory itself
-				if(GetLastError() == ERROR_FILE_NOT_FOUND && *PointToName(Name))
-				{
-					SetLastError(ERROR_PATH_NOT_FOUND);
-				}
-			}
+		FindData.FileId = DirectoryInfo.FileId.QuadPart;
+		FindData.strFileName.assign(DirectoryInfo.FileName, DirectoryInfo.FileNameLength / sizeof(wchar_t));
+		FindData.strAlternateFileName.assign(DirectoryInfo.ShortName, DirectoryInfo.ShortNameLength / sizeof(wchar_t));
 	}
-	return Result;
+	else
+	{
+		FindData.FileId = 0;
+		const auto& DirectoryInfoSimple = reinterpret_cast<const FILE_BOTH_DIR_INFORMATION&>(DirectoryInfo);
+		FindData.strFileName.assign(DirectoryInfoSimple.FileName, DirectoryInfoSimple.FileNameLength / sizeof(wchar_t));
+		FindData.strAlternateFileName.assign(DirectoryInfoSimple.ShortName, DirectoryInfoSimple.ShortNameLength / sizeof(wchar_t));
+	}
+
+	const auto RemoveTrailingZeros = [](string& Where) { Where.resize(Where.find_last_not_of(L'\0') + 1); };
+
+	// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
+	RemoveTrailingZeros(FindData.strFileName);
+	RemoveTrailingZeros(FindData.strAlternateFileName);
 }
 
-static bool FindNextFileInternal(const find_handle& Find, FAR_FIND_DATA& FindData)
+static auto FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
+{
+	if (Name.empty() || IsSlash(Name.back()))
+		return find_file_handle{};
+
+	auto Handle = std::make_unique<detail::far_find_handle_impl>();
+
+	auto strDirectory(Name);
+	CutToSlash(strDirectory);
+
+	const auto OpenDirectory = [&] { return Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING); };
+
+	if (!OpenDirectory())
+	{
+		// fix error code if we looking for FILE(S) in non-existent directory, not directory itself
+		if (GetLastError() == ERROR_FILE_NOT_FOUND && *PointToName(Name))
+		{
+			SetLastError(ERROR_PATH_NOT_FOUND);
+		}
+		return find_file_handle{};
+	}
+
+	// for network paths buffer size must be <= 64k
+	Handle->BufferBase.reset(0x10000);
+
+	const auto NamePtr = PointToName(Name);
+	Handle->Extended = true;
+
+	bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, NamePtr, true);
+	if (QueryResult) // try next read immediately to avoid M#2128 bug
+	{
+		block_ptr<BYTE> Buffer2(Handle->BufferBase.size());
+		if (Handle->Object.NtQueryDirectoryFile(Buffer2.get(), Buffer2.size(), FileIdBothDirectoryInformation, false, NamePtr, false))
+		{
+			Handle->Buffer2 = std::move(Buffer2);
+		}
+		else
+		{
+			if (GetLastError() != ERROR_INVALID_LEVEL)
+				Handle->ReadDone = true;
+			else
+				QueryResult = false;
+		}
+	}
+
+	if (!QueryResult)
+	{
+		Handle->Extended = false;
+
+		// re-create handle to avoid weird bugs with some network emulators
+		Handle->Object.Close();
+		if (OpenDirectory())
+		{
+			QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, NamePtr, true);
+		}
+	}
+
+	if (!QueryResult)
+		return find_file_handle{};
+
+	const auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
+	DirectoryInfoToFindData(*DirectoryInfo, FindData, Handle->Extended);
+	Handle->NextOffset = DirectoryInfo->NextEntryOffset;
+	return find_file_handle(Handle.release());
+}
+
+static bool FindNextFileInternal(const find_file_handle& Find, FAR_FIND_DATA& FindData)
 {
 	bool Result = false;
 	const auto Handle = static_cast<detail::far_find_handle_impl*>(Find.native_handle());
@@ -210,11 +198,11 @@ static bool FindNextFileInternal(const find_handle& Find, FAR_FIND_DATA& FindDat
 				Handle->BufferBase.reset();
 				using std::swap;
 				swap(Handle->BufferBase, Handle->Buffer2);
-				DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.get());
+				DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.get());
 			}
 			else
 			{
-				Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferSize, Handle->Extended ? FileIdBothDirectoryInformation : FileBothDirectoryInformation, false, nullptr, false);
+				Status = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), Handle->Extended ? FileIdBothDirectoryInformation : FileBothDirectoryInformation, false, nullptr, false);
 				set_errcode = false;
 			}
 		}
@@ -222,40 +210,8 @@ static bool FindNextFileInternal(const find_handle& Find, FAR_FIND_DATA& FindDat
 
 	if(Status)
 	{
-		FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
-		FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo->CreationTime);
-		FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo->LastAccessTime);
-		FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo->LastWriteTime);
-		FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo->ChangeTime);
-		FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
-		FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
-		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
-
-		if(Handle->Extended)
-		{
-			FindData.FileId = DirectoryInfo->FileId.QuadPart;
-			FindData.strFileName.assign(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
-			FindData.strAlternateFileName.assign(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
-		}
-		else
-		{
-			FindData.FileId = 0;
-			const auto DirectoryInfoSimple = reinterpret_cast<const FILE_BOTH_DIR_INFORMATION*>(DirectoryInfo);
-			FindData.strFileName.assign(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
-			FindData.strAlternateFileName.assign(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
-		}
-
-		// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
-		if(!FindData.strFileName.empty() && !FindData.strFileName.back())
-		{
-			FindData.strFileName.pop_back();
-		}
-		if(!FindData.strAlternateFileName.empty() && !FindData.strAlternateFileName.back())
-		{
-			FindData.strAlternateFileName.pop_back();
-		}
-
-		Handle->NextOffset = DirectoryInfo->NextEntryOffset?Handle->NextOffset+DirectoryInfo->NextEntryOffset:0;
+		DirectoryInfoToFindData(*DirectoryInfo, FindData, Handle->Extended);
+		Handle->NextOffset = DirectoryInfo->NextEntryOffset? Handle->NextOffset + DirectoryInfo->NextEntryOffset : 0;
 		Result = true;
 	}
 
@@ -403,10 +359,7 @@ bool enum_stream::get(size_t index, value_type& value) const
 		m_Handle = FindFirstStream(m_Object, FindStreamInfoStandard, &value);
 		return m_Handle ? true : false;
 	}
-	else
-	{
-		return FindNextStream(m_Handle, &value);
-	}
+	return FindNextStream(m_Handle, &value);
 }
 
 //-------------------------------------------------------------------------
@@ -587,7 +540,7 @@ bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, UL
 	return Result == ERROR_SUCCESS;
 }
 
-bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status) const
+bool file::NtQueryDirectoryFile(PVOID FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status) const
 {
 	IO_STATUS_BLOCK IoStatusBlock;
 	PUNICODE_STRING pNameString = nullptr;
@@ -602,7 +555,7 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 	const auto di = reinterpret_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
 	di->NextEntryOffset = 0xffffffffUL;
 
-	NTSTATUS Result = Imports().NtQueryDirectoryFile(Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+	NTSTATUS Result = Imports().NtQueryDirectoryFile(Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
 	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
@@ -612,10 +565,10 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 	return (Result == STATUS_SUCCESS) && (di->NextEntryOffset != 0xffffffffUL);
 }
 
-bool file::NtQueryInformationFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status) const
+bool file::NtQueryInformationFile(PVOID FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status) const
 {
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Result = Imports().NtQueryInformationFile(Handle.native_handle(), &IoStatusBlock, FileInformation, Length, FileInformationClass);
+	NTSTATUS Result = Imports().NtQueryInformationFile(Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
 	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
@@ -1226,30 +1179,44 @@ bool GetDiskSize(const string& Path,unsigned long long* TotalSize, unsigned long
 
 find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName)
 {
-	HANDLE hRet=INVALID_HANDLE_VALUE;
-	DWORD StringLength=0;
 	NTPath NtFileName(FileName);
-	if (Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+	wchar_t Buffer[MAX_PATH];
+	wchar_t_ptr vBuffer;
+	auto BufferPtr = Buffer;
+	auto BufferSize = static_cast<DWORD>(std::size(Buffer));
+	find_handle Handle(Imports().FindFirstFileNameW(NtFileName.data(), 0, &BufferSize, BufferPtr));
+	if (!Handle && BufferSize && GetLastError() == ERROR_MORE_DATA)
 	{
-		wchar_t_ptr Buffer(StringLength);
-		hRet=Imports().FindFirstFileNameW(NtFileName.data(), 0, &StringLength, Buffer.get());
-		LinkName = Buffer.get();
+		vBuffer.reset(BufferSize);
+		BufferPtr = vBuffer.get();
+		Handle.reset(Imports().FindFirstFileNameW(NtFileName.data(), 0, &BufferSize, BufferPtr));
 	}
-	return find_handle(hRet != INVALID_HANDLE_VALUE? new detail::os_find_handle_impl(hRet) : nullptr);
+
+	if (Handle)
+		LinkName.assign(BufferPtr, BufferSize - 1);
+
+	return Handle;
 }
 
 bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
 {
-	bool Ret = false;
-	DWORD StringLength=0;
-	const auto Handle = static_cast<detail::os_find_handle_impl*>(hFindStream.native_handle())->hative_handle();
-	if (!Imports().FindNextFileNameW(Handle, &StringLength, nullptr) && GetLastError() == ERROR_MORE_DATA)
+	wchar_t Buffer[MAX_PATH];
+	wchar_t_ptr vBuffer;
+	auto BufferPtr = Buffer;
+	auto BufferSize = static_cast<DWORD>(std::size(Buffer));
+	auto Result = Imports().FindNextFileNameW(hFindStream.native_handle(), &BufferSize, BufferPtr) != FALSE;
+	if (!Result && GetLastError() == ERROR_MORE_DATA)
 	{
-		wchar_t_ptr Buffer(StringLength);
-		Ret = Imports().FindNextFileNameW(Handle, &StringLength, Buffer.get()) != FALSE;
-		LinkName = Buffer.get();
+		vBuffer.reset(BufferSize);
+		BufferPtr = vBuffer.get();
+		Result = Imports().FindNextFileNameW(hFindStream.native_handle(), &BufferSize, BufferPtr) != FALSE;
 	}
-	return Ret;
+
+	if (!Result)
+		return false;
+
+	LinkName.assign(BufferPtr, BufferSize - 1);
+	return true;
 }
 
 bool CreateDirectory(const string& PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
@@ -1353,99 +1320,85 @@ bool CreateHardLink(const string& FileName, const string& ExistingFileName, LPSE
 	return Result;
 }
 
-find_handle FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
+static bool FileStreamInformationToFindStreamData(const FILE_STREAM_INFORMATION& StreamInfo, WIN32_FIND_STREAM_DATA& StreamData)
 {
-	find_handle Ret;
-	if(Imports().FindFirstStreamW)
-	{
-		const auto Handle = Imports().FindFirstStreamW(NTPath(FileName).data(), InfoLevel, lpFindStreamData, dwFlags);
-		if (Handle != INVALID_HANDLE_VALUE)
-		{
-			Ret.reset(new detail::os_find_handle_impl(Handle));
-		}
-	}
-	else
-	{
-		if (InfoLevel==FindStreamInfoStandard)
-		{
-				auto Handle = std::make_unique<detail::far_find_handle_impl>();
+	if (!StreamInfo.StreamNameLength || StreamInfo.StreamNameLength / sizeof(wchar_t) > sizeof(StreamData.cStreamName))
+		return false;
 
-				if (Handle->Object.Open(FileName, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
-				{
-					// for network paths buffer size must be <= 64k
-					// we double it in a first loop, so starting value is 32k
-					Handle->BufferSize = 0x8000;
-					NTSTATUS Result = STATUS_SEVERITY_ERROR;
-					do
-					{
-						Handle->BufferSize *= 2;
-						Handle->BufferBase.reset(Handle->BufferSize);
-						if (Handle->BufferBase)
-						{
-							// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
-							const auto StreamInfo = reinterpret_cast<FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
-							StreamInfo->StreamNameLength = 0;
-							Handle->Object.NtQueryInformationFile(Handle->BufferBase.get(), Handle->BufferSize, FileStreamInformation, &Result);
-						}
-					}
-					while(Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
-
-					if (Result == STATUS_SUCCESS)
-					{
-						const auto pFsd = static_cast<WIN32_FIND_STREAM_DATA*>(lpFindStreamData);
-						const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
-						Handle->NextOffset = StreamInfo->NextEntryOffset;
-						if (StreamInfo->StreamNameLength)
-						{
-							std::copy_n(std::cbegin(StreamInfo->StreamName), StreamInfo->StreamNameLength/sizeof(wchar_t), pFsd->cStreamName);
-							pFsd->cStreamName[StreamInfo->StreamNameLength / sizeof(wchar_t)] = L'\0';
-							pFsd->StreamSize=StreamInfo->StreamSize;
-							Ret.reset(Handle.release());
-						}
-					}
-				}
-		}
-	}
-
-	return Ret;
+	std::copy_n(std::cbegin(StreamInfo.StreamName), StreamInfo.StreamNameLength / sizeof(wchar_t), StreamData.cStreamName);
+	StreamData.cStreamName[StreamInfo.StreamNameLength / sizeof(wchar_t)] = L'\0';
+	StreamData.StreamSize = StreamInfo.StreamSize;
+	return true;
 }
 
-bool FindNextStream(const find_handle& hFindStream,LPVOID lpFindStreamData)
+find_file_handle FindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
-	bool Ret=FALSE;
-	if(Imports().FindFirstStreamW)
+	if (Imports().FindFirstStreamW)
 	{
-		Ret = Imports().FindNextStreamW(static_cast<detail::os_find_handle_impl*>(hFindStream.native_handle())->hative_handle(), lpFindStreamData) != FALSE;
-	}
-	else
-	{
-		const auto Handle = static_cast<detail::far_find_handle_impl*>(hFindStream.native_handle());
-
-		if (Handle->NextOffset)
-		{
-			const auto pStreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.get() + Handle->NextOffset);
-			const auto pFsd = static_cast<WIN32_FIND_STREAM_DATA*>(lpFindStreamData);
-			Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
-			if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
-			{
-				std::copy_n(std::cbegin(pStreamInfo->StreamName), pStreamInfo->StreamNameLength / sizeof(wchar_t), pFsd->cStreamName);
-				pFsd->cStreamName[pStreamInfo->StreamNameLength / sizeof(wchar_t)] = L'\0';
-				pFsd->StreamSize=pStreamInfo->StreamSize;
-				Ret = true;
-			}
-		}
+		detail::os_find_handle_impl Handle(Imports().FindFirstStreamW(NTPath(FileName).data(), InfoLevel, lpFindStreamData, dwFlags));
+		return find_file_handle(Handle? std::make_unique<detail::os_find_handle_impl>(Handle.release()).release() : nullptr);
 	}
 
-	return Ret;
+	if (InfoLevel != FindStreamInfoStandard)
+		return find_file_handle{};
+
+	auto Handle = std::make_unique<detail::far_find_handle_impl>();
+
+	if (!Handle->Object.Open(FileName, 0, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
+		return find_file_handle{};
+
+	// for network paths buffer size must be <= 64k
+	// we double it in a first loop, so starting value is 32k
+	size_t BufferSize = 0x8000;
+	NTSTATUS Result = STATUS_SEVERITY_ERROR;
+	do
+	{
+		BufferSize *= 2;
+		Handle->BufferBase.reset(BufferSize);
+		// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
+		const auto StreamInfo = reinterpret_cast<FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
+		StreamInfo->StreamNameLength = 0;
+		Handle->Object.NtQueryInformationFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileStreamInformation, &Result);
+	}
+	while(Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
+
+	if (Result != STATUS_SUCCESS)
+		return find_file_handle{};
+
+	const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.get());
+	Handle->NextOffset = StreamInfo->NextEntryOffset;
+	const auto StreamData = static_cast<WIN32_FIND_STREAM_DATA*>(lpFindStreamData);
+
+	if (!FileStreamInformationToFindStreamData(*StreamInfo, *StreamData))
+		return find_file_handle{};
+
+	return find_file_handle(Handle.release());
+}
+
+bool FindNextStream(const find_file_handle& hFindStream,LPVOID lpFindStreamData)
+{
+	if (Imports().FindFirstStreamW)
+	{
+		return Imports().FindNextStreamW(static_cast<detail::os_find_handle_impl*>(hFindStream.native_handle())->native_handle(), lpFindStreamData) != FALSE;
+	}
+
+	const auto Handle = static_cast<detail::far_find_handle_impl*>(hFindStream.native_handle());
+
+	if (!Handle->NextOffset)
+		return false;
+
+	const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.get() + Handle->NextOffset);
+	Handle->NextOffset = StreamInfo->NextEntryOffset? Handle->NextOffset + StreamInfo->NextEntryOffset : 0;
+	const auto StreamData = static_cast<WIN32_FIND_STREAM_DATA*>(lpFindStreamData);
+
+	return FileStreamInformationToFindStreamData(*StreamInfo, *StreamData);
 }
 
 std::vector<string> GetLogicalDriveStrings()
 {
 	FN_RETURN_TYPE(GetLogicalDriveStrings) Result;
 	wchar_t Buffer[MAX_PATH];
-	DWORD Size = ::GetLogicalDriveStrings(static_cast<DWORD>(std::size(Buffer)), Buffer);
-
-	if (Size)
+	if (auto Size = ::GetLogicalDriveStrings(static_cast<DWORD>(std::size(Buffer)), Buffer))
 	{
 		const wchar_t* Ptr;
 		wchar_t_ptr vBuffer;

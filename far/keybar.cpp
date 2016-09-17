@@ -93,7 +93,7 @@ void KeyBar::DisplayObject()
 
 		string Label;
 
-		static const std::pair<bool(FarKeyboardState::*)() const, keybar_group> Mapping[] =
+		static constexpr std::pair<bool(FarKeyboardState::*)() const, keybar_group> Mapping[] =
 		{
 			{ &FarKeyboardState::NonePressed, KBL_MAIN },
 			{ &FarKeyboardState::OnlyAltPressed, KBL_ALT },
@@ -181,7 +181,7 @@ void KeyBar::SetLabels(LNGID StartIndex)
 
 static int FnGroup(DWORD ControlState)
 {
-	static const struct
+	static constexpr struct
 	{
 		DWORD Group;
 		DWORD ControlState;
@@ -209,7 +209,7 @@ static int FnGroup(DWORD ControlState)
 
 void KeyBar::SetCustomLabels(KEYBARAREA Area)
 {
-	static const wchar_t* const Names[] =
+	static constexpr const wchar_t* const Names[] =
 	{
 		L"Shell",
 		L"Info",

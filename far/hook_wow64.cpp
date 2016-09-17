@@ -47,7 +47,7 @@ static thread_local PVOID saveval;
 using DISABLE = decltype(&Wow64DisableWow64FsRedirection);
 using REVERT = decltype(&Wow64RevertWow64FsRedirection);
 
-static const volatile struct WOW
+static constexpr volatile struct WOW
 {
 	static BOOL WINAPI e_disable(PVOID*) { return FALSE; }
 	static BOOL WINAPI e_revert(PVOID) { return FALSE; }
@@ -127,11 +127,16 @@ hook_ldr()
 static void init_hook()
 {
 	DWORD p;
-	static const wchar_t k32_w[] = L"kernel32", ntd_w[] = L"ntdll";
-	static const char dis_c[] = "Wow64DisableWow64FsRedirection",
-	                  rev_c[] = "Wow64RevertWow64FsRedirection",
-	                  wow_c[] = "IsWow64Process",
-	                  ldr_c[] = "LdrLoadDll";
+	static constexpr wchar_t
+		k32_w[] = L"kernel32",
+		ntd_w[] = L"ntdll";
+
+	static constexpr char
+		dis_c[] = "Wow64DisableWow64FsRedirection",
+		rev_c[] = "Wow64RevertWow64FsRedirection",
+		wow_c[] = "IsWow64Process",
+		ldr_c[] = "LdrLoadDll";
+
 	WOW rwow;
 	BOOL b=FALSE;
 
@@ -143,7 +148,7 @@ PACK_PUSH(1)
 	struct
 	{
 		BYTE  cod { 0xE8 };
-		DWORD off { (DWORD)(SIZE_T)((LPCH)hook_ldr - sizeof(*this)) };
+		DWORD off { static_cast<DWORD>(reinterpret_cast<uintptr_t>(reinterpret_cast<char*>(hook_ldr) - sizeof(*this))) };
 	}
 	data;
 PACK_POP()
@@ -157,35 +162,36 @@ union
 	} ur;
 
 	if ((ur.h = GetModuleHandleW(k32_w)) == nullptr
-	        || (IsWow = (ISWOW)GetProcAddress(ur.h, wow_c)) == nullptr
+	        || (IsWow = reinterpret_cast<ISWOW>(GetProcAddress(ur.h, wow_c))) == nullptr
 	        || !(IsWow(GetCurrentProcess(), &b) && b)
-	        || (rwow.disable = (DISABLE)GetProcAddress(ur.h, dis_c)) == nullptr
-	        || (rwow.revert = (REVERT)GetProcAddress(ur.h, rev_c)) == nullptr
+	        || (rwow.disable = reinterpret_cast<DISABLE>(GetProcAddress(ur.h, dis_c))) == nullptr
+	        || (rwow.revert = reinterpret_cast<REVERT>(GetProcAddress(ur.h, rev_c))) == nullptr
 	        || (ur.h = GetModuleHandleW(ntd_w)) == nullptr
 	        || (ur.f = GetProcAddress(ur.h, ldr_c)) == nullptr) return;
 
-	if (*(LPBYTE)ur.p != 0x68     // push m32
-	        && (*(LPDWORD)ur.p != 0x8B55FF8B || ((LPBYTE)ur.p)[4] != 0xEC)) return;
+	if (*static_cast<LPBYTE>(ur.p) != 0x68     // push m32
+		&& (*static_cast<LPDWORD>(ur.p) != 0x8B55FF8B || static_cast<LPBYTE>(ur.p)[4] != 0xEC))
+			return;
 
 	// (Win2008-R2) mov edi, edi; push ebp; mov ebp, esp
 	{
-		DWORD   loff = *(LPDWORD)((LPBYTE)ur.p+1);
-		LPBYTE  p_loff = (LPBYTE)&hook_ldr + HOOK_PUSH_OFFSET;
+		auto loff = *reinterpret_cast<LPDWORD>(static_cast<LPBYTE>(ur.p) + 1);
+		auto p_loff = reinterpret_cast<LPBYTE>(&hook_ldr) + HOOK_PUSH_OFFSET;
 
-		if (loff != *(LPDWORD)p_loff)  // 0x240 in non vista, 0x244 in vista/2008
+		if (loff != *reinterpret_cast<LPDWORD>(p_loff))  // 0x240 in non vista, 0x244 in vista/2008
 		{
 			// don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
 			if (!VirtualProtect(p_loff-1, 1+sizeof(loff), PAGE_EXECUTE_READWRITE, &p))
 				return;
 
-			if (*(LPBYTE)ur.p != 0x68)  // Win7r2 (not push .... => mov edi,edi)
+			if (*static_cast<LPBYTE>(ur.p) != 0x68)  // Win7r2 (not push .... => mov edi,edi)
 			{
-				((LPBYTE)p_loff)[-1] = 0x90;  // nop
+				static_cast<LPBYTE>(p_loff)[-1] = 0x90;  // nop
 				loff = 0xE5895590;  // nop; push ebp; mov ebp, esp
 			}
 
-			*(LPDWORD)p_loff = loff;
-			VirtualProtect(p_loff-1, 1+sizeof(loff), p, (LPDWORD)&p_loff);
+			*reinterpret_cast<LPDWORD>(p_loff) = loff;
+			VirtualProtect(p_loff-1, 1+sizeof(loff), p, reinterpret_cast<LPDWORD>(&p_loff));
 		}
 	}
 	data.off -= ur.d;
@@ -194,11 +200,11 @@ union
 	        || data.off != sizeof(data)) return;
 
 	// don't use WriteProcessMemory here - BUG in 2003x64 32bit kernel32.dll :(
-	if (!VirtualProtect((void*)&wow, sizeof(wow), PAGE_EXECUTE_READWRITE, &data.off))
+	if (!VirtualProtect(const_cast<WOW*>(&wow), sizeof(wow), PAGE_EXECUTE_READWRITE, &data.off))
 		return;
 
 	const_cast<WOW&>(wow) = rwow;
-	VirtualProtect((void*)&wow, sizeof(wow), data.off, &p);
+	VirtualProtect(const_cast<WOW*>(&wow), sizeof(wow), data.off, &p);
 }
 
 //-----------------------------------------------------------------------------

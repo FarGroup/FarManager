@@ -58,7 +58,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 
 	case DN_CTLCOLORDLGLIST:
 		{
-			static const PaletteColors MenuColors[]=
+			static constexpr PaletteColors MenuColors[]=
 			{
 				COL_MENUBOX,                               // подложка
 				COL_MENUBOX,                               // рамка
@@ -315,7 +315,7 @@ string VMenu2::GetMenuTitle(bool bottom)
 	return string(title.get(), size - 1);
 }
 
-const std::array<FarDialogItem, 1> VMenu2DialogItems =
+static constexpr std::array<FarDialogItem, 1> VMenu2DialogItems =
 {{
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 }};

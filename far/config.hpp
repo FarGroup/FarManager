@@ -892,6 +892,7 @@ private:
 	void SavePanelModes(bool always);
 
 	std::vector<farconfig> Config;
+	std::vector<string>* m_ConfigStrings;
 	farconfig_mode CurrentConfig;
 	std::vector<PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;

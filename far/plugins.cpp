@@ -66,7 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "PluginA.hpp"
 
-static const wchar_t PluginsFolderName[] = L"Plugins";
+static constexpr wchar_t PluginsFolderName[] = L"Plugins";
 
 static void ReadUserBackgound(SaveScreen *SaveScr)
 {

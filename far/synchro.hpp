@@ -161,7 +161,7 @@ public:
 
 	Mutex(const wchar_t* Name = nullptr): waitable(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
 
-	static const wchar_t *GetNamespace() { return L"Far_Manager_Mutex_"; }
+	static constexpr const wchar_t *GetNamespace() { return L"Far_Manager_Mutex_"; }
 
 	bool lock() const { return m_Handle.wait(); }
 
@@ -180,7 +180,7 @@ public:
 	Event() = default;
 	Event(event_type Type, event_state InitialState, const wchar_t* Name = nullptr): waitable(CreateEvent(nullptr, Type == manual, InitialState == signaled, EmptyToNull(Name))) {}
 
-	static const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }
+	static constexpr const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }
 
 	bool Set() const { check_valid(); return SetEvent(m_Handle.native_handle()) != FALSE; }
 

@@ -83,7 +83,7 @@ SCOPED_ACTION(components::component)(getInfo);
 
 static const auto& CpMap()
 {
-	static std::unordered_map<std::string, uintptr_t> sCpMap = 
+	static const std::unordered_map<std::string, uintptr_t> sCpMap =
 	{
 		{ "UTF16-LE", CP_UNICODE },
 		{ "UTF16-BE", CP_REVERSEBOM },
