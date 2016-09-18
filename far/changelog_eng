@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.09.2016 02:48:50 +0200 - build 4794
+
+1. Workaround for VS bug. See connect #3103404 for details.
+
+drkns 17.09.2016 22:13:26 +0200 - build 4793
+
+1. constexpr.
+
+2. longPathAware = true for Windows 10.
+
+3. Refactoring.
+
+drkns 15.09.2016 02:23:25 +0200 - build 4792
+
+1. Correction of 4784.1.
+
+2. Code analysis warnings.
+
+drkns 13.09.2016 18:28:08 +0200 - build 4791
+
+1. Crash in viewer when copying selected UTF-8 text.
+
+2. Incorrect text/hex conversion in search dialog.
+
+3. Crash after pressing End on radiobutton in dialog.
+
+4. Editor screen would not refresh while scrolling it with Ctrl-Up/Down from "Find all" menu.
+
+svs 13.09.2016 15:13:03 +0300 - build 4790
+
+1. SQLite 3.14.2
+
 drkns 12.09.2016 23:35:38 +0200 - build 4789
 
 1. Correction of 4788.3.
