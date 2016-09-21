@@ -1261,7 +1261,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 		{ MFLAGS_EDITNOSELECTION, MFLAGS_EDITSELECTION, MFLAGS_NONE },
 	};
 
-	static_assert(key_count == std::size(Mapping), "incorrect size");
+	TERSE_STATIC_ASSERT(key_count == std::size(Mapping));
 
 	auto get_flag = [&](MACROSETTINGSDLG ControlId, key_id KeyId)
 	{

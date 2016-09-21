@@ -230,7 +230,7 @@ public:
 			WA("OpenFilePlugin"),
 			WA("GetMinFarVersion"),
 		};
-		static_assert(std::size(ExportsNames) == ExportsCount, "Not all exports names are defined");
+		TERSE_STATIC_ASSERT(std::size(ExportsNames) == ExportsCount);
 		m_ExportsNames = make_range(ALL_CONST_RANGE(ExportsNames));
 	}
 

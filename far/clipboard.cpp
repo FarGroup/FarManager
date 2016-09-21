@@ -154,7 +154,7 @@ private:
 			{ L"Notepad++ binary text length", 0 },
 		};
 
-		static_assert(std::size(FormatNames) == static_cast<unsigned>(clipboard_format::count), "Wrong size of FormatNames");
+		TERSE_STATIC_ASSERT(std::size(FormatNames) == static_cast<unsigned>(clipboard_format::count));
 		assert(Format < clipboard_format::count);
 		auto& FormatData = FormatNames[static_cast<unsigned>(Format)];
 		if (!FormatData.second)
@@ -241,7 +241,8 @@ private:
 
 	virtual unsigned RegisterFormat(clipboard_format Format) const override
 	{
-		return static_cast<unsigned>(Format) + 0xFC; // magic number stands for "Far Clipboard"
+		enum { FarClipboardMagic = 0xFC };
+		return static_cast<unsigned>(Format) + FarClipboardMagic;
 	}
 
 	virtual bool IsFormatAvailable(unsigned Format) const override

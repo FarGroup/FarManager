@@ -73,7 +73,7 @@ inline auto make_blob_view(const void* Object, size_t Size)
 template<typename T>
 auto make_blob_view(const T& Object)
 {
-	static_assert(std::is_pod<T>::value, "This template requires a POD type");
+	TERSE_STATIC_ASSERT(std::is_pod<T>::value);
 	return make_blob_view(&Object, sizeof Object);
 }
 

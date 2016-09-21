@@ -1012,7 +1012,7 @@ static void ResetViewModes(const range<PanelViewSettings*>& Modes, int Index = -
 			PVS_ALIGNEXTENSIONS,
 		},
 	};
-	static_assert(std::size(InitialModes) == predefined_panel_modes_count, "not all initial modes defined");
+	TERSE_STATIC_ASSERT(std::size(InitialModes) == predefined_panel_modes_count);
 
 	const auto InitMode = [](const auto& src, auto& dst)
 	{
@@ -1058,7 +1058,7 @@ void Options::SetFilePanelModes()
 			MMenuLinksView,
 			MMenuAlternativeView,
 		};
-		static_assert(std::size(PredefinedNames) == predefined_panel_modes_count, "Not all panel modes defined");
+		TERSE_STATIC_ASSERT(std::size(PredefinedNames) == predefined_panel_modes_count);
 
 		const auto MenuCount = ViewSettings.size();
 		// +1 for separator
@@ -1614,7 +1614,7 @@ void Options::InitConfigData()
 		L'\x256A', L'\x2518', L'\x250C', L'\x2588', L'\x2584', L'\x258C', L'\x2590', L'\x2580',
 		L'\0'
 	};
-	static_assert(std::size(DefaultBoxSymbols) == BS_COUNT + 1, "Incomplete DefaultBoxSymbols array");
+	TERSE_STATIC_ASSERT(std::size(DefaultBoxSymbols) == BS_COUNT + 1);
 
 	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
 
@@ -2042,7 +2042,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		{ NetBoxGuid, {} },
 	};
 
-	static_assert(std::size(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption), "incomplete DefaultKnownGuids array");
+	TERSE_STATIC_ASSERT(std::size(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption));
 
 	KnownModulesIDs::GuidOption* GuidOptions[] =
 	{
@@ -2052,7 +2052,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		&KnownIDs.Luamacro,
 		&KnownIDs.Netbox,
 	};
-	static_assert(std::size(GuidOptions) == std::size(DefaultKnownGuids), "incomplete GuidOptions array");
+	TERSE_STATIC_ASSERT(std::size(GuidOptions) == std::size(DefaultKnownGuids));
 
 	for(auto i: zip(DefaultKnownGuids, GuidOptions))
 	{

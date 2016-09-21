@@ -88,23 +88,41 @@ static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& Director
 	FindData.nAllocationSize = DirectoryInfo.AllocationSize.QuadPart;
 	FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
 
+	const auto CopyNames = [&FindData](const auto& DirInfo)
+	{
+		FindData.strFileName.assign(DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t));
+		FindData.strAlternateFileName.assign(DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t));
+	};
+
 	if (IsExtended)
 	{
 		FindData.FileId = DirectoryInfo.FileId.QuadPart;
-		FindData.strFileName.assign(DirectoryInfo.FileName, DirectoryInfo.FileNameLength / sizeof(wchar_t));
-		FindData.strAlternateFileName.assign(DirectoryInfo.ShortName, DirectoryInfo.ShortNameLength / sizeof(wchar_t));
+		CopyNames(DirectoryInfo);
 	}
 	else
 	{
 		FindData.FileId = 0;
-		const auto& DirectoryInfoSimple = reinterpret_cast<const FILE_BOTH_DIR_INFORMATION&>(DirectoryInfo);
-		FindData.strFileName.assign(DirectoryInfoSimple.FileName, DirectoryInfoSimple.FileNameLength / sizeof(wchar_t));
-		FindData.strAlternateFileName.assign(DirectoryInfoSimple.ShortName, DirectoryInfoSimple.ShortNameLength / sizeof(wchar_t));
+		CopyNames(reinterpret_cast<const FILE_BOTH_DIR_INFORMATION&>(DirectoryInfo));
 	}
 
-	const auto RemoveTrailingZeros = [](string& Where) { Where.resize(Where.find_last_not_of(L'\0') + 1); };
+	const auto RemoveTrailingZeros = [](string& Where)
+	{
+		Where.resize(Where.find_last_not_of(L'\0') + 1);
+	};
 
-	// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
+	// MSDN verse 2.4.17:
+	// "When working with this field, use FileNameLength to determine the length of the file name
+	// rather than assuming the presence of a trailing null delimiter."
+
+	// Some buggy implementations (e. g. ms sharepoint, rdesktop) set the length incorrectly
+	// (e. g. including the terminating \0 or as ((number of bytes in the source string) * 2) when source is in UTF-8),
+	// so instead of, say, "name" (4) they return "name\0\0\0\0" (8).
+	// Generally speaking, it's their own problems and we shall use it as is, as per the verse above.
+	// However, most of the applications use FindFirstFile API, which copies this string
+	// to the fixed-size buffer WIN32_FIND_DATA.cFileName, leaving the burden of finding its length
+	// to the application itself, which, by coincidence, does it correctly, effectively masking the initial error.
+	// So people come to us and claim that Far isn't working properly while other programs are fine.
+
 	RemoveTrailingZeros(FindData.strFileName);
 	RemoveTrailingZeros(FindData.strAlternateFileName);
 }
@@ -390,36 +408,36 @@ bool enum_volume::get(size_t index, value_type& value) const
 
 bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, file* TemplateFile, bool ForceElevation)
 {
-	assert(!Handle);
+	assert(!m_Handle);
 
-	Pointer = 0;
-	NeedSyncPointer = false;
+	m_Pointer = 0;
+	m_NeedSyncPointer = false;
 
-	HANDLE TemplateFileHandle = TemplateFile ? TemplateFile->Handle.native_handle() : nullptr;
-	Handle = CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFileHandle, ForceElevation);
-	if (Handle)
+	const auto TemplateFileHandle = TemplateFile? TemplateFile->m_Handle.native_handle() : nullptr;
+	m_Handle = CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFileHandle, ForceElevation);
+	if (m_Handle)
 	{
-		name = Object;
-		share_mode = ShareMode;
+		m_Name = Object;
+		m_ShareMode = ShareMode;
 	}
 	else
 	{
-		name.clear();
-		share_mode = 0;
+		m_Name.clear();
+		m_ShareMode = 0;
 	}
-	return Handle? true : false;
+	return m_Handle? true : false;
 }
 
 void file::SyncPointer()
 {
-	if(NeedSyncPointer)
+	if(m_NeedSyncPointer)
 	{
 		LARGE_INTEGER Distance, NewPointer;
-		Distance.QuadPart = Pointer;
-		if (SetFilePointerEx(Handle.native_handle(), Distance, &NewPointer, FILE_BEGIN))
+		Distance.QuadPart = m_Pointer;
+		if (SetFilePointerEx(m_Handle.native_handle(), Distance, &NewPointer, FILE_BEGIN))
 		{
-			Pointer = NewPointer.QuadPart;
-			NeedSyncPointer = false;
+			m_Pointer = NewPointer.QuadPart;
+			m_NeedSyncPointer = false;
 		}
 	}
 }
@@ -431,11 +449,11 @@ bool file::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytes
 
 	SyncPointer();
 	DWORD BytesRead = 0;
-	bool Result = ReadFile(Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToRead), &BytesRead, Overlapped) != FALSE;
+	bool Result = ReadFile(m_Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToRead), &BytesRead, Overlapped) != FALSE;
 	NumberOfBytesRead = BytesRead;
 	if(Result)
 	{
-		Pointer += NumberOfBytesRead;
+		m_Pointer += NumberOfBytesRead;
 	}
 	return Result;
 }
@@ -446,41 +464,41 @@ bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBy
 
 	SyncPointer();
 	DWORD BytesWritten = 0;
-	bool Result = WriteFile(Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToWrite), &BytesWritten, Overlapped) != FALSE;
+	bool Result = WriteFile(m_Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToWrite), &BytesWritten, Overlapped) != FALSE;
 	NumberOfBytesWritten = BytesWritten;
 	if(Result)
 	{
-		Pointer += NumberOfBytesWritten;
+		m_Pointer += NumberOfBytesWritten;
 	}
 	return Result;
 }
 
 bool file::SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod)
 {
-	const auto OldPointer = Pointer;
+	const auto OldPointer = m_Pointer;
 	switch (MoveMethod)
 	{
 	case FILE_BEGIN:
-		Pointer = DistanceToMove;
+		m_Pointer = DistanceToMove;
 		break;
 	case FILE_CURRENT:
-		Pointer+=DistanceToMove;
+		m_Pointer+=DistanceToMove;
 		break;
 	case FILE_END:
 		{
 			unsigned long long Size = 0;
 			GetSize(Size);
-			Pointer = Size+DistanceToMove;
+			m_Pointer = Size+DistanceToMove;
 		}
 		break;
 	}
-	if(OldPointer != Pointer)
+	if(OldPointer != m_Pointer)
 	{
-		NeedSyncPointer = true;
+		m_NeedSyncPointer = true;
 	}
 	if(NewFilePointer)
 	{
-		*NewFilePointer = Pointer;
+		*NewFilePointer = m_Pointer;
 	}
 	return true;
 }
@@ -488,16 +506,16 @@ bool file::SetPointer(long long DistanceToMove, unsigned long long* NewFilePoint
 bool file::SetEnd()
 {
 	SyncPointer();
-	bool ok = SetEndOfFile(Handle.native_handle()) != FALSE;
-	if (!ok && !name.empty() && GetLastError() == ERROR_INVALID_PARAMETER) // OSX buggy SMB workaround
+	bool ok = SetEndOfFile(m_Handle.native_handle()) != FALSE;
+	if (!ok && !m_Name.empty() && GetLastError() == ERROR_INVALID_PARAMETER) // OSX buggy SMB workaround
 	{
 		const auto fsize = GetPointer();
 		Close();
-		if (Open(name, GENERIC_WRITE, share_mode, nullptr, OPEN_EXISTING, 0))
+		if (Open(m_Name, GENERIC_WRITE, m_ShareMode, nullptr, OPEN_EXISTING, 0))
 		{
 			SetPointer(fsize, nullptr, FILE_BEGIN);
 			SyncPointer();
-			ok = SetEndOfFile(Handle.native_handle()) != FALSE;
+			ok = SetEndOfFile(m_Handle.native_handle()) != FALSE;
 		}
 	}
 	return ok;
@@ -505,37 +523,37 @@ bool file::SetEnd()
 
 bool file::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime) const
 {
-	return GetFileTimeEx(Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	return GetFileTimeEx(m_Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool file::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime) const
 {
-	return SetFileTimeEx(Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	return SetFileTimeEx(m_Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
 bool file::GetSize(UINT64& Size) const
 {
-	return GetFileSizeEx(Handle.native_handle(), Size);
+	return GetFileSizeEx(m_Handle.native_handle(), Size);
 }
 
 bool file::FlushBuffers() const
 {
-	return FlushFileBuffers(Handle.native_handle()) != FALSE;
+	return FlushFileBuffers(m_Handle.native_handle()) != FALSE;
 }
 
 bool file::GetInformation(BY_HANDLE_FILE_INFORMATION& info) const
 {
-	return GetFileInformationByHandle(Handle.native_handle(), &info) != FALSE;
+	return GetFileInformationByHandle(m_Handle.native_handle(), &info) != FALSE;
 }
 
 bool file::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped) const
 {
-	return ::DeviceIoControl(Handle.native_handle(), IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
+	return ::DeviceIoControl(m_Handle.native_handle(), IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 }
 
 bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const
 {
-	DWORD Result = Imports().GetStorageDependencyInformation(Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+	DWORD Result = Imports().GetStorageDependencyInformation(m_Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -555,7 +573,7 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, size_t Length, FILE_INFOR
 	const auto di = reinterpret_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
 	di->NextEntryOffset = 0xffffffffUL;
 
-	NTSTATUS Result = Imports().NtQueryDirectoryFile(Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+	NTSTATUS Result = Imports().NtQueryDirectoryFile(m_Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
 	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
@@ -568,7 +586,7 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, size_t Length, FILE_INFOR
 bool file::NtQueryInformationFile(PVOID FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status) const
 {
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Result = Imports().NtQueryInformationFile(Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
+	NTSTATUS Result = Imports().NtQueryInformationFile(m_Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
 	SetLastError(Imports().RtlNtStatusToDosError(Result));
 	if(Status)
 	{
@@ -579,7 +597,7 @@ bool file::NtQueryInformationFile(PVOID FileInformation, size_t Length, FILE_INF
 
 void file::Close()
 {
-	Handle.close();
+	m_Handle.close();
 }
 
 bool file::Eof() const
@@ -599,12 +617,12 @@ struct file_walker::Chunk
 };
 
 file_walker::file_walker():
-	FileSize(0),
-	AllocSize(0),
-	ProcessedSize(0),
-	CurrentChunk(ChunkList.begin()),
-	ChunkSize(0),
-	Sparse(false)
+	m_FileSize(0),
+	m_AllocSize(0),
+	m_ProcessedSize(0),
+	m_CurrentChunk(m_ChunkList.begin()),
+	m_ChunkSize(0),
+	m_IsSparse(false)
 {
 }
 
@@ -613,16 +631,16 @@ file_walker::~file_walker() = default;
 bool file_walker::InitWalk(size_t BlockSize)
 {
 	bool Result = false;
-	ChunkSize = static_cast<DWORD>(BlockSize);
-	if(GetSize(FileSize) && FileSize)
+	m_ChunkSize = static_cast<DWORD>(BlockSize);
+	if(GetSize(m_FileSize) && m_FileSize)
 	{
 		BY_HANDLE_FILE_INFORMATION bhfi;
-		Sparse = GetInformation(bhfi) && bhfi.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE;
+		m_IsSparse = GetInformation(bhfi) && bhfi.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE;
 
-		if(Sparse)
+		if(m_IsSparse)
 		{
 			FILE_ALLOCATED_RANGE_BUFFER QueryRange = {};
-			QueryRange.Length.QuadPart = FileSize;
+			QueryRange.Length.QuadPart = m_FileSize;
 			FILE_ALLOCATED_RANGE_BUFFER Ranges[1024];
 			DWORD BytesReturned;
 			for(;;)
@@ -632,30 +650,30 @@ bool file_walker::InitWalk(size_t BlockSize)
 				{
 					for (const auto& i: make_range(Ranges, BytesReturned / sizeof(*Ranges)))
 					{
-						AllocSize += i.Length.QuadPart;
+						m_AllocSize += i.Length.QuadPart;
 						const UINT64 RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
-						for(UINT64 j = i.FileOffset.QuadPart; j < RangeEndOffset; j+=ChunkSize)
+						for(UINT64 j = i.FileOffset.QuadPart; j < RangeEndOffset; j+=m_ChunkSize)
 						{
-							ChunkList.emplace_back(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<UINT64>(ChunkSize))));
+							m_ChunkList.emplace_back(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<UINT64>(m_ChunkSize))));
 						}
 					}
-					QueryRange.FileOffset.QuadPart = ChunkList.back().Offset+ChunkList.back().Size;
-					QueryRange.Length.QuadPart = FileSize - QueryRange.FileOffset.QuadPart;
+					QueryRange.FileOffset.QuadPart = m_ChunkList.back().Offset+m_ChunkList.back().Size;
+					QueryRange.Length.QuadPart = m_FileSize - QueryRange.FileOffset.QuadPart;
 				}
 				else
 				{
 					break;
 				}
 			}
-			Result = !ChunkList.empty();
+			Result = !m_ChunkList.empty();
 		}
 		else
 		{
-			AllocSize = FileSize;
-			ChunkList.emplace_back(0, static_cast<DWORD>(std::min(static_cast<UINT64>(BlockSize), FileSize)));
+			m_AllocSize = m_FileSize;
+			m_ChunkList.emplace_back(0, static_cast<DWORD>(std::min(static_cast<UINT64>(BlockSize), m_FileSize)));
 			Result = true;
 		}
-		CurrentChunk = ChunkList.begin();
+		m_CurrentChunk = m_ChunkList.begin();
 	}
 	return Result;
 }
@@ -663,25 +681,25 @@ bool file_walker::InitWalk(size_t BlockSize)
 bool file_walker::Step()
 {
 	bool Result = false;
-	if(Sparse)
+	if(m_IsSparse)
 	{
-		++CurrentChunk;
-		if(CurrentChunk != ChunkList.end())
+		++m_CurrentChunk;
+		if(m_CurrentChunk != m_ChunkList.end())
 		{
-			SetPointer(CurrentChunk->Offset, nullptr, FILE_BEGIN);
-			ProcessedSize += CurrentChunk->Size;
+			SetPointer(m_CurrentChunk->Offset, nullptr, FILE_BEGIN);
+			m_ProcessedSize += m_CurrentChunk->Size;
 			Result = true;
 		}
 	}
 	else
 	{
-		UINT64 NewOffset = (!CurrentChunk->Size)? 0 : CurrentChunk->Offset + ChunkSize;
-		if(NewOffset < FileSize)
+		UINT64 NewOffset = (!m_CurrentChunk->Size)? 0 : m_CurrentChunk->Offset + m_ChunkSize;
+		if(NewOffset < m_FileSize)
 		{
-			CurrentChunk->Offset = NewOffset;
-			UINT64 rest = FileSize - NewOffset;
-			CurrentChunk->Size = (rest>=ChunkSize)?ChunkSize:rest;
-			ProcessedSize += CurrentChunk->Size;
+			m_CurrentChunk->Offset = NewOffset;
+			UINT64 rest = m_FileSize - NewOffset;
+			m_CurrentChunk->Size = (rest>=m_ChunkSize)?m_ChunkSize:rest;
+			m_ProcessedSize += m_CurrentChunk->Size;
 			Result = true;
 		}
 	}
@@ -690,17 +708,17 @@ bool file_walker::Step()
 
 UINT64 file_walker::GetChunkOffset() const
 {
-	return CurrentChunk->Offset;
+	return m_CurrentChunk->Offset;
 }
 
 DWORD file_walker::GetChunkSize() const
 {
-	return CurrentChunk->Size;
+	return m_CurrentChunk->Size;
 }
 
 int file_walker::GetPercent() const
 {
-	return AllocSize? (ProcessedSize) * 100 / AllocSize : 0;
+	return m_AllocSize? (m_ProcessedSize) * 100 / m_AllocSize : 0;
 }
 
 } // fs
@@ -1083,7 +1101,7 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 			if (dwAttr!=INVALID_FILE_ATTRIBUTES)
 			{
 				// Ага, значит файл таки есть. Заполним структуру ручками.
-				FindData.Clear();
+				FindData = {};
 				FindData.dwFileAttributes=dwAttr;
 				fs::file file;
 				if(file.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
@@ -1109,7 +1127,7 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 			}
 		}
 	}
-	FindData.Clear();
+	FindData = {};
 	FindData.dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
 
 	return false;

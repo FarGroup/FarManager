@@ -42,8 +42,8 @@ namespace pipe
 	template<typename T>
 	bool Read(const os::handle& Pipe, T& Data)
 	{
-		static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
-		static_assert(std::is_trivially_copyable<T>::value, "This template requires a POD type");
+		TERSE_STATIC_ASSERT(!std::is_pointer<T>::value);
+		TERSE_STATIC_ASSERT(std::is_trivially_copyable<T>::value);
 
 		return Read(Pipe, &Data, sizeof(Data));
 	}
@@ -56,8 +56,8 @@ namespace pipe
 	template<typename T>
 	bool Write(const os::handle& Pipe, const T& Data)
 	{
-		static_assert(!std::is_pointer<T>::value, "This template requires a reference to an object");
-		static_assert(std::is_trivially_copyable<T>::value, "This template requires a POD type");
+		TERSE_STATIC_ASSERT(!std::is_pointer<T>::value);
+		TERSE_STATIC_ASSERT(std::is_trivially_copyable<T>::value);
 
 		return Write(Pipe, &Data, sizeof(Data));
 	}

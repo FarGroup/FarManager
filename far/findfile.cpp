@@ -2114,7 +2114,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 		}
 		FindListItem& FindItem = itd->AddFindListItem(FindData,Data,nullptr);
 		// Сбросим данные в FindData. Они там от файла
-		FindItem.FindData.Clear();
+		FindItem.FindData = {};
 		// Используем LastDirName, т.к. PathName уже может быть искажена
 		FindItem.FindData.strFileName = strLastDirName;
 		// Used=0 - Имя не попадёт во временную панель.

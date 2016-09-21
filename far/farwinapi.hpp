@@ -91,37 +91,17 @@ namespace os
 
 	struct FAR_FIND_DATA
 	{
-		FILETIME ftCreationTime;
-		FILETIME ftLastAccessTime;
-		FILETIME ftLastWriteTime;
-		FILETIME ftChangeTime;
-		unsigned long long nFileSize;
-		unsigned long long nAllocationSize;
-		unsigned long long FileId;
+		FILETIME ftCreationTime{};
+		FILETIME ftLastAccessTime{};
+		FILETIME ftLastWriteTime{};
+		FILETIME ftChangeTime{};
+		unsigned long long nFileSize{};
+		unsigned long long nAllocationSize{};
+		unsigned long long FileId{};
 		string strFileName;
 		string strAlternateFileName;
-		DWORD dwFileAttributes;
-		DWORD dwReserved0;
-
-		FAR_FIND_DATA()
-		{
-			Clear();
-		}
-
-		void Clear()
-		{
-			ftCreationTime = {};
-			ftLastAccessTime = {};
-			ftLastWriteTime = {};
-			ftChangeTime = {};
-			nFileSize=0;
-			nAllocationSize=0;
-			FileId = 0;
-			strFileName.clear();
-			strAlternateFileName.clear();
-			dwFileAttributes=0;
-			dwReserved0=0;
-		}
+		DWORD dwFileAttributes{};
+		DWORD dwReserved0{};
 	};
 
 	namespace detail
@@ -254,20 +234,20 @@ namespace os
 			TRIVIALLY_MOVABLE(file);
 
 			file():
-				Pointer(),
-				NeedSyncPointer(),
-				share_mode()
+				m_Pointer(),
+				m_NeedSyncPointer(),
+				m_ShareMode()
 			{
 			}
 
-			bool operator!() const noexcept { return !Handle; }
+			bool operator!() const noexcept { return !m_Handle; }
 
 			// TODO: half of these should be free functions
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
 			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
 			bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod);
-			unsigned long long GetPointer() const { return Pointer; }
+			unsigned long long GetPointer() const { return m_Pointer; }
 			bool SetEnd();
 			bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime) const;
 			bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime) const;
@@ -280,15 +260,15 @@ namespace os
 			bool NtQueryInformationFile(PVOID FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status = nullptr) const;
 			void Close();
 			bool Eof() const;
-			const string& GetName() const { return name; }
-			const auto& handle() const { return Handle; }
+			const string& GetName() const { return m_Name; }
+			const auto& handle() const { return m_Handle; }
 
 		private:
-			os::handle Handle;
-			unsigned long long Pointer;
-			bool NeedSyncPointer;
-			string name;
-			DWORD share_mode;
+			os::handle m_Handle;
+			unsigned long long m_Pointer;
+			bool m_NeedSyncPointer;
+			string m_Name;
+			DWORD m_ShareMode;
 
 			void SyncPointer();
 		};
@@ -306,13 +286,13 @@ namespace os
 
 		private:
 			struct Chunk;
-			std::vector<Chunk> ChunkList;
-			UINT64 FileSize;
-			UINT64 AllocSize;
-			UINT64 ProcessedSize;
-			std::vector<Chunk>::iterator CurrentChunk;
-			DWORD ChunkSize;
-			bool Sparse;
+			std::vector<Chunk> m_ChunkList;
+			UINT64 m_FileSize;
+			UINT64 m_AllocSize;
+			UINT64 m_ProcessedSize;
+			std::vector<Chunk>::iterator m_CurrentChunk;
+			DWORD m_ChunkSize;
+			bool m_IsSparse;
 		};
 
 		class file_status
@@ -552,7 +532,7 @@ namespace os
 			template<class T>
 			ptr copy(const T& Object)
 			{
-				static_assert(std::is_pod<T>::value, "This template requires a POD type");
+				TERSE_STATIC_ASSERT(std::is_pod<T>::value);
 				if (auto Memory = alloc(GMEM_MOVEABLE, sizeof(Object)))
 				{
 					if (const auto Copy = lock<T*>(Memory))

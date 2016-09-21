@@ -51,13 +51,16 @@ if (!Object)
 */
 
 template<class T>
-struct conditional
+class conditional
 {
+public:
 	explicit operator bool() const
 	{
-		static_assert(std::is_base_of<conditional, T>::value, "T must be derived from conditional");
 		return !static_cast<const T&>(*this).operator!();
 	}
+
+protected:
+	conditional() { TERSE_STATIC_ASSERT(std::is_base_of<conditional, T>::value); }
 };
 
 #endif // CONDITIONAL_HPP_18900E4A_F2F5_48B9_A92A_DEE70617591B

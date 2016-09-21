@@ -85,6 +85,9 @@ public:
 
 	auto cbegin() const { return begin(); }
 	auto cend() const { return end(); }
+
+protected:
+	enumerator() { TERSE_STATIC_ASSERT(std::is_base_of<enumerator, Derived>::value); }
 };
 
 #endif // ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874

@@ -152,7 +152,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 FarColor ConsoleColorToFarColor(WORD Color)
 {
 	FarColor NewColor;
-	static_assert(FCF_RAWATTR_MASK == ConsoleExtraMask, "Wrong FCF_RAWATTR_MASK");
+	TERSE_STATIC_ASSERT(FCF_RAWATTR_MASK == ConsoleExtraMask);
 	NewColor.Flags = FCF_FG_4BIT | FCF_BG_4BIT | (Color & ConsoleExtraMask);
 	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
 	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;

@@ -75,7 +75,8 @@ private:
 	virtual string GetTitle() const override { return {}; }
 
 	void ShowMenu();
-	void ProcessSubMenu(const MenuDataEx *Data, size_t DataCount, const wchar_t *SubMenuHelp, int X, int Y, int &Position);
+	bool ProcessCurrentSubMenu();
+	bool ProcessPositioningKey(unsigned LocalKey);
 	wchar_t GetHighlights(const HMenuData& Item);
 	size_t CheckHighlights(WORD CheckSymbol, int StartPos = 0);
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;

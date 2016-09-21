@@ -218,7 +218,7 @@ void BaseFormat::Reset()
 template<class T>
 BaseFormat& BaseFormat::ToString(T Value)
 {
-	static_assert(std::is_integral<T>::value, "Value type is not integral");
+	TERSE_STATIC_ASSERT(std::is_integral<T>::value);
 	wchar_t Buffer[65];
 	std::is_signed<T>::value? _i64tow(Value, Buffer, m_Radix) : _ui64tow(Value, Buffer, m_Radix);
 	if (m_Radix > 10)

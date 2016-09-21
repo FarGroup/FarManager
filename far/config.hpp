@@ -149,8 +149,6 @@ namespace detail
 		using underlying_type = base_type;
 		using validator_type = std::function<base_type(const base_type&)>;
 
-		OptionImpl(): Option(base_type()) {}
-
 		void SetValidator(const validator_type& Validator) { m_Validator = Validator; }
 
 		const base_type& Get() const { return GetT<base_type>(); }
@@ -172,6 +170,13 @@ namespace detail
 		virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }
+
+	protected:
+		OptionImpl(): Option(base_type())
+		{
+			TERSE_STATIC_ASSERT(std::is_base_of<OptionImpl, derived>::value);
+		}
+
 	private:
 		base_type Validate(const base_type& Value) const { return m_Validator? m_Validator(Value) : Value; }
 

@@ -3296,7 +3296,7 @@ void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 			true,  // BY_CHTIME,
 			false  // BY_CUSTOMDATA,
 		};
-		static_assert(std::size(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT), "incomplete InvertByDefault array");
+		TERSE_STATIC_ASSERT(std::size(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT));
 
 		assert(Mode < panel_sort::COUNT);
 
@@ -4510,7 +4510,7 @@ void FileList::SelectSortMode()
 		{MSG(MMenuSortByFullName),0,0},
 		{MSG(MMenuSortByCustomData),0,0},
 	};
-	static_assert(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT), "Incomplete InitSortMenuModes array");
+	TERSE_STATIC_ASSERT(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT));
 
 	std::vector<MenuDataEx> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
 
@@ -4561,7 +4561,7 @@ void FileList::SelectSortMode()
 		panel_sort::BY_FULLNAME,
 		panel_sort::BY_CUSTOMDATA
 	};
-	static_assert(std::size(SortModes) == static_cast<size_t>(panel_sort::COUNT), "Incomplete SortModes array");
+	TERSE_STATIC_ASSERT(std::size(SortModes) == static_cast<size_t>(panel_sort::COUNT));
 
 	{
 		const auto ItemIterator = std::find(ALL_CONST_RANGE(SortModes), m_SortMode);
@@ -4604,7 +4604,7 @@ void FileList::SelectSortMode()
 		{MSG(MMenuSortSelectedFirst), SelectedFirst? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF12},
 		{MSG(MMenuSortDirectoriesFirst), m_DirectoriesFirst? (DWORD)MIF_CHECKED : 0, 0},
 	};
-	static_assert(std::size(InitSortMenuOptions) == SortOptCount, "Incomplete InitSortMenuOptions array");
+	TERSE_STATIC_ASSERT(std::size(InitSortMenuOptions) == SortOptCount);
 
 	SortMenu.reserve(SortMenu.size() + 1 + std::size(InitSortMenuOptions)); // + 1 for separator
 	SortMenu.emplace_back(MenuSeparator);
@@ -7524,7 +7524,7 @@ void FileList::ShowFileList(int Fast)
 				{panel_sort::BY_FULLNAME, MMenuSortByFullName},
 				{panel_sort::BY_CUSTOMDATA, MMenuSortByCustomData},
 			};
-			static_assert(std::size(ModeNames) == static_cast<size_t>(panel_sort::COUNT), "Incomplete ModeNames array");
+			TERSE_STATIC_ASSERT(std::size(ModeNames) == static_cast<size_t>(panel_sort::COUNT));
 
 			Ch = wcschr(MSG(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second), L'&');
 		}

@@ -70,7 +70,7 @@ namespace detail
 	template<typename arg, typename... args>
 	void check(arg&&, args&&... Args)
 	{
-		static_assert(std::is_lvalue_reference<arg>::value, "argument must be lvalue");
+		TERSE_STATIC_ASSERT(std::is_lvalue_reference<arg>::value);
 		check(std::forward<args>(Args)...);
 	}
 }

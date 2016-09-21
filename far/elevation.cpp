@@ -1116,7 +1116,7 @@ private:
 			&elevated::GetDiskFreeSpaceExHandler,
 		};
 
-		static_assert(std::size(Handlers) == C_COMMANDS_COUNT, "not all commands handled");
+		TERSE_STATIC_ASSERT(std::size(Handlers) == C_COMMANDS_COUNT);
 
 		try
 		{

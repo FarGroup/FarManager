@@ -62,7 +62,7 @@ public:
 	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
 	bool SetValue(const string& Key, const string& Name, const T& Value)
 	{
-		static_assert(std::is_pod<T>::value, "This template requires a POD type");
+		TERSE_STATIC_ASSERT(std::is_pod<T>::value);
 		return SetValue(Key, Name, &Value, sizeof(Value));
 	}
 
@@ -139,7 +139,7 @@ public:
 	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
 	bool GetValue(const key& Root, const string& Name, T& Value)
 	{
-		static_assert(std::is_pod<T>::value, "This template requires a POD type");
+		TERSE_STATIC_ASSERT(std::is_pod<T>::value);
 		writable_blob_view Blob(&Value, sizeof(Value));
 		return GetValue(Root, Name, Blob);
 	}

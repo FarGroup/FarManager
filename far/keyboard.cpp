@@ -223,7 +223,7 @@ static constexpr TFKey ModifKeyName[]=
 	{KEY_M_OEM,    LNGID(-1),  3, L"Oem",    L"OEM"},
 };
 
-static_assert(std::size(ModifKeyName) == m_count, "Incomplete ModifKeyName array");
+TERSE_STATIC_ASSERT(std::size(ModifKeyName) == m_count);
 
 #if defined(SYSLOG)
 static constexpr TFKey SpecKeyName[]=

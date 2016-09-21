@@ -105,7 +105,7 @@ void KeyBar::DisplayObject()
 			{ &FarKeyboardState::OnlyCtrlAltShiftPressed, KBL_CTRLALTSHIFT },
 		};
 
-		static_assert(std::size(Mapping) == KBL_GROUP_COUNT, "Incomplete mapping");
+		TERSE_STATIC_ASSERT(std::size(Mapping) == KBL_GROUP_COUNT);
 
 		const auto State = std::find_if(ALL_CONST_RANGE(Mapping), [&](const auto& Item) { return (IntKeyState.*Item.first)(); });
 		// State should always be valid so check is excessive, but style is style
@@ -197,7 +197,7 @@ static int FnGroup(DWORD ControlState)
 		{KBL_CTRLALT, KEY_CTRLALT},
 		{KBL_CTRLALTSHIFT, KEY_CTRLALT|KEY_SHIFT}
 	};
-	static_assert(std::size(Area) == KBL_GROUP_COUNT, "Not all areas handled");
+	TERSE_STATIC_ASSERT(std::size(Area) == KBL_GROUP_COUNT);
 
 	const auto ItemIterator = std::find_if(CONST_RANGE(Area, i)
 	{
@@ -221,7 +221,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		L"Help",
 	};
 
-	static_assert(std::size(Names) == KBA_COUNT, "Names not filled properly");
+	TERSE_STATIC_ASSERT(std::size(Names) == KBA_COUNT);
 
 	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || Area != CustomArea))
 	{

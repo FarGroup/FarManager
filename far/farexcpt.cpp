@@ -561,6 +561,7 @@ static int ExceptionTestHook(Manager::Key key)
 			cpp_unknown,
 			access_violation_read,
 			access_violation_write,
+			access_violation_execute,
 			divide_by_zero,
 			illegal_instruction,
 			stack_overflow,
@@ -579,6 +580,7 @@ static int ExceptionTestHook(Manager::Key key)
 			L"C++ unknown exception",
 			L"Access Violation (Read)",
 			L"Access Violation (Write)",
+			L"Access Violation (Execute)",
 			L"Divide by zero",
 			L"Illegal instruction",
 			L"Stack Overflow",
@@ -606,7 +608,7 @@ static int ExceptionTestHook(Manager::Key key)
 			*/
 		};
 
-		static_assert(std::size(Names) == static_cast<size_t>(exception_types::count), "Incomplete Names array");
+		TERSE_STATIC_ASSERT(std::size(Names) == static_cast<size_t>(exception_types::count));
 
 		static union
 		{
@@ -632,11 +634,9 @@ static int ExceptionTestHook(Manager::Key key)
 		{
 		case exception_types::cpp_std:
 			throw MAKE_FAR_EXCEPTION("test error");
-			break;
 
 		case exception_types::cpp_unknown:
 			throw 42;
-			break;
 
 		case exception_types::access_violation_read:
 			zero_const.i = *zero_const.iptr;
@@ -644,6 +644,11 @@ static int ExceptionTestHook(Manager::Key key)
 
 		case exception_types::access_violation_write:
 			*zero_const.iptr = 0;
+			break;
+
+		case exception_types::access_violation_execute:
+			using func_t = void(*)();
+			func_t{}();
 			break;
 
 		case exception_types::divide_by_zero:

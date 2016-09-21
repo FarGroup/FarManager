@@ -86,7 +86,7 @@ private:
 template<class T>
 auto enum_substrings(T&& Provider)
 {
-	static_assert(std::is_lvalue_reference<T>::value, "Argument must be lvalue");
+	TERSE_STATIC_ASSERT(std::is_lvalue_reference<T>::value);
 	return enum_substrings_t<std::remove_reference_t<T>>(Provider);
 }
 

@@ -76,7 +76,7 @@ struct alignas(MEMORY_ALLOCATION_ALIGNMENT) MEMINFO
 	MEMINFO* next;
 };
 
-static_assert(alignof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT, "MEMINFO not aligned");
+TERSE_STATIC_ASSERT(alignof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT);
 
 static MEMINFO FirstMemBlock = {};
 static MEMINFO* LastMemBlock = &FirstMemBlock;

@@ -209,7 +209,7 @@ std::vector<char> HexStringToBlob(const wchar_t* Hex, wchar_t Separator = L',');
 template<class S, class T>
 auto to_hex_string_t(T Value)
 {
-	static_assert(std::is_integral<T>::value, "Integral value required");
+	TERSE_STATIC_ASSERT(std::is_integral<T>::value);
 	S Result(sizeof(T) * 2, '0');
 	for (int i = sizeof(T) * 2 - 1; i >= 0; --i, Value >>= 4)
 		Result[i] = IntToHex(Value & 0xF);

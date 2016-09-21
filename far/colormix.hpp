@@ -52,9 +52,9 @@ namespace std
 		size_t operator()(const FarColor& Key) const
 		{
 			return make_hash(Key.Flags)
-				^ make_hash(Key.BackgroundColor)
-				^ make_hash(Key.ForegroundColor)
-				^ make_hash(Key.Reserved);
+			     ^ make_hash(Key.BackgroundColor)
+			     ^ make_hash(Key.ForegroundColor)
+			     ^ make_hash(Key.Reserved);
 		}
 	};
 }

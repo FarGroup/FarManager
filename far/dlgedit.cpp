@@ -339,7 +339,7 @@ const string& DlgEdit::GetString(int Row) const
 	if (Type == DLGEDIT_MULTILINE)
 	{
 		; //multiEdit;
-		static_assert(0, "no implementation");
+		static_assert(false, "no implementation");
 	}
 	else
 #endif

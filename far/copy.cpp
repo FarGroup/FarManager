@@ -3215,8 +3215,8 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 				MsgCode = 1;
 			else
 			{
-				DestData.Clear();
-				os::GetFindDataEx(DestName, DestData);
+				DestData = {};
+				os::GetFindDataEx(DestName, DestData); // BUGBUG check result?
 				DestDataFilled = TRUE;
 
 				if ((Flags&FCOPY_ONLYNEWERFILES))
@@ -3335,8 +3335,8 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 				{
 					if (!DestDataFilled)
 					{
-						DestData.Clear();
-						os::GetFindDataEx(DestName,DestData);
+						DestData = {};
+						os::GetFindDataEx(DestName,DestData); // BUGBUG check result
 					}
 
 					string strDateText,strTimeText;

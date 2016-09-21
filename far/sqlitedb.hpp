@@ -129,7 +129,7 @@ protected:
 	template<size_t ExpectedSize, class T, size_t N>
 	static void CheckStmt(const T(&)[N])
 	{
-		static_assert(N == ExpectedSize, "Not all statements initialized");
+		TERSE_STATIC_ASSERT(N == ExpectedSize);
 	}
 
 	bool Open(const string& DbName, bool Local, bool WAL=false);

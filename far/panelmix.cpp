@@ -78,7 +78,7 @@ ColumnInfo[] =
 	{ CUSTOM_COLUMN0, 0, L"C0" },
 };
 
-static_assert(std::size(ColumnInfo) == COLUMN_TYPES_COUNT, "wrong size of ColumnInfo array");
+TERSE_STATIC_ASSERT(std::size(ColumnInfo) == COLUMN_TYPES_COUNT);
 
 void ShellUpdatePanels(panel_ptr SrcPanel,BOOL NeedSetUpADir)
 {
