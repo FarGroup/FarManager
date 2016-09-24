@@ -705,7 +705,7 @@ local function LoadMacros (unload, paths)
         NoMacro=DummyFunc, NoEvent=DummyFunc, NoMenuItem=DummyFunc, NoCommandLine=DummyFunc }
       setmetatable(env,gmeta)
       setfenv(f, env)
-      local ok, msg = pcall(f, FullPath)
+      local ok, msg = xpcall(function() return f(FullPath) end, debug.traceback)
       if ok then
         env.Macro, env.Event, env.MenuItem, env.CommandLine,
         env.NoMacro, env.NoEvent, env.NoMenuItem, env.NoCommandLine = nil
@@ -737,7 +737,7 @@ local function LoadMacros (unload, paths)
       local env = setmetatable({ Macro=ReadRecordedMacro }, gmeta)
       setfenv(f, env)
       tempRecordedMacro = nil
-      local ok, msg = pcall(f)
+      local ok, msg = xpcall(f, debug.traceback)
       if ok then
         env.Macro = nil
         if tempRecordedMacro==nil then -- support old format (support till 2015-05-28)

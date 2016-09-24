@@ -4703,7 +4703,7 @@ id=31
 lv=2
 dt=Text
 nm=editor.GetString
-mtime=3616180161
+mtime=3682770766
 <article>
 #_**Note:**
 #_  This function is an extension over its prototype in Far API.
@@ -4713,9 +4713,9 @@ mtime=3616180161
 #_StringText, StringEOL = editor.GetString (EditorId, StringNumber, Mode)
 #_
 #_**Parameters:**
-#_  EditorId:     integer (default=-1)
+#_  EditorId:     integer (default=CURRENT_EDITOR)
 #_  StringNumber: integer, 1-based (default=0)
-#_  Mode:         integer (0,1,2,3)
+#_  Mode:         integer (0,1,2,3; default=0)
 #_
 #_**Returns:**
 #_  LineInfo: table (Mode<2), or 2 strings (Mode>=2), or nil
