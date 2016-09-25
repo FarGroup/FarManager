@@ -711,6 +711,7 @@ local function LoadMacros (unload, paths)
         env.NoMacro, env.NoEvent, env.NoMenuItem, env.NoCommandLine = nil
       else
         numerrors=numerrors+1
+        msg = msg:gsub("\n\t","\n   ")
         ErrMsgLoad(msg,FullPath,isMoonScript,"run")
       end
     end
@@ -745,6 +746,7 @@ local function LoadMacros (unload, paths)
         end
         if tempRecordedMacro then AddRecordedMacro(tempRecordedMacro, FullPath) end
       else
+        msg = msg:gsub("\n\t","\n   ")
         numerrors=numerrors+1; ErrMsg(msg)
       end
     end
