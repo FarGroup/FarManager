@@ -221,7 +221,7 @@ private:
 
 	virtual bool DeleteValue(const string& Key, const string& Name) override
 	{
-		return AutoStatement(stmtDelValue)->Bind(Key, Name).FinalStep();
+		return ExecuteStatement(stmtDelValue, Key, Name);
 	}
 
 	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, string &Value) override
@@ -326,11 +326,9 @@ private:
 	template<class T>
 	bool SetValueT(const string& Key, const string& Name, const T Value)
 	{
-		const auto StmtStep = [&](statement_id StmtId) { return AutoStatement(StmtId)->Bind(Key, Name, Value).FinalStep(); };
-
-		bool b = StmtStep(stmtUpdateValue);
+		bool b = ExecuteStatement(stmtUpdateValue, Key, Name, Value);
 		if (!b || !Changes())
-			b = StmtStep(stmtInsertValue);
+			b = ExecuteStatement(stmtInsertValue, Key, Name, Value);
 		return b;
 	}
 
@@ -441,7 +439,7 @@ protected:
 
 	virtual key CreateKey(const key& Root, const string& Name, const string* Description) override
 	{
-		if (AutoStatement(stmtCreateKey)->Bind(Root.get(), Name, Description? Description->data() : nullptr).FinalStep())
+		if (ExecuteStatement(stmtCreateKey, Root.get(), Name, Description? Description->data() : nullptr))
 			return make_key(LastInsertRowID());
 
 		const auto Key = FindByName(Root, Name);
@@ -461,7 +459,7 @@ protected:
 
 	virtual bool SetKeyDescription(const key& Root, const string& Description) override
 	{
-		return AutoStatement(stmtSetKeyDescription)->Bind(Description, Root.get()).FinalStep();
+		return ExecuteStatement(stmtSetKeyDescription, Description, Root.get());
 	}
 
 	virtual bool SetValue(const key& Root, const string& Name, const string& Value) override
@@ -502,12 +500,12 @@ protected:
 	virtual bool DeleteKeyTree(const key& Key) override
 	{
 		//All subtree is automatically deleted because of foreign key constraints
-		return AutoStatement(stmtDeleteTree)->Bind(Key.get()).FinalStep();
+		return ExecuteStatement(stmtDeleteTree, Key.get());
 	}
 
 	virtual bool DeleteValue(const key& Root, const string& Name) override
 	{
-		return AutoStatement(stmtDelValue)->Bind(Root.get(), Name).FinalStep();
+		return ExecuteStatement(stmtDelValue, Root.get(), Name);
 	}
 
 	virtual bool EnumKeys(const key& Root, DWORD Index, string& Name) override
@@ -687,7 +685,7 @@ protected:
 	template<class T>
 	bool SetValueT(const key& Root, const string& Name, const T& Value)
 	{
-		return AutoStatement(stmtSetValue)->Bind(Root.get(), Name, Value).FinalStep();
+		return ExecuteStatement(stmtSetValue, Root.get(), Name, Value);
 	}
 
 	enum statement_id
@@ -803,11 +801,10 @@ private:
 
 	virtual bool SetValue(const string& Name, const FarColor& Value) override
 	{
-		const auto StmtStep = [&](statement_id StmtId) { return AutoStatement(StmtId)->Bind(Name, make_blob_view(Value)).FinalStep(); };
-
-		bool b = StmtStep(stmtUpdateValue);
+		const auto Blob = make_blob_view(Value);
+		bool b = ExecuteStatement(stmtUpdateValue, Name, Blob);
 		if (!b || !Changes())
-			b = StmtStep(stmtInsertValue);
+			b = ExecuteStatement(stmtInsertValue, Name, Blob);
 		return b;
 	}
 
@@ -870,7 +867,7 @@ private:
 			}
 			else
 			{
-				AutoStatement(stmtDelValue)->Bind(Name).FinalStep();
+				ExecuteStatement(stmtDelValue, Name);
 			}
 		}
 	}
@@ -991,7 +988,7 @@ private:
 
 	virtual bool SetCommand(unsigned long long id, int Type, const string& Command, bool Enabled) override
 	{
-		return AutoStatement(stmtSetCommand)->Bind(id, Type, Enabled, Command).FinalStep();
+		return ExecuteStatement(stmtSetCommand, id, Type, Enabled, Command);
 	}
 
 	virtual bool SwapPositions(unsigned long long id1, unsigned long long id2) override
@@ -1007,22 +1004,22 @@ private:
 
 		const auto weight2 = Stmt->GetColInt64(0);
 		Stmt->Reset();
-		return AutoStatement(stmtSetWeight)->Bind(weight1, id2).FinalStep() && AutoStatement(stmtSetWeight)->Bind(weight2, id1).FinalStep();
+		return ExecuteStatement(stmtSetWeight, weight1, id2) && ExecuteStatement(stmtSetWeight, weight2, id1);
 	}
 
 	virtual unsigned long long AddType(unsigned long long after_id, const string& Mask, const string& Description) override
 	{
-		return AutoStatement(stmtReorder)->Bind(after_id).FinalStep() && AutoStatement(stmtAddType)->Bind(after_id, Mask, Description).FinalStep()? LastInsertRowID() : 0;
+		return ExecuteStatement(stmtReorder, after_id) && ExecuteStatement(stmtAddType, after_id, Mask, Description)? LastInsertRowID() : 0;
 	}
 
 	virtual bool UpdateType(unsigned long long id, const string& Mask, const string& Description) override
 	{
-		return AutoStatement(stmtUpdateType)->Bind(Mask, Description, id).FinalStep();
+		return ExecuteStatement(stmtUpdateType, Mask, Description, id);
 	}
 
 	virtual bool DelType(unsigned long long id) override
 	{
-		return AutoStatement(stmtDelType)->Bind(id).FinalStep();
+		return ExecuteStatement(stmtDelType, id);
 	}
 
 	virtual void Export(representation_destination& Representation) override
@@ -1210,7 +1207,7 @@ private:
 
 	virtual unsigned long long CreateCache(const string& CacheName) override
 	{
-		return AutoStatement(stmtCreateCache)->Bind(CacheName).FinalStep()? LastInsertRowID() : 0;
+		return ExecuteStatement(stmtCreateCache, CacheName)? LastInsertRowID() : 0;
 	}
 
 	virtual unsigned long long GetCacheID(const string& CacheName) const override
@@ -1224,7 +1221,7 @@ private:
 	virtual bool DeleteCache(const string& CacheName) override
 	{
 		//All related entries are automatically deleted because of foreign key constraints
-		return AutoStatement(stmtDelCache)->Bind(CacheName).FinalStep();
+		return ExecuteStatement(stmtDelCache, CacheName);
 	}
 
 	virtual bool IsPreload(unsigned long long id) const override
@@ -1305,12 +1302,12 @@ private:
 
 	virtual bool SetPreload(unsigned long long id, bool Preload) override
 	{
-		return AutoStatement(stmtSetPreloadState)->Bind(id, Preload).FinalStep();
+		return ExecuteStatement(stmtSetPreloadState, id, Preload);
 	}
 
 	virtual bool SetSignature(unsigned long long id, const string& Signature) override
 	{
-		return AutoStatement(stmtSetSignature)->Bind(id, Signature).FinalStep();
+		return ExecuteStatement(stmtSetSignature, id, Signature);
 	}
 
 	virtual bool SetDiskMenuItem(unsigned long long id, size_t index, const string& Text, const GUID& Guid) override
@@ -1330,47 +1327,47 @@ private:
 
 	virtual bool SetCommandPrefix(unsigned long long id, const string& Prefix) override
 	{
-		return AutoStatement(stmtSetPrefix)->Bind(id, Prefix).FinalStep();
+		return ExecuteStatement(stmtSetPrefix, id, Prefix);
 	}
 
 	virtual bool SetFlags(unsigned long long id, unsigned long long Flags) override
 	{
-		return AutoStatement(stmtSetFlags)->Bind(id, Flags).FinalStep();
+		return ExecuteStatement(stmtSetFlags, id, Flags);
 	}
 
 	virtual bool SetExportState(unsigned long long id, const wchar_t* ExportName, bool Exists) override
 	{
-		return *ExportName && AutoStatement(stmtSetExportState)->Bind(id, ExportName, Exists).FinalStep();
+		return *ExportName && ExecuteStatement(stmtSetExportState, id, ExportName, Exists);
 	}
 
 	virtual bool SetMinFarVersion(unsigned long long id, const VersionInfo *Version) override
 	{
-		return AutoStatement(stmtSetMinFarVersion)->Bind(id, make_blob_view(*Version)).FinalStep();
+		return ExecuteStatement(stmtSetMinFarVersion, id, make_blob_view(*Version));
 	}
 
 	virtual bool SetVersion(unsigned long long id, const VersionInfo *Version) override
 	{
-		return AutoStatement(stmtSetVersion)->Bind(id, make_blob_view(*Version)).FinalStep();
+		return ExecuteStatement(stmtSetVersion, id, make_blob_view(*Version));
 	}
 
 	virtual bool SetGuid(unsigned long long id, const string& Guid) override
 	{
-		return AutoStatement(stmtSetGuid)->Bind(id, Guid).FinalStep();
+		return ExecuteStatement(stmtSetGuid, id, Guid);
 	}
 
 	virtual bool SetTitle(unsigned long long id, const string& Title) override
 	{
-		return AutoStatement(stmtSetTitle)->Bind(id, Title).FinalStep();
+		return ExecuteStatement(stmtSetTitle, id, Title);
 	}
 
 	virtual bool SetAuthor(unsigned long long id, const string& Author) override
 	{
-		return AutoStatement(stmtSetAuthor)->Bind(id, Author).FinalStep();
+		return ExecuteStatement(stmtSetAuthor, id, Author);
 	}
 
 	virtual bool SetDescription(unsigned long long id, const string& Description) override
 	{
-		return AutoStatement(stmtSetDescription)->Bind(id, Description).FinalStep();
+		return ExecuteStatement(stmtSetDescription, id, Description);
 	}
 
 	virtual bool EnumPlugins(DWORD index, string &CacheName) const override
@@ -1412,7 +1409,7 @@ private:
 
 	bool SetMenuItem(unsigned long long id, MenuItemTypeEnum type, size_t index, const string& Text, const GUID& Guid) const
 	{
-		return AutoStatement(stmtSetMenuItem)->Bind(id, type, index, GuidToStr(Guid), Text).FinalStep();
+		return ExecuteStatement(stmtSetMenuItem, id, type, index, GuidToStr(Guid), Text);
 	}
 
 	string GetTextFromID(size_t StatementIndex, unsigned long long id) const
@@ -1517,12 +1514,12 @@ private:
 
 	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, const string& HotKey) override
 	{
-		return AutoStatement(stmtSetHotkey)->Bind(PluginKey, GuidToStr(MenuGuid), static_cast<std::underlying_type_t<hotkey_type>>(HotKeyType), HotKey).FinalStep();
+		return ExecuteStatement(stmtSetHotkey, PluginKey, GuidToStr(MenuGuid), static_cast<std::underlying_type_t<hotkey_type>>(HotKeyType), HotKey);
 	}
 
 	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) override
 	{
-		return AutoStatement(stmtDelHotkey)->Bind(PluginKey, GuidToStr(MenuGuid), static_cast<std::underlying_type_t<hotkey_type>>(HotKeyType)).FinalStep();
+		return ExecuteStatement(stmtDelHotkey, PluginKey, GuidToStr(MenuGuid), static_cast<std::underlying_type_t<hotkey_type>>(HotKeyType));
 	}
 
 	virtual void Export(representation_destination& Representation) override
@@ -1713,12 +1710,12 @@ private:
 
 	bool AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData) const
 	{
-		return AutoStatement(stmtAdd)->Bind(TypeHistory, HistoryName, Type, Lock, Name, GetCurrentUTCTimeInUI64(), strGuid, strFile, strData).FinalStep();
+		return ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, GetCurrentUTCTimeInUI64(), strGuid, strFile, strData);
 	}
 
 	bool DeleteInternal(unsigned long long id) const
 	{
-		return AutoStatement(stmtDel)->Bind(id).FinalStep();
+		return ExecuteStatement(stmtDel, id);
 	}
 
 	unsigned long long GetPrevImpl(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string& Name, const std::function<unsigned long long()>& Fallback) const
@@ -1869,7 +1866,7 @@ private:
 	{
 		WaitAllAsync();
 		const auto older = GetCurrentUTCTimeInUI64() - DaysToUI64(DaysToKeep);
-		return AutoStatement(stmtDeleteOldUnlocked)->Bind(TypeHistory, HistoryName, older, MinimumEntries).FinalStep();
+		return ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
 	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, unsigned int TypeHistory, string &strHistoryName) override
@@ -1934,7 +1931,7 @@ private:
 	virtual bool FlipLock(unsigned long long id) override
 	{
 		WaitAllAsync();
-		return AutoStatement(stmtSetLock)->Bind(!IsLocked(id), id).FinalStep();
+		return ExecuteStatement(stmtSetLock, !IsLocked(id), id);
 	}
 
 	virtual bool IsLocked(unsigned long long id) override
@@ -1947,7 +1944,7 @@ private:
 	virtual bool DeleteAllUnlocked(unsigned int TypeHistory, const string& HistoryName) override
 	{
 		WaitAllAsync();
-		return AutoStatement(stmtDelUnlocked)->Bind(TypeHistory, HistoryName).FinalStep();
+		return ExecuteStatement(stmtDelUnlocked, TypeHistory, HistoryName);
 	}
 
 	virtual unsigned long long GetNext(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string& Name) override
@@ -1979,7 +1976,7 @@ private:
 	virtual unsigned long long SetEditorPos(const string& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		return AutoStatement(stmtSetEditorPos)->Bind(Name, GetCurrentUTCTimeInUI64(), Line, LinePos, ScreenLine, LeftPos, CodePage).FinalStep()? LastInsertRowID() : 0;
+		return ExecuteStatement(stmtSetEditorPos, Name, GetCurrentUTCTimeInUI64(), Line, LinePos, ScreenLine, LeftPos, CodePage)? LastInsertRowID() : 0;
 	}
 
 	virtual unsigned long long GetEditorPos(const string& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) override
@@ -2000,7 +1997,7 @@ private:
 	virtual bool SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
 	{
 		WaitCommitAsync();
-		return AutoStatement(stmtSetEditorBookmark)->Bind(id, i, Line, LinePos, ScreenLine, LeftPos).FinalStep();
+		return ExecuteStatement(stmtSetEditorBookmark, id, i, Line, LinePos, ScreenLine, LeftPos);
 	}
 
 	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
@@ -2020,7 +2017,7 @@ private:
 	virtual unsigned long long SetViewerPos(const string& Name, long long FilePos, long long LeftPos, int Hex_Wrap, uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		return AutoStatement(stmtSetViewerPos)->Bind(Name, GetCurrentUTCTimeInUI64(), FilePos, LeftPos, Hex_Wrap, CodePage).FinalStep()? LastInsertRowID() : 0;
+		return ExecuteStatement(stmtSetViewerPos, Name, GetCurrentUTCTimeInUI64(), FilePos, LeftPos, Hex_Wrap, CodePage)? LastInsertRowID() : 0;
 	}
 
 	virtual unsigned long long GetViewerPos(const string& Name, long long *FilePos, long long *LeftPos, int *Hex, uintptr_t *CodePage) override
@@ -2041,7 +2038,7 @@ private:
 	virtual bool SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) override
 	{
 		WaitCommitAsync();
-		return AutoStatement(stmtSetViewerBookmark)->Bind(id, i, FilePos, LeftPos).FinalStep();
+		return ExecuteStatement(stmtSetViewerBookmark, id, i, FilePos, LeftPos);
 	}
 
 	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) override
@@ -2060,8 +2057,8 @@ private:
 	{
 		WaitCommitAsync();
 		const auto older = GetCurrentUTCTimeInUI64() - DaysToUI64(DaysToKeep);
-		AutoStatement(stmtDeleteOldEditor)->Bind(older, MinimumEntries).FinalStep();
-		AutoStatement(stmtDeleteOldViewer)->Bind(older, MinimumEntries).FinalStep();
+		ExecuteStatement(stmtDeleteOldEditor, older, MinimumEntries);
+		ExecuteStatement(stmtDeleteOldViewer, older, MinimumEntries);
 	}
 
 	enum statement_id

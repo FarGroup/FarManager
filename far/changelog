@@ -1,3 +1,13 @@
+drkns 25.09.2016 20:06:40 +0200 - build 4796
+
+1. 0003255: Content of symbolic links not copied
+
+2. 0003309: File associations - Ctrl-Up and Ctrl-Down do not move items
+
+3. 0003310: PluginW.pas out of sync with plugin.hpp
+
+4. 0003311: Incorrect QueryDosDevice call in MatchNtPathRoot (pathmix.cpp)
+
 drkns 22.09.2016 02:17:12 +0200 - build 4795
 
 1. Древний, ещё как минимум со времён 1.65 баг - в главном меню можно было получить переполнение стека.

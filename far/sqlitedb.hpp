@@ -156,6 +156,12 @@ protected:
 
 	auto AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
 
+	template<typename... args>
+	auto ExecuteStatement(size_t Index, args&&... Args) const
+	{
+		return AutoStatement(Index)->Bind(std::forward<args>(Args)...).FinalStep();
+	}
+
 private:
 	void Close();
 	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;

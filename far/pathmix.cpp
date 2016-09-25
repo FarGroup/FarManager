@@ -485,9 +485,11 @@ bool PathStartsWith(const string &Path, const string &Start)
 	return Path.compare(0, PathPart.size(), PathPart) == 0 && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
 }
 
-int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
+int MatchNtPathRoot(const string &NtPath, const string& DevicePath)
 {
 	string TargetPath;
+	string DeviceName = DevicePath;
+	DeleteEndSlash(DeviceName);
 	if (os::QueryDosDevice(DeviceName, TargetPath))
 	{
 		if (PathStartsWith(NtPath, TargetPath))

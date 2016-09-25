@@ -52,6 +52,7 @@ public:
 	std::unique_ptr<os::fs::enum_file> Find;
 	os::fs::enum_file::iterator Iterator;
 	string RealPath;
+	std::unordered_set<string> ActiveLinks;
 };
 
 static bool LinkToRealPath(const string& Src, string& Real)
@@ -84,7 +85,6 @@ ScanTree::~ScanTree()
 
 void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
 {
-	VisitedDirs.clear();
 	ScanItems.clear();
 	ScanItems.emplace_back();
 	Flags.Clear(FSCANTREE_FILESFIRST);
@@ -95,7 +95,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	strFindPath = ConvertNameToReal(strFindPath);
 	strFindPath = NTPath(strFindPath);
 	ScanItems.back().RealPath = strFindPath;
-	VisitedDirs.emplace(strFindPath);
+	ScanItems.back().ActiveLinks.emplace(strFindPath);
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
@@ -205,7 +205,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 			bool real_path = !is_link || LinkToRealPath(RealPath, RealPath);
 
 			//recursive symlinks guard
-			if (real_path && !VisitedDirs.count(RealPath))
+			if (real_path && !ScanItems.back().ActiveLinks.count(RealPath))
 			{
 				CutToSlash(strFindPath);
 				CutToSlash(strFindPathOriginal);
@@ -219,6 +219,9 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 				Data.Flags = ScanItems.back().Flags; // наследуем флаг
 				Data.Flags.Clear(FSCANTREE_SECONDPASS);
 				Data.RealPath = RealPath;
+				Data.ActiveLinks = ScanItems.back().ActiveLinks;
+				if (Flags.Check(FSCANTREE_SCANSYMLINK))
+					Data.ActiveLinks.emplace(RealPath);
 
 				if (is_link)
 				{
@@ -226,8 +229,6 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 					Flags.Set(FSCANTREE_INSIDEJUNCTION);
 				}
 				ScanItems.emplace_back(std::move(Data));
-				if (Flags.Check(FSCANTREE_SCANSYMLINK))
-					VisitedDirs.emplace(std::move(RealPath));
 
 				return true;
 			}
@@ -246,7 +247,6 @@ void ScanTree::SkipDir()
 	if (ScanItems.empty())
 		return;
 
-	VisitedDirs.erase(ScanItems.back().RealPath);
 	ScanItems.pop_back();
 
 	if (ScanItems.empty())

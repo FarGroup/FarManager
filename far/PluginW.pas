@@ -4,7 +4,7 @@
   Plugin API for FAR Manager <%VERSION%>
 
   Статус готовности: ~95%
-  Недоделанные структуры (~15 шт) помечены !!!
+  Недоделанные структуры помечены !!!
 }
 
 {
@@ -23,7 +23,7 @@ are met:
 3. The name of the authors may not be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS' AND ANY EXPRESS OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -1732,6 +1732,10 @@ const
   FMVT_DOUBLE   = 3;
   FMVT_BOOLEAN  = 4;
   FMVT_BINARY   = 5;
+  FMVT_POINTER  = 6;
+  FMVT_NIL      = 7;
+  FMVT_ARRAY    = 8;
+  FMVT_PANEL    = 9;
 
 (*
 struct FarMacroValue
@@ -1752,10 +1756,18 @@ struct FarMacroValue
 };
 *)
 type
+  PFarMacroValueArray = ^TFarMacroValueArray;
+
   PFarBinaryValue = ^TFarBinaryValue;
   TFarBinaryValue = record
     Data :Pointer;
     Length :SIZE_T;
+  end;
+
+  PFarArrayValue = ^TFarArrayValue;
+  TFarArrayValue = record
+    Values :PFarMacroValueArray;
+    Count :SIZE_T;
   end;
 
   PFarMacroValue = ^TFarMacroValue;
@@ -1766,10 +1778,11 @@ type
       1 : (fDouble :Double);
       2 : (fString :PFarChar);
       3 : (fBinary :TFarBinaryValue);
+      4 : (fPointer :Pointer);
+      5 : (fArray :TFarArrayValue);
     end;
   end;
 
-  PFarMacroValueArray = ^TFarMacroValueArray;
   TFarMacroValueArray = packed array[0..MaxInt div SizeOf(TFarMacroValue) - 1] of TFarMacroValue;
 
 
@@ -1813,12 +1826,14 @@ struct FarMacroCall
 };
 *)
 type
+  TFarMacroCallCallback = procedure(CallbackData :Pointer; Values :PFarMacroValueArray; Count :SIZE_T); stdcall;
+
   PFarMacroCall = ^TFarMacroCall;
   TFarMacroCall = record
     StructSize :size_t;
     Count :size_t;
     Values :PFarMacroValueArray;
-    Callback :Pointer;
+    Callback :TFarMacroCallCallback;
     CallbackData :Pointer;
   end;
 
@@ -3719,6 +3734,10 @@ type
     LongText :PFarChar;
   end;
 
+  PKeyBarLabelArray = ^TKeyBarLabelArray;
+  TKeyBarLabelArray = packed array [0..MaxInt div SizeOf(TKeyBarLabel) - 1] of TKeyBarLabel;
+
+
 (*
 struct KeyBarTitles
 {
@@ -3730,7 +3749,7 @@ type
   PKeyBarTitles = ^TKeyBarTitles;
   TKeyBarTitles = record
     CountLabels :size_t;
-    Labels :PKeyBarLabel;
+    Labels :PKeyBarLabelArray;
   end;
 
 (*
@@ -3932,7 +3951,15 @@ struct OpenMacroPluginInfo
   struct FarMacroCall *Data;
 };
 *)
-{!!!}
+type
+  POpenMacroPluginInfo = ^TOpenMacroPluginInfo;
+  TOpenMacroPluginInfo = record
+    StructSize :size_t;
+    CallType :DWORD;
+    Handle :THandle;
+    Data :PFarMacroCall;
+  end;
+
 
 { FAR_EVENTS }
 
@@ -3975,7 +4002,18 @@ type
                     intptr_t UserData;
                     OPERATION_MODES OpMode;
             };
+*)
+type
+  PSetDirectoryInfo = ^TSetDirectoryInfo;
+  TSetDirectoryInfo = record
+    StructSize :size_t;
+    hPanel :THandle;
+    Dir :PFarChar;
+    UserData :Pointer;
+    OpMode :TOperationModes;
+  end;
 
+(*
             struct SetFindListInfo
             {
                     size_t StructSize;
@@ -3994,7 +4032,20 @@ type
                     const wchar_t *SrcPath;
                     OPERATION_MODES OpMode;
             };
+*)
+type
+  PPutFilesInfo = ^TPutFilesInfo;
+  TPutFilesInfo = record
+    StructSize :size_t;
+    hPanel :THandle;
+    PanelItem :PPluginPanelItem;
+    ItemsNumber :size_t;
+    Move :Boolean;
+    SrcPath :PFarChar;
+    OpMode :TOperationModes;
+  end;
 
+(*
             struct ProcessHostFileInfo
             {
                     size_t StructSize;
@@ -4011,7 +4062,17 @@ type
                     const wchar_t *Name;
                     OPERATION_MODES OpMode;
             };
+*)
+type
+  PMakeDirectoryInfo = ^TMakeDirectoryInfo;
+  TMakeDirectoryInfo = record
+    StructSize :size_t;
+    hPanel :THandle;
+    Name :PFarChar;
+    OpMode :TOperationModes;
+  end;
 
+(*
             struct CompareInfo
             {
                     size_t StructSize;
@@ -4029,8 +4090,18 @@ type
                     size_t ItemsNumber;
                     OPERATION_MODES OpMode;
             };
+*)
+type
+  PGetFindDataInfo = ^TGetFindDataInfo;
+  TGetFindDataInfo = record
+    StructSize :size_t;
+    hPanel :THandle;
+    PanelItem :PPluginPanelItemArray;
+    ItemsNumber :size_t;
+    OpMode :TOperationModes;
+  end;
 
-
+(*
             struct FreeFindDataInfo
             {
                     size_t StructSize;
@@ -4038,7 +4109,17 @@ type
                     struct PluginPanelItem *PanelItem;
                     size_t ItemsNumber;
             };
+*)
+type
+  PFreeFindDataInfo = ^TFreeFindDataInfo;
+  TFreeFindDataInfo = record
+    StructSize :size_t;
+    hPanel :THandle;
+    PanelItem :PPluginPanelItemArray;
+    ItemsNumber :size_t;
+  end;
 
+(*
             struct GetFilesInfo
             {
                     size_t StructSize;
@@ -4049,7 +4130,20 @@ type
                     const wchar_t *DestPath;
                     OPERATION_MODES OpMode;
             };
+*)
+type
+  PGetFilesInfo = ^TGetFilesInfo;
+  TGetFilesInfo = record
+    StructSize :size_t;
+    hPanel :THandle;
+    PanelItem :PPluginPanelItem;
+    ItemsNumber :size_t;
+    Move :Boolean;
+    DestPath :PFarChar;
+    OpMode :TOperationModes;
+  end;
 
+(*
             struct DeleteFilesInfo
             {
                     size_t StructSize;
@@ -4059,6 +4153,19 @@ type
                     OPERATION_MODES OpMode;
             };
 
+*)
+type
+  PDeleteFilesInfo = ^TDeleteFilesInfo;
+  TDeleteFilesInfo = record
+    StructSize :size_t;
+    hPanel :THandle;
+    PanelItem :PPluginPanelItem;
+    ItemsNumber :size_t;
+    OpMode :TOperationModes;
+  end;
+
+
+(*
             struct ProcessPanelInputInfo
             {
                     size_t StructSize;
@@ -4066,7 +4173,14 @@ type
                     INPUT_RECORD Rec;
             };
 *)
-{!!!}
+type
+  PProcessPanelInputInfo = ^TProcessPanelInputInfo;
+  TProcessPanelInputInfo = record
+    StructSize :size_t;
+    hPanel :THandle;
+    Rec :TInputRecord;
+  end;
+
 
 (*
 struct ProcessEditorInputInfo
