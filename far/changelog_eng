@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.09.2016 20:32:14 +0200 - build 4797
+
+1. 0001040: Main Usermenu & Console Command: "CLS & ECHO. & ipconfig /all & ECHO. & ECHO. & PAUSE" doesn't work.
+
+drkns 25.09.2016 20:06:40 +0200 - build 4796
+
+1. 0003255: Content of symbolic links not copied
+
+2. 0003309: File associations - Ctrl-Up and Ctrl-Down do not move items
+
+3. 0003310: PluginW.pas out of sync with plugin.hpp
+
+4. 0003311: Incorrect QueryDosDevice call in MatchNtPathRoot (pathmix.cpp)
+
+drkns 22.09.2016 02:17:12 +0200 - build 4795
+
+1. An old bug related to at least 1.65 - possible stack overflow in main menu.
+
+2. Refactoring.
+
 drkns 18.09.2016 02:48:50 +0200 - build 4794
 
 1. Workaround for VS bug. See connect #3103404 for details.
