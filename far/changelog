@@ -1,3 +1,7 @@
+drkns 25.09.2016 20:32:14 +0200 - build 4797
+
+1. 0001040: Main Usermenu & Console Command: "CLS & ECHO. & ipconfig /all & ECHO. & ECHO. & PAUSE" doesn't work.
+
 drkns 25.09.2016 20:06:40 +0200 - build 4796
 
 1. 0003255: Content of symbolic links not copied

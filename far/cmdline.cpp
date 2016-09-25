@@ -1231,6 +1231,16 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	}
 	else if (IsCommand(L"CLS",false))
 	{
+		auto strCmdLine = CmdLine.substr(3);
+		RemoveLeadingSpaces(strCmdLine);
+		if (!strCmdLine.empty())
+		{
+			// Theoretically, in cmd "cls" and "cls blablabla" are the same things.
+			// But, if user passed some parameters to cls it's quite probably
+			// some chained command rather than parameters, e. g. "cls & dir".
+			// We have more complex logic in execute::PartCmdLine, but using it here isn't worth the effort.
+			return false;
+		}
 		ClearScreen(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		return true;
 	}
