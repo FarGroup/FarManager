@@ -52,7 +52,7 @@ public:
 	std::unique_ptr<os::fs::enum_file> Find;
 	os::fs::enum_file::iterator Iterator;
 	string RealPath;
-	std::unordered_set<string> ActiveLinks;
+	std::unordered_set<string> ActiveDirectories;
 };
 
 static bool LinkToRealPath(const string& Src, string& Real)
@@ -95,7 +95,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	strFindPath = ConvertNameToReal(strFindPath);
 	strFindPath = NTPath(strFindPath);
 	ScanItems.back().RealPath = strFindPath;
-	ScanItems.back().ActiveLinks.emplace(strFindPath);
+	ScanItems.back().ActiveDirectories.emplace(strFindPath);
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
@@ -205,7 +205,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 			bool real_path = !is_link || LinkToRealPath(RealPath, RealPath);
 
 			//recursive symlinks guard
-			if (real_path && !ScanItems.back().ActiveLinks.count(RealPath))
+			if (real_path && !ScanItems.back().ActiveDirectories.count(RealPath))
 			{
 				CutToSlash(strFindPath);
 				CutToSlash(strFindPathOriginal);
@@ -219,9 +219,9 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 				Data.Flags = ScanItems.back().Flags; // наследуем флаг
 				Data.Flags.Clear(FSCANTREE_SECONDPASS);
 				Data.RealPath = RealPath;
-				Data.ActiveLinks = ScanItems.back().ActiveLinks;
+				Data.ActiveDirectories = ScanItems.back().ActiveDirectories;
 				if (Flags.Check(FSCANTREE_SCANSYMLINK))
-					Data.ActiveLinks.emplace(RealPath);
+					Data.ActiveDirectories.emplace(RealPath);
 
 				if (is_link)
 				{
