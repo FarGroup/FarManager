@@ -249,8 +249,16 @@ static UINT64 check_env_flag(lua_State *L, int pos)
 	int success = FALSE;
 	UINT64 ret = get_env_flag(L, pos, &success);
 
-	if(!success)
-		luaL_argerror(L, pos, "invalid flag");
+	if (!success)
+	{
+		if (lua_isstring(L, pos))
+		{
+			lua_pushfstring(L, "invalid flag: \"%s\"", lua_tostring(L, pos));
+			luaL_argerror(L, pos, lua_tostring(L, -1));
+		}
+		else
+			luaL_argerror(L, pos, "invalid flag");
+	}
 
 	return ret;
 }
@@ -1172,7 +1180,7 @@ static int FillEditorSelect(lua_State *L, int pos_table, struct EditorSelect *es
 
 static int editor_Select(lua_State *L)
 {
-	int success = 0;
+	int success = TRUE;
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
 	struct EditorSelect es;
@@ -1182,14 +1190,11 @@ static int editor_Select(lua_State *L)
 		success = FillEditorSelect(L, 2, &es);
 	else
 	{
-		es.BlockType = CAST(int, get_env_flag(L, 2, &success));
-		if(success)
-		{
-			es.BlockStartLine = luaL_optinteger(L, 3, 0) - 1;
-			es.BlockStartPos  = luaL_optinteger(L, 4, 0) - 1;
-			es.BlockWidth     = luaL_optinteger(L, 5, -1);
-			es.BlockHeight    = luaL_optinteger(L, 6, -1);
-		}
+		es.BlockType = CAST(int, check_env_flag(L, 2));
+		es.BlockStartLine = luaL_optinteger(L, 3, 0) - 1;
+		es.BlockStartPos  = luaL_optinteger(L, 4, 0) - 1;
+		es.BlockWidth     = luaL_optinteger(L, 5, -1);
+		es.BlockHeight    = luaL_optinteger(L, 6, -1);
 	}
 
 	lua_pushboolean(L, success && Info->EditorControl(EditorId, ECTL_SELECT, 0, &es));
@@ -2976,7 +2981,7 @@ static int far_SendDlgMessage(lua_State *L)
 			Param2 = (void*)opt_utf8_string(L, 4, NULL);
 			break;
 		case DM_SETCHECK:
-			Param2 = (void*)(intptr_t)get_env_flag(L, 4, NULL);
+			Param2 = (void*)(intptr_t)check_env_flag(L, 4);
 			break;
 		case DM_GETCURSORPOS:
 
@@ -4170,7 +4175,7 @@ static int far_GetReparsePointInfo(lua_State *L)
 	const wchar_t* Src = check_utf8_string(L, 1, NULL);
 	size_t size = FSF->GetReparsePointInfo(Src, NULL, 0);
 
-	if(size <= 0)
+	if(size == 0)
 		return lua_pushnil(L), 1;
 
 	Dest = (wchar_t*)lua_newuserdata(L, size * sizeof(wchar_t));
