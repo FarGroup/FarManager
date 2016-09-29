@@ -188,17 +188,17 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 
 bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 {
-	const auto v1_opener = [](const string& Name, sqlite::sqlite3*& pDb)
+	const auto& v1_opener = [](const string& Name, sqlite::sqlite3*& pDb)
 	{
 		return sqlite::sqlite3_open16(Name.data(), &pDb);
 	};
 
-	const auto v2_opener = [WAL](const string& Name, sqlite::sqlite3*& pDb)
+	const auto& v2_opener = [WAL](const string& Name, sqlite::sqlite3*& pDb)
 	{
 		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).data(), &pDb, WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr);
 	};
 
-	const auto OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener)
+	const auto& OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener)
 	{
 		sqlite::sqlite3* pDb;
 		const auto Result = opener(Name, pDb);

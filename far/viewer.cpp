@@ -2303,7 +2303,7 @@ static int process_back(int BufferSize, int pos, long long& fpos, const F& Reade
 
 	if (!pos)
 	{
-		const auto PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
+		const auto& PopEol = [&](T Char) { return nr && Buffer[nr - 1] == Char && --nr; };
 
 		if (PopEol(eol.lf<T>()))
 		{
@@ -2394,7 +2394,7 @@ void Viewer::Up( int nlines, bool adjust )
 
 			if ( ch_size <= 1 )
 			{
-				const auto BufferReader = [&](char* Buffer, size_t Size)
+				const auto& BufferReader = [&](char* Buffer, size_t Size)
 				{
 					size_t nread = 0;
 					Reader.Read(Buffer, buff_size, &nread);
@@ -2412,7 +2412,7 @@ void Viewer::Up( int nlines, bool adjust )
 			}
 			else
 			{
-				const auto BufferReader = [&](wchar_t* Buffer, size_t Size)
+				const auto& BufferReader = [&](wchar_t* Buffer, size_t Size)
 				{
 					return vread(Buffer, static_cast<int>(Size));
 				};
@@ -3945,7 +3945,7 @@ void Viewer::GoTo(int ShowDlg, long long Offset, UINT64 Flags)
 
 	int IsOffsetRelative = 0;
 
-	const auto CalcPercent = [](long long Value, long long PercentBase)
+	const auto& CalcPercent = [](long long Value, long long PercentBase)
 	{
 		const auto Percent = std::min(Value, 100ll);
 		Value = PercentBase / 100 * Percent;
@@ -3976,7 +3976,7 @@ void Viewer::GoTo(int ShowDlg, long long Offset, UINT64 Flags)
 
 		PrevMode = InputMode;
 
-		const auto ParseInput = [CalcPercent](string Str, int InputMode, long long& Result, int& IsRelative, long long PercentBase)
+		const auto& ParseInput = [CalcPercent](string Str, int InputMode, long long& Result, int& IsRelative, long long PercentBase)
 		{
 			if (Str.empty())
 			{

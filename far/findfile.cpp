@@ -646,7 +646,7 @@ void FindFiles::AdvancedDialog()
 
 intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	const auto SetAllCpTitle = [&]()
+	const auto& SetAllCpTitle = [&]()
 	{
 		const int TitlePosition = 1;
 		const auto CpEnum = Codepages().GetFavoritesEnumerator();
@@ -2507,7 +2507,7 @@ void background_searcher::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UIN
 
 void background_searcher::DoPrepareFileList(Dialog* Dlg)
 {
-	auto GetCurDir = []
+	const auto& GetCurDir = []
 	{
 		auto CurDir = Global->CtrlObject->CmdLine()->GetCurDir();
 		if (CurDir.find_first_of(L";,") != string::npos)

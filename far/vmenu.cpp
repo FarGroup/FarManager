@@ -1163,7 +1163,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 		}
 	}
 
-	if (!(((unsigned int)LocalKey >= KEY_MACRO_BASE && (unsigned int)LocalKey <= KEY_MACRO_ENDBASE) || ((unsigned int)LocalKey >= KEY_OP_BASE && (unsigned int)LocalKey <= KEY_OP_ENDBASE)))
+	if (!((LocalKey >= KEY_MACRO_BASE && LocalKey <= KEY_MACRO_ENDBASE) || (LocalKey >= KEY_OP_BASE && LocalKey <= KEY_OP_ENDBASE)))
 	{
 		DWORD S=LocalKey&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT);
 		DWORD K=LocalKey&(~(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT));
@@ -1178,7 +1178,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			LocalKey = L'/'|S;
 	}
 
-	auto ProcessEnter = [this]()
+	const auto& ProcessEnter = [this]()
 	{
 		if (ItemCanBeEntered(Items[SelectPos].Flags))
 		{

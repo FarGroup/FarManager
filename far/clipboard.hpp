@@ -110,4 +110,11 @@ bool ClearInternalClipboard();
 
 bool CopyData(const clipboard_accessor& From, clipboard_accessor& To);
 
+struct clipboard_restorer
+{
+	void operator()(Clipboard* Clip) const;
+};
+
+std::unique_ptr<Clipboard, clipboard_restorer> OverrideClipboard();
+
 #endif // CLIPBOARD_HPP_989E040C_4D10_4D7C_88C0_5EF499171878

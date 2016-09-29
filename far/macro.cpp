@@ -1263,7 +1263,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 
 	TERSE_STATIC_ASSERT(key_count == std::size(Mapping));
 
-	auto get_flag = [&](MACROSETTINGSDLG ControlId, key_id KeyId)
+	const auto& get_flag = [&](MACROSETTINGSDLG ControlId, key_id KeyId)
 	{
 		return Mapping[KeyId][MacroSettingsDlg[ControlId].Selected];
 	};
@@ -3221,7 +3221,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		if (NewItem.strName!=L"\n")
 		{
-			const auto CharToFlag = [](wchar_t c)
+			const auto& CharToFlag = [](wchar_t c)
 			{
 				switch (c)
 				{

@@ -89,7 +89,7 @@ void consoleicons::setFarIcons()
 		if(!Loaded)
 		{
 			const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
-			const auto load_icon = [IconId](icon_mode Mode) { return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), 0)); };
+			const auto& load_icon = [IconId](icon_mode Mode) { return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), 0)); };
 			LargeIcon = load_icon(icon_big);
 			SmallIcon = load_icon(icon_small);
 			Loaded = true;
@@ -688,7 +688,7 @@ void InitRecodeOutTable()
 		Oem2Unicode[0xFF]=L' ';
 	}
 
-	const auto ApplyNoGraphics = [](wchar_t* Buffer)
+	const auto& ApplyNoGraphics = [](wchar_t* Buffer)
 	{
 		std::fill(Buffer + BS_V1, Buffer + BS_LT_H1V1 + 1, L'+');
 
@@ -941,7 +941,7 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	};
 
 	const auto Box = BoxInit[(Type == DOUBLE_BOX || Type == SHORT_DOUBLE_BOX)? 1 : 0];
-	const auto Symbol = [Box](line Line) { return BoxSymbols[Box[Line]]; };
+	const auto& Symbol = [Box](line Line) { return BoxSymbols[Box[Line]]; };
 
 	SetColor(Color);
 
@@ -1279,7 +1279,7 @@ bool IsConsoleFullscreen()
 
 void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
 {
-	const auto fix = [](int Min, int& Value, int Max) { Value = std::min(std::max(Min, Value), Max); };
+	const auto& fix = [](int Min, int& Value, int Max) { Value = std::min(std::max(Min, Value), Max); };
 
 	fix(0, X1, ScrX);
 	fix(0, X2, ScrX);

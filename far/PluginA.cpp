@@ -284,7 +284,7 @@ static unsigned char IsUpperOrLower[256];
 
 static bool LocalUpperInit()
 {
-	const auto Init = []
+	const auto& Init = []
 	{
 		for (size_t I=0; I<std::size(LowerToUpper); I++)
 		{
@@ -632,7 +632,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 
 		for (size_t i = 0; i != 12; ++i)
 		{
-			const auto CheckLabel = [&](const auto& Item) { return (kbtA->*Item.first)[i] != nullptr; };
+			const auto& CheckLabel = [&](const auto& Item) { return (kbtA->*Item.first)[i] != nullptr; };
 
 			kbtW->CountLabels += std::count_if(ALL_CONST_RANGE(LabelsMap), CheckLabel);
 
@@ -648,7 +648,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 
 			for (size_t i = 0, j = 0; i != 12; ++i)
 			{
-				const auto ProcessLabel = [&](const auto& Item)
+				const auto& ProcessLabel = [&](const auto& Item)
 				{
 					if ((kbtA->*Item.first)[i])
 					{
@@ -3551,7 +3551,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 					FreeAnsiPanelInfo(OldPI);
 					ConvertUnicodePanelInfoToAnsi(&PI,OldPI);
 
-					const auto CreatePanelItems = [hPlugin](FILE_CONTROL_COMMANDS ControlCode, oldfar::PluginPanelItem*& Dest, size_t ItemsNumber)
+					const auto& CreatePanelItems = [hPlugin](FILE_CONTROL_COMMANDS ControlCode, oldfar::PluginPanelItem*& Dest, size_t ItemsNumber)
 					{
 						if (!ItemsNumber)
 							return;
@@ -5771,7 +5771,7 @@ private:
 
 	void FreePluginInfo()
 	{
-		const auto DeleteItems = [](const PluginMenuItem& Item)
+		const auto& DeleteItems = [](const PluginMenuItem& Item)
 		{
 			std::for_each(Item.Strings, Item.Strings + Item.Count, std::default_delete<const wchar_t[]>());
 			delete[] Item.Guids;
@@ -5805,7 +5805,7 @@ private:
 		PI.Flags = PF_NONE;
 		FirstFlagsToSecond(Src.Flags, PI.Flags, PluginFlagsMap);
 
-		const auto CreatePluginMenuItems = [](const char* const* Strings, size_t Size, PluginMenuItem& Item)
+		const auto& CreatePluginMenuItems = [](const char* const* Strings, size_t Size, PluginMenuItem& Item)
 		{
 			if (Size)
 			{

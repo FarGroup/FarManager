@@ -82,7 +82,7 @@ void xlat_initialize()
 						L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/",
 					};
 
-					const auto SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
+					const auto& SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
 
 					for (auto i: zip(XLat.Table, Tables)) std::apply(SetIfEmpty, i);
 					for (auto i: zip(XLat.Rules, Rules)) std::apply(SetIfEmpty, i);

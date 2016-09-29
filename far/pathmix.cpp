@@ -265,7 +265,7 @@ const wchar_t* PointToExt(const wchar_t* Path,const wchar_t* EndPtr)
 
 	const wchar_t* ExtPtr = EndPtr;
 
-	const auto IsPath = [&Path](const wchar_t* Ptr)
+	const auto& IsPath = [&Path](const wchar_t* Ptr)
 	{
 		return IsSlash(*Ptr) || (*Ptr == L':' && Ptr - Path == 1); // ':' only in c:
 	};

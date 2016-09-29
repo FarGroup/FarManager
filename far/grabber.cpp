@@ -368,7 +368,7 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 			ResetArea = true;
 	}
 
-	const auto Move = [this](COORD& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
+	const auto& Move = [this](COORD& What, int Count, int Direction, int LimitX, int LimitY, int NewX)
 	{
 		for (; Count; --Count)
 		{
@@ -396,22 +396,22 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 		return true;
 	};
 
-	const auto MoveCoordLeft = [&](COORD& What, int Count)
+	const auto& MoveCoordLeft = [&](COORD& What, int Count)
 	{
 		return Move(What, Count, -1, 0, 0, ScrX);
 	};
 
-	const auto MoveCoordRight = [&](COORD& What, int Count)
+	const auto& MoveCoordRight = [&](COORD& What, int Count)
 	{
 		return Move(What, Count, 1, ScrX, ScrY, 0);
 	};
 
-	const auto MoveLeft = [&](int Count)
+	const auto& MoveLeft = [&](int Count)
 	{
 		return MoveCoordLeft(GArea.Current, Count);
 	};
 
-	const auto MoveRight = [&](int Count)
+	const auto& MoveRight = [&](int Count)
 	{
 		return MoveCoordRight(GArea.Current, Count);
 	};

@@ -549,15 +549,15 @@ void Dialog::ProcessCenterGroup()
 		// Их координаты X не важны. Удобно использовать для центрирования
 		// групп кнопок.
 
-		const auto IsNotSuitableItem = [](const DialogItemEx& Item, int Y) { return !(Item.Flags & DIF_CENTERGROUP && Item.Y1 == Y); };
-		const auto IsVisible = [](const DialogItemEx& Item) { return !(Item.Flags & DIF_HIDDEN); };
+		const auto& IsNotSuitableItem = [](const DialogItemEx& Item, int Y) { return !(Item.Flags & DIF_CENTERGROUP && Item.Y1 == Y); };
+		const auto& IsVisible = [](const DialogItemEx& Item) { return !(Item.Flags & DIF_HIDDEN); };
 
 		if ((i->Flags & DIF_CENTERGROUP) && (i == Items.begin() || IsNotSuitableItem(*(i - 1), i->Y1)))
 		{
 			const auto ButtonsEnd = std::find_if(i, Items.end(), [&](const DialogItemEx& Item) { return IsNotSuitableItem(Item, i->Y1); });
 			const auto FirstVisibleButton = std::find_if(i, ButtonsEnd, IsVisible);
 
-			const auto GetIncrement = [this](const DialogItemEx& Item)
+			const auto& GetIncrement = [this](const DialogItemEx& Item)
 			{
 				auto Result = LenStrItem(Item);
 				if (!Item.strData.empty())
@@ -2497,7 +2497,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 	if (ProcessMoveDialog(LocalKey()))
 		return TRUE;
 
-	if (!(((unsigned int)LocalKey()>=KEY_OP_BASE && (unsigned int)LocalKey() <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
+	if (!((LocalKey()>=KEY_OP_BASE && LocalKey() <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
 	{
 		// wrap-stop mode for user lists
 		if ((LocalKey()==KEY_UP || LocalKey()==KEY_NUMPAD8 || LocalKey()==KEY_DOWN || LocalKey()==KEY_NUMPAD2) && IsRepeatedKey())
@@ -5593,7 +5593,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_GETTEXT:
 		{
 			FarDialogItemData *did=(FarDialogItemData*)Param2;
-			const auto InitItemData = [did, &Ptr, &Len]
+			const auto& InitItemData = [did, &Ptr, &Len]
 			{
 				if (!did->PtrLength)
 					did->PtrLength=Len; //BUGBUG: PtrLength размер переданного нам буфера, зачем мы его меняем?

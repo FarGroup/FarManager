@@ -88,7 +88,7 @@ static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& Director
 	FindData.nAllocationSize = DirectoryInfo.AllocationSize.QuadPart;
 	FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
 
-	const auto CopyNames = [&FindData](const auto& DirInfo)
+	const auto& CopyNames = [&FindData](const auto& DirInfo)
 	{
 		FindData.strFileName.assign(DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t));
 		FindData.strAlternateFileName.assign(DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t));
@@ -105,7 +105,7 @@ static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& Director
 		CopyNames(reinterpret_cast<const FILE_BOTH_DIR_INFORMATION&>(DirectoryInfo));
 	}
 
-	const auto RemoveTrailingZeros = [](string& Where)
+	const auto& RemoveTrailingZeros = [](string& Where)
 	{
 		Where.resize(Where.find_last_not_of(L'\0') + 1);
 	};
@@ -137,7 +137,7 @@ static auto FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 	auto strDirectory(Name);
 	CutToSlash(strDirectory);
 
-	const auto OpenDirectory = [&] { return Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING); };
+	const auto& OpenDirectory = [&] { return Handle->Object.Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING); };
 
 	if (!OpenDirectory())
 	{
@@ -1246,7 +1246,7 @@ bool CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirecto
 {
 	NTPath NtNewDirectory(NewDirectory);
 
-	auto Create = [&](const string& Template)
+	const auto& Create = [&](const string& Template)
 	{
 		auto Result = Template.empty()? ::CreateDirectory(NtNewDirectory.data(), SecurityAttributes) != FALSE : ::CreateDirectoryEx(Template.data(), NtNewDirectory.data(), SecurityAttributes) != FALSE;
 		if (!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1526,7 +1526,7 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
 	if (Imports().GetFinalPathNameByHandleW)
 	{
-		const auto GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags)
+		const auto& GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags)
 		{
 			// It seems that Microsoft has forgotten to put an exception handler around this function.
 			// It causes EXCEPTION_ACCESS_VIOLATION (read from 0) in kernel32 under certain conditions,
@@ -1764,7 +1764,7 @@ bool IsWow64Process()
 #ifdef _WIN64
 	return false;
 #else
-	auto GetValue = [] { BOOL Value = FALSE; return Imports().IsWow64Process(GetCurrentProcess(), &Value) && Value; };
+	const auto& GetValue = [] { BOOL Value = FALSE; return Imports().IsWow64Process(GetCurrentProcess(), &Value) && Value; };
 	static const auto Wow64Process = GetValue();
 	return Wow64Process;
 #endif
@@ -1773,7 +1773,7 @@ bool IsWow64Process()
 
 DWORD GetAppPathsRedirectionFlag()
 {
-	const auto GetFlag = []
+	const auto& GetFlag = []
 	{
 		// App Paths key is shared in Windows 7 and above
 		if (!IsWindows7OrGreater())
@@ -2073,7 +2073,7 @@ DWORD GetAppPathsRedirectionFlag()
 	{
 		bool is_pointer(const void* Address)
 		{
-			const auto GetInfo = []{ SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; };
+			const auto& GetInfo = []{ SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; };
 			static const auto info = GetInfo();
 
 			return InRange<const void*>(info.lpMinimumApplicationAddress, Address, info.lpMaximumApplicationAddress);
@@ -2084,7 +2084,7 @@ DWORD GetAppPathsRedirectionFlag()
 	{
 		bool is_admin()
 		{
-			const auto GetResult = []
+			const auto& GetResult = []
 			{
 				SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 				if (const auto AdministratorsGroup = make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS))

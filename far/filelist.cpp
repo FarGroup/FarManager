@@ -510,7 +510,7 @@ public:
 	list_less(const FileList* Owner): m_Owner(Owner) {}
 	bool operator()(const FileListItem& a, const FileListItem& b) const
 	{
-		const auto less_opt = [](bool less)
+		const auto& less_opt = [](bool less)
 		{
 			return RevertSorting ? !less : less;
 		};
@@ -519,7 +519,7 @@ public:
 		bool UseReverseNameSort = false;
 		const wchar_t *Ext1=nullptr,*Ext2=nullptr;
 
-		const auto IsParentDir = [](const FileListItem& Item)
+		const auto& IsParentDir = [](const FileListItem& Item)
 		{
 			return (Item.FileAttr & FILE_ATTRIBUTE_DIRECTORY) && TestParentFolderName(Item.strName) && (Item.strShortName.empty() || TestParentFolderName(Item.strShortName));
 		};
@@ -571,7 +571,7 @@ public:
 
 		long long RetCode64;
 
-		const auto CompareTime = [&a, &b](const FILETIME FileListItem::*time)
+		const auto& CompareTime = [&a, &b](const FILETIME FileListItem::*time)
 		{
 			return CompareFileTime(a.*time, b.*time);
 		};
@@ -589,7 +589,7 @@ public:
 				UseReverseNameSort = true;
 
 				{
-					const auto GetExt = [](const FileListItem& i)
+					const auto& GetExt = [](const FileListItem& i)
 					{
 						return !Global->Opt->SortFolderExt && (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) ? i.strName.data() + i.strName.size() : PointToExt(i.strName);
 					};
@@ -4251,7 +4251,7 @@ void FileList::CompareDir()
 		}
 	}
 
-	const auto refresh = [](FileList& Panel)
+	const auto& refresh = [](FileList& Panel)
 	{
 		if (Panel.GetSelectedFirstMode())
 			Panel.SortFileList(TRUE);
@@ -4697,7 +4697,7 @@ void FileList::SelectSortMode()
 	// sort options
 	else
 	{
-		const auto Switch = [&](bool CurrentState)
+		const auto& Switch = [&](bool CurrentState)
 		{
 			return PlusPressed || (InvertPressed && !CurrentState);
 		};
@@ -5658,7 +5658,7 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 	DWORD FileAttr;
 	GetSelName(nullptr,FileAttr);
 
-	const auto ConvertAndAddToList = [&](const FileListItem& What)
+	const auto& ConvertAndAddToList = [&](const FileListItem& What)
 	{
 		PluginPanelItemHolderNonOwning NewItem;
 		FileListToPluginItem(What, NewItem);
@@ -7811,7 +7811,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	if (!Global->Opt->ShowPanelTotals && m_PanelMode == panel_mode::PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
 		return;
 
-	auto calc_total_string = [this, Info](int short_mode)
+	const auto& calc_total_string = [this, Info](int short_mode)
 	{
 		string strFreeSize, strTotalSize;
 		auto strFormSize = size2str(TotalFileSize, 6, short_mode);
@@ -8250,15 +8250,16 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ColumnData)
 					{
-						const auto& ContentMapPtr = m_ListData[ListPos].ContentData(this);
-						if (ContentMapPtr)
+						const auto& GetContentData = [&]
 						{
+							const auto& ContentMapPtr = m_ListData[ListPos].ContentData(this);
+							if (!ContentMapPtr)
+								return L"";
 							const auto Iterator = ContentMapPtr->find(Columns[K].title);
-							if (Iterator != ContentMapPtr->cend())
-							{
-								ColumnData = Iterator->second.data();
-							}
-						}
+							return Iterator != ContentMapPtr->cend()? Iterator->second.data() : L"";
+						};
+
+						ColumnData = GetContentData();
 					}
 
 					int CurLeftPos=0;

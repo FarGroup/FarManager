@@ -416,7 +416,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 		ComplMenu->SetMacroMode(Area);
 
-		const auto CompletionEnabled = [&Manual](int State)
+		const auto& CompletionEnabled = [&Manual](int State)
 		{
 			return (Manual && State) || (!Manual && State == 1);
 		};
@@ -448,7 +448,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 		}
 
-		const auto Complete = [&](VMenu2& Menu, const string& Str)
+		const auto& Complete = [&](VMenu2& Menu, const string& Str)
 		{
 			if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
 			{
@@ -466,7 +466,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 		Complete(*ComplMenu, strTemp);
 
-		const auto AppendCmd = [&]
+		const auto& AppendCmd = [&]
 		{
 			int SelStart = GetLength();
 

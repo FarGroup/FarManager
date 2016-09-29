@@ -140,7 +140,7 @@ static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 			os::SetFileAttributes(Object, Attributes);
 	};
 
-	const auto SetBuffer = [&](bool ForceElevation)
+	const auto& SetBuffer = [&](bool ForceElevation)
 	{
 		os::fs::file fObject;
 		DWORD dwBytesReturned;
@@ -289,7 +289,7 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD Repar
 	if (ReparseTag)
 		*ReparseTag=rdb->ReparseTag;
 
-	const auto Extract = [&](const auto& Buffer)
+	const auto& Extract = [&](const auto& Buffer)
 	{
 		const wchar_t *PathBuffer = nullptr;
 		auto NameLength = Buffer.PrintNameLength / sizeof(wchar_t);

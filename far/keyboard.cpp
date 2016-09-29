@@ -708,7 +708,7 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 	/* $ 26.04.2001 VVM
 	+ Обработка колесика мышки. */
 
-	const auto GetModifiers = [CtrlState]
+	const auto& GetModifiers = [CtrlState]
 	{
 		return
 			(CtrlState & SHIFT_PRESSED? KEY_SHIFT : NO_KEY) |
@@ -723,6 +723,7 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 		const auto& WheelKeysPair = WheelKeys[IntKeyState.MouseEventFlags == MOUSE_HWHEELED? 1 : 0];
 		const auto Key = WheelKeysPair[static_cast<short>(HIWORD(MouseEvent.dwButtonState)) > 0? 1 : 0];
 		CalcKey = Key | GetModifiers();
+		return true;
 	}
 
 	if ((!ExcludeMacro || ProcessMouse) && Global->CtrlObject && (ProcessMouse || !(Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting())))
@@ -764,7 +765,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	auto NotMacros = false;
 
-	const auto ProcessMacroEvent = [&]
+	const auto& ProcessMacroEvent = [&]
 	{
 		if (NotMacros || ExcludeMacro)
 			return CalcKey;
@@ -1940,7 +1941,7 @@ static int GetNumpadKey(const int KeyCode, const int CtrlState, const int Modif)
 		{ VK_DECIMAL, KEY_NUMDEL, KEY_DEL, KEY_DECIMAL },
 	};
 
-	const auto GetMappingIndex = [KeyCode]
+	const auto& GetMappingIndex = [KeyCode]
 	{
 		switch (KeyCode)
 		{

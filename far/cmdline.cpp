@@ -569,7 +569,7 @@ static bool AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 {
 	if (!Color.empty())
 	{
-		const auto Convert = [](const wchar_t* Ptr, COLORREF& Result)
+		const auto& Convert = [](const wchar_t* Ptr, COLORREF& Result)
 		{
 			wchar_t* EndPtr;
 			const auto Value = std::wcstoul(Ptr, &EndPtr, 16);
@@ -1062,7 +1062,7 @@ void CommandLine::ExecString(execute_info& Info)
 	};
 
 	bool CommandDrawn = false;
-	auto DrawCommand = [&]
+	const auto& DrawCommand = [&]
 	{
 		if (CommandDrawn)
 			return;
@@ -1097,7 +1097,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 		if (!Info.NewWindow && !Info.RunAs)
 		{
-			auto Activator = [&](bool DoConsolise)
+			const auto& Activator = [&](bool DoConsolise)
 			{
 				ExecutionContext->Activate();
 				DrawCommand();
@@ -1136,14 +1136,14 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
-	const auto IsCommand = [&CmdLine](const string& cmd, bool bslash)
+	const auto& IsCommand = [&CmdLine](const string& cmd, bool bslash)
 	{
 		const auto n = cmd.size();
 		return (!StrCmpNI(CmdLine.data(), cmd.data(), n)
 			&& (n == CmdLine.size() || nullptr != wcschr(L"/ \t", CmdLine[n]) || (bslash && CmdLine[n] == L'\\')));
 	};
 
-	const auto FindKey = [&CmdLine](wchar_t Key)
+	const auto& FindKey = [&CmdLine](wchar_t Key)
 	{
 		const auto FirstSpacePos = CmdLine.find(L' ');
 		const auto NotSpacePos = CmdLine.find_first_not_of(L' ', FirstSpacePos);
@@ -1154,7 +1154,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			Upper(CmdLine[NotSpacePos + 1]) == Upper(Key);
 	};
 
-	const auto FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
+	const auto& FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
 
 	ConsoleActivatior(false);
 

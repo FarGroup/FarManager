@@ -198,7 +198,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 			unsigned long long Time;
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
-			const auto GetTitle = [](auto Type)
+			const auto& GetTitle = [](auto Type)
 			{
 				switch (Type)
 				{

@@ -197,7 +197,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 		if (!(pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL))
 			return false;
 
-		const auto GetMachineType = []
+		const auto& GetMachineType = []
 		{
 			const auto FarModule = GetModuleHandle(nullptr);
 			return reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(FarModule) + reinterpret_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
@@ -218,7 +218,7 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 			if ((Section.VirtualAddress == dwExportAddr) ||
 				((Section.VirtualAddress <= dwExportAddr) && ((Section.Misc.VirtualSize + Section.VirtualAddress) > dwExportAddr)))
 			{
-				const auto GetAddress = [&](size_t Offset)
+				const auto& GetAddress = [&](size_t Offset)
 				{
 					return reinterpret_cast<const char*>(Module) + Section.PointerToRawData - Section.VirtualAddress + Offset;
 				};
@@ -443,7 +443,7 @@ bool Plugin::SaveToCache()
 		PlCache->SetSignature(id, MakeSignature(fdata));
 	}
 
-	const auto SaveItems = [&PlCache, &id](const auto& Setter, const auto& Item)
+	const auto& SaveItems = [&PlCache, &id](const auto& Setter, const auto& Item)
 	{
 		for (size_t i = 0; i != Item.Count; ++i)
 		{

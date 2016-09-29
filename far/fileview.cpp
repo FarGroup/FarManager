@@ -267,7 +267,7 @@ long long FileViewer::VMProcess(int OpCode,void *vParam,long long iParam)
 int FileViewer::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
-	if (RedrawTitle && (((unsigned int)LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)LocalKey & 0x00ffffff)))
+	if (RedrawTitle && ((LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal(LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
 
 	if (LocalKey!=KEY_F3 && LocalKey!=KEY_IDLE)

@@ -417,7 +417,7 @@ void Language::init(const string& Path, int CountNeed)
 	//
 	if (!id_map.empty())
 	{
-		const auto LoadStrings = [&](const string& FileName)
+		const auto& LoadStrings = [&](const string& FileName)
 		{
 			os::fs::file lang_file;
 			if (lang_file.Open(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))

@@ -352,7 +352,7 @@ void SetColors()
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
 		int GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)
 		{
-			intptr_t ItemsCode=(intptr_t)param;
+			const auto ItemsCode = reinterpret_cast<intptr_t>(param);
 			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= std::size(Groups))
 				return 0;
 			GroupsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
@@ -392,7 +392,7 @@ static void SetItemColors(const color_item* Items, size_t Size)
 	ItemsMenu->SetMenuFlags(VMENU_WRAPMODE);
 	ItemsMenu->RunEx([&](int Msg, void *param)
 	{
-		intptr_t ItemsCode=(intptr_t)param;
+		const auto ItemsCode = reinterpret_cast<intptr_t>(param);
 		if (Msg!=DN_CLOSE || ItemsCode<0)
 			return 0;
 

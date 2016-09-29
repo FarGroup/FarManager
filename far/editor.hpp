@@ -209,7 +209,7 @@ private:
 	void GoToLineAndShow(int Line);
 	void GoToPosition();
 	void TextChanged(bool State);
-	int CalcDistance(const numbered_iterator& From, const numbered_iterator& To) const;
+	static int CalcDistance(const numbered_iterator& From, const numbered_iterator& To);
 	void PasteFromClipboard();
 	void Paste(const string& Data);
 	void ProcessChar(wchar_t Char);

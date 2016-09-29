@@ -183,7 +183,7 @@ static int MainProcess(
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Global->Opt->*
 
-			const auto SetupPanel = [&](bool active)
+			const auto& SetupPanel = [&](bool active)
 			{
 				++DirCount;
 				string strPath = active? apanel : ppanel;
@@ -388,7 +388,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult)
 {
-	const auto isArg = [](const wchar_t* Arg, const wchar_t* Name)
+	const auto& isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
 		return (*Arg == L'/' || *Arg == L'-') && !StrCmpI(Arg + 1, Name);
 	};

@@ -305,7 +305,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		return FALSE;
 
 	default:
-		const auto FindHighlightedKey = [&](bool Translate)
+		const auto& FindHighlightedKey = [&](bool Translate)
 		{
 			return std::find_if(Item.begin(), Item.end(), [&](const auto& Element)
 			{

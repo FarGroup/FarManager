@@ -1799,7 +1799,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 
 		if (str<=strend)
 		{
-			const auto MinSkip = [&](StateStackItem& st, const std::function<bool(const wchar_t* str)>& cmp)
+			const auto& MinSkip = [&](StateStackItem& st, const std::function<bool(const wchar_t* str)>& cmp)
 			{
 				int jj;
 				switch (std::next(op)->op)

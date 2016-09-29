@@ -129,7 +129,7 @@ void FilePanels::Init(int DirCount)
 	SetPanelPositions(FileList::IsModeFullScreen(Left.second.ViewMode),
 	                  FileList::IsModeFullScreen(Right.second.ViewMode));
 
-	const auto InitPanel = [](const std::pair<panel_ptr, const Options::PanelOptions&>& Params)
+	const auto& InitPanel = [](const std::pair<panel_ptr, const Options::PanelOptions&>& Params)
 	{
 		Params.first->SetViewMode(Params.second.ViewMode);
 
@@ -155,7 +155,7 @@ void FilePanels::Init(int DirCount)
 	// пытаемся избавится от зависания при запуске
 	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
 
-	const auto SetFolder = [&](const std::pair<panel_ptr, Options::PanelOptions&>& Params)
+	const auto& SetFolder = [&](const std::pair<panel_ptr, Options::PanelOptions&>& Params)
 	{
 		auto Folder = Params.second.Folder.Get();
 		PrepareOptFolder(Folder, IsLocalPath_FarPath);
@@ -164,7 +164,7 @@ void FilePanels::Init(int DirCount)
 	SetFolder(Left);
 	SetFolder(Right);
 
-	const auto InitCurDir_checked = [&](const std::pair<panel_ptr, const Options::PanelOptions&>& Params)
+	const auto& InitCurDir_checked = [&](const std::pair<panel_ptr, const Options::PanelOptions&>& Params)
 	{
 		Params.first->InitCurDir(os::fs::exists(Params.second.Folder.Get())? Params.second.Folder.Get() : Global->g_strFarPath);
 	};

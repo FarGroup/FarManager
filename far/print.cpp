@@ -185,7 +185,7 @@ void PrintFiles(FileList* SrcPanel)
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
 		SCOPED_ACTION(SaveScreen);
 
-		const auto PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
+		const auto& PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
 
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(false, 0);

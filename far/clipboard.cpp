@@ -180,6 +180,11 @@ public:
 		return s_Clipboard;
 	}
 
+	static auto CreateInstance()
+	{
+		return std::unique_ptr<Clipboard>(new internal_clipboard);
+	}
+
 	virtual ~internal_clipboard()
 	{
 		internal_clipboard::Close();
@@ -254,9 +259,25 @@ private:
 };
 
 //-----------------------------------------------------------------------------
+static thread_local Clipboard* OverridenInternalClipboard;
+
+void clipboard_restorer::operator()(Clipboard* Clip) const
+{
+	OverridenInternalClipboard = nullptr;
+	delete Clip;
+}
+
+std::unique_ptr<Clipboard, clipboard_restorer> OverrideClipboard()
+{
+	auto ClipPtr = internal_clipboard::CreateInstance();
+	OverridenInternalClipboard = ClipPtr.get();
+	return std::unique_ptr<Clipboard, clipboard_restorer>(ClipPtr.release());
+}
+
 Clipboard& Clipboard::GetInstance(default_clipboard_mode::mode Mode)
 {
-	return Mode == default_clipboard_mode::system? system_clipboard::GetInstance() : internal_clipboard::GetInstance();
+	return OverridenInternalClipboard? *OverridenInternalClipboard :
+	       Mode == default_clipboard_mode::system? system_clipboard::GetInstance() : internal_clipboard::GetInstance();
 }
 
 bool Clipboard::SetText(const wchar_t *Data, size_t Size)
@@ -352,7 +373,7 @@ bool Clipboard::GetText(string& Data) const
 	if (!ClipAddr)
 		return false;
 
-	const auto GetBinaryTextLength = [this]
+	const auto& GetBinaryTextLength = [this]
 	{
 		auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length));
 		if (!hClipDataLen)
@@ -400,7 +421,7 @@ bool Clipboard::GetHDROPAsText(string& data) const
 
 bool Clipboard::GetVText(string& data) const
 {
-	const auto IsBorlandVerticalBlock = [this]
+	const auto& IsBorlandVerticalBlock = [this]
 	{
 		const auto hClipData = GetData(RegisterFormat(clipboard_format::borland_ide_dev_block));
 		if (!hClipData)

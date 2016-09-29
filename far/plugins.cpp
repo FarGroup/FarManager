@@ -1739,7 +1739,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		string Name;
 		GUID Guid;
 
-		const auto ReadCache = [&](const auto& Getter, auto& Items)
+		const auto& ReadCache = [&](const auto& Getter, auto& Items)
 		{
 			for (size_t i = 0; (ConfigProvider().PlCacheCfg().get()->*Getter)(id, i, Name, Guid); ++i)
 			{
@@ -1760,7 +1760,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 			Flags = Info.Flags;
 			Prefix = NullToEmpty(Info.CommandPrefix);
 
-			const auto CopyData = [](const PluginMenuItem& Item, menu_items& Items)
+			const auto& CopyData = [](const PluginMenuItem& Item, menu_items& Items)
 			{
 				for (size_t i = 0; i < Item.Count; i++)
 				{

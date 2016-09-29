@@ -188,7 +188,7 @@ enum CopyMode
 
 int CmpFullNames(const string& Src,const string& Dest)
 {
-	const auto ToFull = [](const string& in)
+	const auto& ToFull = [](const string& in)
 	{
 		// получим полные пути с учетом символических связей
 		// (ConvertNameToReal eliminates short names too)
@@ -217,7 +217,7 @@ string GetParentFolder(const string& Src)
 
 int CmpFullPath(const string& Src, const string& Dest)
 {
-	const auto ToFull = [](const string& in)
+	const auto& ToFull = [](const string& in)
 	{
 		auto out = GetParentFolder(in);
 		DeleteEndSlash(out);
@@ -2246,10 +2246,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					switch (CopyCode)
 					{
 						case COPY_SUCCESS:
-							FileMoved = TRUE;
+							FileMoved = true;
 							break;
 						case COPY_FAILURE:
-							FileMoved = FALSE;
+							FileMoved = false;
 							break;
 						case COPY_CANCEL:
 							return COPY_CANCEL;
@@ -3702,7 +3702,7 @@ bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 	// для каталога, если он есть
 	if (GetInfoSuccess && FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION && Attr&FILE_ATTRIBUTE_ENCRYPTED && Attr&FILE_ATTRIBUTE_DIRECTORY)
 	{
-		int Ret=ESetFileEncryption(Dest,1,0,SkipMode);
+		int Ret=ESetFileEncryption(Dest, true, 0, SkipMode);
 
 		if (Ret==SETATTR_RET_ERROR)
 		{

@@ -1,3 +1,13 @@
+drkns 29.09.2016 17:30:16 +0200 - build 4798
+
+1. Не работали модификаторы с mouse wheel.
+
+2. CtrlP/CtrlM теперь не должны конфликтовать со встроенным буфером обмена.
+
+3. Падение при нажатии AltEnd на панели плагина с нестандартными колонками.
+
+4. Рефакторинг.
+
 drkns 25.09.2016 20:32:14 +0200 - build 4797
 
 1. 0001040: Main Usermenu & Console Command: "CLS & ECHO. & ipconfig /all & ECHO. & ECHO. & PAUSE" doesn't work.

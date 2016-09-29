@@ -115,7 +115,7 @@ static int CASHook(const Manager::Key& key)
 						maskLeft=LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED,
 						maskRight=RIGHT_CTRL_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED;
 					const auto state = rec.dwControlKeyState;
-					const auto wait = [](DWORD mask)
+					const auto& wait = [](DWORD mask)
 					{
 						for (;;)
 						{
@@ -508,7 +508,7 @@ void Manager::SwitchWindow(DirectionType Direction)
 {
 	const auto windows = GetSortedWindows();
 	auto pos = windows.find(GetBottomWindow());
-	const auto process = [&, this]()
+	const auto& process = [&, this]()
 	{
 		if (Direction==Manager::NextWindow)
 		{
@@ -621,7 +621,8 @@ void Manager::ProcessMainLoop()
 		if (EndLoop)
 			return;
 
-		if (rec.EventType==MOUSE_EVENT && !(Key==KEY_MSWHEEL_UP || Key==KEY_MSWHEEL_DOWN || Key==KEY_MSWHEEL_RIGHT || Key==KEY_MSWHEEL_LEFT))
+		const auto BaseKey = Key & ~KEY_CTRLMASK;
+		if (rec.EventType==MOUSE_EVENT && !(BaseKey == KEY_MSWHEEL_UP || BaseKey == KEY_MSWHEEL_DOWN || BaseKey == KEY_MSWHEEL_RIGHT || BaseKey == KEY_MSWHEEL_LEFT))
 		{
 				// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
 				MOUSE_EVENT_RECORD mer=rec.Event.MouseEvent;

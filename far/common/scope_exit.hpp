@@ -45,6 +45,7 @@ namespace detail
 	{
 		exit,
 		fail,
+
 		success
 	};
 
@@ -74,12 +75,12 @@ namespace detail
 	{
 	public:
 		template<typename F>
-		auto operator << (F&& f) { return detail::scope_guard<F, Type>(std::move(f)); }
+		auto operator << (F&& f) { return detail::scope_guard<F, Type>(std::forward<F>(f)); }
 	};
 }
 
 #define DETAIL_SCOPE_IMPL(type) \
-const auto ANONYMOUS_VARIABLE(scope_##type##_guard) = detail::make_scope_guard<detail::scope_type::type>() << [&]() /* lambda body here */
+const auto ANONYMOUS_VARIABLE(scope_##type##_guard) = detail::make_scope_guard<detail::scope_type::type>() << [&] /* lambda body here */
 
 #define SCOPE_EXIT DETAIL_SCOPE_IMPL(exit)
 #define SCOPE_FAIL DETAIL_SCOPE_IMPL(fail) noexcept

@@ -529,7 +529,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 		if (!CurFilterData)
 			continue;
 
-		const auto KeyToFlags = [](int Key) -> DWORD
+		const auto& KeyToFlags = [](int Key) -> DWORD
 		{
 			switch (Key)
 			{

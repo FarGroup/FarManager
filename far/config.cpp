@@ -1014,7 +1014,7 @@ static void ResetViewModes(const range<PanelViewSettings*>& Modes, int Index = -
 	};
 	TERSE_STATIC_ASSERT(std::size(InitialModes) == predefined_panel_modes_count);
 
-	const auto InitMode = [](const auto& src, auto& dst)
+	const auto& InitMode = [](const auto& src, auto& dst)
 	{
 		dst.PanelColumns = src.PanelColumns;
 		dst.StatusColumns = src.StatusColumns;
@@ -1142,7 +1142,7 @@ void Options::SetFilePanelModes()
 
 		if (DeleteMode)
 		{
-			const auto SwitchToAnotherMode = [&](panel_ptr p)
+			const auto& SwitchToAnotherMode = [&](panel_ptr p)
 			{
 				const auto RealMode = static_cast<int>(DisplayModeToReal(CurMode));
 				if (p->GetViewMode() == RealMode)
@@ -1532,7 +1532,7 @@ Options::Options():
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
 {
-	const auto TabSizeValidator = [](long long TabSize)
+	const auto& TabSizeValidator = [](long long TabSize)
 	{
 		return InRange(1, TabSize, 512)? TabSize : DefaultTabSize;
 	};
@@ -1558,7 +1558,7 @@ Options::Options():
 
 	HelpTabSize.SetValidator([](long long Value) { return DefaultTabSize; }); // пока жестко пропишем...
 
-	const auto MacroKeyValidator = [](const string& Value, DWORD& Key, const string& DefaultValue, DWORD DefaultKey)
+	const auto& MacroKeyValidator = [](const string& Value, DWORD& Key, const string& DefaultValue, DWORD DefaultKey)
 	{
 		if ((Key = KeyNameToKey(Value)) == static_cast<DWORD>(-1))
 		{
@@ -2160,7 +2160,7 @@ void Options::Save(bool Manual)
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 
-	const auto StorePanelOptions = [](panel_ptr PanelPtr, PanelOptions& Panel)
+	const auto& StorePanelOptions = [](panel_ptr PanelPtr, PanelOptions& Panel)
 	{
 		if (PanelPtr->GetMode() == panel_mode::NORMAL_PANEL)
 		{
@@ -2388,7 +2388,7 @@ void Options::ReadPanelModes()
 
 	auto root = HierarchicalConfig::root_key();
 
-	const auto ReadMode = [&](auto& i, size_t Index)
+	const auto& ReadMode = [&](auto& i, size_t Index)
 	{
 		const auto Key = cfg->FindByName(root, std::to_wstring(Index));
 
@@ -2448,7 +2448,7 @@ void Options::SavePanelModes(bool always)
 	const auto cfg = ConfigProvider().CreatePanelModeConfig();
 	auto root = cfg->root_key();
 
-	const auto SaveMode = [&](const auto& i, size_t Index)
+	const auto& SaveMode = [&](const auto& i, size_t Index)
 	{
 		string strColumnTitles, strColumnWidths;
 		string strStatusColumnTitles, strStatusColumnWidths;
@@ -2631,7 +2631,7 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	const auto ApplyViewModesNames = [this](MenuDataEx* Menu)
+	const auto& ApplyViewModesNames = [this](MenuDataEx* Menu)
 	{
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
 		{

@@ -2276,7 +2276,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 */
 void Edit::Xlat(bool All)
 {
-	const auto XLatStr = [&](int StartPos, int EndPos)
+	const auto& XLatStr = [&](int StartPos, int EndPos)
 	{
 		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(m_Str));
 		::Xlat(Buffer.data(), StartPos, EndPos, Global->Opt->XLat.Flags);

@@ -679,9 +679,9 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 	else if (Info.ExecMode == execute_info::exec_mode::detect)
 	{
-		auto GetAssociatedImageType = [&Verb](const string& Str, image_type& ImageType)
+		const auto& GetAssociatedImageType = [&Verb](const string& Str, image_type& ImageType)
 		{
-			auto GetAssociatedImageTypeForBatCmd = [](const string& BatCmdStr, image_type& BatCmdImageType)
+			const auto& GetAssociatedImageTypeForBatCmd = [](const string& BatCmdStr, image_type& BatCmdImageType)
 			{
 				if (IsExecutable(BatCmdStr))
 				{
@@ -710,7 +710,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			return false;
 		};
 
-		auto GetImageTypeFallback = [](image_type& ImageType)
+		const auto& GetImageTypeFallback = [](image_type& ImageType)
 		{
 			// Object is found, but its type is unknown.
 			// Decision is controversial:
@@ -857,7 +857,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			seInfo.lpParameters = strNewCmdPar.data();
 		}
 
-		auto GetVerb = [&Verb](const string& Str)
+		const auto& GetVerb = [&Verb](const string& Str)
 		{
 			DWORD DummyError;
 			string DummyString;

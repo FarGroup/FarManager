@@ -359,7 +359,7 @@ string ConvertNameToReal(const string& Object)
 string ConvertNameToShort(const string& Object)
 {
 	string strDest;
-	const auto GetShortName = [&strDest](const string& str)
+	const auto& GetShortName = [&strDest](const string& str)
 	{
 		wchar_t Buffer[MAX_PATH];
 		if (auto Size = GetShortPathName(str.data(), Buffer, static_cast<DWORD>(std::size(Buffer))))

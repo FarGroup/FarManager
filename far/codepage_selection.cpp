@@ -312,7 +312,7 @@ size_t codepages::size() const
 // Получаем позицию для вставки таблицы с учётом сортировки по номеру кодовой страницы
 size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length)
 {
-	const auto GetCodePage = [this](size_t position) -> uintptr_t
+	const auto& GetCodePage = [this](size_t position) -> uintptr_t
 	{
 		switch (CallbackCallSource)
 		{

@@ -102,12 +102,11 @@ public:
 	template<class T>
 	friend T* any_cast(any* Any) noexcept
 	{
-		if (Any)
-		{
-			const auto Impl = dynamic_cast<detail::any_impl<T>*>(Any->m_Data.get());
-			return Impl? &Impl->get() : nullptr;
-		}
-		return nullptr;
+		if (!Any)
+			return nullptr;
+
+		const auto Impl = dynamic_cast<detail::any_impl<T>*>(Any->m_Data.get());
+		return Impl? &Impl->get() : nullptr;
 	}
 
 private:
@@ -134,12 +133,10 @@ const T* any_cast(const any* Any) noexcept
 template<class T>
 T& any_cast(any& Any)
 {
-	const auto Result = any_cast<T>(&Any);
-	if (!Result)
-	{
-		throw MAKE_FAR_EXCEPTION("bad any_cast");
-	}
-	return *Result;
+	if (const auto Result = any_cast<T>(&Any))
+		return *Result;
+
+	throw MAKE_FAR_EXCEPTION("bad any_cast");
 }
 
 template<class T>

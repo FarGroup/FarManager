@@ -94,7 +94,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 {
 	if (msg == DN_INITDIALOG)
 	{
-		uintptr_t codepage = *(uintptr_t*)param2;
+		const auto codepage = *static_cast<uintptr_t*>(param2);
 		Codepages().FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, false, false);
 	}
 
@@ -102,7 +102,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 	{
 		if (param1 == ID_OE_OK)
 		{
-			uintptr_t* param = (uintptr_t*)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
+			const auto param = reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			FarListPos pos={sizeof(FarListPos)};
 			Dlg->SendMessage(DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
 			*param = *Dlg->GetListItemDataPtr<uintptr_t>(ID_OE_CODEPAGE, pos.SelectPos);
@@ -206,7 +206,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 	{
 		case DN_INITDIALOG:
 		{
-			CurrentCodepage = *(uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
+			CurrentCodepage = *reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			Codepages().FillCodePagesList(Dlg, ID_SF_CODEPAGE, CurrentCodepage, false, false, false, false, false);
 			break;
 		}
@@ -214,7 +214,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 		{
 			if (param1 == ID_SF_OK)
 			{
-				uintptr_t *CodepagePtr = (uintptr_t *)Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
+				const auto CodepagePtr = reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
 				*CodepagePtr = *Dlg->GetListItemDataPtr<uintptr_t>(ID_SF_CODEPAGE, pos.SelectPos);
@@ -837,7 +837,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 	if (LocalKey!=KEY_F4 && LocalKey!=KEY_IDLE)
 		F4KeyOnly=false;
 
-	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)LocalKey & 0x00ffffff)))
+	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && ((LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal(LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
 
 	// Все остальные необработанные клавиши пустим далее
@@ -846,7 +846,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 	   никак не соответствует обрабатываемой клавише, возникают разномастные
 	   глюки
 	*/
-	if (((unsigned int)LocalKey >= KEY_MACRO_BASE && (unsigned int)LocalKey <= KEY_MACRO_ENDBASE) || ((unsigned int)LocalKey>=KEY_OP_BASE && (unsigned int)LocalKey <=KEY_OP_ENDBASE)) // исключаем MACRO
+	if ((LocalKey >= KEY_MACRO_BASE && LocalKey <= KEY_MACRO_ENDBASE) || (LocalKey>=KEY_OP_BASE && LocalKey <=KEY_OP_ENDBASE)) // исключаем MACRO
 	{
 		; //
 	}
@@ -1417,7 +1417,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow
 
 		if (NeedQuestion)
 		{
-			SaveCode=SaveFile(strFullFileName,FirstSave,0,FALSE);
+			SaveCode=SaveFile(strFullFileName, FirstSave, false, 0);
 		}
 
 		if (SaveCode==SAVEFILE_CANCEL)
@@ -2054,7 +2054,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 			else
 			{
-				const auto EncodeAndWriteBlock = [&](const wchar_t* Data, size_t Size)
+				const auto& EncodeAndWriteBlock = [&](const wchar_t* Data, size_t Size)
 				{
 					if (Size)
 					{
@@ -2609,7 +2609,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case ECTL_SETKEYBAR:
 		{
-			FarSetKeyBarTitles *Kbt = (FarSetKeyBarTitles*)Param2;
+			const auto Kbt = static_cast<const FarSetKeyBarTitles*>(Param2);
 
 			if (!Kbt)   //восстановить изначальное
 				InitKeyBar();
@@ -2634,7 +2634,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			int EOL=0;
 			uintptr_t codepage=m_codepage;
 
-			EditorSaveFile *esf=(EditorSaveFile *)Param2;
+			const auto esf = static_cast<const EditorSaveFile*>(Param2);
 			if (CheckStructSize(esf))
 			{
 
@@ -2697,12 +2697,12 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING)
 			{
-//        return FALSE;
+				//return FALSE;
 			}
 
 			if (Param2)
 			{
-				INPUT_RECORD *rec=(INPUT_RECORD *)Param2;
+				const auto rec = static_cast<INPUT_RECORD*>(Param2);
 
 				for (;;)
 				{
@@ -2769,7 +2769,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_SETPARAM:
 		{
-			EditorSetParameter *espar=(EditorSetParameter *)Param2;
+			const auto espar = static_cast<const EditorSetParameter*>(Param2);
 			if (CheckStructSize(espar))
 			{
 				if (ESPT_SETBOM==espar->Type)
