@@ -88,7 +88,7 @@ public:
 	plugin_panel(Plugin* PluginInstance, HANDLE Panel);
 	~plugin_panel();
 
-	Plugin* plugin() const
+	auto plugin() const
 	{
 		return m_Plugin.get();
 	}

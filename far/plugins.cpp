@@ -471,8 +471,8 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 		NONCOPYABLE(PluginInfo);
 		TRIVIALLY_MOVABLE(PluginInfo);
 
-		PluginInfo(Plugin* panel, HANDLE analyse):
-			m_Panel(panel, nullptr),
+		PluginInfo(Plugin* plugin, HANDLE panel, HANDLE analyse):
+			m_Panel(plugin, panel),
 			m_Analyse(analyse)
 		{}
 
@@ -591,17 +591,14 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 
 			if (hPlugin)
 			{
-				PluginInfo handle(i, nullptr);
-				items.emplace_back(std::move(handle));
+				items.emplace_back(i, hPlugin, nullptr);
 			}
 		}
 		else
 		{
-			HANDLE analyse = i->Analyse(&Info);
-			if (analyse)
+			if (const auto analyse = i->Analyse(&Info))
 			{
-				PluginInfo handle(i, analyse);
-				items.emplace_back(std::move(handle));
+				items.emplace_back(i, nullptr, analyse);
 			}
 		}
 
