@@ -50,7 +50,7 @@ enum FINDAREA
 };
 
 class Dialog;
-struct PluginHandle;
+class plugin_panel;
 struct THREADPARAM;
 class IndeterminateTaskBar;
 class InterThreadData;
@@ -79,7 +79,7 @@ private:
 	bool FindFilesProcess();
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	static void SetPluginDirectory(const string& DirName, PluginHandle* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
+	static void SetPluginDirectory(const string& DirName, plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
 	static bool GetPluginFile(struct ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 
 	// BUGBUG
@@ -165,7 +165,7 @@ private:
 	void DoPreparePluginList(Dialog* Dlg, bool Internal);
 	void ArchiveSearch(Dialog* Dlg, const string& ArcName);
 	void DoScanTree(Dialog* Dlg, const string& strRoot);
-	void ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags, int& RecurseLevel);
+	void ScanPluginTree(Dialog* Dlg, plugin_panel* hPlugin, UINT64 Flags, int& RecurseLevel);
 	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, PluginPanelItem& FindData) const;
 
 

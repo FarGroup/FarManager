@@ -79,10 +79,33 @@ static const CALLPLUGINFLAGS
 	CPT_MASK        = 0x0000000FL,
 	CPT_CHECKONLY   = 0x10000000L;
 
-struct PluginHandle
+class plugin_panel
 {
-	HANDLE hPlugin;
-	Plugin *pPlugin;
+public:
+	NONCOPYABLE(plugin_panel);
+	TRIVIALLY_MOVABLE(plugin_panel);
+
+	plugin_panel(Plugin* PluginInstance, HANDLE Panel);
+	~plugin_panel();
+
+	Plugin* plugin() const
+	{
+		return m_Plugin.get();
+	}
+
+	auto panel() const
+	{
+		return m_Panel;
+	}
+
+	void set_panel(HANDLE Panel)
+	{
+		m_Panel = Panel;
+	}
+
+private:
+	movalbe_ptr<Plugin> m_Plugin;
+	HANDLE m_Panel{};
 };
 
 class PluginManager: noncopyable
@@ -94,25 +117,25 @@ public:
 	~PluginManager();
 
 	// API functions
-	PluginHandle* Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
-	PluginHandle* OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type);
-	PluginHandle* OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
-	static void ClosePanel(PluginHandle* hPlugin);
-	static void GetOpenPanelInfo(PluginHandle* hPlugin, OpenPanelInfo *Info);
-	static int GetFindData(PluginHandle* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode);
-	static void FreeFindData(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
-	static int GetVirtualFindData(PluginHandle* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
-	static void FreeVirtualFindData(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
-	static int SetDirectory(PluginHandle* hPlugin, const string& Dir, int OpMode, UserDataItem *UserData=nullptr);
-	static int GetFile(PluginHandle* hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
-	static int GetFiles(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
-	static int PutFiles(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
-	static int DeleteFiles(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
-	static int MakeDirectory(PluginHandle* hPlugin,const wchar_t **Name,int OpMode);
-	static int ProcessHostFile(PluginHandle* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
-	static int ProcessKey(PluginHandle* hPlugin,const INPUT_RECORD *Rec,bool Pred);
-	static int ProcessEvent(PluginHandle* hPlugin,int Event,void *Param);
-	static int Compare(PluginHandle* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
+	plugin_panel* Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
+	plugin_panel* OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type);
+	plugin_panel* OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
+	static void ClosePanel(plugin_panel* hPlugin);
+	static void GetOpenPanelInfo(plugin_panel* hPlugin, OpenPanelInfo *Info);
+	static int GetFindData(plugin_panel* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode);
+	static void FreeFindData(plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
+	static int GetVirtualFindData(plugin_panel* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
+	static void FreeVirtualFindData(plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
+	static int SetDirectory(plugin_panel* hPlugin, const string& Dir, int OpMode, UserDataItem *UserData=nullptr);
+	static int GetFile(plugin_panel* hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
+	static int GetFiles(plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
+	static int PutFiles(plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);
+	static int DeleteFiles(plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
+	static int MakeDirectory(plugin_panel* hPlugin,const wchar_t **Name,int OpMode);
+	static int ProcessHostFile(plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,int OpMode);
+	static int ProcessKey(plugin_panel* hPlugin,const INPUT_RECORD *Rec,bool Pred);
+	static int ProcessEvent(plugin_panel* hPlugin,int Event,void *Param);
+	static int Compare(plugin_panel* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 	int ProcessEditorInput(const INPUT_RECORD *Rec) const;
 	int ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const;
 	int ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<GUID, uuid_hash, uuid_equal>& PluginIds) const;
@@ -173,8 +196,8 @@ public:
 	void RefreshPluginsList();
 
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
-	static int UseFarCommand(PluginHandle* hPlugin, int CommandType);
-	static const GUID& GetGUID(const PluginHandle* hPlugin);
+	static int UseFarCommand(plugin_panel* hPlugin, int CommandType);
+	static const GUID& GetGUID(const plugin_panel* hPlugin);
 	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::hotkey_type HotKeyType, const string& DlgPluginTitle);
 	static void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
 

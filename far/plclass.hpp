@@ -345,6 +345,7 @@ private:
 	friend class PluginManager;
 	friend class plugin_factory;
 	friend class native_plugin_factory;
+	friend class plugin_panel;
 
 	void InitExports();
 	void ClearExports();

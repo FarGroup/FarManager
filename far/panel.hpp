@@ -134,7 +134,7 @@ class VMenu2;
 class Edit;
 struct PanelMenuItem;
 class Viewer;
-struct PluginHandle;
+class plugin_panel;
 class FilePanels;
 
 class Panel: public ScreenObject, public std::enable_shared_from_this<Panel>
@@ -165,10 +165,10 @@ public:
 	virtual void SetReturnCurrentFile(int Mode) {}
 	virtual void QViewDelTempName() {}
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const {}
-	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
+	virtual void SetPluginMode(plugin_panel* hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
 	virtual void SetPluginModified() {}
 	virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;}
-	virtual PluginHandle* GetPluginHandle() const {return nullptr;}
+	virtual plugin_panel* GetPluginHandle() const {return nullptr;}
 	virtual void RefreshTitle();
 	virtual string GetTitle() const;
 	virtual long long VMProcess(int OpCode, void* vParam=nullptr, long long iParam=0) override;

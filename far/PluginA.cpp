@@ -2491,12 +2491,12 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 	}
 }
 
-static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexcept
+static const char * WINAPI FarGetMsgFnA(intptr_t plugin_panel, int MsgId) noexcept
 {
 	try
 	{
-		//BUGBUG, надо проверять, что PluginHandle - плагин
-		const auto pPlugin = reinterpret_cast<Plugin*>(PluginHandle);
+		//BUGBUG, надо проверять, что plugin_panel - плагин
+		const auto pPlugin = reinterpret_cast<Plugin*>(plugin_panel);
 		string strPath = pPlugin->GetModuleName();
 		CutToSlash(strPath);
 
@@ -4968,7 +4968,7 @@ static int SendKeyToPluginHook(const Manager::Key& key)
 			if (Global->CtrlObject->Cp()->ActivePanel()->GetMode() == panel_mode::PLUGIN_PANEL)
 			{
 				const auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
-				if (ph && ph->pPlugin->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key(), true))
+				if (ph && ph->plugin()->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key(), true))
 					return TRUE;
 			}
 		}

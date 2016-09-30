@@ -274,7 +274,6 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	return 1;
 }
 
-static PluginHandle* hDirListPlugin;
 static int PluginSearchMsgOut;
 
 static void PR_FarGetPluginDirListMsg();
@@ -342,7 +341,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	PluginDirList.back().UserData.FreeData=nullptr;
 }
 
-static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList, bool& StopSearch)
+static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList, bool& StopSearch)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;
@@ -396,7 +395,7 @@ static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath, st
 			{
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir(OpMode,strPluginSearchPath, PluginDirList, StopSearch);
+				ScanPluginDir(hDirListPlugin, OpMode, strPluginSearchPath, PluginDirList, StopSearch);
 				size_t pos = strPluginSearchPath.rfind(L'\x1');
 				if (pos != string::npos)
 					strPluginSearchPath.resize(pos);
@@ -425,7 +424,9 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, st
 	if (Dir == L"." || TestParentFolderName(Dir))
 		return FALSE;
 
-	static PluginHandle DirListPlugin;
+	std::unique_ptr<plugin_panel> DirListPlugin;
+	plugin_panel* hDirListPlugin;
+
 	OPERATION_MODES OpMode=0;
 	if (Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::QVIEW_PANEL || Global->CtrlObject->Cp()->ActivePanel()->GetType() == panel_type::QVIEW_PANEL)
 		OpMode|=OPM_QUICKVIEW;
@@ -441,12 +442,12 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, st
 		if (!Handle)
 			return FALSE;
 
-		DirListPlugin = *Handle;
+		hDirListPlugin = Handle;
 	}
 	else
 	{
-		DirListPlugin.pPlugin = PluginNumber;
-		DirListPlugin.hPlugin=hPlugin;
+		DirListPlugin = std::make_unique<plugin_panel>(PluginNumber, hPlugin);
+		hDirListPlugin = DirListPlugin.get();
 	}
 
 	bool StopSearch = false;
@@ -461,7 +462,6 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, st
 			SetCursorType(false, 0);
 			FarGetPluginDirListMsg(strDirName,0);
 			PluginSearchMsgOut=FALSE;
-			hDirListPlugin = &DirListPlugin;
 
 			OpenPanelInfo Info;
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
@@ -473,7 +473,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, st
 			{
 				string strPluginSearchPath = Dir;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir(OpMode,strPluginSearchPath, Items, StopSearch);
+				ScanPluginDir(hDirListPlugin, OpMode,strPluginSearchPath, Items, StopSearch);
 
 				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT|OpMode);
 				OpenPanelInfo NewInfo;
@@ -515,7 +515,7 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 	Items.clear();
 }
 
-int GetPluginDirInfo(PluginHandle* ph,const string& DirName,unsigned long& DirCount,
+int GetPluginDirInfo(plugin_panel* ph,const string& DirName,unsigned long& DirCount,
                      unsigned long& FileCount,unsigned long long& FileSize,
                      unsigned long long& CompressedFileSize)
 {
@@ -524,7 +524,7 @@ int GetPluginDirInfo(PluginHandle* ph,const string& DirName,unsigned long& DirCo
 	FileSize=CompressedFileSize=0;
 
 	std::vector<PluginPanelItem> PanelItems;
-	if ((ExitCode = GetPluginDirList(ph->pPlugin, ph->hPlugin, DirName, PanelItems)) == TRUE) //intptr_t - BUGBUG
+	if ((ExitCode = GetPluginDirList(ph->plugin(), ph->panel(), DirName, PanelItems)) == TRUE) //intptr_t - BUGBUG
 	{
 		std::for_each(ALL_CONST_RANGE(PanelItems), [&](const PluginPanelItem& i)
 		{
@@ -541,7 +541,7 @@ int GetPluginDirInfo(PluginHandle* ph,const string& DirName,unsigned long& DirCo
 		});
 	}
 
-	FreePluginDirList(ph->hPlugin, PanelItems);
+	FreePluginDirList(ph->panel(), PanelItems);
 
 	return ExitCode;
 }

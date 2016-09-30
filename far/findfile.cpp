@@ -83,7 +83,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct ArcListItem
 {
 	string strArcName;
-	PluginHandle* hPlugin;    // Plugin handle
+	plugin_panel* hPlugin;    // Plugin handle
 	UINT64 Flags;       // OpenPanelInfo.Flags
 	string strRootPath; // Root path in plugin after opening.
 };
@@ -217,7 +217,7 @@ public:
 		ArcList.clear();
 	}
 
-	ArcListItem& AddArcListItem(const string& ArcName, PluginHandle* hPlugin, UINT64 dwFlags, const string& RootPath)
+	ArcListItem& AddArcListItem(const string& ArcName, plugin_panel* hPlugin, UINT64 dwFlags, const string& RootPath)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 
@@ -544,7 +544,7 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const PluginPanel
 }
 #endif
 
-void FindFiles::SetPluginDirectory(const string& DirName, PluginHandle* hPlugin, bool UpdatePanel, UserDataItem *UserData)
+void FindFiles::SetPluginDirectory(const string& DirName, plugin_panel* hPlugin, bool UpdatePanel, UserDataItem *UserData)
 {
 	if (!DirName.empty())
 	{
@@ -1284,7 +1284,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string
 {
 	bool FileFound = m_Owner->GetFileMask()->Compare(PointToName(FullName));
 	ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
-	PluginHandle* hPlugin=nullptr;
+	plugin_panel* hPlugin=nullptr;
 	if(ArcItem)
 	{
 		hPlugin = ArcItem->hPlugin;
@@ -2178,7 +2178,7 @@ void background_searcher::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
 	_ALGO(SysLog(L"ArcName='%s'",(ArcName?ArcName:L"nullptr")));
 
-	PluginHandle* hArc;
+	plugin_panel* hArc;
 	{
 		int SavePluginsOutput = Global->DisablePluginsOutput;
 		Global->DisablePluginsOutput = TRUE;
@@ -2403,7 +2403,7 @@ void background_searcher::DoScanTree(Dialog* Dlg, const string& strRoot)
 	}
 }
 
-void background_searcher::ScanPluginTree(Dialog* Dlg, PluginHandle* hPlugin, UINT64 Flags, int& RecurseLevel)
+void background_searcher::ScanPluginTree(Dialog* Dlg, plugin_panel* hPlugin, UINT64 Flags, int& RecurseLevel)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;

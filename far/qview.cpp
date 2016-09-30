@@ -408,7 +408,7 @@ void QuickView::Update(int Mode)
 	Redraw();
 }
 
-void QuickView::ShowFile(const string& FileName, bool TempFile, PluginHandle* hDirPlugin)
+void QuickView::ShowFile(const string& FileName, bool TempFile, plugin_panel* hDirPlugin)
 {
 	CloseFile();
 

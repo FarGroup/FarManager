@@ -130,7 +130,7 @@ struct PluginsListItem
 	NONCOPYABLE(PluginsListItem);
 	TRIVIALLY_MOVABLE(PluginsListItem);
 
-	PluginsListItem(PluginHandle* hPlugin, const string& HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+	PluginsListItem(plugin_panel* hPlugin, const string& HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(hPlugin),
 		m_HostFile(HostFile),
 		m_Modified(Modified),
@@ -143,7 +143,7 @@ struct PluginsListItem
 		m_PrevViewSettings(PrevViewSettings.clone())
 	{}
 
-	PluginHandle* m_Plugin;
+	plugin_panel* m_Plugin;
 	string m_HostFile;
 	int m_Modified;
 	int m_PrevViewMode;
@@ -220,13 +220,13 @@ public:
 	virtual int GetColumnsCount() const override { return m_Columns; }
 	virtual void SetReturnCurrentFile(int Mode) override;
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
-	virtual void SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
+	virtual void SetPluginMode(plugin_panel* hPlugin,const string& PluginFile,bool SendOnFocus=false) override;
 	virtual size_t GetSelCount() const override;
 	virtual int GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::FAR_FIND_DATA *fde = nullptr) override;
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
 	virtual unsigned long long GetLastSelectedSize() const override;
-	virtual PluginHandle* GetPluginHandle() const override;
+	virtual plugin_panel* GetPluginHandle() const override;
 	virtual size_t GetRealSelCount() const override;
 	virtual void SetPluginModified() override;
 	virtual int ProcessPluginEvent(int Event,void *Param) override;
@@ -239,7 +239,7 @@ public:
 	const FileListItem* GetItem(size_t Index) const;
 	const FileListItem* GetLastSelectedItem() const;
 
-	PluginHandle* OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type);
+	plugin_panel* OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type);
 	void ProcessHostFile();
 	bool GetPluginInfo(PluginInfo *PInfo) const;
 	void PluginGetPanelInfo(PanelInfo &Info);
@@ -250,7 +250,7 @@ public:
 	void PluginSetSelection(int ItemNumber,bool Selection);
 	void PluginClearSelection(int SelectedItemNumber);
 	void PluginEndSelection();
-	int PluginPanelHelp(const PluginHandle* hPlugin) const;
+	int PluginPanelHelp(const plugin_panel* hPlugin) const;
 	void ResetLastUpdateTime() {LastUpdateTime = 0;}
 	string GetPluginPrefix() const;
 
@@ -302,7 +302,7 @@ private:
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
 	void MoveSelection(list_data& From, list_data& To);
-	void PushPlugin(PluginHandle* hPlugin,const string& HostFile);
+	void PushPlugin(plugin_panel* hPlugin,const string& HostFile);
 	int PopPlugin(int EnableRestoreViewMode);
 	void PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess);
 	void CopyFiles(bool bMoved=false);
@@ -311,7 +311,7 @@ private:
 	bool ApplyCommand();
 	void DescribeFiles();
 	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot = true);
-	PluginHandle* OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type);
+	plugin_panel* OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 	int PreparePanelView(PanelViewSettings *PanelView);
 	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
 	void PrepareViewSettings(int ViewMode);
@@ -361,7 +361,7 @@ private:
 		list_data() {}
 		~list_data() { clear(); }
 
-		void initialise(PluginHandle* ph) { clear(); m_Plugin = ph; }
+		void initialise(plugin_panel* ph) { clear(); m_Plugin = ph; }
 
 		void clear();
 		decltype(auto) size() const { return Items.size(); }
@@ -387,10 +387,10 @@ private:
 		decltype(auto) push_back(T&& Value) { return Items.push_back(std::forward<T>(Value)); }
 	private:
 		std::vector<FileListItem> Items;
-		PluginHandle* m_Plugin{};
+		plugin_panel* m_Plugin{};
 	}
 	m_ListData;
-	PluginHandle* m_hPlugin;
+	plugin_panel* m_hPlugin;
 	std::list<PrevDataItem> PrevDataList;
 	std::list<PluginsListItem> PluginsList;
 	FileSystemWatcher FSWatcher;

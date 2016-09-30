@@ -96,7 +96,7 @@ static panel_sort ListSortMode(panel_sort::UNSORTED);
 static bool RevertSorting;
 static panel_mode ListPanelMode(panel_mode::NORMAL_PANEL);
 static int ListNumericSort,ListCaseSensitiveSort;
-static PluginHandle* hSortPlugin;
+static plugin_panel* hSortPlugin;
 
 
 enum SELECT_MODES
@@ -817,7 +817,7 @@ void FileList::SortFileList(int KeepPosition)
 			strCurName = m_ListData[m_CurFile].strName;
 		}
 
-		hSortPlugin = (m_PanelMode == panel_mode::PLUGIN_PANEL && m_hPlugin && m_hPlugin->pPlugin->has(iCompare))? m_hPlugin : nullptr;
+		hSortPlugin = (m_PanelMode == panel_mode::PLUGIN_PANEL && m_hPlugin && m_hPlugin->plugin()->has(iCompare))? m_hPlugin : nullptr;
 
 		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
 		// при считывании директории
@@ -886,10 +886,10 @@ int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
 
 bool FileList::GetPluginInfo(PluginInfo *PInfo) const
 {
-	if (GetMode() == panel_mode::PLUGIN_PANEL && m_hPlugin && m_hPlugin->pPlugin)
+	if (GetMode() == panel_mode::PLUGIN_PANEL && m_hPlugin && m_hPlugin->plugin())
 	{
 		PInfo->StructSize=sizeof(PluginInfo);
-		return m_hPlugin->pPlugin->GetPluginInfo(PInfo) != 0;
+		return m_hPlugin->plugin()->GetPluginInfo(PInfo) != 0;
 	}
 	return false;
 }
@@ -927,8 +927,8 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
 		{
 			PluginInfo *PInfo=(PluginInfo *)vParam;
-			if (GetMode() == panel_mode::PLUGIN_PANEL && m_hPlugin && m_hPlugin->pPlugin)
-				return m_hPlugin->pPlugin->GetPluginInfo(PInfo)?1:0;
+			if (GetMode() == panel_mode::PLUGIN_PANEL && m_hPlugin && m_hPlugin->plugin())
+				return m_hPlugin->plugin()->GetPluginInfo(PInfo)?1:0;
 			return 0;
 		}
 
@@ -1266,7 +1266,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTSHIFTF9:
 		{
 			if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-				Global->CtrlObject->Plugins->ConfigureCurrent(m_hPlugin->pPlugin, FarGuid);
+				Global->CtrlObject->Plugins->ConfigureCurrent(m_hPlugin->plugin(), FarGuid);
 			else
 				Global->CtrlObject->Plugins->Configure();
 
@@ -2603,7 +2603,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	}
 	else
 	{
-		PluginHandle* OpenedPlugin = nullptr;
+		plugin_panel* OpenedPlugin = nullptr;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
 		SCOPE_EXIT{ if (PluginMode && !OpenedPlugin) DeleteFileWithFolder(strFileName); };
 
@@ -5036,14 +5036,14 @@ bool FileList::GetPrevDirectoriesFirst() const
 	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevDirectoriesFirst:m_DirectoriesFirst;
 }
 
-PluginHandle* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
+plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
 {
 	if (!PushPrev && m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		for (;;)
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
-				return static_cast<PluginHandle*>(PANEL_STOP);
+				return static_cast<plugin_panel*>(PANEL_STOP);
 
 			if (!PopPlugin(TRUE))
 				break;
@@ -5192,10 +5192,10 @@ void FileList::UpdateKeyBar()
 
 }
 
-int FileList::PluginPanelHelp(const PluginHandle* hPlugin) const
+int FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
 	string strPath, strFileName;
-	strPath = hPlugin->pPlugin->GetModuleName();
+	strPath = hPlugin->plugin()->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
 	os::fs::file HelpFile;
@@ -5218,7 +5218,7 @@ string FileList::GetPluginPrefix() const
 		if (!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES))
 		{
 			PluginInfo PInfo = {sizeof(PInfo)};
-			m_hPlugin->pPlugin->GetPluginInfo(&PInfo);
+			m_hPlugin->plugin()->GetPluginInfo(&PInfo);
 
 			if (PInfo.CommandPrefix && *PInfo.CommandPrefix)
 			{
@@ -5288,7 +5288,7 @@ void FileList::ClearAllItem()
    В стеке ФАРова панель не хранится - только плагиновые!
 */
 
-void FileList::PushPlugin(PluginHandle* hPlugin,const string& HostFile)
+void FileList::PushPlugin(plugin_panel* hPlugin,const string& HostFile)
 {
 	PluginsList.emplace_back(hPlugin, HostFile, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_NumericSort, m_CaseSensitiveSort, m_DirectoriesFirst, m_ViewSettings);
 	++Global->PluginPanelsCount;
@@ -5626,9 +5626,9 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 }
 
 
-PluginHandle* FileList::OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
+plugin_panel* FileList::OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
 {
-	PluginHandle* Result = nullptr;
+	plugin_panel* Result = nullptr;
 	if(!FileName.empty() && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
 		SetCurPath();
@@ -5936,13 +5936,13 @@ void FileList::PluginHostGetFiles()
 
 	while (!ExitLoop && GetSelName(&strSelName,FileAttr))
 	{
-		PluginHandle* hCurPlugin;
+		plugin_panel* hCurPlugin;
 
 		if ((hCurPlugin = OpenPluginForFile(strSelName, FileAttr, OFP_EXTRACT)) != nullptr &&
 		        hCurPlugin!=PANEL_STOP)
 		{
 			int OpMode=OPM_TOPLEVEL;
-			if(UsedPlugins.find(hCurPlugin->pPlugin) != UsedPlugins.cend())
+			if(UsedPlugins.find(hCurPlugin->plugin()) != UsedPlugins.cend())
 				OpMode|=OPM_SILENT;
 
 			PluginPanelItem *ItemList;
@@ -5964,7 +5964,7 @@ void FileList::PluginHostGetFiles()
 
 				_ALGO(SysLog(L"call Plugins.FreeFindData()"));
 				Global->CtrlObject->Plugins->FreeFindData(hCurPlugin,ItemList,ItemNumber,true);
-				UsedPlugins.emplace(hCurPlugin->pPlugin);
+				UsedPlugins.emplace(hCurPlugin->plugin());
 			}
 
 			_ALGO(SysLog(L"call Plugins.ClosePanel"));
@@ -6211,7 +6211,7 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 
 
 
-void FileList::SetPluginMode(PluginHandle* hPlugin,const string& PluginFile,bool SendOnFocus)
+void FileList::SetPluginMode(plugin_panel* hPlugin,const string& PluginFile,bool SendOnFocus)
 {
 	const auto ParentWindow = Parent();
 
@@ -6401,7 +6401,7 @@ void FileList::SetPluginModified()
 }
 
 
-PluginHandle* FileList::GetPluginHandle() const
+plugin_panel* FileList::GetPluginHandle() const
 {
 	return m_hPlugin;
 }

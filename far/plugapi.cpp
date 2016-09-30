@@ -1375,7 +1375,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			{
 				if (const auto PlHandle = LeftPanel->GetPluginHandle())
 				{
-					hInternal=PlHandle->hPlugin;
+					hInternal=PlHandle->panel();
 
 					if (hPlugin==hInternal)
 					{
@@ -1388,7 +1388,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			{
 				if (const auto PlHandle = RightPanel->GetPluginHandle())
 				{
-					hInternal=PlHandle->hPlugin;
+					hInternal=PlHandle->panel();
 
 					if (hPlugin==hInternal)
 					{
@@ -1491,7 +1491,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			{
 				if (const auto PlHandle = pPanel->GetPluginHandle())
 				{
-					if (PlHandle->hPlugin == hPlugin)
+					if (PlHandle->panel() == hPlugin)
 						return TRUE;
 				}
 			}
