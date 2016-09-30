@@ -723,7 +723,7 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 		const auto& WheelKeysPair = WheelKeys[IntKeyState.MouseEventFlags == MOUSE_HWHEELED? 1 : 0];
 		const auto Key = WheelKeysPair[static_cast<short>(HIWORD(MouseEvent.dwButtonState)) > 0? 1 : 0];
 		CalcKey = Key | GetModifiers();
-		return true;
+		return false;
 	}
 
 	if ((!ExcludeMacro || ProcessMouse) && Global->CtrlObject && (ProcessMouse || !(Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting())))
