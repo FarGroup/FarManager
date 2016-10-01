@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "manager.hpp"
 #include "syslog.hpp"
+#include "savescr.hpp"
 
 static int windowID=0;
 
@@ -78,6 +79,9 @@ void window::OnChangeFocus(bool focus)
 
 void window::Refresh()
 {
+	if (SaveScr) SaveScr->Discard();
+	if (ShadowSaveScr) ShadowSaveScr->Discard();
+	Hide();
 	Show();
 }
 
