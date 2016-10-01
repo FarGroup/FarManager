@@ -1,4 +1,8 @@
-﻿zg 01.10.2016 15:07:26 +0200 - build 587
+﻿zg 01.10.2016 15:20:33 +0200 - build 588
+
+1. moonscript 0.5.0.
+
+zg 01.10.2016 15:07:26 +0200 - build 587
 
 1. в таком коде
    buffer=far.CreateUserControl(10,10)
