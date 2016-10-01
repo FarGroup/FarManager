@@ -50,7 +50,7 @@ static int uc_newindex(lua_State* L)
 	intptr_t index = CheckFarUserControlIndex(L, fuc, 2);
 	luaL_checktype(L, 3, LUA_TTABLE);
 	lua_getfield(L, 3, "Char");
-	if(lua_isnumber(L, -1))
+	if(lua_type(L, -1) == LUA_TNUMBER)
 	{
 		fuc->VBuf[index].Char = (WCHAR)luaL_checkinteger(L, -1);
 	}
