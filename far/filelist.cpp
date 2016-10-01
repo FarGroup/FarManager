@@ -2605,7 +2605,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	{
 		plugin_panel* OpenedPlugin = nullptr;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
-		SCOPE_EXIT{ if (PluginMode && !OpenedPlugin) DeleteFileWithFolder(strFileName); };
+		SCOPE_EXIT{ if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP)) DeleteFileWithFolder(strFileName); };
 
 		if (PluginMode)
 		{
