@@ -2491,12 +2491,12 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 	}
 }
 
-static const char * WINAPI FarGetMsgFnA(intptr_t plugin_panel, int MsgId) noexcept
+static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexcept
 {
 	try
 	{
-		//BUGBUG, надо проверять, что plugin_panel - плагин
-		const auto pPlugin = reinterpret_cast<Plugin*>(plugin_panel);
+		//BUGBUG, надо проверять, что PluginHandle - плагин
+		const auto pPlugin = reinterpret_cast<Plugin*>(PluginHandle);
 		string strPath = pPlugin->GetModuleName();
 		CutToSlash(strPath);
 
