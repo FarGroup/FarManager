@@ -3,6 +3,40 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.10.2016 18:45:31 +0200 - build 4804
+
+1. Refactoring.
+
+zg 01.10.2016 18:23:05 +0200 - build 4803
+
+1. 0003051: ECTL_REDRAW call from dialog.
+
+drkns 01.10.2016 14:28:21 +0200 - build 4802
+
+1. IN some cases, temporary files would not be deleted after browsing archives.
+
+drkns 01.10.2016 00:08:29 +0200 - build 4801
+
+1. Correction of 4800.
+
+drkns 30.09.2016 19:31:55 +0200 - build 4800
+
+1. 0003315: unload:plugin.dll not close panel
+
+drkns 30.09.2016 12:04:12 +0200 - build 4799
+
+1. Correction of 4798.
+
+drkns 29.09.2016 17:30:16 +0200 - build 4798
+
+1. Modifiers did not work with the mouse wheel.
+
+2. CtrlP/CtrlM should not interfere with built-in clipboard now.
+
+3. Crash after AltEnd on plugin panel containing custom columns.
+
+4. Refactoring.
+
 drkns 25.09.2016 20:32:14 +0200 - build 4797
 
 1. 0001040: Main Usermenu & Console Command: "CLS & ECHO. & ipconfig /all & ECHO. & ECHO. & PAUSE" doesn't work.
