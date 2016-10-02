@@ -465,46 +465,6 @@ void PluginManager::LoadPluginsFromCache()
 
 plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type)
 {
-	class PluginInfo
-	{
-	public:
-		NONCOPYABLE(PluginInfo);
-		TRIVIALLY_MOVABLE(PluginInfo);
-
-		PluginInfo(Plugin* plugin, HANDLE panel, HANDLE analyse):
-			m_Panel(plugin, panel),
-			m_Analyse(analyse)
-		{}
-
-		bool operator ==(const PluginInfo& rhs) const
-		{
-			return m_Panel.panel() == rhs.m_Panel.panel() && m_Panel.plugin() == rhs.m_Panel.plugin() && m_Analyse == rhs.m_Analyse;
-		}
-
-		bool operator !=(const PluginInfo& rhs) const
-		{
-			return !(*this == rhs);
-		}
-
-		auto& plugin_panel()
-		{
-			return m_Panel;
-		}
-
-		const auto& plugin_panel() const
-		{
-			return m_Panel;
-		}
-
-		auto analyse() const
-		{
-			return m_Analyse;
-		}
-
-	private:
-		::plugin_panel m_Panel;
-		HANDLE m_Analyse;
-	};
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	// We're conditionally messing with the title down there.
@@ -525,7 +485,10 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 		ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin), true);
 	}
 	plugin_panel* hResult = nullptr;
+
+	using PluginInfo = std::pair<plugin_panel, HANDLE>;
 	std::list<PluginInfo> items;
+
 	string strFullName;
 
 	if (Name)
@@ -591,14 +554,14 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 
 			if (hPlugin)
 			{
-				items.emplace_back(i, hPlugin, nullptr);
+				items.emplace_back(plugin_panel{ i, hPlugin }, nullptr);
 			}
 		}
 		else
 		{
 			if (const auto analyse = i->Analyse(&Info))
 			{
-				items.emplace_back(i, nullptr, analyse);
+				items.emplace_back(plugin_panel{ i, nullptr }, analyse);
 			}
 		}
 
@@ -620,7 +583,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 
 			std::for_each(CONST_RANGE(items, i)
 			{
-				menu->AddItem(i.plugin_panel().plugin()->GetTitle());
+				menu->AddItem(i.first.plugin()->GetTitle());
 			});
 
 			if (Global->Opt->PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
@@ -647,17 +610,17 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 			pResult = items.begin();
 		}
 
-		if (pResult != items.end() && pResult->plugin_panel().panel() == nullptr)
+		if (pResult != items.end() && pResult->first.panel() == nullptr)
 		{
 			pAnalyse = pResult;
-			OpenAnalyseInfo oainfo = { sizeof(OpenAnalyseInfo), &Info, pResult->analyse() };
+			OpenAnalyseInfo oainfo = { sizeof(OpenAnalyseInfo), &Info, pResult->second };
 
 			OpenInfo oInfo = {sizeof(oInfo)};
 			oInfo.OpenFrom = OPEN_ANALYSE;
 			oInfo.Guid = &FarGuid;
 			oInfo.Data = (intptr_t)&oainfo;
 
-			HANDLE h = pResult->plugin_panel().plugin()->Open(&oInfo);
+			HANDLE h = pResult->first.plugin()->Open(&oInfo);
 
 			if (h == PANEL_STOP)
 			{
@@ -666,7 +629,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 			}
 			else if (h)
 			{
-				pResult->plugin_panel().set_panel(h);
+				pResult->first.set_panel(h);
 			}
 			else
 			{
@@ -675,31 +638,24 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 		}
 	}
 
-	std::for_each(CONST_RANGE(items, i)
+	FOR_CONST_RANGE(items, i)
 	{
-		if (pResult == items.end() || i != *pResult)
+		if (i != pResult && i->first.panel())
 		{
-			if (i.plugin_panel().panel())
-			{
-				ClosePanelInfo cpInfo = {sizeof(cpInfo)};
-				cpInfo.hPanel = i.plugin_panel().panel();
-				i.plugin_panel().plugin()->ClosePanel(&cpInfo);
-			}
+			ClosePanelInfo ci = {sizeof ci, i->first.panel() };
+			i->first.plugin()->ClosePanel(&ci);
 		}
-		if (pAnalyse == items.end() || i != *pAnalyse)
+
+		if (i != pAnalyse && i->second)
 		{
-			if(i.analyse())
-			{
-				CloseAnalyseInfo cpInfo = {sizeof(cpInfo)};
-				cpInfo.Handle = i.analyse();
-				i.plugin_panel().plugin()->CloseAnalyse(&cpInfo);
-			}
+			CloseAnalyseInfo ci = {sizeof ci, i->second };
+			i->first.plugin()->CloseAnalyse(&ci);
 		}
-	});
+	}
 
 	if (pResult != items.end())
 	{
-		hResult = std::make_unique<plugin_panel>(std::move(pResult->plugin_panel())).release();
+		hResult = std::make_unique<plugin_panel>(std::move(pResult->first)).release();
 	}
 
 	return hResult;

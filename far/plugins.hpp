@@ -117,6 +117,7 @@ public:
 	~PluginManager();
 
 	// API functions
+	// BUGBUG plugin_panel* can be a pointer to some valid data, nullptr or PANEL_STOP. Consider changing to variant.
 	plugin_panel* Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
 	plugin_panel* OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type);
 	plugin_panel* OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
