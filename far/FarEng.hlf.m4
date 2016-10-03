@@ -2423,7 +2423,7 @@ is being modified at the same time as copying.
   Scan ~symbolic links~@HardSymLink@ along with normal sub-folders when building the folder tree,
 determining the total file size in the sub-folders.
 
-  #Smart folder panel monitor#
+  #Update panels only when Far is active#
   Если эта опция выставлена, то мониторинг файловых панелей фар будет выполняться только тогда когда фар активен,
 т.е. обновления панелей не будет до тех пор, пока фар не получит фокус ввода. Это позволяет не блокировать каталоги текущих панелей.
 Но синхронизация состояния панелей при получении фокуса #иногда не срабатывает#. Поэтому эта опция по-умолчанию отключена,
