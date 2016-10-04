@@ -310,8 +310,8 @@ void SetColors()
 	};
 
 	{
-		// NOT static, see VS bug #3103404
-		constexpr struct
+		// NOT constexpr, see VS bug #3103404
+		static const struct
 		{
 			LNGID MenuId;
 			range<const color_item*> Subitems;
