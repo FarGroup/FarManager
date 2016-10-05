@@ -54,6 +54,8 @@ Grabber::Grabber(private_tag):
 	ResetArea(true),
 	m_VerticalBlock(false)
 {
+	SetRestoreScreenMode(true);
+	SetPosition(0, 0, ScrX, ScrY);
 }
 
 grabber_ptr Grabber::create()
@@ -65,7 +67,6 @@ grabber_ptr Grabber::create()
 
 void Grabber::init()
 {
-	SaveScr = std::make_unique<SaveScreen>();
 	bool Visible=false;
 	DWORD Size=0;
 	GetCursorType(Visible,Size);
@@ -81,7 +82,7 @@ void Grabber::init()
 	GArea.Begin.X = -1;
 	SetCursorType(true, 60);
 	PrevArea=GArea;
-	DisplayObject();
+	Show();
 	Process();
 	SaveScr.reset();
 	Global->WindowManager->RefreshWindow();
@@ -693,7 +694,7 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 
 	}
 
-	DisplayObject();
+	Show();
 	return TRUE;
 }
 
@@ -729,7 +730,7 @@ int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	//VerticalBlock=MouseEvent->dwControlKeyState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED);
-	DisplayObject();
+	Show();
 	return TRUE;
 }
 
@@ -737,7 +738,7 @@ void Grabber::Reset()
 {
 	GArea.Begin = GArea.End = GArea.Current;
 	ResetArea = false;
-	//DisplayObject();
+	//Show();
 }
 
 void Grabber::ResizeConsole(void)
