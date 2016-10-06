@@ -54,7 +54,6 @@ Grabber::Grabber(private_tag):
 	ResetArea(true),
 	m_VerticalBlock(false)
 {
-	SetRestoreScreenMode(true);
 	SetPosition(0, 0, ScrX, ScrY);
 }
 
@@ -67,6 +66,7 @@ grabber_ptr Grabber::create()
 
 void Grabber::init()
 {
+	SaveScr = std::make_unique<SaveScreen>();
 	bool Visible=false;
 	DWORD Size=0;
 	GetCursorType(Visible,Size);

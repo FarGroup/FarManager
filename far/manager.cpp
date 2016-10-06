@@ -1031,7 +1031,7 @@ void Manager::DoActivation(const window_ptr& Old, const window_ptr& New)
 	DeactivateCommit(Old);
 	CurrentWindowType = GetCurrentWindow()->GetType();
 	UpdateMacroArea();
-	RefreshCommit(New);
+	RefreshAll();
 	New->OnChangeFocus(true);
 }
 

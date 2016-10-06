@@ -79,7 +79,7 @@ void window::OnChangeFocus(bool focus)
 
 void window::Refresh()
 {
-	if (SaveScr) SaveScr->Discard();
+	if (m_Flags.Check(FSCROBJ_ENABLERESTORESCREEN) && SaveScr) SaveScr->Discard();
 	if (ShadowSaveScr) ShadowSaveScr->Discard();
 	Hide();
 	Show();

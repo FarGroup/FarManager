@@ -135,7 +135,7 @@ void ScreenObject::Show()
 void ScreenObject::Hide()
 {
 	SimpleScreenObject::Hide();
-	SaveScr.reset();
+	if (m_Flags.Check(FSCROBJ_ENABLERESTORESCREEN)) SaveScr.reset();
 }
 
 void ScreenObject::HideButKeepSaveScreen()
