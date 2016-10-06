@@ -1,10 +1,16 @@
-﻿zg 01.10.2016 15:20:33 +0200 - build 588
+﻿zg 06.10.2016 21:01:03 +0200 - build 589
+
+1. LuaFAR: far.CreateUserControl().rawhandle возвращает адрес буфера в виде light userdata.
+
+2. LuaFAR: far.GetDlgItem[6] для DI_USERCONTROL возвращает адрес буфера в виде light userdata.
+
+zg 01.10.2016 15:20:33 +0200 - build 588
 
 1. moonscript 0.5.0.
 
 zg 01.10.2016 15:07:26 +0200 - build 587
 
-1. в таком коде
+1. LuaFAR: в таком коде
    buffer=far.CreateUserControl(10,10)
    buffer[1]={Char="1"}
    вместо 1 выводился символ с кодом 1.

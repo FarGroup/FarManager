@@ -36,11 +36,19 @@ int uc_len(lua_State* L)
 static int uc_index(lua_State* L)
 {
 	TFarUserControl* fuc = CheckFarUserControl(L, 1);
-	intptr_t index = CheckFarUserControlIndex(L, fuc, 2);
-	lua_createtable(L, 0, 2);
-	PutWStrToTable(L, "Char", &fuc->VBuf[index].Char, 1);
-	PushFarColor(L, &fuc->VBuf[index].Attributes);
-	lua_setfield(L, -2, "Attributes");
+	const char* method = luaL_checkstring(L, 2);
+	if(!strcmp(method, "rawhandle"))
+	{
+		lua_pushlightuserdata(L, fuc->VBuf);
+	}
+	else
+	{
+		intptr_t index = CheckFarUserControlIndex(L, fuc, 2);
+		lua_createtable(L, 0, 2);
+		PutWStrToTable(L, "Char", &fuc->VBuf[index].Char, 1);
+		PushFarColor(L, &fuc->VBuf[index].Attributes);
+		lua_setfield(L, -2, "Attributes");
+	}
 	return 1;
 }
 

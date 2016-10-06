@@ -2749,6 +2749,12 @@ static void PushDlgItem(lua_State *L, const struct FarDialogItem* pItem, BOOL ta
 		PushList(L, pItem->Param.ListItems);
 		lua_rawseti(L, -2, 6);
 	}
+	else if (pItem->Type == DI_USERCONTROL)
+	{
+		lua_pushinteger(L, 6);
+		lua_pushlightuserdata(L, pItem->Param.VBuf);
+		lua_settable(L, -3);
+	}
 	else
 		PutIntToArray(L, 6, pItem->Param.Selected);
 
