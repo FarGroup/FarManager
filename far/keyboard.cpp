@@ -575,7 +575,7 @@ static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 			0 : KEY_EVENT;
 
 		if (!(MacroKey&KEY_SHIFT))
-			IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed = 0;
+			IntKeyState.LeftShiftPressed = IntKeyState.RightShiftPressed = false;
 
 		Result = MacroKey;
 		return true;

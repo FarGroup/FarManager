@@ -821,7 +821,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		ConsoleCP = Console().GetInputCodepage();
 		ConsoleOutputCP = Console().GetOutputCodepage();
 		FlushInputBuffer();
-		ChangeConsoleMode(InitialConsoleMode);
+		ChangeConsoleMode(Console().GetInputHandle(), InitialConsoleMode);
 		Console().GetWindowRect(ConsoleWindowRect);
 		Console().GetSize(ConsoleSize);
 

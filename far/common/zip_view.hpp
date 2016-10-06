@@ -45,11 +45,11 @@ namespace detail
 		using difference_type = ptrdiff_t;
 
 		template<size_t... index>
-		static auto dereference_impl(std::index_sequence<index...>, pointer Tuple)
+		static auto dereference_impl(std::index_sequence<index...>, const pointer& Tuple)
 		{
 			return std::tie(*std::get<index>(Tuple)...);
 		}
-		static auto dereference(pointer Tuple) { return dereference_impl(std::make_index_sequence<sizeof...(args)>{}, Tuple); }
+		static auto dereference(const pointer& Tuple) { return dereference_impl(std::make_index_sequence<sizeof...(args)>{}, Tuple); }
 
 		using reference = decltype(dereference(pointer()));
 		using value_type = reference;
@@ -83,7 +83,8 @@ class zip_iterator:
 		typename detail::traits<args...>::difference_type,
 		typename detail::traits<args...>::pointer,
 		typename detail::traits<args...>::reference
-	>
+	>,
+	public rel_ops<zip_iterator<args...>>
 {
 public:
 	zip_iterator(): m_Tuple() {}
@@ -91,7 +92,6 @@ public:
 	auto& operator++() { detail::traits<args...>::alter_all(detail::increment{}, m_Tuple); return *this; }
 	auto& operator--() { detail::traits<args...>::alter_all(detail::decrement{}, m_Tuple); return *this; }
 	auto operator==(const zip_iterator& rhs) const { return m_Tuple == rhs.m_Tuple; }
-	auto operator!=(const zip_iterator& rhs) const { return !(*this == rhs); }
 	auto operator<(const zip_iterator& rhs) const { return m_Tuple < rhs.m_Tuple; }
 	auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
 private:

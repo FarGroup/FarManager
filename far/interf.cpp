@@ -353,7 +353,7 @@ void CloseConsole()
 {
 	Global->ScrBuf->Flush();
 	Console().SetCursorInfo(InitialCursorInfo);
-	ChangeConsoleMode(InitialConsoleMode);
+	ChangeConsoleMode(Console().GetInputHandle(), InitialConsoleMode);
 
 	Console().SetTitle(Global->strInitTitle);
 	Console().SetSize(InitialSize);
@@ -387,37 +387,48 @@ void CloseConsole()
 
 void SetFarConsoleMode(BOOL SetsActiveBuffer)
 {
-	int Mode=ENABLE_WINDOW_INPUT;
+	// We need this one unconditionally
+	DWORD Mode = ENABLE_WINDOW_INPUT;
 
+	// And this one depends on interface settings
 	if (Global->Opt->Mouse)
 	{
-		//ENABLE_EXTENDED_FLAGS actually disables all the extended flags.
-		Mode|=ENABLE_MOUSE_INPUT|ENABLE_EXTENDED_FLAGS;
+		Mode |= ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
 	}
-	else
+	else if (InitialConsoleMode & ENABLE_QUICK_EDIT_MODE)
 	{
-		//если вдруг изменили опцию во время работы фара, то включим то что надо
-		Mode|=InitialConsoleMode&(ENABLE_EXTENDED_FLAGS|ENABLE_QUICK_EDIT_MODE);
+		Mode |= ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;
+	}
+
+	// Don't change
+	if (InitialConsoleMode & ENABLE_INSERT_MODE)
+	{
+		Mode |= ENABLE_EXTENDED_FLAGS | ENABLE_INSERT_MODE;
+	}
+
+	// Don't change
+	if (InitialConsoleMode & ENABLE_AUTO_POSITION)
+	{
+		Mode |= ENABLE_AUTO_POSITION;
 	}
 
 	if (SetsActiveBuffer)
 		Console().SetActiveScreenBuffer(Console().GetOutputHandle());
 
-	ChangeConsoleMode(Mode);
+	ChangeConsoleMode(Console().GetInputHandle(), Mode);
 
 	//востановим дефолтный режим вывода, а то есть такие проги что сбрасывают
-	ChangeConsoleMode(ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT, 1);
-	ChangeConsoleMode(ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT, 2);
+	ChangeConsoleMode(Console().GetOutputHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);
+	ChangeConsoleMode(Console().GetErrorHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);
 }
 
-void ChangeConsoleMode(int Mode, int Choose)
+void ChangeConsoleMode(HANDLE ConsoleHandle, DWORD Mode)
 {
 	DWORD CurrentConsoleMode;
-	HANDLE hCon = (Choose == 0) ? Console().GetInputHandle() : ((Choose == 1) ? Console().GetOutputHandle() : Console().GetErrorHandle());
-	Console().GetMode(hCon, CurrentConsoleMode);
+	Console().GetMode(ConsoleHandle, CurrentConsoleMode);
 
-	if (CurrentConsoleMode!=(DWORD)Mode)
-		Console().SetMode(hCon, Mode);
+	if (CurrentConsoleMode != Mode)
+		Console().SetMode(ConsoleHandle, Mode);
 }
 
 void SaveConsoleWindowRect()
