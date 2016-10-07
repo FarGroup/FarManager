@@ -97,7 +97,7 @@ public:
 	{
 		if (joinable())
 		{
-			(this->*m_Mode)();
+			std::invoke(m_Mode, this);
 		}
 	}
 

@@ -1959,7 +1959,7 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 	if (Id == -1)
 	{
 		const auto CurrentObject = std::invoke(Getter, Global->WindowManager);
-		return CurrentObject ? (CurrentObject->*Control)(Command, Param1, Param2) : 0;
+		return CurrentObject? std::invoke(Control, CurrentObject, Command, Param1, Param2) : 0;
 	}
 	else
 	{
@@ -1970,7 +1970,7 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 			{
 				if (const auto CurrentControlWindow = CurrentWindow->GetById(Id))
 				{
-					return (CurrentControlWindow->*Control)(Command, Param1, Param2);
+					return std::invoke(Control, CurrentControlWindow, Command, Param1, Param2);
 				}
 			}
 		}

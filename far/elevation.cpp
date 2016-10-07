@@ -1120,7 +1120,7 @@ private:
 
 		try
 		{
-			(this->*Handlers[Command])();
+			std::invoke(Handlers[Command], this);
 			return m_Active;
 		}
 		catch(...)

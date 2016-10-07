@@ -117,10 +117,10 @@ namespace std
 {
 	namespace detail
 	{
-		template <class F, class Tuple, std::size_t... I>
+		template <class F, class Tuple, size_t... I>
 		constexpr decltype(auto) apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
 		{
-			return f(std::get<I>(std::forward<Tuple>(t))...);
+			return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
 		}
 	}
 

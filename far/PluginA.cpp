@@ -632,7 +632,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 
 		for (size_t i = 0; i != 12; ++i)
 		{
-			const auto& CheckLabel = [&](const auto& Item) { return (kbtA->*Item.first)[i] != nullptr; };
+			const auto& CheckLabel = [&](const auto& Item) { return std::invoke(Item.first, kbtA)[i] != nullptr; };
 
 			kbtW->CountLabels += std::count_if(ALL_CONST_RANGE(LabelsMap), CheckLabel);
 
@@ -650,9 +650,9 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 			{
 				const auto& ProcessLabel = [&](const auto& Item)
 				{
-					if ((kbtA->*Item.first)[i])
+					if (const auto& Text = std::invoke(Item.first, kbtA)[i])
 					{
-						WideLabels[j].Text = AnsiToUnicode((kbtA->*Item.first)[i]);
+						WideLabels[j].Text = AnsiToUnicode(Text);
 						WideLabels[j].LongText = nullptr;
 						WideLabels[j].Key.VirtualKeyCode = static_cast<WORD>(VK_F1 + i);
 						WideLabels[j].Key.ControlKeyState = Item.second;

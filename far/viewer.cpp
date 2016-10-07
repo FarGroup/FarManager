@@ -3477,7 +3477,7 @@ void Viewer::Search(int Next,int FirstChar)
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		for (;;)
 		{
-			SEARCHER_RESULT found = (this->*searcher)(&sd);
+			const auto found = std::invoke(searcher, this, &sd);
 			if (found == Search_Found)
 				break;
 

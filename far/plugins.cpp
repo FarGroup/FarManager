@@ -1712,7 +1712,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 		const auto& ReadCache = [&](const auto& Getter, auto& Items)
 		{
-			for (size_t i = 0; (ConfigProvider().PlCacheCfg().get()->*Getter)(id, i, Name, Guid); ++i)
+			for (size_t i = 0; std::invoke(Getter, ConfigProvider().PlCacheCfg(), id, i, Name, Guid); ++i)
 			{
 				Items.first.emplace_back(Name);
 				Items.second.emplace_back(Guid);

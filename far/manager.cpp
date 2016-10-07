@@ -272,7 +272,7 @@ void Manager::CloseAll()
 
 void Manager::PushWindow(const window_ptr& Param, window_callback Callback)
 {
-	m_Queue.emplace([=]{ (this->*Callback)(Param); });
+	m_Queue.emplace([=]{ std::invoke(Callback, this, Param); });
 }
 
 void Manager::CheckAndPushWindow(const window_ptr& Param, window_callback Callback)

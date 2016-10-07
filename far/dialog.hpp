@@ -140,7 +140,7 @@ public:
 	template<class T, class O>
 	static dialog_ptr create(T&& Src, intptr_t(O::*function)(Dialog*, intptr_t, intptr_t, void*), O* object, void* InitParam = nullptr)
 	{
-		auto Handler = (object && function)? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return (object->*function)(Dlg, Msg, Param1, Param2); } : dialog_handler();
+		auto Handler = (object && function)? [=](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return std::invoke(function, object, Dlg, Msg, Param1, Param2); } : dialog_handler();
 		return std::make_shared<Dialog>(private_tag(), Src, Handler, InitParam);
 	}
 
