@@ -447,7 +447,7 @@ bool Plugin::SaveToCache()
 	{
 		for (size_t i = 0; i != Item.Count; ++i)
 		{
-			((*PlCache).*Setter)(id, i, Item.Strings[i], Item.Guids[i]);
+			std::invoke(Setter, PlCache, id, i, Item.Strings[i], Item.Guids[i]);
 		}
 	};
 

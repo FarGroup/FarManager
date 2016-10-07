@@ -387,35 +387,30 @@ void CloseConsole()
 
 void SetFarConsoleMode(BOOL SetsActiveBuffer)
 {
+	// Inherit existing mode. We don't want to build these flags from scratch,
+	// as MS might introduce some new flags in future Windows versions.
+	auto Mode = InitialConsoleMode;
+
 	// We need this one unconditionally
-	DWORD Mode = ENABLE_WINDOW_INPUT;
+	Mode |= ENABLE_WINDOW_INPUT;
+
+	// We don't need these guys unconditionally
+	Mode &= ~(ENABLE_PROCESSED_INPUT | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
 
 	// And this one depends on interface settings
 	if (Global->Opt->Mouse)
 	{
-		Mode |= ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS;
-	}
-	else if (InitialConsoleMode & ENABLE_QUICK_EDIT_MODE)
-	{
-		Mode |= ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;
+		Mode |= ENABLE_MOUSE_INPUT;
+
+		// Setting ENABLE_MOUSE_INPUT is not enough, we must also clear the ENABLE_QUICK_EDIT_MODE
+		Mode |= ENABLE_EXTENDED_FLAGS;
+		Mode &= ~ENABLE_QUICK_EDIT_MODE;
 	}
 
-	// Don't change
-	if (InitialConsoleMode & ENABLE_INSERT_MODE)
-	{
-		Mode |= ENABLE_EXTENDED_FLAGS | ENABLE_INSERT_MODE;
-	}
-
-	// Don't change
-	if (InitialConsoleMode & ENABLE_AUTO_POSITION)
-	{
-		Mode |= ENABLE_AUTO_POSITION;
-	}
+	ChangeConsoleMode(Console().GetInputHandle(), Mode);
 
 	if (SetsActiveBuffer)
 		Console().SetActiveScreenBuffer(Console().GetOutputHandle());
-
-	ChangeConsoleMode(Console().GetInputHandle(), Mode);
 
 	//востановим дефолтный режим вывода, а то есть такие проги что сбрасывают
 	ChangeConsoleMode(Console().GetOutputHandle(), ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT);

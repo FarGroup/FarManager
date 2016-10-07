@@ -400,11 +400,12 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 		//Если текущие цвета в Src (fore и/или back) не прозрачные
 		//то унаследуем их в Dest.
 
-		const auto& ApplyColorPart = [&](COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
+		const auto& ApplyColorPart = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 		{
-			if(IS_OPAQUE(Src.*Color))
+			const auto SrcPart = std::invoke(ColorAccessor, Src);
+			if(IS_OPAQUE(SrcPart))
 			{
-				Dst.*Color = Src.*Color;
+				std::invoke(ColorAccessor, Dst) = SrcPart;
 				(Src.Flags & Flag)? (Dst.Flags |= Flag) : (Dst.Flags &= ~Flag);
 			}
 		};
@@ -443,12 +444,13 @@ void HighlightFiles::ApplyFinalColor(highlight_item::colors_array::value_type& C
 
 	//Если какой то из текущих цветов (fore или back) прозрачный
 	//то унаследуем соответствующий цвет с панелей.
-	const auto& ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*Color, const FARCOLORFLAGS Flag)
+	const auto& ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 	{
-		if(IS_TRANSPARENT(i.*Color))
+		auto& ColorPart = std::invoke(ColorAccessor, i);
+		if(IS_TRANSPARENT(ColorPart))
 		{
-			i.*Color = PanelColor.*Color;
-			MAKE_TRANSPARENT(i.*Color);
+			ColorPart = std::invoke(ColorAccessor, PanelColor);
+			MAKE_TRANSPARENT(ColorPart);
 			(PanelColor.Flags & Flag)? (i.Flags |= Flag) : (i.Flags &= ~Flag);
 		}
 	};

@@ -107,7 +107,7 @@ void KeyBar::DisplayObject()
 
 		TERSE_STATIC_ASSERT(std::size(Mapping) == KBL_GROUP_COUNT);
 
-		const auto State = std::find_if(ALL_CONST_RANGE(Mapping), [&](const auto& Item) { return (IntKeyState.*Item.first)(); });
+		const auto State = std::find_if(ALL_CONST_RANGE(Mapping), [&](const auto& Item) { return std::invoke(Item.first, IntKeyState); });
 		// State should always be valid so check is excessive, but style is style
 		Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
 
@@ -157,7 +157,7 @@ void KeyBar::ClearKeyTitles(bool Custom)
 	{
 		std::for_each(RANGE(i, j)
 		{
-			(j.*ItemPtr).clear();
+			std::invoke(ItemPtr, j).clear();
 		});
 	});
 }

@@ -101,6 +101,17 @@ namespace std
 }
 #endif
 
+#if COMPILER == C_GCC && !defined(__cpp_lib_invoke)
+namespace std
+{
+	template<typename... args>
+	decltype(auto) invoke(args&&... Args)
+	{
+		return __invoke(std::forward<args>(Args)...);
+	}
+}
+#endif
+
 #if COMPILER != C_GCC || !defined(__cpp_lib_apply)
 namespace std
 {

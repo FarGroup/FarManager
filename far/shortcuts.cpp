@@ -77,6 +77,13 @@ static constexpr wchar_t HelpFolderShortcuts[] = L"FolderShortcuts";
 
 struct Shortcuts::shortcut
 {
+private:
+	auto tie() const
+	{
+		return std::tie(strName, strFolder, PluginGuid, strPluginFile, strPluginData);
+	}
+
+public:
 	NONCOPYABLE(shortcut);
 	TRIVIALLY_MOVABLE(shortcut);
 
@@ -91,16 +98,8 @@ struct Shortcuts::shortcut
 	{
 	}
 
-	bool operator==(const shortcut& Item) const
-	{
-		return
-			strName == Item.strName &&
-			strFolder == Item.strFolder &&
-			PluginGuid == Item.PluginGuid &&
-			strPluginFile == Item.strPluginFile &&
-			strPluginData == Item.strPluginData;
-	}
-	bool operator!=(const shortcut& Item) const { return !(*this == Item); }
+	bool operator==(const shortcut& rhs) const { return tie() == rhs.tie(); }
+	bool operator!=(const shortcut& rhs) const { return !(*this == rhs); }
 
 	shortcut clone() const
 	{

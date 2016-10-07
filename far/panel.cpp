@@ -1273,7 +1273,7 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add) const
 	if(GetShortcutInfo(Info))
 	{
 		const auto Function = Add? &Shortcuts::Add : &Shortcuts::Set;
-		(Shortcuts().*Function)(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+		std::invoke(Function, Shortcuts(), Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		return true;
 	}
 	return false;

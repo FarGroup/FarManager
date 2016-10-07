@@ -86,7 +86,8 @@ public:
 
 	~EditorBlockGuard()
 	{
-		if (needCheckUnmark)(ed.*method)();
+		if (needCheckUnmark)
+			std::invoke(method, ed);
 	}
 
 	void SetNeedCheckUnmark(bool State) { needCheckUnmark = State; }

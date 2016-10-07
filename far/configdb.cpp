@@ -319,7 +319,7 @@ private:
 			return false;
 		}
 
-		Value = (*Stmt.*Getter)(0);
+		Value = std::invoke(Getter, Stmt, 0);
 		return true;
 	}
 
@@ -343,7 +343,7 @@ private:
 			return false;
 
 		Name = Stmt->GetColText(0);
-		Value = (*Stmt.*Getter)(1);
+		Value = std::invoke(Getter, Stmt, 1);
 		Stmt.release();
 		return true;
 	}
@@ -678,7 +678,7 @@ protected:
 		if (!Stmt->Bind(Root.get(), Name).Step())
 			return false;
 
-		Value = (*Stmt.*Getter)(0);
+		Value = std::invoke(Getter, Stmt, 0);
 		return true;
 	}
 

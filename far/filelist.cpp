@@ -573,7 +573,7 @@ public:
 
 		const auto& CompareTime = [&a, &b](const FILETIME FileListItem::*time)
 		{
-			return CompareFileTime(a.*time, b.*time);
+			return CompareFileTime(std::invoke(time, a), std::invoke(time, b));
 		};
 
 		switch (ListSortMode)

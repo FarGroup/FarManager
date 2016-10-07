@@ -147,8 +147,8 @@ public:
 	NONCOPYABLE(raii_wrapper);
 	TRIVIALLY_MOVABLE(raii_wrapper);
 
-	raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release): m_Owner(Owner), m_Release(Release) { (*m_Owner.*Acquire)(); }
-	~raii_wrapper() { if (m_Owner) (*m_Owner.*m_Release)(); }
+	raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release): m_Owner(Owner), m_Release(Release) { std::invoke(Acquire, m_Owner); }
+	~raii_wrapper() { if (m_Owner) std::invoke(m_Release, m_Owner); }
 
 private:
 	movalbe_ptr<owner> m_Owner;

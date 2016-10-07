@@ -602,7 +602,7 @@ void Options::VMenuSettings()
 	std::for_each(CONST_RANGE(DialogItems, i)
 	{
 		Builder.AddText(i.first);
-		Builder.AddComboBox(VMenu.*i.second, nullptr, 40, CAListItems, std::size(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+		Builder.AddComboBox(std::invoke(i.second, VMenu), nullptr, 40, CAListItems, std::size(CAListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	});
 
 	Builder.AddOKCancel();
