@@ -630,9 +630,16 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 		kbtW->CountLabels = 0;
 		kbtW->Labels = nullptr;
 
+		const auto Extract = [&](const auto& Item, size_t i)
+		{
+			return (kbtA->*Item.first)[i];
+			// VS bug #3106053
+			//return std::invoke(Item.first, kbtA)[i];
+		};
+
 		for (size_t i = 0; i != 12; ++i)
 		{
-			const auto& CheckLabel = [&](const auto& Item) { return std::invoke(Item.first, kbtA)[i] != nullptr; };
+			const auto& CheckLabel = [&](const auto& Item) { return Extract(Item, i) != nullptr; };
 
 			kbtW->CountLabels += std::count_if(ALL_CONST_RANGE(LabelsMap), CheckLabel);
 
@@ -650,7 +657,7 @@ static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles 
 			{
 				const auto& ProcessLabel = [&](const auto& Item)
 				{
-					if (const auto& Text = std::invoke(Item.first, kbtA)[i])
+					if (const auto& Text = Extract(Item, i))
 					{
 						WideLabels[j].Text = AnsiToUnicode(Text);
 						WideLabels[j].LongText = nullptr;
