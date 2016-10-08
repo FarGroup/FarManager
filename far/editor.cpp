@@ -3748,7 +3748,7 @@ BOOL Editor::Search(int Next)
 							{
 								/* Fast method */
 								const auto& Str = m_it_CurLine->GetString();
-								int LocalCurPos = m_it_CurLine->GetCurPos();
+								const auto LocalCurPos = m_it_CurLine->GetCurPos();
 								const auto IsSelection = m_it_CurLine->IsSelection();
 								std::pair<intptr_t, intptr_t> Selection;
 								if (IsSelection)
@@ -3770,7 +3770,7 @@ BOOL Editor::Search(int Next)
 										if (Pos > LocalCurPos)
 										{
 											Pos -= SearchLength;
-											Pos += strReplaceStrCurrent.size();
+											Pos += static_cast<int>(strReplaceStrCurrent.size());
 										}
 										return Pos;
 									};

@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "pathmix.hpp"
 #include "strmix.hpp"
-#include "imports.hpp"
 #include "regex_helpers.hpp"
 
 void NTPath::Transform()
@@ -483,49 +482,6 @@ bool PathStartsWith(const string &Path, const string &Start)
 	string PathPart(Start);
 	DeleteEndSlash(PathPart);
 	return Path.compare(0, PathPart.size(), PathPart) == 0 && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
-}
-
-int MatchNtPathRoot(const string &NtPath, const string& DevicePath)
-{
-	string TargetPath;
-	string DeviceName = DevicePath;
-	DeleteEndSlash(DeviceName);
-	if (os::QueryDosDevice(DeviceName, TargetPath))
-	{
-		if (PathStartsWith(NtPath, TargetPath))
-			return static_cast<int>(TargetPath.size());
-
-		// path could be an Object Manager symlink, try to resolve
-		UNICODE_STRING ObjName;
-		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.size() * sizeof(wchar_t));
-		ObjName.Buffer = UNSAFE_CSTR(TargetPath);
-		OBJECT_ATTRIBUTES ObjAttrs;
-		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
-		HANDLE hSymLink;
-		NTSTATUS Res = Imports().NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
-
-		if (Res == STATUS_SUCCESS)
-		{
-			SCOPE_EXIT{ Imports().NtClose(hSymLink); };
-
-			ULONG BufSize = 32767;
-			wchar_t_ptr Buffer(BufSize);
-			UNICODE_STRING LinkTarget;
-			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
-			LinkTarget.Buffer = Buffer.get();
-			Res = Imports().NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
-
-			if (Res == STATUS_SUCCESS)
-			{
-				TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
-			}
-
-			if (PathStartsWith(NtPath, TargetPath))
-				return static_cast<int>(TargetPath.size());
-		}
-	}
-
-	return 0;
 }
 
 void TestPathParser()

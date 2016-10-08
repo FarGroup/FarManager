@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "plugins.hpp"
 #include "datetime.hpp"
+#include "strmix.hpp"
 
 namespace os
 {
@@ -1440,7 +1441,48 @@ std::vector<string> GetLogicalDriveStrings()
 	return Result;
 }
 
-bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
+static int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
+{
+	string TargetPath;
+	if (os::QueryDosDevice(DeviceName, TargetPath))
+	{
+		if (PathStartsWith(NtPath, TargetPath))
+			return static_cast<int>(TargetPath.size());
+
+		// path could be an Object Manager symlink, try to resolve
+		UNICODE_STRING ObjName;
+		ObjName.Length = ObjName.MaximumLength = static_cast<USHORT>(TargetPath.size() * sizeof(wchar_t));
+		ObjName.Buffer = UNSAFE_CSTR(TargetPath);
+		OBJECT_ATTRIBUTES ObjAttrs;
+		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
+		HANDLE hSymLink;
+		NTSTATUS Res = Imports().NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+
+		if (Res == STATUS_SUCCESS)
+		{
+			SCOPE_EXIT{ Imports().NtClose(hSymLink); };
+
+			ULONG BufSize = 32767;
+			wchar_t_ptr Buffer(BufSize);
+			UNICODE_STRING LinkTarget;
+			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
+			LinkTarget.Buffer = Buffer.get();
+			Res = Imports().NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
+
+			if (Res == STATUS_SUCCESS)
+			{
+				TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
+			}
+
+			if (PathStartsWith(NtPath, TargetPath))
+				return static_cast<int>(TargetPath.size());
+		}
+	}
+
+	return 0;
+}
+
+static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
 	ULONG RetLen;
 	NTSTATUS Res = STATUS_SUCCESS;
@@ -1476,46 +1518,35 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 		if (FinalFilePath.empty())
 		{
 			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-			const auto Strings = GetLogicalDriveStrings();
-			std::any_of(CONST_RANGE(Strings, i)
+			drives_set Drives = GetLogicalDrives();
+			for (size_t i = 0; i != Drives.size(); ++i)
 			{
-				int Len = MatchNtPathRoot(NtPath, i);
+				if (!Drives[i])
+					continue;
 
-				if (Len)
+				const wchar_t Device[] = { static_cast<wchar_t>(L'A' + i), L':', L'\0' };
+				if (const auto Len = MatchNtPathRoot(NtPath, Device))
 				{
 					if (NtPath.compare(0, 14, L"\\Device\\WinDfs") == 0)
 						FinalFilePath = NtPath.replace(0, Len, 1, L'\\');
 					else
-						FinalFilePath = NtPath.replace(0, Len, i);
-					return true;
+						FinalFilePath = NtPath.replace(0, Len, Device);
+					break;
 				}
-				return false;
-			});
+			}
 		}
 
 		if (FinalFilePath.empty())
 		{
 			// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-			wchar_t VolumeName[MAX_PATH];
-			HANDLE hEnum = FindFirstVolumeW(VolumeName, static_cast<DWORD>(std::size(VolumeName)));
-			BOOL Result = hEnum != INVALID_HANDLE_VALUE;
-
-			while (Result)
+			for (auto& VolumeName: os::fs::enum_volume())
 			{
-				DeleteEndSlash(VolumeName);
-				int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
-
-				if (Len)
+				if (const auto Len = MatchNtPathRoot(NtPath, VolumeName.substr(4, VolumeName.size() - 5))) // w/o prefix and trailing slash
 				{
 					FinalFilePath = NtPath.replace(0, Len, VolumeName);
 					break;
 				}
-
-				Result = FindNextVolumeW(hEnum, VolumeName, static_cast<DWORD>(std::size(VolumeName)));
 			}
-
-			if (hEnum != INVALID_HANDLE_VALUE)
-				FindVolumeClose(hEnum);
 		}
 	}
 
@@ -1565,17 +1596,13 @@ bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 
 bool SearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest)
 {
-	DWORD dwSize = ::SearchPath(Path,FileName.data(),Extension,0,nullptr,nullptr);
-
-	if (dwSize)
-	{
-		wchar_t_ptr Buffer(dwSize);
-		dwSize = ::SearchPath(Path, FileName.data(), Extension, dwSize, Buffer.get(), nullptr);
-		strDest.assign(Buffer.get(), dwSize);
-		return true;
-	}
-
-	return false;
+	auto dwSize = ::SearchPath(Path, FileName.data(), Extension, 0, nullptr, nullptr);
+	if (!dwSize)
+		return false;
+	wchar_t_ptr Buffer(dwSize);
+	dwSize = ::SearchPath(Path, FileName.data(), Extension, dwSize, Buffer.get(), nullptr);
+	strDest.assign(Buffer.get(), dwSize);
+	return true;
 }
 
 bool QueryDosDevice(const string& DeviceName, string &Path)

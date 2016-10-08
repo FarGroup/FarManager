@@ -23,7 +23,9 @@
 #
 #EXCEPTION_TEST - set to generate Ctrl-Alt-Apps dialog in release
 #
-#NO_RELEASE_PDB - set to disable pdb generation for release
+#NO_RELEASE_PDB - set to disable pdb generation in Release mode
+#
+#NO_RELEASE_LTCG - set to disable link-time code generation in Release mode
 #
 #ASM_LISTING - set to enable assembly, machine code and source listing generation
 #
@@ -280,21 +282,28 @@ LINKFLAGS=$(LINKFLAGS) /debug
 ULINKFLAGS=$(ULINKFLAGS) -v
 !else
 CPPFLAGS=$(CPPFLAGS) /MT /O2
+!ifndef NO_RELEASE_LTCG
 !ifndef LINK_ULINK
 CPPFLAGS=$(CPPFLAGS) /GL
+!endif
 !endif
 !ifndef NO_RELEASE_PDB
 CPPFLAGS=$(CPPFLAGS) /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 !endif
-LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF /ltcg
+LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
+!ifndef NO_RELEASE_LTCG
+LINKFLAGS=$(LINKFLAGS) /ltcg
 !ifdef LTCG_STATUS
 LINKFLAGS=$(LINKFLAGS) /ltcg:status
 !endif
 !endif
+!endif
+
 !ifdef ASM_LISTING
 CPPFLAGS=$(CPPFLAGS) /FAcs /Fa"$(CODDIR)\\"
 !endif
+
 !ifdef USE_ANALYZE
 CPPFLAGS=$(CPPFLAGS) /analyze
 !endif
@@ -319,7 +328,7 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 !endif
 
 # compiler-specific
-!if defined (X86)
+!ifdef X86
 CPPFLAGS=$(CPPFLAGS) /arch:IA32
 !endif
 
@@ -421,8 +430,9 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 	$(CPPFLAGS) /Yuheaders.hpp /Fp"$(PCH_FILE)" $<
 <<
 
+#Do not use $(AS) here - nmake incorrectly substitutes ml64 when compiling in amd64_x86 environment
 .asm{$(INTDIR)}.obj:
-	$(AS) /nologo /c /Fo$@ $<
+	ml /nologo /c /Fo$@ $<
 
 $(RES_FILE): far.rc Far.ico FarA.ico bootstrap\Far.exe.manifest
 	@echo Compiling resource file
