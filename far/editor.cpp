@@ -3747,22 +3747,35 @@ BOOL Editor::Search(int Next)
 							else
 							{
 								/* Fast method */
-								int SStrLen=SearchLength;
 								const auto& Str = m_it_CurLine->GetString();
 								int LocalCurPos = m_it_CurLine->GetCurPos();
+								const auto IsSelection = m_it_CurLine->IsSelection();
+								std::pair<intptr_t, intptr_t> Selection;
+								if (IsSelection)
+								{
+									m_it_CurLine->GetSelection(Selection.first, Selection.second);
+								}
 								string NewStr(Str, 0, LocalCurPos);
 								NewStr += strReplaceStrCurrent;
-								NewStr.append(Str.cbegin() + LocalCurPos + SStrLen, Str.cend());
+								NewStr.append(Str.cbegin() + LocalCurPos + SearchLength, Str.cend());
 								NewStr += m_it_CurLine->GetEOL();
 								AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
 								m_it_CurLine->SetString(NewStr);
 								m_it_CurLine->SetCurPos(LocalCurPos + static_cast<int>(strReplaceStrCurrent.size()));
 
-								if (EdOpt.SearchSelFound && !ReplaceMode)
+								if (IsSelection)
 								{
-									UnmarkBlock();
-									BeginStreamMarking(CurPtr);
-									CurPtr->Select(LocalCurPos, LocalCurPos + static_cast<int>(strReplaceStrCurrent.size()));
+									const auto& AdjustPos = [&](int Pos)
+									{
+										if (Pos > LocalCurPos)
+										{
+											Pos -= SearchLength;
+											Pos += strReplaceStrCurrent.size();
+										}
+										return Pos;
+									};
+
+									m_it_CurLine->Select(AdjustPos(Selection.first), AdjustPos(Selection.second));
 								}
 
 								Change(ECTYPE_CHANGED, m_it_CurLine.Number());

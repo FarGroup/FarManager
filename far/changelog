@@ -1,3 +1,7 @@
+drkns 08.10.2016 15:14:07 +0200 - build 4814
+
+1. В режиме постоянных блоков сбрасывалось выделение в строке при замене.
+
 zg 08.10.2016 13:51:32 +0200 - build 4813
 
 1. 0003324: Find/Replace in editor does not highlight found entries.
