@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "vmenu2.hpp"
 #include "encoding.hpp"
+#include "FarGuid.hpp"
 #include "DlgGuid.hpp"
 #include "RegExp.hpp"
 #include "plugins.hpp"
@@ -3630,12 +3631,14 @@ BOOL Editor::Search(int Next)
 
 						if (!ReplaceAll)
 						{
-							Show();
-							SHORT CurX, CurY;
-							GetCursorPos(CurX, CurY);
-							int lpos = CurPtr->LeftPos;
-							int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
-							ChangeBlockColor(CurX, CurY, endX, CurY, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
+							ColorItem newcol = {};
+							newcol.StartPos=m_FoundPos;
+							newcol.EndPos=m_FoundPos + m_FoundSize - 1;
+							newcol.SetColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
+							newcol.SetOwner(FarGuid);
+							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
+							CurPtr->AddColor(newcol);
+
 							string strQSearchStr(CurPtr->GetString().data() + CurPtr->GetCurPos(), SearchLength), strQReplaceStr = strReplaceStrCurrent;
 
 							// do not use InsertQuote, AI is not suitable here
@@ -3647,15 +3650,12 @@ BOOL Editor::Search(int Next)
 							if (!SearchLength && !strReplaceStrCurrent.length())
 								ZeroLength = true;
 
-							std::unique_ptr<PreRedrawItem> pitem(PreRedrawStack().empty() ? nullptr : PreRedrawStack().pop());
-
 							MsgCode = Message(0, 4, MSG(MEditReplaceTitle), MSG(MEditAskReplace),
 											strQSearchStr.data(), MSG(MEditAskReplaceWith), strQReplaceStr.data(),
 											MSG(MEditReplace), MSG(MEditReplaceAll), MSG(MEditSkip), MSG(MEditCancel));
-							if (pitem)
-							{
-								PreRedrawStack().push(std::move(pitem));
-							}
+
+							CurPtr->DeleteColor([&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
+
 							if (MsgCode == 1)
 								ReplaceAll = true;
 
