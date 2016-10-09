@@ -84,7 +84,7 @@ namespace os
 			return true;
 		}
 
-		DWORD BufferSize = std::size(Buffer);
+		auto BufferSize = std::size(Buffer);
 		while (GetLastError() == ExpectedErrorCode)
 		{
 			wchar_t_ptr vBuffer(BufferSize *= 2);
@@ -1083,7 +1083,7 @@ bool GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 		}
 		else
 		{
-			return ::GetModuleFileNameEx(hProcess, hModule, Buffer, Size);
+			return ::GetModuleFileNameEx(hProcess, hModule, Buffer, static_cast<DWORD>(Size));
 		}
 	});
 }
@@ -1166,9 +1166,14 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 	}
 
 	FindData = {};
-	FindData.dwFileAttributes = GetFileAttributes(FileName);
+	FindData.dwFileAttributes = INVALID_FILE_ATTRIBUTES;
 
-	if (FindData.dwFileAttributes == INVALID_FILE_ATTRIBUTES)
+	size_t DirOffset = 0;
+	ParsePath(FileName, &DirOffset);
+	if (FileName.find_first_of(L"*?", DirOffset) != string::npos)
+		return false;
+
+	if ((FindData.dwFileAttributes = GetFileAttributes(FileName)) == INVALID_FILE_ATTRIBUTES)
 		return false;
 
 	// Ага, значит файл таки есть. Заполним структуру ручками.
