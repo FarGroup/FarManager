@@ -3,6 +3,67 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.10.2016 21:48:44 +0200 - build 4816
+
+1. Refactoring.
+
+drkns 09.10.2016 01:42:02 +0200 - build 4815
+
+1. Correction of 4796.4.
+
+2. LTCG can be inhibited in makefile_vc for debug purposes.
+
+3. Commands moved from svn_tag_build_ssl.m4 to svn_tag_build_ssl.bat.
+   Also, the created tag is now shown explicitly.
+
+drkns 08.10.2016 15:14:07 +0200 - build 4814
+
+1. Line selection would reset on replacement if persistent blocks mode was on.
+
+zg 08.10.2016 13:51:32 +0200 - build 4813
+
+1. 0003324: Find/Replace in editor does not highlight found entries.
+
+drkns 08.10.2016 10:38:23 +0200 - build 4812
+
+1. Workaround for another VS bug.
+
+drkns 08.10.2016 02:27:23 +0200 - build 4811
+
+1. Continuation of 4810.2.
+
+drkns 08.10.2016 01:10:06 +0200 - build 4810
+
+1. More on console flags: instead of creating from scratch we inherit the existing ones and change the necessary.
+
+2. Refactoring.
+
+drkns 06.10.2016 22:59:17 +0200 - build 4809
+
+1. ENABLE_AUTO_POSITION and ENABLE_INSERT_MODE console flags would not be saved:
+   - the window could be positioned suboptimally on restore;
+   - apps like cmd could work in 'overwrite' mode when launched from FAR.
+
+2. A couple of issues.
+
+zg 06.10.2016 19:59:25 +0200 - build 4808
+
+1. correction of 4808 for nested dialogs.
+
+2. correction of 4807.
+
+zg 05.10.2016 20:37:13 +0200 - build 4807
+
+1. correction of 4803 for the grabber.
+
+drkns 04.10.2016 09:47:59 +0200 - build 4806
+
+1. Correction of 4794 & 4805.
+
+drkns 03.10.2016 21:28:23 +0200 - build 4805
+
+1. 0003318: "Message not found" errors when opening F9 > Options > Colors
+
 drkns 02.10.2016 18:45:31 +0200 - build 4804
 
 1. Refactoring.
