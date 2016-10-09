@@ -294,6 +294,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	size_t Len4 = DCDlg[5].strData.size();
 	Len1 = std::max(Len1, std::max(Len2, std::max(Len3, Len4)));
 	string strMsgText;
+	// TODO: check result
 	DriveLocalToRemoteName(DRIVE_REMOTE, Letter, strMsgText);
 	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len1));
 	// проверяем - это было постоянное соединение или нет?
@@ -752,6 +753,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 				case DRIVE_REMOTE:
 				case DRIVE_REMOTE_NOT_CONNECTED:
+					// TODO: check result
 					DriveLocalToRemoteName(NewItem.DriveType, strRootDir[0], NewItem.Path);
 					break;
 				}

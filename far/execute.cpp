@@ -894,11 +894,11 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	seInfo.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Info.NewWindow? 0 : SEE_MASK_NO_CONSOLE);
 
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
-	wchar_t CurDir[MAX_PATH];
+	string CurDir;
 	bool NeedFixCurDir = os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT);
 	if (NeedFixCurDir)
 	{
-		if (!GetCurrentDirectory(static_cast<DWORD>(std::size(CurDir)), CurDir))
+		if (!os::GetProcessRealCurrentDirectory(CurDir))
 		{
 			NeedFixCurDir = false;
 		}
@@ -924,7 +924,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
 	if (NeedFixCurDir)
 	{
-		SetCurrentDirectory(CurDir);
+		SetCurrentDirectory(CurDir.data());
 	}
 
 	if (Result)

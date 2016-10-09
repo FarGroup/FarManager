@@ -101,6 +101,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	if (IsDrive)
 	{
 		LocalName = NewDir.substr(0, 2);
+		// TODO: check result
 		DriveLocalToRemoteName(DRIVE_REMOTE_NOT_CONNECTED, NewDir[0], RemoteName);
 	}
 	else
@@ -196,36 +197,26 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 
 bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 {
-	bool NetPathShown=false, IsOK=false;
-	wchar_t LocalName[8]=L" :\0\0\0";
-	string strRemoteName;
-
-	*LocalName=Letter;
-	strDest.clear();
+	const wchar_t LocalName[] = { Letter, L':', L'\0' };
 
 	if (DriveType == DRIVE_UNKNOWN)
 	{
-		LocalName[2]=L'\\';
 		DriveType = FAR_GetDriveType(LocalName);
-		LocalName[2]=0;
 	}
 
-	if (IsDriveTypeRemote(DriveType))
+	string strRemoteName;
+
+	if (IsDriveTypeRemote(DriveType) && os::WNetGetConnection(LocalName, strRemoteName))
 	{
-		os::WNetGetConnection(LocalName,strRemoteName);
-
-		if (!strRemoteName.empty())
-		{
-			NetPathShown=true;
-			IsOK=true;
-		}
+		strDest = strRemoteName;
+		return true;
 	}
 
-	if (!NetPathShown && GetSubstName(DriveType, LocalName, strRemoteName))
-		IsOK=true;
-
-	if (IsOK)
+	if (GetSubstName(DriveType, LocalName, strRemoteName))
+	{
 		strDest = strRemoteName;
+		return true;
+	}
 
-	return IsOK;
+	return false;
 }

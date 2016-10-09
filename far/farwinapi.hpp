@@ -119,10 +119,11 @@ namespace os
 
 	NTSTATUS GetLastNtStatus();
 	string GetCurrentDirectory();
+	bool GetProcessRealCurrentDirectory(string& Directory);
 	DWORD GetTempPath(string &strBuffer);
-	DWORD GetModuleFileName(HMODULE hModule, string &strFileName);
-	DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName);
-	DWORD WNetGetConnection(const string& LocalName, string &RemoteName);
+	bool GetModuleFileName(HMODULE hModule, string &strFileName);
+	bool GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName);
+	bool WNetGetConnection(const string& LocalName, string &RemoteName);
 	bool GetVolumeInformation(const string& RootPathName, string *pVolumeName, LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, string *pFileSystemName);
 	bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData, bool ScanSymLink=true);
 	bool GetFileSizeEx(HANDLE hFile, UINT64 &Size);
@@ -165,8 +166,6 @@ namespace os
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags);
 	bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
-	bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
-	bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
 	bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
 	namespace fs

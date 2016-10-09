@@ -1,6 +1,6 @@
 @echo off
 setlocal
-set command=tools\m4 -P svn_tag_build_ssl.m4
+set command=tools\m4 -P svn_tag_build.m4
 
 if "%~1"=="" set mode=info && %command% && goto pause
 

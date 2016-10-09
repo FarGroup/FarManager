@@ -340,11 +340,13 @@ void InfoList::DisplayObject()
 			switch(DriveType)
 			{
 				case DRIVE_REMOTE:
-				{
-					os::WNetGetConnection(strDriveRoot, strAssocPath);
+					{
+						auto DeviceName = strDriveRoot;
+						DeleteEndSlash(DeviceName);
+						os::WNetGetConnection(DeviceName, strAssocPath);
+					}
 					// TODO: check result
-				}
-				break;
+					// fall through
 
 				case DRIVE_SUBSTITUTE:
 				case DRIVE_VIRTUAL:

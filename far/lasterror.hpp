@@ -41,20 +41,30 @@ class GuardLastError: noncopyable
 {
 public:
 	GuardLastError():
-		LastError(GetLastError()),
-		LastStatus(Imports().RtlGetLastNtStatus())
+		m_LastError(GetLastError()),
+		m_LastStatus(Imports().RtlGetLastNtStatus()),
+		m_Active(true)
 	{
 	}
 
 	~GuardLastError()
 	{
-		SetLastError(LastError);
-		Imports().RtlNtStatusToDosError(LastStatus);
+		if (!m_Active)
+			return;
+
+		SetLastError(m_LastError);
+		Imports().RtlNtStatusToDosError(m_LastStatus);
+	}
+
+	void dismiss()
+	{
+		m_Active = false;
 	}
 
 private:
-	DWORD LastError;
-	NTSTATUS LastStatus;
+	DWORD m_LastError;
+	NTSTATUS m_LastStatus;
+	bool m_Active;
 };
 
 #endif // LASTERROR_HPP_1C20B3B0_E43C_4DCC_9729_DFD883E99DD3

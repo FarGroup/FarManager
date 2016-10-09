@@ -42,9 +42,61 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "datetime.hpp"
 #include "strmix.hpp"
+#include "lasterror.hpp"
 
 namespace os
 {
+	template<typename T>
+	bool ApiDynamicStringReceiver(string& Destination, const T& Callable)
+	{
+		wchar_t Buffer[MAX_PATH];
+		auto Size = Callable(Buffer, std::size(Buffer));
+		if (!Size)
+			return false;
+
+		if (Size < std::size(Buffer))
+		{
+			Destination.assign(Buffer, Size);
+			return true;
+		}
+
+		for (;;)
+		{
+			wchar_t_ptr vBuffer(Size);
+			Size = Callable(vBuffer.get(), vBuffer.size());
+			if (!Size)
+				return false;
+			if (Size < vBuffer.size())
+			{
+				Destination.assign(vBuffer.get(), Size);
+				return true;
+			}
+		}
+	}
+
+	template<typename T>
+	bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, const T& Callable)
+	{
+		wchar_t Buffer[MAX_PATH];
+		if (const auto Size = Callable(Buffer, std::size(Buffer)))
+		{
+			Destination.assign(Buffer, Size);
+			return true;
+		}
+
+		DWORD BufferSize = std::size(Buffer);
+		while (GetLastError() == ExpectedErrorCode)
+		{
+			wchar_t_ptr vBuffer(BufferSize *= 2);
+			if (const auto Size = Callable(vBuffer.get(), vBuffer.size()))
+			{
+				Destination.assign(vBuffer.get(), Size);
+				return true;
+			}
+		}
+		return false;
+	}
+
 	namespace detail
 	{
 		class i_find_handle_impl
@@ -363,10 +415,7 @@ bool enum_name::get(size_t index, value_type& value) const
 		m_Handle = FindFirstFileName(m_Object, 0, value);
 		return m_Handle? true : false;
 	}
-	else
-	{
-		return FindNextFileName(m_Handle, value);
-	}
+	return FindNextFileName(m_Handle, value);
 }
 
 //-------------------------------------------------------------------------
@@ -376,7 +425,7 @@ bool enum_stream::get(size_t index, value_type& value) const
 	if (!index)
 	{
 		m_Handle = FindFirstStream(m_Object, FindStreamInfoStandard, &value);
-		return m_Handle ? true : false;
+		return m_Handle? true : false;
 	}
 	return FindNextStream(m_Handle, &value);
 }
@@ -524,12 +573,54 @@ bool file::SetEnd()
 
 bool file::GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime) const
 {
-	return GetFileTimeEx(m_Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	FILE_BASIC_INFORMATION fbi;
+	if (!NtQueryInformationFile(&fbi, sizeof fbi, FileBasicInformation))
+		return false;
+
+	if (CreationTime)
+	{
+		*CreationTime = UI64ToFileTime(fbi.CreationTime);
+	}
+	if (LastAccessTime)
+	{
+		*LastAccessTime = UI64ToFileTime(fbi.LastAccessTime);
+	}
+	if (LastWriteTime)
+	{
+		*LastWriteTime = UI64ToFileTime(fbi.LastWriteTime);
+	}
+	if (ChangeTime)
+	{
+		*ChangeTime = UI64ToFileTime(fbi.ChangeTime);
+	}
+
+	return true;
 }
 
 bool file::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime) const
 {
-	return SetFileTimeEx(m_Handle.native_handle(), CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+	FILE_BASIC_INFORMATION fbi{};
+	if (CreationTime)
+	{
+		fbi.CreationTime.QuadPart = FileTimeToUI64(*CreationTime);
+	}
+	if (LastAccessTime)
+	{
+		fbi.LastAccessTime.QuadPart = FileTimeToUI64(*LastAccessTime);
+	}
+	if (LastWriteTime)
+	{
+		fbi.LastWriteTime.QuadPart = FileTimeToUI64(*LastWriteTime);
+	}
+	if (ChangeTime)
+	{
+		fbi.ChangeTime.QuadPart = FileTimeToUI64(*ChangeTime);
+	}
+
+	IO_STATUS_BLOCK IoStatusBlock;
+	const auto Status = Imports().NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
+	::SetLastError(Imports().RtlNtStatusToDosError(Status));
+	return Status == STATUS_SUCCESS;
 }
 
 bool file::GetSize(UINT64& Size) const
@@ -889,25 +980,19 @@ string& strCurrentDirectory()
 
 void InitCurrentDirectory()
 {
-	//get real curdir:
-	WCHAR Buffer[MAX_PATH];
-	DWORD Size=::GetCurrentDirectory(static_cast<DWORD>(std::size(Buffer)), Buffer);
-	if(Size)
+	string InitCurDir;
+	if (GetProcessRealCurrentDirectory(InitCurDir))
 	{
-		string strInitCurDir;
-		if(Size < std::size(Buffer))
-		{
-			strInitCurDir.assign(Buffer, Size);
-		}
-		else
-		{
-			std::vector<wchar_t> vBuffer(Size);
-			::GetCurrentDirectory(Size, vBuffer.data());
-			strInitCurDir.assign(vBuffer.data(), Size);
-		}
-		//set virtual curdir:
-		SetCurrentDirectory(strInitCurDir);
+		SetCurrentDirectory(InitCurDir);
 	}
+}
+
+bool GetProcessRealCurrentDirectory(string& Directory)
+{
+	return ApiDynamicStringReceiver(Directory, [](wchar_t* Buffer, size_t Size)
+	{
+		return ::GetCurrentDirectory(static_cast<DWORD>(Size), Buffer);
+	});
 }
 
 string GetCurrentDirectory()
@@ -964,70 +1049,46 @@ bool SetCurrentDirectory(const string& PathName, bool Validate)
 
 DWORD GetTempPath(string &strBuffer)
 {
-	WCHAR Buffer[MAX_PATH];
-	DWORD Size = ::GetTempPath(static_cast<DWORD>(std::size(Buffer)), Buffer);
-	if(Size)
+	return ApiDynamicStringReceiver(strBuffer, [&](wchar_t* Buffer, size_t Size)
 	{
-		if(Size < std::size(Buffer))
-		{
-			strBuffer.assign(Buffer, Size);
-		}
-		else
-		{
-			std::vector<wchar_t> vBuffer(Size);
-			Size = ::GetTempPath(Size, vBuffer.data());
-			strBuffer.assign(vBuffer.data(), Size);
-		}
-	}
-	return Size;
+		return ::GetTempPath(static_cast<DWORD>(Size), Buffer);
+	});
 };
 
-
-DWORD GetModuleFileName(HMODULE hModule, string &strFileName)
+bool GetModuleFileName(HMODULE hModule, string &strFileName)
 {
 	return GetModuleFileNameEx(nullptr, hModule, strFileName);
 }
 
-DWORD GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
+bool GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 {
-	DWORD Size = 0;
-	DWORD BufferSize = MAX_PATH;
-	wchar_t_ptr FileName;
-
-	do
+	return ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, strFileName, [&](wchar_t* Buffer, size_t Size)
 	{
-		BufferSize *= 2;
-		FileName.reset(BufferSize);
-		if (hProcess)
+		if (!hProcess)
 		{
-			if (Imports().QueryFullProcessImageNameW && !hModule)
+			auto ReturnedSize = ::GetModuleFileName(hModule, Buffer, static_cast<DWORD>(Size));
+			if (ReturnedSize == Size)
 			{
-				DWORD sz = BufferSize;
-				Size = 0;
-				if (Imports().QueryFullProcessImageNameW(hProcess, 0, FileName.get(), &sz))
-				{
-					Size = sz;
-				}
+				// os <= XP doesn't set this
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				ReturnedSize = 0;
 			}
-			else
-			{
-				Size = ::GetModuleFileNameEx(hProcess, hModule, FileName.get(), BufferSize);
-			}
+			return ReturnedSize;
+		}
+
+		if (Imports().QueryFullProcessImageNameW && !hModule)
+		{
+			auto sz = static_cast<DWORD>(Size);
+			return Imports().QueryFullProcessImageNameW(hProcess, 0, Buffer, &sz)? sz : 0;
 		}
 		else
 		{
-			Size = ::GetModuleFileName(hModule, FileName.get(), BufferSize);
+			return ::GetModuleFileNameEx(hProcess, hModule, Buffer, Size);
 		}
-	}
-	while ((Size >= BufferSize) || (!Size && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
-
-	if (Size)
-		strFileName.assign(FileName.get(), Size);
-
-	return Size;
+	});
 }
 
-DWORD WNetGetConnection(const string& LocalName, string &RemoteName)
+bool WNetGetConnection(const string& LocalName, string &RemoteName)
 {
 	wchar_t Buffer[MAX_PATH];
 	// MSDN says that call can fail with ERROR_NOT_CONNECTED or ERROR_CONNECTION_UNAVAIL if calling application
@@ -1035,19 +1096,31 @@ DWORD WNetGetConnection(const string& LocalName, string &RemoteName)
 	// However, it may fail with ERROR_NOT_CONNECTED for non-network too, in this case Buffer will not be initialised.
 	// Deliberately initialised with empty string to fix that.
 	Buffer[0] = L'\0';
-	DWORD Size = static_cast<DWORD>(std::size(Buffer));
+	auto Size = static_cast<DWORD>(std::size(Buffer));
 	auto Result = ::WNetGetConnection(LocalName.data(), Buffer, &Size);
-	if (Result == NO_ERROR || Result == ERROR_NOT_CONNECTED || Result == ERROR_CONNECTION_UNAVAIL)
+	
+	const auto& IsReceived = [](int Code) { return Code == NO_ERROR || Code == ERROR_NOT_CONNECTED || Code == ERROR_CONNECTION_UNAVAIL; };
+
+	if (IsReceived(Result) && *Buffer)
 	{
+		// Size isn't updated if the buffer is large enough
 		RemoteName = Buffer;
+		return true;
 	}
-	else if (Result == ERROR_MORE_DATA)
+	
+	while (Result == ERROR_MORE_DATA)
 	{
-		std::vector<wchar_t> vBuffer(Size);
-		Result = ::WNetGetConnection(LocalName.data(), vBuffer.data(), &Size);
-		RemoteName.assign(vBuffer.data(), Size - 1);
+		wchar_t_ptr vBuffer(Size);
+		Result = ::WNetGetConnection(LocalName.data(), vBuffer.get(), &Size);
+		if (IsReceived(Result) && *Buffer)
+		{
+			// Size isn't updated if the buffer is large enough
+			RemoteName = vBuffer.get();
+			return true;
+		}
 	}
-	return Result;
+
+	return false;
 }
 
 bool GetVolumeInformation(
@@ -1086,52 +1159,36 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 {
 	fs::enum_file Find(FileName, ScanSymLink);
 	auto ItemIterator = Find.begin();
-	if(ItemIterator != Find.end())
+	if (ItemIterator != Find.end())
 	{
 		FindData = std::move(*ItemIterator);
 		return true;
 	}
-	else
-	{
-		size_t DirOffset = 0;
-		ParsePath(FileName, &DirOffset);
-		if (FileName.find_first_of(L"*?", DirOffset) == string::npos)
-		{
-			DWORD dwAttr=GetFileAttributes(FileName);
 
-			if (dwAttr!=INVALID_FILE_ATTRIBUTES)
-			{
-				// Ага, значит файл таки есть. Заполним структуру ручками.
-				FindData = {};
-				FindData.dwFileAttributes=dwAttr;
-				fs::file file;
-				if(file.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-				{
-					file.GetTime(&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime,&FindData.ftChangeTime);
-					file.GetSize(FindData.nFileSize);
-					file.Close();
-				}
-
-				if (FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-				{
-					string strTmp;
-					GetReparsePointInfo(FileName,strTmp,&FindData.dwReserved0); //MSDN
-				}
-				else
-				{
-					FindData.dwReserved0=0;
-				}
-
-				FindData.strFileName = PointToName(FileName);
-				FindData.strAlternateFileName = ConvertNameToShort(FileName);
-				return true;
-			}
-		}
-	}
 	FindData = {};
-	FindData.dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
+	FindData.dwFileAttributes = GetFileAttributes(FileName);
 
-	return false;
+	if (FindData.dwFileAttributes == INVALID_FILE_ATTRIBUTES)
+		return false;
+
+	// Ага, значит файл таки есть. Заполним структуру ручками.
+	fs::file file;
+	if (file.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+	{
+		file.GetTime(&FindData.ftCreationTime, &FindData.ftLastAccessTime, &FindData.ftLastWriteTime, &FindData.ftChangeTime);
+		file.GetSize(FindData.nFileSize);
+		file.Close();
+	}
+
+	if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+	{
+		string strTmp;
+		GetReparsePointInfo(FileName, strTmp, &FindData.dwReserved0); //MSDN
+	}
+
+	FindData.strFileName = PointToName(FileName);
+	FindData.strAlternateFileName = ConvertNameToShort(FileName);
+	return true;
 }
 
 bool GetFileSizeEx(HANDLE hFile, UINT64 &Size)
@@ -1199,43 +1256,29 @@ bool GetDiskSize(const string& Path,unsigned long long* TotalSize, unsigned long
 find_handle FindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName)
 {
 	NTPath NtFileName(FileName);
-	wchar_t Buffer[MAX_PATH];
-	wchar_t_ptr vBuffer;
-	auto BufferPtr = Buffer;
-	auto BufferSize = static_cast<DWORD>(std::size(Buffer));
-	find_handle Handle(Imports().FindFirstFileNameW(NtFileName.data(), 0, &BufferSize, BufferPtr));
-	if (!Handle && BufferSize && GetLastError() == ERROR_MORE_DATA)
+	find_handle Handle;
+	ApiDynamicStringReceiver(LinkName, [&](wchar_t* Buffer, size_t Size)
 	{
-		vBuffer.reset(BufferSize);
-		BufferPtr = vBuffer.get();
-		Handle.reset(Imports().FindFirstFileNameW(NtFileName.data(), 0, &BufferSize, BufferPtr));
-	}
-
-	if (Handle)
-		LinkName.assign(BufferPtr, BufferSize - 1);
-
+		auto BufferSize = static_cast<DWORD>(Size);
+		Handle.reset(Imports().FindFirstFileNameW(NtFileName.data(), 0, &BufferSize, Buffer));
+		if (Handle)
+			// FindFirstFileNameW always includes terminating \0 in the returned size
+			return BufferSize - 1;
+		return GetLastError() == ERROR_MORE_DATA? BufferSize : 0;
+	});
 	return Handle;
 }
 
 bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
 {
-	wchar_t Buffer[MAX_PATH];
-	wchar_t_ptr vBuffer;
-	auto BufferPtr = Buffer;
-	auto BufferSize = static_cast<DWORD>(std::size(Buffer));
-	auto Result = Imports().FindNextFileNameW(hFindStream.native_handle(), &BufferSize, BufferPtr) != FALSE;
-	if (!Result && GetLastError() == ERROR_MORE_DATA)
+	return ApiDynamicStringReceiver(LinkName, [&](wchar_t* Buffer, size_t Size)
 	{
-		vBuffer.reset(BufferSize);
-		BufferPtr = vBuffer.get();
-		Result = Imports().FindNextFileNameW(hFindStream.native_handle(), &BufferSize, BufferPtr) != FALSE;
-	}
-
-	if (!Result)
-		return false;
-
-	LinkName.assign(BufferPtr, BufferSize - 1);
-	return true;
+		auto BufferSize = static_cast<DWORD>(Size);
+		if (Imports().FindNextFileNameW(hFindStream.native_handle(), &BufferSize, Buffer))
+			// FindNextFileNameW always includes terminating \0 in the returned size
+			return BufferSize - 1;
+		return GetLastError() == ERROR_MORE_DATA? BufferSize : 0;
+	});
 }
 
 bool CreateDirectory(const string& PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
@@ -1416,24 +1459,13 @@ bool FindNextStream(const find_file_handle& hFindStream,LPVOID lpFindStreamData)
 std::vector<string> GetLogicalDriveStrings()
 {
 	FN_RETURN_TYPE(GetLogicalDriveStrings) Result;
-	wchar_t Buffer[MAX_PATH];
-	if (auto Size = ::GetLogicalDriveStrings(static_cast<DWORD>(std::size(Buffer)), Buffer))
+	string Strings;
+	if (ApiDynamicStringReceiver(Strings, [](wchar_t* Buffer, size_t Size)
 	{
-		const wchar_t* Ptr;
-		wchar_t_ptr vBuffer;
-
-		if (Size < std::size(Buffer))
-		{
-			Ptr = Buffer;
-		}
-		else
-		{
-			vBuffer.reset(Size);
-			Size = ::GetLogicalDriveStrings(Size, vBuffer.get());
-			Ptr = vBuffer.get();
-		}
-
-		for (const auto& i: enum_substrings(Ptr))
+		return ::GetLogicalDriveStrings(static_cast<DWORD>(Size), Buffer);
+	}))
+	{
+		for (const auto& i : enum_substrings(Strings))
 		{
 			Result.emplace_back(i.data(), i.size());
 		}
@@ -1482,155 +1514,123 @@ static int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 	return 0;
 }
 
+static bool GetObjectName(HANDLE hFile, string& ObjectName)
+{
+	block_ptr<OBJECT_NAME_INFORMATION> oni(NT_MAX_PATH);
+	ULONG ReturnLength;
+
+	const auto& QueryObject = [&]
+	{
+		return Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), static_cast<unsigned long>(oni.size()), &ReturnLength);
+	};
+
+	auto Result = QueryObject();
+	if (Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL)
+	{
+		oni.reset(ReturnLength);
+		Result = QueryObject();
+	}
+
+	if (Result != STATUS_SUCCESS)
+		return false;
+
+	ObjectName.assign(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
+	return true;
+};
+
 static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	ULONG RetLen;
-	NTSTATUS Res = STATUS_SUCCESS;
 	string NtPath;
+	if (!GetObjectName(hFile, NtPath))
+		return false;
 
+	const auto& ReplaceRoot = [&](const auto& OldRoot, const auto& NewRoot)
 	{
-		ULONG BufSize = NT_MAX_PATH;
-		block_ptr<OBJECT_NAME_INFORMATION> oni(BufSize);
-		Res = Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
+		if (NtPath.compare(0, OldRoot.size(), OldRoot.data()))
+			return false;
+		FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.data(), NewRoot.size());
+		return true;
+	};
 
-		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
-		{
-			oni.reset(BufSize = RetLen);
-			Res = Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), BufSize, &RetLen);
-		}
+	// simple way to handle network paths
+	if (ReplaceRoot(L"\\Device\\LanmanRedirector"_sl, L"\\"_sl) || ReplaceRoot(L"\\Device\\Mup"_sl, L"\\"_sl))
+		return true;
 
-		if (Res == STATUS_SUCCESS)
+	// try to convert NT path (\Device\HarddiskVolume1) to drive letter
+	drives_set Drives = GetLogicalDrives();
+	for (size_t i = 0; i != Drives.size(); ++i)
+	{
+		if (!Drives[i])
+			continue;
+
+		const string Device{ static_cast<wchar_t>(L'A' + i), L':'};
+		if (const auto Len = MatchNtPathRoot(NtPath, Device))
 		{
-			NtPath.assign(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
+			FinalFilePath = NtPath.compare(0, 14, L"\\Device\\WinDfs")? NtPath.replace(0, Len, Device) : NtPath.replace(0, Len, 1, L'\\');
+			return true;
 		}
 	}
 
-	FinalFilePath.clear();
-
-	if (Res == STATUS_SUCCESS)
+	// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
+	for (auto& VolumeName: os::fs::enum_volume())
 	{
-		// simple way to handle network paths
-		if (NtPath.compare(0, 24, L"\\Device\\LanmanRedirector") == 0)
-			FinalFilePath = NtPath.replace(0, 24, 1, L'\\');
-		else if (NtPath.compare(0, 11, L"\\Device\\Mup") == 0)
-			FinalFilePath = NtPath.replace(0, 11, 1, L'\\');
-
-		if (FinalFilePath.empty())
+		if (const auto Len = MatchNtPathRoot(NtPath, VolumeName.substr(4, VolumeName.size() - 5))) // w/o prefix and trailing slash
 		{
-			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-			drives_set Drives = GetLogicalDrives();
-			for (size_t i = 0; i != Drives.size(); ++i)
-			{
-				if (!Drives[i])
-					continue;
-
-				const wchar_t Device[] = { static_cast<wchar_t>(L'A' + i), L':', L'\0' };
-				if (const auto Len = MatchNtPathRoot(NtPath, Device))
-				{
-					if (NtPath.compare(0, 14, L"\\Device\\WinDfs") == 0)
-						FinalFilePath = NtPath.replace(0, Len, 1, L'\\');
-					else
-						FinalFilePath = NtPath.replace(0, Len, Device);
-					break;
-				}
-			}
-		}
-
-		if (FinalFilePath.empty())
-		{
-			// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-			for (auto& VolumeName: os::fs::enum_volume())
-			{
-				if (const auto Len = MatchNtPathRoot(NtPath, VolumeName.substr(4, VolumeName.size() - 5))) // w/o prefix and trailing slash
-				{
-					FinalFilePath = NtPath.replace(0, Len, VolumeName);
-					break;
-				}
-			}
+			FinalFilePath = NtPath.replace(0, Len, VolumeName);
+			return true;
 		}
 	}
 
-	return !FinalFilePath.empty();
+	return false;
 }
 
 bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (Imports().GetFinalPathNameByHandleW)
+	const auto& GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags)
 	{
-		const auto& GetFinalPathNameByHandleGuarded = [](HANDLE File, wchar_t* Buffer, DWORD Size, DWORD Flags)
+		// It seems that Microsoft has forgotten to put an exception handler around this function.
+		// It causes EXCEPTION_ACCESS_VIOLATION (read from 0) in kernel32 under certain conditions,
+		// e.g. badly written file system drivers or weirdly formatted volumes.
+		return seh_invoke_no_ui(
+		[&]
 		{
-			// It seems that Microsoft has forgotten to put an exception handler around this function.
-			// It causes EXCEPTION_ACCESS_VIOLATION (read from 0) in kernel32 under certain conditions,
-			// e.g. badly written file system drivers or weirdly formatted volumes.
-			return seh_invoke_no_ui(
-			[&]
-			{
-				return Imports().GetFinalPathNameByHandle(File, Buffer, Size, Flags);
-			},
-			[]
-			{
-				SetLastError(ERROR_UNHANDLED_EXCEPTION);
-				return 0ul;
-			});
-		};
-
-		wchar_t Buffer[MAX_PATH];
-		if (size_t Size = GetFinalPathNameByHandleGuarded(hFile, Buffer, static_cast<DWORD>(std::size(Buffer)), VOLUME_NAME_GUID))
+			return Imports().GetFinalPathNameByHandle(File, Buffer, Size, Flags);
+		},
+		[]
 		{
-			if (Size < std::size(Buffer))
-			{
-				FinalFilePath.assign(Buffer, Size);
-			}
-			else
-			{
-				wchar_t_ptr vBuffer(Size);
-				Size = GetFinalPathNameByHandleGuarded(hFile, vBuffer.get(), static_cast<DWORD>(vBuffer.size()), VOLUME_NAME_GUID);
-				FinalFilePath.assign(vBuffer.get(), Size);
-			}
-			return Size != 0;
-		}
-	}
+			SetLastError(ERROR_UNHANDLED_EXCEPTION);
+			return 0ul;
+		});
+	};
 
-	return internalNtQueryGetFinalPathNameByHandle(hFile, FinalFilePath);
+	const auto& GetFinalPathNameByHandleImpl = [&]
+	{
+		return ApiDynamicStringReceiver(FinalFilePath, [&](wchar_t* Buffer, size_t Size)
+		{
+			return GetFinalPathNameByHandleGuarded(hFile, Buffer, static_cast<DWORD>(Size), VOLUME_NAME_GUID);
+		});
+	};
+
+	return (Imports().GetFinalPathNameByHandleW && GetFinalPathNameByHandleImpl()) || internalNtQueryGetFinalPathNameByHandle(hFile, FinalFilePath);
 }
 
 bool SearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest)
 {
-	auto dwSize = ::SearchPath(Path, FileName.data(), Extension, 0, nullptr, nullptr);
-	if (!dwSize)
-		return false;
-	wchar_t_ptr Buffer(dwSize);
-	dwSize = ::SearchPath(Path, FileName.data(), Extension, dwSize, Buffer.get(), nullptr);
-	strDest.assign(Buffer.get(), dwSize);
-	return true;
+	return ApiDynamicStringReceiver(strDest, [&](wchar_t* Buffer, size_t Size)
+	{
+		return ::SearchPath(Path, FileName.data(), Extension, static_cast<DWORD>(Size), Buffer, nullptr);
+	});
 }
 
 bool QueryDosDevice(const string& DeviceName, string &Path)
 {
-	SetLastError(NO_ERROR);
-	wchar_t Buffer[MAX_PATH];
 	const auto DeviceNamePtr = EmptyToNull(DeviceName.data());
-	DWORD Size = ::QueryDosDevice(DeviceNamePtr, Buffer, static_cast<DWORD>(std::size(Buffer)));
-	if (Size)
+	return ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Path, [&](wchar_t* Buffer, size_t Size)
 	{
-		Path.assign(Buffer, Size - 2); // two trailing '\0'
-	}
-	else
-	{
-		DWORD BufferSize = 2048;
-		while (::GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-		{
-			wchar_t_ptr vBuffer(BufferSize *= 2);
-			SetLastError(NO_ERROR);
-			Size = ::QueryDosDevice(DeviceNamePtr, vBuffer.get(), BufferSize);
-			if (Size)
-			{
-				Path.assign(vBuffer.get(), Size - 2); // two trailing '\0'
-			}
-		}
-	}
-
-	return Size && ::GetLastError() == NO_ERROR;
+		const auto ReturnedSize = ::QueryDosDevice(DeviceNamePtr, Buffer, static_cast<DWORD>(Size));
+		// Upon success it includes two trailing '\0', we don't need them
+		return ReturnedSize? ReturnedSize - 2 : 0;
+	});
 }
 
 bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& VolumeName)
@@ -1651,82 +1651,26 @@ void EnableLowFragmentationHeap()
 		return;
 
 	std::vector<HANDLE> Heaps(10);
-	DWORD ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
-	if(ActualNumHeaps > Heaps.size())
+	for (;;)
 	{
-		Heaps.resize(ActualNumHeaps);
-		ActualNumHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+		const auto NumberOfHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+		const auto Received = NumberOfHeaps <= Heaps.size();
+		Heaps.resize(NumberOfHeaps);
+		if (Received)
+			break;
 	}
-	Heaps.resize(ActualNumHeaps);
-	std::for_each(CONST_RANGE(Heaps, i)
+
+	for (auto i: Heaps)
 	{
 		ULONG HeapFragValue = 2;
 		Imports().HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
-	});
+	}
 }
 
 bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	fs::file dir;
 	return dir.Open(FileName,FILE_READ_ATTRIBUTES,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING) && dir.GetTime(CreationTime,LastAccessTime,LastWriteTime,ChangeTime);
-}
-
-bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
-{
-	const ULONG Length = 40;
-	BYTE Buffer[Length] = {};
-	const auto fbi = reinterpret_cast<FILE_BASIC_INFORMATION*>(Buffer);
-	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Status = Imports().NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	::SetLastError(Imports().RtlNtStatusToDosError(Status));
-	if (Status != STATUS_SUCCESS)
-		return false;
-
-	if(CreationTime)
-	{
-		*CreationTime = UI64ToFileTime(fbi->CreationTime);
-	}
-	if(LastAccessTime)
-	{
-		*LastAccessTime = UI64ToFileTime(fbi->LastAccessTime);
-	}
-	if(LastWriteTime)
-	{
-		*LastWriteTime = UI64ToFileTime(fbi->LastWriteTime);
-	}
-	if(ChangeTime)
-	{
-		*ChangeTime = UI64ToFileTime(fbi->ChangeTime);
-	}
-
-	return true;
-}
-
-bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
-{
-	const ULONG Length = 40;
-	BYTE Buffer[Length] = {};
-	const auto fbi = reinterpret_cast<FILE_BASIC_INFORMATION*>(Buffer);
-	if(CreationTime)
-	{
-		fbi->CreationTime.QuadPart = FileTimeToUI64(*CreationTime);
-	}
-	if(LastAccessTime)
-	{
-		fbi->LastAccessTime.QuadPart = FileTimeToUI64(*LastAccessTime);
-	}
-	if(LastWriteTime)
-	{
-		fbi->LastWriteTime.QuadPart = FileTimeToUI64(*LastWriteTime);
-	}
-	if(ChangeTime)
-	{
-		fbi->ChangeTime.QuadPart = FileTimeToUI64(*ChangeTime);
-	}
-	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Status = Imports().NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	::SetLastError(Imports().RtlNtStatusToDosError(Status));
-	return Status == STATUS_SUCCESS;
 }
 
 bool GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
@@ -1796,7 +1740,6 @@ bool IsWow64Process()
 	return Wow64Process;
 #endif
 }
-
 
 DWORD GetAppPathsRedirectionFlag()
 {
@@ -2010,27 +1953,27 @@ DWORD GetAppPathsRedirectionFlag()
 
 		bool get_variable(const wchar_t* Name, string& strBuffer)
 		{
-			WCHAR Buffer[MAX_PATH];
-			// GetEnvironmentVariable doesn't change error code on success
+			GuardLastError ErrorGuard;
+			// GetEnvironmentVariable might return 0 not only in case of failure, but also when variable is empty.
+			// To recognise this, we set LastError to ERROR_SUCCESS manually and check it after the call,
+			// which doesn't change it upon success.
 			SetLastError(ERROR_SUCCESS);
-			DWORD Size = ::GetEnvironmentVariable(Name, Buffer, static_cast<DWORD>(std::size(Buffer)));
-			const auto LastError = GetLastError();
-
-			if (Size)
+			if (ApiDynamicStringReceiver(strBuffer, [&](wchar_t* Buffer, size_t Size)
 			{
-				if (Size < std::size(Buffer))
-				{
-					strBuffer.assign(Buffer, Size);
-				}
-				else
-				{
-					std::vector<wchar_t> vBuffer(Size);
-					Size = ::GetEnvironmentVariable(Name, vBuffer.data(), Size);
-					strBuffer.assign(vBuffer.data(), Size);
-				}
+				return ::GetEnvironmentVariable(Name, Buffer, static_cast<DWORD>(Size));
+			}))
+			{
+				return true;
 			}
 
-			return LastError != ERROR_ENVVAR_NOT_FOUND;
+			if (GetLastError() == ERROR_SUCCESS)
+			{
+				strBuffer.clear();
+				return true;
+			}
+			// Something went wrong, it's better to leave the last error as is
+			ErrorGuard.dismiss();
+			return false;
 		}
 
 		bool set_variable(const wchar_t* Name, const wchar_t* Value)
@@ -2043,24 +1986,21 @@ DWORD GetAppPathsRedirectionFlag()
 			return ::SetEnvironmentVariable(Name, nullptr) != FALSE;
 		}
 
-		string expand_strings(const wchar_t* str)
+		string expand_strings(const wchar_t* Str)
 		{
-			WCHAR Buffer[MAX_PATH];
-			DWORD Size = ::ExpandEnvironmentStrings(str, Buffer, static_cast<DWORD>(std::size(Buffer)));
-			if (Size)
+			string Result;
+			if (!ApiDynamicStringReceiver(Result, [&](wchar_t* Buffer, size_t Size)
 			{
-				if (Size <= std::size(Buffer))
-				{
-					return string(Buffer, Size - 1);
-				}
-				else
-				{
-					std::vector<wchar_t> vBuffer(Size);
-					Size = ::ExpandEnvironmentStrings(str, vBuffer.data(), Size);
-					return string(vBuffer.data(), Size - 1);
-				}
+				auto ReturnedSize = ::ExpandEnvironmentStrings(Str, Buffer, static_cast<DWORD>(Size));
+				// This pesky function includes the terminating null character even upon success, breaking the usual pattern
+				if (ReturnedSize <= Size)
+					--ReturnedSize;
+				return ReturnedSize;
+			}))
+			{
+				Result = Str;
 			}
-			return str;
+			return Result;
 		}
 
 		string get_pathext()

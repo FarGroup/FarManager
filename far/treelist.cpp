@@ -331,10 +331,7 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	}
 	else if (PathType == PATH_DRIVELETTER || PathType == PATH_DRIVELETTERUNC)
 	{
-		os::WNetGetConnection({ Root[PathType == PATH_DRIVELETTER ? 0 : 4], L':' }, strRemoteName);
-		// TODO: check result?
-
-		if (!strRemoteName.empty())
+		if (os::WNetGetConnection({ Root[PathType == PATH_DRIVELETTER ? 0 : 4], L':' }, strRemoteName))
 			AddEndSlash(strRemoteName);
 	}
 
