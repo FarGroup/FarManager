@@ -1885,19 +1885,27 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						/* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
 						BOOL Processed=FALSE;
 
-						if ((LocalKey==KEY_ALTF4 || LocalKey==KEY_RALTF4) &&
-						        ProcessLocalFileTypes(strFileName,strShortFileName,FILETYPE_ALTEDIT,
-						                              PluginMode))
-							Processed=TRUE;
-						else if (LocalKey==KEY_F4 &&
-						         ProcessLocalFileTypes(strFileName,strShortFileName,FILETYPE_EDIT,
-						                               PluginMode))
-							Processed=TRUE;
+						FILETIME tmpWriteTimeBefore, tmpWriteTimeAfter, tmpChangeTimeBefore, tmpChangeTimeAfter;
+						os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeBefore, &tmpChangeTimeBefore);
+
+						if (LocalKey == KEY_ALTF4 || LocalKey == KEY_RALTF4 || LocalKey == KEY_F4)
+						{
+							if (ProcessLocalFileTypes(strFileName, strShortFileName, (LocalKey == KEY_F4)?FILETYPE_EDIT:FILETYPE_ALTEDIT, PluginMode))
+							{
+								os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeAfter, &tmpChangeTimeAfter);
+								UploadFile = tmpWriteTimeAfter != tmpWriteTimeBefore || tmpChangeTimeAfter != tmpChangeTimeBefore;
+								Processed = TRUE;
+							}
+						}
 
 						if (!Processed || LocalKey==KEY_CTRLSHIFTF4 || LocalKey==KEY_RCTRLSHIFTF4)
 						{
 							if (EnableExternal)
-								ProcessExternal(Global->Opt->strExternalEditor,strFileName,strShortFileName,PluginMode);
+							{
+								ProcessExternal(Global->Opt->strExternalEditor, strFileName, strShortFileName, PluginMode);
+								os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeAfter, &tmpChangeTimeAfter);
+								UploadFile = tmpWriteTimeAfter != tmpWriteTimeBefore || tmpChangeTimeAfter != tmpChangeTimeBefore;
+							}
 							else if (PluginMode)
 							{
 								RefreshedPanel = Global->WindowManager->GetCurrentWindow()->GetType() != windowtype_editor;
@@ -2606,6 +2614,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		plugin_panel* OpenedPlugin = nullptr;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
 		SCOPE_EXIT{ if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP)) DeleteFileWithFolder(strFileName); };
+		FILETIME tmpWriteTimeBefore, tmpWriteTimeAfter, tmpChangeTimeBefore, tmpChangeTimeAfter;
 
 		if (PluginMode)
 		{
@@ -2617,10 +2626,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(CurItem, PanelItem);
 
-			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW))
+			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_EDIT))
 				return;
 
 			strShortFileName = ConvertNameToShort(strFileName);
+			os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeBefore, &tmpChangeTimeBefore);
 		}
 
 
@@ -2664,6 +2674,23 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				return;
 
 			OpenFilePlugin(strFileName, TRUE, Type);
+		}
+
+		if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP))
+		{
+			if (os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeAfter, &tmpChangeTimeAfter))
+			{
+				if (tmpWriteTimeAfter != tmpWriteTimeBefore || tmpChangeTimeAfter != tmpChangeTimeBefore)
+				{
+					PluginPanelItemHolder PanelItem;
+					if (FileNameToPluginItem(strFileName, PanelItem))
+					{
+						int PutCode = Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem.Item, 1, false, OPM_EDIT);
+						if (PutCode == 1 || PutCode == 2)
+							SetPluginModified();
+					}
+				}
+			}
 		}
 	}
 }
