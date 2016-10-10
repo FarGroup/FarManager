@@ -2,9 +2,9 @@
 setlocal
 
 for /f "tokens=1-3" %%i in ('tools\m4 -P svn_tag_build.m4') do (
-set major=%%i
-set minor=%%j
-set build=%%k
+	set major=%%i
+	set minor=%%j
+	set build=%%k
 )
 
 set tag=%major%%minor%_b%build%

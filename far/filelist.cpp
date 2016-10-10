@@ -1101,6 +1101,27 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 	return 0;
 }
 
+class change_times: public rel_ops<change_times>
+{
+public:
+	static auto get(const string& Filename)
+	{
+		change_times Times;
+		Times.IsValid = os::GetFileTimeSimple(Filename, nullptr, nullptr, &Times.Times.first, &Times.Times.second);
+		return Times;
+	}
+
+	bool operator==(const change_times& rhs) const
+	{
+		// Invalid times are considered different
+		return IsValid && rhs.IsValid && Times == rhs.Times;
+	}
+
+private:
+	std::pair<FILETIME, FILETIME> Times;
+	bool IsValid{};
+};
+
 int FileList::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
@@ -1885,15 +1906,12 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						/* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
 						BOOL Processed=FALSE;
 
-						FILETIME tmpWriteTimeBefore, tmpWriteTimeAfter, tmpChangeTimeBefore, tmpChangeTimeAfter;
-						os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeBefore, &tmpChangeTimeBefore);
-
+						const auto SavedTimes = change_times::get(strFileName);
 						if (LocalKey == KEY_ALTF4 || LocalKey == KEY_RALTF4 || LocalKey == KEY_F4)
 						{
 							if (ProcessLocalFileTypes(strFileName, strShortFileName, (LocalKey == KEY_F4)?FILETYPE_EDIT:FILETYPE_ALTEDIT, PluginMode))
 							{
-								os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeAfter, &tmpChangeTimeAfter);
-								UploadFile = tmpWriteTimeAfter != tmpWriteTimeBefore || tmpChangeTimeAfter != tmpChangeTimeBefore;
+								UploadFile = change_times::get(strFileName) != SavedTimes;
 								Processed = TRUE;
 							}
 						}
@@ -1903,8 +1921,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							if (EnableExternal)
 							{
 								ProcessExternal(Global->Opt->strExternalEditor, strFileName, strShortFileName, PluginMode);
-								os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeAfter, &tmpChangeTimeAfter);
-								UploadFile = tmpWriteTimeAfter != tmpWriteTimeBefore || tmpChangeTimeAfter != tmpChangeTimeBefore;
+								UploadFile = change_times::get(strFileName) != SavedTimes;
 							}
 							else if (PluginMode)
 							{
@@ -2614,7 +2631,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		plugin_panel* OpenedPlugin = nullptr;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
 		SCOPE_EXIT{ if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP)) DeleteFileWithFolder(strFileName); };
-		FILETIME tmpWriteTimeBefore, tmpWriteTimeAfter, tmpChangeTimeBefore, tmpChangeTimeAfter;
+		change_times SavedTimes;
 
 		if (PluginMode)
 		{
@@ -2630,7 +2647,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				return;
 
 			strShortFileName = ConvertNameToShort(strFileName);
-			os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeBefore, &tmpChangeTimeBefore);
+			SavedTimes = change_times::get(strFileName);
 		}
 
 
@@ -2678,17 +2695,14 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 		if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP))
 		{
-			if (os::GetFileTimeSimple(strFileName, nullptr, nullptr, &tmpWriteTimeAfter, &tmpChangeTimeAfter))
+			if (change_times::get(strFileName) != SavedTimes)
 			{
-				if (tmpWriteTimeAfter != tmpWriteTimeBefore || tmpChangeTimeAfter != tmpChangeTimeBefore)
+				PluginPanelItemHolder PanelItem;
+				if (FileNameToPluginItem(strFileName, PanelItem))
 				{
-					PluginPanelItemHolder PanelItem;
-					if (FileNameToPluginItem(strFileName, PanelItem))
-					{
-						int PutCode = Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem.Item, 1, false, OPM_EDIT);
-						if (PutCode == 1 || PutCode == 2)
-							SetPluginModified();
-					}
+					int PutCode = Global->CtrlObject->Plugins->PutFiles(m_hPlugin, &PanelItem.Item, 1, false, OPM_EDIT);
+					if (PutCode == 1 || PutCode == 2)
+						SetPluginModified();
 				}
 			}
 		}

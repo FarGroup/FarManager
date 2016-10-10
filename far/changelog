@@ -1,3 +1,7 @@
+drkns 10.10.2016 23:09:35 +0200 - build 4819
+
+1. Сократим немного копипасту в проверке времени изменения файла.
+
 zg 10.10.2016 16:33:04 +0200 - build 4818
 
 1. 0003325: Detect external file editing and post back to plugin.
