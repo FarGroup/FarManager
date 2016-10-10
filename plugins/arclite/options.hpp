@@ -13,6 +13,7 @@ struct Options {
   // update
   wstring update_arc_format_name;
   unsigned update_level;
+  wstring update_levels; // for example: '7z=7;zip=5;bzip2=9;xz=5;SWFc=5;wim=0;tar=0;gzip=5'
   wstring update_method;
   bool update_solid;
   wstring update_advanced;

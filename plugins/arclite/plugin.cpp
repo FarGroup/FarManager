@@ -493,6 +493,7 @@ public:
       else
         options.arc_type = arc_types.front();
       options.level = g_options.update_level;
+      options.levels = g_options.update_levels;
       options.method = g_options.update_method;
       options.solid = g_options.update_solid;
       options.append_ext = g_options.update_append_ext;
@@ -637,6 +638,7 @@ public:
       options.arc_type = arc_types.front();
     options.sfx_options = g_options.update_sfx_options;
     options.level = g_options.update_level;
+    options.levels = g_options.update_levels;
     options.method = g_options.update_method;
     options.solid = g_options.update_solid;
     options.show_password = g_options.update_show_password;

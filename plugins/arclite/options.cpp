@@ -178,6 +178,7 @@ void Options::load() {
   GET_VALUE(extract_open_dir, bool);
   GET_VALUE(update_arc_format_name, str);
   GET_VALUE(update_level, int);
+  GET_VALUE(update_levels, str);
   GET_VALUE(update_method, str);
   GET_VALUE(update_solid, bool);
   GET_VALUE(update_advanced, str);
@@ -228,6 +229,7 @@ void Options::save() const {
   SET_VALUE(extract_open_dir, bool);
   SET_VALUE(update_arc_format_name, str);
   SET_VALUE(update_level, int);
+  SET_VALUE(update_levels, str);
   SET_VALUE(update_method, str);
   SET_VALUE(update_solid, bool);
   SET_VALUE(update_advanced, str);

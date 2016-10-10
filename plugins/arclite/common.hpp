@@ -143,6 +143,7 @@ struct SfxOptions {
 struct ProfileOptions {
   ArcType arc_type;
   unsigned level;
+  wstring levels; // format=level;...
   wstring method;
   bool solid;
   wstring password;

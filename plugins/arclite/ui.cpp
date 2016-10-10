@@ -743,9 +743,42 @@ private:
     return true;
   }
 
+  bool arc_levels(char mode)
+  {
+    if (!ArcAPI::formats().count(arc_type))
+      return false;
+    auto search = ArcAPI::formats().at(arc_type).name;
+    if (search.empty())
+      return false;
+    search += L"=";
+    size_t pos = 0;
+    while (pos+search.size() <= options.levels.size()) {
+      if (options.levels.substr(pos, search.size()) == search) {
+        if (mode == 'g') {
+          level = (unsigned)str_to_int(options.levels.substr(pos+search.size()));
+          return true;
+        }
+        auto ndel = search.size();
+        while (pos+ndel < options.levels.size() && wcschr(L"0123456789", options.levels[pos+ndel])) ++ndel;
+        if (pos+ndel < options.levels.size() && options.levels[pos+ndel] == L';') ++ndel;
+		  if (pos > 0 && pos + ndel >= options.levels.size() && options.levels[pos-1] == L';') { --pos; ++ndel; }
+         options.levels.erase(pos, ndel);
+        break;
+      }
+      pos = options.levels.find(L';', pos+1);
+      if (pos == wstring::npos)
+        break;
+      ++pos;
+    }
+    if (mode == 'g')
+      return false;
+    options.levels = search + int_to_str((int)level) + (options.levels.empty() ? L"" : L";") + options.levels;
+    return true;
+  }
+
   void update_level_list() {
     unsigned level_sel = get_list_pos(level_ctrl_id);
-    unsigned new_level_sel = -1;
+    unsigned new_level_sel = -1, def_level_sel = -1;
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); ++i) {
       bool skip = c_levels[i].value == 0 && arc_type == c_bzip2;
       skip = skip || (c_levels[i].value != 0 && (arc_type == c_wim || arc_type == c_tar));
@@ -763,16 +796,17 @@ private:
         flu.Item.Text = Far::msg_ptr(c_levels[i].name_id);
         send_message(DM_LISTUPDATE, level_ctrl_id, &flu);
       }
-      if (new_level_sel == -1 && c_levels[i].value == 5) {
+      if (!skip && (def_level_sel == -1 || c_levels[i].value == 5)) // normal or first enabled
+          def_level_sel = i;
+      if (c_levels[i].value == level && !skip) // if current level enabled
         new_level_sel = i;
-      }
-      if (c_levels[i].value == level && !skip) {
-        new_level_sel = i;
-      }
     }
-    if (new_level_sel != level_sel) {
+    if (new_level_sel == -1)
+      new_level_sel = def_level_sel != -1 ? def_level_sel : level_sel;
+    if (new_level_sel != level_sel)
       set_list_pos(level_ctrl_id, new_level_sel);
-    }
+    level = c_levels[new_level_sel].value;
+    arc_levels('s');
   }
 
   void set_control_state() {
@@ -834,6 +868,7 @@ private:
 
   void read_controls(UpdateOptions& options) {
     if (new_arc) {
+      options.levels = this->options.levels;
       options.append_ext = get_check(append_ext_ctrl_id);
 
       for (unsigned i = 0; i < main_formats.size(); i++) {
@@ -1040,17 +1075,20 @@ private:
     else if (new_arc && msg == DN_BTNCLICK && !main_formats.empty() && param1 >= main_formats_ctrl_id && param1 < main_formats_ctrl_id + static_cast<int>(main_formats.size())) {
       if (param2) {
         arc_type = main_formats[param1 - main_formats_ctrl_id];
+        arc_levels('g');
         set_control_state();
       }
     }
     else if (new_arc && msg == DN_BTNCLICK && !other_formats.empty() && param1 == other_formats_ctrl_id) {
       if (param2) {
         arc_type = other_formats[get_list_pos(other_formats_ctrl_id + 1)];
+        arc_levels('g');
         set_control_state();
       }
     }
     else if (new_arc && msg == DN_EDITCHANGE && !other_formats.empty() && param1 == other_formats_ctrl_id + 1) {
       arc_type = other_formats[get_list_pos(other_formats_ctrl_id + 1)];
+      arc_levels('g');
       set_control_state();
     }
     else if (msg == DN_EDITCHANGE && param1 == level_ctrl_id) {
@@ -1138,6 +1176,7 @@ private:
         g_options.update_enable_volumes = options.enable_volumes;
         g_options.update_volume_size = options.volume_size;
         g_options.update_level = options.level;
+        g_options.update_levels = options.levels;
         g_options.update_method = options.method;
         g_options.update_solid = options.solid;
 		  g_options.update_advanced = options.advanced;
