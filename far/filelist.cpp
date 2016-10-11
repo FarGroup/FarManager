@@ -2643,7 +2643,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(CurItem, PanelItem);
 
-			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_EDIT))
+			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_EDIT))
 				return;
 
 			strShortFileName = ConvertNameToShort(strFileName);
@@ -2657,31 +2657,31 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!SetCurPath())
 				return;
 
-			if (!SeparateWindow && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_EXEC, PluginMode, true, RunAs))
-				return;
-
-			const auto IsItExecutable = IsExecutable(strFileName);
-
-			if (!IsItExecutable && !SeparateWindow && (OpenedPlugin = OpenFilePlugin(strFileName, TRUE, Type)) != nullptr)
-				return;
-
-			if (IsItExecutable || SeparateWindow || Global->Opt->UseRegisteredTypes)
+			if (SeparateWindow || !ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_EXEC, PluginMode, true, RunAs))
 			{
-				execute_info Info;
-				Info.Command = strFileName;
-				Info.WaitMode = PluginMode? execute_info::wait_mode::wait_finish : execute_info::wait_mode::no_wait;
-				Info.NewWindow = SeparateWindow;
-				Info.SourceMode = execute_info::source_mode::known;
-				Info.RunAs = RunAs;
+				const auto IsItExecutable = IsExecutable(strFileName);
 
-				Info.Command = ConvertNameToFull(Info.Command);
-				QuoteSpace(Info.Command);
+				if (!IsItExecutable && !SeparateWindow && (OpenedPlugin = OpenFilePlugin(strFileName, TRUE, Type)) != nullptr)
+					return;
 
-				Parent()->GetCmdLine()->ExecString(Info);
+				if (IsItExecutable || SeparateWindow || Global->Opt->UseRegisteredTypes)
+				{
+					execute_info Info;
+					Info.Command = strFileName;
+					Info.WaitMode = PluginMode? execute_info::wait_mode::wait_finish : execute_info::wait_mode::no_wait;
+					Info.NewWindow = SeparateWindow;
+					Info.SourceMode = execute_info::source_mode::known;
+					Info.RunAs = RunAs;
 
-				const auto ExclusionFlag = IsItExecutable? EXCLUDECMDHISTORY_NOTPANEL : EXCLUDECMDHISTORY_NOTWINASS;
-				if (!(Global->Opt->ExcludeCmdHistory & ExclusionFlag) && !PluginMode)
-					Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+					Info.Command = ConvertNameToFull(Info.Command);
+					QuoteSpace(Info.Command);
+
+					Parent()->GetCmdLine()->ExecString(Info);
+
+					const auto ExclusionFlag = IsItExecutable? EXCLUDECMDHISTORY_NOTPANEL : EXCLUDECMDHISTORY_NOTWINASS;
+					if (!(Global->Opt->ExcludeCmdHistory & ExclusionFlag) && !PluginMode)
+						Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+				}
 			}
 		}
 		else
