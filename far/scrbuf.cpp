@@ -626,6 +626,8 @@ void ScreenBuf::Scroll(size_t Count)
 		size_t size = RawBuf.size();
 		RawBuf.erase(RawBuf.begin(), RawBuf.begin() + Count * Buf.width());
 		RawBuf.resize(size, Fill);
+
+		SBFlags.Clear(SBFLAGS_FLUSHED);
 	}
 
 #ifdef DIRECT_SCREEN_OUT
