@@ -132,7 +132,6 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.CreationTime=fi.CreationTime;
 	pi.LastAccessTime=fi.AccessTime;
 	pi.ChangeTime=fi.ChangeTime;
-	pi.NumberOfLinks = fi.NumberOfLinks(FileListPtr);
 	pi.Flags=fi.UserFlags;
 
 	if (fi.Selected)
@@ -148,9 +147,11 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.CRC32=fi.CRC32;
 	pi.Position=fi.Position;                        //! CHANGED
 	pi.SortGroup=fi.SortGroup - DEFAULT_SORT_GROUP; //! CHANGED
-	pi.Owner = EmptyToNull(fi.Owner(FileListPtr).data());
-	pi.NumberOfStreams=fi.NumberOfStreams(FileListPtr);
-	pi.StreamsSize=fi.StreamsSize(FileListPtr);
+
+	pi.NumberOfLinks = fi.IsNumberOfLinksRead() || FileListPtr->IsColumnDisplayed(NUMLINK_COLUMN)?fi.NumberOfLinks(FileListPtr) : 0;
+	pi.Owner = EmptyToNull(fi.IsOwnerRead() || FileListPtr->IsColumnDisplayed(OWNER_COLUMN)? fi.Owner(FileListPtr).data() : L"");
+	pi.NumberOfStreams = fi.IsNumberOfStreamsRead() || FileListPtr->IsColumnDisplayed(NUMSTREAMS_COLUMN)? fi.NumberOfStreams(FileListPtr) : 0;
+	pi.StreamsSize = fi.IsStreamsSizeRead() || FileListPtr->IsColumnDisplayed(STREAMSSIZE_COLUMN)? fi.StreamsSize(FileListPtr) : 0;
 }
 
 struct CustomSort
