@@ -2599,6 +2599,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			Global->WindowManager->RefreshWindow(shared_from_this());
 			Global->WindowManager->PluginCommit();
+			Global->ScrBuf->Flush();
 			return TRUE;
 		}
 		/*

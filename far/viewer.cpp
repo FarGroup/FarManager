@@ -4321,6 +4321,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		{
 			Global->WindowManager->RefreshWindow(GetOwner());
 			Global->WindowManager->PluginCommit();
+			Global->ScrBuf->Flush();
 			return TRUE;
 		}
 		// Param2=0
