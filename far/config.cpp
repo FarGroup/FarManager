@@ -1781,7 +1781,7 @@ void Options::InitConfigData()
 		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"DetailedJunction", OPT_DEF(PanelDetailedJunction, false)},
 		{FSSF_PRIVATE,       NKeyPanelLayout,L"DoubleGlobalColumnSeparator", OPT_DEF(DoubleGlobalColumnSeparator, false)},
 		{FSSF_PRIVATE,       NKeyPanelLayout,L"FreeInfo", OPT_DEF(ShowPanelFree, false)},
-		{FSSF_PRIVATE,       NKeyPanelLayout,L"ScreensNumber", OPT_DEF(ShowScreensNumber, true)},
+		{FSSF_PRIVATE,       NKeyPanelLayout,L"ScreensNumber", OPT_DEF(ShowScreensNumber, 1)},
 		{FSSF_PRIVATE,       NKeyPanelLayout,L"Scrollbar", OPT_DEF(ShowPanelScrollbar, false)},
 		{FSSF_PRIVATE,       NKeyPanelLayout,L"ScrollbarMenu", OPT_DEF(ShowMenuScrollbar, true)},
 		{FSSF_PRIVATE,       NKeyPanelLayout,L"ShowUnknownReparsePoint", OPT_DEF(ShowUnknownReparsePoint, false)},

@@ -698,7 +698,7 @@ public:
 
 	BoolOption ShowPanelScrollbar;
 	BoolOption ShowMenuScrollbar;
-	BoolOption ShowScreensNumber;
+	Bool3Option ShowScreensNumber;
 	BoolOption ShowSortMode;
 	BoolOption ShowMenuBar;
 	StringOption FormatNumberSeparators;

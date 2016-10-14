@@ -784,7 +784,7 @@ void Panel::ShowScreensCount() const
 	{
 		int Viewers = Global->WindowManager->GetWindowCountByType(windowtype_viewer);
 		int Editors = Global->WindowManager->GetWindowCountByType(windowtype_editor);
-		int Dialogs = Global->WindowManager->GetWindowCountByType(windowtype_dialog);
+		int Dialogs = Global->Opt->ShowScreensNumber > 1 ? Global->WindowManager->GetWindowCountByType(windowtype_dialog) : 0;
 
 		if (Viewers>0 || Editors>0 || Dialogs > 0)
 		{
