@@ -124,7 +124,7 @@ void FlushInputBuffer();
 void SetVideoMode();
 void ChangeVideoMode(bool Maximize);
 void ChangeVideoMode(int NumLines,int NumColumns);
-void GetVideoMode(COORD& Size);
+void UpdateScreenSize();
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx=-1, int Sy=-1);
 void SaveConsoleWindowRect();
 void RestoreConsoleWindowRect();

@@ -639,12 +639,7 @@ static DWORD ProcessBufferSizeEvent(COORD Size)
 	int PScrX = ScrX;
 	int PScrY = ScrY;
 
-	GetVideoMode(CurSize);
-	const auto Ignore = !Global->Opt->WindowMode || (Size.X == CurSize.X && Size.Y == CurSize.Y);
-	if (PScrX + 1 == CurSize.X && PScrY + 1 == CurSize.Y && Ignore)
-	{
-		return KEY_NONE;
-	}
+	UpdateScreenSize();
 
 	PrevScrX = PScrX;
 	PrevScrY = PScrY;
@@ -1708,7 +1703,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 				break;
 			}
 			case WINDOW_BUFFER_SIZE_EVENT:
-				GetVideoMode(Rec->Event.WindowBufferSizeEvent.dwSize);
+				UpdateScreenSize();
 				break;
 			case MENU_EVENT:
 				Rec->Event.MenuEvent.dwCommandId=0;

@@ -745,7 +745,7 @@ int Manager::ProcessKey(Key key)
 						int PScrX=ScrX;
 						int PScrY=ScrY;
 						Sleep(1);
-						GetVideoMode(CurSize);
+						UpdateScreenSize();
 
 						if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y)
 						{

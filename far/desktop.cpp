@@ -55,7 +55,7 @@ desktop_ptr desktop::create()
 
 void desktop::ResizeConsole()
 {
-	m_Background->Resize(ScrX + 1, ScrY + 1, 2, Global->Opt->WindowMode != FALSE);
+	m_Background->Resize(ScrX + 1, ScrY + 1, Global->Opt->WindowMode != 0);
 	SetPosition(0, 0, ScrX, ScrY);
 }
 

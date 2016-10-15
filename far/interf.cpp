@@ -343,7 +343,7 @@ void InitConsole(int FirstInit)
 			ChangeVideoMode(true);
 	}
 
-	GetVideoMode(CurSize);
+	UpdateScreenSize();
 	Global->ScrBuf->FillBuf();
 
 	ConsoleIcons().setFarIcons();
@@ -457,7 +457,7 @@ void SetVideoMode()
 		if (IsWindows10OrGreater() && Console().GetDisplayMode(dmode) && (dmode & CONSOLE_FULLSCREEN) != 0)
 			return; // ignore Alt-F9 in Win10 full-screen mode
 
-		ChangeVideoMode(InitSize.X==CurSize.X && InitSize.Y==CurSize.Y);
+		ChangeVideoMode(!IsZoomed(Console().GetWindow()));
 	}
 	else
 	{
@@ -479,7 +479,7 @@ void ChangeVideoMode(bool Maximize)
 	else
 	{
 		SendMessage(Console().GetWindow(),WM_SYSCOMMAND,SC_RESTORE,0);
-		coordScreen = InitSize;
+		Console().GetSize(coordScreen);
 	}
 
 	ChangeVideoMode(coordScreen.Y,coordScreen.X);
@@ -528,6 +528,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 		Console().SetSize(coordScreen);
 	}
 
+	UpdateScreenSize();
 	GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
 }
 
@@ -554,25 +555,26 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
 	Console().WriteInput(&Rec,1,Writes);
 }
 
-void GetVideoMode(COORD& Size)
+void UpdateScreenSize()
 {
+	COORD NewSize;
+	if (!Console().GetSize(NewSize))
+		return;
+
 	//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
 	SaveConsoleWindowRect();
-	Size.X=0;
-	Size.Y=0;
-	Console().GetSize(Size);
-	ScrX=Size.X-1;
-	ScrY=Size.Y-1;
-	assert(ScrX>0);
-	assert(ScrY>0);
 
-	if (PrevScrX == -1) PrevScrX=ScrX;
+	CurSize = NewSize;
+	ScrX = NewSize.X - 1;
+	ScrY = NewSize.Y - 1;
 
-	if (PrevScrY == -1) PrevScrY=ScrY;
+	if (PrevScrX == -1)
+		PrevScrX = ScrX;
 
-	_OT(SysLog(L"ScrX=%d ScrY=%d",ScrX,ScrY));
-	Global->ScrBuf->AllocBuf(Size.Y, Size.X);
-	_OT(ViewConsoleInfo());
+	if (PrevScrY == -1)
+		PrevScrY = ScrY;
+
+	Global->ScrBuf->AllocBuf(NewSize.Y, NewSize.X);
 }
 
 void ShowTime()

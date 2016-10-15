@@ -127,101 +127,75 @@ void SaveScreen::AppendArea(const SaveScreen *NewArea)
 					ScreenBuf.vector()[Offset(this, X, Y)] = NewArea->ScreenBuf.vector()[Offset(NewArea, X, Y)];
 }
 
-void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
-//  Corner definition:
-//  0 --- 1
-//  |     |
-//  2 --- 3
+void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsole)
 {
-	const auto OWi = width();
-	const auto OHe = height();
-	int iY = 0;
+	const auto OriginalWidth = width();
+	const auto OriginalHeight = height();
 
-	if (OWi==NewX && OHe==NewY)
+	if (OriginalWidth == DesiredWidth && OriginalHeight == DesiredHeight)
 	{
 		return;
 	}
 
-	int NX1 = 0, NX2 = 0, NY1 = 0, NY2 = 0;
-	matrix<FAR_CHAR_INFO> NewBuf(NewY, NewX);
+	matrix<FAR_CHAR_INFO> NewBuf(DesiredHeight, DesiredWidth);
 	CleanupBuffer(NewBuf.data(), NewBuf.size());
-	const auto NewWidth = std::min(OWi, NewX);
-	const auto NewHeight = std::min(OHe, NewY);
-	int iYReal;
-	int ToIndex=0;
-	int FromIndex=0;
 
-	if (Corner & 2)
+	const auto NewX1 = m_X1;
+	const auto NewX2 = m_X1 + DesiredWidth - 1;
+	const auto NewY1 = m_Y1;
+	const auto NewY2 = m_Y1 + DesiredHeight - 1;
+
+	const auto DeltaY = abs(DesiredHeight - OriginalHeight);
+	const size_t CopyWidth = std::min(OriginalWidth, DesiredWidth);
+	const size_t CopyHeight = std::min(OriginalHeight, DesiredHeight);
+
+	if (DesiredHeight > OriginalHeight)
 	{
-		NY2 = m_Y1 + NewY - 1; NY1 = NY2 - NewY + 1;
+		for (size_t i = 0; i != CopyHeight; ++i)
+		{
+			const auto FromIndex = i * OriginalWidth;
+			const auto ToIndex = (i + DeltaY) * DesiredWidth;
+			std::copy_n(ScreenBuf.data() + FromIndex, CopyWidth, NewBuf.data() + ToIndex);
+		}
 	}
 	else
 	{
-		NY1 = m_Y1; NY2 = NY1 + NewY - 1;
-	}
-
-	if (Corner & 1)
-	{
-		NX2 = m_X1 + NewX - 1; NX1 = NX2 - NewX + 1;
-	}
-	else
-	{
-		NX1 = m_X1; NX2 = NX1 + NewX - 1;
-	}
-
-	for (iY=0; iY<NewHeight; iY++)
-	{
-		if (Corner & 2)
+		for (size_t i = 0; i != CopyHeight; ++i)
 		{
-			if (OHe>NewY)
-			{
-				iYReal=OHe-NewY+iY;
-				FromIndex=iYReal*OWi;
-				ToIndex=iY*NewX;
-			}
-			else
-			{
-				iYReal=NewY-OHe+iY;
-				ToIndex=iYReal*NewX;
-				FromIndex=iY*OWi;
-			}
+			const auto FromIndex = (i + DeltaY) * OriginalWidth;
+			const auto ToIndex = i * DesiredWidth;
+			std::copy_n(ScreenBuf.data() + FromIndex, CopyWidth, NewBuf.data() + ToIndex);
 		}
-
-		if (Corner & 1)
-		{
-			if (OWi>NewX)
-			{
-				FromIndex+=OWi-NewX;
-			}
-			else
-			{
-				ToIndex+=NewX-OWi;
-			}
-		}
-
-		std::copy_n(ScreenBuf.data() + FromIndex, NewWidth, NewBuf.data() + ToIndex);
 	}
 
 	// achtung, experimental
-	if((Corner&2) && SyncWithConsole)
+	if (SyncWithConsole)
 	{
+		std::pair<SMALL_RECT, bool> WindowRect;
+		WindowRect.second = Console().GetWindowRect(WindowRect.first);
+		const auto IsExtraTop = WindowRect.second && !(WindowRect.first.Top == 0 && WindowRect.first.Bottom == ScrY);
+		const auto IsExtraRight = WindowRect.second && !(WindowRect.first.Left == 0 && WindowRect.first.Right == ScrX);
+
 		Console().ResetPosition();
-		if(NewY!=OHe)
+		if (DesiredHeight != OriginalHeight)
 		{
-			matrix<FAR_CHAR_INFO> Tmp(abs(OHe - NewY), std::max(NewX, OWi));
-			if(NewY>OHe)
+			matrix<FAR_CHAR_INFO> Tmp(abs(OriginalHeight - DesiredHeight), std::max(DesiredWidth, OriginalWidth));
+			if (DesiredHeight > OriginalHeight)
 			{
-				SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(NewX-1), static_cast<SHORT>(NewY-OHe-1)};
-				Console().ReadOutput(Tmp, ReadRegion);
-				for(size_t i = 0; i != Tmp.height(); ++i)
+				if (IsExtraTop)
 				{
-					std::copy_n(Tmp[i].data(), Tmp.width(), NewBuf[i].data());
+					SMALL_RECT ReadRegion = { 0, 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - OriginalHeight - 1) };
+					Console().ReadOutput(Tmp, ReadRegion);
+					for (size_t i = 0; i != Tmp.height(); ++i)
+					{
+						std::copy_n(Tmp[i].data(), Tmp.width(), NewBuf[i].data());
+					}
 				}
 			}
 			else
 			{
-				SMALL_RECT WriteRegion={0, static_cast<SHORT>(NewY-OHe), static_cast<SHORT>(NewX-1), -1};
-				for(size_t i = 0; i != Tmp.height(); ++i)
+				SMALL_RECT WriteRegion = { 0, static_cast<SHORT>(DesiredHeight - OriginalHeight), static_cast<SHORT>(DesiredWidth - 1), -1 };
+				for (size_t i = 0; i != Tmp.height(); ++i)
 				{
 					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
 				}
@@ -230,25 +204,28 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			}
 		}
 
-		if(NewX!=OWi)
+		if (DesiredWidth != OriginalWidth)
 		{
-			matrix<FAR_CHAR_INFO> Tmp(std::max(NewY, OHe), abs(NewX - OWi));
-			if(NewX>OWi)
+			matrix<FAR_CHAR_INFO> Tmp(std::max(DesiredHeight, OriginalHeight), abs(DesiredWidth - OriginalWidth));
+			if (DesiredWidth > OriginalWidth)
 			{
-				SMALL_RECT ReadRegion={static_cast<SHORT>(OWi), 0, static_cast<SHORT>(NewX-1), static_cast<SHORT>(NewY-1)};
-				Console().ReadOutput(Tmp, ReadRegion);
-				for(size_t i = 0; i != NewBuf.height(); ++i)
+				if (IsExtraRight)
 				{
-					std::copy_n(Tmp[i].data(), Tmp.width(), &NewBuf[i][OWi]);
+					SMALL_RECT ReadRegion = { static_cast<SHORT>(OriginalWidth), 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
+					Console().ReadOutput(Tmp, ReadRegion);
+					for (size_t i = 0; i != NewBuf.height(); ++i)
+					{
+						std::copy_n(Tmp[i].data(), Tmp.width(), &NewBuf[i][OriginalWidth]);
+					}
 				}
 			}
 			else
 			{
-				SMALL_RECT WriteRegion={static_cast<SHORT>(NewX), static_cast<SHORT>(NewY-OHe), static_cast<SHORT>(OWi-1), static_cast<SHORT>(NewY-1)};
-				for(size_t i = 0; i != Tmp.height(); ++i)
+				SMALL_RECT WriteRegion = { static_cast<SHORT>(DesiredWidth), static_cast<SHORT>(DesiredHeight - OriginalHeight), static_cast<SHORT>(OriginalWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
+				for (size_t i = 0; i != Tmp.height(); ++i)
 				{
-					if (static_cast<int>(i) < OHe)
-						std::copy_n(&ScreenBuf[i][NewX], Tmp.width(), Tmp[i].data());
+					if (static_cast<int>(i) < OriginalHeight)
+						std::copy_n(&ScreenBuf[i][DesiredWidth], Tmp.width(), Tmp[i].data());
 					else
 						CleanupBuffer(Tmp[i].data(), Tmp.width());
 				}
@@ -260,7 +237,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 
 	using std::swap;
 	swap(ScreenBuf, NewBuf);
-	m_X1 = NX1; m_Y1 = NY1; m_X2 = NX2; m_Y2 = NY2;
+	m_X1 = NewX1; m_Y1 = NewY1; m_X2 = NewX2; m_Y2 = NewY2;
 }
 
 void SaveScreen::DumpBuffer(const wchar_t *Title)

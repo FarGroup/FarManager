@@ -133,11 +133,7 @@ virtual bool SetSize(COORD Size) const override
 		}
 	}
 
-	if (!SetWindowRect(csbi.srWindow))
-		return false;
-
-	csbi.dwSize.X = Size.X;
-	return SetConsoleScreenBufferSize(GetOutputHandle(), csbi.dwSize) != FALSE;
+	return SetWindowRect(csbi.srWindow);
 }
 
 virtual bool GetWindowRect(SMALL_RECT& ConsoleWindow) const override
