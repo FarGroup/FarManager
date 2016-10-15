@@ -163,6 +163,7 @@ private:
 	void ReplaceCommit(const window_ptr& Old, const window_ptr& New);
 	void ModalDesktopCommit(const window_ptr& Param);
 	void UnModalDesktopCommit(const window_ptr& Param);
+	void RefreshAllCommit();
 	int GetModalExitCode() const;
 
 	using window_callback = void (Manager::*)(const window_ptr&);

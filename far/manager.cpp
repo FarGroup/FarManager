@@ -252,11 +252,7 @@ BOOL Manager::ExitAll()
 
 void Manager::RefreshAll()
 {
-	if (!m_windows.empty())
-	{
-		const auto PtrCopy = m_windows.front();
-		RefreshWindow(PtrCopy);
-	}
+	m_Queue.emplace([=]{ RefreshAllCommit(); });
 }
 
 void Manager::CloseAll()
@@ -1031,7 +1027,7 @@ void Manager::DoActivation(const window_ptr& Old, const window_ptr& New)
 	DeactivateCommit(Old);
 	CurrentWindowType = GetCurrentWindow()->GetType();
 	UpdateMacroArea();
-	RefreshAll();
+	RefreshAllCommit();
 	New->OnChangeFocus(true);
 }
 
@@ -1132,6 +1128,15 @@ void Manager::UnModalDesktopCommit(const window_ptr& Param)
 		}
 	}
 	RefreshAll();
+}
+
+void Manager::RefreshAllCommit()
+{
+	if (!m_windows.empty())
+	{
+		const auto PtrCopy = m_windows.front();
+		RefreshCommit(PtrCopy);
+	}
 }
 
 bool Manager::AddWindow(const window_ptr& Param)
