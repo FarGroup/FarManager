@@ -3,6 +3,54 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.10.2016 14:32:31 +0200 - build 4826
+
+1. Forum: sometimes decreasing the console size caused garbage in the inner buffer.
+
+2. Other related issues. Write if something has been broken.
+
+zg 15.10.2016 03:59:22 +0200 - build 4825
+
+1. correction of 4808.1.
+
+2. ACTL_REDRAWALL could leave some windows not redrawn.
+
+w17 14.10.2016 20:34:39 +0300 - build 4824
+
+1. Usual behavior showing the number of background windows.
+   Panel.ScreenNumber is now 3-state, = 1 by default.
+   The number of dialogs is shown for state 2 only.
+
+zg 13.10.2016 17:16:58 +0200 - build 4823
+
+1. 0003327: ECTL_REDRAW does not redraw during processing.
+
+drkns 13.10.2016 09:33:05 +0200 - build 4822
+
+1. Correction of 4603. Pass the enumerated to custom sorting only if it has already been read or it will be read.
+
+drkns 12.10.2016 23:24:37 +0200 - build 4821
+
+1. 0003304: Console output from a plugin is duplicated beyond the window
+
+zg 11.10.2016 18:16:57 +0200 - build 4820
+
+1. correction of 4818: pressing enter on multiarc panel would ask for unpacking.
+
+2. correction of 4818: same behavior for launching built-in associations on enter key press.
+
+drkns 10.10.2016 23:09:35 +0200 - build 4819
+
+1. Shorten copy-paste a bit in file modification time check.
+
+zg 10.10.2016 16:33:04 +0200 - build 4818
+
+1. 0003325: Detect external file editing and post back to plugin.
+
+drkns 10.10.2016 02:27:15 +0200 - build 4817
+
+1. Correction of 4816.
+
 drkns 09.10.2016 21:48:44 +0200 - build 4816
 
 1. Refactoring.
