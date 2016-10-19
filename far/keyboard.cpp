@@ -628,6 +628,11 @@ static DWORD ProcessFocusEvent(bool Got)
 
 static DWORD ProcessBufferSizeEvent(COORD Size)
 {
+	if (!IsZoomed(Console().GetWindow()))
+	{
+		SaveNonMaximisedBufferSize(Size);
+	}
+
 	// BUGBUG If initial mode was fullscreen - first transition will not be detected
 	static auto StoredConsoleFullscreen = false;
 
@@ -986,7 +991,9 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	if (rec->EventType==WINDOW_BUFFER_SIZE_EVENT || IsConsoleSizeChanged())
 	{
-		return ProcessBufferSizeEvent(rec->Event.WindowBufferSizeEvent.dwSize);
+		// Do not use rec->Event.WindowBufferSizeEvent.dwSize here - we need a 'virtual' size
+		COORD Size;
+		return Console().GetSize(Size)? ProcessBufferSizeEvent(Size) : KEY_CONSOLE_BUFFER_RESIZE;
 	}
 
 	if (rec->EventType==KEY_EVENT)

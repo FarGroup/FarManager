@@ -203,6 +203,9 @@ void RemoveHighlights(string& Str);
 bool IsConsoleFullscreen();
 bool IsConsoleSizeChanged();
 
+void SaveNonMaximisedBufferSize(const COORD& Size);
+COORD GetNonMaximisedBufferSize();
+
 void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen);
 
 class consoleicons:noncopyable

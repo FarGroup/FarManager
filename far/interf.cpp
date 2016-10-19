@@ -340,7 +340,17 @@ void InitConsole(int FirstInit)
 			}
 		}
 		if (IsZoomed(Console().GetWindow()))
+		{
 			ChangeVideoMode(true);
+		}
+		else
+		{
+			COORD CurrentSize;
+			if (Console().GetSize(CurrentSize))
+			{
+				SaveNonMaximisedBufferSize(CurrentSize);
+			}
+		}
 	}
 
 	UpdateScreenSize();
@@ -479,7 +489,13 @@ void ChangeVideoMode(bool Maximize)
 	else
 	{
 		SendMessage(Console().GetWindow(),WM_SYSCOMMAND,SC_RESTORE,0);
-		Console().GetSize(coordScreen);
+		auto LastSize = GetNonMaximisedBufferSize();
+		if (!LastSize.X && !LastSize.Y)
+		{
+			// Not initialised yet - could happen if initial window state was maximiseds
+			Console().GetSize(LastSize);
+		}
+		coordScreen = LastSize;
 	}
 
 	ChangeVideoMode(coordScreen.Y,coordScreen.X);
@@ -1325,7 +1341,7 @@ void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
 	if (TransitionFromFullScreen)
 	{
 		// Exiting fullscreen in Windows 10 is broken:
-		// They try to fit the window with scrollbars into old size (witout scrollbars),
+		// They try to fit the window with scrollbars into the old size (without scrollbars),
 		// thus reducing the window dimensions by (scrollbar_size / console_character_size).
 		// This doesn't happen with regular maximize/restore though.
 		// Windows gets better and better every day.
@@ -1350,4 +1366,25 @@ void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)
 	}
 
 	SetConsoleScreenBufferSize(Console().GetOutputHandle(), Size);
+}
+
+static COORD& NonMaximisedBufferSize()
+{
+	static COORD s_Size;
+	return s_Size;
+}
+
+void SaveNonMaximisedBufferSize(const COORD& Size)
+{
+	// We can't trust the size that windows sets automatically after restoring the window -
+	// it could be less than previous because of horizontal scrollbar
+
+	// TODO: this might also fix the issue with exiting from the fullscreen mode on Windows 10,
+	// need to check and remove corresponding workarounds if it works
+	NonMaximisedBufferSize() = Size;
+}
+
+COORD GetNonMaximisedBufferSize()
+{
+	return NonMaximisedBufferSize();
 }
