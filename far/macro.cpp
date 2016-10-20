@@ -190,6 +190,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_SETCUSTOMSORTMODE=0x%X // Установить пользовательский режим сортировки\n", MCODE_F_SETCUSTOMSORTMODE);
 	fprintf(fp, "MCODE_F_KEYMACRO=0x%X // Набор простых операций\n", MCODE_F_KEYMACRO);
 	fprintf(fp, "MCODE_F_FAR_GETCONFIG=0x%X // V=Far.GetConfig(Key,Name)\n", MCODE_F_FAR_GETCONFIG);
+	fprintf(fp, "MCODE_F_MACROSETTINGS=0x%X // Диалог редактирования макроса\n", MCODE_F_MACROSETTINGS);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -2296,6 +2297,25 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						break;
 				}
 			}
+			break;
+
+		case MCODE_F_MACROSETTINGS:
+			if (Data->Count>=4 && Data->Values[0].Type==FMVT_STRING && Data->Values[1].Type==FMVT_DOUBLE
+				&& Data->Values[2].Type==FMVT_STRING && Data->Values[3].Type==FMVT_STRING)
+			{
+				int Key = KeyNameToKey(Data->Values[0].String);
+				UINT64 Flags = (UINT64)Data->Values[1].Double;
+				const wchar_t *Src = Data->Values[2].String;
+				const wchar_t *Descr = Data->Values[3].String;
+				if (GetMacroSettings(Key, Flags, Src, Descr))
+				{
+					PassNumber((double)Flags, Data);
+					PassString(m_RecCode, Data);
+					PassString(m_RecDescription, Data);
+					return 0;
+				}
+			}
+			PassBoolean(false, Data);
 			break;
 
 		case MCODE_F_BM_ADD:              // N=BM.Add()

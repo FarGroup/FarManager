@@ -1,4 +1,9 @@
-﻿zg 06.10.2016 21:01:03 +0200 - build 589
+﻿shmuel 20.10.2016 19:36:54 +0200 - build 590
+
+1. M#3275: Allow plugins to load and edit unsaved macro
+   Макробраузер при нажатии F4/AltF4 на несохранённом клавиатурном макросе вызывает фаровский диалог "Macro settings".
+
+zg 06.10.2016 21:01:03 +0200 - build 589
 
 1. LuaFAR: far.CreateUserControl().rawhandle возвращает адрес буфера в виде light userdata.
 

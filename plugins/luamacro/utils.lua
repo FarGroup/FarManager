@@ -49,6 +49,7 @@ local function GetAreaCode(Area)     return AllAreaNames[Area:lower()] end
 
 local MCODE_F_CHECKALL     = 0x80C64
 local MCODE_F_GETOPTIONS   = 0x80C65
+local MCODE_F_MACROSETTINGS = 0x80C6A
 Shared.OnlyEditorViewerUsed = band(MacroCallFar(MCODE_F_GETOPTIONS),0x3) ~= 0
 
 local Areas
@@ -1117,10 +1118,21 @@ local function GetMacroCopy (index)
   return nil
 end
 
+local function EditUnsavedMacro (index)
+  local m = LoadedMacros[index]
+  if m and m.code then
+    local flags, code, descr = MacroCallFar(MCODE_F_MACROSETTINGS, m.key, m.flags, m.code, m.description or "")
+    if flags then
+      m.flags, m.code, m.description = flags, code, descr
+    end
+  end
+end
+
 return {
   AddMacroFromFAR = AddMacroFromFAR,
   CheckFileName = CheckFileName,
   DelMacro = DelMacro,
+  EditUnsavedMacro = EditUnsavedMacro,
   EnumMacros = EnumMacros,
   FixInitialModules = FixInitialModules,
   FlagsToString = FlagsToString,

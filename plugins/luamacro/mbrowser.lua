@@ -43,6 +43,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
   for k=1,math.huge do
     local m = utils.GetMacroCopy(k)
     if not m then break end
+    m.LoadedMacrosIndex = k
     if m.area then
       if not m.disabled then
         local ars,s = {},""
@@ -280,7 +281,9 @@ local function MenuLoop()
           end
         end
       else
-        Message(Msg.MBNoFileNameAvail)
+        if m.code then utils.EditUnsavedMacro(m.LoadedMacrosIndex)
+        else mf.postmacro(mf.acall, Message, Msg.MBNoFileNameAvail)
+        end
       end
     ----------------------------------------------------------------------------
     elseif BrKey=="C+PRIOR" and items[pos] then -- CtrlPgUp - locate the file in active panel
