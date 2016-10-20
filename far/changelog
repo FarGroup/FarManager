@@ -1,3 +1,9 @@
+drkns 21.10.2016 00:55:50 +0200 - build 4830
+
+1. Coverity warnings.
+
+2. Пара мелочей.
+
 shmuel 20.10.2016 19:36:54 +0200 - build 4829
 
 1. M#3275: Allow plugins to load and edit unsaved macro

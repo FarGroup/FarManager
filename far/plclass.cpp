@@ -1226,11 +1226,11 @@ public:
 
 	~custom_plugin_factory()
 	{
-		if (m_Success)
-		{
-			ExitInfo Info = { sizeof(Info) };
-			m_Imports.pFree(&Info);
-		}
+		if (!m_Success)
+			return;
+
+		ExitInfo Info = { sizeof(Info) };
+		m_Imports.pFree(&Info);
 	}
 
 	bool Success() const { return m_Success; }
@@ -1303,5 +1303,5 @@ plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string&
 	{
 		Model.reset();
 	}
-	return std::move(Model);
+	return Model;
 }

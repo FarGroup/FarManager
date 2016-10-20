@@ -1102,23 +1102,24 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 	return 0;
 }
 
-class change_times: public rel_ops<change_times>
+class file_state: public rel_ops<file_state>
 {
 public:
 	static auto get(const string& Filename)
 	{
-		change_times Times;
-		Times.IsValid = os::GetFileTimeSimple(Filename, nullptr, nullptr, &Times.Times.first, &Times.Times.second);
-		return Times;
+		file_state State;
+		State.IsValid = os::GetFileTimeSimple(Filename, nullptr, nullptr, &State.Times.first, &State.Times.second);
+		return State;
 	}
 
-	bool operator==(const change_times& rhs) const
+	bool operator==(const file_state& rhs) const
 	{
 		// Invalid times are considered different
 		return IsValid && rhs.IsValid && Times == rhs.Times;
 	}
 
 private:
+	// TODO: Check the file size too?
 	std::pair<FILETIME, FILETIME> Times;
 	bool IsValid{};
 };
@@ -1907,12 +1908,12 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						/* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
 						BOOL Processed=FALSE;
 
-						const auto SavedTimes = change_times::get(strFileName);
+						const auto SavedState = file_state::get(strFileName);
 						if (LocalKey == KEY_ALTF4 || LocalKey == KEY_RALTF4 || LocalKey == KEY_F4)
 						{
 							if (ProcessLocalFileTypes(strFileName, strShortFileName, (LocalKey == KEY_F4)?FILETYPE_EDIT:FILETYPE_ALTEDIT, PluginMode))
 							{
-								UploadFile = change_times::get(strFileName) != SavedTimes;
+								UploadFile = file_state::get(strFileName) != SavedState;
 								Processed = TRUE;
 							}
 						}
@@ -1922,7 +1923,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							if (EnableExternal)
 							{
 								ProcessExternal(Global->Opt->strExternalEditor, strFileName, strShortFileName, PluginMode);
-								UploadFile = change_times::get(strFileName) != SavedTimes;
+								UploadFile = file_state::get(strFileName) != SavedState;
 							}
 							else if (PluginMode)
 							{
@@ -2632,7 +2633,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		plugin_panel* OpenedPlugin = nullptr;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
 		SCOPE_EXIT{ if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP)) DeleteFileWithFolder(strFileName); };
-		change_times SavedTimes;
+		file_state SavedState;
 
 		if (PluginMode)
 		{
@@ -2648,7 +2649,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				return;
 
 			strShortFileName = ConvertNameToShort(strFileName);
-			SavedTimes = change_times::get(strFileName);
+			SavedState = file_state::get(strFileName);
 		}
 
 
@@ -2696,7 +2697,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 		if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP))
 		{
-			if (change_times::get(strFileName) != SavedTimes)
+			if (file_state::get(strFileName) != SavedState)
 			{
 				PluginPanelItemHolder PanelItem;
 				if (FileNameToPluginItem(strFileName, PanelItem))

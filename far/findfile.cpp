@@ -969,15 +969,15 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& Fin
 
 
 // Алгоритма Бойера-Мура-Хорспула поиска подстроки
-template<class T, class Pred>
-int background_searcher::FindStringBMH(const T* searchBuffer, size_t searchBufferCount, size_t findStringCount, Pred p) const
+template<typename char_type, typename predicate>
+static int FindStringBMH_Impl(const char_type* searchBuffer, size_t searchBufferCount, size_t findStringCount, const std::vector<size_t>& skipCharsTable, predicate Predicate)
 {
 	auto buffer = searchBuffer;
 	const auto lastBufferChar = findStringCount - 1;
 
 	while (searchBufferCount >= findStringCount)
 	{
-		for (auto index = lastBufferChar; p(buffer, index); index--)
+		for (auto index = lastBufferChar; Predicate(buffer, index); --index)
 			if (!index)
 				return static_cast<int>(buffer - searchBuffer);
 
@@ -991,18 +991,18 @@ int background_searcher::FindStringBMH(const T* searchBuffer, size_t searchBuffe
 
 int background_searcher::FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const
 {
-	size_t findStringCount = strFindStr.size();
-	const wchar_t *findStringLower = CmpCase? nullptr : findString + findStringCount;
+	const auto findStringCount = strFindStr.size();
+	const auto findStringLower = CmpCase? nullptr : findString + findStringCount;
 
-	return FindStringBMH(searchBuffer, searchBufferCount, findStringCount, [&](const wchar_t* Buffer, size_t index)
+	return FindStringBMH_Impl(searchBuffer, searchBufferCount, findStringCount, skipCharsTable, [&](const wchar_t* Buffer, size_t index)
 	{
-		return Buffer[index] == findString[index] || (CmpCase ? 0 : Buffer[index] == findStringLower[index]);
+		return Buffer[index] == findString[index] || (findStringLower && Buffer[index] == findStringLower[index]);
 	});
 }
 
 int background_searcher::FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const
 {
-	return FindStringBMH(searchBuffer, searchBufferCount, hexFindString.size(), [&](const unsigned char* Buffer, size_t index)
+	return FindStringBMH_Impl(searchBuffer, searchBufferCount, hexFindString.size(), skipCharsTable, [&](const unsigned char* Buffer, size_t index)
 	{
 		return Buffer[index] == hexFindString[index];
 	});

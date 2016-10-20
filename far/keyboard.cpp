@@ -537,7 +537,7 @@ DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
 
 static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 {
-	if (!Global->CtrlObject && Global->CtrlObject->Cp())
+	if (!Global->CtrlObject || !Global->CtrlObject->Cp())
 		return false;
 
 	Global->CtrlObject->Macro.RunStartMacro();
@@ -993,7 +993,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	{
 		// Do not use rec->Event.WindowBufferSizeEvent.dwSize here - we need a 'virtual' size
 		COORD Size;
-		return Console().GetSize(Size)? ProcessBufferSizeEvent(Size) : KEY_CONSOLE_BUFFER_RESIZE;
+		return Console().GetSize(Size)? ProcessBufferSizeEvent(Size) : static_cast<DWORD>(KEY_CONSOLE_BUFFER_RESIZE);
 	}
 
 	if (rec->EventType==KEY_EVENT)

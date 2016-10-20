@@ -177,7 +177,7 @@ bool FileFilter::FilterEdit()
 			ListItem.UserData = i.first;
 			FilterList->AddItem(ListItem);
 
-			h == L'9' ? h = L'A' : (h == L'Z' || h ? h++ : h = 0);
+			h == L'9' ? h = L'A' : ((h == L'Z' || !h)? h = 0 : ++h);
 		}
 	}
 

@@ -134,7 +134,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 		/* 5 */ L"<exec>",
 	};
 
-	static struct DefaultData
+	static struct
 	{
 		const wchar_t *Mask;
 		bool IgnoreMask;

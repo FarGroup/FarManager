@@ -155,8 +155,6 @@ private:
 	void InitInFileSearch();
 	void ReleaseInFileSearch();
 
-	template<class T, class Pred>
-	int FindStringBMH(const T* searchBuffer, size_t searchBufferCount, size_t findStringCount, Pred p) const;
 	int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
 	int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const;
 	bool LookForString(const string& Name);
