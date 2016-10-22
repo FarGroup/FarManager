@@ -1710,6 +1710,23 @@ static int far_Menu(lua_State *L)
 
 			if(!lua_isstring(L,-1)) { lua_pop(L,2); continue; }
 
+			// first try to use "Far key names" instead of "virtual key names"
+			if (utf8_to_utf16(L, -1, NULL))
+			{
+				INPUT_RECORD Rec;
+				if (pd->FSF->FarNameToInputRecord((const wchar_t*)lua_touserdata(L,-1), &Rec)
+					&& Rec.EventType == KEY_EVENT)
+				{
+					BreakKeys[ind].VirtualKeyCode = Rec.Event.KeyEvent.wVirtualKeyCode;
+					BreakKeys[ind].ControlKeyState = Rec.Event.KeyEvent.dwControlKeyState;
+					lua_pop(L, 2);
+					continue; // success
+				}
+				// restore the original string
+				lua_pop(L, 1);
+				lua_getfield(L, -1, "BreakKey");// vk=-4; bk=-3;bki=-2;bknm=-1;
+			}
+
 			// separate modifier and virtual key strings
 			s = lua_tostring(L,-1);
 

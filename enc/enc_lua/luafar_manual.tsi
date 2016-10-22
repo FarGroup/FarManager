@@ -2605,7 +2605,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3659167690
+mtime=3686327233
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2657,6 +2657,8 @@ mtime=3659167690
 #_    *AS*     - stands for AltShift
 #_    *+*      - separates key modifiers from key
 #_    *DELETE* - `virtual key` *VK_DELETE* (prefix *VK_* is removed).
+#_
+#_  Key names used in Far macros are also acceptable, e.g. **BreakKey="AltShiftDel"**
 #_
 #_**NOTE 3**
 #_  The first return value (*Item*) can be used by the program for performing
