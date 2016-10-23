@@ -3,6 +3,25 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.10.2016 00:55:50 +0200 - build 4830
+
+1. Coverity warnings.
+
+2. A couple of issues.
+
+shmuel 20.10.2016 19:36:54 +0200 - build 4829
+
+1. M#3275: Allow plugins to load and edit unsaved macro
+   Macro browser invokes FAR "Macro settings" dialog after F4/AltF4 on an unsaved keyboard macro.
+
+drkns 20.10.2016 01:41:37 +0200 - build 4828
+
+1. More on Maximise/Restore and Alt+F9.
+
+svs 17.10.2016 11:50:09 +0300 - build 4827
+
+1. SQLite 3.15.0
+
 drkns 15.10.2016 14:32:31 +0200 - build 4826
 
 1. Forum: sometimes decreasing the console size caused garbage in the inner buffer.
