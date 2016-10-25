@@ -1667,6 +1667,16 @@ static int far_Menu(lua_State *L)
 			pItem->AccelKey.VirtualKeyCode = GetOptIntFromTable(L, "VirtualKeyCode", 0);
 			pItem->AccelKey.ControlKeyState = GetOptIntFromTable(L, "ControlKeyState", 0);
 		}
+		else if (lua_tostring(L, -1) && utf8_to_utf16(L, -1, NULL)) // lua_tostring is used on purpose
+		{
+			INPUT_RECORD Rec;
+			if (pd->FSF->FarNameToInputRecord((const wchar_t*)lua_touserdata(L,-1), &Rec)
+				&& Rec.EventType == KEY_EVENT)
+			{
+				pItem->AccelKey.VirtualKeyCode = Rec.Event.KeyEvent.wVirtualKeyCode;
+				pItem->AccelKey.ControlKeyState = Rec.Event.KeyEvent.dwControlKeyState;
+			}
+		}
 
 		lua_pop(L, 1);
 	}
