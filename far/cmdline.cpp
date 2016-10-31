@@ -922,6 +922,9 @@ public:
 
 		if (SetTextColour)
 			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+
+		if (!m_Command.empty())
+			ConsoleTitle::SetFarTitle(m_Command);
 	}
 
 	void DoPrologue() override
@@ -1114,11 +1117,6 @@ void CommandLine::ExecString(execute_info& Info)
 			if (ProcessOSCommands(Info.Command, Activator))
 				return;
 		}
-	}
-
-	if (!Silent)
-	{
-		ConsoleTitle::SetFarTitle(Info.Command);
 	}
 
 	ExecutionContext->Activate();
