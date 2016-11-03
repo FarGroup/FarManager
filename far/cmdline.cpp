@@ -911,6 +911,9 @@ public:
 		Global->ScrBuf->MoveCursor(0, WhereY());
 		SetInitialCursorType();
 
+		if (!m_Command.empty())
+			ConsoleTitle::SetFarTitle(m_Command);
+
 		// BUGBUG, implement better & safer way to do this
 		const auto LockCount = Global->ScrBuf->GetLockCount();
 		Global->ScrBuf->SetLockCount(0);
@@ -922,9 +925,6 @@ public:
 
 		if (SetTextColour)
 			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-
-		if (!m_Command.empty())
-			ConsoleTitle::SetFarTitle(m_Command);
 	}
 
 	void DoPrologue() override
