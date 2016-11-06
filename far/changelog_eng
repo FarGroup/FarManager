@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.11.2016 00:29:33 +0200 - build 4832
+
+1. Correction of 4831.
+
+zg 31.10.2016 20:55:32 +0200 - build 4831
+
+1. 0003337: Console caption is not restored since 4809.
+
 drkns 21.10.2016 00:55:50 +0200 - build 4830
 
 1. Coverity warnings.
