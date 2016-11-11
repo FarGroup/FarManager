@@ -4391,13 +4391,13 @@ id=225
 lv=2
 dt=Text
 nm=editor.DeleteSessionBookmark
-mtime=3507542643
+mtime=3688049909
 <article>
-#_result = editor.DeleteSessionBookmark (EditorId, position)
+#_result = editor.DeleteSessionBookmark (EditorId [,position])
 #_
 #_**Parameters:**
 #_  EditorId: integer, or nil
-#_  position: integer, or nil (nil = current position)
+#_  position: integer (1-based), or nil (nil = current position)
 #_
 #_**Returns:**
 #_  result:   boolean
