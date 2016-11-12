@@ -88,7 +88,7 @@ void KeyBar::DisplayObject()
 			break;
 
 		SetColor(COL_KEYBARNUM);
-		Global->FS << i+1;
+		Text(str(i + 1));
 		SetColor(COL_KEYBARTEXT);
 
 		string Label;
@@ -132,7 +132,7 @@ void KeyBar::DisplayObject()
 			}
 		}
 
-		Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(LabelWidth)<<Label;
+		Text(fit_to_left(Label, LabelWidth));
 
 		if (i<KEY_COUNT-1)
 		{
@@ -146,7 +146,7 @@ void KeyBar::DisplayObject()
 	if (Width>0)
 	{
 		SetColor(COL_KEYBARTEXT);
-		Global->FS << fmt::MinWidth(Width)<<L"";
+		Text(string(Width, L' '));
 	}
 }
 

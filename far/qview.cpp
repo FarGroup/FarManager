@@ -119,7 +119,7 @@ void QuickView::DisplayObject()
 	DrawSeparator(m_Y2-2);
 	SetColor(COL_PANELTEXT);
 	GotoXY(m_X1+1,m_Y2-1);
-	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(m_X2-m_X1-1)<<PointToName(strCurFileName);
+	Text(fit_to_left(PointToName(strCurFileName), m_X2 - m_X1 - 1));
 
 	if (!strCurFileType.empty())
 	{
@@ -134,13 +134,11 @@ void QuickView::DisplayObject()
 
 	if (Directory)
 	{
-		FormatString FString;
-		string DisplayName(strCurFileName);
-		TruncPathStr(DisplayName,std::max(0, m_X2-m_X1-1-StrLength(MSG(MQuickViewFolder))-5));
-		FString<<MSG(MQuickViewFolder)<<L" \""<<DisplayName<<L"\"";
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_X1+2,m_Y1+2);
-		PrintText(FString);
+		auto DisplayName = strCurFileName;
+		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - StrLength(MSG(MQuickViewFolder)) - 5));
+		PrintText(format(LR"({0} "{1}")", MSG(MQuickViewFolder), DisplayName));
 
 		DWORD currAttr=os::GetFileAttributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
@@ -210,7 +208,7 @@ void QuickView::DisplayObject()
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
-						Tmp = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
+						Tmp = format(L":{0:0>8X}", ReparseTag);
 						PtrName = Tmp.data();
 					}
 					else
@@ -226,11 +224,9 @@ void QuickView::DisplayObject()
 			}
 
 			TruncPathStr(Target,std::max(0, m_X2-m_X1-1-StrLength(PtrName)-5));
-			FString.clear();
-			FString<<PtrName<<L" \""<<Target<<L"\"";
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+3);
-			PrintText(FString);
+			PrintText(format(LR"({0} "{1}")", PtrName, Target));
 		}
 
 		if (Directory==1 || Directory==4)
@@ -242,16 +238,12 @@ void QuickView::DisplayObject()
 			GotoXY(m_X1+2,m_Y1+6);
 			PrintText(MSG(MQuickViewFolders));
 			SetColor(iColor);
-			FString.clear();
-			FString<<prefix<<Data.DirCount;
-			PrintText(FString);
+			PrintText(prefix + str(Data.DirCount));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+7);
 			PrintText(MSG(MQuickViewFiles));
 			SetColor(iColor);
-			FString.clear();
-			FString<<prefix<<Data.FileCount;
-			PrintText(FString);
+			PrintText(prefix + str(Data.FileCount));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+8);
 			PrintText(MSG(MQuickViewBytes));
@@ -261,9 +253,8 @@ void QuickView::DisplayObject()
 			GotoXY(m_X1+2,m_Y1+9);
 			PrintText(MSG(MQuickViewAllocated));
 			SetColor(iColor);
-			FString.clear();
-			FString << prefix << InsertCommas(Data.AllocationSize) << L" (" << ToPercent(Data.AllocationSize,Data.FileSize) << L"%)";
-			PrintText(FString);
+			const auto Format = L"{0}{1} ({2}%)";
+			PrintText(format(Format, prefix, InsertCommas(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
 
 			if (Directory!=4)
 			{
@@ -277,18 +268,13 @@ void QuickView::DisplayObject()
 				GotoXY(m_X1+2,m_Y1+12);
 				PrintText(MSG(MQuickViewSlack));
 				SetColor(iColor);
-				FString.clear();
-				FString << prefix << InsertCommas(Data.FilesSlack) << L" (" << ToPercent(Data.FilesSlack, Data.AllocationSize) << L"%)";
-				PrintText(FString);
+				PrintText(format(Format, prefix, InsertCommas(Data.FilesSlack), ToPercent(Data.FilesSlack, Data.AllocationSize)));
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(m_X1+2,m_Y1+13);
 				PrintText(MSG(MQuickViewMFTOverhead));
 				SetColor(iColor);
-				FString.clear();
-				FString << prefix << InsertCommas(Data.MFTOverhead) << L" (" << ToPercent(Data.MFTOverhead, Data.AllocationSize) << L"%)";
-				PrintText(FString);
-
+				PrintText(format(Format, prefix, InsertCommas(Data.MFTOverhead), ToPercent(Data.MFTOverhead, Data.AllocationSize)));
 			}
 		}
 	}
@@ -537,7 +523,7 @@ void QuickView::PrintText(const string& Str) const
 	if (WhereY()>m_Y2-3 || WhereX()>m_X2-2)
 		return;
 
-	Global->FS << fmt::MaxWidth(m_X2-2-WhereX()+1)<<Str;
+	Text(cut_right(Str, m_X2 - 2 - WhereX() + 1));
 }
 
 
@@ -555,12 +541,12 @@ bool QuickView::UpdateIfChanged(bool Idle)
 
 void QuickView::RefreshTitle()
 {
-	m_Title = L"{";
+	m_Title = L'{';
 	if (!strCurFileName.empty())
 	{
-		m_Title.append(strCurFileName).append(L" - ");
+		append(m_Title, strCurFileName, L" - "s);
 	}
-	m_Title.append(MSG(MQuickViewTitle)).append(L"}");
+	append(m_Title, MSG(MQuickViewTitle), L'}');
 }
 
 int QuickView::GetCurName(string &strName, string &strShortName) const

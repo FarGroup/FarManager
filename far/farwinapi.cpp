@@ -995,6 +995,11 @@ bool GetProcessRealCurrentDirectory(string& Directory)
 	});
 }
 
+bool SetProcessRealCurrentDirectory(const string& Directory)
+{
+	return ::SetCurrentDirectory(Directory.data()) != FALSE;
+}
+
 string GetCurrentDirectory()
 {
 	//never give outside world a direct pointer to our internal string
@@ -1041,7 +1046,7 @@ bool SetCurrentDirectory(const string& PathName, bool Validate)
 	// try to synchronize far cur dir with process cur dir
 	if(Global->CtrlObject && Global->CtrlObject->Plugins->OemPluginsPresent())
 	{
-		::SetCurrentDirectory(strCurrentDirectory().data());
+		SetProcessRealCurrentDirectory(strDir);
 	}
 #endif // NO_WRAPPER
 	return true;

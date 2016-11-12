@@ -54,7 +54,7 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 		wchar_t_ptr DomainName(DomainLength);
 		if(LookupAccountSid(Computer.data(), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
 		{
-			Name.assign(DomainName.get(), DomainLength).append(L"\\").append(AccountName.get(), AccountLength);
+			Name.assign(DomainName.get(), DomainLength).append(1, L'\\').append(AccountName.get(), AccountLength);
 			Result = true;
 		}
 	}

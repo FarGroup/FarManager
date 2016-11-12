@@ -737,7 +737,7 @@ void FileFilter::InitFilter()
 
 	for (;;)
 	{
-		const auto key = cfg->FindByName(root, L"Filter" + std::to_wstring(FilterData().size()));
+		const auto key = cfg->FindByName(root, L"Filter" + str(FilterData().size()));
 
 		if (!key || !cfg->GetValue(key,L"Title",strTitle))
 			break;
@@ -801,7 +801,7 @@ void FileFilter::InitFilter()
 
 	for (;;)
 	{
-		const auto key = cfg->FindByName(root, L"PanelMask" + std::to_wstring(TempFilterData().size()));
+		const auto key = cfg->FindByName(root, L"PanelMask" + str(TempFilterData().size()));
 
 		if (!key || !cfg->GetValue(key,L"Mask",strMask))
 			break;
@@ -849,7 +849,7 @@ void FileFilter::Save(bool always)
 
 	for (size_t i=0; i<FilterData().size(); ++i)
 	{
-		const auto Key = cfg->CreateKey(root, L"Filter" + std::to_wstring(i));
+		const auto Key = cfg->CreateKey(root, L"Filter" + str(i));
 		if (!Key)
 			break;
 		const auto& CurFilterData = FilterData()[i];
@@ -886,7 +886,7 @@ void FileFilter::Save(bool always)
 
 	for (size_t i=0; i<TempFilterData().size(); ++i)
 	{
-		const auto Key = cfg->CreateKey(root, L"PanelMask" + std::to_wstring(i));
+		const auto Key = cfg->CreateKey(root, L"PanelMask" + str(i));
 		if (!Key)
 			break;
 		const auto& CurFilterData = TempFilterData()[i];

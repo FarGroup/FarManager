@@ -465,7 +465,7 @@ bool GetFileFormat(
 					{
 						const auto BannedCpList = split<std::vector<string>>(Global->Opt->strNoAutoDetectCP, STLF_UNIQUE);
 
-						if (std::find(ALL_CONST_RANGE(BannedCpList), std::to_wstring(cp)) != BannedCpList.cend())
+						if (std::find(ALL_CONST_RANGE(BannedCpList), str(cp)) != BannedCpList.cend())
 						{
 							cp = -1;
 						}

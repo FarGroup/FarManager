@@ -350,7 +350,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,s
 	std::replace(ALL_RANGE(strDirName), L'\x1', L'\\');
 	DeleteEndSlash(strDirName);
 	TruncStr(strDirName,30);
-	CenterStr(strDirName,strDirName,30);
+	strDirName = fit_to_center(strDirName, 30);
 
 	if (CheckForEscSilent())
 	{
@@ -458,7 +458,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, st
 		{
 			auto strDirName = Dir;
 			TruncStr(strDirName,30);
-			CenterStr(strDirName,strDirName,30);
+			strDirName = fit_to_center(strDirName, 30);
 			SetCursorType(false, 0);
 			FarGetPluginDirListMsg(strDirName,0);
 			PluginSearchMsgOut=FALSE;

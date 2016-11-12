@@ -1134,9 +1134,7 @@ string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool Propaga
 	std::fill_n(Str.begin(), Pos, BoxSymbols[BS_X_DB]);
 	if (ShowPercent)
 	{
-		std::wostringstream oss;
-		oss << std::setw(3) << Percent;
-		Str += L' ' + oss.str() + L'%';
+		Str += format(L"{0:3}%", Percent);
 	}
 	if (PropagateToTasbkar)
 	{

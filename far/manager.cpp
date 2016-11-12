@@ -395,37 +395,39 @@ window_ptr Manager::WindowMenu()
 
 	int ExitCode, CheckCanLoseFocus=GetCurrentWindow()->GetCanLoseFocus();
 	{
+		std::vector<std::tuple<string, string, window_ptr>> Data;
+
+		{
+			string Type, Name;
+			for (const auto& i : GetSortedWindows())
+			{
+				i->GetTypeAndName(Type, Name);
+				Data.emplace_back(std::move(Type), std::move(Name), i);
+			}
+		}
+
+		const auto TypesWidth = std::get<0>(*std::max_element(ALL_CONST_RANGE(Data), [](const auto& a, const auto &b) { return std::get<0>(a).size() < std::get<0>(b).size(); })).size();
+
 		const auto ModalMenu = VMenu2::create(MSG(MScreensTitle), nullptr, 0, ScrY - 4);
 		ModalMenu->SetHelp(L"ScrSwitch");
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
-		ModalMenu->SetPosition(-1,-1,0,0);
+		ModalMenu->SetPosition(-1, -1, 0, 0);
 		ModalMenu->SetId(ScreensSwitchId);
 
-		size_t n = 0;
-		const auto windows = GetSortedWindows();
-		std::for_each(CONST_RANGE(windows, i)
+		for(size_t i = 0, Size = Data.size(); i != Size; ++i)
 		{
-			string strType, strName, strNumText;
-			i->GetTypeAndName(strType, strName);
-			MenuItemEx ModalMenuItem;
+			const auto& Type = std::get<0>(Data[i]);
+			auto& Name = std::get<1>(Data[i]);
+			const auto& Window = std::get<2>(Data[i]);
 
-			if (n < 10)
-				strNumText = string_format(L"&{0}. ", n);
-			else if (n < 36)
-				strNumText = string_format(L"&{0}. ", wchar_t(L'A' + n - 10));
-			else
-				strNumText = L"&   ";
-
-			//TruncPathStr(strName,ScrX-24);
-			ReplaceStrings(strName, L"&", L"&&");
+			const auto Hotkey = static_cast<wchar_t>(i < 10? L'0' + i : i < 36? L'A' + i - 10 : L' ');
+			ReplaceStrings(Name, L"&", L"&&");
 			/*  добавляется "*" если файл изменен */
-			ModalMenuItem.strName = str_printf(L"%s%-10.10s %c %s", strNumText.data(), strType.data(),(i->IsFileModified()?L'*':L' '), strName.data());
-			const auto tmp = i.get();
-			ModalMenuItem.UserData = tmp;
-			ModalMenuItem.SetSelect(i==GetBottomWindow());
+			MenuItemEx ModalMenuItem(format(L"{0}{1}  {2:<{3}} {4} ", Hotkey == L' '? L""s : L"&"s,  Hotkey, Type, TypesWidth, Window->IsFileModified()? L'*' : L' ') + Name);
+			ModalMenuItem.UserData = Window.get();
+			ModalMenuItem.SetSelect(Window == GetBottomWindow());
 			ModalMenu->AddItem(ModalMenuItem);
-			++n;
-		});
+		}
 
 		AlreadyShown=TRUE;
 		ExitCode=ModalMenu->Run();

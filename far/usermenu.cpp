@@ -126,19 +126,20 @@ struct UserMenu::UserMenuItem
 static string SerializeMenu(const UserMenu::menu_container& Menu)
 {
 	string Result;
+	const auto Eol = L"\r\n"s;
 	for (const auto& i: Menu)
 	{
-		Result += string_format(L"{0}: {1}\r\n", i.strHotKey, i.strLabel);
+		append(Result, i.strHotKey, L": "s, i.strLabel, Eol);
 
 		if (i.Submenu)
 		{
-			Result += string_format(L"{\r\n{0}}\r\n", SerializeMenu(i.Menu));
+			append(Result, L'{', Eol, SerializeMenu(i.Menu), L'}', Eol);
 		}
 		else
 		{
 			for (const auto& str: i.Commands)
 			{
-				Result += string_format(L"    {0}\r\n", str);
+				append(Result, L"    "s, str, Eol);
 			}
 		}
 	}

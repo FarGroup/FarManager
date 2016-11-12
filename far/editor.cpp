@@ -3577,7 +3577,8 @@ BOOL Editor::Search(int Next)
 					int NextPos = CurPos + (SearchLength? SearchLength : 1);
 
 					const int service_len = 12;
-					MenuItemEx Item(FormatString() << fmt::LeftAlign() << fmt::ExactWidth(service_len) << fmt::FillChar(L' ') << (FormatString() << CurPtr.Number() + 1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetString());
+					const auto Location = format(L"{0}:{1}", CurPtr.Number() + 1, CurPos + 1);
+					MenuItemEx Item(format(L"{0:{1}}{2}{3}", Location, service_len, BoxSymbols[BS_V1], CurPtr->GetString()));
 					Item.Annotations.emplace_back(CurPos + service_len + 1, NextPos - CurPos);
 					Item.UserData = FindCoord{ CurPtr.Number(), CurPos, SearchLength };
 					FindAllList->AddItem(Item);
@@ -3836,7 +3837,7 @@ BOOL Editor::Search(int Next)
 	{
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		FindAllList->SetPosition(-1, -1, 0, 0);
-		FindAllList->SetTitle(string_format(MEditSearchStatistics, FindAllList->size(), AllRefLines));
+		FindAllList->SetTitle(format(MEditSearchStatistics, FindAllList->size(), AllRefLines));
 		FindAllList->SetBottomTitle(MSG(MEditFindAllMenuFooter));
 		FindAllList->SetHelp(L"FindAllMenu");
 		FindAllList->SetId(EditorFindAllListId);
@@ -4966,7 +4967,7 @@ void Editor::BlockLeft()
 
 			if ((EndSel == -1 || EndSel > StartSel) && IsSpace(CurStr.front()))
 			{
-				TmpStr.append(EndSeq);
+				TmpStr += EndSeq;
 				AddUndoData(UNDO_EDIT, CurStr, CurPtr->GetEOL(), CurPtr.Number(), 0); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 				int CurPos = CurPtr->GetCurPos();
 				CurPtr->SetString(TmpStr);
@@ -5103,7 +5104,7 @@ void Editor::DeleteVBlock()
 			TmpStr.append(CurStr.cbegin() + TBlockX + TBlockSizeX, CurStr.cend());
 		}
 
-		TmpStr.append(CurPtr->GetEOL());
+		TmpStr += CurPtr->GetEOL();
 		size_t CurPos = CurPtr->GetCurPos();
 		CurPtr->SetString(TmpStr);
 
@@ -5175,7 +5176,7 @@ string Editor::VBlock2Text()
 			CopyData.append(TBlockSizeX, L' ');
 		}
 
-		CopyData.append(GetDefaultEOL());
+		CopyData += GetDefaultEOL();
 	}
 
 	return CopyData;
@@ -5506,7 +5507,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					DestLine = m_it_CurLine.Number();
 
 				string NewStr(SetString->StringText, Length);
-				NewStr.append(EOL);
+				NewStr += EOL;
 
 				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), DestLine, CurPtr->GetCurPos());
 				int CurPos=CurPtr->GetCurPos();
@@ -6210,9 +6211,7 @@ void Editor::AddSessionBookmark(bool NewPos)
 	//remove all subsequent bookmarks
 	if (!SessionBookmarks.empty())
 	{
-		const auto Next = std::next(SessionPos);
-		//if (Next != SessionBookmarks.end())
-			SessionBookmarks.erase(Next, SessionBookmarks.end());
+		SessionBookmarks.erase(std::next(SessionPos), SessionBookmarks.end());
 	}
 	//append new bookmark
 	InternalEditorSessionBookMark sb_new;
@@ -6833,8 +6832,7 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& Name,int Percent)
 {
 	string strProgress;
-	string strMsg(Msg);
-	strMsg.append(L" ").append(Name);
+	const auto strMsg = concat(Msg, L' ', Name);
 	if (Percent!=-1)
 	{
 		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);

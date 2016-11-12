@@ -123,8 +123,8 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 					if(IsErrorType)
 					{
 						DialogBuilder Builder(MError, nullptr);
-						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << Global->CaughtError() << L" - " << GetWin32ErrorString(Global->CaughtError()), 65);
-						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<DWORD>(Global->CaughtStatus()) << L" - " << GetNtErrorString(Global->CaughtStatus()), 65);
+						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtError()), GetWin32ErrorString(Global->CaughtError())), 65);
+						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtStatus()), GetNtErrorString(Global->CaughtStatus())), 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
@@ -212,9 +212,11 @@ void Message::Init(
 		strErrStr = GetErrorString();
 		if (!strErrStr.empty())
 		{
+			size_t index = 1;
 			for (const auto& i: Inserts)
 			{
-				strErrStr = string_format<detail::old_style_formatter>(strErrStr, i);
+				ReplaceStrings(strErrStr, L'%' + str(index), i);
+				++index;
 			}
 		}
 	}
@@ -230,7 +232,7 @@ void Message::Init(
 	if (!Title.empty())
 	{
 		MaxLength = std::max(MaxLength, Title.size() + 2); // 2 for surrounding spaces
-		strClipText.append(Title).append(L"\r\n\r\n");
+		append(strClipText, Title, L"\r\n\r\n"s);
 	}
 
 	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
@@ -288,15 +290,15 @@ void Message::Init(
 
 	for (const auto& i: Strings)
 	{
-		strClipText.append(i).append(L"\r\n");
+		append(strClipText, i, L"\r\n"s);
 	}
-	strClipText += L"\r\n";
+	strClipText += L"\r\n"s;
 
 	if (!Buttons.empty())
 	{
 		for (const auto& i: Buttons)
 		{
-			strClipText.append(i).append(L" ");
+			append(strClipText, i, L' ');
 		}
 		strClipText.pop_back();
 	}
@@ -494,7 +496,7 @@ void Message::Init(
 			strTempTitle.resize(MaxLength);
 
 		GotoXY(X1+(X2-X1-1-(int)strTempTitle.size())/2,Y1+1);
-		Global->FS << L" "<<strTempTitle<<L" ";
+		Text(concat(L' ', strTempTitle, L' '));
 	}
 
 	for (size_t i = 0; i != MessageStrings.size(); ++i)
@@ -537,21 +539,9 @@ void Message::Init(
 		if (Length + 15 > ScrX)
 			Length = ScrX - 15;
 
-		int Width=X2-X1+1;
-		FormatString Temp;
-		if (Flags & MSG_LEFTALIGN)
-		{
-			Temp << fmt::LeftAlign() << fmt::MinWidth(Width - 10) << SrcItem;
-			GotoXY(X1 + 5, Y1 + static_cast<int>(i)+2);
-		}
-		else
-		{
-			const auto PosX = X1 + (Width - Length) / 2;
-			Temp << fmt::ExactWidth(PosX - X1 - 4) << L"" << fmt::ExactWidth(Length) << SrcItem << fmt::ExactWidth(X2 - PosX - Length - 3) << L"";
-			GotoXY(X1 + 4, Y1 + static_cast<int>(i) + 2);
-		}
-
-		Text(Temp);
+		const auto Width = X2 - X1 + 1;
+		GotoXY(X1 + 5, Y1 + static_cast<int>(i) + 2);
+		Text((Flags & MSG_LEFTALIGN? fit_to_left : fit_to_center)(SrcItem, Width - 10));
 	}
 
 	/* $ 13.01.2003 IS

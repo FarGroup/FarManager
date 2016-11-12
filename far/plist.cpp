@@ -42,9 +42,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "interf.hpp"
 #include "imports.hpp"
+#include "strmix.hpp"
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam);
-static constexpr size_t PID_LENGTH = 6;
+using menu_data = std::pair<string, HWND>;
 
 struct ProcInfo
 {
@@ -56,7 +57,7 @@ static struct task_sort
 {
 	bool operator()(const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p) const
 	{
-		return StrCmp(a.strName.data() + PID_LENGTH + 1, b.strName.data() + PID_LENGTH + 1) < 0;
+		return StrCmp(any_cast<menu_data>(a.UserData).first, any_cast<menu_data>(b.UserData).first) < 0;
 	}
 }
 TaskSort;
@@ -106,8 +107,9 @@ void ShowProcessList()
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					if (const auto ProcWnd = *ProcList->GetUserDataPtr<HWND>())
+					if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
 					{
+						const auto ProcWnd = MenuData->second;
 						wchar_t_ptr Title;
 						int LenTitle=GetWindowTextLength(ProcWnd);
 
@@ -169,8 +171,9 @@ void ShowProcessList()
 
 		if (ProcList->GetExitCode()>=0)
 		{
-			if (const auto ProcWnd = *ProcList->GetUserDataPtr<HWND>())
+			if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
 			{
+				const auto ProcWnd = MenuData->second;
 				//SetForegroundWindow(ProcWnd);
 				// Allow SetForegroundWindow on Win98+.
 				DWORD dwMs;
@@ -226,8 +229,8 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 		}
 		if (!strTitle.empty())
 		{
-			MenuItemEx NewItem(FormatString() << fmt::MinWidth(PID_LENGTH) << ProcID << L' ' << BoxSymbols[BS_V1] << L' ' << strTitle);
-			NewItem.UserData = hwnd;
+			MenuItemEx NewItem(format(L"{0:9} {1} {2}", ProcID, BoxSymbols[BS_V1], strTitle));
+			NewItem.UserData = std::make_pair(strTitle, hwnd);
 			ProcList->AddItem(NewItem);
 		}
 

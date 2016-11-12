@@ -92,26 +92,29 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 template<class T>
 struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 {
-	T *IntValue;
-	wchar_t Mask[1+16+1];
-
-	EditFieldHexBinding(T *aIntValue, int Width) : IntValue(aIntValue)
+public:
+	EditFieldHexBinding(T *aIntValue) : IntValue(aIntValue)
 	{
-		Mask[0] = L'x';
-		const auto MaskWidth = std::min(static_cast<int>(std::size(Mask) - 1), Width);
-		std::fill(Mask + 1, Mask + MaskWidth, L'H');
-		Mask[MaskWidth] = L'\0';
+		Mask[0] = L'0';
+		Mask[1] = L'x';
+		std::fill(std::begin(Mask) + 2, std::end(Mask) - 1, L'H');
+		*(std::end(Mask) - 1) = L'\0';
 	}
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
-		*IntValue = std::wcstoll(Item->strData.data() + 1, nullptr, 16);
+		// Must be converted to unsigned type first regardless of underlying type
+		*IntValue = std::stoull(Item->strData, nullptr, 16);
 	}
 
 	const wchar_t *GetMask() const
 	{
 		return Mask;
 	}
+
+private:
+	T *IntValue;
+	wchar_t Mask[2 + sizeof(long long) * 2 + 1];
 };
 
 template<class T>
@@ -365,7 +368,7 @@ DialogItemEx *DialogBuilder::AddConstEditField(const string& Value, int Width, F
 DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 {
 	const auto Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item->strData = std::to_wstring(*Value);
+	Item->strData = str(*Value);
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 
@@ -379,7 +382,7 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 DialogItemEx *DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 {
 	const auto Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item->strData = std::to_wstring(Value.Get());
+	Item->strData = str(Value.Get());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 
@@ -393,13 +396,11 @@ DialogItemEx *DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 DialogItemEx *DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 {
 	const auto Item = AddDialogItem(DI_FIXEDIT, L"");
-	std::wostringstream oss;
-	oss << L'x' << std::hex << std::setw(8) << std::setfill(L'0') << Value.Get();
-	Item->strData = oss.str();
+	Item->strData = format(L"{0:016X}", as_unsigned(Value.Get()));
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 
-	const auto Binding = new EditFieldHexBinding<IntOption>(&Value, Width);
+	const auto Binding = new EditFieldHexBinding<IntOption>(&Value);
 	SetLastItemBinding(Binding);
 	Item->Flags |= DIF_MASKEDIT;
 	Item->strMask = Binding->GetMask();

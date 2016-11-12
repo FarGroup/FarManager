@@ -54,27 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "DlgGuid.hpp"
 
-size_t GetDescriptionWidth()
-{
-	size_t Width = 0;
-	DWORD Index=0;
-	unsigned long long id;
-	string strMask;
-	string strDescription;
-	filemasks FMask;
-
-	while (ConfigProvider().AssocConfig()->EnumMasks(Index++,&id,strMask))
-	{
-		if (!FMask.Set(strMask, FMF_SILENT))
-			continue;
-
-		ConfigProvider().AssocConfig()->GetDescription(id,strDescription);
-		Width = std::max(Width, HiStrlen(strDescription));
-	}
-
-	return Width;
-}
-
 /* $ 14.01.2001 SVS
    Добавим интеллектуальности.
    Если встречается "IF" и оно выполняется, то команда
@@ -317,28 +296,28 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 
 static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 {
-	const auto DizWidth=GetDescriptionWidth();
-	TypesMenu->clear();
 	DWORD Index=0;
-	string strMask;
-	string strTitle;
 	unsigned long long id;
-
-	while (ConfigProvider().AssocConfig()->EnumMasks(Index++,&id,strMask))
+	std::vector<string> Descriptions, Masks;
+	string Buffer;
+	while (ConfigProvider().AssocConfig()->EnumMasks(Index++, &id, Buffer))
 	{
-		string strMenuText;
+		Masks.emplace_back(std::move(Buffer));
+		ConfigProvider().AssocConfig()->GetDescription(id, Buffer);
+		Descriptions.emplace_back(std::move(Buffer));
+	}
 
-		if (DizWidth)
-		{
-			ConfigProvider().AssocConfig()->GetDescription(id,strTitle);
+	TypesMenu->clear();
 
-			size_t AddLen=strTitle.size() - HiStrlen(strTitle);
+	const auto DescriptionsWidth = std::max_element(ALL_CONST_RANGE(Descriptions), [](const auto& a, const auto &b) { return a.size() < b.size(); })->size();
 
-			strMenuText = FormatString() << fmt::LeftAlign() << fmt::ExactWidth(DizWidth + AddLen) << strTitle << L' ' << BoxSymbols[BS_V1] << L' ';
-		}
+	for (auto i: zip(Descriptions, Masks))
+	{
+		const auto& Description = std::get<0>(i);
+		const auto& Mask = std::get<1>(i);
 
-		strMenuText += strMask;
-		MenuItemEx TypesMenuItem(strMenuText);
+		const auto AddLen = Description.size() - HiStrlen(Description);
+		MenuItemEx TypesMenuItem(concat(fit_to_left(Description, DescriptionsWidth + AddLen), L' ', BoxSymbols[BS_V1], L' ', Mask));
 		TypesMenuItem.SetSelect((int)(Index-1)==MenuPos);
 		TypesMenuItem.UserData = id;
 		TypesMenu->AddItem(TypesMenuItem);

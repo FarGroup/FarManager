@@ -136,10 +136,7 @@ public:
 			{
 				if (const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"))
 				{
-					std::wostringstream tmp;
-					tmp << std::hex << std::setw(4) << std::setfill(L'0') << LOWORD(*Translation)
-						<< std::hex << std::setw(4) << std::setfill(L'0') << HIWORD(*Translation);
-					m_BlockPath = L"\\StringFileInfo\\" + tmp.str() + L"\\";
+					m_BlockPath = format(L"\\StringFileInfo\\{0:04X}{1:04X}\\", LOWORD(*Translation), HIWORD(*Translation));
 					return true;
 				}
 			}
@@ -1464,7 +1461,7 @@ static int GetEditorCodePageFavA()
 
 	auto result = -(static_cast<int>(CodePage) + 2);
 	DWORD FavIndex = 2;
-	const auto strCP = std::to_wstring(CodePage);
+	const auto strCP = str(CodePage);
 	const auto CpEnum = Codepages().GetFavoritesEnumerator();
 	std::any_of(CONST_RANGE(CpEnum, i)
 	{
@@ -4875,9 +4872,8 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 
 			string CodepageName(cpiex.CodePageName);
 			Codepages().FormatCodePageName(nCP, CodepageName);
-			string sTableName = std::to_wstring(nCP);
-			sTableName.resize(std::max(sTableName.size(), size_t(5)), L' ');
-			sTableName.append(1, BoxSymbols[BS_V1]).append(1, L' ').append(CodepageName);
+			string sTableName = pad_right(str(nCP), 5);
+			append(sTableName, BoxSymbols[BS_V1], L' ', CodepageName);
 			UnicodeToOEM(sTableName.data(), TableSet->TableName, std::size(TableSet->TableName) - 1);
 			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin(reinterpret_cast<char*>(TableSet->DecodeTable), sizeof(TableSet->DecodeTable), nCP));
 			CharLowerBuff(us.get(), sizeof(TableSet->DecodeTable));

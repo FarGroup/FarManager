@@ -113,12 +113,12 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 	if (Mode!=DEL_SCAN && Percent!=-1)
 	{
 		strProgress = make_progressbar(Width, Percent, true, true);
-		ConsoleTitle::SetFarTitle(L"{"s + std::to_wstring(Percent) + L"%} "s + MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)? MDeleteWipeTitle : MDeleteTitle));
+		ConsoleTitle::SetFarTitle(L"{"s + str(Percent) + L"%} "s + MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)? MDeleteWipeTitle : MDeleteTitle));
 	}
 
 	string strOutFileName(Name);
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
-	CenterStr(strOutFileName,strOutFileName,static_cast<int>(Width));
+	strOutFileName = fit_to_center(strOutFileName, static_cast<int>(Width));
 	const wchar_t* Progress1 = nullptr;
 	const wchar_t* Progress2 = nullptr;
 	if(!strWipeProgress.empty())
@@ -353,13 +353,9 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	else
 	{
 		// в зависимости от числа ставим нужное окончание
-		const wchar_t *Ends;
-		FormatString StrItems;
-		StrItems << SelCount;
-		Ends=MSG(MAskDeleteItemsA);
-		size_t LenItems = StrItems.size();
-
-		if (LenItems > 0)
+		auto StrItems = str(SelCount);
+		auto Ends = MSG(MAskDeleteItemsA);
+		if (const auto LenItems = StrItems.size())
 		{
 			if ((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
 			        StrItems[LenItems-1] >= L'5' ||
@@ -368,7 +364,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			else if (StrItems[LenItems-1] == L'1')
 				Ends=MSG(MAskDeleteItems0);
 		}
-		strDeleteFilesMsg = string_format(MAskDeleteItems, SelCount, Ends);
+		strDeleteFilesMsg = format(MAskDeleteItems, SelCount, Ends);
 	}
 
 	Ret=1;

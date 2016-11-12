@@ -520,7 +520,7 @@ void Viewer::ShowPage(int nMode)
 			SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_VIEWERTEXT));
 			GotoXY(m_X1,m_Y1);
 			SetColor(COL_WARNDIALOGTEXT);
-			Global->FS << fmt::MaxWidth(XX2-m_X1+1)<<MSG(MViewerCannotOpenFile);
+			Text(cut_right(MSG(MViewerCannotOpenFile), XX2 - m_X1 + 1));
 			ShowStatus();
 		}
 
@@ -608,11 +608,11 @@ void Viewer::ShowPage(int nMode)
 
 			if (static_cast<long long>(i.Data.size()) > LeftPos)
 			{
-				Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Width)<< i.Data.data() + LeftPos;
+				Text(fit_to_left(i.Data.substr(LeftPos), Width));
 			}
 			else
 			{
-				Global->FS << fmt::MinWidth(Width)<<L"";
+				Text(string(Width, L' '));
 			}
 
 			if (SelectSize >= 0 && i.bSelection)
@@ -646,7 +646,7 @@ void Viewer::ShowPage(int nMode)
 					if (LeftPos > i.nSelEnd)
 						Length = 0;
 
-					Global->FS << fmt::MaxWidth(static_cast<size_t>(Length)) << i.Data.data() + SelX1 + LeftPos;
+					Text(cut_right(i.Data.substr(SelX1 + LeftPos), Length));
 				}
 			}
 
@@ -822,7 +822,7 @@ void Viewer::ShowDump()
 
 		if (EndFile)
 		{
-			Global->FS << fmt::MinWidth(ObjWidth())<<L"";
+			Text(string(ObjWidth(), L' '));
 			continue;
 		}
 		const auto bpos = vtell();
@@ -838,14 +838,14 @@ void Viewer::ShowDump()
 
 		tail = txt_dump(line.data(), BytesRead, Width, OutStr, ZeroChar(), tail);
 
-		Global->FS << fmt::LeftAlign()<<fmt::MinWidth(ObjWidth()) << OutStr;
+		Text(fit_to_left(OutStr, ObjWidth()));
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos )
 		{
 			const int bsel = SelectPos > bpos? (int)(SelectPos-bpos) / CharSize : 0;
 			const int esel = SelectPos + SelectSize < bpos + mb? ((int)(SelectPos + SelectSize - bpos) + CharSize - 1) / CharSize : Width;
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY(bsel, Y);
-			Global->FS << fmt::MaxWidth(esel - bsel) << OutStr.data() + bsel;
+			Text(cut_right(OutStr.substr(bsel), esel - bsel));
 		}
 	}
 }
@@ -871,14 +871,14 @@ void Viewer::ShowHex()
 
 		if (EndFile)
 		{
-			Global->FS << fmt::MinWidth(ObjWidth())<<L"";
+			Text(string(ObjWidth(), L' '));
 			continue;
 		}
 
 		if (Y==m_Y1+1 && !veof())
 			SecondPos=vtell();
 
-		auto OutStr = str_printf(L"%010I64X: ", vtell());
+		auto OutStr = format(L"{0:010X}: ", vtell());
 		int SelStart = static_cast<int>(OutStr.size()), SelEnd = SelStart;
 		long long fpos = vtell();
 
@@ -941,12 +941,12 @@ void Viewer::ShowHex()
 						{
 							swap_bytes(&Char, &Char, sizeof(wchar_t));
 						}
-						OutStr += str_printf(L"%04X ", int(Char));
+						OutStr += format(L"{0:04X} ", int(Char));
 						TextStr.push_back(Char? Char : ZeroChar());
 					}
 					else if (X == BytesRead - 1) // half character only
 					{
-						const auto GoodHalf = str_printf(L"%02X", int(RawBuffer[X]));
+						const auto GoodHalf = format(L"{0:02X}", int(RawBuffer[X]));
 						const auto BadHalf = L"xx";
 						OutStr += (be? GoodHalf : BadHalf) + (be? BadHalf : GoodHalf);
 						OutStr.push_back(L' ');
@@ -994,7 +994,7 @@ void Viewer::ShowHex()
 				for (size_t X = 0; X != 16; ++X)
 				{
 					if (X < BytesRead)
-						OutStr += str_printf(L"%02X ", int(RawBuffer[X]));
+						OutStr += format(L"{0:2X} ", int(RawBuffer[X]));
 					else
 						OutStr.append(3, L' ');
 
@@ -1013,18 +1013,18 @@ void Viewer::ShowHex()
 
 		if (static_cast<int>(OutStr.size()) > HexLeftPos)
 		{
-			Global->FS << fmt::LeftAlign() << fmt::ExactWidth(ObjWidth()) << OutStr.data() + static_cast<size_t>(HexLeftPos);
+			Text(fit_to_left(OutStr.substr(HexLeftPos), ObjWidth()));
 		}
 		else
 		{
-			Global->FS << fmt::MinWidth(ObjWidth())<<L"";
+			Text(string(ObjWidth(), L' '));
 		}
 
 		if (bSelStartFound && bSelEndFound)
 		{
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY((int)((long long)m_X1+SelStart-HexLeftPos),Y);
-			Global->FS << fmt::MaxWidth(SelEnd - SelStart + 1) << OutStr.data() + static_cast<size_t>(SelStart);
+			Text(cut_right(OutStr.substr(SelStart), SelEnd - SelStart + 1));
 		}
 	}
 }
@@ -2126,7 +2126,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 
 		int NameLen = std::max(20, ObjWidth()-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen()? 3 + static_cast<int>(Global->CurrentTime.size()) : 0));
-		int cp_len = static_cast<int>(std::to_wstring(m_Codepage).size());
+		int cp_len = static_cast<int>(str(m_Codepage).size());
 		//                           ViewMode     CopdePage             Goto
 		static constexpr int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
 		int xpos[std::size(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
@@ -2689,8 +2689,7 @@ static void PR_ViewerSearchMsg()
 void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 {
 	string strProgress;
-	string strMsg(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor));
-	strMsg.append(L" ").append(MsgStr);
+	const auto strMsg = concat(MSG(SearchHex? MViewSearchingHex : MViewSearchingFor), L' ', MsgStr);
 	if (Percent>=0)
 	{
 		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);

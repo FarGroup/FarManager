@@ -1204,7 +1204,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	auto MacroSettingsDlg = MakeDialogItemsEx(MacroSettingsDlgData);
 	string strKeyText;
 	KeyToText(Key,strKeyText);
-	MacroSettingsDlg[MS_DOUBLEBOX].strData = string_format(MMacroSettingsTitle, strKeyText);
+	MacroSettingsDlg[MS_DOUBLEBOX].strData = format(MMacroSettingsTitle, strKeyText);
 	//if(!(Key&0x7F000000))
 	//MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_ENABLEOUTPUT?1:0;
@@ -3172,7 +3172,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	ReplaceStrings(strItems,L"\r\n",L"\n");
 
 	if (strItems.back() != L'\n')
-		strItems.append(L"\n");
+		strItems += L'\n';
 
 	TVar Result(-1);
 	int BoxType = (Flags & 0x7)?(Flags & 0x7)-1:3;
@@ -3268,7 +3268,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (bAutoNumbering && !(bSorting || bPacking) && !(NewItem.Flags & LIF_SEPARATOR))
 		{
 			LineCount++;
-			NewItem.strName = str_printf(L"%*d - %s", nLeftShift-3, LineCount, NewItem.strName.data());
+			NewItem.strName = format(L"{0:{1}} - {2}", LineCount, nLeftShift - 3, NewItem.strName);
 		}
 		Menu->AddItem(NewItem);
 		CurrentPos=PosLF+1;
@@ -3304,7 +3304,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			if (!(Item.Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item.strName = str_printf(L"%*d - %s", nLeftShift-3, LineCount, Item.strName.data());
+				Item.strName = format(L"{0:{1}} - {2}", LineCount, nLeftShift - 3, Item.strName);
 			}
 		}
 	}
@@ -5212,7 +5212,7 @@ M1:
 					MessageTemplate = SetChange? MMacroDeleteKey : MMacroReDefinedKey;
 					//"Макроклавиша '{0}'   будет удалена : уже определена."
 				}
-				const auto strBuf = string_format(MessageTemplate, strKeyText);
+				const auto strBuf = format(MessageTemplate, strKeyText);
 
 				int Result=0;
 				{

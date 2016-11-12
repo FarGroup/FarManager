@@ -355,18 +355,18 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 			if (!Mask.empty())
 				RemoveTrailingSpaces(OutStr);
 
-			Global->FS << fmt::LeftAlign() << OutStr;
+			Text(OutStr);
 			SetColor(GetNormalColor());
 			size_t BlankLength=EditLength-OutStr.size();
 
 			if (BlankLength > 0)
 			{
-				Global->FS << fmt::MinWidth(BlankLength)<<L"";
+				Text(string(BlankLength, L' '));
 			}
 		}
 		else
 		{
-			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(EditLength)<<OutStr;
+			Text(fit_to_left(OutStr, EditLength));
 		}
 	}
 	else
@@ -383,41 +383,23 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 
 		OutStr.append(EditLength - OutStr.size(), L' ');
 
-		/* $ 24.08.2000 SVS
-		   ! У DropDowList`а выделение по полной программе - на всю видимую длину
-		     ДАЖЕ ЕСЛИ ПУСТАЯ СТРОКА
-		*/
-		if (TabSelStart>=static_cast<int>(EditLength) /*|| !AllString && TabSelStart>=StrSize*/ ||
-		        TabSelEnd<TabSelStart)
+		Text(cut_right(OutStr, TabSelStart));
+		SetColor(GetSelectedColor());
+
+		if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 		{
-			if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
+			Text(cut_right(OutStr.substr(TabSelStart), TabSelEnd - TabSelStart));
+
+			if (TabSelEnd<static_cast<int>(EditLength))
 			{
-				SetColor(GetSelectedColor());
-				Global->FS << fmt::MinWidth(m_X2-m_X1+1)<<OutStr;
+				//SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
+				SetColor(GetNormalColor());
+				Text(OutStr.data()+TabSelEnd);
 			}
-			else
-				Text(OutStr);
 		}
 		else
 		{
-			Global->FS << fmt::MaxWidth(TabSelStart)<<OutStr;
-			SetColor(GetSelectedColor());
-
-			if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-			{
-				Global->FS << fmt::MaxWidth(TabSelEnd-TabSelStart) << OutStr.data() + TabSelStart;
-
-				if (TabSelEnd<static_cast<int>(EditLength))
-				{
-					//SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
-					SetColor(GetNormalColor());
-					Text(OutStr.data()+TabSelEnd);
-				}
-			}
-			else
-			{
-				Global->FS << fmt::MinWidth(m_X2-m_X1+1)<<OutStr;
-			}
+			Text(fit_to_left(OutStr, m_X2 - m_X1 + 1));
 		}
 	}
 

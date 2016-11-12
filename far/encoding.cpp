@@ -131,6 +131,11 @@ static bool IsValid(UINT cp)
 	return GetCodePageInfo(cp).first == 2;
 }
 
+static auto GetNoBestFitCharsFlag(uintptr_t Codepage)
+{
+	// See https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130.aspx
+	return Codepage == CP_UTF8 || Codepage == 54936 || IsNoFlagsCodepage(Codepage)? 0 : WC_NO_BEST_FIT_CHARS;
+}
 
 bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 {
@@ -146,7 +151,7 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 
 	BOOL DefUsed, *pDefUsed = (Codepage == CP_UTF8 || Codepage == CP_UTF7) ? nullptr : &DefUsed;
 
-	const DWORD flags = (Codepage == CP_UTF8 || Codepage == 54936 || IsNoFlagsCodepage(Codepage))? 0 : WC_NO_BEST_FIT_CHARS;
+	const DWORD flags = GetNoBestFitCharsFlag(Codepage);
 
 	union
 	{
@@ -247,7 +252,7 @@ size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, 
 	default:
 		{
 			BOOL bUsedDefaultChar = FALSE;
-			const auto Result = WideCharToMultiByte(Codepage, 0, Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
+			const auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
 			if (UsedDefaultChar)
 				*UsedDefaultChar = bUsedDefaultChar != FALSE;
 			return Result;

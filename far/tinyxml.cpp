@@ -60,7 +60,7 @@ WARNING_DISABLE_GCC("-Wsuggest-override")
 
 WARNING_POP()
 
-	static string getInfo() { return string_format(L"TinyXML-2, version {0}.{1}.{2}", TIXML2_MAJOR_VERSION, TIXML2_MINOR_VERSION, TIXML2_PATCH_VERSION); }
+	static components::component::info getInfo() { return {L"TinyXML-2"s, format(L"{0}.{1}.{2}", TIXML2_MAJOR_VERSION, TIXML2_MINOR_VERSION, TIXML2_PATCH_VERSION) }; }
 	SCOPED_ACTION(components::component)(getInfo);
 }
 

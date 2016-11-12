@@ -87,7 +87,7 @@ namespace components
 		return false;
 	}
 
-	std::set<string>& GetComponentsInfo()
+	std::map<string, string>& GetComponentsInfo()
 	{
 		static FN_RETURN_TYPE(GetComponentsInfo) sList;
 		if (sList.empty())

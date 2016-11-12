@@ -166,7 +166,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 		i.CursorColor = colors::ConsoleColorToFarColor(i.InitCC);
 		MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
 
-		const auto Key = cfg->CreateKey(root, L"Group" + std::to_wstring(Index++));
+		const auto Key = cfg->CreateKey(root, L"Group" + str(Index++));
 		if (!Key)
 			break;
 		cfg->SetValue(Key, HLS.Mask, i.Mask);
@@ -322,7 +322,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 
 		for (int i=0;; ++i)
 		{
-			const auto key = cfg->FindByName(root, Item.GroupName + std::to_wstring(i));
+			const auto key = cfg->FindByName(root, Item.GroupName + str(i));
 			if (!key)
 				break;
 
@@ -903,7 +903,7 @@ void HighlightFiles::Save(bool always)
 
 		for (int j = i.from; j != i.to; ++j)
 		{
-			if (const auto Key = cfg->CreateKey(root, i.GroupName + std::to_wstring(j - i.from)))
+			if (const auto Key = cfg->CreateKey(root, i.GroupName + str(j - i.from)))
 				SaveFilter(cfg.get(), Key, &HiData[j], i.IsSort);
 			// TODO: log
 		}

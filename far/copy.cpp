@@ -245,7 +245,7 @@ static void GenerateName(string &strName, const string& Path)
 	for (int i = 2; os::fs::exists(strName); ++i)
 	{
 		strName.resize(NameLength);
-		strName += L" (" + std::to_wstring(i) + L")";
+		strName += L" (" + str(i) + L")";
 		strName+=strExt;
 	}
 }
@@ -667,8 +667,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	{
 
 		// коррекция языка - про окончания
-		FormatString StrItems;
-		StrItems<<SelCount;
+		auto StrItems = str(SelCount);
 		size_t LenItems=StrItems.size();
 		LNGID NItems=MCMLItemsA;
 
@@ -681,7 +680,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			else if (StrItems[LenItems-1] == '1')
 				NItems=MCMLItems0;
 		}
-		strCopyStr = string_format(Move? MMoveFiles : Link? MLinkFiles : MCopyFiles, SelCount, MSG(NItems));
+		strCopyStr = format(Move? MMoveFiles : Link? MLinkFiles : MCopyFiles, SelCount, MSG(NItems));
 	}
 
 	CopyDlg[ID_SC_SOURCEFILENAME].strData=strCopyStr;
@@ -3200,6 +3199,8 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return TRUE;
 
+	const auto Format = L"{0:26} {1:20} {2} {3}";
+
 	string strDestName = DestName;
 
 	{
@@ -3229,7 +3230,6 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 				}
 				else
 				{
-					FormatString strSrcFileStr, strDestFileStr;
 					unsigned long long SrcSize = SrcData.nFileSize;
 					FILETIME SrcLastWriteTime = SrcData.ftLastWriteTime;
 					if (Flags&FCOPY_COPYSYMLINKCONTENTS && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
@@ -3241,16 +3241,12 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 							SrcLastWriteTime = FindData.ftLastWriteTime;
 						}
 					}
-					FormatString strSrcSizeText;
-					strSrcSizeText << SrcSize;
-					unsigned long long DestSize = DestData.nFileSize;
-					FormatString strDestSizeText;
-					strDestSizeText << DestSize;
+
 					string strDateText, strTimeText;
 					ConvertDate(SrcLastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
-					strSrcFileStr << fmt::LeftAlign() << fmt::MinWidth(17) << MSG(MCopySource) << L" " << fmt::ExactWidth(25) << strSrcSizeText << L" " << strDateText << L" " << strTimeText;
+					const auto strSrcFileStr = format(Format, MSG(MCopySource), SrcSize, strDateText, strTimeText);
 					ConvertDate(DestData.ftLastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
-					strDestFileStr << fmt::LeftAlign() << fmt::MinWidth(17) << MSG(MCopyDest) << L" " << fmt::ExactWidth(25) << strDestSizeText << L" " << strDateText << L" " << strTimeText;
+					const auto strDestFileStr = format(Format, MSG(MCopyDest), DestData.nFileSize, strDateText, strTimeText);
 
 					WarnCopyDlgData[WDLG_SRCFILEBTN].Data = strSrcFileStr.data();
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data = strDestFileStr.data();
@@ -3339,18 +3335,11 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 						os::GetFindDataEx(DestName,DestData); // BUGBUG check result
 					}
 
-					string strDateText,strTimeText;
-					FormatString strSrcFileStr, strDestFileStr;
-					unsigned long long SrcSize = SrcData.nFileSize;
-					FormatString strSrcSizeText;
-					strSrcSizeText<<SrcSize;
-					unsigned long long DestSize = DestData.nFileSize;
-					FormatString strDestSizeText;
-					strDestSizeText<<DestSize;
+					string strDateText, strTimeText;
 					ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
-					strSrcFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopySource)<<L" "<<fmt::ExactWidth(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
+					const auto strSrcFileStr = format(Format, MSG(MCopySource), SrcData.nFileSize, strDateText, strTimeText);
 					ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
-					strDestFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopyDest)<<L" "<<fmt::ExactWidth(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
+					const auto strDestFileStr = format(Format, MSG(MCopyDest), DestData.nFileSize, strDateText, strTimeText);
 					WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr.data();
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr.data();
 					WarnCopyDlgData[WDLG_TEXT].Data=MSG(MCopyFileRO);
@@ -3488,7 +3477,7 @@ static BOOL ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 
 		string strOutFileName = Name; //??? nullptr ???
 		TruncPathStr(strOutFileName,Width);
-		CenterStr(strOutFileName, strOutFileName,Width+4);
+		strOutFileName = fit_to_center(strOutFileName, Width + 4);
 		Message(0,0,MSG(MMoveDlgTitle),MSG(MCopyPrepareSecury),strOutFileName.data());
 
 		if (CP->IsCancelled())

@@ -464,7 +464,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 		}
 		else
 		{
-			strOut.append(CurStr,1);
+			strOut += *CurStr;
 			CurStr++;
 		}
 	}
@@ -555,7 +555,7 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 			Item.X2 = 70;
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
 			Item.Flags = DIF_HISTORY | DIF_USELASTHISTORY;
-			Item.strHistory = L"UserVar" + std::to_wstring((DlgData.size() - 1) / 2);
+			Item.strHistory = L"UserVar" + str((DlgData.size() - 1) / 2);
 			DlgData.emplace_back(Item);
 		}
 
@@ -611,7 +611,7 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 				}
 				else
 				{
-					strTmp.append(CurStr,1);
+					strTmp += *CurStr;
 					CurStr++;
 				}
 			}
@@ -726,7 +726,7 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 		}
 		else
 		{
-			strTmpStr.append(Str,1);
+			strTmpStr += *Str;
 		}
 	}
 

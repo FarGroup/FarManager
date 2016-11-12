@@ -237,10 +237,12 @@ public:
 	separator():m_value(L' '){}
 	string Get()
 	{
-		wchar_t c = m_value;
-		m_value = BoxSymbols[BS_V1];
-		const wchar_t value[] = { L' ', c, L' ', 0 };
-		return value[1] == L' '? L" " : value;
+		if (m_value == L' ')
+		{
+			m_value = BoxSymbols[BS_V1];
+			return{ L' ' };
+		}
+		return { L' ', m_value, L' '};
 	}
 private:
 	wchar_t m_value;
@@ -285,8 +287,8 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	};
 	auto DCDlg = MakeDialogItemsEx(DCDlgData);
 
-	DCDlg[1].strData = string_format(MChangeDriveDisconnectQuestion, Letter);
-	DCDlg[2].strData = string_format(MChangeDriveDisconnectMapped, Letter);
+	DCDlg[1].strData = format(MChangeDriveDisconnectQuestion, Letter);
+	DCDlg[2].strData = format(MChangeDriveDisconnectMapped, Letter);
 
 	size_t Len1 = DCDlg[0].strData.size();
 	size_t Len2 = DCDlg[1].strData.size();
@@ -348,8 +350,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 	{
 		if (Global->Opt->Confirm.RemoveSUBST)
 		{
-			const auto Question = string_format(MChangeSUBSTDisconnectDriveQuestion, DiskLetter);
-			const auto MappedTo = string_format(MChangeDriveDisconnectMapped, DiskLetter.front());
+			const auto Question = format(MChangeSUBSTDisconnectDriveQuestion, DiskLetter);
+			const auto MappedTo = format(MChangeDriveDisconnectMapped, DiskLetter.front());
 			string SubstitutedPath;
 			GetSubstName(DriveType, DiskLetter, SubstitutedPath);
 			if (Message(MSG_WARNING, MSG(MChangeSUBSTDisconnectDriveTitle),
@@ -368,7 +370,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		{
 			Global->CatchError();
 			DWORD LastError = Global->CaughtError();
-			const auto strMsgText = string_format(MChangeDriveCannotDelSubst, DiskLetter);
+			const auto strMsgText = format(MChangeDriveCannotDelSubst, DiskLetter);
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
 				if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
@@ -417,7 +419,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			else
 			{
 				Global->CatchError();
-				const auto strMsgText = string_format(MChangeDriveCannotDisconnect, DiskLetter);
+				const auto strMsgText = format(MChangeDriveCannotDisconnect, DiskLetter);
 				DWORD LastError = Global->CaughtError();
 				if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 				{
@@ -454,7 +456,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 	{
 		if (Global->Opt->Confirm.DetachVHD)
 		{
-			const auto Question = string_format(MChangeVHDDisconnectDriveQuestion, DiskLetter);
+			const auto Question = format(MChangeVHDDisconnectDriveQuestion, DiskLetter);
 			if (Message(MSG_WARNING, MSG(MChangeVHDDisconnectDriveTitle),
 				{ Question },
 				{ MSG(MYes), MSG(MNo) },
@@ -485,7 +487,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		if (Result != DRIVE_DEL_SUCCESS)
 		{
 			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-				{ string_format(MChangeDriveCannotDetach, DiskLetter) },
+				{ format(MChangeDriveCannotDetach, DiskLetter) },
 				{ MSG(MOk) },
 				nullptr, nullptr, &VHDDisconnectDriveErrorId);
 		}
@@ -536,7 +538,7 @@ static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &C
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 					Global->CatchError();
 					wchar_t Drive[] = { item->cDrive, L':', L'\\', 0 };
-					DoneEject = OperationFailed(Drive, MError, string_format(MChangeCouldNotEjectMedia, item->cDrive), false);
+					DoneEject = OperationFailed(Drive, MError, format(MChangeCouldNotEjectMedia, item->cDrive), false);
 				}
 				else
 					DoneEject = TRUE;
@@ -585,7 +587,7 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 				Global->CatchError();
 				DoneEject = Message(MSG_WARNING | MSG_ERRORTYPE,
 					MSG(MError),
-					{ string_format(MChangeCouldNotEjectHotPlugMedia, item->cDrive) },
+					{ format(MChangeCouldNotEjectHotPlugMedia, item->cDrive) },
 					{ MSG(MHRetry), MSG(MHCancel) },
 					nullptr, nullptr, &EjectHotPlugMediaErrorId) != Message::first_button;
 			}
@@ -793,31 +795,31 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 						SetSelected = (MenuLine == Pos);
 				}
 			}
-			FormatString ItemName;
-			ItemName << i.Letter;
+
+			auto ItemName = i.Letter;
 
 			separator Separator;
 
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_TYPE)
 			{
-				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(TypeWidth) << i.Type;
+				append(ItemName, Separator.Get(), fit_to_left(i.Type, TypeWidth));
 			}
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL)
 			{
-				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(LabelWidth) << i.Label;
+				append(ItemName, Separator.Get(), fit_to_left(i.Label, LabelWidth));
 			}
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_FILESYSTEM)
 			{
-				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(FsWidth) << i.Fs;
+				append(ItemName, Separator.Get(), fit_to_left(i.Fs, FsWidth));
 			}
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
 			{
-				ItemName << Separator.Get() << fmt::ExactWidth(TotalSizeWidth) << i.TotalSize;
-				ItemName << Separator.Get() << fmt::ExactWidth(FreeSizeWidth) << i.FreeSize;
+				append(ItemName, Separator.Get(), fit_to_left(i.TotalSize, TotalSizeWidth));
+				append(ItemName, Separator.Get(), fit_to_left(i.FreeSize, FreeSizeWidth));
 			}
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME && PathWidth)
 			{
-				ItemName << Separator.Get() << i.Path;
+				append(ItemName, Separator.Get(), i.Path);
 			}
 
 			PanelMenuItem item;

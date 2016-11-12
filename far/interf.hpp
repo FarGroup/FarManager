@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "matrix.hpp"
 
+enum LNGID : int;
 extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];
 extern COORD InitSize, CurSize;

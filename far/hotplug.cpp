@@ -374,7 +374,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 		for (size_t i = 0; i < Info.Disks.size(); ++i)
 		{
 			if (Info.Disks[i])
-				DisksStr.append(1, static_cast<wchar_t>(L'A' + i)).append(L":, ", 3);
+				append(DisksStr, static_cast<wchar_t>(L'A' + i), L":, "s);
 		}
 
 		// remove trailing ", "
@@ -391,7 +391,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 			MessageItems.emplace_back(strFriendlyName);
 
 		if (!DisksStr.empty())
-			MessageItems.emplace_back(string_format(MHotPlugDisks, DisksStr));
+			MessageItems.emplace_back(format(MHotPlugDisks, DisksStr));
 
 		MessageResult = Message(MSG_WARNING, MSG(MChangeHotPlugDisconnectDriveTitle), MessageItems, { MSG(MHRemove), MSG(MHCancel) });
 	}

@@ -75,6 +75,33 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(SYSLOG)
 
+string str_vprintf(const wchar_t * format, va_list argptr)
+{
+	wchar_t_ptr buffer;
+	size_t size = 128;
+	int length = -1;
+	do
+	{
+		buffer.reset(size *= 2);
+
+		//_vsnwprintf не всегда ставит '\0' в конце.
+		//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
+		buffer[size - 1] = 0;
+		length = _vsnwprintf(buffer.get(), size - 1, format, argptr);
+	}
+	while (length < 0);
+
+	return string(buffer.get());
+}
+
+string str_printf(const wchar_t * format, ...)
+{
+	va_list argptr;
+	va_start(argptr, format);
+	SCOPE_EXIT{ va_end(argptr); };
+	return str_vprintf(format, argptr);
+}
+
 #define MAX_LOG_LINE 10240
 
 static FILE *LogStream = nullptr;

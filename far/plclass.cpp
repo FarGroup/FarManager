@@ -394,15 +394,20 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 	}
 }
 
-static void ShowMessageAboutIllegalPluginVersion(const string& plg,const VersionInfo& required)
+static void ShowMessageAboutIllegalPluginVersion(const string& plg, const VersionInfo& required)
 {
+	const auto str = [](const VersionInfo& Version)
+	{
+		return format(L"{0}.{1}.{2}.{3}", Version.Major, Version.Minor, Version.Revision, Version.Build);
+	};
+
 	Message(MSG_WARNING|MSG_NOPLUGINS,
 		MSG(MError),
 		{
 			MSG(MPlgBadVers),
 			plg,
-			string_format(MPlgRequired, (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build)),
-			string_format(MPlgRequired2, (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build))
+			format(MPlgRequired, str(required)),
+			format(MPlgRequired2, str(FAR_VERSION))
 		},
 		{ MSG(MOk) }
 	);
@@ -503,7 +508,7 @@ void Plugin::SetGuid(const GUID& Guid)
 static string VersionToString(const VersionInfo& PluginVersion)
 {
 	static constexpr const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
-	auto strVersion = string_format(L"{0}.{1}.{2} (build {3})", PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
+	auto strVersion = format(L"{0}.{1}.{2} (build {3})", PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
 	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
 	{
 		strVersion += Stage[PluginVersion.Stage];
@@ -810,19 +815,18 @@ bool Plugin::CheckMinFarVersion()
 
 bool Plugin::InitLang(const string& Path)
 {
-	bool Result = true;
-	if (!PluginLang)
+	if (PluginLang)
+		return true;
+
+	try
 	{
-		try
-		{
-			PluginLang = std::make_unique<Language>(Path);
-		}
-		catch (const std::exception&)
-		{
-			Result = false;
-		}
+		PluginLang = std::make_unique<Language>(Path);
+		return true;
 	}
-	return Result;
+	catch (const std::exception&)
+	{
+		return false;
+	}
 }
 
 void Plugin::CloseLang()

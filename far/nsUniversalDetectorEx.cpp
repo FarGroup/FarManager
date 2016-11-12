@@ -78,7 +78,7 @@ WARNING_DISABLE_GCC("-Wsuggest-override")
 WARNING_POP()
 };
 
-static string getInfo() { return L"Mozilla Universal Charset Detector"; } // BUGBUG, version unknown
+static components::component::info getInfo() { return { L"Mozilla Universal Charset Detector"s, {} }; } // BUGBUG, version unknown
 SCOPED_ACTION(components::component)(getInfo);
 
 static const auto& CpMap()

@@ -43,8 +43,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "encoding.hpp"
 
-static auto getInfo() { return L"SQLite, version " + encoding::ansi::get_chars(SQLITE_VERSION) + L"; SQLite unicode extension, version " + encoding::ansi::get_chars(sqlite_unicode::SQLite_Unicode_Version); }
+static components::component::info getInfo() { return { L"SQLite"s, encoding::ansi::get_chars(SQLITE_VERSION) }; }
 SCOPED_ACTION(components::component)(getInfo);
+
+static components::component::info getExtensionInfo() { return { L"SQLite Unicode extension"s, encoding::ansi::get_chars(sqlite_unicode::SQLite_Unicode_Version) }; }
+SCOPED_ACTION(components::component)(getExtensionInfo);
 
 static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
 {
@@ -237,9 +240,9 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		UuidCreate(&Id);
 		if (WAL && !can_create_file(m_Path + L"." + GuidToStr(Id))) // can't open db -- copy to %TEMP%
 		{
-			FormatString strTmp;
+			string strTmp;
 			os::GetTempPath(strTmp);
-			strTmp << GetCurrentProcessId() << L'-' << DbFile;
+			append(strTmp, str(GetCurrentProcessId()), L'-', DbFile);
 			ok = copied = os::CopyFileEx(m_Path, strTmp, nullptr, nullptr, nullptr, 0);
 			os::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 			if (ok)

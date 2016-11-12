@@ -146,13 +146,13 @@ void PrintFiles(FileList* SrcPanel)
 			string strName;
 			SrcPanel->GetSelName(&strName,FileAttr);
 			strSelName = TruncStr(strName,50);
-			strTitle = string_format(MPrintTo, InsertQuote(strSelName));
+			strTitle = format(MPrintTo, InsertQuote(strSelName));
 		}
 		else
 		{
 			_ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
 			SelCount-=DirsCount;
-			strTitle = string_format(MPrintFilesTo, SelCount);
+			strTitle = format(MPrintFilesTo, SelCount);
 		}
 
 		const auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);

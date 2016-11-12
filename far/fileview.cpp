@@ -518,11 +518,9 @@ void FileViewer::ShowStatus() const
 	NameLength = std::max(NameLength, 20);
 
 	TruncPathStr(strName, NameLength);
-	static constexpr wchar_t StatusFormat[] = L"%-*s %c %5u %13I64u %7.7s %-4I64d %3d%%";
-	string strStatus = str_printf(
-	    StatusFormat,
+	auto strStatus = format(L"{0:{1}} {2} {3:5} {4:13} {5:7.7} {6:<4} {7:3}%",
+	    strName,
 	    NameLength,
-	    strName.data(),
 	    L"thd"[m_View->m_DisplayMode],
 	    m_View->m_Codepage,
 	    m_View->FileSize,
@@ -532,7 +530,7 @@ void FileViewer::ShowStatus() const
 	);
 	SetColor(COL_VIEWERSTATUS);
 	GotoXY(m_X1,m_Y1);
-	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(m_View->Width+(m_View->ViOpt.ShowScrollbar?1:0))<<strStatus;
+	Text(fit_to_left(strStatus, m_View->Width + (m_View->ViOpt.ShowScrollbar? 1 : 0)));
 
 	if (Global->Opt->ViewerEditorClock && IsFullScreen())
 		ShowTime();

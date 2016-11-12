@@ -286,7 +286,7 @@ bool elevation::Initialize()
 				}
 			}
 
-			string Param = string(ElevationArgument) + L" " + m_PipeName + L' ' + std::to_wstring(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES) ? L'1' : L'0');
+			string Param = string(ElevationArgument) + L" " + m_PipeName + L' ' + str(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES) ? L'1' : L'0');
 
 			SHELLEXECUTEINFO info =
 			{

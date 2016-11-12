@@ -425,37 +425,37 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 			if (LanguageLoaded())
 			{
-				strBuf = string_format(MExcRAccess + Offset, strBuf);
+				strBuf = format(MExcRAccess + Offset, strBuf);
 				Exception=strBuf.data();
 			}
 			else
 			{
 				const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
-				strBuf = string(Exception) + L" (" + AVs[Offset] + strBuf + L")";
+				strBuf = concat(Exception, L" ("s, AVs[Offset], strBuf, L')');
 				Exception=strBuf.data();
 			}
 		}
 		else if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS))
 		{
 			strBuf = Exception;
-			strBuf.append(L" (");
+			strBuf += L" ("s;
 			if (Message)
 			{
-				strBuf.append(L"std::exception: ").append(encoding::utf8::get_chars(Message));
+				append(strBuf, L"std::exception: "s, encoding::utf8::get_chars(Message));
 			}
 			else
 			{
-				strBuf.append(L"other");
+				strBuf += L"other"s;
 			}
-			strBuf.append(L")");
+			strBuf += L")"s;
 			Exception = strBuf.data();
 		}
 	}
 
 	if (!Exception)
 	{
-		const wchar_t* Template = LanguageLoaded()? MSG(MExcUnknown) : L"Unknown exception";
-		strBuf.append(Template).append(L" (0x").append(to_hex_wstring(xr->ExceptionCode)).append(L")");
+		const auto Template = LanguageLoaded()? MSG(MExcUnknown) : L"Unknown exception";
+		append(strBuf, Template, L" (0x"s, to_hex_wstring(xr->ExceptionCode), L')');
 		Exception = strBuf.data();
 	}
 

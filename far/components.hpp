@@ -39,7 +39,8 @@ namespace components
 	class component
 	{
 	public:
-		using get_info = string(*)();
+		using info = std::pair<string, string>;
+		using get_info = info(*)();
 
 		component(get_info getInfo);
 
@@ -69,7 +70,7 @@ namespace components
 		size_t m_size;
 	};
 
-	std::set<string>& GetComponentsInfo();
+	std::map<string, string>& GetComponentsInfo();
 }
 
 #endif // COMPONENTS_HPP_5EB4061D_47B2_4941_8B57_FE405EBD3D83

@@ -225,7 +225,7 @@ class IntOption: public detail::OptionImpl<long long, IntOption>
 public:
 	using OptionImpl<long long, IntOption>::OptionImpl;
 
-	virtual string toString() const override { return std::to_wstring(Get()); }
+	virtual string toString() const override { return str(Get()); }
 	virtual void fromString(const string& value) override;
 	virtual string ExInfo() const override;
 	virtual string typeToString() const override { return L"integer"s; }
@@ -587,7 +587,6 @@ public:
 		// internal
 		DWORD KeyMacroCtrlDot, KeyMacroRCtrlDot;
 		DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
-		StringOption strMacroCONVFMT; // формат преобразования double в строку
 		StringOption strDateFormat; // Для $Date
 		BoolOption ShowPlayIndicator; // показать вывод 'P' во время проигрывания макроса
 	};

@@ -82,4 +82,12 @@ inline LNGID operator++(LNGID& Id, int)
 	return Value;
 }
 
+#define MSG(ID) Global->Lang->GetMsg(ID)
+
+template<typename... args>
+auto format(LNGID Id, args&&... Args)
+{
+	return format(MSG(Id), std::forward<args>(Args)...);
+}
+
 #endif // LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865

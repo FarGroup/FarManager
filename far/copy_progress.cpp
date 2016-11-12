@@ -74,14 +74,20 @@ size_t copy_progress::GetCanvasWidth()
 	return 52;
 }
 
-static void GetTimeText(DWORD Time, string &strTimeText)
+static string GetTimeText(DWORD Seconds)
 {
-	DWORD Sec = Time;
-	DWORD Min = Sec / 60;
-	Sec -= (Min * 60);
-	DWORD Hour = Min / 60;
-	Min -= (Hour * 60);
-	strTimeText = FormatString() << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Hour << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Min << L":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Sec;
+	string Days, Time;
+	ConvertRelativeDate(UI64ToFileTime(Seconds * 1000ull * 10000ull), Days, Time);
+	if (Days != L"0")
+	{
+		// BUGBUG copy time > 4.166 days (100 hrs) will not be displayed correctly
+		const auto Hours = str(std::min(Seconds / 3600, 99ul));
+		Time[0] = Hours[0];
+		Time[1] = Hours[1];
+	}
+
+	// drop msec
+	return Time.substr(0, Time.size() - 4);
 }
 
 void copy_progress::UpdateAllBytesInfo(unsigned long long FileSize)
@@ -121,7 +127,7 @@ void copy_progress::FlushScan()
 
 	CreateScanBackground();
 	GotoXY(m_Rect.Left + 5, m_Rect.Top + 3);
-	Global->FS << fmt::LeftAlign() << fmt::ExactWidth(m_Rect.Right - m_Rect.Left - 9) << m_ScanName;
+	Text(fit_to_left(m_ScanName, m_Rect.Right - m_Rect.Left - 9));
 
 	Global->ScrBuf->Flush();
 }
@@ -135,7 +141,7 @@ static string FormatCounter(LNGID CounterId, LNGID AnotherId, unsigned long long
 	auto StrCurrent = InsertCommas(CurrentValue);
 	auto StrTotal = ShowTotal? InsertCommas(TotalValue) : string();
 
-	auto Value = ShowTotal? string_format(L"{0} / {1}", StrCurrent, StrTotal) : StrCurrent;
+	auto Value = ShowTotal? concat(StrCurrent, L" / "s, StrTotal) : StrCurrent;
 	if (MaxWidth > PaddedLabelSize)
 	{
 		const auto PaddedValueSize = MaxWidth - PaddedLabelSize;
@@ -174,7 +180,7 @@ void copy_progress::Flush()
 	{
 		ConsoleTitle::SetFarTitle(
 			L"{"
-			+ std::to_wstring(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_Total? m_TotalPercent : m_CurrentPercent)
+			+ str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_Total? m_TotalPercent : m_CurrentPercent)
 			+ L"%} "
 			+ MSG(m_Move ? MCopyMovingTitle : MCopyCopyingTitle)
 		);
@@ -271,15 +277,10 @@ void copy_progress::SetNames(const string& Src, const string& Dst)
 	}
 
 	const int NameWidth = static_cast<int>(GetCanvasWidth());
-	auto tmp = Src;
-	TruncPathStr(tmp, NameWidth);
-	m_Src.clear();
-	m_Src << fmt::LeftAlign() << fmt::ExactWidth(NameWidth) << tmp;
-	tmp = Dst;
-	TruncPathStr(tmp, NameWidth);
-	m_Dst.clear();
-	m_Dst << fmt::LeftAlign() << fmt::ExactWidth(NameWidth) << tmp;
-
+	m_Src = Src;
+	TruncPathStr(m_Src, NameWidth);
+	m_Dst = Dst;
+	TruncPathStr(m_Dst, NameWidth);
 	m_FilesCopied = FormatCounter(MCopyFilesTotalInfo, MCopyBytesTotalInfo, m_Files.Copied, m_Files.Total, m_Total, GetCanvasWidth() - 5);
 
 	Flush();
@@ -312,8 +313,7 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 
 	if (!CalcTime)
 	{
-		const auto Placeholder = L"        ";
-		tmp[0] = tmp[1] = tmp[2] = Placeholder;
+		tmp[0] = tmp[1] = tmp[2] = string(8, L' ');
 	}
 	else
 	{
@@ -321,15 +321,13 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 
 		const auto CPS = SizeDone / CalcTime;
 
-		string strCalcTimeStr;
-		GetTimeText(CalcTime, strCalcTimeStr);
+		const auto strCalcTimeStr = GetTimeText(CalcTime);
 
 		if (m_SpeedUpdateCheck)
 		{
 			if (SizeToGo)
 			{
-				const auto TimeLeft = static_cast<DWORD>(CPS ? SizeToGo / CPS : 0);
-				GetTimeText(TimeLeft, m_TimeLeft);
+				m_TimeLeft = GetTimeText(static_cast<DWORD>(CPS? SizeToGo / CPS:0));
 			}
 
 			m_Speed = FileSizeToStr(CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);
@@ -340,10 +338,10 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 			}
 		}
 
-		tmp[0] = FormatString() << fmt::ExactWidth(8) << strCalcTimeStr;
-		tmp[1] = FormatString() << fmt::ExactWidth(8) << m_TimeLeft;
-		tmp[2] = FormatString() << fmt::ExactWidth(8) << m_Speed;
+		tmp[0] = strCalcTimeStr;
+		tmp[1] = m_TimeLeft;
+		tmp[2] = m_Speed;
 	}
 
-	m_Time = string_format(MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
+	m_Time = format(MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
 }

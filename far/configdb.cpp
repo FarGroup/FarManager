@@ -2273,7 +2273,7 @@ bool config_provider::Export(const string& File)
 {
 	representation_destination Representation;
 	auto& root = Representation.GetRoot();
-	root.SetAttribute("version", (std::to_string(FAR_VERSION.Major) + "." + std::to_string(FAR_VERSION.Minor) + "." + std::to_string(FAR_VERSION.Build)).data());
+	root.SetAttribute("version", format("{0}.{1}.{2}", FAR_VERSION.Major, FAR_VERSION.Minor, FAR_VERSION.Build).data());
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);

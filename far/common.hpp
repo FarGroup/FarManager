@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/monitored.hpp"
 #include "common/enum_substrings.hpp"
 #include "common/string_literal.hpp"
+#include "common/string_utils.hpp"
 #include "common/zip_view.hpp"
 #include "common/blob_view.hpp"
 
@@ -168,6 +169,12 @@ namespace enum_helpers
 	{
 		return static_cast<std::conditional_t<std::is_same<R, void>::value, T, R>>(O()(static_cast<std::underlying_type_t<T>>(a), static_cast<std::underlying_type_t<T>>(b)));
 	}
+}
+
+template<typename T>
+auto as_unsigned(T Value)
+{
+	return static_cast<std::make_unsigned_t<T>>(Value);
 }
 
 #ifdef _DEBUG

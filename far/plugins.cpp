@@ -100,12 +100,12 @@ static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 #endif // NO_WRAPPER
 }
 
-static void GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::hotkey_type HotKeyType, string &strHotKey)
+static wchar_t GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::hotkey_type HotKeyType)
 {
 	string strPluginKey;
-	strHotKey.clear();
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
-	strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);
+	const auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);
+	return strHotKey.empty()? L'\0' : strHotKey.front();
 }
 
 bool PluginManager::plugin_less::operator ()(const Plugin* a, const Plugin *b) const
@@ -1174,11 +1174,9 @@ struct PluginMenuItemData
 	GUID Guid;
 };
 
-static string AddHotkey(const string& Item, const string& Hotkey)
+static string AddHotkey(const string& Item, wchar_t Hotkey)
 {
-	return Hotkey.empty()?
-		L"   " + Item :
-		string_format(L"&{0}{1}  {2}", Hotkey.front(), Hotkey.front() == L'&' ? L"&" : L"", Item);
+	return concat(!Hotkey?  L" "s : Hotkey == L'&'? L"&&&"s : L"&"s + Hotkey, L"  "s, Item);
 }
 
 /* $ 29.05.2001 IS
@@ -1201,7 +1199,7 @@ void PluginManager::Configure(int StartPos)
 			{
 				PluginList->clear();
 				LoadIfCacheAbsent();
-				string strHotKey, strName;
+				string strName;
 				GUID guid;
 
 				for (const auto& i: SortedPlugins)
@@ -1236,7 +1234,7 @@ void PluginManager::Configure(int StartPos)
 							guid = Info.PluginConfig.Guids[J];
 						}
 
-						GetPluginHotKey(i, guid, PluginsHotkeysConfig::hotkey_type::config_menu, strHotKey);
+						const auto Hotkey = GetPluginHotKey(i, guid, PluginsHotkeysConfig::hotkey_type::config_menu);
 						MenuItemEx ListItem;
 #ifndef NO_WRAPPER
 						if (i->IsOemPlugin())
@@ -1245,7 +1243,7 @@ void PluginManager::Configure(int StartPos)
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
 						else
-							ListItem.strName = AddHotkey(strName, strHotKey);
+							ListItem.strName = AddHotkey(strName, Hotkey);
 
 						PluginMenuItemData item = { i, guid };
 
@@ -1406,7 +1404,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							guid = Info.PluginMenu.Guids[J];
 						}
 
-						GetPluginHotKey(i, guid, PluginsHotkeysConfig::hotkey_type::plugins_menu, strHotKey);
+						const auto Hotkey = GetPluginHotKey(i, guid, PluginsHotkeysConfig::hotkey_type::plugins_menu);
 						MenuItemEx ListItem;
 #ifndef NO_WRAPPER
 						if (i->IsOemPlugin())
@@ -1415,7 +1413,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						if (!HotKeysPresent)
 							ListItem.strName = strName;
 						else
-							ListItem.strName = AddHotkey(strName, strHotKey);
+							ListItem.strName = AddHotkey(strName, Hotkey);
 
 						PluginMenuItemData itemdata;
 						itemdata.pPlugin = i;
@@ -1836,9 +1834,7 @@ bool PluginManager::GetDiskMenuItem(
 	}
 	if (ItemPresent)
 	{
-		string strHotKey;
-		GetPluginHotKey(pPlugin, Guid, PluginsHotkeysConfig::hotkey_type::drive_menu, strHotKey);
-		PluginHotkey = strHotKey.empty() ? 0 : strHotKey[0];
+		PluginHotkey = GetPluginHotKey(pPlugin, Guid, PluginsHotkeysConfig::hotkey_type::drive_menu);
 	}
 
 	return true;

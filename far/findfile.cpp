@@ -1382,7 +1382,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		{
 			if (!m_Searcher->Stopped())
 			{
-				const auto strDataStr = string_format(MFindFound, itd->GetFileCount(), itd->GetDirCount());
+				const auto strDataStr = format(MFindFound, itd->GetFileCount(), itd->GetDirCount());
 				Dlg->SendMessage(DM_SETTEXTPTR,FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
 
 				string strSearchStr;
@@ -1391,16 +1391,16 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				{
 					string strFStr(strFindStr);
 					TruncStrFromEnd(strFStr,10);
-					strSearchStr = string_format(MFindSearchingIn, L" \"" + strFStr + L"\"");
+					strSearchStr = format(MFindSearchingIn, concat(L'"', strFStr + L'"'));
 				}
 
 				string strFM;
 				itd->GetFindMessage(strFM);
 				SMALL_RECT Rect;
-				Dlg->SendMessage( DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
+				Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
 				TruncStrFromCenter(strFM, Rect.Right-Rect.Left+1 - static_cast<int>(strSearchStr.size()) - 1);
-				Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + L" " + strFM));
-				Dlg->SendMessage( DM_SETTEXTPTR,FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(str_printf(L"%3d%%",itd->GetPercent())));
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + L" " + strFM));
+				Dlg->SendMessage(DM_SETTEXTPTR,FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(L"{0:3}%", itd->GetPercent())));
 
 				if (itd->GetLastFoundNumber())
 				{
@@ -1416,7 +1416,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	if(!Finalized && m_Searcher->Stopped())
 	{
-		const auto strMessage = string_format(MFindDone, itd->GetFileCount(), itd->GetDirCount());
+		const auto strMessage = format(MFindDone, itd->GetFileCount(), itd->GetDirCount());
 		Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
@@ -1956,11 +1956,9 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 		Dlg->SendMessage( DM_ENABLE, FD_LISTBOX, ToPtr(TRUE));
 	}
 
-	FormatString MenuText;
-
 	const wchar_t *DisplayName=FindData.strFileName.data();
 
-	MenuText << L' ';
+	string MenuText(1, L' ');
 
 	for (auto& i: Global->Opt->FindOpt.OutColumns)
 	{
@@ -1987,7 +1985,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 
 			case ATTR_COLUMN:
 			{
-				MenuText << FormatStr_Attribute(FindData.dwFileAttributes, Width) << BoxSymbols[BS_V1];
+				append(MenuText, FormatStr_Attribute(FindData.dwFileAttributes, Width), BoxSymbols[BS_V1]);
 				break;
 			}
 			case NUMSTREAMS_COLUMN:
@@ -2015,7 +2013,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 					? StreamsSize
 					: StreamsCount; // ???
 
-				MenuText << FormatStr_Size(
+				append(MenuText, FormatStr_Size(
 								SizeToDisplay,
 								DisplayName,
 								FindData.dwFileAttributes,
@@ -2023,9 +2021,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 								FindData.dwReserved0,
 								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?STREAMSSIZE_COLUMN:CurColumnType,
 								i.type,
-								Width);
-
-				MenuText << BoxSymbols[BS_V1];
+								Width), BoxSymbols[BS_V1]);
 				break;
 			}
 
@@ -2056,7 +2052,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 						break;
 				}
 
-				MenuText << FormatStr_DateTime(FileTime, CurColumnType, i.type, Width) << BoxSymbols[BS_V1];
+				append(MenuText, FormatStr_DateTime(FileTime, CurColumnType, i.type, Width), BoxSymbols[BS_V1]);
 				break;
 			}
 		}
@@ -2071,7 +2067,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 	const wchar_t *DisplayName0=DisplayName;
 	if (itd->GetFindFileArcItem())
 		DisplayName0 = PointToName(DisplayName0);
-	MenuText << DisplayName0;
+	MenuText += DisplayName0;
 
 	string strPathName=FullName;
 	{
@@ -2540,7 +2536,7 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 				{
 					Volumes.emplace_back(strGuidVolime);
 				}
-				InitString += i + L";";
+				append(InitString, i, L';');
 			}
 		});
 
@@ -2555,7 +2551,7 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 
 			if (std::none_of(CONST_RANGE(Volumes, i) {return i.compare(0, VolumeName.size(), VolumeName) == 0;}))
 			{
-				InitString.append(VolumeName).append(L";");
+				append(InitString, VolumeName, L';');
 			}
 		}
 	}
@@ -2668,11 +2664,11 @@ bool FindFiles::FindFilesProcess()
 	if (!strFindStr.empty())
 	{
 		string strFStr=strFindStr;
-		strSearchStr = string_format(MFindSearchingIn, L" " + InsertQuote(TruncStrFromEnd(strFStr, 10)));
+		strSearchStr = format(MFindSearchingIn, L" " + InsertQuote(TruncStrFromEnd(strFStr, 10)));
 	}
 	else
 	{
-		strSearchStr = string_format(MFindSearchingIn, strFindStr);
+		strSearchStr = format(MFindSearchingIn, strFindStr);
 	}
 
 	int DlgWidth = ScrX + 1 - 2;

@@ -517,9 +517,9 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 							string tmp = i.strAppName;
 							if (*i.strServiceShortName)
 							{
-								tmp.append(L" [").append(i.strServiceShortName).append(L"]");
+								append(tmp, L" ["s, i.strServiceShortName, L']');
 							}
-							tmp += L" (PID: " + std::to_wstring(i.Process.dwProcessId);
+							append(tmp, L" (PID: "s, str(i.Process.dwProcessId));
 							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, i.Process.dwProcessId)))
 							{
 								FILETIME ftCreate, ftExit, ftKernel, ftUser;
@@ -528,7 +528,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 									string Name;
 									if (os::GetModuleFileNameEx(Process.native_handle(), nullptr, Name))
 									{
-										tmp += L", " + Name;
+										append(tmp, L", "s, Name);
 									}
 								}
 							}
@@ -545,7 +545,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 	std::vector<string> Msgs{Description, QuoteOuterSpace(string(Object))};
 	if(!Msg.empty())
 	{
-		Msgs.emplace_back(string_format(MObjectLockedReason, MSG(Reason)));
+		Msgs.emplace_back(format(MObjectLockedReason, MSG(Reason)));
 		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
 	}
 

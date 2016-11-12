@@ -56,7 +56,7 @@ using CriticalSectionLock = std::lock_guard<CriticalSection>;
 template<class T, class S>
 string make_name(const S& HashPart, const S& TextPart)
 {
-	auto Str = T::GetNamespace() + std::to_wstring(make_hash(HashPart)) + L"_" + TextPart;
+	auto Str = T::GetNamespace() + str(make_hash(HashPart)) + L"_" + TextPart;
 	ReplaceBackslashToSlash(Str);
 	return Str;
 }

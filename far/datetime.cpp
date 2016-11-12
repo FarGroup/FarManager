@@ -152,41 +152,27 @@ static void st_time(string &strDest, const tm *tmPtr, const locale_cache::names&
 
 	if (chr==L'v')
 	{
-		strDest = str_printf(L"%2d-%3.3s-%4d",
+		strDest = format(L"{0:2}-{1:3:3}-{2:4}",
 			tmPtr->tm_mday,
-			Names.Months[tmPtr->tm_mon].Short.data(),
+			Names.Months[tmPtr->tm_mon].Short,
 			tmPtr->tm_year+1900);
 
 		InplaceUpper(strDest, 3, 3);
 	}
 	else
-		switch (LocaleCache().DateFormat())
+	{
+		const auto& GetFormat = []
 		{
-			case 0:
-				strDest = str_printf(L"%02d%c%02d%c%4d",
-				                   tmPtr->tm_mon+1,
-				                   DateSeparator,
-				                   tmPtr->tm_mday,
-				                   DateSeparator,
-				                   tmPtr->tm_year+1900);
-				break;
-			case 1:
-				strDest = str_printf(L"%02d%c%02d%c%4d",
-				                   tmPtr->tm_mday,
-				                   DateSeparator,
-				                   tmPtr->tm_mon+1,
-				                   DateSeparator,
-				                   tmPtr->tm_year+1900);
-				break;
-			default:
-				strDest = str_printf(L"%4d%c%02d%c%02d",
-				                   tmPtr->tm_year+1900,
-				                   DateSeparator,
-				                   tmPtr->tm_mon+1,
-				                   DateSeparator,
-				                   tmPtr->tm_mday);
-				break;
-		}
+			switch (LocaleCache().DateFormat())
+			{
+			case 0: return L"{2:02}{0}{1:02}{0}{3:4}";
+			case 1: return L"{1:02}{0}{2:02}{0}{3:4}";
+			default: return L"{3:4}{0}{2:02}{0}{1:02}";
+			}
+		};
+
+		strDest = format(GetFormat(), DateSeparator, tmPtr->tm_mday, tmPtr->tm_mon + 1, tmPtr->tm_year + 1900);
+	}
 }
 
 // weeknumber --- figure how many weeks into the year
@@ -368,28 +354,28 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					//appropriate date and time representation
 				case L'c':
 					// Thu Oct 07 12:37:32 1999
-					strBuf = str_printf(L"%s %s %02d %02d:%02d:%02d %4d",
+					strBuf = format(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}",
 						LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Short.data(),
 						LocaleCache().Names(IsLocal).Months[t->tm_mon].Short.data(),
 						t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, t->tm_year + 1900);
 					break;
 					// Столетие как десятичное число (00 - 99). Например, 1992 => 19
 				case L'C':
-					strBuf = str_printf(L"%02d",(t->tm_year+1900)/100);
+					strBuf = format(L"{0:02}", (t->tm_year + 1900) / 100);
 					break;
 					// day of month, blank padded
 				case L'e':
 					// Две цифры дня месяца (01 - 31)
 					// day of the month, 01 - 31
 				case L'd':
-					strBuf = str_printf(*Format==L'e'?L"%2d":L"%02d",t->tm_mday);
+					strBuf = format(*Format == L'e'? L"{0:2}" : L"{0:02}", t->tm_mday);
 					break;
 					// hour, 24-hour clock, blank pad
 				case L'k':
 					// Две цифры часа (00 - 23)
 					// hour, 24-hour clock, 00 - 23
 				case L'H':
-					strBuf = str_printf(*Format==L'k'?L"%2d":L"%02d",t->tm_hour);
+					strBuf = format(*Format == L'k'? L"{0:2}" : L"{0:02}", t->tm_hour);
 					break;
 					// hour, 12-hour clock, 1 - 12, blank pad
 				case L'l':
@@ -402,13 +388,13 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					if (!I)
 						I=12;
 
-					strBuf = str_printf(*Format==L'l'?L"%2d":L"%02d",I);
+					strBuf = format(*Format == L'l'? L"{0:2}" : L"{0:02}", I);
 					break;
 				}
 				// Три цифры дня в году (001 - 366)
 				// day of the year, 001 - 366
 				case L'j':
-					strBuf = str_printf(L"%03d",t->tm_yday+1);
+					strBuf = format(L"{0:03}", t->tm_yday+1);
 					break;
 					// Две цифры месяца, как десятичное число (1 - 12)
 					// month, 01 - 12
@@ -416,18 +402,18 @@ string StrFTime(const wchar_t* Format, const tm* t)
 				{
 					// %mh - Hex month digit
 					// %m0 - ведущий 0
-					const wchar_t *fmt=Format[1]==L'h'?L"%X":Format[1]==L'0'?L"%02d":L"%d";
+					const auto fmt = Format[1] == L'h'? L"{0:X}" : Format[1] == L'0'? L"{0:02}" : L"{0}";
 
-					if (fmt[1]!=L'd')
+					if (Format[1] == L'h' || Format[1] == L'0')
 						Format++;
 
-					strBuf = str_printf(fmt,t->tm_mon+1);
+					strBuf = format(fmt, t->tm_mon + 1);
 					break;
 				}
 				// Две цифры минут (00 - 59)
 				// minute, 00 - 59
 				case L'M':
-					strBuf = str_printf(L"%02d",t->tm_min);
+					strBuf = format(L"{0:02}", t->tm_min);
 					break;
 					// AM или PM
 					// am or pm based on 12-hour clock
@@ -437,12 +423,12 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// Две цифры секунд (00 - 59)
 					// second, 00 - 59
 				case L'S':
-					strBuf = str_printf(L"%02d",t->tm_sec);
+					strBuf = format(L"{0:02}", t->tm_sec);
 					break;
 					// День недели где 0 - Воскресенье (Sunday) (0 - 6)
 					// weekday, Sunday == 0, 0 - 6
 				case L'w':
-					strBuf = std::to_wstring(t->tm_wday);
+					strBuf = str(t->tm_wday);
 					break;
 					// Две цифры номера недели, где Воскресенье (Sunday)
 					//   является первым днем недели (00 - 53)
@@ -459,7 +445,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					if (I<0)
 						I+=7;
 
-					strBuf = str_printf(L"%02d",(t->tm_yday+I-(*Format==L'W'))/7);
+					strBuf = format(L"{0:02}", (t->tm_yday + I - (*Format == L'W')) / 7);
 					break;
 				}
 				// date as dd-bbb-YYYY
@@ -474,24 +460,22 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// appropriate time representation
 				case L'T':
 				case L'X':
-				{
-					const auto TimeSeparator = LocaleCache().TimeSeparator();
-					strBuf = str_printf(L"%02d%c%02d%c%02d",t->tm_hour,TimeSeparator,t->tm_min,TimeSeparator,t->tm_sec);
+					strBuf = format(L"{1:02}{0}{2:02}{0}{3:02}", LocaleCache().TimeSeparator(), t->tm_hour, t->tm_min, t->tm_sec);
 					break;
-				}
+
 				// Две цифры года без столетия (00 to 99)
 				// year without a century, 00 - 99
 				case L'y':
-					strBuf = str_printf(L"%02d",t->tm_year%100);
+					strBuf = format(L"{0:02}", t->tm_year % 100);
 					break;
 					// Год со столетием (19yy-20yy)
 					// year with century
 				case L'Y':
-					strBuf = std::to_wstring(1900+t->tm_year);
+					strBuf = str(1900+t->tm_year);
 					break;
 					// Имя часового пояса или пусто, если часовой пояс не задан
 				case L'Z':
-					strBuf = str_printf(L"%+03d%02d",-(_timezone/3600),-(_timezone/60)%60);
+					strBuf = format(L"{0:+03}{1:02}", -(_timezone / 3600), -(_timezone / 60) % 60);
 					//Ptr = _tzname[ t->tm_isdst ];
 					break;
 					// same as \n
@@ -515,7 +499,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					break;
 					// week of year according ISO 8601
 				case L'V':
-					strBuf = str_printf(L"%02d",iso8601wknum(t));
+					strBuf = format(L"{0:02}", iso8601wknum(t));
 					break;
 			}
 
@@ -556,7 +540,7 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	WORD DateN[3]={},TimeN[4]={};
 	SYSTEMTIME st={};
 	// Преобразуем введённые пользователем дату и время
-	GetFileDateAndTime(CDate, DateN, std::size(DateN), DateSeparator);
+	GetFileDateAndTime(CDate, DateN, bRelative? 1 : std::size(DateN), DateSeparator);
 	GetFileDateAndTime(CTime, TimeN, std::size(TimeN), TimeSeparator);
 
 	if (!bRelative)
@@ -658,13 +642,14 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 				st.wHour=12;
 		}
 
-		if (TimeLength<7)
-			strTimeText = str_printf(L"%02d%c%02d%s",st.wHour,TimeSeparator,st.wMinute,Letter);
+		if (TimeLength < 7)
+		{
+			strTimeText = format(L"{0:02}{1}{2:02}{3}", st.wHour, TimeSeparator, st.wMinute, Letter);
+		}
 		else
 		{
-			const auto strFullTime = str_printf(L"%02d%c%02d%c%02d%c%03d",
-				st.wHour, TimeSeparator, st.wMinute, TimeSeparator, st.wSecond, DecimalSeparator, st.wMilliseconds);
-			strTimeText = str_printf(L"%.*s",TimeLength, strFullTime.data());
+			strTimeText = cut_right(format(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:03}",
+				st.wHour, TimeSeparator, st.wMinute, st.wSecond, DecimalSeparator, st.wMilliseconds), TimeLength);
 		}
 	}
 	//if ( !strDateText.empty() )
@@ -676,20 +661,17 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 
 		if (TextMonth)
 		{
-			const auto Mnth = LocaleCache().LocalNames().Months[st.wMonth - 1].Short.data();
-
-			switch (CurDateFormat)
+			const auto GetFormat = [CurDateFormat]
 			{
-				case 0:
-					strDateText = str_printf(L"%3.3s %2d %02d",Mnth,st.wDay,Year);
-					break;
-				case 1:
-					strDateText = str_printf(L"%2d %3.3s %02d",st.wDay,Mnth,Year);
-					break;
-				default:
-					strDateText = str_printf(L"%02d %3.3s %2d",Year,Mnth,st.wDay);
-					break;
-			}
+				switch (CurDateFormat)
+				{
+				case 0:  return L"{1:3.3} {0:2} {2:02}";
+				case 1:  return L"{0:2} {1:3.3} {2:02}";
+				default: return L"{2:02} {1:3.3} {0:2}";
+				}
+			};
+
+			strDateText = format(GetFormat(), st.wDay, LocaleCache().LocalNames().Months[st.wMonth - 1].Short, Year);
 		}
 		else
 		{
@@ -715,7 +697,12 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 					p3=st.wDay;
 					break;
 			}
-			strDateText = FormatString()<<fmt::FillChar(f1)<<fmt::MinWidth(w1)<<p1<<DateSeparator<<fmt::FillChar(f2)<<fmt::MinWidth(w2)<<p2<<DateSeparator<<fmt::FillChar(f3)<<fmt::MinWidth(w3)<<p3;
+			// Library doesn't support dynamic fill currently. TODO: fix it?
+			wchar_t Format[] = L"{0: >{1}}{6}{2: >{3}}{6}{4: >{5}}";
+			Format[3] = f1;
+			Format[15] = f2;
+			Format[27] = f3;
+			strDateText = format(Format, p1, w1, p2, w2, p3, w3, DateSeparator);
 		}
 	}
 
@@ -724,22 +711,22 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 		strDateText.resize(TextMonth ? 6 : 5);
 
 		if (get_local_time().wYear != st.wYear)
-			strTimeText = str_printf(L"%5d",st.wYear);
+			strTimeText = format(L"{0:5}", st.wYear);
 	}
 }
 
-void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText)
+void ConvertRelativeDate(const FILETIME &ft, string &strDaysText, string &strTimeText)
 {
 	auto time = FileTimeToUI64(ft);
 
-	UINT64 ms = (time/=10000)%1000;
-	UINT64 s = (time/=1000)%60;
-	UINT64 m = (time/=60)%60;
-	UINT64 h = (time/=60)%24;
-	UINT64 d = time/=24;
+	const auto ms = (time /= 10000) % 1000;
+	const auto s = (time /= 1000) % 60;
+	const auto m = (time /= 60) % 60;
+	const auto h = (time /= 60) % 24;
+	const auto d = time /= 24;
 
-	strDaysText = std::to_wstring(d);
-	strTimeText = FormatString() << fmt::MinWidth(2) << fmt::FillChar(L'0') << h << LocaleCache().TimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << m << LocaleCache().TimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << s << LocaleCache().DecimalSeparator() << fmt::MinWidth(3) << fmt::FillChar(L'0') << ms;
+	strDaysText = str(d);
+	strTimeText = format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}", h, m, s, ms, LocaleCache().TimeSeparator(), LocaleCache().DecimalSeparator());
 }
 
 bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst)

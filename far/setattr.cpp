@@ -93,6 +93,7 @@ enum SETATTRDLG
 	SA_ATTR_LAST = SA_CHECKBOX_NO_SCRUB_DATA,
 	SA_SEPARATOR3,
 	SA_TEXT_TITLEDATE,
+	SA_TEXT_TITLETIME,
 	SA_TEXT_LASTWRITE,
 	SA_EDIT_WDATE,
 	SA_EDIT_WTIME,
@@ -414,7 +415,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					LNGID m = (Param1 == SA_COMBO_HARDLINK ? MSetAttrHardLinks : MSetAttrDfsTargets);
 					FarListInfo li={sizeof(FarListInfo)};
 					Dlg->SendMessage(DM_LISTINFO,Param1,&li);
-					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(string(MSG(m)) + L" (" + std::to_wstring(li.ItemsNumber) + L")"));
+					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(string(MSG(m)) + L" (" + str(li.ItemsNumber) + L")"));
 				}
 				break;
 			default:
@@ -540,7 +541,7 @@ void ShellSetFileAttributesMsg(const string& Name)
 	Width=std::max(Width,WidthTemp);
 	string strOutFileName=Name;
 	TruncPathStr(strOutFileName,Width);
-	CenterStr(strOutFileName,strOutFileName,Width+4);
+	strOutFileName = fit_to_center(strOutFileName, Width + 4);
 	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName.data());
 	if (!PreRedrawStack().empty())
 	{
@@ -658,6 +659,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,DlgX-29,15,0,15,0,nullptr,nullptr,0,L""},
+		{DI_TEXT,DlgX-17,15,0,15,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,    5,16,0,16,0,nullptr,nullptr,0,MSG(MSetAttrModification)},
 		{DI_FIXEDIT,DlgX-29,16,DlgX-19,16,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,16,DlgX-6,16,0,nullptr,nullptr,DIF_MASKEDIT,L""},
@@ -762,30 +764,33 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		wchar_t DateSeparator = locale::GetDateSeparator();
 		wchar_t TimeSeparator = locale::GetTimeSeparator();
 		wchar_t DecimalSeparator = locale::GetDecimalSeparator();
-		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c9999N",FmtMask3=L"N9999%c99%c99";
-		string strDMask, strTMask = str_printf(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
-		string DateFormat;
+		string DateMask, DateFormat;
 
 		switch (locale::GetDateFormat())
 		{
 			case 0:
-				DateFormat = string_format(MSetAttrTimeTitle1, DateSeparator, DateSeparator, TimeSeparator, TimeSeparator, DecimalSeparator);
-				strDMask = str_printf(FmtMask2,DateSeparator,DateSeparator);
+				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
+				DateFormat = format(MSetAttrDateTitle1, DateSeparator);
 				break;
+
 			case 1:
-				DateFormat = string_format(MSetAttrTimeTitle2, DateSeparator, DateSeparator, TimeSeparator, TimeSeparator, DecimalSeparator);
-				strDMask = str_printf(FmtMask2,DateSeparator,DateSeparator);
+				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
+				DateFormat = format(MSetAttrDateTitle2, DateSeparator);
 				break;
+
 			default:
-				DateFormat = string_format(MSetAttrTimeTitle3, DateSeparator, DateSeparator, TimeSeparator, TimeSeparator, DecimalSeparator);
-				strDMask = str_printf(FmtMask3,DateSeparator,DateSeparator);
+				DateMask = format(L"N9999{0}99{1}99", DateSeparator);
+				DateFormat = format(MSetAttrDateTitle3, DateSeparator);
 				break;
 		}
-		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
 
-		AttrDlg[SA_EDIT_WDATE].strMask=AttrDlg[SA_EDIT_CDATE].strMask=AttrDlg[SA_EDIT_ADATE].strMask=AttrDlg[SA_EDIT_XDATE].strMask=strDMask;
-		AttrDlg[SA_EDIT_WTIME].strMask=AttrDlg[SA_EDIT_CTIME].strMask=AttrDlg[SA_EDIT_ATIME].strMask=AttrDlg[SA_EDIT_XTIME].strMask=strTMask;
+		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
+		AttrDlg[SA_TEXT_TITLETIME].strData = format(MSetAttrTimeTitle, TimeSeparator, DecimalSeparator);
+
+		AttrDlg[SA_EDIT_WDATE].strMask = AttrDlg[SA_EDIT_CDATE].strMask = AttrDlg[SA_EDIT_ADATE].strMask = AttrDlg[SA_EDIT_XDATE].strMask = DateMask;
+		AttrDlg[SA_EDIT_WTIME].strMask = AttrDlg[SA_EDIT_CTIME].strMask = AttrDlg[SA_EDIT_ATIME].strMask = AttrDlg[SA_EDIT_XTIME].strMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
+
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
 		static constexpr std::pair<SETATTRDLG, DWORD> AttributePair[] =
@@ -930,7 +935,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
-									AttrDlg[SA_COMBO_SYMLINK].strData = string(MSG(MSetAttrDfsTargets)) + L" (" + std::to_wstring(NameList.ItemsNumber) + L")";
+									AttrDlg[SA_COMBO_SYMLINK].strData = string(MSG(MSetAttrDfsTargets)) + L" (" + str(NameList.ItemsNumber) + L")";
 								}
 							}
 						}
@@ -1028,7 +1033,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						AttrDlg[SA_COMBO_HARDLINK].Flags|=DIF_DISABLE;
 					}
 
-					AttrDlg[SA_COMBO_HARDLINK].strData = string(MSG(MSetAttrHardLinks)) + L" (" + std::to_wstring(NameList.ItemsNumber) + L")";
+					AttrDlg[SA_COMBO_HARDLINK].strData = string(MSG(MSetAttrHardLinks)) + L" (" + str(NameList.ItemsNumber) + L")";
 				}
 			}
 

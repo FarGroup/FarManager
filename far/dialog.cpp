@@ -1734,8 +1734,11 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					LenText=LenStrItem(I,strStr);
 
-					if (!(Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CX1!=-1)
-						LenText=LenStrItem(I,CenterStr(strStr,strStr,CX2-CX1+1));
+					if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CX1 != -1)
+					{
+						strStr = fit_to_center(strStr, CX2 - CX1 + 1);
+						LenText = LenStrItem(I, strStr);
+					}
 
 					if ((CX2 <= 0) || (CX2 < CX1))
 						CW = LenText;
@@ -1771,7 +1774,7 @@ void Dialog::ShowDialog(size_t ID)
 						if (X1+X+CntChr-1 > X2)
 							CntChr=X2-(X1+X)+1;
 
-						Global->FS << fmt::MinWidth(CntChr)<<L"";
+						Text(string(CntChr, L' '));
 
 						if (CntChr < LenText)
 							strStr.SetLength(CntChr);
@@ -1810,9 +1813,9 @@ void Dialog::ShowDialog(size_t ID)
 						string strResult = strWrap.substr(pos, end-pos);
 
 						if (Items[I].Flags & DIF_CENTERTEXT)
-							CenterStr(strResult,strResult,CW);
+							strResult = fit_to_center(strResult, CW);
 						else if (Items[I].Flags & DIF_RIGHTTEXT)
-							RightStr(strResult,strResult,CW);
+							strResult = fit_to_right(strResult, CW);
 
 						LenText=LenStrItem(I,strResult);
 						X=(CX1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(CW-LenText)/2:CX1;
@@ -1841,8 +1844,11 @@ void Dialog::ShowDialog(size_t ID)
 				strStr = Items[I].strData;
 				LenText=LenStrItem(I,strStr);
 
-				if (!(Items[I].Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1!=-1)
-					LenText = static_cast<int>(CenterStr(strStr,strStr,CY2-CY1+1).size());
+				if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1 != -1)
+				{
+					strStr = fit_to_center(strStr, CY2 - CY1 + 1);
+					LenText = static_cast<int>(strStr.size());
+				}
 
 				if ((CY2 <= 0) || (CY2 < CY1))
 					CH = LenStrItem(I,strStr);

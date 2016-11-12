@@ -34,165 +34,39 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace fmt
+WARNING_PUSH(3)
+
+#include "thirdparty/fmt/format.h"
+
+WARNING_POP()
+
+template<typename F, typename... args>
+auto format(F&& Format, args&&... Args)
 {
-	template<typename T, T Default> class ManipulatorTemplate
-	{
-	public:
-		ManipulatorTemplate(T Value=DefaultValue):Value(Value) {}
-		T GetValue() const { return Value; }
-		static T GetDefault() { return DefaultValue; }
-	private:
-		const T Value;
-		static constexpr T DefaultValue = Default;
-	};
-
-	using MinWidth = ManipulatorTemplate<size_t, 0>;
-	using MaxWidth = ManipulatorTemplate<size_t, static_cast<size_t>(-1)>;
-	using ExactWidth = ManipulatorTemplate<size_t, 1 /*any*/>;
-	using FillChar = ManipulatorTemplate<wchar_t, L' '>;
-	using Radix = ManipulatorTemplate<int, 10>;
-
-	enum AlignType
-	{
-		A_LEFT,
-		A_RIGHT,
-	};
-	using Align = ManipulatorTemplate<AlignType, A_RIGHT>;
-
-	template<AlignType T>class SimpleAlign {};
-	using LeftAlign = SimpleAlign<A_LEFT>;
-	using RightAlign = SimpleAlign<A_RIGHT>;
-
-	class Flush {};
-};
-
-class BaseFormat
-{
-protected:
-	BaseFormat();
-	virtual ~BaseFormat() = default;
-
-	virtual BaseFormat& Flush() { return *this; }
-
-	// attributes
-	BaseFormat& SetMaxWidth(size_t Precision);
-	BaseFormat& SetMinWidth(size_t Width);
-	BaseFormat& SetExactWidth(size_t ExactWidth);
-	BaseFormat& SetAlign(fmt::AlignType Align);
-	BaseFormat& SetFillChar(wchar_t Char);
-	BaseFormat& SetRadix(int Radix);
-
-	BaseFormat& Put(LPCWSTR Data, size_t Length);
-
-	// data
-	BaseFormat& operator<<(INT64 Value);
-	BaseFormat& operator<<(UINT64 Value);
-	BaseFormat& operator<<(short Value);
-	BaseFormat& operator<<(USHORT Value);
-	BaseFormat& operator<<(int Value);
-	BaseFormat& operator<<(UINT Value);
-	BaseFormat& operator<<(long Value);
-	BaseFormat& operator<<(ULONG Value);
-	BaseFormat& operator<<(wchar_t Value);
-	BaseFormat& operator<<(LPCWSTR Data);
-	BaseFormat& operator<<(const string& String);
-
-	// manipulators
-	BaseFormat& operator<<(const fmt::MinWidth& Manipulator);
-	BaseFormat& operator<<(const fmt::MaxWidth& Manipulator);
-	BaseFormat& operator<<(const fmt::ExactWidth& Manipulator);
-	BaseFormat& operator<<(const fmt::FillChar& Manipulator);
-	BaseFormat& operator<<(const fmt::Radix& Manipulator);
-	BaseFormat& operator<<(const fmt::Align& Manipulator);
-	BaseFormat& operator<<(const fmt::LeftAlign& Manipulator);
-	BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
-	BaseFormat& operator<<(const fmt::Flush& Manipulator);
-
-	virtual void Commit(const string& Data)=0;
-
-private:
-	template<class T>
-	BaseFormat& ToString(T Value);
-	void Reset();
-
-	size_t m_MinWidth;
-	size_t m_MaxWidth;
-	wchar_t m_FillChar;
-	fmt::AlignType m_Align;
-	int m_Radix;
-};
-
-class FormatString:public BaseFormat, public string
-{
-public:
-	template<class T>
-	FormatString& operator<<(const T& param) {return static_cast<FormatString&>(BaseFormat::operator<<(param));}
-
-private:
-	virtual void Commit(const string& Data) override;
-};
-
-class FormatScreen: noncopyable, public BaseFormat
-{
-public:
-	template<class T>
-	FormatScreen& operator<<(const T& param) {return static_cast<FormatScreen&>(BaseFormat::operator<<(param));}
-
-private:
-	virtual void Commit(const string& Data) override;
-};
-
-enum LNGID: int;
-
-namespace detail
-{
-	class formatter: public BaseFormat
-	{
-	public:
-		formatter(LNGID MessageId);
-		formatter(string Str): m_Data(std::move(Str)) {}
-		string&& str() { return std::move(m_Data); }
-		template<class T>
-		formatter& operator<<(const T& param) {return static_cast<formatter&>(BaseFormat::operator<<(param));}
-
-	protected:
-		string m_Data;
-		size_t Iteration{};
-
-	private:
-		virtual void Commit(const string& Data) override;
-	};
-
-	class old_style_formatter: public formatter
-	{
-	public:
-		old_style_formatter(string Str): formatter(std::move(Str)) {}
-
-	private:
-		virtual void Commit(const string& Data) override;
-	};
+	return fmt::format(std::forward<F>(Format), std::forward<args>(Args)...);
 }
 
-namespace detail
+template<typename T>
+auto str(T&& Value)
 {
-	template<typename formatter>
-	void string_format_impl(formatter&) {}
-
-	template<typename formatter, typename arg, typename... args>
-	void string_format_impl(formatter& Formatter, arg&& Arg, args&&... Args)
-	{
-		Formatter << std::forward<arg>(Arg);
-		string_format_impl(Formatter, std::forward<args>(Args)...);
-	}
+	return format(L"{0}", std::forward<T>(Value));
 }
 
-template<typename formatter = detail::formatter, typename T, typename... args>
-string string_format(T&& Format, args&&... Args)
+template<typename T>
+auto str(const T* Value)
 {
-	formatter Formatter(std::forward<T>(Format));
-	detail::string_format_impl(Formatter, std::forward<args>(Args)...);
-	return Formatter.str();
+	return format(L"0x{0:0{1}X}", reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
+
+template<typename T>
+auto str(T* Value)
+{
+	return str(static_cast<const T*>(Value));
+}
+
+string str(const char*) = delete;
+string str(const wchar_t*) = delete;
+string str(std::string) = delete;
+string str(string) = delete;
 
 #endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC

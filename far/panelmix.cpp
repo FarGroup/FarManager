@@ -487,7 +487,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		}
 		else
 		{
-			strType = L"C" + std::to_wstring(ColumnType - CUSTOM_COLUMN0);
+			strType = L"C" + str(ColumnType - CUSTOM_COLUMN0);
 		}
 
 		if (ColumnType==NAME_COLUMN)
@@ -556,7 +556,7 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 
 		strColumnTitles += strType;
 
-		strColumnWidths += std::to_wstring(i.width);
+		strColumnWidths += str(i.width);
 
 		switch (i.width_type)
 		{
@@ -588,19 +588,17 @@ string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 		return OutStr.size() < Width;
 	});
 
-	return FormatString() << fmt::LeftAlign() << fmt::ExactWidth(Width) << OutStr;
+	return fit_to_left(OutStr, Width);
 }
 
 string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned long long Flags, int Width)
 {
-	FormatString strResult;
-
 	if (Width < 0)
 	{
 		if (ColumnType == DATE_COLUMN)
 			Width=0;
 		else
-			return strResult;
+			return {};
 	}
 
 	int ColumnWidth=Width;
@@ -654,16 +652,14 @@ string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned lon
 			break;
 	}
 
-	strResult<<fmt::ExactWidth(Width)<<strOutStr;
-
-	return strResult;
+	return fit_to_right(strOutStr, Width);
 }
 
 string FormatStr_Size(long long Size, const string& strName,
 							DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
 							unsigned long long Flags,int Width,const wchar_t *CurDir)
 {
-	FormatString strResult;
+	string strResult;
 
 	bool Packed=(ColumnType==PACKED_COLUMN);
 	bool Streams=(ColumnType==STREAMSSIZE_COLUMN);
@@ -671,7 +667,7 @@ string FormatStr_Size(long long Size, const string& strName,
 	if (ShowFolderSize==2)
 	{
 		Width--;
-		strResult<<L"~";
+		strResult += L'~';
 	}
 
 	bool dir = (0 != (FileAttributes & FILE_ATTRIBUTE_DIRECTORY));
@@ -761,7 +757,7 @@ string FormatStr_Size(long long Size, const string& strName,
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
-						strMsg = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
+						strMsg = format(L":{0:0>8X}", ReparseTag);
 						PtrName = strMsg.data();
 					}
 					else
@@ -772,23 +768,23 @@ string FormatStr_Size(long long Size, const string& strName,
 			}
 		}
 
-		FormatString strStr;
+		string strStr;
 		if(*PtrName)
 		{
 			if (StrLength(PtrName) <= Width-2 && MSG(MListBrackets)[0] && MSG(MListBrackets)[1])
 			{
-				strStr << MSG(MListBrackets)[0] << PtrName << MSG(MListBrackets)[1];
+				strStr = concat(MSG(MListBrackets)[0], PtrName, MSG(MListBrackets)[1]);
 			}
 			else
 			{
-				strStr << PtrName;
+				strStr = PtrName;
 			}
 		}
-		strResult<<fmt::ExactWidth(Width)<<strStr;
+		strResult += fit_to_right(strStr, Width);
 	}
 	else
 	{
-		strResult << FileSizeToStr(Size, Width, Flags);
+		strResult += FileSizeToStr(Size, Width, Flags);
 	}
 
 	return strResult;

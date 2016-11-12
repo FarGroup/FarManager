@@ -124,11 +124,11 @@ Shortcuts::Shortcuts()
 		for_each_cnt(RANGE(Items, i, size_t index)
 		{
 			i.clear();
-			if (const auto key = cfg->FindByName(root, std::to_wstring(index)))
+			if (const auto key = cfg->FindByName(root, str(index)))
 			{
 				for(size_t j=0; ; j++)
 				{
-					const auto sIndex = std::to_wstring(j);
+					const auto sIndex = str(j);
 
 					shortcut Item;
 					if (!cfg->GetValue(key, RecTypeName[PSCR_RT_SHORTCUT] + sIndex, Item.strFolder))
@@ -170,11 +170,11 @@ void Shortcuts::Save()
 	{
 		for_each_cnt(CONST_RANGE(Items, i, size_t index)
 		{
-			if (const auto Key = cfg->CreateKey(root, std::to_wstring(index)))
+			if (const auto Key = cfg->CreateKey(root, str(index)))
 			{
 				for_each_cnt(CONST_RANGE(i, j, size_t index)
 				{
-					const auto sIndex = std::to_wstring(index);
+					const auto sIndex = str(index);
 
 					cfg->SetValue(Key, RecTypeName[PSCR_RT_SHORTCUT] + sIndex, j.strFolder);
 					cfg->SetValue(Key, RecTypeName[PSCR_RT_NAME] + sIndex, j.strName);
@@ -249,22 +249,22 @@ static string MakeName(const Shortcuts::shortcut& Item)
 				string TechInfo;
 
 				if (!Item.strPluginFile.empty())
-					TechInfo.append(MSG(MFSShortcutPluginFile)).append(L" ").append(Item.strPluginFile + L", ");
+					append(TechInfo, MSG(MFSShortcutPluginFile), L' ', Item.strPluginFile, L", "s);
+
 				if (!Item.strFolder.empty())
-					TechInfo.append(MSG(MFSShortcutPath)).append(L" ").append(Item.strFolder + L", ");
-				if (!Item.strPluginData.empty()) {
-					string t = Item.strPluginData;
-					for (size_t i = 0; i < t.size(); ++i) // cut not printable plugindata
-						if (t[i] < L' ')
-							t.resize(i);
-					if (!t.empty())
-						TechInfo.append(MSG(MFSShortcutPluginData)).append(L" ").append(t + L", ");
+					append(TechInfo, MSG(MFSShortcutPath), L' ', Item.strFolder, L", "s);
+
+				if (!Item.strPluginData.empty())
+				{
+					const string PrintablePluginData(Item.strPluginData.cbegin(), std::find_if(ALL_CONST_RANGE(Item.strPluginData), [](const auto i) { return i < L' '; }));
+					if (!PrintablePluginData.empty())
+						append(TechInfo, MSG(MFSShortcutPluginData), L' ', PrintablePluginData, L", "s);
 				}
 
 				if (!TechInfo.empty())
 				{
 					TechInfo.resize(TechInfo.size() - 2);
-					result += L" (" + TechInfo + L")";
+					append(result, L" ("s, TechInfo, L')');
 				}
 			}
 		}
@@ -477,7 +477,7 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx& MenuItem)
 		ItemName = MakeName(Items[Pos].front());
 	}
 
-	MenuItem.strName = string(MSG(MRightCtrl)) + L"+&" + std::to_wstring(Pos) + L" \x2502 " + ItemName;
+	MenuItem.strName = string(MSG(MRightCtrl)) + L"+&" + str(Pos) + L" \x2502 " + ItemName;
 	if(Items[Pos].size() > 1)
 	{
 		MenuItem.Flags |= MIF_SUBMENU;

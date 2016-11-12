@@ -994,12 +994,10 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
-	else if (!StrCmpI(Command.data(), L"far:about"))
+	
+	if (!StrCmpI(Command.data(), L"far:about"))
 	{
-		string strOut(L"\n");
-
-		strOut.append(Global->Version()).append(1, L'\n');
-		strOut.append(Global->Copyright()).append(1, L'\n');
+		string strOut = concat(L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n');
 
 		const auto& ComponentsInfo = components::GetComponentsInfo();
 		if (!ComponentsInfo.empty())
@@ -1008,7 +1006,12 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 			for (const auto& i: ComponentsInfo)
 			{
-				strOut.append(i).append(1, L'\n');
+				strOut += i.first;
+				if (!i.second.empty())
+				{
+					append(strOut, L", version ", i.second);
+				}
+				strOut += L'\n';
 			}
 		}
 
@@ -1020,7 +1023,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
-				strOut.append(i->GetTitle()).append(L", version ").append(i->GetVersionString()).append(1, L'\n');
+				append(strOut, i->GetTitle(), L", version ", i->GetVersionString(), L'\n');
 			}
 		}
 
@@ -1199,7 +1202,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 				{
 					if (!StrCmpNI(i.data(), strCmdLine.data(), strCmdLine.size()))
 					{
-						strOut.append(i.data(), i.size()).append(L"\n");
+						strOut.append(i.data(), i.size()).append(1, L'\n');
 					}
 				}
 			}

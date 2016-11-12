@@ -277,7 +277,7 @@ RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
 # config-specific
 !ifdef DEBUG
-CPPFLAGS=$(CPPFLAGS) /MTd /Od /Zi
+CPPFLAGS=$(CPPFLAGS) /MTd /Od /ZI
 LINKFLAGS=$(LINKFLAGS) /debug
 ULINKFLAGS=$(ULINKFLAGS) -v
 !else

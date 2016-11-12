@@ -3609,7 +3609,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 				{
 					ColumnData=m_ListData[ListPos].strCustomData;//L"";
 				}
-				Dest.append(ColumnData);
+				Dest += ColumnData;
 			}
 			else
 			{
@@ -3641,7 +3641,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 							NamePtr=PointToFolderNameIfFolder(NamePtr);
 						}
 
-						Dest.append(NamePtr);
+						Dest += NamePtr;
 						break;
 					}
 
@@ -3655,7 +3655,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 						}
 						if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
 
-						Dest.append(ExtPtr);
+						Dest += ExtPtr;
 						break;
 					}
 
@@ -3669,7 +3669,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 							? m_ListData[ListPos].StreamsSize()
 							: m_ListData[ListPos].FileSize;
 
-						Dest.append(FormatStr_Size(
+						Dest += FormatStr_Size(
 							SizeToDisplay,
 							m_ListData[ListPos].strName,
 							m_ListData[ListPos].FileAttr,
@@ -3678,7 +3678,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 							ColumnType,
 							ColumnTypes[K],
 							ColumnWidth,
-							m_CurDir.data()));
+							m_CurDir.data());
 						break;
 					}
 
@@ -3710,38 +3710,37 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 								break;
 						}
 
-						Dest.append(FormatStr_DateTime(FileTime,ColumnType,ColumnTypes[K],ColumnWidth));
+						Dest += FormatStr_DateTime(FileTime,ColumnType,ColumnTypes[K],ColumnWidth);
 						break;
 					}
 
 					case ATTR_COLUMN:
 					{
-						Dest.append(FormatStr_Attribute(m_ListData[ListPos].FileAttr,ColumnWidth));
+						Dest += FormatStr_Attribute(m_ListData[ListPos].FileAttr,ColumnWidth);
 						break;
 					}
 
 					case DIZ_COLUMN:
 					{
-						string strDizText=m_ListData[ListPos].DizText ? m_ListData[ListPos].DizText:L"";
-						Dest.append(strDizText);
+						Dest += NullToEmpty(m_ListData[ListPos].DizText?);
 						break;
 					}
 
 					case OWNER_COLUMN:
 					{
-						Dest.append(m_ListData[ListPos].strOwner);
+						Dest += m_ListData[ListPos].strOwner;
 						break;
 					}
 
 					case NUMLINK_COLUMN:
 					{
-						Dest.append(std::to_wstring(m_ListData[ListPos].NumberOfLinks));
+						Dest += str(m_ListData[ListPos].NumberOfLinks);
 						break;
 					}
 
 					case NUMSTREAMS_COLUMN:
 					{
-						Dest.append(std::to_wstring(m_ListData[ListPos].NumberOfStreams));
+						Dest += str(m_ListData[ListPos].NumberOfStreams);
 						break;
 					}
 
@@ -3976,7 +3975,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		if (pos != string::npos)
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask = str_printf(L"\"*.%s\"", strCurName.data()+pos+1);
+			strRawMask = concat(L'"', L"*."s, strCurName.substr(pos + 1), L'"');
 			WrapBrackets=true;
 		}
 		else
@@ -4814,11 +4813,11 @@ void FileList::DescribeFiles()
 
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName))
 	{
-		string strDizText, strMsg, strQuotedName;
+		string strDizText, strQuotedName;
 		const auto PrevText = NullToEmpty(Diz.Get(strSelName,strSelShortName,GetLastSelectedSize()));
 		strQuotedName = strSelName;
 		QuoteSpaceOnly(strQuotedName);
-		strMsg.append(MSG(MEnterDescription)).append(L" ").append(strQuotedName).append(L":");
+		const auto strMsg = concat(MSG(MEnterDescription), L' ', strQuotedName, L':');
 
 		/* $ 09.08.2000 SVS
 		   Для Ctrl-Z не нужно брать предыдущее значение!
@@ -6797,7 +6796,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 						}
 					}
 
-					auto strReadMsg = string_format(MReadingFiles, m_ListData.size());
+					auto strReadMsg = format(MReadingFiles, m_ListData.size());
 
 					if (DrawMessage)
 					{
@@ -6808,7 +6807,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 						TruncStr(strReadMsg,static_cast<int>(Title.size())-2);
 						int MsgLength=(int)strReadMsg.size();
 						GotoXY(m_X1+1+(static_cast<int>(Title.size())-MsgLength-1)/2,m_Y1);
-						Global->FS << L" "<<strReadMsg<<L" ";
+						Text(concat(L' ', strReadMsg, L' '));
 					}
 				}
 
@@ -7425,7 +7424,7 @@ void FileList::ShowFileList(int Fast)
 //    SetScreen(X1+1,Y1+1,X2-1,Y1+1,' ',COL_PANELTEXT);
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y1+1);
-		//Global->FS << fmt::Width(X2-X1-1)<<L"";
+		//Text(string(X2 - X1 - 1, L' '));
 	}
 
 	for (size_t I=0,ColumnPos=m_X1+1; I < m_ViewSettings.PanelColumns.size(); I++)
@@ -7501,11 +7500,9 @@ void FileList::ShowFileList(int Fast)
 					strTitle=NewTitle;
 			}
 
-			string strTitleMsg;
-			CenterStr(strTitle,strTitleMsg,m_ViewSettings.PanelColumns[I].width);
 			SetColor(COL_PANELCOLUMNTITLE);
 			GotoXY(static_cast<int>(ColumnPos),m_Y1+1);
-			Global->FS << fmt::MaxWidth(m_ViewSettings.PanelColumns[I].width) << strTitleMsg;
+			Text(fit_to_center(strTitle, m_ViewSettings.PanelColumns[I].width));
 		}
 
 		if (I == m_ViewSettings.PanelColumns.size() - 1)
@@ -7677,7 +7674,7 @@ void FileList::ShowFileList(int Fast)
 		SetScreen(m_X1+1,m_Y2-1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
-		//Global->FS << fmt::Width(X2-X1-1)<<L"";
+		//Text(string(X2 - X1 - 1, L' '));
 	}
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !m_ListData.empty() && (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES))
@@ -7800,13 +7797,13 @@ static string size2str(ULONGLONG Size, int width, int short_mode = -1)
 	}
 	else
 	{
-		string str = std::to_wstring(Size);
-		if (str.size() > static_cast<size_t>(width))
+		string Str = str(Size);
+		if (Str.size() > static_cast<size_t>(width))
 		{
-			str = FileSizeToStr(Size, width, COLUMN_SHOWBYTESINDEX);
-			RemoveExternalSpaces(str);
+			Str = FileSizeToStr(Size, width, COLUMN_SHOWBYTESINDEX);
+			RemoveExternalSpaces(Str);
 		}
-		return str;
+		return Str;
 	}
 }
 
@@ -7832,12 +7829,12 @@ void FileList::ShowSelectedSize()
 	if (m_SelFileCount)
 	{
 		auto strFormStr = size2str(SelFileSize, 6, 0);
-		auto strSelStr = string_format(MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
+		auto strSelStr = format(MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
 		auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
 		if (strSelStr.size() > avail_width)
 		{
 			strFormStr = size2str(SelFileSize, 6, +1);
-			strSelStr = string_format(MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
+			strSelStr = format(MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
 			if (strSelStr.size() > avail_width)
 				TruncStrFromEnd(strSelStr, static_cast<int>(avail_width));
 		}
@@ -7865,17 +7862,17 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		{
 			if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
 			{
-				strTotalSize = string_format(MListFileSize, strFormSize, m_TotalFileCount, m_TotalDirCount);
+				strTotalSize = format(MListFileSize, strFormSize, m_TotalFileCount, m_TotalDirCount);
 			}
 			else
 			{
 				const string DHLine(3, BoxSymbols[BS_H2]);
-				strTotalSize = string_format(MListFileSizeStatus, strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
+				strTotalSize = format(MListFileSizeStatus, strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
 			}
 		}
 		else
 		{
-			strTotalSize = string_format(MListFreeSize, strFreeSize.empty() ? L"?" : strFreeSize);
+			strTotalSize = format(MListFreeSize, strFreeSize.empty() ? L"?" : strFreeSize);
 		}
 		return strTotalSize;
 	};
@@ -7893,9 +7890,9 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	size_t BoxPos = strTotalStr.find(BoxSymbols[BS_H2]);
 	if (int BoxLength = BoxPos == string::npos? 0 : std::count(strTotalStr.begin() + BoxPos, strTotalStr.end(), BoxSymbols[BS_H2]))
 	{
-		Global->FS << fmt::MaxWidth(BoxPos) << strTotalStr;
+		Text(strTotalStr.substr(0, BoxPos));
 		SetColor(COL_PANELBOX);
-		Global->FS << fmt::MaxWidth(BoxLength) << strTotalStr.data() + BoxPos;
+		Text(strTotalStr.substr(BoxPos, BoxLength));
 		SetColor(COL_PANELTOTALINFO);
 		Text(strTotalStr.data() + BoxPos + BoxLength);
 	}
@@ -8317,7 +8314,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						}
 					}
 
-					Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<ColumnData+CurLeftPos;
+					Text(fit_to_left(ColumnData + CurLeftPos, ColumnWidth));
 				}
 				else
 				{
@@ -8484,10 +8481,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
 
 							unsigned long long ViewFlags=Columns[K].type;
-							if (ViewFlags&COLUMN_RIGHTALIGN)
-								Global->FS << fmt::RightAlign()<<fmt::ExactWidth(ColumnWidth)<<ExtPtr;
-							else
-								Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<ExtPtr;
+							Text((ViewFlags & COLUMN_RIGHTALIGN? fit_to_right : fit_to_left)(ExtPtr, ColumnWidth));
 
 							if (!ShowStatus && StrLength(ExtPtr) > ColumnWidth)
 							{
@@ -8559,13 +8553,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									break;
 							}
 
-							Global->FS << FormatStr_DateTime(FileTime,ColumnType,Columns[K].type,ColumnWidth);
+							Text(FormatStr_DateTime(FileTime,ColumnType,Columns[K].type,ColumnWidth));
 							break;
 						}
 
 						case ATTR_COLUMN:
 						{
-							Global->FS << FormatStr_Attribute(m_ListData[ListPos].FileAttr,ColumnWidth);
+							Text(FormatStr_Attribute(m_ListData[ListPos].FileAttr,ColumnWidth));
 							break;
 						}
 
@@ -8588,7 +8582,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (pos != string::npos)
 								strDizText.resize(pos);
 
-							Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<strDizText;
+							Text(fit_to_left(strDizText, ColumnWidth));
 							break;
 						}
 
@@ -8622,27 +8616,21 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								}
 							}
 
-							Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<< Owner.data() + Offset + CurLeftPos;
+							Text(fit_to_left(Owner.substr(Offset + CurLeftPos), ColumnWidth));
 							break;
 						}
 
 						case NUMLINK_COLUMN:
 						{
 							const auto Value = m_ListData[ListPos].NumberOfLinks(this);
-							if (Value == FileListItem::values::unknown(Value))
-								Global->FS << fmt::ExactWidth(ColumnWidth) << L"?";
-							else
-								Global->FS << fmt::ExactWidth(ColumnWidth) << Value;
+							Text(fit_to_left(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
 							break;
 						}
 
 						case NUMSTREAMS_COLUMN:
 						{
 							const auto Value = m_ListData[ListPos].NumberOfStreams(this);
-							if (Value == FileListItem::values::unknown(Value))
-								Global->FS << fmt::ExactWidth(ColumnWidth) << L"?";
-							else
-								Global->FS << fmt::ExactWidth(ColumnWidth) << Value;
+							Text(fit_to_left(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
 							break;
 						}
 
@@ -8651,7 +8639,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 			}
 			else
 			{
-				Global->FS << fmt::MinWidth(ColumnWidth)<<L"";
+				Text(string(ColumnWidth, L' '));
 			}
 
 			if (ShowDivider==FALSE)
@@ -8692,7 +8680,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 		if ((!ShowStatus || StatusLine) && WhereX()<m_X2)
 		{
 			SetColor(COL_PANELTEXT);
-			Global->FS << fmt::MinWidth(m_X2-WhereX())<<L"";
+			Text(string(m_X2 - WhereX(), L' '));
 		}
 	}
 
@@ -8701,7 +8689,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 		SetScreen(m_X1+1,m_Y2-1,m_X2-1,m_Y2-1,L' ',colors::PaletteColorToFarColor(COL_PANELTEXT));
 		SetColor(COL_PANELTEXT); //???
 		//GotoXY(X1+1,Y2-1);
-		//Global->FS << fmt::Width(X2-X1-1)<<L"";
+		//Text(string(X2 - X1 - 1, L' '));
 	}
 
 	if (!ShowStatus)

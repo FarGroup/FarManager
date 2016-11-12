@@ -263,7 +263,7 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 				string strFarPathExt;
 				std::for_each(CONST_RANGE(MaskList, i)
 				{
-					strFarPathExt.append(1, '*').append(i).append(1, ',');
+					append(strFarPathExt, L'*', i, ',');
 				});
 				strFarPathExt.pop_back();
 				ReplaceStrings(expmasks, PathExtName, strFarPathExt, true);

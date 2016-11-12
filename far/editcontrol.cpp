@@ -288,11 +288,12 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 			{
 				const auto PathExtList = split<std::vector<string>>(os::env::get_pathext());
 
+				string str;
 				for (const auto& Path: split<std::vector<string>>(strPathEnv))
 				{
-					string str = Path;
+					str = Path;
 					AddEndSlash(str);
-					str.append(Token).append(L"*");
+					append(str, Token, L'*');
 					for (const auto& FindData: os::fs::enum_file(str))
 					{
 						for (const auto& Ext: PathExtList)

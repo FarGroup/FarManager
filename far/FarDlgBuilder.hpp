@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "config.hpp"
 
+enum LNGID: int;
 struct DialogItemEx;
 
 // Элемент выпадающего списка в диалоге.

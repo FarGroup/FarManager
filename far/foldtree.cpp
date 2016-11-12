@@ -330,7 +330,7 @@ void FolderTree::DrawEdit() const
 	const wchar_t *SearchTxt=MSG(MFoldTreeSearch);
 	GotoXY(m_X1+1,FindY);
 	SetColor(COL_PANELTEXT);
-	Global->FS << SearchTxt<<L"  ";
+	Text(SearchTxt + L"  "s);
 	FindEdit->SetPosition(m_X1+StrLength(SearchTxt)+2,FindY,std::min(m_X2-1,m_X1+25),FindY);
 	FindEdit->SetObjectColor(COL_DIALOGEDIT);
 	FindEdit->Show();
@@ -338,7 +338,7 @@ void FolderTree::DrawEdit() const
 	if (WhereX()<m_X2)
 	{
 		SetColor(COL_PANELTEXT);
-		Global->FS << fmt::MinWidth(m_X2-WhereX())<<L"";
+		Text(string(m_X2 - WhereX(), L' '));
 	}
 }
 

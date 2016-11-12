@@ -759,7 +759,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 						if (!strNewCmdPar.empty())
 						{
-							AssocInfo.Command.append(L" ").append(strNewCmdPar);
+							append(AssocInfo.Command, L' ', strNewCmdPar);
 						}
 
 						Global->CtrlObject->CmdLine()->ExecString(AssocInfo);
@@ -830,7 +830,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			auto strFarTitle = strNewCmdStr;
 			if (!strNewCmdPar.empty())
 			{
-				strFarTitle.append(L" ").append(strNewCmdPar);
+				append(strFarTitle, L' ', strNewCmdPar);
 			}
 			ConsoleTitle::SetFarTitle(strFarTitle, true);
 		}
@@ -879,7 +879,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			}
 		}
 
-		ComSpecParams = string_format(os::env::expand_strings(Global->Opt->Exec.ComspecArguments), Info.Command);
+		ComSpecParams = format(os::env::expand_strings(Global->Opt->Exec.ComspecArguments), Info.Command);
 
 		seInfo.lpFile = strComspec.data();
 		seInfo.lpParameters = ComSpecParams.data();
@@ -893,38 +893,22 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	seInfo.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Info.NewWindow? 0 : SEE_MASK_NO_CONSOLE);
 
-	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
-	string CurDir;
-	bool NeedFixCurDir = os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT);
-	if (NeedFixCurDir)
+	os::handle Process;
+
 	{
-		if (!os::GetProcessRealCurrentDirectory(CurDir))
+		// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
+		SCOPED_ACTION(os::fs::process_current_directory_guard)(os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT), [&strCurDir]{ return ConvertNameToReal(strCurDir); });
+
+		Result = ShellExecuteEx(&seInfo) != FALSE;
+
+		if (Result)
 		{
-			NeedFixCurDir = false;
+			Process.reset(seInfo.hProcess);
 		}
 		else
 		{
-			NeedFixCurDir = SetCurrentDirectory(ConvertNameToReal(strCurDir).data()) != FALSE;
+			Global->CatchError();
 		}
-	}
-
-	Result = ShellExecuteEx(&seInfo) != FALSE;
-
-	os::handle Process;
-
-	if (Result)
-	{
-		Process.reset(seInfo.hProcess);
-	}
-	else
-	{
-		Global->CatchError();
-	}
-
-	// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
-	if (NeedFixCurDir)
-	{
-		SetCurrentDirectory(CurDir.data());
 	}
 
 	if (Result)

@@ -99,8 +99,8 @@ public:
 
 static int RunURL(const string& Protocol, const string& URLPath);
 
-static constexpr wchar_t HelpFormatLink[] = L"<%s\\>%s";
-static constexpr wchar_t HelpFormatLinkModule[] = L"<%s>%s";
+static constexpr wchar_t HelpFormatLink[] = L"<{0}\\>{1}";
+static constexpr wchar_t HelpFormatLinkModule[] = L"<{0}>{1}";
 
 
 struct Help::StackHelpData
@@ -394,7 +394,7 @@ int Help::ReadHelp(const string& Mask)
 					ReplaceStrings(keys, L"#", L"##");
 					ReplaceStrings(keys, L"@", L"@@");
 
-					strReadStr += L" #" + keys + L"#\n";
+					append(strReadStr, L" #"s, keys, L"#\n"s);
 				}
 
 				if (strKeyName.size() > SizeKeyName)
@@ -408,7 +408,7 @@ int Help::ReadHelp(const string& Mask)
 			if (strKeyName.find(L'~') != string::npos) // коррекция размера
 				SizeKeyName++;
 
-			strReadStr += FormatString() << L" #" << fmt::LeftAlign() << fmt::ExactWidth(SizeKeyName) << strKeyName << L"# ";
+			append(strReadStr, L" #"s, fit_to_left(strKeyName, SizeKeyName), L"# "s);
 
 			if (!strDescription.empty())
 			{
@@ -874,7 +874,7 @@ void Help::DrawWindowFrame() const
 
 	TruncStrFromEnd(strHelpTitleBuf,m_X2-m_X1-3);
 	GotoXY(m_X1+(m_X2-m_X1+1-(int)strHelpTitleBuf.size()-2)/2,m_Y1);
-	Global->FS << L" "<<strHelpTitleBuf<<L" ";
+	Text(concat(L' ', strHelpTitleBuf, L' '));
 }
 
 static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
@@ -1107,7 +1107,7 @@ void Help::OutString(const wchar_t *Str)
 	if (WhereX()<m_X2)
 	{
 		SetColor(CurColor);
-		Global->FS << fmt::MinWidth(m_X2-WhereX())<<L"";
+		Text(string(m_X2-WhereX(), L' '));
 	}
 }
 
@@ -1468,11 +1468,11 @@ int Help::JumpTopic()
 		string strFullPath = StackData->strHelpPath;
 		// уберем _все_ конечные слеши и добавим один
 		DeleteEndSlash(strFullPath);
-		strFullPath.append(L"\\").append(strNewTopic, IsSlash(strNewTopic.front())? 1 : 0, string::npos);
+		strFullPath.append(1, L'\\').append(strNewTopic, IsSlash(strNewTopic.front())? 1 : 0, string::npos);
 		BOOL EndSlash = IsSlash(strFullPath.back());
 		DeleteEndSlash(strFullPath);
 		strNewTopic = ConvertNameToFull(strFullPath);
-		strFullPath = str_printf(EndSlash? HelpFormatLink : HelpFormatLinkModule, strNewTopic.data(), wcschr(StackData->strSelTopic.data()+2, HelpEndLink)+1);
+		strFullPath = format(EndSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic, wcschr(StackData->strSelTopic.data() + 2, HelpEndLink) + 1);
 		StackData->strSelTopic = strFullPath;
 	}
 
@@ -1932,7 +1932,7 @@ void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 
 			if (Result)
 			{
-				AddLine(string_format(L"   ~{0}~{1}@",strEntryName, strCurTopic));
+				AddLine(concat(L"   ~"s, strEntryName, L'~', strCurTopic, L'@'));
 				strCurTopic.clear();
 				strEntryName.clear();
 				TopicFound=false;
@@ -2024,7 +2024,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 		{
 			if (pPlugin && HelpTopic.front() != HelpBeginLink)
 			{
-				strTopic = str_printf(HelpFormatLinkModule, pPlugin->GetModuleName().data(), HelpTopic.data());
+				strTopic = format(HelpFormatLinkModule, pPlugin->GetModuleName(), HelpTopic);
 			}
 			else
 			{

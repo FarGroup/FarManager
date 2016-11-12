@@ -407,44 +407,6 @@ string& RemoveUnprintableCharacters(string &strStr)
 	return RemoveExternalSpaces(strStr);
 }
 
-string& CenterStr(const string& Src, string &strDest, int Length)
-{
-	int SrcLength=static_cast<int>(Src.size());
-	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
-
-	if (SrcLength >= Length)
-	{
-		strDest = strTempStr;
-		strDest.resize(Length);
-	}
-	else
-	{
-		int Space=(Length-SrcLength)/2;
-		strDest = FormatString()<<fmt::MinWidth(Space)<<L""<<strTempStr<<fmt::MinWidth(Length-Space-SrcLength)<<L"";
-	}
-
-	return strDest;
-}
-
-string& RightStr(const string& Src, string &strDest, int Length)
-{
-	int SrcLength = static_cast<int>(Src.size());
-	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
-
-	if (SrcLength >= Length)
-	{
-		strDest = strTempStr;
-		strDest.resize(Length);
-	}
-	else
-	{
-		int Space=Length-SrcLength;
-		strDest = FormatString()<<fmt::MinWidth(Space)<<L""<<strTempStr;
-	}
-
-	return strDest;
-}
-
 const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
 {
 	if (!*Src)
@@ -553,10 +515,6 @@ void PrepareUnitStr()
 
 string FileSizeToStr(unsigned long long Size, int Width, unsigned long long ViewFlags)
 {
-	FormatString strStr;
-	unsigned long long Divider;
-	size_t IndexDiv, IndexB;
-
 	// подготовительные мероприятия
 	if (UnitStr(0, 0) != Lower(MSG(MListBytes)))
 	{
@@ -569,6 +527,9 @@ string FileSizeToStr(unsigned long long Size, int Width, unsigned long long View
 	const bool UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX)!=0;
 	const size_t MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
 	const bool ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX)!=0;
+
+	size_t IndexDiv;
+	unsigned long long Divider;
 
 	if (ViewFlags & COLUMN_THOUSAND)
 	{
@@ -583,12 +544,18 @@ string FileSizeToStr(unsigned long long Size, int Width, unsigned long long View
 
 	unsigned long long Sz = Size, Divider2 = Divider/2, Divider64 = Divider, OldSize;
 
+	const auto FormatSize = [Economic](const string& Str, size_t Width, size_t IndexB, size_t IndexDiv)
+	{
+		return format(L"{0:>{1}.{1}}{2}{3}", Str, Width, Economic? L"" : L" ", UnitStr(IndexB, IndexDiv).front());
+	};
+
 	if (FloatSize)
 	{
 		unsigned long long Divider64F = 1, Divider64F_mul = 1000, Divider64F2 = 1, Divider64F2_mul = Divider;
 
 		//выравнивание идёт по 1000 но само деление происходит на Divider
 		//например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
+		size_t IndexB = 0;
 		for (IndexB=0; IndexB<UNIT_COUNT-1; IndexB++)
 		{
 			if (Sz < Divider64F*Divider64F_mul)
@@ -598,9 +565,11 @@ string FileSizeToStr(unsigned long long Size, int Width, unsigned long long View
 			Divider64F2  = Divider64F2*Divider64F2_mul;
 		}
 
+		string Str;
+
 		if (!IndexB)
 		{
-			strStr << Sz;
+			Str = str(Sz);
 		}
 		else
 		{
@@ -614,68 +583,53 @@ string FileSizeToStr(unsigned long long Size, int Width, unsigned long long View
 				Sz++;
 			}
 
-			strStr << Sz << L"." << fmt::MinWidth(2) << fmt::FillChar(L'0') << Decimal;
-			strStr.assign(FormatNumber(strStr, 2));
+			// BUGBUG too complex
+			Str = FormatNumber(format(L"{0}.{1:02}", Sz, Decimal), 2);
 		}
 
-		if (IndexB>0 || ShowBytesIndex)
-		{
-			Width-=(Economic?1:2);
+		if (IndexB <= 0 && !ShowBytesIndex)
+			return fit_to_right(Str, Width);
 
-			if (Width<0)
-				Width=0;
+		Width -= Economic? 1 : 2;
 
-			return str_printf(Economic ? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(IndexB, IndexDiv).data());
-		}
-		else
-			return str_printf(L"%*.*s",Width,Width,strStr.data());
+		if (Width < 0)
+			Width = 0;
+
+		return FormatSize(Str, Width, IndexB, IndexDiv);
+
 	}
 
-	if (Commas)
-		strStr << InsertCommas(Sz);
-	else
-		strStr << Sz;
-
-	if ((!UseMinSizeIndex && strStr.size()<=static_cast<size_t>(Width)) || Width<5)
 	{
-		if (ShowBytesIndex)
+		auto Str = Commas? InsertCommas(Sz) : str(Sz);
+
+		if ((!UseMinSizeIndex && Str.size() <= static_cast<size_t>(Width)) || Width < 5)
 		{
+			if (!ShowBytesIndex)
+				return fit_to_right(Str, Width);
+
 			Width = std::max(Width - (Economic? 1 : 2), 0);
-			return str_printf(Economic? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(0, IndexDiv).data());
+			return FormatSize(Str, Width, 0, IndexDiv);
 		}
-		else
-			return str_printf(L"%*.*s", Width, Width, strStr.data());
 	}
-	else
+
+	Width -= Economic? 1 : 2;
+	size_t IndexB = 0;
+	string Str;
+
+	do
 	{
-		Width-=(Economic?1:2);
-		IndexB=0;
+		//Sz=(Sz+Divider2)/Divider64;
+		Sz = (OldSize=Sz) / Divider64;
 
-		do
-		{
-			//Sz=(Sz+Divider2)/Divider64;
-			Sz = (OldSize=Sz) / Divider64;
+		if (OldSize % Divider64 > Divider2)
+			++Sz;
 
-			if ((OldSize % Divider64) > Divider2)
-				++Sz;
-
-			IndexB++;
-
-			strStr.clear();
-
-			if (Commas)
-			{
-				strStr << InsertCommas(Sz);
-			}
-			else
-			{
-				strStr << Sz;
-			}
-		}
-		while ((UseMinSizeIndex && IndexB<MinSizeIndex) || strStr.size() > static_cast<size_t>(Width));
-
-		return str_printf(Economic? L"%*.*s%1.1s" : L"%*.*s %1.1s", Width, Width, strStr.data(), UnitStr(IndexB, IndexDiv).data());
+		IndexB++;
+		Str = Commas? InsertCommas(Sz) : str(Sz);
 	}
+	while ((UseMinSizeIndex && IndexB < MinSizeIndex) || Str.size() > static_cast<size_t>(Width));
+
+	return FormatSize(Str, Width, IndexB, IndexDiv);
 }
 
 
@@ -1269,33 +1223,6 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	}
 
 	return false;
-}
-
-string str_vprintf(const wchar_t * format, va_list argptr)
-{
-	wchar_t_ptr buffer;
-	size_t size = 128;
-	int length = -1;
-	do
-	{
-		buffer.reset(size *= 2);
-
-		//_vsnwprintf не всегда ставит '\0' в конце.
-		//Поэтому надо обнулить и передать в _vsnwprintf размер-1.
-		buffer[size - 1] = 0;
-		length = _vsnwprintf(buffer.get(), size - 1, format, argptr);
-	}
-	while (length < 0);
-
-	return string(buffer.get());
-}
-
-string str_printf(const wchar_t * format, ...)
-{
-	va_list argptr;
-	va_start(argptr, format);
-	SCOPE_EXIT{ va_end(argptr); };
-	return str_vprintf(format, argptr);
 }
 
 	class UserDefinedList

@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef dpf
 #undef dpf
 #endif
-#define dpf(x) Console().Write(str_printf x)
+#define dpf(x)
 
 static constexpr const wchar_t* ops[]=
 {

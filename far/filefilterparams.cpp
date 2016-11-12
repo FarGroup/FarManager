@@ -388,18 +388,13 @@ bool FileFilterParams::FileInFilter(filter_file_object& Object, unsigned long lo
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
-string MenuString(const FileFilterParams *FF, bool bHighlightType, int Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
+string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
 {
 	string strDest;
 
-	const wchar_t Format1a[] = L"%-21.21s %c %-30.30s %-3.3s %c %s";
-	const wchar_t Format1b[] = L"%-22.22s %c %-30.30s %-3.3s %c %s";
-	const wchar_t Format1c[] = L"&%c. %-18.18s %c %-30.30s %-3.3s %c %s";
-	const wchar_t Format1d[] = L"   %-18.18s %c %-30.30s %-3.3s %c %s";
-	const wchar_t Format2[]  = L"%-3.3s %c %-30.30s %-4.4s %c %s";
-	const wchar_t DownArrow=0x2193;
+	const wchar_t DownArrow = L'\x2193';
 	const wchar_t *Name, *Mask;
-	wchar_t MarkChar[]=L"\" \"";
+	wchar_t MarkChar[]=L"' '";
 	DWORD IncludeAttr, ExcludeAttr;
 	bool UseMask, UseSize, UseHardLinks, UseDate, RelativeDate;
 
@@ -477,8 +472,7 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, int Hotkey, b
 	{
 		if (FF->GetContinueProcessing())
 			SizeDate[3]=DownArrow;
-
-		strDest = str_printf(Format2, MarkChar, BoxSymbols[BS_V1], Attr.data(), SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+		strDest = format(L"{1:3} {0} {2} {3} {0} {4}", BoxSymbols[BS_V1], MarkChar, Attr, SizeDate, UseMask? Mask : L"");
 	}
 	else
 	{
@@ -486,14 +480,14 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, int Hotkey, b
 
 		if (!Hotkey && !bPanelType)
 		{
-			strDest = str_printf(wcschr(Name, L'&') ? Format1b : Format1a, Name, BoxSymbols[BS_V1], Attr.data(), SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Name, 21 + (wcschr(Name, L'&')? 1 : 0), Attr, SizeDate, UseMask? Mask : L"");
 		}
 		else
 		{
 			if (Hotkey)
-				strDest = str_printf(Format1c, Hotkey, Name, BoxSymbols[BS_V1], Attr.data(), SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+				strDest = format(L"&{1}. {2:18.18} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Hotkey, Name, Attr, SizeDate, UseMask? Mask : L"");
 			else
-				strDest = str_printf(Format1d, Name, BoxSymbols[BS_V1], Attr.data(), SizeDate, BoxSymbols[BS_V1], UseMask ? Mask : L"");
+				strDest = format(L"   {1:18.18} {0} {2} {3} {0} {4}", BoxSymbols[BS_V1], Name, Attr, SizeDate, UseMask? Mask : L"");
 		}
 	}
 

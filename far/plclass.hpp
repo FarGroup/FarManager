@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "windowsfwd.hpp"
 #include "farexcpt.hpp"
 
+enum LNGID : int;
 class PluginManager;
 class Plugin;
 class Language;

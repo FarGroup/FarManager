@@ -132,7 +132,7 @@ string codepages::FormatCodePageString(uintptr_t CodePage, const string& CodePag
 	string result;
 	if (static_cast<intptr_t>(CodePage) >= 0)  // CodePage != CP_DEFAULT, CP_REDETECT
 	{
-		result = std::to_wstring(CodePage);
+		result = str(CodePage);
 		result.resize(std::max(result.size(), size_t(5)), L' ');
 		result += BoxSymbols[BS_V1];
 		result += (!IsCodePageNameCustom || CallbackCallSource == CodePagesFill || CallbackCallSource == CodePagesFill2? L' ' : L'*');
@@ -553,7 +553,7 @@ string& codepages::FormatCodePageName(uintptr_t CodePage, string& CodePageName) 
 // Форматируем имя таблицы символов
 string& codepages::FormatCodePageName(uintptr_t CodePage, string& CodePageName, bool &IsCodePageNameCustom) const
 {
-	string strCodePage = std::to_wstring(CodePage);
+	string strCodePage = str(CodePage);
 	string CurrentCodePageName;
 
 	// Пытаемся получить заданное пользователем имя таблицы символов
@@ -594,7 +594,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 		{
 			string strCodePageName;
 			uintptr_t CodePage = GetMenuItemCodePage();
-			string strCodePage = std::to_wstring(CodePage);
+			string strCodePage = str(CodePage);
 
 			if (Param1 == EDITCP_OK)
 			{
@@ -788,18 +788,18 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize)
 long long codepages::GetFavorite(uintptr_t cp)
 {
 	long long value = 0;
-	ConfigProvider().GeneralCfg()->GetValue(FavoriteCodePagesKey, std::to_wstring(cp), value, 0);
+	ConfigProvider().GeneralCfg()->GetValue(FavoriteCodePagesKey, str(cp), value, 0);
 	return value;
 }
 
 void codepages::SetFavorite(uintptr_t cp, long long value)
 {
-	ConfigProvider().GeneralCfg()->SetValue(FavoriteCodePagesKey, std::to_wstring(cp), value);
+	ConfigProvider().GeneralCfg()->SetValue(FavoriteCodePagesKey, str(cp), value);
 }
 
 void codepages::DeleteFavorite(uintptr_t cp)
 {
-	ConfigProvider().GeneralCfg()->DeleteValue(FavoriteCodePagesKey, std::to_wstring(cp));
+	ConfigProvider().GeneralCfg()->DeleteValue(FavoriteCodePagesKey, str(cp));
 }
 
 GeneralConfig::int_values_enumerator codepages::GetFavoritesEnumerator()
@@ -888,5 +888,5 @@ const string& F8CP::NextCPname(uintptr_t cp) const
 	else if (next_cp == CP_UTF8)
 		return m_UtfName;
 	else
-		return m_Number = std::to_wstring(next_cp);
+		return m_Number = str(next_cp);
 }

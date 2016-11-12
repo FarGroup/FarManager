@@ -2,6 +2,7 @@ import sys
 import os
 import os.path
 import re
+import traceback
 
 def check(filename):
 	#print(filename)
@@ -144,5 +145,5 @@ if __name__ == "__main__":
 		if ext in extensions:
 			try:
 				check(file)
-			except Exception as e:
-				print(e)
+			except:
+				traceback.print_exc()

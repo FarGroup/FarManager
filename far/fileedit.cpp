@@ -1364,7 +1364,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 
 	if (cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp))
 	{
-		Message(MSG_WARNING, 1, MSG(MEditTitle), string_format(MEditorCPNotSupported, cp).data(), MSG(MOk));
+		Message(MSG_WARNING, 1, MSG(MEditTitle), format(MEditorCPNotSupported, cp).data(), MSG(MOk));
 		return EC_CP_NOT_SUPPORTED;
 	}
 
@@ -1504,8 +1504,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				if (Message(MSG_WARNING, MSG(MEditTitle),
 					{
 						Name,
-						string_format(MEditFileLong, RemoveExternalSpaces(strTempStr1)),
-						string_format(MEditFileLong2, RemoveExternalSpaces(strTempStr2)),
+						format(MEditFileLong, RemoveExternalSpaces(strTempStr1)),
+						format(MEditFileLong2, RemoveExternalSpaces(strTempStr2)),
 						MSG(MEditROOpen)
 					},
 					{ MSG(MYes), MSG(MNo) },
@@ -1900,8 +1900,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				++LineNumber;
 				const auto& SaveStr = CurPtr->GetString();
 				auto EndSeq = CurPtr->GetEOL();
-				BOOL UsedDefaultCharStr=FALSE,UsedDefaultCharEOL=FALSE;
-				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, SaveStr.data(), static_cast<int>(SaveStr.size()), nullptr, 0, nullptr, &UsedDefaultCharStr);
+
+				bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr.data(), SaveStr.size(), nullptr, 0, &UsedDefaultCharStr) && UsedDefaultCharStr;
 
 				if (!*EndSeq && !m_editor->IsLastLine(CurPtr))
 					EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
@@ -1909,7 +1909,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				if (TextFormat&&*EndSeq)
 					EndSeq=m_editor->GlobalEOL.data();
 
-				WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, EndSeq, static_cast<int>(wcslen(EndSeq)), nullptr, 0, nullptr, &UsedDefaultCharEOL);
+				bool UsedDefaultCharEOL = encoding::get_bytes(codepage, EndSeq, wcslen(EndSeq), nullptr, 0, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
 
 				if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
 				{
@@ -1929,9 +1929,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 							{
 								const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i)
 								{
-									BOOL UseDefChar = FALSE;
-									WideCharToMultiByte(codepage, WC_NO_BEST_FIT_CHARS, &i, 1, nullptr, 0, nullptr, &UseDefChar);
-									return UseDefChar != FALSE;
+									bool UseDefChar;
+									return encoding::get_bytes(codepage, &i, 1, nullptr, 0, &UseDefChar) == 1 && UseDefChar;
 								});
 
 								if (BadCharIterator != SaveStr.cend())
@@ -2318,7 +2317,7 @@ void FileEditor::ShowStatus() const
 		TruncPathStr(strLocalTitle, NameLength);
 
 	//предварительный расчет
-	strLineStr = std::to_wstring(m_editor->m_LinesCount) + L'/' + std::to_wstring(m_editor->m_LinesCount);
+	strLineStr = str(m_editor->m_LinesCount) + L'/' + str(m_editor->m_LinesCount);
 	int SizeLineStr = (int)strLineStr.size();
 
 	if (SizeLineStr > 12)
@@ -2326,20 +2325,21 @@ void FileEditor::ShowStatus() const
 	else
 		SizeLineStr = 12;
 
-	strLineStr = std::to_wstring(m_editor->m_it_CurLine.Number() + 1) + L'/' + std::to_wstring(m_editor->m_LinesCount);
+	strLineStr = str(m_editor->m_it_CurLine.Number() + 1) + L'/' + str(m_editor->m_LinesCount);
 	string strAttr(AttrStr);
-	FormatString FString;
-	FString<<fmt::LeftAlign()<<fmt::MinWidth(NameLength)<<strLocalTitle<<L' '<<
-		(m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) ? L'*':L' ')<<
-		(m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) ? L'-':L' ')<<
-		(m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ) ? L'"':L' ')<<
-		fmt::MinWidth(5)<<m_codepage<<L' '<<fmt::MinWidth(3)<<MSG(MEditStatusLine)<<L' '<<
-		fmt::ExactWidth(SizeLineStr)<<strLineStr<<L' '<<
-		fmt::MinWidth(3)<<MSG(MEditStatusCol)<<L' '<<
-		fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->m_it_CurLine->GetTabCurPos()+1<<L' '<<
-		fmt::MinWidth(2)<<MSG(MEditStatusChar)<<L' '<<
-		fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->m_it_CurLine->GetCurPos()+1<<L' '<<
-		fmt::MinWidth(3)<<strAttr;
+	const auto StatusLine = format(L"{0:{1}} {2}{3}{4}{5:5} {6:>3} {7:>{8}} {9:>3} {10:<4} {11:>2} {12:<4} {13:>3}",
+		strLocalTitle, NameLength,
+		m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?L'*':L' ',
+		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?L'-':L' ',
+		m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ)?L'"':L' ',
+		m_codepage,
+		MSG(MEditStatusLine),
+		strLineStr, SizeLineStr,
+		MSG(MEditStatusCol),
+		m_editor->m_it_CurLine->GetTabCurPos() + 1,
+		MSG(MEditStatusChar),
+		m_editor->m_it_CurLine->GetCurPos() + 1,
+		strAttr);
 
 	int StatusWidth = ObjWidth();
 	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
@@ -2348,7 +2348,8 @@ void FileEditor::ShowStatus() const
 	if (StatusWidth<0)
 		StatusWidth=0;
 
-	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(StatusWidth)<<FString;
+	Text(fit_to_left(StatusLine, StatusWidth));
+
 	{
 		const auto& Str = m_editor->m_it_CurLine->GetString();
 		size_t CurPos = m_editor->m_it_CurLine->GetCurPos();
@@ -2360,42 +2361,49 @@ void FileEditor::ShowStatus() const
 			SetColor(COL_EDITORSTATUS);
 			/* $ 27.02.2001 SVS
 			Показываем в зависимости от базы */
+
+			unsigned CharCode = Str[CurPos];
+			string CharStr;
 			switch(m_editor->EdOpt.CharCodeBase)
 			{
 			case 0:
-				Global->FS << fmt::MinWidth(7) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(Str[CurPos]);
+				CharStr = format(L"{0:>7}", format(L"0{0:o}", CharCode));
 				break;
+
 			case 2:
-				Global->FS << fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(Str[CurPos]) << L'h';
+				CharStr = format(L"{0:4X}h", CharCode);
 				break;
+
 			case 1:
 			default:
-				Global->FS << fmt::MinWidth(5) << static_cast<UINT>(Str[CurPos]);
+				CharStr = format(L"{0:5}", CharCode);
 				break;
 			}
 
+			Text(CharStr);
+
 			if (!IsUnicodeOrUtfCodePage(m_codepage))
 			{
-				char C=0;
-				BOOL UsedDefaultChar=FALSE;
-				WideCharToMultiByte(m_codepage, WC_NO_BEST_FIT_CHARS, &Str[CurPos], 1, &C, 1, nullptr, &UsedDefaultChar);
-
-				if (C && !UsedDefaultChar && static_cast<wchar_t>(C)!=Str[CurPos])
+				char Buffer;
+				bool UsedDefaultChar;
+				if (encoding::get_bytes(m_codepage, &Str[CurPos], 1, &Buffer, 1, &UsedDefaultChar) == 1 && !UsedDefaultChar && (CharCode = as_unsigned(Buffer)) != 0 && CharCode != Str[CurPos])
 				{
-					Global->FS << L"/";
 					switch(m_editor->EdOpt.CharCodeBase)
 					{
 					case 0:
-						Global->FS << fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(C);
+						CharStr = format(L"{0:3}", format(L"0{0:o}", CharCode));
 						break;
+
 					case 2:
-						Global->FS << fmt::MinWidth(2) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(C) << L'h';
+						CharStr = format(L"{0:02X}h", CharCode);
 						break;
+
 					case 1:
 					default:
-						Global->FS << fmt::MinWidth(3) << static_cast<UINT>(C);
+						CharStr = format(L"{0:3}", CharCode);
 						break;
 					}
+					Text(L'/' + CharStr);
 				}
 			}
 		}
@@ -2843,7 +2851,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	{
 		int ret = Message(MSG_WARNING, 3, MSG(MWarning),
 			MSG(MEditorSwitchCPWarn1),
-			string_format(MEditorSwitchCPWarn2, codepage).data(),
+			format(MEditorSwitchCPWarn2, codepage).data(),
 			MSG(MEditorSwitchCPConfirm),
 			MSG(MCancel), MSG(MEditorSaveCPWarnShow), MSG(MOk));
 

@@ -1997,7 +1997,7 @@ void VMenu::DrawTitles() const
 		GotoXY(m_X1+(m_X2-m_X1-1-WidthTitle)/2,m_Y1);
 		SetColor(Colors[VMenuColorTitle]);
 
-		Global->FS << L" " << fmt::ExactWidth(WidthTitle) << strDisplayTitle << L" ";
+		Text(concat(L' ', fit_to_left(strDisplayTitle, WidthTitle), L' '));
 	}
 
 	if (!strBottomTitle.empty())
@@ -2010,7 +2010,7 @@ void VMenu::DrawTitles() const
 		GotoXY(m_X1+(m_X2-m_X1-1-WidthTitle)/2,m_Y2);
 		SetColor(Colors[VMenuColorTitle]);
 
-		Global->FS << L" " << fmt::ExactWidth(WidthTitle) << strBottomTitle << L" ";
+		Text(concat(L' ', fit_to_left(strBottomTitle, WidthTitle), L' '));
 	}
 }
 
@@ -2197,7 +2197,7 @@ void VMenu::ShowMenu(bool IsParent)
 						ItemWidth = m_X2-m_X1-3;
 
 					GotoXY(m_X1+(m_X2-m_X1-1-ItemWidth)/2,Y);
-					Global->FS << L" " << fmt::LeftAlign() << fmt::ExactWidth(ItemWidth) << Items[I].strName << L" ";
+					Text(concat(L' ', fit_to_left(Items[I].strName, ItemWidth), L' '));
 				}
 			}
 			else
@@ -2255,7 +2255,7 @@ void VMenu::ShowMenu(bool IsParent)
 					}
 				}
 
-				strMenuLine.append(strMItemPtr);
+				strMenuLine += strMItemPtr;
 
 				// табуляции меняем только при показе!!!
 				// для сохранение оригинальной строки!!!
@@ -2319,7 +2319,7 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					int Width = m_X2-WhereX()+(m_BoxType==NO_BOX?1:0);
 					if (Width > 0)
-						Global->FS << fmt::MinWidth(Width) << L"";
+						Text(string(Width, L' '));
 				}
 
 				if (Items[I].Flags & MIF_SUBMENU)
@@ -2360,7 +2360,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 			SetColor(Colors[VMenuColorText]);
 			// сделаем добавочку для NO_BOX
-			Global->FS << fmt::MinWidth(((m_BoxType!=NO_BOX)?m_X2-m_X1-1:m_X2-m_X1)+((m_BoxType==NO_BOX)?1:0)) << L"";
+			Text(string(m_X2 - m_X1 + (m_BoxType == NO_BOX? + 1 : - 1), L' '));
 		}
 	}
 
@@ -2976,7 +2976,7 @@ std::vector<string> VMenu::AddHotkeys(const range<MenuDataEx*>& MenuItems)
 		string Key;
 		KeyToLocalizedText(Item.AccelKey, Key);
 		const auto Hl = HiStrlen(Item.Name) != wcslen(Item.Name);
-		Str = FormatString() << fmt::ExactWidth(MaxLength + (Hl? 2 : 1)) << fmt::LeftAlign() << Item.Name << Key;
+		Str = fit_to_left(Item.Name, MaxLength + (Hl? 2 : 1)) + Key;
 		Item.Name = Str.data();
 	}
 

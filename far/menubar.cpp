@@ -38,14 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "language.hpp"
 #include "interf.hpp"
+#include "strmix.hpp"
 
 void MenuBar::DisplayObject()
 {
-	string strSpace=L"    ";
-	string strMsg=strSpace+MSG(MMenuLeftTitle)+strSpace+MSG(MMenuFilesTitle)+strSpace+MSG(MMenuCommandsTitle)+strSpace+MSG(MMenuOptionsTitle)+strSpace+MSG(MMenuRightTitle);
+	const auto strSpace = L"    "s;
+	auto strMsg = concat(strSpace, MSG(MMenuLeftTitle), strSpace, MSG(MMenuFilesTitle), strSpace, MSG(MMenuCommandsTitle), strSpace, MSG(MMenuOptionsTitle), strSpace, MSG(MMenuRightTitle));
 	RemoveHighlights(strMsg);
-	int Length=m_X2-m_X1+1;
 	GotoXY(m_X1,m_Y1);
 	SetColor(COL_HMENUTEXT);
-	Global->FS << fmt::LeftAlign() << fmt::ExactWidth(Length) << strMsg;
+	Text(fit_to_left(strMsg, m_X2 - m_X1 + 1));
 }

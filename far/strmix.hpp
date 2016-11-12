@@ -87,7 +87,7 @@ string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long
 bool CheckFileSizeStringFormat(const string& FileSizeStr);
 unsigned long long ConvertFileSizeString(const string& FileSizeStr);
 string FormatNumber(const string& Src, int NumDigits=0);
-inline string InsertCommas(unsigned long long Value) { return FormatNumber(std::to_wstring(Value)); }
+inline string InsertCommas(unsigned long long Value) { return FormatNumber(str(Value)); }
 
 inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || WordDiv.find(Chr) != string::npos; }
 
@@ -105,9 +105,6 @@ string& TruncPathStr(string &strStr, int MaxLength);
 
 bool IsCaseMixed(const string &strStr);
 
-string& CenterStr(const string& Src, string &strDest,int Length);
-string& RightStr(const string& Src, string &strDest, int Length);
-
 string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch);
 
 string GuidToStr(const GUID& Guid);
@@ -123,9 +120,6 @@ inline int StrCmp(const string& a, const wchar_t* b) { return ::StrCmp(a.data(),
 inline int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }
 inline int StrCmpI(const wchar_t* a, const string& b) { return ::StrCmpI(a, b.data()); }
 inline int StrCmpI(const string& a, const wchar_t* b) { return ::StrCmpI(a.data(), b); }
-
-string str_printf(const wchar_t * format, ...);
-string str_vprintf(const wchar_t * format, va_list argptr);
 
 inline string& InplaceUpper(string& str, size_t pos = 0, size_t n = string::npos) { std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Upper); return str; }
 inline string& InplaceLower(string& str, size_t pos = 0, size_t n = string::npos) { std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Lower); return str; }
@@ -164,7 +158,7 @@ auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Sepa
 	{
 		if (Flags & i.first)
 		{
-			strFlags.append(i.second).append(1, Separator);
+			append(strFlags, i.second, Separator);
 		}
 	});
 

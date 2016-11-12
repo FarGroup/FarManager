@@ -1369,18 +1369,15 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 	}
 	else
 	{
-		FormatString strKeyTemp;
 		if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
 		{
-			strKeyTemp << L"Spec" <<fmt::MinWidth(5) << FKey-KEY_VK_0xFF_BEGIN;
 			AddSeparator(strKeyText);
-			strKeyText += strKeyTemp;
+			strKeyText += format(L"Spec{0:0>5}", FKey - KEY_VK_0xFF_BEGIN);
 		}
 		else if (FKey > KEY_LAUNCH_APP2 && FKey < KEY_MSWHEEL_UP)
 		{
-			strKeyTemp << L"Oem" <<fmt::MinWidth(5) << FKey-KEY_FKEY_BEGIN;
 			AddSeparator(strKeyText);
-			strKeyText += strKeyTemp;
+			strKeyText += format(L"Oem{0:0>5}", FKey - KEY_VK_0xFF_BEGIN);
 		}
 		else
 		{

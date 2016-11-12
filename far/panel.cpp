@@ -556,10 +556,10 @@ void Panel::DragMessage(int X,int Y,int Move)
 	}
 	else
 	{
-		strSelName = string_format(MDragFiles, SelCount);
+		strSelName = format(MDragFiles, SelCount);
 	}
 
-	auto strDragMsg = string_format(Move? MDragMove : MDragCopy, strSelName);
+	auto strDragMsg = format(Move? MDragMove : MDragCopy, strSelName);
 
 	if ((Length=(int)strDragMsg.size())+X>ScrX)
 	{
@@ -771,10 +771,9 @@ void Panel::DrawSeparator(int Y) const
 
 string Panel::GetTitleForDisplay() const
 {
-	string Title(1, L' ');
-	Title.append(GetTitle());
+	auto Title = concat(L' ', GetTitle());
 	TruncStr(Title, m_X2 - m_X1 - 2);
-	Title.append(1, L' ');
+	Title += L' ';
 	return Title;
 }
 
@@ -791,18 +790,21 @@ void Panel::ShowScreensCount() const
 			GotoXY(Global->Opt->ShowColumnTitles ? m_X1:m_X1+2,m_Y1);
 			SetColor(COL_PANELSCREENSNUMBER);
 
-			Global->FS << L"[" << Viewers;
+			auto Counter = L'[' + str(Viewers);
+
 			if (Editors > 0)
 			{
-				Global->FS << L"+" << Editors;
+				Counter += L'+' + str(Editors);
 			}
 
 			if (Dialogs > 0)
 			{
-				Global->FS << L"," << Dialogs;
+				Counter += L',' + str(Dialogs);
 			}
 
-			Global->FS << L"]";
+			Counter += L']';
+
+			Text(Counter);
 		}
 	}
 }

@@ -84,7 +84,7 @@ private:
 	FarColor m_Color;
 	time_check m_TimeCheck;
 	time_check m_SpeedUpdateCheck;
-	FormatString m_Src, m_Dst;
+	string m_Src, m_Dst;
 	string m_ScanName;
 	string m_Time;
 	string m_TimeLeft;

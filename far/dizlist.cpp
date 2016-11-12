@@ -206,7 +206,7 @@ const wchar_t* DizList::Get(const string& Name, const string& ShortName, const l
 
 	if (std::iswdigit(*Begin))
 	{
-		const auto SizeText = std::to_wstring(FileSize);
+		const auto SizeText = str(FileSize);
 		auto DescrIterator = Begin;
 		auto SkipSize = true;
 
@@ -365,7 +365,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				QuoteSpaceOnly(dump);
 				for (const auto& j: i.second)
 				{
-					dump.append(j).append(L"\r\n");
+					append(dump, j, L"\r\n"s);
 				}
 				const auto Size = dump.size() * (CodePage == CP_UTF8? 3 : 1); //UTF-8, up to 3 bytes per char support
 				char_ptr DizText(Size);

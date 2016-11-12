@@ -83,21 +83,19 @@ static auto GetSymbols(const std::vector<const void*>& BackTrace)
 	IMAGEHLP_LINE64 Line = { sizeof(Line) };
 	DWORD Displacement;
 
-	std::wostringstream Stream;
 	for (const auto i: BackTrace)
 	{
-		Stream << L"0x" << i;
+		auto Buffer = str(i);
 		const auto Address = reinterpret_cast<DWORD_PTR>(i);
 		if (Imports().SymFromAddr(Process, Address, nullptr, Symbol.get()))
 		{
-			Stream << " " << Symbol->Name;
+			Buffer += format(L" {0}", Symbol->Name);
 		}
 		if (Imports().SymGetLineFromAddr64(Process, Address, &Displacement, &Line))
 		{
-			Stream << L" (" << Line.FileName << L":" << Line.LineNumber << L")";
+			Buffer += format(L" ({0}:{1})", Line.FileName, Line.LineNumber);
 		}
-		Result.emplace_back(Stream.str());
-		Stream.str({});
+		Result.emplace_back(Buffer);
 	}
 	return Result;
 }

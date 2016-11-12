@@ -76,7 +76,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -333,6 +333,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
     <ClInclude Include="common\string_literal.hpp" />
+    <ClInclude Include="common\string_utils.hpp" />
     <ClInclude Include="common\swapable.hpp" />
     <ClInclude Include="common\any.hpp" />
     <ClInclude Include="codepage_selection.hpp" />

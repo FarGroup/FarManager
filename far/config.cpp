@@ -533,7 +533,7 @@ void Options::MaskGroupsSettings()
 						}
 						MasksMenu->SetPosition(-1, -1, -1, -1);
 						MasksMenu->SetTitle(Value);
-						MasksMenu->SetBottomTitle(string_format(MMaskGroupTotal, MasksMenu->GetShowItemCount()));
+						MasksMenu->SetBottomTitle(format(MMaskGroupTotal, MasksMenu->GetShowItemCount()));
 						Filter = true;
 					}
 				}
@@ -1469,9 +1469,7 @@ void IntOption::Export(FarSettingsItem& To) const
 
 string IntOption::ExInfo() const
 {
-	std::wostringstream oss;
-	oss << L" = 0x" << std::hex << Get();
-	return oss.str();
+	return format(L" = 0x{0:X}", as_unsigned(Get()));
 }
 
 
@@ -1746,7 +1744,6 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyLayout,L"RightHeightDecrement", OPT_DEF(RightHeightDecrement, 0)},
 		{FSSF_PRIVATE,       NKeyLayout,L"WidthDecrement", OPT_DEF(WidthDecrement, 0)},
 
-		{FSSF_PRIVATE,       NKeyKeyMacros,L"CONVFMT", OPT_DEF(Macro.strMacroCONVFMT, L"%.6g")},
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"DateFormat", OPT_DEF(Macro.strDateFormat, L"%a %b %d %H:%M:%S %Z %Y")},
 
 		{FSSF_PRIVATE,       NKeyKeyMacros,L"KeyRecordCtrlDot", OPT_DEF(Macro.strKeyMacroCtrlDot, L"Ctrl.")},
@@ -2390,7 +2387,7 @@ void Options::ReadPanelModes()
 
 	const auto& ReadMode = [&](auto& i, size_t Index)
 	{
-		const auto Key = cfg->FindByName(root, std::to_wstring(Index));
+		const auto Key = cfg->FindByName(root, str(Index));
 
 		if (!Key)
 		{
@@ -2456,7 +2453,7 @@ void Options::SavePanelModes(bool always)
 		ViewSettingsToText(i.PanelColumns, strColumnTitles, strColumnWidths);
 		ViewSettingsToText(i.StatusColumns, strStatusColumnTitles, strStatusColumnWidths);
 
-		if(const auto Key = cfg->CreateKey(root, std::to_wstring(Index)))
+		if(const auto Key = cfg->CreateKey(root, str(Index)))
 		{
 			cfg->SetValue(Key, ModesNameName, i.Name);
 			cfg->SetValue(Key, ModesColumnTitlesName, strColumnTitles);

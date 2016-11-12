@@ -121,11 +121,7 @@ static int LastScrY = -1;
 string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, const wchar_t *D, DWORD SN, const wchar_t *L, const wchar_t *SR, const wchar_t *SH)
 {
 	strDest=strTemplate;
-	FormatString strDiskNumber;
-
-	strDiskNumber <<
-				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(SN) << L'-' <<
-				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(SN);
+	const auto strDiskNumber = format(L"{0:04X}-{1:04X}", HIWORD(SN), LOWORD(SN));
 	/*
     	 %D    - буква диска
 	     %SN   - серийный номер
@@ -336,7 +332,7 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	}
 
 	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
-	strName = FormatString() << strFolderName << L"\\" << strVolumeName << L"." << fmt::Radix(16) << dwVolumeSerialNumber << L"." << strFileSystemName << L"." << strRemoteName;
+	strName = format(L"{0}\\{1}.{2X}.{3}.{4}", strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
 	return TRUE;
 }
 
@@ -611,7 +607,7 @@ void TreeList::DisplayTree(int Fast)
 
 		if (WhereX()<m_X2)
 		{
-			Global->FS << fmt::MinWidth(m_X2-WhereX())<<L"";
+			Text(string(m_X2 - WhereX(), L' '));
 		}
 	}
 
@@ -627,7 +623,7 @@ void TreeList::DisplayTree(int Fast)
 	if (!m_ListData.empty())
 	{
 		GotoXY(m_X1+1,m_Y2-1);
-		Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(m_X2-m_X1-1)<<m_ListData[m_CurFile].strName;
+		Text(fit_to_left(m_ListData[m_CurFile].strName, m_X2 - m_X1 - 1));
 	}
 
 	UpdateViewPanel();
@@ -645,19 +641,19 @@ void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos) const
 
 		if (IsFocused() || m_ModalMode)
 		{
-			SetColor((Pos==m_WorkDir) ? COL_PANELSELECTEDCURSOR:COL_PANELCURSOR);
-			Global->FS << L" "<<fmt::MaxWidth(m_X2-WhereX()-3)<<Name<<L" ";
+			SetColor(Pos == m_WorkDir? COL_PANELSELECTEDCURSOR : COL_PANELCURSOR);
+			Text(concat(L' ', cut_right(Name, m_X2 - WhereX() - 3), L' '));
 		}
 		else
 		{
-			SetColor((Pos==m_WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-			Global->FS << L"["<<fmt::MaxWidth(m_X2-WhereX()-3)<<Name<<L"]";
+			SetColor(Pos == m_WorkDir? COL_PANELSELECTEDTEXT : COL_PANELTEXT);
+			Text(concat(L'[', cut_right(Name, m_X2 - WhereX() - 3), L']'));
 		}
 	}
 	else
 	{
-		SetColor((Pos==m_WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-		Global->FS << fmt::MaxWidth(m_X2-WhereX()-1)<<Name;
+		SetColor(Pos == m_WorkDir? COL_PANELSELECTEDTEXT : COL_PANELTEXT);
+		Text(cut_right(Name, m_X2 - WhereX() - 1));
 	}
 }
 
@@ -741,7 +737,7 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 
 	if (IsChangeConsole || (clock() - TreeStartTime) > CLOCKS_PER_SEC)
 	{
-		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(MTreeTitle), MSG(MReadingTree), std::to_wstring(TreeCount).data());
+		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(MTreeTitle), MSG(MReadingTree), str(TreeCount).data());
 		if (!PreRedrawStack().empty())
 		{
 			const auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
@@ -2096,9 +2092,9 @@ void TreeList::RefreshTitle()
 	m_Title = L"{";
 	if (!m_ListData.empty())
 	{
-		m_Title.append(m_ListData[m_CurFile].strName).append(L" - ");
+		append(m_Title, m_ListData[m_CurFile].strName, L" - "s);
 	}
-	m_Title.append(m_ModalMode? MSG(MFindFolderTitle) : MSG(MTreeTitle)).append(L"}");
+	append(m_Title, MSG(m_ModalMode? MFindFolderTitle : MTreeTitle), L'}');
 }
 
 const TreeList::TreeItem* TreeList::GetItem(size_t Index) const

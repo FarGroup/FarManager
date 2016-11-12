@@ -120,6 +120,7 @@ namespace os
 	NTSTATUS GetLastNtStatus();
 	string GetCurrentDirectory();
 	bool GetProcessRealCurrentDirectory(string& Directory);
+	bool SetProcessRealCurrentDirectory(const string& Directory);
 	DWORD GetTempPath(string &strBuffer);
 	bool GetModuleFileName(HMODULE hModule, string &strFileName);
 	bool GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName);
@@ -312,6 +313,27 @@ namespace os
 		bool is_directory(file_status Status);
 
 		bool is_not_empty_directory(const string& Object);
+
+		class process_current_directory_guard: noncopyable
+		{
+		public:
+			process_current_directory_guard(bool Active, const std::function<string()>& Provider):
+				m_Active(Active && os::GetProcessRealCurrentDirectory(m_Directory))
+			{
+				if (m_Active && Provider)
+					os::SetProcessRealCurrentDirectory(Provider());
+			}
+
+			~process_current_directory_guard()
+			{
+				if (m_Active)
+					os::SetProcessRealCurrentDirectory(m_Directory);
+			}
+
+		private:
+			string m_Directory;
+			bool m_Active;
+		};
 	}
 
 	namespace reg

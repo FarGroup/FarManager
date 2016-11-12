@@ -184,7 +184,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 		throw MAKE_FAR_EXCEPTION("unknown allocation type");
 	};
 
-	return std::string(File) + ':' + std::to_string(Line) + " -> " + Function + ':' + sType + " (" + std::to_string(Size) + " bytes)";
+	return format("{0}:{1} -> {2}:{3} ({4} bytes)", File, Line, Function, sType, " (", Size, " bytes)");
 }
 
 static thread_local bool inside_far_bad_alloc = false;
@@ -273,34 +273,33 @@ void PrintMemory()
 
 	if (CallNewDeleteVector || CallNewDeleteScalar || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{
-		std::wostringstream oss;
-		oss << L"Memory leaks detected:" << std::endl;
+		string Message(L"Memory leaks detected:\n");
+
 		if (CallNewDeleteVector)
-			oss << L"  delete[]:   " << CallNewDeleteVector << std::endl;
+			Message += format(L"  delete[]:   {0}\n", CallNewDeleteVector);
 		if (CallNewDeleteScalar)
-			oss << L"  delete:     " << CallNewDeleteScalar << std::endl;
+			Message += format(L"  delete:     {0}\n", CallNewDeleteScalar);
 		if (AllocatedMemoryBlocks)
-			oss << L"Total blocks: " << AllocatedMemoryBlocks << std::endl;
+			Message += format(L"Total blocks: {0}\n", AllocatedMemoryBlocks);
 		if (AllocatedMemorySize)
-			oss << L"Total bytes:  " << AllocatedMemorySize - AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)) << L" payload, " << AllocatedMemoryBlocks * sizeof(MEMINFO) << L" overhead" << std::endl;
-		oss << std::endl;
+			Message += format(L"Total bytes:  {0} payload, {1} overhead\n", AllocatedMemorySize - AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)), AllocatedMemoryBlocks * sizeof(MEMINFO));
+		Message += L'\n';
 
-		oss << "Not freed blocks:" << std::endl;
+		Message += L"Not freed blocks:\n";
 
-		std::wcerr << oss.str();
-		OutputDebugString(oss.str().data());
-		oss.str({});
+		std::wcerr << Message;
+		OutputDebugString(Message.data());
+		Message.clear();
 
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
 			const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
-			oss << FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize).data()
-				<< L"\nData: " << BlobToHexWString(ToUser(i), std::min(BlockSize, size_t(16)), L' ')
-				<< L"\nhr: " << FindStr(ToUser(i), BlockSize) << std::endl;
+			Message = concat(encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
+				L"\nData: ", BlobToHexWString(ToUser(i), std::min(BlockSize, size_t(16)), L' '),
+				L"\nhr: ", FindStr(ToUser(i), BlockSize), L'\n');
 
-			std::wcerr << oss.str();
-			OutputDebugString(oss.str().data());
-			oss.str({});
+			std::wcerr << Message;
+			OutputDebugString(Message.data());
 		}
 	}
 	MonitoringEnabled = MonitoringState;

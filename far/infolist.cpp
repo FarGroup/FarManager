@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "keybar.hpp"
 #include "keyboard.hpp"
+#include "datetime.hpp"
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;
@@ -169,7 +170,7 @@ void InfoList::DisplayObject()
 	string strDriveRoot;
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
-	FormatString strDiskNumber;
+	string strDiskNumber;
 	CloseFile();
 
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_PANELBOX),DOUBLE_BOX);
@@ -357,9 +358,7 @@ void InfoList::DisplayObject()
 				break;
 			}
 
-			strDiskNumber <<
-				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(VolumeNumber) << L'-' <<
-				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(VolumeNumber);
+			strDiskNumber = format(L"{0:04X}-{1:04X}", HIWORD(VolumeNumber), LOWORD(VolumeNumber));
 		}
 		else // Error!
 			SectionTitle = strDriveRoot;
@@ -424,7 +423,7 @@ void InfoList::DisplayObject()
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoMemoryLoad);
-			PrintInfo(string_format(L"{0}%", ms.dwMemoryLoad));
+			PrintInfo(str(ms.dwMemoryLoad) + L"%");
 
 			ULONGLONG TotalMemoryInKilobytes=0;
 			if(Imports().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
@@ -488,7 +487,7 @@ void InfoList::DisplayObject()
 			if (PowerStatus.BatteryLifePercent > 100)
 				strOutStr = MSG(MInfoPowerStatusBCLifePercentUnknown);
 			else
-				strOutStr = std::to_wstring(PowerStatus.BatteryLifePercent) + L'%';
+				strOutStr = str(PowerStatus.BatteryLifePercent) + L'%';
 			PrintInfo(strOutStr);
 
 			GotoXY(m_X1+2,CurY++);
@@ -517,29 +516,30 @@ void InfoList::DisplayObject()
 			}
 			PrintInfo(strOutStr);
 
+			auto GetBatteryTime = [](size_t Seconds)
+			{
+				if (Seconds == BATTERY_LIFE_UNKNOWN)
+					return string(MSG(MInfoPowerStatusUnknown));
+
+				string Days, Time;
+				ConvertRelativeDate(UI64ToFileTime(Seconds * 1000ull * 10000ull), Days, Time);
+				if (Days != L"0")
+				{
+					const auto Hours = str(Seconds / 3600);
+					Time = Hours + Time.substr(2);
+				}
+
+				// drop msec
+				return Time.substr(0, Time.size() - 4);
+			};
+
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPowerStatusBCTimeRem);
-			if (PowerStatus.BatteryLifeTime != BATTERY_LIFE_UNKNOWN)
-			{
-				DWORD s = PowerStatus.BatteryLifeTime%60;
-				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
-				DWORD h = PowerStatus.BatteryLifeTime/3600;
-				PrintInfo(FormatString() << fmt::MinWidth(2) << fmt::FillChar(L'0') << h << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << m << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << s);
-			}
-			else
-				PrintInfo(MSG(MInfoPowerStatusBCTMUnknown));
+			PrintInfo(GetBatteryTime(PowerStatus.BatteryLifeTime));
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(MInfoPowerStatusBCFullTimeRem);
-			if (PowerStatus.BatteryFullLifeTime != BATTERY_LIFE_UNKNOWN)
-			{
-				DWORD s = PowerStatus.BatteryLifeTime%60;
-				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
-				DWORD h = PowerStatus.BatteryLifeTime/3600;
-				PrintInfo(FormatString() << fmt::MinWidth(2) << fmt::FillChar(L'0') << h << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << m << locale::GetTimeSeparator() << fmt::MinWidth(2) << fmt::FillChar(L'0') << s);
-			}
-			else
-				PrintInfo(MSG(MInfoPowerStatusBCFTMUnknown));
+			PrintInfo(GetBatteryTime(PowerStatus.BatteryFullLifeTime));
 		}
 	}
 
@@ -894,7 +894,7 @@ void InfoList::PrintText(const string& Str) const
 {
 	if (WhereY()<=m_Y2-1)
 	{
-		Global->FS << fmt::MaxWidth(m_X2-WhereX())<<Str;
+		Text(cut_right(Str, m_X2 - WhereX()));
 	}
 }
 
@@ -925,7 +925,7 @@ void InfoList::PrintInfo(const string& str) const
 	{
 		GotoXY(NewX,WhereY());
 		SetColor(COL_PANELINFOTEXT);
-		Global->FS << strStr<<L" ";
+		Text(strStr + L" ");
 		SetColor(SaveColor);
 	}
 }
@@ -989,7 +989,7 @@ bool InfoList::ShowPluginDescription(int YPos)
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		SetColor(COL_PANELTEXT);
-		Global->FS << fmt::MinWidth(m_X2-m_X1-1)<<L"";
+		Text(string(m_X2 - m_X1 - 1, L' '));
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		GotoXY(m_X1+2,Y);
@@ -999,7 +999,7 @@ bool InfoList::ShowPluginDescription(int YPos)
 			string strTitle;
 
 			if (InfoLine->Text && *InfoLine->Text)
-				strTitle.append(L" ").append(InfoLine->Text).append(L" ");
+				strTitle = concat(L' ', InfoLine->Text, L' ');
 
 			DrawSeparator(Y);
 			TruncStr(strTitle,m_X2-m_X1-3);
@@ -1074,8 +1074,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 
 	DizView->Show();
 
-	string strTitle;
-	strTitle.append(L" ").append(PointToName(strDizFileName)).append(L" ");
+	auto strTitle = concat(L' ', PointToName(strDizFileName), L' ');
 	int CurY=YPos-1;
 	DrawTitle(strTitle,ILSS_DIRDESCRIPTION,CurY);
 	return TRUE;

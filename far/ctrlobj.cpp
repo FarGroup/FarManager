@@ -143,8 +143,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 {
 	if (Flags&1)
 	{
-		string strOut(Global->Version());
-		strOut.append(EOL_STR).append(Global->Copyright()).append(EOL_STR);
+		string strOut = concat(Global->Version(), EOL_STR, Global->Copyright(), EOL_STR);
 		Console().Write(strOut);
 		Console().Commit();
 	}

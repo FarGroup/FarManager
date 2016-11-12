@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "viewer.hpp"
 
+enum LNGID : int;
 class DizViewer;
 
 class InfoList:public Panel

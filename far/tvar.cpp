@@ -237,12 +237,12 @@ static TypeString checkTypeString(const string& TestStr)
 
 static string toString(long long num)
 {
-	return std::to_wstring(num);
+	return str(num);
 };
 
 static string toString(double num)
 {
-	return str_printf(Global->Opt->Macro.strMacroCONVFMT.Get().data(), num);
+	return str(num);
 };
 
 static TVar addStr(const string& a, const string& b)

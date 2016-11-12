@@ -128,14 +128,11 @@ public:
 	class config_provider* m_ConfigProvider;
 	std::unique_ptr<class Options> Opt;
 	std::unique_ptr<class ScreenBuf> ScrBuf;
-	class FormatScreen FS;
 	std::unique_ptr<class Manager> WindowManager;
 	class Language *Lang;
 	class elevation *Elevation;
 	class ControlObject* CtrlObject;
 };
-
-#define MSG(ID) Global->Lang->GetMsg(ID)
 
 extern global* Global;
 

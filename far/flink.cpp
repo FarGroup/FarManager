@@ -566,7 +566,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				strFullLink += SelName;
 			else
 			{
-				strFullLink.append(L"Disk_").append(Target, 0, 1);
+				append(strFullLink, L"Disk_", Target.front());
 			}
 		}
 
@@ -661,8 +661,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
 						MSG(MError),
-						string_format(MCopyMountVolFailed, Target).data(),
-						string_format(MCopyMountVolFailed2, strFullLink).data(),
+						format(MCopyMountVolFailed, Target).data(),
+						format(MCopyMountVolFailed2, strFullLink).data(),
 						MSG(MOk));
 				}
 
