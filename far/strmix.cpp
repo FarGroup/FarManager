@@ -513,13 +513,16 @@ void PrepareUnitStr()
 	}
 }
 
-string FileSizeToStr(unsigned long long Size, int Width, unsigned long long ViewFlags)
+string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long long ViewFlags)
 {
 	// подготовительные мероприятия
 	if (UnitStr(0, 0) != Lower(MSG(MListBytes)))
 	{
 		PrepareUnitStr();
 	}
+
+	size_t Width = abs(WidthWithSign);
+	const auto LeftAlign = WidthWithSign < 0;
 
 	const bool Commas=(ViewFlags & COLUMN_COMMAS)!=0;
 	const bool FloatSize=(ViewFlags & COLUMN_FLOATSIZE)!=0;
@@ -544,10 +547,24 @@ string FileSizeToStr(unsigned long long Size, int Width, unsigned long long View
 
 	unsigned long long Sz = Size, Divider2 = Divider/2, Divider64 = Divider, OldSize;
 
-	const auto FormatSize = [Economic](const string& Str, size_t Width, size_t IndexB, size_t IndexDiv)
+	const auto FormatSize = [&](const string& Str, size_t Width, size_t IndexB, size_t IndexDiv)
 	{
-		return format(L"{0:>{1}.{1}}{2}{3}", Str, Width, Economic? L"" : L" ", UnitStr(IndexB, IndexDiv).front());
+		wchar_t Format[] = L"{0:>{1}.{1}}{2}{3}";
+		// Library doesn't support dynamic alignment currently. TODO: fix it?
+		if (LeftAlign)
+		{
+			Format[3] = L'<';
+		}
+		return format(Format, Str, Width, Economic? L"" : L" ", UnitStr(IndexB, IndexDiv).front());
 	};
+
+	const auto ReduceWidth = [&]
+	{
+		const auto Subtraction = Economic? 1u : 2u;
+		Width = Width > Subtraction? Width - Subtraction : 0;
+	};
+
+	const auto Align = LeftAlign? fit_to_left : fit_to_right;
 
 	if (FloatSize)
 	{
@@ -588,31 +605,26 @@ string FileSizeToStr(unsigned long long Size, int Width, unsigned long long View
 		}
 
 		if (IndexB <= 0 && !ShowBytesIndex)
-			return fit_to_right(Str, Width);
+			return Align(Str, Width);
 
-		Width -= Economic? 1 : 2;
-
-		if (Width < 0)
-			Width = 0;
-
+		ReduceWidth();
 		return FormatSize(Str, Width, IndexB, IndexDiv);
-
 	}
 
 	{
 		auto Str = Commas? InsertCommas(Sz) : str(Sz);
 
-		if ((!UseMinSizeIndex && Str.size() <= static_cast<size_t>(Width)) || Width < 5)
+		if ((!UseMinSizeIndex && Str.size() <= Width) || Width < 5)
 		{
 			if (!ShowBytesIndex)
-				return fit_to_right(Str, Width);
+				return Align(Str, Width);
 
-			Width = std::max(Width - (Economic? 1 : 2), 0);
+			ReduceWidth();
 			return FormatSize(Str, Width, 0, IndexDiv);
 		}
 	}
 
-	Width -= Economic? 1 : 2;
+	ReduceWidth();
 	size_t IndexB = 0;
 	string Str;
 
@@ -627,7 +639,7 @@ string FileSizeToStr(unsigned long long Size, int Width, unsigned long long View
 		IndexB++;
 		Str = Commas? InsertCommas(Sz) : str(Sz);
 	}
-	while ((UseMinSizeIndex && IndexB < MinSizeIndex) || Str.size() > static_cast<size_t>(Width));
+	while ((UseMinSizeIndex && IndexB < MinSizeIndex) || Str.size() > Width);
 
 	return FormatSize(Str, Width, IndexB, IndexDiv);
 }

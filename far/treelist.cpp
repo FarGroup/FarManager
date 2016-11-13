@@ -332,7 +332,7 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	}
 
 	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
-	strName = format(L"{0}\\{1}.{2X}.{3}.{4}", strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
+	strName = format(L"{0}\\{1}.{2:X}.{3}.{4}", strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
 	return TRUE;
 }
 
