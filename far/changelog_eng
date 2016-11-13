@@ -3,6 +3,33 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 13.11.2016 20:44:50 +0200 - build 4838
+
+1. remove direct processing of input while dragging a dialog.
+
+drkns 13.11.2016 18:38:58 +0200 - build 4837
+
+1. Correction of 4834.
+
+drkns 13.11.2016 14:47:30 +0200 - build 4836
+
+1. 0003348: Far(build 4834) Trap on show folder/file attribute dialog
+
+drkns 13.11.2016 14:17:47 +0200 - build 4835
+
+1. gcc version did not work in ancient OSes.
+
+drkns 12.11.2016 13:07:03 +0200 - build 4834
+
+1. Use fmtlib instead of FormatString, FormatScreen, str_printf, ostringstream etc.
+   A lot of changes, bugs are possible.
+
+2. Other related refactoring.
+
+svs 08.11.2016 08:10:59 +0300 - build 4833
+
+1. SQLite 3.15.1
+
 drkns 04.11.2016 00:29:33 +0200 - build 4832
 
 1. Correction of 4831.
