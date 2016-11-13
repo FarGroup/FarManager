@@ -1570,7 +1570,7 @@ static int far_Menu(lua_State *L)
 	const wchar_t *Title = L"Menu", *Bottom = NULL, *HelpTopic = NULL;
 	intptr_t SelectIndex = 0, ItemsNumber, ret;
 	int store = 0, i;
-	intptr_t BreakCode, *pBreakCode, NumBreakCodes;
+	intptr_t BreakCode, *pBreakCode, NumBreakCodes=0;
 	const GUID* MenuGuid = NULL;
 	struct FarMenuItem *Items, *pItem;
 	struct FarKey *pBreakKeys;
@@ -1578,8 +1578,8 @@ static int far_Menu(lua_State *L)
 	luaL_checktype(L, 1, LUA_TTABLE);
 	luaL_checktype(L, 2, LUA_TTABLE);
 
-	if(!lua_isnil(L,3) && !lua_istable(L,3))
-		return luaL_argerror(L, 3, "must be table or nil");
+	if(!lua_isnil(L,3) && !lua_istable(L,3) && lua_type(L,3)!=LUA_TSTRING)
+		return luaL_argerror(L, 3, "must be table, string or nil");
 
 	lua_newtable(L); // temporary store; at stack position 4
 	// Properties
@@ -1687,7 +1687,25 @@ static int far_Menu(lua_State *L)
 	// Break Keys
 	pBreakKeys = NULL;
 	pBreakCode = NULL;
-	NumBreakCodes = lua_istable(L,3) ? lua_objlen(L,3) : 0;
+	if (lua_type(L,3) == LUA_TSTRING)
+	{
+		const char *q, *ptr = lua_tostring(L,3);
+		lua_newtable(L);
+		while (*ptr)
+		{
+			while (isspace(*ptr)) ptr++;
+			if (*ptr == 0) break;
+			q = ptr++;
+			while(*ptr && !isspace(*ptr)) ptr++;
+			lua_createtable(L,0,1);
+			lua_pushlstring(L,q,ptr-q);
+			lua_setfield(L,-2,"BreakKey");
+			lua_rawseti(L,-2,++NumBreakCodes);
+		}
+		lua_replace(L,3);
+	}
+	else
+	  NumBreakCodes = lua_istable(L,3) ? lua_objlen(L,3) : 0;
 
 	if(NumBreakCodes)
 	{

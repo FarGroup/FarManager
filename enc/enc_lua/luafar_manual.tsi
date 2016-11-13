@@ -2605,7 +2605,7 @@ id=64
 lv=2
 dt=Text
 nm=far.Menu
-mtime=3686582940
+mtime=3688221499
 <article>
 #_Item, Position = far.Menu (Properties, Items [, BreakKeys])
 #_
@@ -2634,15 +2634,18 @@ mtime=3686582940
 #_        selected:     boolean
 #_        AccelKey:     table `tFarKey` (or string - key name used in Far macros)
 #_
-#_  BreakKeys: table (array of break key items)
-#_      a break key item is a table;
-#_      fields of a break key item:
-#_        BreakKey:     string (see **NOTE 2**)
+#_  BreakKeys:
+#_      Either **table** (array of break key items)
+#_        a break key item is a table;
+#_        fields of a break key item:
+#_          BreakKey:     string (see **NOTE 2**)
+#_      Or **string** (space delimited sequence of keys)
 #_
 #_**Returns:**
 #_  Item:     table   Either the selected element of *Items* array (if *Enter* was pressed)
 #_                    or an element of *BreakKeys* array (if a corresponding break key was
-#_                    pressed).
+#_                    pressed). If a break key was pressed and *BreakKeys* argument was a string
+#_                    then the returned table is created by *far.Menu* function.
 #_            nil     The menu was cancelled by the user.
 #_
 #_  Position: integer Position of the **selected** item at the moment of closing the menu.
