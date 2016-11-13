@@ -36,7 +36,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH(3)
 
+//#if COMPILER == C_GCC
+// _ecvt_s is not available in old versions of msvcrt.dll
+#define REPLACE_ECVT_S
+//#endif
+
+#ifdef REPLACE_ECVT_S
+inline errno_t _ecvt_s_replace(char* Buffer, size_t SizeInBytes, double Value, int Count, int* Dec, int* Sign)
+{
+	strcpy(Buffer, _ecvt(Value, Count, Dec, Sign));
+	return 0;
+}
+#define _ecvt_s _ecvt_s_replace
+#endif
+
 #include "thirdparty/fmt/format.h"
+
+#ifdef REPLACE_ECVT_S
+#undef _ecvt_s
+#undef REPLACE_ECVT_S
+#endif
 
 WARNING_POP()
 

@@ -1,3 +1,7 @@
+drkns 13.11.2016 14:17:47 +0200 - build 4835
+
+1. gcc версия не запускалась в пещерных ОС.
+
 drkns 12.11.2016 13:07:03 +0200 - build 4834
 
 1. Вместо FormatString, FormatScreen, str_printf, ostringstream и прочего зоопарка используется fmtlib.

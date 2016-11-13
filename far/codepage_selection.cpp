@@ -92,8 +92,7 @@ codepages::codepages():
 {
 }
 
-codepages::~codepages()
-{}
+codepages::~codepages() = default;
 
 // Получаем кодовую страницу для элемента в меню
 uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
