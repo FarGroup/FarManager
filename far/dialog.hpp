@@ -54,7 +54,6 @@ enum DIALOG_MODES
 	DMODE_WARNINGSTYLE          =0x00000004, // Warning Dialog Style?
 	DMODE_DRAGGED               =0x00000008, // диалог двигается?
 	DMODE_ISCANMOVE             =0x00000010, // можно ли двигать диалог?
-	DMODE_ALTDRAGGED            =0x00000020, // диалог двигается по Alt-Стрелка?
 	DMODE_SMALLDIALOG           =0x00000040, // "короткий диалог"
 	DMODE_DRAWING               =0x00001000, // диалог рисуется?
 	DMODE_KEY                   =0x00002000, // Идет посылка клавиш?
@@ -278,6 +277,7 @@ private:
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);
 	void CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2) const;
 	void ProcessKey(int Key, size_t ItemPos);
+	void ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent);
 
 	static bool ItemHasDropDownArrow(const DialogItemEx *Item);
 
@@ -295,7 +295,11 @@ private:
 	dialog_handler m_handler;
 
 	// переменные для перемещения диалога
-	int OldX1,OldX2,OldY1,OldY2;
+	struct
+	{
+		int OldX1,OldX2,OldY1,OldY2;
+		int MsX, MsY;
+	} m_Drag;
 	string HelpTopic;
 	int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
 	mutable CriticalSection CS;

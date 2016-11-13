@@ -2176,7 +2176,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 						AdjustEditPos(-1,0);
 					}
 
-				if (!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
+				Show();
 
 				break;
 			case KEY_CTRLRIGHT:  case KEY_CTRLNUMPAD6:
@@ -2196,7 +2196,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 						AdjustEditPos(1,0);
 					}
 
-				if (!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
+				Show();
 
 				break;
 			case KEY_PGUP:      case KEY_NUMPAD9:
@@ -2216,7 +2216,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 						AdjustEditPos(0,-1);
 					}
 
-				if (!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
+				Show();
 
 				break;
 			case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
@@ -2236,7 +2236,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 						AdjustEditPos(0,1);
 					}
 
-				if (!DialogMode.Check(DMODE_ALTDRAGGED)) Show();
+				Show();
 
 				break;
 			case KEY_NUMENTER:
@@ -2245,36 +2245,23 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RCTRLF5:
 				DialogMode.Clear(DMODE_DRAGGED); // закончим движение!
 
-				if (!DialogMode.Check(DMODE_ALTDRAGGED))
-				{
-					DlgProc(DN_DRAGGED, 1, nullptr);
-					Show();
-				}
+				DlgProc(DN_DRAGGED, 1, nullptr);
+				Show();
 
 				break;
 			case KEY_ESC:
 				Hide();
-				AdjustEditPos(OldX1-m_X1,OldY1-m_Y1);
-				m_X1=OldX1;
-				m_X2=OldX2;
-				m_Y1=OldY1;
-				m_Y2=OldY2;
+				AdjustEditPos(m_Drag.OldX1-m_X1,m_Drag.OldY1-m_Y1);
+				m_X1=m_Drag.OldX1;
+				m_X2=m_Drag.OldX2;
+				m_Y1=m_Drag.OldY1;
+				m_Y2=m_Drag.OldY2;
 				DialogMode.Clear(DMODE_DRAGGED);
 
-				if (!DialogMode.Check(DMODE_ALTDRAGGED))
-				{
-					DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
-					Show();
-				}
+				DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
+				Show();
 
 				break;
-		}
-
-		if (DialogMode.Check(DMODE_ALTDRAGGED))
-		{
-			DialogMode.Clear(DMODE_DRAGGED|DMODE_ALTDRAGGED);
-			DlgProc(DN_DRAGGED, 1, nullptr);
-			Show();
 		}
 
 		return TRUE;
@@ -2286,7 +2273,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 		{
 			// включаем флаг и запоминаем координаты
 			DialogMode.Set(DMODE_DRAGGED);
-			OldX1=m_X1; OldX2=m_X2; OldY1=m_Y1; OldY2=m_Y2;
+			m_Drag.OldX1=m_X1; m_Drag.OldX2=m_X2; m_Drag.OldY1=m_Y1; m_Drag.OldY2=m_Y2;
 			//# GetText(0,0,3,0,LV);
 			Show();
 		}
@@ -3175,6 +3162,12 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!DialogMode.Check(DMODE_SHOW))
 		return FALSE;
 
+	if (DialogMode.Check(DMODE_DRAGGED))
+	{
+		ProcessDrag(MouseEvent);
+		return TRUE;
+	}
+
 	MsX=MouseRecord.dwMousePosition.X;
 	MsY=MouseRecord.dwMousePosition.Y;
 
@@ -3462,94 +3455,14 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 			if (DialogMode.Check(DMODE_ISCANMOVE))
 			{
-				//DialogMode.Set(DMODE_DRAGGED);
-				OldX1=m_X1; OldX2=m_X2; OldY1=m_Y1; OldY2=m_Y2;
-				// запомним delta места хватания и Left-Top диалогового окна
-				MsX=abs(m_X1-IntKeyState.MouseX);
-				MsY=abs(m_Y1-IntKeyState.MouseY);
-				int NeedSendMsg=0;
-
-				for (;;)
+				if (DlgProc(DN_DRAGGED, 0, nullptr))
 				{
-					DWORD Mb=IsMouseButtonPressed();
-
-					if (Mb==FROM_LEFT_1ST_BUTTON_PRESSED) // still dragging
-					{
-						int mx,my;
-						if (IntKeyState.MouseX==IntKeyState.PrevMouseX)
-							mx=m_X1;
-						else
-							mx=IntKeyState.MouseX-MsX;
-
-						if (IntKeyState.MouseY==IntKeyState.PrevMouseY)
-							my=m_Y1;
-						else
-							my=IntKeyState.MouseY-MsY;
-
-						int X0=m_X1, Y0=m_Y1;
-						int OX1=m_X1 ,OY1=m_Y1;
-						int NX1=mx, NX2=mx+(m_X2-m_X1);
-						int NY1=my, NY2=my+(m_Y2-m_Y1);
-						int AdjX=NX1-X0, AdjY=NY1-Y0;
-
-						// "А был ли мальчик?" (про холостой ход)
-						if (OX1 != NX1 || OY1 != NY1)
-						{
-							if (!NeedSendMsg) // тыкс, а уже посылку делали в диалоговую процедуру?
-							{
-								NeedSendMsg++;
-
-								if (!DlgProc(DN_DRAGGED, 0, nullptr)) // а может нас обломали?
-									break;  // валим отсель...плагин сказал - в морг перемещения
-
-								if (!DialogMode.Check(DMODE_SHOW))
-									break;
-							}
-
-							// Да, мальчик был. Зачнем...
-							{
-								SCOPED_ACTION(LockScreen);
-								Hide();
-								m_X1=NX1; m_X2=NX2; m_Y1=NY1; m_Y2=NY2;
-
-								if (AdjX || AdjY)
-									AdjustEditPos(AdjX,AdjY); //?
-
-								Show();
-							}
-						}
-					}
-					else if (Mb==RIGHTMOST_BUTTON_PRESSED) // abort
-					{
-						SCOPED_ACTION(LockScreen);
-						Hide();
-						AdjustEditPos(OldX1-m_X1,OldY1-m_Y1);
-						m_X1=OldX1;
-						m_X2=OldX2;
-						m_Y1=OldY1;
-						m_Y2=OldY2;
-						DialogMode.Clear(DMODE_DRAGGED);
-						DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
-
-						if (DialogMode.Check(DMODE_SHOW))
-							Show();
-
-						break;
-					}
-					else  // release key, drop dialog
-					{
-						if (OldX1!=m_X1 || OldX2!=m_X2 || OldY1!=m_Y1 || OldY2!=m_Y2)
-						{
-							SCOPED_ACTION(LockScreen);
-							DialogMode.Clear(DMODE_DRAGGED);
-							DlgProc(DN_DRAGGED, 1, nullptr);
-
-							if (DialogMode.Check(DMODE_SHOW))
-								Show();
-						}
-
-						break;
-					}
+					DialogMode.Set(DMODE_DRAGGED);
+					m_Drag.OldX1=m_X1; m_Drag.OldX2=m_X2; m_Drag.OldY1=m_Y1; m_Drag.OldY2=m_Y2;
+					// запомним delta места хватания и Left-Top диалогового окна
+					m_Drag.MsX = abs(m_X1-IntKeyState.MouseX);
+					m_Drag.MsY = abs(m_Y1-IntKeyState.MouseY);
+					Show();
 				}
 			}
 		}
@@ -3558,6 +3471,58 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return FALSE;
 }
 
+void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
+{
+	auto buttons=MouseEvent->dwButtonState;
+	if (buttons&FROM_LEFT_1ST_BUTTON_PRESSED) // still dragging
+	{
+		int mx,my;
+		if (IntKeyState.MouseX==IntKeyState.PrevMouseX)
+			mx=m_X1;
+		else
+			mx=IntKeyState.MouseX-m_Drag.MsX;
+
+		if (IntKeyState.MouseY==IntKeyState.PrevMouseY)
+			my=m_Y1;
+		else
+			my=IntKeyState.MouseY-m_Drag.MsY;
+
+		int X0=m_X1, Y0=m_Y1;
+		int OX1=m_X1 ,OY1=m_Y1;
+		int NX1=mx, NX2=mx+(m_X2-m_X1);
+		int NY1=my, NY2=my+(m_Y2-m_Y1);
+		int AdjX=NX1-X0, AdjY=NY1-Y0;
+
+		if (OX1 != NX1 || OY1 != NY1)
+		{
+			Hide();
+			m_X1=NX1; m_X2=NX2; m_Y1=NY1; m_Y2=NY2;
+
+			if (AdjX || AdjY)
+				AdjustEditPos(AdjX,AdjY); //?
+			Show();
+		}
+	}
+	else if (buttons == RIGHTMOST_BUTTON_PRESSED) // abort
+	{
+		Hide();
+		AdjustEditPos(m_Drag.OldX1-m_X1,m_Drag.OldY1-m_Y1);
+		m_X1=m_Drag.OldX1;
+		m_X2=m_Drag.OldX2;
+		m_Y1=m_Drag.OldY1;
+		m_Y2=m_Drag.OldY2;
+		DialogMode.Clear(DMODE_DRAGGED);
+		DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
+		Show();
+	}
+	else // release key, drop dialog
+	{
+		Hide();
+		DialogMode.Clear(DMODE_DRAGGED);
+		DlgProc(DN_DRAGGED, 1, nullptr);
+		Show();
+	}
+}
 
 int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, size_t CurFocusPos)
 {
@@ -4591,10 +4556,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			int W1,H1;
 			W1=m_X2-m_X1+1;
 			H1=m_Y2-m_Y1+1;
-			OldX1=m_X1;
-			OldY1=m_Y1;
-			OldX2=m_X2;
-			OldY2=m_Y2;
+			m_Drag.OldX1=m_X1;
+			m_Drag.OldY1=m_Y1;
+			m_Drag.OldX2=m_X2;
+			m_Drag.OldY2=m_Y2;
 
 			// переместили
 			if (Param1>0)  // абсолютно?
@@ -4692,7 +4657,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (I) Hide();
 
 			// приняли.
-			AdjustEditPos(m_X1-OldX1,m_Y1-OldY1);
+			AdjustEditPos(m_X1-m_Drag.OldX1,m_Y1-m_Drag.OldY1);
 
 			if (I) Show(); // только если диалог был виден
 
