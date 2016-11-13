@@ -780,7 +780,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				break;
 
 			default:
-				DateMask = format(L"N9999{0}99{1}99", DateSeparator);
+				DateMask = format(L"N9999{0}99{0}99", DateSeparator);
 				DateFormat = format(MSetAttrDateTitle3, DateSeparator);
 				break;
 		}

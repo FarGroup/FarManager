@@ -1,3 +1,7 @@
+drkns 13.11.2016 14:47:30 +0200 - build 4836
+
+1. 0003348: Far(build 4834) Trap on show folder/file attribute dialog
+
 drkns 13.11.2016 14:17:47 +0200 - build 4835
 
 1. gcc версия не запускалась в пещерных ОС.
