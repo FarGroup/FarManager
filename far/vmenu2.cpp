@@ -614,19 +614,21 @@ static int ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
 
 int VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	// BUGBUG
-	// m_X1, m_X2, m_Y1, m_Y2 hides the same members from base class, fix it ASAP
-	if (MouseEvent->dwMousePosition.X < Dialog::m_X1 || MouseEvent->dwMousePosition.Y < Dialog::m_Y1 ||
-		MouseEvent->dwMousePosition.X > Dialog::m_X2 || MouseEvent->dwMousePosition.Y > Dialog::m_Y2)
+	if (!IsMoving())
 	{
-		if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
-			return ClickHandler(this, Global->Opt->VMenu.LBtnClick);
-		else if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
-			return ClickHandler(this, Global->Opt->VMenu.MBtnClick);
-		else if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
-			return ClickHandler(this, Global->Opt->VMenu.RBtnClick);
+		// BUGBUG
+		// m_X1, m_X2, m_Y1, m_Y2 hides the same members from base class, fix it ASAP
+		if (MouseEvent->dwMousePosition.X < Dialog::m_X1 || MouseEvent->dwMousePosition.Y < Dialog::m_Y1 ||
+			MouseEvent->dwMousePosition.X > Dialog::m_X2 || MouseEvent->dwMousePosition.Y > Dialog::m_Y2)
+		{
+			if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+				return ClickHandler(this, Global->Opt->VMenu.LBtnClick);
+			else if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
+				return ClickHandler(this, Global->Opt->VMenu.MBtnClick);
+			else if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
+				return ClickHandler(this, Global->Opt->VMenu.RBtnClick);
+		}
 	}
-
 	return Dialog::ProcessMouse(MouseEvent);
 }
 
