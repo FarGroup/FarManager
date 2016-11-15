@@ -296,6 +296,8 @@ $ #Keyboard reference#
 
  ~Common controls~@MiscCmd@
 
+ ~Специальные команды~@SpecCmd@
+
 
 @MenuCmd
 $ #Menu control commands#
@@ -838,6 +840,13 @@ effect as pressing the #Enter# key with the same modifiers (#Ctrl#, #Alt#,
 executed.
 
   Far Manager also supports the ~mouse wheel~@MsWheel@.
+
+
+@SpecCmd
+$ #Специальные команды#
+
+  ~Информация о версиях~@FarAbout@
+  ~Редактор конфигурации~@FarConfig@
 
 
 @MsWheel
@@ -5246,6 +5255,16 @@ $ #Macros: Autocompletion in dialogs#
 <!Macro:DialogAutoCompletion!>
 
     See also ~«The list of installed macros»~@KeyMacroList@
+
+
+@FarAbout
+$ #Информация о версиях#
+    Запускается из командной строки #far:about#
+
+    Позволяет посмотреть:
+    - версию и битность Far Manager
+    - версии используемых в проекте сторонних библиотек
+    - имена и версии подключённых плагинов
 
 
 @FarConfig
