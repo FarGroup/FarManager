@@ -52,8 +52,9 @@ enum DIALOG_MODES
 	DMODE_OBJECTS_INITED        =0x00000001, // элементы инициализарованы?
 	DMODE_OBJECTS_CREATED       =0x00000002, // объекты (Edit,...) созданы?
 	DMODE_WARNINGSTYLE          =0x00000004, // Warning Dialog Style?
-	DMODE_DRAGGED               =0x00000008, // диалог двигается?
+	DMODE_KEYDRAGGED            =0x00000008, // диалог двигается клавиатурой?
 	DMODE_ISCANMOVE             =0x00000010, // можно ли двигать диалог?
+	DMODE_MOUSEDRAGGED          =0x00000020, // диалог двигается мышью?
 	DMODE_SMALLDIALOG           =0x00000040, // "короткий диалог"
 	DMODE_DRAWING               =0x00001000, // диалог рисуется?
 	DMODE_KEY                   =0x00002000, // Идет посылка клавиш?
@@ -182,7 +183,7 @@ public:
 	bool CheckDialogMode(DWORD Flags) const { return DialogMode.Check(Flags); }
 	// метод для перемещения диалога
 	void AdjustEditPos(int dx,int dy);
-	int IsMoving() const {return DialogMode.Check(DMODE_DRAGGED);}
+	int IsMoving() const {return DialogMode.Check(DMODE_KEYDRAGGED|DMODE_MOUSEDRAGGED);}
 	void SetModeMoving(bool IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
 	int  GetModeMoving() const {return DialogMode.Check(DMODE_ISCANMOVE);}
 	void SetDialogData(void* NewDataDialog);

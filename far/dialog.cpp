@@ -1959,7 +1959,7 @@ void Dialog::ShowDialog(size_t ID)
 				if (Items[I].Flags&DIF_FOCUS)
 				{
 					//   Отключение мигающего курсора при перемещении диалога
-					if (!DialogMode.Check(DMODE_DRAGGED))
+					if (!IsMoving())
 						SetCursorType(1,-1);
 
 					MoveCursor(m_X1+CX1+1,m_Y1+CY1);
@@ -2003,7 +2003,7 @@ void Dialog::ShowDialog(size_t ID)
 				if (Items[I].Flags&DIF_FOCUS)
 				{
 					//   Отключение мигающего курсора при перемещении диалога
-					if (!DialogMode.Check(DMODE_DRAGGED))
+					if (!IsMoving())
 						SetCursorType(1,-1);
 
 					EditPtr->Show();
@@ -2015,7 +2015,7 @@ void Dialog::ShowDialog(size_t ID)
 				}
 
 				//   Отключение мигающего курсора при перемещении диалога
-				if (DialogMode.Check(DMODE_DRAGGED))
+				if (IsMoving())
 					SetCursorType(0,0);
 
 				if (ItemHasDropDownArrow(&Items[I]))
@@ -2111,19 +2111,7 @@ void Dialog::ShowDialog(size_t ID)
 	DialogMode.Set(DMODE_SHOW); // диалог на экране!
 
 	if (DrawFullDialog)
-	{
-		if (DialogMode.Check(DMODE_DRAGGED))
-		{
-			/*
-			- BugZ#813 - DM_RESIZEDIALOG в DN_DRAWDIALOG -> проблема: Ctrl-F5 - отрисовка только полозьев.
-			Убираем вызов плагинового обработчика.
-			*/
-			//DlgProc(this,DN_DRAWDIALOGDONE,1,0);
-			DefProc(DN_DRAWDIALOGDONE, 1, nullptr);
-		}
-		else
-			DlgProc(DN_DRAWDIALOGDONE, 0, nullptr);
-	}
+		DlgProc(DN_DRAWDIALOGDONE, 0, nullptr);
 
 	_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 	DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
@@ -2150,7 +2138,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 {
 	SCOPED_ACTION(CriticalSectionLock)(CS);
 
-	if (DialogMode.Check(DMODE_DRAGGED)) // если диалог таскается
+	if (DialogMode.Check(DMODE_KEYDRAGGED)) // если диалог таскается
 	{
 		// TODO: Здесь проверить "уже здесь" и не делать лишних движений
 		//       Т.е., если нажали End, то при следующем End ненужно ничего делать! - сравнить координаты !!!
@@ -2243,7 +2231,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_ENTER:
 			case KEY_CTRLF5:
 			case KEY_RCTRLF5:
-				DialogMode.Clear(DMODE_DRAGGED); // закончим движение!
+				DialogMode.Clear(DMODE_KEYDRAGGED); // закончим движение!
 
 				DlgProc(DN_DRAGGED, 1, nullptr);
 				Show();
@@ -2256,7 +2244,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 				m_X2=m_Drag.OldX2;
 				m_Y1=m_Drag.OldY1;
 				m_Y2=m_Drag.OldY2;
-				DialogMode.Clear(DMODE_DRAGGED);
+				DialogMode.Clear(DMODE_KEYDRAGGED);
 
 				DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
 				Show();
@@ -2267,12 +2255,12 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 		return TRUE;
 	}
 
-	if ((Key == KEY_CTRLF5 || Key == KEY_RCTRLF5) && DialogMode.Check(DMODE_ISCANMOVE))
+	if ((Key == KEY_CTRLF5 || Key == KEY_RCTRLF5) && DialogMode.Check(DMODE_ISCANMOVE) && !DialogMode.Check(DMODE_MOUSEDRAGGED))
 	{
 		if (DlgProc(DN_DRAGGED, 0, nullptr)) // если разрешили перемещать!
 		{
 			// включаем флаг и запоминаем координаты
-			DialogMode.Set(DMODE_DRAGGED);
+			DialogMode.Set(DMODE_KEYDRAGGED);
 			m_Drag.OldX1=m_X1; m_Drag.OldX2=m_X2; m_Drag.OldY1=m_Y1; m_Drag.OldY2=m_Y2;
 			//# GetText(0,0,3,0,LV);
 			Show();
@@ -3162,7 +3150,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!DialogMode.Check(DMODE_SHOW))
 		return FALSE;
 
-	if (DialogMode.Check(DMODE_DRAGGED))
+	if (DialogMode.Check(DMODE_MOUSEDRAGGED))
 	{
 		ProcessDrag(MouseEvent);
 		return TRUE;
@@ -3453,11 +3441,11 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			//   Сюда попадаем в том случае, если мышь не попала на активные элементы
 			//
 
-			if (DialogMode.Check(DMODE_ISCANMOVE))
+			if (DialogMode.Check(DMODE_ISCANMOVE) && !DialogMode.Check(DMODE_KEYDRAGGED))
 			{
 				if (DlgProc(DN_DRAGGED, 0, nullptr))
 				{
-					DialogMode.Set(DMODE_DRAGGED);
+					DialogMode.Set(DMODE_MOUSEDRAGGED);
 					m_Drag.OldX1=m_X1; m_Drag.OldX2=m_X2; m_Drag.OldY1=m_Y1; m_Drag.OldY2=m_Y2;
 					// запомним delta места хватания и Left-Top диалогового окна
 					m_Drag.MsX = abs(m_X1-IntKeyState.MouseX);
@@ -3511,14 +3499,14 @@ void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 		m_X2=m_Drag.OldX2;
 		m_Y1=m_Drag.OldY1;
 		m_Y2=m_Drag.OldY2;
-		DialogMode.Clear(DMODE_DRAGGED);
+		DialogMode.Clear(DMODE_MOUSEDRAGGED);
 		DlgProc(DN_DRAGGED,1,ToPtr(TRUE));
 		Show();
 	}
 	else // release key, drop dialog
 	{
 		Hide();
-		DialogMode.Clear(DMODE_DRAGGED);
+		DialogMode.Clear(DMODE_MOUSEDRAGGED);
 		DlgProc(DN_DRAGGED, 1, nullptr);
 		Show();
 	}
@@ -4461,7 +4449,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 			return TRUE;
 		case DN_DRAWDIALOGDONE:
 		{
-			if (Param1 == 1) // Нужно отрисовать "салазки"?
+			if (DialogMode.Check(DMODE_KEYDRAGGED)) // Нужно отрисовать "салазки"?
 			{
 				/* $ 03.08.2000 tran
 				   вывод текста в углу может приводить к ошибкам изображения
