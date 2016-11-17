@@ -770,8 +770,17 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 
 int EditControl::ProcessKey(const Manager::Key& Key)
 {
+	const unsigned int NonClearKeys[]=
+	{
+		KEY_CTRLC,
+		KEY_RCTRLC,
+		KEY_CTRLINS,
+		KEY_CTRLNUMPAD0,
+		KEY_RCTRLINS,
+		KEY_RCTRLNUMPAD0
+	};
 	const auto Result = Edit::ProcessKey(Key);
-	if (Result && m_Flags.Check(FEDITLINE_CLEARFLAG))
+	if (Result && m_Flags.Check(FEDITLINE_CLEARFLAG) && std::find(ALL_CONST_RANGE(NonClearKeys), Key()) == std::cend(NonClearKeys))
 	{
 		m_Flags.Clear(FEDITLINE_CLEARFLAG);
 		Show();
