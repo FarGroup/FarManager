@@ -1997,7 +1997,7 @@ void VMenu::DrawTitles() const
 		GotoXY(m_X1+(m_X2-m_X1-1-WidthTitle)/2,m_Y1);
 		SetColor(Colors[VMenuColorTitle]);
 
-		Text(concat(L' ', fit_to_left(strDisplayTitle, WidthTitle), L' '));
+		Text(concat(L' ', strDisplayTitle.substr(0, WidthTitle), L' '));
 	}
 
 	if (!strBottomTitle.empty())
@@ -2010,7 +2010,7 @@ void VMenu::DrawTitles() const
 		GotoXY(m_X1+(m_X2-m_X1-1-WidthTitle)/2,m_Y2);
 		SetColor(Colors[VMenuColorTitle]);
 
-		Text(concat(L' ', fit_to_left(strBottomTitle, WidthTitle), L' '));
+		Text(concat(L' ', strBottomTitle.substr(0, WidthTitle), L' '));
 	}
 }
 

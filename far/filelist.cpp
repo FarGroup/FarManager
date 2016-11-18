@@ -8623,14 +8623,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case NUMLINK_COLUMN:
 						{
 							const auto Value = m_ListData[ListPos].NumberOfLinks(this);
-							Text(fit_to_left(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
+							Text(fit_to_right(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
 							break;
 						}
 
 						case NUMSTREAMS_COLUMN:
 						{
 							const auto Value = m_ListData[ListPos].NumberOfStreams(this);
-							Text(fit_to_left(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
+							Text(fit_to_right(Value == FileListItem::values::unknown(Value)? L"?"s : str(Value), ColumnWidth));
 							break;
 						}
 

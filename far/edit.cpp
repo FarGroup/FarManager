@@ -394,12 +394,12 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 			{
 				//SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
 				SetColor(GetNormalColor());
-				Text(OutStr.data()+TabSelEnd);
+				Text(OutStr.substr(TabSelEnd));
 			}
 		}
 		else
 		{
-			Text(fit_to_left(OutStr, m_X2 - m_X1 + 1));
+			Text(cut_right(OutStr, m_X2 - m_X1 + 1));
 		}
 	}
 

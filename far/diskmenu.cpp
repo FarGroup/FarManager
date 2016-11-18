@@ -814,8 +814,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT))
 			{
-				append(ItemName, Separator.Get(), fit_to_left(i.TotalSize, TotalSizeWidth));
-				append(ItemName, Separator.Get(), fit_to_left(i.FreeSize, FreeSizeWidth));
+				append(ItemName, Separator.Get(), fit_to_right(i.TotalSize, TotalSizeWidth));
+				append(ItemName, Separator.Get(), fit_to_right(i.FreeSize, FreeSizeWidth));
 			}
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME && PathWidth)
 			{
