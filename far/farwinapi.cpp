@@ -1394,11 +1394,11 @@ bool CreateHardLink(const string& FileName, const string& ExistingFileName, LPSE
 
 static bool FileStreamInformationToFindStreamData(const FILE_STREAM_INFORMATION& StreamInfo, WIN32_FIND_STREAM_DATA& StreamData)
 {
-	if (!StreamInfo.StreamNameLength || StreamInfo.StreamNameLength / sizeof(wchar_t) > sizeof(StreamData.cStreamName))
+	const auto Length = StreamInfo.StreamNameLength / sizeof(wchar_t);
+	if (!Length || Length >= std::size(StreamData.cStreamName))
 		return false;
 
-	std::copy_n(std::cbegin(StreamInfo.StreamName), StreamInfo.StreamNameLength / sizeof(wchar_t), StreamData.cStreamName);
-	StreamData.cStreamName[StreamInfo.StreamNameLength / sizeof(wchar_t)] = L'\0';
+	*std::copy_n(std::cbegin(StreamInfo.StreamName), Length, StreamData.cStreamName) = L'\0';
 	StreamData.StreamSize = StreamInfo.StreamSize;
 	return true;
 }

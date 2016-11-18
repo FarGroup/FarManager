@@ -328,62 +328,62 @@ private:
 	};
 
 	editor_container Lines;
-	numbered_iterator m_it_TopScreen;
-	numbered_iterator m_it_CurLine;
-	numbered_iterator m_it_LastGetLine;
+	numbered_iterator m_it_TopScreen{ EndIterator() };
+	numbered_iterator m_it_CurLine{ EndIterator() };
+	numbered_iterator m_it_LastGetLine{ EndIterator() };
 
 	std::unordered_set<GUID, uuid_hash, uuid_equal> ChangeEventSubscribers;
 	std::list<EditorUndoData> UndoData;
-	std::list<EditorUndoData>::iterator UndoPos;
-	std::list<EditorUndoData>::iterator UndoSavePos;
-	int UndoSkipLevel;
-	int LastChangeStrPos;
-	int m_LinesCount;
+	std::list<EditorUndoData>::iterator UndoPos{ UndoData.end() };
+	std::list<EditorUndoData>::iterator UndoSavePos{ UndoData.end() };
+	int UndoSkipLevel{};
+	int LastChangeStrPos{};
+	int m_LinesCount{};
 	/* $ 26.02.2001 IS
 	Сюда запомним размер табуляции и в дальнейшем будем использовать его,
 	а не Global->Opt->TabSize
 	*/
 	Options::EditorOptions EdOpt;
-	int Pasting;
+	int Pasting{};
 	string GlobalEOL;
 	// работа с блоками из макросов (MCODE_F_EDITOR_SEL)
-	numbered_iterator m_it_MBlockStart;
-	numbered_iterator m_it_AnyBlockStart;
-	EDITOR_BLOCK_TYPES m_BlockType;
-	int MBlockStartX;
-	int VBlockX;
-	int VBlockSizeX;
-	int VBlockSizeY;
-	int MaxRightPos;
-	int XX2; //scrollbar
+	numbered_iterator m_it_MBlockStart{ EndIterator() };
+	numbered_iterator m_it_AnyBlockStart{ EndIterator() };
+	EDITOR_BLOCK_TYPES m_BlockType{ BTYPE_NONE };
+	int MBlockStartX{};
+	int VBlockX{};
+	int VBlockSizeX{};
+	int VBlockSizeY{};
+	int MaxRightPos{};
+	int XX2{}; //scrollbar
 	string strLastSearchStr;
-	bool LastSearchCase, LastSearchWholeWords, LastSearchReverse, LastSearchRegexp, LastSearchPreserveStyle;
-	uintptr_t m_codepage; //BUGBUG
-	int m_StartLine;
-	int StartChar;
+	bool LastSearchCase{}, LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
+	uintptr_t m_codepage{ CP_DEFAULT }; //BUGBUG
+	int m_StartLine{-1};
+	int StartChar{-1};
 	//numbered bookmarks (accessible by Ctrl-0..9)
 	Bookmarks<editor_bookmark> m_SavePos;
 
 	bookmark_list SessionBookmarks;
 	//pointer to the current "session" bookmark (in the list of "session" bookmarks accessible through BM.Goto(n))
-	bookmark_list::iterator SessionPos;
+	bookmark_list::iterator SessionPos{ SessionBookmarks.end() };
 
-	bool NewSessionPos;
-	int EditorID;
-	FileEditor *HostFileEditor;
-	int EditorControlLock;
+	bool NewSessionPos{};
+	int EditorID{};
+	FileEditor *HostFileEditor{};
+	int EditorControlLock{};
 	std::vector<char> decoded;
 	FarColor Color;
 	FarColor SelColor;
-	int MacroSelectionStart;
-	int CursorPos;
+	int MacroSelectionStart{-1};
+	int CursorPos{};
 	std::unordered_set<Edit*> m_AutoDeletedColors;
 
-	bool fake_editor;
+	bool fake_editor{};
 
-	numbered_iterator m_FoundLine;
-	int m_FoundPos;
-	int m_FoundSize;
+	numbered_iterator m_FoundLine{ EndIterator() };
+	int m_FoundPos{};
+	int m_FoundSize{};
 
 	struct EditorPreRedrawItem : public PreRedrawItem
 	{

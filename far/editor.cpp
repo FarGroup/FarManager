@@ -106,42 +106,15 @@ const wchar_t* Editor::GetDefaultEOL()
 
 Editor::Editor(window_ptr Owner, bool DialogUsed):
 	SimpleScreenObject(Owner),
-	m_it_TopScreen(EndIterator()),
-	m_it_CurLine(EndIterator()),
-	m_it_LastGetLine(EndIterator()),
-	UndoPos(UndoData.end()),
-	UndoSavePos(UndoData.end()),
-	UndoSkipLevel(0),
-	LastChangeStrPos(0),
-	m_LinesCount(),
 	EdOpt(Global->Opt->EdOpt),
-	Pasting(0),
-	m_it_MBlockStart(EndIterator()),
-	m_it_AnyBlockStart(EndIterator()),
-	m_BlockType(BTYPE_NONE),
-	MBlockStartX(),
-	MaxRightPos(0),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchReverse(Global->GlobalSearchReverse),
 	LastSearchRegexp(Global->Opt->EdOpt.SearchRegexp),
 	LastSearchPreserveStyle(false),
-	m_codepage(CP_DEFAULT),
-	m_StartLine(-1),
-	StartChar(-1),
-	SessionPos(SessionBookmarks.end()),
-	NewSessionPos(),
 	EditorID(::EditorID++),
-	HostFileEditor(nullptr),
-	EditorControlLock(0),
 	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
-	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT)),
-	MacroSelectionStart(-1),
-	CursorPos(0),
-	fake_editor(false),
-	m_FoundLine(EndIterator()),
-	m_FoundPos(),
-	m_FoundSize()
+	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT))
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));

@@ -99,7 +99,7 @@ inline auto fit_to_center(string Str, size_t Size)
 
 inline auto fit_to_right(string Str, size_t Size)
 {
-	return Str.size() < Size? pad_left(std::move(Str), Size) : cut_left(std::move(Str), Size);
+	return Str.size() < Size? pad_left(std::move(Str), Size) : cut_right(std::move(Str), Size);
 }
 
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8

@@ -90,10 +90,10 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 
 		if (!strFileName.empty())
 		{
-			LangFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
-
-			if (pstrLangName)
-				*pstrLangName=L"English";
+			if (LangFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING) && pstrLangName)
+			{
+				*pstrLangName = L"English";
+			}
 		}
 	}
 

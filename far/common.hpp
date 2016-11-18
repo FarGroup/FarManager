@@ -139,7 +139,7 @@ template<class T, class Y>
 bool InRange(const T& from, const Y& what, const T& to)
 {
 	return from <= what && what <= to;
-};
+}
 
 template<class owner, typename acquire, typename release = acquire>
 class raii_wrapper

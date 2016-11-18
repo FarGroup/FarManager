@@ -2344,7 +2344,7 @@ void Viewer::Up( int nlines, bool adjust )
 
 	if (m_DisplayMode != VMT_TEXT)
 	{
-		const auto LineSize = GetModeDependentLineSize();
+		const long long LineSize = GetModeDependentLineSize();
 		FilePos = FilePos > LineSize * nlines? FilePos - LineSize * nlines : 0;
 		return;
 	}

@@ -71,7 +71,7 @@ public:
 				return TRUE;
 
 			cpix.MaxCharSize = cpi.MaxCharSize;
-			wcscpy(cpix.CodePageName, cpNum);
+			xwcsncpy(cpix.CodePageName, cpNum, std::size(cpix.CodePageName));
 		}
 		if (cpix.MaxCharSize > 0)
 		{
@@ -321,7 +321,7 @@ size_t Utf::get_chars(uintptr_t const Codepage, const char* const Data, size_t c
 	case CP_UTF8:
 		return Utf8::get_chars(Data, DataSize, Buffer, BufferSize, Errors);
 	default:
-		throw MAKE_FAR_EXCEPTION("not an utf codepage");
+		throw MAKE_FAR_EXCEPTION("not a utf codepage");
 	}
 }
 
@@ -754,19 +754,19 @@ size_t Utf8::get_bytes(const wchar_t* const Data, size_t const DataSize, char* c
 		{
 			BytesNumber = 2;
 		}
-		else if (Char - 0xD800 > 0xDFFF - 0xD800) // not surrogates
+		else if (!InRange(0xD800u, Char, 0xDFFFu)) // not surrogates
 		{
 			BytesNumber = 3;
 		}
-		else if (Char - 0xDC80 <= 0xDCFF - 0xDC80) // embedded raw byte
+		else if (InRange(0xDC80u, Char, 0xDCFFu)) // embedded raw byte
 		{
 			BytesNumber = 1;
 			Char &= 0xFF;
 		}
-		else if (Char - 0xD800 <= 0xDBFF - 0xD800 && StrPtr != End && *StrPtr - 0xDC00u <= 0xDFFF - 0xDC00) // valid surrogate pair
+		else if (InRange(0xD800u, Char, 0xDBFFu) && StrPtr != End && InRange(0xDC00u, *StrPtr, 0xDFFFu)) // valid surrogate pair
 		{
 			BytesNumber = 4;
-			Char = 0x3C10000 + ((Char - 0xD800) << 10) + static_cast<unsigned int>(*StrPtr++) - 0xDC00;
+			Char = 0x10000u + ((Char - 0xD800u) << 10) + (*StrPtr++ - 0xDC00u);
 		}
 		else
 		{
@@ -790,21 +790,21 @@ size_t Utf8::get_bytes(const wchar_t* const Data, size_t const DataSize, char* c
 			break;
 
 		case 2:
-			*BufferPtr++ = 0xC0 + (Char >> 6);
-			*BufferPtr++ = 0x80 + (Char & 0x3F);
+			*BufferPtr++ = 0xC0 | (Char >> 6);
+			*BufferPtr++ = 0x80 | (Char & 0x3F);
 			break;
 
 		case 3:
-			*BufferPtr++ = 0xE0 + (Char >> 12);
-			*BufferPtr++ = 0x80 + (Char >> 6 & 0x3F);
-			*BufferPtr++ = 0x80 + (Char & 0x3F);
+			*BufferPtr++ = 0xE0 | (Char >> 12);
+			*BufferPtr++ = 0x80 | (Char >> 6 & 0x3F);
+			*BufferPtr++ = 0x80 | (Char & 0x3F);
 			break;
 
 		case 4:
-			*BufferPtr++ = Char >> 18;
-			*BufferPtr++ = 0x80 + (Char >> 12 & 0x3F);
-			*BufferPtr++ = 0x80 + (Char >> 6 & 0x3F);
-			*BufferPtr++ = 0x80 + (Char & 0x3F);
+			*BufferPtr++ = 0xF0 | (Char >> 18);
+			*BufferPtr++ = 0x80 | (Char >> 12 & 0x3F);
+			*BufferPtr++ = 0x80 | (Char >> 6 & 0x3F);
+			*BufferPtr++ = 0x80 | (Char & 0x3F);
 			break;
 		}
 	}
