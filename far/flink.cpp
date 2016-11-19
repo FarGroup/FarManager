@@ -115,7 +115,7 @@ static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& Prin
 	}
 }
 
-static DWORD GetDesiredAccessForReparsePointChange()
+static auto GetDesiredAccessForReparsePointChange()
 {
 	static const auto DesiredAccess = IsWindowsXPOrGreater()? FILE_WRITE_ATTRIBUTES : GENERIC_WRITE;
 	return DesiredAccess;

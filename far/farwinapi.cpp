@@ -194,7 +194,7 @@ static auto FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
 
 	if (!OpenDirectory())
 	{
-		// fix error code if we looking for FILE(S) in non-existent directory, not directory itself
+		// fix error code if we are looking for FILE(S) in non-existent directory, not directory itself
 		if (GetLastError() == ERROR_FILE_NOT_FOUND && *PointToName(Name))
 		{
 			SetLastError(ERROR_PATH_NOT_FOUND);

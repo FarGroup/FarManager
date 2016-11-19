@@ -44,14 +44,18 @@ const ImportedFunctions& Imports()
 
 
 ImportedFunctions::ImportedFunctions():
-	m_ntdll(L"ntdll"),
-	m_kernel32(L"kernel32"),
-	m_shell32(L"shell32"),
-	m_user32(L"user32"),
-	m_virtdisk(L"virtdisk"),
-	m_rstrtmgr(L"rstrtmgr"),
-	m_netapi32(L"netapi32"),
-	m_dbghelp(L"dbghelp"),
+#define INIT_MODULE(module) m_ ## module(L## #module)
+
+INIT_MODULE(ntdll),
+	INIT_MODULE(kernel32),
+	INIT_MODULE(shell32),
+	INIT_MODULE(user32),
+	INIT_MODULE(virtdisk),
+	INIT_MODULE(rstrtmgr),
+	INIT_MODULE(netapi32),
+	INIT_MODULE(dbghelp),
+
+#undef INIT_MODULE
 
 // just to make it more readable
 #define INIT_IMPORT(module, pointer) pointer(module)

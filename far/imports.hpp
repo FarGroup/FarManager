@@ -38,6 +38,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ImportedFunctions: noncopyable
 {
 private:
+	ImportedFunctions();
+	friend const ImportedFunctions& Imports();
+
+	const os::rtdl::module
+		m_ntdll,
+		m_kernel32,
+		m_shell32,
+		m_user32,
+		m_virtdisk,
+		m_rstrtmgr,
+		m_netapi32,
+		m_dbghelp;
+
 	template<typename T, class Y, T stub>
 	class unique_function_pointer: noncopyable, public conditional<unique_function_pointer<T, Y, stub>>
 	{
@@ -57,15 +70,6 @@ private:
 
 		const os::rtdl::module& m_module;
 	};
-
-	const os::rtdl::module m_ntdll;
-	const os::rtdl::module m_kernel32;
-	const os::rtdl::module m_shell32;
-	const os::rtdl::module m_user32;
-	const os::rtdl::module m_virtdisk;
-	const os::rtdl::module m_rstrtmgr;
-	const os::rtdl::module m_netapi32;
-	const os::rtdl::module m_dbghelp;
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
@@ -134,11 +138,6 @@ public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME),
 	DECLARE_IMPORT_FUNCTION(DWORD,WINAPI, SymSetOptions, DWORD SymOptions);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymGetLineFromAddr64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line);
 #undef DECLARE_IMPORT_FUNCTION
-
-private:
-	friend const ImportedFunctions& Imports();
-
-	ImportedFunctions();
 };
 
 const ImportedFunctions& Imports();

@@ -294,36 +294,42 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	}
 }
 
-static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
+static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 {
-	DWORD Index=0;
-	unsigned long long id;
-	std::vector<string> Descriptions, Masks;
-	string Buffer;
-	while (ConfigProvider().AssocConfig()->EnumMasks(Index++, &id, Buffer))
+	struct data_item
 	{
-		Masks.emplace_back(std::move(Buffer));
-		ConfigProvider().AssocConfig()->GetDescription(id, Buffer);
-		Descriptions.emplace_back(std::move(Buffer));
+		string Mask;
+		string Description;
+		unsigned long long Id;
+	};
+
+	std::vector<data_item> Data;
+
+	{
+		data_item Item;
+		DWORD Index = 0;
+		while (ConfigProvider().AssocConfig()->EnumMasks(Index++, &Item.Id, Item.Mask))
+		{
+			ConfigProvider().AssocConfig()->GetDescription(Item.Id, Item.Description);
+			Data.emplace_back(std::move(Item));
+		}
 	}
+
+	const auto DescriptionsWidth = std::max_element(ALL_CONST_RANGE(Data), [](const auto& a, const auto &b) { return a.Description.size() < b.Description.size(); })->Description.size();
 
 	TypesMenu->clear();
 
-	const auto DescriptionsWidth = std::max_element(ALL_CONST_RANGE(Descriptions), [](const auto& a, const auto &b) { return a.size() < b.size(); })->size();
-
-	for (auto i: zip(Descriptions, Masks))
+	for (auto i: Data)
 	{
-		const auto& Description = std::get<0>(i);
-		const auto& Mask = std::get<1>(i);
-
-		const auto AddLen = Description.size() - HiStrlen(Description);
-		MenuItemEx TypesMenuItem(concat(fit_to_left(Description, DescriptionsWidth + AddLen), L' ', BoxSymbols[BS_V1], L' ', Mask));
-		TypesMenuItem.SetSelect((int)(Index-1)==MenuPos);
-		TypesMenuItem.UserData = id;
+		const auto AddLen = i.Description.size() - HiStrlen(i.Description);
+		MenuItemEx TypesMenuItem(concat(fit_to_left(i.Description, DescriptionsWidth + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask));
+		TypesMenuItem.UserData = i.Id;
 		TypesMenu->AddItem(TypesMenuItem);
 	}
 
-	return (int)(Index-1);
+	TypesMenu->SetSelectPos(MenuPos);
+
+	return static_cast<int>(Data.size());
 }
 
 enum EDITTYPERECORD
