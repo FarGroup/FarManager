@@ -110,29 +110,29 @@ void Plist::InitializePanelModes()
 	DefaultModes[NPANELMODES] =
 	{
 		/*0*/ {L"N,X15T,X16T,X17T,X18S", L"12,0,0,0,4"}, // I/O
-		/*1*/ {L"N,XI,XB,XP,X0S,X6", L"0,4,2,2,3,9"}, // General info
+		/*1*/ {L"N,XI,XB,XP,X0S,X6", L"0,6,2,2,3,9"}, // General info
 		/*2*/ {L"N,N",L"0,0"},// Names only
-		/*3*/ {L"N,XI,XB,XC,D,T",L"0,4,2,4,0,0"},    // Startup: PID/Date/Time
-		/*4*/ {L"N,XI,X4,X6",L"0,4,9,9"}, // Memory (basic)
-		/*5*/ {L"N,XI,X4,X6,X10,X12,X0,X1,X2",L"12,4,0,0,0,0,8,8,8"},     // Extended Memory/Time
+		/*3*/ {L"N,XI,XB,XC,D,T",L"0,6,2,6,0,0"},    // Startup: PID/Date/Time
+		/*4*/ {L"N,XI,X4,X6",L"0,6,9,9"}, // Memory (basic)
+		/*5*/ {L"N,XI,X4,X6,X10,X12,X0,X1,X2",L"12,6,0,0,0,0,8,8,8"},     // Extended Memory/Time
 		/*6*/ {L"N,ZD",L"12,0"}, // Descriptions
 		/*7*/ {L"N,XP,X0S,X1S,X2S,X11S,X14S,X18S",L"0,2,3,2,2,3,4,3"}, // Dynamic Performance
-		/*8*/ {L"N,XI,O",L"0,5,15"}, // Owners (not implemented)
-		/*9*/ {L"N,XI,XT,X3,XG,XU",L"0,4,3,4,4,4"} // Resources
+		/*8*/ {L"N,XI,O",L"0,6,15"}, // Owners (not implemented)
+		/*9*/ {L"N,XI,XT,X3,XG,XU",L"0,6,3,4,4,4"} // Resources
 	},
 
 	DefaultModesRemote[NPANELMODES] =
 	{
 		/*0*/ {L"N,X15T,X16T,X17T,X18S", L"12,0,0,0,4"}, // I/O
-		/*1*/ {L"N,XI,XB,XP,X0S,X6", L"0,4,2,2,3,9"}, // General info
+		/*1*/ {L"N,XI,XB,XP,X0S,X6", L"0,6,2,2,3,9"}, // General info
 		/*2*/ {L"N,N",L"0,0"},// Names only
-		/*3*/ {L"N,XI,XB,XC,D,T",L"0,4,2,4,0,0"},    // Startup: PID/Date/Time
-		/*4*/ {L"N,XI,X4,X6",L"0,4,9,9"}, // Memory (basic)
-		/*5*/ {L"N,XI,X4,X6,X10,X12,X0,X1,X2",L"12,4,0,0,0,0,8,8,8"},     // Extended Memory/Time
+		/*3*/ {L"N,XI,XB,XC,D,T",L"0,6,2,6,0,0"},    // Startup: PID/Date/Time
+		/*4*/ {L"N,XI,X4,X6",L"0,6,9,9"}, // Memory (basic)
+		/*5*/ {L"N,XI,X4,X6,X10,X12,X0,X1,X2",L"12,6,0,0,0,0,8,8,8"},     // Extended Memory/Time
 		/*6*/ {L"N,ZD",L"12,0"}, // Descriptions
 		/*7*/ {L"N,XP,X0S,X1S,X2S,X11S,X14S,X18S",L"0,2,3,2,2,3,4,3"}, // Dynamic Performance
-		/*8*/ {L"N,XI,O",L"0,5,15"}, // Owners (not implemented)
-		/*9*/ {L"N,XI,XT,X3",L"0,4,3,4"}
+		/*8*/ {L"N,XI,O",L"0,6,15"}, // Owners (not implemented)
+		/*9*/ {L"N,XI,XT,X3",L"0,6,3,4"}
 	};
 #define MAXCOLS MAX_CUSTOM_COLS+4
 	wchar_t name[20];
