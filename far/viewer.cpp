@@ -2053,7 +2053,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			return TRUE;
 		default:
 
-			if (IsCharKey(LocalKey))
+			if (LocalKey >= ' ' && IsCharKey(LocalKey))
 			{
 				Search(0,LocalKey);
 				return TRUE;
