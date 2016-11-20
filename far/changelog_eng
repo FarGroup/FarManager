@@ -3,6 +3,48 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 20.11.2016 15:40:36 +0300 - build 4846
+
+1. Fix 2201.
+
+drkns 19.11.2016 14:44:48 +0200 - build 4845
+
+1. After 4834 the associations menu worked incorrectly.
+
+2. A couple of issues.
+
+drkns 18.11.2016 20:16:18 +0200 - build 4844
+
+1. Another couple of corrections in 4834.
+
+drkns 18.11.2016 17:53:42 +0200 - build 4843
+
+1. Correction of right border line alignment in UI elements.
+
+2. Coverity warnings.
+
+3. Refactoring.
+
+zg 17.11.2016 11:48:08 +0200 - build 4842
+
+1. 0003352: CtrlC resets "unmodified text" state.
+
+zg 16.11.2016 14:48:22 +0200 - build 4841
+
+1. separate dragging with mouse and with keyboard.
+
+svs 15.11.2016 11:18:33 +0300 - build
+
+1. Append info on "far:config" and "far:about" in Help
+
+drkns 15.11.2016 07:32:16 +0200 - build 4840
+
+1. Remove workaround added in 4835 - fixed in library.
+
+zg 13.11.2016 23:24:26 +0200 - build 4839
+
+1. correction of 4838 for menu.
+
 zg 13.11.2016 20:44:50 +0200 - build 4838
 
 1. remove direct processing of input while dragging a dialog.
