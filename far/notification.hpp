@@ -44,6 +44,7 @@ enum event_id
 
 	elevation_dialog,
 	plugin_synchro,
+	find_files,
 
 	event_id_count
 };

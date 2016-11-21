@@ -163,8 +163,6 @@ bool VMenu::ItemIsVisible(UINT64 Flags) const
 
 bool VMenu::UpdateRequired() const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	return CheckFlags(VMENU_UPDATEREQUIRED)!=0;
 }
 
@@ -222,8 +220,6 @@ void VMenu::UpdateItemFlags(int Pos, UINT64 NewFlags)
 // переместить курсор c учётом пунктов которые не могут получать фокус
 int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	SelectPosResult=-1;
 
 	if (Items.empty())
@@ -301,8 +297,6 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 // установить курсор и верхний элемент
 int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	int pos = std::min(static_cast<intptr_t>(Items.size()-1), std::max((intptr_t)0, ListPos->SelectPos));
 	int Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 
@@ -338,8 +332,6 @@ int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 //корректировка текущей позиции
 void VMenu::UpdateSelectPos()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (Items.empty())
 		return;
 
@@ -374,8 +366,6 @@ void VMenu::UpdateSelectPos()
 
 int VMenu::GetItemPosition(int Position) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	int DataPos = (Position==-1) ? SelectPos : Position;
 
 	if (DataPos>=static_cast<int>(Items.size()))
@@ -387,8 +377,6 @@ int VMenu::GetItemPosition(int Position) const
 // получить позицию курсора и верхнюю позицию элемента
 int VMenu::GetSelectPos(FarListPos *ListPos) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	ListPos->SelectPos=SelectPos;
 	ListPos->TopPos=TopPos;
 
@@ -397,8 +385,6 @@ int VMenu::GetSelectPos(FarListPos *ListPos) const
 
 int VMenu::InsertItem(const FarListInsert *NewItem)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (NewItem)
 	{
 		if (AddItem(FarList2MenuItem(NewItem->Item), NewItem->Index) >= 0)
@@ -410,8 +396,6 @@ int VMenu::InsertItem(const FarListInsert *NewItem)
 
 int VMenu::AddItem(const FarList *List)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (List && List->Items)
 	{
 		std::for_each(List->Items, List->Items + List->ItemsNumber, [this](const FarListItem& Item)
@@ -425,8 +409,6 @@ int VMenu::AddItem(const FarList *List)
 
 int VMenu::AddItem(const wchar_t *NewStrItem)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	FarListItem FarListItem0={};
 
 	if (!NewStrItem || NewStrItem[0] == 0x1)
@@ -446,8 +428,6 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 
 int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	PosAdd = std::max(0, std::min(PosAdd, static_cast<int>(Items.size())));
 
 	Items.emplace(Items.begin() + PosAdd, std::move(NewItem));
@@ -475,8 +455,6 @@ int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 
 int VMenu::UpdateItem(const FarListUpdate *NewItem)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (NewItem && (DWORD)NewItem->Index < (DWORD)Items.size())
 	{
 		// Освободим память... от ранее занятого ;-)
@@ -502,8 +480,6 @@ int VMenu::UpdateItem(const FarListUpdate *NewItem)
 //функция удаления N пунктов меню
 int VMenu::DeleteItem(int ID, int Count)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (ID < 0 || ID >= static_cast<int>(Items.size()) || Count <= 0)
 		return static_cast<int>(Items.size());
 
@@ -554,8 +530,6 @@ int VMenu::DeleteItem(int ID, int Count)
 
 void VMenu::clear()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	Items.clear();
 	ItemHiddenCount=0;
 	ItemSubMenusCount=0;
@@ -569,8 +543,6 @@ void VMenu::clear()
 
 int VMenu::GetCheck(int Position)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	int ItemPos = GetItemPosition(Position);
 
 	if (ItemPos < 0)
@@ -590,8 +562,6 @@ int VMenu::GetCheck(int Position)
 
 void VMenu::SetCheck(int Check, int Position)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	int ItemPos = GetItemPosition(Position);
 
 	if (ItemPos < 0)
@@ -1101,8 +1071,6 @@ int VMenu::ProcessFilterKey(int Key)
 int VMenu::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	auto Parent = GetDialog();
 	if (IsComboBox() && !Parent->GetDropDownOpened())
 	{
@@ -1504,8 +1472,6 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 
 int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	auto Parent = GetDialog();
 	if (IsComboBox() && !Parent->GetDropDownOpened())
 	{
@@ -1788,8 +1754,6 @@ bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 
 void VMenu::Show()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (CheckFlags(VMENU_LISTBOX))
 	{
 		if (CheckFlags(VMENU_LISTSINGLEBOX))
@@ -1885,7 +1849,6 @@ void VMenu::Show()
 
 void VMenu::Hide()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	if (!CheckFlags(VMENU_LISTBOX) && SaveScr)
@@ -1899,7 +1862,6 @@ void VMenu::Hide()
 
 void VMenu::DisplayObject()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	auto Parent = GetDialog();
@@ -1968,8 +1930,6 @@ void VMenu::DisplayObject()
 
 void VMenu::DrawTitles() const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	int MaxTitleLength = m_X2-m_X1-2;
 	int WidthTitle;
 
@@ -2016,7 +1976,6 @@ void VMenu::DrawTitles() const
 
 void VMenu::ShowMenu(bool IsParent)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	size_t MaxItemLength = 0;
@@ -2377,8 +2336,6 @@ void VMenu::ShowMenu(bool IsParent)
 
 int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (CheckSymbol)
 		CheckSymbol=Upper(CheckSymbol);
 
@@ -2405,8 +2362,6 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 
 wchar_t VMenu::GetHighlights(const MenuItemEx *_item) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	wchar_t Ch = 0;
 
 	if (_item)
@@ -2428,8 +2383,6 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item) const
 
 void VMenu::AssignHighlights(int Reverse)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	std::bitset<65536> Used;
 
 	/* $ 02.12.2001 KM
@@ -2507,8 +2460,6 @@ void VMenu::AssignHighlights(int Reverse)
 
 bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate,bool ChangePos, int& NewPos)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	//не забудем сбросить EndLoop для листбокса, иначе не будут работать хоткеи в активном списке
 	if (CheckFlags(VMENU_LISTBOX))
 		ClearDone();
@@ -2554,8 +2505,6 @@ void VMenu::UpdateMaxLength(size_t Length)
 
 void VMenu::SetMaxHeight(int NewMaxHeight)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	MaxHeight = NewMaxHeight;
 
 	if (MaxHeight > ScrY-6)
@@ -2564,23 +2513,17 @@ void VMenu::SetMaxHeight(int NewMaxHeight)
 
 string VMenu::GetTitle() const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	return strTitle;
 }
 
 string &VMenu::GetBottomTitle(string &strDest) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	strDest = strBottomTitle;
 	return strDest;
 }
 
 void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	if (BottomTitle)
@@ -2593,8 +2536,6 @@ void VMenu::SetBottomTitle(const wchar_t *BottomTitle)
 
 void VMenu::SetTitle(const string& Title)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
 
 	strTitle = Title;
@@ -2604,8 +2545,6 @@ void VMenu::SetTitle(const string& Title)
 
 void VMenu::ResizeConsole()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (SaveScr)
 	{
 		SaveScr->Discard();
@@ -2627,15 +2566,11 @@ void VMenu::ShowConsoleTitle()
 
 void VMenu::SetBoxType(int BoxType)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	m_BoxType=BoxType;
 }
 
 void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (ColorsIn)
 	{
 		std::copy_n(ColorsIn->Colors, std::min(std::size(Colors), ColorsIn->ColorsCount), Colors);
@@ -2777,23 +2712,17 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 
 void VMenu::GetColors(FarDialogItemColors *ColorsOut)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	std::copy_n(Colors, std::min(std::size(Colors), ColorsOut->ColorsCount), ColorsOut->Colors);
 }
 
 void VMenu::SetOneColor(int Index, PaletteColors Color)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (Index < (int)std::size(Colors))
 		Colors[Index] = colors::PaletteColorToFarColor(Color);
 }
 
 BOOL VMenu::GetVMenuInfo(FarListInfo* Info) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (Info)
 	{
 		Info->Flags = GetFlags() & (LINFO_SHOWNOBOX|LINFO_AUTOHIGHLIGHT|LINFO_REVERSEHIGHLIGHT|LINFO_WRAPMODE|LINFO_SHOWAMPERSAND);
@@ -2811,8 +2740,6 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info) const
 // Функция GetItemPtr - получить указатель на нужный Items.
 MenuItemEx& VMenu::at(size_t n)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	int ItemPos = GetItemPosition(static_cast<int>(n));
 
 	if (ItemPos < 0)
@@ -2824,8 +2751,6 @@ MenuItemEx& VMenu::at(size_t n)
 // Присовокупить к элементу данные.
 void VMenu::SetUserData(const any& Data, int Position)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	int ItemPos = GetItemPosition(Position);
 
 	Items[ItemPos].UserData = Data;
@@ -2834,8 +2759,6 @@ void VMenu::SetUserData(const any& Data, int Position)
 // Получить данные
 any* VMenu::GetUserData(int Position)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	int ItemPos = GetItemPosition(Position);
 	if (ItemPos < 0 || static_cast<size_t>(ItemPos) >= Items.size())
 		return nullptr;
@@ -2864,8 +2787,6 @@ FARMACROAREA VMenu::GetMacroArea() const
 
 int VMenu::GetTypeAndName(string &strType, string &strName)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	strType = MSG(MVMenuType);
 	strName = strTitle;
 	return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu;
@@ -2879,8 +2800,6 @@ int VMenu::FindItem(const FarListFind *FItem)
 
 int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if ((DWORD)StartIndex < (DWORD)Items.size())
 	{
 		size_t LenPattern = Pattern.size();

@@ -269,8 +269,6 @@ public:
 	template<class predicate>
 	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(CS);
-
 		SortItemParam Param { Reverse, Offset };
 		std::sort(ALL_RANGE(Items), [&](const auto& a, const auto& b) { return Pred(a, b, Param); });
 
@@ -324,7 +322,6 @@ private:
 	// Для LisBox - родитель в виде диалога
 	std::weak_ptr<Dialog> ParentDialog;
 	size_t DialogItemID;
-	mutable CriticalSection CS;
 	bool bFilterEnabled;
 	bool bFilterLocked;
 	string strFilter;

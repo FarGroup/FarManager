@@ -43,6 +43,7 @@ static constexpr const wchar_t* EventNames[] =
 	WSTR(update_environment),
 	WSTR(elevation_dialog),
 	WSTR(plugin_synchro),
+	WSTR(find_files),
 };
 
 TERSE_STATIC_ASSERT(std::size(EventNames) == event_id_count);

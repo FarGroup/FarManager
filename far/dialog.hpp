@@ -303,7 +303,6 @@ private:
 	} m_Drag;
 	string HelpTopic;
 	int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
-	mutable CriticalSection CS;
 	int RealWidth, RealHeight;
 	GUID m_Id;
 	bool IdExist;

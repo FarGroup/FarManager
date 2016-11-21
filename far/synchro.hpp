@@ -254,7 +254,7 @@ public:
 	};
 	MultiWaiter() { Objects.reserve(10); }
 	template<typename T>
-	MultiWaiter(T Begin, T End) { std::for_each(Begin, End, [this](const auto& i){ Add(i); }); }
+	MultiWaiter(T Begin, T End) { std::for_each(Begin, End, [this](const auto& i){ this->Add(i); }); }
 	void Add(const waitable& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.native_handle()); }
 	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
 	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }

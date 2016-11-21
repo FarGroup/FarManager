@@ -429,8 +429,6 @@ Dialog::~Dialog()
 
 void Dialog::CheckDialogCoord()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	// задано центрирование диалога по горизонтали?
 	// X2 при этом = ширине диалога.
 	if (m_X1 == -1)
@@ -451,7 +449,6 @@ void Dialog::CheckDialogCoord()
 
 void Dialog::InitDialog()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::InitDialog()"));
 
 	if(Global->CloseFAR)
@@ -488,7 +485,6 @@ void Dialog::InitDialog()
 */
 void Dialog::Show()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::Show()"));
 	_DIALOG(SysLog(L"[%p] Dialog::Show()",this));
 
@@ -510,7 +506,6 @@ void Dialog::Show()
 //  Цель перехвата данной функции - управление видимостью...
 void Dialog::Hide()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::Hide()"));
 	_DIALOG(SysLog(L"[%p] Dialog::Hide()",this));
 
@@ -527,7 +522,6 @@ void Dialog::Hide()
 */
 void Dialog::DisplayObject()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::DisplayObject()"));
 
 	if (DialogMode.Check(DMODE_SHOW))
@@ -540,8 +534,6 @@ void Dialog::DisplayObject()
 // пересчитать координаты для элементов с DIF_CENTERGROUP
 void Dialog::ProcessCenterGroup()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	FOR_RANGE(Items, i)
 	{
 		// Последовательно объявленные элементы с флагом DIF_CENTERGROUP
@@ -623,7 +615,6 @@ void Dialog::ProcessCenterGroup()
 */
 size_t Dialog::InitDialogObjects(size_t ID)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	size_t I;
 	FARDIALOGITEMTYPES Type;
 	size_t InitItemCount;
@@ -969,7 +960,6 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 string Dialog::GetTitle() const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	const DialogItemEx *CurItemList=nullptr;
 
 	string Title;
@@ -999,7 +989,6 @@ string Dialog::GetTitle() const
 
 void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	string &strData = CurItem->strData;
 
 	if (strData.empty())
@@ -1029,14 +1018,11 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 //   Изменение координат и/или размеров элемента диалога.
 bool Dialog::SetItemRect(size_t ID, const SMALL_RECT& Rect)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	return ID >= Items.size()? false : SetItemRect(Items[ID], Rect);
 }
 
 bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (Rect.Left > Rect.Right || Rect.Top > Rect.Bottom)
 		return false;
 
@@ -1090,8 +1076,6 @@ bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect)
 
 BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (I >= Items.size())
 		return FALSE;
 
@@ -1210,7 +1194,6 @@ bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
 */
 void Dialog::DeleteDialogObjects()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::DeleteDialogObjects()"));
 
 	std::for_each(RANGE(Items, i)
@@ -1247,8 +1230,6 @@ void Dialog::DeleteDialogObjects()
 
 void Dialog::GetDialogObjectsExpandData()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	std::for_each(RANGE(Items, i)
 	{
 		switch (i.Type)
@@ -1303,8 +1284,6 @@ void Dialog::GetDialogObjectsExpandData()
 */
 void Dialog::GetDialogObjectsData()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	std::for_each(RANGE(Items, i)
 	{
 		FARDIALOGITEMFLAGS IFlags = i.Flags;
@@ -1408,7 +1387,6 @@ void Dialog::GetDialogObjectsData()
 // Функция формирования и запроса цветов.
 intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	BOOL DisabledItem = (Flags&DIF_DISABLE) != 0;
 
 	switch (Type)
@@ -1551,7 +1529,6 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 */
 void Dialog::ShowDialog(size_t ID)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::ShowDialog()"));
 	_DIALOG(SysLog(L"Locked()=%d, DMODE_SHOW=%d DMODE_DRAWING=%d",Locked(),DialogMode.Check(DMODE_SHOW),DialogMode.Check(DMODE_DRAWING)));
 
@@ -2119,13 +2096,11 @@ void Dialog::ShowDialog(size_t ID)
 
 int Dialog::LenStrItem(size_t ID)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	return LenStrItem(Items[ID]);
 }
 
 int Dialog::LenStrItem(size_t ID, const string& Str) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	return static_cast<int>((Items[ID].Flags & DIF_SHOWAMPERSAND)? Str.size() : HiStrlen(Str));
 }
 
@@ -2136,8 +2111,6 @@ int Dialog::LenStrItem(const DialogItemEx& Item)
 
 int Dialog::ProcessMoveDialog(DWORD Key)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (DialogMode.Check(DMODE_KEYDRAGGED)) // если диалог таскается
 	{
 		// TODO: Здесь проверить "уже здесь" и не делать лишних движений
@@ -2450,12 +2423,6 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 int Dialog::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;
-	// flag to call global ProcessKey out of critical section, Mantis#2511
-	bool doGlobalProcessKey = false;
-
-	// enter critical section
-	{
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::ProcessKey"));
 	_DIALOG(SysLog(L"Param: Key=%s",_FARKEY_ToName(LocalKey())));
 
@@ -2832,7 +2799,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			if (!Global->IsProcessAssignMacroKey)
 			{
 				if (!CheckDialogMode(DMODE_NOPLUGINS))
-					doGlobalProcessKey = true;
+					return Global->WindowManager->ProcessKey(Key);
 			}
 			break;
 
@@ -3100,12 +3067,6 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 			return ProcessHighlighting(LocalKey(),m_FocusPos,TRUE);
 		}
 	}
-	} // exit from critical section
-
-	// call global ProcessKey out of critical section to avoid dead lock
-	if (doGlobalProcessKey)
-		return Global->WindowManager->ProcessKey(Key);
-
 	return FALSE;
 }
 
@@ -3129,7 +3090,6 @@ void Dialog::ProcessKey(int Key, size_t ItemPos)
 */
 int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	int MsX,MsY;
 	FARDIALOGITEMTYPES Type;
 	SMALL_RECT Rect;
@@ -3514,8 +3474,6 @@ void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 
 int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, size_t CurFocusPos)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	// для user-типа вываливаем
 	if (Type == DI_USERCONTROL)
 		return TRUE;
@@ -3544,7 +3502,6 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, s
 
 size_t Dialog::ProcessRadioButton(size_t CurRB)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	size_t PrevRB=CurRB, I;
 
 	for (I=CurRB;; I--)
@@ -3601,8 +3558,6 @@ size_t Dialog::ProcessRadioButton(size_t CurRB)
 
 int Dialog::Do_ProcessFirstCtrl()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (IsEdit(Items[m_FocusPos].Type))
 	{
 		static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->ProcessKey(Manager::Key(KEY_HOME));
@@ -3626,7 +3581,6 @@ int Dialog::Do_ProcessFirstCtrl()
 
 int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	size_t OldPos=m_FocusPos;
 	unsigned PrevPos=0;
 
@@ -3654,7 +3608,6 @@ int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 
 int Dialog::Do_ProcessTab(bool Next)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	size_t I;
 
 	if (Items.size() > 1)
@@ -3690,8 +3643,6 @@ int Dialog::Do_ProcessTab(bool Next)
 
 int Dialog::Do_ProcessSpace()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (Items[m_FocusPos].Type==DI_CHECKBOX)
 	{
 		const auto OldSelected = Items[m_FocusPos].Selected;
@@ -3746,7 +3697,6 @@ int Dialog::Do_ProcessSpace()
 */
 size_t Dialog::ChangeFocus(size_t CurFocusPos,int Step,int SkipGroup) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	size_t OrigFocusPos=CurFocusPos;
 //  int FucusPosNeed=-1;
 	// В функцию обработки диалога здесь передаем сообщение,
@@ -3801,8 +3751,6 @@ size_t Dialog::ChangeFocus(size_t CurFocusPos,int Step,int SkipGroup) const
 */
 void Dialog::ChangeFocus2(size_t SetFocusPos)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (!(Items[SetFocusPos].Flags&(DIF_NOFOCUS|DIF_DISABLE|DIF_HIDDEN)))
 	{
 		int FocusPosNeed=-1;
@@ -3872,7 +3820,6 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
                           FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
                           FARDIALOGITEMFLAGS Checked3Set,FARDIALOGITEMFLAGS Checked3Skip)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	int Ret=FALSE;
 
 	if (IDParent < Items.size() && (Items[IDParent].Flags&DIF_AUTOMATION) &&
@@ -3894,7 +3841,6 @@ int Dialog::SelectFromComboBox(
     DialogItemEx *CurItem,
     DlgEdit *EditLine)                   // строка редактирования
 {
-		SCOPED_ACTION(CriticalSectionLock)(CS);
 		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
 		const auto ComboBox = CurItem->ListPtr;
 		int Dest, OriginalPos;
@@ -3975,7 +3921,6 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
                                    DlgEdit *EditLine,
                                    const string& HistoryName)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::SelectFromEditHistory()"));
 
 	if (!EditLine)
@@ -4026,8 +3971,6 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 */
 int Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (!CurItem->ObjPtr)
 	{
 		return FALSE;
@@ -4043,8 +3986,6 @@ int Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) 
 
 int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (StartPos < 0)
 		StartPos=0;
 
@@ -4078,8 +4019,6 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 */
 int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	INPUT_RECORD rec;
 	if(!KeyToInputRecord(Key,&rec))
 	{
@@ -4173,7 +4112,6 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 */
 void Dialog::AdjustEditPos(int dx, int dy)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	int x1,x2,y1,y2;
 
 	if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
@@ -4274,7 +4212,6 @@ void Dialog::Process()
 
 intptr_t Dialog::CloseDialog()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::CloseDialog()"));
 	GetDialogObjectsData();
 
@@ -4304,15 +4241,11 @@ intptr_t Dialog::CloseDialog()
 */
 void Dialog::SetHelp(const string& Topic)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	HelpTopic = Topic;
 }
 
 void Dialog::ShowHelp() const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (!HelpTopic.empty())
 	{
 		Help::create(HelpTopic);
@@ -4321,7 +4254,6 @@ void Dialog::ShowHelp() const
 
 void Dialog::ClearDone()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog::ClearDone()"));
 	m_ExitCode=-1;
 	DialogMode.Clear(DMODE_ENDLOOP);
@@ -4329,7 +4261,6 @@ void Dialog::ClearDone()
 
 void Dialog::SetExitCode(int Code)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	m_ExitCode=Code;
 	DialogMode.Set(DMODE_ENDLOOP);
 	//CloseDialog();
@@ -4341,7 +4272,6 @@ void Dialog::SetExitCode(int Code)
 */
 int Dialog::GetTypeAndName(string &strType, string &strName)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	strType = MSG(MDialogType);
 	strName = GetTitle();
 	return windowtype_dialog;
@@ -4354,8 +4284,6 @@ bool Dialog::CanFastHide() const
 
 void Dialog::ResizeConsole()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	DialogMode.Set(DMODE_RESIZED);
 
 	if (IsVisible())
@@ -4415,7 +4343,6 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 */
 intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
@@ -4527,7 +4454,6 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 */
 intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	_DIALOG(CleverSysLog CL(L"Dialog.SendDlgMessage()"));
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
@@ -6090,8 +6016,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
-
 	if (X1 != -1)
 		RealWidth = X2-X1+1;
 	else
@@ -6107,7 +6031,6 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 //////////////////////////////////////////////////////////////////////////
 BOOL Dialog::IsInited() const
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
 	return DialogMode.Check(DMODE_OBJECTS_INITED);
 }
 

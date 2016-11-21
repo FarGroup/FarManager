@@ -35,7 +35,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
+#include "notification.hpp"
 #include "datetime.hpp"
 
 enum FINDAREA
@@ -61,6 +61,15 @@ struct FindListItem;
 class FindFiles: noncopyable
 {
 public:
+	// Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
+	struct ArcListItem
+	{
+		string strArcName;
+		plugin_panel* hPlugin; // Plugin handle
+		UINT64 Flags; // OpenPanelInfo.Flags
+		string strRootPath; // Root path in plugin after opening.
+	};
+public:
 	FindFiles();
 	~FindFiles();
 
@@ -68,7 +77,40 @@ public:
 	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
 	static bool IsWordDiv(const wchar_t symbol);
 	// BUGBUG
-	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData) const;
+	void AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc);
+
+public:
+	enum type2
+	{
+		data,
+		stop,
+		push,
+		pop
+	};
+
+	struct AddMenuData
+	{
+		type2 m_Type;
+		FindFiles* m_Owner;
+		Dialog* m_Dlg;
+		string m_FullName;
+		os::FAR_FIND_DATA m_FindData;
+		void* m_Data;
+		FARPANELITEMFREECALLBACK m_FreeData;
+		ArcListItem* m_Arc;
+		AddMenuData(type2 Type, FindFiles* Owner): m_Type(Type), m_Owner(Owner) {}
+		AddMenuData(FindFiles* Owner, Dialog* Dlg, const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
+			m_Type(data),
+			m_Owner(Owner),
+			m_Dlg(Dlg),
+			m_FullName(FullName),
+			m_FindData(FindData),
+			m_Data(Data),
+			m_FreeData(FreeData),
+			m_Arc(Arc)
+		{
+		}
+	};
 
 private:
 	string &PrepareDriveNameStr(string &strSearchFromRoot) const;
@@ -81,6 +123,7 @@ private:
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	static void SetPluginDirectory(const string& DirName, plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
 	static bool GetPluginFile(struct ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
+	static void CallFindFileEvent(const any& Payload);
 
 	// BUGBUG
 	bool AnySetFindList;
@@ -96,6 +139,7 @@ private:
 	bool FindPositionChanged;
 	bool Finalized;
 	bool PluginMode;
+	bool m_Stopped;
 	FINDAREA SearchMode;
 	int favoriteCodePages;
 	uintptr_t CodePage;
@@ -125,6 +169,10 @@ private:
 	// BUGBUG
 	class background_searcher* m_Searcher;
 	std::exception_ptr m_ExceptionPtr;
+	listener_ex m_FindFiles;
+	std::stack<string> m_LastDir;
+	string m_LastDirName;
+	bool m_EmptyArc;
 };
 
 class background_searcher: noncopyable
@@ -146,8 +194,9 @@ public:
 	unsigned int ThreadRoutine(THREADPARAM* Param);
 	void Pause() const { PauseEvent.Reset(); }
 	void Resume() const { PauseEvent.Set(); }
-	void Stop() const { StopEvent.Set(); }
+	void Stop() const;
 	bool Stopped() const { return StopEvent.Signaled(); }
+
 
 	auto ExceptionPtr() const { return m_ExceptionPtr; }
 
@@ -164,8 +213,7 @@ private:
 	void ArchiveSearch(Dialog* Dlg, const string& ArcName);
 	void DoScanTree(Dialog* Dlg, const string& strRoot);
 	void ScanPluginTree(Dialog* Dlg, plugin_panel* hPlugin, UINT64 Flags, int& RecurseLevel);
-	void AddMenuRecord(Dialog* Dlg, const string& FullName, string& strLastDirName, PluginPanelItem& FindData) const;
-
+	void AddMenuRecord(Dialog* Dlg, const string& FullName, PluginPanelItem& FindData) const;
 
 	FindFiles* m_Owner;
 
@@ -177,7 +225,6 @@ private:
 	std::list<CodePageInfo> m_CodePages;
 	string findStringBuffer;
 	string strPluginSearchPath;
-	string strLastDirName;
 
 	const wchar_t *findString;
 

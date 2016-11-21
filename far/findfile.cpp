@@ -79,20 +79,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filetype.hpp"
 #include "diskmenu.hpp"
 
-// Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
-struct ArcListItem
-{
-	string strArcName;
-	plugin_panel* hPlugin;    // Plugin handle
-	UINT64 Flags;       // OpenPanelInfo.Flags
-	string strRootPath; // Root path in plugin after opening.
-};
-
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
 {
 	os::FAR_FIND_DATA FindData;
-	ArcListItem* Arc;
+	FindFiles::ArcListItem* Arc;
 	DWORD Used;
 	void* Data;
 	FARPANELITEMFREECALLBACK FreeData;
@@ -102,14 +93,14 @@ class InterThreadData
 {
 private:
 	mutable CriticalSection DataCS;
-	ArcListItem* FindFileArcItem;
+	FindFiles::ArcListItem* FindFileArcItem;
 	int Percent;
 	int LastFoundNumber;
 	int FileCount;
 	int DirCount;
 
 	std::list<FindListItem> FindList;
-	std::list<ArcListItem> ArcList;
+	std::list<FindFiles::ArcListItem> ArcList;
 	string strFindMessage;
 
 public:
@@ -130,13 +121,13 @@ public:
 	}
 
 
-	ArcListItem* GetFindFileArcItem() const
+	FindFiles::ArcListItem* GetFindFileArcItem() const
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		return FindFileArcItem;
 	}
 
-	void SetFindFileArcItem(ArcListItem* Value)
+	void SetFindFileArcItem(FindFiles::ArcListItem* Value)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		FindFileArcItem = Value;
@@ -217,11 +208,11 @@ public:
 		ArcList.clear();
 	}
 
-	ArcListItem& AddArcListItem(const string& ArcName, plugin_panel* hPlugin, UINT64 dwFlags, const string& RootPath)
+	FindFiles::ArcListItem& AddArcListItem(const string& ArcName, plugin_panel* hPlugin, UINT64 dwFlags, const string& RootPath)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 
-		ArcListItem NewItem;
+		FindFiles::ArcListItem NewItem;
 		NewItem.strArcName = ArcName;
 		NewItem.hPlugin = hPlugin;
 		NewItem.Flags = dwFlags;
@@ -253,7 +244,7 @@ public:
 	}
 
 	template <typename Visitor>
-	void ForEachFindItem(const Visitor& visitor) 
+	void ForEachFindItem(const Visitor& visitor)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(DataCS);
 		for (auto& i: FindList)
@@ -1283,7 +1274,7 @@ bool background_searcher::LookForString(const string& Name)
 bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName)
 {
 	bool FileFound = m_Owner->GetFileMask()->Compare(PointToName(FullName));
-	ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
+	FindFiles::ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
 	plugin_panel* hPlugin=nullptr;
 	if(ArcItem)
 	{
@@ -1414,7 +1405,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		Recurse=false;
 	}
 
-	if(!Finalized && m_Searcher->Stopped())
+	if(!Finalized && m_Stopped)
 	{
 		const auto strMessage = format(MFindDone, itd->GetFileCount(), itd->GetDirCount());
 		Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
@@ -1852,7 +1843,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 {
 	if (!os::fs::exists(strSearchFileName))
 		return;
-	
+
 	auto openMode = FILETYPE_VIEW;
 	auto shouldForceInternal = false;
 	const auto isKnownKey = GetFiletypeOpenMode(openKey, openMode, shouldForceInternal);
@@ -1934,11 +1925,11 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 		}
 	}
 
-	Console().SetTitle(strOldTitle);	
+	Console().SetTitle(strOldTitle);
 }
 
 // Called from thread
-void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLastDirName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData) const
+void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc)
 {
 	if (!Dlg)
 		return;
@@ -1997,7 +1988,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 				UINT64 StreamsSize=0;
 				DWORD StreamsCount=0;
 
-				if (itd->GetFindFileArcItem())
+				if (Arc)
 				{
 					if (CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == STREAMSSIZE_COLUMN)
 						EnumStreams(FindData.strFileName,StreamsSize,StreamsCount);
@@ -2065,7 +2056,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 	// к примеру временная панель.
 
 	const wchar_t *DisplayName0=DisplayName;
-	if (itd->GetFindFileArcItem())
+	if (Arc)
 		DisplayName0 = PointToName(DisplayName0);
 	MenuText += DisplayName0;
 
@@ -2083,7 +2074,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 	}
 	AddEndSlash(strPathName);
 
-	if (StrCmpI(strPathName, strLastDirName))
+	if (StrCmpI(strPathName, m_LastDirName))
 	{
 		if (!ListBox->empty())
 		{
@@ -2092,9 +2083,9 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 			ListBox->AddItem(std::move(ListItem));
 		}
 
-		strLastDirName = strPathName;
+		m_LastDirName = strPathName;
 
-		if (const auto ArcItem = itd->GetFindFileArcItem())
+		if (const auto ArcItem = Arc)
 		{
 			if(!(ArcItem->Flags & OPIF_REALNAMES) && !ArcItem->strArcName.empty())
 			{
@@ -2112,12 +2103,12 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 		// Сбросим данные в FindData. Они там от файла
 		FindItem.FindData = {};
 		// Используем LastDirName, т.к. PathName уже может быть искажена
-		FindItem.FindData.strFileName = strLastDirName;
+		FindItem.FindData.strFileName = m_LastDirName;
 		// Used=0 - Имя не попадёт во временную панель.
 		FindItem.Used=0;
 		// Поставим атрибут у каталога, чтобы он не был файлом :)
 		FindItem.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
-		FindItem.Arc = itd->GetFindFileArcItem();;
+		FindItem.Arc = Arc;;
 
 		const auto Ptr = &FindItem;
 		MenuItemEx ListItem(strPathName);
@@ -2128,7 +2119,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 	FindListItem& FindItem = itd->AddFindListItem(FindData,Data,FreeData);
 	FindItem.FindData.strFileName = FullName;
 	FindItem.Used=1;
-	FindItem.Arc = itd->GetFindFileArcItem();
+	FindItem.Arc = Arc;
 
 	int ListPos;
 	{
@@ -2161,11 +2152,11 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, string& strLas
 }
 
 // Called from thread
-void background_searcher::AddMenuRecord(Dialog* Dlg, const string& FullName, string& LastDirName, PluginPanelItem& FindData) const
+void background_searcher::AddMenuRecord(Dialog* Dlg, const string& FullName, PluginPanelItem& FindData) const
 {
 	os::FAR_FIND_DATA fdata;
 	PluginPanelItemToFindDataEx(FindData, fdata);
-	m_Owner->AddMenuRecord(Dlg, FullName, LastDirName, fdata, FindData.UserData.Data, FindData.UserData.FreeData);
+	MessageManager().notify(find_files, new FindFiles::AddMenuData(m_Owner, Dlg, FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData, m_Owner->itd->GetFindFileArcItem()));
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
 }
 
@@ -2199,7 +2190,7 @@ void background_searcher::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 	}
 
 	FINDAREA SaveSearchMode = SearchMode;
-	ArcListItem* SaveArcItem = m_Owner->itd->GetFindFileArcItem();
+	FindFiles::ArcListItem* SaveArcItem = m_Owner->itd->GetFindFileArcItem();
 	{
 		int SavePluginsOutput=Global->DisablePluginsOutput;
 		Global->DisablePluginsOutput=TRUE;
@@ -2210,23 +2201,20 @@ void background_searcher::ArchiveSearch(Dialog* Dlg, const string& ArcName)
 		m_Owner->itd->SetFindFileArcItem(&m_Owner->itd->AddArcListItem(ArcName, hArc, Info.Flags, NullToEmpty(Info.CurDir)));
 		// Запомним каталог перед поиском в архиве. И если ничего не нашли - не рисуем его снова.
 		{
-			string strSaveDirName, strSaveSearchPath;
-			size_t SaveListCount = m_Owner->itd->GetFindListCount();
+			string strSaveSearchPath;
 			// Запомним пути поиска в плагине, они могут измениться.
 			strSaveSearchPath = strPluginSearchPath;
-			strSaveDirName = strLastDirName;
-			strLastDirName.clear();
+			MessageManager().notify(find_files, new FindFiles::AddMenuData(FindFiles::push, m_Owner));
 			DoPreparePluginList(Dlg,true);
 			strPluginSearchPath = strSaveSearchPath;
-			ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
+			FindFiles::ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
 			{
 				SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 				Global->CtrlObject->Plugins->ClosePanel(ArcItem->hPlugin);
 			}
 			ArcItem->hPlugin = nullptr;
 
-			if (SaveListCount == m_Owner->itd->GetFindListCount())
-				strLastDirName = strSaveDirName;
+			MessageManager().notify(find_files, new FindFiles::AddMenuData(FindFiles::pop, m_Owner));
 		}
 
 		Global->DisablePluginsOutput=SavePluginsOutput;
@@ -2375,7 +2363,7 @@ void background_searcher::DoScanTree(Dialog* Dlg, const string& strRoot)
 
 				if (IsFileIncluded(nullptr,strFullStreamName,FindData.dwFileAttributes,strFullName))
 				{
-					m_Owner->AddMenuRecord(Dlg, strFullStreamName, strLastDirName, FindData, nullptr, nullptr);
+					MessageManager().notify(find_files, new FindFiles::AddMenuData(m_Owner, Dlg, strFullStreamName, FindData, nullptr, nullptr, nullptr));
 				}
 
 				ProcessAlternateStreams = Global->Opt->FindOpt.FindAlternateStreams;
@@ -2405,7 +2393,7 @@ void background_searcher::ScanPluginTree(Dialog* Dlg, plugin_panel* hPlugin, UIN
 	size_t ItemCount=0;
 	bool GetFindDataResult=false;
 	{
-		SCOPED_ACTION(auto)(m_Owner->ScopedLock()); 
+		SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 		{
 			if(!Stopped())
 			{
@@ -2443,7 +2431,7 @@ void background_searcher::ScanPluginTree(Dialog* Dlg, plugin_panel* hPlugin, UIN
 				}
 
 				if (IsFileIncluded(CurPanelItem,strCurName,CurPanelItem->FileAttributes,strFullName))
-					AddMenuRecord(Dlg, strFullName, strLastDirName, *CurPanelItem);
+					AddMenuRecord(Dlg, strFullName, *CurPanelItem);
 
 				if (SearchInArchives && hPlugin && (Flags & OPIF_REALNAMES))
 					ArchiveSearch(Dlg,strFullName);
@@ -2572,7 +2560,7 @@ void background_searcher::DoPrepareFileList(Dialog* Dlg)
 
 void background_searcher::DoPreparePluginList(Dialog* Dlg, bool Internal)
 {
-	ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
+	FindFiles::ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
 	OpenPanelInfo Info;
 	string strSaveDir;
 	{
@@ -2627,6 +2615,12 @@ unsigned int background_searcher::ThreadRoutine(THREADPARAM* Param)
 		m_ExceptionPtr = std::current_exception();
 	}
 	return 0;
+}
+
+void background_searcher::Stop() const
+{
+	StopEvent.Set();
+	MessageManager().notify(find_files, new FindFiles::AddMenuData(FindFiles::stop, m_Owner));
 }
 
 bool FindFiles::FindFilesProcess()
@@ -2738,7 +2732,7 @@ bool FindFiles::FindFilesProcess()
 			// иногда при поиске и первые элементы не добавляются
 			Dlg->InitDialog();
 			Dlg->Show();
-			
+
 			Thread FindThread(&Thread::join, &background_searcher::ThreadRoutine, &BC, &Param);
 			Dlg->Process();
 
@@ -2780,7 +2774,7 @@ bool FindFiles::FindFilesProcess()
 						// Добавляем только файлы или имена архивов или папки когда просили
 						if (IsArchive || (Global->Opt->FindOpt.FindFolders && !SearchHex) ||
 							    !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-						{							
+						{
 							if (IsArchive)
 							{
 								i.FindData.strFileName = i.Arc->strArcName;
@@ -2921,6 +2915,33 @@ bool FindFiles::FindFilesProcess()
 	return false;
 }
 
+void FindFiles::CallFindFileEvent(const any& Payload)
+{
+	const auto& Data = any_cast<AddMenuData*>(Payload);
+	switch(Data->m_Type)
+	{
+		case data:
+			Data->m_Owner->AddMenuRecord(Data->m_Dlg, Data->m_FullName, Data->m_FindData, Data->m_Data, Data->m_FreeData, Data->m_Arc);
+			Data->m_Owner->m_EmptyArc = false;
+			break;
+		case stop:
+			Data->m_Owner->m_Stopped = true;
+			break;
+		case push:
+			Data->m_Owner->m_LastDir.push(Data->m_Owner->m_LastDirName);
+			Data->m_Owner->m_LastDirName.clear();
+			Data->m_Owner->m_EmptyArc = true;
+			break;
+		case pop:
+			assert(!Data->m_Owner->m_LastDir.empty());
+			if (Data->m_Owner->m_EmptyArc) Data->m_Owner->m_LastDirName = Data->m_Owner->m_LastDir.top();
+			Data->m_Owner->m_LastDir.pop();
+			break;
+	}
+	delete Data;
+}
+
+
 FindFiles::FindFiles():
 	AnySetFindList(),
 	CmpCase(),
@@ -2934,6 +2955,7 @@ FindFiles::FindFiles():
 	FindPositionChanged(),
 	Finalized(),
 	PluginMode(),
+	m_Stopped(),
 	SearchMode(FINDAREA_ALL),
 	favoriteCodePages(),
 	CodePage(CP_DEFAULT),
@@ -2942,7 +2964,8 @@ FindFiles::FindFiles():
 	FileMaskForFindFile(std::make_unique<filemasks>()),
 	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE)),
 	itd(std::make_unique<InterThreadData>()),
-	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout())
+	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
+	m_FindFiles(find_files, &CallFindFileEvent)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
 
@@ -2970,6 +2993,7 @@ FindFiles::FindFiles():
 		SearchFromChanged=false;
 		FindPositionChanged=false;
 		Finalized=false;
+		m_Stopped=false;
 		TB.reset();
 		itd->ClearAllLists();
 		const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
