@@ -1119,7 +1119,7 @@ void Options::SetFilePanelModes()
 					break;
 
 				case KEY_DEL:
-					if (ModeList->GetSelectPos() >= (int)predefined_panel_modes_count)
+					if (ModeList->GetSelectPos() >= static_cast<int>(predefined_panel_modes_count))
 					{
 						DeleteMode = true;
 						ModeList->Close();
@@ -1212,7 +1212,7 @@ void Options::SetFilePanelModes()
 			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,MSG(MEditPanelModeUpperToLowerCase)},
 			{DI_TEXT,     -1,15, 0,15,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < (int)predefined_panel_modes_count? 0 : DIF_DISABLE),MSG(MReset)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < static_cast<int>(predefined_panel_modes_count)? 0 : DIF_DISABLE),MSG(MReset)},
 			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 		};
 		auto ModeDlg = MakeDialogItemsEx(ModeDlgData);
@@ -1301,11 +1301,9 @@ struct FARConfigItem
 
 	FarListItem MakeListItem(string& ListItemString) const
 	{
-		FarListItem Item;
-		Item.Flags = 0;
-		Item.Reserved[0] = Item.Reserved[1] = 0;
+		FarListItem Item{};
 
-		string Type = Value->typeToString();
+		string Type = Value->GetType();
 		Type.resize(std::max(Type.size(), size_t(7)), L' ');
 
 		ListItemString = KeyName + L"."s + ValName;
@@ -1322,7 +1320,7 @@ struct FARConfigItem
 	bool Edit(bool Hex) const
 	{
 		DialogBuilder Builder;
-		Builder.AddText((KeyName + L"."s + ValName + L" ("s + Value->typeToString() + L"):"s).data());
+		Builder.AddText((KeyName + L"."s + ValName + L" ("s + Value->GetType() + L"):"s).data());
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
@@ -1526,6 +1524,7 @@ Options::Options():
 	ElevationMode(0),
 	WindowMode(-1),
 	ViewSettings(m_ViewSettings),
+	m_ConfigStrings(),
 	CurrentConfig(cfg_roaming),
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
@@ -1614,7 +1613,7 @@ void Options::InitConfigData()
 	};
 	TERSE_STATIC_ASSERT(std::size(DefaultBoxSymbols) == BS_COUNT + 1);
 
-	string strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
+	const auto strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
 
 	#define OPT_DEF(option, def) &option, std::remove_reference_t<decltype(option)>::underlying_type(def)
 
@@ -1864,7 +1863,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystem,L"ElevationMode", OPT_DEF(StoredElevationMode, -1)},
 		{FSSF_PRIVATE,       NKeySystem,L"ExcludeCmdHistory", OPT_DEF(ExcludeCmdHistory, 0)},
 		{FSSF_PRIVATE,       NKeySystem,L"FileSearchMode", OPT_DEF(FindOpt.FileSearchMode, FINDAREA_FROM_CURRENT)},
-		{FSSF_PRIVATE,       NKeySystem,L"FindAlternateStreams", OPT_DEF(FindOpt.FindAlternateStreams, 0)},
+		{FSSF_PRIVATE,       NKeySystem,L"FindAlternateStreams", OPT_DEF(FindOpt.FindAlternateStreams, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"FindCodePage", OPT_DEF(FindCodePage, CP_DEFAULT)},
 		{FSSF_PRIVATE,       NKeySystem,L"FindFolders", OPT_DEF(FindOpt.FindFolders, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"FindSymLinks", OPT_DEF(FindOpt.FindSymLinks, true)},
@@ -1900,8 +1899,8 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystem,L"SmartFolderMonitor", OPT_DEF(SmartFolderMonitor, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"SubstNameRule", OPT_DEF(SubstNameRule, 2)},
 		{FSSF_PRIVATE,       NKeySystem,L"SubstPluginPrefix", OPT_DEF(SubstPluginPrefix, false)},
-		{FSSF_PRIVATE,       NKeySystem,L"UpdateEnvironment", OPT_DEF(UpdateEnvironment, 0)},
-		{FSSF_PRIVATE,       NKeySystem,L"UseFilterInSearch", OPT_DEF(FindOpt.UseFilter, 0)},
+		{FSSF_PRIVATE,       NKeySystem,L"UpdateEnvironment", OPT_DEF(UpdateEnvironment, false)},
+		{FSSF_PRIVATE,       NKeySystem,L"UseFilterInSearch", OPT_DEF(FindOpt.UseFilter, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"UseRegisteredTypes", OPT_DEF(UseRegisteredTypes, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"UseSystemCopy", OPT_DEF(CMOpt.UseSystemCopy, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"WindowMode", OPT_DEF(StoredWindowMode, true)},
@@ -1944,7 +1943,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerWrapMode", OPT_DEF(ViOpt.SaveWrapMode, false)},
 		{FSSF_PRIVATE,       NKeyViewer,L"SearchEditFocus", OPT_DEF(ViOpt.SearchEditFocus, false)},
 		{FSSF_PRIVATE,       NKeyViewer,L"SearchRegexp", OPT_DEF(ViOpt.SearchRegexp, false)},
-		{FSSF_PRIVATE,       NKeyViewer,L"SearchWrapStop", OPT_DEF(ViOpt.SearchWrapStop, 1)}, // Bool3 -- True
+		{FSSF_PRIVATE,       NKeyViewer,L"SearchWrapStop", OPT_DEF(ViOpt.SearchWrapStop, BSTATE_CHECKED)},
 		{FSSF_PRIVATE,       NKeyViewer,L"ShowArrows", OPT_DEF(ViOpt.ShowArrows, true)},
 		{FSSF_PRIVATE,       NKeyViewer,L"ShowKeyBar", OPT_DEF(ViOpt.ShowKeyBar, true)},
 		{FSSF_PRIVATE,       NKeyViewer,L"ShowScrollbar", OPT_DEF(ViOpt.ShowScrollbar, false)},
@@ -1953,7 +1952,7 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeyViewer,L"UseExternalViewer", OPT_DEF(ViOpt.UseExternalViewer, false)},
 		{FSSF_PRIVATE,       NKeyViewer,L"Visible0x00", OPT_DEF(ViOpt.Visible0x00, false)},
 		{FSSF_PRIVATE,       NKeyViewer,L"Wrap", OPT_DEF(ViOpt.ViewerWrap, false)},
-		{FSSF_PRIVATE,       NKeyViewer,L"ZeroChar", OPT_DEF(ViOpt.ZeroChar, 0x00B7)}, // middle dot
+		{FSSF_PRIVATE,       NKeyViewer,L"ZeroChar", OPT_DEF(ViOpt.ZeroChar, L'\xB7')}, // middle dot
 
 		{FSSF_PRIVATE,       NKeyVMenu,L"LBtnClick", OPT_DEF(VMenu.LBtnClick, VMENUCLICK_CANCEL)},
 		{FSSF_PRIVATE,       NKeyVMenu,L"MBtnClick", OPT_DEF(VMenu.MBtnClick, VMENUCLICK_APPLY)},
@@ -2211,9 +2210,9 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 	{
 	case DN_RESIZECONSOLE:
 		{
-			COORD Size = {(SHORT)std::max(ScrX-4, 60), (SHORT)std::max(ScrY-2, 20)};
+			COORD Size{ static_cast<SHORT>(std::max(ScrX - 4, 60)), static_cast<SHORT>(std::max(ScrY - 2, 20)) };
 			Dlg->SendMessage(DM_RESIZEDIALOG, 0, &Size);
-			SMALL_RECT ListPos = {3, 1, (SHORT)(Size.X-4), (SHORT)(Size.Y-2)};
+			SMALL_RECT ListPos{ 3, 1, static_cast<SHORT>(Size.X - 4), static_cast<SHORT>(Size.Y - 2) };
 			Dlg->SendMessage(DM_SETITEMPOSITION, 0, &ListPos);
 		}
 		break;

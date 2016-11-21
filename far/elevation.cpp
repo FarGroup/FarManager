@@ -210,36 +210,32 @@ bool elevation::Initialize()
 	bool Result=false;
 	if (!m_Pipe)
 	{
-		GUID Id;
-		if(CoCreateGuid(&Id) == S_OK)
+		m_PipeName = GuidToStr(CreateUuid());
+		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
+
+		if (const auto pSD = os::memory::local::alloc<PSECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH))
 		{
-			m_PipeName = GuidToStr(Id);
-			SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
-
-			if (const auto pSD = os::memory::local::alloc<PSECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH))
+			if (InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
 			{
-				if (InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
+				if (const auto AdminSID = os::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS))
 				{
-					if (const auto AdminSID = os::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS))
+					EXPLICIT_ACCESS ea{};
+					ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE;
+					ea.grfAccessMode = SET_ACCESS;
+					ea.grfInheritance = NO_INHERITANCE;
+					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+					ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+					ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
+					PACL pRawACL = nullptr;
+					if (SetEntriesInAcl(1, &ea, nullptr, &pRawACL) == ERROR_SUCCESS)
 					{
-						EXPLICIT_ACCESS ea = {};
-						ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE;
-						ea.grfAccessMode = SET_ACCESS;
-						ea.grfInheritance = NO_INHERITANCE;
-						ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-						ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-						ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
-						PACL pRawACL = nullptr;
-						if (SetEntriesInAcl(1, &ea, nullptr, &pRawACL) == ERROR_SUCCESS)
-						{
-							const auto pACL = os::memory::local::ptr(pRawACL);
+						const auto pACL = os::memory::local::ptr(pRawACL);
 
-							if (SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
-							{
-								SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
-								const auto strPipe = L"\\\\.\\pipe\\" + m_PipeName;
-								m_Pipe.reset(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
-							}
+						if (SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
+						{
+							SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
+							const auto strPipe = L"\\\\.\\pipe\\" + m_PipeName;
+							m_Pipe.reset(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
 						}
 					}
 				}
@@ -746,16 +742,17 @@ bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBy
 			const auto Result = RetrieveLastErrorAndResult<bool>();
 			if (Result)
 			{
-				ULARGE_INTEGER Buffer;
-				Read(Buffer);
-				if (FreeBytesAvailableToCaller)
-					*FreeBytesAvailableToCaller = Buffer;
-				Read(Buffer);
-				if (TotalNumberOfBytes)
-					*TotalNumberOfBytes = Buffer;
-				Read(Buffer);
-				if (TotalNumberOfFreeBytes)
-					*TotalNumberOfFreeBytes = Buffer;
+				const auto& ReadAndAssign = [this](auto* Destination)
+				{
+					ULARGE_INTEGER Buffer;
+					Read(Buffer);
+					if (Destination)
+						*Destination = Buffer;
+				};
+
+				ReadAndAssign(FreeBytesAvailableToCaller);
+				ReadAndAssign(TotalNumberOfBytes);
+				ReadAndAssign(TotalNumberOfFreeBytes);
 			}
 			return Result;
 		});

@@ -131,7 +131,7 @@ static int MainProcess(
 		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 		string ename(EditName),vname(ViewName), apanel(DestName1),ppanel(DestName2);
-		if (ConfigProvider().ShowProblems() > 0)
+		if (ConfigProvider().ShowProblems())
 		{
 			ename.clear();
 			vname.clear();

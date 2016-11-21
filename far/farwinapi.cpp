@@ -2080,3 +2080,29 @@ DWORD GetAppPathsRedirectionFlag()
 		}
 	}
 }
+
+UUID CreateUuid()
+{
+	UUID Uuid;
+	UuidCreate(&Uuid);
+	return Uuid;
+}
+
+string GuidToStr(const GUID& Guid)
+{
+	string result;
+	RPC_WSTR str;
+	// declared as non-const in GCC headers :(
+	if (UuidToString(const_cast<GUID*>(&Guid), &str) == RPC_S_OK)
+	{
+		SCOPE_EXIT{ RpcStringFree(&str); };
+		result = reinterpret_cast<const wchar_t*>(str);
+	}
+	return Upper(result);
+}
+
+bool StrToGuid(const wchar_t* Value, GUID& Guid)
+{
+	return UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Value)), &Guid) == RPC_S_OK;
+}
+

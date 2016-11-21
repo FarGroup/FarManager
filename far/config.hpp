@@ -87,17 +87,17 @@ enum DIZUPDATETYPE
 
 enum disk_menu_mode
 {
-	DRIVE_SHOW_TYPE = 0x00000001,
-	DRIVE_SHOW_NETNAME = 0x00000002,
-	DRIVE_SHOW_LABEL = 0x00000004,
-	DRIVE_SHOW_FILESYSTEM = 0x00000008,
-	DRIVE_SHOW_SIZE = 0x00000010,
-	DRIVE_SHOW_REMOVABLE = 0x00000020,
-	DRIVE_SHOW_PLUGINS = 0x00000040,
-	DRIVE_SHOW_CDROM = 0x00000080,
-	DRIVE_SHOW_SIZE_FLOAT = 0x00000100,
-	DRIVE_SHOW_REMOTE = 0x00000200,
-	DRIVE_SORT_PLUGINS_BY_HOTKEY = 0x00000400,
+	DRIVE_SHOW_TYPE              = bit(0),
+	DRIVE_SHOW_NETNAME           = bit(1),
+	DRIVE_SHOW_LABEL             = bit(2),
+	DRIVE_SHOW_FILESYSTEM        = bit(3),
+	DRIVE_SHOW_SIZE              = bit(4),
+	DRIVE_SHOW_REMOVABLE         = bit(5),
+	DRIVE_SHOW_PLUGINS           = bit(6),
+	DRIVE_SHOW_CDROM             = bit(7),
+	DRIVE_SHOW_SIZE_FLOAT        = bit(8),
+	DRIVE_SHOW_REMOTE            = bit(9),
+	DRIVE_SORT_PLUGINS_BY_HOTKEY = bit(10),
 };
 
 struct column;
@@ -111,7 +111,7 @@ public:
 	virtual string toString() const = 0;
 	virtual void fromString(const string& value) = 0;
 	virtual string ExInfo() const = 0;
-	virtual string typeToString() const = 0;
+	virtual string GetType() const = 0;
 	virtual bool IsDefault(const any& Default) const = 0;
 	virtual void SetDefault(const any& Default) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
@@ -148,10 +148,13 @@ namespace detail
 	public:
 		using underlying_type = base_type;
 		using validator_type = std::function<base_type(const base_type&)>;
+		using impl_type = OptionImpl<base_type, derived>;
+
+		auto& operator=(const base_type& Value) { Set(Value); return static_cast<derived&>(*this); }
 
 		void SetValidator(const validator_type& Validator) { m_Validator = Validator; }
 
-		const base_type& Get() const { return GetT<base_type>(); }
+		const auto& Get() const { return GetT<base_type>(); }
 		void Set(const base_type& Value) { SetT(Validate(Value)); }
 		bool TrySet(const base_type& Value)
 		{
@@ -162,6 +165,8 @@ namespace detail
 			SetT(Value);
 			return true;
 		}
+
+		virtual string ExInfo() const override { return {}; }
 
 		virtual bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
 		virtual void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
@@ -187,17 +192,14 @@ namespace detail
 class BoolOption: public detail::OptionImpl<bool, BoolOption>
 {
 public:
-	using OptionImpl<bool, BoolOption>::OptionImpl;
+	using impl_type::OptionImpl;
+	using impl_type::operator=;
 
 	virtual string toString() const override { return Get() ? L"true"s : L"false"s; }
 	virtual void fromString(const string& value) override;
-	virtual string ExInfo() const override { return {}; }
-	virtual string typeToString() const override { return L"boolean"s; }
+	virtual string GetType() const override { return L"boolean"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
-
-	template<class T>
-	BoolOption& operator=(const T& Value) { Set(Value); return *this; }
 
 	operator bool() const { return Get(); }
 };
@@ -205,17 +207,14 @@ public:
 class Bool3Option: public detail::OptionImpl<long long, Bool3Option>
 {
 public:
-	using OptionImpl<long long, Bool3Option>::OptionImpl;
+	using impl_type::OptionImpl;
+	using impl_type::operator=;
 
-	virtual string toString() const override { int v = Get(); return v ? (v == 1 ? L"true"s : L"other"s) : L"false"s; }
+	virtual string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
 	virtual void fromString(const string& value) override;
-	virtual string ExInfo() const override { return {}; }
-	virtual string typeToString() const override { return L"3-state"s; }
+	virtual string GetType() const override { return L"3-state"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
-
-	template<class T>
-	Bool3Option& operator=(const T& Value) { Set(Value); return *this; }
 
 	operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
 };
@@ -223,19 +222,17 @@ public:
 class IntOption: public detail::OptionImpl<long long, IntOption>
 {
 public:
-	using OptionImpl<long long, IntOption>::OptionImpl;
+	using impl_type::OptionImpl;
+	using impl_type::operator=;
 
 	virtual string toString() const override { return str(Get()); }
 	virtual void fromString(const string& value) override;
 	virtual string ExInfo() const override;
-	virtual string typeToString() const override { return L"integer"s; }
+	virtual string GetType() const override { return L"integer"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
-	template<class T>
-	IntOption& operator=(const T& Value) { Set(Value); return *this; }
-
-	IntOption& operator|=(long long Value){ Set(Get() | Value); return *this; }
+	IntOption& operator|=(long long Value){Set(Get()|Value); return *this;}
 	IntOption& operator&=(long long Value){Set(Get()&Value); return *this;}
 	IntOption& operator%=(long long Value){Set(Get()%Value); return *this;}
 	IntOption& operator^=(long long Value){Set(Get()^Value); return *this;}
@@ -248,17 +245,14 @@ public:
 class StringOption: public detail::OptionImpl<string, StringOption>
 {
 public:
-	using OptionImpl<string, StringOption>::OptionImpl;
+	using impl_type::OptionImpl;
+	using impl_type::operator=;
 
 	virtual string toString() const override { return Get(); }
 	virtual void fromString(const string& value) override { Set(value); }
-	virtual string ExInfo() const override { return {}; }
-	virtual string typeToString() const override { return L"string"s; }
+	virtual string GetType() const override { return L"string"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
-
-	template<class T>
-	StringOption& operator=(const T& Value) { Set(Value); return *this; }
 
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	wchar_t operator[] (size_t index) const { return Get()[index]; }
@@ -292,7 +286,7 @@ public:
 	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
 	void LocalViewerConfig(ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
-	void SetSearchColumns(const string& Columns, const string& Widths);
+	static void SetSearchColumns(const string& Columns, const string& Widths);
 
 	struct PanelOptions
 	{

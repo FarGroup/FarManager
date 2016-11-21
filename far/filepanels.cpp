@@ -348,10 +348,9 @@ int FilePanels::SwapPanels()
 		{
 			Global->Opt->WidthDecrement=-Global->Opt->WidthDecrement;
 
-			Global->Opt->LeftHeightDecrement^=Global->Opt->RightHeightDecrement;
-			Global->Opt->RightHeightDecrement=Global->Opt->LeftHeightDecrement^Global->Opt->RightHeightDecrement;
-			Global->Opt->LeftHeightDecrement^=Global->Opt->RightHeightDecrement;
-
+			const auto LeftDecrement = Global->Opt->LeftHeightDecrement.Get();
+			Global->Opt->LeftHeightDecrement = Global->Opt->RightHeightDecrement.Get();
+			Global->Opt->RightHeightDecrement = LeftDecrement;
 		}
 
 		using std::swap;
@@ -500,14 +499,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			if (ActivePanel()->IsVisible())
 			{
 				auto AnotherPanel = PassivePanel();
-				panel_type NewType = panel_type::FILE_PANEL;
-
-				if (LocalKey==KEY_CTRLL || LocalKey==KEY_RCTRLL)
-					NewType = panel_type::INFO_PANEL;
-				else if (LocalKey==KEY_CTRLQ || LocalKey==KEY_RCTRLQ)
-					NewType = panel_type::QVIEW_PANEL;
-				else
-					NewType = panel_type::TREE_PANEL;
+				const auto NewType =
+					LocalKey == KEY_CTRLL || LocalKey == KEY_RCTRLL?
+					panel_type::INFO_PANEL :
+					LocalKey == KEY_CTRLQ || LocalKey == KEY_RCTRLQ?
+					panel_type::QVIEW_PANEL :
+					panel_type::TREE_PANEL;
 
 				if (ActivePanel()->GetType() == NewType)
 					AnotherPanel = ActivePanel();

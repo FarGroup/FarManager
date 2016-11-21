@@ -2133,12 +2133,12 @@ static const std::wregex& uuid_regex()
 void config_provider::CheckDatabase(SQLiteDb *pDb)
 {
 	string pname;
-	int rc = pDb->InitStatus(pname, m_Mode != mode::m_default);
+	const auto rc = pDb->GetInitStatus(pname, m_Mode != mode::m_default);
 	if ( rc > 0 )
 	{
 		if (m_Mode != mode::m_default)
 		{
-			Console().Write(L"problem with " + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
+			Console().Write(format(L"problem with {0}:\n  {1}\n", pname, rc <= 1 ? L"database file is renamed to *.bad and new one is created" : L"database is opened in memory"));
 			Console().Commit();
 		}
 		else
@@ -2201,14 +2201,14 @@ template<class T>
 HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
 {
 	auto cfg = std::make_unique<T>(dbn, Local);
-	if (!CheckedDb.Check(DbId))
+	if (!m_CheckedDb.Check(DbId))
 	{
 		CheckDatabase(cfg.get());
 		if (m_Mode != mode::m_import && cfg->IsNew())
 		{
 			TryImportDatabase(cfg.get(), xmln, plugin);
 		}
-		CheckedDb.Set(DbId);
+		m_CheckedDb.Set(DbId);
 	}
 	return HierarchicalConfigUniquePtr(cfg.release());
 }
@@ -2263,9 +2263,7 @@ config_provider::config_provider(mode Mode):
 
 config_provider::~config_provider()
 {
-	MultiWaiter ThreadWaiter;
-	for (const auto& i: m_Threads) { ThreadWaiter.Add(i); }
-	ThreadWaiter.Wait();
+	MultiWaiter(ALL_CONST_RANGE(m_Threads)).Wait();
 	SQLiteDb::library_free();
 }
 
@@ -2289,10 +2287,10 @@ bool config_provider::Export(const string& File)
 	Representation.SetRoot(CreateChild(root, "shortcuts"));
 	CreateShortcutsConfig()->Export(Representation);
 
-	{ //TODO: export for local plugin settings
+	{
+		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		os::fs::enum_file ff(Global->Opt->ProfilePath + L"\\PluginsData\\*.db");
-		std::for_each(RANGE(ff, i)
+		for(auto& i: os::fs::enum_file(Global->Opt->ProfilePath + L"\\PluginsData\\*.db"))
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
 			InplaceUpper(i.strFileName);
@@ -2303,7 +2301,7 @@ bool config_provider::Export(const string& File)
 				Representation.SetRoot(PluginRoot);
 				CreatePluginsConfig(i.strFileName)->Export(Representation);
 			}
-		});
+		}
 	}
 
 	return Representation.Save(File);
@@ -2340,7 +2338,7 @@ bool config_provider::Import(const string& Filename)
 	Representation.SetRoot(root.FirstChildElement("shortcuts"));
 	CreateShortcutsConfig()->Import(Representation);
 
-	//TODO: import for local plugin settings
+	//TODO: import local plugin settings
 	for (const auto& plugin: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 	{
 		const auto guid = plugin->Attribute("guid");
@@ -2363,17 +2361,11 @@ void config_provider::ClearPluginsCache()
 	PluginsCacheConfigDb().DiscardCache();
 }
 
-int config_provider::ShowProblems() const
+bool config_provider::ShowProblems() const
 {
-	int rc = 0;
-	if (!m_Problems.empty())
-	{
-		rc = Message(MSG_WARNING, MSG(MProblemDb),
-			m_Problems,
-			{ MSG(MShowConfigFolders), MSG(MIgnore) }
-		) == Message::first_button ? +1 : -1;
-	}
-	return rc;
+	if (m_Problems.empty())
+		return false;
+	return Message(MSG_WARNING, MSG(MProblemDb), m_Problems, { MSG(MShowConfigFolders), MSG(MIgnore) }) == Message::first_button;
 }
 
 void config_provider::AddThread(Thread&& thread)

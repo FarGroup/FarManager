@@ -308,7 +308,7 @@ public:
 	enum class mode { m_default, m_import, m_export };
 	config_provider(mode Mode = mode::m_default);
 	~config_provider();
-	int ShowProblems() const;
+	bool ShowProblems() const;
 	bool ServiceMode(const string& File);
 
 	void AddThread(Thread&& thread);
@@ -353,7 +353,7 @@ private:
 	std::unique_ptr<HistoryConfig> m_HistoryCfg;
 	std::unique_ptr<HistoryConfig> m_HistoryCfgMem;
 
-	BitFlags CheckedDb;
+	BitFlags m_CheckedDb;
 };
 
 config_provider& ConfigProvider();

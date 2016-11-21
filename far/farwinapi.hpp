@@ -691,4 +691,9 @@ namespace os
 	};
 }
 
+UUID CreateUuid();
+string GuidToStr(const GUID& Guid);
+bool StrToGuid(const wchar_t* Value,GUID& Guid);
+inline bool StrToGuid(const string& Value, GUID& Guid) { return StrToGuid(Value.data(), Guid); }
+
 #endif // FARWINAPI_HPP_632CB91D_08A9_4793_8FC7_2E38C30CE234

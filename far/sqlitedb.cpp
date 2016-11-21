@@ -214,13 +214,15 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
-		if (!mem_db && db_exists < 0) {
+		if (!mem_db && db_exists < 0)
+		{
 			db_exists = os::fs::is_file(m_Path)? +1 : 0;
 		}
-		bool ret = OpenDatabase(m_Db, m_Path, v1_opener);
-		if (ret)
-			sqlite::sqlite3_busy_timeout(m_Db.get(), 1000);
-		return ret;
+		if (!OpenDatabase(m_Db, m_Path, v1_opener))
+			return false;
+
+		sqlite::sqlite3_busy_timeout(m_Db.get(), 1000);
+		return true;
 	}
 
 	// copy db to memory
@@ -236,23 +238,25 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 		if (db_exists < 0)
 			db_exists = +1;
-		UUID Id;
-		UuidCreate(&Id);
-		if (WAL && !can_create_file(m_Path + L"." + GuidToStr(Id))) // can't open db -- copy to %TEMP%
+
+		if (WAL && !can_create_file(m_Path + L"." + GuidToStr(CreateUuid()))) // can't open db -- copy to %TEMP%
 		{
 			string strTmp;
 			os::GetTempPath(strTmp);
 			append(strTmp, str(GetCurrentProcessId()), L'-', DbFile);
 			ok = copied = os::CopyFileEx(m_Path, strTmp, nullptr, nullptr, nullptr, 0);
-			os::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 			if (ok)
+			{
+				os::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 				m_Path = strTmp;
-			ok = ok && OpenDatabase(db_source, m_Path, v1_opener);
+				ok = OpenDatabase(db_source, m_Path, v1_opener);
+			}
 		}
 		else
 		{
 			ok = OpenDatabase(db_source, m_Path, v2_opener);
 		}
+
 		if (ok)
 		{
 			sqlite::sqlite3_busy_timeout(db_source.get(), 1000);
@@ -262,8 +266,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			{
 				sqlite::sqlite3_backup_step(db_backup, -1);
 				sqlite::sqlite3_backup_finish(db_backup);
-				int rc = sqlite::sqlite3_errcode(m_Db.get());
-				ok = (SQLITE_OK == rc);
+				ok = sqlite::sqlite3_errcode(m_Db.get()) == SQLITE_OK;
 			}
 		}
 	}
@@ -302,7 +305,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 	}
 }
 
-int SQLiteDb::InitStatus(string& name, bool full_name)
+int SQLiteDb::GetInitStatus(string& name, bool full_name) const
 {
 	name = (full_name && !m_Path.empty() && m_Path != L":memory:") ? m_Path : m_Name;
 	return init_status;

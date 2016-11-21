@@ -1125,16 +1125,18 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 
 string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool PropagateToTasbkar)
 {
+	string StrPercent;
 	if (ShowPercent)
 	{
-		Size = std::max<size_t>(0, Size - 5); // where 5 is len(" 100%")
+		StrPercent = format(L" {0:3}%", Percent);
+		Size = Size > StrPercent.size()? Size - StrPercent.size(): 0;
 	}
 	string Str(Size, BoxSymbols[BS_X_B0]);
 	const auto Pos = std::min(Percent, 100) * Size / 100;
 	std::fill_n(Str.begin(), Pos, BoxSymbols[BS_X_DB]);
 	if (ShowPercent)
 	{
-		Str += format(L"{0:3}%", Percent);
+		Str += StrPercent;
 	}
 	if (PropagateToTasbkar)
 	{
