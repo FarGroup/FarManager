@@ -42,9 +42,7 @@ enum event_id
 	update_devices,
 	update_environment,
 
-	elevation_dialog,
 	plugin_synchro,
-	find_files,
 
 	event_id_count
 };
@@ -128,6 +126,7 @@ private:
 
 	message_manager();
 
+	CriticalSection m_CS;
 	message_queue m_Messages;
 	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;
@@ -138,6 +137,8 @@ message_manager& MessageManager();
 
 namespace detail
 {
+	string CreateEventName();
+
 	template<class T>
 	class listener_t: noncopyable
 	{
@@ -149,9 +150,19 @@ namespace detail
 		{
 		}
 
+		listener_t(const typename T::handler_type& EventHandler):
+			listener_t(CreateEventName(), EventHandler)
+		{
+		}
+
 		~listener_t()
 		{
 			MessageManager().unsubscribe(m_Iterator);
+		}
+
+		const string& GetEventName() const
+		{
+			return m_Iterator->first;
 		}
 
 	private:

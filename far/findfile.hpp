@@ -79,11 +79,9 @@ public:
 	// BUGBUG
 	void AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc);
 
-public:
 	enum type2
 	{
 		data,
-		stop,
 		push,
 		pop
 	};
@@ -98,11 +96,11 @@ public:
 		void* m_Data;
 		FARPANELITEMFREECALLBACK m_FreeData;
 		ArcListItem* m_Arc;
-		AddMenuData(type2 Type, FindFiles* Owner): m_Type(Type), m_Owner(Owner) {}
-		AddMenuData(FindFiles* Owner, Dialog* Dlg, const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
+
+		AddMenuData() = default;
+		AddMenuData(type2 Type): m_Type(Type) {}
+		AddMenuData(const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
 			m_Type(data),
-			m_Owner(Owner),
-			m_Dlg(Dlg),
 			m_FullName(FullName),
 			m_FindData(FindData),
 			m_Data(Data),
@@ -119,11 +117,11 @@ private:
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
+	void ProcessMessage(const AddMenuData& Data);
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	static void SetPluginDirectory(const string& DirName, plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
 	static bool GetPluginFile(struct ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
-	static void CallFindFileEvent(const any& Payload);
 
 	// BUGBUG
 	bool AnySetFindList;
@@ -139,7 +137,6 @@ private:
 	bool FindPositionChanged;
 	bool Finalized;
 	bool PluginMode;
-	bool m_Stopped;
 	FINDAREA SearchMode;
 	int favoriteCodePages;
 	uintptr_t CodePage;
@@ -154,8 +151,14 @@ private:
 	class delayed_deleter;
 	std::list<delayed_deleter> m_DelayedDeleters;
 
+	int m_FileCount{};
+	int m_DirCount{};
+	int m_LastFoundNumber{};
+
 public:
 	std::unique_ptr<InterThreadData> itd;
+
+	SyncedQueue<AddMenuData> m_Messages;
 
 	// BUGBUG
 	void Lock() { PluginCS.lock(); }
@@ -169,10 +172,11 @@ private:
 	// BUGBUG
 	class background_searcher* m_Searcher;
 	std::exception_ptr m_ExceptionPtr;
-	listener_ex m_FindFiles;
 	std::stack<string> m_LastDir;
 	string m_LastDirName;
+	Dialog* m_ResultsDialogPtr;
 	bool m_EmptyArc;
+	Event m_MessageEvent;
 };
 
 class background_searcher: noncopyable
@@ -208,14 +212,15 @@ private:
 	int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const;
 	bool LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
-	void DoPrepareFileList(Dialog* Dlg);
-	void DoPreparePluginList(Dialog* Dlg, bool Internal);
-	void ArchiveSearch(Dialog* Dlg, const string& ArcName);
-	void DoScanTree(Dialog* Dlg, const string& strRoot);
-	void ScanPluginTree(Dialog* Dlg, plugin_panel* hPlugin, UINT64 Flags, int& RecurseLevel);
-	void AddMenuRecord(Dialog* Dlg, const string& FullName, PluginPanelItem& FindData) const;
+	void DoPrepareFileList();
+	void DoPreparePluginList(bool Internal);
+	void ArchiveSearch(const string& ArcName);
+	void DoScanTree(const string& strRoot);
+	void ScanPluginTree(plugin_panel* hPlugin, UINT64 Flags, int& RecurseLevel);
+	void AddMenuRecord(const string& FullName, PluginPanelItem& FindData) const;
 
-	FindFiles* m_Owner;
+	FindFiles* const m_Owner;
+	const string m_EventName;
 
 	std::vector<char> readBufferA;
 	std::vector<wchar_t> readBuffer;

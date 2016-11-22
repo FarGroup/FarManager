@@ -184,7 +184,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 		throw MAKE_FAR_EXCEPTION("unknown allocation type");
 	};
 
-	return format("{0}:{1} -> {2}:{3} ({4} bytes)", File, Line, Function, sType, " (", Size, " bytes)");
+	return format("{0}:{1} -> {2}:{3} ({4} bytes)", File, Line, Function, sType, Size);
 }
 
 static thread_local bool inside_far_bad_alloc = false;

@@ -41,9 +41,7 @@ static constexpr const wchar_t* EventNames[] =
 	WSTR(update_power),
 	WSTR(update_devices),
 	WSTR(update_environment),
-	WSTR(elevation_dialog),
 	WSTR(plugin_synchro),
-	WSTR(find_files),
 };
 
 TERSE_STATIC_ASSERT(std::size(EventNames) == event_id_count);
@@ -56,16 +54,19 @@ message_manager::message_manager():
 
 message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::i_event_handler& EventHandler)
 {
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
 	return m_Handlers.emplace(EventNames[EventId], &EventHandler);
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(const string& EventName, const detail::i_event_handler& EventHandler)
 {
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
 	return m_Handlers.emplace(EventName, &EventHandler);
 }
 
 void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 {
+	SCOPED_ACTION(CriticalSectionLock)(m_CS);
 	m_Handlers.erase(HandlerIterator);
 }
 
@@ -85,6 +86,7 @@ bool message_manager::dispatch()
 	message_queue::value_type EventData;
 	while (m_Messages.PopIfNotEmpty(EventData))
 	{
+		SCOPED_ACTION(CriticalSectionLock)(m_CS);
 		const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
 		std::for_each(RelevantListeners.first, RelevantListeners.second, [&](const handlers_map::value_type& i)
 		{
@@ -111,4 +113,9 @@ message_manager& MessageManager()
 {
 	static message_manager sMessageManager;
 	return sMessageManager;
+}
+
+string detail::CreateEventName()
+{
+	return GuidToStr(CreateUuid());
 }
