@@ -994,7 +994,7 @@ void Viewer::ShowHex()
 				for (size_t X = 0; X != 16; ++X)
 				{
 					if (X < BytesRead)
-						OutStr += format(L"{0:2X} ", int(RawBuffer[X]));
+						OutStr += format(L"{0:02X} ", int(RawBuffer[X]));
 					else
 						OutStr.append(3, L' ');
 

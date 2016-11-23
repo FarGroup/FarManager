@@ -2081,7 +2081,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_
 				if (!IsSlash(strPathName.front()))
 					AddEndSlash(strArcPathName);
 
-				strArcPathName += strPathName == L".\\"? L"\\" : strPathName.data();
+				strArcPathName += strPathName == L".\\"? L"\\" : strPathName;
 				strPathName = strArcPathName;
 			}
 		}
