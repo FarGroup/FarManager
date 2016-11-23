@@ -1731,8 +1731,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				if (PrevMaxPos>m_it_CurLine->GetTabCurPos())
 				{
 					m_it_CurLine->SetTabCurPos(PrevMaxPos);
-					m_it_CurLine->FastShow();
-					m_it_CurLine->SetTabCurPos(PrevMaxPos);
 				}
 				Refresh = true;
 			}
@@ -1849,10 +1847,11 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				if (LocalKey() == KEY_CTRLEND || LocalKey() == KEY_RCTRLEND || LocalKey() == KEY_CTRLNUMPAD1 || LocalKey() == KEY_RCTRLNUMPAD1)
 				{
 					m_it_CurLine->SetCurPos(m_it_CurLine->GetLength());
-					m_it_CurLine->FastShow();
 				}
 				else
+				{
 					m_it_CurLine->SetTabCurPos(StartPos);
+				}
 
 				Refresh = true;
 			}
@@ -1866,7 +1865,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			m_Flags.Set(FEDITOR_NEWUNDO);
 			InsertString();
-			m_it_CurLine->FastShow();
 			Refresh = true;
 
 			return true;
