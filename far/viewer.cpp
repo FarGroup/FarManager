@@ -561,7 +561,6 @@ void Viewer::ShowPage(int nMode)
 
 					ReadString(&NewString, -1);
 					Strings.emplace_back(NewString);
-
 				}
 			}
 			break;
@@ -1048,7 +1047,7 @@ void Viewer::DrawScrollbar()
 			start = static_cast<UINT64>(FilePos);
 			ViewerString& last_line = Strings.back();
 			end = last_line.nFilePos + last_line.linesize;
-			if ( end == static_cast<UINT64>(FileSize) && last_line.linesize > 0 && last_line.have_eol )
+			if ( end == static_cast<UINT64>(FileSize) && last_line.linesize > 0 && last_line.eol_length != 0 )
 				++total;
 		}
 		else
@@ -1231,19 +1230,22 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 				assert(eol_len == 2); // CRCR...
 				if (vgetc(&ch) && ch == L'\n')
 					++eol_len;         // CRCRLF
-				else
+				else {
+					assert(ib + 2 <= vgetc_ib);
 					vgetc_ib = ib;     // CR ungetc(2)
+					eol_len = 1;
+				}
 			}
 			break;
 		}
 	}
 
-	pString->have_eol = eol_len;
+	pString->eol_length = eol_len;
 	ReadBuffer[OutPtr]=0;
 	pString->linesize = (int)(vtell() - pString->nFilePos);
 
 	if ( update_cache )
-		CacheLine(pString->nFilePos, pString->linesize, pString->have_eol != 0);
+		CacheLine(pString->nFilePos, pString->linesize, pString->eol_length != 0);
 
 	if (SelectSize >= 0 && OutPtr > 0)
 	{
@@ -1822,7 +1824,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				{
 					ShowPage(SHOW_UP);
 					ViewerString& end = Strings.back();
-					LastPage = end.nFilePos >= FileSize || (!end.have_eol && end.nFilePos + end.linesize >= FileSize);
+					LastPage = end.nFilePos >= FileSize || (end.eol_length == 0 && end.nFilePos + end.linesize >= FileSize);
 				}
 				else
 				{
@@ -2434,7 +2436,7 @@ void Viewer::Up( int nlines, bool adjust )
 		for (i = 0; i < static_cast<int>(llengths.size()); ++i)
 		{
 			ReadString(&vString, -1, false);
-			llengths[i] = (vString.have_eol ? -1 : +1) * vString.linesize;
+			llengths[i] = (vString.eol_length != 0 ? -1 : +1) * vString.linesize;
 			if ((vString.nFilePos += vString.linesize) >= fpos1)
 			{
 				if (adjust)
@@ -3100,7 +3102,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 	vseek(FilePos, FILE_BEGIN);
 	llen = vread(buf, lsize = vString.linesize, tbuf);
 	if (llen > 0)
-		llen -= vString.have_eol; // remove eol-s
+		llen -= vString.eol_length; // remove eol-s
 	buf[llen >= 0 ? llen : 0] = L'\0';
 
 	m_DisplayMode = std::move(OldDisplayMode);
@@ -3763,7 +3765,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 	if (!vgetc_ready)
 		vgetc_cb = vgetc_ib = (int)(vgetc_composite = 0);
 
-	if (vgetc_cb - vgetc_ib < 4 && !ViewFile.Eof())
+	if (vgetc_cb - vgetc_ib < (pCh ? 4 : 1+4) && !ViewFile.Eof())
 	{
 		vgetc_cb -= vgetc_ib;
 		if (vgetc_cb && vgetc_ib)
@@ -4155,7 +4157,7 @@ void Viewer::SelectText(const long long &match_pos,const long long &search_len, 
 			vString.Data.clear();
 			ReadString(&vString, (int)(SelectPos-FilePos), false);
 
-			if ( !vString.have_eol )
+			if ( vString.eol_length == 0 )
 			{
 				int found_offset = static_cast<int>(vString.Data.size());
 				if ( found_offset > Width-10 )

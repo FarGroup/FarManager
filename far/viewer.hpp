@@ -255,12 +255,12 @@ private:
 		long long nSelStart;
 		long long nSelEnd;
 		int  linesize;
-		int  have_eol;
+		int  eol_length;
 		bool bSelection;
 	}
 	vString;
 
-	char vgetc_buffer[32];
+	char vgetc_buffer[64];
 	bool vgetc_ready;
 	int  vgetc_cb;
 	int  vgetc_ib;
