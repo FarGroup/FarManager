@@ -54,47 +54,49 @@ message_manager::message_manager():
 
 message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::i_event_handler& EventHandler)
 {
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	SCOPED_ACTION(std::lock_guard<std::shared_mutex>)(m_RWLock);
 	return m_Handlers.emplace(EventNames[EventId], &EventHandler);
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(const string& EventName, const detail::i_event_handler& EventHandler)
 {
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	SCOPED_ACTION(std::lock_guard<std::shared_mutex>)(m_RWLock);
 	return m_Handlers.emplace(EventName, &EventHandler);
 }
 
 void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 {
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	SCOPED_ACTION(std::lock_guard<std::shared_mutex>)(m_RWLock);
 	m_Handlers.erase(HandlerIterator);
 }
 
 void message_manager::notify(event_id EventId, any&& Payload)
 {
-	m_Messages.Push(message_queue::value_type(EventNames[EventId], std::move(Payload)));
+	m_Messages.push(message_queue::value_type(EventNames[EventId], std::move(Payload)));
 }
 
 void message_manager::notify(const string& EventName, any&& Payload)
 {
-	m_Messages.Push(message_queue::value_type(EventName, std::move(Payload)));
+	m_Messages.push(message_queue::value_type(EventName, std::move(Payload)));
 }
 
 bool message_manager::dispatch()
 {
 	bool Result = false;
 	message_queue::value_type EventData;
-	while (m_Messages.PopIfNotEmpty(EventData))
 	{
-		SCOPED_ACTION(CriticalSectionLock)(m_CS);
-		const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
-		std::for_each(RelevantListeners.first, RelevantListeners.second, [&](const handlers_map::value_type& i)
+		while (m_Messages.try_pop(EventData))
 		{
-			(*i.second)(EventData.second);
-		});
-		Result = Result || RelevantListeners.first != RelevantListeners.second;
+			SCOPED_ACTION(std::shared_lock<std::shared_mutex>)(m_RWLock);
+			const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
+			std::for_each(RelevantListeners.first, RelevantListeners.second, [&](const handlers_map::value_type& i)
+			{
+				(*i.second)(EventData.second);
+			});
+			Result = Result || RelevantListeners.first != RelevantListeners.second;
+		}
+		m_Window->Check();
 	}
-	m_Window->Check();
 	return Result;
 }
 

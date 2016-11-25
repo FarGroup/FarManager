@@ -118,10 +118,10 @@ private:
 	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
 	void ProcessMessage(const AddMenuData& Data);
+	void SetPluginDirectory(const string& DirName, plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
+	bool GetPluginFile(struct ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	static void SetPluginDirectory(const string& DirName, plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
-	static bool GetPluginFile(struct ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 
 	// BUGBUG
 	bool AnySetFindList;
@@ -192,10 +192,11 @@ public:
 		bool SearchInArchives,
 		bool SearchHex,
 		bool NotContaining,
-		bool UseFilter
+		bool UseFilter,
+		bool PluginMode
 	);
 
-	unsigned int ThreadRoutine(THREADPARAM* Param);
+	void Search();
 	void Pause() const { PauseEvent.Reset(); }
 	void Resume() const { PauseEvent.Set(); }
 	void Stop() const;
@@ -246,6 +247,7 @@ private:
 	const bool SearchHex;
 	const bool NotContaining;
 	const bool UseFilter;
+	const bool m_PluginMode;
 
 	Event PauseEvent;
 	Event StopEvent;

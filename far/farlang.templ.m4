@@ -12933,16 +12933,16 @@ MFindFileAdvanced
 "До&датково"
 
 MFindSearchingIn
-"Поиск{0} в"
-"Searching{0} in"
-"Hledám{0} v"
-"Suche{0} in"
+"Поиск {0} в"
+"Searching {0} in"
+"Hledám {0} v"
+"Suche {0} in"
 "{0} keresése"
-"Szukam{0} w"
-"Buscando{0} en:"
-"Hľadám{0} v"
+"Szukam {0} w"
+"Buscando {0} en:"
+"Hľadám {0} v"
 "Ricerca {0} In:"
-"Пошук{0} в"
+"Пошук {0} в"
 
 MFindNewSearch
 "&Новый поиск"

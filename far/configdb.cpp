@@ -1682,25 +1682,28 @@ private:
 
 			bool bAddDelete=false, bCommit=false;
 
-			decltype(WorkQueue)::value_type item;
-			while (WorkQueue.PopIfNotEmpty(item))
 			{
-				if (item) //DeleteAndAddAsync
+				SCOPED_ACTION(auto)(WorkQueue.scoped_lock());
+
+				decltype(WorkQueue)::value_type item;
+				while (WorkQueue.try_pop(item))
 				{
-					SQLiteDb::BeginTransaction();
-					if (item->DeleteId)
-						DeleteInternal(item->DeleteId);
-					AddInternal(item->TypeHistory,item->HistoryName,item->strName,item->Type,item->Lock,item->strGuid,item->strFile,item->strData);
-					SQLiteDb::EndTransaction();
-					bAddDelete = true;
-				}
-				else // EndTransaction
-				{
-					SQLiteDb::EndTransaction();
-					bCommit = true;
+					if (item) //DeleteAndAddAsync
+					{
+						SQLiteDb::BeginTransaction();
+						if (item->DeleteId)
+							DeleteInternal(item->DeleteId);
+						AddInternal(item->TypeHistory, item->HistoryName, item->strName, item->Type, item->Lock, item->strGuid, item->strFile, item->strData);
+						SQLiteDb::EndTransaction();
+						bAddDelete = true;
+					}
+					else // EndTransaction
+					{
+						SQLiteDb::EndTransaction();
+						bCommit = true;
+					}
 				}
 			}
-
 			if (bAddDelete)
 				AsyncDeleteAddDone.Set();
 			if (bCommit)
@@ -1745,7 +1748,7 @@ private:
 
 	virtual bool EndTransaction() override
 	{
-		WorkQueue.Push(nullptr);
+		WorkQueue.push(nullptr);
 		WaitAllAsync();
 		AsyncCommitDone.Reset();
 		AsyncWork.Set();
@@ -1854,7 +1857,7 @@ private:
 		item->strFile=strFile;
 		item->strData=strData;
 
-		WorkQueue.Push(std::move(item));
+		WorkQueue.push(std::move(item));
 
 		WaitAllAsync();
 		AsyncDeleteAddDone.Reset();

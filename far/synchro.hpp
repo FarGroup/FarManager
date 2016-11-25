@@ -203,25 +203,25 @@ template<class T> class SyncedQueue: noncopyable
 public:
 	using value_type = T;
 
-	bool Empty() const
+	bool empty() const
 	{
 		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
 		return m_Queue.empty();
 	}
 
-	void Push(const T& item)
+	void push(const T& item)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
 		m_Queue.push(item);
 	}
 
-	void Push(T&& item)
+	void push(T&& item)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
 		m_Queue.push(std::forward<T>(item));
 	}
 
-	bool PopIfNotEmpty(T& To)
+	bool try_pop(T& To)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
 		if (!m_Queue.empty())
@@ -233,13 +233,24 @@ public:
 		return false;
 	}
 
-	size_t Size() const
+	size_t size() const
 	{
 		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
 		return m_Queue.size();
 	}
 
+	void clear()
+	{
+		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		clear_and_shrink(m_Queue);
+	}
+
+	auto scoped_lock() { return make_raii_wrapper(this, &SyncedQueue::lock, &SyncedQueue::unlock); }
+
 private:
+	void lock() { return m_QueueCS.lock(); }
+	void unlock() { return m_QueueCS.unlock(); }
+
 	std::queue<T> m_Queue;
 	mutable CriticalSection m_QueueCS;
 };

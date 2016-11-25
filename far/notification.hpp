@@ -126,7 +126,7 @@ private:
 
 	message_manager();
 
-	CriticalSection m_CS;
+	std::shared_mutex m_RWLock;
 	message_queue m_Messages;
 	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;
