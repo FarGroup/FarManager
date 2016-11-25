@@ -54,19 +54,19 @@ message_manager::message_manager():
 
 message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::i_event_handler& EventHandler)
 {
-	SCOPED_ACTION(std::lock_guard<std::shared_mutex>)(m_RWLock);
+	SCOPED_ACTION(std::unique_lock<mutex_type>)(m_RWLock);
 	return m_Handlers.emplace(EventNames[EventId], &EventHandler);
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(const string& EventName, const detail::i_event_handler& EventHandler)
 {
-	SCOPED_ACTION(std::lock_guard<std::shared_mutex>)(m_RWLock);
+	SCOPED_ACTION(std::unique_lock<mutex_type>)(m_RWLock);
 	return m_Handlers.emplace(EventName, &EventHandler);
 }
 
 void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 {
-	SCOPED_ACTION(std::lock_guard<std::shared_mutex>)(m_RWLock);
+	SCOPED_ACTION(std::unique_lock<mutex_type>)(m_RWLock);
 	m_Handlers.erase(HandlerIterator);
 }
 
@@ -87,7 +87,7 @@ bool message_manager::dispatch()
 	{
 		while (m_Messages.try_pop(EventData))
 		{
-			SCOPED_ACTION(std::shared_lock<std::shared_mutex>)(m_RWLock);
+			SCOPED_ACTION(std::shared_lock<mutex_type>)(m_RWLock);
 			const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
 			std::for_each(RelevantListeners.first, RelevantListeners.second, [&](const handlers_map::value_type& i)
 			{
