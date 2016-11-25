@@ -1340,25 +1340,47 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	auto& ListBox = Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
 
 	static int Recurse = 0;
-
-	if(m_TimeCheck && !Finalized && !Recurse)
+	static int Drawing = 0;
+	switch (Msg)
 	{
-		++Recurse;
-		SCOPE_EXIT{ --Recurse; };
-
+	case DN_INITDIALOG:
+		Drawing = 0;
+		break;
+	case DN_DRAWDIALOG:
+		++Drawing;
+		break;
+	case DN_DRAWDIALOGDONE:
+		--Drawing;
+		break;
+	default:
+		if (!Finalized && !Recurse && !Drawing)
 		{
-			SCOPED_ACTION(auto)(m_Messages.scoped_lock());
-			time_check TimeCheck(time_check::mode::delayed, 100);
-			while (!TimeCheck && !m_Messages.empty())
+			++Recurse;
+			SCOPE_EXIT{ --Recurse; };
 			{
-				AddMenuData Data;
-				if (m_Messages.try_pop(Data))
+				SCOPED_ACTION(auto)(m_Messages.scoped_lock());
+				size_t EventsCount = 0;
+				time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+				while (!m_Messages.empty() && 0 == EventsCount)
 				{
-					ProcessMessage(Data);
+					if (TimeCheck)
+					{
+						Global->WindowManager->CallbackWindow([](){ auto f = Global->WindowManager->GetCurrentWindow(); if (windowtype_dialog == f->GetType()) std::static_pointer_cast<Dialog>(f)->SendMessage(DN_ENTERIDLE, 0, nullptr); });
+						break;
+					}
+					AddMenuData Data;
+					if (m_Messages.try_pop(Data))
+					{
+						ProcessMessage(Data);
+					}
+					Console().GetNumberOfInputEvents(EventsCount);
 				}
 			}
 		}
+	}
 
+	if(m_TimeCheck && !Finalized && !Recurse)
+	{
 		if (!m_Searcher->Stopped())
 		{
 			const auto strDataStr = format(MFindFound, m_FileCount, m_DirCount);
@@ -2694,7 +2716,6 @@ bool FindFiles::FindFilesProcess()
 	}
 
 	const auto Dlg = Dialog::create(FindDlg, &FindFiles::FindDlgProc, this);
-//  pDlg->SetDynamicallyBorn();
 	Dlg->SetHelp(L"FindFileResult");
 	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
 	Dlg->SetId(FindFileResultId);
