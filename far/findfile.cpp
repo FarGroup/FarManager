@@ -1341,15 +1341,13 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	static int Recurse = 0;
 
-	static bool ResultsShown = false;
-
-	if((m_TimeCheck || !ResultsShown) && !Finalized && !Recurse)
+	if(m_TimeCheck && !Finalized && !Recurse)
 	{
 		++Recurse;
 		SCOPE_EXIT{ --Recurse; };
 
 		{
-			//SCOPED_ACTION(auto)(m_Messages.scoped_lock());
+			SCOPED_ACTION(auto)(m_Messages.scoped_lock());
 			time_check TimeCheck(time_check::mode::delayed, 100);
 			while (!TimeCheck && !m_Messages.empty())
 			{
@@ -1357,7 +1355,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (m_Messages.try_pop(Data))
 				{
 					ProcessMessage(Data);
-					ResultsShown = true;
 				}
 			}
 		}
