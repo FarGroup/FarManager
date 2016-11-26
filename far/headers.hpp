@@ -65,7 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <numeric>
 #include <regex>
 #include <set>
-#include <shared_mutex>
 #include <sstream>
 #include <stack>
 #include <string>

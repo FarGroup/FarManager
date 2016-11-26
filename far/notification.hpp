@@ -126,9 +126,7 @@ private:
 
 	message_manager();
 
-	// TODO: use shared_mutex when we move to gcc 6.
-	using mutex_type = std::shared_timed_mutex;
-	mutex_type m_RWLock;
+	CriticalSection m_QueueCS;
 	message_queue m_Messages;
 	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;
