@@ -1958,7 +1958,7 @@ DWORD GetAppPathsRedirectionFlag()
 		std::pair<string, string> split(const wchar_t* Line)
 		{
 			const auto EqPos = wcschr(Line + 1, L'=');
-			return std::make_pair(string(Line, EqPos - Line), string(EqPos + 1));
+			return{ { Line, EqPos }, EqPos + 1 };
 		}
 
 		bool get_variable(const wchar_t* Name, string& strBuffer)
