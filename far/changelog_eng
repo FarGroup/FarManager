@@ -3,6 +3,66 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.11.2016 11:48:40 +0200 - build 4859
+
+1. On drive change with mouse, the current directory of the panel was not always set.
+
+drkns 26.11.2016 14:11:57 +0200 - build 4858
+
+1. Partial rollback for 4853 for W2k compatibility.
+
+drkns 26.11.2016 03:41:05 +0200 - build 4857
+
+1. In gcc, wcschr and the like removed constness from the returned pointer.
+   The bug is 10 years old and it looks like nobody is going to fix it.
+
+zg 25.11.2016 23:42:39 +0200 - build 4856
+
+1. Correction of 4853.2.
+
+drkns 25.11.2016 17:46:52 +0200 - build 4855
+
+1. Correction of 4853.2.
+
+drkns 25.11.2016 17:34:15 +0200 - build 4854
+
+1. gcc 5.
+
+drkns 25.11.2016 15:41:04 +0200 - build 4853
+
+1. 0003355: Far freeze on request for privileges while searching in archives.
+
+2. Continuation of 4849.
+
+drkns 23.11.2016 23:32:50 +0200 - build 4852
+
+1. Forum: crash on persistent blocks and a selected block from nearly the beginning of a line to its end and Enter pressed at the beginning
+
+w17 23.11.2016 08:18:32 +0300 - build 4851
+
+1. Fix for 2643 -- text disappear in viewer.
+
+drkns 23.11.2016 02:44:51 +0200 - build 4850
+
+1. Incorrect displaying of hex viewer.
+
+drkns 22.11.2016 03:33:12 +0200 - build 4849
+
+1. Continue what's started in 4848:
+   - update on timeout as elsewhere
+   - remove the remnants from search (although not everything)
+   - minor corrections in related modules.
+
+zg 21.11.2016 20:27:54 +0200 - build 4848
+
+1. search results dialog is now updated in the main thread. synchronization in dialogs and menus is removed.
+
+drkns 21.11.2016 10:20:02 +0200 - build 4847
+
+1. Another correction of 4834.
+
+2. Refactoring.
+
 w17 20.11.2016 15:40:36 +0300 - build 4846
 
 1. Fix 2201.
