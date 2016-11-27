@@ -1414,7 +1414,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 			const auto SrcPanel = Parent()->PassivePanel();
 			const auto OldState = SrcPanel->IsVisible() != 0;
-			SrcPanel->SetVisible(1);
+			SrcPanel->SetVisible(true);
 			SrcPanel->ProcessKey(Manager::Key(NewKey));
 			SrcPanel->SetVisible(OldState);
 			SetCurPath();
@@ -5120,7 +5120,7 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 
 void FileList::ProcessCopyKeys(int Key)
 {
-	if (!m_ListData.empty())
+	if (!m_ListData.empty() && SetCurPath())
 	{
 		int Drag=Key==KEY_DRAGCOPY || Key==KEY_DRAGMOVE;
 		int Ask=!Drag || Global->Opt->Confirm.Drag;

@@ -1158,9 +1158,13 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	if (!ActivePanel()->ProcessMouse(MouseEvent))
+	{
 		if (!PassivePanel()->ProcessMouse(MouseEvent))
 			if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 				CmdLine->ProcessMouse(MouseEvent);
+
+		ActivePanel()->SetCurPath();
+	}
 
 	return TRUE;
 }
