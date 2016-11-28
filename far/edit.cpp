@@ -388,14 +388,18 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 
 		if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 		{
-			Text(cut_right(OutStr.substr(TabSelStart), TabSelEnd - TabSelStart));
-
-			if (TabSelEnd<static_cast<int>(EditLength))
+			if (TabSelStart < static_cast<int>(EditLength))
 			{
-				//SetColor(Flags.Check(FEDITLINE_CLEARFLAG) ? SelColor:Color);
-				SetColor(GetNormalColor());
-				Text(OutStr.substr(TabSelEnd));
+				Text(cut_right(OutStr.substr(TabSelStart), TabSelEnd - TabSelStart));
+
+				if (TabSelEnd < static_cast<int>(EditLength))
+				{
+					//SetColor(Flags.Check(FEDITLINE_CLEARFLAG)? SelColor : Color);
+					SetColor(GetNormalColor());
+					Text(OutStr.substr(TabSelEnd));
+				}
 			}
+
 		}
 		else
 		{
