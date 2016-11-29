@@ -315,14 +315,14 @@ static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 		}
 	}
 
-	const auto DescriptionsWidth = std::max_element(ALL_CONST_RANGE(Data), [](const auto& a, const auto &b) { return a.Description.size() < b.Description.size(); })->Description.size();
+	const auto MaxElement = std::max_element(ALL_CONST_RANGE(Data), [](const auto& a, const auto &b) { return a.Description.size() < b.Description.size(); });
 
 	TypesMenu->clear();
 
 	for (auto i: Data)
 	{
 		const auto AddLen = i.Description.size() - HiStrlen(i.Description);
-		MenuItemEx TypesMenuItem(concat(fit_to_left(i.Description, DescriptionsWidth + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask));
+		MenuItemEx TypesMenuItem(concat(fit_to_left(i.Description, MaxElement->Description.size() + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask));
 		TypesMenuItem.UserData = i.Id;
 		TypesMenu->AddItem(TypesMenuItem);
 	}
