@@ -1422,8 +1422,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		}
 	}
 
-	if(!Finalized && m_Searcher->Stopped() && m_Messages.empty())
+	if(!Recurse && !Finalized && m_Searcher->Stopped() && m_Messages.empty())
 	{
+		Finalized=true;
 		const auto strMessage = format(MFindDone, m_FileCount, m_DirCount);
 		Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
@@ -1433,7 +1434,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 		ConsoleTitle::SetFarTitle(strMessage);
 		TB.reset();
-		Finalized=true;
 	}
 
 	switch (Msg)
