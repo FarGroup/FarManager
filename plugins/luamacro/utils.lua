@@ -741,11 +741,10 @@ local function LoadMacros (unload, paths)
       tempRecordedMacro = nil
       local ok, msg = xpcall(f, debug.traceback)
       if ok then
-        env.Macro = nil
-        if tempRecordedMacro==nil then -- support old format (support till 2015-05-28)
-          ReadRecordedMacro(env)
+        if tempRecordedMacro then
+          env.Macro = nil
+          AddRecordedMacro(tempRecordedMacro, FullPath)
         end
-        if tempRecordedMacro then AddRecordedMacro(tempRecordedMacro, FullPath) end
       else
         msg = msg:gsub("\n\t","\n   ")
         numerrors=numerrors+1; ErrMsg(msg)
