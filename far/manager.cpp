@@ -1046,7 +1046,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 	if (-1==WindowIndex)
 		return;
 
-	const auto first = std::next(m_windows.begin(), WindowIndex);
+	const auto first = std::next(m_windows.begin(), Param->HasSaveScreen()?0:WindowIndex);
 	std::for_each(first, m_windows.end(), [](const auto& i)
 	{
 		i->Refresh();
