@@ -323,13 +323,11 @@ void SysLogLastError()
 
 	DWORD LastErr = GetLastError();
 
-	os::memory::local::ptr_t<wchar_t> MsgPtr;
+	os::memory::local::ptr<wchar_t> MsgPtr;
 	{
-		wchar_t *MsgBuf = nullptr;
 		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
 		              nullptr,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-		              (LPWSTR) &MsgBuf,0,nullptr);
-		MsgPtr.reset(MsgBuf);
+		              reinterpret_cast<LPWSTR>(&ptr_setter(MsgPtr)), 0, nullptr);
 	}
 	OpenSysLog();
 

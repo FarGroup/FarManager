@@ -173,14 +173,17 @@ namespace os
 	{
 		class enum_file: public enumerator<enum_file, FAR_FIND_DATA>
 		{
+			IMPLEMENTS_ENUMERATOR(enum_file);
+
 		public:
 			NONCOPYABLE(enum_file);
 			TRIVIALLY_MOVABLE(enum_file);
 
 			enum_file(const string& Object, bool ScanSymLink = true);
-			bool get(size_t index, value_type& value) const;
 
 		private:
+			bool get(size_t index, value_type& value) const;
+
 			string m_Object;
 			mutable find_file_handle m_Handle;
 			bool m_ScanSymLink;
@@ -188,42 +191,51 @@ namespace os
 
 		class enum_name: public enumerator<enum_name, string>
 		{
+			IMPLEMENTS_ENUMERATOR(enum_name);
+
 		public:
 			NONCOPYABLE(enum_name);
 			TRIVIALLY_MOVABLE(enum_name);
 
 			enum_name(const string& Object): m_Object(Object) {}
-			bool get(size_t index, value_type& value) const;
 
 		private:
+			bool get(size_t index, value_type& value) const;
+
 			string m_Object;
 			mutable find_handle m_Handle;
 		};
 
 		class enum_stream: public enumerator<enum_stream, WIN32_FIND_STREAM_DATA>
 		{
+			IMPLEMENTS_ENUMERATOR(enum_stream);
+
 		public:
 			NONCOPYABLE(enum_stream);
 			TRIVIALLY_MOVABLE(enum_stream);
 
 			enum_stream(const string& Object): m_Object(Object) {}
-			bool get(size_t index, value_type& value) const;
 
 		private:
+			bool get(size_t index, value_type& value) const;
+
 			string m_Object;
 			mutable find_file_handle m_Handle;
 		};
 
 		class enum_volume: public enumerator<enum_volume, string>
 		{
+			IMPLEMENTS_ENUMERATOR(enum_volume);
+
 		public:
 			NONCOPYABLE(enum_volume);
 			TRIVIALLY_MOVABLE(enum_volume);
 
 			enum_volume() {};
-			bool get(size_t index, value_type& value) const;
 
 		private:
+			bool get(size_t index, value_type& value) const;
+
 			mutable find_volume_handle m_Handle;
 		};
 
@@ -406,24 +418,30 @@ namespace os
 
 		class enum_key: noncopyable, public enumerator<enum_key, string>
 		{
+			IMPLEMENTS_ENUMERATOR(enum_key);
+
 		public:
 			enum_key(const key& Key): m_KeyRef(Key) {}
 			enum_key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(open_key(RootKey, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam)), m_KeyRef(m_Key) {}
-			bool get(size_t Index, value_type& Value) const { return m_KeyRef && EnumKey(m_KeyRef, Index, Value); }
 
 		private:
+			bool get(size_t Index, value_type& Value) const { return m_KeyRef && EnumKey(m_KeyRef, Index, Value); }
+
 			const key m_Key;
 			const key& m_KeyRef;
 		};
 
 		class enum_value: noncopyable, public enumerator<enum_value, value>
 		{
+			IMPLEMENTS_ENUMERATOR(enum_value);
+
 		public:
 			enum_value(const key& Key): m_KeyRef(Key) {}
 			enum_value(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(open_key(RootKey, SubKey, KEY_QUERY_VALUE | Sam)), m_KeyRef(m_Key) {}
-			bool get(size_t Index, value_type& Value) const { return m_KeyRef && EnumValue(m_KeyRef, Index, Value); }
 
 		private:
+			bool get(size_t Index, value_type& Value) const { return m_KeyRef && EnumValue(m_KeyRef, Index, Value); }
+
 			const key m_Key;
 			const key& m_KeyRef;
 		};
@@ -589,13 +607,10 @@ namespace os
 			};
 
 			template<class T>
-			using ptr_t = std::unique_ptr<T, detail::deleter>;
+			using ptr = std::unique_ptr<T, detail::deleter>;
 
 			template<class T>
-			auto ptr(T* Pointer) { return ptr_t<T>(Pointer); }
-
-			template<class T>
-			auto alloc(UINT Flags, size_t size) { return ptr(static_cast<T*>(LocalAlloc(Flags, size))); }
+			auto alloc(UINT Flags, size_t size) { return ptr<T>(static_cast<T*>(LocalAlloc(Flags, size))); }
 		};
 
 		bool is_pointer(const void* Address);

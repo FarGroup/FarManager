@@ -121,6 +121,8 @@ namespace {
 
 class xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*>
 {
+	IMPLEMENTS_ENUMERATOR(xml_enum);
+
 public:
 	xml_enum(tinyxml::XMLHandle base, const char* name):
 		m_name(name),
@@ -132,6 +134,7 @@ public:
 		m_base(&base)
 	{}
 
+private:
 	bool get(size_t index, value_type& value) const
 	{
 		value = index? value->NextSiblingElement(m_name) :
@@ -140,7 +143,6 @@ public:
 		return value? true : false;
 	}
 
-private:
 	const char* m_name;
 	const tinyxml::XMLNode* m_base;
 };

@@ -99,19 +99,21 @@ public:
 
 	class device_interfaces: public enumerator<device_interfaces, SP_DEVICE_INTERFACE_DATA>
 	{
+		IMPLEMENTS_ENUMERATOR(device_interfaces);
+
 	public:
 		device_interfaces(const devinfo_handle& info, const GUID& InterfaceClassGuid):
 			m_info(info),
 			m_InterfaceClassGuid(InterfaceClassGuid)
 		{}
 
+	private:
 		bool get(size_t index, value_type& value) const
 		{
 			value.cbSize = sizeof(value);
 			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &m_InterfaceClassGuid, static_cast<int>(index), &value) != FALSE;
 		}
 
-	private:
 		const devinfo_handle& m_info;
 		const GUID& m_InterfaceClassGuid;
 	};

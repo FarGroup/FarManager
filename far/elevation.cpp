@@ -213,7 +213,7 @@ bool elevation::Initialize()
 		m_PipeName = GuidToStr(CreateUuid());
 		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
 
-		if (const auto pSD = os::memory::local::alloc<PSECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH))
+		if (const auto pSD = os::memory::local::alloc<SECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH))
 		{
 			if (InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
 			{
@@ -226,11 +226,10 @@ bool elevation::Initialize()
 					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
 					ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
 					ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
-					PACL pRawACL = nullptr;
-					if (SetEntriesInAcl(1, &ea, nullptr, &pRawACL) == ERROR_SUCCESS)
-					{
-						const auto pACL = os::memory::local::ptr(pRawACL);
 
+					os::memory::local::ptr<ACL> pACL;
+					if (SetEntriesInAcl(1, &ea, nullptr, &ptr_setter(pACL)) == ERROR_SUCCESS)
+					{
 						if (SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
 						{
 							SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };

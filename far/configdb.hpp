@@ -78,14 +78,17 @@ public:
 	template<class T>
 	class values_enumerator: public enumerator<values_enumerator<T>, std::pair<string, T>>
 	{
+		IMPLEMENTS_ENUMERATOR(values_enumerator);
+
 	public:
 		values_enumerator(GeneralConfig& provider, const string& key): m_provider(provider), m_key(key) {}
+
+	private:
 		bool get(size_t index, typename values_enumerator::value_type& value) const
 		{
 			return m_provider.EnumValues(m_key, static_cast<DWORD>(index), value.first, value.second);
 		}
 
-	private:
 		GeneralConfig& m_provider;
 		const string m_key;
 	};

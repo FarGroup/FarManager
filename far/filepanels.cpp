@@ -1040,7 +1040,9 @@ int FilePanels::GetTypeAndName(string &strType, string &strName)
 		{
 			string strShortName;
 			ActivePanel()->GetCurName(strName, strShortName);
-			strName = ConvertNameToFull(strName);
+			auto Directory = ActivePanel()->GetCurDir();
+			AddEndSlash(Directory);
+			strName.insert(0, Directory);
 		}
 		break;
 	}

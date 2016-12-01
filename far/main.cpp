@@ -836,7 +836,7 @@ int wmain(int Argc, wchar_t *Argv[])
 int main()
 {
 	int nArgs;
-	const auto wstrCmdLineArgs = os::memory::local::ptr(CommandLineToArgvW(GetCommandLine(), &nArgs));
+	const os::memory::local::ptr<wchar_t*> wstrCmdLineArgs(CommandLineToArgvW(GetCommandLine(), &nArgs));
 	return wmain(nArgs, wstrCmdLineArgs.get());
 }
 #endif

@@ -52,10 +52,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static string FormatErrorString(bool Nt, DWORD Code)
 {
-	LPWSTR lpBuffer=nullptr;
-	size_t size = FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr);
-	const auto Ptr = os::memory::local::ptr(lpBuffer);
-	string Result(Ptr.get(), size);
+	os::memory::local::ptr<wchar_t> Buffer;
+	size_t size = FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&ptr_setter(Buffer)), 0, nullptr);
+	string Result(Buffer.get(), size);
 	RemoveUnprintableCharacters(Result);
 	return Result;
 }

@@ -37,6 +37,7 @@ class enumerator
 {
 public:
 	using value_type = T;
+	using enumerator_type = enumerator;
 
 	template<typename item_type, typename owner>
 	class iterator_t: public std::iterator<std::forward_iterator_tag, item_type>
@@ -89,5 +90,7 @@ public:
 protected:
 	enumerator() { TERSE_STATIC_ASSERT(std::is_base_of<enumerator, Derived>::value); }
 };
+
+#define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type;
 
 #endif // ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874

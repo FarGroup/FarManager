@@ -56,12 +56,14 @@ namespace detail
 template<class provider>
 class enum_substrings_t: public enumerator<enum_substrings_t<provider>, range<decltype(&*detail::Begin(std::declval<std::decay_t<provider>>()))>>
 {
+	IMPLEMENTS_ENUMERATOR(enum_substrings_t);
 public:
 	NONCOPYABLE(enum_substrings_t);
 	TRIVIALLY_MOVABLE(enum_substrings_t);
 
 	explicit enum_substrings_t(const provider& Provider): m_Provider(&Provider), m_Offset() {}
 
+private:
 	bool get(size_t Index, typename enum_substrings_t<provider>::value_type& Value)
 	{
 		const auto Begin = detail::Begin(*m_Provider) + (Index? m_Offset : 0);
@@ -78,7 +80,6 @@ public:
 		return true;
 	}
 
-private:
 	const provider* m_Provider;
 	size_t m_Offset;
 };
