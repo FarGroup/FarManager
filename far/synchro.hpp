@@ -87,10 +87,10 @@ public:
 
 	Thread(): m_Mode(), m_ThreadId() {}
 
-	template<class T, class... Args>
-	Thread(mode Mode, T&& Function, Args&&... args): m_Mode(Mode)
+	template<typename callable, typename... args>
+	Thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
 	{
-		Starter(std::bind(std::forward<T>(Function), std::forward<Args>(args)...));
+		Starter(std::bind(std::forward<callable>(Callable), std::forward<args>(Args)...));
 	}
 
 	~Thread()
@@ -130,22 +130,22 @@ private:
 	template<class T>
 	void Starter(T&& f)
 	{
-		const auto Param = new T(std::move(f));
-		m_Handle.reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param, 0, &m_ThreadId)));
-		if (!m_Handle)
+		auto Param = std::make_unique<T>(std::move(f));
+		m_Handle.reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param.get(), 0, &m_ThreadId)));
+		if (m_Handle)
 		{
-			delete Param;
+			Param.release();
+		}
+		else
+		{
 			throw MAKE_FAR_EXCEPTION("Can't create thread");
 		}
 	}
 
 	template<class T>
-	static unsigned int WINAPI Wrapper(void* p)
+	static unsigned int WINAPI Wrapper(void* RawPtr)
 	{
-		const auto pParam = reinterpret_cast<T*>(p);
-		auto Param = std::move(*pParam);
-		delete pParam;
-		Param();
+		std::invoke(*std::unique_ptr<T>(reinterpret_cast<T*>(RawPtr)));
 		return 0;
 	}
 

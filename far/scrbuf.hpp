@@ -48,12 +48,12 @@ enum class flush_type
 	all = screen | cursor | title
 };
 
-inline constexpr auto operator|(flush_type a, flush_type b)
+constexpr auto operator|(flush_type a, flush_type b)
 {
 	return enum_helpers::operation<std::bit_or<>>(a, b);
 }
 
-inline constexpr auto operator&(flush_type a, flush_type b)
+constexpr auto operator&(flush_type a, flush_type b)
 {
 	return enum_helpers::operation<std::bit_and<>, std::underlying_type_t<flush_type>>(a, b);
 }

@@ -322,23 +322,50 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	auto strFullName = strPluginSearchPath + CurPanelItem->FileName;
 	std::replace(ALL_RANGE(strFullName), L'\x1', L'\\');
 
-	PluginDirList.emplace_back(*CurPanelItem);
+	auto NewItem = *CurPanelItem;
 
-	PluginDirList.back().FileName = DuplicateString(strFullName.data());
-	PluginDirList.back().AlternateFileName=nullptr;
-	PluginDirList.back().Description = DuplicateString(PluginDirList.back().Description);
-	PluginDirList.back().Owner = DuplicateString(PluginDirList.back().Owner);
-	if (PluginDirList.back().CustomColumnNumber>0)
 	{
-		auto CustomColumnData = new wchar_t*[PluginDirList.back().CustomColumnNumber];
-		for (size_t ii = 0; ii<PluginDirList.back().CustomColumnNumber; ii++)
-			CustomColumnData[ii] = DuplicateString(PluginDirList.back().CustomColumnData[ii]);
-		PluginDirList.back().CustomColumnData = CustomColumnData;
+		auto Buffer = std::make_unique<wchar_t[]>(strFullName.size() + 1);
+		*std::copy(ALL_CONST_RANGE(strFullName), Buffer.get()) = L'\0';
+		NewItem.FileName = Buffer.release();
+	}
+
+	NewItem.AlternateFileName=nullptr;
+
+	if (CurPanelItem->Description)
+	{
+		const auto RequiredSize = wcslen(CurPanelItem->Description) + 1;
+		auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
+		std::wmemcpy(Buffer.get(), CurPanelItem->Description, RequiredSize);
+		NewItem.Description = Buffer.release();
+	}
+
+	if (CurPanelItem->Owner)
+	{
+		const auto RequiredSize = wcslen(CurPanelItem->Owner) + 1;
+		auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
+		std::wmemcpy(Buffer.get(), CurPanelItem->Owner, RequiredSize);
+		NewItem.Owner = Buffer.release();
+	}
+
+	if (NewItem.CustomColumnNumber>0)
+	{
+		auto CustomColumnData = std::make_unique<wchar_t*[]>(NewItem.CustomColumnNumber);
+		for (size_t ii = 0; ii < NewItem.CustomColumnNumber; ii++)
+		{
+			const auto RequiredSize = wcslen(CurPanelItem->CustomColumnData[ii]) + 1;
+			auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
+			std::wmemcpy(Buffer.get(), CurPanelItem->CustomColumnData[ii], RequiredSize);
+			CustomColumnData[ii] = Buffer.release();
+		}
+		NewItem.CustomColumnData = CustomColumnData.release();
 	}
 
 	// UserData is not used in PluginDirList
-	PluginDirList.back().UserData.Data=nullptr;
-	PluginDirList.back().UserData.FreeData=nullptr;
+	NewItem.UserData.Data=nullptr;
+	NewItem.UserData.FreeData=nullptr;
+
+	PluginDirList.emplace_back(NewItem);
 }
 
 static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,string& strPluginSearchPath, std::vector<PluginPanelItem>& PluginDirList, bool& StopSearch)

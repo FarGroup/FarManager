@@ -57,6 +57,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
 
+#define DECLARE_PLUGIN_FUNCTION(name, signature) DECLARE_GEN_PLUGIN_FUNCTION(name, false, signature)
+
 DECLARE_PLUGIN_FUNCTION(iClosePanel,          void   (WINAPI*)(HANDLE hPlugin))
 DECLARE_PLUGIN_FUNCTION(iCompare,             int    (WINAPI*)(HANDLE hPlugin, const oldfar::PluginPanelItem *Item1, const oldfar::PluginPanelItem *Item2, unsigned int Mode))
 DECLARE_PLUGIN_FUNCTION(iConfigure,           int    (WINAPI*)(int ItemNumber))
@@ -84,6 +86,8 @@ DECLARE_PLUGIN_FUNCTION(iSetFindList,         int    (WINAPI*)(HANDLE hPlugin, c
 DECLARE_PLUGIN_FUNCTION(iSetStartupInfo,      void   (WINAPI*)(const oldfar::PluginStartupInfo *Info))
 DECLARE_PLUGIN_FUNCTION(iProcessViewerEvent,  int    (WINAPI*)(int Event, void *Param))
 DECLARE_PLUGIN_FUNCTION(iProcessDialogEvent,  int    (WINAPI*)(int Event, void *Param))
+
+#undef DECLARE_PLUGIN_FUNCTION
 
 static auto UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
 {
@@ -5108,7 +5112,7 @@ private:
 
 	virtual bool SetStartupInfo(PluginStartupInfo*) override
 	{
-		ExecuteStruct<iSetStartupInfo> es;
+		AnsiExecuteStruct<iSetStartupInfo> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			static constexpr oldfar::FarStandardFunctions StandardFunctions =
@@ -5228,7 +5232,7 @@ private:
 
 		CheckScreenLock();
 
-		ExecuteStruct<iOpen> es;
+		AnsiExecuteStruct<iOpen> es;
 
 		if (Load() && has(es) && !Global->ProcessException)
 		{
@@ -5316,7 +5320,7 @@ private:
 
 	virtual void ClosePanel(ClosePanelInfo* Info) override
 	{
-		ExecuteStruct<iClosePanel> es;
+		AnsiExecuteStruct<iClosePanel> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			ExecuteFunction(es, Info->hPanel);
@@ -5328,7 +5332,7 @@ private:
 	{
 		*pi = {};
 
-		ExecuteStruct<iGetPluginInfo> es;
+		AnsiExecuteStruct<iGetPluginInfo> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			oldfar::PluginInfo InfoA = { sizeof(InfoA) };
@@ -5348,7 +5352,7 @@ private:
 	{
 		Info->StructSize = sizeof(OpenPanelInfo);
 
-		ExecuteStruct<iGetOpenPanelInfo> es;
+		AnsiExecuteStruct<iGetOpenPanelInfo> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			oldfar::OpenPanelInfo InfoA = {};
@@ -5359,7 +5363,7 @@ private:
 
 	virtual int GetFindData(GetFindDataInfo* Info) override
 	{
-		ExecuteStruct<iGetFindData> es;
+		AnsiExecuteStruct<iGetFindData> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			pFDPanelItemA = nullptr;
@@ -5383,7 +5387,7 @@ private:
 	{
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
-		ExecuteStruct<iFreeFindData> es;
+		AnsiExecuteStruct<iFreeFindData> es;
 		if (has(es) && !Global->ProcessException && pFDPanelItemA)
 		{
 			ExecuteFunction(es, Info->hPanel, pFDPanelItemA, static_cast<int>(Info->ItemsNumber));
@@ -5393,7 +5397,7 @@ private:
 
 	virtual int GetVirtualFindData(GetVirtualFindDataInfo* Info) override
 	{
-		ExecuteStruct<iGetVirtualFindData> es;
+		AnsiExecuteStruct<iGetVirtualFindData> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			pVFDPanelItemA = nullptr;
@@ -5417,7 +5421,7 @@ private:
 	{
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
-		ExecuteStruct<iFreeVirtualFindData> es;
+		AnsiExecuteStruct<iFreeVirtualFindData> es;
 		if (has(es) && !Global->ProcessException && pVFDPanelItemA)
 		{
 			ExecuteFunction(es, Info->hPanel, pVFDPanelItemA, static_cast<int>(Info->ItemsNumber));
@@ -5427,7 +5431,7 @@ private:
 
 	virtual int SetDirectory(SetDirectoryInfo* Info) override
 	{
-		ExecuteStruct<iSetDirectory> es;
+		AnsiExecuteStruct<iSetDirectory> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			std::unique_ptr<char[]> DirA(UnicodeToAnsi(Info->Dir));
@@ -5440,7 +5444,7 @@ private:
 
 	virtual int GetFiles(GetFilesInfo* Info) override
 	{
-		ExecuteStruct<iGetFiles> es(-1);
+		AnsiExecuteStruct<iGetFiles> es(-1);
 		if (has(es) && !Global->ProcessException)
 		{
 			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5459,7 +5463,7 @@ private:
 
 	virtual int PutFiles(PutFilesInfo* Info) override
 	{
-		ExecuteStruct<iPutFiles> es(-1);
+		AnsiExecuteStruct<iPutFiles> es(-1);
 		if (has(es) && !Global->ProcessException)
 		{
 			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5473,7 +5477,7 @@ private:
 
 	virtual int DeleteFiles(DeleteFilesInfo* Info) override
 	{
-		ExecuteStruct<iDeleteFiles> es;
+		AnsiExecuteStruct<iDeleteFiles> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5487,7 +5491,7 @@ private:
 
 	virtual int MakeDirectory(MakeDirectoryInfo* Info) override
 	{
-		ExecuteStruct<iMakeDirectory> es(-1);
+		AnsiExecuteStruct<iMakeDirectory> es(-1);
 		if (has(es) && !Global->ProcessException)
 		{
 			char NameA[oldfar::NM];
@@ -5504,7 +5508,7 @@ private:
 
 	virtual int ProcessHostFile(ProcessHostFileInfo* Info) override
 	{
-		ExecuteStruct<iProcessHostFile> es;
+		AnsiExecuteStruct<iProcessHostFile> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5518,7 +5522,7 @@ private:
 
 	virtual int SetFindList(SetFindListInfo* Info) override
 	{
-		ExecuteStruct<iSetFindList> es;
+		AnsiExecuteStruct<iSetFindList> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5530,7 +5534,7 @@ private:
 
 	virtual int Configure(ConfigureInfo* Info) override
 	{
-		ExecuteStruct<iConfigure> es;
+		AnsiExecuteStruct<iConfigure> es;
 		if (Load() && has(es) && !Global->ProcessException)
 		{
 			ExecuteFunction(es, Info->Guid->Data1);
@@ -5540,7 +5544,7 @@ private:
 
 	virtual void ExitFAR(ExitInfo*) override
 	{
-		ExecuteStruct<iExitFAR> es;
+		AnsiExecuteStruct<iExitFAR> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			// ExitInfo ignored for ansi plugins
@@ -5550,7 +5554,7 @@ private:
 
 	virtual int ProcessPanelInput(ProcessPanelInputInfo* Info) override
 	{
-		ExecuteStruct<iProcessPanelInput> es;
+		AnsiExecuteStruct<iProcessPanelInput> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			int VirtKey;
@@ -5573,7 +5577,7 @@ private:
 
 	virtual int ProcessPanelEvent(ProcessPanelEventInfo* Info) override
 	{
-		ExecuteStruct<iProcessPanelEvent> es;
+		AnsiExecuteStruct<iProcessPanelEvent> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			auto Param = Info->Param;
@@ -5592,7 +5596,7 @@ private:
 
 	virtual int ProcessEditorEvent(ProcessEditorEventInfo* Info) override
 	{
-		ExecuteStruct<iProcessEditorEvent> es;
+		AnsiExecuteStruct<iProcessEditorEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
 		{
 			switch (Info->Event)
@@ -5613,7 +5617,7 @@ private:
 
 	virtual int Compare(CompareInfo* Info) override
 	{
-		ExecuteStruct<iCompare> es(-2);
+		AnsiExecuteStruct<iCompare> es(-2);
 		if (has(es) && !Global->ProcessException)
 		{
 			const auto Item1A = ConvertPanelItemsArrayToAnsi(Info->Item1, 1);
@@ -5627,7 +5631,7 @@ private:
 
 	virtual int ProcessEditorInput(ProcessEditorInputInfo* Info) override
 	{
-		ExecuteStruct<iProcessEditorInput> es;
+		AnsiExecuteStruct<iProcessEditorInput> es;
 		if (Load() && has(es) && !Global->ProcessException)
 		{
 			const INPUT_RECORD *Ptr = &Info->Rec;
@@ -5645,7 +5649,7 @@ private:
 
 	virtual int ProcessViewerEvent(ProcessViewerEventInfo* Info) override
 	{
-		ExecuteStruct<iProcessViewerEvent> es;
+		AnsiExecuteStruct<iProcessViewerEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
 		{
 			switch (Info->Event)
@@ -5664,7 +5668,7 @@ private:
 
 	virtual int ProcessDialogEvent(ProcessDialogEventInfo* Info) override
 	{
-		ExecuteStruct<iProcessDialogEvent> es;
+		AnsiExecuteStruct<iProcessDialogEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
 		{
 			ExecuteFunction(es, Info->Event, Info->Param);
@@ -5707,7 +5711,7 @@ private:
 
 	virtual void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int) override
 	{
-		ExecuteStruct<iOpenFilePlugin> es;
+		AnsiExecuteStruct<iOpenFilePlugin> es;
 		if (Load() && has(es) && !Global->ProcessException)
 		{
 			std::unique_ptr<char[]> NameA(UnicodeToAnsi(Name));
@@ -5718,7 +5722,7 @@ private:
 
 	virtual bool CheckMinFarVersion() override
 	{
-		ExecuteStruct<iGetMinFarVersion> es;
+		AnsiExecuteStruct<iGetMinFarVersion> es;
 		if (has(es) && !Global->ProcessException)
 		{
 			ExecuteFunction(es);
@@ -5983,6 +5987,9 @@ private:
 
 		std::vector<std::string> m_AnsiMessages;
 	};
+
+	template<EXPORTS_ENUM ExportId>
+	using AnsiExecuteStruct = ExecuteStruct<ExportId, false>;
 
 	PluginInfo PI;
 	OpenPanelInfo OPI;

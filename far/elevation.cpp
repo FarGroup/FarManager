@@ -90,7 +90,7 @@ elevation::elevation():
 	m_AskApprove(true),
 	m_Elevation(false),
 	m_DontAskAgain(false),
-	m_Recurse(false)
+	m_Recurse(0)
 {
 }
 
@@ -427,6 +427,9 @@ void ElevationApproveDlgSync(const EAData& Data)
 	// However, that also mean that title won't be restored after closing the dialog.
 	// So we do it manually.
 	const auto OldTitle = ConsoleTitle::GetTitle();
+
+	Console().FlushInputBuffer();
+
 	Dlg->Process();
 	ConsoleTitle::SetFarTitle(OldTitle);
 	Global->ScrBuf->SetLockCount(Lock);
@@ -440,8 +443,6 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 {
 	if (m_Suppressions)
 		return false;
-
-	Console().FlushInputBuffer();
 
 	// request for backup&restore privilege is useless if the user already has them
 	{
@@ -457,10 +458,11 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		m_AskApprove && !m_DontAskAgain && !m_Recurse &&
  		Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		m_Recurse = true;
+		++m_Recurse;
 		SCOPED_ACTION(GuardLastError);
 		SCOPED_ACTION(TaskBarPause);
 		EAData Data(Object, Why, m_AskApprove, m_IsApproved, m_DontAskAgain);
+
 		if(!Global->IsMainThread())
 		{
 			Event SyncEvent(Event::automatic, Event::nonsignaled);
@@ -469,14 +471,14 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 				ElevationApproveDlgSync(*any_cast<EAData*>(Payload));
 				SyncEvent.Set();
 			});
-			MessageManager().notify(Listener.GetEventName(), any(&Data));
+			MessageManager().notify(Listener.GetEventName(), &Data);
 			SyncEvent.Wait();
 		}
 		else
 		{
 			ElevationApproveDlgSync(Data);
 		}
-		m_Recurse = false;
+		--m_Recurse;
 	}
 	return m_IsApproved;
 }
@@ -487,7 +489,7 @@ bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& O
 		false,
 		[&]
 		{
-			return (TemplateObject.empty()? CreateDirectory(Object.data(), Attributes) : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes)) != FALSE;
+			return TemplateObject.empty()? CreateDirectory(Object.data(), Attributes) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes) != FALSE;
 		},
 		[&]
 		{
@@ -838,7 +840,7 @@ private:
 	os::handle m_Pipe;
 	DWORD m_ParentPid{};
 	mutable bool m_Active{true};
-	using copy_progress_routine_param = std::pair<const class elevated*, void*>;
+	using callback_param = std::pair<const class elevated*, void*>;
 
 	void Write(const void* Data,size_t DataSize) const
 	{
@@ -908,7 +910,7 @@ private:
 		const auto Flags = Read<DWORD>();
 		// BUGBUG: Cancel ignored
 
-		copy_progress_routine_param Param(this, reinterpret_cast<void*>(Data));
+		callback_param Param(this, reinterpret_cast<void*>(Data));
 		const auto Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags) != FALSE;
 
 		Write(0); // not CallbackMagic
@@ -1063,7 +1065,7 @@ private:
 
 	static DWORD WINAPI CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 	{
-		const auto Param = reinterpret_cast<const copy_progress_routine_param*>(Data);
+		const auto Param = reinterpret_cast<const callback_param*>(Data);
 		const auto Context = Param->first;
 
 		Context->Write(CallbackMagic);

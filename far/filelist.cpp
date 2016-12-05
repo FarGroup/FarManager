@@ -4907,8 +4907,8 @@ bool FileList::ApplyCommand()
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
 			string strConvertedCommand = strCommand;
-			int PreserveLFN = SubstFileName(nullptr, strConvertedCommand, strSelName, strSelShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-			bool ListFileUsed = !strListName.empty() || !strAnotherListName.empty() || !strShortListName.empty() || !strAnotherShortListName.empty();
+			const auto PreserveLFN = SubstFileName(nullptr, strConvertedCommand, strSelName, strSelShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
+			const auto ListFileUsed = !strListName.empty() || !strAnotherListName.empty() || !strShortListName.empty() || !strAnotherShortListName.empty();
 
 			if (!strConvertedCommand.empty())
 			{
@@ -5486,8 +5486,14 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 {
 	auto& pi = Holder.Item;
 
-	pi.FileName = DuplicateString(fi.strName.data());
-	pi.AlternateFileName = DuplicateString(fi.strShortName.data());
+	auto Buffer = std::make_unique<wchar_t[]>(fi.strName.size() + 1);
+	*std::copy(ALL_CONST_RANGE(fi.strName), Buffer.get()) = L'\0';
+	pi.FileName = Buffer.release();
+
+	Buffer = std::make_unique<wchar_t[]>(fi.strShortName.size() + 1);
+	*std::copy(ALL_CONST_RANGE(fi.strShortName), Buffer.get()) = L'\0';
+	pi.AlternateFileName = Buffer.release();
+
 	pi.FileSize=fi.FileSize;
 	pi.AllocationSize=fi.AllocationSize;
 	pi.FileAttributes=fi.FileAttr;

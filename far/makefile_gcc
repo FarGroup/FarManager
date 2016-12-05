@@ -55,7 +55,6 @@ SRCS = \
 	execute.cpp \
 	FarDlgBuilder.cpp \
 	farexcpt.cpp \
-	farrtl.cpp \
 	farversion.cpp \
 	farwinapi.cpp \
 	fileattr.cpp \
@@ -95,6 +94,7 @@ SRCS = \
 	macro.cpp \
 	main.cpp \
 	manager.cpp \
+	memcheck.cpp \
 	menubar.cpp \
 	message.cpp \
 	mix.cpp \

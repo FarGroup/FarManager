@@ -120,7 +120,7 @@ private:
 	bool m_AskApprove;
 	bool m_Elevation;
 	bool m_DontAskAgain;
-	bool m_Recurse;
+	int m_Recurse;
 	CriticalSection m_CS;
 	string m_PipeName;
 };

@@ -65,7 +65,7 @@ static constexpr wchar_t StarSymbol[]=
 	L'\x00B7',
 };
 
-static void ShowSaver(int Step)
+static void ShowSaver(int Step, const std::function<void(star&)>& Fill)
 {
 	std::for_each(RANGE(Star, i)
 	{
@@ -136,17 +136,7 @@ static void ShowSaver(int Step)
 	const auto NotStar = std::find_if(RANGE(Star, i) { return i.Type == STAR_NONE; });
 	if (NotStar != Star.end())
 	{
-		const auto& random = [](auto x)
-		{
-			return x * rand() / (RAND_MAX + 1);
-		};
-		
-		static constexpr int Colors[]={ F_MAGENTA, F_RED,F_BLUE };
-		NotStar->Type=random(77)<3 ? STAR_PLANET:STAR_NORMAL;
-		NotStar->X=(ScrX/2-ScrX/4+random(ScrX/2))*100;
-		NotStar->Y=(ScrY/2-ScrY/4+random(ScrY/2))*100;
-		NotStar->Color=Colors[random(std::size(Colors))];
-		NotStar->Speed=(NotStar->Type==STAR_PLANET) ? 1:2;
+		Fill(*NotStar);
 	}
 }
 
@@ -174,7 +164,7 @@ int ScreenSaver()
 	{
 		SCOPED_ACTION(SaveScreen);
 		SetCursorType(false, 10);
-		srand(67898);
+
 		SetScreen(0, 0, ScrX, ScrY, L' ', colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
 		std::for_each(RANGE(Star, i)
@@ -185,10 +175,26 @@ int ScreenSaver()
 
 		int Step=0;
 
+		std::mt19937 mt(clock()); // std::random_device doesn't work in w2k
+		std::uniform_int_distribution<int>
+			XDist(100 * ScrX / 4, 100 * ScrX * 3 / 4),
+			YDist(100 * ScrY / 4, 100 * ScrY * 3 / 4),
+			TypeDist(0, 77),
+			ColorDist(0, 2);
+
 		while (!PeekInputRecord(&rec))
 		{
 			Sleep(50);
-			ShowSaver(Step++);
+			ShowSaver(Step++, [&](star& i)
+			{
+				static constexpr int Colors[] = { F_MAGENTA, F_RED, F_BLUE };
+
+				i.Type = TypeDist(mt) < 3? STAR_PLANET : STAR_NORMAL;
+				i.X = XDist(mt);
+				i.Y = YDist(mt);
+				i.Color = Colors[ColorDist(mt)];
+				i.Speed = i.Type == STAR_PLANET? 1 : 2;
+			});
 		}
 	}
 	SetCursorType(CursorInfo.bVisible!=FALSE, CursorInfo.dwSize);

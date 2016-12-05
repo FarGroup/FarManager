@@ -46,5 +46,10 @@ WARNING_DISABLE_GCC("-Wformat-nonliteral")
 
 WARNING_POP()
 
-static components::component::info getInfo() { return { L"fmt"s, format(L"{0}.{1}.{2}", FMT_VERSION / 10000, FMT_VERSION % 10000 / 100, FMT_VERSION % 100) }; }
-SCOPED_ACTION(components::component)(getInfo);
+namespace
+{
+	SCOPED_ACTION(components::component)([]
+	{
+		return components::component::info{ L"fmt"s, format(L"{0}.{1}.{2}", FMT_VERSION / 10000, FMT_VERSION % 10000 / 100, FMT_VERSION % 100) };
+	});
+}

@@ -78,8 +78,13 @@ WARNING_DISABLE_GCC("-Wsuggest-override")
 WARNING_POP()
 };
 
-static components::component::info getInfo() { return { L"Mozilla Universal Charset Detector"s, {} }; } // BUGBUG, version unknown
-SCOPED_ACTION(components::component)(getInfo);
+namespace
+{
+	SCOPED_ACTION(components::component)([]
+	{
+		return components::component::info{ L"Mozilla Universal Charset Detector"s, {} }; // BUGBUG, version unknown
+	});
+}
 
 static const auto& CpMap()
 {

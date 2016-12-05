@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
+#include "strmix.hpp"
 
 /*
              v - точка
@@ -120,8 +121,15 @@ void FindDataExToPluginPanelItemHolder(const os::FAR_FIND_DATA& Src, PluginPanel
 	Dest.ChangeTime = Src.ftChangeTime;
 	Dest.FileSize = Src.nFileSize;
 	Dest.AllocationSize = Src.nAllocationSize;
-	Dest.FileName = DuplicateString(Src.strFileName.data());
-	Dest.AlternateFileName = DuplicateString(Src.strAlternateFileName.data());
+
+	auto Buffer = std::make_unique<wchar_t[]>(Src.strFileName.size() + 1);
+	*std::copy(ALL_CONST_RANGE(Src.strFileName), Buffer.get()) = L'\0';
+	Dest.FileName = Buffer.release();
+
+	Buffer = std::make_unique<wchar_t[]>(Src.strAlternateFileName.size() + 1);
+	*std::copy(ALL_CONST_RANGE(Src.strAlternateFileName), Buffer.get()) = L'\0';
+	Dest.AlternateFileName = Buffer.release();
+
 	Dest.Description = nullptr;
 	Dest.Owner = nullptr;
 	Dest.CustomColumnData = nullptr;
@@ -242,7 +250,7 @@ void ReloadEnvironment()
 		const auto EnvBlockPtr = EnvBlock.data();
 		for (const auto& i: enum_substrings(EnvBlockPtr))
 		{
-			const auto Data = os::env::split(i.data());
+			const auto Data = split_name_value(i);
 			os::env::set_variable(Data.first, Data.second);
 		}
 	}

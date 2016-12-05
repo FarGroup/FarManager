@@ -161,7 +161,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		&strAnotherShortListName
 	};
 
-	int PreserveLFN=SubstFileName(nullptr,strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
+	const auto PreserveLFN = SubstFileName(nullptr, strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 	const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
 
 	if (!strCommand.empty())
@@ -266,7 +266,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 {
 	string strExecStr = Command;
 	std::vector<string> ListNames(4);
-	int PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &ListNames[0], &ListNames[1], &ListNames[2], &ListNames[3]);
+	const auto PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &ListNames[0], &ListNames[1], &ListNames[2], &ListNames[3]);
 	const auto ListFileUsed = std::any_of(CONST_RANGE(ListNames, i) { return !i.empty(); });
 
 	// It makes no sense at all to add command containing temporary files to the history - they are doomed anyway

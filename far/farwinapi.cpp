@@ -1955,12 +1955,6 @@ DWORD GetAppPathsRedirectionFlag()
 			}
 		}
 
-		std::pair<string, string> split(const wchar_t* Line)
-		{
-			const auto EqPos = wcschr(Line + 1, L'=');
-			return{ { Line, EqPos }, EqPos + 1 };
-		}
-
 		bool get_variable(const wchar_t* Name, string& strBuffer)
 		{
 			GuardLastError ErrorGuard;
@@ -2017,7 +2011,7 @@ DWORD GetAppPathsRedirectionFlag()
 		{
 			auto PathExt(os::env::get_variable(L"PATHEXT"));
 			if (PathExt.empty())
-				PathExt = L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.JSE;.WSF;.WSH;.MSC";
+				PathExt = L".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC";
 			return PathExt;
 		}
 	}

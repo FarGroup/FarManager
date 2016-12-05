@@ -5882,8 +5882,10 @@ $ #far:config Interface.ViewerTitleFormat, Interface.EditorTitleFormat#
 $ #far:config System.WipeSymbol#
     Параметр позволяет задать код символа-заполнителя для операции "~Уничтожить файл~@DeleteFile@" (Alt-Del). 
 Использует младший байт параметра.
+    Если параметр установлен в -1, будут использоваться случайные значения.
 
     По умолчанию значение = 0.
+    
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 

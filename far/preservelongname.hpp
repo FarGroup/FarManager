@@ -38,13 +38,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class PreserveLongName: noncopyable
 {
 public:
-	PreserveLongName(const string& ShortName,int Preserve);
+	PreserveLongName(const string& ShortName, bool Preserve);
 	~PreserveLongName();
 
 private:
-	string strSaveLongName;
-	string strSaveShortName;
-	int Preserve;
+	string m_SaveLongName;
+	string m_SaveShortName;
+	int m_Preserve;
 };
 
 #endif // PRESERVELONGNAME_HPP_6F71AC08_0FE5_40EF_B4F4_61B50EA512EA

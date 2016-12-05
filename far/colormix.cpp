@@ -73,10 +73,10 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 		enum console_mask
 		{
-			BlueMask = 1,
-			GreenMask = 2,
-			RedMask = 4,
-			IntensityMask = 8,
+			BlueMask      = bit(0),
+			GreenMask     = bit(1),
+			RedMask       = bit(2),
+			IntensityMask = bit(3),
 		};
 
 		for (auto& i: data)
@@ -103,7 +103,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 					{
 						int* p[] = { &R, &G, &B };
 						size_t IntenseCount = 0;
-						std::for_each(RANGE(p, component)
+						for (auto& component : p)
 						{
 							if(InRange(0, *component, 63))
 							{
@@ -118,17 +118,18 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 								*component = 255;
 								++IntenseCount;
 							}
-						});
+						}
+
 						// eliminate mixed intensity
 						if(IntenseCount > 0 && IntenseCount < 3)
 						{
-							std::for_each(RANGE(p, component)
+							for(auto& component: p)
 							{
 								if(*component == 128)
 								{
 									*component = IntenseCount==1? 0 : 255;
 								}
-							});
+							}
 						}
 
 						const auto& ToMask = [](size_t component, console_mask mask) { return component ? mask : 0; };

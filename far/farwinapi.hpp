@@ -478,8 +478,6 @@ namespace os
 			};
 		}
 
-		std::pair<string, string> split(const wchar_t* Line);
-
 		bool get_variable(const wchar_t* Name, string& strBuffer);
 		inline bool get_variable(const string& Name, string& strBuffer) { return get_variable(Name.data(), strBuffer); }
 		template<class T>

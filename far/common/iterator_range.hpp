@@ -54,8 +54,14 @@ public:
 	constexpr auto begin() const { return m_begin; }
 	constexpr auto end() const { return m_end; }
 
+	constexpr auto cbegin() const { TERSE_STATIC_ASSERT(is_const); return begin(); }
+	constexpr auto cend() const { TERSE_STATIC_ASSERT(is_const); return end(); }
+
 	constexpr auto rbegin() const { return reverse_iterator(m_end); }
 	constexpr auto rend() const { return reverse_iterator(m_begin); }
+
+	constexpr auto crbegin() const { TERSE_STATIC_ASSERT(is_const); return rbegin(); }
+	constexpr auto crend() const { TERSE_STATIC_ASSERT(is_const); return rend(); }
 
 	constexpr auto& front() const { return *m_begin; }
 	constexpr auto& back() const { return *std::prev(m_end); }
@@ -66,6 +72,8 @@ public:
 	constexpr size_t size() const { return m_end - m_begin; }
 
 private:
+	enum { is_const = std::is_const<std::remove_reference_t<reference>>::value };
+
 	iterator m_begin {};
 	iterator m_end {};
 };

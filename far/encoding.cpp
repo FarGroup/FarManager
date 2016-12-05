@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "encoding.hpp"
+#include "strmix.hpp"
 
 class installed_codepages
 {

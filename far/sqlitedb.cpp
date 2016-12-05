@@ -43,23 +43,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "encoding.hpp"
 
-static components::component::info getInfo() { return { L"SQLite"s, encoding::ansi::get_chars(SQLITE_VERSION) }; }
-SCOPED_ACTION(components::component)(getInfo);
-
-static components::component::info getExtensionInfo() { return { L"SQLite Unicode extension"s, encoding::ansi::get_chars(sqlite_unicode::SQLite_Unicode_Version) }; }
-SCOPED_ACTION(components::component)(getExtensionInfo);
-
-static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
+namespace
 {
-	if(FileName != L":memory:")
+	SCOPED_ACTION(components::component)([]
 	{
-		strOut = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-		AddEndSlash(strOut);
-		strOut += FileName;
-	}
-	else
+		return components::component::info{ L"SQLite"s, encoding::ansi::get_chars(SQLITE_VERSION) };
+	});
+
+	SCOPED_ACTION(components::component)([]
 	{
-		strOut = FileName;
+		return components::component::info{ L"SQLite Unicode extension"s, encoding::ansi::get_chars(sqlite_unicode::SQLite_Unicode_Version) };
+	});
+
+	static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
+	{
+		if (FileName != L":memory:")
+		{
+			strOut = Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
+			AddEndSlash(strOut);
+			strOut += FileName;
+		}
+		else
+		{
+			strOut = FileName;
+		}
 	}
 }
 

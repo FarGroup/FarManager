@@ -35,10 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/compiler.hpp"
 
-#if COMPILER == C_CL || COMPILER == C_INTEL
-#pragma optimize("gty", on)
-#endif
-
 WARNING_DISABLE_GCC("-Wcast-qual")
 
 //-----------------------------------------------------------------------------

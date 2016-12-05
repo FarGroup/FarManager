@@ -223,6 +223,18 @@ struct string_i_less
 	}
 };
 
+char* xstrncpy(char* dest, const char* src, size_t DestSize);
+wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
+
+std::pair<string, string> split_name_value(const wchar_t* Line);
+
+template<typename T>
+std::pair<string, string> split_name_value(const T& Line)
+{
+	const auto SeparatorPos = std::find(ALL_CONST_RANGE(Line), L'=');
+	return{ { Line.begin(), SeparatorPos }, { SeparatorPos + 1, Line.end() } };
+}
+
 };
 
 using namespace strmix;

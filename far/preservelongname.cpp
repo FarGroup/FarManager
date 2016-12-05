@@ -37,43 +37,43 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservelongname.hpp"
 #include "pathmix.hpp"
 
-PreserveLongName::PreserveLongName(const string& ShortName,int Preserve):
-	Preserve(Preserve)
+PreserveLongName::PreserveLongName(const string& ShortName, bool Preserve):
+	m_Preserve(Preserve)
 {
 	if (Preserve)
 	{
 		os::FAR_FIND_DATA FindData;
 
 		if (os::GetFindDataEx(ShortName, FindData))
-			strSaveLongName = FindData.strFileName;
+			m_SaveLongName = FindData.strFileName;
 		else
-			strSaveLongName.clear();
+			m_SaveLongName.clear();
 
-		strSaveShortName = ShortName;
+		m_SaveShortName = ShortName;
 	}
 }
 
 
 PreserveLongName::~PreserveLongName()
 {
-	if (Preserve && os::fs::exists(strSaveShortName))
+	if (m_Preserve && os::fs::exists(m_SaveShortName))
 	{
 		os::FAR_FIND_DATA FindData;
 
-		if (!os::GetFindDataEx(strSaveShortName, FindData) || strSaveLongName != FindData.strFileName)
+		if (!os::GetFindDataEx(m_SaveShortName, FindData) || m_SaveLongName != FindData.strFileName)
 		{
 			string strNewName;
-			strNewName = strSaveShortName;
+			strNewName = m_SaveShortName;
 
 			if (CutToSlash(strNewName,true))
 			{
 				strNewName += L"\\";
-				strNewName += strSaveLongName;
+				strNewName += m_SaveLongName;
 			}
 			else
-				strNewName = strSaveLongName;
+				strNewName = m_SaveLongName;
 
-			os::MoveFile(strSaveShortName, strNewName);
+			os::MoveFile(m_SaveShortName, strNewName);
 		}
 	}
 }

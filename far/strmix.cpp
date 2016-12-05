@@ -1486,4 +1486,35 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 	}
 }
 
+// dest и src НЕ ДОЛЖНЫ пересекаться
+char * xstrncpy(char * dest, const char * src, size_t DestSize)
+{
+	char *tmpsrc = dest;
+
+	while (DestSize > 1 && (*dest++ = *src++) != 0)
+	{
+		DestSize--;
+	}
+
+	*dest = 0;
+	return tmpsrc;
+}
+
+wchar_t * xwcsncpy(wchar_t * dest, const wchar_t * src, size_t DestSize)
+{
+	wchar_t *tmpsrc = dest;
+
+	while (DestSize > 1 && (*dest++ = *src++) != 0)
+		DestSize--;
+
+	*dest = 0;
+	return tmpsrc;
+}
+
+std::pair<string, string> split_name_value(const wchar_t* Line)
+{
+	const auto SeparatorPos = wcschr(Line + 1, L'=');
+	return{ { Line, SeparatorPos }, SeparatorPos + 1 };
+}
+
 }

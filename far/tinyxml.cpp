@@ -60,9 +60,11 @@ WARNING_DISABLE_GCC("-Wsuggest-override")
 
 WARNING_POP()
 
-	static components::component::info getInfo() { return {L"TinyXML-2"s, format(L"{0}.{1}.{2}", TIXML2_MAJOR_VERSION, TIXML2_MINOR_VERSION, TIXML2_PATCH_VERSION) }; }
-	SCOPED_ACTION(components::component)(getInfo);
+SCOPED_ACTION(components::component)([]
+{
+	return components::component::info{ L"TinyXML-2"s, format(L"{0}.{1}.{2}", TIXML2_MAJOR_VERSION, TIXML2_MINOR_VERSION, TIXML2_PATCH_VERSION) };
+});
+
 }
 
 namespace tinyxml = tinyxml_impl::tinyxml2;
-

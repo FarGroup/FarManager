@@ -1,7 +1,7 @@
 ﻿/*
-farrtl.cpp
+memcheck.cpp
 
-Переопределение различных CRT функций
+Memory leak detector
 */
 /*
 Copyright © 2016 Far Group
@@ -33,21 +33,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "memcheck.hpp"
 #include "strmix.hpp"
 #include "encoding.hpp"
 
 #ifdef MEMCHECK
-#undef DuplicateString
+
 #undef new
-#endif
 
-#ifndef MEMCHECK
-wchar_t* DuplicateString(const wchar_t * str)
-{
-	return str? wcscpy(new wchar_t[wcslen(str) + 1], str) : nullptr;
-}
-
-#else
 namespace memcheck
 {
 static intptr_t CallNewDeleteVector = 0;
@@ -389,30 +382,4 @@ void PrintMemory()
 #ifdef MEMCHECK
 	memcheck::PrintMemory();
 #endif
-}
-
-
-// dest и src НЕ ДОЛЖНЫ пересекаться
-char * xstrncpy(char * dest,const char * src,size_t DestSize)
-{
-	char *tmpsrc = dest;
-
-	while (DestSize>1 && (*dest++ = *src++) != 0)
-	{
-		DestSize--;
-	}
-
-	*dest = 0;
-	return tmpsrc;
-}
-
-wchar_t * xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize)
-{
-	wchar_t *tmpsrc = dest;
-
-	while (DestSize>1 && (*dest++ = *src++) != 0)
-		DestSize--;
-
-	*dest = 0;
-	return tmpsrc;
 }

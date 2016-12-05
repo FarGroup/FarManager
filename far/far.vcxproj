@@ -205,7 +205,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="encoding.cpp" />
     <ClCompile Include="execute.cpp" />
     <ClCompile Include="farexcpt.cpp" />
-    <ClCompile Include="farrtl.cpp" />
     <ClCompile Include="farversion.cpp" />
     <ClCompile Include="farwinapi.cpp" />
     <ClCompile Include="filesystemwatcher.cpp" />
@@ -257,6 +256,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
+    <ClCompile Include="memcheck.cpp" />
     <ClCompile Include="menubar.cpp" />
     <ClCompile Include="message.cpp" />
     <ClCompile Include="mix.cpp" />
@@ -384,7 +384,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="FarDlgBuilder.hpp" />
     <ClInclude Include="farexcpt.hpp" />
     <ClInclude Include="FarGuid.hpp" />
-    <ClInclude Include="farrtl.hpp" />
     <ClInclude Include="farversion.hpp" />
     <ClInclude Include="farwinapi.hpp" />
     <ClInclude Include="filemasks.hpp" />
@@ -434,6 +433,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="macroopcode.hpp" />
     <ClInclude Include="manager.hpp" />
     <ClInclude Include="matrix.hpp" />
+    <ClInclude Include="memcheck.hpp" />
     <ClInclude Include="menubar.hpp" />
     <ClInclude Include="message.hpp" />
     <ClInclude Include="mix.hpp" />

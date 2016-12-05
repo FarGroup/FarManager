@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "interf.hpp"
 #include "setcolor.hpp"
+#include "strmix.hpp"
 
 class basicconsole:public console {
 public:
@@ -502,30 +503,32 @@ virtual bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLe
 virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const override
 {
 	FN_RETURN_TYPE(console::GetAllAliases) Result;
-	if (const auto ExeLength = GetConsoleAliasExesLength())
-	{
-		std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t));
-		std::vector<wchar_t> AliasesBuffer;
 
-		if (GetConsoleAliasExes(ExeBuffer.data(), ExeLength))
+	const auto ExeLength = GetConsoleAliasExesLength();
+	if (!ExeLength)
+		return Result;
+
+	std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t));
+	if (!GetConsoleAliasExes(ExeBuffer.data(), ExeLength))
+		return Result;
+
+	std::vector<wchar_t> AliasesBuffer;
+	for (const auto& ExeToken: enum_substrings(ExeBuffer))
+	{
+		const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.data());
+		const auto AliasesLength = GetConsoleAliasesLength(ExeNamePtr);
+		AliasesBuffer.resize(AliasesLength / sizeof(wchar_t));
+		if (!GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
+			continue;
+
+		auto& ExeMap = Result[ExeNamePtr];
+		for (const auto& AliasToken: enum_substrings(AliasesBuffer))
 		{
-			for (const auto& ExeToken: enum_substrings(ExeBuffer))
-			{
-				const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.data());
-				const auto AliasesLength = GetConsoleAliasesLength(ExeNamePtr);
-				AliasesBuffer.resize(AliasesLength / sizeof(wchar_t));
-				if (GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
-				{
-					auto& ExeMap = Result[ExeNamePtr];
-					for (const auto& AliasToken: enum_substrings(AliasesBuffer))
-					{
-						const auto SeparatorPos = std::find(ALL_RANGE(AliasToken), L'=');
-						ExeMap[string(AliasToken.begin(), SeparatorPos)].assign(SeparatorPos + 1, AliasToken.end());
-					}
-				}
-			}
+			auto Pair = split_name_value(AliasToken);
+			ExeMap.emplace(std::move(Pair.first), std::move(Pair.second));
 		}
 	}
+
 	return Result;
 }
 

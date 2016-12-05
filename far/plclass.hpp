@@ -164,11 +164,11 @@ private:
 	virtual bool FindExport(const char* ExportName) const;
 };
 
-template<EXPORTS_ENUM id>
+template<EXPORTS_ENUM id, bool Native>
 struct prototype;
 
-template<EXPORTS_ENUM id>
-using prototype_t = typename prototype<id>::type;
+template<EXPORTS_ENUM id, bool Native>
+using prototype_t = typename prototype<id, Native>::type;
 
 namespace detail
 {
@@ -277,7 +277,7 @@ public:
 	bool RemoveDialog(const window_ptr& Dlg);
 
 protected:
-	template<EXPORTS_ENUM ExportId>
+	template<EXPORTS_ENUM ExportId, bool Native = true>
 	struct ExecuteStruct: detail::ExecuteStruct
 	{
 		ExecuteStruct(intptr_t FallbackValue = 0)
@@ -286,6 +286,7 @@ protected:
 			Result = FallbackValue;
 		}
 		using export_id = std::integral_constant<EXPORTS_ENUM, ExportId>;
+		using native = std::integral_constant<bool, Native>;
 	};
 
 	template<typename T, class... args>
@@ -301,7 +302,7 @@ protected:
 
 		try
 		{
-			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value>>(Exports[T::export_id::value].first), std::forward<args>(Args)...);
+			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(Exports[T::export_id::value].first), std::forward<args>(Args)...);
 		}
 		catch (const std::exception& e)
 		{
@@ -372,7 +373,7 @@ private:
 
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);
 
-#define DECLARE_PLUGIN_FUNCTION(name, signature) template<> struct prototype<name>  { using type = signature; };
+#define DECLARE_GEN_PLUGIN_FUNCTION(name, is_native, signature) template<> struct prototype<name, is_native>  { using type = signature; };
 #define WA(string) {L##string, string}
 
 #endif // PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D

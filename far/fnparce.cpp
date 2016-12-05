@@ -70,7 +70,7 @@ struct TSubstData
 	string strAnotherNameOnly;
 	string strAnotherShortNameOnly;
 	string strCmdDir;
-	int  PreserveLFN;
+	bool PreserveLFN;
 	int  PassivePanel;
 
 	panel_ptr AnotherPanel;
@@ -385,7 +385,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
   Преобразование метасимволов ассоциации файлов в реальные значения
 
 */
-int SubstFileName(const wchar_t *DlgTitle,
+bool SubstFileName(const wchar_t *DlgTitle,
                   string &strStr,            // результирующая строка
                   const string& Name,           // Длинное имя
                   const string& ShortName,      // Короткое имя
@@ -410,7 +410,7 @@ int SubstFileName(const wchar_t *DlgTitle,
 	  предпочтительнее!)
 	*/
 	if (strStr.find(L'!') == string::npos)
-		return FALSE;
+		return false;
 
 	TSubstData SubstData;
 	SubstData.Name=Name.data();                    // Длинное имя

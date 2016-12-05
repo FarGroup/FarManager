@@ -377,7 +377,7 @@ static bool EnumEnvironment(VMenu2& Menu, const string& Str)
 			const auto EnvStringsPtr = EnvStrings.data();
 			for (const auto& i: enum_substrings(EnvStringsPtr))
 			{
-				const auto VarName = L"%" + os::env::split(i.data()).first + L"%";
+				const auto VarName = concat(L'%', split_name_value(i).first, L'%');
 
 				if (!StrCmpNI(Token, VarName.data(), TokenSize))
 				{

@@ -233,17 +233,29 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 		const DWORD BufSize=65536;
 		if(WipeFile.InitWalk(BufSize))
 		{
-			static std::array<BYTE, BufSize> Buf;
-			static bool BufInit = false;
-			if(!BufInit)
-			{
-				Buf.fill(Global->Opt->WipeSymbol); // используем символ заполнитель
-				BufInit = true;
-			}
-
 			time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
+
+			std::mt19937 mt(clock()); // std::random_device doesn't work in w2k
+			std::uniform_int_distribution<int> CharDist(0, 255);
+
+			bool BufInit = false;
+
 			do
 			{
+				static std::array<BYTE, BufSize> Buf;
+				if (!BufInit)
+				{
+					if (Global->Opt->WipeSymbol == -1)
+					{
+						std::generate(ALL_RANGE(Buf), [&]{ return CharDist(mt); });
+					}
+					else
+					{
+						Buf.fill(Global->Opt->WipeSymbol);
+						BufInit = true;
+					}
+				}
+
 				size_t Written;
 				WipeFile.Write(Buf.data(), WipeFile.GetChunkSize(), Written);
 				if (TimeCheck)

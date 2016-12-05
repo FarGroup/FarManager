@@ -72,7 +72,7 @@ bool SelectHelpLanguage();
 template<class T>
 LNGID operator+(LNGID Id, T Shift)
 {
-	return static_cast<LNGID>(static_cast<std::underlying_type_t<LNGID>>(Id) + Shift);
+	return static_cast<LNGID>(as_underlying_type(Id) + Shift);
 }
 
 inline LNGID operator++(LNGID& Id, int)

@@ -62,28 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // TODO: clean up & split
 
-template<int id>
-struct write_t
-{
-	write_t(const std::wstring& str, size_t n) : m_part(str.substr(0, n)), m_size(n) {}
-	std::wstring m_part;
-	size_t m_size;
-};
-
-using write_max = write_t<0>;
-using write_exact = write_t<1>;
-
-inline std::wostream& operator <<(std::wostream& stream, const write_max& p)
-{
-	return stream << p.m_part;
-}
-
-inline std::wostream& operator <<(std::wostream& stream, const write_exact& p)
-{
-	stream.width(p.m_size);
-	return stream << p.m_part;
-}
-
 template<class T>
 void resize_nomove(T& container, size_t size)
 {
@@ -109,9 +87,16 @@ void node_swap(T& Container, const typename T::const_iterator& a, const typename
 }
 
 template <typename T>
-bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}
+bool CheckStructSize(const T* s)
+{
+	return s && (s->StructSize >= sizeof(T));
+}
+
 template <typename T>
-bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
+bool CheckNullOrStructSize(const T* s)
+{
+	return !s || CheckStructSize(s);
+}
 
 template<typename T, size_t N>
 void ClearArray(T(&a)[N]) noexcept
@@ -120,20 +105,34 @@ void ClearArray(T(&a)[N]) noexcept
 }
 
 template<class T>
-auto NullToEmpty(const T* Str) { static constexpr T empty {}; return Str? Str : &empty; }
-template<class T>
-auto EmptyToNull(const T* Str) { return (Str && !*Str)? nullptr : Str; }
+auto NullToEmpty(const T* Str)
+{
+	static constexpr T empty{};
+	return Str? Str : &empty;
+}
 
 template<class T>
-size_t make_hash(const T& value)
+auto EmptyToNull(const T* Str)
 {
-	return std::hash<T>()(value);
+	return (Str && !*Str)? nullptr : Str;
+}
+
+template<class T>
+auto make_hash(const T& value)
+{
+	return std::hash<T>{}(value);
 }
 
 template <class T>
-T Round(const T &a, const T &b) { return a / b + (a%b * 2 > b ? 1 : 0); }
+T Round(const T &a, const T &b)
+{
+	return a / b + ((a % b * 2 > b)? 1 : 0);
+}
 
-inline void* ToPtr(intptr_t Value){ return reinterpret_cast<void*>(Value); }
+inline void* ToPtr(intptr_t Value)
+{
+	return reinterpret_cast<void*>(Value);
+}
 
 template<class T, class Y>
 bool InRange(const T& from, const Y& what, const T& to)
@@ -141,25 +140,24 @@ bool InRange(const T& from, const Y& what, const T& to)
 	return from <= what && what <= to;
 }
 
-template<class owner, typename acquire, typename release = acquire>
-class raii_wrapper
-{
-public:
-	NONCOPYABLE(raii_wrapper);
-	TRIVIALLY_MOVABLE(raii_wrapper);
-
-	raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release): m_Owner(Owner), m_Release(Release) { std::invoke(Acquire, m_Owner); }
-	~raii_wrapper() { if (m_Owner) std::invoke(m_Release, m_Owner); }
-
-private:
-	movalbe_ptr<owner> m_Owner;
-	release m_Release;
-};
-
-template<class owner, typename acquire, typename release = acquire>
+template<typename owner, typename acquire, typename release>
 auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
 {
-	return raii_wrapper<owner, acquire, release>(Owner, Acquire, Release);
+	std::invoke(Acquire, Owner);
+	auto&& Releaser = [&Release](owner* Owner){ std::invoke(Release, Owner); };
+	return std::unique_ptr<owner, std::remove_reference_t<decltype(Releaser)>>(Owner, std::move(Releaser));
+}
+
+template<typename T>
+auto as_unsigned(T Value)
+{
+	return static_cast<std::make_unsigned_t<T>>(Value);
+}
+
+template<typename T>
+auto as_underlying_type(T Value)
+{
+	return static_cast<std::underlying_type_t<T>>(Value);
 }
 
 namespace enum_helpers
@@ -167,14 +165,8 @@ namespace enum_helpers
 	template<class O, class R = void, class T>
 	constexpr auto operation(T a, T b)
 	{
-		return static_cast<std::conditional_t<std::is_same<R, void>::value, T, R>>(O()(static_cast<std::underlying_type_t<T>>(a), static_cast<std::underlying_type_t<T>>(b)));
+		return static_cast<std::conditional_t<std::is_same<R, void>::value, T, R>>(O()(as_underlying_type(a), as_underlying_type(b)));
 	}
-}
-
-template<typename T>
-auto as_unsigned(T Value)
-{
-	return static_cast<std::make_unsigned_t<T>>(Value);
 }
 
 #ifdef _DEBUG
@@ -202,5 +194,19 @@ constexpr auto bit(size_t Number)
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
 #define EOL_STR L"\r\n"
+
+constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_ALIGNMENT)
+{
+	return (Size + (Alignment - 1)) & ~(Alignment - 1);
+}
+
+template<class T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
+struct aligned_sizeof
+{
+	enum
+	{
+		value = aligned_size(sizeof(T), Alignment)
+	};
+};
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4
