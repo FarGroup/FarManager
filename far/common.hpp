@@ -144,7 +144,7 @@ template<typename owner, typename acquire, typename release>
 auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
 {
 	std::invoke(Acquire, Owner);
-	auto&& Releaser = [&Release](owner* Owner){ std::invoke(Release, Owner); };
+	auto&& Releaser = [Release](owner* Owner){ std::invoke(Release, Owner); };
 	return std::unique_ptr<owner, std::remove_reference_t<decltype(Releaser)>>(Owner, std::move(Releaser));
 }
 
