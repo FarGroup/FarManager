@@ -353,10 +353,13 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 		auto CustomColumnData = std::make_unique<wchar_t*[]>(NewItem.CustomColumnNumber);
 		for (size_t ii = 0; ii < NewItem.CustomColumnNumber; ii++)
 		{
-			const auto RequiredSize = wcslen(CurPanelItem->CustomColumnData[ii]) + 1;
-			auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
-			std::wmemcpy(Buffer.get(), CurPanelItem->CustomColumnData[ii], RequiredSize);
-			CustomColumnData[ii] = Buffer.release();
+			if (CurPanelItem->CustomColumnData[ii])
+			{
+				const auto RequiredSize = wcslen(CurPanelItem->CustomColumnData[ii]) + 1;
+				auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
+				std::wmemcpy(Buffer.get(), CurPanelItem->CustomColumnData[ii], RequiredSize);
+				CustomColumnData[ii] = Buffer.release();
+			}
 		}
 		NewItem.CustomColumnData = CustomColumnData.release();
 	}

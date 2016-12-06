@@ -1288,7 +1288,8 @@ ShellCopy::~ShellCopy()
 COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-
+	//SaveScreen SaveScr;
+	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
 	size_t DestMountLen = 0;
 
 	if (Dest.empty() || Dest == L".")
@@ -1363,7 +1364,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			strDest = tpath + strDest;
 		}
 
-		bool check_samedisk = false;
+		bool check_samedisk = false, dest_changed = false;
 		if (first || strSrcDriveRoot.empty() || (src_abspath && StrCmpNI(strSelName.data(), strSrcDriveRoot.data(), strSrcDriveRoot.size())))
 		{
 			strSrcDriveRoot = GetPathRoot(src_abspath? strSelName : SrcPanel->GetCurDir());
@@ -1375,7 +1376,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			strDestDriveRoot = GetPathRoot(strDest);
 			DestDriveType = FAR_GetDriveType(strDestDriveRoot);
 			DestMountLen = GetMountPointLen(strDest, strDestDriveRoot);
-			check_samedisk = true;
+			check_samedisk = dest_changed = true;
 		}
 		if (move_rename && !copy_to_null && check_samedisk)
 		{
@@ -1395,6 +1396,34 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			}
 		}
 
+		if (dest_changed) // check destination drive ready
+		{
+			DestAttr = os::GetFileAttributes(strDest);
+			if (INVALID_FILE_ATTRIBUTES == DestAttr)
+			{
+				const auto Exists_1 = os::fs::exists(strDestDriveRoot);
+				auto Exists_2 = Exists_1;
+				while ( !Exists_2 && SkipMode != 2)
+				{
+					Global->CatchError();
+					int ret = OperationFailed(strDestDriveRoot, MError, L"");
+					if (ret < 0 || ret == 4)
+						return COPY_CANCEL;
+					else if (ret == 1)
+						return COPY_SKIPPED;
+					else if (ret == 2)
+					{
+						SkipMode = 2;
+						return COPY_SKIPPED;
+					}
+
+					Exists_2 = os::fs::exists(strDestDriveRoot);
+				}
+				if (!Exists_1 && Exists_2)
+					DestAttr = os::GetFileAttributes(strDest);
+			}
+		}
+
 		const auto pos = FindLastSlash(strDest);
 		if (!copy_to_null && pos != string::npos && (!DestMountLen || pos > DestMountLen))
 		{
@@ -1406,6 +1435,8 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					TreeList::AddTreeName(strNewPath);
 				else
 					CreatePath(strNewPath);
+
+				DestAttr = os::GetFileAttributes(strDest);
 			}
 			else if (os::fs::is_file(NewPathStatus))
 			{
@@ -1558,6 +1589,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			string strFullName;
 			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
 			auto strSubName = strSelName + L"\\";
+
+			if (DestAttr==INVALID_FILE_ATTRIBUTES)
+				KeepPathPos=(int)strSubName.size();
 
 			int NeedRename=!((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
 			ScTree.SetFindPath(strSubName,L"*",FSCANTREE_FILESFIRST);
@@ -1737,7 +1771,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	int SameName=0, Append=0;
 
-	if (!(Flags&FCOPY_COPYTONUL))
+	if (!(Flags&FCOPY_COPYTONUL) && DestAttr!=INVALID_FILE_ATTRIBUTES && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
 	{
 		if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
