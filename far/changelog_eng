@@ -3,6 +3,23 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.12.2016 09:32:48 +0200 - build 4868
+
+1. Rollback 4866.1 for now because it happened to be even worse.
+
+drkns 06.12.2016 02:43:44 +0200 - build 4867
+
+1. Correction of 4866.
+
+drkns 06.12.2016 00:43:52 +0200 - build 4866
+
+1. 0003361: Admin privileges are requested for renaming a file
+   The problem is the broken copier, not the privilege request. This is part #1, it may or may not help.
+
+2. If System.WipeSymbol is set to -1, the wipe uses random values.
+
+3. Refactoring.
+
 svs 02.12.2016 12:10:47 +0300 - build 4865
 
 1. SQLite 3.15.2
