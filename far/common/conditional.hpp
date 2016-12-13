@@ -50,13 +50,13 @@ if (!Object)
     bar();
 */
 
-template<class T>
+template<typename T>
 class conditional
 {
 public:
 	explicit operator bool() const
 	{
-		return !static_cast<const T&>(*this).operator!();
+		return !!static_cast<const T&>(*this);
 	}
 
 protected:

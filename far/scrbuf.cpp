@@ -460,6 +460,16 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 				if (Changes)
 				{
+					if (IsConsoleSizeChanged())
+					{
+						// We must draw something, but canvas has been changed, drawing on it will make things only worse
+						Changes = false;
+						GenerateWINDOW_BUFFER_SIZE_EVENT();
+					}
+				}
+
+				if (Changes)
+				{
 					std::for_each(CONST_RANGE(WriteList, i)
 					{
 						COORD BufferCoord = { i.Left, i.Top };

@@ -32,22 +32,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<class T>
+template<typename T>
 class array_ptr: public conditional<array_ptr<T>>
 {
 public:
 	NONCOPYABLE(array_ptr);
 	TRIVIALLY_MOVABLE(array_ptr);
 
-	array_ptr() : m_size() {}
+	array_ptr() noexcept: m_size() {}
 	array_ptr(size_t size, bool init = false) { reset(size, init); }
 
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
-	void reset() { m_array.reset(); m_size = 0; }
+	void reset() noexcept { m_array.reset(); m_size = 0; }
 	size_t size() const noexcept { return m_size; }
 	bool operator!() const noexcept { return !m_array; }
-	T* get() const {return m_array.get();}
-	T& operator[](size_t n) const { assert(n < m_size); return m_array[n]; }
+	decltype(auto) get() const noexcept {return m_array.get();}
+	decltype(auto) operator[](size_t n) const { assert(n < m_size); return m_array[n]; }
 
 private:
 	std::unique_ptr<T[]> m_array;
@@ -57,8 +57,8 @@ private:
 using wchar_t_ptr = array_ptr<wchar_t>;
 using char_ptr = array_ptr<char>;
 
-template<class T>
-class block_ptr:public char_ptr
+template<typename T>
+class block_ptr: public char_ptr
 {
 public:
 	NONCOPYABLE(block_ptr);
@@ -66,9 +66,9 @@ public:
 
 	using char_ptr::char_ptr;
 	block_ptr() = default;
-	T* get() const {return reinterpret_cast<T*>(char_ptr::get());}
-	T* operator->() const noexcept { return get(); }
-	T& operator*() const {return *get();}
+	decltype(auto) get() const noexcept {return reinterpret_cast<T*>(char_ptr::get());}
+	decltype(auto) operator->() const noexcept { return get(); }
+	decltype(auto) operator*() const noexcept {return *get();}
 };
 
 template <typename T>
@@ -76,14 +76,14 @@ class unique_ptr_with_ondestroy: public conditional<unique_ptr_with_ondestroy<T>
 {
 public:
 	~unique_ptr_with_ondestroy() { OnDestroy(); }
-	T* get() const { return ptr.get(); }
-	T* operator->() const noexcept { return ptr.operator->(); }
-	T& operator*() const { return *ptr; }
+	decltype(auto) get() const noexcept { return ptr.get(); }
+	decltype(auto) operator->() const noexcept { return ptr.operator->(); }
+	decltype(auto) operator*() const { return *ptr; }
 	bool operator!() const noexcept { return !ptr; }
-	unique_ptr_with_ondestroy& operator=(std::unique_ptr<T>&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
+	decltype(auto) operator=(std::unique_ptr<T>&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
 
 private:
-	void OnDestroy(void) { if (ptr) ptr->OnDestroy(); }
+	void OnDestroy() { if (ptr) ptr->OnDestroy(); }
 
 	std::unique_ptr<T> ptr;
 };
@@ -101,7 +101,7 @@ namespace detail
 
 using file_ptr = std::unique_ptr<FILE, detail::file_closer>;
 
-template<class T>
+template<typename T>
 class ptr_setter_t
 {
 public:
@@ -116,7 +116,7 @@ private:
 	typename T::pointer m_RawPtr{};
 };
 
-template<class T>
+template<typename T>
 auto ptr_setter(T& Ptr) { return ptr_setter_t<T>(Ptr); }
 
 #endif // SMART_PTR_HPP_DE65D1E8_C925_40F7_905A_B7E3FF40B486

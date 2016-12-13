@@ -185,10 +185,12 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 				if (IsExtraTop)
 				{
 					SMALL_RECT ReadRegion = { 0, 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - OriginalHeight - 1) };
-					Console().ReadOutput(Tmp, ReadRegion);
-					for (size_t i = 0; i != Tmp.height(); ++i)
+					if (Console().ReadOutput(Tmp, ReadRegion))
 					{
-						std::copy_n(Tmp[i].data(), Tmp.width(), NewBuf[i].data());
+						for (size_t i = 0; i != Tmp.height(); ++i)
+						{
+							std::copy_n(Tmp[i].data(), Tmp.width(), NewBuf[i].data());
+						}
 					}
 				}
 			}

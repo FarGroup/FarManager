@@ -93,7 +93,7 @@ public:
 		// don't call vector.resize() here:
 		// - it never shrinks
 		// - we don't care about old content
-		m_buffer = std::vector<T>(m_rows * m_cols);
+		resize_nomove(m_buffer, m_rows * m_cols);
 	}
 
 	// assert for <= is ok, &matirx[size] can be used as an 'end' iterator
