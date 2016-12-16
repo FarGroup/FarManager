@@ -2563,10 +2563,14 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				}
 
 				const auto& Str = m_it_CurLine->GetString();
+				string CmpStr;
 
-				intptr_t LocalCurPos = m_it_CurLine->GetCurPos();
+				if (!SkipCheckUndo)
+				{
+					CmpStr = Str;
+				}
 
-				if (IsCharKey(LocalKey()) && LocalCurPos>0 && Str.empty())
+				if (IsCharKey(LocalKey()) && m_it_CurLine->GetCurPos()>0 && Str.empty())
 				{
 					auto PrevLine = m_it_CurLine == Lines.begin()? Lines.end() : std::prev(m_it_CurLine);
 
@@ -2611,14 +2615,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 						m_it_CurLine->SetTabCurPos(TabPos);
 					}
-				}
-
-				string CmpStr;
-
-				if (!SkipCheckUndo)
-				{
-					LocalCurPos=m_it_CurLine->GetCurPos();
-					CmpStr = Str;
 				}
 
 				if (LocalKey() == KEY_OP_XLAT)
