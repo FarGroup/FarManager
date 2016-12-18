@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.12.2016 18:52:41 +0200 - build 4871
+
+1. Refactoring.
+
+zg 17.12.2016 01:01:39 +0200 - build 4870
+
+1. 0003367: Undo leaves space characters which were missing before.
+
+drkns 14.12.2016 01:41:17 +0200 - build 4869
+
+1. 0003353: Incorrect drawing after pc wake up from sleep.
+
+2. Minor issues.
+
 drkns 06.12.2016 09:32:48 +0200 - build 4868
 
 1. Rollback 4866.1 for now because it happened to be even worse.
