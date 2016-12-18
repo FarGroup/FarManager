@@ -456,13 +456,11 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in f
 
 	if (IsUnicodeCodePage(cp))
 	{
-		const auto Begin = reinterpret_cast<const wchar_t*>(Buffer);
-		const auto End = Begin + BytesRead/sizeof(wchar_t);
-		return std::find(Begin, End, L'\0') != End;
+		return contains(make_range(reinterpret_cast<const wchar_t*>(Buffer), BytesRead / sizeof(wchar_t)), L'\0');
 	}
 	else
 	{
-		return std::find(Buffer, Buffer + BytesRead, '\0') != Buffer + BytesRead;
+		return contains(make_range(Buffer, BytesRead), '\0');
 	}
 }
 
@@ -1083,14 +1081,13 @@ void Viewer::SetStatusMode(int Mode)
 static bool is_word_div(const wchar_t ch)
 {
 	static constexpr wchar_t extra_div[] = { Utf::BOM_CHAR, Utf::REPLACE_CHAR };
-	return IsSpaceOrEos(ch) || IsEol(ch) || Global->Opt->strWordDiv.Get().find(ch) != string::npos ||
-		std::find(ALL_CONST_RANGE(extra_div), ch) != std::cend(extra_div);
+	return IsSpaceOrEos(ch) || IsEol(ch) || contains(Global->Opt->strWordDiv.Get(), ch) || contains(extra_div, ch);
 }
 
 static bool wrapped_char(const wchar_t ch)
 {
 	static constexpr wchar_t wrapped_chars[] = {L',', L';', L'>', L')'}; // word-wrap enabled after it
-	return IsSpaceOrEos(ch) || std::find(ALL_CONST_RANGE(wrapped_chars), ch) != std::cend(wrapped_chars);
+	return IsSpaceOrEos(ch) || contains(wrapped_chars, ch);
 }
 
 void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)

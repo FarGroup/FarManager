@@ -409,7 +409,7 @@ bool SubstFileName(const wchar_t *DlgTitle,
 	  нужно будет либо убрать эту проверку либо изменить условие (последнее
 	  предпочтительнее!)
 	*/
-	if (strStr.find(L'!') == string::npos)
+	if (!contains(strStr, L'!'))
 		return false;
 
 	TSubstData SubstData;
@@ -749,7 +749,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 			if (!Modifers.empty())
 			{
-				if (Modifers.find(L'A') != string::npos) // ANSI
+				if (contains(Modifers, L'A')) // ANSI
 				{
 					CodePage=CP_ACP;
 				}
@@ -758,7 +758,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 					DWORD Signature=0;
 					int SignatureSize=0;
 
-					if (Modifers.find(L'W') != string::npos) // UTF16LE
+					if (contains(Modifers, L'W')) // UTF16LE
 					{
 						CodePage=CP_UNICODE;
 						Signature=SIGN_UNICODE;
@@ -768,7 +768,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 					}
 					else
 					{
-						if (Modifers.find(L'U') != string::npos) // UTF8
+						if (contains(Modifers, L'U')) // UTF8
 						{
 							CodePage=CP_UTF8;
 							Signature=SIGN_UTF8;
@@ -795,7 +795,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 				if (!Modifers.empty())
 				{
-					if (Modifers.find(L'F') != string::npos && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
+					if (contains(Modifers, L'F') && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
 					{
 						auto strTempFileName = ShortNames? ConvertNameToShort(m_CurDir) : m_CurDir;
 						AddEndSlash(strTempFileName);
@@ -803,10 +803,10 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 						strFileName=strTempFileName;
 					}
 
-					if (Modifers.find(L'Q') != string::npos) // 'Q' - заключать имена с пробелами в кавычки;
+					if (contains(Modifers, L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
 						QuoteSpaceOnly(strFileName);
 
-					if (Modifers.find(L'S') != string::npos) // 'S' - использовать '/' вместо '\' в путях файлов;
+					if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
 					{
 						ReplaceBackslashToSlash(strFileName);
 					}

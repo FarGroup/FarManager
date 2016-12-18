@@ -177,7 +177,7 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str)
 
 string& QuoteSpaceOnly(string &strStr)
 {
-	if (strStr.find(L' ') != string::npos)
+	if (contains(strStr, L' '))
 		InsertQuote(strStr);
 
 	return strStr;
@@ -1231,7 +1231,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 			static constexpr wchar_t Brackets[] = L"[]";
 
 			if (!List.empty() &&
-				strSeparators.find(L'\"') == string::npos &&
+				!contains(strSeparators, L'\"') &&
 				(!Flags.Check(STLF_PROCESSBRACKETS) || std::find_first_of(ALL_CONST_RANGE(strSeparators), ALL_CONST_RANGE(Brackets)) == strSeparators.cend()))
 			{
 				value_type item;
@@ -1308,7 +1308,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 			if (Iterator == List.cend())
 				return false;
 
-			if (strSeparators.find(*Iterator) != string::npos)
+			if (contains(strSeparators, *Iterator))
 			{
 				Token.clear();
 				++Iterator;
@@ -1325,16 +1325,16 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 				{
 					if (*cur == L']')
 						InBrackets = false;
-					else if (*cur == L'[' && std::find(cur + 1, List.cend(), L']') != List.cend())
+					else if (*cur == L'[' && contains(make_range(cur + 1, List.cend()), L']'))
 						InBrackets = true;
 				}
 
 				if (!Flags.Check(STLF_NOQUOTING) && *cur == L'\"')
 				{
-					InQuotes = InQuotes? false : std::find(cur + 1, List.cend(), L'\"') != List.cend();
+					InQuotes = InQuotes? false : contains(make_range(cur + 1, List.cend()), L'\"');
 				}
 
-				if (!InBrackets && !InQuotes && strSeparators.find(*cur) != string::npos)
+				if (!InBrackets && !InQuotes && contains(strSeparators, *cur))
 					break;
 
 				++cur;

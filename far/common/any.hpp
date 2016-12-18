@@ -136,7 +136,7 @@ T& any_cast(any& Any)
 	if (const auto Result = any_cast<T>(&Any))
 		return *Result;
 
-	throw MAKE_FAR_EXCEPTION("bad any_cast");
+	throw std::runtime_error("bad any_cast");
 }
 
 template<class T>

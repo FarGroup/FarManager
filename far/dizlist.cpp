@@ -335,86 +335,70 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 	}
 
-	os::fs::file DizFile;
-
-	bool AnyError=false;
-
-	bool EmptyDiz=true;
-	// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
-	if(!m_DizData.empty() && DizFile.Open(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
+	string Content;
+	for (const auto& i_ptr: m_OrderForWrite)
 	{
-		uintptr_t CodePage = Global->Opt->Diz.SaveInUTF ? CP_UTF8 : (Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
-
-		CachedWrite Cache(DizFile);
-
-		if (CodePage == CP_UTF8)
+		const auto& i = *i_ptr;
+		auto FileName = i.first;
+		QuoteSpaceOnly(FileName);
+		Content += FileName;
+		for (const auto& Description : i.second)
 		{
-			DWORD dwSignature = SIGN_UTF8;
-			if(!Cache.Write(&dwSignature, 3))
-			{
-				AnyError=true;
-			}
+			append(Content, Description, L"\r\n"s);
 		}
-
-		if(!AnyError)
-		{
-			for (const auto& i_ptr: m_OrderForWrite)
-			{
-				const auto& i = *i_ptr;
-				string dump = i.first;
-				QuoteSpaceOnly(dump);
-				for (const auto& j: i.second)
-				{
-					append(dump, j, L"\r\n"s);
-				}
-				const auto Size = dump.size() * (CodePage == CP_UTF8? 3 : 1); //UTF-8, up to 3 bytes per char support
-				char_ptr DizText(Size);
-
-				if (const auto BytesCount = encoding::get_bytes(CodePage, dump, DizText.get(), Size))
-				{
-					if(Cache.Write(DizText.get(), BytesCount))
-					{
-						EmptyDiz=false;
-					}
-					else
-					{
-						AnyError=true;
-						break;
-					}
-				}
-			}
-		}
-
-		if(!AnyError)
-		{
-			if(!Cache.Flush())
-			{
-				AnyError=true;
-			}
-		}
-
-		DizFile.Close();
 	}
 
-	if (!EmptyDiz && !AnyError)
+	std::string SerialisedContent;
+	blob_view Blob;
+	if (!Content.empty())
 	{
-		if (FileAttr==INVALID_FILE_ATTRIBUTES)
+		const auto CodePage = Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP;
+		if (IsUnicodeOrUtfCodePage(CodePage))
 		{
-			FileAttr=FILE_ATTRIBUTE_ARCHIVE|(Global->Opt->Diz.SetHidden?FILE_ATTRIBUTE_HIDDEN:0);
+			Content.insert(0, 1, SIGN_UNICODE);
 		}
-		os::SetFileAttributes(m_DizFileName,FileAttr);
-	}
-	else
-	{
-		if(AnyError)
-			Global->CatchError();
 
-		os::DeleteFile(m_DizFileName);
-		if(AnyError)
+		SerialisedContent = encoding::get_bytes(CodePage, Content);
+		Blob = make_blob_view(SerialisedContent.data(), SerialisedContent.size());
+	}
+
+	try
+	{
+		if (!Blob.empty())
 		{
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MOk));
-			return false;
+			if(auto DizFile = os::fs::file(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
+			{
+				size_t Written;
+				if (!DizFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
+				{
+					throw MAKE_FAR_EXCEPTION("Write error");
+				}
+			}
+			else
+			{
+				throw MAKE_FAR_EXCEPTION("Can't open file");
+			}
+
+			if (FileAttr == INVALID_FILE_ATTRIBUTES)
+			{
+				FileAttr = FILE_ATTRIBUTE_ARCHIVE | (Global->Opt->Diz.SetHidden? FILE_ATTRIBUTE_HIDDEN : 0);
+			}
+			// No error checking - non-critical (TODO: log)
+			os::SetFileAttributes(m_DizFileName, FileAttr);
 		}
+		else
+		{
+			if (!os::DeleteFile(m_DizFileName))
+			{
+				throw MAKE_FAR_EXCEPTION("Can't delete file");
+			}
+		}
+	}
+	catch (const far_exception& e)
+	{
+		Global->CatchError(e.get_error_codes());
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotUpdateDiz), encoding::utf8::get_chars(e.get_message()).data(), MSG(MOk));
+		return false;
 	}
 
 	m_Modified=false;

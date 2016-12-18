@@ -405,7 +405,7 @@ int Help::ReadHelp(const string& Mask)
 			ReplaceStrings(strKeyName, L"#", L"##");
 			ReplaceStrings(strKeyName, L"@", L"@@");
 
-			if (strKeyName.find(L'~') != string::npos) // коррекция размера
+			if (contains(strKeyName, L'~')) // коррекция размера
 				SizeKeyName++;
 
 			append(strReadStr, L" #"s, fit_to_left(strKeyName, SizeKeyName), L"# "s);
@@ -1778,7 +1778,7 @@ bool Help::IsReferencePresent()
 		return false;
 	}
 
-	return HelpList[StrPos].HelpStr.find(L"~@") != string::npos;
+	return contains(HelpList[StrPos].HelpStr, L"~@");
 }
 
 void Help::MoveToReference(int Forward,int CurScreen)
@@ -1904,7 +1904,7 @@ void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 
 		if ((!strReadStr.empty() && strReadStr[0] == L'@') &&
 		    !(strReadStr.size() > 1 && (strReadStr[1] == L'+' || strReadStr[1] == L'-')) &&
-		    strReadStr.find(L'=') == string::npos)// && !TopicFound)
+		    !contains(strReadStr, L'='))// && !TopicFound)
 		{
 			strEntryName.clear();
 			strCurTopic.clear();

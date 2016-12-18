@@ -252,6 +252,12 @@ namespace os
 			{
 			}
 
+			template<typename... args>
+			file(args... Args)
+			{
+				Open(std::forward<args>(Args)...);
+			}
+
 			bool operator!() const noexcept { return !m_Handle; }
 
 			// TODO: half of these should be free functions

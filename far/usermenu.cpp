@@ -248,67 +248,85 @@ UserMenu::~UserMenu() = default;
 
 void UserMenu::SaveMenu(const string& MenuFileName) const
 {
-	if (m_MenuModified)
+	if (!m_MenuModified)
+		return;
+
+	DWORD FileAttr=os::GetFileAttributes(MenuFileName);
+
+	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
-		DWORD FileAttr=os::GetFileAttributes(MenuFileName);
-
-		if (FileAttr != INVALID_FILE_ATTRIBUTES)
+		if (FileAttr & FILE_ATTRIBUTE_READONLY)
 		{
-			if (FileAttr & FILE_ATTRIBUTE_READONLY)
-			{
-				int AskOverwrite;
-				AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
+			int AskOverwrite;
+			AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
 
-				if (!AskOverwrite)
-					os::SetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
-			}
-
-			if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
-				os::SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
+			if (!AskOverwrite)
+				os::SetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 		}
 
-		auto SerializedMenu = SerializeMenu(m_Menu);
-		if (!SerializedMenu.empty())
+		if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
+			os::SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
+	}
+
+	auto Content = SerializeMenu(m_Menu);
+	std::string SerialisedContent;
+	blob_view Blob;
+	if (!Content.empty())
+	{
+		if (IsUnicodeOrUtfCodePage(m_MenuCP))
 		{
-			os::fs::file MenuFile;
+			Content.insert(0, 1, SIGN_UNICODE);
+		}
+
+		if (m_MenuCP == CP_UNICODE)
+		{
+			// no translation
+			Blob = make_blob_view(Content.data(), Content.size() * sizeof(wchar_t));
+		}
+		else
+		{
+			SerialisedContent = encoding::get_bytes(m_MenuCP, Content);
+			Blob = make_blob_view(SerialisedContent.data(), SerialisedContent.size());
+		}
+	}
+
+	try
+	{
+		if (!Blob.empty())
+		{
 			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
-			if (MenuFile.Open(MenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES ? CREATE_NEW : TRUNCATE_EXISTING))
+			if (auto MenuFile = os::fs::file(MenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
 			{
-				if (IsUnicodeOrUtfCodePage(m_MenuCP))
-				{
-					SerializedMenu.insert(0, 1, SIGN_UNICODE);
-				}
-
-				std::string Buffer;
-				blob_view MenuBlob;
-				if (m_MenuCP == CP_UNICODE)
-				{
-					// no translation
-					MenuBlob = make_blob_view(SerializedMenu.data(), SerializedMenu.size() * sizeof(wchar_t));
-				}
-				else
-				{
-					Buffer = encoding::get_bytes(m_MenuCP, SerializedMenu);
-					MenuBlob = make_blob_view(Buffer.data(), Buffer.size());
-				}
-
 				size_t Written;
-				MenuFile.Write(MenuBlob.data(), MenuBlob.size(), Written);
-
-				//BUGBUG, check if successful
-
-				MenuFile.Close();
-				if (FileAttr != INVALID_FILE_ATTRIBUTES)
+				if (!MenuFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
 				{
-					os::SetFileAttributes(MenuFileName, FileAttr);
+					throw MAKE_FAR_EXCEPTION("Write error");
 				}
+			}
+			else
+			{
+				throw MAKE_FAR_EXCEPTION("Can't open file");
+			}
+
+			if (FileAttr != INVALID_FILE_ATTRIBUTES)
+			{
+				// No error checking - non-critical (TODO: log)
+				os::SetFileAttributes(MenuFileName, FileAttr);
 			}
 		}
 		else
 		{
 			// если файл FarMenu.ini пуст, то удалим его
-			os::DeleteFile(MenuFileName);
+			if (!os::DeleteFile(MenuFileName))
+			{
+				throw MAKE_FAR_EXCEPTION("Can't delete file");
+			}
 		}
+	}
+	catch (const far_exception& e)
+	{
+		Global->CatchError(e.get_error_codes());
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MEditMenuError), encoding::utf8::get_chars(e.get_message()).data(), MSG(MOk));
 	}
 }
 

@@ -52,6 +52,7 @@ SRCS = \
 	eject.cpp \
 	elevation.cpp \
 	encoding.cpp \
+	exception.cpp \
 	execute.cpp \
 	FarDlgBuilder.cpp \
 	farexcpt.cpp \

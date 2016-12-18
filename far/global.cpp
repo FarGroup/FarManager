@@ -44,8 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "locale.hpp"
 
-thread_local DWORD global::m_LastError = ERROR_SUCCESS;
-thread_local NTSTATUS global::m_LastStatus = STATUS_SUCCESS;
+thread_local error_codes global::m_ErrorCodes{error_codes::ignore{}};
 
 static os::handle GetCurrentThreadRealHandle()
 {
@@ -125,8 +124,12 @@ unsigned long long global::FarUpTime() const
 
 void global::CatchError()
 {
-	m_LastError = GetLastError();
-	m_LastStatus = Imports().RtlGetLastNtStatus();
+	m_ErrorCodes = error_codes{};
+}
+
+void global::CatchError(const error_codes& ErrorCodes)
+{
+	m_ErrorCodes = ErrorCodes;
 }
 
 void global::StoreSearchString(const string& Str, bool Hex)

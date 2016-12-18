@@ -215,6 +215,13 @@ public:
 		m_Queue.push(item);
 	}
 
+	template<typename... args>
+	void emplace(args... Args)
+	{
+		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		m_Queue.emplace(std::forward<args>(Args)...);
+	}
+
 	void push(T&& item)
 	{
 		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);

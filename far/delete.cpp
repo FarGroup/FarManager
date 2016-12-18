@@ -868,13 +868,13 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 {
 	ProcessedItems++;
 	const auto strFullName = ConvertNameToFull(Name);
-	int MsgCode=0;
 
 	for (;;)
 	{
 		bool recycle_bin = false;
 		if (Wipe)
 		{
+			int MsgCode = 0;
 			if (SkipWipeMode!=-1)
 			{
 				MsgCode=SkipWipeMode;
@@ -937,23 +937,31 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			}
 		}
 
+		operation MsgCode;
+
 		if (m_SkipMode != -1)
-			MsgCode = m_SkipMode;
+			MsgCode = static_cast<operation>(m_SkipMode);
 		else
 		{
 			Global->CatchError();
 			MsgCode = OperationFailed(strFullName, MError, MSG(recycle_bin ? MCannotRecycleFile:MCannotDeleteFile));
 		}
 
-		switch (MsgCode)
+		switch (static_cast<operation>(MsgCode))
 		{
-		case 3: case -1: case -2: // [Cancel]
-			return DELETE_CANCEL;
-		case 2:                   // [Skip All]
-			m_SkipMode = 2;          // fallthrough down
-		case 1:                   // [Skip]
+		case operation::retry:
+			break;
+
+		case operation::skip:
 			return DELETE_SKIP;
-		} // case 0:              // {Retry}
+
+		case operation::skip_all:
+			m_SkipMode = static_cast<int>(operation::skip);
+			return DELETE_SKIP;
+
+		case operation::cancel:
+			return DELETE_CANCEL;
+		}
 	}
 
 	return DELETE_SUCCESS;
@@ -992,11 +1000,11 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 
 		if(!Success)
 		{
-			int MsgCode;
+			operation MsgCode;
 
 			if (SkipFoldersMode!=-1)
 			{
-				MsgCode=SkipFoldersMode;
+				MsgCode = static_cast<operation>(SkipFoldersMode);
 			}
 			else
 			{
@@ -1006,13 +1014,19 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 
 			switch (MsgCode)
 			{
-			case 3: case -1: case -2: // [Cancel]
-				return DELETE_CANCEL;
-			case 2:						  // [Skip All]
-				SkipFoldersMode = 2;	  // fallthrough down
-			case 1:						  // [Skip]
+			case operation::retry:
+				break;
+
+			case operation::skip:
 				return DELETE_SKIP;
-			} // case 0:              // {Retry}
+
+			case operation::skip_all:
+				SkipFoldersMode = static_cast<int>(operation::skip);
+				return DELETE_SKIP;
+
+			case operation::cancel:
+				return DELETE_CANCEL;
+			}
 		}
 	}
 

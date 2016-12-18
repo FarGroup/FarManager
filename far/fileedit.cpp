@@ -635,7 +635,7 @@ void FileEditor::Init(
 		{
 			if (UserBreak!=1)
 			{
-				if(!OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false))
+				if(OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false) == operation::retry)
 					continue;
 				else
 					SetExitCode(XC_OPEN_ERROR);
@@ -1085,7 +1085,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 					if (SaveResult==SAVEFILE_ERROR)
 					{
-						if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false))
+						if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false) != operation::retry)
 						{
 							Done=TRUE;
 							break;
@@ -1390,6 +1390,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 				return EC_CP_NOTRELOAD_MODIFIED;
 			}
 		}
+		// BUGBUG result check???
 		ReloadFile(cp);
 	}
 	else
@@ -1454,7 +1455,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow
 				break;
 		}
 
-		if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false))
+		if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false) != operation::retry)
 			break;
 
 		FirstSave=0;
@@ -1481,7 +1482,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	if(!EditFile.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		Global->CatchError();
-		if ((Global->CaughtError() != ERROR_FILE_NOT_FOUND) && (Global->CaughtError() != ERROR_PATH_NOT_FOUND))
+		if ((Global->CaughtError().Win32Error != ERROR_FILE_NOT_FOUND) && (Global->CaughtError().Win32Error != ERROR_PATH_NOT_FOUND))
 		{
 			UserBreak = -1;
 			m_Flags.Set(FFILEEDIT_OPENFAILED);
@@ -1708,6 +1709,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 
 		if (user_break != 1)
 		{
+			// BUGBUG result check???
 			OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false);
 		}
 	}
@@ -1883,97 +1885,85 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	if (!os::fs::exists(Name))
 		m_Flags.Set(FFILEEDIT_NEW);
 
+	//SaveScreen SaveScr;
+	/* $ 11.10.2001 IS
+		Если было произведено сохранение с любым результатом, то не удалять файл
+	*/
+	m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
+	//_D(SysLog(L"%08d EE_SAVE",__LINE__));
+
+	if (!IsUnicodeOrUtfCodePage(codepage))
 	{
-		//SaveScreen SaveScr;
-		/* $ 11.10.2001 IS
-		   Если было произведено сохранение с любым результатом, то не удалять файл
-		*/
-		m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
-//_D(SysLog(L"%08d EE_SAVE",__LINE__));
-
-		if (!IsUnicodeOrUtfCodePage(codepage))
+		int LineNumber=-1;
+		bool BadSaveConfirmed=false;
+		for(auto& Line: m_editor->Lines)
 		{
-			int LineNumber=-1;
-			bool BadSaveConfirmed=false;
-			FOR_RANGE(m_editor->Lines, CurPtr)
+			++LineNumber;
+			const auto& SaveStr = Line.GetString();
+			auto EndSeq = Line.GetEOL();
+
+			bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr.data(), SaveStr.size(), nullptr, 0, &UsedDefaultCharStr) && UsedDefaultCharStr;
+
+			if (!*EndSeq && !m_editor->IsLastLine(&Line))
+				EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
+
+			if (TextFormat&&*EndSeq)
+				EndSeq=m_editor->GlobalEOL.data();
+
+			bool UsedDefaultCharEOL = encoding::get_bytes(codepage, EndSeq, wcslen(EndSeq), nullptr, 0, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
+
+			if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
 			{
-				++LineNumber;
-				const auto& SaveStr = CurPtr->GetString();
-				auto EndSeq = CurPtr->GetEOL();
-
-				bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr.data(), SaveStr.size(), nullptr, 0, &UsedDefaultCharStr) && UsedDefaultCharStr;
-
-				if (!*EndSeq && !m_editor->IsLastLine(CurPtr))
-					EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
-
-				if (TextFormat&&*EndSeq)
-					EndSeq=m_editor->GlobalEOL.data();
-
-				bool UsedDefaultCharEOL = encoding::get_bytes(codepage, EndSeq, wcslen(EndSeq), nullptr, 0, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
-
-				if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
+				//SetMessageHelp(L"EditorDataLostWarning")
+				int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MCancel),MSG(MEditorSaveCPWarnShow),MSG(MEditorSave));
+				if (Result == Message::third_button)
 				{
-					//SetMessageHelp(L"EditorDataLostWarning")
-					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MCancel),MSG(MEditorSaveCPWarnShow),MSG(MEditorSave));
-					if (Result==2)
+					BadSaveConfirmed=true;
+					break;
+				}
+
+				if(Result == Message::second_button)
+				{
+					m_editor->GoToLine(LineNumber);
+					if(UsedDefaultCharStr)
 					{
-						BadSaveConfirmed=true;
-						break;
+						const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i)
+						{
+							bool UseDefChar;
+							return encoding::get_bytes(codepage, &i, 1, nullptr, 0, &UseDefChar) == 1 && UseDefChar;
+						});
+
+						if (BadCharIterator != SaveStr.cend())
+						{
+							Line.SetCurPos(BadCharIterator - SaveStr.cbegin());
+						}
 					}
 					else
 					{
-						if(Result==1)
-						{
-							m_editor->GoToLine(LineNumber);
-							if(UsedDefaultCharStr)
-							{
-								const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i)
-								{
-									bool UseDefChar;
-									return encoding::get_bytes(codepage, &i, 1, nullptr, 0, &UseDefChar) == 1 && UseDefChar;
-								});
-
-								if (BadCharIterator != SaveStr.cend())
-								{
-									CurPtr->SetCurPos(BadCharIterator - SaveStr.cbegin());
-								}
-							}
-							else
-							{
-								CurPtr->SetCurPos(CurPtr->GetLength());
-							}
-							Show();
-						}
-						return SAVEFILE_CANCEL;
+						Line.SetCurPos(Line.GetLength());
 					}
+					Show();
 				}
+				return SAVEFILE_CANCEL;
 			}
 		}
+	}
 
-		EditorSaveFile esf = {sizeof(esf), Name.data(), m_editor->GlobalEOL.data(), codepage};
-		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor.get());
+	EditorSaveFile esf = {sizeof(esf), Name.data(), m_editor->GlobalEOL.data(), codepage};
+	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor.get());
+
+	try
+	{
 		os::fs::file EditFile;
-		size_t dwWritten = 0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
 		if(!EditFile.Open(Name, m_Flags.Check(FFILEEDIT_NEW)? FILE_WRITE_DATA : GENERIC_WRITE, FILE_SHARE_READ, nullptr, m_Flags.Check(FFILEEDIT_NEW)? CREATE_NEW : TRUNCATE_EXISTING, FILE_ATTRIBUTE_ARCHIVE|FILE_FLAG_SEQUENTIAL_SCAN))
 		{
-			//_SVS(SysLogLastError();SysLog(L"Name='%s',FileAttributes=%d",Name,FileAttributes));
-			RetCode=SAVEFILE_ERROR;
-			Global->CatchError();
-			goto end;
+			throw MAKE_FAR_EXCEPTION("Can't open file");
 		}
 
 		m_editor->UndoSavePos=m_editor->UndoPos;
 		m_editor->m_Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);
-//    ConvertNameToFull(Name,FileName, sizeof(FileName));
-		/*
-		    if (ConvertNameToFull(Name,m_editor->FileName, sizeof(m_editor->FileName)) >= sizeof(m_editor->FileName))
-		    {
-		      m_editor->Flags.Set(FEDITOR_OPENFAILED);
-		      RetCode=SAVEFILE_ERROR;
-		      goto end;
-		    }
-		*/
+
 		SetCursorType(false, 0);
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
 
@@ -2001,12 +1991,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 					break;
 			}
 
+			size_t dwWritten;
 			if (!EditFile.Write(&dwSignature,SignLength,dwWritten,nullptr)||dwWritten!=SignLength)
 			{
-				EditFile.Close();
-				os::DeleteFile(Name);
-				RetCode=SAVEFILE_ERROR;
-				goto end;
+				throw MAKE_FAR_EXCEPTION("Write error");
 			}
 		}
 
@@ -2016,7 +2004,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		std::vector<char> Buffer;
 
-		FOR_RANGE(m_editor->Lines, CurPtr)
+		for (auto& Line : m_editor->Lines)
 		{
 			++LineNumber;
 
@@ -2025,20 +2013,19 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->m_LinesCount));
 			}
 
-			const auto& SaveStr = CurPtr->GetString();
-			auto EndSeq = CurPtr->GetEOL();
+			const auto& SaveStr = Line.GetString();
+			auto EndSeq = Line.GetEOL();
 
-			if (!*EndSeq && !m_editor->IsLastLine(CurPtr) && (*CurPtr->GetEOL()))
+			if (!*EndSeq && !m_editor->IsLastLine(&Line) && *Line.GetEOL())
 				EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
 
 			if (TextFormat && *EndSeq)
 			{
 				EndSeq = m_editor->GlobalEOL.data();
-				CurPtr->SetEOL(EndSeq);
+				Line.SetEOL(EndSeq);
 			}
 
 			const auto EndLength = wcslen(EndSeq);
-			bool bError = false;
 
 			if (codepage == CP_UNICODE)
 			{
@@ -2047,8 +2034,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				    (EndLength && !Cache.Write(EndSeq,EndLength*sizeof(wchar_t)))
 				   )
 				{
-					Global->CatchError();
-					bError = true;
+					throw MAKE_FAR_EXCEPTION("Write error");
 				}
 			}
 			else
@@ -2062,44 +2048,28 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 						encoding::get_bytes(codepage, Data, Size, Buffer);
 						if (!Cache.Write(Buffer.data(), Buffer.size()))
 						{
-							bError = true;
-							Global->CatchError();
+							throw MAKE_FAR_EXCEPTION("Write error");
 						}
 					}
 				};
 
 				EncodeAndWriteBlock(SaveStr.data(), SaveStr.size());
-
-				if (!bError)
-				{
-					EncodeAndWriteBlock(EndSeq, EndLength);
-				}
-			}
-
-			if (bError)
-			{
-				EditFile.Close();
-				os::DeleteFile(Name);
-				RetCode=SAVEFILE_ERROR;
-				goto end;
+				EncodeAndWriteBlock(EndSeq, EndLength);
 			}
 		}
 
-		if(Cache.Flush())
+		if (!Cache.Flush())
 		{
-			EditFile.SetEnd();
-			EditFile.Close();
+			throw MAKE_FAR_EXCEPTION("Write error");
 		}
-		else
-		{
-			Global->CatchError();
-			EditFile.Close();
-			os::DeleteFile(Name);
-			RetCode=SAVEFILE_ERROR;
-		}
+
+		EditFile.SetEnd();
 	}
-
-end:
+	catch(const far_exception& e)
+	{
+		RetCode = SAVEFILE_ERROR;
+		Global->CatchError(e.get_error_codes());
+	}
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
 	{

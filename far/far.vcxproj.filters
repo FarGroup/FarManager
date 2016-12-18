@@ -428,6 +428,9 @@
     <ClCompile Include="copy_progress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="exception.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="elevation.hpp">
@@ -521,6 +524,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="encoding.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="exception.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="execute.hpp">
@@ -951,9 +957,6 @@
     </ClInclude>
     <ClInclude Include="copy_progress.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common\exception.hpp">
-      <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\string_literal.hpp">
       <Filter>Header Files\common</Filter>

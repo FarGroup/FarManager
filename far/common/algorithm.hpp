@@ -121,14 +121,14 @@ void reorder(T& Values, Y& Indices)
 
 namespace detail
 {
-	template <class Container, class Predicate>
-	void erase_if_set_map(Container& c, const Predicate& pred)
+	template <typename container, typename predicate>
+	void associative_erase_if(container& Container, const predicate& Predicate)
 	{
-		for (auto i = c.begin(), End = c.end(); i != End; )
+		for (auto i = Container.begin(), End = Container.end(); i != End; )
 		{
-			if (pred(*i))
+			if (Predicate(*i))
 			{
-				i = c.erase(i);
+				i = Container.erase(i);
 			}
 			else
 			{
@@ -141,29 +141,29 @@ namespace detail
 // TODO: add proper overloads as per Library fundamentals TS v2: Uniform container erasure.
 // Consider moving to cpp.hpp / std::experimental namespace for GCC, or just #include <experimental/...> for VS.
 
-template <class Key, class Compare, class Alloc, class Predicate>
-void erase_if(std::set<Key, Compare, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+template <typename predicate, typename... traits>
+void erase_if(std::set<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
-template <class Key, class Compare, class Alloc, class Predicate>
-void erase_if(std::multiset<Key, Compare, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+template <typename predicate, typename... traits>
+void erase_if(std::multiset<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
-template <class Key, class T, class Compare, class Alloc, class Predicate>
-void erase_if(std::map<Key, T, Compare, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+template <typename predicate, typename... traits>
+void erase_if(std::map<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
-template <class Key, class T, class Compare, class Alloc, class Predicate>
-void erase_if(std::multimap<Key, T, Compare, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+template <typename predicate, typename... traits>
+void erase_if(std::multimap<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
-template <class Key, class Hash, class KeyEqual, class Alloc, class Predicate>
-void erase_if(std::unordered_set<Key, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+template <typename predicate, typename... traits>
+void erase_if(std::unordered_set<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
-template <class Key, class Hash, class KeyEqual, class Alloc, class Predicate>
-void erase_if(std::unordered_multiset<Key, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+template <typename predicate, typename... traits>
+void erase_if(std::unordered_multiset<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
-template <class Key, class T, class Hash, class KeyEqual, class Alloc, class Predicate>
-void erase_if(std::unordered_map<Key, T, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+template <typename predicate, typename... traits>
+void erase_if(std::unordered_map<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
-template <class Key, class T, class Hash, class KeyEqual, class Alloc, class Predicate>
-void erase_if(std::unordered_multimap<Key, T, Hash, KeyEqual, Alloc>& Container, Predicate Pred) { detail::erase_if_set_map(Container, Pred); }
+template <typename predicate, typename... traits>
+void erase_if(std::unordered_multimap<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
 
 
 namespace detail
@@ -189,6 +189,43 @@ template<typename container, typename... args>
 std::enable_if_t<!detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
 {
 	Container.emplace(Container.end(), std::forward<args>(Args)...);
+}
+
+
+// uniform "contains"
+
+// strings:
+template<typename find_type, typename... traits>
+bool contains(const std::basic_string<traits...>& Str, const find_type& What)
+{
+	return Str.find(What) != Str.npos;
+}
+
+namespace detail
+{
+	template<typename T, typename = std::void_t<>>
+	struct has_find: std::false_type {};
+
+	template<typename T>
+	struct has_find<T, std::void_t<decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()))>>: std::true_type {};
+
+	template<typename T>
+	using has_find_t = typename has_find<T>::type;
+}
+
+// associative containers
+template<typename container, typename element>
+std::enable_if_t<detail::has_find_t<container>::value, bool> contains(const container& Container, const element& Element)
+{
+	return Container.find(Element) != Container.cend();
+}
+
+// everything else
+template<typename container, typename element>
+std::enable_if_t<!detail::has_find_t<container>::value, bool> contains(const container& Container, const element& Element)
+{
+	const auto End = std::cend(Container);
+	return std::find(std::cbegin(Container), End, Element) != End;
 }
 
 #endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0

@@ -680,7 +680,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			else if (StrItems[LenItems-1] == '1')
 				NItems=MCMLItems0;
 		}
-		strCopyStr = format(Move? MMoveFiles : Link? MLinkFiles : MCopyFiles, SelCount, MSG(NItems));
+		strCopyStr = format(Move? MMoveFiles : Link? MLinkFiles : MCopyFiles, SelCount, NItems);
 	}
 
 	CopyDlg[ID_SC_SOURCEFILENAME].strData=strCopyStr;
@@ -1406,15 +1406,23 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				while ( !Exists_2 && SkipMode != 2)
 				{
 					Global->CatchError();
-					int ret = OperationFailed(strDestDriveRoot, MError, L"");
-					if (ret < 0 || ret == 4)
-						return COPY_CANCEL;
-					else if (ret == 1)
-						return COPY_SKIPPED;
-					else if (ret == 2)
+					const auto Result = OperationFailed(strDestDriveRoot, MError, L"");
+					if (Result == operation::retry)
 					{
-						SkipMode = 2;
+						continue;
+					}
+					else if (Result == operation::skip)
+					{
 						return COPY_SKIPPED;
+					}
+					else if (Result == operation::skip_all)
+					{
+						SkipMode = static_cast<int>(operation::skip);
+						return COPY_SKIPPED;
+					}
+					else if (Result == operation::cancel)
+					{
+						return COPY_CANCEL;
 					}
 
 					Exists_2 = os::fs::exists(strDestDriveRoot);
@@ -2514,24 +2522,27 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!os::RemoveDirectory(FullName):!os::DeleteFile(FullName))
 	{
 		Global->CatchError();
-		int MsgCode;
+		operation MsgCode;
 
 		if (SkipDeleteMode!=-1)
-			MsgCode=SkipDeleteMode;
+			MsgCode = static_cast<operation>(SkipDeleteMode);
 		else
 			MsgCode=OperationFailed(FullName, MError, MSG(MCannotDeleteFile));
 
 		switch (MsgCode)
 		{
-			case 1:
-				return COPY_SKIPPED;
-			case 2:
-				SkipDeleteMode=1;
-				return COPY_SKIPPED;
-			case -1:
-			case -2:
-			case 3:
-				return COPY_CANCEL;
+		case operation::retry:
+			break;
+
+		case operation::skip:
+			return COPY_SKIPPED;
+
+		case operation::skip_all:
+			SkipDeleteMode = static_cast<int>(operation::skip);
+			return COPY_SKIPPED;
+
+		case operation::cancel:
+			return COPY_CANCEL;
 		}
 	}
 
@@ -3244,9 +3255,9 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 
 					string strDateText, strTimeText;
 					ConvertDate(SrcLastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
-					const auto strSrcFileStr = format(Format, MSG(MCopySource), SrcSize, strDateText, strTimeText);
+					const auto strSrcFileStr = format(Format, MCopySource, SrcSize, strDateText, strTimeText);
 					ConvertDate(DestData.ftLastWriteTime, strDateText, strTimeText, 8, FALSE, FALSE, TRUE);
-					const auto strDestFileStr = format(Format, MSG(MCopyDest), DestData.nFileSize, strDateText, strTimeText);
+					const auto strDestFileStr = format(Format, MCopyDest, DestData.nFileSize, strDateText, strTimeText);
 
 					WarnCopyDlgData[WDLG_SRCFILEBTN].Data = strSrcFileStr.data();
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data = strDestFileStr.data();
@@ -3337,9 +3348,9 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 
 					string strDateText, strTimeText;
 					ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
-					const auto strSrcFileStr = format(Format, MSG(MCopySource), SrcData.nFileSize, strDateText, strTimeText);
+					const auto strSrcFileStr = format(Format, MCopySource, SrcData.nFileSize, strDateText, strTimeText);
 					ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE);
-					const auto strDestFileStr = format(Format, MSG(MCopyDest), DestData.nFileSize, strDateText, strTimeText);
+					const auto strDestFileStr = format(Format, MCopyDest, DestData.nFileSize, strDateText, strTimeText);
 					WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr.data();
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr.data();
 					WarnCopyDlgData[WDLG_TEXT].Data=MSG(MCopyFileRO);

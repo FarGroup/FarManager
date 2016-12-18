@@ -158,7 +158,7 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 				if (!(Flags&EJECT_NO_MESSAGE))
 				{
 					Global->CatchError();
-					if(OperationFailed(RootName, MError, format(MChangeCouldNotEjectMedia, Letter), false))
+					if(OperationFailed(RootName, MError, format(MChangeCouldNotEjectMedia, Letter), false) != operation::retry)
 						Retry=FALSE;
 				}
 				else

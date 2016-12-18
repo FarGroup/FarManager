@@ -103,7 +103,7 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 
 	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&productID](auto Value, const auto& i)
 	{
-		return static_cast<CDROM_DeviceCapabilities>(Value | (productID.find(i.first) == std::string::npos ? 0 : i.second));
+		return static_cast<CDROM_DeviceCapabilities>(Value | (contains(productID, i.first)? i.second : 0));
 	});
 }
 

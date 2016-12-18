@@ -1270,7 +1270,7 @@ int KeyNameToKey(const string& Name)
 	// пройдемся по всем модификаторам
 	for (const auto& i: ModifKeyName)
 	{
-		if (!(Key & i.Key) && strTmpName.find(i.UpperName.data()) != string::npos)
+		if (!(Key & i.Key) && contains(strTmpName, i.UpperName.data()))
 		{
 			Key |= i.Key;
 			Pos += i.UpperName.size() * ReplaceStrings(strTmpName, i.UpperName.data(), L"", true);
@@ -1839,7 +1839,7 @@ int IsShiftKey(DWORD Key)
 		KEY_SHIFT,
 	};
 
-	return std::find(ALL_CONST_RANGE(ShiftKeys), Key) != std::cend(ShiftKeys);
+	return contains(ShiftKeys, Key);
 }
 
 unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)

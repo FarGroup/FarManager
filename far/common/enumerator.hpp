@@ -58,7 +58,7 @@ public:
 		{
 			if (m_Index == invalid_index)
 			{
-				throw MAKE_FAR_EXCEPTION("enumerator iterator is out of range");
+				throw std::runtime_error("enumerator iterator is out of range");
 			}
 			m_Index = m_Owner->get(m_Index, m_Value)? m_Index + 1 : invalid_index;
 			return *this;

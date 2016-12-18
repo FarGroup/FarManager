@@ -3545,7 +3545,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < m_ListData.size(); I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && Upper(Dest).find(strMask) != string::npos)
+		if (GetPlainString(Dest,I) && contains(Upper(Dest), strMask))
 		//if (CmpName(strMask,ListData[I].strName,true,I==CurFile))
 		{
 			if (!TestParentFolderName(m_ListData[I].strName))
@@ -3563,7 +3563,7 @@ int FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int I=(Direct > 0)?0:m_ListData.size()-1; (Direct > 0) ? I < m_CurFile:I > m_CurFile; I+=Direct)
 	{
-		if (GetPlainString(Dest,I) && Upper(Dest).find(strMask) != string::npos)
+		if (GetPlainString(Dest,I) && contains(Upper(Dest), strMask))
 		{
 			if (!TestParentFolderName(m_ListData[I].strName))
 			{
@@ -5990,7 +5990,7 @@ void FileList::PluginHostGetFiles()
 		        hCurPlugin!=PANEL_STOP)
 		{
 			int OpMode=OPM_TOPLEVEL;
-			if(UsedPlugins.find(hCurPlugin->plugin()) != UsedPlugins.cend())
+			if (contains(UsedPlugins, hCurPlugin->plugin()))
 				OpMode|=OPM_SILENT;
 
 			PluginPanelItem *ItemList;
@@ -6747,7 +6747,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	std::all_of(CONST_RANGE(Find, fdata)
 	{
 		Global->CatchError();
-		FindErrorCode = Global->CaughtError();
+		FindErrorCode = Global->CaughtError().Win32Error;
 
 		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{

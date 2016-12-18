@@ -111,7 +111,7 @@ void KeyBar::DisplayObject()
 		// State should always be valid so check is excessive, but style is style
 		Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
 
-		if (Label.find(L'|') != string::npos)
+		if (contains(Label, L'|'))
 		{
 			auto LabelList = split<std::list<string>>(Label, STLF_NOTRIM | STLF_NOUNQUOTE, L"|");
 			if(!LabelList.empty())

@@ -72,9 +72,9 @@ static string GetNtErrorString(NTSTATUS LastNtStatus)
 string GetErrorString()
 {
 #ifdef USE_NT_MESSAGES
-	return GetNtErrorString(Global->CaughtStatus());
+	return GetNtErrorString(Global->CaughtError().NtError);
 #else
-	return GetWin32ErrorString(Global->CaughtError());
+	return GetWin32ErrorString(Global->CaughtError().Win32Error);
 #endif
 }
 
@@ -122,8 +122,8 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 					if(IsErrorType)
 					{
 						DialogBuilder Builder(MError, nullptr);
-						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtError()), GetWin32ErrorString(Global->CaughtError())), 65);
-						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtStatus()), GetNtErrorString(Global->CaughtStatus())), 65);
+						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtError().Win32Error), GetWin32ErrorString(Global->CaughtError().Win32Error)), 65);
+						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtError().NtError), GetNtErrorString(Global->CaughtError().NtError)), 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}

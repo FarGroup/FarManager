@@ -194,6 +194,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dirinfo.cpp" />
     <ClCompile Include="dirmix.cpp" />
     <ClCompile Include="dizlist.cpp" />
+    <ClCompile Include="exception.cpp" />
     <ClCompile Include="FarDlgBuilder.cpp" />
     <ClCompile Include="filemasks.cpp" />
     <ClCompile Include="dlgedit.cpp" />
@@ -322,7 +323,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\blob_view.hpp" />
     <ClInclude Include="common\compiler.hpp" />
     <ClInclude Include="common\enum_substrings.hpp" />
-    <ClInclude Include="common\exception.hpp" />
     <ClInclude Include="common\movable.hpp" />
     <ClInclude Include="common\null_iterator.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
@@ -379,6 +379,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="editor.hpp" />
     <ClInclude Include="eject.hpp" />
     <ClInclude Include="encoding.hpp" />
+    <ClInclude Include="exception.hpp" />
     <ClInclude Include="execute.hpp" />
     <ClInclude Include="exitcode.hpp" />
     <ClInclude Include="FarDlgBuilder.hpp" />

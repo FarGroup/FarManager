@@ -141,7 +141,15 @@ enum FlagsNameAndPassword
 
 int GetNameAndPassword(const string& Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
-int OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip = true);
+enum class operation
+{
+	retry,
+	skip,
+	skip_all,
+	cancel,
+};
+
+operation OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip = true);
 
 void ReCompileErrorMessage(const RegExp& re, const string& str);
 void ReMatchErrorMessage(const RegExp& re);

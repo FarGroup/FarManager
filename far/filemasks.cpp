@@ -80,18 +80,16 @@ public:
 	NONCOPYABLE(masks);
 	TRIVIALLY_MOVABLE(masks);
 
-	masks(): bRE() {}
+	masks() = default;
 
-	bool Set(const string& Masks, DWORD Flags);
+	bool assign(const string& Masks, DWORD Flags);
 	bool operator ==(const string& Name) const;
-	void Free();
 	bool empty() const;
 
 private:
 	std::vector<string> Masks;
 	std::unique_ptr<RegExp> re;
 	std::vector<RegExpMatch> m;
-	bool bRE;
 };
 
 filemasks::filemasks() = default;
@@ -148,7 +146,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 			if (nextpos != ptr)
 			{
 				filemasks::masks m;
-				Result = m.Set(string(ptr, nextpos), Flags);
+				Result = m.assign(string(ptr, nextpos), Flags);
 				if (Result)
 				{
 					DestContainer->emplace_back(std::move(m));
@@ -184,7 +182,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 		if (Result && !SimpleMasksInclude.empty())
 		{
 			filemasks::masks m;
-			Result = m.Set(SimpleMasksInclude, Flags);
+			Result = m.assign(SimpleMasksInclude, Flags);
 			if (Result)
 				Include.emplace_back(std::move(m));
 		}
@@ -192,7 +190,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 		if (Result && !SimpleMasksExclude.empty())
 		{
 			filemasks::masks m;
-			Result = m.Set(SimpleMasksExclude, Flags);
+			Result = m.assign(SimpleMasksExclude, Flags);
 			if (Result)
 				Exclude.emplace_back(std::move(m));
 		}
@@ -200,7 +198,7 @@ bool filemasks::Set(const string& masks, DWORD Flags)
 		if (Result && Include.empty() && !Exclude.empty())
 		{
 			filemasks::masks m;
-			Result = m.Set(L"*", Flags);
+			Result = m.assign(L"*", Flags);
 			if (Result)
 				Include.emplace_back(std::move(m));
 		}
@@ -230,8 +228,7 @@ void filemasks::clear()
 
 bool filemasks::Compare(const string& FileName) const
 {
-	return std::find(ALL_CONST_RANGE(Include), FileName) != Include.cend() &&
-	       std::find(ALL_CONST_RANGE(Exclude), FileName) == Exclude.cend();
+	return contains(Include, FileName) && !contains(Exclude, FileName);
 }
 
 bool filemasks::empty() const
@@ -245,9 +242,11 @@ void filemasks::ErrorMessage()
 	Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectMask), MSG(MOk));
 }
 
-bool filemasks::masks::Set(const string& masks, DWORD Flags)
+bool filemasks::masks::assign(const string& masks, DWORD Flags)
 {
-	Free();
+	Masks.clear();
+	re.reset();
+	m.clear();
 
 	string expmasks(masks);
 
@@ -271,9 +270,7 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 		}
 	}
 
-	bRE = expmasks[0] == RE_start;
-
-	if (!bRE)
+	if (expmasks[0] != RE_start)
 	{
 		Masks = split<std::vector<string>>(expmasks, STLF_PACKASTERISKS | STLF_PROCESSBRACKETS | STLF_SORT | STLF_UNIQUE);
 		return !Masks.empty();
@@ -293,19 +290,11 @@ bool filemasks::masks::Set(const string& masks, DWORD Flags)
 	return true;
 }
 
-void filemasks::masks::Free()
-{
-	Masks.clear();
-	re.reset();
-	m.clear();
-	bRE = false;
-}
-
 // Путь к файлу в FileName НЕ игнорируется
 
 bool filemasks::masks::operator ==(const string& FileName) const
 {
-	if (!bRE)
+	if (!re)
 	{
 		return std::any_of(CONST_RANGE(Masks, i) { return CmpName(i.data(), FileName.data(), false); });
 	}
@@ -316,5 +305,5 @@ bool filemasks::masks::operator ==(const string& FileName) const
 
 bool filemasks::masks::empty() const
 {
-	return bRE? m.empty() : Masks.empty();
+	return re? m.empty() : Masks.empty();
 }

@@ -36,6 +36,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "exception.hpp"
+
 class global: noncopyable
 {
 public:
@@ -49,8 +51,8 @@ public:
 	static const wchar_t* Copyright();
 
 	static void CatchError();
-	static DWORD CaughtError() {return m_LastError;}
-	static NTSTATUS CaughtStatus() {return m_LastStatus;}
+	static void CatchError(const error_codes& ErrorCodes);
+	static const error_codes& CaughtError() { return m_ErrorCodes; }
 
 	const string& GetSearchString() const { return m_SearchString; }
 	bool GetSearchHex() const { return m_SearchHex; }
@@ -120,8 +122,7 @@ private:
 	string m_SearchString;
 	bool m_SearchHex;
 
-	static thread_local DWORD m_LastError;
-	static thread_local NTSTATUS m_LastStatus;
+	static thread_local error_codes m_ErrorCodes;
 
 public:
 	// TODO: review the order and make private

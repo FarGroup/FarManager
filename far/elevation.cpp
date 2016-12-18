@@ -158,12 +158,6 @@ void elevation::SendCommand(ELEVATION_COMMAND Command, args&&... Args) const
 	Write(std::forward<args>(Args)...);
 }
 
-struct error_codes
-{
-	DWORD Win32Error{ GetLastError() };
-	NTSTATUS NtError{ Imports().RtlGetLastNtStatus() };
-};
-
 void elevation::RetrieveLastError() const
 {
 	const auto ErrorCodes = Read<error_codes>();

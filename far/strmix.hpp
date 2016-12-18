@@ -89,7 +89,7 @@ unsigned long long ConvertFileSizeString(const string& FileSizeStr);
 string FormatNumber(const string& Src, int NumDigits=0);
 inline string InsertCommas(unsigned long long Value) { return FormatNumber(str(Value)); }
 
-inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || WordDiv.find(Chr) != string::npos; }
+inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || contains(WordDiv, Chr); }
 
 bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv);
 

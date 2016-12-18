@@ -58,7 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "language.hpp"
 #include "dizviewer.hpp"
-#include "locale.hpp"
 #include "keybar.hpp"
 #include "keyboard.hpp"
 #include "datetime.hpp"

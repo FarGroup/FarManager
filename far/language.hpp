@@ -90,4 +90,10 @@ auto format(LNGID Id, args&&... Args)
 	return format(MSG(Id), std::forward<args>(Args)...);
 }
 
+template<typename... args>
+auto format(LNGID Id, LNGID Arg, args&&... Args)
+{
+	return format(Id, MSG(Arg), std::forward<args>(Args)...);
+}
+
 #endif // LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865

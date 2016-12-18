@@ -135,6 +135,7 @@ LINK_OBJS = \
 	"$(INTDIR)\eject.obj" \
 	"$(INTDIR)\elevation.obj" \
 	"$(INTDIR)\encoding.obj" \
+	"$(INTDIR)\exception.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\FarDlgBuilder.obj" \
 	"$(INTDIR)\farexcpt.obj" \

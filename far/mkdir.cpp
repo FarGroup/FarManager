@@ -173,17 +173,21 @@ void ShellMakeDir(Panel *SrcPanel)
 						while((bSuccess = os::CreateDirectory(Part, nullptr)) == false && !SkipAll)
 						{
 							Global->CatchError();
-							int Ret = OperationFailed(strOriginalDirName, MError, MSG(MCannotCreateFolder));
-							if(Ret == 1) // skip
+							const auto Result = OperationFailed(strOriginalDirName, MError, MSG(MCannotCreateFolder));
+							if (Result == operation::retry)
+							{
+								continue;
+							}
+							else if(Result == operation::skip)
 							{
 								break;
 							}
-							else if(Ret == 2)
+							else if(Result == operation::skip_all)
 							{
 								SkipAll = true;
 								break;
 							}
-							else if (Ret < 0 || Ret == 3) // cancel
+							else if (Result == operation::cancel)
 							{
 								return;
 							}
@@ -205,17 +209,21 @@ void ShellMakeDir(Panel *SrcPanel)
 					while(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR) && !SkipAll)
 					{
 						Global->CatchError();
-						int Ret = OperationFailed(strDirName, MError, MSG(MCopyCannotCreateLink));
-						if(Ret == 1) // skip
+						const auto Result = OperationFailed(strDirName, MError, MSG(MCopyCannotCreateLink));
+						if (Result == operation::retry)
+						{
+							continue;
+						}
+						else if (Result == operation::skip)
 						{
 							break;
 						}
-						else if(Ret == 2)
+						else if(Result == operation::skip_all)
 						{
 							SkipAll = true;
 							break;
 						}
-						else if (Ret < 0 || Ret == 3) // cancel
+						else if (Result == operation::cancel)
 						{
 							return;
 						}

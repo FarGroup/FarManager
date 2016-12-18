@@ -856,7 +856,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					KEY_CTRLS,     KEY_RCTRLS,
 				};
 
-				if (std::find(ALL_CONST_RANGE(UnmarkKeys), LocalKey()) != std::cend(UnmarkKeys))
+				if (contains(UnmarkKeys, LocalKey()))
 				{
 					UnmarkBlock();
 				}

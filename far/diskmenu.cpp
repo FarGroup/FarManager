@@ -369,7 +369,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		else
 		{
 			Global->CatchError();
-			DWORD LastError = Global->CaughtError();
+			const auto LastError = Global->CaughtError().Win32Error;
 			const auto strMsgText = format(MChangeDriveCannotDelSubst, DiskLetter);
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
@@ -420,7 +420,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			{
 				Global->CatchError();
 				const auto strMsgText = format(MChangeDriveCannotDisconnect, DiskLetter);
-				DWORD LastError = Global->CaughtError();
+				const auto LastError = Global->CaughtError().Win32Error;
 				if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 				{
 					if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
@@ -515,7 +515,7 @@ static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &C
 			const auto AMode = Owner->Parent()->GetAnotherPanel(Owner)->GetMode();
 			string strTmpCDir(Owner->GetCurDir()), strTmpADir(Owner->Parent()->GetAnotherPanel(Owner)->GetCurDir());
 			// "цикл до умопомрачения"
-			int DoneEject = FALSE;
+			bool DoneEject = false;
 
 			while (!DoneEject)
 			{
@@ -538,10 +538,10 @@ static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &C
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 					Global->CatchError();
 					wchar_t Drive[] = { item->cDrive, L':', L'\\', 0 };
-					DoneEject = OperationFailed(Drive, MError, format(MChangeCouldNotEjectMedia, item->cDrive), false);
+					DoneEject = OperationFailed(Drive, MError, format(MChangeCouldNotEjectMedia, item->cDrive), false) != operation::retry;
 				}
 				else
-					DoneEject = TRUE;
+					DoneEject = true;
 			}
 		}
 		return DRIVE_DEL_NONE;

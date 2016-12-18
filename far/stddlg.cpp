@@ -445,13 +445,13 @@ static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 	}
 }
 
-int OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip)
+operation OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip)
 {
 	std::vector<string> Msg;
 	os::com::ptr<IFileIsInUse> fiu;
 	LNGID Reason = MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
-	DWORD Error = Global->CaughtError();
+	const auto Error = Global->CaughtError().Win32Error;
 	if(Error == ERROR_ACCESS_DENIED ||
 		Error == ERROR_SHARING_VIOLATION ||
 		Error == ERROR_LOCK_VIOLATION ||
@@ -461,7 +461,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		fiu = CreateIFileIsInUse(FullName);
 		if (fiu)
 		{
-			FILE_USAGE_TYPE UsageType = FUT_GENERIC;
+			auto UsageType = FUT_GENERIC;
 			fiu->GetUsage(&UsageType);
 			switch(UsageType)
 			{
@@ -477,15 +477,11 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 			}
 			DWORD Capabilities = 0;
 			fiu->GetCapabilities(&Capabilities);
-			if(Capabilities&OF_CAP_CANSWITCHTO)
-			{
-				SwitchBtn = true;
-			}
-			if(Capabilities&OF_CAP_CANCLOSE)
-			{
-				CloseBtn = true;
-			}
-			LPWSTR AppName = nullptr;
+			
+			SwitchBtn = (Capabilities & OF_CAP_CANSWITCHTO) != 0;
+			CloseBtn = (Capabilities & OF_CAP_CANCLOSE) != 0;
+
+			wchar_t* AppName = nullptr;
 			if(SUCCEEDED(fiu->GetAppName(&AppName)))
 			{
 				Msg.emplace_back(AppName);
@@ -497,7 +493,8 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
 			if (Imports().RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
 			{
-				PCWSTR pszFile = FullName.data();
+				SCOPE_EXIT{ Imports().RmEndSession(dwSession); };
+				auto pszFile = FullName.data();
 				if (Imports().RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
 				{
 					DWORD dwReason;
@@ -514,7 +511,8 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 					{
 						for (const auto& i: rgpi)
 						{
-							string tmp = i.strAppName;
+							string tmp = *i.strAppName? i.strAppName : L"Unknown";
+
 							if (*i.strServiceShortName)
 							{
 								append(tmp, L" ["s, i.strServiceShortName, L']');
@@ -537,7 +535,6 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 						}
 					}
 				}
-				Imports().RmEndSession(dwSession);
 			}
 		}
 	}
@@ -545,7 +542,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 	std::vector<string> Msgs{Description, QuoteOuterSpace(string(Object))};
 	if(!Msg.empty())
 	{
-		Msgs.emplace_back(format(MObjectLockedReason, MSG(Reason)));
+		Msgs.emplace_back(format(MObjectLockedReason, Reason));
 		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
 	}
 
@@ -570,7 +567,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 
 		if(SwitchBtn)
 		{
-			if(Result == 0)
+			if(Result == Message::first_button)
 			{
 				HWND Wnd = nullptr;
 				if (fiu && SUCCEEDED(fiu->GetSwitchToHWND(&Wnd)))
@@ -587,7 +584,7 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 			}
 		}
 
-		if(CloseBtn && Result == 0)
+		if(CloseBtn && Result == Message::first_button)
 		{
 			// close & retry
 			if (fiu)
@@ -598,7 +595,10 @@ int OperationFailed(const string& Object, LNGID Title, const string& Description
 		break;
 	}
 
-	return Result;
+	if (Result < 0 || (!AllowSkip && Result == Message::second_button))
+		return operation::cancel;
+
+	return static_cast<operation>(Result);
 }
 
 static string GetReErrorString(int code)

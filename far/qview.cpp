@@ -138,7 +138,7 @@ void QuickView::DisplayObject()
 		GotoXY(m_X1+2,m_Y1+2);
 		auto DisplayName = strCurFileName;
 		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - StrLength(MSG(MQuickViewFolder)) - 5));
-		PrintText(format(LR"({0} "{1}")", MSG(MQuickViewFolder), DisplayName));
+		PrintText(format(LR"({0} "{1}")", MQuickViewFolder, DisplayName));
 
 		DWORD currAttr=os::GetFileAttributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))

@@ -171,7 +171,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string& Str, enumerator_type Enu
 			static const string NoQuote = L"\":\\/%.-";
 			for (size_t i = 0; i != WordDiv.size(); ++i)
 			{
-				if (NoQuote.find(WordDiv[i]) != string::npos)
+				if (contains(NoQuote, WordDiv[i]))
 				{
 					WordDiv.erase(i--, 1);
 				}
@@ -187,7 +187,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string& Str, enumerator_type Enu
 						Pos--;
 					}
 				}
-				else if (WordDiv.find(Str[Pos]) != string::npos)
+				else if (contains(WordDiv, Str[Pos]))
 				{
 					Pos++;
 					break;
@@ -780,7 +780,7 @@ int EditControl::ProcessKey(const Manager::Key& Key)
 		KEY_RCTRLNUMPAD0
 	};
 	const auto Result = Edit::ProcessKey(Key);
-	if (Result && m_Flags.Check(FEDITLINE_CLEARFLAG) && std::find(ALL_CONST_RANGE(NonClearKeys), Key()) == std::cend(NonClearKeys))
+	if (Result && m_Flags.Check(FEDITLINE_CLEARFLAG) && !contains(NonClearKeys, Key()))
 	{
 		m_Flags.Clear(FEDITLINE_CLEARFLAG);
 		Show();

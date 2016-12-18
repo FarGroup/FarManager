@@ -1,9 +1,9 @@
-﻿#ifndef BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
-#define BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+﻿#ifndef EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF
+#define EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF
 #pragma once
 
 /*
-blob_view.hpp
+exception.hpp
 */
 /*
 Copyright © 2016 Far Group
@@ -32,49 +32,50 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using blob_view = range<const char*>;
-
-class writable_blob_view: public range<char*>
+struct error_codes
 {
-public:
-	NONCOPYABLE(writable_blob_view);
-	writable_blob_view() = default;
-	writable_blob_view(void* Data, size_t Size): range<char*>(reinterpret_cast<char*>(Data), reinterpret_cast<char*>(Data) + Size) {}
-	~writable_blob_view()
-	{
-		if (m_Allocated)
-			delete[] static_cast<const char*>(data());
-	}
+	struct ignore{};
 
-	writable_blob_view& operator=(const blob_view& rhs)
-	{
-		if (data())
-		{
-			if (size() != rhs.size())
-				throw std::runtime_error("incorrect blob size");
-		}
-		else
-		{
-			static_cast<range<char*>&>(*this) = make_range(new char[rhs.size()], rhs.size());
-			m_Allocated = true;
-		}
-		memcpy(data(), rhs.data(), size());
-		return *this;
-	}
-private:
-	bool m_Allocated{};
+	error_codes();
+	error_codes(ignore);
+
+	DWORD Win32Error;
+	NTSTATUS NtError;
 };
 
-inline auto make_blob_view(const void* Object, size_t Size)
+namespace detail
 {
-	return make_range(reinterpret_cast<const char*>(Object), Size);
+	class exception_impl
+	{
+	public:
+		exception_impl(const std::string& Message, const char* Function, const char* File, int Line):
+			m_Message(Message),
+			m_FullMessage(Message + " (at "s + Function + ", "s + File + ":"s + std::to_string(Line) + ")"s)
+		{
+		}
+
+		const auto& get_message() const noexcept { return m_Message; }
+		const auto& get_full_message() const noexcept { return m_FullMessage; }
+		const auto& get_error_codes() const noexcept { return m_ErrorCodes; }
+
+	private:
+		std::string m_Message;
+		std::string m_FullMessage;
+		error_codes m_ErrorCodes;
+	};
 }
 
-template<typename T>
-auto make_blob_view(const T& Object)
+class far_exception: public detail::exception_impl, public std::runtime_error
 {
-	TERSE_STATIC_ASSERT(std::is_pod<T>::value);
-	return make_blob_view(&Object, sizeof Object);
-}
+public:
+	far_exception(const std::string& Message, const char* Function, const char* File, int Line):
+		exception_impl(Message, Function, File, Line),
+		std::runtime_error(get_full_message())
+	{
+	}
+};
 
-#endif // BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+#define MAKE_EXCEPTION(ExceptionType, Message) ExceptionType(Message, __FUNCTION__, __FILE__, __LINE__)
+#define MAKE_FAR_EXCEPTION(Message) MAKE_EXCEPTION(far_exception, Message)
+
+#endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

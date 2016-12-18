@@ -73,6 +73,8 @@ public:
 		first_button,
 		second_button,
 		third_button,
+		fourth_button,
+		fifth_button,
 	};
 
 	int GetExitCode() const {return m_ExitCode;}

@@ -2167,7 +2167,7 @@ void background_searcher::AddMenuRecord(const string& FullName, PluginPanelItem&
 {
 	os::FAR_FIND_DATA fdata;
 	PluginPanelItemToFindDataEx(FindData, fdata);
-	m_Owner->m_Messages.push(FindFiles::AddMenuData(FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData, m_Owner->itd->GetFindFileArcItem()));
+	m_Owner->m_Messages.emplace(FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData, m_Owner->itd->GetFindFileArcItem());
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
 }
 
@@ -2218,7 +2218,7 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 			string strSaveSearchPath;
 			// Запомним пути поиска в плагине, они могут измениться.
 			strSaveSearchPath = strPluginSearchPath;
-			m_Owner->m_Messages.push(FindFiles::AddMenuData(FindFiles::push));
+			m_Owner->m_Messages.emplace(FindFiles::push);
 			DoPreparePluginList(true);
 			strPluginSearchPath = strSaveSearchPath;
 			FindFiles::ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
@@ -2228,7 +2228,7 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 			}
 			ArcItem->hPlugin = nullptr;
 
-			m_Owner->m_Messages.push(FindFiles::AddMenuData(FindFiles::pop));
+			m_Owner->m_Messages.emplace(FindFiles::pop);
 		}
 
 		Global->DisablePluginsOutput=SavePluginsOutput;
@@ -2377,7 +2377,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 				if (IsFileIncluded(nullptr,strFullStreamName,FindData.dwFileAttributes,strFullName))
 				{
-					m_Owner->m_Messages.push(FindFiles::AddMenuData(strFullStreamName, FindData, nullptr, nullptr, nullptr));
+					m_Owner->m_Messages.emplace(strFullStreamName, FindData, nullptr, nullptr, nullptr);
 				}
 
 				ProcessAlternateStreams = Global->Opt->FindOpt.FindAlternateStreams;

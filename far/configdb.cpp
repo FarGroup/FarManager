@@ -1750,7 +1750,7 @@ private:
 
 	virtual bool EndTransaction() override
 	{
-		WorkQueue.push(nullptr);
+		WorkQueue.emplace(nullptr);
 		WaitAllAsync();
 		AsyncCommitDone.Reset();
 		AsyncWork.Set();
@@ -1859,7 +1859,7 @@ private:
 		item->strFile=strFile;
 		item->strData=strData;
 
-		WorkQueue.push(std::move(item));
+		WorkQueue.emplace(std::move(item));
 
 		WaitAllAsync();
 		AsyncDeleteAddDone.Reset();

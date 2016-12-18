@@ -6101,7 +6101,7 @@ void Dialog::RemoveFromList()
 
 bool Dialog::IsValid(Dialog* Handle)
 {
-	return DialogsList().find(Handle) != DialogsList().cend();
+	return contains(DialogsList(), Handle);
 }
 
 void Dialog::SetDeleting(void)

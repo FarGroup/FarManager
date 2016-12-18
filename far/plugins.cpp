@@ -323,7 +323,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 
 bool PluginManager::IsPluginUnloaded(Plugin* pPlugin) const
 {
-	return std::find(UnloadedPlugins.cbegin(), UnloadedPlugins.cend(), pPlugin) != UnloadedPlugins.cend();
+	return contains(UnloadedPlugins, pPlugin);
 }
 
 int PluginManager::UnloadPluginExternal(Plugin* pPlugin)
@@ -2195,8 +2195,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 					}
 					else
 					{
-						const auto Begin = MenuItems->Guids, End = Begin + MenuItems->Count;
-						if (std::find(Begin, End, *Data->ItemGuid) != End)
+						if (contains(make_range(MenuItems->Guids, MenuItems->Count), *Data->ItemGuid))
 						{
 							Data->FoundGuid = *Data->ItemGuid;
 							Data->ItemGuid = &Data->FoundGuid;

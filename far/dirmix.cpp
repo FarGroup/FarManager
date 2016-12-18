@@ -141,7 +141,7 @@ int TestFolder(const string& Path)
 	}
 
 	Global->CatchError();
-	DWORD LastError = Global->CaughtError();
+	const auto LastError = Global->CaughtError().Win32Error;
 	if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES)
 		return TSTFLD_EMPTY;
 

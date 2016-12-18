@@ -1,9 +1,5 @@
-﻿#ifndef EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF
-#define EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF
-#pragma once
-
-/*
-exception.hpp
+﻿/*
+exception.cpp
 */
 /*
 Copyright © 2016 Far Group
@@ -32,37 +28,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-namespace detail
+#include "headers.hpp"
+#pragma hdrstop
+
+#include "exception.hpp"
+#include "imports.hpp"
+
+error_codes::error_codes():
+	Win32Error(GetLastError()),
+	NtError(Imports().RtlGetLastNtStatus())
 {
-	class exception_impl
-	{
-	public:
-		exception_impl(const std::string& Message, const char* Function, const char* File, int Line):
-			m_Message(Message),
-			m_FullMessage(Message + " (at "s + Function + ", "s + File + ":"s + std::to_string(Line) + ")"s)
-		{
-		}
-
-		const auto& get_message() const noexcept { return m_Message; }
-		const auto& get_full_message() const noexcept { return m_FullMessage; }
-
-	private:
-		std::string m_Message;
-		std::string m_FullMessage;
-	};
 }
 
-class far_exception: public detail::exception_impl, public std::runtime_error
-{
-public:
-	far_exception(const std::string& Message, const char* Function, const char* File, int Line):
-		exception_impl(Message, Function, File, Line),
-		std::runtime_error(get_full_message())
-	{
-	}
-};
-
-#define MAKE_EXCEPTION(ExceptionType, Message) ExceptionType(Message, __FUNCTION__, __FILE__, __LINE__)
-#define MAKE_FAR_EXCEPTION(Message) MAKE_EXCEPTION(far_exception, Message)
-
-#endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF
+error_codes::error_codes(ignore):
+	Win32Error(ERROR_SUCCESS),
+	NtError(STATUS_SUCCESS)
+{}

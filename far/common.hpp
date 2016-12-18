@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/compiler.hpp"
 #include "common/preprocessor.hpp"
 #include "common/movable.hpp"
-#include "common/exception.hpp"
 #include "common/noncopyable.hpp"
 #include "common/swapable.hpp"
 #include "common/rel_ops.hpp"

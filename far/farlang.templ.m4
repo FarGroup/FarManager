@@ -20697,6 +20697,18 @@ upd:"Save changes?"
 "Salva I Cambiamenti?"
 "Зберегти зміни?"
 
+MEditMenuError
+"Не удалось обновить меню"
+"Cannot update menu"
+upd:"Cannot update menu"
+upd:"Cannot update menu"
+upd:"Cannot update menu"
+upd:"Cannot update menu"
+upd:"Cannot update menu"
+upd:"Cannot update menu"
+upd:"Cannot update menu"
+"Не вдалося оновити меню"
+
 MViewerTitle
 l:
 "Просмотр"

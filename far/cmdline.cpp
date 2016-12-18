@@ -495,7 +495,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 					KEY_END,        KEY_NUMPAD1
 				};
 
-				if (std::find(ALL_CONST_RANGE(UnmarkKeys), LocalKey()) != std::cend(UnmarkKeys))
+				if (contains(UnmarkKeys, LocalKey()))
 				{
 					CmdStr.RemoveSelection();
 				}

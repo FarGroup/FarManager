@@ -89,7 +89,7 @@ void consoleicons::setFarIcons()
 		if(!Loaded)
 		{
 			const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
-			const auto& load_icon = [IconId](icon_mode Mode) { return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), 0)); };
+			const auto& load_icon = [IconId](icon_mode Mode) { return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Mode == icon_big? SM_CYICON : SM_CYSMICON), LR_SHARED)); };
 			LargeIcon = load_icon(icon_big);
 			SmallIcon = load_icon(icon_small);
 			Loaded = true;
@@ -298,14 +298,14 @@ void InitConsole(int FirstInit)
 		DWORD Mode;
 		if(!Console().GetMode(Console().GetInputHandle(), Mode))
 		{
-			HANDLE ConIn = CreateFile(L"CONIN$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-			SetStdHandle(STD_INPUT_HANDLE, ConIn);
+			static const os::handle ConIn(CreateFile(L"CONIN$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr));
+			SetStdHandle(STD_INPUT_HANDLE, ConIn.native_handle());
 		}
 		if(!Console().GetMode(Console().GetOutputHandle(), Mode))
 		{
-			HANDLE ConOut = CreateFile(L"CONOUT$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-			SetStdHandle(STD_OUTPUT_HANDLE, ConOut);
-			SetStdHandle(STD_ERROR_HANDLE, ConOut);
+			static const os::handle ConOut(CreateFile(L"CONOUT$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
+			SetStdHandle(STD_OUTPUT_HANDLE, ConOut.native_handle());
+			SetStdHandle(STD_ERROR_HANDLE, ConOut.native_handle());
 		}
 	}
 

@@ -845,7 +845,7 @@ F8CP::F8CP(bool viewer):
 					cp = 0;
 				}
 			}
-			if (cp && codepages::IsCodePageSupported(cp, viewer ? 2:20) && used_cps.find(cp) == used_cps.end())
+			if (cp && codepages::IsCodePageSupported(cp, viewer ? 2:20) && !contains(used_cps, cp))
 			{
 				m_F8CpOrder.emplace_back(cp);
 				used_cps.emplace(cp);
