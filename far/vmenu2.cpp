@@ -591,7 +591,7 @@ void VMenu2::Key(int key)
 
 int VMenu2::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(MVMenuType);
+	strType = MSG(lng::MVMenuType);
 	strName = GetMenuTitle();
 	return windowtype_menu;
 }

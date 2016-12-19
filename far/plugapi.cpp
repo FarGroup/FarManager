@@ -1188,7 +1188,7 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
 			CutToSlash(strPath);
 
 			if (pPlugin->InitLang(strPath))
-				return pPlugin->GetMsg(static_cast<LNGID>(MsgId));
+				return pPlugin->GetMsg(static_cast<lng>(MsgId));
 		}
 		return L"";
 	}
@@ -1224,27 +1224,27 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 		switch (Flags & 0x000F0000)
 		{
 		case FMSG_MB_OK:
-			Buttons = { MSG(MOk) };
+			Buttons = { MSG(lng::MOk) };
 			break;
 
 		case FMSG_MB_OKCANCEL:
-			Buttons = { MSG(MOk), MSG(MCancel) };
+			Buttons = { MSG(lng::MOk), MSG(lng::MCancel) };
 			break;
 
 		case FMSG_MB_ABORTRETRYIGNORE:
-			Buttons = { MSG(MAbort), MSG(MRetry), MSG(MIgnore) };
+			Buttons = { MSG(lng::MAbort), MSG(lng::MRetry), MSG(lng::MIgnore) };
 			break;
 
 		case FMSG_MB_YESNO:
-			Buttons = { MSG(MYes), MSG(MNo) };
+			Buttons = { MSG(lng::MYes), MSG(lng::MNo) };
 			break;
 
 		case FMSG_MB_YESNOCANCEL:
-			Buttons = { MSG(MYes), MSG(MNo), MSG(MCancel) };
+			Buttons = { MSG(lng::MYes), MSG(lng::MNo), MSG(lng::MCancel) };
 			break;
 
 		case FMSG_MB_RETRYCANCEL:
-			Buttons = { MSG(MRetry), MSG(MCancel) };
+			Buttons = { MSG(lng::MRetry), MSG(lng::MCancel) };
 			break;
 		}
 
@@ -1585,7 +1585,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			return FALSE;
 
 		{
-			const auto& PR_FarGetDirListMsg = [](){ Message(0, 0, L"", MSG(MPreparingList)); };
+			const auto& PR_FarGetDirListMsg = [](){ Message(0, 0, L"", MSG(lng::MPreparingList)); };
 
 			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
 			SCOPED_ACTION(SaveScreen);

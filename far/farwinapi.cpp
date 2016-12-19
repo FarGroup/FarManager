@@ -478,7 +478,7 @@ bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSE
 	return m_Handle? true : false;
 }
 
-void file::SyncPointer()
+void file::SyncPointer() const
 {
 	if(m_NeedSyncPointer)
 	{
@@ -493,7 +493,7 @@ void file::SyncPointer()
 }
 
 
-bool file::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped)
+bool file::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped) const
 {
 	assert(NumberOfBytesToRead <= std::numeric_limits<DWORD>::max());
 
@@ -508,7 +508,7 @@ bool file::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytes
 	return Result;
 }
 
-bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped)
+bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped) const
 {
 	assert(NumberOfBytesToWrite <= std::numeric_limits<DWORD>::max());
 
@@ -523,7 +523,7 @@ bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBy
 	return Result;
 }
 
-bool file::SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod)
+bool file::SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const
 {
 	const auto OldPointer = m_Pointer;
 	switch (MoveMethod)
@@ -1182,12 +1182,10 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 		return false;
 
 	// Ага, значит файл таки есть. Заполним структуру ручками.
-	fs::file file;
-	if (file.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+	if (const auto File = fs::file(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 	{
-		file.GetTime(&FindData.ftCreationTime, &FindData.ftLastAccessTime, &FindData.ftLastWriteTime, &FindData.ftChangeTime);
-		file.GetSize(FindData.nFileSize);
-		file.Close();
+		File.GetTime(&FindData.ftCreationTime, &FindData.ftLastAccessTime, &FindData.ftLastWriteTime, &FindData.ftChangeTime);
+		File.GetSize(FindData.nFileSize);
 	}
 
 	if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)

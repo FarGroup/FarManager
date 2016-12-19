@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "windowsfwd.hpp"
 #include "farexcpt.hpp"
 
-enum LNGID : int;
+enum class lng : int;
 class PluginManager;
 class Plugin;
 class Language;
@@ -262,7 +262,7 @@ public:
 	const string& GetVersionString() const { return VersionString; }
 	const GUID& GetGUID() const { return m_Guid; }
 	bool IsPendingRemove() const { return bPendingRemove; }
-	const wchar_t *GetMsg(LNGID nID) const;
+	const wchar_t *GetMsg(lng nID) const;
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }
 

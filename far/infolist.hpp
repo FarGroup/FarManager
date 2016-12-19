@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "viewer.hpp"
 
-enum LNGID : int;
+enum class lng : int;
 class DizViewer;
 
 class InfoList:public Panel
@@ -67,9 +67,9 @@ private:
 	bool ShowDirDescription(int YPos);
 	bool ShowPluginDescription(int YPos);
 	void PrintText(const string& Str) const;
-	void PrintText(LNGID MsgID) const;
+	void PrintText(lng MsgID) const;
 	void PrintInfo(const string& Str) const;
-	void PrintInfo(LNGID MsgID) const;
+	void PrintInfo(lng MsgID) const;
 	void SelectShowMode();
 	void DrawTitle(string &strTitle, int Id, int &CurY);
 	int  OpenDizFile(const string& DizFile, int YPos);

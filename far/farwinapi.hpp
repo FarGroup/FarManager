@@ -262,9 +262,9 @@ namespace os
 
 			// TODO: half of these should be free functions
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
-			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
-			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
-			bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod);
+			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr) const;
+			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr) const;
+			bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const;
 			unsigned long long GetPointer() const { return m_Pointer; }
 			bool SetEnd();
 			bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime) const;
@@ -282,13 +282,13 @@ namespace os
 			const auto& handle() const { return m_Handle; }
 
 		private:
+			void SyncPointer() const;
+
 			os::handle m_Handle;
-			unsigned long long m_Pointer;
-			bool m_NeedSyncPointer;
+			mutable unsigned long long m_Pointer;
+			mutable bool m_NeedSyncPointer;
 			string m_Name;
 			DWORD m_ShareMode;
-
-			void SyncPointer();
 		};
 
 		class file_walker: public file
@@ -296,6 +296,7 @@ namespace os
 		public:
 			file_walker();
 			~file_walker();
+
 			bool InitWalk(size_t BlockSize);
 			bool Step();
 			UINT64 GetChunkOffset() const;

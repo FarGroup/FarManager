@@ -162,7 +162,7 @@ void KeyBar::ClearKeyTitles(bool Custom)
 	});
 }
 
-void KeyBar::SetLabels(LNGID StartIndex)
+void KeyBar::SetLabels(lng StartIndex)
 {
 	bool no_tree = Global->Opt->Tree.TurnOffCompletely;
 
@@ -170,7 +170,7 @@ void KeyBar::SetLabels(LNGID StartIndex)
 	{
 		std::for_each(RANGE(Group, i)
 		{
-			if (no_tree && (StartIndex == MAltF10 || StartIndex == MInfoAltF10 || StartIndex == MQViewAltF10))
+			if (no_tree && (StartIndex == lng::MAltF10 || StartIndex == lng::MInfoAltF10 || StartIndex == lng::MQViewAltF10))
 				i.first = L"";
 			else
 				i.first = MSG(StartIndex);

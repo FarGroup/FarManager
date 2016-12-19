@@ -46,13 +46,13 @@ public:
 	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
 	virtual ~Language() = default;
 
-	const wchar_t* GetMsg(LNGID nID) const;
+	const wchar_t* GetMsg(lng nID) const;
 
 protected:
 	Language() = default;
 
 	void init(const string& Path, int CountNeed = -1);
-	bool CheckMsgId(LNGID MsgId) const;
+	bool CheckMsgId(lng MsgId) const;
 
 private:
 	virtual size_t size() const { return m_Messages.size(); }
@@ -70,12 +70,12 @@ bool SelectInterfaceLanguage();
 bool SelectHelpLanguage();
 
 template<class T>
-LNGID operator+(LNGID Id, T Shift)
+constexpr lng operator+(lng Id, T Shift)
 {
-	return static_cast<LNGID>(as_underlying_type(Id) + Shift);
+	return static_cast<lng>(as_underlying_type(Id) + Shift);
 }
 
-inline LNGID operator++(LNGID& Id, int)
+inline lng operator++(lng& Id, int)
 {
 	const auto Value = Id;
 	Id = Id + 1;
@@ -85,15 +85,9 @@ inline LNGID operator++(LNGID& Id, int)
 #define MSG(ID) Global->Lang->GetMsg(ID)
 
 template<typename... args>
-auto format(LNGID Id, args&&... Args)
+auto format(lng Id, args&&... Args)
 {
 	return format(MSG(Id), std::forward<args>(Args)...);
-}
-
-template<typename... args>
-auto format(LNGID Id, LNGID Arg, args&&... Args)
-{
-	return format(Id, MSG(Arg), std::forward<args>(Args)...);
 }
 
 #endif // LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865

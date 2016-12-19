@@ -3523,7 +3523,7 @@ BOOL Editor::Search(int Next)
 				SetCursorType(false, -1);
 				int Total=FindAllReferences? m_LinesCount : (ReverseSearch? StartLine : m_LinesCount - StartLine);
 				int Current=abs(CurPtr.Number() - StartLine);
-				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
+				EditorShowMsg(MSG(lng::MEditSearchTitle),MSG(lng::MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
 				Taskbar().SetProgressValue(Current,Total);
 			}
 
@@ -3618,9 +3618,9 @@ BOOL Editor::Search(int Next)
 							if (!SearchLength && !strReplaceStrCurrent.length())
 								ZeroLength = true;
 
-							MsgCode = Message(0, 4, MSG(MEditReplaceTitle), MSG(MEditAskReplace),
-											strQSearchStr.data(), MSG(MEditAskReplaceWith), strQReplaceStr.data(),
-											MSG(MEditReplace), MSG(MEditReplaceAll), MSG(MEditSkip), MSG(MEditCancel));
+							MsgCode = Message(0, 4, MSG(lng::MEditReplaceTitle), MSG(lng::MEditAskReplace),
+											strQSearchStr.data(), MSG(lng::MEditAskReplaceWith), strQReplaceStr.data(),
+											MSG(lng::MEditReplace), MSG(lng::MEditReplaceAll), MSG(lng::MEditSkip), MSG(lng::MEditCancel));
 
 							CurPtr->DeleteColor([&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
 
@@ -3804,8 +3804,8 @@ BOOL Editor::Search(int Next)
 	{
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		FindAllList->SetPosition(-1, -1, 0, 0);
-		FindAllList->SetTitle(format(MEditSearchStatistics, FindAllList->size(), AllRefLines));
-		FindAllList->SetBottomTitle(MSG(MEditFindAllMenuFooter));
+		FindAllList->SetTitle(format(lng::MEditSearchStatistics, FindAllList->size(), AllRefLines));
+		FindAllList->SetBottomTitle(MSG(lng::MEditFindAllMenuFooter));
 		FindAllList->SetHelp(L"FindAllMenu");
 		FindAllList->SetId(EditorFindAllListId);
 
@@ -3903,8 +3903,8 @@ BOOL Editor::Search(int Next)
 	}
 
 	if (!Match && !UserBreak)
-		Message(MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
-		        strMsgStr.data(),MSG(MOk));
+		Message(MSG_WARNING,1,MSG(lng::MEditSearchTitle),MSG(lng::MEditNotFound),
+		        strMsgStr.data(),MSG(lng::MOk));
 
 	return TRUE;
 }
@@ -4428,7 +4428,7 @@ void Editor::GoToLineAndShow(int Line)
 
 void Editor::GoToPosition()
 {
-	DialogBuilder Builder(MEditGoToLine, L"EditorGotoPos");
+	DialogBuilder Builder(lng::MEditGoToLine, L"EditorGotoPos");
 	string strData;
 	Builder.AddEditField(strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
 	Builder.AddOKCancel();

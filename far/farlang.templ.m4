@@ -18,7 +18,7 @@ FarIta.lng Italian "Italian (Italiano)"
 FarUkr.lng Ukrainian "Ukrainian (Українська)"
 
 #enum name
-enum:LNGID:int
+enum:class lng:int
 
 #head of the hpp file
 #hhead:
@@ -52,7 +52,7 @@ enum:LNGID:int
 #screen reminding that this line should be updated/translated
 
 
-MYes=0
+MYes
 `l://Version: 'MAJOR`.'MINOR` build 'BUILD
 l:
 "Да"

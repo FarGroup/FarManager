@@ -133,7 +133,7 @@ void PrintFiles(FileList* SrcPanel)
 	if (!EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, PRINTER_INFO_LEVEL, reinterpret_cast<BYTE*>(pi.get()), Needed, &Needed, &Returned))
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotEnumeratePrinters),MSG(MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MPrintTitle),MSG(lng::MCannotEnumeratePrinters),MSG(lng::MOk));
 		return;
 	}
 
@@ -146,13 +146,13 @@ void PrintFiles(FileList* SrcPanel)
 			string strName;
 			SrcPanel->GetSelName(&strName,FileAttr);
 			strSelName = TruncStr(strName,50);
-			strTitle = format(MPrintTo, InsertQuote(strSelName));
+			strTitle = format(lng::MPrintTo, InsertQuote(strSelName));
 		}
 		else
 		{
 			_ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
 			SelCount-=DirsCount;
-			strTitle = format(MPrintFilesTo, SelCount);
+			strTitle = format(lng::MPrintFilesTo, SelCount);
 		}
 
 		const auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
@@ -175,8 +175,8 @@ void PrintFiles(FileList* SrcPanel)
 	if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MPrintTitle),MSG(MCannotOpenPrinter),
-		        strPrinterName.data(),MSG(MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MPrintTitle),MSG(lng::MCannotOpenPrinter),
+		        strPrinterName.data(),MSG(lng::MOk));
 		_ALGO(SysLog(L"Error: Cannot Open Printer"));
 		return;
 	}
@@ -185,7 +185,7 @@ void PrintFiles(FileList* SrcPanel)
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
 		SCOPED_ACTION(SaveScreen);
 
-		const auto& PR_PrintMsg = [](){ Message(0, 0, MSG(MPrintTitle), MSG(MPreparingForPrinting)); };
+		const auto& PR_PrintMsg = [](){ Message(0, 0, MSG(lng::MPrintTitle), MSG(lng::MPreparingForPrinting)); };
 
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(false, 0);
@@ -224,8 +224,7 @@ void PrintFiles(FileList* SrcPanel)
 			else
 				FileName = strSelName;
 
-			os::fs::file SrcFile;
-			if(SrcFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+			if(const auto SrcFile = os::fs::file(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
 				DOC_INFO_1 di1 = {UNSAFE_CSTR(FileName)};
 
@@ -247,7 +246,6 @@ void PrintFiles(FileList* SrcPanel)
 					}
 					EndDocPrinter(Printer.native_handle());
 				}
-				SrcFile.Close();
 			}
 
 			if (!strTempName.empty())
@@ -259,8 +257,8 @@ void PrintFiles(FileList* SrcPanel)
 				SrcPanel->ClearLastGetSelection();
 			else
 			{
-				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MPrintTitle),MSG(MCannotPrint),
-				            strSelName.data(),MSG(MSkip),MSG(MCancel)) != Message::first_button)
+				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(lng::MPrintTitle),MSG(lng::MCannotPrint),
+				            strSelName.data(),MSG(lng::MSkip),MSG(lng::MCancel)) != Message::first_button)
 					break;
 			}
 		}

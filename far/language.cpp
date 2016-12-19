@@ -165,13 +165,13 @@ static bool SelectLanguage(bool HelpLanguage)
 
 	if (HelpLanguage)
 	{
-		Title=MSG(MHelpLangTitle);
+		Title=MSG(lng::MHelpLangTitle);
 		Mask=Global->HelpFileMask;
 		strDest=&Global->Opt->strHelpLanguage;
 	}
 	else
 	{
-		Title=MSG(MLangTitle);
+		Title=MSG(lng::MLangTitle);
 		Mask=LangFileMask;
 		strDest=&Global->Opt->strLanguage;
 	}
@@ -184,8 +184,8 @@ static bool SelectLanguage(bool HelpLanguage)
 	AddEndSlash(PathWithSlash);
 	for (const auto& FindData: os::fs::enum_file(PathWithSlash + Mask))
 	{
-		os::fs::file LangFile;
-		if (!LangFile.Open(PathWithSlash + FindData.strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+		os::fs::file LangFile(PathWithSlash + FindData.strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		if (!LangFile)
 			continue;
 
 		uintptr_t nCodePage=CP_OEMCP;
@@ -419,26 +419,26 @@ void Language::init(const string& Path, int CountNeed)
 	{
 		const auto& LoadStrings = [&](const string& FileName)
 		{
-			os::fs::file lang_file;
-			if (lang_file.Open(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+			const os::fs::file File(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+			if (!File)
+				return;
+
+			GetFileFormat(File, nCodePage, nullptr, false);
+			GetFileString get_str(File, nCodePage);
+			label.clear();
+			while (get_str.GetString(Buffer))
 			{
-				GetFileFormat(lang_file, nCodePage, nullptr, false);
-				GetFileString get_str(lang_file, nCodePage);
-				label.clear();
-				while (get_str.GetString(Buffer))
+				RemoveExternalSpaces(Buffer);
+				bool have_text;
+				parse_lng_line(Buffer, label, text, have_text);
+				if (have_text && !label.empty())
 				{
-					RemoveExternalSpaces(Buffer);
-					bool have_text;
-					parse_lng_line(Buffer, label, text, have_text);
-					if (have_text && !label.empty())
+					const auto found = id_map.find(label);
+					if (found != id_map.end())
 					{
-						const auto found = id_map.find(label);
-						if (found != id_map.end())
-						{
-							m_Messages[found->second] = ConvertString(text.data(), text.size());
-						}
-						label.clear();
+						m_Messages[found->second] = ConvertString(text.data(), text.size());
 					}
+					label.clear();
 				}
 			}
 		};
@@ -451,13 +451,13 @@ void Language::init(const string& Path, int CountNeed)
 	}
 }
 
-bool Language::CheckMsgId(LNGID MsgId) const
+bool Language::CheckMsgId(lng MsgId) const
 {
 	/* $ 19.03.2002 DJ
 	   при отрицательном индексе - также покажем сообщение об ошибке
 	   (все лучше, чем трапаться)
 	*/
-	if (MsgId >= static_cast<int>(size()) || MsgId < 0)
+	if (static_cast<size_t>(MsgId) >= size() || static_cast<int>(MsgId) < 0)
 	{
 		/* $ 26.03.2002 DJ
 		   если менеджер уже в дауне - сообщение не выводим
@@ -477,7 +477,7 @@ bool Language::CheckMsgId(LNGID MsgId) const
 			if (Message(MSG_WARNING, 2,
 				L"Error",
 				strMsg1.data(),
-				(L"Message " + str(MsgId) + L" not found").data(),
+				(L"Message " + str(static_cast<int>(MsgId)) + L" not found").data(),
 				L"Ok", L"Quit") == Message::second_button)
 				exit(0);
 		}
@@ -488,7 +488,7 @@ bool Language::CheckMsgId(LNGID MsgId) const
 	return true;
 }
 
-const wchar_t* Language::GetMsg(LNGID nID) const
+const wchar_t* Language::GetMsg(lng nID) const
 {
-	return CheckMsgId(nID)? m_Messages[nID].data() : L"";
+	return CheckMsgId(nID)? m_Messages[static_cast<size_t>(nID)].data() : L"";
 }

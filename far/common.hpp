@@ -148,13 +148,13 @@ auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Rele
 }
 
 template<typename T>
-auto as_unsigned(T Value)
+constexpr auto as_unsigned(T Value)
 {
 	return static_cast<std::make_unsigned_t<T>>(Value);
 }
 
 template<typename T>
-auto as_underlying_type(T Value)
+constexpr auto as_underlying_type(T Value)
 {
 	return static_cast<std::underlying_type_t<T>>(Value);
 }

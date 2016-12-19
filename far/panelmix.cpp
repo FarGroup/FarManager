@@ -677,11 +677,11 @@ string FormatStr_Size(long long Size, const string& strName,
 	if (!Streams && !Packed && !have_size && !ShowFolderSize)
 	{
 		string strMsg;
-		const wchar_t *PtrName=MSG(MListFolder);
+		const wchar_t *PtrName=MSG(lng::MListFolder);
 
 		if (TestParentFolderName(strName))
 		{
-			PtrName=MSG(MListUp);
+			PtrName=MSG(lng::MListUp);
 		}
 		else
 		{
@@ -692,7 +692,7 @@ string FormatStr_Size(long long Size, const string& strName,
 				// 0xA0000003L = Directory Junction or Volume Mount Point
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
-						LNGID ID_Msg = MListJunction;
+						lng ID_Msg = lng::MListJunction;
 						if (Global->Opt->PanelDetailedJunction)
 						{
 							string strLinkName=CurDir?CurDir:L"";
@@ -705,7 +705,7 @@ string FormatStr_Size(long long Size, const string& strName,
 								bool Root;
 								if(ParsePath(strLinkName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
 								{
-									ID_Msg=MListVolMount;
+									ID_Msg = lng::MListVolMount;
 								}
 							}
 						}
@@ -714,44 +714,44 @@ string FormatStr_Size(long long Size, const string& strName,
 					break;
 				// 0xA000000CL = Directory or File Symbolic Link
 				case IO_REPARSE_TAG_SYMLINK:
-					PtrName = MSG(MListSymlink);
+					PtrName = MSG(lng::MListSymlink);
 					break;
 				// 0x8000000AL = Distributed File System
 				case IO_REPARSE_TAG_DFS:
-					PtrName = MSG(MListDFS);
+					PtrName = MSG(lng::MListDFS);
 					break;
 				// 0x80000012L = Distributed File System Replication
 				case IO_REPARSE_TAG_DFSR:
-					PtrName = MSG(MListDFSR);
+					PtrName = MSG(lng::MListDFSR);
 					break;
 				// 0xC0000004L = Hierarchical Storage Management
 				case IO_REPARSE_TAG_HSM:
-					PtrName = MSG(MListHSM);
+					PtrName = MSG(lng::MListHSM);
 					break;
 				// 0x80000006L = Hierarchical Storage Management2
 				case IO_REPARSE_TAG_HSM2:
-					PtrName = MSG(MListHSM2);
+					PtrName = MSG(lng::MListHSM2);
 					break;
 				// 0x80000007L = Single Instance Storage
 				case IO_REPARSE_TAG_SIS:
-					PtrName = MSG(MListSIS);
+					PtrName = MSG(lng::MListSIS);
 					break;
 				// 0x80000008L = Windows Imaging Format
 				case IO_REPARSE_TAG_WIM:
-					PtrName = MSG(MListWIM);
+					PtrName = MSG(lng::MListWIM);
 					break;
 				// 0x80000009L = Cluster Shared Volumes
 				case IO_REPARSE_TAG_CSV:
-					PtrName = MSG(MListCSV);
+					PtrName = MSG(lng::MListCSV);
 					break;
 				case IO_REPARSE_TAG_DEDUP:
-					PtrName = MSG(MListDEDUP);
+					PtrName = MSG(lng::MListDEDUP);
 					break;
 				case IO_REPARSE_TAG_NFS:
-					PtrName = MSG(MListNFS);
+					PtrName = MSG(lng::MListNFS);
 					break;
 				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
-					PtrName = MSG(MListPlaceholder);
+					PtrName = MSG(lng::MListPlaceholder);
 					break;
 					// 0x????????L = anything else
 				default:
@@ -762,7 +762,7 @@ string FormatStr_Size(long long Size, const string& strName,
 					}
 					else
 					{
-						PtrName=MSG(MListUnknownReparsePoint);
+						PtrName=MSG(lng::MListUnknownReparsePoint);
 					}
 				}
 			}
@@ -771,9 +771,9 @@ string FormatStr_Size(long long Size, const string& strName,
 		string strStr;
 		if(*PtrName)
 		{
-			if (StrLength(PtrName) <= Width-2 && MSG(MListBrackets)[0] && MSG(MListBrackets)[1])
+			if (StrLength(PtrName) <= Width-2 && MSG(lng::MListBrackets)[0] && MSG(lng::MListBrackets)[1])
 			{
-				strStr = concat(MSG(MListBrackets)[0], PtrName, MSG(MListBrackets)[1]);
+				strStr = concat(MSG(lng::MListBrackets)[0], PtrName, MSG(lng::MListBrackets)[1]);
 			}
 			else
 			{

@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class GetFileString: noncopyable
 {
 public:
-	GetFileString(os::fs::file& SrcFile, uintptr_t CodePage);
+	GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage);
 	bool PeekString(LPWSTR* DestStr, size_t& Length);
 	bool GetString(LPWSTR* DestStr, size_t& Length);
 	bool GetString(string& str);
@@ -50,7 +50,7 @@ private:
 	template<class T>
 	bool GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian = false);
 
-	os::fs::file& SrcFile;
+	const os::fs::file& SrcFile;
 	uintptr_t m_CodePage;
 	size_t ReadPos, ReadSize;
 
@@ -69,6 +69,6 @@ private:
 	bool bCrCr;
 };
 
-bool GetFileFormat(os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);
+bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);
 
 #endif // FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F

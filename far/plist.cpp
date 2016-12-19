@@ -79,7 +79,7 @@ void ShowProcessList()
 		return;
 	Active = true;
 
-	const auto ProcList = VMenu2::create(MSG(MProcessListTitle), nullptr, 0, ScrY - 4);
+	const auto ProcList = VMenu2::create(MSG(lng::MProcessListTitle), nullptr, 0, ScrY - 4);
 	ProcList->SetMenuFlags(VMENU_WRAPMODE);
 	ProcList->SetPosition(-1,-1,0,0);
 	static bool bShowImage = false;
@@ -89,7 +89,7 @@ void ShowProcessList()
 	if (EnumWindows(EnumWindowsProc,(LPARAM)&pi))
 	{
 		ProcList->AssignHighlights(FALSE);
-		ProcList->SetBottomTitle(MSG(MProcessListBottom));
+		ProcList->SetBottomTitle(MSG(lng::MProcessListBottom));
 		ProcList->SortItems(TaskSort);
 
 		ProcList->Run([&](const Manager::Key& RawKey)
@@ -124,13 +124,13 @@ void ShowProcessList()
 						DWORD ProcID;
 						GetWindowThreadProcessId(ProcWnd,&ProcID);
 
-						if (Message(MSG_WARNING,2,MSG(MKillProcessTitle),MSG(MAskKillProcess),
-									NullToEmpty(Title.get()),MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)) == Message::first_button)
+						if (Message(MSG_WARNING,2,MSG(lng::MKillProcessTitle),MSG(lng::MAskKillProcess),
+									NullToEmpty(Title.get()),MSG(lng::MKillProcessWarning),MSG(lng::MKillProcessKill),MSG(lng::MCancel)) == Message::first_button)
 						{
 							if (!KillProcess(ProcID))
 							{
 								Global->CatchError();
-								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
+								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MKillProcessTitle),MSG(lng::MCannotKillProcess),MSG(lng::MOk));
 							}
 						}
 					}

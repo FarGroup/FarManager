@@ -755,7 +755,7 @@ void Text(const wchar_t* Str, size_t Size)
 }
 
 
-void Text(LNGID MsgId)
+void Text(lng MsgId)
 {
 	Text(MSG(MsgId));
 }

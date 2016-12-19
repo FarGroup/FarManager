@@ -408,7 +408,7 @@ window_ptr Manager::WindowMenu()
 
 		const auto TypesWidth = std::get<0>(*std::max_element(ALL_CONST_RANGE(Data), [](const auto& a, const auto &b) { return std::get<0>(a).size() < std::get<0>(b).size(); })).size();
 
-		const auto ModalMenu = VMenu2::create(MSG(MScreensTitle), nullptr, 0, ScrY - 4);
+		const auto ModalMenu = VMenu2::create(MSG(lng::MScreensTitle), nullptr, 0, ScrY - 4);
 		ModalMenu->SetHelp(L"ScrSwitch");
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1, -1, 0, 0);
@@ -646,9 +646,9 @@ void Manager::ExitMainLoop(int Ask)
 		Global->CloseFARMenu=TRUE;
 	};
 
-	if (!Ask || !Global->Opt->Confirm.Exit || Message(0, MSG(MQuit),
-		{ MSG(MAskQuit) },
-		{ MSG(MYes), MSG(MNo) },
+	if (!Ask || !Global->Opt->Confirm.Exit || Message(0, MSG(lng::MQuit),
+		{ MSG(lng::MAskQuit) },
+		{ MSG(lng::MYes), MSG(lng::MNo) },
 		nullptr, nullptr, &FarAskQuitId) == Message::first_button)
 	{
 		/* $ 29.12.2000 IS

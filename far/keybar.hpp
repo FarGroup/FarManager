@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 
-enum LNGID : int;
+enum class lng : int;
 
 //   Группы меток
 enum keybar_group
@@ -83,7 +83,7 @@ public:
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 
-	void SetLabels(LNGID StartIndex);
+	void SetLabels(lng StartIndex);
 	void SetCustomLabels(KEYBARAREA Area);
 
 	using keybar_item = std::pair<string, string>;

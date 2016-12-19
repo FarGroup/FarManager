@@ -81,7 +81,7 @@ static void ShowStackTrace(const std::vector<string>& Symbols)
 {
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MExcTrappedException), Symbols, { MSG(MOk) });
+		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(lng::MExcTrappedException), Symbols, { MSG(lng::MOk) });
 	}
 	else
 	{
@@ -93,18 +93,18 @@ static void ShowStackTrace(const std::vector<string>& Symbols)
 	}
 }
 
-static void write_minidump(EXCEPTION_POINTERS *ex_pointers)
+static bool write_minidump(EXCEPTION_POINTERS *ex_pointers)
 {
-	if (Imports().MiniDumpWriteDump)
-	{
-		// TODO: subdirectory && timestamp
-		os::fs::file DumpFile;
-		if (DumpFile.Open(Global->Opt->LocalProfilePath + L"\\Far.mdmp", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS))
-		{
-			MINIDUMP_EXCEPTION_INFORMATION Mei = { GetCurrentThreadId(), ex_pointers };
-			Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.handle().native_handle(), MiniDumpWithFullMemory, ex_pointers ? &Mei : nullptr, nullptr, nullptr);
-		}
-	}
+	if (!Imports().MiniDumpWriteDump)
+		return false;
+
+	// TODO: subdirectory && timestamp
+	const os::fs::file DumpFile(Global->Opt->LocalProfilePath + L"\\Far.mdmp", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	if (!DumpFile)
+		return false;
+
+	MINIDUMP_EXCEPTION_INFORMATION Mei = { GetCurrentThreadId(), ex_pointers };
+	return Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.handle().native_handle(), MiniDumpWithFullMemory, ex_pointers ? &Mei : nullptr, nullptr, nullptr) != FALSE;
 }
 
 intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -192,20 +192,20 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 
 	FarDialogItem EditDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,MSG(MExcTrappedException)},
-		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(MExcException)},
+		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,MSG(lng::MExcTrappedException)},
+		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(lng::MExcException)},
 		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception},
-		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
+		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(lng::MExcAddress)},
 		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,strAddr.data()},
-		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
+		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(lng::MExcFunction)},
 		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Function},
-		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
+		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(lng::MExcModule)},
 		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, MSG(PluginModule? MExcUnload : MExcTerminate)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcStack)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcMinidump)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MIgnore)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, MSG(PluginModule? lng::MExcUnload : lng::MExcTerminate)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MExcStack)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MExcMinidump)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MIgnore)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<void*>(reinterpret_cast<const void*>(xp)));
@@ -231,10 +231,10 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const EXCEP
 	string Msg[4];
 	if (LanguageLoaded())
 	{
-		Msg[0] = MSG(MExcException);
-		Msg[1] = MSG(MExcAddress);
-		Msg[2] = MSG(MExcFunction);
-		Msg[3] = MSG(MExcModule);
+		Msg[0] = MSG(lng::MExcException);
+		Msg[1] = MSG(lng::MExcAddress);
+		Msg[2] = MSG(lng::MExcFunction);
+		Msg[3] = MSG(lng::MExcModule);
 	}
 	else
 	{
@@ -345,24 +345,24 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 	{
 		NTSTATUS Code;     // код исключения
 		const wchar_t* DefaultMsg; // Lng-files may not be loaded yet
-		LNGID IdMsg;    // ID сообщения из LNG-файла
+		lng IdMsg;    // ID сообщения из LNG-файла
 	}
 	ECode[]=
 	{
 		#define CODEANDTEXT(x) x, L###x
-		{CODEANDTEXT(EXCEPTION_ACCESS_VIOLATION), MExcRAccess},
-		{CODEANDTEXT(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), MExcOutOfBounds},
-		{CODEANDTEXT(EXCEPTION_INT_DIVIDE_BY_ZERO),MExcDivideByZero},
-		{CODEANDTEXT(EXCEPTION_STACK_OVERFLOW),MExcStackOverflow},
-		{CODEANDTEXT(EXCEPTION_BREAKPOINT),MExcBreakPoint},
-		{CODEANDTEXT(EXCEPTION_FLT_DIVIDE_BY_ZERO),MExcFloatDivideByZero}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
-		{CODEANDTEXT(EXCEPTION_FLT_OVERFLOW),MExcFloatOverflow},           // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_FLT_STACK_CHECK),MExcFloatStackOverflow},   // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_FLT_UNDERFLOW),MExcFloatUnderflow},         // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_ILLEGAL_INSTRUCTION),MExcBadInstruction},
-		{CODEANDTEXT(EXCEPTION_PRIV_INSTRUCTION),MExcBadInstruction},
-		{CODEANDTEXT(EXCEPTION_DATATYPE_MISALIGNMENT), MExcDatatypeMisalignment},
-		{CODEANDTEXT(EXCEPTION_MICROSOFT_CPLUSPLUS), MExcCplusPlus},
+		{CODEANDTEXT(EXCEPTION_ACCESS_VIOLATION), lng::MExcRAccess},
+		{CODEANDTEXT(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), lng::MExcOutOfBounds},
+		{CODEANDTEXT(EXCEPTION_INT_DIVIDE_BY_ZERO), lng::MExcDivideByZero},
+		{CODEANDTEXT(EXCEPTION_STACK_OVERFLOW), lng::MExcStackOverflow},
+		{CODEANDTEXT(EXCEPTION_BREAKPOINT), lng::MExcBreakPoint},
+		{CODEANDTEXT(EXCEPTION_FLT_DIVIDE_BY_ZERO), lng::MExcFloatDivideByZero}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
+		{CODEANDTEXT(EXCEPTION_FLT_OVERFLOW), lng::MExcFloatOverflow},           // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_FLT_STACK_CHECK), lng::MExcFloatStackOverflow},   // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_FLT_UNDERFLOW), lng::MExcFloatUnderflow},         // BUGBUG:  ^^^
+		{CODEANDTEXT(EXCEPTION_ILLEGAL_INSTRUCTION), lng::MExcBadInstruction},
+		{CODEANDTEXT(EXCEPTION_PRIV_INSTRUCTION), lng::MExcBadInstruction},
+		{CODEANDTEXT(EXCEPTION_DATATYPE_MISALIGNMENT), lng::MExcDatatypeMisalignment},
+		{CODEANDTEXT(EXCEPTION_MICROSOFT_CPLUSPLUS), lng::MExcCplusPlus},
 		// сюды добавляем.
 
 		#undef CODEANDTEXT
@@ -425,7 +425,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 			if (LanguageLoaded())
 			{
-				strBuf = format(MExcRAccess + Offset, strBuf);
+				strBuf = format(lng::MExcRAccess + Offset, strBuf);
 				Exception=strBuf.data();
 			}
 			else
@@ -454,7 +454,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 	if (!Exception)
 	{
-		const auto Template = LanguageLoaded()? MSG(MExcUnknown) : L"Unknown exception";
+		const auto Template = LanguageLoaded()? MSG(lng::MExcUnknown) : L"Unknown exception";
 		append(strBuf, Template, L" (0x"s, to_hex_wstring(xr->ExceptionCode), L')');
 		Exception = strBuf.data();
 	}
@@ -695,7 +695,7 @@ static int ExceptionTestHook(Manager::Key key)
 			break;
 		}
 
-		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", Names[ExitCode], L"", MSG(MOk));
+		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", Names[ExitCode], L"", MSG(lng::MOk));
 		return TRUE;
 	}
 	return FALSE;

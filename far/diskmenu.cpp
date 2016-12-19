@@ -196,25 +196,25 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 
 static void ConfigureChangeDriveMode()
 {
-	DialogBuilder Builder(MChangeDriveConfigure, L"ChangeDriveMode");
+	DialogBuilder Builder(lng::MChangeDriveConfigure, L"ChangeDriveMode");
 	Builder.SetId(ChangeDriveModeId);
-	Builder.AddCheckbox(MChangeDriveShowDiskType, Global->Opt->ChangeDriveMode, DRIVE_SHOW_TYPE);
-	Builder.AddCheckbox(MChangeDriveShowLabel, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL);
-	Builder.AddCheckbox(MChangeDriveShowFileSystem, Global->Opt->ChangeDriveMode, DRIVE_SHOW_FILESYSTEM);
+	Builder.AddCheckbox(lng::MChangeDriveShowDiskType, Global->Opt->ChangeDriveMode, DRIVE_SHOW_TYPE);
+	Builder.AddCheckbox(lng::MChangeDriveShowLabel, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL);
+	Builder.AddCheckbox(lng::MChangeDriveShowFileSystem, Global->Opt->ChangeDriveMode, DRIVE_SHOW_FILESYSTEM);
 
 	BOOL ShowSizeAny = Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE | DRIVE_SHOW_SIZE_FLOAT);
 
-	DialogItemEx *ShowSize = Builder.AddCheckbox(MChangeDriveShowSize, &ShowSizeAny);
-	DialogItemEx *ShowSizeFloat = Builder.AddCheckbox(MChangeDriveShowSizeFloat, Global->Opt->ChangeDriveMode, DRIVE_SHOW_SIZE_FLOAT);
+	DialogItemEx *ShowSize = Builder.AddCheckbox(lng::MChangeDriveShowSize, &ShowSizeAny);
+	DialogItemEx *ShowSizeFloat = Builder.AddCheckbox(lng::MChangeDriveShowSizeFloat, Global->Opt->ChangeDriveMode, DRIVE_SHOW_SIZE_FLOAT);
 	ShowSizeFloat->Indent(4);
 	Builder.LinkFlags(ShowSize, ShowSizeFloat, DIF_DISABLE);
 
-	Builder.AddCheckbox(MChangeDriveShowNetworkName, Global->Opt->ChangeDriveMode, DRIVE_SHOW_NETNAME);
-	Builder.AddCheckbox(MChangeDriveShowPlugins, Global->Opt->ChangeDriveMode, DRIVE_SHOW_PLUGINS);
-	Builder.AddCheckbox(MChangeDriveSortPluginsByHotkey, Global->Opt->ChangeDriveMode, DRIVE_SORT_PLUGINS_BY_HOTKEY)->Indent(4);
-	Builder.AddCheckbox(MChangeDriveShowRemovableDrive, Global->Opt->ChangeDriveMode, DRIVE_SHOW_REMOVABLE);
-	Builder.AddCheckbox(MChangeDriveShowCD, Global->Opt->ChangeDriveMode, DRIVE_SHOW_CDROM);
-	Builder.AddCheckbox(MChangeDriveShowNetworkDrive, Global->Opt->ChangeDriveMode, DRIVE_SHOW_REMOTE);
+	Builder.AddCheckbox(lng::MChangeDriveShowNetworkName, Global->Opt->ChangeDriveMode, DRIVE_SHOW_NETNAME);
+	Builder.AddCheckbox(lng::MChangeDriveShowPlugins, Global->Opt->ChangeDriveMode, DRIVE_SHOW_PLUGINS);
+	Builder.AddCheckbox(lng::MChangeDriveSortPluginsByHotkey, Global->Opt->ChangeDriveMode, DRIVE_SORT_PLUGINS_BY_HOTKEY)->Indent(4);
+	Builder.AddCheckbox(lng::MChangeDriveShowRemovableDrive, Global->Opt->ChangeDriveMode, DRIVE_SHOW_REMOVABLE);
+	Builder.AddCheckbox(lng::MChangeDriveShowCD, Global->Opt->ChangeDriveMode, DRIVE_SHOW_CDROM);
+	Builder.AddCheckbox(lng::MChangeDriveShowNetworkDrive, Global->Opt->ChangeDriveMode, DRIVE_SHOW_REMOTE);
 
 	Builder.AddOKCancel();
 	if (Builder.ShowDialog())
@@ -275,20 +275,20 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	*/
 	FarDialogItem DCDlgData[] =
 	{
-		{ DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0, MSG(MChangeDriveDisconnectTitle) },
+		{ DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0, MSG(lng::MChangeDriveDisconnectTitle) },
 		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, 5, 3, 0, 3, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, -1, 5, 0, 5, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_CHECKBOX, 5, 6, 70, 6, 0, nullptr, nullptr, 0, MSG(MChangeDriveDisconnectReconnect) },
+		{ DI_CHECKBOX, 5, 6, 70, 6, 0, nullptr, nullptr, 0, MSG(lng::MChangeDriveDisconnectReconnect) },
 		{ DI_TEXT, -1, 7, 0, 7, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON | DIF_CENTERGROUP, MSG(MYes) },
-		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MCancel) },
+		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON | DIF_CENTERGROUP, MSG(lng::MYes) },
+		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(lng::MCancel) },
 	};
 	auto DCDlg = MakeDialogItemsEx(DCDlgData);
 
-	DCDlg[1].strData = format(MChangeDriveDisconnectQuestion, Letter);
-	DCDlg[2].strData = format(MChangeDriveDisconnectMapped, Letter);
+	DCDlg[1].strData = format(lng::MChangeDriveDisconnectQuestion, Letter);
+	DCDlg[2].strData = format(lng::MChangeDriveDisconnectMapped, Letter);
 
 	size_t Len1 = DCDlg[0].strData.size();
 	size_t Len2 = DCDlg[1].strData.size();
@@ -350,13 +350,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 	{
 		if (Global->Opt->Confirm.RemoveSUBST)
 		{
-			const auto Question = format(MChangeSUBSTDisconnectDriveQuestion, DiskLetter);
-			const auto MappedTo = format(MChangeDriveDisconnectMapped, DiskLetter.front());
+			const auto Question = format(lng::MChangeSUBSTDisconnectDriveQuestion, DiskLetter);
+			const auto MappedTo = format(lng::MChangeDriveDisconnectMapped, DiskLetter.front());
 			string SubstitutedPath;
 			GetSubstName(DriveType, DiskLetter, SubstitutedPath);
-			if (Message(MSG_WARNING, MSG(MChangeSUBSTDisconnectDriveTitle),
+			if (Message(MSG_WARNING, MSG(lng::MChangeSUBSTDisconnectDriveTitle),
 				{ Question, MappedTo, SubstitutedPath },
-				{ MSG(MYes), MSG(MNo) },
+				{ MSG(lng::MYes), MSG(lng::MNo) },
 				nullptr, nullptr, &SUBSTDisconnectDriveId) != Message::first_button)
 			{
 				return DRIVE_DEL_FAIL;
@@ -370,12 +370,12 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		{
 			Global->CatchError();
 			const auto LastError = Global->CaughtError().Win32Error;
-			const auto strMsgText = format(MChangeDriveCannotDelSubst, DiskLetter);
+			const auto strMsgText = format(lng::MChangeDriveCannotDelSubst, DiskLetter);
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-					{ strMsgText, L"\x1", MSG(MChangeDriveOpenFiles), MSG(MChangeDriveAskDisconnect) },
-					{ MSG(MOk), MSG(MCancel) },
+				if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
+					{ strMsgText, L"\x1", MSG(lng::MChangeDriveOpenFiles), MSG(lng::MChangeDriveAskDisconnect) },
+					{ MSG(lng::MOk), MSG(lng::MCancel) },
 					nullptr, nullptr, &SUBSTDisconnectDriveError1Id) == Message::first_button)
 				{
 					if (DelSubstDrive(DiskLetter))
@@ -388,9 +388,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 					return DRIVE_DEL_FAIL;
 				}
 			}
-			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
+			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
 				{ strMsgText },
-				{ MSG(MOk) },
+				{ MSG(lng::MOk) },
 				nullptr, nullptr, &SUBSTDisconnectDriveError2Id);
 		}
 		return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
@@ -419,13 +419,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			else
 			{
 				Global->CatchError();
-				const auto strMsgText = format(MChangeDriveCannotDisconnect, DiskLetter);
+				const auto strMsgText = format(lng::MChangeDriveCannotDisconnect, DiskLetter);
 				const auto LastError = Global->CaughtError().Win32Error;
 				if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 				{
-					if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-						{ strMsgText, L"\x1", MSG(MChangeDriveOpenFiles), MSG(MChangeDriveAskDisconnect) },
-						{ MSG(MOk), MSG(MCancel) },
+					if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
+						{ strMsgText, L"\x1", MSG(lng::MChangeDriveOpenFiles), MSG(lng::MChangeDriveAskDisconnect) },
+						{ MSG(lng::MOk), MSG(lng::MCancel) },
 						nullptr, nullptr, &RemoteDisconnectDriveError1Id) == Message::first_button)
 					{
 						if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, TRUE) == NO_ERROR)
@@ -441,9 +441,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				const wchar_t RootDir[] = { DiskLetter[0], L':', L'\\', L'\0' };
 				if (FAR_GetDriveType(RootDir) == DRIVE_REMOTE)
 				{
-					Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
+					Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
 						{ strMsgText },
-						{ MSG(MOk) },
+						{ MSG(lng::MOk) },
 						nullptr, nullptr, &RemoteDisconnectDriveError2Id);
 				}
 			}
@@ -456,10 +456,10 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 	{
 		if (Global->Opt->Confirm.DetachVHD)
 		{
-			const auto Question = format(MChangeVHDDisconnectDriveQuestion, DiskLetter);
-			if (Message(MSG_WARNING, MSG(MChangeVHDDisconnectDriveTitle),
+			const auto Question = format(lng::MChangeVHDDisconnectDriveQuestion, DiskLetter);
+			if (Message(MSG_WARNING, MSG(lng::MChangeVHDDisconnectDriveTitle),
 				{ Question },
-				{ MSG(MYes), MSG(MNo) },
+				{ MSG(lng::MYes), MSG(lng::MNo) },
 				nullptr, nullptr, &VHDDisconnectDriveId) != Message::first_button)
 			{
 				return DRIVE_DEL_FAIL;
@@ -486,9 +486,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 
 		if (Result != DRIVE_DEL_SUCCESS)
 		{
-			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(MError),
-				{ format(MChangeDriveCannotDetach, DiskLetter) },
-				{ MSG(MOk) },
+			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
+				{ format(lng::MChangeDriveCannotDetach, DiskLetter) },
+				{ MSG(lng::MOk) },
 				nullptr, nullptr, &VHDDisconnectDriveErrorId);
 		}
 		return Result;
@@ -538,7 +538,7 @@ static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &C
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 					Global->CatchError();
 					wchar_t Drive[] = { item->cDrive, L':', L'\\', 0 };
-					DoneEject = OperationFailed(Drive, MError, format(MChangeCouldNotEjectMedia, item->cDrive), false) != operation::retry;
+					DoneEject = OperationFailed(Drive, lng::MError, format(lng::MChangeCouldNotEjectMedia, item->cDrive), false) != operation::retry;
 				}
 				else
 					DoneEject = true;
@@ -586,9 +586,9 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 				Global->CatchError();
 				DoneEject = Message(MSG_WARNING | MSG_ERRORTYPE,
-					MSG(MError),
-					{ format(MChangeCouldNotEjectHotPlugMedia, item->cDrive) },
-					{ MSG(MHRetry), MSG(MHCancel) },
+					MSG(lng::MError),
+					{ format(lng::MChangeCouldNotEjectHotPlugMedia, item->cDrive) },
+					{ MSG(lng::MHRetry), MSG(lng::MHCancel) },
 					nullptr, nullptr, &EjectHotPlugMediaErrorId) != Message::first_button;
 			}
 			else
@@ -616,8 +616,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	PanelMenuItem Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
-		const auto ChDisk = VMenu2::create(MSG(MChangeDriveTitle), nullptr, 0, ScrY - Panel_Y1 - 3);
-		ChDisk->SetBottomTitle(MSG(MChangeDriveMenuFooter));
+		const auto ChDisk = VMenu2::create(MSG(lng::MChangeDriveTitle), nullptr, 0, ScrY - Panel_Y1 - 3);
+		ChDisk->SetBottomTitle(MSG(lng::MChangeDriveMenuFooter));
 		ChDisk->SetHelp(L"DriveDlg");
 		ChDisk->SetMenuFlags(VMENU_WRAPMODE);
 		ChDisk->SetId(ChangeDiskMenuId);
@@ -671,26 +671,26 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_NETNAME))
 			{
-				static constexpr std::pair<int, LNGID> DrTMsg[] =
+				static constexpr std::pair<int, lng> DrTMsg[] =
 				{
-					{ DRIVE_REMOVABLE, MChangeDriveRemovable },
-					{ DRIVE_FIXED, MChangeDriveFixed },
-					{ DRIVE_REMOTE, MChangeDriveNetwork },
-					{ DRIVE_REMOTE_NOT_CONNECTED, MChangeDriveDisconnectedNetwork },
-					{ DRIVE_CDROM, MChangeDriveCDROM },
-					{ DRIVE_CD_RW, MChangeDriveCD_RW },
-					{ DRIVE_CD_RWDVD, MChangeDriveCD_RWDVD },
-					{ DRIVE_DVD_ROM, MChangeDriveDVD_ROM },
-					{ DRIVE_DVD_RW, MChangeDriveDVD_RW },
-					{ DRIVE_DVD_RAM, MChangeDriveDVD_RAM },
-					{ DRIVE_BD_ROM, MChangeDriveBD_ROM },
-					{ DRIVE_BD_RW, MChangeDriveBD_RW },
-					{ DRIVE_HDDVD_ROM, MChangeDriveHDDVD_ROM },
-					{ DRIVE_HDDVD_RW, MChangeDriveHDDVD_RW },
-					{ DRIVE_RAMDISK, MChangeDriveRAM },
-					{ DRIVE_SUBSTITUTE, MChangeDriveSUBST },
-					{ DRIVE_VIRTUAL, MChangeDriveVirtual },
-					{ DRIVE_USBDRIVE, MChangeDriveRemovable },
+					{ DRIVE_REMOVABLE, lng::MChangeDriveRemovable },
+					{ DRIVE_FIXED, lng::MChangeDriveFixed },
+					{ DRIVE_REMOTE, lng::MChangeDriveNetwork },
+					{ DRIVE_REMOTE_NOT_CONNECTED, lng::MChangeDriveDisconnectedNetwork },
+					{ DRIVE_CDROM, lng::MChangeDriveCDROM },
+					{ DRIVE_CD_RW, lng::MChangeDriveCD_RW },
+					{ DRIVE_CD_RWDVD, lng::MChangeDriveCD_RWDVD },
+					{ DRIVE_DVD_ROM, lng::MChangeDriveDVD_ROM },
+					{ DRIVE_DVD_RW, lng::MChangeDriveDVD_RW },
+					{ DRIVE_DVD_RAM, lng::MChangeDriveDVD_RAM },
+					{ DRIVE_BD_ROM, lng::MChangeDriveBD_ROM },
+					{ DRIVE_BD_RW, lng::MChangeDriveBD_RW },
+					{ DRIVE_HDDVD_ROM, lng::MChangeDriveHDDVD_ROM },
+					{ DRIVE_HDDVD_RW, lng::MChangeDriveHDDVD_RW },
+					{ DRIVE_RAMDISK, lng::MChangeDriveRAM },
+					{ DRIVE_SUBSTITUTE, lng::MChangeDriveSUBST },
+					{ DRIVE_VIRTUAL, lng::MChangeDriveVirtual },
+					{ DRIVE_USBDRIVE, lng::MChangeDriveRemovable },
 				};
 
 				const auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, i) { return i.first == NewItem.DriveType; });
@@ -722,7 +722,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				if (Absent && NewItem.Label.empty())
 				{
-					NewItem.Label = MSG(MChangeDriveLabelAbsent);
+					NewItem.Label = MSG(lng::MChangeDriveLabelAbsent);
 				}
 			}
 
@@ -1121,7 +1121,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (!EjectVolume(mitem->cDrive, EJECT_READY | EJECT_NO_MESSAGE))
 			{
 				SCOPED_ACTION(SaveScreen);
-				Message(0, 0, L"", MSG(MChangeWaitingLoadDisk));
+				Message(0, 0, L"", MSG(lng::MChangeWaitingLoadDisk));
 				EjectVolume(mitem->cDrive, EJECT_LOAD_MEDIA | EJECT_NO_MESSAGE);
 			}
 		}
@@ -1158,7 +1158,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 			Global->CatchError();
 
-			DialogBuilder Builder(MError, nullptr);
+			DialogBuilder Builder(lng::MError, nullptr);
 
 			Builder.AddTextWrap(GetErrorString().data(), true);
 			Builder.AddText(L"");
@@ -1166,10 +1166,10 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			const wchar_t Drive[] = { mitem->cDrive, L'\0' };
 			string DriveLetter = Drive;
 			DialogItemEx *DriveLetterEdit = Builder.AddFixEditField(DriveLetter, 1);
-			Builder.AddTextBefore(DriveLetterEdit, MChangeDriveCannotReadDisk);
+			Builder.AddTextBefore(DriveLetterEdit, lng::MChangeDriveCannotReadDisk);
 			Builder.AddTextAfter(DriveLetterEdit, L":", 0);
 
-			Builder.AddOKCancel(MRetry, MCancel);
+			Builder.AddOKCancel(lng::MRetry, lng::MCancel);
 			Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 			Builder.SetId(ChangeDriveCannotReadDiskErrorId);
 

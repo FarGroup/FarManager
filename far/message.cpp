@@ -121,7 +121,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_F3:
 					if(IsErrorType)
 					{
-						DialogBuilder Builder(MError, nullptr);
+						DialogBuilder Builder(lng::MError, nullptr);
 						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtError().Win32Error), GetWin32ErrorString(Global->CaughtError().Win32Error)), 65);
 						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtError().NtError), GetNtErrorString(Global->CaughtError().NtError)), 65);
 						Builder.AddOK();
@@ -584,9 +584,9 @@ bool AbortMessage()
 	}
 
 	SCOPED_ACTION(TaskBarPause);
-	int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
-	                  MSG((Global->Opt->Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
-	                  MSG(MYes),MSG(MNo));
+	int Res = Message(MSG_WARNING | MSG_KILLSAVESCREEN, 2, MSG(lng::MKeyESCWasPressed),
+		MSG(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToStopWork2 : lng::MDoYouWantToStopWork),
+		MSG(lng::MYes), MSG(lng::MNo));
 
 	if (Res == -1) // Set "ESC" equal to "NO" button
 		Res = 1;

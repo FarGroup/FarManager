@@ -125,7 +125,7 @@ static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
 	ClearArray(pSptwb->Spt.Cdb);
 }
 
-static CDROM_DeviceCapabilities getCapsUsingMagic(os::fs::file& Device)
+static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 {
 	int caps = CAPABILITIES_NONE;
 
@@ -324,7 +324,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(os::fs::file& Device)
 	return (CDROM_DeviceCapabilities)caps;
 }
 
-static CDROM_DeviceCapabilities getCapsUsingDeviceProps(os::fs::file& Device)
+static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Device)
 {
 	STORAGE_DESCRIPTOR_HEADER hdr = {};
 	STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery};
@@ -346,7 +346,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(os::fs::file& Device)
 	return CAPABILITIES_NONE;
 }
 
-static CDROM_DeviceCapabilities GetDeviceCapabilities(os::fs::file& Device)
+static CDROM_DeviceCapabilities GetDeviceCapabilities(const os::fs::file& Device)
 {
 	auto caps = getCapsUsingMagic(Device);
 
@@ -414,8 +414,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 			VolumePath.insert(0, UncDevicePrefix.data(), UncDevicePrefix.size());
 		}
 
-		os::fs::file Device;
-		if(Device.Open(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+		if(const auto Device = os::fs::file(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
 			DrvType = GetDeviceTypeByCaps(GetDeviceCapabilities(Device));
 		}
@@ -432,8 +431,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		DeleteEndSlash(drive);
 
 		DrvType = DRIVE_USBDRIVE; // default type if detection failed
-		os::fs::file Device;
-		if (Device.Open(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+		if (const auto Device = os::fs::file(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 		{
 			DISK_GEOMETRY g;
 			DWORD dwOutBytes;

@@ -406,14 +406,14 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 	};
 
 	Message(MSG_WARNING|MSG_NOPLUGINS,
-		MSG(MError),
+		MSG(lng::MError),
 		{
-			MSG(MPlgBadVers),
+			MSG(lng::MPlgBadVers),
 			plg,
-			format(MPlgRequired, str(required)),
-			format(MPlgRequired2, str(FAR_VERSION))
+			format(lng::MPlgRequired, str(required)),
+			format(lng::MPlgRequired2, str(FAR_VERSION))
 		},
-		{ MSG(MOk) }
+		{ MSG(lng::MOk) }
 	);
 }
 
@@ -559,9 +559,9 @@ bool Plugin::LoadData()
 
 		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, MSG(MError),
-				{ MSG(MPlgLoadPluginError), m_strModuleName },
-				{ MSG(MOk) },
+			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, MSG(lng::MError),
+				{ MSG(lng::MPlgLoadPluginError), m_strModuleName },
+				{ MSG(lng::MOk) },
 				L"ErrLoadPlugin");
 		}
 
@@ -838,7 +838,7 @@ void Plugin::CloseLang()
 	PluginLang.reset();
 }
 
-const wchar_t* Plugin::GetMsg(LNGID nID) const
+const wchar_t* Plugin::GetMsg(lng nID) const
 {
 	return PluginLang->GetMsg(nID);
 }

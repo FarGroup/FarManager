@@ -1536,7 +1536,7 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 	void *Param;
 };
 
-static const char* GetPluginMsg(const Plugin* PluginInstance, LNGID MsgId);
+static const char* GetPluginMsg(const Plugin* PluginInstance, lng MsgId);
 
 namespace oldpluginapi
 {
@@ -2509,7 +2509,7 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 		CutToSlash(strPath);
 
 		if (pPlugin->InitLang(strPath))
-			return GetPluginMsg(pPlugin, static_cast<LNGID>(MsgId));
+			return GetPluginMsg(pPlugin, static_cast<lng>(MsgId));
 
 		return "";
 	}
@@ -5038,7 +5038,7 @@ public:
 		FreeOpenPanelInfo();
 	}
 
-	const char *GetMsgA(LNGID nID) const
+	const char *GetMsgA(lng nID) const
 	{
 		return static_cast<const AnsiLanguage&>(*PluginLang.get()).GetMsgA(nID);
 	}
@@ -5978,7 +5978,7 @@ private:
 	public:
 		// Don't add Language(Path) to initialiser list and don't move init() to the Language ctor - it calls virtual functions.
 		AnsiLanguage(const string& Path) { init(Path); }
-		const char* GetMsgA(LNGID nID) const { return CheckMsgId(nID) ? m_AnsiMessages[nID].data() : ""; }
+		const char* GetMsgA(lng nID) const { return CheckMsgId(nID) ? m_AnsiMessages[static_cast<size_t>(nID)].data() : ""; }
 
 	private:
 		virtual size_t size() const override { return m_AnsiMessages.size(); }
@@ -6002,7 +6002,7 @@ private:
 	bool opif_shortcut;
 };
 
-static const char* GetPluginMsg(const Plugin* PluginInstance, LNGID MsgId)
+static const char* GetPluginMsg(const Plugin* PluginInstance, lng MsgId)
 {
 	return static_cast<const PluginA*>(PluginInstance)->GetMsgA(MsgId);
 }

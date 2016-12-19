@@ -164,7 +164,7 @@ bool FolderTree::CanFastHide() const
 
 int FolderTree::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(MFolderTreeType);
+	strType = MSG(lng::MFolderTreeType);
 	strName.clear();
 	return windowtype_findfolder;
 }
@@ -327,7 +327,7 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 void FolderTree::DrawEdit() const
 {
 	int FindY=m_Y2-2;
-	const wchar_t *SearchTxt=MSG(MFoldTreeSearch);
+	const wchar_t *SearchTxt=MSG(lng::MFoldTreeSearch);
 	GotoXY(m_X1+1,FindY);
 	SetColor(COL_PANELTEXT);
 	Text(SearchTxt + L"  "s);
@@ -345,6 +345,6 @@ void FolderTree::DrawEdit() const
 
 void FolderTree::InitKeyBar()
 {
-	m_windowKeyBar->SetLabels(MFolderTreeF1);
+	m_windowKeyBar->SetLabels(lng::MFolderTreeF1);
 	m_windowKeyBar->SetCustomLabels(KBA_FOLDERTREE);
 }

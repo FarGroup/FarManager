@@ -191,7 +191,7 @@ void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
 
 void FileViewer::InitKeyBar()
 {
-	m_windowKeyBar->SetLabels(Global->OnlyEditorViewerUsed ? MSingleViewF1 : MViewF1);
+	m_windowKeyBar->SetLabels(Global->OnlyEditorViewerUsed? lng::MSingleViewF1 : lng::MViewF1);
 
 	if (DisableEdit)
 		(*m_windowKeyBar)[KBL_MAIN][F6].clear();
@@ -357,7 +357,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					Global->CatchError();
-					if(OperationFailed(strViewFileName, MEditTitle, MSG(MEditCannotOpen), false) == operation::retry)
+					if(OperationFailed(strViewFileName, lng::MEditTitle, MSG(lng::MEditCannotOpen), false) == operation::retry)
 						continue;
 					else
 						return TRUE;
@@ -434,7 +434,7 @@ int FileViewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 int FileViewer::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(MScreensView);
+	strType = MSG(lng::MScreensView);
 	m_View->GetFileName(strName);
 	return windowtype_viewer;
 }
@@ -443,7 +443,7 @@ int FileViewer::GetTypeAndName(string &strType, string &strName)
 void FileViewer::ShowConsoleTitle()
 {
 	string strViewerTitleFormat = Global->Opt->strViewerTitleFormat.Get();
-	ReplaceStrings(strViewerTitleFormat, L"%Lng", MSG(MInViewer), true);
+	ReplaceStrings(strViewerTitleFormat, L"%Lng", MSG(lng::MInViewer), true);
 	ReplaceStrings(strViewerTitleFormat, L"%File", PointToName(GetViewer()->strFileName), true);
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 	RedrawTitle = FALSE;
@@ -524,7 +524,7 @@ void FileViewer::ShowStatus() const
 	    L"thd"[m_View->m_DisplayMode],
 	    m_View->m_Codepage,
 	    m_View->FileSize,
-	    MSG(MViewerStatusCol),
+	    MSG(lng::MViewerStatusCol),
 	    m_View->LeftPos,
 	    (m_View->LastPage ? 100:ToPercent(m_View->FilePos,m_View->FileSize))
 	);

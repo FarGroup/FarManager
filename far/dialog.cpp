@@ -1897,7 +1897,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (Items[I].Type==DI_CHECKBOX)
 				{
-					const wchar_t Check[]={L'[',(Items[I].Selected ?(((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2)?*MSG(MCheckBox2State):L'x'):L' '),L']',L'\0'};
+					const wchar_t Check[]={L'[',(Items[I].Selected ?(((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2)?*MSG(lng::MCheckBox2State):L'x'):L' '),L']',L'\0'};
 					strStr=Check;
 
 					if (Items[I].strData.size())
@@ -4272,7 +4272,7 @@ void Dialog::SetExitCode(int Code)
 */
 int Dialog::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(MDialogType);
+	strType = MSG(lng::MDialogType);
 	strName = GetTitle();
 	return windowtype_dialog;
 }

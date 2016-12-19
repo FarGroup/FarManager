@@ -85,7 +85,7 @@ enum list_mode
 
 struct color_item
 {
-	LNGID LngId;
+	lng LngId;
 	union
 	{
 		size_t SubColorCount;
@@ -101,237 +101,237 @@ void SetColors()
 	static constexpr color_item
 	PanelItems[] =
 	{
-		{ MSetColorPanelNormal,                COL_PANELTEXT },
-		{ MSetColorPanelSelected,              COL_PANELSELECTEDTEXT },
-		{ MSetColorPanelHighlightedText,       COL_PANELHIGHLIGHTTEXT },
-		{ MSetColorPanelHighlightedInfo,       COL_PANELINFOTEXT },
-		{ MSetColorPanelDragging,              COL_PANELDRAGTEXT },
-		{ MSetColorPanelBox,                   COL_PANELBOX },
-		{ MSetColorPanelNormalCursor,          COL_PANELCURSOR },
-		{ MSetColorPanelSelectedCursor,        COL_PANELSELECTEDCURSOR },
-		{ MSetColorPanelNormalTitle,           COL_PANELTITLE },
-		{ MSetColorPanelSelectedTitle,         COL_PANELSELECTEDTITLE },
-		{ MSetColorPanelColumnTitle,           COL_PANELCOLUMNTITLE },
-		{ MSetColorPanelTotalInfo,             COL_PANELTOTALINFO },
-		{ MSetColorPanelSelectedInfo,          COL_PANELSELECTEDINFO },
-		{ MSetColorPanelScrollbar,             COL_PANELSCROLLBAR },
-		{ MSetColorPanelScreensNumber,         COL_PANELSCREENSNUMBER },
+		{ lng::MSetColorPanelNormal,                COL_PANELTEXT },
+		{ lng::MSetColorPanelSelected,              COL_PANELSELECTEDTEXT },
+		{ lng::MSetColorPanelHighlightedText,       COL_PANELHIGHLIGHTTEXT },
+		{ lng::MSetColorPanelHighlightedInfo,       COL_PANELINFOTEXT },
+		{ lng::MSetColorPanelDragging,              COL_PANELDRAGTEXT },
+		{ lng::MSetColorPanelBox,                   COL_PANELBOX },
+		{ lng::MSetColorPanelNormalCursor,          COL_PANELCURSOR },
+		{ lng::MSetColorPanelSelectedCursor,        COL_PANELSELECTEDCURSOR },
+		{ lng::MSetColorPanelNormalTitle,           COL_PANELTITLE },
+		{ lng::MSetColorPanelSelectedTitle,         COL_PANELSELECTEDTITLE },
+		{ lng::MSetColorPanelColumnTitle,           COL_PANELCOLUMNTITLE },
+		{ lng::MSetColorPanelTotalInfo,             COL_PANELTOTALINFO },
+		{ lng::MSetColorPanelSelectedInfo,          COL_PANELSELECTEDINFO },
+		{ lng::MSetColorPanelScrollbar,             COL_PANELSCROLLBAR },
+		{ lng::MSetColorPanelScreensNumber,         COL_PANELSCREENSNUMBER },
 	},
 
 	ListItemsNormal[] =
 	{
-		{ MSetColorDialogListText,                          COL_DIALOGLISTTEXT },
-		{ MSetColorDialogListHighLight,                     COL_DIALOGLISTHIGHLIGHT },
-		{ MSetColorDialogListSelectedText,                  COL_DIALOGLISTSELECTEDTEXT },
-		{ MSetColorDialogListSelectedHighLight,             COL_DIALOGLISTSELECTEDHIGHLIGHT },
-		{ MSetColorDialogListDisabled,                      COL_DIALOGLISTDISABLED },
-		{ MSetColorDialogListBox,                           COL_DIALOGLISTBOX },
-		{ MSetColorDialogListTitle,                         COL_DIALOGLISTTITLE },
-		{ MSetColorDialogListScrollBar,                     COL_DIALOGLISTSCROLLBAR },
-		{ MSetColorDialogListArrows,                        COL_DIALOGLISTARROWS },
-		{ MSetColorDialogListArrowsSelected,                COL_DIALOGLISTARROWSSELECTED },
-		{ MSetColorDialogListArrowsDisabled,                COL_DIALOGLISTARROWSDISABLED },
-		{ MSetColorDialogListGrayed,                        COL_DIALOGLISTGRAY },
-		{ MSetColorDialogSelectedListGrayed,                COL_DIALOGLISTSELECTEDGRAYTEXT },
+		{ lng::MSetColorDialogListText,                          COL_DIALOGLISTTEXT },
+		{ lng::MSetColorDialogListHighLight,                     COL_DIALOGLISTHIGHLIGHT },
+		{ lng::MSetColorDialogListSelectedText,                  COL_DIALOGLISTSELECTEDTEXT },
+		{ lng::MSetColorDialogListSelectedHighLight,             COL_DIALOGLISTSELECTEDHIGHLIGHT },
+		{ lng::MSetColorDialogListDisabled,                      COL_DIALOGLISTDISABLED },
+		{ lng::MSetColorDialogListBox,                           COL_DIALOGLISTBOX },
+		{ lng::MSetColorDialogListTitle,                         COL_DIALOGLISTTITLE },
+		{ lng::MSetColorDialogListScrollBar,                     COL_DIALOGLISTSCROLLBAR },
+		{ lng::MSetColorDialogListArrows,                        COL_DIALOGLISTARROWS },
+		{ lng::MSetColorDialogListArrowsSelected,                COL_DIALOGLISTARROWSSELECTED },
+		{ lng::MSetColorDialogListArrowsDisabled,                COL_DIALOGLISTARROWSDISABLED },
+		{ lng::MSetColorDialogListGrayed,                        COL_DIALOGLISTGRAY },
+		{ lng::MSetColorDialogSelectedListGrayed,                COL_DIALOGLISTSELECTEDGRAYTEXT },
 	},
 
 	ListItemsWarn[] =
 	{
-		{ MSetColorDialogListText,                          COL_WARNDIALOGLISTTEXT },
-		{ MSetColorDialogListHighLight,                     COL_WARNDIALOGLISTHIGHLIGHT },
-		{ MSetColorDialogListSelectedText,                  COL_WARNDIALOGLISTSELECTEDTEXT },
-		{ MSetColorDialogListSelectedHighLight,             COL_WARNDIALOGLISTSELECTEDHIGHLIGHT },
-		{ MSetColorDialogListDisabled,                      COL_WARNDIALOGLISTDISABLED },
-		{ MSetColorDialogListBox,                           COL_WARNDIALOGLISTBOX },
-		{ MSetColorDialogListTitle,                         COL_WARNDIALOGLISTTITLE },
-		{ MSetColorDialogListScrollBar,                     COL_WARNDIALOGLISTSCROLLBAR },
-		{ MSetColorDialogListArrows,                        COL_WARNDIALOGLISTARROWS },
-		{ MSetColorDialogListArrowsSelected,                COL_WARNDIALOGLISTARROWSSELECTED },
-		{ MSetColorDialogListArrowsDisabled,                COL_WARNDIALOGLISTARROWSDISABLED },
-		{ MSetColorDialogListGrayed,                        COL_WARNDIALOGLISTGRAY },
-		{ MSetColorDialogSelectedListGrayed,                COL_WARNDIALOGLISTSELECTEDGRAYTEXT },
+		{ lng::MSetColorDialogListText,                          COL_WARNDIALOGLISTTEXT },
+		{ lng::MSetColorDialogListHighLight,                     COL_WARNDIALOGLISTHIGHLIGHT },
+		{ lng::MSetColorDialogListSelectedText,                  COL_WARNDIALOGLISTSELECTEDTEXT },
+		{ lng::MSetColorDialogListSelectedHighLight,             COL_WARNDIALOGLISTSELECTEDHIGHLIGHT },
+		{ lng::MSetColorDialogListDisabled,                      COL_WARNDIALOGLISTDISABLED },
+		{ lng::MSetColorDialogListBox,                           COL_WARNDIALOGLISTBOX },
+		{ lng::MSetColorDialogListTitle,                         COL_WARNDIALOGLISTTITLE },
+		{ lng::MSetColorDialogListScrollBar,                     COL_WARNDIALOGLISTSCROLLBAR },
+		{ lng::MSetColorDialogListArrows,                        COL_WARNDIALOGLISTARROWS },
+		{ lng::MSetColorDialogListArrowsSelected,                COL_WARNDIALOGLISTARROWSSELECTED },
+		{ lng::MSetColorDialogListArrowsDisabled,                COL_WARNDIALOGLISTARROWSDISABLED },
+		{ lng::MSetColorDialogListGrayed,                        COL_WARNDIALOGLISTGRAY },
+		{ lng::MSetColorDialogSelectedListGrayed,                COL_WARNDIALOGLISTSELECTEDGRAYTEXT },
 	},
 
 	ComboItemsNormal[] =
 	{
-		{ MSetColorDialogListText,                          COL_DIALOGCOMBOTEXT },
-		{ MSetColorDialogListHighLight,                     COL_DIALOGCOMBOHIGHLIGHT },
-		{ MSetColorDialogListSelectedText,                  COL_DIALOGCOMBOSELECTEDTEXT },
-		{ MSetColorDialogListSelectedHighLight,             COL_DIALOGCOMBOSELECTEDHIGHLIGHT },
-		{ MSetColorDialogListDisabled,                      COL_DIALOGCOMBODISABLED },
-		{ MSetColorDialogListBox,                           COL_DIALOGCOMBOBOX },
-		{ MSetColorDialogListTitle,                         COL_DIALOGCOMBOTITLE },
-		{ MSetColorDialogListScrollBar,                     COL_DIALOGCOMBOSCROLLBAR },
-		{ MSetColorDialogListArrows,                        COL_DIALOGCOMBOARROWS },
-		{ MSetColorDialogListArrowsSelected,                COL_DIALOGCOMBOARROWSSELECTED },
-		{ MSetColorDialogListArrowsDisabled,                COL_DIALOGCOMBOARROWSDISABLED },
-		{ MSetColorDialogListGrayed,                        COL_DIALOGCOMBOGRAY },
-		{ MSetColorDialogSelectedListGrayed,                COL_DIALOGCOMBOSELECTEDGRAYTEXT },
+		{ lng::MSetColorDialogListText,                          COL_DIALOGCOMBOTEXT },
+		{ lng::MSetColorDialogListHighLight,                     COL_DIALOGCOMBOHIGHLIGHT },
+		{ lng::MSetColorDialogListSelectedText,                  COL_DIALOGCOMBOSELECTEDTEXT },
+		{ lng::MSetColorDialogListSelectedHighLight,             COL_DIALOGCOMBOSELECTEDHIGHLIGHT },
+		{ lng::MSetColorDialogListDisabled,                      COL_DIALOGCOMBODISABLED },
+		{ lng::MSetColorDialogListBox,                           COL_DIALOGCOMBOBOX },
+		{ lng::MSetColorDialogListTitle,                         COL_DIALOGCOMBOTITLE },
+		{ lng::MSetColorDialogListScrollBar,                     COL_DIALOGCOMBOSCROLLBAR },
+		{ lng::MSetColorDialogListArrows,                        COL_DIALOGCOMBOARROWS },
+		{ lng::MSetColorDialogListArrowsSelected,                COL_DIALOGCOMBOARROWSSELECTED },
+		{ lng::MSetColorDialogListArrowsDisabled,                COL_DIALOGCOMBOARROWSDISABLED },
+		{ lng::MSetColorDialogListGrayed,                        COL_DIALOGCOMBOGRAY },
+		{ lng::MSetColorDialogSelectedListGrayed,                COL_DIALOGCOMBOSELECTEDGRAYTEXT },
 	},
 
 	ComboItemsWarn[] =
 	{
-		{ MSetColorDialogListText,                          COL_WARNDIALOGCOMBOTEXT },
-		{ MSetColorDialogListHighLight,                     COL_WARNDIALOGCOMBOHIGHLIGHT },
-		{ MSetColorDialogListSelectedText,                  COL_WARNDIALOGCOMBOSELECTEDTEXT },
-		{ MSetColorDialogListSelectedHighLight,             COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT },
-		{ MSetColorDialogListDisabled,                      COL_WARNDIALOGCOMBODISABLED },
-		{ MSetColorDialogListBox,                           COL_WARNDIALOGCOMBOBOX },
-		{ MSetColorDialogListTitle,                         COL_WARNDIALOGCOMBOTITLE },
-		{ MSetColorDialogListScrollBar,                     COL_WARNDIALOGCOMBOSCROLLBAR },
-		{ MSetColorDialogListArrows,                        COL_WARNDIALOGCOMBOARROWS },
-		{ MSetColorDialogListArrowsSelected,                COL_WARNDIALOGCOMBOARROWSSELECTED },
-		{ MSetColorDialogListArrowsDisabled,                COL_WARNDIALOGCOMBOARROWSDISABLED },
-		{ MSetColorDialogListGrayed,                        COL_WARNDIALOGCOMBOGRAY },
-		{ MSetColorDialogSelectedListGrayed,                COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT },
+		{ lng::MSetColorDialogListText,                          COL_WARNDIALOGCOMBOTEXT },
+		{ lng::MSetColorDialogListHighLight,                     COL_WARNDIALOGCOMBOHIGHLIGHT },
+		{ lng::MSetColorDialogListSelectedText,                  COL_WARNDIALOGCOMBOSELECTEDTEXT },
+		{ lng::MSetColorDialogListSelectedHighLight,             COL_WARNDIALOGCOMBOSELECTEDHIGHLIGHT },
+		{ lng::MSetColorDialogListDisabled,                      COL_WARNDIALOGCOMBODISABLED },
+		{ lng::MSetColorDialogListBox,                           COL_WARNDIALOGCOMBOBOX },
+		{ lng::MSetColorDialogListTitle,                         COL_WARNDIALOGCOMBOTITLE },
+		{ lng::MSetColorDialogListScrollBar,                     COL_WARNDIALOGCOMBOSCROLLBAR },
+		{ lng::MSetColorDialogListArrows,                        COL_WARNDIALOGCOMBOARROWS },
+		{ lng::MSetColorDialogListArrowsSelected,                COL_WARNDIALOGCOMBOARROWSSELECTED },
+		{ lng::MSetColorDialogListArrowsDisabled,                COL_WARNDIALOGCOMBOARROWSDISABLED },
+		{ lng::MSetColorDialogListGrayed,                        COL_WARNDIALOGCOMBOGRAY },
+		{ lng::MSetColorDialogSelectedListGrayed,                COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT },
 	},
 
 	DialogItems[] =
 	{
-		{ MSetColorDialogNormal,                                   COL_DIALOGTEXT },
-		{ MSetColorDialogHighlighted,                              COL_DIALOGHIGHLIGHTTEXT },
-		{ MSetColorDialogDisabled,                                 COL_DIALOGDISABLED },
-		{ MSetColorDialogBox,                                      COL_DIALOGBOX },
-		{ MSetColorDialogBoxTitle,                                 COL_DIALOGBOXTITLE },
-		{ MSetColorDialogHighlightedBoxTitle,                      COL_DIALOGHIGHLIGHTBOXTITLE },
-		{ MSetColorDialogTextInput,                                COL_DIALOGEDIT },
-		{ MSetColorDialogUnchangedTextInput,                       COL_DIALOGEDITUNCHANGED },
-		{ MSetColorDialogSelectedTextInput,                        COL_DIALOGEDITSELECTED },
-		{ MSetColorDialogEditDisabled,                             COL_DIALOGEDITDISABLED },
-		{ MSetColorDialogButtons,                                  COL_DIALOGBUTTON },
-		{ MSetColorDialogSelectedButtons,                          COL_DIALOGSELECTEDBUTTON },
-		{ MSetColorDialogHighlightedButtons,                       COL_DIALOGHIGHLIGHTBUTTON },
-		{ MSetColorDialogSelectedHighlightedButtons,               COL_DIALOGHIGHLIGHTSELECTEDBUTTON },
-		{ MSetColorDialogDefaultButton,                            COL_DIALOGDEFAULTBUTTON },
-		{ MSetColorDialogSelectedDefaultButton,                    COL_DIALOGSELECTEDDEFAULTBUTTON },
-		{ MSetColorDialogHighlightedDefaultButton,                 COL_DIALOGHIGHLIGHTDEFAULTBUTTON },
-		{ MSetColorDialogSelectedHighlightedDefaultButton,         COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON },
-		{ MSetColorDialogListBoxControl,                           std::size(ListItemsNormal), ListItemsNormal },
-		{ MSetColorDialogComboBoxControl,                          std::size(ComboItemsNormal), ComboItemsNormal },
+		{ lng::MSetColorDialogNormal,                                   COL_DIALOGTEXT },
+		{ lng::MSetColorDialogHighlighted,                              COL_DIALOGHIGHLIGHTTEXT },
+		{ lng::MSetColorDialogDisabled,                                 COL_DIALOGDISABLED },
+		{ lng::MSetColorDialogBox,                                      COL_DIALOGBOX },
+		{ lng::MSetColorDialogBoxTitle,                                 COL_DIALOGBOXTITLE },
+		{ lng::MSetColorDialogHighlightedBoxTitle,                      COL_DIALOGHIGHLIGHTBOXTITLE },
+		{ lng::MSetColorDialogTextInput,                                COL_DIALOGEDIT },
+		{ lng::MSetColorDialogUnchangedTextInput,                       COL_DIALOGEDITUNCHANGED },
+		{ lng::MSetColorDialogSelectedTextInput,                        COL_DIALOGEDITSELECTED },
+		{ lng::MSetColorDialogEditDisabled,                             COL_DIALOGEDITDISABLED },
+		{ lng::MSetColorDialogButtons,                                  COL_DIALOGBUTTON },
+		{ lng::MSetColorDialogSelectedButtons,                          COL_DIALOGSELECTEDBUTTON },
+		{ lng::MSetColorDialogHighlightedButtons,                       COL_DIALOGHIGHLIGHTBUTTON },
+		{ lng::MSetColorDialogSelectedHighlightedButtons,               COL_DIALOGHIGHLIGHTSELECTEDBUTTON },
+		{ lng::MSetColorDialogDefaultButton,                            COL_DIALOGDEFAULTBUTTON },
+		{ lng::MSetColorDialogSelectedDefaultButton,                    COL_DIALOGSELECTEDDEFAULTBUTTON },
+		{ lng::MSetColorDialogHighlightedDefaultButton,                 COL_DIALOGHIGHLIGHTDEFAULTBUTTON },
+		{ lng::MSetColorDialogSelectedHighlightedDefaultButton,         COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON },
+		{ lng::MSetColorDialogListBoxControl,                           std::size(ListItemsNormal), ListItemsNormal },
+		{ lng::MSetColorDialogComboBoxControl,                          std::size(ComboItemsNormal), ComboItemsNormal },
 	},
 
 	WarnDialogItems[] =
 	{
-		{ MSetColorDialogNormal,                                   COL_WARNDIALOGTEXT },
-		{ MSetColorDialogHighlighted,                              COL_WARNDIALOGHIGHLIGHTTEXT },
-		{ MSetColorDialogDisabled,                                 COL_WARNDIALOGDISABLED },
-		{ MSetColorDialogBox,                                      COL_WARNDIALOGBOX },
-		{ MSetColorDialogBoxTitle,                                 COL_WARNDIALOGBOXTITLE },
-		{ MSetColorDialogHighlightedBoxTitle,                      COL_WARNDIALOGHIGHLIGHTBOXTITLE },
-		{ MSetColorDialogTextInput,                                COL_WARNDIALOGEDIT },
-		{ MSetColorDialogUnchangedTextInput,                       COL_WARNDIALOGEDITUNCHANGED },
-		{ MSetColorDialogSelectedTextInput,                        COL_WARNDIALOGEDITSELECTED },
-		{ MSetColorDialogEditDisabled,                             COL_WARNDIALOGEDITDISABLED },
-		{ MSetColorDialogButtons,                                  COL_WARNDIALOGBUTTON },
-		{ MSetColorDialogSelectedButtons,                          COL_WARNDIALOGSELECTEDBUTTON },
-		{ MSetColorDialogHighlightedButtons,                       COL_WARNDIALOGHIGHLIGHTBUTTON },
-		{ MSetColorDialogSelectedHighlightedButtons,               COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON },
-		{ MSetColorDialogDefaultButton,                            COL_WARNDIALOGDEFAULTBUTTON },
-		{ MSetColorDialogSelectedDefaultButton,                    COL_WARNDIALOGSELECTEDDEFAULTBUTTON },
-		{ MSetColorDialogHighlightedDefaultButton,                 COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON },
-		{ MSetColorDialogSelectedHighlightedDefaultButton,         COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON },
-		{ MSetColorDialogListBoxControl,                           std::size(ListItemsWarn), ListItemsWarn },
-		{ MSetColorDialogComboBoxControl,                          std::size(ComboItemsWarn), ComboItemsWarn },
+		{ lng::MSetColorDialogNormal,                                   COL_WARNDIALOGTEXT },
+		{ lng::MSetColorDialogHighlighted,                              COL_WARNDIALOGHIGHLIGHTTEXT },
+		{ lng::MSetColorDialogDisabled,                                 COL_WARNDIALOGDISABLED },
+		{ lng::MSetColorDialogBox,                                      COL_WARNDIALOGBOX },
+		{ lng::MSetColorDialogBoxTitle,                                 COL_WARNDIALOGBOXTITLE },
+		{ lng::MSetColorDialogHighlightedBoxTitle,                      COL_WARNDIALOGHIGHLIGHTBOXTITLE },
+		{ lng::MSetColorDialogTextInput,                                COL_WARNDIALOGEDIT },
+		{ lng::MSetColorDialogUnchangedTextInput,                       COL_WARNDIALOGEDITUNCHANGED },
+		{ lng::MSetColorDialogSelectedTextInput,                        COL_WARNDIALOGEDITSELECTED },
+		{ lng::MSetColorDialogEditDisabled,                             COL_WARNDIALOGEDITDISABLED },
+		{ lng::MSetColorDialogButtons,                                  COL_WARNDIALOGBUTTON },
+		{ lng::MSetColorDialogSelectedButtons,                          COL_WARNDIALOGSELECTEDBUTTON },
+		{ lng::MSetColorDialogHighlightedButtons,                       COL_WARNDIALOGHIGHLIGHTBUTTON },
+		{ lng::MSetColorDialogSelectedHighlightedButtons,               COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON },
+		{ lng::MSetColorDialogDefaultButton,                            COL_WARNDIALOGDEFAULTBUTTON },
+		{ lng::MSetColorDialogSelectedDefaultButton,                    COL_WARNDIALOGSELECTEDDEFAULTBUTTON },
+		{ lng::MSetColorDialogHighlightedDefaultButton,                 COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON },
+		{ lng::MSetColorDialogSelectedHighlightedDefaultButton,         COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON },
+		{ lng::MSetColorDialogListBoxControl,                           std::size(ListItemsWarn), ListItemsWarn },
+		{ lng::MSetColorDialogComboBoxControl,                          std::size(ComboItemsWarn), ComboItemsWarn },
 	},
 
 	MenuItems[] =
 	{
-		{ MSetColorMenuNormal,                   COL_MENUTEXT },
-		{ MSetColorMenuSelected,                 COL_MENUSELECTEDTEXT },
-		{ MSetColorMenuHighlighted,              COL_MENUHIGHLIGHT },
-		{ MSetColorMenuSelectedHighlighted,      COL_MENUSELECTEDHIGHLIGHT },
-		{ MSetColorMenuDisabled,                 COL_MENUDISABLEDTEXT },
-		{ MSetColorMenuBox,                      COL_MENUBOX },
-		{ MSetColorMenuTitle,                    COL_MENUTITLE },
-		{ MSetColorMenuScrollBar,                COL_MENUSCROLLBAR },
-		{ MSetColorMenuArrows,                   COL_MENUARROWS },
-		{ MSetColorMenuArrowsSelected,           COL_MENUARROWSSELECTED },
-		{ MSetColorMenuArrowsDisabled,           COL_MENUARROWSDISABLED },
-		{ MSetColorMenuGrayed,                   COL_MENUGRAYTEXT },
-		{ MSetColorMenuSelectedGrayed,           COL_MENUSELECTEDGRAYTEXT },
+		{ lng::MSetColorMenuNormal,                   COL_MENUTEXT },
+		{ lng::MSetColorMenuSelected,                 COL_MENUSELECTEDTEXT },
+		{ lng::MSetColorMenuHighlighted,              COL_MENUHIGHLIGHT },
+		{ lng::MSetColorMenuSelectedHighlighted,      COL_MENUSELECTEDHIGHLIGHT },
+		{ lng::MSetColorMenuDisabled,                 COL_MENUDISABLEDTEXT },
+		{ lng::MSetColorMenuBox,                      COL_MENUBOX },
+		{ lng::MSetColorMenuTitle,                    COL_MENUTITLE },
+		{ lng::MSetColorMenuScrollBar,                COL_MENUSCROLLBAR },
+		{ lng::MSetColorMenuArrows,                   COL_MENUARROWS },
+		{ lng::MSetColorMenuArrowsSelected,           COL_MENUARROWSSELECTED },
+		{ lng::MSetColorMenuArrowsDisabled,           COL_MENUARROWSDISABLED },
+		{ lng::MSetColorMenuGrayed,                   COL_MENUGRAYTEXT },
+		{ lng::MSetColorMenuSelectedGrayed,           COL_MENUSELECTEDGRAYTEXT },
 	},
 
 	HMenuItems[] =
 	{
-		{ MSetColorHMenuNormal,                  COL_HMENUTEXT },
-		{ MSetColorHMenuSelected,                COL_HMENUSELECTEDTEXT },
-		{ MSetColorHMenuHighlighted,             COL_HMENUHIGHLIGHT },
-		{ MSetColorHMenuSelectedHighlighted,     COL_HMENUSELECTEDHIGHLIGHT },
+		{ lng::MSetColorHMenuNormal,                  COL_HMENUTEXT },
+		{ lng::MSetColorHMenuSelected,                COL_HMENUSELECTEDTEXT },
+		{ lng::MSetColorHMenuHighlighted,             COL_HMENUHIGHLIGHT },
+		{ lng::MSetColorHMenuSelectedHighlighted,     COL_HMENUSELECTEDHIGHLIGHT },
 	},
 
 	KeyBarItems[] =
 	{
-		{ MSetColorKeyBarNumbers,                COL_KEYBARNUM },
-		{ MSetColorKeyBarNames,                  COL_KEYBARTEXT },
-		{ MSetColorKeyBarBackground,             COL_KEYBARBACKGROUND },
+		{ lng::MSetColorKeyBarNumbers,                COL_KEYBARNUM },
+		{ lng::MSetColorKeyBarNames,                  COL_KEYBARTEXT },
+		{ lng::MSetColorKeyBarBackground,             COL_KEYBARBACKGROUND },
 	},
 
 	CommandLineItems[] =
 	{
-		{ MSetColorCommandLineNormal,            COL_COMMANDLINE },
-		{ MSetColorCommandLineSelected,          COL_COMMANDLINESELECTED },
-		{ MSetColorCommandLinePrefix,            COL_COMMANDLINEPREFIX },
-		{ MSetColorCommandLineUserScreen,        COL_COMMANDLINEUSERSCREEN },
+		{ lng::MSetColorCommandLineNormal,            COL_COMMANDLINE },
+		{ lng::MSetColorCommandLineSelected,          COL_COMMANDLINESELECTED },
+		{ lng::MSetColorCommandLinePrefix,            COL_COMMANDLINEPREFIX },
+		{ lng::MSetColorCommandLineUserScreen,        COL_COMMANDLINEUSERSCREEN },
 	},
 
 	ClockItems[] =
 	{
-		{ MSetColorClockNormal,                  COL_CLOCK },
-		{ MSetColorClockNormalEditor,            COL_EDITORCLOCK },
-		{ MSetColorClockNormalViewer,            COL_VIEWERCLOCK },
+		{ lng::MSetColorClockNormal,                  COL_CLOCK },
+		{ lng::MSetColorClockNormalEditor,            COL_EDITORCLOCK },
+		{ lng::MSetColorClockNormalViewer,            COL_VIEWERCLOCK },
 	},
 
 	ViewerItems[] =
 	{
-		{ MSetColorViewerNormal,                 COL_VIEWERTEXT },
-		{ MSetColorViewerSelected,               COL_VIEWERSELECTEDTEXT },
-		{ MSetColorViewerStatus,                 COL_VIEWERSTATUS },
-		{ MSetColorViewerArrows,                 COL_VIEWERARROWS },
-		{ MSetColorViewerScrollbar,              COL_VIEWERSCROLLBAR },
+		{ lng::MSetColorViewerNormal,                 COL_VIEWERTEXT },
+		{ lng::MSetColorViewerSelected,               COL_VIEWERSELECTEDTEXT },
+		{ lng::MSetColorViewerStatus,                 COL_VIEWERSTATUS },
+		{ lng::MSetColorViewerArrows,                 COL_VIEWERARROWS },
+		{ lng::MSetColorViewerScrollbar,              COL_VIEWERSCROLLBAR },
 	},
 
 	EditorItems[] =
 	{
-		{ MSetColorEditorNormal,                 COL_EDITORTEXT },
-		{ MSetColorEditorSelected,               COL_EDITORSELECTEDTEXT },
-		{ MSetColorEditorStatus,                 COL_EDITORSTATUS },
-		{ MSetColorEditorScrollbar,              COL_EDITORSCROLLBAR },
+		{ lng::MSetColorEditorNormal,                 COL_EDITORTEXT },
+		{ lng::MSetColorEditorSelected,               COL_EDITORSELECTEDTEXT },
+		{ lng::MSetColorEditorStatus,                 COL_EDITORSTATUS },
+		{ lng::MSetColorEditorScrollbar,              COL_EDITORSCROLLBAR },
 	},
 
 	HelpItems[] =
 	{
-		{ MSetColorHelpNormal,                   COL_HELPTEXT },
-		{ MSetColorHelpHighlighted,              COL_HELPHIGHLIGHTTEXT },
-		{ MSetColorHelpReference,                COL_HELPTOPIC },
-		{ MSetColorHelpSelectedReference,        COL_HELPSELECTEDTOPIC },
-		{ MSetColorHelpBox,                      COL_HELPBOX },
-		{ MSetColorHelpBoxTitle,                 COL_HELPBOXTITLE },
-		{ MSetColorHelpScrollbar,                COL_HELPSCROLLBAR },
+		{ lng::MSetColorHelpNormal,                   COL_HELPTEXT },
+		{ lng::MSetColorHelpHighlighted,              COL_HELPHIGHLIGHTTEXT },
+		{ lng::MSetColorHelpReference,                COL_HELPTOPIC },
+		{ lng::MSetColorHelpSelectedReference,        COL_HELPSELECTEDTOPIC },
+		{ lng::MSetColorHelpBox,                      COL_HELPBOX },
+		{ lng::MSetColorHelpBoxTitle,                 COL_HELPBOXTITLE },
+		{ lng::MSetColorHelpScrollbar,                COL_HELPSCROLLBAR },
 	};
 
 	{
 		// NOT constexpr, see VS bug #3103404
 		static const struct
 		{
-			LNGID MenuId;
+			lng MenuId;
 			range<const color_item*> Subitems;
 		}
 		Groups[] =
 		{
-			{ MSetColorPanel,       make_range(PanelItems) },
-			{ MSetColorDialog,      make_range(DialogItems) },
-			{ MSetColorWarning,     make_range(WarnDialogItems) },
-			{ MSetColorMenu,        make_range(MenuItems) },
-			{ MSetColorHMenu,       make_range(HMenuItems) },
-			{ MSetColorKeyBar,      make_range(KeyBarItems) },
-			{ MSetColorCommandLine, make_range(CommandLineItems) },
-			{ MSetColorClock,       make_range(ClockItems) },
-			{ MSetColorViewer,      make_range(ViewerItems) },
-			{ MSetColorEditor,      make_range(EditorItems) },
-			{ MSetColorHelp,        make_range(HelpItems) },
+			{ lng::MSetColorPanel,       make_range(PanelItems) },
+			{ lng::MSetColorDialog,      make_range(DialogItems) },
+			{ lng::MSetColorWarning,     make_range(WarnDialogItems) },
+			{ lng::MSetColorMenu,        make_range(MenuItems) },
+			{ lng::MSetColorHMenu,       make_range(HMenuItems) },
+			{ lng::MSetColorKeyBar,      make_range(KeyBarItems) },
+			{ lng::MSetColorCommandLine, make_range(CommandLineItems) },
+			{ lng::MSetColorClock,       make_range(ClockItems) },
+			{ lng::MSetColorViewer,      make_range(ViewerItems) },
+			{ lng::MSetColorEditor,      make_range(EditorItems) },
+			{ lng::MSetColorHelp,        make_range(HelpItems) },
 		};
 
-		const auto GroupsMenu = VMenu2::create(MSG(MSetColorGroupsTitle), nullptr, 0);
+		const auto GroupsMenu = VMenu2::create(MSG(lng::MSetColorGroupsTitle), nullptr, 0);
 
 		for (const auto& i: Groups)
 		{
@@ -345,9 +345,9 @@ void SetColors()
 		}
 
 		const int DefaultId = static_cast<int>(GroupsMenu->size());
-		GroupsMenu->AddItem(MSG(MSetDefaultColors));
+		GroupsMenu->AddItem(MSG(lng::MSetDefaultColors));
 		const int BlackWhiteId = static_cast<int>(GroupsMenu->size());
-		GroupsMenu->AddItem(MSG(MSetBW));
+		GroupsMenu->AddItem(MSG(lng::MSetBW));
 
 		GroupsMenu->SetPosition(2,1,0,0);
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -378,7 +378,7 @@ void SetColors()
 
 static void SetItemColors(const color_item* Items, size_t Size)
 {
-	const auto ItemsMenu = VMenu2::create(MSG(MSetColorItemsTitle), nullptr, 0);
+	const auto ItemsMenu = VMenu2::create(MSG(lng::MSetColorItemsTitle), nullptr, 0);
 
 	for (const auto& i: make_range(Items, Size))
 	{
@@ -506,8 +506,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 {
 	FarDialogItem ColorDlgData[]=
 	{
-		{DI_DOUBLEBOX,   3, 1,35,13, 0,nullptr,nullptr,0,MSG(MSetColorTitle)},
-		{DI_SINGLEBOX,   5, 2,18, 7, 0,nullptr,nullptr,0,MSG(MSetColorForeground)},
+		{DI_DOUBLEBOX,   3, 1,35,13, 0,nullptr,nullptr,0,MSG(lng::MSetColorTitle)},
+		{DI_SINGLEBOX,   5, 2,18, 7, 0,nullptr,nullptr,0,MSG(lng::MSetColorForeground)},
 		{DI_RADIOBUTTON, 6, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON, 6, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON, 6, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
@@ -524,7 +524,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		{DI_RADIOBUTTON,15, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,15, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,15, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_SINGLEBOX,  20, 2,33, 7, 0,nullptr,nullptr,0,MSG(MSetColorBackground)},
+		{DI_SINGLEBOX,  20, 2,33, 7, 0,nullptr,nullptr,0,MSG(lng::MSetColorBackground)},
 		{DI_RADIOBUTTON,21, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,21, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,21, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
@@ -542,15 +542,15 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		{DI_RADIOBUTTON,30, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,30, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 
-		{DI_CHECKBOX,    5, 10,0, 10,0,nullptr,nullptr,0,MSG(MSetColorForeTransparent)},
-		{DI_CHECKBOX,   22, 10,0, 10,0,nullptr,nullptr,0,MSG(MSetColorBackTransparent)},
+		{DI_CHECKBOX,    5, 10,0, 10,0,nullptr,nullptr,0,MSG(lng::MSetColorForeTransparent)},
+		{DI_CHECKBOX,   22, 10,0, 10,0,nullptr,nullptr,0,MSG(lng::MSetColorBackTransparent)},
 
-		{DI_TEXT,        5, 8, 33,8, 0,nullptr,nullptr,0,MSG(MSetColorSample)},
-		{DI_TEXT,        5, 9, 33,9, 0,nullptr,nullptr,0,MSG(MSetColorSample)},
-		{DI_TEXT,        5,10, 33,10,0,nullptr,nullptr,0,MSG(MSetColorSample)},
+		{DI_TEXT,        5, 8, 33,8, 0,nullptr,nullptr,0,MSG(lng::MSetColorSample)},
+		{DI_TEXT,        5, 9, 33,9, 0,nullptr,nullptr,0,MSG(lng::MSetColorSample)},
+		{DI_TEXT,        5,10, 33,10,0,nullptr,nullptr,0,MSG(lng::MSetColorSample)},
 		{DI_TEXT,       -1,11, 0, 11,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MSetColorSet)},
-		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSetColorCancel)},
+		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MSetColorSet)},
+		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MSetColorCancel)},
 
 	};
 	auto ColorDlg = MakeDialogItemsEx(ColorDlgData);

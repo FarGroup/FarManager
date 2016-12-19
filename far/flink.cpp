@@ -142,10 +142,9 @@ static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 
 	const auto& SetBuffer = [&](bool ForceElevation)
 	{
-		os::fs::file fObject;
+		const os::fs::file fObject(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation);
 		DWORD dwBytesReturned;
-		return fObject.Open(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation) &&
-			fObject.IoControl(FSCTL_SET_REPARSE_POINT, rdb, rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0, &dwBytesReturned);
+		return fObject && fObject.IoControl(FSCTL_SET_REPARSE_POINT, rdb, rdb->ReparseDataLength + REPARSE_DATA_BUFFER_HEADER_SIZE, nullptr, 0, &dwBytesReturned);
 	};
 
 	if (SetBuffer(false))
@@ -194,7 +193,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 						}
 						else
 						{
-							ObjectCreated = os::fs::is_file(ObjectStatus) || os::fs::file().Open(Object, 0, 0, nullptr, CREATE_NEW);
+							ObjectCreated = os::fs::is_file(ObjectStatus) || os::fs::file(Object, 0, 0, nullptr, CREATE_NEW);
 						}
 
 						if (ObjectCreated)
@@ -257,8 +256,8 @@ static bool GetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 	if (FileAttr == INVALID_FILE_ATTRIBUTES || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
 		return false;
 
-	os::fs::file fObject;
-	if (!fObject.Open(Object, 0, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+	const os::fs::file fObject(Object, 0, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+	if (!fObject)
 		return false;
 
 	DWORD dwBytesReturned;
@@ -271,8 +270,8 @@ bool DeleteReparsePoint(const string& Object)
 	if (!GetREPARSE_DATA_BUFFER(Object, rdb.get()))
 		return false;
 
-	os::fs::file fObject;
-	if (!fObject.Open(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+	const os::fs::file fObject(Object, GetDesiredAccessForReparsePointChange(), 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+	if (!fObject)
 		return false;
 
 	DWORD dwBytes;
@@ -326,17 +325,16 @@ bool GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD Repar
 
 int GetNumberOfLinks(const string& Name, bool negative_if_error)
 {
-	int NumberOfLinks = (negative_if_error ? -1 : +1);
-	os::fs::file file;
-	if(file.Open(Name, 0, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
-	{
-		BY_HANDLE_FILE_INFORMATION bhfi;
-		if (file.GetInformation(bhfi))
-		{
-			NumberOfLinks=bhfi.nNumberOfLinks;
-		}
-	}
-	return NumberOfLinks;
+	const auto DefaultNumberOfLinks = negative_if_error ? -1 : +1;
+	const os::fs::file File(Name, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+	if (!File)
+		return DefaultNumberOfLinks;
+
+	BY_HANDLE_FILE_INFORMATION bhfi;
+	if (!File.GetInformation(bhfi))
+		return DefaultNumberOfLinks;
+
+	return bhfi.nNumberOfLinks;
 }
 
 int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
@@ -346,7 +344,7 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 	if (!Result && !Silent)
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCopyCannotCreateLink),NewName.data(),MSG(MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCopyCannotCreateLink),NewName.data(),MSG(lng::MOk));
 	}
 	return Result;
 }
@@ -419,39 +417,41 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 
 bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
-	bool Result=false;
-	os::fs::file Device;
-	if(Device.Open(DeviceName, FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-	{
-		ULONG Size = 4096;
-		block_ptr<STORAGE_DEPENDENCY_INFO> StorageDependencyInfo(Size);
+	const os::fs::file Device(DeviceName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+	if (!Device)
+		return false;
 
+	block_ptr<STORAGE_DEPENDENCY_INFO> StorageDependencyInfo;
+
+	const auto& InitStorage = [&](size_t Size)
+	{
+		StorageDependencyInfo.reset(Size);
 		StorageDependencyInfo->Version = STORAGE_DEPENDENCY_INFO_VERSION_2;
-		DWORD Used = 0;
-		Result = Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo.get(), &Used);
-		if(!Result && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-		{
-			StorageDependencyInfo.reset(Used);
-			if(StorageDependencyInfo)
-			{
-				StorageDependencyInfo->Version = STORAGE_DEPENDENCY_INFO_VERSION_2;
-				Result = Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Used, StorageDependencyInfo.get(), &Used);
-			}
-		}
-		if(Result)
-		{
-			if(StorageDependencyInfo->NumberEntries)
-			{
-				if(StorageType)
-					*StorageType = StorageDependencyInfo->Version2Entries[0].VirtualStorageType;
-				strVolumePath = StorageDependencyInfo->Version2Entries[0].HostVolumeName;
-				strVolumePath += StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath;
-				// trick: ConvertNameToReal also converts \\?\{GUID} to drive letter, if possible.
-				strVolumePath = ConvertNameToReal(strVolumePath);
-			}
-		}
+	};
+
+	DWORD Size = 4096;
+
+	for (;;)
+	{
+		InitStorage(Size);
+		if (Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo.get(), &Size))
+			break;
+		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+			return false;
 	}
-	return Result;
+
+	if (!StorageDependencyInfo->NumberEntries)
+		return false;
+
+	if(StorageType)
+		*StorageType = StorageDependencyInfo->Version2Entries[0].VirtualStorageType;
+
+	strVolumePath = StorageDependencyInfo->Version2Entries[0].HostVolumeName;
+	strVolumePath += StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath;
+	// trick: ConvertNameToReal also converts \\?\{GUID} to drive letter, if possible.
+	strVolumePath = ConvertNameToReal(strVolumePath);
+
+	return true;
 }
 
 string GetPathRoot(const string& Path)
@@ -613,7 +613,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					{
 						if (!os::fs::exists(strPath))
 							CreatePath(strPath);
-						os::fs::file().Open(strFullLink, 0, 0, nullptr, CREATE_NEW, os::GetFileAttributes(strFullTarget));
+						os::fs::file(strFullLink, 0, 0, nullptr, CREATE_NEW, os::GetFileAttributes(strFullTarget));
 					}
 				}
 
@@ -622,8 +622,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					if (!Silent)
 					{
 						Global->CatchError();
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MCopyCannotCreateLink),strFullLink.data(),MSG(MOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),
+						        MSG(lng::MCopyCannotCreateLink),strFullLink.data(),MSG(lng::MOk));
 					}
 
 					return 0;
@@ -641,8 +641,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				if (!Silent)
 				{
 					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-					        MSG(MCopyCannotCreateLink),strFullLink.data(),MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),
+					        MSG(lng::MCopyCannotCreateLink),strFullLink.data(),MSG(lng::MOk));
 				}
 
 				return 0;
@@ -660,10 +660,10 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				{
 					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
-						MSG(MError),
-						format(MCopyMountVolFailed, Target).data(),
-						format(MCopyMountVolFailed2, strFullLink).data(),
-						MSG(MOk));
+						MSG(lng::MError),
+						format(lng::MCopyMountVolFailed, Target).data(),
+						format(lng::MCopyMountVolFailed2, strFullLink).data(),
+						MSG(lng::MOk));
 				}
 
 				return 0;

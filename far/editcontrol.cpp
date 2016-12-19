@@ -127,7 +127,7 @@ void EditControl::SetMenuPos(VMenu2& menu)
 	}
 }
 
-static void AddSeparatorOrSetTitle(VMenu2& Menu, LNGID TitleId)
+static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 {
 	bool Separator = false;
 	for (size_t i = 0; i != Menu.size(); ++i)
@@ -230,7 +230,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string& Str, enumerator_type Enu
 
 			if (!ResultStrings.empty())
 			{
-				AddSeparatorOrSetTitle(Menu, MCompletionFilesTitle);
+				AddSeparatorOrSetTitle(Menu, lng::MCompletionFilesTitle);
 
 				std::for_each(CONST_RANGE(ResultStrings, i)
 				{
@@ -388,7 +388,7 @@ static bool EnumEnvironment(VMenu2& Menu, const string& Str)
 
 		if (!ResultStrings.empty())
 		{
-			AddSeparatorOrSetTitle(Menu, MCompletionEnvironmentTitle);
+			AddSeparatorOrSetTitle(Menu, lng::MCompletionEnvironmentTitle);
 
 			std::for_each(CONST_RANGE(ResultStrings, i)
 			{
@@ -435,7 +435,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
 					ComplMenu->AddItem(std::move(Item));
 				}
-				ComplMenu->SetTitle(MSG(MCompletionHistoryTitle));
+				ComplMenu->SetTitle(MSG(lng::MCompletionHistoryTitle));
 			}
 		}
 		else if(pList)
@@ -562,7 +562,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 												Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
 												ComplMenu->AddItem(std::move(Item));
 											}
-											ComplMenu->SetTitle(MSG(MCompletionHistoryTitle));
+											ComplMenu->SetTitle(MSG(lng::MCompletionHistoryTitle));
 										}
 									}
 									else if(pList)

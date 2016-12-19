@@ -2370,7 +2370,7 @@ bool config_provider::ShowProblems() const
 {
 	if (m_Problems.empty())
 		return false;
-	return Message(MSG_WARNING, MSG(MProblemDb), m_Problems, { MSG(MShowConfigFolders), MSG(MIgnore) }) == Message::first_button;
+	return Message(MSG_WARNING, MSG(lng::MProblemDb), m_Problems, { MSG(lng::MShowConfigFolders), MSG(lng::MIgnore) }) == Message::first_button;
 }
 
 void config_provider::AddThread(Thread&& thread)

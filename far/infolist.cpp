@@ -140,7 +140,7 @@ void InfoList::Update(int Mode)
 
 string InfoList::GetTitle() const
 {
-	return MSG(MInfoTitle);
+	return MSG(lng::MInfoTitle);
 }
 
 void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
@@ -200,7 +200,7 @@ void InfoList::DisplayObject()
 		strComputerName = ComputerName.get();
 
 		GotoXY(m_X1+2,CurY++);
-		PrintText(MInfoCompName);
+		PrintText(lng::MInfoCompName);
 		PrintInfo(strComputerName);
 
 		os::memory::netapi::ptr<SERVER_INFO_101> ServerInfo;
@@ -209,7 +209,7 @@ void InfoList::DisplayObject()
 			if(ServerInfo->sv101_comment && *ServerInfo->sv101_comment)
 			{
 				GotoXY(m_X1+2,CurY++);
-				PrintText(MInfoCompDescription);
+				PrintText(lng::MInfoCompDescription);
 				PrintInfo(ServerInfo->sv101_comment);
 			}
 		}
@@ -225,7 +225,7 @@ void InfoList::DisplayObject()
 		strUserName = UserName.get();
 
 		GotoXY(m_X1+2,CurY++);
-		PrintText(MInfoUserName);
+		PrintText(lng::MInfoUserName);
 		PrintInfo(strUserName);
 
 		dwSize = UNLEN+1;
@@ -238,24 +238,24 @@ void InfoList::DisplayObject()
 				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 				{
 					GotoXY(m_X1+2,CurY++);
-					PrintText(MInfoUserDescription);
+					PrintText(lng::MInfoUserDescription);
 					PrintInfo(UserInfo->usri1_comment);
 				}
-				LNGID LabelId = MInfoUserAccessLevelUnknown;
+				lng LabelId = lng::MInfoUserAccessLevelUnknown;
 				switch (UserInfo->usri1_priv)
 				{
 				case USER_PRIV_GUEST:
-					LabelId = MInfoUserAccessLevelGuest;
+					LabelId = lng::MInfoUserAccessLevelGuest;
 					break;
 				case USER_PRIV_USER:
-					LabelId = MInfoUserAccessLevelUser;
+					LabelId = lng::MInfoUserAccessLevelUser;
 						break;
 				case USER_PRIV_ADMIN:
-					LabelId = MInfoUserAccessLevelAdministrator;
+					LabelId = lng::MInfoUserAccessLevelAdministrator;
 						break;
 				}
 				GotoXY(m_X1+2,CurY++);
-				PrintText(MInfoUserAccessLevel);
+				PrintText(lng::MInfoUserAccessLevel);
 				PrintInfo(LabelId);
 			}
 		}
@@ -293,30 +293,30 @@ void InfoList::DisplayObject()
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
 		                            &strFileSystemName))
 		{
-			LNGID IdxMsgID=MInfoUnknown;
+			lng IdxMsgID = lng::MInfoUnknown;
 			int DriveType=FAR_GetDriveType(strDriveRoot, Global->Opt->InfoPanel.ShowCDInfo);
 
 			switch (DriveType)
 			{
 				case DRIVE_REMOVABLE:
-					IdxMsgID=MInfoRemovable;
+					IdxMsgID = lng::MInfoRemovable;
 					break;
 				case DRIVE_FIXED:
-					IdxMsgID=MInfoFixed;
+					IdxMsgID = lng::MInfoFixed;
 					break;
 				case DRIVE_REMOTE:
-					IdxMsgID=MInfoNetwork;
+					IdxMsgID = lng::MInfoNetwork;
 					break;
 				case DRIVE_CDROM:
-					IdxMsgID=MInfoCDROM;
+					IdxMsgID = lng::MInfoCDROM;
 					break;
 				case DRIVE_RAMDISK:
-					IdxMsgID=MInfoRAM;
+					IdxMsgID = lng::MInfoRAM;
 					break;
 				default:
 
 					if (IsDriveTypeCDROM(DriveType))
-						IdxMsgID=MInfoCD_RW+(DriveType-DRIVE_CD_RW);
+						IdxMsgID = lng::MInfoCD_RW + (DriveType - DRIVE_CD_RW);
 
 					break;
 			}
@@ -326,16 +326,16 @@ void InfoList::DisplayObject()
 
 			if (GetSubstName(DriveType,strDriveRoot,strAssocPath))
 			{
-				DiskType = MSG(MInfoSUBST);
+				DiskType = MSG(lng::MInfoSUBST);
 				DriveType=DRIVE_SUBSTITUTE;
 			}
 			else if(DriveCanBeVirtual(DriveType) && GetVHDInfo(strDriveRoot,strAssocPath))
 			{
-				DiskType = MSG(MInfoVirtual);
+				DiskType = MSG(lng::MInfoVirtual);
 				DriveType=DRIVE_VIRTUAL;
 			}
 
-			SectionTitle = string(L" ") + DiskType + L" " + MSG(MInfoDisk) + L" " + strDriveRoot + L" (" + strFileSystemName + L") ";
+			SectionTitle = string(L" ") + DiskType + L" " + MSG(lng::MInfoDisk) + L" " + strDriveRoot + L" (" + strFileSystemName + L") ";
 
 			switch(DriveType)
 			{
@@ -364,10 +364,10 @@ void InfoList::DisplayObject()
 	}
 
 	if (!SectionState[ILSS_DISKINFO].Show)
-		SectionTitle = MSG(MInfoDiskTitle);
+		SectionTitle = MSG(lng::MInfoDiskTitle);
 	DrawTitle(SectionTitle,ILSS_DISKINFO,CurY);
 
-	const auto bytes_suffix = Upper(MSG(MListBytes));
+	const auto bytes_suffix = Upper(MSG(lng::MListBytes));
 	const auto& size2str = [&bytes_suffix](ULONGLONG Size)
 	{
 		string str;
@@ -390,26 +390,26 @@ void InfoList::DisplayObject()
 		if (os::GetDiskSize(m_CurDir,&TotalSize, nullptr, &UserFree))
 		{
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoDiskTotal);
+			PrintText(lng::MInfoDiskTotal);
 			PrintInfo(size2str(TotalSize));
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoDiskFree);
+			PrintText(lng::MInfoDiskFree);
 			PrintInfo(size2str(UserFree));
 		}
 
 		/* #4 - disk info: label & SN */
 		GotoXY(m_X1+2,CurY++);
-		PrintText(MInfoDiskLabel);
+		PrintText(lng::MInfoDiskLabel);
 		PrintInfo(strVolumeName);
 
 		GotoXY(m_X1+2,CurY++);
-		PrintText(MInfoDiskNumber);
+		PrintText(lng::MInfoDiskNumber);
 		PrintInfo(strDiskNumber);
 	}
 
 	/* #3 - memory info */
-	SectionTitle = MSG(MInfoMemory);
+	SectionTitle = MSG(lng::MInfoMemory);
 	DrawTitle(SectionTitle, ILSS_MEMORYINFO, CurY);
 
 	if (SectionState[ILSS_MEMORYINFO].Show)
@@ -421,39 +421,39 @@ void InfoList::DisplayObject()
 				ms.dwMemoryLoad=100-ToPercent(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoMemoryLoad);
+			PrintText(lng::MInfoMemoryLoad);
 			PrintInfo(str(ms.dwMemoryLoad) + L"%");
 
 			ULONGLONG TotalMemoryInKilobytes=0;
 			if(Imports().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 			{
 				GotoXY(m_X1+2,CurY++);
-				PrintText(MInfoMemoryInstalled);
+				PrintText(lng::MInfoMemoryInstalled);
 				PrintInfo(size2str(TotalMemoryInKilobytes << 10));
 			}
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoMemoryTotal);
+			PrintText(lng::MInfoMemoryTotal);
 			PrintInfo(size2str(ms.ullTotalPhys));
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoMemoryFree);
+			PrintText(lng::MInfoMemoryFree);
 			PrintInfo(size2str(ms.ullAvailPhys));
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoVirtualTotal);
+			PrintText(lng::MInfoVirtualTotal);
 			PrintInfo(size2str(ms.ullTotalVirtual));
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoVirtualFree);
+			PrintText(lng::MInfoVirtualFree);
 			PrintInfo(size2str(ms.ullAvailVirtual));
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoPageFileTotal);
+			PrintText(lng::MInfoPageFileTotal);
 			PrintInfo(size2str(ms.ullTotalPageFile));
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoPageFileFree);
+			PrintText(lng::MInfoPageFileFree);
 			PrintInfo(size2str(ms.ullAvailPageFile));
 		}
 	}
@@ -461,56 +461,56 @@ void InfoList::DisplayObject()
 	/* #4 - power status */
 	if (Global->Opt->InfoPanel.ShowPowerStatus)
 	{
-		SectionTitle = MSG(MInfoPowerStatus);
+		SectionTitle = MSG(lng::MInfoPowerStatus);
 		DrawTitle(SectionTitle, ILSS_POWERSTATUS, CurY);
 
 		if (SectionState[ILSS_POWERSTATUS].Show)
 		{
-			LNGID MsgID;
+			lng MsgID;
 			SYSTEM_POWER_STATUS PowerStatus;
 			GetSystemPowerStatus(&PowerStatus);
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoPowerStatusAC);
+			PrintText(lng::MInfoPowerStatusAC);
 			switch(PowerStatus.ACLineStatus)
 			{
-				case AC_LINE_OFFLINE:      MsgID=MInfoPowerStatusACOffline; break;
-				case AC_LINE_ONLINE:       MsgID=MInfoPowerStatusACOnline; break;
-				case AC_LINE_BACKUP_POWER: MsgID=MInfoPowerStatusACBackUp; break;
-				default:                   MsgID=MInfoPowerStatusACUnknown; break;
+				case AC_LINE_OFFLINE:      MsgID = lng::MInfoPowerStatusACOffline; break;
+				case AC_LINE_ONLINE:       MsgID = lng::MInfoPowerStatusACOnline; break;
+				case AC_LINE_BACKUP_POWER: MsgID = lng::MInfoPowerStatusACBackUp; break;
+				default:                   MsgID = lng::MInfoPowerStatusACUnknown; break;
 			}
 			PrintInfo(MSG(MsgID));
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoPowerStatusBCLifePercent);
+			PrintText(lng::MInfoPowerStatusBCLifePercent);
 			if (PowerStatus.BatteryLifePercent > 100)
-				strOutStr = MSG(MInfoPowerStatusBCLifePercentUnknown);
+				strOutStr = MSG(lng::MInfoPowerStatusBCLifePercentUnknown);
 			else
 				strOutStr = str(PowerStatus.BatteryLifePercent) + L'%';
 			PrintInfo(strOutStr);
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoPowerStatusBC);
+			PrintText(lng::MInfoPowerStatusBC);
 			strOutStr.clear();
 			// PowerStatus.BatteryFlag == 0: The value is zero if the battery is not being charged and the battery capacity is between low and high.
 			if (!PowerStatus.BatteryFlag || PowerStatus.BatteryFlag == BATTERY_FLAG_UNKNOWN)
-				strOutStr=MSG(MInfoPowerStatusBCUnknown);
+				strOutStr=MSG(lng::MInfoPowerStatusBCUnknown);
 			else if (PowerStatus.BatteryFlag & BATTERY_FLAG_NO_BATTERY)
-				strOutStr=MSG(MInfoPowerStatusBCNoSysBat);
+				strOutStr=MSG(lng::MInfoPowerStatusBCNoSysBat);
 			else
 			{
 				if (PowerStatus.BatteryFlag & BATTERY_FLAG_HIGH)
-					strOutStr = MSG(MInfoPowerStatusBCHigh);
+					strOutStr = MSG(lng::MInfoPowerStatusBCHigh);
 				else if (PowerStatus.BatteryFlag & BATTERY_FLAG_LOW)
-					strOutStr = MSG(MInfoPowerStatusBCLow);
+					strOutStr = MSG(lng::MInfoPowerStatusBCLow);
 				else if (PowerStatus.BatteryFlag & BATTERY_FLAG_CRITICAL)
-					strOutStr = MSG(MInfoPowerStatusBCCritical);
+					strOutStr = MSG(lng::MInfoPowerStatusBCCritical);
 
 				if (PowerStatus.BatteryFlag & BATTERY_FLAG_CHARGING)
 				{
 					if (!strOutStr.empty())
 						strOutStr += L" ";
-					strOutStr += MSG(MInfoPowerStatusBCCharging);
+					strOutStr += MSG(lng::MInfoPowerStatusBCCharging);
 				}
 			}
 			PrintInfo(strOutStr);
@@ -518,7 +518,7 @@ void InfoList::DisplayObject()
 			auto GetBatteryTime = [](size_t Seconds)
 			{
 				if (Seconds == BATTERY_LIFE_UNKNOWN)
-					return string(MSG(MInfoPowerStatusUnknown));
+					return string(MSG(lng::MInfoPowerStatusUnknown));
 
 				string Days, Time;
 				ConvertRelativeDate(UI64ToFileTime(Seconds * 1000ull * 10000ull), Days, Time);
@@ -533,11 +533,11 @@ void InfoList::DisplayObject()
 			};
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoPowerStatusBCTimeRem);
+			PrintText(lng::MInfoPowerStatusBCTimeRem);
 			PrintInfo(GetBatteryTime(PowerStatus.BatteryLifeTime));
 
 			GotoXY(m_X1+2,CurY++);
-			PrintText(MInfoPowerStatusBCFullTimeRem);
+			PrintText(lng::MInfoPowerStatusBCFullTimeRem);
 			PrintInfo(GetBatteryTime(PowerStatus.BatteryFullLifeTime));
 		}
 	}
@@ -545,7 +545,7 @@ void InfoList::DisplayObject()
 	if (AnotherPanel->GetMode() == panel_mode::NORMAL_PANEL)
 	{
 		/* #5 - description */
-		SectionTitle = MSG(MInfoDescription);
+		SectionTitle = MSG(lng::MInfoDescription);
 		DrawTitle(SectionTitle, ILSS_DIRDESCRIPTION, CurY);
 
 		if (SectionState[ILSS_DIRDESCRIPTION].Show)
@@ -558,7 +558,7 @@ void InfoList::DisplayObject()
 			else
 			{
 				GotoXY(m_X1+2,CurY++);
-				PrintText(MInfoDizAbsent);
+				PrintText(lng::MInfoDizAbsent);
 			}
 		}
 	}
@@ -566,7 +566,7 @@ void InfoList::DisplayObject()
 	if (AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
 		/* #6 - Plugin Description */
-		SectionTitle = MSG(MInfoPlugin);
+		SectionTitle = MSG(lng::MInfoPlugin);
 		DrawTitle(SectionTitle, ILSS_PLDESCRIPTION, CurY);
 		if (SectionState[ILSS_PLDESCRIPTION].Show)
 		{
@@ -598,11 +598,11 @@ void InfoList::SelectShowMode()
 {
 	MenuDataEx ShowModeMenuItem[]=
 	{
-		MSG(MMenuInfoShowModeDisk),LIF_SELECTED,0,
-		MSG(MMenuInfoShowModeMemory),0,0,
-		MSG(MMenuInfoShowModeDirDiz),0,0,
-		MSG(MMenuInfoShowModePluginDiz),0,0,
-		MSG(MMenuInfoShowModePower),0,0,
+		MSG(lng::MMenuInfoShowModeDisk),LIF_SELECTED,0,
+		MSG(lng::MMenuInfoShowModeMemory),0,0,
+		MSG(lng::MMenuInfoShowModeDirDiz),0,0,
+		MSG(lng::MMenuInfoShowModePluginDiz),0,0,
+		MSG(lng::MMenuInfoShowModePower),0,0,
 	};
 
 	for_each_cnt(CONST_RANGE(SectionState, i, size_t index)
@@ -625,7 +625,7 @@ void InfoList::SelectShowMode()
 		//DEFINE_GUID(InfoListSelectShowModeId,0xbfc64a26, 0xf433, 0x4cf3, 0xa1, 0xde, 0x83, 0x61, 0xcf, 0x76, 0x2f, 0x68);
 		// ?????
 
-		const auto ShowModeMenu = VMenu2::create(MSG(MMenuInfoShowModeTitle), ShowModeMenuItem, std::size(ShowModeMenuItem), 0);
+		const auto ShowModeMenu = VMenu2::create(MSG(lng::MMenuInfoShowModeTitle), ShowModeMenuItem, std::size(ShowModeMenuItem), 0);
 		ShowModeMenu->SetHelp(L"InfoPanelShowMode");
 		ShowModeMenu->SetPosition(m_X1+4,-1,0,0);
 		ShowModeMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -898,7 +898,7 @@ void InfoList::PrintText(const string& Str) const
 }
 
 
-void InfoList::PrintText(LNGID MsgID) const
+void InfoList::PrintText(lng MsgID) const
 {
 	PrintText(MSG(MsgID));
 }
@@ -930,7 +930,7 @@ void InfoList::PrintInfo(const string& str) const
 }
 
 
-void InfoList::PrintInfo(LNGID MsgID) const
+void InfoList::PrintInfo(lng MsgID) const
 {
 	PrintInfo(MSG(MsgID));
 }
@@ -1088,7 +1088,7 @@ int InfoList::GetCurName(string &strName, string &strShortName) const
 
 void InfoList::UpdateKeyBar()
 {
-	Parent()->GetKeybar().SetLabels(MInfoF1);
+	Parent()->GetKeybar().SetLabels(lng::MInfoF1);
 	DynamicUpdateKeyBar();
 }
 
@@ -1102,12 +1102,12 @@ void InfoList::DynamicUpdateKeyBar() const
 	}
 	else
 	{
-		Keybar[KBL_MAIN][F2] = MSG(MF2);
+		Keybar[KBL_MAIN][F2] = MSG(lng::MF2);
 		Keybar[KBL_SHIFT][F2].clear();
 		Keybar[KBL_MAIN][F3].clear();
 		Keybar[KBL_MAIN][F8].clear();
 		Keybar[KBL_SHIFT][F8].clear();
-		Keybar[KBL_ALT][F8] = MSG(MAltF8);  // стандартный для панели - "хистори"
+		Keybar[KBL_ALT][F8] = MSG(lng::MAltF8);  // стандартный для панели - "хистори"
 	}
 
 	Keybar.SetCustomLabels(KBA_INFO);

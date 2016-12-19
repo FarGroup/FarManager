@@ -103,7 +103,7 @@ bool IsTextUTF8(const char* Buffer, size_t Length, bool& PureAscii)
 	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
 }
 
-GetFileString::GetFileString(os::fs::file& SrcFile, uintptr_t CodePage) :
+GetFileString::GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	SrcFile(SrcFile),
 	m_CodePage(CodePage),
 	ReadPos(0),
@@ -363,8 +363,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bB
 	return ExitCode;
 }
 
-bool GetFileFormat(
-	os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics, bool* pPureAscii)
+bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics, bool* pPureAscii)
 {
 	DWORD dwTemp = 0;
 	bool bSignatureFound = false;

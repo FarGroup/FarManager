@@ -55,8 +55,8 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			             MSG(MSetAttrCannotFor),Name.data(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
+			             MSG(lng::MSetAttrCannotFor),Name.data(),MSG(lng::MHRetry),MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
 
 		switch (Code)
 		{
@@ -76,14 +76,13 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 
 static int SetFileCompression(const string& Name,int State)
 {
-	os::fs::file file;
-
-	if (!file.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+	const os::fs::file File(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	if (!File)
 		return FALSE;
 
-	USHORT NewState=State ? COMPRESSION_FORMAT_DEFAULT:COMPRESSION_FORMAT_NONE;
+	USHORT NewState=State? COMPRESSION_FORMAT_DEFAULT : COMPRESSION_FORMAT_NONE;
 	DWORD BytesReturned;
-	return file.IoControl(FSCTL_SET_COMPRESSION, &NewState, sizeof(NewState), nullptr, 0, &BytesReturned);
+	return File.IoControl(FSCTL_SET_COMPRESSION, &NewState, sizeof(NewState), nullptr, 0, &BytesReturned);
 }
 
 
@@ -110,9 +109,9 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			             MSG(MSetAttrCompressedCannotFor),Name.data(),MSG(MHRetry),
-			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
+			             MSG(lng::MSetAttrCompressedCannotFor),Name.data(),MSG(lng::MHRetry),
+			             MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
 
 		if (Code==1 || Code<0)
 		{
@@ -165,9 +164,9 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			             MSG(MSetAttrEncryptedCannotFor),Name.data(),MSG(MHRetry), //BUGBUG
-			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
+			             MSG(lng::MSetAttrEncryptedCannotFor),Name.data(),MSG(lng::MHRetry), //BUGBUG
+			             MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
 
 		if (Code==1 || Code<0)
 		{
@@ -208,24 +207,21 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 
 		bool SetTime=false;
 		DWORD LastError=ERROR_SUCCESS;
-		os::fs::file file;
-		if (!file.Open(Name,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,
-		                           nullptr,OPEN_EXISTING,
-		                           FILE_FLAG_OPEN_REPARSE_POINT))
+		if (auto File = os::fs::file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 		{
+			SetTime = File.SetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 			LastError=GetLastError();
-		}
-		else
-		{
-			SetTime=file.SetTime(CreationTime,LastAccessTime,LastWriteTime, ChangeTime);
-			LastError=GetLastError();
-			file.Close();
+			File.Close();
 
 			if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && LastError==ERROR_NOT_SUPPORTED)   // FIX: Mantis#223
 			{
 				if (GetDriveType(GetPathRoot(Name).data()) == DRIVE_REMOTE)
 					break;
 			}
+		}
+		else
+		{
+			LastError = GetLastError();
 		}
 
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
@@ -242,9 +238,9 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			             MSG(MSetAttrTimeCannotFor),Name.data(),MSG(MHRetry), //BUGBUG
-			             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
+			             MSG(lng::MSetAttrTimeCannotFor),Name.data(),MSG(lng::MHRetry), //BUGBUG
+			             MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
 
 		switch (Code)
 		{
@@ -264,15 +260,13 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 
 static bool SetFileSparse(const string& Name,bool State)
 {
-	bool Ret=false;
-	os::fs::file file;
-	if (file.Open(Name,FILE_WRITE_DATA,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,OPEN_EXISTING))
-	{
-		DWORD BytesReturned;
-		FILE_SET_SPARSE_BUFFER sb={static_cast<BOOLEAN>(State)};
-		Ret=file.IoControl(FSCTL_SET_SPARSE,&sb,sizeof(sb),nullptr,0,&BytesReturned,nullptr);
-	}
-	return Ret;
+	const os::fs::file File(Name, FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+	if (!File)
+		return false;
+
+	DWORD BytesReturned;
+	FILE_SET_SPARSE_BUFFER sb={static_cast<BOOLEAN>(State)};
+	return File.IoControl(FSCTL_SET_SPARSE,&sb,sizeof(sb),nullptr,0,&BytesReturned,nullptr);
 }
 
 int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
@@ -292,9 +286,9 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 			if (SkipMode!=-1)
 				Code=SkipMode;
 			else
-				Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-				             MSG(MSetAttrSparseCannotFor),Name.data(),MSG(MHRetry),
-				             MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+				Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
+				             MSG(lng::MSetAttrSparseCannotFor),Name.data(),MSG(lng::MHRetry),
+				             MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
 
 			if (Code==1 || Code<0)
 			{
@@ -330,7 +324,7 @@ int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrOwnerCannotFor),Name.data(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),MSG(lng::MSetAttrOwnerCannotFor),Name.data(),MSG(lng::MHRetry),MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
 
 		if (Code==1 || Code<0)
 		{
@@ -364,7 +358,7 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MSetAttrCannotFor),Name.data(),MSG(MHRetry),MSG(MHSkip),MSG(MHSkipAll),MSG(MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),MSG(lng::MSetAttrCannotFor),Name.data(),MSG(lng::MHRetry),MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
 
 		if (Code==1 || Code<0)
 		{

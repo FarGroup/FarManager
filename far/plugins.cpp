@@ -482,7 +482,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 	if (Global->Opt->ShowCheckingFile)
 	{
 		OldTitle = ConsoleTitle::GetTitle();
-		ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin), true);
+		ConsoleTitle::SetFarTitle(MSG(lng::MCheckingFileInPlugin), true);
 	}
 	plugin_panel* hResult = nullptr;
 
@@ -503,7 +503,6 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
 
-	os::fs::file file;
 	AnalyseInfo Info={sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, OpMode};
 	std::vector<BYTE> Buffer(Global->Opt->PluginMaxReadData);
 
@@ -515,23 +514,23 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 
 		if(Name && !DataRead)
 		{
-			if (file.Open(*Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+			if (const auto File = os::fs::file(*Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 			{
 				size_t DataSize = 0;
-				if (file.Read(Buffer.data(), Buffer.size(), DataSize))
+				if (File.Read(Buffer.data(), Buffer.size(), DataSize))
 				{
 					Info.Buffer = Buffer.data();
 					Info.BufferSize = DataSize;
 					DataRead = true;
 				}
-				file.Close();
 			}
+
 			if(!DataRead)
 			{
 				if(ShowWarning)
 				{
 					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), Name->data(), MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(lng::MOpenPluginCannotOpenFile), Name->data(), MSG(lng::MOk));
 				}
 				break;
 			}
@@ -541,7 +540,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 		{
 			if (Global->Opt->ShowCheckingFile)
 			{
-				ConsoleTitle::SetFarTitle(MSG(MCheckingFileInPlugin) + L" - ["s + PointToName(i->GetModuleName()) + L"]..."s, true);
+				ConsoleTitle::SetFarTitle(MSG(lng::MCheckingFileInPlugin) + L" - ["s + PointToName(i->GetModuleName()) + L"]..."s, true);
 			}
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
@@ -576,7 +575,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 
 		if(!OnlyOne && ShowMenu)
 		{
-			const auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+			const auto menu = VMenu2::create(MSG(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 			menu->SetPosition(-1, -1, 0, 0);
 			menu->SetHelp(L"ChoosePluginMenu");
 			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
@@ -591,7 +590,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 				MenuItemEx mitem;
 				mitem.Flags |= MIF_SEPARATOR;
 				menu->AddItem(mitem);
-				menu->AddItem(MSG(MMenuPluginStdAssociation));
+				menu->AddItem(MSG(lng::MMenuPluginStdAssociation));
 			}
 
 			int ExitCode = menu->Run();
@@ -690,7 +689,7 @@ plugin_panel* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 	{
 		if (items.size()>1)
 		{
-			const auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+			const auto menu = VMenu2::create(MSG(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 			menu->SetPosition(-1, -1, 0, 0);
 			menu->SetHelp(L"ChoosePluginMenu");
 			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
@@ -1185,7 +1184,7 @@ static string AddHotkey(const string& Item, wchar_t Hotkey)
 */
 void PluginManager::Configure(int StartPos)
 {
-		const auto PluginList = VMenu2::create(MSG(MPluginConfigTitle), nullptr, 0, ScrY - 4);
+		const auto PluginList = VMenu2::create(MSG(lng::MPluginConfigTitle), nullptr, 0, ScrY - 4);
 		PluginList->SetMenuFlags(VMENU_WRAPMODE);
 		PluginList->SetHelp(L"PluginsConfig");
 		PluginList->SetId(PluginsConfigMenuId);
@@ -1254,7 +1253,7 @@ void PluginManager::Configure(int StartPos)
 				}
 
 				PluginList->AssignHighlights(FALSE);
-				PluginList->SetBottomTitle(MSG(MPluginHotKeyBottom));
+				PluginList->SetBottomTitle(MSG(lng::MPluginHotKeyBottom));
 				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList->SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
@@ -1345,7 +1344,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	PluginMenuItemData item;
 
 	{
-		const auto PluginList = VMenu2::create(MSG(MPluginCommandsMenuTitle), nullptr, 0, ScrY - 4);
+		const auto PluginList = VMenu2::create(MSG(lng::MPluginCommandsMenuTitle), nullptr, 0, ScrY - 4);
 		PluginList->SetMenuFlags(VMENU_WRAPMODE);
 		PluginList->SetHelp(L"PluginCommands");
 		PluginList->SetId(PluginsMenuId);
@@ -1426,7 +1425,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				}
 
 				PluginList->AssignHighlights(FALSE);
-				PluginList->SetBottomTitle(MSG(MPluginHotKeyBottom));
+				PluginList->SetBottomTitle(MSG(lng::MPluginHotKeyBottom));
 				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList->SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
@@ -1570,8 +1569,8 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
 	string strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);
 
-	DialogBuilder Builder(MPluginHotKeyTitle, L"SetHotKeyDialog");
-	Builder.AddText(MPluginHotKey);
+	DialogBuilder Builder(lng::MPluginHotKeyTitle, L"SetHotKeyDialog");
+	Builder.AddText(lng::MPluginHotKey);
 	Builder.AddTextAfter(Builder.AddFixEditField(strHotKey, 1), DlgPluginTitle.data());
 	Builder.AddOKCancel();
 	if(Builder.ShowDialog())
@@ -1604,22 +1603,22 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 		}
 	}
 	const int Width = 36;
-	DialogBuilder Builder(MPluginInformation, L"ShowPluginInfo");
-	Builder.AddText(MPluginModuleTitle);
+	DialogBuilder Builder(lng::MPluginInformation, L"ShowPluginInfo");
+	Builder.AddText(lng::MPluginModuleTitle);
 	Builder.AddConstEditField(pPlugin->GetTitle(), Width);
-	Builder.AddText(MPluginDescription);
+	Builder.AddText(lng::MPluginDescription);
 	Builder.AddConstEditField(pPlugin->GetDescription(), Width);
-	Builder.AddText(MPluginAuthor);
+	Builder.AddText(lng::MPluginAuthor);
 	Builder.AddConstEditField(pPlugin->GetAuthor(), Width);
-	Builder.AddText(MPluginVersion);
+	Builder.AddText(lng::MPluginVersion);
 	Builder.AddConstEditField(pPlugin->GetVersionString(), Width);
-	Builder.AddText(MPluginModulePath);
+	Builder.AddText(lng::MPluginModulePath);
 	Builder.AddConstEditField(pPlugin->GetModuleName(), Width);
-	Builder.AddText(MPluginGUID);
+	Builder.AddText(lng::MPluginGUID);
 	Builder.AddConstEditField(strPluginGuid, Width);
-	Builder.AddText(MPluginItemGUID);
+	Builder.AddText(lng::MPluginItemGUID);
 	Builder.AddConstEditField(strItemGuid, Width);
-	Builder.AddText(MPluginPrefix);
+	Builder.AddText(lng::MPluginPrefix);
 	Builder.AddConstEditField(strPluginPrefix, Width);
 	Builder.AddOK();
 	Builder.ShowDialog();
@@ -1972,7 +1971,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 
 	if (items.size()>1)
 	{
-		const auto menu = VMenu2::create(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+		const auto menu = VMenu2::create(MSG(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 		menu->SetPosition(-1, -1, 0, 0);
 		menu->SetHelp(L"ChoosePluginMenu");
 		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);

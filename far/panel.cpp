@@ -373,7 +373,7 @@ void Search::ShowBorder(void) const
 	Box(m_X1,m_Y1,m_X1+21,m_Y1+2,colors::PaletteColorToFarColor(COL_DIALOGBOX),DOUBLE_BOX);
 	GotoXY(m_X1+7,m_Y1);
 	SetColor(COL_DIALOGBOXTITLE);
-	Text(MSearchFileTitle);
+	Text(lng::MSearchFileTitle);
 }
 
 void Search::DisplayObject(void)
@@ -556,10 +556,10 @@ void Panel::DragMessage(int X,int Y,int Move)
 	}
 	else
 	{
-		strSelName = format(MDragFiles, SelCount);
+		strSelName = format(lng::MDragFiles, SelCount);
 	}
 
-	auto strDragMsg = format(Move? MDragMove : MDragCopy, strSelName);
+	auto strDragMsg = format(Move? lng::MDragMove : lng::MDragCopy, strSelName);
 
 	if ((Length=(int)strDragMsg.size())+X>ScrX)
 	{

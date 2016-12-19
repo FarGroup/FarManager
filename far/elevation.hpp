@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "synchro.hpp"
 
-enum LNGID : int;
+enum class lng : int;
 
 enum ELEVATION_MODE
 {
@@ -105,10 +105,10 @@ private:
 	T RetrieveLastErrorAndResult() const;
 
 	bool Initialize();
-	bool ElevationApproveDlg(LNGID Why, const string& Object);
+	bool ElevationApproveDlg(lng Why, const string& Object);
 
 	template<typename T, typename F1, typename F2>
-	auto execute(LNGID Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler);
+	auto execute(lng Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler);
 
 	std::atomic_ulong m_Suppressions;
 	os::handle m_Pipe;

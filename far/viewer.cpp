@@ -321,8 +321,8 @@ int Viewer::OpenFile(const string& Name,int warning)
 		   + 'warning' flag processing, in QuickView it is FALSE
 		     so don't show red message box */
 		if (warning)
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MViewerTitle),
-			        MSG(MViewerCannotOpenFile),strFileName.data(),MSG(MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MViewerTitle),
+			        MSG(lng::MViewerCannotOpenFile),strFileName.data(),MSG(lng::MOk));
 
 		OpenFailed=true;
 		return FALSE;
@@ -518,7 +518,7 @@ void Viewer::ShowPage(int nMode)
 			SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_VIEWERTEXT));
 			GotoXY(m_X1,m_Y1);
 			SetColor(COL_WARNDIALOGTEXT);
-			Text(cut_right(MSG(MViewerCannotOpenFile), XX2 - m_X1 + 1));
+			Text(cut_right(MSG(lng::MViewerCannotOpenFile), XX2 - m_X1 + 1));
 			ShowStatus();
 		}
 
@@ -1677,13 +1677,13 @@ int Viewer::process_key(const Manager::Key& Key)
 		{
 			MenuDataEx ModeListMenu[] =
 			{
-				{MSG(MViewF4Text), 0, 0}, // Text
-				{MSG(MViewF4), 0, 0 },     // Hex
-				{MSG(MViewF4Dump), 0, 0}  // Dump
+				{MSG(lng::MViewF4Text), 0, 0}, // Text
+				{MSG(lng::MViewF4), 0, 0 },     // Hex
+				{MSG(lng::MViewF4Dump), 0, 0}  // Dump
 			};
 			int MenuResult;
 			{
-				const auto vModes = VMenu2::create(MSG(MViewMode), ModeListMenu, std::size(ModeListMenu), ScrY - 4);
+				const auto vModes = VMenu2::create(MSG(lng::MViewMode), ModeListMenu, std::size(ModeListMenu), ScrY - 4);
 				vModes->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 				vModes->SetSelectPos(m_DisplayMode, +1);
 				MenuResult = vModes->Run();
@@ -2484,13 +2484,13 @@ void Viewer::UpdateViewKeyBar(KeyBar& keybar)
 	const wchar_t *f2_label = L"", *shiftf2_label = L"";
 	if (m_DisplayMode == VMT_TEXT)
 	{
-		f2_label = MSG((!m_Wrap)?((!m_WordWrap)?MViewF2:MViewShiftF2):MViewF2Unwrap);
-		shiftf2_label = MSG((m_WordWrap) ? MViewF2 : MViewShiftF2);
+		f2_label = MSG(m_Wrap? lng::MViewF2Unwrap : m_WordWrap? lng::MViewShiftF2 : lng::MViewF2);
+		shiftf2_label = MSG(m_WordWrap? lng::MViewF2 : lng::MViewShiftF2);
 	}
 	keybar[KBL_MAIN][F2] = f2_label;
 	keybar[KBL_SHIFT][F2] = shiftf2_label;
 
-	keybar[KBL_MAIN][F4] = MSG(m_DisplayMode != VMT_HEX? MViewF4 : (m_DumpTextMode? MViewF4Dump : MViewF4Text));
+	keybar[KBL_MAIN][F4] = MSG(m_DisplayMode != VMT_HEX? lng::MViewF4 : (m_DumpTextMode? lng::MViewF4Dump : lng::MViewF4Text));
 	keybar[KBL_MAIN][F8] = f8cps.NextCPname(m_Codepage);
 }
 
@@ -2688,14 +2688,14 @@ static void PR_ViewerSearchMsg()
 void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 {
 	string strProgress;
-	const auto strMsg = concat(MSG(SearchHex? MViewSearchingHex : MViewSearchingFor), L' ', MsgStr);
+	const auto strMsg = concat(MSG(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', MsgStr);
 	if (Percent>=0)
 	{
 		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
 		strProgress = make_progressbar(Length, Percent, true, true);
 	}
 
-	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
+	Message(MSG_LEFTALIGN,0,MSG(lng::MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<ViewerPreRedrawItem*>(PreRedrawStack().top());
@@ -3302,20 +3302,20 @@ void Viewer::Search(int Next,int FirstChar)
 	{
 		FarDialogItem SearchDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,MSG(MViewSearchTitle)},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MViewSearchFor)},
+			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,MSG(lng::MViewSearchTitle)},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(lng::MViewSearchFor)},
 			{DI_EDIT,5,3,70,3,0,L"SearchText",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
 			{DI_FIXEDIT,5,3,70,3,0,nullptr,L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ",DIF_MASKEDIT,L""},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,MSG(MViewSearchForText)},
-			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,MSG(MViewSearchForHex)},
-			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,MSG(MViewSearchCase)},
-			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,MSG(MViewSearchWholeWords)},
-			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,MSG(MViewSearchReverse)},
-			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,MSG(MViewSearchRegexp)},
+			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,MSG(lng::MViewSearchForText)},
+			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,MSG(lng::MViewSearchForHex)},
+			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,MSG(lng::MViewSearchCase)},
+			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,MSG(lng::MViewSearchWholeWords)},
+			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,MSG(lng::MViewSearchReverse)},
+			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,MSG(lng::MViewSearchRegexp)},
 			{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MViewSearchSearch)},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MViewSearchCancel)},
+			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MViewSearchSearch)},
+			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MViewSearchCancel)},
 		};
 		auto SearchDlg = MakeDialogItemsEx(SearchDlgData);
 
@@ -3485,24 +3485,24 @@ void Viewer::Search(int Next,int FirstChar)
 			else if (found == Search_NotFound)
 			{
 				Message(
-					MSG_WARNING, 1, MSG(MViewSearchTitle),
-					(SearchHex ? MSG(MViewSearchCannotFindHex) : MSG(MViewSearchCannotFind)),
-					strMsgStr.data(),	MSG(MOk)
+					MSG_WARNING, 1, MSG(lng::MViewSearchTitle),
+					(SearchHex ? MSG(lng::MViewSearchCannotFindHex) : MSG(lng::MViewSearchCannotFind)),
+					strMsgStr.data(),	MSG(lng::MOk)
 				);
 				return;
 			}
 			else // Search_ Eof/Bof/Cycle
 			{	  // MviewSearch Eod,FromBegin/Bod,FromEnd/Cycle,Repeat
-				static_assert(Search_Bof-Search_Eof==1 && Search_Cycle-Search_Eof==2, "Wrong enum order");
-				static_assert(MViewSearchFromBegin-MViewSearchEod==1, "Wrong .lng file order");
-				static_assert(MViewSearchFromEnd - MViewSearchBod==1, "Wrong .lng file order");
-				static_assert(MViewSearchRepeat -MViewSearchCycle==1, "Wrong .lng file order");
-				static_assert(MViewSearchBod-MViewSearchEod==2 && MViewSearchCycle-MViewSearchEod==4, "Wrong .lng file order");
+				static_assert(Search_Bof - Search_Eof == 1 && Search_Cycle - Search_Eof == 2, "Wrong enum order");
+				static_assert(lng::MViewSearchEod + 1 == lng::MViewSearchFromBegin, "Wrong .lng file order");
+				static_assert(lng::MViewSearchBod + 1 == lng::MViewSearchFromEnd, "Wrong .lng file order");
+				static_assert(lng::MViewSearchCycle + 1 == lng::MViewSearchRepeat, "Wrong .lng file order");
+				static_assert(lng::MViewSearchEod + 2 == lng::MViewSearchBod && lng::MViewSearchEod + 4 == lng::MViewSearchCycle, "Wrong .lng file order");
 				if (Message(
-					0, 2, MSG(MViewSearchTitle),
-					MSG(MViewSearchEod+2*(found-Search_Eof)),
-					MSG(MViewSearchFromBegin+2*(found-Search_Eof)),
-					strMsgStr.data(), MSG(MYes), MSG(MCancel)) != Message::first_button) // cancel search
+					0, 2, MSG(lng::MViewSearchTitle),
+					MSG(lng::MViewSearchEod+2*(found-Search_Eof)),
+					MSG(lng::MViewSearchFromBegin+2*(found-Search_Eof)),
+					strMsgStr.data(), MSG(lng::MYes), MSG(lng::MCancel)) != Message::first_button) // cancel search
 				{
 					return;
 					}
@@ -3961,9 +3961,9 @@ void Viewer::GoTo(int ShowDlg, long long Offset, UINT64 Flags)
 
 		IntOption InputMode;
 		InputMode.Set(PrevMode);
-		static constexpr int MsgIds[] = { MGoToPercent, MGoToHex, MGoToDecimal };
+		static constexpr lng MsgIds[] = { lng::MGoToPercent, lng::MGoToHex, lng::MGoToDecimal };
 
-		DialogBuilder Builder(MViewerGoTo, L"ViewerGotoPos");
+		DialogBuilder Builder(lng::MViewerGoTo, L"ViewerGotoPos");
 		string InputString;
 		Builder.AddEditField(InputString, 29, L"LineNumber", DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_NOAUTOCOMPLETE);
 		Builder.AddSeparator();

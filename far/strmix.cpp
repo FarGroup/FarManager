@@ -508,15 +508,15 @@ void PrepareUnitStr()
 {
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
-		UnitStr(i, 0) = Lower(MSG(MListBytes + i));
-		UnitStr(i, 1) = Upper(MSG(MListBytes + i));
+		UnitStr(i, 0) = Lower(MSG(lng::MListBytes + i));
+		UnitStr(i, 1) = Upper(MSG(lng::MListBytes + i));
 	}
 }
 
 string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long long ViewFlags)
 {
 	// подготовительные мероприятия
-	if (UnitStr(0, 0) != Lower(MSG(MListBytes)))
+	if (UnitStr(0, 0) != Lower(MSG(lng::MListBytes)))
 	{
 		PrepareUnitStr();
 	}

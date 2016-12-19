@@ -386,16 +386,16 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 		std::vector<string> MessageItems;
 		MessageItems.reserve(6);
 
-		MessageItems.emplace_back(MSG(MChangeHotPlugDisconnectDriveQuestion));
+		MessageItems.emplace_back(MSG(lng::MChangeHotPlugDisconnectDriveQuestion));
 		MessageItems.emplace_back(strDescription);
 
 		if (!strFriendlyName.empty() && StrCmpI(strDescription, strFriendlyName))
 			MessageItems.emplace_back(strFriendlyName);
 
 		if (!DisksStr.empty())
-			MessageItems.emplace_back(format(MHotPlugDisks, DisksStr));
+			MessageItems.emplace_back(format(lng::MHotPlugDisks, DisksStr));
 
-		MessageResult = Message(MSG_WARNING, MSG(MChangeHotPlugDisconnectDriveTitle), MessageItems, { MSG(MHRemove), MSG(MHCancel) });
+		MessageResult = Message(MSG_WARNING, MSG(lng::MChangeHotPlugDisconnectDriveTitle), MessageItems, { MSG(lng::MHRemove), MSG(lng::MHCancel) });
 	}
 
 	int bResult = -1;
@@ -419,7 +419,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 
 	if (bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
 	{
-		Message(0,1,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugNotify1),strDescription.data(),strFriendlyName.data(),MSG(MChangeHotPlugNotify2),MSG(MOk));
+		Message(0,1,MSG(lng::MChangeHotPlugDisconnectDriveTitle),MSG(lng::MChangeHotPlugNotify1),strDescription.data(),strFriendlyName.data(),MSG(lng::MChangeHotPlugNotify2),MSG(lng::MOk));
 	}
 
 	return bResult;
@@ -448,7 +448,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 
 void ShowHotplugDevices()
 {
-	const auto HotPlugList = VMenu2::create(MSG(MHotPlugListTitle), nullptr, 0, 0);
+	const auto HotPlugList = VMenu2::create(MSG(lng::MHotPlugListTitle), nullptr, 0, 0);
 	std::vector<DeviceInfo> Info;
 
 	const auto& FillMenu = [&]()
@@ -498,7 +498,7 @@ void ShowHotplugDevices()
 	HotPlugList->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	HotPlugList->SetPosition(-1,-1,0,0);
 	HotPlugList->AssignHighlights(TRUE);
-	HotPlugList->SetBottomTitle(MSG(MHotPlugListBottom));
+	HotPlugList->SetBottomTitle(MSG(lng::MHotPlugListBottom));
 
 	bool NeedRefresh = false;
 
@@ -546,8 +546,8 @@ void ShowHotplugDevices()
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ...ю "The disk is in use or locked by another process."
 						Global->CatchError();
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-						        MSG(MChangeCouldNotEjectHotPlugMedia2),HotPlugList->at(I).strName.data(),MSG(MOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),
+						        MSG(lng::MChangeCouldNotEjectHotPlugMedia2),HotPlugList->at(I).strName.data(),MSG(lng::MOk));
 					}
 				}
 

@@ -173,7 +173,7 @@ T elevation::RetrieveLastErrorAndResult() const
 }
 
 template<typename T, typename F1, typename F2>
-auto elevation::execute(LNGID Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
+auto elevation::execute(lng Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
 {
 	SCOPED_ACTION(CriticalSectionLock)(m_CS);
 	if (!ElevationApproveDlg(Why, Object))
@@ -383,11 +383,11 @@ intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, voi
 struct EAData: noncopyable
 {
 	const string& Object;
-	LNGID Why;
+	lng Why;
 	bool& AskApprove;
 	bool& IsApproved;
 	bool& DontAskAgain;
-	EAData(const string& Object, LNGID Why, bool& AskApprove, bool& IsApproved, bool& DontAskAgain):
+	EAData(const string& Object, lng Why, bool& AskApprove, bool& IsApproved, bool& DontAskAgain):
 		Object(Object), Why(Why), AskApprove(AskApprove), IsApproved(IsApproved), DontAskAgain(DontAskAgain){}
 };
 
@@ -398,15 +398,15 @@ void ElevationApproveDlgSync(const EAData& Data)
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem ElevationApproveDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MAccessDenied)},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(is_admin()?MElevationRequiredPrivileges:MElevationRequired)},
+		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(lng::MAccessDenied)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired)},
 		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data.Why)},
 		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data.Object.data()},
-		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(MElevationDoForAll)},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MElevationDoNotAskAgainInTheCurrentSession)},
+		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(lng::MElevationDoForAll)},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(lng::MElevationDoNotAskAgainInTheCurrentSession)},
 		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,MSG(MOk)},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MSkip)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,MSG(lng::MOk)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MSkip)},
 	};
 	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
 	const auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
@@ -433,7 +433,7 @@ void ElevationApproveDlgSync(const EAData& Data)
 	Data.DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
 }
 
-bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
+bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 {
 	if (m_Suppressions)
 		return false;
@@ -479,7 +479,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 
 bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes)
 {
-	return execute(MElevationRequiredCreate, Object,
+	return execute(lng::MElevationRequiredCreate, Object,
 		false,
 		[&]
 		{
@@ -495,7 +495,7 @@ bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& O
 
 bool elevation::fRemoveDirectory(const string& Object)
 {
-	return execute(MElevationRequiredDelete, Object,
+	return execute(lng::MElevationRequiredDelete, Object,
 		false,
 		[&]
 		{
@@ -510,7 +510,7 @@ bool elevation::fRemoveDirectory(const string& Object)
 
 bool elevation::fDeleteFile(const string& Object)
 {
-	return execute(MElevationRequiredDelete, Object,
+	return execute(lng::MElevationRequiredDelete, Object,
 		false,
 		[&]
 		{
@@ -545,7 +545,7 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 
 bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
 {
-	return execute(MElevationRequiredCopy, From,
+	return execute(lng::MElevationRequiredCopy, From,
 		false,
 		[&]
 		{
@@ -567,7 +567,7 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 
 bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 {
-	return execute(MElevationRequiredMove, From,
+	return execute(lng::MElevationRequiredMove, From,
 		false,
 		[&]
 		{
@@ -582,7 +582,7 @@ bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 
 DWORD elevation::fGetFileAttributes(const string& Object)
 {
-	return execute(MElevationRequiredGetAttributes, Object,
+	return execute(lng::MElevationRequiredGetAttributes, Object,
 		INVALID_FILE_ATTRIBUTES,
 		[&]
 		{
@@ -597,7 +597,7 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 
 bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 {
-	return execute(MElevationRequiredSetAttributes, Object,
+	return execute(lng::MElevationRequiredSetAttributes, Object,
 		false,
 		[&]
 		{
@@ -612,7 +612,7 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 
 bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	return execute(MElevationRequiredHardLink, Object,
+	return execute(lng::MElevationRequiredHardLink, Object,
 		false,
 		[&]
 		{
@@ -628,7 +628,7 @@ bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSE
 
 bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags)
 {
-	return execute(MElevationRequiredSymLink, Object,
+	return execute(lng::MElevationRequiredSymLink, Object,
 		false,
 		[&]
 		{
@@ -644,7 +644,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	static constexpr auto DE_ACCESSDENIEDSRC = 0x78;
-	return execute(MElevationRequiredRecycle, FileOpStruct.pFrom,
+	return execute(lng::MElevationRequiredRecycle, FileOpStruct.pFrom,
 		DE_ACCESSDENIEDSRC,
 		[&]
 		{
@@ -664,7 +664,7 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 
 bool elevation::fSetOwner(const string& Object, const string& Owner)
 {
-	return execute(MElevationRequiredSetOwner, Object,
+	return execute(lng::MElevationRequiredSetOwner, Object,
 		false,
 		[&]
 		{
@@ -679,7 +679,7 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 
 HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
 {
-	return execute(MElevationRequiredOpen, Object,
+	return execute(lng::MElevationRequiredOpen, Object,
 		INVALID_HANDLE_VALUE,
 		[&]
 		{
@@ -695,7 +695,7 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 
 bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 {
-	return execute(Encrypt? MElevationRequiredEncryptFile : MElevationRequiredDecryptFile, Object,
+	return execute(Encrypt? lng::MElevationRequiredEncryptFile : lng::MElevationRequiredDecryptFile, Object,
 		false,
 		[&]
 		{
@@ -710,7 +710,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 
 bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
-	return execute(MElevationRequiredCreate, Object,
+	return execute(lng::MElevationRequiredCreate, Object,
 		false,
 		[&]
 		{
@@ -725,7 +725,7 @@ bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& V
 
 bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBytesAvailableToCaller, ULARGE_INTEGER* TotalNumberOfBytes, ULARGE_INTEGER* TotalNumberOfFreeBytes)
 {
-	return execute(MElevationRequiredList, Object,
+	return execute(lng::MElevationRequiredList, Object,
 		false,
 		[&]
 		{

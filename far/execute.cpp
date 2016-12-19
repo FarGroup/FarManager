@@ -59,97 +59,92 @@ enum class image_type
 
 static bool GetImageType(const string& FileName, image_type& ImageType)
 {
-	auto Result = image_type::unknown;
-	os::fs::file ModuleFile;
-	if(ModuleFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	if (!ModuleFile)
+		return false;
+
+	IMAGE_DOS_HEADER DOSHeader;
+	size_t ReadSize;
+
+	if (!ModuleFile.Read(&DOSHeader, sizeof(DOSHeader), ReadSize) || ReadSize != sizeof(DOSHeader))
+		return false;
+
+	if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
+		return false;
+
+	if (!ModuleFile.SetPointer(DOSHeader.e_lfanew, nullptr, FILE_BEGIN))
+		return false;
+
+	union
 	{
-		IMAGE_DOS_HEADER DOSHeader;
-		size_t ReadSize;
-
-		if (ModuleFile.Read(&DOSHeader, sizeof(DOSHeader), ReadSize) && ReadSize==sizeof(DOSHeader))
+		struct
 		{
-			if (DOSHeader.e_magic==IMAGE_DOS_SIGNATURE)
+			DWORD Signature;
+			IMAGE_FILE_HEADER FileHeader;
+			union
 			{
-				Result = image_type::console;
+				IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
+				IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
+			};
+		}
+		PeHeader;
 
-				if (ModuleFile.SetPointer(DOSHeader.e_lfanew,nullptr,FILE_BEGIN))
-				{
-					union
-					{
-						struct
-						{
-							DWORD Signature;
-							IMAGE_FILE_HEADER FileHeader;
-							union
-							{
-								IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
-								IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
-							};
-						}
-						PeHeader;
+		IMAGE_OS2_HEADER Os2Header;
+	}
+	ImageHeader;
 
-						IMAGE_OS2_HEADER Os2Header;
-					}
-					ImageHeader;
+	if (!ModuleFile.Read(&ImageHeader, sizeof(ImageHeader), ReadSize) || ReadSize != sizeof(ImageHeader))
+		return false;
 
-					if (ModuleFile.Read(&ImageHeader, sizeof(ImageHeader), ReadSize) && ReadSize==sizeof(ImageHeader))
-					{
-						if (ImageHeader.PeHeader.Signature == IMAGE_NT_SIGNATURE)
-						{
-							const auto& PeHeader = ImageHeader.PeHeader;
+	auto Result = image_type::console;
 
-							if (!(PeHeader.FileHeader.Characteristics & IMAGE_FILE_DLL))
-							{
-								auto ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
+	if (ImageHeader.PeHeader.Signature == IMAGE_NT_SIGNATURE)
+	{
+		const auto& PeHeader = ImageHeader.PeHeader;
 
-								switch (PeHeader.OptionalHeader32.Magic)
-								{
-								case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
-									ImageSubsystem = PeHeader.OptionalHeader32.Subsystem;
-									break;
+		if (!(PeHeader.FileHeader.Characteristics & IMAGE_FILE_DLL))
+		{
+			auto ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
 
-								case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
-									ImageSubsystem = PeHeader.OptionalHeader64.Subsystem;
-									break;
-								}
+			switch (PeHeader.OptionalHeader32.Magic)
+			{
+			case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
+				ImageSubsystem = PeHeader.OptionalHeader32.Subsystem;
+				break;
 
-								if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
-								{
-									Result = image_type::graphical;
-								}
-							}
-						}
-						else if (ImageHeader.Os2Header.ne_magic == IMAGE_OS2_SIGNATURE)
-						{
-							const auto& Os2Header = ImageHeader.Os2Header;
+			case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
+				ImageSubsystem = PeHeader.OptionalHeader64.Subsystem;
+				break;
+			}
 
-							enum { DllOrDriverFlag = bit(7) };
-							if (!(HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag))
-							{
-								enum
-								{
-									NE_WINDOWS = 0x2,
-									NE_WIN386 = 0x4,
-								};
+			if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+			{
+				Result = image_type::graphical;
+			}
+		}
+	}
+	else if (ImageHeader.Os2Header.ne_magic == IMAGE_OS2_SIGNATURE)
+	{
+		const auto& Os2Header = ImageHeader.Os2Header;
 
-								if (Os2Header.ne_exetyp == NE_WINDOWS || Os2Header.ne_exetyp == NE_WIN386)
-								{
-									Result = image_type::graphical;
-								}
-							}
-						}
-					}
-				}
+		enum { DllOrDriverFlag = bit(7) };
+		if (!(HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag))
+		{
+			enum
+			{
+				NE_WINDOWS = 0x2,
+				NE_WIN386 = 0x4,
+			};
+
+			if (Os2Header.ne_exetyp == NE_WINDOWS || Os2Header.ne_exetyp == NE_WIN386)
+			{
+				Result = image_type::graphical;
 			}
 		}
 	}
 
-	if (Result != image_type::unknown)
-	{
-		ImageType = Result;
-		return true;
-	}
-	return false;
+	ImageType = Result;
+	return true;
 }
 
 static bool IsProperProgID(const string& ProgID)
@@ -874,7 +869,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			strComspec = os::env::get_variable(L"COMSPEC");
 			if (strComspec.empty())
 			{
-				Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
+				Message(MSG_WARNING, 1, MSG(lng::MError), MSG(lng::MComspecNotFound), MSG(lng::MOk));
 				return;
 			}
 		}
@@ -1039,14 +1034,14 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	{
 		std::vector<string> Strings;
 		if (Info.ExecMode == execute_info::exec_mode::direct)
-			Strings = { MSG(MCannotExecute), strNewCmdStr };
+			Strings = { MSG(lng::MCannotExecute), strNewCmdStr };
 		else
-			Strings = { MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar) };
+			Strings = { MSG(lng::MCannotInvokeComspec), strComspec, MSG(lng::MCheckComspecVar) };
 
 		Message(MSG_WARNING | MSG_ERRORTYPE,
-			MSG(MError),
+			MSG(lng::MError),
 			Strings,
-			{ MSG(MOk) },
+			{ MSG(lng::MOk) },
 			L"ErrCannotExecute",
 			nullptr,
 			nullptr,

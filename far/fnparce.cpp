@@ -688,10 +688,10 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 		Item.Type = DI_BUTTON;
 		Item.Flags = DIF_DEFAULTBUTTON|DIF_CENTERGROUP;
 		Item.Y1 = Item.Y2 = DlgData.size() + 1;
-		Item.strData = MSG(MOk);
+		Item.strData = MSG(lng::MOk);
 		DlgData.emplace_back(Item);
 
-		Item.strData = MSG(MCancel);
+		Item.strData = MSG(lng::MCancel);
 		Item.Flags &= ~DIF_DEFAULTBUTTON;
 		DlgData.emplace_back(Item);
 	}
@@ -740,8 +740,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 	if (FarMkTempEx(strListFileName))
 	{
-		os::fs::file ListFile;
-		if (ListFile.Open(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS))
+		if (const auto ListFile = os::fs::file(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS))
 		{
 			uintptr_t CodePage=CP_OEMCP;
 			LPCVOID Eol="\r\n";
@@ -836,24 +835,22 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				else
 				{
 					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListWrite),MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCannotCreateListFile),MSG(lng::MCannotCreateListWrite),MSG(lng::MOk));
 					os::DeleteFile(strListFileName);
 					break;
 				}
 			}
-
-			ListFile.Close();
 		}
 		else
 		{
 			Global->CatchError();
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCannotCreateListFile),MSG(lng::MCannotCreateListTemp),MSG(lng::MOk));
 		}
 	}
 	else
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateListFile),MSG(MCannotCreateListTemp),MSG(MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCannotCreateListFile),MSG(lng::MCannotCreateListTemp),MSG(lng::MOk));
 	}
 
 	return Ret;

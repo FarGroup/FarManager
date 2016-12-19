@@ -132,7 +132,7 @@ void copy_progress::FlushScan()
 	Global->ScrBuf->Flush();
 }
 
-static string FormatCounter(LNGID CounterId, LNGID AnotherId, unsigned long long CurrentValue, unsigned long long TotalValue, bool ShowTotal, size_t MaxWidth)
+static string FormatCounter(lng CounterId, lng AnotherId, unsigned long long CurrentValue, unsigned long long TotalValue, bool ShowTotal, size_t MaxWidth)
 {
 	string Label = MSG(CounterId);
 	const auto PaddedLabelSize = std::max(Label.size(), wcslen(MSG(AnotherId))) + 1;
@@ -164,7 +164,7 @@ void copy_progress::Flush()
 	Text(m_Rect.Left + 5, m_Rect.Top + 5, m_Color, m_Dst);
 	Text(m_Rect.Left + 5, m_Rect.Top + 8, m_Color, m_FilesCopied);
 
-	const auto Result = FormatCounter(MCopyBytesTotalInfo, MCopyFilesTotalInfo, GetBytesDone(), m_Bytes.Total, m_Total, GetCanvasWidth() - 5);
+	const auto Result = FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, GetBytesDone(), m_Bytes.Total, m_Total, GetCanvasWidth() - 5);
 	Text(m_Rect.Left + 5, m_Rect.Top + 9, m_Color, Result);
 
 	Text(m_Rect.Left + 5, m_Rect.Top + 6, m_Color, m_CurrentBar);
@@ -182,7 +182,7 @@ void copy_progress::Flush()
 			L"{"
 			+ str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_Total? m_TotalPercent : m_CurrentPercent)
 			+ L"%} "
-			+ MSG(m_Move ? MCopyMovingTitle : MCopyCopyingTitle)
+			+ MSG(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle)
 		);
 	}
 
@@ -217,7 +217,7 @@ void copy_progress::SetScanName(const string& Name)
 
 void copy_progress::CreateScanBackground()
 {
-	Message m(MSG_LEFTALIGN | MSG_NOFLUSH, MSG(m_Move ? MMoveDlgTitle : MCopyDlgTitle), { MSG(MCopyScanning), m_CurrentBar }, {});
+	Message m(MSG_LEFTALIGN | MSG_NOFLUSH, MSG(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle), { MSG(lng::MCopyScanning), m_CurrentBar }, {});
 	int MX1, MY1, MX2, MY2;
 	m.GetMessagePosition(MX1, MY1, MX2, MY2);
 	m_Rect.Left = MX1;
@@ -228,16 +228,16 @@ void copy_progress::CreateScanBackground()
 
 void copy_progress::CreateBackground()
 {
-	const auto Title = MSG(m_Move ? MMoveDlgTitle : MCopyDlgTitle);
+	const auto Title = MSG(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle);
 
 	std::vector<string> Items =
 	{
-		MSG(m_Move ? MCopyMoving : MCopyCopying),
+		MSG(m_Move? lng::MCopyMoving :lng::MCopyCopying),
 		L"", // source name
-		MSG(MCopyTo),
+		MSG(lng::MCopyTo),
 		L"", // dest path
 		m_CurrentBar,
-		string(L"\x1") + MSG(MCopyDlgTotal),
+		string(L"\x1") + MSG(lng::MCopyDlgTotal),
 		L"", // files [total] <processed>
 		L""  // bytes [total] <processed>
 	};
@@ -281,7 +281,7 @@ void copy_progress::SetNames(const string& Src, const string& Dst)
 	TruncPathStr(m_Src, NameWidth);
 	m_Dst = Dst;
 	TruncPathStr(m_Dst, NameWidth);
-	m_FilesCopied = FormatCounter(MCopyFilesTotalInfo, MCopyBytesTotalInfo, m_Files.Copied, m_Files.Total, m_Total, GetCanvasWidth() - 5);
+	m_FilesCopied = FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, m_Files.Copied, m_Files.Total, m_Total, GetCanvasWidth() - 5);
 
 	Flush();
 }
@@ -343,5 +343,5 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 		tmp[2] = m_Speed;
 	}
 
-	m_Time = format(MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
+	m_Time = format(lng::MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
 }

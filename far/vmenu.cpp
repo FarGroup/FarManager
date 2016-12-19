@@ -115,7 +115,7 @@ void VMenu::init(const MenuDataEx *Data, int ItemsCount, DWORD Flags)
 		MenuItemEx NewItem;
 
 		if (!os::memory::is_pointer(i.Name))
-			NewItem.strName = MSG(static_cast<LNGID>(reinterpret_cast<intptr_t>(i.Name)));
+			NewItem.strName = MSG(static_cast<lng>(reinterpret_cast<intptr_t>(i.Name)));
 		else
 			NewItem.strName = i.Name;
 
@@ -2787,7 +2787,7 @@ FARMACROAREA VMenu::GetMacroArea() const
 
 int VMenu::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(MVMenuType);
+	strType = MSG(lng::MVMenuType);
 	strName = strTitle;
 	return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu;
 }

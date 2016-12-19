@@ -138,25 +138,25 @@ static size_t RealModeToDisplay(size_t Mode)
 
 void Options::SystemSettings()
 {
-	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
+	DialogBuilder Builder(lng::MConfigSystemTitle, L"SystemSettings");
 
-	Builder.AddCheckbox(MConfigRecycleBin, DeleteToRecycleBin);
-	Builder.AddCheckbox(MConfigSystemCopy, CMOpt.UseSystemCopy);
-	Builder.AddCheckbox(MConfigCopySharing, CMOpt.CopyOpened);
-	Builder.AddCheckbox(MConfigScanJunction, ScanJunction);
-	Builder.AddCheckbox(MConfigSmartFolderMonitor, SmartFolderMonitor);
+	Builder.AddCheckbox(lng::MConfigRecycleBin, DeleteToRecycleBin);
+	Builder.AddCheckbox(lng::MConfigSystemCopy, CMOpt.UseSystemCopy);
+	Builder.AddCheckbox(lng::MConfigCopySharing, CMOpt.CopyOpened);
+	Builder.AddCheckbox(lng::MConfigScanJunction, ScanJunction);
+	Builder.AddCheckbox(lng::MConfigSmartFolderMonitor, SmartFolderMonitor);
 
-	Builder.AddCheckbox(MConfigSaveHistory, SaveHistory);
-	Builder.AddCheckbox(MConfigSaveFoldersHistory, SaveFoldersHistory);
-	Builder.AddCheckbox(MConfigSaveViewHistory, SaveViewHistory);
-	Builder.AddCheckbox(MConfigRegisteredTypes, UseRegisteredTypes);
-	Builder.AddCheckbox(MConfigCloseCDGate, CloseCDGate);
-	Builder.AddCheckbox(MConfigUpdateEnvironment, UpdateEnvironment);
-	Builder.AddText(MConfigElevation);
-	Builder.AddCheckbox(MConfigElevationModify, StoredElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
-	Builder.AddCheckbox(MConfigElevationRead, StoredElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
-	Builder.AddCheckbox(MConfigElevationUsePrivileges, StoredElevationMode, ELEVATION_USE_PRIVILEGES)->Indent(4);
-	Builder.AddCheckbox(MConfigAutoSave, AutoSaveSetup);
+	Builder.AddCheckbox(lng::MConfigSaveHistory, SaveHistory);
+	Builder.AddCheckbox(lng::MConfigSaveFoldersHistory, SaveFoldersHistory);
+	Builder.AddCheckbox(lng::MConfigSaveViewHistory, SaveViewHistory);
+	Builder.AddCheckbox(lng::MConfigRegisteredTypes, UseRegisteredTypes);
+	Builder.AddCheckbox(lng::MConfigCloseCDGate, CloseCDGate);
+	Builder.AddCheckbox(lng::MConfigUpdateEnvironment, UpdateEnvironment);
+	Builder.AddText(lng::MConfigElevation);
+	Builder.AddCheckbox(lng::MConfigElevationModify, StoredElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
+	Builder.AddCheckbox(lng::MConfigElevationRead, StoredElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
+	Builder.AddCheckbox(lng::MConfigElevationUsePrivileges, StoredElevationMode, ELEVATION_USE_PRIVILEGES)->Indent(4);
+	Builder.AddCheckbox(lng::MConfigAutoSave, AutoSaveSetup);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -167,36 +167,36 @@ void Options::SystemSettings()
 
 void Options::PanelSettings()
 {
-	DialogBuilder Builder(MConfigPanelTitle, L"PanelSettings");
+	DialogBuilder Builder(lng::MConfigPanelTitle, L"PanelSettings");
 	BOOL AutoUpdate = AutoUpdateLimit;
 
-	Builder.AddCheckbox(MConfigHidden, ShowHidden);
-	Builder.AddCheckbox(MConfigHighlight, Highlight);
-	Builder.AddCheckbox(MConfigSelectFolders, SelectFolders);
-	Builder.AddCheckbox(MConfigRightClickSelect, RightClickSelect);
-	Builder.AddCheckbox(MConfigSortFolderExt, SortFolderExt);
-	Builder.AddCheckbox(MConfigReverseSort, ReverseSort);
+	Builder.AddCheckbox(lng::MConfigHidden, ShowHidden);
+	Builder.AddCheckbox(lng::MConfigHighlight, Highlight);
+	Builder.AddCheckbox(lng::MConfigSelectFolders, SelectFolders);
+	Builder.AddCheckbox(lng::MConfigRightClickSelect, RightClickSelect);
+	Builder.AddCheckbox(lng::MConfigSortFolderExt, SortFolderExt);
+	Builder.AddCheckbox(lng::MConfigReverseSort, ReverseSort);
 
-	DialogItemEx *AutoUpdateEnabled = Builder.AddCheckbox(MConfigAutoUpdateLimit, &AutoUpdate);
+	DialogItemEx *AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, &AutoUpdate);
 	DialogItemEx *AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
 	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimitItem, DIF_DISABLE, false);
-	DialogItemEx *AutoUpdateTextItem = Builder.AddTextBefore(AutoUpdateLimitItem, MConfigAutoUpdateLimit2);
+	DialogItemEx *AutoUpdateTextItem = Builder.AddTextBefore(AutoUpdateLimitItem, lng::MConfigAutoUpdateLimit2);
 	AutoUpdateLimitItem->Indent(4);
 	AutoUpdateTextItem->Indent(4);
-	Builder.AddCheckbox(MConfigAutoUpdateRemoteDrive, AutoUpdateRemoteDrive);
+	Builder.AddCheckbox(lng::MConfigAutoUpdateRemoteDrive, AutoUpdateRemoteDrive);
 
 	Builder.AddSeparator();
-	Builder.AddCheckbox(MConfigShowColumns, ShowColumnTitles);
-	Builder.AddCheckbox(MConfigShowStatus, ShowPanelStatus);
-	Builder.AddCheckbox(MConfigDetailedJunction, PanelDetailedJunction);
-	Builder.AddCheckbox(MConfigShowTotal, ShowPanelTotals);
-	Builder.AddCheckbox(MConfigShowFree, ShowPanelFree);
-	Builder.AddCheckbox(MConfigShowScrollbar, ShowPanelScrollbar);
-	Builder.AddCheckbox(MConfigShowScreensNumber, ShowScreensNumber);
-	Builder.AddCheckbox(MConfigShowSortMode, ShowSortMode);
-	Builder.AddCheckbox(MConfigShowDotsInRoot, ShowDotsInRoot);
-	Builder.AddCheckbox(MConfigHighlightColumnSeparator, HighlightColumnSeparator);
-	Builder.AddCheckbox(MConfigDoubleGlobalColumnSeparator, DoubleGlobalColumnSeparator);
+	Builder.AddCheckbox(lng::MConfigShowColumns, ShowColumnTitles);
+	Builder.AddCheckbox(lng::MConfigShowStatus, ShowPanelStatus);
+	Builder.AddCheckbox(lng::MConfigDetailedJunction, PanelDetailedJunction);
+	Builder.AddCheckbox(lng::MConfigShowTotal, ShowPanelTotals);
+	Builder.AddCheckbox(lng::MConfigShowFree, ShowPanelFree);
+	Builder.AddCheckbox(lng::MConfigShowScrollbar, ShowPanelScrollbar);
+	Builder.AddCheckbox(lng::MConfigShowScreensNumber, ShowScreensNumber);
+	Builder.AddCheckbox(lng::MConfigShowSortMode, ShowSortMode);
+	Builder.AddCheckbox(lng::MConfigShowDotsInRoot, ShowDotsInRoot);
+	Builder.AddCheckbox(lng::MConfigHighlightColumnSeparator, HighlightColumnSeparator);
+	Builder.AddCheckbox(lng::MConfigDoubleGlobalColumnSeparator, DoubleGlobalColumnSeparator);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -212,52 +212,52 @@ void Options::PanelSettings()
 
 void Options::TreeSettings()
 {
-	DialogBuilder Builder(MConfigTreeTitle, L"TreeSettings");
+	DialogBuilder Builder(lng::MConfigTreeTitle, L"TreeSettings");
 
 	DialogItemEx *TemplateEdit;
 
-	Builder.AddCheckbox(MConfigTreeAutoChange, Tree.AutoChangeFolder);
+	Builder.AddCheckbox(lng::MConfigTreeAutoChange, Tree.AutoChangeFolder);
 
 	TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
-	Builder.AddTextBefore(TemplateEdit, MConfigTreeLabelMinFolder);
+	Builder.AddTextBefore(TemplateEdit, lng::MConfigTreeLabelMinFolder);
 
 #if defined(TREEFILE_PROJECT)
 	DialogItemEx *Checkbox;
 
-	Builder.AddSeparator(MConfigTreeLabel1);
+	Builder.AddSeparator(lng::MConfigTreeLabel1);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelLocalDisk, Tree.LocalDisk);
+	Checkbox = Builder.AddCheckbox(lng::MConfigTreeLabelLocalDisk, Tree.LocalDisk);
 	TemplateEdit = Builder.AddEditField(Tree.strLocalDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetDisk, Tree.NetDisk);
+	Checkbox = Builder.AddCheckbox(lng::MConfigTreeLabelNetDisk, Tree.NetDisk);
 	TemplateEdit = Builder.AddEditField(Tree.strNetDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetPath, Tree.NetPath);
+	Checkbox = Builder.AddCheckbox(lng::MConfigTreeLabelNetPath, Tree.NetPath);
 	TemplateEdit = Builder.AddEditField(Tree.strNetPath, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelRemovableDisk, Tree.RemovableDisk);
+	Checkbox = Builder.AddCheckbox(lng::MConfigTreeLabelRemovableDisk, Tree.RemovableDisk);
 	TemplateEdit = Builder.AddEditField(Tree.strRemovableDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Checkbox = Builder.AddCheckbox(MConfigTreeLabelCDDisk, Tree.CDDisk);
+	Checkbox = Builder.AddCheckbox(lng::MConfigTreeLabelCDDisk, Tree.CDDisk);
 	TemplateEdit = Builder.AddEditField(Tree.strCDDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
 
-	Builder.AddText(MConfigTreeLabelSaveLocalPath);
+	Builder.AddText(lng::MConfigTreeLabelSaveLocalPath);
 	Builder.AddEditField(Tree.strSaveLocalPath, 48);
 
-	Builder.AddText(MConfigTreeLabelSaveNetPath);
+	Builder.AddText(lng::MConfigTreeLabelSaveNetPath);
 	Builder.AddEditField(Tree.strSaveNetPath, 48);
 
-	Builder.AddText(MConfigTreeLabelExceptPath);
+	Builder.AddText(lng::MConfigTreeLabelExceptPath);
 	Builder.AddEditField(Tree.strExceptPath, 48);
 #endif
 
@@ -273,30 +273,30 @@ void Options::TreeSettings()
 
 void Options::InterfaceSettings()
 {
-	DialogBuilder Builder(MConfigInterfaceTitle, L"InterfSettings");
+	DialogBuilder Builder(lng::MConfigInterfaceTitle, L"InterfSettings");
 
-	Builder.AddCheckbox(MConfigClock, Clock);
-	Builder.AddCheckbox(MConfigViewerEditorClock, ViewerEditorClock);
-	Builder.AddCheckbox(MConfigMouse, Mouse);
-	Builder.AddCheckbox(MConfigKeyBar, ShowKeyBar);
-	Builder.AddCheckbox(MConfigMenuBar, ShowMenuBar);
-	DialogItemEx *SaverCheckbox = Builder.AddCheckbox(MConfigSaver, ScreenSaver);
+	Builder.AddCheckbox(lng::MConfigClock, Clock);
+	Builder.AddCheckbox(lng::MConfigViewerEditorClock, ViewerEditorClock);
+	Builder.AddCheckbox(lng::MConfigMouse, Mouse);
+	Builder.AddCheckbox(lng::MConfigKeyBar, ShowKeyBar);
+	Builder.AddCheckbox(lng::MConfigMenuBar, ShowMenuBar);
+	DialogItemEx *SaverCheckbox = Builder.AddCheckbox(lng::MConfigSaver, ScreenSaver);
 
 	DialogItemEx *SaverEdit = Builder.AddIntEditField(ScreenSaverTime, 2);
 	SaverEdit->Indent(4);
-	Builder.AddTextAfter(SaverEdit, MConfigSaverMinutes);
+	Builder.AddTextAfter(SaverEdit, lng::MConfigSaverMinutes);
 	Builder.LinkFlags(SaverCheckbox, SaverEdit, DIF_DISABLE);
 
-	Builder.AddCheckbox(MConfigCopyTotal, CMOpt.CopyShowTotal);
-	Builder.AddCheckbox(MConfigCopyTimeRule, CMOpt.CopyTimeRule);
-	Builder.AddCheckbox(MConfigDeleteTotal, DelOpt.ShowTotal);
-	Builder.AddCheckbox(MConfigPgUpChangeDisk, PgUpChangeDisk);
-	Builder.AddCheckbox(MConfigClearType, ClearType);
-	DialogItemEx* SetIconCheck = Builder.AddCheckbox(MConfigSetConsoleIcon, SetIcon);
-	DialogItemEx* SetAdminIconCheck = Builder.AddCheckbox(MConfigSetAdminConsoleIcon, SetAdminIcon);
+	Builder.AddCheckbox(lng::MConfigCopyTotal, CMOpt.CopyShowTotal);
+	Builder.AddCheckbox(lng::MConfigCopyTimeRule, CMOpt.CopyTimeRule);
+	Builder.AddCheckbox(lng::MConfigDeleteTotal, DelOpt.ShowTotal);
+	Builder.AddCheckbox(lng::MConfigPgUpChangeDisk, PgUpChangeDisk);
+	Builder.AddCheckbox(lng::MConfigClearType, ClearType);
+	DialogItemEx* SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
+	DialogItemEx* SetAdminIconCheck = Builder.AddCheckbox(lng::MConfigSetAdminConsoleIcon, SetAdminIcon);
 	SetAdminIconCheck->Indent(4);
 	Builder.LinkFlags(SetIconCheck, SetAdminIconCheck, DIF_DISABLE);
-	Builder.AddText(MConfigTitleAddons);
+	Builder.AddText(lng::MConfigTitleAddons);
 	Builder.AddEditField(strTitleAddons, 47);
 	Builder.AddOKCancel();
 
@@ -316,11 +316,11 @@ void Options::InterfaceSettings()
 
 void Options::AutoCompleteSettings()
 {
-	DialogBuilder Builder(MConfigAutoCompleteTitle, L"AutoCompleteSettings");
-	DialogItemEx *ListCheck=Builder.AddCheckbox(MConfigAutoCompleteShowList, AutoComplete.ShowList);
-	DialogItemEx *ModalModeCheck=Builder.AddCheckbox(MConfigAutoCompleteModalList, AutoComplete.ModalList);
+	DialogBuilder Builder(lng::MConfigAutoCompleteTitle, L"AutoCompleteSettings");
+	DialogItemEx *ListCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteShowList, AutoComplete.ShowList);
+	DialogItemEx *ModalModeCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteModalList, AutoComplete.ModalList);
 	ModalModeCheck->Indent(4);
-	Builder.AddCheckbox(MConfigAutoCompleteAutoAppend, AutoComplete.AppendCompletion);
+	Builder.AddCheckbox(lng::MConfigAutoCompleteAutoAppend, AutoComplete.AppendCompletion);
 	Builder.LinkFlags(ListCheck, ModalModeCheck, DIF_DISABLE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
@@ -328,37 +328,37 @@ void Options::AutoCompleteSettings()
 
 void Options::InfoPanelSettings()
 {
-	static constexpr DialogBuilderListItem UNListItems[]=
+	static constexpr FarDialogBuilderListItem UNListItems[]=
 	{
-		{ MConfigInfoPanelUNUnknown, NameUnknown },                            // 0  - unknown name type
-		{ MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
-		{ MConfigInfoPanelUNSamCompatible, NameSamCompatible },                // 2  - Engineering\JohnDoe, If the user account is not in a domain, only NameSamCompatible is supported.
-		{ MConfigInfoPanelUNDisplay, NameDisplay },                            // 3  - Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.
-		{ MConfigInfoPanelUNUniqueId, NameUniqueId },                          // 6  - String-ized GUID as returned by IIDFromString(). eg: {4fa050f0-f561-11cf-bdd9-00aa003a77b6}
-		{ MConfigInfoPanelUNCanonical, NameCanonical },                        // 7  - engineering.widget.com/software/John Doe
-		{ MConfigInfoPanelUNUserPrincipal, NameUserPrincipal },                // 8  - someone@example.com
-		{ MConfigInfoPanelUNServicePrincipal, NameServicePrincipal },          // 10 - www/srv.engineering.com/engineering.com
-		{ MConfigInfoPanelUNDnsDomain, NameDnsDomain },                        // 12 - DNS domain name + SAM username eg: engineering.widget.com\JohnDoe
+		{ lng::MConfigInfoPanelUNUnknown, NameUnknown },                            // 0  - unknown name type
+		{ lng::MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
+		{ lng::MConfigInfoPanelUNSamCompatible, NameSamCompatible },                // 2  - Engineering\JohnDoe, If the user account is not in a domain, only NameSamCompatible is supported.
+		{ lng::MConfigInfoPanelUNDisplay, NameDisplay },                            // 3  - Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.
+		{ lng::MConfigInfoPanelUNUniqueId, NameUniqueId },                          // 6  - String-ized GUID as returned by IIDFromString(). eg: {4fa050f0-f561-11cf-bdd9-00aa003a77b6}
+		{ lng::MConfigInfoPanelUNCanonical, NameCanonical },                        // 7  - engineering.widget.com/software/John Doe
+		{ lng::MConfigInfoPanelUNUserPrincipal, NameUserPrincipal },                // 8  - someone@example.com
+		{ lng::MConfigInfoPanelUNServicePrincipal, NameServicePrincipal },          // 10 - www/srv.engineering.com/engineering.com
+		{ lng::MConfigInfoPanelUNDnsDomain, NameDnsDomain },                        // 12 - DNS domain name + SAM username eg: engineering.widget.com\JohnDoe
 	};
 
-	static constexpr DialogBuilderListItem CNListItems[] =
+	static constexpr FarDialogBuilderListItem CNListItems[] =
 	{
-		{ MConfigInfoPanelCNNetBIOS, ComputerNameNetBIOS },                                     // The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
-		{ MConfigInfoPanelCNDnsHostname, ComputerNameDnsHostname },                             // The DNS name of the local computer or the cluster associated with the local computer.
-		{ MConfigInfoPanelCNDnsDomain, ComputerNameDnsDomain },                                 // The name of the DNS domain assigned to the local computer or the cluster associated with the local computer.
-		{ MConfigInfoPanelCNDnsFullyQualified, ComputerNameDnsFullyQualified },                 // The fully-qualified DNS name that uniquely identifies the local computer or the cluster associated with the local computer. This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. For example, if the DNS host name is "corporate-mail-server" and the DNS domain name is "microsoft.com", the fully qualified DNS name is "corporate-mail-server.microsoft.com".
-		{ MConfigInfoPanelCNPhysicalNetBIOS, ComputerNamePhysicalNetBIOS },                     // The NetBIOS name of the local computer. On a cluster, this is the NetBIOS name of the local node on the cluster.
-		{ MConfigInfoPanelCNPhysicalDnsHostname, ComputerNamePhysicalDnsHostname },             // The DNS host name of the local computer. On a cluster, this is the DNS host name of the local node on the cluster.
-		{ MConfigInfoPanelCNPhysicalDnsDomain, ComputerNamePhysicalDnsDomain },                 // The name of the DNS domain assigned to the local computer. On a cluster, this is the DNS domain of the local node on the cluster.
-		{ MConfigInfoPanelCNPhysicalDnsFullyQualified, ComputerNamePhysicalDnsFullyQualified }, // The fully-qualified DNS name that uniquely identifies the computer. On a cluster, this is the fully qualified DNS name of the local node on the cluster. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
+		{ lng::MConfigInfoPanelCNNetBIOS, ComputerNameNetBIOS },                                     // The NetBIOS name of the local computer or the cluster associated with the local computer. This name is limited to MAX_COMPUTERNAME_LENGTH + 1 characters and may be a truncated version of the DNS host name. For example, if the DNS host name is "corporate-mail-server", the NetBIOS name would be "corporate-mail-".
+		{ lng::MConfigInfoPanelCNDnsHostname, ComputerNameDnsHostname },                             // The DNS name of the local computer or the cluster associated with the local computer.
+		{ lng::MConfigInfoPanelCNDnsDomain, ComputerNameDnsDomain },                                 // The name of the DNS domain assigned to the local computer or the cluster associated with the local computer.
+		{ lng::MConfigInfoPanelCNDnsFullyQualified, ComputerNameDnsFullyQualified },                 // The fully-qualified DNS name that uniquely identifies the local computer or the cluster associated with the local computer. This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. For example, if the DNS host name is "corporate-mail-server" and the DNS domain name is "microsoft.com", the fully qualified DNS name is "corporate-mail-server.microsoft.com".
+		{ lng::MConfigInfoPanelCNPhysicalNetBIOS, ComputerNamePhysicalNetBIOS },                     // The NetBIOS name of the local computer. On a cluster, this is the NetBIOS name of the local node on the cluster.
+		{ lng::MConfigInfoPanelCNPhysicalDnsHostname, ComputerNamePhysicalDnsHostname },             // The DNS host name of the local computer. On a cluster, this is the DNS host name of the local node on the cluster.
+		{ lng::MConfigInfoPanelCNPhysicalDnsDomain, ComputerNamePhysicalDnsDomain },                 // The name of the DNS domain assigned to the local computer. On a cluster, this is the DNS domain of the local node on the cluster.
+		{ lng::MConfigInfoPanelCNPhysicalDnsFullyQualified, ComputerNamePhysicalDnsFullyQualified }, // The fully-qualified DNS name that uniquely identifies the computer. On a cluster, this is the fully qualified DNS name of the local node on the cluster. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
 	};
 
-	DialogBuilder Builder(MConfigInfoPanelTitle, L"InfoPanelSettings");
-	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, InfoPanel.ShowPowerStatus);
-	Builder.AddCheckbox(MConfigInfoPanelShowCDInfo, InfoPanel.ShowCDInfo);
-	Builder.AddText(MConfigInfoPanelCNTitle);
+	DialogBuilder Builder(lng::MConfigInfoPanelTitle, L"InfoPanelSettings");
+	Builder.AddCheckbox(lng::MConfigInfoPanelShowPowerStatus, InfoPanel.ShowPowerStatus);
+	Builder.AddCheckbox(lng::MConfigInfoPanelShowCDInfo, InfoPanel.ShowCDInfo);
+	Builder.AddText(lng::MConfigInfoPanelCNTitle);
 	Builder.AddComboBox(InfoPanel.ComputerNameFormat, nullptr, 50, CNListItems, std::size(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
-	Builder.AddText(MConfigInfoPanelUNTitle);
+	Builder.AddText(lng::MConfigInfoPanelUNTitle);
 	Builder.AddComboBox(InfoPanel.UserNameFormat, nullptr, 50, UNListItems, std::size(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 
@@ -419,8 +419,8 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 
 void Options::MaskGroupsSettings()
 {
-	const auto MasksMenu = VMenu2::create(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-	MasksMenu->SetBottomTitle(MSG(MMaskGroupBottom));
+	const auto MasksMenu = VMenu2::create(MSG(lng::MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	MasksMenu->SetBottomTitle(MSG(lng::MMaskGroupBottom));
 	MasksMenu->SetHelp(L"MaskGroupsSettings");
 	FillMasksMenu(*MasksMenu);
 	MasksMenu->SetPosition(-1, -1, -1, -1);
@@ -442,8 +442,8 @@ void Options::MaskGroupsSettings()
 						MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
 					}
 					MasksMenu->SetPosition(-1, -1, -1, -1);
-					MasksMenu->SetTitle(MSG(MMenuMaskGroups));
-					MasksMenu->SetBottomTitle(MSG(MMaskGroupBottom));
+					MasksMenu->SetTitle(MSG(lng::MMenuMaskGroups));
+					MasksMenu->SetBottomTitle(MSG(lng::MMaskGroupBottom));
 				}
 				return 1;
 			}
@@ -455,7 +455,7 @@ void Options::MaskGroupsSettings()
 			{
 			case KEY_NUMDEL:
 			case KEY_DEL:
-				if(Item && Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item->data(), MSG(MDelete), MSG(MCancel)) == Message::first_button)
+				if(Item && Message(0,2,MSG(lng::MMenuMaskGroups),MSG(lng::MMaskGroupAskDelete), Item->data(), MSG(lng::MDelete), MSG(lng::MCancel)) == Message::first_button)
 				{
 					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", *Item);
 					Changed = true;
@@ -478,10 +478,10 @@ void Options::MaskGroupsSettings()
 							Name = *Item;
 							ConfigProvider().GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
 						}
-						DialogBuilder Builder(MMenuMaskGroups, L"MaskGroupsSettings");
-						Builder.AddText(MMaskGroupName);
+						DialogBuilder Builder(lng::MMenuMaskGroups, L"MaskGroupsSettings");
+						Builder.AddText(lng::MMaskGroupName);
 						Builder.AddEditField(Name, 60);
-						Builder.AddText(MMaskGroupMasks);
+						Builder.AddText(lng::MMaskGroupMasks);
 						Builder.AddEditField(Value, 60);
 						Builder.AddOKCancel();
 						if(Builder.ShowDialog())
@@ -501,9 +501,9 @@ void Options::MaskGroupsSettings()
 			case KEY_RCTRLR:
 				{
 					if (Message(MSG_WARNING, 2,
-						MSG(MMenuMaskGroups),
-						MSG(MMaskGroupRestore),
-						MSG(MYes),MSG(MCancel)) == Message::first_button)
+						MSG(lng::MMenuMaskGroups),
+						MSG(lng::MMaskGroupRestore),
+						MSG(lng::MYes),MSG(lng::MCancel)) == Message::first_button)
 					{
 						ApplyDefaultMaskGroups();
 						Changed = true;
@@ -514,8 +514,8 @@ void Options::MaskGroupsSettings()
 			case KEY_F7:
 				{
 					string Value;
-					DialogBuilder Builder(MFileFilterTitle, nullptr);
-					Builder.AddText(MMaskGroupFindMask);
+					DialogBuilder Builder(lng::MFileFilterTitle, nullptr);
+					Builder.AddText(lng::MMaskGroupFindMask);
 					Builder.AddEditField(Value, 60, L"MaskGroupsFindMask");
 					Builder.AddOKCancel();
 					if(Builder.ShowDialog())
@@ -533,7 +533,7 @@ void Options::MaskGroupsSettings()
 						}
 						MasksMenu->SetPosition(-1, -1, -1, -1);
 						MasksMenu->SetTitle(Value);
-						MasksMenu->SetBottomTitle(format(MMaskGroupTotal, MasksMenu->GetShowItemCount()));
+						MasksMenu->SetBottomTitle(format(lng::MMaskGroupTotal, MasksMenu->GetShowItemCount()));
 						Filter = true;
 					}
 				}
@@ -563,14 +563,14 @@ void Options::MaskGroupsSettings()
 
 void Options::DialogSettings()
 {
-	DialogBuilder Builder(MConfigDlgSetsTitle, L"DialogSettings");
+	DialogBuilder Builder(lng::MConfigDlgSetsTitle, L"DialogSettings");
 
-	Builder.AddCheckbox(MConfigDialogsEditHistory, Dialogs.EditHistory);
-	Builder.AddCheckbox(MConfigDialogsEditBlock, Dialogs.EditBlock);
-	Builder.AddCheckbox(MConfigDialogsDelRemovesBlocks, Dialogs.DelRemovesBlocks);
-	Builder.AddCheckbox(MConfigDialogsAutoComplete, Dialogs.AutoComplete);
-	Builder.AddCheckbox(MConfigDialogsEULBsClear, Dialogs.EULBsClear);
-	Builder.AddCheckbox(MConfigDialogsMouseButton, Dialogs.MouseButton);
+	Builder.AddCheckbox(lng::MConfigDialogsEditHistory, Dialogs.EditHistory);
+	Builder.AddCheckbox(lng::MConfigDialogsEditBlock, Dialogs.EditBlock);
+	Builder.AddCheckbox(lng::MConfigDialogsDelRemovesBlocks, Dialogs.DelRemovesBlocks);
+	Builder.AddCheckbox(lng::MConfigDialogsAutoComplete, Dialogs.AutoComplete);
+	Builder.AddCheckbox(lng::MConfigDialogsEULBsClear, Dialogs.EULBsClear);
+	Builder.AddCheckbox(lng::MConfigDialogsMouseButton, Dialogs.MouseButton);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -583,21 +583,21 @@ void Options::DialogSettings()
 void Options::VMenuSettings()
 {
 
-	static constexpr DialogBuilderListItem CAListItems[]=
+	static constexpr FarDialogBuilderListItem CAListItems[]=
 	{
-		{ MConfigVMenuClickCancel, VMENUCLICK_CANCEL },  // Cancel menu
-		{ MConfigVMenuClickApply,  VMENUCLICK_APPLY  },  // Execute selected item
-		{ MConfigVMenuClickIgnore, VMENUCLICK_IGNORE },  // Do nothing
+		{ lng::MConfigVMenuClickCancel, VMENUCLICK_CANCEL },  // Cancel menu
+		{ lng::MConfigVMenuClickApply,  VMENUCLICK_APPLY  },  // Execute selected item
+		{ lng::MConfigVMenuClickIgnore, VMENUCLICK_IGNORE },  // Do nothing
 	};
 
-	static constexpr std::pair<LNGID, IntOption VMenuOptions::*> DialogItems[] =
+	static constexpr std::pair<lng, IntOption VMenuOptions::*> DialogItems[] =
 	{
-		{ MConfigVMenuLBtnClick, &VMenuOptions::LBtnClick },
-		{ MConfigVMenuRBtnClick, &VMenuOptions::RBtnClick },
-		{ MConfigVMenuMBtnClick, &VMenuOptions::MBtnClick },
+		{ lng::MConfigVMenuLBtnClick, &VMenuOptions::LBtnClick },
+		{ lng::MConfigVMenuRBtnClick, &VMenuOptions::RBtnClick },
+		{ lng::MConfigVMenuMBtnClick, &VMenuOptions::MBtnClick },
 	};
 
-	DialogBuilder Builder(MConfigVMenuTitle, L"VMenuSettings");
+	DialogBuilder Builder(lng::MConfigVMenuTitle, L"VMenuSettings");
 
 	std::for_each(CONST_RANGE(DialogItems, i)
 	{
@@ -611,17 +611,17 @@ void Options::VMenuSettings()
 
 void Options::CmdlineSettings()
 {
-	DialogBuilder Builder(MConfigCmdlineTitle, L"CmdlineSettings");
+	DialogBuilder Builder(lng::MConfigCmdlineTitle, L"CmdlineSettings");
 
-	Builder.AddCheckbox(MConfigCmdlineEditBlock, CmdLine.EditBlock);
-	Builder.AddCheckbox(MConfigCmdlineDelRemovesBlocks, CmdLine.DelRemovesBlocks);
-	Builder.AddCheckbox(MConfigCmdlineAutoComplete, CmdLine.AutoComplete);
-	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUsePromptFormat, CmdLine.UsePromptFormat);
+	Builder.AddCheckbox(lng::MConfigCmdlineEditBlock, CmdLine.EditBlock);
+	Builder.AddCheckbox(lng::MConfigCmdlineDelRemovesBlocks, CmdLine.DelRemovesBlocks);
+	Builder.AddCheckbox(lng::MConfigCmdlineAutoComplete, CmdLine.AutoComplete);
+	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(lng::MConfigCmdlineUsePromptFormat, CmdLine.UsePromptFormat);
 	DialogItemEx *PromptFormat = Builder.AddEditField(CmdLine.strPromptFormat, 33);
 	PromptFormat->Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
 
-	UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
+	UsePromptFormat = Builder.AddCheckbox(lng::MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
 	PromptFormat = Builder.AddEditField(Exec.strHomeDir, 33);
 	PromptFormat->Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
@@ -638,22 +638,22 @@ void Options::CmdlineSettings()
 
 void Options::SetConfirmations()
 {
-	DialogBuilder Builder(MSetConfirmTitle, L"ConfirmDlg");
+	DialogBuilder Builder(lng::MSetConfirmTitle, L"ConfirmDlg");
 
-	Builder.AddCheckbox(MSetConfirmCopy, Confirm.Copy);
-	Builder.AddCheckbox(MSetConfirmMove, Confirm.Move);
-	Builder.AddCheckbox(MSetConfirmRO, Confirm.RO);
-	Builder.AddCheckbox(MSetConfirmDrag, Confirm.Drag);
-	Builder.AddCheckbox(MSetConfirmDelete, Confirm.Delete);
-	Builder.AddCheckbox(MSetConfirmDeleteFolders, Confirm.DeleteFolder);
-	Builder.AddCheckbox(MSetConfirmEsc, Confirm.Esc);
-	Builder.AddCheckbox(MSetConfirmRemoveConnection, Confirm.RemoveConnection);
-	Builder.AddCheckbox(MSetConfirmRemoveSUBST, Confirm.RemoveSUBST);
-	Builder.AddCheckbox(MSetConfirmDetachVHD, Confirm.DetachVHD);
-	Builder.AddCheckbox(MSetConfirmRemoveHotPlug, Confirm.RemoveHotPlug);
-	Builder.AddCheckbox(MSetConfirmAllowReedit, Confirm.AllowReedit);
-	Builder.AddCheckbox(MSetConfirmHistoryClear, Confirm.HistoryClear);
-	Builder.AddCheckbox(MSetConfirmExit, Confirm.Exit);
+	Builder.AddCheckbox(lng::MSetConfirmCopy, Confirm.Copy);
+	Builder.AddCheckbox(lng::MSetConfirmMove, Confirm.Move);
+	Builder.AddCheckbox(lng::MSetConfirmRO, Confirm.RO);
+	Builder.AddCheckbox(lng::MSetConfirmDrag, Confirm.Drag);
+	Builder.AddCheckbox(lng::MSetConfirmDelete, Confirm.Delete);
+	Builder.AddCheckbox(lng::MSetConfirmDeleteFolders, Confirm.DeleteFolder);
+	Builder.AddCheckbox(lng::MSetConfirmEsc, Confirm.Esc);
+	Builder.AddCheckbox(lng::MSetConfirmRemoveConnection, Confirm.RemoveConnection);
+	Builder.AddCheckbox(lng::MSetConfirmRemoveSUBST, Confirm.RemoveSUBST);
+	Builder.AddCheckbox(lng::MSetConfirmDetachVHD, Confirm.DetachVHD);
+	Builder.AddCheckbox(lng::MSetConfirmRemoveHotPlug, Confirm.RemoveHotPlug);
+	Builder.AddCheckbox(lng::MSetConfirmAllowReedit, Confirm.AllowReedit);
+	Builder.AddCheckbox(lng::MSetConfirmHistoryClear, Confirm.HistoryClear);
+	Builder.AddCheckbox(lng::MSetConfirmExit, Confirm.Exit);
 	Builder.AddOKCancel();
 
 	Builder.ShowDialog();
@@ -661,20 +661,20 @@ void Options::SetConfirmations()
 
 void Options::PluginsManagerSettings()
 {
-	DialogBuilder Builder(MPluginsManagerSettingsTitle, L"PluginsManagerSettings");
+	DialogBuilder Builder(lng::MPluginsManagerSettingsTitle, L"PluginsManagerSettings");
 #ifndef NO_WRAPPER
-	Builder.AddCheckbox(MPluginsManagerOEMPluginsSupport, LoadPlug.OEMPluginsSupport);
+	Builder.AddCheckbox(lng::MPluginsManagerOEMPluginsSupport, LoadPlug.OEMPluginsSupport);
 #endif // NO_WRAPPER
-	Builder.AddCheckbox(MPluginsManagerScanSymlinks, LoadPlug.ScanSymlinks);
-	Builder.AddSeparator(MPluginConfirmationTitle);
-	Builder.AddCheckbox(MPluginsManagerOFP, PluginConfirm.OpenFilePlugin);
-	DialogItemEx *StandardAssoc = Builder.AddCheckbox(MPluginsManagerStdAssoc, PluginConfirm.StandardAssociation);
-	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(MPluginsManagerEvenOne, PluginConfirm.EvenIfOnlyOnePlugin);
+	Builder.AddCheckbox(lng::MPluginsManagerScanSymlinks, LoadPlug.ScanSymlinks);
+	Builder.AddSeparator(lng::MPluginConfirmationTitle);
+	Builder.AddCheckbox(lng::MPluginsManagerOFP, PluginConfirm.OpenFilePlugin);
+	DialogItemEx *StandardAssoc = Builder.AddCheckbox(lng::MPluginsManagerStdAssoc, PluginConfirm.StandardAssociation);
+	DialogItemEx *EvenIfOnlyOne = Builder.AddCheckbox(lng::MPluginsManagerEvenOne, PluginConfirm.EvenIfOnlyOnePlugin);
 	StandardAssoc->Indent(2);
 	EvenIfOnlyOne->Indent(4);
 
-	Builder.AddCheckbox(MPluginsManagerSFL, PluginConfirm.SetFindList);
-	Builder.AddCheckbox(MPluginsManagerPF, PluginConfirm.Prefix);
+	Builder.AddCheckbox(lng::MPluginsManagerSFL, PluginConfirm.SetFindList);
+	Builder.AddCheckbox(lng::MPluginsManagerPF, PluginConfirm.Prefix);
 	Builder.AddOKCancel();
 
 	Builder.ShowDialog();
@@ -682,24 +682,24 @@ void Options::PluginsManagerSettings()
 
 void Options::SetDizConfig()
 {
-	DialogBuilder Builder(MCfgDizTitle, L"FileDiz");
+	DialogBuilder Builder(lng::MCfgDizTitle, L"FileDiz");
 
-	Builder.AddText(MCfgDizListNames);
+	Builder.AddText(lng::MCfgDizListNames);
 	Builder.AddEditField(Diz.strListNames, 65);
 	Builder.AddSeparator();
 
-	Builder.AddCheckbox(MCfgDizSetHidden, Diz.SetHidden);
-	Builder.AddCheckbox(MCfgDizROUpdate, Diz.ROUpdate);
+	Builder.AddCheckbox(lng::MCfgDizSetHidden, Diz.SetHidden);
+	Builder.AddCheckbox(lng::MCfgDizROUpdate, Diz.ROUpdate);
 	DialogItemEx *StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
-	Builder.AddTextAfter(StartPos, MCfgDizStartPos);
+	Builder.AddTextAfter(StartPos, lng::MCfgDizStartPos);
 	Builder.AddSeparator();
 
-	static constexpr int DizOptions[] = { MCfgDizNotUpdate, MCfgDizUpdateIfDisplayed, MCfgDizAlwaysUpdate };
+	static constexpr lng DizOptions[] = { lng::MCfgDizNotUpdate, lng::MCfgDizUpdateIfDisplayed, lng::MCfgDizAlwaysUpdate };
 	Builder.AddRadioButtons(Diz.UpdateMode, 3, DizOptions);
 	Builder.AddSeparator();
 
-	Builder.AddCheckbox(MCfgDizAnsiByDefault, Diz.AnsiByDefault);
-	Builder.AddCheckbox(MCfgDizSaveInUTF, Diz.SaveInUTF);
+	Builder.AddCheckbox(lng::MCfgDizAnsiByDefault, Diz.AnsiByDefault);
+	Builder.AddCheckbox(lng::MCfgDizSaveInUTF, Diz.SaveInUTF);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
@@ -709,7 +709,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	intptr_t save_pos = 0, save_cp = 0, id = 0;
 	bool prev_save_cp_value = ViOpt.SaveCodepage, inside = false;
 
-	DialogBuilder Builder(MViewConfigTitle, L"ViewerSettings", [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+	DialogBuilder Builder(lng::MViewConfigTitle, L"ViewerSettings", [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 	{
 		if (Msg == DN_INITDIALOG && save_pos)
 		{
@@ -736,41 +736,41 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		return Dlg->DefProc(Msg, Param1, Param2);
 	});
 
-	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
+	std::vector<FarDialogBuilderListItem2> Items; //Must live until Dialog end
 
 	if (!Local)
 	{
-		++id; Builder.AddCheckbox(MViewConfigExternalF3, ViOpt.UseExternalViewer);
-		++id; Builder.AddText(MViewConfigExternalCommand);
+		++id; Builder.AddCheckbox(lng::MViewConfigExternalF3, ViOpt.UseExternalViewer);
+		++id; Builder.AddText(lng::MViewConfigExternalCommand);
 		++id; Builder.AddEditField(strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
-		++id; Builder.AddSeparator(MViewConfigInternal);
+		++id; Builder.AddSeparator(lng::MViewConfigInternal);
 	}
 
 	Builder.StartColumns();
-	++id; Builder.AddCheckbox(MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
-	++id; Builder.AddCheckbox(MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
+	++id; Builder.AddCheckbox(lng::MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
+	++id; Builder.AddCheckbox(lng::MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
 	++id; DialogItemEx *TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
-	++id; Builder.AddTextAfter(TabSize, MViewConfigTabSize);
+	++id; Builder.AddTextAfter(TabSize, lng::MViewConfigTabSize);
 	Builder.ColumnBreak();
-	++id; Builder.AddCheckbox(MViewConfigArrows, ViOptRef.ShowArrows);
-	++id; Builder.AddCheckbox(MViewConfigVisible0x00, ViOptRef.Visible0x00);
-	++id; Builder.AddCheckbox(MViewConfigScrollbar, ViOptRef.ShowScrollbar);
+	++id; Builder.AddCheckbox(lng::MViewConfigArrows, ViOptRef.ShowArrows);
+	++id; Builder.AddCheckbox(lng::MViewConfigVisible0x00, ViOptRef.Visible0x00);
+	++id; Builder.AddCheckbox(lng::MViewConfigScrollbar, ViOptRef.ShowScrollbar);
 	Builder.EndColumns();
 
 	if (!Local)
 	{
 		++id; Builder.AddSeparator();
 		Builder.StartColumns();
-		save_pos = ++id; Builder.AddCheckbox(MViewConfigSavePos, ViOpt.SavePos);
-		save_cp = ++id; Builder.AddCheckbox(MViewConfigSaveCodepage, ViOpt.SaveCodepage);
+		save_pos = ++id; Builder.AddCheckbox(lng::MViewConfigSavePos, ViOpt.SavePos);
+		save_cp = ++id; Builder.AddCheckbox(lng::MViewConfigSaveCodepage, ViOpt.SaveCodepage);
 		DialogItemEx *MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
-		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
+		Builder.AddTextAfter(MaxLineSize, lng::MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
-		Builder.AddCheckbox(MViewConfigSaveShortPos, ViOpt.SaveShortPos);
-		Builder.AddCheckbox(MViewConfigSaveWrapMode, ViOpt.SaveWrapMode);
-		Builder.AddCheckbox(MViewAutoDetectCodePage, ViOpt.AutoDetectCodePage);
+		Builder.AddCheckbox(lng::MViewConfigSaveShortPos, ViOpt.SaveShortPos);
+		Builder.AddCheckbox(lng::MViewConfigSaveWrapMode, ViOpt.SaveWrapMode);
+		Builder.AddCheckbox(lng::MViewAutoDetectCodePage, ViOpt.AutoDetectCodePage);
 		Builder.EndColumns();
-		Builder.AddText(MViewConfigDefaultCodePage);
+		Builder.AddText(lng::MViewConfigDefaultCodePage);
 		Codepages().FillCodePagesList(Items, false, false, false, false, true);
 		Builder.AddComboBox(ViOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
@@ -782,51 +782,51 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 
 void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 {
-	DialogBuilder Builder(MEditConfigTitle, L"EditorSettings");
+	DialogBuilder Builder(lng::MEditConfigTitle, L"EditorSettings");
 
-	std::vector<DialogBuilderListItem2> Items; //Must live until Dialog end
+	std::vector<FarDialogBuilderListItem2> Items; //Must live until Dialog end
 
 	if (!Local)
 	{
-		Builder.AddCheckbox(MEditConfigEditorF4, EdOpt.UseExternalEditor);
-		Builder.AddText(MEditConfigEditorCommand);
+		Builder.AddCheckbox(lng::MEditConfigEditorF4, EdOpt.UseExternalEditor);
+		Builder.AddText(lng::MEditConfigEditorCommand);
 		Builder.AddEditField(strExternalEditor, 64, L"ExternalEditor", DIF_EDITPATH|DIF_EDITPATHEXEC);
-		Builder.AddSeparator(MEditConfigInternal);
+		Builder.AddSeparator(lng::MEditConfigInternal);
 	}
 
-	Builder.AddText(MEditConfigExpandTabsTitle);
-	static constexpr DialogBuilderListItem ExpandTabsItems[] =
+	Builder.AddText(lng::MEditConfigExpandTabsTitle);
+	static constexpr FarDialogBuilderListItem ExpandTabsItems[] =
 	{
-		{ MEditConfigDoNotExpandTabs, EXPAND_NOTABS },
-		{ MEditConfigExpandTabs, EXPAND_NEWTABS },
-		{ MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
+		{ lng::MEditConfigDoNotExpandTabs, EXPAND_NOTABS },
+		{ lng::MEditConfigExpandTabs, EXPAND_NEWTABS },
+		{ lng::MEditConfigConvertAllTabsToSpaces, EXPAND_ALLTABS }
 	};
 	Builder.AddComboBox(EdOptRef.ExpandTabs, nullptr, 64, ExpandTabsItems, std::size(ExpandTabsItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 
 	Builder.StartColumns();
-	Builder.AddCheckbox(MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
-	Builder.AddCheckbox(MEditConfigDelRemovesBlocks, EdOptRef.DelRemovesBlocks);
-	Builder.AddCheckbox(MEditConfigAutoIndent, EdOptRef.AutoIndent);
+	Builder.AddCheckbox(lng::MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
+	Builder.AddCheckbox(lng::MEditConfigDelRemovesBlocks, EdOptRef.DelRemovesBlocks);
+	Builder.AddCheckbox(lng::MEditConfigAutoIndent, EdOptRef.AutoIndent);
 	DialogItemEx *TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
-	Builder.AddTextAfter(TabSize, MEditConfigTabSize);
-	Builder.AddCheckbox(MEditShowWhiteSpace, EdOptRef.ShowWhiteSpace);
+	Builder.AddTextAfter(TabSize, lng::MEditConfigTabSize);
+	Builder.AddCheckbox(lng::MEditShowWhiteSpace, EdOptRef.ShowWhiteSpace);
 	Builder.ColumnBreak();
-	Builder.AddCheckbox(MEditCursorBeyondEnd, EdOptRef.CursorBeyondEOL);
-	Builder.AddCheckbox(MEditConfigSelFound, EdOptRef.SearchSelFound);
-	Builder.AddCheckbox(MEditConfigCursorAtEnd, EdOptRef.SearchCursorAtEnd);
-	Builder.AddCheckbox(MEditConfigScrollbar, EdOptRef.ShowScrollBar);
+	Builder.AddCheckbox(lng::MEditCursorBeyondEnd, EdOptRef.CursorBeyondEOL);
+	Builder.AddCheckbox(lng::MEditConfigSelFound, EdOptRef.SearchSelFound);
+	Builder.AddCheckbox(lng::MEditConfigCursorAtEnd, EdOptRef.SearchCursorAtEnd);
+	Builder.AddCheckbox(lng::MEditConfigScrollbar, EdOptRef.ShowScrollBar);
 	Builder.EndColumns();
 
 	if (!Local)
 	{
 		Builder.AddSeparator();
-		Builder.AddCheckbox(MEditConfigSavePos, EdOptRef.SavePos);
-		Builder.AddCheckbox(MEditConfigSaveShortPos, EdOptRef.SaveShortPos);
-		Builder.AddCheckbox(MEditShareWrite, EdOpt.EditOpenedForWrite);
-		Builder.AddCheckbox(MEditLockROFileModification, EdOpt.ReadOnlyLock, 1);
-		Builder.AddCheckbox(MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
-		Builder.AddCheckbox(MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
-		Builder.AddText(MEditConfigDefaultCodePage);
+		Builder.AddCheckbox(lng::MEditConfigSavePos, EdOptRef.SavePos);
+		Builder.AddCheckbox(lng::MEditConfigSaveShortPos, EdOptRef.SaveShortPos);
+		Builder.AddCheckbox(lng::MEditShareWrite, EdOpt.EditOpenedForWrite);
+		Builder.AddCheckbox(lng::MEditLockROFileModification, EdOpt.ReadOnlyLock, 1);
+		Builder.AddCheckbox(lng::MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
+		Builder.AddCheckbox(lng::MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
+		Builder.AddText(lng::MEditConfigDefaultCodePage);
 		Codepages().FillCodePagesList(Items, false, false, false, false, false);
 		Builder.AddComboBox(EdOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
 	}
@@ -840,7 +840,7 @@ void Options::SetFolderInfoFiles()
 {
 	string strFolderInfoFiles;
 
-	if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
+	if (GetString(MSG(lng::MSetFolderInfoTitle),MSG(lng::MSetFolderInfoNames),L"FolderInfoFiles",
 	              InfoPanel.strFolderInfoFiles.data(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
 	{
 		InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
@@ -1045,18 +1045,18 @@ void Options::SetFilePanelModes()
 
 	for(;;)
 	{
-		static constexpr LNGID PredefinedNames[] =
+		static constexpr lng PredefinedNames[] =
 		{
-			MMenuBriefView,
-			MMenuMediumView,
-			MMenuFullView,
-			MMenuWideView,
-			MMenuDetailedView,
-			MMenuDizView,
-			MMenuLongDizView,
-			MMenuOwnersView,
-			MMenuLinksView,
-			MMenuAlternativeView,
+			lng::MMenuBriefView,
+			lng::MMenuMediumView,
+			lng::MMenuFullView,
+			lng::MMenuWideView,
+			lng::MMenuDetailedView,
+			lng::MMenuDizView,
+			lng::MMenuLongDizView,
+			lng::MMenuOwnersView,
+			lng::MMenuLinksView,
+			lng::MMenuAlternativeView,
 		};
 		TERSE_STATIC_ASSERT(std::size(PredefinedNames) == predefined_panel_modes_count);
 
@@ -1088,7 +1088,7 @@ void Options::SetFilePanelModes()
 
 		ModeListMenu[CurMode].SetSelect(1);
 		{
-			const auto ModeList = VMenu2::create(MSG(MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
+			const auto ModeList = VMenu2::create(MSG(lng::MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
 			ModeList->SetPosition(-1,-1,0,0);
 			ModeList->SetHelp(L"PanelViewModes");
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
@@ -1193,27 +1193,27 @@ void Options::SetFilePanelModes()
 		FarDialogItem ModeDlgData[]=
 		{
 			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name},
-			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MEditPanelModeName)},
+			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeName)},
 			{DI_EDIT,      5, 3,70, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
-			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeTypes)},
+			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeTypes)},
 			{DI_EDIT,      5, 5,35, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,      5, 6, 0, 6,0,nullptr,nullptr,0,MSG(MEditPanelModeWidths)},
+			{DI_TEXT,      5, 6, 0, 6,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeWidths)},
 			{DI_EDIT,      5, 7,35, 7,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusTypes)},
+			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeStatusTypes)},
 			{DI_EDIT,     38, 5,70, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,MSG(MEditPanelModeStatusWidths)},
+			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeStatusWidths)},
 			{DI_EDIT,     38, 7,70, 7,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MEditPanelReadHelp)},
-			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,MSG(MEditPanelModeFullscreen)},
-			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,MSG(MEditPanelModeAlignExtensions)},
-			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,MSG(MEditPanelModeAlignFolderExtensions)},
-			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,MSG(MEditPanelModeFoldersUpperCase)},
-			{DI_CHECKBOX,  5,13, 0,13,0,nullptr,nullptr,0,MSG(MEditPanelModeFilesLowerCase)},
-			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,MSG(MEditPanelModeUpperToLowerCase)},
+			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,MSG(lng::MEditPanelReadHelp)},
+			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeFullscreen)},
+			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeAlignExtensions)},
+			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeAlignFolderExtensions)},
+			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeFoldersUpperCase)},
+			{DI_CHECKBOX,  5,13, 0,13,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeFilesLowerCase)},
+			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeUpperToLowerCase)},
 			{DI_TEXT,     -1,15, 0,15,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < static_cast<int>(predefined_panel_modes_count)? 0 : DIF_DISABLE),MSG(MReset)},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MOk)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < static_cast<int>(predefined_panel_modes_count)? 0 : DIF_DISABLE),MSG(lng::MReset)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MCancel)},
 		};
 		auto ModeDlg = MakeDialogItemsEx(ModeDlgData);
 		int ExitCode;
@@ -1324,7 +1324,7 @@ struct FARConfigItem
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
-			static_cast<DialogBuilderBase<DialogItemEx>&>(Builder).AddOKCancel(MOk, MReset, MCancel);
+			Builder.AddOKCancel(lng::MOk, lng::MReset, lng::MCancel);
 			Result = Builder.ShowDialogEx();
 		}
 		if(Result == 0 || Result == 1)
@@ -2151,7 +2151,7 @@ void Options::Save(bool Manual)
 {
 	InitConfig();
 
-	if (Manual && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)) != Message::first_button)
+	if (Manual && Message(0,2,MSG(lng::MSaveSetupTitle),MSG(lng::MSaveSetupAsk1),MSG(lng::MSaveSetupAsk2),MSG(lng::MSaveSetup),MSG(lng::MCancel)) != Message::first_button)
 		return;
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
@@ -2640,135 +2640,135 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	MenuDataEx LeftMenu[]=
 	{
-		MSG(MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
-		MSG(MMenuMediumView),0,KEY_CTRL2,
-		MSG(MMenuFullView),0,KEY_CTRL3,
-		MSG(MMenuWideView),0,KEY_CTRL4,
-		MSG(MMenuDetailedView),0,KEY_CTRL5,
-		MSG(MMenuDizView),0,KEY_CTRL6,
-		MSG(MMenuLongDizView),0,KEY_CTRL7,
-		MSG(MMenuOwnersView),0,KEY_CTRL8,
-		MSG(MMenuLinksView),0,KEY_CTRL9,
-		MSG(MMenuAlternativeView),0,KEY_CTRL0,
+		MSG(lng::MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
+		MSG(lng::MMenuMediumView),0,KEY_CTRL2,
+		MSG(lng::MMenuFullView),0,KEY_CTRL3,
+		MSG(lng::MMenuWideView),0,KEY_CTRL4,
+		MSG(lng::MMenuDetailedView),0,KEY_CTRL5,
+		MSG(lng::MMenuDizView),0,KEY_CTRL6,
+		MSG(lng::MMenuLongDizView),0,KEY_CTRL7,
+		MSG(lng::MMenuOwnersView),0,KEY_CTRL8,
+		MSG(lng::MMenuLinksView),0,KEY_CTRL9,
+		MSG(lng::MMenuAlternativeView),0,KEY_CTRL0,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuInfoPanel),0,KEY_CTRLL,
-		MSG(MMenuTreePanel),no_tree,KEY_CTRLT,
-		MSG(MMenuQuickView),0,KEY_CTRLQ,
+		MSG(lng::MMenuInfoPanel),0,KEY_CTRLL,
+		MSG(lng::MMenuTreePanel),no_tree,KEY_CTRLT,
+		MSG(lng::MMenuQuickView),0,KEY_CTRLQ,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuSortModes),0,KEY_CTRLF12,
-		MSG(MMenuLongNames),0,KEY_CTRLN,
-		MSG(MMenuTogglePanel),0,KEY_CTRLF1,
-		MSG(MMenuReread),0,KEY_CTRLR,
-		MSG(MMenuChangeDrive),0,KEY_ALTF1,
+		MSG(lng::MMenuSortModes),0,KEY_CTRLF12,
+		MSG(lng::MMenuLongNames),0,KEY_CTRLN,
+		MSG(lng::MMenuTogglePanel),0,KEY_CTRLF1,
+		MSG(lng::MMenuReread),0,KEY_CTRLR,
+		MSG(lng::MMenuChangeDrive),0,KEY_ALTF1,
 	};
 	ApplyViewModesNames(LeftMenu);
 	const auto LeftMenuStrings = VMenu::AddHotkeys(make_range(LeftMenu));
 
 	MenuDataEx FilesMenu[]=
 	{
-		MSG(MMenuView),LIF_SELECTED,KEY_F3,
-		MSG(MMenuEdit),0,KEY_F4,
-		MSG(MMenuCopy),0,KEY_F5,
-		MSG(MMenuMove),0,KEY_F6,
-		MSG(MMenuLink),0,KEY_ALTF6,
-		MSG(MMenuCreateFolder),0,KEY_F7,
-		MSG(MMenuDelete),0,KEY_F8,
-		MSG(MMenuWipe),0,KEY_ALTDEL,
+		MSG(lng::MMenuView),LIF_SELECTED,KEY_F3,
+		MSG(lng::MMenuEdit),0,KEY_F4,
+		MSG(lng::MMenuCopy),0,KEY_F5,
+		MSG(lng::MMenuMove),0,KEY_F6,
+		MSG(lng::MMenuLink),0,KEY_ALTF6,
+		MSG(lng::MMenuCreateFolder),0,KEY_F7,
+		MSG(lng::MMenuDelete),0,KEY_F8,
+		MSG(lng::MMenuWipe),0,KEY_ALTDEL,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuAdd),0,KEY_SHIFTF1,
-		MSG(MMenuExtract),0,KEY_SHIFTF2,
-		MSG(MMenuArchiveCommands),0,KEY_SHIFTF3,
+		MSG(lng::MMenuAdd),0,KEY_SHIFTF1,
+		MSG(lng::MMenuExtract),0,KEY_SHIFTF2,
+		MSG(lng::MMenuArchiveCommands),0,KEY_SHIFTF3,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuAttributes),0,KEY_CTRLA,
-		MSG(MMenuApplyCommand),0,KEY_CTRLG,
-		MSG(MMenuDescribe),0,KEY_CTRLZ,
+		MSG(lng::MMenuAttributes),0,KEY_CTRLA,
+		MSG(lng::MMenuApplyCommand),0,KEY_CTRLG,
+		MSG(lng::MMenuDescribe),0,KEY_CTRLZ,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuSelectGroup),0,KEY_ADD,
-		MSG(MMenuUnselectGroup),0,KEY_SUBTRACT,
-		MSG(MMenuInvertSelection),0,KEY_MULTIPLY,
-		MSG(MMenuRestoreSelection),0,KEY_CTRLM,
+		MSG(lng::MMenuSelectGroup),0,KEY_ADD,
+		MSG(lng::MMenuUnselectGroup),0,KEY_SUBTRACT,
+		MSG(lng::MMenuInvertSelection),0,KEY_MULTIPLY,
+		MSG(lng::MMenuRestoreSelection),0,KEY_CTRLM,
 	};
 	const auto FilesMenuStrings = VMenu::AddHotkeys(make_range(FilesMenu));
 
 	MenuDataEx CmdMenu[]=
 	{
-		MSG(MMenuFindFile),LIF_SELECTED,KEY_ALTF7,
-		MSG(MMenuHistory),0,KEY_ALTF8,
-		MSG(MMenuVideoMode),0,KEY_ALTF9,
-		MSG(MMenuFindFolder),no_tree,KEY_ALTF10,
-		MSG(MMenuViewHistory),0,KEY_ALTF11,
-		MSG(MMenuFoldersHistory),0,KEY_ALTF12,
+		MSG(lng::MMenuFindFile),LIF_SELECTED,KEY_ALTF7,
+		MSG(lng::MMenuHistory),0,KEY_ALTF8,
+		MSG(lng::MMenuVideoMode),0,KEY_ALTF9,
+		MSG(lng::MMenuFindFolder),no_tree,KEY_ALTF10,
+		MSG(lng::MMenuViewHistory),0,KEY_ALTF11,
+		MSG(lng::MMenuFoldersHistory),0,KEY_ALTF12,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuSwapPanels),0,KEY_CTRLU,
-		MSG(MMenuTogglePanels),0,KEY_CTRLO,
-		MSG(MMenuCompareFolders),0,0,
+		MSG(lng::MMenuSwapPanels),0,KEY_CTRLU,
+		MSG(lng::MMenuTogglePanels),0,KEY_CTRLO,
+		MSG(lng::MMenuCompareFolders),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuUserMenu),0,0,
-		MSG(MMenuFileAssociations),0,0,
-		MSG(MMenuFolderShortcuts),0,0,
-		MSG(MMenuFilter),0,KEY_CTRLI,
+		MSG(lng::MMenuUserMenu),0,0,
+		MSG(lng::MMenuFileAssociations),0,0,
+		MSG(lng::MMenuFolderShortcuts),0,0,
+		MSG(lng::MMenuFilter),0,KEY_CTRLI,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuPluginCommands),0,KEY_F11,
-		MSG(MMenuWindowsList),0,KEY_F12,
-		MSG(MMenuProcessList),0,KEY_CTRLW,
-		MSG(MMenuHotPlugList),0,0,
+		MSG(lng::MMenuPluginCommands),0,KEY_F11,
+		MSG(lng::MMenuWindowsList),0,KEY_F12,
+		MSG(lng::MMenuProcessList),0,KEY_CTRLW,
+		MSG(lng::MMenuHotPlugList),0,0,
 	};
 	const auto CmdMenuStrings = VMenu::AddHotkeys(make_range(CmdMenu));
 
 	MenuDataEx OptionsMenu[]=
 	{
-		MSG(MMenuSystemSettings),LIF_SELECTED,0,
-		MSG(MMenuPanelSettings),0,0,
-		MSG(MMenuTreeSettings),no_tree,0,
-		MSG(MMenuInterface),0,0,
-		MSG(MMenuLanguages),0,0,
-		MSG(MMenuPluginsConfig),0,0,
-		MSG(MMenuPluginsManagerSettings),0, 0,
-		MSG(MMenuDialogSettings),0,0,
-		MSG(MMenuVMenuSettings),0,0,
-		MSG(MMenuCmdlineSettings),0,0,
-		MSG(MMenuAutoCompleteSettings),0,0,
-		MSG(MMenuInfoPanelSettings),0,0,
-		MSG(MMenuMaskGroups),0,0,
+		MSG(lng::MMenuSystemSettings),LIF_SELECTED,0,
+		MSG(lng::MMenuPanelSettings),0,0,
+		MSG(lng::MMenuTreeSettings),no_tree,0,
+		MSG(lng::MMenuInterface),0,0,
+		MSG(lng::MMenuLanguages),0,0,
+		MSG(lng::MMenuPluginsConfig),0,0,
+		MSG(lng::MMenuPluginsManagerSettings),0, 0,
+		MSG(lng::MMenuDialogSettings),0,0,
+		MSG(lng::MMenuVMenuSettings),0,0,
+		MSG(lng::MMenuCmdlineSettings),0,0,
+		MSG(lng::MMenuAutoCompleteSettings),0,0,
+		MSG(lng::MMenuInfoPanelSettings),0,0,
+		MSG(lng::MMenuMaskGroups),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuConfirmation),0,0,
-		MSG(MMenuFilePanelModes),0,0,
-		MSG(MMenuFileDescriptions),0,0,
-		MSG(MMenuFolderInfoFiles),0,0,
+		MSG(lng::MMenuConfirmation),0,0,
+		MSG(lng::MMenuFilePanelModes),0,0,
+		MSG(lng::MMenuFileDescriptions),0,0,
+		MSG(lng::MMenuFolderInfoFiles),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuViewer),0,0,
-		MSG(MMenuEditor),0,0,
-		MSG(MMenuCodePages),0,0,
+		MSG(lng::MMenuViewer),0,0,
+		MSG(lng::MMenuEditor),0,0,
+		MSG(lng::MMenuCodePages),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuColors),0,0,
-		MSG(MMenuFilesHighlighting),0,0,
+		MSG(lng::MMenuColors),0,0,
+		MSG(lng::MMenuFilesHighlighting),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuSaveSetup),0,KEY_SHIFTF9,
+		MSG(lng::MMenuSaveSetup),0,KEY_SHIFTF9,
 	};
 	const auto OptionsMenuStrings = VMenu::AddHotkeys(make_range(OptionsMenu));
 
 	MenuDataEx RightMenu[]=
 	{
-		MSG(MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
-		MSG(MMenuMediumView),0,KEY_CTRL2,
-		MSG(MMenuFullView),0,KEY_CTRL3,
-		MSG(MMenuWideView),0,KEY_CTRL4,
-		MSG(MMenuDetailedView),0,KEY_CTRL5,
-		MSG(MMenuDizView),0,KEY_CTRL6,
-		MSG(MMenuLongDizView),0,KEY_CTRL7,
-		MSG(MMenuOwnersView),0,KEY_CTRL8,
-		MSG(MMenuLinksView),0,KEY_CTRL9,
-		MSG(MMenuAlternativeView),0,KEY_CTRL0,
+		MSG(lng::MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
+		MSG(lng::MMenuMediumView),0,KEY_CTRL2,
+		MSG(lng::MMenuFullView),0,KEY_CTRL3,
+		MSG(lng::MMenuWideView),0,KEY_CTRL4,
+		MSG(lng::MMenuDetailedView),0,KEY_CTRL5,
+		MSG(lng::MMenuDizView),0,KEY_CTRL6,
+		MSG(lng::MMenuLongDizView),0,KEY_CTRL7,
+		MSG(lng::MMenuOwnersView),0,KEY_CTRL8,
+		MSG(lng::MMenuLinksView),0,KEY_CTRL9,
+		MSG(lng::MMenuAlternativeView),0,KEY_CTRL0,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuInfoPanel),0,KEY_CTRLL,
-		MSG(MMenuTreePanel),no_tree,KEY_CTRLT,
-		MSG(MMenuQuickView),0,KEY_CTRLQ,
+		MSG(lng::MMenuInfoPanel),0,KEY_CTRLL,
+		MSG(lng::MMenuTreePanel),no_tree,KEY_CTRLT,
+		MSG(lng::MMenuQuickView),0,KEY_CTRLQ,
 		L"",LIF_SEPARATOR,0,
-		MSG(MMenuSortModes),0,KEY_CTRLF12,
-		MSG(MMenuLongNames),0,KEY_CTRLN,
-		MSG(MMenuTogglePanelRight),0,KEY_CTRLF2,
-		MSG(MMenuReread),0,KEY_CTRLR,
-		MSG(MMenuChangeDriveRight),0,KEY_ALTF2,
+		MSG(lng::MMenuSortModes),0,KEY_CTRLF12,
+		MSG(lng::MMenuLongNames),0,KEY_CTRLN,
+		MSG(lng::MMenuTogglePanelRight),0,KEY_CTRLF2,
+		MSG(lng::MMenuReread),0,KEY_CTRLR,
+		MSG(lng::MMenuChangeDriveRight),0,KEY_ALTF2,
 	};
 	ApplyViewModesNames(RightMenu);
 	const auto RightMenuStrings = VMenu::AddHotkeys(make_range(RightMenu));
@@ -2776,11 +2776,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	HMenuData MainMenu[]=
 	{
-		{MSG(MMenuLeftTitle), L"LeftRightMenu", LeftMenu, std::size(LeftMenu), 1},
-		{MSG(MMenuFilesTitle), L"FilesMenu", FilesMenu, std::size(FilesMenu), 0},
-		{MSG(MMenuCommandsTitle), L"CmdMenu", CmdMenu, std::size(CmdMenu), 0},
-		{MSG(MMenuOptionsTitle), L"OptMenu", OptionsMenu, std::size(OptionsMenu), 0},
-		{MSG(MMenuRightTitle), L"LeftRightMenu", RightMenu, std::size(RightMenu), 0},
+		{MSG(lng::MMenuLeftTitle), L"LeftRightMenu", LeftMenu, std::size(LeftMenu), 1},
+		{MSG(lng::MMenuFilesTitle), L"FilesMenu", FilesMenu, std::size(FilesMenu), 0},
+		{MSG(lng::MMenuCommandsTitle), L"CmdMenu", CmdMenu, std::size(CmdMenu), 0},
+		{MSG(lng::MMenuOptionsTitle), L"OptMenu", OptionsMenu, std::size(OptionsMenu), 0},
+		{MSG(lng::MMenuRightTitle), L"LeftRightMenu", RightMenu, std::size(RightMenu), 0},
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
@@ -3026,13 +3026,13 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 					{
 						try
 						{
-							Language NewLanguage(Global->g_strFarPath, MNewFileName + 1);
+							Language NewLanguage(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
 							using std::swap;
 							swap(*Global->Lang, NewLanguage);
 						}
 						catch (const far_exception& e)
 						{
-							Message(MSG_WARNING, 1, MSG(MError), encoding::utf8::get_chars(e.get_message()).data(), MSG(MOk));
+							Message(MSG_WARNING, 1, MSG(lng::MError), encoding::utf8::get_chars(e.get_message()).data(), MSG(lng::MOk));
 							strLanguage = SavedLanguage;
 						}
 

@@ -158,7 +158,7 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 				if (!(Flags&EJECT_NO_MESSAGE))
 				{
 					Global->CatchError();
-					if(OperationFailed(RootName, MError, format(MChangeCouldNotEjectMedia, Letter), false) != operation::retry)
+					if(OperationFailed(RootName, lng::MError, format(lng::MChangeCouldNotEjectMedia, Letter), false) != operation::retry)
 						Retry=FALSE;
 				}
 				else
@@ -180,13 +180,13 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 
 bool IsEjectableMedia(wchar_t Letter)
 {
-	bool Result = false;
-	os::fs::file file;
-	if (file.Open({ L'\\', L'\\', L'.', L'\\', Letter, L':' }, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
-	{
-		DISK_GEOMETRY dg;
-		DWORD Bytes;
-		Result = file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &dg, sizeof(dg), &Bytes) && dg.MediaType == RemovableMedia;
-	}
-	return Result;
+	const string Disk = { L'\\', L'\\', L'.', L'\\', Letter, L':' };
+	const os::fs::file File(Disk, 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	if (!File)
+		return false;
+
+	DISK_GEOMETRY dg;
+	DWORD Bytes;
+	return File.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &dg, sizeof(dg), &Bytes) && dg.MediaType == RemovableMedia;
 }
+

@@ -203,13 +203,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				switch (Type)
 				{
 				case HR_VIEWER:
-					return MSG(MHistoryView);
+					return MSG(lng::MHistoryView);
 				case HR_EDITOR:
 				case HR_EDITOR_RO:
-					return MSG(MHistoryEdit);
+					return MSG(lng::MHistoryEdit);
 				case HR_EXTERNAL:
 				case HR_EXTERNAL_WAIT:
-					return MSG(MHistoryExt);
+					return MSG(lng::MHistoryExt);
 				}
 
 				return L"";
@@ -455,10 +455,10 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					        (!Global->Opt->Confirm.HistoryClear ||
 					         (Global->Opt->Confirm.HistoryClear &&
 					          Message(MSG_WARNING,2,
-					                  MSG((m_TypeHistory==HISTORYTYPE_CMD || m_TypeHistory==HISTORYTYPE_DIALOG?MHistoryTitle:
-					                       (m_TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:MViewHistoryTitle))),
-					                  MSG(MHistoryClear),
-					                  MSG(MClear),MSG(MCancel)) == Message::first_button)))
+					                  MSG((m_TypeHistory==HISTORYTYPE_CMD || m_TypeHistory==HISTORYTYPE_DIALOG? lng::MHistoryTitle:
+					                       (m_TypeHistory==HISTORYTYPE_FOLDER? lng::MFolderHistoryTitle : lng::MViewHistoryTitle))),
+					                  MSG(lng::MHistoryClear),
+					                  MSG(lng::MClear),MSG(lng::MCancel)) == Message::first_button)))
 					{
 						HistoryCfgRef()->DeleteAllUnlocked(m_TypeHistory,m_HistoryName);
 
@@ -499,12 +499,12 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 				if (SelectedRecordType == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
-					if (Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.data(),MSG(MViewHistoryIsCreate),MSG(MHYes),MSG(MHNo)) == Message::first_button)
+					if (Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.data(),MSG(lng::MViewHistoryIsCreate),MSG(lng::MHYes),MSG(lng::MHNo)) == Message::first_button)
 						break;
 				}
 				else
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName.data(),MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName.data(),MSG(lng::MOk));
 				}
 
 				Done=false;

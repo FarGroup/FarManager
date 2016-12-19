@@ -89,7 +89,7 @@ QuickView::~QuickView()
 
 string QuickView::GetTitle() const
 {
-	return MSG(MQuickViewTitle);
+	return MSG(lng::MQuickViewTitle);
 }
 
 void QuickView::DisplayObject()
@@ -137,8 +137,8 @@ void QuickView::DisplayObject()
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_X1+2,m_Y1+2);
 		auto DisplayName = strCurFileName;
-		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - StrLength(MSG(MQuickViewFolder)) - 5));
-		PrintText(format(LR"({0} "{1}")", MQuickViewFolder, DisplayName));
+		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - StrLength(MSG(lng::MQuickViewFolder)) - 5));
+		PrintText(format(LR"({0} "{1}")", MSG(lng::MQuickViewFolder), DisplayName));
 
 		DWORD currAttr=os::GetFileAttributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
@@ -154,55 +154,55 @@ void QuickView::DisplayObject()
 				// 0xA0000003L = Directory Junction or Volume Mount Point
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
-						LNGID ID_Msg = MQuickViewJunction;
+						auto ID_Msg = lng::MQuickViewJunction;
 						bool Root;
 						if(ParsePath(Target, nullptr, &Root) == PATH_VOLUMEGUID && Root)
 						{
-							ID_Msg=MQuickViewVolMount;
+							ID_Msg = lng::MQuickViewVolMount;
 						}
 						PtrName = MSG(ID_Msg);
 					}
 					break;
 				// 0xA000000CL = Directory or File Symbolic Link
 				case IO_REPARSE_TAG_SYMLINK:
-					PtrName = MSG(MQuickViewSymlink);
+					PtrName = MSG(lng::MQuickViewSymlink);
 					break;
 				// 0x8000000AL = Distributed File System
 				case IO_REPARSE_TAG_DFS:
-					PtrName = MSG(MQuickViewDFS);
+					PtrName = MSG(lng::MQuickViewDFS);
 					break;
 				// 0x80000012L = Distributed File System Replication
 				case IO_REPARSE_TAG_DFSR:
-					PtrName = MSG(MQuickViewDFSR);
+					PtrName = MSG(lng::MQuickViewDFSR);
 					break;
 				// 0xC0000004L = Hierarchical Storage Management
 				case IO_REPARSE_TAG_HSM:
-					PtrName = MSG(MQuickViewHSM);
+					PtrName = MSG(lng::MQuickViewHSM);
 					break;
 				// 0x80000006L = Hierarchical Storage Management2
 				case IO_REPARSE_TAG_HSM2:
-					PtrName = MSG(MQuickViewHSM2);
+					PtrName = MSG(lng::MQuickViewHSM2);
 					break;
 				// 0x80000007L = Single Instance Storage
 				case IO_REPARSE_TAG_SIS:
-					PtrName = MSG(MQuickViewSIS);
+					PtrName = MSG(lng::MQuickViewSIS);
 					break;
 				// 0x80000008L = Windows Imaging Format
 				case IO_REPARSE_TAG_WIM:
-					PtrName = MSG(MQuickViewWIM);
+					PtrName = MSG(lng::MQuickViewWIM);
 					break;
 				// 0x80000009L = Cluster Shared Volumes
 				case IO_REPARSE_TAG_CSV:
-					PtrName = MSG(MQuickViewCSV);
+					PtrName = MSG(lng::MQuickViewCSV);
 					break;
 				case IO_REPARSE_TAG_DEDUP:
-					PtrName = MSG(MQuickViewDEDUP);
+					PtrName = MSG(lng::MQuickViewDEDUP);
 					break;
 				case IO_REPARSE_TAG_NFS:
-					PtrName = MSG(MQuickViewNFS);
+					PtrName = MSG(lng::MQuickViewNFS);
 					break;
 				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
-					PtrName = MSG(MQuickViewPlaceholder);
+					PtrName = MSG(lng::MQuickViewPlaceholder);
 					break;
 					// 0x????????L = anything else
 				default:
@@ -213,14 +213,14 @@ void QuickView::DisplayObject()
 					}
 					else
 					{
-						PtrName=MSG(MQuickViewUnknownReparsePoint);
+						PtrName=MSG(lng::MQuickViewUnknownReparsePoint);
 					}
 				}
 			}
 			else
 			{
-				PtrName = MSG(MQuickViewUnknownReparsePoint);
-				Target = MSG(MQuickViewNoData);
+				PtrName = MSG(lng::MQuickViewUnknownReparsePoint);
+				Target = MSG(lng::MQuickViewNoData);
 			}
 
 			TruncPathStr(Target,std::max(0, m_X2-m_X1-1-StrLength(PtrName)-5));
@@ -234,24 +234,24 @@ void QuickView::DisplayObject()
 			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
 			const wchar_t *prefix = uncomplete_dirscan ? L"~" : L"";
 			GotoXY(m_X1+2,m_Y1+4);
-			PrintText(MSG(MQuickViewContains));
+			PrintText(MSG(lng::MQuickViewContains));
 			GotoXY(m_X1+2,m_Y1+6);
-			PrintText(MSG(MQuickViewFolders));
+			PrintText(MSG(lng::MQuickViewFolders));
 			SetColor(iColor);
 			PrintText(prefix + str(Data.DirCount));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+7);
-			PrintText(MSG(MQuickViewFiles));
+			PrintText(MSG(lng::MQuickViewFiles));
 			SetColor(iColor);
 			PrintText(prefix + str(Data.FileCount));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+8);
-			PrintText(MSG(MQuickViewBytes));
+			PrintText(MSG(lng::MQuickViewBytes));
 			SetColor(iColor);
 			PrintText(prefix + InsertCommas(Data.FileSize));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+9);
-			PrintText(MSG(MQuickViewAllocated));
+			PrintText(MSG(lng::MQuickViewAllocated));
 			SetColor(iColor);
 			const auto Format = L"{0}{1} ({2}%)";
 			PrintText(format(Format, prefix, InsertCommas(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
@@ -260,19 +260,19 @@ void QuickView::DisplayObject()
 			{
 				SetColor(COL_PANELTEXT);
 				GotoXY(m_X1+2,m_Y1+11);
-				PrintText(MSG(MQuickViewCluster));
+				PrintText(MSG(lng::MQuickViewCluster));
 				SetColor(iColor);
 				PrintText(prefix + InsertCommas(Data.ClusterSize));
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(m_X1+2,m_Y1+12);
-				PrintText(MSG(MQuickViewSlack));
+				PrintText(MSG(lng::MQuickViewSlack));
 				SetColor(iColor);
 				PrintText(format(Format, prefix, InsertCommas(Data.FilesSlack), ToPercent(Data.FilesSlack, Data.AllocationSize)));
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(m_X1+2,m_Y1+13);
-				PrintText(MSG(MQuickViewMFTOverhead));
+				PrintText(MSG(lng::MQuickViewMFTOverhead));
 				SetColor(iColor);
 				PrintText(format(Format, prefix, InsertCommas(Data.MFTOverhead), ToPercent(Data.MFTOverhead, Data.AllocationSize)));
 			}
@@ -444,7 +444,7 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, plugin_panel* hD
 		}
 		else
 		{
-			int ExitCode=GetDirInfo(MSG(MQuickViewTitle), strCurFileName, Data, getdirinfo_default_delay, nullptr, GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_NOREDRAW);
+			int ExitCode=GetDirInfo(MSG(lng::MQuickViewTitle), strCurFileName, Data, getdirinfo_default_delay, nullptr, GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_NOREDRAW);
 			Directory = (ExitCode == -1 ? 2 : 1); // ExitCode: 1=done; 0=Esc,CtrlBreak; -1=Other
 			uncomplete_dirscan = ExitCode != 1;
 		}
@@ -546,7 +546,7 @@ void QuickView::RefreshTitle()
 	{
 		append(m_Title, strCurFileName, L" - "s);
 	}
-	append(m_Title, MSG(MQuickViewTitle), L'}');
+	append(m_Title, MSG(lng::MQuickViewTitle), L'}');
 }
 
 int QuickView::GetCurName(string &strName, string &strShortName) const
@@ -563,7 +563,7 @@ int QuickView::GetCurName(string &strName, string &strShortName) const
 
 void QuickView::UpdateKeyBar()
 {
-	Parent()->GetKeybar().SetLabels(MQViewF1);
+	Parent()->GetKeybar().SetLabels(lng::MQViewF1);
 	DynamicUpdateKeyBar();
 }
 
@@ -573,12 +573,12 @@ void QuickView::DynamicUpdateKeyBar() const
 
 	if (Directory || !QView)
 	{
-		Keybar[KBL_MAIN][F2] = MSG(MF2);
+		Keybar[KBL_MAIN][F2] = MSG(lng::MF2);
 		Keybar[KBL_MAIN][F4].clear();
 		Keybar[KBL_MAIN][F8].clear();
 		Keybar[KBL_SHIFT][F2].clear();
 		Keybar[KBL_SHIFT][F8].clear();
-		Keybar[KBL_ALT][F8] = MSG(MAltF8);  // стандартный для панели - "хистори"
+		Keybar[KBL_ALT][F8] = MSG(lng::MAltF8);  // стандартный для панели - "хистори"
 	}
 	else
 	{

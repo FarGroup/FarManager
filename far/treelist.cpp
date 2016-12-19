@@ -531,7 +531,7 @@ void TreeList::DisplayObject()
 
 string TreeList::GetTitle() const
 {
-	return MSG(m_ModalMode? MFindFolderTitle : MTreeTitle);
+	return MSG(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle);
 }
 
 void TreeList::DisplayTree(int Fast)
@@ -737,7 +737,7 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 
 	if (IsChangeConsole || (clock() - TreeStartTime) > CLOCKS_PER_SEC)
 	{
-		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(MTreeTitle), MSG(MReadingTree), str(TreeCount).data());
+		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(lng::MTreeTitle), MSG(lng::MReadingTree), str(TreeCount).data());
 		if (!PreRedrawStack().empty())
 		{
 			const auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
@@ -769,9 +769,7 @@ static void PR_MsgReadTree()
 
 static os::fs::file OpenTreeFile(const string& Name, bool Writable)
 {
-	os::fs::file Result;
-	Result.Open(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
-	return Result;
+	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
 }
 
 static bool MustBeCached(const string& Root)
@@ -870,7 +868,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	{
 		os::DeleteFile(TreeCache().GetTreeName());
 		if (!Global->WindowManager->ManagerIsDown())
-			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotSaveTree), Name.data(), MSG(MOk));
+			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MCannotSaveTree), Name.data(), MSG(lng::MOk));
 	}
 }
 
@@ -2083,7 +2081,7 @@ void TreeList::OnFocusChange(bool Get)
 void TreeList::UpdateKeyBar()
 {
 	auto& Keybar = Parent()->GetKeybar();
-	Keybar.SetLabels(MKBTreeF1);
+	Keybar.SetLabels(lng::MKBTreeF1);
 	Keybar.SetCustomLabels(KBA_TREE);
 }
 
@@ -2094,7 +2092,7 @@ void TreeList::RefreshTitle()
 	{
 		append(m_Title, m_ListData[m_CurFile].strName, L" - "s);
 	}
-	append(m_Title, MSG(m_ModalMode? MFindFolderTitle : MTreeTitle), L'}');
+	append(m_Title, MSG(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle), L'}');
 }
 
 const TreeList::TreeItem* TreeList::GetItem(size_t Index) const

@@ -73,7 +73,7 @@ void DizList::Reset()
 
 static void PR_ReadingMsg()
 {
-	Message(0,0,L"",MSG(MReadingDiz));
+	Message(0,0,L"",MSG(lng::MReadingDiz));
 };
 
 void DizList::Read(const string& Path, const string* DizName)
@@ -111,8 +111,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			m_DizFileName += strArgName;
 		}
 
-		os::fs::file DizFile;
-		if (DizFile.Open(m_DizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+		if (const auto DizFile = os::fs::file(m_DizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
 			clock_t StartTime=clock();
 			uintptr_t CodePage=CP_DEFAULT;
@@ -330,7 +329,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 		else
 		{
-			Message(MSG_WARNING,1,MSG(MError),MSG(MCannotUpdateDiz),MSG(MCannotUpdateRODiz),MSG(MOk));
+			Message(MSG_WARNING,1,MSG(lng::MError),MSG(lng::MCannotUpdateDiz),MSG(lng::MCannotUpdateRODiz),MSG(lng::MOk));
 			return false;
 		}
 	}
@@ -366,7 +365,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	{
 		if (!Blob.empty())
 		{
-			if(auto DizFile = os::fs::file(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
+			if(const auto DizFile = os::fs::file(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
 			{
 				size_t Written;
 				if (!DizFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
@@ -397,7 +396,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	catch (const far_exception& e)
 	{
 		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotUpdateDiz), encoding::utf8::get_chars(e.get_message()).data(), MSG(MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MCannotUpdateDiz), encoding::utf8::get_chars(e.get_message()).data(), MSG(lng::MOk));
 		return false;
 	}
 

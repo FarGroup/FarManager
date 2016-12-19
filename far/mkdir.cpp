@@ -91,25 +91,25 @@ void ShellMakeDir(Panel *SrcPanel)
 	FarListItem LinkTypeItems[3]={};
 	ComboList.ItemsNumber=std::size(LinkTypeItems);
 	ComboList.Items=LinkTypeItems;
-	ComboList.Items[0].Text=MSG(MMakeFolderLinkNone);
-	ComboList.Items[1].Text=MSG(MMakeFolderLinkJunction);
-	ComboList.Items[2].Text=MSG(MMakeFolderLinkSymlink);
+	ComboList.Items[0].Text=MSG(lng::MMakeFolderLinkNone);
+	ComboList.Items[1].Text=MSG(lng::MMakeFolderLinkJunction);
+	ComboList.Items[2].Text=MSG(lng::MMakeFolderLinkSymlink);
 	ComboList.Items[0].Flags|=LIF_SELECTED;
 
 	FarDialogItem MkDirDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,MSG(MMakeFolderTitle)},
-		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,MSG(MCreateFolder)},
+		{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,MSG(lng::MMakeFolderTitle)},
+		{DI_TEXT,     5,2, 0,2,0,nullptr,nullptr,0,MSG(lng::MCreateFolder)},
 		{DI_EDIT,     5,3,70,3,0,L"NewFolder",nullptr,DIF_FOCUS|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
 		{DI_TEXT,    -1,4, 0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,MSG(MMakeFolderLinkType)},
+		{DI_TEXT,     5,5, 0,5,0,nullptr,nullptr,0,MSG(lng::MMakeFolderLinkType)},
 		{DI_COMBOBOX,20,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,L""},
-		{DI_TEXT,     5,6, 0,6,0,nullptr,nullptr,0,MSG(MMakeFolderLinkTarget)},
+		{DI_TEXT,     5,6, 0,6,0,nullptr,nullptr,0,MSG(lng::MMakeFolderLinkTarget)},
 		{DI_EDIT,    20,6,70,6,0,L"NewFolderLinkTarget",nullptr,DIF_DISABLE|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
-		{DI_CHECKBOX, 5,7, 0,7,Global->Opt->MultiMakeDir,nullptr,nullptr,0,MSG(MMultiMakeDir)},
+		{DI_CHECKBOX, 5,7, 0,7,Global->Opt->MultiMakeDir,nullptr,nullptr,0,MSG(lng::MMultiMakeDir)},
 		{DI_TEXT,    -1,8, 0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MOk)},
+		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MCancel)},
 	};
 	auto MkDirDlg = MakeDialogItemsEx(MkDirDlgData);
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
@@ -143,7 +143,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		const auto DirList = split<std::vector<string>>(strDirName, STLF_UNIQUE);
 		if (DirList.empty())
 		{
-			Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectDirList), MSG(MOk));
+			Message(MSG_WARNING, 1, MSG(lng::MWarning), MSG(lng::MIncorrectDirList), MSG(lng::MOk));
 			return;
 		}
 
@@ -173,7 +173,7 @@ void ShellMakeDir(Panel *SrcPanel)
 						while((bSuccess = os::CreateDirectory(Part, nullptr)) == false && !SkipAll)
 						{
 							Global->CatchError();
-							const auto Result = OperationFailed(strOriginalDirName, MError, MSG(MCannotCreateFolder));
+							const auto Result = OperationFailed(strOriginalDirName, lng::MError, MSG(lng::MCannotCreateFolder));
 							if (Result == operation::retry)
 							{
 								continue;
@@ -209,7 +209,7 @@ void ShellMakeDir(Panel *SrcPanel)
 					while(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR) && !SkipAll)
 					{
 						Global->CatchError();
-						const auto Result = OperationFailed(strDirName, MError, MSG(MCopyCannotCreateLink));
+						const auto Result = OperationFailed(strDirName, lng::MError, MSG(lng::MCopyCannotCreateLink));
 						if (Result == operation::retry)
 						{
 							continue;

@@ -72,10 +72,10 @@ int GetSearchReplaceString(
 		ReplaceHistoryName = L"ReplaceText";
 
 	if (!Title)
-		Title=MSG(IsReplaceMode?MEditReplaceTitle:MEditSearchTitle);
+		Title=MSG(IsReplaceMode? lng::MEditReplaceTitle : lng::MEditSearchTitle);
 
 	if (!SubTitle)
-		SubTitle=MSG(MEditSearchFor);
+		SubTitle=MSG(lng::MEditSearchFor);
 
 
 	bool Case=pCase?*pCase:false;
@@ -85,8 +85,8 @@ int GetSearchReplaceString(
 	bool PreserveStyle=pPreserveStyle?*pPreserveStyle:false;
 
 	const auto DlgWidth = 76;
-	const auto WordLabel = MSG(MEditSearchPickWord);
-	const auto SelectionLabel = MSG(MEditSearchPickSelection);
+	const auto WordLabel = MSG(lng::MEditSearchPickWord);
+	const auto SelectionLabel = MSG(lng::MEditSearchPickSelection);
 	const auto WordButtonSize = HiStrlen(WordLabel) + 4;
 	const auto SelectionButtonSize = HiStrlen(SelectionLabel) + 4;
 	const auto SelectionButtonX2 = static_cast<intptr_t>(DlgWidth - 4 - 1);
@@ -124,18 +124,18 @@ int GetSearchReplaceString(
 		{ DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, SelectionLabel },
 		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, 0, SubTitle },
 		{ DI_EDIT, 5, 3, 70, 3, 0, TextHistoryName, nullptr, DIF_FOCUS | DIF_USELASTHISTORY | (*TextHistoryName? DIF_HISTORY : 0), SearchStr.data() },
-		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, MSG(MEditReplaceWith) },
+		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, MSG(lng::MEditReplaceWith) },
 		{ DI_EDIT, 5, 5, 70, 5, 0, ReplaceHistoryName, nullptr, DIF_USELASTHISTORY | (*ReplaceHistoryName? DIF_HISTORY : 0), ReplaceStr.data() },
 		{ DI_TEXT, -1, 6 - YCorrection, 0, 6 - YCorrection, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_CHECKBOX, 5, 7 - YCorrection, 0, 7 - YCorrection, Case, nullptr, nullptr, 0, MSG(MEditSearchCase) },
-		{ DI_CHECKBOX, 5, 8 - YCorrection, 0, 8 - YCorrection, WholeWords, nullptr, nullptr, 0, MSG(MEditSearchWholeWords) },
-		{ DI_CHECKBOX, 5, 9 - YCorrection, 0, 9 - YCorrection, Reverse, nullptr, nullptr, 0, MSG(MEditSearchReverse) },
-		{ DI_CHECKBOX, 40, 7 - YCorrection, 0, 7 - YCorrection, Regexp, nullptr, nullptr, 0, MSG(MEditSearchRegexp) },
-		{ DI_CHECKBOX, 40, 8 - YCorrection, 0, 8 - YCorrection, PreserveStyle, nullptr, nullptr, 0, MSG(MEditSearchPreserveStyle) },
+		{ DI_CHECKBOX, 5, 7 - YCorrection, 0, 7 - YCorrection, Case, nullptr, nullptr, 0, MSG(lng::MEditSearchCase) },
+		{ DI_CHECKBOX, 5, 8 - YCorrection, 0, 8 - YCorrection, WholeWords, nullptr, nullptr, 0, MSG(lng::MEditSearchWholeWords) },
+		{ DI_CHECKBOX, 5, 9 - YCorrection, 0, 9 - YCorrection, Reverse, nullptr, nullptr, 0, MSG(lng::MEditSearchReverse) },
+		{ DI_CHECKBOX, 40, 7 - YCorrection, 0, 7 - YCorrection, Regexp, nullptr, nullptr, 0, MSG(lng::MEditSearchRegexp) },
+		{ DI_CHECKBOX, 40, 8 - YCorrection, 0, 8 - YCorrection, PreserveStyle, nullptr, nullptr, 0, MSG(lng::MEditSearchPreserveStyle) },
 		{ DI_TEXT, -1, 10 - YCorrection, 0, 10 - YCorrection, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, MSG(IsReplaceMode? MEditReplaceReplace : MEditSearchSearch) },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MEditSearchAll) },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MEditSearchCancel) },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, MSG(IsReplaceMode? lng::MEditReplaceReplace : lng::MEditSearchSearch) },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(lng::MEditSearchAll) },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(lng::MEditSearchCancel) },
 	};
 	auto ReplaceDlg = MakeDialogItemsEx(ReplaceDlgData);
 
@@ -265,8 +265,8 @@ int GetString(
 		StrDlg[4+offset].Type=StrDlg[5+offset].Type=DI_BUTTON;
 		StrDlg[4+offset].Flags=StrDlg[5+offset].Flags=DIF_CENTERGROUP;
 		StrDlg[4+offset].Flags|=DIF_DEFAULTBUTTON;
-		StrDlg[4+offset].strData = MSG(MOk);
-		StrDlg[5+offset].strData = MSG(MCancel);
+		StrDlg[4+offset].strData = MSG(lng::MOk);
+		StrDlg[5+offset].strData = MSG(lng::MCancel);
 	}
 
 	if (Flags&FIB_EXPANDENV)
@@ -370,13 +370,13 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 	FarDialogItem PassDlgData[]=
 	{
 		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.data())},
-		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,MSG(MNetUserName)},
+		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,MSG(lng::MNetUserName)},
 		{DI_EDIT,       5, 3,70, 3,0,L"NetworkUser",nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName.data():strUserName.data()},
-		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,MSG(MNetUserPassword)},
+		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,MSG(lng::MNetUserPassword)},
 		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags&GNP_USELAST)?strLastPassword.data():strPassword.data()},
 		{DI_TEXT,      -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MOk)},
+		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MCancel)},
 	};
 	auto PassDlg = MakeDialogItemsEx(PassDlgData);
 
@@ -445,11 +445,11 @@ static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 	}
 }
 
-operation OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip)
+operation OperationFailed(const string& Object, lng Title, const string& Description, bool AllowSkip)
 {
 	std::vector<string> Msg;
 	os::com::ptr<IFileIsInUse> fiu;
-	LNGID Reason = MObjectLockedReasonOpened;
+	lng Reason = lng::MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
 	const auto Error = Global->CaughtError().Win32Error;
 	if(Error == ERROR_ACCESS_DENIED ||
@@ -466,13 +466,13 @@ operation OperationFailed(const string& Object, LNGID Title, const string& Descr
 			switch(UsageType)
 			{
 			case FUT_PLAYING:
-				Reason = MObjectLockedReasonPlayed;
+				Reason = lng::MObjectLockedReasonPlayed;
 				break;
 			case FUT_EDITING:
-				Reason = MObjectLockedReasonEdited;
+				Reason = lng::MObjectLockedReasonEdited;
 				break;
 			case FUT_GENERIC:
-				Reason = MObjectLockedReasonOpened;
+				Reason = lng::MObjectLockedReasonOpened;
 				break;
 			}
 			DWORD Capabilities = 0;
@@ -542,7 +542,7 @@ operation OperationFailed(const string& Object, LNGID Title, const string& Descr
 	std::vector<string> Msgs{Description, QuoteOuterSpace(string(Object))};
 	if(!Msg.empty())
 	{
-		Msgs.emplace_back(format(MObjectLockedReason, Reason));
+		Msgs.emplace_back(format(lng::MObjectLockedReason, MSG(Reason)));
 		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
 	}
 
@@ -550,15 +550,15 @@ operation OperationFailed(const string& Object, LNGID Title, const string& Descr
 	Buttons.reserve(4);
 	if(SwitchBtn)
 	{
-		Buttons.emplace_back(MSG(MObjectLockedSwitchTo));
+		Buttons.emplace_back(MSG(lng::MObjectLockedSwitchTo));
 	}
-	Buttons.emplace_back(MSG(CloseBtn? MObjectLockedClose : MDeleteRetry));
+	Buttons.emplace_back(MSG(CloseBtn? lng::MObjectLockedClose : lng::MDeleteRetry));
 	if(AllowSkip)
 	{
-		Buttons.emplace_back(MSG(MDeleteSkip));
-		Buttons.emplace_back(MSG(MDeleteFileSkipAll));
+		Buttons.emplace_back(MSG(lng::MDeleteSkip));
+		Buttons.emplace_back(MSG(lng::MDeleteFileSkipAll));
 	}
-	Buttons.emplace_back(MSG(MDeleteCancel));
+	Buttons.emplace_back(MSG(lng::MDeleteCancel));
 
 	int Result = -1;
 	for(;;)
@@ -641,9 +641,9 @@ static string GetReErrorString(int code)
 
 void ReCompileErrorMessage(const RegExp& re, const string& str)
 {
-	Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MError),
+	Message(MSG_WARNING | MSG_LEFTALIGN, MSG(lng::MError),
 		{ GetReErrorString(re.LastError()), str, string(re.ErrorPosition(), L' ') + L'^' },
-		{ MSG(MOk) });
+		{ MSG(lng::MOk) });
 }
 
 void ReMatchErrorMessage(const RegExp& re)
@@ -651,8 +651,8 @@ void ReMatchErrorMessage(const RegExp& re)
 	if (re.LastError() != errNone)
 	{
 
-		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(MError),
+		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(lng::MError),
 			{ GetReErrorString(re.LastError()) },
-			{ MSG(MOk) });
+			{ MSG(lng::MOk) });
 	}
 }

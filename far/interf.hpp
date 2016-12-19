@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "matrix.hpp"
 
-enum LNGID : int;
+enum class lng : int;
 extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];
 extern COORD InitSize, CurSize;
@@ -151,7 +151,7 @@ inline void Text(const wchar_t* Str) { return Text(Str, wcslen(Str)); }
 inline void Text(const string& Str) { return Text(Str.data(), Str.size()); }
 inline void Text(wchar_t c) { return Text(&c, 1); }
 
-void Text(LNGID MsgId);
+void Text(lng MsgId);
 
 void VText(const wchar_t* Str, size_t Size);
 inline void VText(const wchar_t* Str) { return VText(Str, wcslen(Str)); }

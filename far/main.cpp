@@ -751,7 +751,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 		CloseConsole();
 	};
 
-	Global->Lang = new Language(Global->g_strFarPath, MNewFileName + 1);
+	Global->Lang = new Language(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
 
 	os::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
 

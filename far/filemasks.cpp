@@ -239,7 +239,7 @@ bool filemasks::empty() const
 
 void filemasks::ErrorMessage()
 {
-	Message(MSG_WARNING, 1, MSG(MWarning), MSG(MIncorrectMask), MSG(MOk));
+	Message(MSG_WARNING, 1, MSG(lng::MWarning), MSG(lng::MIncorrectMask), MSG(lng::MOk));
 }
 
 bool filemasks::masks::assign(const string& masks, DWORD Flags)

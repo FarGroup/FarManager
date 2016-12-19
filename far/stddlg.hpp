@@ -35,7 +35,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum LNGID : int;
+enum class lng : int;
 class RegExp;
 
 /*
@@ -149,7 +149,7 @@ enum class operation
 	cancel,
 };
 
-operation OperationFailed(const string& Object, LNGID Title, const string& Description, bool AllowSkip = true);
+operation OperationFailed(const string& Object, lng Title, const string& Description, bool AllowSkip = true);
 
 void ReCompileErrorMessage(const RegExp& re, const string& str);
 void ReMatchErrorMessage(const RegExp& re);

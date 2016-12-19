@@ -188,7 +188,7 @@ SQLiteDb::SQLiteDb():
 
 static bool can_create_file(const string& fname)
 {
-	return os::fs::file().Open(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE);
+	return os::fs::file(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
 }
 
 void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const

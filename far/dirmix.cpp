@@ -199,11 +199,11 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 		if (!TryClosest)
 		{
 			if (!Silent)
-				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), strTarget.data(), MSG(MOk));
+				Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), strTarget.data(), MSG(lng::MOk));
 		}
 		else // попытка найти!
 		{
-			if (Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strTarget.data(), MSG(MNeedNearPath), MSG(MHYes),MSG(MHNo)) == Message::first_button)
+			if (Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(lng::MError), strTarget.data(), MSG(lng::MNeedNearPath), MSG(lng::MHYes),MSG(lng::MHNo)) == Message::first_button)
 			{
 				string strTestPathTemp = pTestPath;
 				for (;;)
