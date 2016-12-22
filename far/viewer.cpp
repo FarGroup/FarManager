@@ -625,7 +625,7 @@ void Viewer::ShowPage(int nMode)
 				{
 					if (AdjustSelPosition)
 					{
-						LeftPos = i.nSelStart - 1;
+						LeftPos = std::max(i.nSelStart - 1, 0LL);
 						AdjustSelPosition = false;
 						Show();
 						return;
