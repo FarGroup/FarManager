@@ -229,6 +229,21 @@ void QuickView::DisplayObject()
 			PrintText(format(LR"({0} "{1}")", PtrName, Target));
 		}
 
+		const auto bytes_suffix = Upper(MSG(lng::MListBytes));
+		const auto& size2str = [&bytes_suffix](ULONGLONG Size)
+		{
+			if (Global->Opt->ShowBytes)
+			{
+				return InsertCommas(Size); // +L" " + bytes_suffix;
+			}
+			else
+			{
+				auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+				RemoveExternalSpaces(str);
+				return str + bytes_suffix;
+			}
+		};
+
 		if (Directory==1 || Directory==4)
 		{
 			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
@@ -248,13 +263,13 @@ void QuickView::DisplayObject()
 			GotoXY(m_X1+2,m_Y1+8);
 			PrintText(MSG(lng::MQuickViewBytes));
 			SetColor(iColor);
-			PrintText(prefix + InsertCommas(Data.FileSize));
+			PrintText(prefix + size2str(Data.FileSize));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+9);
 			PrintText(MSG(lng::MQuickViewAllocated));
 			SetColor(iColor);
 			const auto Format = L"{0}{1} ({2}%)";
-			PrintText(format(Format, prefix, InsertCommas(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
+			PrintText(format(Format, prefix, size2str(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
 
 			if (Directory!=4)
 			{
@@ -268,13 +283,13 @@ void QuickView::DisplayObject()
 				GotoXY(m_X1+2,m_Y1+12);
 				PrintText(MSG(lng::MQuickViewSlack));
 				SetColor(iColor);
-				PrintText(format(Format, prefix, InsertCommas(Data.FilesSlack), ToPercent(Data.FilesSlack, Data.AllocationSize)));
+				PrintText(format(Format, prefix, size2str(Data.FilesSlack), ToPercent(Data.FilesSlack, Data.AllocationSize)));
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(m_X1+2,m_Y1+13);
 				PrintText(MSG(lng::MQuickViewMFTOverhead));
 				SetColor(iColor);
-				PrintText(format(Format, prefix, InsertCommas(Data.MFTOverhead), ToPercent(Data.MFTOverhead, Data.AllocationSize)));
+				PrintText(format(Format, prefix, size2str(Data.MFTOverhead), ToPercent(Data.MFTOverhead, Data.AllocationSize)));
 			}
 		}
 	}

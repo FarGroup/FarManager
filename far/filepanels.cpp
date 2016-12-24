@@ -537,12 +537,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			if (ActivePanel()->IsVisible())
 			{
 				auto atype = ActivePanel()->GetType();
-				bool active_redraw = (atype == panel_type::FILE_PANEL || atype == panel_type::INFO_PANEL);
+				bool active_redraw = (atype == panel_type::FILE_PANEL || atype == panel_type::INFO_PANEL || atype == panel_type::QVIEW_PANEL);
 				bool passive_redraw = false;
 				if (PassivePanel()->IsVisible())
 				{
 					auto ptype = PassivePanel()->GetType();
-					passive_redraw = (ptype == panel_type::FILE_PANEL || ptype == panel_type::INFO_PANEL);
+					passive_redraw = (ptype == panel_type::FILE_PANEL || ptype == panel_type::INFO_PANEL || ptype == panel_type::QVIEW_PANEL);
 				}
 				if (active_redraw || passive_redraw)
 				{
