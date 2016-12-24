@@ -1381,6 +1381,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (move_rename && !copy_to_null && check_samedisk)
 		{
 			SameDisk = GetPathRoot(src_abspath? strSelName : SrcPanel->GetCurDir()) == GetPathRoot(strDest);
+			dest_changed = !SameDisk;
 		}
 
 		if (first && !copy_to_null && (dst_abspath || !src_abspath) && !UseWildCards
