@@ -3,6 +3,22 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 24.12.2016 21:57:03 +0300 - build 4875
+
+1. 0003361: Admin privileges are requested for file rename
+
+w17 24.12.2016 21:39:58 +0300 - build 4874
+
+1. 0003366: expand the area of Ctrl-Shift-S function
+
+w17 22.12.2016 20:51:29 +0300 - build 4873
+
+1. -viewer crashes searching in very long lines.
+
+drkns 19.12.2016 20:38:48 +0200 - build 4872
+
+1. Refactoring.
+
 drkns 18.12.2016 18:52:41 +0200 - build 4871
 
 1. Refactoring.
