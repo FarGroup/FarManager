@@ -13,6 +13,7 @@ extern const ArcType c_rar;
 extern const ArcType c_split;
 extern const ArcType c_wim;
 extern const ArcType c_tar;
+extern const ArcType c_SWFc;
 
 extern const wchar_t* c_method_copy;
 extern const wchar_t* c_method_lzma;
@@ -221,7 +222,7 @@ public:
 
   HRESULT copy_prologue(IOutStream *out_stream);
 
-  // archive contents
+ // archive contents
 public:
   UInt32 num_indices;
   FileList file_list;
@@ -284,5 +285,8 @@ public:
   AttrList get_attr_list(UInt32 item_index);
 
 public:
-  Archive() : base_stream(nullptr), update_props_defined(false) {}
+  Archive()
+   : base_stream(nullptr), num_indices(0)
+   , solid(false), encrypted(false), update_props_defined(false), has_crc(false)
+  {}
 };

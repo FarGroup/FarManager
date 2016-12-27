@@ -10,6 +10,10 @@
 #include "options.hpp"
 #include <algorithm>
 
+static bool is_single_file_format(const ArcType& arc_ty) {
+	return arc_ty == c_bzip2 || arc_ty == c_gzip || arc_ty == c_xz || arc_ty == c_SWFc;
+}
+
 wstring get_error_dlg_title() {
   return Far::get_msg(MSG_PLUGIN_NAME);
 }
@@ -658,6 +662,7 @@ private:
   };
 
   bool new_arc;
+  bool multifile;
   wstring default_arc_name;
   vector<ArcType> main_formats;
   vector<ArcType> other_formats;
@@ -1225,9 +1230,10 @@ private:
   }
 
 public:
-  UpdateDialog(bool new_arc, UpdateOptions& options, UpdateProfiles& profiles):
+  UpdateDialog(bool new_arc, bool multifile, UpdateOptions& options, UpdateProfiles& profiles):
     Far::Dialog(Far::get_msg(new_arc ? MSG_UPDATE_DLG_TITLE_CREATE : MSG_UPDATE_DLG_TITLE), &c_update_dialog_guid, c_client_xs, L"Update"),
     new_arc(new_arc),
+    multifile(multifile),
     default_arc_name(options.arc_path),
     options(options),
     profiles(profiles),
@@ -1276,7 +1282,7 @@ public:
       spacer(1);
       const ArcFormats& arc_formats = ArcAPI::formats();
       for (unsigned i = 0; i < ARRAYSIZE(c_archive_types); i++) {
-        ArcFormats::const_iterator arc_iter = arc_formats.find(c_archive_types[i].value);
+        const auto arc_iter = arc_formats.find(c_archive_types[i].value);
         if (arc_iter != arc_formats.end() && arc_iter->second.updatable) {
           bool first = main_formats.size() == 0;
           if (!first)
@@ -1292,8 +1298,8 @@ public:
       unsigned other_format_index = 0;
       bool found = false;
       for (ArcFormats::const_iterator arc_iter = arc_formats.begin(); arc_iter != arc_formats.end(); arc_iter++) {
-        if (arc_iter->second.updatable) {
-          vector<ArcType>::const_iterator main_type = find(main_formats.begin(), main_formats.end(), arc_iter->first);
+        if (arc_iter->second.updatable && (!multifile || !is_single_file_format(arc_iter->first))) {
+          const auto main_type = find(main_formats.begin(), main_formats.end(), arc_iter->first);
           if (main_type == main_formats.end()) {
             other_formats.push_back(arc_iter->first);
             format_names.push_back(arc_iter->second.name);
@@ -1422,8 +1428,8 @@ public:
   }
 };
 
-bool update_dialog(bool new_arc, UpdateOptions& options, UpdateProfiles& profiles) {
-  return UpdateDialog(new_arc, options, profiles).show();
+bool update_dialog(bool new_arc, bool multifile, UpdateOptions& options, UpdateProfiles& profiles) {
+  return UpdateDialog(new_arc, multifile, options, profiles).show();
 }
 
 

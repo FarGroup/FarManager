@@ -24,7 +24,7 @@ bool extract_dialog(ExtractOptions& options);
 
 void show_error_log(const ErrorLog& error_log);
 
-bool update_dialog(bool new_arc, UpdateOptions& options, UpdateProfiles& profiles);
+bool update_dialog(bool new_arc, bool multifile, UpdateOptions& options, UpdateProfiles& profiles);
 
 struct PluginSettings {
   bool handle_create;

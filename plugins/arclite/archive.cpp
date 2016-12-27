@@ -27,6 +27,7 @@ DEFINE_ARC_ID(rar, "\x03")
 DEFINE_ARC_ID(split, "\xEA")
 DEFINE_ARC_ID(wim, "\xE6")
 DEFINE_ARC_ID(tar, "\xEE")
+DEFINE_ARC_ID(SWFc, "\xD8")
 
 #undef DEFINE_ARC_ID
 

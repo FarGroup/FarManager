@@ -1,3 +1,7 @@
+w17 27.12.2016 21:17:38 +0300 - build 245
+
+1. 0003296: 7z.dll can only add/make archive 7z, zip, wim and tar
+
 w17 27.12.2016 20:42:33 +0300 - build 244
 
 1. 0003298: Difference 7z archive size result between compression level ultra - normal - max

@@ -475,6 +475,7 @@ public:
       return;
     UpdateOptions options;
     bool new_arc = !archive->is_open();
+	 bool multifile = items_number > 1 || (items_number == 1 && (panel_items[0].FileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
     if (!new_arc && !archive->updatable()) {
       FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
     }
@@ -534,7 +535,7 @@ public:
 
     options.ignore_errors = g_options.update_ignore_errors;
 
-    bool res = update_dialog(new_arc, options, g_profiles);
+    bool res = update_dialog(new_arc, multifile, options, g_profiles);
     if (!res)
       FAIL(E_ABORT);
     if (ArcAPI::formats().count(options.arc_type) == 0)
@@ -616,9 +617,12 @@ public:
     vector<wstring> file_list;
     file_list.reserve(panel_info.SelectedItemsNumber);
     wstring src_path = Far::get_panel_dir(PANEL_ACTIVE);
+	 bool multifile = false;
     for (size_t i = 0; i < panel_info.SelectedItemsNumber; i++) {
       Far::PanelItem panel_item = Far::get_selected_panel_item(PANEL_ACTIVE, i);
       file_list.push_back(panel_item.file_name);
+		if (file_list.size() > 1 || (panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+			multifile = true;
     }
     if (file_list.empty())
       FAIL(E_ABORT);
@@ -652,7 +656,7 @@ public:
     options.ignore_errors = g_options.update_ignore_errors;
     options.append_ext = g_options.update_append_ext;
 
-    bool res = update_dialog(true, options, g_profiles);
+    bool res = update_dialog(true, multifile, options, g_profiles);
     if (!res)
       FAIL(E_ABORT);
     if (ArcAPI::formats().count(options.arc_type) == 0)
