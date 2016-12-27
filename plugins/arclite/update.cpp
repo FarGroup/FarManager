@@ -457,7 +457,7 @@ public:
 };
 
 
-class FileReadStream: public IInStream, public ComBase, private File {
+class FileReadStream: public IInStream, public IStreamGetSize, public ComBase, private File {
 private:
   shared_ptr<ArchiveUpdateProgress> progress;
 
@@ -469,6 +469,7 @@ public:
   UNKNOWN_IMPL_BEGIN
   UNKNOWN_IMPL_ITF(ISequentialInStream)
   UNKNOWN_IMPL_ITF(IInStream)
+  UNKNOWN_IMPL_ITF(IStreamGetSize)
   UNKNOWN_IMPL_END
 
   STDMETHODIMP Read(void *data, UInt32 size, UInt32 *processedSize) {
@@ -491,6 +492,18 @@ public:
     if (newPosition)
       *newPosition = new_position;
     return S_OK;
+    COM_ERROR_HANDLER_END
+  }
+
+  STDMETHODIMP GetSize(UInt64 *pSize) {
+    COM_ERROR_HANDLER_BEGIN
+    if (!pSize) {
+      FAIL(E_INVALIDARG);
+    }
+	 else {
+      *pSize = size();
+      return S_OK;
+	 }
     COM_ERROR_HANDLER_END
   }
 };
