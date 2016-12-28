@@ -527,9 +527,9 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 	const bool Commas=(ViewFlags & COLUMN_COMMAS)!=0;
 	const bool FloatSize=(ViewFlags & COLUMN_FLOATSIZE)!=0;
 	const bool Economic=(ViewFlags & COLUMN_ECONOMIC)!=0;
-	const bool UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX)!=0;
-	const size_t MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
-	const bool ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX)!=0;
+	const bool UseMultiplier=(ViewFlags & COLUMN_USE_MULTIPLIER)!=0;
+	const size_t Multiplier=(ViewFlags & COLUMN_MULTIPLIER_MASK)+1;
+	const bool ShowMultiplier=(ViewFlags & COLUMN_SHOWMULTIPLIER)!=0;
 
 	size_t IndexDiv;
 	unsigned long long Divider;
@@ -604,7 +604,7 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 			Str = FormatNumber(format(L"{0}.{1:02}", Sz, Decimal), 2);
 		}
 
-		if (IndexB <= 0 && !ShowBytesIndex)
+		if (IndexB <= 0 && !ShowMultiplier)
 			return Align(Str, Width);
 
 		ReduceWidth();
@@ -614,9 +614,9 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 	{
 		auto Str = Commas? InsertCommas(Sz) : str(Sz);
 
-		if ((!UseMinSizeIndex && Str.size() <= Width) || Width < 5)
+		if ((!UseMultiplier && Str.size() <= Width) || Width < 5)
 		{
-			if (!ShowBytesIndex)
+			if (!ShowMultiplier)
 				return Align(Str, Width);
 
 			ReduceWidth();
@@ -639,7 +639,7 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 		IndexB++;
 		Str = Commas? InsertCommas(Sz) : str(Sz);
 	}
-	while ((UseMinSizeIndex && IndexB < MinSizeIndex) || Str.size() > Width);
+	while ((UseMultiplier && IndexB < Multiplier) || Str.size() > Width);
 
 	return FormatSize(Str, Width, IndexB, IndexDiv);
 }

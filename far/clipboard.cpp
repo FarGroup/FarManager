@@ -38,20 +38,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "encoding.hpp"
 
-default_clipboard_mode::mode default_clipboard_mode::m_Mode = default_clipboard_mode::system;
+clipboard_mode default_clipboard_mode::m_Mode = clipboard_mode::system;
 
-void default_clipboard_mode::set(default_clipboard_mode::mode Mode)
+void default_clipboard_mode::set(clipboard_mode Mode)
 {
 	m_Mode = Mode;
 }
 
-default_clipboard_mode::mode default_clipboard_mode::get()
+clipboard_mode default_clipboard_mode::get()
 {
 	return m_Mode;
 }
 
 //-----------------------------------------------------------------------------
-enum class Clipboard::clipboard_format: unsigned
+enum class Clipboard::clipboard_format
 {
 	vertical_block_oem,
 	vertical_block_unicode,
@@ -154,7 +154,7 @@ private:
 			{ L"Notepad++ binary text length", 0 },
 		};
 
-		TERSE_STATIC_ASSERT(std::size(FormatNames) == static_cast<unsigned>(clipboard_format::count));
+		TERSE_STATIC_ASSERT(std::size(FormatNames) == static_cast<size_t>(clipboard_format::count));
 		assert(Format < clipboard_format::count);
 		auto& FormatData = FormatNames[static_cast<unsigned>(Format)];
 		if (!FormatData.second)
@@ -274,10 +274,10 @@ std::unique_ptr<Clipboard, clipboard_restorer> OverrideClipboard()
 	return std::unique_ptr<Clipboard, clipboard_restorer>(ClipPtr.release());
 }
 
-Clipboard& Clipboard::GetInstance(default_clipboard_mode::mode Mode)
+Clipboard& Clipboard::GetInstance(clipboard_mode Mode)
 {
 	return OverridenInternalClipboard? *OverridenInternalClipboard :
-	       Mode == default_clipboard_mode::system? system_clipboard::GetInstance() : internal_clipboard::GetInstance();
+	       Mode == clipboard_mode::system? system_clipboard::GetInstance() : internal_clipboard::GetInstance();
 }
 
 bool Clipboard::SetText(const wchar_t *Data, size_t Size)
@@ -477,7 +477,7 @@ bool GetClipboardVText(string& data)
 
 bool ClearInternalClipboard()
 {
-	clipboard_accessor Clip(default_clipboard_mode::internal);
+	clipboard_accessor Clip(clipboard_mode::internal);
 	return Clip->Open() && Clip->Clear();
 }
 

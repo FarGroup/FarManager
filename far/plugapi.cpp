@@ -2841,16 +2841,11 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000
 			{FFFS_FLOATSIZE,      COLUMN_FLOATSIZE},      // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
 			{FFFS_ECONOMIC,       COLUMN_ECONOMIC},       // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
-			{FFFS_MINSIZEINDEX,   COLUMN_MINSIZEINDEX},   // Минимально допустимый индекс при форматировании
-			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWBYTESINDEX}, // Показывать суффиксы B,K,M,G,T,P,E
+			{FFFS_MINSIZEINDEX,   COLUMN_USE_MULTIPLIER}, // Минимально допустимый множитель при форматировании
+			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWMULTIPLIER}, // Показывать суффиксы B,K,M,G,T,P,E
 		};
 
-		unsigned long long FinalFlags=Flags & COLUMN_MINSIZEINDEX_MASK;
-		std::for_each(CONST_RANGE(FlagsPair, i)
-		{
-			if (Flags & i.first)
-				FinalFlags |= i.second;
-		});
+		unsigned long long FinalFlags = std::accumulate(ALL_CONST_RANGE(FlagsPair), Flags & COLUMN_MULTIPLIER_MASK, [Flags](auto FinalFlags, const auto& i){ return FinalFlags | ((Flags & i.first)? i.second : 0); });
 
 		auto strDestStr = FileSizeToStr(Size, Width, FinalFlags);
 

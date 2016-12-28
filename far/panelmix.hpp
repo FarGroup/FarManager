@@ -49,8 +49,8 @@ string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned lon
 string FormatStr_Size(long long Size, const string& strName,
 	DWORD FileAttributes, DWORD ShowFolderSize, DWORD ReparseTag, int ColumnType,
 	unsigned long long Flags, int Width, const wchar_t* CurDir = nullptr);
-void TextToViewSettings(const string& ColumnTitles, const string& ColumnWidths, std::vector<column>& Destination);
-void ViewSettingsToText(const std::vector<column>& Source, string& strColumnTitles, string& strColumnWidths);
+std::vector<column> DeserialiseViewSettings(const string& ColumnTitles, const string& ColumnWidths);
+std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Columns);
 int GetDefaultWidth(unsigned long long Type);
 
 #endif // PANELMIX_HPP_AF7AAF02_56C0_4E41_B1D9_D1F1A5B4025D

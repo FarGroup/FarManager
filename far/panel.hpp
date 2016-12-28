@@ -71,7 +71,7 @@ struct PanelViewSettings
 	unsigned long long Flags;
 };
 
-enum
+enum panel_view_settings_flags
 {
 	PVS_NONE                  = 0,
 	PVS_FULLSCREEN            = bit(0),
@@ -84,7 +84,13 @@ enum
 
 enum {VIEW_0=0,VIEW_1,VIEW_2,VIEW_3,VIEW_4,VIEW_5,VIEW_6,VIEW_7,VIEW_8,VIEW_9};
 
-enum {UPDATE_KEEP_SELECTION=1,UPDATE_SECONDARY=2,UPDATE_IGNORE_VISIBLE=4,UPDATE_DRAW_MESSAGE=8};
+enum
+{
+	UPDATE_KEEP_SELECTION = bit(0),
+	UPDATE_SECONDARY      = bit(1),
+	UPDATE_IGNORE_VISIBLE = bit(2),
+	UPDATE_DRAW_MESSAGE   = bit(3),
+};
 
 enum class panel_type
 {

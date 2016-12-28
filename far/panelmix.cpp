@@ -295,13 +295,13 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 }
 
 
-void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, std::vector<column>& Columns)
+std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const string& ColumnWidths)
 {
 	// BUGBUG, add error checking
 
-	const wchar_t *TextPtr=ColumnTitles.data();
+	FN_RETURN_TYPE(DeserialiseViewSettings) Columns;
 
-	Columns.clear();
+	const wchar_t *TextPtr=ColumnTitles.data();
 
 	for (;;)
 	{
@@ -468,19 +468,43 @@ void TextToViewSettings(const string& ColumnTitles,const string& ColumnWidths, s
 		NewColumn.type = NAME_COLUMN;
 		Columns.emplace_back(NewColumn);
 	}
+
+	return Columns;
 }
 
 
-void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTitles, string &strColumnWidths)
+std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Columns)
 {
-	strColumnTitles.clear();
-	strColumnWidths.clear();
+	FN_RETURN_TYPE(SerialiseViewSettings) Result;
+	auto& strColumnTitles = Result.first;
+	auto& strColumnWidths = Result.second;
+
+	const auto& GetModeSymbol = [](FILEPANEL_COLUMN_MODES Mode)
+	{
+		switch (Mode)
+		{
+		case COLUMN_MARK:            return L'M';
+		case COLUMN_NAMEONLY:        return L'O';
+		case COLUMN_RIGHTALIGN:      return L'R';
+		case COLUMN_COMMAS:          return L'C';
+		case COLUMN_THOUSAND:        return L'T';
+		case COLUMN_BRIEF:           return L'B';
+		case COLUMN_MONTH:           return L'M';
+		case COLUMN_FLOATSIZE:       return L'F';
+		case COLUMN_ECONOMIC:        return L'E';
+		case COLUMN_FULLOWNER:       return L'L';
+		case COLUMN_NOEXTENSION:     return L'N';
+		case COLUMN_RIGHTALIGNFORCE: return L'F';
+		case COLUMN_MARK_DYNAMIC:    return L'D';
+		default:                     throw MAKE_FAR_EXCEPTION("Unexpected mode");
+		}
+	};
 
 	std::for_each(CONST_RANGE(Columns, i)
 	{
 		string strType;
-		int ColumnType=static_cast<int>(i.type & 0xff);
-		// If ColumnType >= std::size(ColumnSymbol) ==> BUGBUG!!!
+		const auto ColumnType=static_cast<int>(i.type & 0xff);
+
 		if (ColumnType <= CUSTOM_COLUMN0)
 		{
 			strType = ColumnInfo[ColumnType].Symbol;
@@ -490,68 +514,51 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 			strType = L"C" + str(ColumnType - CUSTOM_COLUMN0);
 		}
 
-		if (ColumnType==NAME_COLUMN)
+		const auto& AddFlag = [&](auto Flag)
 		{
-			if (i.type & COLUMN_MARK)
-			{
-				strType += L"M";
-				if (i.type & COLUMN_MARK_DYNAMIC)
-					strType += L"D";
-			}
+			if (!(i.type & Flag))
+				return false;
+			strType += GetModeSymbol(Flag);
+			return true;
+		};
 
-			if (i.type & COLUMN_NAMEONLY)
-				strType += L"O";
-
-			if (i.type & COLUMN_RIGHTALIGN)
-			{
-				strType += L"R";
-				if (i.type & COLUMN_RIGHTALIGNFORCE)
-					strType += L"F";
-			}
-
-			if (i.type & COLUMN_NOEXTENSION)
-				strType += L"N";
-		}
-
-		if (ColumnType==SIZE_COLUMN || ColumnType==PACKED_COLUMN || ColumnType==STREAMSSIZE_COLUMN)
+		switch (ColumnType)
 		{
-			if (i.type & COLUMN_COMMAS)
-				strType += L"C";
+		case NAME_COLUMN:
+			AddFlag(COLUMN_MARK) && AddFlag(COLUMN_MARK_DYNAMIC);
+			AddFlag(COLUMN_NAMEONLY);
+			AddFlag(COLUMN_RIGHTALIGN) && AddFlag(COLUMN_RIGHTALIGNFORCE);
+			AddFlag(COLUMN_NOEXTENSION);
+			break;
 
-			if (i.type & COLUMN_ECONOMIC)
-				strType += L"E";
+		case SIZE_COLUMN:
+		case PACKED_COLUMN:
+		case STREAMSSIZE_COLUMN:
+			AddFlag(COLUMN_COMMAS);
+			AddFlag(COLUMN_ECONOMIC);
+			AddFlag(COLUMN_FLOATSIZE);
+			AddFlag(COLUMN_THOUSAND);
+			break;
 
-			if (i.type & COLUMN_FLOATSIZE)
-				strType += L"F";
+		case WDATE_COLUMN:
+		case ADATE_COLUMN:
+		case CDATE_COLUMN:
+		case CHDATE_COLUMN:
+			AddFlag(COLUMN_BRIEF);
+			AddFlag(COLUMN_MONTH);
+			break;
 
-			if (i.type & COLUMN_THOUSAND)
-				strType += L"T";
-		}
+		case OWNER_COLUMN:
+			AddFlag(COLUMN_FULLOWNER);
+			break;
 
-		if (ColumnType==WDATE_COLUMN || ColumnType==ADATE_COLUMN || ColumnType==CDATE_COLUMN  || ColumnType==CHDATE_COLUMN)
-		{
-			if (i.type & COLUMN_BRIEF)
-				strType += L"B";
+		case EXTENSION_COLUMN:
+			AddFlag(COLUMN_RIGHTALIGN);
+			break;
 
-			if (i.type & COLUMN_MONTH)
-				strType += L"M";
-		}
-
-		if (ColumnType==OWNER_COLUMN)
-		{
-			if (i.type & COLUMN_FULLOWNER)
-				strType += L"L";
-		}
-
-		if (ColumnType==EXTENSION_COLUMN)
-		{
-			if (i.type & COLUMN_RIGHTALIGN)
-				strType += L"R";
-		}
-
-		if (ColumnType==CUSTOM_COLUMN0 && !i.title.empty())
-		{
-			strType = L"<" + i.title + L">";
+		case CUSTOM_COLUMN0:
+			if(!i.title.empty())
+				strType = concat(L'<', i.title, L'>');
 		}
 
 		strColumnTitles += strType;
@@ -573,6 +580,8 @@ void ViewSettingsToText(const std::vector<column>& Columns, string &strColumnTit
 		strColumnTitles.pop_back();
 	if (!strColumnWidths.empty())
 		strColumnWidths.pop_back();
+
+	return Result;
 }
 
 string FormatStr_Attribute(DWORD FileAttributes, size_t Width)

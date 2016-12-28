@@ -766,7 +766,7 @@ int KeyMacro::GetKey()
 
 				Global->ScrBuf->Unlock();
 
-				default_clipboard_mode::set(default_clipboard_mode::system);
+				default_clipboard_mode::set(clipboard_mode::system);
 
 				return 0;
 
@@ -2284,8 +2284,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					case 4: Global->ScrBuf->ResetLockCount(); break;
 					case 5: PassNumber(Global->ScrBuf->GetLockCount(), Data); break;
 					case 6: if (Data->Count > 1) Global->ScrBuf->SetLockCount(Data->Values[1].Double); break;
-					case 7: PassBoolean(default_clipboard_mode::get() == default_clipboard_mode::internal, Data); break;
-					case 8: if (Data->Count > 1) default_clipboard_mode::set(Data->Values[1].Boolean != 0? default_clipboard_mode::internal: default_clipboard_mode::system); break;
+					case 7: PassBoolean(default_clipboard_mode::get() == clipboard_mode::internal, Data); break;
+					case 8: if (Data->Count > 1) default_clipboard_mode::set(Data->Values[1].Boolean != 0? clipboard_mode::internal: clipboard_mode::system); break;
 					case 9: if (Data->Count > 1) PassNumber(KeyNameToKey(Data->Values[1].String), Data); break;
 					case 10:
 						if (Data->Count > 1)
@@ -4232,8 +4232,8 @@ static bool clipFunc(FarMacroCall* Data)
 		case 3: // Copy Win to internal, "S" - ignore
 		case 4: // Copy internal to Win, "S" - ignore
 		{
-			clipboard_accessor ClipSystem(default_clipboard_mode::system);
-			clipboard_accessor ClipInternal(default_clipboard_mode::internal);
+			clipboard_accessor ClipSystem(clipboard_mode::system);
+			clipboard_accessor ClipInternal(clipboard_mode::internal);
 
 			Ret=FALSE;
 
@@ -4257,13 +4257,13 @@ static bool clipFunc(FarMacroCall* Data)
 				auto NewMode = PreviousMode;
 				switch (Action)
 				{
-				case 0: NewMode = NewMode == default_clipboard_mode::system? default_clipboard_mode::internal : default_clipboard_mode::system; break;
-				case 1: NewMode = default_clipboard_mode::system; break;
-				case 2: NewMode = default_clipboard_mode::internal; break;
+				case 0: NewMode = NewMode == clipboard_mode::system? clipboard_mode::internal : clipboard_mode::system; break;
+				case 1: NewMode = clipboard_mode::system; break;
+				case 2: NewMode = clipboard_mode::internal; break;
 				}
 				default_clipboard_mode::set(NewMode);
 			}
-			PassNumber((PreviousMode == default_clipboard_mode::internal? 2 : 1), Data); // 0!  ???
+			PassNumber((PreviousMode == clipboard_mode::internal? 2 : 1), Data); // 0!  ???
 			return Ret != 0;
 		}
 	}

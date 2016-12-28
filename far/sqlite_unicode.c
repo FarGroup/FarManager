@@ -43,6 +43,6 @@ WARNING_DISABLE_GCC("-Wsign-compare")
 
 #include "thirdparty/sqlite/sqlite3_unicode.c"
 
-const char SQLite_Unicode_Version[] = SQLITE3_UNICODE_VERSION_STRING;
+const wchar_t SQLite_Unicode_Version[] = WIDE(SQLITE3_UNICODE_VERSION_STRING);
 
 WARNING_POP()

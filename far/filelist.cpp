@@ -3298,10 +3298,9 @@ void FileList::SetViewMode(int Mode)
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
-		string strColumnTypes,strColumnWidths;
-//    SetScreenPosition();
-		ViewSettingsToText(m_ViewSettings.PanelColumns, strColumnTypes, strColumnWidths);
-		ProcessPluginEvent(FE_CHANGEVIEWMODE, UNSAFE_CSTR(strColumnTypes));
+		//SetScreenPosition();
+		const auto Result = SerialiseViewSettings(m_ViewSettings.PanelColumns);
+		ProcessPluginEvent(FE_CHANGEVIEWMODE, UNSAFE_CSTR(Result.first));
 	}
 }
 
@@ -6368,7 +6367,7 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 
 void FileList::PluginGetColumnTypesAndWidths(string& strColumnTypes,string& strColumnWidths) const
 {
-	ViewSettingsToText(m_ViewSettings.PanelColumns, strColumnTypes, strColumnWidths);
+	std::tie(strColumnTypes, strColumnWidths) = SerialiseViewSettings(m_ViewSettings.PanelColumns);
 }
 
 void FileList::PluginBeginSelection()
@@ -7797,7 +7796,7 @@ static string size2str(ULONGLONG Size, int width, int short_mode = -1)
 	}
 	else if (width <= 0) // float style
 	{
-		auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+		auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
 		RemoveExternalSpaces(str);
 		return str;
 	}
@@ -7806,7 +7805,7 @@ static string size2str(ULONGLONG Size, int width, int short_mode = -1)
 		string Str = str(Size);
 		if (Str.size() > static_cast<size_t>(width))
 		{
-			Str = FileSizeToStr(Size, width, COLUMN_SHOWBYTESINDEX);
+			Str = FileSizeToStr(Size, width, COLUMN_SHOWMULTIPLIER);
 			RemoveExternalSpaces(Str);
 		}
 		return Str;
@@ -7975,12 +7974,12 @@ void FileList::PrepareViewSettings(int ViewMode)
 			m_CachedOpenPanelInfo.PanelModesArray[ViewMode].ColumnTypes &&
 			m_CachedOpenPanelInfo.PanelModesArray[ViewMode].ColumnWidths)
 		{
-			TextToViewSettings(m_CachedOpenPanelInfo.PanelModesArray[ViewMode].ColumnTypes, m_CachedOpenPanelInfo.PanelModesArray[ViewMode].ColumnWidths, m_ViewSettings.PanelColumns);
+			m_ViewSettings.PanelColumns = DeserialiseViewSettings(m_CachedOpenPanelInfo.PanelModesArray[ViewMode].ColumnTypes, m_CachedOpenPanelInfo.PanelModesArray[ViewMode].ColumnWidths);
 
 			if (m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnTypes &&
 				m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnWidths)
 			{
-				TextToViewSettings(m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnTypes, m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnWidths, m_ViewSettings.StatusColumns);
+				m_ViewSettings.StatusColumns = DeserialiseViewSettings(m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnTypes, m_CachedOpenPanelInfo.PanelModesArray[ViewMode].StatusColumnWidths);
 			}
 			else if (m_CachedOpenPanelInfo.PanelModesArray[ViewMode].Flags&PMFLAGS_DETAILEDSTATUS)
 			{

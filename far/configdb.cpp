@@ -68,7 +68,7 @@ public:
 		SetRoot(*root);
 	}
 
-	tinyxml::XMLHandle GetRoot() const { return m_Root; }
+	auto GetRoot() const { return m_Root; }
 
 	void SetRoot(tinyxml::XMLHandle Root) { m_Root = Root; }
 
@@ -102,7 +102,7 @@ public:
 		SetRoot(*root);
 	}
 
-	tinyxml::XMLElement& GetRoot() const { return *m_Root; }
+	auto& GetRoot() const { return *m_Root; }
 
 	void SetRoot(tinyxml::XMLElement& Root) { m_Root = &Root; }
 
@@ -162,7 +162,7 @@ private:
 			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));"
 		;
 
-		static constexpr stmt_init_t Statements[] =
+		static constexpr stmt_init<statement_id> Statements[] =
 		{
 			{ stmtUpdateValue, L"UPDATE general_config SET value=?3 WHERE key=?1 AND name=?2;" },
 			{ stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);" },
@@ -170,7 +170,6 @@ private:
 			{ stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;" },
 			{ stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;" },
 		};
-		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && Exec(Schema)
@@ -350,7 +349,7 @@ private:
 		return true;
 	}
 
-	enum statement_id
+	enum statement_id: size_t
 	{
 		stmtUpdateValue,
 		stmtInsertValue,
@@ -410,7 +409,7 @@ protected:
 			"INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");"
 		;
 
-		static constexpr stmt_init_t Statements[] =
+		static constexpr stmt_init<statement_id> Statements[] =
 		{
 			{ stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);" },
 			{ stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;" },
@@ -422,7 +421,6 @@ protected:
 			{ stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;" },
 			{ stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;" },
 		};
-		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && EnableForeignKeysConstraints()
@@ -786,14 +784,13 @@ private:
 			"CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);"
 		;
 
-		static constexpr stmt_init_t Statements[] =
+		static constexpr stmt_init<statement_id> Statements[] =
 		{
 			{ stmtUpdateValue, L"UPDATE colors SET value=?2 WHERE name=?1;" },
 			{ stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);" },
 			{ stmtGetValue, L"SELECT value FROM colors WHERE name=?1;" },
 			{ stmtDelValue, L"DELETE FROM colors WHERE name=?1;" },
 		};
-		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && Exec(Schema)
@@ -901,7 +898,7 @@ private:
 			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
 		;
 
-		static constexpr stmt_init_t Statements[] =
+		static constexpr stmt_init<statement_id> Statements[] =
 		{
 			{ stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);" },
 			{ stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);" },
@@ -917,7 +914,6 @@ private:
 			{ stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;" },
 			{ stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;" },
 		};
-		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && EnableForeignKeysConstraints()
@@ -1162,7 +1158,7 @@ private:
 			"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"
 		;
 
-		static constexpr stmt_init_t Statements[] =
+		static constexpr stmt_init<statement_id> Statements[] =
 		{
 			{ stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);," },
 			{ stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;" },
@@ -1194,7 +1190,6 @@ private:
 			{ stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;" },
 			{ stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);" },
 		};
-		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local, true)
 		    && SetWALJournalingMode()
@@ -1484,14 +1479,13 @@ private:
 			"CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));"
 			;
 
-		static constexpr stmt_init_t Statements[] =
+		static constexpr stmt_init<statement_id> Statements[] =
 		{
 			{ stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
 			{ stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);" },
 			{ stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
 			{ stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;" },
 		};
-		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local)
 		    && Exec(Schema)
@@ -1690,18 +1684,17 @@ private:
 				decltype(WorkQueue)::value_type item;
 				while (WorkQueue.try_pop(item))
 				{
+					SCOPE_EXIT{ SQLiteDb::EndTransaction(); };
 					if (item) //DeleteAndAddAsync
 					{
 						SQLiteDb::BeginTransaction();
 						if (item->DeleteId)
 							DeleteInternal(item->DeleteId);
 						AddInternal(item->TypeHistory, item->HistoryName, item->strName, item->Type, item->Lock, item->strGuid, item->strFile, item->strData);
-						SQLiteDb::EndTransaction();
 						bAddDelete = true;
 					}
 					else // EndTransaction
 					{
-						SQLiteDb::EndTransaction();
 						bCommit = true;
 					}
 				}
@@ -1777,7 +1770,7 @@ private:
 			"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"
 		;
 
-		static constexpr stmt_init_t Statements[] =
+		static constexpr stmt_init<statement_id> Statements[] =
 		{
 			{ stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;" },
 			{ stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;" },
@@ -1806,7 +1799,6 @@ private:
 			{ stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);" },
 			{ stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);" },
 		};
-		CheckStmt<stmt_count>(Statements);
 
 		return Open(DbName, Local, true)
 		    && SetWALJournalingMode()

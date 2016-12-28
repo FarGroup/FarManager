@@ -377,7 +377,7 @@ void InfoList::DisplayObject()
 		}
 		else
 		{
-			str = FileSizeToStr(Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+			str = FileSizeToStr(Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
 		}
 		return str += bytes_suffix;
 	};

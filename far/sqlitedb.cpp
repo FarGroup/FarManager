@@ -40,19 +40,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "synchro.hpp"
 #include "components.hpp"
-#include "strmix.hpp"
 #include "encoding.hpp"
 
 namespace
 {
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"SQLite"s, encoding::ansi::get_chars(SQLITE_VERSION) };
+		return components::component::info{ L"SQLite"s, WIDE(SQLITE_VERSION) };
 	});
 
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::component::info{ L"SQLite Unicode extension"s, encoding::ansi::get_chars(sqlite_unicode::SQLite_Unicode_Version) };
+		return components::component::info{ L"SQLite Unicode extension"s, sqlite_unicode::SQLite_Unicode_Version };
 	});
 
 	static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
@@ -198,26 +197,18 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 
 bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 {
-	const auto& v1_opener = [](const string& Name, sqlite::sqlite3*& pDb)
+	const auto& v1_opener = [](const string& Name, database_ptr& Db)
 	{
-		return sqlite::sqlite3_open16(Name.data(), &pDb);
+		return sqlite::sqlite3_open16(Name.data(), &ptr_setter(Db)) == SQLITE_OK;
 	};
 
-	const auto& v2_opener = [WAL](const string& Name, sqlite::sqlite3*& pDb)
+	const auto& v2_opener = [WAL](const string& Name, database_ptr& Db)
 	{
-		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).data(), &pDb, WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr);
-	};
-
-	const auto& OpenDatabase = [](database_ptr& Db, const string& Name, const std::function<int(const string&, sqlite::sqlite3*&)>& opener)
-	{
-		sqlite::sqlite3* pDb;
-		const auto Result = opener(Name, pDb);
-		Db.reset(pDb);
-		return Result == SQLITE_OK;
+		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).data(), &ptr_setter(Db), WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK;
 	};
 
 	GetDatabasePath(DbFile, m_Path, Local);
-	bool mem_db = DbFile == L":memory:";
+	const auto mem_db = DbFile == L":memory:";
 
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
@@ -225,7 +216,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		{
 			db_exists = os::fs::is_file(m_Path)? +1 : 0;
 		}
-		if (!OpenDatabase(m_Db, m_Path, v1_opener))
+		if (!v1_opener(m_Path, m_Db))
 			return false;
 
 		sqlite::sqlite3_busy_timeout(m_Db.get(), 1000);
@@ -234,7 +225,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	// copy db to memory
 	//
-	if (!OpenDatabase(m_Db, L":memory:", v1_opener))
+	if (!v1_opener(L":memory:", m_Db))
 		return false;
 
 	bool ok = true, copied = false;
@@ -256,12 +247,12 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 			{
 				os::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 				m_Path = strTmp;
-				ok = OpenDatabase(db_source, m_Path, v1_opener);
+				ok = v1_opener(m_Path, db_source);
 			}
 		}
 		else
 		{
-			ok = OpenDatabase(db_source, m_Path, v2_opener);
+			ok = v2_opener(m_Path, db_source);
 		}
 
 		if (ok)
@@ -348,20 +339,6 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(const wchar_t* Stmt) const
 	return SQLiteStmt(pStmt);
 }
 
-bool SQLiteDb::PrepareStatements(const stmt_init_t* Init, size_t Size)
-{
-	assert(m_Statements.empty());
-
-	m_Statements.reserve(Size);
-	std::transform(Init, Init + Size, std::back_inserter(m_Statements), [this](const auto& i)
-	{
-		assert(i.first == m_Statements.size());
-		// gcc bug, this-> required
-		return this->create_stmt(i.second);
-	});
-	return true;
-}
-
 bool SQLiteDb::Changes() const
 {
 	return sqlite::sqlite3_changes(m_Db.get()) != 0;
@@ -397,5 +374,5 @@ int SQLiteDb::GetLastErrorCode() const
 
 string SQLiteDb::GetLastErrorString() const
 {
-	return encoding::ansi::get_chars(sqlite::sqlite3_errmsg(m_Db.get()));
+	return static_cast<const wchar_t*>(sqlite::sqlite3_errmsg16(m_Db.get()));
 }

@@ -735,14 +735,14 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{
 						//размер как минимум в мегабайтах
-						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_COMMAS | COLUMN_MINSIZEINDEX | 1);
-						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_COMMAS | COLUMN_MINSIZEINDEX | 1);
+						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_COMMAS | COLUMN_MULTIPLIER_M);
+						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_COMMAS | COLUMN_MULTIPLIER_M);
 					}
 					else
 					{
 						//размер с точкой и для 0 добавляем букву размера (B)
-						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
-						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_FLOATSIZE | COLUMN_SHOWBYTESINDEX);
+						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
+						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
 					}
 					RemoveExternalSpaces(NewItem.TotalSize);
 					RemoveExternalSpaces(NewItem.FreeSize);

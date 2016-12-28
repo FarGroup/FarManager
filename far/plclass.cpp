@@ -248,11 +248,11 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 	});
 }
 
-static BOOL PrepareModulePath(const string& ModuleName)
+static void PrepareModulePath(const string& ModuleName)
 {
 	string strModulePath = ModuleName;
 	CutToSlash(strModulePath); //??
-	return FarChDir(strModulePath);
+	FarChDir(strModulePath);
 }
 
 FarStandardFunctions NativeFSF =
@@ -417,9 +417,9 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 	);
 }
 
-static string MakeSignature(const os::FAR_FIND_DATA& Data)
+static auto MakeSignature(const os::FAR_FIND_DATA& Data)
 {
-	return to_hex_wstring(Data.nFileSize) + to_hex_wstring(Data.ftCreationTime.dwLowDateTime) + to_hex_wstring(Data.ftLastWriteTime.dwLowDateTime);
+	return concat(to_hex_wstring(Data.nFileSize), to_hex_wstring(Data.ftCreationTime.dwLowDateTime), to_hex_wstring(Data.ftLastWriteTime.dwLowDateTime));
 }
 
 bool Plugin::SaveToCache()
@@ -434,23 +434,18 @@ bool Plugin::SaveToCache()
 	PlCache->DeleteCache(m_strCacheName);
 	const auto id = PlCache->CreateCache(m_strCacheName);
 
-	{
-		bool bPreload = (Info.Flags & PF_PRELOAD);
-		PlCache->SetPreload(id, bPreload);
-		WorkFlags.Change(PIWF_PRELOADED, bPreload);
+	const bool bPreload = (Info.Flags & PF_PRELOAD);
+	PlCache->SetPreload(id, bPreload);
+	WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
-		if (bPreload)
-		{
-			PlCache->EndTransaction();
-			return true;
-		}
+	if (bPreload)
+	{
+		return true;
 	}
 
-	{
-		os::FAR_FIND_DATA fdata;
-		os::GetFindDataEx(m_strModuleName, fdata);
-		PlCache->SetSignature(id, MakeSignature(fdata));
-	}
+	os::FAR_FIND_DATA fdata;
+	os::GetFindDataEx(m_strModuleName, fdata);
+	PlCache->SetSignature(id, MakeSignature(fdata));
 
 	const auto& SaveItems = [&PlCache, &id](const auto& Setter, const auto& Item)
 	{

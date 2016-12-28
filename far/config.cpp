@@ -1216,23 +1216,34 @@ void Options::SetFilePanelModes()
 			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MCancel)},
 		};
 		auto ModeDlg = MakeDialogItemsEx(ModeDlgData);
-		int ExitCode;
+
 		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
+
+		static constexpr std::pair<ModeItems, panel_view_settings_flags> ModesFlagsMapping[] =
+		{
+			{ MD_CHECKBOX_FULLSCREEN, PVS_FULLSCREEN },
+			{ MD_CHECKBOX_ALIGNFILEEXT, PVS_ALIGNEXTENSIONS },
+			{ MD_CHECKBOX_ALIGNFOLDEREXT, PVS_FOLDERALIGNEXTENSIONS },
+			{ MD_CHECKBOX_FOLDERUPPERCASE, PVS_FOLDERUPPERCASE },
+			{ MD_CHECKBOX_FILESLOWERCASE, PVS_FILELOWERCASE },
+			{ MD_CHECKBOX_UPPERTOLOWERCASE, PVS_FILEUPPERTOLOWERCASE },
+		};
 
 		if (!AddNewMode)
 		{
 			auto& CurrentSettings = ViewSettings[ModeNumber];
 
-			ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected = (CurrentSettings.Flags & PVS_FULLSCREEN) != 0;
-			ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected = (CurrentSettings.Flags & PVS_ALIGNEXTENSIONS) != 0;
-			ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected = (CurrentSettings.Flags & PVS_FOLDERALIGNEXTENSIONS) != 0;
-			ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected = (CurrentSettings.Flags & PVS_FOLDERUPPERCASE) != 0;
-			ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected = (CurrentSettings.Flags & PVS_FILELOWERCASE) != 0;
-			ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected = (CurrentSettings.Flags & PVS_FILEUPPERTOLOWERCASE) != 0;
+			for (const auto& i : ModesFlagsMapping)
+			{
+				ModeDlg[i.first].Selected = CurrentSettings.Flags & i.second? BSTATE_CHECKED : BSTATE_UNCHECKED;
+			}
+
 			ModeDlg[MD_EDITNAME].strData = CurrentSettings.Name;
-			ViewSettingsToText(CurrentSettings.PanelColumns, ModeDlg[MD_EDITTYPES].strData, ModeDlg[MD_EDITWIDTHS].strData);
-			ViewSettingsToText(CurrentSettings.StatusColumns, ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData);
+			std::tie(ModeDlg[MD_EDITTYPES].strData, ModeDlg[MD_EDITWIDTHS].strData) = SerialiseViewSettings(CurrentSettings.PanelColumns);
+			std::tie(ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData) = SerialiseViewSettings(CurrentSettings.StatusColumns);
 		}
+
+		int ExitCode;
 
 		{
 			const auto Dlg = Dialog::create(ModeDlg);
@@ -1249,21 +1260,15 @@ void Options::SetFilePanelModes()
 
 			if (ExitCode == MD_BUTTON_OK)
 			{
-				if (ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected)
-					NewSettings.Flags|=PVS_FULLSCREEN;
-				if (ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected)
-					NewSettings.Flags|=PVS_ALIGNEXTENSIONS;
-				if (ModeDlg[MD_CHECKBOX_ALIGNFOLDEREXT].Selected)
-					NewSettings.Flags|=PVS_FOLDERALIGNEXTENSIONS;
-				if (ModeDlg[MD_CHECKBOX_FOLDERUPPERCASE].Selected)
-					NewSettings.Flags|=PVS_FOLDERUPPERCASE;
-				if (ModeDlg[MD_CHECKBOX_FILESLOWERCASE].Selected)
-					NewSettings.Flags|=PVS_FILELOWERCASE;
-				if (ModeDlg[MD_CHECKBOX_UPPERTOLOWERCASE].Selected)
-					NewSettings.Flags|=PVS_FILEUPPERTOLOWERCASE;
+				for(const auto& i: ModesFlagsMapping)
+				{
+					if (ModeDlg[i.first].Selected == BSTATE_CHECKED)
+						NewSettings.Flags |= i.second;
+				}
+
 				NewSettings.Name = ModeDlg[MD_EDITNAME].strData;
-				TextToViewSettings(ModeDlg[MD_EDITTYPES].strData, ModeDlg[MD_EDITWIDTHS].strData, NewSettings.PanelColumns);
-				TextToViewSettings(ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData, NewSettings.StatusColumns);
+				NewSettings.PanelColumns = DeserialiseViewSettings(ModeDlg[MD_EDITTYPES].strData, ModeDlg[MD_EDITWIDTHS].strData);
+				NewSettings.StatusColumns = DeserialiseViewSettings(ModeDlg[MD_EDITSTATUSTYPES].strData, ModeDlg[MD_EDITSTATUSWIDTHS].strData);
 			}
 			else
 			{
@@ -1278,15 +1283,19 @@ void Options::SetFilePanelModes()
 			{
 				SetViewSettings(ModeNumber, std::move(NewSettings));
 			}
-			Global->CtrlObject->Cp()->LeftPanel()->SortFileList(TRUE);
-			Global->CtrlObject->Cp()->RightPanel()->SortFileList(TRUE);
-			Global->CtrlObject->Cp()->SetScreenPosition();
-			int LeftMode=Global->CtrlObject->Cp()->LeftPanel()->GetViewMode();
-			int RightMode=Global->CtrlObject->Cp()->RightPanel()->GetViewMode();
-			Global->CtrlObject->Cp()->LeftPanel()->SetViewMode(LeftMode);
-			Global->CtrlObject->Cp()->RightPanel()->SetViewMode(RightMode);
-			Global->CtrlObject->Cp()->LeftPanel()->Redraw();
-			Global->CtrlObject->Cp()->RightPanel()->Redraw();
+
+			const auto& Panels = Global->CtrlObject->Cp();
+			const auto& LPanel = Panels->LeftPanel();
+			const auto& RPanel = Panels->RightPanel();
+
+			LPanel->SortFileList(TRUE);
+			RPanel->SortFileList(TRUE);
+			Panels->SetScreenPosition();
+			// ???
+			LPanel->SetViewMode(LPanel->GetViewMode());
+			RPanel->SetViewMode(RPanel->GetViewMode());
+			LPanel->Redraw();
+			RPanel->Redraw();
 		}
 	}
 }
@@ -1525,7 +1534,7 @@ Options::Options():
 	WindowMode(-1),
 	ViewSettings(m_ViewSettings),
 	m_ConfigStrings(),
-	CurrentConfig(cfg_roaming),
+	m_CurrentConfigType(config_type::roaming),
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
 {
@@ -1980,8 +1989,17 @@ void Options::InitConfigData()
 
 	};
 
-	Config.emplace_back(RoamingData, std::size(RoamingData), ConfigProvider().GeneralCfg().get());
-	Config.emplace_back(LocalData, std::size(LocalData), ConfigProvider().LocalGeneralCfg().get());
+	m_Config.emplace_back(RoamingData, std::size(RoamingData), ConfigProvider().GeneralCfg().get());
+	m_Config.emplace_back(LocalData, std::size(LocalData), ConfigProvider().LocalGeneralCfg().get());
+}
+
+Options::farconfig& Options::GetConfig(config_type Type)
+{
+	return m_Config[static_cast<size_t>(Type)];
+}
+const Options::farconfig& Options::GetConfig(config_type Type) const
+{
+	return m_Config[static_cast<size_t>(Type)];
 }
 
 template<class container, class pred>
@@ -1994,7 +2012,7 @@ static const Option* GetConfigValuePtr(const container& Config, const pred& Pred
 const Option* Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name) const
 {
 	// TODO Use local too?
-	return GetConfigValuePtr(Config[cfg_roaming], [&](const auto& i) { return !StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name); });
+	return GetConfigValuePtr(GetConfig(config_type::roaming), [&](const auto& i) { return !StrCmpI(i.KeyName, Key) && !StrCmpI(i.ValName, Name); });
 }
 
 const Option* Options::GetConfigValue(size_t Root, const wchar_t* Name) const
@@ -2003,12 +2021,12 @@ const Option* Options::GetConfigValue(size_t Root, const wchar_t* Name) const
 		return nullptr;
 
 	// TODO Use local too?
-	return GetConfigValuePtr(Config[cfg_roaming], [&](const FARConfigItem& i) { return Root == i.ApiRoot && !StrCmpI(i.ValName, Name); });
+	return GetConfigValuePtr(GetConfig(config_type::roaming), [&](const FARConfigItem& i) { return Root == i.ApiRoot && !StrCmpI(i.ValName, Name); });
 }
 
 void Options::InitConfig()
 {
-	if(Config.empty())
+	if(m_Config.empty())
 	{
 		InitConfigData();
 	}
@@ -2018,11 +2036,10 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 {
 	if (!Columns.empty())
 	{
-		TextToViewSettings(Columns, Widths, Global->Opt->FindOpt.OutColumns);
-		string NewColumns, NewWidths;
-		ViewSettingsToText(Global->Opt->FindOpt.OutColumns, NewColumns, NewWidths);
-		Global->Opt->FindOpt.strSearchOutFormat = NewColumns;
-		Global->Opt->FindOpt.strSearchOutFormatWidth = NewWidths;
+		Global->Opt->FindOpt.OutColumns = DeserialiseViewSettings(Columns, Widths);
+		auto Result = SerialiseViewSettings(Global->Opt->FindOpt.OutColumns);
+		Global->Opt->FindOpt.strSearchOutFormat = Result.first;
+		Global->Opt->FindOpt.strSearchOutFormatWidth = Result.second;
 	}
 }
 
@@ -2072,7 +2089,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	*/
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-	for (auto& i: Config)
+	for (auto& i: m_Config)
 	{
 		const auto Cfg = i.GetConfig();
 		for(const auto& j: i)
@@ -2138,7 +2155,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 /* *************************************************** </ПОСТПРОЦЕССЫ> */
 
 	// we assume that any changes after this point will be made by the user
-	std::for_each(RANGE(Config, i)
+	std::for_each(RANGE(m_Config, i)
 	{
 		std::for_each(RANGE(i, j)
 		{
@@ -2189,15 +2206,15 @@ void Options::Save(bool Manual)
 
 	Palette.Save(Manual);
 
-	std::for_each(CONST_RANGE(Config, i)
+	for (const auto& Config: m_Config)
 	{
-		const auto Cfg = i.GetConfig();
-		SCOPED_ACTION(auto)(Cfg->ScopedTransaction());
-		std::for_each(CONST_RANGE(i, j)
+		const auto ConfigStorage = Config.GetConfig();
+		SCOPED_ACTION(auto)(ConfigStorage->ScopedTransaction());
+		for (const auto& Item: Config)
 		{
-			j.Value->StoreValue(Cfg, j.KeyName, j.ValName, Manual);
-		});
-	});
+			Item.Value->StoreValue(ConfigStorage, Item.KeyName, Item.ValName, Manual);
+		}
+	}
 
 	FileFilter::Save(Manual);
 	SavePanelModes(Manual);
@@ -2206,6 +2223,8 @@ void Options::Save(bool Manual)
 
 intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
+	auto& CurrentConfig = GetConfig(m_CurrentConfigType);
+
 	switch (Msg)
 	{
 	case DN_RESIZECONSOLE:
@@ -2230,10 +2249,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						FarListInfo ListInfo = {sizeof(ListInfo)};
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
-						string HelpTopic = string(Config[CurrentConfig][ListInfo.SelectPos].KeyName) + L"." + Config[CurrentConfig][ListInfo.SelectPos].ValName;
+						string HelpTopic = string(CurrentConfig[ListInfo.SelectPos].KeyName) + L"." + CurrentConfig[ListInfo.SelectPos].ValName;
 						if (Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR)->GetError())
 						{
-							HelpTopic = string(Config[CurrentConfig][ListInfo.SelectPos].KeyName) + L"Settings";
+							HelpTopic = string(CurrentConfig[ListInfo.SelectPos].KeyName) + L"Settings";
 							Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						}
 					}
@@ -2297,11 +2316,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			FarListInfo ListInfo = {sizeof(ListInfo)};
 			Dlg->SendMessage(DM_LISTINFO, 0, &ListInfo);
 
-			if (Config[CurrentConfig][ListInfo.SelectPos].Edit(Param1 != 0))
+			if (CurrentConfig[ListInfo.SelectPos].Edit(Param1 != 0))
 			{
 				Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
 				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
-				flu.Item = Config[CurrentConfig][ListInfo.SelectPos].MakeListItem((*m_ConfigStrings)[ListInfo.SelectPos]);
+				flu.Item = CurrentConfig[ListInfo.SelectPos].MakeListItem((*m_ConfigStrings)[ListInfo.SelectPos]);
 				Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
 				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
 				Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
@@ -2317,10 +2336,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool Options::AdvancedConfig(farconfig_mode Mode)
+bool Options::AdvancedConfig(config_type Mode)
 {
-	CurrentConfig = Mode;
-
+	m_CurrentConfigType = Mode;
+	auto& CurrentConfig = GetConfig(m_CurrentConfigType);
+		
 	int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
 	FarDialogItem AdvancedConfigDlgData[]=
 	{
@@ -2329,11 +2349,11 @@ bool Options::AdvancedConfig(farconfig_mode Mode)
 	auto AdvancedConfigDlg = MakeDialogItemsEx(AdvancedConfigDlgData);
 
 	std::vector<FarListItem> items;
-	items.reserve(Config[CurrentConfig].size());
-	std::vector<string> Strings(Config[CurrentConfig].size());
+	items.reserve(CurrentConfig.size());
+	std::vector<string> Strings(CurrentConfig.size());
 	m_ConfigStrings = &Strings;
 	SCOPE_EXIT{ m_ConfigStrings = nullptr; };
-	const auto ConfigData = zip(Config[CurrentConfig], Strings);
+	const auto ConfigData = zip(CurrentConfig, Strings);
 	std::transform(ALL_CONST_RANGE(ConfigData), std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
 
 	FarList Items={sizeof(FarList), items.size(), items.data()};
@@ -2406,10 +2426,10 @@ void Options::ReadPanelModes()
 		cfg->GetValue(Key, ModesNameName, i.Name);
 
 		if (!strColumnTitles.empty())
-			TextToViewSettings(strColumnTitles, strColumnWidths, i.PanelColumns);
+			i.PanelColumns = DeserialiseViewSettings(strColumnTitles, strColumnWidths);
 
 		if (!strStatusColumnTitles.empty())
-			TextToViewSettings(strStatusColumnTitles, strStatusColumnWidths, i.StatusColumns);
+			i.StatusColumns = DeserialiseViewSettings(strStatusColumnTitles, strStatusColumnWidths);
 
 		i.Flags = Flags;
 
@@ -2446,19 +2466,16 @@ void Options::SavePanelModes(bool always)
 
 	const auto& SaveMode = [&](const auto& i, size_t Index)
 	{
-		string strColumnTitles, strColumnWidths;
-		string strStatusColumnTitles, strStatusColumnWidths;
-
-		ViewSettingsToText(i.PanelColumns, strColumnTitles, strColumnWidths);
-		ViewSettingsToText(i.StatusColumns, strStatusColumnTitles, strStatusColumnWidths);
+		const auto PanelResult = SerialiseViewSettings(i.PanelColumns);
+		const auto StatusResult = SerialiseViewSettings(i.StatusColumns);
 
 		if(const auto Key = cfg->CreateKey(root, str(Index)))
 		{
 			cfg->SetValue(Key, ModesNameName, i.Name);
-			cfg->SetValue(Key, ModesColumnTitlesName, strColumnTitles);
-			cfg->SetValue(Key, ModesColumnWidthsName, strColumnWidths);
-			cfg->SetValue(Key, ModesStatusColumnTitlesName, strStatusColumnTitles);
-			cfg->SetValue(Key, ModesStatusColumnWidthsName, strStatusColumnWidths);
+			cfg->SetValue(Key, ModesColumnTitlesName, PanelResult.first);
+			cfg->SetValue(Key, ModesColumnWidthsName, PanelResult.second);
+			cfg->SetValue(Key, ModesStatusColumnTitlesName, StatusResult.first);
+			cfg->SetValue(Key, ModesStatusColumnWidthsName, StatusResult.second);
 			cfg->SetValue(Key, ModesFlagsName, i.Flags);
 		}
 	};

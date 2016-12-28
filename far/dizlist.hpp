@@ -55,13 +55,16 @@ public:
 private:
 	struct hasher { size_t operator()(const string& Key) const; };
 	struct key_equal { bool operator()(const string& a, const string& b) const; };
-	using desc_map = std::unordered_multimap<string, std::list<string>, hasher, key_equal>;
+
+	using description_data = std::list<string>;
+	using desc_map = std::unordered_multimap<string, description_data, hasher, key_equal>;
 
 	desc_map::iterator Insert(const string& Name);
 	desc_map::iterator Find(const string& Name, const string& ShortName);
 	desc_map::const_iterator Find(const string& Name, const string& ShortName) const;
 
 	desc_map m_DizData;
+	std::list<description_data> m_RemovedEntries;
 	std::list<desc_map::value_type*> m_OrderForWrite;
 	string m_DizFileName;
 	uintptr_t m_CodePage;

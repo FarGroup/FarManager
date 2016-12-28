@@ -65,22 +65,24 @@ enum FILEPANEL_COLUMN_MODES: unsigned long long
 	COLUMN_MARK                   = 0x8000000000000000LL,
 	COLUMN_NAMEONLY               = 0x4000000000000000LL,
 	COLUMN_RIGHTALIGN             = 0x2000000000000000LL,
-	COLUMN_FORMATTED              = 0x1000000000000000LL,
 	COLUMN_COMMAS                 = 0x0800000000000000LL, // Вставлять разделитель между тысячами
 	COLUMN_THOUSAND               = 0x0400000000000000LL, // Вместо делителя 1024 использовать делитель 1000
 	COLUMN_BRIEF                  = 0x0200000000000000LL,
 	COLUMN_MONTH                  = 0x0100000000000000LL,
 	COLUMN_FLOATSIZE              = 0x0080000000000000LL, // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
 	COLUMN_ECONOMIC               = 0x0040000000000000LL, // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
-	COLUMN_MINSIZEINDEX           = 0x0020000000000000LL, // Минимально допустимый индекс при форматировании
-	COLUMN_SHOWBYTESINDEX         = 0x0010000000000000LL, // Показывать суффиксы B,K,M,G,T,P,E
+	COLUMN_SHOWMULTIPLIER         = 0x0010000000000000LL, // Показывать суффиксы B,K,M,G,T,P,E
 	COLUMN_FULLOWNER              = 0x0008000000000000LL,
 	COLUMN_NOEXTENSION            = 0x0004000000000000LL,
-	COLUMN_CENTERALIGN            = 0x0002000000000000LL,
 	COLUMN_RIGHTALIGNFORCE        = 0x0001000000000000LL,
 	COLUMN_MARK_DYNAMIC           = 0x0000800000000000LL,
 
-	COLUMN_MINSIZEINDEX_MASK      = 0x0000000000000003LL  // MINSIZEINDEX может быть только 0, 1, 2 или 3 (K,M,G,T), например, 1 - "размер как минимум в мегабайтах"
+	COLUMN_USE_MULTIPLIER         = 0x0020000000000000LL, // Минимально допустимый множитель при форматировании
+	COLUMN_MULTIPLIER_K           = COLUMN_USE_MULTIPLIER | 0,
+	COLUMN_MULTIPLIER_M           = COLUMN_USE_MULTIPLIER | 1,
+	COLUMN_MULTIPLIER_G           = COLUMN_USE_MULTIPLIER | 2,
+	COLUMN_MULTIPLIER_T           = COLUMN_USE_MULTIPLIER | 3,
+	COLUMN_MULTIPLIER_MASK        = 0x0000000000000003LL  // может быть только 0, 1, 2 или 3 (K,M,G,T), например, 1 - "размер как минимум в мегабайтах"
 };
 
 enum col_width

@@ -266,10 +266,10 @@ public:
 
 class Options: noncopyable
 {
-	enum farconfig_mode
+	enum class config_type
 	{
-		cfg_roaming,
-		cfg_local,
+		roaming,
+		local,
 	};
 
 public:
@@ -283,7 +283,7 @@ public:
 	void Save(bool Manual);
 	const Option* GetConfigValue(const wchar_t *Key, const wchar_t *Name) const;
 	const Option* GetConfigValue(size_t Root, const wchar_t* Name) const;
-	bool AdvancedConfig(farconfig_mode Mode = cfg_roaming);
+	bool AdvancedConfig(config_type Mode = config_type::roaming);
 	void LocalViewerConfig(ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
 	static void SetSearchColumns(const string& Columns, const string& Widths);
@@ -865,6 +865,8 @@ public:
 private:
 	void InitConfig();
 	void InitConfigData();
+	farconfig& GetConfig(config_type Type);
+	const farconfig& GetConfig(config_type Type) const;
 	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void SystemSettings();
 	void PanelSettings();
@@ -889,9 +891,9 @@ private:
 	void ReadPanelModes();
 	void SavePanelModes(bool always);
 
-	std::vector<farconfig> Config;
+	std::vector<farconfig> m_Config;
 	std::vector<string>* m_ConfigStrings;
-	farconfig_mode CurrentConfig;
+	config_type m_CurrentConfigType;
 	std::vector<PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };

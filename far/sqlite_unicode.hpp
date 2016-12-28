@@ -39,7 +39,7 @@ namespace sqlite_unicode
 using namespace sqlite;
 #include "thirdparty/sqlite/sqlite3_unicode.h"
 
-extern "C" const char SQLite_Unicode_Version[];
+extern "C" const wchar_t SQLite_Unicode_Version[];
 }
 
 #endif // SQLITE_UNICODE_HPP_0E8E028C_E38A_4397_BD3E_849A86B5D8A5

@@ -35,21 +35,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+enum class clipboard_mode
+{
+	system,
+	internal
+};
+
 class default_clipboard_mode
 {
 public:
-	enum mode { system, internal };
-	static void set(mode Mode);
-	static mode get();
+	static void set(clipboard_mode Mode);
+	static clipboard_mode get();
 
 private:
-	static mode m_Mode;
+	static clipboard_mode m_Mode;
 };
 
 class Clipboard
 {
 public:
-	static Clipboard& GetInstance(default_clipboard_mode::mode Mode);
+	static Clipboard& GetInstance(clipboard_mode Mode);
 	virtual ~Clipboard() = default;
 
 	virtual bool Open() = 0;
@@ -70,7 +75,7 @@ public:
 	bool GetVText(string& data) const;
 
 protected:
-	enum class clipboard_format: unsigned;
+	enum class clipboard_format;
 
 	bool m_Opened {};
 
@@ -86,7 +91,7 @@ private:
 class clipboard_accessor:noncopyable
 {
 public:
-	clipboard_accessor(default_clipboard_mode::mode Mode = default_clipboard_mode::get()): m_Clipboard(Clipboard::GetInstance(Mode)) {}
+	clipboard_accessor(clipboard_mode Mode = default_clipboard_mode::get()): m_Clipboard(Clipboard::GetInstance(Mode)) {}
 	~clipboard_accessor() { m_Clipboard.Close(); }
 	auto operator->() const { return &m_Clipboard; }
 

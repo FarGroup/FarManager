@@ -121,22 +121,33 @@ protected:
 
 	using auto_statement = std::unique_ptr<SQLiteStmt, statement_reset>;
 
-	using stmt_init_t = std::pair<size_t, const wchar_t*>;
+	template<typename T>
+	using stmt_init = std::pair<T, const wchar_t*>;
 
 	template<class T>
 	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
-	template<size_t ExpectedSize, class T, size_t N>
-	static void CheckStmt(const T(&)[N])
-	{
-		TERSE_STATIC_ASSERT(N == ExpectedSize);
-	}
-
 	bool Open(const string& DbName, bool Local, bool WAL=false);
 	void Initialize(const string& DbName, bool Local = false);
 	SQLiteStmt create_stmt(const wchar_t *Stmt) const;
-	template<size_t N>
-	bool PrepareStatements(const stmt_init_t (&Init)[N]) { return PrepareStatements(Init, N); }
+
+	template<typename T, size_t N>
+	bool PrepareStatements(const stmt_init<T> (&Init)[N])
+	{
+		TERSE_STATIC_ASSERT(N == T::stmt_count);
+
+		assert(m_Statements.empty());
+
+		m_Statements.reserve(N);
+		std::transform(ALL_CONST_RANGE(Init), std::back_inserter(m_Statements), [this](const auto& i)
+		{
+			assert(i.first == m_Statements.size());
+			// gcc bug, this-> required
+			return this->create_stmt(i.second);
+		});
+		return true;
+	}
+
 	bool Exec(const char *Command) const;
 	bool SetWALJournalingMode() const;
 	bool EnableForeignKeysConstraints() const;
@@ -165,7 +176,6 @@ protected:
 private:
 	void Close();
 	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;
-	bool PrepareStatements(const stmt_init_t* Init, size_t Size);
 
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };
 	using database_ptr = std::unique_ptr<sqlite::sqlite3, db_closer>;
