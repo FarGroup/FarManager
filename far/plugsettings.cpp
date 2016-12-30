@@ -203,10 +203,9 @@ int PluginSettings::Get(FarSettingsItem& Item)
 
 static wchar_t* AddString(const string& String)
 {
-	const auto result = new wchar_t[String.size() + 1];
-	std::copy(ALL_CONST_RANGE(String), result);
-	result[String.size()] = 0;
-	return result;
+	auto result = std::make_unique<wchar_t[]>(String.size() + 1);
+	*std::copy(ALL_CONST_RANGE(String), result.get()) = L'\0';
+	return result.release();
 }
 
 class PluginSettings::FarSettingsNameItems

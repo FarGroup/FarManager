@@ -303,6 +303,7 @@ protected:
 		try
 		{
 			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(Exports[T::export_id::value].first), std::forward<args>(Args)...);
+			RethrowIfNeeded(GlobalExceptionPtr());
 		}
 		catch (const std::exception& e)
 		{

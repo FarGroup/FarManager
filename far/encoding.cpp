@@ -51,6 +51,7 @@ private:
 	friend class system_codepages_enumerator;
 
 	cp_map m_InstalledCp;
+	std::exception_ptr m_ExceptionPtr;
 };
 
 class system_codepages_enumerator
@@ -60,38 +61,45 @@ public:
 
 	static BOOL CALLBACK enum_cp(wchar_t *cpNum)
 	{
-		const auto cp = static_cast<UINT>(std::wcstoul(cpNum, nullptr, 10));
-		if (cp == CP_UTF8)
-			return TRUE; // skip standard unicode
-
-		CPINFOEX cpix;
-		if (!GetCPInfoEx(cp, 0, &cpix))
+		try
 		{
-			CPINFO cpi;
-			if (!GetCPInfo(cp, &cpi))
-				return TRUE;
+			const auto cp = static_cast<UINT>(std::wcstoul(cpNum, nullptr, 10));
+			if (cp == CP_UTF8)
+				return TRUE; // skip standard unicode
 
-			cpix.MaxCharSize = cpi.MaxCharSize;
-			xwcsncpy(cpix.CodePageName, cpNum, std::size(cpix.CodePageName));
-		}
-		if (cpix.MaxCharSize > 0)
-		{
-			string cp_data(cpix.CodePageName);
-			// Windows: "XXXX (Name)", Wine: "Name"
-			const auto OpenBracketPos = cp_data.find(L"(");
-			if (OpenBracketPos != string::npos)
+			CPINFOEX cpix;
+			if (!GetCPInfoEx(cp, 0, &cpix))
 			{
-				const auto CloseBracketPos = cp_data.rfind(L")");
-				if (CloseBracketPos != string::npos && CloseBracketPos > OpenBracketPos)
-				{
-					cp_data = cp_data.substr(OpenBracketPos + 1, CloseBracketPos - OpenBracketPos - 1);
-				}
+				CPINFO cpi;
+				if (!GetCPInfo(cp, &cpi))
+					return TRUE;
+
+				cpix.MaxCharSize = cpi.MaxCharSize;
+				xwcsncpy(cpix.CodePageName, cpNum, std::size(cpix.CodePageName));
 			}
-			context->insert(cp, cpix.MaxCharSize, cp_data);
+			if (cpix.MaxCharSize > 0)
+			{
+				string cp_data(cpix.CodePageName);
+				// Windows: "XXXX (Name)", Wine: "Name"
+				const auto OpenBracketPos = cp_data.find(L"(");
+				if (OpenBracketPos != string::npos)
+				{
+					const auto CloseBracketPos = cp_data.rfind(L")");
+					if (CloseBracketPos != string::npos && CloseBracketPos > OpenBracketPos)
+					{
+						cp_data = cp_data.substr(OpenBracketPos + 1, CloseBracketPos - OpenBracketPos - 1);
+					}
+				}
+				context->insert(cp, cpix.MaxCharSize, cp_data);
+			}
+
+			return TRUE;
 		}
-
-		return TRUE;
-
+		catch(...)
+		{
+			context->m_ExceptionPtr = std::current_exception();
+			return FALSE;
+		}
 	}
 };
 
@@ -102,6 +110,7 @@ installed_codepages::installed_codepages()
 	system_codepages_enumerator::context = this;
 	EnumSystemCodePages(system_codepages_enumerator::enum_cp, CP_INSTALLED);
 	system_codepages_enumerator::context = nullptr;
+	RethrowIfNeeded(m_ExceptionPtr);
 }
 
 const cp_map& InstalledCodepages()

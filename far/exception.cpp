@@ -44,3 +44,22 @@ error_codes::error_codes(ignore):
 	Win32Error(ERROR_SUCCESS),
 	NtError(STATUS_SUCCESS)
 {}
+
+std::exception_ptr& GlobalExceptionPtr()
+{
+	static std::exception_ptr ExceptionPtr;
+	return ExceptionPtr;
+}
+
+void StoreGlobalException()
+{
+	GlobalExceptionPtr() = std::current_exception();
+}
+
+void RethrowIfNeeded(std::exception_ptr& Ptr)
+{
+	if (Ptr)
+	{
+		std::rethrow_exception(std::exchange(Ptr, {}));
+	}
+}

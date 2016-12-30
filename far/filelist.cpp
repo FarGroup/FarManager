@@ -290,7 +290,11 @@ const string& FileListItem::Owner(const FileList* Owner) const
 	{
 		if (Owner->GetMode() == panel_mode::NORMAL_PANEL)
 		{
-			GetFileOwner(Owner->GetComputerName(), GetItemFullName(*this, Owner), m_Owner);
+			if (!GetFileOwner(Owner->GetComputerName(), GetItemFullName(*this, Owner), m_Owner))
+			{
+				// One try is enough
+				m_Owner.clear();
+			}
 		}
 		else
 		{

@@ -54,7 +54,12 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 		wchar_t_ptr DomainName(DomainLength);
 		if(LookupAccountSid(Computer.data(), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
 		{
-			Name.assign(DomainName.get(), DomainLength).append(1, L'\\').append(AccountName.get(), AccountLength);
+			Name.clear();
+			if (DomainLength)
+			{
+				Name.assign(DomainName.get(), DomainLength).append(1, L'\\');
+			}
+			Name.append(AccountName.get(), AccountLength);
 			Result = true;
 		}
 	}
@@ -124,30 +129,43 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	return Result;
 }
 
+// TODO: elevation
 bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 {
-	bool Result=false;
-
-	strOwner.clear();
-	SECURITY_INFORMATION si=OWNER_SECURITY_INFORMATION|GROUP_SECURITY_INFORMATION;;
-	DWORD LengthNeeded=0;
+	const SECURITY_INFORMATION si = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION;;
 	NTPath strName(Name);
-	static thread_local char sddata[64 * 1024];
-	const auto sd = reinterpret_cast<SECURITY_DESCRIPTOR*>(sddata);
+	static thread_local char StaticBuffer[64 * 1024];
+	block_ptr<SECURITY_DESCRIPTOR> DynamicBuffer;
+	auto Buffer = reinterpret_cast<SECURITY_DESCRIPTOR*>(StaticBuffer);
+	auto BufferSize = std::size(StaticBuffer);
 
-	if (GetFileSecurity(strName.data(),si,sd,sizeof(sddata),&LengthNeeded) && LengthNeeded<=sizeof(sddata))
+	for (;;)
 	{
-		PSID pOwner;
-		BOOL OwnerDefaulted;
-		if (GetSecurityDescriptorOwner(sd,&pOwner,&OwnerDefaulted))
+		DWORD LengthNeeded = 0;
+		if (GetFileSecurity(strName.data(), si, Buffer, static_cast<DWORD>(BufferSize), &LengthNeeded))
+			break;
+
+		if (LengthNeeded > BufferSize)
 		{
-			if (IsValidSid(pOwner))
-			{
-				Result = SidToNameCached(pOwner, strOwner, Computer);
-			}
+			BufferSize = LengthNeeded;
+			DynamicBuffer.reset(BufferSize);
+			Buffer = DynamicBuffer.get();
+		}
+		else
+		{
+			return false;
 		}
 	}
-	return Result;
+
+	PSID pOwner;
+	BOOL OwnerDefaulted;
+	if (!GetSecurityDescriptorOwner(Buffer, &pOwner, &OwnerDefaulted))
+		return false;
+
+	if (!IsValidSid(pOwner))
+		return false;
+
+	return SidToNameCached(pOwner, strOwner, Computer);
 }
 
 bool SetOwnerInternal(const string& Object, const string& Owner)

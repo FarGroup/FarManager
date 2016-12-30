@@ -111,7 +111,7 @@ namespace os
 
 	using sid_ptr = std::unique_ptr<std::remove_pointer_t<PSID>, detail::sid_deleter>;
 
-	inline sid_ptr make_sid(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
+	inline auto make_sid(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
 	{
 		PSID Sid;
 		return sid_ptr(AllocateAndInitializeSid(IdentifierAuthority, SubAuthorityCount, SubAuthority0, SubAuthority1, SubAuthority2, SubAuthority3, SubAuthority4, SubAuthority5, SubAuthority6, SubAuthority7, &Sid)? Sid : nullptr);
@@ -162,6 +162,7 @@ namespace os
 	bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 	bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 	string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
+	bool GetWindowText(HWND Hwnd, string& Text);
 	bool IsWow64Process();
 	DWORD GetAppPathsRedirectionFlag();
 
@@ -594,8 +595,7 @@ namespace os
 				{
 					if (const auto Copy = lock<wchar_t*>(Memory))
 					{
-						std::copy_n(Data, Size, Copy.get());
-						Copy.get()[Size] = L'\0';
+						*std::copy_n(Data, Size, Copy.get()) = L'\0';
 						return Memory;
 					}
 				}

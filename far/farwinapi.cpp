@@ -1738,6 +1738,22 @@ string GetPrivateProfileString(const string& AppName, const string& KeyName, con
 	return string(Buffer.get(), size);
 }
 
+bool GetWindowText(HWND Hwnd, string& Text)
+{
+	return ApiDynamicStringReceiver(Text, [&](wchar_t* Buffer, size_t Size)
+	{
+		size_t Length = ::GetWindowTextLength(Hwnd);
+
+			if (!Length)
+			return Length;
+
+		if (Length + 1 > Size)
+			return Length + 1;
+
+		return static_cast<size_t>(::GetWindowText(Hwnd, Buffer, static_cast<int>(Size)));
+	});
+}
+
 bool IsWow64Process()
 {
 #ifdef _WIN64
@@ -2097,4 +2113,3 @@ bool StrToGuid(const wchar_t* Value, GUID& Guid)
 {
 	return UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Value)), &Guid) == RPC_S_OK;
 }
-

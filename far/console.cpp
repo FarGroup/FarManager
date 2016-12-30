@@ -168,15 +168,9 @@ virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const override
 virtual string GetPhysicalTitle() const override
 {
 	// Don't use GetConsoleTitle here, it's buggy.
-
-	if (int Length = GetWindowTextLength(GetWindow()))
-	{
-		std::vector<wchar_t> Buffer(Length + 1);
-		GetWindowText(GetWindow(), Buffer.data(), Length + 1);
-		return string(Buffer.data(), Length);
-	}
-
-	return {};
+	string Title;
+	os::GetWindowText(GetWindow(), Title);
+	return Title;
 }
 
 virtual string GetTitle() const override

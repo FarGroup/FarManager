@@ -1665,6 +1665,7 @@ private:
 
 	void ThreadProc()
 	{
+		// TODO: try/catch & exception_ptr
 		MultiWaiter Waiter;
 		Waiter.Add(AsyncWork);
 		Waiter.Add(StopEvent);

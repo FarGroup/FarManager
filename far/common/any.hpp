@@ -97,7 +97,7 @@ public:
 		return *this;
 	}
 
-	bool empty() const noexcept { return m_Data != nullptr; }
+	bool has_value() const noexcept { return m_Data != nullptr; }
 
 	template<class T>
 	friend T* any_cast(any* Any) noexcept

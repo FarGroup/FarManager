@@ -38,76 +38,84 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "notification.hpp"
 
+static std::exception_ptr* WndProcExceptionPtr;
 static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-	switch(Msg)
+	try
 	{
-	case WM_CLOSE:
-		DestroyWindow(Hwnd);
-		break;
-
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-
-	case WM_DEVICECHANGE:
+		switch (Msg)
 		{
-			//bool Arrival=false;
-			switch(wParam)
+		case WM_CLOSE:
+			DestroyWindow(Hwnd);
+			break;
+
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			break;
+
+		case WM_DEVICECHANGE:
 			{
-			case DBT_DEVICEARRIVAL:
-				//Arrival=true;
-			case DBT_DEVICEREMOVECOMPLETE:
+				//bool Arrival=false;
+				switch (wParam)
 				{
-
-					const auto Pbh = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
-					if(Pbh->dbch_devicetype==DBT_DEVTYP_VOLUME)
+				case DBT_DEVICEARRIVAL:
+					//Arrival=true;
+				case DBT_DEVICEREMOVECOMPLETE:
 					{
-						// currently we don't care what actually happened, "just a notification" is OK
 
-						//const auto Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
-						//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
-						MessageManager().notify(update_devices);
+						const auto Pbh = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
+						if (Pbh->dbch_devicetype == DBT_DEVTYP_VOLUME)
+						{
+							// currently we don't care what actually happened, "just a notification" is OK
+
+							//const auto Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
+							//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
+							MessageManager().notify(update_devices);
+						}
+					}
+					break;
+
+				}
+			}
+			break;
+
+		case WM_SETTINGCHANGE:
+			if (lParam)
+			{
+				if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam), L"Environment"))
+				{
+					if (Global->Opt->UpdateEnvironment)
+					{
+						MessageManager().notify(update_environment);
 					}
 				}
-				break;
-
-			}
-		}
-		break;
-
-	case WM_SETTINGCHANGE:
-		if(lParam)
-		{
-			if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
-			{
-				if (Global->Opt->UpdateEnvironment) 
+				else if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam), L"intl"))
 				{
-					MessageManager().notify(update_environment);
+					MessageManager().notify(update_intl);
 				}
 			}
-			else if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"intl"))
-			{
-				MessageManager().notify(update_intl);
-			}
-		}
-		break;
-
-	case WM_POWERBROADCAST:
-		switch(wParam)
-		{
-		case PBT_APMPOWERSTATUSCHANGE: // change status
-
-		case PBT_POWERSETTINGCHANGE:   // change percent
-			MessageManager().notify(update_power);
 			break;
-		// TODO:
-		// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
+
+		case WM_POWERBROADCAST:
+			switch (wParam)
+			{
+			case PBT_APMPOWERSTATUSCHANGE: // change status
+
+			case PBT_POWERSETTINGCHANGE:   // change percent
+				MessageManager().notify(update_power);
+				break;
+			// TODO:
+			// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
+
+			}
+
+			break;
 
 		}
-
-		break;
-
+	}
+	catch(...)
+	{
+		*WndProcExceptionPtr = std::current_exception();
 	}
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
@@ -132,6 +140,7 @@ void wm_listener::Check()
 {
 	if (!m_Thread.joinable() || m_Thread.Signaled())
 	{
+		RethrowIfNeeded(m_ExceptionPtr);
 		Event ReadyEvent(Event::automatic, Event::nonsignaled);
 		m_Thread = Thread(&Thread::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
 		ReadyEvent.Wait();
@@ -159,7 +168,8 @@ void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 	SCOPE_EXIT{ if (hpn) Imports().UnregisterPowerSettingNotification(hpn); };
 
 	MSG Msg;
-	while(!m_exitEvent.Signaled() && GetMessage(&Msg, nullptr, 0, 0) > 0)
+	WndProcExceptionPtr = &m_ExceptionPtr;
+	while(!m_exitEvent.Signaled() && !m_ExceptionPtr && GetMessage(&Msg, nullptr, 0, 0) > 0)
 	{
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);

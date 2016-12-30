@@ -7178,7 +7178,7 @@ void Editor::SetEditBeyondEnd(int Mode)
 {
 }
 
-void Editor::SetClearFlag(int Flag)
+void Editor::SetClearFlag(bool Flag)
 {
 }
 

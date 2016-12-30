@@ -3540,16 +3540,33 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 
 	m_FileHandleForStreamSizeFix = nullptr;
 
+	struct callback_data
+	{
+		ShellCopy* Owner;
+		std::exception_ptr ExceptionPtr;
+	};
+
 	struct callback_wrapper
 	{
-		static DWORD WINAPI callback(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile, LPVOID Data)
+		static DWORD CALLBACK callback(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile, LPVOID Data)
 		{
-			return static_cast<ShellCopy*>(Data)->CopyProgressRoutine(TotalFileSize.QuadPart, TotalBytesTransferred.QuadPart, StreamSize.QuadPart, StreamBytesTransferred.QuadPart, StreamNumber, CallbackReason, SourceFile, DestinationFile);
+			const auto CallbackData = static_cast<callback_data*>(Data);
+			try
+			{
+				return CallbackData->Owner->CopyProgressRoutine(TotalFileSize.QuadPart, TotalBytesTransferred.QuadPart, StreamSize.QuadPart, StreamBytesTransferred.QuadPart, StreamNumber, CallbackReason, SourceFile, DestinationFile);
+			}
+			catch(...)
+			{
+				CallbackData->ExceptionPtr = std::current_exception();
+				return PROGRESS_CANCEL;
+			}
 		}
 	};
 
-	if (!os::CopyFileEx(SrcName, DestName, callback_wrapper::callback, this, nullptr, Flags&FCOPY_DECRYPTED_DESTINATION ? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
+	callback_data CallbackData{ this };
+	if (!os::CopyFileEx(SrcName, DestName, callback_wrapper::callback, &CallbackData, nullptr, Flags&FCOPY_DECRYPTED_DESTINATION ? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
 	{
+		RethrowIfNeeded(CallbackData.ExceptionPtr);
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 		return (GetLastError() == ERROR_REQUEST_ABORTED)? COPY_CANCEL : COPY_FAILURE;
 	}

@@ -114,7 +114,7 @@ namespace cfunctions
 		return bsearch_comparer(a, b, bsearch_param);
 	}
 
-	void* bsearchex(const void* key, const void* base, size_t nelem, size_t width, comparer user_comparer, void* user_param)
+	void* bsearchex(const void* key, const void* base, size_t nelem, size_t width, comparer user_comparer, void* user_param) noexcept
 	{
 		bsearch_comparer = user_comparer;
 		bsearch_param = user_param;
@@ -129,7 +129,7 @@ namespace cfunctions
 		return qsort_comparer(a, b, qsort_param);
 	}
 
-	void qsortex(char *base, size_t nel, size_t width, comparer user_comparer, void *user_param)
+	void qsortex(char *base, size_t nel, size_t width, comparer user_comparer, void *user_param) noexcept
 	{
 		qsort_comparer = user_comparer;
 		qsort_param = user_param;
@@ -141,130 +141,68 @@ namespace pluginapi
 {
 int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) noexcept //?deprecated
 {
-	try
-	{
-		va_list argptr;
-		va_start(argptr, Format);
-		SCOPE_EXIT{ va_end(argptr); };
-		// BUGBUG, do not use vswprintf here, %s treated as char* in GCC
-		return _vsnwprintf(Dest, 32000, Format, argptr);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return -1;
-	}
+	// noexcept
+	va_list argptr;
+	va_start(argptr, Format);
+	SCOPE_EXIT noexcept { va_end(argptr); };
+	// BUGBUG, do not use vswprintf here, %s treated as char* in GCC
+	return _vsnwprintf(Dest, 32000, Format, argptr);
 }
 
 int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...) noexcept
 {
-	try
-	{
-		va_list argptr;
-		va_start(argptr, Format);
-		SCOPE_EXIT{ va_end(argptr); };
-		// BUGBUG, do not use vswprintf here, %s treated as char* in GCC
-		return _vsnwprintf(Dest, Count, Format, argptr);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return -1;
-	}
+	// noexcept
+	va_list argptr;
+	va_start(argptr, Format);
+	SCOPE_EXIT noexcept { va_end(argptr); };
+	// BUGBUG, do not use vswprintf here, %s treated as char* in GCC
+	return _vsnwprintf(Dest, Count, Format, argptr);
 }
 
 int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept
 {
-	try
-	{
-		va_list argptr;
-		va_start(argptr, Format);
-		SCOPE_EXIT{ va_end(argptr); };
-		return vswscanf(Src, Format, argptr);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return -1;
-	}
+	// noexcept
+	va_list argptr;
+	va_start(argptr, Format);
+	SCOPE_EXIT noexcept { va_end(argptr); };
+	return vswscanf(Src, Format, argptr);
 }
 
 wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix) noexcept
 {
-	try
-	{
-		return _itow(value,string,radix);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return nullptr;
-	}
+	// noexcept
+	return _itow(value,string,radix);
 }
 
 wchar_t *WINAPI apiItoa64(long long value, wchar_t *string, int radix) noexcept
 {
-	try
-	{
-		return _i64tow(value, string, radix);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return nullptr;
-	}
+	// noexcept
+	return _i64tow(value, string, radix);
 }
 
 int WINAPI apiAtoi(const wchar_t *s) noexcept
 {
-	try
-	{
-		return static_cast<int>(std::wcstol(s, nullptr, 10));
-	}
-	catch (...)
-	{
-		// TODO: log
-		return 0;
-	}
+	// noexcept
+	return static_cast<int>(std::wcstol(s, nullptr, 10));
 }
 
 long long WINAPI apiAtoi64(const wchar_t *s) noexcept
 {
-	try
-	{
-		return std::wcstoll(s, nullptr, 10);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return 0;
-	}
+	// noexcept
+	return std::wcstoll(s, nullptr, 10);
 }
 
 void WINAPI apiQsort(void *base, size_t nelem, size_t width, cfunctions::comparer fcmp, void *user) noexcept
 {
-	try
-	{
-		return cfunctions::qsortex((char*)base,nelem,width,fcmp,user);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return;
-	}
+
+	//noexcept
+	return cfunctions::qsortex((char*)base,nelem,width,fcmp,user);
 }
 
 void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, cfunctions::comparer fcmp, void *user) noexcept
 {
-	try
-	{
-		return cfunctions::bsearchex(key, base, nelem, width, fcmp, user);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return nullptr;
-	}
+	//noexcept
+	return cfunctions::bsearchex(key, base, nelem, width, fcmp, user);
 }
 
 wchar_t* WINAPI apiQuoteSpace(wchar_t *Str) noexcept
@@ -275,7 +213,7 @@ wchar_t* WINAPI apiQuoteSpace(wchar_t *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
@@ -288,7 +226,7 @@ wchar_t* WINAPI apiInsertQuote(wchar_t *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
@@ -300,7 +238,7 @@ void WINAPI apiUnquote(wchar_t *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -313,7 +251,7 @@ wchar_t* WINAPI apiRemoveLeadingSpaces(wchar_t *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
@@ -326,7 +264,7 @@ wchar_t * WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
@@ -339,7 +277,7 @@ wchar_t* WINAPI apiRemoveExternalSpaces(wchar_t *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
@@ -352,7 +290,7 @@ wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
@@ -382,7 +320,7 @@ intptr_t WINAPI apiInputBox(
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -463,7 +401,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -845,7 +783,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -998,7 +936,7 @@ intptr_t WINAPI apiMenuFn(
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -1012,7 +950,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -1040,7 +978,7 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void*
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return ErrorResult();
 	}
 }
@@ -1131,7 +1069,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return INVALID_HANDLE_VALUE;
 	}
 }
@@ -1150,12 +1088,12 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
 
 		if (Global->IsMainThread()) // BUGBUG, findfile
 			Global->WindowManager->RefreshWindow(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
-
+		throw MAKE_FAR_EXCEPTION("qwe");
 		return ExitCode;
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -1173,7 +1111,7 @@ void WINAPI apiDialogFree(HANDLE hDlg) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -1194,7 +1132,7 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return L"";
 	}
 }
@@ -1297,7 +1235,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -1505,7 +1443,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -1528,7 +1466,7 @@ HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2) noe
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
@@ -1548,7 +1486,7 @@ void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -1630,7 +1568,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -1649,7 +1587,7 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -1663,7 +1601,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noex
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -1677,7 +1615,7 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItems, si
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -1757,7 +1695,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -1919,7 +1857,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return EEC_OPEN_ERROR;
 	}
 }
@@ -1945,7 +1883,7 @@ void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *S
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -1987,7 +1925,7 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2000,7 +1938,7 @@ intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Comm
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2013,7 +1951,7 @@ void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -2026,7 +1964,7 @@ void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -2039,7 +1977,7 @@ void WINAPI apiStrUpper(wchar_t *s1) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -2052,7 +1990,7 @@ void WINAPI apiStrLower(wchar_t *s1) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 }
@@ -2065,7 +2003,7 @@ wchar_t WINAPI apiUpper(wchar_t Ch) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Ch;
 	}
 }
@@ -2078,7 +2016,7 @@ wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Ch;
 	}
 }
@@ -2091,7 +2029,7 @@ int WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n) noexcep
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -2104,7 +2042,7 @@ int WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -2117,7 +2055,7 @@ int WINAPI apiIsLower(wchar_t Ch) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2130,7 +2068,7 @@ int WINAPI apiIsUpper(wchar_t Ch) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2143,7 +2081,7 @@ int WINAPI apiIsAlpha(wchar_t Ch) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 
@@ -2157,7 +2095,7 @@ int WINAPI apiIsAlphaNum(wchar_t Ch) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2170,7 +2108,7 @@ wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 }
@@ -2183,7 +2121,7 @@ wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 }
@@ -2196,7 +2134,7 @@ wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str, intptr_t MaxLength) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 }
@@ -2209,7 +2147,7 @@ wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 }
@@ -2222,7 +2160,7 @@ const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Path;
 	}
 }
@@ -2232,7 +2170,8 @@ size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wcha
 	try
 	{
 		string strOwner;
-		GetFileOwner(NullToEmpty(Computer), NullToEmpty(Name), strOwner);
+		if (!GetFileOwner(NullToEmpty(Computer), NullToEmpty(Name), strOwner))
+			return 0;
 
 		if (Owner && Size)
 			xwcsncpy(Owner, strOwner.data(), Size);
@@ -2241,7 +2180,7 @@ size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wcha
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2275,7 +2214,7 @@ size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t 
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2287,7 +2226,8 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 		string strSrc(Src);
 		string strDest;
 		AddEndSlash(strDest);
-		GetReparsePointInfo(strSrc,strDest,nullptr);
+		if (!GetReparsePointInfo(strSrc, strDest, nullptr))
+			return 0;
 
 		if (DestSize && Dest)
 			xwcsncpy(Dest,strDest.data(),DestSize);
@@ -2296,7 +2236,7 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2309,7 +2249,7 @@ size_t WINAPI apiGetNumberOfLinks(const wchar_t* Name) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2327,7 +2267,7 @@ size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2350,7 +2290,7 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2398,7 +2338,7 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2411,7 +2351,7 @@ unsigned long long WINAPI apiFarClock() noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2529,7 +2469,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2606,7 +2546,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2675,7 +2615,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2734,7 +2674,7 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 
@@ -2806,7 +2746,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2826,7 +2766,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2858,7 +2798,7 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2890,7 +2830,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return;
 	}
 
@@ -2909,7 +2849,7 @@ size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix) n
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2971,7 +2911,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2989,7 +2929,7 @@ BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, FarColo
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3016,7 +2956,7 @@ size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText,
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -3030,7 +2970,7 @@ BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) n
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3091,7 +3031,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE 
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3104,7 +3044,7 @@ BOOL WINAPI apiAddEndSlash(wchar_t *Path) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3117,7 +3057,7 @@ wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Line;
 	}
 }
@@ -3130,7 +3070,7 @@ HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD Sh
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return INVALID_HANDLE_VALUE;
 	}
 }
@@ -3143,7 +3083,7 @@ DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return INVALID_FILE_ATTRIBUTES;
 	}
 }
@@ -3156,7 +3096,7 @@ BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3169,7 +3109,7 @@ BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFil
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3182,7 +3122,7 @@ BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3195,7 +3135,7 @@ BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3208,7 +3148,7 @@ BOOL WINAPI apiCreateDirectory(const wchar_t *PathName, LPSECURITY_ATTRIBUTES lp
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3221,7 +3161,7 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }

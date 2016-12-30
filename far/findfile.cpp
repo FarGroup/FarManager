@@ -2749,10 +2749,7 @@ bool FindFiles::FindFilesProcess()
 				m_ExceptionPtr = BC.ExceptionPtr();
 			}
 
-			if (m_ExceptionPtr)
-			{
-				std::rethrow_exception(m_ExceptionPtr);
-			}
+			RethrowIfNeeded(m_ExceptionPtr);
 		}
 
 		switch (Dlg->GetExitCode())

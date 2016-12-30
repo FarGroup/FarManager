@@ -2875,7 +2875,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 				if (LocalKey() == KEY_CTRLU || LocalKey() == KEY_RCTRLU)
 				{
-					edt->SetClearFlag(0);
+					edt->SetClearFlag(false);
 					edt->RemoveSelection();
 					edt->Show();
 					return TRUE;
@@ -3001,7 +3001,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 				if (LocalKey() == KEY_OP_XLAT && !(Items[m_FocusPos].Flags & DIF_READONLY))
 				{
-					edt->SetClearFlag(0);
+					edt->SetClearFlag(false);
 					edt->Xlat();
 
 					// иначе неправильно работает ctrl-end
@@ -3317,7 +3317,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 						        (Items[I].Flags & DIF_DROPDOWNLIST) &&
 						        MsX >= EditX1 && MsX <= EditX2+1)
 						{
-							EditLine->SetClearFlag(0);
+							EditLine->SetClearFlag(false);
 
 							ChangeFocus2(I);
 							ShowDialog();
@@ -3331,7 +3331,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 						if (EditLine->ProcessMouse(&mouse.Event.MouseEvent))
 						{
-							EditLine->SetClearFlag(0); // а может это делать в самом edit?
+							EditLine->SetClearFlag(false); // а может это делать в самом edit?
 
 							/* $ 23.06.2001 KM
 							   ! Оказалось нужно перерисовывать весь диалог иначе
@@ -3345,7 +3345,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 							// Проверка на DI_COMBOBOX здесь лишняя. Убрана (KM).
 							if (MsX==EditX2+1 && MsY==EditY1 && ItemHasDropDownArrow(&Items[I]))
 							{
-								EditLine->SetClearFlag(0); // раз уж покусились на, то и...
+								EditLine->SetClearFlag(false); // раз уж покусились на, то и...
 
 								ChangeFocus2(I);
 
@@ -3957,7 +3957,7 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 	{
 		EditLine->SetString(strStr);
 		EditLine->SetLeftPos(0);
-		EditLine->SetClearFlag(0);
+		EditLine->SetClearFlag(false);
 		Redraw();
 		return TRUE;
 	}
@@ -5147,7 +5147,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				const auto EditPtr = static_cast<DlgEdit*>(CurItem->ObjPtr);
 				EditPtr->SetCurPos(((COORD*)Param2)->X);
 				//EditPtr->Show();
-				EditPtr->SetClearFlag(0);
+				EditPtr->SetClearFlag(false);
 				ShowDialog(Param1);
 				return TRUE;
 			}
@@ -5992,7 +5992,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					else
 						EditLine->Select(EdSel->BlockStartPos,EdSel->BlockStartPos+EdSel->BlockWidth);
 
-					EditLine->SetClearFlag(0);
+					EditLine->SetClearFlag(false);
 
 					if (DialogMode.Check(DMODE_SHOW)) //???
 					{

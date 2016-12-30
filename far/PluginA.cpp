@@ -1548,7 +1548,7 @@ static void WINAPI qsort(void *base, size_t nelem, size_t width, comparer cmp) n
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -1561,7 +1561,7 @@ static void WINAPI qsortex(void *base, size_t nelem, size_t width, comparer_ex c
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -1573,75 +1573,48 @@ static void* WINAPI bsearch(const void *key, const void *base, size_t nelem, siz
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
 
 static int WINAPI LocalIslower(unsigned Ch) noexcept
 {
-	try
-	{
-		return Ch < 256 && IsUpperOrLower[Ch] == 1;
-	}
-	catch (...)
-	{
-		// TODO: log
-		return FALSE;
-	}
+	// noexcept
+	return Ch < 256 && IsUpperOrLower[Ch] == 1;
 }
 
 static int WINAPI LocalIsupper(unsigned Ch) noexcept
 {
-	try
-	{
-		return Ch < 256 && IsUpperOrLower[Ch] == 2;
-	}
-	catch (...)
-	{
-		// TODO: log
-		return FALSE;
-	}
+	// noexcept
+	return Ch < 256 && IsUpperOrLower[Ch] == 2;
 }
 
 static int WINAPI LocalIsalpha(unsigned Ch) noexcept
 {
-	try
-	{
-		if (Ch >= 256)
-			return FALSE;
-
-		char CvtCh = Ch;
-		OemToCharBuffA(&CvtCh, &CvtCh, 1);
-		return IsCharAlphaA(CvtCh);
-	}
-	catch (...)
-	{
-		// TODO: log
+	// noexcept
+	if (Ch >= 256)
 		return FALSE;
-	}
+
+	char CvtCh = Ch;
+	OemToCharBuffA(&CvtCh, &CvtCh, 1);
+	return IsCharAlphaA(CvtCh);
 }
 
 static int WINAPI LocalIsalphanum(unsigned Ch) noexcept
 {
-	try
-	{
-		if (Ch >= 256)
-			return FALSE;
-
-		char CvtCh = Ch;
-		OemToCharBuffA(&CvtCh, &CvtCh, 1);
-		return IsCharAlphaNumericA(CvtCh);
-	}
-	catch (...)
-	{
-		// TODO: log
+	// noexcept
+	if (Ch >= 256)
 		return FALSE;
-	}
+
+	char CvtCh = Ch;
+	OemToCharBuffA(&CvtCh, &CvtCh, 1);
+	return IsCharAlphaNumericA(CvtCh);
 }
 
 static unsigned WINAPI LocalUpper(unsigned LowerChar) noexcept
 {
+	// noexcept
 	return LowerChar < 256 ? LowerToUpper[LowerChar] : LowerChar;
 }
 
@@ -1653,12 +1626,13 @@ static void WINAPI LocalUpperBuf(char *Buf, int Length) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
 static unsigned WINAPI LocalLower(unsigned UpperChar) noexcept
 {
+	// noexcept
 	return UpperChar < 256 ? UpperToLower[UpperChar] : UpperChar;
 }
 
@@ -1670,7 +1644,7 @@ static void WINAPI LocalLowerBuf(char *Buf, int Length) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -1683,7 +1657,7 @@ static void WINAPI LocalStrupr(char *s1) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -1696,7 +1670,7 @@ static void WINAPI LocalStrlwr(char *s1) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -1708,7 +1682,7 @@ static int WINAPI LStricmp(const char *s1, const char *s2) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -1721,7 +1695,7 @@ static int WINAPI LStrnicmp(const char *s1, const char *s2, int n) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -1748,53 +1722,33 @@ static char* WINAPI RemoveTrailingSpacesA(char *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 }
 
 static char *WINAPI FarItoaA(int value, char *string, int radix) noexcept
 {
+	// noexcept
 	return _itoa(value, string, radix);
 }
 
 static char *WINAPI FarItoa64A(long long value, char *string, int radix) noexcept
 {
-	try
-	{
-		return _i64toa(value, string, radix);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return nullptr;
-	}
+	// noexcept
+	return _i64toa(value, string, radix);
 }
 
 static int WINAPI FarAtoiA(const char *s) noexcept
 {
-	try
-	{
-		return atoi(s);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return 0;
-	}
+	// noexcept
+	return std::atoi(s);
 }
 
 static long long WINAPI FarAtoi64A(const char *s) noexcept
 {
-	try
-	{
-		return std::strtoll(s, nullptr, 10);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return 0;
-	}
+	// noexcept
+	return std::strtoll(s, nullptr, 10);
 }
 
 static char* WINAPI PointToNameA(char *Path) noexcept
@@ -1816,31 +1770,25 @@ static char* WINAPI PointToNameA(char *Path) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Path;
 	}
 }
 
 static void WINAPI UnquoteA(char *Str) noexcept
 {
-	try
+	// noexcept
+	char *Dst = Str;
+
+	while (*Str)
 	{
-		char *Dst = Str;
+		if (*Str != '\"')
+			*Dst++ = *Str;
 
-		while (*Str)
-		{
-			if (*Str != '\"')
-				*Dst++ = *Str;
-
-			Str++;
-		}
-
-		*Dst = 0;
+		Str++;
 	}
-	catch (...)
-	{
-		// TODO: log
-	}
+
+	*Dst = 0;
 }
 
 static char* WINAPI RemoveLeadingSpacesA(char *Str) noexcept
@@ -1862,7 +1810,7 @@ static char* WINAPI RemoveLeadingSpacesA(char *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 }
@@ -1895,7 +1843,7 @@ static char* WINAPI TruncStrA(char *Str, int MaxLength) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 
@@ -1934,7 +1882,7 @@ static char* WINAPI TruncPathStrA(char *Str, int MaxLength) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 }
@@ -1949,7 +1897,7 @@ static char* WINAPI QuoteSpaceOnlyA(char *Str) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Str;
 	}
 }
@@ -2001,7 +1949,7 @@ static BOOL WINAPI AddEndSlashA(char *Path) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 
@@ -2017,7 +1965,7 @@ static void WINAPI GetPathRootA(const char *Path, char *Root) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -2029,7 +1977,7 @@ static int WINAPI CopyToClipboardA(const char *Data) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2048,21 +1996,15 @@ static char* WINAPI PasteFromClipboardA() noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
 
 static void WINAPI DeleteBufferA(void* Buffer) noexcept
 {
-	try
-	{
-		delete[] static_cast<char*>(Buffer);
-	}
-	catch (...)
-	{
-		// TODO: log
-	}
+	// noexcept
+	delete[] static_cast<char*>(Buffer);
 }
 
 static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) noexcept
@@ -2104,7 +2046,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2117,7 +2059,7 @@ static int WINAPI KeyNameToKeyA(const char *Name) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2136,7 +2078,7 @@ static BOOL WINAPI FarKeyToNameA(int Key, char *KeyText, int Size) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2149,7 +2091,7 @@ static int WINAPI InputRecordToKeyA(const INPUT_RECORD *r) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2165,7 +2107,7 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Dest;
 	}
 }
@@ -2196,7 +2138,7 @@ static int WINAPI FarMkLinkA(const char *Src, const char *Dest, DWORD OldFlags) 
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2209,7 +2151,7 @@ static int WINAPI GetNumberOfLinksA(const char *Name) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2228,7 +2170,7 @@ static int WINAPI ConvertNameToRealA(const char *Src, char *Dest, int DestSize) 
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2257,7 +2199,7 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src, char *Dest, int DestS
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2282,7 +2224,7 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, con
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2309,7 +2251,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir, const char *Mask, ol
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -2324,7 +2266,7 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2337,7 +2279,7 @@ static int WINAPI FarViewerA(const char *FileName, const char *Title, int X1, in
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2350,22 +2292,15 @@ static int WINAPI FarEditorA(const char *FileName, const char *Title, int X1, in
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return EEC_OPEN_ERROR;
 	}
 }
 
 static int WINAPI FarCmpNameA(const char *pattern, const char *str, int skippath) noexcept
 {
-	try
-	{
-		return ProcessNameA(pattern, const_cast<char*>(str), oldfar::PN_CMPNAME | (skippath ? oldfar::PN_SKIPPATH : 0));
-	}
-	catch (...)
-	{
-		// TODO: log
-		return FALSE;
-	}
+	// noexcept
+	return ProcessNameA(pattern, const_cast<char*>(str), oldfar::PN_CMPNAME | (skippath ? oldfar::PN_SKIPPATH : 0));
 }
 
 static void WINAPI FarTextA(int X, int Y, int ConColor, const char *Str) noexcept
@@ -2377,7 +2312,7 @@ static void WINAPI FarTextA(int X, int Y, int ConColor, const char *Str) noexcep
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -2389,7 +2324,7 @@ static BOOL WINAPI FarShowHelpA(const char *ModuleName, const char *HelpTopic, D
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2429,7 +2364,7 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -2494,7 +2429,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -2515,7 +2450,7 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return "";
 	}
 
@@ -2644,7 +2579,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -2666,7 +2601,7 @@ static intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Pa
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2680,7 +2615,7 @@ static intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -2845,7 +2780,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -3384,7 +3319,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return 0;
 	}
 }
@@ -3492,22 +3427,15 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
 
 static int WINAPI FarDialogFnA(intptr_t PluginNumber, int X1, int Y1, int X2, int Y2, const char *HelpTopic, oldfar::FarDialogItem *Item, int ItemsNumber) noexcept
 {
-	try
-	{
-		return FarDialogExA(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber, 0, 0, nullptr, nullptr);
-	}
-	catch (...)
-	{
-		// TODO: log
-		return -1;
-	}
+	// noexcept
+	return FarDialogExA(PluginNumber, X1, Y1, X2, Y2, HelpTopic, Item, ItemsNumber, 0, 0, nullptr, nullptr);
 }
 
 static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noexcept
@@ -3793,7 +3721,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3806,7 +3734,7 @@ static HANDLE WINAPI FarSaveScreenA(int X1, int Y1, int X2, int Y2) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return nullptr;
 	}
 }
@@ -3819,7 +3747,7 @@ static void WINAPI FarRestoreScreenA(HANDLE Screen) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -3869,7 +3797,7 @@ static int WINAPI FarGetDirListA(const char *Dir, oldfar::PluginPanelItem **pPan
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3886,7 +3814,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber, HANDLE hPlugin, co
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -3902,7 +3830,7 @@ static void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem) noe
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 	}
 }
 
@@ -4245,7 +4173,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -4698,7 +4626,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -4829,7 +4757,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }
@@ -4892,7 +4820,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return -1;
 	}
 }
@@ -4929,7 +4857,7 @@ char* WINAPI XlatA(
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return Line;
 	}
 }
@@ -4948,7 +4876,7 @@ static int WINAPI GetFileOwnerA(const char *Computer, const char *Name, char *Ow
 	}
 	catch (...)
 	{
-		// TODO: log
+		StoreGlobalException();
 		return FALSE;
 	}
 }

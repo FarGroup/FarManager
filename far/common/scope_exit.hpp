@@ -80,7 +80,7 @@ namespace scope_exit
 }
 
 #define DETAIL_SCOPE_IMPL(type) \
-const auto ANONYMOUS_VARIABLE(scope_##type##_guard) = scope_exit::make_scope_guard<scope_exit::scope_type::type>() << [&] /* lambda body here */
+const auto ANONYMOUS_VARIABLE(scope_##type##_guard) = scope_exit::make_scope_guard<scope_exit::scope_type::type>() << [&]() /* lambda body here */
 
 #define SCOPE_EXIT DETAIL_SCOPE_IMPL(exit)
 #define SCOPE_FAIL DETAIL_SCOPE_IMPL(fail) noexcept

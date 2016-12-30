@@ -48,8 +48,8 @@ private:
 
 	Thread m_Thread;
 	HWND m_Hwnd;
-
 	Event m_exitEvent;
+	std::exception_ptr m_ExceptionPtr;
 };
 
 #endif // WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00

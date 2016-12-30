@@ -818,25 +818,19 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 	// and processed as SEH exceptions in more advanced way
 }
 
-int wmain(int Argc, wchar_t *Argv[])
+int main()
 {
 	return seh_invoke_with_ui(
 	[=]
 	{
-		return wmain_seh(Argc, Argv);
+		// wmain is a non-standard extension and not available in gcc.
+		int Argc;
+		const os::memory::local::ptr<wchar_t*> Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+		return wmain_seh(Argc, Argv.get());
 	},
 	[]() -> int
 	{
 		std::terminate();
 	},
-	L"wmain");
+	L"main");
 }
-
-#if COMPILER == C_GCC
-int main()
-{
-	int nArgs;
-	const os::memory::local::ptr<wchar_t*> wstrCmdLineArgs(CommandLineToArgvW(GetCommandLine(), &nArgs));
-	return wmain(nArgs, wstrCmdLineArgs.get());
-}
-#endif

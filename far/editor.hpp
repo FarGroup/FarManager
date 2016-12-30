@@ -118,7 +118,7 @@ public:
 	void SetOvertypeMode(int Mode);
 	bool GetOvertypeMode() const;
 	void SetEditBeyondEnd(int Mode);
-	void SetClearFlag(int Flag);
+	void SetClearFlag(bool Flag);
 	bool GetClearFlag() const;
 	int GetCurCol() const;
 	int GetCurRow() const { return static_cast<int>(m_it_CurLine.Number()); }

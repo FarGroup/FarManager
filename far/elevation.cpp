@@ -266,7 +266,7 @@ bool elevation::Initialize()
 					m_Job.reset(CreateJobObject(nullptr, nullptr));
 					if (m_Job)
 					{
-						jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK;
+						jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK | JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 						if (SetInformationJobObject(m_Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 						{
 							AssignProcessToJobObject(m_Job.native_handle(), GetCurrentProcess());
@@ -275,7 +275,7 @@ bool elevation::Initialize()
 				}
 			}
 
-			string Param = string(ElevationArgument) + L" " + m_PipeName + L' ' + str(GetCurrentProcessId()) + L' ' + ((Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES) ? L'1' : L'0');
+			string Param = concat(ElevationArgument, L' ', m_PipeName, L' ', str(GetCurrentProcessId()), L' ', (Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
 
 			SHELLEXECUTEINFO info =
 			{
@@ -428,9 +428,9 @@ void ElevationApproveDlgSync(const EAData& Data)
 	ConsoleTitle::SetFarTitle(OldTitle);
 	Global->ScrBuf->SetLockCount(Lock);
 
-	Data.AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
+	Data.AskApprove = ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected == BSTATE_UNCHECKED;
 	Data.IsApproved = Dlg->GetExitCode() == AAD_BUTTON_OK;
-	Data.DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
+	Data.DontAskAgain = ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected == BSTATE_CHECKED;
 }
 
 bool elevation::ElevationApproveDlg(lng Why, const string& Object)
@@ -834,7 +834,13 @@ private:
 	os::handle m_Pipe;
 	DWORD m_ParentPid{};
 	mutable bool m_Active{true};
-	using callback_param = std::pair<const class elevated*, void*>;
+
+	struct callback_param
+	{
+		const class elevated* Owner;
+		void* UserData;
+		std::exception_ptr ExceptionPtr;
+	};
 
 	void Write(const void* Data,size_t DataSize) const
 	{
@@ -904,12 +910,14 @@ private:
 		const auto Flags = Read<DWORD>();
 		// BUGBUG: Cancel ignored
 
-		callback_param Param(this, reinterpret_cast<void*>(Data));
+		callback_param Param{ this, reinterpret_cast<void*>(Data) };
 		const auto Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags) != FALSE;
 
 		Write(0); // not CallbackMagic
 		Write(error_codes{});
 		Write(Result);
+
+		RethrowIfNeeded(Param.ExceptionPtr);
 	}
 
 	void MoveFileExHandler() const
@@ -1057,30 +1065,38 @@ private:
 		}
 	}
 
-	static DWORD WINAPI CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
+	static DWORD CALLBACK CopyProgressRoutineWrapper(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 	{
-		const auto Param = reinterpret_cast<const callback_param*>(Data);
-		const auto Context = Param->first;
-
-		Context->Write(CallbackMagic);
-		Context->Write(TotalFileSize);
-		Context->Write(TotalBytesTransferred);
-		Context->Write(StreamSize);
-		Context->Write(StreamBytesTransferred);
-		Context->Write(StreamNumber);
-		Context->Write(CallbackReason);
-		Context->Write(reinterpret_cast<intptr_t>(Param->second));
-		// BUGBUG: SourceFile, DestinationFile ignored
-
-		for(;;)
+		const auto Param = reinterpret_cast<callback_param*>(Data);
+		try
 		{
-			const auto Result = Context->Read<int>();
-			if (Result == CallbackMagic)
+			const auto Context = Param->Owner;
+
+			Context->Write(CallbackMagic);
+			Context->Write(TotalFileSize);
+			Context->Write(TotalBytesTransferred);
+			Context->Write(StreamSize);
+			Context->Write(StreamBytesTransferred);
+			Context->Write(StreamNumber);
+			Context->Write(CallbackReason);
+			Context->Write(reinterpret_cast<intptr_t>(Param->UserData));
+			// BUGBUG: SourceFile, DestinationFile ignored
+
+			for (;;)
 			{
-				return Context->Read<int>();
+				const auto Result = Context->Read<int>();
+				if (Result == CallbackMagic)
+				{
+					return Context->Read<int>();
+				}
+				// nested call from ProgressRoutine()
+				Context->Process(Result);
 			}
-			// nested call from ProgressRoutine()
-			Context->Process(Result);
+		}
+		catch(...)
+		{
+			Param->ExceptionPtr = std::current_exception();
+			return PROGRESS_CANCEL;
 		}
 	}
 
