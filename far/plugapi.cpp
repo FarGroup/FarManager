@@ -1088,7 +1088,6 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
 
 		if (Global->IsMainThread()) // BUGBUG, findfile
 			Global->WindowManager->RefreshWindow(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
-		throw MAKE_FAR_EXCEPTION("qwe");
 		return ExitCode;
 	}
 	catch (...)
