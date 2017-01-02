@@ -240,7 +240,9 @@ void QuickView::DisplayObject()
 			{
 				auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
 				RemoveExternalSpaces(str);
-				return str + bytes_suffix;
+				if (str.back() != bytes_suffix[0])
+					str += bytes_suffix;
+				return str;
 			}
 		};
 

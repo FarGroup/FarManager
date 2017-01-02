@@ -373,13 +373,15 @@ void InfoList::DisplayObject()
 		string str;
 		if (Global->Opt->ShowBytes)
 		{
-			str = InsertCommas(Size) + L" ";
+			str = InsertCommas(Size); // +L" ";
 		}
 		else
 		{
 			str = FileSizeToStr(Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
+			if (str.back() != bytes_suffix[0])
+				str += bytes_suffix;
 		}
-		return str += bytes_suffix;
+		return str;
 	};
 
 	if (SectionState[ILSS_DISKINFO].Show)
