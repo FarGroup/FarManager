@@ -1381,7 +1381,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (move_rename && !copy_to_null && check_samedisk)
 		{
 			SameDisk = GetPathRoot(src_abspath? strSelName : SrcPanel->GetCurDir()) == GetPathRoot(strDest);
-			dest_changed = !SameDisk;
 		}
 
 		if (first && !copy_to_null && (dst_abspath || !src_abspath) && !UseWildCards
@@ -1400,7 +1399,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if (dest_changed) // check destination drive ready
 		{
 			DestAttr = os::GetFileAttributes(strDest);
-			if (INVALID_FILE_ATTRIBUTES == DestAttr)
+			if (INVALID_FILE_ATTRIBUTES == DestAttr && !SameDisk)
 			{
 				const auto Exists_1 = os::fs::exists(strDestDriveRoot);
 				auto Exists_2 = Exists_1;
@@ -3672,25 +3671,27 @@ bool ShellCopy::CalcTotalSize() const
 */
 bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 {
-	auto strRoot = GetPathRoot(Dest);
-	if (!os::fs::exists(strRoot))
+	int GetInfoSuccess = FALSE; 
+	DWORD FileSystemFlagsDst=0;
+	if ((Attr & (FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_ENCRYPTED)) != 0)
 	{
-		return false;
-	}
+		auto strRoot = GetPathRoot(Dest);
+		//if (!os::fs::exists(strRoot))
+		//{
+		//	return false;
+		//}
 
-	DWORD FileSystemFlagsDst;
-	int GetInfoSuccess=os::GetVolumeInformation(strRoot,nullptr,nullptr,nullptr,&FileSystemFlagsDst,nullptr);
-
-	if (GetInfoSuccess)
-	{
-		if (!(FileSystemFlagsDst&FILE_FILE_COMPRESSION))
+		GetInfoSuccess = os::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, &FileSystemFlagsDst, nullptr);
+		if (GetInfoSuccess)
 		{
-			Attr&=~FILE_ATTRIBUTE_COMPRESSED;
-		}
-
-		if (!(FileSystemFlagsDst&FILE_SUPPORTS_ENCRYPTION))
-		{
-			Attr&=~FILE_ATTRIBUTE_ENCRYPTED;
+			if (!(FileSystemFlagsDst & FILE_FILE_COMPRESSION))
+			{
+				Attr &= ~FILE_ATTRIBUTE_COMPRESSED;
+			}
+			if (!(FileSystemFlagsDst & FILE_SUPPORTS_ENCRYPTION))
+			{
+				Attr &= ~FILE_ATTRIBUTE_ENCRYPTED;
+			}
 		}
 	}
 
