@@ -42,6 +42,7 @@ bool is_root_path(const wstring& path);
 bool is_unc_path(const wstring& path);
 bool is_absolute_path(const wstring& path);
 wstring remove_path_root(const wstring& path);
+wstring correct_filename(const wstring& name, int mode);
 
 template<class T>
 inline const T* null_to_empty(const T* Str) { static const T empty = T(); return Str? Str : &empty; }

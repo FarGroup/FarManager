@@ -112,7 +112,8 @@ Options::Options():
   pgdn_formats(false),
   saveCP(false),
   oemCP(0),
-  ansiCP(0)
+  ansiCP(0),
+  correct_name_mode(0x12)
 {}
 
 void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
@@ -211,6 +212,7 @@ void Options::load() {
   GET_VALUE(saveCP, bool);
   GET_VALUE(oemCP, int);
   GET_VALUE(ansiCP, int);
+  GET_VALUE(correct_name_mode, int);
 #undef GET_VALUE
 };
 
@@ -264,6 +266,7 @@ void Options::save() const {
     SET_VALUE(oemCP, int);
     SET_VALUE(ansiCP, int);
   }
+  SET_VALUE(correct_name_mode, int);
 #undef SET_VALUE
 }
 

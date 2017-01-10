@@ -427,7 +427,7 @@ public:
   // set compression properties
   STDMETHODIMP SetProperties(const wchar_t*const* names, const PROPVARIANT* values, UInt32 num_properties) {
     COM_ERROR_HANDLER_BEGIN
-    for (Int32 i = 0; i < num_properties; i++) {
+    for (Int32 i = 0; i < (int)num_properties; i++) {
       PropVariant prop = values[i];
 
       size_t buf_size = wcslen(names[i]) + 1;

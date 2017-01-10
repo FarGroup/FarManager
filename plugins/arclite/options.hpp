@@ -49,6 +49,7 @@ struct Options {
   bool saveCP;
   uintptr_t oemCP;
   uintptr_t ansiCP;
+  unsigned correct_name_mode;
   Options();
   // profiles
   void load();

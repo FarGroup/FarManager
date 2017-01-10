@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<farconfig version="3.0.4881">
+  <pluginsconfig>
+    <plugin guid="65642111-AA69-4B84-B4B8-9249579EC4FA">
+      <hierarchicalconfig>
+        <key name="65642111-AA69-4B84-B4B8-9249579EC4FA" description="arclite">
+
+          <value name="max_check_size"    type="qword" value="0000000000800000" />
+          <!-- 8MB (default = 1MB) -->
+
+          <value name="correct_name_mode" type="qword" value="0000000000000013" />
+          <!-- 0x10  correct empty filenames (""  converted to "_")     -->
+          <!-- 0x20  remove trailing dots/spaces                        -->
+          <!-- 0x40  corrcet reserved names (NUL, LPT1, ...)            -->
+          <!-- ====  < > : * ? "" | / \ '\x01'        ...        '\x1f' -->
+          <!-- 0x.0  < > : * ? "" | / \ '\x01'        ...        '\x1f' -->
+          <!-- 0x.1  _ _ _ _ _ __ _ _ _ _______________________________ -->
+          <!-- 0x.2  « » = ¤ ¿ “” ¦ ⁄ ¬ ☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ -->
+          <!-- 0x.3  « » ։ ✶ ¿ “” ¦ ⁄ ¬ ☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ -->
+          <!-- default = 0x12                                           -->
+        </key>
+      </hierarchicalconfig>
+    </plugin>
+  </pluginsconfig>
+</farconfig>
