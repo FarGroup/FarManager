@@ -195,9 +195,10 @@ static wchar_t quotes2[2] = { LeftPointing_Double_Angle_Quotation_Mark, RightPoi
 //	':'
 //static const wchar_t Division_Sign                             = L'\u00F7'; // '÷'
 //static const wchar_t Identical_To                              = L'\u2216'; // '≡'
+static const wchar_t Horizontal_Ellipsis                       = L'\u2026'; // '…'
 static const wchar_t American_Full_Stop                        = L'\u0589'; // '։' --missed in Lucida Console font
 //static const wchar_t Raised Colon                              = L'\u02F8'; // '˸' --missed in Lucida Console font
-static wchar_t colons[2] = { L'=', American_Full_Stop };
+static wchar_t colons[2] = {Horizontal_Ellipsis, American_Full_Stop };
 
 // '*'
 static const wchar_t Currency_Sign                             = L'\u00A4'; // '¤'
@@ -241,8 +242,8 @@ static const wchar_t control_chars[32 - 1] =
 ,	L'\u266A' // \x0D  '♪'  (Eight Note)
 ,	L'\u266B' // \x0E  '♫'  (Beamed Eight Note)
 ,	L'\u263C' // \x0F  '☼'  (White Sun With Rays)
-,	L'\u25BA' // \x10  '►'  (Black Right - Pointing Pointer)
-,	L'\u25C4' // \x11  '◄'  (Black Left - Pointing Pointer)
+,	L'\u25BA' // \x10  '►'  (Black Right-Pointing Pointer)
+,	L'\u25C4' // \x11  '◄'  (Black Left-Pointing Pointer)
 ,	L'\u2195' // \x12  '↕'  (Up Down Arrow)
 ,	L'\u203C' // \x13  '‼'  (Double Exclamation Mark)
 ,	L'\u00B6' // \x14  '¶'  (Pilcrow Sign)
@@ -255,8 +256,8 @@ static const wchar_t control_chars[32 - 1] =
 ,	L'\u2190' // \x1B  '←'  (Leftwards Arrow)
 ,	L'\u221F' // \x1C  '∟'  (Right Angle)
 ,	L'\u2194' // \x1D  '↔'  (Left Right Arrow)
-,	L'\u25B2' // \x1E  '▲'  (Black Up - Pointing Triangle)
-,	L'\u25BC' // \x1F  '▼'  (Black Down - Pointing Triangle)
+,	L'\u25B2' // \x1E  '▲'  (Black Up-Pointing Triangle)
+,	L'\u25BC' // \x1F  '▼'  (Black Down-Pointing Triangle)
 };
 
 //-----------------------------------------------------------------------------

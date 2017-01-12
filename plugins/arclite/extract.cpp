@@ -543,10 +543,11 @@ private:
   }
 
   void prepare_extract(const FileIndexRange& index_range, const wstring& parent_dir) {
+    const auto cmode = static_cast<int>(g_options.correct_name_mode);
     for_each(index_range.first, index_range.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive.file_list[file_index];
       if (file_info.is_dir) {
-        wstring dir_path = add_trailing_slash(parent_dir) + file_info.name;
+        wstring dir_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode);
         update_progress(dir_path);
 
         RETRY_OR_IGNORE_BEGIN
@@ -596,9 +597,10 @@ private:
   }
 
   void set_dir_attr(const FileIndexRange& index_range, const wstring& parent_dir) {
+    const auto cmode = static_cast<int>(g_options.correct_name_mode);
     for_each (index_range.first, index_range.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive.file_list[file_index];
-      wstring file_path = add_trailing_slash(parent_dir) + file_info.name;
+      wstring file_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode);
       update_progress(file_path);
       if (file_info.is_dir) {
         FileIndexRange dir_list = archive.get_dir_list(file_index);
