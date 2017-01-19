@@ -62,28 +62,28 @@ inline auto cut_left(string Str, size_t MaxWidth)
 {
 	if (Str.size() > MaxWidth)
 		Str.erase(0, Str.size() - MaxWidth);
-	return std::move(Str);
+	return Str;
 }
 
 inline auto cut_right(string Str, size_t MaxWidth)
 {
 	if (Str.size() > MaxWidth)
 		Str.resize(MaxWidth);
-	return std::move(Str);
+	return Str;
 }
 
 inline auto pad_left(string Str, size_t MinWidth, wchar_t Padding = L' ')
 {
 	if (Str.size() < MinWidth)
 		Str.insert(0, MinWidth - Str.size(), Padding);
-	return std::move(Str);
+	return Str;
 }
 
 inline auto pad_right(string Str, size_t MinWidth, wchar_t Padding = L' ')
 {
 	if (Str.size() < MinWidth)
 		Str.append(MinWidth - Str.size(), Padding);
-	return std::move(Str);
+	return Str;
 }
 
 inline auto fit_to_left(string Str, size_t Size)

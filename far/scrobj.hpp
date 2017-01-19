@@ -100,7 +100,7 @@ public:
 
 protected:
 	ScreenObject(window_ptr Owner);
-	virtual ~ScreenObject();
+	virtual ~ScreenObject() override;
 
 public: // BUGBUG
 	std::unique_ptr<SaveScreen> SaveScr;
@@ -114,7 +114,7 @@ public:
 
 protected:
 	ScreenObjectWithShadow(window_ptr Owner);
-	virtual ~ScreenObjectWithShadow();
+	virtual ~ScreenObjectWithShadow() override;
 
 	void Shadow(bool Full=false);
 

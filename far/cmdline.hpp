@@ -67,7 +67,7 @@ class CommandLine:public SimpleScreenObject
 {
 public:
 	CommandLine(window_ptr Owner);
-	virtual ~CommandLine();
+	virtual ~CommandLine() override;
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

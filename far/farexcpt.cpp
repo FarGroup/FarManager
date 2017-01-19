@@ -171,11 +171,6 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-static bool LanguageLoaded()
-{
-	return Global && Global->Lang;
-}
-
 enum reply
 {
 	reply_handle,
@@ -229,7 +224,7 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const EXCEP
 	const auto strAddr = tracer::get_one(xp->ExceptionRecord->ExceptionAddress);
 
 	string Msg[4];
-	if (LanguageLoaded())
+	if (Language::IsLoaded())
 	{
 		Msg[0] = MSG(lng::MExcException);
 		Msg[1] = MSG(lng::MExcAddress);
@@ -399,7 +394,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 	if (ItemIterator != std::cend(ECode))
 	{
-		Exception=LanguageLoaded()? MSG(ItemIterator->IdMsg) : ItemIterator->DefaultMsg;
+		Exception = Language::IsLoaded()? MSG(ItemIterator->IdMsg) : ItemIterator->DefaultMsg;
 
 		if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 		{
@@ -423,7 +418,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 			strBuf = L"0x" + to_hex_wstring(xr->ExceptionInformation[1]);
 
-			if (LanguageLoaded())
+			if (Language::IsLoaded())
 			{
 				strBuf = format(lng::MExcRAccess + Offset, strBuf);
 				Exception=strBuf.data();
@@ -454,7 +449,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 	if (!Exception)
 	{
-		const auto Template = LanguageLoaded()? MSG(lng::MExcUnknown) : L"Unknown exception";
+		const auto Template = Language::IsLoaded()? MSG(lng::MExcUnknown) : L"Unknown exception";
 		append(strBuf, Template, L" (0x"s, to_hex_wstring(xr->ExceptionCode), L')');
 		Exception = strBuf.data();
 	}
@@ -633,7 +628,7 @@ static int ExceptionTestHook(Manager::Key key)
 		switch (static_cast<exception_types>(ExitCode))
 		{
 		case exception_types::cpp_std:
-			throw MAKE_FAR_EXCEPTION("test error");
+			throw MAKE_FAR_EXCEPTION(L"Test error");
 
 		case exception_types::cpp_unknown:
 			throw 42;

@@ -1,12 +1,13 @@
-﻿#ifndef BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
-#define BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+﻿#ifndef BLOB_BUILDER_HPP_9C0C6EE1_CAEE_4523_BDEE_53AEE67C167C
+#define BLOB_BUILDER_HPP_9C0C6EE1_CAEE_4523_BDEE_53AEE67C167C
 #pragma once
 
 /*
-blob_view.hpp
+blob_builder.hpp
+
 */
 /*
-Copyright © 2016 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,49 +33,52 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using blob_view = range<const char*>;
-
-class writable_blob_view: public range<char*>
+class blob_builder
 {
 public:
-	NONCOPYABLE(writable_blob_view);
-	writable_blob_view() = default;
-	writable_blob_view(void* Data, size_t Size): range<char*>(reinterpret_cast<char*>(Data), reinterpret_cast<char*>(Data) + Size) {}
-	~writable_blob_view()
+	NONCOPYABLE(blob_builder);
+
+	blob_builder(uintptr_t CodePage):
+		m_CodePage(CodePage),
+		m_Signature(IsUnicodeOrUtfCodePage(m_CodePage))
 	{
-		if (m_Allocated)
-			delete[] static_cast<const char*>(data());
+		if (m_Signature)
+		{
+			m_Data.insert(0, 1, SIGN_UNICODE);
+		}
 	}
 
-	writable_blob_view& operator=(const blob_view& rhs)
+	auto& append(const string& Data)
 	{
-		if (data())
-		{
-			if (size() != rhs.size())
-				throw std::runtime_error("Incorrect blob size");
-		}
-		else
-		{
-			static_cast<range<char*>&>(*this) = make_range(new char[rhs.size()], rhs.size());
-			m_Allocated = true;
-		}
-		memcpy(data(), rhs.data(), size());
+		m_Buffer.clear();
+		m_Data += Data;
 		return *this;
 	}
+
+	blob_view get() const
+	{
+		if (m_Data.empty() || (m_Signature && m_Data.size() == 1))
+		{
+			return {};
+		}
+
+		if (m_CodePage == CP_UNICODE)
+		{
+			return make_blob_view(m_Data.data(), m_Data.size());
+		}
+
+		if (m_Buffer.empty())
+		{
+			m_Buffer = encoding::get_bytes(m_CodePage, m_Data);
+		}
+		return make_blob_view(m_Buffer.data(), m_Buffer.size());
+	}
+
 private:
-	bool m_Allocated{};
+	mutable std::string m_Buffer;
+	string m_Data;
+	uintptr_t m_CodePage;
+	bool m_Signature;
 };
 
-inline auto make_blob_view(const void* Object, size_t Size)
-{
-	return make_range(reinterpret_cast<const char*>(Object), Size);
-}
-
-template<typename T>
-auto make_blob_view(const T& Object)
-{
-	TERSE_STATIC_ASSERT(std::is_pod<T>::value);
-	return make_blob_view(&Object, sizeof Object);
-}
-
-#endif // BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+#endif // BLOB_BUILDER_HPP_9C0C6EE1_CAEE_4523_BDEE_53AEE67C167C

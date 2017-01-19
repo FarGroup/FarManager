@@ -37,4 +37,5 @@ svn info %tag_path% > nul 2>&1 & (
 		svn copy %repo%/trunk/unicode_far %tag_path% -m "tag build %build%"
 	)
 )
+
 endlocal

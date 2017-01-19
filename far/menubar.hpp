@@ -41,7 +41,6 @@ class MenuBar:public SimpleScreenObject
 {
 public:
 	MenuBar(window_ptr Owner): SimpleScreenObject(Owner) {}
-	virtual ~MenuBar() = default;
 
 private:
 	virtual void DisplayObject() override;

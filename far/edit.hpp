@@ -114,7 +114,7 @@ public:
 	using delete_color_condition = std::function<bool(const ColorItem&)>;
 
 	Edit(window_ptr Owner);
-	virtual ~Edit() = default;
+	virtual ~Edit() override = default;
 
 	void FastShow(const ShowInfo* Info=nullptr);
 	virtual int ProcessKey(const Manager::Key& Key) override;

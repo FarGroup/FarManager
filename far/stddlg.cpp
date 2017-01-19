@@ -530,7 +530,7 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 									}
 								}
 							}
-							tmp += L")";
+							tmp += L')';
 							Msg.emplace_back(tmp);
 						}
 					}
@@ -650,7 +650,6 @@ void ReMatchErrorMessage(const RegExp& re)
 {
 	if (re.LastError() != errNone)
 	{
-
 		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(lng::MError),
 			{ GetReErrorString(re.LastError()) },
 			{ MSG(lng::MOk) });

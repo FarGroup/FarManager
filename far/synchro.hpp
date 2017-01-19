@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "pathmix.hpp"
+#include "exception.hpp"
 
 class CriticalSection: noncopyable
 {
@@ -124,7 +125,7 @@ private:
 	void check_joinable() const
 	{
 		if (!joinable())
-			throw MAKE_FAR_EXCEPTION("Thread is not joinable");
+			throw MAKE_FAR_EXCEPTION(L"Thread is not joinable");
 	}
 
 	template<class T>
@@ -138,7 +139,7 @@ private:
 		}
 		else
 		{
-			throw MAKE_FAR_EXCEPTION("Can't create thread");
+			throw MAKE_FAR_EXCEPTION(L"Can't create thread");
 		}
 	}
 
@@ -193,7 +194,7 @@ private:
 	{
 		if (!m_Handle)
 		{
-			throw MAKE_FAR_EXCEPTION("Event not initialized properly");
+			throw MAKE_FAR_EXCEPTION(L"Event not initialized properly");
 		}
 	}
 };

@@ -43,7 +43,6 @@ class DizViewer: public Viewer
 
 	public:
 		DizViewer(window_ptr Owner):Viewer(Owner), InRecursion(0) {}
-		virtual ~DizViewer() {}
 
 	public:
 		virtual int ProcessKey(const Manager::Key& Key) override

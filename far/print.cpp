@@ -61,16 +61,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 {
 	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
-	DWORD pcchBuffer = 0;
-
-	if (!GetDefaultPrinter(nullptr, &pcchBuffer) && ERROR_INSUFFICIENT_BUFFER==GetLastError())
-	{
-		wchar_t_ptr Buffer(pcchBuffer);
-		if (!GetDefaultPrinter(Buffer.get(), &pcchBuffer))
-			strDefaultPrinter.clear();
-		else
-			strDefaultPrinter.assign(Buffer.get(), Buffer.size());
-	}
+	os::GetDefaultPrinter(strDefaultPrinter);
 
 	// Признак наличия принтера по умолчанию
 	bool bDefaultPrinterFound = false;

@@ -131,7 +131,7 @@ void elevation::ResetApprove()
 void elevation::Write(const blob_view& Data) const
 {
 	if (!pipe::Write(m_Pipe, Data.data(), Data.size()))
-		throw MAKE_FAR_EXCEPTION("Pipe write error");
+		throw MAKE_FAR_EXCEPTION(L"Pipe write error");
 }
 
 template<typename T>
@@ -139,7 +139,7 @@ T elevation::Read() const
 {
 	T Data;
 	if (!pipe::Read(m_Pipe, Data))
-		throw MAKE_FAR_EXCEPTION("Pipe read error");
+		throw MAKE_FAR_EXCEPTION(L"Pipe read error");
 	return Data;
 }
 
@@ -147,7 +147,7 @@ template<typename T, typename... args>
 void elevation::Write(const T& Data, args&&... Args) const
 {
 	if (!pipe::Write(m_Pipe, Data))
-		throw MAKE_FAR_EXCEPTION("Pipe write error");
+		throw MAKE_FAR_EXCEPTION(L"Pipe write error");
 	Write(std::forward<args>(Args)...);
 }
 
@@ -845,7 +845,7 @@ private:
 	void Write(const void* Data,size_t DataSize) const
 	{
 		if (!pipe::Write(m_Pipe, Data, DataSize))
-			throw MAKE_FAR_EXCEPTION("Pipe write error");
+			throw MAKE_FAR_EXCEPTION(L"Pipe write error");
 	}
 
 	template<typename T>
@@ -853,7 +853,7 @@ private:
 	{
 		T Data;
 		if (!pipe::Read(m_Pipe, Data))
-			throw MAKE_FAR_EXCEPTION("Pipe read error");
+			throw MAKE_FAR_EXCEPTION(L"Pipe read error");
 		return Data;
 	}
 
@@ -861,7 +861,7 @@ private:
 	void Write(const T& Data) const
 	{
 		if (!pipe::Write(m_Pipe, Data))
-			throw MAKE_FAR_EXCEPTION("Pipe write error");
+			throw MAKE_FAR_EXCEPTION(L"Pipe write error");
 	}
 
 	void ExitHandler() const

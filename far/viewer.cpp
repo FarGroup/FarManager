@@ -2297,7 +2297,7 @@ static int process_back(int BufferSize, int pos, long long& fpos, const F& Reade
 
 	if (nr != static_cast<int>(BufferSize / sizeof(T)))
 	{
-		throw MAKE_FAR_EXCEPTION("wrong size");
+		throw MAKE_FAR_EXCEPTION(L"Wrong size");
 	}
 
 	if (!pos)

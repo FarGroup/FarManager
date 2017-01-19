@@ -47,6 +47,7 @@ public:
 	virtual ~Language() = default;
 
 	const wchar_t* GetMsg(lng nID) const;
+	static bool IsLoaded();
 
 protected:
 	Language() = default;

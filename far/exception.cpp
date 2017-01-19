@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "exception.hpp"
 #include "imports.hpp"
+#include "encoding.hpp"
 
 error_codes::error_codes():
 	Win32Error(GetLastError()),
@@ -44,6 +45,14 @@ error_codes::error_codes(ignore):
 	Win32Error(ERROR_SUCCESS),
 	NtError(STATUS_SUCCESS)
 {}
+
+
+far_exception::far_exception(const string& Message, const char* Function, const char* File, int Line):
+	exception_impl(Message, Function, File, Line),
+	std::runtime_error(encoding::utf8::get_bytes(get_full_message()))
+{
+}
+
 
 std::exception_ptr& GlobalExceptionPtr()
 {

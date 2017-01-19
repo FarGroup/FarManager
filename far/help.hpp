@@ -46,7 +46,7 @@ class Help:public Modal
 public:
 	static help_ptr create(const string& Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
 	Help(private_tag);
-	virtual ~Help();
+	virtual ~Help() override;
 
 	virtual int  ProcessKey(const Manager::Key& Key) override;
 	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

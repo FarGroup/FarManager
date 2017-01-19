@@ -49,7 +49,7 @@ class InfoList:public Panel
 public:
 	static info_panel_ptr create(window_ptr Owner);
 	InfoList(private_tag, window_ptr Owner);
-	virtual ~InfoList();
+	virtual ~InfoList() override;
 
 private:
 	virtual void DisplayObject() override;

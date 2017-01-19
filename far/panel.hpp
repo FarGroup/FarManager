@@ -146,7 +146,7 @@ class FilePanels;
 class Panel: public ScreenObject, public std::enable_shared_from_this<Panel>
 {
 public:
-	virtual ~Panel();
+	virtual ~Panel() override;
 
 	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
 	virtual void CloseFile() {}

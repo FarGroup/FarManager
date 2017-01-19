@@ -46,7 +46,7 @@ class QuickView:public Panel
 public:
 	static qview_panel_ptr create(window_ptr Owner);
 	QuickView(private_tag, window_ptr Owner);
-	virtual ~QuickView();
+	virtual ~QuickView() override;
 	void ShowFile(const string& FileName, bool TempFile, plugin_panel* hDirPlugin);
 
 private:

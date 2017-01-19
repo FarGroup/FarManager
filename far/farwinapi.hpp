@@ -165,6 +165,7 @@ namespace os
 	bool GetWindowText(HWND Hwnd, string& Text);
 	bool IsWow64Process();
 	DWORD GetAppPathsRedirectionFlag();
+	bool GetDefaultPrinter(string& Printer);
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags);
 	bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
@@ -461,7 +462,7 @@ namespace os
 		{
 			namespace detail
 			{
-				class provider
+				class provider: noncopyable
 				{
 				public:
 					const wchar_t* data() const { return m_Data; }
@@ -471,14 +472,14 @@ namespace os
 				};
 			}
 
-			class strings: noncopyable, public detail::provider
+			class strings: public detail::provider
 			{
 			public:
 				strings();
 				~strings();
 			};
 
-			class block: noncopyable, public detail::provider
+			class block: public detail::provider
 			{
 			public:
 				block();

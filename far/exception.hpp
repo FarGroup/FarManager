@@ -48,9 +48,9 @@ namespace detail
 	class exception_impl
 	{
 	public:
-		exception_impl(const std::string& Message, const char* Function, const char* File, int Line):
+		exception_impl(const string& Message, const char* Function, const char* File, int Line):
 			m_Message(Message),
-			m_FullMessage(Message + " (at "s + Function + ", "s + File + ":"s + std::to_string(Line) + ")"s)
+			m_FullMessage(format(L"{0} (at {1}, {2}:{3})", Message, Function, File, Line))
 		{
 		}
 
@@ -59,8 +59,8 @@ namespace detail
 		const auto& get_error_codes() const noexcept { return m_ErrorCodes; }
 
 	private:
-		std::string m_Message;
-		std::string m_FullMessage;
+		string m_Message;
+		string m_FullMessage;
 		error_codes m_ErrorCodes;
 	};
 }
@@ -68,11 +68,7 @@ namespace detail
 class far_exception: public detail::exception_impl, public std::runtime_error
 {
 public:
-	far_exception(const std::string& Message, const char* Function, const char* File, int Line):
-		exception_impl(Message, Function, File, Line),
-		std::runtime_error(get_full_message())
-	{
-	}
+	far_exception(const string& Message, const char* Function, const char* File, int Line);
 };
 
 #define MAKE_EXCEPTION(ExceptionType, Message) ExceptionType(Message, __FUNCTION__, __FILE__, __LINE__)

@@ -164,7 +164,7 @@ class FileList:public Panel
 public:
 	static file_panel_ptr create(window_ptr Owner);
 	FileList(private_tag, window_ptr Owner);
-	virtual ~FileList();
+	virtual ~FileList() override;
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

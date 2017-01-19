@@ -378,7 +378,7 @@ void Language::init(const string& Path, int CountNeed)
 
 	if (!OpenLangFile(LangFile, Path, LangFileMask, Global->Opt->strLanguage, m_FileName, nCodePage, false, &strLangName))
 	{
-		throw MAKE_FAR_EXCEPTION("Cannot find language data");
+		throw MAKE_FAR_EXCEPTION(L"Cannot find language data");
 	}
 
 	GetFileString GetStr(LangFile, nCodePage);
@@ -410,7 +410,7 @@ void Language::init(const string& Path, int CountNeed)
 	//   Проведем проверку на количество строк в LNG-файлах
 	if (CountNeed != -1 && CountNeed != static_cast<int>(size()))
 	{
-		throw MAKE_FAR_EXCEPTION(encoding::utf8::get_bytes(m_FileName) + ": language data is incorrect or damaged");
+		throw MAKE_FAR_EXCEPTION(m_FileName + L": language data is incorrect or damaged");
 	}
 
 	// try to load Far<LNG>.lng.custom file(s)
@@ -486,6 +486,11 @@ bool Language::CheckMsgId(lng MsgId) const
 	}
 
 	return true;
+}
+
+bool Language::IsLoaded()
+{
+	return Global && Global->Lang;
 }
 
 const wchar_t* Language::GetMsg(lng nID) const

@@ -301,15 +301,13 @@ namespace fs
 	}
 
 	file_status::file_status(const string& Object) :
-		m_Data(os::GetFileAttributes(Object))
+		file_status(Object.data())
 	{
-
 	}
 
 	file_status::file_status(const wchar_t* Object):
 		m_Data(os::GetFileAttributes(Object))
 	{
-
 	}
 
 	bool file_status::check(DWORD Data) const
@@ -1496,9 +1494,8 @@ static int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 		OBJECT_ATTRIBUTES ObjAttrs;
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
 		HANDLE hSymLink;
-		NTSTATUS Res = Imports().NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
 
-		if (Res == STATUS_SUCCESS)
+		if (Imports().NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs) == STATUS_SUCCESS)
 		{
 			SCOPE_EXIT{ Imports().NtClose(hSymLink); };
 
@@ -1507,9 +1504,8 @@ static int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 			UNICODE_STRING LinkTarget;
 			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
 			LinkTarget.Buffer = Buffer.get();
-			Res = Imports().NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
 
-			if (Res == STATUS_SUCCESS)
+			if (Imports().NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) == STATUS_SUCCESS)
 			{
 				TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
 			}
@@ -1788,6 +1784,15 @@ DWORD GetAppPathsRedirectionFlag()
 	return RedirectionFlag;
 }
 
+bool GetDefaultPrinter(string& Printer)
+{
+	return ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Printer, [&](wchar_t* Buffer, size_t Size)
+	{
+		DWORD dwSize = static_cast<DWORD>(Size);
+		return ::GetDefaultPrinter(Buffer, &dwSize)? dwSize - 1 : 0;
+	});
+}
+
 	namespace reg
 	{
 		key open_key(HKEY RootKey, const wchar_t* SubKey, DWORD SamDesired)
@@ -1908,7 +1913,7 @@ DWORD GetAppPathsRedirectionFlag()
 		string value::GetString() const
 		{
 			if (!detail::IsStringType(m_Type))
-				throw MAKE_FAR_EXCEPTION("bad value type");
+				throw MAKE_FAR_EXCEPTION(L"Bad value type");
 
 			string Result;
 			GetValue(*m_Key, m_Name.data(), Result);
@@ -1918,7 +1923,7 @@ DWORD GetAppPathsRedirectionFlag()
 		unsigned int value::GetUnsigned() const
 		{
 			if (m_Type != REG_DWORD)
-				throw MAKE_FAR_EXCEPTION("bad value type");
+				throw MAKE_FAR_EXCEPTION(L"Bad value type");
 
 			unsigned int Result = 0;
 			GetValue(*m_Key, m_Name.data(), Result);
@@ -1928,7 +1933,7 @@ DWORD GetAppPathsRedirectionFlag()
 		unsigned long long value::GetUnsigned64() const
 		{
 			if (m_Type != REG_QWORD)
-				throw MAKE_FAR_EXCEPTION("bad value type");
+				throw MAKE_FAR_EXCEPTION(L"Bad value type");
 
 			unsigned long long Result = 0;
 			GetValue(*m_Key, m_Name.data(), Result);
@@ -2072,15 +2077,12 @@ DWORD GetAppPathsRedirectionFlag()
 			const auto& GetResult = []
 			{
 				SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
-				if (const auto AdministratorsGroup = make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS))
-				{
-					BOOL IsMember = FALSE;
-					if (CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember)
-					{
-						return true;
-					}
-				}
-				return false;
+				const auto AdministratorsGroup = make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+				if (!AdministratorsGroup)
+					return false;
+
+				BOOL IsMember;
+				return CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember;
 			};
 
 			static const auto Result = GetResult();

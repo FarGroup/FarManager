@@ -46,27 +46,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4054) // https://msdn.microsoft.com/en-us/library/07d15ax5.aspx 'conversion' : from function pointer 'type1' to data pointer 'type2'
 #pragma warning(disable: 4061) // https://msdn.microsoft.com/en-us/library/96f5t7fy.aspx enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
 #pragma warning(disable: 4100) // https://msdn.microsoft.com/en-us/library/26kb9fy0.aspx 'identifier' : unreferenced formal parameter
-#pragma warning(disable: 4127) // https://msdn.microsoft.com/en-us/library/6t66728h.aspx conditional expression is constant
 #pragma warning(disable: 4191) // https://msdn.microsoft.com/en-us/library/w0eaaaf7.aspx 'operator/operation' : unsafe conversion from 'type of expression' to 'type required'
 #pragma warning(disable: 4201) // https://msdn.microsoft.com/en-us/library/c89bw853.aspx nonstandard extension used : nameless struct/union
-#pragma warning(disable: 4204) // https://msdn.microsoft.com/en-us/library/6b73z23c.aspx nonstandard extension used : non-constant aggregate initializer
 #pragma warning(disable: 4242) // https://msdn.microsoft.com/en-us/library/3hca13eh.aspx 'identifier' : conversion from 'type1' to 'type2', possible loss of data
 #pragma warning(disable: 4244) // https://msdn.microsoft.com/en-us/library/th7a07tz.aspx 'conversion' conversion from 'type1' to 'type2', possible loss of data
 #pragma warning(disable: 4245) // https://msdn.microsoft.com/en-us/library/e9s7thk1.aspx 'conversion' : conversion from 'type1' to 'type2', signed/unsigned mismatch
 #pragma warning(disable: 4250) // https://msdn.microsoft.com/en-us/library/6b3sy7ae.aspx 'class1' : inherits 'class2::member' via dominance
-#pragma warning(disable: 4255) // https://msdn.microsoft.com/en-us/library/0k9z2ey4.aspx 'function' : no function prototype given: converting '()' to '(void)'
 #pragma warning(disable: 4324) // https://msdn.microsoft.com/en-us/library/92fdk6xx.aspx 'struct_name' : structure was padded due to __declspec(align())
-#pragma warning(disable: 4345) // https://msdn.microsoft.com/en-us/library/wewb47ee.aspx behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
-#pragma warning(disable: 4350) // https://msdn.microsoft.com/en-us/library/0eestyah.aspx behavior change: 'member1' called instead of 'member2'
-#pragma warning(disable: 4351) // https://msdn.microsoft.com/en-us/library/1ywe7hcy.aspx new behavior: elements of array 'array' will be default initialized
 #pragma warning(disable: 4355) // https://msdn.microsoft.com/en-us/library/3c594ae3.aspx 'this' : used in base member initializer list
 #pragma warning(disable: 4365) // https://msdn.microsoft.com/en-us/library/ms173683.aspx 'action' : conversion from 'type_1' to 'type_2', signed/unsigned mismatch
 #pragma warning(disable: 4371) // no page                                                layout of class may have changed from a previous version of the compiler due to better packing of member 'member'
-#pragma warning(disable: 4396) // https://msdn.microsoft.com/en-us/library/bb384968.aspx "name" : the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
 #pragma warning(disable: 4435) // https://msdn.microsoft.com/en-us/library/jj155806.aspx 'class1' : Object layout under /vd2 will change due to virtual base 'class2'
-#pragma warning(disable: 4480) // https://msdn.microsoft.com/en-us/library/ms173702.aspx nonstandard extension used: specifying underlying type for enum 'enum'
-#pragma warning(disable: 4481) // https://msdn.microsoft.com/en-us/library/ms173703.aspx nonstandard extension used: override specifier 'keyword'
-#pragma warning(disable: 4482) // https://msdn.microsoft.com/en-us/library/ms173704.aspx nonstandard extension used: enum 'enum' used in qualified name
 #pragma warning(disable: 4503) // https://msdn.microsoft.com/en-us/library/074af4b6.aspx 'identifier' : decorated name length exceeded, name was truncated
 #pragma warning(disable: 4512) // https://msdn.microsoft.com/en-us/library/hsyx7kbz.aspx 'class' : assignment operator could not be generated
 #pragma warning(disable: 4514) // https://msdn.microsoft.com/en-us/library/cw9x3tcf.aspx 'function' : unreferenced inline function has been removed
@@ -80,8 +70,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4770) // no page                                                partially validated enum 'name' used as index
 #pragma warning(disable: 4738) // https://msdn.microsoft.com/en-us/library/c24hdbz6.aspx storing 32-bit float result in memory, possible loss of performance
 #pragma warning(disable: 4820) // https://msdn.microsoft.com/en-us/library/t7khkyth.aspx 'bytes' bytes padding added after construct 'member_name'
-#pragma warning(disable: 4836) // https://msdn.microsoft.com/en-us/library/ms173717.aspx nonstandard extension used : 'type' : local types or unnamed types cannot be used as template arguments
-#pragma warning(disable: 4986) // https://msdn.microsoft.com/en-us/library/jj620898.aspx 'function': exception specification does not match previous declaration
 #pragma warning(disable: 5025) // no page                                                'class': move assignment operator was implicitly defined as deleted
 #pragma warning(disable: 5026) // no page                                                'class': move constructor was implicitly defined as deleted because a base class move constructor is inaccessible or deleted
 #pragma warning(disable: 5027) // no page                                                'class': move assignment operator was implicitly defined as deleted because a base class move assignment operator is inaccessible or deleted

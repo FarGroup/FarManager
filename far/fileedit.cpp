@@ -1957,7 +1957,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
 		if(!EditFile)
 		{
-			throw MAKE_FAR_EXCEPTION("Can't open file");
+			throw MAKE_FAR_EXCEPTION(L"Can't open file");
 		}
 
 		m_editor->UndoSavePos=m_editor->UndoPos;
@@ -1993,7 +1993,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			size_t dwWritten;
 			if (!EditFile.Write(&dwSignature,SignLength,dwWritten,nullptr)||dwWritten!=SignLength)
 			{
-				throw MAKE_FAR_EXCEPTION("Write error");
+				throw MAKE_FAR_EXCEPTION(L"Write error");
 			}
 		}
 
@@ -2033,7 +2033,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				    (EndLength && !Cache.Write(EndSeq,EndLength*sizeof(wchar_t)))
 				   )
 				{
-					throw MAKE_FAR_EXCEPTION("Write error");
+					throw MAKE_FAR_EXCEPTION(L"Write error");
 				}
 			}
 			else
@@ -2047,7 +2047,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 						encoding::get_bytes(codepage, Data, Size, Buffer);
 						if (!Cache.Write(Buffer.data(), Buffer.size()))
 						{
-							throw MAKE_FAR_EXCEPTION("Write error");
+							throw MAKE_FAR_EXCEPTION(L"Write error");
 						}
 					}
 				};
@@ -2059,7 +2059,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		if (!Cache.Flush())
 		{
-			throw MAKE_FAR_EXCEPTION("Write error");
+			throw MAKE_FAR_EXCEPTION(L"Write error");
 		}
 
 		EditFile.SetEnd();

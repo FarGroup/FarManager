@@ -75,7 +75,7 @@ struct ListControlBinding: public DialogItemBinding<T>
 	{
 	}
 
-	virtual ~ListControlBinding()
+	virtual ~ListControlBinding() override
 	{
 		if (List)
 		{

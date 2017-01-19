@@ -53,7 +53,7 @@ class Viewer:public SimpleScreenObject
 {
 public:
 	Viewer(window_ptr Owner, bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
-	virtual ~Viewer();
+	virtual ~Viewer() override;
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

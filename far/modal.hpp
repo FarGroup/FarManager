@@ -58,7 +58,6 @@ public:
 
 protected:
 	SimpleModal() = default;
-	virtual ~SimpleModal() = default;
 
 	void SetDone(void);
 	void Close(int Code);

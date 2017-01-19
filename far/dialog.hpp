@@ -159,7 +159,7 @@ public:
 		Construct(make_range(Src.data(), Src.size()));
 	}
 
-	virtual ~Dialog();
+	virtual ~Dialog() override;
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

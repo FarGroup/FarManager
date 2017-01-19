@@ -349,7 +349,7 @@ private:
 		return true;
 	}
 
-	enum statement_id: size_t
+	enum statement_id
 	{
 		stmtUpdateValue,
 		stmtInsertValue,
@@ -391,7 +391,10 @@ public:
 		Initialize(DbName, Local);
 	}
 
-	virtual ~HierarchicalConfigDb() { HierarchicalConfigDb::EndTransaction(); AsyncDone.Set(); }
+	virtual ~HierarchicalConfigDb() override
+	{
+		HierarchicalConfigDb::EndTransaction(); AsyncDone.Set();
+	}
 
 protected:
 	virtual void AsyncFinish() override
@@ -815,7 +818,7 @@ private:
 
 		const auto Blob = Stmt->GetColBlob(0);
 		if (Blob.size() != sizeof(Value))
-			throw MAKE_FAR_EXCEPTION("incorrect blob size");
+			throw MAKE_FAR_EXCEPTION(L"Incorrect blob size");
 		Value = *reinterpret_cast<const FarColor*>(Blob.data());
 		return true;
 	}
@@ -833,7 +836,7 @@ private:
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
 			const auto Blob = stmtEnumAllValues.GetColBlob(1);
 			if (Blob.size() != sizeof(FarColor))
-				throw MAKE_FAR_EXCEPTION("incorrect blob size");
+				throw MAKE_FAR_EXCEPTION(L"Incorrect blob size");
 			auto& Color = *reinterpret_cast<const FarColor*>(Blob.data());
 			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
 			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
@@ -1423,7 +1426,7 @@ private:
 
 		const auto Blob = Stmt->GetColBlob(0);
 		if (Blob.size() != sizeof(*Version))
-			throw MAKE_FAR_EXCEPTION("incorrect blob size");
+			throw MAKE_FAR_EXCEPTION(L"Incorrect blob size");
 		*Version = *reinterpret_cast<const VersionInfo*>(Blob.data());
 		return true;
 	}
@@ -1609,7 +1612,7 @@ private:
 class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 {
 public:
-	virtual ~HistoryConfigCustom()
+	virtual ~HistoryConfigCustom() override
 	{
 		WaitAllAsync();
 		StopEvent.Set();
@@ -2307,7 +2310,7 @@ bool config_provider::Export(const string& File)
 
 bool config_provider::ServiceMode(const string& Filename)
 {
-	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION("unexpected service mode");
+	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION(L"Unexpected service mode");
 }
 
 bool config_provider::Import(const string& Filename)

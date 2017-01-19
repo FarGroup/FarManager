@@ -133,19 +133,21 @@ public:
 
 	bool Read()
 	{
-		if (const auto Size = GetFileVersionInfoSize(m_File.data(), nullptr))
-		{
-			m_Buffer.reset(Size);
-			if (GetFileVersionInfo(m_File.data(), 0, Size, m_Buffer.get()))
-			{
-				if (const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"))
-				{
-					m_BlockPath = format(L"\\StringFileInfo\\{0:04X}{1:04X}\\", LOWORD(*Translation), HIWORD(*Translation));
-					return true;
-				}
-			}
-		}
-		return false;
+		const auto Size = GetFileVersionInfoSize(m_File.data(), nullptr);
+		if (!Size)
+			return false;
+
+		m_Buffer.reset(Size);
+
+		if (!GetFileVersionInfo(m_File.data(), 0, Size, m_Buffer.get()))
+			return false;
+
+		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation");
+		if (!Translation)
+			return false;
+
+		m_BlockPath = format(L"\\StringFileInfo\\{0:04X}{1:04X}\\", LOWORD(*Translation), HIWORD(*Translation));
+		return true;
 	}
 
 	auto GetStringValue(const string& value) const
@@ -232,7 +234,7 @@ public:
 			WA("GetMinFarVersion"),
 		};
 		TERSE_STATIC_ASSERT(std::size(ExportsNames) == ExportsCount);
-		m_ExportsNames = make_range(ALL_CONST_RANGE(ExportsNames));
+		m_ExportsNames = make_range(ExportsNames);
 	}
 
 	virtual plugin_module_ptr Create(const string& filename) override
@@ -5006,8 +5008,7 @@ private:
 
 			if (const auto Uuid = FileVersion.GetStringValue(L"PluginGUID"))
 			{
-				if (UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Uuid)), &PluginGuid) == RPC_S_OK)
-					GuidFound = true;
+				GuidFound = StrToGuid(Uuid, PluginGuid);
 			}
 
 			if (const auto FileInfo = FileVersion.GetFixedInfo())

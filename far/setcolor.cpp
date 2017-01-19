@@ -94,8 +94,36 @@ struct color_item
 	const color_item* SubColor;
 };
 
-static void SetItemColors(const color_item* Items, size_t Size);
+static void SetItemColors(const color_item* Items, size_t Size, COORD Position = {})
+{
+	const auto ItemsMenu = VMenu2::create(MSG(lng::MSetColorItemsTitle), nullptr, 0);
 
+	for (const auto& i : make_range(Items, Size))
+	{
+		ItemsMenu->AddItem(MSG(i.LngId));
+	}
+
+	ItemsMenu->SetPosition(Position.X += 10, Position.Y += 5, 0, 0);
+	ItemsMenu->SetMenuFlags(VMENU_WRAPMODE);
+	ItemsMenu->RunEx([&](int Msg, void *param)
+	{
+		const auto ItemsCode = reinterpret_cast<intptr_t>(param);
+		if (Msg != DN_CLOSE || ItemsCode < 0)
+			return 0;
+
+		ItemsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+		if (Items[ItemsCode].SubColor)
+		{
+			SetItemColors(Items[ItemsCode].SubColor, Items[ItemsCode].SubColorCount, Position);
+		}
+		else
+		{
+			GetColor(Items[ItemsCode].Color);
+		}
+
+		return 1;
+	});
+}
 void SetColors()
 {
 	static constexpr color_item
@@ -375,40 +403,6 @@ void SetColors()
 	Global->CtrlObject->Cp()->RightPanel()->Redraw();
 }
 
-
-static void SetItemColors(const color_item* Items, size_t Size)
-{
-	const auto ItemsMenu = VMenu2::create(MSG(lng::MSetColorItemsTitle), nullptr, 0);
-
-	for (const auto& i: make_range(Items, Size))
-	{
-		ItemsMenu->AddItem(MSG(i.LngId));
-	}
-
-	static int MenuX = 0, MenuY = 0;
-	MenuX += 10; MenuY += 5;
-	SCOPE_EXIT{ MenuX -= 10; MenuY -= 5; };
-
-	ItemsMenu->SetPosition(MenuX, MenuY, 0, 0);
-	ItemsMenu->SetMenuFlags(VMENU_WRAPMODE);
-	ItemsMenu->RunEx([&](int Msg, void *param)
-	{
-		const auto ItemsCode = reinterpret_cast<intptr_t>(param);
-		if (Msg!=DN_CLOSE || ItemsCode<0)
-			return 0;
-
-		ItemsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
-		if (Items[ItemsCode].SubColor)
-		{
-			SetItemColors(Items[ItemsCode].SubColor, Items[ItemsCode].SubColorCount);
-		}
-		else
-			GetColor(Items[ItemsCode].Color);
-
-		return 1;
-	});
-}
-
 template<class T>
 constexpr auto distinct(T value)
 {
@@ -437,27 +431,28 @@ int ColorIndex[] =
 
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
+	const auto& GetColor = [Param1](size_t Offset)
+	{
+		return colors::ConsoleColorToFarColor(ColorIndex[Param1 - Offset]);
+	};
+
 	switch (Msg)
 	{
 		case DN_CTLCOLORDLGITEM:
-
-			if (Param1 >= 2 && Param1 <= 17) // Fore
 			{
 				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
-			}
-
-			if (Param1 >= 19 && Param1 <= 34) // Back
-			{
-				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
-			}
-
-			if (Param1 >= 37 && Param1 <= 39)
-			{
-				const auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = *CurColor;
+				if (Param1 >= 2 && Param1 <= 17) // Fore
+				{
+					Colors->Colors[0] = GetColor(2);
+				}
+				else if (Param1 >= 19 && Param1 <= 34) // Back
+				{
+					Colors->Colors[0] = GetColor(19);
+				}
+				else if (Param1 >= 37 && Param1 <= 39)
+				{
+					Colors->Colors[0] = *reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				}
 			}
 			break;
 
@@ -465,30 +460,18 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (Param1 >= 2 && Param1 <= 34)
 			{
-				FarColor NewColor;
 				const auto CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				FarDialogItem DlgItem = {};
 				Dlg->SendMessage( DM_GETDLGITEMSHORT, Param1, &DlgItem);
-				NewColor=*CurColor;
 
 				if (Param1 >= 2 && Param1 <= 17) // Fore
 				{
-					UINT B = NewColor.BackgroundColor;
-					NewColor = colors::ConsoleColorToFarColor(ColorIndex[Param1-2]);
-					NewColor.ForegroundColor = NewColor.BackgroundColor;
-					NewColor.BackgroundColor = B;
+					CurColor->ForegroundColor = GetColor(2).BackgroundColor;
 				}
-
-				if (Param1 >= 19 && Param1 <= 34) // Back
+				else if (Param1 >= 19 && Param1 <= 34) // Back
 				{
-					UINT F = NewColor.ForegroundColor;
-					NewColor = colors::ConsoleColorToFarColor(ColorIndex[Param1-19]);
-					//NewColor.BackgroundColor = NewColor.ForegroundColor;
-					NewColor.ForegroundColor = F;
+					CurColor->BackgroundColor = GetColor(19).BackgroundColor;
 				}
-
-				if (NewColor.BackgroundColor!=CurColor->BackgroundColor || NewColor.ForegroundColor!=CurColor->ForegroundColor)
-					*CurColor=NewColor;
 
 				return TRUE;
 			}

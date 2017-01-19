@@ -49,34 +49,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "mix.hpp"
 #include "language.hpp"
+#include "blob_builder.hpp"
 
-struct TSubstData
+struct subst_data
 {
-	// параметры функции SubstFileName
-	const wchar_t *Name;           // Длинное имя
-	const wchar_t *ShortName;      // Короткое имя
+	struct
+	{
+		struct
+		{
+			string Name;
+			string NameOnly;
+			string* ListName;
+		}
+		Normal, Short;
+		panel_ptr Panel;
+	}
+	This, Another;
 
-	string *pListName;
-	string *pAnotherListName;
+	auto& Default()
+	{
+		return PassivePanel? Another : This;
+	}
 
-	string *pShortListName;
-	string *pAnotherShortListName;
-
-	// локальные переменные
-	string strAnotherName;
-	string strAnotherShortName;
-	string strNameOnly;
-	string strShortNameOnly;
-	string strAnotherNameOnly;
-	string strAnotherShortNameOnly;
-	string strCmdDir;
+	string CmdDir;
 	bool PreserveLFN;
-	int  PassivePanel;
-
-	panel_ptr AnotherPanel;
-	panel_ptr ActivePanel;
+	bool PassivePanel;
 };
-
 
 static int IsReplaceVariable(const wchar_t *str,int *scr = nullptr,
                              int *end = nullptr,
@@ -86,24 +84,24 @@ static int IsReplaceVariable(const wchar_t *str,int *scr = nullptr,
                              int *end_txt_break = nullptr);
 
 
-static int ReplaceVariables(const wchar_t *DlgTitle,string &strStr, TSubstData& SubstData);
+static int ReplaceVariables(const string& DlgTitle,string &strStr, subst_data& SubstData);
 
 // Str=if exist !#!\!^!.! far:edit < diff -c -p "!#!\!^!.!" !\!.!
 
-static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstData, string &strOut)
+static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstData, string &strOut)
 {
 	// рассмотрим переключатели активности/пассивности панели.
 	if (!StrCmpN(CurStr,L"!#",2))
 	{
 		CurStr+=2;
-		SubstData.PassivePanel=TRUE;
+		SubstData.PassivePanel = true;
 		return CurStr;
 	}
 
 	if (!StrCmpN(CurStr,L"!^",2))
 	{
 		CurStr+=2;
-		SubstData.PassivePanel=FALSE;
+		SubstData.PassivePanel = false;
 		return CurStr;
 	}
 
@@ -118,11 +116,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	// !.!      Длинное имя файла с расширением
 	if (!StrCmpN(CurStr,L"!.!",3) && CurStr[3] != L'?')
 	{
-		if (SubstData.PassivePanel)
-			strOut += SubstData.strAnotherName;
-		else
-			strOut += SubstData.Name;
-
+		strOut += SubstData.Default().Normal.Name;
 		CurStr+=3;
 		return CurStr;
 	}
@@ -130,7 +124,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	// !~       Короткое имя файла без расширения
 	if (!StrCmpN(CurStr,L"!~",2))
 	{
-		strOut += SubstData.PassivePanel ? SubstData.strAnotherShortNameOnly : SubstData.strShortNameOnly;
+		strOut += SubstData.Default().Short.NameOnly;
 		CurStr+=2;
 		return CurStr;
 	}
@@ -142,12 +136,12 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 
 		if (CurStr[2] == L'~')
 		{
-			Ext=wcsrchr((SubstData.PassivePanel ? SubstData.strAnotherShortName.data():SubstData.ShortName),L'.');
+			Ext=wcsrchr(SubstData.Default().Short.Name.data(), L'.');
 			CurStr+=3;
 		}
 		else
 		{
-			Ext=wcsrchr((SubstData.PassivePanel ? SubstData.strAnotherName.data():SubstData.Name),L'.');
+			Ext=wcsrchr(SubstData.Default().Normal.Name.data(), L'.');
 			CurStr+=2;
 		}
 
@@ -162,7 +156,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	        (!StrCmpN(CurStr,L"!&",2) && CurStr[2] != L'?'))
 	{
 		string strFileNameL, strShortNameL;
-		const auto WPanel = SubstData.PassivePanel?SubstData.AnotherPanel:SubstData.ActivePanel;
+		const auto WPanel = SubstData.Default().Panel;
 		DWORD FileAttrL;
 		int ShortN0=FALSE;
 		int CntSkip=2;
@@ -216,13 +210,13 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 
 		if (ShortN0)
 		{
-			pListName = SubstData.pShortListName;
-			pAnotherListName = SubstData.pAnotherShortListName;
+			pListName = SubstData.This.Short.ListName;
+			pAnotherListName = SubstData.Another.Short.ListName;
 		}
 		else
 		{
-			pListName = SubstData.pListName;
-			pAnotherListName = SubstData.pAnotherListName;
+			pListName = SubstData.This.Normal.ListName;
+			pAnotherListName = SubstData.Another.Normal.ListName;
 		}
 
 		if (const auto Ptr = wcschr(CurStr + 2, L'!'))
@@ -233,7 +227,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 
 				if (pListName)
 				{
-					if (SubstData.PassivePanel && (!pAnotherListName->empty() || SubstData.AnotherPanel->MakeListFile(*pAnotherListName, ShortN0, Modifers)))
+					if (SubstData.PassivePanel && (!pAnotherListName->empty() || SubstData.Another.Panel->MakeListFile(*pAnotherListName, ShortN0, Modifers)))
 					{
 						if (ShortN0)
 							*pAnotherListName = ConvertNameToShort(*pAnotherListName);
@@ -241,7 +235,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 						strOut += *pAnotherListName;
 					}
 
-					if (!SubstData.PassivePanel && (!pListName->empty() || SubstData.ActivePanel->MakeListFile(*pListName, ShortN0, Modifers)))
+					if (!SubstData.PassivePanel && (!pListName->empty() || SubstData.This.Panel->MakeListFile(*pListName, ShortN0, Modifers)))
 					{
 						if (ShortN0)
 							*pListName = ConvertNameToShort(*pListName);
@@ -265,10 +259,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	// !-!      Короткое имя файла с расширением
 	if (!StrCmpN(CurStr,L"!-!",3) && CurStr[3] != L'?')
 	{
-		if (SubstData.PassivePanel)
-			strOut += SubstData.strAnotherShortName;
-		else
-			strOut += SubstData.ShortName;
+		strOut += SubstData.Default().Short.Name;
 
 		CurStr+=3;
 		return CurStr;
@@ -278,13 +269,10 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	//          после выполнения команды, FAR восстановит его
 	if (!StrCmpN(CurStr,L"!+!",3) && CurStr[3] != L'?')
 	{
-		if (SubstData.PassivePanel)
-			strOut += SubstData.strAnotherShortName;
-		else
-			strOut += SubstData.ShortName;
+		strOut += SubstData.Default().Short.Name;
 
 		CurStr+=3;
-		SubstData.PreserveLFN=TRUE;
+		SubstData.PreserveLFN = true;
 		return CurStr;
 	}
 
@@ -293,12 +281,12 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	{
 		string strCurDir;
 
-		if (*SubstData.Name && SubstData.Name[1]==L':')
-			strCurDir = SubstData.Name;
+		if (SubstData.This.Normal.Name.length() > 1 && SubstData.This.Normal.Name[1]==L':')
+			strCurDir = SubstData.This.Normal.Name;
 		else if (SubstData.PassivePanel)
-			strCurDir = SubstData.AnotherPanel->GetCurDir();
+			strCurDir = SubstData.Another.Panel->GetCurDir();
 		else
-			strCurDir = SubstData.strCmdDir;
+			strCurDir = SubstData.CmdDir;
 
 		auto strRootDir = GetPathRoot(strCurDir);
 		DeleteEndSlash(strRootDir);
@@ -322,9 +310,9 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 		}
 
 		if (SubstData.PassivePanel)
-			strCurDir = SubstData.AnotherPanel->GetCurDir();
+			strCurDir = SubstData.Another.Panel->GetCurDir();
 		else
-			strCurDir = SubstData.strCmdDir;
+			strCurDir = SubstData.CmdDir;
 
 		if (RealPath)
 		{
@@ -341,7 +329,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 
 		if (*CurStr==L'!')
 		{
-			if (wcspbrk(SubstData.PassivePanel?SubstData.strAnotherName.data():SubstData.Name,L"\\:"))
+			if (wcspbrk(SubstData.Default().Normal.Name.data(), L"\\:"))
 				strCurDir.clear();
 		}
 
@@ -372,7 +360,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, TSubstData& SubstDat
 	// !        Длинное имя файла без расширения
 	if (*CurStr==L'!')
 	{
-		strOut += PointToName(SubstData.PassivePanel ? SubstData.strAnotherNameOnly : SubstData.strNameOnly);
+		strOut += PointToName(SubstData.Default().Normal.NameOnly);
 		CurStr++;
 	}
 
@@ -397,8 +385,7 @@ bool SubstFileName(const wchar_t *DlgTitle,
                   int   IgnoreInput,    // TRUE - не исполнять "!?<title>?<init>!"
                   const wchar_t *CmdLineDir)     // Каталог исполнения
 {
-	string* Lists[] = { pListName, pAnotherListName, pShortListName, pAnotherShortListName };
-	for (auto& i: Lists)
+	for (auto& i: { pListName, pAnotherListName, pShortListName, pAnotherShortListName })
 	{
 		if (i)
 			i->clear();
@@ -412,46 +399,37 @@ bool SubstFileName(const wchar_t *DlgTitle,
 	if (!contains(strStr, L'!'))
 		return false;
 
-	TSubstData SubstData;
-	SubstData.Name=Name.data();                    // Длинное имя
-	SubstData.ShortName=ShortName.data();          // Короткое имя
-	SubstData.pListName=pListName;            // Длинное имя файла-списка
-	SubstData.pAnotherListName=pAnotherListName;            // Длинное имя файла-списка
-	SubstData.pShortListName=pShortListName;  // Короткое имя файла-списка
-	SubstData.pAnotherShortListName=pAnotherShortListName;  // Короткое имя файла-списка
-	// Если имя текущего каталога не задано...
-	if (CmdLineDir)
-		SubstData.strCmdDir = CmdLineDir;
-	else // ...спросим у ком.строки
-		SubstData.strCmdDir = Global->CtrlObject->CmdLine()->GetCurDir();
+	subst_data SubstData;
+	SubstData.This.Normal.Name=Name;
+	SubstData.This.Short.Name = ShortName;
+
+	SubstData.This.Normal.ListName = pListName;
+	SubstData.This.Short.ListName = pShortListName;
+
+	SubstData.Another.Normal.ListName = pAnotherListName;
+	SubstData.Another.Short.ListName = pAnotherShortListName;
+
+	SubstData.CmdDir = CmdLineDir? CmdLineDir : Global->CtrlObject->CmdLine()->GetCurDir();
+
+	const auto& GetNameOnly = [](const string& Str)
+	{
+		return Str.substr(0, Str.rfind(L'.'));
+	};
 
 	// Предварительно получим некоторые "константы" :-)
-	SubstData.strNameOnly = Name;
+	SubstData.This.Normal.NameOnly = GetNameOnly(Name);
+	SubstData.This.Short.NameOnly = GetNameOnly(ShortName);
 
-	size_t pos = SubstData.strNameOnly.rfind(L'.');
-	if (pos != string::npos)
-		SubstData.strNameOnly.resize(pos);
+	SubstData.This.Panel = Global->CtrlObject->Cp()->ActivePanel();
+	SubstData.Another.Panel = Global->CtrlObject->Cp()->PassivePanel();
 
-	SubstData.strShortNameOnly = ShortName;
+	SubstData.Another.Panel->GetCurName(SubstData.Another.Normal.Name, SubstData.Another.Short.Name);
 
-	if ((pos = SubstData.strShortNameOnly.rfind(L'.')) != string::npos)
-		SubstData.strShortNameOnly.resize(pos);
+	SubstData.Another.Normal.NameOnly = GetNameOnly(SubstData.Another.Normal.Name);
+	SubstData.Another.Short.NameOnly = GetNameOnly(SubstData.Another.Short.Name);
 
-	SubstData.ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-	SubstData.AnotherPanel=Global->CtrlObject->Cp()->PassivePanel();
-	SubstData.AnotherPanel->GetCurName(SubstData.strAnotherName,SubstData.strAnotherShortName);
-	SubstData.strAnotherNameOnly = SubstData.strAnotherName;
-
-	if ((pos = SubstData.strAnotherNameOnly.rfind(L'.')) != string::npos)
-		SubstData.strAnotherNameOnly.resize(pos);
-
-	SubstData.strAnotherShortNameOnly = SubstData.strAnotherShortName;
-
-	if ((pos = SubstData.strAnotherShortNameOnly.rfind(L'.')) != string::npos)
-		SubstData.strAnotherShortNameOnly.resize(pos);
-
-	SubstData.PreserveLFN=FALSE;
-	SubstData.PassivePanel=FALSE; // первоначально речь идет про активную панель!
+	SubstData.PreserveLFN = false;
+	SubstData.PassivePanel = false; // первоначально речь идет про активную панель!
 
 	const wchar_t *CurStr = strStr.data();
 	string strOut;
@@ -470,17 +448,15 @@ bool SubstFileName(const wchar_t *DlgTitle,
 	}
 	strStr = strOut;
 
-
 	if (!IgnoreInput)
 	{
-		string title = NullToEmpty(DlgTitle);
-		ReplaceVariables(os::env::expand_strings(title).data(), strStr, SubstData);
+		ReplaceVariables(os::env::expand_strings(NullToEmpty(DlgTitle)), strStr, SubstData);
 	}
 
 	return SubstData.PreserveLFN;
 }
 
-int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstData)
+int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstData)
 {
 	const wchar_t *Str=strStr.data();
 	const wchar_t * const StartStr=Str;
@@ -504,7 +480,7 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 		Item.X1 = 3;
 		Item.Y1 = 1;
 		Item.X2 = 72;
-		Item.strData = NullToEmpty(DlgTitle);
+		Item.strData = DlgTitle;
 		DlgData.emplace_back(Item);
 	}
 
@@ -736,124 +712,83 @@ int ReplaceVariables(const wchar_t *DlgTitle, string &strStr, TSubstData& SubstD
 
 bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers)
 {
-	bool Ret=false;
+	uintptr_t CodePage = CP_OEMCP;
 
-	if (FarMkTempEx(strListFileName))
+	if (!Modifers.empty())
 	{
-		if (const auto ListFile = os::fs::file(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS))
+		if (contains(Modifers, L'A')) // ANSI
 		{
-			uintptr_t CodePage=CP_OEMCP;
-			LPCVOID Eol="\r\n";
-			DWORD EolSize=2;
-
-			if (!Modifers.empty())
-			{
-				if (contains(Modifers, L'A')) // ANSI
-				{
-					CodePage=CP_ACP;
-				}
-				else
-				{
-					DWORD Signature=0;
-					int SignatureSize=0;
-
-					if (contains(Modifers, L'W')) // UTF16LE
-					{
-						CodePage=CP_UNICODE;
-						Signature=SIGN_UNICODE;
-						SignatureSize=2;
-						Eol=WIN_EOL_fmt;
-						EolSize=2*sizeof(WCHAR);
-					}
-					else
-					{
-						if (contains(Modifers, L'U')) // UTF8
-						{
-							CodePage=CP_UTF8;
-							Signature=SIGN_UTF8;
-							SignatureSize=3;
-						}
-					}
-
-					if (Signature && SignatureSize)
-					{
-						size_t NumberOfBytesWritten;
-						ListFile.Write(&Signature,SignatureSize, NumberOfBytesWritten);
-					}
-				}
-			}
-
-			string strFileName,strShortName;
-			DWORD FileAttr;
-			GetSelName(nullptr,FileAttr);
-
-			while (GetSelName(&strFileName,FileAttr,&strShortName))
-			{
-				if (ShortNames)
-					strFileName = strShortName;
-
-				if (!Modifers.empty())
-				{
-					if (contains(Modifers, L'F') && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
-					{
-						auto strTempFileName = ShortNames? ConvertNameToShort(m_CurDir) : m_CurDir;
-						AddEndSlash(strTempFileName);
-						strTempFileName+=strFileName; //BUGBUG ?
-						strFileName=strTempFileName;
-					}
-
-					if (contains(Modifers, L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
-						QuoteSpaceOnly(strFileName);
-
-					if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
-					{
-						ReplaceBackslashToSlash(strFileName);
-					}
-				}
-
-				blob_view Blob;
-				std::string Buffer;
-
-				if (CodePage==CP_UNICODE)
-				{
-					Blob = make_blob_view(strFileName.data(), strFileName.size() * sizeof(wchar_t));
-				}
-				else
-				{
-					Buffer = encoding::get_bytes(CodePage, strFileName);
-					Blob = make_blob_view(Buffer.data(), Buffer.size());
-				}
-
-				size_t NumberOfBytesWritten = 0;
-				if (ListFile.Write(Blob.data(), Blob.size(), NumberOfBytesWritten) && NumberOfBytesWritten == Blob.size())
-				{
-					if (ListFile.Write(Eol,EolSize,NumberOfBytesWritten) && NumberOfBytesWritten==EolSize)
-					{
-						Ret=true;
-					}
-				}
-				else
-				{
-					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCannotCreateListFile),MSG(lng::MCannotCreateListWrite),MSG(lng::MOk));
-					os::DeleteFile(strListFileName);
-					break;
-				}
-			}
+			CodePage = CP_ACP;
 		}
-		else
+		else if (contains(Modifers, L'U')) // UTF8
 		{
-			Global->CatchError();
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCannotCreateListFile),MSG(lng::MCannotCreateListTemp),MSG(lng::MOk));
+			CodePage = CP_UTF8;
+		}
+		else if (contains(Modifers, L'W')) // UTF16LE
+		{
+			CodePage = CP_UNICODE;
 		}
 	}
-	else
+
+	DWORD FileAttr;
+	GetSelName(nullptr, FileAttr);
+	string strFileName, strShortName;
+	blob_builder BlobBuilder(CodePage);
+
+	while (GetSelName(&strFileName, FileAttr, &strShortName))
 	{
-		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCannotCreateListFile),MSG(lng::MCannotCreateListTemp),MSG(lng::MOk));
+		if (ShortNames)
+		{
+			strFileName = strShortName;
+		}
+
+		if (!Modifers.empty())
+		{
+			if (contains(Modifers, L'F') && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
+			{
+				auto strTempFileName = ShortNames? ConvertNameToShort(m_CurDir) : m_CurDir;
+				AddEndSlash(strTempFileName);
+				strTempFileName += strFileName; //BUGBUG ?
+				strFileName = strTempFileName;
+			}
+
+			if (contains(Modifers, L'Q')) // 'Q' - заключать имена с пробелами в кавычки;
+				QuoteSpaceOnly(strFileName);
+
+			if (contains(Modifers, L'S')) // 'S' - использовать '/' вместо '\' в путях файлов;
+			{
+				ReplaceBackslashToSlash(strFileName);
+			}
+		}
+
+		BlobBuilder.append(strFileName).append(L"\r\n"s);
 	}
 
-	return Ret;
+	try
+	{
+		if (!FarMkTempEx(strListFileName))
+			throw MAKE_FAR_EXCEPTION(MSG(lng::MCannotCreateListTemp));
+
+		os::fs::file ListFile(strListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS);
+		if (!ListFile)
+			throw MAKE_FAR_EXCEPTION(MSG(lng::MCannotCreateListTemp));
+
+		size_t Written;
+		const auto Blob = BlobBuilder.get();
+		if (!ListFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
+		{
+			throw MAKE_FAR_EXCEPTION(MSG(lng::MCannotCreateListWrite));
+		}
+
+		return true;
+	}
+	catch (const far_exception& e)
+	{
+		os::DeleteFile(strListFileName);
+		Global->CatchError(e.get_error_codes());
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MCannotCreateListFile), e.get_message().data(), MSG(lng::MOk));
+		return false;
+	}
 }
 
 static int IsReplaceVariable(const wchar_t *str,

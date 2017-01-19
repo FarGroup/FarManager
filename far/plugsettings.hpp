@@ -39,10 +39,10 @@ class AbstractSettings: noncopyable
 public:
 	virtual ~AbstractSettings() = default;
 	virtual bool IsValid() const = 0;
-	virtual int Set(const FarSettingsItem& Item) = 0;
-	virtual int Get(FarSettingsItem& Item) = 0;
-	virtual int Enum(FarSettingsEnum& Enum) = 0;
-	virtual int Delete(const FarSettingsValue& Value) = 0;
+	virtual bool Set(const FarSettingsItem& Item) = 0;
+	virtual bool Get(FarSettingsItem& Item) = 0;
+	virtual bool Enum(FarSettingsEnum& Enum) = 0;
+	virtual bool Delete(const FarSettingsValue& Value) = 0;
 	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) = 0;
 
 	static AbstractSettings* CreateFarSettings();

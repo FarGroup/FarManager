@@ -184,7 +184,7 @@ public:
 	static vmenu_ptr create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
 	VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentDialog);
-	virtual ~VMenu();
+	virtual ~VMenu() override;
 
 	virtual void Show() override;
 	virtual void Hide() override;

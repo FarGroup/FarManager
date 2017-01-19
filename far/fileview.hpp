@@ -51,7 +51,7 @@ public:
 		const wchar_t *Title, int X1, int Y1, int X2, int Y2, uintptr_t aCodePage = CP_DEFAULT);
 
 	FileViewer(private_tag, int DisableEdit, const wchar_t *Title);
-	virtual ~FileViewer();
+	virtual ~FileViewer() override;
 
 	virtual void InitKeyBar() override;
 	virtual int ProcessKey(const Manager::Key& Key) override;

@@ -44,7 +44,7 @@ class Grabber: public SimpleModal
 public:
 	static grabber_ptr create();
 	Grabber(private_tag);
-	virtual ~Grabber();
+	virtual ~Grabber() override;
 
 	virtual int GetType() const override { return windowtype_grabber; }
 	virtual int GetTypeAndName(string &, string &) override { return windowtype_grabber; }

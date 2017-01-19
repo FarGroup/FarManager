@@ -73,7 +73,7 @@ public:
 		return s_Clipboard;
 	}
 
-	virtual ~system_clipboard()
+	virtual ~system_clipboard() override
 	{
 		system_clipboard::Close();
 	}
@@ -185,7 +185,7 @@ public:
 		return std::unique_ptr<Clipboard>(new internal_clipboard);
 	}
 
-	virtual ~internal_clipboard()
+	virtual ~internal_clipboard() override
 	{
 		internal_clipboard::Close();
 	}

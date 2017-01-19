@@ -50,7 +50,7 @@ class Editor: public SimpleScreenObject
 {
 public:
 	Editor(window_ptr Owner, bool DialogUsed = false);
-	virtual ~Editor();
+	virtual ~Editor() override;
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

@@ -187,7 +187,7 @@ public:
 	{
 	}
 
-	virtual ~FarListControlBinding()
+	virtual ~FarListControlBinding() override
 	{
 		if (List)
 		{

@@ -57,7 +57,7 @@ class HMenu: public SimpleModal
 public:
 	static hmenu_ptr create(HMenuData* Item, size_t ItemCount);
 	HMenu(private_tag, HMenuData* Item, size_t ItemCount);
-	virtual ~HMenu();
+	virtual ~HMenu() override;
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

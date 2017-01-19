@@ -58,7 +58,7 @@ enum window_type
 class window: public ScreenObjectWithShadow, public std::enable_shared_from_this<window>
 {
 public:
-	virtual ~window();
+	virtual ~window() override;
 
 	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return m_CanLoseFocus; }
 	virtual void SetExitCode(int Code) { m_ExitCode=Code; }

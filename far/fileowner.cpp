@@ -44,41 +44,34 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static bool SidToName(PSID Sid, string& Name, const string& Computer)
 {
-	bool Result = false;
-	DWORD AccountLength=0,DomainLength=0;
+	DWORD AccountLength = 0, DomainLength = 0;
 	SID_NAME_USE snu;
 	LookupAccountSid(Computer.data(), Sid, nullptr, &AccountLength, nullptr, &DomainLength, &snu);
 	if (AccountLength && DomainLength)
 	{
-		wchar_t_ptr AccountName(AccountLength);
-		wchar_t_ptr DomainName(DomainLength);
-		if(LookupAccountSid(Computer.data(), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
+		wchar_t_ptr AccountName(AccountLength), DomainName(DomainLength);
+		if (!LookupAccountSid(Computer.data(), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
+			return false;
+
+		Name.clear();
+		if (DomainLength)
 		{
-			Name.clear();
-			if (DomainLength)
-			{
-				Name.assign(DomainName.get(), DomainLength).append(1, L'\\');
-			}
-			Name.append(AccountName.get(), AccountLength);
-			Result = true;
+			Name.assign(DomainName.get(), DomainLength).append(1, L'\\');
 		}
+		Name.append(AccountName.get(), AccountLength);
+		return true;
 	}
-	else
-	{
-		os::memory::local::ptr<wchar_t> StrSid;
-		if(ConvertSidToStringSid(Sid, &ptr_setter(StrSid)))
-		{
-			Name = StrSid.get();
-			Result = true;
-		}
-	}
-	return Result;
+
+	os::memory::local::ptr<wchar_t> StrSid;
+	if (!ConvertSidToStringSid(Sid, &ptr_setter(StrSid)))
+		return false;
+
+	Name = StrSid.get();
+	return true;
 }
 
 static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 {
-	bool Result = false;
-
 	class sid
 	{
 	public:
@@ -116,17 +109,16 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	if (ItemIterator != SIDCache.cend())
 	{
 		Name = ItemIterator->second;
-		Result = true;
+		return true;
 	}
-	else
+
+	if (SidToName(Sid, Name, Computer))
 	{
-		if (SidToName(Sid, Name, Computer))
-		{
-			SIDCache.emplace(std::move(SidCopy), Name);
-			Result = true;
-		}
+		SIDCache.emplace(std::move(SidCopy), Name);
+		return true;
 	}
-	return Result;
+
+	return false;
 }
 
 // TODO: elevation

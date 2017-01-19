@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "interf.hpp"
 #include "language.hpp"
+#include "blob_builder.hpp"
 
 enum
 {
@@ -129,7 +130,8 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 	const auto Eol = L"\r\n"s;
 	for (const auto& i: Menu)
 	{
-		append(Result, i.strHotKey, L": "s, i.strLabel, Eol);
+		auto HotkeyStr = pad_right(i.strHotKey + L':', 5);
+		append(Result, HotkeyStr, i.strLabel, Eol);
 
 		if (i.Submenu)
 		{
@@ -139,7 +141,7 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 		{
 			for (const auto& str: i.Commands)
 			{
-				append(Result, L"    "s, str, Eol);
+				append(Result, string(HotkeyStr.size(), L' '), str, Eol);
 			}
 		}
 	}
@@ -196,7 +198,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 			// Support for old 1.x separator format
 			if (OldFormat && MenuItem->strHotKey == L"-" && MenuItem->strLabel.empty())
 			{
-				MenuItem->strHotKey += L"-";
+				MenuItem->strHotKey += L'-';
 			}
 		}
 		else if (MenuItem)
@@ -268,30 +270,12 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			os::SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
 	}
 
-	auto Content = SerializeMenu(m_Menu);
-	std::string SerialisedContent;
-	blob_view Blob;
-	if (!Content.empty())
-	{
-		if (IsUnicodeOrUtfCodePage(m_MenuCP))
-		{
-			Content.insert(0, 1, SIGN_UNICODE);
-		}
-
-		if (m_MenuCP == CP_UNICODE)
-		{
-			// no translation
-			Blob = make_blob_view(Content.data(), Content.size() * sizeof(wchar_t));
-		}
-		else
-		{
-			SerialisedContent = encoding::get_bytes(m_MenuCP, Content);
-			Blob = make_blob_view(SerialisedContent.data(), SerialisedContent.size());
-		}
-	}
+	blob_builder BlobBuilder(m_MenuCP);
+	BlobBuilder.append(SerializeMenu(m_Menu));
 
 	try
 	{
+		const auto Blob = BlobBuilder.get();
 		if (!Blob.empty())
 		{
 			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
@@ -300,12 +284,12 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 				size_t Written;
 				if (!MenuFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
 				{
-					throw MAKE_FAR_EXCEPTION("Write error");
+					throw MAKE_FAR_EXCEPTION(L"Write error");
 				}
 			}
 			else
 			{
-				throw MAKE_FAR_EXCEPTION("Can't open file");
+				throw MAKE_FAR_EXCEPTION(L"Can't open file");
 			}
 
 			if (FileAttr != INVALID_FILE_ATTRIBUTES)
@@ -319,14 +303,14 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			// если файл FarMenu.ini пуст, то удалим его
 			if (!os::DeleteFile(MenuFileName))
 			{
-				throw MAKE_FAR_EXCEPTION("Can't delete file");
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file");
 			}
 		}
 	}
 	catch (const far_exception& e)
 	{
 		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MEditMenuError), encoding::utf8::get_chars(e.get_message()).data(), MSG(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MEditMenuError), e.get_message().data(), MSG(lng::MOk));
 	}
 }
 

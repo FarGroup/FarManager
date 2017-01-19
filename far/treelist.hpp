@@ -77,7 +77,7 @@ public:
 
 	static tree_panel_ptr create(window_ptr Owner, int ModalMode = 0);
 	TreeList(private_tag, window_ptr Owner, int ModalMode);
-	virtual ~TreeList();
+	virtual ~TreeList() override;
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

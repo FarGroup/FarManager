@@ -133,7 +133,7 @@ plugin_factory::plugin_factory(PluginManager* owner):
 		WA(""), // GetMinFarVersion not used
 	};
 	TERSE_STATIC_ASSERT(std::size(ExportsNames) == ExportsCount);
-	m_ExportsNames = make_range(ALL_CONST_RANGE(ExportsNames));
+	m_ExportsNames = make_range(ExportsNames);
 }
 
 bool native_plugin_factory::IsPlugin(const string& filename) const

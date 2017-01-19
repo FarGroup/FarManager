@@ -970,6 +970,12 @@
     <ClInclude Include="common\string_utils.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="blob_builder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dizviewer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Far.ico">

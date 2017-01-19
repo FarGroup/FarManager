@@ -65,7 +65,7 @@ public:
 	BitFlags& Flags() const;
 
 	DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type);
-	virtual ~DlgEdit();
+	virtual ~DlgEdit() override;
 
 	virtual int  ProcessKey(const Manager::Key& Key) override;
 	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

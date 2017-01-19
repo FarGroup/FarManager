@@ -319,6 +319,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="xlat.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="blob_builder.hpp" />
     <ClInclude Include="common\algorithm.hpp" />
     <ClInclude Include="common\blob_view.hpp" />
     <ClInclude Include="common\compiler.hpp" />
@@ -347,6 +348,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="disable_warnings_in_std_begin.hpp" />
     <ClInclude Include="disable_warnings_in_std_end.hpp" />
     <ClInclude Include="diskmenu.hpp" />
+    <ClInclude Include="dizviewer.hpp" />
     <ClInclude Include="elevation.hpp" />
     <ClInclude Include="bitflags.hpp" />
     <ClInclude Include="cache.hpp" />

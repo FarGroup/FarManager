@@ -55,7 +55,9 @@ namespace pipe
 		if (!ReadPipe(Pipe, &ReadSize, sizeof(ReadSize)))
 			return false;
 
-		assert(ReadSize == DataSize);
+		if (ReadSize != DataSize)
+			return false;
+
 		return ReadPipe(Pipe, Data, DataSize);
 	}
 

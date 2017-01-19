@@ -331,7 +331,7 @@ size_t Utf::get_chars(uintptr_t const Codepage, const char* const Data, size_t c
 	case CP_UTF8:
 		return Utf8::get_chars(Data, DataSize, Buffer, BufferSize, Errors);
 	default:
-		throw MAKE_FAR_EXCEPTION("not a utf codepage");
+		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage");
 	}
 }
 

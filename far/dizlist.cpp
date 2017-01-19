@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "filestr.hpp"
 #include "encoding.hpp"
+#include "blob_builder.hpp"
 
 DizList::DizList():
 	m_CodePage(CP_DEFAULT),
@@ -339,35 +340,23 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 	}
 
-	string Content;
+	blob_builder BlobBuilder(Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
+
 	for (const auto& i_ptr: m_OrderForWrite)
 	{
 		const auto& i = *i_ptr;
 		auto FileName = i.first;
 		QuoteSpaceOnly(FileName);
-		Content += FileName;
+		BlobBuilder.append(FileName);
 		for (const auto& Description : i.second)
 		{
-			append(Content, Description, L"\r\n"s);
+			BlobBuilder.append(Description).append(L"\r\n"s);
 		}
-	}
-
-	std::string SerialisedContent;
-	blob_view Blob;
-	if (!Content.empty())
-	{
-		const auto CodePage = Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP;
-		if (IsUnicodeOrUtfCodePage(CodePage))
-		{
-			Content.insert(0, 1, SIGN_UNICODE);
-		}
-
-		SerialisedContent = encoding::get_bytes(CodePage, Content);
-		Blob = make_blob_view(SerialisedContent.data(), SerialisedContent.size());
 	}
 
 	try
 	{
+		const auto Blob = BlobBuilder.get();
 		if (!Blob.empty())
 		{
 			if(const auto DizFile = os::fs::file(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
@@ -375,12 +364,12 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				size_t Written;
 				if (!DizFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
 				{
-					throw MAKE_FAR_EXCEPTION("Write error");
+					throw MAKE_FAR_EXCEPTION(L"Write error");
 				}
 			}
 			else
 			{
-				throw MAKE_FAR_EXCEPTION("Can't open file");
+				throw MAKE_FAR_EXCEPTION(L"Can't open file");
 			}
 
 			if (FileAttr == INVALID_FILE_ATTRIBUTES)
@@ -394,14 +383,14 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if (!os::DeleteFile(m_DizFileName))
 			{
-				throw MAKE_FAR_EXCEPTION("Can't delete file");
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file");
 			}
 		}
 	}
 	catch (const far_exception& e)
 	{
 		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MCannotUpdateDiz), encoding::utf8::get_chars(e.get_message()).data(), MSG(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MCannotUpdateDiz), e.get_message().data(), MSG(lng::MOk));
 		return false;
 	}
 

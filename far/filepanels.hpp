@@ -50,7 +50,7 @@ public:
 	static filepanels_ptr create(bool CreateRealPanels, int DirCount);
 
 	FilePanels(private_tag);
-	virtual ~FilePanels();
+	virtual ~FilePanels() override;
 
 	virtual int ProcessKey(const Manager::Key& Key) override;
 	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
