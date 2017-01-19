@@ -160,7 +160,7 @@ public:
 
     void SetStr( const char* str, int flags=0 );
 
-    char* ParseText( char* in, const char* endTag, int strFlags );
+    char* ParseText( char* in, const char* endTag, int strFlags, int* curLineNumPtr );
     char* ParseName( char* in );
 
     void TransferTo( StrPair* other );
@@ -211,7 +211,8 @@ public:
     void Push( T t ) {
         TIXMLASSERT( _size < INT_MAX );
         EnsureCapacity( _size+1 );
-        _mem[_size++] = t;
+        _mem[_size] = t;
+        ++_size;
     }
 
     T* PushArr( int count ) {
@@ -225,7 +226,8 @@ public:
 
     T Pop() {
         TIXMLASSERT( _size > 0 );
-        return _mem[--_size];
+        --_size;
+        return _mem[_size];
     }
 
     void PopArr( int count ) {
@@ -528,16 +530,20 @@ enum XMLError {
 class XMLUtil
 {
 public:
-    static const char* SkipWhiteSpace( const char* p )	{
+    static const char* SkipWhiteSpace( const char* p, int* curLineNumPtr )	{
         TIXMLASSERT( p );
+
         while( IsWhiteSpace(*p) ) {
+            if (curLineNumPtr && *p == '\n') {
+                ++(*curLineNumPtr);
+            }
             ++p;
         }
         TIXMLASSERT( p );
         return p;
     }
-    static char* SkipWhiteSpace( char* p )				{
-        return const_cast<char*>( SkipWhiteSpace( const_cast<const char*>(p) ) );
+    static char* SkipWhiteSpace( char* p, int* curLineNumPtr )				{
+        return const_cast<char*>( SkipWhiteSpace( const_cast<const char*>(p), curLineNumPtr ) );
     }
 
     // Anything in the high order range of UTF-8 is assumed to not be whitespace. This isn't
@@ -568,6 +574,9 @@ public:
         if ( p == q ) {
             return true;
         }
+        TIXMLASSERT( p );
+        TIXMLASSERT( q );
+        TIXMLASSERT( nChar >= 0 );
         return strncmp( p, q, nChar ) == 0;
     }
     
@@ -700,6 +709,9 @@ public:
     	@sa Value()
     */
     void SetValue( const char* val, bool staticMem=false );
+
+    /// Gets the line number the node is in, if the document was parsed from a file.
+    int GetLineNum() const { return _parseLineNum; }
 
     /// Get the parent of this node on the DOM.
     const XMLNode*	Parent() const			{
@@ -884,11 +896,12 @@ protected:
     XMLNode( XMLDocument* );
     virtual ~XMLNode();
 
-    virtual char* ParseDeep( char*, StrPair* );
+    virtual char* ParseDeep( char*, StrPair*, int* );
 
     XMLDocument*	_document;
     XMLNode*		_parent;
     mutable StrPair	_value;
+    int             _parseLineNum;
 
     XMLNode*		_firstChild;
     XMLNode*		_lastChild;
@@ -903,6 +916,7 @@ private:
     void Unlink( XMLNode* child );
     static void DeleteNode( XMLNode* node );
     void InsertChildPreamble( XMLNode* insertThis ) const;
+    const XMLElement* ToElementWithName( const char* name ) const;
 
     XMLNode( const XMLNode& );	// not supported
     XMLNode& operator=( const XMLNode& );	// not supported
@@ -950,7 +964,7 @@ protected:
     XMLText( XMLDocument* doc )	: XMLNode( doc ), _isCData( false )	{}
     virtual ~XMLText()												{}
 
-    char* ParseDeep( char*, StrPair* endTag );
+    char* ParseDeep( char*, StrPair* endTag, int* curLineNumPtr );
 
 private:
     bool _isCData;
@@ -981,7 +995,7 @@ protected:
     XMLComment( XMLDocument* doc );
     virtual ~XMLComment();
 
-    char* ParseDeep( char*, StrPair* endTag );
+    char* ParseDeep( char*, StrPair* endTag, int* curLineNumPtr);
 
 private:
     XMLComment( const XMLComment& );	// not supported
@@ -1020,7 +1034,7 @@ protected:
     XMLDeclaration( XMLDocument* doc );
     virtual ~XMLDeclaration();
 
-    char* ParseDeep( char*, StrPair* endTag );
+    char* ParseDeep( char*, StrPair* endTag, int* curLineNumPtr );
 
 private:
     XMLDeclaration( const XMLDeclaration& );	// not supported
@@ -1055,7 +1069,7 @@ protected:
     XMLUnknown( XMLDocument* doc );
     virtual ~XMLUnknown();
 
-    char* ParseDeep( char*, StrPair* endTag );
+    char* ParseDeep( char*, StrPair* endTag, int* curLineNumPtr );
 
 private:
     XMLUnknown( const XMLUnknown& );	// not supported
@@ -1079,6 +1093,9 @@ public:
 
     /// The value of the attribute.
     const char* Value() const;
+
+    /// Gets the line number the attribute is in, if the document was parsed from a file.
+    int GetLineNum() const { return _parseLineNum; }
 
     /// The next attribute in the list.
     const XMLAttribute* Next() const {
@@ -1127,7 +1144,7 @@ public:
     }
 
     /** QueryIntValue interprets the attribute as an integer, and returns the value
-    	in the provided parameter. The function will return XML_NO_ERROR on success,
+    	in the provided parameter. The function will return XML_SUCCESS on success,
     	and XML_WRONG_ATTRIBUTE_TYPE if the conversion is not successful.
     */
     XMLError QueryIntValue( int* value ) const;
@@ -1167,10 +1184,11 @@ private:
     void operator=( const XMLAttribute& );	// not supported
     void SetName( const char* name );
 
-    char* ParseDeep( char* p, bool processEntities );
+    char* ParseDeep( char* p, bool processEntities, int* curLineNumPtr );
 
     mutable StrPair _name;
     mutable StrPair _value;
+    int             _parseLineNum;
     XMLAttribute*   _next;
     MemPool*        _memPool;
 };
@@ -1227,51 +1245,25 @@ public:
     const char* Attribute( const char* name, const char* value=0 ) const;
 
     /** Given an attribute name, IntAttribute() returns the value
-    	of the attribute interpreted as an integer. 0 will be
-    	returned if there is an error. For a method with error
-    	checking, see QueryIntAttribute()
+    	of the attribute interpreted as an integer. The default
+        value will be returned if the attribute isn't present,
+        or if there is an error. (For a method with error
+    	checking, see QueryIntAttribute()).
     */
-    int		 IntAttribute( const char* name ) const		{
-        int i=0;
-        QueryIntAttribute( name, &i );
-        return i;
-    }
-
+	int IntAttribute(const char* name, int defaultValue = 0) const;
     /// See IntAttribute()
-    unsigned UnsignedAttribute( const char* name ) const {
-        unsigned i=0;
-        QueryUnsignedAttribute( name, &i );
-        return i;
-    }
-
+	unsigned UnsignedAttribute(const char* name, unsigned defaultValue = 0) const;
 	/// See IntAttribute()
-	int64_t Int64Attribute(const char* name) const {
-		int64_t i = 0;
-		QueryInt64Attribute(name, &i);
-		return i;
-	}
-
+	int64_t Int64Attribute(const char* name, int64_t defaultValue = 0) const;
 	/// See IntAttribute()
-    bool BoolAttribute( const char* name ) const	{
-        bool b=false;
-        QueryBoolAttribute( name, &b );
-        return b;
-    }
+	bool BoolAttribute(const char* name, bool defaultValue = false) const;
     /// See IntAttribute()
-    double DoubleAttribute( const char* name ) const	{
-        double d=0;
-        QueryDoubleAttribute( name, &d );
-        return d;
-    }
+	double DoubleAttribute(const char* name, double defaultValue = 0) const;
     /// See IntAttribute()
-    float FloatAttribute( const char* name ) const	{
-        float f=0;
-        QueryFloatAttribute( name, &f );
-        return f;
-    }
+	float FloatAttribute(const char* name, float defaultValue = 0) const;
 
     /** Given an attribute name, QueryIntAttribute() returns
-    	XML_NO_ERROR, XML_WRONG_ATTRIBUTE_TYPE if the conversion
+    	XML_SUCCESS, XML_WRONG_ATTRIBUTE_TYPE if the conversion
     	can't be performed, or XML_NO_ATTRIBUTE if the attribute
     	doesn't exist. If successful, the result of the conversion
     	will be written to 'value'. If not successful, nothing will
@@ -1336,7 +1328,7 @@ public:
 
 	
     /** Given an attribute name, QueryAttribute() returns
-    	XML_NO_ERROR, XML_WRONG_ATTRIBUTE_TYPE if the conversion
+    	XML_SUCCESS, XML_WRONG_ATTRIBUTE_TYPE if the conversion
     	can't be performed, or XML_NO_ATTRIBUTE if the attribute
     	doesn't exist. It is overloaded for the primitive types,
 		and is a generally more convenient replacement of
@@ -1542,6 +1534,19 @@ public:
     /// See QueryIntText()
     XMLError QueryFloatText( float* fval ) const;
 
+	int IntText(int defaultValue = 0) const;
+
+	/// See QueryIntText()
+	unsigned UnsignedText(unsigned defaultValue = 0) const;
+	/// See QueryIntText()
+	int64_t Int64Text(int64_t defaultValue = 0) const;
+	/// See QueryIntText()
+	bool BoolText(bool defaultValue = false) const;
+	/// See QueryIntText()
+	double DoubleText(double defaultValue = 0) const;
+	/// See QueryIntText()
+	float FloatText(float defaultValue = 0) const;
+
     // internal:
     enum {
         OPEN,		// <foo>
@@ -1555,7 +1560,7 @@ public:
     virtual bool ShallowEqual( const XMLNode* compare ) const;
 
 protected:
-    char* ParseDeep( char* p, StrPair* endTag );
+    char* ParseDeep( char* p, StrPair* endTag, int* curLineNumPtr );
 
 private:
     XMLElement( XMLDocument* doc );
@@ -1568,8 +1573,9 @@ private:
     }
     XMLAttribute* FindOrCreateAttribute( const char* name );
     //void LinkAttribute( XMLAttribute* attrib );
-    char* ParseAttributes( char* p );
+    char* ParseAttributes( char* p, int* curLineNumPtr );
     static void DeleteAttribute( XMLAttribute* attribute );
+    XMLAttribute* CreateAttribute();
 
     enum { BUF_SIZE = 200 };
     int _closingType;
@@ -1610,7 +1616,7 @@ public:
 
     /**
     	Parse an XML file from a character string.
-    	Returns XML_NO_ERROR (0) on success, or
+    	Returns XML_SUCCESS (0) on success, or
     	an errorID.
 
     	You may optionally pass in the 'nBytes', which is
@@ -1622,7 +1628,7 @@ public:
 
     /**
     	Load an XML file from disk.
-    	Returns XML_NO_ERROR (0) on success, or
+    	Returns XML_SUCCESS (0) on success, or
     	an errorID.
     */
     XMLError LoadFile( const char* filename );
@@ -1635,14 +1641,14 @@ public:
         not text in order for TinyXML-2 to correctly
         do newline normalization.
 
-    	Returns XML_NO_ERROR (0) on success, or
+    	Returns XML_SUCCESS (0) on success, or
     	an errorID.
     */
     XMLError LoadFile( FILE* );
 
     /**
     	Save the XML file to disk.
-    	Returns XML_NO_ERROR (0) on success, or
+    	Returns XML_SUCCESS (0) on success, or
     	an errorID.
     */
     XMLError SaveFile( const char* filename, bool compact = false );
@@ -1651,7 +1657,7 @@ public:
     	Save the XML file to disk. You are responsible
     	for providing and closing the FILE*.
 
-    	Returns XML_NO_ERROR (0) on success, or
+    	Returns XML_SUCCESS (0) on success, or
     	an errorID.
     */
     XMLError SaveFile( FILE* fp, bool compact = false );
@@ -1745,7 +1751,11 @@ public:
     */
     void DeleteNode( XMLNode* node );
 
-    void SetError( XMLError error, const char* str1, const char* str2 );
+    void SetError( XMLError error, const char* str1, const char* str2, int lineNum );
+
+    void ClearError() {
+        SetError(XML_SUCCESS, 0, 0, 0);
+    }
 
     /// Return true if there was an error parsing the document.
     bool Error() const {
@@ -1756,6 +1766,7 @@ public:
         return _errorID;
     }
 	const char* ErrorName() const;
+    static const char* ErrorIDToName(XMLError errorID);
 
     /// Return a possibly helpful diagnostic location or string.
     const char* GetErrorStr1() const {
@@ -1764,6 +1775,11 @@ public:
     /// Return a possibly helpful secondary diagnostic location or string.
     const char* GetErrorStr2() const {
         return _errorStr2.GetStr();
+    }
+    /// Return the line where the error occured, or zero if unknown.
+    int GetErrorLineNum() const
+    {
+        return _errorLineNum;
     }
     /// If there is an error, print it to stdout.
     void PrintError() const;
@@ -1785,13 +1801,15 @@ private:
     XMLDocument( const XMLDocument& );	// not supported
     void operator=( const XMLDocument& );	// not supported
 
-    bool        _writeBOM;
-    bool        _processEntities;
-    XMLError    _errorID;
-    Whitespace  _whitespace;
-    mutable StrPair		_errorStr1;
-    mutable StrPair		_errorStr2;
-    char*       _charBuffer;
+    bool			_writeBOM;
+    bool			_processEntities;
+    XMLError		_errorID;
+    Whitespace		_whitespace;
+    mutable StrPair	_errorStr1;
+    mutable StrPair	_errorStr2;
+    int             _errorLineNum;
+    char*			_charBuffer;
+    int				_parseCurLineNum;
 
     MemPoolT< sizeof(XMLElement) >	 _elementPool;
     MemPoolT< sizeof(XMLAttribute) > _attributePool;
@@ -1919,19 +1937,19 @@ public:
     }
     /// Safe cast to XMLElement. This can return null.
     XMLElement* ToElement() 					{
-        return ( ( _node == 0 ) ? 0 : _node->ToElement() );
+        return ( _node ? _node->ToElement() : 0 );
     }
     /// Safe cast to XMLText. This can return null.
     XMLText* ToText() 							{
-        return ( ( _node == 0 ) ? 0 : _node->ToText() );
+        return ( _node ? _node->ToText() : 0 );
     }
     /// Safe cast to XMLUnknown. This can return null.
     XMLUnknown* ToUnknown() 					{
-        return ( ( _node == 0 ) ? 0 : _node->ToUnknown() );
+        return ( _node ? _node->ToUnknown() : 0 );
     }
     /// Safe cast to XMLDeclaration. This can return null.
     XMLDeclaration* ToDeclaration() 			{
-        return ( ( _node == 0 ) ? 0 : _node->ToDeclaration() );
+        return ( _node ? _node->ToDeclaration() : 0 );
     }
 
 private:
@@ -1991,16 +2009,16 @@ public:
         return _node;
     }
     const XMLElement* ToElement() const			{
-        return ( ( _node == 0 ) ? 0 : _node->ToElement() );
+        return ( _node ? _node->ToElement() : 0 );
     }
     const XMLText* ToText() const				{
-        return ( ( _node == 0 ) ? 0 : _node->ToText() );
+        return ( _node ? _node->ToText() : 0 );
     }
     const XMLUnknown* ToUnknown() const			{
-        return ( ( _node == 0 ) ? 0 : _node->ToUnknown() );
+        return ( _node ? _node->ToUnknown() : 0 );
     }
     const XMLDeclaration* ToDeclaration() const	{
-        return ( ( _node == 0 ) ? 0 : _node->ToDeclaration() );
+        return ( _node ? _node->ToDeclaration() : 0 );
     }
 
 private:

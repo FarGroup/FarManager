@@ -267,6 +267,14 @@ typedef __int64          intmax_t;
      (FMT_GCC_VERSION >= 303 && FMT_HAS_GXX_CXX11))
 #endif
 
+// Checks if decltype v1.1 is supported
+// http://en.cppreference.com/w/cpp/compiler_support
+#define FMT_HAS_DECLTYPE_INCOMPLETE_RETURN_TYPES \
+    (FMT_HAS_FEATURE(cxx_decltype_incomplete_return_types) || \
+    (FMT_GCC_VERSION >= 408 && FMT_HAS_GXX_CXX11) || \
+    FMT_MSC_VER >= 1900 || \
+    FMT_ICC_VERSION >= 1200)
+
 #ifdef FMT_HEADER_ONLY
 // If header only do not use extern templates.
 # undef FMT_USE_EXTERN_TEMPLATES
@@ -289,7 +297,7 @@ typedef __int64          intmax_t;
 // otherwise support __builtin_clz and __builtin_clzll, so
 // only define FMT_BUILTIN_CLZ using the MSVC intrinsics
 // if the clz and clzll builtins are not available.
-#if FMT_MSC_VER && !defined(FMT_BUILTIN_CLZLL)
+#if FMT_MSC_VER && !defined(FMT_BUILTIN_CLZLL) && !defined(_MANAGED)
 # include <intrin.h>  // _BitScanReverse, _BitScanReverse64
 
 namespace fmt {
@@ -431,7 +439,9 @@ typedef BasicWriter<wchar_t> WWriter;
 template <typename Char>
 class ArgFormatter;
 
-template <typename Impl, typename Char>
+struct FormatSpec;
+
+template <typename Impl, typename Char, typename Spec = fmt::FormatSpec>
 class BasicPrintfArgFormatter;
 
 template <typename CharType,
@@ -440,7 +450,8 @@ class BasicFormatter;
 
 /**
   \rst
-  A string reference. It can be constructed from a C string or ``std::string``.
+  A string reference. It can be constructed from a C string or
+  ``std::basic_string``.
 
   You can use one of the following typedefs for common character types:
 
@@ -483,10 +494,12 @@ class BasicStringRef {
 
   /**
     \rst
-    Constructs a string reference from an ``std::string`` object.
+    Constructs a string reference from a ``std::basic_string`` object.
     \endrst
    */
-  BasicStringRef(const std::basic_string<Char> &s)
+  template <typename Allocator>
+  BasicStringRef(
+      const std::basic_string<Char, std::char_traits<Char>, Allocator> &s)
   : data_(s.c_str()), size_(s.size()) {}
 
   /**
@@ -539,7 +552,7 @@ typedef BasicStringRef<wchar_t> WStringRef;
 /**
   \rst
   A reference to a null terminated string. It can be constructed from a C
-  string or ``std::string``.
+  string or ``std::basic_string``.
 
   You can use one of the following typedefs for common character types:
 
@@ -572,10 +585,13 @@ class BasicCStringRef {
 
   /**
     \rst
-    Constructs a string reference from an ``std::string`` object.
+    Constructs a string reference from a ``std::basic_string`` object.
     \endrst
    */
-  BasicCStringRef(const std::basic_string<Char> &s) : data_(s.c_str()) {}
+  template <typename Allocator>
+  BasicCStringRef(
+      const std::basic_string<Char, std::char_traits<Char>, Allocator> &s)
+  : data_(s.c_str()) {}
 
   /** Returns the pointer to a C string. */
   const Char *c_str() const { return data_; }
@@ -1155,7 +1171,9 @@ struct ConvertToIntImpl2<T, true> {
 
 template<typename T>
 struct ConvertToInt {
-  enum { enable_conversion = sizeof(convert(get<T>())) == sizeof(Yes) };
+  enum {
+    enable_conversion = sizeof(fmt::internal::convert(get<T>())) == sizeof(Yes)
+  };
   enum { value = ConvertToIntImpl2<T, enable_conversion>::value };
 };
 
@@ -1689,6 +1707,7 @@ struct TypeSpec : EmptySpec {
   int precision() const { return -1; }
   bool flag(unsigned) const { return false; }
   char type() const { return TYPE; }
+  char type_prefix() const { return TYPE; }
   char fill() const { return ' '; }
 };
 
@@ -1724,6 +1743,7 @@ struct AlignTypeSpec : AlignSpec {
 
   bool flag(unsigned) const { return false; }
   char type() const { return TYPE; }
+  char type_prefix() const { return TYPE; }
 };
 
 // A full format specifier.
@@ -1739,6 +1759,7 @@ struct FormatSpec : AlignSpec {
   bool flag(unsigned f) const { return (flags_ & f) != 0; }
   int precision() const { return precision_; }
   char type() const { return type_; }
+  char type_prefix() const { return type_; }
 };
 
 // An integer format specifier.
@@ -1914,11 +1935,11 @@ class ArgMap {
   }
 };
 
-template <typename Impl, typename Char>
+template <typename Impl, typename Char, typename Spec = fmt::FormatSpec>
 class ArgFormatterBase : public ArgVisitor<Impl, void> {
  private:
   BasicWriter<Char> &writer_;
-  FormatSpec &spec_;
+  Spec &spec_;
 
   FMT_DISALLOW_COPY_AND_ASSIGN(ArgFormatterBase);
 
@@ -1930,7 +1951,7 @@ class ArgFormatterBase : public ArgVisitor<Impl, void> {
 
  protected:
   BasicWriter<Char> &writer() { return writer_; }
-  FormatSpec &spec() { return spec_; }
+  Spec &spec() { return spec_; }
 
   void write(bool value) {
     const char *str_value = value ? "true" : "false";
@@ -1944,7 +1965,9 @@ class ArgFormatterBase : public ArgVisitor<Impl, void> {
   }
 
  public:
-  ArgFormatterBase(BasicWriter<Char> &w, FormatSpec &s)
+  typedef Spec SpecType;
+
+  ArgFormatterBase(BasicWriter<Char> &w, Spec &s)
   : writer_(w), spec_(s) {}
 
   template <typename T>
@@ -1997,13 +2020,14 @@ class ArgFormatterBase : public ArgVisitor<Impl, void> {
     write(value);
   }
 
-  void visit_string(Arg::StringValue<char> value) {
+  // Qualification with "internal" here and below is a workaround for nvcc.
+  void visit_string(internal::Arg::StringValue<char> value) {
     writer_.write_str(value, spec_);
   }
 
   using ArgVisitor<Impl, void>::visit_wstring;
 
-  void visit_wstring(Arg::StringValue<Char> value) {
+  void visit_wstring(internal::Arg::StringValue<Char> value) {
     writer_.write_str(value, spec_);
   }
 
@@ -2078,8 +2102,8 @@ class FormatterBase {
   will be called.
   \endrst
  */
-template <typename Impl, typename Char>
-class BasicArgFormatter : public internal::ArgFormatterBase<Impl, Char> {
+template <typename Impl, typename Char, typename Spec = fmt::FormatSpec>
+class BasicArgFormatter : public internal::ArgFormatterBase<Impl, Char, Spec> {
  private:
   BasicFormatter<Char, Impl> &formatter_;
   const Char *format_;
@@ -2094,8 +2118,8 @@ class BasicArgFormatter : public internal::ArgFormatterBase<Impl, Char> {
     \endrst
    */
   BasicArgFormatter(BasicFormatter<Char, Impl> &formatter,
-                    FormatSpec &spec, const Char *fmt)
-  : internal::ArgFormatterBase<Impl, Char>(formatter.writer(), spec),
+                    Spec &spec, const Char *fmt)
+  : internal::ArgFormatterBase<Impl, Char, Spec>(formatter.writer(), spec),
     formatter_(formatter), format_(fmt) {}
 
   /** Formats an argument of a custom (user-defined) type. */
@@ -2106,12 +2130,14 @@ class BasicArgFormatter : public internal::ArgFormatterBase<Impl, Char> {
 
 /** The default argument formatter. */
 template <typename Char>
-class ArgFormatter : public BasicArgFormatter<ArgFormatter<Char>, Char> {
+class ArgFormatter :
+    public BasicArgFormatter<ArgFormatter<Char>, Char, FormatSpec> {
  public:
   /** Constructs an argument formatter object. */
   ArgFormatter(BasicFormatter<Char> &formatter,
                FormatSpec &spec, const Char *fmt)
-  : BasicArgFormatter<ArgFormatter<Char>, Char>(formatter, spec, fmt) {}
+  : BasicArgFormatter<ArgFormatter<Char>,
+                      Char, FormatSpec>(formatter, spec, fmt) {}
 };
 
 /** This template formats data and writes the output to a writer. */
@@ -2493,16 +2519,16 @@ class BasicWriter {
   void write_int(T value, Spec spec);
 
   // Formats a floating-point number (double or long double).
-  template <typename T>
-  void write_double(T value, const FormatSpec &spec);
+  template <typename T, typename Spec>
+  void write_double(T value, const Spec &spec);
 
   // Writes a formatted string.
   template <typename StrChar>
   CharPtr write_str(const StrChar *s, std::size_t size, const AlignSpec &spec);
 
-  template <typename StrChar>
+  template <typename StrChar, typename Spec>
   void write_str(const internal::Arg::StringValue<StrChar> &str,
-                 const FormatSpec &spec);
+                 const Spec &spec);
 
   // This following methods are private to disallow writing wide characters
   // and strings to a char stream. If you want to print a wide string as a
@@ -2521,10 +2547,10 @@ class BasicWriter {
   template<typename T>
   void append_float_length(Char *&, T) {}
 
-  template <typename Impl, typename Char_>
+  template <typename Impl, typename Char_, typename Spec_>
   friend class internal::ArgFormatterBase;
 
-  template <typename Impl, typename Char_>
+  template <typename Impl, typename Char_, typename Spec_>
   friend class BasicPrintfArgFormatter;
 
  protected:
@@ -2721,9 +2747,9 @@ typename BasicWriter<Char>::CharPtr BasicWriter<Char>::write_str(
 }
 
 template <typename Char>
-template <typename StrChar>
+template <typename StrChar, typename Spec>
 void BasicWriter<Char>::write_str(
-    const internal::Arg::StringValue<StrChar> &s, const FormatSpec &spec) {
+    const internal::Arg::StringValue<StrChar> &s, const Spec &spec) {
   // Check if StrChar is convertible to Char.
   internal::CharTraits<Char>::convert(StrChar());
   if (spec.type_ && spec.type_ != 's')
@@ -2847,7 +2873,7 @@ void BasicWriter<Char>::write_int(T value, Spec spec) {
     UnsignedType n = abs_value;
     if (spec.flag(HASH_FLAG)) {
       prefix[prefix_size++] = '0';
-      prefix[prefix_size++] = spec.type();
+      prefix[prefix_size++] = spec.type_prefix();
     }
     unsigned num_digits = 0;
     do {
@@ -2867,7 +2893,7 @@ void BasicWriter<Char>::write_int(T value, Spec spec) {
     UnsignedType n = abs_value;
     if (spec.flag(HASH_FLAG)) {
       prefix[prefix_size++] = '0';
-      prefix[prefix_size++] = spec.type();
+      prefix[prefix_size++] = spec.type_prefix();
     }
     unsigned num_digits = 0;
     do {
@@ -2915,8 +2941,8 @@ void BasicWriter<Char>::write_int(T value, Spec spec) {
 }
 
 template <typename Char>
-template <typename T>
-void BasicWriter<Char>::write_double(T value, const FormatSpec &spec) {
+template <typename T, typename Spec>
+void BasicWriter<Char>::write_double(T value, const Spec &spec) {
   // Check type.
   char type = spec.type();
   bool upper = false;
@@ -3653,7 +3679,7 @@ const Char *BasicFormatter<Char, ArgFormatter>::format(
     const Char *&format_str, const internal::Arg &arg) {
   using internal::Arg;
   const Char *s = format_str;
-  FormatSpec spec;
+  typename ArgFormatter::SpecType spec;
   if (*s == ':') {
     if (arg.type == Arg::CUSTOM) {
       arg.custom.format(this, arg.custom.value, &s);
