@@ -64,7 +64,7 @@ public:
 
 		if (m_CodePage == CP_UNICODE)
 		{
-			return make_blob_view(m_Data.data(), m_Data.size());
+			return make_blob_view(m_Data.data(), m_Data.size() * sizeof(wchar_t));
 		}
 
 		if (m_Buffer.empty())
