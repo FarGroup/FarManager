@@ -3,6 +3,22 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.01.2017 18:35:54 +0000 - build 4885
+
+1. 0003385: User menu is broken after editing.
+
+drkns 19.01.2017 23:30:22 +0000 - build 4884
+
+1. tinyxml2 and fmt new versions.
+
+drkns 19.01.2017 23:23:24 +0000 - build 4883
+
+1. Refactoring.
+
+svs 11.01.2017 15:22:11 +0300 - build 4882
+
+1. SQLite 3.16.2
+
 svs 04.01.2017 23:15:57 +0300 - build 4881
 
 1. SQLite 3.16.1
