@@ -1000,7 +1000,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	auto Colors = FF->GetColors();
 	HighlightDlgUpdateUserControl(VBufColorExample,Colors);
 	FilterDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
-	FilterDlg[ID_HER_MARKEDIT].strData.assign(1, Colors.Mark.Char);
+	FilterDlg[ID_HER_MARKEDIT].strData.assign(Colors.Mark.Char ? 1 : 0, Colors.Mark.Char);
 	FilterDlg[ID_HER_MARKTRANSPARENT].Selected = Colors.Mark.Transparent;
 	FilterDlg[ID_HER_CONTINUEPROCESSING].Selected=(FF->GetContinueProcessing()?1:0);
 	FilterDlg[ID_FF_NAMEEDIT].strData = FF->GetTitle();
