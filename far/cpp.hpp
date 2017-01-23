@@ -173,8 +173,7 @@ namespace std
 #if COMPILER == C_GCC && !defined(__cpp_lib_uncaught_exceptions)
 namespace __cxxabiv1
 {
-	struct __cxa_eh_globals;
-	extern "C" __cxa_eh_globals* __cxa_get_globals() noexcept;
+	extern "C" struct __cxa_eh_globals* __cxa_get_globals() noexcept;
 }
 
 namespace std

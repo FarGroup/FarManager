@@ -228,4 +228,19 @@ std::enable_if_t<!detail::has_find_t<container>::value, bool> contains(const con
 	return std::find(std::cbegin(Container), End, Element) != End;
 }
 
+
+// TODO: std::clamp once it's clear how to detect its presence
+template<typename type, typename compare>
+constexpr const type& Clamp(const type& Value, const type& Low, const type& High, compare Compare)
+{
+	return assert(!Compare(High, Low)),
+		Compare(Value, Low)? Low : Compare(High, Value)? High : Value;
+}
+
+template<typename type>
+constexpr const type& Clamp(const type& Value, const type& Low, const type& High)
+{
+	return Clamp(Value, Low, High, std::less<>());
+}
+
 #endif // ALGORITHM_HPP_BBD588C0_4752_46B2_AAB9_65450622FFF0

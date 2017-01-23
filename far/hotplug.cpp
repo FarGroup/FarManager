@@ -120,7 +120,7 @@ public:
 
 	device_interfaces GetDeviceInterfaces(const GUID& InterfaceClassGuid) const
 	{
-		return{ m_info, InterfaceClassGuid };
+		return { m_info, InterfaceClassGuid };
 	}
 
 	string GetDevicePath(SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const

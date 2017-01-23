@@ -121,8 +121,7 @@ void KeyBar::DisplayObject()
 				LabelList.pop_front();
 				std::for_each(CONST_RANGE(LabelList, Label2)
 				{
-					strLabelTest=Label;
-					strLabelTest += Label2;
+					strLabelTest = Label + Label2;
 					if (strLabelTest.size() <= static_cast<size_t>(LabelWidth))
 						if (Label2.size() > strLabel2.size())
 							strLabel2 = Label2;

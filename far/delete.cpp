@@ -414,7 +414,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		string tText;
 		auto mDBttn = Wipe? lng::MDeleteWipe : Global->Opt->DeleteToRecycleBin? lng::MDeleteRecycle : lng::MDelete;
 		bool bHilite = Global->Opt->DelOpt.HighlightSelected;
-		int mshow = std::min(std::max((int)Global->Opt->DelOpt.ShowSelected, 1), ScrY/2);
+		const auto mshow = Clamp(static_cast<int>(Global->Opt->DelOpt.ShowSelected), 1, ScrY / 2);
 
 		std::vector<string> items{ strDeleteFilesMsg };
 

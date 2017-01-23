@@ -142,20 +142,13 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	Data.FileSize=Data.AllocationSize=Data.FilesSlack=Data.MFTOverhead=0;
 	ScTree.SetFindPath(DirName,L"*");
 	std::unordered_set<UINT64> FileIds;
-	bool CheckHardlinks = false;
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
-	if(os::GetVolumeInformation(GetPathRoot(DirName), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
-	{
-		if (!IsWindows7OrGreater())
-		{
-			CheckHardlinks = FileSystemName == L"NTFS";
-		}
-		else
-		{
-			CheckHardlinks = (FileSystemFlags&FILE_SUPPORTS_HARD_LINKS) != 0;
-		}
-	}
+	const auto CheckHardlinks = os::GetVolumeInformation(GetPathRoot(DirName), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName)?
+		IsWindows7OrGreater()?
+			(FileSystemFlags & FILE_SUPPORTS_HARD_LINKS) != 0 :
+			FileSystemName == L"NTFS" :
+		false;
 	string strFullName;
 	// Временные хранилища имён каталогов
 	string strCurDirName, strLastDirName;

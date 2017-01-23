@@ -532,7 +532,7 @@ m1:
 					string strDescription,strKeyName;
 					while (Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 					{
-						SizeKeyName = std::min(std::max(SizeKeyName,strKeyName.size()), (size_t)MaxLength/2);
+						SizeKeyName = Clamp(strKeyName.size(), SizeKeyName, static_cast<size_t>(MaxLength) / 2);
 						MI++;
 					}
 					MI=0;
@@ -1131,7 +1131,7 @@ void Help::CorrectPosition() const
 		StackData->CurY=0;
 	}
 
-	StackData->TopStr = std::max(0, std::min(StackData->TopStr, static_cast<int>(HelpList.size()) - FixCount - (m_Y2 - m_Y1 - 1 - FixSize)));
+	StackData->TopStr = Clamp(StackData->TopStr, 0, static_cast<int>(HelpList.size()) - FixCount - (m_Y2 - m_Y1 - 1 - FixSize));
 }
 
 long long Help::VMProcess(int OpCode,void* vParam, long long iParam)

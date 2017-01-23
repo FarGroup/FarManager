@@ -375,7 +375,7 @@ string& RemoveLeadingSpaces(string &strStr)
 // удалить конечные пробелы
 wchar_t* RemoveTrailingSpaces(wchar_t *Str)
 {
-	const auto REnd = std::reverse_iterator<decltype(Str)>(Str);
+	const auto REnd = std::make_reverse_iterator(Str);
 	Str[REnd - std::find_if_not(REnd - wcslen(Str), REnd, IsSpaceOrEol)] = 0;
 	return Str;
 }
@@ -1514,7 +1514,7 @@ wchar_t * xwcsncpy(wchar_t * dest, const wchar_t * src, size_t DestSize)
 std::pair<string, string> split_name_value(const wchar_t* Line)
 {
 	const auto SeparatorPos = wcschr(Line + 1, L'=');
-	return{ { Line, SeparatorPos }, SeparatorPos + 1 };
+	return { { Line, SeparatorPos }, SeparatorPos + 1 };
 }
 
 }

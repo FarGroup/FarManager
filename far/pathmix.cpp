@@ -355,7 +355,7 @@ void AddEndSlash(string &strPath)
 
 void DeleteEndSlash(wchar_t *Path)
 {
-	const auto REnd = std::reverse_iterator<wchar_t*>(Path);
+	const auto REnd = std::make_reverse_iterator(Path);
 	Path[REnd - std::find_if_not(REnd - wcslen(Path), REnd, IsSlash)] = 0;
 }
 

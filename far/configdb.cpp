@@ -1506,7 +1506,7 @@ private:
 	{
 		const auto Stmt = AutoStatement(stmtGetHotkey);
 		if (!Stmt->Bind(PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType)).Step())
-			return{};
+			return {};
 
 		return Stmt->GetColText(0);
 	}

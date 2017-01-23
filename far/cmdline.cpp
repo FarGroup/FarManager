@@ -870,7 +870,7 @@ void CommandLine::ShowViewEditHistory()
 
 void CommandLine::SetPromptSize(int NewSize)
 {
-	PromptSize = NewSize? std::max(5, std::min(95, NewSize)) : DEFAULT_CMDLINE_WIDTH;
+	PromptSize = NewSize? Clamp(NewSize, 5, 95) : DEFAULT_CMDLINE_WIDTH;
 }
 
 class execution_context: noncopyable, public i_execution_context

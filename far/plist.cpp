@@ -51,32 +51,12 @@ struct menu_data
 	HWND Hwnd;
 };
 
-static struct task_sort
-{
-	bool operator()(const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p) const
-	{
-		return StrCmp(any_cast<menu_data>(a.UserData).Title, any_cast<menu_data>(b.UserData).Title) < 0;
-	}
-}
-TaskSort;
-
-static bool KillProcess(DWORD dwPID)
-{
-	bool Result = false;
-	if (const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, dwPID)))
-	{
-		Result = TerminateProcess(Process.native_handle(), 0xFFFFFFFF) != FALSE;
-	}
-	return Result;
-}
-
 struct ProcInfo
 {
 	VMenu2 *procList;
 	bool ShowImage;
 	std::exception_ptr ExceptionPtr;
 };
-
 
 static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM Param)
 {
@@ -140,7 +120,12 @@ void ShowProcessList()
 			RethrowIfNeeded(pi.ExceptionPtr);
 			return false;
 		}
-		ProcList->SortItems(TaskSort);
+
+		ProcList->SortItems([](const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p)
+		{
+			return StrCmp(any_cast<menu_data>(a.UserData).Title, any_cast<menu_data>(b.UserData).Title) < 0;
+		});
+
 		return true;
 	};
 
@@ -170,7 +155,8 @@ void ShowProcessList()
 							{ MSG(lng::MAskKillProcess), MenuData->Title.data(), MSG(lng::MKillProcessWarning) },
 							{ MSG(lng::MKillProcessKill), MSG(lng::MCancel) }) == Message::first_button)
 						{
-							if (!KillProcess(MenuData->Pid))
+							const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
+							if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
 							{
 								Global->CatchError();
 								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MKillProcessTitle),MSG(lng::MCannotKillProcess),MSG(lng::MOk));

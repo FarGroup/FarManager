@@ -240,7 +240,7 @@ public:
 		if (m_value == L' ')
 		{
 			m_value = BoxSymbols[BS_V1];
-			return{ L' ' };
+			return { L' ' };
 		}
 		return { L' ', m_value, L' '};
 	}

@@ -464,7 +464,7 @@ void FileList::ToEnd()
 
 void FileList::MoveCursor(int offset)
 {
-	m_CurFile = std::min(std::max(0, m_CurFile + offset), static_cast<int>(m_ListData.size() - 1));
+	m_CurFile = Clamp(m_CurFile + offset, 0, static_cast<int>(m_ListData.size() - 1));
 }
 
 void FileList::MoveCursorAndShow(int offset)

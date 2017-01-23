@@ -1549,7 +1549,7 @@ Options::Options():
 	ViOpt.MaxLineSize.SetValidator([](long long Value)
 	{
 		return Value?
-			std::max(static_cast<long long>(ViewerOptions::eMinLineSize), std::min(Value, static_cast<long long>(ViewerOptions::eMaxLineSize))) :
+			Clamp(Value, static_cast<long long>(ViewerOptions::eMinLineSize), static_cast<long long>(ViewerOptions::eMaxLineSize)) :
 			static_cast<long long>(ViewerOptions::eDefLineSize);
 	});
 

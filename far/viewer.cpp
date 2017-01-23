@@ -1432,7 +1432,7 @@ long long Viewer::XYfilepos(int col, int row)
 	default:
 		return -1;
 	}
-	return std::max(0ll, std::min(pos,FileSize));
+	return Clamp(pos, 0ll, FileSize);
 }
 
 
@@ -2318,7 +2318,7 @@ static int process_back(int BufferSize, int pos, long long& fpos, const F& Reade
 	}
 
 	const T crlf[] = { eol.cr<T>(), eol.lf<T>() };
-	const auto REnd = std::reverse_iterator<T*>(Buffer);
+	const auto REnd = std::make_reverse_iterator(Buffer);
 	const auto RBegin = REnd - nr;
 	const auto Iterator = std::find_first_of(RBegin, REnd, ALL_CONST_RANGE(crlf));
 	if (Iterator != REnd)
@@ -2691,7 +2691,7 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	const auto strMsg = concat(MSG(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', MsgStr);
 	if (Percent>=0)
 	{
-		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
+		const size_t Length = Clamp(static_cast<int>(strMsg.size()), 40, ScrX - 1 - 10);
 		strProgress = make_progressbar(Length, Percent, true, true);
 	}
 
@@ -4043,7 +4043,7 @@ void Viewer::GoTo(int ShowDlg, long long Offset, UINT64 Flags)
 			{
 				Column = LeftPos + IsColumnRelative * Column;
 			}
-			NewLeftPos = std::min(std::max(0LL, Column), ViOpt.MaxLineSize.Get());
+			NewLeftPos = Clamp(Column, 0ll, ViOpt.MaxLineSize.Get());
 		}
 	}
 	else
@@ -4057,7 +4057,7 @@ void Viewer::GoTo(int ShowDlg, long long Offset, UINT64 Flags)
 	}
 
 	FilePos = IsOffsetRelative? FilePos + Offset * IsOffsetRelative : Offset;
-	FilePos = std::max(0ll, std::min(FilePos, FileSize));
+	FilePos = Clamp(FilePos, 0ll, FileSize);
 
 	AdjustFilePos();
 	if (NewLeftPos != -1)

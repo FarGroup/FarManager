@@ -297,7 +297,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 // установить курсор и верхний элемент
 int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 {
-	int pos = std::min(static_cast<intptr_t>(Items.size()-1), std::max((intptr_t)0, ListPos->SelectPos));
+	int pos = Clamp(ListPos->SelectPos, intptr_t(0), static_cast<intptr_t>(Items.size() - 1));
 	int Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 
 	if (Ret >= 0)
@@ -428,7 +428,7 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 
 int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 {
-	PosAdd = std::max(0, std::min(PosAdd, static_cast<int>(Items.size())));
+	PosAdd = Clamp(PosAdd, 0, static_cast<int>(Items.size()));
 
 	Items.emplace(Items.begin() + PosAdd, std::move(NewItem));
 	auto& NewMenuItem = Items[PosAdd];

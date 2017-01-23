@@ -232,7 +232,7 @@ template<typename T>
 std::pair<string, string> split_name_value(const T& Line)
 {
 	const auto SeparatorPos = std::find(ALL_CONST_RANGE(Line), L'=');
-	return{ { Line.begin(), SeparatorPos }, { SeparatorPos + 1, Line.end() } };
+	return { { Line.begin(), SeparatorPos }, { SeparatorPos + 1, Line.end() } };
 }
 
 };

@@ -415,13 +415,13 @@ string ConvertNameToLong(const string& Object)
 	{
 		if (Size < std::size(Buffer))
 		{
-			return{ Buffer, Size };
+			return { Buffer, Size };
 		}
 		else
 		{
 			wchar_t_ptr vBuffer(Size);
 			Size = GetLongPathName(Object.data(), vBuffer.get(), Size);
-			return{ vBuffer.get(), Size };
+			return { vBuffer.get(), Size };
 		}
 	}
 	return Object;

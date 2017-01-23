@@ -37,64 +37,92 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int locale::GetDateFormat()
 {
-	int Result = 0;
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IDATE|LOCALE_RETURN_NUMBER,reinterpret_cast<LPWSTR>(&Result),sizeof(Result)/sizeof(WCHAR));
+	int Result;
+
+	// TODO: log
+	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IDATE | LOCALE_RETURN_NUMBER, reinterpret_cast<wchar_t*>(&Result), sizeof(Result) / sizeof(wchar_t)))
+		return 0;
+
 	return Result;
 }
 
 wchar_t locale::GetDateSeparator()
 {
 	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDATE, Info, static_cast<int>(std::size(Info)));
+	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDATE, Info, static_cast<int>(std::size(Info))))
+	{
+		// TODO: log
+		return L'/';
+	}
 	return *Info;
 }
 
 wchar_t locale::GetTimeSeparator()
 {
 	wchar_t Info[100];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_STIME, Info, static_cast<int>(std::size(Info)));
+	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STIME, Info, static_cast<int>(std::size(Info))))
+	{
+		// TODO: log
+		return L':';
+	}
 	return *Info;
 }
 
 wchar_t locale::GetDecimalSeparator()
 {
 	wchar_t Separator[4];
-	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_SDECIMAL,Separator, static_cast<int>(std::size(Separator)));
+	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, Separator, static_cast<int>(std::size(Separator))))
+	{
+		// TODO: log
+		*Separator = L'.';
+	}
+
 	if (Global && Global->Opt && Global->Opt->FormatNumberSeparators.size() > 1)
 		*Separator = Global->Opt->FormatNumberSeparators[1];
+
 	return *Separator;
 }
 
 wchar_t locale::GetThousandSeparator()
 {
 	wchar_t Separator[4];
-	GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Separator, static_cast<int>(std::size(Separator)));
+	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Separator, static_cast<int>(std::size(Separator))))
+	{
+		// TODO: log
+		*Separator = L',';
+	}
+
 	if (Global && Global->Opt && !Global->Opt->FormatNumberSeparators.empty())
 		*Separator = Global->Opt->FormatNumberSeparators[0];
+
 	return *Separator;
 }
 
 string locale::GetValue(LCID lcid, LCTYPE id)
 {
-	string Result;
-	const auto Size = GetLocaleInfo(lcid, id, nullptr, 0);
-	if (Size != 0)
+	const size_t Size = GetLocaleInfo(lcid, id, nullptr, 0);
+
+	if (!Size)
 	{
-		wchar_t_ptr Buffer(Size);
-		GetLocaleInfo(lcid, id, Buffer.get(), Size);
-		Result.assign(Buffer.get(), Size - 1);
+		// TODO: log
+		return {};
 	}
-	return Result;
+
+	wchar_t_ptr Buffer(Size);
+	GetLocaleInfo(lcid, id, Buffer.get(), static_cast<int>(Size));
+	return { Buffer.get(), Size - 1 };
 }
 
 string locale::GetTimeFormat()
 {
-	wchar_t TimeBuffer[MAX_PATH]{};
-	if (const auto TimeBufferSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, TimeBuffer, static_cast<int>(std::size(TimeBuffer))))
+	wchar_t TimeBuffer[MAX_PATH];
+	const size_t Size = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, TimeBuffer, static_cast<int>(std::size(TimeBuffer)));
+
+	if (!Size)
 	{
-		return string(TimeBuffer, TimeBufferSize - 1);
+		// TODO: log
+		return {};
 	}
 
-	// TODO: log
-	return {};
+	return { TimeBuffer, Size - 1 };
 }
