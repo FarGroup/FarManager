@@ -174,7 +174,7 @@ local function GetSortModes()
   for k=1,#t,3 do
     local mode = t[k]
     t[k+1] = CustomSortModes[mode].InvertByDefault
-    t[k+2] = CustomSortModes[mode].Description or "Sort mode "..mode
+    t[k+2] = CustomSortModes[mode].Description or Msg.PSDefaultMenuItemText..mode
   end
   t.n = #t
   return t
