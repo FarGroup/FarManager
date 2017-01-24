@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "dirmix.hpp"
 #include "lockscrn.hpp"
+#include "local.hpp"
 
 class ChDiskPluginItem
 {

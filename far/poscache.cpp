@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
+#include "cvtname.hpp"
 
 void GetFullName(const string& Name, string &strFullName)
 {

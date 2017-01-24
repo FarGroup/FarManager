@@ -71,6 +71,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "strmix.hpp"
 #include "FarDlgBuilder.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 enum SHOW_MODES
 {
@@ -2153,7 +2155,10 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (ManualSelectPos < 0)
 			ManualSelectPos = mpos = filepos;
 		else if (filepos < ManualSelectPos)
-			std::swap(filepos, ManualSelectPos);
+		{
+			using std::swap;
+			swap(filepos, ManualSelectPos);
+		}
 
 		vseek(filepos, FILE_BEGIN);
 		wchar_t ch;

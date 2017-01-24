@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "strmix.hpp"
 #include "elevation.hpp"
+#include "local.hpp"
 
 static void MixToFullPath(string& strPath)
 {

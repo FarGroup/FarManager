@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "encoding.hpp"
 #include "regex_helpers.hpp"
+#include "local.hpp"
 
 namespace strmix
 {
@@ -128,7 +129,8 @@ wchar_t* QuoteSpace(wchar_t *Str)
 		const auto Size = wcslen(Str);
 		if (IsSlash(Str[Size - 2]))
 		{
-			std::swap(Str[Size - 2], Str[Size - 1]);
+			using std::swap;
+			swap(Str[Size - 2], Str[Size - 1]);
 		}
 	}
 	return Str;
@@ -1217,6 +1219,26 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	}
 
 	return false;
+}
+
+int StrCmp(const string& a, const string& b) { return ::StrCmp(a.data(), b.data()); }
+int StrCmp(const wchar_t* a, const string& b) { return ::StrCmp(a, b.data()); }
+int StrCmp(const string& a, const wchar_t* b) { return ::StrCmp(a.data(), b); }
+
+int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }
+int StrCmpI(const wchar_t* a, const string& b) { return ::StrCmpI(a, b.data()); }
+int StrCmpI(const string& a, const wchar_t* b) { return ::StrCmpI(a.data(), b); }
+
+string& InplaceUpper(string& str, size_t pos, size_t n)
+{
+	std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Upper);
+	return str;
+}
+
+string& InplaceLower(string& str, size_t pos, size_t n)
+{
+	std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Lower);
+	return str;
 }
 
 	class UserDefinedList

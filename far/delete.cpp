@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "strmix.hpp"
 #include "DlgGuid.hpp"
+#include "cvtname.hpp"
 
 enum DEL_MODE
 {

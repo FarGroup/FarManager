@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "treelist.hpp"
 #include "elevation.hpp"
+#include "cvtname.hpp"
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {

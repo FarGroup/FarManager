@@ -43,6 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "strmix.hpp"
 #include "lasterror.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 namespace os
 {
@@ -656,7 +658,7 @@ bool file::NtQueryDirectoryFile(PVOID FileInformation, size_t Length, FILE_INFOR
 	if(FileName && *FileName)
 	{
 		NameString.Buffer = const_cast<LPWSTR>(FileName);
-		NameString.Length = static_cast<USHORT>(StrLength(FileName)*sizeof(WCHAR));
+		NameString.Length = static_cast<USHORT>(wcslen(FileName)*sizeof(WCHAR));
 		NameString.MaximumLength = NameString.Length;
 		pNameString = &NameString;
 	}
@@ -2088,6 +2090,15 @@ bool GetDefaultPrinter(string& Printer)
 			static const auto Result = GetResult();
 			return Result;
 		}
+	}
+
+	bool is_standard_drive_letter(wchar_t Letter)
+	{
+		return InRange(L'A', Upper(Letter), L'Z');
+	}
+	int get_drive_number(wchar_t Letter)
+	{
+		return Upper(Letter) - L'A';
 	}
 }
 

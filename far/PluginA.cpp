@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "encoding.hpp"
 #include "chgprior.hpp"
-#include "cmdline.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "config.hpp"
@@ -54,6 +53,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "strmix.hpp"
 #include "pluginold.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
 

@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "language.hpp"
 #include "datetime.hpp"
+#include "local.hpp"
 
 /* start Глобальные переменные */
 

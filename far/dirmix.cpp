@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "elevation.hpp"
 #include "network.hpp"
+#include "local.hpp"
 
 BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
 {

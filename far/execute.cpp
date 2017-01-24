@@ -49,6 +49,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "language.hpp"
 #include "filetype.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 enum class image_type
 {

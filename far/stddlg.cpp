@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "interf.hpp"
 #include "dlgedit.hpp"
+#include "cvtname.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,

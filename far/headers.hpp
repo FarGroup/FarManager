@@ -178,11 +178,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif // __GNUC__
 
 //----------------------------------------------------------------------------
+#include "disable_warnings_in_std_end.hpp"
 
 using string = std::wstring;
 using namespace std::string_literals;
-
-#include "disable_warnings_in_std_end.hpp"
 
 #include "sdk.hpp"
 
@@ -193,9 +192,8 @@ using namespace std::string_literals;
 #include "common.hpp"
 
 #include "format.hpp"
-#include "local.hpp"
+
 #include "farwinapi.hpp"
-#include "cvtname.hpp"
 
 #include "plugin.hpp"
 

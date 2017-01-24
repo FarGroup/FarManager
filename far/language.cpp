@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "interf.hpp"
 #include "lasterror.hpp"
+#include "local.hpp"
 
 static constexpr wchar_t LangFileMask[] = L"*.lng";
 

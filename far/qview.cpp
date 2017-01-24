@@ -52,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "strmix.hpp"
 #include "keyboard.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static bool LastMode = false;
 static bool LastWrapMode = false;

@@ -109,16 +109,16 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 
 bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, class RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
 
-inline int StrCmp(const string& a, const string& b) { return ::StrCmp(a.data(), b.data()); }
-inline int StrCmp(const wchar_t* a, const string& b) { return ::StrCmp(a, b.data()); }
-inline int StrCmp(const string& a, const wchar_t* b) { return ::StrCmp(a.data(), b); }
+int StrCmp(const string& a, const string& b);
+int StrCmp(const wchar_t* a, const string& b);
+int StrCmp(const string& a, const wchar_t* b);
 
-inline int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }
-inline int StrCmpI(const wchar_t* a, const string& b) { return ::StrCmpI(a, b.data()); }
-inline int StrCmpI(const string& a, const wchar_t* b) { return ::StrCmpI(a.data(), b); }
+int StrCmpI(const string& a, const string& b);
+int StrCmpI(const wchar_t* a, const string& b);
+int StrCmpI(const string& a, const wchar_t* b);
 
-inline string& InplaceUpper(string& str, size_t pos = 0, size_t n = string::npos) { std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Upper); return str; }
-inline string& InplaceLower(string& str, size_t pos = 0, size_t n = string::npos) { std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Lower); return str; }
+string& InplaceUpper(string& str, size_t pos = 0, size_t n = string::npos);
+string& InplaceLower(string& str, size_t pos = 0, size_t n = string::npos);
 inline string Upper(string str, size_t pos = 0, size_t n = string::npos) { return InplaceUpper(str, pos, n); }
 inline string Lower(string str, size_t pos = 0, size_t n = string::npos) { return InplaceLower(str, pos, n); }
 

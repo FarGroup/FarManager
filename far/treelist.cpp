@@ -79,6 +79,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static bool StaticSortNumeric;
 static bool StaticSortCaseSensitive;

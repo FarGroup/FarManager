@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
+#include "local.hpp"
 
 FolderTree::FolderTree(private_tag, int iModalMode, int IsStandalone, bool IsFullScreen):
 	Tree(nullptr),

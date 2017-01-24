@@ -75,6 +75,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 enum enumOpenEditor
 {

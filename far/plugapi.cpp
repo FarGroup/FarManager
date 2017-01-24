@@ -81,6 +81,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "viewer.hpp"
 #include "datetime.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static Plugin* GuidToPlugin(const GUID* Id)
 {

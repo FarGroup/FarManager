@@ -64,6 +64,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "datetime.hpp"
 #include "tracer.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 global *Global = nullptr;
 

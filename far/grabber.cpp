@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "help.hpp"
 #include "strmix.hpp"
+#include "local.hpp"
 
 monitored<bool> Grabber::m_StreamSelection;
 

@@ -72,6 +72,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelctype.hpp"
 #include "colormix.hpp"
 #include "diskmenu.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static constexpr size_t predefined_panel_modes_count = 10;
 

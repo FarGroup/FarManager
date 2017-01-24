@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "colormix.hpp"
 #include "strmix.hpp"
+#include "local.hpp"
 
 void ColorItem::SetOwner(const GUID& Value)
 {

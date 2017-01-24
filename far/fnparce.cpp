@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "language.hpp"
 #include "blob_builder.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 struct subst_data
 {

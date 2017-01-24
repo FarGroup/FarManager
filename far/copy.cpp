@@ -58,7 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "dirinfo.hpp"
 #include "pathmix.hpp"
-#include "drivemix.hpp"
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "panelmix.hpp"
@@ -68,6 +67,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "manager.hpp"
 #include "copy_progress.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 enum
 {

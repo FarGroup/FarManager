@@ -84,6 +84,10 @@ private:
 	void Search(os::fs::file& HelpFile,uintptr_t nCodePage);
 	int JumpTopic(const string& JumpTopic);
 	int JumpTopic();
+	int CanvasHeight() const { return ObjHeight() - 1 - 1;  }
+	int HeaderHeight() const { return FixCount? FixCount + 1 : 0; }
+	int BodyHeight() const { return CanvasHeight() - HeaderHeight();  }
+	int CanvasWidth() const { return ObjWidth() - 1 - 1; }
 
 	std::unique_ptr<StackHelpData> StackData;
 	std::stack<StackHelpData, std::vector<StackHelpData>> Stack; // стек возврата
@@ -95,7 +99,6 @@ private:
 	string strLastSearchStr;
 
 	int FixCount;             // количество строк непрокручиваемой области
-	int FixSize;              // Размер непрокручиваемой области
 
 	int MouseDownX, MouseDownY, BeforeMouseDownX, BeforeMouseDownY;
 	int MsX, MsY;

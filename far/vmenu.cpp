@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "vmenu2.hpp"
 #include "strmix.hpp"
+#include "local.hpp"
 
 MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 {

@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelctype.hpp"
 #include "filetype.hpp"
 #include "diskmenu.hpp"
+#include "local.hpp"
 
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem

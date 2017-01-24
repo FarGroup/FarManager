@@ -56,6 +56,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static constexpr wchar_t FoundContents[]=L"__FoundContents__";
 static constexpr wchar_t PluginContents[]=L"__PluginContents__";
@@ -133,7 +135,6 @@ string Help::MakeLink(const string& path, const string& topic)
 Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	FixCount(0),
-	FixSize(0),
 	MouseDownX(0),
 	MouseDownY(0),
 	BeforeMouseDownX(0),
@@ -320,7 +321,7 @@ int Help::ReadHelp(const string& Mask)
 	wchar_t PrevSymbol=0;
 	bool drawline = false;
 	wchar_t DrawLineChar = 0;
-	const int MaxLength = m_X2 - m_X1 - 1;
+	const int MaxLength = CanvasWidth();
 
 	StartPos = (DWORD)-1;
 	LastStartPos = (DWORD)-1;
@@ -631,7 +632,7 @@ m1:
 						}
 						wchar_t userSeparator[4] = { L' ', (DrawLineChar ? DrawLineChar : BoxSymbols[BS_H1]), L' ', 0 }; // left-center-right
 						int Mul = (DrawLineChar == L'@' || DrawLineChar == L'~' || DrawLineChar == L'#' ? 2 : 1); // Double. See Help::OutString
-						AddLine(MakeSeparator((m_X2 - m_X1 - 1) * Mul - (Mul>>1), 12, userSeparator)); // 12 -> UserSep horiz
+						AddLine(MakeSeparator(CanvasWidth() * Mul - (Mul>>1), 12, userSeparator)); // 12 -> UserSep horiz
 						strReadStr.clear();
 						strSplitLine.clear();
 						continue;
@@ -714,7 +715,6 @@ m1:
 	}
 
 	AddLine(L"");
-	FixSize=FixCount?FixCount+1:0;
 	ErrorHelp = false;
 
 	if (IsNewTopic)
@@ -813,7 +813,7 @@ void Help::FastShow()
 	*/
 	CurColor = colors::PaletteColorToFarColor(COL_HELPTEXT);
 
-	for (int i=0; i<m_Y2-m_Y1-1; i++)
+	for (int i=0; i < CanvasHeight(); i++)
 	{
 		int StrPos;
 
@@ -825,7 +825,7 @@ void Help::FastShow()
 		{
 			GotoXY(m_X1,m_Y1+i+1);
 			SetColor(COL_HELPBOX);
-			ShowSeparator(m_X2-m_X1+1,1);
+			ShowSeparator(ObjWidth(), 1);
 			continue;
 		}
 		else
@@ -843,7 +843,7 @@ void Help::FastShow()
 			if (*OutStr==L'^')
 			{
 				OutStr++;
-				GotoXY(m_X1+1+std::max(0,(m_X2-m_X1-1-StringLen(OutStr))/2),m_Y1+i+1);
+				GotoXY(m_X1 + 1 + std::max(0, (CanvasWidth() - StringLen(OutStr)) / 2), m_Y1 + i + 1);
 			}
 			else
 			{
@@ -855,7 +855,7 @@ void Help::FastShow()
 	}
 
 	SetColor(COL_HELPSCROLLBAR);
-	ScrollBarEx(m_X2, m_Y1 + FixSize + 1, m_Y2 - m_Y1 - FixSize - 1, StackData->TopStr, HelpList.size() - FixCount);
+	ScrollBarEx(m_X2, m_Y1 + HeaderHeight() + 1, BodyHeight(), StackData->TopStr, HelpList.size() - FixCount);
 }
 
 void Help::DrawWindowFrame() const
@@ -872,8 +872,8 @@ void Help::DrawWindowFrame() const
 	else
 		strHelpTitleBuf += L"FAR";
 
-	TruncStrFromEnd(strHelpTitleBuf,m_X2-m_X1-3);
-	GotoXY(m_X1+(m_X2-m_X1+1-(int)strHelpTitleBuf.size()-2)/2,m_Y1);
+	TruncStrFromEnd(strHelpTitleBuf, CanvasWidth() - 2);
+	GotoXY(m_X1 + (ObjWidth() + (int)strHelpTitleBuf.size() - 2) / 2, m_Y1);
 	Text(concat(L' ', strHelpTitleBuf, L' '));
 }
 
@@ -992,13 +992,13 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 		return false;
 
 	int y = -1;
-	if (realY-m_Y1 <= FixSize)
+	if (realY-m_Y1 <= HeaderHeight())
 	{
 		if (y != FixCount)
 			y = realY - m_Y1 - 1;
 	}
 	else
-		y = realY - m_Y1 - 1 - FixSize+FixCount + StackData->TopStr;
+		y = realY - m_Y1 - 1 - HeaderHeight() + FixCount + StackData->TopStr;
 
 	if (y < 0 || y >= static_cast<int>(HelpList.size()))
 		return false;
@@ -1012,7 +1012,7 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	if (*Str == L'^') // center
 	{
 		int w = StringLen(++Str);
-		x = m_X1 + 1 + std::max(0, (m_X2 - m_X1 - 1 - w)/2);
+		x = m_X1 + 1 + std::max(0, (CanvasWidth() - w) / 2);
 	}
 
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
@@ -1051,10 +1051,9 @@ void Help::OutString(const wchar_t *Str)
 
 			if (Topic)
 			{
-				int RealCurX,RealCurY;
-				RealCurX=m_X1+StackData->CurX+1;
-				RealCurY=m_Y1+StackData->CurY+FixSize+1;
-				bool found = WhereY()==RealCurY && RealCurX>=WhereX() && RealCurX<WhereX()+(Str-StartTopic)-1;
+				int RealCurX = m_X1 + StackData->CurX + 1;
+				int RealCurY = m_Y1 + StackData->CurY + HeaderHeight() + 1;
+				bool found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str - StartTopic) - 1;
 
 				SetColor(found ? COL_HELPSELECTEDTOPIC : COL_HELPTOPIC);
 				if (*Str && Str[1]==L'@')
@@ -1113,16 +1112,12 @@ void Help::OutString(const wchar_t *Str)
 
 void Help::CorrectPosition() const
 {
-	if (StackData->CurX>m_X2-m_X1-2)
-		StackData->CurX=m_X2-m_X1-2;
+	StackData->CurX = Clamp(StackData->CurX, 0, CanvasWidth() - 1);
 
-	if (StackData->CurX<0)
-		StackData->CurX=0;
-
-	if (StackData->CurY>m_Y2-m_Y1-2-FixSize)
+	if (StackData->CurY > BodyHeight() - 1)
 	{
-		StackData->TopStr+=StackData->CurY-(m_Y2-m_Y1-2-FixSize);
-		StackData->CurY=m_Y2-m_Y1-2-FixSize;
+		StackData->TopStr += StackData->CurY - BodyHeight() - 1;
+		StackData->CurY = BodyHeight() - 1;
 	}
 
 	if (StackData->CurY<0)
@@ -1131,7 +1126,7 @@ void Help::CorrectPosition() const
 		StackData->CurY=0;
 	}
 
-	StackData->TopStr = Clamp(StackData->TopStr, 0, static_cast<int>(HelpList.size()) - FixCount - (m_Y2 - m_Y1 - 1 - FixSize));
+	StackData->TopStr = std::max(0, std::min(StackData->TopStr, static_cast<int>(HelpList.size()) - FixCount - BodyHeight()));
 }
 
 long long Help::VMProcess(int OpCode,void* vParam, long long iParam)
@@ -1210,7 +1205,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			if (StackData->strSelTopic.empty())
 			{
 				StackData->CurX=0;
-				StackData->CurY=m_Y2-m_Y1-2-FixSize;
+				StackData->CurY = BodyHeight() - 1;
 				MoveToReference(0,1);
 			}
 
@@ -1222,9 +1217,9 @@ int Help::ProcessKey(const Manager::Key& Key)
 			{
 				StackData->TopStr--;
 
-				if (StackData->CurY<m_Y2-m_Y1-2-FixSize)
+				if (StackData->CurY < BodyHeight() - 1)
 				{
-					StackData->CurX=m_X2-m_X1-2;
+					StackData->CurX = CanvasWidth() - 2 - 1;
 					StackData->CurY++;
 				}
 
@@ -1240,7 +1235,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_DOWN:        case KEY_NUMPAD2:
 		{
-			if (StackData->TopStr < static_cast<int>(HelpList.size()) - FixCount - (m_Y2 - m_Y1 - 1 - FixSize))
+			if (StackData->TopStr < static_cast<int>(HelpList.size()) - FixCount - BodyHeight())
 			{
 				StackData->TopStr++;
 
@@ -1283,7 +1278,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		case KEY_PGUP:      case KEY_NUMPAD9:
 		{
 			StackData->CurX=StackData->CurY=0;
-			StackData->TopStr-=m_Y2-m_Y1-2-FixSize;
+			StackData->TopStr -= BodyHeight() - 1;
 			FastShow();
 
 			if (StackData->strSelTopic.empty())
@@ -1298,7 +1293,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 		{
 			{
 				int PrevTopStr=StackData->TopStr;
-				StackData->TopStr+=m_Y2-m_Y1-2-FixSize;
+				StackData->TopStr += BodyHeight() - 1;
 				FastShow();
 
 				if (StackData->TopStr==PrevTopStr)
@@ -1645,8 +1640,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (IntKeyState.MouseX==m_X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 	{
-		int ScrollY=m_Y1+FixSize+1;
-		int Height=m_Y2-m_Y1-FixSize-1;
+		int ScrollY = m_Y1 + HeaderHeight() + 1;
 
 		if (IntKeyState.MouseY==ScrollY)
 		{
@@ -1656,7 +1650,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 		}
 
-		if (IntKeyState.MouseY==ScrollY+Height-1)
+		if (IntKeyState.MouseY == ScrollY + BodyHeight() - 1)
 		{
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_DOWN));
@@ -1671,17 +1665,16 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	*/
 	if (IntKeyState.MouseX == m_X2)
 	{
-		int ScrollY=m_Y1+FixSize+1;
-		int Height=m_Y2-m_Y1-FixSize-1;
+		int ScrollY = m_Y1 + HeaderHeight() + 1;
 
-		if (static_cast<int>(HelpList.size()) > Height)
+		if (static_cast<int>(HelpList.size()) > BodyHeight())
 		{
 			while (IsMouseButtonPressed())
 			{
-				if (IntKeyState.MouseY > ScrollY && IntKeyState.MouseY < ScrollY+Height+1)
+				if (IntKeyState.MouseY > ScrollY && IntKeyState.MouseY < ScrollY + BodyHeight() + 1)
 				{
 					StackData->CurX=StackData->CurY=0;
-					StackData->TopStr = (IntKeyState.MouseY - ScrollY - 1) * (static_cast<int>(HelpList.size()) - FixCount - Height + 1) / (Height - 2);
+					StackData->TopStr = (IntKeyState.MouseY - ScrollY - 1) * (static_cast<int>(HelpList.size()) - FixCount - BodyHeight() + 1) / (BodyHeight() - 2);
 					FastShow();
 				}
 			}
@@ -1694,15 +1687,15 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	// DoubliClock - свернуть/развернуть хелп.
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK &&
 	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
-	        MouseEvent->dwMousePosition.Y<m_Y1+1+FixSize)
+		MouseEvent->dwMousePosition.Y < m_Y1 + 1 + HeaderHeight())
 	{
 		ProcessKey(Manager::Key(KEY_F5));
 		return TRUE;
 	}
 
-	if (MouseEvent->dwMousePosition.Y<m_Y1+1+FixSize)
+	if (MouseEvent->dwMousePosition.Y < m_Y1 + 1 + HeaderHeight())
 	{
-		while (IsMouseButtonPressed() && IntKeyState.MouseY<m_Y1+1+FixSize)
+		while (IsMouseButtonPressed() && IntKeyState.MouseY < m_Y1 + 1 + HeaderHeight())
 			ProcessKey(Manager::Key(KEY_UP));
 
 		return TRUE;
@@ -1724,7 +1717,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		BeforeMouseDownX = StackData->CurX;
 		BeforeMouseDownY = StackData->CurY;
 		StackData->CurX = MouseDownX = MsX-m_X1-1;
-		StackData->CurY = MouseDownY = MsY-m_Y1-1-FixSize;
+		StackData->CurY = MouseDownY = MsY - m_Y1 - 1 - HeaderHeight();
 		MouseDown = true;
 		simple_move = false;
 	}
@@ -1758,7 +1751,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			//if (strTopic != StackData->strSelTopic)
 			{
 				StackData->CurX = MsX-m_X1-1;
-				StackData->CurY = MsY-m_Y1-1-FixSize;
+				StackData->CurY = MsY - m_Y1 - 1 - HeaderHeight();
 			}
 		}
 	}
@@ -1789,35 +1782,35 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	int SaveTopStr=StackData->TopStr;
 	StackData->strSelTopic.clear();
 
-	if (!ErrorHelp) while (StackData->strSelTopic.empty())
+	if (!ErrorHelp)
+		while (StackData->strSelTopic.empty())
 		{
 			BOOL ReferencePresent=IsReferencePresent();
 
 			if (Forward)
 			{
 				if (!StackData->CurX && !ReferencePresent)
-					StackData->CurX=m_X2-m_X1-2;
+					StackData->CurX = CanvasWidth() - 1;
 
-				if (++StackData->CurX >= m_X2-m_X1-2)
+				if (++StackData->CurX >= CanvasWidth() - 1)
 				{
 					StartSelection=0;
 					StackData->CurX=0;
 					StackData->CurY++;
 
-					if (StackData->TopStr + StackData->CurY >= static_cast<int>(HelpList.size()) - FixCount ||
-					        (CurScreen && StackData->CurY>m_Y2-m_Y1-2-FixSize))
+					if (StackData->TopStr + StackData->CurY >= static_cast<int>(HelpList.size()) - FixCount || (CurScreen && StackData->CurY > BodyHeight() - 1))
 						break;
 				}
 			}
 			else
 			{
-				if (StackData->CurX==m_X2-m_X1-2 && !ReferencePresent)
+				if (StackData->CurX == CanvasWidth() - 1 && !ReferencePresent)
 					StackData->CurX=0;
 
 				if (--StackData->CurX < 0)
 				{
 					StartSelection=0;
-					StackData->CurX=m_X2-m_X1-2;
+					StackData->CurX = CanvasWidth() - 1;
 					StackData->CurY--;
 
 					if (StackData->TopStr+StackData->CurY<0 ||
@@ -1854,7 +1847,6 @@ void Help::MoveToReference(int Forward,int CurScreen)
 void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
 {
 	FixCount=1;
-	FixSize=2;
 	StackData->TopStr=0;
 	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
@@ -1950,7 +1942,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 	strCurPluginContents.clear();
 	FixCount=1;
-	FixSize=2;
 	StackData->TopStr=0;
 	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;

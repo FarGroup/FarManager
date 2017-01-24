@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "language.hpp"
 #include "DlgGuid.hpp"
+#include "local.hpp"
 
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS

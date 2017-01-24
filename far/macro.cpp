@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "colormix.hpp"
 #include "strmix.hpp"
+#include "local.hpp"
 
 #if 0
 void print_opcodes()

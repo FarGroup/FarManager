@@ -58,6 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "language.hpp"
 #include "colormix.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static void PR_DrawGetDirInfoMsg();
 

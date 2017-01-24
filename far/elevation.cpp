@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pipe.hpp"
 #include "console.hpp"
 #include "constitle.hpp"
+#include "local.hpp"
 
 using namespace os::security;
 

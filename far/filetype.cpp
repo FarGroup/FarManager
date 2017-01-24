@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "language.hpp"
 #include "DlgGuid.hpp"
+#include "cvtname.hpp"
 
 /* $ 14.01.2001 SVS
    Добавим интеллектуальности.

@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
+#include "cvtname.hpp"
 
 struct ScanTree::scantree_item
 {

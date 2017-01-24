@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "regex_helpers.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 void NTPath::Transform()
 {

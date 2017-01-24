@@ -81,7 +81,7 @@ namespace detail
 {
 	struct wchar_t_compare_icase
 	{
-		inline bool operator()(wchar_t c1, wchar_t c2) const
+		bool operator()(wchar_t c1, wchar_t c2) const
 		{
 			return Lower(c1) == Lower(c2);
 		}

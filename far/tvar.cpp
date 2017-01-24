@@ -41,8 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "tvar.hpp"
-#include "config.hpp"
 #include "strmix.hpp"
+#include "local.hpp"
 
 enum TypeString
 {

@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
+#include "local.hpp"
 
 enum CDROM_DeviceCapabilities
 {

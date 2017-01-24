@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "preservestyle.hpp"
+#include "local.hpp"
 
 static constexpr wchar_t PreserveStyleTokenSeparators[] = L"_-.";
 

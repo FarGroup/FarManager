@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "stddlg.hpp"
 #include "strmix.hpp"
+#include "local.hpp"
 
 static constexpr wchar_t ExcludeMaskSeparator = L'|';
 static constexpr wchar_t RE_start = L'/', RE_end = L'/';

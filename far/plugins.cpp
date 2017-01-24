@@ -65,6 +65,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "desktop.hpp"
 #include "PluginA.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static constexpr wchar_t PluginsFolderName[] = L"Plugins";
 

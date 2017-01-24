@@ -61,6 +61,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "strmix.hpp"
 #include "diskmenu.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

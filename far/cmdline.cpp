@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "components.hpp"
 #include "desktop.hpp"
 #include "keybar.hpp"
+#include "local.hpp"
 
 enum
 {

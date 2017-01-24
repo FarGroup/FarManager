@@ -90,6 +90,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelctype.hpp"
 #include "diskmenu.hpp"
 #include "execute.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static panel_sort ListSortMode(panel_sort::UNSORTED);

@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "processname.hpp"
 #include "pathmix.hpp"
+#include "local.hpp"
 
 /* $ 09.10.2000 IS
     Генерация нового имени по маске

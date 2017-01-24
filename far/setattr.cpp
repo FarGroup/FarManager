@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "language.hpp"
 #include "locale.hpp"
+#include "local.hpp"
 
 enum SETATTRDLG
 {

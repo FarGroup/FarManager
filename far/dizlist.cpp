@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "encoding.hpp"
 #include "blob_builder.hpp"
+#include "local.hpp"
 
 DizList::DizList():
 	m_CodePage(CP_DEFAULT),

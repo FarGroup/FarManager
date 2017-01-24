@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "fileattr.hpp"
 #include "colormix.hpp"
+#include "local.hpp"
+#include "cvtname.hpp"
 
 static constexpr struct column_info
 {
