@@ -10,10 +10,6 @@
 #include "options.hpp"
 #include <algorithm>
 
-static bool is_single_file_format(const ArcType& arc_ty) {
-	return arc_ty == c_bzip2 || arc_ty == c_gzip || arc_ty == c_xz || arc_ty == c_SWFc;
-}
-
 wstring get_error_dlg_title() {
   return Far::get_msg(MSG_PLUGIN_NAME);
 }
@@ -1298,7 +1294,7 @@ public:
       unsigned other_format_index = 0;
       bool found = false;
       for (ArcFormats::const_iterator arc_iter = arc_formats.begin(); arc_iter != arc_formats.end(); arc_iter++) {
-        if (arc_iter->second.updatable && (!multifile || !is_single_file_format(arc_iter->first))) {
+        if (arc_iter->second.updatable && (!multifile || !ArcAPI::is_single_file_format(arc_iter->first))) {
           const auto main_type = find(main_formats.begin(), main_formats.end(), arc_iter->first);
           if (main_type == main_formats.end()) {
             other_formats.push_back(arc_iter->first);

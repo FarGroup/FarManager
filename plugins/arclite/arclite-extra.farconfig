@@ -8,7 +8,7 @@
           <value name="max_check_size"    type="qword" value="0000000000800000" />
           <!-- 8MB (default = 1MB) -->
 
-          <value name="correct_name_mode" type="qword" value="0000000000000012" />
+          <value name="correct_name_mode" type="qword" value="0000000000000032" />
           <!-- 0x10  correct empty filenames (""  converted to "_")     -->
           <!-- 0x20  remove trailing dots/spaces                        -->
           <!-- 0x40  corrcet reserved names (NUL, LPT1, ...)            -->

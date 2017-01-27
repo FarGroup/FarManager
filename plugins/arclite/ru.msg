@@ -217,6 +217,7 @@ error.no_format = Формат архива не найден
 error.not_updatable = Изменение архива невозможно
 error.not_archive = Файл не распознан как архив
 error.sfx_convert = Архив нельзя преобразовать в SFX архив
+error.update.unsupported_for_singlefilearchive = Обновление однофайловых архивов невозможно
 
 # Generic buttons
 button.ok = OK

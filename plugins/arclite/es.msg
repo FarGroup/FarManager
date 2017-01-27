@@ -217,6 +217,7 @@ error.no_format = Formato de archivo no encontrado
 error.not_updatable = Modificación de archivo no soportada
 error.not_archive = Archivo no se reconoce como archivo comprimido
 error.sfx_convert = El archivo no puede ser convertido en archivo SFX (autoextraíble)
+error.update.unsupported_for_singlefilearchive = Can't update single file archive format
 
 # Generic buttons
 button.ok = Aceptar
