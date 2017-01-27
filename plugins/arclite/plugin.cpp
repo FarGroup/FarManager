@@ -517,7 +517,7 @@ public:
     else {
       options.arc_type = archive->arc_chain.back().type; // required to set update properties
 		if (ArcAPI::is_single_file_format(options.arc_type)) {
-        FAIL_MSG(Far::get_msg(MSG_ERROR_UNSUPPORTED_FOR_SINGLEFILEARCHIVEFORMAT));
+        FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNSUPPORTED_FOR_SINGLEFILEARCHIVE));
 		}
 		archive->load_update_props();
       options.level = archive->level;
