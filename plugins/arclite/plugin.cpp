@@ -476,7 +476,7 @@ public:
     UpdateOptions options;
     bool new_arc = !archive->is_open();
 	 bool multifile = items_number > 1 || (items_number == 1 && (panel_items[0].FileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
-    if (!new_arc && !archive->updatable()) {
+	 if (!new_arc && !archive->updatable()) {
       FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
     }
     if (new_arc) {
@@ -489,10 +489,7 @@ public:
         options.arc_path = add_trailing_slash(src_path) + (is_root_path(src_path) ? wstring(L"_") : extract_file_name(src_path));
 
       ArcTypes arc_types = ArcAPI::formats().find_by_name(g_options.update_arc_format_name);
-      if (arc_types.empty())
-        options.arc_type = c_7z;
-      else
-        options.arc_type = arc_types.front();
+      options.arc_type = arc_types.empty() ? c_7z : arc_types.front();
       options.level = g_options.update_level;
       options.levels = g_options.update_levels;
       options.method = g_options.update_method;
