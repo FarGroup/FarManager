@@ -549,21 +549,11 @@ void KeyMacro::RestoreMacroChar() const
 {
 	Global->ScrBuf->RestoreMacroChar();
 
-	/*$ 10.08.2000 skv
-		If we are in editor mode, and CurEditor defined,
-		we need to call this events.
-		EE_REDRAW EEREDRAW_ALL    - to notify that whole screen updated
-		->Show() to actually update screen.
-
-		This duplication take place since ShowEditor method
-		will NOT send this event while screen is locked.
-	*/
 	if (m_Area==MACROAREA_EDITOR &&
 					Global->WindowManager->GetCurrentEditor() &&
 					Global->WindowManager->GetCurrentEditor()->IsVisible()
 					/* && LockScr*/) // Mantis#0001595
 	{
-		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, Global->WindowManager->GetCurrentEditor()->GetEditor());
 		Global->WindowManager->GetCurrentEditor()->Show();
 	}
 	else if (m_Area==MACROAREA_VIEWER &&
@@ -761,7 +751,6 @@ int KeyMacro::GetKey()
 								Global->WindowManager->GetCurrentEditor()->IsVisible() &&
 								Global->ScrBuf->GetLockCount())
 				{
-					Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, Global->WindowManager->GetCurrentEditor()->GetEditor());
 					Global->WindowManager->GetCurrentEditor()->Show();
 				}
 

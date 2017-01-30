@@ -117,7 +117,6 @@ private:
 	virtual void OnDestroy() override;
 	virtual int GetCanLoseFocus(int DynamicMode = FALSE) const override;
 	virtual bool CanFastHide() const override; // для нужд CtrlAltShift
-	virtual void ResizeConsole() override;
 	virtual string GetTitle() const override;
 
 	/* Ret:

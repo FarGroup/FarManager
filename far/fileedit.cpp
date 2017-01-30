@@ -755,12 +755,6 @@ void FileEditor::DisplayObject()
 {
 	if (!m_bClosing)
 	{
-		if (m_editor->m_Flags.Check(Editor::FEDITOR_ISRESIZEDCONSOLE))
-		{
-			m_editor->m_Flags.Clear(Editor::FEDITOR_ISRESIZEDCONSOLE);
-			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, m_editor.get());
-		}
-
 		m_editor->Show();
 	}
 }
@@ -2194,11 +2188,6 @@ bool FileEditor::CanFastHide() const
 	return (Global->Opt->AllCtrlAltShiftRule & CASR_EDITOR) != 0;
 }
 
-void FileEditor::ResizeConsole()
-{
-	m_editor->PrepareResizedConsole();
-}
-
 int FileEditor::ProcessEditorInput(const INPUT_RECORD& Rec)
 {
 	int RetCode;
@@ -2571,7 +2560,8 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			strPluginTitle = NullToEmpty(reinterpret_cast<const wchar_t*>(Param2));
 			ShowStatus();
-			Global->ScrBuf->Flush(); //???
+			if (!m_editor->m_Flags.Check(Editor::FEDITOR_INEEREDRAW))
+				Global->ScrBuf->Flush(); //???
 			return TRUE;
 		}
 		case ECTL_REDRAW:

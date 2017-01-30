@@ -68,7 +68,6 @@ public:
 	long long GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
-	void PrepareResizedConsole() { m_Flags.Set(FEDITOR_ISRESIZEDCONSOLE); }
 	void SetOptions(const Options::EditorOptions& Options);
 	void SetTabSize(int NewSize);
 	size_t GetTabSize() const { return EdOpt.TabSize; }
@@ -322,7 +321,7 @@ private:
 		FEDITOR_DISABLEUNDO = bit(15),   // возможно процесс Undo уже идет?
 		FEDITOR_LOCKMODE = bit(16),
 		FEDITOR_CURPOSCHANGEDBYPLUGIN = bit(17),   // установлен, если позиция в редакторе была изменена плагином (ECTL_SETPOSITION)
-		FEDITOR_ISRESIZEDCONSOLE = bit(18),
+		FEDITOR_INEEREDRAW = bit(18),
 		FEDITOR_PROCESSCTRLQ = bit(19),   // нажата Ctrl-Q и идет процесс вставки кода символа
 		FEDITOR_DIALOGMEMOEDIT = bit(20),   // Editor используется в диалоге в качестве DI_MEMOEDIT
 	};

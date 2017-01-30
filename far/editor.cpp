@@ -270,38 +270,19 @@ void Editor::ShowEditor()
 	//---
 	if (!Pasting)
 	{
-		/*$ 10.08.2000 skv
-		  Don't send EE_REDRAW while macro is being executed.
-
-		*/
 		_SYS_EE_REDRAW(CleverSysLog Clev(L"Editor::ShowEditor()"));
-
-		if (!Global->ScrBuf->GetLockCount())
+		if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 		{
-			if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-			{
-				_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
-				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
-			}
+			_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
+			m_Flags.Set(FEDITOR_INEEREDRAW);
+			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
+			m_Flags.Clear(FEDITOR_INEEREDRAW);
 		}
-		_SYS_EE_REDRAW(else SysLog(L"ScrBuf Locked !!!"));
 	}
 
 	DrawScrollbar();
 
 	LeftPos=m_it_CurLine->GetLeftPos();
-#if 0
-
-	// крайне экспериментальный кусок!
-	if (CurPos+LeftPos < XX2)
-		LeftPos=0;
-	else if (CurLine->X2 < XX2)
-		LeftPos=CurLine->GetLength()-CurPos;
-
-	if (LeftPos < 0)
-		LeftPos=0;
-
-#endif
 	Edit::ShowInfo info={LeftPos,CurPos};
 	Y = m_Y1;
 	for (auto CurPtr=m_it_TopScreen; Y<=m_Y2; Y++)
@@ -310,8 +291,6 @@ void Editor::ShowEditor()
 		{
 			CurPtr->SetEditBeyondEnd(true);
 			CurPtr->SetPosition(m_X1,Y,XX2,Y);
-			//CurPtr->SetTables(UseDecodeTable ? &TableSet:nullptr);
-			//_D(SysLog(L"Setleftpos 3 to %i",LeftPos));
 			CurPtr->SetLeftPos(LeftPos);
 			CurPtr->SetTabCurPos(CurPos);
 			CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
@@ -2529,11 +2508,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					  в блоке с переопределённым плагином фоном.
 					*/
 					Refresh = true;
-					//if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT)){
-					//Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
-					//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
-					//Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
-					//}
 					return true;
 				}
 
@@ -2547,18 +2521,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (!EdOpt.CursorBeyondEOL) MaxRightPos = m_it_CurLine->GetCurPos();
 					ProcessKeyInternal(Manager::Key(KEY_DOWN), Refresh);
 					Pasting--;
-
-					if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-					{
-						//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
-						_SYS_EE_REDRAW(SysLog(L"Editor::ProcessKeyInternal[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
-						Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
-					}
-
-					/*$ 03.02.2001 SKV
-					  А то EEREDRAW_ALL то уходит, а на самом деле
-					  только текущая линия перерисовывается.
-					*/
 					Refresh = true;
 					return true;
 				}
@@ -2831,19 +2793,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (m_it_CurLine->ProcessMouse(MouseEvent))
 	{
 		if (HostFileEditor) HostFileEditor->ShowStatus();
-
-		if (IsVerticalSelection())
-			Show();
-		else
-		{
-			if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-			{
-				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW)",__LINE__));
-				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
-			}
-			ShowEditor();
-		}
-
+		Show();
 		return TRUE;
 	}
 
