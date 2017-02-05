@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 30.01.2017 17:04:33 +0200 - build 4889
+
+1. ECTL_SETTITLE being called from EE_REDRAW does not reset the console buffer.
+
+drkns 24.01.2017 22:13:49 +0000 - build 4888
+
+1. Correction of 4887.
+
+2. Refactoring.
+
+drkns 23.01.2017 19:30:10 +0000 - build 4887
+
+1. Correction of 4885.
+
+2. Refactoring.
+
+w17 23.01.2017 19:46:07 +0300 - build 4886
+
+1. forum: a mark character can't be inserted in coloring
+
 drkns 20.01.2017 18:35:54 +0000 - build 4885
 
 1. 0003385: User menu is broken after editing.
