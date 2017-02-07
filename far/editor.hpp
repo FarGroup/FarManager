@@ -321,7 +321,6 @@ private:
 		FEDITOR_DISABLEUNDO = bit(15),   // возможно процесс Undo уже идет?
 		FEDITOR_LOCKMODE = bit(16),
 		FEDITOR_CURPOSCHANGEDBYPLUGIN = bit(17),   // установлен, если позиция в редакторе была изменена плагином (ECTL_SETPOSITION)
-		FEDITOR_INEEREDRAW = bit(18),
 		FEDITOR_PROCESSCTRLQ = bit(19),   // нажата Ctrl-Q и идет процесс вставки кода символа
 		FEDITOR_DIALOGMEMOEDIT = bit(20),   // Editor используется в диалоге в качестве DI_MEMOEDIT
 	};
@@ -383,6 +382,8 @@ private:
 	numbered_iterator m_FoundLine{ EndIterator() };
 	int m_FoundPos{};
 	int m_FoundSize{};
+
+	int m_InEERedraw{};
 
 	struct EditorPreRedrawItem : public PreRedrawItem
 	{

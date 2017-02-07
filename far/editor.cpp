@@ -274,9 +274,9 @@ void Editor::ShowEditor()
 		if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 		{
 			_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
-			m_Flags.Set(FEDITOR_INEEREDRAW);
+			++m_InEERedraw;
+			SCOPE_EXIT{ --m_InEERedraw; };
 			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
-			m_Flags.Clear(FEDITOR_INEEREDRAW);
 		}
 	}
 

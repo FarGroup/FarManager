@@ -2560,7 +2560,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			strPluginTitle = NullToEmpty(reinterpret_cast<const wchar_t*>(Param2));
 			ShowStatus();
-			if (!m_editor->m_Flags.Check(Editor::FEDITOR_INEEREDRAW))
+			if (!m_editor->m_InEERedraw)
 				Global->ScrBuf->Flush(); //???
 			return TRUE;
 		}
