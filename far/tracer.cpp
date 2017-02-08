@@ -49,8 +49,7 @@ static auto GetBackTrace(const EXCEPTION_POINTERS* ExceptionInfo)
 	StackFrame.AddrStack.Offset = ContextRecord.Rsp;
 #else
 	int machine_type = IMAGE_FILE_MACHINE_I386;
-	StackFrame.
-	.Offset = ContextRecord.Eip;
+	StackFrame.AddrPC.Offset = ContextRecord.Eip;
 	StackFrame.AddrFrame.Offset = ContextRecord.Ebp;
 	StackFrame.AddrStack.Offset = ContextRecord.Esp;
 #endif
