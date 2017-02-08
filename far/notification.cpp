@@ -84,19 +84,17 @@ bool message_manager::dispatch()
 {
 	bool Result = false;
 	message_queue::value_type EventData;
+	while (m_Messages.try_pop(EventData))
 	{
-		while (m_Messages.try_pop(EventData))
+		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
+		std::for_each(RelevantListeners.first, RelevantListeners.second, [&](const handlers_map::value_type& i)
 		{
-			SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
-			const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
-			std::for_each(RelevantListeners.first, RelevantListeners.second, [&](const handlers_map::value_type& i)
-			{
-				(*i.second)(EventData.second);
-			});
-			Result = Result || RelevantListeners.first != RelevantListeners.second;
-		}
-		m_Window->Check();
+			std::invoke(*i.second, EventData.second);
+		});
+		Result = Result || RelevantListeners.first != RelevantListeners.second;
 	}
+	m_Window->Check();
 	return Result;
 }
 

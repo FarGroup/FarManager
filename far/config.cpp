@@ -404,8 +404,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.clear();
 
-	const auto MasksEnum = ConfigProvider().GeneralCfg()->GetStringValuesEnumerator(L"Masks");
-	std::for_each(CONST_RANGE(MasksEnum, i)
+	for(const auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(L"Masks"))
 	{
 		MenuItemEx Item;
 		string DisplayName(i.first);
@@ -415,7 +414,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 		Item.strName = DisplayName + L' ' + BoxSymbols[BS_V1] + L' ' + i.second;
 		Item.UserData = i.first;
 		MasksMenu.AddItem(Item);
-	});
+	}
 	MasksMenu.SetSelectPos(SelPos, 0);
 }
 

@@ -388,7 +388,7 @@ void background_searcher::InitInFileSearch()
 			{
 				// Проверяем наличие выбранных страниц символов
 				const auto CpEnum = Codepages().GetFavoritesEnumerator();
-				bool hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
+				const auto hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
 
 				if (hasSelected)
 				{
@@ -1243,86 +1243,65 @@ bool background_searcher::LookForString(const string& Name)
 
 bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName)
 {
-	bool FileFound = m_Owner->GetFileMask()->Compare(PointToName(FullName));
-	FindFiles::ArcListItem* ArcItem = m_Owner->itd->GetFindFileArcItem();
-	plugin_panel* hPlugin=nullptr;
-	if(ArcItem)
+	if (!m_Owner->GetFileMask()->Compare(PointToName(FullName)))
+		return false;
+
+	const auto ArcItem = m_Owner->itd->GetFindFileArcItem();
+	const auto hPlugin = ArcItem? ArcItem->hPlugin : nullptr;
+
+	if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+		return Global->Opt->FindOpt.FindFolders && strFindStr.empty();
+
+	m_Owner->itd->SetFindMessage(strDisplayName);
+
+	string strSearchFileName;
+	bool RemoveTemp = false;
+
+	SCOPE_EXIT
 	{
-		hPlugin = ArcItem->hPlugin;
+		if (RemoveTemp)
+		DeleteFileWithFolder(strSearchFileName);
+	};
+
+	if (!hPlugin)
+	{
+		strSearchFileName = FullName;
 	}
-
-	if (FileFound)
+	else
 	{
-		// Если включен режим поиска hex-кодов, тогда папки в поиск не включаем
-		if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (!Global->Opt->FindOpt.FindFolders || SearchHex))
-			return false;
-
-		if (!strFindStr.empty() && FileFound)
+		const auto& UseFarCommand = [&]
 		{
-			FileFound=false;
+			SCOPED_ACTION(auto)(m_Owner->ScopedLock());
+			return Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILES);
+		};
 
-			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if (UseFarCommand())
+		{
+			strSearchFileName = strPluginSearchPath + FullName;
+		}
+		else
+		{
+			string strTempDir;
+			FarMkTempEx(strTempDir); // А проверка на nullptr???
+			os::CreateDirectory(strTempDir,nullptr);
+
+			const auto& GetFile = [&]
 			{
-				m_Owner->itd->SetFindMessage(strDisplayName);
+				SCOPED_ACTION(auto)(m_Owner->ScopedLock());
+				return Global->CtrlObject->Plugins->GetFile(hPlugin, FileItem, strTempDir, strSearchFileName, OPM_SILENT | OPM_FIND) != FALSE;
+			};
 
-				string strSearchFileName;
-				bool RemoveTemp=false;
-
-				if (hPlugin)
-				{
-					bool UseFarCommandResult;
-
-					{
-						SCOPED_ACTION(auto)(m_Owner->ScopedLock());
-						UseFarCommandResult = !Global->CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILES);
-					}
-
-					if (UseFarCommandResult)
-					{
-						string strTempDir;
-						FarMkTempEx(strTempDir); // А проверка на nullptr???
-						os::CreateDirectory(strTempDir,nullptr);
-
-						bool GetFileResult=false;
-						{
-							SCOPED_ACTION(auto)(m_Owner->ScopedLock());
-							GetFileResult=Global->CtrlObject->Plugins->GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND)!=FALSE;
-						}
-						if (GetFileResult)
-						{
-							RemoveTemp=true;
-						}
-						else
-						{
-							os::RemoveDirectory(strTempDir);
-						}
-					}
-					else
-					{
-						strSearchFileName = strPluginSearchPath + FullName;
-					}
-				}
-				else
-				{
-					strSearchFileName = FullName;
-				}
-
-				if (!strSearchFileName.empty())
-				{
-					bool StringFound = LookForString(strSearchFileName);
-					if ((StringFound && !NotContaining) || (!StringFound && NotContaining))
-						FileFound=true;
-				}
-
-				if (RemoveTemp)
-				{
-					DeleteFileWithFolder(strSearchFileName);
-				}
+			if (!GetFile())
+			{
+				os::RemoveDirectory(strTempDir);
+				return false;
 			}
+
+			RemoveTemp = true;
 		}
 	}
 
-	return FileFound;
+	return LookForString(strSearchFileName) ^ NotContaining;
 }
 
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)

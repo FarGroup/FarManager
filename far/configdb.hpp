@@ -75,29 +75,29 @@ public:
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) = 0;
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, long long& Value) = 0;
 
-	template<class T>
+	template<typename T>
 	class values_enumerator: public enumerator<values_enumerator<T>, std::pair<string, T>>
 	{
 		IMPLEMENTS_ENUMERATOR(values_enumerator);
 
 	public:
-		values_enumerator(GeneralConfig& provider, const string& key): m_provider(provider), m_key(key) {}
+		values_enumerator(GeneralConfig* Provider, const string& Key):
+			m_Provider(Provider),
+			m_Key(Key)
+		{}
 
 	private:
-		bool get(size_t index, typename values_enumerator::value_type& value) const
+		bool get(size_t Index, typename values_enumerator::value_type& Value) const
 		{
-			return m_provider.EnumValues(m_key, static_cast<DWORD>(index), value.first, value.second);
+			return m_Provider->EnumValues(m_Key, static_cast<DWORD>(Index), Value.first, Value.second);
 		}
 
-		GeneralConfig& m_provider;
-		const string m_key;
+		GeneralConfig* const m_Provider;
+		const string m_Key;
 	};
 
-	using string_values_enumerator = values_enumerator<string>;
-	using int_values_enumerator = values_enumerator<long long>;
-
-	string_values_enumerator GetStringValuesEnumerator(const string& key) { return string_values_enumerator(*this, key); }
-	int_values_enumerator GetIntValuesEnumerator(const string& key) { return int_values_enumerator(*this, key); }
+	template<typename T>
+	auto ValuesEnumerator(const string& key) { return values_enumerator<T>(this, key); }
 
 protected:
 	GeneralConfig() = default;
@@ -152,6 +152,50 @@ public:
 	virtual bool EnumKeys(const key& Root, DWORD Index, string &strName) = 0;
 	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, int& Type) = 0;
 	virtual bool Flush() = 0;
+
+	class keys_enumerator: public enumerator<keys_enumerator, string>
+	{
+		IMPLEMENTS_ENUMERATOR(keys_enumerator);
+
+	public:
+		keys_enumerator(HierarchicalConfig* Owner, const key& Root):
+			m_Owner(Owner),
+			m_Root(Root)
+		{}
+
+	private:
+		bool get(size_t Index, value_type& Value) const
+		{
+			return m_Owner->EnumKeys(m_Root, static_cast<DWORD>(Index), Value);
+		}
+
+		HierarchicalConfig* const m_Owner;
+		const key& m_Root;
+	};
+
+	class values_enumerator: public enumerator<values_enumerator, std::pair<string, int>>
+	{
+		IMPLEMENTS_ENUMERATOR(values_enumerator);
+
+	public:
+		values_enumerator(HierarchicalConfig* Provider, const key& Key):
+			m_Provider(Provider),
+			m_Key(Key)
+		{
+		}
+
+	private:
+		bool get(size_t Index, value_type& Value) const
+		{
+			return m_Provider->EnumValues(m_Key, static_cast<DWORD>(Index), Value.first, Value.second);
+		}
+
+		HierarchicalConfig* const m_Provider;
+		const key& m_Key;
+	};
+
+	auto KeysEnumerator(const key& Root) { return keys_enumerator(this, Root); }
+	auto ValuesEnumerator(const key& Root) { return values_enumerator(this, Root); }
 
 protected:
 	HierarchicalConfig() = default;

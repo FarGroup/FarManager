@@ -194,13 +194,6 @@ bool PluginSettings::Get(FarSettingsItem& Item)
 	return false;
 }
 
-static wchar_t* AddString(const string& String)
-{
-	auto result = std::make_unique<wchar_t[]>(String.size() + 1);
-	*std::copy(ALL_CONST_RANGE(String), result.get()) = L'\0';
-	return result.release();
-}
-
 class PluginSettings::FarSettingsNameItems
 {
 public:
@@ -208,31 +201,24 @@ public:
 	TRIVIALLY_MOVABLE(FarSettingsNameItems);
 
 	FarSettingsNameItems() = default;
-	~FarSettingsNameItems()
-	{
-		std::for_each(CONST_RANGE(Items, i)
-		{
-			delete[] i.Name;
-		});
-	}
 
-	void add(FarSettingsName& Item, const string& String);
+	void add(FarSettingsName& Item, string&& String)
+	{
+		m_Strings.emplace_back(std::move(String));
+		Item.Name = m_Strings.back().data();
+		m_Items.emplace_back(Item);
+	}
 
 	void get(FarSettingsEnum& e) const
 	{
-		e.Count = Items.size();
-		e.Items = e.Count ? Items.data() : nullptr;
+		e.Count = m_Items.size();
+		e.Items = e.Count ? m_Items.data() : nullptr;
 	}
 
 private:
-	std::vector<FarSettingsName> Items;
+	std::vector<FarSettingsName> m_Items;
+	std::vector<string> m_Strings;
 };
-
-void PluginSettings::FarSettingsNameItems::add(FarSettingsName& Item, const string& String)
-{
-	Item.Name=AddString(String);
-	Items.emplace_back(Item);
-}
 
 class FarSettings: public AbstractSettings
 {
@@ -266,36 +252,29 @@ public:
 	TRIVIALLY_MOVABLE(FarSettingsHistoryItems);
 
 	FarSettingsHistoryItems() = default;
-	~FarSettingsHistoryItems()
-	{
-		std::for_each(CONST_RANGE(Items, i)
-		{
-			delete[] i.Name;
-			delete[] i.Param;
-			delete[] i.File;
-		});
-	}
 
-	void add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File);
+	void add(FarSettingsHistory& Item, string&& Name, string&& Param, string&& File, const GUID& Guid)
+	{
+		m_Names.emplace_back(std::move(Name));
+		m_Params.emplace_back(std::move(Param));
+		m_Files.emplace_back(std::move(File));
+		Item.Name = m_Names.back().data();
+		Item.Param = m_Params.back().data();
+		Item.File = m_Files.back().data();
+		Item.PluginId = Guid;
+		m_Items.emplace_back(Item);
+	}
 
 	void get(FarSettingsEnum& e) const
 	{
-		e.Count = Items.size();
-		e.Histories = e.Count ? Items.data() : nullptr;
+		e.Count = m_Items.size();
+		e.Histories = e.Count ? m_Items.data() : nullptr;
 	}
 
 private:
-	std::vector<FarSettingsHistory> Items;
+	std::vector<FarSettingsHistory> m_Items;
+	std::vector<string> m_Names, m_Params, m_Files;
 };
-
-void FarSettings::FarSettingsHistoryItems::add(FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
-{
-	Item.Name=AddString(Name);
-	Item.Param=AddString(Param);
-	Item.PluginId=Guid;
-	Item.File=AddString(File);
-	Items.emplace_back(Item);
-}
 
 bool PluginSettings::Enum(FarSettingsEnum& Enum)
 {
@@ -303,22 +282,20 @@ bool PluginSettings::Enum(FarSettingsEnum& Enum)
 		return false;
 
 	FarSettingsName item;
-	DWORD Index = 0;
-	string strName;
+	item.Type=FST_SUBKEY;
+
+	FarSettingsNameItems NewEnumItem;
 
 	const auto& root = m_Keys[Enum.Root];
-	item.Type=FST_SUBKEY;
-	FarSettingsNameItems NewEnumItem;
-	while (PluginsCfg->EnumKeys(root, Index++, strName))
+
+	for(auto& i: PluginsCfg->KeysEnumerator(root))
 	{
-		NewEnumItem.add(item, strName);
+		NewEnumItem.add(item, std::move(i));
 	}
 
-	Index=0;
-	int Type;
-	while (PluginsCfg->EnumValues(root, Index++, strName, Type))
+	for(auto& i: PluginsCfg->ValuesEnumerator(root))
 	{
-		switch (static_cast<SQLiteDb::column_type>(Type))
+		switch (static_cast<SQLiteDb::column_type>(i.second))
 		{
 		case SQLiteDb::column_type::integer:
 			item.Type = FST_QWORD;
@@ -339,7 +316,7 @@ bool PluginSettings::Enum(FarSettingsEnum& Enum)
 		}
 		if(item.Type!=FST_UNKNOWN)
 		{
-			NewEnumItem.add(item, strName);
+			NewEnumItem.add(item, std::move(i.first));
 		}
 	}
 	NewEnumItem.get(Enum);
@@ -429,7 +406,7 @@ bool FarSettings::Enum(FarSettingsEnum& Enum)
 			FarSettingsHistoryItems NewEnumItem;
 			while (Shortcuts().Get(Enum.Root - FSSF_FOLDERSHORTCUT_0, index++, &strName, &plugin, &strFile, &strData))
 			{
-				NewEnumItem.add(item, strName, strData, plugin, strFile);
+				NewEnumItem.add(item, std::move(strName), std::move(strData), std::move(strFile), plugin);
 			}
 			NewEnumItem.get(Enum);
 			m_Enum.emplace_back(std::move(NewEnumItem));
@@ -499,7 +476,7 @@ bool FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum
 			item.Lock=HLock;
 			GUID Guid;
 			if(strGuid.empty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
-			NewEnumItem.add(item, strName, strData, Guid, strFile);
+			NewEnumItem.add(item, std::move(strName), std::move(strData), std::move(strFile), Guid);
 		}
 	}
 	NewEnumItem.get(Enum);

@@ -269,23 +269,22 @@ wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 	assert(MaxLength >= 0);
 	MaxLength=std::max(0, MaxLength);
 
-	if (Str)
+	if (!Str)
+		return nullptr;
+
+	const auto Length = StrLength(Str);
+	if (Length <= MaxLength)
+		return Str;
+
+	if (MaxLength > DotsLen)
 	{
-		int Length = StrLength(Str);
-
-		if (Length > MaxLength)
-		{
-			if (MaxLength > DotsLen)
-			{
-				int Len1 = (MaxLength - DotsLen) / 2;
-				int Len2 = MaxLength - DotsLen - Len1;
-				std::copy_n(L"...", DotsLen, Str + Len1);
-				std::copy_n(Str + Length - Len2, Len2, Str + Len1 + DotsLen);
-			}
-
-			Str[MaxLength] = 0;
-		}
+		int Len1 = (MaxLength - DotsLen) / 2;
+		int Len2 = MaxLength - DotsLen - Len1;
+		std::copy_n(L"...", DotsLen, Str + Len1);
+		std::copy_n(Str + Length - Len2, Len2, Str + Len1 + DotsLen);
 	}
+
+	Str[MaxLength] = 0;
 	return Str;
 }
 
@@ -445,12 +444,11 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 bool IsCaseMixed(const string &strSrc)
 {
 	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), IsAlpha);
-	if (AlphaBegin != strSrc.cend())
-	{
-		const auto Case = IsLower(*AlphaBegin);
-		return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return IsAlpha(c) && IsLower(c) != Case; });
-	}
-	return false;
+	if (AlphaBegin == strSrc.cend())
+		return false;
+
+	const auto Case = IsLower(*AlphaBegin);
+	return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return IsAlpha(c) && IsLower(c) != Case; });
 }
 
 void Unquote(wchar_t *Str)
@@ -722,7 +720,7 @@ enum FFTMODE
 };
 
 string& FarFormatText(const string& SrcText,      // источник
-                            int Width,            // заданная ширина
+                            size_t Width,         // заданная ширина
                             string &strDestText,  // приёмник
                             const wchar_t* Break, // разделитель, если = nullptr, принимается "\n"
                             DWORD Flags)          // один из FFTM_*
@@ -747,7 +745,7 @@ string& FarFormatText(const string& SrcText,      // источник
 	long l=0, pgr=0;
 	string newtext;
 	const wchar_t *text= strSrc.data();
-	long linelength = Width;
+	long linelength = static_cast<long>(Width);
 	size_t breakcharlen = wcslen(breakchar);
 	int docut = Flags&FFTM_BREAKLONGWORD?1:0;
 	/* Special case for a single-character break as it needs no

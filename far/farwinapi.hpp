@@ -47,7 +47,9 @@ namespace os
 			TRIVIALLY_MOVABLE(handle_t);
 			using pointer = HANDLE;
 
-			explicit handle_t(HANDLE Handle = nullptr) { reset(Handle); }
+			constexpr handle_t() = default;
+			constexpr handle_t(nullptr_t) {}
+			explicit handle_t(HANDLE Handle) { reset(Handle); }
 
 			bool operator!() const noexcept { return !m_Handle; }
 

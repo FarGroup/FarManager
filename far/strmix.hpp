@@ -80,7 +80,7 @@ inline auto ReplaceStrings(string &strStr, const wchar_t* FindStr, const wchar_t
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
-string& FarFormatText(const string& SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
+string& FarFormatText(const string& SrcText, size_t Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
 void PrepareUnitStr();
 string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_COMMAS);

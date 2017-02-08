@@ -801,9 +801,9 @@ void codepages::DeleteFavorite(uintptr_t cp)
 	ConfigProvider().GeneralCfg()->DeleteValue(FavoriteCodePagesKey, str(cp));
 }
 
-GeneralConfig::int_values_enumerator codepages::GetFavoritesEnumerator()
+GeneralConfig::values_enumerator<long long> codepages::GetFavoritesEnumerator()
 {
-	return ConfigProvider().GeneralCfg()->GetIntValuesEnumerator(FavoriteCodePagesKey);
+	return ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey);
 }
 
 

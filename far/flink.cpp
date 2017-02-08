@@ -55,7 +55,6 @@ bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 
 static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& PrintName, const string& SubstituteName)
 {
-
 	switch (rdb->ReparseTag)
 	{
 	// IO_REPARSE_TAG_MOUNT_POINT and IO_REPARSE_TAG_SYMLINK buffers are filled differently:

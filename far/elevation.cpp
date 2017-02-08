@@ -86,7 +86,6 @@ static auto CreateBackupRestorePrivilege() { return privilege(SE_BACKUP_NAME, SE
 
 elevation::elevation():
 	m_Suppressions(),
-	m_ProcessId(),
 	m_IsApproved(false),
 	m_AskApprove(true),
 	m_Elevation(false),
@@ -186,8 +185,12 @@ auto elevation::execute(lng Why, const string& Object, T Fallback, const F1& Pri
 		return PrivilegedHander();
 	}
 
-	if (!Initialize())
+	m_Elevation = Initialize();
+	if (!m_Elevation)
+	{
+		ResetApprove();
 		return Fallback;
+	}
 
 	try
 	{
@@ -195,156 +198,179 @@ auto elevation::execute(lng Why, const string& Object, T Fallback, const F1& Pri
 	}
 	catch(const far_exception&)
 	{
+		// Something went really bad, it's better to stop any further attempts
+		TerminateChildProcess();
+		m_Process.close();
+		m_Pipe.close();
+
 		// TODO: log
 		return Fallback;
 	}
 }
 
+static os::handle create_named_pipe(const string& Name)
+{
+	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+	const auto pSD = os::memory::local::alloc<SECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
+	if (!pSD)
+		return nullptr;
+
+	if (!InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
+		return nullptr;
+
+	const auto AdminSID = os::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+
+	if (!AdminSID)
+		return nullptr;
+
+	EXPLICIT_ACCESS ea{};
+	ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE;
+	ea.grfAccessMode = SET_ACCESS;
+	ea.grfInheritance = NO_INHERITANCE;
+	ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+	ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+	ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
+
+	os::memory::local::ptr<ACL> pACL;
+	if (SetEntriesInAcl(1, &ea, nullptr, &ptr_setter(pACL)) != ERROR_SUCCESS)
+		return nullptr;
+
+	if (!SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
+		return nullptr;
+
+	SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
+	const auto strPipe = L"\\\\.\\pipe\\" + Name;
+	return os::handle(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
+}
+
+static os::handle create_job_for_current_process()
+{
+	// IsProcessInJob not exist in win2k. use QueryInformationJobObject(nullptr, ...) instead.
+	// IsProcessInJob(GetCurrentProcess(), nullptr, &InJob);
+
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {};
+	const auto InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr) != FALSE;
+	if (InJob)
+	{
+		// TODO: Windows 8+ supports nested jobs
+		return nullptr;
+	}
+
+	os::handle Job(CreateJobObject(nullptr, nullptr));
+	if (!Job)
+		return nullptr;
+
+	// Child processes shall not inherit this job by default
+	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK | JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+	if (!SetInformationJobObject(Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+		return nullptr;
+	
+	if (!AssignProcessToJobObject(Job.native_handle(), GetCurrentProcess()))
+		return nullptr;
+
+	return Job;
+}
+
+static os::handle create_elevated_process(const string& Parameters)
+{
+	SHELLEXECUTEINFO info
+	{
+		sizeof(info),
+		SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
+		nullptr,
+		L"runas",
+		Global->g_strFarModuleName.data(),
+		Parameters.data(),
+		Global->g_strFarPath.data(),
+	};
+
+	if (!ShellExecuteEx(&info))
+		return nullptr;
+
+	return os::handle(info.hProcess);
+}
+
+static bool connect_pipe_to_process(const os::handle& Process, const os::handle& Pipe)
+{
+	Event AEvent(Event::automatic, Event::nonsignaled);
+	OVERLAPPED Overlapped;
+	AEvent.Associate(Overlapped);
+	if (!ConnectNamedPipe(Pipe.native_handle(), &Overlapped))
+	{
+		const auto LastError = GetLastError();
+		if (LastError != ERROR_IO_PENDING && LastError != ERROR_PIPE_CONNECTED)
+			return false;
+	}
+
+	MultiWaiter Waiter;
+	Waiter.Add(AEvent);
+	Waiter.Add(Process.native_handle());
+	if (Waiter.Wait(MultiWaiter::wait_any, 15'000) != WAIT_OBJECT_0)
+		return false;
+
+	DWORD NumberOfBytesTransferred;
+	return GetOverlappedResult(Pipe.native_handle(), &Overlapped, &NumberOfBytesTransferred, FALSE) != FALSE;
+}
+
+void elevation::TerminateChildProcess() const
+{
+	if (!m_Process.signaled())
+	{
+		TerminateProcess(m_Process.native_handle(), ERROR_PROCESS_ABORTED);
+		SetLastError(ERROR_PROCESS_ABORTED);
+	}
+}
+
 bool elevation::Initialize()
 {
-	bool Result=false;
+	if (m_Process && !m_Process.signaled())
+		return true;
+
 	if (!m_Pipe)
 	{
 		m_PipeName = GuidToStr(CreateUuid());
-		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
-
-		if (const auto pSD = os::memory::local::alloc<SECURITY_DESCRIPTOR>(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH))
-		{
-			if (InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
-			{
-				if (const auto AdminSID = os::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS))
-				{
-					EXPLICIT_ACCESS ea{};
-					ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE;
-					ea.grfAccessMode = SET_ACCESS;
-					ea.grfInheritance = NO_INHERITANCE;
-					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-					ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-					ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID.get());
-
-					os::memory::local::ptr<ACL> pACL;
-					if (SetEntriesInAcl(1, &ea, nullptr, &ptr_setter(pACL)) == ERROR_SUCCESS)
-					{
-						if (SetSecurityDescriptorDacl(pSD.get(), TRUE, pACL.get(), FALSE))
-						{
-							SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
-							const auto strPipe = L"\\\\.\\pipe\\" + m_PipeName;
-							m_Pipe.reset(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
-						}
-					}
-				}
-			}
-		}
+		m_Pipe = create_named_pipe(m_PipeName);
+		if (!m_Pipe)
+			return false;
 	}
-	if (m_Pipe)
+
+	SCOPED_ACTION(IndeterminateTaskBar);
+	DisconnectNamedPipe(m_Pipe.native_handle());
+
+	const auto Param = concat(ElevationArgument, L' ', m_PipeName, L' ', str(GetCurrentProcessId()), L' ', (Global->Opt->ElevationMode & ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
+
+	m_Process = create_elevated_process(Param);
+
+	if (!m_Process)
+		return false;
+
+	if (!m_Job)
 	{
-		if(m_Process)
-		{
-			if (!m_Process.signaled())
-			{
-				Result = true;
-			}
-			else
-			{
-				m_Process.close();
-			}
-		}
-		if(!Result)
-		{
-			SCOPED_ACTION(IndeterminateTaskBar);
-			DisconnectNamedPipe(m_Pipe.native_handle());
-
-			bool InJob = false;
-			if (!m_Job)
-			{
-				// IsProcessInJob not exist in win2k. use QueryInformationJobObject(nullptr, ...) instead.
-				// IsProcessInJob(GetCurrentProcess(), nullptr, &InJob);
-
-				JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli={};
-				InJob = QueryInformationJobObject(nullptr, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli), nullptr) != FALSE;
-				if (!InJob)
-				{
-					m_Job.reset(CreateJobObject(nullptr, nullptr));
-					if (m_Job)
-					{
-						jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_SILENT_BREAKAWAY_OK | JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-						if (SetInformationJobObject(m_Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
-						{
-							AssignProcessToJobObject(m_Job.native_handle(), GetCurrentProcess());
-						}
-					}
-				}
-			}
-
-			string Param = concat(ElevationArgument, L' ', m_PipeName, L' ', str(GetCurrentProcessId()), L' ', (Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
-
-			SHELLEXECUTEINFO info =
-			{
-				sizeof(info),
-				SEE_MASK_FLAG_NO_UI|SEE_MASK_UNICODE|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS,
-				nullptr,
-				L"runas",
-				Global->g_strFarModuleName.data(),
-				Param.data(),
-				Global->g_strFarPath.data(),
-			};
-			if (ShellExecuteEx(&info) && info.hProcess)
-			{
-				m_Process.reset(info.hProcess);
-				if (!InJob && m_Job)
-				{
-					AssignProcessToJobObject(m_Job.native_handle(), m_Process.native_handle());
-				}
-				Event AEvent(Event::automatic, Event::nonsignaled);
-				OVERLAPPED Overlapped;
-				AEvent.Associate(Overlapped);
-				ConnectNamedPipe(m_Pipe.native_handle(), &Overlapped);
-				MultiWaiter Waiter;
-				Waiter.Add(AEvent);
-				Waiter.Add(m_Process.native_handle());
-				switch (Waiter.Wait(MultiWaiter::wait_any, 15000))
-				{
-				case WAIT_OBJECT_0:
-					{
-						DWORD NumberOfBytesTransferred;
-						if (GetOverlappedResult(m_Pipe.native_handle(), &Overlapped, &NumberOfBytesTransferred, FALSE))
-						{
-							Read(m_ProcessId);
-							Result = true;
-						}
-					}
-					break;
-
-				case WAIT_OBJECT_0 + 1:
-					{
-						DWORD ExitCode;
-						SetLastError(GetExitCodeProcess(m_Process.native_handle(), &ExitCode)? ExitCode : ERROR_GEN_FAILURE);
-					}
-					break;
-
-				default:
-					break;
-				}
-
-				if(!Result)
-				{
-					if (!m_Process.signaled())
-					{
-						TerminateProcess(m_Process.native_handle(), 0);
-						m_Process.close();
-						m_Job.close();
-						SetLastError(ERROR_PROCESS_ABORTED);
-					}
-				}
-			}
-			else
-			{
-				ResetApprove();
-			}
-		}
+		m_Job = create_job_for_current_process();
 	}
-	m_Elevation=Result;
-	return Result;
+
+	if (m_Job)
+	{
+		AssignProcessToJobObject(m_Job.native_handle(), m_Process.native_handle());
+	}
+
+	if (!connect_pipe_to_process(m_Process, m_Pipe))
+	{
+		if (m_Process.signaled())
+		{
+			DWORD ExitCode;
+			SetLastError(GetExitCodeProcess(m_Process.native_handle(), &ExitCode)? ExitCode : ERROR_GEN_FAILURE);
+		}
+		else
+		{
+			TerminateChildProcess();
+		}
+
+		m_Process.close();
+		return false;
+	}
+
+	return true;
 }
 
 enum ELEVATIONAPPROVEDLGITEM
@@ -368,8 +394,8 @@ intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, voi
 		{
 			if(Param1==AAD_EDIT_OBJECT)
 			{
-				FarColor Color=colors::PaletteColorToFarColor(COL_DIALOGTEXT);
-				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				const auto Color = colors::PaletteColorToFarColor(COL_DIALOGTEXT);
+				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;
 			}
@@ -757,22 +783,18 @@ bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBy
 
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 {
-	bool Result = false;
-	if(Global && Global->Opt && Global->Opt->ElevationMode & Mode)
+	if (!Global || !Global->Opt || !(Global->Opt->ElevationMode & Mode))
+		return false;
+
+	if(UseNtStatus && Imports().RtlGetLastNtStatus)
 	{
-		if(UseNtStatus && Imports().RtlGetLastNtStatus)
-		{
-				const auto LastNtStatus = os::GetLastNtStatus();
-				Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
-		}
-		else
-		{
-			// RtlGetLastNtStatus not implemented in w2k.
-			const auto LastWin32Error = GetLastError();
-			Result = LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD;
-		}
+			const auto LastNtStatus = os::GetLastNtStatus();
+			return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
 	}
-	return Result;
+
+	// RtlGetLastNtStatus not implemented in w2k.
+	const auto LastWin32Error = GetLastError();
+	return LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD;
 }
 
 class elevated:noncopyable
@@ -816,10 +838,9 @@ public:
 				return GetLastError();
 
 			if (StrCmpI(CurrentProcessFileName, ParentProcessFileName))
-				return -1;
+				return DNS_ERROR_INVALID_NAME;
 		}
 
-		Write(GetCurrentProcessId());
 		m_ParentPid = PID;
 
 		for (;;)

@@ -4740,7 +4740,7 @@ static bool strwrapFunc(FarMacroCall* Data)
 	auto Params = parseParams(4, Data);
 	DWORD Flags=(DWORD)Params[3].asInteger();
 	TVar& Break(Params[2]);
-	int Width=(int)Params[1].asInteger();
+	const size_t Width = Params[1].asInteger();
 	TVar& Text(Params[0]);
 
 	if (Break.isInteger() && !Break.asInteger())

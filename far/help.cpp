@@ -383,7 +383,7 @@ int Help::ReadHelp(const string& Mask)
 			strReadStr.clear();
 			if (strKeyName.size() > SizeKeyName)
 			{
-				FarFormatText(strKeyName, (int)SizeKeyName, strKeyName, L"\n", 0);
+				FarFormatText(strKeyName, SizeKeyName, strKeyName, L"\n", 0);
 
 				size_t nl;
 				while ((nl = strKeyName.find(L'\n')) != string::npos)

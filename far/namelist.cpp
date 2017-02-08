@@ -46,9 +46,8 @@ bool NamesList::GetNextName(string &strName)
 {
 	const auto NewPos = std::next(CurPos);
 	if (NewPos == Names.end())
-	{
 		return false;
-	}
+
 	CurPos = NewPos;
 	strName = *CurPos;
 	return true;
@@ -66,13 +65,10 @@ bool NamesList::GetPrevName(string &strName)
 
 bool NamesList::SetCurName(const string& Name)
 {
-	bool Result = false;
 	const auto ItemIterator = std::find(ALL_CONST_RANGE(Names), Name);
+	if (ItemIterator == Names.cend())
+		return false;
 
-	if (ItemIterator != Names.cend())
-	{
-		CurPos = ItemIterator;
-		Result = true;
-	}
-	return Result;
+	CurPos = ItemIterator;
+	return true;
 }

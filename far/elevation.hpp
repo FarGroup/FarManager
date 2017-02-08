@@ -106,6 +106,7 @@ private:
 
 	bool Initialize();
 	bool ElevationApproveDlg(lng Why, const string& Object);
+	void TerminateChildProcess() const;
 
 	template<typename T, typename F1, typename F2>
 	auto execute(lng Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler);
@@ -114,7 +115,6 @@ private:
 	os::handle m_Pipe;
 	os::handle m_Process;
 	os::handle m_Job;
-	int m_ProcessId;
 
 	bool m_IsApproved;
 	bool m_AskApprove;

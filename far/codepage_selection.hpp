@@ -67,7 +67,7 @@ public:
 	static long long GetFavorite(uintptr_t cp);
 	static void SetFavorite(uintptr_t cp, long long value);
 	static void DeleteFavorite(uintptr_t cp);
-	static GeneralConfig::int_values_enumerator GetFavoritesEnumerator();
+	static GeneralConfig::values_enumerator<long long> GetFavoritesEnumerator();
 
 private:
 	friend codepages& Codepages();

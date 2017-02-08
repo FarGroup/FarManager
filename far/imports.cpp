@@ -383,44 +383,49 @@ NET_API_STATUS NET_API_FUNCTION ImportedFunctions::stub_NetDfsGetInfo(LPWSTR pat
 // dbghelp
 BOOL WINAPI ImportedFunctions::stub_MiniDumpWriteDump(HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL WINAPI ImportedFunctions::stub_StackWalk64(DWORD MachineType, HANDLE Process, HANDLE Thread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL WINAPI ImportedFunctions::stub_SymInitialize(HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL WINAPI ImportedFunctions::stub_SymCleanup(HANDLE Process)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 BOOL WINAPI ImportedFunctions::stub_SymFromAddr(HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
 
 DWORD WINAPI ImportedFunctions::stub_SymSetOptions(DWORD SymOptions)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return 0;
 }
 
 BOOL WINAPI ImportedFunctions::stub_SymGetLineFromAddr64(HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line)
 {
+	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
-
-

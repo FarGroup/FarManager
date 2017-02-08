@@ -55,7 +55,7 @@ protected:
 private:
 	void* Allocate(size_t Size);
 
-	std::list<char_ptr> m_Data;
+	std::vector<char_ptr> m_Data;
 };
 
 #endif // PLUGSETTINGS_HPP_E3377566_8E58_48BB_9A8A_B205A943BD6F

@@ -554,12 +554,12 @@ intptr_t VMenu2::Run(const std::function<int(const Manager::Key& RawKey)>& fn)
 
 	return RunEx([&](int Msg, void *param)
 	{
-		if(Msg==DN_INPUT)
-		{
-			const auto ir = static_cast<const INPUT_RECORD*>(param);
-			return fn(Manager::Key(ir->EventType==WINDOW_BUFFER_SIZE_EVENT ? KEY_CONSOLE_BUFFER_RESIZE : InputRecordToKey(ir), *ir));
-		}
-		return fn(Manager::Key(KEY_NONE));
+		const auto Key =
+			Msg == DN_INPUT?
+			Manager::Key(static_cast<const INPUT_RECORD*>(param)->EventType == WINDOW_BUFFER_SIZE_EVENT? KEY_CONSOLE_BUFFER_RESIZE : InputRecordToKey(static_cast<const INPUT_RECORD*>(param)), *static_cast<const INPUT_RECORD*>(param)) :
+			Manager::Key(KEY_NONE);
+
+		return fn(Key);
 	});
 }
 

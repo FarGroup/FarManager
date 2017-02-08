@@ -277,7 +277,7 @@ void Message::Init(
 		MaxLength = std::max(MaxLength, LenErrStr);
 
 		// а теперь проврапим
-		FarFormatText(strErrStr, static_cast<int>(LenErrStr), strErrStr, L"\n", 0); //?? MaxLength ??
+		FarFormatText(strErrStr, LenErrStr, strErrStr, L"\n", 0); //?? MaxLength ??
 		const auto ErrorStrings = split<std::vector<string>>(strErrStr, 0, L"\n");
 		MessageStrings.insert(MessageStrings.end(), ALL_CONST_RANGE(ErrorStrings));
 	}

@@ -650,25 +650,21 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_ALTF4:       // редактировать все меню
 				case KEY_RALTF4:
 				{
-					os::fs::file MenuFile;
+					SaveMenu(MenuFileName);
 					{
-						SaveMenu(MenuFileName);
 						const auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
 						Global->WindowManager->ExecuteModal(ShellEditor);
-						if (!ShellEditor->IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
-						{
-							ReturnCode=0;
-							UserMenu->Close(-1);
-							return 1;
-						}
+						if (!ShellEditor->IsFileChanged())
+							break;
 					}
-					MenuRoot.clear();
-					DeserializeMenu(MenuRoot, MenuFile, m_MenuCP);
-					MenuFile.Close();
-					ReturnCode=0;
-					UserMenu->Close(-1);
-
-					return 1; // Закрыть меню
+					if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+					{
+						MenuRoot.clear();
+						DeserializeMenu(MenuRoot, MenuFile, m_MenuCP);
+						ReturnCode = 0;
+						UserMenu->Close(-1);
+						return 1; // Закрыть меню
+					}
 				}
 
 				/* $ 28.06.2000 tran
