@@ -2688,7 +2688,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 					const auto ExclusionFlag = IsItExecutable? EXCLUDECMDHISTORY_NOTPANEL : EXCLUDECMDHISTORY_NOTWINASS;
 					if (!(Global->Opt->ExcludeCmdHistory & ExclusionFlag) && !PluginMode)
-						Global->CtrlObject->CmdHistory->AddToHistory(strFileName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+					{
+						string QuotedName = strFileName;
+						QuoteSpace(QuotedName);
+						Global->CtrlObject->CmdHistory->AddToHistory(QuotedName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+					}
 				}
 			}
 		}
