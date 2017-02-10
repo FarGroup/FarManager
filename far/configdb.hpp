@@ -76,28 +76,14 @@ public:
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, long long& Value) = 0;
 
 	template<typename T>
-	class values_enumerator: public enumerator<values_enumerator<T>, std::pair<string, T>>
+	auto ValuesEnumerator(const string& Key)
 	{
-		IMPLEMENTS_ENUMERATOR(values_enumerator);
-
-	public:
-		values_enumerator(GeneralConfig* Provider, const string& Key):
-			m_Provider(Provider),
-			m_Key(Key)
-		{}
-
-	private:
-		bool get(size_t Index, typename values_enumerator::value_type& Value) const
+		using value_type = std::pair<string, T>;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
 		{
-			return m_Provider->EnumValues(m_Key, static_cast<DWORD>(Index), Value.first, Value.second);
-		}
-
-		GeneralConfig* const m_Provider;
-		const string m_Key;
-	};
-
-	template<typename T>
-	auto ValuesEnumerator(const string& key) { return values_enumerator<T>(this, key); }
+			return EnumValues(Key, static_cast<DWORD>(Index), Value.first, Value.second);
+		});
+	}
 
 protected:
 	GeneralConfig() = default;
@@ -153,49 +139,23 @@ public:
 	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, int& Type) = 0;
 	virtual bool Flush() = 0;
 
-	class keys_enumerator: public enumerator<keys_enumerator, string>
+	auto KeysEnumerator(const key& Root)
 	{
-		IMPLEMENTS_ENUMERATOR(keys_enumerator);
-
-	public:
-		keys_enumerator(HierarchicalConfig* Owner, const key& Root):
-			m_Owner(Owner),
-			m_Root(Root)
-		{}
-
-	private:
-		bool get(size_t Index, value_type& Value) const
+		using value_type = string;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
 		{
-			return m_Owner->EnumKeys(m_Root, static_cast<DWORD>(Index), Value);
-		}
+			return EnumKeys(Root, static_cast<DWORD>(Index), Value);
+		});
+	}
 
-		HierarchicalConfig* const m_Owner;
-		const key& m_Root;
-	};
-
-	class values_enumerator: public enumerator<values_enumerator, std::pair<string, int>>
+	auto ValuesEnumerator(const key& Root)
 	{
-		IMPLEMENTS_ENUMERATOR(values_enumerator);
-
-	public:
-		values_enumerator(HierarchicalConfig* Provider, const key& Key):
-			m_Provider(Provider),
-			m_Key(Key)
+		using value_type = std::pair<string, int>;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
 		{
-		}
-
-	private:
-		bool get(size_t Index, value_type& Value) const
-		{
-			return m_Provider->EnumValues(m_Key, static_cast<DWORD>(Index), Value.first, Value.second);
-		}
-
-		HierarchicalConfig* const m_Provider;
-		const key& m_Key;
-	};
-
-	auto KeysEnumerator(const key& Root) { return keys_enumerator(this, Root); }
-	auto ValuesEnumerator(const key& Root) { return values_enumerator(this, Root); }
+			return EnumValues(Root, static_cast<DWORD>(Index), Value.first, Value.second);
+		});
+	}
 
 protected:
 	HierarchicalConfig() = default;
@@ -228,7 +188,6 @@ protected:
 class AssociationsConfig: public representable, virtual public transactional {
 
 public:
-
 	virtual ~AssociationsConfig() override = default;
 	virtual bool EnumMasks(DWORD Index, unsigned long long *id, string &strMask) = 0;
 	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned long long *id, string &strMask) = 0;
@@ -240,6 +199,24 @@ public:
 	virtual unsigned long long AddType(unsigned long long after_id, const string& Mask, const string& Description) = 0;
 	virtual bool UpdateType(unsigned long long id, const string& Mask, const string& Description) = 0;
 	virtual bool DelType(unsigned long long id) = 0;
+
+	auto MasksEnumerator()
+	{
+		using value_type = std::pair<unsigned long long, string>;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		{
+			return EnumMasks(static_cast<DWORD>(Index), &Value.first, Value.second);
+		});
+	}
+
+	auto TypedMasksEnumerator(int Type)
+	{
+		using value_type = std::pair<unsigned long long, string>;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		{
+			return EnumMasksForType(Type, static_cast<DWORD>(Index), &Value.first, Value.second);
+		});
+	}
 
 protected:
 	AssociationsConfig() = default;
@@ -318,9 +295,9 @@ public:
 	//command,view,edit,folder,dialog history
 	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string& HistoryName, unsigned long long *id, string &strName, history_record_type* Type, bool *Lock, unsigned long long *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned long long id) = 0;
-	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string& HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
+	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string& HistoryName, const string& strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
 	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
-	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, unsigned int TypeHistory, string &strHistoryName) = 0;
+	virtual bool EnumLargeHistories(DWORD index, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;
 	virtual bool GetNewest(unsigned int TypeHistory, const string& HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned long long id, string &strName) = 0;
 	virtual bool Get(unsigned long long id, string &strName, history_record_type& Type, string &strGuid, string &strFile, string &strData) = 0;
@@ -342,6 +319,36 @@ public:
 	virtual bool SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) = 0;
 	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) = 0;
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) = 0;
+
+	struct enum_data
+	{
+		unsigned long long Id;
+		string Name;
+		history_record_type Type;
+		bool Lock;
+		unsigned long long Time;
+		string Guid;
+		string File;
+		string Data;
+	};
+
+	auto Enumerator(unsigned int HistoryType, const string& HistoryName, bool Reverse = false)
+	{
+		using value_type = enum_data;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		{
+			return Enum(static_cast<DWORD>(Index), HistoryType, HistoryName, &Value.Id, Value.Name, &Value.Type, &Value.Lock, &Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
+		});
+	}
+
+	auto LargeHistoriesEnumerator(unsigned int HistoryType, int MinimumEntries)
+	{
+		using value_type = string;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		{
+			return EnumLargeHistories(static_cast<DWORD>(Index), HistoryType, MinimumEntries, Value);
+		});
+	}
 
 protected:
 	HistoryConfig() = default;

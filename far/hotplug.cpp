@@ -97,30 +97,14 @@ public:
 		return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
 
-	class device_interfaces: public enumerator<device_interfaces, SP_DEVICE_INTERFACE_DATA>
+	auto DeviceInterfacesEnumerator(const GUID& InterfaceClassGuid) const
 	{
-		IMPLEMENTS_ENUMERATOR(device_interfaces);
-
-	public:
-		device_interfaces(const devinfo_handle& info, const GUID& InterfaceClassGuid):
-			m_info(info),
-			m_InterfaceClassGuid(InterfaceClassGuid)
-		{}
-
-	private:
-		bool get(size_t index, value_type& value) const
+		using value_type = SP_DEVICE_INTERFACE_DATA;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
 		{
-			value.cbSize = sizeof(value);
-			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &m_InterfaceClassGuid, static_cast<int>(index), &value) != FALSE;
-		}
-
-		const devinfo_handle& m_info;
-		const GUID& m_InterfaceClassGuid;
-	};
-
-	device_interfaces GetDeviceInterfaces(const GUID& InterfaceClassGuid) const
-	{
-		return { m_info, InterfaceClassGuid };
+			Value.cbSize = sizeof(Value);
+			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, static_cast<DWORD>(Index), &Value) != FALSE;
+		});
 	}
 
 	string GetDevicePath(SP_DEVICE_INTERFACE_DATA& DeviceInterfaceData) const
@@ -214,7 +198,7 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 		return 0;
 
 	DWORD dwMask = 0;
-	for (auto& i: Info.GetDeviceInterfaces(GUID_DEVINTERFACE_VOLUME))
+	for (auto& i: Info.DeviceInterfacesEnumerator(GUID_DEVINTERFACE_VOLUME))
 	{
 		auto strMountPoint = Info.GetDevicePath(i);
 		if (strMountPoint.empty())

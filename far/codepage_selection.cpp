@@ -53,7 +53,6 @@ codepages& Codepages()
 
 // Ключ где хранятся имена кодовых страниц
 static constexpr wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
-static constexpr wchar_t FavoriteCodePagesKey[] = L"CodePages.Favorites";
 
 // Источник вызова каллбака прохода по кодовым страницам
 enum CodePagesCallbackCallSource: int
@@ -99,6 +98,11 @@ uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
 {
 	const auto DataPtr = CodePagesMenu->GetUserDataPtr<uintptr_t>(Position);
 	return DataPtr? *DataPtr : 0;
+}
+
+const wchar_t* codepages::FavoriteCodePagesKey()
+{
+	return L"CodePages.Favorites";
 }
 
 size_t codepages::GetListItemCodePage(size_t Position) const
@@ -787,23 +791,18 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize)
 long long codepages::GetFavorite(uintptr_t cp)
 {
 	long long value = 0;
-	ConfigProvider().GeneralCfg()->GetValue(FavoriteCodePagesKey, str(cp), value, 0);
+	ConfigProvider().GeneralCfg()->GetValue(FavoriteCodePagesKey(), str(cp), value, 0);
 	return value;
 }
 
 void codepages::SetFavorite(uintptr_t cp, long long value)
 {
-	ConfigProvider().GeneralCfg()->SetValue(FavoriteCodePagesKey, str(cp), value);
+	ConfigProvider().GeneralCfg()->SetValue(FavoriteCodePagesKey(), str(cp), value);
 }
 
 void codepages::DeleteFavorite(uintptr_t cp)
 {
-	ConfigProvider().GeneralCfg()->DeleteValue(FavoriteCodePagesKey, str(cp));
-}
-
-GeneralConfig::values_enumerator<long long> codepages::GetFavoritesEnumerator()
-{
-	return ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey);
+	ConfigProvider().GeneralCfg()->DeleteValue(FavoriteCodePagesKey(), str(cp));
 }
 
 

@@ -69,17 +69,16 @@ History::~History()
 
 void History::CompactHistory()
 {
-	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
+	const auto& HistoryConfig = ConfigProvider().HistoryCfg();
+	SCOPED_ACTION(auto)(HistoryConfig->ScopedTransaction());
 
-	ConfigProvider().HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
-	ConfigProvider().HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
-	ConfigProvider().HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
 
-	DWORD index=0;
-	string strName;
-	while (ConfigProvider().HistoryCfg()->EnumLargeHistories(index++, Global->Opt->DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
+	for(const auto& i: HistoryConfig->LargeHistoriesEnumerator(HISTORYTYPE_DIALOG, Global->Opt->DialogsHistoryCount))
 	{
-		ConfigProvider().HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Global->Opt->DialogsHistoryLifetime, Global->Opt->DialogsHistoryCount);
+		HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_DIALOG, i, Global->Opt->DialogsHistoryLifetime, Global->Opt->DialogsHistoryCount);
 	}
 }
 
@@ -108,27 +107,21 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 
 	if (m_RemoveDups) // удалять дубликаты?
 	{
-		DWORD index=0;
-		string strHName,strHGuid,strHFile,strHData;
-		history_record_type HType;
-		bool HLock;
-		unsigned long long id;
-		unsigned long long Time;
-		while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
-		{
-			if (EqualType(Type,HType))
-			{
-				using CompareFunction = int (*)(const string&, const string&);
-				CompareFunction CaseSensitive = StrCmp, CaseInsensitive = StrCmpI;
-				CompareFunction CmpFunction = (m_RemoveDups == 2 ? CaseInsensitive : CaseSensitive);
+		using CompareFunction = int(*)(const string&, const string&);
+		CompareFunction CaseSensitive = StrCmp, CaseInsensitive = StrCmpI;
+		const auto CmpFunction = m_RemoveDups == 2? CaseInsensitive : CaseSensitive;
 
-				if (!CmpFunction(strName, strHName) &&
-					!CmpFunction(strGuid, strHGuid) &&
-					!CmpFunction(strFile, strHFile) &&
-					(ignore_data || !CmpFunction(strData, strHData)))
+		for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))
+		{
+			if (EqualType(Type, i.Type))
+			{
+				if (!CmpFunction(strName, i.Name) &&
+					!CmpFunction(strGuid, i.Guid) &&
+					!CmpFunction(strFile, i.File) &&
+					(ignore_data || !CmpFunction(strData, i.Data)))
 				{
-					Lock = Lock || HLock;
-					DeleteId = id;
+					Lock = Lock || i.Lock;
+					DeleteId = i.Id;
 					break;
 				}
 			}
@@ -191,12 +184,6 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 		HistoryMenu.clear();
 		{
 			bool bSelected=false;
-			DWORD index=0;
-			string strHName,strHGuid,strHFile,strHData;
-			history_record_type HType;
-			bool HLock;
-			unsigned long long id;
-			unsigned long long Time;
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
 			const auto& GetTitle = [](auto Type)
@@ -216,25 +203,25 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				return L"";
 			};
 
-			while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,m_TypeHistory==HISTORYTYPE_DIALOG))
+			for (auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, m_TypeHistory == HISTORYTYPE_DIALOG))
 			{
 				string strRecord;
 
 				if (m_TypeHistory == HISTORYTYPE_VIEW)
-					strRecord = GetTitle(HType) + string(L":") + (HType == HR_EDITOR_RO ? L"-" : L" ");
+					strRecord = GetTitle(i.Type) + string(L":") + (i.Type == HR_EDITOR_RO ? L"-" : L" ");
 
 				else if (m_TypeHistory == HISTORYTYPE_FOLDER)
 				{
 					GUID HGuid;
-					if(StrToGuid(strHGuid,HGuid) &&  HGuid != FarGuid)
+					if(StrToGuid(i.Guid, HGuid) && HGuid != FarGuid)
 					{
-						Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
-						strRecord = (pPlugin ? pPlugin->GetTitle() : L"{" + strHGuid + L"}") + L":";
-						if(!strHFile.empty())
-							strRecord += strHFile + L":";
+						const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
+						strRecord = (pPlugin ? pPlugin->GetTitle() : L"{" + i.Guid + L"}") + L":";
+						if(!i.File.empty())
+							strRecord += i.File + L":";
 					}
 				}
-				const auto FTTime = UI64ToFileTime(Time);
+				const auto FTTime = UI64ToFileTime(i.Time);
 				SYSTEMTIME SavedTime;
 				Utc2Local(FTTime, SavedTime);
 				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
@@ -248,16 +235,16 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					ConvertDate(FTTime, Separator.strName, strTime, 5, FALSE, FALSE, TRUE);
 					HistoryMenu.AddItem(Separator);
 				}
-				strRecord += strHName;
+				strRecord += i.Name;
 
 				if (m_TypeHistory != HISTORYTYPE_DIALOG)
 					ReplaceStrings(strRecord, L"&", L"&&");
 
 				MenuItemEx MenuItem(strRecord);
-				MenuItem.SetCheck(HLock?1:0);
-				MenuItem.UserData = id;
+				MenuItem.SetCheck(i.Lock? 1 : 0);
+				MenuItem.UserData = i.Id;
 
-				if (!SetUpMenuPos && m_CurrentItem==id)
+				if (!SetUpMenuPos && m_CurrentItem == i.Id)
 				{
 					MenuItem.SetSelect(TRUE);
 					bSelected=true;
@@ -320,33 +307,27 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 						SCOPED_ACTION(auto) = HistoryCfgRef()->ScopedTransaction();
 
-						DWORD index=0;
-						string strHName,strHGuid,strHFile,strHData;
-						history_record_type HType;
-						bool HLock;
-						unsigned long long id;
-						unsigned long long Time;
-						while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
+						for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))
 						{
-							if (HLock) // залоченные не трогаем
+							if (i.Lock) // залоченные не трогаем
 								continue;
 
 							// убить запись из истории
 							bool kill=false;
 							GUID HGuid;
-							if(StrToGuid(strHGuid,HGuid) && HGuid != FarGuid)
+							if(StrToGuid(i.Guid,HGuid) && HGuid != FarGuid)
 							{
 								if (!Global->CtrlObject->Plugins->FindPlugin(HGuid))
 									kill=true;
-								else if (!strHFile.empty() && !os::fs::exists(strHFile))
+								else if (!i.File.empty() && !os::fs::exists(i.File))
 									kill=true;
 							}
-							else if (!os::fs::exists(strHName))
+							else if (!os::fs::exists(i.Name))
 								kill=true;
 
 							if(kill)
 							{
-								HistoryCfgRef()->Delete(id);
+								HistoryCfgRef()->Delete(i.Id);
 								ModifiedHistory=true;
 							}
 						}
@@ -617,17 +598,12 @@ std::vector<std::tuple<string, unsigned long long, bool>> History::GetAllSimilar
 {
 	FN_RETURN_TYPE(History::GetAllSimilar) Result;
 	const auto Length = Str.size();
-	DWORD index=0;
-	string strHName,strHGuid,strHFile,strHData;
-	history_record_type HType;
-	bool HLock;
-	unsigned long long id;
-	unsigned long long Time;
-	while (HistoryCfgRef()->Enum(index++,m_TypeHistory,m_HistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
+
+	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, true))
 	{
-		if (!StrCmpNI(Str.data(),strHName.data(),Length))
+		if (!StrCmpNI(Str.data(), i.Name.data(), Length))
 		{
-			Result.emplace_back(strHName, id, HLock);
+			Result.emplace_back(i.Name, i.Id, i.Lock);
 		}
 	}
 	return Result;

@@ -50,6 +50,23 @@ public:
 	void Configure();
 	void Save();
 
+	struct enum_data
+	{
+		string Folder;
+		GUID PluginGuid;
+		string PluginFile;
+		string PluginData;
+	};
+
+	auto Enumerator(size_t Pos)
+	{
+		using value_type = enum_data;
+		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		{
+			return Get(Pos, Index, &Value.Folder, &Value.PluginGuid, &Value.PluginFile, &Value.PluginData);
+		});
+	}
+
 	struct shortcut;
 
 private:

@@ -401,12 +401,10 @@ bool FarSettings::Enum(FarSettingsEnum& Enum)
 	case FSSF_FOLDERSHORTCUT_9:
 		{
 			FarSettingsHistory item{};
-			string strName,strFile,strData;
-			GUID plugin; size_t index=0;
 			FarSettingsHistoryItems NewEnumItem;
-			while (Shortcuts().Get(Enum.Root - FSSF_FOLDERSHORTCUT_0, index++, &strName, &plugin, &strFile, &strData))
+			for(auto& i: Shortcuts().Enumerator(Enum.Root - FSSF_FOLDERSHORTCUT_0))
 			{
-				NewEnumItem.add(item, std::move(strName), std::move(strData), std::move(strFile), plugin);
+				NewEnumItem.add(item, std::move(i.Folder), std::move(i.PluginData), std::move(i.PluginFile), i.PluginGuid);
 			}
 			NewEnumItem.get(Enum);
 			m_Enum.emplace_back(std::move(NewEnumItem));
@@ -460,23 +458,18 @@ static const auto& HistoryRef(int Type)
 bool FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter)
 {
 	FarSettingsHistory item = {};
-	DWORD Index=0;
-	string strName,strGuid,strFile,strData;
-
-	unsigned long long id;
-	history_record_type HType;
-	bool HLock;
-	unsigned long long Time;
 	FarSettingsHistoryItems NewEnumItem;
-	while (HistoryRef(Type)->Enum(Index++, Type, HistoryName, &id, strName, &HType, &HLock, &Time, strGuid, strFile, strData))
+
+	for(auto& i: HistoryRef(Type)->Enumerator(Type, HistoryName))
 	{
-		if(Filter(HType))
+		if(Filter(i.Type))
 		{
-			item.Time = UI64ToFileTime(Time);
-			item.Lock=HLock;
+			item.Time = UI64ToFileTime(i.Time);
+			item.Lock = i.Lock;
 			GUID Guid;
-			if(strGuid.empty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
-			NewEnumItem.add(item, std::move(strName), std::move(strData), std::move(strFile), Guid);
+			if (i.Guid.empty() || !StrToGuid(i.Guid, Guid))
+				Guid = FarGuid;
+			NewEnumItem.add(item, std::move(i.Name), std::move(i.Data), std::move(i.File), Guid);
 		}
 	}
 	NewEnumItem.get(Enum);

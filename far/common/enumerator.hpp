@@ -93,4 +93,30 @@ protected:
 
 #define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type;
 
+template<typename value_type, typename callable>
+class inline_enumerator: public enumerator<inline_enumerator<value_type, callable>, value_type>
+{
+	IMPLEMENTS_ENUMERATOR(inline_enumerator);
+
+public:
+	inline_enumerator(callable&& Callable):
+		m_Callable(std::forward<callable>(Callable))
+	{
+	}
+
+private:
+	bool get(size_t Index, value_type& Value) const
+	{
+		return m_Callable(Index, Value);
+	}
+
+	callable m_Callable;
+};
+
+template<typename value_type, typename callable>
+auto make_inline_enumerator(callable&& Callable)
+{
+	return inline_enumerator<value_type, callable>(std::forward<callable>(Callable));
+}
+
 #endif // ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874

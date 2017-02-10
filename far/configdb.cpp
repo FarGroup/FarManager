@@ -1842,7 +1842,7 @@ private:
 		return true;
 	}
 
-	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string& HistoryName, string Name, int Type, bool Lock, string &strGuid, string &strFile, string &strData) override
+	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string& HistoryName, const string& Name, int Type, bool Lock, string &strGuid, string &strFile, string &strData) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
@@ -1870,7 +1870,7 @@ private:
 		return ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
-	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, unsigned int TypeHistory, string &strHistoryName) override
+	virtual bool EnumLargeHistories(DWORD index, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(stmtEnumLargeHistories);

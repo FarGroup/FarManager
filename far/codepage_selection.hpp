@@ -67,7 +67,10 @@ public:
 	static long long GetFavorite(uintptr_t cp);
 	static void SetFavorite(uintptr_t cp, long long value);
 	static void DeleteFavorite(uintptr_t cp);
-	static GeneralConfig::values_enumerator<long long> GetFavoritesEnumerator();
+	static auto GetFavoritesEnumerator()
+	{
+		return ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey());
+	}
 
 private:
 	friend codepages& Codepages();
@@ -92,6 +95,8 @@ private:
 	void FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShowAutoDetect);
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
+
+	static const wchar_t* FavoriteCodePagesKey();
 
 	Dialog* dialog;
 	UINT control;

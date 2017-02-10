@@ -71,31 +71,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, bool RunAs, const std::function<void(execute_info&)>& Launcher)
 {
-	string strCommand, strDescription, strMask;
+	string strCommand, strDescription;
 	{
 		int ActualCmdCount=0; // отображаемых ассоциаций в меню
 		filemasks FMask; // для работы с масками файлов
 
 		int CommandCount=0;
-		DWORD Index=0;
-		unsigned long long id;
 		string FileName = PointToName(Name);
 
 		std::vector<MenuItemEx> MenuItems;
 
-		while (ConfigProvider().AssocConfig()->EnumMasksForType(Mode,Index++,&id,strMask))
+		for(const auto& i: ConfigProvider().AssocConfig()->TypedMasksEnumerator(Mode))
 		{
 			strCommand.clear();
 
-			if (FMask.Set(strMask,FMF_SILENT))
+			if (FMask.Set(i.second, FMF_SILENT))
 			{
 				if (FMask.Compare(FileName))
 				{
-					ConfigProvider().AssocConfig()->GetCommand(id,Mode,strCommand);
+					ConfigProvider().AssocConfig()->GetCommand(i.first, Mode, strCommand);
 
 					if (!strCommand.empty())
 					{
-						ConfigProvider().AssocConfig()->GetDescription(id,strDescription);
+						ConfigProvider().AssocConfig()->GetDescription(i.first, strDescription);
 						CommandCount++;
 					}
 				}
@@ -119,7 +117,6 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 				strDescription = strCommandText;
 
 			MenuItemEx TypesMenuItem(strDescription);
-			TypesMenuItem.SetSelect(Index==1);
 			TypesMenuItem.UserData = strCommand;
 			MenuItems.push_back(std::move(TypesMenuItem));
 		}
@@ -299,21 +296,18 @@ static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 {
 	struct data_item
 	{
+		unsigned long long Id;
 		string Mask;
 		string Description;
-		unsigned long long Id;
 	};
 
 	std::vector<data_item> Data;
 
+	for(auto& i: ConfigProvider().AssocConfig()->MasksEnumerator())
 	{
-		data_item Item;
-		DWORD Index = 0;
-		while (ConfigProvider().AssocConfig()->EnumMasks(Index++, &Item.Id, Item.Mask))
-		{
-			ConfigProvider().AssocConfig()->GetDescription(Item.Id, Item.Description);
-			Data.emplace_back(std::move(Item));
-		}
+		data_item Item{ i.first, std::move(i.second) };
+		ConfigProvider().AssocConfig()->GetDescription(Item.Id, Item.Description);
+		Data.emplace_back(std::move(Item));
 	}
 
 	const auto MaxElement = std::max_element(ALL_CONST_RANGE(Data), [](const auto& a, const auto &b) { return a.Description.size() < b.Description.size(); });
