@@ -204,8 +204,8 @@ public:
 
 	void add(FarSettingsName& Item, string&& String)
 	{
-		m_Strings.emplace_back(std::move(String));
-		Item.Name = m_Strings.back().data();
+		m_Strings.emplace_front(std::move(String));
+		Item.Name = m_Strings.front().data();
 		m_Items.emplace_back(Item);
 	}
 
@@ -217,7 +217,8 @@ public:
 
 private:
 	std::vector<FarSettingsName> m_Items;
-	std::vector<string> m_Strings;
+	// String address must always remain valid, hence the list
+	std::forward_list<string> m_Strings;
 };
 
 class FarSettings: public AbstractSettings
@@ -255,12 +256,12 @@ public:
 
 	void add(FarSettingsHistory& Item, string&& Name, string&& Param, string&& File, const GUID& Guid)
 	{
-		m_Names.emplace_back(std::move(Name));
-		m_Params.emplace_back(std::move(Param));
-		m_Files.emplace_back(std::move(File));
-		Item.Name = m_Names.back().data();
-		Item.Param = m_Params.back().data();
-		Item.File = m_Files.back().data();
+		m_Names.emplace_front(std::move(Name));
+		m_Params.emplace_front(std::move(Param));
+		m_Files.emplace_front(std::move(File));
+		Item.Name = m_Names.front().data();
+		Item.Param = m_Params.front().data();
+		Item.File = m_Files.front().data();
 		Item.PluginId = Guid;
 		m_Items.emplace_back(Item);
 	}
@@ -273,7 +274,8 @@ public:
 
 private:
 	std::vector<FarSettingsHistory> m_Items;
-	std::vector<string> m_Names, m_Params, m_Files;
+	// String address must always remain valid, hence the list
+	std::forward_list<string> m_Names, m_Params, m_Files;
 };
 
 bool PluginSettings::Enum(FarSettingsEnum& Enum)

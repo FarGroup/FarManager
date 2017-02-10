@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <array>
 #include <atomic>
 #include <bitset>
+#include <forward_list>
 #include <fstream>
 #include <functional>
 #include <iomanip>
