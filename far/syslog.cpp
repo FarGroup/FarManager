@@ -80,7 +80,7 @@ string str_vprintf(const wchar_t * format, va_list argptr)
 {
 	wchar_t_ptr buffer;
 	size_t size = 128;
-	int length = -1;
+	int length;
 	do
 	{
 		buffer.reset(size *= 2);

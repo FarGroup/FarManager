@@ -68,8 +68,8 @@ QuickView::QuickView(private_tag, window_ptr Owner):
 	Panel(Owner),
 	Directory(0),
 	Data(),
-	OldWrapMode(0),
-	OldWrapType(0),
+	OldWrapMode(false),
+	OldWrapType(false),
 	m_TemporaryFile(),
 	uncomplete_dirscan(false)
 {

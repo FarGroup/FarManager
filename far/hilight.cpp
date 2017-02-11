@@ -138,24 +138,24 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	{
 		const wchar_t *Mask;
 		bool IgnoreMask;
-		DWORD IncludeAttr;
 		BYTE InitNC;
 		BYTE InitCC;
+		DWORD IncludeAttr;
 		FarColor NormalColor;
 		FarColor CursorColor;
 	}
 	StdHighlightData[]=
 	{
-		/* 0 */{Masks[0], false, FILE_ATTRIBUTE_HIDDEN, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
-		/* 1 */{Masks[0], false, FILE_ATTRIBUTE_SYSTEM, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY},
-		/* 2 */{Masks[3], false, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
-		/* 3 */{Masks[4], false, FILE_ATTRIBUTE_DIRECTORY, 0, 0},
-		/* 4 */{Masks[5], false, 0, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN},
-		/* 5 */{Masks[1], false, 0, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA},
-		/* 6 */{Masks[2], false, 0, B_BLUE|F_BROWN, B_CYAN|F_BROWN},
+		/* 0 */{Masks[0], false, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY, FILE_ATTRIBUTE_HIDDEN },
+		/* 1 */{Masks[0], false, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY, FILE_ATTRIBUTE_SYSTEM },
+		/* 2 */{Masks[3], false, B_BLUE|F_WHITE, B_CYAN|F_WHITE, FILE_ATTRIBUTE_DIRECTORY },
+		/* 3 */{Masks[4], false, 0, 0, FILE_ATTRIBUTE_DIRECTORY },
+		/* 4 */{Masks[5], false, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN, 0},
+		/* 5 */{Masks[1], false, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA, 0 },
+		/* 6 */{Masks[2], false, B_BLUE|F_BROWN, B_CYAN|F_BROWN, 0 },
 		// это настройка для каталогов на тех панелях, которые должны раскрашиваться
 		// без учета масок (например, список хостов в "far navigator")
-		/* 7 */{Masks[0], true, FILE_ATTRIBUTE_DIRECTORY, B_BLUE|F_WHITE, B_CYAN|F_WHITE},
+		/* 7 */{Masks[0], true, B_BLUE|F_WHITE, B_CYAN|F_WHITE, FILE_ATTRIBUTE_DIRECTORY },
 	};
 
 	size_t Index = 0;

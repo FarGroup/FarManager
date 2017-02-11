@@ -1654,7 +1654,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_DLGINFOID:        // Dlg->Info.Id
 		case MCODE_V_DLGINFOOWNER:     // Dlg->Info.Owner
 		{
-			if (CurrentWindow && CurrentWindow)
+			if (CurrentWindow)
 			{
 				if (CurrentWindow->GetType()==windowtype_menu)
 				{
@@ -3327,7 +3327,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		{
 			string NewStr=VFindOrFilter.toString();
 			Menu->VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, 1);
-			bSetMenuFilter=0;
+			bSetMenuFilter = false;
 		}
 
 		SelectedPos=Menu->GetSelectPos();
@@ -3567,12 +3567,13 @@ static bool fattrFuncImpl(int Type, FarMacroCall* Data)
 	if (Type == 2) // fexist(2)
 	{
 		PassBoolean(FileAttr!=INVALID_FILE_ATTRIBUTES, Data);
-		return 1;
+		return true;
 	}
-	else if (Type == 3) // panel.fexist(3)
-		FileAttr=(DWORD)Pos+1;
 
-	PassNumber((long)FileAttr, Data);
+	if (Type == 3) // panel.fexist(3)
+		FileAttr=static_cast<DWORD>(Pos)+1;
+
+	PassNumber(static_cast<long>(FileAttr), Data);
 	return Ret;
 }
 
@@ -5204,26 +5205,23 @@ M1:
 				}
 				const auto strBuf = format(MessageTemplate, strKeyText);
 
-				int Result=0;
-				{
-					const wchar_t* NoKey=MSG(lng::MNo);
-					Result=Message(MSG_WARNING,SetChange?3:2,MSG(lng::MWarning),
+				const auto Result = Message(MSG_WARNING,SetChange?3:2,MSG(lng::MWarning),
 					          strBuf.data(),
 					          MSG(lng::MMacroSequence),
 					          strBufKey.data(),
 					          MSG(SetChange? lng::MMacroDeleteKey2 : lng::MMacroReDefinedKey2),
 					          MSG(lng::MYes),
-					          (SetChange?MSG(lng::MMacroEditKey):NoKey),
-					          (!SetChange?nullptr:NoKey));
-				}
+					          MSG(SetChange? lng::MMacroEditKey : lng::MNo),
+					          (!SetChange?nullptr:MSG(lng::MNo))).GetExitCode();
 
-				if (!Result)
+				if (Result == Message::first_button)
 				{
 					// в любом случае - вываливаемся
 					Dlg->SendMessage(DM_CLOSE, 1, nullptr);
 					return TRUE;
 				}
-				else if (SetChange && Result == 1)
+
+				if (SetChange && Result == Message::second_button)
 				{
 					string strDescription;
 

@@ -518,7 +518,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 			if (Check && !CurFilterData)
 			{
 				FileFilterParams NewFilter;
-				NewFilter.SetMask(1, Mask);
+				NewFilter.SetMask(true, Mask);
 				//Авто фильтры они только для файлов, папки не должны к ним подходить
 				NewFilter.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 				CurFilterData = &*TempFilterData().emplace(TempFilterData().begin() + j, std::move(NewFilter));
@@ -720,8 +720,8 @@ void FileFilter::InitFilter()
 	{
 		static FileFilterParams _FoldersFilter;
 		FoldersFilter = &_FoldersFilter;
-		FoldersFilter->SetMask(0,L"*");
-		FoldersFilter->SetAttr(1,FILE_ATTRIBUTE_DIRECTORY,0);
+		FoldersFilter->SetMask(false, L"*");
+		FoldersFilter->SetAttr(true, FILE_ATTRIBUTE_DIRECTORY, 0);
 
 		if (!root)
 		{
@@ -808,7 +808,7 @@ void FileFilter::InitFilter()
 
 		FileFilterParams NewItem;
 
-		NewItem.SetMask(1, strMask);
+		NewItem.SetMask(true, strMask);
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
 		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 		DWORD Flags[FFFT_COUNT] = {};

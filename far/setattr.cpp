@@ -869,7 +869,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 			}
 
-			bool IsMountPoint = false;
+			bool IsMountPoint;
 			{
 				bool IsRoot = false;
 				const auto PathType = ParsePath(strSelName, nullptr, &IsRoot);
@@ -1330,14 +1330,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 					if ((NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && !(FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
 					{
-						if (ESetFileEncryption(strSelName,1,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						if (ESetFileEncryption(strSelName, true, FileAttr, SkipMode) == SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}
 					}
 					else if (!(NewAttr&FILE_ATTRIBUTE_ENCRYPTED) && (FileAttr&FILE_ATTRIBUTE_ENCRYPTED))
 					{
-						if (ESetFileEncryption(strSelName,0,FileAttr,SkipMode)==SETATTR_RET_SKIPALL)
+						if (ESetFileEncryption(strSelName, false, FileAttr, SkipMode) == SETATTR_RET_SKIPALL)
 						{
 							SkipMode=SETATTR_RET_SKIP;
 						}

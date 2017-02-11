@@ -277,7 +277,7 @@ enum FARRECORDTYPE
 	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
 };
 
-static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Function, Plugin *PluginModule, const char* Message)
+static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Function, const Plugin* PluginModule, const char* Message)
 {
 	if (Global)
 		Global->ProcessException=TRUE;
@@ -300,7 +300,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 				DWORD SizeModuleName;
 			};
 
-			os::rtdl::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS* xp, const PLUGINRECORD* Module, const PluginStartupInfo* LocalStartupInfo, LPDWORD Result)> p(m, "ExceptionProc");
+			os::rtdl::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS*, const PLUGINRECORD*, const PluginStartupInfo*, DWORD*)> p(m, "ExceptionProc");
 
 			if (p)
 			{
@@ -339,29 +339,29 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 	static constexpr struct
 	{
-		NTSTATUS Code;     // код исключения
 		const wchar_t* DefaultMsg; // Lng-files may not be loaded yet
+		NTSTATUS Code;     // код исключения
 		lng IdMsg;    // ID сообщения из LNG-файла
 	}
 	ECode[]=
 	{
-		#define CODEANDTEXT(x) x, L###x
-		{CODEANDTEXT(EXCEPTION_ACCESS_VIOLATION), lng::MExcRAccess},
-		{CODEANDTEXT(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), lng::MExcOutOfBounds},
-		{CODEANDTEXT(EXCEPTION_INT_DIVIDE_BY_ZERO), lng::MExcDivideByZero},
-		{CODEANDTEXT(EXCEPTION_STACK_OVERFLOW), lng::MExcStackOverflow},
-		{CODEANDTEXT(EXCEPTION_BREAKPOINT), lng::MExcBreakPoint},
-		{CODEANDTEXT(EXCEPTION_FLT_DIVIDE_BY_ZERO), lng::MExcFloatDivideByZero}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
-		{CODEANDTEXT(EXCEPTION_FLT_OVERFLOW), lng::MExcFloatOverflow},           // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_FLT_STACK_CHECK), lng::MExcFloatStackOverflow},   // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_FLT_UNDERFLOW), lng::MExcFloatUnderflow},         // BUGBUG:  ^^^
-		{CODEANDTEXT(EXCEPTION_ILLEGAL_INSTRUCTION), lng::MExcBadInstruction},
-		{CODEANDTEXT(EXCEPTION_PRIV_INSTRUCTION), lng::MExcBadInstruction},
-		{CODEANDTEXT(EXCEPTION_DATATYPE_MISALIGNMENT), lng::MExcDatatypeMisalignment},
-		{CODEANDTEXT(EXCEPTION_MICROSOFT_CPLUSPLUS), lng::MExcCplusPlus},
+		#define TEXTANDCODE(x) L###x, x
+		{TEXTANDCODE(EXCEPTION_ACCESS_VIOLATION), lng::MExcRAccess},
+		{TEXTANDCODE(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), lng::MExcOutOfBounds},
+		{TEXTANDCODE(EXCEPTION_INT_DIVIDE_BY_ZERO), lng::MExcDivideByZero},
+		{TEXTANDCODE(EXCEPTION_STACK_OVERFLOW), lng::MExcStackOverflow},
+		{TEXTANDCODE(EXCEPTION_BREAKPOINT), lng::MExcBreakPoint},
+		{TEXTANDCODE(EXCEPTION_FLT_DIVIDE_BY_ZERO), lng::MExcFloatDivideByZero}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
+		{TEXTANDCODE(EXCEPTION_FLT_OVERFLOW), lng::MExcFloatOverflow},           // BUGBUG:  ^^^
+		{TEXTANDCODE(EXCEPTION_FLT_STACK_CHECK), lng::MExcFloatStackOverflow},   // BUGBUG:  ^^^
+		{TEXTANDCODE(EXCEPTION_FLT_UNDERFLOW), lng::MExcFloatUnderflow},         // BUGBUG:  ^^^
+		{TEXTANDCODE(EXCEPTION_ILLEGAL_INSTRUCTION), lng::MExcBadInstruction},
+		{TEXTANDCODE(EXCEPTION_PRIV_INSTRUCTION), lng::MExcBadInstruction},
+		{TEXTANDCODE(EXCEPTION_DATATYPE_MISALIGNMENT), lng::MExcDatatypeMisalignment},
+		{TEXTANDCODE(EXCEPTION_MICROSOFT_CPLUSPLUS), lng::MExcCplusPlus},
 		// сюды добавляем.
 
-		#undef CODEANDTEXT
+		#undef TEXTANDCODE
 	};
 
 	string strBuf;

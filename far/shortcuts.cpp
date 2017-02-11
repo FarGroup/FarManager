@@ -168,13 +168,13 @@ void Shortcuts::Save()
 
 	if ((root = cfg->CreateKey(cfg->root_key(), FolderShortcutsKey)))
 	{
-		for_each_cnt(CONST_RANGE(Items, i, size_t index)
+		for_each_cnt(CONST_RANGE(Items, i, size_t OuterIndex)
 		{
-			if (const auto Key = cfg->CreateKey(root, str(index)))
+			if (const auto Key = cfg->CreateKey(root, str(OuterIndex)))
 			{
-				for_each_cnt(CONST_RANGE(i, j, size_t index)
+				for_each_cnt(CONST_RANGE(i, j, size_t InnerIndex)
 				{
-					const auto sIndex = str(index);
+					const auto sIndex = str(InnerIndex);
 
 					cfg->SetValue(Key, RecTypeName[PSCR_RT_SHORTCUT] + sIndex, j.strFolder);
 					cfg->SetValue(Key, RecTypeName[PSCR_RT_NAME] + sIndex, j.strName);

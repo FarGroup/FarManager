@@ -98,40 +98,40 @@ filemasks::~filemasks() = default;
 filemasks::filemasks(filemasks&&) = default;
 filemasks& filemasks::operator=(filemasks&&) = default;
 
-bool filemasks::Set(const string& masks, DWORD Flags)
+bool filemasks::Set(const string& Masks, DWORD Flags)
 {
-	if (masks.empty())
+	if (Masks.empty())
 		return false;
 
 	bool Result = false;
 
 	clear();
 
-	string expmasks(masks);
+	auto ExpMasks = Masks;
 	std::unordered_set<string> UsedGroups;
 	size_t LBPos, RBPos;
 
-	while ((LBPos = expmasks.find(L'<')) != string::npos && (RBPos = expmasks.find(L'>', LBPos)) != string::npos)
+	while ((LBPos = ExpMasks.find(L'<')) != string::npos && (RBPos = ExpMasks.find(L'>', LBPos)) != string::npos)
 	{
-		string MaskGroupNameWB = expmasks.substr(LBPos, RBPos - LBPos + 1);
-		string MaskGroupName = expmasks.substr(LBPos + 1, RBPos - LBPos - 1);
+		string MaskGroupNameWB = ExpMasks.substr(LBPos, RBPos - LBPos + 1);
+		string MaskGroupName = ExpMasks.substr(LBPos + 1, RBPos - LBPos - 1);
 		string MaskGroupValue;
 		if (!UsedGroups.count(MaskGroupName))
 		{
 			ConfigProvider().GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
-			ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
+			ReplaceStrings(ExpMasks, MaskGroupNameWB, MaskGroupValue);
 			UsedGroups.emplace(MaskGroupName);
 		}
 		else
 		{
-			ReplaceStrings(expmasks, MaskGroupNameWB, L"");
+			ReplaceStrings(ExpMasks, MaskGroupNameWB, L"");
 		}
 	}
 
-	if (!expmasks.empty())
+	if (!ExpMasks.empty())
 	{
-		auto ptr = expmasks.cbegin();
-		const auto End = expmasks.cend();
+		auto ptr = ExpMasks.cbegin();
+		const auto End = ExpMasks.cend();
 
 		string SimpleMasksInclude, SimpleMasksExclude;
 

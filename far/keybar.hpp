@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum class lng : int;
 
 //   Группы меток
-enum keybar_group
+enum keybar_group: size_t
 {
 	// порядок соответствует .lng файлу
 	KBL_MAIN,
@@ -55,7 +55,7 @@ enum keybar_group
 	KBL_GROUP_COUNT
 };
 
-enum fkeys
+enum fkeys: size_t
 {
 	F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12
 };

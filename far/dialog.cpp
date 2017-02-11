@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "savescr.hpp"
 #include "constitle.hpp"
-#include "lockscrn.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
 #include "TaskBar.hpp"
@@ -781,7 +780,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 			//DialogEdit->SetDialogParent((IsEmulatedEditorLine(Items[I]) || (Items[I].Type==DI_PSWEDIT || Items[I].Type==DI_FIXEDIT))?
 			//                            FEDITLINE_PARENT_SINGLELINE:FEDITLINE_PARENT_MULTILINE);
 			DialogEdit->SetDialogParent(Type == DI_MEMOEDIT?FEDITLINE_PARENT_MULTILINE:FEDITLINE_PARENT_SINGLELINE);
-			DialogEdit->SetReadOnly(0);
+			DialogEdit->SetReadOnly(false);
 
 			if (Type == DI_COMBOBOX)
 			{
@@ -926,7 +925,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 			DialogEdit->SetDelRemovesBlocks(Global->Opt->Dialogs.DelRemovesBlocks);
 
 			if (ItemFlags&DIF_READONLY)
-				DialogEdit->SetReadOnly(1);
+				DialogEdit->SetReadOnly(true);
 
 			if (SetUnchanged)
 				DialogEdit->SetClearFlag(true);
@@ -1431,7 +1430,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 		{
 			if (Focus)
 			{
-				SetCursorType(0,10);
+				SetCursorType(false, 10);
 				// TEXT
 				Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGSELECTEDDEFAULTBUTTON:COL_WARNDIALOGSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGSELECTEDDEFAULTBUTTON:COL_DIALOGSELECTEDBUTTON)));
 				// HiText
@@ -1938,7 +1937,7 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					//   Отключение мигающего курсора при перемещении диалога
 					if (!IsMoving())
-						SetCursorType(1,-1);
+						SetCursorType(true, -1);
 
 					MoveCursor(m_X1+CX1+1,m_Y1+CY1);
 				}
@@ -1982,7 +1981,7 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					//   Отключение мигающего курсора при перемещении диалога
 					if (!IsMoving())
-						SetCursorType(1,-1);
+						SetCursorType(true, -1);
 
 					EditPtr->Show();
 				}
@@ -1994,7 +1993,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				//   Отключение мигающего курсора при перемещении диалога
 				if (IsMoving())
-					SetCursorType(0,0);
+					SetCursorType(false, 0);
 
 				if (ItemHasDropDownArrow(&Items[I]))
 				{
@@ -2058,7 +2057,7 @@ void Dialog::ShowDialog(size_t ID)
 							SetCursorType(Items[I].UCData->CursorVisible,Items[I].UCData->CursorSize);
 						}
 						else
-							SetCursorType(0,-1);
+							SetCursorType(false, -1);
 					}
 				}
 
@@ -4782,7 +4781,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	}
 
 	/*****************************************************************/
-	FARDIALOGITEMTYPES Type=DI_TEXT;
 	size_t Len=0;
 
 	// предварительно проверим...
@@ -4793,8 +4791,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		return 0;
 
 	const auto CurItem=&Items[Param1];
-	Type=CurItem->Type;
-	const wchar_t *Ptr= CurItem->strData.data();
+	const auto Type = CurItem->Type;
+	const auto* Ptr= CurItem->strData.data();
 
 	if (IsEdit(Type) && CurItem->ObjPtr)
 		Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetString().data();
@@ -5272,7 +5270,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		//   Return MAKELONG(OldVisible,OldSize)
 		case DM_SETCURSORSIZE:
 		{
-			bool Visible=0;
+			bool Visible = false;
 			DWORD Size=0;
 
 			if (IsEdit(Type) && CurItem->ObjPtr)
@@ -5687,7 +5685,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							const auto ReadOnly = EditLine->GetReadOnly();
 							const auto IsUnchanged = EditLine->GetClearFlag();
 
-							EditLine->SetReadOnly(0);
+							EditLine->SetReadOnly(false);
 							{
 								SCOPED_ACTION(SetAutocomplete)(EditLine);
 								EditLine->SetString(CurItem->strData);

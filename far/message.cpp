@@ -122,8 +122,9 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 					if(IsErrorType)
 					{
 						DialogBuilder Builder(lng::MError, nullptr);
-						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtError().Win32Error), GetWin32ErrorString(Global->CaughtError().Win32Error)), 65);
-						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(Global->CaughtError().NtError), GetNtErrorString(Global->CaughtError().NtError)), 65);
+						const auto& CaughtError = Global->CaughtError();
+						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(CaughtError.Win32Error), GetWin32ErrorString(CaughtError.Win32Error)), 65);
+						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(CaughtError.NtError), GetNtErrorString(CaughtError.NtError)), 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
@@ -475,7 +476,7 @@ void Message::Init(
 	else
 	{
 	// *** Без Диалога! ***
-	SetCursorType(0,0);
+	SetCursorType(false, 0);
 
 	if (!(Flags & MSG_KEEPBACKGROUND))
 	{
@@ -533,10 +534,6 @@ void Message::Init(
 
 			continue;
 		}
-
-		int Length = static_cast<int>(SrcItem.size());
-		if (Length + 15 > ScrX)
-			Length = ScrX - 15;
 
 		const auto Width = X2 - X1 + 1;
 		GotoXY(X1 + 5, Y1 + static_cast<int>(i) + 2);

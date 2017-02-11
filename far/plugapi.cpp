@@ -745,7 +745,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				}
 				return Result;
 			}
-			break;
 
 		case ACTL_GETCURSORPOS:
 			{
@@ -757,7 +756,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				}
 				return Result;
 			}
-			break;
 
 		case ACTL_SETCURSORPOS:
 			{
@@ -769,7 +767,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				}
 				return Result;
 			}
-			break;
 
 		case ACTL_PROGRESSNOTIFY:
 		{
@@ -2483,13 +2480,8 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 		{
 		case PCTL_LOADPLUGIN:
 		case PCTL_FORCEDLOADPLUGIN:
-			if (Param1 == PLT_PATH)
-			{
-				if (Param2)
-				{
-					return reinterpret_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2)), Command == PCTL_FORCEDLOADPLUGIN));
-				}
-			}
+			if (Param1 == PLT_PATH && Param2)
+				return reinterpret_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2)), Command == PCTL_FORCEDLOADPLUGIN));
 			break;
 
 		case PCTL_FINDPLUGIN:
@@ -2502,20 +2494,24 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 				break;
 
 			case PFM_MODULENAME:
-			{
-				const auto strPath = ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2));
-				const auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 				{
-					return !StrCmpI(i->GetModuleName(), strPath);
-				});
-				if (ItemIterator != Global->CtrlObject->Plugins->cend())
-				{
-					plugin = *ItemIterator;
+					const auto strPath = ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2));
+					const auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
+					{
+						return !StrCmpI(i->GetModuleName(), strPath);
+					});
+					if (ItemIterator != Global->CtrlObject->Plugins->cend())
+					{
+						plugin = *ItemIterator;
+					}
+					break;
 				}
+
+			default:
 				break;
 			}
-			}
-			if (plugin&&Global->CtrlObject->Plugins->IsPluginUnloaded(plugin)) plugin = nullptr;
+			if (plugin && Global->CtrlObject->Plugins->IsPluginUnloaded(plugin))
+				plugin = nullptr;
 			return reinterpret_cast<intptr_t>(plugin);
 		}
 
@@ -2523,24 +2519,26 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			return Global->CtrlObject->Plugins->UnloadPluginExternal(static_cast<Plugin*>(Handle));
 
 		case PCTL_GETPLUGININFORMATION:
-		{
-			const auto Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
-			if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
 			{
-				return Global->CtrlObject->Plugins->GetPluginInformation(reinterpret_cast<Plugin*>(Handle), Info, Param1);
+				const auto Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
+				if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
+				{
+					return Global->CtrlObject->Plugins->GetPluginInformation(reinterpret_cast<Plugin*>(Handle), Info, Param1);
+				}
 			}
-		}
 			break;
 
 		case PCTL_GETPLUGINS:
-		{
-			const auto PluginsCount = Global->CtrlObject->Plugins->size();
-			if (Param1 && Param2)
 			{
-				std::copy_n(Global->CtrlObject->Plugins->begin(), std::min(static_cast<size_t>(Param1), PluginsCount), static_cast<HANDLE*>(Param2));
+				const auto PluginsCount = Global->CtrlObject->Plugins->size();
+				if (Param1 && Param2)
+				{
+					std::copy_n(Global->CtrlObject->Plugins->begin(), std::min(static_cast<size_t>(Param1), PluginsCount), static_cast<HANDLE*>(Param2));
+				}
+				return PluginsCount;
 			}
-			return PluginsCount;
-		}
+
+		default:
 			break;
 		}
 		return 0;

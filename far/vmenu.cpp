@@ -1880,7 +1880,7 @@ void VMenu::DisplayObject()
 		ClearFlags(VMENU_REFILTERREQUIRED);
 	}
 
-	SetCursorType(0,10);
+	SetCursorType(false, 10);
 
 	if (!CheckFlags(VMENU_LISTBOX) && !SaveScr)
 	{
@@ -2147,7 +2147,7 @@ void VMenu::ShowMenu(bool IsParent)
 				}
 
 				SetColor(Colors[VMenuColorSeparator]);
-				BoxText(strTmpStr,FALSE);
+				BoxText(strTmpStr, false);
 
 				if (!Items[I].strName.empty())
 				{

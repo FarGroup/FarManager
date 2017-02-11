@@ -1215,7 +1215,7 @@ Manager::sorted_windows Manager::GetSortedWindows(void) const
 	return sorted_windows(m_windows.cbegin(),m_windows.cbegin() + m_NonModalSize);
 }
 
-void* Manager::GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const
+void* Manager::GetCurrent(const std::function<void*(windows::const_reverse_iterator)>& Check) const
 {
 	const auto iterator = std::find_if(CONST_REVERSE_RANGE(m_windows, i) { return !std::dynamic_pointer_cast<Modal>(i); });
 	if (iterator!=m_windows.crend())

@@ -308,11 +308,12 @@ void Options::InterfaceSettings()
 			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
-		Global->CtrlObject->Cp()->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->RightPanel()->Update(UPDATE_KEEP_SELECTION);
-		Global->CtrlObject->Cp()->SetScreenPosition();
+		const auto& Panels = Global->CtrlObject->Cp();
+		Panels->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
+		Panels->RightPanel()->Update(UPDATE_KEEP_SELECTION);
+		Panels->SetScreenPosition();
 		// $ 10.07.2001 SKV ! надо это делать, иначе если кейбар спрятали, будет полный рамс.
-		Global->CtrlObject->Cp()->Redraw();
+		Panels->Redraw();
 	}
 }
 
@@ -2037,10 +2038,11 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 {
 	if (!Columns.empty())
 	{
-		Global->Opt->FindOpt.OutColumns = DeserialiseViewSettings(Columns, Widths);
-		auto Result = SerialiseViewSettings(Global->Opt->FindOpt.OutColumns);
-		Global->Opt->FindOpt.strSearchOutFormat = Result.first;
-		Global->Opt->FindOpt.strSearchOutFormatWidth = Result.second;
+		auto& FindOpt = Global->Opt->FindOpt;
+		FindOpt.OutColumns = DeserialiseViewSettings(Columns, Widths);
+		auto Result = SerialiseViewSettings(FindOpt.OutColumns);
+		FindOpt.strSearchOutFormat = Result.first;
+		FindOpt.strSearchOutFormatWidth = Result.second;
 	}
 }
 

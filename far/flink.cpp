@@ -186,15 +186,9 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 					}
 					else
 					{
-						bool ObjectCreated=false;
-						if (Type==RP_SYMLINKDIR)
-						{
-							ObjectCreated = os::fs::is_directory(ObjectStatus) || os::CreateDirectory(Object,nullptr) != FALSE;
-						}
-						else
-						{
-							ObjectCreated = os::fs::is_file(ObjectStatus) || os::fs::file(Object, 0, 0, nullptr, CREATE_NEW);
-						}
+						const auto ObjectCreated = Type==RP_SYMLINKDIR?
+							os::fs::is_directory(ObjectStatus) || os::CreateDirectory(Object,nullptr) :
+							os::fs::is_file(ObjectStatus) || os::fs::file(Object, 0, 0, nullptr, CREATE_NEW);
 
 						if (ObjectCreated)
 						{

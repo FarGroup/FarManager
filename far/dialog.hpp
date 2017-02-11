@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "vmenu.hpp"
 #include "bitflags.hpp"
-#include "synchro.hpp"
 
 class History;
 

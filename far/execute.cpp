@@ -1167,10 +1167,10 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				}
 
 				strFullPath += strExpandedStr;
-				bool FileExists = false;
 
 				size_t DirOffset = 0;
 				ParsePath(strExpandedStr, &DirOffset);
+				bool FileExists;
 				if (strExpandedStr.find_first_of(L"*?", DirOffset) != string::npos) // это маска?
 				{
 					os::FAR_FIND_DATA wfd;

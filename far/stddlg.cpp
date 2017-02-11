@@ -561,7 +561,7 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 	}
 	Buttons.emplace_back(MSG(lng::MDeleteCancel));
 
-	int Result = -1;
+	int Result;
 	for(;;)
 	{
 		Result = Message(MSG_WARNING|MSG_ERRORTYPE, MSG(Title), Msgs, Buttons);

@@ -79,7 +79,7 @@ HMenu::~HMenu()
 void HMenu::DisplayObject()
 {
 	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HMENUTEXT));
-	SetCursorType(0,10);
+	SetCursorType(false, 10);
 	ShowMenu();
 }
 

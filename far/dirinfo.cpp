@@ -540,7 +540,7 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 	Items.clear();
 }
 
-int GetPluginDirInfo(plugin_panel* ph,const string& DirName,unsigned long& DirCount,
+int GetPluginDirInfo(const plugin_panel* ph,const string& DirName,unsigned long& DirCount,
                      unsigned long& FileCount,unsigned long long& FileSize,
                      unsigned long long& CompressedFileSize)
 {

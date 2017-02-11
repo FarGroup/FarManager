@@ -808,7 +808,7 @@ static os::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool
 	return Result;
 }
 
-static void ReadLines(os::fs::file& TreeFile, const std::function<void(string&)>& Inserter)
+static void ReadLines(const os::fs::file& TreeFile, const std::function<void(string&)>& Inserter)
 {
 	GetFileString GetStr(TreeFile, CP_UNICODE);
 	string Record;

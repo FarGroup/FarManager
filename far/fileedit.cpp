@@ -471,7 +471,7 @@ void FileEditor::Init(
 
 			if (!EditorWindow->GetCanLoseFocus(TRUE) || Global->Opt->Confirm.AllowReedit)
 			{
-				int MsgCode=0;
+				int MsgCode;
 				if (OpenModeExstFile == EF_OPENMODE_QUERY)
 				{
 					if (m_Flags.Check(FFILEEDIT_ENABLEF6))
@@ -1032,7 +1032,6 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					static int TextFormat=0;
 					uintptr_t codepage = m_codepage;
 					bool SaveAs = LocalKey==KEY_SHIFTF2 || m_Flags.Check(FFILEEDIT_SAVETOSAVEAS);
-					int NameChanged=FALSE;
 					string strFullSaveAsName = strFullFileName;
 
 					if (SaveAs)
@@ -1043,7 +1042,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							return FALSE;
 
 						strSaveAsName = Unquote(os::env::expand_strings(strSaveAsName));
-						NameChanged=StrCmpI(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
+						const auto NameChanged = StrCmpI(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName) != 0;
 
 						if (!NameChanged)
 							FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???

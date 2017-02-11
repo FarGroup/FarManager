@@ -55,7 +55,7 @@ Grabber::Grabber(private_tag):
 	ResetArea(true),
 	m_VerticalBlock(false)
 {
-	SetPosition(0, 0, ScrX, ScrY);
+	ScreenObject::SetPosition(0, 0, ScrX, ScrY);
 }
 
 grabber_ptr Grabber::create()

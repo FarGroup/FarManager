@@ -102,10 +102,11 @@ Edit::Edit(window_ptr Owner):
 	EndType(EOL_NONE)
 {
 	m_Flags.Set(FEDITLINE_EDITBEYONDEND);
-	m_Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Global->Opt->EdOpt.DelRemovesBlocks);
-	m_Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Global->Opt->EdOpt.PersistentBlocks);
-	m_Flags.Change(FEDITLINE_SHOWWHITESPACE,Global->Opt->EdOpt.ShowWhiteSpace!=0);
-	m_Flags.Change(FEDITLINE_SHOWLINEBREAK,Global->Opt->EdOpt.ShowWhiteSpace==1);
+	const auto& EdOpt = Global->Opt->EdOpt;
+	m_Flags.Change(FEDITLINE_DELREMOVESBLOCKS, EdOpt.DelRemovesBlocks);
+	m_Flags.Change(FEDITLINE_PERSISTENTBLOCKS, EdOpt.PersistentBlocks);
+	m_Flags.Change(FEDITLINE_SHOWWHITESPACE, EdOpt.ShowWhiteSpace != 0);
+	m_Flags.Change(FEDITLINE_SHOWLINEBREAK, EdOpt.ShowWhiteSpace == 1);
 }
 
 void Edit::DisplayObject()
@@ -127,7 +128,7 @@ void Edit::DisplayObject()
 	   при DropDownBox курсор выключаем
 	   не знаю даже - попробовал но не очень красиво вышло */
 	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-		::SetCursorType(0,10);
+		::SetCursorType(false, 10);
 	else
 	{
 		if (m_Flags.Check(FEDITLINE_OVERTYPE))
@@ -135,14 +136,14 @@ void Edit::DisplayObject()
 			int NewCursorSize=IsConsoleFullscreen()?
 			                  (Global->Opt->CursorSize[3]?(int)Global->Opt->CursorSize[3]:99):
 			                  (Global->Opt->CursorSize[2]?(int)Global->Opt->CursorSize[2]:99);
-			::SetCursorType(1,GetCursorSize()==-1?NewCursorSize:GetCursorSize());
+			::SetCursorType(true, GetCursorSize() == -1?NewCursorSize:GetCursorSize());
 		}
 		else
 {
 			int NewCursorSize=IsConsoleFullscreen()?
 			                  (Global->Opt->CursorSize[1]?(int)Global->Opt->CursorSize[1]:10):
 			                  (Global->Opt->CursorSize[0]?(int)Global->Opt->CursorSize[0]:10);
-			::SetCursorType(1,GetCursorSize()==-1?NewCursorSize:GetCursorSize());
+			::SetCursorType(true, GetCursorSize() == -1?NewCursorSize:GetCursorSize());
 		}
 	}
 

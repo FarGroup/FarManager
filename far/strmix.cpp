@@ -547,7 +547,7 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 
 	unsigned long long Sz = Size, Divider2 = Divider/2, Divider64 = Divider, OldSize;
 
-	const auto FormatSize = [&](const string& Str, size_t Width, size_t IndexB, size_t IndexDiv)
+	const auto FormatSize = [&](const string& Str, size_t IndexB)
 	{
 		wchar_t Format[] = L"{0:>{1}.{1}}{2}{3}";
 		// Library doesn't support dynamic alignment currently. TODO: fix it?
@@ -573,7 +573,7 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 		//выравнивание идёт по 1000 но само деление происходит на Divider
 		//например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
 		size_t IndexB = 0;
-		for (IndexB=0; IndexB<UNIT_COUNT-1; IndexB++)
+		for (; IndexB != UNIT_COUNT - 1; ++IndexB)
 		{
 			if (Sz < Divider64F*Divider64F_mul)
 				break;
@@ -608,7 +608,7 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 			return Align(Str, Width);
 
 		ReduceWidth();
-		return FormatSize(Str, Width, IndexB, IndexDiv);
+		return FormatSize(Str, IndexB);
 	}
 
 	{
@@ -620,7 +620,7 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 				return Align(Str, Width);
 
 			ReduceWidth();
-			return FormatSize(Str, Width, 0, IndexDiv);
+			return FormatSize(Str, 0);
 		}
 	}
 
@@ -641,7 +641,7 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 	}
 	while ((UseMultiplier && IndexB < Multiplier) || Str.size() > Width);
 
-	return FormatSize(Str, Width, IndexB, IndexDiv);
+	return FormatSize(Str, IndexB);
 }
 
 
@@ -1177,24 +1177,8 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 
 				if (WholeWords)
 				{
-					int locResultLeft=FALSE;
-					int locResultRight=FALSE;
-					wchar_t ChLeft=Source[I-1];
-
-					if (I>0)
-						locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv,ChLeft));
-					else
-						locResultLeft=TRUE;
-
-					if (I+Length<StrSize)
-					{
-						wchar_t ChRight=Source[I+Length];
-						locResultRight=(IsSpace(ChRight) || wcschr(WordDiv,ChRight));
-					}
-					else
-					{
-						locResultRight=TRUE;
-					}
+					const auto locResultLeft = I <= 0 || IsSpace(Source[I - 1]) || wcschr(WordDiv, Source[I - 1]);
+					const auto locResultRight = I + Length >= StrSize || IsSpace(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
 
 					if (!locResultLeft || !locResultRight)
 						break;

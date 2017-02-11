@@ -969,7 +969,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		last_pressed_keycode = (WORD)-1;
 	}
 
-	IntKeyState.ReturnAltValue=FALSE;
+	IntKeyState.ReturnAltValue = false;
 	CalcKey=CalcKeyCode(rec, true, &NotMacros);
 
 	if (IntKeyState.ReturnAltValue)
@@ -2077,7 +2077,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 					{
 						DropConsoleInputEvent();
 					}
-					IntKeyState.ReturnAltValue=TRUE;
+					IntKeyState.ReturnAltValue = true;
 					AltValue&=0xFFFF;
 					/*
 					О перетаскивании из проводника / вставке текста в консоль, на примере буквы 'ы':
@@ -2164,7 +2164,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 			return KEY_NONE;
 		}
 
-		IntKeyState.LeftCtrlPressed = IntKeyState.RightCtrlPressed = 0;
+		IntKeyState.LeftCtrlPressed = IntKeyState.RightCtrlPressed = false;
 	}
 
 	if (KeyCode==VK_MENU)

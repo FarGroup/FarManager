@@ -426,7 +426,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 	const auto strRoot = GetPathRoot(strFullFileName);
 	int DriveType = FAR_GetDriveType(strRoot, 2); // media inserted here
-	int update_check_period = -1;
+	int update_check_period;
 	switch (DriveType) //??? make it configurable
 	{
 		case DRIVE_REMOVABLE: update_check_period = -1;  break; // floppy: never
@@ -482,21 +482,25 @@ bool Viewer::CheckChanged()
 {
 	os::FAR_FIND_DATA NewViewFindData;
 	if (!os::GetFindDataEx(strFullFileName, NewViewFindData))
-		return TRUE;
+		return true;
 
 	// Smart file change check -- thanks Dzirt2005
 	//
 	bool changed = ViewFindData.ftLastWriteTime != NewViewFindData.ftLastWriteTime || ViewFindData.nFileSize != NewViewFindData.nFileSize;
-	if ( changed )
+	if (changed)
+	{
 		ViewFindData = NewViewFindData;
-	else {
-		if ( !ViewFile.GetSize(NewViewFindData.nFileSize) || FileSize == static_cast<long long>(NewViewFindData.nFileSize) )
-			return TRUE;
+	}
+	else
+	{
+		if (!ViewFile.GetSize(NewViewFindData.nFileSize) || FileSize == static_cast<long long>(NewViewFindData.nFileSize))
+			return true;
+
 		changed = FileSize > static_cast<long long>(NewViewFindData.nFileSize); // true if file shrank
 	}
 
 	SetFileSize();
-	if ( changed ) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
+	if (changed) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
 	{
 		Reader.Clear(); // иначе зачем вся эта возня?
 		ViewFile.FlushBuffers();
@@ -528,7 +532,7 @@ void Viewer::ShowPage(int nMode)
 	}
 
 	if (m_HideCursor)
-		SetCursorType(0,10);
+		SetCursorType(false, 10);
 
 	vseek(FilePos, FILE_BEGIN);
 	LastPage = false;
@@ -3075,8 +3079,6 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 
 int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize)
 {
-	int llen = 0;
-
 	const auto OldFilePos = FilePos;
 	const auto OldLastPage = LastPage;
 	const auto OldWrap = m_Wrap;
@@ -3102,7 +3104,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 	ReadString(&vString, -1, false); // read unwrapped text line
 
 	vseek(FilePos, FILE_BEGIN);
-	llen = vread(buf, lsize = vString.linesize, tbuf);
+	int llen = vread(buf, lsize = vString.linesize, tbuf);
 	if (llen > 0)
 		llen -= vString.eol_length; // remove eol-s
 	buf[llen >= 0 ? llen : 0] = L'\0';
@@ -3301,7 +3303,6 @@ void Viewer::Search(int Next,int FirstChar)
 		strSearchStr = strLastSearchStr;
 
 	search_data sd;
-	SEARCHER_RESULT (Viewer::* searcher)( Viewer::search_data *p_sd ) = nullptr;
 
 	if ( !Next )
 	{
@@ -3384,6 +3385,9 @@ void Viewer::Search(int Next,int FirstChar)
 	strMsgStr = strLastSearchStr = strSearchStr;
 
 	sd.search_len = (int)strSearchStr.size();
+
+	SEARCHER_RESULT(Viewer::* searcher)(Viewer::search_data *p_sd) = nullptr;
+
 	if (true == (LastSearchHex = SearchHex))
 	{
 		search_bytes = hex2ss(strSearchStr);
@@ -3867,7 +3871,7 @@ wchar_t Viewer::vgetc_prev()
 	if ( pos < CharSize )
 		return Utf::REPLACE_CHAR;
 
-	size_t BytesToRead = 0;
+	size_t BytesToRead;
 
 	if (CharSize < 0) // UTF-8 or MB decoder
 	{

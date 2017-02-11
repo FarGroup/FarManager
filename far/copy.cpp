@@ -1624,7 +1624,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					if ((Flags&FCOPY_MOVE) && SameDisk && !(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					{
 						AttemptToMove=TRUE;
-						int Ret=COPY_SUCCESS;
+						int Ret;
 						string strCopyDest=strDest;
 
 						do
@@ -2167,7 +2167,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	{
 		for (;;)
 		{
-			int CopyCode=0;
 			unsigned long long SaveTotalSize = CP->m_Bytes.Copied;
 
 			if (!(Flags&FCOPY_COPYTONUL) && Rename)
@@ -2244,6 +2243,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				}
 				else
 				{
+					int CopyCode;
 					do
 					{
 						DWORD Attr=INVALID_FILE_ATTRIBUTES;
@@ -2291,6 +2291,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			}
 			else
 			{
+				int CopyCode;
 				do
 				{
 					CopyCode=ShellCopyFile(Src,SrcData,strDestPath,DestAttr,Append);

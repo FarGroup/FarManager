@@ -115,7 +115,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 {
 	const auto& XLat = Global->Opt->XLat;
 
-	int PreLang=2,CurLang=2; // unknown
+	int CurLang=2; // unknown
 	size_t LangCount[2]={};
 
 	if (!Line || !*Line)
@@ -219,7 +219,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 			}
 			else
 			{
-				PreLang=CurLang;
+				const auto PreLang=CurLang;
 
 				if (LangCount[0] > LangCount[1])
 					CurLang=0;

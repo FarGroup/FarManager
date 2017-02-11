@@ -89,7 +89,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "panelctype.hpp"
 #include "diskmenu.hpp"
-#include "execute.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
 
@@ -172,7 +171,7 @@ struct CustomSort
 	HANDLE               hSortPlugin;
 };
 
-bool SortFileList(CustomSort *cs, wchar_t *indicator)
+static bool SortFileList(CustomSort* cs, wchar_t* indicator)
 {
 	FarMacroValue values[]={cs};
 	FarMacroCall fmc={sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
@@ -188,7 +187,7 @@ bool SortFileList(CustomSort *cs, wchar_t *indicator)
 	return false;
 }
 
-bool CanSort(int SortMode)
+static bool CanSort(int SortMode)
 {
 	FarMacroValue values[] = {(double)SortMode};
 	FarMacroCall fmc = {sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
@@ -363,7 +362,7 @@ FileList::FileList(private_tag, window_ptr Owner):
 	LeftPos(0),
 	ShiftSelection(-1),
 	MouseSelection(0),
-	SelectedFirst(0),
+	SelectedFirst(false),
 	empty(TRUE),
 	AccessTimeUpdateRequired(FALSE),
 	UpdateRequired(FALSE),
@@ -401,15 +400,15 @@ FileList::FileList(private_tag, window_ptr Owner):
 	m_CurDir = os::GetCurrentDirectory();
 	strOriginalCurDir = m_CurDir;
 	m_CurTopFile=m_CurFile=0;
-	m_ShowShortNames=0;
+	m_ShowShortNames = false;
 	m_SortMode = panel_sort::BY_NAME;
 	m_ReverseSortOrder = false;
-	m_SortGroups=0;
+	m_SortGroups = false;
 	m_ViewMode=VIEW_3;
 	m_ViewSettings = Global->Opt->ViewSettings[m_ViewMode].clone();
-	m_NumericSort=0;
-	m_CaseSensitiveSort=0;
-	m_DirectoriesFirst=1;
+	m_NumericSort = false;
+	m_CaseSensitiveSort = false;
+	m_DirectoriesFirst = true;
 	m_Columns=PreparePanelView(&m_ViewSettings);
 	m_PluginCommand=-1;
 }
@@ -755,8 +754,6 @@ public:
 			break;
 		}
 
-		int NameCmp=0;
-
 		if (!Global->Opt->SortFolderExt && (a.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			Ext1=a.strName.data()+a.strName.size();
@@ -777,6 +774,8 @@ public:
 
 		const wchar_t *Name1=PointToName(a.strName);
 		const wchar_t *Name2=PointToName(b.strName);
+
+		int NameCmp;
 
 		{
 			const auto Comparer = ListNumericSort? (ListCaseSensitiveSort? NumStrCmpNC : NumStrCmpNI) : (ListCaseSensitiveSort? StrCmpNNC : StrCmpNNI);
@@ -854,7 +853,7 @@ void FileList::SortFileList(int KeepPosition)
 
 			if (custom_sort::SortFileList(&cs, CustomSortIndicator))
 			{
-				reorder(m_ListData, Positions);
+				apply_permutation(ALL_RANGE(m_ListData), Positions.begin());
 			}
 			else
 			{
@@ -4971,21 +4970,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	*/
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !m_CurFile && TestParentFolderName(m_ListData[0].strName))
 	{
-		FileListItem *DoubleDotDir = nullptr;
-
-		if (m_SelFileCount)
-		{
-			DoubleDotDir = &m_ListData.front();
-
-			if (std::any_of(CONST_RANGE(m_ListData, i) {return i.Selected && i.FileAttr & FILE_ATTRIBUTE_DIRECTORY;}))
-				DoubleDotDir = nullptr;
-		}
-		else
-		{
-			DoubleDotDir = &m_ListData.front();
-		}
-
-		if (DoubleDotDir)
+		if (const auto DoubleDotDir = m_SelFileCount && std::any_of(CONST_RANGE(m_ListData, i) { return i.Selected && i.FileAttr & FILE_ATTRIBUTE_DIRECTORY; })? nullptr : &m_ListData.front())
 		{
 			DoubleDotDir->ShowFolderSize=1;
 			DoubleDotDir->FileSize     = 0;

@@ -116,16 +116,13 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	bool ItemPresent, Done = false;
 	string strMenuText;
 	string strPluginText;
-	size_t PluginMenuItemsCount = 0;
 
-	for (const auto& i: *Global->CtrlObject->Plugins)
+	for (const auto& pPlugin: *Global->CtrlObject->Plugins)
 	{
 		if (Done)
 			break;
 		for (PluginItem = 0;; ++PluginItem)
 		{
-			Plugin *pPlugin = i;
-
 			WCHAR HotKey = 0;
 			GUID guid;
 			if (!Global->CtrlObject->Plugins->GetDiskMenuItem(
@@ -167,32 +164,30 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 		}
 	}
 
+	if (MPItems.empty())
+		return 0;
+
 	MPItems.sort();
+	MenuItemEx ChDiskItem;
+	ChDiskItem.Flags |= LIF_SEPARATOR;
+	ChDisk.AddItem(ChDiskItem);
 
-	PluginMenuItemsCount = MPItems.size();
-
-	if (PluginMenuItemsCount)
+	for_each_cnt(RANGE(MPItems, i, size_t index)
 	{
-		MenuItemEx ChDiskItem;
-		ChDiskItem.Flags |= LIF_SEPARATOR;
-		ChDisk.AddItem(ChDiskItem);
-
-		for_each_cnt(RANGE(MPItems, i, size_t index)
+		if (Pos > DiskCount && !SetSelected)
 		{
-			if (Pos > DiskCount && !SetSelected)
-			{
-				i.getItem().SetSelect(DiskCount + static_cast<int>(index)+1 == Pos);
+			i.getItem().SetSelect(DiskCount + static_cast<int>(index)+1 == Pos);
 
-				if (!SetSelected)
-					SetSelected = DiskCount + static_cast<int>(index)+1 == Pos;
-			}
-			wchar_t HotKey = i.getHotKey();
-			const wchar_t HotKeyStr[] = { HotKey? L'&' : L' ', HotKey? HotKey : L' ', L' ', HotKey? L' ' : L'\0', L'\0' };
-			i.getItem().strName = string(HotKeyStr) + i.getItem().strName;
-			ChDisk.AddItem(i.getItem());
-		});
-	}
-	return PluginMenuItemsCount;
+			if (!SetSelected)
+				SetSelected = DiskCount + static_cast<int>(index)+1 == Pos;
+		}
+		const auto HotKey = i.getHotKey();
+		const wchar_t HotKeyStr[] = { HotKey? L'&' : L' ', HotKey? HotKey : L' ', L' ', HotKey? L' ' : L'\0', L'\0' };
+		i.getItem().strName = string(HotKeyStr) + i.getItem().strName;
+		ChDisk.AddItem(i.getItem());
+	});
+
+	return MPItems.size();
 }
 
 static void ConfigureChangeDriveMode()
@@ -348,27 +343,27 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 	switch (DriveType)
 	{
 	case DRIVE_SUBSTITUTE:
-	{
-		if (Global->Opt->Confirm.RemoveSUBST)
 		{
-			const auto Question = format(lng::MChangeSUBSTDisconnectDriveQuestion, DiskLetter);
-			const auto MappedTo = format(lng::MChangeDriveDisconnectMapped, DiskLetter.front());
-			string SubstitutedPath;
-			GetSubstName(DriveType, DiskLetter, SubstitutedPath);
-			if (Message(MSG_WARNING, MSG(lng::MChangeSUBSTDisconnectDriveTitle),
-				{ Question, MappedTo, SubstitutedPath },
-				{ MSG(lng::MYes), MSG(lng::MNo) },
-				nullptr, nullptr, &SUBSTDisconnectDriveId) != Message::first_button)
+			if (Global->Opt->Confirm.RemoveSUBST)
 			{
-				return DRIVE_DEL_FAIL;
+				const auto Question = format(lng::MChangeSUBSTDisconnectDriveQuestion, DiskLetter);
+				const auto MappedTo = format(lng::MChangeDriveDisconnectMapped, DiskLetter.front());
+				string SubstitutedPath;
+				GetSubstName(DriveType, DiskLetter, SubstitutedPath);
+				if (Message(MSG_WARNING, MSG(lng::MChangeSUBSTDisconnectDriveTitle),
+					{ Question, MappedTo, SubstitutedPath },
+					{ MSG(lng::MYes), MSG(lng::MNo) },
+					nullptr, nullptr, &SUBSTDisconnectDriveId) != Message::first_button)
+				{
+					return DRIVE_DEL_FAIL;
+				}
 			}
-		}
-		if (DelSubstDrive(DiskLetter))
-		{
-			return DRIVE_DEL_SUCCESS;
-		}
-		else
-		{
+
+			if (DelSubstDrive(DiskLetter))
+			{
+				return DRIVE_DEL_SUCCESS;
+			}
+
 			Global->CatchError();
 			const auto LastError = Global->CaughtError().Win32Error;
 			const auto strMsgText = format(lng::MChangeDriveCannotDelSubst, DiskLetter);
@@ -393,111 +388,102 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				{ strMsgText },
 				{ MSG(lng::MOk) },
 				nullptr, nullptr, &SUBSTDisconnectDriveError2Id);
+			return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
 		}
-		return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
-	}
-	break;
 
 	case DRIVE_REMOTE:
 	case DRIVE_REMOTE_NOT_CONNECTED:
-	{
-		int UpdateProfile = CONNECT_UPDATE_PROFILE;
-		if (MessageRemoveConnection(Drive, UpdateProfile))
 		{
-			// <КОСТЫЛЬ>
-			SCOPED_ACTION(LockScreen);
-			// если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
-			// удалению
-			Owner->IfGoHome(Drive);
-			Global->WindowManager->ResizeAllWindows();
-			Global->WindowManager->GetCurrentWindow()->Show();
-			// </КОСТЫЛЬ>
+			int UpdateProfile = CONNECT_UPDATE_PROFILE;
+			if (!MessageRemoveConnection(Drive, UpdateProfile))
+				return DRIVE_DEL_FAIL;
+
+			{
+				// <КОСТЫЛЬ>
+				SCOPED_ACTION(LockScreen);
+				// если мы находимся на удаляемом диске - уходим с него, чтобы не мешать
+				// удалению
+				Owner->IfGoHome(Drive);
+				Global->WindowManager->ResizeAllWindows();
+				Global->WindowManager->GetCurrentWindow()->Show();
+				// </КОСТЫЛЬ>
+			}
 
 			if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, FALSE) == NO_ERROR)
-			{
 				return DRIVE_DEL_SUCCESS;
-			}
-			else
+
+			Global->CatchError();
+			const auto strMsgText = format(lng::MChangeDriveCannotDisconnect, DiskLetter);
+			const auto LastError = Global->CaughtError().Win32Error;
+			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
-				Global->CatchError();
-				const auto strMsgText = format(lng::MChangeDriveCannotDisconnect, DiskLetter);
-				const auto LastError = Global->CaughtError().Win32Error;
-				if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
+				if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
+					{ strMsgText, L"\x1", MSG(lng::MChangeDriveOpenFiles), MSG(lng::MChangeDriveAskDisconnect) },
+					{ MSG(lng::MOk), MSG(lng::MCancel) },
+					nullptr, nullptr, &RemoteDisconnectDriveError1Id) == Message::first_button)
 				{
-					if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
-						{ strMsgText, L"\x1", MSG(lng::MChangeDriveOpenFiles), MSG(lng::MChangeDriveAskDisconnect) },
-						{ MSG(lng::MOk), MSG(lng::MCancel) },
-						nullptr, nullptr, &RemoteDisconnectDriveError1Id) == Message::first_button)
+					if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, TRUE) == NO_ERROR)
 					{
-						if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, TRUE) == NO_ERROR)
-						{
-							return DRIVE_DEL_SUCCESS;
-						}
-					}
-					else
-					{
-						return DRIVE_DEL_FAIL;
+						return DRIVE_DEL_SUCCESS;
 					}
 				}
-				const wchar_t RootDir[] = { DiskLetter[0], L':', L'\\', L'\0' };
-				if (FAR_GetDriveType(RootDir) == DRIVE_REMOTE)
+				else
 				{
-					Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
-						{ strMsgText },
-						{ MSG(lng::MOk) },
-						nullptr, nullptr, &RemoteDisconnectDriveError2Id);
+					return DRIVE_DEL_FAIL;
 				}
+			}
+
+			const wchar_t RootDir[] = { DiskLetter[0], L':', L'\\', L'\0' };
+			if (FAR_GetDriveType(RootDir) == DRIVE_REMOTE)
+			{
+				Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
+					{ strMsgText },
+					{ MSG(lng::MOk) },
+					nullptr, nullptr, &RemoteDisconnectDriveError2Id);
 			}
 			return DRIVE_DEL_FAIL;
 		}
-	}
-	break;
 
 	case DRIVE_VIRTUAL:
-	{
-		if (Global->Opt->Confirm.DetachVHD)
 		{
-			const auto Question = format(lng::MChangeVHDDisconnectDriveQuestion, DiskLetter);
-			if (Message(MSG_WARNING, MSG(lng::MChangeVHDDisconnectDriveTitle),
-				{ Question },
-				{ MSG(lng::MYes), MSG(lng::MNo) },
-				nullptr, nullptr, &VHDDisconnectDriveId) != Message::first_button)
+			if (Global->Opt->Confirm.DetachVHD)
 			{
-				return DRIVE_DEL_FAIL;
+				const auto Question = format(lng::MChangeVHDDisconnectDriveQuestion, DiskLetter);
+				if (Message(MSG_WARNING, MSG(lng::MChangeVHDDisconnectDriveTitle),
+					{ Question },
+					{ MSG(lng::MYes), MSG(lng::MNo) },
+					nullptr, nullptr, &VHDDisconnectDriveId) != Message::first_button)
+				{
+					return DRIVE_DEL_FAIL;
+				}
 			}
-		}
-		string strVhdPath;
-		VIRTUAL_STORAGE_TYPE VirtualStorageType;
-		int Result = DRIVE_DEL_FAIL;
-		if (GetVHDInfo(DiskLetter, strVhdPath, &VirtualStorageType) && !strVhdPath.empty())
-		{
-			if (os::DetachVirtualDisk(strVhdPath, VirtualStorageType))
+
+			string strVhdPath;
+			VIRTUAL_STORAGE_TYPE VirtualStorageType;
+			if (GetVHDInfo(DiskLetter, strVhdPath, &VirtualStorageType) && !strVhdPath.empty())
 			{
-				Result = DRIVE_DEL_SUCCESS;
+				if (os::DetachVirtualDisk(strVhdPath, VirtualStorageType))
+				{
+					return DRIVE_DEL_SUCCESS;
+				}
+
+				Global->CatchError();
 			}
 			else
 			{
 				Global->CatchError();
 			}
-		}
-		else
-		{
-			Global->CatchError();
-		}
 
-		if (Result != DRIVE_DEL_SUCCESS)
-		{
 			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
 				{ format(lng::MChangeDriveCannotDetach, DiskLetter) },
 				{ MSG(lng::MOk) },
 				nullptr, nullptr, &VHDDisconnectDriveErrorId);
+			return DRIVE_DEL_FAIL;
 		}
-		return Result;
-	}
-	break;
 
+	default:
+		return DRIVE_DEL_FAIL;
 	}
-	return DRIVE_DEL_FAIL;
 }
 
 static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &ChDisk)
@@ -694,7 +680,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					{ DRIVE_USBDRIVE, lng::MChangeDriveRemovable },
 				};
 
-				const auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, i) { return i.first == NewItem.DriveType; });
+				const auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, Item) { return Item.first == NewItem.DriveType; });
 				if (ItemIterator != std::cend(DrTMsg))
 					NewItem.Type = MSG(ItemIterator->second);
 			}
@@ -715,9 +701,9 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (NewItem.Label.empty())
 				{
 					static const HKEY Roots[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
-					std::any_of(CONST_RANGE(Roots, i)
+					std::any_of(CONST_RANGE(Roots, Root)
 					{
-						return os::reg::GetValue(i, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label);
+						return os::reg::GetValue(Root, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label);
 					});
 				}
 

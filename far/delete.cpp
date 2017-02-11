@@ -119,9 +119,9 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 
 	string strOutFileName(Name);
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
-	strOutFileName = fit_to_center(strOutFileName, static_cast<int>(Width));
-	const wchar_t* Progress1 = nullptr;
-	const wchar_t* Progress2 = nullptr;
+	strOutFileName = fit_to_center(strOutFileName, Width);
+	const wchar_t* Progress1;
+	const wchar_t* Progress2;
 	if(!strWipeProgress.empty())
 	{
 		Progress1 = strWipeProgress.data();
@@ -130,6 +130,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 	else
 	{
 		Progress1 = strProgress.empty()? nullptr : strProgress.data();
+		Progress2 = nullptr;
 	}
 	Message(0,0,
 		MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)? lng::MDeleteWipeTitle : lng::MDeleteTitle),

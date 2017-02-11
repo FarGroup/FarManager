@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "lasterror.hpp"
 #include "local.hpp"
+#include "pathmix.hpp"
 
 static constexpr wchar_t LangFileMask[] = L"*.lng";
 
@@ -102,7 +103,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 }
 
 
-int GetLangParam(os::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
+int GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
 	string strFullParamName = L".";
 	strFullParamName += ParamName;
@@ -235,7 +236,7 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
   + Новый метод, для получения параметров для .Options
    .Options <KeyName>=<Value>
 */
-int GetOptionsParam(os::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
+int GetOptionsParam(const os::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
 	const auto CurFilePos = SrcFile.GetPointer();
 	string ReadStr;

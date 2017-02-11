@@ -206,7 +206,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 			os::SetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
 		bool SetTime=false;
-		DWORD LastError=ERROR_SUCCESS;
+		DWORD LastError;
 		if (auto File = os::fs::file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 		{
 			SetTime = File.SetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);

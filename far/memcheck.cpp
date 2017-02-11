@@ -165,15 +165,17 @@ static void UnregisterBlock(MEMINFO *block)
 
 static std::string FormatLine(const char* File, int Line, const char* Function, allocation_type Type, size_t Size)
 {
-	const char* sType = nullptr;
+	const char* sType;
 	switch (Type)
 	{
 	case allocation_type::scalar:
 		sType = "operator new";
 		break;
+
 	case allocation_type::vector:
 		sType = "operator new[]";
 		break;
+
 	default:
 		throw MAKE_FAR_EXCEPTION(L"Unknown allocation type");
 	};

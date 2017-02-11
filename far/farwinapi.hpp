@@ -265,7 +265,7 @@ namespace os
 			bool operator!() const noexcept { return !m_Handle; }
 
 			// TODO: half of these should be free functions
-			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, file* TemplateFile = nullptr, bool ForceElevation = false);
+			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
 			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr) const;
 			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr) const;
 			bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const;
@@ -470,6 +470,8 @@ namespace os
 					const wchar_t* data() const { return m_Data; }
 
 				protected:
+					provider() = default;
+
 					wchar_t* m_Data;
 				};
 			}

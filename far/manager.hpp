@@ -175,7 +175,7 @@ private:
 	void SwitchWindow(DirectionType Direction);
 
 	using windows = std::vector<window_ptr>;
-	void* GetCurrent(std::function<void*(windows::const_reverse_iterator)> Check) const;
+	void* GetCurrent(const std::function<void*(windows::const_reverse_iterator)>& Check) const;
 	windows m_windows;
 	size_t m_NonModalSize;
 	bool EndLoop;            // Признак выхода из цикла

@@ -88,34 +88,33 @@ void for_submatrix(T& Matrix, size_t X1, size_t Y1, size_t X2, size_t Y2, P Pred
 	}
 }
 
-template <class T, class Y>
-void reorder(T& Values, Y& Indices)
+template<typename Iter1, typename Iter2>
+void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 {
-	assert(Values.size() == Indices.size());
-
-	if (true)
+	using difference_type = typename std::iterator_traits<Iter2>::value_type;
+	const difference_type length = std::distance(first, last);
+	for (difference_type i = 0; i < length; ++i)
 	{
-		// in place version: less memory, more swaps (and faster according to my measurements)
-		for (size_t i = 0, size = Values.size(); i != size; ++i)
+		auto current = i;
+		while (i != indices[current])
 		{
-			while (i != Indices[i])
+			const auto next = indices[current];
+			if (next < 0 || next >= length)
 			{
-				const auto j = Indices[i];
-				const auto k = Indices[j];
-				using std::swap;
-				swap(Values[j], Values[k]);
-				swap(Indices[i], Indices[j]);
+				indices[i] = next;
+				throw std::range_error("Invalid index in permutation");
 			}
+			if (next == current)
+			{
+				indices[i] = next;
+				throw std::range_error("Not a permutation");
+			}
+			using std::swap;
+			swap(first[current], first[next]);
+			indices[current] = current;
+			current = next;
 		}
-	}
-	else
-	{
-		// copy version: less swaps, more memory (and quite straightforward)
-		T TmpValues;
-		TmpValues.reserve(Values.size());
-		std::transform(ALL_CONST_RANGE(Indices), std::back_inserter(TmpValues), [&Values](const auto Index) { return std::move(Values[Index]); });
-		using std::swap;
-		swap(Values, TmpValues);
+		indices[current] = current;
 	}
 }
 

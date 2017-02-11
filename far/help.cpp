@@ -313,7 +313,7 @@ int Help::ReadHelp(const string& Mask)
 	}
 
 	FixCount=0;
-	m_TopicFound=0;
+	m_TopicFound = false;
 	bool RepeatLastLine = false;
 	bool BreakProcess = false;
 	bool Formatting = true;
@@ -497,7 +497,7 @@ int Help::ReadHelp(const string& Mask)
 			}
 			else if (!StrCmpI(strReadStr.data() + 1, StackData->strHelpTopic.data()))
 			{
-				m_TopicFound=1;
+				m_TopicFound = true;
 				NearTopicFound=1;
 			}
 			else // redirection @SearchTopic=RealTopic
@@ -776,7 +776,7 @@ void Help::DisplayObject()
 		return;
 	}
 
-	SetCursorType(0,10);
+	SetCursorType(false, 10);
 
 	if (StackData->strSelTopic.empty())
 		MoveToReference(1,1);
@@ -1844,7 +1844,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	FastShow();
 }
 
-void Help::Search(os::fs::file& HelpFile,uintptr_t nCodePage)
+void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 {
 	FixCount=1;
 	StackData->TopStr=0;
@@ -2113,7 +2113,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 		if (GetShellType(Protocol,strType,AT_URLPROTOCOL))
 		{
 			string strAction;
-			bool Success = false;
+			bool Success;
 			if (strType.find(L"%1") != string::npos)
 			{
 				strAction = strType;

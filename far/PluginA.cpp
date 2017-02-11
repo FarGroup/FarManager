@@ -3881,7 +3881,6 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					KeyToInputRecord(OldKeyToKey(static_cast<int>(reinterpret_cast<intptr_t>(Param))),&input);
 					return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_WAITKEY, 0, &input);
 				}
-				break;
 
 			case oldfar::ACTL_GETCOLOR:
 				{
@@ -3895,7 +3894,6 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					}
 					return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCOLOR, ColorIndex, &Color)? colors::FarColorToConsoleColor(Color) :-1;
 				}
-				break;
 
 			case oldfar::ACTL_GETARRAYCOLOR:
 				{
@@ -3909,7 +3907,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					}
 					return PaletteSize;
 				}
-				break;
+
 			case oldfar::ACTL_EJECTMEDIA:
 			{
 

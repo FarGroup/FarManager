@@ -70,7 +70,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "panelmix.hpp"
 #include "keyboard.hpp"
-#include "configdb.hpp"
 #include "plugins.hpp"
 #include "language.hpp"
 #include "filestr.hpp"
@@ -409,7 +408,7 @@ void background_searcher::InitInFileSearch()
 						uintptr_t codePage = std::stoi(i.first);
 
 						// Проверяем дубли
-						if (hasSelected || !std::any_of(CONST_RANGE(m_CodePages, i) { return i.CodePage == CodePage; }))
+						if (hasSelected || !std::any_of(CONST_RANGE(m_CodePages, cp) { return cp.CodePage == CodePage; }))
 							m_CodePages.emplace_back(codePage);
 					}
 				});
@@ -849,40 +848,31 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			switch (Param1)
 			{
 				case FAD_EDIT_TEXT:
+					// Строка "Содержащих текст"
+					if (!FindFoldersChanged)
 					{
-						// Строка "Содержащих текст"
-						if (!FindFoldersChanged)
-						{
-							BOOL Checked = (Item.Data && *Item.Data)?FALSE:(int)Global->Opt->FindOpt.FindFolders;
-							Dlg->SendMessage( DM_SETCHECK, FAD_CHECKBOX_DIRS, ToPtr(Checked?BSTATE_CHECKED:BSTATE_UNCHECKED));
-						}
-
-						return TRUE;
+						BOOL Checked = (Item.Data && *Item.Data)?FALSE:(int)Global->Opt->FindOpt.FindFolders;
+						Dlg->SendMessage( DM_SETCHECK, FAD_CHECKBOX_DIRS, ToPtr(Checked?BSTATE_CHECKED:BSTATE_UNCHECKED));
 					}
-					break;
+					return TRUE;
 
 				case FAD_COMBOBOX_CP:
-				{
 					// Получаем выбранную в выпадающем списке таблицу символов
 					CodePage = *Dlg->GetListItemDataPtr<uintptr_t>(FAD_COMBOBOX_CP, Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, nullptr));
-				}
-				return TRUE;
+					return TRUE;
+
 				case FAD_COMBOBOX_WHERE:
-					{
-						SearchFromChanged=true;
-					}
+					SearchFromChanged = true;
 					return TRUE;
 			}
 		}
 		case DN_HOTKEY:
-		{
 			if (Param1==FAD_TEXT_TEXTHEX)
 			{
 				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_HEX, nullptr); // only one
 				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_TEXT, nullptr); // is active
 				return FALSE;
 			}
-		}
 
 		default:
 			break;
@@ -1425,18 +1415,15 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_DRAWDLGITEMDONE: //???
 	case DN_DRAWDIALOGDONE:
-		{
-			Dlg->DefProc(Msg,Param1,Param2);
+		Dlg->DefProc(Msg,Param1,Param2);
 
-			// Переместим фокус на кнопку [Go To]
-			if ((m_DirCount || m_FileCount) && !FindPositionChanged)
-			{
-				FindPositionChanged=true;
-				Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_GOTO, nullptr);
-			}
-			return TRUE;
+		// Переместим фокус на кнопку [Go To]
+		if ((m_DirCount || m_FileCount) && !FindPositionChanged)
+		{
+			FindPositionChanged=true;
+			Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_GOTO, nullptr);
 		}
-		break;
+		return TRUE;
 
 	case DN_CONTROLINPUT:
 		{
@@ -1469,35 +1456,28 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case KEY_F11:
 			case KEY_CTRLW:
 			case KEY_RCTRLW:
-				{
-					Global->WindowManager->ProcessKey(Manager::Key(key));
-					return TRUE;
-				}
-				break;
+				Global->WindowManager->ProcessKey(Manager::Key(key));
+				return TRUE;
 
 			case KEY_RIGHT:
 			case KEY_NUMPAD6:
 			case KEY_TAB:
+				if (Param1==FD_BUTTON_STOP)
 				{
-					if (Param1==FD_BUTTON_STOP)
-					{
-						FindPositionChanged=true;
-						Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_NEW, nullptr);
-						return TRUE;
-					}
+					FindPositionChanged=true;
+					Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_NEW, nullptr);
+					return TRUE;
 				}
 				break;
 
 			case KEY_LEFT:
 			case KEY_NUMPAD4:
 			case KEY_SHIFTTAB:
+				if (Param1==FD_BUTTON_NEW)
 				{
-					if (Param1==FD_BUTTON_NEW)
-					{
-						FindPositionChanged=true;
-						Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_STOP, nullptr);
-						return TRUE;
-					}
+					FindPositionChanged=true;
+					Dlg->SendMessage(DM_SETFOCUS, FD_BUTTON_STOP, nullptr);
+					return TRUE;
 				}
 				break;
 
@@ -1541,11 +1521,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case KEY_RALTEND:
 			case KEY_ALT|KEY_NUMPAD1:
 			case KEY_RALT|KEY_NUMPAD1:
-				{
-					ListBox->ProcessKey(Manager::Key(key));
-					return TRUE;
-				}
-				break;
+				ListBox->ProcessKey(Manager::Key(key));
+				return TRUE;
 
 			/*
 			case KEY_CTRLA:
@@ -1673,7 +1650,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					}
 					return TRUE;
 				}
-				break;
+
 			default:
 				break;
 			}
@@ -1686,25 +1663,16 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			switch (Param1)
 			{
 			case FD_BUTTON_NEW:
-				{
-					m_Searcher->Stop();
-					return FALSE;
-				}
-				break;
+				m_Searcher->Stop();
+				return FALSE;
 
 			case FD_BUTTON_STOP:
+				if(!m_Searcher->Stopped())
 				{
-					if(!m_Searcher->Stopped())
-					{
-						m_Searcher->Stop();
-						return TRUE;
-					}
-					else
-					{
-						return FALSE;
-					}
+					m_Searcher->Stop();
+					return TRUE;
 				}
-				break;
+				return FALSE;
 
 			case FD_BUTTON_VIEW:
 				{
@@ -1713,23 +1681,20 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					FindDlgProc(Dlg,DN_CONTROLINPUT,FD_LISTBOX,&key);
 					return TRUE;
 				}
-				break;
 
 			case FD_BUTTON_GOTO:
 			case FD_BUTTON_PANEL:
+				// Переход и посыл на панель будем делать не в диалоге, а после окончания поиска.
+				// Иначе возможна ситуация, когда мы ищем на панели, потом ее грохаем и создаем новую
+				// (а поиск-то идет!) и в результате ФАР трапается.
+				if(ListBox->empty())
 				{
-					// Переход и посыл на панель будем делать не в диалоге, а после окончания поиска.
-					// Иначе возможна ситуация, когда мы ищем на панели, потом ее грохаем и создаем новую
-					// (а поиск-то идет!) и в результате ФАР трапается.
-					if(ListBox->empty())
-					{
-						return TRUE;
-					}
-					FindExitItem = *ListBox->GetUserDataPtr<FindListItem*>();
-					TB.reset();
-					return FALSE;
+					return TRUE;
 				}
-				break;
+				FindExitItem = *ListBox->GetUserDataPtr<FindListItem*>();
+				TB.reset();
+				return FALSE;
+
 			default:
 				break;
 			}
@@ -1756,7 +1721,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			}
 			return Result;
 		}
-		break;
 
 	case DN_RESIZECONSOLE:
 		{
@@ -1828,7 +1792,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 			return TRUE;
 		}
-		break;
+
 	default:
 		break;
 	}
@@ -2440,8 +2404,9 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, UINT64 Flags, in
 			 && StrCmp(CurPanelItem->FileName, L".") && !TestParentFolderName(CurPanelItem->FileName)
 			 && (!UseFilter || m_Owner->GetFilter()->FileInFilter(*CurPanelItem))
 			 && (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 || Global->CtrlObject->Cp()->ActivePanel()->IsSelected(CurPanelItem->FileName))
-			) {
-				bool SetDirectoryResult=false;
+			)
+			{
+				bool SetDirectoryResult;
 				{
 					SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 					SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND, &CurPanelItem->UserData)!=FALSE;
@@ -2461,11 +2426,11 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, UINT64 Flags, in
 					else
 						strPluginSearchPath.clear();
 
-					SetDirectoryResult=false;
 					{
 						SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 						SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin,L"..",OPM_FIND)!=FALSE;
 					}
+
 					if (!SetDirectoryResult)
 					{
 						// BUGBUG, better way to stop searcher?
@@ -2960,7 +2925,7 @@ FindFiles::FindFiles():
 	static string strSearchFromRoot;
 	strSearchFromRoot = MSG(lng::MSearchFromRootFolder);
 
-	static bool LastCmpCase = 0, LastWholeWords = 0, LastSearchInArchives = 0, LastSearchHex = 0, LastNotContaining = 0;
+	static bool LastCmpCase = false, LastWholeWords = false, LastSearchInArchives = false, LastSearchHex = false, LastNotContaining = false;
 
 	CmpCase=LastCmpCase;
 	WholeWords=LastWholeWords;

@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "manager.hpp"
 #include "scrbuf.hpp"
-#include "syslog.hpp"
 #include "strmix.hpp"
 #include "console.hpp"
 #include "colormix.hpp"

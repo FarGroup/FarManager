@@ -88,14 +88,14 @@ public:
 
 	struct AddMenuData
 	{
-		type2 m_Type;
-		FindFiles* m_Owner;
-		Dialog* m_Dlg;
+		type2 m_Type{};
+		FindFiles* m_Owner{};
+		Dialog* m_Dlg{};
 		string m_FullName;
 		os::FAR_FIND_DATA m_FindData;
-		void* m_Data;
-		FARPANELITEMFREECALLBACK m_FreeData;
-		ArcListItem* m_Arc;
+		void* m_Data{};
+		FARPANELITEMFREECALLBACK m_FreeData{};
+		ArcListItem* m_Arc{};
 
 		AddMenuData() = default;
 		AddMenuData(type2 Type): m_Type(Type) {}

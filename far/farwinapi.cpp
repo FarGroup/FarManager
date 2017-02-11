@@ -456,7 +456,7 @@ bool enum_volume::get(size_t index, value_type& value) const
 
 //-------------------------------------------------------------------------
 
-bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, file* TemplateFile, bool ForceElevation)
+bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, const file* TemplateFile, bool ForceElevation)
 {
 	assert(!m_Handle);
 

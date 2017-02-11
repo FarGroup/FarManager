@@ -271,7 +271,7 @@ int KeyBar::ProcessKey(const Manager::Key& Key)
 int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	INPUT_RECORD rec;
-	int Key;
+	size_t Key;
 
 	if (!IsVisible())
 		return FALSE;
@@ -308,12 +308,8 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	        rec.Event.MouseEvent.dwMousePosition.Y!=m_Y1)
 		return FALSE;
 
-	int NewKey,NewX=MouseEvent->dwMousePosition.X-m_X1;
-
-	if (NewX<KeyWidth*9)
-		NewKey=NewX/KeyWidth;
-	else
-		NewKey=9+(NewX-KeyWidth*9)/(KeyWidth+1);
+	const int NewX = MouseEvent->dwMousePosition.X - m_X1;
+	const size_t NewKey = NewX < KeyWidth * 9? NewX / KeyWidth : 9 + (NewX - KeyWidth * 9) / (KeyWidth + 1);
 
 	if (Key!=NewKey)
 		return FALSE;
@@ -343,7 +339,7 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	else
 		Key+=KEY_F1;
 
-	Global->WindowManager->ProcessKey(Manager::Key(Key));
+	Global->WindowManager->ProcessKey(Manager::Key(static_cast<int>(Key)));
 	return TRUE;
 }
 
