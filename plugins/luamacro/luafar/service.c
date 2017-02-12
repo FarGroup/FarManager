@@ -205,40 +205,37 @@ HANDLE OptHandle2(lua_State *L)
 
 static UINT64 get_env_flag(lua_State *L, int pos, int *success)
 {
+	int dummy;
+	const char *str;
 	INT64 ret = 0;
-	int type = lua_type(L, pos);
 
-	if(success)
+	if (success)
 		*success = TRUE;
+	else
+		success = &dummy;
 
-	//---------------------------------------------------------------------------
-	if(type == LUA_TNONE || type == LUA_TNIL)
+	switch(lua_type(L, pos))
 	{
-	}
-	else if(type == LUA_TNUMBER)
-		ret = (__int64)lua_tonumber(L, pos); // IMPORTANT: cast to signed integer.
-	else if(type == LUA_TSTRING)
-	{
-		const char* s = lua_tostring(L, pos);
-		lua_getfield(L, LUA_REGISTRYINDEX, FAR_FLAGSTABLE);
-		lua_getfield(L, -1, s);
-		type = lua_type(L, -1);
-
-		if(type == LUA_TNUMBER)
-			ret = (__int64)lua_tonumber(L, -1); // IMPORTANT: cast to signed integer.
-		else if(!bit64_getvalue(L, -1, &ret))
-		{
-			if(success)
+		case LUA_TNONE:
+		case LUA_TNIL:
+			break;
+		case LUA_TNUMBER:
+			ret = (__int64)lua_tonumber(L, pos); // IMPORTANT: cast to signed integer.
+			break;
+		case LUA_TSTRING:
+			str = lua_tostring(L, pos);
+			lua_getfield(L, LUA_REGISTRYINDEX, FAR_FLAGSTABLE);
+			lua_getfield(L, -1, str);
+			if (lua_type(L, -1) == LUA_TNUMBER)
+				ret = (__int64)lua_tonumber(L, -1); // IMPORTANT: cast to signed integer.
+			else if (!bit64_getvalue(L, -1, &ret))
 				*success = FALSE;
-		}
-
-		lua_pop(L, 2);
-		//-------------------------------------------------------------------------
-	}
-	else if(!bit64_getvalue(L, pos, &ret))
-	{
-		if(success)
-			*success = FALSE;
+			lua_pop(L, 2);
+			break;
+		default:
+			if (!bit64_getvalue(L, pos, &ret))
+				*success = FALSE;
+			break;
 	}
 
 	return ret;
