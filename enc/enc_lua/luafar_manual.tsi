@@ -3115,7 +3115,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3648371446
+mtime=3696102226
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3289,6 +3289,10 @@ mtime=3648371446
 #_    Param2:  table
 #_    Result:  table
 #_
+#_DM_SETCHECK:
+#_    Param2:  flag
+#_    Result:  integer
+#_
 #_DM_SETCURSORPOS:
 #_    Param2:  table
 #_    Result:  integer
@@ -3369,6 +3373,7 @@ mtime=3648371446
 #_{dm_redraw}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_redraw.html
 #_{dm_resizedialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_resizedialog.html
 #_{dm_set3state}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_set3state.html
+#_{dm_setcheck}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcheck.html
 #_{dm_setcomboboxevent}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcomboboxevent.html
 #_{dm_setcursorpos}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcursorpos.html
 #_{dm_setcursorsize}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setcursorsize.html
