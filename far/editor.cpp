@@ -271,12 +271,15 @@ void Editor::ShowEditor()
 	if (!Pasting)
 	{
 		_SYS_EE_REDRAW(CleverSysLog Clev(L"Editor::ShowEditor()"));
-		if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+		if (!Global->ScrBuf->GetLockCount())
 		{
-			_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
-			++m_InEERedraw;
-			SCOPE_EXIT{ --m_InEERedraw; };
-			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
+			if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+			{
+				_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
+				++m_InEERedraw;
+				SCOPE_EXIT{ --m_InEERedraw; };
+				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
+			}
 		}
 	}
 
