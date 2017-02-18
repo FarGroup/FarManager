@@ -63,7 +63,7 @@ private:
 	static void SymCleanup();
 
 	static tracer* sTracer;
-	mutable CriticalSection m_CS;
+	mutable os::critical_section m_CS;
 	std::unordered_map<const void*, exception_context> m_CppMap;
 
 	class veh_handler: noncopyable

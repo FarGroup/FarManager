@@ -122,11 +122,11 @@ public:
 private:
 	friend message_manager& MessageManager();
 
-	using message_queue = SyncedQueue<std::pair<string, any>>;
+	using message_queue = os::synced_queue<std::pair<string, any>>;
 
 	message_manager();
 
-	CriticalSection m_QueueCS;
+	os::critical_section m_QueueCS;
 	message_queue m_Messages;
 	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;

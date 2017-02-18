@@ -135,7 +135,7 @@ int TestFolder(const string& Path)
 	strFindPath += L"*";
 
 	// первая проверка - че-нить считать можем?
-	os::fs::enum_file Find(strFindPath);
+	const auto Find = os::fs::enum_files(strFindPath);
 	if (Find.begin() != Find.end())
 	{
 		return TSTFLD_NOTEMPTY;

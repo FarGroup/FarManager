@@ -1016,7 +1016,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					DeleteEndSlash(strRoot);
 
 					Links.reserve(NameList.ItemsNumber);
-					for (const auto& i: os::fs::enum_name(strSelName))
+					for (const auto& i: os::fs::enum_names(strSelName))
 					{
 						Links.emplace_back(strRoot + i);
 					}

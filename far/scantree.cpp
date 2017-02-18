@@ -50,8 +50,9 @@ public:
 	scantree_item() = default;
 
 	BitFlags Flags;
-	std::unique_ptr<os::fs::enum_file> Find;
-	os::fs::enum_file::iterator Iterator;
+	using enum_files_type = FN_RETURN_TYPE(os::fs::enum_files);
+	std::unique_ptr<enum_files_type> Find;
+	enum_files_type::iterator Iterator;
 	string RealPath;
 	std::unordered_set<string> ActiveDirectories;
 };
@@ -116,7 +117,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 		{
 			if (!LastItem.Find)
 			{
-				LastItem.Find = std::make_unique<os::fs::enum_file>(strFindPath);
+				LastItem.Find = std::make_unique<scantree_item::enum_files_type>(std::move(os::fs::enum_files(strFindPath)));
 				LastItem.Iterator = LastItem.Find->end();
 			}
 

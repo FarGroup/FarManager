@@ -121,7 +121,7 @@ private:
 	bool m_Elevation;
 	bool m_DontAskAgain;
 	int m_Recurse;
-	CriticalSection m_CS;
+	os::critical_section m_CS;
 	string m_PipeName;
 };
 

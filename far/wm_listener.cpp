@@ -123,14 +123,14 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 
 wm_listener::wm_listener():
 	m_Hwnd(nullptr),
-	m_exitEvent(Event::automatic, Event::nonsignaled)
+	m_exitEvent(os::event::type::automatic, os::event::state::nonsignaled)
 {
 	Check();
 }
 
 wm_listener::~wm_listener()
 {
-	m_exitEvent.Set();
+	m_exitEvent.set();
 	if(m_Hwnd)
 	{
 		SendMessage(m_Hwnd,WM_CLOSE, 0, 0);
@@ -139,16 +139,16 @@ wm_listener::~wm_listener()
 
 void wm_listener::Check()
 {
-	if (!m_Thread.joinable() || m_Thread.Signaled())
+	if (!m_Thread.joinable() || m_Thread.is_signaled())
 	{
 		RethrowIfNeeded(m_ExceptionPtr);
-		Event ReadyEvent(Event::automatic, Event::nonsignaled);
-		m_Thread = Thread(&Thread::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
-		ReadyEvent.Wait();
+		os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);
+		m_Thread = os::thread(&os::thread::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
+		ReadyEvent.wait();
 	}
 }
 
-void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
+void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 {
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
@@ -160,7 +160,7 @@ void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 	SCOPE_EXIT{ UnregisterClass(wc.lpszClassName, nullptr); };
 
 	m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
-	ReadyEvent->Set();
+	ReadyEvent->set();
 	if (!m_Hwnd)
 		return;
 
@@ -170,7 +170,7 @@ void wm_listener::WindowThreadRoutine(const Event* ReadyEvent)
 
 	MSG Msg;
 	WndProcExceptionPtr = &m_ExceptionPtr;
-	while(!m_exitEvent.Signaled() && !m_ExceptionPtr && GetMessage(&Msg, nullptr, 0, 0) > 0)
+	while(!m_exitEvent.is_signaled() && !m_ExceptionPtr && GetMessage(&Msg, nullptr, 0, 0) > 0)
 	{
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);

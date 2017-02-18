@@ -1974,7 +1974,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 								strPath = strTempName;
 								CutToSlash(strPath, false);
 								strFindName = strPath+L"*";
-								os::fs::enum_file Find(strFindName);
+								const auto Find = os::fs::enum_files(strFindName);
 								const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 								if (ItemIterator != Find.cend())
 									strTempName = strPath + ItemIterator->strFileName;
@@ -6700,7 +6700,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	string strFind(m_CurDir);
 	AddEndSlash(strFind);
 	strFind+=L'*';
-	os::fs::enum_file Find(strFind, true);
+	const auto Find = os::fs::enum_files(strFind, true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 

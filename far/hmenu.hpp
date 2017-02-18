@@ -85,7 +85,7 @@ private:
 	range<HMenuData*> Item;
 	size_t SelectPos;
 	int m_VExitCode;
-	CriticalSection CS;
+	os::critical_section CS;
 	bool m_SubmenuOpened;
 };
 

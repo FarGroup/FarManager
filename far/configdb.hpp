@@ -365,7 +365,7 @@ public:
 	bool ShowProblems() const;
 	bool ServiceMode(const string& File);
 
-	void AddThread(Thread&& thread);
+	void AddThread(os::thread&& thread);
 
 	static void ClearPluginsCache();
 
@@ -393,7 +393,7 @@ private:
 	void CheckDatabase(class SQLiteDb *pDb);
 
 	int m_LoadResult;
-	std::vector<Thread> m_Threads;
+	std::vector<os::thread> m_Threads;
 	std::vector<string> m_Problems;
 	std::unique_ptr<representation_source> m_TemplateSource;
 	mode m_Mode;

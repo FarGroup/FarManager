@@ -471,7 +471,7 @@ void HMenu::ResizeConsole()
 
 wchar_t HMenu::GetHighlights(const HMenuData& MenuItem)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 	wchar_t Ch=0;
 
 	const wchar_t *Name = MenuItem.Name;
@@ -489,7 +489,7 @@ wchar_t HMenu::GetHighlights(const HMenuData& MenuItem)
 
 size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	if (StartPos < 0)
 		StartPos=0;

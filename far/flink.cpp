@@ -350,7 +350,7 @@ bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
 	UINT64 Size = 0;
 	DWORD Count = 0;
 
-	for (const auto& i: os::fs::enum_stream(FileName))
+	for (const auto& i: os::fs::enum_streams(FileName))
 	{
 		++Count;
 		Size += i.StreamSize.QuadPart;

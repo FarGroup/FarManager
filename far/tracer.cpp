@@ -143,7 +143,7 @@ tracer::~tracer()
 
 void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo)
 {
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	SCOPED_ACTION(os::critical_section_lock)(m_CS);
 	exception_context Context = { *ExceptionInfo->ExceptionRecord, *ExceptionInfo->ContextRecord };
 	if (m_CppMap.size() > 2048)
 	{
@@ -155,7 +155,7 @@ void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInf
 
 bool tracer::get_context(const void* CppObject, exception_context& Context) const
 {
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	SCOPED_ACTION(os::critical_section_lock)(m_CS);
 	auto Iter = m_CppMap.find(CppObject);
 	if (Iter == m_CppMap.end())
 	{

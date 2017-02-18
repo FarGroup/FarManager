@@ -91,7 +91,7 @@ void ScreenBuf::DebugDump() const
 
 void ScreenBuf::AllocBuf(size_t rows, size_t cols)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	if (rows == Buf.height() && cols == Buf.width())
 		return;
@@ -104,7 +104,7 @@ void ScreenBuf::AllocBuf(size_t rows, size_t cols)
 */
 void ScreenBuf::FillBuf()
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1)};
 	Console().ReadOutput(Buf, ReadRegion);
@@ -119,7 +119,7 @@ void ScreenBuf::FillBuf()
 */
 void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	if (X<0)
 	{
@@ -157,7 +157,7 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text, size_t Size)
 */
 void ScreenBuf::Read(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	fix_coordinates(X1, Y1, X2, Y2);
 
@@ -176,7 +176,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 	if (!is_visible(X1, Y1, X2, Y2))
 		return;
 
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	fix_coordinates(X1, Y1, X2, Y2);
 
@@ -220,7 +220,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 	if (!is_visible(X1, Y1, X2, Y2))
 		return;
 
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	fix_coordinates(X1, Y1, X2, Y2);
 
@@ -257,7 +257,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 	if (!is_visible(X1, Y1, X2, Y2))
 		return;
 
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	fix_coordinates(X1, Y1, X2, Y2);
 
@@ -288,7 +288,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 	if (!is_visible(X1, Y1, X2, Y2))
 		return;
 
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	FAR_CHAR_INFO CI;
 	CI.Attributes=Color;
@@ -315,7 +315,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 */
 void ScreenBuf::Flush(flush_type FlushType)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	if (!LockCount)
 	{
@@ -537,7 +537,7 @@ void ScreenBuf::SetLockCount(int Count)
 
 void ScreenBuf::MoveCursor(int X,int Y)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	if (!is_visible(CurX, CurY, CurX, CurY))
 	{
@@ -611,7 +611,7 @@ void ScreenBuf::RestoreElevationChar()
 //  проскроллировать буфер на одну строку вверх.
 void ScreenBuf::Scroll(size_t Count)
 {
-	SCOPED_ACTION(CriticalSectionLock)(CS);
+	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	const FAR_CHAR_INFO Fill{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 

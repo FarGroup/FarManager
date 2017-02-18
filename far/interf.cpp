@@ -148,16 +148,16 @@ DWORD InitialConsoleMode=0;
 SMALL_RECT InitWindowRect;
 COORD InitialSize;
 
-static Event& CancelIoInProgress()
+static os::event& CancelIoInProgress()
 {
-	static Event s_CancelIoInProgress;
+	static os::event s_CancelIoInProgress;
 	return s_CancelIoInProgress;
 }
 
 unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
 	unsigned int Result = Imports().CancelSynchronousIo(Thread);
-	CancelIoInProgress().Reset();
+	CancelIoInProgress().reset();
 	return Result;
 }
 
@@ -169,10 +169,10 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		return TRUE;
 
 	case CTRL_BREAK_EVENT:
-		if(!CancelIoInProgress().Signaled())
+		if(!CancelIoInProgress().is_signaled())
 		{
-			CancelIoInProgress().Set();
-			Thread(&Thread::detach, &CancelSynchronousIoWrapper, Global->MainThreadHandle());
+			CancelIoInProgress().set();
+			os::thread(&os::thread::detach, &CancelSynchronousIoWrapper, Global->MainThreadHandle());
 		}
 		WriteInput(KEY_BREAK);
 
@@ -292,7 +292,7 @@ void InitConsole(int FirstInit)
 
 	if (FirstInit)
 	{
-		CancelIoInProgress() = Event(Event::manual, Event::nonsignaled);
+		CancelIoInProgress() = os::event(os::event::type::manual, os::event::state::nonsignaled);
 
 		DWORD Mode;
 		if(!Console().GetMode(Console().GetInputHandle(), Mode))
@@ -390,7 +390,7 @@ void CloseConsole()
 
 	ClearKeyQueue();
 	ConsoleIcons().restorePreviousIcons();
-	CancelIoInProgress().Close();
+	CancelIoInProgress().close();
 }
 
 

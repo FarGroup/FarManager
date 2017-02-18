@@ -251,7 +251,7 @@ static bool EnumFiles(VMenu2& Menu, const string& Str)
 
 	return EnumWithQuoutes(Menu, Str, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		for (const auto& i: os::fs::enum_file(os::env::expand_strings(Token) + L"*"))
+		for (const auto& i: os::fs::enum_files(os::env::expand_strings(Token) + L"*"))
 		{
 			const auto FileName = PointToName(Token);
 			const auto NameMatch = !StrCmpNI(FileName, i.strFileName.data(), StrLength(FileName));
@@ -295,7 +295,7 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 					str = Path;
 					AddEndSlash(str);
 					append(str, Token, L'*');
-					for (const auto& FindData: os::fs::enum_file(str))
+					for (const auto& FindData: os::fs::enum_files(str))
 					{
 						for (const auto& Ext: PathExtList)
 						{

@@ -334,63 +334,65 @@ namespace fs
 
 	bool is_not_empty_directory(const string& Object)
 	{
-		enum_file Find(Object + L"\\*");
+		const auto Find = enum_files(Object + L"\\*");
 		return Find.begin() != Find.end();
 	}
 
-enum_file::enum_file(const string& Object, bool ScanSymLink):
-	m_Object(NTPath(Object)),
-	m_ScanSymLink(ScanSymLink)
+//-------------------------------------------------------------------------
+
+string detail::enum_files_prepare(const string& Object)
 {
-	bool Root = false;
-	const auto Type = ParsePath(m_Object, nullptr, &Root);
-	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
+	auto PreparedObject = NTPath(Object);
+	auto Root = false;
+	const auto Type = ParsePath(PreparedObject, nullptr, &Root);
+	if (Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
 	{
-		AddEndSlash(m_Object);
+		AddEndSlash(PreparedObject);
 	}
 	else
 	{
-		DeleteEndSlash(m_Object);
+		DeleteEndSlash(PreparedObject);
 	}
+	return PreparedObject;
 }
 
-bool enum_file::get(size_t index, value_type& FindData) const
+bool detail::get_file_impl(find_file_handle& Handle, const string& Object, size_t index, FAR_FIND_DATA& FindData, bool ScanSymLink)
 {
-	bool Result = false;
+	auto Result = false;
 	if (!index)
 	{
 		// temporary disable elevation to try "real" name first
 		{
 			SCOPED_ACTION(elevation::suppress);
-			m_Handle = FindFirstFileInternal(m_Object, FindData);
+			Handle = FindFirstFileInternal(Object, FindData);
 		}
 
-		if (!m_Handle && GetLastError() == ERROR_ACCESS_DENIED)
+		if (!Handle && GetLastError() == ERROR_ACCESS_DENIED)
 		{
-			if(m_ScanSymLink)
+			if (ScanSymLink)
 			{
-				string strReal(m_Object);
+				auto strReal = Object;
 				// only links in path should be processed, not the object name itself
 				CutToSlash(strReal);
 				strReal = ConvertNameToReal(strReal);
 				AddEndSlash(strReal);
-				strReal+=PointToName(m_Object);
+				strReal += PointToName(Object);
 				strReal = NTPath(strReal);
-				m_Handle = FindFirstFileInternal(strReal, FindData);
+				Handle = FindFirstFileInternal(strReal, FindData);
 			}
 
-			if (!m_Handle && ElevationRequired(ELEVATION_READ_REQUEST))
+			if (!Handle && ElevationRequired(ELEVATION_READ_REQUEST))
 			{
-				m_Handle = FindFirstFileInternal(m_Object, FindData);
+				Handle = FindFirstFileInternal(Object, FindData);
 			}
 		}
-		Result = m_Handle? true : false;
+		Result = Handle != nullptr;
 	}
 	else
 	{
-		if (m_Handle)
+		if (Handle)
 		{
-			Result = FindNextFileInternal(m_Handle, FindData);
+			Result = FindNextFileInternal(Handle, FindData);
 		}
 	}
 
@@ -401,56 +403,56 @@ bool enum_file::get(size_t index, value_type& FindData) const
 		(FindData.strAlternateFileName.empty() || FindData.strAlternateFileName == FindData.strFileName))
 	{
 		// index not important here, anything but 0 is fine
-		Result = get(1, FindData);
+		Result = get_file_impl(Handle, Object, 1, FindData, ScanSymLink);
 	}
 	return Result;
 }
 
 //-------------------------------------------------------------------------
 
-bool enum_name::get(size_t index, value_type& value) const
+bool detail::get_name_impl(find_handle& Handle, const string& Object, size_t Index, string& Value)
 {
-	if (!index)
+	if (!Index)
 	{
-		m_Handle = FindFirstFileName(m_Object, 0, value);
-		return m_Handle? true : false;
+		Handle = FindFirstFileName(Object, 0, Value);
+		return Handle != nullptr;
 	}
-	return FindNextFileName(m_Handle, value);
+	return FindNextFileName(Handle, Value);
 }
 
 //-------------------------------------------------------------------------
 
-bool enum_stream::get(size_t index, value_type& value) const
+bool detail::get_stream_impl(find_file_handle& Handle, const string& Object, size_t Index, WIN32_FIND_STREAM_DATA& Value)
 {
-	if (!index)
+	if (!Index)
 	{
-		m_Handle = FindFirstStream(m_Object, FindStreamInfoStandard, &value);
-		return m_Handle? true : false;
+		Handle = os::FindFirstStream(Object, FindStreamInfoStandard, &Value);
+		return Handle != nullptr;
 	}
-	return FindNextStream(m_Handle, &value);
+	return FindNextStream(Handle, &Value);
 }
 
 //-------------------------------------------------------------------------
 
-bool enum_volume::get(size_t index, value_type& value) const
+bool detail::get_volume_impl(find_volume_handle& Handle, size_t Index, string& Value)
 {
 	wchar_t VolumeName[50];
-	if (!index)
+	if (!Index)
 	{
-		m_Handle.reset(FindFirstVolume(VolumeName, static_cast<DWORD>(std::size(VolumeName))));
-		if (!m_Handle)
+		Handle.reset(FindFirstVolume(VolumeName, static_cast<DWORD>(std::size(VolumeName))));
+		if (!Handle)
 		{
 			return false;
 		}
 	}
 	else
 	{
-		if (!FindNextVolume(m_Handle.native_handle(), VolumeName, static_cast<DWORD>(std::size(VolumeName))))
+		if (!FindNextVolume(Handle.native_handle(), VolumeName, static_cast<DWORD>(std::size(VolumeName))))
 		{
 			return false;
 		}
 	}
-	value = VolumeName;
+	Value = VolumeName;
 	return true;
 }
 
@@ -1162,7 +1164,7 @@ bool GetVolumeInformation(
 
 bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymLink)
 {
-	fs::enum_file Find(FileName, ScanSymLink);
+	const auto Find = fs::enum_files(FileName, ScanSymLink);
 	auto ItemIterator = Find.begin();
 	if (ItemIterator != Find.end())
 	{
@@ -1578,7 +1580,7 @@ static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalF
 	}
 
 	// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-	for (auto& VolumeName: os::fs::enum_volume())
+	for (auto& VolumeName: os::fs::enum_volumes())
 	{
 		if (const auto Len = MatchNtPathRoot(NtPath, VolumeName.substr(4, VolumeName.size() - 5))) // w/o prefix and trailing slash
 		{

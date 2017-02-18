@@ -38,12 +38,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "exception.hpp"
 
-class CriticalSection: noncopyable
+namespace os
 {
 
+class critical_section
+{
 public:
-	CriticalSection() { InitializeCriticalSection(&m_object); }
-	~CriticalSection() { DeleteCriticalSection(&m_object); }
+	NONCOPYABLE(critical_section);
+	TRIVIALLY_MOVABLE(critical_section);
+
+	critical_section() { InitializeCriticalSection(&m_object); }
+	~critical_section() { DeleteCriticalSection(&m_object); }
 
 	void lock() { EnterCriticalSection(&m_object); }
 	void unlock() { LeaveCriticalSection(&m_object); }
@@ -52,49 +57,33 @@ private:
 	CRITICAL_SECTION m_object;
 };
 
-using CriticalSectionLock = std::lock_guard<CriticalSection>;
+using critical_section_lock = std::lock_guard<critical_section>;
 
 template<class T, class S>
 string make_name(const S& HashPart, const S& TextPart)
 {
-	auto Str = T::GetNamespace() + str(make_hash(HashPart)) + L"_" + TextPart;
+	auto Str = T::get_namespace() + str(make_hash(HashPart)) + L"_" + TextPart;
 	ReplaceBackslashToSlash(Str);
 	return Str;
 }
 
-class waitable
+class thread: public handle
 {
 public:
-	NONCOPYABLE(waitable);
-	TRIVIALLY_MOVABLE(waitable);
+	NONCOPYABLE(thread);
+	TRIVIALLY_MOVABLE(thread);
 
-	bool Wait(DWORD Milliseconds = INFINITE) const { return m_Handle.wait(Milliseconds); }
-	bool Signaled() const { return m_Handle.signaled(); }
-	void Close() { m_Handle.close(); }
-	auto native_handle() const { return m_Handle.native_handle(); }
+	using mode = void (thread::*)();
 
-protected:
-	explicit waitable(HANDLE Handle = nullptr): m_Handle(Handle) {}
-	os::handle m_Handle;
-};
-
-class Thread: public waitable
-{
-public:
-	NONCOPYABLE(Thread);
-	TRIVIALLY_MOVABLE(Thread);
-
-	using mode = void (Thread::*)();
-
-	Thread(): m_Mode(), m_ThreadId() {}
+	thread(): m_Mode(), m_ThreadId() {}
 
 	template<typename callable, typename... args>
-	Thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
+	thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
 	{
-		Starter(std::bind(std::forward<callable>(Callable), std::forward<args>(Args)...));
+		starter(std::bind(std::forward<callable>(Callable), std::forward<args>(Args)...));
 	}
 
-	~Thread()
+	~thread()
 	{
 		if (joinable())
 		{
@@ -104,20 +93,20 @@ public:
 
 	unsigned int get_id() const { return m_ThreadId; }
 
-	bool joinable() const { return !!m_Handle; }
+	bool joinable() const { return *this != nullptr; }
 
 	void detach()
 	{
 		check_joinable();
-		m_Handle.close();
+		close();
 		m_ThreadId = 0;
 	}
 
 	void join()
 	{
 		check_joinable();
-		m_Handle.wait();
-		m_Handle.close();
+		wait();
+		close();
 		m_ThreadId = 0;
 	}
 
@@ -129,11 +118,11 @@ private:
 	}
 
 	template<class T>
-	void Starter(T&& f)
+	void starter(T&& f)
 	{
 		auto Param = std::make_unique<T>(std::move(f));
-		m_Handle.reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, Wrapper<T>, Param.get(), 0, &m_ThreadId)));
-		if (m_Handle)
+		reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, wrapper<T>, Param.get(), 0, &m_ThreadId)));
+		if (*this)
 		{
 			Param.release();
 		}
@@ -144,7 +133,7 @@ private:
 	}
 
 	template<class T>
-	static unsigned int WINAPI Wrapper(void* RawPtr)
+	static unsigned int WINAPI wrapper(void* RawPtr)
 	{
 		std::invoke(*std::unique_ptr<T>(reinterpret_cast<T*>(RawPtr)));
 		return 0;
@@ -154,84 +143,85 @@ private:
 	unsigned int m_ThreadId;
 };
 
-class Mutex: public waitable
+class mutex: public handle
 {
 public:
-	NONCOPYABLE(Mutex);
-	TRIVIALLY_MOVABLE(Mutex);
+	NONCOPYABLE(mutex);
+	TRIVIALLY_MOVABLE(mutex);
 
-	Mutex(const wchar_t* Name = nullptr): waitable(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
+	mutex(const wchar_t* Name = nullptr): os::handle(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
 
-	static constexpr const wchar_t *GetNamespace() { return L"Far_Manager_Mutex_"; }
+	static constexpr auto get_namespace() { return L"Far_Manager_Mutex_"; }
 
-	bool lock() const { return m_Handle.wait(); }
+	bool lock() const { return wait(); }
 
-	bool unlock() const { return ReleaseMutex(m_Handle.native_handle()) != FALSE; }
+	bool unlock() const { return ReleaseMutex(native_handle()) != FALSE; }
 };
 
-class Event: public waitable
+class event: public handle
 {
 public:
-	NONCOPYABLE(Event);
-	TRIVIALLY_MOVABLE(Event);
+	NONCOPYABLE(event);
+	TRIVIALLY_MOVABLE(event);
 
-	enum event_type { automatic, manual };
-	enum event_state { nonsignaled, signaled };
+	enum class type { automatic, manual };
+	enum class state { nonsignaled, signaled };
 
-	Event() = default;
-	Event(event_type Type, event_state InitialState, const wchar_t* Name = nullptr): waitable(CreateEvent(nullptr, Type == manual, InitialState == signaled, EmptyToNull(Name))) {}
+	event() = default;
+	event(type Type, state InitialState, const wchar_t* Name = nullptr): os::handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(Name))) {}
 
-	static constexpr const wchar_t *GetNamespace() { return L"Far_Manager_Event_"; }
+	static constexpr auto get_namespace() { return L"Far_Manager_Event_"; }
 
-	bool Set() const { check_valid(); return SetEvent(m_Handle.native_handle()) != FALSE; }
+	bool set() const { check_valid(); return SetEvent(get()) != FALSE; }
 
-	bool Reset() const { check_valid(); return ResetEvent(m_Handle.native_handle()) != FALSE; }
+	bool reset() const { check_valid(); return ResetEvent(get()) != FALSE; }
 
-	void Associate(OVERLAPPED& o) const { check_valid(); o.hEvent = m_Handle.native_handle(); }
+	void associate(OVERLAPPED& o) const { check_valid(); o.hEvent = get(); }
 
 private:
 	void check_valid() const
 	{
-		if (!m_Handle)
+		if (!*this)
 		{
 			throw MAKE_FAR_EXCEPTION(L"Event not initialized properly");
 		}
 	}
 };
 
-template<class T> class SyncedQueue: noncopyable
+template<class T>
+class synced_queue: noncopyable
 {
 public:
 	using value_type = T;
 
 	bool empty() const
 	{
-		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 		return m_Queue.empty();
 	}
 
 	void push(const T& item)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 		m_Queue.push(item);
 	}
 
 	template<typename... args>
 	void emplace(args... Args)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 		m_Queue.emplace(std::forward<args>(Args)...);
 	}
 
 	void push(T&& item)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 		m_Queue.push(std::forward<T>(item));
 	}
 
 	bool try_pop(T& To)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 		if (!m_Queue.empty())
 		{
 			To = std::move(m_Queue.front());
@@ -243,44 +233,46 @@ public:
 
 	size_t size() const
 	{
-		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 		return m_Queue.size();
 	}
 
 	void clear()
 	{
-		SCOPED_ACTION(CriticalSectionLock)(m_QueueCS);
+		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 		clear_and_shrink(m_Queue);
 	}
 
-	auto scoped_lock() { return make_raii_wrapper(this, &SyncedQueue::lock, &SyncedQueue::unlock); }
+	auto scoped_lock() { return make_raii_wrapper(this, &synced_queue::lock, &synced_queue::unlock); }
 
 private:
 	void lock() { return m_QueueCS.lock(); }
 	void unlock() { return m_QueueCS.unlock(); }
 
 	std::queue<T> m_Queue;
-	mutable CriticalSection m_QueueCS;
+	mutable critical_section m_QueueCS;
 };
 
-class MultiWaiter: noncopyable
+class multi_waiter: noncopyable
 {
 public:
-	enum wait_mode
+	enum class mode
 	{
-		wait_any,
-		wait_all
+		any,
+		all
 	};
-	MultiWaiter() { Objects.reserve(10); }
+	multi_waiter() { m_Objects.reserve(10); }
 	template<typename T>
-	MultiWaiter(T Begin, T End) { std::for_each(Begin, End, [this](const auto& i){ this->Add(i); }); }
-	void Add(const waitable& Object) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(Object.native_handle()); }
-	void Add(HANDLE handle) { assert(Objects.size() < MAXIMUM_WAIT_OBJECTS); Objects.emplace_back(handle); }
-	DWORD Wait(wait_mode Mode = wait_all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(Objects.size()), Objects.data(), Mode == wait_all, Milliseconds); }
-	void Clear() {Objects.clear();}
+	multi_waiter(T Begin, T End) { std::for_each(Begin, End, [this](const auto& i){ this->add(i); }); }
+	void add(const os::handle& Object) { assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS); m_Objects.emplace_back(Object.native_handle()); }
+	void add(HANDLE handle) { assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS); m_Objects.emplace_back(handle); }
+	DWORD wait(mode Mode = mode::all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, Milliseconds); }
+	void clear() {m_Objects.clear();}
 
 private:
-	std::vector<HANDLE> Objects;
+	std::vector<HANDLE> m_Objects;
 };
+
+}
 
 #endif // SYNCHRO_HPP_ED4F0813_C518_409B_8576_F2E7CF4166CC

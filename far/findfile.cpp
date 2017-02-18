@@ -93,7 +93,7 @@ struct FindListItem
 class InterThreadData
 {
 private:
-	mutable CriticalSection DataCS;
+	mutable os::critical_section DataCS;
 	FindFiles::ArcListItem* FindFileArcItem;
 	int Percent;
 
@@ -107,7 +107,7 @@ public:
 
 	void Init()
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		FindFileArcItem = nullptr;
 		Percent=0;
 		FindList.clear();
@@ -118,13 +118,13 @@ public:
 
 	FindFiles::ArcListItem* GetFindFileArcItem() const
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		return FindFileArcItem;
 	}
 
 	void SetFindFileArcItem(FindFiles::ArcListItem* Value)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		FindFileArcItem = Value;
 	}
 
@@ -132,31 +132,31 @@ public:
 
 	void SetPercent(int Value)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		Percent = Value;
 	}
 
 	size_t GetFindListCount() const
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		return FindList.size();
 	}
 
 	void GetFindMessage(string& To) const
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		To=strFindMessage;
 	}
 
 	void SetFindMessage(const string& From)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		strFindMessage=From;
 	}
 
 	void ClearAllLists()
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		FindFileArcItem = nullptr;
 
 		if (!FindList.empty())
@@ -181,7 +181,7 @@ public:
 
 	FindFiles::ArcListItem& AddArcListItem(const string& ArcName, plugin_panel* hPlugin, UINT64 dwFlags, const string& RootPath)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 
 		FindFiles::ArcListItem NewItem;
 		NewItem.strArcName = ArcName;
@@ -195,7 +195,7 @@ public:
 
 	FindListItem& AddFindListItem(const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 
 		FindListItem NewItem;
 		NewItem.FindData = FindData;
@@ -209,7 +209,7 @@ public:
 	template <typename Visitor>
 	void ForEachFindItem(const Visitor& visitor) const
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		for (const auto& i: FindList)
 			visitor(i);
 	}
@@ -217,7 +217,7 @@ public:
 	template <typename Visitor>
 	void ForEachFindItem(const Visitor& visitor)
 	{
-		SCOPED_ACTION(CriticalSectionLock)(DataCS);
+		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 		for (auto& i: FindList)
 			visitor(i);
 	}
@@ -524,14 +524,14 @@ void FindFiles::SetPluginDirectory(const string& DirName, plugin_panel* hPlugin,
 				size_t FileCount=0;
 				PluginPanelItem *PanelData=nullptr;
 
-				SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+				SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 				if (Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
 					Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
 			}
 
 			DeleteEndSlash(Dir);
 
-			SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+			SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\" : Dir.data(), OPM_SILENT, Dir.empty()? nullptr : UserData);
 		}
 
@@ -751,7 +751,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		}
 		case DN_CONTROLINPUT:
 		{
-			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			const auto record = static_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType!=KEY_EVENT) break;
 			int key = InputRecordToKey(record);
 			switch (Param1)
@@ -883,7 +883,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData)
 {
-	SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
@@ -952,9 +952,9 @@ int background_searcher::FindStringBMH(const wchar_t* searchBuffer, size_t searc
 	});
 }
 
-int background_searcher::FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const
+int background_searcher::FindStringBMH(const char* searchBuffer, size_t searchBufferCount) const
 {
-	return FindStringBMH_Impl(searchBuffer, searchBufferCount, hexFindString.size(), skipCharsTable, [&](const unsigned char* Buffer, size_t index)
+	return FindStringBMH_Impl(searchBuffer, searchBufferCount, hexFindString.size(), skipCharsTable, [&](const char* Buffer, size_t index)
 	{
 		return Buffer[index] == hexFindString[index];
 	});
@@ -1029,7 +1029,7 @@ bool background_searcher::LookForString(const string& Name)
 				return false;
 
 			// Ищем
-			if (FindStringBMH((unsigned char *)readBufferA.data(), readBlockSize)!=-1)
+			if (FindStringBMH(readBufferA.data(), readBlockSize) != -1)
 				return true;
 		}
 		else
@@ -1103,7 +1103,7 @@ bool background_searcher::LookForString(const string& Name)
 					else
 					{
 						// Если поиск в UTF-16 (little endian), то используем исходный буфер
-						buffer = (wchar_t *)readBufferA.data();
+						buffer = reinterpret_cast<wchar_t*>(readBufferA.data());
 					}
 				}
 				else
@@ -1427,7 +1427,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_CONTROLINPUT:
 		{
-			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			const auto record = static_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType!=KEY_EVENT) break;
 			int key = InputRecordToKey(record);
 			switch (key)
@@ -1591,7 +1591,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								int SavePluginsOutput=Global->DisablePluginsOutput;
 								Global->DisablePluginsOutput=TRUE;
 								{
-									SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+									SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 									FindItem->Arc->hPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, OPM_NONE, OFP_SEARCH);
 								}
 								Global->DisablePluginsOutput=SavePluginsOutput;
@@ -1615,7 +1615,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 								if (ClosePanel)
 								{
-									SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+									SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 									Global->CtrlObject->Plugins->ClosePanel(FindItem->Arc->hPlugin);
 									FindItem->Arc->hPlugin = nullptr;
 								}
@@ -1625,7 +1625,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							{
 								if (ClosePanel)
 								{
-									SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+									SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 									Global->CtrlObject->Plugins->ClosePanel(FindItem->Arc->hPlugin);
 									FindItem->Arc->hPlugin = nullptr;
 								}
@@ -2225,7 +2225,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 			os::find_file_handle FindStream;
 
 			Sleep(0);
-			PauseEvent.Wait();
+			PauseEvent.wait();
 
 			bool bContinue=false;
 			WIN32_FIND_STREAM_DATA sd;
@@ -2368,7 +2368,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, UINT64 Flags, in
 		for (size_t I=0; I<ItemCount && !Stopped(); I++)
 		{
 			Sleep(0);
-			PauseEvent.Wait();
+			PauseEvent.wait();
 
 			PluginPanelItem *CurPanelItem=PanelData+I;
 			string strCurName=NullToEmpty(CurPanelItem->FileName);
@@ -2487,7 +2487,7 @@ void background_searcher::DoPrepareFileList()
 			}
 		});
 
-		for (const auto& VolumeName: os::fs::enum_volume())
+		for (const auto& VolumeName: os::fs::enum_volumes())
 		{
 			int DriveType=FAR_GetDriveType(VolumeName);
 
@@ -2578,7 +2578,7 @@ void background_searcher::Search()
 
 void background_searcher::Stop() const
 {
-	StopEvent.Set();
+	StopEvent.set();
 }
 
 bool FindFiles::FindFilesProcess()
@@ -2683,7 +2683,7 @@ bool FindFiles::FindFilesProcess()
 			Dlg->InitDialog();
 			Dlg->Show();
 
-			Thread FindThread(&Thread::join, &background_searcher::Search, &BC);
+			os::thread FindThread(&os::thread::join, &background_searcher::Search, &BC);
 			Dlg->Process();
 
 			// BUGBUG
@@ -2741,7 +2741,7 @@ bool FindFiles::FindFilesProcess()
 					}
 				});
 
-				SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+				SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 				{
 					if (const auto hNewPlugin = Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size()))
 					{
@@ -2787,7 +2787,7 @@ bool FindFiles::FindFilesProcess()
 					{
 						OpenPanelInfo Info;
 						{
-							SCOPED_ACTION(CriticalSectionLock)(PluginCS);
+							SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 							Global->CtrlObject->Plugins->GetOpenPanelInfo(FindExitItem->Arc->hPlugin, &Info);
 
 							if (SearchMode == FINDAREA_ROOT ||
@@ -2916,7 +2916,7 @@ FindFiles::FindFiles():
 	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE)),
 	itd(std::make_unique<InterThreadData>()),
 	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
-	m_MessageEvent(Event::manual, Event::signaled)
+	m_MessageEvent(os::event::type::manual, os::event::state::signaled)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
 
@@ -3174,7 +3174,7 @@ background_searcher::background_searcher(
 	NotContaining(NotContaining),
 	UseFilter(UseFilter),
 	m_PluginMode(PluginMode),
-	PauseEvent(Event::manual, Event::signaled),
-	StopEvent(Event::manual, Event::nonsignaled)
+	PauseEvent(os::event::type::manual, os::event::state::signaled),
+	StopEvent(os::event::type::manual, os::event::state::nonsignaled)
 {
 }

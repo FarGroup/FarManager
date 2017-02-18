@@ -93,7 +93,7 @@ public:
 	void Flush(flush_type FlushType = flush_type::all);
 
 private:
-	CriticalSection CS;
+	os::critical_section CS;
 	FAR_CHAR_INFO MacroChar;
 	FAR_CHAR_INFO ElevationChar;
 	matrix<FAR_CHAR_INFO> Buf;

@@ -43,10 +43,10 @@ FileSystemWatcher::FileSystemWatcher():
 	m_CurrentLastWriteTime(),
 	m_bOpen(false),
 	m_WatchSubtree(false),
-	m_WatchRegistered(Event::manual, Event::signaled),
-	m_Done(Event::manual, Event::nonsignaled),
-	m_DoneDone(Event::manual, Event::nonsignaled),
-	m_Changed(Event::manual, Event::nonsignaled)
+	m_WatchRegistered(os::event::type::manual, os::event::state::signaled),
+	m_Done(os::event::type::manual, os::event::state::nonsignaled),
+	m_DoneDone(os::event::type::manual, os::event::state::nonsignaled),
+	m_Changed(os::event::type::manual, os::event::state::nonsignaled)
 {
 }
 
@@ -58,7 +58,7 @@ FileSystemWatcher::~FileSystemWatcher()
 
 void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 {
-	m_WatchRegistered.Wait();
+	m_WatchRegistered.wait();
 	m_Directory = Directory;
 	m_WatchSubtree = WatchSubtree;
 
@@ -74,18 +74,18 @@ void FileSystemWatcher::WatchRegister() const
 									FILE_NOTIFY_CHANGE_ATTRIBUTES|
 									FILE_NOTIFY_CHANGE_SIZE|
 									FILE_NOTIFY_CHANGE_LAST_WRITE));
-	m_WatchRegistered.Set();
+	m_WatchRegistered.set();
 
-	MultiWaiter waiter;
-	waiter.Add(Handle.native_handle());
-	waiter.Add(m_Done);
-	if (waiter.Wait(MultiWaiter::wait_any) == WAIT_OBJECT_0)
+	os::multi_waiter waiter;
+	waiter.add(Handle.native_handle());
+	waiter.add(m_Done);
+	if (waiter.wait(os::multi_waiter::mode::any) == WAIT_OBJECT_0)
 	{
-		m_Changed.Set();
-		m_Done.Wait();
+		m_Changed.set();
+		m_Done.wait();
 	}
 
-	m_DoneDone.Set();
+	m_DoneDone.set();
 }
 
 void FileSystemWatcher::Watch(bool got_focus, bool check_time)
@@ -95,10 +95,10 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 	if(!m_bOpen)
 	{
 		m_bOpen = true;
-		m_Done.Reset();
-		m_DoneDone.Reset();
-		m_WatchRegistered.Reset();
-		Thread(&Thread::detach, &FileSystemWatcher::WatchRegister, this);
+		m_Done.reset();
+		m_DoneDone.reset();
+		m_WatchRegistered.reset();
+		os::thread(&os::thread::detach, &FileSystemWatcher::WatchRegister, this);
 	}
 
 	if (got_focus)
@@ -134,15 +134,15 @@ void FileSystemWatcher::Release()
 {
 	if (m_bOpen)
 	{
-		m_Done.Set();
-		m_DoneDone.Wait();
+		m_Done.set();
+		m_DoneDone.wait();
 		m_bOpen = false;
-		m_Changed.Reset();
+		m_Changed.reset();
 	}
 	m_PreviousLastWriteTime = m_CurrentLastWriteTime;
 }
 
 bool FileSystemWatcher::Signaled() const
 {
-	return m_Changed.Signaled() || m_PreviousLastWriteTime != m_CurrentLastWriteTime;
+	return m_Changed.is_signaled() || m_PreviousLastWriteTime != m_CurrentLastWriteTime;
 }

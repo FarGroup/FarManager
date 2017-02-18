@@ -73,7 +73,7 @@ private:
 	string strCurFileName;
 	string strCurFileType;
 
-	CriticalSection CS;
+	os::critical_section CS;
 
 	int Directory;
 	DirInfoData Data;

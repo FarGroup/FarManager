@@ -98,11 +98,11 @@ void ConsoleTitle::SetUserTitle(const string& Title)
 	UserTitle() = Title;
 }
 
-CriticalSection TitleCS;
+os::critical_section TitleCS;
 
 void ConsoleTitle::SetFarTitle(const string& Title, bool Flush)
 {
-	SCOPED_ACTION(CriticalSectionLock)(TitleCS);
+	SCOPED_ACTION(os::critical_section_lock)(TitleCS);
 
 	FarTitle() = Title;
 	Global->ScrBuf->SetTitle(UserTitle().empty()? FarTitle() + GetFarTitleAddons() : UserTitle());

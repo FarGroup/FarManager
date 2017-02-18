@@ -384,23 +384,23 @@ class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb
 public:
 	explicit HierarchicalConfigDb(const string& DbName, bool Local = false):
 		// If a thread with same event name is running, we will open that event here
-		AsyncDone(Event::manual, Event::signaled, make_name<Event>(GetPath(), GetName()).data())
+		AsyncDone(os::event::type::manual, os::event::state::signaled, os::make_name<os::event>(GetPath(), GetName()).data())
 	{
 		// and wait for the signal
-		AsyncDone.Wait();
+		AsyncDone.wait();
 		Initialize(DbName, Local);
 	}
 
 	virtual ~HierarchicalConfigDb() override
 	{
-		HierarchicalConfigDb::EndTransaction(); AsyncDone.Set();
+		HierarchicalConfigDb::EndTransaction(); AsyncDone.set();
 	}
 
 protected:
 	virtual void AsyncFinish() override
 	{
-		AsyncDone.Reset();
-		ConfigProvider().AddThread(Thread(&Thread::detach, &HierarchicalConfigDb::AsyncDelete, this));
+		AsyncDone.reset();
+		ConfigProvider().AddThread(os::thread(&os::thread::detach, &HierarchicalConfigDb::AsyncDelete, this));
 	}
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
@@ -706,7 +706,7 @@ protected:
 		stmt_count
 	};
 
-	Event AsyncDone;
+	os::event AsyncDone;
 };
 
 static constexpr std::pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
@@ -1615,7 +1615,7 @@ public:
 	virtual ~HistoryConfigCustom() override
 	{
 		WaitAllAsync();
-		StopEvent.Set();
+		StopEvent.set();
 	}
 
 private:
@@ -1624,12 +1624,12 @@ private:
 		return Days * 24ull * 60ull * 60ull * 10000000ull;
 	}
 
-	Thread WorkThread;
-	Event StopEvent;
-	Event AsyncDeleteAddDone;
-	Event AsyncCommitDone;
-	Event AsyncWork;
-	MultiWaiter AllWaiter;
+	os::thread WorkThread;
+	os::event StopEvent;
+	os::event AsyncDeleteAddDone;
+	os::event AsyncCommitDone;
+	os::event AsyncWork;
+	os::multi_waiter AllWaiter;
 
 	struct AsyncWorkItem
 	{
@@ -1644,38 +1644,38 @@ private:
 		string strData;
 	};
 
-	SyncedQueue<std::unique_ptr<AsyncWorkItem>> WorkQueue;
+	os::synced_queue<std::unique_ptr<AsyncWorkItem>> WorkQueue;
 
-	void WaitAllAsync() const { AllWaiter.Wait(); }
-	void WaitCommitAsync() const { AsyncCommitDone.Wait(); }
+	void WaitAllAsync() const { AllWaiter.wait(); }
+	void WaitCommitAsync() const { AsyncCommitDone.wait(); }
 
 	bool StartThread()
 	{
-		StopEvent = Event(Event::automatic, Event::nonsignaled);
+		StopEvent = os::event(os::event::type::automatic, os::event::state::nonsignaled);
 		string EventName;
 		if (GetPath() != L":memory:")
 		{
-			EventName = make_name<Event>(GetPath(), GetName());
+			EventName = os::make_name<os::event>(GetPath(), GetName());
 		}
-		AsyncDeleteAddDone = Event(Event::manual, Event::signaled, (EventName + L"_Delete").data());
-		AsyncCommitDone = Event(Event::manual, Event::signaled, (EventName + L"_Commit").data());
-		AllWaiter.Add(AsyncDeleteAddDone);
-		AllWaiter.Add(AsyncCommitDone);
-		AsyncWork = Event(Event::automatic, Event::nonsignaled);
-		WorkThread = Thread(&Thread::join, &HistoryConfigCustom::ThreadProc, this);
+		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Delete").data());
+		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Commit").data());
+		AllWaiter.add(AsyncDeleteAddDone);
+		AllWaiter.add(AsyncCommitDone);
+		AsyncWork = os::event(os::event::type::automatic, os::event::state::nonsignaled);
+		WorkThread = os::thread(&os::thread::join, &HistoryConfigCustom::ThreadProc, this);
 		return true;
 	}
 
 	void ThreadProc()
 	{
 		// TODO: try/catch & exception_ptr
-		MultiWaiter Waiter;
-		Waiter.Add(AsyncWork);
-		Waiter.Add(StopEvent);
+		os::multi_waiter Waiter;
+		Waiter.add(AsyncWork);
+		Waiter.add(StopEvent);
 
 		for (;;)
 		{
-			DWORD wait = Waiter.Wait(MultiWaiter::wait_any);
+			const auto wait = Waiter.wait(os::multi_waiter::mode::any);
 
 			if (wait != WAIT_OBJECT_0)
 				break;
@@ -1704,9 +1704,9 @@ private:
 				}
 			}
 			if (bAddDelete)
-				AsyncDeleteAddDone.Set();
+				AsyncDeleteAddDone.set();
 			if (bCommit)
-				AsyncCommitDone.Set();
+				AsyncCommitDone.set();
 		}
 	}
 
@@ -1749,8 +1749,8 @@ private:
 	{
 		WorkQueue.emplace(nullptr);
 		WaitAllAsync();
-		AsyncCommitDone.Reset();
-		AsyncWork.Set();
+		AsyncCommitDone.reset();
+		AsyncWork.set();
 		return true;
 	}
 
@@ -1858,8 +1858,8 @@ private:
 		WorkQueue.emplace(std::move(item));
 
 		WaitAllAsync();
-		AsyncDeleteAddDone.Reset();
-		AsyncWork.Set();
+		AsyncDeleteAddDone.reset();
+		AsyncWork.set();
 		return true;
 	}
 
@@ -2264,7 +2264,7 @@ config_provider::config_provider(mode Mode):
 
 config_provider::~config_provider()
 {
-	MultiWaiter(ALL_CONST_RANGE(m_Threads)).Wait();
+	os::multi_waiter(ALL_CONST_RANGE(m_Threads)).wait();
 	SQLiteDb::library_free();
 }
 
@@ -2291,7 +2291,7 @@ bool config_provider::Export(const string& File)
 	{
 		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		for(auto& i: os::fs::enum_file(Global->Opt->ProfilePath + L"\\PluginsData\\*.db"))
+		for(auto& i: os::fs::enum_files(Global->Opt->ProfilePath + L"\\PluginsData\\*.db"))
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
 			InplaceUpper(i.strFileName);
@@ -2369,10 +2369,10 @@ bool config_provider::ShowProblems() const
 	return Message(MSG_WARNING, MSG(lng::MProblemDb), m_Problems, { MSG(lng::MShowConfigFolders), MSG(lng::MIgnore) }) == Message::first_button;
 }
 
-void config_provider::AddThread(Thread&& thread)
+void config_provider::AddThread(os::thread&& thread)
 {
 	m_Threads.emplace_back(std::move(thread));
-	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), std::mem_fn(&Thread::Signaled)), m_Threads.end());
+	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), std::mem_fn(&os::thread::is_signaled)), m_Threads.end());
 }
 
 config_provider& ConfigProvider()

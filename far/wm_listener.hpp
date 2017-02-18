@@ -44,11 +44,11 @@ public:
 	void Check();
 
 private:
-	void WindowThreadRoutine(const Event* ReadyEvent);
+	void WindowThreadRoutine(const os::event* ReadyEvent);
 
-	Thread m_Thread;
+	os::thread m_Thread;
 	HWND m_Hwnd;
-	Event m_exitEvent;
+	os::event m_exitEvent;
 	std::exception_ptr m_ExceptionPtr;
 };
 

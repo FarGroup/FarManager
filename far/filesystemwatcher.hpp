@@ -54,10 +54,10 @@ private:
 	FILETIME m_CurrentLastWriteTime;
 	bool m_bOpen;
 	bool m_WatchSubtree;
-	Event m_WatchRegistered;
-	Event m_Done;
-	Event m_DoneDone;
-	Event m_Changed;
+	os::event m_WatchRegistered;
+	os::event m_Done;
+	os::event m_DoneDone;
+	os::event m_Changed;
 };
 
 #endif // FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD

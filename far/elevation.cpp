@@ -175,7 +175,7 @@ T elevation::RetrieveLastErrorAndResult() const
 template<typename T, typename F1, typename F2>
 auto elevation::execute(lng Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
 {
-	SCOPED_ACTION(CriticalSectionLock)(m_CS);
+	SCOPED_ACTION(os::critical_section_lock)(m_CS);
 	if (!ElevationApproveDlg(Why, Object))
 		return Fallback;
 
@@ -292,9 +292,9 @@ static os::handle create_elevated_process(const string& Parameters)
 
 static bool connect_pipe_to_process(const os::handle& Process, const os::handle& Pipe)
 {
-	Event AEvent(Event::automatic, Event::nonsignaled);
+	os::event AEvent(os::event::type::automatic, os::event::state::nonsignaled);
 	OVERLAPPED Overlapped;
-	AEvent.Associate(Overlapped);
+	AEvent.associate(Overlapped);
 	if (!ConnectNamedPipe(Pipe.native_handle(), &Overlapped))
 	{
 		const auto LastError = GetLastError();
@@ -302,10 +302,10 @@ static bool connect_pipe_to_process(const os::handle& Process, const os::handle&
 			return false;
 	}
 
-	MultiWaiter Waiter;
-	Waiter.Add(AEvent);
-	Waiter.Add(Process.native_handle());
-	if (Waiter.Wait(MultiWaiter::wait_any, 15'000) != WAIT_OBJECT_0)
+	os::multi_waiter Waiter;
+	Waiter.add(AEvent);
+	Waiter.add(Process.native_handle());
+	if (Waiter.wait(os::multi_waiter::mode::any, 15'000) != WAIT_OBJECT_0)
 		return false;
 
 	DWORD NumberOfBytesTransferred;
@@ -314,7 +314,7 @@ static bool connect_pipe_to_process(const os::handle& Process, const os::handle&
 
 void elevation::TerminateChildProcess() const
 {
-	if (!m_Process.signaled())
+	if (!m_Process.is_signaled())
 	{
 		TerminateProcess(m_Process.native_handle(), ERROR_PROCESS_ABORTED);
 		SetLastError(ERROR_PROCESS_ABORTED);
@@ -323,7 +323,7 @@ void elevation::TerminateChildProcess() const
 
 bool elevation::Initialize()
 {
-	if (m_Process && !m_Process.signaled())
+	if (m_Process && !m_Process.is_signaled())
 		return true;
 
 	if (!m_Pipe)
@@ -356,7 +356,7 @@ bool elevation::Initialize()
 
 	if (!connect_pipe_to_process(m_Process, m_Pipe))
 	{
-		if (m_Process.signaled())
+		if (m_Process.is_signaled())
 		{
 			DWORD ExitCode;
 			SetLastError(GetExitCodeProcess(m_Process.native_handle(), &ExitCode)? ExitCode : ERROR_GEN_FAILURE);
@@ -486,14 +486,14 @@ bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 
 		if(!Global->IsMainThread())
 		{
-			Event SyncEvent(Event::automatic, Event::nonsignaled);
+			os::event SyncEvent(os::event::type::automatic, os::event::state::nonsignaled);
 			listener_ex Listener([&SyncEvent](const any& Payload)
 			{
 				ElevationApproveDlgSync(*any_cast<EAData*>(Payload));
-				SyncEvent.Set();
+				SyncEvent.set();
 			});
 			MessageManager().notify(Listener.GetEventName(), &Data);
-			SyncEvent.Wait();
+			SyncEvent.wait();
 		}
 		else
 		{

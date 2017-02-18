@@ -158,7 +158,7 @@ private:
 public:
 	std::unique_ptr<InterThreadData> itd;
 
-	SyncedQueue<AddMenuData> m_Messages;
+	os::synced_queue<AddMenuData> m_Messages;
 
 	// BUGBUG
 	void Lock() { PluginCS.lock(); }
@@ -166,7 +166,7 @@ public:
 	auto ScopedLock() { return make_raii_wrapper(this, &FindFiles::Lock, &FindFiles::Unlock); }
 
 private:
-	CriticalSection PluginCS;
+	os::critical_section PluginCS;
 
 	time_check m_TimeCheck;
 	// BUGBUG
@@ -176,7 +176,7 @@ private:
 	string m_LastDirName;
 	Dialog* m_ResultsDialogPtr;
 	bool m_EmptyArc;
-	Event m_MessageEvent;
+	os::event m_MessageEvent;
 };
 
 class background_searcher: noncopyable
@@ -197,10 +197,10 @@ public:
 	);
 
 	void Search();
-	void Pause() const { PauseEvent.Reset(); }
-	void Resume() const { PauseEvent.Set(); }
+	void Pause() const { PauseEvent.reset(); }
+	void Resume() const { PauseEvent.set(); }
 	void Stop() const;
-	bool Stopped() const { return StopEvent.Signaled(); }
+	bool Stopped() const { return StopEvent.is_signaled(); }
 
 
 	auto ExceptionPtr() const { return m_ExceptionPtr; }
@@ -210,7 +210,7 @@ private:
 	void ReleaseInFileSearch();
 
 	int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount) const;
-	int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount) const;
+	int FindStringBMH(const char* searchBuffer, size_t searchBufferCount) const;
 	bool LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, const string& FullName, DWORD FileAttr, const string &strDisplayName);
 	void DoPrepareFileList();
@@ -249,8 +249,8 @@ private:
 	const bool UseFilter;
 	const bool m_PluginMode;
 
-	Event PauseEvent;
-	Event StopEvent;
+	os::event PauseEvent;
+	os::event StopEvent;
 
 	std::exception_ptr m_ExceptionPtr;
 };

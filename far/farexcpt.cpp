@@ -729,7 +729,7 @@ int SehFilter(int Code, EXCEPTION_POINTERS* Info, const wchar_t* Function, Plugi
 	{
 		bool Result = false;
 		{
-			Thread(&Thread::join, [&] { Result = ProcessGenericException(Info, nullptr, nullptr, nullptr); });
+			os::thread(&os::thread::join, [&] { Result = ProcessGenericException(Info, nullptr, nullptr, nullptr); });
 		}
 		if (Result)
 		{

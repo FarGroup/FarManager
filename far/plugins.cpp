@@ -962,7 +962,7 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 	string strFindPath = Info.DestPath;
 	AddEndSlash(strFindPath);
 	strFindPath += L"*";
-	os::fs::enum_file Find(strFindPath);
+	const auto Find = os::fs::enum_files(strFindPath);
 	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{

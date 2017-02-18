@@ -39,36 +39,25 @@ namespace os
 {
 	namespace detail
 	{
-		template<class T>
-		class handle_t: public conditional<handle_t<T>>
+		template<class deleter>
+		class handle_t: public std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>
 		{
+			using base = std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>;
+
 		public:
-			NONCOPYABLE(handle_t);
 			TRIVIALLY_MOVABLE(handle_t);
-			using pointer = HANDLE;
 
 			constexpr handle_t() = default;
 			constexpr handle_t(nullptr_t) {}
-			explicit handle_t(HANDLE Handle) { reset(Handle); }
-
-			bool operator!() const noexcept { return !m_Handle; }
-
-			void reset(HANDLE Handle = nullptr) { m_Handle.reset(normalise(Handle)); }
-
-			void close() { m_Handle.reset(); }
-
-			HANDLE native_handle() const { return m_Handle.get(); }
-
-			HANDLE release() { return m_Handle.release(); }
-
-			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(m_Handle.get(), Milliseconds) == WAIT_OBJECT_0; }
-
-			bool signaled() const { return wait(0); }
+			explicit handle_t(HANDLE Handle): base(normalise(Handle)) {}
+			void reset(HANDLE Handle = nullptr) { base::reset(normalise(Handle)); }
+			HANDLE native_handle() const { return base::get(); }
+			void close() { reset(); }
+			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(native_handle(), Milliseconds) == WAIT_OBJECT_0; }
+			bool is_signaled() const { return wait(0); }
 
 		private:
 			static HANDLE normalise(HANDLE Handle) { return Handle == INVALID_HANDLE_VALUE? nullptr : Handle; }
-
-			std::unique_ptr<std::remove_pointer_t<HANDLE>, T> m_Handle;
 		};
 
 		struct handle_closer { void operator()(HANDLE Handle) const; };
@@ -175,73 +164,66 @@ namespace os
 
 	namespace fs
 	{
-		class enum_file: public enumerator<enum_file, FAR_FIND_DATA>
+		namespace detail
 		{
-			IMPLEMENTS_ENUMERATOR(enum_file);
+			string enum_files_prepare(const string&);
+			bool get_file_impl(find_file_handle&, const string&, size_t, FAR_FIND_DATA&, bool);
+		}
 
-		public:
-			NONCOPYABLE(enum_file);
-			TRIVIALLY_MOVABLE(enum_file);
-
-			enum_file(const string& Object, bool ScanSymLink = true);
-
-		private:
-			bool get(size_t index, value_type& value) const;
-
-			string m_Object;
-			mutable find_file_handle m_Handle;
-			bool m_ScanSymLink;
-		};
-
-		class enum_name: public enumerator<enum_name, string>
+		inline auto enum_files(const string& Object, bool ScanSymLink = true)
 		{
-			IMPLEMENTS_ENUMERATOR(enum_name);
+			using value_type = FAR_FIND_DATA;
+			find_file_handle Handle;
+			return make_inline_enumerator<value_type>([=, m_Object = detail::enum_files_prepare(Object), m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
+			{
+				return detail::get_file_impl(m_Handle, m_Object, Index, Value, ScanSymLink);
+			});
+		}
 
-		public:
-			NONCOPYABLE(enum_name);
-			TRIVIALLY_MOVABLE(enum_name);
-
-			enum_name(const string& Object): m_Object(Object) {}
-
-		private:
-			bool get(size_t index, value_type& value) const;
-
-			string m_Object;
-			mutable find_handle m_Handle;
-		};
-
-		class enum_stream: public enumerator<enum_stream, WIN32_FIND_STREAM_DATA>
+		namespace detail
 		{
-			IMPLEMENTS_ENUMERATOR(enum_stream);
+			bool get_name_impl(find_handle&, const string&, size_t, string&);
+		}
 
-		public:
-			NONCOPYABLE(enum_stream);
-			TRIVIALLY_MOVABLE(enum_stream);
-
-			enum_stream(const string& Object): m_Object(Object) {}
-
-		private:
-			bool get(size_t index, value_type& value) const;
-
-			string m_Object;
-			mutable find_file_handle m_Handle;
-		};
-
-		class enum_volume: public enumerator<enum_volume, string>
+		inline auto enum_names(const string& Object)
 		{
-			IMPLEMENTS_ENUMERATOR(enum_volume);
+			using value_type = string;
+			find_handle Handle;
+			return make_inline_enumerator<value_type>([=, m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
+			{
+				return detail::get_name_impl(m_Handle, Object, Index, Value);
+			});
+		}
 
-		public:
-			NONCOPYABLE(enum_volume);
-			TRIVIALLY_MOVABLE(enum_volume);
+		namespace detail
+		{
+			bool get_stream_impl(find_file_handle&, const string&, size_t, WIN32_FIND_STREAM_DATA&);
+		}
 
-			enum_volume() {};
+		inline auto enum_streams(const string& Object)
+		{
+			using value_type = WIN32_FIND_STREAM_DATA;
+			find_file_handle Handle;
+			return make_inline_enumerator<value_type>([=, m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
+			{
+				return detail::get_stream_impl(m_Handle, Object, Index, Value);
+			});
+		}
 
-		private:
-			bool get(size_t index, value_type& value) const;
+		namespace detail
+		{
+			bool get_volume_impl(find_volume_handle&, size_t, string&);
+		}
 
-			mutable find_volume_handle m_Handle;
-		};
+		inline auto enum_volumes()
+		{
+			using value_type = string;
+			find_volume_handle Handle;
+			return make_inline_enumerator<value_type>([m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
+			{
+				return detail::get_volume_impl(m_Handle, Index, Value);
+			});
+		}
 
 		class file: public conditional<file>
 		{

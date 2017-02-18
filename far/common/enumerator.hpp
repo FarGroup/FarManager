@@ -91,7 +91,7 @@ protected:
 	enumerator() { TERSE_STATIC_ASSERT(std::is_base_of<enumerator, Derived>::value); }
 };
 
-#define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type;
+#define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type
 
 template<typename value_type, typename callable>
 class inline_enumerator: public enumerator<inline_enumerator<value_type, callable>, value_type>
@@ -110,7 +110,7 @@ private:
 		return m_Callable(Index, Value);
 	}
 
-	callable m_Callable;
+	mutable callable m_Callable;
 };
 
 template<typename value_type, typename callable>
