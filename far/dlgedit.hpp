@@ -90,7 +90,7 @@ public:
 	int   GetStrSize(int Row = -1) const;
 
 	void  SetInputMask(const string& InputMask);
-	const wchar_t* GetInputMask() const;
+	string GetInputMask() const;
 
 	void  SetOvertypeMode(bool Mode);
 	bool  GetOvertypeMode() const;

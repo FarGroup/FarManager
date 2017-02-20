@@ -242,12 +242,12 @@ void DlgEdit::SetInputMask(const string& InputMask)
 		lineEdit->SetInputMask(InputMask);
 }
 
-const wchar_t* DlgEdit::GetInputMask() const
+string DlgEdit::GetInputMask() const
 {
 	if (Type == DLGEDIT_SINGLELINE)
-		return lineEdit->GetInputMask().data();
+		return lineEdit->GetInputMask();
 
-	return L""; //???
+	return {}; //???
 }
 
 void DlgEdit::SetEditBeyondEnd(bool Mode)

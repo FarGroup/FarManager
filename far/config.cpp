@@ -1335,7 +1335,9 @@ struct FARConfigItem
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
-			Builder.AddOKCancel(lng::MOk, lng::MReset, lng::MCancel);
+			static constexpr lng Buttons[] = { lng::MOk, lng::MReset, lng::MCancel };
+			Builder.AddSeparator();
+			Builder.AddButtons(make_range(Buttons), 0, 2);
 			Result = Builder.ShowDialogEx();
 		}
 		if(Result == 0 || Result == 1)

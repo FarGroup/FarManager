@@ -234,9 +234,13 @@ static bool IsEditField(DialogItemEx *Item)
 */
 
 DialogBuilder::DialogBuilder(lng TitleMessageId, const wchar_t *HelpTopic, Dialog::dialog_handler handler):
-	m_HelpTopic(NullToEmpty(HelpTopic)), m_Mode(0), m_IdExist(false), m_handler(handler)
+	m_HelpTopic(NullToEmpty(HelpTopic)),
+	m_Mode(0),
+	m_Id(GUID_NULL),
+	m_IdExist(false),
+	m_handler(handler)
 {
-	AddBorder(DialogBuilder::GetLangString(TitleMessageId));
+	AddBorder(GetLangString(TitleMessageId));
 }
 
 DialogBuilder::DialogBuilder():
@@ -686,9 +690,9 @@ void DialogBuilder::AddOKCancel(lng OKMessageId, lng CancelMessageId)
 	base::AddOKCancel(static_cast<int>(OKMessageId), static_cast<int>(CancelMessageId));
 }
 
-void DialogBuilder::AddOKCancel(lng OKMessageId, lng ExtraMessageId, lng CancelMessageId)
+void DialogBuilder::AddButtons(range<const lng*> Buttons, size_t OkIndex, size_t CancelIndex)
 {
-	base::AddOKCancel(static_cast<int>(OKMessageId), static_cast<int>(ExtraMessageId), static_cast<int>(CancelMessageId));
+	base::AddButtons(static_cast<int>(Buttons.size()), reinterpret_cast<const int*>(Buttons.data()), static_cast<int>(OkIndex), static_cast<int>(CancelIndex));
 }
 
 void DialogBuilder::AddOK()

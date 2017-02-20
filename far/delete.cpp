@@ -224,64 +224,74 @@ static bool MoveToRecycleBinInternal(const string& Objects)
 
 static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 {
-	bool Result = false;
-
-	os::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+	if (!os::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL))
+		return false;
 
 	os::fs::file_walker WipeFile;
+	if (!WipeFile.Open(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_WRITE_THROUGH | FILE_FLAG_SEQUENTIAL_SCAN))
+		return false;
 
-	if(WipeFile.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
+	const DWORD BufSize=65536;
+	if (!WipeFile.InitWalk(BufSize))
+		return false;
+
+	time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
+
+	std::mt19937 mt(clock()); // std::random_device doesn't work in w2k
+	std::uniform_int_distribution<int> CharDist(0, 255);
+
+	auto BufInit = false;
+
+	do
 	{
-		const DWORD BufSize=65536;
-		if(WipeFile.InitWalk(BufSize))
+		static std::array<BYTE, BufSize> Buf;
+		if (!BufInit)
 		{
-			time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
-
-			std::mt19937 mt(clock()); // std::random_device doesn't work in w2k
-			std::uniform_int_distribution<int> CharDist(0, 255);
-
-			bool BufInit = false;
-
-			do
+			if (Global->Opt->WipeSymbol == -1)
 			{
-				static std::array<BYTE, BufSize> Buf;
-				if (!BufInit)
-				{
-					if (Global->Opt->WipeSymbol == -1)
-					{
-						std::generate(ALL_RANGE(Buf), [&]{ return CharDist(mt); });
-					}
-					else
-					{
-						Buf.fill(Global->Opt->WipeSymbol);
-						BufInit = true;
-					}
-				}
-
-				size_t Written;
-				WipeFile.Write(Buf.data(), WipeFile.GetChunkSize(), Written);
-				if (TimeCheck)
-				{
-					if (CheckForEscSilent() && ConfirmAbortOp())
-					{
-						Cancel=true;
-						return false;
-					}
-
-					ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent());
-				}
+				std::generate(ALL_RANGE(Buf), [&]{ return CharDist(mt); });
 			}
-			while(WipeFile.Step());
-
-			WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
-			WipeFile.SetEnd();
+			else
+			{
+				Buf.fill(Global->Opt->WipeSymbol);
+				BufInit = true;
+			}
 		}
-		WipeFile.Close();
-		string strTempName;
-		FarMkTempEx(strTempName,nullptr,FALSE);
-		Result = os::MoveFile(Name,strTempName) && os::DeleteFile(strTempName);
+
+		size_t Written;
+		const auto WriteSize = WipeFile.GetChunkSize();
+		if (!WipeFile.Write(Buf.data(), WriteSize, Written) || Written != WriteSize)
+			return false;
+
+		if (TimeCheck)
+		{
+			if (CheckForEscSilent() && ConfirmAbortOp())
+			{
+				Cancel=true;
+				return false;
+			}
+
+			ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent());
+		}
 	}
-	return Result;
+	while(WipeFile.Step());
+
+	if (!WipeFile.SetPointer(0, nullptr, FILE_BEGIN))
+		return false;
+
+	if (!WipeFile.SetEnd())
+		return false;
+
+	WipeFile.Close();
+
+	string strTempName;
+	if (!FarMkTempEx(strTempName, nullptr, FALSE))
+		return false;
+
+	if (!os::MoveFile(Name, strTempName))
+		return false;;
+
+	return os::DeleteFile(strTempName);
 }
 
 static int WipeDirectory(const string& Name)

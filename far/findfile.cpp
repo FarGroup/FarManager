@@ -2895,26 +2895,9 @@ void FindFiles::ProcessMessage(const AddMenuData& Data)
 
 
 FindFiles::FindFiles():
-	AnySetFindList(),
-	CmpCase(),
-	WholeWords(),
-	SearchInArchives(),
-	SearchHex(),
-	NotContaining(),
-	UseFilter(),
-	FindFoldersChanged(),
-	SearchFromChanged(),
-	FindPositionChanged(),
-	Finalized(),
-	PluginMode(),
-	SearchMode(FINDAREA_ALL),
-	favoriteCodePages(),
-	CodePage(CP_DEFAULT),
-	SearchInFirst(),
-	FindExitItem(),
+	itd(std::make_unique<InterThreadData>()),
 	FileMaskForFindFile(std::make_unique<filemasks>()),
 	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE)),
-	itd(std::make_unique<InterThreadData>()),
 	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
 	m_MessageEvent(os::event::type::manual, os::event::state::signaled)
 {

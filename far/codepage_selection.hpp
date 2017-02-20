@@ -121,7 +121,7 @@ public:
 private:
 	string m_AcpName, m_OemName, m_UtfName;
 	mutable string m_Number;
-	std::vector<UINT> m_F8CpOrder;
+	std::vector<uintptr_t> m_F8CpOrder;
 };
 
 #endif // CODEPAGE_SELECTION_HPP_AD209CF7_F280_4E6D_83A7_F0601E4EBB71

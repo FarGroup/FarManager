@@ -484,6 +484,13 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	SrcDriveType(),
 	DestDriveType(),
 	CopyBufferSize(!Global->Opt->CMOpt.BufferSize.Get()? default_copy_buffer_size : Global->Opt->CMOpt.BufferSize.Get()),
+	OvrMode(-1),
+	ReadOnlyOvrMode(-1),
+	ReadOnlyDelMode(-1),
+	SkipMode(-1),
+	SkipEncMode(-1),
+	SkipDeleteMode(-1),
+	SkipSecurityErrors(),
 	SelectedFolderNameLength(),
 	RPT(RP_EXACTCOPY),
 	AltF10(),
@@ -981,9 +988,6 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		else
 			CopySecurityCopy=m_CopySecurity;
 	}
-
-	ReadOnlyDelMode=ReadOnlyOvrMode=OvrMode=SkipEncMode=SkipMode=SkipDeleteMode=-1;
-	SkipSecurityErrors = false;
 
 	if (Link)
 	{

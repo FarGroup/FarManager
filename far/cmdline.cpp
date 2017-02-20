@@ -1160,7 +1160,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 	ConsoleActivatior(false);
 
-	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || !CmdLine.find_first_not_of(L' ', 2)))
+	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || CmdLine.find_first_not_of(L' ', 2) == string::npos))
 	{
 		wchar_t NewDir[] = { Upper(CmdLine[0]), L':', 0, 0 };
 

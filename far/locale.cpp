@@ -100,17 +100,7 @@ wchar_t locale::GetThousandSeparator()
 
 string locale::GetValue(LCID lcid, LCTYPE id)
 {
-	const size_t Size = GetLocaleInfo(lcid, id, nullptr, 0);
-
-	if (!Size)
-	{
-		// TODO: log
-		return {};
-	}
-
-	wchar_t_ptr Buffer(Size);
-	GetLocaleInfo(lcid, id, Buffer.get(), static_cast<int>(Size));
-	return { Buffer.get(), Size - 1 };
+	return os::GetLocaleValue(lcid, id);
 }
 
 string locale::GetTimeFormat()

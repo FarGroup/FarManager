@@ -1955,6 +1955,8 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			PtrTitle=MSG(lng::MPluginsHelpTitle);
 			ContentsName=L"PluginContents";
 			break;
+		default:
+			throw MAKE_FAR_EXCEPTION(L"Unsupported index");
 	}
 
 	AddTitle(PtrTitle);
@@ -1992,6 +1994,8 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 			break;
 		}
+		default:
+			throw MAKE_FAR_EXCEPTION(L"Unsupported index");
 	}
 
 	// сортируем по алфавиту

@@ -5254,9 +5254,7 @@ string FileList::GetPluginPrefix() const
 		if (!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES))
 		{
 			PluginInfo PInfo = {sizeof(PInfo)};
-			m_hPlugin->plugin()->GetPluginInfo(&PInfo);
-
-			if (PInfo.CommandPrefix && *PInfo.CommandPrefix)
+			if (m_hPlugin->plugin()->GetPluginInfo(&PInfo) && PInfo.CommandPrefix && *PInfo.CommandPrefix)
 			{
 				string Prefix = PInfo.CommandPrefix;
 				return Prefix.substr(0, Prefix.find(L':')) + L':';

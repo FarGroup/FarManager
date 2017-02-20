@@ -1731,6 +1731,17 @@ bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorag
 	return Result;
 }
 
+string GetLocaleValue(LCID lcid, LCTYPE id)
+{
+	string Result;
+	return ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Result, [&](wchar_t* Buffer, size_t Size)
+	{
+		const auto ReturnedSize = ::GetLocaleInfo(lcid, id, Buffer, static_cast<int>(Size));
+		return ReturnedSize? ReturnedSize - 1 : 0;
+	})?
+	Result : L""s;
+}
+
 string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName)
 {
 	wchar_t_ptr Buffer(NT_MAX_PATH);
@@ -1920,8 +1931,7 @@ bool GetDefaultPrinter(string& Printer)
 				throw MAKE_FAR_EXCEPTION(L"Bad value type");
 
 			string Result;
-			GetValue(*m_Key, m_Name.data(), Result);
-			return Result;
+			return GetValue(*m_Key, m_Name.data(), Result)? Result : L""s;
 		}
 
 		unsigned int value::GetUnsigned() const
@@ -1929,9 +1939,8 @@ bool GetDefaultPrinter(string& Printer)
 			if (m_Type != REG_DWORD)
 				throw MAKE_FAR_EXCEPTION(L"Bad value type");
 
-			unsigned int Result = 0;
-			GetValue(*m_Key, m_Name.data(), Result);
-			return Result;
+			unsigned int Result;
+			return GetValue(*m_Key, m_Name.data(), Result)? Result : 0;
 		}
 
 		unsigned long long value::GetUnsigned64() const
@@ -1939,9 +1948,8 @@ bool GetDefaultPrinter(string& Printer)
 			if (m_Type != REG_QWORD)
 				throw MAKE_FAR_EXCEPTION(L"Bad value type");
 
-			unsigned long long Result = 0;
-			GetValue(*m_Key, m_Name.data(), Result);
-			return Result;
+			unsigned long long Result;
+			return GetValue(*m_Key, m_Name.data(), Result)? Result : 0;
 		}
 	}
 

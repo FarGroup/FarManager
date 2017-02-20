@@ -162,6 +162,8 @@ namespace os
 	bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
 	bool DetachVirtualDiskInternal(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
+	string GetLocaleValue(LCID lcid, LCTYPE id);
+
 	namespace fs
 	{
 		namespace detail

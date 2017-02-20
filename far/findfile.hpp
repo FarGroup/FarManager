@@ -110,6 +110,14 @@ public:
 		}
 	};
 
+	std::unique_ptr<InterThreadData> itd;
+	os::synced_queue<AddMenuData> m_Messages;
+
+	// BUGBUG
+	void Lock() { PluginCS.lock(); }
+	void Unlock() { PluginCS.unlock(); }
+	auto ScopedLock() { return make_raii_wrapper(this, &FindFiles::Lock, &FindFiles::Unlock); }
+
 private:
 	string &PrepareDriveNameStr(string &strSearchFromRoot) const;
 	void AdvancedDialog();
@@ -124,24 +132,23 @@ private:
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
 	// BUGBUG
-	bool AnySetFindList;
-	bool CmpCase;
-	bool WholeWords;
-	bool SearchInArchives;
-	bool SearchHex;
-	bool NotContaining;
-	bool UseFilter;
-
-	bool FindFoldersChanged;
-	bool SearchFromChanged;
-	bool FindPositionChanged;
-	bool Finalized;
-	bool PluginMode;
-	FINDAREA SearchMode;
-	int favoriteCodePages;
-	uintptr_t CodePage;
-	UINT64 SearchInFirst;
-	struct FindListItem* FindExitItem;
+	bool AnySetFindList{};
+	bool CmpCase{};
+	bool WholeWords{};
+	bool SearchInArchives{};
+	bool SearchHex{};
+	bool NotContaining{};
+	bool UseFilter{};
+	bool FindFoldersChanged{};
+	bool SearchFromChanged{};
+	bool FindPositionChanged{};
+	bool Finalized{};
+	bool PluginMode{};
+	FINDAREA SearchMode{ FINDAREA_ALL };
+	int favoriteCodePages{};
+	uintptr_t CodePage{ CP_DEFAULT };
+	UINT64 SearchInFirst {};
+	struct FindListItem* FindExitItem{};
 	string strFindMask;
 	string strFindStr;
 	std::unique_ptr<filemasks> FileMaskForFindFile;
@@ -155,27 +162,16 @@ private:
 	int m_DirCount{};
 	int m_LastFoundNumber{};
 
-public:
-	std::unique_ptr<InterThreadData> itd;
-
-	os::synced_queue<AddMenuData> m_Messages;
-
-	// BUGBUG
-	void Lock() { PluginCS.lock(); }
-	void Unlock() { PluginCS.unlock(); }
-	auto ScopedLock() { return make_raii_wrapper(this, &FindFiles::Lock, &FindFiles::Unlock); }
-
-private:
 	os::critical_section PluginCS;
 
 	time_check m_TimeCheck;
 	// BUGBUG
-	class background_searcher* m_Searcher;
+	class background_searcher* m_Searcher{};
 	std::exception_ptr m_ExceptionPtr;
 	std::stack<string> m_LastDir;
 	string m_LastDirName;
-	Dialog* m_ResultsDialogPtr;
-	bool m_EmptyArc;
+	Dialog* m_ResultsDialogPtr{};
+	bool m_EmptyArc{};
 	os::event m_MessageEvent;
 };
 

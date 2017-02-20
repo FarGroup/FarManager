@@ -813,17 +813,16 @@ F8CP::F8CP(bool viewer):
 	m_OemName(MSG(Global->OnlyEditorViewerUsed? (viewer? lng::MSingleViewF8DOS : lng::MSingleEditF8DOS) : (viewer? lng::MViewF8DOS : lng::MEditF8DOS))),
 	m_UtfName(L"UTF-8")
 {
-
-	UINT defcp = viewer ? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
+	uintptr_t defcp = viewer ? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
 
 	string cps(viewer ? Global->Opt->ViOpt.strF8CPs : Global->Opt->EdOpt.strF8CPs);
 	if (cps != L"-1")
 	{
-		std::unordered_set<UINT> used_cps;
+		std::unordered_set<uintptr_t> used_cps;
 		for(const auto& str_cp: split<std::vector<string>>(cps, 0))
 		{
 			auto s = Upper(str_cp);
-			UINT cp = 0;
+			uintptr_t cp = 0;
 			if (s == L"ANSI" || s == L"ACP" || s == L"WIN")
 				cp = GetACP();
 			else if (s == L"OEM" || s == L"OEMCP" || s == L"DOS")
@@ -853,7 +852,7 @@ F8CP::F8CP(bool viewer):
 	}
 	if (m_F8CpOrder.empty())
 	{
-		UINT acp = GetACP(), oemcp = GetOEMCP();
+		const uintptr_t acp = GetACP(), oemcp = GetOEMCP();
 		if (cps != L"-1")
 			defcp = acp;
 		m_F8CpOrder.emplace_back(defcp);
@@ -866,25 +865,21 @@ F8CP::F8CP(bool viewer):
 
 uintptr_t F8CP::NextCP(uintptr_t cp) const
 {
-	UINT next_cp = m_F8CpOrder[0];
-	if (cp <= std::numeric_limits<UINT>::max())
-	{
-		auto curr = std::find(ALL_CONST_RANGE(m_F8CpOrder), static_cast<UINT>(cp));
-		if (curr != m_F8CpOrder.cend() && ++curr != m_F8CpOrder.cend())
-			next_cp = *curr;
-	}
-	return next_cp;
+	auto curr = std::find(ALL_CONST_RANGE(m_F8CpOrder), cp);
+	return curr != m_F8CpOrder.cend() && ++curr != m_F8CpOrder.cend()? *curr : *m_F8CpOrder.cbegin();
 }
 
 const string& F8CP::NextCPname(uintptr_t cp) const
 {
-	UINT next_cp = static_cast<UINT>(NextCP(cp));
+	const auto next_cp = NextCP(cp);
 	if (next_cp == GetACP())
 		return m_AcpName;
-	else if (next_cp == GetOEMCP())
+
+	if (next_cp == GetOEMCP())
 		return m_OemName;
-	else if (next_cp == CP_UTF8)
+
+	if (next_cp == CP_UTF8)
 		return m_UtfName;
-	else
-		return m_Number = str(next_cp);
+
+	return m_Number = str(next_cp);
 }
