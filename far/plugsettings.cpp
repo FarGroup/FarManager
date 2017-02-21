@@ -97,7 +97,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local)
 	PluginsCfg = ConfigProvider().CreatePluginsConfig(strGuid, Local);
 	m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key(), strGuid, &pPlugin->GetTitle()));
 
-	if (Global->Opt->ReadOnlyConfig)
+	if (!Global->Opt->ReadOnlyConfig)
 	{
 		DizList Diz;
 		auto DbPath = Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
