@@ -1185,6 +1185,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		size_t pos;
 		auto strCmdLine = CmdLine.substr(3);
 		RemoveLeadingSpaces(strCmdLine);
+		Unquote(strCmdLine);
 
 		// "set" (display all) or "set var" (display all that begin with "var")
 		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
