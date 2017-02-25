@@ -14,7 +14,12 @@ FAR_DIRNAME=Release
 FAR_DIRNAME=Debug
 !endif
 FAR_WORKDIR=..\..\unicode_far\$(FAR_DIRNAME).$(DIRBIT).vc
+!else
+!ifdef INSTALL
+FAR_WORKDIR=$(INSTALL)\$(FAR_WORKDIR)
 !endif
+!endif
+
 LUALIB=$(FAR_WORKDIR)\luafar3.lib
 
 DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua \
