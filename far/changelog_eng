@@ -3,6 +3,59 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.02.2017 23:45:29 +0000 - build 4902
+
+1. Processing of 'set' command would not remove quotes from the filter.
+
+drkns 21.02.2017 18:50:57 +0000 - build 4901
+
+1. A typo in 4883.
+
+drkns 20.02.2017 19:16:22 +0000 - build 4900
+
+1. Coverity warnings.
+
+drkns 18.02.2017 19:05:09 +0000 - build 4899
+
+1. Refactoring, renaming.
+
+svs 14.02.2017 20:19:16 +0300 - build 4898
+
+1. SQLite 3.17.0
+
+zg 12.02.2017 20:58:11 +0200 - build 4897
+
+1. correction of 4889.
+
+drkns 11.02.2017 15:51:04 +0000 - build 4896
+
+1. Refactoring.
+
+drkns 10.02.2017 22:44:19 +0000 - build 4895
+
+1. Correction of 4892.
+
+drkns 10.02.2017 22:12:46 +0000 - build 4894
+
+1. Refactoring.
+
+yjh 08.02.2017 23:33:29 +0300 - build 4893
+
+1. adaptation of ulink helper to VS2015sp3 headers (const)
+2. the previous commit had a compilation error (part of a string was lost)
+
+drkns 08.02.2017 19:50:19 +0000 - build 4892
+
+1. Refactoring.
+
+drkns 08.02.2017 19:44:46 +0000 - build 4891
+
+1. Forum - files which are run via OS associations are written to history unquoted even if their names contain space characters, so repeated launch with Ctrl+E is not possible.
+
+zg 07.02.2017 12:15:01 +0200 - build 4890
+
+1. correction of 4889.
+
 zg 30.01.2017 17:04:33 +0200 - build 4889
 
 1. ECTL_SETTITLE being called from EE_REDRAW does not reset the console buffer.
