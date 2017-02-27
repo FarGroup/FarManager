@@ -1,3 +1,7 @@
+drkns 27.02.2017 19:04:21 +0000 - build 4903
+
+1. 0003358: ArcLite. The system cannot find the path specified
+
 drkns 22.02.2017 23:45:29 +0000 - build 4902
 
 1. При обработке команды 'set' не удалялись кавычки из фильтра.

@@ -889,7 +889,8 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& Fin
 	OpenPanelInfo Info;
 
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
-	const auto strSaveDir = NullToEmpty(Info.CurDir);
+	string strSaveDir = NullToEmpty(Info.CurDir);
+	AddEndSlash(strSaveDir);
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
 	SetPluginDirectory(FindData.strFileName,ArcItem->hPlugin,false,UserData);
 	const auto FileNameToFind = PointToName(FindData.strFileName);
