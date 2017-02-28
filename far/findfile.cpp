@@ -344,7 +344,7 @@ class FindFiles::delayed_deleter: noncopyable
 {
 public:
 	delayed_deleter(const string& pathToDelete): m_pathToDelete(pathToDelete) {}
-	delayed_deleter() { DeleteFileWithFolder(m_pathToDelete); }
+	~delayed_deleter() { DeleteFileWithFolder(m_pathToDelete); }
 
 private:
 	string m_pathToDelete;
