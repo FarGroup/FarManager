@@ -154,7 +154,7 @@ OpenCommand parse_open_command(const CommandArgs& ca) {
     command.options.arc_types = ArcAPI::formats().get_arc_types();
   }
   CHECK_FMT(!is_param(args.back()));
-  command.options.arc_path = unquote(args.back());
+  command.options.arc_path = unquote(expand_env_vars(args.back()));
   return command;
 }
 

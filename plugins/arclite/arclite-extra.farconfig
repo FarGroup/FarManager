@@ -11,7 +11,7 @@
           <value name="correct_name_mode" type="qword" value="0000000000000032" />
           <!-- 0x10  correct empty filenames (""  converted to "_")     -->
           <!-- 0x20  remove trailing dots/spaces                        -->
-          <!-- 0x40  corrcet reserved names (NUL, LPT1, ...)            -->
+          <!-- 0x40  correct reserved names (NUL, LPT1, ...)            -->
           <!-- ====  < > : * ? "" | / \ '\x01'        ...        '\x1f' -->
           <!-- 0x.0  < > : * ? "" | / \ '\x01'        ...        '\x1f' -->
           <!-- 0x.1  _ _ _ _ _ __ _ _ _ _______________________________ -->
