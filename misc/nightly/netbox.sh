@@ -11,13 +11,13 @@ function bnetbox {
 
   wine cmd /c ../netbox.${BIT}.bat &> ../logs/netbox${BIT}
 
-  pushd Far3_${PLATFORM}/Plugins/${PLUGIN} || return 1
-
-  mkdir -p ../../../../../outfinalnew${BIT}/Plugins/${PLUGIN}
-  cp -f * ../../../../../outfinalnew${BIT}/Plugins/${PLUGIN}
-
-  popd
+  mkdir -p ../outfinalnew${BIT}/Plugins/${PLUGIN}
+  cp -f build/Release/${PLATFORM}/NetBox.dll ../outfinalnew${BIT}/Plugins/${PLUGIN}
+  cp -f build/Release/${PLATFORM}/NetBox.map ../outfinalnew${BIT}/Plugins/${PLUGIN}
+  cp -f src/NetBox/*.lng ../outfinalnew${BIT}/Plugins/${PLUGIN}
   cp -f ChangeLog ../outfinalnew${BIT}/Plugins/${PLUGIN}
+  cp -f *.md ../outfinalnew${BIT}/Plugins/${PLUGIN}
+  cp -f LICENSE.txt ../outfinalnew${BIT}/Plugins/${PLUGIN}
 }
 
 #git clone must already exist and set to far3 branch
