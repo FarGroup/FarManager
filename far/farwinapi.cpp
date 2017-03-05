@@ -180,6 +180,10 @@ static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& Director
 
 	RemoveTrailingZeros(FindData.strFileName);
 	RemoveTrailingZeros(FindData.strAlternateFileName);
+
+	// Some other buggy implementations just set the first char of AlternateFileName to '\0' to make it "empty", leaving rubbish in others. Double facepalm.
+	if (!FindData.strAlternateFileName.empty() && FindData.strAlternateFileName.front() == L'\0')
+		FindData.strAlternateFileName.clear();
 }
 
 static auto FindFirstFileInternal(const string& Name, FAR_FIND_DATA& FindData)
