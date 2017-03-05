@@ -3,6 +3,19 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.03.2017 16:01:22 +0000 - build 4905
+
+1. Forum: when browsing the network with NAS QNAP opening any shared resource adds the current and parent directories to the list for some reason.
+   Guys from QNAP seem to be unfamiliar with "2.4.17 FileIdBothDirectoryInformation" too.
+
+drkns 28.02.2017 18:57:23 +0000 - build 4904
+
+1. Temporary files were not removed after invoking viewer from search results.
+
+drkns 27.02.2017 19:04:21 +0000 - build 4903
+
+1. 0003358: ArcLite. The system cannot find the path specified
+
 drkns 22.02.2017 23:45:29 +0000 - build 4902
 
 1. Processing of 'set' command would not remove quotes from the filter.
