@@ -514,8 +514,10 @@ public:
     else {
       options.arc_type = archive->arc_chain.back().type; // required to set update properties
 		if (ArcAPI::is_single_file_format(options.arc_type)) {
-        FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNSUPPORTED_FOR_SINGLEFILEARCHIVE));
-		}
+          if (items_number != 1 || panel_items[0].FileName != archive->file_list[0].name) {
+            FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNSUPPORTED_FOR_SINGLEFILEARCHIVE));
+          }
+        }
 		archive->load_update_props();
       options.level = archive->level;
       options.method = archive->method;
@@ -777,6 +779,9 @@ public:
 
     if (!archive->updatable()) {
       FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
+    }
+    if (ArcAPI::is_single_file_format(archive->arc_chain.back().type)) {
+      FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNSUPPORTED_FOR_SINGLEFILEARCHIVE));
     }
 
     bool show_dialog = (op_mode & (OPM_SILENT | OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;

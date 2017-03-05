@@ -652,20 +652,19 @@ const CompressionMethod c_methods[] = {
 
 static bool is_SWFu(const wstring& fname)
 {
-	bool unpacked_swf = false;
-	File file;
-	file.open_nt(Far::get_absolute_path(fname),
-		FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-		OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN
-	);
-	if (file.is_open())
-	{
-		char bf[8];
-		size_t nr = 0;
-		file.read_nt(bf, sizeof(bf), nr);
-		unpacked_swf = nr==sizeof(bf) && bf[2]=='S' && bf[1]=='W' && bf[0]=='F' && (unsigned)bf[3] < 20;
-	}
-	return unpacked_swf;
+  bool unpacked_swf = false;
+  File file;
+  file.open_nt(Far::get_absolute_path(fname),
+    FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN
+  );
+  if (file.is_open())
+  {
+    char bf[8];
+    size_t nr = 0;
+    file.read_nt(bf, sizeof(bf), nr);
+    unpacked_swf = nr==sizeof(bf) && bf[2]=='S' && bf[1]=='W' && bf[0]=='F' && (unsigned)bf[3] < 20;
+  }
+  return unpacked_swf;
 }
 
 class UpdateDialog: public Far::Dialog {

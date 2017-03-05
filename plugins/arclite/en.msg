@@ -217,7 +217,7 @@ error.no_format = Archive format not found
 error.not_updatable = Archive modification not supported
 error.not_archive = File is not recognized as archive
 error.sfx_convert = Archive cannot be converted into SFX archive
-error.update.unsupported_for_singlefilearchive = Can't update single file archive format
+error.update.unsupported_for_singlefilearchive = Can't change single file archive format
 
 # Generic buttons
 button.ok = OK
