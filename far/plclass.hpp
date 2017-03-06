@@ -182,13 +182,13 @@ namespace detail
 		intptr_t Result;
 	};
 
-	template<typename function, typename... args, ENABLE_IF(std::is_void<std::result_of_t<function(args...)>>::value)>
+	template<typename function, typename... args, REQUIRES(std::is_void<std::result_of_t<function(args...)>>::value)>
 	void ExecuteFunctionImpl(ExecuteStruct&, const function& Function, args&&... Args)
 	{
 		Function(std::forward<args>(Args)...);
 	}
 
-	template<typename function, typename... args, ENABLE_IF(!std::is_void<std::result_of_t<function(args...)>>::value)>
+	template<typename function, typename... args, REQUIRES(!std::is_void<std::result_of_t<function(args...)>>::value)>
 	void ExecuteFunctionImpl(ExecuteStruct& es, const function& Function, args&&... Args)
 	{
 		es = Function(std::forward<args>(Args)...);
@@ -297,7 +297,7 @@ protected:
 
 		const auto& ProcessException = [&](const auto& Handler, auto&&... ProcArgs)
 		{
-			Handler(ProcArgs..., m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
+			Handler(std::forward<decltype(ProcArgs)>(ProcArgs)..., m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
 		};
 
 		try
@@ -315,7 +315,7 @@ protected:
 		}
 	}
 
-	template<typename T, class... args>
+	template<typename T, typename... args>
 	void ExecuteFunction(T& es, args&&... Args)
 	{
 		seh_invoke_with_ui(

@@ -921,7 +921,7 @@ void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, PluginPanel
 }
 
 
-int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, UserDataItem *UserData)
+int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem *UserData)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SetDirectoryInfo Info = {sizeof(Info)};
@@ -930,8 +930,7 @@ int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, 
 	Info.OpMode = OpMode;
 	if (UserData)
 	{
-		Info.UserData.Data = UserData->Data;
-		Info.UserData.FreeData = UserData->FreeData;
+		Info.UserData = *UserData;
 	}
 	return hPlugin->plugin()->SetDirectory(&Info);
 }

@@ -155,7 +155,9 @@ private:
 	struct InternalEditorBookmark;
 
 	template<class T, class ConstT = T>
-	class numbered_iterator_t: public T
+	class numbered_iterator_t:
+		public T,
+		public rel_ops<numbered_iterator_t<T, ConstT>>
 	{
 	public:
 		TRIVIALLY_COPYABLE(numbered_iterator_t);
@@ -177,8 +179,6 @@ private:
 
 		bool operator==(const numbered_iterator_t& rhs) const { return base() == rhs.base(); }
 		bool operator==(const T& rhs) const { return rhs == *this; }
-		template<class Y>
-		bool operator !=(const Y& rhs) const { return !(*this == rhs); }
 
 		T& base() { return *this; }
 		const std::conditional_t<std::is_base_of<ConstT, T>::value, ConstT, T>& base() const { return *this; }

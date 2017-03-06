@@ -40,55 +40,62 @@ public:
 	using enumerator_type = enumerator;
 
 	template<typename item_type, typename owner>
-	class iterator_t: public std::iterator<std::forward_iterator_tag, item_type>
+	class iterator_t:
+		public std::iterator<std::forward_iterator_tag, item_type>,
+		public rel_ops<iterator_t<item_type, owner>>
 	{
 	public:
 		using value_type = item_type;
+		using owner_type = owner;
 
 		iterator_t() = default;
-		iterator_t(const owner& Owner): m_Owner{ Owner }, m_Index{} {}
+		iterator_t(owner_type Owner, size_t Index): m_Owner(Owner), m_Index(Index) {}
 
-		auto operator->() { return static_cast<value_type*>(&m_Value); }
-		auto operator->() const { return static_cast<value_type*>(&m_Value); }
+		auto operator->() { return &m_Value; }
+		auto operator->() const { return &m_Value; }
 
-		auto& operator*() { return static_cast<value_type&>(m_Value); }
-		auto& operator*() const { return static_cast<value_type&>(m_Value); }
+		auto& operator*() { return m_Value; }
+		auto& operator*() const { return m_Value; }
 
 		auto& operator++()
 		{
-			if (m_Index == invalid_index)
-			{
-				throw std::runtime_error("enumerator iterator is out of range");
-			}
+			assert(m_Index != invalid_index);
 			m_Index = m_Owner->get(m_Index, m_Value)? m_Index + 1 : invalid_index;
 			return *this;
 		}
 
-		bool operator==(const iterator_t& rhs) const { return m_Index == rhs.m_Index; }
-		bool operator!=(const iterator_t& rhs) const { return !(*this == rhs); }
+		bool operator==(const iterator_t& rhs) const
+		{
+			assert(m_Owner == rhs.m_Owner);
+			return m_Owner == rhs.m_Owner && m_Index == rhs.m_Index;
+		}
+
+		static constexpr size_t invalid_index{ size_t(-1) };
 
 	private:
-		static constexpr size_t invalid_index { size_t(-1) };
-
-		owner m_Owner {};
-		size_t m_Index { invalid_index };
+		owner_type m_Owner {};
+		size_t m_Index{ invalid_index };
 		std::remove_const_t<value_type> m_Value {};
 	};
 
 	using iterator = iterator_t<T, Derived*>;
 	using const_iterator = iterator_t<const T, const Derived*>;
 
-	auto begin() { return std::next(iterator{ static_cast<Derived*>(this) }); }
-	auto end() { return iterator{}; }
+	auto begin() { return std::next(make_iterator<iterator>(this, 0)); }
+	auto end() { return make_iterator<iterator>(this); }
 
-	auto begin() const { return std::next(const_iterator{ static_cast<const Derived*>(this) }); }
-	auto end() const { return const_iterator{}; }
+	auto begin() const { return std::next(make_iterator<const_iterator>(this, 0)); }
+	auto end() const { return make_iterator<const_iterator>(this); }
 
 	auto cbegin() const { return begin(); }
 	auto cend() const { return end(); }
 
 protected:
 	enumerator() { TERSE_STATIC_ASSERT(std::is_base_of<enumerator, Derived>::value); }
+
+private:
+	template<typename iterator_type, typename owner_type>
+	static auto make_iterator(owner_type Owner, size_t Index = iterator_type::invalid_index) { return iterator_type{ static_cast<typename iterator_type::owner_type>(Owner), Index }; }
 };
 
 #define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type

@@ -57,8 +57,7 @@ namespace detail
 		unsigned long long AllocationSize;
 
 		UINT64 UserFlags;
-		void* UserData;
-		FARPANELITEMFREECALLBACK Callback;
+		UserDataItem UserData;
 
 		DWORD FileAttr;
 		DWORD ReparseTag;
@@ -297,7 +296,7 @@ private:
 	long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
 	void ProcessEnter(bool EnableExec,bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
 	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
-	bool ChangeDir(const string& NewDir,bool ResolvePath=false,bool IsUpdated=true,const FileListItem *CurPtr=nullptr);
+	bool ChangeDir(const string& NewDir,bool ResolvePath=false, bool IsUpdated=true, const UserDataItem* DataItem = nullptr);
 	void CountDirSize(bool IsRealNames);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);

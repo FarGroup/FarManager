@@ -59,7 +59,7 @@ public:
 	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, unsigned long long Value) = 0;
 	virtual bool SetValue(const string& Key, const string& Name, const blob_view& Value) = 0;
-	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
+	template<class T, REQUIRES(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
 	bool SetValue(const string& Key, const string& Name, const T& Value)
 	{
 		TERSE_STATIC_ASSERT(std::is_pod<T>::value);
@@ -116,7 +116,7 @@ public:
 	virtual bool SetValue(const key& Root, const string& Name, const wchar_t* Value) = 0;
 	virtual bool SetValue(const key& Root, const string& Name, unsigned long long Value) = 0;
 	virtual bool SetValue(const key& Root, const string& Name, const blob_view& Value) = 0;
-	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
+	template<class T, REQUIRES(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
 	bool SetValue(const key& Root, const string& Name, const T& Value)
 	{
 		return SetValue(Root, Name, make_blob_view(Value));
@@ -125,7 +125,7 @@ public:
 	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) = 0;
 	virtual bool GetValue(const key& Root, const string& Name, string &strValue) = 0;
 	virtual bool GetValue(const key& Root, const string& Name, writable_blob_view& Value) = 0;
-	template<class T, ENABLE_IF(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
+	template<class T, REQUIRES(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
 	bool GetValue(const key& Root, const string& Name, T& Value)
 	{
 		TERSE_STATIC_ASSERT(std::is_pod<T>::value);

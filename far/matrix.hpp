@@ -41,7 +41,7 @@ public:
 	TRIVIALLY_MOVABLE(matrix);
 
 	template<class pointer>
-	class row_t
+	class row_t: public rel_ops<row_t<pointer>>
 	{
 	public:
 		using iterator = pointer;
@@ -72,7 +72,6 @@ public:
 		auto cend() const { return m_row + m_size; }
 
 		bool operator==(const row_t& rhs) const { return m_size == rhs.m_size && std::equal(m_row, m_row + m_size, rhs.m_row); }
-		bool operator!=(const row_t& rhs) const { return !(*this == rhs); }
 
 	private:
 		iterator m_row;

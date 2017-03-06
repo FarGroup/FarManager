@@ -543,42 +543,42 @@ bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 	return r;
 };
 
-bool operator==(const TVar& a, const TVar& b)
+bool TVar::operator==(const TVar& b) const
 {
-	return CompAB(a, b, _cmp_Eq);
+	return CompAB(*this, b, _cmp_Eq);
 }
 
-bool operator<(const TVar& a, const TVar& b)
+bool TVar::operator<(const TVar& rhs) const
 {
-	return CompAB(a, b, _cmp_Lt);
+	return CompAB(*this, rhs, _cmp_Lt);
 }
 
-bool operator>(const TVar& a, const TVar& b)
+bool TVar::operator>(const TVar& rhs) const
 {
-	return CompAB(a, b, _cmp_Gt);
+	return CompAB(*this, rhs, _cmp_Gt);
 }
 
-TVar operator+(const TVar& a, const TVar& b)
+TVar TVar::operator+(const TVar& rhs) const
 {
 	TVar r;
 
-	switch (a.vType)
+	switch (vType)
 	{
 		case vtUnknown:
 		case vtInteger:
 		{
-			switch (b.vType)
+			switch (rhs.vType)
 			{
 				case vtUnknown:
-				case vtInteger: r = a.inum + b.inum;                   break;
-				case vtDouble:  r = (double)a.inum + b.dnum;           break;
+				case vtInteger: r = inum + rhs.inum;                   break;
+				case vtDouble:  r = (double)inum + rhs.dnum;           break;
 				case vtString:
 				{
-					switch (checkTypeString(b.str))
+					switch (checkTypeString(rhs.str))
 					{
-						case tsStr:   r = addStr(::toString(a.inum), b.asString());   break;
-						case tsInt:   r = a.inum + b.asInteger();                  break;
-						case tsFloat: r = (double)a.inum + b.asDouble();          break;
+						case tsStr:   r = addStr(::toString(inum), rhs.asString());   break;
+						case tsInt:   r = inum + rhs.asInteger();                  break;
+						case tsFloat: r = (double)inum + rhs.asDouble();          break;
 					}
 
 					break;
@@ -589,18 +589,18 @@ TVar operator+(const TVar& a, const TVar& b)
 		}
 		case vtDouble:
 		{
-			switch (b.vType)
+			switch (rhs.vType)
 			{
 				case vtUnknown:
-				case vtInteger: r = (double)a.inum + b.dnum;                break;
-				case vtDouble:  r = a.dnum + b.dnum;                        break;
+				case vtInteger: r = (double)inum + rhs.dnum;                break;
+				case vtDouble:  r = dnum + rhs.dnum;                        break;
 				case vtString:
 				{
-					switch (checkTypeString(b.str))
+					switch (checkTypeString(rhs.str))
 					{
-						case tsStr:   r = addStr(::toString(a.dnum), b.asString());  break;
+						case tsStr:   r = addStr(::toString(dnum), rhs.asString());  break;
 						case tsInt:
-						case tsFloat: r = a.dnum * b.asDouble(); break;
+						case tsFloat: r = dnum + rhs.asDouble(); break;
 					}
 
 					break;
@@ -611,21 +611,21 @@ TVar operator+(const TVar& a, const TVar& b)
 		}
 		case vtString:
 		{
-			TypeString tsA=checkTypeString(a.str),tsB;
+			TypeString tsA=checkTypeString(str),tsB;
 
-			if (b.vType == vtInteger || b.vType == vtUnknown)
+			if (rhs.vType == vtInteger || rhs.vType == vtUnknown)
 				tsB=tsInt;
-			else if (b.vType == vtDouble)
+			else if (rhs.vType == vtDouble)
 				tsB=tsFloat;
 			else
 				tsA=tsB=tsStr;
 
 			if ((tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr))
-				r = addStr(a.asString(), b.asString());
+				r = addStr(asString(), asString());
 			else if (tsA == tsInt && tsB == tsInt)
-				r = a.asInteger() + b.asInteger();
+				r = asInteger() + rhs.asInteger();
 			else
-				r = a.asDouble() + b.asDouble();
+				r = asDouble() + rhs.asDouble();
 
 			break;
 		}
@@ -634,34 +634,34 @@ TVar operator+(const TVar& a, const TVar& b)
 	return r;
 };
 
-TVar operator%(const TVar& a, const TVar& b)
+TVar TVar::operator%(const TVar& rhs) const
 {
 	TVar r;
 
-	switch (a.vType)
+	switch (vType)
 	{
 		case vtUnknown:
 		case vtInteger:
 		{
-			switch (b.vType)
+			switch (rhs.vType)
 			{
 				case vtUnknown:
-				case vtInteger: r = b.inum ? (a.inum % b.inum) : 0; break;
-				case vtDouble:  r = fabs(b.dnum) > DBL_EPSILON? fmod((double)a.inum, b.dnum) : 0.0; break;
+				case vtInteger: r = rhs.inum ? (inum % rhs.inum) : 0; break;
+				case vtDouble:  r = fabs(rhs.dnum) > DBL_EPSILON? fmod((double)inum, rhs.dnum) : 0.0; break;
 				case vtString:
 				{
-					switch (checkTypeString(b.str))
+					switch (checkTypeString(rhs.str))
 					{
-						case tsStr:   r = a;     break;
+						case tsStr:   r = *this;     break;
 						case tsInt:
 						{
-							long long bi=b.asInteger();
-							r = bi ? a.inum % bi : 0; break;
+							long long bi = rhs.asInteger();
+							r = bi ? inum % bi : 0; break;
 						}
 						case tsFloat:
 						{
-							double bd=b.asDouble();
-							r = fabs(bd) > DBL_EPSILON? fmod((double)a.inum, bd) : 0.0; break;
+							double bd = rhs.asDouble();
+							r = fabs(bd) > DBL_EPSILON? fmod((double)inum, bd) : 0.0; break;
 						}
 					}
 
@@ -673,21 +673,21 @@ TVar operator%(const TVar& a, const TVar& b)
 		}
 		case vtDouble:
 		{
-			switch (b.vType)
+			switch (rhs.vType)
 			{
 				case vtUnknown:
-				case vtInteger: r = b.inum ? fmod(a.dnum,(double)b.inum) : 0.0; break;
-				case vtDouble:  r = fabs(b.dnum) > DBL_EPSILON? fmod(a.dnum,b.dnum) : 0.0; break;
+				case vtInteger: r = rhs.inum ? fmod(dnum,(double)rhs.inum) : 0.0; break;
+				case vtDouble:  r = fabs(rhs.dnum) > DBL_EPSILON? fmod(dnum, rhs.dnum) : 0.0; break;
 				case vtString:
 				{
-					switch (checkTypeString(b.str))
+					switch (checkTypeString(rhs.str))
 					{
-						case tsStr:   r = a;     break;
+						case tsStr:   r = *this;     break;
 						case tsInt:
 						case tsFloat:
 						{
-							double bd=b.asDouble();
-							r = fabs(bd) > DBL_EPSILON? fmod(a.dnum, bd) : 0.0; break;
+							double bd = rhs.asDouble();
+							r = fabs(bd) > DBL_EPSILON? fmod(dnum, bd) : 0.0; break;
 						}
 					}
 
@@ -699,26 +699,26 @@ TVar operator%(const TVar& a, const TVar& b)
 		}
 		case vtString:
 		{
-			TypeString tsA=checkTypeString(a.str),tsB;
+			TypeString tsA=checkTypeString(str),tsB;
 
-			if (b.vType == vtInteger || b.vType == vtUnknown)
+			if (rhs.vType == vtInteger || rhs.vType == vtUnknown)
 				tsB=tsInt;
-			else if (b.vType == vtDouble)
+			else if (rhs.vType == vtDouble)
 				tsB=tsFloat;
 			else
 				tsA=tsB=tsStr;
 
 			if ((tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr))
-				r = a;
+				r = *this;
 			else if (tsA == tsInt && tsB == tsInt)
 			{
-				long long bi=b.asInteger();
-				r = bi ? (a.asInteger() % bi) : 0;
+				long long bi = rhs.asInteger();
+				r = bi ? (asInteger() % bi) : 0;
 			}
 			else
 			{
-				double bd=b.asDouble();
-				r = fabs(bd) > DBL_EPSILON? fmod(a.asDouble() , bd) : 0.0;
+				double bd = rhs.asDouble();
+				r = fabs(bd) > DBL_EPSILON? fmod(asDouble() , bd) : 0.0;
 			}
 
 			break;

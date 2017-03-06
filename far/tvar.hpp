@@ -71,9 +71,16 @@ public:
 	COPY_AND_MOVE(int);
 	COPY_AND_MOVE(double);
 
+	bool operator<(const TVar&) const;
+	bool operator>(const TVar&) const;
+	bool operator==(const TVar&) const;
 
-	TVar& operator+=(const TVar& b)  { return *this = *this + b; }
+	TVar& operator+=(const TVar& b) { return *this = *this + b; }
 	TVar operator-() const;
+
+	TVar operator+(const TVar&) const;
+	TVar operator-(const TVar&) const;
+	TVar operator%(const TVar&) const;
 
 	TVar& AppendStr(wchar_t);
 	TVar& AppendStr(const TVar&);
@@ -97,13 +104,6 @@ public:
 	long long asInteger() const;
 
 private:
-	friend TVar operator+(const TVar&, const TVar&);
-	friend TVar operator-(const TVar&, const TVar&);
-	friend bool operator<(const TVar&, const TVar&);
-	friend bool operator>(const TVar&, const TVar&);
-	friend TVar operator%(const TVar&, const TVar&);
-	friend bool operator==(const TVar&, const TVar&);
-
 	friend bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp);
 
 	long long inum;

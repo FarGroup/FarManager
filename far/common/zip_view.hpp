@@ -54,14 +54,14 @@ namespace detail
 		using reference = decltype(dereference(pointer()));
 		using value_type = reference;
 
-		template<size_t index = 0, ENABLE_IF(index < sizeof...(args)), typename operation>
+		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename operation>
 		static void alter_all(operation Operation, pointer& Tuple)
 		{
 			Operation(std::get<index>(Tuple));
 			alter_all<index + 1>(Operation, Tuple);
 		}
 
-		template<size_t index, ENABLE_IF(index >= sizeof...(args)), typename operation>
+		template<size_t index, REQUIRES(index >= sizeof...(args)), typename operation>
 		static void alter_all(operation, pointer&) {}
 	};
 
@@ -87,13 +87,14 @@ class zip_iterator:
 	public rel_ops<zip_iterator<args...>>
 {
 public:
-	zip_iterator(): m_Tuple() {}
+	zip_iterator() = default;
 	zip_iterator(const args&... Args): m_Tuple(Args...) {}
 	auto& operator++() { detail::traits<args...>::alter_all(detail::increment{}, m_Tuple); return *this; }
 	auto& operator--() { detail::traits<args...>::alter_all(detail::decrement{}, m_Tuple); return *this; }
 	auto operator==(const zip_iterator& rhs) const { return m_Tuple == rhs.m_Tuple; }
 	auto operator<(const zip_iterator& rhs) const { return m_Tuple < rhs.m_Tuple; }
 	auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
+
 private:
 	typename zip_iterator::pointer m_Tuple;
 };

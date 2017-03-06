@@ -142,8 +142,7 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.CustomColumnNumber=fi.CustomColumnNumber;
 	pi.Description=fi.DizText; //BUGBUG???
 
-	pi.UserData.Data=fi.UserData;
-	pi.UserData.FreeData=fi.Callback;
+	pi.UserData = fi.UserData;
 
 	pi.CRC32=fi.CRC32;
 	pi.Position=fi.Position;                        //! CHANGED
@@ -436,10 +435,10 @@ void FileList::list_data::clear()
 	{
 		if (m_Plugin)
 		{
-			if (i.Callback)
+			if (i.UserData.FreeData)
 			{
 				FarPanelItemFreeInfo info = { sizeof(FarPanelItemFreeInfo), m_Plugin };
-				i.Callback(i.UserData, &info);
+				i.UserData.FreeData(i.UserData.Data, &info);
 			}
 			delete[] i.DizText;
 		}
@@ -2620,7 +2619,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			const auto CheckFullScreen = IsFullScreen();
 			const auto OldParent = Parent();
-			ChangeDir(CurItem.strName, false, true, &CurItem);
+
+			// Don't use CurItem directly: ChangeDir calls PopPlugin, which clears m_ListData
+			const auto DirCopy = CurItem.strName;
+			const auto DataItemCopy = CurItem.UserData;
+			ChangeDir(DirCopy, false, true, &DataItemCopy);
 
 			//"this" может быть удалён в ChangeDir
 			const auto ActivePanel = OldParent->ActivePanel();
@@ -2724,7 +2727,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 {
 
-	FileListItem *CurPtr=nullptr;
+	UserDataItem UsedData{};
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
@@ -2759,19 +2762,19 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 		}
 		else if (m_CurFile < static_cast<int>(m_ListData.size()))
 		{
-			CurPtr = &m_ListData[m_CurFile];
+			UsedData = m_ListData[m_CurFile].UserData;
 		}
 	}
 
 	if (!NewDir.empty())
 	{
-		return ChangeDir(NewDir,true,IsUpdated,CurPtr);
+		return ChangeDir(NewDir, true, IsUpdated, &UsedData);
 	}
 
 	return false;
 }
 
-bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,const FileListItem *CurPtr)
+bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem)
 {
 	string strFindDir, strSetDir;
 
@@ -2861,12 +2864,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated,co
 		else
 		{
 			strFindDir = strInfoCurDir;
-
-			UserDataItem UserData = {};
-			UserData.Data=CurPtr?CurPtr->UserData:nullptr;
-			UserData.FreeData=CurPtr?CurPtr->Callback:nullptr;
-
-			SetDirectorySuccess=Global->CtrlObject->Plugins->SetDirectory(m_hPlugin,strSetDir,0,&UserData) != FALSE;
+			SetDirectorySuccess = Global->CtrlObject->Plugins->SetDirectory(m_hPlugin, strSetDir, 0, DataItem) != FALSE;
 		}
 
 		ProcessPluginCommand();
@@ -5503,8 +5501,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	pi.CustomColumnNumber=fi.CustomColumnNumber;
 	pi.Description=fi.DizText; //BUGBUG???
 
-	pi.UserData.Data=fi.UserData;
-	pi.UserData.FreeData=fi.Callback;
+	pi.UserData = fi.UserData;
 
 	pi.CRC32=fi.CRC32;
 	pi.Reserved[0]=pi.Reserved[1]=0;
@@ -5545,8 +5542,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			gpi->Item->CustomColumnData=(wchar_t**)data;
 			data+=fi.CustomColumnNumber*sizeof(wchar_t*);
 
-			gpi->Item->UserData.Data=fi.UserData;
-			gpi->Item->UserData.FreeData=fi.Callback;
+			gpi->Item->UserData = fi.UserData;
 
 			gpi->Item->FileName=wcscpy((wchar_t*)data,fi.strName.data());
 			data+=sizeof(wchar_t)*(fi.strName.size()+1);
@@ -5602,8 +5598,7 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	AllocationSize = pi.AllocationSize;
 
 	UserFlags = pi.Flags;
-	UserData = pi.UserData.Data;
-	Callback = pi.UserData.FreeData;
+	UserData = pi.UserData;
 
 	FileAttr = pi.FileAttributes;
 	// we don't really know, but it's better than show it as 'unknown'
@@ -7675,7 +7670,17 @@ void FileList::ShowFileList(int Fast)
 		//Text(string(X2 - X1 - 1, L' '));
 	}
 
-	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !m_ListData.empty() && (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES))
+	if (m_PanelMode == panel_mode::PLUGIN_PANEL
+		&& !m_ListData.empty()
+		&& (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES)
+		// Network plugin sets OPIF_REALNAMES when showing list of shares as they are real FS objects (see M#650).
+		// However, \\server itself is not a real FS directory in any way and it is not possible to set it on a real panel.
+		// We can't simply remove the code below, as other plugins rely on this feature (e. g. Ctrl+PgUp in TmpPanel
+		// "exits" to the CurDir, dynamically set by the plugin), so disabling it for the Network plugin only for now.
+		// Yes, it is ugly, I know. It probably would be better to set CurDir in the Network plugin dynamically in this case
+		// as \\server\current_share_under_cursor, but the plugin doesn't keep that information currently.
+		&& m_hPlugin->plugin()->GetGUID() != Global->Opt->KnownIDs.Network.Id
+	)
 	{
 		if (!strInfoCurDir.empty())
 		{

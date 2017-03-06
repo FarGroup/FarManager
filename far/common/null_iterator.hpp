@@ -33,7 +33,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template <class T>
-class null_iterator_t: public std::iterator<std::forward_iterator_tag, T>
+class null_iterator_t:
+	public std::iterator<std::forward_iterator_tag, T>,
+	public rel_ops<null_iterator_t<T>>
 {
 public:
 	null_iterator_t(T* Data): m_Data(Data) {}
@@ -45,7 +47,6 @@ public:
 	auto operator->() const noexcept { return m_Data; }
 	static const auto& end() { static T Empty{}; static null_iterator_t Iter(&Empty); return Iter; }
 	bool operator==(const null_iterator_t& rhs) const { return m_Data == rhs.m_Data || (!*m_Data && !*rhs.m_Data); }
-	bool operator!=(const null_iterator_t& rhs) const { return !(*this == rhs); }
 
 private:
 	T* m_Data;

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace encoding
 {
-	#define NOT_PTR(T) typename T, ENABLE_IF(!std::is_pointer<T>::value)
+	#define NOT_PTR(T) typename T, REQUIRES(!std::is_pointer<T>::value)
 
 	size_t get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
 

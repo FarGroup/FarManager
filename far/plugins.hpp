@@ -127,7 +127,7 @@ public:
 	static void FreeFindData(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
 	static int GetVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const string& Path);
 	static void FreeVirtualFindData(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
-	static int SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, UserDataItem *UserData=nullptr);
+	static int SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem* UserData = nullptr);
 	static int GetFile(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,const string& DestPath,string &strResultName,int OpMode);
 	static int GetFiles(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
 	static int PutFiles(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);

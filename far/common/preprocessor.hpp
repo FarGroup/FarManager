@@ -116,7 +116,7 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 #define WIDE_IMPL(x) L##x
 #define WIDE(x) WIDE_IMPL(x)
 
-#define ENABLE_IF(...) std::enable_if_t<__VA_ARGS__>* = nullptr
+#define REQUIRES(...) std::enable_if_t<__VA_ARGS__>* = nullptr
 
 #define TERSE_STATIC_ASSERT(...) static_assert(__VA_ARGS__, #__VA_ARGS__)
 

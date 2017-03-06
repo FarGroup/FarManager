@@ -75,7 +75,7 @@ static constexpr wchar_t FolderShortcutsKey[] = L"Shortcuts";
 static constexpr wchar_t HelpFolderShortcuts[] = L"FolderShortcuts";
 
 
-struct Shortcuts::shortcut
+struct Shortcuts::shortcut: public rel_ops<Shortcuts::shortcut>
 {
 private:
 	auto tie() const
@@ -99,7 +99,6 @@ public:
 	}
 
 	bool operator==(const shortcut& rhs) const { return tie() == rhs.tie(); }
-	bool operator!=(const shortcut& rhs) const { return !(*this == rhs); }
 
 	shortcut clone() const
 	{

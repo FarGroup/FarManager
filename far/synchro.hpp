@@ -60,9 +60,9 @@ private:
 using critical_section_lock = std::lock_guard<critical_section>;
 
 template<class T, class S>
-string make_name(const S& HashPart, const S& TextPart)
+auto make_name(const S& HashPart, const S& TextPart)
 {
-	auto Str = T::get_namespace() + str(make_hash(HashPart)) + L"_" + TextPart;
+	auto Str = concat(T::get_namespace(), str(make_hash(HashPart)), L'_', TextPart);
 	ReplaceBackslashToSlash(Str);
 	return Str;
 }
@@ -91,7 +91,7 @@ public:
 		}
 	}
 
-	unsigned int get_id() const { return m_ThreadId; }
+	auto get_id() const { return m_ThreadId; }
 
 	bool joinable() const { return *this != nullptr; }
 
@@ -149,7 +149,7 @@ public:
 	NONCOPYABLE(mutex);
 	TRIVIALLY_MOVABLE(mutex);
 
-	mutex(const wchar_t* Name = nullptr): os::handle(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
+	mutex(const wchar_t* Name = nullptr): handle(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
 
 	static constexpr auto get_namespace() { return L"Far_Manager_Mutex_"; }
 
@@ -168,7 +168,7 @@ public:
 	enum class state { nonsignaled, signaled };
 
 	event() = default;
-	event(type Type, state InitialState, const wchar_t* Name = nullptr): os::handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(Name))) {}
+	event(type Type, state InitialState, const wchar_t* Name = nullptr): handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(Name))) {}
 
 	static constexpr auto get_namespace() { return L"Far_Manager_Event_"; }
 
@@ -222,16 +222,16 @@ public:
 	bool try_pop(T& To)
 	{
 		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
-		if (!m_Queue.empty())
-		{
-			To = std::move(m_Queue.front());
-			m_Queue.pop();
-			return true;
-		}
-		return false;
+
+		if (m_Queue.empty())
+			return false;
+
+		To = std::move(m_Queue.front());
+		m_Queue.pop();
+		return true;
 	}
 
-	size_t size() const
+	auto size() const
 	{
 		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
 		return m_Queue.size();
@@ -264,7 +264,7 @@ public:
 	multi_waiter() { m_Objects.reserve(10); }
 	template<typename T>
 	multi_waiter(T Begin, T End) { std::for_each(Begin, End, [this](const auto& i){ this->add(i); }); }
-	void add(const os::handle& Object) { assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS); m_Objects.emplace_back(Object.native_handle()); }
+	void add(const handle& Object) { assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS); m_Objects.emplace_back(Object.native_handle()); }
 	void add(HANDLE handle) { assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS); m_Objects.emplace_back(handle); }
 	DWORD wait(mode Mode = mode::all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, Milliseconds); }
 	void clear() {m_Objects.clear();}
