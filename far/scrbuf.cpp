@@ -365,7 +365,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 			{
 				if (Global->WaitInMainLoop && Global->Opt->Clock)
 				{
-					ShowTime();
+					ShowTimeInBackground();
 				}
 
 				std::vector<SMALL_RECT>WriteList;

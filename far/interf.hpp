@@ -111,6 +111,7 @@ enum BOX_DEF_SYMBOLS
 };
 
 void ShowTime();
+void ShowTimeInBackground();
 
 /*$ 14.02.2001 SKV
   Инитить ли палитру default значениями.

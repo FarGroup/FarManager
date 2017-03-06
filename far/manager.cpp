@@ -1056,7 +1056,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 			||
 			(Global->WaitInMainLoop && Global->Opt->Clock)
 		)
-			ShowTime();
+			ShowTimeInBackground();
 	});
 }
 

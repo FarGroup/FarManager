@@ -415,7 +415,7 @@ Dialog::~Dialog()
 	if (Global)
 	{
 		if (Global->Opt->Clock && Global->WindowManager->IsPanelsActive(true))
-			ShowTime();
+			ShowTimeInBackground();
 
 		if (!CheckDialogMode(DMODE_ISMENU))
 			Global->ScrBuf->Flush();

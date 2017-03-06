@@ -592,9 +592,15 @@ void UpdateScreenSize()
 	Global->ScrBuf->AllocBuf(NewSize.Y, NewSize.X);
 }
 
+void ShowTimeInBackground()
+{
+	if (!Global->SuppressClock)
+		ShowTime();
+}
+
 void ShowTime()
 {
-	if (Global->ScreenSaverActive || Global->SuppressClock)
+	if (Global->ScreenSaverActive)
 		return;
 
 	Global->CurrentTime.update();
@@ -613,7 +619,7 @@ void ShowTime()
 		int ModType=CurrentWindow->GetType();
 		SetColor(ModType==windowtype_viewer?COL_VIEWERCLOCK:(ModType==windowtype_editor?COL_EDITORCLOCK:COL_CLOCK));
 		Text(Global->CurrentTime.get());
- 		Global->LastShownTimeSize = Global->CurrentTime.size();
+		Global->LastShownTimeSize = Global->CurrentTime.size();
 	}
 }
 

@@ -67,7 +67,7 @@ void GetColor(PaletteColors PaletteIndex)
 	Global->WindowManager->PluginCommit(); // коммитим.
 
 	if (Global->Opt->Clock)
-		ShowTime();
+		ShowTimeInBackground();
 
 	Global->ScrBuf->Unlock(); // разрешаем прорисовку
 	Global->WindowManager->PluginCommit(); // коммитим.

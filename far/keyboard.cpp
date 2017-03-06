@@ -792,7 +792,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	const auto EnableShowTime = Global->Opt->Clock && (Global->WaitInMainLoop || (Global->CtrlObject && Global->CtrlObject->Macro.GetArea() == MACROAREA_SEARCH));
 
 	if (EnableShowTime)
-		ShowTime();
+		ShowTimeInBackground();
 
 	Global->ScrBuf->Flush();
 
@@ -864,7 +864,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			clock_t CurTime=clock();
 
 			if (EnableShowTime)
-				ShowTime();
+				ShowTimeInBackground();
 
 			if (Global->WaitInMainLoop)
 			{
@@ -983,7 +983,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	}
 
 	if (EnableShowTime)
-		ShowTime();
+		ShowTimeInBackground();
 
 	if (rec->EventType == FOCUS_EVENT)
 	{

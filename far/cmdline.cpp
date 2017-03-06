@@ -995,7 +995,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
-	
+
 	if (!StrCmpI(Command.data(), L"far:about"))
 	{
 		string strOut = concat(L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n');
@@ -1060,7 +1060,7 @@ void CommandLine::ExecString(execute_info& Info)
 			}
 		}
 		if (Global->Opt->Clock)
-			ShowTime();
+			ShowTimeInBackground();
 
 		if (!Silent)
 		{
