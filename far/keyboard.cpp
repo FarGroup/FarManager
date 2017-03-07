@@ -789,7 +789,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		return ProcessMacroEvent();
 	}
 
-	const auto EnableShowTime = Global->Opt->Clock && (Global->WaitInMainLoop || (Global->CtrlObject && Global->CtrlObject->Macro.GetArea() == MACROAREA_SEARCH));
+	const auto EnableShowTime = Global->Opt->Clock && (Global->IsPanelsActive() || (Global->CtrlObject && Global->CtrlObject->Macro.GetArea() == MACROAREA_SEARCH));
 
 	if (EnableShowTime)
 		ShowTimeInBackground();
@@ -866,7 +866,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			if (EnableShowTime)
 				ShowTimeInBackground();
 
-			if (Global->WaitInMainLoop)
+			if (Global->IsPanelsActive())
 			{
 				if (!(LoopCount & 63))
 				{
@@ -890,7 +890,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 				if (!ScreenSaver())
 					return KEY_NONE;
 
-			if (!Global->WaitInMainLoop && LoopCount==64)
+			if (!Global->IsPanelsActive() && LoopCount==64)
 			{
 				LastEventIdle = true;
 				*rec = {};
@@ -1061,8 +1061,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse, bo
 		{
 			ProcessConsoleInputInfo Info = { sizeof(Info), PCIF_NONE, *rec };
 
-			if (Global->WaitInMainLoop)
-				Info.Flags |= PCIF_FROMMAIN;
 			switch (Global->CtrlObject->Plugins->ProcessConsoleInput(&Info))
 			{
 			case 1:

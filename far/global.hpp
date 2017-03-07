@@ -57,11 +57,11 @@ public:
 	const string& GetSearchString() const { return m_SearchString; }
 	bool GetSearchHex() const { return m_SearchHex; }
 	void StoreSearchString(const string& Str, bool Hex);
+	bool IsPanelsActive() const;
 
 	// BUGBUG
 
 	clock_t StartIdleTime;
-	int WaitInMainLoop;
 	string g_strFarModuleName;
 	string g_strFarINI;
 	string g_strFarPath;
@@ -89,7 +89,7 @@ public:
 
 	private:
 		string m_CurrentTime;
-	
+
 	};
 
 	far_clock CurrentTime;

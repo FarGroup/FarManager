@@ -754,7 +754,6 @@ bool RunGraber()
 	if (!InGrabber)
 	{
 		InGrabber=true;
-		Global->WaitInMainLoop=FALSE;
 		FlushInputBuffer();
 		Grabber::create();
 		InGrabber=false;

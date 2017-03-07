@@ -611,10 +611,8 @@ void Manager::ProcessMainLoop()
 	else
 	{
 		// Mantis#0000073: Не работает автоскролинг в QView
-		Global->WaitInMainLoop=IsPanelsActive(true);
 		INPUT_RECORD rec;
 		int Key=GetInputRecord(&rec);
-		Global->WaitInMainLoop=FALSE;
 
 		if (EndLoop)
 			return;
@@ -874,12 +872,12 @@ void Manager::PluginsMenu() const
 	_MANAGER(SysLog(-1));
 }
 
-bool Manager::IsPanelsActive(bool and_not_qview) const
+bool Manager::IsPanelsActive(bool and_not_qview, bool or_autocomplete) const
 {
 	if (!m_windows.empty() && GetCurrentWindow())
 	{
 		const auto fp = std::dynamic_pointer_cast<FilePanels>(GetCurrentWindow());
-		return fp && (!and_not_qview || fp->ActivePanel()->GetType() != panel_type::QVIEW_PANEL);
+		return (or_autocomplete && MACROAREA_SHELLAUTOCOMPLETION == GetCurrentWindow()->GetMacroArea()) || (fp && (!and_not_qview || fp->ActivePanel()->GetType() != panel_type::QVIEW_PANEL));
 	}
 	else
 	{
@@ -1054,7 +1052,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 		(
 			(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
 			||
-			(Global->WaitInMainLoop && Global->Opt->Clock)
+			(Global->IsPanelsActive() && Global->Opt->Clock)
 		)
 			ShowTimeInBackground();
 	});

@@ -754,13 +754,9 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 	Manager::Key Key;
 	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))
 	{
-		// BUGBUG, hack
-		int Wait=Global->WaitInMainLoop;
-		Global->WaitInMainLoop=1;
 		struct FAR_INPUT_RECORD irec={(DWORD)Key(), Key.Event()};
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			m_ParentProcessKey(Manager::Key(Key));
-		Global->WaitInMainLoop=Wait;
 		int CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 		if (CurWindowType == windowtype_dialog || CurWindowType == windowtype_panels)
 		{

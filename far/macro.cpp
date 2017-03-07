@@ -634,7 +634,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				}
 
 				// Где мы?
-				m_StartMode=(m_Area==MACROAREA_SHELL&&!Global->WaitInMainLoop)?MACROAREA_OTHER:m_Area;
+				m_StartMode=m_Area;
 				// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 				// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
 				m_Recording=ctrldot?MACROSTATE_RECORDING_COMMON:MACROSTATE_RECORDING;
@@ -667,9 +667,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 		{
 			if (ctrldot||ctrlshiftdot) // признак конца записи?
 			{
-				int WaitInMainLoop0=Global->WaitInMainLoop;
 				m_InternalInput=1;
-				Global->WaitInMainLoop=FALSE;
 				DWORD MacroKey;
 				// выставляем флаги по умолчанию.
 				UINT64 Flags=0;
@@ -686,8 +684,6 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 						AssignRet=0;
 					}
 				}
-
-				Global->WaitInMainLoop=WaitInMainLoop0;
 				m_InternalInput=0;
 				if (AssignRet)
 				{
@@ -1510,8 +1506,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	// проверка на область
 	if (CheckCode == 0)
 	{
-		return PassNumber (Global->WaitInMainLoop ?
-			Global->WindowManager->GetCurrentWindow()->GetMacroArea() : GetArea(), Data);
+		return PassNumber (Global->WindowManager->GetCurrentWindow()->GetMacroArea(), Data);
 	}
 
 	const auto ActivePanel = Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel() : nullptr;

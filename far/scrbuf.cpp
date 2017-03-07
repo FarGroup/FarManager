@@ -363,7 +363,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 			if (!SBFlags.Check(SBFLAGS_FLUSHED))
 			{
-				if (Global->WaitInMainLoop && Global->Opt->Clock)
+				if (Global->IsPanelsActive() && Global->Opt->Clock)
 				{
 					ShowTimeInBackground();
 				}

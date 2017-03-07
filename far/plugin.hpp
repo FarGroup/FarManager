@@ -2891,7 +2891,6 @@ struct ProcessEditorInputInfo
 
 typedef unsigned long long PROCESSCONSOLEINPUT_FLAGS;
 static const PROCESSCONSOLEINPUT_FLAGS
-	PCIF_FROMMAIN = 0x0000000000000001ULL,
 	PCIF_NONE     = 0;
 
 struct ProcessConsoleInputInfo

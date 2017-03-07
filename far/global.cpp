@@ -72,8 +72,6 @@ global::global():
 	// идет процесс назначения клавиши в макросе?
 	IsProcessAssignMacroKey=FALSE;
 	PluginPanelsCount = 0;
-	// мы крутимся в основном цикле?
-	WaitInMainLoop=FALSE;
 	StartIdleTime=0;
 	GlobalSearchCase=false;
 	GlobalSearchWholeWords=false; // значение "Whole words" для поиска
@@ -136,6 +134,11 @@ void global::StoreSearchString(const string& Str, bool Hex)
 {
 	m_SearchHex = Hex;
 	m_SearchString = Str;
+}
+
+bool global::IsPanelsActive() const
+{
+	return Global->WindowManager && Global->WindowManager->IsPanelsActive(true, true);
 }
 
 global::far_clock::far_clock()
