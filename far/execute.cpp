@@ -854,7 +854,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			seInfo.lpParameters = strNewCmdPar.data();
 		}
 
-		const auto& GetVerb = [&Verb](const string& Str)
+		const auto& GetVerb = [](const string& Str)
 		{
 			DWORD DummyError;
 			string DummyString;

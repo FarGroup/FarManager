@@ -41,7 +41,7 @@ class installed_codepages
 {
 public:
 	installed_codepages();
-	const cp_map& get() const { return m_InstalledCp; }
+	const auto& get() const { return m_InstalledCp; }
 
 private:
 	void insert(UINT Codepage, UINT MaxCharSize, const string& Name)

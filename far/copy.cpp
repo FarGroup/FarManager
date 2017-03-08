@@ -1200,12 +1200,9 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				// Позаботимся о дизах.
 				if (!(Flags&FCOPY_COPYTONUL) && !strDestDizPath.empty())
 				{
-					const auto Attr = os::GetFileAttributes(DestDiz.GetDizName());
-					int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
-
-					if (LastIteration) // Скидываем только во время последней Op.
-						if (Move && !DestReadOnly)
-							SrcPanel->FlushDiz();
+					// Скидываем только во время последней Op.
+					if (LastIteration && Move && !os::fs::file_status(DestDiz.GetDizName()).check(FILE_ATTRIBUTE_READONLY))
+						SrcPanel->FlushDiz();
 
 					DestDiz.Flush(strDestDizPath);
 				}
@@ -1222,10 +1219,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	{                 // равно нужно апдейтить дизы!
 		if (!(Flags&FCOPY_COPYTONUL) && !strDestDizPath.empty())
 		{
-			const auto Attr = os::GetFileAttributes(DestDiz.GetDizName());
-			int DestReadOnly=(Attr!=INVALID_FILE_ATTRIBUTES && (Attr & FILE_ATTRIBUTE_READONLY));
-
-			if (Move && !DestReadOnly)
+			if (Move && !os::fs::file_status(DestDiz.GetDizName()).check(FILE_ATTRIBUTE_READONLY))
 				SrcPanel->FlushDiz();
 
 			DestDiz.Flush(strDestDizPath);

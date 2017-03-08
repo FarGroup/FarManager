@@ -385,11 +385,12 @@ public:
 	HierarchicalConfigUniquePtr CreatePanelModeConfig();
 
 private:
-	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local = false, bool plugin = false);
-	template<class T> std::unique_ptr<T> CreateDatabase(const char *son = nullptr);
+	template<class T> void CheckAndImportDatabase(T* Database, const char* ImportNodeName, bool IsPlugin);
+	template<class T> std::unique_ptr<T> CreateDatabase();
+	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, const string& DbName, const char* ImportNodeName, bool IsLocal = false, bool IsPlugin = false);
 	bool Import(const string& File);
 	bool Export(const string& File);
-	void TryImportDatabase(representable *p, const char *son = nullptr, bool plugin=false);
+	void TryImportDatabase(representable* p, const char* NodeName = nullptr, bool IsPlugin = false);
 	void CheckDatabase(class SQLiteDb *pDb);
 
 	int m_LoadResult;

@@ -199,13 +199,30 @@ constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_
 	return (Size + (Alignment - 1)) & ~(Alignment - 1);
 }
 
-template<class T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
-struct aligned_sizeof
+namespace detail
 {
-	enum
+	template<class T, int Alignment>
+	struct aligned_sizeof_t
 	{
-		value = aligned_size(sizeof(T), Alignment)
+		enum
+		{
+			value = aligned_size(sizeof(T), Alignment)
+		};
 	};
+}
+
+template<typename T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
+constexpr auto aligned_sizeof()
+{
+	return detail::aligned_sizeof_t<T, Alignment>::value;
+}
+
+template<typename T>
+class base: public T
+{
+protected:
+	using T::T;
+	using base_type = base;
 };
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

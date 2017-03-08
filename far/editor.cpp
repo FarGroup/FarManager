@@ -816,7 +816,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			if (!EdOpt.PersistentBlocks)
 			{
-				static int UnmarkKeys[]=
+				static const unsigned int UnmarkKeys[]=
 				{
 					KEY_LEFT,      KEY_NUMPAD4,
 					KEY_RIGHT,     KEY_NUMPAD6,
@@ -6801,7 +6801,7 @@ Editor::numbered_iterator Editor::InsertString(const wchar_t* Str, int nLength, 
 	const auto NewLine = numbered_iterator(Lines.emplace(Where, GetOwner()), Where.Number());
 	m_LinesCount++;
 
-	const auto& UpdateIterator = [&NewLine, &Where](numbered_iterator& What)
+	const auto& UpdateIterator = [&Where](numbered_iterator& What)
 	{
 		if (What.Number() >= Where.Number())
 		{

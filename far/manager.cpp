@@ -506,7 +506,7 @@ void Manager::SwitchWindow(DirectionType Direction)
 {
 	const auto windows = GetSortedWindows();
 	auto pos = windows.find(GetBottomWindow());
-	const auto& process = [&, this]()
+	const auto& process = [&]()
 	{
 		if (Direction==Manager::NextWindow)
 		{

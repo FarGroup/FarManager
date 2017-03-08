@@ -50,14 +50,6 @@ namespace components
 		GetComponentsList().add(this);
 	}
 
-	components_list::components_list():
-		list(),
-		ptr(),
-		enum_ptr(),
-		m_size()
-	{
-	}
-
 	void components_list::add(component* item)
 	{
 		if (!list)
@@ -78,13 +70,12 @@ namespace components
 		if (!index)
 			enum_ptr = list;
 
-		if (enum_ptr)
-		{
-			value = enum_ptr->m_getInfo;
-			enum_ptr = enum_ptr->m_next;
-			return true;
-		}
-		return false;
+		if (!enum_ptr)
+			return false;
+
+		value = enum_ptr->m_getInfo;
+		enum_ptr = enum_ptr->m_next;
+		return true;
 	}
 
 	std::map<string, string>& GetComponentsInfo()

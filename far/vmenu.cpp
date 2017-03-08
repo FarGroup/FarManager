@@ -2320,7 +2320,8 @@ void VMenu::ShowMenu(bool IsParent)
 
 			SetColor(Colors[VMenuColorText]);
 			// сделаем добавочку для NO_BOX
-			Text(string(m_X2 - m_X1 + (m_BoxType == NO_BOX? + 1 : - 1), L' '));
+			const auto Size = m_X2 - m_X1 + (m_BoxType == NO_BOX ? +1 : -1);
+			Text(string(Size, L' '));
 		}
 	}
 

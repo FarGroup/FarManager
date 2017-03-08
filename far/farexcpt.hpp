@@ -55,6 +55,11 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 	// GCC doesn't support these currently
 	return Callable();
 #else
+#if COMPILER == C_CLANG
+	// Workaround for clang "filter expression type should be an integral value" error
+	std::function<DWORD(DWORD, EXCEPTION_POINTERS*)> FilterWrapper = Filter;
+#define Filter FilterWrapper
+#endif
 	__try
 	{
 		return Callable();
@@ -66,6 +71,9 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 		ResetStackOverflowIfNeeded();
 		return Handler();
 	}
+#if COMPILER == C_CLANG
+#undef Filter
+#endif
 #endif
 }
 

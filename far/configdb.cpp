@@ -2149,7 +2149,7 @@ void config_provider::CheckDatabase(SQLiteDb *pDb)
 	}
 }
 
-void config_provider::TryImportDatabase(representable *p, const char *son, bool plugin)
+void config_provider::TryImportDatabase(representable* p, const char* NodeName, bool IsPlugin)
 {
 	if (!m_TemplateSource && !Global->Opt->TemplateProfilePath.empty())
 	{
@@ -2160,13 +2160,13 @@ void config_provider::TryImportDatabase(representable *p, const char *son, bool 
 	{
 		auto root = m_TemplateSource->GetRoot();
 
-		if (!son)
+		if (!NodeName)
 		{
 			p->Import(*m_TemplateSource);
 		}
-		else if (!plugin)
+		else if (!IsPlugin)
 		{
-			m_TemplateSource->SetRoot(root.FirstChildElement(son));
+			m_TemplateSource->SetRoot(root.FirstChildElement(NodeName));
 			p->Import(*m_TemplateSource);
 		}
 		else
@@ -2174,7 +2174,7 @@ void config_provider::TryImportDatabase(representable *p, const char *son, bool 
 			for (const auto& i: xml_enum(root.FirstChildElement("pluginsconfig"), "plugin"))
 			{
 				const auto guid = i->Attribute("guid");
-				if (guid && 0 == strcmp(guid, son))
+				if (guid && 0 == strcmp(guid, NodeName))
 				{
 					m_TemplateSource->SetRoot(&const_cast<tinyxml::XMLElement&>(*i));
 					p->Import(*m_TemplateSource);
@@ -2187,31 +2187,33 @@ void config_provider::TryImportDatabase(representable *p, const char *son, bool 
 }
 
 template<class T>
-std::unique_ptr<T> config_provider::CreateDatabase(const char *son)
+void config_provider::CheckAndImportDatabase(T* Database, const char* ImportNodeName, bool IsPlugin)
 {
-	auto cfg = std::make_unique<T>();
-	CheckDatabase(cfg.get());
-	if (m_Mode != mode::m_import && cfg->IsNew())
+	CheckDatabase(Database);
+	if (m_Mode != mode::m_import && Database->IsNew())
 	{
-		TryImportDatabase(cfg.get(), son);
+		TryImportDatabase(Database, ImportNodeName, IsPlugin);
 	}
-	return cfg;
 }
 
 template<class T>
-HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, const string& dbn, const char *xmln, bool Local, bool plugin)
+std::unique_ptr<T> config_provider::CreateDatabase()
 {
-	auto cfg = std::make_unique<T>(dbn, Local);
+	auto Database = std::make_unique<T>();
+	CheckAndImportDatabase(Database.get(), nullptr, false);
+	return Database;
+}
+
+template<class T>
+HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, const string& DbName, const char* ImportNodeName, bool IsLocal, bool IsPlugin)
+{
+	auto Database = std::make_unique<T>(DbName, IsLocal);
 	if (!m_CheckedDb.Check(DbId))
 	{
-		CheckDatabase(cfg.get());
-		if (m_Mode != mode::m_import && cfg->IsNew())
-		{
-			TryImportDatabase(cfg.get(), xmln, plugin);
-		}
+		CheckAndImportDatabase(Database.get(), ImportNodeName, IsPlugin);
 		m_CheckedDb.Set(DbId);
 	}
-	return HierarchicalConfigUniquePtr(cfg.release());
+	return HierarchicalConfigUniquePtr(Database.release());
 }
 
 enum dbcheck: int

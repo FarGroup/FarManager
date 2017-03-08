@@ -39,7 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4091) // https://msdn.microsoft.com/en-us/library/eehkcz60.aspx 'typedef ': ignored on left of 'type' when no variable is declared
 #pragma warning(disable: 4265) // https://msdn.microsoft.com/en-us/library/wzxffy8c.aspx 'class' : class has virtual functions, but destructor is not virtual
 #pragma warning(disable: 4668) // https://msdn.microsoft.com/en-us/library/4dt9kyhy.aspx 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
+#pragma warning(disable: 4774) // no page                                                'function' : format string expected in argument 'number' is not a string literal
 #pragma warning(disable: 4917) // https://msdn.microsoft.com/en-us/library/3w98z1xh.aspx 'declarator' : a GUID can only be associated with a class, interface or namespace
+#pragma warning(disable: 4987) // no page                                                nonstandard extension used: 'throw (...)'
 #pragma warning(disable: 4996) // https://msdn.microsoft.com/en-us/library/ttcz0bys.aspx The compiler encountered a deprecated declaration
 #else
 // these in the rest of the code as well

@@ -43,45 +43,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class FileFilter;
 class Plugin;
 
-namespace detail
-{
-	struct FileListItemPod
-	{
-		// KEEP ALIGNED!
-		FILETIME CreationTime;
-		FILETIME AccessTime;
-		FILETIME WriteTime;
-		FILETIME ChangeTime;
-
-		unsigned long long FileSize;
-		unsigned long long AllocationSize;
-
-		UINT64 UserFlags;
-		UserDataItem UserData;
-
-		DWORD FileAttr;
-		DWORD ReparseTag;
-
-		mutable const HighlightFiles::highlight_item* Colors;
-
-		wchar_t **CustomColumnData;
-		size_t CustomColumnNumber;
-		size_t Position;
-
-		int SortGroup;
-		DWORD CRC32;
-
-		const wchar_t *DizText;
-
-		char Selected;
-		char PrevSelected;
-		char ShowFolderSize;
-	};
-}
-
 using content_data_ptr = std::unique_ptr<std::unordered_map<string, string>>;
 
-class FileListItem: public detail::FileListItemPod
+class FileListItem
 {
 public:
 	NONCOPYABLE(FileListItem);
@@ -105,15 +69,45 @@ public:
 	bool IsContentDataRead() const;
 	const content_data_ptr& ContentData(const FileList* Owner) const;
 
+	// KEEP ALIGNED!
+	FILETIME CreationTime{};
+	FILETIME AccessTime{};
+	FILETIME WriteTime{};
+	FILETIME ChangeTime{};
+
+	unsigned long long FileSize{};
+	unsigned long long AllocationSize{};
+
+	UINT64 UserFlags{};
+	UserDataItem UserData{};
+
+	DWORD FileAttr{};
+	DWORD ReparseTag{};
+
+	mutable const HighlightFiles::highlight_item* Colors{};
+
+	wchar_t** CustomColumnData{};
+	size_t CustomColumnNumber{};
+	size_t Position{};
+
+	int SortGroup{};
+	DWORD CRC32{};
+
+	const wchar_t *DizText{};
+
+	char Selected{};
+	char PrevSelected{};
+	char ShowFolderSize{};
+
 	string strName;
 	string strShortName;
 
 	struct values
 	{
 		template<class T>
-		static constexpr T uninitialised(T) { return -2; }
+		static constexpr T uninitialised(const T&) { return -2; }
 		template<class T>
-		static constexpr T unknown(T) { return -1; }
+		static constexpr T unknown(const T&) { return -1; }
 	};
 
 private:

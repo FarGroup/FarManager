@@ -40,18 +40,18 @@ namespace os
 	namespace detail
 	{
 		template<class deleter>
-		class handle_t: public std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>
+		class handle_t: public base<std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>>
 		{
-			using base = std::unique_ptr<std::remove_pointer_t<HANDLE>, deleter>;
+			using base_type = typename handle_t::base_type;
 
 		public:
 			TRIVIALLY_MOVABLE(handle_t);
 
 			constexpr handle_t() = default;
 			constexpr handle_t(nullptr_t) {}
-			explicit handle_t(HANDLE Handle): base(normalise(Handle)) {}
-			void reset(HANDLE Handle = nullptr) { base::reset(normalise(Handle)); }
-			HANDLE native_handle() const { return base::get(); }
+			explicit handle_t(HANDLE Handle): base_type(normalise(Handle)) {}
+			void reset(HANDLE Handle = nullptr) { base_type::reset(normalise(Handle)); }
+			HANDLE native_handle() const { return base_type::get(); }
 			void close() { reset(); }
 			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(native_handle(), Milliseconds) == WAIT_OBJECT_0; }
 			bool is_signaled() const { return wait(0); }

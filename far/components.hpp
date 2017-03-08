@@ -65,12 +65,12 @@ namespace components
 
 		bool get(size_t index, value_type& value) const;
 
-		components_list();
+		components_list() = default;
 
-		component* list;
-		component* ptr;
-		mutable component* enum_ptr;
-		size_t m_size;
+		component* list{};
+		component* ptr{};
+		mutable component* enum_ptr{};
+		size_t m_size{};
 	};
 
 	std::map<string, string>& GetComponentsInfo();

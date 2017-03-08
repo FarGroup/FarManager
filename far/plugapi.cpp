@@ -196,9 +196,8 @@ long long WINAPI apiAtoi64(const wchar_t *s) noexcept
 
 void WINAPI apiQsort(void *base, size_t nelem, size_t width, cfunctions::comparer fcmp, void *user) noexcept
 {
-
 	//noexcept
-	return cfunctions::qsortex((char*)base,nelem,width,fcmp,user);
+	return cfunctions::qsortex(static_cast<char*>(base),nelem,width,fcmp,user);
 }
 
 void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, cfunctions::comparer fcmp, void *user) noexcept
@@ -422,7 +421,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 		if (ACTL_GETWINDOWTYPE==Command)
 		{
-			WindowType* info=(WindowType*)Param2;
+			const auto info = static_cast<WindowType*>(Param2);
 			if (CheckStructSize(info))
 			{
 				WINDOWINFO_TYPE type=WindowTypeToPluginWindowType(Manager::GetCurrentWindowType());
@@ -471,7 +470,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		{
 		case ACTL_GETFARMANAGERVERSION:
 			if (Param2)
-				*(VersionInfo*)Param2=FAR_VERSION;
+				*static_cast<VersionInfo*>(Param2) = FAR_VERSION;
 
 			return TRUE;
 
@@ -482,7 +481,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			возвращает 0;
 		*/
 		case ACTL_WAITKEY:
-			WaitKey(Param2?InputRecordToKey((const INPUT_RECORD*)Param2):-1,0,false);
+			WaitKey(Param2? InputRecordToKey(static_cast<const INPUT_RECORD*>(Param2)) : -1, 0, false);
 			return 0;
 
 		/* $ 04.12.2000 SVS
@@ -522,7 +521,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_SETARRAYCOLOR:
 		{
-			FarSetColors *Pal=(FarSetColors*)Param2;
+			const auto Pal = static_cast<FarSetColors*>(Param2);
 			if (CheckStructSize(Pal))
 			{
 
@@ -550,8 +549,13 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_EJECTMEDIA:
 		{
-			return CheckStructSize((ActlEjectMedia*)Param2)?EjectVolume((wchar_t)((ActlEjectMedia*)Param2)->Letter,
-										((ActlEjectMedia*)Param2)->Flags):FALSE;
+			const auto Aem = static_cast<const ActlEjectMedia*>(Param2);
+
+			if (!CheckStructSize(Aem))
+				return FALSE;
+
+			return EjectVolume(static_cast<wchar_t>(Aem->Letter), Aem->Flags);
+
 			/*
 					if(Param)
 					{
@@ -585,7 +589,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			новые ACTL_ для работы с окнами */
 		case ACTL_GETWINDOWINFO:
 		{
-			WindowInfo *wi=(WindowInfo*)Param2;
+			const auto wi = static_cast<WindowInfo*>(Param2);
 			if (CheckStructSize(wi))
 			{
 				string strType, strName;
@@ -651,10 +655,10 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 						break;
 					case WTYPE_VMENU:
 					case WTYPE_DIALOG:
-						wi->Id=(intptr_t)f.get(); // BUGBUG
+						wi->Id=reinterpret_cast<intptr_t>(f.get()); // BUGBUG
 						break;
 					case WTYPE_COMBOBOX:
-						wi->Id=(intptr_t)std::static_pointer_cast<VMenu>(f)->GetDialog().get(); // BUGBUG
+						wi->Id=reinterpret_cast<intptr_t>(std::static_pointer_cast<VMenu>(f)->GetDialog().get()); // BUGBUG
 						break;
 					default:
 						wi->Id=0;
@@ -690,7 +694,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return TRUE;
 
 		case ACTL_GETFARHWND:
-			return (intptr_t)Console().GetWindow();
+			return reinterpret_cast<intptr_t>(Console().GetWindow());
 
 		case ACTL_REDRAWALL:
 		{
@@ -1014,7 +1018,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 					return std::make_shared<plugin_dialog>(private_tag(), Src, DlgProc, InitParam);
 				}
 
-				intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+				intptr_t Proc(Dialog* hDlg, intptr_t Msg, intptr_t Param1, void* Param2) const
 				{
 					return m_Proc(hDlg, Msg, Param1, Param2);
 				}
@@ -1353,7 +1357,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			const auto& Str = CmdLine->GetString();
 			if (Param1&&Param2)
 			{
-				xwcsncpy((wchar_t*)Param2, Str.data(), Param1);
+				xwcsncpy(static_cast<wchar_t*>(Param2), Str.data(), Param1);
 			}
 
 			return Str.size() + 1;
@@ -1365,9 +1369,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			{
 				SCOPED_ACTION(SetAutocomplete)(CmdLine);
 				if (Command==FCTL_SETCMDLINE)
-					CmdLine->SetString((const wchar_t*)Param2, true);
+					CmdLine->SetString(static_cast<const wchar_t*>(Param2), true);
 				else
-					CmdLine->InsertString((const wchar_t*)Param2);
+					CmdLine->InsertString(static_cast<const wchar_t*>(Param2));
 			}
 			CmdLine->Redraw();
 			return TRUE;
@@ -1384,7 +1388,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		{
 			if (Param2)
 			{
-				*(int *)Param2=CmdLine->GetCurPos();
+				*static_cast<int*>(Param2) = CmdLine->GetCurPos();
 				return TRUE;
 			}
 
@@ -1393,7 +1397,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 		case FCTL_GETCMDLINESELECTION:
 		{
-			CmdLineSelect *sel=(CmdLineSelect*)Param2;
+			const auto sel = static_cast<CmdLineSelect*>(Param2);
 			if (CheckStructSize(sel))
 			{
 				CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
@@ -1405,7 +1409,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 		case FCTL_SETCMDLINESELECTION:
 		{
-			CmdLineSelect *sel=(CmdLineSelect*)Param2;
+			const auto sel=static_cast<const CmdLineSelect*>(Param2);
 			if (CheckStructSize(sel))
 			{
 				CmdLine->Select(sel->SelStart,sel->SelEnd);
@@ -1480,7 +1484,7 @@ void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 			Global->ScrBuf->FillBuf();
 
 		if (hScreen)
-			delete(SaveScreen *)hScreen;
+			delete static_cast<SaveScreen*>(hScreen);
 	}
 	catch (...)
 	{
@@ -2367,7 +2371,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - FarMacroLoad*
 			case MCTL_LOADALL: // из реестра в память ФАР с затиранием предыдущего
 			{
-				FarMacroLoad *Data = (FarMacroLoad*)Param2;
+				const auto Data = static_cast<FarMacroLoad*>(Param2);
 				return
 					!Macro.IsRecording() &&
 					(!Data || CheckStructSize(Data)) &&
@@ -2383,7 +2387,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 			case MCTL_SENDSTRING:
 			{
-				MacroSendMacroText *Data = (MacroSendMacroText*)Param2;
+				const auto Data = static_cast<const MacroSendMacroText*>(Param2);
 				if (CheckStructSize(Data) && Data->SequenceText)
 				{
 					if (Param1 == MSSC_POST)
@@ -2401,7 +2405,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - MacroExecuteString*
 			case MCTL_EXECSTRING:
 			{
-				MacroExecuteString *Data = (MacroExecuteString*)Param2;
+				const auto Data = static_cast<MacroExecuteString*>(Param2);
 				return CheckStructSize(Data) && Macro.ExecuteString(Data) ? 1 : 0;
 			}
 
@@ -2419,7 +2423,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 			case MCTL_ADDMACRO:
 			{
-				MacroAddMacro *Data = (MacroAddMacro*)Param2;
+				const auto Data = static_cast<const MacroAddMacro*>(Param2);
 				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
 					return Macro.AddMacro(*PluginId, Data) ? 1 : 0;
@@ -2441,18 +2445,18 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				Macro.GetMacroParseError(&ErrCode, &ErrPos, &ErrSrc);
 
-				int Size = aligned_sizeof<MacroParseResult>::value;
+				int Size = aligned_sizeof<MacroParseResult>();
 				size_t stringOffset = Size;
 				Size += static_cast<int>((ErrSrc.size() + 1)*sizeof(wchar_t));
 
-				MacroParseResult *Result = (MacroParseResult *)Param2;
+				const auto Result = static_cast<MacroParseResult*>(Param2);
 
 				if (Param1 >= Size && CheckStructSize(Result))
 				{
 					Result->StructSize = sizeof(MacroParseResult);
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = ErrPos;
-					Result->ErrSrc = (const wchar_t *)((char*)Param2 + stringOffset);
+					Result->ErrSrc = reinterpret_cast<const wchar_t*>(static_cast<char*>(Param2) + stringOffset);
 					std::copy_n(ErrSrc.data(), ErrSrc.size() + 1, const_cast<wchar_t*>(Result->ErrSrc));
 				}
 
@@ -2561,7 +2565,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
 				return FALSE;
 
-			Filter = (FileFilter *)hHandle;
+			Filter = static_cast<FileFilter*>(hHandle);
 		}
 
 		switch (Command)
@@ -2571,7 +2575,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 			if (!Param2)
 				break;
 
-			*((HANDLE *)Param2) = INVALID_HANDLE_VALUE;
+			*static_cast<HANDLE*>(Param2) = INVALID_HANDLE_VALUE;
 
 			if (hHandle != nullptr && hHandle != PANEL_ACTIVE && hHandle != PANEL_PASSIVE && hHandle != PANEL_NONE)
 				break;
@@ -2589,8 +2593,8 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 				return FALSE;
 			}
 
-			Filter = new FileFilter(GetHostPanel(hHandle), (FAR_FILE_FILTER_TYPE)Param1);
-			*((HANDLE *)Param2) = (HANDLE)Filter;
+			Filter = new FileFilter(GetHostPanel(hHandle), static_cast<FAR_FILE_FILTER_TYPE>(Param1));
+			*static_cast<FileFilter**>(Param2) = Filter;
 			return TRUE;
 		}
 
@@ -2630,16 +2634,16 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
 				return FALSE;
 
-			re = (RegExp*)hHandle;
+			re = static_cast<RegExp*>(hHandle);
 		}
 
 		switch (Command)
 		{
 		case RECTL_CREATE:
-			*((HANDLE*)Param2) = INVALID_HANDLE_VALUE;
+			*static_cast<HANDLE*>(Param2) = INVALID_HANDLE_VALUE;
 			re = new RegExp;
 
-			*((HANDLE*)Param2) = (HANDLE)re;
+			*static_cast<HANDLE*>(Param2) = static_cast<HANDLE>(re);
 			return TRUE;
 
 		case RECTL_FREE:
@@ -2647,20 +2651,20 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 			return TRUE;
 
 		case RECTL_COMPILE:
-			return re->Compile((const wchar_t*)Param2, OP_PERLSTYLE);
+			return re->Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
 
 		case RECTL_OPTIMIZE:
 			return re->Optimize();
 
 		case RECTL_MATCHEX:
 		{
-			RegExpSearch* data = (RegExpSearch*)Param2;
+			const auto data = static_cast<RegExpSearch*>(Param2);
 			return re->MatchEx(data->Text, data->Text + data->Position, data->Text + data->Length, data->Match, data->Count);
 		}
 
 		case RECTL_SEARCHEX:
 		{
-			RegExpSearch* data = (RegExpSearch*)Param2;
+			const auto data = static_cast<RegExpSearch*>(Param2);
 			return re->SearchEx(data->Text, data->Text + data->Position, data->Text + data->Length, data->Match, data->Count);
 		}
 
@@ -2690,14 +2694,14 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
 				return FALSE;
 
-			settings = (AbstractSettings*)hHandle;
+			settings = static_cast<AbstractSettings*>(hHandle);
 		}
 
 		switch (Command)
 		{
 		case SCTL_CREATE:
 		{
-			FarSettingsCreate* data = (FarSettingsCreate*)Param2;
+			const auto data = static_cast<FarSettingsCreate*>(Param2);
 			if (CheckStructSize(data))
 			{
 				if (data->Guid == FarGuid)
@@ -2726,20 +2730,20 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 			return TRUE;
 
 		case SCTL_SET:
-			return CheckStructSize((const FarSettingsItem*)Param2) ? settings->Set(*(const FarSettingsItem*)Param2) : FALSE;
+			return CheckStructSize(static_cast<const FarSettingsItem*>(Param2))? settings->Set(*static_cast<const FarSettingsItem*>(Param2)) : FALSE;
 
 		case SCTL_GET:
-			return CheckStructSize((const FarSettingsItem*)Param2) ? settings->Get(*(FarSettingsItem*)Param2) : FALSE;
+			return CheckStructSize(static_cast<const FarSettingsItem*>(Param2))? settings->Get(*static_cast<FarSettingsItem*>(Param2)) : FALSE;
 
 		case SCTL_ENUM:
-			return CheckStructSize((FarSettingsEnum*)Param2) ? settings->Enum(*(FarSettingsEnum*)Param2) : FALSE;
+			return CheckStructSize(static_cast<FarSettingsEnum*>(Param2))? settings->Enum(*static_cast<FarSettingsEnum*>(Param2)) : FALSE;
 
 		case SCTL_DELETE:
-			return CheckStructSize((const FarSettingsValue*)Param2) ? settings->Delete(*(const FarSettingsValue*)Param2) : FALSE;
+			return CheckStructSize(static_cast<const FarSettingsValue*>(Param2))? settings->Delete(*static_cast<const FarSettingsValue*>(Param2)) : FALSE;
 
 		case SCTL_CREATESUBKEY:
 		case SCTL_OPENSUBKEY:
-			return CheckStructSize((const FarSettingsValue*)Param2) ? settings->SubKey(*(const FarSettingsValue*)Param2, Command == SCTL_CREATESUBKEY) : 0;
+			return CheckStructSize(static_cast<const FarSettingsValue*>(Param2))? settings->SubKey(*static_cast<const FarSettingsValue*>(Param2), Command == SCTL_CREATESUBKEY) : 0;
 		}
 		return FALSE;
 	}

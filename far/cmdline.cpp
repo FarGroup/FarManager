@@ -82,7 +82,7 @@ CommandLine::CommandLine(window_ptr Owner):
 	CmdStr(
 		Owner,
 		this,
-		[this](const Manager::Key& Key){ return Global->CtrlObject->Cp()->ProcessKey(Key); },
+		[](const Manager::Key& Key){ return Global->CtrlObject->Cp()->ProcessKey(Key); },
 		nullptr,
 		Global->CtrlObject->CmdHistory.get(),
 		nullptr,
@@ -478,7 +478,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			//   Сбрасываем выделение на некоторых клавишах
 			if (!Global->Opt->CmdLine.EditBlock)
 			{
-				static int UnmarkKeys[]=
+				static const unsigned int UnmarkKeys[]=
 				{
 					KEY_LEFT,       KEY_NUMPAD4,
 					KEY_CTRLS,      KEY_RCTRLS,

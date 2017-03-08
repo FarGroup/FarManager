@@ -108,9 +108,8 @@ struct ListControlBinding: public DialogItemBinding<T>
 Поддерживает automation (изменение флагов одного элемента в зависимости от состояния
 другого). Реализуется при помощи метода LinkFlags().
 */
-class DialogBuilder: noncopyable, public DialogBuilderBase<DialogItemEx>
+class DialogBuilder: noncopyable, public base<DialogBuilderBase<DialogItemEx>>
 {
-	using base = DialogBuilderBase<DialogItemEx>;
 public:
 	DialogBuilder(lng TitleMessageId, const wchar_t *HelpTopic = nullptr, Dialog::dialog_handler handler = nullptr);
 	DialogBuilder();
@@ -154,30 +153,30 @@ public:
 
 	void AddRadioButtons(IntOption& Value, int OptionCount, const lng MessageIDs[], bool FocusOnSelected=false);
 
-	using base::AddText;
+	using base_type::AddText;
 
 	decltype(auto) AddText(lng LabelId)
 	{
-		return base::AddText(static_cast<int>(LabelId));
+		return base_type::AddText(static_cast<int>(LabelId));
 	}
 
 	decltype(auto) AddTextBefore(DialogItemEx* RelativeTo, lng LabelId)
 	{
-		return base::AddTextBefore(RelativeTo, static_cast<int>(LabelId));
+		return base_type::AddTextBefore(RelativeTo, static_cast<int>(LabelId));
 	}
 
-	using base::AddTextAfter;
+	using base_type::AddTextAfter;
 
 	decltype(auto) AddTextAfter(DialogItemEx* RelativeTo, lng LabelId, int skip = 1)
 	{
-		return base::AddTextAfter(RelativeTo, static_cast<int>(LabelId), skip);
+		return base_type::AddTextAfter(RelativeTo, static_cast<int>(LabelId), skip);
 	}
 
 	using base::AddSeparator;
 
 	decltype(auto) AddSeparator(lng LabelId)
 	{
-		return base::AddSeparator(static_cast<int>(LabelId));
+		return base_type::AddSeparator(static_cast<int>(LabelId));
 	}
 
 	// Связывает состояние элементов Parent и Target. Когда Parent->Selected равно

@@ -200,7 +200,6 @@ static bool CanSort(int SortMode)
 
 FileListItem::FileListItem()
 {
-	static_cast<detail::FileListItemPod&>(*this) = {};
 	m_Owner.assign(1, values::uninitialised(wchar_t()));
 }
 
@@ -5510,7 +5509,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const
 {
-	size_t size = aligned_sizeof<PluginPanelItem>::value, offset = size;
+	size_t size = aligned_sizeof<PluginPanelItem>(), offset = size;
 	size+=fi.CustomColumnNumber*sizeof(wchar_t*);
 	size+=sizeof(wchar_t)*(fi.strName.size()+1);
 	size+=sizeof(wchar_t)*(fi.strShortName.size()+1);
@@ -5606,29 +5605,18 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 
 	Colors = nullptr;
 
-	CustomColumnNumber = pi.CustomColumnNumber;
-
-	if (CustomColumnNumber)
+	if (pi.CustomColumnData && pi.CustomColumnNumber)
 	{
 		CustomColumnData = new wchar_t*[pi.CustomColumnNumber];
+		CustomColumnNumber = pi.CustomColumnNumber;
 
-		for (size_t I = 0; I < pi.CustomColumnNumber; I++)
+		for (size_t i = 0; i != pi.CustomColumnNumber; ++i)
 		{
-			if (pi.CustomColumnData && pi.CustomColumnData[I])
-			{
-				CustomColumnData[I] = new wchar_t[StrLength(pi.CustomColumnData[I]) + 1];
-				wcscpy(CustomColumnData[I], pi.CustomColumnData[I]);
-			}
-			else
-			{
-				CustomColumnData[I] = new wchar_t[1];
-				CustomColumnData[I][0] = 0;
-			}
+			const auto Data = NullToEmpty(pi.CustomColumnData[i]);
+			const auto Size = wcslen(Data);
+			CustomColumnData[i] = new wchar_t[Size + 1];
+			*std::copy(Data, Data + Size, CustomColumnData[i]) = L'\0';
 		}
-	}
-	else
-	{
-		CustomColumnData = nullptr;
 	}
 
 	Position = 0;

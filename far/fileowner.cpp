@@ -202,10 +202,12 @@ bool SetOwnerInternal(const string& Object, const string& Owner)
 bool SetFileOwner(const string& Object, const string& Owner)
 {
 	NTPath strNtObject(Object);
-	bool Result = SetOwnerInternal(strNtObject, Owner);
-	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
-	{
-		Result = Global->Elevation->fSetOwner(strNtObject, Owner);
-	}
-	return Result;
+
+	if (SetOwnerInternal(strNtObject, Owner))
+		return true;
+
+	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
+		return Global->Elevation->fSetOwner(strNtObject, Owner);
+
+	return false;
 }

@@ -117,7 +117,7 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 		{
 			if (!LastItem.Find)
 			{
-				LastItem.Find = std::make_unique<scantree_item::enum_files_type>(std::move(os::fs::enum_files(strFindPath)));
+				LastItem.Find = std::make_unique<scantree_item::enum_files_type>(os::fs::enum_files(strFindPath));
 				LastItem.Iterator = LastItem.Find->end();
 			}
 

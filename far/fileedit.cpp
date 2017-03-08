@@ -566,12 +566,12 @@ void FileEditor::Init(
 	/* $ 15.12.2000 SVS
 	  - Shift-F4, новый файл. Выдает сообщение :-(
 	*/
-	DWORD FAttr=os::GetFileAttributes(Name);
+	const os::fs::file_status FileStatus(Name);
 
 	/* $ 05.06.2001 IS
 	   + посылаем подальше всех, кто пытается отредактировать каталог
 	*/
-	if (FAttr!=INVALID_FILE_ATTRIBUTES && FAttr&FILE_ATTRIBUTE_DIRECTORY)
+	if (os::fs::is_directory(FileStatus))
 	{
 		Message(MSG_WARNING, MSG(lng::MEditTitle),
 			{ MSG(lng::MEditCanNotEditDirectory) },
@@ -581,18 +581,15 @@ void FileEditor::Init(
 		return;
 	}
 
-	if ((m_editor->EdOpt.ReadOnlyLock&2) &&
-	        FAttr != INVALID_FILE_ATTRIBUTES &&
-	        (FAttr &
-	         (FILE_ATTRIBUTE_READONLY|
-	          /* Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
-	             поэтому применяем маску 0110.0000 и
-	             сдвигаем на свое место => 0000.0110 и получаем
-	             те самые нужные атрибуты  */
-	          ((m_editor->EdOpt.ReadOnlyLock&0x60)>>4)
-	         )
-	        )
-	   )
+	if (m_editor->EdOpt.ReadOnlyLock & bit(1) &&
+		FileStatus.check(FILE_ATTRIBUTE_READONLY |
+		/*  Hidden=0x2 System=0x4 - располагаются во 2-м полубайте,
+		    поэтому применяем маску 0110.0000 и
+		    сдвигаем на свое место => 0000.0110 и получаем
+		    те самые нужные атрибуты */
+			((m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4)
+		)
+	)
 	{
 		if (Message(MSG_WARNING, MSG(lng::MEditTitle),
 			{ Name, MSG(lng::MEditRSH), MSG(lng::MEditROOpen) },
@@ -613,7 +610,7 @@ void FileEditor::Init(
 	   При создании файла с нуля так же посылаем плагинам событие EE_READ, дабы
 	   не нарушать однообразие.
 	*/
-	if (FAttr == INVALID_FILE_ATTRIBUTES)
+	if (!os::fs::exists(FileStatus))
 		m_Flags.Set(FFILEEDIT_NEW);
 
 	if (BlankFileName && m_Flags.Check(FFILEEDIT_CANNEWFILE))
@@ -1537,8 +1534,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		m_editor->FreeAllocatedData();
 		bool bCached = LoadFromCache(pc);
 
-		DWORD FileAttributes=os::GetFileAttributes(Name);
-		if((m_editor->EdOpt.ReadOnlyLock&1) && FileAttributes != INVALID_FILE_ATTRIBUTES && (FileAttributes & (FILE_ATTRIBUTE_READONLY|((m_editor->EdOpt.ReadOnlyLock&0x60)>>4))))
+		const os::fs::file_status FileStatus(Name);
+		if ((m_editor->EdOpt.ReadOnlyLock & bit(1)) && FileStatus.check(FILE_ATTRIBUTE_READONLY | (m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4))
 		{
 			m_editor->m_Flags.Swap(Editor::FEDITOR_LOCKMODE);
 		}
