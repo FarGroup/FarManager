@@ -70,13 +70,13 @@ void xlat_initialize()
 				const WORD RussianLanguageId = MAKELANGID(LANG_RUSSIAN, SUBLANG_RUSSIAN_RUSSIA);
 				if (std::any_of(CONST_RANGE(Layouts, i){ return LOWORD(i) == RussianLanguageId; }))
 				{
-					static constexpr const wchar_t* const Tables[] =
+					static const wchar_t* const Tables[] =
 					{
 						L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e",
 						L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>",
 					};
 
-					static constexpr const wchar_t* const Rules[] =
+					static const wchar_t* const Rules[] =
 					{
 						L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"",
 						L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d",

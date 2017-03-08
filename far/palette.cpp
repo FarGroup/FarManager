@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "configdb.hpp"
 
-static constexpr struct ColorsInit
+static const struct ColorsInit
 {
 	const wchar_t* Name;
 	int DefaultIndex;

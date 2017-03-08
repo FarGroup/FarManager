@@ -56,7 +56,7 @@ struct star
 
 static std::array<star, 16> Star;
 
-static constexpr wchar_t StarSymbol[]=
+static const wchar_t StarSymbol[]=
 {
 	L'\x25A0',
 	L'\x2219',
@@ -187,7 +187,7 @@ int ScreenSaver()
 			Sleep(50);
 			ShowSaver(Step++, [&](star& i)
 			{
-				static constexpr int Colors[] = { F_MAGENTA, F_RED, F_BLUE };
+				static const int Colors[] = { F_MAGENTA, F_RED, F_BLUE };
 
 				i.Type = TypeDist(mt) < 3? STAR_PLANET : STAR_NORMAL;
 				i.X = XDist(mt);

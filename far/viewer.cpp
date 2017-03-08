@@ -1086,13 +1086,13 @@ void Viewer::SetStatusMode(int Mode)
 
 static bool is_word_div(const wchar_t ch)
 {
-	static constexpr wchar_t extra_div[] = { Utf::BOM_CHAR, Utf::REPLACE_CHAR };
+	static const wchar_t extra_div[] = { Utf::BOM_CHAR, Utf::REPLACE_CHAR };
 	return IsSpaceOrEos(ch) || IsEol(ch) || contains(Global->Opt->strWordDiv.Get(), ch) || contains(extra_div, ch);
 }
 
 static bool wrapped_char(const wchar_t ch)
 {
-	static constexpr wchar_t wrapped_chars[] = {L',', L';', L'>', L')'}; // word-wrap enabled after it
+	static const wchar_t wrapped_chars[] = {L',', L';', L'>', L')'}; // word-wrap enabled after it
 	return IsSpaceOrEos(ch) || contains(wrapped_chars, ch);
 }
 
@@ -2133,7 +2133,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		int NameLen = std::max(20, ObjWidth()-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen()? 3 + static_cast<int>(Global->CurrentTime.size()) : 0));
 		int cp_len = static_cast<int>(str(m_Codepage).size());
 		//                           ViewMode     CopdePage             Goto
-		static constexpr int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
+		static const int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
 		int xpos[std::size(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
 		int xlen[std::size(keys)] = {3,           cp_len,                          4};
 
@@ -2296,7 +2296,7 @@ int Viewer::CacheFindUp( long long start )
 	}
 }
 
-static constexpr int portion_size = 250;
+static const int portion_size = 250;
 
 template<typename T, typename F>
 static int process_back(int BufferSize, int pos, long long& fpos, const F& Reader, const raw_eol& eol)
@@ -3970,7 +3970,7 @@ void Viewer::GoTo(int ShowDlg, long long Offset, UINT64 Flags)
 
 		IntOption InputMode;
 		InputMode.Set(PrevMode);
-		static constexpr lng MsgIds[] = { lng::MGoToPercent, lng::MGoToHex, lng::MGoToDecimal };
+		static const lng MsgIds[] = { lng::MGoToPercent, lng::MGoToHex, lng::MGoToDecimal };
 
 		DialogBuilder Builder(lng::MViewerGoTo, L"ViewerGotoPos");
 		string InputString;

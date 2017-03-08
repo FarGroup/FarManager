@@ -444,7 +444,7 @@ static void SetDriveMenuHotkeys()
 
 	if (InitDriveMenuHotkeys)
 	{
-		static constexpr struct
+		static const struct
 		{
 			const wchar_t* PluginId;
 			GUID MenuId;

@@ -194,7 +194,7 @@ string &QuoteOuterSpace(string &strStr)
 }
 
 
-static constexpr int DotsLen = 3;
+static const int DotsLen = 3;
 
 string& TruncStrFromEnd(string &strStr, int maxLength)
 {
@@ -1232,7 +1232,7 @@ string& InplaceLower(string& str, size_t pos, size_t n)
 		{
 			BitFlags Flags(InitFlags);
 			string strSeparators(InitSeparators);
-			static constexpr wchar_t Brackets[] = L"[]";
+			static const wchar_t Brackets[] = L"[]";
 
 			if (!List.empty() &&
 				!contains(strSeparators, L'\"') &&

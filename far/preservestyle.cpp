@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservestyle.hpp"
 #include "local.hpp"
 
-static constexpr wchar_t PreserveStyleTokenSeparators[] = L"_-.";
+static const wchar_t PreserveStyleTokenSeparators[] = L"_-.";
 
 enum PreserveStyleType
 {

@@ -158,11 +158,11 @@ protected:
 private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
-		static constexpr auto Schema =
+		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));"
 		;
 
-		static constexpr stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[] =
 		{
 			{ stmtUpdateValue, L"UPDATE general_config SET value=?3 WHERE key=?1 AND name=?2;" },
 			{ stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);" },
@@ -405,14 +405,14 @@ protected:
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
-		static constexpr auto Schema =
+		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
 			"CREATE TABLE IF NOT EXISTS table_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"
 			//root key (needs to be before the transaction start)
 			"INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");"
 		;
 
-		static constexpr stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[] =
 		{
 			{ stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);" },
 			{ stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;" },
@@ -709,7 +709,7 @@ protected:
 	os::event AsyncDone;
 };
 
-static constexpr std::pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
+static const std::pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
 {
 	{FCF_FG_4BIT,      L"fg4bit"   },
 	{FCF_BG_4BIT,      L"bg4bit"   },
@@ -726,7 +726,7 @@ public:
 private:
 	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::XMLElement& e) override
 	{
-		static constexpr const char* ColorKeys[] =
+		static const char* ColorKeys[] =
 		{
 			"NormalColor", "SelectedColor",
 			"CursorColor", "SelectedCursorColor",
@@ -783,11 +783,11 @@ public:
 private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
-		static constexpr auto Schema =
+		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);"
 		;
 
-		static constexpr stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[] =
 		{
 			{ stmtUpdateValue, L"UPDATE colors SET value=?2 WHERE name=?1;" },
 			{ stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);" },
@@ -896,12 +896,12 @@ public:
 private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
-		static constexpr auto Schema =
+		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER NOT NULL, mask TEXT, description TEXT);"
 			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
 		;
 
-		static constexpr stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[] =
 		{
 			{ stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);" },
 			{ stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);" },
@@ -1145,7 +1145,7 @@ public:
 private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
-		static constexpr auto Schema =
+		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
 			"CREATE TABLE IF NOT EXISTS preload(cid INTEGER NOT NULL PRIMARY KEY, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
 			"CREATE TABLE IF NOT EXISTS signatures(cid INTEGER NOT NULL PRIMARY KEY, signature TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
@@ -1161,7 +1161,7 @@ private:
 			"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"
 		;
 
-		static constexpr stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[] =
 		{
 			{ stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);," },
 			{ stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;" },
@@ -1478,11 +1478,11 @@ public:
 private:
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
-		static constexpr auto Schema =
+		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));"
 			;
 
-		static constexpr stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[] =
 		{
 			{ stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
 			{ stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);" },
@@ -1758,7 +1758,7 @@ private:
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
 	{
-		static constexpr auto Schema =
+		static const auto Schema =
 			//command,view,edit,folder,dialog history
 			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL, guid TEXT NOT NULL, file TEXT NOT NULL, data TEXT NOT NULL);"
 			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
@@ -1774,7 +1774,7 @@ private:
 			"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"
 		;
 
-		static constexpr stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[] =
 		{
 			{ stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;" },
 			{ stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;" },

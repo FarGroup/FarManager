@@ -794,7 +794,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
-		static constexpr std::pair<SETATTRDLG, DWORD> AttributePair[] =
+		static const std::pair<SETATTRDLG, DWORD> AttributePair[] =
 		{
 			{SA_CHECKBOX_RO,FILE_ATTRIBUTE_READONLY},
 			{SA_CHECKBOX_ARCHIVE,FILE_ATTRIBUTE_ARCHIVE},

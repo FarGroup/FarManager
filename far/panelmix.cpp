@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "local.hpp"
 #include "cvtname.hpp"
 
-static constexpr struct column_info
+static const struct column_info
 {
 	PANEL_COLUMN_TYPE Type;
 	int DefaultWidth;

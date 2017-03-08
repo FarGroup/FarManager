@@ -131,7 +131,7 @@ static int CopySecurityMove=-1;
 
 static BOOL ZoomedState,IconicState;
 
-static constexpr size_t default_copy_buffer_size = 32 * 1024;
+static const size_t default_copy_buffer_size = 32 * 1024;
 
 enum enumShellCopy
 {

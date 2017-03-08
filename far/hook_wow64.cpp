@@ -43,7 +43,7 @@ static thread_local PVOID saveval;
 using DISABLE = decltype(&Wow64DisableWow64FsRedirection);
 using REVERT = decltype(&Wow64RevertWow64FsRedirection);
 
-static constexpr volatile struct WOW
+static const volatile struct WOW
 {
 	static BOOL WINAPI e_disable(PVOID*) { return FALSE; }
 	static BOOL WINAPI e_revert(PVOID) { return FALSE; }
@@ -123,11 +123,11 @@ hook_ldr()
 static void init_hook()
 {
 	DWORD p;
-	static constexpr wchar_t
+	static const wchar_t
 		k32_w[] = L"kernel32",
 		ntd_w[] = L"ntdll";
 
-	static constexpr char
+	static const char
 		dis_c[] = "Wow64DisableWow64FsRedirection",
 		rev_c[] = "Wow64RevertWow64FsRedirection",
 		wow_c[] = "IsWow64Process",

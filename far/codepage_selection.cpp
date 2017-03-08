@@ -52,7 +52,7 @@ codepages& Codepages()
 }
 
 // Ключ где хранятся имена кодовых страниц
-static constexpr wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
+static const wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
 
 // Источник вызова каллбака прохода по кодовым страницам
 enum CodePagesCallbackCallSource: int

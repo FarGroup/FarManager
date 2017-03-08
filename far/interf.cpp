@@ -963,7 +963,7 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 
 	enum line { LineV, LineH, LineLT, LineRT, LineLB, LineRB, LineCount };
 
-	static constexpr BOX_DEF_SYMBOLS BoxInit[2][LineCount] =
+	static const BOX_DEF_SYMBOLS BoxInit[2][LineCount] =
 	{
 		{ BS_V1, BS_H1, BS_LT_H1V1, BS_RT_H1V1, BS_LB_H1V1, BS_RB_H1V1, },
 		{ BS_V2, BS_H2, BS_LT_H2V2, BS_RT_H2V2, BS_LB_H2V2, BS_RB_H2V2, },

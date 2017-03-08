@@ -105,9 +105,9 @@ public:
 	struct values
 	{
 		template<class T>
-		static constexpr T uninitialised(const T&) { return -2; }
+		static const T uninitialised(const T&) { return -2; }
 		template<class T>
-		static constexpr T unknown(const T&) { return -1; }
+		static const T unknown(const T&) { return -1; }
 	};
 
 private:

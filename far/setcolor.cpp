@@ -126,7 +126,7 @@ static void SetItemColors(const color_item* Items, size_t Size, COORD Position =
 }
 void SetColors()
 {
-	static constexpr color_item
+	static const color_item
 	PanelItems[] =
 	{
 		{ lng::MSetColorPanelNormal,                COL_PANELTEXT },

@@ -381,7 +381,7 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 
 void enum_attributes(const std::function<bool(DWORD, wchar_t)>& Pred)
 {
-	static constexpr std::pair<DWORD, wchar_t> AttrMap[] =
+	static const std::pair<DWORD, wchar_t> AttrMap[] =
 	{
 		{FILE_ATTRIBUTE_READONLY, L'R'},
 		{FILE_ATTRIBUTE_ARCHIVE, L'A'},

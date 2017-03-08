@@ -70,7 +70,7 @@ public:
 			return m_Owner == rhs.m_Owner && m_Index == rhs.m_Index;
 		}
 
-		static constexpr size_t invalid_index{ size_t(-1) };
+		static const size_t invalid_index{ size_t(-1) };
 
 	private:
 		owner_type m_Owner {};

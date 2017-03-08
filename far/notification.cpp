@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "wm_listener.hpp"
 
-static constexpr const wchar_t* EventNames[] =
+static const wchar_t* EventNames[] =
 {
 	WSTR(update_intl),
 	WSTR(update_power),

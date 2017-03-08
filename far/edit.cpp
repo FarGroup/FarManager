@@ -75,7 +75,7 @@ enum
 	EOL_COUNT
 };
 
-static constexpr const wchar_t* const EOL_TYPE_CHARS[] =
+static const wchar_t* const EOL_TYPE_CHARS[] =
 {
 	L"",
 	L"\r",
@@ -86,12 +86,12 @@ static constexpr const wchar_t* const EOL_TYPE_CHARS[] =
 
 TERSE_STATIC_ASSERT(std::size(EOL_TYPE_CHARS) == EOL_COUNT);
 
-static constexpr wchar_t EDMASK_ANY    = L'X'; // позволяет вводить в строку ввода любой символ;
-static constexpr wchar_t EDMASK_DSS    = L'#'; // позволяет вводить в строку ввода цифры, пробел и знак минуса;
-static constexpr wchar_t EDMASK_DIGIT  = L'9'; // позволяет вводить в строку ввода только цифры;
-static constexpr wchar_t EDMASK_DIGITS = L'N'; // позволяет вводить в строку ввода только цифры и пробелы;
-static constexpr wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить в строку ввода только буквы.
-static constexpr wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
+static const wchar_t EDMASK_ANY    = L'X'; // позволяет вводить в строку ввода любой символ;
+static const wchar_t EDMASK_DSS    = L'#'; // позволяет вводить в строку ввода цифры, пробел и знак минуса;
+static const wchar_t EDMASK_DIGIT  = L'9'; // позволяет вводить в строку ввода только цифры;
+static const wchar_t EDMASK_DIGITS = L'N'; // позволяет вводить в строку ввода только цифры и пробелы;
+static const wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить в строку ввода только буквы.
+static const wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 Edit::Edit(window_ptr Owner):
 	SimpleScreenObject(Owner),
