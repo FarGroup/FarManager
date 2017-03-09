@@ -1,3 +1,7 @@
+drkns 09.03.2017 07:35:59 +0000 - build 4911
+
+1. 0003404: `Lock editing of read-only files` is ignored (regression)
+
 drkns 08.03.2017 19:14:38 +0000 - build 4910
 
 1. Уберём constexpr у статических объектов - в VS2017 с ним всё ещё хуже, чем раньше.

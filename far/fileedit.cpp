@@ -1535,7 +1535,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		bool bCached = LoadFromCache(pc);
 
 		const os::fs::file_status FileStatus(Name);
-		if ((m_editor->EdOpt.ReadOnlyLock & bit(1)) && FileStatus.check(FILE_ATTRIBUTE_READONLY | (m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4))
+		if ((m_editor->EdOpt.ReadOnlyLock & bit(0)) && FileStatus.check(FILE_ATTRIBUTE_READONLY | (m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4))
 		{
 			m_editor->m_Flags.Swap(Editor::FEDITOR_LOCKMODE);
 		}
