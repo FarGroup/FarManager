@@ -873,7 +873,7 @@ void Help::DrawWindowFrame() const
 		strHelpTitleBuf += L"FAR";
 
 	TruncStrFromEnd(strHelpTitleBuf, CanvasWidth() - 2);
-	GotoXY(m_X1 + (ObjWidth() + (int)strHelpTitleBuf.size() - 2) / 2, m_Y1);
+	GotoXY(m_X1 + (ObjWidth() - (int)strHelpTitleBuf.size() - 2) / 2, m_Y1);
 	Text(concat(L' ', strHelpTitleBuf, L' '));
 }
 
