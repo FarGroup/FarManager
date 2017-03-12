@@ -3,6 +3,44 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.03.2017 00:05:34 +0000 - build 4913
+
+1. Forum: the caption of help window is shifted right.
+
+zg 10.03.2017 13:55:54 +0200 - build 4912
+
+1. under certain circumstances in user menu the editor/viewer, called via edit:/view:, was modal.
+
+drkns 09.03.2017 07:35:59 +0000 - build 4911
+
+1. 0003404: `Lock editing of read-only files` is ignored (regression)
+
+drkns 08.03.2017 19:14:38 +0000 - build 4910
+
+1. Remove constexpr from static objects - it has become even worse in VS2017.
+
+drkns 08.03.2017 17:34:21 +0000 - build 4909
+
+1. VS2017 support.
+
+2. VS2017 & clang warnings.
+
+3. Refactoring.
+
+zg 07.03.2017 03:02:10 +0200 - build 4908
+
+1. remove WaitInMainLoop global variable.
+
+drkns 06.03.2017 14:08:55 +0000 - build 4907
+
+1. Exit from network plugin could cause transition to an inexisting folder.
+
+2. Refactoring.
+
+zg 06.03.2017 14:02:30 +0200 - build 4906
+
+1. 0003401: Weird bug with clock in editor.
+
 drkns 05.03.2017 16:01:22 +0000 - build 4905
 
 1. Forum: when browsing the network with NAS QNAP opening any shared resource adds the current and parent directories to the list for some reason.
