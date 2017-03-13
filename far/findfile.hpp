@@ -200,6 +200,7 @@ public:
 
 
 	auto ExceptionPtr() const { return m_ExceptionPtr; }
+	auto IsRegularException() const { return m_IsRegularException; }
 
 private:
 	void InitInFileSearch();
@@ -249,5 +250,6 @@ private:
 	os::event StopEvent;
 
 	std::exception_ptr m_ExceptionPtr;
+	bool m_IsRegularException{};
 };
 #endif // FINDFILE_HPP_8601893C_E4B7_4EC6_A79F_9C6E491FF5ED

@@ -46,16 +46,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 thread_local error_codes global::m_ErrorCodes{error_codes::ignore{}};
 
-static os::handle GetCurrentThreadRealHandle()
-{
-	HANDLE Handle;
-	return os::handle(DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Handle, 0, FALSE, DUPLICATE_SAME_ACCESS) ? Handle : nullptr);
-}
-
 global::global():
 	OnlyEditorViewerUsed(),
 	m_MainThreadId(GetCurrentThreadId()),
-	m_MainThreadHandle(GetCurrentThreadRealHandle()),
+	m_MainThreadHandle(os::OpenCurrentThread()),
 	m_SearchHex(),
 	m_ConfigProvider(),
 	Opt(std::make_unique<Options>()),

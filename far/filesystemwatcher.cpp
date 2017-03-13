@@ -68,6 +68,7 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 
 void FileSystemWatcher::WatchRegister() const
 {
+	// TODO: SEH guard, try/catch, exception_ptr
 	os::find_notification_handle Handle(FindFirstChangeNotification(m_Directory.data(), m_WatchSubtree,
 									FILE_NOTIFY_CHANGE_FILE_NAME|
 									FILE_NOTIFY_CHANGE_DIR_NAME|

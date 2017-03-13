@@ -35,12 +35,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "farexcpt.hpp"
 
-static auto GetBackTrace(const EXCEPTION_POINTERS* ExceptionInfo)
+static auto GetBackTrace(const exception_context& Context)
 {
 	std::vector<const void*> Result;
 
 	// StackWalk64() may modify context record passed to it, so we will use a copy.
-	auto ContextRecord = *ExceptionInfo->ContextRecord;
+	auto ContextRecord = *Context.GetPointers()->ContextRecord;
 	STACKFRAME64 StackFrame = {};
 #if defined(_WIN64)
 	int machine_type = IMAGE_FILE_MACHINE_AMD64;
@@ -61,7 +61,7 @@ static auto GetBackTrace(const EXCEPTION_POINTERS* ExceptionInfo)
 	Symbol->MaxNameLen = 255;
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
-	while (Imports().StackWalk64(machine_type, GetCurrentProcess(), GetCurrentThread(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
+	while (Imports().StackWalk64(machine_type, GetCurrentProcess(), Context.GetThreadHandle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
 	{
 		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}
@@ -144,60 +144,44 @@ tracer::~tracer()
 void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo)
 {
 	SCOPED_ACTION(os::critical_section_lock)(m_CS);
-	exception_context Context = { *ExceptionInfo->ExceptionRecord, *ExceptionInfo->ContextRecord };
 	if (m_CppMap.size() > 2048)
 	{
 		// We can't store them forever
 		m_CppMap.clear();
 	}
-	m_CppMap.emplace(CppObject, Context);
+	m_CppMap.emplace(CppObject, std::make_unique<exception_context>(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo));
 }
 
-bool tracer::get_context(const void* CppObject, exception_context& Context) const
+const exception_context* tracer::get_context(const void* CppObject) const
 {
 	SCOPED_ACTION(os::critical_section_lock)(m_CS);
 	auto Iter = m_CppMap.find(CppObject);
-	if (Iter == m_CppMap.end())
-	{
-		return false;
-	}
-	Context = Iter->second;
-	return true;
+	return Iter == m_CppMap.end()? nullptr : Iter->second.get();
 }
 
-bool tracer::get_exception_context(const void* CppObject, EXCEPTION_RECORD& ExceptionRecord, CONTEXT& ContextRecord)
+const exception_context* tracer::get_exception_context(const void* CppObject)
 {
-	exception_context Context;
-	if (!GetInstance()->get_context(CppObject, Context))
-	{
-		return false;
-	}
-	ExceptionRecord = Context.ExceptionRecord;
-	ContextRecord = Context.ContextRecord;
-	return true;
+	return GetInstance()->get_context(CppObject);
 }
 
 std::vector<string> tracer::get(const void* CppObject)
 {
-	exception_context Context;
-	if (!GetInstance()->get_context(CppObject, Context))
-	{
+	const auto Context = GetInstance()->get_context(CppObject);
+	if (!Context)
 		return {};
-	}
-	const EXCEPTION_POINTERS xp{ &Context.ExceptionRecord, &Context.ContextRecord };
 
 	SymInitialise();
 	SCOPE_EXIT{ SymCleanup(); };
 
-	return GetSymbols(GetBackTrace(&xp));
+	return GetSymbols(GetBackTrace(*Context));
 }
 
-std::vector<string> tracer::get(const EXCEPTION_POINTERS* e)
+std::vector<string> tracer::get(const exception_context& Context)
 {
 	SymInitialise();
 	SCOPE_EXIT{ SymCleanup(); };
 
-	return GetSymbols(GetBackTrace(e));
+	return GetSymbols(GetBackTrace(Context));
 }
 
 string tracer::get_one(const void* Address)

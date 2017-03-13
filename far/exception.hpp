@@ -71,8 +71,47 @@ public:
 	far_exception(const string& Message, const char* Function, const char* File, int Line);
 };
 
-#define MAKE_EXCEPTION(ExceptionType, Message) ExceptionType(Message, __FUNCTION__, __FILE__, __LINE__)
-#define MAKE_FAR_EXCEPTION(Message) MAKE_EXCEPTION(far_exception, Message)
+#define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__VA_ARGS__, __FUNCTION__, __FILE__, __LINE__)
+#define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, __VA_ARGS__)
+
+class exception_context
+{
+public:
+	NONCOPYABLE(exception_context);
+
+	exception_context(DWORD Code = 0, const EXCEPTION_POINTERS* Pointers = nullptr, bool ResumeThread = false);
+	~exception_context();
+
+	auto GetCode() const { return m_Code; }
+	EXCEPTION_POINTERS* GetPointers() const;
+	auto GetThreadHandle() const { return m_ThreadHandle.native_handle(); }
+	auto GetThreadId() const { return m_ThreadId; }
+
+private:
+	DWORD m_Code;
+	EXCEPTION_RECORD m_ExceptionRecord;
+	std::list<EXCEPTION_RECORD> m_ExceptionRecords;
+	CONTEXT m_ContextRecord;
+	mutable EXCEPTION_POINTERS m_Pointers;
+	os::handle m_ThreadHandle;
+	DWORD m_ThreadId;
+	bool m_ResumeThread;
+};
+
+class seh_exception: public std::exception
+{
+public:
+	seh_exception(DWORD Code, EXCEPTION_POINTERS* Pointers, bool ResumeThread):
+		m_Context(std::make_shared<exception_context>(Code, Pointers, ResumeThread))
+	{
+	}
+
+	const auto& GetContext() const { return *m_Context; }
+
+private:
+	std::shared_ptr<exception_context> m_Context;
+};
+
 
 std::exception_ptr& GlobalExceptionPtr();
 void StoreGlobalException();

@@ -156,6 +156,7 @@ static os::event& CancelIoInProgress()
 
 unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
+	// TODO: SEH guard, try/catch, exception_ptr
 	unsigned int Result = Imports().CancelSynchronousIo(Thread);
 	CancelIoInProgress().reset();
 	return Result;

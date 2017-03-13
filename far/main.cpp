@@ -470,7 +470,6 @@ static void SetDriveMenuHotkeys()
 static int mainImpl(const range<wchar_t**>& Args)
 {
 	setlocale(LC_ALL, "");
-	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 	// Must be static - dependent static objects exist
 	static SCOPED_ACTION(os::com::co_initialize);
@@ -795,8 +794,8 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 	atexit(PrintSysLogStat);
 #endif
 
-	tracer Tracer;
-	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
+	SCOPED_ACTION(tracer);
+	SCOPED_ACTION(unhandled_exception_filter);
 
 	try
 	{
@@ -810,8 +809,8 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 		}
 		else
 		{
+			unhandled_exception_filter::dismiss();
 			RestoreGPFaultUI();
-			SetUnhandledExceptionFilter(nullptr);
 			throw;
 		}
 	}
@@ -823,7 +822,7 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 int main()
 {
 	return seh_invoke_with_ui(
-	[=]
+	[]
 	{
 		// wmain is a non-standard extension and not available in gcc.
 		int Argc;

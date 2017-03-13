@@ -45,26 +45,20 @@ public:
 	void store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo);
 
 	static std::vector<string> get(const void* CppObject);
-	static std::vector<string> get(const EXCEPTION_POINTERS* e);
+	static std::vector<string> get(const exception_context& Context);
 	static string get_one(const void* Address);
 
-	static bool get_exception_context(const void* CppObject, EXCEPTION_RECORD& ExceptionRecord, CONTEXT& ContextRecord);
+	static const exception_context* get_exception_context(const void* CppObject);
 
 private:
-	struct exception_context
-	{
-		EXCEPTION_RECORD ExceptionRecord;
-		CONTEXT ContextRecord;
-	};
-
-	bool get_context(const void* CppObject, exception_context& Context) const;
+	const exception_context* get_context(const void* CppObject) const;
 
 	static bool SymInitialise();
 	static void SymCleanup();
 
 	static tracer* sTracer;
 	mutable os::critical_section m_CS;
-	std::unordered_map<const void*, exception_context> m_CppMap;
+	std::unordered_map<const void*, std::unique_ptr<exception_context>> m_CppMap;
 
 	class veh_handler: noncopyable
 	{

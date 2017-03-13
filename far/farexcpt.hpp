@@ -40,7 +40,14 @@ class Plugin;
 bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module = nullptr);
 bool ProcessUnknownException(const wchar_t* Function, Plugin* Module = nullptr);
 
-LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo);
+class unhandled_exception_filter
+{
+public:
+	NONCOPYABLE(unhandled_exception_filter);
+	unhandled_exception_filter();
+	~unhandled_exception_filter();
+	static void dismiss();
+};
 
 void RestoreGPFaultUI();
 
@@ -80,7 +87,7 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 template<class function, class handler>
 auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const wchar_t* Function, Plugin* Module = nullptr)
 {
-	int SehFilter(int, EXCEPTION_POINTERS*, const wchar_t*, Plugin*);
+	int SehFilter(DWORD, EXCEPTION_POINTERS*, const wchar_t*, Plugin*);
 	return seh_invoke(std::forward<function>(Callable), [&](auto Code, auto Info) { return SehFilter(Code, Info, Function, Module); }, std::forward<handler>(Handler));
 }
 
@@ -88,6 +95,23 @@ template<class function, class handler>
 auto seh_invoke_no_ui(function&& Callable, handler&& Handler)
 {
 	return seh_invoke(std::forward<function>(Callable), [](auto, auto) { return EXCEPTION_EXECUTE_HANDLER; }, std::forward<handler>(Handler));
+}
+
+template<class function>
+auto seh_invoke_thread(std::exception_ptr& ExceptionPtr, function&& Callable)
+{
+	return seh_invoke(std::forward<function>(Callable), [&](auto Code, auto Info)
+	{
+		ExceptionPtr = std::make_exception_ptr(seh_exception(Code, Info, true));
+		return EXCEPTION_EXECUTE_HANDLER;
+	},
+	[]
+	{
+		// The thread is about to quit, but we still need it to get a stack trace.
+		// It will be released once the corresponding exception context is destroyed.
+		// The caller MUST detach it if ExceptionPtr is not empty.
+		SuspendThread(GetCurrentThread());
+	});
 }
 
 #endif // FAREXCPT_HPP_F7B85E85_71DD_483D_BD7F_B26B8566AC8E

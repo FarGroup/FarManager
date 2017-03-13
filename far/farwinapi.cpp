@@ -1844,6 +1844,12 @@ bool GetDefaultPrinter(string& Printer)
 	});
 }
 
+handle OpenCurrentThread()
+{
+	HANDLE Handle;
+	return os::handle(DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Handle, 0, FALSE, DUPLICATE_SAME_ACCESS) ? Handle : nullptr);
+}
+
 	namespace reg
 	{
 		key open_key(HKEY RootKey, const wchar_t* SubKey, DWORD SamDesired)

@@ -94,7 +94,7 @@ static void ShowStackTrace(const std::vector<string>& Symbols)
 	}
 }
 
-static bool write_minidump(EXCEPTION_POINTERS *ex_pointers)
+static bool write_minidump(const exception_context& Context)
 {
 	if (!Imports().MiniDumpWriteDump)
 		return false;
@@ -104,8 +104,8 @@ static bool write_minidump(EXCEPTION_POINTERS *ex_pointers)
 	if (!DumpFile)
 		return false;
 
-	MINIDUMP_EXCEPTION_INFORMATION Mei = { GetCurrentThreadId(), ex_pointers };
-	return Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.handle().native_handle(), MiniDumpWithFullMemory, ex_pointers ? &Mei : nullptr, nullptr, nullptr) != FALSE;
+	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.GetThreadId(), Context.GetPointers() };
+	return Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.handle().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
 intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -151,16 +151,16 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 		case DN_CLOSE:
 		{
-			const auto xp = reinterpret_cast<EXCEPTION_POINTERS*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto& Context = *reinterpret_cast<exception_context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			switch (Param1)
 			{
 			case ed_button_stack:
-				ShowStackTrace(tracer::get(xp));
+				ShowStackTrace(tracer::get(Context));
 				return FALSE;
 
 			case ed_button_minidump:
-				write_minidump(xp);
+				write_minidump(Context);
 				return FALSE;
 			}
 		}
@@ -179,12 +179,12 @@ enum reply
 	reply_ignore,
 };
 
-static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_POINTERS* xp, const wchar_t* Function, const Plugin* PluginModule)
+static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const exception_context& Context, const wchar_t* Function, const Plugin* PluginModule)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	const auto strAddr = tracer::get_one(xp->ExceptionRecord->ExceptionAddress);
+	const auto strAddr = tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress);
 
 	FarDialogItem EditDlgData[]=
 	{
@@ -204,7 +204,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MIgnore)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
-	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<void*>(reinterpret_cast<const void*>(xp)));
+	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<exception_context*>(&Context));
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg->SetPosition(-1, -1, 80, 10);
 	Dlg->Process();
@@ -220,9 +220,9 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const EXCEPT
 	}
 }
 
-static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const EXCEPTION_POINTERS* xp, const wchar_t* Function, const Plugin* Module)
+static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const exception_context& Context, const wchar_t* Function, const Plugin* Module)
 {
-	const auto strAddr = tracer::get_one(xp->ExceptionRecord->ExceptionAddress);
+	const auto strAddr = tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress);
 
 	string Msg[4];
 	if (Language::IsLoaded())
@@ -248,7 +248,7 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const EXCEP
 
 	std::wcerr << Dump << std::endl;
 
-	ShowStackTrace(tracer::get(xp));
+	ShowStackTrace(tracer::get(Context));
 
 	for (;;)
 	{
@@ -277,7 +277,20 @@ enum FARRECORDTYPE
 	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
 };
 
-static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Function, const Plugin* PluginModule, const char* Message)
+static string ExtractObjectName(const EXCEPTION_RECORD* xr)
+{
+	// https://blogs.msdn.microsoft.com/oldnewthing/20100730-00/?p=13273
+	const auto BaseAddress = xr->NumberParameters == 4? xr->ExceptionInformation[3] : 0;
+	const auto Ptr1 = reinterpret_cast<const DWORD*>(xr->ExceptionInformation[2]);
+	const auto Ptr2 = reinterpret_cast<const DWORD*>(Ptr1[3] + BaseAddress);
+	const auto Ptr3 = reinterpret_cast<const DWORD*>(Ptr2[1] + BaseAddress);
+	const auto Ptr4 = reinterpret_cast<const char*>(Ptr3[1] + BaseAddress);
+	auto DataPtr = Ptr4 + sizeof(void*) * 2 + 1;
+	// TODO: try to undecorate?
+	return encoding::ansi::get_chars(DataPtr);
+}
+
+static bool ProcessGenericException(const exception_context& Context, const wchar_t* Function, const Plugin* PluginModule, const char* Message)
 {
 	if (Global)
 		Global->ProcessException=TRUE;
@@ -321,7 +334,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 				}
 
 				DWORD dummy;
-				Res = p(xp, (PluginModule? &PlugRec : nullptr), &LocalStartupInfo, &dummy);
+				Res = p(Context.GetPointers(), PluginModule? &PlugRec : nullptr, &LocalStartupInfo, &dummy);
 			}
 		}
 	}
@@ -368,7 +381,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 	string strFileName;
 	BOOL ShowMessages=FALSE;
 	// получим запись исключения
-	EXCEPTION_RECORD *xr = xp->ExceptionRecord;
+	const auto xr = Context.GetPointers()->ExceptionRecord;
 
 	if (!PluginModule)
 	{
@@ -390,14 +403,14 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 	// просмотрим "знакомые" FAR`у исключения и обработаем...
 	const auto ItemIterator = std::find_if(CONST_RANGE(ECode, i)
 	{
-		return i.Code == static_cast<NTSTATUS>(xr->ExceptionCode);
+		return i.Code == static_cast<NTSTATUS>(Context.GetCode());
 	});
 
 	if (ItemIterator != std::cend(ECode))
 	{
 		Exception = Language::IsLoaded()? MSG(ItemIterator->IdMsg) : ItemIterator->DefaultMsg;
 
-		if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
+		if (Context.GetCode() == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 		{
 			int Offset = 0;
 			// вот только не надо здесь неочевидных оптимизаций вида
@@ -431,17 +444,17 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 				Exception=strBuf.data();
 			}
 		}
-		else if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS))
+		else if (Context.GetCode() == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS))
 		{
-			strBuf = Exception;
-			strBuf += L" ("s;
+			strBuf = concat(Exception, L" ("s);
+			const auto ObjectName = xr->NumberParameters? ExtractObjectName(xr) : L"";
+			strBuf += ObjectName;
 			if (Message)
 			{
+				if (!ObjectName.empty())
+					strBuf += L" -> "s;
+
 				append(strBuf, L"std::exception: "s, encoding::utf8::get_chars(Message));
-			}
-			else
-			{
-				strBuf += L"other"s;
 			}
 			strBuf += L")"s;
 			Exception = strBuf.data();
@@ -451,7 +464,7 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 	if (!Exception)
 	{
 		const auto Template = Language::IsLoaded()? MSG(lng::MExcUnknown) : L"Unknown exception";
-		append(strBuf, Template, L" (0x"s, to_hex_wstring(xr->ExceptionCode), L')');
+		append(strBuf, Template, L" (0x"s, to_hex_wstring(Context.GetCode()), L')');
 		Exception = strBuf.data();
 	}
 
@@ -459,12 +472,12 @@ static bool ProcessGenericException(EXCEPTION_POINTERS *xp, const wchar_t* Funct
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		MsgCode = ExcDialog(strFileName, Exception, xp, Function, PluginModule);
+		MsgCode = ExcDialog(strFileName, Exception, Context, Function, PluginModule);
 		ShowMessages=TRUE;
 	}
 	else
 	{
-		MsgCode = ExcConsole(strFileName, Exception, xp, Function, PluginModule);
+		MsgCode = ExcConsole(strFileName, Exception, Context, Function, PluginModule);
 	}
 
 	if (ShowMessages && !PluginModule)
@@ -490,38 +503,55 @@ void RestoreGPFaultUI()
 
 bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module)
 {
-	EXCEPTION_RECORD ExceptionRecord{};
-	CONTEXT ContextRecord{};
-	EXCEPTION_POINTERS xp{ &ExceptionRecord, &ContextRecord };
+	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
+	{
+		return ProcessGenericException(SehException->GetContext(), Function, Module, e.what());
+	}
 
-	if (!tracer::get_exception_context(&e, ExceptionRecord, ContextRecord))
+	std::unique_ptr<exception_context> Context;
+	auto ContextPtr = tracer::get_exception_context(&e);
+	if (!ContextPtr)
 	{
 		// std::exception to EXCEPTION_POINTERS translation relies on Microsoft C++ exception implementation.
 		// It won't work in gcc etc.
 		// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
-		xp.ExceptionRecord->ExceptionCode = EXCEPTION_MICROSOFT_CPLUSPLUS;
+		Context = std::make_unique<exception_context>(EXCEPTION_MICROSOFT_CPLUSPLUS);
+		ContextPtr = Context.get();
 	}
 
-	return ProcessGenericException(&xp, Function, Module, e.what());
+	return ProcessGenericException(*ContextPtr, Function, Module, e.what());
 }
 
 bool ProcessUnknownException(const wchar_t* Function, Plugin* Module)
 {
-	EXCEPTION_RECORD ExceptionRecord{};
-	CONTEXT ContextRecord{};
-	EXCEPTION_POINTERS xp{ &ExceptionRecord, &ContextRecord };
-
-	return ProcessGenericException(&xp, Function, Module, nullptr);
+	exception_context Context;
+	return ProcessGenericException(Context, Function, Module, nullptr);
 }
 
-LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
+static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
-	if (ProcessGenericException(ExceptionInfo, L"FarUnhandledExceptionFilter", nullptr, nullptr))
+	exception_context Context(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo);
+	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter", nullptr, nullptr))
 	{
 		std::terminate();
 	}
 	RestoreGPFaultUI();
 	return EXCEPTION_CONTINUE_SEARCH;
+}
+
+unhandled_exception_filter::unhandled_exception_filter()
+{
+	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
+}
+
+unhandled_exception_filter::~unhandled_exception_filter()
+{
+	dismiss();
+}
+
+void unhandled_exception_filter::dismiss()
+{
+	SetUnhandledExceptionFilter(nullptr);
 }
 
 #if defined(FAR_ALPHA_VERSION)
@@ -723,27 +753,30 @@ void ResetStackOverflowIfNeeded()
 	}
 }
 
-int SehFilter(int Code, EXCEPTION_POINTERS* Info, const wchar_t* Function, Plugin* Module)
+int SehFilter(DWORD Code, EXCEPTION_POINTERS* Info, const wchar_t* Function, Plugin* Module)
 {
+	exception_context Context(Code, Info);
 	if (Code == EXCEPTION_STACK_OVERFLOW)
 	{
 		bool Result = false;
 		{
-			os::thread(&os::thread::join, [&] { Result = ProcessGenericException(Info, nullptr, nullptr, nullptr); });
+			os::thread(&os::thread::join, [&] { Result = ProcessGenericException(Context, nullptr, nullptr, nullptr); });
 		}
+
+		StackOverflowHappened = true;
+
 		if (Result)
 		{
-			StackOverflowHappened = true;
 			return EXCEPTION_EXECUTE_HANDLER;
 		}
 	}
 	else
 	{
-		if (ProcessGenericException(Info, Function, Module, nullptr))
+		if (ProcessGenericException(Context, Function, Module, nullptr))
 			return EXCEPTION_EXECUTE_HANDLER;
 	}
 
-	SetUnhandledExceptionFilter(nullptr);
+	unhandled_exception_filter::dismiss();
 	RestoreGPFaultUI();
 	return EXCEPTION_CONTINUE_SEARCH;
 }

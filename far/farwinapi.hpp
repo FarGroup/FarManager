@@ -164,6 +164,8 @@ namespace os
 
 	string GetLocaleValue(LCID lcid, LCTYPE id);
 
+	handle OpenCurrentThread();
+
 	namespace fs
 	{
 		namespace detail

@@ -150,6 +150,7 @@ void wm_listener::Check()
 
 void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 {
+	// TODO: SEH guard, try/catch, exception_ptr
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";

@@ -2563,18 +2563,21 @@ struct THREADPARAM
 
 void background_searcher::Search()
 {
-	try
+	seh_invoke_thread(m_ExceptionPtr, [this]
 	{
-		SCOPED_ACTION(wakeful);
-
-		InitInFileSearch();
-		m_PluginMode? DoPreparePluginList(false) : DoPrepareFileList();
-		ReleaseInFileSearch();
-	}
-	catch (...)
-	{
-		m_ExceptionPtr = std::current_exception();
-	}
+		try
+		{
+			SCOPED_ACTION(wakeful);
+			InitInFileSearch();
+			m_PluginMode? DoPreparePluginList(false) : DoPrepareFileList();
+			ReleaseInFileSearch();
+		}
+		catch (...)
+		{
+			m_ExceptionPtr = std::current_exception();
+			m_IsRegularException = true;
+		}
+	});
 }
 
 void background_searcher::Stop() const
@@ -2685,14 +2688,26 @@ bool FindFiles::FindFilesProcess()
 			Dlg->Show();
 
 			os::thread FindThread(&os::thread::join, &background_searcher::Search, &BC);
-			Dlg->Process();
 
-			// BUGBUG
-			m_Searcher = nullptr;
+			// In case of an exception in the main thread
+			SCOPE_EXIT
+			{
+				Dlg->CloseDialog();
+				m_Searcher->Stop();
+				m_Searcher = nullptr;
+			};
+
+			Dlg->Process();
 
 			if (!m_ExceptionPtr)
 			{
 				m_ExceptionPtr = BC.ExceptionPtr();
+			}
+
+			if (m_ExceptionPtr && !BC.IsRegularException())
+			{
+				// You're someone else's problem
+				FindThread.detach();
 			}
 
 			RethrowIfNeeded(m_ExceptionPtr);

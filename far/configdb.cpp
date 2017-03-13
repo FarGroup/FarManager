@@ -671,6 +671,7 @@ protected:
 
 	void AsyncDelete() const
 	{
+		// TODO: SEH guard, try/catch, exception_ptr
 		delete this;
 	}
 
@@ -1668,7 +1669,7 @@ private:
 
 	void ThreadProc()
 	{
-		// TODO: try/catch & exception_ptr
+		// TODO: SEH guard, try/catch, exception_ptr
 		os::multi_waiter Waiter;
 		Waiter.add(AsyncWork);
 		Waiter.add(StopEvent);

@@ -54,6 +54,43 @@ far_exception::far_exception(const string& Message, const char* Function, const 
 }
 
 
+exception_context::exception_context(DWORD Code, const EXCEPTION_POINTERS* Pointers, bool ResumeThread):
+	m_Code(Code),
+	m_ExceptionRecord(),
+	m_ContextRecord(),
+	m_ThreadHandle(os::OpenCurrentThread()),
+	m_ThreadId(GetCurrentThreadId()),
+	m_ResumeThread(ResumeThread)
+{
+	if (Pointers)
+	{
+		m_ExceptionRecord = *Pointers->ExceptionRecord;
+		m_ContextRecord = *Pointers->ContextRecord;
+	}
+
+	for (auto ExceptionRecord = m_ExceptionRecord.ExceptionRecord; ExceptionRecord; ExceptionRecord = ExceptionRecord->ExceptionRecord)
+	{
+		auto Previous = m_ExceptionRecords.empty()? nullptr : &m_ExceptionRecords.back();
+		m_ExceptionRecords.emplace_back(*ExceptionRecord);
+		if (Previous)
+		{
+			Previous->ExceptionRecord = &m_ExceptionRecords.back();
+		}
+	}
+}
+
+exception_context::~exception_context()
+{
+	if (m_ResumeThread)
+		ResumeThread(m_ThreadHandle.native_handle());
+}
+
+
+EXCEPTION_POINTERS* exception_context::GetPointers() const
+{
+	return &(m_Pointers = { const_cast<EXCEPTION_RECORD*>(&m_ExceptionRecord), const_cast<CONTEXT*>(&m_ContextRecord) });
+}
+
 std::exception_ptr& GlobalExceptionPtr()
 {
 	static std::exception_ptr ExceptionPtr;
