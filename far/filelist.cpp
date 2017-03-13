@@ -2639,7 +2639,8 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	{
 		plugin_panel* OpenedPlugin = nullptr;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
-		SCOPE_EXIT{ if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP)) DeleteFileWithFolder(strFileName); };
+		string FileNameToDelete;
+		SCOPE_EXIT{ if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP) && !FileNameToDelete.empty()) DeleteFileWithFolder(FileNameToDelete); };
 		file_state SavedState;
 
 		if (PluginMode)
@@ -2653,8 +2654,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			FileListToPluginItem(CurItem, PanelItem);
 
 			if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_EDIT))
+			{
+				os::RemoveDirectory(strTempDir);
 				return;
-
+			}
+			FileNameToDelete = strFileName;
 			strShortFileName = ConvertNameToShort(strFileName);
 			SavedState = file_state::get(strFileName);
 		}
@@ -2703,7 +2707,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (EnableAssoc && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTEXEC, PluginMode))
 				return;
 
-			OpenFilePlugin(strFileName, TRUE, Type);
+			OpenedPlugin = OpenFilePlugin(strFileName, TRUE, Type);
 		}
 
 		if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP))
