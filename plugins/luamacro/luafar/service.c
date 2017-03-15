@@ -1567,7 +1567,8 @@ static int far_Menu(lua_State *L)
 	const wchar_t *Title = L"Menu", *Bottom = NULL, *HelpTopic = NULL;
 	intptr_t SelectIndex = 0, ItemsNumber, ret;
 	int store = 0, i;
-	intptr_t BreakCode, *pBreakCode, NumBreakCodes=0;
+	intptr_t BreakCode, *pBreakCode;
+	int NumBreakCodes = 0;
 	const GUID* MenuGuid = NULL;
 	struct FarMenuItem *Items, *pItem;
 	struct FarKey *pBreakKeys;

@@ -1,4 +1,8 @@
-﻿shmuel 13.02.2017 01:39:25 +0200 - build 597
+﻿shmuel 15.03.2017 16:18:38 +0200 - build 598
+
+1. LuaFAR: suppress compiler warning.
+
+shmuel 13.02.2017 01:39:25 +0200 - build 597
 
 1. LuaFAR: refactoring.
 
