@@ -522,7 +522,8 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     }
     else if (arc_entry->sig_pos >= skip_header) {
        archive->arc_info.set_size(arc_info.size() - arc_entry->sig_pos);
-       opened = archive->open(new ArchiveSubStream(stream, arc_entry->sig_pos), arc_entry->type);
+       ComObject<IInStream> substream(new ArchiveSubStream(stream, arc_entry->sig_pos));
+       opened = archive->open(substream, arc_entry->type);
        if (opened)
          archive->base_stream = stream;
     }
