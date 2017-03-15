@@ -2744,7 +2744,6 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				{
 					if (Pos != m_FocusPos &&
 					        (IsEdit(i.Type) ||
-					         i.Type==DI_CHECKBOX ||
 					         i.Type==DI_RADIOBUTTON) &&
 					         i.Y1==Items[m_FocusPos].Y1)
 					{
