@@ -753,14 +753,14 @@ void ResetStackOverflowIfNeeded()
 	}
 }
 
-int SehFilter(DWORD Code, EXCEPTION_POINTERS* Info, const wchar_t* Function, Plugin* Module)
+int SehFilter(int Code, EXCEPTION_POINTERS* Info, const wchar_t* Function, Plugin* Module)
 {
 	exception_context Context(Code, Info);
 	if (Code == EXCEPTION_STACK_OVERFLOW)
 	{
 		bool Result = false;
 		{
-			os::thread(&os::thread::join, [&] { Result = ProcessGenericException(Context, nullptr, nullptr, nullptr); });
+			os::thread(&os::thread::join, [&]{ Result = ProcessGenericException(Context, nullptr, nullptr, nullptr); });
 		}
 
 		StackOverflowHappened = true;

@@ -233,9 +233,9 @@ public:
 	virtual void* Analyse(AnalyseInfo *Info);
 	virtual void CloseAnalyse(CloseAnalyseInfo* Info);
 
-	virtual int GetContentFields(const GetContentFieldsInfo *Info);
+	virtual int GetContentFields(GetContentFieldsInfo *Info);
 	virtual int GetContentData(GetContentDataInfo *Info);
-	virtual void FreeContentData(const GetContentDataInfo *Info);
+	virtual void FreeContentData(GetContentDataInfo *Info);
 
 	virtual void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
 	virtual bool CheckMinFarVersion();
@@ -353,6 +353,12 @@ private:
 	void InitExports();
 	void ClearExports();
 	void SetGuid(const GUID& Guid);
+
+	template<typename T>
+	void SetInstance(T* Object) const
+	{
+		Object->Instance = m_Instance->get_opaque();
+	}
 
 	string strTitle;
 	string strDescription;

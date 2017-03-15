@@ -5623,7 +5623,7 @@ private:
 	{
 	}
 
-	virtual int GetContentFields(const GetContentFieldsInfo*) override
+	virtual int GetContentFields(GetContentFieldsInfo*) override
 	{
 		return 0;
 	}
@@ -5633,7 +5633,7 @@ private:
 		return 0;
 	}
 	
-	virtual void FreeContentData(const GetContentDataInfo*) override
+	virtual void FreeContentData(GetContentDataInfo*) override
 	{
 	}
 

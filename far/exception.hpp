@@ -83,7 +83,7 @@ public:
 	~exception_context();
 
 	auto GetCode() const { return m_Code; }
-	EXCEPTION_POINTERS* GetPointers() const;
+	auto GetPointers() const { return const_cast<EXCEPTION_POINTERS*>(&m_Pointers); }
 	auto GetThreadHandle() const { return m_ThreadHandle.native_handle(); }
 	auto GetThreadId() const { return m_ThreadId; }
 
@@ -92,7 +92,7 @@ private:
 	EXCEPTION_RECORD m_ExceptionRecord;
 	std::list<EXCEPTION_RECORD> m_ExceptionRecords;
 	CONTEXT m_ContextRecord;
-	mutable EXCEPTION_POINTERS m_Pointers;
+	EXCEPTION_POINTERS m_Pointers;
 	os::handle m_ThreadHandle;
 	DWORD m_ThreadId;
 	bool m_ResumeThread;

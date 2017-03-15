@@ -124,15 +124,16 @@ class xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLEleme
 	IMPLEMENTS_ENUMERATOR(xml_enum);
 
 public:
-	xml_enum(tinyxml::XMLHandle base, const char* name):
-		m_name(name),
-		m_base(base.ToNode())
-	{}
-
 	xml_enum(const tinyxml::XMLNode& base, const char* name):
 		m_name(name),
 		m_base(&base)
-	{}
+	{
+	}
+
+	xml_enum(tinyxml::XMLHandle base, const char* name):
+		xml_enum(*base.ToNode(), name)
+	{
+	}
 
 private:
 	bool get(size_t index, value_type& value) const
@@ -1116,13 +1117,13 @@ private:
 };
 
 #if 1
-#if   defined(_M_IA64) || defined(__ia64)|| defined(__ia64__)
+#if defined(_M_IA64)
 #define PLATFORM_SUFFIX L"IA64"
-#elif defined(_M_AMD64)|| defined(_M_X64)|| defined(__amd64)|| defined(__amd64__)|| defined(__x86_64)|| defined(__x86_64__)
+#elif defined(_M_AMD64)
 #define PLATFORM_SUFFIX L"64"
-#elif defined(_M_ARM)  || defined(__arm) || defined(__arm__)|| defined(_ARM_)
+#elif defined(_M_ARM)
 #define PLATFORM_SUFFIX L"ARM"
-#elif defined(_M_IX86) || defined(__i386)|| defined(__i386__)
+#elif defined(_M_IX86)
 #define PLATFORM_SUFFIX L"32"
 #endif
 #else

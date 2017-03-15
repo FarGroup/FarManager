@@ -621,7 +621,7 @@ TVar TVar::operator+(const TVar& rhs) const
 				tsA=tsB=tsStr;
 
 			if ((tsA == tsStr && tsB == tsStr) || (tsA != tsStr && tsB == tsStr) || (tsA == tsStr && tsB != tsStr))
-				r = addStr(asString(), asString());
+				r = addStr(asString(), rhs.asString());
 			else if (tsA == tsInt && tsB == tsInt)
 				r = asInteger() + rhs.asInteger();
 			else

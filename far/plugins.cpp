@@ -2309,7 +2309,7 @@ plugin_panel* PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,
 
 std::vector<Plugin*> PluginManager::GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const
 {
-	const GetContentFieldsInfo Info = { sizeof(GetContentFieldsInfo), ColNames.size(), ColNames.data() };
+	GetContentFieldsInfo Info = { sizeof(GetContentFieldsInfo), ColNames.size(), ColNames.data() };
 	std::vector<Plugin*> Plugins;
 	std::copy_if(ALL_CONST_RANGE(SortedPlugins), std::back_inserter(Plugins), [&Info](Plugin* p)
 	{

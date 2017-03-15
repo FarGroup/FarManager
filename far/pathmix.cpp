@@ -587,19 +587,19 @@ void TestPathParser()
 	TestCases[] =
 	{
 		// root directory, shall fail
-		{ L"[root]", L"[root]", false, false},
+		{ L"{0}", L"{0}", false, false},
 
 		// one level, shall return root directory
-		{ L"[root]dir1", L"[root]", true, true },
+		{ L"{0}dir1", L"{0}", true, true },
 
 		// one level without root, shall fail
 		{ L"dir1", L"dir1", false, false },
 
 		// two levels, shall return first level
-		{ L"[root]dir1\\dir2", L"[root]dir1", false, true },
+		{ L"{0}dir1\\dir2", L"{0}dir1", false, true },
 
 		// two levels with trailing slash, shall return first level
-		{ L"[root]dir1\\dir2\\", L"[root]dir1", false, true },
+		{ L"{0}dir1\\dir2\\", L"{0}dir1", false, true },
 	};
 
 	string Path, Baseline;
@@ -610,10 +610,8 @@ void TestPathParser()
 			if (!*Root && Test.RootMustExist)
 				continue;
 
-			Path = Test.InputPath;
-			ReplaceStrings(Path, L"[root]", Root);
-			Baseline = Test.ExpectedPath;
-			ReplaceStrings(Baseline, L"[root]", Root);
+			Path = format(Test.InputPath, Root);
+			Baseline = format(Test.ExpectedPath, Root);
 
 			const auto Result = CutToParent(Path);
 			assert(Result == Test.ExpectedReult);

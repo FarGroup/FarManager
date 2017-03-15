@@ -87,7 +87,7 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 template<class function, class handler>
 auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const wchar_t* Function, Plugin* Module = nullptr)
 {
-	int SehFilter(DWORD, EXCEPTION_POINTERS*, const wchar_t*, Plugin*);
+	int SehFilter(int, EXCEPTION_POINTERS*, const wchar_t*, Plugin*);
 	return seh_invoke(std::forward<function>(Callable), [&](auto Code, auto Info) { return SehFilter(Code, Info, Function, Module); }, std::forward<handler>(Handler));
 }
 

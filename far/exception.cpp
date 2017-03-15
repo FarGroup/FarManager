@@ -58,6 +58,7 @@ exception_context::exception_context(DWORD Code, const EXCEPTION_POINTERS* Point
 	m_Code(Code),
 	m_ExceptionRecord(),
 	m_ContextRecord(),
+	m_Pointers{ &m_ExceptionRecord, &m_ContextRecord },
 	m_ThreadHandle(os::OpenCurrentThread()),
 	m_ThreadId(GetCurrentThreadId()),
 	m_ResumeThread(ResumeThread)
@@ -68,14 +69,12 @@ exception_context::exception_context(DWORD Code, const EXCEPTION_POINTERS* Point
 		m_ContextRecord = *Pointers->ContextRecord;
 	}
 
-	for (auto ExceptionRecord = m_ExceptionRecord.ExceptionRecord; ExceptionRecord; ExceptionRecord = ExceptionRecord->ExceptionRecord)
+	auto Previous = &m_ExceptionRecord;
+	for (auto Iterator = m_ExceptionRecord.ExceptionRecord; Iterator; Iterator = Iterator->ExceptionRecord)
 	{
-		auto Previous = m_ExceptionRecords.empty()? nullptr : &m_ExceptionRecords.back();
-		m_ExceptionRecords.emplace_back(*ExceptionRecord);
-		if (Previous)
-		{
-			Previous->ExceptionRecord = &m_ExceptionRecords.back();
-		}
+		m_ExceptionRecords.emplace_back(*Iterator);
+		Previous->ExceptionRecord = &m_ExceptionRecords.back();
+		Previous = Iterator;
 	}
 }
 
@@ -85,11 +84,6 @@ exception_context::~exception_context()
 		ResumeThread(m_ThreadHandle.native_handle());
 }
 
-
-EXCEPTION_POINTERS* exception_context::GetPointers() const
-{
-	return &(m_Pointers = { const_cast<EXCEPTION_RECORD*>(&m_ExceptionRecord), const_cast<CONTEXT*>(&m_ContextRecord) });
-}
 
 std::exception_ptr& GlobalExceptionPtr()
 {

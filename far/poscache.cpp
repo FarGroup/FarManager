@@ -39,9 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "cvtname.hpp"
 
-void GetFullName(const string& Name, string &strFullName)
+static auto GetFullName(const string& Name)
 {
-	strFullName = Name[0] == L'<'? Name : ConvertNameToFull(Name);
+	return Name[0] == L'<'? Name : ConvertNameToFull(Name);
 }
 
 void FilePositionCache::CompactHistory()
@@ -55,8 +55,7 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 	if (!(Global->Opt->EdOpt.SavePos || Global->Opt->EdOpt.SaveShortPos))
 		return false;
 
-	string strFullName;
-	GetFullName(Name,strFullName);
+	const auto strFullName = GetFullName(Name);
 
 	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
 
@@ -89,8 +88,7 @@ bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache
 {
 	poscache.Clear();
 
-	string strFullName;
-	GetFullName(Name,strFullName);
+	const auto strFullName = GetFullName(Name);
 
 	unsigned long long id = 0;
 
@@ -123,8 +121,7 @@ bool FilePositionCache::AddPosition(const string& Name, const ViewerPosCache& po
 	if (!(Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode || Global->Opt->ViOpt.SaveShortPos))
 		return false;
 
-	string strFullName;
-	GetFullName(Name,strFullName);
+	const auto strFullName = GetFullName(Name);
 
 	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
 
@@ -160,8 +157,7 @@ bool FilePositionCache::GetPosition(const string& Name, ViewerPosCache& poscache
 {
 	poscache.Clear();
 
-	string strFullName;
-	GetFullName(Name,strFullName);
+	const auto strFullName = GetFullName(Name);
 
 	unsigned long long id = 0;
 
