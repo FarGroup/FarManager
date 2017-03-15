@@ -22,7 +22,7 @@
   </ItemGroup>
   <PropertyGroup Label="UserMacros">
     <SrcRoot>$(MSBuildThisFileDirectory)..\..\..\</SrcRoot>
-    <CurPath>$(Configuration).$(Platform).v$(VisualStudioVersion)\$(OutDir)</CurPath>
+    <CurPath>$(Configuration).$(Platform).vc$(VisualStudioVersion)\$(OutDir)</CurPath>
     <OutputsRoot>$(MSBuildThisFileDirectory)..\_output\</OutputsRoot>
   </PropertyGroup>
   <PropertyGroup>
