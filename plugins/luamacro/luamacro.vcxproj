@@ -73,29 +73,29 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>debug.32W.v$(VisualStudioVersion)\</OutDir>
-    <IntDir>debug.32W.v$(VisualStudioVersion)\obj_luamacro\</IntDir>
+    <OutDir>debug.32W.vc$(VisualStudioVersion)\</OutDir>
+    <IntDir>debug.32W.vc$(VisualStudioVersion)\obj_luamacro\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>debug.64W.v$(VisualStudioVersion)\</OutDir>
-    <IntDir>debug.64W.v$(VisualStudioVersion)\obj_luamacro\</IntDir>
+    <OutDir>debug.64W.vc$(VisualStudioVersion)\</OutDir>
+    <IntDir>debug.64W.vc$(VisualStudioVersion)\obj_luamacro\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>final.32W.v$(VisualStudioVersion)\obj_luamacro\</IntDir>
-    <OutDir>final.32W.v$(VisualStudioVersion)\</OutDir>
+    <IntDir>final.32W.vc$(VisualStudioVersion)\obj_luamacro\</IntDir>
+    <OutDir>final.32W.vc$(VisualStudioVersion)\</OutDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>final.64W.v$(VisualStudioVersion)\</OutDir>
-    <IntDir>final.64W.v$(VisualStudioVersion)\obj_luamacro\</IntDir>
+    <OutDir>final.64W.vc$(VisualStudioVersion)\</OutDir>
+    <IntDir>final.64W.vc$(VisualStudioVersion)\obj_luamacro\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
@@ -119,7 +119,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\unicode_far\Debug.32.v$(VisualStudioVersion);luasdk/32</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\unicode_far\Debug.32.vc$(VisualStudioVersion);luasdk/32</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
     </Link>
@@ -155,7 +155,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>../../unicode_far/Debug.64.v$(VisualStudioVersion);luasdk/64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../unicode_far/Debug.64.vc$(VisualStudioVersion);luasdk/64</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
     </Link>
@@ -196,7 +196,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\unicode_far\Release.32.v$(VisualStudioVersion);luasdk/32</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\unicode_far\Release.32.vc$(VisualStudioVersion);luasdk/32</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
     </Link>
@@ -236,7 +236,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\unicode_far\Release.64.v$(VisualStudioVersion);luasdk/64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\unicode_far\Release.64.vc$(VisualStudioVersion);luasdk/64</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
     </Link>

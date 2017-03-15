@@ -61,7 +61,7 @@ OBJS = $(OBJS) $(OUTDIR)\vc_crt_fix.obj $(OUTDIR)\vc_crt_fix_impl.obj
 
 LIBS = user32.lib advapi32.lib ole32.lib oleaut32.lib version.lib
 
-!ifdef DEBUG
+!ifdef DEBUG_7Z
 # Microsoft Windows SDK v7.1
 # cd 7z\src\CPP\7zip\Bundles\Format7zF
 # setenv /x86

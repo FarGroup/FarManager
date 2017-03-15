@@ -73,29 +73,29 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\unicode_far\Debug.32.v$(VisualStudioVersion)\</OutDir>
-    <IntDir>debug.32W.v$(VisualStudioVersion)\obj_luafar3\</IntDir>
+    <OutDir>..\..\unicode_far\Debug.32.vc$(VisualStudioVersion)\</OutDir>
+    <IntDir>debug.32W.vc$(VisualStudioVersion)\obj_luafar3\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\unicode_far\Debug.64.v$(VisualStudioVersion)\</OutDir>
-    <IntDir>debug.64W.v$(VisualStudioVersion)\obj_luafar3\</IntDir>
+    <OutDir>..\..\unicode_far\Debug.64.vc$(VisualStudioVersion)\</OutDir>
+    <IntDir>debug.64W.vc$(VisualStudioVersion)\obj_luafar3\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>final.32W.v$(VisualStudioVersion)\obj_luafar3\</IntDir>
-    <OutDir>..\..\unicode_far\Release.32.v$(VisualStudioVersion)\</OutDir>
+    <IntDir>final.32W.vc$(VisualStudioVersion)\obj_luafar3\</IntDir>
+    <OutDir>..\..\unicode_far\Release.32.vc$(VisualStudioVersion)\</OutDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>..\..\unicode_far\Release.64.v$(VisualStudioVersion)\</OutDir>
-    <IntDir>final.64W.v$(VisualStudioVersion)\obj_luafar3\</IntDir>
+    <OutDir>..\..\unicode_far\Release.64.vc$(VisualStudioVersion)\</OutDir>
+    <IntDir>final.64W.vc$(VisualStudioVersion)\obj_luafar3\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>

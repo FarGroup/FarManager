@@ -87,26 +87,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>debug.32W.v$(VisualStudioVersion)</OutDir>
-    <IntDir>debug.32W.v$(VisualStudioVersion)</IntDir>
+    <OutDir>debug.32W.vc$(VisualStudioVersion)</OutDir>
+    <IntDir>debug.32W.vc$(VisualStudioVersion)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>debug.64W.v$(VisualStudioVersion)</OutDir>
-    <IntDir>debug.64W.v$(VisualStudioVersion)</IntDir>
+    <OutDir>debug.64W.vc$(VisualStudioVersion)</OutDir>
+    <IntDir>debug.64W.vc$(VisualStudioVersion)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>final.32W.v$(VisualStudioVersion)</OutDir>
-    <IntDir>final.32W.v$(VisualStudioVersion)</IntDir>
+    <OutDir>final.32W.vc$(VisualStudioVersion)</OutDir>
+    <IntDir>final.32W.vc$(VisualStudioVersion)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>final.64W.v$(VisualStudioVersion)</OutDir>
-    <IntDir>final.64W.v$(VisualStudioVersion)</IntDir>
+    <OutDir>final.64W.vc$(VisualStudioVersion)</OutDir>
+    <IntDir>final.64W.vc$(VisualStudioVersion)</IntDir>
   </PropertyGroup>
   <PropertyGroup>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
