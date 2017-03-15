@@ -1703,7 +1703,7 @@ static int far_Menu(lua_State *L)
 		lua_replace(L,3);
 	}
 	else
-	  NumBreakCodes = lua_istable(L,3) ? lua_objlen(L,3) : 0;
+	  NumBreakCodes = lua_istable(L,3) ? (int)lua_objlen(L,3) : 0;
 
 	if(NumBreakCodes)
 	{
