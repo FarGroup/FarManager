@@ -37,7 +37,7 @@ class array_ptr: public conditional<array_ptr<T>>
 {
 public:
 	NONCOPYABLE(array_ptr);
-	TRIVIALLY_MOVABLE(array_ptr);
+	MOVABLE(array_ptr);
 
 	array_ptr() noexcept: m_size() {}
 	array_ptr(size_t size, bool init = false) { reset(size, init); }
@@ -62,7 +62,7 @@ class block_ptr: public char_ptr
 {
 public:
 	NONCOPYABLE(block_ptr);
-	TRIVIALLY_MOVABLE(block_ptr);
+	MOVABLE(block_ptr);
 
 	using char_ptr::char_ptr;
 	block_ptr() = default;
@@ -106,7 +106,7 @@ class ptr_setter_t
 {
 public:
 	NONCOPYABLE(ptr_setter_t)
-	TRIVIALLY_MOVABLE(ptr_setter_t)
+	MOVABLE(ptr_setter_t)
 	ptr_setter_t(T& Ptr): m_Ptr(&Ptr) {}
 	~ptr_setter_t() { if (m_Ptr) m_Ptr->reset(m_RawPtr); }
 	auto operator&() { return &m_RawPtr; }

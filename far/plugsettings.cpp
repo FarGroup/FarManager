@@ -198,7 +198,7 @@ class PluginSettings::FarSettingsNameItems
 {
 public:
 	NONCOPYABLE(FarSettingsNameItems);
-	TRIVIALLY_MOVABLE(FarSettingsNameItems);
+	MOVABLE(FarSettingsNameItems);
 
 	FarSettingsNameItems() = default;
 
@@ -250,7 +250,7 @@ class FarSettings::FarSettingsHistoryItems
 {
 public:
 	NONCOPYABLE(FarSettingsHistoryItems);
-	TRIVIALLY_MOVABLE(FarSettingsHistoryItems);
+	MOVABLE(FarSettingsHistoryItems);
 
 	FarSettingsHistoryItems() = default;
 

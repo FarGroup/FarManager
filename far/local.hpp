@@ -91,28 +91,28 @@ namespace detail
 template<class T>
 auto StrStr(T&& str1, const string& str2)
 {
-	TERSE_STATIC_ASSERT(std::is_lvalue_reference<T>::value);
+	static_assert(std::is_lvalue_reference<T>::value);
 	return std::search(ALL_RANGE(str1), ALL_CONST_RANGE(str2));
 }
 
 template<class T>
 auto StrStrI(T&& str1, const string& str2)
 {
-	TERSE_STATIC_ASSERT(std::is_lvalue_reference<T>::value);
+	static_assert(std::is_lvalue_reference<T>::value);
 	return std::search(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase());
 }
 
 template<class T>
 auto RevStrStr(T&& str1, const string& str2)
 {
-	TERSE_STATIC_ASSERT(std::is_lvalue_reference<T>::value);
+	static_assert(std::is_lvalue_reference<T>::value);
 	return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2));
 }
 
 template<class T>
 auto RevStrStrI(T&& str1, const string& str2)
 {
-	TERSE_STATIC_ASSERT(std::is_lvalue_reference<T>::value);
+	static_assert(std::is_lvalue_reference<T>::value);
 	return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase());
 }
 

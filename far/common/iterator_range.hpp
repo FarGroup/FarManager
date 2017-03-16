@@ -54,14 +54,14 @@ public:
 	constexpr auto begin() const { return m_begin; }
 	constexpr auto end() const { return m_end; }
 
-	constexpr auto cbegin() const { TERSE_STATIC_ASSERT(is_const); return begin(); }
-	constexpr auto cend() const { TERSE_STATIC_ASSERT(is_const); return end(); }
+	constexpr auto cbegin() const { static_assert(is_const); return begin(); }
+	constexpr auto cend() const { static_assert(is_const); return end(); }
 
 	constexpr auto rbegin() const { return reverse_iterator(m_end); }
 	constexpr auto rend() const { return reverse_iterator(m_begin); }
 
-	constexpr auto crbegin() const { TERSE_STATIC_ASSERT(is_const); return rbegin(); }
-	constexpr auto crend() const { TERSE_STATIC_ASSERT(is_const); return rend(); }
+	constexpr auto crbegin() const { static_assert(is_const); return rbegin(); }
+	constexpr auto crend() const { static_assert(is_const); return rend(); }
 
 	constexpr auto& front() const { return *m_begin; }
 	constexpr auto& back() const { return *std::prev(m_end); }

@@ -79,7 +79,7 @@ class filemasks::masks
 {
 public:
 	NONCOPYABLE(masks);
-	TRIVIALLY_MOVABLE(masks);
+	MOVABLE(masks);
 
 	masks() = default;
 

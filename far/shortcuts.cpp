@@ -85,7 +85,7 @@ private:
 
 public:
 	NONCOPYABLE(shortcut);
-	TRIVIALLY_MOVABLE(shortcut);
+	MOVABLE(shortcut);
 
 	shortcut(): PluginGuid(FarGuid) {}
 

@@ -79,7 +79,7 @@ class FileFilterParams
 {
 public:
 	NONCOPYABLE(FileFilterParams);
-	TRIVIALLY_MOVABLE(FileFilterParams);
+	MOVABLE(FileFilterParams);
 
 	FileFilterParams();
 
@@ -131,7 +131,7 @@ private:
 	struct fmask
 	{
 		NONCOPYABLE(fmask);
-		TRIVIALLY_MOVABLE(fmask);
+		MOVABLE(fmask);
 
 		fmask(): Used() {}
 

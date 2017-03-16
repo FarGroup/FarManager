@@ -84,7 +84,7 @@ static const wchar_t* const EOL_TYPE_CHARS[] =
 	L"\r\r\n"
 };
 
-TERSE_STATIC_ASSERT(std::size(EOL_TYPE_CHARS) == EOL_COUNT);
+static_assert(std::size(EOL_TYPE_CHARS) == EOL_COUNT);
 
 static const wchar_t EDMASK_ANY    = L'X'; // позволяет вводить в строку ввода любой символ;
 static const wchar_t EDMASK_DSS    = L'#'; // позволяет вводить в строку ввода цифры, пробел и знак минуса;

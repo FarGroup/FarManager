@@ -36,7 +36,7 @@ template<class T>
 class monitored
 {
 public:
-	TRIVIALLY_MOVABLE(monitored);
+	MOVABLE(monitored);
 
 	monitored(): m_Value(), m_Touched() {}
 	monitored(const T& Value): m_Value(Value), m_Touched() {}

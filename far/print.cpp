@@ -53,9 +53,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 
 #define PRINTER_INFO_LEVEL 4
-#define GENERATE_PRINTER_INFO(prefix, value) prefix##value##W
-#define PRINTER_INFO_X(level) GENERATE_PRINTER_INFO(PRINTER_INFO_, level)
-#define PRINTER_INFO PRINTER_INFO_X(PRINTER_INFO_LEVEL)
+#define DETAIL_PRINTER_INFO_N_IMPL(level) PRINTER_INFO_##level##W
+#define PRINTER_INFO_N(level) DETAIL_PRINTER_INFO_N_IMPL(level)
+#define PRINTER_INFO PRINTER_INFO_N(PRINTER_INFO_LEVEL)
 
 static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int PrinterNumber)
 {

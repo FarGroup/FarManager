@@ -65,7 +65,7 @@ namespace detail
 class any
 {
 public:
-	TRIVIALLY_MOVABLE(any);
+	MOVABLE(any);
 
 	any() = default;
 

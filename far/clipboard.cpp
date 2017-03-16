@@ -154,7 +154,7 @@ private:
 			{ L"Notepad++ binary text length", 0 },
 		};
 
-		TERSE_STATIC_ASSERT(std::size(FormatNames) == static_cast<size_t>(clipboard_format::count));
+		static_assert(std::size(FormatNames) == static_cast<size_t>(clipboard_format::count));
 		assert(Format < clipboard_format::count);
 		auto& FormatData = FormatNames[static_cast<unsigned>(Format)];
 		if (!FormatData.second)

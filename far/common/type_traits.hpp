@@ -1,12 +1,12 @@
-﻿#ifndef BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
-#define BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+﻿#ifndef TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C
+#define TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C
 #pragma once
 
 /*
-blob_view.hpp
+type_traits.hpp
 */
 /*
-Copyright © 2016 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,49 +32,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using blob_view = range<const char*>;
+template<typename type, typename... args>
+struct is_any: std::false_type {};
 
-class writable_blob_view: public range<char*>
-{
-public:
-	NONCOPYABLE(writable_blob_view);
-	writable_blob_view() = default;
-	writable_blob_view(void* Data, size_t Size): range<char*>(reinterpret_cast<char*>(Data), reinterpret_cast<char*>(Data) + Size) {}
-	~writable_blob_view()
-	{
-		if (m_Allocated)
-			delete[] static_cast<const char*>(data());
-	}
+template<typename type, typename arg>
+struct is_any<type, arg>: std::is_same<type, arg> {};
 
-	writable_blob_view& operator=(const blob_view& rhs)
-	{
-		if (data())
-		{
-			if (size() != rhs.size())
-				throw std::runtime_error("Incorrect blob size");
-		}
-		else
-		{
-			static_cast<range<char*>&>(*this) = make_range(new char[rhs.size()], rhs.size());
-			m_Allocated = true;
-		}
-		memcpy(data(), rhs.data(), size());
-		return *this;
-	}
-private:
-	bool m_Allocated{};
-};
+template<typename type, typename arg, typename... args>
+struct is_any<type, arg, args...>: std::integral_constant<bool, is_any<type, arg>::value || is_any<type, args...>::value> {};
 
-inline auto make_blob_view(const void* Object, size_t Size)
-{
-	return make_range(reinterpret_cast<const char*>(Object), Size);
-}
-
-template<typename T>
-auto make_blob_view(const T& Object)
-{
-	static_assert(std::is_pod<T>::value);
-	return make_blob_view(&Object, sizeof Object);
-}
-
-#endif // BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+#endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

@@ -68,7 +68,7 @@ class ChDiskPluginItem
 {
 public:
 	NONCOPYABLE(ChDiskPluginItem);
-	TRIVIALLY_MOVABLE(ChDiskPluginItem);
+	MOVABLE(ChDiskPluginItem);
 
 	ChDiskPluginItem():
 		HotKey()

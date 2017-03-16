@@ -82,7 +82,7 @@ class HelpRecord
 {
 public:
 	NONCOPYABLE(HelpRecord);
-	TRIVIALLY_MOVABLE(HelpRecord);
+	MOVABLE(HelpRecord);
 
 	string HelpStr;
 
@@ -107,8 +107,8 @@ static const wchar_t HelpFormatLinkModule[] = L"<{0}>{1}";
 
 struct Help::StackHelpData
 {
-	TRIVIALLY_COPYABLE(StackHelpData);
-	TRIVIALLY_MOVABLE(StackHelpData);
+	COPYABLE(StackHelpData);
+	MOVABLE(StackHelpData);
 
 	StackHelpData():
 		Flags(),

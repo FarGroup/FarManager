@@ -4491,7 +4491,7 @@ void Editor::GetRowCol(const string& argv, int& row, int& col)
 struct Editor::EditorUndoData
 {
 	NONCOPYABLE(EditorUndoData);
-	TRIVIALLY_MOVABLE(EditorUndoData);
+	MOVABLE(EditorUndoData);
 
 	int m_Type;
 	int m_StrPos;

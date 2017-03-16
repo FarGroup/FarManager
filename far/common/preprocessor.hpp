@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "compiler.hpp"
 
+#define EXPAND(x) x
+
 #define DETAIL_CONCATENATE_IMPL(s1, s2) s1 ## s2
 #define CONCATENATE(s1, s2) DETAIL_CONCATENATE_IMPL(s1, s2)
 
@@ -99,11 +101,11 @@ Type& operator=(const Type&) = delete; \
 #define COPY_AND_MOVE(...) \
 auto& operator=(__VA_ARGS__ rhs) { std::remove_reference_t<decltype(*this)> Tmp(rhs); *this = std::move(Tmp); return *this; }
 
-#define TRIVIALLY_COPYABLE(Type) \
+#define COPYABLE(Type) \
 Type(const Type&) = default; \
 COPY_AND_MOVE(const Type&)
 
-#define TRIVIALLY_MOVABLE(Type) \
+#define MOVABLE(Type) \
 Type(Type&&) = default; \
 Type& operator=(Type&&) = default;
 
@@ -113,11 +115,9 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 #define STR(x) #x
 #define WSTR(x) L###x
 
-#define WIDE_IMPL(x) L##x
-#define WIDE(x) WIDE_IMPL(x)
+#define DETAIL_WIDE_IMPL(x) L##x
+#define WIDE(x) DETAIL_WIDE_IMPL(x)
 
 #define REQUIRES(...) std::enable_if_t<__VA_ARGS__>* = nullptr
-
-#define TERSE_STATIC_ASSERT(...) static_assert(__VA_ARGS__, #__VA_ARGS__)
 
 #endif // PREPROCESSOR_HPP_35FF3F1D_40F4_4741_9366_6A0723C14CBB

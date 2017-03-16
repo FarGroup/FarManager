@@ -45,7 +45,7 @@ namespace os
 			using base_type = typename handle_t::base_type;
 
 		public:
-			TRIVIALLY_MOVABLE(handle_t);
+			MOVABLE(handle_t);
 
 			constexpr handle_t() = default;
 			constexpr handle_t(nullptr_t) {}
@@ -233,7 +233,7 @@ namespace os
 		{
 		public:
 			NONCOPYABLE(file);
-			TRIVIALLY_MOVABLE(file);
+			MOVABLE(file);
 
 			file():
 				m_Pointer(),
@@ -389,29 +389,29 @@ namespace os
 		bool GetValue(const key& Key, const wchar_t* Name, unsigned int& Value);
 		bool GetValue(const key& Key, const wchar_t* Name, unsigned long long& Value);
 
-#define IS_SAME(T1, T2) std::is_same<T1, T2>::value
-#define CHECK_TYPE(T) static_assert(IS_SAME(T, string) || IS_SAME(T, unsigned int) || IS_SAME(T, unsigned long long), "this type is not supported");
+		namespace detail
+		{
+			template<typename T>
+			using is_supported_type = typename is_any<T, string, unsigned int, unsigned long long>::type;
+		}
 
 		template<class T>
-		bool GetValue(const key& Key, const string& Name, T& Value) { CHECK_TYPE(T); return GetValue(Key, Name.data(), Value); }
+		bool GetValue(const key& Key, const string& Name, T& Value) { static_assert(detail::is_supported_type<T>::value); return GetValue(Key, Name.data(), Value); }
 
 		template<class T>
 		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0)
 		{
-			CHECK_TYPE(T);
+			static_assert(detail::is_supported_type<T>::value);
 			const auto Key = open_key(RootKey, SubKey, KEY_QUERY_VALUE | Sam);
 			return Key && GetValue(Key, Name, Value);
 		}
 
 		template<class T>
-		bool GetValue(HKEY RootKey, const string& SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0) { CHECK_TYPE(T); return GetValue(RootKey, SubKey.data(), Name, Value, Sam); }
+		bool GetValue(HKEY RootKey, const string& SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0) { static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey.data(), Name, Value, Sam); }
 		template<class T>
-		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const string& Name, T& Value, REGSAM Sam = 0) { CHECK_TYPE(T); return GetValue(RootKey, SubKey, Name.data(), Value, Sam); }
+		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const string& Name, T& Value, REGSAM Sam = 0) { static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey, Name.data(), Value, Sam); }
 		template<class T>
-		bool GetValue(HKEY RootKey, const string& SubKey, const string& Name, T& Value, REGSAM Sam = 0) { CHECK_TYPE(T); return GetValue(RootKey, SubKey.data(), Name.data(), Value, Sam); }
-
-#undef CHECK_TYPE
-#undef IS_SAME
+		bool GetValue(HKEY RootKey, const string& SubKey, const string& Name, T& Value, REGSAM Sam = 0) { static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey.data(), Name.data(), Value, Sam); }
 
 		class enum_key: noncopyable, public enumerator<enum_key, string>
 		{
@@ -503,7 +503,7 @@ namespace os
 		{
 		public:
 			NONCOPYABLE(module);
-			TRIVIALLY_MOVABLE(module);
+			MOVABLE(module);
 
 			module(string name, bool AlternativeLoad = false):
 				m_name(std::move(name)),
@@ -568,7 +568,7 @@ namespace os
 			template<class T>
 			ptr copy(const T& Object)
 			{
-				TERSE_STATIC_ASSERT(std::is_pod<T>::value);
+				static_assert(std::is_pod<T>::value);
 				if (auto Memory = alloc(GMEM_MOVEABLE, sizeof(Object)))
 				{
 					if (const auto Copy = lock<T*>(Memory))

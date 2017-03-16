@@ -59,7 +59,7 @@ DIRBIT=32
 
 !if !defined(VC) && defined(_NMAKE_VER)
 
-!if "$(_NMAKE_VER)">"15"
+!if "$(_NMAKE_VER)">"14.10"
 VC=15
 !elseif "$(_NMAKE_VER)">"14"
 VC=14
@@ -267,7 +267,7 @@ DEFINES=\
 DISABLED_WARNINGS=/FI disabled_warnings.hpp
 
 # common
-CPPFLAGS=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHsc /Gy /GF /Fd"$(INTDIR)\\" /J /Zc:rvalueCast,inline,strictStrings,throwingNew,referenceBinding /c
+CPPFLAGS=/nologo /MP$(MP_LIMIT) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHsc /Gy /GF /Fd"$(INTDIR)\\" /J /Zc:rvalueCast,inline,strictStrings,throwingNew,referenceBinding /std:c++latest /c
 LINKFLAGS=/nologo /subsystem:console /release /nxcompat /largeaddressaware /dynamicbase /map /out:"$(OUTDIR)\Far.exe"
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
@@ -308,6 +308,7 @@ CPPFLAGS=$(CPPFLAGS) /analyze
 
 # platform-specific
 !ifdef X86
+CPPFLAGS=$(CPPFLAGS) /arch:IA32
 !ifndef DEBUG
 CPPFLAGS=$(CPPFLAGS) /Oy-
 !endif
@@ -325,8 +326,8 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 !endif
 
 # compiler-specific
-!ifdef X86
-CPPFLAGS=$(CPPFLAGS) /arch:IA32
+!if "$(VC)"=="15"
+CPPFLAGS=$(CPPFLAGS) /diagnostics:caret
 !endif
 
 !ifdef ICL

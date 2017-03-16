@@ -223,7 +223,7 @@ static const TFKey ModifKeyName[]=
 	{KEY_M_OEM,    lng(-1),         L"Oem"_sl,    L"OEM"_sl},
 };
 
-TERSE_STATIC_ASSERT(std::size(ModifKeyName) == m_count);
+static_assert(std::size(ModifKeyName) == m_count);
 
 #if defined(SYSLOG)
 static const TFKey SpecKeyName[]=

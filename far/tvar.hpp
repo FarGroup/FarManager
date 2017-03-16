@@ -55,8 +55,8 @@ using TVarFuncCmp = bool (*)(TVarType vt, const void*, const void*);
 class TVar
 {
 public:
-	TRIVIALLY_COPYABLE(TVar);
-	TRIVIALLY_MOVABLE(TVar);
+	COPYABLE(TVar);
+	MOVABLE(TVar);
 
 	explicit TVar();
 	explicit TVar(int);

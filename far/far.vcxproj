@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>far</ProjectName>
+    <ProjectName>Far</ProjectName>
     <ProjectGuid>{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}</ProjectGuid>
     <RootNamespace>far</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
@@ -68,7 +68,7 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/J /Zc:strictStrings,throwingNew,referenceBinding %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J /Zc:strictStrings,throwingNew,referenceBinding /std:c++latest %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -131,6 +131,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>_DEBUG;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DiagnosticsFormat>Caret</DiagnosticsFormat>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <ResourceCompile>
@@ -144,7 +145,7 @@ if not exist bootstrap mkdir bootstrap</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
     <ClCompile>
-      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)' &gt; '10.0'">NoExtensions</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <PostBuildEvent>
       <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)\Far.exe &gt; nul</Command>
@@ -342,6 +343,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\swapable.hpp" />
     <ClInclude Include="common\any.hpp" />
     <ClInclude Include="codepage_selection.hpp" />
+    <ClInclude Include="common\type_traits.hpp" />
     <ClInclude Include="common\zip_view.hpp" />
     <ClInclude Include="configdb.hpp" />
     <ClInclude Include="copy_progress.hpp" />

@@ -53,7 +53,7 @@ public:
 	struct TreeItem
 	{
 		NONCOPYABLE(TreeItem);
-		TRIVIALLY_MOVABLE(TreeItem);
+		MOVABLE(TreeItem);
 
 		string strName;
 		std::vector<int> Last;

@@ -39,7 +39,7 @@ class NamesList
 {
 public:
 	NONCOPYABLE(NamesList);
-	TRIVIALLY_MOVABLE(NamesList);
+	MOVABLE(NamesList);
 
 	NamesList(): CurPos(Names.end()) {};
 

@@ -76,7 +76,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	{
 	public:
 		NONCOPYABLE(sid);
-		TRIVIALLY_MOVABLE(sid);
+		MOVABLE(sid);
 
 		sid(PSID rhs)
 		{

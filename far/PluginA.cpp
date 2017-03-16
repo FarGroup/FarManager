@@ -234,7 +234,7 @@ public:
 			WA("OpenFilePlugin"),
 			WA("GetMinFarVersion"),
 		};
-		TERSE_STATIC_ASSERT(std::size(ExportsNames) == ExportsCount);
+		static_assert(std::size(ExportsNames) == ExportsCount);
 		m_ExportsNames = make_range(ExportsNames);
 	}
 

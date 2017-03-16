@@ -98,7 +98,7 @@ class SaveScreen;
 struct MenuItemEx
 {
 	NONCOPYABLE(MenuItemEx);
-	TRIVIALLY_MOVABLE(MenuItemEx);
+	MOVABLE(MenuItemEx);
 
 	MenuItemEx(const string& Text = {}):
 		strName(Text),

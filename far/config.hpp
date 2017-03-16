@@ -179,7 +179,7 @@ namespace detail
 	protected:
 		OptionImpl(): Option(base_type())
 		{
-			TERSE_STATIC_ASSERT(std::is_base_of<OptionImpl, derived>::value);
+			static_assert((std::is_base_of<OptionImpl, derived>::value));
 		}
 
 	private:

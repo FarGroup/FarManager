@@ -1014,7 +1014,7 @@ static void ResetViewModes(const range<PanelViewSettings*>& Modes, int Index = -
 			PVS_ALIGNEXTENSIONS,
 		},
 	};
-	TERSE_STATIC_ASSERT(std::size(InitialModes) == predefined_panel_modes_count);
+	static_assert(std::size(InitialModes) == predefined_panel_modes_count);
 
 	const auto& InitMode = [](const auto& src, auto& dst)
 	{
@@ -1060,7 +1060,7 @@ void Options::SetFilePanelModes()
 			lng::MMenuLinksView,
 			lng::MMenuAlternativeView,
 		};
-		TERSE_STATIC_ASSERT(std::size(PredefinedNames) == predefined_panel_modes_count);
+		static_assert(std::size(PredefinedNames) == predefined_panel_modes_count);
 
 		const auto MenuCount = ViewSettings.size();
 		// +1 for separator
@@ -1501,7 +1501,7 @@ class Options::farconfig
 {
 public:
 	NONCOPYABLE(farconfig);
-	TRIVIALLY_MOVABLE(farconfig);
+	MOVABLE(farconfig);
 
 	using iterator = const FARConfigItem*;
 	using const_iterator = iterator;
@@ -1624,7 +1624,7 @@ void Options::InitConfigData()
 		L'\x256A', L'\x2518', L'\x250C', L'\x2588', L'\x2584', L'\x258C', L'\x2590', L'\x2580',
 		L'\0'
 	};
-	TERSE_STATIC_ASSERT(std::size(DefaultBoxSymbols) == BS_COUNT + 1);
+	static_assert(std::size(DefaultBoxSymbols) == BS_COUNT + 1);
 
 	const auto strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
 
@@ -2060,7 +2060,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		{ NetBoxGuid, {} },
 	};
 
-	TERSE_STATIC_ASSERT(std::size(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption));
+	static_assert(std::size(DefaultKnownGuids) == sizeof(Options::KnownModulesIDs) / sizeof(Options::KnownModulesIDs::GuidOption));
 
 	KnownModulesIDs::GuidOption* GuidOptions[] =
 	{
@@ -2070,7 +2070,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		&KnownIDs.Luamacro,
 		&KnownIDs.Netbox,
 	};
-	TERSE_STATIC_ASSERT(std::size(GuidOptions) == std::size(DefaultKnownGuids));
+	static_assert(std::size(GuidOptions) == std::size(DefaultKnownGuids));
 
 	for(auto i: zip(DefaultKnownGuids, GuidOptions))
 	{

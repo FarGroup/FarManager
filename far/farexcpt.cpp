@@ -634,7 +634,7 @@ static int ExceptionTestHook(Manager::Key key)
 			*/
 		};
 
-		TERSE_STATIC_ASSERT(std::size(Names) == static_cast<size_t>(exception_types::count));
+		static_assert(std::size(Names) == static_cast<size_t>(exception_types::count));
 
 		static union
 		{

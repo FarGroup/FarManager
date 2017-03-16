@@ -54,7 +54,7 @@ namespace scope_exit
 	{
 	public:
 		NONCOPYABLE(scope_guard);
-		TRIVIALLY_MOVABLE(scope_guard);
+		MOVABLE(scope_guard);
 
 		explicit scope_guard(F&& f): m_f(std::forward<F>(f)) {}
 

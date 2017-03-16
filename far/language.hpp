@@ -41,7 +41,7 @@ class Language
 {
 public:
 	NONCOPYABLE(Language);
-	TRIVIALLY_MOVABLE(Language);
+	MOVABLE(Language);
 
 	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
 	virtual ~Language() = default;

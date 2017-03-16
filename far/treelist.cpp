@@ -390,7 +390,7 @@ class TreeListCache
 {
 public:
 	NONCOPYABLE(TreeListCache);
-	TRIVIALLY_MOVABLE(TreeListCache);
+	MOVABLE(TreeListCache);
 
 	TreeListCache() = default;
 

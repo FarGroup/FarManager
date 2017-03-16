@@ -45,7 +45,7 @@ class critical_section
 {
 public:
 	NONCOPYABLE(critical_section);
-	TRIVIALLY_MOVABLE(critical_section);
+	MOVABLE(critical_section);
 
 	critical_section() { InitializeCriticalSection(&m_object); }
 	~critical_section() { DeleteCriticalSection(&m_object); }
@@ -71,7 +71,7 @@ class thread: public handle
 {
 public:
 	NONCOPYABLE(thread);
-	TRIVIALLY_MOVABLE(thread);
+	MOVABLE(thread);
 
 	using mode = void (thread::*)();
 
@@ -147,7 +147,7 @@ class mutex: public handle
 {
 public:
 	NONCOPYABLE(mutex);
-	TRIVIALLY_MOVABLE(mutex);
+	MOVABLE(mutex);
 
 	mutex(const wchar_t* Name = nullptr): handle(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
 
@@ -162,7 +162,7 @@ class event: public handle
 {
 public:
 	NONCOPYABLE(event);
-	TRIVIALLY_MOVABLE(event);
+	MOVABLE(event);
 
 	enum class type { automatic, manual };
 	enum class state { nonsignaled, signaled };

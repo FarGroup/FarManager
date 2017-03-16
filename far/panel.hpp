@@ -51,7 +51,7 @@ struct column
 struct PanelViewSettings
 {
 	NONCOPYABLE(PanelViewSettings);
-	TRIVIALLY_MOVABLE(PanelViewSettings);
+	MOVABLE(PanelViewSettings);
 
 	PanelViewSettings(): Flags() {}
 

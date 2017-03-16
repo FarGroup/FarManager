@@ -67,7 +67,7 @@ protected:
 	{
 	public:
 		NONCOPYABLE(SQLiteStmt);
-		TRIVIALLY_MOVABLE(SQLiteStmt);
+		MOVABLE(SQLiteStmt);
 
 		SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
 
@@ -134,7 +134,7 @@ protected:
 	template<typename T, size_t N>
 	bool PrepareStatements(const stmt_init<T> (&Init)[N])
 	{
-		TERSE_STATIC_ASSERT(N == T::stmt_count);
+		static_assert(N == T::stmt_count);
 
 		assert(m_Statements.empty());
 

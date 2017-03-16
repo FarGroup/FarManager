@@ -83,7 +83,7 @@ class plugin_panel
 {
 public:
 	NONCOPYABLE(plugin_panel);
-	TRIVIALLY_MOVABLE(plugin_panel);
+	MOVABLE(plugin_panel);
 
 	plugin_panel(Plugin* PluginInstance, HANDLE Panel);
 	~plugin_panel();

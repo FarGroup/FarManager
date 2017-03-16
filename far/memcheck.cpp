@@ -70,7 +70,7 @@ struct alignas(MEMORY_ALLOCATION_ALIGNMENT) MEMINFO
 	MEMINFO* next;
 };
 
-TERSE_STATIC_ASSERT(alignof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT);
+static_assert(alignof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT);
 
 static MEMINFO FirstMemBlock = {};
 static MEMINFO* LastMemBlock = &FirstMemBlock;
@@ -188,8 +188,8 @@ static thread_local bool inside_far_bad_alloc = false;
 class far_bad_alloc: public std::bad_alloc
 {
 public:
-	TRIVIALLY_COPYABLE(far_bad_alloc);
-	TRIVIALLY_MOVABLE(far_bad_alloc);
+	COPYABLE(far_bad_alloc);
+	MOVABLE(far_bad_alloc);
 
 	far_bad_alloc(const char* File, int Line, const char* Function, allocation_type Type, size_t Size) noexcept
 	{

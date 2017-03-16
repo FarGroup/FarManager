@@ -132,7 +132,7 @@ plugin_factory::plugin_factory(PluginManager* owner):
 		WA(""), // OpenFilePlugin not used
 		WA(""), // GetMinFarVersion not used
 	};
-	TERSE_STATIC_ASSERT(std::size(ExportsNames) == ExportsCount);
+	static_assert(std::size(ExportsNames) == ExportsCount);
 	m_ExportsNames = make_range(ExportsNames);
 }
 

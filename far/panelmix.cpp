@@ -80,7 +80,7 @@ ColumnInfo[] =
 	{ CUSTOM_COLUMN0, 0, L"C0" },
 };
 
-TERSE_STATIC_ASSERT(std::size(ColumnInfo) == COLUMN_TYPES_COUNT);
+static_assert(std::size(ColumnInfo) == COLUMN_TYPES_COUNT);
 
 void ShellUpdatePanels(panel_ptr SrcPanel,BOOL NeedSetUpADir)
 {

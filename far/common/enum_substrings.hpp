@@ -59,7 +59,7 @@ class enum_substrings_t: public enumerator<enum_substrings_t<provider>, range<de
 	IMPLEMENTS_ENUMERATOR(enum_substrings_t);
 public:
 	NONCOPYABLE(enum_substrings_t);
-	TRIVIALLY_MOVABLE(enum_substrings_t);
+	MOVABLE(enum_substrings_t);
 
 	explicit enum_substrings_t(const provider& Provider): m_Provider(&Provider), m_Offset() {}
 
@@ -87,7 +87,7 @@ private:
 template<class T>
 auto enum_substrings(T&& Provider)
 {
-	TERSE_STATIC_ASSERT(std::is_lvalue_reference<T>::value);
+	static_assert(std::is_lvalue_reference<T>::value);
 	return enum_substrings_t<std::remove_reference_t<T>>(Provider);
 }
 

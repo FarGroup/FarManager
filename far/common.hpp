@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/rel_ops.hpp"
 #include "common/conditional.hpp"
 #include "common/scope_exit.hpp"
+#include "common/type_traits.hpp"
 #include "common/function_traits.hpp"
 #include "common/smart_ptr.hpp"
 #include "common/any.hpp"

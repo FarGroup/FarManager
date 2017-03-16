@@ -1146,7 +1146,7 @@ private:
 			&elevated::GetDiskFreeSpaceExHandler,
 		};
 
-		TERSE_STATIC_ASSERT(std::size(Handlers) == C_COMMANDS_COUNT);
+		static_assert(std::size(Handlers) == C_COMMANDS_COUNT);
 
 		try
 		{

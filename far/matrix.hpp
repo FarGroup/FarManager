@@ -37,8 +37,8 @@ template<class T>
 class matrix
 {
 public:
-	TRIVIALLY_COPYABLE(matrix);
-	TRIVIALLY_MOVABLE(matrix);
+	COPYABLE(matrix);
+	MOVABLE(matrix);
 
 	template<class pointer>
 	class row_t: public rel_ops<row_t<pointer>>

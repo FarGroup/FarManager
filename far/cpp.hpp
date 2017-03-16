@@ -150,7 +150,7 @@ namespace std
 }
 #endif
 
-#if COMPILER != C_GCC || !defined(__cpp_lib_apply)
+#if (COMPILER == C_CL && _MSC_VER < 1910) || (COMPILER != C_CL && !defined(__cpp_lib_apply))
 namespace std
 {
 	namespace detail
@@ -183,6 +183,13 @@ namespace std
 		return *reinterpret_cast<const unsigned int*>(static_cast<const char*>(static_cast<const void*>(__cxxabiv1::__cxa_get_globals())) + sizeof(void*));
 	}
 }
+#endif
+
+#if (COMPILER == C_CL && _MSC_VER < 1910) || (COMPILER != C_CL && __cpp_static_assert < 201411)
+#define DETAIL_GET_MACRO(_1, _2, NAME, ...) NAME
+#define DETAIL_STATIC_ASSERT_2(expression, message) static_assert(expression, message)
+#define DETAIL_STATIC_ASSERT_1(expression) DETAIL_STATIC_ASSERT_2(expression, #expression)
+#define static_assert(...) EXPAND(DETAIL_GET_MACRO(__VA_ARGS__, DETAIL_STATIC_ASSERT_2, DETAIL_STATIC_ASSERT_1)(__VA_ARGS__))
 #endif
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

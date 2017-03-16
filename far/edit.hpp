@@ -109,7 +109,7 @@ class Edit: public SimpleScreenObject
 	};
 public:
 	NONCOPYABLE(Edit);
-	TRIVIALLY_MOVABLE(Edit);
+	MOVABLE(Edit);
 
 	using delete_color_condition = std::function<bool(const ColorItem&)>;
 

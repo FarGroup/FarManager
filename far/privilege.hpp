@@ -42,7 +42,7 @@ namespace os
 		{
 		public:
 			NONCOPYABLE(privilege);
-			TRIVIALLY_MOVABLE(privilege);
+			MOVABLE(privilege);
 
 			template<class... args>
 			privilege(args&&... Args): privilege({ std::forward<args>(Args)... }) {}

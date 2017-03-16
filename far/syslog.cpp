@@ -531,7 +531,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 			DEF_SORTMODE_(BY_NUMSTREAMS),DEF_SORTMODE_(BY_STREAMSSIZE),
 			DEF_SORTMODE_(BY_FULLNAME),DEF_SORTMODE_(BY_CUSTOMDATA)
 		};
-		TERSE_STATIC_ASSERT(std::size(__SORT) == static_cast<size_t>(panel_sort::COUNT));
+		static_assert(std::size(__SORT) == static_cast<size_t>(panel_sort::COUNT));
 
 		if (!ListItems || !ItemNumber)
 			fwprintf(fp,L"\tPluginsStackItem <EMPTY>");

@@ -160,8 +160,8 @@ private:
 		public rel_ops<numbered_iterator_t<T, ConstT>>
 	{
 	public:
-		TRIVIALLY_COPYABLE(numbered_iterator_t);
-		TRIVIALLY_MOVABLE(numbered_iterator_t);
+		COPYABLE(numbered_iterator_t);
+		MOVABLE(numbered_iterator_t);
 
 		numbered_iterator_t(const T& Iterator, size_t Number):
 			T(Iterator),

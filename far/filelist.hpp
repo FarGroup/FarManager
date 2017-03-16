@@ -49,7 +49,7 @@ class FileListItem
 {
 public:
 	NONCOPYABLE(FileListItem);
-	TRIVIALLY_MOVABLE(FileListItem);
+	MOVABLE(FileListItem);
 
 	FileListItem();
 	FileListItem(const PluginPanelItem& pi);
@@ -121,7 +121,7 @@ private:
 struct PluginsListItem
 {
 	NONCOPYABLE(PluginsListItem);
-	TRIVIALLY_MOVABLE(PluginsListItem);
+	MOVABLE(PluginsListItem);
 
 	PluginsListItem(plugin_panel* hPlugin, const string& HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(hPlugin),
@@ -347,7 +347,7 @@ private:
 	{
 	public:
 		NONCOPYABLE(list_data);
-		TRIVIALLY_MOVABLE(list_data);
+		MOVABLE(list_data);
 
 		using value_type = FileListItem;
 
