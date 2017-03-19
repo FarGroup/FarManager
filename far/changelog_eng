@@ -3,6 +3,30 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.03.2017 23:14:59 +0000 - build 4918
+
+1. Refactoring.
+
+shmuel 15.03.2017 21:40:52 +0200 - build 4917
+
+1. Remove nonstandard behavior of Right and Left keys for moving between check boxes in dialog.
+   (If the time shows that the former behavior is more preferable it will be brought back).
+   Radio buttons are not touched because it would affect the color selection dialog.
+
+drkns 15.03.2017 11:30:29 +0000 - build 4916
+
+1. Correction of 4907.
+
+2. Refactoring.
+
+drkns 13.03.2017 15:01:25 +0000 - build 4915
+
+1. Correction of processing of SEH exceptions in non-main threads.
+
+drkns 13.03.2017 13:39:47 +0000 - build 4914
+
+1. Forum: Archive containing another archive is deleted
+
 drkns 11.03.2017 00:05:34 +0000 - build 4913
 
 1. Forum: the caption of help window is shifted right.
