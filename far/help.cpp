@@ -1116,7 +1116,7 @@ void Help::CorrectPosition() const
 
 	if (StackData->CurY > BodyHeight() - 1)
 	{
-		StackData->TopStr += StackData->CurY - BodyHeight() - 1;
+		StackData->TopStr += StackData->CurY - (BodyHeight() - 1);
 		StackData->CurY = BodyHeight() - 1;
 	}
 
