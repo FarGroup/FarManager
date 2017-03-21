@@ -59,7 +59,7 @@ public:
 	PluginPanelItemHolder() = default;
 	~PluginPanelItemHolder();
 
-	PluginPanelItem Item;
+	PluginPanelItem Item{};
 };
 
 class PluginPanelItemHolderNonOwning: public PluginPanelItemHolder
