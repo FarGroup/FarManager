@@ -201,13 +201,11 @@ bool native_plugin_factory::IsPlugin2(const void* Module) const
 		if (!(pPEHeader->FileHeader.Characteristics & IMAGE_FILE_DLL))
 			return false;
 
-		const auto& GetMachineType = []
+		static const auto FarMachineType = []
 		{
 			const auto FarModule = GetModuleHandle(nullptr);
 			return reinterpret_cast<const IMAGE_NT_HEADERS*>(reinterpret_cast<const char*>(FarModule) + reinterpret_cast<const IMAGE_DOS_HEADER*>(FarModule)->e_lfanew)->FileHeader.Machine;
-		};
-
-		static const auto FarMachineType = GetMachineType();
+		}();
 
 		if (pPEHeader->FileHeader.Machine != FarMachineType)
 			return false;

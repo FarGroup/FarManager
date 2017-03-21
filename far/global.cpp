@@ -111,7 +111,7 @@ global::~global()
 
 unsigned long long global::FarUpTime() const
 {
-	return m_FarUpTime.query(os::hp_clock::microseconds);
+	return m_FarUpTime.query(os::hp_clock::factor::microseconds);
 }
 
 void global::CatchError()

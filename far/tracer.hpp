@@ -53,12 +53,13 @@ public:
 private:
 	const exception_context* get_context(const void* CppObject) const;
 
-	static bool SymInitialise();
-	static void SymCleanup();
+	bool SymInitialise();
+	void SymCleanup();
 
 	static tracer* sTracer;
 	mutable os::critical_section m_CS;
 	std::unordered_map<const void*, std::unique_ptr<exception_context>> m_CppMap;
+	std::string m_SymbolSearchPath;
 
 	class veh_handler: noncopyable
 	{
@@ -70,7 +71,7 @@ private:
 		void* m_Handler;
 	}
 	m_Handler;
-	static bool m_SymInitialised;
+	bool m_SymInitialised{};
 };
 
 #endif // TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64

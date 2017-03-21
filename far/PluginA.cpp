@@ -288,7 +288,7 @@ static unsigned char IsUpperOrLower[256];
 
 static bool LocalUpperInit()
 {
-	const auto& Init = []
+	static const auto InitOnce = []
 	{
 		for (size_t I=0; I<std::size(LowerToUpper); I++)
 		{
@@ -312,8 +312,7 @@ static bool LocalUpperInit()
 			}
 		}
 		return true;
-	};
-	static const auto InitOnce = Init();
+	}();
 	return InitOnce;
 }
 

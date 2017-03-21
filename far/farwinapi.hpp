@@ -664,40 +664,35 @@ namespace os
 
 	class hp_clock
 	{
-	public:
-		hp_clock(): m_StartTime(call_function(QueryPerformanceCounter)) {}
+	private:
+		template<decltype(QueryPerformanceCounter) Callable>
+		static auto call_function()
+		{
+			LARGE_INTEGER Value;
+			Callable(&Value);
+			return Value.QuadPart;
+		}
 
-		enum factor
+	public:
+		hp_clock(): m_StartTime(call_function<QueryPerformanceCounter>()) {}
+
+		enum class factor
 		{
 			seconds = 1,
-			milliseconds = 1000,
-			microseconds = 1000000,
+			milliseconds = 1'000,
+			microseconds = 1'000'000,
 		};
 
-		unsigned long long query(factor Factor) const
+		auto query(factor Factor) const
 		{
-			const auto Diff = call_function(QueryPerformanceCounter) - m_StartTime;
-			const auto Frequency = get_frequency();
+			const auto Diff = call_function<QueryPerformanceCounter>() - m_StartTime;
+			static const auto Frequency = call_function<QueryPerformanceFrequency>();
 			const auto Whole = Diff / Frequency;
 			const auto Fraction = Diff % Frequency;
-			return Whole * Factor + (Fraction * Factor) / Frequency;
+			return Whole * as_underlying_type(Factor) + (Fraction * as_underlying_type(Factor)) / Frequency;
 		}
 
 	private:
-		template<class T>
-		static unsigned long long call_function(const T& Getter)
-		{
-			LARGE_INTEGER Value;
-			Getter(&Value);
-			return Value.QuadPart;
-		};
-
-		static unsigned long long get_frequency()
-		{
-			static const auto Frequency = call_function(QueryPerformanceFrequency);
-			return Frequency;
-		}
-
 		unsigned long long m_StartTime;
 	};
 }

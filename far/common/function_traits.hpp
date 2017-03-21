@@ -34,32 +34,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
-	template<typename R>
-	using clean_type = std::remove_cv_t<std::remove_reference_t<R>>;
+	template<typename T>
+	using root_type_t = std::remove_cv_t<std::remove_reference_t<std::remove_pointer_t<T>>>;
 
-	template <class F> struct return_type;
+	template<typename> struct function_traits;
 
-	template <class R, class... A>
-	struct return_type<R(*)(A...)>
+	template<typename result, typename... args>
+	struct function_traits_impl
 	{
-		using type = clean_type<R>;
+		using return_type_t = root_type_t<result>;
 	};
 
-	template <class R, class C, class... A>
-	struct return_type<R(C::*)(A...)>
-	{
-		using type = clean_type<R>;
-	};
+	template<typename result, typename... args>
+	struct function_traits<result(*)(args...)>: function_traits_impl<result, args...> {};
 
-	template <class R, class C, class... A>
-	struct return_type<R(C::*)(A...) const>
-	{
-		using type = clean_type<R>;
-	};
+	template<typename result, typename object, typename... args>
+	struct function_traits<result(object::*)(args...)>: function_traits_impl<result, args...> {};
+
+	template<typename result, typename object, typename... args>
+	struct function_traits<result(object::*)(args...) const>: function_traits_impl<result, args...> {};
 }
 
-template<class T>
-using return_type_t = typename detail::return_type<T>::type;
+template<typename function>
+using return_type_t = typename detail::function_traits<function>::return_type_t;
 
 #define FN_RETURN_TYPE(function_name) return_type_t<decltype(&function_name)>
 

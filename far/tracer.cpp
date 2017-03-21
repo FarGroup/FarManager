@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tracer.hpp"
 #include "imports.hpp"
 #include "farexcpt.hpp"
+#include "encoding.hpp"
 
 static auto GetBackTrace(const exception_context& Context)
 {
@@ -133,6 +134,13 @@ tracer::veh_handler::~veh_handler()
 tracer::tracer():
 	m_Handler(StackLogger)
 {
+	string Path;
+	if (os::GetModuleFileName(nullptr, Path))
+	{
+		CutToParent(Path);
+		m_SymbolSearchPath = encoding::ansi::get_bytes(Path);
+	}
+
 	sTracer = this;
 }
 
@@ -170,35 +178,33 @@ std::vector<string> tracer::get(const void* CppObject)
 	if (!Context)
 		return {};
 
-	SymInitialise();
-	SCOPE_EXIT{ SymCleanup(); };
+	GetInstance()->SymInitialise();
+	SCOPE_EXIT{ GetInstance()->SymCleanup(); };
 
 	return GetSymbols(GetBackTrace(*Context));
 }
 
 std::vector<string> tracer::get(const exception_context& Context)
 {
-	SymInitialise();
-	SCOPE_EXIT{ SymCleanup(); };
+	GetInstance()->SymInitialise();
+	SCOPE_EXIT{ GetInstance()->SymCleanup(); };
 
 	return GetSymbols(GetBackTrace(Context));
 }
 
 string tracer::get_one(const void* Address)
 {
-	SymInitialise();
-	SCOPE_EXIT{ SymCleanup(); };
+	GetInstance()->SymInitialise();
+	SCOPE_EXIT{ GetInstance()->SymCleanup(); };
 
 	return GetSymbols({Address}).front();
 }
-
-bool tracer::m_SymInitialised;
 
 bool tracer::SymInitialise()
 {
 	if (!m_SymInitialised)
 	{
-		m_SymInitialised = Imports().SymInitialize(GetCurrentProcess(), nullptr, TRUE) != FALSE;
+		m_SymInitialised = Imports().SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.data()), TRUE) != FALSE;
 	}
 	return m_SymInitialised;
 }

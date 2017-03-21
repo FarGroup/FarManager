@@ -1806,15 +1806,14 @@ bool IsWow64Process()
 #ifdef _WIN64
 	return false;
 #else
-	const auto& GetValue = [] { BOOL Value = FALSE; return Imports().IsWow64Process(GetCurrentProcess(), &Value) && Value; };
-	static const auto Wow64Process = GetValue();
+	static const auto Wow64Process = []{ BOOL Value = FALSE; return Imports().IsWow64Process(GetCurrentProcess(), &Value) && Value; }();
 	return Wow64Process;
 #endif
 }
 
 DWORD GetAppPathsRedirectionFlag()
 {
-	const auto& GetFlag = []
+	static const auto RedirectionFlag = []
 	{
 		// App Paths key is shared in Windows 7 and above
 		if (!IsWindows7OrGreater())
@@ -1829,9 +1828,7 @@ DWORD GetAppPathsRedirectionFlag()
 #endif
 		}
 		return 0;
-	};
-
-	static const auto RedirectionFlag = GetFlag();
+	}();
 	return RedirectionFlag;
 }
 
@@ -2117,8 +2114,7 @@ handle OpenCurrentThread()
 	{
 		bool is_pointer(const void* Address)
 		{
-			const auto& GetInfo = []{ SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; };
-			static const auto info = GetInfo();
+			static const auto info = []{ SYSTEM_INFO Info; GetSystemInfo(&Info); return Info; }();
 
 			return InRange<const void*>(info.lpMinimumApplicationAddress, Address, info.lpMaximumApplicationAddress);
 		}
@@ -2128,7 +2124,7 @@ handle OpenCurrentThread()
 	{
 		bool is_admin()
 		{
-			const auto& GetResult = []
+			static const auto Result = []
 			{
 				SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 				const auto AdministratorsGroup = make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
@@ -2137,9 +2133,8 @@ handle OpenCurrentThread()
 
 				BOOL IsMember;
 				return CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember;
-			};
+			}();
 
-			static const auto Result = GetResult();
 			return Result;
 		}
 	}
