@@ -89,7 +89,7 @@ class NetBrowser
 		void LogData(wchar_t* Data);
 #endif
 		static void DisconnectFromServer(NETRESOURCE *nr);
-		BOOL ChangeToDirectory(const wchar_t *Dir, int IsFind, int IsExplicit);
+		BOOL ChangeToDirectory(const wchar_t *Dir, OPERATION_MODES opmodes, bool IsExplicit);
 		void ManualConnect();
 		BOOL CancelConnection(const wchar_t *RemoteName);
 		BOOL GetDriveToDisconnect(const wchar_t *RemoteName, wchar_t *LocalName);

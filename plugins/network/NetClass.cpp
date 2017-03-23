@@ -16,7 +16,7 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 	HANDLE Settings=Info.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
 	if(Settings)
 	{
-		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_UNKNOWN,{0}};
+		FarSettingsItem item={sizeof(FarSettingsItem),static_cast<size_t>(Root),Name,FST_UNKNOWN,{0}};
 		if(Info.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
 		{
 			result=item.Number;
@@ -920,7 +920,7 @@ int NetBrowser::SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode)
 	{
 		ChangeDirSuccess = TRUE;
 
-		if (ChangeToDirectory(Dir, ((OpMode & OPM_FIND) != 0), 0))
+		if (ChangeToDirectory(Dir, OpMode, false))
 			return ChangeDirSuccess;
 
 		if (GetLastError()==ERROR_CANCELLED)
@@ -966,8 +966,11 @@ int NetBrowser::SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode)
 }
 
 
-BOOL NetBrowser::ChangeToDirectory(const wchar_t *Dir, int IsFind, int IsExplicit)
+BOOL NetBrowser::ChangeToDirectory(const wchar_t *Dir, OPERATION_MODES opmodes, bool IsExplicit)
 {
+	bool IsFind = (opmodes & OPM_FIND) != 0;
+	bool IsPgDn = (opmodes & OPM_PGDN) != 0;
+
 	// if we already have the resource list for the current directory,
 	// do not scan it again
 	if (!PCurResource || !PCurResource->lpRemoteName ||
@@ -1008,7 +1011,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t *Dir, int IsFind, int IsExplici
 				wchar_t NewDir[MAX_PATH],LocalName[MAX_PATH];
 				GetLocalName(NetList[I].lpRemoteName,LocalName);
 
-				if (*LocalName)
+				if (IsPgDn && *LocalName)
 					if (IsReadable(LocalName))
 						lstrcpy(NewDir,LocalName);
 					else
@@ -1505,7 +1508,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 		}
 
 		if (PPI&&lstrcmp(PPI->FileName,L".."))
-			if (ChangeToDirectory(PPI->FileName, FALSE, TRUE))
+			if (ChangeToDirectory(PPI->FileName, OPM_NONE, true))
 				if (FSF.PointToName(PPI->FileName) -
 				        PPI->FileName <= 2)
 				{
@@ -2063,7 +2066,7 @@ void NetBrowser::ManualConnect()
 		{
 			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
-			ChangeToDirectory(PPI->FileName, FALSE, TRUE);
+			ChangeToDirectory(PPI->FileName, OPM_NONE, true);
 			free(PPI);
 		}
 	}

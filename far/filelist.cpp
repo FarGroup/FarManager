@@ -2622,7 +2622,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			// Don't use CurItem directly: ChangeDir calls PopPlugin, which clears m_ListData
 			const auto DirCopy = CurItem.strName;
 			const auto DataItemCopy = CurItem.UserData;
-			ChangeDir(DirCopy, false, true, &DataItemCopy);
+			ChangeDir(DirCopy, false, true, &DataItemCopy, Type);
 
 			//"this" может быть удалён в ChangeDir
 			const auto ActivePanel = OldParent->ActivePanel();
@@ -2777,7 +2777,7 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 	return false;
 }
 
-bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem)
+bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE ofp_type)
 {
 	string strFindDir, strSetDir;
 
@@ -2867,7 +2867,8 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 		else
 		{
 			strFindDir = strInfoCurDir;
-			SetDirectorySuccess = Global->CtrlObject->Plugins->SetDirectory(m_hPlugin, strSetDir, 0, DataItem) != FALSE;
+			auto opmode = static_cast<int>(ofp_type == OFP_ALTERNATIVE ? OPM_PGDN : OPM_NONE);
+			SetDirectorySuccess = Global->CtrlObject->Plugins->SetDirectory(m_hPlugin, strSetDir, opmode, DataItem) != FALSE;
 		}
 
 		ProcessPluginCommand();
