@@ -82,7 +82,7 @@ ColumnInfo[] =
 
 static_assert(std::size(ColumnInfo) == COLUMN_TYPES_COUNT);
 
-void ShellUpdatePanels(panel_ptr SrcPanel,BOOL NeedSetUpADir)
+void ShellUpdatePanels(panel_ptr SrcPanel, bool NeedSetUpADir)
 {
 	if (!SrcPanel)
 		SrcPanel = Global->CtrlObject->Cp()->ActivePanel();
@@ -135,7 +135,7 @@ void ShellUpdatePanels(panel_ptr SrcPanel,BOOL NeedSetUpADir)
 	Global->CtrlObject->Cp()->Redraw();
 }
 
-int CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
+bool CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
 {
 	if (!SrcPanel)
 		SrcPanel = Global->CtrlObject->Cp()->ActivePanel();
@@ -153,14 +153,14 @@ int CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
 		if (contains(strAnotherCurDir, strFullName))
 		{
 			AnotherPanel->StopFSWatcher();
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNameAsIs)
+int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool ShortNameAsIs)
 {
 	int RetCode=FALSE;
 	int NeedRealName=FALSE;

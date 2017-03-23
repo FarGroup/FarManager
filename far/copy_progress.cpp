@@ -189,7 +189,7 @@ void copy_progress::Flush()
 	Global->ScrBuf->Flush();
 }
 
-void copy_progress::SetProgressValue(UINT64 CompletedSize, UINT64 TotalSize)
+void copy_progress::SetProgressValue(unsigned long long CompletedSize, unsigned long long TotalSize)
 {
 	SetCurrentProgress(CompletedSize, TotalSize);
 
@@ -286,13 +286,13 @@ void copy_progress::SetNames(const string& Src, const string& Dst)
 	Flush();
 }
 
-void copy_progress::SetCurrentProgress(UINT64 CompletedSize, UINT64 TotalSize)
+void copy_progress::SetCurrentProgress(unsigned long long CompletedSize, unsigned long long TotalSize)
 {
 	m_CurrentPercent = ToPercent(std::min(CompletedSize, TotalSize), TotalSize);
 	m_CurrentBar = make_progressbar(m_CurrentBarSize, m_CurrentPercent, true, !m_Total);
 }
 
-void copy_progress::SetTotalProgress(UINT64 CompletedSize, UINT64 TotalSize)
+void copy_progress::SetTotalProgress(unsigned long long CompletedSize, unsigned long long TotalSize)
 {
 	m_TotalPercent = ToPercent(std::min(CompletedSize, TotalSize), TotalSize);
 	m_TotalBar = make_progressbar(m_TotalBarSize, m_TotalPercent, true, true);

@@ -242,7 +242,7 @@ static string toString(long long num)
 static string toString(double num)
 {
 	return str(num);
-};
+}
 
 static TVar addStr(const string& a, const string& b)
 {

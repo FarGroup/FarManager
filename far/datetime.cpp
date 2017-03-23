@@ -592,10 +592,10 @@ void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int D
 	{
 		unsigned long long time;
 		time = st.wMilliseconds;
-		time += (UINT64)st.wSecond * 1000;
-		time += (UINT64)st.wMinute * 1000 * 60;
-		time += (UINT64)st.wHour   * 1000 * 60 * 60;
-		time += (UINT64)st.wDay    * 1000 * 60 * 60 * 24;
+		time += static_cast<unsigned long long>(st.wSecond) * 1000;
+		time += static_cast<unsigned long long>(st.wMinute) * 1000 * 60;
+		time += static_cast<unsigned long long>(st.wHour)   * 1000 * 60 * 60;
+		time += static_cast<unsigned long long>(st.wDay)    * 1000 * 60 * 60 * 24;
 		time *= 10000;
 		ft = UI64ToFileTime(time);
 	}

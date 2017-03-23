@@ -117,11 +117,10 @@ static const wchar_t LocalMenuFileName[] = L"FarMenu.ini";
 
 struct UserMenu::UserMenuItem
 {
-	UserMenuItem():Submenu(false) {}
 	string strHotKey;
 	string strLabel;
 	std::list<string> Commands;
-	bool Submenu;
+	bool Submenu{};
 	menu_container Menu;
 };
 
@@ -462,7 +461,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 	}
 
 	if (Global->WindowManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || m_MenuModified))
-		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
+		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), false);
 }
 
 // заполнение меню

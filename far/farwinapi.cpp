@@ -630,7 +630,7 @@ bool file::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime,
 	return Status == STATUS_SUCCESS;
 }
 
-bool file::GetSize(UINT64& Size) const
+bool file::GetSize(unsigned long long& Size) const
 {
 	return GetFileSizeEx(m_Handle.native_handle(), Size);
 }
@@ -709,10 +709,10 @@ bool file::Eof() const
 //-------------------------------------------------------------------------
 struct file_walker::Chunk
 {
-	UINT64 Offset;
+	unsigned long long Offset;
 	DWORD Size;
 
-	Chunk(UINT64 Offset, DWORD Size): Offset(Offset), Size(Size) {}
+	Chunk(unsigned long long Offset, DWORD Size): Offset(Offset), Size(Size) {}
 };
 
 file_walker::file_walker():
@@ -750,10 +750,10 @@ bool file_walker::InitWalk(size_t BlockSize)
 					for (const auto& i: make_range(Ranges, BytesReturned / sizeof(*Ranges)))
 					{
 						m_AllocSize += i.Length.QuadPart;
-						const UINT64 RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
-						for(UINT64 j = i.FileOffset.QuadPart; j < RangeEndOffset; j+=m_ChunkSize)
+						const unsigned long long RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
+						for(auto j = static_cast<unsigned long long>(i.FileOffset.QuadPart); j < RangeEndOffset; j+=m_ChunkSize)
 						{
-							m_ChunkList.emplace_back(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<UINT64>(m_ChunkSize))));
+							m_ChunkList.emplace_back(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<unsigned long long>(m_ChunkSize))));
 						}
 					}
 					QueryRange.FileOffset.QuadPart = m_ChunkList.back().Offset+m_ChunkList.back().Size;
@@ -769,7 +769,7 @@ bool file_walker::InitWalk(size_t BlockSize)
 		else
 		{
 			m_AllocSize = m_FileSize;
-			m_ChunkList.emplace_back(0, static_cast<DWORD>(std::min(static_cast<UINT64>(BlockSize), m_FileSize)));
+			m_ChunkList.emplace_back(0, static_cast<DWORD>(std::min(static_cast<unsigned long long>(BlockSize), m_FileSize)));
 			Result = true;
 		}
 		m_CurrentChunk = m_ChunkList.begin();
@@ -792,11 +792,11 @@ bool file_walker::Step()
 	}
 	else
 	{
-		UINT64 NewOffset = (!m_CurrentChunk->Size)? 0 : m_CurrentChunk->Offset + m_ChunkSize;
+		const auto NewOffset = (!m_CurrentChunk->Size)? 0 : m_CurrentChunk->Offset + m_ChunkSize;
 		if(NewOffset < m_FileSize)
 		{
 			m_CurrentChunk->Offset = NewOffset;
-			UINT64 rest = m_FileSize - NewOffset;
+			const auto rest = m_FileSize - NewOffset;
 			m_CurrentChunk->Size = (rest>=m_ChunkSize)?m_ChunkSize:rest;
 			m_ProcessedSize += m_CurrentChunk->Size;
 			Result = true;
@@ -805,7 +805,7 @@ bool file_walker::Step()
 	return Result;
 }
 
-UINT64 file_walker::GetChunkOffset() const
+unsigned long long file_walker::GetChunkOffset() const
 {
 	return m_CurrentChunk->Offset;
 }
@@ -1225,7 +1225,7 @@ bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData,bool ScanSymL
 	return true;
 }
 
-bool GetFileSizeEx(HANDLE hFile, UINT64 &Size)
+bool GetFileSizeEx(HANDLE hFile, unsigned long long& Size)
 {
 	if (::GetFileSizeEx(hFile,reinterpret_cast<PLARGE_INTEGER>(&Size)))
 		return true;

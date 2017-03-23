@@ -148,7 +148,7 @@ void FilePanels::Init(int DirCount)
 	InitPanel(Left);
 	InitPanel(Right);
 
-	SetCanLoseFocus(TRUE);
+	SetCanLoseFocus(true);
 
 	SetActivePanelInternal(ActivePanel());
 
@@ -813,7 +813,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 	if (process_default)
 	{
 		if (LocalKey >= KEY_CTRL0 && LocalKey <= KEY_CTRL9)
-			ChangePanelViewMode(ActivePanel(), LocalKey - KEY_CTRL0, TRUE);
+			ChangePanelViewMode(ActivePanel(), LocalKey - KEY_CTRL0, true);
 		if (!ActivePanel()->ProcessKey(Key))
 			CmdLine->ProcessKey(Key);
 	}
@@ -821,7 +821,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 	return TRUE;
 }
 
-int FilePanels::ChangePanelViewMode(panel_ptr Current, int Mode, BOOL RefreshWindow)
+bool FilePanels::ChangePanelViewMode(panel_ptr Current, int Mode, bool RefreshWindow)
 {
 	if (Current && Mode >= VIEW_0 && Mode < (int)Global->Opt->ViewSettings.size())
 	{
@@ -834,10 +834,10 @@ int FilePanels::ChangePanelViewMode(panel_ptr Current, int Mode, BOOL RefreshWin
 		if (RefreshWindow)
 			Global->WindowManager->RefreshWindow();
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void FilePanels::SetActivePanel(Panel* ToBeActive)
@@ -1222,8 +1222,8 @@ void FilePanels::GoToFile(const string& FileName)
 		     панелях, тем самым добиваемся того, что выделение с элементов
 		     панелей не сбрасывается.
 		*/
-		BOOL AExist = (ActiveMode == panel_mode::NORMAL_PANEL) && !StrCmpI(ADir, strNameDir);
-		BOOL PExist = (PassiveMode == panel_mode::NORMAL_PANEL) && !StrCmpI(PDir, strNameDir);
+		const auto AExist = (ActiveMode == panel_mode::NORMAL_PANEL) && !StrCmpI(ADir, strNameDir);
+		const auto PExist = (PassiveMode == panel_mode::NORMAL_PANEL) && !StrCmpI(PDir, strNameDir);
 
 		// если нужный путь есть на пассивной панели
 		if (!AExist && PExist)

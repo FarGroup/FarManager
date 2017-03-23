@@ -158,7 +158,7 @@ int ScreenSaver()
 		Sleep(100);
 	}
 
-	Global->ScreenSaverActive=TRUE;
+	Global->ScreenSaverActive = true;
 	CONSOLE_CURSOR_INFO CursorInfo;
 	Console().GetCursorInfo(CursorInfo);
 	{
@@ -198,7 +198,7 @@ int ScreenSaver()
 		}
 	}
 	SetCursorType(CursorInfo.bVisible!=FALSE, CursorInfo.dwSize);
-	Global->ScreenSaverActive=FALSE;
+	Global->ScreenSaverActive = false;
 	FlushInputBuffer();
 	Global->StartIdleTime=clock();
 	return 1;

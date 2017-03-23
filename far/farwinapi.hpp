@@ -51,7 +51,7 @@ namespace os
 			constexpr handle_t(nullptr_t) {}
 			explicit handle_t(HANDLE Handle): base_type(normalise(Handle)) {}
 			void reset(HANDLE Handle = nullptr) { base_type::reset(normalise(Handle)); }
-			HANDLE native_handle() const { return base_type::get(); }
+			auto native_handle() const { return base_type::get(); }
 			void close() { reset(); }
 			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(native_handle(), Milliseconds) == WAIT_OBJECT_0; }
 			bool is_signaled() const { return wait(0); }
@@ -118,7 +118,7 @@ namespace os
 	bool WNetGetConnection(const string& LocalName, string &RemoteName);
 	bool GetVolumeInformation(const string& RootPathName, string *pVolumeName, LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, string *pFileSystemName);
 	bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData, bool ScanSymLink=true);
-	bool GetFileSizeEx(HANDLE hFile, UINT64 &Size);
+	bool GetFileSizeEx(HANDLE hFile, unsigned long long& Size);
 	bool DeleteFile(const string& FileName);
 	bool RemoveDirectory(const string& DirName);
 	handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes=0, HANDLE TemplateFile=nullptr, bool ForceElevation = false);
@@ -259,7 +259,7 @@ namespace os
 			bool SetEnd();
 			bool GetTime(LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime) const;
 			bool SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime) const;
-			bool GetSize(UINT64& Size) const;
+			bool GetSize(unsigned long long& Size) const;
 			bool FlushBuffers() const;
 			bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;
 			bool IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, LPVOID OutBuffer, DWORD OutBufferSize, LPDWORD BytesReturned, LPOVERLAPPED Overlapped = nullptr) const;
@@ -289,16 +289,16 @@ namespace os
 
 			bool InitWalk(size_t BlockSize);
 			bool Step();
-			UINT64 GetChunkOffset() const;
+			unsigned long long GetChunkOffset() const;
 			DWORD GetChunkSize() const;
 			int GetPercent() const;
 
 		private:
 			struct Chunk;
 			std::vector<Chunk> m_ChunkList;
-			UINT64 m_FileSize;
-			UINT64 m_AllocSize;
-			UINT64 m_ProcessedSize;
+			unsigned long long m_FileSize;
+			unsigned long long m_AllocSize;
+			unsigned long long m_ProcessedSize;
 			std::vector<Chunk>::iterator m_CurrentChunk;
 			DWORD m_ChunkSize;
 			bool m_IsSparse;

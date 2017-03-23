@@ -60,9 +60,9 @@ class window: public ScreenObjectWithShadow, public std::enable_shared_from_this
 public:
 	virtual ~window() override;
 
-	virtual int GetCanLoseFocus(int DynamicMode=FALSE) const { return m_CanLoseFocus; }
+	virtual bool GetCanLoseFocus(bool DynamicMode = false) const { return m_CanLoseFocus; }
 	virtual void SetExitCode(int Code) { m_ExitCode=Code; }
-	virtual BOOL IsFileModified() const { return FALSE; }
+	virtual bool IsFileModified() const { return false; }
 	virtual int GetTypeAndName(string &strType, string &strName) = 0;
 	virtual int GetType() const = 0;
 	virtual void OnDestroy() {}  // вызывается перед уничтожением окна
@@ -76,11 +76,11 @@ public:
 
 	virtual void Refresh(void) override;
 
-	void SetCanLoseFocus(int Mode) { m_CanLoseFocus=Mode; }
+	void SetCanLoseFocus(bool Value) { m_CanLoseFocus = Value; }
 	int GetExitCode() const { return m_ExitCode; }
 	void UpdateKeyBar() const;
-	int IsTitleBarVisible() const {return m_TitleBarVisible;}
-	int IsTopWindow() const;
+	bool IsTitleBarVisible() const {return m_TitleBarVisible;}
+	bool IsTopWindow() const;
 	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { m_Flags.Set(flags); }
 	virtual void SetDeleting(void);
@@ -97,19 +97,20 @@ protected:
 	window();
 
 	int m_ID;
-	int m_CanLoseFocus;
-	int m_ExitCode;
-	int m_KeyBarVisible;
-	int m_TitleBarVisible;
+	bool m_CanLoseFocus{};
+	int m_ExitCode{ -1 };
+	bool m_KeyBarVisible{};
+	bool m_TitleBarVisible{};
 	std::unique_ptr<KeyBar> m_windowKeyBar;
-	void SetID(int Value) {m_ID=Value;}
 
 private:
 	friend class Manager;
 
-	bool m_Deleting;
-	long m_BlockCounter;
-	FARMACROAREA m_MacroArea;
+	void SetID(int Value) {m_ID=Value;}
+
+	bool m_Deleting{};
+	long m_BlockCounter{};
+	FARMACROAREA m_MacroArea{ MACROAREA_OTHER };
 };
 
 #endif // WINDOW_HPP_1A177508_4749_4C46_AE24_0D274332C03A

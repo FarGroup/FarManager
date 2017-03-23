@@ -160,7 +160,7 @@ bool CachedRead::FillBuffer()
 			file.SetPointer(-shift, nullptr, FILE_CURRENT);
 
 		size_t read_size = Buffer.size();
-		UINT64 FileSize = 0;
+		unsigned long long FileSize = 0;
 		if (file.GetSize(FileSize) && Pointer - shift + Buffer.size() > FileSize)
 			read_size = FileSize - Pointer + shift;
 

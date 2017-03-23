@@ -100,8 +100,8 @@ public:
 
 private:
 	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	int  AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
-	int  GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
+	int  AssignMacroKey(DWORD& MacroKey, unsigned long long& Flags);
+	int  GetMacroSettings(int Key, unsigned long long &Flags, const wchar_t *Src = nullptr, const wchar_t *Descr = nullptr);
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	void RestoreMacroChar() const;
 

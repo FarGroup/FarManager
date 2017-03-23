@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         |
         +---------- [0A-Z]
 */
-bool FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, const wchar_t *UserTempPath)
+bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, const wchar_t* UserTempPath)
 {
 	static UINT s_shift = 0;
 	if (!(Prefix && *Prefix))

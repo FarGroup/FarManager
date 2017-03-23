@@ -1010,7 +1010,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	}
 
-	SetFarConsoleMode(TRUE);
+	SetFarConsoleMode(true);
 	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
 	    вследствие своей оптимизации, которая в данном случае выходит боком.
 	*/
@@ -1142,7 +1142,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			/* $ 25.04.01 DJ
 			   обработка кавычек внутри имени файла в IF EXIST
 			*/
-			BOOL InQuotes=FALSE;
+			auto InQuotes = false;
 
 			while (*PtrCmd)
 			{

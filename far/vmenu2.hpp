@@ -61,14 +61,14 @@ public:
 	int AddItem(const MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
 	int AddItem(const FarList *NewItem);
 	int AddItem(const string& NewStrItem);
-	int FindItem(int StartIndex,const string& Pattern,UINT64 Flags=0);
+	int FindItem(int StartIndex, const string& Pattern, unsigned long long Flags = 0);
 	size_t size();
 	bool empty() { return !size(); }
 	int GetSelectPos();
 	int SetSelectPos(int Pos, int Direct=0/*, bool stop_on_edge=false*/);
 	int GetCheck(int Position=-1);
 	void SetCheck(int Check, int Position=-1);
-	void UpdateItemFlags(int Pos, UINT64 NewFlags);
+	void UpdateItemFlags(int Pos, unsigned long long NewFlags);
 	void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight; Resize();}
 	/*
 		функция обработки меню должна возвращать true если она обработала событие и дальше ничего делать не надо

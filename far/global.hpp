@@ -69,14 +69,14 @@ public:
 	bool GlobalSearchCase;
 	bool GlobalSearchWholeWords; // значение "Whole words" для поиска
 	bool GlobalSearchReverse;
-	int ScreenSaverActive;
+	bool ScreenSaverActive;
 	std::atomic_ulong SuppressClock{};
 	std::atomic_ulong SuppressIndicators{};
-	int CloseFAR, CloseFARMenu, AllowCancelExit;
-	int DisablePluginsOutput;
-	BOOL IsProcessAssignMacroKey;
+	bool CloseFAR, CloseFARMenu, AllowCancelExit;
+	bool DisablePluginsOutput;
+	int IsProcessAssignMacroKey;
 	size_t PluginPanelsCount;
-	BOOL ProcessException;
+	bool ProcessException;
 
 	class far_clock
 	{
@@ -98,13 +98,13 @@ public:
 	const wchar_t *HelpFileMask;
 	bool OnlyEditorViewerUsed; // -e or -v
 #if defined(SYSLOG)
-	BOOL StartSysLog;
+	bool StartSysLog;
 #endif
 #ifdef DIRECT_RT
 	bool DirectRT;
 #endif
 	class SaveScreen *GlobalSaveScrPtr;
-	int CriticalInternalError;
+	bool CriticalInternalError;
 	int KeepUserScreen;
 	int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 	DWORD ErrorMode;

@@ -129,7 +129,7 @@ enum COPYSECURITYOPTIONS
 static int CopySecurityCopy=-1;
 static int CopySecurityMove=-1;
 
-static BOOL ZoomedState,IconicState;
+static bool ZoomedState, IconicState;
 
 static const size_t default_copy_buffer_size = 32 * 1024;
 
@@ -254,7 +254,7 @@ static void GenerateName(string &strName, const string& Path)
 void CheckAndUpdateConsole()
 {
 	const auto hWnd = Console().GetWindow();
-	if (ZoomedState != IsZoomed(hWnd) && IconicState == IsIconic(hWnd))
+	if (ZoomedState != (IsZoomed(hWnd) != FALSE) && IconicState == (IsIconic(hWnd) != FALSE))
 	{
 		ZoomedState = !ZoomedState;
 		ChangeVideoMode(ZoomedState != FALSE);
@@ -389,7 +389,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			     показывался корневой каталог, теперь показывается самый первый каталог
 			     в списке.
 			*/
-			BOOL MultiCopy = Dlg->SendMessage(DM_GETCHECK, ID_SC_MULTITARGET, nullptr) == BSTATE_CHECKED;
+			const auto MultiCopy = Dlg->SendMessage(DM_GETCHECK, ID_SC_MULTITARGET, nullptr) == BSTATE_CHECKED;
 			string strOldFolder = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_SC_TARGETEDIT, nullptr));
 			string strNewFolder;
 
@@ -468,11 +468,11 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 }
 
 ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (активная)
-                     int Move,               // =1 - операция Move
-                     int Link,               // =1 - Sym/Hard Link
-                     int CurrentOnly,        // =1 - только текущий файл, под курсором
-                     int Ask,                // =1 - выводить диалог?
-                     int &ToPlugin,          // =?
+                     bool Move,               // =1 - операция Move
+                     bool Link,               // =1 - Sym/Hard Link
+                     bool CurrentOnly,        // =1 - только текущий файл, под курсором
+                     bool Ask,                // =1 - выводить диалог?
+                     int& ToPlugin,          // =?
                      const wchar_t* PluginDestPath,
                      bool ToSubdir):
 	m_Filter(std::make_unique<FileFilter>(SrcPanel.get(), FFT_COPY)),
@@ -520,11 +520,11 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		SingleSelectedFileSize = fd.nFileSize;
 	}
 
-	ZoomedState=IsZoomed(Console().GetWindow());
-	IconicState=IsIconic(Console().GetWindow());
+	ZoomedState = IsZoomed(Console().GetWindow()) != FALSE;
+	IconicState = IsIconic(Console().GetWindow()) != FALSE;
 	bool ShowTotalCopySize = Global->Opt->CMOpt.CopyShowTotal;
-	int DestPlugin=ToPlugin;
-	ToPlugin=FALSE;
+	auto DestPlugin = ToPlugin;
+	ToPlugin = 0;
 
 	// ***********************************************************************
 	// *** Prepare Dialog Controls
@@ -839,7 +839,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		strCopyDlgValue = os::env::expand_strings(CopyDlg[ID_SC_TARGETEDIT].strData);
 		m_DestList = split<std::vector<string>>(InsertQuote(Unquote(strCopyDlgValue)), STLF_UNIQUE);
 		if (m_DestList.empty())
-			Ask=TRUE;
+			Ask = true;
 	}
 
 	// ***********************************************************************
@@ -1092,7 +1092,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			m_NumberOfTargets=m_DestList.size();
 
 			if (m_NumberOfTargets > 1)
-				Move=0;
+				Move = false;
 
 			FOR_CONST_RANGE(m_DestList, i)
 			{
@@ -1120,7 +1120,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				if (Flags&FCOPY_COPYTONUL)
 				{
 					Flags&=~FCOPY_MOVE;
-					Move=0;
+					Move = false;
 				}
 				bool ShowCopyTime=(Global->Opt->CMOpt.CopyTimeRule&((Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES))!=0;
 
@@ -2706,7 +2706,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 		}
 
 		// если места в приёмнике хватает - займём сразу.
-		UINT64 FreeBytes=0;
+		unsigned long long FreeBytes = 0;
 		if (os::GetDiskSize(strDriveRoot,nullptr,nullptr,&FreeBytes))
 		{
 			if (FreeBytes>SrcData.nFileSize)
@@ -2814,7 +2814,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 						strDestName.size() > 1 && strDestName[1]==L':')
 					{
 						const auto strDriveRoot = GetPathRoot(strDestName);
-						UINT64 FreeSize=0;
+						unsigned long long FreeSize = 0;
 
 						if (os::GetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 						{
@@ -2972,7 +2972,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 
 		if (CopySparse)
 		{
-			INT64 Pos=SrcData.nFileSize;
+			auto Pos = SrcData.nFileSize;
 
 			if (Append)
 				Pos+=AppendPos;
@@ -3079,7 +3079,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				List.AddName(*WFN->Dest);
 				List.SetCurName(*(Param1 == WDLG_SRCFILEBTN? WFN->Src : WFN->Dest));
 
-				const auto Viewer = FileViewer::create(ViewName, FALSE, FALSE, TRUE, -1, nullptr, &List, false);
+				const auto Viewer = FileViewer::create(ViewName, false, false, true, -1, nullptr, &List, false);
 				Global->WindowManager->ExecuteModal(Viewer);
 				Global->WindowManager->ResizeAllWindows();
 			}
@@ -3467,7 +3467,7 @@ bool ShellCopy::SetSecurity(const string& FileName, const os::FAR_SECURITY_DESCR
 }
 
 // BUGBUG move to copy_progress
-static BOOL ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
+static bool ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 {
 	if (Name.empty() || CP->m_SecurityTimeCheck)
 	{
@@ -3490,11 +3490,11 @@ static BOOL ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 
 		if (CP->IsCancelled())
 		{
-			return FALSE;
+			return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 

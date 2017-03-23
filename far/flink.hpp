@@ -69,7 +69,7 @@ string GetPathRoot(const string& Path);
 //typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
 //int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum, long long* SizeStreams);
 
-bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount);
+bool EnumStreams(const string& FileName, unsigned long long& StreamsSize,DWORD &StreamsCount);
 
 bool DuplicateReparsePoint(const string& Src,const string& Dst);
 

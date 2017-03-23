@@ -69,8 +69,8 @@ public:
 	bool GetWrapType() const;
 	void SetWrapType(bool TypeWrap);
 	void KeepInitParameters() const;
-	void GetFileName(string &strName) const;
-	void SetTempViewName(const string& Name, BOOL DeleteFolder);
+	const string& GetFileName() const { return strFullFileName; }
+	void SetTempViewName(const string& Name, bool DeleteFolder);
 	void SetTitle(const string& Title);
 	string GetTitle() const;
 	void SetFilePos(long long Pos);
@@ -81,7 +81,7 @@ public:
 	void SetNamesList(NamesList& List);
 	int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;}
-	void GoTo(int ShowDlg=TRUE,long long NewPos=0,UINT64 Flags=0);
+	void GoTo(bool ShowDlg = true, long long NewPos = 0, unsigned long long Flags = 0);
 	void GetSelectedParam(long long &Pos, long long &Length, DWORD &Flags) const;
 	void SelectText(const long long &MatchPos,const long long &SearchLength, const DWORD Flags=0x1);
 	bool GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
@@ -128,7 +128,7 @@ private:
 	SEARCHER_RESULT search_text_backward( search_data* sd );
 	SEARCHER_RESULT search_regex_forward( search_data* sd );
 	SEARCHER_RESULT search_regex_backward( search_data* sd );
-	int read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize);
+	int read_line(wchar_t *buf, wchar_t *tbuf, long long cpos, int adjust, long long& lpos, int &lsize);
 	int vread(wchar_t *Buf, int Count, wchar_t *Buf2 = nullptr);
 	bool vseek(long long Offset, int Whence);
 	long long vtell() const;
@@ -178,7 +178,7 @@ private:
 
 	string strTempViewName;
 
-	BOOL m_DeleteFolder;
+	bool m_DeleteFolder;
 
 	string strLastSearchStr;
 	bool LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;

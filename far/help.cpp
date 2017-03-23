@@ -122,7 +122,7 @@ struct Help::StackHelpData
 	string strHelpTopic;          // текущий топик
 	string strSelTopic;           // выделенный топик (???)
 
-	UINT64 Flags;                 // флаги
+	unsigned long long Flags;     // флаги
 	int   TopStr;                 // номер верхней видимой строки темы
 	int   CurX, CurY;             // координаты (???)
 };
@@ -155,19 +155,19 @@ Help::Help(private_tag):
 {
 }
 
-help_ptr Help::create(const string& Topic, const wchar_t *Mask, UINT64 Flags)
+help_ptr Help::create(const string& Topic, const wchar_t *Mask, unsigned long long Flags)
 {
 	auto HelpPtr = std::make_shared<Help>(private_tag());
 	HelpPtr->init(Topic, Mask, Flags);
 	return HelpPtr;
 }
 
-void Help::init(const string& Topic, const wchar_t *Mask, UINT64 Flags)
+void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Flags)
 {
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
-	m_CanLoseFocus=FALSE;
-	m_KeyBarVisible=TRUE;
+	m_CanLoseFocus = false;
+	m_KeyBarVisible = true;
 	SetRestoreScreenMode(true);
 
 	StackData->Flags=Flags;
@@ -1464,7 +1464,7 @@ int Help::JumpTopic()
 		// уберем _все_ конечные слеши и добавим один
 		DeleteEndSlash(strFullPath);
 		strFullPath.append(1, L'\\').append(strNewTopic, IsSlash(strNewTopic.front())? 1 : 0, string::npos);
-		BOOL EndSlash = IsSlash(strFullPath.back());
+		const auto EndSlash = IsSlash(strFullPath.back());
 		DeleteEndSlash(strFullPath);
 		strNewTopic = ConvertNameToFull(strFullPath);
 		strFullPath = format(EndSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic, wcschr(StackData->strSelTopic.data() + 2, HelpEndLink) + 1);
@@ -1785,7 +1785,7 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	if (!ErrorHelp)
 		while (StackData->strSelTopic.empty())
 		{
-			BOOL ReferencePresent=IsReferencePresent();
+			const auto ReferencePresent = IsReferencePresent();
 
 			if (Forward)
 			{

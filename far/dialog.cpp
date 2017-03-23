@@ -238,7 +238,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 					text+=item.strName.size()+1;
 					listItems[ii].Reserved[0]=listItems[ii].Reserved[1]=0;
 				}
-				list->StructSize=sizeof(list);
+				list->StructSize=sizeof(*list);
 				list->ItemsNumber=ListBoxSize;
 				list->Items=listItems;
 				Item->Item->ListItems=list;
@@ -379,7 +379,7 @@ void Dialog::Init()
 	_DIALOG(CleverSysLog CL(L"Dialog::Init()"));
 	AddToList();
 	SetMacroMode(MACROAREA_DIALOG);
-	m_CanLoseFocus = FALSE;
+	m_CanLoseFocus = false;
 	//Номер плагина, вызвавшего диалог (-1 = Main)
 	PluginOwner = nullptr;
 	DialogMode.Set(DMODE_ISCANMOVE|DMODE_VISIBLE);
@@ -950,7 +950,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 	}
 
 	// если будет редактор, то обязательно будет выделен.
-	SelectOnEntry(m_FocusPos,TRUE);
+	SelectOnEntry(m_FocusPos, true);
 	// все объекты созданы!
 	if (AllElements)
 		DialogMode.Set(DMODE_OBJECTS_CREATED);
@@ -1074,10 +1074,10 @@ bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect)
 	return true;
 }
 
-BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
+bool Dialog::GetItemRect(size_t I, SMALL_RECT& Rect)
 {
 	if (I >= Items.size())
-		return FALSE;
+		return false;
 
 	unsigned long long ItemFlags=Items[I].Flags;
 	int Type=Items[I].Type;
@@ -1179,7 +1179,7 @@ BOOL Dialog::GetItemRect(size_t I,SMALL_RECT& Rect)
 			break;
 	}
 
-	return TRUE;
+	return true;
 }
 
 bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
@@ -1387,7 +1387,7 @@ void Dialog::GetDialogObjectsData()
 // Функция формирования и запроса цветов.
 intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags)
 {
-	BOOL DisabledItem = (Flags&DIF_DISABLE) != 0;
+	const auto DisabledItem = (Flags&DIF_DISABLE) != 0;
 
 	switch (Type)
 	{
@@ -1650,7 +1650,7 @@ void Dialog::ShowDialog(size_t ID)
 			case DI_SINGLEBOX:
 			case DI_DOUBLEBOX:
 			{
-				BOOL IsDrawTitle=TRUE;
+				bool IsDrawTitle = true;
 				GotoXY(m_X1+CX1,m_Y1+CY1);
 				SetColor(ItemColor[2]);
 
@@ -1661,7 +1661,7 @@ void Dialog::ShowDialog(size_t ID)
 				else if (CX1 == CX2)
 				{
 					DrawLine(CY2-CY1+1,Items[I].Type==DI_SINGLEBOX?10:11);
-					IsDrawTitle=FALSE;
+					IsDrawTitle = false;
 				}
 				else
 				{
@@ -3778,8 +3778,8 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
 		if (Items[SetFocusPos].Type == DI_LISTBOX)
 			Items[SetFocusPos].ListPtr->SetMenuFlags(VMENU_LISTHASFOCUS);
 
-		SelectOnEntry(m_FocusPos,FALSE);
-		SelectOnEntry(SetFocusPos,TRUE);
+		SelectOnEntry(m_FocusPos, false);
+		SelectOnEntry(SetFocusPos, true);
 
 		PrevFocusPos=m_FocusPos;
 		m_FocusPos=SetFocusPos;
@@ -3793,7 +3793,7 @@ void Dialog::ChangeFocus2(size_t SetFocusPos)
   Функция SelectOnEntry - выделение строки редактирования
   Обработка флага DIF_SELECTONENTRY
 */
-void Dialog::SelectOnEntry(size_t Pos,BOOL Selected)
+void Dialog::SelectOnEntry(size_t Pos, bool Selected)
 {
 	//if(!DialogMode.Check(DMODE_SHOW))
 	//   return;
@@ -3916,14 +3916,14 @@ int Dialog::SelectFromComboBox(
 /* Private:
    Заполняем выпадающий список из истории
 */
-BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
+bool Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
                                    DlgEdit *EditLine,
                                    const string& HistoryName)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::SelectFromEditHistory()"));
 
 	if (!EditLine)
-		return FALSE;
+		return false;
 
 	string strStr;
 	history_return_type ret = HRT_CANCEL;
@@ -3958,10 +3958,10 @@ BOOL Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 		EditLine->SetLeftPos(0);
 		EditLine->SetClearFlag(false);
 		Redraw();
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -4703,9 +4703,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (Param1 == -1)
 				return Global->IsProcessAssignMacroKey;
 
-			BOOL OldIsProcessAssignMacroKey=Global->IsProcessAssignMacroKey;
-			Global->IsProcessAssignMacroKey = Param1 != 0;
-			return OldIsProcessAssignMacroKey;
+			return std::exchange(Global->IsProcessAssignMacroKey, Param1 != 0);
 		}
 		/*****************************************************************/
 		case DM_SETINPUTNOTIFY: // Param1 = 1 on, 0 off, -1 - get
@@ -6027,7 +6025,7 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 	ScreenObjectWithShadow::SetPosition(X1, Y1, X2, Y2);
 }
 //////////////////////////////////////////////////////////////////////////
-BOOL Dialog::IsInited() const
+bool Dialog::IsInited() const
 {
 	return DialogMode.Check(DMODE_OBJECTS_INITED);
 }

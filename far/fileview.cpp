@@ -70,7 +70,7 @@ FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
 {
 }
 
-fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int DisableHistory, int DisableEdit,
+fileviewer_ptr FileViewer::create(const string& Name, bool EnableSwitch, bool DisableHistory, bool DisableEdit,
                                   long long ViewStartPos,const wchar_t *PluginData, NamesList *ViewNamesList,bool ToSaveAs,
                                   uintptr_t aCodePage, const wchar_t *Title, int DeleteOnClose, window_ptr Update)
 {
@@ -88,7 +88,7 @@ fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int Disa
 }
 
 
-fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int DisableHistory,
+fileviewer_ptr FileViewer::create(const string& Name, bool EnableSwitch, bool DisableHistory,
                                   const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage)
 {
 	const auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), TRUE, Title);
@@ -126,7 +126,7 @@ fileviewer_ptr FileViewer::create(const string& Name, int EnableSwitch, int Disa
 }
 
 
-void FileViewer::Init(const string& name,int EnableSwitch,int disableHistory,
+void FileViewer::Init(const string& name, bool EnableSwitch, int disableHistory,
 	long long ViewStartPos,const wchar_t *PluginData,
 	NamesList *ViewNamesList, bool ToSaveAs, uintptr_t aCodePage, window_ptr Update)
 {
@@ -299,9 +299,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 			}
 
 			SCOPED_ACTION(SaveScreen);
-			string strFileName;
-			m_View->GetFileName(strFileName);
-			Global->CtrlObject->Cp()->GoToFile(strFileName);
+			Global->CtrlObject->Cp()->GoToFile(m_View->GetFileName());
 			RedrawTitle = TRUE;
 			return TRUE;
 		}
@@ -351,8 +349,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 			if (!DisableEdit)
 			{
 				const auto cp = m_View->m_Codepage;
-				string strViewFileName;
-				m_View->GetFileName(strViewFileName);
+				const auto strViewFileName = m_View->GetFileName();
 				os::fs::file Edit;
 				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
@@ -435,7 +432,7 @@ int FileViewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 int FileViewer::GetTypeAndName(string &strType, string &strName)
 {
 	strType = MSG(lng::MScreensView);
-	m_View->GetFileName(strName);
+	strName = m_View->GetFileName();
 	return windowtype_viewer;
 }
 
@@ -450,7 +447,7 @@ void FileViewer::ShowConsoleTitle()
 }
 
 
-void FileViewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
+void FileViewer::SetTempViewName(const string& Name, bool DeleteFolder)
 {
 	delete_on_close = (DeleteFolder ? 1 : 2);
 	m_View->SetTempViewName(Name, DeleteFolder);
@@ -470,9 +467,7 @@ void FileViewer::OnDestroy()
 
 	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel() || m_Name != L"-"))
 	{
-		string strFullFileName;
-		m_View->GetFileName(strFullFileName);
-		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, HR_VIEWER);
+		Global->CtrlObject->ViewHistory->AddToHistory(m_View->GetFileName(), HR_VIEWER);
 	}
 	m_View->OnDestroy();
 }

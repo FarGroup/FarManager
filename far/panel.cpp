@@ -648,7 +648,7 @@ int Panel::SetCurPath()
 			// сначала установим переменные окружения для пассивной панели
 			// (без реальной смены пути, чтобы лишний раз пассивный каталог
 			// не перечитывать)
-			FarChDir(AnotherPanel->m_CurDir,FALSE);
+			FarChDir(AnotherPanel->m_CurDir, false);
 		}
 	}
 
@@ -1237,14 +1237,14 @@ int Panel::GetCurBaseName(string &strName, string &strShortName) const
 	return FALSE;
 }
 
-BOOL Panel::NeedUpdatePanel(const Panel *AnotherPanel) const
+bool Panel::NeedUpdatePanel(const Panel *AnotherPanel) const
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
 	        !StrCmpI(AnotherPanel->m_CurDir, m_CurDir))
-		return TRUE;
+		return true;
 
-	return FALSE;
+	return false;
 }
 
 bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
@@ -1284,7 +1284,7 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add) const
 }
 
 /*
-int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
+int Panel::ProcessShortcutFolder(int Key,bool ProcTreePanel)
 {
 	string strShortcutFolder, strPluginModule, strPluginFile, strPluginData;
 
@@ -1314,10 +1314,10 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 */
 

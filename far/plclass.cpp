@@ -524,26 +524,23 @@ bool Plugin::LoadData()
 	if (m_Instance)
 		return true;
 
-	if (!m_Instance)
+	string strCurPlugDiskPath;
+	wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
+	const auto strCurPath = os::GetCurrentDirectory();
+
+	if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // если указан локальный путь, то...
 	{
-		string strCurPlugDiskPath;
-		wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
-		const auto strCurPath = os::GetCurrentDirectory();
-
-		if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // если указан локальный путь, то...
-		{
-			Drive[0] = L'=';
-			Drive[1] = m_strModuleName.front();
-			strCurPlugDiskPath = os::env::get_variable(Drive);
-		}
-
-		PrepareModulePath(m_strModuleName);
-		m_Instance = m_Factory->Create(m_strModuleName);
-		FarChDir(strCurPath);
-
-		if (Drive[0]) // вернем ее (переменную окружения) обратно
-			os::env::set_variable(Drive, strCurPlugDiskPath);
+		Drive[0] = L'=';
+		Drive[1] = m_strModuleName.front();
+		strCurPlugDiskPath = os::env::get_variable(Drive);
 	}
+
+	PrepareModulePath(m_strModuleName);
+	m_Instance = m_Factory->Create(m_strModuleName);
+	FarChDir(strCurPath);
+
+	if (Drive[0]) // вернем ее (переменную окружения) обратно
+		os::env::set_variable(Drive, strCurPlugDiskPath);
 
 	if (!m_Instance)
 	{
@@ -1186,7 +1183,7 @@ void Plugin::ExitFAR(ExitInfo *Info)
 void Plugin::HandleFailure(EXPORTS_ENUM id)
 {
 	m_Factory->GetOwner()->UnloadPlugin(this, id);
-	Global->ProcessException = FALSE;
+	Global->ProcessException = false;
 }
 
 class custom_plugin_module: public i_plugin_module

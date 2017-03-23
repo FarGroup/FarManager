@@ -614,9 +614,7 @@ void Shortcuts::Configure()
 						MakeItemName(Pos, MenuItem);
 					}
 				}
-				INT64 Flags = MenuItem.Flags;
-				MenuItem.Flags = 0;
-				FolderList->UpdateItemFlags(FolderList->GetSelectPos(), Flags);
+				FolderList->UpdateItemFlags(FolderList->GetSelectPos(), std::exchange(MenuItem.Flags, 0));
 				Changed = true;
 			}
 			break;

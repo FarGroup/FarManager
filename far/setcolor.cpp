@@ -464,12 +464,12 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				FarDialogItem DlgItem = {};
 				Dlg->SendMessage( DM_GETDLGITEMSHORT, Param1, &DlgItem);
 
-				if (Param1 >= 2 && Param1 <= 17) // Fore
+				if (Param1 <= 17) // Fore
 				{
 					CurColor->ForegroundColor = GetColor(2).BackgroundColor;
 					CurColor->Flags |= FCF_FG_4BIT;
 				}
-				else if (Param1 >= 19 && Param1 <= 34) // Back
+				else if (Param1 >= 19) // Back
 				{
 					CurColor->BackgroundColor = GetColor(19).BackgroundColor;
 					CurColor->Flags |= FCF_BG_4BIT;

@@ -64,27 +64,27 @@ global::global():
 	// BUGBUG
 
 	// идет процесс назначения клавиши в макросе?
-	IsProcessAssignMacroKey=FALSE;
+	IsProcessAssignMacroKey = 0;
 	PluginPanelsCount = 0;
 	StartIdleTime=0;
 	GlobalSearchCase=false;
 	GlobalSearchWholeWords=false; // значение "Whole words" для поиска
 	GlobalSearchReverse=false;
-	ScreenSaverActive=FALSE;
-	CloseFAR=FALSE;
-	CloseFARMenu=FALSE;
-	AllowCancelExit=TRUE;
-	DisablePluginsOutput=FALSE;
-	ProcessException=FALSE;
+	ScreenSaverActive = false;
+	CloseFAR = false;
+	CloseFARMenu = false;
+	AllowCancelExit = true;
+	DisablePluginsOutput = false;
+	ProcessException = false;
 	HelpFileMask=L"*.hlf";
 #if defined(SYSLOG)
-	StartSysLog=0;
+	StartSysLog = false;
 #endif
 #ifdef DIRECT_RT
 	DirectRT = false;
 #endif
 	GlobalSaveScrPtr=nullptr;
-	CriticalInternalError=FALSE;
+	CriticalInternalError = false;
 	KeepUserScreen = 0;
 	Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 	ErrorMode = SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX;

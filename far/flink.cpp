@@ -343,11 +343,11 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 	return Result;
 }
 
-bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
+bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, DWORD& StreamsCount)
 {
 	bool Result=false;
 	
-	UINT64 Size = 0;
+	unsigned long long Size = 0;
 	DWORD Count = 0;
 
 	for (const auto& i: os::fs::enum_streams(FileName))

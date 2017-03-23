@@ -72,10 +72,10 @@ struct DirInfoPreRedrawItem : public PreRedrawItem
 
 	string Title;
 	string Name;
-	UINT64 Size;
+	unsigned long long Size;
 };
 
-static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, UINT64 Size)
+static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, unsigned long long Size)
 {
 	auto strSize = FileSizeToStr(Size, 8, COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
@@ -143,7 +143,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 	Data.DirCount=Data.FileCount=0;
 	Data.FileSize=Data.AllocationSize=Data.FilesSlack=Data.MFTOverhead=0;
 	ScTree.SetFindPath(DirName,L"*");
-	std::unordered_set<UINT64> FileIds;
+	std::unordered_set<unsigned long long> FileIds;
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
 	const auto CheckHardlinks = os::GetVolumeInformation(GetPathRoot(DirName), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName)?

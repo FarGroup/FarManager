@@ -1093,7 +1093,7 @@ PACK_PUSH(2)
 
 	struct ViewerSelect
 	{
-		INT64 BlockStartPos;
+		long long BlockStartPos;
 		int      BlockLen;
 	};
 
@@ -1108,7 +1108,7 @@ PACK_PUSH(2)
 	struct ViewerSetPosition
 	{
 		DWORD    Flags;
-		INT64 StartPos;
+		long long StartPos;
 		int      LeftPos;
 	};
 
@@ -1129,8 +1129,8 @@ PACK_PUSH(2)
 		int               StructSize;
 		int               ViewerID;
 		const char       *FileName;
-		INT64          FileSize;
-		INT64          FilePos;
+		long long         FileSize;
+		long long         FilePos;
 		int               WindowSizeX;
 		int               WindowSizeY;
 		DWORD             Options;

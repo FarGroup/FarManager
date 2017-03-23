@@ -71,7 +71,7 @@ void FolderTree::init(string &strResultFolder)
 	SetRestoreScreenMode(true);
 	if (ModalMode != MODALTREE_FREE)
 		strResultFolder.clear();
-	m_KeyBarVisible = TRUE;  // Заставим обновляться кейбар
+	m_KeyBarVisible = true;  // Заставим обновляться кейбар
 	//TopScreen=new SaveScreen;
 	SetCoords();
 

@@ -1043,15 +1043,15 @@ void Viewer::DrawScrollbar()
 
 		UINT x = m_X2 + (m_bQuickView ? 1 : 0);
 		UINT h = m_Y2 - m_Y1 + 1;
-		UINT64 start, end, total;
+		unsigned long long start, end, total;
 
 		if (m_DisplayMode == VMT_TEXT)
 		{
-			total = static_cast<UINT64>(FileSize);
-			start = static_cast<UINT64>(FilePos);
+			total = static_cast<unsigned long long>(FileSize);
+			start = static_cast<unsigned long long>(FilePos);
 			ViewerString& last_line = Strings.back();
 			end = last_line.nFilePos + last_line.linesize;
-			if ( end == static_cast<UINT64>(FileSize) && last_line.linesize > 0 && last_line.eol_length != 0 )
+			if ( end == static_cast<unsigned long long>(FileSize) && last_line.linesize > 0 && last_line.eol_length != 0 )
 				++total;
 		}
 		else
@@ -1102,7 +1102,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 
 	int OutPtr = 0, nTab = 0, wrap_out = -1;
 	wchar_t ch, eol_char = L'\0';
-	INT64 wrap_pos = -1;
+	long long wrap_pos = -1;
 	bool skip_space = false;
 
 	if (m_DisplayMode != VMT_TEXT)
@@ -1115,12 +1115,12 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 
 	bool bSelStartFound = false, bSelEndFound = false;
 	pString->bSelection = false;
-	INT64 sel_end = SelectPos + SelectSize;
+	long long sel_end = SelectPos + SelectSize;
 
-	INT64 fpos1 = vtell();
+	long long fpos1 = vtell();
 	for (;;)
 	{
-		INT64 fpos = fpos1;
+		long long fpos = fpos1;
 
 		if (OutPtr >= static_cast<int>(MaxViewLineSize()))
 			break;
@@ -2729,8 +2729,8 @@ static auto hex2ss(const string& from, intptr_t *pos = nullptr)
 
 struct Viewer::search_data
 {
-	INT64 CurPos;
-	INT64 MatchPos;
+	long long CurPos;
+	long long MatchPos;
 	const char *search_bytes;
 	const wchar_t *search_text;
 	int search_len;
@@ -2781,7 +2781,7 @@ SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
 	int bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
-	INT64 to, cpos = sd->CurPos;
+	long long to, cpos = sd->CurPos;
 	int swrap = ViOpt.SearchWrapStop;
 
 	bool tail_part = cpos >= StartSearchPos;
@@ -2817,7 +2817,7 @@ SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 
 		if (slen <= 1 || std::equal(ps + 1, ps + slen, search_str + 1))
 		{
-			sd->MatchPos = cpos + static_cast<INT64>(ps - buff);
+			sd->MatchPos = cpos + (ps - buff);
 			return Search_Found;
 		}
 		++ps;
@@ -2849,7 +2849,7 @@ SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
 	char *buff = (char *)Search_buffer.data();
 	const char *search_str = sd->search_bytes;
 	int bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
-	INT64 to, cpos = sd->CurPos;
+	long long to, cpos = sd->CurPos;
 	int swrap = ViOpt.SearchWrapStop;
 
 	bool lo_half = cpos <= StartSearchPos;
@@ -2915,7 +2915,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
-	INT64 to1, to, cpos = sd->CurPos;
+	long long to1, to, cpos = sd->CurPos;
 	int swrap = ViOpt.SearchWrapStop;
 
 	vseek(cpos, FILE_BEGIN);
@@ -2998,7 +2998,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
-	INT64 to, cpos = sd->CurPos;
+	long long to, cpos = sd->CurPos;
 	int swrap = ViOpt.SearchWrapStop;
 
 	bool tail_part = cpos > StartSearchPos;
@@ -3077,7 +3077,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 	return Search_Continue;
 }
 
-int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64 &lpos, int &lsize)
+int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, long long cpos, int adjust, long long& lpos, int &lsize)
 {
 	const auto OldFilePos = FilePos;
 	const auto OldLastPage = LastPage;
@@ -3133,7 +3133,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 	assert(Search_buffer.size() >= 2 * MaxViewLineBufferSize());
 
 	wchar_t *line = Search_buffer.data(), *t_line = sd->ch_size < 0 ? Search_buffer.data() + MaxViewLineBufferSize() : nullptr;
-	INT64 cpos = sd->CurPos, bpos = 0;
+	long long cpos = sd->CurPos, bpos = 0;
 
 	int first = (sd->first_Rex ? +1 : 0);
 	sd->first_Rex = false;
@@ -3164,7 +3164,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 			break;
 		}
 
-		INT64 fpos = bpos + GetStrBytesNum(t_line, m[0].start);
+		long long fpos = bpos + GetStrBytesNum(t_line, m[0].start);
 		if ( fpos < cpos )
 		{
 			off = m[0].start + 1; // skip
@@ -3212,7 +3212,7 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 	assert(Search_buffer.size() >= 2 * MaxViewLineBufferSize());
 
 	wchar_t *line = Search_buffer.data(), *t_line = sd->ch_size < 0 ? Search_buffer.data() + MaxViewLineBufferSize() : nullptr;
-	INT64 cpos = sd->CurPos, bpos = 0, prev_pos = -1;
+	long long cpos = sd->CurPos, bpos = 0, prev_pos = -1;
 
 	bool tail_part = cpos > StartSearchPos;
 	int swrap = ViOpt.SearchWrapStop;
@@ -3232,7 +3232,7 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 			break;
 		}
 
-		INT64 fpos = bpos + GetStrBytesNum(t_line, m[0].start);
+		long long fpos = bpos + GetStrBytesNum(t_line, m[0].start);
 		int flen = GetStrBytesNum(t_line + m[0].start, m[0].end - m[0].start);
 		if (fpos+flen > cpos)
 			break;
@@ -3441,7 +3441,7 @@ void Viewer::Search(int Next,int FirstChar)
 					LastSelectPos = SelectPos + (ReverseSearch ? LastSelectSize-sd.ch_size : sd.ch_size);
 				else
 				{
-					INT64 prev_pos = SelectPos;
+					long long prev_pos = SelectPos;
 					vseek(SelectPos, FILE_BEGIN);
 					for (;;)
 					{
@@ -3514,7 +3514,7 @@ void Viewer::Search(int Next,int FirstChar)
 					strMsgStr.data(), MSG(lng::MYes), MSG(lng::MCancel)) != Message::first_button) // cancel search
 				{
 					return;
-					}
+				}
 			}
 
 			if (TimeCheck)
@@ -3529,10 +3529,10 @@ void Viewer::Search(int Next,int FirstChar)
 				}
 
 				int percent = -1;
-				INT64 total = FileSize;
+				long long total = FileSize;
 				if ( total > 0 )
 				{
-					INT64 done;
+					long long done;
 					if ( !ReverseSearch )
 					{
 						if ( sd.CurPos >= StartSearchPos )
@@ -3599,19 +3599,14 @@ void Viewer::SetWrapType(bool TypeWrap)
 	Viewer::m_WordWrap=TypeWrap;
 }
 
-void Viewer::GetFileName(string &strName) const
-{
-	strName = strFullFileName;
-}
-
-void Viewer::SetTempViewName(const string& Name, BOOL DeleteFolder)
+void Viewer::SetTempViewName(const string& Name, bool DeleteFolder)
 {
 	if (!Name.empty())
 		strTempViewName = ConvertNameToFull(Name);
 	else
 	{
 		strTempViewName.clear();
-		DeleteFolder=FALSE;
+		DeleteFolder = false;
 	}
 
 	m_DeleteFolder=DeleteFolder;
@@ -3946,7 +3941,7 @@ enum input_mode
 	RB_DEC = 2,
 };
 
-void Viewer::GoTo(int ShowDlg, long long Offset, UINT64 Flags)
+void Viewer::GoTo(bool ShowDlg, long long Offset, unsigned long long Flags)
 {
 	long long NewLeftPos = -1;
 
@@ -4124,7 +4119,7 @@ void Viewer::SetFileSize()
 	if (!ViewFile)
 		return;
 
-	UINT64 uFileSize=0; // BUGBUG, sign
+	unsigned long long uFileSize = 0; // BUGBUG, sign
 	ViewFile.GetSize(uFileSize);
 	FileSize=uFileSize;
 }
@@ -4249,7 +4244,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				if ((LeftPos=vsp->LeftPos) < 0)
 					LeftPos=0;
 
-				GoTo(FALSE, vsp->StartPos, vsp->Flags);
+				GoTo(false, vsp->StartPos, vsp->Flags);
 
 				if (isReShow && !(vsp->Flags&VSP_NOREDRAW))
 					Global->ScrBuf->Flush();

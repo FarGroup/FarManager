@@ -803,10 +803,10 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	LastEventIdle = false;
 
-	BOOL ZoomedState=IsZoomed(Console().GetWindow());
-	BOOL IconicState=IsIconic(Console().GetWindow());
+	auto ZoomedState = IsZoomed(Console().GetWindow());
+	auto IconicState = IsIconic(Console().GetWindow());
 
-	bool FullscreenState=IsConsoleFullscreen();
+	auto FullscreenState = IsConsoleFullscreen();
 
 	DWORD LoopCount = 0;
 	for (;;)

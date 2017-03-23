@@ -145,19 +145,19 @@ void VMenu::ResetCursor()
 }
 
 //может иметь фокус
-bool VMenu::ItemCanHaveFocus(UINT64 Flags) const
+bool VMenu::ItemCanHaveFocus(unsigned long long Flags) const
 {
 	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_SEPARATOR));
 }
 
 //может быть выбран
-bool VMenu::ItemCanBeEntered(UINT64 Flags) const
+bool VMenu::ItemCanBeEntered(unsigned long long Flags) const
 {
 	return !(Flags&(LIF_DISABLE|LIF_HIDDEN|LIF_GRAYED|LIF_SEPARATOR));
 }
 
 //видимый
-bool VMenu::ItemIsVisible(UINT64 Flags) const
+bool VMenu::ItemIsVisible(unsigned long long Flags) const
 {
 	return !(Flags&(LIF_HIDDEN));
 }
@@ -167,7 +167,7 @@ bool VMenu::UpdateRequired() const
 	return CheckFlags(VMENU_UPDATEREQUIRED)!=0;
 }
 
-void VMenu::UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags)
+void VMenu::UpdateInternalCounters(unsigned long long OldFlags, unsigned long long NewFlags)
 {
 	if (OldFlags&MIF_SUBMENU)
 		ItemSubMenusCount--;
@@ -182,7 +182,7 @@ void VMenu::UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags)
 		ItemHiddenCount++;
 }
 
-void VMenu::UpdateItemFlags(int Pos, UINT64 NewFlags)
+void VMenu::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 {
 	UpdateInternalCounters(Items[Pos].Flags, NewFlags);
 
@@ -2723,7 +2723,7 @@ void VMenu::SetOneColor(int Index, PaletteColors Color)
 		Colors[Index] = colors::PaletteColorToFarColor(Color);
 }
 
-BOOL VMenu::GetVMenuInfo(FarListInfo* Info) const
+bool VMenu::GetVMenuInfo(FarListInfo* Info) const
 {
 	if (Info)
 	{
@@ -2733,10 +2733,10 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info) const
 		Info->TopPos = TopPos;
 		Info->MaxHeight = MaxHeight;
 		Info->MaxLength = m_MaxLength + (ItemSubMenusCount > 0 ? 2 : 0);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 // Функция GetItemPtr - получить указатель на нужный Items.
@@ -2800,7 +2800,7 @@ int VMenu::FindItem(const FarListFind *FItem)
 	return FindItem(FItem->StartIndex,FItem->Pattern,FItem->Flags);
 }
 
-int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
+int VMenu::FindItem(int StartIndex, const string& Pattern, unsigned long long Flags)
 {
 	if ((DWORD)StartIndex < (DWORD)Items.size())
 	{
@@ -2814,7 +2814,7 @@ int VMenu::FindItem(int StartIndex,const string& Pattern,UINT64 Flags)
 
 			if (Flags&LIFIND_EXACTMATCH)
 			{
-				if (!StrCmpNI(strTmpBuf.data(),Pattern.data(),static_cast<int>(std::max(LenPattern, LenNamePtr))))
+				if (!StrCmpNI(strTmpBuf.data(),Pattern.data(), std::max(LenPattern, LenNamePtr)))
 					return static_cast<int>(I);
 			}
 			else

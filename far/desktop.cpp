@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 desktop::desktop(private_tag)
 {
-	SetCanLoseFocus(TRUE);
+	SetCanLoseFocus(true);
 	desktop::SetPosition(0, 0, ScrX, ScrY);
 }
 

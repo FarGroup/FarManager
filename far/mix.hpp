@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-inline unsigned int ToPercent(T N1, T N2)
+unsigned int ToPercent(T N1, T N2)
 {
 	if (N1 > 10000)
 	{
@@ -47,7 +47,7 @@ inline unsigned int ToPercent(T N1, T N2)
 	return N2? static_cast<unsigned int>(N1 * 100 / N2) : 0;
 }
 
-bool FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, BOOL WithTempPath=TRUE, const wchar_t *UserTempPath=nullptr);
+bool FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, bool WithTempPath = true, const wchar_t *UserTempPath=nullptr);
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& Dest);
 

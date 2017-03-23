@@ -151,7 +151,7 @@ public:
 
 	mutex(const wchar_t* Name = nullptr): handle(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
 
-	static const auto get_namespace() { return L"Far_Manager_Mutex_"; }
+	static auto get_namespace() { return L"Far_Manager_Mutex_"; }
 
 	bool lock() const { return wait(); }
 
@@ -170,7 +170,7 @@ public:
 	event() = default;
 	event(type Type, state InitialState, const wchar_t* Name = nullptr): handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(Name))) {}
 
-	static const auto get_namespace() { return L"Far_Manager_Event_"; }
+	static auto get_namespace() { return L"Far_Manager_Event_"; }
 
 	bool set() const { check_valid(); return SetEvent(get()) != FALSE; }
 

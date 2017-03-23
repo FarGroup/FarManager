@@ -103,7 +103,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 }
 
 
-int GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
+bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
 	string strFullParamName = L".";
 	strFullParamName += ParamName;
@@ -111,7 +111,7 @@ int GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *st
 	/* $ 29.11.2001 DJ
 	   не поганим позицию в файле; дальше @Contents не читаем
 	*/
-	BOOL Found = FALSE;
+	auto Found = false;
 	const auto OldPos = LangFile.GetPointer();
 
 	string ReadStr;
@@ -144,7 +144,7 @@ int GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *st
 				}
 
 				RemoveTrailingSpaces(*strParam1);
-				Found = TRUE;
+				Found = true;
 				break;
 			}
 		}
@@ -236,7 +236,7 @@ bool SelectHelpLanguage() {return SelectLanguage(true);}
   + Новый метод, для получения параметров для .Options
    .Options <KeyName>=<Value>
 */
-int GetOptionsParam(const os::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
+bool GetOptionsParam(const os::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
 {
 	const auto CurFilePos = SrcFile.GetPointer();
 	string ReadStr;
@@ -260,14 +260,14 @@ int GetOptionsParam(const os::fs::file& SrcFile,const wchar_t *KeyName,string &s
 				if (!StrCmpI(strFullParamName.data(),KeyName))
 				{
 					SrcFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN);
-					return TRUE;
+					return true;
 				}
 			}
 		}
 	}
 
 	SrcFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN);
-	return FALSE;
+	return false;
 }
 
 static string ConvertString(const wchar_t *Src, size_t size)
@@ -353,7 +353,7 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	//-- MLabel="Text"
 	if (!str.empty() && str.back() == L'"')
 	{
-		auto eq_pos = str.find(L"=");
+		auto eq_pos = str.find(L'=');
 		if (eq_pos != string::npos && Upper(str[0]) >= L'A' && Upper(str[0]) <= L'Z')
 		{
 			data = str.substr(eq_pos + 1);

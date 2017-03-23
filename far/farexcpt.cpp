@@ -293,8 +293,9 @@ static string ExtractObjectName(const EXCEPTION_RECORD* xr)
 static bool ProcessGenericException(const exception_context& Context, const wchar_t* Function, const Plugin* PluginModule, const char* Message)
 {
 	if (Global)
-		Global->ProcessException=TRUE;
-	BOOL Res=FALSE;
+		Global->ProcessException = true;
+
+	auto Result = false;
 
 	if (Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.empty())
 	{
@@ -334,17 +335,17 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 				}
 
 				DWORD dummy;
-				Res = p(Context.GetPointers(), PluginModule? &PlugRec : nullptr, &LocalStartupInfo, &dummy);
+				Result = p(Context.GetPointers(), PluginModule? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
 			}
 		}
 	}
 
-	if (Res)
+	if (Result)
 	{
 		if (!PluginModule)
 		{
 			if (Global)
-				Global->CriticalInternalError=TRUE;
+				Global->CriticalInternalError = true;
 		}
 
 		return true;
@@ -379,7 +380,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 
 	string strBuf;
 	string strFileName;
-	BOOL ShowMessages=FALSE;
+	auto ShowMessages = false;
 	// получим запись исключения
 	const auto xr = Context.GetPointers()->ExceptionRecord;
 
@@ -473,7 +474,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		MsgCode = ExcDialog(strFileName, Exception, Context, Function, PluginModule);
-		ShowMessages=TRUE;
+		ShowMessages = true;
 	}
 	else
 	{
@@ -482,7 +483,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 
 	if (ShowMessages && !PluginModule)
 	{
-		Global->CriticalInternalError=TRUE;
+		Global->CriticalInternalError = true;
 	}
 
 	switch (MsgCode)

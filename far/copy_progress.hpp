@@ -48,7 +48,7 @@ public:
 	// only update internal variables and call Flush().
 	void SetScanName(const string& Name);
 	void SetNames(const string& Src, const string& Dst);
-	void SetProgressValue(UINT64 CompletedSize, UINT64 TotalSize);
+	void SetProgressValue(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void UpdateCurrentBytesInfo(unsigned long long NewValue);
 	void UpdateAllBytesInfo(unsigned long long FileSize);
 
@@ -58,8 +58,8 @@ private:
 	void FlushScan();
 	void CreateBackground();
 	void CreateScanBackground();
-	void SetCurrentProgress(UINT64 CompletedSize, UINT64 TotalSize);
-	void SetTotalProgress(UINT64 CompletedSize, UINT64 TotalSize);
+	void SetCurrentProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
+	void SetTotalProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo);
 	unsigned long long GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
 	static size_t GetCanvasWidth();

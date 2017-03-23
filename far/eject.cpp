@@ -40,52 +40,50 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 
 #if 0
-static BOOL DismountVolume(HANDLE hVolume)
+static bool DismountVolume(HANDLE hVolume)
 {
 	DWORD dwBytesReturned;
-	return DeviceIoControl(hVolume,FSCTL_DISMOUNT_VOLUME,nullptr, 0,nullptr, 0,&dwBytesReturned,nullptr);
+	return DeviceIoControl(hVolume,FSCTL_DISMOUNT_VOLUME,nullptr, 0,nullptr, 0,&dwBytesReturned,nullptr) != FALSE;
 }
 #endif
 
 /* Функция by Vadim Yegorov <zg@matrica.apollo.lv>
    Доработанная! Умеет "вставлять" диск :-)
 */
-bool EjectVolume(wchar_t Letter,UINT64 Flags)
+bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 {
-	BOOL Retry=TRUE;
-	BOOL fAutoEject=FALSE;
-	DWORD temp;
-	UINT uDriveType;
-	DWORD dwAccessFlags;
-	BOOL fRemoveSafely = FALSE;
-	BOOL foundError=FALSE;
+	auto fAutoEject = false;
+	auto fRemoveSafely = false;
+
 	string RootName=L"\\\\.\\ :\\";
 	RootName[4] = Letter;
 	// OpenVolume
-	uDriveType = FAR_GetDriveType(RootName.data()+4);
+	const auto DriveType = FAR_GetDriveType(RootName.data()+4);
 	RootName.pop_back();
 
-	bool ReadOnly = false;
+	bool ReadOnly;
+	DWORD dwAccessFlags;
 
-	switch (uDriveType)
+	switch (DriveType)
 	{
-		case DRIVE_REMOVABLE:
-			dwAccessFlags = GENERIC_READ | GENERIC_WRITE;
+	case DRIVE_REMOVABLE:
+		dwAccessFlags = GENERIC_READ | GENERIC_WRITE;
+		ReadOnly = false;
+		break;
+
+	default:
+		if (IsDriveTypeCDROM(DriveType))
+		{
+			dwAccessFlags = GENERIC_READ;
+			ReadOnly = true;
 			break;
+		}
 
-		default:
-			if (IsDriveTypeCDROM(uDriveType))
-			{
-				dwAccessFlags = GENERIC_READ;
-				ReadOnly = true;
-				break;
-			}
-
-			return false;
+		return false;
 	}
 
 	os::fs::file Disk;
-	bool Opened = Disk.Open(RootName, dwAccessFlags, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	auto Opened = Disk.Open(RootName, dwAccessFlags, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 	if(!Opened && GetLastError()==ERROR_ACCESS_DENIED)
 	{
 		Opened = Disk.Open(RootName,GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
@@ -94,18 +92,20 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 
 	if (Opened)
 	{
+		DWORD temp;
+		auto Retry = true;
+		auto foundError = false;
+
 		while (Retry)
 		{
 			if (Disk.IoControl(FSCTL_LOCK_VOLUME, nullptr, 0, nullptr, 0, &temp))
 			{
-				foundError=FALSE;
+				foundError = false;
 				if (!ReadOnly)
 				{
 					Disk.FlushBuffers();
 				}
-
 #if 0
-
 // TODO: ЭТОТ КУСОК НУЖНО РАСКОММЕНТИТЬ ВМЕСТЕ С ПОДЪЕМОМ ПРОЕКТА ПО USB
 				/*
 				  ЭТО чудо нужно для того, чтобы, скажем, имея картридер на 3 карточки,
@@ -114,23 +114,21 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 				if (!(Flags&EJECT_LOAD_MEDIA))
 				{
 					if (DismountVolume(DiskHandle))
-						fRemoveSafely = TRUE;
+						fRemoveSafely = true;
 					else
-						foundError=TRUE;
+						foundError = true;
 				}
 
 #endif
 
 				if (!foundError)
 				{
-					PREVENT_MEDIA_REMOVAL PreventMediaRemoval={FALSE};
-
+					PREVENT_MEDIA_REMOVAL PreventMediaRemoval{};
 					if (Disk.IoControl(IOCTL_STORAGE_MEDIA_REMOVAL, &PreventMediaRemoval, sizeof(PreventMediaRemoval), nullptr, 0, &temp))
 					{
 #if 1
-
 						// чистой воды шаманство...
-						if (Flags&EJECT_READY)
+						if (Flags & EJECT_READY)
 						{
 							fAutoEject = Disk.IoControl(IOCTL_STORAGE_CHECK_VERIFY, nullptr, 0, nullptr, 0, &temp);
 
@@ -138,31 +136,31 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 							// что диск вставлен
 							// Способ экспериментальный, потому афишировать не имеет смысла.
 							if (!fAutoEject && GetLastError() == ERROR_ACCESS_DENIED)
-								fAutoEject=TRUE;
+								fAutoEject = true;
 
-							Retry=FALSE;
+							Retry = false;
 						}
 						else
 #endif
-							fAutoEject=Disk.IoControl((Flags&EJECT_LOAD_MEDIA)?IOCTL_STORAGE_LOAD_MEDIA:IOCTL_STORAGE_EJECT_MEDIA, nullptr, 0, nullptr, 0, &temp);
+							fAutoEject = Disk.IoControl((Flags&EJECT_LOAD_MEDIA)? IOCTL_STORAGE_LOAD_MEDIA : IOCTL_STORAGE_EJECT_MEDIA, nullptr, 0, nullptr, 0, &temp);
 					}
 
-					Retry=FALSE;
+					Retry = false;
 				}
 			}
 			else
-				foundError=TRUE;
+				foundError = true;
 
 			if (foundError)
 			{
-				if (!(Flags&EJECT_NO_MESSAGE))
+				if (!(Flags & EJECT_NO_MESSAGE))
 				{
 					Global->CatchError();
 					if(OperationFailed(RootName, lng::MError, format(lng::MChangeCouldNotEjectMedia, Letter), false) != operation::retry)
-						Retry=FALSE;
+						Retry = false;
 				}
 				else
-					Retry=FALSE;
+					Retry = false;
 			}
 			else if (!(Flags&EJECT_LOAD_MEDIA) && fRemoveSafely)
 			{
@@ -175,7 +173,7 @@ bool EjectVolume(wchar_t Letter,UINT64 Flags)
 		Disk.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0, &temp);
 	}
 
-	return fAutoEject||fRemoveSafely; //???
+	return fAutoEject || fRemoveSafely; //???
 }
 
 bool IsEjectableMedia(wchar_t Letter)

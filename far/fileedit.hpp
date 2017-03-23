@@ -77,17 +77,17 @@ public:
 	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 	static fileeditor_ptr create(const string&  Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, const window_ptr& Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 
-	FileEditor(private_tag);
+	FileEditor(private_tag) {}
 	virtual ~FileEditor() override;
 
-	virtual BOOL IsFileModified() const override { return m_editor->IsFileModified(); }
+	virtual bool IsFileModified() const override { return m_editor->IsFileModified(); }
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual void Show() override;
 	virtual Editor* GetEditor(void) override;
 
 	void ShowStatus() const;
-	void SetLockEditor(BOOL LockMode) const;
+	void SetLockEditor(bool LockMode) const;
 	bool IsFullScreen() const { return m_Flags.Check(FFILEEDIT_FULLSCREEN); }
 	void SetNamesList(NamesList& Names);
 	void SetEnableF6(bool AEnableF6) { m_Flags.Change(FFILEEDIT_ENABLEF6, AEnableF6); InitKeyBar(); }
@@ -97,7 +97,7 @@ public:
 	intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
 	bool SetCodePage(uintptr_t codepage);  //BUGBUG
 	int  SetCodePage(uintptr_t cp, bool redetect_default, bool ascii2def);
-	BOOL IsFileChanged() const { return m_editor->IsFileChanged(); }
+	bool IsFileChanged() const { return m_editor->IsFileChanged(); }
 	void GetEditorOptions(Options::EditorOptions& EdOpt) const;
 	void SetEditorOptions(const Options::EditorOptions& EdOpt) const;
 	void SetPluginTitle(const string* PluginTitle);
@@ -115,7 +115,7 @@ private:
 	virtual void SetScreenPosition() override;
 	virtual int GetType() const override { return windowtype_editor; }
 	virtual void OnDestroy() override;
-	virtual int GetCanLoseFocus(int DynamicMode = FALSE) const override;
+	virtual bool GetCanLoseFocus(bool DynamicMode = false) const override;
 	virtual bool CanFastHide() const override; // для нужд CtrlAltShift
 	virtual string GetTitle() const override;
 
@@ -133,7 +133,7 @@ private:
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
 	int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
 	void SetTitle(const string* Title);
-	BOOL SetFileName(const string& NewFileName);
+	bool SetFileName(const string& NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
 	DWORD EditorGetFileAttributes(const string& Name);
 	void SetPluginData(const string* PluginData);
@@ -141,14 +141,14 @@ private:
 	bool LoadFromCache(EditorPosCache &pc) const;
 	void SaveToCache() const;
 	void ReadEvent(void);
-	int  ProcessQuitKey(int FirstSave, BOOL NeedQuestion = TRUE, bool DeleteWindow = true);
+	int  ProcessQuitKey(int FirstSave, bool NeedQuestion = true, bool DeleteWindow = true);
 	bool UpdateFileList() const;
 
 	static uintptr_t GetDefaultCodePage();
 
 	std::unique_ptr<Editor> m_editor;
 	NamesList EditNamesList;
-	bool F4KeyOnly;
+	bool F4KeyOnly{};
 	string strFileName;
 	string strFullFileName;
 	string strStartDir;
@@ -156,15 +156,15 @@ private:
 	string strPluginTitle;
 	string strPluginData;
 	os::FAR_FIND_DATA FileInfo;
-	wchar_t AttrStr[4];            // 13.02.2001 IS - Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
-	DWORD m_FileAttributes;          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
-	BOOL  FileAttributesModified;  // 04.11.2003 SKV - надо ли восстанавливать аттрибуты при save
-	bool m_bClosing;               // 28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
-	bool bEE_READ_Sent;
-	bool bLoaded;
-	bool m_bAddSignature;
-	bool BadConversion;
-	uintptr_t m_codepage; //BUGBUG
+	wchar_t AttrStr[4]{};            // 13.02.2001 IS - Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
+	DWORD m_FileAttributes{};          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
+	bool FileAttributesModified{};  // 04.11.2003 SKV - надо ли восстанавливать аттрибуты при save
+	bool m_bClosing{};               // 28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
+	bool bEE_READ_Sent{};
+	bool bLoaded{};
+	bool m_bAddSignature{};
+	bool BadConversion{};
+	uintptr_t m_codepage{CP_DEFAULT}; //BUGBUG
 
 	F8CP f8cps;
 };

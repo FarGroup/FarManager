@@ -168,7 +168,7 @@ public:
 	virtual bool IsDizDisplayed() const { return false; }
 	virtual bool IsColumnDisplayed(int Type) const {return false;}
 	virtual int GetColumnsCount() const { return 1;}
-	virtual void SetReturnCurrentFile(int Mode) {}
+	virtual void SetReturnCurrentFile(bool Mode) {}
 	virtual void QViewDelTempName() {}
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const {}
 	virtual void SetPluginMode(plugin_panel* hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
@@ -190,7 +190,7 @@ public:
 	virtual unsigned long long GetLastSelectedSize() const { return -1; }
 	virtual int GetCurName(string &strName, string &strShortName) const;
 	virtual int GetCurBaseName(string &strName, string &strShortName) const;
-	virtual int GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return FALSE; }
+	virtual bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return FALSE; }
 	virtual int GetCurrentPos() const {return 0;}
 
 	virtual bool IsFocused() const;
@@ -201,13 +201,13 @@ public:
 	virtual void UpdateIfRequired() {}
 	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
 	virtual void StopFSWatcher() {}
-	virtual int FindPartName(const string& Name,int Next,int Direct=1) {return FALSE;}
+	virtual bool FindPartName(const string& Name,int Next,int Direct=1) {return false;}
 	virtual bool GetPlainString(string& Dest, int ListPos) const { return false; }
-	virtual int GoToFile(long idxItem) {return TRUE;}
-	virtual int GoToFile(const string& Name,BOOL OnlyPartName=FALSE) {return TRUE;}
-	virtual long FindFile(const string& Name,BOOL OnlyPartName=FALSE) {return -1;}
-	virtual int IsSelected(const string& Name) {return FALSE;}
-	virtual int IsSelected(size_t indItem) {return FALSE;}
+	virtual bool GoToFile(long idxItem) {return true;}
+	virtual bool GoToFile(const string& Name, bool OnlyPartName = false) {return true;}
+	virtual long FindFile(const string& Name, bool OnlyPartName = false) {return -1;}
+	virtual bool IsSelected(const string& Name) {return false;}
+	virtual bool IsSelected(size_t indItem) {return false;}
 	virtual long FindFirst(const string& Name) {return -1;}
 	virtual long FindNext(int StartPos, const string& Name) {return -1;}
 	virtual void SetSelectedFirstMode(bool) {}
@@ -266,7 +266,7 @@ public:
 	void SetUpdateMode(int Mode) {m_EnableUpdate=Mode;}
 	bool MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers);
 	int SetCurPath();
-	BOOL NeedUpdatePanel(const Panel *AnotherPanel) const;
+	bool NeedUpdatePanel(const Panel *AnotherPanel) const;
 	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
 	void SetFullScreen() { m_ViewSettings.Flags |= PVS_FULLSCREEN; }
 	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string &strDest, int UNC, int ShortNameAsIs = TRUE) const;

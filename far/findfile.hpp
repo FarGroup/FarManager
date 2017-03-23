@@ -66,7 +66,7 @@ public:
 	{
 		string strArcName;
 		plugin_panel* hPlugin; // Plugin handle
-		UINT64 Flags; // OpenPanelInfo.Flags
+		unsigned long long Flags; // OpenPanelInfo.Flags
 		string strRootPath; // Root path in plugin after opening.
 	};
 public:
@@ -147,7 +147,7 @@ private:
 	FINDAREA SearchMode{ FINDAREA_ALL };
 	int favoriteCodePages{};
 	uintptr_t CodePage{ CP_DEFAULT };
-	UINT64 SearchInFirst {};
+	unsigned long long SearchInFirst {};
 	struct FindListItem* FindExitItem{};
 	string strFindMask;
 	string strFindStr;
@@ -182,7 +182,7 @@ public:
 		const string& FindString,
 		FINDAREA SearchMode,
 		uintptr_t CodePage,
-		UINT64 SearchInFirst,
+		unsigned long long SearchInFirst,
 		bool CmpCase,
 		bool WholeWords,
 		bool SearchInArchives,
@@ -214,7 +214,7 @@ private:
 	void DoPreparePluginList(bool Internal);
 	void ArchiveSearch(const string& ArcName);
 	void DoScanTree(const string& strRoot);
-	void ScanPluginTree(plugin_panel* hPlugin, UINT64 Flags, int& RecurseLevel);
+	void ScanPluginTree(plugin_panel* hPlugin, unsigned long long Flags, int& RecurseLevel);
 	void AddMenuRecord(const string& FullName, PluginPanelItem& FindData) const;
 
 	FindFiles* const m_Owner;
@@ -237,7 +237,7 @@ private:
 	const string strFindStr;
 	const FINDAREA SearchMode;
 	const uintptr_t CodePage;
-	const UINT64 SearchInFirst;
+	const unsigned long long SearchInFirst;
 	const bool CmpCase;
 	const bool WholeWords;
 	const bool SearchInArchives;

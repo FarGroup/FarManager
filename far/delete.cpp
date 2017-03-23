@@ -285,7 +285,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 	WipeFile.Close();
 
 	string strTempName;
-	if (!FarMkTempEx(strTempName, nullptr, FALSE))
+	if (!FarMkTempEx(strTempName, nullptr, false))
 		return false;
 
 	if (!os::MoveFile(Name, strTempName))
@@ -303,7 +303,7 @@ static int WipeDirectory(const string& Name)
 		strPath.clear();
 	}
 
-	FarMkTempEx(strTempName,nullptr, FALSE, strPath.empty()?nullptr:strPath.data());
+	FarMkTempEx(strTempName,nullptr, false, strPath.empty()?nullptr:strPath.data());
 
 	if (!os::MoveFile(Name, strTempName))
 	{
@@ -329,7 +329,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	string strDizName;
 	int DizPresent;
 	int Ret;
-	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
+	bool NeedUpdate = true, NeedSetUpADir = false;
 	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
 	const auto UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
@@ -367,7 +367,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 		if (TestParentFolderName(strSelName) || strSelName.empty())
 		{
-			NeedUpdate=FALSE;
+			NeedUpdate = false;
 			return;
 		}
 
@@ -522,7 +522,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 		if (!Builder.ShowDialog())
 		{
-			NeedUpdate = FALSE;
+			NeedUpdate = false;
 			return;
 		}
 	}
@@ -533,8 +533,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	SrcPanel->GetDizName(strDizName);
 	DizPresent=(!strDizName.empty() && os::fs::exists(strDizName));
 
-	if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
-		return;
+	NeedSetUpADir = CheckUpdateAnotherPanel(SrcPanel, strSelName);
 
 	if (SrcPanel->GetType() == panel_type::TREE_PANEL)
 		FarChDir(L"\\");
@@ -630,7 +629,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 						if (MsgCode<0 || MsgCode==3)
 						{
-							NeedSetUpADir=FALSE;
+							NeedSetUpADir = false;
 							break;
 						}
 

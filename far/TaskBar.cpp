@@ -57,7 +57,7 @@ void taskbar::SetProgressState(TBPFLAG tbpFlags)
 	mTaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
 }
 
-void taskbar::SetProgressValue(UINT64 Completed, UINT64 Total)
+void taskbar::SetProgressValue(unsigned long long Completed, unsigned long long Total)
 {
 	if (!mTaskbarList)
 		return;

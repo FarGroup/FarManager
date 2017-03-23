@@ -44,7 +44,7 @@ class Help:public Modal
 	struct private_tag {};
 
 public:
-	static help_ptr create(const string& Topic,const wchar_t *Mask=nullptr,UINT64 Flags=0);
+	static help_ptr create(const string& Topic, const wchar_t *Mask = nullptr, unsigned long long Flags=0);
 	Help(private_tag);
 	virtual ~Help() override;
 
@@ -58,7 +58,7 @@ public:
 	virtual int GetType() const override { return windowtype_help; }
 	virtual long long VMProcess(int OpCode, void* vParam, long long iParam) override;
 
-	BOOL GetError() const {return ErrorHelp;}
+	bool GetError() const {return ErrorHelp;}
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);
 	static string MakeLink(const string& path, const string& topic);
 
@@ -67,7 +67,7 @@ public:
 private:
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return {}; }
-	void init(const string& Topic, const wchar_t *Mask, UINT64 Flags);
+	void init(const string& Topic, const wchar_t *Mask, unsigned long long Flags);
 	int  ReadHelp(const string& Mask);
 	void AddLine(const string& Line);
 	void AddTitle(const string& Title);

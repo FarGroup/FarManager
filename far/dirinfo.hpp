@@ -48,11 +48,11 @@ enum GETDIRINFOFLAGS
 
 struct DirInfoData
 {
-	UINT64 FileSize;
-	UINT64 AllocationSize;
-	UINT64 FilesSlack;
-	UINT64 MFTOverhead;
-	UINT64 ClusterSize;
+	unsigned long long FileSize;
+	unsigned long long AllocationSize;
+	unsigned long long FilesSlack;
+	unsigned long long MFTOverhead;
+	unsigned long long ClusterSize;
 	DWORD DirCount;
 	DWORD FileCount;
 };

@@ -319,21 +319,6 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 	return false;
 }
 
-FileEditor::FileEditor(private_tag):
-	F4KeyOnly(),
-	AttrStr(),
-	m_FileAttributes(),
-	FileAttributesModified(),
-	m_bClosing(),
-	bEE_READ_Sent(),
-	bLoaded(),
-	m_bAddSignature(),
-	BadConversion(false),
-	m_codepage(CP_DEFAULT),
-	f8cps(false)
-{
-}
-
 fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile)
 {
 	auto FileEditorPtr = std::make_shared<FileEditor>(private_tag());
@@ -469,7 +454,7 @@ void FileEditor::Init(
 		{
 			int SwitchTo=FALSE;
 
-			if (!EditorWindow->GetCanLoseFocus(TRUE) || Global->Opt->Confirm.AllowReedit)
+			if (!EditorWindow->GetCanLoseFocus(true) || Global->Opt->Confirm.AllowReedit)
 			{
 				int MsgCode;
 				if (OpenModeExstFile == EF_OPENMODE_QUERY)
@@ -884,7 +869,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					/* $ 01.02.2001 IS
 					   ! Открываем viewer с указанием длинного имени файла, а не короткого
 					*/
-					int NeedQuestion = 1;
+					bool NeedQuestion = true;
 					if (ProcessQuitKey(FirstSave,NeedQuestion,false))
 					{
 						int delete_on_close = 0;
@@ -896,7 +881,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 						FileViewer::create(
 							strFullFileName,
-							GetCanLoseFocus(), m_Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
+							GetCanLoseFocus(), m_Flags.Check(FFILEEDIT_DISABLEHISTORY), false,
 							FilePos, nullptr, &EditNamesList, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
 							strTitle.empty() ? nullptr : strTitle.data(),
 							delete_on_close, shared_from_this());
@@ -999,7 +984,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			case KEY_F2:
 			case KEY_SHIFTF2:
 			{
-				BOOL Done=FALSE;
+				auto Done = false;
 				const auto strOldCurDir = os::GetCurrentDirectory();
 				while (!Done) // бьемся до упора
 				{
@@ -1079,7 +1064,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					{
 						if (OperationFailed(strFullFileName, lng::MEditTitle, MSG(lng::MEditCannotSave), false) != operation::retry)
 						{
-							Done=TRUE;
+							Done = true;
 							break;
 						}
 					}
@@ -1112,11 +1097,11 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							ShowConsoleTitle();
 							Show();//!!! BUGBUG
 						}
-						Done=TRUE;
+						Done = true;
 					}
 					else
 					{
-						Done=TRUE;
+						Done = true;
 						break;
 					}
 				}
@@ -1202,7 +1187,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			case KEY_ESC:
 			case KEY_F10:
 			{
-				int FirstSave=1, NeedQuestion=1;
+				bool FirstSave = true, NeedQuestion = true;
 
 				if (LocalKey != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
 				{
@@ -1233,16 +1218,16 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							case 0:
 
 								if (!ProcessKey(Manager::Key(KEY_F2))) // попытка сначала сохранить
-									NeedQuestion=0;
+									NeedQuestion = false;
 
-								FirstSave=0;
+								FirstSave = false;
 								break;
 							case 1:
-								NeedQuestion=0;
-								FirstSave=0;
+								NeedQuestion = false;
+								FirstSave = false;
 								break;
 							case 100:
-								FirstSave=NeedQuestion=1;
+								FirstSave = NeedQuestion = true;
 								break;
 							case 2:
 							default:
@@ -1250,7 +1235,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						}
 					}
 					else if (!m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)) //????
-						NeedQuestion=0;
+						NeedQuestion = false;
 				}
 
 				if (!ProcessQuitKey(FirstSave,NeedQuestion))
@@ -1338,7 +1323,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 			if (!detect && ascii_or_empty && ascii2def) {
 				cp = GetDefaultCodePage();
 				if (IsUnicodeCodePage(cp)) {
-					UINT64 file_size = 0;
+					unsigned long long file_size = 0;
 					edit_file.GetSize(file_size);
 					if (file_size > 0)
 						cp = GetACP();
@@ -1398,7 +1383,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 		return need_reload ? EC_CP_CANNOT_RELOAD : EC_CP_CANNOT_SET;
 }
 
-int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion,bool DeleteWindow)
+int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWindow)
 {
 	const auto strOldCurDir = os::GetCurrentDirectory();
 
@@ -1484,10 +1469,10 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 	if (Global->Opt->EdOpt.FileSizeLimit)
 	{
-		UINT64 FileSize=0;
+		unsigned long long FileSize = 0;
 		if (EditFile.GetSize(FileSize))
 		{
-			if (FileSize > static_cast<UINT64>(Global->Opt->EdOpt.FileSizeLimit))
+			if (FileSize > static_cast<unsigned long long>(Global->Opt->EdOpt.FileSizeLimit))
 			{
 				// Ширина = 8 - это будет... в Kb и выше...
 				auto strTempStr1 = FileSizeToStr(FileSize, 8);
@@ -1574,7 +1559,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
 
-		UINT64 FileSize=0;
+		unsigned long long FileSize = 0;
 		EditFile.GetSize(FileSize);
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
@@ -2154,24 +2139,17 @@ void FileEditor::OnDestroy()
 		SaveToCache();
 }
 
-int FileEditor::GetCanLoseFocus(int DynamicMode) const
+bool FileEditor::GetCanLoseFocus(bool DynamicMode) const
 {
-	if (DynamicMode)
+	if (DynamicMode && m_editor->IsFileModified())
 	{
-		if (m_editor->IsFileModified())
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		return m_CanLoseFocus;
+		return false;
 	}
 
-	return TRUE;
+	return window::GetCanLoseFocus();
 }
 
-void FileEditor::SetLockEditor(BOOL LockMode) const
+void FileEditor::SetLockEditor(bool LockMode) const
 {
 	if (LockMode)
 		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
@@ -2199,7 +2177,7 @@ void FileEditor::SetPluginTitle(const string* PluginTitle)
 		strPluginTitle = *PluginTitle;
 }
 
-BOOL FileEditor::SetFileName(const string& NewFileName)
+bool FileEditor::SetFileName(const string& NewFileName)
 {
 	strFileName = NewFileName;
 
@@ -2224,7 +2202,7 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 		strFullFileName += strFileName;
 	}
 
-	return TRUE;
+	return true;
 }
 
 void FileEditor::SetTitle(const string* Title)

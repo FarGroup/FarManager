@@ -179,7 +179,7 @@ public:
 		ArcList.clear();
 	}
 
-	FindFiles::ArcListItem& AddArcListItem(const string& ArcName, plugin_panel* hPlugin, UINT64 dwFlags, const string& RootPath)
+	FindFiles::ArcListItem& AddArcListItem(const string& ArcName, plugin_panel* hPlugin, unsigned long long dwFlags, const string& RootPath)
 	{
 		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 
@@ -851,8 +851,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					// Строка "Содержащих текст"
 					if (!FindFoldersChanged)
 					{
-						BOOL Checked = (Item.Data && *Item.Data)?FALSE:(int)Global->Opt->FindOpt.FindFolders;
-						Dlg->SendMessage( DM_SETCHECK, FAD_CHECKBOX_DIRS, ToPtr(Checked?BSTATE_CHECKED:BSTATE_UNCHECKED));
+						const auto Checked = Item.Data && *Item.Data? false : Global->Opt->FindOpt.FindFolders;
+						Dlg->SendMessage( DM_SETCHECK, FAD_CHECKBOX_DIRS, ToPtr(Checked? BSTATE_CHECKED : BSTATE_UNCHECKED));
 					}
 					return TRUE;
 
@@ -998,7 +998,7 @@ bool background_searcher::LookForString(const string& Name)
 	if (SearchHex)
 		offset = hexFindString.size() - 1;
 
-	UINT64 FileSize=0;
+	unsigned long long FileSize = 0;
 	File.GetSize(FileSize);
 
 	if (SearchInFirst)
@@ -1589,8 +1589,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							string strFindArcName = FindItem->Arc->strArcName;
 							if(!FindItem->Arc->hPlugin)
 							{
-								int SavePluginsOutput=Global->DisablePluginsOutput;
-								Global->DisablePluginsOutput=TRUE;
+								const auto SavePluginsOutput = std::exchange(Global->DisablePluginsOutput, true);
 								{
 									SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 									FindItem->Arc->hPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, OPM_NONE, OFP_SEARCH);
@@ -1849,7 +1848,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 			Dlg->SendMessage(DM_SHOWDIALOG, FALSE, nullptr);
 			Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 			{
-				const auto ShellViewer = FileViewer::create(strSearchFileName, FALSE, FALSE, FALSE, -1, nullptr, (list_count > 1? &ViewList : nullptr));
+				const auto ShellViewer = FileViewer::create(strSearchFileName, false, false, false, -1, nullptr, (list_count > 1? &ViewList : nullptr));
 				ShellViewer->SetEnableF6(TRUE);
 
 				if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
@@ -1946,7 +1945,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_
 			case PACKED_COLUMN:
 			case NUMLINK_COLUMN:
 			{
-				UINT64 StreamsSize=0;
+				unsigned long long StreamsSize = 0;
 				DWORD StreamsCount=0;
 
 				if (Arc)
@@ -2122,8 +2121,8 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 
 	plugin_panel* hArc;
 	{
-		int SavePluginsOutput = Global->DisablePluginsOutput;
-		Global->DisablePluginsOutput = TRUE;
+		const auto SavePluginsOutput = std::exchange(Global->DisablePluginsOutput, true);
+
 		string strArcName = ArcName;
 		{
 			SCOPED_ACTION(auto)(m_Owner->ScopedLock());
@@ -2147,8 +2146,8 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 	FINDAREA SaveSearchMode = SearchMode;
 	FindFiles::ArcListItem* SaveArcItem = m_Owner->itd->GetFindFileArcItem();
 	{
-		int SavePluginsOutput=Global->DisablePluginsOutput;
-		Global->DisablePluginsOutput=TRUE;
+		const auto SavePluginsOutput = std::exchange(Global->DisablePluginsOutput, true);
+
 		// BUGBUG
 		const_cast<FINDAREA&>(SearchMode) = FINDAREA_FROM_CURRENT;
 		OpenPanelInfo Info;
@@ -2345,7 +2344,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 	}
 }
 
-void background_searcher::ScanPluginTree(plugin_panel* hPlugin, UINT64 Flags, int& RecurseLevel)
+void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long long Flags, int& RecurseLevel)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;
@@ -3149,7 +3148,7 @@ background_searcher::background_searcher(
 	const string& FindString,
 	FINDAREA SearchMode,
 	uintptr_t CodePage,
-	UINT64 SearchInFirst,
+	unsigned long long SearchInFirst,
 	bool CmpCase,
 	bool WholeWords,
 	bool SearchInArchives,

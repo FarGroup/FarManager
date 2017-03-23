@@ -79,7 +79,6 @@ public:
 	TVar operator-() const;
 
 	TVar operator+(const TVar&) const;
-	TVar operator-(const TVar&) const;
 	TVar operator%(const TVar&) const;
 
 	TVar& AppendStr(wchar_t);

@@ -828,7 +828,7 @@ void CommandLine::ShowViewEditHistory()
 			{
 				case HR_VIEWER:
 				{
-					FileViewer::create(strStr, TRUE);
+					FileViewer::create(strStr, true);
 					break;
 				}
 
@@ -839,7 +839,7 @@ void CommandLine::ShowViewEditHistory()
 					const auto FEdit = FileEditor::create(strStr, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
 
 					if (Type == HR_EDITOR_RO)
-						FEdit->SetLockEditor(TRUE);
+						FEdit->SetLockEditor(true);
 
 					break;
 				}
@@ -1053,7 +1053,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 		if (!m_Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
 		{
-			ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), FALSE);
+			ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), false);
 			if (Global->Opt->ShowKeyBar)
 			{
 				Global->CtrlObject->Cp()->GetKeybar().Show();

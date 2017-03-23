@@ -88,7 +88,7 @@ public:
 	panel_ptr ChangePanelToFilled(panel_ptr Current, panel_type NewType);
 	panel_ptr ChangePanel(panel_ptr Current, panel_type NewType, int CreateNew, int Force);
 	void GoToFile(const string& FileName);
-	int ChangePanelViewMode(panel_ptr Current, int Mode, BOOL RefreshWindow);
+	bool ChangePanelViewMode(panel_ptr Current, int Mode, bool RefreshWindow);
 	void SetActivePanel(panel_ptr p) { return SetActivePanel(p.get()); }
 	void SetActivePanel(Panel* p);
 

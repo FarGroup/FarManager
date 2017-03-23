@@ -721,7 +721,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			{
 				m_CurDir = Parent()->GetAnotherPanel(this)->GetCurDir();
 				FarChDir(m_CurDir);
-				FileViewer::create(strDizFileName, TRUE);//OT
+				FileViewer::create(strDizFileName, true);
 			}
 
 			Parent()->Redraw();

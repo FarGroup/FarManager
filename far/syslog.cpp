@@ -111,7 +111,7 @@ static int   Indent=0;
 static wchar_t *PrintTime(wchar_t *timebuf,size_t size);
 
 
-static BOOL IsLogON()
+static bool IsLogON()
 {
 	return GetKeyState(VK_SCROLL) != 0;
 }
@@ -151,9 +151,9 @@ static wchar_t *PrintTime(wchar_t *timebuf,size_t size)
 	return timebuf;
 }
 
-static FILE* PrintBaner(FILE *fp,const wchar_t *Category,const wchar_t *Title)
+static FILE* PrintBaner(const wchar_t *Category,const wchar_t *Title)
 {
-	fp=LogStream;
+	auto fp=LogStream;
 
 	if (fp)
 	{
@@ -512,7 +512,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 	if (InternalLog)
 	{
 		OpenSysLog();
-		fp=PrintBaner(fp,L"",Title);
+		fp=PrintBaner(L"", Title);
 	}
 
 	if (fp)
@@ -583,7 +583,7 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 	if (InternalLog)
 	{
 		OpenSysLog();
-		fp=PrintBaner(fp,L"OpenPanelInfo",Title);
+		fp=PrintBaner(L"OpenPanelInfo", Title);
 	}
 
 	if (fp)
@@ -661,7 +661,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 	if (InternalLog)
 	{
 		OpenSysLog();
-		fp=PrintBaner(fp,L"",Title);
+		fp=PrintBaner(L"", Title);
 	}
 
 	if (fp)
@@ -1833,7 +1833,7 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 	if (InternalLog)
 	{
 		OpenSysLog();
-		fp=PrintBaner(fp,L"",Title);
+		fp=PrintBaner(L"", Title);
 	}
 
 	if (fp)
@@ -1917,7 +1917,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 	if (InternalLog)
 	{
 		OpenSysLog();
-		fp=PrintBaner(fp,L"WIN32_FIND_DATA",Title);
+		fp=PrintBaner(L"WIN32_FIND_DATA", Title);
 	}
 
 	if (fp)
@@ -1984,7 +1984,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 		ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
 		fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08lX 0x%08lX\n",12,L"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
 		ULARGE_INTEGER Number = {wfd.nFileSizeLow, wfd.nFileSizeHigh};
-		fwprintf(fp,L"%*s %s  nFileSize             =0x%08lX, 0x%08lX (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,static_cast<UINT64>(Number.QuadPart));
+		fwprintf(fp,L"%*s %s  nFileSize             =0x%08lX, 0x%08lX (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,static_cast<unsigned long long>(Number.QuadPart));
 		fwprintf(fp,L"%*s %s  dwReserved0           =0x%08lX (%lu)\n",12,L"",space,wfd.dwReserved0,wfd.dwReserved0);
 
 		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
@@ -2059,7 +2059,7 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 	if (InternalLog)
 	{
 		OpenSysLog();
-		fp=PrintBaner(fp,L"PanelViewSettings",Title);
+		fp=PrintBaner(L"PanelViewSettings", Title);
 	}
 
 	if (fp)

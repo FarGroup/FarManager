@@ -203,7 +203,7 @@ public:
 		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
 	intptr_t DlgProc(intptr_t Msg,intptr_t Param1,void* Param2);
-	BOOL IsInited() const;
+	bool IsInited() const;
 	virtual bool ProcessEvents() override;
 	void SetId(const GUID& Id);
 	const GUID& GetId() const {return m_Id;}
@@ -254,15 +254,15 @@ private:
 	*/
 	void ChangeFocus2(size_t SetFocusPos);
 	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup) const;
-	BOOL SelectFromEditHistory(const DialogItemEx *CurItem, DlgEdit *EditLine, const string& HistoryName);
+	bool SelectFromEditHistory(const DialogItemEx *CurItem, DlgEdit *EditLine, const string& HistoryName);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine);
 	int AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
 	int ProcessHighlighting(int Key,size_t FocusPos,int Translate);
 	int CheckHighlights(WORD Chr,int StartPos=0);
-	void SelectOnEntry(size_t Pos,BOOL Selected);
+	void SelectOnEntry(size_t Pos, bool Selected);
 	void CheckDialogCoord();
-	BOOL GetItemRect(size_t I,SMALL_RECT& Rect);
+	bool GetItemRect(size_t I,SMALL_RECT& Rect);
 	bool SetItemRect(size_t ID, const SMALL_RECT& Rect);
 	bool SetItemRect(DialogItemEx& item, const SMALL_RECT& Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }

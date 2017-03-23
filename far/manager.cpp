@@ -222,7 +222,7 @@ Manager::~Manager()
   если пользователь продолжил редактировать файл.
   Возвращает TRUE, если все закрыли и можно выходить из фара.
 */
-BOOL Manager::ExitAll()
+bool Manager::ExitAll()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::ExitAll()"));
 
@@ -232,7 +232,7 @@ BOOL Manager::ExitAll()
 		if (i - 1 >= m_windows.size())
 			continue;
 		const auto CurrentWindow = m_windows[i - 1];
-		if (!CurrentWindow->GetCanLoseFocus(TRUE))
+		if (!CurrentWindow->GetCanLoseFocus(true))
 		{
 			ActivateWindow(CurrentWindow);
 			Commit();
@@ -242,12 +242,12 @@ BOOL Manager::ExitAll()
 
 			if (PrevWindoowCount == m_windows.size())
 			{
-				return FALSE;
+				return false;
 			}
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 void Manager::RefreshAll()
@@ -361,7 +361,7 @@ int Manager::GetModalExitCode() const
 /* $ 11.10.2001 IS
    Подсчитать количество окон с указанным именем.
 */
-int Manager::CountWindowsWithName(const string& Name, BOOL IgnoreCase)
+int Manager::CountWindowsWithName(const string& Name, bool IgnoreCase)
 {
 	using CompareFunction = int (*)(const string&, const string&);
 	CompareFunction CaseSenitive = StrCmp, CaseInsensitive = StrCmpI;
@@ -641,8 +641,8 @@ void Manager::ExitMainLoop(int Ask)
 {
 	if (Global->CloseFAR)
 	{
-		Global->CloseFARMenu=TRUE;
-	};
+		Global->CloseFARMenu = true;
+	}
 
 	if (!Ask || !Global->Opt->Confirm.Exit || Message(0, MSG(lng::MQuit),
 		{ MSG(lng::MAskQuit) },
@@ -661,7 +661,7 @@ void Manager::ExitMainLoop(int Ask)
 		}
 		else
 		{
-			Global->CloseFARMenu=FALSE;
+			Global->CloseFARMenu = false;
 		}
 	}
 }

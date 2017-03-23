@@ -112,7 +112,7 @@ struct MenuItemEx
 	}
 
 	string strName;
-	UINT64  Flags;                  // Флаги пункта
+	unsigned long long  Flags;                  // Флаги пункта
 	any UserData;
 	int   ShowPos;
 	DWORD  AccelKey;
@@ -121,7 +121,7 @@ struct MenuItemEx
 	short Idx2;                    // начало 2-й части
 	std::list<std::pair<int, int>> Annotations;
 
-	UINT64 SetCheck(int Value)
+	unsigned long long SetCheck(int Value)
 	{
 		if (Value)
 		{
@@ -138,8 +138,8 @@ struct MenuItemEx
 		return Flags;
 	}
 
-	UINT64 SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-	UINT64 SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+	unsigned long long SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
+	unsigned long long SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
 };
 
 
@@ -224,7 +224,7 @@ public:
 	int InsertItem(const FarListInsert *NewItem);
 	int UpdateItem(const FarListUpdate *NewItem);
 	int FindItem(const FarListFind *FindItem);
-	int FindItem(int StartIndex, const string& Pattern, UINT64 Flags = 0);
+	int FindItem(int StartIndex, const string& Pattern, unsigned long long Flags = 0);
 	void RestoreFilteredItems();
 	void FilterStringUpdated();
 	void FilterUpdateHeight(bool bShrink = false);
@@ -251,12 +251,12 @@ public:
 	int GetCheck(int Position = -1);
 	void SetCheck(int Check, int Position = -1);
 	bool UpdateRequired() const;
-	void UpdateItemFlags(int Pos, UINT64 NewFlags);
+	void UpdateItemFlags(int Pos, unsigned long long NewFlags);
 	MenuItemEx& at(size_t n);
 	MenuItemEx& current() { return at(-1); }
 	void SortItems(bool Reverse = false, int Offset = 0);
 	bool Pack();
-	BOOL GetVMenuInfo(FarListInfo* Info) const;
+	bool GetVMenuInfo(FarListInfo* Info) const;
 	void SetMaxHeight(int NewMaxHeight);
 	size_t GetVDialogItemID() const { return DialogItemID; }
 	void SetVDialogItemID(size_t NewDialogItemID) { DialogItemID = NewDialogItemID; }
@@ -292,12 +292,12 @@ private:
 	int CheckHighlights(wchar_t Chr,int StartPos=0);
 	wchar_t GetHighlights(const MenuItemEx *_item) const;
 	bool ShiftItemShowPos(int Pos,int Direct);
-	bool ItemCanHaveFocus(UINT64 Flags) const;
-	bool ItemCanBeEntered(UINT64 Flags) const;
-	bool ItemIsVisible(UINT64 Flags) const;
+	bool ItemCanHaveFocus(unsigned long long Flags) const;
+	bool ItemCanBeEntered(unsigned long long Flags) const;
+	bool ItemIsVisible(unsigned long long Flags) const;
 	void UpdateMaxLengthFromTitles();
 	void UpdateMaxLength(size_t Length);
-	void UpdateInternalCounters(UINT64 OldFlags, UINT64 NewFlags);
+	void UpdateInternalCounters(unsigned long long OldFlags, unsigned long long NewFlags);
 	bool ShouldSendKeyToFilter(int Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();

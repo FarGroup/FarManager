@@ -377,7 +377,7 @@ enum: MACROFLAGS_MFLAGS
 // для диалога назначения клавиши
 struct DlgParam
 {
-	UINT64 Flags;
+	unsigned long long Flags;
 	DWORD Key;
 	FARMACROAREA Area;
 	int Recurse;
@@ -670,7 +670,7 @@ int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				m_InternalInput=1;
 				DWORD MacroKey;
 				// выставляем флаги по умолчанию.
-				UINT64 Flags=0;
+				unsigned long long Flags = 0;
 				int AssignRet=AssignMacroKey(MacroKey,Flags);
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
@@ -930,7 +930,7 @@ bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,
 	return CallMacroPlugin(&info);
 }
 
-static BOOL CheckEditSelected(FARMACROAREA Area, UINT64 CurFlags)
+static bool CheckEditSelected(FARMACROAREA Area, unsigned long long CurFlags)
 {
 	if (Area==MACROAREA_EDITOR || Area==MACROAREA_DIALOG || Area==MACROAREA_VIEWER || (Area==MACROAREA_SHELL&&Global->CtrlObject->CmdLine()->IsVisible()))
 	{
@@ -946,60 +946,50 @@ static BOOL CheckEditSelected(FARMACROAREA Area, UINT64 CurFlags)
 			else
 				CurSelected=(int)CurrentWindow->VMProcess(MCODE_C_SELECTED);
 
-			if (((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected) ||	((CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected))
-				return FALSE;
+			if ((CurFlags&MFLAGS_EDITSELECTION && !CurSelected) || (CurFlags&MFLAGS_EDITNOSELECTION && CurSelected))
+				return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-static bool CheckCmdLine(bool IsEmpty, UINT64 CurFlags)
+static bool CheckCmdLine(bool IsEmpty, MACROFLAGS_MFLAGS CurFlags)
 {
 	return !(!IsEmpty && (CurFlags&MFLAGS_EMPTYCOMMANDLINE))
 		&& !(IsEmpty && (CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE));
 }
 
-static BOOL CheckPanel(panel_mode PanelMode, UINT64 CurFlags, BOOL IsPassivePanel)
+static bool CheckPanel(panel_mode PanelMode, MACROFLAGS_MFLAGS CurFlags, bool IsPassivePanel)
 {
-	if (IsPassivePanel)
+	static const MACROFLAGS_MFLAGS FlagsMapping[][2] =
 	{
-		if ((PanelMode == panel_mode::PLUGIN_PANEL && (CurFlags&MFLAGS_PNOPLUGINPANELS)) || (PanelMode == panel_mode::NORMAL_PANEL && (CurFlags&MFLAGS_PNOFILEPANELS)))
-			return FALSE;
-	}
-	else
-	{
-		if ((PanelMode == panel_mode::PLUGIN_PANEL && (CurFlags&MFLAGS_NOPLUGINPANELS)) || (PanelMode == panel_mode::NORMAL_PANEL && (CurFlags&MFLAGS_NOFILEPANELS)))
-			return FALSE;
-	}
+		{ MFLAGS_NOFILEPANELS, MFLAGS_NOPLUGINPANELS },
+		{ MFLAGS_PNOFILEPANELS, MFLAGS_PNOPLUGINPANELS },
+	};
 
-	return TRUE;
+	const auto Flag = FlagsMapping[IsPassivePanel? 1 : 0][PanelMode == panel_mode::PLUGIN_PANEL? 1 : 0];
+	return !(CurFlags & Flag);
 }
 
-static BOOL CheckFileFolder(panel_ptr CheckPanel,UINT64 CurFlags, BOOL IsPassivePanel)
+static bool CheckFileFolder(panel_ptr CheckPanel, MACROFLAGS_MFLAGS CurFlags, bool IsPassivePanel)
 {
 	string strFileName;
-	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
-	CheckPanel->GetFileName(strFileName,CheckPanel->GetCurrentPos(),FileAttr);
+	DWORD FileAttr;
+	if (!CheckPanel->GetFileName(strFileName, CheckPanel->GetCurrentPos(), FileAttr))
+		return true;
 
-	if (FileAttr != INVALID_FILE_ATTRIBUTES)
+	static const MACROFLAGS_MFLAGS FlagsMapping[][2] =
 	{
-		if (IsPassivePanel)
-		{
-			if (((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_PNOFOLDERS)) || (!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_PNOFILES)))
-				return FALSE;
-		}
-		else
-		{
-			if (((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_NOFOLDERS)) || (!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (CurFlags&MFLAGS_NOFILES)))
-				return FALSE;
-		}
-	}
+		{ MFLAGS_NOFILES, MFLAGS_NOFOLDERS },
+		{ MFLAGS_PNOFILES, MFLAGS_PNOFOLDERS },
+	};
 
-	return TRUE;
+	const auto Flag = FlagsMapping[IsPassivePanel? 1 : 0][FileAttr & FILE_ATTRIBUTE_DIRECTORY? 1 : 0];
+	return !(CurFlags & Flag);
 }
 
-static BOOL CheckAll (FARMACROAREA Area, UINT64 CurFlags)
+static bool CheckAll(FARMACROAREA Area, MACROFLAGS_MFLAGS CurFlags)
 {
 	/* $TODO:
 		Здесь вместо Check*() попробовать заюзать IfCondition()
@@ -1009,12 +999,11 @@ static BOOL CheckAll (FARMACROAREA Area, UINT64 CurFlags)
 	// проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
 	if (CurFlags&(MFLAGS_EMPTYCOMMANDLINE|MFLAGS_NOTEMPTYCOMMANDLINE))
 		if (Global->CtrlObject->CmdLine() && !CheckCmdLine(Global->CtrlObject->CmdLine()->GetString().empty(), CurFlags))
-			return FALSE;
+			return false;
 
-	FilePanels *Cp=Global->CtrlObject->Cp();
-
+	const auto Cp = Global->CtrlObject->Cp();
 	if (!Cp)
-		return FALSE;
+		return false;
 
 	// проверки панели и типа файла
 	const auto ActivePanel = Cp->ActivePanel();
@@ -1022,41 +1011,39 @@ static BOOL CheckAll (FARMACROAREA Area, UINT64 CurFlags)
 
 	if (ActivePanel && PassivePanel)// && (CurFlags&MFLAGS_MODEMASK)==MACROAREA_SHELL)
 	{
-		if (CurFlags&(MFLAGS_NOPLUGINPANELS|MFLAGS_NOFILEPANELS))
-			if (!CheckPanel(ActivePanel->GetMode(),CurFlags,FALSE))
-				return FALSE;
+		if (CurFlags & (MFLAGS_NOPLUGINPANELS | MFLAGS_NOFILEPANELS))
+			if (!CheckPanel(ActivePanel->GetMode(), CurFlags, false))
+				return false;
 
-		if (CurFlags&(MFLAGS_PNOPLUGINPANELS|MFLAGS_PNOFILEPANELS))
-			if (!CheckPanel(PassivePanel->GetMode(),CurFlags,TRUE))
-				return FALSE;
+		if (CurFlags & (MFLAGS_PNOPLUGINPANELS | MFLAGS_PNOFILEPANELS))
+			if (!CheckPanel(PassivePanel->GetMode(), CurFlags, true))
+				return false;
 
-		if (CurFlags&(MFLAGS_NOFOLDERS|MFLAGS_NOFILES))
-			if (!CheckFileFolder(ActivePanel,CurFlags,FALSE))
-				return FALSE;
+		if (CurFlags & (MFLAGS_NOFOLDERS | MFLAGS_NOFILES))
+			if (!CheckFileFolder(ActivePanel, CurFlags, false))
+				return false;
 
-		if (CurFlags&(MFLAGS_PNOFOLDERS|MFLAGS_PNOFILES))
-			if (!CheckFileFolder(PassivePanel,CurFlags,TRUE))
-				return FALSE;
+		if (CurFlags & (MFLAGS_PNOFOLDERS | MFLAGS_PNOFILES))
+			if (!CheckFileFolder(PassivePanel, CurFlags, true))
+				return false;
 
-		if (CurFlags&(MFLAGS_SELECTION|MFLAGS_NOSELECTION|MFLAGS_PSELECTION|MFLAGS_PNOSELECTION))
-			if (Area!=MACROAREA_EDITOR && Area!=MACROAREA_DIALOG && Area!=MACROAREA_VIEWER)
+		if (CurFlags & (MFLAGS_SELECTION | MFLAGS_NOSELECTION | MFLAGS_PSELECTION | MFLAGS_PNOSELECTION))
+			if (Area != MACROAREA_EDITOR && Area != MACROAREA_DIALOG && Area != MACROAREA_VIEWER)
 			{
-				size_t SelCount=ActivePanel->GetRealSelCount();
+				const auto ActiveSelCount = ActivePanel->GetRealSelCount();
+				if ((CurFlags&MFLAGS_SELECTION && ActiveSelCount < 1) || (CurFlags&MFLAGS_NOSELECTION && ActiveSelCount >= 1))
+					return false;
 
-				if (((CurFlags&MFLAGS_SELECTION) && SelCount < 1) || ((CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1))
-					return FALSE;
-
-				SelCount=PassivePanel->GetRealSelCount();
-
-				if (((CurFlags&MFLAGS_PSELECTION) && SelCount < 1) || ((CurFlags&MFLAGS_PNOSELECTION) && SelCount >= 1))
-					return FALSE;
+				const auto PassiveSelCount = PassivePanel->GetRealSelCount();
+				if ((CurFlags&MFLAGS_PSELECTION && PassiveSelCount < 1) || (CurFlags&MFLAGS_PNOSELECTION && PassiveSelCount >= 1))
+					return false;
 			}
 	}
 
 	if (!CheckEditSelected(Area, CurFlags))
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
@@ -1134,7 +1121,7 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wchar_t *Descr)
+int KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_t *Src, const wchar_t *Descr)
 {
 	/*
 	          1         2         3         4         5         6
@@ -2069,11 +2056,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 							Global->WindowManager->GetCurrentViewer() && Global->WindowManager->GetCurrentViewer()->IsVisible())
 			{
 				if (CheckCode == MCODE_V_VIEWERFILENAME)
-				{
-					string Filename;
-					Global->WindowManager->GetCurrentViewer()->GetFileName(Filename);//GetTypeAndName(nullptr,FileName);
-					return PassString(Filename, Data);
-				}
+					return PassString(Global->WindowManager->GetCurrentViewer()->GetFileName(), Data);
 				else
 					return PassNumber(Global->WindowManager->GetCurrentViewer()->VMProcess(MCODE_V_VIEWERSTATE), Data);
 			}
@@ -2200,16 +2183,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 		case MCODE_F_CHECKALL:
 		{
-			BOOL Result = 0;
+			auto Result = false;
 			if (Data->Count >= 2)
 			{
-				FARMACROAREA Area = (FARMACROAREA)(int)Data->Values[0].Double;
-				MACROFLAGS_MFLAGS Flags = (MACROFLAGS_MFLAGS)Data->Values[1].Double;
-				FARMACROCALLBACK Callback = (Data->Count>=3 && Data->Values[2].Type==FMVT_POINTER) ?
-					(FARMACROCALLBACK)Data->Values[2].Pointer : nullptr;
-				void* CallbackId = (Data->Count>=4  && Data->Values[3].Type==FMVT_POINTER) ?
-					Data->Values[3].Pointer : nullptr;
-				Result = CheckAll(Area, Flags) && (!Callback || Callback(CallbackId,AKMFLAGS_NONE));
+				const auto Area = static_cast<FARMACROAREA>(static_cast<int>(Data->Values[0].Double));
+				const auto Flags = static_cast<MACROFLAGS_MFLAGS>(static_cast<int>(Data->Values[1].Double));
+				const auto Callback = (Data->Count >= 3 && Data->Values[2].Type == FMVT_POINTER)? reinterpret_cast<FARMACROCALLBACK>(Data->Values[2].Pointer) : nullptr;
+				const auto CallbackId = (Data->Count >= 4 && Data->Values[3].Type == FMVT_POINTER)? Data->Values[3].Pointer : nullptr;
+				Result = CheckAll(Area, Flags) && (!Callback || Callback(CallbackId, AKMFLAGS_NONE));
 			}
 			PassBoolean(Result, Data);
 			return 0;
@@ -2289,7 +2270,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				&& Data->Values[2].Type==FMVT_STRING && Data->Values[3].Type==FMVT_STRING)
 			{
 				int Key = KeyNameToKey(Data->Values[0].String);
-				UINT64 Flags = (UINT64)Data->Values[1].Double;
+				auto Flags = static_cast<unsigned long long>(Data->Values[1].Double);
 				const wchar_t *Src = Data->Values[2].String;
 				const wchar_t *Descr = Data->Values[3].String;
 				if (GetMacroSettings(Key, Flags, Src, Descr))
@@ -2561,7 +2542,7 @@ static bool substrFunc(FarMacroCall* Data)
 	return Ret;
 }
 
-static BOOL SplitFileName(const string& lpFullName,string &strDest,int nFlags)
+static bool SplitFileName(const string& lpFullName, string& strDest, int nFlags)
 {
 	enum
 	{
@@ -2576,7 +2557,7 @@ static BOOL SplitFileName(const string& lpFullName,string &strDest,int nFlags)
 	const wchar_t *e; //end of sub-string
 
 	if (!*p)
-		return FALSE;
+		return false;
 
 	if ((*p == L'\\') && (*(p+1) == L'\\'))   //share
 	{
@@ -2584,7 +2565,7 @@ static BOOL SplitFileName(const string& lpFullName,string &strDest,int nFlags)
 		p = wcschr(p, L'\\');
 
 		if (!p)
-			return FALSE; //invalid share (\\server\)
+			return false; //invalid share (\\server\)
 
 		p = wcschr(p+1, L'\\');
 
@@ -2673,7 +2654,7 @@ static BOOL SplitFileName(const string& lpFullName,string &strDest,int nFlags)
 	if (nFlags & FLAG_EXT)
 		strDest+=e;
 
-	return TRUE;
+	return true;
 }
 
 
@@ -2999,7 +2980,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	auto Params = parseParams(1, Data);
 	DWORD dwLayout = (DWORD)Params[0].asInteger();
 
-	BOOL Ret=TRUE;
+	auto Ret = true;
 	HKL RetLayout = nullptr;
 
 	wchar_t LayoutName[1024]={}; // BUGBUG!!!
@@ -3033,12 +3014,12 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 			Layout=(HKL)(intptr_t)(HIWORD(dwLayout)? dwLayout : MAKELONG(dwLayout,dwLayout));
 		}
 
-		Ret=PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, wParam, (LPARAM)Layout);
+		Ret = PostMessage(hWnd, WM_INPUTLANGCHANGEREQUEST, wParam, (LPARAM)Layout) != FALSE;
 	}
 
 	PassNumber(Ret? reinterpret_cast<intptr_t>(RetLayout) : 0, Data);
 
-	return Ret != FALSE;
+	return Ret;
 }
 
 // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
@@ -3197,7 +3178,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	size_t CurrentPos=0;
 	size_t PosLF;
 	ReplaceStrings(strTitle,L"\r\n",L"\n");
-	PosLF = strTitle.find(L"\n");
+	PosLF = strTitle.find(L'\n');
 	bool CRFound = PosLF != string::npos;
 
 	if(CRFound)
@@ -3211,7 +3192,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	Menu->SetPosition(X,Y,0,0);
 	Menu->SetBoxType(BoxType);
 
-	PosLF = strItems.find(L"\n");
+	PosLF = strItems.find(L'\n');
 	CRFound = PosLF != string::npos;
 
 	while(CRFound)
@@ -3257,7 +3238,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		}
 		Menu->AddItem(NewItem);
 		CurrentPos=PosLF+1;
-		PosLF = strItems.find(L"\n",CurrentPos);
+		PosLF = strItems.find(L'\n', CurrentPos);
 		CRFound = PosLF != string::npos;
 	}
 
@@ -4047,44 +4028,63 @@ static bool editorsetFunc(FarMacroCall* Data)
 
 		switch (Index)
 		{
-			case 0:  // TabSize;
-				Ret=(long long)EdOpt.TabSize; break;
-			case 1:  // ExpandTabs;
-				Ret=(long long)EdOpt.ExpandTabs; break;
-			case 2:  // PersistentBlocks;
-				Ret=(long long)EdOpt.PersistentBlocks; break;
-			case 3:  // DelRemovesBlocks;
-				Ret=(long long)EdOpt.DelRemovesBlocks; break;
-			case 4:  // AutoIndent;
-				Ret=(long long)EdOpt.AutoIndent; break;
-			case 5:  // AutoDetectCodePage;
-				Ret=(long long)EdOpt.AutoDetectCodePage; break;
-			case 7:  // CursorBeyondEOL;
-				Ret=(long long)EdOpt.CursorBeyondEOL; break;
-			case 8:  // BSLikeDel;
-				Ret=(long long)EdOpt.BSLikeDel; break;
-			case 9:  // CharCodeBase;
-				Ret=(long long)EdOpt.CharCodeBase; break;
-			case 10: // SavePos;
-				Ret=(long long)EdOpt.SavePos; break;
-			case 11: // SaveShortPos;
-				Ret=(long long)EdOpt.SaveShortPos; break;
-			case 12: // char WordDiv[256];
-				Ret=TVar(EdOpt.strWordDiv); break;
-			case 14: // AllowEmptySpaceAfterEof;
-				Ret=(long long)EdOpt.AllowEmptySpaceAfterEof; break;
-			case 15: // ShowScrollBar;
-				Ret=(long long)EdOpt.ShowScrollBar; break;
-			case 16: // EditOpenedForWrite;
-				Ret=(long long)EdOpt.EditOpenedForWrite; break;
-			case 17: // SearchSelFound;
-				Ret=(long long)EdOpt.SearchSelFound; break;
-			case 18: // SearchRegexp;
-				Ret=(long long)EdOpt.SearchRegexp; break;
-			case 20: // ShowWhiteSpace;
-				Ret=static_cast<INT64>(EdOpt.ShowWhiteSpace); break;
-			default:
-				Ret=(long long)-1L;
+		case 0:  // TabSize;
+			Ret = EdOpt.TabSize;
+			break;
+		case 1:  // ExpandTabs;
+			Ret = EdOpt.ExpandTabs;
+			break;
+		case 2:  // PersistentBlocks;
+			Ret = EdOpt.PersistentBlocks;
+			break;
+		case 3:  // DelRemovesBlocks;
+			Ret = EdOpt.DelRemovesBlocks;
+			break;
+		case 4:  // AutoIndent;
+			Ret = EdOpt.AutoIndent;
+			break;
+		case 5:  // AutoDetectCodePage;
+			Ret = EdOpt.AutoDetectCodePage;
+			break;
+		case 7:  // CursorBeyondEOL;
+			Ret = EdOpt.CursorBeyondEOL;
+			break;
+		case 8:  // BSLikeDel;
+			Ret = EdOpt.BSLikeDel;
+			break;
+		case 9:  // CharCodeBase;
+			Ret = EdOpt.CharCodeBase;
+			break;
+		case 10: // SavePos;
+			Ret = EdOpt.SavePos;
+			break;
+		case 11: // SaveShortPos;
+			Ret = EdOpt.SaveShortPos;
+			break;
+		case 12: // char WordDiv[256];
+			Ret = TVar(EdOpt.strWordDiv);
+			break;
+		case 14: // AllowEmptySpaceAfterEof;
+			Ret = EdOpt.AllowEmptySpaceAfterEof;
+			break;
+		case 15: // ShowScrollBar;
+			Ret = EdOpt.ShowScrollBar;
+			break;
+		case 16: // EditOpenedForWrite;
+			Ret = EdOpt.EditOpenedForWrite;
+			break;
+		case 17: // SearchSelFound;
+			Ret = EdOpt.SearchSelFound;
+			break;
+		case 18: // SearchRegexp;
+			Ret = EdOpt.SearchRegexp;
+			break;
+		case 20: // ShowWhiteSpace;
+			Ret = EdOpt.ShowWhiteSpace;
+			break;
+		default:
+			Ret = -1;
+			break;
 		}
 
 		if (longState != -1)
@@ -5254,7 +5254,7 @@ M1:
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
+int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 {
 	/*
 	  +------ Define macro ------+

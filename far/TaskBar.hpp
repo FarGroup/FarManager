@@ -41,7 +41,7 @@ class taskbar: noncopyable
 public:
 	TBPFLAG GetProgressState() const;
 	void SetProgressState(TBPFLAG tbpFlags);
-	void SetProgressValue(UINT64 Completed, UINT64 Total);
+	void SetProgressValue(unsigned long long Completed, unsigned long long Total);
 	static void Flash();
 
 private:

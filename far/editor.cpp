@@ -1906,7 +1906,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			bool ReplaceAll0=ReplaceAll;
 			ReplaceMode=ReplaceAll=false;
 
-			if (!Search(FALSE))
+			if (!Search(false))
 			{
 				ReplaceMode=ReplaceMode0;
 				ReplaceAll=ReplaceAll0;
@@ -1924,7 +1924,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				ReplaceMode = true;
 				ReplaceAll = false;
 
-				if (!Search(FALSE))
+				if (!Search(false))
 				{
 					ReplaceMode=ReplaceMode0;
 					ReplaceAll=ReplaceAll0;
@@ -1944,7 +1944,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			*/
 			//ReplaceMode=FALSE;
 			TurnOffMarkingBlock();
-			Search(TRUE);
+			Search(true);
 			return true;
 		}
 		case KEY_ALTF7:
@@ -1953,7 +1953,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			TurnOffMarkingBlock();
 			bool LastSearchReversePrev = LastSearchReverse;
 			LastSearchReverse = !LastSearchReverse;
-			Search(TRUE);
+			Search(true);
 			LastSearchReverse = LastSearchReversePrev;
 			return true;
 		}
@@ -3293,7 +3293,7 @@ private:
 	Editor* m_Owner;
 };
 
-BOOL Editor::Search(int Next)
+bool Editor::Search(bool Next)
 {
 	string strSearchStr, strReplaceStr;
 	static string strLastReplaceStr;
@@ -3302,7 +3302,7 @@ BOOL Editor::Search(int Next)
 	std::unique_ptr<undo_block> UndoBlock;
 
 	if (Next && strLastSearchStr.empty())
-		return TRUE;
+		return true;
 
 	strSearchStr = strLastSearchStr;
 	strReplaceStr = strLastReplaceStr;
@@ -3366,7 +3366,7 @@ BOOL Editor::Search(int Next)
 					ReplaceMode? &EditorReplaceId : &EditorSearchId, Picker);
 		if (!DlgResult)
 		{
-			return FALSE;
+			return false;
 		}
 		else if(DlgResult == 2)
 		{
@@ -3388,7 +3388,7 @@ BOOL Editor::Search(int Next)
 	}
 
 	if (strSearchStr.empty())
-		return TRUE;
+		return true;
 
 	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
 		UnmarkBlock();
@@ -3440,7 +3440,7 @@ BOOL Editor::Search(int Next)
 			if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
 			{
 				ReCompileErrorMessage(re, strSlash);
-				return FALSE; //BUGBUG
+				return false; //BUGBUG
 			}
 			m.resize(re.GetBracketsCount() * 2);
 		}
@@ -3860,7 +3860,7 @@ BOOL Editor::Search(int Next)
 		Message(MSG_WARNING,1,MSG(lng::MEditSearchTitle),MSG(lng::MEditNotFound),
 		        strMsgStr.data(),MSG(lng::MOk));
 
-	return TRUE;
+	return true;
 }
 
 void Editor::PasteFromClipboard()

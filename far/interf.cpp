@@ -188,8 +188,8 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		return TRUE;
 
 	case CTRL_CLOSE_EVENT:
-		Global->CloseFAR=TRUE;
-		Global->AllowCancelExit=FALSE;
+		Global->CloseFAR = true;
+		Global->AllowCancelExit = false;
 
 		// trick to let wmain() finish correctly
 		ExitThread(1);
@@ -395,7 +395,7 @@ void CloseConsole()
 }
 
 
-void SetFarConsoleMode(BOOL SetsActiveBuffer)
+void SetFarConsoleMode(bool SetsActiveBuffer)
 {
 	// Inherit existing mode. We don't want to build these flags from scratch,
 	// as MS might introduce some new flags in future Windows versions.
@@ -998,17 +998,17 @@ void Box(int x1,int y1,int x2,int y2,const FarColor& Color,int Type)
 	Text(Buffer.data(), Buffer.size());
 }
 
-bool ScrollBarRequired(UINT Length, UINT64 ItemsCount)
+bool ScrollBarRequired(UINT Length, unsigned long long ItemsCount)
 {
 	return Length >= 2 && ItemsCount && Length<ItemsCount;
 }
 
-bool ScrollBarEx(UINT X1, UINT Y1, UINT Length, UINT64 TopItem, UINT64 ItemsCount)
+bool ScrollBarEx(UINT X1, UINT Y1, UINT Length, unsigned long long TopItem, unsigned long long ItemsCount)
 {
 	return ScrollBarRequired(Length, ItemsCount) && ScrollBarEx3(X1, Y1, Length, TopItem,TopItem+Length,ItemsCount);
 }
 
-bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, UINT64 Start, UINT64 End, UINT64 Size)
+bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsigned long long End, unsigned long long Size)
 {
 	if ( Length < 2)
 		return false;
@@ -1196,7 +1196,7 @@ size_t HiStrlen(const string& str)
 
 }
 
-int HiFindRealPos(const string& str, int Pos, BOOL ShowAmp)
+int HiFindRealPos(const string& str, int Pos, bool ShowAmp)
 {
 	/*
 			&&      = '&'

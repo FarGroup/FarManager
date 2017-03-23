@@ -93,14 +93,14 @@ public:
 	если пользователь продолжил редактировать файл.
 	Возвращает TRUE, если все закрыли и можно выходить из фара.
 	*/
-	BOOL ExitAll();
+	bool ExitAll();
 	size_t GetWindowCount()const { return m_windows.size(); }
 	int  GetWindowCountByType(int Type);
 	/*$ 26.06.2001 SKV
 	Для вызова через ACTL_COMMIT
 	*/
 	void PluginCommit();
-	int CountWindowsWithName(const string& Name, BOOL IgnoreCase = TRUE);
+	int CountWindowsWithName(const string& Name, bool IgnoreCase = true);
 	bool IsPanelsActive(bool and_not_qview = false, bool or_autocomplete = false) const;
 	window_ptr FindWindowByFile(int ModalType, const string& FileName, const wchar_t *Dir = nullptr);
 	void EnterMainLoop();

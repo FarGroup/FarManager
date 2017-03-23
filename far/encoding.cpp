@@ -81,10 +81,10 @@ public:
 			{
 				string cp_data(cpix.CodePageName);
 				// Windows: "XXXX (Name)", Wine: "Name"
-				const auto OpenBracketPos = cp_data.find(L"(");
+				const auto OpenBracketPos = cp_data.find(L'(');
 				if (OpenBracketPos != string::npos)
 				{
-					const auto CloseBracketPos = cp_data.rfind(L")");
+					const auto CloseBracketPos = cp_data.rfind(L')');
 					if (CloseBracketPos != string::npos && CloseBracketPos > OpenBracketPos)
 					{
 						cp_data = cp_data.substr(OpenBracketPos + 1, CloseBracketPos - OpenBracketPos - 1);

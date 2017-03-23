@@ -47,10 +47,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "local.hpp"
 
-BOOL FarChDir(const string& NewDir, BOOL ChangeDir)
+bool FarChDir(const string& NewDir, bool ChangeDir)
 {
 	if (NewDir.empty())
-		return FALSE;
+		return false;
 
 	bool rc = false;
 	string Drive(L"=A:");

@@ -337,7 +337,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 		if (!HelpTopic)
 			HelpTopic = L"Contents";
 
-		UINT64 OFlags = Flags;
+		auto OFlags = Flags;
 		Flags &= ~(FHELP_NOSHOWERROR | FHELP_USECONTENTS);
 		string strTopic;
 		string strMask;
@@ -720,7 +720,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_QUIT:
-			Global->CloseFARMenu=TRUE;
+			Global->CloseFARMenu = true;
 			Global->WindowManager->ExitMainLoop(FALSE);
 			return TRUE;
 
@@ -1630,7 +1630,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Global->WindowManager->ManagerIsDown())
 			return FALSE;
 
-		int DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
+		const auto DisableHistory = (Flags & VF_DISABLEHISTORY) != 0;
 
 		// $ 15.05.2002 SKV - Запретим вызов немодального редактора viewer-а из модального.
 		if (Global->WindowManager->InModal())
@@ -1641,7 +1641,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		if (Flags & VF_NONMODAL)
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			const auto Viewer = FileViewer::create(FileName, TRUE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
+			const auto Viewer = FileViewer::create(FileName, true, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
 
 			if (!Viewer)
 				return FALSE;
@@ -1673,7 +1673,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		else
 		{
 			/* 09.09.2001 IS ! Добавим имя файла в историю, если потребуется */
-			const auto Viewer = FileViewer::create(FileName, FALSE, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
+			const auto Viewer = FileViewer::create(FileName, false, DisableHistory, Title, X1, Y1, X2, Y2, CodePage);
 
 			Viewer->SetEnableF6(Flags & VF_ENABLE_F6);
 
@@ -2844,7 +2844,7 @@ size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix) n
 	try
 	{
 		string strDest;
-		if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && DestSize)
+		if (FarMkTempEx(strDest, Prefix, true) && Dest && DestSize)
 		{
 			xwcsncpy(Dest, strDest.data(), DestSize);
 		}
@@ -2923,12 +2923,9 @@ BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, FarColo
 {
 	try
 	{
-		BOOL Result = FALSE;
-		if (!Global->WindowManager->ManagerIsDown())
-		{
-			Result = Console().GetColorDialog(*Color, true, false);
-		}
-		return Result;
+		return !Global->WindowManager->ManagerIsDown()?
+			Console().GetColorDialog(*Color, true, false):
+			FALSE;
 	}
 	catch (...)
 	{
@@ -3028,7 +3025,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE 
 		}
 
 		if (Result && !(Flags&MLF_DONOTUPDATEPANEL))
-			ShellUpdatePanels(nullptr, FALSE);
+			ShellUpdatePanels(nullptr, false);
 
 		return Result;
 	}

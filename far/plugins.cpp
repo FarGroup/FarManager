@@ -1361,7 +1361,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				for (const auto& i: SortedPlugins)
 				{
 					bool bCached = i->CheckWorkFlags(PIWF_CACHED);
-					UINT64 IFlags;
+					unsigned long long IFlags;
 					unsigned long long id = 0;
 
 					PluginInfo Info = {sizeof(Info)};
@@ -1871,8 +1871,8 @@ void PluginManager::LoadIfCacheAbsent() const
 //template parameters must have external linkage
 struct PluginData
 {
-	Plugin *pPlugin;
-	UINT64 PluginFlags;
+	Plugin* pPlugin;
+	unsigned long long PluginFlags;
 };
 
 int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Target)
@@ -1892,7 +1892,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 
 	for (const auto& i: SortedPlugins)
 	{
-		UINT64 PluginFlags=0;
+		unsigned long long PluginFlags = 0;
 
 		if (i->CheckWorkFlags(PIWF_CACHED))
 		{
@@ -2081,206 +2081,211 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 }
 
 // поддержка макрофункций plugin.call, plugin.cmd, plugin.config и т.п
-int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
+bool PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 {
-	BOOL Result=FALSE;
+	auto Result = false;
 
-	if (!Global->ProcessException)
+	if (Global->ProcessException)
+		return false;
+
+	const auto curType = Global->WindowManager->GetCurrentWindow()->GetType();
+
+	if (curType==windowtype_dialog && std::static_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow())->CheckDialogMode(DMODE_NOPLUGINS))
+		return false;
+
+	const auto Editor = curType == windowtype_editor;
+	const auto Viewer = curType == windowtype_viewer;
+	const auto Dialog = curType == windowtype_dialog;
+
+	if (Data->CallFlags & CPT_CHECKONLY)
 	{
-		int curType = Global->WindowManager->GetCurrentWindow()->GetType();
+		Data->pPlugin = FindPlugin(Guid);
+		if (!Data->pPlugin || !Data->pPlugin->Load())
+			return false;
 
-		if (curType==windowtype_dialog)
+		// Разрешен ли вызов данного типа в текущей области (предварительная проверка)
+		switch (Data->CallFlags & CPT_MASK)
 		{
-			if (std::static_pointer_cast<Dialog>(Global->WindowManager->GetCurrentWindow())->CheckDialogMode(DMODE_NOPLUGINS))
-			{
-				return FALSE;
-			}
+		case CPT_MENU:
+			if (!Data->pPlugin->has(iOpen))
+				return false;
+			break;
+
+		case CPT_CONFIGURE:
+			//TODO: Автокомплит не влияет?
+			if (curType!=windowtype_panels)
+				return false;
+
+			if (!Data->pPlugin->has(iConfigure))
+				return false;
+			break;
+
+		case CPT_CMDLINE:
+			//TODO: Автокомплит не влияет?
+			if (curType!=windowtype_panels)
+				return false;
+
+			//TODO: OpenPanel или OpenFilePlugin?
+			if (!Data->pPlugin->has(iOpen))
+				return false;
+			break;
+
+		case CPT_INTERNAL:
+			//TODO: Уточнить функцию
+			if (!Data->pPlugin->has(iOpen))
+				return false;
+			break;
+
+		default:
+			break;
 		}
 
-		bool Editor = curType==windowtype_editor;
-		bool Viewer = curType==windowtype_viewer;
-		bool Dialog = curType==windowtype_dialog;
+		PluginInfo Info{sizeof(Info)};
+		if (!Data->pPlugin->GetPluginInfo(&Info))
+			return false;
 
-		if (Data->CallFlags & CPT_CHECKONLY)
+		auto IFlags = Info.Flags;
+		PluginMenuItem* MenuItems = nullptr;
+
+		// Разрешен ли вызов данного типа в текущей области
+		switch (Data->CallFlags & CPT_MASK)
 		{
-			Data->pPlugin = FindPlugin(Guid);
-			if (Data->pPlugin && Data->pPlugin->Load())
-			{
-				// Разрешен ли вызов данного типа в текущей области (предварительная проверка)
-				switch ((Data->CallFlags & CPT_MASK))
-				{
-					case CPT_MENU:
-						if (!Data->pPlugin->has(iOpen))
-							return FALSE;
-						break;
-					case CPT_CONFIGURE:
-						if (curType!=windowtype_panels)
-						{
-							//TODO: Автокомплит не влияет?
-							return FALSE;
-						}
-						if (!Data->pPlugin->has(iConfigure))
-							return FALSE;
-						break;
-					case CPT_CMDLINE:
-						if (curType!=windowtype_panels)
-						{
-							//TODO: Автокомплит не влияет?
-							return FALSE;
-						}
-						//TODO: OpenPanel или OpenFilePlugin?
-						if (!Data->pPlugin->has(iOpen))
-							return FALSE;
-						break;
-					case CPT_INTERNAL:
-						//TODO: Уточнить функцию
-						if (!Data->pPlugin->has(iOpen))
-							return FALSE;
-						break;
-				}
+		case CPT_MENU:
+			if (
+				(Editor && !(IFlags & PF_EDITOR)) ||
+				(Viewer && !(IFlags & PF_VIEWER)) ||
+				(Dialog && !(IFlags & PF_DIALOG)) ||
+				(!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
+				return false;
 
-				UINT64 IFlags;
-				PluginInfo Info = {sizeof(Info)};
-				if (!Data->pPlugin->GetPluginInfo(&Info))
-					return FALSE;
-				else
-					IFlags = Info.Flags;
+			MenuItems = &Info.PluginMenu;
+			break;
 
-				PluginMenuItem *MenuItems=nullptr;
+		case CPT_CONFIGURE:
+			MenuItems = &Info.PluginConfig;
+			break;
 
-				// Разрешен ли вызов данного типа в текущей области
-				switch ((Data->CallFlags & CPT_MASK))
-				{
-					case CPT_MENU:
-						if ((Editor && !(IFlags & PF_EDITOR)) ||
-								(Viewer && !(IFlags & PF_VIEWER)) ||
-								(Dialog && !(IFlags & PF_DIALOG)) ||
-								(!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
-							return FALSE;
-						MenuItems = &Info.PluginMenu;
-						break;
-					case CPT_CONFIGURE:
-						MenuItems = &Info.PluginConfig;
-						break;
-					case CPT_CMDLINE:
-						if (!Info.CommandPrefix || !*Info.CommandPrefix)
-							return FALSE;
-						break;
-					case CPT_INTERNAL:
-						break;
-				}
+		case CPT_CMDLINE:
+			if (!Info.CommandPrefix || !*Info.CommandPrefix)
+				return false;
+			break;
 
-				if ((Data->CallFlags & CPT_MASK)==CPT_MENU || (Data->CallFlags & CPT_MASK)==CPT_CONFIGURE)
-				{
-					bool ItemFound = false;
-					if (Data->ItemGuid==nullptr)
-					{
-						if (MenuItems->Count==1)
-						{
-							Data->FoundGuid=MenuItems->Guids[0];
-							Data->ItemGuid=&Data->FoundGuid;
-							ItemFound=true;
-						}
-					}
-					else
-					{
-						if (contains(make_range(MenuItems->Guids, MenuItems->Count), *Data->ItemGuid))
-						{
-							Data->FoundGuid = *Data->ItemGuid;
-							Data->ItemGuid = &Data->FoundGuid;
-							ItemFound=true;
-						}
-					}
-					if (!ItemFound)
-						return FALSE;
-				}
+		case CPT_INTERNAL:
+			break;
 
-				Result=TRUE;
-			}
+		default:
+			break;
 		}
-		else
+
+		if ((Data->CallFlags & CPT_MASK)==CPT_MENU || (Data->CallFlags & CPT_MASK)==CPT_CONFIGURE)
 		{
-			if (!Data->pPlugin)
-				return FALSE;
-
-			plugin_panel* hPlugin=nullptr;
-			panel_ptr ActivePanel;
-
-			switch ((Data->CallFlags & CPT_MASK))
+			auto ItemFound = false;
+			if (!Data->ItemGuid)
 			{
-				case CPT_MENU:
+				if (MenuItems->Count == 1)
 				{
-					ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-					int OpenCode=OPEN_PLUGINSMENU;
-					intptr_t Item=0;
-					OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
-
-					if (Editor)
-					{
-						OpenCode=OPEN_EDITOR;
-					}
-					else if (Viewer)
-					{
-						OpenCode=OPEN_VIEWER;
-					}
-					else if (Dialog)
-					{
-						OpenCode=OPEN_DIALOG;
-						pd.hDlg=(HANDLE)Global->WindowManager->GetCurrentWindow().get();
-						Item=(intptr_t)&pd;
-					}
-
-					hPlugin=Open(Data->pPlugin,OpenCode,Data->FoundGuid,Item);
-
-					Result=TRUE;
-					break;
+					Data->FoundGuid = MenuItems->Guids[0];
+					Data->ItemGuid = &Data->FoundGuid;
+					ItemFound = true;
 				}
-
-				case CPT_CONFIGURE:
-					Global->CtrlObject->Plugins->ConfigureCurrent(Data->pPlugin,Data->FoundGuid);
-					return TRUE;
-
-				case CPT_CMDLINE:
-				{
-					ActivePanel=Global->CtrlObject->Cp()->ActivePanel();
-					string command=Data->Command; // Нужна копия строки
-					OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),command.data()};
-					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
-
-					Result=TRUE;
-					break;
-				}
-				case CPT_INTERNAL:
-					//TODO: бывший CallPlugin
-					//WARNING: учесть, что он срабатывает без переключения MacroState
-					break;
 			}
-
-			if (hPlugin && !Editor && !Viewer && !Dialog)
+			else
 			{
-				//BUGBUG: Закрытие панели? Нужно ли оно?
-				//BUGBUG: В ProcessCommandLine зовется перед Open, а в CPT_MENU - после
-				if (ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
+				if (contains(make_range(MenuItems->Guids, MenuItems->Count), *Data->ItemGuid))
 				{
-					ClosePanel(hPlugin);
-					return FALSE;
+					Data->FoundGuid = *Data->ItemGuid;
+					Data->ItemGuid = &Data->FoundGuid;
+					ItemFound = true;
 				}
-
-				const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
-				NewPanel->SetPluginMode(hPlugin,L"",true);
-				NewPanel->Update(0);
-				NewPanel->Show();
 			}
-
-			// restore title for old plugins only.
-			#ifndef NO_WRAPPER
-			if (Data->pPlugin->IsOemPlugin() && Editor && Global->WindowManager->GetCurrentEditor())
-			{
-				Global->WindowManager->GetCurrentEditor()->SetPluginTitle(nullptr);
-			}
-			#endif // NO_WRAPPER
+			if (!ItemFound)
+				return false;
 		}
+
+		return true;
 	}
+
+	if (!Data->pPlugin)
+		return false;
+
+	plugin_panel* hPlugin = nullptr;
+	panel_ptr ActivePanel;
+
+	switch (Data->CallFlags & CPT_MASK)
+	{
+	case CPT_MENU:
+		{
+			ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
+			auto OpenCode = OPEN_PLUGINSMENU;
+			intptr_t Item = 0;
+			OpenDlgPluginData pd { sizeof(pd) };
+
+			if (Editor)
+			{
+				OpenCode = OPEN_EDITOR;
+			}
+			else if (Viewer)
+			{
+				OpenCode = OPEN_VIEWER;
+			}
+			else if (Dialog)
+			{
+				OpenCode = OPEN_DIALOG;
+				pd.hDlg = static_cast<HANDLE>(Global->WindowManager->GetCurrentWindow().get());
+				Item = reinterpret_cast<intptr_t>(&pd);
+			}
+
+			hPlugin=Open(Data->pPlugin,OpenCode,Data->FoundGuid,Item);
+			Result = true;
+		}
+		break;
+
+	case CPT_CONFIGURE:
+		Global->CtrlObject->Plugins->ConfigureCurrent(Data->pPlugin,Data->FoundGuid);
+		return true;
+
+	case CPT_CMDLINE:
+		{
+			ActivePanel=Global->CtrlObject->Cp()->ActivePanel();
+			string command=Data->Command; // Нужна копия строки
+			OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),command.data()};
+			hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
+			Result = true;
+		}
+		break;
+
+	case CPT_INTERNAL:
+		//TODO: бывший CallPlugin
+		//WARNING: учесть, что он срабатывает без переключения MacroState
+		break;
+
+	default:
+		break;
+	}
+
+	if (hPlugin && !Editor && !Viewer && !Dialog)
+	{
+		//BUGBUG: Закрытие панели? Нужно ли оно?
+		//BUGBUG: В ProcessCommandLine зовется перед Open, а в CPT_MENU - после
+		if (ActivePanel->ProcessPluginEvent(FE_CLOSE, nullptr))
+		{
+			ClosePanel(hPlugin);
+			return false;
+		}
+
+		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
+		NewPanel->SetPluginMode(hPlugin, L"", true);
+		NewPanel->Update(0);
+		NewPanel->Show();
+	}
+
+	// restore title for old plugins only.
+#ifndef NO_WRAPPER
+	if (Data->pPlugin->IsOemPlugin() && Editor && Global->WindowManager->GetCurrentEditor())
+	{
+		Global->WindowManager->GetCurrentEditor()->SetPluginTitle(nullptr);
+	}
+#endif // NO_WRAPPER
 
 	return Result;
 }

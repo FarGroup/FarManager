@@ -44,15 +44,7 @@ static int windowID=0;
 
 window::window():
 	ScreenObjectWithShadow(nullptr),
-	m_ID(windowID++),
-	m_CanLoseFocus(FALSE),
-	m_ExitCode(-1),
-	m_KeyBarVisible(0),
-	m_TitleBarVisible(0),
-	m_windowKeyBar(nullptr),
-	m_Deleting(false),
-	m_BlockCounter(0),
-	m_MacroArea(MACROAREA_OTHER)
+	m_ID(windowID++)
 {
 	_OT(SysLog(L"[%p] window::window()", this));
 }
@@ -68,7 +60,7 @@ void window::UpdateKeyBar() const
 		m_windowKeyBar->RedrawIfChanged();
 }
 
-int window::IsTopWindow() const
+bool window::IsTopWindow() const
 {
 	return Global->WindowManager->GetCurrentWindow().get() == this;
 }

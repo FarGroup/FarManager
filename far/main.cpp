@@ -166,7 +166,7 @@ static int MainProcess(
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
 			else if (!vname.empty())
 			{
-				const auto ShellViewer = FileViewer::create(vname, TRUE);
+				const auto ShellViewer = FileViewer::create(vname, true);
 
 				if (!ShellViewer->GetExitCode())
 				{

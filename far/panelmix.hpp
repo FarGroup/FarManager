@@ -39,10 +39,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct column;
 
-void ShellUpdatePanels(panel_ptr SrcPanel,BOOL NeedSetUpADir=FALSE);
-int  CheckUpdateAnotherPanel(panel_ptr SrcPanel,const string& SelName);
+void ShellUpdatePanels(panel_ptr SrcPanel, bool NeedSetUpADir = false);
+bool CheckUpdateAnotherPanel(panel_ptr SrcPanel,const string& SelName);
 
-int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2,int ShortNameAsIs=TRUE);
+int _MakePath1(DWORD Key,string &strPathName, const wchar_t *Param2, bool ShortNameAsIs = true);
 
 string FormatStr_Attribute(DWORD FileAttributes, size_t Width);
 string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned long long Flags, int Width);

@@ -200,10 +200,10 @@ void ShowProcessList()
 			{
 				DWORD dwMs;
 				// Remember the current value.
-				BOOL bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0);
+				auto bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0) != FALSE;
 
 				if (bSPI) // Reset foreground lock timeout
-					bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, nullptr, 0);
+					bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, nullptr, 0) != FALSE;
 
 				SetForegroundWindow(MenuData->Hwnd);
 

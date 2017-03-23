@@ -525,7 +525,7 @@ void TreeList::DisplayObject()
 			}
 		}
 
-		DisplayTree(FALSE);
+		DisplayTree(false);
 	}
 
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
@@ -536,7 +536,7 @@ string TreeList::GetTitle() const
 	return MSG(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle);
 }
 
-void TreeList::DisplayTree(int Fast)
+void TreeList::DisplayTree(bool Fast)
 {
 	wchar_t TreeLineSymbol[4][3]=
 	{
@@ -729,7 +729,7 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 {
 	/* $ 24.09.2001 VVM
 	! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
-	BOOL IsChangeConsole = LastScrX != ScrX || LastScrY != ScrY;
+	const auto IsChangeConsole = LastScrX != ScrX || LastScrY != ScrY;
 
 	if (IsChangeConsole)
 	{
@@ -1203,8 +1203,8 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		{
 			if (SetCurPath())
 			{
-				int ToPlugin=0;
-				ShellCopy(shared_from_this(), LocalKey == KEY_SHIFTF6, FALSE, TRUE, TRUE, ToPlugin, nullptr);
+				int ToPlugin = 0;
+				ShellCopy(shared_from_this(), LocalKey == KEY_SHIFTF6, false, true, true, ToPlugin, nullptr);
 			}
 
 			return TRUE;
@@ -1219,21 +1219,21 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (!m_ListData.empty() && SetCurPath())
 			{
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-				int Ask=((LocalKey!=KEY_DRAGCOPY && LocalKey!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag);
-				int Move=(LocalKey==KEY_F6 || LocalKey==KEY_DRAGMOVE);
+				const auto Ask = (LocalKey!=KEY_DRAGCOPY && LocalKey!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag;
+				const auto Move = (LocalKey==KEY_F6 || LocalKey==KEY_DRAGMOVE);
 				int ToPlugin = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
 				             AnotherPanel->IsVisible() &&
 				             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-				int Link=((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !ToPlugin);
+				const auto Link = (LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !ToPlugin;
 
 				if ((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !Link) // молча отвалим :-)
 					return TRUE;
 
 				{
-					ShellCopy(shared_from_this(), Move, Link, FALSE, Ask, ToPlugin, nullptr);
+					ShellCopy(shared_from_this(), Move, Link, false, Ask, ToPlugin, nullptr);
 				}
 
-				if (ToPlugin==1)
+				if (ToPlugin)
 				{
 					PluginPanelItemHolder Item;
 					int ItemNumber=1;
@@ -1357,7 +1357,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
 			else
-				DisplayTree(TRUE);
+				DisplayTree(true);
 
 			return TRUE;
 		}
@@ -1368,7 +1368,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
 			else
-				DisplayTree(TRUE);
+				DisplayTree(true);
 
 			return TRUE;
 		}
@@ -1403,7 +1403,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		{
 			m_CurTopFile-=m_Y2-m_Y1-3-(m_ModalMode!=0);
 			m_CurFile-=m_Y2-m_Y1-3-(m_ModalMode!=0);
-			DisplayTree(TRUE);
+			DisplayTree(true);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
@@ -1414,7 +1414,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		{
 			m_CurTopFile+=m_Y2-m_Y1-3-(m_ModalMode!=0);
 			m_CurFile+=m_Y2-m_Y1-3-(m_ModalMode!=0);
-			DisplayTree(TRUE);
+			DisplayTree(true);
 
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
@@ -1492,20 +1492,20 @@ int TreeList::GetPrevNavPos() const
 void TreeList::Up(int Count)
 {
 	m_CurFile-=Count;
-	DisplayTree(TRUE);
+	DisplayTree(true);
 }
 
 void TreeList::Down(int Count)
 {
 	m_CurFile+=Count;
-	DisplayTree(TRUE);
+	DisplayTree(true);
 }
 
 void TreeList::Scroll(int Count)
 {
 	m_CurFile+=Count;
 	m_CurTopFile+=Count;
-	DisplayTree(TRUE);
+	DisplayTree(true);
 }
 
 void TreeList::CorrectPosition()
@@ -1634,7 +1634,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MouseY>ScrollY && IntKeyState.MouseY<ScrollY+Height-1 && Height>2)
 		{
 			m_CurFile = static_cast<int>(m_ListData.size() - 1) * (IntKeyState.MouseY - ScrollY) / (Height - 2);
-			DisplayTree(TRUE);
+			DisplayTree(true);
 
 			if (!m_ModalMode)
 				Parent()->SetActivePanel(this);
@@ -1653,7 +1653,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Parent()->SetActivePanel(this);
 
 		MoveToMouse(MouseEvent);
-		DisplayTree(TRUE);
+		DisplayTree(true);
 
 		if (m_ListData.empty())
 			return TRUE;
@@ -1778,7 +1778,7 @@ bool TreeList::GetPlainString(string& Dest, int ListPos) const
 	return false;
 }
 
-int TreeList::FindPartName(const string& Name,int Next,int Direct)
+bool TreeList::FindPartName(const string& Name,int Next,int Direct)
 {
 	string strMask;
 	strMask = Name;
@@ -1792,8 +1792,8 @@ int TreeList::FindPartName(const string& Name,int Next,int Direct)
 		{
 			m_CurFile=i;
 			m_CurTopFile=m_CurFile-(m_Y2-m_Y1-1)/2;
-			DisplayTree(TRUE);
-			return TRUE;
+			DisplayTree(true);
+			return true;
 		}
 	}
 
@@ -1803,12 +1803,12 @@ int TreeList::FindPartName(const string& Name,int Next,int Direct)
 		{
 			m_CurFile=static_cast<int>(i);
 			m_CurTopFile=m_CurFile-(m_Y2-m_Y1-1)/2;
-			DisplayTree(TRUE);
-			return TRUE;
+			DisplayTree(true);
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 size_t TreeList::GetSelCount() const
@@ -2008,24 +2008,24 @@ void TreeList::UpdateViewPanel()
 	}
 }
 
-int TreeList::GoToFile(long idxItem)
+bool TreeList::GoToFile(long idxItem)
 {
 	if (static_cast<size_t>(idxItem) < m_ListData.size())
 	{
 		m_CurFile=idxItem;
 		CorrectPosition();
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-int TreeList::GoToFile(const string& Name,BOOL OnlyPartName)
+bool TreeList::GoToFile(const string& Name, bool OnlyPartName)
 {
 	return GoToFile(FindFile(Name,OnlyPartName));
 }
 
-long TreeList::FindFile(const string& Name,BOOL OnlyPartName)
+long TreeList::FindFile(const string& Name, bool OnlyPartName)
 {
 	const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
 	{
@@ -2056,14 +2056,14 @@ long TreeList::FindNext(int StartPos, const string& Name)
 	return -1;
 }
 
-int TreeList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
+bool TreeList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 {
 	if (Pos < 0 || static_cast<size_t>(Pos) >= m_ListData.size())
-		return FALSE;
+		return false;
 
 	strName = m_ListData[Pos].strName;
 	FileAttr=FILE_ATTRIBUTE_DIRECTORY|os::GetFileAttributes(m_ListData[Pos].strName);
-	return TRUE;
+	return true;
 }
 
 void TreeList::OnFocusChange(bool Get)

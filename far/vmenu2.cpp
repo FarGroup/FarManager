@@ -456,7 +456,7 @@ int VMenu2::AddItem(const string& NewStrItem)
 	return r;
 }
 
-int VMenu2::FindItem(int StartIndex, const string& Pattern, UINT64 Flags)
+int VMenu2::FindItem(int StartIndex, const string& Pattern, unsigned long long Flags)
 {
 	FarListFind flf={sizeof(FarListFind), StartIndex, Pattern.data(), Flags};
 	return SendMessage(DM_LISTFINDSTRING, 0, &flf);
@@ -511,7 +511,7 @@ void VMenu2::SetCheck(int Check, int Position)
 	UpdateItemFlags(Position, Flags);
 }
 
-void VMenu2::UpdateItemFlags(int Pos, UINT64 NewFlags)
+void VMenu2::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 {
 	if(Pos<0)
 		Pos=GetSelectPos();
