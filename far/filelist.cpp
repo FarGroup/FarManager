@@ -1277,7 +1277,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				std::for_each(RANGE(m_ListData, i)
 				{
 					if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
-						Select(i, false);
+						Select(i, true);
 				});
 			}
 
