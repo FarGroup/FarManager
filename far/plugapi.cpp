@@ -1484,7 +1484,10 @@ void WINAPI apiRestoreScreen(HANDLE hScreen) noexcept
 			Global->ScrBuf->FillBuf();
 
 		if (hScreen)
+		{
 			delete static_cast<SaveScreen*>(hScreen);
+			Global->ScrBuf->Flush();
+		}
 	}
 	catch (...)
 	{
