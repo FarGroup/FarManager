@@ -171,7 +171,7 @@ int FolderTree::GetTypeAndName(string &strType, string &strName)
 }
 
 
-int FolderTree::ProcessKey(const Manager::Key& Key)
+bool FolderTree::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 	if (LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535)
@@ -211,7 +211,7 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 			IsFullScreen=!IsFullScreen;
 			ResizeConsole();
 			Show();
-			return TRUE;
+			return true;
 		case KEY_CTRLR:		case KEY_RCTRLR:
 		case KEY_F2:
 			Tree->ProcessKey(Manager::Key(KEY_CTRLR));
@@ -283,19 +283,19 @@ int FolderTree::ProcessKey(const Manager::Key& Key)
 			break;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
-int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (m_windowKeyBar->ProcessMouse(MouseEvent))
-		return TRUE;
+		return true;
 
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
 	{
 		ProcessKey(Manager::Key(KEY_ENTER));
-		return TRUE;
+		return true;
 	}
 
 	int MsX=MouseEvent->dwMousePosition.X;
@@ -308,7 +308,7 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
 			ProcessKey(Manager::Key(KEY_ENTER));
 
-		return TRUE;
+		return true;
 	}
 
 	if (MsY == m_Y2-2)
@@ -321,7 +321,7 @@ int FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			DrawEdit();
 	}
 
-	return TRUE;
+	return true;
 }
 
 

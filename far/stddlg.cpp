@@ -218,7 +218,7 @@ int GetSearchReplaceString(
 	return Result;
 }
 
-int GetString(
+bool GetString(
 	const wchar_t *Title,
 	const wchar_t *Prompt,
 	const wchar_t *HistoryName,
@@ -327,17 +327,17 @@ int GetString(
 	if (ExitCode == 2 || ExitCode == 4 || (addCheckBox && ExitCode == 6))
 	{
 		if (!(Flags&FIB_ENABLEEMPTY) && StrDlg[2].strData.empty())
-			return FALSE;
+			return false;
 
 		strDestText = StrDlg[2].strData;
 
 		if (addCheckBox)
 			*CheckBoxValue=StrDlg[4].Selected;
 
-		return TRUE;
+		return true;
 	}
-
-	return FALSE;
+	
+	return false;
 }
 
 /*
@@ -350,7 +350,7 @@ int GetString(
   HelpTopic - тема помощи (может быть nullptr)
   Flags     - флаги (GNP_*)
 */
-int GetNameAndPassword(const string& Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
+bool GetNameAndPassword(const string& Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
 {
 	static string strLastName, strLastPassword;
 	int ExitCode;
@@ -394,14 +394,14 @@ int GetNameAndPassword(const string& Title, string &strUserName, string &strPass
 	}
 
 	if (ExitCode!=6)
-		return FALSE;
+		return false;
 
 	// запоминаем всегда.
 	strUserName = PassDlg[2].strData;
 	strLastName = strUserName;
 	strPassword = PassDlg[4].strData;
 	strLastPassword = strPassword;
-	return TRUE;
+	return true;
 }
 
 static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)

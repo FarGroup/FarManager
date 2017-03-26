@@ -106,8 +106,8 @@ public:
 	void EnterMainLoop();
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);
-	int ProcessKey(Key key);
-	int ProcessMouse(const MOUSE_EVENT_RECORD *me) const;
+	bool ProcessKey(Key key);
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *me) const;
 	void PluginsMenu() const; // вызываем меню по F11
 	void SwitchToPanels();
 	window_ptr GetCurrentWindow() const { return m_windows.empty() ? nullptr : m_windows.back(); }
@@ -121,7 +121,7 @@ public:
 	bool IsModal(size_t Index) const { return Index >= m_NonModalSize; }
 	void ResizeAllWindows();
 
-	void AddGlobalKeyHandler(const std::function<int(const Key&)>& Handler);
+	void AddGlobalKeyHandler(const std::function<bool(const Key&)>& Handler);
 
 	static long GetCurrentWindowType() { return CurrentWindowType; }
 	static bool ShowBackground();
@@ -184,7 +184,7 @@ private:
 	int m_DesktopModalled;
 	static std::atomic_long CurrentWindowType;
 	std::queue<std::function<void()>> m_Queue;
-	std::vector<std::function<int(const Key&)>> m_GlobalKeyHandlers;
+	std::vector<std::function<bool(const Key&)>> m_GlobalKeyHandlers;
 	std::unordered_map<window_ptr, bool*> m_Executed;
 	std::unordered_set<window_ptr> m_Added;
 };

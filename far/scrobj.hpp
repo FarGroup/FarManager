@@ -57,8 +57,8 @@ public:
 	int ObjWidth() const {return m_X2 - m_X1 + 1;}
 	int ObjHeight() const {return m_Y2 - m_Y1 + 1;}
 
-	virtual int ProcessKey(const Manager::Key& Key) { return 0; }
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) { return 0; }
+	virtual bool ProcessKey(const Manager::Key& Key) { return false; }
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) { return false; }
 
 	virtual void Hide();
 	virtual void Show();

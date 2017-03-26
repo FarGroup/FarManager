@@ -50,8 +50,8 @@ public:
 	void ShowFile(const string& FileName, bool TempFile, plugin_panel* hDirPlugin);
 
 private:
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual void Update(int Mode) override;
 	virtual void CloseFile() override;
@@ -60,7 +60,7 @@ private:
 	virtual void RefreshTitle() override;
 	virtual string GetTitle() const override;
 	virtual void UpdateKeyBar() override;
-	virtual int GetCurName(string &strName, string &strShortName) const override;
+	virtual bool GetCurName(string &strName, string &strShortName) const override;
 	virtual void DisplayObject() override;
 	virtual Viewer* GetViewer(void) override {return QView.get();}
 	virtual Viewer* GetById(int ID) override;

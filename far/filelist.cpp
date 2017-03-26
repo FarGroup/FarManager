@@ -416,14 +416,14 @@ void FileList::list_data::clear()
 void FileList::ToBegin()
 {
 	m_CurFile = 0;
-	ShowFileList(TRUE);
+	ShowFileList();
 }
 
 
 void FileList::ToEnd()
 {
 	m_CurFile = static_cast<int>(m_ListData.size() - 1);
-	ShowFileList(TRUE);
+	ShowFileList();
 }
 
 void FileList::MoveCursor(int offset)
@@ -434,7 +434,7 @@ void FileList::MoveCursor(int offset)
 void FileList::MoveCursorAndShow(int offset)
 {
 	MoveCursor(offset);
-	ShowFileList(TRUE);
+	ShowFileList();
 }
 
 void FileList::Scroll(int offset)
@@ -762,7 +762,7 @@ private:
 };
 
 
-void FileList::SortFileList(int KeepPosition)
+void FileList::SortFileList(bool KeepPosition)
 {
 	if (!m_ListData.empty())
 	{
@@ -830,27 +830,26 @@ void FileList::SortFileList(int KeepPosition)
 	}
 }
 
-int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
+bool FileList::SendKeyToPlugin(DWORD Key, bool Pred)
 {
 	_ALGO(CleverSysLog clv(L"FileList::SendKeyToPlugin()"));
 	_ALGO(SysLog(L"Key=%s Pred=%d",_FARKEY_ToName(Key),Pred));
 
-	if (m_PanelMode == panel_mode::PLUGIN_PANEL &&
-	        (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO)
-	   )
-	{
-		_ALGO(SysLog(L"call Plugins.ProcessKey() {"));
-		INPUT_RECORD rec;
-		KeyToInputRecord(Key,&rec);
-		int ProcessCode=Global->CtrlObject->Plugins->ProcessKey(m_hPlugin,&rec,Pred);
-		_ALGO(SysLog(L"} ProcessCode=%d",ProcessCode));
-		ProcessPluginCommand();
+	if (m_PanelMode != panel_mode::PLUGIN_PANEL)
+		return false;
 
-		if (ProcessCode)
-			return TRUE;
-	}
+	const auto MacroState = Global->CtrlObject->Macro.GetState();
+	if (MacroState != MACROSTATE_RECORDING_COMMON && MacroState != MACROSTATE_EXECUTING_COMMON && MacroState != MACROSTATE_NOMACRO)
+		return false;
 
-	return FALSE;
+	_ALGO(SysLog(L"call Plugins.ProcessKey() {"));
+	INPUT_RECORD rec;
+	KeyToInputRecord(Key, &rec);
+	const auto ProcessCode = Global->CtrlObject->Plugins->ProcessKey(m_hPlugin, &rec, Pred);
+	_ALGO(SysLog(L"} ProcessCode=%d", ProcessCode));
+	ProcessPluginCommand();
+
+	return ProcessCode != 0;
 }
 
 bool FileList::GetPluginInfo(PluginInfo *PInfo) const
@@ -918,7 +917,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 		{
 			// vParam = MacroPanelSelect*, iParam = 0
 			long long Result=-1;
-			MacroPanelSelect *mps=(MacroPanelSelect *)vParam;
+			const auto mps = static_cast<const MacroPanelSelect*>(vParam);
 
 			if (m_ListData.empty())
 				return Result;
@@ -932,7 +931,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 			{
 				if (mps->Mode == 2)
 				{
-					itemsList = split<decltype(itemsList)>(mps->Item->asString(), STLF_UNIQUE, L"\r\n");
+					itemsList = split<decltype(itemsList)>(mps->Item, STLF_UNIQUE, L"\r\n");
 					if (itemsList.empty())
 						return Result;
 				}
@@ -970,7 +969,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми
-							Result=SelectFiles(SELECT_REMOVEMASK,mps->Item->asString().data());
+							Result = SelectFiles(SELECT_REMOVEMASK, mps->Item.data());
 							break;
 					}
 					break;
@@ -1006,7 +1005,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми
-							Result=SelectFiles(SELECT_ADDMASK,mps->Item->asString().data());
+							Result = SelectFiles(SELECT_ADDMASK, mps->Item.data());
 							break;
 					}
 					break;
@@ -1042,7 +1041,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 							break;
 						}
 						case 3: // масками файлов, разделенных запятыми
-							Result=SelectFiles(SELECT_INVERTMASK,mps->Item->asString().data());
+							Result = SelectFiles(SELECT_INVERTMASK, mps->Item.data());
 							break;
 					}
 					break;
@@ -1059,7 +1058,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 			if (Result != -1 && mps->Action != 3)
 			{
 				if (SelectedFirst)
-					SortFileList(TRUE);
+					SortFileList(true);
 				Redraw();
 			}
 
@@ -1092,7 +1091,7 @@ private:
 	bool IsValid{};
 };
 
-int FileList::ProcessKey(const Manager::Key& Key)
+bool FileList::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 	Global->Elevation->ResetApprove();
@@ -1106,7 +1105,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		if (!InternalProcessKey)
 			if ((!(LocalKey == KEY_ENTER || LocalKey == KEY_NUMENTER) && !(LocalKey == KEY_SHIFTENTER || LocalKey == KEY_SHIFTNUMENTER)) || IsEmptyCmdline)
 				if (SendKeyToPlugin(LocalKey))
-					return TRUE;
+					return true;
 	}
 	else if (LocalKey < KEY_RCTRL0 || LocalKey > KEY_RCTRL9 || !Global->Opt->ShortcutAlwaysChdir)
 	{
@@ -1175,7 +1174,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				        break;
 				*/
 			default:
-				return FALSE;
+				return false;
 		}
 	}
 
@@ -1183,8 +1182,8 @@ int FileList::ProcessKey(const Manager::Key& Key)
 	{
 		if (SelectedFirst)
 		{
-			SortFileList(TRUE);
-			ShowFileList(TRUE);
+			SortFileList(true);
+			ShowFileList();
 		}
 
 		ShiftSelection=-1;
@@ -1203,13 +1202,13 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		{
 			bool Add = (LocalKey&KEY_SHIFT) == KEY_SHIFT;
 			SaveShortcutFolder((LocalKey&(~(KEY_CTRL|KEY_RCTRL|KEY_ALT|KEY_RALT|KEY_SHIFT|KEY_RSHIFT)))-'0', Add);
-			return TRUE;
+			return true;
 		}
 		// Jump to a folder shortcut?
 		else if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
 		{
 			ExecShortcutFolder(LocalKey-KEY_RCTRL0);
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -1249,9 +1248,9 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			_ALGO(SysLog(L"%s, FileCount=%d",(m_PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
 
 			if (m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanelHelp(m_hPlugin))
-				return TRUE;
+				return true;
 
-			return FALSE;
+			return false;
 		}
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
@@ -1261,14 +1260,14 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			else
 				Global->CtrlObject->Plugins->Configure();
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTSUBTRACT:
 		{
 			SaveSelection();
 			ClearSelection();
 			Redraw();
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTADD:
 		{
@@ -1282,59 +1281,59 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			}
 
 			if (SelectedFirst)
-				SortFileList(TRUE);
+				SortFileList(true);
 
 			Redraw();
-			return TRUE;
+			return true;
 		}
 		case KEY_ADD:
 			SelectFiles(SELECT_ADD);
-			return TRUE;
+			return true;
 		case KEY_SUBTRACT:
 			SelectFiles(SELECT_REMOVE);
-			return TRUE;
+			return true;
 		case KEY_CTRLADD:
 		case KEY_RCTRLADD:
 			SelectFiles(SELECT_ADDEXT);
-			return TRUE;
+			return true;
 		case KEY_CTRLSUBTRACT:
 		case KEY_RCTRLSUBTRACT:
 			SelectFiles(SELECT_REMOVEEXT);
-			return TRUE;
+			return true;
 		case KEY_ALTADD:
 		case KEY_RALTADD:
 			SelectFiles(SELECT_ADDNAME);
-			return TRUE;
+			return true;
 		case KEY_ALTSUBTRACT:
 		case KEY_RALTSUBTRACT:
 			SelectFiles(SELECT_REMOVENAME);
-			return TRUE;
+			return true;
 		case KEY_MULTIPLY:
 			SelectFiles(SELECT_INVERT);
-			return TRUE;
+			return true;
 		case KEY_CTRLMULTIPLY:
 		case KEY_RCTRLMULTIPLY:
 			SelectFiles(SELECT_INVERTALL);
-			return TRUE;
+			return true;
 		case KEY_ALTLEFT:     // Прокрутка длинных имен и описаний
 		case KEY_RALTLEFT:
 		case KEY_ALTHOME:     // Прокрутка длинных имен и описаний - в начало
 		case KEY_RALTHOME:
 			LeftPos=(LocalKey == KEY_ALTHOME || LocalKey == KEY_RALTHOME)?-0x7fff:LeftPos-1;
 			Redraw();
-			return TRUE;
+			return true;
 		case KEY_ALTRIGHT:    // Прокрутка длинных имен и описаний
 		case KEY_RALTRIGHT:
 		case KEY_ALTEND:     // Прокрутка длинных имен и описаний - в конец
 		case KEY_RALTEND:
 			LeftPos=(LocalKey == KEY_ALTEND || LocalKey == KEY_RALTEND)?0x7fff:LeftPos+1;
 			Redraw();
-			return TRUE;
+			return true;
 		case KEY_CTRLINS:      case KEY_CTRLNUMPAD0:
 		case KEY_RCTRLINS:     case KEY_RCTRLNUMPAD0:
 
 			if (!IsEmptyCmdline)
-				return FALSE;
+				return false;
 
 		case KEY_CTRLSHIFTINS:  case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
 		case KEY_RCTRLSHIFTINS: case KEY_RCTRLSHIFTNUMPAD0:
@@ -1353,17 +1352,17 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					LocalKey == KEY_ALTSHIFTNUMPAD0 || LocalKey == KEY_RALTSHIFTNUMPAD0,
 				(LocalKey&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT) || (LocalKey&(KEY_RCTRL|KEY_RALT))==(KEY_RCTRL|KEY_RALT)
 			);
-			return TRUE;
+			return true;
 
 		case KEY_CTRLC: // hdrop  copy
 		case KEY_RCTRLC:
 			CopyFiles();
-			return TRUE;
+			return true;
 		#if 0
 		case KEY_CTRLX: // hdrop cut !!!NEED KEY!!!
 		case KEY_RCTRLX:
 			CopyFiles(true);
-			return TRUE;
+			return true;
 		#endif
 			/* $ 14.02.2001 VVM
 			  + Ctrl: вставляет имя файла с пассивной панели.
@@ -1386,7 +1385,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			SrcPanel->ProcessKey(Manager::Key(NewKey));
 			SrcPanel->SetVisible(OldState);
 			SetCurPath();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLNUMENTER:
 		case KEY_RCTRLNUMENTER:
@@ -1411,7 +1410,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 				if (LocalKey==KEY_CTRLSHIFTENTER || LocalKey==KEY_RCTRLSHIFTENTER || LocalKey==KEY_CTRLSHIFTNUMENTER || LocalKey==KEY_RCTRLSHIFTNUMENTER)
 				{
-					_MakePath1(LocalKey,strFileName, L" ");
+					MakePath1(LocalKey, strFileName, L" ");
 				}
 				else
 				{
@@ -1488,7 +1487,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				Parent()->GetCmdLine()->InsertString(strFileName);
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
 		case KEY_RCTRLRALTBRACKET:
@@ -1513,10 +1512,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		{
 			string strPanelDir;
 
-			if (_MakePath1(LocalKey,strPanelDir, L""))
+			if (MakePath1(LocalKey, strPanelDir, L""))
 				Parent()->GetCmdLine()->InsertString(strPanelDir);
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLA:
 		case KEY_RCTRLA:
@@ -1529,7 +1528,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLG:
 		case KEY_RCTRLG:
@@ -1551,7 +1550,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					AnotherPanel->Redraw();
 				}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLZ:
 		case KEY_RCTRLZ:
@@ -1559,7 +1558,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			if (!m_ListData.empty() && m_PanelMode == panel_mode::NORMAL_PANEL && SetCurPath())
 				DescribeFiles();
 
-			return TRUE;
+			return true;
 		case KEY_CTRLH:
 		case KEY_RCTRLH:
 		{
@@ -1569,13 +1568,13 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION);//|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLM:
 		case KEY_RCTRLM:
 		{
 			RestoreSelection();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLR:
 		case KEY_RCTRLR:
@@ -1598,7 +1597,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		{
 			m_ShowShortNames=!m_ShowShortNames;
 			Redraw();
-			return TRUE;
+			return true;
 		}
 		case KEY_NUMENTER:
 		case KEY_SHIFTNUMENTER:
@@ -1622,11 +1621,11 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			if (!IsEmptyCmdline)
 			{
 				Parent()->GetCmdLine()->ProcessKey(Key);
-				return TRUE;
+				return true;
 			}
 
 			ProcessEnter(true, (LocalKey & KEY_SHIFT) != 0, true, (LocalKey & KEY_CTRL || LocalKey & KEY_RCTRL) && (LocalKey & KEY_ALT || LocalKey & KEY_RALT), OFP_NORMAL);
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLBACKSLASH:
 		case KEY_RCTRLBACKSLASH:
@@ -1657,7 +1656,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				ChangeDir(L"\\");
 
 			Parent()->ActivePanel()->Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF1:
 		{
@@ -1677,7 +1676,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					PluginPutFilesToNew();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF2:
 		{
@@ -1695,20 +1694,20 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					else if ((m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES) == OPIF_REALNAMES)
 						PluginHostGetFiles();
 
-					return TRUE;
+					return true;
 				}
 
 				PluginHostGetFiles();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF3:
 		{
 			_ALGO(CleverSysLog clv(L"Shift-F3"));
 			_ALGO(SysLog(L"%s, FileCount=%d",(m_PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
 			ProcessHostFile();
-			return TRUE;
+			return true;
 		}
 		case KEY_F3:
 		case KEY_NUMPAD5:      case KEY_SHIFTNUMPAD5:
@@ -1757,7 +1756,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					do
 					{
 						if (!dlgOpenEditor(strFileName, codepage))
-							return FALSE;
+							return false;
 
 						if (!strFileName.empty())
 						{
@@ -1780,7 +1779,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 											{ MSG(lng::MEditNewPath1), MSG(lng::MEditNewPath2), MSG(lng::MEditNewPath3) },
 											{ MSG(lng::MHYes), MSG(lng::MHNo) },
 											L"WarnEditorPath") != Message::first_button)
-											return FALSE;
+											return false;
 									}
 								}
 							}
@@ -1791,7 +1790,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 								{ MSG(lng::MEditNewPlugin1), MSG(lng::MEditNewPath3) },
 								{ MSG(lng::MCancel) },
 								L"WarnEditorPluginName") != Message::first_button)
-								return FALSE;
+								return false;
 						}
 						else
 						{
@@ -1811,7 +1810,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 							return ProcessKey(Manager::Key(KEY_CTRLA));
 
 						CountDirSize(!PluginMode);
-						return TRUE;
+						return true;
 					}
 
 					strFileName = CurPtr->strName;
@@ -1824,7 +1823,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				if (PluginMode)
 				{
 					if (!FarMkTempEx(strTempDir))
-						return TRUE;
+						return true;
 
 					os::CreateDirectory(strTempDir,nullptr);
 					strTempName=strTempDir+L"\\"+PointToName(strFileName);
@@ -1850,7 +1849,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 						if (!Global->CtrlObject->Plugins->GetFile(m_hPlugin, &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | (Edit?OPM_EDIT:OPM_VIEW)))
 						{
 							os::RemoveDirectory(strTempDir);
-							return TRUE;
+							return true;
 						}
 					}
 
@@ -2046,7 +2045,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			   потому что этот viewer, editor могут нам неверно восстановить
 			   */
 //			Parent()->Redraw();
-			return TRUE;
+			return true;
 		}
 		case KEY_F5:
 		case KEY_F6:
@@ -2060,7 +2059,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 			ProcessCopyKeys(LocalKey);
 
-			return TRUE;
+			return true;
 		}
 
 		case KEY_ALTF5:  // Печать текущего/выбранных файла/ов
@@ -2072,7 +2071,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			if (!m_ListData.empty() && SetCurPath())
 				PrintFiles(this);
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF5:
 		case KEY_SHIFTF6:
@@ -2118,7 +2117,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_F7:
 		{
@@ -2160,7 +2159,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					ShellMakeDir(this);
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_F8:
 		case KEY_SHIFTDEL:
@@ -2175,7 +2174,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTDEL:
 		{
 			if (IsRepeatedKey() /*&& !Global->Opt->Confirmation.Delete*/) // не удаляем, если зажата клавиша
-				return TRUE;
+				return true;
 
 			_ALGO(CleverSysLog clv(L"F8/Shift-F8/Shift-Del/Alt-Del"));
 			_ALGO(SysLog(L"%s, FileCount=%d, Key=%s",(m_PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(LocalKey)));
@@ -2203,19 +2202,19 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					ReturnCurrentFile = false;
 			}
 
-			return TRUE;
+			return true;
 		}
 		// $ 26.07.2001 VVM  С альтом скролим всегда по 1
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
-			return TRUE;
+			return true;
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
-			return TRUE;
+			return true;
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
@@ -2225,7 +2224,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_LEFT));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
@@ -2236,30 +2235,30 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_RIGHT));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_HOME:         case KEY_NUMPAD7:
 			ToBegin();
-			return TRUE;
+			return true;
 		case KEY_END:          case KEY_NUMPAD1:
 			ToEnd();
-			return TRUE;
+			return true;
 		case KEY_UP:           case KEY_NUMPAD8:
 			MoveCursorAndShow(-1);
-			return TRUE;
+			return true;
 		case KEY_DOWN:         case KEY_NUMPAD2:
 			MoveCursorAndShow(1);
-			return TRUE;
+			return true;
 		case KEY_PGUP:         case KEY_NUMPAD9:
 			N=m_Columns*m_Height-1;
 			m_CurTopFile-=N;
 			MoveCursorAndShow(-N);
-			return TRUE;
+			return true;
 		case KEY_PGDN:         case KEY_NUMPAD3:
 			N=m_Columns*m_Height-1;
 			m_CurTopFile+=N;
 			MoveCursorAndShow(N);
-			return TRUE;
+			return true;
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
 			if ((m_Columns == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Columns>1 || IsEmptyCmdline)
@@ -2268,10 +2267,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					m_CurTopFile-=m_Height;
 
 				MoveCursorAndShow(-m_Height);
-				return TRUE;
+				return true;
 			}
 
-			return FALSE;
+			return false;
 		case KEY_RIGHT:        case KEY_NUMPAD6:
 
 			if ((m_Columns == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Columns>1 || IsEmptyCmdline)
@@ -2280,10 +2279,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 					m_CurTopFile+=m_Height;
 
 				MoveCursorAndShow(m_Height);
-				return TRUE;
+				return true;
 			}
 
-			return FALSE;
+			return false;
 			/* $ 25.04.2001 DJ
 			   оптимизация Shift-стрелок для Selected files first: делаем сортировку
 			   один раз
@@ -2297,10 +2296,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			InternalProcessKey--;
 
 			if (SelectedFirst)
-				SortFileList(TRUE);
+				SortFileList(true);
 
-			ShowFileList(TRUE);
-			return TRUE;
+			ShowFileList();
+			return true;
 		}
 		case KEY_SHIFTEND:     case KEY_SHIFTNUMPAD1:
 		{
@@ -2312,10 +2311,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			InternalProcessKey--;
 
 			if (SelectedFirst)
-				SortFileList(TRUE);
+				SortFileList(true);
 
-			ShowFileList(TRUE);
-			return TRUE;
+			ShowFileList();
+			return true;
 		}
 		case KEY_SHIFTPGUP:    case KEY_SHIFTNUMPAD9:
 		case KEY_SHIFTPGDN:    case KEY_SHIFTNUMPAD3:
@@ -2329,16 +2328,16 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			InternalProcessKey--;
 
 			if (SelectedFirst)
-				SortFileList(TRUE);
+				SortFileList(true);
 
-			ShowFileList(TRUE);
-			return TRUE;
+			ShowFileList();
+			return true;
 		}
 		case KEY_SHIFTLEFT:    case KEY_SHIFTNUMPAD4:
 		case KEY_SHIFTRIGHT:   case KEY_SHIFTNUMPAD6:
 		{
 			if (m_ListData.empty())
-				return TRUE;
+				return true;
 
 			if (m_Columns>1)
 			{
@@ -2352,31 +2351,31 @@ int FileList::ProcessKey(const Manager::Key& Key)
 				Select(m_ListData[m_CurFile], ShiftSelection != 0);
 
 				if (SelectedFirst)
-					SortFileList(TRUE);
+					SortFileList(true);
 
 				InternalProcessKey--;
 
 				if (SelectedFirst)
-					SortFileList(TRUE);
+					SortFileList(true);
 
-				ShowFileList(TRUE);
-				return TRUE;
+				ShowFileList();
+				return true;
 			}
 
-			return FALSE;
+			return false;
 		}
 		case KEY_SHIFTUP:      case KEY_SHIFTNUMPAD8:
 		case KEY_SHIFTDOWN:    case KEY_SHIFTNUMPAD2:
 		{
 			MoveSelection(LocalKey == KEY_SHIFTUP || LocalKey == KEY_SHIFTNUMPAD8 ? up : down);
 
-			ShowFileList(TRUE);
-			return TRUE;
+			ShowFileList();
+			return true;
 		}
 		case KEY_INS:          case KEY_NUMPAD0:
 		{
 			if (m_ListData.empty())
-				return TRUE;
+				return true;
 
 			assert(m_CurFile < static_cast<int>(m_ListData.size()));
 			CurPtr = &m_ListData[m_CurFile];
@@ -2386,70 +2385,70 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 			if (SelectedFirst)
 			{
-				SortFileList(TRUE);
+				SortFileList(true);
 				if (avoid_up_jump)
 					ToEnd();
 			}
 
-			ShowFileList(TRUE);
-			return TRUE;
+			ShowFileList();
+			return true;
 		}
 		case KEY_CTRLF3:
 		case KEY_RCTRLF3:
 			SetSortMode(panel_sort::BY_NAME);
-			return TRUE;
+			return true;
 		case KEY_CTRLF4:
 		case KEY_RCTRLF4:
 			SetSortMode(panel_sort::BY_EXT);
-			return TRUE;
+			return true;
 		case KEY_CTRLF5:
 		case KEY_RCTRLF5:
 			SetSortMode(panel_sort::BY_MTIME);
-			return TRUE;
+			return true;
 		case KEY_CTRLF6:
 		case KEY_RCTRLF6:
 			SetSortMode(panel_sort::BY_SIZE);
-			return TRUE;
+			return true;
 		case KEY_CTRLF7:
 		case KEY_RCTRLF7:
 			SetSortMode(panel_sort::UNSORTED);
-			return TRUE;
+			return true;
 		case KEY_CTRLF8:
 		case KEY_RCTRLF8:
 			SetSortMode(panel_sort::BY_CTIME);
-			return TRUE;
+			return true;
 		case KEY_CTRLF9:
 		case KEY_RCTRLF9:
 			SetSortMode(panel_sort::BY_ATIME);
-			return TRUE;
+			return true;
 		case KEY_CTRLF10:
 		case KEY_RCTRLF10:
 			SetSortMode(panel_sort::BY_DIZ);
-			return TRUE;
+			return true;
 		case KEY_CTRLF11:
 		case KEY_RCTRLF11:
 			SetSortMode(panel_sort::BY_OWNER);
-			return TRUE;
+			return true;
 		case KEY_CTRLF12:
 		case KEY_RCTRLF12:
 			SelectSortMode();
-			return TRUE;
+			return true;
 		case KEY_SHIFTF11:
 			m_SortGroups=!m_SortGroups;
 
 			if (m_SortGroups)
 				ReadSortGroups();
 
-			SortFileList(TRUE);
+			SortFileList(true);
 			ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 			Show();
-			return TRUE;
+			return true;
 		case KEY_SHIFTF12:
 			SelectedFirst=!SelectedFirst;
-			SortFileList(TRUE);
+			SortFileList(true);
 			ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 			Show();
-			return TRUE;
+			return true;
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
@@ -2467,7 +2466,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 
 				NewActivePanel->Show();
 			}
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLPGDN:
 		case KEY_RCTRLPGDN:
@@ -2478,7 +2477,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTNUMPAD3:
 		case KEY_RCTRLSHIFTNUMPAD3:
 			ProcessEnter(false, false, !(LocalKey&KEY_SHIFT), false, OFP_ALTERNATIVE);
-			return TRUE;
+			return true;
 
 		case KEY_APPS:
 		case KEY_SHIFTAPPS:
@@ -2488,7 +2487,7 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			{
 				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, ToPtr(1)); // EMenu Plugin :-)
 			}
-			return TRUE;
+			return true;
 		}
 
 		default:
@@ -2505,10 +2504,10 @@ int FileList::ProcessKey(const Manager::Key& Key)
 			else
 				break;
 
-			return TRUE;
+			return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -2952,7 +2951,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 }
 
 
-int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!IsMouseInClientArea(MouseEvent))
 		return false;
@@ -2971,7 +2970,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				SelectSortMode();
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	if (IsVisible() && Global->Opt->ShowPanelScrollbar && IntKeyState.MouseX==m_X2 &&
@@ -2985,7 +2984,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(Manager::Key(KEY_UP));
 
 			Parent()->SetActivePanel(shared_from_this());
-			return TRUE;
+			return true;
 		}
 
 		if (IntKeyState.MouseY==ScrollY+m_Height-1)
@@ -2994,7 +2993,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessKey(Manager::Key(KEY_DOWN));
 
 			Parent()->SetActivePanel(shared_from_this());
-			return TRUE;
+			return true;
 		}
 
 		if (IntKeyState.MouseY>ScrollY && IntKeyState.MouseY<ScrollY+m_Height-1 && m_Height>2)
@@ -3002,11 +3001,11 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			while (IsMouseButtonPressed())
 			{
 				m_CurFile=static_cast<int>((m_ListData.size() - 1)*(IntKeyState.MouseY-ScrollY)/(m_Height-2));
-				ShowFileList(TRUE);
+				ShowFileList();
 				Parent()->SetActivePanel(shared_from_this());
 			}
 
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -3018,10 +3017,10 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	if (Panel::ProcessMouseDrag(MouseEvent))
-		return TRUE;
+		return true;
 
 	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
-		return FALSE;
+		return false;
 
 	if (MouseEvent->dwMousePosition.Y>m_Y1+Global->Opt->ShowColumnTitles &&
 	        MouseEvent->dwMousePosition.Y<m_Y2-2*Global->Opt->ShowPanelStatus)
@@ -3029,7 +3028,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		Parent()->SetActivePanel(shared_from_this());
 
 		if (m_ListData.empty())
-			return TRUE;
+			return true;
 
 		MoveToMouse(MouseEvent);
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
@@ -3046,7 +3045,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				ProcessPluginCommand();
 
 				if (ProcessCode)
-					return TRUE;
+					return true;
 			}
 
 			/*$ 21.02.2001 SKV
@@ -3058,10 +3057,10 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			  Но мы же вызываем Fast=TRUE...
 			  Вроде всё должно быть ок.
 			*/
-			ShowFileList(TRUE);
+			ShowFileList();
 			FlushInputBuffer();
 			ProcessEnter(true, IntKeyState.ShiftPressed(), true, IntKeyState.OnlyCtrlAltPressed(), OFP_NORMAL);
-			return TRUE;
+			return true;
 		}
 		else
 		{
@@ -3077,13 +3076,13 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				{
 					if ((!control || control==SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 					{
-						ShowFileList(TRUE);
+						ShowFileList();
 
 						delayedShowEMenu = GetAsyncKeyState(VK_RBUTTON)<0 || GetAsyncKeyState(VK_LBUTTON)<0 || GetAsyncKeyState(VK_MBUTTON)<0;
 						if (!delayedShowEMenu) // show immediately if all mouse buttons released
 							Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr);
 
-						return TRUE;
+						return true;
 					}
 				}
 
@@ -3093,12 +3092,12 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				Select(m_ListData[m_CurFile], MouseSelection);
 
 				if (SelectedFirst)
-					SortFileList(TRUE);
+					SortFileList(true);
 			}
 		}
 
-		ShowFileList(TRUE);
-		return TRUE;
+		ShowFileList();
+		return true;
 	}
 
 	if (MouseEvent->dwMousePosition.Y<=m_Y1+1)
@@ -3106,7 +3105,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		Parent()->SetActivePanel(shared_from_this());
 
 		if (m_ListData.empty())
-			return TRUE;
+			return true;
 
 		while (IsMouseButtonPressed() && IntKeyState.MouseY<=m_Y1+1)
 		{
@@ -3120,9 +3119,9 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 
 		if (SelectedFirst)
-			SortFileList(TRUE);
+			SortFileList(true);
 
-		return TRUE;
+		return true;
 	}
 
 	if (MouseEvent->dwMousePosition.Y>=m_Y2-2)
@@ -3130,7 +3129,7 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		Parent()->SetActivePanel(shared_from_this());
 
 		if (m_ListData.empty())
-			return TRUE;
+			return true;
 
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y2-2)
 		{
@@ -3144,12 +3143,12 @@ int FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 
 		if (SelectedFirst)
-			SortFileList(TRUE);
+			SortFileList(true);
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -3283,7 +3282,7 @@ void FileList::ApplySortMode(panel_sort Mode)
 	m_SortMode = Mode;
 
 	if (!m_ListData.empty())
-		SortFileList(TRUE);
+		SortFileList(true);
 
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Global->WindowManager->RefreshWindow();
@@ -3344,7 +3343,7 @@ void FileList::SetCustomSortMode(int Mode, sort_order Order, bool InvertByDefaul
 void FileList::ChangeNumericSort(bool Mode)
 {
 	Panel::ChangeNumericSort(Mode);
-	SortFileList(TRUE);
+	SortFileList(true);
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
 }
@@ -3352,7 +3351,7 @@ void FileList::ChangeNumericSort(bool Mode)
 void FileList::ChangeCaseSensitiveSort(bool Mode)
 {
 	Panel::ChangeCaseSensitiveSort(Mode);
-	SortFileList(TRUE);
+	SortFileList(true);
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
 }
@@ -3360,7 +3359,7 @@ void FileList::ChangeCaseSensitiveSort(bool Mode)
 void FileList::ChangeDirectoriesFirst(bool Mode)
 {
 	Panel::ChangeDirectoriesFirst(Mode);
-	SortFileList(TRUE);
+	SortFileList(true);
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
 }
@@ -3471,7 +3470,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 				{
 					m_CurFile=I;
 					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
-					ShowFileList(TRUE);
+					ShowFileList();
 					return true;
 				}
 			}
@@ -3488,7 +3487,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 				{
 					m_CurFile=I;
 					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
-					ShowFileList(TRUE);
+					ShowFileList();
 					return true;
 				}
 			}
@@ -3527,7 +3526,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 				{
 					m_CurFile=I;
 					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
-					ShowFileList(TRUE);
+					ShowFileList();
 					return true;
 				}
 			}
@@ -3544,7 +3543,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 				{
 					m_CurFile=I;
 					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
-					ShowFileList(TRUE);
+					ShowFileList();
 					return true;
 				}
 			}
@@ -3739,13 +3738,13 @@ size_t FileList::GetRealSelCount() const
 }
 
 
-int FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::FAR_FIND_DATA *fde)
+bool FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::FAR_FIND_DATA *fde)
 {
 	if (!strName)
 	{
 		GetSelPosition=0;
 		LastSelPosition=-1;
-		return TRUE;
+		return true;
 	}
 
 	if (!m_SelFileCount || ReturnCurrentFile)
@@ -3783,10 +3782,10 @@ int FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName,
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		else
-			return FALSE;
+			return false;
 	}
 
 	while (GetSelPosition < static_cast<int>(m_ListData.size()))
@@ -3819,10 +3818,10 @@ int FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName,
 				fde->strAlternateFileName = PrevItem.strShortName;
 			}
 
-			return TRUE;
+			return true;
 		}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -3858,13 +3857,13 @@ const FileListItem* FileList::GetLastSelectedItem() const
 	return nullptr;
 }
 
-int FileList::GetCurName(string &strName, string &strShortName) const
+bool FileList::GetCurName(string &strName, string &strShortName) const
 {
 	if (m_ListData.empty())
 	{
 		strName.clear();
 		strShortName.clear();
-		return FALSE;
+		return false;
 	}
 
 	assert(m_CurFile < static_cast<int>(m_ListData.size()));
@@ -3874,16 +3873,16 @@ int FileList::GetCurName(string &strName, string &strShortName) const
 	if (strShortName.empty())
 		strShortName = strName;
 
-	return TRUE;
+	return true;
 }
 
-int FileList::GetCurBaseName(string &strName, string &strShortName) const
+bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 {
 	if (m_ListData.empty())
 	{
 		strName.clear();
 		strShortName.clear();
-		return FALSE;
+		return false;
 	}
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty()) // для плагинов
@@ -3900,7 +3899,7 @@ int FileList::GetCurBaseName(string &strName, string &strShortName) const
 	if (strShortName.empty())
 		strShortName = strName;
 
-	return TRUE;
+	return true;
 }
 
 long FileList::SelectFiles(int Mode,const wchar_t *Mask)
@@ -4098,9 +4097,9 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 	}
 
 	if (SelectedFirst)
-		SortFileList(TRUE);
+		SortFileList(true);
 
-	ShowFileList(TRUE);
+	ShowFileList();
 
 	return workCount;
 }
@@ -4271,7 +4270,7 @@ void FileList::CompareDir()
 	const auto& refresh = [](FileList& Panel)
 	{
 		if (Panel.GetSelectedFirstMode())
-			Panel.SortFileList(TRUE);
+			Panel.SortFileList(true);
 		Panel.Redraw();
 	};
 	refresh(*this);
@@ -4303,7 +4302,7 @@ void FileList::CopyFiles(bool bMoved)
 				strSelName.resize(1);
 				strSelShortName.resize(1);
 			}
-			if (!CreateFullPathName(strSelName,strSelShortName,FileAttr,strSelName,FALSE))
+			if (!CreateFullPathName(strSelName, strSelShortName, FileAttr, strSelName, false))
 			{
 				break;
 			}
@@ -4450,7 +4449,7 @@ void FileList::ClearSelection()
 	});
 
 	if (SelectedFirst)
-		SortFileList(TRUE);
+		SortFileList(true);
 }
 
 
@@ -4471,7 +4470,7 @@ void FileList::RestoreSelection()
 	});
 
 	if (SelectedFirst)
-		SortFileList(TRUE);
+		SortFileList(true);
 
 	Redraw();
 }
@@ -4998,8 +4997,8 @@ void FileList::CountDirSize(bool IsRealNames)
 		}
 	}
 
-	SortFileList(TRUE);
-	ShowFileList(TRUE);
+	SortFileList(true);
+	ShowFileList();
 	Parent()->Redraw();
 	InitFSWatcher(true);
 }
@@ -5165,14 +5164,14 @@ void FileList::ProcessCopyKeys(int Key)
 void FileList::SetSelectedFirstMode(bool Mode)
 {
 	SelectedFirst=Mode;
-	SortFileList(TRUE);
+	SortFileList(true);
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 }
 
 void FileList::ChangeSortOrder(bool Reverse)
 {
 	Panel::ChangeSortOrder(Reverse);
-	SortFileList(TRUE);
+	SortFileList(true);
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
 }
@@ -5193,7 +5192,7 @@ void FileList::UpdateKeyBar()
 
 }
 
-int FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
+bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
 	string strPath, strFileName;
 	strPath = hPlugin->plugin()->GetModuleName();
@@ -5201,10 +5200,10 @@ int FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 	uintptr_t nCodePage = CP_OEMCP;
 	os::fs::file HelpFile;
 	if (!OpenLangFile(HelpFile, strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage))
-		return FALSE;
+		return false;
 
 	Help::create(Help::MakeLink(strPath, L"Contents"));
-	return TRUE;
+	return true;
 }
 
 /* $ 19.11.2001 IS
@@ -5293,14 +5292,14 @@ void FileList::PushPlugin(plugin_panel* hPlugin,const string& HostFile)
 	++Global->PluginPanelsCount;
 }
 
-int FileList::PopPlugin(int EnableRestoreViewMode)
+bool FileList::PopPlugin(int EnableRestoreViewMode)
 {
 	m_ListData.clear();
 
 	if (PluginsList.empty())
 	{
 		m_PanelMode = panel_mode::NORMAL_PANEL;
-		return FALSE;
+		return false;
 	}
 
 	const PluginsListItem CurPlugin = std::move(PluginsList.back());
@@ -5370,7 +5369,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	if (EnableRestoreViewMode)
 		Parent()->RedrawKeyBar();
 
-	return TRUE;
+	return true;
 }
 
 /*
@@ -5396,9 +5395,9 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 			Item.PrevListData.clear();
 
 			if (SelectedFirst)
-				SortFileList(FALSE);
+				SortFileList(false);
 			else if (!m_ListData.empty())
-				SortFileList(TRUE);
+				SortFileList(true);
 		}
 		PrevDataList.pop_back();
 	}
@@ -5419,12 +5418,12 @@ void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bo
 		m_CurFile = m_CurTopFile = 0;
 }
 
-int FileList::FileNameToPluginItem(const string& Name, PluginPanelItemHolder& pi)
+bool FileList::FileNameToPluginItem(const string& Name, PluginPanelItemHolder& pi)
 {
 	string strTempDir = Name;
 
 	if (!CutToSlash(strTempDir,true))
-		return FALSE;
+		return false;
 
 	FarChDir(strTempDir);
 	os::FAR_FIND_DATA fdata;
@@ -5432,10 +5431,10 @@ int FileList::FileNameToPluginItem(const string& Name, PluginPanelItemHolder& pi
 	if (os::GetFindDataEx(Name, fdata))
 	{
 		FindDataExToPluginPanelItemHolder(fdata, pi);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -6146,7 +6145,7 @@ void FileList::ProcessHostFile()
 				}
 
 				if (SelectedFirst)
-					SortFileList(TRUE);
+					SortFileList(true);
 			}
 			else
 			{
@@ -6357,7 +6356,7 @@ void FileList::PluginEndSelection()
 {
 	if (SelectedFirst)
 	{
-		SortFileList(TRUE);
+		SortFileList(true);
 	}
 }
 
@@ -6398,12 +6397,12 @@ plugin_panel* FileList::GetPluginHandle() const
 }
 
 
-int FileList::ProcessPluginEvent(int Event,void *Param)
+bool FileList::ProcessPluginEvent(int Event,void *Param)
 {
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-		return Global->CtrlObject->Plugins->ProcessEvent(m_hPlugin,Event,Param);
+		return Global->CtrlObject->Plugins->ProcessEvent(m_hPlugin,Event,Param) != FALSE;
 
-	return FALSE;
+	return false;
 }
 
 
@@ -6858,7 +6857,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		ClearSelection();
 	}
 
-	SortFileList(FALSE);
+	SortFileList(false);
 
 	if (!strLastSel.empty())
 		LastSelPosition = FindFile(strLastSel, false);
@@ -7179,7 +7178,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		ClearSelection();
 	}
 
-	SortFileList(FALSE);
+	SortFileList(false);
 
 	if (!strLastSel.empty())
 		LastSelPosition = FindFile(strLastSel, false);
@@ -7337,11 +7336,11 @@ void FileList::DisplayObject()
 	}
 
 	ProcessPluginCommand();
-	ShowFileList(FALSE);
+	ShowFileList(false);
 }
 
 
-void FileList::ShowFileList(int Fast)
+void FileList::ShowFileList(bool Fast)
 {
 	string strTitle;
 	string strInfoCurDir;
@@ -7861,7 +7860,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	}
 }
 
-int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned long long RightAlign,int ShowStatus,DWORD FileAttr) const
+bool FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,unsigned long long RightAlign,int ShowStatus,DWORD FileAttr) const
 {
 	strDest.reserve(MaxLength);
 
@@ -8719,5 +8718,5 @@ void FileList::MoveSelection(direction Direction)
 		MoveCursor(1);
 
 	if (SelectedFirst && !InternalProcessKey)
-		SortFileList(TRUE);
+		SortFileList(true);
 }

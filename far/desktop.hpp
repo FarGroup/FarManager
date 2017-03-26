@@ -47,7 +47,7 @@ public:
 	virtual int GetType() const override { return windowtype_desktop; }
 	virtual int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }
 	virtual void ResizeConsole() override;
-	virtual int ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
 
 	void TakeSnapshot();
 

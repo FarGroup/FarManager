@@ -162,17 +162,17 @@ public:
 	FileList(private_tag, window_ptr Owner);
 	virtual ~FileList() override;
 
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void Update(int Mode) override;
 	virtual bool UpdateIfChanged(bool Idle) override;
 	virtual void UpdateIfRequired() override;
-	virtual int SendKeyToPlugin(DWORD Key, bool Pred = false) override;
+	virtual bool SendKeyToPlugin(DWORD Key, bool Pred = false) override;
 	virtual void StartFSWatcher(bool got_focus = false, bool check_time = true) override;
 	virtual void StopFSWatcher() override;
-	virtual void SortFileList(int KeepPosition) override;
+	virtual void SortFileList(bool KeepPosition) override;
 	virtual void SetViewMode(int ViewMode) override;
 	virtual void SetSortMode(panel_sort SortMode, bool KeepOrder = false) override;
 	virtual void SetCustomSortMode(int SortMode, sort_order Order = SO_AUTO, bool InvertByDefault = false) override;
@@ -221,14 +221,14 @@ public:
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
 	virtual void SetPluginMode(plugin_panel* hPlugin, const string& PluginFile, bool SendOnFocus = false) override;
 	virtual size_t GetSelCount() const override;
-	virtual int GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::FAR_FIND_DATA *fde = nullptr) override;
+	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::FAR_FIND_DATA *fde = nullptr) override;
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
 	virtual unsigned long long GetLastSelectedSize() const override;
 	virtual plugin_panel* GetPluginHandle() const override;
 	virtual size_t GetRealSelCount() const override;
 	virtual void SetPluginModified() override;
-	virtual int ProcessPluginEvent(int Event, void *Param) override;
+	virtual bool ProcessPluginEvent(int Event, void *Param) override;
 	virtual void RefreshTitle() override;
 	virtual size_t GetFileCount() const override;
 	virtual void UpdateKeyBar() override;
@@ -252,7 +252,7 @@ public:
 	void PluginSetSelection(int ItemNumber, bool Selection);
 	void PluginClearSelection(int SelectedItemNumber);
 	void PluginEndSelection();
-	int PluginPanelHelp(const plugin_panel* hPlugin) const;
+	bool PluginPanelHelp(const plugin_panel* hPlugin) const;
 	void ResetLastUpdateTime()
 	{
 		LastUpdateTime = 0;
@@ -260,7 +260,7 @@ public:
 	string GetPluginPrefix() const;
 
 	size_t FileListToPluginItem2(const FileListItem& fi, FarGetPluginPanelItem* pi) const;
-	static int FileNameToPluginItem(const string& Name, class PluginPanelItemHolder& pi);
+	static bool FileNameToPluginItem(const string& Name, class PluginPanelItemHolder& pi);
 	void FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& pi) const;
 	static bool IsModeFullScreen(int Mode);
 
@@ -290,8 +290,8 @@ private:
 
 	virtual void SetSelectedFirstMode(bool Mode) override;
 	virtual void DisplayObject() override;
-	virtual int GetCurName(string &strName, string &strShortName) const override;
-	virtual int GetCurBaseName(string &strName, string &strShortName) const override;
+	virtual bool GetCurName(string &strName, string &strShortName) const override;
+	virtual bool GetCurBaseName(string &strName, string &strShortName) const override;
 
 	void ApplySortMode(panel_sort Mode);
 	void ToBegin();
@@ -300,13 +300,13 @@ private:
 	void MoveCursorAndShow(int offset);
 	void Scroll(int offset);
 	void CorrectPosition();
-	void ShowFileList(int Fast);
+	void ShowFileList(bool Fast = true);
 	void ShowList(int ShowStatus, int StartColumn);
 	void SetShowColor(int Position, bool FileColor = true) const;
 	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
-	int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
+	bool ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
 	void Select(FileListItem& SelItem, bool Selection);
 	long SelectFiles(int Mode, const wchar_t *Mask = nullptr);
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
@@ -317,7 +317,7 @@ private:
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
 	void MoveSelection(list_data& From, list_data& To);
 	void PushPlugin(plugin_panel* hPlugin, const string& HostFile);
-	int PopPlugin(int EnableRestoreViewMode);
+	bool PopPlugin(int EnableRestoreViewMode);
 	void PopPrevData(const string& DefaultName, bool Closed, bool UsePrev, bool Position, bool SetDirectorySuccess);
 	void CopyFiles(bool bMoved = false);
 	void CopyNames(bool FillPathName, bool UNC);

@@ -67,8 +67,8 @@ public:
 	DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type);
 	virtual ~DlgEdit() override;
 
-	virtual int  ProcessKey(const Manager::Key& Key) override;
-	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 
 	virtual void Show() override;
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;

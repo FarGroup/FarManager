@@ -4892,7 +4892,7 @@ static void CheckScreenLock()
 	}
 }
 
-static int SendKeyToPluginHook(const Manager::Key& key)
+static bool SendKeyToPluginHook(const Manager::Key& key)
 {
 	DWORD KeyM = (key()&(~KEY_CTRLMASK));
 
@@ -4904,11 +4904,11 @@ static int SendKeyToPluginHook(const Manager::Key& key)
 			{
 				const auto ph = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
 				if (ph && ph->plugin()->IsOemPlugin() && Global->CtrlObject->Cp()->ActivePanel()->SendKeyToPlugin(key(), true))
-					return TRUE;
+					return true;
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 static void RegisterSendKeyToPluginHook()

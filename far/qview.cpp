@@ -318,22 +318,22 @@ long long QuickView::VMProcess(int OpCode, void* vParam, long long iParam)
 	return 0;
 }
 
-int QuickView::ProcessKey(const Manager::Key& Key)
+bool QuickView::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
 	if (!IsVisible())
-		return FALSE;
+		return false;
 
 	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
 	{
 		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
-		return TRUE;
+		return true;
 	}
 
 	if (LocalKey == KEY_F1)
 	{
 		Help::create(L"QViewPanel");
-		return TRUE;
+		return true;
 	}
 
 	if (LocalKey==KEY_F3 || LocalKey==KEY_NUMPAD5 || LocalKey == KEY_SHIFTNUMPAD5)
@@ -343,7 +343,7 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 		if (AnotherPanel->GetType() == panel_type::FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(KEY_F3));
 
-		return TRUE;
+		return true;
 	}
 
 	if (LocalKey==KEY_ADD || LocalKey==KEY_SUBTRACT)
@@ -353,12 +353,12 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 		if (AnotherPanel->GetType() == panel_type::FILE_PANEL)
 			AnotherPanel->ProcessKey(Manager::Key(LocalKey==KEY_ADD?KEY_DOWN:KEY_UP));
 
-		return TRUE;
+		return true;
 	}
 
 	if (QView && !Directory && LocalKey>=256)
 	{
-		int ret = QView->ProcessKey(Manager::Key(LocalKey));
+		const auto ret = QView->ProcessKey(Manager::Key(LocalKey));
 
 		if (LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2
 		 || LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4
@@ -382,24 +382,24 @@ int QuickView::ProcessKey(const Manager::Key& Key)
 		return ret;
 	}
 
-	return FALSE;
+	return false;
 }
 
 
-int QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool QuickView::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!IsMouseInClientArea(MouseEvent))
-		return FALSE;
+		return false;
 
 	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
-		return FALSE;
+		return false;
 
 	Parent()->SetActivePanel(this);
 
 	if (QView && !Directory)
 		return QView->ProcessMouse(MouseEvent);
 
-	return FALSE;
+	return false;
 }
 
 void QuickView::Update(int Mode)
@@ -568,16 +568,14 @@ void QuickView::RefreshTitle()
 	append(m_Title, MSG(lng::MQuickViewTitle), L'}');
 }
 
-int QuickView::GetCurName(string &strName, string &strShortName) const
+bool QuickView::GetCurName(string &strName, string &strShortName) const
 {
-	if (!strCurFileName.empty())
-	{
-		strName = strCurFileName;
-		strShortName = strName;
-		return TRUE;
-	}
+	if (strCurFileName.empty())
+		return false;
 
-	return FALSE;
+	strName = strCurFileName;
+	strShortName = strName;
+	return true;
 }
 
 void QuickView::UpdateKeyBar()

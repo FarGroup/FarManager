@@ -804,12 +804,12 @@ long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 }
 
 
-int FileEditor::ProcessKey(const Manager::Key& Key)
+bool FileEditor::ProcessKey(const Manager::Key& Key)
 {
-	return ReProcessKey(Key,FALSE);
+	return ReProcessKey(Key, false);
 }
 
-int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
+bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 {
 	const auto LocalKey = Key();
 	if (LocalKey!=KEY_F4 && LocalKey!=KEY_IDLE)
@@ -858,7 +858,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							}
 
 						default:
-							return FALSE;
+							return false;
 					}
 				}
 
@@ -888,7 +888,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					}
 				}
 
-				return TRUE;
+				return true;
 			}
 
 			break; // отдадим F6 плагинам, если есть запрет на переключение
@@ -902,24 +902,21 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			if (GetCanLoseFocus())
 			{
 				Global->CtrlObject->CmdLine()->ShowViewEditHistory();
-				return TRUE;
+				return true;
 			}
 
 			break; // отдадим Alt-F11 на растерзание плагинам, если редактор модальный
 		}
 	}
 
-	BOOL ProcessedNext=TRUE;
+	bool ProcessedNext = true;
 
 	_SVS(if (LocalKey=='n' || LocalKey=='m'))
 		_SVS(SysLog(L"%d Key='%c'",__LINE__,LocalKey));
 
-	if (!CalledFromControl && (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO))
+	const auto MacroState = Global->CtrlObject->Macro.GetState();
+	if (!CalledFromControl && (MacroState == MACROSTATE_RECORDING_COMMON || MacroState == MACROSTATE_EXECUTING_COMMON || MacroState == MACROSTATE_NOMACRO))
 	{
-
-		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING_COMMON))
-			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetState() != MACROSTATE_NOMACRO !!!!",__LINE__));
-
 		assert(Key.IsEvent());
 		if (Key.IsReal())
 		{
@@ -929,13 +926,12 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 	if (ProcessedNext)
 	{
-
 		switch (LocalKey)
 		{
 			case KEY_F1:
 			{
 				Help::create(L"Editor");
-				return TRUE;
+				return true;
 			}
 			/* $ 25.04.2001 IS
 			     ctrl+f - вставить в строку полное имя редактируемого файла
@@ -961,7 +957,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					m_editor->Show(); //???
 				}
 
-				return TRUE;
+				return true;
 			}
 			/* $ 24.08.2000 SVS
 			   + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
@@ -979,7 +975,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 				Show();
 
-				return TRUE;
+				return true;
 			}
 			case KEY_F2:
 			case KEY_SHIFTF2:
@@ -1013,7 +1009,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 					static int TextFormat=0;
 					uintptr_t codepage = m_codepage;
-					bool SaveAs = LocalKey==KEY_SHIFTF2 || m_Flags.Check(FFILEEDIT_SAVETOSAVEAS);
+					const auto SaveAs = LocalKey==KEY_SHIFTF2 || m_Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 					string strFullSaveAsName = strFullFileName;
 
 					if (SaveAs)
@@ -1021,7 +1017,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						string strSaveAsName = m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName;
 
 						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, m_bAddSignature))
-							return FALSE;
+							return false;
 
 						strSaveAsName = Unquote(os::env::expand_strings(strSaveAsName));
 						const auto NameChanged = StrCmpI(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName) != 0;
@@ -1034,7 +1030,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							if (!AskOverwrite(strSaveAsName))
 							{
 								FarChDir(strOldCurDir);
-								return TRUE;
+								return true;
 							}
 						}
 
@@ -1050,7 +1046,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						  if(!NameChanged)
 						    FarChDir(strOldCurDir);
 						  continue;
-						  //return FALSE;
+						  //return false;
 						} */
 
 						if (!NameChanged)
@@ -1087,7 +1083,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 							{
 								//Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", MSG(lng::MOk));
 								int UserBreak;
-								LoadFile(strFullSaveAsName, UserBreak);
+								LoadFile(strFullSaveAsName, UserBreak); // BUGBUG check result
 								// TODO: возможно подобный ниже код здесь нужен (copy/paste из FileEditor::Init()). оформить его нужно по иному
 								//if(!Global->Opt->Confirm.Esc && UserBreak && GetExitCode()==XC_LOADING_INTERRUPTED && WindowManager)
 								//  WindowManager->RefreshWindow();
@@ -1106,7 +1102,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					}
 				}
 
-				return TRUE;
+				return true;
 			}
 			// $ 30.05.2003 SVS - Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер (пока только редактор)
 			case KEY_SHIFTF4:
@@ -1117,7 +1113,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 						SaveToCache();
 					Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Key);
 				}
-				return TRUE;
+				return true;
 			}
 			// $ 21.07.2000 SKV + выход с позиционированием на редактируемом файле по CTRLF10
 			case KEY_CTRLF10:
@@ -1125,7 +1121,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			{
 				if (Global->WindowManager->InModal())
 				{
-					return TRUE;
+					return true;
 				}
 
 				string strFullFileNameTemp = strFullFileName;
@@ -1133,7 +1129,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				if (!os::fs::exists(strFullFileName)) // а сам файл то еще на месте?
 				{
 					if (!CheckShortcutFolder(strFullFileNameTemp, true, false))
-						return FALSE;
+						return false;
 
 					strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
 				}
@@ -1152,7 +1148,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					m_Flags.Set(FFILEEDIT_REDRAWTITLE);
 				}
 
-				return TRUE;
+				return true;
 			}
 			case KEY_CTRLB:
 			case KEY_RCTRLB:
@@ -1166,7 +1162,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 				Show();
 				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
-				return TRUE;
+				return true;
 			}
 			case KEY_CTRLSHIFTB:
 			case KEY_RCTRLSHIFTB:
@@ -1174,16 +1170,16 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				Global->Opt->EdOpt.ShowTitleBar=!Global->Opt->EdOpt.ShowTitleBar;
 				m_TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 				Show();
-				return TRUE;
+				return true;
 			}
 			case KEY_SHIFTF10:
 
 				if (!ProcessKey(Manager::Key(KEY_F2))) // учтем факт того, что могли отказаться от сохранения
-					return FALSE;
+					return false;
 
 			case KEY_F4:
 				if (F4KeyOnly)
-					return TRUE;
+					return true;
 			case KEY_ESC:
 			case KEY_F10:
 			{
@@ -1191,7 +1187,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 
 				if (LocalKey != KEY_SHIFTF10)   // KEY_SHIFTF10 не учитываем!
 				{
-					bool FilePlaced = !os::fs::exists(strFullFileName) && !m_Flags.Check(FFILEEDIT_NEW);
+					const auto FilePlaced = !os::fs::exists(strFullFileName) && !m_Flags.Check(FFILEEDIT_NEW);
 
 					if (m_editor->IsFileChanged() || // в текущем сеансе были изменения?
 					        FilePlaced) // а сам файл то еще на месте?
@@ -1231,7 +1227,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 								break;
 							case 2:
 							default:
-								return FALSE;
+								return false;
 						}
 					}
 					else if (!m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)) //????
@@ -1239,15 +1235,15 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				}
 
 				if (!ProcessQuitKey(FirstSave,NeedQuestion))
-					return FALSE;
+					return false;
 
-				return TRUE;
+				return true;
 			}
 
 			case KEY_F8:
 			{
 				SetCodePage(f8cps.NextCP(m_codepage), false,true);
-				return TRUE;
+				return true;
 			}
 			case KEY_SHIFTF8:
 			{
@@ -1255,7 +1251,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 				if (Codepages().SelectCodePage(codepage, true, false, true))
 					SetCodePage(codepage, true,true);
 
-				return TRUE;
+				return true;
 			}
 
 			case KEY_ALTSHIFTF9:
@@ -1272,11 +1268,11 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 					m_windowKeyBar->Show();
 
 				m_editor->Show();
-				return TRUE;
+				return true;
 			}
 			default:
 			{
-				if (m_Flags.Check(FFILEEDIT_FULLSCREEN) && Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_NOMACRO)
+				if (m_Flags.Check(FFILEEDIT_FULLSCREEN) && !Global->CtrlObject->Macro.IsExecuting())
 					if (Global->Opt->EdOpt.ShowKeyBar)
 						m_windowKeyBar->Show();
 
@@ -1285,7 +1281,7 @@ int FileEditor::ReProcessKey(const Manager::Key& Key,int CalledFromControl)
 			}
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 enum
@@ -1442,7 +1438,7 @@ int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWind
 }
 
 
-int FileEditor::LoadFile(const string& Name,int &UserBreak)
+bool FileEditor::LoadFile(const string& Name,int &UserBreak)
 {
 	try
 	{
@@ -1464,7 +1460,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			m_Flags.Set(FFILEEDIT_OPENFAILED);
 		}
 
-		return FALSE;
+		return false;
 	}
 
 	if (Global->Opt->EdOpt.FileSizeLimit)
@@ -1493,7 +1489,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 					Global->CatchError();
 					UserBreak=1;
 					m_Flags.Set(FFILEEDIT_OPENFAILED);
-					return FALSE;
+					return false;
 				}
 			}
 		}
@@ -1509,7 +1505,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				Global->CatchError();
 				UserBreak=1;
 				m_Flags.Set(FFILEEDIT_OPENFAILED);
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -1517,7 +1513,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	for (BitFlags f0 = m_editor->m_Flags; ; m_editor->m_Flags = f0)
 	{
 		m_editor->FreeAllocatedData();
-		bool bCached = LoadFromCache(pc);
+		const auto Cached = LoadFromCache(pc);
 
 		const os::fs::file_status FileStatus(Name);
 		if ((m_editor->EdOpt.ReadOnlyLock & bit(0)) && FileStatus.check(FILE_ATTRIBUTE_READONLY | (m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4))
@@ -1525,26 +1521,26 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 			m_editor->m_Flags.Swap(Editor::FEDITOR_LOCKMODE);
 		}
 
-		if (bCached && pc.CodePage && !codepages::IsCodePageSupported(pc.CodePage))
+		if (Cached && pc.CodePage && !codepages::IsCodePageSupported(pc.CodePage))
 			pc.CodePage = 0;
 
 		m_editor->GlobalEOL = Editor::GetDefaultEOL();
 		bool testBOM = true;
 
-		bool redetect = (m_codepage == CP_REDETECT);
-		if (redetect)
+		const auto Redetect = (m_codepage == CP_REDETECT);
+		if (Redetect)
 			m_codepage = CP_DEFAULT;
 
 		if (m_codepage == CP_DEFAULT)
 		{
-			if (!redetect && bCached && pc.CodePage)
+			if (!Redetect && Cached && pc.CodePage)
 				m_codepage = pc.CodePage;
 
 			else
 			{
 				uintptr_t dwCP = 0;
 				testBOM = false;
-				bool Detect = GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0)
+				bool Detect = GetFileFormat(EditFile, dwCP, &m_bAddSignature, Redetect || Global->Opt->EdOpt.AutoDetectCodePage != 0)
 					&& codepages::IsCodePageSupported(dwCP);
 
 				if (Detect)
@@ -1585,7 +1581,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 					{
 						UserBreak = 1;
 						EditFile.Close();
-						return FALSE;
+						return false;
 					}
 				}
 
@@ -1624,7 +1620,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				Global->CatchError();
 				UserBreak=1;
 				m_Flags.Set(FFILEEDIT_OPENFAILED);
-				return FALSE;
+				return false;
 			}
 			else if (cp != m_codepage)
 			{
@@ -1645,7 +1641,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	Global->CatchError();
 	os::GetFindDataEx(Name, FileInfo);
 	EditorGetFileAttributes(Name);
-	return TRUE;
+	return true;
 
 	}
 	catch (const std::bad_alloc&)
@@ -1655,7 +1651,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		m_Flags.Set(FFILEEDIT_OPENFAILED);
 		SetLastError(ERROR_NOT_ENOUGH_MEMORY);
 		Global->CatchError();
-		return FALSE;
+		return false;
 	}
 }
 
@@ -2079,7 +2075,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	return RetCode;
 }
 
-int FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	F4KeyOnly = false;
 	if (!m_windowKeyBar->ProcessMouse(MouseEvent))
@@ -2089,10 +2085,10 @@ int FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		mouse.Event.MouseEvent=*MouseEvent;
 		if (!ProcessEditorInput(mouse))
 			if (!m_editor->ProcessMouse(MouseEvent))
-				return FALSE;
+				return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -2639,7 +2635,8 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_READINPUT:
 		{
-			if (Global->CtrlObject->Macro.IsRecording() == MACROSTATE_RECORDING || Global->CtrlObject->Macro.IsExecuting() == MACROSTATE_EXECUTING)
+			const auto MacroState = Global->CtrlObject->Macro.GetState();
+			if (MacroState == MACROSTATE_RECORDING || MacroState == MACROSTATE_EXECUTING)
 			{
 				//return FALSE;
 			}

@@ -79,8 +79,8 @@ public:
 	TreeList(private_tag, window_ptr Owner, int ModalMode);
 	virtual ~TreeList() override;
 
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual bool GoToFile(const string& Name, bool OnlyPartName = false) override;
 	virtual bool FindPartName(const string& Name, int Next, int Direct = 1) override;
 	virtual void Update(int Mode) override;
@@ -102,7 +102,7 @@ public:
 private:
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual bool SetCurDir(const string& NewDir, bool ClosePanel, bool IsUpdated = true) override;
-	virtual int GetCurName(string &strName, string &strShortName) const override;
+	virtual bool GetCurName(string &strName, string &strShortName) const override;
 	virtual void UpdateViewPanel() override;
 	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual bool GetPlainString(string& Dest, int ListPos) const override;
@@ -117,11 +117,11 @@ private:
 	virtual void OnFocusChange(bool Get) override;
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurrentPos() const override;
-	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) override;
+	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) override;
 	virtual void DisplayObject() override;
 	virtual size_t GetSelCount() const override;
 
-	int ReadTree();
+	bool ReadTree();
 	void DisplayTree(bool Fast);
 	void DisplayTreeName(const wchar_t *Name, size_t Pos) const;
 	void Up(int Count);
@@ -129,12 +129,12 @@ private:
 	void Scroll(int Count);
 	void CorrectPosition();
 	bool FillLastData();
-	int SetDirPosition(const string& NewDir);
+	bool SetDirPosition(const string& NewDir);
 	void GetRoot();
 	panel_ptr GetRootPanel();
 	void SyncDir();
 	void SaveTreeFile();
-	int ReadTreeFile();
+	bool ReadTreeFile();
 	int GetNextNavPos() const;
 	int GetPrevNavPos() const;
 	bool SaveState();

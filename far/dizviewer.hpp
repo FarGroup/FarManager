@@ -45,19 +45,19 @@ class DizViewer: public Viewer
 		DizViewer(window_ptr Owner):Viewer(Owner), InRecursion(0) {}
 
 	public:
-		virtual int ProcessKey(const Manager::Key& Key) override
+		virtual bool ProcessKey(const Manager::Key& Key) override
 		{
 			InRecursion++;
-			int res=Viewer::ProcessKey(Key);
+			const auto Result = Viewer::ProcessKey(Key);
 			InRecursion--;
-			return res;
+			return Result;
 		}
-		virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override
+		virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override
 		{
 			InRecursion++;
-			int res=Viewer::ProcessMouse(MouseEvent);
+			const auto Result = Viewer::ProcessMouse(MouseEvent);
 			InRecursion--;
-			return res;
+			return Result;
 		}
 };
 

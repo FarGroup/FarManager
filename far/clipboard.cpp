@@ -481,7 +481,7 @@ bool ClearInternalClipboard()
 	return Clip->Open() && Clip->Clear();
 }
 
-bool CopyData(const clipboard_accessor& From, clipboard_accessor& To)
+bool CopyData(const clipboard_accessor& From, const clipboard_accessor& To)
 {
 	string Data;
 	if (From->GetVText(Data))

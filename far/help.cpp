@@ -226,17 +226,17 @@ Help::~Help()
 {
 }
 
-int Help::ReadHelp(const string& Mask)
+bool Help::ReadHelp(const string& Mask)
 {
 	string strPath;
 
 	if (StackData->strHelpTopic.front() == HelpBeginLink)
 	{
 		strPath = StackData->strHelpTopic.substr(1);
-		size_t pos = strPath.find(HelpEndLink);
+		const auto pos = strPath.find(HelpEndLink);
 
 		if (pos == string::npos)
-			return FALSE;
+			return false;
 
 		StackData->strHelpTopic = strPath.substr(pos + 1);
 		strPath.resize(pos);
@@ -253,7 +253,7 @@ int Help::ReadHelp(const string& Mask)
 	{
 		strFullHelpPathName.clear();
 		ReadDocumentsHelp(HIDX_PLUGINS);
-		return TRUE;
+		return true;
 	}
 
 	uintptr_t nCodePage = CP_OEMCP;
@@ -273,7 +273,7 @@ int Help::ReadHelp(const string& Mask)
 			}
 		}
 
-		return FALSE;
+		return false;
 	}
 
 	string strReadStr;
@@ -309,7 +309,7 @@ int Help::ReadHelp(const string& Mask)
 	if (StackData->strHelpTopic == FoundContents)
 	{
 		Search(HelpFile,nCodePage);
-		return TRUE;
+		return true;
 	}
 
 	FixCount=0;
@@ -1149,7 +1149,7 @@ long long Help::VMProcess(int OpCode,void* vParam, long long iParam)
 	return 1;
 }
 
-int Help::ProcessKey(const Manager::Key& Key)
+bool Help::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
 	if (StackData->strSelTopic.empty())
@@ -1167,7 +1167,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			Global->Opt->FullScreenHelp=!Global->Opt->FullScreenHelp;
 			ResizeConsole();
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_ESC:
 		case KEY_F10:
@@ -1175,7 +1175,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			Hide();
 			Global->WindowManager->DeleteWindow(shared_from_this());
 			SetExitCode(XC_QUIT);
-			return TRUE;
+			return true;
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
@@ -1190,7 +1190,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			if (StackData->strSelTopic.empty())
 				MoveToReference(1,1);
 
-			return TRUE;
+			return true;
 		}
 		case KEY_END:         case KEY_NUMPAD1:
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
@@ -1209,7 +1209,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				MoveToReference(0,1);
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_UP:          case KEY_NUMPAD8:
 		{
@@ -1231,7 +1231,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			else
 				ProcessKey(Manager::Key(KEY_SHIFTTAB));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_DOWN:        case KEY_NUMPAD2:
 		{
@@ -1251,7 +1251,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			else
 				ProcessKey(Manager::Key(KEY_TAB));
 
-			return TRUE;
+			return true;
 		}
 		/* $ 26.07.2001 VVM
 		  + С альтом скролим по 1 */
@@ -1263,7 +1263,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			while (n-- > 0)
 				ProcessKey(Manager::Key(KEY_UP));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case KEY_MSWHEEL_DOWN | KEY_ALT:
@@ -1273,7 +1273,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 			while (n-- > 0)
 				ProcessKey(Manager::Key(KEY_DOWN));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_PGUP:      case KEY_NUMPAD9:
 		{
@@ -1287,7 +1287,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				MoveToReference(1,1);
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_PGDN:      case KEY_NUMPAD3:
 		{
@@ -1299,26 +1299,26 @@ int Help::ProcessKey(const Manager::Key& Key)
 				if (StackData->TopStr==PrevTopStr)
 				{
 					ProcessKey(Manager::Key(KEY_CTRLPGDN));
-					return TRUE;
+					return true;
 				}
 				else
 					StackData->CurX=StackData->CurY=0;
 
 				MoveToReference(1,1);
 			}
-			return TRUE;
+			return true;
 		}
 		case KEY_RIGHT:   case KEY_NUMPAD6:   case KEY_MSWHEEL_RIGHT:
 		case KEY_TAB:
 		{
 			MoveToReference(1,0);
-			return TRUE;
+			return true;
 		}
 		case KEY_LEFT:    case KEY_NUMPAD4:   case KEY_MSWHEEL_LEFT:
 		case KEY_SHIFTTAB:
 		{
 			MoveToReference(0,0);
-			return TRUE;
+			return true;
 		}
 		case KEY_F1:
 		{
@@ -1332,7 +1332,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				ErrorHelp = false;
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF1:
 		{
@@ -1346,7 +1346,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				IsNewTopic = false;
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_F7:
 		{
@@ -1363,7 +1363,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				int RetCode = GetSearchReplaceString(false, MSG(lng::MHelpSearchTitle), MSG(lng::MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp, nullptr, nullptr, true, &HelpSearchId);
 
 				if (RetCode <= 0)
-					return TRUE;
+					return true;
 
 				strLastSearchStr=strLastSearchStr0;
 				LastSearchCase=Case;
@@ -1377,7 +1377,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				IsNewTopic = false;
 			}
 
-			return TRUE;
+			return true;
 
 		}
 		case KEY_SHIFTF2:
@@ -1392,7 +1392,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				IsNewTopic = false;
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_ALTF1:
 		case KEY_RALTF1:
@@ -1405,7 +1405,7 @@ int Help::ProcessKey(const Manager::Key& Key)
 				Stack.pop();
 				JumpTopic(StackData->strHelpTopic);
 				ErrorHelp = false;
-				return TRUE;
+				return true;
 			}
 
 			return ProcessKey(Manager::Key(KEY_ESC));
@@ -1429,20 +1429,20 @@ int Help::ProcessKey(const Manager::Key& Key)
 				IsNewTopic = false;
 			}
 
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-int Help::JumpTopic(const string& Topic)
+bool Help::JumpTopic(const string& Topic)
 {
 	StackData->strSelTopic = Topic;
 	return JumpTopic();
 }
 
-int Help::JumpTopic()
+bool Help::JumpTopic()
 {
 	string strNewTopic;
 	size_t pos = 0;
@@ -1483,7 +1483,7 @@ int Help::JumpTopic()
 
 			if (RunURL(Protocol, StackData->strSelTopic))
 			{
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -1591,7 +1591,7 @@ int Help::JumpTopic()
 			Message(MSG_WARNING,1,MSG(lng::MHelpTitle),MSG(lng::MHelpTopicNotFound),StackData->strHelpTopic.data(),MSG(lng::MOk));
 		}
 
-		return FALSE;
+		return false;
 	}
 
 	// ResizeConsole();
@@ -1601,18 +1601,18 @@ int Help::JumpTopic()
 		MoveToReference(1,1);
 
 	Global->WindowManager->RefreshWindow();
-	return TRUE;
+	return true;
 }
 
-int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (m_windowKeyBar->ProcessMouse(MouseEvent))
-		return TRUE;
+		return true;
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED && MouseEvent->dwEventFlags!=MOUSE_MOVED)
 	{
 		ProcessKey(Manager::Key(KEY_ENTER));
-		return TRUE;
+		return true;
 	}
 
 	int prevMsX = MsX , prevMsY = MsY;
@@ -1635,7 +1635,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (MouseEvent->dwButtonState)
 			m_Flags.Set(HELPMODE_CLICKOUTSIDE);
 
-		return TRUE;
+		return true;
 	}
 
 	if (IntKeyState.MouseX==m_X2 && (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
@@ -1647,7 +1647,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_UP));
 
-			return TRUE;
+			return true;
 		}
 
 		if (IntKeyState.MouseY == ScrollY + BodyHeight() - 1)
@@ -1655,7 +1655,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			while (IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_DOWN));
 
-			return TRUE;
+			return true;
 		}
 		simple_move = false;
 	}
@@ -1679,7 +1679,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		simple_move = false;
 	}
@@ -1690,7 +1690,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		MouseEvent->dwMousePosition.Y < m_Y1 + 1 + HeaderHeight())
 	{
 		ProcessKey(Manager::Key(KEY_F5));
-		return TRUE;
+		return true;
 	}
 
 	if (MouseEvent->dwMousePosition.Y < m_Y1 + 1 + HeaderHeight())
@@ -1698,7 +1698,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		while (IsMouseButtonPressed() && IntKeyState.MouseY < m_Y1 + 1 + HeaderHeight())
 			ProcessKey(Manager::Key(KEY_UP));
 
-		return TRUE;
+		return true;
 	}
 
 	if (MouseEvent->dwMousePosition.Y>=m_Y2)
@@ -1706,7 +1706,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y2)
 			ProcessKey(Manager::Key(KEY_DOWN));
 
-		return TRUE;
+		return true;
 	}
 
 	/* $ 26.11.2001 VVM
@@ -1758,7 +1758,7 @@ int Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	FastShow();
 	Sleep(1);
-	return TRUE;
+	return true;
 }
 
 bool Help::IsReferencePresent()

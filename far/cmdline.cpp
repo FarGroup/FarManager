@@ -185,7 +185,7 @@ long long CommandLine::VMProcess(int OpCode, void* vParam, long long iParam)
 	return 0;
 }
 
-int CommandLine::ProcessKey(const Manager::Key& Key)
+bool CommandLine::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;
 
@@ -211,20 +211,20 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 		}
 
 		Show();
-		return TRUE;
+		return true;
 	}
 
 	if (LocalKey() == KEY_UP || LocalKey() == KEY_NUMPAD8)
 	{
 		if (Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible())
-			return FALSE;
+			return false;
 
 		LocalKey=KEY_CTRLE;
 	}
 	else if (LocalKey() == KEY_DOWN || LocalKey() == KEY_NUMPAD2)
 	{
 		if (Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible())
-			return FALSE;
+			return false;
 
 		LocalKey=KEY_CTRLX;
 	}
@@ -269,7 +269,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				}
 
 			}
-			return TRUE;
+			return true;
 
 		case KEY_ESC:
 		{
@@ -277,13 +277,13 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->CmdHistoryRule)
 				Global->CtrlObject->CmdHistory->ResetPosition();
 			SetString(L"", true);
-			return TRUE;
+			return true;
 		}
 
 		case KEY_F2:
 		{
 			UserMenu(false);
-			return TRUE;
+			return true;
 		}
 		case KEY_ALTF8:
 		case KEY_RALTF8:
@@ -306,7 +306,8 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				}
 			}
 		}
-		return TRUE;
+		return true;
+
 		case KEY_ALTF10:
 		case KEY_RALTF10:
 		if (!Global->Opt->Tree.TurnOffCompletely)
@@ -341,12 +342,14 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				}
 			}
 		}
-		return TRUE;
+		return true;
+
 		case KEY_ALTF11:
 		case KEY_RALTF11:
 			ShowViewEditHistory();
 			Global->CtrlObject->Cp()->Redraw();
-			return TRUE;
+			return true;
+
 		case KEY_ALTF12:
 		case KEY_RALTF12:
 		{
@@ -398,7 +401,8 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				break;
 			}
 		}
-		return TRUE;
+		return true;
+
 		case KEY_NUMENTER:
 		case KEY_SHIFTNUMENTER:
 		case KEY_ENTER:
@@ -443,12 +447,14 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 				ExecString(Info);
 			}
 		}
-		return TRUE;
+		return true;
+
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 			CmdStr.RemoveSelection();
 			Refresh();
-			return TRUE;
+			return true;
+
 		case KEY_OP_XLAT:
 		{
 			// 13.12.2000 SVS - ! Для CmdLine - если нет выделения, преобразуем всю строку (XLat)
@@ -458,8 +464,9 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			strLastCmdStr = CmdStr.GetString();
 			LastCmdPartLength=(int)strLastCmdStr.size();
 
-			return TRUE;
+			return true;
 		}
+
 		/* дополнительные клавиши для выделения в ком строке.
 		   ВНИМАНИЕ!
 		   Для сокращения кода этот кусок должен стоять перед "default"
@@ -509,7 +516,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 			{
 				SCOPED_ACTION(SetAutocomplete)(&CmdStr, true);
 				CmdStr.AutoComplete(true,false);
-				return TRUE;
+				return true;
 			}
 
 			if (!CmdStr.ProcessKey(LocalKey))
@@ -517,7 +524,7 @@ int CommandLine::ProcessKey(const Manager::Key& Key)
 
 			LastCmdPartLength=-1;
 
-			return TRUE;
+			return true;
 	}
 }
 
@@ -552,7 +559,7 @@ void CommandLine::InsertString(const string& Str)
 }
 
 
-int CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED && MouseEvent->dwMousePosition.X==m_X2+1)
 	{

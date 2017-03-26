@@ -2698,16 +2698,16 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 	}
 }
 
-int Editor::ProcessKey(const Manager::Key& Key)
+bool Editor::ProcessKey(const Manager::Key& Key)
 {
 	bool RefreshMe = false;
-	int Result = ProcessKeyInternal(Key, RefreshMe);
+	const auto Result = ProcessKeyInternal(Key, RefreshMe);
 	if (RefreshMe) Refresh();
 	return Result;
 }
 
 
-int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	// $ 28.12.2000 VVM - Щелчок мышкой снимает непостоянный блок всегда
 	if ((MouseEvent->dwButtonState & 3))
@@ -2743,7 +2743,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				GoToLineAndShow((m_LinesCount-1)*(IntKeyState.MouseY-m_Y1)/(m_Y2-m_Y1));
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
@@ -2767,7 +2767,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			EditorPrevPosition.X=0;
 			EditorPrevPosition.Y=0;
 			Show();
-			return TRUE;
+			return true;
 		}
 
 		if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
@@ -2781,7 +2781,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			EditorPrevDoubleClick = CurrentTime;
 			EditorPrevPosition=MouseEvent->dwMousePosition;
 			Show();
-			return TRUE;
+			return true;
 		}
 		else
 		{
@@ -2797,11 +2797,11 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		if (HostFileEditor) HostFileEditor->ShowStatus();
 		Show();
-		return TRUE;
+		return true;
 	}
 
 	if (!(MouseEvent->dwButtonState & 3))
-		return FALSE;
+		return false;
 
 	// scroll up
 	if (MouseEvent->dwMousePosition.Y==m_Y1-1)
@@ -2812,7 +2812,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Global->WindowManager->PluginCommit();
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	// scroll down
@@ -2824,12 +2824,12 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Global->WindowManager->PluginCommit();
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	if (MouseEvent->dwMousePosition.X<m_X1 || MouseEvent->dwMousePosition.X>m_X2 ||
 	        MouseEvent->dwMousePosition.Y<m_Y1 || MouseEvent->dwMousePosition.Y>m_Y2)
-		return FALSE;
+		return false;
 
 	int NewDist = MouseEvent->dwMousePosition.Y-m_Y1;
 	auto NewPtr=m_it_TopScreen;
@@ -2848,7 +2848,7 @@ int Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	m_it_CurLine->ProcessMouse(MouseEvent);
 	Show();
-	return TRUE;
+	return true;
 }
 
 

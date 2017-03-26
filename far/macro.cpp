@@ -75,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "strmix.hpp"
 #include "local.hpp"
+#include "tvar.hpp"
 
 #if 0
 void print_opcodes()
@@ -424,16 +425,16 @@ bool MacroPluginOp(double OpCode, const FarMacroValue& Param, MacroPluginReturn*
 	return false;
 }
 
-int KeyMacro::IsExecuting()
+int KeyMacro::GetExecutingState()
 {
 	MacroPluginReturn Ret;
 	return MacroPluginOp(1.0,false,&Ret) ? Ret.ReturnType : static_cast<int>(MACROSTATE_NOMACRO);
 }
 
-int KeyMacro::IsDisableOutput()
+bool KeyMacro::IsDisableOutput()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(2.0,false,&Ret) ? Ret.ReturnType : 0;
+	return MacroPluginOp(2.0,false,&Ret)? Ret.ReturnType != 0 : false;
 }
 
 static DWORD SetHistoryDisableMask(DWORD Mask)
@@ -537,7 +538,7 @@ void KeyMacro::SetMacroConst(int ConstIndex, long long Value)
 
 int KeyMacro::GetState() const
 {
-	return (m_Recording != MACROSTATE_NOMACRO) ? m_Recording : IsExecuting();
+	return (m_Recording != MACROSTATE_NOMACRO) ? m_Recording : GetExecutingState();
 }
 
 static bool GetInputFromMacro(MacroPluginReturn *mpr)
@@ -608,7 +609,7 @@ static void LM_ProcessRecordedMacro(FARMACROAREA Area, const string& TextKey, co
 	CallMacroPlugin(&info);
 }
 
-int KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
+bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 {
 	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !Global->WindowManager->GetCurrentWindow()) //FIXME: избавиться от Rec->IntKey
 		return false;
@@ -1121,7 +1122,7 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-int KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_t *Src, const wchar_t *Descr)
+bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_t *Src, const wchar_t *Descr)
 {
 	/*
 	          1         2         3         4         5         6
@@ -1208,7 +1209,7 @@ int KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_t
 	Dlg->Process();
 
 	if (Dlg->GetExitCode()!=MS_BUTTON_OK)
-		return FALSE;
+		return false;
 
 	enum key_id
 	{
@@ -1264,7 +1265,7 @@ int KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_t
 			get_flag(MS_CHECKBOX_P_SELECTION, key_selection);
 	}
 
-	return TRUE;
+	return true;
 }
 
 bool KeyMacro::ParseMacroString(const wchar_t* Sequence, FARKEYMACROFLAGS Flags, bool skipFile)
@@ -1872,7 +1873,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
 		{
 			string Filename;
-			if (_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH? KEY_ALTSHIFTBRACKET : KEY_ALTSHIFTBACKBRACKET, Filename, L""))
+			if (MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH? KEY_ALTSHIFTBRACKET : KEY_ALTSHIFTBACKBRACKET, Filename, L""))
 			{
 				UnquoteExternal(Filename);
 				DeleteEndSlash(Filename);
@@ -3490,11 +3491,11 @@ static bool panelselectFunc(FarMacroCall* Data)
 		}
 
 		MacroPanelSelect mps;
+		mps.Item = ValItems.asString();
 		mps.Action      = Action & 0xF;
 		mps.ActionFlags = (Action & (~0xF)) >> 4;
 		mps.Mode        = Mode;
 		mps.Index       = Index;
-		mps.Item        = &ValItems;
 		Result=SelPanel->VMProcess(MCODE_F_PANEL_SELECT,&mps,0);
 	}
 

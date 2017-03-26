@@ -292,7 +292,7 @@ string& MkTreeCacheFolderName(const string& RootDir, string &strDest)
 	return strDest;
 }
 
-int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
+static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 {
 	string strVolumeName, strFileSystemName;
 	DWORD dwVolumeSerialNumber;
@@ -305,13 +305,13 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 		nullptr,
 		&strFileSystemName
 		))
-		return FALSE;
+		return false;
 
 	string strFolderName;
 	MkTreeCacheFolderName(Global->Opt->LocalProfilePath, strFolderName);
 #if defined(TREEFILE_PROJECT)
 	if (strFolderName.empty())
-		return FALSE;
+		return false;
 #endif
 
 	if (CreateDir)
@@ -335,7 +335,7 @@ int GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 
 	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
 	strName = format(L"{0}\\{1}.{2:X}.{3}.{4}", strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
-	return TRUE;
+	return true;
 }
 
 static struct
@@ -874,7 +874,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	}
 }
 
-int TreeList::ReadTree()
+bool TreeList::ReadTree()
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
@@ -896,7 +896,7 @@ int TreeList::ReadTree()
 	/* Т.к. мы можем вызвать диалог подтверждения (который не перерисовывает панельки,
 	   а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
 	//Redraw();
-	int FirstCall=TRUE, AscAbort=FALSE;
+	auto FirstCall = true, AscAbort = false;
 	TreeStartTime = clock();
 	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
 	ScTree.SetFindPath(m_Root, L"*", 0);
@@ -912,7 +912,7 @@ int TreeList::ReadTree()
 		{
 			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
 			AscAbort=ConfirmAbortOp();
-			FirstCall=TRUE;
+			FirstCall = true;
 		}
 
 		if (AscAbort)
@@ -928,14 +928,14 @@ int TreeList::ReadTree()
 	{
 		m_ListData.clear();
 		RestoreState();
-		return FALSE;
+		return false;
 	}
 
 	StaticSortNumeric = m_NumericSort = StaticSortCaseSensitive = m_CaseSensitiveSort = false;
 	std::sort(m_ListData.begin(), m_ListData.end(), ListLess);
 
 	if (!FillLastData())
-		return FALSE;
+		return false;
 
 	if (!AscAbort)
 		SaveTreeFile();
@@ -946,7 +946,7 @@ int TreeList::ReadTree()
 		Parent()->GetAnotherPanel(this)->Redraw();
 	}
 
-	return TRUE;
+	return true;
 }
 
 void TreeList::SaveTreeFile()
@@ -1093,26 +1093,26 @@ long long TreeList::VMProcess(int OpCode, void* vParam, long long iParam)
 	return 0;
 }
 
-int TreeList::ProcessKey(const Manager::Key& Key)
+bool TreeList::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
 	if (!IsVisible())
-		return FALSE;
+		return false;
 
 	if (m_ListData.empty() && LocalKey!=KEY_CTRLR && LocalKey!=KEY_RCTRLR)
-		return FALSE;
+		return false;
 
 	if ((LocalKey>=KEY_CTRLSHIFT0 && LocalKey<=KEY_CTRLSHIFT9) || (LocalKey>=KEY_CTRLALT0 && LocalKey<=KEY_CTRLALT9))
 	{
 		bool Add = (LocalKey>=KEY_CTRLALT0 && LocalKey<=KEY_CTRLALT9);
 		SaveShortcutFolder(LocalKey-(Add?KEY_CTRLALT0:KEY_CTRLSHIFT0), Add);
-		return TRUE;
+		return true;
 	}
 
 	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
 	{
 		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
-		return TRUE;
+		return true;
 	}
 
 	switch (LocalKey)
@@ -1120,7 +1120,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 		case KEY_F1:
 		{
 			Help::create(L"TreePanel");
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTNUMENTER:
 		case KEY_CTRLNUMENTER:
@@ -1160,14 +1160,14 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLBACKSLASH:
 		case KEY_RCTRLBACKSLASH:
 		{
 			m_CurFile=0;
 			ProcessEnter();
-			return TRUE;
+			return true;
 		}
 		case KEY_NUMENTER:
 		case KEY_ENTER:
@@ -1176,7 +1176,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				break;
 
 			ProcessEnter();
-			return TRUE;
+			return true;
 		}
 		case KEY_F4:
 		case KEY_CTRLA:
@@ -1185,7 +1185,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (SetCurPath())
 				ShellSetFileAttributes(this);
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLR:
 		case KEY_RCTRLR:
@@ -1207,7 +1207,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				ShellCopy(shared_from_this(), LocalKey == KEY_SHIFTF6, false, true, true, ToPlugin, nullptr);
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_F5:
 		case KEY_DRAGCOPY:
@@ -1227,7 +1227,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				const auto Link = (LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !ToPlugin;
 
 				if ((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !Link) // молча отвалим :-)
-					return TRUE;
+					return true;
 
 				{
 					ShellCopy(shared_from_this(), Move, Link, false, Ask, ToPlugin, nullptr);
@@ -1255,14 +1255,14 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_F7:
 		{
 			if (SetCurPath())
 				ShellMakeDir(this);
 
-			return TRUE;
+			return true;
 		}
 		/*
 		  Удаление                                   Shift-Del, Shift-F8, F8
@@ -1303,21 +1303,21 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 					ProcessKey(Manager::Key(KEY_ENTER));
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
 			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
 			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
@@ -1328,7 +1328,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_LEFT));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
@@ -1339,7 +1339,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_RIGHT));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
 		{
@@ -1348,7 +1348,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_ADD: // OFM: Gray+/Gray- navigation
 		{
@@ -1359,7 +1359,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			else
 				DisplayTree(true);
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SUBTRACT: // OFM: Gray+/Gray- navigation
 		{
@@ -1370,7 +1370,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			else
 				DisplayTree(true);
 
-			return TRUE;
+			return true;
 		}
 		case KEY_END:         case KEY_NUMPAD1:
 		{
@@ -1379,7 +1379,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_UP:          case KEY_NUMPAD8:
 		{
@@ -1388,7 +1388,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_DOWN:        case KEY_NUMPAD2:
 		{
@@ -1397,7 +1397,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_PGUP:        case KEY_NUMPAD9:
 		{
@@ -1408,7 +1408,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_PGDN:        case KEY_NUMPAD3:
 		{
@@ -1419,7 +1419,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
 
-			return TRUE;
+			return true;
 		}
 
 		case KEY_APPS:
@@ -1430,7 +1430,7 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			{
 				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, ToPtr(1)); // EMenu Plugin :-)
 			}
-			return TRUE;
+			return true;
 		}
 
 		default:
@@ -1445,10 +1445,10 @@ int TreeList::ProcessKey(const Manager::Key& Key)
 			else
 				break;
 
-			return TRUE;
+			return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 int TreeList::GetNextNavPos() const
@@ -1560,7 +1560,7 @@ bool TreeList::SetCurDir(const string& NewDir,bool ClosePanel,bool /*IsUpdated*/
 	return true; //???
 }
 
-int TreeList::SetDirPosition(const string& NewDir)
+bool TreeList::SetDirPosition(const string& NewDir)
 {
 	for (size_t i = 0; i < m_ListData.size(); ++i)
 	{
@@ -1570,11 +1570,11 @@ int TreeList::SetDirPosition(const string& NewDir)
 			m_CurFile = static_cast<int>(i);
 			m_CurTopFile=m_CurFile-(m_Y2-m_Y1-1)/2;
 			CorrectPosition();
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 const string& TreeList::GetCurDir() const
@@ -1590,16 +1590,16 @@ const string& TreeList::GetCurDir() const
 		return m_ListData[m_CurFile].strName; //BUGBUG
 }
 
-int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!IsMouseInClientArea(MouseEvent))
-		return FALSE;
+		return false;
 
 	if (Panel::ProcessMouseDrag(MouseEvent))
-		return TRUE;
+		return true;
 
 	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
-		return FALSE;
+		return false;
 
 	int OldFile=m_CurFile;
 
@@ -1617,7 +1617,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (!m_ModalMode)
 				Parent()->SetActivePanel(this);
 
-			return TRUE;
+			return true;
 		}
 
 		if (IntKeyState.MouseY==ScrollY+Height-1)
@@ -1628,7 +1628,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (!m_ModalMode)
 				Parent()->SetActivePanel(this);
 
-			return TRUE;
+			return true;
 		}
 
 		if (IntKeyState.MouseY>ScrollY && IntKeyState.MouseY<ScrollY+Height-1 && Height>2)
@@ -1639,13 +1639,13 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (!m_ModalMode)
 				Parent()->SetActivePanel(this);
 
-			return TRUE;
+			return true;
 		}
 	}
 
 	// BUGBUG
 	if (!(MouseEvent->dwButtonState & 3))
-		return FALSE;
+		return false;
 
 	if (MouseEvent->dwMousePosition.Y>m_Y1 && MouseEvent->dwMousePosition.Y<m_Y2-2)
 	{
@@ -1656,7 +1656,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		DisplayTree(true);
 
 		if (m_ListData.empty())
-			return TRUE;
+			return true;
 
 		if (((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
 		        MouseEvent->dwEventFlags==DOUBLE_CLICK) ||
@@ -1670,14 +1670,14 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control == 0 || control == SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 			{
 				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr); // EMenu Plugin :-)
-				return TRUE;
+				return true;
 			}
 
 			ProcessEnter();
-			return TRUE;
+			return true;
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	if (MouseEvent->dwMousePosition.Y <= m_Y1 + 1 || MouseEvent->dwMousePosition.Y >= m_Y2 - 2)
@@ -1686,7 +1686,7 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Parent()->SetActivePanel(this);
 
 		if (m_ListData.empty())
-			return TRUE;
+			return true;
 
 		while (IsMouseButtonPressed())
 		{
@@ -1698,10 +1698,10 @@ int TreeList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 			ProcessKey(Manager::Key(KEY_ENTER));
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void TreeList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -1732,7 +1732,7 @@ void TreeList::ProcessEnter()
 	}
 }
 
-int TreeList::ReadTreeFile()
+bool TreeList::ReadTreeFile()
 {
 	size_t RootLength=m_Root.empty()?0:m_Root.size()-1;
 	string strName;
@@ -1741,14 +1741,14 @@ int TreeList::ReadTreeFile()
 	MkTreeFileName(m_Root,strName);
 #if defined(TREEFILE_PROJECT)
 	if (strName.empty())
-		return FALSE;
+		return false;
 #endif
 
 	auto TreeFile = OpenCacheableTreeFile(m_Root, strName, false);
 	if (!TreeFile)
 	{
 		//RestoreState();
-		return FALSE;
+		return false;
 	}
 
 	m_ListData.clear();
@@ -1758,7 +1758,7 @@ int TreeList::ReadTreeFile()
 	TreeFile.Close();
 
 	if (m_ListData.empty())
-		return FALSE;
+		return false;
 
 	m_NumericSort = false;
 	m_CaseSensitiveSort = false;
@@ -1816,12 +1816,12 @@ size_t TreeList::GetSelCount() const
 	return 1;
 }
 
-int TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::FAR_FIND_DATA *fd)
+bool TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::FAR_FIND_DATA *fd)
 {
 	if (!strName)
 	{
 		m_GetSelPosition=0;
-		return TRUE;
+		return true;
 	}
 
 	if (!m_GetSelPosition)
@@ -1833,25 +1833,25 @@ int TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName,
 
 		FileAttr=FILE_ATTRIBUTE_DIRECTORY;
 		m_GetSelPosition++;
-		return TRUE;
+		return true;
 	}
 
 	m_GetSelPosition=0;
-	return FALSE;
+	return false;
 }
 
-int TreeList::GetCurName(string &strName, string &strShortName) const
+bool TreeList::GetCurName(string &strName, string &strShortName) const
 {
 	if (m_ListData.empty())
 	{
 		strName.clear();
 		strShortName.clear();
-		return FALSE;
+		return false;
 	}
 
 	strName = m_ListData[m_CurFile].strName;
 	strShortName = strName;
-	return TRUE;
+	return true;
 }
 
 void TreeList::AddTreeName(const string& Name)

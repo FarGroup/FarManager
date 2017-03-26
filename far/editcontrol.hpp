@@ -48,8 +48,8 @@ class EditControl:public Edit
 	using parent_processkey_t = std::function<int(const Manager::Key& Key)>;
 public:
 	EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey = nullptr, Callback* aCallback = nullptr, History* iHistory = nullptr, FarList* iList = nullptr, DWORD iFlags = 0);
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void Show() override;
 	virtual void Changed(bool DelBlock=false) override;
 

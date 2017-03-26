@@ -339,7 +339,7 @@ void Grabber::DisplayObject()
 }
 
 
-int Grabber::ProcessKey(const Manager::Key& Key)
+bool Grabber::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 	if(Global->CloseFAR)
@@ -696,21 +696,21 @@ int Grabber::ProcessKey(const Manager::Key& Key)
 	}
 
 	Show();
-	return TRUE;
+	return true;
 }
 
 
-int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (MouseEvent->dwEventFlags==DOUBLE_CLICK ||
 	        (!MouseEvent->dwEventFlags && (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)))
 	{
 		ProcessKey(Manager::Key(KEY_ENTER));
-		return TRUE;
+		return true;
 	}
 
 	if (IntKeyState.MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
-		return FALSE;
+		return false;
 
 	if (!MouseEvent->dwEventFlags)
 	{
@@ -732,7 +732,7 @@ int Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	//VerticalBlock=MouseEvent->dwControlKeyState&(LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED);
 	Show();
-	return TRUE;
+	return true;
 }
 
 void Grabber::Reset()

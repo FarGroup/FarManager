@@ -1290,8 +1290,8 @@ void Options::SetFilePanelModes()
 			const auto& LPanel = Panels->LeftPanel();
 			const auto& RPanel = Panels->RightPanel();
 
-			LPanel->SortFileList(TRUE);
-			RPanel->SortFileList(TRUE);
+			LPanel->SortFileList(true);
+			RPanel->SortFileList(true);
 			Panels->SetScreenPosition();
 			// ???
 			LPanel->SetViewMode(LPanel->GetViewMode());

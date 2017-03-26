@@ -113,7 +113,7 @@ bool GetClipboardVText(string& data);
 
 bool ClearInternalClipboard();
 
-bool CopyData(const clipboard_accessor& From, clipboard_accessor& To);
+bool CopyData(const clipboard_accessor& From, const clipboard_accessor& To);
 
 struct clipboard_restorer
 {

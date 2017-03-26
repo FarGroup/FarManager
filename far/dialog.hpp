@@ -160,8 +160,8 @@ public:
 
 	virtual ~Dialog() override;
 
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode, void *vParam=nullptr, long long iParam = 0) override;
 	virtual void Show() override;
 	virtual void Hide() override;
@@ -253,12 +253,12 @@ private:
 		    Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
 	*/
 	void ChangeFocus2(size_t SetFocusPos);
-	size_t ChangeFocus(size_t FocusPos,int Step,int SkipGroup) const;
+	size_t ChangeFocus(size_t FocusPos, int Step, bool SkipGroup) const;
 	bool SelectFromEditHistory(const DialogItemEx *CurItem, DlgEdit *EditLine, const string& HistoryName);
 	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine);
-	int AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
+	bool AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const;
 	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
-	int ProcessHighlighting(int Key,size_t FocusPos,int Translate);
+	bool ProcessHighlighting(int Key,size_t FocusPos,int Translate);
 	int CheckHighlights(WORD Chr,int StartPos=0);
 	void SelectOnEntry(size_t Pos, bool Selected);
 	void CheckDialogCoord();
@@ -268,12 +268,12 @@ private:
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
 	void ProcessCenterGroup();
 	size_t ProcessRadioButton(size_t);
-	int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,size_t CurFocusPos);
-	int ProcessMoveDialog(DWORD Key);
-	int Do_ProcessTab(bool Next);
-	int Do_ProcessNextCtrl(bool Up, bool IsRedraw=true);
-	int Do_ProcessFirstCtrl();
-	int Do_ProcessSpace();
+	bool ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,size_t CurFocusPos);
+	bool ProcessMoveDialog(DWORD Key);
+	bool Do_ProcessTab(bool Next);
+	bool Do_ProcessNextCtrl(bool Up, bool IsRedraw=true);
+	bool Do_ProcessFirstCtrl();
+	bool Do_ProcessSpace();
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);
 	void CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2) const;
 	void ProcessKey(int Key, size_t ItemPos);

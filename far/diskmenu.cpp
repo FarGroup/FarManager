@@ -658,7 +658,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_NETNAME))
 			{
-				static const std::pair<int, lng> DrTMsg[] =
+				static const std::pair<int, lng> DriveTypes[] =
 				{
 					{ DRIVE_REMOVABLE, lng::MChangeDriveRemovable },
 					{ DRIVE_FIXED, lng::MChangeDriveFixed },
@@ -680,36 +680,31 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					{ DRIVE_USBDRIVE, lng::MChangeDriveRemovable },
 				};
 
-				const auto ItemIterator = std::find_if(CONST_RANGE(DrTMsg, Item) { return Item.first == NewItem.DriveType; });
-				if (ItemIterator != std::cend(DrTMsg))
+				const auto ItemIterator = std::find_if(CONST_RANGE(DriveTypes, DriveTypeItem) { return DriveTypeItem.first == NewItem.DriveType; });
+				if (ItemIterator != std::cend(DriveTypes))
 					NewItem.Type = MSG(ItemIterator->second);
 			}
 
-			int ShowDisk = (NewItem.DriveType != DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
+			auto ShowDiskInfo = (NewItem.DriveType != DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
 				(!IsDriveTypeCDROM(NewItem.DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
 				(!IsDriveTypeRemote(NewItem.DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOTE));
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL | DRIVE_SHOW_FILESYSTEM))
 			{
-				bool Absent = false;
-				if (ShowDisk && !os::GetVolumeInformation(strRootDir, &NewItem.Label, nullptr, nullptr, nullptr, &NewItem.Fs))
+				auto Absent = false;
+				if (ShowDiskInfo && !os::GetVolumeInformation(strRootDir, &NewItem.Label, nullptr, nullptr, nullptr, &NewItem.Fs))
 				{
 					Absent = true;
-					ShowDisk = FALSE;
+					ShowDiskInfo = false;
 				}
 
 				if (NewItem.Label.empty())
 				{
 					static const HKEY Roots[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
-					std::any_of(CONST_RANGE(Roots, Root)
+					if (!std::any_of(CONST_RANGE(Roots, Root){ return os::reg::GetValue(Root, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label); }) && Absent)
 					{
-						return os::reg::GetValue(Root, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label);
-					});
-				}
-
-				if (Absent && NewItem.Label.empty())
-				{
-					NewItem.Label = MSG(lng::MChangeDriveLabelAbsent);
+						NewItem.Label = MSG(lng::MChangeDriveLabelAbsent);
+					}
 				}
 			}
 
@@ -717,7 +712,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				unsigned long long TotalSize = 0, UserFree = 0;
 
-				if (ShowDisk && os::GetDiskSize(strRootDir, &TotalSize, nullptr, &UserFree))
+				if (ShowDiskInfo && os::GetDiskSize(strRootDir, &TotalSize, nullptr, &UserFree))
 				{
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{

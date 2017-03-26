@@ -1167,7 +1167,7 @@ bool CheckForEscSilent()
 	*/
 
 	// если в "макросе"...
-	if (Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO && Global->WindowManager->GetCurrentWindow())
+	if (Global->CtrlObject->Macro.IsExecuting() && Global->WindowManager->GetCurrentWindow())
 	{
 		if (Global->CtrlObject->Macro.IsDisableOutput())
 			Processed = false;
@@ -1185,7 +1185,7 @@ bool CheckForEscSilent()
 			Global->WindowManager->ProcessKey(Manager::Key(KEY_ALTF9));
 	}
 
-	if (!Processed && Global->CtrlObject->Macro.IsExecuting() != MACROSTATE_NOMACRO)
+	if (!Processed && Global->CtrlObject->Macro.IsExecuting())
 		Global->ScrBuf->Flush();
 
 	return false;

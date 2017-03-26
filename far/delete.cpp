@@ -294,7 +294,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 	return os::DeleteFile(strTempName);
 }
 
-static int WipeDirectory(const string& Name)
+static bool WipeDirectory(const string& Name)
 {
 	string strTempName, strPath = Name;
 
@@ -307,7 +307,7 @@ static int WipeDirectory(const string& Name)
 
 	if (!os::MoveFile(Name, strTempName))
 	{
-		return FALSE;
+		return false;
 	}
 
 	return os::RemoveDirectory(strTempName);

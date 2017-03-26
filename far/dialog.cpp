@@ -2109,7 +2109,7 @@ int Dialog::LenStrItem(const DialogItemEx& Item)
 	return static_cast<int>((Item.Flags & DIF_SHOWAMPERSAND)? Item.strData.size() : HiStrlen(Item.strData));
 }
 
-int Dialog::ProcessMoveDialog(DWORD Key)
+bool Dialog::ProcessMoveDialog(DWORD Key)
 {
 	if (DialogMode.Check(DMODE_KEYDRAGGED)) // если диалог таскается
 	{
@@ -2225,7 +2225,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 				break;
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	if ((Key == KEY_CTRLF5 || Key == KEY_RCTRLF5) && DialogMode.Check(DMODE_ISCANMOVE) && !DialogMode.Check(DMODE_MOUSEDRAGGED))
@@ -2239,10 +2239,10 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			Show();
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
@@ -2420,7 +2420,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
    Обработка данных от клавиатуры.
    Перекрывает BaseInput::ProcessKey.
 */
-int Dialog::ProcessKey(const Manager::Key& Key)
+bool Dialog::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;
 	_DIALOG(CleverSysLog CL(L"Dialog::ProcessKey"));
@@ -2433,17 +2433,17 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 	{
 		INPUT_RECORD rec=Key.Event();
 		if (!DlgProc(DN_INPUT,0,&rec))
-			return TRUE;
+			return true;
 	}
 
 	if (LocalKey()==KEY_NONE || LocalKey()==KEY_IDLE)
 	{
 		DlgProc(DN_ENTERIDLE, 0, nullptr); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
-		return FALSE;
+		return false;
 	}
 
 	if (ProcessMoveDialog(LocalKey()))
-		return TRUE;
+		return true;
 
 	if (!((LocalKey()>=KEY_OP_BASE && LocalKey() <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
 	{
@@ -2467,7 +2467,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				bool up = (LocalKey()==KEY_UP || LocalKey()==KEY_NUMPAD8);
 
 				if ((pos==1 && up) || (pos==n && !up))
-					return TRUE;
+					return true;
 				else if (pos==2 && up)   // workaround for first not selectable
 					LocalKey = KEY_HOME;
 				else if (pos==n-1 && !up) // workaround for last not selectable
@@ -2477,15 +2477,15 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		assert(Key.IsEvent());
 		INPUT_RECORD rec=Key.Event();
 		if (DlgProc(DN_CONTROLINPUT,m_FocusPos,&rec))
-			return TRUE;
+			return true;
 	}
 
 	if (!DialogMode.Check(DMODE_SHOW))
-		return TRUE;
+		return true;
 
 	// А ХЗ, может в этот момент изменилось состояние элемента!
 	if (Items[m_FocusPos].Flags&DIF_HIDDEN)
-		return TRUE;
+		return true;
 
 	// небольшая оптимизация
 	if (Items[m_FocusPos].Type==DI_CHECKBOX)
@@ -2540,14 +2540,14 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				if (NewListPos != CurListPos)
 				{
 					if (!DialogMode.Check(DMODE_SHOW))
-						return TRUE;
+						return true;
 
 					if (!(Items[m_FocusPos].Flags&DIF_HIDDEN))
 						ShowDialog(m_FocusPos); // FocusPos
 				}
 
 				if (!(LocalKey() == KEY_ENTER || LocalKey() == KEY_NUMENTER) || (Items[m_FocusPos].Flags&DIF_LISTNOCLOSE))
-					return TRUE;
+					return true;
 		}
 	}
 
@@ -2562,17 +2562,19 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				Help::create(strStr);
 			}
 
-			return TRUE;
+			return true;
+
 		case KEY_ESC:
 		case KEY_BREAK:
 		case KEY_F10:
 			m_ExitCode=(LocalKey()==KEY_BREAK) ? -2:-1;
 			CloseDialog();
-			return TRUE;
+			return true;
+
 		case KEY_HOME: case KEY_NUMPAD7:
 
 			if (Items[m_FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
-				return TRUE;
+				return true;
 
 			return Do_ProcessFirstCtrl();
 		case KEY_TAB:
@@ -2595,7 +2597,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				if (ItemIterator->Flags&DIF_DISABLE)
 				{
 					// ProcessKey(KEY_DOWN); // на твой вкус :-)
-					return TRUE;
+					return true;
 				}
 
 				if (!IsEdit(ItemIterator->Type))
@@ -2603,13 +2605,13 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 				m_ExitCode = ItemIterator - Items.begin();
 				CloseDialog();
-				return TRUE;
+				return true;
 			}
 
 			if (!DialogMode.Check(DMODE_OLDSTYLE))
 			{
 				DialogMode.Clear(DMODE_ENDLOOP); // только если есть
-				return TRUE; // делать больше не чего
+				return true; // делать больше не чего
 			}
 		}
 		case KEY_NUMENTER:
@@ -2626,7 +2628,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						break;
 
 				if (static_cast<DlgEdit*>(Items[EditorLastPos].ObjPtr)->GetLength())
-					return TRUE;
+					return true;
 
 				const auto focus = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr);
 				strStr = focus->GetString();
@@ -2655,7 +2657,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				if (m_FocusPos <= EditorLastPos)
 					static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->Changed();
 				ShowDialog();
-				return TRUE;
+				return true;
 			}
 			else if (Items[m_FocusPos].Type==DI_BUTTON)
 			{
@@ -2663,14 +2665,14 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 				// сообщение - "Кнопка нажата"
 				if (SendMessage(DN_BTNCLICK, m_FocusPos, nullptr))
-					return TRUE;
+					return true;
 
 				if (Items[m_FocusPos].Flags&DIF_BTNNOCLOSE)
-					return TRUE;
+					return true;
 
 				m_ExitCode=static_cast<int>(m_FocusPos);
 				CloseDialog();
-				return TRUE;
+				return true;
 			}
 			else
 			{
@@ -2683,7 +2685,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						if (i->Flags&DIF_DISABLE)
 						{
 							// ProcessKey(KEY_DOWN); // на твой вкус :-)
-							return TRUE;
+							return true;
 						}
 
 //            if (!(IsEdit(i->Type) || i->Type == DI_CHECKBOX || i->Type == DI_RADIOBUTTON))
@@ -2698,7 +2700,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				m_ExitCode=static_cast<int>(m_FocusPos);
 
 			CloseDialog();
-			return TRUE;
+			return true;
 		}
 		/*
 		   3-х уровневое состояние
@@ -2725,17 +2727,17 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					}
 			}
 
-			return TRUE;
+			return true;
 		case KEY_LEFT:  case KEY_NUMPAD4: case KEY_MSWHEEL_LEFT:
 		case KEY_RIGHT: case KEY_NUMPAD6: case KEY_MSWHEEL_RIGHT:
 		{
 			if (Items[m_FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
-				return TRUE;
+				return true;
 
 			if (IsEdit(Items[m_FocusPos].Type))
 			{
 				static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->ProcessKey(Key);
-				return TRUE;
+				return true;
 			}
 			else
 			{
@@ -2774,7 +2776,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						ShowDialog();
 					}
 
-					return TRUE;
+					return true;
 				}
 			}
 		}
@@ -2782,7 +2784,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		case KEY_DOWN:  case KEY_NUMPAD2:
 
 			if (Items[m_FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
-				return TRUE;
+				return true;
 
 			return Do_ProcessNextCtrl(LocalKey()==KEY_LEFT || LocalKey()==KEY_UP || LocalKey() == KEY_NUMPAD4 || LocalKey() == KEY_NUMPAD8);
 			// $ 27.04.2001 VVM - Обработка колеса мышки
@@ -2806,12 +2808,12 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		case KEY_END:  case KEY_NUMPAD1:
 
 			if (Items[m_FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
-				return TRUE;
+				return true;
 
 			if (IsEdit(Items[m_FocusPos].Type))
 			{
 				static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->ProcessKey(Key);
-				return TRUE;
+				return true;
 			}
 
 			// ???
@@ -2819,7 +2821,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 		case KEY_PGDN:   case KEY_NUMPAD3:
 
 			if (Items[m_FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
-				return TRUE;
+				return true;
 
 			if (IsEmulatedEditorLine(Items[m_FocusPos]))
 				// для DIF_EDITOR будет обработано ниже
@@ -2835,15 +2837,15 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				{
 					ChangeFocus2(ItemIterator - Items.begin());
 					ShowDialog();
-					return TRUE;
+					return true;
 				}
-				return TRUE;
+				return true;
 			}
 
 		default:
 		{
 			//if(Items[FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
-			//  return TRUE;
+			//  return true;
 			if (Items[m_FocusPos].Type == DI_LISTBOX)
 			{
 				auto& List = Items[m_FocusPos].ListPtr;
@@ -2854,13 +2856,13 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 				if (NewListPos != CurListPos)
 				{
 					if (!DialogMode.Check(DMODE_SHOW))
-						return TRUE;
+						return true;
 
 					if (!(Items[m_FocusPos].Flags&DIF_HIDDEN))
 						ShowDialog(m_FocusPos); // FocusPos
 				}
 
-				return TRUE;
+				return true;
 			}
 
 			if (IsEdit(Items[m_FocusPos].Type))
@@ -2869,7 +2871,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 
 				if (LocalKey() == KEY_CTRLL || LocalKey() == KEY_RCTRLL) // исключим смену режима RO для поля ввода с клавиатуры
 				{
-					return TRUE;
+					return true;
 				}
 
 				if (LocalKey() == KEY_CTRLU || LocalKey() == KEY_RCTRLU)
@@ -2877,7 +2879,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					edt->SetClearFlag(false);
 					edt->RemoveSelection();
 					edt->Show();
-					return TRUE;
+					return true;
 				}
 
 				if (IsEmulatedEditorLine(Items[m_FocusPos]) && !(Items[m_FocusPos].Flags & DIF_READONLY))
@@ -2918,7 +2920,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 							}
 
 							ShowDialog();
-							return TRUE;
+							return true;
 						}
 						case KEY_CTRLY:
 						case KEY_RCTRLY:
@@ -2941,7 +2943,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 								static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->SetCurPos(0);
 							static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->Changed();
 							ShowDialog();
-							return TRUE;
+							return true;
 						}
 						case KEY_NUMDEL:
 						case KEY_DEL:
@@ -2962,7 +2964,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 									edt->SetString(strStr);
 									edt->SetCurPos(SelStart);
 									ShowDialog();
-									return TRUE;
+									return true;
 								}
 								else if (CurPos>=Length)
 								{
@@ -2985,15 +2987,15 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 							size_t I = m_FocusPos;
 
 							while (IsEmulatedEditorLine(Items[I]))
-								I=ChangeFocus(I,(LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)?-1:1,FALSE);
+								I = ChangeFocus(I, (LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)? -1 : 1, false);
 
 							if (!IsEmulatedEditorLine(Items[I]))
-								I=ChangeFocus(I,(LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)?1:-1,FALSE);
+								I = ChangeFocus(I, (LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)? 1 : -1, false);
 
 							ChangeFocus2(I);
 							ShowDialog();
 
-							return TRUE;
+							return true;
 						}
 					}
 				}
@@ -3008,7 +3010,7 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 					edt->LastPartLength=static_cast<int>(edt->strLastStr.size());
 
 					Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
-					return TRUE;
+					return true;
 				}
 
 				if (!(Items[m_FocusPos].Flags & DIF_READONLY) ||
@@ -3019,13 +3021,13 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 						SCOPED_ACTION(SetAutocomplete)(edt, true);
 						edt->AutoComplete(true,false);
 						Redraw();
-						return TRUE;
+						return true;
 					}
 
 					if (edt->ProcessKey(Key))
 					{
 						if (Items[m_FocusPos].Flags & DIF_READONLY)
-							return TRUE;
+							return true;
 
 						if ((LocalKey()==KEY_CTRLEND || LocalKey()==KEY_RCTRLEND || LocalKey()==KEY_CTRLNUMPAD1 || LocalKey()==KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
 						{
@@ -3047,26 +3049,26 @@ int Dialog::ProcessKey(const Manager::Key& Key)
 								edt->Select(edt->LastPartLength, static_cast<int>(strStr.size()));
 							}
 							Show();
-							return TRUE;
+							return true;
 						}
 
 						edt->LastPartLength=-1;
 
 						Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
-						return TRUE;
+						return true;
 					}
 				}
 				else if (!(LocalKey()&(KEY_ALT|KEY_RALT)))
-					return TRUE;
+					return true;
 			}
 
 			if (ProcessHighlighting(LocalKey(),m_FocusPos,FALSE))
-				return TRUE;
+				return true;
 
 			return ProcessHighlighting(LocalKey(),m_FocusPos,TRUE);
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 void Dialog::ProcessKey(int Key, size_t ItemPos)
@@ -3087,7 +3089,7 @@ void Dialog::ProcessKey(int Key, size_t ItemPos)
 /* $ 18.08.2000 SVS
    + DN_MOUSECLICK
 */
-int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int MsX,MsY;
 	FARDIALOGITEMTYPES Type;
@@ -3098,21 +3100,21 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	MOUSE_EVENT_RECORD &MouseRecord=mouse.Event.MouseEvent;
 
 	if (!DialogMode.Check(DMODE_SHOW))
-		return FALSE;
+		return false;
 
 	if (DialogMode.Check(DMODE_INPUTEVENT))
 	{
 		if (!DlgProc(DN_INPUT,0,&mouse))
-			return TRUE;
+			return true;
 	}
 
 	if (!DialogMode.Check(DMODE_SHOW))
-		return FALSE;
+		return false;
 
 	if (DialogMode.Check(DMODE_MOUSEDRAGGED))
 	{
 		ProcessDrag(MouseEvent);
-		return TRUE;
+		return true;
 	}
 
 	MsX=MouseRecord.dwMousePosition.X;
@@ -3137,7 +3139,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				{
 					m_ExitCode=static_cast<int>(I);
 					CloseDialog();
-					return TRUE;
+					return true;
 				}
 				PrevMouseRecord=MouseRecord;
 			}
@@ -3158,7 +3160,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				{
 					if (SendMessage(DN_CONTROLINPUT,I,&mouse))
 					{
-						return TRUE;
+						return true;
 					}
 					List->ProcessMouse(&MouseRecord);
 					int InScroolBar=(MsX==m_X1+Items[I].X2 && MsY >= m_Y1+Items[I].Y1 && MsY <= m_Y1+Items[I].Y2) &&
@@ -3173,7 +3175,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 								{
 									m_ExitCode=static_cast<int>(I);
 									CloseDialog();
-									return TRUE;
+									return true;
 								}
 								if (!MouseRecord.dwEventFlags && (MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !(PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 									PrevMouseRecord=MouseRecord;
@@ -3182,7 +3184,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					}
 				}
 
-				return TRUE;
+				return true;
 			}
 			else
 			{
@@ -3195,7 +3197,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -3204,7 +3206,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (DialogMode.Check(DMODE_CLICKOUTSIDE) && !DlgProc(DN_CONTROLINPUT,-1,&mouse))
 		{
 			if (!DialogMode.Check(DMODE_SHOW))
-				return FALSE;
+				return false;
 
 			if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
 				ProcessKey(Manager::Key(KEY_ESC));
@@ -3215,13 +3217,13 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (mouse.Event.MouseEvent.dwButtonState)
 			DialogMode.Set(DMODE_CLICKOUTSIDE);
 
-		return TRUE;
+		return true;
 	}
 
 	if (!mouse.Event.MouseEvent.dwButtonState)
 	{
 		DialogMode.Clear(DMODE_CLICKOUTSIDE);
-		return FALSE;
+		return false;
 	}
 
 	if (!mouse.Event.MouseEvent.dwEventFlags || mouse.Event.MouseEvent.dwEventFlags==DOUBLE_CLICK)
@@ -3247,10 +3249,10 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					        ((MsY == Rect.Top  || MsY == Rect.Bottom) && MsX >= Rect.Left && MsX <= Rect.Right))    // hor
 					{
 						if (DlgProc(DN_CONTROLINPUT,I,&mouse))
-							return TRUE;
+							return true;
 
 						if (!DialogMode.Check(DMODE_SHOW))
-							return FALSE;
+							return false;
 					}
 					else
 						continue;
@@ -3264,16 +3266,16 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				}
 
 				if (DlgProc(DN_CONTROLINPUT,I,&mouse))
-					return TRUE;
+					return true;
 
 				if (!DialogMode.Check(DMODE_SHOW))
-					return TRUE;
+					return true;
 
 				if (Items[I].Type == DI_USERCONTROL)
 				{
 					ChangeFocus2(I);
 					ShowDialog();
-					return TRUE;
+					return true;
 				}
 
 				break;
@@ -3323,7 +3325,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 							ProcessOpenComboBox(Items[I].Type, &Items[I], I);
 
-							return TRUE;
+							return true;
 						}
 
 						ChangeFocus2(I);
@@ -3337,7 +3339,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 							     не снимался признак активности с комбобокса с которго уходим.
 							*/
 							ShowDialog(); // нужен ли только один контрол или весь диалог?
-							return TRUE;
+							return true;
 						}
 						else
 						{
@@ -3353,7 +3355,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 								ProcessOpenComboBox(Items[I].Type, &Items[I], I);
 
-								return TRUE;
+								return true;
 							}
 						}
 					}
@@ -3376,11 +3378,11 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 							ChangeFocus2(I);
 							ShowDialog();
 
-							return TRUE;
+							return true;
 						}
 
 						ProcessKey(KEY_ENTER, I);
-						return TRUE;
+						return true;
 					}
 
 					/* ********************************************************** */
@@ -3391,7 +3393,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					{
 						ChangeFocus2(I);
 						ProcessKey(KEY_SPACE, I);
-						return TRUE;
+						return true;
 					}
 				}
 			} // for (I=0;I<ItemCount;I++)
@@ -3415,7 +3417,7 @@ int Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
@@ -3471,11 +3473,11 @@ void Dialog::ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 }
 
-int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, size_t CurFocusPos)
+bool Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, size_t CurFocusPos)
 {
 	// для user-типа вываливаем
 	if (Type == DI_USERCONTROL)
-		return TRUE;
+		return true;
 
 	const auto CurEditLine = static_cast<DlgEdit*>(CurItem->ObjPtr);
 
@@ -3496,7 +3498,7 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, s
 		SelectFromComboBox(CurItem, CurEditLine);
 	}
 
-	return TRUE;
+	return true;
 }
 
 size_t Dialog::ProcessRadioButton(size_t CurRB)
@@ -3555,12 +3557,12 @@ size_t Dialog::ProcessRadioButton(size_t CurRB)
 }
 
 
-int Dialog::Do_ProcessFirstCtrl()
+bool Dialog::Do_ProcessFirstCtrl()
 {
 	if (IsEdit(Items[m_FocusPos].Type))
 	{
 		static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->ProcessKey(Manager::Key(KEY_HOME));
-		return TRUE;
+		return true;
 	}
 	else
 	{
@@ -3575,10 +3577,10 @@ int Dialog::Do_ProcessFirstCtrl()
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
+bool Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 {
 	size_t OldPos=m_FocusPos;
 	unsigned PrevPos=0;
@@ -3586,7 +3588,7 @@ int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 	if (IsEmulatedEditorLine(Items[m_FocusPos]))
 		PrevPos = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr)->GetCurPos();
 
-	size_t I=ChangeFocus(m_FocusPos,Up? -1:1,FALSE);
+	size_t I = ChangeFocus(m_FocusPos, Up? -1 : 1, false);
 	Items[m_FocusPos].Flags&=~DIF_FOCUS;
 	Items[I].Flags|=DIF_FOCUS;
 	ChangeFocus2(I);
@@ -3602,10 +3604,10 @@ int Dialog::Do_ProcessNextCtrl(bool Up, bool IsRedraw)
 		ShowDialog(m_FocusPos);
 	}
 
-	return TRUE;
+	return true;
 }
 
-int Dialog::Do_ProcessTab(bool Next)
+bool Dialog::Do_ProcessTab(bool Next)
 {
 	size_t I;
 
@@ -3617,11 +3619,11 @@ int Dialog::Do_ProcessTab(bool Next)
 			I=m_FocusPos;
 
 			while (IsEmulatedEditorLine(Items[I]))
-				I=ChangeFocus(I,Next ? 1:-1,TRUE);
+				I=ChangeFocus(I, Next ? 1 : -1, true);
 		}
 		else
 		{
-			I=ChangeFocus(m_FocusPos,Next ? 1:-1,TRUE);
+			I = ChangeFocus(m_FocusPos, Next ? 1 : -1, true);
 
 			if (!Next)
 				while (I>0 && IsEmulatedEditorLine(Items[I]) &&
@@ -3636,11 +3638,10 @@ int Dialog::Do_ProcessTab(bool Next)
 	ChangeFocus2(I);
 	ShowDialog();
 
-	return TRUE;
+	return true;
 }
 
-
-int Dialog::Do_ProcessSpace()
+bool Dialog::Do_ProcessSpace()
 {
 	if (Items[m_FocusPos].Type==DI_CHECKBOX)
 	{
@@ -3660,13 +3661,13 @@ int Dialog::Do_ProcessSpace()
 			Items[OldFocusPos].Selected = OldSelected;
 
 		ShowDialog();
-		return TRUE;
+		return true;
 	}
 	else if (Items[m_FocusPos].Type==DI_RADIOBUTTON)
 	{
 		m_FocusPos=ProcessRadioButton(m_FocusPos);
 		ShowDialog();
-		return TRUE;
+		return true;
 	}
 	else if (IsEdit(Items[m_FocusPos].Type) && !(Items[m_FocusPos].Flags & DIF_READONLY))
 	{
@@ -3675,10 +3676,10 @@ int Dialog::Do_ProcessSpace()
 			Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -3694,7 +3695,7 @@ int Dialog::Do_ProcessSpace()
 /* $ 24.08.2000 SVS
    Добавка для DI_USERCONTROL
 */
-size_t Dialog::ChangeFocus(size_t CurFocusPos,int Step,int SkipGroup) const
+size_t Dialog::ChangeFocus(size_t CurFocusPos, int Step, bool SkipGroup) const
 {
 	size_t OrigFocusPos=CurFocusPos;
 //  int FucusPosNeed=-1;
@@ -3968,11 +3969,11 @@ bool Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 /* Private:
    Работа с историей - добавление и reorder списка
 */
-int Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const
+bool Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) const
 {
 	if (!CurItem->ObjPtr)
 	{
-		return FALSE;
+		return false;
 	}
 
 	auto& DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
@@ -3980,7 +3981,7 @@ int Dialog::AddToEditHistory(const DialogItemEx* CurItem, const string& AddStr) 
 	{
 		DlgHist->AddToHistory(AddStr);
 	}
-	return TRUE;
+	return true;
 }
 
 int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
@@ -4016,7 +4017,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 /* Private:
    Если жмакнули Alt-???
 */
-int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
+bool Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 {
 	INPUT_RECORD rec;
 	if(!KeyToInputRecord(Key,&rec))
@@ -4033,7 +4034,7 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 		        !(Flags & (DIF_SHOWAMPERSAND|DIF_DISABLE|DIF_HIDDEN)))
 			if (IsKeyHighlighted(Items[I].strData,Key,Translate))
 			{
-				int DisableSelect=FALSE;
+				bool DisableSelect = false;
 
 				// Если ЭТО: DlgEdit(пред контрол) и DI_TEXT в одну строку, то...
 				if (I>0 &&
@@ -4050,8 +4051,8 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 					if ((Items[I-1].Flags&(DIF_DISABLE|DIF_HIDDEN)) ) // и не задисаблен
 						break;
 
-					I=ChangeFocus(I,-1,FALSE);
-					DisableSelect=TRUE;
+					I = ChangeFocus(I, -1, false);
+					DisableSelect = true;
 				}
 				else if (Items[I].Type==DI_TEXT      || Items[I].Type==DI_VTEXT ||
 				         Items[I].Type==DI_SINGLEBOX || Items[I].Type==DI_DOUBLEBOX)
@@ -4066,8 +4067,8 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 						if ((Items[I+1].Flags&(DIF_DISABLE|DIF_HIDDEN)) ) // и не задисаблен
 							break;
 
-						I=ChangeFocus(I,1,FALSE);
-						DisableSelect=TRUE;
+						I = ChangeFocus(I, 1, false);
+						DisableSelect = true;
 					}
 				}
 
@@ -4082,26 +4083,26 @@ int Dialog::ProcessHighlighting(int Key,size_t FocusPos,int Translate)
 				        (!DisableSelect || (Items[I].Flags & DIF_MOVESELECT)))
 				{
 					Do_ProcessSpace();
-					return TRUE;
+					return true;
 				}
 				else if (Items[I].Type==DI_BUTTON)
 				{
 					ProcessKey(KEY_ENTER, I);
-					return TRUE;
+					return true;
 				}
 				// при ComboBox`е - "вываливаем" последний //????
 				else if (Items[I].Type==DI_COMBOBOX)
 				{
 					ProcessOpenComboBox(Items[I].Type, &Items[I], I);
 					//ProcessKey(KEY_CTRLDOWN);
-					return TRUE;
+					return true;
 				}
 
-				return TRUE;
+				return true;
 			}
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -5818,7 +5819,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				{
 					if ((CurItem->Flags&DIF_HIDDEN) && m_FocusPos == (size_t)Param1)
 					{
-						ChangeFocus2(ChangeFocus(Param1,1,TRUE));
+						ChangeFocus2(ChangeFocus(Param1, 1, true));
 					}
 
 					// Либо все,  либо... только 1

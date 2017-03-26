@@ -143,8 +143,8 @@ public:
 	Search(private_tag, Panel* Owner, const Manager::Key& FirstKey);
 
 	void Process(void);
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual int GetType() const override { return windowtype_search; }
 	virtual int GetTypeAndName(string &, string &) override { return windowtype_search; }
 	virtual void ResizeConsole(void) override;
@@ -209,7 +209,7 @@ void Search::Process(void)
 	Global->WindowManager->ExecuteModal(shared_from_this());
 }
 
-int Search::ProcessKey(const Manager::Key& Key)
+bool Search::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;
 
@@ -226,7 +226,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 	else if (LocalKey() == KEY_OP_XLAT)
 	{
@@ -235,7 +235,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		m_FindEdit->ClearString();
 		ProcessName(strTempName);
 		Redraw();
-		return TRUE;
+		return true;
 	}
 	else if (LocalKey() == KEY_OP_PLAINTEXT)
 	{
@@ -244,7 +244,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 		m_FindEdit->ClearString();
 		ProcessName(strTempName);
 		Redraw();
-		return TRUE;
+		return true;
 	}
 	else
 		LocalKey=_CorrectFastFindKbdLayout(Key.Event(),LocalKey());
@@ -253,7 +253,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 	{
 		m_KeyToProcess=KEY_NONE;
 		Close();
-		return TRUE;
+		return true;
 	}
 
 	// // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
@@ -306,7 +306,7 @@ int Search::ProcessKey(const Manager::Key& Key)
 			{
 				m_KeyToProcess=LocalKey;
 				Close();
-				return TRUE;
+				return true;
 			}
 			auto strLastName = m_FindEdit->GetString();
 			if (m_FindEdit->ProcessKey(LocalKey))
@@ -353,16 +353,16 @@ int Search::ProcessKey(const Manager::Key& Key)
 
 			break;
 	}
-	return TRUE;
+	return true;
 }
 
-int Search::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool Search::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!(MouseEvent->dwButtonState & 3))
 		;
 	else
 		Close();
-	return TRUE;
+	return true;
 }
 
 void Search::ShowBorder(void) const
@@ -452,7 +452,7 @@ bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent) const
 		InRange(m_Y1, MouseEvent->dwMousePosition.Y, m_Y2);
 }
 
-int  Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
+bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (DragX!=-1)
 	{
@@ -467,14 +467,14 @@ int  Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 				SrcDragPanel->ProcessKey(Manager::Key(DragMove ? KEY_DRAGMOVE:KEY_DRAGCOPY));
 			}
 
-			return TRUE;
+			return true;
 		}
 
 		if (MouseEvent->dwMousePosition.Y<=m_Y1 || MouseEvent->dwMousePosition.Y>=m_Y2 ||
 			!Parent()->GetAnotherPanel(SrcDragPanel)->IsVisible())
 		{
 			EndDrag();
-			return TRUE;
+			return true;
 		}
 
 		if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED && !MouseEvent->dwEventFlags)
@@ -491,7 +491,7 @@ int  Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 				}
 
 				DragMessage(MouseEvent->dwMousePosition.X,MouseEvent->dwMousePosition.Y,DragMove);
-				return TRUE;
+				return true;
 			}
 			else
 			{
@@ -516,7 +516,7 @@ int  Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 
@@ -633,10 +633,10 @@ void Panel::InitCurDir(const string& CurDir)
      в FarChDir, которая теперь используется у нас для установления
      текущего каталога.
 */
-int Panel::SetCurPath()
+bool Panel::SetCurPath()
 {
 	if (GetMode() == panel_mode::PLUGIN_PANEL)
-		return TRUE;
+		return true;
 
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
@@ -665,7 +665,7 @@ int Panel::SetCurPath()
 					if (CheckShortcutFolder(m_CurDir, true, true) && FarChDir(m_CurDir))
 					{
 						SetCurDir(m_CurDir,true);
-						return TRUE;
+						return true;
 					}
 				}
 				else
@@ -697,10 +697,10 @@ int Panel::SetCurPath()
 				}
 			}
 		}
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -1222,19 +1222,19 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 }
 
 
-int Panel::GetCurName(string &strName, string &strShortName) const
+bool Panel::GetCurName(string &strName, string &strShortName) const
 {
 	strName.clear();
 	strShortName.clear();
-	return FALSE;
+	return false;
 }
 
 
-int Panel::GetCurBaseName(string &strName, string &strShortName) const
+bool Panel::GetCurBaseName(string &strName, string &strShortName) const
 {
 	strName.clear();
 	strShortName.clear();
-	return FALSE;
+	return false;
 }
 
 bool Panel::NeedUpdatePanel(const Panel *AnotherPanel) const
@@ -1431,7 +1431,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 	return true;
 }
 
-bool Panel::CreateFullPathName(const string& Name, const string& ShortName,DWORD FileAttr, string &strDest, int UNC,int ShortNameAsIs) const
+bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string& strDest, bool UNC, bool ShortNameAsIs) const
 {
 	string strFileName = strDest;
 	if (FindSlash(Name) == string::npos && FindSlash(ShortName) == string::npos)

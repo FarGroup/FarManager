@@ -160,10 +160,10 @@ bool CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
 	return false;
 }
 
-int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool ShortNameAsIs)
+bool MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool ShortNameAsIs)
 {
-	int RetCode=FALSE;
-	int NeedRealName=FALSE;
+	auto RetCode = false;
+	auto NeedRealName = false;
 	strPathName.clear();
 
 	switch (Key)
@@ -180,7 +180,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool Short
 		case KEY_RALTSHIFTBRACKET:
 		case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
 		case KEY_RALTSHIFTBACKBRACKET:
-			NeedRealName=TRUE;
+			NeedRealName = true;
 		case KEY_CTRLBRACKET:          // Вставить путь из левой панели
 		case KEY_RCTRLBRACKET:
 		case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
@@ -250,14 +250,14 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool Short
 				else
 				{
 					if (!(SrcPanel->GetType() == panel_type::FILE_PANEL || SrcPanel->GetType() == panel_type::TREE_PANEL))
-						return FALSE;
+						return false;
 
 					strPathName = SrcPanel->GetCurDir();
 
 					if (SrcPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 					{
 						if (NeedRealName)
-							SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, TRUE, ShortNameAsIs);
+							SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, true, ShortNameAsIs);
 
 						if (SrcPanel->GetShowShortNamesMode() && ShortNameAsIs)
 							strPathName = ConvertNameToShort(strPathName);
@@ -287,7 +287,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool Short
 				if (Param2)
 					strPathName += Param2;
 
-				RetCode=TRUE;
+				RetCode = true;
 			}
 		}
 		break;

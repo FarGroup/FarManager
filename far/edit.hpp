@@ -117,8 +117,8 @@ public:
 	virtual ~Edit() override = default;
 
 	void FastShow(const ShowInfo* Info=nullptr);
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
 	virtual void Changed(bool DelBlock=false){};
 	void SetDelRemovesBlocks(bool Mode) {m_Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
@@ -217,13 +217,13 @@ private:
 	virtual int GetLineCursorPos() const;
 	virtual void SetLineCursorPos(int Value);
 
-	int InsertKey(int Key);
-	int RecurseProcessKey(int Key);
+	bool InsertKey(int Key);
+	bool RecurseProcessKey(int Key);
 	void ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos);
 	int GetNextCursorPos(int Position,int Where) const;
 	int KeyMatchedMask(int Key, const string& Mask) const;
-	int ProcessCtrlQ();
-	int ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
+	bool ProcessCtrlQ();
+	bool ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
 	void FixLeftPos(int TabCurPos=-1);
 	void SetRightCoord(int Value) {SetPosition(m_X1, m_Y2, Value, m_Y2);}

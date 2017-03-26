@@ -415,28 +415,28 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 		ApplyColor(GetSelectedColor(), XPos, FocusedLeftPos);
 }
 
-int Edit::RecurseProcessKey(int Key)
+bool Edit::RecurseProcessKey(int Key)
 {
 	Recurse++;
-	int RetCode=ProcessKey(Manager::Key(Key));
+	const auto RetCode=ProcessKey(Manager::Key(Key));
 	Recurse--;
 	return RetCode;
 }
 
 // Функция вставки всякой хреновени - от шорткатов до имен файлов
-int Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
+bool Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 {
-	int RetCode=FALSE;
+	auto RetCode = false;
 	string strPathName;
 
 	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // шорткаты?
 	{
 		if (Shortcuts().Get(Key-KEY_RCTRL0,&strPathName,nullptr,nullptr,nullptr))
-			RetCode=TRUE;
+			RetCode = true;
 	}
 	else // Пути/имена?
 	{
-		RetCode=_MakePath1(Key,strPathName,L"");
+		RetCode = MakePath1(Key, strPathName, L"");
 	}
 
 	// Если что-нить получилось, именно его и вставим (PathName)
@@ -558,7 +558,7 @@ long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
 	return 0;
 }
 
-int Edit::ProcessKey(const Manager::Key& Key)
+bool Edit::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 	const auto Mask = GetInputMask();
@@ -605,12 +605,10 @@ int Edit::ProcessKey(const Manager::Key& Key)
 	{
 		DeleteBlock();
 		Show();
-		return TRUE;
+		return true;
 	}
 
-	int _Macro_IsExecuting=Global->CtrlObject->Macro.IsExecuting();
-
-	if (!IntKeyState.ShiftPressed() && (!_Macro_IsExecuting || IsNavKey(LocalKey)) &&
+	if (!IntKeyState.ShiftPressed() && (!Global->CtrlObject->Macro.IsExecuting() || IsNavKey(LocalKey)) &&
 	        !IsShiftKey(LocalKey) && !Recurse &&
 	        // No single ctrl, alt, shift key or their combination
 	        LocalKey & ~KEY_CTRLMASK &&
@@ -662,7 +660,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 	if (ProcessInsPath(LocalKey,PrevSelStart,PrevSelEnd))
 	{
 		Show();
-		return TRUE;
+		return true;
 	}
 
 	switch (LocalKey)
@@ -706,7 +704,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTRIGHT: case KEY_SHIFTNUMPAD6:
 		{
@@ -729,7 +727,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				AddSelect(m_CurPos,m_CurPos+1);
 
 			RecurseProcessKey(KEY_RIGHT);
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
@@ -754,13 +752,13 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
 		case KEY_RCTRLSHIFTRIGHT: case KEY_RCTRLSHIFTNUMPAD6:
 		{
 			if (m_CurPos >= m_Str.size())
-				return FALSE;
+				return false;
 
 			RecurseProcessKey(KEY_SHIFTRIGHT);
 
@@ -777,14 +775,14 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTHOME:  case KEY_SHIFTNUMPAD7:
 		{
 			while (m_CurPos>0)
 				RecurseProcessKey(KEY_SHIFTLEFT);
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTEND:  case KEY_SHIFTNUMPAD1:
 		{
@@ -809,12 +807,12 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				LastCurPos=m_CurPos;
 			}
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_BS:
 		{
 			if (m_CurPos<=0)
-				return FALSE;
+				return false;
 
 			SetPrevCurPos(m_CurPos);
 			do {
@@ -833,7 +831,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			if (!RecurseProcessKey(KEY_DEL))
 				Show();
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLSHIFTBS:
 		case KEY_RCTRLSHIFTBS:
@@ -849,7 +847,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 			Changed(true);
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLBS:
 		case KEY_RCTRLBS:
@@ -883,7 +881,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 			Changed(true);
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLQ:
 		case KEY_RCTRLQ:
@@ -892,7 +890,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				RecurseProcessKey(KEY_DEL);
 			ProcessCtrlQ();
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_OP_SELWORD:
 		{
@@ -916,13 +914,13 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			m_CurPos=OldCurPos; // возвращаем обратно
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_OP_PLAINTEXT:
 		{
 			InsertString(Global->CtrlObject->Macro.GetStringToPrint());
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLT:
 		case KEY_CTRLDEL:
@@ -934,7 +932,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLDECIMAL:
 		{
 			if (m_CurPos >= m_Str.size())
-				return FALSE;
+				return false;
 			{
 				SCOPED_ACTION(auto)(CallbackSuppressor());
 				if (!Mask.empty())
@@ -977,13 +975,13 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 			Changed(true);
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLY:
 		case KEY_RCTRLY:
 		{
 			if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
-				return TRUE;
+				return true;
 
 			SetPrevCurPos(m_CurPos);
 			LeftPos=m_CurPos=0;
@@ -991,16 +989,16 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			RemoveSelection();
 			Changed();
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLK:
 		case KEY_RCTRLK:
 		{
 			if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
-				return TRUE;
+				return true;
 
 			if (m_CurPos >= m_Str.size())
-				return FALSE;
+				return false;
 
 			if (!m_Flags.Check(FEDITLINE_EDITBEYONDEND))
 			{
@@ -1017,7 +1015,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			m_Str.resize(m_CurPos);
 			Changed();
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
@@ -1026,7 +1024,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			SetPrevCurPos(m_CurPos);
 			m_CurPos=0;
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_END:           case KEY_NUMPAD1:
 		case KEY_CTRLEND:       case KEY_CTRLNUMPAD1:
@@ -1045,7 +1043,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				m_CurPos = m_Str.size();
 
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_LEFT:        case KEY_NUMPAD4:        case KEY_MSWHEEL_LEFT:
 		case KEY_CTRLS:       case KEY_RCTRLS:
@@ -1057,7 +1055,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_RIGHT:       case KEY_NUMPAD6:        case KEY_MSWHEEL_RIGHT:
 		case KEY_CTRLD:       case KEY_RCTRLD:
@@ -1076,22 +1074,22 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				m_CurPos++;
 
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_INS:         case KEY_NUMPAD0:
 		{
 			m_Flags.Swap(FEDITLINE_OVERTYPE);
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_NUMDEL:
 		case KEY_DEL:
 		{
 			if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
-				return TRUE;
+				return true;
 
 			if (m_CurPos >= m_Str.size())
-				return FALSE;
+				return false;
 
 			if (m_SelStart!=-1)
 			{
@@ -1133,7 +1131,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			Changed(true);
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
 		case KEY_RCTRLLEFT: case KEY_RCTRLNUMPAD4:
@@ -1156,13 +1154,13 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLRIGHT:   case KEY_CTRLNUMPAD6:
 		case KEY_RCTRLRIGHT:  case KEY_RCTRLNUMPAD6:
 		{
 			if (m_CurPos >= m_Str.size())
-				return FALSE;
+				return false;
 
 			SetPrevCurPos(m_CurPos);
 			int Len;
@@ -1191,19 +1189,19 @@ int Edit::ProcessKey(const Manager::Key& Key)
 			}
 
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTNUMDEL:
 		case KEY_SHIFTDECIMAL:
 		case KEY_SHIFTDEL:
 		{
 			if (m_SelStart==-1 || m_SelStart>=m_SelEnd)
-				return FALSE;
+				return false;
 
 			RecurseProcessKey(KEY_CTRLINS);
 			DeleteBlock();
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLINS:     case KEY_CTRLNUMPAD0:
 		case KEY_RCTRLINS:    case KEY_RCTRLNUMPAD0:
@@ -1228,14 +1226,14 @@ int Edit::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
 		{
 			string ClipText;
 
 			if (!GetClipboardText(ClipText))
-				return TRUE;
+				return true;
 
 			const auto MaxLength = GetMaxLength();
 			if (MaxLength != -1 && ClipText.size() > static_cast<size_t>(MaxLength))
@@ -1259,7 +1257,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			InsertString(ClipText);
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTTAB:
 		{
@@ -1271,7 +1269,7 @@ int Edit::ProcessKey(const Manager::Key& Key)
 
 			SetTabCurPos(GetLineCursorPos());
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTSPACE:
 			LocalKey = KEY_SPACE;
@@ -1301,15 +1299,15 @@ int Edit::ProcessKey(const Manager::Key& Key)
 					Show();
 				}
 			}
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 // обработка Ctrl-Q
-int Edit::ProcessCtrlQ()
+bool Edit::ProcessCtrlQ()
 {
 	INPUT_RECORD rec;
 	for (;;)
@@ -1324,19 +1322,19 @@ int Edit::ProcessCtrlQ()
 			// BUGBUG currently GetInputRecord will never return anything but KEY_NONE if manager queue isn't empty,
 			// and it will be non-empty if we allow async resizing here.
 			// It's better to exit from Ctrl-Q mode at all than hang.
-			return FALSE;
+			return false;
 		}
 	}
 
 	return InsertKey(rec.Event.KeyEvent.uChar.AsciiChar);
 }
 
-int Edit::InsertKey(int Key)
+bool Edit::InsertKey(int Key)
 {
 	bool changed=false;
 
 	if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
-		return TRUE;
+		return true;
 
 	if (Key==KEY_TAB && m_Flags.Check(FEDITLINE_OVERTYPE))
 	{
@@ -1344,7 +1342,7 @@ int Edit::InsertKey(int Key)
 		int Pos = GetLineCursorPos();
 		SetLineCursorPos(static_cast<int>(Pos + (GetTabSize() - (Pos % GetTabSize()))));
 		SetTabCurPos(GetLineCursorPos());
-		return TRUE;
+		return true;
 	}
 
 	const auto Mask = GetInputMask();
@@ -1410,7 +1408,7 @@ int Edit::InsertKey(int Key)
 			if (Key==KEY_TAB && (GetTabExpandMode()==EXPAND_NEWTABS || GetTabExpandMode()==EXPAND_ALLTABS))
 			{
 				InsertTab();
-				return TRUE;
+				return true;
 			}
 
 			SetPrevCurPos(m_CurPos);
@@ -1450,7 +1448,7 @@ int Edit::InsertKey(int Key)
 	if (changed)
 		Changed();
 
-	return TRUE;
+	return true;
 }
 
 void Edit::SetHiString(const string& Str)
@@ -1710,14 +1708,14 @@ int Edit::GetLength() const
 	return m_Str.size();
 }
 
-int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!(MouseEvent->dwButtonState & 3))
-		return FALSE;
+		return false;
 
 	if (MouseEvent->dwMousePosition.X<m_X1 || MouseEvent->dwMousePosition.X>m_X2 ||
 	        MouseEvent->dwMousePosition.Y!=m_Y1)
-		return FALSE;
+		return false;
 
 	//SetClearFlag(0); // пусть едитор сам заботится о снятии clear-текста?
 	SetTabCurPos(MouseEvent->dwMousePosition.X - m_X1 + LeftPos);
@@ -1756,7 +1754,7 @@ int Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	}
 
 	Show();
-	return TRUE;
+	return true;
 }
 
 /* $ 03.08.2000 KM

@@ -110,7 +110,7 @@ void DlgEdit::SetHistory(const string& Name)
 	iHistory = std::make_unique<History>(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory);
 }
 
-int DlgEdit::ProcessKey(const Manager::Key& Key)
+bool DlgEdit::ProcessKey(const Manager::Key& Key)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -121,7 +121,7 @@ int DlgEdit::ProcessKey(const Manager::Key& Key)
 		return lineEdit->ProcessKey(Key);
 }
 
-int DlgEdit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool DlgEdit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

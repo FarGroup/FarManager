@@ -454,28 +454,26 @@ int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 	return static_cast<int>(Items.size()-1);
 }
 
-int VMenu::UpdateItem(const FarListUpdate *NewItem)
+bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 {
-	if (NewItem && (DWORD)NewItem->Index < (DWORD)Items.size())
+	if (!NewItem || static_cast<size_t>(NewItem->Index) >= Items.size())
+		return false;
+
+	// Освободим память... от ранее занятого ;-)
+	if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 	{
-		// Освободим память... от ранее занятого ;-)
-		if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
-		{
-			Items[NewItem->Index].UserData = any();
-		}
-
-		MenuItemEx MItem = FarList2MenuItem(NewItem->Item);
-
-		Items[NewItem->Index].strName = MItem.strName;
-
-		UpdateItemFlags(NewItem->Index, MItem.Flags);
-
-		SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
-
-		return TRUE;
+		Items[NewItem->Index].UserData = any();
 	}
 
-	return FALSE;
+	MenuItemEx MItem = FarList2MenuItem(NewItem->Item);
+
+	Items[NewItem->Index].strName = MItem.strName;
+
+	UpdateItemFlags(NewItem->Index, MItem.Flags);
+
+	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
+
+	return true;
 }
 
 //функция удаления N пунктов меню
@@ -1032,10 +1030,10 @@ void VMenu::SetFilterString(const wchar_t *str)
 	strFilter=str;
 }
 
-int VMenu::ProcessFilterKey(int Key)
+bool VMenu::ProcessFilterKey(int Key)
 {
 	if (!bFilterEnabled || bFilterLocked || !IsFilterEditKey(Key))
-		return FALSE;
+		return false;
 
 	if (Key==KEY_BS)
 	{
@@ -1047,53 +1045,53 @@ int VMenu::ProcessFilterKey(int Key)
 			{
 				RestoreFilteredItems();
 				DisplayObject();
-				return TRUE;
+				return true;
 			}
 		}
 		else
 		{
-			return TRUE;
+			return true;
 		}
 	}
 	else
 	{
 		if (!GetShowItemCount())
-			return TRUE;
+			return true;
 
-		strFilter += (wchar_t)Key;
+		strFilter += static_cast<wchar_t>(Key);
 	}
 
 	FilterStringUpdated();
 	DisplayObject();
 
-	return TRUE;
+	return true;
 }
 
-int VMenu::ProcessKey(const Manager::Key& Key)
+bool VMenu::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 	auto Parent = GetDialog();
 	if (IsComboBox() && !Parent->GetDropDownOpened())
 	{
 		Close(-1);
-		return FALSE;
+		return false;
 	}
 
 	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTKEY))
 	{
 		auto Event = Key.Event();
 		if (!Parent->DlgProc(DN_INPUT, 0, &Event))
-			return TRUE;
+			return true;
 	}
 
 	if (LocalKey==KEY_NONE || LocalKey==KEY_IDLE)
-		return FALSE;
+		return false;
 
 	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTKEY))
 	{
 		auto Event = Key.Event();
 		if (Parent->DlgProc(DN_CONTROLINPUT, Parent->GetDlgFocusPos(), &Event))
-			return TRUE;
+			return true;
 	}
 
 	if (LocalKey == KEY_OP_PLAINTEXT)
@@ -1101,7 +1099,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 		const wchar_t *str = Global->CtrlObject->Macro.GetStringToPrint();
 
 		if (!*str)
-			return FALSE;
+			return false;
 
 		if ( AddToFilter(str) ) // для фильтра: всю строку целиком в фильтр, а там разберемся.
 		{
@@ -1112,7 +1110,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 
 			DisplayObject();
 
-			return TRUE;
+			return true;
 		}
 		else // не для фильтра: по старинке, первый символ последовательности, остальное игнорируем (ибо некуда)
 			LocalKey=*str;
@@ -1127,7 +1125,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			if (!bFilterEnabled || (bFilterEnabled && LocalKey!=KEY_BS && LocalKey!=KEY_CTRLALTF && LocalKey!=KEY_RCTRLRALTF && LocalKey!=KEY_CTRLRALTF && LocalKey!=KEY_RCTRLALTF && LocalKey!=KEY_RALT && LocalKey!=KEY_OP_XLAT))
 			{
 				m_ExitCode = -1;
-				return FALSE;
+				return false;
 			}
 		}
 	}
@@ -1353,7 +1351,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 			{
 				string ClipText;
 				if (!GetClipboardText(ClipText))
-					return TRUE;
+					return true;
 
 				if (AddToFilter(ClipText.data()))
 				{
@@ -1365,7 +1363,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 					DisplayObject();
 				}
 			}
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLALTL:
 		case KEY_RCTRLRALTL:
@@ -1416,7 +1414,7 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 		default:
 		{
 			if (ProcessFilterKey(LocalKey))
-				return TRUE;
+				return true;
 
 			int OldSelectPos=SelectPos;
 			int NewPos=SelectPos;
@@ -1464,20 +1462,20 @@ int VMenu::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			return FALSE;
+			return false;
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
-int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	auto Parent = GetDialog();
 	if (IsComboBox() && !Parent->GetDropDownOpened())
 	{
 		Close(-1);
-		return FALSE;
+		return false;
 	}
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
@@ -1488,14 +1486,14 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		Event.EventType = MOUSE_EVENT;
 		Event.Event.MouseEvent = *MouseEvent;
 		if (!Parent->DlgProc(DN_INPUT, 0, &Event))
-			return TRUE;
+			return true;
 	}
 
 	if (!GetShowItemCount())
 	{
 		if (MouseEvent->dwButtonState && !MouseEvent->dwEventFlags)
 			SetExitCode(-1);
-		return FALSE;
+		return false;
 	}
 
 	int MsX=MouseEvent->dwMousePosition.X;
@@ -1513,7 +1511,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			ProcessKey(Manager::Key(KEY_ENTER));
 		}
-		return TRUE;
+		return true;
 	}
 
 	if ( (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && ( MsX==m_X1+2||MsX==m_X2-1-(CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX)?0:2) ) )
@@ -1521,7 +1519,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		while (IsMouseButtonPressed())
 			ProcessKey(Manager::Key(MsX==m_X1+2?KEY_ALTLEFT:KEY_ALTRIGHT));
 
-		return TRUE;
+		return true;
 	}
 
 	int SbY1 = ((m_BoxType!=NO_BOX)?m_Y1+1:m_Y1), SbY2=((m_BoxType!=NO_BOX)?m_Y2-1:m_Y2);
@@ -1543,7 +1541,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				ShowMenu(true);
 			}
 
-			return TRUE;
+			return true;
 		}
 
 		if (MsY==SbY2)
@@ -1557,7 +1555,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				ShowMenu(true);
 			}
 
-			return TRUE;
+			return true;
 		}
 
 		if (MsY>SbY1 && MsY<SbY2)
@@ -1587,7 +1585,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				ShowMenu(true);
 			}
 
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -1599,7 +1597,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			while (MsY==m_Y1 && GetVisualPos(SelectPos)>0 && IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_UP));
 
-			return TRUE;
+			return true;
 		}
 
 		if (MsY==m_Y2)
@@ -1607,7 +1605,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			while (MsY==m_Y2 && GetVisualPos(SelectPos)<GetShowItemCount()-1 && IsMouseButtonPressed())
 				ProcessKey(Manager::Key(KEY_DOWN));
 
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -1654,7 +1652,7 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 	else if (m_BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 	{
@@ -1662,28 +1660,28 @@ int VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (ClickOpt==VMENUCLICK_CANCEL)
 			ProcessKey(Manager::Key(KEY_ESC));
 
-		return TRUE;
+		return true;
 	}
 	else if (m_BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.LBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(Manager::Key(KEY_ENTER));
 
-		return TRUE;
+		return true;
 	}
 	else if (m_BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.MBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(Manager::Key(KEY_ENTER));
 
-		return TRUE;
+		return true;
 	}
 	else if (m_BoxType!=NO_BOX && bRightBtnPressed && !(MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.RBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(Manager::Key(KEY_ENTER));
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 int VMenu::GetVisualPos(int Pos)

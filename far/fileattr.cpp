@@ -74,11 +74,11 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 	return SETATTR_RET_OK;
 }
 
-static int SetFileCompression(const string& Name,int State)
+static bool SetFileCompression(const string& Name,int State)
 {
 	const os::fs::file File(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if (!File)
-		return FALSE;
+		return false;
 
 	USHORT NewState=State? COMPRESSION_FORMAT_DEFAULT : COMPRESSION_FORMAT_NONE;
 	DWORD BytesReturned;

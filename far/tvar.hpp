@@ -50,7 +50,7 @@ enum TVarType
 	vtDouble  = 3,
 };
 
-using TVarFuncCmp = bool (*)(TVarType vt, const void*, const void*);
+using TVarFuncCmp = bool(TVarType vt, const void*, const void*);
 
 class TVar
 {

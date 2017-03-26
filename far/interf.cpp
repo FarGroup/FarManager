@@ -198,7 +198,7 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 	return FALSE;
 }
 
-static int ConsoleScrollHook(const Manager::Key& key)
+static bool ConsoleScrollHook(const Manager::Key& key)
 {
 	// Удалить после появления макрофункции Scroll
 	if (Global->Opt->WindowMode && Global->WindowManager->IsPanelsActive())
@@ -214,7 +214,7 @@ static int ConsoleScrollHook(const Manager::Key& key)
 		case KEY_CTRLRALTNUMPAD8:
 		case KEY_RCTRLRALTNUMPAD8:
 			Console().ScrollWindow(-1);
-			return TRUE;
+			return true;
 
 		case KEY_CTRLALTDOWN:
 		case KEY_RCTRLRALTDOWN:
@@ -225,7 +225,7 @@ static int ConsoleScrollHook(const Manager::Key& key)
 		case KEY_CTRLRALTNUMPAD2:
 		case KEY_RCTRLRALTNUMPAD2:
 			Console().ScrollWindow(1);
-			return TRUE;
+			return true;
 
 		case KEY_CTRLALTPGUP:
 		case KEY_RCTRLRALTPGUP:
@@ -236,8 +236,8 @@ static int ConsoleScrollHook(const Manager::Key& key)
 		case KEY_CTRLRALTNUMPAD9:
 		case KEY_RCTRLRALTNUMPAD9:
 			Console().ScrollWindow(-ScrY);
-			return TRUE;
-
+			return true;
+			
 		case KEY_CTRLALTHOME:
 		case KEY_RCTRLRALTHOME:
 		case KEY_CTRLRALTHOME:
@@ -247,7 +247,7 @@ static int ConsoleScrollHook(const Manager::Key& key)
 		case KEY_CTRLRALTNUMPAD7:
 		case KEY_RCTRLRALTNUMPAD7:
 			Console().ScrollWindowToBegin();
-			return TRUE;
+			return true;
 
 		case KEY_CTRLALTPGDN:
 		case KEY_RCTRLRALTPGDN:
@@ -258,7 +258,7 @@ static int ConsoleScrollHook(const Manager::Key& key)
 		case KEY_CTRLRALTNUMPAD3:
 		case KEY_RCTRLRALTNUMPAD3:
 			Console().ScrollWindow(ScrY);
-			return TRUE;
+			return true;
 
 		case KEY_CTRLALTEND:
 		case KEY_RCTRLRALTEND:
@@ -269,10 +269,10 @@ static int ConsoleScrollHook(const Manager::Key& key)
 		case KEY_CTRLRALTNUMPAD1:
 		case KEY_RCTRLRALTNUMPAD1:
 			Console().ScrollWindowToEnd();
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 void RegisterConsoleScrollHook()

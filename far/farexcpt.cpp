@@ -572,7 +572,7 @@ static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
 }
 WARNING_POP()
 
-static int ExceptionTestHook(Manager::Key key)
+static bool ExceptionTestHook(Manager::Key key)
 {
 	// сей код для проверки исключатор, просьба не трогать :-)
 	if (
@@ -655,7 +655,7 @@ static int ExceptionTestHook(Manager::Key key)
 
 		int ExitCode = ModalMenu->Run();
 		if (ExitCode == -1)
-			return TRUE;
+			return true;
 
 		switch (static_cast<exception_types>(ExitCode))
 		{
@@ -723,9 +723,9 @@ static int ExceptionTestHook(Manager::Key key)
 		}
 
 		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", Names[ExitCode], L"", MSG(lng::MOk));
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 #endif
 

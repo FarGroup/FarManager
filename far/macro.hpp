@@ -35,10 +35,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "tvar.hpp"
-
 // Macro Const
-enum {
+enum
+{
 	constMsX          = 0,
 	constMsY          = 1,
 	constMsButton     = 2,
@@ -54,10 +53,12 @@ enum MACRODISABLEONLOAD
 	MDOL_AUTOSTART      = 0x00000001, // дисаблим автостартующие макросы
 };
 
+class TVar;
+
 struct MacroPanelSelect
 {
+	string Item;
 	long long Index;
-	TVar    *Item;
 	int     Action;
 	DWORD   ActionFlags;
 	int     Mode;
@@ -74,8 +75,8 @@ public:
 	static bool DelMacro(const GUID& PluginId,void* Id);
 	static bool ExecuteString(MacroExecuteString *Data);
 	static bool GetMacroKeyInfo(const string& strArea,int Pos,string &strKeyName,string &strDescription);
-	static int  IsDisableOutput();
-	static int  IsExecuting();
+	static bool IsDisableOutput();
+	static bool IsExecuting() { return GetExecutingState() != MACROSTATE_NOMACRO; }
 	static bool IsHistoryDisable(int TypeHistory);
 	static bool MacroExists(int Key, FARMACROAREA Area, bool UseCommon);
 	static void RunStartMacro();
@@ -90,18 +91,19 @@ public:
 	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
 	FARMACROAREA GetArea() const { return m_Area; }
 	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
-	int  IsRecording() const { return m_Recording; }
+	bool IsRecording() const { return m_Recording != MACROSTATE_NOMACRO; }
 	bool LoadMacros(bool FromFar, bool InitedRAM=true, const FarMacroLoad *Data=nullptr);
 	bool ParseMacroString(const wchar_t* Sequence,FARKEYMACROFLAGS Flags,bool skipFile);
 	int  PeekKey() const;
-	int  ProcessEvent(const FAR_INPUT_RECORD *Rec);
+	bool ProcessEvent(const FAR_INPUT_RECORD *Rec);
 	void SetArea(FARMACROAREA Area) { m_Area=Area; }
 	void SuspendMacros(bool Suspend) { Suspend ? ++m_InternalInput : --m_InternalInput; }
 
 private:
+	static int GetExecutingState();
 	intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	int  AssignMacroKey(DWORD& MacroKey, unsigned long long& Flags);
-	int  GetMacroSettings(int Key, unsigned long long &Flags, const wchar_t *Src = nullptr, const wchar_t *Descr = nullptr);
+	bool GetMacroSettings(int Key, unsigned long long &Flags, const wchar_t *Src = nullptr, const wchar_t *Descr = nullptr);
 	intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	void RestoreMacroChar() const;
 

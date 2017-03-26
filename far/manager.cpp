@@ -98,108 +98,98 @@ Manager::Key& Manager::Key::operator&=(unsigned int Key)
 	return *this;
 }
 
-static int CASHook(const Manager::Key& key)
+static bool CASHook(const Manager::Key& key)
 {
-	if (key.IsEvent())
+	if (!key.IsEvent())
+		return false;
+
+	const auto& rec=key.Event().Event.KeyEvent;
+	if (rec.bKeyDown)
 	{
-		const KEY_EVENT_RECORD& rec=key.Event().Event.KeyEvent;
-		if (rec.bKeyDown)
+		switch (rec.wVirtualKeyCode)
 		{
-			switch (rec.wVirtualKeyCode)
+		case VK_SHIFT:
+		case VK_MENU:
+		case VK_CONTROL:
 			{
-				case VK_SHIFT:
-				case VK_MENU:
-				case VK_CONTROL:
+				const auto
+					maskLeft=LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED,
+					maskRight=RIGHT_CTRL_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED;
+				const auto state = rec.dwControlKeyState;
+				const auto& wait = [](DWORD mask)
 				{
-					const auto
-						maskLeft=LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED,
-						maskRight=RIGHT_CTRL_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED;
-					const auto state = rec.dwControlKeyState;
-					const auto& wait = [](DWORD mask)
+					for (;;)
 					{
-						for (;;)
+						INPUT_RECORD rec;
+
+						if (PeekInputRecord(&rec,true))
 						{
-							INPUT_RECORD rec;
-
-							if (PeekInputRecord(&rec,true))
-							{
-								GetInputRecord(&rec,true,true);
-								if ((rec.Event.KeyEvent.dwControlKeyState&mask) != mask)
-									break;
-							}
-
-							Sleep(1);
-						}
-					};
-					const auto
-						case1 = Global->Opt->CASRule&1 && (state&maskLeft) == maskLeft,
-						case2 = Global->Opt->CASRule&2 && (state&maskRight) == maskRight;
-					if (case1 || case2)
-					{
-						const auto maskCurrent = case1?maskLeft:maskRight;
-						const auto currentWindow = Global->WindowManager->GetCurrentWindow();
-						if (currentWindow->CanFastHide())
-						{
-							int isPanelFocus=currentWindow->GetType() == windowtype_panels;
-
-							if (isPanelFocus)
-							{
-								const auto LeftVisible = Global->CtrlObject->Cp()->LeftPanel()->IsVisible();
-								const auto RightVisible = Global->CtrlObject->Cp()->RightPanel()->IsVisible();
-								const auto CmdLineVisible = Global->CtrlObject->CmdLine()->IsVisible();
-								const auto KeyBarVisible = Global->CtrlObject->Cp()->GetKeybar().IsVisible();
-								Manager::ShowBackground();
-								Global->CtrlObject->Cp()->LeftPanel()->HideButKeepSaveScreen();
-								Global->CtrlObject->Cp()->RightPanel()->HideButKeepSaveScreen();
-
-								switch (Global->Opt->PanelCtrlAltShiftRule)
-								{
-									case 0:
-										if (CmdLineVisible)
-											Global->CtrlObject->CmdLine()->Show();
-										if (KeyBarVisible)
-											Global->CtrlObject->Cp()->GetKeybar().Show();
-										break;
-									case 1:
-										if (KeyBarVisible)
-											Global->CtrlObject->Cp()->GetKeybar().Show();
-										break;
-								}
-
-								wait(maskCurrent);
-
-								if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel()->Show();
-								if (RightVisible)     Global->CtrlObject->Cp()->RightPanel()->Show();
-								if (CmdLineVisible)   Global->CtrlObject->CmdLine()->Show();
-								if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
-							}
-							else
-							{
-								Global->WindowManager->ImmediateHide();
-								wait(maskCurrent);
-							}
-
-							Global->WindowManager->RefreshWindow();
+							GetInputRecord(&rec,true,true);
+							if ((rec.Event.KeyEvent.dwControlKeyState&mask) != mask)
+								break;
 						}
 
-						return TRUE;
+						Sleep(1);
 					}
-					break;
+				};
+				const auto
+					case1 = Global->Opt->CASRule&1 && (state&maskLeft) == maskLeft,
+					case2 = Global->Opt->CASRule&2 && (state&maskRight) == maskRight;
+				if (case1 || case2)
+				{
+					const auto maskCurrent = case1?maskLeft:maskRight;
+					const auto currentWindow = Global->WindowManager->GetCurrentWindow();
+					if (currentWindow->CanFastHide())
+					{
+						int isPanelFocus=currentWindow->GetType() == windowtype_panels;
+
+						if (isPanelFocus)
+						{
+							const auto LeftVisible = Global->CtrlObject->Cp()->LeftPanel()->IsVisible();
+							const auto RightVisible = Global->CtrlObject->Cp()->RightPanel()->IsVisible();
+							const auto CmdLineVisible = Global->CtrlObject->CmdLine()->IsVisible();
+							const auto KeyBarVisible = Global->CtrlObject->Cp()->GetKeybar().IsVisible();
+							Manager::ShowBackground();
+							Global->CtrlObject->Cp()->LeftPanel()->HideButKeepSaveScreen();
+							Global->CtrlObject->Cp()->RightPanel()->HideButKeepSaveScreen();
+
+							switch (Global->Opt->PanelCtrlAltShiftRule)
+							{
+							case 0:
+								if (CmdLineVisible)
+									Global->CtrlObject->CmdLine()->Show();
+								if (KeyBarVisible)
+									Global->CtrlObject->Cp()->GetKeybar().Show();
+								break;
+							case 1:
+								if (KeyBarVisible)
+									Global->CtrlObject->Cp()->GetKeybar().Show();
+								break;
+							}
+
+							wait(maskCurrent);
+
+							if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel()->Show();
+							if (RightVisible)     Global->CtrlObject->Cp()->RightPanel()->Show();
+							if (CmdLineVisible)   Global->CtrlObject->CmdLine()->Show();
+							if (KeyBarVisible)    Global->CtrlObject->Cp()->GetKeybar().Show();
+						}
+						else
+						{
+							Global->WindowManager->ImmediateHide();
+							wait(maskCurrent);
+						}
+
+						Global->WindowManager->RefreshWindow();
+					}
+
+					return true;
 				}
+				break;
 			}
 		}
 	}
-	return FALSE;
-}
-
-static void RegisterCASHook(Manager& WindowManager)
-{
-	static bool registered = false;
-	if (!registered)
-	{
-		WindowManager.AddGlobalKeyHandler(CASHook);
-		registered = true;
-	}
+	return false;
 }
 
 Manager::Manager():
@@ -210,7 +200,7 @@ Manager::Manager():
 	m_DesktopModalled(0)
 {
 	m_windows.reserve(1024);
-	RegisterCASHook(*this);
+	AddGlobalKeyHandler(CASHook);
 }
 
 Manager::~Manager()
@@ -666,12 +656,12 @@ void Manager::ExitMainLoop(int Ask)
 	}
 }
 
-void Manager::AddGlobalKeyHandler(const std::function<int(const Key&)>& Handler)
+void Manager::AddGlobalKeyHandler(const std::function<bool(const Key&)>& Handler)
 {
 	m_GlobalKeyHandlers.emplace_back(Handler);
 }
 
-int Manager::ProcessKey(Key key)
+bool Manager::ProcessKey(Key key)
 {
 	if (GetCurrentWindow())
 	{
@@ -686,12 +676,12 @@ int Manager::ProcessKey(Key key)
 			case KEY_RALTINS:
 			{
 				RunGraber();
-				return TRUE;
+				return true;
 			}
 			case KEY_CONSOLE_BUFFER_RESIZE:
 				Sleep(1);
 				ResizeAllWindows();
-				return TRUE;
+				return true;
 		}
 
 		/*** А вот здесь - все остальное! ***/
@@ -699,7 +689,7 @@ int Manager::ProcessKey(Key key)
 		{
 			if (std::any_of(CONST_RANGE(m_GlobalKeyHandlers, i) { return i(key); }))
 			{
-				return TRUE;
+				return true;
 			}
 
 			switch (key())
@@ -707,7 +697,7 @@ int Manager::ProcessKey(Key key)
 				case KEY_CTRLW:
 				case KEY_RCTRLW:
 					ShowProcessList();
-					return TRUE;
+					return true;
 
 				case KEY_F11:
 				{
@@ -716,7 +706,7 @@ int Manager::ProcessKey(Key key)
 					if(!reentry && (WindowType == windowtype_dialog || WindowType == windowtype_menu))
 					{
 						++reentry;
-						int r=GetCurrentWindow()->ProcessKey(key);
+						const auto r = GetCurrentWindow()->ProcessKey(key);
 						--reentry;
 						return r;
 					}
@@ -724,7 +714,7 @@ int Manager::ProcessKey(Key key)
 					PluginsMenu();
 					Global->WindowManager->RefreshWindow();
 					//_MANAGER(SysLog(-1));
-					return TRUE;
+					return true;
 				}
 				case KEY_ALTF9:
 				case KEY_RALTF9:
@@ -750,7 +740,7 @@ int Manager::ProcessKey(Key key)
 						if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y)
 						{
 							//_MANAGER(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_NONE"));
-							return TRUE;
+							return true;
 						}
 						else
 						{
@@ -758,12 +748,12 @@ int Manager::ProcessKey(Key key)
 							PrevScrY=PScrY;
 							//_MANAGER(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
 							Global->WindowManager->ResizeAllWindows();
-							return TRUE;
+							return true;
 						}
 					}
 
 					//_MANAGER(SysLog(-1));
-					return TRUE;
+					return true;
 				}
 				case KEY_F12:
 				{
@@ -771,7 +761,7 @@ int Manager::ProcessKey(Key key)
 					{
 						WindowMenu();
 						//_MANAGER(SysLog(-1));
-						return TRUE;
+						return true;
 					}
 
 					break; // отдадим F12 дальше по цепочке
@@ -789,7 +779,7 @@ int Manager::ProcessKey(Key key)
 						break;
 
 					_MANAGER(SysLog(-1));
-					return TRUE;
+					return true;
 			}
 		}
 
@@ -798,7 +788,7 @@ int Manager::ProcessKey(Key key)
 	}
 
 	_MANAGER(SysLog(-1));
-	return FALSE;
+	return false;
 }
 
 static bool FilterMouseMoveNoise(const MOUSE_EVENT_RECORD* MouseEvent)
@@ -812,16 +802,16 @@ static bool FilterMouseMoveNoise(const MOUSE_EVENT_RECORD* MouseEvent)
 	return true;
 }
 
-int Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
+bool Manager::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 {
-	int ret=FALSE;
+	auto ret = false;
 
 	if (!MouseEvent->dwMousePosition.Y && MouseEvent->dwMousePosition.X == ScrX)
 	{
 		if (Global->Opt->ScreenSaver && !(MouseEvent->dwButtonState & 3))
 		{
 			ScreenSaver();
-			return TRUE;
+			return true;
 		}
 	}
 

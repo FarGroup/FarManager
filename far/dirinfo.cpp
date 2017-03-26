@@ -442,12 +442,12 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,s
 	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 }
 
-int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, std::vector<PluginPanelItem>& Items)
+bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, std::vector<PluginPanelItem>& Items)
 {
 	Items.clear();
 
 	if (Dir == L"." || TestParentFolderName(Dir))
-		return FALSE;
+		return false;
 
 	std::unique_ptr<plugin_panel> DirListPlugin;
 	plugin_panel* hDirListPlugin;
@@ -465,7 +465,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, st
 		const auto Handle = ((!hPlugin || hPlugin == PANEL_ACTIVE) ? Global->CtrlObject->Cp()->ActivePanel() : Global->CtrlObject->Cp()->PassivePanel())->GetPluginHandle();
 
 		if (!Handle)
-			return FALSE;
+			return false;
 
 		hDirListPlugin = Handle;
 	}
@@ -540,33 +540,32 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 	Items.clear();
 }
 
-int GetPluginDirInfo(const plugin_panel* ph,const string& DirName,unsigned long& DirCount,
+bool GetPluginDirInfo(const plugin_panel* ph,const string& DirName,unsigned long& DirCount,
                      unsigned long& FileCount,unsigned long long& FileSize,
                      unsigned long long& CompressedFileSize)
 {
-	int ExitCode;
 	DirCount=FileCount=0;
 	FileSize=CompressedFileSize=0;
 
 	std::vector<PluginPanelItem> PanelItems;
-	if ((ExitCode = GetPluginDirList(ph->plugin(), ph->panel(), DirName, PanelItems)) == TRUE) //intptr_t - BUGBUG
+	if (!GetPluginDirList(ph->plugin(), ph->panel(), DirName, PanelItems)) //intptr_t - BUGBUG
+		return false;
+
+	std::for_each(ALL_CONST_RANGE(PanelItems), [&](const PluginPanelItem& i)
 	{
-		std::for_each(ALL_CONST_RANGE(PanelItems), [&](const PluginPanelItem& i)
+		if (i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			if (i.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			{
-				DirCount++;
-			}
-			else
-			{
-				FileCount++;
-				FileSize += i.FileSize;
-				CompressedFileSize += i.AllocationSize? i.AllocationSize : i.FileSize;
-			}
-		});
-	}
+			DirCount++;
+		}
+		else
+		{
+			FileCount++;
+			FileSize += i.FileSize;
+			CompressedFileSize += i.AllocationSize? i.AllocationSize : i.FileSize;
+		}
+	});
 
 	FreePluginDirList(ph->panel(), PanelItems);
 
-	return ExitCode;
+	return true;
 }

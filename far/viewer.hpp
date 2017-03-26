@@ -55,11 +55,11 @@ public:
 	Viewer(window_ptr Owner, bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
 	virtual ~Viewer() override;
 
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
 
-	int OpenFile(const string& Name,int warning);
+	bool OpenFile(const string& Name, int warning);
 	void SetViewKeyBar(KeyBar *ViewKeyBar);
 	void UpdateViewKeyBar(KeyBar& ViewKeyBar);
 	void SetStatusMode(int Mode);
@@ -97,7 +97,7 @@ public:
 private:
 	struct ViewerString;
 
-	int process_key(const Manager::Key& Key);
+	bool process_key(const Manager::Key& Key);
 	virtual void DisplayObject() override;
 	void ShowPage(int nMode);
 	void Up(int n, bool adjust);

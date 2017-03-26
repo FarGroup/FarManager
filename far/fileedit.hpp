@@ -108,8 +108,8 @@ public:
 private:
 	virtual void DisplayObject() override;
 	virtual void InitKeyBar() override;
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void ShowConsoleTitle() override;
 	virtual void OnChangeFocus(bool focus) override;
 	virtual void SetScreenPosition() override;
@@ -125,10 +125,10 @@ private:
 		2 - удалять только файл
 	*/
 	void SetDeleteOnClose(int NewMode);
-	int ReProcessKey(const Manager::Key& Key, int CalledFromControl = TRUE);
+	bool ReProcessKey(const Manager::Key& Key, bool CalledFromControl = true);
 	bool AskOverwrite(const string& FileName);
 	void Init(const string& Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile);
-	int LoadFile(const string& Name, int &UserBreak);
+	bool LoadFile(const string& Name, int &UserBreak);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
 	int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);

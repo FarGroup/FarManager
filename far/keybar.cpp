@@ -254,7 +254,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 	});
 }
 
-int KeyBar::ProcessKey(const Manager::Key& Key)
+bool KeyBar::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
 	switch (LocalKey)
@@ -262,26 +262,26 @@ int KeyBar::ProcessKey(const Manager::Key& Key)
 		case KEY_KILLFOCUS:
 		case KEY_GOTFOCUS:
 			RedrawIfChanged();
-			return TRUE;
+			return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	INPUT_RECORD rec;
 	size_t Key;
 
 	if (!IsVisible())
-		return FALSE;
+		return false;
 
 	if (!(MouseEvent->dwButtonState & 3) || MouseEvent->dwEventFlags)
-		return FALSE;
+		return false;
 
 	if (MouseEvent->dwMousePosition.X<m_X1 || MouseEvent->dwMousePosition.X>m_X2 ||
 	        MouseEvent->dwMousePosition.Y!=m_Y1)
-		return FALSE;
+		return false;
 
 	int KeyWidth=(m_X2-m_X1-1)/12;
 
@@ -306,13 +306,13 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (rec.Event.MouseEvent.dwMousePosition.X<m_X1 ||
 	        rec.Event.MouseEvent.dwMousePosition.X>m_X2 ||
 	        rec.Event.MouseEvent.dwMousePosition.Y!=m_Y1)
-		return FALSE;
+		return false;
 
 	const int NewX = MouseEvent->dwMousePosition.X - m_X1;
 	const size_t NewKey = NewX < KeyWidth * 9? NewX / KeyWidth : 9 + (NewX - KeyWidth * 9) / (KeyWidth + 1);
 
 	if (Key!=NewKey)
-		return FALSE;
+		return false;
 
 	if (Key > F12)
 		Key = F12;
@@ -340,7 +340,7 @@ int KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		Key+=KEY_F1;
 
 	Global->WindowManager->ProcessKey(Manager::Key(static_cast<int>(Key)));
-	return TRUE;
+	return true;
 }
 
 

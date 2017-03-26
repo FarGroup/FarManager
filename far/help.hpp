@@ -48,8 +48,8 @@ public:
 	Help(private_tag);
 	virtual ~Help() override;
 
-	virtual int  ProcessKey(const Manager::Key& Key) override;
-	virtual int  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool  ProcessKey(const Manager::Key& Key) override;
+	virtual bool  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void InitKeyBar() override;
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;
@@ -68,7 +68,7 @@ private:
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return {}; }
 	void init(const string& Topic, const wchar_t *Mask, unsigned long long Flags);
-	int  ReadHelp(const string& Mask);
+	bool ReadHelp(const string& Mask);
 	void AddLine(const string& Line);
 	void AddTitle(const string& Title);
 	static void HighlightsCorrection(string &strStr);
@@ -82,8 +82,8 @@ private:
 	void MoveToReference(int Forward,int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
 	void Search(const os::fs::file& HelpFile,uintptr_t nCodePage);
-	int JumpTopic(const string& JumpTopic);
-	int JumpTopic();
+	bool JumpTopic(const string& JumpTopic);
+	bool JumpTopic();
 	int CanvasHeight() const { return ObjHeight() - 1 - 1;  }
 	int HeaderHeight() const { return FixCount? FixCount + 1 : 0; }
 	int BodyHeight() const { return CanvasHeight() - HeaderHeight();  }

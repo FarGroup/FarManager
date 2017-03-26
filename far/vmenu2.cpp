@@ -596,23 +596,23 @@ int VMenu2::GetTypeAndName(string &strType, string &strName)
 	return windowtype_menu;
 }
 
-static int ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
+static auto ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
 {
 	switch (MenuClick)
 	{
 	case  VMENUCLICK_APPLY:
-		Menu->ProcessKey(Manager::Key(KEY_ENTER));
-		break;
+		return Menu->ProcessKey(Manager::Key(KEY_ENTER));
+
 	case VMENUCLICK_CANCEL:
-		Menu->ProcessKey(Manager::Key(KEY_ESC));
-		break;
+		return Menu->ProcessKey(Manager::Key(KEY_ESC));
+
 	case VMENUCLICK_IGNORE:
-		break;
+	default:
+		return true;
 	}
-	return TRUE;
 }
 
-int VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool VMenu2::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!IsMoving())
 	{

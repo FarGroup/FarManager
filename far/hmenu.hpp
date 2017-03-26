@@ -59,8 +59,8 @@ public:
 	HMenu(private_tag, HMenuData* Item, size_t ItemCount);
 	virtual ~HMenu() override;
 
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual void ResizeConsole() override;
 	virtual int GetType() const override { return windowtype_hmenu; }

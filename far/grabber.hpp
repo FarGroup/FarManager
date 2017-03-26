@@ -54,8 +54,8 @@ private:
 	struct grabber_tag {};
 
 	virtual void DisplayObject() override;
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual string GetTitle() const override { return {}; }
 
 	void init();

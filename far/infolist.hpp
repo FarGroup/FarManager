@@ -53,14 +53,14 @@ public:
 
 private:
 	virtual void DisplayObject() override;
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual void Update(int Mode) override;
 	virtual string GetTitle() const override;
 	virtual void UpdateKeyBar() override;
 	virtual void CloseFile() override;
-	virtual int GetCurName(string &strName, string &strShortName) const override;
+	virtual bool GetCurName(string &strName, string &strShortName) const override;
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;
 
@@ -72,7 +72,7 @@ private:
 	void PrintInfo(lng MsgID) const;
 	void SelectShowMode();
 	void DrawTitle(string &strTitle, int Id, int &CurY);
-	int  OpenDizFile(const string& DizFile, int YPos);
+	bool OpenDizFile(const string& DizFile, int YPos);
 	void DynamicUpdateKeyBar() const;
 
 	unique_ptr_with_ondestroy<DizViewer> DizView;

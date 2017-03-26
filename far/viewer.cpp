@@ -268,7 +268,7 @@ void Viewer::KeepInitParameters() const
 	Global->Opt->ViOpt.SearchRegexp=LastSearchRegexp;
 }
 
-int Viewer::OpenFile(const string& Name,int warning)
+bool Viewer::OpenFile(const string& Name,int warning)
 {
 	m_Codepage=m_DefCodepage;
 	m_DefCodepage=CP_DEFAULT;
@@ -288,13 +288,13 @@ int Viewer::OpenFile(const string& Name,int warning)
 		if (!FarMkTempEx(strTempName))
 		{
 			OpenFailed = true;
-			return FALSE;
+			return false;
 		}
 
 		if (!ViewFile.Open(strTempName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_ALWAYS,FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE))
 		{
 			OpenFailed = true;
-			return FALSE;
+			return false;
 		}
 
 		DWORD ReadSize = 0;
@@ -327,7 +327,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 			        MSG(lng::MViewerCannotOpenFile),strFileName.data(),MSG(lng::MOk));
 
 		OpenFailed=true;
-		return FALSE;
+		return false;
 	}
 	Reader.AdjustAlignment();
 
@@ -441,7 +441,7 @@ int Viewer::OpenFile(const string& Name,int warning)
 
 	if (!HostFileViewer) ReadEvent();
 
-	return TRUE;
+	return true;
 }
 
 bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in first 2k bytes
@@ -1476,7 +1476,7 @@ long long Viewer::VMProcess(int OpCode,void *vParam,long long iParam)
 	return 0;
 }
 
-int Viewer::ProcessKey(const Manager::Key& Key)
+bool Viewer::ProcessKey(const Manager::Key& Key)
 {
 	const auto ret = process_key(Key);
 	if (redraw_selection)
@@ -1484,7 +1484,7 @@ int Viewer::ProcessKey(const Manager::Key& Key)
 	return ret;
 }
 
-int Viewer::process_key(const Manager::Key& Key)
+bool Viewer::process_key(const Manager::Key& Key)
 {
 	unsigned int LocalKey = Key();
 
@@ -1532,7 +1532,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			Show();
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	if (LocalKey>=KEY_CTRLSHIFT0 && LocalKey<=KEY_CTRLSHIFT9)
@@ -1545,7 +1545,7 @@ int Viewer::process_key(const Manager::Key& Key)
 		int Pos=LocalKey-KEY_RCTRL0;
 		BMSavePos[Pos].FilePos = FilePos;
 		BMSavePos[Pos].LeftPos = LeftPos;
-		return TRUE;
+		return true;
 	}
 
 	switch (LocalKey)
@@ -1553,14 +1553,14 @@ int Viewer::process_key(const Manager::Key& Key)
 		case KEY_F1:
 		{
 			Help::create(L"Viewer");
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 		{
 			SelectSize = -1;
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLC:
 		case KEY_RCTRLC:
@@ -1576,7 +1576,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				SetClipboardText(SelData.get(), SelectSize);
 				vseek(CurFilePos, FILE_BEGIN);
 			}
-			return TRUE;
+			return true;
 		}
 		//   включить/выключить скролбар
 		case KEY_CTRLS:
@@ -1589,7 +1589,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Global->CtrlObject->Cp()->ActivePanel()->Redraw();
 
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_IDLE:
 		{
@@ -1599,7 +1599,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			if (ViewFile)
 			{
 				if (!*m_TimeCheck)
-					return TRUE;
+					return true;
 
 				CheckChanged();
 
@@ -1620,7 +1620,7 @@ int Viewer::process_key(const Manager::Key& Key)
 					}
 				}
 			}
-			return TRUE;
+			return true;
 		}
 		case KEY_ALTBS:
 		case KEY_RALTBS:
@@ -1637,7 +1637,7 @@ int Viewer::process_key(const Manager::Key& Key)
 					Show();
 				}
 			}
-			return TRUE;
+			return true;
 		}
 		case KEY_ADD:
 		case KEY_SUBTRACT:
@@ -1661,23 +1661,23 @@ int Viewer::process_key(const Manager::Key& Key)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF2:
 		{
 			ProcessTypeWrapMode(!m_WordWrap);
-			return TRUE;
+			return true;
 		}
 		case KEY_F2:
 		{
 			ProcessWrapMode(!m_Wrap);
-			return TRUE;
+			return true;
 		}
 		case KEY_F4:
 		{
 			m_DisplayMode = m_DisplayMode == VMT_HEX? (m_DumpTextMode? VMT_DUMP : VMT_TEXT) : VMT_HEX;
 			ProcessDisplayMode(m_DisplayMode);
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF4:
 		{
@@ -1704,24 +1704,24 @@ int Viewer::process_key(const Manager::Key& Key)
 					ProcessDisplayMode(NewMode);
 				}
 			}
-			return TRUE;
+			return true;
 		}
 		case KEY_F7:
 		{
 			Search(0,0);
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF7:
 		case KEY_SPACE:
 		{
 			Search(1,0);
-			return TRUE;
+			return true;
 		}
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
 			Search(-1,0);
-			return TRUE;
+			return true;
 		}
 		case KEY_F8:
 		{
@@ -1731,7 +1731,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			AdjustFilePos();
 			ChangeViewKeyBar();
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF8:
 		{
@@ -1754,7 +1754,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_ALTF8:
 		case KEY_RALTF8:
@@ -1765,13 +1765,13 @@ int Viewer::process_key(const Manager::Key& Key)
 				GoTo();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_F11:
 		{
 			Global->CtrlObject->Plugins->CommandsMenu(windowtype_viewer,0,L"Viewer");
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
@@ -1782,7 +1782,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_UP));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
@@ -1793,7 +1793,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_DOWN));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
@@ -1804,7 +1804,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_LEFT));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
@@ -1815,7 +1815,7 @@ int Viewer::process_key(const Manager::Key& Key)
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_RIGHT));
 
-			return TRUE;
+			return true;
 		}
 		case KEY_UP: case KEY_NUMPAD8: case KEY_SHIFTNUMPAD8:
 		{
@@ -1835,7 +1835,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_DOWN: case KEY_NUMPAD2:  case KEY_SHIFTNUMPAD2:
 		{
@@ -1853,7 +1853,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				}
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_PGUP: case KEY_NUMPAD9: case KEY_SHIFTNUMPAD9: case KEY_CTRLUP: case KEY_RCTRLUP:
 		{
@@ -1863,12 +1863,12 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3: case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
 		{
 			if (LastPage || !ViewFile)
-				return TRUE;
+				return true;
 
 			FilePos = EndOfScreen(-1); // start of last screen line
 
@@ -1886,12 +1886,12 @@ int Viewer::process_key(const Manager::Key& Key)
 					InternalKey++;
 					ProcessKey(Manager::Key(KEY_CTRLPGDN));
 					InternalKey--;
-					return TRUE;
+					return true;
 				}
 			}
 
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_LEFT: case KEY_NUMPAD4: case KEY_SHIFTNUMPAD4:
 		{
@@ -1904,7 +1904,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_RIGHT: case KEY_NUMPAD6: case KEY_SHIFTNUMPAD6:
 		{
@@ -1914,7 +1914,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
 		case KEY_RCTRLLEFT: case KEY_RCTRLNUMPAD4:
@@ -1935,7 +1935,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLRIGHT:  case KEY_CTRLNUMPAD6:
 		case KEY_RCTRLRIGHT: case KEY_RCTRLNUMPAD6:
@@ -1960,7 +1960,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLSHIFTLEFT:    case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT:   case KEY_RCTRLSHIFTNUMPAD4:
@@ -1972,7 +1972,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLSHIFTRIGHT:     case KEY_CTRLSHIFTNUMPAD6:
 		case KEY_RCTRLSHIFTRIGHT:    case KEY_RCTRLSHIFTNUMPAD6:
@@ -1988,7 +1988,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
@@ -2005,7 +2005,7 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
 		case KEY_RCTRLEND:    case KEY_RCTRLNUMPAD1:
 		case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
@@ -2055,23 +2055,23 @@ int Viewer::process_key(const Manager::Key& Key)
 				Show();
 			}
 
-			return TRUE;
+			return true;
 		default:
 
 			if (LocalKey >= ' ' && IsCharKey(LocalKey))
 			{
 				Search(0,LocalKey);
-				return TRUE;
+				return true;
 			}
 	}
 
-	return FALSE;
+	return false;
 }
 
-int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!(MouseEvent->dwButtonState & 3))
-		return FALSE;
+		return false;
 
 	if (ViOpt.ShowScrollbar && IntKeyState.MouseX==m_X2+(m_bQuickView?1:0))
 	{
@@ -2121,14 +2121,14 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	if (IntKeyState.MouseY == (m_Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))
 	{
 		while (IsMouseButtonPressed()) {}
 		if (IntKeyState.MouseY != m_Y1-1)
-			return TRUE;
+			return true;
 
 		int NameLen = std::max(20, ObjWidth()-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen()? 3 + static_cast<int>(Global->CurrentTime.size()) : 0));
 		int cp_len = static_cast<int>(str(m_Codepage).size());
@@ -2142,19 +2142,19 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (IntKeyState.MouseX >= xpos[i] && IntKeyState.MouseX < xpos[i]+xlen[i])
 			{
 				ProcessKey(Manager::Key(keys[i]));
-				return TRUE;
+				return true;
 			}
 		}
 	}
 
 	if (IntKeyState.MouseX<m_X1 || IntKeyState.MouseX>m_X2 || IntKeyState.MouseY<m_Y1 || IntKeyState.MouseY>m_Y2)
-		return FALSE;
+		return false;
 
 	if (GetAsyncKeyState(VK_SHIFT)<0 && GetAsyncKeyState(VK_CONTROL)>=0 && GetAsyncKeyState(VK_MENU)>=0)
 	{
 		long long filepos = XYfilepos(IntKeyState.MouseX-m_X1, IntKeyState.MouseY-m_Y1), mpos = -1;
 		if (filepos < 0)
-			return FALSE;
+			return false;
 
 		if (ManualSelectPos < 0)
 			ManualSelectPos = mpos = filepos;
@@ -2171,7 +2171,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		ManualSelectPos = mpos;
 		Show();
-		return TRUE;
+		return true;
 	}
 
 	if (IntKeyState.MouseX<m_X1+7)
@@ -2187,7 +2187,7 @@ int Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=m_Y1+(m_Y2-m_Y1)/2)
 			ProcessKey(Manager::Key(KEY_DOWN));
 
-	return TRUE;
+	return true;
 }
 
 

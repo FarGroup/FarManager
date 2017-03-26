@@ -69,8 +69,8 @@ public:
 	CommandLine(window_ptr Owner);
 	virtual ~CommandLine() override;
 
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam=0) override;
 
 	const string& GetCurDir() const { return m_CurDir; }

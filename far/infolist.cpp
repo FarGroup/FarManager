@@ -691,16 +691,16 @@ void InfoList::SelectShowMode()
 	}
 }
 
-int InfoList::ProcessKey(const Manager::Key& Key)
+bool InfoList::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
 	if (!IsVisible())
-		return FALSE;
+		return false;
 
 	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
 	{
 		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
-		return TRUE;
+		return true;
 	}
 
 	switch (LocalKey)
@@ -708,12 +708,12 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 		case KEY_F1:
 		{
 			Help::create(L"InfoPanel");
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLF12:
 		case KEY_RCTRLF12:
 			SelectShowMode();
-			return TRUE;
+			return true;
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
 
@@ -725,7 +725,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			}
 
 			Parent()->Redraw();
-			return TRUE;
+			return true;
 		case KEY_F4:
 			/* $ 30.04.2001 DJ
 			не показываем редактор, если ничего не задано в именах файлов;
@@ -760,13 +760,13 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 			//AnotherPanel->Redraw();
 			Update(0);
 			Parent()->Redraw();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLR:
 		case KEY_RCTRLR:
 		{
 			Redraw();
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -777,7 +777,7 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 
 		if (DVY1 < m_Y2)
 		{
-			int ret = DizView->ProcessKey(Key);
+			const auto ret = DizView->ProcessKey(Key);
 
 			if (LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2
 			 || LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4
@@ -804,17 +804,17 @@ int InfoList::ProcessKey(const Manager::Key& Key)
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 
-int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!IsMouseInClientArea(MouseEvent))
-		return FALSE;
+		return false;
 
 	if (!(MouseEvent->dwButtonState & MOUSE_ANY_BUTTON_PRESSED))
-		return FALSE;
+		return false;
 
 	bool NeedRedraw=false;
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
@@ -866,13 +866,13 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				   )
 				{
 					ProcessKey(Manager::Key(KEY_F3));
-					return TRUE;
+					return true;
 				}
 
 				if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
 				{
 					ProcessKey(Manager::Key(KEY_F4));
-					return TRUE;
+					return true;
 				}
 			}
 		}
@@ -888,7 +888,7 @@ int InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (DVY1 < m_Y2)
 			return DizView->ProcessMouse(MouseEvent);
 	}
-	return TRUE;
+	return true;
 }
 
 
@@ -1037,7 +1037,7 @@ void InfoList::CloseFile()
 	strDizFileName.clear();
 }
 
-int InfoList::OpenDizFile(const string& DizFile,int YPos)
+bool InfoList::OpenDizFile(const string& DizFile,int YPos)
 {
 	bool bOK=true;
 	_tran(SysLog(L"InfoList::OpenDizFile([%s]",DizFile));
@@ -1068,7 +1068,7 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 		if (!DizView->OpenFile(DizFile,FALSE))
 		{
 			DizView=nullptr;
-			return FALSE;
+			return false;
 		}
 
 		strDizFileName = DizFile;
@@ -1079,14 +1079,14 @@ int InfoList::OpenDizFile(const string& DizFile,int YPos)
 	auto strTitle = concat(L' ', PointToName(strDizFileName), L' ');
 	int CurY=YPos-1;
 	DrawTitle(strTitle,ILSS_DIRDESCRIPTION,CurY);
-	return TRUE;
+	return true;
 }
 
-int InfoList::GetCurName(string &strName, string &strShortName) const
+bool InfoList::GetCurName(string &strName, string &strShortName) const
 {
 	strName = strDizFileName;
 	strShortName = ConvertNameToShort(strName);
-	return TRUE;
+	return true;
 }
 
 void InfoList::UpdateKeyBar()

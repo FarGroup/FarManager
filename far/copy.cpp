@@ -1258,7 +1258,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	// проверим "нужность" апдейта пассивной панели
 	if (Flags&FCOPY_UPDATEPPANEL)
 	{
-		DestPanel->SortFileList(TRUE);
+		DestPanel->SortFileList(true);
 		DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	}
 
@@ -1273,7 +1273,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		SrcPanel->GoToFile(strRenamedName);
 
 	SrcPanel->Redraw();
-	DestPanel->SortFileList(TRUE);
+	DestPanel->SortFileList(true);
 	DestPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	DestPanel->Redraw();
 #endif
@@ -1988,11 +1988,22 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					Global->CatchError();
 					int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(lng::MError),
-					                MSG(lng::MCopyCannotCreateFolder),strDestPath.data(),MSG(lng::MCopyRetry),
-					                MSG(lng::MCopySkip),MSG(lng::MCopyCancel));
+					                MSG(lng::MCopyCannotCreateFolder),
+					                strDestPath.data(),
+					                MSG(lng::MCopyRetry), MSG(lng::MCopySkip), MSG(lng::MCopyCancel));
 
-					if (MsgCode)
-						return (MsgCode==-2 || MsgCode==2)? COPY_CANCEL : COPY_SKIPPED;
+					if (MsgCode == Message::first_button) // Retry
+					{
+						continue;
+					}
+					else if (MsgCode == Message::second_button) // Skip
+					{
+						return COPY_SKIPPED;
+					}
+					else // Cancel
+					{
+						return COPY_CANCEL;
+					}
 				}
 
 				DWORD SetAttr=SrcData.dwFileAttributes;
@@ -2014,21 +2025,28 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						{
 							int MsgCode=ESetFileCompression(strDestPath,1,0,SkipMode);
 
-							if (MsgCode)
+							if (MsgCode == SETATTR_RET_ERROR)
 							{
-								if (MsgCode == SETATTR_RET_SKIP)
-									Flags|=FCOPY_SKIPSETATTRFLD;
-								else if (MsgCode == SETATTR_RET_SKIPALL)
-								{
-									Flags|=FCOPY_SKIPSETATTRFLD;
-									SkipMode=SETATTR_RET_SKIP;
-								}
-
+								continue;
+							}
+							else if (MsgCode == SETATTR_RET_OK)
+							{
 								break;
 							}
-
-							if (MsgCode != SETATTR_RET_OK)
-								return (MsgCode==SETATTR_RET_SKIP || MsgCode==SETATTR_RET_SKIPALL) ? COPY_SKIPPED:COPY_CANCEL;
+							else if (MsgCode == SETATTR_RET_SKIP)
+							{
+								break;
+							}
+							else if (MsgCode == SETATTR_RET_SKIPALL)
+							{
+								Flags|=FCOPY_SKIPSETATTRFLD;
+								SkipMode=SETATTR_RET_SKIP;
+								break;
+							}
+							else
+							{
+								return COPY_CANCEL;
+							}
 						}
 					}
 
@@ -2041,17 +2059,24 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 						if (MsgCode)
 						{
-							if (MsgCode==1)
+							if (MsgCode == Message::first_button) // Retry
+							{
+								continue;
+							}
+							else if (MsgCode == Message::second_button) // Skip
+							{
 								break;
-
-							if (MsgCode==2)
+							}
+							else if (MsgCode == Message::third_button) // Skip all
 							{
 								Flags|=FCOPY_SKIPSETATTRFLD;
 								break;
 							}
-
-							os::RemoveDirectory(strDestPath);
-							return (MsgCode==-2 || MsgCode==3)? COPY_CANCEL : COPY_SKIPPED;
+							else // Cancel
+							{
+								os::RemoveDirectory(strDestPath);
+								return COPY_CANCEL;
+							}
 						}
 					}
 				}
@@ -2064,19 +2089,23 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						                MSG(lng::MCopyCannotChangeFolderAttr),strDestPath.data(),
 						                MSG(lng::MCopyRetry),MSG(lng::MCopySkip),MSG(lng::MCopySkipAll),MSG(lng::MCopyCancel));
 
-						if (MsgCode)
+						if (MsgCode == Message::first_button) // Retry
 						{
-							if (MsgCode==1)
-								break;
-
-							if (MsgCode==2)
-							{
-								Flags|=FCOPY_SKIPSETATTRFLD;
-								break;
-							}
-
+							continue;
+						}
+						else if (MsgCode == Message::second_button) // Skip
+						{
+							break;
+						}
+						else if (MsgCode == Message::third_button) // Skip all
+						{
+							Flags |= FCOPY_SKIPSETATTRFLD;
+							break;
+						}
+						else // Cancel
+						{
 							os::RemoveDirectory(strDestPath);
-							return (MsgCode==-2 || MsgCode==3)? COPY_CANCEL : COPY_SKIPPED;
+							return COPY_CANCEL;
 						}
 					}
 				}
@@ -3159,7 +3188,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
+bool ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
                             const string& SrcName,
                             const string& DestName, DWORD DestAttr,
                             int SameName,int Rename,int AskAppend,
@@ -3194,18 +3223,18 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 	int DestDataFilled=FALSE;
 	Append=FALSE;
 
-	if ((Flags&FCOPY_COPYTONUL))
+	if (Flags&FCOPY_COPYTONUL)
 	{
 		RetCode=COPY_SKIPPED;
-		return TRUE;
+		return true;
 	}
 
 	if (DestAttr==INVALID_FILE_ATTRIBUTES)
 		if ((DestAttr=os::GetFileAttributes(DestName))==INVALID_FILE_ATTRIBUTES)
-			return TRUE;
+			return true;
 
 	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
-		return TRUE;
+		return true;
 
 	const auto Format = L"{0:26} {1:20} {2} {3}";
 
@@ -3302,7 +3331,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 			OvrMode = 2;
 		case 2:
 			RetCode = COPY_SKIPPED;
-			return FALSE;
+			return false;
 		case 5:
 			OvrMode = 5;
 			GenerateName(strDestName, strRenamedFilesPath);
@@ -3319,7 +3348,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 		case -2:
 		case 8:
 			RetCode = COPY_CANCEL;
-			return FALSE;
+			return false;
 		}
 	}
 
@@ -3393,12 +3422,12 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 					ReadOnlyOvrMode=2;
 				case 2:
 					RetCode=COPY_SKIPPED;
-					return FALSE;
+					return false;
 				case -1:
 				case -2:
 				case 8:
 					RetCode=COPY_CANCEL;
-					return FALSE;
+					return false;
 			}
 		}
 
@@ -3406,7 +3435,7 @@ int ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 			os::SetFileAttributes(DestName,FILE_ATTRIBUTE_NORMAL);
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -3498,33 +3527,31 @@ static bool ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 }
 
 
-int ShellCopy::SetRecursiveSecurity(const string& FileName,const os::FAR_SECURITY_DESCRIPTOR& sd)
+bool ShellCopy::SetRecursiveSecurity(const string& FileName,const os::FAR_SECURITY_DESCRIPTOR& sd)
 {
-	if (SetSecurity(FileName, sd))
+	if (!SetSecurity(FileName, sd))
+		return false;
+
+	if (os::fs::is_directory(FileName))
 	{
-		if (os::fs::is_directory(FileName))
+		ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
+		ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
+
+		string strFullName;
+		os::FAR_FIND_DATA SrcData;
+		while (ScTree.GetNextName(SrcData,strFullName))
 		{
-			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
-			ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
+			if (!ShellCopySecuryMsg(CP.get(), strFullName))
+				break;
 
-			string strFullName;
-			os::FAR_FIND_DATA SrcData;
-			while (ScTree.GetNextName(SrcData,strFullName))
+			if (!SetSecurity(strFullName, sd))
 			{
-				if (!ShellCopySecuryMsg(CP.get(), strFullName))
-					break;
-
-				if (!SetSecurity(strFullName, sd))
-				{
-					return FALSE;
-				}
+				return false;
 			}
 		}
-
-		return TRUE;
 	}
 
-	return FALSE;
+	return true;
 }
 
 int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const os::FAR_FIND_DATA &SrcData)

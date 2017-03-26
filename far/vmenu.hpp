@@ -191,8 +191,8 @@ public:
 	virtual FARMACROAREA GetMacroArea() const override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu; }
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	virtual void ResizeConsole() override;
 	virtual void SetDeleting(void) override;
@@ -215,14 +215,14 @@ public:
 	void SetColors(const FarDialogItemColors *ColorsIn = nullptr);
 	void GetColors(FarDialogItemColors *ColorsOut);
 	void SetOneColor(int Index, PaletteColors Color);
-	int ProcessFilterKey(int Key);
+	bool ProcessFilterKey(int Key);
 	void clear();
 	int DeleteItem(int ID, int Count = 1);
 	int AddItem(MenuItemEx&& NewItem, int PosAdd = 0x7FFFFFFF);
 	int AddItem(const FarList *NewItem);
 	int AddItem(const wchar_t *NewStrItem);
 	int InsertItem(const FarListInsert *NewItem);
-	int UpdateItem(const FarListUpdate *NewItem);
+	bool UpdateItem(const FarListUpdate *NewItem);
 	int FindItem(const FarListFind *FindItem);
 	int FindItem(int StartIndex, const string& Pattern, unsigned long long Flags = 0);
 	void RestoreFilteredItems();

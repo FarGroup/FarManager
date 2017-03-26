@@ -156,7 +156,7 @@ public:
 	virtual void ClearSelection() {}
 	virtual void SaveSelection() {}
 	virtual void RestoreSelection() {}
-	virtual void SortFileList(int KeepPosition) {}
+	virtual void SortFileList(bool KeepPosition) {}
 	virtual void EditFilter() {}
 	virtual bool FileInFilter(size_t idxItem) {return true;}
 	virtual bool FilterIsEnabled() {return false;}
@@ -173,24 +173,24 @@ public:
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const {}
 	virtual void SetPluginMode(plugin_panel* hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
 	virtual void SetPluginModified() {}
-	virtual int ProcessPluginEvent(int Event,void *Param) {return FALSE;}
+	virtual bool ProcessPluginEvent(int Event,void *Param) {return false;}
 	virtual plugin_panel* GetPluginHandle() const {return nullptr;}
 	virtual void RefreshTitle();
 	virtual string GetTitle() const;
 	virtual long long VMProcess(int OpCode, void* vParam=nullptr, long long iParam=0) override;
-	virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;}
+	virtual bool SendKeyToPlugin(DWORD Key,bool Pred=false) {return false;}
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
 	virtual void ChangeDirToCurrent();
 	virtual const string& GetCurDir() const;
 	virtual size_t GetSelCount() const { return 0; }
 	virtual size_t GetRealSelCount() const {return 0;}
-	virtual int GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) { return FALSE; }
+	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) { return false; }
 	virtual void UngetSelName() {}
 	virtual void ClearLastGetSelection() {}
 	virtual unsigned long long GetLastSelectedSize() const { return -1; }
-	virtual int GetCurName(string &strName, string &strShortName) const;
-	virtual int GetCurBaseName(string &strName, string &strShortName) const;
-	virtual bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return FALSE; }
+	virtual bool GetCurName(string &strName, string &strShortName) const;
+	virtual bool GetCurBaseName(string &strName, string &strShortName) const;
+	virtual bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return false; }
 	virtual int GetCurrentPos() const {return 0;}
 
 	virtual bool IsFocused() const;
@@ -260,16 +260,16 @@ public:
 	bool ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest = true, bool Silent = false);
 	bool SaveShortcutFolder(int Pos, bool Add) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);
-	int ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent);
+	bool ProcessMouseDrag(const MOUSE_EVENT_RECORD* MouseEvent);
 	bool IsMouseInClientArea(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	panel_type GetType() const {return m_Type;}
 	void SetUpdateMode(int Mode) {m_EnableUpdate=Mode;}
 	bool MakeListFile(string &strListFileName,bool ShortNames,const string& Modifers);
-	int SetCurPath();
+	bool SetCurPath();
 	bool NeedUpdatePanel(const Panel *AnotherPanel) const;
 	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
 	void SetFullScreen() { m_ViewSettings.Flags |= PVS_FULLSCREEN; }
-	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string &strDest, int UNC, int ShortNameAsIs = TRUE) const;
+	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string& strDest, bool UNC, bool ShortNameAsIs = true) const;
 	FilePanels* Parent() const;
 
 	static void EndDrag();

@@ -264,7 +264,7 @@ long long FileViewer::VMProcess(int OpCode,void *vParam,long long iParam)
 	return m_View->VMProcess(OpCode,vParam,iParam);
 }
 
-int FileViewer::ProcessKey(const Manager::Key& Key)
+bool FileViewer::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
 	if (RedrawTitle && ((LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal(LocalKey & 0x00ffffff)))
@@ -285,7 +285,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 			if (!Global->Opt->OnlyEditorViewerUsed)
 				Global->CtrlObject->Cp()->ActivePanel()->ProcessKey(Key);
 
-			return TRUE;
+			return true;
 		}
 #endif
 		/* $ 22.07.2000 tran
@@ -295,13 +295,13 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 		{
 			if (Global->WindowManager->InModal())
 			{
-				return TRUE;
+				return true;
 			}
 
 			SCOPED_ACTION(SaveScreen);
 			Global->CtrlObject->Cp()->GoToFile(m_View->GetFileName());
 			RedrawTitle = TRUE;
-			return TRUE;
+			return true;
 		}
 		// $ 15.07.2000 tran + CtrlB switch KeyBar
 		case KEY_CTRLB:
@@ -315,14 +315,14 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 
 			Show();
 			m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
-			return TRUE;
+			return true;
 		case KEY_CTRLSHIFTB:
 		case KEY_RCTRLSHIFTB:
 		{
 			Global->Opt->ViOpt.ShowTitleBar=!Global->Opt->ViOpt.ShowTitleBar;
 			m_TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
 			Show();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLO:
 		case KEY_RCTRLO:
@@ -333,17 +333,17 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 				Global->WindowManager->RefreshWindow();
 			}
 
-			return TRUE;
+			return true;
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
 
 			if (F3KeyOnly)
-				return TRUE;
+				return true;
 
 		case KEY_ESC:
 		case KEY_F10:
 			Global->WindowManager->DeleteWindow();
-			return TRUE;
+			return true;
 		case KEY_F6:
 
 			if (!DisableEdit)
@@ -357,7 +357,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 					if(OperationFailed(strViewFileName, lng::MEditTitle, MSG(lng::MEditCannotOpen), false) == operation::retry)
 						continue;
 					else
-						return TRUE;
+						return true;
 				}
 				Edit.Close();
 				long long FilePos=m_View->GetFilePos();
@@ -381,7 +381,7 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			return TRUE;
+			return true;
 
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
@@ -392,13 +392,13 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 				m_windowKeyBar->Show();
 
 			m_View->Show();
-			return TRUE;
+			return true;
 		case KEY_ALTF11:
 		case KEY_RALTF11:
 			if (GetCanLoseFocus())
 				Global->CtrlObject->CmdLine()->ShowViewEditHistory();
 
-			return TRUE;
+			return true;
 		default:
 //      Этот кусок - на будущее (по аналогии с редактором :-)
 //      if (Global->CtrlObject->Macro.IsExecuting() || !View.ProcessViewerInput(&ReadRec))
@@ -413,19 +413,19 @@ int FileViewer::ProcessKey(const Manager::Key& Key)
 			if (!m_windowKeyBar->ProcessKey(Key))
 				return m_View->ProcessKey(Key);
 		}
-		return TRUE;
+		return true;
 	}
 }
 
 
-int FileViewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool FileViewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	F3KeyOnly = false;
 	if (!m_View->ProcessMouse(MouseEvent))
 		if (!m_windowKeyBar->ProcessMouse(MouseEvent))
-			return FALSE;
+			return false;
 
-	return TRUE;
+	return true;
 }
 
 

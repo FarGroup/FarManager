@@ -50,8 +50,8 @@ public:
 
 	FolderTree(private_tag, int ModalMode, int IsStandalone, bool IsFullScreen);
 
-	virtual int ProcessKey(const Manager::Key& Key) override;
-	virtual int ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	virtual bool ProcessKey(const Manager::Key& Key) override;
+	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual void InitKeyBar() override;
 	virtual void SetScreenPosition() override;
 	virtual void ResizeConsole() override;

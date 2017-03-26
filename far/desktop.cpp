@@ -64,7 +64,7 @@ void desktop::DisplayObject()
 	m_Background->RestoreArea();
 }
 
-int desktop::ProcessKey(const Manager::Key& Key)
+bool desktop::ProcessKey(const Manager::Key& Key)
 {
 	switch (Key())
 	{
@@ -76,13 +76,13 @@ int desktop::ProcessKey(const Manager::Key& Key)
 
 	case KEY_SHIFTF9:
 		Global->Opt->Save(true);
-		return TRUE;
+		return true;
 
 	case KEY_F10:
 		Global->WindowManager->ExitMainLoop(TRUE);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void desktop::TakeSnapshot()

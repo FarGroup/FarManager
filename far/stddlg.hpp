@@ -119,7 +119,7 @@ int GetSearchReplaceString(
     const std::function<string(bool)>& Picker = nullptr
 );
 
-int GetString(
+bool GetString(
     const wchar_t *Title,
     const wchar_t *SubTitle,
     const wchar_t *HistoryName,
@@ -139,7 +139,7 @@ enum FlagsNameAndPassword
 	GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
 };
 
-int GetNameAndPassword(const string& Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
+bool GetNameAndPassword(const string& Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
 enum class operation
 {

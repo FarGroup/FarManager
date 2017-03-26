@@ -402,11 +402,11 @@ long long FilePanels::VMProcess(int OpCode, void* vParam, long long iParam)
 	return ActivePanel()->VMProcess(OpCode, vParam, iParam);
 }
 
-int FilePanels::ProcessKey(const Manager::Key& Key)
+bool FilePanels::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
 	if (!LocalKey)
-		return TRUE;
+		return true;
 
 	if ((LocalKey==KEY_CTRLLEFT || LocalKey==KEY_CTRLRIGHT || LocalKey==KEY_CTRLNUMPAD4 || LocalKey==KEY_CTRLNUMPAD6
 		|| LocalKey==KEY_RCTRLLEFT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_RCTRLNUMPAD4 || LocalKey==KEY_RCTRLNUMPAD6
@@ -415,7 +415,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			(!LeftPanel()->IsVisible() && !RightPanel()->IsVisible())))
 	{
 		CmdLine->ProcessKey(Key);
-		return TRUE;
+		return true;
 	}
 
 	bool process_default = false;
@@ -428,7 +428,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 				Help::create(L"Contents");
 			}
 
-			return TRUE;
+			return true;
 		}
 		case KEY_TAB:
 		{
@@ -613,7 +613,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLI:
 		{
 			ActivePanel()->EditFilter();
-			return TRUE;
+			return true;
 		}
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
@@ -791,12 +791,12 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_F9:
 		{
 			Global->Opt->ShellOptions(false,nullptr);
-			return TRUE;
+			return true;
 		}
 		case KEY_SHIFTF10:
 		{
 			Global->Opt->ShellOptions(true,nullptr);
-			return TRUE;
+			return true;
 		}
 		case KEY_F11:
 		{
@@ -818,7 +818,7 @@ int FilePanels::ProcessKey(const Manager::Key& Key)
 			CmdLine->ProcessKey(Key);
 	}
 
-	return TRUE;
+	return true;
 }
 
 bool FilePanels::ChangePanelViewMode(panel_ptr Current, int Mode, bool RefreshWindow)
@@ -1122,7 +1122,7 @@ void FilePanels::DisplayObject()
 #endif
 }
 
-int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!MouseEvent->dwMousePosition.Y)
 	{
@@ -1133,14 +1133,14 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			else
 				Global->Opt->ShellOptions(false, MouseEvent);
 
-			return TRUE;
+			return true;
 		}
 	}
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED)
 	{
 		if (MouseEvent->dwEventFlags == MOUSE_MOVED)
-			return TRUE;
+			return true;
 
 		int Key = KEY_ENTER;
 		if (MouseEvent->dwControlKeyState&SHIFT_PRESSED)
@@ -1156,7 +1156,7 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			Key |= KEY_ALT;
 		}
 		ProcessKey(Manager::Key(Key));
-		return TRUE;
+		return true;
 	}
 
 	if (!ActivePanel()->ProcessMouse(MouseEvent))
@@ -1168,7 +1168,7 @@ int  FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		ActivePanel()->SetCurPath();
 	}
 
-	return TRUE;
+	return true;
 }
 
 void FilePanels::ShowConsoleTitle()

@@ -133,7 +133,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			return SelectPos+1;
 		case MCODE_F_MENU_CHECKHOTKEY:
 		{
-			return CheckHighlights(*(const wchar_t *)vParam, (int)iParam)+1;
+			return CheckHighlights(*static_cast<const wchar_t *>(vParam), static_cast<int>(iParam))+1;
 		}
 		case MCODE_F_MENU_GETHOTKEY:
 		case MCODE_F_MENU_GETVALUE: // S=Menu.GetValue([N])
@@ -145,7 +145,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			{
 				if (OpCode == MCODE_F_MENU_GETVALUE)
 				{
-					*(string *)vParam=Item[(int)iParam].Name;
+					*static_cast<string *>(vParam)=Item[static_cast<size_t>(iParam)].Name;
 					return 1;
 				}
 				else
@@ -174,7 +174,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		}
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
-			*(string *)vParam=Item[SelectPos].Name;
+			*static_cast<string *>(vParam)=Item[SelectPos].Name;
 			return 1;
 		}
 	}
@@ -268,14 +268,14 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	return true;
 }
 
-int HMenu::ProcessKey(const Manager::Key& Key)
+bool HMenu::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 
 	UpdateSelectPos();
 
 	if (ProcessPositioningKey(LocalKey))
-		return TRUE;
+		return true;
 
 	switch (LocalKey)
 	{
@@ -286,11 +286,11 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 
 	case KEY_NONE:
 	case KEY_IDLE:
-		return FALSE;
+		return false;
 
 	case KEY_F1:
 		ShowHelp();
-		return TRUE;
+		return true;
 
 	case KEY_NUMENTER:
 	case KEY_ENTER:
@@ -303,7 +303,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 	case KEY_ESC:
 	case KEY_F10:
 		Close(-1);
-		return FALSE;
+		return false;
 
 	default:
 		const auto& FindHighlightedKey = [&](bool Translate)
@@ -319,7 +319,7 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		{
 			Iterator = FindHighlightedKey(true);
 			if (Iterator == Item.end())
-				return FALSE;
+				return false;
 		}
 
 		Item[SelectPos].Selected=0;
@@ -327,10 +327,10 @@ int HMenu::ProcessKey(const Manager::Key& Key)
 		SelectPos = Iterator - Item.begin();
 		ShowMenu();
 		ProcessCurrentSubMenu();
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
@@ -341,7 +341,7 @@ bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 	return MsY != m_Y1 || ((!SelectPos || MsX >= Item[SelectPos].XPos) && (SelectPos == Item.size() - 1 || MsX<Item[SelectPos + 1].XPos));
 }
 
-int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int MsX,MsY;
 
@@ -356,7 +356,7 @@ int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		const size_t NewPos = std::distance(SubmenuIterator, Item.rend()) - 1;
 
 		if (m_SubmenuOpened && SelectPos == NewPos)
-			return FALSE;
+			return false;
 
 		Item[SelectPos].Selected = 0;
 		SubmenuIterator->Selected = 1;
@@ -367,7 +367,7 @@ int HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	else if (!(MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 		Close(-1);
 
-	return TRUE;
+	return true;
 }
 
 

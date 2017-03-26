@@ -765,7 +765,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 	}
 }
 
-int EditControl::ProcessKey(const Manager::Key& Key)
+bool EditControl::ProcessKey(const Manager::Key& Key)
 {
 	const unsigned int NonClearKeys[]=
 	{
@@ -785,7 +785,7 @@ int EditControl::ProcessKey(const Manager::Key& Key)
 	return Result;
 }
 
-int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
+bool EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if(Edit::ProcessMouse(MouseEvent))
 	{
@@ -813,9 +813,9 @@ int EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			}
 		}
 		Selection=false;
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void EditControl::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
