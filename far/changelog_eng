@@ -3,6 +3,42 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.03.2017 12:56:32 +0000 - build 4926
+
+1. Refactoring.
+
+zg 26.03.2017 14:48:27 +0200 - build 4925
+
+1. RestoreScreen restores the screen content right away.
+
+drkns 24.03.2017 18:18:14 +0000 - build 4924
+
+1. Correction of 4923.
+
+drkns 23.03.2017 23:28:58 +0000 - build 4923
+
+1. Refactoring.
+
+w17 23.03.2017 21:39:02 +0300 - build 4922
+
+1. forum: Automatic replacement of a share with a drive letter
+   On navigation from server share list to a selected item with Enter now there is no transition
+   to the drive (if assigned), for CtrlPgDn there is the old behavior (is the drive is available, go to it).
+
+drkns 21.03.2017 20:39:52 +0000 - build 4921
+
+1. From the forum: Crash in cancelled file edit in NetBox
+
+drkns 21.03.2017 01:31:42 +0000 - build 4920
+
+1. Debug symbols would not always be loaded.
+
+2. Refactoring.
+
+drkns 20.03.2017 23:25:32 +0000 - build 4919
+
+1. Correction of 4888.
+
 drkns 16.03.2017 23:14:59 +0000 - build 4918
 
 1. Refactoring.
