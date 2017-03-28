@@ -863,7 +863,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		{
 			if (iParam == -1LL)
 				iParam = SelectPos;
-			else if (iParam > static_cast<int>(size()))
+			else if (iParam >= static_cast<int>(size()) || iParam < -1LL)
 				return -1;
 
 			auto& menuEx = at(iParam);
