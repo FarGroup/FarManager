@@ -854,7 +854,7 @@ LUALIB_API int luaopen_upackage(lua_State *L)
 	luaL_findtable(L, LUA_REGISTRYINDEX, "_LOADED", 2);
 	lua_setfield(L, -2, "loaded");
 	/* set field `preload' */
-	lua_newtable(L);
+	luaL_findtable(L, LUA_REGISTRYINDEX, "_PRELOAD", 4);
 	lua_setfield(L, -2, "preload");
 	lua_pushvalue(L, LUA_GLOBALSINDEX);
 	luaL_register(L, NULL, ll_funcs);  /* open lib into global table */

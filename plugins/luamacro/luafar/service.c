@@ -6169,22 +6169,28 @@ void LF_InitLuaState1(lua_State *L, lua_CFunction aOpenLibs)
 	lua_getfield(L, -1, "utf8");
 	lua_setfield(L, -3, "__index");
 	lua_pop(L, 3);
+
 #if LUA_VERSION_NUM == 501
+	if (IsLuaJIT())
 	{
-		if (IsLuaJIT())
+		if (luaopen_bit)
 		{
-			int i;
-			static const char* names[] = { "bit", "ffi", "jit" };
-			const lua_CFunction funcs[] = { luaopen_bit, luaopen_ffi, luaopen_jit };
-			for(i=0; i<ARRSIZE(names); i++)
-			{
-				if(funcs[i])
-				{
-					lua_pushcfunction(L, funcs[i]);
-					lua_pushstring(L, names[i]);
-					lua_call(L, 1, 0);
-				}
-			}
+			lua_pushcfunction(L, luaopen_bit);
+			lua_pushstring(L, "bit");
+			lua_call(L, 1, 0);
+		}
+		if (luaopen_jit)
+		{
+			lua_pushcfunction(L, luaopen_jit);
+			lua_pushstring(L, "jit");
+			lua_call(L, 1, 0);
+		}
+		if (luaopen_ffi)
+		{
+			luaL_findtable(L, LUA_REGISTRYINDEX, "_PRELOAD", 1);
+			lua_pushcfunction(L, luaopen_ffi);
+			lua_setfield(L, -2, "ffi");
+			lua_pop(L, 1);
 		}
 	}
 #endif
