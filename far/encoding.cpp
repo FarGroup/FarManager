@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "encoding.hpp"
 #include "strmix.hpp"
+#include "exception.hpp"
 
 class installed_codepages
 {

@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "dizlist.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "blob_builder.hpp"
 #include "local.hpp"
+#include "exception.hpp"
 
 DizList::DizList():
 	m_CodePage(CP_DEFAULT),

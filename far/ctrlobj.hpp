@@ -42,11 +42,15 @@ class CommandLine;
 class History;
 class KeyBar;
 class MenuBar;
-class HighlightFiles;
 class FilePositionCache;
 class Shortcuts;
 class PluginManager;
 class Manager;
+
+namespace highlight
+{
+	class configuration;
+}
 
 class ControlObject: noncopyable
 {
@@ -62,7 +66,7 @@ public:
 
 	KeyMacro Macro;
 	desktop_ptr Desktop;
-	std::unique_ptr<HighlightFiles> HiFiles;
+	std::unique_ptr<highlight::configuration> HiFiles;
 	std::unique_ptr<PluginManager> Plugins;
 
 	std::unique_ptr<History> CmdHistory;

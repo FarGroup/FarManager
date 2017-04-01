@@ -89,6 +89,7 @@ SRCS = \
 	keybar.cpp \
 	keyboard.cpp \
 	language.cpp \
+	lasterror.cpp \
 	local.cpp \
 	locale.cpp \
 	lockscrn.cpp \

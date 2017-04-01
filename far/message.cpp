@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "FarDlgBuilder.hpp"
 #include "clipboard.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "strmix.hpp"
 
 static string FormatErrorString(bool Nt, DWORD Code)

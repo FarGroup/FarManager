@@ -76,7 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "network.hpp"
 #endif
-#include "language.hpp"
+#include "lang.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"
 #include "local.hpp"

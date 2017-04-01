@@ -47,10 +47,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "constitle.hpp"
 #include "console.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "filetype.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "RegExp.hpp"
 
 enum class image_type
 {

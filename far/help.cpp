@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "DlgGuid.hpp"
 #include "RegExp.hpp"
+#include "lang.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
 #include "local.hpp"

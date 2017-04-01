@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "datetime.hpp"
 #include "local.hpp"
 

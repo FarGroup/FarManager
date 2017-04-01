@@ -35,33 +35,39 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class VMenu2;
 class FileFilterParams;
 class FileList;
 class FileListItem;
+class HierarchicalConfig;
+class VMenu2;
 
-class HighlightFiles: noncopyable
+namespace highlight
 {
-public:
-	enum highlight_color
+	struct color
 	{
-		NORMAL_COLOR,
-		SELECTED_COLOR,
-		UNDERCURSOR_COLOR,
-		SELECTEDUNDERCURSOR_COLOR,
+		enum
+		{
+			normal,
+			selected,
+			normal_current,
+			selected_current,
 
-		HIGHLIGHT_COUNT
+			count
+		};
 	};
 
-	struct highlight_item
+	class element
 	{
 	private:
-		struct color
+		struct colors
 		{
 			FarColor FileColor;
 			FarColor MarkColor;
 
-			bool operator ==(const color& rhs) const { return FileColor == rhs.FileColor && MarkColor == rhs.MarkColor; }
+			bool operator ==(const colors& rhs) const
+			{
+				return FileColor == rhs.FileColor && MarkColor == rhs.MarkColor;
+			}
 		};
 
 		struct mark
@@ -69,55 +75,56 @@ public:
 			wchar_t Char;
 			bool Transparent;
 
-			bool operator ==(const mark& rhs) const { return Char == rhs.Char && Transparent == rhs.Transparent; }
+			bool operator ==(const mark& rhs) const
+			{
+				return Char == rhs.Char && Transparent == rhs.Transparent;
+			}
 		};
 
 	public:
-		using colors_array = std::array<color, HIGHLIGHT_COUNT>;
+		using colors_array = std::array<colors, color::count>;
 		colors_array Color;
 		mark Mark;
 
-		bool operator ==(const highlight_item& rhs) const
+		bool operator==(const element& rhs) const
 		{
 			return Color == rhs.Color && Mark == rhs.Mark;
 		}
 	};
 
-	HighlightFiles();
-
-	void UpdateCurrentTime();
-	const highlight_item* GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting = false);
-	int GetGroup(const FileListItem *fli, const FileList* Owner);
-	void HiEdit(int MenuPos);
-	void UpdateHighlighting(bool RefreshMasks = false);
-	void Save(bool always);
-
-	static void ApplyFinalColor(highlight_item::colors_array::value_type& Colors, size_t PaletteIndex);
-
-private:
-	void InitHighlightFiles(class HierarchicalConfig* cfg);
-	void ClearData();
-	int  MenuPosToRealPos(int MenuPos, int*& Count, bool Insert=false);
-	void FillMenu(VMenu2 *HiMenu,int MenuPos);
-	void ProcessGroups();
-
-	struct highlight_item_hash
+	class configuration: noncopyable
 	{
-		size_t operator()(const highlight_item& item) const
+	public:
+		configuration();
+
+		void UpdateCurrentTime();
+		const element* GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting = false);
+		int GetGroup(const FileListItem *fli, const FileList* Owner);
+		void HiEdit(int MenuPos);
+		void UpdateHighlighting(bool RefreshMasks = false);
+		void Save(bool always);
+
+		static void ApplyFinalColor(element::colors_array::value_type& Colors, size_t PaletteIndex);
+
+	private:
+		void InitHighlightFiles(HierarchicalConfig* cfg);
+		void ClearData();
+		int  MenuPosToRealPos(int MenuPos, int*& Count, bool Insert = false);
+		void FillMenu(VMenu2 *HiMenu, int MenuPos);
+		void ProcessGroups();
+
+		struct element_hash
 		{
-			return std::accumulate(ALL_CONST_RANGE(item.Color), size_t(0), [](auto Value, const auto& i)
-			{
-				return Value ^ make_hash(i.FileColor) ^ make_hash(i.MarkColor);
-			}) ^ make_hash(item.Mark.Char) ^ make_hash(item.Mark.Transparent);
-		}
+			size_t operator()(const element& item) const;
+		};
+
+		std::unordered_set<element, element_hash> Colors;
+		std::vector<FileFilterParams> HiData;
+
+		int FirstCount, UpperCount, LowerCount, LastCount;
+		unsigned long long CurrentTime;
+		bool Changed;
 	};
-
-	std::unordered_set<highlight_item, highlight_item_hash> Colors;
-	std::vector<FileFilterParams> HiData;
-
-	int FirstCount, UpperCount, LowerCount, LastCount;
-	unsigned long long CurrentTime;
-	bool Changed;
-};
+}
 
 #endif // HILIGHT_HPP_DE941BF9_997F_45B6_A454_3F455C156548

@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "encoding.hpp"
 #include "local.hpp"
+#include "exception.hpp"
 
 #ifdef MEMCHECK
 

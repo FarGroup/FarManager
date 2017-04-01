@@ -64,11 +64,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "DlgGuid.hpp"
 #include "console.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "manager.hpp"
 #include "copy_progress.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "exception.hpp"
 
 enum
 {

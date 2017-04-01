@@ -93,7 +93,10 @@ enum
 };
 
 //! Hash table with match info
-using MatchHash = std::unordered_map<std::wstring, RegExpMatch>;
+struct MatchHash
+{
+	std::unordered_map<std::wstring, RegExpMatch> Matches;
+};
 
 /*! Regular expressions support class.
 

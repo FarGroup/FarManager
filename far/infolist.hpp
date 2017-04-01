@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 #include "notification.hpp"
-#include "viewer.hpp"
 
 enum class lng : int;
 class DizViewer;

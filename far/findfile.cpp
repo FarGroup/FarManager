@@ -71,13 +71,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "keyboard.hpp"
 #include "plugins.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "filestr.hpp"
 #include "exitcode.hpp"
 #include "panelctype.hpp"
 #include "filetype.hpp"
 #include "diskmenu.hpp"
 #include "local.hpp"
+#include "vmenu.hpp"
+#include "farexcpt.hpp"
 
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem

@@ -35,7 +35,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "lang.hpp"
+enum class lng;
 
 class Language
 {
@@ -69,26 +69,5 @@ bool GetLangParam(const os::fs::file& LangFile, const string& ParamName,string *
 bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
 bool SelectInterfaceLanguage();
 bool SelectHelpLanguage();
-
-template<class T>
-constexpr lng operator+(lng Id, T Shift)
-{
-	return static_cast<lng>(as_underlying_type(Id) + Shift);
-}
-
-inline lng operator++(lng& Id, int)
-{
-	const auto Value = Id;
-	Id = Id + 1;
-	return Value;
-}
-
-#define MSG(ID) Global->Lang->GetMsg(ID)
-
-template<typename... args>
-auto format(lng Id, args&&... Args)
-{
-	return format(MSG(Id), std::forward<args>(Args)...);
-}
 
 #endif // LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865

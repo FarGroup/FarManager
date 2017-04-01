@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "vmenu2.hpp"
 #include "keys.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "config.hpp"
@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "DlgGuid.hpp"
 #include "strmix.hpp"
+#include "vmenu.hpp"
 
 codepages& Codepages()
 {

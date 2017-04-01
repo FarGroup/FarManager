@@ -36,13 +36,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Panel;
 class FileList;
 class TreeList;
-class InfoList;
 class QuickView;
+class InfoList;
 
 using panel_ptr = std::shared_ptr<Panel>;
 using file_panel_ptr = std::shared_ptr<FileList>;
 using tree_panel_ptr = std::shared_ptr<TreeList>;
-using info_panel_ptr = std::shared_ptr<InfoList>;
 using qview_panel_ptr = std::shared_ptr<QuickView>;
+using info_panel_ptr = std::shared_ptr<InfoList>;
+
+// Do not change the order, type is stored in config by value
+enum class panel_type
+{
+	FILE_PANEL  = 0,
+	TREE_PANEL  = 1,
+	QVIEW_PANEL = 2,
+	INFO_PANEL  = 3,
+};
 
 #endif // PANELFWD_HPP_DD0AF087_5711_436F_AC96_26B471446E97

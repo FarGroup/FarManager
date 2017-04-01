@@ -218,6 +218,9 @@
     <ClCompile Include="language.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lasterror.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="local.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

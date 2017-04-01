@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -469,9 +470,8 @@ void HMenu::ResizeConsole()
 	SetPosition(0,0,::ScrX,0);
 }
 
-wchar_t HMenu::GetHighlights(const HMenuData& MenuItem)
+wchar_t HMenu::GetHighlights(const HMenuData& MenuItem) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
 	wchar_t Ch=0;
 
 	const wchar_t *Name = MenuItem.Name;
@@ -487,10 +487,8 @@ wchar_t HMenu::GetHighlights(const HMenuData& MenuItem)
 	return Ch;
 }
 
-size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos)
+size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const
 {
-	SCOPED_ACTION(os::critical_section_lock)(CS);
-
 	if (StartPos < 0)
 		StartPos=0;
 

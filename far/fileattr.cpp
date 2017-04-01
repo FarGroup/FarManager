@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fileattr.hpp"
 #include "flink.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "message.hpp"
 #include "fileowner.hpp"
 

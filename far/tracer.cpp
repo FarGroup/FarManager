@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "farexcpt.hpp"
 #include "encoding.hpp"
+#include "pathmix.hpp"
 
 static auto GetBackTrace(const exception_context& Context)
 {

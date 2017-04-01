@@ -48,10 +48,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "panelmix.hpp"
 #include "mix.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "blob_builder.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "exception.hpp"
 
 struct subst_data
 {

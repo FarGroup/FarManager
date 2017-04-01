@@ -36,10 +36,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "DlgBuilder.hpp"
 #include "dialog.hpp"
-#include "config.hpp"
 
 enum class lng: int;
 struct DialogItemEx;
+class BoolOption;
+class Bool3Option;
+class IntOption;
+class StringOption;
 
 // Элемент выпадающего списка в диалоге.
 struct FarDialogBuilderListItem

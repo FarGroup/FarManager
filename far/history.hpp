@@ -35,11 +35,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "config.hpp"
-#include "vmenu2.hpp"
-
 class Dialog;
 class HistoryConfig;
+class VMenu2;
+class BoolOption;
 
 enum history_type
 {

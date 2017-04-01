@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "console.hpp"
 #include "flink.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "locale.hpp"
 #include "fileattr.hpp"
 #include "DlgGuid.hpp"
@@ -137,7 +137,7 @@ void FileFilterParams::SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear)
 	FAttr.AttrClear=AttrClear;
 }
 
-void FileFilterParams::SetColors(const HighlightFiles::highlight_item& Colors)
+void FileFilterParams::SetColors(const highlight::element& Colors)
 {
 	FHighlight.Colors = Colors;
 }
@@ -189,7 +189,7 @@ bool FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
 	return FAttr.Used;
 }
 
-HighlightFiles::highlight_item FileFilterParams::GetColors() const
+highlight::element FileFilterParams::GetColors() const
 {
 	return FHighlight.Colors;
 }
@@ -578,7 +578,7 @@ enum enumFileFilterConfig
 	ID_FF_MAKETRANSPARENT,
 };
 
-void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const HighlightFiles::highlight_item &Colors)
+void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
 {
 	const wchar_t *ptr;
 	FarColor Color;
@@ -733,7 +733,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			}
 			else if (Param1==ID_FF_MAKETRANSPARENT)
 			{
-				const auto Colors = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto Colors = reinterpret_cast<highlight::element*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				std::for_each(RANGE(Colors->Color, i)
 				{
@@ -757,7 +757,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			if ((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
 			        || (Msg==DN_CONTROLINPUT && Param1==ID_HER_COLOREXAMPLE && ((INPUT_RECORD *)Param2)->EventType == MOUSE_EVENT && ((INPUT_RECORD *)Param2)->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
-				const auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto EditData = reinterpret_cast<highlight::element*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				if (Msg==DN_CONTROLINPUT)
 				{
@@ -789,7 +789,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 
 			if (Param1 == ID_HER_MARKEDIT)
 			{
-				const auto EditData = reinterpret_cast<HighlightFiles::highlight_item*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto EditData = reinterpret_cast<highlight::element*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 				block_ptr<FarDialogItem> Buffer(Size);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.get()};

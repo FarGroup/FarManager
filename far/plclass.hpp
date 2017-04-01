@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "windowsfwd.hpp"
 #include "farexcpt.hpp"
+#include "exception.hpp"
 
 enum class lng : int;
 class PluginManager;

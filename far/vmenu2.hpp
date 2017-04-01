@@ -36,6 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dialog.hpp"
 
+struct MenuItemEx;
+struct MenuDataEx;
+struct SortItemParam;
+
 class VMenu2 : public Dialog
 {
 	struct private_tag {};
@@ -55,7 +59,7 @@ public:
 	void SetBottomTitle(const string& Title);
 	void SetBoxType(int BoxType);
 	void SetMenuFlags(DWORD Flags);
-	void AssignHighlights(int Reverse) { SetMenuFlags(Reverse ? VMENU_REVERSEHIGHLIGHT | VMENU_AUTOHIGHLIGHT : VMENU_AUTOHIGHLIGHT); }
+	void AssignHighlights(int Reverse);
 	void clear();
 	int DeleteItem(int ID,int Count=1);
 	int AddItem(const MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
@@ -78,21 +82,24 @@ public:
 	intptr_t RunEx(const std::function<int(int Msg, void *param)>& fn);
 	intptr_t GetExitCode();
 	void Close(int ExitCode=-2, bool Force = false);
+
+	any* GetUserData(int Position = -1) const;
 	template<class T>
-	T* GetUserDataPtr(intptr_t Position = -1)
+	T* GetUserDataPtr(intptr_t Position = -1) const
 	{
-		return ListBox().GetUserDataPtr<T>(Position);
+		return any_cast<T>(GetUserData(Position));
 	}
 	void Key(int key);
-	int GetSelectPos(FarListPos *ListPos) { return ListBox().GetSelectPos(ListPos); }
-	int SetSelectPos(const FarListPos *ListPos, int Direct=0) { return ListBox().SetSelectPos(ListPos, Direct); }
-	void SortItems(bool Reverse = false, int Offset = 0) { ListBox().SortItems(Reverse, Offset); }
-	template<class predicate>
-	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0) { ListBox().SortItems(Pred, Reverse, Offset); }
-	void Pack() { ListBox().Pack(); }
-	MenuItemEx& at(size_t n) { return ListBox().at(n); }
-	MenuItemEx& current() { return ListBox().current(); }
-	int GetShowItemCount() { return ListBox().GetShowItemCount(); }
+	int GetSelectPos(FarListPos* ListPos);
+	int SetSelectPos(const FarListPos* ListPos, int Direct = 0);
+
+	void SortItems(bool Reverse, int Offset);
+	void SortItems(const std::function<bool(const MenuItemEx&, const MenuItemEx&, SortItemParam&)>& Pred, bool Reverse = false, int Offset = 0);
+
+	void Pack();
+	MenuItemEx& at(size_t n);
+	MenuItemEx& current();
+	int GetShowItemCount();
 
 private:
 	intptr_t VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);

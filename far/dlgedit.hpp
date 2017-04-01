@@ -43,8 +43,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
-#include "bitflags.hpp"
-#include "editcontrol.hpp"
+#include "farcolor.hpp"
+
+class History;
+class EditControl;
 
 enum DLGEDITTYPE
 {
@@ -140,8 +142,8 @@ public:
 	bool GetReadOnly() const;
 	void SetReadOnly(bool NewReadOnly);
 
-	void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}
-	void AutoComplete(bool Manual,bool DelBlock){return lineEdit->AutoComplete(Manual,DelBlock);}
+	void SetCallbackState(bool Enable);
+	void AutoComplete(bool Manual, bool DelBlock);
 
 	bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false) const;
 

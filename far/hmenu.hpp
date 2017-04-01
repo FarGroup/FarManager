@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "modal.hpp"
-#include "synchro.hpp"
 
 struct HMenuData
 {
@@ -77,15 +76,14 @@ private:
 	void ShowMenu();
 	bool ProcessCurrentSubMenu();
 	bool ProcessPositioningKey(unsigned LocalKey);
-	wchar_t GetHighlights(const HMenuData& Item);
-	size_t CheckHighlights(WORD CheckSymbol, int StartPos = 0);
+	wchar_t GetHighlights(const HMenuData& Item) const;
+	size_t CheckHighlights(WORD CheckSymbol, int StartPos = 0) const;
 	bool TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const;
 	void UpdateSelectPos();
 
 	range<HMenuData*> Item;
 	size_t SelectPos;
 	int m_VExitCode;
-	os::critical_section CS;
 	bool m_SubmenuOpened;
 };
 

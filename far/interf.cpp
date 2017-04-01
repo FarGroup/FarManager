@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "res.hpp"
 #include "plugins.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "TaskBar.hpp"
 
 consoleicons& ConsoleIcons()

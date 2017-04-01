@@ -35,9 +35,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "filefilterparams.hpp"
 #include "panelfwd.hpp"
 
+enum enumFileFilterFlagsType: int;
+class FileFilterParams;
+class FileListItem;
 class VMenu2;
 
 // почему FileInFilter вернул true или false

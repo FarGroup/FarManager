@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "plugins.hpp"
 #include "sqlitedb.hpp"
+#include "configdb.hpp"
 
 const wchar_t* AbstractSettings::Add(const string& String)
 {

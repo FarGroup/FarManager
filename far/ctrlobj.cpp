@@ -40,6 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "hilight.hpp"
 #include "history.hpp"
 #include "filefilter.hpp"
+#include "filefilterparams.hpp"
+#include "panel.hpp"
 #include "filepanels.hpp"
 #include "syslog.hpp"
 #include "interf.hpp"
@@ -49,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "plugins.hpp"
 #include "desktop.hpp"
-#include "colormix.hpp"
 #include "scrbuf.hpp"
 
 ControlObject::ControlObject()
@@ -66,7 +67,7 @@ ControlObject::ControlObject()
 	Global->WindowManager->InsertWindow(Desktop);
 	Desktop->TakeSnapshot();
 
-	HiFiles = std::make_unique<HighlightFiles>();
+	HiFiles = std::make_unique<highlight::configuration>();
 	Plugins = std::make_unique<PluginManager>();
 
 	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string{}, Global->Opt->SaveHistory);

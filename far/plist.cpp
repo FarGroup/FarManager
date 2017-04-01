@@ -37,12 +37,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plist.hpp"
 #include "keys.hpp"
 #include "help.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "message.hpp"
 #include "interf.hpp"
 #include "imports.hpp"
 #include "strmix.hpp"
+#include "exception.hpp"
 
 struct menu_data
 {

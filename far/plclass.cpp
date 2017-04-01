@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
-#include "farexcpt.hpp"
 #include "chgprior.hpp"
 #include "farversion.hpp"
 #include "plugapi.hpp"
@@ -45,7 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "FarGuid.hpp"
 #include "processname.hpp"
+#include "lang.hpp"
 #include "language.hpp"
+#include "configdb.hpp"
 
 #define DECLARE_PLUGIN_FUNCTION(name, signature) DECLARE_GEN_PLUGIN_FUNCTION(name, true, signature)
 

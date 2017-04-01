@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "farexcpt.hpp"
 
 namespace os
 {

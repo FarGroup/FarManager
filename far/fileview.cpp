@@ -52,10 +52,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "macroopcode.hpp"
 #include "plugins.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "exitcode.hpp"
 #include "keybar.hpp"
 #include "constitle.hpp"
+#include "pathmix.hpp"
 
 FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
 	RedrawTitle(),

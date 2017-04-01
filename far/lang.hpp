@@ -34,4 +34,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bootstrap/lang.inc"
 
+template<class T>
+constexpr lng operator+(lng Id, T Shift)
+{
+	return static_cast<lng>(as_underlying_type(Id) + Shift);
+}
+
+inline lng operator++(lng& Id, int)
+{
+	const auto Value = Id;
+	Id = Id + 1;
+	return Value;
+}
+
+#define MSG(ID) Global->GetLangMsg(ID)
+
+template<typename... args>
+auto format(lng Id, args&&... Args)
+{
+	return format(MSG(Id), std::forward<args>(Args)...);
+}
+
 #endif // LANG_HPP_BB6D2D7F_CD59_4D0F_B11D_2077A8A22947

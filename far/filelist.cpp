@@ -82,6 +82,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
 #include "plugins.hpp"
+#include "lang.hpp"
 #include "language.hpp"
 #include "TaskBar.hpp"
 #include "fileowner.hpp"
@@ -91,6 +92,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "diskmenu.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "vmenu.hpp"
+#include "vmenu2.hpp"
+#include "filefilterparams.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static panel_sort ListSortMode(panel_sort::UNSORTED);
@@ -2733,7 +2737,7 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 
 	if (!NewDir.empty())
 	{
-		return ChangeDir(NewDir, true, IsUpdated, &UsedData);
+		return ChangeDir(NewDir, true, IsUpdated, &UsedData, OFP_NORMAL);
 	}
 
 	return false;
@@ -2950,6 +2954,10 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 	return SetDirectorySuccess;
 }
 
+bool FileList::ChangeDir(const string & NewDir)
+{
+	return ChangeDir(NewDir, false, true, nullptr, OFP_NORMAL);
+}
 
 bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
@@ -7699,14 +7707,14 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 
 	if (static_cast<size_t>(Position) < m_ListData.size())
 	{
-		int Pos = HighlightFiles::NORMAL_COLOR;
+		int Pos = highlight::color::normal;
 
 		if (m_CurFile == Position && IsFocused() && !m_ListData.empty())
 		{
-			Pos=m_ListData[Position].Selected? HighlightFiles::SELECTEDUNDERCURSOR_COLOR : HighlightFiles::UNDERCURSOR_COLOR;
+			Pos=m_ListData[Position].Selected? highlight::color::selected_current : highlight::color::normal_current;
 		}
 		else if (m_ListData[Position].Selected)
-			Pos = HighlightFiles::SELECTED_COLOR;
+			Pos = highlight::color::selected;
 
 		const auto HighlightingEnabled = Global->Opt->Highlight && (m_PanelMode != panel_mode::PLUGIN_PANEL || !(m_CachedOpenPanelInfo.Flags & OPIF_DISABLEHIGHLIGHTING));
 
@@ -7719,7 +7727,7 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 			}
 
 			auto Colors = m_ListData[Position].Colors->Color[Pos];
-			HighlightFiles::ApplyFinalColor(Colors, Pos);
+			highlight::configuration::ApplyFinalColor(Colors, Pos);
 			ColorAttr = FileColor ? Colors.FileColor : Colors.MarkColor;
 		}
 

@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "panel.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "filelist.hpp"
 #include "savescr.hpp"
@@ -47,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "delete.hpp"
 #include "pathmix.hpp"
 #include "mix.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "plugins.hpp"
 #include "colormix.hpp"
 #include "strmix.hpp"

@@ -39,8 +39,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "window.hpp"
-#include "vmenu.hpp"
 #include "bitflags.hpp"
+#include "modal.hpp"
 
 class History;
 
@@ -213,16 +213,13 @@ public:
 	int GetDropDownOpened() const { return DropDownOpened; }
 	bool IsRedrawEnabled() const { return m_DisableRedraw == 0; }
 
-	template<class T>
-	void SetListItemData(size_t ListId, size_t ItemId, const T& Data)
-	{
-		Items[ListId].ListPtr->SetUserData(Data, static_cast<int>(ItemId));
-	}
+	void SetListItemData(size_t ListId, size_t ItemId, const any& Data);
+	any* GetListItemData(size_t ListId, size_t ItemId);
 
 	template<class T>
 	T* GetListItemDataPtr(size_t ListId, size_t ItemId)
 	{
-		return Items[ListId].ListPtr->GetUserDataPtr<T>(static_cast<int>(ItemId));
+		return any_cast<T>(GetListItemData(ListId, ItemId));
 	}
 
 protected:

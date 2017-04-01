@@ -56,10 +56,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "FarGuid.hpp"
 #include "xlat.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "vmenu2.hpp"
 #include "strmix.hpp"
 #include "local.hpp"
+#include "exception.hpp"
 
 MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 {

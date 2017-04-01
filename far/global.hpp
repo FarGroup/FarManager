@@ -36,7 +36,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "exception.hpp"
+struct error_codes;
+enum class lng;
 
 class global: noncopyable
 {
@@ -58,6 +59,8 @@ public:
 	bool GetSearchHex() const { return m_SearchHex; }
 	void StoreSearchString(const string& Str, bool Hex);
 	bool IsPanelsActive() const;
+
+	const wchar_t* GetLangMsg(lng Id) const;
 
 	// BUGBUG
 
@@ -130,8 +133,8 @@ public:
 	std::unique_ptr<class Options> Opt;
 	std::unique_ptr<class ScreenBuf> ScrBuf;
 	std::unique_ptr<class Manager> WindowManager;
-	class Language *Lang;
-	class elevation *Elevation;
+	std::unique_ptr<class Language> Lang;
+	std::unique_ptr<class elevation> Elevation;
 	class ControlObject* CtrlObject;
 };
 

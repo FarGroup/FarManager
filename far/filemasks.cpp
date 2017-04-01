@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "filemasks.hpp"
 #include "message.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "processname.hpp"
 #include "configdb.hpp"
 #include "RegExp.hpp"

@@ -253,6 +253,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="keybar.cpp" />
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="language.cpp" />
+    <ClCompile Include="lasterror.cpp" />
     <ClCompile Include="local.cpp" />
     <ClCompile Include="locale.cpp" />
     <ClCompile Include="lockscrn.cpp" />

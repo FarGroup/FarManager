@@ -75,7 +75,7 @@ public:
 	class suppress: noncopyable
 	{
 	public:
-		suppress(): m_owner(Global? Global->Elevation : nullptr) { if (m_owner) ++m_owner->m_Suppressions; }
+		suppress(): m_owner(Global? Global->Elevation.get() : nullptr) { if (m_owner) ++m_owner->m_Suppressions; }
 		~suppress() { if (m_owner) --m_owner->m_Suppressions; }
 
 	private:

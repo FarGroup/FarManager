@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "eject.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "cddrv.hpp"
 #include "stddlg.hpp"
 

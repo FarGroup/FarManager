@@ -37,12 +37,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 #include "dizlist.hpp"
-#include "hilight.hpp"
 #include "filesystemwatcher.hpp"
-#include "plugins.hpp"
 
 class FileFilter;
 class Plugin;
+
+namespace highlight
+{
+	class element;
+}
 
 using content_data_ptr = std::unique_ptr<std::unordered_map<string, string>>;
 
@@ -85,7 +88,7 @@ public:
 	DWORD FileAttr{};
 	DWORD ReparseTag{};
 
-	mutable const HighlightFiles::highlight_item* Colors{};
+	mutable const highlight::element* Colors{};
 
 	wchar_t** CustomColumnData{};
 	size_t CustomColumnNumber{};
@@ -311,7 +314,8 @@ private:
 	long SelectFiles(int Mode, const wchar_t *Mask = nullptr);
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
 	// ChangeDir возвращает false, eсли не смогла выставить заданный путь
-	bool ChangeDir(const string& NewDir,bool ResolvePath=false, bool IsUpdated=true, const UserDataItem* DataItem = nullptr, OPENFILEPLUGINTYPE Type=OFP_NORMAL);
+	bool ChangeDir(const string& NewDir,bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE Type);
+	bool ChangeDir(const string& NewDir);
 	void CountDirSize(bool IsRealNames);
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);

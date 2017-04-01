@@ -99,7 +99,7 @@ Type(const Type&) = delete; \
 Type& operator=(const Type&) = delete; \
 
 #define COPY_AND_MOVE(...) \
-auto& operator=(__VA_ARGS__ rhs) { std::remove_reference_t<decltype(*this)> Tmp(rhs); *this = std::move(Tmp); return *this; }
+auto& operator=(__VA_ARGS__ rhs) { return *this = std::remove_reference_t<decltype(*this)>(rhs); }
 
 #define COPYABLE(Type) \
 Type(const Type&) = default; \

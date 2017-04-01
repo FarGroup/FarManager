@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
+#include "lang.hpp"
 #include "language.hpp"
 #include "farexcpt.hpp"
 #include "imports.hpp"
@@ -460,7 +461,7 @@ static void SetDriveMenuHotkeys()
 
 		std::for_each(CONST_RANGE(DriveMenuHotkeys, i)
 		{
-			ConfigProvider().PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, PluginsHotkeysConfig::hotkey_type::drive_menu, i.Hotkey);
+			ConfigProvider().PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, hotkey_type::drive_menu, i.Hotkey);
 		});
 
 		ConfigProvider().GeneralCfg()->SetValue(L"Interface", L"InitDriveMenuHotkeys", 0ull);
@@ -752,7 +753,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 		CloseConsole();
 	};
 
-	Global->Lang = new Language(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
+	Global->Lang = std::make_unique<Language>(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
 
 	os::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
 

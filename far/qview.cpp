@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "mix.hpp"
 #include "colormix.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"
 #include "keyboard.hpp"

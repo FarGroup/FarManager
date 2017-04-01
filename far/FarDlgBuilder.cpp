@@ -33,11 +33,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "language.hpp"
+#include "lang.hpp"
 #include "FarDlgBuilder.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
+#include "config.hpp"
 
 template<class T>
 struct EditFieldBinding: public DialogItemBinding<DialogItemEx>

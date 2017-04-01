@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "setcolor.hpp"
 #include "farcolor.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
@@ -46,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "manager.hpp"
 
 void GetColor(PaletteColors PaletteIndex)

@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "config.hpp"
 #include "exitcode.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "keybar.hpp"
 #include "local.hpp"
 

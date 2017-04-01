@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "language.hpp"
+#include "lang.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "manager.hpp"
 #include "message.hpp"
@@ -45,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "local.hpp"
 #include "pathmix.hpp"
+#include "exception.hpp"
 
 static const wchar_t LangFileMask[] = L"*.lng";
 

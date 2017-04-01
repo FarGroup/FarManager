@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "flink.hpp"
 #include "plugins.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "fileattr.hpp"
 #include "colormix.hpp"
 #include "local.hpp"

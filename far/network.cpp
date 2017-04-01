@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "network.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "message.hpp"
 #include "stddlg.hpp"
 #include "drivemix.hpp"

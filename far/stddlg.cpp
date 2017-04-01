@@ -39,12 +39,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "imports.hpp"
 #include "message.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "DlgGuid.hpp"
 #include "datetime.hpp"
 #include "interf.hpp"
 #include "dlgedit.hpp"
 #include "cvtname.hpp"
+#include "exception.hpp"
+#include "RegExp.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,

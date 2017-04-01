@@ -36,9 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panel.hpp"
-#include "synchro.hpp"
 #include "dirinfo.hpp"
-#include "viewer.hpp"
+
+class Viewer;
 
 class QuickView:public Panel
 {
@@ -69,12 +69,8 @@ private:
 	void DynamicUpdateKeyBar() const;
 
 	unique_ptr_with_ondestroy<Viewer> QView;
-
 	string strCurFileName;
 	string strCurFileType;
-
-	os::critical_section CS;
-
 	int Directory;
 	DirInfoData Data;
 	bool OldWrapMode;

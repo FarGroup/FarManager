@@ -34,11 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "diskmenu.hpp"
 #include "global.hpp"
 #include "config.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "strmix.hpp"
 #include "ctrlobj.hpp"
 #include "plugins.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "FarDlgBuilder.hpp"
 #include "DlgGuid.hpp"
 #include "interf.hpp"
@@ -63,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "lockscrn.hpp"
 #include "local.hpp"
+#include "pathmix.hpp"
 
 class ChDiskPluginItem
 {
@@ -932,7 +934,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					{
 						string strName = ChDisk->at(SelPos).strName.substr(3);
 						RemoveExternalSpaces(strName);
-						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::hotkey_type::drive_menu, strName))
+						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::drive_menu, strName))
 							RetCode = SelPos;
 					}
 				}

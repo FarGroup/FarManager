@@ -34,14 +34,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "vmenu2.hpp"
+#include "vmenu.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "config.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "colormix.hpp"
 #include "interf.hpp"
 #include "syslog.hpp"
 #include "strmix.hpp"
+
+void VMenu2::Pack()
+{
+	ListBox().Pack();
+}
+
+MenuItemEx& VMenu2::at(size_t n)
+{
+	return ListBox().at(n);
+}
+
+MenuItemEx& VMenu2::current()
+{
+	return ListBox().current();
+}
+
+int VMenu2::GetShowItemCount()
+{
+	return ListBox().GetShowItemCount();
+}
 
 intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -404,6 +425,11 @@ void VMenu2::SetMenuFlags(DWORD Flags)
 	SendMessage(DM_SETDLGITEMSHORT, 0, &fdi);
 }
 
+void VMenu2::AssignHighlights(int Reverse)
+{
+	SetMenuFlags(Reverse? VMENU_REVERSEHIGHLIGHT | VMENU_AUTOHIGHLIGHT : VMENU_AUTOHIGHLIGHT);
+}
+
 void VMenu2::clear()
 {
 	SendMessage(DM_LISTDELETE, 0, nullptr);
@@ -579,6 +605,11 @@ void VMenu2::Close(int ExitCode, bool Force)
 	ForceClosing = Force;
 }
 
+any* VMenu2::GetUserData(int Position) const
+{
+	return ListBox().GetUserData(Position);
+}
+
 void VMenu2::Key(int key)
 {
 	INPUT_RECORD rec;
@@ -587,6 +618,26 @@ void VMenu2::Key(int key)
 		SendMessage(DM_KEY, 1, &rec);
 	else
 		DefRec=rec;
+}
+
+int VMenu2::GetSelectPos(FarListPos* ListPos)
+{
+	return ListBox().GetSelectPos(ListPos);
+}
+
+int VMenu2::SetSelectPos(const FarListPos* ListPos, int Direct)
+{
+	return ListBox().SetSelectPos(ListPos, Direct);
+}
+
+void VMenu2::SortItems(bool Reverse, int Offset)
+{
+	ListBox().SortItems(Reverse, Offset);
+}
+
+void VMenu2::SortItems(const std::function<bool(const MenuItemEx&, const MenuItemEx&, SortItemParam&)>& Pred, bool Reverse, int Offset)
+{
+	ListBox().SortItems(Pred, Reverse, Offset);
 }
 
 int VMenu2::GetTypeAndName(string &strType, string &strName)

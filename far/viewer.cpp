@@ -62,10 +62,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "RegExp.hpp"
 #include "colormix.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "datetime.hpp"
 #include "keybar.hpp"
 #include "stddlg.hpp"
@@ -73,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "panel.hpp"
 
 enum SHOW_MODES
 {

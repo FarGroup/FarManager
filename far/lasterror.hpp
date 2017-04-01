@@ -35,26 +35,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "imports.hpp"
-
 class GuardLastError: noncopyable
 {
 public:
-	GuardLastError():
-		m_LastError(GetLastError()),
-		m_LastStatus(Imports().RtlGetLastNtStatus()),
-		m_Active(true)
-	{
-	}
+	GuardLastError();
 
-	~GuardLastError()
-	{
-		if (!m_Active)
-			return;
-
-		SetLastError(m_LastError);
-		Imports().RtlNtStatusToDosError(m_LastStatus);
-	}
+	~GuardLastError();
 
 	void dismiss()
 	{

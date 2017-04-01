@@ -35,40 +35,40 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "panel.hpp"
 #include "palette.hpp"
 
 class GeneralConfig;
 class RegExp;
+struct PanelViewSettings;
 
 enum
 {
-	CASR_PANEL  = 0x0001,
-	CASR_EDITOR = 0x0002,
-	CASR_VIEWER = 0x0004,
-	CASR_HELP   = 0x0008,
-	CASR_DIALOG = 0x0010,
+	CASR_PANEL  = bit(0),
+	CASR_EDITOR = bit(1),
+	CASR_VIEWER = bit(2),
+	CASR_HELP   = bit(3),
+	CASR_DIALOG = bit(4),
 };
 
 enum ExcludeCmdHistoryType
 {
-	EXCLUDECMDHISTORY_NOTWINASS    = 0x00000001,  // не помещать в историю команды ассоциаций Windows
-	EXCLUDECMDHISTORY_NOTFARASS    = 0x00000002,  // не помещать в историю команды выполнения ассоциаций файлов
-	EXCLUDECMDHISTORY_NOTPANEL     = 0x00000004,  // не помещать в историю команды выполнения с панели
-	EXCLUDECMDHISTORY_NOTCMDLINE   = 0x00000008,  // не помещать в историю команды выполнения с ком.строки
-	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = 0x00000010,  // не помещать в историю команды выполнения из "Apply Command"
+	EXCLUDECMDHISTORY_NOTWINASS    = bit(0), // не помещать в историю команды ассоциаций Windows
+	EXCLUDECMDHISTORY_NOTFARASS    = bit(1), // не помещать в историю команды выполнения ассоциаций файлов
+	EXCLUDECMDHISTORY_NOTPANEL     = bit(2), // не помещать в историю команды выполнения с панели
+	EXCLUDECMDHISTORY_NOTCMDLINE   = bit(3), // не помещать в историю команды выполнения с ком.строки
+	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = bit(4), // не помещать в историю команды выполнения из "Apply Command"
 };
 
 enum QUOTEDNAMETYPE
 {
-	QUOTEDNAME_INSERT         = 0x00000001,            // кавычить при сбросе в командную строку, в диалогах и редакторе
-	QUOTEDNAME_CLIPBOARD      = 0x00000002,            // кавычить при помещении в буфер обмена
+	QUOTEDNAME_INSERT         = bit(1), // кавычить при сбросе в командную строку, в диалогах и редакторе
+	QUOTEDNAME_CLIPBOARD      = bit(2), // кавычить при помещении в буфер обмена
 };
 
 enum
 {
-	DMOUSEBUTTON_LEFT = 0x00000001,
-	DMOUSEBUTTON_RIGHT = 0x00000002,
+	DMOUSEBUTTON_LEFT = bit(1),
+	DMOUSEBUTTON_RIGHT = bit(2),
 };
 
 enum

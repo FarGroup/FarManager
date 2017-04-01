@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "savescr.hpp"
@@ -61,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "mix.hpp"
 #include "manager.hpp"
+#include "lang.hpp"
 #include "language.hpp"
 #include "desktop.hpp"
 #include "PluginA.hpp"
@@ -101,7 +103,7 @@ static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 #endif // NO_WRAPPER
 }
 
-static wchar_t GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::hotkey_type HotKeyType)
+static wchar_t GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType)
 {
 	string strPluginKey;
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
@@ -1189,7 +1191,7 @@ void PluginManager::Configure(int StartPos)
 		while (!Global->CloseFAR)
 		{
 			bool NeedUpdateItems = true;
-			bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::hotkey_type::config_menu);
+			bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(hotkey_type::config_menu);
 
 			if (NeedUpdateItems)
 			{
@@ -1230,7 +1232,7 @@ void PluginManager::Configure(int StartPos)
 							guid = Info.PluginConfig.Guids[J];
 						}
 
-						const auto Hotkey = GetPluginHotKey(i, guid, PluginsHotkeysConfig::hotkey_type::config_menu);
+						const auto Hotkey = GetPluginHotKey(i, guid, hotkey_type::config_menu);
 						MenuItemEx ListItem;
 #ifndef NO_WRAPPER
 						if (i->IsOemPlugin())
@@ -1294,7 +1296,7 @@ void PluginManager::Configure(int StartPos)
 							strTitle = PluginList->current().strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
-							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::hotkey_type::config_menu, strTitle))
+							if (SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::config_menu, strTitle))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
@@ -1349,7 +1351,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 		while (NeedUpdateItems)
 		{
-			bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::hotkey_type::plugins_menu);
+			bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(hotkey_type::plugins_menu);
 
 			if (NeedUpdateItems)
 			{
@@ -1400,7 +1402,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							guid = Info.PluginMenu.Guids[J];
 						}
 
-						const auto Hotkey = GetPluginHotKey(i, guid, PluginsHotkeysConfig::hotkey_type::plugins_menu);
+						const auto Hotkey = GetPluginHotKey(i, guid, hotkey_type::plugins_menu);
 						MenuItemEx ListItem;
 #ifndef NO_WRAPPER
 						if (i->IsOemPlugin())
@@ -1458,7 +1460,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							strTitle = PluginList->current().strName.substr(nOffset);
 							RemoveExternalSpaces(strTitle);
 
-							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, PluginsHotkeysConfig::hotkey_type::plugins_menu, strTitle))
+							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, hotkey_type::plugins_menu, strTitle))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
@@ -1560,7 +1562,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	return TRUE;
 }
 
-bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::hotkey_type HotKeyType, const string& DlgPluginTitle)
+bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, const string& DlgPluginTitle)
 {
 	string strPluginKey;
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
@@ -1823,7 +1825,7 @@ bool PluginManager::GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &It
 	}
 	if (ItemPresent)
 	{
-		PluginHotkey = GetPluginHotKey(pPlugin, Guid, PluginsHotkeysConfig::hotkey_type::drive_menu);
+		PluginHotkey = GetPluginHotKey(pPlugin, Guid, hotkey_type::drive_menu);
 	}
 
 	return true;

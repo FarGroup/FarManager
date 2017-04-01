@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "configdb.hpp"
 #include "KnownGuids.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "DlgGuid.hpp"
 #include "hmenu.hpp"
@@ -65,15 +66,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plist.hpp"
 #include "hotplug.hpp"
 #include "setcolor.hpp"
+#include "lang.hpp"
 #include "language.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
 #include "xlat.hpp"
 #include "panelctype.hpp"
-#include "colormix.hpp"
 #include "diskmenu.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "filemasks.hpp"
+#include "RegExp.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 

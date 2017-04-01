@@ -43,7 +43,7 @@ enum
 	DEFAULT_SORT_GROUP = 10000,
 };
 
-enum enumFileFilterFlagsType
+enum enumFileFilterFlagsType: int
 {
 	FFFT_FIRST = 0, //обязан быть первым
 
@@ -91,7 +91,7 @@ public:
 	void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
 	void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
 	void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
-	void SetColors(const HighlightFiles::highlight_item& Colors);
+	void SetColors(const highlight::element& Colors);
 	void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
 	void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
 	void SetFlags(enumFileFilterFlagsType FType, DWORD Flags) { FFlags[FType] = Flags; }
@@ -106,7 +106,7 @@ public:
 	const string& GetSizeBelow() const {return FSize.SizeBelow;}
 	bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
 	bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
-	HighlightFiles::highlight_item GetColors() const;
+	highlight::element GetColors() const;
 	wchar_t GetMarkChar() const;
 	int   GetSortGroup() const { return FHighlight.SortGroup; }
 	bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
@@ -174,7 +174,7 @@ private:
 
 	struct
 	{
-		HighlightFiles::highlight_item Colors;
+		highlight::element Colors;
 		int SortGroup;
 		bool bContinueProcessing;
 	} FHighlight;

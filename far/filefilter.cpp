@@ -35,10 +35,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "filefilter.hpp"
+#include "filefilterparams.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "scantree.hpp"
 #include "filelist.hpp"
@@ -51,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "keyboard.hpp"
 #include "DlgGuid.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "datetime.hpp"
 #include "colormix.hpp"
 

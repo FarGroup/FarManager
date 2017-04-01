@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugapi.hpp"
 #include "keys.hpp"
 #include "help.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
@@ -78,11 +79,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "xlat.hpp"
 #include "dirinfo.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "viewer.hpp"
 #include "datetime.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "filemasks.hpp"
 
 static Plugin* GuidToPlugin(const GUID* Id)
 {

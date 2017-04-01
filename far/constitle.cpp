@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "constitle.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "config.hpp"
 #include "synchro.hpp"
 #include "farversion.hpp"

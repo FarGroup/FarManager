@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "hilight.hpp"
 #include "keys.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
@@ -50,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "colormix.hpp"
 #include "filefilterparams.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "datetime.hpp"
 #include "DlgGuid.hpp"
 #include "elevation.hpp"
@@ -194,7 +195,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	}
 }
 
-HighlightFiles::HighlightFiles()
+highlight::configuration::configuration()
 {
 	Changed = false;
 	const auto cfg = ConfigProvider().CreateHighlightConfig();
@@ -271,15 +272,15 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 
 	HData.SetSortGroup(SortGroup);
 
-	HighlightFiles::highlight_item Colors = {};
-	cfg->GetValue(key,HLS.NormalColor, Colors.Color[HighlightFiles::NORMAL_COLOR].FileColor);
-	cfg->GetValue(key,HLS.SelectedColor, Colors.Color[HighlightFiles::SELECTED_COLOR].FileColor);
-	cfg->GetValue(key,HLS.CursorColor, Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].FileColor);
-	cfg->GetValue(key,HLS.SelectedCursorColor, Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].FileColor);
-	cfg->GetValue(key,HLS.MarkCharNormalColor, Colors.Color[HighlightFiles::NORMAL_COLOR].MarkColor);
-	cfg->GetValue(key,HLS.MarkCharSelectedColor, Colors.Color[HighlightFiles::SELECTED_COLOR].MarkColor);
-	cfg->GetValue(key,HLS.MarkCharCursorColor, Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].MarkColor);
-	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].MarkColor);
+	highlight::element Colors = {};
+	cfg->GetValue(key,HLS.NormalColor, Colors.Color[highlight::color::normal].FileColor);
+	cfg->GetValue(key,HLS.SelectedColor, Colors.Color[highlight::color::selected].FileColor);
+	cfg->GetValue(key,HLS.CursorColor, Colors.Color[highlight::color::normal_current].FileColor);
+	cfg->GetValue(key,HLS.SelectedCursorColor, Colors.Color[highlight::color::selected_current].FileColor);
+	cfg->GetValue(key,HLS.MarkCharNormalColor, Colors.Color[highlight::color::normal].MarkColor);
+	cfg->GetValue(key,HLS.MarkCharSelectedColor, Colors.Color[highlight::color::selected].MarkColor);
+	cfg->GetValue(key,HLS.MarkCharCursorColor, Colors.Color[highlight::color::normal_current].MarkColor);
+	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[highlight::color::selected_current].MarkColor);
 
 	unsigned long long MarkChar;
 	if (cfg->GetValue(key, HLS.MarkChar, MarkChar))
@@ -294,7 +295,7 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	HData.SetContinueProcessing(ContinueProcessing!=0);
 }
 
-void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
+void highlight::configuration::InitHighlightFiles(HierarchicalConfig* cfg)
 {
 	const struct
 	{
@@ -339,7 +340,7 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 }
 
 
-void HighlightFiles::ClearData()
+void highlight::configuration::ClearData()
 {
 	HiData.clear();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
@@ -347,7 +348,7 @@ void HighlightFiles::ClearData()
 
 static const DWORD PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
-static void ApplyDefaultStartingColors(HighlightFiles::highlight_item& Colors)
+static void ApplyDefaultStartingColors(highlight::element& Colors)
 {
 	std::for_each(RANGE(Colors.Color, i)
 	{
@@ -361,7 +362,7 @@ static void ApplyDefaultStartingColors(HighlightFiles::highlight_item& Colors)
 	Colors.Mark.Char = 0;
 }
 
-static void ApplyBlackOnBlackColor(HighlightFiles::highlight_item::colors_array::value_type& Color, DWORD PaletteColor)
+static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Color, DWORD PaletteColor)
 {
 	const auto& InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
@@ -382,12 +383,12 @@ static void ApplyBlackOnBlackColor(HighlightFiles::highlight_item::colors_array:
 	InheritColor(Color.MarkColor, Color.FileColor);
 }
 
-static void ApplyBlackOnBlackColors(HighlightFiles::highlight_item::colors_array& Colors)
+static void ApplyBlackOnBlackColors(highlight::element::colors_array& Colors)
 {
 	for (auto i: zip(Colors, PalColor)) std::apply(ApplyBlackOnBlackColor, i);
 }
 
-static void ApplyColors(HighlightFiles::highlight_item& DestColors, const HighlightFiles::highlight_item& Src)
+static void ApplyColors(highlight::element& DestColors, const highlight::element& Src)
 {
 	//Обработаем black on black чтоб наследовать правильные цвета
 	//и чтоб после наследования были правильные цвета.
@@ -433,7 +434,7 @@ static void ApplyColors(HighlightFiles::highlight_item& DestColors, const Highli
 	}
 }
 
-void HighlightFiles::ApplyFinalColor(highlight_item::colors_array::value_type& Colors, size_t PaletteIndex)
+void highlight::configuration::ApplyFinalColor(highlight::element::colors_array::value_type& Colors, size_t PaletteIndex)
 {
 	const auto PaletteColor = PalColor[PaletteIndex];
 
@@ -466,16 +467,16 @@ void HighlightFiles::ApplyFinalColor(highlight_item::colors_array::value_type& C
 	ApplyBlackOnBlackColor(Colors, PaletteColor);
 }
 
-void HighlightFiles::UpdateCurrentTime()
+void highlight::configuration::UpdateCurrentTime()
 {
 	CurrentTime = GetCurrentUTCTimeInUI64();
 }
 
-const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting)
+const highlight::element* highlight::configuration::GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	highlight_item item = {};
+	highlight::element item = {};
 
 	ApplyDefaultStartingColors(item);
 
@@ -503,14 +504,14 @@ const HighlightFiles::highlight_item* HighlightFiles::GetHiColor(const FileListI
 	return &*Colors.emplace(item).first;
 }
 
-int HighlightFiles::GetGroup(const FileListItem *fli, const FileList* Owner)
+int highlight::configuration::GetGroup(const FileListItem *fli, const FileList* Owner)
 {
 	const auto Begin = HiData.cbegin() + FirstCount, End = Begin + UpperCount + LowerCount;
 	const auto It = std::find_if(Begin, End, [&](const auto& i) { return i.FileInFilter(fli, Owner, CurrentTime); });
 	return It != End? It->GetSortGroup() : DEFAULT_SORT_GROUP;
 }
 
-void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
+void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 {
 	HiMenu->clear();
 
@@ -548,7 +549,7 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 	HiMenu->SetSelectPos(MenuPos,1);
 }
 
-void HighlightFiles::ProcessGroups()
+void highlight::configuration::ProcessGroups()
 {
 	for (int i = 0; i<FirstCount; i++)
 		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP);
@@ -563,7 +564,15 @@ void HighlightFiles::ProcessGroups()
 		HiData[i].SetSortGroup(DEFAULT_SORT_GROUP);
 }
 
-int HighlightFiles::MenuPosToRealPos(int MenuPos, int*& Count, bool Insert)
+size_t highlight::configuration::element_hash::operator()(const element& item) const
+{
+	return make_hash(item.Mark.Char) ^ make_hash(item.Mark.Transparent) ^ std::accumulate(ALL_CONST_RANGE(item.Color), size_t(0), [](auto Value, const auto& i)
+	{
+		return Value ^ make_hash(i.FileColor) ^ make_hash(i.MarkColor);
+	});
+}
+
+int highlight::configuration::MenuPosToRealPos(int MenuPos, int*& Count, bool Insert)
 {
 	int Pos=MenuPos;
 	Count = nullptr;
@@ -592,7 +601,7 @@ int HighlightFiles::MenuPosToRealPos(int MenuPos, int*& Count, bool Insert)
 	return Pos;
 }
 
-void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
+void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 {
 	Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 	ProcessGroups();
@@ -608,7 +617,7 @@ void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
 	Global->ScrBuf->Unlock(); // разрешаем прорисовку
 }
 
-void HighlightFiles::HiEdit(int MenuPos)
+void highlight::configuration::HiEdit(int MenuPos)
 {
 	const auto HiMenu = VMenu2::create(MSG(lng::MHighlightTitle), nullptr, 0, ScrY - 4);
 	HiMenu->SetHelp(HLS.HighlightList);
@@ -849,19 +858,19 @@ static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	cfg->SetValue(key,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
 	cfg->SetValue(key,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
 	const auto Colors = CurHiData->GetColors();
-	cfg->SetValue(key,HLS.NormalColor, Colors.Color[HighlightFiles::NORMAL_COLOR].FileColor);
-	cfg->SetValue(key,HLS.SelectedColor, Colors.Color[HighlightFiles::SELECTED_COLOR].FileColor);
-	cfg->SetValue(key,HLS.CursorColor, Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].FileColor);
-	cfg->SetValue(key,HLS.SelectedCursorColor, Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].FileColor);
-	cfg->SetValue(key,HLS.MarkCharNormalColor, Colors.Color[HighlightFiles::NORMAL_COLOR].MarkColor);
-	cfg->SetValue(key,HLS.MarkCharSelectedColor, Colors.Color[HighlightFiles::SELECTED_COLOR].MarkColor);
-	cfg->SetValue(key,HLS.MarkCharCursorColor, Colors.Color[HighlightFiles::UNDERCURSOR_COLOR].MarkColor);
-	cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[HighlightFiles::SELECTEDUNDERCURSOR_COLOR].MarkColor);
+	cfg->SetValue(key,HLS.NormalColor, Colors.Color[highlight::color::normal].FileColor);
+	cfg->SetValue(key,HLS.SelectedColor, Colors.Color[highlight::color::selected].FileColor);
+	cfg->SetValue(key,HLS.CursorColor, Colors.Color[highlight::color::normal_current].FileColor);
+	cfg->SetValue(key,HLS.SelectedCursorColor, Colors.Color[highlight::color::selected_current].FileColor);
+	cfg->SetValue(key,HLS.MarkCharNormalColor, Colors.Color[highlight::color::normal].MarkColor);
+	cfg->SetValue(key,HLS.MarkCharSelectedColor, Colors.Color[highlight::color::selected].MarkColor);
+	cfg->SetValue(key,HLS.MarkCharCursorColor, Colors.Color[highlight::color::normal_current].MarkColor);
+	cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[highlight::color::selected_current].MarkColor);
 	cfg->SetValue(key,HLS.MarkChar, MAKELONG(Colors.Mark.Char, MAKEWORD(Colors.Mark.Transparent? 0xff : 0, 0)));
 	cfg->SetValue(key,HLS.ContinueProcessing, CurHiData->GetContinueProcessing()?1:0);
 }
 
-void HighlightFiles::Save(bool always)
+void highlight::configuration::Save(bool always)
 {
 	if (!always && !Changed)
 		return;

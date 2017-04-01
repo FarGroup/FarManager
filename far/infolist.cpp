@@ -56,12 +56,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "colormix.hpp"
 #include "vmenu2.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "dizviewer.hpp"
 #include "keybar.hpp"
 #include "keyboard.hpp"
 #include "datetime.hpp"
 #include "cvtname.hpp"
+#include "vmenu.hpp"
 
 static bool LastMode = false;
 static bool LastDizWrapMode = false;

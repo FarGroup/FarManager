@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "cmdline.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "fileedit.hpp"
@@ -52,9 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "filestr.hpp"
 #include "interf.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "blob_builder.hpp"
 #include "local.hpp"
+#include "exception.hpp"
 
 enum
 {

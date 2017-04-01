@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "privilege.hpp"
 #include "message.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "dirmix.hpp"
 #include "treelist.hpp"
 #include "elevation.hpp"

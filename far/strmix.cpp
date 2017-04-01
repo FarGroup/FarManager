@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "RegExp.hpp"
 #include "strmix.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "preservestyle.hpp"
@@ -45,6 +45,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "regex_helpers.hpp"
 #include "local.hpp"
+#include "bitflags.hpp"
+#include "exception.hpp"
 
 namespace strmix
 {
@@ -1047,8 +1049,8 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 						ShiftLength = CMatch[0].length();
 						if (HMatch)
 						{
-							const auto Iterator = HMatch->find(string(CMatch[1].first, CMatch[1].second));
-							if (Iterator != HMatch->cend())
+							const auto Iterator = HMatch->Matches.find(string(CMatch[1].first, CMatch[1].second));
+							if (Iterator != HMatch->Matches.cend())
 							{
 								Success = true;
 								start = Iterator->second.start;

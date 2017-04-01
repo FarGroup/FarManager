@@ -56,8 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "plugins.hpp"
 #include "mix.hpp"
-#include "language.hpp"
-#include "colormix.hpp"
+#include "lang.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
 

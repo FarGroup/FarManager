@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "chgprior.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "config.hpp"
+#include "panel.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"
 #include "keyboard.hpp"
@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "FarGuid.hpp"
 #include "keys.hpp"
+#include "lang.hpp"
 #include "language.hpp"
 #include "filepanels.hpp"
 #include "strmix.hpp"
@@ -4561,7 +4562,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					if (!bStack) return FALSE;
 					EditorInfo ei={sizeof(EditorInfo)};
 					if (!NativeInfo.EditorControl(-1,ECTL_GETINFO,0,&ei)) return FALSE;
-					return (int)ei.SessionBookmarkCount;
+					return static_cast<int>(ei.SessionBookmarkCount);
 				}
 				Command = bStack ? ECTL_GETSESSIONBOOKMARKS : ECTL_GETBOOKMARKS;
 				intptr_t size = NativeInfo.EditorControl(-1,Command,0,nullptr);

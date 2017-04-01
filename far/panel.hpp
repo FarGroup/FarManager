@@ -92,14 +92,6 @@ enum
 	UPDATE_DRAW_MESSAGE   = bit(3),
 };
 
-enum class panel_type
-{
-	FILE_PANEL,
-	TREE_PANEL,
-	QVIEW_PANEL,
-	INFO_PANEL
-};
-
 enum class panel_mode
 {
 	NORMAL_PANEL,

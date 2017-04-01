@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plclass.hpp"
-#include "configdb.hpp"
 #include "mix.hpp"
 #include "notification.hpp"
 #include "panelfwd.hpp"
@@ -48,6 +47,8 @@ class Editor;
 class window;
 class Panel;
 class Dialog;
+
+enum class hotkey_type: int;
 
 enum
 {
@@ -199,7 +200,7 @@ public:
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
 	static int UseFarCommand(plugin_panel* hPlugin, int CommandType);
 	static const GUID& GetGUID(const plugin_panel* hPlugin);
-	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::hotkey_type HotKeyType, const string& DlgPluginTitle);
+	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, const string& DlgPluginTitle);
 	static void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
 
 private:

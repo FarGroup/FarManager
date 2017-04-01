@@ -975,7 +975,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 						const auto Name = new wchar_t[len + 1];
 						memcpy(Name, src + i, len*sizeof(wchar_t));
 						Name[len] = 0;
-						if (!h.count(Name))
+						if (!h.Matches.count(Name))
 						{
 							delete[] Name;
 							return SetError(errReferenceToUndefinedNamedBracket, i + (src - start));
@@ -1236,7 +1236,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 						op->nbracket.pairindex = brackets[brdepth];
 						brackets[brdepth]->nbracket.pairindex = op;
 						op->nbracket.name = brackets[brdepth]->nbracket.name;
-						h[op->nbracket.name] = m;
+						h.Matches[op->nbracket.name] = m;
 						break;
 					}
 					case opLookBehind:
@@ -2059,14 +2059,14 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					if (hmatch)
 					{
 						RegExpMatch* m2;
-						if (!hmatch->count(op->nbracket.name))
+						if (!hmatch->Matches.count(op->nbracket.name))
 						{
 							RegExpMatch sm;
 							sm.start = -1;
 							sm.end = -1;
-							(*hmatch)[op->nbracket.name] = sm;
+							hmatch->Matches[op->nbracket.name] = sm;
 						}
-						m2 = &(*hmatch)[op->nbracket.name];
+						m2 = &hmatch->Matches[op->nbracket.name];
 
 						//if (inrangebracket) Mantis#1388
 						{
@@ -2126,7 +2126,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						{
 							if (hmatch)
 							{
-								(*hmatch)[op->nbracket.name].end = str - start;
+								hmatch->Matches[op->nbracket.name].end = str - start;
 							}
 
 							continue;
@@ -2422,8 +2422,8 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						if (!hmatch || !hmatch->count(op->refname))break;
-						m = &(*hmatch)[op->refname];
+						if (!hmatch || !hmatch->Matches.count(op->refname))break;
+						m = &hmatch->Matches[op->refname];
 					}
 
 					if (m->start==-1 || m->end==-1)break;
@@ -2781,7 +2781,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						m = &(*hmatch)[op->range.refname];
+						m = &hmatch->Matches[op->range.refname];
 					}
 
 					if (!m)break;
@@ -2986,7 +2986,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						m = &(*hmatch)[ps->pos->range.refname];
+						m = &hmatch->Matches[ps->pos->range.refname];
 					}
 					str=ps->savestr-(m->end-m->start);
 					op=ps->pos;
@@ -3171,7 +3171,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						m = &(*hmatch)[op->range.refname];
+						m = &hmatch->Matches[op->range.refname];
 					}
 
 					if (str+m->end-m->start<strend && StrCmp(str,start+m->start,start+m->end))
@@ -3331,7 +3331,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						RegExpMatch sm;
 						sm.start = ps->min;
 						sm.end = ps->max;
-						(*hmatch)[n] = sm;
+						hmatch->Matches[n] = sm;
 					}
 
 					continue;

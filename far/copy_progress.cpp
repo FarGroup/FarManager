@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "copy_progress.hpp"
 #include "colormix.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "config.hpp"
 #include "keyboard.hpp"
 #include "constitle.hpp"

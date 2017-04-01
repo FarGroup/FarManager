@@ -64,7 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "colormix.hpp"
 #include "constitle.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "components.hpp"
 #include "desktop.hpp"
 #include "keybar.hpp"

@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "history.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "keys.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
@@ -51,6 +51,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "plugins.hpp"
 #include "local.hpp"
+#include "vmenu.hpp"
+#include "vmenu2.hpp"
 
 History::History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave):
 	m_TypeHistory(TypeHistory),

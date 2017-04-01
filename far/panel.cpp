@@ -56,13 +56,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "colormix.hpp"
 #include "FarGuid.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "plugins.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"
 #include "diskmenu.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "pathmix.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
 #include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "dlgedit.hpp"
 #include "help.hpp"
 #include "scrbuf.hpp"
@@ -57,9 +58,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "mix.hpp"
 #include "plugins.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "DlgGuid.hpp"
 #include "local.hpp"
+#include "config.hpp"
+#include "edit.hpp"
 
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
@@ -600,6 +603,16 @@ void Dialog::ProcessCenterGroup()
 			}
 		}
 	}
+}
+
+void Dialog::SetListItemData(size_t ListId, size_t ItemId, const any& Data)
+{
+	Items[ListId].ListPtr->SetUserData(Data, static_cast<int>(ItemId));
+}
+
+any* Dialog::GetListItemData(size_t ListId, size_t ItemId)
+{
+	return Items[ListId].ListPtr->GetUserData(static_cast<int>(ItemId));
 }
 
 //////////////////////////////////////////////////////////////////////////

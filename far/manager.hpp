@@ -44,11 +44,6 @@ class Manager: noncopyable
 public:
 	class Key
 	{
-	private:
-		INPUT_RECORD m_Event;
-		unsigned int m_FarKey;
-		bool m_EventFilled;
-		void Fill(unsigned int Key);
 	public:
 		Key(): m_Event(), m_FarKey(0), m_EventFilled(false) {}
 		explicit Key(int Key);
@@ -59,6 +54,12 @@ public:
 		Key& operator=(unsigned int Key);
 		Key& operator&=(unsigned int Key);
 		unsigned int operator()(void) const {return m_FarKey;}
+
+	private:
+		INPUT_RECORD m_Event;
+		unsigned int m_FarKey;
+		bool m_EventFilled;
+		void Fill(unsigned int Key);
 	};
 
 	Manager();

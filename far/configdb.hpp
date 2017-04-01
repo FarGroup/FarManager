@@ -36,11 +36,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "transactional.hpp"
 #include "bitflags.hpp"
-#include "synchro.hpp"
 
 struct VersionInfo;
 class representation_source;
 class representation_destination;
+
+namespace os
+{
+	class thread;
+}
 
 class representable: noncopyable
 {
@@ -265,16 +269,16 @@ protected:
 	PluginsCacheConfig() = default;
 };
 
+enum class hotkey_type: int
+{
+	drive_menu,
+	plugins_menu,
+	config_menu,
+};
+
 class PluginsHotkeysConfig: public representable, virtual public transactional
 {
 public:
-	enum class hotkey_type: int
-	{
-		drive_menu,
-		plugins_menu,
-		config_menu,
-	};
-
 	virtual ~PluginsHotkeysConfig() override = default;
 	virtual bool HotkeysPresent(hotkey_type HotKeyType) = 0;
 	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
@@ -365,7 +369,7 @@ public:
 	bool ShowProblems() const;
 	bool ServiceMode(const string& File);
 
-	void AddThread(os::thread&& thread);
+	void AsyncCall(const std::function<void()>& Routine);
 
 	static void ClearPluginsCache();
 

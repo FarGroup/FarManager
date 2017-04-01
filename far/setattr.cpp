@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "plugins.hpp"
 #include "imports.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "locale.hpp"
 #include "local.hpp"
 

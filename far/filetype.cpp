@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filetype.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "preservelongname.hpp"
 #include "ctrlobj.hpp"
@@ -51,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "configdb.hpp"
 #include "pathmix.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "DlgGuid.hpp"
 #include "cvtname.hpp"
 

@@ -237,6 +237,7 @@ public:
 	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
 	int GetVisualPos(int Pos);
 	int VisualPosToReal(int VPos);
+	any* GetUserData(int Position = -1);
 	template<class T>
 	T* GetUserDataPtr(int Position = -1)
 	{
@@ -254,7 +255,6 @@ public:
 	void UpdateItemFlags(int Pos, unsigned long long NewFlags);
 	MenuItemEx& at(size_t n);
 	MenuItemEx& current() { return at(-1); }
-	void SortItems(bool Reverse = false, int Offset = 0);
 	bool Pack();
 	bool GetVMenuInfo(FarListInfo* Info) const;
 	void SetMaxHeight(int NewMaxHeight);
@@ -264,6 +264,8 @@ public:
 	const GUID& Id() const;
 	bool IsComboBox() const { return GetDialog() && CheckFlags(VMENU_COMBOBOX); }
 	dialog_ptr GetDialog() const {return ParentDialog.lock();}
+
+	void SortItems(bool Reverse = false, int Offset = 0);
 
 	template<class predicate>
 	void SortItems(predicate Pred, bool Reverse = false, int Offset = 0)
@@ -301,7 +303,6 @@ private:
 	bool ShouldSendKeyToFilter(int Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
-	any* GetUserData(int Position = -1);
 
 	string strTitle;
 	string strBottomTitle;

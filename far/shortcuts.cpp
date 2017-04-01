@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "shortcuts.hpp"
 #include "keys.hpp"
+#include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
@@ -50,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "strmix.hpp"
 
 enum PSCR_RECTYPE

@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "cvtname.hpp"
 #include "message.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "flink.hpp"
 #include "treelist.hpp"
 #include "pathmix.hpp"

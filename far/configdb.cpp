@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tinyxml.hpp"
 #include "farversion.hpp"
 #include "console.hpp"
-#include "language.hpp"
+#include "lang.hpp"
 #include "message.hpp"
 #include "synchro.hpp"
 #include "regex_helpers.hpp"
@@ -401,7 +401,8 @@ protected:
 	virtual void AsyncFinish() override
 	{
 		AsyncDone.reset();
-		ConfigProvider().AddThread(os::thread(&os::thread::detach, &HierarchicalConfigDb::AsyncDelete, this));
+		// TODO: SEH guard, try/catch, exception_ptr
+		ConfigProvider().AsyncCall([this]{ delete this; });
 	}
 
 	virtual bool InitializeImpl(const string& DbName, bool Local) override
@@ -668,12 +669,6 @@ protected:
 		{
 			Import(Key, *e);
 		}
-	}
-
-	void AsyncDelete() const
-	{
-		// TODO: SEH guard, try/catch, exception_ptr
-		delete this;
 	}
 
 	template<class T, class getter_t>
@@ -2268,7 +2263,8 @@ config_provider::config_provider(mode Mode):
 
 config_provider::~config_provider()
 {
-	os::multi_waiter(ALL_CONST_RANGE(m_Threads)).wait();
+	// Make sure all threads are joined before freeing the library
+	m_Threads.clear();
 	SQLiteDb::library_free();
 }
 
@@ -2373,10 +2369,10 @@ bool config_provider::ShowProblems() const
 	return Message(MSG_WARNING, MSG(lng::MProblemDb), m_Problems, { MSG(lng::MShowConfigFolders), MSG(lng::MIgnore) }) == Message::first_button;
 }
 
-void config_provider::AddThread(os::thread&& thread)
+void config_provider::AsyncCall(const std::function<void()>& Routine)
 {
-	m_Threads.emplace_back(std::move(thread));
 	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), std::mem_fn(&os::thread::is_signaled)), m_Threads.end());
+	m_Threads.emplace_back(&os::thread::join, Routine);
 }
 
 config_provider& ConfigProvider()

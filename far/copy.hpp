@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "dizlist.hpp"
-#include "panel.hpp"
+#include "panelfwd.hpp"
 
 class Dialog;
 class copy_progress;
@@ -44,6 +44,7 @@ class FileFilter;
 
 enum COPY_CODES: int;
 enum ReparsePointTypes: int;
+enum class panel_mode;
 
 class ShellCopy: noncopyable
 {
