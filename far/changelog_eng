@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 02.04.2017 20:22:22 +0300 - build 4929
+
+1. SQLite 3.18.0
+
+drkns 01.04.2017 13:54:43 +0000 - build 4928
+
+1. Refactoring.
+
+shmuel 28.03.2017 13:40:20 +0200 - build 4927
+
+1. M#3415: error in menu.itemstatus
+
 drkns 26.03.2017 12:56:32 +0000 - build 4926
 
 1. Refactoring.
