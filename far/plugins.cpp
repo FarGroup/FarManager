@@ -2388,13 +2388,7 @@ void PluginManager::UndoRemove(Plugin* plugin)
 
 plugin_panel::plugin_panel(Plugin* PluginInstance, HANDLE Panel):
 	m_Plugin(PluginInstance),
+	m_PluginActivity(m_Plugin->keep_activity()),
 	m_Panel(Panel)
 {
-	++m_Plugin->Activity;
-}
-
-plugin_panel::~plugin_panel()
-{
-	if (m_Plugin)
-		--m_Plugin->Activity;
 }

@@ -130,11 +130,6 @@ private:
 
 	struct fmask
 	{
-		NONCOPYABLE(fmask);
-		MOVABLE(fmask);
-
-		fmask(): Used() {}
-
 		bool Used;
 		string strMask;
 		filemasks FilterMask; // Хранилище скомпилированной маски.
@@ -149,7 +144,7 @@ private:
 		bool bRelative;
 	} FDate;
 
-	struct f_size
+	struct
 	{
 		unsigned long long SizeAboveReal; // Здесь всегда будет размер в байтах
 		unsigned long long SizeBelowReal; // Здесь всегда будет размер в байтах

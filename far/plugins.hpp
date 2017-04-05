@@ -87,11 +87,10 @@ public:
 	MOVABLE(plugin_panel);
 
 	plugin_panel(Plugin* PluginInstance, HANDLE Panel);
-	~plugin_panel();
 
 	auto plugin() const
 	{
-		return m_Plugin.get();
+		return m_Plugin;
 	}
 
 	auto panel() const
@@ -105,7 +104,8 @@ public:
 	}
 
 private:
-	movalbe_ptr<Plugin> m_Plugin;
+	Plugin* m_Plugin;
+	FN_RETURN_TYPE(Plugin::keep_activity) m_PluginActivity;
 	HANDLE m_Panel{};
 };
 

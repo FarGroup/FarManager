@@ -61,14 +61,14 @@ enum ExcludeCmdHistoryType
 
 enum QUOTEDNAMETYPE
 {
-	QUOTEDNAME_INSERT         = bit(1), // кавычить при сбросе в командную строку, в диалогах и редакторе
-	QUOTEDNAME_CLIPBOARD      = bit(2), // кавычить при помещении в буфер обмена
+	QUOTEDNAME_INSERT         = bit(0), // кавычить при сбросе в командную строку, в диалогах и редакторе
+	QUOTEDNAME_CLIPBOARD      = bit(1), // кавычить при помещении в буфер обмена
 };
 
 enum
 {
-	DMOUSEBUTTON_LEFT = bit(1),
-	DMOUSEBUTTON_RIGHT = bit(2),
+	DMOUSEBUTTON_LEFT = bit(0),
+	DMOUSEBUTTON_RIGHT = bit(1),
 };
 
 enum
@@ -109,7 +109,7 @@ public:
 	virtual ~Option() = default;
 
 	virtual string toString() const = 0;
-	virtual void fromString(const string& value) = 0;
+	virtual bool TryParse(const string& value) = 0;
 	virtual string ExInfo() const = 0;
 	virtual string GetType() const = 0;
 	virtual bool IsDefault(const any& Default) const = 0;
@@ -196,7 +196,7 @@ public:
 	using impl_type::operator=;
 
 	virtual string toString() const override { return Get() ? L"true"s : L"false"s; }
-	virtual void fromString(const string& value) override;
+	virtual bool TryParse(const string& value) override;
 	virtual string GetType() const override { return L"boolean"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
@@ -211,7 +211,7 @@ public:
 	using impl_type::operator=;
 
 	virtual string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
-	virtual void fromString(const string& value) override;
+	virtual bool TryParse(const string& value) override;
 	virtual string GetType() const override { return L"3-state"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
@@ -226,7 +226,7 @@ public:
 	using impl_type::operator=;
 
 	virtual string toString() const override { return str(Get()); }
-	virtual void fromString(const string& value) override;
+	virtual bool TryParse(const string& value) override;
 	virtual string ExInfo() const override;
 	virtual string GetType() const override { return L"integer"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
@@ -249,7 +249,7 @@ public:
 	using impl_type::operator=;
 
 	virtual string toString() const override { return Get(); }
-	virtual void fromString(const string& value) override { Set(value); }
+	virtual bool TryParse(const string& value) override { Set(value); return true; }
 	virtual string GetType() const override { return L"string"s; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;

@@ -1412,13 +1412,14 @@ bool detail::OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, 
 }
 
 
-void BoolOption::fromString(const string& value)
+bool BoolOption::TryParse(const string& value)
 {
 	long long iValue;
-	if (ParseIntValue(value, iValue))
-	{
-		Set(iValue != 0);
-	}
+	if (!ParseIntValue(value, iValue))
+		return false;
+
+	Set(iValue != 0);
+	return true;
 }
 
 bool BoolOption::Edit(DialogBuilder* Builder, int Width, int Param)
@@ -1434,13 +1435,14 @@ void BoolOption::Export(FarSettingsItem& To) const
 }
 
 
-void Bool3Option::fromString(const string& value)
+bool Bool3Option::TryParse(const string& value)
 {
 	long long iValue;
-	if (ParseIntValue(value, iValue))
-	{
-		Set(iValue);
-	}
+	if (!ParseIntValue(value, iValue))
+		return false;
+
+	Set(iValue);
+	return true;
 }
 
 bool Bool3Option::Edit(DialogBuilder* Builder, int Width, int Param)
@@ -1456,13 +1458,14 @@ void Bool3Option::Export(FarSettingsItem& To) const
 }
 
 
-void IntOption::fromString(const string& value)
+bool IntOption::TryParse(const string& value)
 {
 	long long iValue;
-	if (ParseIntValue(value, iValue))
-	{
-		Set(iValue);
-	}
+	if (!ParseIntValue(value, iValue))
+		return false;
+
+	Set(iValue);
+	return true;
 }
 
 bool IntOption::Edit(DialogBuilder* Builder, int Width, int Param)
@@ -1611,9 +1614,7 @@ Options::Options():
 	ResetViewModes(make_range(m_ViewSettings.data(), m_ViewSettings.size()));
 }
 
-Options::~Options()
-{
-}
+Options::~Options() = default;
 
 void Options::InitConfigData()
 {
@@ -2109,7 +2110,8 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 				const auto DotPos = ovr.first.rfind(L'.');
 				if (DotPos != string::npos && !StrCmpNI(ovr.first.data(), j.KeyName, DotPos) && !StrCmpI(ovr.first.data() + DotPos + 1, j.ValName))
 				{
-					j.Value->fromString(ovr.second);
+					// TODO: log if failed
+					j.Value->TryParse(ovr.second);
 				}
 			}
 		}

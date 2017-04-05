@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 
 FileFilterParams::FileFilterParams():
+	FMask(),
 	FDate(),
 	FSize(),
 	FHardLinks(),
