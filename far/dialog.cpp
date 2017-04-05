@@ -6076,9 +6076,12 @@ void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 		{
 			CurItem = &Items[m_FocusPos];
 		}
-		int X1,Y1,X2,Y2;
-		CalcComboBoxPos(CurItem, CurItem->ListPtr->size(), X1, Y1, X2, Y2);
-		CurItem->ListPtr->SetPosition(X1, Y1, X2, Y2);
+		if (CurItem->ListPtr)
+		{
+			int X1, Y1, X2, Y2;
+			CalcComboBoxPos(CurItem, CurItem->ListPtr->size(), X1, Y1, X2, Y2);
+			CurItem->ListPtr->SetPosition(X1, Y1, X2, Y2);
+		}
 	}
 }
 
