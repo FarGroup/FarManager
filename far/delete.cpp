@@ -220,14 +220,18 @@ static bool MoveToRecycleBinInternal(const string& Objects)
 	return !Result && !fop.fAnyOperationsAborted;
 }
 
-static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
+static bool WipeFileData(const string& Name, int TotalPercent, bool& Cancel)
 {
-	if (!os::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL))
-		return false;
-
 	os::fs::file_walker WipeFile;
 	if (!WipeFile.Open(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_WRITE_THROUGH | FILE_FLAG_SEQUENTIAL_SCAN))
 		return false;
+
+	unsigned long long FileSize;
+	if (!WipeFile.GetSize(FileSize))
+		return false;
+	
+	if (!FileSize)
+		return true; // nothing to do here
 
 	const DWORD BufSize=65536;
 	if (!WipeFile.InitWalk(BufSize))
@@ -280,7 +284,16 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 	if (!WipeFile.SetEnd())
 		return false;
 
-	WipeFile.Close();
+	return true;
+}
+
+static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
+{
+	if (!os::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL))
+		return false;
+
+	if (!WipeFileData(Name, TotalPercent, Cancel))
+		return false;
 
 	string strTempName;
 	if (!FarMkTempEx(strTempName, nullptr, false))
