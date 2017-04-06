@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
 #include "luafar.h"
 #include "ustring.h"
+#include "util.h"
 #include "compat52.h"
 
 extern int bit64_getvalue(lua_State *L, int pos, INT64 *target);
@@ -212,6 +213,7 @@ int far_MacroCallFar(lua_State *L)
 
 	lua_checkstack(L, MAXRET);
 	ret = (int) privateInfo->CallFar(opcode, &fmc);
+	FP_PROTECT(); // protect from plugins activating FPU exceptions
 	pushed = MAXRET - cbdata.ret_avail;
 	if (fmc.Values != args)
 		free(fmc.Values);
