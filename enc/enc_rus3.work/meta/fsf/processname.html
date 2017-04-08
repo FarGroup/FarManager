@@ -68,8 +68,8 @@ size_t WINAPI ProcessName(
 
     <tr class="cont"><td class="cont" width="40%"><a name="PN_GENERATENAME">PN_GENERATENAME</a></td>
     <td class="cont" width="60%">Генерировать имя файла на основе существующего (<code>Param1</code>) и маски (<code>Param2</code>).
-     Результат, длиной <code>Size</code>, записывается в <code>Param2</code> (учитывайте, что размер буфера <code>Param2</code> должен быть не менее <code>Size</code>).
-     Возвращается функцией требуемый размер буфера <code>Param2</code>.<br>
+     Результат записывается в <code>Param2</code>. <code>Size</code> должен содержать размер буфера с учётом завершающего <code>\0</code>.
+     Возвращаемое значение - длина результата без учёта завершающего <code>\0</code>.<br>
      Если нужно преобразовать только часть <code>Param1</code>, то можно указать размер этой части (может быть до 65535 символов) в <code>Flags</code> (добавить по принципу OR), например: <code>Param1=L"dir1\\file1"</code>, а нам нужно изменить только
      "dir1", тогда параметр <code>Flags</code> должен быть равен <code>PN_GENERATENAME|4</code> </td></tr>
 
