@@ -161,8 +161,9 @@ enum   /* operation modes */
 	MODE_LATIN, /* single byte 8859-1 */
 	MODE_UTF8,	/* UTF-8 by code points */
 	MODE_GRAPH	/* UTF-8 by grapheme clusters */
-#define MODE_MBYTE(mode) (~1&(mode))
 };
+#define IS_MBYTE(mode) ((mode) >= MODE_UTF8)
+#define IS_GRAPH(mode) ((mode) == MODE_GRAPH)
 
 
 /* macro to `unsign' a character */
@@ -400,7 +401,7 @@ static int unic_len(lua_State *L)
 	const char *s = luaL_checklstring(L, 1, &l);
 	int mode = get_mode(L);
 
-	if(MODE_MBYTE(mode)) l = utf8_count(&s, l, mode-2, -1);
+	if(IS_MBYTE(mode)) l = utf8_count(&s, l, IS_GRAPH(mode), -1);
 
 	lua_pushinteger(L, l);
 	return 1;
@@ -416,39 +417,43 @@ static ptrdiff_t posrelat(ptrdiff_t pos, size_t len)
 
 static int unic_sub(lua_State *L)
 {
-	size_t l;
-	const char *s = luaL_checklstring(L, 1, &l), *p, *e=s+l;
+	size_t len;
+	const char *s = luaL_checklstring(L, 1, &len), *p, *e=s+len;
 	ptrdiff_t start = luaL_checkinteger(L, 2);
 	ptrdiff_t end = luaL_optinteger(L, 3, -1);
 	int mode = get_mode(L);
 
-	if(MODE_MBYTE(mode)) { p=s; l = utf8_count(&p, l, mode-2, -1); }
+	if(IS_MBYTE(mode))
+	{
+		ptrdiff_t max = (start>=0 && end>=0) ? end : -1;
+		p=s; len = utf8_count(&p, len, IS_GRAPH(mode), (size_t)max);
+	}
 
-	start = posrelat(start, l);
-	end = posrelat(end, l);
+	start = posrelat(start, len);
+	end = posrelat(end, len);
 
 	if(start < 1) start = 1;
 
-	if(end > (ptrdiff_t)l) end = (ptrdiff_t)l;
+	if(end > (ptrdiff_t)len) end = (ptrdiff_t)len;
 
 	if(start > end)
 		lua_pushliteral(L, "");
 	else
 	{
-		l = end - --start; /* #units */
+		len = end - --start; /* #units */
 
-		if(!(MODE_MBYTE(mode)))  /* single byte */
+		if(!(IS_MBYTE(mode)))  /* single byte */
 			s += start;
 		else
 		{
-			if(start) utf8_count(&s, e-s, mode-2, start);  /* skip */
+			if(start) utf8_count(&s, e-s, IS_GRAPH(mode), start);  /* skip */
 
 			p = s;
-			utf8_count(&p, e-p, mode-2, l);
-			l = p-s;
+			utf8_count(&p, e-p, IS_GRAPH(mode), len);
+			len = p-s;
 		}
 
-		lua_pushlstring(L, s, l);
+		lua_pushlstring(L, s, len);
 	}
 
 	return 1;
@@ -460,7 +465,7 @@ static int str_reverse(lua_State *L)    /* TODO? whatfor? */
 	size_t l;
 	luaL_Buffer b;
 	const char *s = luaL_checklstring(L, 1, &l), *p = s+l, *q;
-	int mode = get_mode(L), mb = MODE_MBYTE(mode);
+	int mode = get_mode(L), mb = IS_MBYTE(mode);
 	luaL_buffinit(L, &b);
 
 	if(!mb)
@@ -492,7 +497,7 @@ static int unic_lower(lua_State *L)
 	size_t l;
 	luaL_Buffer b;
 	const char *s = luaL_checklstring(L, 1, &l), * const e=s+l;
-	int mode = get_mode(L), mb = MODE_MBYTE(mode);
+	int mode = get_mode(L), mb = IS_MBYTE(mode);
 	luaL_buffinit(L, &b);
 
 	while(s < e)
@@ -514,7 +519,7 @@ static int unic_upper(lua_State *L)
 	size_t l;
 	luaL_Buffer b;
 	const char *s = luaL_checklstring(L, 1, &l), * const e=s+l;
-	int mode = get_mode(L), mb = MODE_MBYTE(mode);
+	int mode = get_mode(L), mb = IS_MBYTE(mode);
 	luaL_buffinit(L, &b);
 
 	while(s < e)
@@ -552,9 +557,9 @@ static int unic_byte(lua_State *L)
 	size_t l;
 	ptrdiff_t posi, pose;
 	const char *s = luaL_checklstring(L, 1, &l), *p, *e=s+l;
-	int n, mode = get_mode(L), mb = MODE_MBYTE(mode);
+	int n, mode = get_mode(L), mb = IS_MBYTE(mode);
 
-	if(mb) { p=s; l = utf8_count(&p, l, mode-2, -1); }
+	if(mb) { p=s; l = utf8_count(&p, l, IS_GRAPH(mode), -1); }
 
 	posi = posrelat(luaL_optinteger(L, 2, 1), l);
 	pose = posrelat(luaL_optinteger(L, 3, posi), l);
@@ -569,10 +574,10 @@ static int unic_byte(lua_State *L)
 		e = (s += posi) + n;
 	else
 	{
-		if(posi) utf8_count(&s, e-s, mode-2, posi);  /* skip */
+		if(posi) utf8_count(&s, e-s, IS_GRAPH(mode), posi);  /* skip */
 
 		p=s;
-		utf8_count(&p, e-s, mode-2, n);
+		utf8_count(&p, e-s, IS_GRAPH(mode), n);
 		e=p;
 	}
 
@@ -589,7 +594,7 @@ static int unic_byte(lua_State *L)
 static int unic_char(lua_State *L)
 {
 	int i, n = lua_gettop(L);	/* number of arguments */
-	int mode = get_mode(L), mb = MODE_MBYTE(mode);
+	int mode = get_mode(L), mb = IS_MBYTE(mode);
 	unsigned lim = mb ? 0x110000 : 0x100;
 	luaL_Buffer b;
 	luaL_buffinit(L, &b);
@@ -1277,7 +1282,7 @@ static int unic_find_aux(lua_State *L, int find)
 		ms.src_init = s;
 		ms.src_end = s+l1;
 		ms.mode = get_mode(L);
-		ms.mb = MODE_MBYTE(ms.mode);
+		ms.mb = IS_MBYTE(ms.mode);
 
 		do
 		{
@@ -1358,7 +1363,7 @@ static int gmatch(lua_State *L)
 	ms->src_init = luaL_checklstring(L, 1, &len);
 	ms->src_end = ms->src_init + len;
 	ms->mode = get_mode(L);
-	ms->mb = MODE_MBYTE(ms->mode);
+	ms->mb = IS_MBYTE(ms->mode);
 	luaL_checkstring(L, 2);
 	lua_pushcclosure(L, gmatch_aux, 4);
 	return 1;
@@ -1458,7 +1463,7 @@ static int unic_gsub(lua_State *L)
 	ms.src_init = src;
 	ms.src_end = src+srcl;
 	ms.mode = get_mode(L);
-	ms.mb = MODE_MBYTE(ms.mode);
+	ms.mb = IS_MBYTE(ms.mode);
 
 	while(n < max_s)
 	{
@@ -1738,7 +1743,7 @@ int ext_uni_match(void *state, const char *s, size_t n,
 	ms.src_init = s;
 	ms.src_end = s + n;
 	ms.mode = mode;
-	ms.mb = MODE_MBYTE(mode);
+	ms.mb = IS_MBYTE(mode);
 
 	do
 	{
