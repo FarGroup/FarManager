@@ -1910,7 +1910,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (Items[I].Type==DI_CHECKBOX)
 				{
-					const wchar_t Check[]={L'[',(Items[I].Selected ?(((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2)?*MSG(lng::MCheckBox2State):L'x'):L' '),L']',L'\0'};
+					const wchar_t Check[]={L'[',(Items[I].Selected ?(((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2)?*msg(lng::MCheckBox2State):L'x'):L' '),L']',L'\0'};
 					strStr=Check;
 
 					if (Items[I].strData.size())
@@ -4285,7 +4285,7 @@ void Dialog::SetExitCode(int Code)
 */
 int Dialog::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(lng::MDialogType);
+	strType = msg(lng::MDialogType);
 	strName = GetTitle();
 	return windowtype_dialog;
 }
@@ -6096,25 +6096,27 @@ void Dialog::SetId(const GUID& Id)
 	IdExist=true;
 }
 
-Dialog::dialogs_set& Dialog::DialogsList()
+class dialogs_set: public singleton<dialogs_set>
 {
-	static dialogs_set DlgSet;
-	return DlgSet;
-}
+	IMPLEMENTS_SINGLETON(dialogs_set);
+
+public:
+	std::unordered_set<Dialog*> Set;
+};
 
 void Dialog::AddToList()
 {
-	if (!DialogsList().emplace(this).second) assert(false);
+	if (!dialogs_set::instance().Set.emplace(this).second) assert(false);
 }
 
 void Dialog::RemoveFromList()
 {
-	if (!DialogsList().erase(this)) assert(false);
+	if (!dialogs_set::instance().Set.erase(this)) assert(false);
 }
 
 bool Dialog::IsValid(Dialog* Handle)
 {
-	return contains(DialogsList(), Handle);
+	return contains(dialogs_set::instance().Set, Handle);
 }
 
 void Dialog::SetDeleting(void)

@@ -215,7 +215,7 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 		{
 			if (!m_Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
 			{
-				Message(MSG_WARNING, 1, MSG(lng::MHelpTitle), MSG(lng::MHelpTopicNotFound), StackData->strHelpTopic.data(), MSG(lng::MOk));
+				Message(MSG_WARNING, 1, msg(lng::MHelpTitle), msg(lng::MHelpTopicNotFound), StackData->strHelpTopic.data(), msg(lng::MOk));
 			}
 
 			m_Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
@@ -270,7 +270,7 @@ bool Help::ReadHelp(const string& Mask)
 
 			if (!(StackData->Flags&FHELP_NOSHOWERROR))
 			{
-				Message(MSG_WARNING,1,MSG(lng::MHelpTitle),MSG(lng::MCannotOpenHelp),Mask.data(),MSG(lng::MOk));
+				Message(MSG_WARNING,1,msg(lng::MHelpTitle),msg(lng::MCannotOpenHelp),Mask.data(),msg(lng::MOk));
 			}
 		}
 
@@ -768,7 +768,7 @@ void Help::DisplayObject()
 
 			if (!(StackData->Flags&FHELP_NOSHOWERROR))
 			{
-				Message(MSG_WARNING, 1, MSG(lng::MHelpTitle), MSG(lng::MHelpTopicNotFound), StackData->strHelpTopic.data(), MSG(lng::MOk));
+				Message(MSG_WARNING, 1, msg(lng::MHelpTitle), msg(lng::MHelpTopicNotFound), StackData->strHelpTopic.data(), msg(lng::MOk));
 			}
 
 			ProcessKey(Manager::Key(KEY_ALTF1));
@@ -865,7 +865,7 @@ void Help::DrawWindowFrame() const
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_HELPBOX),DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
 	string strHelpTitleBuf;
-	strHelpTitleBuf = MSG(lng::MHelpTitle);
+	strHelpTitleBuf = msg(lng::MHelpTitle);
 	strHelpTitleBuf += L" - ";
 
 	if (!strCurPluginContents.empty())
@@ -1360,8 +1360,8 @@ bool Help::ProcessKey(const Manager::Key& Key)
 				bool Regexp=LastSearchRegexp;
 
 				string strTempStr;
-				//int RetCode = GetString(MSG(lng::MHelpSearchTitle),MSG(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
-				int RetCode = GetSearchReplaceString(false, MSG(lng::MHelpSearchTitle), MSG(lng::MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp, nullptr, nullptr, true, &HelpSearchId);
+				//int RetCode = GetString(msg(lng::MHelpSearchTitle),msg(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
+				int RetCode = GetSearchReplaceString(false, msg(lng::MHelpSearchTitle), msg(lng::MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp, nullptr, nullptr, true, &HelpSearchId);
 
 				if (RetCode <= 0)
 					return true;
@@ -1589,7 +1589,7 @@ bool Help::JumpTopic()
 
 		if (!(StackData->Flags&FHELP_NOSHOWERROR))
 		{
-			Message(MSG_WARNING,1,MSG(lng::MHelpTitle),MSG(lng::MHelpTopicNotFound),StackData->strHelpTopic.data(),MSG(lng::MOk));
+			Message(MSG_WARNING,1,msg(lng::MHelpTitle),msg(lng::MHelpTopicNotFound),StackData->strHelpTopic.data(),msg(lng::MOk));
 		}
 
 		return false;
@@ -1953,7 +1953,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	switch (TypeIndex)
 	{
 		case HIDX_PLUGINS:
-			PtrTitle=MSG(lng::MPluginsHelpTitle);
+			PtrTitle=msg(lng::MPluginsHelpTitle);
 			ContentsName=L"PluginContents";
 			break;
 		default:
@@ -2144,14 +2144,14 @@ static int RunURL(const string& Protocol, const string& URLPath)
 
 				if (Global->Opt->HelpURLRules == 2 || Global->Opt->HelpURLRules == 2+256)
 				{
-					Disposition=Message(MSG_WARNING,2,MSG(lng::MHelpTitle),
-						                MSG(lng::MHelpActivatorURL),
+					Disposition=Message(MSG_WARNING,2,msg(lng::MHelpTitle),
+						                msg(lng::MHelpActivatorURL),
 						                strAction.data(),
-						                MSG(lng::MHelpActivatorFormat),
+						                msg(lng::MHelpActivatorFormat),
 						                FilteredURLPath.data(),
 						                L"\x01",
-						                MSG(lng::MHelpActivatorQ),
-						                MSG(lng::MYes),MSG(lng::MNo));
+						                msg(lng::MHelpActivatorQ),
+						                msg(lng::MYes),msg(lng::MNo));
 				}
 
 				EditCode=2; // Все Ok!
@@ -2230,7 +2230,7 @@ bool Help::CanFastHide() const
 
 int Help::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(lng::MHelpType);
+	strType = msg(lng::MHelpType);
 	strName = strFullHelpPathName;
 	return windowtype_help;
 }

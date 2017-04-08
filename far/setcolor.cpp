@@ -97,11 +97,11 @@ struct color_item
 
 static void SetItemColors(const color_item* Items, size_t Size, COORD Position = {})
 {
-	const auto ItemsMenu = VMenu2::create(MSG(lng::MSetColorItemsTitle), nullptr, 0);
+	const auto ItemsMenu = VMenu2::create(msg(lng::MSetColorItemsTitle), nullptr, 0);
 
 	for (const auto& i : make_range(Items, Size))
 	{
-		ItemsMenu->AddItem(MSG(i.LngId));
+		ItemsMenu->AddItem(msg(i.LngId));
 	}
 
 	ItemsMenu->SetPosition(Position.X += 10, Position.Y += 5, 0, 0);
@@ -360,11 +360,11 @@ void SetColors()
 			{ lng::MSetColorHelp,        make_range(HelpItems) },
 		};
 
-		const auto GroupsMenu = VMenu2::create(MSG(lng::MSetColorGroupsTitle), nullptr, 0);
+		const auto GroupsMenu = VMenu2::create(msg(lng::MSetColorGroupsTitle), nullptr, 0);
 
 		for (const auto& i: Groups)
 		{
-			GroupsMenu->AddItem(MSG(i.MenuId));
+			GroupsMenu->AddItem(msg(i.MenuId));
 		}
 
 		{
@@ -374,9 +374,9 @@ void SetColors()
 		}
 
 		const int DefaultId = static_cast<int>(GroupsMenu->size());
-		GroupsMenu->AddItem(MSG(lng::MSetDefaultColors));
+		GroupsMenu->AddItem(msg(lng::MSetDefaultColors));
 		const int BlackWhiteId = static_cast<int>(GroupsMenu->size());
-		GroupsMenu->AddItem(MSG(lng::MSetBW));
+		GroupsMenu->AddItem(msg(lng::MSetBW));
 
 		GroupsMenu->SetPosition(2,1,0,0);
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -492,8 +492,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 {
 	FarDialogItem ColorDlgData[]=
 	{
-		{DI_DOUBLEBOX,   3, 1,35,13, 0,nullptr,nullptr,0,MSG(lng::MSetColorTitle)},
-		{DI_SINGLEBOX,   5, 2,18, 7, 0,nullptr,nullptr,0,MSG(lng::MSetColorForeground)},
+		{DI_DOUBLEBOX,   3, 1,35,13, 0,nullptr,nullptr,0,msg(lng::MSetColorTitle)},
+		{DI_SINGLEBOX,   5, 2,18, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorForeground)},
 		{DI_RADIOBUTTON, 6, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON, 6, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON, 6, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
@@ -510,7 +510,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		{DI_RADIOBUTTON,15, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,15, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,15, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
-		{DI_SINGLEBOX,  20, 2,33, 7, 0,nullptr,nullptr,0,MSG(lng::MSetColorBackground)},
+		{DI_SINGLEBOX,  20, 2,33, 7, 0,nullptr,nullptr,0,msg(lng::MSetColorBackground)},
 		{DI_RADIOBUTTON,21, 3, 0, 3, 0,nullptr,nullptr,DIF_GROUP|DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,21, 4, 0, 4, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,21, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
@@ -528,15 +528,15 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 		{DI_RADIOBUTTON,30, 5, 0, 5, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 		{DI_RADIOBUTTON,30, 6, 0, 6, 0,nullptr,nullptr,DIF_MOVESELECT,L""},
 
-		{DI_CHECKBOX,    5, 10,0, 10,0,nullptr,nullptr,0,MSG(lng::MSetColorForeTransparent)},
-		{DI_CHECKBOX,   22, 10,0, 10,0,nullptr,nullptr,0,MSG(lng::MSetColorBackTransparent)},
+		{DI_CHECKBOX,    5, 10,0, 10,0,nullptr,nullptr,0,msg(lng::MSetColorForeTransparent)},
+		{DI_CHECKBOX,   22, 10,0, 10,0,nullptr,nullptr,0,msg(lng::MSetColorBackTransparent)},
 
-		{DI_TEXT,        5, 8, 33,8, 0,nullptr,nullptr,0,MSG(lng::MSetColorSample)},
-		{DI_TEXT,        5, 9, 33,9, 0,nullptr,nullptr,0,MSG(lng::MSetColorSample)},
-		{DI_TEXT,        5,10, 33,10,0,nullptr,nullptr,0,MSG(lng::MSetColorSample)},
+		{DI_TEXT,        5, 8, 33,8, 0,nullptr,nullptr,0,msg(lng::MSetColorSample)},
+		{DI_TEXT,        5, 9, 33,9, 0,nullptr,nullptr,0,msg(lng::MSetColorSample)},
+		{DI_TEXT,        5,10, 33,10,0,nullptr,nullptr,0,msg(lng::MSetColorSample)},
 		{DI_TEXT,       -1,11, 0, 11,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MSetColorSet)},
-		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MSetColorCancel)},
+		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetColorSet)},
+		{DI_BUTTON,      0,12, 0, 12,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSetColorCancel)},
 
 	};
 	auto ColorDlg = MakeDialogItemsEx(ColorDlgData);

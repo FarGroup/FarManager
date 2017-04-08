@@ -523,9 +523,9 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 	}
 	Data[] =
 	{
-		{0, FirstCount, MSG(lng::MHighlightUpperSortGroup)},
-		{FirstCount, FirstCount+UpperCount, MSG(lng::MHighlightLowerSortGroup)},
-		{FirstCount+UpperCount, FirstCount+UpperCount+LowerCount, MSG(lng::MHighlightLastGroup)},
+		{0, FirstCount, msg(lng::MHighlightUpperSortGroup)},
+		{FirstCount, FirstCount+UpperCount, msg(lng::MHighlightLowerSortGroup)},
+		{FirstCount+UpperCount, FirstCount+UpperCount+LowerCount, msg(lng::MHighlightLastGroup)},
 		{FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount, nullptr}
 	};
 
@@ -619,11 +619,11 @@ void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 
 void highlight::configuration::HiEdit(int MenuPos)
 {
-	const auto HiMenu = VMenu2::create(MSG(lng::MHighlightTitle), nullptr, 0, ScrY - 4);
+	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), nullptr, 0, ScrY - 4);
 	HiMenu->SetHelp(HLS.HighlightList);
 	HiMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	HiMenu->SetPosition(-1,-1,0,0);
-	HiMenu->SetBottomTitle(MSG(lng::MHighlightBottom));
+	HiMenu->SetBottomTitle(msg(lng::MHighlightBottom));
 	HiMenu->SetId(HighlightMenuId);
 	FillMenu(HiMenu.get(), MenuPos);
 	int NeedUpdate;
@@ -647,9 +647,9 @@ void highlight::configuration::HiEdit(int MenuPos)
 				case KEY_RCTRLR:
 				{
 
-					if (Message(MSG_WARNING,2,MSG(lng::MHighlightTitle),
-					            MSG(lng::MHighlightWarning),MSG(lng::MHighlightAskRestore),
-					            MSG(lng::MYes),MSG(lng::MCancel)) != Message::first_button)
+					if (Message(MSG_WARNING,2,msg(lng::MHighlightTitle),
+					            msg(lng::MHighlightWarning),msg(lng::MHighlightAskRestore),
+					            msg(lng::MYes),msg(lng::MCancel)) != Message::first_button)
 						break;
 
 					const auto cfg = ConfigProvider().CreateHighlightConfig();
@@ -668,9 +668,9 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 					if (Count && RealSelectPos<(int)HiData.size())
 					{
-						if (Message(MSG_WARNING,2,MSG(lng::MHighlightTitle),
-						            MSG(lng::MHighlightAskDel), HiData[RealSelectPos].GetMask().data(),
-						            MSG(lng::MDelete),MSG(lng::MCancel)) != Message::first_button)
+						if (Message(MSG_WARNING,2,msg(lng::MHighlightTitle),
+						            msg(lng::MHighlightAskDel), HiData[RealSelectPos].GetMask().data(),
+						            msg(lng::MDelete),msg(lng::MCancel)) != Message::first_button)
 							break;
 						HiData.erase(HiData.begin()+RealSelectPos);
 						(*Count)--;

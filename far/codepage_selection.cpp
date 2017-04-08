@@ -338,18 +338,18 @@ void codepages::AddCodePages(DWORD codePages)
 	uintptr_t cp_auto = CP_DEFAULT;
 	if (0 != (codePages & ::DefaultCP))
 	{
-		AddStandardCodePage(MSG(lng::MDefaultCP), CP_DEFAULT, -1, true);
+		AddStandardCodePage(msg(lng::MDefaultCP), CP_DEFAULT, -1, true);
 		cp_auto = CP_REDETECT;
 	}
 
-	AddStandardCodePage(MSG(lng::MEditOpenAutoDetect), cp_auto, -1, (codePages & AutoCP) != 0);
+	AddStandardCodePage(msg(lng::MEditOpenAutoDetect), cp_auto, -1, (codePages & AutoCP) != 0);
 
 	if (codePages & SearchAll)
-		AddStandardCodePage(MSG(lng::MFindFileAllCodePages), CP_SET, -1, true);
+		AddStandardCodePage(msg(lng::MFindFileAllCodePages), CP_SET, -1, true);
 
 	// system codepages
 	//
-	AddSeparator(MSG(lng::MGetCodePageSystem));
+	AddSeparator(msg(lng::MGetCodePageSystem));
 	AddStandardCodePage(L"ANSI", GetACP(), -1, (codePages & ::ANSI) != 0);
 
 	if (GetOEMCP() != GetACP())
@@ -357,7 +357,7 @@ void codepages::AddCodePages(DWORD codePages)
 
 	// unicode codepages
 	//
-	AddSeparator(MSG(lng::MGetCodePageUnicode));
+	AddSeparator(msg(lng::MGetCodePageUnicode));
 	AddStandardCodePage(L"UTF-8", CP_UTF8, -1, (codePages & ::UTF8) != 0);
 	AddStandardCodePage(L"UTF-16 (Little endian)", CP_UNICODE, -1, (codePages & ::UTF16LE) != 0);
 	AddStandardCodePage(L"UTF-16 (Big endian)", CP_REVERSEBOM, -1, (codePages & ::UTF16BE) != 0);
@@ -386,7 +386,7 @@ void codepages::AddCodePages(DWORD codePages)
 		{
 			// Если надо добавляем разделитель между выбранными и нормальными таблицами символов
 			if (!favoriteCodePages)
-				AddSeparator(MSG(lng::MGetCodePageFavorites), size() - normalCodePages - (normalCodePages?1:0));
+				AddSeparator(msg(lng::MGetCodePageFavorites), size() - normalCodePages - (normalCodePages?1:0));
 
 			// Добавляем таблицу символов в выбранные
 			AddCodePage(
@@ -403,7 +403,7 @@ void codepages::AddCodePages(DWORD codePages)
 		{
 			// добавляем разделитель между стандартными и системными таблицами символов
 			if (!normalCodePages)
-				AddSeparator(MSG(lng::MGetCodePageOther));
+				AddSeparator(msg(lng::MGetCodePageOther));
 
 			// Добавляем таблицу символов в нормальные
 			AddCodePage(
@@ -453,7 +453,7 @@ void codepages::SetFavorite(bool State)
 			// Добавляем разделитель, если выбранных кодовых страниц ещё не было
 			// и после добавления останутся нормальные кодовые страницы
 			if (!favoriteCodePages && normalCodePages>1)
-				AddSeparator(MSG(lng::MGetCodePageFavorites), CodePagesMenu->size() - normalCodePages);
+				AddSeparator(msg(lng::MGetCodePageFavorites), CodePagesMenu->size() - normalCodePages);
 
 			// Ищем позицию, куда добавить элемент
 			const auto newPosition = GetCodePageInsertPosition(
@@ -485,7 +485,7 @@ void codepages::SetFavorite(bool State)
 			{
 				// Добавляем разделитель, если не было ни одной нормальной кодовой страницы
 				if (!normalCodePages)
-					AddSeparator(MSG(lng::MGetCodePageOther));
+					AddSeparator(msg(lng::MGetCodePageOther));
 
 				// Добавляем кодовою страницу в нормальные
 				CodePagesMenu->AddItem(
@@ -529,7 +529,7 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShow
 	favoriteCodePages = normalCodePages = 0;
 	CodePagesMenu->clear();
 
-	string title = MSG(lng::MGetCodePageTitle);
+	string title = msg(lng::MGetCodePageTitle);
 	if (Global->Opt->CPMenuMode)
 		title += L" *";
 	CodePagesMenu->SetTitle(title);
@@ -644,12 +644,12 @@ void codepages::EditCodePageName()
 	CodePageName.erase(0, BoxPosition + 2);
 	FarDialogItem EditDialogData[] =
 	{
-		{ DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, MSG(lng::MGetCodePageEditCodePageName) },
+		{ DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, msg(lng::MGetCodePageEditCodePageName) },
 		{ DI_EDIT, 5, 2, 48, 2, 0, L"CodePageName", nullptr, DIF_FOCUS | DIF_HISTORY, CodePageName.data() },
 		{ DI_TEXT, -1, 3, 0, 3, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, MSG(lng::MOk) },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(lng::MCancel) },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(lng::MGetCodePageResetCodePageName) }
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MOk) },
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel) },
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MGetCodePageResetCodePageName) }
 	};
 	auto EditDialog = MakeDialogItemsEx(EditDialogData);
 	const auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);
@@ -665,7 +665,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	currentCodePage = CodePage;
 	// Создаём меню
 	CodePagesMenu = VMenu2::create(L"", nullptr, 0, ScrY - 4);
-	CodePagesMenu->SetBottomTitle(MSG(!Global->Opt->CPMenuMode? lng::MGetCodePageBottomTitle : lng::MGetCodePageBottomShortTitle));
+	CodePagesMenu->SetBottomTitle(msg(!Global->Opt->CPMenuMode? lng::MGetCodePageBottomTitle : lng::MGetCodePageBottomShortTitle));
 	CodePagesMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu");
 	CodePagesMenu->SetId(CodePagesMenuId);
@@ -684,7 +684,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 		case KEY_CTRLH:
 		case KEY_RCTRLH:
 			Global->Opt->CPMenuMode = !Global->Opt->CPMenuMode;
-			CodePagesMenu->SetBottomTitle(MSG(Global->Opt->CPMenuMode? lng::MGetCodePageBottomShortTitle : lng::MGetCodePageBottomTitle));
+			CodePagesMenu->SetBottomTitle(msg(Global->Opt->CPMenuMode? lng::MGetCodePageBottomShortTitle : lng::MGetCodePageBottomTitle));
 			FillCodePagesVMenu(bShowUnicode, bViewOnly, bShowAutoDetect);
 			break;
 			// Обработка удаления таблицы символов из списка выбранных
@@ -810,8 +810,8 @@ void codepages::DeleteFavorite(uintptr_t cp)
 //################################################################################################
 
 F8CP::F8CP(bool viewer):
-	m_AcpName(MSG(Global->OnlyEditorViewerUsed? (viewer? lng::MSingleViewF8 : lng::MSingleEditF8) : (viewer? lng::MViewF8 : lng::MEditF8))),
-	m_OemName(MSG(Global->OnlyEditorViewerUsed? (viewer? lng::MSingleViewF8DOS : lng::MSingleEditF8DOS) : (viewer? lng::MViewF8DOS : lng::MEditF8DOS))),
+	m_AcpName(msg(Global->OnlyEditorViewerUsed? (viewer? lng::MSingleViewF8 : lng::MSingleEditF8) : (viewer? lng::MViewF8 : lng::MEditF8))),
+	m_OemName(msg(Global->OnlyEditorViewerUsed? (viewer? lng::MSingleViewF8DOS : lng::MSingleEditF8DOS) : (viewer? lng::MViewF8DOS : lng::MEditF8DOS))),
 	m_UtfName(L"UTF-8")
 {
 	uintptr_t defcp = viewer ? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;

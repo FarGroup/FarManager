@@ -78,7 +78,7 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, unsigned
 {
 	auto strSize = FileSizeToStr(Size, 8, COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
-	Message(0,0,Title,MSG(lng::MScanningFolder),Name,strSize.data());
+	Message(0,0,Title,msg(lng::MScanningFolder),Name,strSize.data());
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<DirInfoPreRedrawItem*>(PreRedrawStack().top());
@@ -197,7 +197,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 		{
 			StartTime=CurTime;
 			MessageDelay = getdirinfo_default_delay;
-			ConsoleTitle::SetFarTitle(MSG(lng::MScanningFolder) + L" "s + ShowDirName);
+			ConsoleTitle::SetFarTitle(msg(lng::MScanningFolder) + L" "s + ShowDirName);
 			SetCursorType(false, 0);
 			DrawGetDirInfoMsg(Title,ShowDirName, Data.FileSize);
 		}
@@ -285,7 +285,7 @@ struct PluginDirInfoPreRedrawItem : public PreRedrawItem
 
 static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 {
-	Message(Flags,0,L"",MSG(lng::MPreparingList),Name.data());
+	Message(Flags,0,L"",msg(lng::MPreparingList),Name.data());
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());

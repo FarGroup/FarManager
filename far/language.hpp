@@ -37,32 +37,65 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum class lng;
 
-class Language
+class i_language_data
 {
 public:
-	NONCOPYABLE(Language);
-	MOVABLE(Language);
+	virtual std::unique_ptr<i_language_data> create() = 0;
+	virtual ~i_language_data() = default;
 
-	Language(const string& Path, int CountNeed = -1) { init(Path, CountNeed); }
-	virtual ~Language() = default;
+	virtual void reserve(size_t Size) = 0;
+	virtual void add(string&& Str) = 0;
+	virtual void set_at(size_t Index, string&& Str) = 0;
+	virtual const string& at(size_t Index) const = 0;
+	virtual size_t size() const = 0;
 
-	const wchar_t* GetMsg(lng nID) const;
-	static bool IsLoaded();
+	bool validate(size_t MsgId) const;
 
-protected:
-	Language() = default;
-
-	void init(const string& Path, int CountNeed = -1);
-	bool CheckMsgId(lng MsgId) const;
-
-private:
-	virtual size_t size() const { return m_Messages.size(); }
-	virtual void reserve(size_t size) { m_Messages.reserve(size); }
-	virtual void add(string&& str) { m_Messages.emplace_back(std::move(str)); }
-
-	std::vector<string> m_Messages;
 	string m_FileName;
 };
+
+class language
+{
+public:
+	NONCOPYABLE(language);
+
+	virtual ~language() = default;
+
+protected:
+	language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
+
+	// Throws on failure, strong exception safety guarantee
+	void load(const string& Path, int CountNeed = -1);
+
+private:
+	std::unique_ptr<i_language_data>& m_Data;
+};
+
+class plugin_language final: public language
+{
+public:
+	plugin_language(const string& Path);
+	const wchar_t* GetMsg(intptr_t Id) const;
+
+private:
+	std::unique_ptr<i_language_data> m_Data;
+};
+
+class far_language final: private language, public singleton<far_language>
+{
+	IMPLEMENTS_SINGLETON(far_language);
+
+public:
+	using language::load;
+	bool is_loaded() const;
+	const wchar_t* GetMsg(lng Id) const;
+
+private:
+	far_language();
+
+	std::unique_ptr<i_language_data> m_Data;
+};
+
 
 bool OpenLangFile(os::fs::file& LangFile, const string& Path, const string& Mask, const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang = false, string *pstrLangName = nullptr);
 bool GetLangParam(const os::fs::file& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);

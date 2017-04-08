@@ -125,7 +125,7 @@ void PrintFiles(FileList* SrcPanel)
 	if (!EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, PRINTER_INFO_LEVEL, reinterpret_cast<BYTE*>(pi.get()), Needed, &Needed, &Returned))
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MPrintTitle),MSG(lng::MCannotEnumeratePrinters),MSG(lng::MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MPrintTitle),msg(lng::MCannotEnumeratePrinters),msg(lng::MOk));
 		return;
 	}
 
@@ -167,8 +167,8 @@ void PrintFiles(FileList* SrcPanel)
 	if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MPrintTitle),MSG(lng::MCannotOpenPrinter),
-		        strPrinterName.data(),MSG(lng::MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MPrintTitle),msg(lng::MCannotOpenPrinter),
+		        strPrinterName.data(),msg(lng::MOk));
 		_ALGO(SysLog(L"Error: Cannot Open Printer"));
 		return;
 	}
@@ -177,7 +177,7 @@ void PrintFiles(FileList* SrcPanel)
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
 		SCOPED_ACTION(SaveScreen);
 
-		const auto& PR_PrintMsg = [](){ Message(0, 0, MSG(lng::MPrintTitle), MSG(lng::MPreparingForPrinting)); };
+		const auto& PR_PrintMsg = [](){ Message(0, 0, msg(lng::MPrintTitle), msg(lng::MPreparingForPrinting)); };
 
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(false, 0);
@@ -249,8 +249,8 @@ void PrintFiles(FileList* SrcPanel)
 				SrcPanel->ClearLastGetSelection();
 			else
 			{
-				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(lng::MPrintTitle),MSG(lng::MCannotPrint),
-				            strSelName.data(),MSG(lng::MSkip),MSG(lng::MCancel)) != Message::first_button)
+				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,msg(lng::MPrintTitle),msg(lng::MCannotPrint),
+				            strSelName.data(),msg(lng::MSkip),msg(lng::MCancel)) != Message::first_button)
 					break;
 			}
 		}

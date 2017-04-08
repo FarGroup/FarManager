@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum class lng : int;
 class PluginManager;
 class Plugin;
-class Language;
+class language;
 class PluginsCacheConfig;
 
 enum EXPORTS_ENUM
@@ -263,7 +263,7 @@ public:
 	const string& GetVersionString() const { return VersionString; }
 	const GUID& GetGUID() const { return m_Guid; }
 	bool IsPendingRemove() const { return bPendingRemove; }
-	const wchar_t *GetMsg(lng nID) const;
+	const wchar_t *GetMsg(intptr_t Id) const;
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }
 
@@ -342,7 +342,7 @@ protected:
 	std::unordered_set<window_ptr> m_dialogs;
 	plugin_factory* m_Factory;
 	plugin_factory::plugin_module_ptr m_Instance;
-	std::unique_ptr<Language> PluginLang;
+	std::unique_ptr<language> PluginLang;
 	size_t Activity;
 	bool bPendingRemove;
 

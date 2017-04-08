@@ -47,10 +47,12 @@ enum ELEVATION_MODE
 
 enum ELEVATION_COMMAND: int;
 
-class elevation: noncopyable
+class elevation: noncopyable, public singleton<elevation>
 {
+	IMPLEMENTS_SINGLETON(elevation);
+
 public:
-	elevation();
+	static elevation& instance();
 	~elevation();
 	void ResetApprove();
 	bool Elevated() const {return m_Elevation;}
@@ -75,7 +77,7 @@ public:
 	class suppress: noncopyable
 	{
 	public:
-		suppress(): m_owner(Global? Global->Elevation.get() : nullptr) { if (m_owner) ++m_owner->m_Suppressions; }
+		suppress(): m_owner(Global? &instance() : nullptr) { if (m_owner) ++m_owner->m_Suppressions; }
 		~suppress() { if (m_owner) --m_owner->m_Suppressions; }
 
 	private:
@@ -83,6 +85,7 @@ public:
 	};
 
 private:
+	elevation();
 	void Write(const blob_view& Data) const;
 
 	template<typename T>

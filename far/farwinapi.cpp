@@ -844,7 +844,7 @@ bool DeleteFile(const string& FileName)
 	}
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return Global->Elevation->fDeleteFile(strNtName);
+		return elevation::instance().fDeleteFile(strNtName);
 
 	return false;
 }
@@ -863,7 +863,7 @@ bool RemoveDirectory(const string& DirName)
 	}
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return Global->Elevation->fRemoveDirectory(strNtName);
+		return elevation::instance().fRemoveDirectory(strNtName);
 
 	return false;
 }
@@ -896,7 +896,7 @@ handle CreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LP
 	}
 
 	if (ElevationRequired(DesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER | WRITE_DAC | DELETE | FILE_WRITE_DATA | FILE_ADD_FILE | FILE_APPEND_DATA | FILE_ADD_SUBDIRECTORY | FILE_CREATE_PIPE_INSTANCE | FILE_WRITE_EA | FILE_DELETE_CHILD | FILE_WRITE_ATTRIBUTES)? ELEVATION_MODIFY_REQUEST : ELEVATION_READ_REQUEST) || ForceElevation)
-		return handle(Global->Elevation->fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
+		return handle(elevation::instance().fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
 
 	return nullptr;
 }
@@ -932,7 +932,7 @@ bool CopyFileEx(
 	}
 
 	if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
-		return Global->Elevation->fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+		return elevation::instance().fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 
 	return false;
 }
@@ -958,7 +958,7 @@ bool MoveFile(
 	}
 
 	if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
-		return Global->Elevation->fMoveFileEx(strFrom, strTo, 0);
+		return elevation::instance().fMoveFileEx(strFrom, strTo, 0);
 
 	return false;
 }
@@ -993,7 +993,7 @@ bool MoveFileEx(
 			::SetLastError(ERROR_FILE_EXISTS); // existing directory name == moved file name
 			return false;
 		}
-		return Global->Elevation->fMoveFileEx(strFrom, strTo, dwFlags);
+		return elevation::instance().fMoveFileEx(strFrom, strTo, dwFlags);
 	}
 
 	return false;
@@ -1271,7 +1271,7 @@ bool GetDiskSize(const string& Path,unsigned long long* TotalSize, unsigned long
 	auto Result = GetDiskFreeSpaceEx(strPath.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
-		Result = Global->Elevation->fGetDiskFreeSpaceEx(strPath.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
+		Result = elevation::instance().fGetDiskFreeSpaceEx(strPath.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
 	}
 
 	if (!Result)
@@ -1332,7 +1332,7 @@ bool CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirecto
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
-			return Global->Elevation->fCreateDirectoryEx(Template, NtNewDirectory, SecurityAttributes);
+			return elevation::instance().fCreateDirectoryEx(Template, NtNewDirectory, SecurityAttributes);
 
 		return false;
 	};
@@ -1348,7 +1348,7 @@ DWORD GetFileAttributes(const string& FileName)
 	DWORD Result = ::GetFileAttributes(NtName.data());
 	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
-		Result = Global->Elevation->fGetFileAttributes(NtName);
+		Result = elevation::instance().fGetFileAttributes(NtName);
 	}
 	return Result;
 }
@@ -1361,7 +1361,7 @@ bool SetFileAttributes(const string& FileName, DWORD dwFileAttributes)
 		return true;
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return Global->Elevation->fSetFileAttributes(NtName, dwFileAttributes);
+		return elevation::instance().fSetFileAttributes(NtName, dwFileAttributes);
 
 	return false;
 }
@@ -1381,7 +1381,7 @@ bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileN
 		return true;
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return Global->Elevation->fCreateSymbolicLink(NtSymlinkFileName, TargetFileName, dwFlags);
+		return elevation::instance().fCreateSymbolicLink(NtSymlinkFileName, TargetFileName, dwFlags);
 
 	return false;
 }
@@ -1399,7 +1399,7 @@ bool SetFileEncryption(const string& Name, bool Encrypt)
 		return true;
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // Encryption implemented in adv32, NtStatus not affected
-		return Global->Elevation->fSetFileEncryption(NtName, Encrypt);
+		return elevation::instance().fSetFileEncryption(NtName, Encrypt);
 
 	return false;
 }
@@ -1410,7 +1410,7 @@ bool CreateHardLinkInternal(const string& Object, const string& Target,LPSECURIT
 		return true;
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return Global->Elevation->fCreateHardLink(Object, Target, SecurityAttributes);
+		return elevation::instance().fCreateHardLink(Object, Target, SecurityAttributes);
 
 	return false;
 }
@@ -1763,7 +1763,7 @@ bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorag
 		return true;
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return Global->Elevation->fDetachVirtualDisk(NtObject, VirtualStorageType);
+		return elevation::instance().fDetachVirtualDisk(NtObject, VirtualStorageType);
 
 	return false;
 }

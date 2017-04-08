@@ -221,7 +221,7 @@ static void Fill(const Shortcuts::shortcut& RetItem, string* Folder, GUID* Plugi
 
 static string MakeName(const Shortcuts::shortcut& Item)
 {
-	string result(MSG(lng::MShortcutNone));
+	string result(msg(lng::MShortcutNone));
 
 	if (Item.PluginGuid == FarGuid)
 	{
@@ -249,16 +249,16 @@ static string MakeName(const Shortcuts::shortcut& Item)
 				string TechInfo;
 
 				if (!Item.strPluginFile.empty())
-					append(TechInfo, MSG(lng::MFSShortcutPluginFile), L' ', Item.strPluginFile, L", "s);
+					append(TechInfo, msg(lng::MFSShortcutPluginFile), L' ', Item.strPluginFile, L", "s);
 
 				if (!Item.strFolder.empty())
-					append(TechInfo, MSG(lng::MFSShortcutPath), L' ', Item.strFolder, L", "s);
+					append(TechInfo, msg(lng::MFSShortcutPath), L' ', Item.strFolder, L", "s);
 
 				if (!Item.strPluginData.empty())
 				{
 					const string PrintablePluginData(Item.strPluginData.cbegin(), std::find_if(ALL_CONST_RANGE(Item.strPluginData), [](const auto i) { return i < L' '; }));
 					if (!PrintablePluginData.empty())
-						append(TechInfo, MSG(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "s);
+						append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "s);
 				}
 
 				if (!TechInfo.empty())
@@ -322,10 +322,10 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 		auto RetItem = Items[Pos].end();
 		if(Items[Pos].size()>1)
 		{
-			const auto FolderList = VMenu2::create(MSG(lng::MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
+			const auto FolderList = VMenu2::create(msg(lng::MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
 			FolderList->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 			FolderList->SetHelp(HelpFolderShortcuts);
-			FolderList->SetBottomTitle(MSG(lng::MFolderShortcutBottomSub));
+			FolderList->SetBottomTitle(msg(lng::MFolderShortcutBottomSub));
 			FolderList->SetId(FolderShortcutsMoreId);
 			FillMenu(*FolderList, Items[Pos], raw);
 
@@ -470,14 +470,14 @@ void Shortcuts::Add(size_t Pos, const string& Folder, const GUID& PluginGuid, co
 
 void Shortcuts::MakeItemName(size_t Pos, MenuItemEx& MenuItem)
 {
-	string ItemName(MSG(lng::MShortcutNone));
+	string ItemName(msg(lng::MShortcutNone));
 
 	if(!Items[Pos].empty())
 	{
 		ItemName = MakeName(Items[Pos].front());
 	}
 
-	MenuItem.strName = string(MSG(lng::MRightCtrl)) + L"+&" + str(Pos) + L" \x2502 " + ItemName;
+	MenuItem.strName = string(msg(lng::MRightCtrl)) + L"+&" + str(Pos) + L" \x2502 " + ItemName;
 	if(Items[Pos].size() > 1)
 	{
 		MenuItem.Flags |= MIF_SUBMENU;
@@ -525,7 +525,7 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 			if ((!raw || !strTemp.empty()) && !os::fs::exists(strTemp))
 			{
 				Global->CatchError();
-				Save = Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(lng::MError), NewItem.strFolder.data(), MSG(lng::MSaveThisShortcut), MSG(lng::MYes), MSG(lng::MNo)) == Message::first_button;
+				Save = Message(MSG_WARNING | MSG_ERRORTYPE, 2, msg(lng::MError), NewItem.strFolder.data(), msg(lng::MSaveThisShortcut), msg(lng::MYes), msg(lng::MNo)) == Message::first_button;
 			}
 		}
 
@@ -547,10 +547,10 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 
 void Shortcuts::Configure()
 {
-	const auto FolderList = VMenu2::create(MSG(lng::MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
+	const auto FolderList = VMenu2::create(msg(lng::MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
 	FolderList->SetMenuFlags(VMENU_WRAPMODE);
 	FolderList->SetHelp(HelpFolderShortcuts);
-	FolderList->SetBottomTitle(MSG(lng::MFolderShortcutBottom));
+	FolderList->SetBottomTitle(msg(lng::MFolderShortcutBottom));
 	FolderList->SetId(FolderShortcutsId);
 
 	for (size_t i = 0; i < Items.size(); ++i)

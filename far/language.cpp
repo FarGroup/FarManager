@@ -170,13 +170,13 @@ static bool SelectLanguage(bool HelpLanguage)
 
 	if (HelpLanguage)
 	{
-		Title=MSG(lng::MHelpLangTitle);
+		Title=msg(lng::MHelpLangTitle);
 		Mask=Global->HelpFileMask;
 		strDest=&Global->Opt->strHelpLanguage;
 	}
 	else
 	{
-		Title=MSG(lng::MLangTitle);
+		Title=msg(lng::MLangTitle);
 		Mask=LangFileMask;
 		strDest=&Global->Opt->strLanguage;
 	}
@@ -373,15 +373,33 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	}
 }
 
-void Language::init(const string& Path, int CountNeed)
+class language_data final: public i_language_data
+{
+public:
+	std::unique_ptr<i_language_data> create() override { return std::make_unique<language_data>(); }
+	~language_data() override = default;
+
+	void reserve(size_t Size) override { return m_Messages.reserve(Size); }
+	void add(string&& Str) override { return m_Messages.emplace_back(std::move(Str)); }
+	void set_at(size_t Index, string&& Str) override { m_Messages[Index] = std::move(Str); }
+	const string& at(size_t Index) const override { return m_Messages[Index]; }
+	size_t size() const override { return m_Messages.size(); }
+
+private:
+	std::vector<string> m_Messages;
+};
+
+void language::load(const string& Path, int CountNeed)
 {
 	SCOPED_ACTION(GuardLastError);
 
 	uintptr_t nCodePage = CP_OEMCP;
-	string strLangName = Global->Opt->strLanguage.Get();
+	string strLangName = Global->Opt->strLanguage;
 	os::fs::file LangFile;
 
-	if (!OpenLangFile(LangFile, Path, LangFileMask, Global->Opt->strLanguage, m_FileName, nCodePage, false, &strLangName))
+	auto Data = m_Data->create();
+
+	if (!OpenLangFile(LangFile, Path, LangFileMask, Global->Opt->strLanguage, Data->m_FileName, nCodePage, false, &strLangName))
 	{
 		throw MAKE_FAR_EXCEPTION(L"Cannot find language data");
 	}
@@ -390,7 +408,7 @@ void Language::init(const string& Path, int CountNeed)
 
 	if (CountNeed != -1)
 	{
-		reserve(CountNeed);
+		Data->reserve(CountNeed);
 	}
 
 	std::unordered_map<string, size_t> id_map;
@@ -402,8 +420,8 @@ void Language::init(const string& Path, int CountNeed)
 		parse_lng_line(Buffer, label, text, have_text);
 		if (have_text)
 		{
-			auto idx = m_Messages.size();
-			add(ConvertString(text.data(), text.size()));
+			auto idx = Data->size();
+			Data->add(ConvertString(text.data(), text.size()));
 			if (!label.empty())
 			{
 				id_map[label] = idx;
@@ -413,9 +431,9 @@ void Language::init(const string& Path, int CountNeed)
 	}
 
 	//   Проведем проверку на количество строк в LNG-файлах
-	if (CountNeed != -1 && CountNeed != static_cast<int>(size()))
+	if (CountNeed != -1 && CountNeed != static_cast<int>(Data->size()))
 	{
-		throw MAKE_FAR_EXCEPTION(m_FileName + L": language data is incorrect or damaged");
+		throw MAKE_FAR_EXCEPTION(Data->m_FileName + L": language data is incorrect or damaged");
 	}
 
 	// try to load Far<LNG>.lng.custom file(s)
@@ -441,64 +459,84 @@ void Language::init(const string& Path, int CountNeed)
 					const auto found = id_map.find(label);
 					if (found != id_map.end())
 					{
-						m_Messages[found->second] = ConvertString(text.data(), text.size());
+						Data->set_at(found->second, ConvertString(text.data(), text.size()));
 					}
 					label.clear();
 				}
 			}
 		};
 
-		const auto CustomLngInSameDir = m_FileName + L".custom";
+		const auto CustomLngInSameDir = Data->m_FileName + L".custom";
 		const auto CustomLngInProfileDir = Global->Opt->ProfilePath + L"\\" + ExtractFileName(CustomLngInSameDir);
 
 		LoadStrings(CustomLngInSameDir);
 		LoadStrings(CustomLngInProfileDir);
 	}
+
+	m_Data = std::move(Data);
 }
 
-bool Language::CheckMsgId(lng MsgId) const
+bool i_language_data::validate(size_t MsgId) const
 {
-	/* $ 19.03.2002 DJ
-	   при отрицательном индексе - также покажем сообщение об ошибке
-	   (все лучше, чем трапаться)
+	if (MsgId < size())
+		return true;
+
+	/* $ 26.03.2002 DJ
+		если менеджер уже в дауне - сообщение не выводим
 	*/
-	if (static_cast<size_t>(MsgId) >= size() || static_cast<int>(MsgId) < 0)
-	{
-		/* $ 26.03.2002 DJ
-		   если менеджер уже в дауне - сообщение не выводим
-		*/
-		if (!Global->WindowManager->ManagerIsDown())
-		{
-			/* $ 03.09.2000 IS
-			   ! Нормальное сообщение об отсутствии строки в языковом файле
-			     (раньше имя файла обрезалось справа и приходилось иногда гадать - в
-			     каком же файле ошибка)
-			*/
-
-			// TODO: localization
-			string strMsg1(L"Incorrect or damaged ");
-			strMsg1 += m_FileName;
-			/* IS $ */
-			if (Message(MSG_WARNING, 2,
-				L"Error",
-				strMsg1.data(),
-				(L"Message " + str(static_cast<int>(MsgId)) + L" not found").data(),
-				L"Ok", L"Quit") == Message::second_button)
-				exit(0);
-		}
-
+	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 		return false;
-	}
 
-	return true;
+	/* $ 03.09.2000 IS
+		! Нормальное сообщение об отсутствии строки в языковом файле
+			(раньше имя файла обрезалось справа и приходилось иногда гадать - в
+			каком же файле ошибка)
+	*/
+	// TODO: localization
+	string strMsg1(L"Incorrect or damaged ");
+	strMsg1 += m_FileName;
+	/* IS $ */
+	if (Message(MSG_WARNING, 2,
+		L"Error",
+		strMsg1.data(),
+		(L"Message " + str(static_cast<size_t>(MsgId)) + L" not found").data(),
+		L"Ok", L"Quit") == Message::second_button)
+		exit(0);
+
+	return false;
 }
 
-bool Language::IsLoaded()
+plugin_language::plugin_language(const string & Path):
+	language(m_Data),
+	m_Data(std::make_unique<language_data>())
 {
-	return Global && Global->Lang;
+	load(Path);
 }
 
-const wchar_t* Language::GetMsg(lng nID) const
+const wchar_t* plugin_language::GetMsg(intptr_t Id) const
 {
-	return CheckMsgId(nID)? m_Messages[static_cast<size_t>(nID)].data() : L"";
+	return m_Data->validate(Id)? m_Data->at(Id).data() : L"";
+}
+
+
+far_language::far_language():
+	language(m_Data),
+	m_Data(std::make_unique<language_data>())
+{
+}
+
+bool far_language::is_loaded() const
+{
+	return static_cast<const language_data&>(*m_Data).size() != 0;
+}
+
+const wchar_t* far_language::GetMsg(lng Id) const
+{
+	return static_cast<const language_data&>(*m_Data).at(static_cast<size_t>(Id)).data();
+}
+
+
+const wchar_t* msg(lng Id)
+{
+	return far_language::instance().GetMsg(Id);
 }

@@ -872,7 +872,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			strComspec = os::env::get_variable(L"COMSPEC");
 			if (strComspec.empty())
 			{
-				Message(MSG_WARNING, 1, MSG(lng::MError), MSG(lng::MComspecNotFound), MSG(lng::MOk));
+				Message(MSG_WARNING, 1, msg(lng::MError), msg(lng::MComspecNotFound), msg(lng::MOk));
 				return;
 			}
 		}
@@ -1037,14 +1037,14 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	{
 		std::vector<string> Strings;
 		if (Info.ExecMode == execute_info::exec_mode::direct)
-			Strings = { MSG(lng::MCannotExecute), strNewCmdStr };
+			Strings = { msg(lng::MCannotExecute), strNewCmdStr };
 		else
-			Strings = { MSG(lng::MCannotInvokeComspec), strComspec, MSG(lng::MCheckComspecVar) };
+			Strings = { msg(lng::MCannotInvokeComspec), strComspec, msg(lng::MCheckComspecVar) };
 
 		Message(MSG_WARNING | MSG_ERRORTYPE,
-			MSG(lng::MError),
+			msg(lng::MError),
 			Strings,
-			{ MSG(lng::MOk) },
+			{ msg(lng::MOk) },
 			L"ErrCannotExecute",
 			nullptr,
 			nullptr,

@@ -264,12 +264,12 @@ int DialogBuilder::TextWidth(const DialogItemEx &Item)
 
 const wchar_t *DialogBuilder::GetLangString(int MessageID)
 {
-	return MSG(static_cast<lng>(MessageID));
+	return msg(static_cast<lng>(MessageID));
 }
 
 const wchar_t *DialogBuilder::GetLangString(lng MessageID)
 {
-	return MSG(MessageID);
+	return msg(MessageID);
 }
 
 DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL* Value, int Mask)
@@ -431,7 +431,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value,
 		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& Item)
 		{
 			FarListItem NewItem = {};
-			NewItem.Text = MSG(static_cast<lng>(Item.MessageId));
+			NewItem.Text = msg(static_cast<lng>(Item.MessageId));
 			NewItem.Flags = (Value == Item.ItemValue)? LIF_SELECTED : 0;
 			NewItem.Reserved[0] = Item.ItemValue;
 			return NewItem;
@@ -463,7 +463,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& 
 		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& Item)
 		{
 			FarListItem NewItem = {};
-			NewItem.Text = MSG(static_cast<lng>(Item.MessageId));
+			NewItem.Text = msg(static_cast<lng>(Item.MessageId));
 			NewItem.Flags = (Value == Item.ItemValue)? LIF_SELECTED : 0;
 			NewItem.Reserved[0] = Item.ItemValue;
 			return NewItem;

@@ -1029,7 +1029,7 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 int FilePanels::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(lng::MScreensPanels);
+	strType = msg(lng::MScreensPanels);
 
 	switch (ActivePanel()->GetType())
 	{

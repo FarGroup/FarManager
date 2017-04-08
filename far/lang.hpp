@@ -47,12 +47,12 @@ inline lng operator++(lng& Id, int)
 	return Value;
 }
 
-#define MSG(ID) Global->GetLangMsg(ID)
+const wchar_t* msg(lng Id);
 
 template<typename... args>
 auto format(lng Id, args&&... Args)
 {
-	return format(MSG(Id), std::forward<args>(Args)...);
+	return format(msg(Id), std::forward<args>(Args)...);
 }
 
 #endif // LANG_HPP_BB6D2D7F_CD59_4D0F_B11D_2077A8A22947

@@ -37,9 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "scrbuf.hpp"
 #include "config.hpp"
-#include "lang.hpp"
-#include "language.hpp"
-#include "elevation.hpp"
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
@@ -56,7 +53,6 @@ global::global():
 	Opt(std::make_unique<Options>()),
 	ScrBuf(std::make_unique<ScreenBuf>()),
 	WindowManager(std::make_unique<Manager>()),
-	Elevation(std::make_unique<elevation>()),
 	CtrlObject(nullptr)
 {
 	Global = this;
@@ -98,7 +94,6 @@ global::~global()
 	CtrlObject = nullptr;
 	delete m_ConfigProvider;
 	m_ConfigProvider = nullptr;
-	// TODO: it could be useful to delete Lang only at the very end
 	Global = nullptr;
 }
 
@@ -126,11 +121,6 @@ void global::StoreSearchString(const string& Str, bool Hex)
 bool global::IsPanelsActive() const
 {
 	return Global->WindowManager && Global->WindowManager->IsPanelsActive(true, true);
-}
-
-const wchar_t* global::GetLangMsg(lng Id) const
-{
-	return Lang->GetMsg(Id);
 }
 
 global::far_clock::far_clock()

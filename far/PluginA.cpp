@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "FarGuid.hpp"
 #include "keys.hpp"
-#include "lang.hpp"
 #include "language.hpp"
 #include "filepanels.hpp"
 #include "strmix.hpp"
@@ -90,40 +89,6 @@ DECLARE_PLUGIN_FUNCTION(iProcessViewerEvent,  int    (WINAPI*)(int Event, void *
 DECLARE_PLUGIN_FUNCTION(iProcessDialogEvent,  int    (WINAPI*)(int Event, void *Param))
 
 #undef DECLARE_PLUGIN_FUNCTION
-
-static auto UnicodeToOEM(const wchar_t* src, char* dst, size_t lendst)
-{
-	return static_cast<int>(encoding::oem::get_bytes(src, wcslen(src) + 1, dst, lendst));
-}
-
-template<size_t N>
-static auto UnicodeToOEM(const wchar_t* src, char(&dst)[N])
-{
-	return UnicodeToOEM(src, dst, N);
-}
-
-template<typename T>
-static auto UnicodeToOEM(const T& Str)
-{
-	return encoding::oem::get_bytes(Str);
-}
-
-static auto OEMToUnicode(const char* src, wchar_t* dst, size_t lendst)
-{
-	return static_cast<int>(encoding::oem::get_chars(src, strlen(src) + 1, dst, lendst));
-}
-
-template<size_t N>
-static auto OEMToUnicode(const char* src, wchar_t(&dst)[N])
-{
-	return OEMToUnicode(src, dst, N);
-}
-
-template<typename T>
-static auto OEMToUnicode(const T& Str)
-{
-	return encoding::oem::get_chars(Str);
-}
 
 class file_version: noncopyable
 {
@@ -256,7 +221,7 @@ public:
 	{
 		if (m_userName.empty())
 		{
-			m_userName = "Software\\Far Manager" + (Global->strRegUser.empty()? "" : "\\Users\\" + UnicodeToOEM(Global->strRegUser)) + "\\Plugins";
+			m_userName = "Software\\Far Manager" + (Global->strRegUser.empty()? "" : "\\Users\\" + encoding::oem::get_bytes(Global->strRegUser)) + "\\Plugins";
 		}
 		return m_userName;
 	}
@@ -582,7 +547,7 @@ static PanelMode* ConvertPanelModesA(const oldfar::PanelMode *pnmA, size_t iCoun
 		if (Src.ColumnTypes)
 		{
 			// BUGBUG why not just count commas?
-			iColumnCount = split<std::vector<string>>(OEMToUnicode(Src.ColumnTypes), 0, L",").size();
+			iColumnCount = split<std::vector<string>>(encoding::oem::get_chars(Src.ColumnTypes), 0, L",").size();
 		}
 
 		Dest.ColumnTypes = AnsiToUnicode(Src.ColumnTypes);
@@ -799,8 +764,8 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	PanelItemA.FindData.nFileSizeHigh = static_cast<DWORD>(PanelItem.FileSize >> 32);
 	PanelItemA.PackSize = static_cast<DWORD>(PanelItem.AllocationSize & 0xFFFFFFFF);
 	PanelItemA.PackSizeHigh = static_cast<DWORD>(PanelItem.AllocationSize >> 32);
-	UnicodeToOEM(PanelItem.FileName + PathOffset, PanelItemA.FindData.cFileName);
-	UnicodeToOEM(PanelItem.AlternateFileName, PanelItemA.FindData.cAlternateFileName);
+	encoding::oem::get_bytes(PanelItem.FileName + PathOffset, PanelItemA.FindData.cFileName);
+	encoding::oem::get_bytes(PanelItem.AlternateFileName, PanelItemA.FindData.cAlternateFileName);
 }
 
 static oldfar::PluginPanelItem* ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, size_t ItemsNumber)
@@ -980,7 +945,7 @@ static const std::pair<oldfar::LISTITEMFLAGS, LISTITEMFLAGS> ListFlagsMap[] =
 
 static void UnicodeListItemToAnsi(const FarListItem* li, oldfar::FarListItem* liA)
 {
-	UnicodeToOEM(li->Text, liA->Text, std::size(liA->Text) - 1);
+	encoding::oem::get_bytes(li->Text, liA->Text);
 	liA->Flags = 0;
 	if (li->Flags)
 	{
@@ -1332,13 +1297,14 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di, HANDLE 
 	}
 	else if ((diA->Type == oldfar::DI_EDIT || diA->Type == oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
-		diA->Ptr.PtrLength = StrLength(di.Data);
-		auto Data = std::make_unique<char[]>(diA->Ptr.PtrLength + 1);
-		UnicodeToOEM(di.Data, Data.get(), diA->Ptr.PtrLength + 1);
+		const auto Length = StrLength(di.Data);
+		diA->Ptr.PtrLength = Length;
+		auto Data = std::make_unique<char[]>(Length + 1);
+		encoding::oem::get_bytes(di.Data, Length, Data.get(), Length + 1);
 		diA->Ptr.PtrData = Data.release();
 	}
 	else
-		UnicodeToOEM(di.Data, diA->Data);
+		encoding::oem::get_bytes(di.Data, diA->Data);
 
 	return diA;
 }
@@ -1486,12 +1452,12 @@ static int GetEditorCodePageFavA()
 	return result;
 }
 
-static void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
+static void MultiByteRecode(UINT nCPin, UINT nCPout, char *Buffer, size_t BufferSize)
 {
-	if (szBuffer && nLength > 0)
+	if (Buffer && BufferSize)
 	{
-		const auto TempTable(encoding::get_chars(nCPin, szBuffer, nLength));
-		encoding::get_bytes(nCPout, TempTable.data(), nLength, szBuffer, nLength);
+		const auto TempTable(encoding::get_chars(nCPin, Buffer, BufferSize));
+		encoding::get_bytes(nCPout, TempTable.data(), BufferSize, Buffer, BufferSize);
 	}
 };
 
@@ -1539,7 +1505,7 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 	void *Param;
 };
 
-static const char* GetPluginMsg(const Plugin* PluginInstance, lng MsgId);
+static const char* GetPluginMsg(const Plugin* PluginInstance, int MsgId);
 
 namespace oldpluginapi
 {
@@ -1963,8 +1929,9 @@ static void WINAPI GetPathRootA(const char *Path, char *Root) noexcept
 	try
 	{
 		wchar_t Buffer[MAX_PATH];
-		NativeFSF.GetPathRoot(OEMToUnicode(Path).data(), Buffer, std::size(Buffer));
-		UnicodeToOEM(Buffer, Root, std::size(Buffer));
+		const auto Size = NativeFSF.GetPathRoot(encoding::oem::get_chars(Path).data(), Buffer, std::size(Buffer));
+		if (Size)
+			encoding::oem::get_bytes(Buffer, Size - 1, Root, std::size(Buffer));
 	}
 	catch (...)
 	{
@@ -1976,7 +1943,7 @@ static int WINAPI CopyToClipboardA(const char *Data) noexcept
 {
 	try
 	{
-		return NativeFSF.CopyToClipboard(FCT_STREAM, OEMToUnicode(Data).data());
+		return NativeFSF.CopyToClipboard(FCT_STREAM, encoding::oem::get_chars(Data).data());
 	}
 	catch (...)
 	{
@@ -2014,7 +1981,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 {
 	try
 	{
-		const auto strP1 = OEMToUnicode(Param1), strP2 = OEMToUnicode(Param2);
+		const auto strP1 = encoding::oem::get_chars(Param1), strP2 = encoding::oem::get_chars(Param2);
 		const auto size = static_cast<int>(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
 		wchar_t_ptr p(size);
 		*std::copy(ALL_CONST_RANGE(strP2), p.get()) = L'\0';
@@ -2042,8 +2009,8 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 
 		int ret = static_cast<int>(NativeFSF.ProcessName(strP1.data(), p.get(), size, newFlags));
 
-		if (newFlags&PN_GENERATENAME)
-			UnicodeToOEM(p.get(), Param2, size);
+		if (ret && (newFlags & PN_GENERATENAME))
+			encoding::oem::get_bytes(p.get(), ret - 1, Param2, size);
 
 		return ret;
 	}
@@ -2058,7 +2025,7 @@ static int WINAPI KeyNameToKeyA(const char *Name) noexcept
 {
 	try
 	{
-		return KeyToOldKey(KeyNameToKey(OEMToUnicode(Name)));
+		return KeyToOldKey(KeyNameToKey(encoding::oem::get_chars(Name)));
 	}
 	catch (...)
 	{
@@ -2074,7 +2041,7 @@ static BOOL WINAPI FarKeyToNameA(int Key, char *KeyText, int Size) noexcept
 		string strKT;
 		if (KeyToText(OldKeyToKey(Key), strKT))
 		{
-			UnicodeToOEM(strKT.data(), KeyText, Size > 0 ? Size + 1 : 32);
+			encoding::oem::get_bytes(strKT, KeyText, Size > 0? Size + 1 : 32);
 			return TRUE;
 		}
 		return FALSE;
@@ -2103,9 +2070,10 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
 {
 	try
 	{
-		wchar_t D[oldfar::NM] = {};
-		NativeFSF.MkTemp(D, std::size(D), OEMToUnicode(Prefix).data());
-		UnicodeToOEM(D, Dest, std::size(D));
+		wchar_t D[oldfar::NM]{};
+		const auto Size = NativeFSF.MkTemp(D, std::size(D), encoding::oem::get_chars(Prefix).data());
+		if (Size)
+			encoding::oem::get_bytes(D, Size - 1, Dest, std::size(D));
 		return Dest;
 	}
 	catch (...)
@@ -2137,7 +2105,7 @@ static int WINAPI FarMkLinkA(const char *Src, const char *Dest, DWORD OldFlags) 
 		if (OldFlags&oldfar::FLINK_DONOTUPDATEPANEL)
 			Flags |= MLF_DONOTUPDATEPANEL;
 
-		return NativeFSF.MkLink(OEMToUnicode(Src).data(), OEMToUnicode(Dest).data(), Type, Flags);
+		return NativeFSF.MkLink(encoding::oem::get_chars(Src).data(), encoding::oem::get_chars(Dest).data(), Type, Flags);
 	}
 	catch (...)
 	{
@@ -2150,7 +2118,7 @@ static int WINAPI GetNumberOfLinksA(const char *Name) noexcept
 {
 	try
 	{
-		return static_cast<int>(NativeFSF.GetNumberOfLinks(OEMToUnicode(Name).data()));
+		return static_cast<int>(NativeFSF.GetNumberOfLinks(encoding::oem::get_chars(Name).data()));
 	}
 	catch (...)
 	{
@@ -2163,12 +2131,12 @@ static int WINAPI ConvertNameToRealA(const char *Src, char *Dest, int DestSize) 
 {
 	try
 	{
-		const auto strDest = ConvertNameToReal(OEMToUnicode(Src));
+		const auto strDest = ConvertNameToReal(encoding::oem::get_chars(Src));
 
 		if (!Dest)
 			return static_cast<int>(strDest.size());
 
-		UnicodeToOEM(strDest.data(), Dest, DestSize);
+		encoding::oem::get_bytes(strDest, Dest, DestSize);
 		return std::min(static_cast<int>(strDest.size()), DestSize);
 	}
 	catch (...)
@@ -2182,23 +2150,23 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src, char *Dest, int DestS
 {
 	try
 	{
-		const auto strSrc = OEMToUnicode(Src);
+		const auto strSrc = encoding::oem::get_chars(Src);
 		wchar_t Buffer[MAX_PATH];
-		const auto Result = static_cast<int>(NativeFSF.GetReparsePointInfo(strSrc.data(), Buffer, std::size(Buffer)));
-		if (DestSize && Dest)
+		auto Result = NativeFSF.GetReparsePointInfo(strSrc.data(), Buffer, std::size(Buffer));
+		if (Result && DestSize && Dest)
 		{
 			if (Result > MAX_PATH)
 			{
 				std::vector<wchar_t> Tmp(DestSize);
-				NativeFSF.GetReparsePointInfo(strSrc.data(), Tmp.data(), Tmp.size());
-				UnicodeToOEM(Tmp.data(), Dest, DestSize);
+				Result = NativeFSF.GetReparsePointInfo(strSrc.data(), Tmp.data(), Tmp.size());
+				encoding::oem::get_bytes(Tmp.data(), Result - 1, Dest, DestSize);
 			}
 			else
 			{
-				UnicodeToOEM(Buffer, Dest, DestSize);
+				encoding::oem::get_bytes(Buffer, Result - 1, Dest, DestSize);
 			}
 		}
-		return Result;
+		return static_cast<int>(Result);
 	}
 	catch (...)
 	{
@@ -2219,10 +2187,10 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, con
 		FindData.ftLastWriteTime = FData->LastWriteTime;
 		FindData.nFileSizeLow = static_cast<DWORD>(FData->FileSize);
 		FindData.nFileSizeHigh = static_cast<DWORD>(FData->FileSize >> 32);
-		UnicodeToOEM(FData->FileName, FindData.cFileName);
-		UnicodeToOEM(FData->AlternateFileName, FindData.cAlternateFileName);
+		encoding::oem::get_bytes(FData->FileName, FindData.cFileName);
+		encoding::oem::get_bytes(FData->AlternateFileName, FindData.cAlternateFileName);
 		char FullNameA[oldfar::NM];
-		UnicodeToOEM(FullName, FullNameA);
+		encoding::oem::get_bytes(FullName, FullNameA);
 		return pCallbackParam->Func(&FindData, FullNameA, pCallbackParam->Param);
 	}
 	catch (...)
@@ -2250,7 +2218,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir, const char *Mask, ol
 		auto NewFlags = FRS_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
-		NativeFSF.FarRecursiveSearch(OEMToUnicode(InitDir).data(), OEMToUnicode(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, static_cast<void *>(&CallbackParam));
+		NativeFSF.FarRecursiveSearch(encoding::oem::get_chars(InitDir).data(), encoding::oem::get_chars(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, static_cast<void *>(&CallbackParam));
 	}
 	catch (...)
 	{
@@ -2262,9 +2230,9 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 {
 	try
 	{
-		const auto strD = os::env::expand_strings(OEMToUnicode(src));
+		const auto strD = os::env::expand_strings(encoding::oem::get_chars(src));
 		const auto len = std::min(strD.size(), size - 1);
-		UnicodeToOEM(strD.data(), dest, len + 1);
+		encoding::oem::get_bytes(strD, dest, len + 1);
 		return static_cast<DWORD>(len);
 	}
 	catch (...)
@@ -2278,7 +2246,7 @@ static int WINAPI FarViewerA(const char *FileName, const char *Title, int X1, in
 {
 	try
 	{
-		return NativeInfo.Viewer(OEMToUnicode(FileName).data(), OEMToUnicode(Title).data(), X1, Y1, X2, Y2, Flags, CP_DEFAULT);
+		return NativeInfo.Viewer(encoding::oem::get_chars(FileName).data(), encoding::oem::get_chars(Title).data(), X1, Y1, X2, Y2, Flags, CP_DEFAULT);
 	}
 	catch (...)
 	{
@@ -2291,7 +2259,7 @@ static int WINAPI FarEditorA(const char *FileName, const char *Title, int X1, in
 {
 	try
 	{
-		return NativeInfo.Editor(OEMToUnicode(FileName).data(), OEMToUnicode(Title).data(), X1, Y1, X2, Y2, Flags, StartLine, StartChar, CP_DEFAULT);
+		return NativeInfo.Editor(encoding::oem::get_chars(FileName).data(), encoding::oem::get_chars(Title).data(), X1, Y1, X2, Y2, Flags, StartLine, StartChar, CP_DEFAULT);
 	}
 	catch (...)
 	{
@@ -2311,7 +2279,7 @@ static void WINAPI FarTextA(int X, int Y, int ConColor, const char *Str) noexcep
 	try
 	{
 		const auto Color = colors::ConsoleColorToFarColor(ConColor);
-		return NativeInfo.Text(X, Y, &Color, Str ? OEMToUnicode(Str).data() : nullptr);
+		return NativeInfo.Text(X, Y, &Color, Str? encoding::oem::get_chars(Str).data() : nullptr);
 	}
 	catch (...)
 	{
@@ -2323,7 +2291,7 @@ static BOOL WINAPI FarShowHelpA(const char *ModuleName, const char *HelpTopic, D
 {
 	try
 	{
-		return NativeInfo.ShowHelp(OEMToUnicode(ModuleName).data(), (HelpTopic ? OEMToUnicode(HelpTopic).data() : nullptr), Flags);
+		return NativeInfo.ShowHelp(encoding::oem::get_chars(ModuleName).data(), (HelpTopic ? encoding::oem::get_chars(HelpTopic).data() : nullptr), Flags);
 	}
 	catch (...)
 	{
@@ -2352,16 +2320,16 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 		wchar_t_ptr Buffer(DestLength);
 
 		int ret = NativeInfo.InputBox(&FarGuid, &FarGuid,
-			Title ? OEMToUnicode(Title).data() : nullptr,
-			Prompt ? OEMToUnicode(Prompt).data() : nullptr,
-			HistoryName ? OEMToUnicode(HistoryName).data() : nullptr,
-			SrcText ? OEMToUnicode(SrcText).data() : nullptr,
+			Title? encoding::oem::get_chars(Title).data() : nullptr,
+			Prompt? encoding::oem::get_chars(Prompt).data() : nullptr,
+			HistoryName? encoding::oem::get_chars(HistoryName).data() : nullptr,
+			SrcText? encoding::oem::get_chars(SrcText).data() : nullptr,
 			Buffer.get(), Buffer.size(),
-			HelpTopic ? OEMToUnicode(HelpTopic).data() : nullptr,
+			HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr,
 			NewFlags);
 
 		if (ret && DestText)
-			UnicodeToOEM(Buffer.get(), DestText, DestLength + 1);
+			encoding::oem::get_bytes(Buffer.get(), DestText, DestLength + 1);
 
 		return ret;
 	}
@@ -2426,7 +2394,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 		}
 
 		return NativeInfo.Message(GetPluginGuid(PluginNumber), &FarGuid, NewFlags,
-			HelpTopic ? OEMToUnicode(HelpTopic).data() : nullptr,
+			HelpTopic ? encoding::oem::get_chars(HelpTopic).data() : nullptr,
 			AnsiItems.empty() ? reinterpret_cast<const wchar_t* const *>(AllInOneAnsiItem.get()) : reinterpret_cast<const wchar_t* const *>(AnsiItems.data()),
 			ItemsNumber, ButtonsNumber);
 	}
@@ -2447,7 +2415,7 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 		CutToSlash(strPath);
 
 		if (pPlugin->InitLang(strPath))
-			return GetPluginMsg(pPlugin, static_cast<lng>(MsgId));
+			return GetPluginMsg(pPlugin, MsgId);
 
 		return "";
 	}
@@ -2567,10 +2535,10 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		intptr_t NewBreakCode;
 
 		int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber), &FarGuid, X, Y, MaxHeight, NewFlags,
-			Title ? OEMToUnicode(Title).data() : nullptr,
-			Bottom ? OEMToUnicode(Bottom).data() : nullptr,
-			HelpTopic ? OEMToUnicode(HelpTopic).data() : nullptr,
-			BreakKeys ? NewBreakKeys.data() : nullptr,
+			Title? encoding::oem::get_chars(Title).data() : nullptr,
+			Bottom? encoding::oem::get_chars(Bottom).data() : nullptr,
+			HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr,
+			BreakKeys? NewBreakKeys.data() : nullptr,
 			&NewBreakCode, mi.data(), ItemsNumber);
 
 		if (BreakCode)
@@ -2838,7 +2806,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				FarDialogItemData did = {sizeof(FarDialogItemData), static_cast<size_t>(didA->PtrLength), text.data()};
 				intptr_t ret = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 				didA->PtrLength = static_cast<int>(did.PtrLength);
-				UnicodeToOEM(text.data(), didA->PtrData, didA->PtrLength+1);
+				encoding::oem::get_bytes(text.data(), did.PtrLength, didA->PtrData, didA->PtrLength + 1);
 				return ret;
 			}
 			case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXT; break;
@@ -2893,7 +2861,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				if (!didA->PtrData) return 0;
 
 				//BUGBUG - PtrLength ни на что не влияет.
-				const auto text(OEMToUnicode(didA->PtrData));
+				const auto text(encoding::oem::get_chars(didA->PtrData));
 				FarDialogItemData di = {sizeof(FarDialogItemData), text.size(), UNSAFE_CSTR(text)};
 				return NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
 			}
@@ -2911,17 +2879,17 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				std::vector<wchar_t> text(length + 1);
 				FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(length), text.data()};
 				length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
-				UnicodeToOEM(text.data(), static_cast<char*>(Param2), length+1);
+				encoding::oem::get_bytes(text.data(), length, static_cast<char*>(Param2), length+1);
 				return length;
 			}
 			case oldfar::DM_SETTEXTPTR:
 			{
-				return Param2? NativeInfo.SendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, UNSAFE_CSTR(OEMToUnicode(static_cast<const char*>(Param2)))) : FALSE;
+				return Param2? NativeInfo.SendDlgMessage(hDlg, DM_SETTEXTPTR, Param1, UNSAFE_CSTR(encoding::oem::get_chars(static_cast<const char*>(Param2)))) : FALSE;
 			}
 			case oldfar::DM_SHOWITEM: Msg = DM_SHOWITEM; break;
 			case oldfar::DM_ADDHISTORY:
 			{
-				return Param2? NativeInfo.SendDlgMessage(hDlg, DM_ADDHISTORY, Param1, UNSAFE_CSTR(OEMToUnicode(static_cast<const char*>(Param2)))) : FALSE;
+				return Param2? NativeInfo.SendDlgMessage(hDlg, DM_ADDHISTORY, Param1, UNSAFE_CSTR(encoding::oem::get_chars(static_cast<const char*>(Param2)))) : FALSE;
 			}
 			case oldfar::DM_GETCHECK:
 			{
@@ -3178,10 +3146,10 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					if (Ret)
 					{
 						if (OldListTitle->Title)
-							UnicodeToOEM(ListTitle.Title, OldListTitle->Title, OldListTitle->TitleLen);
+							encoding::oem::get_bytes(ListTitle.Title, OldListTitle->Title, OldListTitle->TitleLen);
 
 						if (OldListTitle->Bottom)
-							UnicodeToOEM(ListTitle.Bottom, OldListTitle->Bottom, OldListTitle->BottomLen);
+							encoding::oem::get_bytes(ListTitle.Bottom, OldListTitle->Bottom, OldListTitle->BottomLen);
 					}
 
 					return Ret;
@@ -3367,7 +3335,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 			DlgFlags|=FDLG_NONMODAL;
 
 		int ret = -1;
-		HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? OEMToUnicode(HelpTopic).data() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
+		HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
 		DialogData NewDialogData;
 		NewDialogData.DlgProc=DlgProc;
 		NewDialogData.hDlg=hDlg;
@@ -3394,9 +3362,9 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 					const wchar_t *res = NullToEmpty(gdi.Item->Data);
 
 					if ((di[i].Type==DI_EDIT || di[i].Type==DI_COMBOBOX) && Item[i].Flags&oldfar::DIF_VAREDIT)
-						UnicodeToOEM(res, Item[i].Ptr.PtrData, Item[i].Ptr.PtrLength+1);
+						encoding::oem::get_bytes(res, Item[i].Ptr.PtrData, Item[i].Ptr.PtrLength + 1);
 					else
-						UnicodeToOEM(res, Item[i].Data);
+						encoding::oem::get_bytes(res, Item[i].Data);
 
 					if (gdi.Item->Type==DI_USERCONTROL)
 					{
@@ -3527,16 +3495,16 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 						block_ptr<FarPanelDirectory> dirInfo(dirSize);
 						dirInfo->StructSize=sizeof(FarPanelDirectory);
 						NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.get());
-						UnicodeToOEM(dirInfo->Name,OldPI->CurDir);
+						encoding::oem::get_bytes(dirInfo->Name,OldPI->CurDir);
 					}
 
 					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 					NativeInfo.PanelControl(hPlugin, FCTL_GETCOLUMNTYPES, std::size(ColumnTypes),ColumnTypes);
-					UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes);
+					encoding::oem::get_bytes(ColumnTypes,OldPI->ColumnTypes);
 
 					wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
 					NativeInfo.PanelControl(hPlugin, FCTL_GETCOLUMNWIDTHS, std::size(ColumnWidths), ColumnWidths);
-					UnicodeToOEM(ColumnWidths,OldPI->ColumnWidths);
+					encoding::oem::get_bytes(ColumnWidths,OldPI->ColumnWidths);
 
 					*static_cast<oldfar::PanelInfo*>(Param) = *OldPI;
 				}
@@ -3572,14 +3540,14 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 						block_ptr<FarPanelDirectory> dirInfo(dirSize);
 						dirInfo->StructSize=sizeof(FarPanelDirectory);
 						NativeInfo.PanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.get());
-						UnicodeToOEM(dirInfo->Name, OldPI->CurDir);
+						encoding::oem::get_bytes(dirInfo->Name, OldPI->CurDir);
 					}
 					wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 					NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES, std::size(OldPI->ColumnTypes),ColumnTypes);
-					UnicodeToOEM(ColumnTypes, OldPI->ColumnTypes);
+					encoding::oem::get_bytes(ColumnTypes, OldPI->ColumnTypes);
 					wchar_t ColumnWidths[sizeof(OldPI->ColumnWidths)];
 					NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNWIDTHS,sizeof(OldPI->ColumnWidths),ColumnWidths);
-					UnicodeToOEM(ColumnWidths, OldPI->ColumnWidths);
+					encoding::oem::get_bytes(ColumnWidths, OldPI->ColumnWidths);
 				}
 
 				return ret;
@@ -3624,7 +3592,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				if (!Param)
 					return FALSE;
 
-				string Dir(OEMToUnicode(static_cast<const char*>(Param)));
+				string Dir(encoding::oem::get_chars(static_cast<const char*>(Param)));
 				FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir.data(),nullptr,FarGuid,nullptr};
 				int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY,0,&dirInfo));
 				return ret;
@@ -3667,7 +3635,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 							s += cls.SelStart;
 						}
 					}
-					UnicodeToOEM(s, static_cast<char*>(Param), Size);
+					encoding::oem::get_bytes(s, static_cast<char*>(Param), Size);
 					return TRUE;
 				}
 
@@ -3698,10 +3666,10 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 			}
 
 			case oldfar::FCTL_INSERTCMDLINE:
-				return Param ? static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_INSERTCMDLINE, 0, UNSAFE_CSTR(OEMToUnicode(static_cast<const char*>(Param))))) : FALSE;
+				return Param ? static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_INSERTCMDLINE, 0, UNSAFE_CSTR(encoding::oem::get_chars(static_cast<const char*>(Param))))) : FALSE;
 
 			case oldfar::FCTL_SETCMDLINE:
-				return Param ? static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINE, 0, UNSAFE_CSTR(OEMToUnicode(static_cast<const char*>(Param))))) : FALSE;
+				return Param ? static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINE, 0, UNSAFE_CSTR(encoding::oem::get_chars(static_cast<const char*>(Param))))) : FALSE;
 
 			case oldfar::FCTL_SETCMDLINEPOS:
 				return Param ? static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINEPOS, *static_cast<int*>(Param), nullptr)) : FALSE;
@@ -3792,7 +3760,7 @@ static int WINAPI FarGetDirListA(const char *Dir, oldfar::PluginPanelItem **pPan
 	{
 		return GetDirListGeneric(*pPanelItem, *pItemsNumber, [Dir](PluginPanelItem*& Items, size_t& Size, size_t& PathOffset)
 		{
-			string strDir = OEMToUnicode(Dir);
+			string strDir = encoding::oem::get_chars(Dir);
 			DeleteEndSlash(strDir);
 			PathOffset = ExtractFilePath(strDir).size() + 1;
 			return NativeInfo.GetDirList(strDir.data(), &Items, &Size);
@@ -3812,7 +3780,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber, HANDLE hPlugin, co
 		return GetDirListGeneric(*pPanelItem, *pItemsNumber, [&](PluginPanelItem*& Items, size_t& Size, size_t& PathOffset)
 		{
 			PathOffset = 0;
-			return NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, OEMToUnicode(Dir).data(), &Items, &Size);
+			return NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, encoding::oem::get_chars(Dir).data(), &Items, &Size);
 		});
 	}
 	catch (...)
@@ -3859,7 +3827,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 			case oldfar::ACTL_GETSYSWORDDIV:
 			{
-				intptr_t Length = 0;
+				intptr_t Result = 0;
 				FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
 				HANDLE Settings = NativeInfo.SettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, 0, &settings)? settings.Handle : nullptr;
 				if(Settings)
@@ -3867,13 +3835,14 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{}};
 					if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 					{
-						Length=std::min(oldfar::NM,StrLength(item.String)+1);
+						const auto Length = StrLength(item.String);
+						Result = Length + 1;
 						if (Param)
-							UnicodeToOEM(item.String, static_cast<char*>(Param), oldfar::NM);
+							encoding::oem::get_bytes(item.String, Length, static_cast<char*>(Param), oldfar::NM);
 					}
 					NativeInfo.SettingsControl(Settings, SCTL_FREE, 0, nullptr);
 				}
-				return Length;
+				return Result;
 			}
 			case oldfar::ACTL_WAITKEY:
 				{
@@ -4068,8 +4037,8 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 						if (wi.TypeName && wi.Name)
 						{
 							NativeInfo.AdvControl(GetPluginGuid(ModuleNumber),ACTL_GETWINDOWINFO, 0, &wi);
-							UnicodeToOEM(wi.TypeName, wiA->TypeName);
-							UnicodeToOEM(wi.Name, wiA->Name);
+							encoding::oem::get_bytes(wi.TypeName, wiA->TypeName);
+							encoding::oem::get_bytes(wi.Name, wiA->Name);
 						}
 					}
 					else
@@ -4255,7 +4224,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 			}
 			case oldfar::ECTL_INSERTTEXT:
 			{
-				return Param ? static_cast<int>(NativeInfo.EditorControl(-1, ECTL_INSERTTEXT, 0, UNSAFE_CSTR(OEMToUnicode(static_cast<const char*>(Param)).data()))) : FALSE;
+				return Param ? static_cast<int>(NativeInfo.EditorControl(-1, ECTL_INSERTTEXT, 0, UNSAFE_CSTR(encoding::oem::get_chars(static_cast<const char*>(Param))))) : FALSE;
 			}
 			case oldfar::ECTL_GETINFO:
 			{
@@ -4322,12 +4291,12 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					const auto oldsf = static_cast<const oldfar::EditorSaveFile*>(Param);
 					if (*oldsf->FileName)
 					{
-						FileName = OEMToUnicode(oldsf->FileName);
+						FileName = encoding::oem::get_chars(oldsf->FileName);
 						newsf.FileName = FileName.data();
 					}
 					if (oldsf->FileEOL)
 					{
-						EOL = OEMToUnicode(oldsf->FileEOL);
+						EOL = encoding::oem::get_chars(oldsf->FileEOL);
 						newsf.FileEOL = EOL.data();
 					}
 					newsf.CodePage = CP_DEFAULT;
@@ -4478,7 +4447,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 							string cParam;
 							if (oldsp->cParam)
 							{
-								cParam = OEMToUnicode(oldsp->cParam);
+								cParam = encoding::oem::get_chars(oldsp->cParam);
 								newsp.wszParam = UNSAFE_CSTR(cParam);
 							}
 							return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp));
@@ -4535,7 +4504,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 				if (Param)
 				{
-					newtit = OEMToUnicode(static_cast<const char*>(Param));
+					newtit = encoding::oem::get_chars(static_cast<const char*>(Param));
 				}
 				return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETTITLE, 0, Param? UNSAFE_CSTR(newtit) : nullptr));
 			}
@@ -4807,14 +4776,17 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			Codepages().FormatCodePageName(nCP, CodepageName);
 			string sTableName = pad_right(str(nCP), 5);
 			append(sTableName, BoxSymbols[BS_V1], L' ', CodepageName);
-			UnicodeToOEM(sTableName.data(), TableSet->TableName, std::size(TableSet->TableName) - 1);
-			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin(reinterpret_cast<char*>(TableSet->DecodeTable), sizeof(TableSet->DecodeTable), nCP));
-			CharLowerBuff(us.get(), sizeof(TableSet->DecodeTable));
-			encoding::get_bytes(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), sizeof(TableSet->DecodeTable));
-			CharUpperBuff(us.get(), sizeof(TableSet->DecodeTable));
-			encoding::get_bytes(nCP, us.get(), sizeof(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->UpperTable), sizeof(TableSet->DecodeTable));
-			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, reinterpret_cast<char *>(TableSet->DecodeTable), sizeof(TableSet->DecodeTable));
-			MultiByteRecode(CP_OEMCP, static_cast<UINT>(nCP), reinterpret_cast<char *>(TableSet->EncodeTable), sizeof(TableSet->EncodeTable));
+			encoding::oem::get_bytes(sTableName, TableSet->TableName);
+			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin(reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable), nCP));
+
+			CharLowerBuff(us.get(), static_cast<DWORD>(std::size(TableSet->DecodeTable)));
+			encoding::get_bytes(nCP, us.get(), std::size(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable));
+
+			CharUpperBuff(us.get(), static_cast<DWORD>(std::size(TableSet->DecodeTable)));
+			encoding::get_bytes(nCP, us.get(), std::size(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable));
+
+			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, reinterpret_cast<char *>(TableSet->DecodeTable), std::size(TableSet->DecodeTable));
+			MultiByteRecode(CP_OEMCP, static_cast<UINT>(nCP), reinterpret_cast<char *>(TableSet->EncodeTable), std::size(TableSet->EncodeTable));
 			return Command;
 		}
 		return -1;
@@ -4849,11 +4821,11 @@ char* WINAPI XlatA(
 		if (Flags&oldfar::XLAT_CONVERTALLCMDLINE)
 			NewFlags |= XLAT_CONVERTALLCMDLINE;
 
-		const auto strLine = OEMToUnicode(Line);
+		const auto strLine = encoding::oem::get_chars(Line);
 		// XLat expects null-terminated string
 		std::vector<wchar_t> Buffer(strLine.data(), strLine.data() + strLine.size() + 1);
 		NativeFSF.XLat(Buffer.data(), StartPos, EndPos, NewFlags);
-		UnicodeToOEM(Buffer.data(), Line, Buffer.size());
+		encoding::oem::get_bytes(Buffer.data(), strLine.size(), Line, strLine.size());
 		return Line;
 	}
 	catch (...)
@@ -4868,10 +4840,10 @@ static int WINAPI GetFileOwnerA(const char *Computer, const char *Name, char *Ow
 	try
 	{
 		wchar_t wOwner[MAX_PATH];
-		int Ret = static_cast<int>(NativeFSF.GetFileOwner(OEMToUnicode(Computer).data(), OEMToUnicode(Name).data(), wOwner, std::size(wOwner)));
+		int Ret = static_cast<int>(NativeFSF.GetFileOwner(encoding::oem::get_chars(Computer).data(), encoding::oem::get_chars(Name).data(), wOwner, std::size(wOwner)));
 		if (Ret)
 		{
-			UnicodeToOEM(wOwner, Owner, oldfar::NM);
+			encoding::oem::get_bytes(wOwner, Ret - 1, Owner, oldfar::NM);
 		}
 		return Ret;
 	}
@@ -4967,9 +4939,9 @@ public:
 		FreeOpenPanelInfo();
 	}
 
-	const char *GetMsgA(lng nID) const
+	const char *GetMsgA(int Id) const
 	{
-		return static_cast<const AnsiLanguage&>(*PluginLang.get()).GetMsgA(nID);
+		return static_cast<const ansi_plugin_language&>(*PluginLang).GetMsgA(Id);
 	}
 
 private:
@@ -5136,7 +5108,7 @@ private:
 			// скорректируем адреса и плагино-зависимые поля
 			InfoCopy.ModuleNumber = reinterpret_cast<intptr_t>(this);
 			InfoCopy.FSF = &FsfCopy;
-			UnicodeToOEM(GetModuleName().data(), InfoCopy.ModuleName);
+			encoding::oem::get_bytes(GetModuleName().data(), InfoCopy.ModuleName);
 			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().data();
 
 			if (Global->strRegUser.empty())
@@ -5329,9 +5301,9 @@ private:
 		if (has(es) && !Global->ProcessException)
 		{
 			pVFDPanelItemA = nullptr;
-			size_t Size = wcslen(Info->Path) + 1;
-			char_ptr PathA(Size);
-			UnicodeToOEM(Info->Path, PathA.get(), Size);
+			const auto Length = wcslen(Info->Path);
+			char_ptr PathA(Length + 1);
+			encoding::oem::get_bytes(Info->Path, Length, PathA.get(), Length + 1);
 			int ItemsNumber = 0;
 			ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());
 			Info->ItemsNumber = ItemsNumber;
@@ -5377,12 +5349,12 @@ private:
 		{
 			const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
 			char DestA[oldfar::NM];
-			UnicodeToOEM(Info->DestPath, DestA);
+			encoding::oem::get_bytes(Info->DestPath, DestA);
 			int OpMode = 0;
 			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
 			ExecuteFunction(es, Info->hPanel, PanelItemA, static_cast<int>(Info->ItemsNumber), Info->Move, DestA, OpMode);
 			static wchar_t DestW[oldfar::NM];
-			OEMToUnicode(DestA, DestW);
+			encoding::oem::get_chars(DestA, DestW);
 			Info->DestPath = DestW;
 			FreePanelItemA(PanelItemA, Info->ItemsNumber);
 		}
@@ -5423,12 +5395,12 @@ private:
 		if (has(es) && !Global->ProcessException)
 		{
 			char NameA[oldfar::NM];
-			UnicodeToOEM(Info->Name, NameA);
+			encoding::oem::get_bytes(Info->Name, NameA);
 			int OpMode = 0;
 			SecondFlagsToFirst(Info->OpMode, OpMode, OperationModesMap);
 			ExecuteFunction(es, Info->hPanel, NameA, OpMode);
 			static wchar_t NameW[oldfar::NM];
-			OEMToUnicode(NameA, NameW);
+			encoding::oem::get_chars(NameA, NameW);
 			Info->Name = NameW;
 		}
 		return es;
@@ -5679,7 +5651,7 @@ private:
 		{
 			try
 			{
-				PluginLang = std::make_unique<AnsiLanguage>(Path);
+				PluginLang = std::make_unique<ansi_plugin_language>(Path);
 			}
 			catch (const std::exception&)
 			{
@@ -5901,19 +5873,40 @@ private:
 		*Dest = OPI;
 	}
 
-	class AnsiLanguage: public Language
+	class ansi_language_data final: public i_language_data
 	{
 	public:
-		// Don't add Language(Path) to initialiser list and don't move init() to the Language ctor - it calls virtual functions.
-		AnsiLanguage(const string& Path) { init(Path); }
-		const char* GetMsgA(lng nID) const { return CheckMsgId(nID) ? m_AnsiMessages[static_cast<size_t>(nID)].data() : ""; }
+		std::unique_ptr<i_language_data> create() override { return std::make_unique<ansi_language_data>(); }
+		~ansi_language_data() override = default;
+
+		void reserve(size_t Size) override { return m_Messages.reserve(Size); }
+		void add(string&& Str) override { return m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }
+		void set_at(size_t Index, string&& Str) override { m_Messages[Index] = encoding::oem::get_bytes(Str); }
+		const string& at(size_t Index) const override { throw MAKE_FAR_EXCEPTION(L"Not supported"); }
+		size_t size() const override { return m_Messages.size(); }
+
+		const std::string& ansi_at(size_t Index) const { return m_Messages[Index]; }
 
 	private:
-		virtual size_t size() const override { return m_AnsiMessages.size(); }
-		virtual void reserve(size_t size) override { m_AnsiMessages.reserve(size); }
-		virtual void add(string&& str) override { m_AnsiMessages.emplace_back(UnicodeToOEM(str)); }
+		std::vector<std::string> m_Messages;
+	};
 
-		std::vector<std::string> m_AnsiMessages;
+	class ansi_plugin_language final: public language
+	{
+	public:
+		ansi_plugin_language(const string& Path):
+			language(m_Data),
+			m_Data(std::make_unique<ansi_language_data>())
+		{
+			load(Path);
+		}
+		const char* GetMsgA(int Id) const
+		{
+			return m_Data->validate(Id)? static_cast<const ansi_language_data&>(*m_Data).ansi_at(Id).data() : "";
+		}
+
+	private:
+		std::unique_ptr<i_language_data> m_Data;
 	};
 
 	template<EXPORTS_ENUM ExportId>
@@ -5930,7 +5923,7 @@ private:
 	bool opif_shortcut;
 };
 
-static const char* GetPluginMsg(const Plugin* PluginInstance, lng MsgId)
+static const char* GetPluginMsg(const Plugin* PluginInstance, int MsgId)
 {
 	return static_cast<const PluginA*>(PluginInstance)->GetMsgA(MsgId);
 }

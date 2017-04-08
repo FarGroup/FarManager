@@ -273,15 +273,15 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	*/
 	FarDialogItem DCDlgData[] =
 	{
-		{ DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0, MSG(lng::MChangeDriveDisconnectTitle) },
+		{ DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectTitle) },
 		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, 5, 3, 0, 3, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, -1, 5, 0, 5, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_CHECKBOX, 5, 6, 70, 6, 0, nullptr, nullptr, 0, MSG(lng::MChangeDriveDisconnectReconnect) },
+		{ DI_CHECKBOX, 5, 6, 70, 6, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectReconnect) },
 		{ DI_TEXT, -1, 7, 0, 7, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON | DIF_CENTERGROUP, MSG(lng::MYes) },
-		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(lng::MCancel) },
+		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MYes) },
+		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel) },
 	};
 	auto DCDlg = MakeDialogItemsEx(DCDlgData);
 
@@ -352,9 +352,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				const auto MappedTo = format(lng::MChangeDriveDisconnectMapped, DiskLetter.front());
 				string SubstitutedPath;
 				GetSubstName(DriveType, DiskLetter, SubstitutedPath);
-				if (Message(MSG_WARNING, MSG(lng::MChangeSUBSTDisconnectDriveTitle),
+				if (Message(MSG_WARNING, msg(lng::MChangeSUBSTDisconnectDriveTitle),
 					{ Question, MappedTo, SubstitutedPath },
-					{ MSG(lng::MYes), MSG(lng::MNo) },
+					{ msg(lng::MYes), msg(lng::MNo) },
 					nullptr, nullptr, &SUBSTDisconnectDriveId) != Message::first_button)
 				{
 					return DRIVE_DEL_FAIL;
@@ -371,9 +371,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			const auto strMsgText = format(lng::MChangeDriveCannotDelSubst, DiskLetter);
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
-					{ strMsgText, L"\x1", MSG(lng::MChangeDriveOpenFiles), MSG(lng::MChangeDriveAskDisconnect) },
-					{ MSG(lng::MOk), MSG(lng::MCancel) },
+				if (Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
+					{ strMsgText, L"\x1", msg(lng::MChangeDriveOpenFiles), msg(lng::MChangeDriveAskDisconnect) },
+					{ msg(lng::MOk), msg(lng::MCancel) },
 					nullptr, nullptr, &SUBSTDisconnectDriveError1Id) == Message::first_button)
 				{
 					if (DelSubstDrive(DiskLetter))
@@ -386,9 +386,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 					return DRIVE_DEL_FAIL;
 				}
 			}
-			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
+			Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
 				{ strMsgText },
-				{ MSG(lng::MOk) },
+				{ msg(lng::MOk) },
 				nullptr, nullptr, &SUBSTDisconnectDriveError2Id);
 			return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
 		}
@@ -419,9 +419,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			const auto LastError = Global->CaughtError().Win32Error;
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
-					{ strMsgText, L"\x1", MSG(lng::MChangeDriveOpenFiles), MSG(lng::MChangeDriveAskDisconnect) },
-					{ MSG(lng::MOk), MSG(lng::MCancel) },
+				if (Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
+					{ strMsgText, L"\x1", msg(lng::MChangeDriveOpenFiles), msg(lng::MChangeDriveAskDisconnect) },
+					{ msg(lng::MOk), msg(lng::MCancel) },
 					nullptr, nullptr, &RemoteDisconnectDriveError1Id) == Message::first_button)
 				{
 					if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, TRUE) == NO_ERROR)
@@ -438,9 +438,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			const wchar_t RootDir[] = { DiskLetter[0], L':', L'\\', L'\0' };
 			if (FAR_GetDriveType(RootDir) == DRIVE_REMOTE)
 			{
-				Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
+				Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
 					{ strMsgText },
-					{ MSG(lng::MOk) },
+					{ msg(lng::MOk) },
 					nullptr, nullptr, &RemoteDisconnectDriveError2Id);
 			}
 			return DRIVE_DEL_FAIL;
@@ -451,9 +451,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			if (Global->Opt->Confirm.DetachVHD)
 			{
 				const auto Question = format(lng::MChangeVHDDisconnectDriveQuestion, DiskLetter);
-				if (Message(MSG_WARNING, MSG(lng::MChangeVHDDisconnectDriveTitle),
+				if (Message(MSG_WARNING, msg(lng::MChangeVHDDisconnectDriveTitle),
 					{ Question },
-					{ MSG(lng::MYes), MSG(lng::MNo) },
+					{ msg(lng::MYes), msg(lng::MNo) },
 					nullptr, nullptr, &VHDDisconnectDriveId) != Message::first_button)
 				{
 					return DRIVE_DEL_FAIL;
@@ -476,9 +476,9 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				Global->CatchError();
 			}
 
-			Message(MSG_WARNING | MSG_ERRORTYPE, MSG(lng::MError),
+			Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
 				{ format(lng::MChangeDriveCannotDetach, DiskLetter) },
-				{ MSG(lng::MOk) },
+				{ msg(lng::MOk) },
 				nullptr, nullptr, &VHDDisconnectDriveErrorId);
 			return DRIVE_DEL_FAIL;
 		}
@@ -575,9 +575,9 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 				Global->CatchError();
 				DoneEject = Message(MSG_WARNING | MSG_ERRORTYPE,
-					MSG(lng::MError),
+					msg(lng::MError),
 					{ format(lng::MChangeCouldNotEjectHotPlugMedia, item->cDrive) },
-					{ MSG(lng::MHRetry), MSG(lng::MHCancel) },
+					{ msg(lng::MHRetry), msg(lng::MHCancel) },
 					nullptr, nullptr, &EjectHotPlugMediaErrorId) != Message::first_button;
 			}
 			else
@@ -605,8 +605,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	PanelMenuItem Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
-		const auto ChDisk = VMenu2::create(MSG(lng::MChangeDriveTitle), nullptr, 0, ScrY - Panel_Y1 - 3);
-		ChDisk->SetBottomTitle(MSG(lng::MChangeDriveMenuFooter));
+		const auto ChDisk = VMenu2::create(msg(lng::MChangeDriveTitle), nullptr, 0, ScrY - Panel_Y1 - 3);
+		ChDisk->SetBottomTitle(msg(lng::MChangeDriveMenuFooter));
 		ChDisk->SetHelp(L"DriveDlg");
 		ChDisk->SetMenuFlags(VMENU_WRAPMODE);
 		ChDisk->SetId(ChangeDiskMenuId);
@@ -684,7 +684,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				const auto ItemIterator = std::find_if(CONST_RANGE(DriveTypes, DriveTypeItem) { return DriveTypeItem.first == NewItem.DriveType; });
 				if (ItemIterator != std::cend(DriveTypes))
-					NewItem.Type = MSG(ItemIterator->second);
+					NewItem.Type = msg(ItemIterator->second);
 			}
 
 			auto ShowDiskInfo = (NewItem.DriveType != DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
@@ -705,7 +705,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					static const HKEY Roots[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
 					if (!std::any_of(CONST_RANGE(Roots, Root){ return os::reg::GetValue(Root, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label); }) && Absent)
 					{
-						NewItem.Label = MSG(lng::MChangeDriveLabelAbsent);
+						NewItem.Label = msg(lng::MChangeDriveLabelAbsent);
 					}
 				}
 			}
@@ -1105,7 +1105,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (!EjectVolume(mitem->cDrive, EJECT_READY | EJECT_NO_MESSAGE))
 			{
 				SCOPED_ACTION(SaveScreen);
-				Message(0, 0, L"", MSG(lng::MChangeWaitingLoadDisk));
+				Message(0, 0, L"", msg(lng::MChangeWaitingLoadDisk));
 				EjectVolume(mitem->cDrive, EJECT_LOAD_MEDIA | EJECT_NO_MESSAGE);
 			}
 		}

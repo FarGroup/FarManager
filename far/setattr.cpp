@@ -416,7 +416,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 					lng m = (Param1 == SA_COMBO_HARDLINK? lng::MSetAttrHardLinks : lng::MSetAttrDfsTargets);
 					FarListInfo li={sizeof(FarListInfo)};
 					Dlg->SendMessage(DM_LISTINFO,Param1,&li);
-					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(string(MSG(m)) + L" (" + str(li.ItemsNumber) + L")"));
+					Dlg->SendMessage(DM_SETTEXTPTR,Param1, UNSAFE_CSTR(string(msg(m)) + L" (" + str(li.ItemsNumber) + L")"));
 				}
 				break;
 			default:
@@ -543,7 +543,7 @@ void ShellSetFileAttributesMsg(const string& Name)
 	string strOutFileName=Name;
 	TruncPathStr(strOutFileName,Width);
 	strOutFileName = fit_to_center(strOutFileName, Width + 4);
-	Message(0,0,MSG(lng::MSetAttrTitle),MSG(lng::MSetAttrSetting),strOutFileName.data());
+	Message(0,0,msg(lng::MSetAttrTitle),msg(lng::MSetAttrSetting),strOutFileName.data());
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<AttrPreRedrawItem*>(PreRedrawStack().top());
@@ -630,59 +630,59 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	short DlgX=74,DlgY=25;
 	FarDialogItem AttrDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(lng::MSetAttrTitle)},
-		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,MSG(lng::MSetAttrFor)},
+		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MSetAttrTitle)},
+		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MSetAttrFor)},
 		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L""},
 		{DI_COMBOBOX,5,3,DlgX-6,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,L""},
 		{DI_TEXT,5,3,17,3,0,nullptr,nullptr,DIF_HIDDEN,L""},
 		{DI_EDIT,18,3,DlgX-6,3,0,nullptr,nullptr,DIF_HIDDEN|DIF_EDITPATH,L""},
 		{DI_COMBOBOX,18,3,DlgX-6,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,L""},
 		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,5,5,17,5,0,nullptr,nullptr,0,MSG(lng::MSetAttrOwner)},
+		{DI_TEXT,5,5,17,5,0,nullptr,nullptr,0,msg(lng::MSetAttrOwner)},
 		{DI_EDIT,18,5,DlgX-6,5,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5, 7,0,7,0,nullptr,nullptr,DIF_FOCUS|DIF_3STATE,MSG(lng::MSetAttrRO)},
-		{DI_CHECKBOX,5, 8,0,8,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrArchive)},
-		{DI_CHECKBOX,5, 9,0,9,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrHidden)},
-		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrSystem)},
-		{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrCompressed)},
-		{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrEncrypted)},
-		{DI_CHECKBOX,5,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrNotIndexed)},
+		{DI_CHECKBOX,5, 7,0,7,0,nullptr,nullptr,DIF_FOCUS|DIF_3STATE,msg(lng::MSetAttrRO)},
+		{DI_CHECKBOX,5, 8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrArchive)},
+		{DI_CHECKBOX,5, 9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrHidden)},
+		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSystem)},
+		{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrCompressed)},
+		{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrEncrypted)},
+		{DI_CHECKBOX,5,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNotIndexed)},
 
-		{DI_CHECKBOX,DlgX/2,7,0,7,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrSparse)},
-		{DI_CHECKBOX,DlgX/2,8,0,8,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrTemp)},
-		{DI_CHECKBOX,DlgX/2,9,0,9,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrOffline)},
-		{DI_CHECKBOX,DlgX/2,10,0,10,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrReparsePoint)},
-		{DI_CHECKBOX,DlgX/2,11,0,11,0,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(lng::MSetAttrVirtual)},
-		{DI_CHECKBOX,DlgX/2,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrIntegrityStream)},
-		{DI_CHECKBOX,DlgX/2,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MSetAttrNoScrubData)},
+		{DI_CHECKBOX,DlgX/2,7,0,7,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSparse)},
+		{DI_CHECKBOX,DlgX/2,8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrTemp)},
+		{DI_CHECKBOX,DlgX/2,9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrOffline)},
+		{DI_CHECKBOX,DlgX/2,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrReparsePoint)},
+		{DI_CHECKBOX,DlgX/2,11,0,11,0,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MSetAttrVirtual)},
+		{DI_CHECKBOX,DlgX/2,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrIntegrityStream)},
+		{DI_CHECKBOX,DlgX/2,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNoScrubData)},
 
 		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,DlgX-29,15,0,15,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,DlgX-17,15,0,15,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,    5,16,0,16,0,nullptr,nullptr,0,MSG(lng::MSetAttrModification)},
+		{DI_TEXT,    5,16,0,16,0,nullptr,nullptr,0,msg(lng::MSetAttrModification)},
 		{DI_FIXEDIT,DlgX-29,16,DlgX-19,16,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,16,DlgX-6,16,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,17,0,17,0,nullptr,nullptr,0,MSG(lng::MSetAttrCreation)},
+		{DI_TEXT,    5,17,0,17,0,nullptr,nullptr,0,msg(lng::MSetAttrCreation)},
 		{DI_FIXEDIT,DlgX-29,17,DlgX-19,17,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,17,DlgX-6,17,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,18,0,18,0,nullptr,nullptr,0,MSG(lng::MSetAttrLastAccess)},
+		{DI_TEXT,    5,18,0,18,0,nullptr,nullptr,0,msg(lng::MSetAttrLastAccess)},
 		{DI_FIXEDIT,DlgX-29,18,DlgX-19,18,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,18,DlgX-6,18,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,19,0,19,0,nullptr,nullptr,0,MSG(lng::MSetAttrChange)},
+		{DI_TEXT,    5,19,0,19,0,nullptr,nullptr,0,msg(lng::MSetAttrChange)},
 		{DI_FIXEDIT,DlgX-29,19,DlgX-19,19,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,19,DlgX-6,19,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(lng::MSetAttrOriginal)},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(lng::MSetAttrCurrent)},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(lng::MSetAttrBlank)},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrOriginal)},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrCurrent)},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrBlank)},
 		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR|DIF_HIDDEN,L""},
-		{DI_CHECKBOX,5,22,0,22,0,nullptr,nullptr,DIF_DISABLE|DIF_HIDDEN,MSG(lng::MSetAttrSubfolders)},
+		{DI_CHECKBOX,5,22,0,22,0,nullptr,nullptr,DIF_DISABLE|DIF_HIDDEN,msg(lng::MSetAttrSubfolders)},
 		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MSetAttrSet)},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,MSG(lng::MSetAttrSystemDialog)},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MCancel)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetAttrSet)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MSetAttrSystemDialog)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel)},
 	};
 	auto AttrDlg = MakeDialogItemsEx(AttrDlgData);
 	SetAttrDlgParam DlgParam={};
@@ -903,7 +903,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							if (ReparseTag == IO_REPARSE_TAG_DEDUP)
 							{
 								KnownReparsePoint = true;
-								strLinkName = MSG(lng::MListDEDUP);
+								strLinkName = msg(lng::MListDEDUP);
 							}
 							else if (ReparseTag == IO_REPARSE_TAG_DFS)
 							{
@@ -936,7 +936,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
 									AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
-									AttrDlg[SA_COMBO_SYMLINK].strData = string(MSG(lng::MSetAttrDfsTargets)) + L" (" + str(NameList.ItemsNumber) + L")";
+									AttrDlg[SA_COMBO_SYMLINK].strData = string(msg(lng::MSetAttrDfsTargets)) + L" (" + str(NameList.ItemsNumber) + L")";
 								}
 							}
 						}
@@ -972,10 +972,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 
 				if (!KnownReparsePoint)
-					strLinkName=MSG(lng::MSetAttrUnknownJunction);
+					strLinkName=msg(lng::MSetAttrUnknownJunction);
 
 				AttrDlg[SA_TEXT_SYMLINK].Flags &= ~DIF_HIDDEN;
-				AttrDlg[SA_TEXT_SYMLINK].strData = MSG(ID_Msg);
+				AttrDlg[SA_TEXT_SYMLINK].strData = msg(ID_Msg);
 				if (ReparseTag != IO_REPARSE_TAG_DFS)
 					AttrDlg[SA_EDIT_SYMLINK].Flags &= ~DIF_HIDDEN;
 				AttrDlg[SA_EDIT_SYMLINK].strData = strLinkName;
@@ -1034,7 +1034,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						AttrDlg[SA_COMBO_HARDLINK].Flags|=DIF_DISABLE;
 					}
 
-					AttrDlg[SA_COMBO_HARDLINK].strData = string(MSG(lng::MSetAttrHardLinks)) + L" (" + str(NameList.ItemsNumber) + L")";
+					AttrDlg[SA_COMBO_HARDLINK].strData = string(msg(lng::MSetAttrHardLinks)) + L" (" + str(NameList.ItemsNumber) + L")";
 				}
 			}
 
@@ -1096,7 +1096,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			AttrDlg[SA_EDIT_XDATE].strData.clear();
 			AttrDlg[SA_EDIT_XTIME].strData.clear();
 			AttrDlg[SA_BUTTON_ORIGINAL].Flags|=DIF_DISABLE;
-			AttrDlg[SA_TEXT_NAME].strData = MSG(lng::MSetAttrSelectedObjects);
+			AttrDlg[SA_TEXT_NAME].strData = msg(lng::MSetAttrSelectedObjects);
 
 			for (size_t i=SA_ATTR_FIRST; i<=SA_ATTR_LAST; i++)
 			{
@@ -1150,7 +1150,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 						else if(AttrDlg[SA_EDIT_OWNER].strData != strCurOwner)
 						{
-							AttrDlg[SA_EDIT_OWNER].strData=MSG(lng::MSetAttrOwnerMultiple);
+							AttrDlg[SA_EDIT_OWNER].strData=msg(lng::MSetAttrOwnerMultiple);
 							CheckOwner=false;
 						}
 					}
@@ -1258,7 +1258,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					if(!ModifyReparsePoint(strSelName, Unquote(strTarget)))
 					{
 						Global->CatchError();
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCopyCannotCreateLink),strSelName.data(),MSG(lng::MHOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),msg(lng::MCopyCannotCreateLink),strSelName.data(),msg(lng::MHOk));
 					}
 				}
 
@@ -1377,7 +1377,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				/* Multi *********************************************************** */
 				else
 				{
-					ConsoleTitle::SetFarTitle(MSG(lng::MSetAttrTitle));
+					ConsoleTitle::SetFarTitle(msg(lng::MSetAttrTitle));
 					if(SrcPanel)
 					{
 						Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();

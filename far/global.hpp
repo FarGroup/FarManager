@@ -133,8 +133,6 @@ public:
 	std::unique_ptr<class Options> Opt;
 	std::unique_ptr<class ScreenBuf> ScrBuf;
 	std::unique_ptr<class Manager> WindowManager;
-	std::unique_ptr<class Language> Lang;
-	std::unique_ptr<class elevation> Elevation;
 	class ControlObject* CtrlObject;
 };
 

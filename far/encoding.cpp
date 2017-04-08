@@ -245,7 +245,7 @@ size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_
 	}
 }
 
-size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
+static size_t get_bytes_impl(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
 {
 	switch(Codepage)
 	{
@@ -271,6 +271,16 @@ size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, 
 	}
 }
 
+size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
+{
+	const auto Result = get_bytes_impl(Codepage, Data, DataSize, Buffer, BufferSize, UsedDefaultChar);
+	if (Result < BufferSize)
+	{
+		Buffer[Result] = '\0';
+	}
+	return Result;
+}
+
 std::string encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, bool* const UsedDefaultChar)
 {
 	if (const auto NewSize = encoding::get_bytes_count(Codepage, Data, DataSize))
@@ -287,7 +297,7 @@ namespace Utf7
 	size_t get_chars(const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, Utf::errors *Errors);
 }
 
-size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize)
+static size_t get_chars_impl(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize)
 {
 	switch (Codepage)
 	{
@@ -308,6 +318,16 @@ size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, siz
 	default:
 		return MultiByteToWideChar(Codepage, 0, Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize));
 	}
+}
+
+size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize)
+{
+	const auto Result = get_chars_impl(Codepage, Data, DataSize, Buffer, BufferSize);
+	if (Result < BufferSize)
+	{
+		Buffer[Result] = L'\0';
+	}
+	return Result;
 }
 
 string encoding::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize)

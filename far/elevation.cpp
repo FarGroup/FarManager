@@ -114,6 +114,12 @@ elevation::~elevation()
 	DisconnectNamedPipe(m_Pipe.native_handle());
 }
 
+elevation& elevation::instance()
+{
+	static elevation s_Elevation;
+	return s_Elevation;
+}
+
 void elevation::ResetApprove()
 {
 	if (m_DontAskAgain)
@@ -425,15 +431,15 @@ void ElevationApproveDlgSync(const EAData& Data)
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem ElevationApproveDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(lng::MAccessDenied)},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired)},
-		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data.Why)},
+		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MAccessDenied)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired)},
+		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,msg(Data.Why)},
 		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data.Object.data()},
-		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(lng::MElevationDoForAll)},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(lng::MElevationDoNotAskAgainInTheCurrentSession)},
+		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,msg(lng::MElevationDoForAll)},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MElevationDoNotAskAgainInTheCurrentSession)},
 		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,MSG(lng::MOk)},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MSkip)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,msg(lng::MOk)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSkip)},
 	};
 	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
 	const auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);

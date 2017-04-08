@@ -482,7 +482,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 	if (Global->Opt->ShowCheckingFile)
 	{
 		OldTitle = ConsoleTitle::GetTitle();
-		ConsoleTitle::SetFarTitle(MSG(lng::MCheckingFileInPlugin), true);
+		ConsoleTitle::SetFarTitle(msg(lng::MCheckingFileInPlugin), true);
 	}
 	plugin_panel* hResult = nullptr;
 
@@ -530,7 +530,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 				if(ShowWarning)
 				{
 					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(lng::MOpenPluginCannotOpenFile), Name->data(), MSG(lng::MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", msg(lng::MOpenPluginCannotOpenFile), Name->data(), msg(lng::MOk));
 				}
 				break;
 			}
@@ -540,7 +540,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 		{
 			if (Global->Opt->ShowCheckingFile)
 			{
-				ConsoleTitle::SetFarTitle(MSG(lng::MCheckingFileInPlugin) + L" - ["s + PointToName(i->GetModuleName()) + L"]..."s, true);
+				ConsoleTitle::SetFarTitle(msg(lng::MCheckingFileInPlugin) + L" - ["s + PointToName(i->GetModuleName()) + L"]..."s, true);
 			}
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
@@ -575,7 +575,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 
 		if(!OnlyOne && ShowMenu)
 		{
-			const auto menu = VMenu2::create(MSG(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+			const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 			menu->SetPosition(-1, -1, 0, 0);
 			menu->SetHelp(L"ChoosePluginMenu");
 			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
@@ -590,7 +590,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 				MenuItemEx mitem;
 				mitem.Flags |= MIF_SEPARATOR;
 				menu->AddItem(mitem);
-				menu->AddItem(MSG(lng::MMenuPluginStdAssociation));
+				menu->AddItem(msg(lng::MMenuPluginStdAssociation));
 			}
 
 			int ExitCode = menu->Run();
@@ -689,7 +689,7 @@ plugin_panel* PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem
 	{
 		if (items.size()>1)
 		{
-			const auto menu = VMenu2::create(MSG(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+			const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 			menu->SetPosition(-1, -1, 0, 0);
 			menu->SetHelp(L"ChoosePluginMenu");
 			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
@@ -1183,7 +1183,7 @@ static string AddHotkey(const string& Item, wchar_t Hotkey)
 */
 void PluginManager::Configure(int StartPos)
 {
-		const auto PluginList = VMenu2::create(MSG(lng::MPluginConfigTitle), nullptr, 0, ScrY - 4);
+		const auto PluginList = VMenu2::create(msg(lng::MPluginConfigTitle), nullptr, 0, ScrY - 4);
 		PluginList->SetMenuFlags(VMENU_WRAPMODE);
 		PluginList->SetHelp(L"PluginsConfig");
 		PluginList->SetId(PluginsConfigMenuId);
@@ -1252,7 +1252,7 @@ void PluginManager::Configure(int StartPos)
 				}
 
 				PluginList->AssignHighlights(FALSE);
-				PluginList->SetBottomTitle(MSG(lng::MPluginHotKeyBottom));
+				PluginList->SetBottomTitle(msg(lng::MPluginHotKeyBottom));
 				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList->SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
@@ -1343,7 +1343,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	PluginMenuItemData item;
 
 	{
-		const auto PluginList = VMenu2::create(MSG(lng::MPluginCommandsMenuTitle), nullptr, 0, ScrY - 4);
+		const auto PluginList = VMenu2::create(msg(lng::MPluginCommandsMenuTitle), nullptr, 0, ScrY - 4);
 		PluginList->SetMenuFlags(VMENU_WRAPMODE);
 		PluginList->SetHelp(L"PluginCommands");
 		PluginList->SetId(PluginsMenuId);
@@ -1424,7 +1424,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				}
 
 				PluginList->AssignHighlights(FALSE);
-				PluginList->SetBottomTitle(MSG(lng::MPluginHotKeyBottom));
+				PluginList->SetBottomTitle(msg(lng::MPluginHotKeyBottom));
 				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList->SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
@@ -1963,7 +1963,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 
 	if (items.size()>1)
 	{
-		const auto menu = VMenu2::create(MSG(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+		const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
 		menu->SetPosition(-1, -1, 0, 0);
 		menu->SetHelp(L"ChoosePluginMenu");
 		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);

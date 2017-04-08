@@ -348,7 +348,7 @@ FileList::FileList(private_tag, window_ptr Owner):
 {
 	_OT(SysLog(L"[%p] FileList::FileList()", this));
 	{
-		const wchar_t *data=MSG(lng::MPanelBracketsForLongName);
+		const wchar_t *data=msg(lng::MPanelBracketsForLongName);
 
 		if (wcslen(data) > 1)
 		{
@@ -1098,7 +1098,7 @@ private:
 bool FileList::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
-	Global->Elevation->ResetApprove();
+	elevation::instance().ResetApprove();
 
 	FileListItem *CurPtr=nullptr;
 	int N;
@@ -1779,9 +1779,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								{
 									if (!os::fs::exists(strFileName.substr(0, pos)))
 									{
-										if (Message(MSG_WARNING, MSG(lng::MWarning),
-											{ MSG(lng::MEditNewPath1), MSG(lng::MEditNewPath2), MSG(lng::MEditNewPath3) },
-											{ MSG(lng::MHYes), MSG(lng::MHNo) },
+										if (Message(MSG_WARNING, msg(lng::MWarning),
+											{ msg(lng::MEditNewPath1), msg(lng::MEditNewPath2), msg(lng::MEditNewPath3) },
+											{ msg(lng::MHYes), msg(lng::MHNo) },
 											L"WarnEditorPath") != Message::first_button)
 											return false;
 									}
@@ -1790,15 +1790,15 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						}
 						else if (PluginMode) // пустое имя файла в панели плагина не разрешается!
 						{
-							if (Message(MSG_WARNING, MSG(lng::MWarning),
-								{ MSG(lng::MEditNewPlugin1), MSG(lng::MEditNewPath3) },
-								{ MSG(lng::MCancel) },
+							if (Message(MSG_WARNING, msg(lng::MWarning),
+								{ msg(lng::MEditNewPlugin1), msg(lng::MEditNewPath3) },
+								{ msg(lng::MCancel) },
 								L"WarnEditorPluginName") != Message::first_button)
 								return false;
 						}
 						else
 						{
-							strFileName = MSG(lng::MNewFileName);
+							strFileName = msg(lng::MNewFileName);
 						}
 					}
 					while (strFileName.empty());
@@ -2015,8 +2015,8 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				if (PluginMode)
 				{
 					if (UploadFailed)
-						Message(MSG_WARNING,1,MSG(lng::MError),MSG(lng::MCannotSaveFile),
-						        MSG(lng::MTextSavedToTemp),strFileName.data(),MSG(lng::MOk));
+						Message(MSG_WARNING,1,msg(lng::MError),msg(lng::MCannotSaveFile),
+						        msg(lng::MTextSavedToTemp),strFileName.data(),msg(lng::MOk));
 					else if (Edit || DeleteViewedFile)
 						// удаляем файл только для случая открытия его в редакторе или во
 						// внешнем viewer-е, т.к. внутренний viewer удаляет файл сам
@@ -2139,7 +2139,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					strDirName = DirName;
 
 					if (!MakeCode)
-						Message(MSG_WARNING, 1, MSG(lng::MError), MSG(lng::MCannotCreateFolder), strDirName.data(), MSG(lng::MOk));
+						Message(MSG_WARNING, 1, msg(lng::MError), msg(lng::MCannotCreateFolder), strDirName.data(), msg(lng::MOk));
 
 					Update(UPDATE_KEEP_SELECTION);
 
@@ -2911,7 +2911,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 		if (Global->WindowManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
-			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), (dot2Present?L"..":strSetDir.data()), MSG(lng::MOk));
+			Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), (dot2Present?L"..":strSetDir.data()), msg(lng::MOk));
 			UpdateFlags = UPDATE_KEEP_SELECTION;
 		}
 
@@ -2964,7 +2964,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!IsMouseInClientArea(MouseEvent))
 		return false;
 
-	Global->Elevation->ResetApprove();
+	elevation::instance().ResetApprove();
 
 	if (IsVisible() && Global->Opt->ShowColumnTitles && !MouseEvent->dwEventFlags &&
 	        MouseEvent->dwMousePosition.Y==m_Y1+1 &&
@@ -3918,9 +3918,9 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		{DI_DOUBLEBOX,3,1,51,5,0,nullptr,nullptr,0,L""},
 		{DI_EDIT,5,2,49,2,0,L"Masks",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
 		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MOk)},
-		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MSelectFilter)},
-		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MCancel)},
+		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk)},
+		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSelectFilter)},
+		{DI_BUTTON,0,4,0,4,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel)},
 	};
 	auto SelectDlg = MakeDialogItemsEx(SelectDlgData);
 	FileFilter Filter(this, FFT_SELECT);
@@ -3988,9 +3988,9 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 				SelectDlg[1].strData = strPrevMask;
 
 				if (Mode==SELECT_ADD)
-					SelectDlg[0].strData = MSG(lng::MSelectTitle);
+					SelectDlg[0].strData = msg(lng::MSelectTitle);
 				else
-					SelectDlg[0].strData = MSG(lng::MUnselectTitle);
+					SelectDlg[0].strData = msg(lng::MUnselectTitle);
 
 				{
 					const auto Dlg = Dialog::create(SelectDlg);
@@ -4167,8 +4167,8 @@ void FileList::CompareDir()
 
 	if (!Another || !Another->IsVisible())
 	{
-		Message(MSG_WARNING,1,MSG(lng::MCompareTitle),MSG(lng::MCompareFilePanelsRequired1),
-		        MSG(lng::MCompareFilePanelsRequired2),MSG(lng::MOk));
+		Message(MSG_WARNING,1,msg(lng::MCompareTitle),msg(lng::MCompareFilePanelsRequired1),
+		        msg(lng::MCompareFilePanelsRequired2),msg(lng::MOk));
 		return;
 	}
 
@@ -4285,7 +4285,7 @@ void FileList::CompareDir()
 	refresh(*Another.get());
 
 	if (!m_SelFileCount && !Another->m_SelFileCount)
-		Message(0,1,MSG(lng::MCompareTitle),MSG(lng::MCompareSameFolders1),MSG(lng::MCompareSameFolders2),MSG(lng::MOk));
+		Message(0,1,msg(lng::MCompareTitle),msg(lng::MCompareSameFolders1),msg(lng::MCompareSameFolders2),msg(lng::MOk));
 }
 
 void FileList::CopyFiles(bool bMoved)
@@ -4515,22 +4515,22 @@ void FileList::SelectSortMode()
 {
 	const MenuDataEx InitSortMenuModes[]=
 	{
-		{MSG(lng::MMenuSortByName),LIF_SELECTED,KEY_CTRLF3},
-		{MSG(lng::MMenuSortByExt),0,KEY_CTRLF4},
-		{MSG(lng::MMenuSortByWrite),0,KEY_CTRLF5},
-		{MSG(lng::MMenuSortBySize),0,KEY_CTRLF6},
-		{MSG(lng::MMenuUnsorted),0,KEY_CTRLF7},
-		{MSG(lng::MMenuSortByCreation),0,KEY_CTRLF8},
-		{MSG(lng::MMenuSortByAccess),0,KEY_CTRLF9},
-		{MSG(lng::MMenuSortByChange),0,0},
-		{MSG(lng::MMenuSortByDiz),0,KEY_CTRLF10},
-		{MSG(lng::MMenuSortByOwner),0,KEY_CTRLF11},
-		{MSG(lng::MMenuSortByAllocatedSize),0,0},
-		{MSG(lng::MMenuSortByNumLinks),0,0},
-		{MSG(lng::MMenuSortByNumStreams),0,0},
-		{MSG(lng::MMenuSortByStreamsSize),0,0},
-		{MSG(lng::MMenuSortByFullName),0,0},
-		{MSG(lng::MMenuSortByCustomData),0,0},
+		{msg(lng::MMenuSortByName),LIF_SELECTED,KEY_CTRLF3},
+		{msg(lng::MMenuSortByExt),0,KEY_CTRLF4},
+		{msg(lng::MMenuSortByWrite),0,KEY_CTRLF5},
+		{msg(lng::MMenuSortBySize),0,KEY_CTRLF6},
+		{msg(lng::MMenuUnsorted),0,KEY_CTRLF7},
+		{msg(lng::MMenuSortByCreation),0,KEY_CTRLF8},
+		{msg(lng::MMenuSortByAccess),0,KEY_CTRLF9},
+		{msg(lng::MMenuSortByChange),0,0},
+		{msg(lng::MMenuSortByDiz),0,KEY_CTRLF10},
+		{msg(lng::MMenuSortByOwner),0,KEY_CTRLF11},
+		{msg(lng::MMenuSortByAllocatedSize),0,0},
+		{msg(lng::MMenuSortByNumLinks),0,0},
+		{msg(lng::MMenuSortByNumStreams),0,0},
+		{msg(lng::MMenuSortByStreamsSize),0,0},
+		{msg(lng::MMenuSortByFullName),0,0},
+		{msg(lng::MMenuSortByCustomData),0,0},
 	};
 	static_assert(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT));
 
@@ -4620,11 +4620,11 @@ void FileList::SelectSortMode()
 	};
 	const MenuDataEx InitSortMenuOptions[]=
 	{
-		{MSG(lng::MMenuSortUseNumeric), m_NumericSort? (DWORD)MIF_CHECKED : 0, 0},
-		{MSG(lng::MMenuSortUseCaseSensitive), m_CaseSensitiveSort? (DWORD)MIF_CHECKED : 0, 0},
-		{MSG(lng::MMenuSortUseGroups), GetSortGroups()? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF11},
-		{MSG(lng::MMenuSortSelectedFirst), SelectedFirst? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF12},
-		{MSG(lng::MMenuSortDirectoriesFirst), m_DirectoriesFirst? (DWORD)MIF_CHECKED : 0, 0},
+		{msg(lng::MMenuSortUseNumeric), m_NumericSort? (DWORD)MIF_CHECKED : 0, 0},
+		{msg(lng::MMenuSortUseCaseSensitive), m_CaseSensitiveSort? (DWORD)MIF_CHECKED : 0, 0},
+		{msg(lng::MMenuSortUseGroups), GetSortGroups()? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF11},
+		{msg(lng::MMenuSortSelectedFirst), SelectedFirst? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF12},
+		{msg(lng::MMenuSortDirectoriesFirst), m_DirectoriesFirst? (DWORD)MIF_CHECKED : 0, 0},
 	};
 	static_assert(std::size(InitSortMenuOptions) == SortOptCount);
 
@@ -4639,7 +4639,7 @@ void FileList::SelectSortMode()
 	{
 		const auto MenuStrings = VMenu::AddHotkeys(make_range(SortMenu.data(), SortMenu.size()));
 
-		const auto SortModeMenu = VMenu2::create(MSG(lng::MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
+		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
 		SortModeMenu->SetHelp(L"PanelCmdSort");
 		SortModeMenu->SetPosition(m_X1+4,-1,0,0);
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -4797,12 +4797,12 @@ void FileList::DescribeFiles()
 		const auto PrevText = NullToEmpty(Diz.Get(strSelName,strSelShortName,GetLastSelectedSize()));
 		strQuotedName = strSelName;
 		QuoteSpaceOnly(strQuotedName);
-		const auto strMsg = concat(MSG(lng::MEnterDescription), L' ', strQuotedName, L':');
+		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', strQuotedName, L':');
 
 		/* $ 09.08.2000 SVS
 		   Для Ctrl-Z не нужно брать предыдущее значение!
 		*/
-		if (!GetString(MSG(lng::MDescribeFiles),strMsg.data(),L"DizText",
+		if (!GetString(msg(lng::MDescribeFiles),strMsg.data(),L"DizText",
 		               PrevText, strDizText,
 		               L"FileDiz",FIB_ENABLEEMPTY|(!DizCount?FIB_NOUSELASTHISTORY:0)|FIB_BUTTONS,
 		               nullptr,nullptr,nullptr,&DescribeFileId))
@@ -4855,8 +4855,8 @@ bool FileList::ApplyCommand()
 	string strCommand;
 
 	if (!GetString(
-			MSG(lng::MAskApplyCommandTitle),
-			MSG(lng::MAskApplyCommand),
+			msg(lng::MAskApplyCommandTitle),
+			msg(lng::MAskApplyCommand),
 			L"ApplyCmd",
 			strPrevCommand.data(),
 			strCommand,
@@ -4977,7 +4977,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		{
 			SelDirCount++;
 			if ((!IsRealNames && GetPluginDirInfo(m_hPlugin, i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
-			     (IsRealNames && GetDirInfo(MSG(lng::MDirInfoViewTitle), i.strName, Data, MessageDelay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
+			     (IsRealNames && GetDirInfo(msg(lng::MDirInfoViewTitle), i.strName, Data, MessageDelay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
 			{
 				SelFileSize -= i.FileSize;
 				SelFileSize += Data.FileSize;
@@ -4996,7 +4996,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 		auto& CurFile = m_ListData[m_CurFile];
 		if ((!IsRealNames && GetPluginDirInfo(m_hPlugin, CurFile.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
-		     (IsRealNames && GetDirInfo(MSG(lng::MDirInfoViewTitle), TestParentFolderName(CurFile.strName)? L"." : CurFile.strName,
+		     (IsRealNames && GetDirInfo(msg(lng::MDirInfoViewTitle), TestParentFolderName(CurFile.strName)? L"." : CurFile.strName,
 		                    Data, getdirinfo_default_delay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
 		{
 			CurFile.FileSize = Data.FileSize;
@@ -6493,7 +6493,7 @@ struct FileListPreRedrawItem : PreRedrawItem
 
 void ReadFileNamesMsg(const string& Msg)
 {
-	Message(0,0,MSG(lng::MReadingTitleFiles),Msg.data());
+	Message(0,0,msg(lng::MReadingTitleFiles),Msg.data());
 
 	if (!PreRedrawStack().empty())
 	{
@@ -6781,7 +6781,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	});
 
 	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MReadFolderError),MSG(lng::MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),msg(lng::MReadFolderError),msg(lng::MOk));
 
 	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network.Id))) // NetWork Plugin
 	{
@@ -7444,7 +7444,7 @@ void FileList::ShowFileList(bool Fast)
 					break;
 			}
 
-			strTitle = IDMessage == lng::MColumnUnknown && !m_ViewSettings.PanelColumns[I].title.empty()? m_ViewSettings.PanelColumns[I].title : MSG(IDMessage);
+			strTitle = IDMessage == lng::MColumnUnknown && !m_ViewSettings.PanelColumns[I].title.empty()? m_ViewSettings.PanelColumns[I].title : msg(IDMessage);
 
 			if (m_PanelMode == panel_mode::PLUGIN_PANEL && m_CachedOpenPanelInfo.PanelModesArray &&
 			        m_ViewMode<static_cast<int>(m_CachedOpenPanelInfo.PanelModesNumber) &&
@@ -7522,7 +7522,7 @@ void FileList::ShowFileList(bool Fast)
 			};
 			static_assert(std::size(ModeNames) == static_cast<size_t>(panel_sort::COUNT));
 
-			Ch = wcschr(MSG(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second), L'&');
+			Ch = wcschr(msg(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second), L'&');
 		}
 
 		if (Ch || m_SortMode >= panel_sort::COUNT)

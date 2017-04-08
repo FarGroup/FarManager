@@ -41,15 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setcolor.hpp"
 #include "strmix.hpp"
 
-class basicconsole:public console {
+class basic_console: public console, public singleton<basic_console>
+{
+	IMPLEMENTS_SINGLETON(basic_console);
+
 public:
-
-basicconsole():
-	// пишем/читаем порциями по 32 K, иначе проблемы.
-	MAXSIZE(0x8000),
-	m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE))
-{}
-
 virtual bool Allocate() const override
 {
 	return AllocConsole()!=FALSE;
@@ -726,6 +722,14 @@ virtual bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_R
 	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, ClipRectangle, DestinationOrigin, &SysFill) != FALSE;
 }
 
+protected:
+	basic_console():
+		// пишем/читаем порциями по 32 K, иначе проблемы.
+		MAXSIZE(0x8000),
+		m_OriginalInputHandle(GetStdHandle(STD_INPUT_HANDLE))
+	{
+	}
+
 private:
 	const unsigned int MAXSIZE;
 	HANDLE m_OriginalInputHandle;
@@ -744,85 +748,73 @@ bool console::ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) co
 }
 
 
-class extendedconsole:public basicconsole
+class extended_console: public basic_console, public singleton<extended_console>
 {
+	IMPLEMENTS_SINGLETON(extended_console);
+
 public:
+	using singleton<extended_console>::instance;
+
 	virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
 	{
-		if(Imports.pReadOutput)
-		{
-			const COORD SizeCoord = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
-			return Imports.pReadOutput(Buffer.data(), SizeCoord, BufferCoord, &ReadRegion) != FALSE;
-		}
+		if(!Imports.pReadOutput)
+			return basic_console::ReadOutput(Buffer, BufferCoord, ReadRegion);
 
-		return basicconsole::ReadOutput(Buffer, BufferCoord, ReadRegion);
+		const COORD SizeCoord = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+		return Imports.pReadOutput(Buffer.data(), SizeCoord, BufferCoord, &ReadRegion) != FALSE;
 	}
 
 	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
 	{
-		if(Imports.pWriteOutput)
-		{
-			const COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
-			return Imports.pWriteOutput(Buffer.data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
-		}
+		if(!Imports.pWriteOutput)
+			return basic_console::WriteOutput(Buffer, BufferCoord, WriteRegion);
 
-		return basicconsole::WriteOutput(Buffer, BufferCoord, WriteRegion);
+		const COORD BufferSize = { static_cast<SHORT>(Buffer.width()), static_cast<SHORT>(Buffer.height()) };
+		return Imports.pWriteOutput(Buffer.data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
 	}
 
 	virtual bool Commit() const override
 	{
-		if(Imports.pCommit)
-		{
-			return Imports.pCommit() != FALSE;
-		}
+		if(!Imports.pCommit)
+			return basic_console::Commit();
 
-		return basicconsole::Commit();
+		return Imports.pCommit() != FALSE;
 	}
 
 	virtual bool GetTextAttributes(FarColor& Attributes) const override
 	{
-		if(Imports.pGetTextAttributes)
-		{
-			return Imports.pGetTextAttributes(&Attributes) != FALSE;
-		}
+		if(!Imports.pGetTextAttributes)
+			return basic_console::GetTextAttributes(Attributes);
 
-		return basicconsole::GetTextAttributes(Attributes);
+		return Imports.pGetTextAttributes(&Attributes) != FALSE;
 	}
 
 	virtual bool SetTextAttributes(const FarColor& Attributes) const override
 	{
-		if(Imports.pSetTextAttributes)
-		{
-			return Imports.pSetTextAttributes(&Attributes) != FALSE;
-		}
+		if(!Imports.pSetTextAttributes)
+			return basic_console::SetTextAttributes(Attributes);
 
-		return basicconsole::SetTextAttributes(Attributes);
+		return Imports.pSetTextAttributes(&Attributes) != FALSE;
 	}
 
 	virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const override
 	{
-		if(Imports.pClearExtraRegions)
-		{
-			return Imports.pClearExtraRegions(&Color, Mode) != FALSE;
-		}
+		if(!Imports.pClearExtraRegions)
+			return basic_console::ClearExtraRegions(Color, Mode);
 
-		return basicconsole::ClearExtraRegions(Color, Mode);
+		return Imports.pClearExtraRegions(&Color, Mode) != FALSE;
 	}
 
 	virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const override
 	{
-		if(Imports.pGetColorDialog)
-		{
-			return Imports.pGetColorDialog(&Color, Centered, AddTransparent) != FALSE;
-		}
+		if(!Imports.pGetColorDialog)
+			return basic_console::GetColorDialog(Color, Centered, AddTransparent);
 
-		return basicconsole::GetColorDialog(Color, Centered, AddTransparent);
+		return Imports.pGetColorDialog(&Color, Centered, AddTransparent) != FALSE;
 	}
 
 private:
-	friend console& Console();
-
-	extendedconsole():
+	extended_console():
 		Module(L"extendedconsole.dll"),
 		Imports(Module)
 	{
@@ -858,7 +850,5 @@ private:
 
 console& Console()
 {
-	//static console ec;
-	static extendedconsole ec;
-	return ec;
+	return extended_console::instance();
 }

@@ -601,7 +601,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 
 		}
 
-		ptr=MSG(Colors.Mark.Char? lng::MHighlightExample2 : lng::MHighlightExample1);
+		ptr=msg(Colors.Mark.Char? lng::MHighlightExample2 : lng::MHighlightExample1);
 
 		for (int k=0; k<15; k++)
 		{
@@ -820,7 +820,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				if (!Ok)
 				{
 					intptr_t ColorConfig = Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
-					Message(MSG_WARNING,1,ColorConfig?MSG(lng::MFileHilightTitle):MSG(lng::MFileFilterTitle),MSG(lng::MBadFileSizeFormat),MSG(lng::MOk));
+					Message(MSG_WARNING,1,ColorConfig?msg(lng::MFileHilightTitle):msg(lng::MFileFilterTitle),msg(lng::MBadFileSizeFormat),msg(lng::MOk));
 					return FALSE;
 				}
 			}
@@ -872,87 +872,87 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 	FarDialogItem FilterDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND,MSG(lng::MFileFilterTitle)},
+		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND,msg(lng::MFileFilterTitle)},
 
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,MSG(lng::MFileFilterName)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,msg(lng::MFileFilterName)},
 		{DI_EDIT,5,2,74,2,0,FilterNameHistoryName,nullptr,DIF_HISTORY,L""},
 
 		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5,4,0,4,0,nullptr,nullptr,DIF_AUTOMATION,MSG(lng::MFileFilterMatchMask)},
+		{DI_CHECKBOX,5,4,0,4,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterMatchMask)},
 		{DI_EDIT,5,4,74,4,0,FilterMasksHistoryName,nullptr,DIF_HISTORY,L""},
 
 		{DI_TEXT,-1,5,0,5,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,MSG(lng::MFileFilterSize)},
-		{DI_TEXT,7,7,8,7,0,nullptr,nullptr,0,MSG(lng::MFileFilterSizeFromSign)},
+		{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterSize)},
+		{DI_TEXT,7,7,8,7,0,nullptr,nullptr,0,msg(lng::MFileFilterSizeFromSign)},
 		{DI_EDIT,10,7,20,7,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,7,8,8,8,0,nullptr,nullptr,0,MSG(lng::MFileFilterSizeToSign)},
+		{DI_TEXT,7,8,8,8,0,nullptr,nullptr,0,msg(lng::MFileFilterSizeToSign)},
 		{DI_EDIT,10,8,20,8,0,nullptr,nullptr,0,L""},
 
-		{DI_CHECKBOX,24,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,MSG(lng::MFileFilterDate)},
+		{DI_CHECKBOX,24,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterDate)},
 		{DI_COMBOBOX,26,7,41,7,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
-		{DI_CHECKBOX,26,8,0,8,0,nullptr,nullptr,0,MSG(lng::MFileFilterDateRelative)},
-		{DI_TEXT,48,7,50,7,0,nullptr,nullptr,0,MSG(lng::MFileFilterDateBeforeSign)},
+		{DI_CHECKBOX,26,8,0,8,0,nullptr,nullptr,0,msg(lng::MFileFilterDateRelative)},
+		{DI_TEXT,48,7,50,7,0,nullptr,nullptr,0,msg(lng::MFileFilterDateBeforeSign)},
 		{DI_FIXEDIT,51,7,61,7,0,nullptr,strDateMask.data(),DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,51,7,61,7,0,nullptr,DaysMask,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,63,7,74,7,0,nullptr,strTimeMask.data(),DIF_MASKEDIT,L""},
-		{DI_TEXT,48,8,50,8,0,nullptr,nullptr,0,MSG(lng::MFileFilterDateAfterSign)},
+		{DI_TEXT,48,8,50,8,0,nullptr,nullptr,0,msg(lng::MFileFilterDateAfterSign)},
 		{DI_FIXEDIT,51,8,61,8,0,nullptr,strDateMask.data(),DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,51,8,61,8,0,nullptr,DaysMask,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,63,8,74,8,0,nullptr,strTimeMask.data(),DIF_MASKEDIT,L""},
-		{DI_BUTTON,0,6,0,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,MSG(lng::MFileFilterCurrent)},
-		{DI_BUTTON,0,6,74,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,MSG(lng::MFileFilterBlank)},
+		{DI_BUTTON,0,6,0,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,msg(lng::MFileFilterCurrent)},
+		{DI_BUTTON,0,6,74,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,msg(lng::MFileFilterBlank)},
 
 		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_VTEXT,22,5,22,9,0,nullptr,nullptr,DIF_BOXCOLOR,VerticalLine},
 
-		{DI_CHECKBOX, 5,10,0,10,0,nullptr,nullptr,DIF_AUTOMATION,MSG(lng::MFileFilterAttr)},
-		{DI_CHECKBOX, 7,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrR)},
-		{DI_CHECKBOX, 7,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrA)},
-		{DI_CHECKBOX, 7,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrH)},
-		{DI_CHECKBOX, 7,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrS)},
-		{DI_CHECKBOX, 7,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrC)},
-		{DI_CHECKBOX, 7,16,0,16,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrE)},
-		{DI_CHECKBOX, 7,17,0,17,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrNI)},
-		{DI_CHECKBOX, 7,18,0,18,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrD)},
+		{DI_CHECKBOX, 5,10,0,10,0,nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFileFilterAttr)},
+		{DI_CHECKBOX, 7,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrR)},
+		{DI_CHECKBOX, 7,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrA)},
+		{DI_CHECKBOX, 7,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrH)},
+		{DI_CHECKBOX, 7,14,0,14,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrS)},
+		{DI_CHECKBOX, 7,15,0,15,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrC)},
+		{DI_CHECKBOX, 7,16,0,16,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrE)},
+		{DI_CHECKBOX, 7,17,0,17,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrNI)},
+		{DI_CHECKBOX, 7,18,0,18,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrD)},
 
-		{DI_CHECKBOX,42,11,0,11,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrSparse)},
-		{DI_CHECKBOX,42,12,0,12,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrT)},
-		{DI_CHECKBOX,42,13,0,13,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrOffline)},
-		{DI_CHECKBOX,42,14,0,14,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrReparse)},
-		{DI_CHECKBOX,42,15,0,15,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrVirtual)},
-		{DI_CHECKBOX,42,16,0,16,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrIntegrityStream)},
-		{DI_CHECKBOX,42,17,0,17,0,nullptr,nullptr,DIF_3STATE,MSG(lng::MFileFilterAttrNoScrubData)},
+		{DI_CHECKBOX,42,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrSparse)},
+		{DI_CHECKBOX,42,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrT)},
+		{DI_CHECKBOX,42,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrOffline)},
+		{DI_CHECKBOX,42,14,0,14,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrReparse)},
+		{DI_CHECKBOX,42,15,0,15,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrVirtual)},
+		{DI_CHECKBOX,42,16,0,16,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrIntegrityStream)},
+		{DI_CHECKBOX,42,17,0,17,0,nullptr,nullptr,DIF_3STATE,msg(lng::MFileFilterAttrNoScrubData)},
 
-		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,MSG(lng::MHighlightColors)},
-		{DI_TEXT,7,18,0,18,0,nullptr,nullptr,0,MSG(lng::MHighlightMarkChar)},
+		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,msg(lng::MHighlightColors)},
+		{DI_TEXT,7,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightMarkChar)},
 		{DI_FIXEDIT,5,18,5,18,0,nullptr,nullptr,0,L""},
-		{DI_CHECKBOX,0,18,0,18,0,nullptr,nullptr,0,MSG(lng::MHighlightTransparentMarkChar)},
+		{DI_CHECKBOX,0,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightTransparentMarkChar)},
 
-		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(lng::MHighlightFileName1)},
-		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(lng::MHighlightMarking1)},
-		{DI_BUTTON,5,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(lng::MHighlightFileName2)},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(lng::MHighlightMarking2)},
-		{DI_BUTTON,5,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(lng::MHighlightFileName3)},
-		{DI_BUTTON,0,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(lng::MHighlightMarking3)},
-		{DI_BUTTON,5,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(lng::MHighlightFileName4)},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,MSG(lng::MHighlightMarking4)},
+		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName1)},
+		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking1)},
+		{DI_BUTTON,5,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName2)},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking2)},
+		{DI_BUTTON,5,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName3)},
+		{DI_BUTTON,0,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking3)},
+		{DI_BUTTON,5,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName4)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking4)},
 
 		{DI_USERCONTROL,73-15-1,19,73-2,22,0,nullptr,nullptr,DIF_NOFOCUS,L""},
-		{DI_CHECKBOX,5,23,0,23,0,nullptr,nullptr,0,MSG(lng::MHighlightContinueProcessing)},
+		{DI_CHECKBOX,5,23,0,23,0,nullptr,nullptr,0,msg(lng::MHighlightContinueProcessing)},
 
 		{DI_TEXT,-1,19,0,19,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,MSG(lng::MFileHardLinksCount)},//добавляем новый чекбокс в панель
+		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,msg(lng::MFileHardLinksCount)},//добавляем новый чекбокс в панель
 		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR,L""},// и разделитель
 
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MOk)},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(lng::MFileFilterReset)},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MFileFilterCancel)},
-		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(lng::MFileFilterMakeTransparent)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterReset)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFileFilterCancel)},
+		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MFileFilterMakeTransparent)},
 	};
-	FilterDlgData[0].Data=MSG(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle);
+	FilterDlgData[0].Data=msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle);
 	auto FilterDlg = MakeDialogItemsEx(FilterDlgData);
 
 	if (ColorConfig)
@@ -1028,7 +1028,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	DateList.ItemsNumber=FDATE_COUNT;
 
 	for (int i=0; i < FDATE_COUNT; ++i)
-		TableItemDate[i].Text=MSG(lng::MFileFilterWrited+i);
+		TableItemDate[i].Text=msg(lng::MFileFilterWrited+i);
 
 	DWORD DateType;
 	FILETIME DateAfter, DateBefore;

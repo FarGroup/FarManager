@@ -226,4 +226,17 @@ protected:
 	using base_type = base;
 };
 
+template<typename type>
+class singleton
+{
+public:
+	static type& instance()
+	{
+		static type sInstance;
+		return sInstance;
+	}
+};
+
+#define IMPLEMENTS_SINGLETON(...) friend class singleton<__VA_ARGS__>
+
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

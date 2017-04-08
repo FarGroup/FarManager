@@ -667,10 +667,10 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 		Item.Type = DI_BUTTON;
 		Item.Flags = DIF_DEFAULTBUTTON|DIF_CENTERGROUP;
 		Item.Y1 = Item.Y2 = DlgData.size() + 1;
-		Item.strData = MSG(lng::MOk);
+		Item.strData = msg(lng::MOk);
 		DlgData.emplace_back(Item);
 
-		Item.strData = MSG(lng::MCancel);
+		Item.strData = msg(lng::MCancel);
 		Item.Flags &= ~DIF_DEFAULTBUTTON;
 		DlgData.emplace_back(Item);
 	}
@@ -770,17 +770,17 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 	try
 	{
 		if (!FarMkTempEx(strListFileName))
-			throw MAKE_FAR_EXCEPTION(MSG(lng::MCannotCreateListTemp));
+			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
 
 		os::fs::file ListFile(strListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS);
 		if (!ListFile)
-			throw MAKE_FAR_EXCEPTION(MSG(lng::MCannotCreateListTemp));
+			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
 
 		size_t Written;
 		const auto Blob = BlobBuilder.get();
 		if (!ListFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
 		{
-			throw MAKE_FAR_EXCEPTION(MSG(lng::MCannotCreateListWrite));
+			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListWrite));
 		}
 
 		return true;
@@ -789,7 +789,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 	{
 		os::DeleteFile(strListFileName);
 		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MCannotCreateListFile), e.get_message().data(), MSG(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), msg(lng::MCannotCreateListFile), e.get_message().data(), msg(lng::MOk));
 		return false;
 	}
 }

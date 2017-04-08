@@ -207,7 +207,7 @@ bool SetFileOwner(const string& Object, const string& Owner)
 		return true;
 
 	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		return Global->Elevation->fSetOwner(strNtObject, Owner);
+		return elevation::instance().fSetOwner(strNtObject, Owner);
 
 	return false;
 }

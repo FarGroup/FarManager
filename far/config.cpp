@@ -424,8 +424,8 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 
 void Options::MaskGroupsSettings()
 {
-	const auto MasksMenu = VMenu2::create(MSG(lng::MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-	MasksMenu->SetBottomTitle(MSG(lng::MMaskGroupBottom));
+	const auto MasksMenu = VMenu2::create(msg(lng::MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	MasksMenu->SetBottomTitle(msg(lng::MMaskGroupBottom));
 	MasksMenu->SetHelp(L"MaskGroupsSettings");
 	FillMasksMenu(*MasksMenu);
 	MasksMenu->SetPosition(-1, -1, -1, -1);
@@ -447,8 +447,8 @@ void Options::MaskGroupsSettings()
 						MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
 					}
 					MasksMenu->SetPosition(-1, -1, -1, -1);
-					MasksMenu->SetTitle(MSG(lng::MMenuMaskGroups));
-					MasksMenu->SetBottomTitle(MSG(lng::MMaskGroupBottom));
+					MasksMenu->SetTitle(msg(lng::MMenuMaskGroups));
+					MasksMenu->SetBottomTitle(msg(lng::MMaskGroupBottom));
 				}
 				return 1;
 			}
@@ -460,7 +460,7 @@ void Options::MaskGroupsSettings()
 			{
 			case KEY_NUMDEL:
 			case KEY_DEL:
-				if(Item && Message(0,2,MSG(lng::MMenuMaskGroups),MSG(lng::MMaskGroupAskDelete), Item->data(), MSG(lng::MDelete), MSG(lng::MCancel)) == Message::first_button)
+				if(Item && Message(0,2,msg(lng::MMenuMaskGroups),msg(lng::MMaskGroupAskDelete), Item->data(), msg(lng::MDelete), msg(lng::MCancel)) == Message::first_button)
 				{
 					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", *Item);
 					Changed = true;
@@ -506,9 +506,9 @@ void Options::MaskGroupsSettings()
 			case KEY_RCTRLR:
 				{
 					if (Message(MSG_WARNING, 2,
-						MSG(lng::MMenuMaskGroups),
-						MSG(lng::MMaskGroupRestore),
-						MSG(lng::MYes),MSG(lng::MCancel)) == Message::first_button)
+						msg(lng::MMenuMaskGroups),
+						msg(lng::MMaskGroupRestore),
+						msg(lng::MYes),msg(lng::MCancel)) == Message::first_button)
 					{
 						ApplyDefaultMaskGroups();
 						Changed = true;
@@ -845,7 +845,7 @@ void Options::SetFolderInfoFiles()
 {
 	string strFolderInfoFiles;
 
-	if (GetString(MSG(lng::MSetFolderInfoTitle),MSG(lng::MSetFolderInfoNames),L"FolderInfoFiles",
+	if (GetString(msg(lng::MSetFolderInfoTitle),msg(lng::MSetFolderInfoNames),L"FolderInfoFiles",
 	              InfoPanel.strFolderInfoFiles.data(),strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
 	{
 		InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
@@ -1077,7 +1077,7 @@ void Options::SetFilePanelModes()
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
 		{
 			if (!*ModeListMenu[i].Name)
-				ModeListMenu[i].Name = MSG(PredefinedNames[i]);
+				ModeListMenu[i].Name = msg(PredefinedNames[i]);
 		}
 
 		if (MenuCount > predefined_panel_modes_count)
@@ -1093,7 +1093,7 @@ void Options::SetFilePanelModes()
 
 		ModeListMenu[CurMode].SetSelect(1);
 		{
-			const auto ModeList = VMenu2::create(MSG(lng::MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
+			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
 			ModeList->SetPosition(-1,-1,0,0);
 			ModeList->SetHelp(L"PanelViewModes");
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
@@ -1198,27 +1198,27 @@ void Options::SetFilePanelModes()
 		FarDialogItem ModeDlgData[]=
 		{
 			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name},
-			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeName)},
+			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MEditPanelModeName)},
 			{DI_EDIT,      5, 3,70, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
-			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeTypes)},
+			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeTypes)},
 			{DI_EDIT,      5, 5,35, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,      5, 6, 0, 6,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeWidths)},
+			{DI_TEXT,      5, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeWidths)},
 			{DI_EDIT,      5, 7,35, 7,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeStatusTypes)},
+			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusTypes)},
 			{DI_EDIT,     38, 5,70, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeStatusWidths)},
+			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusWidths)},
 			{DI_EDIT,     38, 7,70, 7,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,MSG(lng::MEditPanelReadHelp)},
-			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeFullscreen)},
-			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeAlignExtensions)},
-			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeAlignFolderExtensions)},
-			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeFoldersUpperCase)},
-			{DI_CHECKBOX,  5,13, 0,13,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeFilesLowerCase)},
-			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,MSG(lng::MEditPanelModeUpperToLowerCase)},
+			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,msg(lng::MEditPanelReadHelp)},
+			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFullscreen)},
+			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignExtensions)},
+			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignFolderExtensions)},
+			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFoldersUpperCase)},
+			{DI_CHECKBOX,  5,13, 0,13,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFilesLowerCase)},
+			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,msg(lng::MEditPanelModeUpperToLowerCase)},
 			{DI_TEXT,     -1,15, 0,15,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MOk)},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < static_cast<int>(predefined_panel_modes_count)? 0 : DIF_DISABLE),MSG(lng::MReset)},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MCancel)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < static_cast<int>(predefined_panel_modes_count)? 0 : DIF_DISABLE),msg(lng::MReset)},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel)},
 		};
 		auto ModeDlg = MakeDialogItemsEx(ModeDlgData);
 
@@ -2178,7 +2178,7 @@ void Options::Save(bool Manual)
 {
 	InitConfig();
 
-	if (Manual && Message(0,2,MSG(lng::MSaveSetupTitle),MSG(lng::MSaveSetupAsk1),MSG(lng::MSaveSetupAsk2),MSG(lng::MSaveSetup),MSG(lng::MCancel)) != Message::first_button)
+	if (Manual && Message(0,2,msg(lng::MSaveSetupTitle),msg(lng::MSaveSetupAsk1),msg(lng::MSaveSetupAsk2),msg(lng::MSaveSetup),msg(lng::MCancel)) != Message::first_button)
 		return;
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
@@ -2667,135 +2667,135 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	MenuDataEx LeftMenu[]=
 	{
-		MSG(lng::MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
-		MSG(lng::MMenuMediumView),0,KEY_CTRL2,
-		MSG(lng::MMenuFullView),0,KEY_CTRL3,
-		MSG(lng::MMenuWideView),0,KEY_CTRL4,
-		MSG(lng::MMenuDetailedView),0,KEY_CTRL5,
-		MSG(lng::MMenuDizView),0,KEY_CTRL6,
-		MSG(lng::MMenuLongDizView),0,KEY_CTRL7,
-		MSG(lng::MMenuOwnersView),0,KEY_CTRL8,
-		MSG(lng::MMenuLinksView),0,KEY_CTRL9,
-		MSG(lng::MMenuAlternativeView),0,KEY_CTRL0,
+		msg(lng::MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
+		msg(lng::MMenuMediumView),0,KEY_CTRL2,
+		msg(lng::MMenuFullView),0,KEY_CTRL3,
+		msg(lng::MMenuWideView),0,KEY_CTRL4,
+		msg(lng::MMenuDetailedView),0,KEY_CTRL5,
+		msg(lng::MMenuDizView),0,KEY_CTRL6,
+		msg(lng::MMenuLongDizView),0,KEY_CTRL7,
+		msg(lng::MMenuOwnersView),0,KEY_CTRL8,
+		msg(lng::MMenuLinksView),0,KEY_CTRL9,
+		msg(lng::MMenuAlternativeView),0,KEY_CTRL0,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuInfoPanel),0,KEY_CTRLL,
-		MSG(lng::MMenuTreePanel),no_tree,KEY_CTRLT,
-		MSG(lng::MMenuQuickView),0,KEY_CTRLQ,
+		msg(lng::MMenuInfoPanel),0,KEY_CTRLL,
+		msg(lng::MMenuTreePanel),no_tree,KEY_CTRLT,
+		msg(lng::MMenuQuickView),0,KEY_CTRLQ,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuSortModes),0,KEY_CTRLF12,
-		MSG(lng::MMenuLongNames),0,KEY_CTRLN,
-		MSG(lng::MMenuTogglePanel),0,KEY_CTRLF1,
-		MSG(lng::MMenuReread),0,KEY_CTRLR,
-		MSG(lng::MMenuChangeDrive),0,KEY_ALTF1,
+		msg(lng::MMenuSortModes),0,KEY_CTRLF12,
+		msg(lng::MMenuLongNames),0,KEY_CTRLN,
+		msg(lng::MMenuTogglePanel),0,KEY_CTRLF1,
+		msg(lng::MMenuReread),0,KEY_CTRLR,
+		msg(lng::MMenuChangeDrive),0,KEY_ALTF1,
 	};
 	ApplyViewModesNames(LeftMenu);
 	const auto LeftMenuStrings = VMenu::AddHotkeys(make_range(LeftMenu));
 
 	MenuDataEx FilesMenu[]=
 	{
-		MSG(lng::MMenuView),LIF_SELECTED,KEY_F3,
-		MSG(lng::MMenuEdit),0,KEY_F4,
-		MSG(lng::MMenuCopy),0,KEY_F5,
-		MSG(lng::MMenuMove),0,KEY_F6,
-		MSG(lng::MMenuLink),0,KEY_ALTF6,
-		MSG(lng::MMenuCreateFolder),0,KEY_F7,
-		MSG(lng::MMenuDelete),0,KEY_F8,
-		MSG(lng::MMenuWipe),0,KEY_ALTDEL,
+		msg(lng::MMenuView),LIF_SELECTED,KEY_F3,
+		msg(lng::MMenuEdit),0,KEY_F4,
+		msg(lng::MMenuCopy),0,KEY_F5,
+		msg(lng::MMenuMove),0,KEY_F6,
+		msg(lng::MMenuLink),0,KEY_ALTF6,
+		msg(lng::MMenuCreateFolder),0,KEY_F7,
+		msg(lng::MMenuDelete),0,KEY_F8,
+		msg(lng::MMenuWipe),0,KEY_ALTDEL,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuAdd),0,KEY_SHIFTF1,
-		MSG(lng::MMenuExtract),0,KEY_SHIFTF2,
-		MSG(lng::MMenuArchiveCommands),0,KEY_SHIFTF3,
+		msg(lng::MMenuAdd),0,KEY_SHIFTF1,
+		msg(lng::MMenuExtract),0,KEY_SHIFTF2,
+		msg(lng::MMenuArchiveCommands),0,KEY_SHIFTF3,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuAttributes),0,KEY_CTRLA,
-		MSG(lng::MMenuApplyCommand),0,KEY_CTRLG,
-		MSG(lng::MMenuDescribe),0,KEY_CTRLZ,
+		msg(lng::MMenuAttributes),0,KEY_CTRLA,
+		msg(lng::MMenuApplyCommand),0,KEY_CTRLG,
+		msg(lng::MMenuDescribe),0,KEY_CTRLZ,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuSelectGroup),0,KEY_ADD,
-		MSG(lng::MMenuUnselectGroup),0,KEY_SUBTRACT,
-		MSG(lng::MMenuInvertSelection),0,KEY_MULTIPLY,
-		MSG(lng::MMenuRestoreSelection),0,KEY_CTRLM,
+		msg(lng::MMenuSelectGroup),0,KEY_ADD,
+		msg(lng::MMenuUnselectGroup),0,KEY_SUBTRACT,
+		msg(lng::MMenuInvertSelection),0,KEY_MULTIPLY,
+		msg(lng::MMenuRestoreSelection),0,KEY_CTRLM,
 	};
 	const auto FilesMenuStrings = VMenu::AddHotkeys(make_range(FilesMenu));
 
 	MenuDataEx CmdMenu[]=
 	{
-		MSG(lng::MMenuFindFile),LIF_SELECTED,KEY_ALTF7,
-		MSG(lng::MMenuHistory),0,KEY_ALTF8,
-		MSG(lng::MMenuVideoMode),0,KEY_ALTF9,
-		MSG(lng::MMenuFindFolder),no_tree,KEY_ALTF10,
-		MSG(lng::MMenuViewHistory),0,KEY_ALTF11,
-		MSG(lng::MMenuFoldersHistory),0,KEY_ALTF12,
+		msg(lng::MMenuFindFile),LIF_SELECTED,KEY_ALTF7,
+		msg(lng::MMenuHistory),0,KEY_ALTF8,
+		msg(lng::MMenuVideoMode),0,KEY_ALTF9,
+		msg(lng::MMenuFindFolder),no_tree,KEY_ALTF10,
+		msg(lng::MMenuViewHistory),0,KEY_ALTF11,
+		msg(lng::MMenuFoldersHistory),0,KEY_ALTF12,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuSwapPanels),0,KEY_CTRLU,
-		MSG(lng::MMenuTogglePanels),0,KEY_CTRLO,
-		MSG(lng::MMenuCompareFolders),0,0,
+		msg(lng::MMenuSwapPanels),0,KEY_CTRLU,
+		msg(lng::MMenuTogglePanels),0,KEY_CTRLO,
+		msg(lng::MMenuCompareFolders),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuUserMenu),0,0,
-		MSG(lng::MMenuFileAssociations),0,0,
-		MSG(lng::MMenuFolderShortcuts),0,0,
-		MSG(lng::MMenuFilter),0,KEY_CTRLI,
+		msg(lng::MMenuUserMenu),0,0,
+		msg(lng::MMenuFileAssociations),0,0,
+		msg(lng::MMenuFolderShortcuts),0,0,
+		msg(lng::MMenuFilter),0,KEY_CTRLI,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuPluginCommands),0,KEY_F11,
-		MSG(lng::MMenuWindowsList),0,KEY_F12,
-		MSG(lng::MMenuProcessList),0,KEY_CTRLW,
-		MSG(lng::MMenuHotPlugList),0,0,
+		msg(lng::MMenuPluginCommands),0,KEY_F11,
+		msg(lng::MMenuWindowsList),0,KEY_F12,
+		msg(lng::MMenuProcessList),0,KEY_CTRLW,
+		msg(lng::MMenuHotPlugList),0,0,
 	};
 	const auto CmdMenuStrings = VMenu::AddHotkeys(make_range(CmdMenu));
 
 	MenuDataEx OptionsMenu[]=
 	{
-		MSG(lng::MMenuSystemSettings),LIF_SELECTED,0,
-		MSG(lng::MMenuPanelSettings),0,0,
-		MSG(lng::MMenuTreeSettings),no_tree,0,
-		MSG(lng::MMenuInterface),0,0,
-		MSG(lng::MMenuLanguages),0,0,
-		MSG(lng::MMenuPluginsConfig),0,0,
-		MSG(lng::MMenuPluginsManagerSettings),0, 0,
-		MSG(lng::MMenuDialogSettings),0,0,
-		MSG(lng::MMenuVMenuSettings),0,0,
-		MSG(lng::MMenuCmdlineSettings),0,0,
-		MSG(lng::MMenuAutoCompleteSettings),0,0,
-		MSG(lng::MMenuInfoPanelSettings),0,0,
-		MSG(lng::MMenuMaskGroups),0,0,
+		msg(lng::MMenuSystemSettings),LIF_SELECTED,0,
+		msg(lng::MMenuPanelSettings),0,0,
+		msg(lng::MMenuTreeSettings),no_tree,0,
+		msg(lng::MMenuInterface),0,0,
+		msg(lng::MMenuLanguages),0,0,
+		msg(lng::MMenuPluginsConfig),0,0,
+		msg(lng::MMenuPluginsManagerSettings),0, 0,
+		msg(lng::MMenuDialogSettings),0,0,
+		msg(lng::MMenuVMenuSettings),0,0,
+		msg(lng::MMenuCmdlineSettings),0,0,
+		msg(lng::MMenuAutoCompleteSettings),0,0,
+		msg(lng::MMenuInfoPanelSettings),0,0,
+		msg(lng::MMenuMaskGroups),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuConfirmation),0,0,
-		MSG(lng::MMenuFilePanelModes),0,0,
-		MSG(lng::MMenuFileDescriptions),0,0,
-		MSG(lng::MMenuFolderInfoFiles),0,0,
+		msg(lng::MMenuConfirmation),0,0,
+		msg(lng::MMenuFilePanelModes),0,0,
+		msg(lng::MMenuFileDescriptions),0,0,
+		msg(lng::MMenuFolderInfoFiles),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuViewer),0,0,
-		MSG(lng::MMenuEditor),0,0,
-		MSG(lng::MMenuCodePages),0,0,
+		msg(lng::MMenuViewer),0,0,
+		msg(lng::MMenuEditor),0,0,
+		msg(lng::MMenuCodePages),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuColors),0,0,
-		MSG(lng::MMenuFilesHighlighting),0,0,
+		msg(lng::MMenuColors),0,0,
+		msg(lng::MMenuFilesHighlighting),0,0,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuSaveSetup),0,KEY_SHIFTF9,
+		msg(lng::MMenuSaveSetup),0,KEY_SHIFTF9,
 	};
 	const auto OptionsMenuStrings = VMenu::AddHotkeys(make_range(OptionsMenu));
 
 	MenuDataEx RightMenu[]=
 	{
-		MSG(lng::MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
-		MSG(lng::MMenuMediumView),0,KEY_CTRL2,
-		MSG(lng::MMenuFullView),0,KEY_CTRL3,
-		MSG(lng::MMenuWideView),0,KEY_CTRL4,
-		MSG(lng::MMenuDetailedView),0,KEY_CTRL5,
-		MSG(lng::MMenuDizView),0,KEY_CTRL6,
-		MSG(lng::MMenuLongDizView),0,KEY_CTRL7,
-		MSG(lng::MMenuOwnersView),0,KEY_CTRL8,
-		MSG(lng::MMenuLinksView),0,KEY_CTRL9,
-		MSG(lng::MMenuAlternativeView),0,KEY_CTRL0,
+		msg(lng::MMenuBriefView),LIF_SELECTED,KEY_CTRL1,
+		msg(lng::MMenuMediumView),0,KEY_CTRL2,
+		msg(lng::MMenuFullView),0,KEY_CTRL3,
+		msg(lng::MMenuWideView),0,KEY_CTRL4,
+		msg(lng::MMenuDetailedView),0,KEY_CTRL5,
+		msg(lng::MMenuDizView),0,KEY_CTRL6,
+		msg(lng::MMenuLongDizView),0,KEY_CTRL7,
+		msg(lng::MMenuOwnersView),0,KEY_CTRL8,
+		msg(lng::MMenuLinksView),0,KEY_CTRL9,
+		msg(lng::MMenuAlternativeView),0,KEY_CTRL0,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuInfoPanel),0,KEY_CTRLL,
-		MSG(lng::MMenuTreePanel),no_tree,KEY_CTRLT,
-		MSG(lng::MMenuQuickView),0,KEY_CTRLQ,
+		msg(lng::MMenuInfoPanel),0,KEY_CTRLL,
+		msg(lng::MMenuTreePanel),no_tree,KEY_CTRLT,
+		msg(lng::MMenuQuickView),0,KEY_CTRLQ,
 		L"",LIF_SEPARATOR,0,
-		MSG(lng::MMenuSortModes),0,KEY_CTRLF12,
-		MSG(lng::MMenuLongNames),0,KEY_CTRLN,
-		MSG(lng::MMenuTogglePanelRight),0,KEY_CTRLF2,
-		MSG(lng::MMenuReread),0,KEY_CTRLR,
-		MSG(lng::MMenuChangeDriveRight),0,KEY_ALTF2,
+		msg(lng::MMenuSortModes),0,KEY_CTRLF12,
+		msg(lng::MMenuLongNames),0,KEY_CTRLN,
+		msg(lng::MMenuTogglePanelRight),0,KEY_CTRLF2,
+		msg(lng::MMenuReread),0,KEY_CTRLR,
+		msg(lng::MMenuChangeDriveRight),0,KEY_ALTF2,
 	};
 	ApplyViewModesNames(RightMenu);
 	const auto RightMenuStrings = VMenu::AddHotkeys(make_range(RightMenu));
@@ -2803,11 +2803,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	HMenuData MainMenu[]=
 	{
-		{MSG(lng::MMenuLeftTitle), L"LeftRightMenu", LeftMenu, std::size(LeftMenu), 1},
-		{MSG(lng::MMenuFilesTitle), L"FilesMenu", FilesMenu, std::size(FilesMenu), 0},
-		{MSG(lng::MMenuCommandsTitle), L"CmdMenu", CmdMenu, std::size(CmdMenu), 0},
-		{MSG(lng::MMenuOptionsTitle), L"OptMenu", OptionsMenu, std::size(OptionsMenu), 0},
-		{MSG(lng::MMenuRightTitle), L"LeftRightMenu", RightMenu, std::size(RightMenu), 0},
+		{msg(lng::MMenuLeftTitle), L"LeftRightMenu", LeftMenu, std::size(LeftMenu), 1},
+		{msg(lng::MMenuFilesTitle), L"FilesMenu", FilesMenu, std::size(FilesMenu), 0},
+		{msg(lng::MMenuCommandsTitle), L"CmdMenu", CmdMenu, std::size(CmdMenu), 0},
+		{msg(lng::MMenuOptionsTitle), L"OptMenu", OptionsMenu, std::size(OptionsMenu), 0},
+		{msg(lng::MMenuRightTitle), L"LeftRightMenu", RightMenu, std::size(RightMenu), 0},
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
@@ -3053,13 +3053,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 					{
 						try
 						{
-							Language NewLanguage(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
-							using std::swap;
-							swap(*Global->Lang, NewLanguage);
+							far_language::instance().load(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
 						}
 						catch (const far_exception& e)
 						{
-							Message(MSG_WARNING, 1, MSG(lng::MError), e.get_message().data(), MSG(lng::MOk));
+							Message(MSG_WARNING, 1, msg(lng::MError), e.get_message().data(), msg(lng::MOk));
 							strLanguage = SavedLanguage;
 						}
 

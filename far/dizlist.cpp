@@ -76,7 +76,7 @@ void DizList::Reset()
 
 static void PR_ReadingMsg()
 {
-	Message(0,0,L"",MSG(lng::MReadingDiz));
+	Message(0,0,L"",msg(lng::MReadingDiz));
 };
 
 void DizList::Read(const string& Path, const string* DizName)
@@ -337,7 +337,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 		else
 		{
-			Message(MSG_WARNING,1,MSG(lng::MError),MSG(lng::MCannotUpdateDiz),MSG(lng::MCannotUpdateRODiz),MSG(lng::MOk));
+			Message(MSG_WARNING,1,msg(lng::MError),msg(lng::MCannotUpdateDiz),msg(lng::MCannotUpdateRODiz),msg(lng::MOk));
 			return false;
 		}
 	}
@@ -392,7 +392,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	catch (const far_exception& e)
 	{
 		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MCannotUpdateDiz), e.get_message().data(), MSG(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), msg(lng::MCannotUpdateDiz), e.get_message().data(), msg(lng::MOk));
 		return false;
 	}
 

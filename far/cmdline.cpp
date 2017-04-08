@@ -290,7 +290,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 		{
 			history_record_type Type;
 			string strStr;
-			const auto SelectType = Global->CtrlObject->CmdHistory->Select(MSG(lng::MHistoryTitle), L"History", strStr, Type);
+			const auto SelectType = Global->CtrlObject->CmdHistory->Select(msg(lng::MHistoryTitle), L"History", strStr, Type);
 			if (SelectType == HRT_ENTER || SelectType == HRT_SHIFTETNER || SelectType == HRT_CTRLENTER || SelectType == HRT_CTRLALTENTER)
 			{
 				std::unique_ptr<SetAutocomplete> disable;
@@ -356,7 +356,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			history_record_type Type;
 			GUID Guid;
 			string strFile, strData, strStr;
-			const auto SelectType = Global->CtrlObject->FolderHistory->Select(MSG(lng::MFolderHistoryTitle), L"HistoryFolders", strStr, Type, &Guid, &strFile, &strData);
+			const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders", strStr, Type, &Guid, &strFile, &strData);
 
 			switch(SelectType)
 			{
@@ -734,7 +734,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 										if (os::security::is_admin())
 										{
 											strDestStr += lb;
-											strDestStr += MSG(lng::MConfigCmdlinePromptFormatAdmin);
+											strDestStr += msg(lng::MConfigCmdlinePromptFormatAdmin);
 											strDestStr += rb;
 										}
 									}
@@ -819,7 +819,7 @@ void CommandLine::ShowViewEditHistory()
 {
 	string strStr;
 	history_record_type Type;
-	const auto SelectType = Global->CtrlObject->ViewHistory->Select(MSG(lng::MViewHistoryTitle), L"HistoryViews", strStr, Type);
+	const auto SelectType = Global->CtrlObject->ViewHistory->Select(msg(lng::MViewHistoryTitle), L"HistoryViews", strStr, Type);
 
 	switch(SelectType)
 	{
@@ -1446,7 +1446,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	{
 		Global->CatchError();
 		if (!Selent)
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),strExpandedDir.data(),MSG(lng::MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),strExpandedDir.data(),msg(lng::MOk));
 
 		return false;
 	}

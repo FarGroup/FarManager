@@ -3478,7 +3478,7 @@ bool Editor::Search(bool Next)
 				SetCursorType(false, -1);
 				int Total=FindAllReferences? m_LinesCount : (ReverseSearch? StartLine : m_LinesCount - StartLine);
 				int Current=abs(CurPtr.Number() - StartLine);
-				EditorShowMsg(MSG(lng::MEditSearchTitle),MSG(lng::MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
+				EditorShowMsg(msg(lng::MEditSearchTitle),msg(lng::MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
 				Taskbar().SetProgressValue(Current,Total);
 			}
 
@@ -3573,9 +3573,9 @@ bool Editor::Search(bool Next)
 							if (!SearchLength && !strReplaceStrCurrent.length())
 								ZeroLength = true;
 
-							MsgCode = Message(0, 4, MSG(lng::MEditReplaceTitle), MSG(lng::MEditAskReplace),
-											strQSearchStr.data(), MSG(lng::MEditAskReplaceWith), strQReplaceStr.data(),
-											MSG(lng::MEditReplace), MSG(lng::MEditReplaceAll), MSG(lng::MEditSkip), MSG(lng::MEditCancel));
+							MsgCode = Message(0, 4, msg(lng::MEditReplaceTitle), msg(lng::MEditAskReplace),
+											strQSearchStr.data(), msg(lng::MEditAskReplaceWith), strQReplaceStr.data(),
+											msg(lng::MEditReplace), msg(lng::MEditReplaceAll), msg(lng::MEditSkip), msg(lng::MEditCancel));
 
 							CurPtr->DeleteColor([&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
 
@@ -3760,7 +3760,7 @@ bool Editor::Search(bool Next)
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		FindAllList->SetPosition(-1, -1, 0, 0);
 		FindAllList->SetTitle(format(lng::MEditSearchStatistics, FindAllList->size(), AllRefLines));
-		FindAllList->SetBottomTitle(MSG(lng::MEditFindAllMenuFooter));
+		FindAllList->SetBottomTitle(msg(lng::MEditFindAllMenuFooter));
 		FindAllList->SetHelp(L"FindAllMenu");
 		FindAllList->SetId(EditorFindAllListId);
 
@@ -3858,8 +3858,8 @@ bool Editor::Search(bool Next)
 	}
 
 	if (!Match && !UserBreak)
-		Message(MSG_WARNING,1,MSG(lng::MEditSearchTitle),MSG(lng::MEditNotFound),
-		        strMsgStr.data(),MSG(lng::MOk));
+		Message(MSG_WARNING,1,msg(lng::MEditSearchTitle),msg(lng::MEditNotFound),
+		        strMsgStr.data(),msg(lng::MOk));
 
 	return true;
 }

@@ -533,7 +533,7 @@ void TreeList::DisplayObject()
 
 string TreeList::GetTitle() const
 {
-	return MSG(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle);
+	return msg(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle);
 }
 
 void TreeList::DisplayTree(bool Fast)
@@ -739,7 +739,7 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 
 	if (IsChangeConsole || (clock() - TreeStartTime) > CLOCKS_PER_SEC)
 	{
-		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, MSG(lng::MTreeTitle), MSG(lng::MReadingTree), str(TreeCount).data());
+		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, msg(lng::MTreeTitle), msg(lng::MReadingTree), str(TreeCount).data());
 		if (!PreRedrawStack().empty())
 		{
 			const auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
@@ -870,7 +870,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	{
 		os::DeleteFile(TreeCache().GetTreeName());
 		if (!Global->WindowManager->ManagerIsDown())
-			Message(MSG_WARNING | MSG_ERRORTYPE, 1, MSG(lng::MError), MSG(lng::MCannotSaveTree), Name.data(), MSG(lng::MOk));
+			Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), msg(lng::MCannotSaveTree), Name.data(), msg(lng::MOk));
 	}
 }
 
@@ -2094,7 +2094,7 @@ void TreeList::RefreshTitle()
 	{
 		append(m_Title, m_ListData[m_CurFile].strName, L" - "s);
 	}
-	append(m_Title, MSG(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle), L'}');
+	append(m_Title, msg(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle), L'}');
 }
 
 const TreeList::TreeItem* TreeList::GetItem(size_t Index) const

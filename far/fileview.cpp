@@ -355,7 +355,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					Global->CatchError();
-					if(OperationFailed(strViewFileName, lng::MEditTitle, MSG(lng::MEditCannotOpen), false) == operation::retry)
+					if(OperationFailed(strViewFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) == operation::retry)
 						continue;
 					else
 						return true;
@@ -432,7 +432,7 @@ bool FileViewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 int FileViewer::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(lng::MScreensView);
+	strType = msg(lng::MScreensView);
 	strName = m_View->GetFileName();
 	return windowtype_viewer;
 }
@@ -441,7 +441,7 @@ int FileViewer::GetTypeAndName(string &strType, string &strName)
 void FileViewer::ShowConsoleTitle()
 {
 	string strViewerTitleFormat = Global->Opt->strViewerTitleFormat.Get();
-	ReplaceStrings(strViewerTitleFormat, L"%Lng", MSG(lng::MInViewer), true);
+	ReplaceStrings(strViewerTitleFormat, L"%Lng", msg(lng::MInViewer), true);
 	ReplaceStrings(strViewerTitleFormat, L"%File", PointToName(GetViewer()->strFileName), true);
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 	RedrawTitle = FALSE;
@@ -520,7 +520,7 @@ void FileViewer::ShowStatus() const
 	    L"thd"[m_View->m_DisplayMode],
 	    m_View->m_Codepage,
 	    m_View->FileSize,
-	    MSG(lng::MViewerStatusCol),
+	    msg(lng::MViewerStatusCol),
 	    m_View->LeftPos,
 	    (m_View->LastPage ? 100:ToPercent(m_View->FilePos,m_View->FileSize))
 	);

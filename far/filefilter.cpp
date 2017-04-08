@@ -91,10 +91,10 @@ bool FileFilter::FilterEdit()
 	bMenuOpen = true;
 	int ExitCode;
 	bool bNeedUpdate=false;
-	const auto FilterList = VMenu2::create(MSG(lng::MFilterTitle), nullptr, 0, ScrY - 6);
+	const auto FilterList = VMenu2::create(msg(lng::MFilterTitle), nullptr, 0, ScrY - 6);
 	FilterList->SetHelp(L"FiltersMenu");
 	FilterList->SetPosition(-1,-1,0,0);
-	FilterList->SetBottomTitle(MSG(lng::MFilterBottom));
+	FilterList->SetBottomTitle(msg(lng::MFilterBottom));
 	FilterList->SetMenuFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
 	FilterList->SetId(FiltersMenuId);
 
@@ -135,7 +135,7 @@ bool FileFilter::FilterEdit()
 		}
 
 		{
-			FoldersFilter->SetTitle(MSG(lng::MFolderFileType));
+			FoldersFilter->SetTitle(msg(lng::MFolderFileType));
 			MenuItemEx ListItem(MenuString(FoldersFilter,false,L'0'));
 			int Check = GetCheck(*FoldersFilter);
 
@@ -174,7 +174,7 @@ bool FileFilter::FilterEdit()
 		wchar_t h = L'1';
 		for (const auto& i: Extensions)
 		{
-			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.data(), MSG(lng::MPanelFileType)));
+			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.data(), msg(lng::MPanelFileType)));
 			ListItem.SetCheck(i.second);
 			ListItem.UserData = i.first;
 			FilterList->AddItem(ListItem);
@@ -266,7 +266,7 @@ bool FileFilter::FilterEdit()
 				}
 				else if (SelPos>(int)FilterData().size())
 				{
-					Message(MSG_WARNING,1,MSG(lng::MFilterTitle),MSG(lng::MCanEditCustomFilterOnly),MSG(lng::MOk));
+					Message(MSG_WARNING,1,msg(lng::MFilterTitle),msg(lng::MCanEditCustomFilterOnly),msg(lng::MOk));
 				}
 
 				break;
@@ -342,8 +342,8 @@ bool FileFilter::FilterEdit()
 					string strQuotedTitle = FilterData()[SelPos].GetTitle();
 					InsertQuote(strQuotedTitle);
 
-					if (Message(0,2,MSG(lng::MFilterTitle),MSG(lng::MAskDeleteFilter),
-					            strQuotedTitle.data(),MSG(lng::MDelete),MSG(lng::MCancel)) == Message::first_button)
+					if (Message(0,2,msg(lng::MFilterTitle),msg(lng::MAskDeleteFilter),
+					            strQuotedTitle.data(),msg(lng::MDelete),msg(lng::MCancel)) == Message::first_button)
 					{
 						FilterData().erase(FilterData().begin() + SelPos);
 						FilterList->DeleteItem(SelPos);
@@ -353,7 +353,7 @@ bool FileFilter::FilterEdit()
 				}
 				else if (SelPos>(int)FilterData().size())
 				{
-					Message(MSG_WARNING,1,MSG(lng::MFilterTitle),MSG(lng::MCanDeleteCustomFilterOnly),MSG(lng::MOk));
+					Message(MSG_WARNING,1,msg(lng::MFilterTitle),msg(lng::MCanDeleteCustomFilterOnly),msg(lng::MOk));
 				}
 
 				break;

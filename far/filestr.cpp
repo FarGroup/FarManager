@@ -235,7 +235,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				}
 				if (bGet)
 				{
-					nResultLength = encoding::get_chars(m_CodePage, CharStr, m_wStr);
+					nResultLength = encoding::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr);
 					if (nResultLength > m_wStr.size())
 					{
 						Result = ERROR_INSUFFICIENT_BUFFER;
@@ -243,9 +243,9 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				}
 				if (Result == ERROR_INSUFFICIENT_BUFFER)
 				{
-					nResultLength = encoding::get_chars_count(m_CodePage, CharStr);
+					nResultLength = encoding::get_chars_count(m_CodePage, CharStr.data(), CharStr.size());
 					m_wStr.resize(nResultLength);
-					encoding::get_chars(m_CodePage, CharStr, m_wStr);
+					encoding::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr);
 				}
 
 				m_wStr.resize(nResultLength);

@@ -405,14 +405,14 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 	};
 
 	Message(MSG_WARNING|MSG_NOPLUGINS,
-		MSG(lng::MError),
+		msg(lng::MError),
 		{
-			MSG(lng::MPlgBadVers),
+			msg(lng::MPlgBadVers),
 			plg,
 			format(lng::MPlgRequired, str(required)),
 			format(lng::MPlgRequired2, str(FAR_VERSION))
 		},
-		{ MSG(lng::MOk) }
+		{ msg(lng::MOk) }
 	);
 }
 
@@ -550,9 +550,9 @@ bool Plugin::LoadData()
 
 		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, MSG(lng::MError),
-				{ MSG(lng::MPlgLoadPluginError), m_strModuleName },
-				{ MSG(lng::MOk) },
+			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, msg(lng::MError),
+				{ msg(lng::MPlgLoadPluginError), m_strModuleName },
+				{ msg(lng::MOk) },
 				L"ErrLoadPlugin");
 		}
 
@@ -815,7 +815,7 @@ bool Plugin::InitLang(const string& Path)
 
 	try
 	{
-		PluginLang = std::make_unique<Language>(Path);
+		PluginLang = std::make_unique<plugin_language>(Path);
 		return true;
 	}
 	catch (const std::exception&)
@@ -829,9 +829,9 @@ void Plugin::CloseLang()
 	PluginLang.reset();
 }
 
-const wchar_t* Plugin::GetMsg(lng nID) const
+const wchar_t* Plugin::GetMsg(intptr_t Id) const
 {
-	return PluginLang->GetMsg(nID);
+	return static_cast<const plugin_language&>(*PluginLang).GetMsg(Id);
 }
 
 void* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)

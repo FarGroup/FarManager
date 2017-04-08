@@ -172,7 +172,7 @@ void KeyBar::SetLabels(lng StartIndex)
 			if (no_tree && (StartIndex == lng::MAltF10 || StartIndex == lng::MInfoAltF10 || StartIndex == lng::MQViewAltF10))
 				i.first = L"";
 			else
-				i.first = MSG(StartIndex);
+				i.first = msg(StartIndex);
 			StartIndex++;
 		});
 	});

@@ -84,7 +84,7 @@ static void ShowStackTrace(const std::vector<string>& Symbols)
 {
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		Message(MSG_WARNING | MSG_LEFTALIGN, MSG(lng::MExcTrappedException), Symbols, { MSG(lng::MOk) });
+		Message(MSG_WARNING | MSG_LEFTALIGN, msg(lng::MExcTrappedException), Symbols, { msg(lng::MOk) });
 	}
 	else
 	{
@@ -190,20 +190,20 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const except
 
 	FarDialogItem EditDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,MSG(lng::MExcTrappedException)},
-		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(lng::MExcException)},
+		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,msg(lng::MExcTrappedException)},
+		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,msg(lng::MExcException)},
 		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception},
-		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(lng::MExcAddress)},
+		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcAddress)},
 		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,strAddr.data()},
-		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(lng::MExcFunction)},
+		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcFunction)},
 		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Function},
-		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(lng::MExcModule)},
+		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcModule)},
 		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, MSG(PluginModule? lng::MExcUnload : lng::MExcTerminate)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MExcStack)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MExcMinidump)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MIgnore)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcStack)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcMinidump)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore)},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<exception_context*>(&Context));
@@ -227,12 +227,12 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const excep
 	const auto strAddr = tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress);
 
 	string Msg[4];
-	if (Language::IsLoaded())
+	if (far_language::instance().is_loaded())
 	{
-		Msg[0] = MSG(lng::MExcException);
-		Msg[1] = MSG(lng::MExcAddress);
-		Msg[2] = MSG(lng::MExcFunction);
-		Msg[3] = MSG(lng::MExcModule);
+		Msg[0] = msg(lng::MExcException);
+		Msg[1] = msg(lng::MExcAddress);
+		Msg[2] = msg(lng::MExcFunction);
+		Msg[3] = msg(lng::MExcModule);
 	}
 	else
 	{
@@ -411,7 +411,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 
 	if (ItemIterator != std::cend(ECode))
 	{
-		Exception = Language::IsLoaded()? MSG(ItemIterator->IdMsg) : ItemIterator->DefaultMsg;
+		Exception = far_language::instance().is_loaded()? msg(ItemIterator->IdMsg) : ItemIterator->DefaultMsg;
 
 		if (Context.GetCode() == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 		{
@@ -435,7 +435,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 
 			strBuf = L"0x" + to_hex_wstring(xr->ExceptionInformation[1]);
 
-			if (Language::IsLoaded())
+			if (far_language::instance().is_loaded())
 			{
 				strBuf = format(lng::MExcRAccess + Offset, strBuf);
 				Exception=strBuf.data();
@@ -466,7 +466,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 
 	if (!Exception)
 	{
-		const auto Template = Language::IsLoaded()? MSG(lng::MExcUnknown) : L"Unknown exception";
+		const auto Template = far_language::instance().is_loaded()? msg(lng::MExcUnknown) : L"Unknown exception";
 		append(strBuf, Template, L" (0x"s, to_hex_wstring(Context.GetCode()), L')');
 		Exception = strBuf.data();
 	}
@@ -724,7 +724,7 @@ static bool ExceptionTestHook(Manager::Key key)
 			break;
 		}
 
-		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", Names[ExitCode], L"", MSG(lng::MOk));
+		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", Names[ExitCode], L"", msg(lng::MOk));
 		return true;
 	}
 	return false;

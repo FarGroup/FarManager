@@ -144,13 +144,13 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 	{
 		if (Menu.size())
 		{
-			MenuItemEx Item(MSG(TitleId));
+			MenuItemEx Item(msg(TitleId));
 			Item.Flags = LIF_SEPARATOR;
 			Menu.AddItem(Item);
 		}
 		else
 		{
-			Menu.SetTitle(MSG(TitleId));
+			Menu.SetTitle(msg(TitleId));
 		}
 	}
 }
@@ -437,7 +437,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
 					ComplMenu->AddItem(std::move(Item));
 				}
-				ComplMenu->SetTitle(MSG(lng::MCompletionHistoryTitle));
+				ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));
 			}
 		}
 		else if(pList)
@@ -564,7 +564,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 												Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
 												ComplMenu->AddItem(std::move(Item));
 											}
-											ComplMenu->SetTitle(MSG(lng::MCompletionHistoryTitle));
+											ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));
 										}
 									}
 									else if(pList)

@@ -351,7 +351,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 						SetMacroChar(Where, L'P', B_GREEN | F_WHITE);
 				}
 
-				if (Global->Elevation->Elevated())
+				if (elevation::instance().Elevated())
 				{
 					auto& Where = Buf.back().back();
 					ElevationChar = Where;

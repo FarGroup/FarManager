@@ -231,8 +231,6 @@ private:
 
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override;
-	using dialogs_set = std::unordered_set<Dialog*>;
-	static dialogs_set& DialogsList();
 	void AddToList();
 	void RemoveFromList();
 

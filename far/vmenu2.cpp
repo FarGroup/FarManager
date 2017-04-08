@@ -642,7 +642,7 @@ void VMenu2::SortItems(const std::function<bool(const MenuItemEx&, const MenuIte
 
 int VMenu2::GetTypeAndName(string &strType, string &strName)
 {
-	strType = MSG(lng::MVMenuType);
+	strType = msg(lng::MVMenuType);
 	strName = GetMenuTitle();
 	return windowtype_menu;
 }

@@ -338,7 +338,7 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 	if (!Result && !Silent)
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),MSG(lng::MCopyCannotCreateLink),NewName.data(),MSG(lng::MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),msg(lng::MCopyCannotCreateLink),NewName.data(),msg(lng::MOk));
 	}
 	return Result;
 }
@@ -616,8 +616,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					if (!Silent)
 					{
 						Global->CatchError();
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),
-						        MSG(lng::MCopyCannotCreateLink),strFullLink.data(),MSG(lng::MOk));
+						Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),
+						        msg(lng::MCopyCannotCreateLink),strFullLink.data(),msg(lng::MOk));
 					}
 
 					return 0;
@@ -635,8 +635,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				if (!Silent)
 				{
 					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MError),
-					        MSG(lng::MCopyCannotCreateLink),strFullLink.data(),MSG(lng::MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),
+					        msg(lng::MCopyCannotCreateLink),strFullLink.data(),msg(lng::MOk));
 				}
 
 				return 0;
@@ -654,10 +654,10 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				{
 					Global->CatchError();
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
-						MSG(lng::MError),
+						msg(lng::MError),
 						format(lng::MCopyMountVolFailed, Target).data(),
 						format(lng::MCopyMountVolFailed2, strFullLink).data(),
-						MSG(lng::MOk));
+						msg(lng::MOk));
 				}
 
 				return 0;

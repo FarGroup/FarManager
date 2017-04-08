@@ -1130,7 +1130,7 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
 			CutToSlash(strPath);
 
 			if (pPlugin->InitLang(strPath))
-				return pPlugin->GetMsg(static_cast<lng>(MsgId));
+				return pPlugin->GetMsg(MsgId);
 		}
 		return L"";
 	}
@@ -1166,27 +1166,27 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 		switch (Flags & 0x000F0000)
 		{
 		case FMSG_MB_OK:
-			Buttons = { MSG(lng::MOk) };
+			Buttons = { msg(lng::MOk) };
 			break;
 
 		case FMSG_MB_OKCANCEL:
-			Buttons = { MSG(lng::MOk), MSG(lng::MCancel) };
+			Buttons = { msg(lng::MOk), msg(lng::MCancel) };
 			break;
 
 		case FMSG_MB_ABORTRETRYIGNORE:
-			Buttons = { MSG(lng::MAbort), MSG(lng::MRetry), MSG(lng::MIgnore) };
+			Buttons = { msg(lng::MAbort), msg(lng::MRetry), msg(lng::MIgnore) };
 			break;
 
 		case FMSG_MB_YESNO:
-			Buttons = { MSG(lng::MYes), MSG(lng::MNo) };
+			Buttons = { msg(lng::MYes), msg(lng::MNo) };
 			break;
 
 		case FMSG_MB_YESNOCANCEL:
-			Buttons = { MSG(lng::MYes), MSG(lng::MNo), MSG(lng::MCancel) };
+			Buttons = { msg(lng::MYes), msg(lng::MNo), msg(lng::MCancel) };
 			break;
 
 		case FMSG_MB_RETRYCANCEL:
-			Buttons = { MSG(lng::MRetry), MSG(lng::MCancel) };
+			Buttons = { msg(lng::MRetry), msg(lng::MCancel) };
 			break;
 		}
 
@@ -1530,7 +1530,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			return FALSE;
 
 		{
-			const auto& PR_FarGetDirListMsg = [](){ Message(0, 0, L"", MSG(lng::MPreparingList)); };
+			const auto& PR_FarGetDirListMsg = [](){ Message(0, 0, L"", msg(lng::MPreparingList)); };
 
 			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
 			SCOPED_ACTION(SaveScreen);
@@ -2908,9 +2908,10 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 		case PN_GENERATENAME:
 		{
 			string strResult = NullToEmpty(param2);
-			int nResult = ConvertWildcards(NullToEmpty(param1), strResult, Length);
+			// Result deliberately ignored as strResult might already contain something
+			ConvertWildcards(NullToEmpty(param1), strResult, Length);
 			xwcsncpy(param2, strResult.data(), size);
-			return nResult;
+			return strResult.size() + 1;
 		}
 
 		default:

@@ -763,7 +763,7 @@ void Text(const wchar_t* Str, size_t Size)
 
 void Text(lng MsgId)
 {
-	Text(MSG(MsgId));
+	Text(msg(MsgId));
 }
 
 void VText(const wchar_t* Str, size_t Size)

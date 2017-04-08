@@ -753,7 +753,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 		CloseConsole();
 	};
 
-	Global->Lang = std::make_unique<Language>(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
+	far_language::instance().load(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
 
 	os::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
 

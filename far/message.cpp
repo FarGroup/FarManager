@@ -581,9 +581,9 @@ bool AbortMessage()
 	}
 
 	SCOPED_ACTION(TaskBarPause);
-	int Res = Message(MSG_WARNING | MSG_KILLSAVESCREEN, 2, MSG(lng::MKeyESCWasPressed),
-		MSG(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToStopWork2 : lng::MDoYouWantToStopWork),
-		MSG(lng::MYes), MSG(lng::MNo));
+	int Res = Message(MSG_WARNING | MSG_KILLSAVESCREEN, 2, msg(lng::MKeyESCWasPressed),
+		msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToStopWork2 : lng::MDoYouWantToStopWork),
+		msg(lng::MYes), msg(lng::MNo));
 
 	if (Res == -1) // Set "ESC" equal to "NO" button
 		Res = 1;

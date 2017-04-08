@@ -107,7 +107,7 @@ void ShowProcessList()
 		return;
 	Active = true;
 
-	const auto ProcList = VMenu2::create(MSG(lng::MProcessListTitle), nullptr, 0, ScrY - 4);
+	const auto ProcList = VMenu2::create(msg(lng::MProcessListTitle), nullptr, 0, ScrY - 4);
 	ProcList->SetMenuFlags(VMENU_WRAPMODE);
 	ProcList->SetPosition(-1,-1,0,0);
 	bool ShowImage = false;
@@ -134,7 +134,7 @@ void ShowProcessList()
 	if (FillProcList())
 	{
 		ProcList->AssignHighlights(FALSE);
-		ProcList->SetBottomTitle(MSG(lng::MProcessListBottom));
+		ProcList->SetBottomTitle(msg(lng::MProcessListBottom));
 
 		ProcList->Run([&](const Manager::Key& RawKey)
 		{
@@ -153,15 +153,15 @@ void ShowProcessList()
 				{
 					if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
 					{
-						if (Message(MSG_WARNING, MSG(lng::MKillProcessTitle),
-							{ MSG(lng::MAskKillProcess), MenuData->Title.data(), MSG(lng::MKillProcessWarning) },
-							{ MSG(lng::MKillProcessKill), MSG(lng::MCancel) }) == Message::first_button)
+						if (Message(MSG_WARNING, msg(lng::MKillProcessTitle),
+							{ msg(lng::MAskKillProcess), MenuData->Title.data(), msg(lng::MKillProcessWarning) },
+							{ msg(lng::MKillProcessKill), msg(lng::MCancel) }) == Message::first_button)
 						{
 							const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
 							if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
 							{
 								Global->CatchError();
-								Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MKillProcessTitle),MSG(lng::MCannotKillProcess),MSG(lng::MOk));
+								Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MKillProcessTitle),msg(lng::MCannotKillProcess),msg(lng::MOk));
 							}
 						}
 					}

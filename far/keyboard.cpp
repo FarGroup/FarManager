@@ -1429,7 +1429,7 @@ bool KeyToLocalizedText(int Key, string &strKeyText)
 		{
 			if (i->LocalizedNameId != lng(-1))
 			{
-				const auto Msg = MSG(i->LocalizedNameId);
+				const auto Msg = msg(i->LocalizedNameId);
 				if (*Msg)
 					return Msg;
 			}

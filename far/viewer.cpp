@@ -325,8 +325,8 @@ bool Viewer::OpenFile(const string& Name,int warning)
 		   + 'warning' flag processing, in QuickView it is FALSE
 		     so don't show red message box */
 		if (warning)
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(lng::MViewerTitle),
-			        MSG(lng::MViewerCannotOpenFile),strFileName.data(),MSG(lng::MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MViewerTitle),
+			        msg(lng::MViewerCannotOpenFile),strFileName.data(),msg(lng::MOk));
 
 		OpenFailed=true;
 		return false;
@@ -526,7 +526,7 @@ void Viewer::ShowPage(int nMode)
 			SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_VIEWERTEXT));
 			GotoXY(m_X1,m_Y1);
 			SetColor(COL_WARNDIALOGTEXT);
-			Text(cut_right(MSG(lng::MViewerCannotOpenFile), XX2 - m_X1 + 1));
+			Text(cut_right(msg(lng::MViewerCannotOpenFile), XX2 - m_X1 + 1));
 			ShowStatus();
 		}
 
@@ -1685,13 +1685,13 @@ bool Viewer::process_key(const Manager::Key& Key)
 		{
 			MenuDataEx ModeListMenu[] =
 			{
-				{MSG(lng::MViewF4Text), 0, 0}, // Text
-				{MSG(lng::MViewF4), 0, 0 },     // Hex
-				{MSG(lng::MViewF4Dump), 0, 0}  // Dump
+				{msg(lng::MViewF4Text), 0, 0}, // Text
+				{msg(lng::MViewF4), 0, 0 },     // Hex
+				{msg(lng::MViewF4Dump), 0, 0}  // Dump
 			};
 			int MenuResult;
 			{
-				const auto vModes = VMenu2::create(MSG(lng::MViewMode), ModeListMenu, std::size(ModeListMenu), ScrY - 4);
+				const auto vModes = VMenu2::create(msg(lng::MViewMode), ModeListMenu, std::size(ModeListMenu), ScrY - 4);
 				vModes->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 				vModes->SetSelectPos(m_DisplayMode, +1);
 				MenuResult = vModes->Run();
@@ -2495,13 +2495,13 @@ void Viewer::UpdateViewKeyBar(KeyBar& keybar)
 	const wchar_t *f2_label = L"", *shiftf2_label = L"";
 	if (m_DisplayMode == VMT_TEXT)
 	{
-		f2_label = MSG(m_Wrap? lng::MViewF2Unwrap : m_WordWrap? lng::MViewShiftF2 : lng::MViewF2);
-		shiftf2_label = MSG(m_WordWrap? lng::MViewF2 : lng::MViewShiftF2);
+		f2_label = msg(m_Wrap? lng::MViewF2Unwrap : m_WordWrap? lng::MViewShiftF2 : lng::MViewF2);
+		shiftf2_label = msg(m_WordWrap? lng::MViewF2 : lng::MViewShiftF2);
 	}
 	keybar[KBL_MAIN][F2] = f2_label;
 	keybar[KBL_SHIFT][F2] = shiftf2_label;
 
-	keybar[KBL_MAIN][F4] = MSG(m_DisplayMode != VMT_HEX? lng::MViewF4 : (m_DumpTextMode? lng::MViewF4Dump : lng::MViewF4Text));
+	keybar[KBL_MAIN][F4] = msg(m_DisplayMode != VMT_HEX? lng::MViewF4 : (m_DumpTextMode? lng::MViewF4Dump : lng::MViewF4Text));
 	keybar[KBL_MAIN][F8] = f8cps.NextCPname(m_Codepage);
 }
 
@@ -2699,14 +2699,14 @@ static void PR_ViewerSearchMsg()
 void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 {
 	string strProgress;
-	const auto strMsg = concat(MSG(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', MsgStr);
+	const auto strMsg = concat(msg(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', MsgStr);
 	if (Percent>=0)
 	{
 		const size_t Length = Clamp(static_cast<int>(strMsg.size()), 40, ScrX - 1 - 10);
 		strProgress = make_progressbar(Length, Percent, true, true);
 	}
 
-	Message(MSG_LEFTALIGN,0,MSG(lng::MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
+	Message(MSG_LEFTALIGN,0,msg(lng::MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<ViewerPreRedrawItem*>(PreRedrawStack().top());
@@ -3310,20 +3310,20 @@ void Viewer::Search(int Next,int FirstChar)
 	{
 		FarDialogItem SearchDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,MSG(lng::MViewSearchTitle)},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(lng::MViewSearchFor)},
+			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,msg(lng::MViewSearchTitle)},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MViewSearchFor)},
 			{DI_EDIT,5,3,70,3,0,L"SearchText",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
 			{DI_FIXEDIT,5,3,70,3,0,nullptr,L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ",DIF_MASKEDIT,L""},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,MSG(lng::MViewSearchForText)},
-			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,MSG(lng::MViewSearchForHex)},
-			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,MSG(lng::MViewSearchCase)},
-			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,MSG(lng::MViewSearchWholeWords)},
-			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,MSG(lng::MViewSearchReverse)},
-			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,MSG(lng::MViewSearchRegexp)},
+			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,msg(lng::MViewSearchForText)},
+			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchForHex)},
+			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,msg(lng::MViewSearchCase)},
+			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchWholeWords)},
+			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,msg(lng::MViewSearchReverse)},
+			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,msg(lng::MViewSearchRegexp)},
 			{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MViewSearchSearch)},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MViewSearchCancel)},
+			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MViewSearchSearch)},
+			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MViewSearchCancel)},
 		};
 		auto SearchDlg = MakeDialogItemsEx(SearchDlgData);
 
@@ -3496,9 +3496,9 @@ void Viewer::Search(int Next,int FirstChar)
 			else if (found == Search_NotFound)
 			{
 				Message(
-					MSG_WARNING, 1, MSG(lng::MViewSearchTitle),
-					(SearchHex ? MSG(lng::MViewSearchCannotFindHex) : MSG(lng::MViewSearchCannotFind)),
-					strMsgStr.data(),	MSG(lng::MOk)
+					MSG_WARNING, 1, msg(lng::MViewSearchTitle),
+					(SearchHex ? msg(lng::MViewSearchCannotFindHex) : msg(lng::MViewSearchCannotFind)),
+					strMsgStr.data(),	msg(lng::MOk)
 				);
 				return;
 			}
@@ -3510,10 +3510,10 @@ void Viewer::Search(int Next,int FirstChar)
 				static_assert(lng::MViewSearchCycle + 1 == lng::MViewSearchRepeat, "Wrong .lng file order");
 				static_assert(lng::MViewSearchEod + 2 == lng::MViewSearchBod && lng::MViewSearchEod + 4 == lng::MViewSearchCycle, "Wrong .lng file order");
 				if (Message(
-					0, 2, MSG(lng::MViewSearchTitle),
-					MSG(lng::MViewSearchEod+2*(found-Search_Eof)),
-					MSG(lng::MViewSearchFromBegin+2*(found-Search_Eof)),
-					strMsgStr.data(), MSG(lng::MYes), MSG(lng::MCancel)) != Message::first_button) // cancel search
+					0, 2, msg(lng::MViewSearchTitle),
+					msg(lng::MViewSearchEod+2*(found-Search_Eof)),
+					msg(lng::MViewSearchFromBegin+2*(found-Search_Eof)),
+					strMsgStr.data(), msg(lng::MYes), msg(lng::MCancel)) != Message::first_button) // cancel search
 				{
 					return;
 				}

@@ -628,10 +628,10 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				Plugin* LuaMacro = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
 				if (!LuaMacro || LuaMacro->IsPendingRemove())
 				{
-					Message(MSG_WARNING,1,MSG(lng::MError),
-					   MSG(lng::MMacroPluginLuamacroNotLoaded),
-					   MSG(lng::MMacroRecordingIsDisabled),
-					   MSG(lng::MOk));
+					Message(MSG_WARNING,1,msg(lng::MError),
+					   msg(lng::MMacroPluginLuamacroNotLoaded),
+					   msg(lng::MMacroRecordingIsDisabled),
+					   msg(lng::MOk));
 					return false;
 				}
 
@@ -1152,29 +1152,29 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_
 	FarDialogItem MacroSettingsDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,69,19,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(lng::MMacroSequence)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MMacroSequence)},
 		{DI_EDIT,5,3,67,3,0,L"MacroSequence",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
-		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(lng::MMacroDescription)},
+		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MMacroDescription)},
 		{DI_EDIT,5,5,67,5,0,L"MacroDescription",nullptr,DIF_HISTORY,L""},
 
 		{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(lng::MMacroSettingsEnableOutput)},
-		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,MSG(lng::MMacroSettingsRunAfterStart)},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MMacroSettingsEnableOutput)},
+		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,msg(lng::MMacroSettingsRunAfterStart)},
 		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,MSG(lng::MMacroSettingsActivePanel)},
-		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(lng::MMacroSettingsPluginPanel)},
-		{DI_CHECKBOX,7,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(lng::MMacroSettingsFolders)},
-		{DI_CHECKBOX,7,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(lng::MMacroSettingsSelectionPresent)},
-		{DI_CHECKBOX,37,10,0,10,0,nullptr,nullptr,0,MSG(lng::MMacroSettingsPassivePanel)},
-		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(lng::MMacroSettingsPluginPanel)},
-		{DI_CHECKBOX,39,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(lng::MMacroSettingsFolders)},
-		{DI_CHECKBOX,39,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(lng::MMacroSettingsSelectionPresent)},
+		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsActivePanel)},
+		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel)},
+		{DI_CHECKBOX,7,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders)},
+		{DI_CHECKBOX,7,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent)},
+		{DI_CHECKBOX,37,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsPassivePanel)},
+		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel)},
+		{DI_CHECKBOX,39,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders)},
+		{DI_CHECKBOX,39,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent)},
 		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,15,0,15,2,nullptr,nullptr,DIF_3STATE,MSG(lng::MMacroSettingsCommandLine)},
-		{DI_CHECKBOX,5,16,0,16,2,nullptr,nullptr,DIF_3STATE,MSG(lng::MMacroSettingsSelectionBlockPresent)},
+		{DI_CHECKBOX,5,15,0,15,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsCommandLine)},
+		{DI_CHECKBOX,5,16,0,16,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsSelectionBlockPresent)},
 		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(lng::MOk)},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(lng::MCancel)},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk)},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel)},
 	};
 	auto MacroSettingsDlg = MakeDialogItemsEx(MacroSettingsDlgData);
 	string strKeyText;
@@ -5202,14 +5202,14 @@ M1:
 				}
 				const auto strBuf = format(MessageTemplate, strKeyText);
 
-				const auto Result = Message(MSG_WARNING,SetChange?3:2,MSG(lng::MWarning),
+				const auto Result = Message(MSG_WARNING,SetChange?3:2,msg(lng::MWarning),
 					          strBuf.data(),
-					          MSG(lng::MMacroSequence),
+					          msg(lng::MMacroSequence),
 					          strBufKey.data(),
-					          MSG(SetChange? lng::MMacroDeleteKey2 : lng::MMacroReDefinedKey2),
-					          MSG(lng::MYes),
-					          MSG(SetChange? lng::MMacroEditKey : lng::MNo),
-					          (!SetChange?nullptr:MSG(lng::MNo))).GetExitCode();
+					          msg(SetChange? lng::MMacroDeleteKey2 : lng::MMacroReDefinedKey2),
+					          msg(lng::MYes),
+					          msg(SetChange? lng::MMacroEditKey : lng::MNo),
+					          (!SetChange?nullptr:msg(lng::MNo))).GetExitCode();
 
 				if (Result == Message::first_button)
 				{
@@ -5266,8 +5266,8 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	*/
 	FarDialogItem MacroAssignDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,MSG(lng::MDefineMacroTitle)},
-		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,MSG(lng::MDefineMacro)},
+		{DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,msg(lng::MDefineMacroTitle)},
+		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MDefineMacro)},
 		{DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
 	};
 	auto MacroAssignDlg = MakeDialogItemsEx(MacroAssignDlgData);

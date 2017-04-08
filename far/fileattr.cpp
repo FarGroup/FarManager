@@ -55,8 +55,8 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
-			             MSG(lng::MSetAttrCannotFor),Name.data(),MSG(lng::MHRetry),MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
+			             msg(lng::MSetAttrCannotFor),Name.data(),msg(lng::MHRetry),msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
 
 		switch (Code)
 		{
@@ -109,9 +109,9 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
-			             MSG(lng::MSetAttrCompressedCannotFor),Name.data(),MSG(lng::MHRetry),
-			             MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
+			             msg(lng::MSetAttrCompressedCannotFor),Name.data(),msg(lng::MHRetry),
+			             msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
 
 		if (Code==1 || Code<0)
 		{
@@ -164,9 +164,9 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
-			             MSG(lng::MSetAttrEncryptedCannotFor),Name.data(),MSG(lng::MHRetry), //BUGBUG
-			             MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
+			             msg(lng::MSetAttrEncryptedCannotFor),Name.data(),msg(lng::MHRetry), //BUGBUG
+			             msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
 
 		if (Code==1 || Code<0)
 		{
@@ -238,9 +238,9 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
-			             MSG(lng::MSetAttrTimeCannotFor),Name.data(),MSG(lng::MHRetry), //BUGBUG
-			             MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
+			             msg(lng::MSetAttrTimeCannotFor),Name.data(),msg(lng::MHRetry), //BUGBUG
+			             msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
 
 		switch (Code)
 		{
@@ -286,9 +286,9 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 			if (SkipMode!=-1)
 				Code=SkipMode;
 			else
-				Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),
-				             MSG(lng::MSetAttrSparseCannotFor),Name.data(),MSG(lng::MHRetry),
-				             MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
+				Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
+				             msg(lng::MSetAttrSparseCannotFor),Name.data(),msg(lng::MHRetry),
+				             msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
 
 			if (Code==1 || Code<0)
 			{
@@ -324,7 +324,7 @@ int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),MSG(lng::MSetAttrOwnerCannotFor),Name.data(),MSG(lng::MHRetry),MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),msg(lng::MSetAttrOwnerCannotFor),Name.data(),msg(lng::MHRetry),msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
 
 		if (Code==1 || Code<0)
 		{
@@ -358,7 +358,7 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 		if (SkipMode!=-1)
 			Code=SkipMode;
 		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(lng::MError),MSG(lng::MSetAttrCannotFor),Name.data(),MSG(lng::MHRetry),MSG(lng::MHSkip),MSG(lng::MHSkipAll),MSG(lng::MHCancel));
+			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),msg(lng::MSetAttrCannotFor),Name.data(),msg(lng::MHRetry),msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
 
 		if (Code==1 || Code<0)
 		{
