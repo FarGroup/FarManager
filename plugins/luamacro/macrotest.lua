@@ -83,12 +83,12 @@ function MT.test_areas()
   assert(Area.DialogAutoCompletion ==false)
 end
 
-local function test_akey()
+local function test_mf_akey()
   assert(akey == mf.akey)
   local k0,k1 = akey(0),akey(1)
   assert(k0==0x0501007B and k1=="CtrlShiftF12" or
          k0==0x1401007B and k1=="RCtrlShiftF12")
-  -- (the 2nd parameter is tested in function test_eval).
+  -- (the 2nd parameter is tested in function test_mf_eval).
 end
 
 local function test_bit64()
@@ -134,7 +134,7 @@ local function test_bit64()
   assert(bit64.arshift(w,64)==-1)
 end
 
-local function test_eval()
+local function test_mf_eval()
   assert(eval==mf.eval)
 
   temp=3
@@ -171,25 +171,25 @@ local function test_eval()
   assert(far.MacroDelete(Id))
 end
 
-local function test_abs()
+local function test_mf_abs()
   assert(mf.abs(1.3)==1.3)
   assert(mf.abs(-1.3)==1.3)
   assert(mf.abs(0)==0)
 end
 
-local function test_acall()
+local function test_mf_acall()
   local a,b,c,d = mf.acall(function(p) return 3, nil, p, "foo" end, 77)
   assert(a==3 and b==nil and c==77 and d=="foo")
   assert(true == mf.acall(far.Show))
   Keys"Esc"
 end
 
-local function test_asc()
+local function test_mf_asc()
   assert(mf.asc("0")==48)
   assert(mf.asc("Я")==1071)
 end
 
-local function test_atoi()
+local function test_mf_atoi()
   assert(mf.atoi("0")==0)
   assert(mf.atoi("-10")==-10)
   assert(mf.atoi("0x11")==17)
@@ -200,12 +200,12 @@ local function test_atoi()
   assert(mf.atoi("-0x1B69B4BACD05F15")==bit64.new("-0x1B69B4BACD05F15"))
 end
 
-local function test_chr()
+local function test_mf_chr()
   assert(mf.chr(48)=="0")
   assert(mf.chr(1071)=="Я")
 end
 
-local function test_clip()
+local function test_mf_clip()
   local oldval = far.PasteFromClipboard() -- store
 
   mf.clip(5,2) -- turn on the internal clipboard
@@ -240,14 +240,14 @@ local function test_clip()
   far.CopyToClipboard(oldval) -- restore
 end
 
-local function test_env()
+local function test_mf_env()
   mf.env("Foo",1,"Bar")
   assert(mf.env("Foo")=="Bar")
   mf.env("Foo",1,"")
   assert(mf.env("Foo")=="")
 end
 
-local function test_fattr()
+local function test_mf_fattr()
   DeleteTmpFile()
   assert(mf.fattr(TmpFileName) == -1)
   WriteTmpFile("")
@@ -256,14 +256,14 @@ local function test_fattr()
   assert(attr >= 0)
 end
 
-local function test_fexist()
+local function test_mf_fexist()
   WriteTmpFile("")
   assert(mf.fexist(TmpFileName) == true)
   DeleteTmpFile()
   assert(mf.fexist(TmpFileName) == false)
 end
 
-local function test_msgbox()
+local function test_mf_msgbox()
   assert(msgbox == mf.msgbox)
   mf.postmacro(function() Keys("Esc") end)
   assert(0 == msgbox("title","message"))
@@ -271,7 +271,7 @@ local function test_msgbox()
   assert(1 == msgbox("title","message"))
 end
 
-local function test_prompt()
+local function test_mf_prompt()
   assert(prompt == mf.prompt)
   mf.postmacro(function() Keys("a b c Esc") end)
   assert(not prompt())
@@ -279,19 +279,19 @@ local function test_prompt()
   assert("abc" == prompt())
 end
 
-local function test_date()
+local function test_mf_date()
   assert(type(mf.date())=="string")
   assert(type(mf.date("%a"))=="string")
 end
 
-local function test_fmatch()
+local function test_mf_fmatch()
   assert(mf.fmatch("Readme.txt", "*.txt") == 1)
   assert(mf.fmatch("Readme.txt", "Readme.*|*.txt") == 0)
   assert(mf.fmatch("c:\\Readme.txt", "/txt$/i") == 1)
   assert(mf.fmatch("c:\\Readme.txt", "/txt$") == -1)
 end
 
-local function test_fsplit()
+local function test_mf_fsplit()
   local path="C:\\Program Files\\Far\\Far.exe"
   assert(mf.fsplit(path,0x01)=="C:\\")
   assert(mf.fsplit(path,0x02)=="\\Program Files\\Far\\")
@@ -303,7 +303,7 @@ local function test_fsplit()
   assert(mf.fsplit(path,0x0F)==path)
 end
 
-local function test_iif()
+local function test_mf_iif()
   assert(mf.iif(true,  1, 2)==1)
   assert(mf.iif("a",   1, 2)==1)
   assert(mf.iif(100,   1, 2)==1)
@@ -313,14 +313,14 @@ local function test_iif()
   assert(mf.iif("",    1, 2)==2)
 end
 
-local function test_index()
+local function test_mf_index()
   assert(mf.index("language","gua",0)==3)
   assert(mf.index("language","gua",1)==3)
   assert(mf.index("language","gUA",1)==-1)
   assert(mf.index("language","gUA",0)==3)
 end
 
-local function test_int()
+local function test_mf_int()
   assert(mf.int("2.99")==2)
   assert(mf.int("-2.99")==-2)
   assert(mf.int("0x10")==0)
@@ -328,7 +328,7 @@ local function test_int()
   assert(mf.int("-123456789123456789")==bit64.new("-123456789123456789"))
 end
 
-local function test_itoa()
+local function test_mf_itoa()
   assert(mf.itoa(100)=="100")
   assert(mf.itoa(100,10)=="100")
   assert(mf.itoa(bit64.new("123456789123456789"))=="123456789123456789")
@@ -338,7 +338,7 @@ local function test_itoa()
   assert(mf.itoa(100,36)=="2s")
 end
 
-local function test_key()
+local function test_mf_key()
   assert(mf.key(0x01000000)=="Ctrl")
   assert(mf.key(0x02000000)=="Alt")
   assert(mf.key(0x04000000)=="Shift")
@@ -352,32 +352,33 @@ local function test_key()
 end
 
 -- Separate tests for mf.float and mf.string are locale-dependant, thus they are tested together.
-local function test_float_and_string()
+local function test_mf_float_and_string()
   local t = { 0, -0, 2.56e1, -5.37, -2.2e100, 2.2e-100 }
   for _,num in ipairs(t) do
     assert(mf.float(mf.string(num))==num)
   end
 end
 
-local function test_lcase()
+local function test_mf_lcase()
   assert(mf.lcase("FOo БАр")=="foo бар")
 end
 
-local function test_len()
+local function test_mf_len()
+  assert(mf.len("")==0)
   assert(mf.len("FOo БАр")==7)
 end
 
-local function test_max()
+local function test_mf_max()
   assert(mf.max(-2,-5)==-2)
   assert(mf.max(2,5)==5)
 end
 
-local function test_min()
+local function test_mf_min()
   assert(mf.min(-2,-5)==-5)
   assert(mf.min(2,5)==2)
 end
 
-local function test_msave()
+local function test_mf_msave()
   local Key = "macrotest"
 
   -- test supported types, except tables
@@ -449,7 +450,7 @@ local function test_msave()
   end
 end
 
-local function test_mod()
+local function test_mf_mod()
   assert(mf.mod(11,4) == 3)
   assert(math.fmod(11,4) == 3)
   assert(11 % 4 == 3)
@@ -459,21 +460,21 @@ local function test_mod()
   assert(-1 % 4 == 3)
 end
 
-local function test_replace()
+local function test_mf_replace()
   assert(mf.replace("Foo Бар", "o", "1")=="F11 Бар")
   assert(mf.replace("Foo Бар", "o", "1", 1)=="F1o Бар")
   assert(mf.replace("Foo Бар", "O", "1", 1, 1)=="Foo Бар")
   assert(mf.replace("Foo Бар", "O", "1", 1, 0)=="F1o Бар")
 end
 
-local function test_rindex()
+local function test_mf_rindex()
   assert(mf.rindex("language","a",0)==5)
   assert(mf.rindex("language","a",1)==5)
   assert(mf.rindex("language","A",1)==-1)
   assert(mf.rindex("language","A",0)==5)
 end
 
-local function test_strpad()
+local function test_mf_strpad()
   assert(mf.strpad("Foo",10,"*",  2) == '***Foo****')
   assert(mf.strpad("",   10,"-*-",2) == '-*--*--*--')
   assert(mf.strpad("",   10,"-*-")   == '-*--*--*--')
@@ -484,7 +485,7 @@ local function test_strpad()
   assert(mf.strpad("Foo",10,"1234567890",2) == '123Foo1234')
 end
 
-local function test_strwrap()
+local function test_mf_strwrap()
   assert(mf.strwrap("Пример строки, которая будет разбита на несколько строк по ширине в 7 символов.", 7)==
 [[
 Пример
@@ -518,7 +519,7 @@ local function test_strwrap()
 в.]])
 end
 
-local function test_substr()
+local function test_mf_substr()
   assert(mf.substr("abcdef", 1) == "bcdef")
   assert(mf.substr("abcdef", 1, 3) == "bcd")
   assert(mf.substr("abcdef", 0, 4) == "abcd")
@@ -532,53 +533,53 @@ local function test_substr()
   assert(mf.substr("abcdef", -3, -1) == "de")
 end
 
-local function test_testfolder()
+local function test_mf_testfolder()
   assert(mf.testfolder(".") > 0)
   assert(mf.testfolder("C:\\") == 2)
   assert(mf.testfolder("@:\\") <= 0)
 end
 
-local function test_trim()
+local function test_mf_trim()
   assert(mf.trim(" abc ")=="abc")
   assert(mf.trim(" abc ",0)=="abc")
   assert(mf.trim(" abc ",1)=="abc ")
   assert(mf.trim(" abc ",2)==" abc")
 end
 
-local function test_ucase()
+local function test_mf_ucase()
   assert(mf.ucase("FOo БАр")=="FOO БАР")
 end
 
-local function test_waitkey()
+local function test_mf_waitkey()
   assert(mf.waitkey(50,0)=="")
   assert(mf.waitkey(50,1)==0xFFFFFFFF)
 end
 
-local function test_size2str()
+local function test_mf_size2str()
   assert(mf.size2str(123,0,5)=="  123")
   assert(mf.size2str(123,0,-5)=="123  ")
 end
 
-local function test_xlat()
+local function test_mf_xlat()
   assert(type(mf.xlat("abc"))=="string")
   -- commented out, as these tests won't work with any Windows configuration:
   --assert(mf.xlat("ghzybr")=="пряник")
   --assert(mf.xlat("сщьзгеук")=="computer")
 end
 
-local function test_beep()
+local function test_mf_beep()
   assert(type(mf.beep())=="boolean")
 end
 
-local function test_flock()
+local function test_mf_flock()
   for k=0,2 do assert(type(mf.flock(k,-1))=="number") end
 end
 
-local function test_GetMacroCopy()
+local function test_mf_GetMacroCopy()
   assert(type(mf.GetMacroCopy) == "function")
 end
 
-local function test_Keys()
+local function test_mf_Keys()
   assert(Keys == mf.Keys)
   assert(type(Keys) == "function")
 
@@ -588,7 +589,7 @@ local function test_Keys()
   assert(panel.GetCmdLine() == "")
 end
 
-local function test_exit()
+local function test_mf_exit()
   assert(exit == mf.exit)
   local N
   mf.postmacro(
@@ -601,12 +602,12 @@ local function test_exit()
   assert(N == 50)
 end
 
-local function test_mmode()
+local function test_mf_mmode()
   assert(mmode == mf.mmode)
   assert(1 == mmode(1,-1))
 end
 
-local function test_print()
+local function test_mf_print()
   assert(print == mf.print)
   assert(type(print) == "function")
   -- test on command line
@@ -632,68 +633,68 @@ local function test_print()
   editor.Quit()
 end
 
-local function test_postmacro()
+local function test_mf_postmacro()
   assert(type(mf.postmacro) == "function")
 end
 
-local function test_sleep()
+local function test_mf_sleep()
   assert(type(mf.sleep) == "function")
 end
 
-local function test_usermenu()
+local function test_mf_usermenu()
   assert(type(mf.usermenu) == "function")
 end
 
 function MT.test_mf()
-  test_abs()
-  test_acall()
-  test_akey()
-  test_asc()
-  test_atoi()
-  test_beep()
-  test_chr()
-  test_clip()
-  test_date()
-  test_env()
-  test_eval()
-  test_exit()
-  test_fattr()
-  test_fexist()
-  test_float_and_string()
-  test_flock()
-  test_fmatch()
-  test_fsplit()
-  test_GetMacroCopy()
-  test_iif()
-  test_index()
-  test_int()
-  test_itoa()
-  test_key()
-  test_Keys()
-  test_lcase()
-  test_len()
-  test_max()
-  test_min()
-  test_mmode()
-  test_mod()
-  test_msave()
-  test_msgbox()
-  test_postmacro()
-  test_print()
-  test_prompt()
-  test_replace()
-  test_rindex()
-  test_size2str()
-  test_sleep()
-  test_strpad()
-  test_strwrap()
-  test_substr()
-  test_testfolder()
-  test_trim()
-  test_ucase()
-  test_usermenu()
-  test_waitkey()
-  test_xlat()
+  test_mf_abs()
+  test_mf_acall()
+  test_mf_akey()
+  test_mf_asc()
+  test_mf_atoi()
+  test_mf_beep()
+  test_mf_chr()
+  test_mf_clip()
+  test_mf_date()
+  test_mf_env()
+  test_mf_eval()
+  test_mf_exit()
+  test_mf_fattr()
+  test_mf_fexist()
+  test_mf_float_and_string()
+  test_mf_flock()
+  test_mf_fmatch()
+  test_mf_fsplit()
+  test_mf_GetMacroCopy()
+  test_mf_iif()
+  test_mf_index()
+  test_mf_int()
+  test_mf_itoa()
+  test_mf_key()
+  test_mf_Keys()
+  test_mf_lcase()
+  test_mf_len()
+  test_mf_max()
+  test_mf_min()
+  test_mf_mmode()
+  test_mf_mod()
+  test_mf_msave()
+  test_mf_msgbox()
+  test_mf_postmacro()
+  test_mf_print()
+  test_mf_prompt()
+  test_mf_replace()
+  test_mf_rindex()
+  test_mf_size2str()
+  test_mf_sleep()
+  test_mf_strpad()
+  test_mf_strwrap()
+  test_mf_substr()
+  test_mf_testfolder()
+  test_mf_trim()
+  test_mf_ucase()
+  test_mf_usermenu()
+  test_mf_waitkey()
+  test_mf_xlat()
 end
 
 function MT.test_CmdLine()
@@ -1446,6 +1447,39 @@ function MT.test_mantis_1722()
   assert(Dlg[1][10] == "W123")
 end
 
+local function test_utf8_len()
+  assert((""):len() == 0)
+  assert(("FOo БАр"):len() == 7)
+end
+
+local function test_utf8_sub()
+  local text = "abcdабвг"
+  assert(text:sub(0,0) == "")
+  assert(text:sub(-1,0) == "")
+  assert(text:sub(1,0) == "")
+  assert(text:sub(1,1) == "a")
+  assert(text:sub(2,1) == "")
+  assert(text:sub(3,2) == "")
+  assert(text:sub(3,6) == "cdаб")
+  assert(text:sub(1,6) == "abcdаб")
+  assert(text:sub(1,-3) == "abcdаб")
+  assert(text:sub(-8,-3) == "abcdаб")
+  assert(text:sub(-6,-3) == "cdаб")
+  assert(text:sub(-3,-3) == "б")
+  assert(text:sub(-2,-3) == "")
+  assert(text:sub(1) == text)
+  assert(text:sub(2) == "bcdабвг")
+  assert(text:sub(6) == "бвг")
+  assert(text:sub(9) == "")
+  assert(text:sub(1,100) == text)
+  assert(text:sub(1,-1) == text)
+  assert(text:sub(100,200) == "")
+  assert(text:sub(-100,-200) == "")
+  assert(not pcall(text.sub, text))
+  assert(not pcall(text.sub, text, {}))
+  assert(not pcall(text.sub, text, nil))
+end
+
 ---------------------------------------------------------------------------------------------------
 -- ACTL_GETWINDOWCOUNT, ACTL_GETWINDOWTYPE, ACTL_GETWINDOWINFO, ACTL_SETCURRENTWINDOW, ACTL_COMMIT
 ---------------------------------------------------------------------------------------------------
@@ -1680,14 +1714,17 @@ local function test_gmatch_coro()
 end
 
 function MT.test_luafar()
-  test_AdvControl()
   test_bit64()
+  test_gmatch_coro()
+  test_utf8_len()
+  test_utf8_sub()
+
+  test_AdvControl()
   test_far_GetMsg()
   test_FarStandardFunctions()
+  test_issue_3129()
   test_MacroControl()
   test_RegexControl()
-  test_issue_3129()
-  test_gmatch_coro()
 end
 
 -- Test in particular that Plugin.Call (a so-called "restricted" function) works properly

@@ -425,16 +425,21 @@ static int unic_sub(lua_State *L)
 
 	if(IS_MBYTE(mode))
 	{
-		ptrdiff_t max = (start>=0 && end>=0) ? end : -1;
-		p=s; len = utf8_count(&p, len, IS_GRAPH(mode), (size_t)max);
+		ptrdiff_t max = (start>=0 && end>=0) ? end : -1;  /* non-negative arguments */
+		p = s;
+		len = utf8_count(&p, len, IS_GRAPH(mode), (size_t)max);
+		if (end != -1 && end < (ptrdiff_t)len)
+			p = 0;  /* invalidate p */
 	}
 
 	start = posrelat(start, len);
 	end = posrelat(end, len);
 
-	if(start < 1) start = 1;
+	if(start < 1)
+		start = 1;
 
-	if(end > (ptrdiff_t)len) end = (ptrdiff_t)len;
+	if(end > (ptrdiff_t)len)
+		end = (ptrdiff_t)len;
 
 	if(start > end)
 		lua_pushliteral(L, "");
@@ -448,8 +453,11 @@ static int unic_sub(lua_State *L)
 		{
 			if(start) utf8_count(&s, e-s, IS_GRAPH(mode), start);  /* skip */
 
-			p = s;
-			utf8_count(&p, e-p, IS_GRAPH(mode), len);
+			if (p == 0)
+			{
+				p = s;
+				utf8_count(&p, e-p, IS_GRAPH(mode), len);
+			}
 			len = p-s;
 		}
 
