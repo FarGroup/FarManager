@@ -21310,6 +21310,18 @@ l:
 "Editor Delle Modalità"
 "Режими панелі"
 
+MEditPanelModesBottom
+"Ins,Del,F4"
+"Ins,Del,F4"
+"Ins,Del,F4"
+"Ins,Del,F4"
+"Ins,Del,F4"
+"Ins,Del,F4"
+"Ins,Del,F4"
+"Ins,Del,F4"
+"Ins,Del,F4"
+"Ins,Del,F4"
+
 MEditPanelModeName
 l:
 "Имя"

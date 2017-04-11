@@ -33,12 +33,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<typename type, typename... args>
-struct is_any: std::false_type {};
+struct is_one_of;
 
-template<typename type, typename arg>
-struct is_any<type, arg>: std::is_same<type, arg> {};
+template<typename type>
+struct is_one_of<type>: std::false_type {};
 
-template<typename type, typename arg, typename... args>
-struct is_any<type, arg, args...>: std::integral_constant<bool, is_any<type, arg>::value || is_any<type, args...>::value> {};
+template<typename type, typename... args>
+struct is_one_of<type, type, args...>: std::true_type {};
+
+template<typename type1, typename type2, typename... args>
+struct is_one_of<type1, type2, args...>: is_one_of<type1, args...> {};
 
 #endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

@@ -1098,6 +1098,8 @@ void Options::SetFilePanelModes()
 			ModeList->SetHelp(L"PanelViewModes");
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
 			ModeList->SetId(PanelViewModesId);
+			ModeList->SetBottomTitle(msg(lng::MEditPanelModesBottom));
+
 			ModeNumber=ModeList->Run([&](const Manager::Key& RawKey)
 			{
 				const auto Key=RawKey();
@@ -1119,16 +1121,22 @@ void Options::SetFilePanelModes()
 					return 1;
 
 				case KEY_INS:
+				case KEY_NUMPAD0:
 					AddNewMode = true;
 					ModeList->Close();
 					break;
 
 				case KEY_DEL:
+				case KEY_NUMDEL:
 					if (ModeList->GetSelectPos() >= static_cast<int>(predefined_panel_modes_count))
 					{
 						DeleteMode = true;
 						ModeList->Close();
 					}
+					break;
+
+				case KEY_F4:
+					ModeList->Close(ModeList->GetSelectPos());
 					break;
 
 				default:

@@ -392,7 +392,7 @@ namespace os
 		namespace detail
 		{
 			template<typename T>
-			using is_supported_type = typename is_any<T, string, unsigned int, unsigned long long>::type;
+			using is_supported_type = typename is_one_of<T, string, unsigned int, unsigned long long>::type;
 		}
 
 		template<class T>
