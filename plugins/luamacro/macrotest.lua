@@ -1454,27 +1454,46 @@ end
 
 local function test_utf8_sub()
   local text = "abcdабвг"
-  assert(text:sub(0,0) == "")
-  assert(text:sub(-1,0) == "")
-  assert(text:sub(1,0) == "")
-  assert(text:sub(1,1) == "a")
-  assert(text:sub(2,1) == "")
-  assert(text:sub(3,2) == "")
-  assert(text:sub(3,6) == "cdаб")
-  assert(text:sub(1,6) == "abcdаб")
-  assert(text:sub(1,-3) == "abcdаб")
-  assert(text:sub(-8,-3) == "abcdаб")
-  assert(text:sub(-6,-3) == "cdаб")
-  assert(text:sub(-3,-3) == "б")
-  assert(text:sub(-2,-3) == "")
-  assert(text:sub(1) == text)
-  assert(text:sub(2) == "bcdабвг")
-  assert(text:sub(6) == "бвг")
-  assert(text:sub(9) == "")
-  assert(text:sub(1,100) == text)
-  assert(text:sub(1,-1) == text)
-  assert(text:sub(100,200) == "")
-  assert(text:sub(-100,-200) == "")
+  local len = assert(text:len()==8) and 8
+
+  for _,start in ipairs{-len*3, 0, 1} do
+    assert(text:sub(start, -len*4) == "")
+    assert(text:sub(start, -len*3) == "")
+    assert(text:sub(start, -len*2) == "")
+    assert(text:sub(start, -len-1 + 0) == "")
+    assert(text:sub(start,          0) == "")
+    assert(text:sub(start, -len-1 + 1) == "a")
+    assert(text:sub(start,          1) == "a")
+    assert(text:sub(start, -len-1 + 6) == "abcdаб")
+    assert(text:sub(start,          6) == "abcdаб")
+    assert(text:sub(start, len*1) == text)
+    assert(text:sub(start, len*2) == text)
+  end
+
+  for _,start in ipairs{3, -6} do
+    assert(text:sub(start, -len*2)  == "")
+    assert(text:sub(start,      0)  == "")
+    assert(text:sub(start,      1)  == "")
+    assert(text:sub(start, start-1) == "")
+    assert(text:sub(start,      -6) == "c")
+    assert(text:sub(start, start+0) == "c")
+    assert(text:sub(start,      -5) == "cd")
+    assert(text:sub(start, start+3) == "cdаб")
+    assert(text:sub(start,      -3) == "cdаб")
+    assert(text:sub(start, len)     == "cdабвг")
+    assert(text:sub(start, 2*len)   == "cdабвг")
+  end
+
+  for _,start in ipairs{len+1, 2*len} do
+    for _,fin in ipairs{-2*len, -1*len, -1, 0, 1, len-1, len, 2*len} do
+      assert(text:sub(start,fin) == "")
+    end
+  end
+
+  for _,start in ipairs{-2*len,-len-1,-len,-len+1,-1,0,1,len-1,len,len+1} do
+    assert(text:sub(start) == text:sub(start,len))
+  end
+
   assert(not pcall(text.sub, text))
   assert(not pcall(text.sub, text, {}))
   assert(not pcall(text.sub, text, nil))
