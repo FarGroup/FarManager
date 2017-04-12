@@ -21311,21 +21311,21 @@ l:
 "Режими панелі"
 
 MEditPanelModesBottom
-"Ins,Del,F4"
-"Ins,Del,F4"
-"Ins,Del,F4"
-"Ins,Del,F4"
-"Ins,Del,F4"
-"Ins,Del,F4"
-"Ins,Del,F4"
-"Ins,Del,F4"
-"Ins,Del,F4"
-"Ins,Del,F4"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
+"Ins,Del,F4,Ctrl+Enter,Ctrl+Shift+Enter"
 
 MEditPanelModeName
 l:
 "Имя"
-"Name"
+"&Name"
 "Jméno"
 "Name"
 "Neve"
@@ -21397,7 +21397,7 @@ MEditPanelModeFullscreen
 
 MEditPanelModeAlignExtensions
 "&Выравнивать расширения файлов"
-"Align file &extensions"
+"Ali&gn file extensions"
 "Zarovnat příp&ony souborů"
 "Datei&erweiterungen ausrichten"
 "Fájlkiterjesztések &igazítása"
@@ -21454,18 +21454,6 @@ MEditPanelModeUpperToLowerCase
 "Zobraziť veľké znaky v názvoch súborov ako &malé písmená"
 "Mostra Nomi Files MAIUSCOLO In minuscol&o"
 "Показувати имена файлів из заголовних літер малими літерами"
-
-MEditPanelReadHelp
-" Нажмите F1, чтобы получить информацию по настройке "
-" Read online help for instructions "
-" Pro instrukce si přečtěte online nápovědu "
-" Siehe Hilfe für Anweisungen "
-" Tanácsokat a súgóban talál (F1) "
-" Instrukcje zawarte są w pomocy podręcznej "
-" Para instrucciones leer ayuda en línea "
-" Pokyny nájdete v online Pomocníkovi "
-" Leggi La Guida Per Le Istruzioni "
-" Натисніть F1, щоб отримати інформацію про налаштування "
 
 MSetFolderInfoTitle
 l:

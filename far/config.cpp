@@ -1106,9 +1106,13 @@ void Options::SetFilePanelModes()
 				switch (Key)
 				{
 				case KEY_CTRLENTER:
+				case KEY_CTRLNUMENTER:
 				case KEY_RCTRLENTER:
+				case KEY_RCTRLNUMENTER:
 				case KEY_CTRLSHIFTENTER:
+				case KEY_CTRLSHIFTNUMENTER:
 				case KEY_RCTRLSHIFTENTER:
+				case KEY_RCTRLSHIFTNUMENTER:
 					{
 						auto PanelPtr = Global->CtrlObject->Cp()->ActivePanel();
 						if (Key & KEY_SHIFT)
@@ -1216,7 +1220,7 @@ void Options::SetFilePanelModes()
 			{DI_EDIT,     38, 5,70, 5,0,nullptr,nullptr,0,L""},
 			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusWidths)},
 			{DI_EDIT,     38, 7,70, 7,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,msg(lng::MEditPanelReadHelp)},
+			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFullscreen)},
 			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignExtensions)},
 			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignFolderExtensions)},
