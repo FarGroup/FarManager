@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.04.2017 18:58:51 +0000 - build 4935
+
+1. Continuation of 4934.
+
+drkns 11.04.2017 07:51:48 +0000 - build 4934
+
+1. Processing of numpad keys in panel modes editing menu.
+
 drkns 08.04.2017 19:00:16 +0000 - build 4933
 
 1. Refactoring.
