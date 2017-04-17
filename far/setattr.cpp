@@ -917,7 +917,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 									ListItems.resize(DfsStorages.size());
 									Links.resize(DfsStorages.size());
 
-									for (auto i: zip(Links, ListItems, DfsStorages))
+									for (const auto& i: zip(Links, ListItems, DfsStorages))
 									{
 										auto& Link = std::get<0>(i);
 										auto& Item = std::get<1>(i);

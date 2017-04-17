@@ -262,7 +262,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 
 void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<DialogItemEx*>& ItemsEx, bool Short)
 {
-	for (auto i: zip(Items, ItemsEx))
+	for (const auto& i: zip(Items, ItemsEx))
 	{
 		const auto& Item = std::get<0>(i);
 		auto& ItemEx = std::get<1>(i);
@@ -350,9 +350,9 @@ void Dialog::Construct(const range<DialogItemEx*>& SrcItems)
 	Items.assign(ALL_CONST_RANGE(SrcItems));
 
 	// Items[i].Auto.Owner points to SrcItems, we need to update:
-	for (auto i: zip(Items, SrcItems))
+	for (const auto& i: zip(Items, SrcItems))
 	{
-		for (auto j : zip(std::get<0>(i).Auto, std::get<1>(i).Auto))
+		for (const auto& j : zip(std::get<0>(i).Auto, std::get<1>(i).Auto))
 		{
 			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&](const auto& SrcItem)
 			{

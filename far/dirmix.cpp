@@ -77,9 +77,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 
 		if (!rc && GetLastError() == ERROR_PATH_NOT_FOUND)
 		{
-			os::drives_set NetworkDrives;
-			AddSavedNetworkDisks(NetworkDrives);
-			IsNetworkDrive = os::is_standard_drive_letter(Drive[1]) && NetworkDrives[os::get_drive_number(Drive[1])];
+			IsNetworkDrive = os::fs::is_standard_drive_letter(Drive[1]) && GetSavedNetworkDrives()[os::fs::get_drive_number(Drive[1])];
 		}
 	}
 	else

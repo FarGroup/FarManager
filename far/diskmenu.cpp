@@ -340,7 +340,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 
 static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 {
-	const string DiskLetter{ Drive, L':' };
+	const auto DiskLetter = os::fs::get_drive(Drive);
 
 	switch (DriveType)
 	{
@@ -435,8 +435,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				}
 			}
 
-			const wchar_t RootDir[] = { DiskLetter[0], L':', L'\\', L'\0' };
-			if (FAR_GetDriveType(RootDir) == DRIVE_REMOTE)
+			if (FAR_GetDriveType(os::fs::get_root_directory(Drive)) == DRIVE_REMOTE)
 			{
 				Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
 					{ strMsgText },
@@ -526,8 +525,7 @@ static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &C
 					// ... и выведем месаг о...
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 					Global->CatchError();
-					wchar_t Drive[] = { item->cDrive, L':', L'\\', 0 };
-					DoneEject = OperationFailed(Drive, lng::MError, format(lng::MChangeCouldNotEjectMedia, item->cDrive), false) != operation::retry;
+					DoneEject = OperationFailed(os::fs::get_drive(item->cDrive), lng::MError, format(lng::MChangeCouldNotEjectMedia, item->cDrive), false) != operation::retry;
 				}
 				else
 					DoneEject = true;
@@ -599,9 +597,11 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	};
 	SCOPED_ACTION(Guard_Macro_DskShowPosType)(Owner);
 
-	auto Mask = FarGetLogicalDrives();
-	const auto NetworkMask = AddSavedNetworkDisks(Mask);
-	const auto DiskCount = Mask.count();
+	const auto LogicalDrives = os::fs::get_logical_drives();
+	const auto SavedNetworkDrives = GetSavedNetworkDrives();
+	const auto DisconnectedNetworkDrives = SavedNetworkDrives & ~LogicalDrives;
+	const auto AllDrives = LogicalDrives | DisconnectedNetworkDrives;
+	const auto DiskCount = AllDrives.count();
 
 	PanelMenuItem Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
@@ -629,23 +629,17 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 
 		auto DE = std::make_unique<elevation::suppress>();
-		/* $ 02.04.2001 VVM
-		! Попытка не будить спящие диски... */
-		for (size_t i = 0; i < Mask.size(); ++i)
+
+		for (const auto& i: os::fs::enum_drives(AllDrives))
 		{
-			if (!Mask[i])   //нету диска
-				continue;
+			const auto LocalName = os::fs::get_drive(i);
+			const auto strRootDir = os::fs::get_root_directory(i);
 
 			DiskMenuItem NewItem;
-
-			const wchar_t Drv[] = { static_cast<wchar_t>(L'A' + i), L':', L'\0' };
-			const string LocalName = Drv;
-			const auto strRootDir = LocalName + L"\\";
 			NewItem.Letter = L"&" + LocalName;
-
 			NewItem.DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
-			if (NetworkMask[i])
+			if (DisconnectedNetworkDrives[os::fs::get_drive_number(i)])
 			{
 				NewItem.DriveType = DRIVE_REMOTE_NOT_CONNECTED;
 			}
@@ -761,7 +755,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		std::for_each(CONST_RANGE(Items, i)
 		{
 			MenuItemEx ChDiskItem;
-			const auto DiskNumber = os::get_drive_number(i.Letter[1]);
+			const auto DiskNumber = os::fs::get_drive_number(i.Letter[1]);
 			if (FirstCall)
 			{
 				ChDiskItem.SetSelect(DiskNumber == Pos);
@@ -843,6 +837,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		bool NeedRefresh = false;
 
+		// TODO: position to a new drive?
 		SCOPED_ACTION(listener)(update_devices, [&NeedRefresh] { NeedRefresh = true; });
 
 		ChDisk->Run([&](const Manager::Key& RawKey)
@@ -867,7 +862,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				if (item && !item->bIsPlugin)
 				{
-					OpenFolderInShell({ item->cDrive, L':', L'\\' });
+					OpenFolderInShell(os::fs::get_root_directory(item->cDrive));
 				}
 			}
 			break;
@@ -927,8 +922,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					if (!item->bIsPlugin)
 					{
-						string DeviceName{ item->cDrive, L':', L'\\' };
-						ShellSetFileAttributes(nullptr, &DeviceName);
+						const auto RootDirectory = os::fs::get_root_directory(item->cDrive);
+						ShellSetFileAttributes(nullptr, &RootDirectory);
 					}
 					else
 					{
@@ -948,8 +943,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				//вызовем EMenu если он есть
 				if (item && !item->bIsPlugin && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 				{
-					const wchar_t DeviceName[] = { item->cDrive, L':', L'\\', 0 };
-					struct DiskMenuParam { const wchar_t* CmdLine; BOOL Apps; } p = { DeviceName, Key != KEY_MSRCLICK };
+					const auto RootDirectory = os::fs::get_root_directory(item->cDrive);
+					struct DiskMenuParam { const wchar_t* CmdLine; BOOL Apps; } p = { RootDirectory.data(), Key != KEY_MSRCLICK };
 					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, Owner->Parent()->IsLeft(Owner)? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
 				}
 				break;
@@ -1080,9 +1075,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		if (ChDisk->GetExitCode() < 0 && CurDir.size() > 2 && !(IsSlash(CurDir[0]) && IsSlash(CurDir[1])))
 		{
-			const wchar_t RootDir[] = { CurDir[0], L':', L'\\', L'\0' };
-
-			if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
+			if (FAR_GetDriveType(os::fs::get_root_directory(CurDir[0])) == DRIVE_NO_ROOT_DIR)
 				return ChDisk->GetSelectPos();
 		}
 
@@ -1100,7 +1093,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	if (Global->Opt->CloseCDGate && mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType))
 	{
-		if (!os::IsDiskInDrive({ mitem->cDrive, L':' }))
+		if (!os::IsDiskInDrive(os::fs::get_drive(mitem->cDrive)))
 		{
 			if (!EjectVolume(mitem->cDrive, EJECT_READY | EJECT_NO_MESSAGE))
 			{
@@ -1125,21 +1118,11 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	{
 		for (;;)
 		{
-			wchar_t NewDir[] = { mitem->cDrive, L':', 0, 0 };
-
-			if (FarChDir(NewDir))
+			if (FarChDir(os::fs::get_drive(mitem->cDrive)) || FarChDir(os::fs::get_root_directory(mitem->cDrive)))
 			{
 				break;
 			}
-			else
-			{
-				NewDir[2] = L'\\';
 
-				if (FarChDir(NewDir))
-				{
-					break;
-				}
-			}
 			Global->CatchError();
 
 			DialogBuilder Builder(lng::MError, nullptr);
@@ -1147,8 +1130,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			Builder.AddTextWrap(GetErrorString().data(), true);
 			Builder.AddText(L"");
 
-			const wchar_t Drive[] = { mitem->cDrive, L'\0' };
-			string DriveLetter = Drive;
+			string DriveLetter(1, mitem->cDrive);
 			DialogItemEx *DriveLetterEdit = Builder.AddFixEditField(DriveLetter, 1);
 			Builder.AddTextBefore(DriveLetterEdit, lng::MChangeDriveCannotReadDisk);
 			Builder.AddTextAfter(DriveLetterEdit, L":", 0);
@@ -1221,9 +1203,9 @@ void ChangeDisk(panel_ptr Owner)
 	bool FirstCall = true;
 
 	const auto& CurDir = Owner->GetCurDir();
-	if (!CurDir.empty() && CurDir[1] == L':' && os::is_standard_drive_letter(CurDir[0]))
+	if (!CurDir.empty() && CurDir[1] == L':' && os::fs::is_standard_drive_letter(CurDir[0]))
 	{
-		Pos = os::get_drive_number(CurDir[0]);
+		Pos = os::fs::get_drive_number(CurDir[0]);
 	}
 
 	while (Pos != -1)

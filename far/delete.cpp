@@ -1188,3 +1188,14 @@ bool DeleteFileWithFolder(const string& FileName)
 	}
 	return Result;
 }
+
+delayed_deleter::delayed_deleter(const string& pathToDelete):
+	m_pathToDelete(pathToDelete)
+{
+}
+
+delayed_deleter::~delayed_deleter()
+{
+	DeleteFileWithFolder(m_pathToDelete);
+}
+

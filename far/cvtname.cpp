@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "elevation.hpp"
 #include "local.hpp"
+#include "drivemix.hpp"
 
 static void MixToFullPath(string& strPath)
 {
@@ -150,7 +151,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 				}
 				else
 				{
-					const string DriveVar{L'=', stPath[0], L':'};
+					const auto DriveVar = L'=' + os::fs::get_drive(stPath[0]);
 					const auto strValue(os::env::get_variable(DriveVar));
 
 					if (!strValue.empty())
@@ -260,14 +261,14 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 		else
 		{
 			string strVolumeGuid;
-			const auto Strings = os::GetLogicalDriveStrings();
-			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Strings), [&](const auto& item)
+			const auto Enumerator = os::fs::enum_drives(os::fs::get_logical_drives());
+			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 			{
-				return os::GetVolumeNameForVolumeMountPoint(item, strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0;
+				return os::GetVolumeNameForVolumeMountPoint(os::fs::get_drive(i), strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0;
 			});
-			if (ItemIterator != Strings.cend())
+			if (ItemIterator != Enumerator.cend())
 			{
-				Result.replace(0, DirectoryOffset, *ItemIterator);
+				Result.replace(0, DirectoryOffset, os::fs::get_drive(*ItemIterator));
 			}
 		}
 	}

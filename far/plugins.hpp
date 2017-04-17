@@ -47,6 +47,7 @@ class Editor;
 class window;
 class Panel;
 class Dialog;
+class delayed_deleter;
 
 enum class hotkey_type: int;
 
@@ -87,6 +88,7 @@ public:
 	MOVABLE(plugin_panel);
 
 	plugin_panel(Plugin* PluginInstance, HANDLE Panel);
+	~plugin_panel();
 
 	auto plugin() const
 	{
@@ -103,10 +105,13 @@ public:
 		m_Panel = Panel;
 	}
 
+	void delayed_delete(const string& Name);
+
 private:
 	Plugin* m_Plugin;
 	FN_RETURN_TYPE(Plugin::keep_activity) m_PluginActivity;
 	HANDLE m_Panel{};
+	std::list<delayed_deleter> m_DelayedDeleters;
 };
 
 class PluginManager: noncopyable

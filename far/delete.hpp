@@ -61,4 +61,14 @@ private:
 void DeleteDirTree(const string& Dir);
 bool DeleteFileWithFolder(const string& FileName);
 
+class delayed_deleter: noncopyable
+{
+public:
+	delayed_deleter(const string& pathToDelete);
+	~delayed_deleter();
+
+private:
+	string m_pathToDelete;
+};
+
 #endif // DELETE_HPP_835E1D6F_E70E_4AF7_8D20_1668C007B16C

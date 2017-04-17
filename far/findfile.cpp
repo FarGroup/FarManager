@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "local.hpp"
 #include "vmenu.hpp"
 #include "farexcpt.hpp"
+#include "drivemix.hpp"
 
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
@@ -340,16 +341,6 @@ struct background_searcher::CodePageInfo
 		LastSymbol = 0;
 		WordFound = false;
 	}
-};
-
-class FindFiles::delayed_deleter: noncopyable
-{
-public:
-	delayed_deleter(const string& pathToDelete): m_pathToDelete(pathToDelete) {}
-	~delayed_deleter() { DeleteFileWithFolder(m_pathToDelete); }
-
-private:
-	string m_pathToDelete;
 };
 
 void background_searcher::InitInFileSearch()
@@ -2472,22 +2463,26 @@ void background_searcher::DoPrepareFileList()
 	}
 	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
 	{
-		std::list<string> Volumes;
-		string strGuidVolime;
-		const auto Strings = os::GetLogicalDriveStrings();
-		std::for_each(CONST_RANGE(Strings, i)
+		const auto Drives = os::fs::get_logical_drives();
+		std::vector<string> Volumes;
+		Volumes.reserve(Drives.count());
+
+		for (const auto& i: os::fs::enum_drives(Drives))
 		{
-			int DriveType=FAR_GetDriveType(i);
+			const auto Drive = os::fs::get_drive(i);
+
+			int DriveType=FAR_GetDriveType(Drive);
 
 			if (DriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType) && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
 			{
-				if(os::GetVolumeNameForVolumeMountPoint(i, strGuidVolime))
+				string strGuidVolime;
+				if(os::GetVolumeNameForVolumeMountPoint(Drive, strGuidVolime))
 				{
-					Volumes.emplace_back(strGuidVolime);
+					Volumes.emplace_back(std::move(strGuidVolime));
 				}
-				append(InitString, i, L';');
+				append(InitString, Drive, L';');
 			}
-		});
+		}
 
 		for (const auto& VolumeName: os::fs::enum_volumes())
 		{

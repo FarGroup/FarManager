@@ -53,44 +53,36 @@ static bool GetStoredUserName(wchar_t Drive, string &strUserName)
 	return os::reg::GetValue(HKEY_CURRENT_USER, KeyName, L"UserName", strUserName);
 }
 
-os::drives_set AddSavedNetworkDisks(os::drives_set& Mask)
+os::fs::drives_set GetSavedNetworkDrives()
 {
-	FN_RETURN_TYPE(AddSavedNetworkDisks) Result;
 	HANDLE hEnum;
+	if (WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, nullptr, &hEnum) != NO_ERROR)
+		return 0;
 
-	if (WNetOpenEnum(RESOURCE_REMEMBERED, RESOURCETYPE_DISK, 0, nullptr, &hEnum) == NO_ERROR)
+	SCOPE_EXIT{ WNetCloseEnum(hEnum); };
+
+	os::fs::drives_set Drives;
+
+	DWORD BufferSize = 16 * 1024;
+	block_ptr<NETRESOURCE> netResource(BufferSize);
+
+	for (;;)
 	{
-		SCOPE_EXIT{ WNetCloseEnum(hEnum); };
+		DWORD Size = 1;
+		BufferSize = 16 * 1024;
+		memset(netResource.get(), 0, BufferSize);
+		const auto Result = WNetEnumResource(hEnum, &Size, netResource.get(), &BufferSize);
 
-		DWORD bufsz = 16*1024;
-		block_ptr<NETRESOURCE> netResource(bufsz);
+		if (Result != NO_ERROR || !Size || !netResource->lpLocalName)
+			break;
 
-			for (;;)
-			{
-				DWORD size=1;
-				bufsz = 16*1024;
-				memset(netResource.get(),0,bufsz);
-				DWORD res = WNetEnumResource(hEnum, &size, netResource.get(), &bufsz);
-
-				if (res == NO_ERROR && size && netResource->lpLocalName)
-				{
-					if (os::is_standard_drive_letter(netResource->lpLocalName[0]) && netResource->lpLocalName[1] == L':')
-					{
-						const auto index = os::get_drive_number(netResource->lpLocalName[0]);
-						if (!Mask[index])
-						{
-							Mask[index] = true;
-							Result[index] = true;
-						}
-					}
-				}
-				else
-				{
-					break;
-				}
-			}
+		if (os::fs::is_standard_drive_letter(netResource->lpLocalName[0]) && netResource->lpLocalName[1] == L':')
+		{
+			Drives.set(os::fs::get_drive_number(netResource->lpLocalName[0]));
+		}
 	}
-	return Result;
+
+	return Drives;
 }
 
 bool ConnectToNetworkResource(const string& NewDir)
@@ -197,7 +189,7 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 
 bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 {
-	const wchar_t LocalName[] = { Letter, L':', L'\0' };
+	const auto LocalName = os::fs::get_drive(Letter);
 
 	if (DriveType == DRIVE_UNKNOWN)
 	{

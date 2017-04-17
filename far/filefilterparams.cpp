@@ -586,7 +586,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
-	for (auto i: zip(Colors.Color, PalColor))
+	for (const auto& i: zip(Colors.Color, PalColor))
 	{
 		auto& CurColor= std::get<0>(i);
 		const auto pal = std::get<1>(i);

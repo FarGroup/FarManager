@@ -47,6 +47,12 @@ enum event_id
 	event_id_count
 };
 
+struct update_devices_message
+{
+	bool Arrival;
+	unsigned Drives;
+};
+
 class wm_listener;
 
 namespace detail

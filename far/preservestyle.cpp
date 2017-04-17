@@ -365,17 +365,11 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 		if (Matched && T == j->Token.size() && j == LastItem)
 		{
 			const auto SourceTokens = PreserveStyleTokenize(Source, I, Idx - I);
-			
-			bool Same = SourceTokens.size() == StrTokens.size();
-			if(Same)
-			{
-				Same = std::equal(ALL_CONST_RANGE(SourceTokens), StrTokens.cbegin(), [](const auto& a, const auto& b)
-				{
-					return a.Token.size() == b.Token.size();
-				});
-			}
 
-			if (Same)
+			if (SourceTokens.size() == StrTokens.size() && std::equal(ALL_CONST_RANGE(SourceTokens), StrTokens.cbegin(), [](const auto& a, const auto& b)
+			{
+				return a.Token.size() == b.Token.size();
+			}))
 			{
 				auto ReplaceStrTokens = PreserveStyleTokenize(ReplaceStr, 0, ReplaceStr.size());
 

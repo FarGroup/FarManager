@@ -36,9 +36,38 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "drivemix.hpp"
 #include "config.hpp"
+#include "notification.hpp"
+
+// TODO: std::optional
+static std::pair<unsigned, bool> SavedLogicalDrives;
+static std::pair<unsigned, bool> SavedVisibilityMask;
+
+void UpdateSavedDrives(const any& Payload)
+{
+	if (!SavedLogicalDrives.second)
+		return;
+
+	const auto& Message = any_cast<update_devices_message>(Payload);
+
+	if (Message.Arrival)
+		SavedLogicalDrives.first |= Message.Drives;
+	else
+		SavedLogicalDrives.first &= ~Message.Drives;
+}
+
+static unsigned GetVisibilityMask()
+{
+	unsigned NoDrivesMask = 0;
+	static const HKEY Roots[] = { HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER };
+	std::any_of(CONST_RANGE(Roots, i)
+	{
+		return os::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrivesMask);
+	});
+	return ~NoDrivesMask;
+}
 
 /*
-  FarGetLogicalDrives
+  get_logical_drives
   оболочка вокруг GetLogicalDrives, с учетом скрытых логических дисков
   <HKCU|HKLM>\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
   NoDrives:DWORD
@@ -48,23 +77,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Например, значение 00000000000000000000010101(0x7h)
     скрывает диски A, C, и E
 */
-os::drives_set FarGetLogicalDrives()
-{
-	static unsigned int LogicalDrivesMask = 0;
-	if (!LogicalDrivesMask || !Global->Opt->RememberLogicalDrives)
-		LogicalDrivesMask = GetLogicalDrives();
 
-	unsigned int NoDrivesMask = 0;
-	if (!Global->Opt->Policies.ShowHiddenDrives)
+os::fs::drives_set os::fs::get_logical_drives()
+{
+	if (!SavedLogicalDrives.second || !(Global && Global->Opt && Global->Opt->RememberLogicalDrives))
 	{
-		static const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
-		std::any_of(CONST_RANGE(Roots, i)
-		{
-			return os::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrivesMask);
-		});
+		SavedLogicalDrives.first = GetLogicalDrives();
+		SavedLogicalDrives.second = true;
 	}
 
-	return LogicalDrivesMask & ~NoDrivesMask;
+	// It's good enough to read it once.
+	if (!SavedVisibilityMask.second || (Global && Global->Opt && !Global->Opt->Policies.ShowHiddenDrives))
+	{
+		SavedVisibilityMask.first = GetVisibilityMask();
+		SavedVisibilityMask.second = true;
+	}
+
+	return SavedLogicalDrives.first & SavedVisibilityMask.first;
 }
 
 bool IsDriveTypeRemote(UINT DriveType)

@@ -538,7 +538,7 @@ static PanelMode* ConvertPanelModesA(const oldfar::PanelMode *pnmA, size_t iCoun
 	auto Result = std::make_unique<PanelMode[]>(iCount);
 	const auto SrcRange = make_range(pnmA, iCount);
 	auto DstRange = make_range(Result.get(), iCount);
-	for (auto i: zip(SrcRange, DstRange))
+	for (const auto& i: zip(SrcRange, DstRange))
 	{
 		const auto& Src = std::get<0>(i);
 		auto& Dest = std::get<1>(i);
@@ -672,7 +672,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const range<oldfar::Plugi
 {
 	auto Result = std::make_unique<PluginPanelItem[]>(PanelItemA.size());
 	auto DstRange = make_range(Result.get(), PanelItemA.size());
-	for(auto i: zip(PanelItemA, DstRange))
+	for(const auto& i: zip(PanelItemA, DstRange))
 	{
 		const auto& Src = std::get<0>(i);
 		auto& Dst = std::get<1>(i);
@@ -902,7 +902,7 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 	const auto SrcRange = make_range(VBufA, Size);
 	auto DstRange = make_range(VBuf, Size);
 
-	for (auto i: zip(SrcRange, DstRange))
+	for (const auto& i: zip(SrcRange, DstRange))
 	{
 		const auto& Src = std::get<0>(i);
 		auto& Dst = std::get<1>(i);
@@ -3304,7 +3304,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		std::vector<oldfar::FarDialogItem> diA(ItemsRange.size());
 
 		// to save DIF_SETCOLOR state
-		for (auto i: zip(diA, ItemsRange))
+		for (const auto& i: zip(diA, ItemsRange))
 		{
 			std::get<0>(i).Flags = std::get<1>(i).Flags;
 		}
@@ -3312,7 +3312,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 		std::vector<FarDialogItem> di(ItemsRange.size());
 		std::vector<FarList> l(ItemsRange.size());
 
-		for (auto i: zip(ItemsRange, di, l))
+		for (const auto& i: zip(ItemsRange, di, l))
 		{
 			std::apply(AnsiDialogItemToUnicode, i);
 		}

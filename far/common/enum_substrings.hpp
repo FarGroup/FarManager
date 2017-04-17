@@ -45,7 +45,7 @@ namespace detail
 	auto Begin(char_type* Container) { return Container; }
 
 	template<class container>
-	bool IsEnd(const container& Container, decltype(std::cbegin(Container)) Iterator) { return Iterator == Container.cend(); }
+	bool IsEnd(const container& Container, decltype(std::cbegin(Container)) Iterator) { return Iterator == std::cend(Container); }
 	template<class char_type>
 	bool IsEnd(const char_type* Container, const char_type* Iterator) { return Iterator != Container && !*Iterator && !*(Iterator - 1); }
 }
@@ -54,28 +54,29 @@ namespace detail
 // Stops on double \0 or if end of container is reached.
 
 template<class provider>
-class enum_substrings_t: public enumerator<enum_substrings_t<provider>, range<decltype(&*detail::Begin(std::declval<std::decay_t<provider>>()))>>
+class enum_substrings_t: public enumerator<enum_substrings_t<provider>, range<decltype(&*detail::Begin(std::declval<std::decay_t<const provider>>()))>>
 {
 	IMPLEMENTS_ENUMERATOR(enum_substrings_t);
 public:
 	NONCOPYABLE(enum_substrings_t);
 	MOVABLE(enum_substrings_t);
 
-	explicit enum_substrings_t(const provider& Provider): m_Provider(&Provider), m_Offset() {}
+	enum_substrings_t(const provider&&) = delete;
+	enum_substrings_t(const provider& Provider): m_Provider(&Provider), m_Offset() {}
 
 private:
-	bool get(size_t Index, typename enum_substrings_t<provider>::value_type& Value)
+	bool get(size_t Index, typename enum_substrings_t::value_type& Value)
 	{
-		const auto Begin = detail::Begin(*m_Provider) + (Index? m_Offset : 0);
+		const auto Begin = detail::Begin(static_cast<std::decay_t<const provider>>(*m_Provider)) + (Index? m_Offset : 0);
 		auto End = Begin;
 		bool IsEnd;
-		for (; (IsEnd = detail::IsEnd(*m_Provider, End)) == false && *End; ++End)
+		for (; (IsEnd = detail::IsEnd(static_cast<std::decay_t<const provider>>(*m_Provider), End)) == false && *End; ++End)
 			;
 		if (End == Begin)
 			return false;
 
 		const auto Ptr = &*Begin;
-		Value = typename enum_substrings_t<provider>::value_type(Ptr, Ptr + (End - Begin));
+		Value = typename enum_substrings_t::value_type(Ptr, Ptr + (End - Begin));
 		m_Offset += Value.size() + (IsEnd? 0 : 1);
 		return true;
 	}
@@ -85,10 +86,12 @@ private:
 };
 
 template<class T>
-auto enum_substrings(T&& Provider)
+void enum_substrings(const T&& Provider) = delete;
+
+template<class T>
+auto enum_substrings(const T& Provider)
 {
-	static_assert(std::is_lvalue_reference<T>::value);
-	return enum_substrings_t<std::remove_reference_t<T>>(Provider);
+	return enum_substrings_t<T>(Provider);
 }
 
 #endif // ENUM_SUBSTRINGS_HPP_AD490DED_6C5F_4C74_82ED_F858919C4277

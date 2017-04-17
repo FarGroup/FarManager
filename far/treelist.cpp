@@ -329,7 +329,7 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	}
 	else if (PathType == PATH_DRIVELETTER || PathType == PATH_DRIVELETTERUNC)
 	{
-		if (os::WNetGetConnection({ Root[PathType == PATH_DRIVELETTER ? 0 : 4], L':' }, strRemoteName))
+		if (os::WNetGetConnection(os::fs::get_drive(Root[PathType == PATH_DRIVELETTER ? 0 : 4]), strRemoteName))
 			AddEndSlash(strRemoteName);
 	}
 

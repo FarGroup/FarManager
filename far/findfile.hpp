@@ -57,6 +57,7 @@ class InterThreadData;
 class filemasks;
 class FileFilter;
 struct FindListItem;
+class delayed_deleter;
 
 class FindFiles: noncopyable
 {
@@ -155,7 +156,6 @@ private:
 	std::unique_ptr<FileFilter> Filter;
 	std::unique_ptr<IndeterminateTaskBar> TB;
 
-	class delayed_deleter;
 	std::list<delayed_deleter> m_DelayedDeleters;
 
 	int m_FileCount{};

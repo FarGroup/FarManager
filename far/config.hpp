@@ -111,7 +111,7 @@ public:
 	virtual string toString() const = 0;
 	virtual bool TryParse(const string& value) = 0;
 	virtual string ExInfo() const = 0;
-	virtual string GetType() const = 0;
+	virtual const wchar_t* GetType() const = 0;
 	virtual bool IsDefault(const any& Default) const = 0;
 	virtual void SetDefault(const any& Default) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
@@ -197,7 +197,7 @@ public:
 
 	virtual string toString() const override { return Get() ? L"true"s : L"false"s; }
 	virtual bool TryParse(const string& value) override;
-	virtual string GetType() const override { return L"boolean"s; }
+	virtual const wchar_t* GetType() const override { return L"boolean"; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -212,7 +212,7 @@ public:
 
 	virtual string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
 	virtual bool TryParse(const string& value) override;
-	virtual string GetType() const override { return L"3-state"s; }
+	virtual const wchar_t* GetType() const override { return L"3-state"; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -228,7 +228,7 @@ public:
 	virtual string toString() const override { return str(Get()); }
 	virtual bool TryParse(const string& value) override;
 	virtual string ExInfo() const override;
-	virtual string GetType() const override { return L"integer"s; }
+	virtual const wchar_t* GetType() const override { return L"integer"; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -250,7 +250,7 @@ public:
 
 	virtual string toString() const override { return Get(); }
 	virtual bool TryParse(const string& value) override { Set(value); return true; }
-	virtual string GetType() const override { return L"string"s; }
+	virtual const wchar_t* GetType() const override { return L"string"; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 

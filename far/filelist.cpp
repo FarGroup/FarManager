@@ -2606,7 +2606,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		plugin_panel* OpenedPlugin = nullptr;
 		const auto PluginMode = m_PanelMode == panel_mode::PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(m_hPlugin, PLUGIN_FARGETFILE);
 		string FileNameToDelete;
-		SCOPE_EXIT{ if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP) && !FileNameToDelete.empty()) DeleteFileWithFolder(FileNameToDelete); };
+		SCOPE_EXIT{ if (PluginMode && (!OpenedPlugin || OpenedPlugin == PANEL_STOP) && !FileNameToDelete.empty()) m_hPlugin->delayed_delete(FileNameToDelete); };
 		file_state SavedState;
 
 		if (PluginMode)
@@ -6929,7 +6929,7 @@ void FileList::InitFSWatcher(bool CheckTree)
 
 	if (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC)
 	{
-		DriveType = FAR_GetDriveType({ m_CurDir[(Type == PATH_DRIVELETTER) ? 0 : 4], L':', L'\\' });
+		DriveType = FAR_GetDriveType(os::fs::get_root_directory(m_CurDir[(Type == PATH_DRIVELETTER) ? 0 : 4]));
 	}
 
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)

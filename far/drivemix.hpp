@@ -62,6 +62,15 @@ enum
 };
 
 bool IsDriveTypeRemote(UINT DriveType);
-os::drives_set FarGetLogicalDrives();
+
+void UpdateSavedDrives(const any& Payload);
+
+namespace os
+{
+	namespace fs
+	{
+		drives_set get_logical_drives();
+	}
+}
 
 #endif // DRIVEMIX_HPP_55D4E32D_1B01_4FDB_879E_E5CB54401677

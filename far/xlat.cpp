@@ -85,8 +85,8 @@ void xlat_initialize()
 
 					const auto& SetIfEmpty = [](StringOption& opt, const wchar_t* table) { if (opt.empty()) opt = table; };
 
-					for (auto i: zip(XLat.Table, Tables)) std::apply(SetIfEmpty, i);
-					for (auto i: zip(XLat.Rules, Rules)) std::apply(SetIfEmpty, i);
+					for (const auto& i: zip(XLat.Table, Tables)) std::apply(SetIfEmpty, i);
+					for (const auto& i: zip(XLat.Rules, Rules)) std::apply(SetIfEmpty, i);
 				}
 			}
 		}

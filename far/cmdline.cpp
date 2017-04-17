@@ -1169,12 +1169,10 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || CmdLine.find_first_not_of(L' ', 2) == string::npos))
 	{
-		wchar_t NewDir[] = { Upper(CmdLine[0]), L':', 0, 0 };
-
-		if (!FarChDir(NewDir))
+		const auto DriveLetter = Upper(CmdLine[0]);
+		if (!FarChDir(os::fs::get_drive(DriveLetter)))
 		{
-			NewDir[2] = L'\\';
-			FarChDir(NewDir);
+			FarChDir(os::fs::get_root_directory(DriveLetter));
 		}
 		SetPanel->ChangeDirToCurrent();
 		return true;

@@ -88,33 +88,17 @@ namespace detail
 	};
 }
 
-template<class T>
-auto StrStr(T&& str1, const string& str2)
-{
-	static_assert(std::is_lvalue_reference<T>::value);
-	return std::search(ALL_RANGE(str1), ALL_CONST_RANGE(str2));
-}
+void StrStr(const string&&, const string&) = delete;
+inline auto StrStr(const string& str1, const string& str2) { return std::search(ALL_RANGE(str1), ALL_CONST_RANGE(str2)); }
 
-template<class T>
-auto StrStrI(T&& str1, const string& str2)
-{
-	static_assert(std::is_lvalue_reference<T>::value);
-	return std::search(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase());
-}
+void StrStrI(const string&&, const string&) = delete;
+inline auto StrStrI(const string& str1, const string& str2) { return std::search(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase()); }
 
-template<class T>
-auto RevStrStr(T&& str1, const string& str2)
-{
-	static_assert(std::is_lvalue_reference<T>::value);
-	return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2));
-}
+void RevStrStr(const string&&, const string&) = delete;
+inline auto RevStrStr(const string& str1, const string& str2) { return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2)); }
 
-template<class T>
-auto RevStrStrI(T&& str1, const string& str2)
-{
-	static_assert(std::is_lvalue_reference<T>::value);
-	return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase());
-}
+void RevStrStrI(const string&&, const string&) = delete;
+inline auto RevStrStrI(const string& str1, const string& str2) { return std::find_end(ALL_RANGE(str1), ALL_CONST_RANGE(str2), detail::wchar_t_compare_icase()); }
 
 inline int StrCmpNNI(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2) { return CompareString(0, NORM_IGNORECASE | NORM_STOP_ON_NULL | SORT_STRINGSORT, s1, static_cast<int>(n1), s2, static_cast<int>(n2)) - 2; }
 inline int StrCmpNI(const wchar_t *s1, const wchar_t *s2, size_t n) { return StrCmpNNI(s1, n, s2, n); }

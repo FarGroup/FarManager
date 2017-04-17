@@ -56,26 +56,21 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 
 		case WM_DEVICECHANGE:
 			{
-				//bool Arrival=false;
+				auto Arrival = false;
 				switch (wParam)
 				{
 				case DBT_DEVICEARRIVAL:
-					//Arrival=true;
+					Arrival=true;
 				case DBT_DEVICEREMOVECOMPLETE:
 					{
-
-						const auto Pbh = reinterpret_cast<PDEV_BROADCAST_HDR>(lParam);
-						if (Pbh->dbch_devicetype == DBT_DEVTYP_VOLUME)
+						const auto BroadcastHeader = reinterpret_cast<const DEV_BROADCAST_HDR*>(lParam);
+						if (BroadcastHeader->dbch_devicetype == DBT_DEVTYP_VOLUME)
 						{
-							// currently we don't care what actually happened, "just a notification" is OK
-
-							//const auto Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
-							//bool Media = Pdv->dbcv_flags & DBTF_MEDIA != 0;
-							MessageManager().notify(update_devices);
+							const auto BroadcastVolume = reinterpret_cast<const DEV_BROADCAST_VOLUME*>(BroadcastHeader);
+							MessageManager().notify(update_devices, update_devices_message{ Arrival, BroadcastVolume->dbcv_unitmask });
 						}
 					}
 					break;
-
 				}
 			}
 			break;

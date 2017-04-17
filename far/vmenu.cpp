@@ -2885,7 +2885,7 @@ std::vector<string> VMenu::AddHotkeys(const range<MenuDataEx*>& MenuItems)
 		return std::max(Value, wcslen(i.Name));
 	});
 
-	for (auto i: zip(MenuItems, Result))
+	for (const auto& i: zip(MenuItems, Result))
 	{
 		auto& Item = std::get<0>(i);
 		auto& Str = std::get<1>(i);

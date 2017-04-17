@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "local.hpp"
 #include "cvtname.hpp"
 #include "farexcpt.hpp"
+#include "drivemix.hpp"
 
 namespace os
 {
@@ -342,6 +343,26 @@ namespace fs
 	{
 		const auto Find = enum_files(Object + L"\\*");
 		return Find.begin() != Find.end();
+	}
+
+	bool is_standard_drive_letter(wchar_t Letter)
+	{
+		return InRange(L'A', Upper(Letter), L'Z');
+	}
+
+	int get_drive_number(wchar_t Letter)
+	{
+		return Upper(Letter) - L'A';
+	}
+
+	string get_drive(wchar_t Letter)
+	{
+		return { Letter, L':' };
+	}
+
+	string get_root_directory(wchar_t Letter)
+	{
+		return{ Letter, L':', L'\\' };
 	}
 
 //-------------------------------------------------------------------------
@@ -1501,23 +1522,6 @@ bool FindNextStream(const find_file_handle& hFindStream,LPVOID lpFindStreamData)
 	return FileStreamInformationToFindStreamData(*StreamInfo, *StreamData);
 }
 
-std::vector<string> GetLogicalDriveStrings()
-{
-	FN_RETURN_TYPE(GetLogicalDriveStrings) Result;
-	string Strings;
-	if (ApiDynamicStringReceiver(Strings, [](wchar_t* Buffer, size_t Size)
-	{
-		return ::GetLogicalDriveStrings(static_cast<DWORD>(Size), Buffer);
-	}))
-	{
-		for (const auto& i : enum_substrings(Strings))
-		{
-			Result.emplace_back(i.data(), i.size());
-		}
-	}
-	return Result;
-}
-
 static int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 {
 	string TargetPath;
@@ -1600,13 +1604,9 @@ static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalF
 		return true;
 
 	// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-	drives_set Drives = GetLogicalDrives();
-	for (size_t i = 0; i != Drives.size(); ++i)
+	for (const auto& i: os::fs::enum_drives(fs::get_logical_drives()))
 	{
-		if (!Drives[i])
-			continue;
-
-		const string Device{ static_cast<wchar_t>(L'A' + i), L':'};
+		const auto Device = os::fs::get_drive(i);
 		if (const auto Len = MatchNtPathRoot(NtPath, Device))
 		{
 			FinalFilePath = NtPath.compare(0, 14, L"\\Device\\WinDfs")? NtPath.replace(0, Len, Device) : NtPath.replace(0, Len, 1, L'\\');
@@ -2138,15 +2138,6 @@ handle OpenCurrentThread()
 
 			return Result;
 		}
-	}
-
-	bool is_standard_drive_letter(wchar_t Letter)
-	{
-		return InRange(L'A', Upper(Letter), L'Z');
-	}
-	int get_drive_number(wchar_t Letter)
-	{
-		return Upper(Letter) - L'A';
 	}
 }
 

@@ -385,7 +385,7 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 
 static void ApplyBlackOnBlackColors(highlight::element::colors_array& Colors)
 {
-	for (auto i: zip(Colors, PalColor)) std::apply(ApplyBlackOnBlackColor, i);
+	for (const auto& i: zip(Colors, PalColor)) std::apply(ApplyBlackOnBlackColor, i);
 }
 
 static void ApplyColors(highlight::element& DestColors, const highlight::element& Src)
@@ -417,7 +417,7 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 		Dst.Flags |= Src.Flags&FCF_EXTENDEDFLAGS;
 	};
 
-	for (auto i: zip(SrcColors.Color, DestColors.Color))
+	for (const auto& i: zip(SrcColors.Color, DestColors.Color))
 	{
 		const auto& SrcItem = std::get<0>(i);
 		auto& DstItem = std::get<1>(i);
@@ -495,7 +495,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 	});
 
 	// Called from FileList::GetShowColor dynamically instead
-	//for (auto i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
+	//for (const auto& i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
 	if (item.Mark.Transparent)

@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "PluginA.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
+#include "delete.hpp"
 
 static const wchar_t PluginsFolderName[] = L"Plugins";
 
@@ -2391,4 +2392,11 @@ plugin_panel::plugin_panel(Plugin* PluginInstance, HANDLE Panel):
 	m_PluginActivity(m_Plugin->keep_activity()),
 	m_Panel(Panel)
 {
+}
+
+plugin_panel::~plugin_panel() = default;
+
+void plugin_panel::delayed_delete(const string& Name)
+{
+	m_DelayedDeleters.emplace_back(Name);
 }

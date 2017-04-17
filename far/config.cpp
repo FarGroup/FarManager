@@ -1029,7 +1029,7 @@ static void ResetViewModes(const range<PanelViewSettings*>& Modes, int Index = -
 
 	if (Index < 0)
 	{
-		for (auto i : zip(InitialModes, Modes))
+		for (const auto& i: zip(InitialModes, Modes))
 			std::apply(InitMode, i);
 	}
 	else
@@ -2088,7 +2088,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	};
 	static_assert(std::size(GuidOptions) == std::size(DefaultKnownGuids));
 
-	for(auto i: zip(DefaultKnownGuids, GuidOptions))
+	for(const auto& i: zip(DefaultKnownGuids, GuidOptions))
 	{
 		auto& a = std::get<0>(i);
 		auto& b = std::get<1>(i);

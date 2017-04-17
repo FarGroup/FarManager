@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "flink.hpp"
 #include "strmix.hpp"
+#include "drivemix.hpp"
 
 /*
 A device is considered a HotPlug device if the following are TRUE:
@@ -180,14 +181,15 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 {
 	DWORD Result = 0;
 	string strCurrentVolumeName;
-	const auto Strings = os::GetLogicalDriveStrings();
-	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Strings), [&](const auto& item)
+	const auto Drives = os::fs::get_logical_drives();
+	const auto Enumerator = os::fs::enum_drives(Drives);
+	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 	{
-		return os::GetVolumeNameForVolumeMountPoint(item, strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0;
+		return os::GetVolumeNameForVolumeMountPoint(os::fs::get_drive(i), strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0;
 	});
-	if (ItemIterator != Strings.cend() && os::is_standard_drive_letter(ItemIterator->front()))
+	if (ItemIterator != Enumerator.cend() && os::fs::is_standard_drive_letter(*ItemIterator))
 	{
-		Result = bit(os::get_drive_number(ItemIterator->front()));
+		Result = bit(os::fs::get_drive_number(*ItemIterator));
 	}
 	return Result;
 }
@@ -262,7 +264,7 @@ static DWORD GetDriveMaskForDeviceInternal(DEVINST hDevInst)
 }
 
 
-static os::drives_set GetDisksForDevice(DEVINST hDevInst)
+static os::fs::drives_set GetDisksForDevice(DEVINST hDevInst)
 {
 	int DisksMask = 0;
 	DisksMask |= GetDriveMaskFromMountPoints(hDevInst);
@@ -307,7 +309,7 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue
 struct DeviceInfo
 {
 	DEVINST DevInst;
-	os::drives_set Disks;
+	os::fs::drives_set Disks;
 };
 
 static void GetChildHotplugDevicesInfo(DEVINST hDevInst, std::vector<DeviceInfo>& Info)
@@ -412,11 +414,11 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 
 int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 {
-	if (!os::is_standard_drive_letter(Disk))
+	if (!os::fs::is_standard_drive_letter(Disk))
 		return -1;
 	
-	string DevName{ Disk, L':' };
-	if (GetVHDInfo(DevName, DevName))
+	string DevName;
+	if (GetVHDInfo(os::fs::get_drive(Disk), DevName))
 	{
 		// Removing VHD disk as hotplug is a very bad idea.
 		// Currently OS removes the device but doesn't close the file handle, rendering the file completely unavailable until reboot.
@@ -426,7 +428,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 
 	SCOPED_ACTION(GuardLastError);
 	const auto Info = GetHotplugDevicesInfo();
-	const auto DiskNumber = os::get_drive_number(Disk);
+	const auto DiskNumber = os::fs::get_drive_number(Disk);
 	const auto ItemIterator = std::find_if(CONST_RANGE(Info, i) {return i.Disks[DiskNumber];});
 	return ItemIterator != Info.cend()? RemoveHotplugDevice(*ItemIterator, Flags) : -1;
 }

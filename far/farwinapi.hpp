@@ -141,7 +141,6 @@ namespace os
 	bool CreateHardLink(const string& FileName, const string& ExistingFileName, LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 	find_file_handle FindFirstStream(const string& FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID lpFindStreamData, DWORD dwFlags = 0);
 	bool FindNextStream(const find_file_handle& hFindStream, LPVOID lpFindStreamData);
-	std::vector<string> GetLogicalDriveStrings();
 	bool GetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath);
 	bool SearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest);
 	bool QueryDosDevice(const string& DeviceName, string& Path);
@@ -168,6 +167,34 @@ namespace os
 
 	namespace fs
 	{
+		using drives_set = std::bitset<26>;
+
+		inline auto enum_drives(drives_set Drives)
+		{
+			using value_type = wchar_t;
+			size_t CurrentIndex = 0;
+			return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value) mutable
+			{
+				if (!Index)
+					CurrentIndex = 0;
+
+				while (CurrentIndex != Drives.size() && !Drives[CurrentIndex])
+					++CurrentIndex;
+
+				if (CurrentIndex == Drives.size())
+					return false;
+
+				Value = static_cast<wchar_t>(L'A' + CurrentIndex);
+				++CurrentIndex;
+				return true;
+			});
+		}
+
+		bool is_standard_drive_letter(wchar_t Letter);
+		int get_drive_number(wchar_t Letter);
+		string get_drive(wchar_t Letter);
+		string get_root_directory(wchar_t Letter);
+
 		namespace detail
 		{
 			string enum_files_prepare(const string&);
@@ -656,11 +683,6 @@ namespace os
 		template<typename T>
 		using ptr = std::unique_ptr<T, detail::releaser<T>>;
 	}
-
-	using drives_set = std::bitset<26>;
-
-	bool is_standard_drive_letter(wchar_t Letter);
-	int get_drive_number(wchar_t Letter);
 
 	class hp_clock
 	{

@@ -468,7 +468,7 @@ bool Plugin::SaveToCache()
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
 
-	for (auto i: zip(m_Factory->ExportsNames(), Exports))
+	for (const auto& i: zip(m_Factory->ExportsNames(), Exports))
 	{
 		PlCache->SetExportState(id, std::get<0>(i).UName, std::get<1>(i).second);
 	}
