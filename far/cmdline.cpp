@@ -707,7 +707,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 								if (DriveLocalToRemoteName(DRIVE_UNKNOWN, m_CurDir[0], strTemp))
 								{
 									strDestStr += strTemp;
-									//strDestStr += L" "; // ???
+									//strDestStr += L' '; // ???
 								}
 								break;
 							}
@@ -808,7 +808,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	else
 	{
 		// default prompt = "$p$g"
-		Result.emplace_back(m_CurDir + L">", PrefixColor);
+		Result.emplace_back(m_CurDir + L'>', PrefixColor);
 	}
 	SetPromptSize(NewPromptSize);
 	return Result;

@@ -399,11 +399,9 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 			break;
 
 		case menu_mode::global:
-			MenuTitle = msg(lng::MMainMenuTitle) + L" ("s + msg(lng::MMainMenuGlobal) + L")"s;
-			break;
-
 		case menu_mode::user:
-			MenuTitle = msg(lng::MMainMenuTitle) + L" ("s + msg(lng::MMainMenuUser) + L")"s;
+			MenuTitle = concat(msg(lng::MMainMenuTitle), L" (", msg(m_MenuMode == menu_mode::global? lng::MMainMenuGlobal : lng::MMainMenuUser), L')');
+			break;
 		}
 
 		// вызываем меню
@@ -499,7 +497,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			bool have_hotkey = !strHotKey.empty();
 			int Offset = have_hotkey && strHotKey.front() == L'&'? 5 : 4;
 			strHotKey.resize(Offset, L' ');
-			FarUserMenuItem.strName = ((have_hotkey && !FuncNum)?L"&":L"") + strHotKey + strLabel;
+			FarUserMenuItem.strName = concat(have_hotkey && !FuncNum? L"&" : L"", strHotKey, strLabel);
 
 			if (MenuItem->Submenu)
 			{
@@ -998,7 +996,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			for (string *str=MenuItem->Commands.First(); str && CommandNumber < DI_EDIT_COUNT; str=MenuItem->Commands.Next(str))
 			{
 				strBuffer+=*str;
-				strBuffer+=L"\n";    //??? "\n\r"
+				strBuffer+=L'\n';    //??? "\n\r"
 			}
 
 			EditDlg[EM_MEMOEDIT].strData = strBuffer; //???

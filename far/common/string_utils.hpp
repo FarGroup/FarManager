@@ -34,27 +34,46 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
-	inline void append_impl(string&) {}
+	inline void append_one(string& Str, wchar_t Arg, size_t) { Str += Arg; }
+	inline void append_one(string& Str, const wchar_t* Arg, size_t Size) { Str.append(Arg, Size); }
+	inline void append_one(string& Str, const string& Arg, size_t) { Str += Arg; }
+
+	inline void append_impl(string&, const size_t*) {}
 
 	template<typename arg, typename... args>
-	void append_impl(string& Str, arg&& Arg, args&&... Args)
+	void append_impl(string& Str, const size_t* Sizes, arg&& Arg, args&&... Args)
 	{
-		Str += std::forward<arg>(Arg);
-		append_impl(Str, std::forward<args>(Args)...);
+		append_one(Str, std::forward<arg>(Arg), *Sizes);
+		append_impl(Str, Sizes + 1, std::forward<args>(Args)...);
+	}
+
+	inline size_t size_one(wchar_t) { return 1; }
+	inline size_t size_one(const wchar_t* Str) { return wcslen(Str); }
+	inline size_t size_one(const string& Str) { return Str.size(); }
+
+	inline size_t size_impl(size_t* Sizes) { return 0; }
+
+	template<typename arg, typename... args>
+	size_t size_impl(size_t* Sizes, arg&& Arg, args&&... Args)
+	{
+		*Sizes = size_one(std::forward<arg>(Arg));
+		return *Sizes + size_impl(Sizes + 1, std::forward<args>(Args)...);
 	}
 }
 
 template<typename... args>
 void append(string& Str, args&&... Args)
 {
-	detail::append_impl(Str, std::forward<args>(Args)...);
+	size_t Sizes[sizeof...(Args)];
+	Str.reserve(Str.size() + detail::size_impl(Sizes, std::forward<args>(Args)...));
+	detail::append_impl(Str, Sizes, std::forward<args>(Args)...);
 }
 
 template<typename... args>
 auto concat(args&&... Args)
 {
 	string Str;
-	detail::append_impl(Str, std::forward<args>(Args)...);
+	append(Str, std::forward<args>(Args)...);
 	return Str;
 }
 

@@ -197,7 +197,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 		{
 			StartTime=CurTime;
 			MessageDelay = getdirinfo_default_delay;
-			ConsoleTitle::SetFarTitle(msg(lng::MScanningFolder) + L" "s + ShowDirName);
+			ConsoleTitle::SetFarTitle(concat(msg(lng::MScanningFolder), L' ', ShowDirName));
 			SetCursorType(false, 0);
 			DrawGetDirInfoMsg(Title,ShowDirName, Data.FileSize);
 		}

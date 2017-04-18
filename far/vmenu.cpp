@@ -1940,13 +1940,11 @@ void VMenu::DrawTitles() const
 		if (bFilterEnabled)
 		{
 			if (bFilterLocked)
-				strDisplayTitle += L" ";
+				strDisplayTitle += L' ';
 			else
 				strDisplayTitle.clear();
 
-			strDisplayTitle += bFilterLocked?L"<":L"[";
-			strDisplayTitle += strFilter;
-			strDisplayTitle += bFilterLocked?L">":L"]";
+			append(strDisplayTitle, bFilterLocked? L'<' : L'[', strFilter, bFilterLocked? L'>' : L']');
 		}
 
 		WidthTitle=(int)strDisplayTitle.size();

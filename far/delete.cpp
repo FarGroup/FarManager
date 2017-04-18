@@ -114,7 +114,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 	if (Mode!=DEL_SCAN && Percent!=-1)
 	{
 		strProgress = make_progressbar(Width, Percent, true, true);
-		ConsoleTitle::SetFarTitle(L"{"s + str(Percent) + L"%} "s + msg((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)? lng::MDeleteWipeTitle : lng::MDeleteTitle));
+		ConsoleTitle::SetFarTitle(concat(L'{', str(Percent), L"%} ", msg(Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS? lng::MDeleteWipeTitle : lng::MDeleteTitle)));
 	}
 
 	string strOutFileName(Name);
@@ -416,7 +416,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			os::fs::file_status Status(strJuncName);
 			if (os::fs::exists(Status))
 			{
-				strAskDeleteLink+=L" ";
+				strAskDeleteLink += L' ';
 				strAskDeleteLink += msg(is_directory(Status)? lng::MAskDeleteLinkFolder : lng::MAskDeleteLinkFile);
 			}
 
@@ -474,7 +474,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 			if (mshow > 1)
 			{
-				tText = msg(mDText) + string(L" ") + strDeleteFilesMsg;
+				tText = concat(msg(mDText), L' ', strDeleteFilesMsg);
 				items.clear();
 				DWORD attr;
 				string name;

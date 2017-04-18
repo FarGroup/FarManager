@@ -1078,7 +1078,7 @@ bool SetCurrentDirectory(const string& PathName, bool Validate)
 	{
 		string TestDir=PathName;
 		AddEndSlash(TestDir);
-		TestDir += L"*";
+		TestDir += L'*';
 		FAR_FIND_DATA fd;
 		if (!GetFindDataEx(TestDir, fd))
 		{

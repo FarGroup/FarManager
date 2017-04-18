@@ -480,14 +480,14 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					break;
 					// same as \n
 				case L'n':
-					strBuf=L"\n";
+					strBuf = L'\n';
 					break;
 					// same as \t
 				case L't':
-					strBuf=L"\t";
+					strBuf = L'\t';
 					break;
 				case L'%':
-					strBuf=L"%";
+					strBuf = L'%';
 					break;
 					// time as %I:%M:%S %p
 				case L'r':

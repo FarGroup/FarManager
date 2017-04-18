@@ -727,8 +727,7 @@ string& FarFormatText(const string& SrcText,      // источник
                             const wchar_t* Break, // разделитель, если = nullptr, принимается "\n"
                             DWORD Flags)          // один из FFTM_*
 {
-	const wchar_t *breakchar;
-	breakchar = Break?Break:L"\n";
+	const auto breakchar = Break? Break : L"\n";
 
 	if (SrcText.empty())
 	{
@@ -736,7 +735,7 @@ string& FarFormatText(const string& SrcText,      // источник
 		return strDestText;
 	}
 
-	string strSrc = SrcText; //copy string in case of SrcText == strDestText
+	const auto strSrc = SrcText; //copy string in case of SrcText == strDestText
 
 	if (strSrc.find_first_of(breakchar) == string::npos && strSrc.size() <= static_cast<size_t>(Width))
 	{
@@ -1249,7 +1248,7 @@ string& InplaceLower(string& str, size_t pos, size_t n)
 				{
 					if (Flags.Check(STLF_PACKASTERISKS) && Token.size() == 3 && Token == L"*.*")
 					{
-						item.first = L"*";
+						item.first = L'*';
 						ItemsList.emplace_back(item);
 					}
 					else

@@ -1155,7 +1155,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					strQuotedName+=L" ";
+					strQuotedName += L' ';
 					Parent()->GetCmdLine()->InsertString(strQuotedName);
 				}
 			}
@@ -1780,9 +1780,7 @@ bool TreeList::GetPlainString(string& Dest, int ListPos) const
 
 bool TreeList::FindPartName(const string& Name,int Next,int Direct)
 {
-	string strMask;
-	strMask = Name;
-	strMask += L"*";
+	auto strMask = Name + L'*';
 
 	Panel::exclude_sets(strMask);
 
@@ -2089,7 +2087,7 @@ void TreeList::UpdateKeyBar()
 
 void TreeList::RefreshTitle()
 {
-	m_Title = L"{";
+	m_Title = L'{';
 	if (!m_ListData.empty())
 	{
 		append(m_Title, m_ListData[m_CurFile].strName, L" - "s);

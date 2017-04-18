@@ -337,7 +337,7 @@ void InfoList::DisplayObject()
 				DriveType=DRIVE_VIRTUAL;
 			}
 
-			SectionTitle = string(L" ") + DiskType + L" " + msg(lng::MInfoDisk) + L" " + strDriveRoot + L" (" + strFileSystemName + L") ";
+			SectionTitle = concat(L' ', DiskType, L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" (", strFileSystemName, L") ");
 
 			switch(DriveType)
 			{
@@ -354,7 +354,7 @@ void InfoList::DisplayObject()
 				case DRIVE_VIRTUAL:
 				{
 					SectionTitle += strAssocPath;
-					SectionTitle += L" ";
+					SectionTitle += L' ';
 				}
 				break;
 			}
@@ -375,7 +375,7 @@ void InfoList::DisplayObject()
 		string str;
 		if (Global->Opt->ShowBytes)
 		{
-			str = InsertCommas(Size); // +L" ";
+			str = InsertCommas(Size); // + L' ';
 		}
 		else
 		{
@@ -426,7 +426,7 @@ void InfoList::DisplayObject()
 
 			GotoXY(m_X1+2,CurY++);
 			PrintText(lng::MInfoMemoryLoad);
-			PrintInfo(str(ms.dwMemoryLoad) + L"%");
+			PrintInfo(str(ms.dwMemoryLoad) + L'%');
 
 			ULONGLONG TotalMemoryInKilobytes=0;
 			if(Imports().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
@@ -513,7 +513,7 @@ void InfoList::DisplayObject()
 				if (PowerStatus.BatteryFlag & BATTERY_FLAG_CHARGING)
 				{
 					if (!strOutStr.empty())
-						strOutStr += L" ";
+						strOutStr += L' ';
 					strOutStr += msg(lng::MInfoPowerStatusBCCharging);
 				}
 			}
@@ -928,7 +928,7 @@ void InfoList::PrintInfo(const string& str) const
 	{
 		GotoXY(NewX,WhereY());
 		SetColor(COL_PANELINFOTEXT);
-		Text(strStr + L" ");
+		Text(strStr + L' ');
 		SetColor(SaveColor);
 	}
 }

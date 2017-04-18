@@ -463,7 +463,7 @@ void ShowHotplugDevices()
 					{
 						if (!strFriendlyName.empty() && StrCmpI(strDescription, strFriendlyName))
 						{
-							ListItem.strName += L" \"" + strFriendlyName + L"\"";
+							append(ListItem.strName, L" \"", strFriendlyName, L"\"");
 						}
 					}
 					else if (!strFriendlyName.empty())

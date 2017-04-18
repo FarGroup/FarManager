@@ -406,7 +406,7 @@ void PluginManager::LoadPlugins()
 			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
 			// ...а персональные есть?
 			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty())
-				strPluginsDir += L";" + Global->Opt->LoadPlug.strPersonalPluginsPath;
+				append(strPluginsDir, L';', Global->Opt->LoadPlug.strPersonalPluginsPath);
 		}
 		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // только "заказные" пути?
 		{
@@ -963,7 +963,7 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 
 	string strFindPath = Info.DestPath;
 	AddEndSlash(strFindPath);
-	strFindPath += L"*";
+	strFindPath += L'*';
 	const auto Find = os::fs::enum_files(strFindPath);
 	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())

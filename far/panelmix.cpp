@@ -271,8 +271,7 @@ bool MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool Short
 							strPathName = SrcFileList->GetPluginPrefix();
 							if (Info.HostFile && *Info.HostFile)
 							{
-								strPathName += Info.HostFile;
-								strPathName += L"/";
+								append(strPathName, Info.HostFile, L'/');
 							}
 							strPathName += NullToEmpty(Info.CurDir);
 						}
@@ -513,7 +512,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		}
 		else
 		{
-			strType = L"C" + str(ColumnType - CUSTOM_COLUMN0);
+			strType = L'C' + str(ColumnType - CUSTOM_COLUMN0);
 		}
 
 		const auto& AddFlag = [&](auto Flag)
@@ -570,12 +569,12 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		switch (i.width_type)
 		{
 			case col_width::percent:
-				strColumnWidths += L"%";
+				strColumnWidths += L'%';
 				break;
 		}
 
-		strColumnTitles += L",";
-		strColumnWidths += L",";
+		strColumnTitles += L',';
+		strColumnWidths += L',';
 	});
 
 	if (!strColumnTitles.empty())
@@ -659,7 +658,7 @@ string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned lon
 			strOutStr=strTimeStr;
 			break;
 		default:
-			strOutStr=strDateStr+L" "+strTimeStr;
+			strOutStr = concat(strDateStr, L' ', strTimeStr);
 			break;
 	}
 

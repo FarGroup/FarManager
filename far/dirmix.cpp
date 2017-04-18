@@ -130,7 +130,7 @@ int TestFolder(const string& Path)
 	string strFindPath = Path;
 	// сообразим маску для поиска.
 	AddEndSlash(strFindPath);
-	strFindPath += L"*";
+	strFindPath += L'*';
 
 	// первая проверка - че-нить считать можем?
 	const auto Find = os::fs::enum_files(strFindPath);

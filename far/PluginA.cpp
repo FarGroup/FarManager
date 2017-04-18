@@ -3982,7 +3982,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				{
 					if (KeyToText(OldKeyToKey(Key), strKeyText))
 					{
-						strSequence += L" " + strKeyText;
+						append(strSequence, L' ', strKeyText);
 					}
 				}
 				strSequence += L"\")";

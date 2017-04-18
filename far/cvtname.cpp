@@ -496,7 +496,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 				;
 			if(DoubleSlash)
 			{
-				strPath = L"\\" + strPath;
+				strPath = L'\\' + strPath;
 			}
 
 			if (CheckFullPath)

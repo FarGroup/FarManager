@@ -178,11 +178,9 @@ void copy_progress::Flush()
 
 	if (m_Total || (m_Files.Total == 1))
 	{
-		ConsoleTitle::SetFarTitle(
-			L"{"
-			+ str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_Total? m_TotalPercent : m_CurrentPercent)
-			+ L"%} "
-			+ msg(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle)
+		ConsoleTitle::SetFarTitle(concat(
+			L'{', str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_Total? m_TotalPercent : m_CurrentPercent), L"%} ",
+			msg(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle))
 		);
 	}
 
@@ -334,7 +332,7 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 			if (!m_Speed.empty() && m_Speed.front() == L' ' && std::iswdigit(m_Speed.back()))
 			{
 				m_Speed.erase(0, 1);
-				m_Speed += L" ";
+				m_Speed += L' ';
 			}
 		}
 

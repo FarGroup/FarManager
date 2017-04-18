@@ -130,7 +130,7 @@ struct Help::StackHelpData
 
 string Help::MakeLink(const string& path, const string& topic)
 {
-	return string(L"<") + path + L"\\>" + topic;
+	return concat(L'<', path, L"\\>", topic);
 }
 
 Help::Help(private_tag):
@@ -642,7 +642,7 @@ m1:
 					if (!RepeatLastLine)
 					{
 						if (!strSplitLine.empty())
-							strSplitLine += L" ";
+							strSplitLine += L' ';
 
 						strSplitLine += strReadStr;
 					}
@@ -749,7 +749,7 @@ void Help::AddLine(const string& Line)
 
 void Help::AddTitle(const string& Title)
 {
-	AddLine(L"^ #" + Title + L"#");
+	AddLine(concat(L"^ #", Title, L'#'));
 }
 
 void Help::HighlightsCorrection(string &strStr)
@@ -1984,9 +1984,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 						string strHelpLine = L"   ~" + strEntryName;
 						if (!strSecondParam.empty())
 						{
-							strHelpLine += L"," + strSecondParam;
+							append(strHelpLine, L',', strSecondParam);
 						}
-						strHelpLine += L"~@" + MakeLink(strPath, HelpContents) + L"@";
+						append(strHelpLine, L"~@", MakeLink(strPath, HelpContents), L'@');
 
 						AddLine(strHelpLine);
 					}
@@ -2176,7 +2176,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 
 						if (ReplaceStrings(strAction, L"%1", FilteredURLPath, false, 1) == 0) //if %1 not found
 						{
-							strAction += L" ";
+							strAction += L' ';
 							strAction += FilteredURLPath;
 						}
 

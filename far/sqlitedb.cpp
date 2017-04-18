@@ -237,7 +237,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		if (db_exists < 0)
 			db_exists = +1;
 
-		if (WAL && !can_create_file(m_Path + L"." + GuidToStr(CreateUuid()))) // can't open db -- copy to %TEMP%
+		if (WAL && !can_create_file(concat(m_Path, L'.', GuidToStr(CreateUuid())))) // can't open db -- copy to %TEMP%
 		{
 			string strTmp;
 			os::GetTempPath(strTmp);

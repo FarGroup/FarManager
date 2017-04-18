@@ -1914,7 +1914,7 @@ void Dialog::ShowDialog(size_t ID)
 					strStr=Check;
 
 					if (Items[I].strData.size())
-						strStr+=L" ";
+						strStr += L' ';
 				}
 				else
 				{
@@ -1931,7 +1931,7 @@ void Dialog::ShowDialog(size_t ID)
 						strStr=Dot;
 
 						if (Items[I].strData.size())
-							strStr+=L" ";
+							strStr += L' ';
 					}
 				}
 

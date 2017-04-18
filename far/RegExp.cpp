@@ -890,7 +890,7 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 	REOpCode* op;//=code;
 	brackets[0]=code.data();
 #ifdef RE_DEBUG
-	resrc = L"(";
+	resrc = L'(';
 	resrc.append(src, srclength).append(L")\x2190");
 #endif
 	havelookahead=0;

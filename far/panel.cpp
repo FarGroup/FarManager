@@ -815,7 +815,7 @@ void Panel::ShowScreensCount() const
 
 void Panel::RefreshTitle()
 {
-	m_Title = L"{" + GetTitle() + L"}";
+	m_Title = concat(L'{', GetTitle(), L'}');
 }
 
 string Panel::GetTitle() const

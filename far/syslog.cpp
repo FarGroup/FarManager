@@ -132,7 +132,7 @@ static void FarOutputDebugString(const string& Str)
 
 static const wchar_t *MakeSpace()
 {
-	static wchar_t Buf[60]=L" ";
+	static wchar_t Buf[60];
 	Buf[0]=L' ';
 
 	for (int I=1; I <= Indent; ++I)

@@ -247,8 +247,7 @@ static void GenerateName(string &strName, const string& Path)
 	for (int i = 2; os::fs::exists(strName); ++i)
 	{
 		strName.resize(NameLength);
-		strName += L" (" + str(i) + L")";
-		strName+=strExt;
+		append(strName, L" (", str(i), L')', strExt);
 	}
 }
 
@@ -434,7 +433,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 							InsertQuote(strNewFolder);
 
 						if (strOldFolder.size())
-							strOldFolder += L";"; // добавим разделитель к непустому списку
+							strOldFolder += L';'; // добавим разделитель к непустому списку
 
 						strOldFolder += strNewFolder;
 						strNewFolder = strOldFolder;
@@ -653,7 +652,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				strNewDir.resize(pos);
 
 				if (!pos || strNewDir[pos-1]==L':')
-					strNewDir += L"\\";
+					strNewDir += L'\\';
 
 				FarChDir(strNewDir);
 			}
@@ -663,7 +662,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		QuoteOuterSpace(strSelNameShort);
 		strCopyStr=msg(Move? lng::MMoveFile : Link? lng::MLinkFile : lng::MCopyFile);
 		TruncPathStr(strSelNameShort,static_cast<int>(CopyDlg[ID_SC_TITLE].X2-CopyDlg[ID_SC_TITLE].X1-strCopyStr.size()-7));
-		strCopyStr+=L" "+strSelNameShort;
+		append(strCopyStr, L' ', strSelNameShort);
 
 		// Если копируем одиночный файл, то запрещаем использовать фильтр
 		if (!(m_FileAttr&FILE_ATTRIBUTE_DIRECTORY))
@@ -765,10 +764,10 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				OpenPanelInfo Info;
 				DestPanel->GetOpenPanelInfo(&Info);
 				string strFormat = NullToEmpty(Info.Format);
-				CopyDlg[ID_SC_TARGETEDIT].strData = strFormat+L":";
+				CopyDlg[ID_SC_TARGETEDIT].strData = strFormat + L':';
 
 				while (CopyDlg[ID_SC_TARGETEDIT].strData.size()<2)
-					CopyDlg[ID_SC_TARGETEDIT].strData += L":";
+					CopyDlg[ID_SC_TARGETEDIT].strData += L':';
 
 				strPluginFormat = Upper(CopyDlg[ID_SC_TARGETEDIT].strData);
 				break;
@@ -1596,7 +1595,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			int SubCopyCode;
 			string strFullName;
 			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
-			auto strSubName = strSelName + L"\\";
+			auto strSubName = strSelName + L'\\';
 
 			if (DestAttr==INVALID_FILE_ATTRIBUTES)
 				KeepPathPos=(int)strSubName.size();
@@ -1815,7 +1814,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			int Length=(int)strDestPath.size();
 
 			if (!IsSlash(strDestPath[Length-1]) && strDestPath[Length-1]!=L':')
-				strDestPath += L"\\";
+				strDestPath += L'\\';
 
 			const wchar_t *PathPtr=Src.data()+KeepPathPos;
 
@@ -3039,7 +3038,7 @@ void ShellCopy::SetDestDizPath(const string& DestPath)
 		CutToSlash(strDestDizPath);
 
 		if (strDestDizPath.empty())
-			strDestDizPath = L".";
+			strDestDizPath = L'.';
 
 		if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && !SrcPanel->IsDizDisplayed()) ||
 		        Global->Opt->Diz.UpdateMode==DIZ_NOT_UPDATE)

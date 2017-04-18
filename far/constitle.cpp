@@ -57,7 +57,7 @@ static const string& GetFarTitleAddons()
 	strTitleAddons.assign(L" - Far ",7);
 	strTitleAddons += Global->Opt->strTitleAddons.Get();
 
-	static const string strVer = str(FAR_VERSION.Major) + L"." + str(FAR_VERSION.Minor);
+	static const string strVer = concat(str(FAR_VERSION.Major), L'.', str(FAR_VERSION.Minor));
 	static const string strBuild = str(FAR_VERSION.Build);
 	static const string strPID = str(GetCurrentProcessId());
 

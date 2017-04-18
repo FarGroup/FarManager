@@ -677,7 +677,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
 				{
-					m_RecCode = L"Keys(\"" + m_RecCode + L"\")";
+					m_RecCode = concat(L"Keys(\"", m_RecCode, L"\")");
 					// добавим проверку на удаление
 					// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
 					//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
@@ -709,8 +709,12 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			{
 				if (!Global->IsProcessAssignMacroKey)
 				{
-					if (!m_RecCode.empty()) m_RecCode+=L" ";
-					if (textKey==L"\"") textKey=L"\\\"";
+					if (!m_RecCode.empty())
+						m_RecCode += L' ';
+
+					if (textKey==L"\"")
+						textKey=L"\\\"";
+
 					m_RecCode+=textKey;
 				}
 				return false;
@@ -4550,21 +4554,15 @@ static bool panelitemFunc(FarMacroCall* Data)
 				return false;
 			case 3:  // CreationTime
 				ConvertDate(filelistItem->CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE);
-				strDate += L" ";
-				strDate += strTime;
-				Ret=TVar(strDate);
+				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 4:  // AccessTime
 				ConvertDate(filelistItem->AccessTime,strDate,strTime,8,FALSE,FALSE,TRUE);
-				strDate += L" ";
-				strDate += strTime;
-				Ret=TVar(strDate);
+				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 5:  // WriteTime
 				ConvertDate(filelistItem->WriteTime,strDate,strTime,8,FALSE,FALSE,TRUE);
-				strDate += L" ";
-				strDate += strTime;
-				Ret=TVar(strDate);
+				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 6:  // FileSize
 				PassInteger(filelistItem->FileSize, Data);
@@ -4610,9 +4608,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				return false;
 			case 20:  // ChangeTime
 				ConvertDate(filelistItem->ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE);
-				strDate += L" ";
-				strDate += strTime;
-				Ret=TVar(strDate);
+				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 21:  // ChangeTime (FILETIME)
 				PassInteger(FileTimeToUI64(filelistItem->ChangeTime), Data);

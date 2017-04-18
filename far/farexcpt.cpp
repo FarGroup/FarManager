@@ -243,10 +243,10 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const excep
 	}
 
 	string Dump =
-		Msg[0] + L" " + Exception + L"\n" +
-		Msg[1] + L" " + strAddr + L"\n" +
-		Msg[2] + L" " + Function + L"\n" +
-		Msg[3] + L" " + ModuleName + L"\n";
+		Msg[0] + L' ' + Exception + L'\n' +
+		Msg[1] + L' ' + strAddr + L'\n' +
+		Msg[2] + L' ' + Function + L'\n' +
+		Msg[3] + L' ' + ModuleName + L'\n';
 
 	std::wcerr << Dump << std::endl;
 
@@ -459,7 +459,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 
 				append(strBuf, L"std::exception: "s, encoding::utf8::get_chars(Message));
 			}
-			strBuf += L")"s;
+			strBuf += L')';
 			Exception = strBuf.data();
 		}
 	}

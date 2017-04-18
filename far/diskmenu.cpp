@@ -636,7 +636,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			const auto strRootDir = os::fs::get_root_directory(i);
 
 			DiskMenuItem NewItem;
-			NewItem.Letter = L"&" + LocalName;
+			NewItem.Letter = L'&' + LocalName;
 			NewItem.DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
 			if (DisconnectedNetworkDrives[os::fs::get_drive_number(i)])

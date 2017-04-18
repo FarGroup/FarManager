@@ -424,7 +424,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 	if (!Key)
 		return nullptr;
 
-	strValue += L"\\";
+	strValue += L'\\';
 
 	if (os::reg::GetValue(Key, L"", strAction))
 	{
@@ -1323,7 +1323,7 @@ bool ExpandOSAliases(string &strStr)
 	strNewCmdStr.assign(Buffer.get());
 
 	if (!ReplaceStrings(strNewCmdStr, L"$*", strNewCmdPar) && !strNewCmdPar.empty())
-		strNewCmdStr+=L" "+strNewCmdPar;
+		append(strNewCmdStr, L' ', strNewCmdPar);
 
 	strStr=strNewCmdStr;
 

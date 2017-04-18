@@ -210,7 +210,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				string strRecord;
 
 				if (m_TypeHistory == HISTORYTYPE_VIEW)
-					strRecord = GetTitle(i.Type) + string(L":") + (i.Type == HR_EDITOR_RO ? L"-" : L" ");
+					strRecord = concat(GetTitle(i.Type), L':', i.Type == HR_EDITOR_RO? L'-' : L' ');
 
 				else if (m_TypeHistory == HISTORYTYPE_FOLDER)
 				{
@@ -218,9 +218,9 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					if(StrToGuid(i.Guid, HGuid) && HGuid != FarGuid)
 					{
 						const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
-						strRecord = (pPlugin ? pPlugin->GetTitle() : L"{" + i.Guid + L"}") + L":";
+						strRecord = (pPlugin ? pPlugin->GetTitle() : L'{' + i.Guid + L'}') + L':';
 						if(!i.File.empty())
-							strRecord += i.File + L":";
+							strRecord += i.File + L':';
 					}
 				}
 				const auto FTTime = UI64ToFileTime(i.Time);

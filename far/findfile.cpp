@@ -463,9 +463,7 @@ string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot) const
 	}
 	else
 	{
-		strSearchFromRoot= msg(lng::MSearchFromRootOfDrive);
-		strSearchFromRoot+=L" ";
-		strSearchFromRoot+=strCurDir;
+		strSearchFromRoot = concat(msg(lng::MSearchFromRootOfDrive), L' ', strCurDir);
 	}
 
 	return strSearchFromRoot;
@@ -2042,8 +2040,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_
 		{
 			if(!(ArcItem->Flags & OPIF_REALNAMES) && !ArcItem->strArcName.empty())
 			{
-				string strArcPathName=ArcItem->strArcName;
-				strArcPathName+=L":";
+				auto strArcPathName = ArcItem->strArcName + L':';
 
 				if (!IsSlash(strPathName.front()))
 					AddEndSlash(strArcPathName);
@@ -2407,7 +2404,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 				if (SetDirectoryResult && CurPanelItem->FileName[0])
 				{
 					strPluginSearchPath += CurPanelItem->FileName;
-					strPluginSearchPath += L"\\";
+					strPluginSearchPath += L'\\';
 					ScanPluginTree(hPlugin, Flags, RecurseLevel);
 
 					size_t pos = strPluginSearchPath.rfind(L'\\');
@@ -2595,23 +2592,18 @@ bool FindFiles::FindFilesProcess()
 
 	if (!strFindMask.empty())
 	{
-		strTitle+=L": ";
-		strTitle+=strFindMask;
+		append(strTitle, L": ", strFindMask);
 
 		if (UseFilter)
 		{
-			strTitle+=L" (";
-			strTitle+=msg(lng::MFindUsingFilter);
-			strTitle+=L")";
+			append(strTitle, L" (", msg(lng::MFindUsingFilter), L')');
 		}
 	}
 	else
 	{
 		if (UseFilter)
 		{
-			strTitle+=L" (";
-			strTitle+=msg(lng::MFindUsingFilter);
-			strTitle+=L")";
+			append(strTitle, L" (", msg(lng::MFindUsingFilter), L')');
 		}
 	}
 

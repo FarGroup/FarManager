@@ -210,13 +210,14 @@ bool ScanTree::GetNextName(os::FAR_FIND_DATA& fdata,string &strFullName)
 			if (real_path && !ScanItems.back().ActiveDirectories.count(RealPath))
 			{
 				CutToSlash(strFindPath);
+				append(strFindPath, fdata.strFileName, L'\\', strFindMask);
+
 				CutToSlash(strFindPathOriginal);
-				strFindPath += fdata.strFileName;
 				strFindPathOriginal += fdata.strFileName;
+
 				strFullName = strFindPathOriginal;
 				AddEndSlash(strFindPathOriginal);
-				strFindPath += L"\\";
-				strFindPath += strFindMask;
+
 				scantree_item Data;
 				Data.Flags = ScanItems.back().Flags; // наследуем флаг
 				Data.Flags.Clear(FSCANTREE_SECONDPASS);

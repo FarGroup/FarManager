@@ -111,7 +111,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	// !! символ '!'
 	if (!StrCmpN(CurStr,L"!!",2) && CurStr[2] != L'?')
 	{
-		strOut += L"!";
+		strOut += L'!';
 		CurStr+=2;
 		return CurStr;
 	}
@@ -188,7 +188,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 			if (First)
 				First = FALSE;
 			else
-				strOut += L" ";
+				strOut += L' ';
 
 			strOut += strFileNameL;
 		}
@@ -248,9 +248,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 				}
 				else
 				{
-					strOut += CurStr;
-					strOut += Modifers;
-					strOut += L"!";
+					append(strOut, CurStr, Modifers, L'!');
 				}
 
 				CurStr+=Ptr-CurStr+1;

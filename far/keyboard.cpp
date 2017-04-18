@@ -1438,7 +1438,7 @@ bool KeyToLocalizedText(int Key, string &strKeyText)
 		[](string& str)
 		{
 			if (!str.empty())
-				str += L"+";
+				str += L'+';
 		}
 	);
 }

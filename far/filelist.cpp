@@ -209,7 +209,7 @@ FileListItem::FileListItem()
 
 static string GetItemFullName(const FileListItem& Item, const FileList* Owner)
 {
-	return Owner->GetCurDir() + L"\\"s + (TestParentFolderName(Item.strName) ? L""s : Item.strName);
+	return concat(Owner->GetCurDir(), L'\\', TestParentFolderName(Item.strName)? string{} : Item.strName);
 }
 
 bool FileListItem::IsNumberOfLinksRead() const
@@ -1485,7 +1485,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					if (!strFileName.empty() && (Global->Opt->QuotedName&QUOTEDNAME_INSERT) != 0)
 						QuoteSpace(strFileName);
 
-					strFileName += L" ";
+					strFileName += L' ';
 				}
 
 				Parent()->GetCmdLine()->InsertString(strFileName);
@@ -1830,7 +1830,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						return true;
 
 					os::CreateDirectory(strTempDir,nullptr);
-					strTempName=strTempDir+L"\\"+PointToName(strFileName);
+					strTempName = concat(strTempDir, L'\\', PointToName(strFileName));
 
 					if (LocalKey==KEY_SHIFTF4)
 					{
@@ -1939,7 +1939,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								string strPath;
 								strPath = strTempName;
 								CutToSlash(strPath, false);
-								strFindName = strPath+L"*";
+								strFindName = strPath + L'*';
 								const auto Find = os::fs::enum_files(strFindName);
 								const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 								if (ItemIterator != Find.cend())
@@ -3464,7 +3464,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 		strMask.pop_back();
 	}
 
-	strMask += L"*";
+	strMask += L'*';
 
 	exclude_sets(strMask);
 
@@ -3518,7 +3518,7 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 	}
 
 /*
-	strMask += L"*";
+	strMask += L'*';
 
 	exclude_sets(strMask);
 */
@@ -4427,7 +4427,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 
 void FileList::RefreshTitle()
 {
-	m_Title = L"{";
+	m_Title = L'{';
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
@@ -4441,7 +4441,7 @@ void FileList::RefreshTitle()
 		m_Title += m_CurDir;
 	}
 
-	m_Title += L"}";
+	m_Title += L'}';
 }
 
 size_t FileList::GetFileCount() const
@@ -5763,7 +5763,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 			if (FarMkTempEx(strTempDir) && os::CreateDirectory(strTempDir,nullptr))
 			{
 				const auto strSaveDir = os::GetCurrentDirectory();
-				string strDizName=strTempDir+L"\\"+DestPanel->strPluginDizName;
+				auto strDizName = concat(strTempDir, L'\\', DestPanel->strPluginDizName);
 				DestPanel->Diz.Flush(L"", &strDizName);
 
 				if (Move)

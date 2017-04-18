@@ -1332,9 +1332,9 @@ struct FARConfigItem
 		string Type = Value->GetType();
 		Type.resize(std::max(Type.size(), size_t(7)), L' ');
 
-		ListItemString = KeyName + L"."s + ValName;
+		ListItemString = concat(KeyName, L'.', ValName);
 		ListItemString.resize(std::max(ListItemString.size(), size_t(42)), L' ');
-		ListItemString += BoxSymbols[BS_V1] + Type + BoxSymbols[BS_V1] + Value->toString() + Value->ExInfo();
+		append(ListItemString, BoxSymbols[BS_V1], Type, BoxSymbols[BS_V1], Value->toString(), Value->ExInfo());
 		if(!Value->IsDefault(Default))
 		{
 			Item.Flags = LIF_CHECKED|L'*';
@@ -1346,7 +1346,7 @@ struct FARConfigItem
 	bool Edit(bool Hex) const
 	{
 		DialogBuilder Builder;
-		Builder.AddText((KeyName + L"."s + ValName + L" ("s + Value->GetType() + L"):"s).data());
+		Builder.AddText(concat(KeyName, L'.', ValName, L" (", Value->GetType(), L"):").data());
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
@@ -2271,10 +2271,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						FarListInfo ListInfo = {sizeof(ListInfo)};
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
-						string HelpTopic = string(CurrentConfig[ListInfo.SelectPos].KeyName) + L"." + CurrentConfig[ListInfo.SelectPos].ValName;
+						auto HelpTopic = concat(CurrentConfig[ListInfo.SelectPos].KeyName, L'.', CurrentConfig[ListInfo.SelectPos].ValName);
 						if (Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR)->GetError())
 						{
-							HelpTopic = string(CurrentConfig[ListInfo.SelectPos].KeyName) + L"Settings";
+							HelpTopic = concat(CurrentConfig[ListInfo.SelectPos].KeyName, L"Settings");
 							Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						}
 					}

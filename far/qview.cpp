@@ -125,9 +125,7 @@ void QuickView::DisplayObject()
 
 	if (!strCurFileType.empty())
 	{
-		string strTypeText=L" ";
-		strTypeText+=strCurFileType;
-		strTypeText+=L" ";
+		auto strTypeText = concat(L' ', strCurFileType, L' ');
 		TruncStr(strTypeText,m_X2-m_X1-1);
 		SetColor(COL_PANELSELECTEDINFO);
 		GotoXY(m_X1+(m_X2-m_X1+1-(int)strTypeText.size())/2,m_Y2-2);
@@ -236,7 +234,7 @@ void QuickView::DisplayObject()
 		{
 			if (Global->Opt->ShowBytes)
 			{
-				return InsertCommas(Size); // +L" " + bytes_suffix;
+				return InsertCommas(Size); // + L' ' + bytes_suffix;
 			}
 			else
 			{

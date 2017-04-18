@@ -105,7 +105,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 		if (IsLocalPath_FarPath)
 		{
 			strSrc.resize(2);
-			strSrc += L"\\";
+			strSrc += L'\\';
 		}
 	}
 	else

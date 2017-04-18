@@ -67,8 +67,7 @@ PreserveLongName::~PreserveLongName()
 
 			if (CutToSlash(strNewName,true))
 			{
-				strNewName += L"\\";
-				strNewName += m_SaveLongName;
+				append(strNewName, L'\\', m_SaveLongName);
 			}
 			else
 				strNewName = m_SaveLongName;

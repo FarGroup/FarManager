@@ -108,8 +108,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 
 bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
-	string strFullParamName = L".";
-	strFullParamName += ParamName;
+	const auto strFullParamName = concat(L'.', ParamName);
 	int Length=(int)strFullParamName.size();
 	/* $ 29.11.2001 DJ
 	   не поганим позицию в файле; дальше @Contents не читаем
@@ -467,7 +466,7 @@ void language::load(const string& Path, int CountNeed)
 		};
 
 		const auto CustomLngInSameDir = Data->m_FileName + L".custom";
-		const auto CustomLngInProfileDir = Global->Opt->ProfilePath + L"\\" + ExtractFileName(CustomLngInSameDir);
+		const auto CustomLngInProfileDir = concat(Global->Opt->ProfilePath, L'\\', ExtractFileName(CustomLngInSameDir));
 
 		LoadStrings(CustomLngInSameDir);
 		LoadStrings(CustomLngInProfileDir);
