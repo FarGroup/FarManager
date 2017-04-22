@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "datetime.hpp"
 #include "tracer.hpp"
+#include "constitle.hpp"
 #include "local.hpp"
 #include "cvtname.hpp"
 #include "drivemix.hpp"
@@ -107,6 +108,9 @@ static void show_help()
 		L"      Override the configuration parameter, see far:config for details." EOL_STR
 		L" -t <path>" EOL_STR
 		L"      Location of Far template configuration file - overrides Far.exe.ini." EOL_STR
+		L" -title[:<valuestring>]" EOL_STR
+		L"      If <valuestring> is given, use it as the window title;" EOL_STR
+		L"      otherwise, inherit the console window's title." EOL_STR
 #ifndef NO_WRAPPER
 		L" -u <username>" EOL_STR
 		L"      Allows to have separate registry settings for different users." EOL_STR
@@ -538,6 +542,9 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
+	// TODO: std::optional
+	std::pair<string, bool> CustomTitle;
+
 	std::vector<std::pair<string, string>> Overridden;
 	FOR_RANGE(Args, Iter)
 	{
@@ -631,7 +638,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'T':
-					if (Iter + 1 != Args.end())
+					if (!StrCmpNI(Arg + 1, L"title", 5))
+					{
+						CustomTitle.second = true;
+						if (Arg[6] == L':')
+							CustomTitle.first = Arg + 7;
+					}
+					else if (Iter + 1 != Args.end())
 					{
 						strTemplatePath = *++Iter;
 					}
@@ -744,6 +757,8 @@ static int mainImpl(const range<wchar_t**>& Args)
 	}
 
 	InitConsole();
+	if (CustomTitle.second)
+		ConsoleTitle::SetUserTitle(CustomTitle.first.empty() ? Global->strInitTitle : CustomTitle.first);
 
 	SCOPE_EXIT
 	{

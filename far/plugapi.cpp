@@ -1190,23 +1190,22 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 			break;
 		}
 
-		const auto& AssignStrings = [&](const auto& Source)
+		const auto& AssignStrings = [&](auto&& Source)
 		{
-			if (!Source.empty())
-			{
-				Title = *Source.begin();
-				if (Buttons.empty())
-				{
-					MsgItems.assign(std::next(Source.begin()), Source.end() - ButtonsNumber);
-					Buttons.assign(Source.end() - ButtonsNumber, Source.end());
-				}
-				else
-				{
-					// FMSG_MB_* is active
-					MsgItems.assign(std::next(Source.begin()), Source.end());
-				}
-			}
+			if (Source.empty())
+				return;
 
+			Title = std::move(*Source.begin());
+			if (Buttons.empty())
+			{
+				std::move(std::next(Source.begin()), Source.end() - ButtonsNumber, std::back_inserter(MsgItems));
+				std::move(Source.end() - ButtonsNumber, Source.end(), std::back_inserter(Buttons));
+			}
+			else
+			{
+				// FMSG_MB_* is active
+				std::move(std::next(Source.begin()), Source.end(), std::back_inserter(MsgItems));
+			}
 		};
 
 		if (Flags & FMSG_ALLINONE)
@@ -1218,7 +1217,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 			std::vector<const wchar_t*> ItemsCopy(ItemsNumber);
 			// They believe nullptr works as empty string /o
 			std::transform(Items, Items + ItemsNumber, ItemsCopy.begin(), NullToEmpty<wchar_t>);
-			AssignStrings(ItemsCopy);
+			AssignStrings(std::move(ItemsCopy));
 		}
 
 		Plugin* PluginNumber = GuidToPlugin(PluginId);

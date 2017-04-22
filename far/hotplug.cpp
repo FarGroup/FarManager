@@ -363,7 +363,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 		for (size_t i = 0; i < Info.Disks.size(); ++i)
 		{
 			if (Info.Disks[i])
-				append(DisksStr, static_cast<wchar_t>(L'A' + i), L":, "s);
+				append(DisksStr, static_cast<wchar_t>(L'A' + i), L":, ");
 		}
 
 		// remove trailing ", "

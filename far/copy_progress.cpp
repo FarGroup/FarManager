@@ -141,7 +141,7 @@ static string FormatCounter(lng CounterId, lng AnotherId, unsigned long long Cur
 	auto StrCurrent = InsertCommas(CurrentValue);
 	auto StrTotal = ShowTotal? InsertCommas(TotalValue) : string();
 
-	auto Value = ShowTotal? concat(StrCurrent, L" / "s, StrTotal) : StrCurrent;
+	auto Value = ShowTotal? concat(StrCurrent, L" / ", StrTotal) : StrCurrent;
 	if (MaxWidth > PaddedLabelSize)
 	{
 		const auto PaddedValueSize = MaxWidth - PaddedLabelSize;

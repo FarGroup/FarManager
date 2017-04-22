@@ -3955,7 +3955,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		if (pos != string::npos)
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask = concat(L'"', L"*."s, strCurName.substr(pos + 1), L'"');
+			strRawMask = concat(L'"', L"*.", strCurName.substr(pos + 1), L'"');
 			WrapBrackets=true;
 		}
 		else

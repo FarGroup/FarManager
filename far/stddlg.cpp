@@ -518,9 +518,9 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 
 							if (*i.strServiceShortName)
 							{
-								append(tmp, L" ["s, i.strServiceShortName, L']');
+								append(tmp, L" [", i.strServiceShortName, L']');
 							}
-							append(tmp, L" (PID: "s, str(i.Process.dwProcessId));
+							append(tmp, L" (PID: ", str(i.Process.dwProcessId));
 							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, i.Process.dwProcessId)))
 							{
 								FILETIME ftCreate, ftExit, ftKernel, ftUser;
@@ -529,7 +529,7 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 									string Name;
 									if (os::GetModuleFileNameEx(Process.native_handle(), nullptr, Name))
 									{
-										append(tmp, L", "s, Name);
+										append(tmp, L", ", Name);
 									}
 								}
 							}

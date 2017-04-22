@@ -541,7 +541,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 		{
 			if (Global->Opt->ShowCheckingFile)
 			{
-				ConsoleTitle::SetFarTitle(msg(lng::MCheckingFileInPlugin) + L" - ["s + PointToName(i->GetModuleName()) + L"]..."s, true);
+				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - [", PointToName(i->GetModuleName()), L"]..."), true);
 			}
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
@@ -1175,7 +1175,7 @@ struct PluginMenuItemData
 
 static string AddHotkey(const string& Item, wchar_t Hotkey)
 {
-	return concat(!Hotkey?  L" "s : Hotkey == L'&'? L"&&&"s : L"&"s + Hotkey, L"  "s, Item);
+	return concat(!Hotkey?  L" "s : Hotkey == L'&'? L"&&&"s : L"&"s + Hotkey, L"  ", Item);
 }
 
 /* $ 29.05.2001 IS

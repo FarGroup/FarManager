@@ -214,30 +214,28 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string& Str, enumerator_type Enu
 		{
 			std::set<string, string_i_less> ResultStrings;
 
-			Enumerator(Menu, Token, [&](string strAdd)
+			Enumerator(Menu, Token, [&](const string& strAdd)
 			{
-				if (!StartQuote)
-				{
-					QuoteSpace(strAdd);
-				}
-
-				string strTmp(strStart + strAdd);
-				if (StartQuote)
-				{
-					strTmp += L'"';
-				}
-
-				ResultStrings.emplace(strTmp);
+				ResultStrings.emplace(strAdd);
 			});
 
 			if (!ResultStrings.empty())
 			{
 				AddSeparatorOrSetTitle(Menu, lng::MCompletionFilesTitle);
 
-				std::for_each(CONST_RANGE(ResultStrings, i)
+				for (auto i: ResultStrings)
 				{
-					Menu.AddItem(i);
-				});
+					if (!StartQuote)
+					{
+						QuoteSpace(i);
+					}
+					auto strTmp = strStart + i;
+					if (StartQuote)
+					{
+						strTmp += L'"';
+					}
+					Menu.AddItem(strTmp);
+				}
 
 				Result = true;
 			}
@@ -415,7 +413,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 		const auto ComplMenu = VMenu2::create({}, nullptr, 0, 0);
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu->SetModeMoving(false);
-		string strTemp = m_Str;
+		string CurrentInput = m_Str;
 
 		ComplMenu->SetMacroMode(Area);
 
@@ -426,7 +424,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 		{
-			auto Items = pHistory->GetAllSimilar(strTemp);
+			auto Items = pHistory->GetAllSimilar(CurrentInput);
 			if (!Items.empty())
 			{
 				for (auto& i : Items)
@@ -444,7 +442,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 		{
 			for(size_t i=0;i<pList->ItemsNumber;i++)
 			{
-				if (!StrCmpNI(pList->Items[i].Text, strTemp.data(), strTemp.size()) && pList->Items[i].Text != strTemp.data())
+				if (!StrCmpNI(pList->Items[i].Text, CurrentInput.data(), CurrentInput.size()) && pList->Items[i].Text != CurrentInput.data())
 				{
 					ComplMenu->AddItem(pList->Items[i].Text);
 				}
@@ -467,7 +465,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 		};
 
-		Complete(*ComplMenu, strTemp);
+		Complete(*ComplMenu, CurrentInput);
 
 		const auto& AppendCmd = [&]
 		{
@@ -488,16 +486,26 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				if (StrCmpI(FirstItem, m_Str + FirstItem.substr(SelStart)))
 				{
 					// New string contains opening quote, but not the original one
-					++SelStart;
+
+					if (SelStart <= m_CurPos) // e. g. entering "\" in "C:\abc_" - where "_" is a cursor position
+						++SelStart;
+					else
+						--SelStart;
 				}
-				SetString(ComplMenu->at(0).strName);
+
+				// Preserve the case of the alredy entered part:
+				const auto& NewString = ComplMenu->at(0).strName;
+				const auto Zipped = zip(CurrentInput, NewString);
+				const auto CommonLength = std::find_if(CONST_RANGE(Zipped, i) { return Upper(std::get<0>(i)) != Upper(std::get<1>(i)); }) - Zipped.begin();
+				SetString(!CommonLength? NewString : CurrentInput.substr(0, CommonLength) + NewString.substr(CommonLength));
+
 				if (m_X2 - m_X1 > GetLength())
 					SetLeftPos(0);
 				Select(SelStart, GetLength());
 			}
 		};
 
-		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(strTemp, ComplMenu->at(0).strName)))
+		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(CurrentInput, ComplMenu->at(0).strName)))
 		{
 			ComplMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
@@ -530,7 +538,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						{
 							PrevPos=CurPos;
 							IsChanged = false;
-							SetString(CurPos? ComplMenu->at(CurPos).strName : strTemp);
+							SetString(CurPos? ComplMenu->at(CurPos).strName : CurrentInput);
 							Show();
 						}
 					}
@@ -544,16 +552,16 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							DeleteBlock();
 							const auto strPrev = GetString();
 							ProcessKey(Manager::Key(MenuKey));
-							strTemp = GetString();
-							if(strPrev != strTemp)
+							CurrentInput = GetString();
+							if(strPrev != CurrentInput)
 							{
 								ComplMenu->clear();
 								PrevPos=0;
-								if(!strTemp.empty())
+								if(!CurrentInput.empty())
 								{
 									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 									{
-										auto Items = pHistory->GetAllSimilar(strTemp);
+										auto Items = pHistory->GetAllSimilar(CurrentInput);
 										if (!Items.empty())
 										{
 											for (auto& i : Items)
@@ -571,7 +579,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 									{
 										for(size_t i=0;i<pList->ItemsNumber;i++)
 										{
-											if (!StrCmpNI(pList->Items[i].Text, strTemp.data(), strTemp.size()) && pList->Items[i].Text != strTemp.data())
+											if (!StrCmpNI(pList->Items[i].Text, CurrentInput.data(), CurrentInput.size()) && pList->Items[i].Text != CurrentInput.data())
 											{
 												ComplMenu->AddItem(pList->Items[i].Text);
 											}
@@ -579,9 +587,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 									}
 								}
 
-								Complete(*ComplMenu, strTemp);
+								Complete(*ComplMenu, CurrentInput);
 
-								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(strTemp, ComplMenu->at(0).strName)))
+								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(CurrentInput, ComplMenu->at(0).strName)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{

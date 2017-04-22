@@ -54,15 +54,33 @@ namespace detail
 		using reference = decltype(dereference(pointer()));
 		using value_type = reference;
 
-		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename operation>
-		static void alter_all(operation Operation, pointer& Tuple)
+		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename predicate>
+		static void unary_for_each(predicate Predicate, pointer& Tuple)
 		{
-			Operation(std::get<index>(Tuple));
-			alter_all<index + 1>(Operation, Tuple);
+			Predicate(std::get<index>(Tuple));
+			unary_for_each<index + 1>(Predicate, Tuple);
 		}
 
-		template<size_t index, REQUIRES(index >= sizeof...(args)), typename operation>
-		static void alter_all(operation, pointer&) {}
+		template<size_t index, REQUIRES(index >= sizeof...(args)), typename predicate>
+		static void unary_for_each(predicate, pointer&) {}
+
+		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename predicate>
+		static bool binary_any_of(predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
+		{
+			return Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)) || binary_any_of<index + 1>(Predicate, Tuple1, Tuple2);
+		}
+
+		template<size_t index, REQUIRES(index >= sizeof...(args)), typename predicate>
+		static bool binary_any_of(predicate, const pointer&, const pointer&) { return false; }
+
+		template<size_t index = 0, REQUIRES(index < sizeof...(args)), typename predicate>
+		static bool binary_all_of(predicate Predicate, const pointer& Tuple1, const pointer& Tuple2)
+		{
+			return Predicate(std::get<index>(Tuple1), std::get<index>(Tuple2)) && binary_all_of<index + 1>(Predicate, Tuple1, Tuple2);
+		}
+
+		template<size_t index, REQUIRES(index >= sizeof...(args)), typename predicate>
+		static bool binary_all_of(predicate, const pointer&, const pointer&) { return true; }
 	};
 
 	inline void check() {}
@@ -89,10 +107,11 @@ class zip_iterator:
 public:
 	zip_iterator() = default;
 	zip_iterator(const args&... Args): m_Tuple(Args...) {}
-	auto& operator++() { detail::traits<args...>::alter_all(detail::increment{}, m_Tuple); return *this; }
-	auto& operator--() { detail::traits<args...>::alter_all(detail::decrement{}, m_Tuple); return *this; }
-	auto operator==(const zip_iterator& rhs) const { return m_Tuple == rhs.m_Tuple; }
-	auto operator<(const zip_iterator& rhs) const { return m_Tuple < rhs.m_Tuple; }
+	auto& operator++() { detail::traits<args...>::unary_for_each(detail::increment{}, m_Tuple); return *this; }
+	auto& operator--() { detail::traits<args...>::unary_for_each(detail::decrement{}, m_Tuple); return *this; }
+	// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
+	auto operator==(const zip_iterator& rhs) const { return detail::traits<args...>::binary_any_of(std::equal_to<>{}, m_Tuple, rhs.m_Tuple); }
+	auto operator<(const zip_iterator& rhs) const { return detail::traits<args...>::binary_all_of(std::less<>{}, m_Tuple, rhs.m_Tuple); }
 	auto operator*() const { return detail::traits<args...>::dereference(m_Tuple); }
 	auto operator-(const zip_iterator& rhs) const { return std::get<0>(m_Tuple) - std::get<0>(rhs.m_Tuple); }
 

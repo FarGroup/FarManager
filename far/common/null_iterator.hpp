@@ -46,7 +46,7 @@ public:
 	auto& operator*() const { return *m_Data; }
 	auto operator->() const noexcept { return m_Data; }
 	static const auto& end() { static T Empty{}; static const null_iterator_t Iter(&Empty); return Iter; }
-	bool operator==(const null_iterator_t& rhs) const { return m_Data == rhs.m_Data || (!*m_Data && !*rhs.m_Data); }
+	bool operator==(const null_iterator_t& rhs) const { return m_Data == rhs.m_Data || (&rhs == &end() && !*m_Data); }
 
 private:
 	T* m_Data;

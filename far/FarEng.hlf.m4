@@ -250,6 +250,10 @@ in the input stream until you press Ctrl-Break.
   #/t templateprofile#
   Location of Far template configuration file - overrides Far.exe.ini.
 
+  #/title[:<valuestring>]#
+  If <valuestring> is given, use it as the window title;
+  otherwise, inherit the console window's title.
+
   #/clearcache [profilepath [localprofilepath]]#
   Clear plugins cache.
 

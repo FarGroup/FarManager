@@ -443,21 +443,21 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 			else
 			{
 				const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
-				strBuf = concat(Exception, L" ("s, AVs[Offset], strBuf, L')');
+				strBuf = concat(Exception, L" (", AVs[Offset], strBuf, L')');
 				Exception=strBuf.data();
 			}
 		}
 		else if (Context.GetCode() == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS))
 		{
-			strBuf = concat(Exception, L" ("s);
+			strBuf = concat(Exception, L" (");
 			const auto ObjectName = xr->NumberParameters? ExtractObjectName(xr) : L"";
 			strBuf += ObjectName;
 			if (Message)
 			{
 				if (!ObjectName.empty())
-					strBuf += L" -> "s;
+					append(strBuf, L" -> ");
 
-				append(strBuf, L"std::exception: "s, encoding::utf8::get_chars(Message));
+				append(strBuf, L"std::exception: ", encoding::utf8::get_chars(Message));
 			}
 			strBuf += L')';
 			Exception = strBuf.data();
@@ -467,7 +467,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 	if (!Exception)
 	{
 		const auto Template = far_language::instance().is_loaded()? msg(lng::MExcUnknown) : L"Unknown exception";
-		append(strBuf, Template, L" (0x"s, to_hex_wstring(Context.GetCode()), L')');
+		append(strBuf, Template, L" (0x", to_hex_wstring(Context.GetCode()), L')');
 		Exception = strBuf.data();
 	}
 

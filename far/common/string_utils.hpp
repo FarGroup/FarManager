@@ -47,11 +47,19 @@ namespace detail
 		append_impl(Str, Sizes + 1, std::forward<args>(Args)...);
 	}
 
-	inline size_t size_one(wchar_t) { return 1; }
-	inline size_t size_one(const wchar_t* Str) { return wcslen(Str); }
-	inline size_t size_one(const string& Str) { return Str.size(); }
+	template<typename T, REQUIRES(std::is_same<T, wchar_t>::value)>
+	size_t size_one(T) { return 1; }
 
-	inline size_t size_impl(size_t* Sizes) { return 0; }
+	template<typename T, REQUIRES(std::is_same<T, const wchar_t*>::value)>
+	size_t size_one(T Str) { return wcslen(Str); }
+
+	template<typename T, REQUIRES(std::is_same<T, string>::value)>
+	size_t size_one(const T& Str) { return Str.size(); }
+
+	template<size_t N>
+	size_t size_one(const wchar_t(&Str)[N]) { return Str[N - 1]? N : N - 1; }
+
+	inline size_t size_impl(size_t*) { return 0; }
 
 	template<typename arg, typename... args>
 	size_t size_impl(size_t* Sizes, arg&& Arg, args&&... Args)

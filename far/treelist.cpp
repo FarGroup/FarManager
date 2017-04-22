@@ -2090,7 +2090,7 @@ void TreeList::RefreshTitle()
 	m_Title = L'{';
 	if (!m_ListData.empty())
 	{
-		append(m_Title, m_ListData[m_CurFile].strName, L" - "s);
+		append(m_Title, m_ListData[m_CurFile].strName, L" - ");
 	}
 	append(m_Title, msg(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle), L'}');
 }

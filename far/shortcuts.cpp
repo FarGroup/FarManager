@@ -249,22 +249,22 @@ static string MakeName(const Shortcuts::shortcut& Item)
 				string TechInfo;
 
 				if (!Item.strPluginFile.empty())
-					append(TechInfo, msg(lng::MFSShortcutPluginFile), L' ', Item.strPluginFile, L", "s);
+					append(TechInfo, msg(lng::MFSShortcutPluginFile), L' ', Item.strPluginFile, L", ");
 
 				if (!Item.strFolder.empty())
-					append(TechInfo, msg(lng::MFSShortcutPath), L' ', Item.strFolder, L", "s);
+					append(TechInfo, msg(lng::MFSShortcutPath), L' ', Item.strFolder, L", ");
 
 				if (!Item.strPluginData.empty())
 				{
 					const string PrintablePluginData(Item.strPluginData.cbegin(), std::find_if(ALL_CONST_RANGE(Item.strPluginData), [](const auto i) { return i < L' '; }));
 					if (!PrintablePluginData.empty())
-						append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "s);
+						append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", ");
 				}
 
 				if (!TechInfo.empty())
 				{
 					TechInfo.resize(TechInfo.size() - 2);
-					append(result, L" ("s, TechInfo, L')');
+					append(result, L" (", TechInfo, L')');
 				}
 			}
 		}

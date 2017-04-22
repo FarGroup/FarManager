@@ -232,7 +232,7 @@ void Message::Init(
 	if (!Title.empty())
 	{
 		MaxLength = std::max(MaxLength, Title.size() + 2); // 2 for surrounding spaces
-		append(strClipText, Title, L"\r\n\r\n"s);
+		append(strClipText, Title, L"\r\n\r\n");
 	}
 
 	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
@@ -290,7 +290,7 @@ void Message::Init(
 
 	for (const auto& i: Strings)
 	{
-		append(strClipText, i, L"\r\n"s);
+		append(strClipText, i, L"\r\n");
 	}
 	strClipText += L"\r\n"s;
 

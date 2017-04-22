@@ -396,7 +396,7 @@ bool Help::ReadHelp(const string& Mask)
 					ReplaceStrings(keys, L"#", L"##");
 					ReplaceStrings(keys, L"@", L"@@");
 
-					append(strReadStr, L" #"s, keys, L"#\n"s);
+					append(strReadStr, L" #", keys, L"#\n");
 				}
 
 				if (strKeyName.size() > SizeKeyName)
@@ -410,7 +410,7 @@ bool Help::ReadHelp(const string& Mask)
 			if (contains(strKeyName, L'~')) // коррекция размера
 				SizeKeyName++;
 
-			append(strReadStr, L" #"s, fit_to_left(strKeyName, SizeKeyName), L"# "s);
+			append(strReadStr, L" #", fit_to_left(strKeyName, SizeKeyName), L"# ");
 
 			if (!strDescription.empty())
 			{
@@ -1925,7 +1925,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 
 			if (Result)
 			{
-				AddLine(concat(L"   ~"s, strEntryName, L'~', strCurTopic, L'@'));
+				AddLine(concat(L"   ~", strEntryName, L'~', strCurTopic, L'@'));
 				strCurTopic.clear();
 				strEntryName.clear();
 				TopicFound=false;

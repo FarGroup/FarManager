@@ -597,7 +597,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <FileType>Document</FileType>
       <Message>Generating language files based on %(Identity)...</Message>
       <Command>tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) %(Identity)</Command>
-      <AdditionalInputs>%(Identity).m4;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs>%(RelativeDir)..\%(FileName)%(Extension).m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;$(OutDir)\FarIta.lng;$(OutDir)\FarUkr.lng;%(Outputs)</Outputs>
     </CustomBuild>
     <MASM Include="vc_crt_fix.asm">
