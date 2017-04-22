@@ -496,21 +496,21 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 	if (!ExeLength)
 		return Result;
 
-	std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t));
+	std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t) + 1); // +1 for double \0
 	if (!GetConsoleAliasExes(ExeBuffer.data(), ExeLength))
 		return Result;
 
 	std::vector<wchar_t> AliasesBuffer;
-	for (const auto& ExeToken: enum_substrings(ExeBuffer))
+	for (const auto& ExeToken: enum_substrings(ExeBuffer.data()))
 	{
 		const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.data());
 		const auto AliasesLength = GetConsoleAliasesLength(ExeNamePtr);
-		AliasesBuffer.resize(AliasesLength / sizeof(wchar_t));
+		AliasesBuffer.resize(AliasesLength / sizeof(wchar_t) + 1); // +1 for double \0
 		if (!GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
 			continue;
 
 		auto& ExeMap = Result[ExeNamePtr];
-		for (const auto& AliasToken: enum_substrings(AliasesBuffer))
+		for (const auto& AliasToken: enum_substrings(AliasesBuffer.data()))
 		{
 			auto Pair = split_name_value(AliasToken);
 			ExeMap.emplace(std::move(Pair.first), std::move(Pair.second));

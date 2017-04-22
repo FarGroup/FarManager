@@ -493,7 +493,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						--SelStart;
 				}
 
-				// Preserve the case of the alredy entered part:
+				// Preserve the case of the already entered part:
 				const auto& NewString = ComplMenu->at(0).strName;
 				const auto Zipped = zip(CurrentInput, NewString);
 				const auto CommonLength = std::find_if(CONST_RANGE(Zipped, i) { return Upper(std::get<0>(i)) != Upper(std::get<1>(i)); }) - Zipped.begin();
