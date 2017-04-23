@@ -3,6 +3,47 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.04.2017 22:24:28 +0000 - build 4941
+
+1. Correction of 4936.
+
+2. Correction of 4940.
+
+3. Refactoring.
+
+drkns 23.04.2017 15:52:18 +0000 - build 4940
+
+1. 0003216: Shift key is ignored in dialogs when "Append first matched item" autocompletion option is on
+
+drkns 22.04.2017 20:39:26 +0000 - build 4939
+
+1. Correction of 4938.
+
+2. Refactoring.
+
+drkns 22.04.2017 14:04:11 +0000 - build 4938
+
+1. 0003424: New command line parameter for console caption inheritance
+
+2. Correction of completion functioning:
+   - sorting does not take quote marks into account
+   - save the already typed letter case
+   - selection takes the cursor position into account
+
+3. Refactoring.
+
+drkns 18.04.2017 22:21:06 +0000 - build 4937
+
+1. Refactoring.
+
+drkns 17.04.2017 22:16:12 +0000 - build 4936
+
+1. Panel.RememberLogicalDrives must be usable now - saved list of drives will be updated if needed.
+
+2. Launch from a plugin panel removes the temporary file after the panel close, not immediately.
+
+3. Refactoring.
+
 drkns 12.04.2017 18:58:51 +0000 - build 4935
 
 1. Continuation of 4934.
