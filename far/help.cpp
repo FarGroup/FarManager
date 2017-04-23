@@ -520,7 +520,7 @@ m1:
 
 			if (m_TopicFound)
 			{
-				const auto MacroTag = L"<!Macro:"_sl;
+				const auto MacroTag = L"<!Macro:"_sv;
 				if (!StrCmpNI(strReadStr.data(), MacroTag.data(), MacroTag.size()) && Global->CtrlObject)
 				{
 					const auto PosTab = strReadStr.find(L'>');

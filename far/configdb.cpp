@@ -706,13 +706,13 @@ protected:
 	os::event AsyncDone;
 };
 
-static const std::pair<FARCOLORFLAGS, const wchar_t*> ColorFlagNames[] =
+static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[] =
 {
-	{FCF_FG_4BIT,      L"fg4bit"   },
-	{FCF_BG_4BIT,      L"bg4bit"   },
-	{FCF_FG_BOLD,      L"bold"     },
-	{FCF_FG_ITALIC,    L"italic"   },
-	{FCF_FG_UNDERLINE, L"underline"},
+	{FCF_FG_4BIT,      L"fg4bit"_sv    },
+	{FCF_BG_4BIT,      L"bg4bit"_sv    },
+	{FCF_FG_BOLD,      L"bold"_sv      },
+	{FCF_FG_ITALIC,    L"italic"_sv    },
+	{FCF_FG_UNDERLINE, L"underline"_sv },
 };
 
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
@@ -2291,7 +2291,8 @@ bool config_provider::Export(const string& File)
 	{
 		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		for(auto& i: os::fs::enum_files(Global->Opt->ProfilePath + L"\\PluginsData\\*.db"))
+		const auto& DbPath = Global->Opt->ProfilePath + L"\\PluginsData\\*.db";
+		for(auto& i: os::fs::enum_files(DbPath))
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
 			InplaceUpper(i.strFileName);

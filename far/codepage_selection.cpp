@@ -101,9 +101,10 @@ uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
 	return DataPtr? *DataPtr : 0;
 }
 
-const wchar_t* codepages::FavoriteCodePagesKey()
+const string& codepages::FavoriteCodePagesKey()
 {
-	return L"CodePages.Favorites";
+	static string sFavourites = L"CodePages.Favorites"s;
+	return sFavourites;
 }
 
 size_t codepages::GetListItemCodePage(size_t Position) const

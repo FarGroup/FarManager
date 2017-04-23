@@ -272,7 +272,8 @@ static bool EnumFiles(VMenu2& Menu, const string& strStart, const string& Token,
 
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		for (const auto& i: os::fs::enum_files(os::env::expand_strings(Token) + L'*'))
+		const auto Pattern = os::env::expand_strings(Token) + L'*';
+		for (const auto& i: os::fs::enum_files(Pattern))
 		{
 			const auto FileName = PointToName(Token);
 			const auto NameMatch = !StrCmpNI(FileName, i.strFileName.data(), StrLength(FileName));
@@ -418,39 +419,37 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			if (!ParseStringWithQuotes(Str, Prefix, Token, StartQuote))
 				return;
 
-			if (Prefix.empty())
+			// These two guys use the whole string, not the extracted token:
+			if (pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 			{
-				if (pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
+				auto Items = pHistory->GetAllSimilar(Str);
+				if (!Items.empty())
 				{
-					auto Items = pHistory->GetAllSimilar(Str);
-					if (!Items.empty())
+					for (auto& i : Items)
 					{
-						for (auto& i : Items)
-						{
-							MenuItemEx Item;
-							// Preserve the case of the already entered part
-							Item.UserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + std::get<0>(i).substr(Str.size()) : L""s, std::get<1>(i) };
-							Item.strName = std::move(std::get<0>(i));
-							Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
-							ComplMenu->AddItem(std::move(Item));
-						}
-						ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));
+						MenuItemEx Item;
+						// Preserve the case of the already entered part
+						Item.UserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + std::get<0>(i).substr(Str.size()) : L""s, std::get<1>(i) };
+						Item.strName = std::move(std::get<0>(i));
+						Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
+						ComplMenu->AddItem(std::move(Item));
 					}
+					ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));
 				}
-				else if (pList)
+			}
+			else if (pList)
+			{
+				for (size_t i = 0; i < pList->ItemsNumber; i++)
 				{
-					for (size_t i = 0; i < pList->ItemsNumber; i++)
+					if (!StrCmpNI(pList->Items[i].Text, Str.data(), Str.size()) && pList->Items[i].Text != Str.data())
 					{
-						if (!StrCmpNI(pList->Items[i].Text, Str.data(), Str.size()) && pList->Items[i].Text != Str.data())
+						MenuItemEx Item;
+						// Preserve the case of the already entered part
+						if (Global->Opt->AutoComplete.AppendCompletion)
 						{
-							MenuItemEx Item;
-							// Preserve the case of the already entered part
-							if (Global->Opt->AutoComplete.AppendCompletion)
-							{
-								Item.UserData = cmp_user_data{ Str + (pList->Items[i].Text + Str.size()) };
-							}
-							ComplMenu->AddItem(pList->Items[i].Text);
+							Item.UserData = cmp_user_data{ Str + (pList->Items[i].Text + Str.size()) };
 						}
+						ComplMenu->AddItem(pList->Items[i].Text);
 					}
 				}
 			}

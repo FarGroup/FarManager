@@ -99,10 +99,11 @@ public:
 		return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
 
+	void DeviceInterfacesEnumerator(const GUID&&) = delete;
 	auto DeviceInterfacesEnumerator(const GUID& InterfaceClassGuid) const
 	{
 		using value_type = SP_DEVICE_INTERFACE_DATA;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, &InterfaceClassGuid](size_t Index, value_type& Value)
 		{
 			Value.cbSize = sizeof(Value);
 			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, static_cast<DWORD>(Index), &Value) != FALSE;
@@ -185,7 +186,7 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 	const auto Enumerator = os::fs::enum_drives(Drives);
 	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 	{
-		return os::GetVolumeNameForVolumeMountPoint(os::fs::get_drive(i), strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0;
+		return os::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0;
 	});
 	if (ItemIterator != Enumerator.cend() && os::fs::is_standard_drive_letter(*ItemIterator))
 	{

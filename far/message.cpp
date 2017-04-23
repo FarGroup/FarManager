@@ -279,8 +279,10 @@ void Message::Init(
 
 		// а теперь проврапим
 		FarFormatText(strErrStr, LenErrStr, strErrStr, L"\n", 0); //?? MaxLength ??
-		const auto ErrorStrings = split<std::vector<string>>(strErrStr, 0, L"\n");
-		MessageStrings.insert(MessageStrings.end(), ALL_CONST_RANGE(ErrorStrings));
+		for (const auto& i : enum_tokens(strErrStr, L"\n"))
+		{
+			MessageStrings.emplace_back(i.cbegin(), i.cend());
+		}
 	}
 
 	if (MessageStrings.empty())

@@ -50,7 +50,7 @@ public:
 	scantree_item() = default;
 
 	BitFlags Flags;
-	using enum_files_type = FN_RETURN_TYPE(os::fs::enum_files);
+	using enum_files_type = decltype(os::fs::enum_files(std::declval<const string&>(), true));
 	std::unique_ptr<enum_files_type> Find;
 	enum_files_type::iterator Iterator;
 	string RealPath;

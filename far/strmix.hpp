@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panelctype.hpp"
+#include "local.hpp"
 
 class RegExp;
 struct RegExpMatch;
@@ -141,6 +142,7 @@ enum STL_FLAGS
 
 void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter);
 
+// TODO: replace with enum_tokens. ACHTUNG: there are many side effects due to way too flexible flags above, be extremely careful
 template <typename container>
 auto split(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
 {
@@ -177,11 +179,11 @@ auto StringToFlags(const string& strFlags, const container& From, const wchar_t*
 	if (strFlags.empty())
 		return Flags;
 
-	for (const auto& i: split<std::vector<string>>(strFlags, STLF_UNIQUE, Separators))
+	for (const auto& i: enum_tokens(strFlags, Separators))
 	{
 		const auto ItemIterator = std::find_if(CONST_RANGE(From, j)
 		{
-			return !StrCmpI(i, j.second);
+			return !StrCmpNNI(i.data(), i.size(), j.second.data(), j.second.size());
 		});
 		if (ItemIterator != std::cend(From))
 			Flags |= ItemIterator->first;

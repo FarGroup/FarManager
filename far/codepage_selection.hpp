@@ -96,7 +96,7 @@ private:
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 
-	static const wchar_t* FavoriteCodePagesKey();
+	static const string& FavoriteCodePagesKey();
 
 	Dialog* dialog;
 	UINT control;

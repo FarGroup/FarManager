@@ -80,10 +80,12 @@ public:
 	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, long long& Value) = 0;
 
 	template<typename T>
+	auto ValuesEnumerator(const string&&) = delete;
+	template<typename T>
 	auto ValuesEnumerator(const string& Key)
 	{
 		using value_type = std::pair<string, T>;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, &Key](size_t Index, value_type& Value)
 		{
 			return EnumValues(Key, static_cast<DWORD>(Index), Value.first, Value.second);
 		});
@@ -143,19 +145,21 @@ public:
 	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, int& Type) = 0;
 	virtual bool Flush() = 0;
 
+	void KeysEnumerator(const key&&) = delete;
 	auto KeysEnumerator(const key& Root)
 	{
 		using value_type = string;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, &Root](size_t Index, value_type& Value)
 		{
 			return EnumKeys(Root, static_cast<DWORD>(Index), Value);
 		});
 	}
 
+	void ValuesEnumerator(const key&&) = delete;
 	auto ValuesEnumerator(const key& Root)
 	{
 		using value_type = std::pair<string, int>;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, &Root](size_t Index, value_type& Value)
 		{
 			return EnumValues(Root, static_cast<DWORD>(Index), Value.first, Value.second);
 		});
@@ -207,7 +211,7 @@ public:
 	auto MasksEnumerator()
 	{
 		using value_type = std::pair<unsigned long long, string>;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this](size_t Index, value_type& Value)
 		{
 			return EnumMasks(static_cast<DWORD>(Index), &Value.first, Value.second);
 		});
@@ -216,7 +220,7 @@ public:
 	auto TypedMasksEnumerator(int Type)
 	{
 		using value_type = std::pair<unsigned long long, string>;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, Type](size_t Index, value_type& Value)
 		{
 			return EnumMasksForType(Type, static_cast<DWORD>(Index), &Value.first, Value.second);
 		});
@@ -336,10 +340,11 @@ public:
 		string Data;
 	};
 
+	void Enumerator(unsigned int, const string&&, bool = false) = delete;
 	auto Enumerator(unsigned int HistoryType, const string& HistoryName, bool Reverse = false)
 	{
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, HistoryType, &HistoryName, Reverse](size_t Index, value_type& Value)
 		{
 			return Enum(static_cast<DWORD>(Index), HistoryType, HistoryName, &Value.Id, Value.Name, &Value.Type, &Value.Lock, &Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
 		});
@@ -348,7 +353,7 @@ public:
 	auto LargeHistoriesEnumerator(unsigned int HistoryType, int MinimumEntries)
 	{
 		using value_type = string;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, HistoryType, MinimumEntries](size_t Index, value_type& Value)
 		{
 			return EnumLargeHistories(static_cast<DWORD>(Index), HistoryType, MinimumEntries, Value);
 		});

@@ -173,7 +173,7 @@ namespace os
 		{
 			using value_type = wchar_t;
 			size_t CurrentIndex = 0;
-			return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value) mutable
+			return make_inline_enumerator<value_type>([CurrentIndex, Drives](size_t Index, value_type& Value) mutable
 			{
 				if (!Index)
 					CurrentIndex = 0;
@@ -201,11 +201,12 @@ namespace os
 			bool get_file_impl(find_file_handle&, const string&, size_t, FAR_FIND_DATA&, bool);
 		}
 
+		void enum_files(const string&&, bool = true) = delete;
 		inline auto enum_files(const string& Object, bool ScanSymLink = true)
 		{
 			using value_type = FAR_FIND_DATA;
 			find_file_handle Handle;
-			return make_inline_enumerator<value_type>([=, m_Object = detail::enum_files_prepare(Object), m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
+			return make_inline_enumerator<value_type>([ScanSymLink, m_Object = detail::enum_files_prepare(Object), m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
 			{
 				return detail::get_file_impl(m_Handle, m_Object, Index, Value, ScanSymLink);
 			});
@@ -216,11 +217,12 @@ namespace os
 			bool get_name_impl(find_handle&, const string&, size_t, string&);
 		}
 
+		void enum_names(const string&&) = delete;
 		inline auto enum_names(const string& Object)
 		{
 			using value_type = string;
 			find_handle Handle;
-			return make_inline_enumerator<value_type>([=, m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
+			return make_inline_enumerator<value_type>([&Object, m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
 			{
 				return detail::get_name_impl(m_Handle, Object, Index, Value);
 			});
@@ -231,11 +233,12 @@ namespace os
 			bool get_stream_impl(find_file_handle&, const string&, size_t, WIN32_FIND_STREAM_DATA&);
 		}
 
+		void enum_streams(const string&&) = delete;
 		inline auto enum_streams(const string& Object)
 		{
 			using value_type = WIN32_FIND_STREAM_DATA;
 			find_file_handle Handle;
-			return make_inline_enumerator<value_type>([=, m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
+			return make_inline_enumerator<value_type>([&Object, m_Handle = std::move(Handle)](size_t Index, value_type& Value) mutable
 			{
 				return detail::get_stream_impl(m_Handle, Object, Index, Value);
 			});

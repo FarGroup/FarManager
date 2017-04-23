@@ -408,14 +408,15 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.clear();
 
-	for(const auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(L"Masks"))
+	static const string MasksKeyName = L"Masks"s;
+	for(const auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(MasksKeyName))
 	{
 		MenuItemEx Item;
 		string DisplayName(i.first);
 		const int NameWidth = 10;
 		TruncStrFromEnd(DisplayName, NameWidth);
 		DisplayName.resize(NameWidth, L' ');
-		Item.strName = DisplayName + L' ' + BoxSymbols[BS_V1] + L' ' + i.second;
+		Item.strName = concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', i.second);
 		Item.UserData = i.first;
 		MasksMenu.AddItem(Item);
 	}

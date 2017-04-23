@@ -37,6 +37,7 @@ namespace detail
 	inline void append_one(string& Str, wchar_t Arg, size_t) { Str += Arg; }
 	inline void append_one(string& Str, const wchar_t* Arg, size_t Size) { Str.append(Arg, Size); }
 	inline void append_one(string& Str, const string& Arg, size_t) { Str += Arg; }
+	inline void append_one(string& Str, const string_view& Arg, size_t) { Str.append(Arg.data(), Arg.size()); }
 
 	inline void append_impl(string&, const size_t*) {}
 
@@ -58,6 +59,8 @@ namespace detail
 
 	template<size_t N>
 	size_t size_one(const wchar_t(&Str)[N]) { return Str[N - 1]? N : N - 1; }
+
+	inline size_t size_one(const string_view& Str) { return Str.size(); }
 
 	inline size_t size_impl(size_t*) { return 0; }
 

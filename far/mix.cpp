@@ -80,7 +80,8 @@ bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, cons
 
 		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
 		{
-			const auto Find = os::fs::enum_files(Buffer.get(), false);
+			const string Path = Buffer.get();
+			const auto Find = os::fs::enum_files(Path, false);
 			if (Find.begin() == Find.end())
 				break;
 		}

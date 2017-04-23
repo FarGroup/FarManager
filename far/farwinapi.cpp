@@ -341,7 +341,8 @@ namespace fs
 
 	bool is_not_empty_directory(const string& Object)
 	{
-		const auto Find = enum_files(Object + L"\\*");
+		const auto Pattern = Object + L"\\*";
+		const auto Find = enum_files(Pattern);
 		return Find.begin() != Find.end();
 	}
 
@@ -1600,7 +1601,7 @@ static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalF
 	};
 
 	// simple way to handle network paths
-	if (ReplaceRoot(L"\\Device\\LanmanRedirector"_sl, L"\\"_sl) || ReplaceRoot(L"\\Device\\Mup"_sl, L"\\"_sl))
+	if (ReplaceRoot(L"\\Device\\LanmanRedirector"_sv, L"\\"_sv) || ReplaceRoot(L"\\Device\\Mup"_sv, L"\\"_sv))
 		return true;
 
 	// try to convert NT path (\Device\HarddiskVolume1) to drive letter

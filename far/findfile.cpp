@@ -2466,18 +2466,18 @@ void background_searcher::DoPrepareFileList()
 
 		for (const auto& i: os::fs::enum_drives(Drives))
 		{
-			const auto Drive = os::fs::get_drive(i);
+			const auto RootDir = os::fs::get_root_directory(i);
 
-			int DriveType=FAR_GetDriveType(Drive);
+			int DriveType=FAR_GetDriveType(RootDir);
 
 			if (DriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType) && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
 			{
 				string strGuidVolime;
-				if(os::GetVolumeNameForVolumeMountPoint(Drive, strGuidVolime))
+				if(os::GetVolumeNameForVolumeMountPoint(RootDir, strGuidVolime))
 				{
 					Volumes.emplace_back(std::move(strGuidVolime));
 				}
-				append(InitString, Drive, L';');
+				append(InitString, RootDir, L';');
 			}
 		}
 

@@ -42,7 +42,7 @@ auto enum_substrings(char_type* Data)
 {
 	size_t Offset = 0;
 	using value_type = range<char_type*>;
-	return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value) mutable
+	return make_inline_enumerator<value_type>([Offset, Data](size_t Index, value_type& Value) mutable
 	{
 		if (!Index)
 			Offset = 0;
@@ -57,6 +57,29 @@ auto enum_substrings(char_type* Data)
 
 		Value = { Begin, End };
 		Offset += Value.size() + 1;
+		return true;
+	});
+}
+
+void enum_tokens(const string&&, const wchar_t*) = delete;
+inline auto enum_tokens(const string& Data, const wchar_t* Separators)
+{
+	size_t Offset = 0;
+	using value_type = string_view;
+	return make_inline_enumerator<value_type>([Offset, &Data, Separators](size_t Index, value_type& Value) mutable
+	{
+		if (!Index)
+			Offset = 0;
+
+		if (Offset >= Data.size())
+			return false;
+
+		auto Pos = Data.find_first_of(Separators, Offset);
+		if (Pos == string::npos)
+			Pos = Data.size();
+
+		Value = { Data.data() + Offset, Data.data() + Pos };
+		Offset = Pos + 1;
 		return true;
 	});
 }

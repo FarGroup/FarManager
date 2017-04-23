@@ -1097,10 +1097,10 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			++PtrCmd;
 	}
 
-	constexpr auto Token_If = L"IF "_sl;
-	constexpr auto Token_Not = L"NOT "_sl;
-	constexpr auto Token_Exist = L"EXIST "_sl;
-	constexpr auto Token_Defined = L"DEFINED "_sl;
+	constexpr auto Token_If = L"IF "_sv;
+	constexpr auto Token_Not = L"NOT "_sv;
+	constexpr auto Token_Exist = L"EXIST "_sv;
+	constexpr auto Token_Defined = L"DEFINED "_sv;
 
 	for (;;)
 	{

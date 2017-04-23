@@ -616,7 +616,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 				case L'S':
 					{
-						constexpr auto SetParam = L"set:"_sl;
+						constexpr auto SetParam = L"set:"_sv;
 						if (!StrCmpNI(Arg + 1, SetParam.data(), SetParam.size()))
 						{
 							if (const auto EqualPtr = wcschr(Arg + 1, L'='))

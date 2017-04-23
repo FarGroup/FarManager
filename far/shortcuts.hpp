@@ -61,7 +61,7 @@ public:
 	auto Enumerator(size_t Pos)
 	{
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([=](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, Pos](size_t Index, value_type& Value)
 		{
 			return Get(Pos, Index, &Value.Folder, &Value.PluginGuid, &Value.PluginFile, &Value.PluginData);
 		});

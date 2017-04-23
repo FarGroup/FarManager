@@ -961,9 +961,6 @@
     <ClInclude Include="copy_progress.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common\string_literal.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\blob_view.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -971,6 +968,9 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\string_utils.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\string_view.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="blob_builder.hpp">

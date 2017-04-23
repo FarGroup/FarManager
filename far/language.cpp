@@ -59,7 +59,8 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 
 	auto PathWithSlash = Path;
 	AddEndSlash(PathWithSlash);
-	for (const auto& FindData: os::fs::enum_files(PathWithSlash + Mask))
+	const auto Pattern = PathWithSlash + Mask;
+	for (const auto& FindData: os::fs::enum_files(Pattern))
 	{
 		strFileName = PathWithSlash + FindData.strFileName;
 
@@ -152,7 +153,7 @@ bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *s
 		}
 		else
 		{
-			constexpr auto ContentsTag = L"@Contents"_sl;
+			constexpr auto ContentsTag = L"@Contents"_sv;
 			if (!StrCmpNI(ReadStr.data(), ContentsTag.data(), ContentsTag.size()))
 				break;
 		}
@@ -186,7 +187,8 @@ static bool SelectLanguage(bool HelpLanguage)
 
 	auto PathWithSlash = Global->g_strFarPath;
 	AddEndSlash(PathWithSlash);
-	for (const auto& FindData: os::fs::enum_files(PathWithSlash + Mask))
+	const auto Pattern = PathWithSlash + Mask;
+	for (const auto& FindData: os::fs::enum_files(Pattern))
 	{
 		os::fs::file LangFile(PathWithSlash + FindData.strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 		if (!LangFile)
@@ -243,7 +245,7 @@ bool GetOptionsParam(const os::fs::file& SrcFile,const wchar_t *KeyName,string &
 	const auto CurFilePos = SrcFile.GetPointer();
 	string ReadStr;
 	GetFileString GetStr(SrcFile, nCodePage);
-	const auto OptionsTag = L".Options"_sl;
+	const auto OptionsTag = L".Options"_sv;
 	while (GetStr.GetString(ReadStr))
 	{
 		if (!StrCmpNI(ReadStr.data(), OptionsTag.data(), OptionsTag.size()))
