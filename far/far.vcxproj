@@ -609,7 +609,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <None Include="FarA.ico" />
     <None Include="farversion.m4" />
     <None Include="headers.m4" />
-    <None Include="svn_tag_build.m4" />
     <None Include="vbuild.m4" />
   </ItemGroup>
   <ItemGroup>

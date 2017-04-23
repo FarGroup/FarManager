@@ -996,9 +996,6 @@
     <None Include="headers.m4">
       <Filter>Dependencies</Filter>
     </None>
-    <None Include="svn_tag_build.m4">
-      <Filter>Dependencies</Filter>
-    </None>
     <None Include="vbuild.m4">
       <Filter>Dependencies</Filter>
     </None>

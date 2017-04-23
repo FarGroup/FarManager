@@ -114,7 +114,7 @@ void EditControl::Changed(bool DelBlock)
 
 void EditControl::SetMenuPos(VMenu2& menu)
 {
-	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),(long long)menu.size()) + 1;
+	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), static_cast<long long>(menu.size())) + 1;
 
 	const auto NewX2 = Clamp(static_cast<int>(m_X2), m_X1 + 20, ScrX - 2);
 
@@ -157,98 +157,120 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 
 using enumerator_type = void(VMenu2&, const string&, const std::function<void(const string&)>&);
 
-static bool EnumWithQuoutes(VMenu2& Menu, const string& Str, enumerator_type Enumerator)
+static bool ParseStringWithQuotes(const string& Str, string& Start, string& Token, bool& StartQuote)
 {
-	bool Result = false;
-	if(!Str.empty())
+	size_t Pos;
+	if (std::count(ALL_CONST_RANGE(Str), L'"') & 1) // odd quotes count
 	{
-		size_t Pos = 0;
-		if(std::count(ALL_CONST_RANGE(Str), L'"') & 1) // odd quotes count
+		Pos = Str.rfind(L'"');
+	}
+	else
+	{
+		auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
+		static const string NoQuote = L"\":\\/%.-";
+		for (size_t i = 0; i != WordDiv.size(); ++i)
 		{
-			Pos = Str.rfind(L'"');
-		}
-		else
-		{
-			auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
-			static const string NoQuote = L"\":\\/%.-";
-			for (size_t i = 0; i != WordDiv.size(); ++i)
+			if (contains(NoQuote, WordDiv[i]))
 			{
-				if (contains(NoQuote, WordDiv[i]))
-				{
-					WordDiv.erase(i--, 1);
-				}
+				WordDiv.erase(i--, 1);
 			}
+		}
 
-			for(Pos = Str.size()-1; Pos!=static_cast<size_t>(-1); Pos--)
+		for (Pos = Str.size() - 1; Pos != static_cast<size_t>(-1); Pos--)
+		{
+			if (Str[Pos] == L'"')
 			{
-				if(Str[Pos]==L'"')
+				Pos--;
+				while (Str[Pos] != L'"' && Pos != static_cast<size_t>(-1))
 				{
 					Pos--;
-					while(Str[Pos]!=L'"' && Pos!=static_cast<size_t>(-1))
-					{
-						Pos--;
-					}
-				}
-				else if (contains(WordDiv, Str[Pos]))
-				{
-					Pos++;
-					break;
 				}
 			}
-		}
-		if(Pos==static_cast<size_t>(-1))
-		{
-			Pos=0;
-		}
-		bool StartQuote=false;
-		if(Pos < Str.size() && Str[Pos]==L'"')
-		{
-			Pos++;
-			StartQuote=true;
-		}
-
-		const auto strStart = Str.substr(0, Pos);
-		auto Token = Str.substr(Pos);
-		Unquote(Token);
-		if (!Token.empty())
-		{
-			std::set<string, string_i_less> ResultStrings;
-
-			Enumerator(Menu, Token, [&](const string& strAdd)
+			else if (contains(WordDiv, Str[Pos]))
 			{
-				ResultStrings.emplace(strAdd);
-			});
-
-			if (!ResultStrings.empty())
-			{
-				AddSeparatorOrSetTitle(Menu, lng::MCompletionFilesTitle);
-
-				for (auto i: ResultStrings)
-				{
-					if (!StartQuote)
-					{
-						QuoteSpace(i);
-					}
-					auto strTmp = strStart + i;
-					if (StartQuote)
-					{
-						strTmp += L'"';
-					}
-					Menu.AddItem(strTmp);
-				}
-
-				Result = true;
+				Pos++;
+				break;
 			}
 		}
 	}
-	return Result;
+	if (Pos == static_cast<size_t>(-1))
+	{
+		Pos = 0;
+	}
+
+	if (Pos < Str.size() && Str[Pos] == L'"')
+	{
+		Pos++;
+		StartQuote = true;
+	}
+	else
+	{
+		StartQuote = false;
+	}
+
+	Start = Str.substr(0, Pos);
+	Token = Str.substr(Pos);
+	Unquote(Token);
+	return !Token.empty();
 }
 
-static bool EnumFiles(VMenu2& Menu, const string& Str)
+struct cmp_user_data
+{
+	string OriginalCaseStr;
+	unsigned long long HistoryRecordId;
+};
+
+static bool EnumWithQuoutes(VMenu2& Menu, const string& strStart, const string& Token, bool StartQuote, lng Title, enumerator_type Enumerator)
+{
+	std::set<string, string_i_less> ResultStrings;
+
+	Enumerator(Menu, Token, [&](const string& strAdd)
+	{
+		ResultStrings.emplace(strAdd);
+	});
+
+	if (ResultStrings.empty())
+		return false;
+
+	AddSeparatorOrSetTitle(Menu, Title);
+
+	for (const auto& i: ResultStrings)
+	{
+		const auto& BuildQuotedString = [&](string Str)
+		{
+			if (!StartQuote)
+				QuoteSpace(Str);
+
+			auto Result = strStart + Str;
+			if (StartQuote)
+				Result += L'"';
+
+			return Result;
+		};
+
+		MenuItemEx Item;
+		Item.strName = BuildQuotedString(i);
+
+		// Preserve the case of the already entered part
+		if (Global->Opt->AutoComplete.AppendCompletion)
+		{
+			if (i.size() >= Token.size() && !StrCmpNI(Token.data(), i.data(), Token.size()))
+			{
+				Item.UserData = cmp_user_data{ BuildQuotedString(Token + i.substr(Token.size())) };
+			}
+		}
+
+		Menu.AddItem(Item);
+	}
+
+	return true;
+}
+
+static bool EnumFiles(VMenu2& Menu, const string& strStart, const string& Token, bool StartQuote)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	return EnumWithQuoutes(Menu, Str, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
 		for (const auto& i: os::fs::enum_files(os::env::expand_strings(Token) + L'*'))
 		{
@@ -263,16 +285,11 @@ static bool EnumFiles(VMenu2& Menu, const string& Str)
 	});
 }
 
-static bool EnumModules(VMenu2& Menu, const string& Module)
+static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Token, bool StartQuote)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	if (FindSlash(Module) != string::npos)
-	{
-		return false;
-	}
-
-	return EnumWithQuoutes(Menu, Module, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
 		for (const auto& i: split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds)))
 		{
@@ -347,58 +364,26 @@ static bool EnumModules(VMenu2& Menu, const string& Module)
 	});
 }
 
-static bool EnumEnvironment(VMenu2& Menu, const string& Str)
+static bool EnumEnvironment(VMenu2& Menu, const string& strStart, const string& Token, bool StartQuote)
 {
-	bool Result=false;
-
 	SCOPED_ACTION(elevation::suppress);
 
-	auto Token = Str.data();
-	auto TokenSize = Str.size();
-	string Head;
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionEnvironmentTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
-		std::replace(ALL_RANGE(WordDiv), L'%', L' ');
-		const auto WordStart = Str.find_last_of(WordDiv);
-		if (WordStart != string::npos)
+		const os::env::provider::strings EnvStrings;
+		for (const auto& i : enum_substrings(EnvStrings.data()))
 		{
-			Token += WordStart + 1;
-			TokenSize -= WordStart + 1;
-			Head = Str.substr(0, Str.size() - TokenSize);
-		}
-	}
+			auto Name = split_name_value(i).first;
+			if (Name.empty()) // =C: etc.
+				continue;
 
-	if(*Token)
-	{
-		std::set<string, string_i_less> ResultStrings;
-
-		{
-			const os::env::provider::strings EnvStrings;
-			const auto EnvStringsPtr = EnvStrings.data();
-			for (const auto& i: enum_substrings(EnvStringsPtr))
+			const auto VarName = concat(L'%', Name, L'%');
+			if (!StrCmpNI(Token.data(), VarName.data(), Token.size()))
 			{
-				const auto VarName = concat(L'%', split_name_value(i).first, L'%');
-
-				if (!StrCmpNI(Token, VarName.data(), TokenSize))
-				{
-					ResultStrings.emplace(Head + VarName);
-				}
+				Inserter(VarName);
 			}
 		}
-
-		if (!ResultStrings.empty())
-		{
-			AddSeparatorOrSetTitle(Menu, lng::MCompletionEnvironmentTitle);
-
-			std::for_each(CONST_RANGE(ResultStrings, i)
-			{
-				Menu.AddItem(i);
-			});
-
-			Result = true;
-		}
-	}
-	return Result;
+	});
 }
 
 int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKey, FARMACROAREA Area)
@@ -422,46 +407,66 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			return (Manual && State) || (!Manual && State == 1);
 		};
 
-		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
-		{
-			auto Items = pHistory->GetAllSimilar(CurrentInput);
-			if (!Items.empty())
-			{
-				for (auto& i : Items)
-				{
-					MenuItemEx Item;
-					Item.strName = std::move(std::get<0>(i));
-					Item.UserData = std::get<1>(i);
-					Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
-					ComplMenu->AddItem(std::move(Item));
-				}
-				ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));
-			}
-		}
-		else if(pList)
-		{
-			for(size_t i=0;i<pList->ItemsNumber;i++)
-			{
-				if (!StrCmpNI(pList->Items[i].Text, CurrentInput.data(), CurrentInput.size()) && pList->Items[i].Text != CurrentInput.data())
-				{
-					ComplMenu->AddItem(pList->Items[i].Text);
-				}
-			}
-		}
-
 		const auto& Complete = [&](VMenu2& Menu, const string& Str)
 		{
+			if (Str.empty())
+				return;
+
+			string Prefix;
+			string Token;
+			bool StartQuote;
+			if (!ParseStringWithQuotes(Str, Prefix, Token, StartQuote))
+				return;
+
+			if (Prefix.empty())
+			{
+				if (pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
+				{
+					auto Items = pHistory->GetAllSimilar(Str);
+					if (!Items.empty())
+					{
+						for (auto& i : Items)
+						{
+							MenuItemEx Item;
+							// Preserve the case of the already entered part
+							Item.UserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + std::get<0>(i).substr(Str.size()) : L""s, std::get<1>(i) };
+							Item.strName = std::move(std::get<0>(i));
+							Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
+							ComplMenu->AddItem(std::move(Item));
+						}
+						ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));
+					}
+				}
+				else if (pList)
+				{
+					for (size_t i = 0; i < pList->ItemsNumber; i++)
+					{
+						if (!StrCmpNI(pList->Items[i].Text, Str.data(), Str.size()) && pList->Items[i].Text != Str.data())
+						{
+							MenuItemEx Item;
+							// Preserve the case of the already entered part
+							if (Global->Opt->AutoComplete.AppendCompletion)
+							{
+								Item.UserData = cmp_user_data{ Str + (pList->Items[i].Text + Str.size()) };
+							}
+							ComplMenu->AddItem(pList->Items[i].Text);
+						}
+					}
+				}
+			}
+
 			if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
 			{
-				EnumFiles(Menu,Str);
+				EnumFiles(Menu, Prefix, Token, StartQuote);
 			}
 			if(ECFlags.Check(EC_COMPLETE_ENVIRONMENT) && CompletionEnabled(Global->Opt->AutoComplete.UseEnvironment))
 			{
-				EnumEnvironment(Menu, Str);
+				EnumEnvironment(Menu, Prefix, Token, StartQuote);
 			}
 			if(ECFlags.Check(EC_COMPLETE_PATH) && CompletionEnabled(Global->Opt->AutoComplete.UsePath))
 			{
-				EnumModules(Menu, Str);
+				if (FindSlash(Str) == string::npos)
+					EnumModules(Menu, Prefix, Token, StartQuote);
 			}
 		};
 
@@ -472,6 +477,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			int SelStart = GetLength();
 
 			const auto& FirstItem = ComplMenu->at(0).strName;
+			const auto Data = ComplMenu->GetUserDataPtr<cmp_user_data>(0);
 
 			// magic
 			if (SelStart > 1 && IsSlash(m_Str[SelStart - 1]) && m_Str[SelStart - 2] == L'"' && IsSlash(FirstItem[SelStart - 2]))
@@ -486,18 +492,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				if (StrCmpI(FirstItem, m_Str + FirstItem.substr(SelStart)))
 				{
 					// New string contains opening quote, but not the original one
-
 					if (SelStart <= m_CurPos) // e. g. entering "\" in "C:\abc_" - where "_" is a cursor position
 						++SelStart;
 					else
 						--SelStart;
 				}
 
-				// Preserve the case of the already entered part:
-				const auto& NewString = ComplMenu->at(0).strName;
-				const auto Zipped = zip(CurrentInput, NewString);
-				const auto CommonLength = std::find_if(CONST_RANGE(Zipped, i) { return Upper(std::get<0>(i)) != Upper(std::get<1>(i)); }) - Zipped.begin();
-				SetString(!CommonLength? NewString : CurrentInput.substr(0, CommonLength) + NewString.substr(CommonLength));
+				SetString((Data && !Data->OriginalCaseStr.empty())? Data->OriginalCaseStr : FirstItem);
 
 				if (m_X2 - m_X1 > GetLength())
 					SetLeftPos(0);
@@ -557,35 +558,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							{
 								ComplMenu->clear();
 								PrevPos=0;
-								if(!CurrentInput.empty())
-								{
-									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
-									{
-										auto Items = pHistory->GetAllSimilar(CurrentInput);
-										if (!Items.empty())
-										{
-											for (auto& i : Items)
-											{
-												MenuItemEx Item;
-												Item.strName = std::move(std::get<0>(i));
-												Item.UserData = std::get<1>(i);
-												Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
-												ComplMenu->AddItem(std::move(Item));
-											}
-											ComplMenu->SetTitle(msg(lng::MCompletionHistoryTitle));
-										}
-									}
-									else if(pList)
-									{
-										for(size_t i=0;i<pList->ItemsNumber;i++)
-										{
-											if (!StrCmpNI(pList->Items[i].Text, CurrentInput.data(), CurrentInput.size()) && pList->Items[i].Text != CurrentInput.data())
-											{
-												ComplMenu->AddItem(pList->Items[i].Text);
-											}
-										}
-									}
-								}
 
 								Complete(*ComplMenu, CurrentInput);
 
@@ -627,8 +599,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 								{
 									if(ComplMenu->size() > 1)
 									{
-										const auto CurrentRecordPtr = ComplMenu->GetUserDataPtr<unsigned long long>();
-										if(CurrentRecordPtr && pHistory->DeleteIfUnlocked(*CurrentRecordPtr))
+										const auto Data = ComplMenu->GetUserDataPtr<cmp_user_data>();
+										if(Data && pHistory->DeleteIfUnlocked(Data->HistoryRecordId))
 										{
 											ComplMenu->DeleteItem(ComplMenu->GetSelectPos());
 											if(ComplMenu->size() > 1)
@@ -763,7 +735,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 	Manager::Key Key;
 	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))
 	{
-		struct FAR_INPUT_RECORD irec={(DWORD)Key(), Key.Event()};
+		struct FAR_INPUT_RECORD irec = { static_cast<DWORD>(Key()), Key.Event() };
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			m_ParentProcessKey(Manager::Key(Key));
 		int CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
