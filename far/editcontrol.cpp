@@ -413,12 +413,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			if (Str.empty())
 				return;
 
-			string Prefix;
-			string Token;
-			bool StartQuote;
-			if (!ParseStringWithQuotes(Str, Prefix, Token, StartQuote))
-				return;
-
 			// These two guys use the whole string, not the extracted token:
 			if (pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CompletionEnabled(Global->Opt->AutoComplete.UseHistory))
 			{
@@ -453,6 +447,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					}
 				}
 			}
+
+			string Prefix;
+			string Token;
+			bool StartQuote;
+			if (!ParseStringWithQuotes(Str, Prefix, Token, StartQuote))
+				return;
 
 			if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CompletionEnabled(Global->Opt->AutoComplete.UseFilesystem))
 			{
