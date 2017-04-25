@@ -2651,7 +2651,8 @@ static bool SplitFileName(const string& lpFullName, string& strDest, int nFlags)
 
 		if (ptr)
 			s=ptr+1;
-
+		if (e < s)
+			e = es;
 		size_t Length=strDest.size()+e-s;
 		strDest+=s;
 		strDest.resize(Length);
