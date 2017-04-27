@@ -1190,7 +1190,6 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		size_t pos;
 		auto strCmdLine = CmdLine.substr(3);
 		RemoveLeadingSpaces(strCmdLine);
-		Unquote(strCmdLine);
 
 		// "set" (display all) or "set var" (display all that begin with "var")
 		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
@@ -1201,6 +1200,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 				return false;
 
 			string strOut;
+			Unquote(strCmdLine);
 
 			{
 				const os::env::provider::strings EnvStrings;
@@ -1226,13 +1226,13 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		if (strCmdLine.size() == pos+1) //set var=
 		{
 			strCmdLine.resize(pos);
-			os::env::delete_variable(strCmdLine);
+			os::env::delete_variable(Unquote(strCmdLine));
 		}
 		else
 		{
 			const auto strExpandedStr = os::env::expand_strings(strCmdLine.substr(pos + 1));
 			strCmdLine.resize(pos);
-			os::env::set_variable(strCmdLine, strExpandedStr);
+			os::env::set_variable(Unquote(strCmdLine), strExpandedStr);
 		}
 
 		return true;
@@ -1256,7 +1256,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	else if (IsCommand(L"PUSHD",false))
 	{
 		auto strCmdLine = CmdLine.substr(5);
-		RemoveLeadingSpaces(strCmdLine);
+		RemoveExternalSpaces(strCmdLine);
 
 		const auto PushDir = m_CurDir;
 
