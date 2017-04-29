@@ -47,9 +47,9 @@
 	</application>
 </compatibility>
 <asmv3:application>
-	<windowsSettings xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
-		<dpiAware>true</dpiAware>
-		<longPathAware>true</longPathAware>
-	</windowsSettings>
+	<asmv3:windowsSettings>
+		<dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true</dpiAware>
+		<longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+	</asmv3:windowsSettings>
 </asmv3:application>
 </assembly>
