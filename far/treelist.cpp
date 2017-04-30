@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 #include "copy.hpp"
 #include "qview.hpp"
-#include "savescr.hpp"
 #include "ctrlobj.hpp"
 #include "help.hpp"
 #include "lockscrn.hpp"
@@ -79,11 +78,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 
-static bool StaticSortNumeric;
-static bool StaticSortCaseSensitive;
 static clock_t TreeStartTime;
 static int LastScrX = -1;
 static int LastScrY = -1;
@@ -338,53 +335,29 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	return true;
 }
 
-static struct
+static int tree_compare(const string& a, const string& b, bool Numeric, bool CaseSensitive)
 {
-	bool operator()(const string& a, const string& b, decltype(StrCmpNNI) comparer = StrCmpNNI) const
-	{
-		auto Str1 = a.data(), Str2 = b.data();
-
-		if (*Str1 == L'\\' && *Str2 == L'\\')
-		{
-			Str1++;
-			Str2++;
-		}
-
-		auto s1 = wcschr(Str1, L'\\'), s2 = wcschr(Str2, L'\\');
-
-		while (s1 && s2)
-		{
-			int r = comparer(Str1, static_cast<int>(s1 - Str1), Str2, static_cast<int>(s2 - Str2));
-
-			if (r)
-				return r < 0;
-
-			Str1 = s1 + 1;
-			Str2 = s2 + 1;
-			s1 = wcschr(Str1,L'\\');
-			s2 = wcschr(Str2,L'\\');
-		}
-
-		if (s1 || s2)
-		{
-			int r = comparer(Str1, s1? static_cast<int>(s1 - Str1) : -1, Str2, s2? static_cast<int>(s2 - Str2) : -1);
-			return r? r < 0 : !s1;
-		}
-		return comparer(Str1, -1, Str2, -1) < 0;
-	}
+	return get_comparer(Numeric, CaseSensitive)(a, b);
 }
-TreeItemLess;
 
-static struct
+class three_list_less
 {
+public:
+	three_list_less(bool Numeric, bool CaseSensitive):
+		m_Numeric(Numeric),
+		m_CaseSensitive(CaseSensitive)
+	{
+	}
+
 	bool operator()(const TreeList::TreeItem& a, const TreeList::TreeItem& b) const
 	{
-		const auto comparer = StaticSortNumeric? (StaticSortCaseSensitive ? NumStrCmpN : NumStrCmpNI) : (StaticSortCaseSensitive ? StrCmpNN : StrCmpNNI);
-
-		return TreeItemLess(a.strName, b.strName, comparer);
+		return tree_compare(a.strName, b.strName, m_Numeric, m_CaseSensitive) < 0;
 	}
-}
-ListLess;
+
+private:
+	bool m_Numeric;
+	bool m_CaseSensitive;
+};
 
 class TreeListCache
 {
@@ -408,9 +381,9 @@ public:
 
 	void remove(const wchar_t* Name)
 	{
-		erase_if(m_Names, [Name, Length = wcslen(Name)](const auto& i)
+		erase_if(m_Names, [NameView = string_view(Name, wcslen(Name))](const auto& i)
 		{
-			return i.size() >= Length && !StrCmpNI(Name, i.data(), Length) && (i.size() == Length || IsSlash(i[Length]));
+			return starts_with_icase(i, NameView) && (i.size() == NameView.size() || (i.size() > NameView.size() && IsSlash(i[NameView.size()])));
 		});
 	}
 
@@ -430,7 +403,7 @@ public:
 private:
 	struct cache_less
 	{
-		bool operator()(const string& a, const string& b) const { return TreeItemLess(a, b); }
+		bool operator()(const string& a, const string& b) const { return tree_compare(a, b, false, true) < 0; }
 	};
 
 	using cache_set = std::set<string, cache_less>;
@@ -496,6 +469,9 @@ void TreeList::SetRootDir(const string& NewRootDir)
 
 void TreeList::DisplayObject()
 {
+	if (m_ReadingTree)
+		return;
+
 	if (m_Flags.Check(FSCROBJ_ISREDRAWING))
 		return;
 
@@ -510,16 +486,12 @@ void TreeList::DisplayObject()
 
 		if (RootPanel->GetType() == panel_type::FILE_PANEL)
 		{
-			bool RootCaseSensitiveSort=RootPanel->GetCaseSensitiveSort() != 0;
-			bool RootNumeric=RootPanel->GetNumericSort() != 0;
+			const auto RootCaseSensitiveSort = RootPanel->GetCaseSensitiveSort();
+			const auto RootNumeric = RootPanel->GetNumericSort();
 
-			if (RootNumeric != m_NumericSort || RootCaseSensitiveSort!=m_CaseSensitiveSort)
+			if (RootNumeric != m_NumericSort || RootCaseSensitiveSort != m_CaseSensitiveSort)
 			{
-				m_NumericSort=RootNumeric;
-				m_CaseSensitiveSort=RootCaseSensitiveSort;
-				StaticSortNumeric=m_NumericSort;
-				StaticSortCaseSensitive=m_CaseSensitiveSort;
-				std::sort(m_ListData.begin(), m_ListData.end(), ListLess);
+				std::sort(ALL_RANGE(m_ListData), three_list_less(m_NumericSort, m_CaseSensitiveSort));
 				FillLastData();
 				SyncDir();
 			}
@@ -739,7 +711,13 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 
 	if (IsChangeConsole || (clock() - TreeStartTime) > CLOCKS_PER_SEC)
 	{
-		Message((FirstCall? 0 : MSG_KEEPBACKGROUND), 0, msg(lng::MTreeTitle), msg(lng::MReadingTree), str(TreeCount).data());
+		Message(FirstCall? 0 : MSG_KEEPBACKGROUND,
+			msg(lng::MTreeTitle),
+			{
+				msg(lng::MReadingTree),
+				str(TreeCount)
+			},
+			{});
 		if (!PreRedrawStack().empty())
 		{
 			const auto item = dynamic_cast<TreePreRedrawItem*>(PreRedrawStack().top());
@@ -870,14 +848,23 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	{
 		os::DeleteFile(TreeCache().GetTreeName());
 		if (!Global->WindowManager->ManagerIsDown())
-			Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), msg(lng::MCannotSaveTree), Name.data(), msg(lng::MOk));
+			Message(MSG_WARNING | MSG_ERRORTYPE,
+				msg(lng::MError),
+				{
+					msg(lng::MCannotSaveTree),
+					Name
+				},
+				{ lng::MOk });
 	}
 }
 
 bool TreeList::ReadTree()
 {
+	m_ReadingTree = true;
+	SCOPE_EXIT{ m_ReadingTree = false; };
+
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	//SaveScreen SaveScr;
+
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false);
 	os::FAR_FIND_DATA fdata;
@@ -891,11 +878,7 @@ bool TreeList::ReadTree()
 	m_ListData.reserve(4096);
 
 	m_ListData.emplace_back(m_Root);
-	SaveScreen SaveScrTree;
-	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScrTree);
-	/* Т.к. мы можем вызвать диалог подтверждения (который не перерисовывает панельки,
-	   а восстанавливает сохраненный образ экрана, то нарисуем чистую панель */
-	//Redraw();
+
 	auto FirstCall = true, AscAbort = false;
 	TreeStartTime = clock();
 	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
@@ -931,8 +914,8 @@ bool TreeList::ReadTree()
 		return false;
 	}
 
-	StaticSortNumeric = m_NumericSort = StaticSortCaseSensitive = m_CaseSensitiveSort = false;
-	std::sort(m_ListData.begin(), m_ListData.end(), ListLess);
+	m_NumericSort = m_CaseSensitiveSort = false;
+	std::sort(ALL_RANGE(m_ListData), three_list_less(m_NumericSort, m_CaseSensitiveSort));
 
 	if (!FillLastData())
 		return false;
@@ -1054,7 +1037,7 @@ bool TreeList::FillLastData()
 			}
 			else
 			{
-				if (!StrCmpNI(i->strName.data(), j->strName.data(), PathLength))
+				if (starts_with_icase(j->strName, make_string_view(i->strName, 0, PathLength)))
 					Last=0;
 				break;
 			}
@@ -1564,7 +1547,7 @@ bool TreeList::SetDirPosition(const string& NewDir)
 {
 	for (size_t i = 0; i < m_ListData.size(); ++i)
 	{
-		if (!StrCmpI(NewDir, m_ListData[i].strName))
+		if (equal_icase(NewDir, m_ListData[i].strName))
 		{
 			m_WorkDir = i;
 			m_CurFile = static_cast<int>(i);
@@ -1734,6 +1717,9 @@ void TreeList::ProcessEnter()
 
 bool TreeList::ReadTreeFile()
 {
+	m_ReadingTree = true;
+	SCOPE_EXIT{ m_ReadingTree = false; };
+
 	size_t RootLength=m_Root.empty()?0:m_Root.size()-1;
 	string strName;
 	//SaveState();
@@ -1895,7 +1881,7 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	const auto strSrcRoot = ExtractPathRoot(ConvertNameToFull(strSrcName));
 	const auto strDestRoot = ExtractPathRoot(ConvertNameToFull(strDestName));
 
-	if (StrCmpI(strSrcRoot, strDestRoot))
+	if (!equal_icase(strSrcRoot, strDestRoot))
 	{
 		DelTreeName(strSrcName);
 		ReadSubTree(strSrcName);
@@ -1916,7 +1902,7 @@ void TreeList::ReadSubTree(const string& Path)
 		return;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	//SaveScreen SaveScr;
+
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false);
 
@@ -2027,7 +2013,7 @@ long TreeList::FindFile(const string& Name, bool OnlyPartName)
 {
 	const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
 	{
-		return !StrCmpI(Name.data(), OnlyPartName? PointToName(i.strName) : i.strName.data());
+		return equal_icase(Name, OnlyPartName? PointToName(i.strName) : i.strName.data());
 	});
 
 	return ItemIterator == m_ListData.cend()? -1 : ItemIterator - m_ListData.cbegin();
@@ -2090,7 +2076,7 @@ void TreeList::RefreshTitle()
 	m_Title = L'{';
 	if (!m_ListData.empty())
 	{
-		append(m_Title, m_ListData[m_CurFile].strName, L" - ");
+		append(m_Title, m_ListData[m_CurFile].strName, L" - "_sv);
 	}
 	append(m_Title, msg(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle), L'}');
 }

@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "lang.hpp"
 #include "keybar.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 FolderTree::FolderTree(private_tag, int iModalMode, int IsStandalone, bool IsFullScreen):
 	Tree(nullptr),
@@ -175,9 +175,9 @@ bool FolderTree::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
 	if (LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535)
-		LocalKey=Lower(LocalKey-KEY_ALT_BASE);
+		LocalKey=lower(LocalKey-KEY_ALT_BASE);
 	else if (LocalKey>=KEY_RALT_BASE+0x01 && LocalKey<=KEY_RALT_BASE+65535)
-		LocalKey=Lower(LocalKey-KEY_RALT_BASE);
+		LocalKey=lower(LocalKey-KEY_RALT_BASE);
 
 	switch (LocalKey)
 	{
@@ -328,11 +328,11 @@ bool FolderTree::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 void FolderTree::DrawEdit() const
 {
 	int FindY=m_Y2-2;
-	const wchar_t *SearchTxt=msg(lng::MFoldTreeSearch);
+	const auto& SearchTxt = msg(lng::MFoldTreeSearch);
 	GotoXY(m_X1+1,FindY);
 	SetColor(COL_PANELTEXT);
 	Text(SearchTxt + L"  "s);
-	FindEdit->SetPosition(m_X1+StrLength(SearchTxt)+2,FindY,std::min(m_X2-1,m_X1+25),FindY);
+	FindEdit->SetPosition(m_X1 + static_cast<int>(SearchTxt.size()) + 2, FindY, std::min(m_X2 - 1, m_X1 + 25), FindY);
 	FindEdit->SetObjectColor(COL_DIALOGEDIT);
 	FindEdit->Show();
 

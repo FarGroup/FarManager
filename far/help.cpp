@@ -57,13 +57,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 
-static const wchar_t FoundContents[]=L"__FoundContents__";
-static const wchar_t PluginContents[]=L"__PluginContents__";
-static const wchar_t HelpOnHelpTopic[]=L":Help";
-static const wchar_t HelpContents[]=L"Contents";
+static const wchar_t* FoundContents = L"__FoundContents__";
+static const wchar_t* PluginContents = L"__PluginContents__";
+static const wchar_t* HelpOnHelpTopic = L":Help";
+static const wchar_t* HelpContents = L"Contents";
 
 static const wchar_t HelpBeginLink = L'<';
 static const wchar_t HelpEndLink = L'>';
@@ -91,7 +91,7 @@ public:
 
 	bool operator ==(const HelpRecord& rhs) const
 	{
-		return !StrCmpI(HelpStr, rhs.HelpStr);
+		return equal_icase(HelpStr, rhs.HelpStr);
 	}
 
 	bool operator <(const HelpRecord& rhs) const
@@ -130,7 +130,7 @@ struct Help::StackHelpData
 
 string Help::MakeLink(const string& path, const string& topic)
 {
-	return concat(L'<', path, L"\\>", topic);
+	return concat(L'<', path, L"\\>"_sv, topic);
 }
 
 Help::Help(private_tag):
@@ -191,7 +191,7 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 			if (pos != string::npos)
 				StackData->strHelpTopic.resize(pos + 1);
 
-			StackData->strHelpTopic += HelpContents;
+			append(StackData->strHelpTopic, HelpContents);
 		}
 
 		StackData->strHelpPath.clear();
@@ -215,7 +215,13 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 		{
 			if (!m_Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP))
 			{
-				Message(MSG_WARNING, 1, msg(lng::MHelpTitle), msg(lng::MHelpTopicNotFound), StackData->strHelpTopic.data(), msg(lng::MOk));
+				Message(MSG_WARNING,
+					msg(lng::MHelpTitle),
+					{
+						msg(lng::MHelpTopicNotFound),
+						StackData->strHelpTopic
+					},
+					{ lng::MOk });
 			}
 
 			m_Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
@@ -270,7 +276,13 @@ bool Help::ReadHelp(const string& Mask)
 
 			if (!(StackData->Flags&FHELP_NOSHOWERROR))
 			{
-				Message(MSG_WARNING,1,msg(lng::MHelpTitle),msg(lng::MCannotOpenHelp),Mask.data(),msg(lng::MOk));
+				Message(MSG_WARNING,
+					msg(lng::MHelpTitle),
+					{
+						msg(lng::MCannotOpenHelp),
+						Mask
+					},
+					{ lng::MOk });
 			}
 		}
 
@@ -396,7 +408,7 @@ bool Help::ReadHelp(const string& Mask)
 					ReplaceStrings(keys, L"#", L"##");
 					ReplaceStrings(keys, L"@", L"@@");
 
-					append(strReadStr, L" #", keys, L"#\n");
+					append(strReadStr, L" #"_sv, keys, L"#\n"_sv);
 				}
 
 				if (strKeyName.size() > SizeKeyName)
@@ -410,7 +422,7 @@ bool Help::ReadHelp(const string& Mask)
 			if (contains(strKeyName, L'~')) // коррекция размера
 				SizeKeyName++;
 
-			append(strReadStr, L" #", fit_to_left(strKeyName, SizeKeyName), L"# ");
+			append(strReadStr, L" #"_sv, fit_to_left(strKeyName, SizeKeyName), L"# "_sv);
 
 			if (!strDescription.empty())
 			{
@@ -496,7 +508,7 @@ bool Help::ReadHelp(const string& Mask)
 
 				break;
 			}
-			else if (!StrCmpI(strReadStr.data() + 1, StackData->strHelpTopic.data()))
+			else if (equal_icase(make_string_view(strReadStr, 1), StackData->strHelpTopic))
 			{
 				m_TopicFound = true;
 				NearTopicFound=1;
@@ -505,7 +517,7 @@ bool Help::ReadHelp(const string& Mask)
 			{
 				size_t n1 = StackData->strHelpTopic.size();
 				size_t n2 = strReadStr.size();
-				if (1 + n1 + 1 < n2 && !StrCmpNI(strReadStr.data() + 1, StackData->strHelpTopic.data(), n1) && strReadStr[1 + n1] == L'=')
+				if (1 + n1 + 1 < n2 && starts_with_icase(strReadStr.data() + 1, StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
 				{
 					StackData->strHelpTopic = strReadStr.substr(1 + n1 + 1);
 					continue;
@@ -520,8 +532,7 @@ m1:
 
 			if (m_TopicFound)
 			{
-				const auto MacroTag = L"<!Macro:"_sv;
-				if (!StrCmpNI(strReadStr.data(), MacroTag.data(), MacroTag.size()) && Global->CtrlObject)
+				if (starts_with_icase(strReadStr, L"<!Macro:"_sv) && Global->CtrlObject)
 				{
 					const auto PosTab = strReadStr.find(L'>');
 					if (PosTab != string::npos && strReadStr[PosTab - 1] != L'!')
@@ -749,7 +760,7 @@ void Help::AddLine(const string& Line)
 
 void Help::AddTitle(const string& Title)
 {
-	AddLine(concat(L"^ #", Title, L'#'));
+	AddLine(concat(L"^ #"_sv, Title, L'#'));
 }
 
 void Help::HighlightsCorrection(string &strStr)
@@ -768,7 +779,13 @@ void Help::DisplayObject()
 
 			if (!(StackData->Flags&FHELP_NOSHOWERROR))
 			{
-				Message(MSG_WARNING, 1, msg(lng::MHelpTitle), msg(lng::MHelpTopicNotFound), StackData->strHelpTopic.data(), msg(lng::MOk));
+				Message(MSG_WARNING,
+					msg(lng::MHelpTitle),
+					{
+						msg(lng::MHelpTopicNotFound),
+						StackData->strHelpTopic
+					},
+					{ lng::MOk });
 			}
 
 			ProcessKey(Manager::Key(KEY_ALTF1));
@@ -1324,7 +1341,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_F1:
 		{
 			// не поганим SelTopic, если и так в Help on Help
-			if (StrCmpI(StackData->strHelpTopic.data(),HelpOnHelpTopic))
+			if (!equal_icase(StackData->strHelpTopic, HelpOnHelpTopic))
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1338,7 +1355,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTF1:
 		{
 			//   не поганим SelTopic, если и так в теме Contents
-			if (StrCmpI(StackData->strHelpTopic.data(),HelpContents))
+			if (!equal_icase(StackData->strHelpTopic, HelpContents))
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1352,7 +1369,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_F7:
 		{
 			// не поганим SelTopic, если и так в FoundContents
-			if (StrCmpI(StackData->strHelpTopic.data(),FoundContents))
+			if (!equal_icase(StackData->strHelpTopic, FoundContents))
 			{
 				string strLastSearchStr0=strLastSearchStr;
 				bool Case=LastSearchCase;
@@ -1361,7 +1378,22 @@ bool Help::ProcessKey(const Manager::Key& Key)
 
 				string strTempStr;
 				//int RetCode = GetString(msg(lng::MHelpSearchTitle),msg(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
-				int RetCode = GetSearchReplaceString(false, msg(lng::MHelpSearchTitle), msg(lng::MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp, nullptr, nullptr, true, &HelpSearchId);
+				int RetCode = GetSearchReplaceString(
+					false,
+					msg(lng::MHelpSearchTitle).data(),
+					msg(lng::MHelpSearchingFor).data(),
+					strLastSearchStr0,
+					strTempStr,
+					L"HelpSearch",
+					L"",
+					&Case,
+					&WholeWords,
+					nullptr,
+					&Regexp,
+					nullptr,
+					nullptr,
+					true,
+					&HelpSearchId);
 
 				if (RetCode <= 0)
 					return true;
@@ -1384,7 +1416,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTF2:
 		{
 			//   не поганим SelTopic, если и так в PluginContents
-			if (StrCmpI(StackData->strHelpTopic.data(),PluginContents))
+			if (!equal_icase(StackData->strHelpTopic, PluginContents))
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1414,7 +1446,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (!StackData->strSelTopic.empty() && StrCmpI(StackData->strHelpTopic, StackData->strSelTopic))
+			if (!StackData->strSelTopic.empty() && !equal_icase(StackData->strHelpTopic, StackData->strSelTopic))
 			{
 				Stack.push(*StackData);
 				IsNewTopic = true;
@@ -1528,7 +1560,7 @@ bool Help::JumpTopic()
 					strNewTopic.erase(EndPos, Pos2 - EndPos);
 
 					size_t Pos3 = StackData->strHelpMask.rfind(L'.');
-					if (Pos3 != string::npos && StrCmpI(StackData->strHelpMask.data() + Pos3, L".hlf"))
+					if (Pos3 != string::npos && !equal_icase(make_string_view(StackData->strHelpMask, Pos3), L".hlf"_sv))
 						StackData->strHelpMask.clear();
 
 					break;
@@ -1546,7 +1578,7 @@ bool Help::JumpTopic()
 
 	//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData->HelpMask,NewTopic));
 	if (StackData->strSelTopic.front() != L':' &&
-	        (StrCmpI(StackData->strSelTopic.data(),PluginContents) || StrCmpI(StackData->strSelTopic.data(),FoundContents))
+	        (!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))
 	   )
 	{
 		if (!(StackData->Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic.data(),HelpEndLink))
@@ -1589,16 +1621,20 @@ bool Help::JumpTopic()
 
 		if (!(StackData->Flags&FHELP_NOSHOWERROR))
 		{
-			Message(MSG_WARNING,1,msg(lng::MHelpTitle),msg(lng::MHelpTopicNotFound),StackData->strHelpTopic.data(),msg(lng::MOk));
+			Message(MSG_WARNING,
+				msg(lng::MHelpTitle),
+				{
+					msg(lng::MHelpTopicNotFound),
+					StackData->strHelpTopic
+				},
+				{ lng::MOk });
 		}
 
 		return false;
 	}
 
 	// ResizeConsole();
-	if (IsNewTopic
-	        || !(StrCmpI(StackData->strSelTopic.data(),PluginContents)||StrCmpI(StackData->strSelTopic.data(),FoundContents)) // Это неприятный костыль :-((
-	   )
+	if (IsNewTopic || !(!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))) // Это неприятный костыль :-((
 		MoveToReference(1,1);
 
 	Global->WindowManager->RefreshWindow();
@@ -1882,8 +1918,8 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	string strSearchStrLower = strLastSearchStr;
 	if (!LastSearchCase)
 	{
-		InplaceUpper(strSearchStrUpper);
-		InplaceLower(strSearchStrLower);
+		upper(strSearchStrUpper);
+		upper(strSearchStrLower);
 	}
 
 	for (;;)
@@ -1902,7 +1938,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			strEntryName.clear();
 			strCurTopic.clear();
 			RemoveExternalSpaces(strReadStr);
-			if (StrCmpI(strReadStr.data()+1,HelpContents))
+			if (!equal_icase(make_string_view(strReadStr, 1), HelpContents))
 			{
 				strCurTopic=strReadStr;
 				TopicFound=true;
@@ -1925,7 +1961,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 
 			if (Result)
 			{
-				AddLine(concat(L"   ~", strEntryName, L'~', strCurTopic, L'@'));
+				AddLine(concat(L"   ~"_sv, strEntryName, L'~', strCurTopic, L'@'));
 				strCurTopic.clear();
 				strEntryName.clear();
 				TopicFound=false;
@@ -1953,7 +1989,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	switch (TypeIndex)
 	{
 		case HIDX_PLUGINS:
-			PtrTitle=msg(lng::MPluginsHelpTitle);
+			PtrTitle = msg(lng::MPluginsHelpTitle).data();
 			ContentsName=L"PluginContents";
 			break;
 		default:
@@ -1986,7 +2022,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 						{
 							append(strHelpLine, L',', strSecondParam);
 						}
-						append(strHelpLine, L"~@", MakeLink(strPath, HelpContents), L'@');
+						append(strHelpLine, L"~@"_sv, MakeLink(strPath, HelpContents), L'@');
 
 						AddLine(strHelpLine);
 					}
@@ -2038,7 +2074,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 				else
 				{
 					if (EndPos == strTopic.size() - 1) // Вона как поперло то...
-						strTopic += HelpContents; // ... значит покажем основную тему. //BUGBUG
+						append(strTopic, HelpContents); // ... значит покажем основную тему. //BUGBUG
 
 					/* А вот теперь разгребем...
 					   Формат может быть :
@@ -2144,14 +2180,17 @@ static int RunURL(const string& Protocol, const string& URLPath)
 
 				if (Global->Opt->HelpURLRules == 2 || Global->Opt->HelpURLRules == 2+256)
 				{
-					Disposition=Message(MSG_WARNING,2,msg(lng::MHelpTitle),
-						                msg(lng::MHelpActivatorURL),
-						                strAction.data(),
-						                msg(lng::MHelpActivatorFormat),
-						                FilteredURLPath.data(),
-						                L"\x01",
-						                msg(lng::MHelpActivatorQ),
-						                msg(lng::MYes),msg(lng::MNo));
+					Disposition=Message(MSG_WARNING,
+						msg(lng::MHelpTitle),
+						{
+							msg(lng::MHelpActivatorURL),
+							strAction,
+							msg(lng::MHelpActivatorFormat),
+							FilteredURLPath,
+							L"\x01"s,
+							msg(lng::MHelpActivatorQ)
+						},
+						{ lng::MYes, lng::MNo });
 				}
 
 				EditCode=2; // Все Ok!

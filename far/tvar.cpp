@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "tvar.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 enum TypeString
 {
@@ -446,7 +446,7 @@ static bool _cmp_Eq(TVarType vt,const void *a, const void *b)
 		case vtUnknown:
 		case vtInteger: r = *(const long long*)a == *(const long long*)b; break;
 		case vtDouble:  r = fabs(*(const double*)a - *(const double*)b) < DBL_EPSILON; break;
-		case vtString:  r = !StrCmp((const wchar_t*)a, (const wchar_t*)b); break;
+		case vtString:  r = equal((const wchar_t*)a, (const wchar_t*)b); break;
 	}
 
 	return r;

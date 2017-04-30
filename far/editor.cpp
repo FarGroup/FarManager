@@ -65,7 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "regex_helpers.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 
@@ -3450,8 +3450,8 @@ bool Editor::Search(bool Next)
 		string strSearchStrLower = strSearchStr;
 		if (!Case)
 		{
-			InplaceUpper(strSearchStrUpper);
-			InplaceLower(strSearchStrLower);
+			upper(strSearchStrUpper);
+			upper(strSearchStrLower);
 		}
 
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
@@ -3573,9 +3573,15 @@ bool Editor::Search(bool Next)
 							if (!SearchLength && !strReplaceStrCurrent.length())
 								ZeroLength = true;
 
-							MsgCode = Message(0, 4, msg(lng::MEditReplaceTitle), msg(lng::MEditAskReplace),
-											strQSearchStr.data(), msg(lng::MEditAskReplaceWith), strQReplaceStr.data(),
-											msg(lng::MEditReplace), msg(lng::MEditReplaceAll), msg(lng::MEditSkip), msg(lng::MEditCancel));
+							MsgCode = Message(0,
+								msg(lng::MEditReplaceTitle),
+								{
+									msg(lng::MEditAskReplace),
+									strQSearchStr,
+									msg(lng::MEditAskReplaceWith),
+									strQReplaceStr
+								},
+								{ lng::MEditReplace, lng::MEditReplaceAll, lng::MEditSkip, lng::MEditCancel });
 
 							CurPtr->DeleteColor([&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
 
@@ -3858,8 +3864,13 @@ bool Editor::Search(bool Next)
 	}
 
 	if (!Match && !UserBreak)
-		Message(MSG_WARNING,1,msg(lng::MEditSearchTitle),msg(lng::MEditNotFound),
-		        strMsgStr.data(),msg(lng::MOk));
+		Message(MSG_WARNING,
+			msg(lng::MEditSearchTitle),
+			{
+				msg(lng::MEditNotFound),
+				strMsgStr
+			},
+			{ lng::MOk });
 
 	return true;
 }
@@ -6761,7 +6772,17 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 		strProgress = make_progressbar(Length, Percent, true, true);
 	}
 
-	Message(MSG_LEFTALIGN,0,Title,strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
+	{
+		std::vector<string> MsgItems{ strMsg };
+		if (!strProgress.empty())
+			MsgItems.emplace_back(strProgress);
+
+		Message(MSG_LEFTALIGN,
+			Title,
+			MsgItems,
+			{});
+	}
+
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<EditorPreRedrawItem*>(PreRedrawStack().top());

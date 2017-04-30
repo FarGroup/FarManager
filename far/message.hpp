@@ -56,17 +56,21 @@ public:
 		DWORD Flags,
 		const string& Title,
 		const std::vector<string>& Strings,
-		const std::vector<string>& Buttons,
+		const std::vector<lng>& Buttons,
 		const wchar_t* HelpTopic = nullptr,
-		Plugin* PluginNumber = nullptr,
 		const GUID* Id = nullptr,
 		const std::vector<string>& Inserts = {}
 	);
 
-	Message(DWORD Flags,size_t Buttons,const string& Title, const wchar_t *Str1,
-		const wchar_t *Str2=nullptr, const wchar_t *Str3=nullptr, const wchar_t *Str4=nullptr, const wchar_t *Str5=nullptr,
-		const wchar_t *Str6=nullptr, const wchar_t *Str7=nullptr, const wchar_t *Str8=nullptr, const wchar_t *Str9=nullptr,
-		const wchar_t *Str10=nullptr, const wchar_t *Str11=nullptr, const wchar_t *Str12=nullptr);
+	Message(
+		DWORD Flags,
+		const string& Title,
+		const std::vector<string>& Strings,
+		const std::vector<string>& Buttons,
+		const wchar_t* HelpTopic,
+		const GUID* Id,
+		Plugin* PluginNumber
+	);
 
 	enum
 	{

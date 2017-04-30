@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "fileattr.hpp"
 #include "colormix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 
 static const struct column_info
@@ -313,7 +313,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 		column NewColumn;
 
-		auto strArgOrig = Upper(strArgName);
+		auto strArgOrig = upper_copy(strArgName);
 
 		if (strArgName.front() == L'N')
 		{
@@ -365,7 +365,11 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				}
 			}
 		}
-		else if (!StrCmpN(strArgName.data(), L"DM", 2) || !StrCmpN(strArgName.data(), L"DC", 2) || !StrCmpN(strArgName.data(), L"DA", 2) || !StrCmpN(strArgName.data(), L"DE", 2))
+		else if (
+			starts_with(strArgName, L"DM"_sv) ||
+			starts_with(strArgName, L"DC"_sv) ||
+			starts_with(strArgName, L"DA"_sv) ||
+			starts_with(strArgName, L"DE"_sv))
 		{
 			switch (strArgName[1])
 			{
@@ -686,12 +690,11 @@ string FormatStr_Size(long long Size, const string& strName,
 
 	if (!Streams && !Packed && !have_size && !ShowFolderSize)
 	{
-		string strMsg;
-		const wchar_t *PtrName=msg(lng::MListFolder);
+		auto TypeName = msg(lng::MListFolder);
 
 		if (TestParentFolderName(strName))
 		{
-			PtrName=msg(lng::MListUp);
+			TypeName = msg(lng::MListUp);
 		}
 		else
 		{
@@ -719,78 +722,69 @@ string FormatStr_Size(long long Size, const string& strName,
 								}
 							}
 						}
-						PtrName=msg(ID_Msg);
+						TypeName=msg(ID_Msg);
 					}
 					break;
 				// 0xA000000CL = Directory or File Symbolic Link
 				case IO_REPARSE_TAG_SYMLINK:
-					PtrName = msg(lng::MListSymlink);
+					TypeName = msg(lng::MListSymlink);
 					break;
 				// 0x8000000AL = Distributed File System
 				case IO_REPARSE_TAG_DFS:
-					PtrName = msg(lng::MListDFS);
+					TypeName = msg(lng::MListDFS);
 					break;
 				// 0x80000012L = Distributed File System Replication
 				case IO_REPARSE_TAG_DFSR:
-					PtrName = msg(lng::MListDFSR);
+					TypeName = msg(lng::MListDFSR);
 					break;
 				// 0xC0000004L = Hierarchical Storage Management
 				case IO_REPARSE_TAG_HSM:
-					PtrName = msg(lng::MListHSM);
+					TypeName = msg(lng::MListHSM);
 					break;
 				// 0x80000006L = Hierarchical Storage Management2
 				case IO_REPARSE_TAG_HSM2:
-					PtrName = msg(lng::MListHSM2);
+					TypeName = msg(lng::MListHSM2);
 					break;
 				// 0x80000007L = Single Instance Storage
 				case IO_REPARSE_TAG_SIS:
-					PtrName = msg(lng::MListSIS);
+					TypeName = msg(lng::MListSIS);
 					break;
 				// 0x80000008L = Windows Imaging Format
 				case IO_REPARSE_TAG_WIM:
-					PtrName = msg(lng::MListWIM);
+					TypeName = msg(lng::MListWIM);
 					break;
 				// 0x80000009L = Cluster Shared Volumes
 				case IO_REPARSE_TAG_CSV:
-					PtrName = msg(lng::MListCSV);
+					TypeName = msg(lng::MListCSV);
 					break;
 				case IO_REPARSE_TAG_DEDUP:
-					PtrName = msg(lng::MListDEDUP);
+					TypeName = msg(lng::MListDEDUP);
 					break;
 				case IO_REPARSE_TAG_NFS:
-					PtrName = msg(lng::MListNFS);
+					TypeName = msg(lng::MListNFS);
 					break;
 				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
-					PtrName = msg(lng::MListPlaceholder);
+					TypeName = msg(lng::MListPlaceholder);
 					break;
 					// 0x????????L = anything else
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
-						strMsg = format(L":{0:0>8X}", ReparseTag);
-						PtrName = strMsg.data();
+						TypeName = format(L":{0:0>8X}", ReparseTag);
 					}
 					else
 					{
-						PtrName=msg(lng::MListUnknownReparsePoint);
+						TypeName = msg(lng::MListUnknownReparsePoint);
 					}
 				}
 			}
 		}
 
-		string strStr;
-		if(*PtrName)
+		if (static_cast<int>(TypeName.size()) <= Width-2 && msg(lng::MListBrackets)[0] && msg(lng::MListBrackets)[1])
 		{
-			if (StrLength(PtrName) <= Width-2 && msg(lng::MListBrackets)[0] && msg(lng::MListBrackets)[1])
-			{
-				strStr = concat(msg(lng::MListBrackets)[0], PtrName, msg(lng::MListBrackets)[1]);
-			}
-			else
-			{
-				strStr = PtrName;
-			}
+			TypeName = concat(msg(lng::MListBrackets)[0], TypeName, msg(lng::MListBrackets)[1]);
 		}
-		strResult += fit_to_right(strStr, Width);
+		strResult += fit_to_right(TypeName, Width);
 	}
 	else
 	{

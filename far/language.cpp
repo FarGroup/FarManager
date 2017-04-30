@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "interf.hpp"
 #include "lasterror.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "pathmix.hpp"
 #include "exception.hpp"
 
@@ -72,7 +72,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 		{
 			GetFileFormat(LangFile, nCodePage, nullptr, false);
 
-			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && !StrCmpI(strLangName, Language))
+			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && equal_icase(strLangName, Language))
 				break;
 
 			LangFile.Close();
@@ -84,7 +84,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 				break;
 			}
 
-			if (!StrCmpI(strLangName.data(),L"English"))
+			if (equal_icase(strLangName, L"English"_sv))
 				strEngFileName = strFileName;
 		}
 	}
@@ -110,7 +110,6 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
 {
 	const auto strFullParamName = concat(L'.', ParamName);
-	int Length=(int)strFullParamName.size();
 	/* $ 29.11.2001 DJ
 	   не поганим позицию в файле; дальше @Contents не читаем
 	*/
@@ -121,7 +120,7 @@ bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *s
 	GetFileString GetStr(LangFile, nCodePage);
 	while (GetStr.GetString(ReadStr))
 	{
-		if (!StrCmpNI(ReadStr.data(), strFullParamName.data(), Length))
+		if (starts_with_icase(ReadStr, strFullParamName))
 		{
 			size_t Pos = ReadStr.find(L'=');
 
@@ -153,8 +152,7 @@ bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *s
 		}
 		else
 		{
-			constexpr auto ContentsTag = L"@Contents"_sv;
-			if (!StrCmpNI(ReadStr.data(), ContentsTag.data(), ContentsTag.size()))
+			if (starts_with_icase(ReadStr, L"@Contents"_sv))
 				break;
 		}
 	}
@@ -165,23 +163,24 @@ bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *s
 
 static bool SelectLanguage(bool HelpLanguage)
 {
-	const wchar_t *Title,*Mask;
+	lng Title;
+	const wchar_t* Mask;
 	StringOption *strDest;
 
 	if (HelpLanguage)
 	{
-		Title=msg(lng::MHelpLangTitle);
+		Title = lng::MHelpLangTitle;
 		Mask=Global->HelpFileMask;
 		strDest=&Global->Opt->strHelpLanguage;
 	}
 	else
 	{
-		Title=msg(lng::MLangTitle);
+		Title = lng::MLangTitle;
 		Mask=LangFileMask;
 		strDest=&Global->Opt->strLanguage;
 	}
 
-	const auto LangMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
+	const auto LangMenu = VMenu2::create(msg(Title), nullptr, 0, ScrY - 4);
 	LangMenu->SetMenuFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 
@@ -214,7 +213,7 @@ static bool SelectLanguage(bool HelpLanguage)
 				*/
 				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
-					LangMenuItem.SetSelect(!StrCmpI(*strDest, strLangName));
+					LangMenuItem.SetSelect(equal_icase(strDest->Get(), strLangName));
 					LangMenuItem.UserData = strLangName;
 					LangMenu->AddItem(LangMenuItem);
 				}
@@ -248,7 +247,7 @@ bool GetOptionsParam(const os::fs::file& SrcFile,const wchar_t *KeyName,string &
 	const auto OptionsTag = L".Options"_sv;
 	while (GetStr.GetString(ReadStr))
 	{
-		if (!StrCmpNI(ReadStr.data(), OptionsTag.data(), OptionsTag.size()))
+		if (starts_with_icase(ReadStr, OptionsTag))
 		{
 			string strFullParamName = ReadStr.substr(OptionsTag.size());
 			RemoveExternalSpaces(strFullParamName);
@@ -261,7 +260,7 @@ bool GetOptionsParam(const os::fs::file& SrcFile,const wchar_t *KeyName,string &
 				strFullParamName.resize(pos);
 				RemoveExternalSpaces(strFullParamName);
 
-				if (!StrCmpI(strFullParamName.data(),KeyName))
+				if (equal_icase(strFullParamName, KeyName))
 				{
 					SrcFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN);
 					return true;
@@ -358,7 +357,7 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	if (!str.empty() && str.back() == L'"')
 	{
 		auto eq_pos = str.find(L'=');
-		if (eq_pos != string::npos && Upper(str[0]) >= L'A' && Upper(str[0]) <= L'Z')
+		if (eq_pos != string::npos && upper(str[0]) >= L'A' && upper(str[0]) <= L'Z')
 		{
 			data = str.substr(eq_pos + 1);
 			RemoveExternalSpaces(data);
@@ -482,27 +481,20 @@ bool i_language_data::validate(size_t MsgId) const
 	if (MsgId < size())
 		return true;
 
-	/* $ 26.03.2002 DJ
-		если менеджер уже в дауне - сообщение не выводим
-	*/
-	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
+	if (!Global || !Global->WindowManager || Global->WindowManager->ManagerIsDown())
 		return false;
 
-	/* $ 03.09.2000 IS
-		! Нормальное сообщение об отсутствии строки в языковом файле
-			(раньше имя файла обрезалось справа и приходилось иногда гадать - в
-			каком же файле ошибка)
-	*/
-	// TODO: localization
-	string strMsg1(L"Incorrect or damaged ");
-	strMsg1 += m_FileName;
-	/* IS $ */
-	if (Message(MSG_WARNING, 2,
-		L"Error",
-		strMsg1.data(),
-		(L"Message " + str(static_cast<size_t>(MsgId)) + L" not found").data(),
-		L"Ok", L"Quit") == Message::second_button)
-		exit(0);
+	if (Message(MSG_WARNING,
+		msg(lng::MError),
+		{
+			msg(lng::MBadLanguageFile),
+			m_FileName,
+			format(msg(lng::MLanguageStringNotFound), static_cast<size_t>(MsgId))
+		},
+		{ lng::MOk, lng::MQuit }) == Message::second_button)
+	{
+		Global->WindowManager->ExitMainLoop(FALSE);
+	}
 
 	return false;
 }
@@ -531,13 +523,13 @@ bool far_language::is_loaded() const
 	return static_cast<const language_data&>(*m_Data).size() != 0;
 }
 
-const wchar_t* far_language::GetMsg(lng Id) const
+const string& far_language::GetMsg(lng Id) const
 {
-	return static_cast<const language_data&>(*m_Data).at(static_cast<size_t>(Id)).data();
+	return static_cast<const language_data&>(*m_Data).at(static_cast<size_t>(Id));
 }
 
 
-const wchar_t* msg(lng Id)
+const string& msg(lng Id)
 {
 	return far_language::instance().GetMsg(Id);
 }

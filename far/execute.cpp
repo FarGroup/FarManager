@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "lang.hpp"
 #include "filetype.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "RegExp.hpp"
 
@@ -183,7 +183,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 	// например, некоторые внутренние команды ком. процессора.
 	const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
 
-	if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return !StrCmpI(i, Module); }))
+	if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
 	{
 		Internal = true;
 		return true;
@@ -197,15 +197,15 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 		// ";;" to also try no extension if nothing else matches
 		strPathExt += L";;";
 	}
-	const auto PathExtList = split<std::vector<string>>(strPathExt, STLF_UNIQUE | STLF_ALLOWEMPTY);
 
+	const auto PathExtList = enum_tokens(strPathExt, L";");
 	for (const auto& i: PathExtList) // первый проход - в текущем каталоге
 	{
 		string strTmpName=strFullName;
 
 		if (!ModuleExt)
 		{
-			strTmpName += i;
+			append(strTmpName, i);
 		}
 
 		if (os::fs::is_file(strTmpName))
@@ -229,7 +229,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 			for (const auto& Ext: PathExtList)
 			{
 				string Dest;
-				if (os::SearchPath(Path.data(), strFullName, Ext.data(), Dest))
+				if (os::SearchPath(Path.data(), strFullName, make_string(Ext).data(), Dest))
 				{
 					if (os::fs::is_file(Dest))
 					{
@@ -244,7 +244,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 	for (const auto& Ext: PathExtList)
 	{
 		string Dest;
-		if (os::SearchPath(nullptr, strFullName, Ext.data(), Dest))
+		if (os::SearchPath(nullptr, strFullName, make_string(Ext).data(), Dest))
 		{
 			if (os::fs::is_file(Dest))
 			{
@@ -290,9 +290,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 
 		return std::any_of(CONST_RANGE(PathExtList, Ext)
 		{
-			strFullName = RegPath;
-			strFullName += Module;
-			strFullName += Ext;
+			strFullName = concat(RegPath, Module, Ext);
 
 			return std::any_of(CONST_RANGE(RootFindKey, i)
 			{
@@ -872,7 +870,12 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			strComspec = os::env::get_variable(L"COMSPEC");
 			if (strComspec.empty())
 			{
-				Message(MSG_WARNING, 1, msg(lng::MError), msg(lng::MComspecNotFound), msg(lng::MOk));
+				Message(MSG_WARNING,
+					msg(lng::MError),
+					{
+						msg(lng::MComspecNotFound)
+					},
+					{ lng::MOk });
 				return;
 			}
 		}
@@ -1044,9 +1047,8 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		Message(MSG_WARNING | MSG_ERRORTYPE,
 			msg(lng::MError),
 			Strings,
-			{ msg(lng::MOk) },
+			{ lng::MOk },
 			L"ErrCannotExecute",
-			nullptr,
 			nullptr,
 			{ Info.ExecMode == execute_info::exec_mode::direct? strNewCmdStr : strComspec });
 	}
@@ -1104,10 +1106,10 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 	for (;;)
 	{
-		if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd, Token_If.data(), Token_If.size())) //??? IF/I не обрабатывается
+		if (!PtrCmd || !*PtrCmd || !starts_with_icase(PtrCmd, Token_If)) //??? IF/I не обрабатывается
 			break;
 
-		PtrCmd+=3;
+		PtrCmd += Token_If.size() + 1;
 
 		while (*PtrCmd && IsSpace(*PtrCmd))
 			++PtrCmd;
@@ -1115,11 +1117,11 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 		if (!*PtrCmd)
 			break;
 
-		if (!StrCmpNI(PtrCmd, Token_Not.data(), Token_Not.size()))
+		if (starts_with_icase(PtrCmd, Token_Not))
 		{
 			Not=TRUE;
 
-			PtrCmd+=4;
+			PtrCmd += Token_Not.size() + 1;
 
 			while (*PtrCmd && IsSpace(*PtrCmd))
 				++PtrCmd;
@@ -1128,10 +1130,10 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				break;
 		}
 
-		if (*PtrCmd && !StrCmpNI(PtrCmd, Token_Exist.data(), Token_Exist.size()))
+		if (*PtrCmd && starts_with_icase(PtrCmd, Token_Exist))
 		{
 
-			PtrCmd+=6;
+			PtrCmd += Token_Exist.size() + 1;
 
 			while (*PtrCmd && IsSpace(*PtrCmd))
 				++PtrCmd;
@@ -1198,10 +1200,10 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			}
 		}
 		// "IF [NOT] DEFINED variable command"
-		else if (*PtrCmd && !StrCmpNI(PtrCmd, Token_Defined.data(), Token_Defined.size()))
+		else if (*PtrCmd && starts_with_icase(PtrCmd, Token_Defined))
 		{
 
-			PtrCmd+=8;
+			PtrCmd += Token_Defined.size() + 1;
 
 			while (*PtrCmd && IsSpace(*PtrCmd))
 				++PtrCmd;
@@ -1284,11 +1286,11 @@ bool ExtractIfExistCommand(string &strCommandText)
 
 bool IsExecutable(const string& Filename)
 {
-	auto DotPos = Filename.find_last_of('.');
+	const auto DotPos = Filename.find_last_of('.');
 	if (DotPos == string::npos || DotPos == Filename.size() - 1)
 		return false;
 
-	auto Extension = Lower(Filename.substr(DotPos + 1));
+	const auto Extension = lower_copy(Filename.substr(DotPos + 1));
 
 	// these guys have specific association in Windows Registry: "%1" %*
 	// That means we can't find the associated program etc., so they shall be hard-coded.

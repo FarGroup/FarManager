@@ -106,7 +106,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local)
 		DbPath += L"PluginsData\\";
 		Diz.Read(DbPath);
 		const auto DbName = strGuid + L".db";
-		const auto Description = concat(pPlugin->GetTitle(), L" (", pPlugin->GetDescription(), L')');
+		const auto Description = concat(pPlugin->GetTitle(), L" ("_sv, pPlugin->GetDescription(), L')');
 		if (Description != NullToEmpty(Diz.Get(DbName, L"", 0)))
 		{
 			Diz.Set(DbName, L"", Description);

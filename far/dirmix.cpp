@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "elevation.hpp"
 #include "network.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 bool FarChDir(const string& NewDir, bool ChangeDir)
 {
@@ -61,7 +61,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 	// если указана только буква диска, то путь возьмем из переменной
 	if (NewDir.size() == 2 && NewDir[1]==L':')
 	{
-		Drive[1] = Upper(NewDir[0]);
+		Drive[1] = upper(NewDir[0]);
 		strCurDir = os::env::get_variable(Drive);
 		if (strCurDir.empty())
 		{
@@ -105,7 +105,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 
 		if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
-			Drive[1] = Upper(strCurDir[0]);
+			Drive[1] = upper(strCurDir[0]);
 			os::env::set_variable(Drive, strCurDir);
 		}
 	}
@@ -198,11 +198,22 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 		if (!TryClosest)
 		{
 			if (!Silent)
-				Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), strTarget.data(), msg(lng::MOk));
+				Message(MSG_WARNING | MSG_ERRORTYPE,
+					msg(lng::MError),
+					{
+						strTarget
+					},
+					{ lng::MOk });
 		}
 		else // попытка найти!
 		{
-			if (Silent || Message(MSG_WARNING | MSG_ERRORTYPE, 2, msg(lng::MError), strTarget.data(), msg(lng::MNeedNearPath), msg(lng::MHYes),msg(lng::MHNo)) == Message::first_button)
+			if (Silent || Message(MSG_WARNING | MSG_ERRORTYPE,
+				msg(lng::MError),
+				{
+					strTarget,
+					msg(lng::MNeedNearPath)
+				},
+				{ lng::MHYes, lng::MHNo }) == Message::first_button)
 			{
 				string strTestPathTemp = pTestPath;
 				for (;;)

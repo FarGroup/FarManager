@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "ctrlobj.hpp"
 #include "strmix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback* aCallback, History* iHistory, FarList* iList, DWORD iFlags):
 	Edit(Owner),
@@ -254,7 +254,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string& strStart, const string& 
 		// Preserve the case of the already entered part
 		if (Global->Opt->AutoComplete.AppendCompletion)
 		{
-			if (i.size() >= Token.size() && !StrCmpNI(Token.data(), i.data(), Token.size()))
+			if (starts_with_icase(i, Token))
 			{
 				Item.UserData = cmp_user_data{ BuildQuotedString(Token + i.substr(Token.size())) };
 			}
@@ -273,11 +273,12 @@ static bool EnumFiles(VMenu2& Menu, const string& strStart, const string& Token,
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
 		const auto Pattern = os::env::expand_strings(Token) + L'*';
+		const auto FileName = PointToName(Token);
+
 		for (const auto& i: os::fs::enum_files(Pattern))
 		{
-			const auto FileName = PointToName(Token);
-			const auto NameMatch = !StrCmpNI(FileName, i.strFileName.data(), StrLength(FileName));
-			const auto AltNameMatch = !NameMatch && !StrCmpNI(FileName, i.strAlternateFileName.data(), StrLength(FileName));
+			const auto NameMatch = starts_with_icase(i.strFileName, FileName);
+			const auto AltNameMatch = !NameMatch && starts_with_icase(i.strAlternateFileName, FileName);
 			if (NameMatch || AltNameMatch)
 			{
 				Inserter(Token.substr(0, FileName - Token.data()) + (NameMatch? i.strFileName : i.strAlternateFileName));
@@ -294,7 +295,7 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 	{
 		for (const auto& i: split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds)))
 		{
-			if (!StrCmpNI(Token.data(), i.data(), Token.size()))
+			if (starts_with_icase(i, Token))
 			{
 				Inserter(i);
 			}
@@ -304,7 +305,8 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 			const auto strPathEnv(os::env::get_variable(L"PATH"));
 			if (!strPathEnv.empty())
 			{
-				const auto PathExtList = split<std::vector<string>>(os::env::get_pathext());
+				const auto PathExt = os::env::get_pathext();
+				const auto PathExtList = enum_tokens(PathExt, L";");
 
 				string str;
 				for (const auto& Path: split<std::vector<string>>(strPathEnv))
@@ -314,9 +316,10 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 					append(str, Token, L'*');
 					for (const auto& FindData: os::fs::enum_files(str))
 					{
+						const auto FindExt = PointToExt(FindData.strFileName);
 						for (const auto& Ext: PathExtList)
 						{
-							if (!StrCmpI(Ext.data(), PointToExt(FindData.strFileName)))
+							if (starts_with_icase(Ext, FindExt))
 							{
 								Inserter(FindData.strFileName);
 							}
@@ -353,7 +356,7 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 					{
 						if(os::reg::GetValue(SubKey, L""))
 						{
-							if (!StrCmpNI(Token.data(), SubkeyName.data(), Token.size()))
+							if (starts_with_icase(SubkeyName, Token))
 							{
 								Inserter(SubkeyName);
 							}
@@ -379,7 +382,7 @@ static bool EnumEnvironment(VMenu2& Menu, const string& strStart, const string& 
 				continue;
 
 			const auto VarName = concat(L'%', Name, L'%');
-			if (!StrCmpNI(Token.data(), VarName.data(), Token.size()))
+			if (starts_with_icase(VarName, Token))
 			{
 				Inserter(VarName);
 			}
@@ -435,7 +438,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			{
 				for (size_t i = 0; i < pList->ItemsNumber; i++)
 				{
-					if (!StrCmpNI(pList->Items[i].Text, Str.data(), Str.size()) && pList->Items[i].Text != Str.data())
+					if (starts_with_icase(pList->Items[i].Text, Str) && pList->Items[i].Text != Str.data())
 					{
 						MenuItemEx Item;
 						// Preserve the case of the already entered part
@@ -488,7 +491,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 			{
 				SCOPED_ACTION(auto)(CallbackSuppressor());
-				if (StrCmpI(FirstItem, m_Str + FirstItem.substr(SelStart)))
+				if (!equal_icase(FirstItem, m_Str + FirstItem.substr(SelStart)))
 				{
 					// New string contains opening quote, but not the original one
 					if (SelStart <= m_CurPos) // e. g. entering "\" in "C:\abc_" - where "_" is a cursor position
@@ -505,7 +508,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 		};
 
-		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(CurrentInput, ComplMenu->at(0).strName)))
+		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).strName)))
 		{
 			ComplMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
@@ -560,7 +563,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 								Complete(*ComplMenu, CurrentInput);
 
-								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && StrCmpI(CurrentInput, ComplMenu->at(0).strName)))
+								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).strName)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{

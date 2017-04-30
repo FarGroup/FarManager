@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "processname.hpp"
 #include "pathmix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 /* $ 09.10.2000 IS
     Генерация нового имени по маске
@@ -143,8 +143,8 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 		/* $ 01.05.2001 DJ
 		   используем инлайновые версии
 		*/
-		wchar_t stringc=Upper(*str);
-		wchar_t patternc=Upper(*pattern++);
+		wchar_t stringc=upper(*str);
+		wchar_t patternc=upper(*pattern++);
 
 		switch (patternc)
 		{
@@ -182,7 +182,7 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 						return false;
 
 					if (!patdot && dot )
-						return !StrCmpI(pattern+1,dot+1);
+						return equal_icase(pattern+1, dot+1);
 				}
 			}
 
@@ -215,7 +215,7 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 
 				int match = 0;
 				wchar_t rangec;
-				while ((rangec = Upper(*pattern++)) != 0)
+				while ((rangec = upper(*pattern++)) != 0)
 				{
 					if (rangec == L']')
 					{
@@ -230,8 +230,8 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 
 					if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
 					{
-						match = (stringc <= Upper(*pattern) &&
-									Upper(*(pattern - 2)) <= stringc);
+						match = (stringc <= upper(*pattern) &&
+									upper(*(pattern - 2)) <= stringc);
 						pattern++;
 					}
 					else

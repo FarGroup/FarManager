@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/any.hpp"
 #include "common/null_iterator.hpp"
 #include "common/enumerator.hpp"
-#include "common/iterator_range.hpp"
+#include "common/range.hpp"
 #include "common/algorithm.hpp"
 #include "common/monitored.hpp"
 #include "common/string_view.hpp"

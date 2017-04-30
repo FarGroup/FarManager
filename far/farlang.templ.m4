@@ -28318,6 +28318,30 @@ upd:"Show configuration folders"
 "Mostra Cartella Configurazione"
 "Показати каталоги налаштувань"
 
+MBadLanguageFile
+"Некорректный языковой файл"
+"Incorrect language file"
+upd:"Incorrect language file"
+upd:"Incorrect language file"
+upd:"Incorrect language file"
+upd:"Incorrect language file"
+upd:"Incorrect language file"
+upd:"Incorrect language file"
+upd:"Incorrect language file"
+"Некоректний мовний файл"
+
+MLanguageStringNotFound
+"Строка {0} не найдена"
+"String {0} not found"
+upd:"String {0} not found"
+upd:"String {0} not found"
+upd:"String {0} not found"
+upd:"String {0} not found"
+upd:"String {0} not found"
+upd:"String {0} not found"
+upd:"String {0} not found"
+"Рядок {0} не знайдено"
+
 MKeyLaunchMediaSelect
 l:// keys
 ""

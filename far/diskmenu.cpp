@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "dirmix.hpp"
 #include "lockscrn.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "pathmix.hpp"
 
 class ChDiskPluginItem
@@ -273,15 +273,15 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	*/
 	FarDialogItem DCDlgData[] =
 	{
-		{ DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectTitle) },
+		{ DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectTitle).data() },
 		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, 5, 3, 0, 3, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, DIF_SHOWAMPERSAND, L"" },
 		{ DI_TEXT, -1, 5, 0, 5, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_CHECKBOX, 5, 6, 70, 6, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectReconnect) },
+		{ DI_CHECKBOX, 5, 6, 70, 6, 0, nullptr, nullptr, 0, msg(lng::MChangeDriveDisconnectReconnect).data() },
 		{ DI_TEXT, -1, 7, 0, 7, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MYes) },
-		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel) },
+		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_FOCUS | DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MYes).data() },
+		{ DI_BUTTON, 0, 8, 0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel).data() },
 	};
 	auto DCDlg = MakeDialogItemsEx(DCDlgData);
 
@@ -352,10 +352,15 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				const auto MappedTo = format(lng::MChangeDriveDisconnectMapped, DiskLetter.front());
 				string SubstitutedPath;
 				GetSubstName(DriveType, DiskLetter, SubstitutedPath);
-				if (Message(MSG_WARNING, msg(lng::MChangeSUBSTDisconnectDriveTitle),
-					{ Question, MappedTo, SubstitutedPath },
-					{ msg(lng::MYes), msg(lng::MNo) },
-					nullptr, nullptr, &SUBSTDisconnectDriveId) != Message::first_button)
+				if (Message(MSG_WARNING,
+					msg(lng::MChangeSUBSTDisconnectDriveTitle),
+					{
+						Question,
+						MappedTo,
+						SubstitutedPath
+					},
+					{ lng::MYes, lng::MNo },
+					nullptr, &SUBSTDisconnectDriveId) != Message::first_button)
 				{
 					return DRIVE_DEL_FAIL;
 				}
@@ -371,10 +376,16 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			const auto strMsgText = format(lng::MChangeDriveCannotDelSubst, DiskLetter);
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
-					{ strMsgText, L"\x1", msg(lng::MChangeDriveOpenFiles), msg(lng::MChangeDriveAskDisconnect) },
-					{ msg(lng::MOk), msg(lng::MCancel) },
-					nullptr, nullptr, &SUBSTDisconnectDriveError1Id) == Message::first_button)
+				if (Message(MSG_WARNING | MSG_ERRORTYPE,
+					msg(lng::MError),
+					{
+						strMsgText,
+						L"\x1"s,
+						msg(lng::MChangeDriveOpenFiles),
+						msg(lng::MChangeDriveAskDisconnect)
+					},
+					{ lng::MOk, lng::MCancel },
+					nullptr, &SUBSTDisconnectDriveError1Id) == Message::first_button)
 				{
 					if (DelSubstDrive(DiskLetter))
 					{
@@ -386,10 +397,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 					return DRIVE_DEL_FAIL;
 				}
 			}
-			Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
-				{ strMsgText },
-				{ msg(lng::MOk) },
-				nullptr, nullptr, &SUBSTDisconnectDriveError2Id);
+			Message(MSG_WARNING | MSG_ERRORTYPE,
+				msg(lng::MError),
+				{
+					strMsgText
+				},
+				{ lng::MOk },
+				nullptr, &SUBSTDisconnectDriveError2Id);
 			return DRIVE_DEL_FAIL; // блин. в прошлый раз забыл про это дело...
 		}
 
@@ -419,10 +433,16 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			const auto LastError = Global->CaughtError().Win32Error;
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
-					{ strMsgText, L"\x1", msg(lng::MChangeDriveOpenFiles), msg(lng::MChangeDriveAskDisconnect) },
-					{ msg(lng::MOk), msg(lng::MCancel) },
-					nullptr, nullptr, &RemoteDisconnectDriveError1Id) == Message::first_button)
+				if (Message(MSG_WARNING | MSG_ERRORTYPE,
+					msg(lng::MError),
+					{
+						strMsgText,
+						L"\x1"s,
+						msg(lng::MChangeDriveOpenFiles),
+						msg(lng::MChangeDriveAskDisconnect)
+					},
+					{ lng::MOk, lng::MCancel },
+					nullptr, &RemoteDisconnectDriveError1Id) == Message::first_button)
 				{
 					if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, TRUE) == NO_ERROR)
 					{
@@ -437,10 +457,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 
 			if (FAR_GetDriveType(os::fs::get_root_directory(Drive)) == DRIVE_REMOTE)
 			{
-				Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
-					{ strMsgText },
-					{ msg(lng::MOk) },
-					nullptr, nullptr, &RemoteDisconnectDriveError2Id);
+				Message(MSG_WARNING | MSG_ERRORTYPE,
+					msg(lng::MError),
+					{
+						strMsgText
+					},
+					{ lng::MOk },
+					nullptr, &RemoteDisconnectDriveError2Id);
 			}
 			return DRIVE_DEL_FAIL;
 		}
@@ -450,10 +473,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			if (Global->Opt->Confirm.DetachVHD)
 			{
 				const auto Question = format(lng::MChangeVHDDisconnectDriveQuestion, DiskLetter);
-				if (Message(MSG_WARNING, msg(lng::MChangeVHDDisconnectDriveTitle),
-					{ Question },
-					{ msg(lng::MYes), msg(lng::MNo) },
-					nullptr, nullptr, &VHDDisconnectDriveId) != Message::first_button)
+				if (Message(MSG_WARNING,
+					msg(lng::MChangeVHDDisconnectDriveTitle),
+					{
+						Question
+					},
+					{ lng::MYes, lng::MNo },
+					nullptr, &VHDDisconnectDriveId) != Message::first_button)
 				{
 					return DRIVE_DEL_FAIL;
 				}
@@ -475,10 +501,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				Global->CatchError();
 			}
 
-			Message(MSG_WARNING | MSG_ERRORTYPE, msg(lng::MError),
-				{ format(lng::MChangeDriveCannotDetach, DiskLetter) },
-				{ msg(lng::MOk) },
-				nullptr, nullptr, &VHDDisconnectDriveErrorId);
+			Message(MSG_WARNING | MSG_ERRORTYPE,
+				msg(lng::MError),
+				{
+					format(lng::MChangeDriveCannotDetach, DiskLetter)
+				},
+				{ lng::MOk },
+				nullptr, &VHDDisconnectDriveErrorId);
 			return DRIVE_DEL_FAIL;
 		}
 
@@ -574,9 +603,11 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 				Global->CatchError();
 				DoneEject = Message(MSG_WARNING | MSG_ERRORTYPE,
 					msg(lng::MError),
-					{ format(lng::MChangeCouldNotEjectHotPlugMedia, item->cDrive) },
-					{ msg(lng::MHRetry), msg(lng::MHCancel) },
-					nullptr, nullptr, &EjectHotPlugMediaErrorId) != Message::first_button;
+					{
+						format(lng::MChangeCouldNotEjectHotPlugMedia, item->cDrive)
+					},
+					{ lng::MHRetry, lng::MHCancel },
+					nullptr, &EjectHotPlugMediaErrorId) != Message::first_button;
 			}
 			else
 				DoneEject = TRUE;
@@ -1098,7 +1129,12 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (!EjectVolume(mitem->cDrive, EJECT_READY | EJECT_NO_MESSAGE))
 			{
 				SCOPED_ACTION(SaveScreen);
-				Message(0, 0, L"", msg(lng::MChangeWaitingLoadDisk));
+				Message(0,
+					L"",
+					{
+						msg(lng::MChangeWaitingLoadDisk)
+					},
+					{});
 				EjectVolume(mitem->cDrive, EJECT_LOAD_MEDIA | EJECT_NO_MESSAGE);
 			}
 		}
@@ -1141,7 +1177,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			if (Builder.ShowDialog())
 			{
-				mitem->cDrive = Upper(DriveLetter[0]);
+				mitem->cDrive = upper(DriveLetter[0]);
 			}
 			else
 			{
@@ -1153,7 +1189,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		if ((Owner->GetMode() == panel_mode::NORMAL_PANEL) &&
 			(Owner->GetType() == panel_type::FILE_PANEL) &&
-			!StrCmpI(Owner->GetCurDir(), strNewCurDir) &&
+			equal_icase(Owner->GetCurDir(), strNewCurDir) &&
 			Owner->IsVisible())
 		{
 			// А нужно ли делать здесь Update????

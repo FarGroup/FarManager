@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 enum CDROM_DeviceCapabilities
 {
@@ -89,7 +89,7 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 {
 	std::string productID;
 	const auto Iterator = null_iterator(prodID);
-	std::copy_if(Iterator, Iterator.end(), std::back_inserter(productID), IsAlpha);
+	std::copy_if(Iterator, Iterator.end(), std::back_inserter(productID), is_alpha);
 
 	static const std::pair<const char*, int> Capabilities[] =
 	{

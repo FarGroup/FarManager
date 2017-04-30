@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "lang.hpp"
 #include "blob_builder.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "exception.hpp"
 
 enum
@@ -95,7 +95,7 @@ static int PrepareHotKey(string &strHotKey)
 {
 	int FuncNum=0;
 
-	if (strHotKey.size() > 1 && Upper(strHotKey.front()) == L'F')
+	if (strHotKey.size() > 1 && upper(strHotKey.front()) == L'F')
 	{
 		FuncNum = static_cast<int>(std::wcstoul(strHotKey.data() + 1, nullptr, 10));
 
@@ -261,10 +261,15 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 	{
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
 		{
-			int AskOverwrite;
-			AskOverwrite=Message(MSG_WARNING,2,msg(lng::MUserMenuTitle),LocalMenuFileName,msg(lng::MEditRO),msg(lng::MEditOvr),msg(lng::MYes),msg(lng::MNo));
+			if (Message(MSG_WARNING,
+				msg(lng::MUserMenuTitle),
+				{
+					LocalMenuFileName,
+					msg(lng::MEditRO),
+					msg(lng::MEditOvr)
+				},
+				{ lng::MYes, lng::MNo }) == Message::first_button)
 
-			if (!AskOverwrite)
 				os::SetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 		}
 
@@ -312,7 +317,13 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 	catch (const far_exception& e)
 	{
 		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), msg(lng::MEditMenuError), e.get_message().data(), msg(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE,
+			msg(lng::MError), 
+			{
+				msg(lng::MEditMenuError),
+				e.get_message()
+			},
+			{ lng::MOk });
 	}
 }
 
@@ -326,7 +337,12 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 	if (ChooseMenuType)
 	{
-		int EditChoice=Message(0,3,msg(lng::MUserMenuTitle),msg(lng::MChooseMenuType),msg(lng::MChooseMenuMain),msg(lng::MChooseMenuLocal),msg(lng::MCancel));
+		const int EditChoice = Message(0,
+			msg(lng::MUserMenuTitle),
+			{
+				msg(lng::MChooseMenuType)
+			},
+			{ lng::MChooseMenuMain, lng::MChooseMenuLocal, lng::MCancel });
 
 		if (EditChoice<0 || EditChoice==2)
 			return;
@@ -400,7 +416,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 		case menu_mode::global:
 		case menu_mode::user:
-			MenuTitle = concat(msg(lng::MMainMenuTitle), L" (", msg(m_MenuMode == menu_mode::global? lng::MMainMenuGlobal : lng::MMainMenuUser), L')');
+			MenuTitle = concat(msg(lng::MMainMenuTitle), L" ("_sv, msg(m_MenuMode == menu_mode::global? lng::MMainMenuGlobal : lng::MMainMenuUser), L')');
 			break;
 		}
 
@@ -497,7 +513,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			bool have_hotkey = !strHotKey.empty();
 			int Offset = have_hotkey && strHotKey.front() == L'&'? 5 : 4;
 			strHotKey.resize(Offset, L' ');
-			FarUserMenuItem.strName = concat(have_hotkey && !FuncNum? L"&" : L"", strHotKey, strLabel);
+			FarUserMenuItem.strName = concat(have_hotkey && !FuncNum? L"&"_sv : L""_sv, strHotKey, strLabel);
 
 			if (MenuItem->Submenu)
 			{
@@ -740,7 +756,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
 
-			if (!((!StrCmpNI(strCommand.data(),L"REM",3) && (strCommand.size() == 3 || IsSpace(strCommand[3]))) || !StrCmpNI(strCommand.data(),L"::",2)))
+			if (!((starts_with_icase(strCommand, L"REM"_sv) && (strCommand.size() == 3 || IsSpace(strCommand[3]))) || starts_with_icase(strCommand, L"::"_sv)))
 			{
 				/*
 				  Осталось корректно обработать ситуацию, например:
@@ -878,7 +894,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					{
 						FocusPos=EM_HOTKEY_EDIT;
 
-						if (Upper(*HotKey)==L'F')
+						if (upper(*HotKey)==L'F')
 						{
 							int FuncNum = static_cast<int>(std::wcstol(HotKey + 1, nullptr, 10));
 
@@ -890,7 +906,12 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 				if (FocusPos!=-1)
 				{
-					Message(MSG_WARNING,1,msg(lng::MUserMenuTitle),msg((*Label? lng::MUserMenuInvalidInputHotKey : lng::MUserMenuInvalidInputLabel)),msg(lng::MOk));
+					Message(MSG_WARNING,
+						msg(lng::MUserMenuTitle),
+						{
+							msg((*Label ? lng::MUserMenuInvalidInputHotKey : lng::MUserMenuInvalidInputLabel))
+						},
+						{ lng::MOk });
 					Dlg->SendMessage(DM_SETFOCUS, FocusPos, nullptr);
 					Result=FALSE;
 				}
@@ -899,7 +920,12 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			}
 			else if (m_ItemChanged)
 			{
-				switch(Message(MSG_WARNING, 3, msg(lng::MUserMenuTitle), msg(lng::MEditMenuConfirmation), msg(lng::MHYes), msg(lng::MHNo), msg(lng::MHCancel)))
+				switch(Message(MSG_WARNING,
+					msg(lng::MUserMenuTitle),
+					{
+						msg(lng::MEditMenuConfirmation)
+					},
+					{ lng::MHYes, lng::MHNo, lng::MHCancel }))
 				{
 				case 0:
 					Dlg->SendMessage( DM_CLOSE, EM_BUTTON_OK, nullptr);
@@ -930,12 +956,17 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 	if (Create)
 	{
-		switch (Message(0,2,msg(lng::MUserMenuTitle),msg(lng::MAskInsertMenuOrCommand),msg(lng::MMenuInsertCommand),msg(lng::MMenuInsertMenu)))
+		switch (Message(0,
+			msg(lng::MUserMenuTitle),
+			{
+				msg(lng::MAskInsertMenuOrCommand)
+			},
+			{ lng::MMenuInsertCommand, lng::MMenuInsertMenu }))
 		{
 			case -1:
 			case -2:
 				Continue = false;
-			case 1:
+			case Message::second_button:
 				SubMenu = true;
 		}
 	}
@@ -950,14 +981,14 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		FARDIALOGITEMFLAGS State=SubMenu?DIF_HIDDEN|DIF_DISABLE:DIF_NONE;
 		FarDialogItem EditDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,DLG_X-4,DLG_Y-2,0,nullptr,nullptr,0,msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle)},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MEditMenuHotKey)},
+			{DI_DOUBLEBOX,3,1,DLG_X-4,DLG_Y-2,0,nullptr,nullptr,0,msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle).data()},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MEditMenuHotKey).data()},
 			{DI_FIXEDIT,5,3,7,3,0,nullptr,nullptr,DIF_FOCUS,L""},
-			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MEditMenuLabel)},
+			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MEditMenuLabel).data()},
 			{DI_EDIT,5,5,DLG_X-6,5,0,nullptr,nullptr,0,L""},
 
 			{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR|State,L""},
-			{DI_TEXT,5,7,0,7,0,nullptr,nullptr,State,msg(lng::MEditMenuCommands)},
+			{DI_TEXT,5,7,0,7,0,nullptr,nullptr,State,msg(lng::MEditMenuCommands).data()},
 #ifdef PROJECT_DI_MEMOEDIT
 			{DI_MEMOEDIT,5, 8,DLG_X-6,17,0,nullptr,nullptr,DIF_EDITPATH,L""},
 #else
@@ -974,8 +1005,8 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 #endif
 
 			{DI_TEXT,-1,DLG_Y-4,0,DLG_Y-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk)},
-			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel)},
+			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
+			{DI_BUTTON,0,DLG_Y-3,0,DLG_Y-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
 		};
 		auto EditDlg = MakeDialogItemsEx(EditDlgData);
 #ifndef PROJECT_DI_MEMOEDIT
@@ -1069,7 +1100,13 @@ bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<U
 	string strItemName=MenuItem->strLabel;
 	InsertQuote(strItemName);
 
-	if (Message(MSG_WARNING, 2, msg(lng::MUserMenuTitle), msg(!MenuItem->Submenu? lng::MAskDeleteMenuItem : lng::MAskDeleteSubMenuItem), strItemName.data(), msg(lng::MDelete), msg(lng::MCancel)) != Message::first_button)
+	if (Message(MSG_WARNING,
+		msg(lng::MUserMenuTitle),
+		{
+			msg(!MenuItem->Submenu ? lng::MAskDeleteMenuItem : lng::MAskDeleteSubMenuItem),
+			strItemName
+		},
+		{ lng::MDelete, lng::MCancel }) != Message::first_button)
 		return false;
 
 	m_MenuModified=true;

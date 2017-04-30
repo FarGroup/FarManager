@@ -42,16 +42,10 @@ namespace encoding
 	//-------------------------------------------------------------------------
 	size_t get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
 
-	inline auto get_bytes(uintptr_t Codepage, const string& Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
+	inline auto get_bytes(uintptr_t Codepage, const string_view& Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
 	{
 		return get_bytes(Codepage, Data.data(), Data.size(), Buffer, BufferSize, UsedDefaultChar);
 	}
-
-	inline auto get_bytes(uintptr_t Codepage, const wchar_t* Data, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr)
-	{
-		return get_bytes(Codepage, Data, wcslen(Data), Buffer, BufferSize, UsedDefaultChar);
-	}
-
 
 	//-------------------------------------------------------------------------
 	template<NOT_PTR(T)>
@@ -61,31 +55,18 @@ namespace encoding
 	}
 
 	template<NOT_PTR(T)>
-	auto get_bytes(uintptr_t Codepage, const string& Data, T& Buffer, bool* UsedDefaultChar = nullptr)
+	auto get_bytes(uintptr_t Codepage, const string_view& Data, T& Buffer, bool* UsedDefaultChar = nullptr)
 	{
 		return get_bytes(Codepage, Data.data(), Data.size(), std::data(Buffer), std::size(Buffer), UsedDefaultChar);
 	}
 
-	template<NOT_PTR(T)>
-	auto get_bytes(uintptr_t Codepage, const wchar_t* Data, T& Buffer, bool* UsedDefaultChar = nullptr)
-	{
-		return get_bytes(Codepage, Data, wcslen(Data), Buffer, UsedDefaultChar);
-	}
-
-
 	//-------------------------------------------------------------------------
 	std::string get_bytes(uintptr_t Codepage, const wchar_t* Data, size_t Size, bool* UsedDefaultChar = nullptr);
 
-	inline auto get_bytes(uintptr_t Codepage, const string& Data, bool* UsedDefaultChar = nullptr)
+	inline auto get_bytes(uintptr_t Codepage, const string_view& Data, bool* UsedDefaultChar = nullptr)
 	{
 		return get_bytes(Codepage, Data.data(), Data.size(), UsedDefaultChar);
 	}
-
-	inline auto get_bytes(uintptr_t Codepage, const wchar_t* Data, bool* UsedDefaultChar = nullptr)
-	{
-		return get_bytes(Codepage, Data, wcslen(Data), UsedDefaultChar);
-	}
-
 
 	//-------------------------------------------------------------------------
 	inline auto get_bytes_count(uintptr_t Codepage, const wchar_t* Data, size_t Size)
@@ -93,34 +74,22 @@ namespace encoding
 		return get_bytes(Codepage, Data, Size, nullptr, 0);
 	}
 
-	inline auto get_bytes_count(uintptr_t Codepage, const string& Data)
+	inline auto get_bytes_count(uintptr_t Codepage, const string_view& Data)
 	{
 		return get_bytes_count(Codepage, Data.data(), Data.size());
 	}
 
-	inline auto get_bytes_count(uintptr_t Codepage, const wchar_t* Data)
-	{
-		return get_bytes_count(Codepage, Data, wcslen(Data));
-	}
-
-
 	//-------------------------------------------------------------------------
 	size_t get_chars(uintptr_t Codepage, const char* Data, size_t Size, wchar_t* Buffer, size_t BufferSize);
 
-	inline auto get_chars(uintptr_t Codepage, const std::string& Data, wchar_t* Buffer, size_t BufferSize)
+	inline auto get_chars(uintptr_t Codepage, const basic_string_view<char>& Data, wchar_t* Buffer, size_t BufferSize)
 	{
 		return get_chars(Codepage, Data.data(), Data.size(), Buffer, BufferSize);
 	}
 
-	inline auto get_chars(uintptr_t Codepage, const char* Data, wchar_t* Buffer, size_t BufferSize)
-	{
-		return get_chars(Codepage, Data, strlen(Data), Buffer, BufferSize);
-	}
-
-
 	//-------------------------------------------------------------------------
 	template<NOT_PTR(Y)>
-	auto get_chars(uintptr_t Codepage, const std::string& Data, Y& Buffer)
+	auto get_chars(uintptr_t Codepage, const basic_string_view<char>& Data, Y& Buffer)
 	{
 		return get_chars(Codepage, Data.data(), Data.size(), std::data(Buffer), std::size(Buffer));
 	}
@@ -131,24 +100,12 @@ namespace encoding
 		return get_chars(Codepage, Data, Size, std::data(Buffer), std::size(Buffer));
 	}
 
-	template<NOT_PTR(T)>
-	auto get_chars(uintptr_t Codepage, const char* Data, T& Buffer)
-	{
-		return get_chars(Codepage, Data, strlen(Data), Buffer);
-	}
-
-
 	//-------------------------------------------------------------------------
 	string get_chars(uintptr_t Codepage, const char* Data, size_t Size);
 
-	inline auto get_chars(uintptr_t Codepage, const std::string& Data)
+	inline auto get_chars(uintptr_t Codepage, const basic_string_view<char>& Data)
 	{
 		return get_chars(Codepage, Data.data(), Data.size());
-	}
-
-	inline auto get_chars(uintptr_t Codepage, const char* Data)
-	{
-		return get_chars(Codepage, Data, strlen(Data));
 	}
 
 	//-------------------------------------------------------------------------
@@ -157,14 +114,9 @@ namespace encoding
 		return get_chars(Codepage, Data, Size, nullptr, 0);
 	}
 
-	inline auto get_chars_count(uintptr_t Codepage, const std::string& Data)
+	inline auto get_chars_count(uintptr_t Codepage, const basic_string_view<char>& Data)
 	{
 		return get_chars_count(Codepage, Data.data(), Data.size());
-	}
-
-	inline auto get_chars_count(uintptr_t Codepage, const char* Data)
-	{
-		return get_chars_count(Codepage, Data, strlen(Data));
 	}
 
 #undef NOT_PTR

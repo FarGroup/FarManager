@@ -88,7 +88,7 @@ class far_language final: private language, public singleton<far_language>
 public:
 	using language::load;
 	bool is_loaded() const;
-	const wchar_t* GetMsg(lng Id) const;
+	const string& GetMsg(lng Id) const;
 
 private:
 	far_language();

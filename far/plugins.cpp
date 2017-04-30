@@ -66,7 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "desktop.hpp"
 #include "PluginA.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "delete.hpp"
 
@@ -98,9 +98,8 @@ static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 	*/
 	strPluginKey = pPlugin->GetHotkeyName();
 #ifndef NO_WRAPPER
-	size_t FarPathLength = Global->g_strFarPath.size();
-	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().size() && !StrCmpNI(pPlugin->GetModuleName().data(), Global->g_strFarPath.data(), FarPathLength))
-		strPluginKey.erase(0, FarPathLength);
+	if (pPlugin->IsOemPlugin() && starts_with_icase(pPlugin->GetModuleName(), Global->g_strFarPath))
+		strPluginKey.erase(0, Global->g_strFarPath.size());
 #endif // NO_WRAPPER
 }
 
@@ -352,7 +351,7 @@ Plugin *PluginManager::FindPlugin(const string& ModuleName) const
 {
 	const auto ItemIterator = std::find_if(CONST_RANGE(SortedPlugins, i)
 	{
-		return !StrCmpI(i->GetModuleName(), ModuleName);
+		return equal_icase(i->GetModuleName(), ModuleName);
 	});
 	return ItemIterator == SortedPlugins.cend()? nullptr : *ItemIterator;
 }
@@ -531,7 +530,13 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 				if(ShowWarning)
 				{
 					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", msg(lng::MOpenPluginCannotOpenFile), Name->data(), msg(lng::MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,
+						L"",
+						{
+							msg(lng::MOpenPluginCannotOpenFile),
+							*Name
+						},
+						{ lng::MOk });
 				}
 				break;
 			}
@@ -541,7 +546,7 @@ plugin_panel* PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES 
 		{
 			if (Global->Opt->ShowCheckingFile)
 			{
-				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - [", PointToName(i->GetModuleName()), L"]..."), true);
+				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["_sv, PointToName(i->GetModuleName()), L"]..."_sv), true);
 			}
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
@@ -1929,7 +1934,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 
 			if (Len<PrefixLength)Len=PrefixLength;
 
-			if (!StrCmpNI(strPrefix.data(), PrStart, Len))
+			if (starts_with_icase(strPrefix, string_view(PrStart, Len)))
 			{
 				if (i->Load() && i->has(iOpen))
 				{

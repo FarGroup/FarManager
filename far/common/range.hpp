@@ -1,5 +1,5 @@
-﻿#ifndef ITERATOR_RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3
-#define ITERATOR_RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3
+﻿#ifndef RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3
+#define RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3
 #pragma once
 
 /*
@@ -44,38 +44,43 @@ public:
 
 	constexpr range() = default;
 
-	constexpr range(iterator i_begin, iterator i_end):
-		m_begin(i_begin),
-		m_end(i_end)
+	constexpr range(iterator Begin, iterator End):
+		m_Begin(Begin),
+		m_End(End)
 	{}
 
-	constexpr bool empty() const { return m_begin == m_end; }
+	constexpr range(iterator Begin, size_t Count):
+		range(Begin, Begin + Count)
+	{
+	}
 
-	constexpr auto begin() const { return m_begin; }
-	constexpr auto end() const { return m_end; }
+	constexpr bool empty() const { return m_Begin == m_End; }
+
+	constexpr auto begin() const { return m_Begin; }
+	constexpr auto end() const { return m_End; }
 
 	constexpr auto cbegin() const { static_assert(is_const); return begin(); }
 	constexpr auto cend() const { static_assert(is_const); return end(); }
 
-	constexpr auto rbegin() const { return reverse_iterator(m_end); }
-	constexpr auto rend() const { return reverse_iterator(m_begin); }
+	constexpr auto rbegin() const { return reverse_iterator(m_End); }
+	constexpr auto rend() const { return reverse_iterator(m_Begin); }
 
 	constexpr auto crbegin() const { static_assert(is_const); return rbegin(); }
 	constexpr auto crend() const { static_assert(is_const); return rend(); }
 
-	constexpr auto& front() const { return *m_begin; }
-	constexpr auto& back() const { return *std::prev(m_end); }
+	constexpr auto& front() const { return *m_Begin; }
+	constexpr auto& back() const { return *std::prev(m_End); }
 
-	constexpr auto& operator[](size_t n) const { return *(m_begin + n); }
+	constexpr auto& operator[](size_t n) const { return *(m_Begin + n); }
 
-	constexpr auto data() const { return &*m_begin; }
-	constexpr size_t size() const { return m_end - m_begin; }
+	constexpr auto data() const { return &*m_Begin; }
+	constexpr size_t size() const { return m_End - m_Begin; }
 
 private:
 	enum { is_const = std::is_const<std::remove_reference_t<reference>>::value };
 
-	iterator m_begin {};
-	iterator m_end {};
+	iterator m_Begin {};
+	iterator m_End {};
 };
 
 template<class iterator_type>
@@ -93,7 +98,7 @@ constexpr auto make_range(iterator_type i_begin, size_t Size)
 template<class container>
 constexpr auto make_range(container& Container)
 {
-	return make_range(std::begin(Container), std::end(Container));
+	return make_range(ALL_RANGE(Container));
 }
 
 template<class T>
@@ -130,13 +135,15 @@ private:
 template<class T>
 auto make_irange(T i_begin, T i_end)
 {
-	return range<i_iterator<T>>(i_begin, i_end);
+	using iterator = i_iterator<T>;
+	return range<iterator>(iterator(i_begin), iterator(i_end));
 }
 
 template<class T>
 auto make_irange(T i_end)
 {
-	return range<i_iterator<T>>(0, i_end);
+	using iterator = i_iterator<T>;
+	return range<iterator>(iterator(0), iterator(i_end));
 }
 
-#endif // ITERATOR_RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3
+#endif // RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3

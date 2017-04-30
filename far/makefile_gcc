@@ -90,7 +90,6 @@ SRCS = \
 	keyboard.cpp \
 	language.cpp \
 	lasterror.cpp \
-	local.cpp \
 	locale.cpp \
 	lockscrn.cpp \
 	macro.cpp \
@@ -136,6 +135,7 @@ SRCS = \
 	shortcuts.cpp \
 	sqlitedb.cpp \
 	stddlg.cpp \
+	string_utils.cpp \
 	strmix.cpp \
 	syslog.cpp \
 	tinyxml.cpp \

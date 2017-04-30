@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "lang.hpp"
 #include "blob_builder.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "exception.hpp"
 
@@ -94,14 +94,14 @@ static int ReplaceVariables(const string& DlgTitle,string &strStr, subst_data& S
 static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstData, string &strOut)
 {
 	// рассмотрим переключатели активности/пассивности панели.
-	if (!StrCmpN(CurStr,L"!#",2))
+	if (starts_with(CurStr, L"!#"_sv))
 	{
 		CurStr+=2;
 		SubstData.PassivePanel = true;
 		return CurStr;
 	}
 
-	if (!StrCmpN(CurStr,L"!^",2))
+	if (starts_with(CurStr, L"!^"_sv))
 	{
 		CurStr+=2;
 		SubstData.PassivePanel = false;
@@ -109,7 +109,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	}
 
 	// !! символ '!'
-	if (!StrCmpN(CurStr,L"!!",2) && CurStr[2] != L'?')
+	if (starts_with(CurStr,L"!!"_sv) && CurStr[2] != L'?')
 	{
 		strOut += L'!';
 		CurStr+=2;
@@ -117,7 +117,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	}
 
 	// !.!      Длинное имя файла с расширением
-	if (!StrCmpN(CurStr,L"!.!",3) && CurStr[3] != L'?')
+	if (starts_with(CurStr, L"!.!"_sv) && CurStr[3] != L'?')
 	{
 		strOut += SubstData.Default().Normal.Name;
 		CurStr+=3;
@@ -125,7 +125,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	}
 
 	// !~       Короткое имя файла без расширения
-	if (!StrCmpN(CurStr,L"!~",2))
+	if (starts_with(CurStr, L"!~"_sv))
 	{
 		strOut += SubstData.Default().Short.NameOnly;
 		CurStr+=2;
@@ -133,7 +133,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	}
 
 	// !`  Длинное расширение файла без имени
-	if (!StrCmpN(CurStr,L"!`",2))
+	if (starts_with(CurStr, L"!`"_sv))
 	{
 		const wchar_t *Ext;
 
@@ -155,8 +155,8 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	}
 
 	// !& !&~  список файлов разделенных пробелом.
-	if ((!StrCmpN(CurStr,L"!&~",3) && CurStr[3] != L'?') ||
-	        (!StrCmpN(CurStr,L"!&",2) && CurStr[2] != L'?'))
+	if ((starts_with(CurStr, L"!&~"_sv) && CurStr[3] != L'?') ||
+	        (starts_with(CurStr, L"!&"_sv) && CurStr[2] != L'?'))
 	{
 		string strFileNameL, strShortNameL;
 		const auto WPanel = SubstData.Default().Panel;
@@ -202,7 +202,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	// Ниже идет совмещение кода для разбора как !@! так и !$!
 	//Вообще-то (по исторической справедливости как бы) - в !$! нужно выбрасывать модификаторы Q и A
 	// Но нафиг нада:)
-	if (!StrCmpN(CurStr,L"!@",2) || !StrCmpN(CurStr,L"!$",2))
+	if (starts_with(CurStr, L"!@"_sv) || starts_with(CurStr, L"!$"_sv))
 	{
 		string *pListName;
 		string *pAnotherListName;
@@ -258,7 +258,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	}
 
 	// !-!      Короткое имя файла с расширением
-	if (!StrCmpN(CurStr,L"!-!",3) && CurStr[3] != L'?')
+	if (starts_with(CurStr, L"!-!"_sv) && CurStr[3] != L'?')
 	{
 		strOut += SubstData.Default().Short.Name;
 
@@ -268,7 +268,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 
 	// !+!      Аналогично !-!, но если длинное имя файла утеряно
 	//          после выполнения команды, FAR восстановит его
-	if (!StrCmpN(CurStr,L"!+!",3) && CurStr[3] != L'?')
+	if (starts_with(CurStr, L"!+!"_sv) && CurStr[3] != L'?')
 	{
 		strOut += SubstData.Default().Short.Name;
 
@@ -278,7 +278,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	}
 
 	// !:       Текущий диск
-	if (!StrCmpN(CurStr,L"!:",2))
+	if (starts_with(CurStr, L"!:"_sv))
 	{
 		string strCurDir;
 
@@ -299,7 +299,12 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	// !\       Текущий путь
 	// !/       Короткое имя текущего пути
 	// Ниже идет совмещение кода для разбора как !\ так и !/
-	if (!StrCmpN(CurStr,L"!\\",2) || !StrCmpN(CurStr,L"!=\\",3) || !StrCmpN(CurStr,L"!/",2) || !StrCmpN(CurStr,L"!=/",3))
+	if (
+		starts_with(CurStr, L"!\\"_sv) ||
+		starts_with(CurStr, L"!=\\"_sv) ||
+		starts_with(CurStr, L"!/"_sv) ||
+		starts_with(CurStr, L"!=/"_sv)
+	)
 	{
 		string strCurDir;
 		bool ShortN0 = false;
@@ -339,7 +344,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	}
 
 	// !?<title>?<init>!
-	if (!StrCmpN(CurStr,L"!?",2) && wcschr(CurStr+2,L'!'))
+	if (starts_with(CurStr, L"!?"_sv) && wcschr(CurStr + 2, L'!'))
 	{
 		int j;
 		int i = IsReplaceVariable(CurStr);
@@ -787,7 +792,13 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 	{
 		os::DeleteFile(strListFileName);
 		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), msg(lng::MCannotCreateListFile), e.get_message().data(), msg(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE,
+			msg(lng::MError),
+			{
+				msg(lng::MCannotCreateListFile),
+				e.get_message()
+			},
+			{ lng::MOk });
 		return false;
 	}
 }
@@ -820,7 +831,7 @@ static int IsReplaceVariable(const wchar_t *str,
 	if (!s)
 		return -1;
 
-	if (!StrCmpN(s,L"!?",2))
+	if (starts_with(s, L"!?"_sv))
 		s = s + 2;
 	else
 		return -1;

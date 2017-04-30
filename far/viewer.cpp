@@ -72,7 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "strmix.hpp"
 #include "FarDlgBuilder.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "panel.hpp"
 
@@ -325,9 +325,15 @@ bool Viewer::OpenFile(const string& Name,int warning)
 		   + 'warning' flag processing, in QuickView it is FALSE
 		     so don't show red message box */
 		if (warning)
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MViewerTitle),
-			        msg(lng::MViewerCannotOpenFile),strFileName.data(),msg(lng::MOk));
-
+		{
+			Message(MSG_WARNING | MSG_ERRORTYPE,
+				msg(lng::MViewerTitle),
+				{
+					msg(lng::MViewerCannotOpenFile),
+					strFileName
+				},
+				{ lng::MOk });
+		}
 		OpenFailed=true;
 		return false;
 	}
@@ -1685,9 +1691,9 @@ bool Viewer::process_key(const Manager::Key& Key)
 		{
 			MenuDataEx ModeListMenu[] =
 			{
-				{msg(lng::MViewF4Text), 0, 0}, // Text
-				{msg(lng::MViewF4), 0, 0 },     // Hex
-				{msg(lng::MViewF4Dump), 0, 0}  // Dump
+				{msg(lng::MViewF4Text).data(), 0, 0}, // Text
+				{msg(lng::MViewF4).data(), 0, 0 },     // Hex
+				{msg(lng::MViewF4Dump).data(), 0, 0}  // Dump
 			};
 			int MenuResult;
 			{
@@ -2492,7 +2498,7 @@ void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
 
 void Viewer::UpdateViewKeyBar(KeyBar& keybar)
 {
-	const wchar_t *f2_label = L"", *shiftf2_label = L"";
+	string f2_label, shiftf2_label;
 	if (m_DisplayMode == VMT_TEXT)
 	{
 		f2_label = msg(m_Wrap? lng::MViewF2Unwrap : m_WordWrap? lng::MViewShiftF2 : lng::MViewF2);
@@ -2706,7 +2712,16 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 		strProgress = make_progressbar(Length, Percent, true, true);
 	}
 
-	Message(MSG_LEFTALIGN,0,msg(lng::MViewSearchTitle),strMsg.data(),strProgress.empty()?nullptr:strProgress.data());
+	{
+		std::vector<string> MsgItems{ strMsg };
+		if (!strProgress.empty())
+			MsgItems.emplace_back(strProgress);
+
+		Message(MSG_LEFTALIGN,
+			msg(lng::MViewSearchTitle),
+			MsgItems,
+			{});
+	}
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<ViewerPreRedrawItem*>(PreRedrawStack().top());
@@ -3310,20 +3325,20 @@ void Viewer::Search(int Next,int FirstChar)
 	{
 		FarDialogItem SearchDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,msg(lng::MViewSearchTitle)},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MViewSearchFor)},
+			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,msg(lng::MViewSearchTitle).data()},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MViewSearchFor).data()},
 			{DI_EDIT,5,3,70,3,0,L"SearchText",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
 			{DI_FIXEDIT,5,3,70,3,0,nullptr,L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ",DIF_MASKEDIT,L""},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,msg(lng::MViewSearchForText)},
-			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchForHex)},
-			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,msg(lng::MViewSearchCase)},
-			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchWholeWords)},
-			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,msg(lng::MViewSearchReverse)},
-			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,msg(lng::MViewSearchRegexp)},
+			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,msg(lng::MViewSearchForText).data()},
+			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchForHex).data()},
+			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,msg(lng::MViewSearchCase).data()},
+			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchWholeWords).data()},
+			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,msg(lng::MViewSearchReverse).data()},
+			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,msg(lng::MViewSearchRegexp).data()},
 			{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MViewSearchSearch)},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MViewSearchCancel)},
+			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MViewSearchSearch).data()},
+			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MViewSearchCancel).data()},
 		};
 		auto SearchDlg = MakeDialogItemsEx(SearchDlgData);
 
@@ -3429,7 +3444,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 	if (!Case && !SearchRegexp)
 	{
-		InplaceUpper(strSearchStr);
+		upper(strSearchStr);
 		sd.search_text = strSearchStr.data();
 	}
 
@@ -3495,11 +3510,14 @@ void Viewer::Search(int Next,int FirstChar)
 
 			else if (found == Search_NotFound)
 			{
-				Message(
-					MSG_WARNING, 1, msg(lng::MViewSearchTitle),
-					(SearchHex ? msg(lng::MViewSearchCannotFindHex) : msg(lng::MViewSearchCannotFind)),
-					strMsgStr.data(),	msg(lng::MOk)
-				);
+				Message(MSG_WARNING,
+					msg(lng::MViewSearchTitle),
+					{
+						msg(SearchHex? lng::MViewSearchCannotFindHex : lng::MViewSearchCannotFind),
+						strMsgStr
+					},
+					{ lng::MOk });
+
 				return;
 			}
 			else // Search_ Eof/Bof/Cycle
@@ -3509,11 +3527,15 @@ void Viewer::Search(int Next,int FirstChar)
 				static_assert(lng::MViewSearchBod + 1 == lng::MViewSearchFromEnd, "Wrong .lng file order");
 				static_assert(lng::MViewSearchCycle + 1 == lng::MViewSearchRepeat, "Wrong .lng file order");
 				static_assert(lng::MViewSearchEod + 2 == lng::MViewSearchBod && lng::MViewSearchEod + 4 == lng::MViewSearchCycle, "Wrong .lng file order");
-				if (Message(
-					0, 2, msg(lng::MViewSearchTitle),
-					msg(lng::MViewSearchEod+2*(found-Search_Eof)),
-					msg(lng::MViewSearchFromBegin+2*(found-Search_Eof)),
-					strMsgStr.data(), msg(lng::MYes), msg(lng::MCancel)) != Message::first_button) // cancel search
+
+				if (Message(0,
+					msg(lng::MViewSearchTitle),
+					{
+						msg(lng::MViewSearchEod + 2 * (found - Search_Eof)),
+						msg(lng::MViewSearchFromBegin + 2 * (found - Search_Eof)),
+						strMsgStr
+					},
+					{ lng::MYes, lng::MCancel }) != Message::first_button) // cancel search
 				{
 					return;
 				}
@@ -4006,7 +4028,7 @@ void Viewer::GoTo(bool ShowDlg, long long Offset, unsigned long long Flags)
 				InputMode = RB_PRC;
 			}
 			// он умный - hex код ввел!
-			else if (!StrCmpNI(&Str[Pos], L"0x", 2) || Str[Pos] == L'$' || Str.find_first_of(L"Hh", Pos) != string::npos)
+			else if (starts_with_icase(&Str[Pos], L"0x"_sv) || Str[Pos] == L'$' || Str.find_first_of(L"Hh", Pos) != string::npos)
 			{
 				InputMode = RB_HEX;
 				if (Str[Pos] == L'$')

@@ -174,7 +174,7 @@ bool FileFilter::FilterEdit()
 		wchar_t h = L'1';
 		for (const auto& i: Extensions)
 		{
-			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.data(), msg(lng::MPanelFileType)));
+			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.data(), msg(lng::MPanelFileType).data()));
 			ListItem.SetCheck(i.second);
 			ListItem.UserData = i.first;
 			FilterList->AddItem(ListItem);
@@ -266,7 +266,12 @@ bool FileFilter::FilterEdit()
 				}
 				else if (SelPos>(int)FilterData().size())
 				{
-					Message(MSG_WARNING,1,msg(lng::MFilterTitle),msg(lng::MCanEditCustomFilterOnly),msg(lng::MOk));
+					Message(MSG_WARNING,
+						msg(lng::MFilterTitle),
+						{
+							msg(lng::MCanEditCustomFilterOnly)
+						},
+						{ lng::MOk });
 				}
 
 				break;
@@ -342,8 +347,13 @@ bool FileFilter::FilterEdit()
 					string strQuotedTitle = FilterData()[SelPos].GetTitle();
 					InsertQuote(strQuotedTitle);
 
-					if (Message(0,2,msg(lng::MFilterTitle),msg(lng::MAskDeleteFilter),
-					            strQuotedTitle.data(),msg(lng::MDelete),msg(lng::MCancel)) == Message::first_button)
+					if (Message(0,
+						msg(lng::MFilterTitle),
+						{
+							msg(lng::MAskDeleteFilter),
+							strQuotedTitle
+						},
+						{ lng::MDelete, lng::MCancel }) == Message::first_button)
 					{
 						FilterData().erase(FilterData().begin() + SelPos);
 						FilterList->DeleteItem(SelPos);
@@ -353,7 +363,12 @@ bool FileFilter::FilterEdit()
 				}
 				else if (SelPos>(int)FilterData().size())
 				{
-					Message(MSG_WARNING,1,msg(lng::MFilterTitle),msg(lng::MCanDeleteCustomFilterOnly),msg(lng::MOk));
+					Message(MSG_WARNING,
+						msg(lng::MFilterTitle),
+						{
+							msg(lng::MCanDeleteCustomFilterOnly)
+						},
+						{ lng::MOk });
 				}
 
 				break;
@@ -487,7 +502,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 
 			if (CurFilterData)
 			{
-				if (!StrCmpI(Mask.data(), CurFilterData->GetMask()))
+				if (equal_icase(Mask, CurFilterData->GetMask()))
 				{
 					if (!Check)
 					{
@@ -944,7 +959,7 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	else
 		strMask.assign(1, L'*').append(FileName, DotPos, string::npos);
 
-	if (std::any_of(CONST_RANGE(Extensions, i) {return !StrCmpI(i.first, strMask);}))
+	if (std::any_of(CONST_RANGE(Extensions, i) { return equal_icase(i.first, strMask); }))
 		return -1;
 
 	Extensions.emplace_back(strMask, Check);

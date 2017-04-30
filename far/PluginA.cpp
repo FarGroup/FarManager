@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "strmix.hpp"
 #include "pluginold.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
@@ -232,7 +232,7 @@ private:
 		// module with ANY known export can be OEM plugin
 		return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
 		{
-			return !strcmp(ExportName, i.AName);
+			return !std::strcmp(ExportName, i.AName);
 		}) != m_ExportsNames.end();
 	}
 
@@ -3985,7 +3985,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 						append(strSequence, L' ', strKeyText);
 					}
 				}
-				strSequence += L"\")";
+				append(strSequence, L"\")");
 
 				intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(strSequence.data(), Flags);
 
@@ -4991,7 +4991,7 @@ private:
 			}
 		}
 
-		if (StrCmpI(Info->Title, L"FarFtp") == 0 || StrCmpI(Info->Title, L"MultiArc") == 0)
+		if (equal_icase(Info->Title, L"FarFtp") || equal_icase(Info->Title, L"MultiArc"))
 			opif_shortcut = true;
 
 		if (GuidFound)

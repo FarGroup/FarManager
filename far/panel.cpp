@@ -61,7 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "strmix.hpp"
 #include "diskmenu.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "pathmix.hpp"
 
@@ -259,14 +259,14 @@ bool Search::ProcessKey(const Manager::Key& Key)
 
 	// // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
 	if (LocalKey()>=KEY_ALT_BASE+0x01 && LocalKey()<=KEY_ALT_BASE+65535)
-		LocalKey=Lower(static_cast<WCHAR>(LocalKey()-KEY_ALT_BASE));
+		LocalKey=lower(static_cast<WCHAR>(LocalKey()-KEY_ALT_BASE));
 	else if (LocalKey()>=KEY_RALT_BASE+0x01 && LocalKey()<=KEY_RALT_BASE+65535)
-		LocalKey=Lower(static_cast<WCHAR>(LocalKey()-KEY_RALT_BASE));
+		LocalKey=lower(static_cast<WCHAR>(LocalKey()-KEY_RALT_BASE));
 
 	if (LocalKey()>=KEY_ALTSHIFT_BASE+0x01 && LocalKey()<=KEY_ALTSHIFT_BASE+65535)
-		LocalKey=Lower(static_cast<WCHAR>(LocalKey()-KEY_ALTSHIFT_BASE));
+		LocalKey=lower(static_cast<WCHAR>(LocalKey()-KEY_ALTSHIFT_BASE));
 	else if (LocalKey()>=KEY_RALTSHIFT_BASE+0x01 && LocalKey()<=KEY_RALTSHIFT_BASE+65535)
-		LocalKey=Lower(static_cast<WCHAR>(LocalKey()-KEY_RALTSHIFT_BASE));
+		LocalKey=lower(static_cast<WCHAR>(LocalKey()-KEY_RALTSHIFT_BASE));
 
 	if (LocalKey()==KEY_MULTIPLY)
 		LocalKey=L'*';
@@ -602,7 +602,7 @@ bool Panel::SetCurDir(const string& CurDir,bool ClosePanel,bool /*IsUpdated*/)
 
 void Panel::InitCurDir(const string& CurDir)
 {
-	if (StrCmpI(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
 	{
 		m_CurDir = CurDir;
 
@@ -644,7 +644,7 @@ bool Panel::SetCurPath()
 	if (AnotherPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 	{
 		if (AnotherPanel->m_CurDir.size() > 1 && AnotherPanel->m_CurDir[1]==L':' &&
-		        (m_CurDir.empty() || Upper(AnotherPanel->m_CurDir[0])!=Upper(m_CurDir[0])))
+		        (m_CurDir.empty() || upper(AnotherPanel->m_CurDir[0])!=upper(m_CurDir[0])))
 		{
 			// сначала установим переменные окружения для пассивной панели
 			// (без реальной смены пути, чтобы лишний раз пассивный каталог
@@ -1242,7 +1242,7 @@ bool Panel::NeedUpdatePanel(const Panel *AnotherPanel) const
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
 	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
-	        !StrCmpI(AnotherPanel->m_CurDir, m_CurDir))
+		equal_icase(AnotherPanel->m_CurDir, m_CurDir))
 		return true;
 
 	return false;
@@ -1477,11 +1477,11 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWOR
 		{
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				InplaceUpper(strFileName);
+				upper(strFileName);
 			}
 			else
 			{
-				InplaceUpper(strFileName, 0, FindLastSlash(strFileName));
+				upper(strFileName, 0, FindLastSlash(strFileName));
 			}
 		}
 
@@ -1490,7 +1490,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWOR
 			const auto pos = FindLastSlash(strFileName);
 			if (pos != string::npos && !IsCaseMixed(strFileName.data() + pos))
 			{
-				InplaceLower(strFileName, pos);
+				lower(strFileName, pos);
 			}
 		}
 
@@ -1499,7 +1499,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWOR
 			const auto pos = FindLastSlash(strFileName);
 			if (pos != string::npos)
 			{
-				InplaceLower(strFileName, pos);
+				lower(strFileName, pos);
 			}
 		}
 	}

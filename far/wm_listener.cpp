@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "imports.hpp"
 #include "notification.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 static std::exception_ptr* WndProcExceptionPtr;
 static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -78,14 +78,14 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 		case WM_SETTINGCHANGE:
 			if (lParam)
 			{
-				if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam), L"Environment"))
+				if (equal(reinterpret_cast<const wchar_t*>(lParam), L"Environment"_sv))
 				{
 					if (Global->Opt->UpdateEnvironment)
 					{
 						MessageManager().notify(update_environment);
 					}
 				}
-				else if (!StrCmp(reinterpret_cast<LPCWSTR>(lParam), L"intl"))
+				else if (equal(reinterpret_cast<const wchar_t*>(lParam), L"intl"_sv))
 				{
 					MessageManager().notify(update_intl);
 				}

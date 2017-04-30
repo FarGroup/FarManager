@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "colormix.hpp"
 #include "manager.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 HMenu::HMenu(private_tag, HMenuData *Item,size_t ItemCount):
 	Item(Item, Item + ItemCount),
@@ -498,7 +498,7 @@ size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const
 
 		if (Ch)
 		{
-			if (Upper(CheckSymbol) == Upper(Ch))
+			if (upper(CheckSymbol) == upper(Ch))
 				return I;
 		}
 		else if (!CheckSymbol)

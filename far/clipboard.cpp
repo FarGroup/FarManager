@@ -405,14 +405,14 @@ bool Clipboard::GetHDROPAsText(string& data) const
 		const auto Start = reinterpret_cast<const wchar_t*>(StartA);
 		for (const auto& i: enum_substrings(Start))
 		{
-			data.append(i.data(), i.size()).append(L"\r\n");
+			append(data, i, L"\r\n"_sv);
 		}
 	}
 	else
 	{
 		for (const auto& i: enum_substrings(StartA))
 		{
-			append(data, encoding::ansi::get_chars(i.data(), i.size()), L"\r\n");
+			append(data, encoding::ansi::get_chars(i.data(), i.size()), L"\r\n"_sv);
 		}
 	}
 

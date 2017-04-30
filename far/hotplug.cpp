@@ -237,7 +237,7 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 	for (const auto& i: enum_substrings(DeviceIdListPtr))
 	{
 		DEVINST hRelationDevInst;
-		if (CM_Locate_DevNode(&hRelationDevInst, i.data(), 0) == CR_SUCCESS)
+		if (CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID_W>(i.data()), 0) == CR_SUCCESS)
 			dwMask |= GetDriveMaskFromMountPoints(hRelationDevInst);
 	}
 
@@ -364,7 +364,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 		for (size_t i = 0; i < Info.Disks.size(); ++i)
 		{
 			if (Info.Disks[i])
-				append(DisksStr, static_cast<wchar_t>(L'A' + i), L":, ");
+				append(DisksStr, static_cast<wchar_t>(L'A' + i), L":, "_sv);
 		}
 
 		// remove trailing ", "
@@ -377,13 +377,16 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 		MessageItems.emplace_back(msg(lng::MChangeHotPlugDisconnectDriveQuestion));
 		MessageItems.emplace_back(strDescription);
 
-		if (!strFriendlyName.empty() && StrCmpI(strDescription, strFriendlyName))
+		if (!strFriendlyName.empty() && !equal_icase(strDescription, strFriendlyName))
 			MessageItems.emplace_back(strFriendlyName);
 
 		if (!DisksStr.empty())
 			MessageItems.emplace_back(format(lng::MHotPlugDisks, DisksStr));
 
-		MessageResult = Message(MSG_WARNING, msg(lng::MChangeHotPlugDisconnectDriveTitle), MessageItems, { msg(lng::MHRemove), msg(lng::MHCancel) });
+		MessageResult = Message(MSG_WARNING,
+			msg(lng::MChangeHotPlugDisconnectDriveTitle),
+			MessageItems,
+			{ lng::MHRemove, lng::MHCancel });
 	}
 
 	int bResult = -1;
@@ -407,7 +410,15 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 
 	if (bResult == 1 && (Flags&EJECT_NOTIFY_AFTERREMOVE))
 	{
-		Message(0,1,msg(lng::MChangeHotPlugDisconnectDriveTitle),msg(lng::MChangeHotPlugNotify1),strDescription.data(),strFriendlyName.data(),msg(lng::MChangeHotPlugNotify2),msg(lng::MOk));
+		Message(0,
+			msg(lng::MChangeHotPlugDisconnectDriveTitle),
+			{
+				msg(lng::MChangeHotPlugNotify1),
+				strDescription,
+				strFriendlyName,
+				msg(lng::MChangeHotPlugNotify2)
+			},
+			{ lng::MOk });
 	}
 
 	return bResult;
@@ -462,9 +473,9 @@ void ShowHotplugDevices()
 
 					if (!strDescription.empty())
 					{
-						if (!strFriendlyName.empty() && StrCmpI(strDescription, strFriendlyName))
+						if (!strFriendlyName.empty() && !equal_icase(strDescription, strFriendlyName))
 						{
-							append(ListItem.strName, L" \"", strFriendlyName, L"\"");
+							append(ListItem.strName, L" \""_sv, strFriendlyName, L"\""_sv);
 						}
 					}
 					else if (!strFriendlyName.empty())
@@ -534,8 +545,13 @@ void ShowHotplugDevices()
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ...ю "The disk is in use or locked by another process."
 						Global->CatchError();
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),
-						        msg(lng::MChangeCouldNotEjectHotPlugMedia2),HotPlugList->at(I).strName.data(),msg(lng::MOk));
+						Message(MSG_WARNING | MSG_ERRORTYPE,
+							msg(lng::MError),
+							{
+								msg(lng::MChangeCouldNotEjectHotPlugMedia2),
+								HotPlugList->at(I).strName
+							},
+							{ lng::MOk });
 					}
 				}
 

@@ -125,7 +125,12 @@ void PrintFiles(FileList* SrcPanel)
 	if (!EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, PRINTER_INFO_LEVEL, reinterpret_cast<BYTE*>(pi.get()), Needed, &Needed, &Returned))
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MPrintTitle),msg(lng::MCannotEnumeratePrinters),msg(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE,
+			msg(lng::MPrintTitle),
+			{
+				msg(lng::MCannotEnumeratePrinters)
+			},
+			{ lng::MOk });
 		return;
 	}
 
@@ -167,8 +172,13 @@ void PrintFiles(FileList* SrcPanel)
 	if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MPrintTitle),msg(lng::MCannotOpenPrinter),
-		        strPrinterName.data(),msg(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE,
+			msg(lng::MPrintTitle),
+			{
+				msg(lng::MCannotOpenPrinter),
+				strPrinterName
+			},
+			{ lng::MOk });
 		_ALGO(SysLog(L"Error: Cannot Open Printer"));
 		return;
 	}
@@ -177,7 +187,15 @@ void PrintFiles(FileList* SrcPanel)
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
 		SCOPED_ACTION(SaveScreen);
 
-		const auto& PR_PrintMsg = [](){ Message(0, 0, msg(lng::MPrintTitle), msg(lng::MPreparingForPrinting)); };
+		const auto& PR_PrintMsg = []
+		{
+			Message(0, 
+				msg(lng::MPrintTitle),
+				{
+					msg(lng::MPreparingForPrinting)
+				},
+				{});
+		};
 
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(false, 0);
@@ -249,8 +267,13 @@ void PrintFiles(FileList* SrcPanel)
 				SrcPanel->ClearLastGetSelection();
 			else
 			{
-				if (Message(MSG_WARNING|MSG_ERRORTYPE,2,msg(lng::MPrintTitle),msg(lng::MCannotPrint),
-				            strSelName.data(),msg(lng::MSkip),msg(lng::MCancel)) != Message::first_button)
+				if (Message(MSG_WARNING | MSG_ERRORTYPE,
+					msg(lng::MPrintTitle),
+					{
+						msg(lng::MCannotPrint),
+						strSelName
+					},
+					{ lng::MSkip, lng::MCancel }) != Message::first_button)
 					break;
 			}
 		}

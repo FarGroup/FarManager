@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="basic_string_view&lt;*&gt;" Priority="MediumLow">
+      <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
+      <StringView>m_Begin,[m_End - m_Begin]</StringView>
+      <Expand>
+          <Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
+          <ArrayItems>
+              <Size>m_End - m_Begin</Size>
+              <ValuePointer>m_Begin</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+  <Type Name="range&lt;*&gt;" Priority="MediumLow">
+      <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
+      <Expand>
+          <Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
+          <ArrayItems>
+              <Size>m_End - m_Begin</Size>
+              <ValuePointer>m_Begin</ValuePointer>
+          </ArrayItems>
+      </Expand>
+  </Type>
+</AutoVisualizer>

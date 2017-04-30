@@ -183,7 +183,7 @@ plugin_factory::function_address native_plugin_factory::GetFunction(const plugin
 bool native_plugin_factory::FindExport(const char* ExportName) const
 {
 	// only module with GetGlobalInfoW can be native plugin
-	return !strcmp(ExportName, m_ExportsNames[iGetGlobalInfo].AName);
+	return !std::strcmp(ExportName, m_ExportsNames[iGetGlobalInfo].AName);
 }
 
 bool native_plugin_factory::IsPlugin2(const void* Module) const
@@ -412,7 +412,7 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 			format(lng::MPlgRequired, str(required)),
 			format(lng::MPlgRequired2, str(FAR_VERSION))
 		},
-		{ msg(lng::MOk) }
+		{ lng::MOk }
 	);
 }
 
@@ -550,9 +550,13 @@ bool Plugin::LoadData()
 
 		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS, msg(lng::MError),
-				{ msg(lng::MPlgLoadPluginError), m_strModuleName },
-				{ msg(lng::MOk) },
+			Message(MSG_WARNING | MSG_ERRORTYPE | MSG_NOPLUGINS,
+				msg(lng::MError),
+				{
+					msg(lng::MPlgLoadPluginError),
+					m_strModuleName
+				},
+				{ lng::MOk },
 				L"ErrLoadPlugin");
 		}
 

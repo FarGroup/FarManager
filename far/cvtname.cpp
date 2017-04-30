@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "strmix.hpp"
 #include "elevation.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "drivemix.hpp"
 
 static void MixToFullPath(string& strPath)
@@ -160,7 +160,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 					}
 					else
 					{
-						if (Upper(stPath[0])==Upper(stCurrentDir[0]))
+						if (upper(stPath[0])==upper(stCurrentDir[0]))
 						{
 							strDest=stCurrentDir;
 						}
@@ -238,7 +238,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 				{
 					string strPath(PathName);
 
-					if (path && strPath.size() <= path_len && 0 == StrCmpNI(path, PathName, strPath.size()))
+					if (path && strPath.size() <= path_len && starts_with_icase(path, strPath))
 						return strPath;
 
 					if (IsRootPath(strPath))
@@ -281,9 +281,8 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 
 size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 {
-	size_t n = drive_root.size();
-	if (abs_path.size() >= n && 0 == StrCmpNI(abs_path.data(), drive_root.data(), n))
-		return n;
+	if (starts_with_icase(abs_path, drive_root))
+		return drive_root.size();
 
 	size_t dir_offset = 0;
 	if (ParsePath(abs_path, &dir_offset) == PATH_VOLUMEGUID)
@@ -440,7 +439,7 @@ string ConvertNameToUNC(const string& Object)
 	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
 
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-	if (StrCmpI(strFileSystemName.data(),L"NWFS"))
+	if (!equal_icase(strFileSystemName, L"NWFS"_sv))
 	{
 		DWORD dwRet=WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
 
@@ -543,7 +542,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 			if (ParsePath(strPath) == PATH_DRIVELETTER)
 			{
-				strPath[0] = Upper(strPath[0]);
+				strPath[0] = upper(strPath[0]);
 			}
 		}
 	}

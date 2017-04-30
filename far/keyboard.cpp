@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "lang.hpp"
 #include "datetime.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 /* start Глобальные переменные */
 
@@ -331,7 +331,7 @@ void InitKeysArray()
 			auto x = KeyToVKey[i];
 
 			if (x && !VKeyToASCII[x])
-				VKeyToASCII[x]=Upper(i);
+				VKeyToASCII[x]=upper(i);
 		}
 	}
 }
@@ -1204,7 +1204,7 @@ bool CheckForEsc()
 	return CheckForEscSilent()? ConfirmAbortOp() : false;
 }
 
-using tfkey_to_text = const wchar_t*(const TFKey*);
+using tfkey_to_text = string_view(const TFKey*);
 using add_separator = void(string&);
 
 static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
@@ -1225,7 +1225,7 @@ static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, ad
 		if (Key & i.first)
 		{
 			AddSeparator(strName);
-			strName += ToText(ModifKeyName + i.second);
+			append(strName, ToText(ModifKeyName + i.second));
 		}
 	}
 }
@@ -1263,7 +1263,7 @@ int KeyNameToKey(const string& Name)
 
 	size_t Pos = 0;
 	static string strTmpName;
-	strTmpName = Upper(Name);
+	strTmpName = upper_copy(Name);
 	const auto Len = strTmpName.size();
 
 	// пройдемся по всем модификаторам
@@ -1285,7 +1285,7 @@ int KeyNameToKey(const string& Name)
 
 		const auto ItemIterator = std::find_if(CONST_REVERSE_RANGE(FKeys1, i)
 		{
-			return PtrLen == i.Name.size() && !StrCmpI(Ptr, i.Name.data());
+			return PtrLen == i.Name.size() && equal_icase(make_string_view(Name, Pos), i.Name);
 		});
 
 		if (ItemIterator != std::crend(FKeys1))
@@ -1314,7 +1314,7 @@ int KeyNameToKey(const string& Name)
 					if (Chr > 0x7F)
 						Chr=KeyToKeyLayout(Chr);
 
-					Chr=Upper(Chr);
+					Chr=upper(Chr);
 				}
 
 				Key|=Chr;
@@ -1364,7 +1364,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 	if (FKeys1Iterator != std::cend(FKeys1))
 	{
 		AddSeparator(strKeyText);
-		strKeyText += ToText(FKeys1Iterator);
+		append(strKeyText, ToText(FKeys1Iterator));
 	}
 	else
 	{
@@ -1386,12 +1386,12 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 			if (SpecKeyIterator != std::cend(SpecKeyName))
 			{
 				AddSeparator(strKeyText);
-				strKeyText += ToText(SpecKeyIterator);
+				append(strKeyText, ToText(SpecKeyIterator));
 			}
 			else
 #endif
 			{
-				FKey=Upper((wchar_t)(Key&0xFFFF));
+				FKey=upper((wchar_t)(Key&0xFFFF));
 
 				wchar_t KeyText[2]={};
 
@@ -1417,7 +1417,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 bool KeyToText(int Key, string &strKeyText)
 {
 	return KeyToTextImpl(Key, strKeyText,
-		[](const TFKey* i) { return i->Name.data(); },
+		[](const TFKey* i) { return i->Name; },
 		[](string&) {}
 	);
 }
@@ -1430,10 +1430,10 @@ bool KeyToLocalizedText(int Key, string &strKeyText)
 			if (i->LocalizedNameId != lng(-1))
 			{
 				const auto Msg = msg(i->LocalizedNameId);
-				if (*Msg)
-					return Msg;
+				if (!Msg.empty())
+					return make_string_view(Msg);
 			}
-			return i->Name.data();
+			return i->Name;
 		},
 		[](string& str)
 		{

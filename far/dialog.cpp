@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "DlgGuid.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "config.hpp"
 #include "edit.hpp"
 
@@ -136,11 +136,11 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 			AmpPos++;
 	}
 
-	int UpperStrKey=Upper(Str[AmpPos]);
+	int UpperStrKey=upper(Str[AmpPos]);
 
 	if (Key < 0xFFFF)
 	{
-		return UpperStrKey == (int)Upper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
+		return UpperStrKey == (int)upper(Key) || (Translate && KeyToKeyLayoutCompare(Key,UpperStrKey));
 	}
 
 	if (Key&(KEY_ALT|KEY_RALT))
@@ -157,7 +157,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 				//          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
 				//          AltKey==':'  || AltKey=='"' || AltKey=='~'))
 			{
-				return UpperStrKey==(int)Upper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey));
+				return UpperStrKey==(int)upper(AltKey) || (Translate && KeyToKeyLayoutCompare(AltKey,UpperStrKey));
 			}
 		}
 	}
@@ -1910,7 +1910,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (Items[I].Type==DI_CHECKBOX)
 				{
-					const wchar_t Check[]={L'[',(Items[I].Selected ?(((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2)?*msg(lng::MCheckBox2State):L'x'):L' '),L']',L'\0'};
+					const wchar_t Check[] = { L'[',(Items[I].Selected ? (((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2) ? msg(lng::MCheckBox2State).front() : L'x') : L' '),L']',L'\0' };
 					strStr=Check;
 
 					if (Items[I].strData.size())
@@ -4015,7 +4015,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 			{
 				const auto Ch = Items[I].strData[ChPos + 1];
 
-				if (Ch && Upper(CheckSymbol) == Upper(Ch))
+				if (Ch && upper(CheckSymbol) == upper(Ch))
 					return static_cast<int>(I);
 			}
 			else if (!CheckSymbol)

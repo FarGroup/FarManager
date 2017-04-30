@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "stddlg.hpp"
 #include "strmix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 static const wchar_t ExcludeMaskSeparator = L'|';
 static const wchar_t RE_start = L'/', RE_end = L'/';
@@ -72,7 +72,7 @@ static auto SkipRE(string::const_iterator Iterator, const string::const_iterator
 	if (Iterator != End && *Iterator == RE_end)
 		++Iterator;
 	// options
-	return std::find_if_not(Iterator, End, IsAlpha);
+	return std::find_if_not(Iterator, End, is_alpha);
 }
 
 class filemasks::masks
@@ -240,7 +240,12 @@ bool filemasks::empty() const
 
 void filemasks::ErrorMessage()
 {
-	Message(MSG_WARNING, 1, msg(lng::MWarning), msg(lng::MIncorrectMask), msg(lng::MOk));
+	Message(MSG_WARNING,
+		msg(lng::MWarning),
+		{
+			msg(lng::MIncorrectMask)
+		},
+		{ lng::MOk });
 }
 
 bool filemasks::masks::assign(const string& masks, DWORD Flags)
@@ -252,7 +257,7 @@ bool filemasks::masks::assign(const string& masks, DWORD Flags)
 	string expmasks(masks);
 
 	static const string PathExtName = L"%PATHEXT%";
-	if (StrStrI(expmasks, PathExtName) != expmasks.cend())
+	if (contains_icase(expmasks, PathExtName))
 	{
 		const auto strSysPathExt(os::env::get_variable(L"PATHEXT"));
 		if (!strSysPathExt.empty())

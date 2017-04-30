@@ -86,8 +86,8 @@ private:
 	bool IsPositionNormal(UINT position) const;
 	string FormatCodePageString(uintptr_t CodePage, const string& CodePageName, bool IsCodePageNameCustom) const;
 	void AddCodePage(const string& codePageName, uintptr_t codePage, size_t position, bool enabled, bool checked, bool IsCodePageNameCustom) const;
-	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position = -1, bool enabled = true) const;
-	void AddSeparator(LPCWSTR Label = nullptr, size_t position = -1) const;
+	void AddStandardCodePage(const string& codePageName, uintptr_t codePage, int position = -1, bool enabled = true) const;
+	void AddSeparator(const string& Label, size_t position = -1) const;
 	size_t size() const;
 	size_t GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length);
 	void AddCodePages(DWORD codePages);

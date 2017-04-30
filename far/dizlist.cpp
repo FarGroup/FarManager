@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "encoding.hpp"
 #include "blob_builder.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "exception.hpp"
 
 DizList::DizList():
@@ -57,12 +57,12 @@ DizList::DizList():
 
 size_t DizList::hasher::operator()(const string& Key) const
 {
-	return make_hash(Lower(Key));
+	return make_hash(lower_copy(Key));
 }
 
 bool DizList::key_equal::operator()(const string& a, const string& b) const
 {
-	return !StrCmpI(a, b);
+	return equal_icase(a, b);
 }
 
 void DizList::Reset()
@@ -76,7 +76,12 @@ void DizList::Reset()
 
 static void PR_ReadingMsg()
 {
-	Message(0,0,L"",msg(lng::MReadingDiz));
+	Message(0, 
+		L"",
+		{
+			msg(lng::MReadingDiz)
+		},
+		{});
 };
 
 void DizList::Read(const string& Path, const string* DizName)
@@ -337,7 +342,13 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 		else
 		{
-			Message(MSG_WARNING,1,msg(lng::MError),msg(lng::MCannotUpdateDiz),msg(lng::MCannotUpdateRODiz),msg(lng::MOk));
+			Message(MSG_WARNING,
+				msg(lng::MError),
+				{
+					msg(lng::MCannotUpdateDiz),
+					msg(lng::MCannotUpdateRODiz)
+				},
+				{ lng::MOk });
 			return false;
 		}
 	}
@@ -392,7 +403,13 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	catch (const far_exception& e)
 	{
 		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE, 1, msg(lng::MError), msg(lng::MCannotUpdateDiz), e.get_message().data(), msg(lng::MOk));
+		Message(MSG_WARNING | MSG_ERRORTYPE,
+			msg(lng::MError),
+			{
+				msg(lng::MCannotUpdateDiz),
+				e.get_message()
+			},
+			{ lng::MOk });
 		return false;
 	}
 

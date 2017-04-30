@@ -338,7 +338,13 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 	if (!Result && !Silent)
 	{
 		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),msg(lng::MCopyCannotCreateLink),NewName.data(),msg(lng::MOk));
+		Message(MSG_WARNING|MSG_ERRORTYPE,
+			msg(lng::MError),
+			{
+				msg(lng::MCopyCannotCreateLink),
+				NewName
+			},
+			{ lng::MOk });
 	}
 	return Result;
 }
@@ -560,7 +566,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				strFullLink += SelName;
 			else
 			{
-				append(strFullLink, L"Disk_", Target.front());
+				append(strFullLink, L"Disk_"_sv, Target.front());
 			}
 		}
 
@@ -616,8 +622,13 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					if (!Silent)
 					{
 						Global->CatchError();
-						Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),
-						        msg(lng::MCopyCannotCreateLink),strFullLink.data(),msg(lng::MOk));
+						Message(MSG_WARNING | MSG_ERRORTYPE,
+							msg(lng::MError),
+							{
+								msg(lng::MCopyCannotCreateLink),
+								strFullLink
+							},
+							{ lng::MOk });
 					}
 
 					return 0;
@@ -635,8 +646,13 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				if (!Silent)
 				{
 					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),
-					        msg(lng::MCopyCannotCreateLink),strFullLink.data(),msg(lng::MOk));
+					Message(MSG_WARNING | MSG_ERRORTYPE,
+						msg(lng::MError),
+						{
+							msg(lng::MCopyCannotCreateLink),
+							strFullLink
+						},
+						{ lng::MOk });
 				}
 
 				return 0;
@@ -653,11 +669,13 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				if (!Silent)
 				{
 					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,
+					Message(MSG_WARNING | MSG_ERRORTYPE,
 						msg(lng::MError),
-						format(lng::MCopyMountVolFailed, Target).data(),
-						format(lng::MCopyMountVolFailed2, strFullLink).data(),
-						msg(lng::MOk));
+						{
+							format(lng::MCopyMountVolFailed, Target),
+							format(lng::MCopyMountVolFailed2, strFullLink)
+						},
+						{ lng::MOk });
 				}
 
 				return 0;

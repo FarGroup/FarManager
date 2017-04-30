@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "farversion.hpp"
 #include "colormix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 #if !defined(SYSLOG)
 #if defined(SYSLOG_OT)             || \

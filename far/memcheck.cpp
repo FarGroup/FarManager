@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "memcheck.hpp"
 #include "strmix.hpp"
 #include "encoding.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "exception.hpp"
 
 #ifdef MEMCHECK
@@ -292,8 +292,8 @@ void PrintMemory()
 		{
 			const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
 			Message = concat(encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
-				L"\nData: ", BlobToHexWString(ToUser(i), std::min(BlockSize, size_t(16)), L' '),
-				L"\nhr: ", FindStr(ToUser(i), BlockSize), L'\n');
+				L"\nData: "_sv, BlobToHexWString(ToUser(i), std::min(BlockSize, size_t(16)), L' '),
+				L"\nhr: "_sv, FindStr(ToUser(i), BlockSize), L'\n');
 
 			std::wcerr << Message;
 			OutputDebugString(Message.data());

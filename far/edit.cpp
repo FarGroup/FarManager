@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "colormix.hpp"
 #include "strmix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 void ColorItem::SetOwner(const GUID& Value)
 {
@@ -2341,7 +2341,7 @@ int Edit::KeyMatchedMask(int Key, const string& Mask) const
 		Inserted=TRUE;
 	else if (Mask[m_CurPos] == EDMASK_DIGIT && (std::iswdigit(Key)))
 		Inserted=TRUE;
-	else if (Mask[m_CurPos]==EDMASK_ALPHA && IsAlpha(Key))
+	else if (Mask[m_CurPos]==EDMASK_ALPHA && is_alpha(Key))
 		Inserted=TRUE;
 	else if (Mask[m_CurPos] == EDMASK_HEX && std::iswxdigit(Key))
 		Inserted=TRUE;

@@ -354,16 +354,14 @@ int Manager::GetModalExitCode() const
 */
 int Manager::CountWindowsWithName(const string& Name, bool IgnoreCase)
 {
-	using CompareFunction = int (*)(const string&, const string&);
-	CompareFunction CaseSenitive = StrCmp, CaseInsensitive = StrCmpI;
-	CompareFunction CmpFunction = IgnoreCase? CaseInsensitive : CaseSenitive;
+	const auto AreEqual = IgnoreCase? equal_icase : equal;
 
 	string strType, strCurName;
 
 	return std::count_if(CONST_RANGE(m_windows, i)
 	{
 		i->GetTypeAndName(strType, strCurName);
-		return !CmpFunction(Name, strCurName);
+		return AreEqual(Name, strCurName);
 	});
 }
 
@@ -470,7 +468,7 @@ window_ptr Manager::FindWindowByFile(int ModalType,const string& FileName, const
 		{
 			i->GetTypeAndName(strType, strName);
 
-			if (!StrCmpI(strName, strFullFileName))
+			if (equal_icase(strName, strFullFileName))
 				return true;
 		}
 		return false;
@@ -635,10 +633,13 @@ void Manager::ExitMainLoop(int Ask)
 		Global->CloseFARMenu = true;
 	}
 
-	if (!Ask || !Global->Opt->Confirm.Exit || Message(0, msg(lng::MQuit),
-		{ msg(lng::MAskQuit) },
-		{ msg(lng::MYes), msg(lng::MNo) },
-		nullptr, nullptr, &FarAskQuitId) == Message::first_button)
+	if (!Ask || !Global->Opt->Confirm.Exit || Message(0,
+		msg(lng::MQuit),
+		{
+			msg(lng::MAskQuit)
+		},
+		{ lng::MYes, lng::MNo },
+		nullptr, &FarAskQuitId) == Message::first_button)
 	{
 		/* $ 29.12.2000 IS
 		   + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим

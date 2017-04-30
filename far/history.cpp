@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "scrbuf.hpp"
 #include "plugins.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
 
@@ -109,7 +109,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 
 	if (m_RemoveDups) // удалять дубликаты?
 	{
-		using CompareFunction = int(*)(const string&, const string&);
+		using CompareFunction = int(*)(const string_view&, const string_view&);
 		CompareFunction CaseSensitive = StrCmp, CaseInsensitive = StrCmpI;
 		const auto CmpFunction = m_RemoveDups == 2? CaseInsensitive : CaseSensitive;
 
@@ -141,7 +141,7 @@ bool History::ReadLastItem(const string& HistoryName, string &strStr) const
 	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
 }
 
-history_return_type History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
+history_return_type History::Select(const string& Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
 {
 	int Height=ScrY-8;
 	const auto HistoryMenu = VMenu2::create(Title, nullptr, 0, Height);
@@ -155,7 +155,7 @@ history_return_type History::Select(const wchar_t *Title, const wchar_t *HelpTop
 	if (m_TypeHistory == HISTORYTYPE_CMD || m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
 		HistoryMenu->SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
 
-	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title, *HistoryMenu, Height, Type, nullptr);
+	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title.data(), *HistoryMenu, Height, Type, nullptr);
 	Global->ScrBuf->Flush();
 	return ret;
 }
@@ -202,7 +202,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					return msg(lng::MHistoryExt);
 				}
 
-				return L"";
+				return L""s;
 			};
 
 			for (auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, m_TypeHistory == HISTORYTYPE_DIALOG))
@@ -435,14 +435,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					if (!HistoryMenu.empty() &&
-					        (!Global->Opt->Confirm.HistoryClear ||
-					         (Global->Opt->Confirm.HistoryClear &&
-					          Message(MSG_WARNING,2,
-					                  msg((m_TypeHistory==HISTORYTYPE_CMD || m_TypeHistory==HISTORYTYPE_DIALOG? lng::MHistoryTitle:
-					                       (m_TypeHistory==HISTORYTYPE_FOLDER? lng::MFolderHistoryTitle : lng::MViewHistoryTitle))),
-					                  msg(lng::MHistoryClear),
-					                  msg(lng::MClear),msg(lng::MCancel)) == Message::first_button)))
+					if (!HistoryMenu.empty() && (!Global->Opt->Confirm.HistoryClear || (Global->Opt->Confirm.HistoryClear &&
+						Message(MSG_WARNING,
+							msg((m_TypeHistory==HISTORYTYPE_CMD || m_TypeHistory==HISTORYTYPE_DIALOG? lng::MHistoryTitle: (m_TypeHistory==HISTORYTYPE_FOLDER? lng::MFolderHistoryTitle : lng::MViewHistoryTitle))),
+							{
+								msg(lng::MHistoryClear)
+							},
+							{ lng::MClear, lng::MCancel }) == Message::first_button)))
 					{
 						HistoryCfgRef()->DeleteAllUnlocked(m_TypeHistory,m_HistoryName);
 
@@ -483,12 +482,23 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 
 				if (SelectedRecordType == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
-					if (Message(MSG_WARNING|MSG_ERRORTYPE,2,Title,strSelectedRecordName.data(),msg(lng::MViewHistoryIsCreate),msg(lng::MHYes),msg(lng::MHNo)) == Message::first_button)
+					if (Message(MSG_WARNING | MSG_ERRORTYPE,
+						Title,
+						{
+							strSelectedRecordName,
+							msg(lng::MViewHistoryIsCreate)
+						},
+						{ lng::MHYes, lng::MHNo }) == Message::first_button)
 						break;
 				}
 				else
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,Title,strSelectedRecordName.data(),msg(lng::MOk));
+					Message(MSG_WARNING | MSG_ERRORTYPE,
+						Title,
+						{
+							strSelectedRecordName
+						},
+						{ lng::MOk });
 				}
 
 				Done=false;
@@ -579,7 +589,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			continue;
 		}
 
-		if (!StrCmpNI(strStr.data(),strName.data(),Length) && strStr != strName)
+		if (starts_with_icase(strName, make_string_view(strStr, Length)) && strStr != strName)
 		{
 			if (bAppend)
 				strStr.append(strName, Length, string::npos);
@@ -599,11 +609,10 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 std::vector<std::tuple<string, unsigned long long, bool>> History::GetAllSimilar(const string& Str) const
 {
 	FN_RETURN_TYPE(History::GetAllSimilar) Result;
-	const auto Length = Str.size();
 
 	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, true))
 	{
-		if (!StrCmpNI(Str.data(), i.Name.data(), Length))
+		if (starts_with_icase(i.Name, Str))
 		{
 			Result.emplace_back(i.Name, i.Id, i.Lock);
 		}

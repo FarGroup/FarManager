@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "encoding.hpp"
 #include "regex_helpers.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "bitflags.hpp"
 #include "exception.hpp"
 
@@ -445,12 +445,12 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 
 bool IsCaseMixed(const string &strSrc)
 {
-	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), IsAlpha);
+	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), is_alpha);
 	if (AlphaBegin == strSrc.cend())
 		return false;
 
-	const auto Case = IsLower(*AlphaBegin);
-	return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return IsAlpha(c) && IsLower(c) != Case; });
+	const auto Case = is_lower(*AlphaBegin);
+	return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return is_alpha(c) && is_lower(c) != Case; });
 }
 
 void Unquote(wchar_t *Str)
@@ -510,15 +510,15 @@ void PrepareUnitStr()
 {
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
-		UnitStr(i, 0) = Lower(msg(lng::MListBytes + i));
-		UnitStr(i, 1) = Upper(msg(lng::MListBytes + i));
+		UnitStr(i, 0) = lower_copy(msg(lng::MListBytes + i));
+		UnitStr(i, 1) = upper_copy(msg(lng::MListBytes + i));
 	}
 }
 
 string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long long ViewFlags)
 {
 	// подготовительные мероприятия
-	if (UnitStr(0, 0) != Lower(msg(lng::MListBytes)))
+	if (UnitStr(0, 0) != lower_copy(msg(lng::MListBytes)))
 	{
 		PrepareUnitStr();
 	}
@@ -650,26 +650,31 @@ string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long l
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count == npos - заменять "до полной победы"
 // Return - количество замен
-size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize, const wchar_t* ReplStr, size_t ReplStrSize, bool IgnoreCase, size_t Count)
+size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_view& ReplStr, bool IgnoreCase, size_t Count)
 {
-	if ( !FindStrSize || !Count )
+	if (FindStr.empty() || !Count)
 		return 0;
 
-	const auto Comparer = IgnoreCase? StrEqualNI : StrEqualN;
+	const auto AreEqual = IgnoreCase? equal_icase : equal;
 
 	size_t replaced = 0;
-	for (size_t I=0, L=strStr.size(); I+FindStrSize <= L; ++I)
+	for (size_t I = 0, L = strStr.size(); I + FindStr.size() <= L; ++I)
 	{
-		if (Comparer(strStr.data() + I, FindStr, FindStrSize))
-		{
-			strStr.replace(I, FindStrSize, ReplStr);
-			L += ReplStrSize - FindStrSize;
-			I += ReplStrSize - 1;
-			++replaced;
+		if (!AreEqual(make_string_view(strStr, I, FindStr.size()), FindStr))
+			continue;
 
-			if (!--Count)
-				break;
-		}
+		strStr.replace(I, FindStr.size(), ReplStr.data(), ReplStr.size());
+
+		L += ReplStr.size();
+		L -= FindStr.size();
+
+		I += ReplStr.size();
+		I -= 1;
+
+		++replaced;
+
+		if (Count != string::npos && !--Count)
+			break;
 	}
 	return replaced;
 }
@@ -825,7 +830,7 @@ string& FarFormatText(const string& SrcText,      // источник
 			{
 				if (text[i+l] == breakchar[0])
 				{
-					if (breakcharlen == 1 || !StrCmpN(text+i+l, breakchar, breakcharlen))
+					if (breakcharlen == 1 || starts_with(text+i+l, string_view(breakchar, breakcharlen)))
 						break;
 				}
 
@@ -969,7 +974,7 @@ unsigned long long ConvertFileSizeString(const string& FileSizeStr)
 		return 0;
 
 	auto n = std::stoull(FileSizeStr);
-	wchar_t c = ::Upper(FileSizeStr.back());
+	wchar_t c = ::upper(FileSizeStr.back());
 
 	// http://en.wikipedia.org/wiki/SI_prefix
 	switch (c)
@@ -1165,12 +1170,12 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 
 					// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
 					// то хотя бы сохранить регистр первой буквы.
-					if (PreserveStyle && !ReplaceStr.empty() && IsAlpha(ReplaceStr.front()) && IsAlpha(Source[I]))
+					if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Source[I]))
 					{
-						if (IsUpper(Source[I]))
-							ReplaceStr.front() = ::Upper(ReplaceStr.front());
-						if (IsLower(Source[I]))
-							ReplaceStr.front() = ::Lower(ReplaceStr.front());
+						if (is_upper(Source[I]))
+							ReplaceStr.front() = ::upper(ReplaceStr.front());
+						if (is_lower(Source[I]))
+							ReplaceStr.front() = ::lower(ReplaceStr.front());
 					}
 
 					return true;
@@ -1202,26 +1207,6 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	}
 
 	return false;
-}
-
-int StrCmp(const string& a, const string& b) { return ::StrCmp(a.data(), b.data()); }
-int StrCmp(const wchar_t* a, const string& b) { return ::StrCmp(a, b.data()); }
-int StrCmp(const string& a, const wchar_t* b) { return ::StrCmp(a.data(), b); }
-
-int StrCmpI(const string& a, const string& b) { return ::StrCmpI(a.data(), b.data()); }
-int StrCmpI(const wchar_t* a, const string& b) { return ::StrCmpI(a, b.data()); }
-int StrCmpI(const string& a, const wchar_t* b) { return ::StrCmpI(a.data(), b); }
-
-string& InplaceUpper(string& str, size_t pos, size_t n)
-{
-	std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Upper);
-	return str;
-}
-
-string& InplaceLower(string& str, size_t pos, size_t n)
-{
-	std::transform(str.begin() + pos, n == string::npos? str.end() : str.begin() + pos + n, str.begin() + pos, ::Lower);
-	return str;
 }
 
 	class UserDefinedList
@@ -1301,7 +1286,7 @@ string& InplaceLower(string& str, size_t pos, size_t n)
 						{
 							if (a.second > b.second)
 								a.second = b.second;
-							return !StrCmpI(a.first, b.first);
+							return equal_icase(a.first, b.first);
 						});
 					}
 				}

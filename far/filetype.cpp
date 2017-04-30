@@ -394,27 +394,27 @@ bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 	const int DlgX=76,DlgY=23;
 	FarDialogItem EditDlgData[]=
 	{
-		{DI_DOUBLEBOX,3, 1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MFileAssocTitle)},
-		{DI_TEXT,     5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MFileAssocMasks)},
+		{DI_DOUBLEBOX,3, 1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MFileAssocTitle).data()},
+		{DI_TEXT,     5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MFileAssocMasks).data()},
 		{DI_EDIT,     5, 3,DlgX-6, 3,0,L"Masks",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
-		{DI_TEXT,     5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MFileAssocDescr)},
+		{DI_TEXT,     5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MFileAssocDescr).data()},
 		{DI_EDIT,     5, 5,DlgX-6, 5,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,     -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX, 5, 7, 0, 7,1,nullptr,nullptr,0,msg(lng::MFileAssocExec)},
+		{DI_CHECKBOX, 5, 7, 0, 7,1,nullptr,nullptr,0,msg(lng::MFileAssocExec).data()},
 		{DI_EDIT,     9, 8,DlgX-6, 8,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5, 9, 0, 9,1,nullptr,nullptr,0,msg(lng::MFileAssocAltExec)},
+		{DI_CHECKBOX, 5, 9, 0, 9,1,nullptr,nullptr,0,msg(lng::MFileAssocAltExec).data()},
 		{DI_EDIT,     9,10,DlgX-6,10,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5,11, 0,11,1,nullptr,nullptr,0,msg(lng::MFileAssocView)},
+		{DI_CHECKBOX, 5,11, 0,11,1,nullptr,nullptr,0,msg(lng::MFileAssocView).data()},
 		{DI_EDIT,     9,12,DlgX-6,12,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5,13, 0,13,1,nullptr,nullptr,0,msg(lng::MFileAssocAltView)},
+		{DI_CHECKBOX, 5,13, 0,13,1,nullptr,nullptr,0,msg(lng::MFileAssocAltView).data()},
 		{DI_EDIT,     9,14,DlgX-6,14,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5,15, 0,15,1,nullptr,nullptr,0,msg(lng::MFileAssocEdit)},
+		{DI_CHECKBOX, 5,15, 0,15,1,nullptr,nullptr,0,msg(lng::MFileAssocEdit).data()},
 		{DI_EDIT,     9,16,DlgX-6,16,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
-		{DI_CHECKBOX, 5,17, 0,17,1,nullptr,nullptr,0,msg(lng::MFileAssocAltEdit)},
+		{DI_CHECKBOX, 5,17, 0,17,1,nullptr,nullptr,0,msg(lng::MFileAssocAltEdit).data()},
 		{DI_EDIT,     9,18,DlgX-6,18,0,nullptr,nullptr,DIF_EDITPATH|DIF_EDITPATHEXEC,L""},
 		{DI_TEXT,     -1,DlgY-4, 0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk)},
-		{DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel)},
+		{DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
+		{DI_BUTTON,   0,DlgY-3, 0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 
@@ -471,7 +471,13 @@ bool DeleteTypeRecord(unsigned long long DeletePos)
 	ConfigProvider().AssocConfig()->GetMask(DeletePos,strMask);
 	InsertQuote(strMask);
 
-	if (Message(MSG_WARNING,2,msg(lng::MAssocTitle),msg(lng::MAskDelAssoc),strMask.data(),msg(lng::MDelete),msg(lng::MCancel)) == Message::first_button)
+	if (Message(MSG_WARNING,
+		msg(lng::MAssocTitle),
+		{
+			msg(lng::MAskDelAssoc),
+			strMask
+		},
+		{ lng::MDelete, lng::MCancel }) == Message::first_button)
 	{
 		ConfigProvider().AssocConfig()->DelType(DeletePos);
 		return true;

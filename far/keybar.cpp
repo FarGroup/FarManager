@@ -222,13 +222,13 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 
 	static_assert(std::size(Names) == KBA_COUNT);
 
-	if (Area < KBA_COUNT && (!CustomLabelsReaded || StrCmpI(strLanguage, Global->Opt->strLanguage) || Area != CustomArea))
+	if (Area < KBA_COUNT && (!CustomLabelsReaded || !equal_icase(strLanguage, Global->Opt->strLanguage.Get()) || Area != CustomArea))
 	{
 		strLanguage = Global->Opt->strLanguage.Get();
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		const auto KeyName = concat(L"KeyBarLabels.", strLanguage, L'.', Names[Area]);
+		const auto KeyName = concat(L"KeyBarLabels."_sv, strLanguage, L'.', Names[Area]);
 		for (auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(KeyName))
 		{
 			DWORD Key = KeyNameToKey(i.first);

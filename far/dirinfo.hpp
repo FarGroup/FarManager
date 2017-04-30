@@ -64,7 +64,7 @@ enum getdirinfo_message_delay
 	getdirinfo_default_delay = 500,
 };
 
-int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
+int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
 
 class plugin_panel;
 

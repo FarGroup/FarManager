@@ -323,21 +323,21 @@ void InfoList::DisplayObject()
 					break;
 			}
 
-			LPCWSTR DiskType=msg(IdxMsgID);
+			auto DiskTypeId = IdxMsgID;
 			string strAssocPath;
 
 			if (GetSubstName(DriveType,strDriveRoot,strAssocPath))
 			{
-				DiskType = msg(lng::MInfoSUBST);
+				DiskTypeId = lng::MInfoSUBST;
 				DriveType=DRIVE_SUBSTITUTE;
 			}
 			else if(DriveCanBeVirtual(DriveType) && GetVHDInfo(strDriveRoot,strAssocPath))
 			{
-				DiskType = msg(lng::MInfoVirtual);
+				DiskTypeId = lng::MInfoVirtual;
 				DriveType=DRIVE_VIRTUAL;
 			}
 
-			SectionTitle = concat(L' ', DiskType, L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" (", strFileSystemName, L") ");
+			SectionTitle = concat(L' ', msg(DiskTypeId), L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" ("_sv, strFileSystemName, L") "_sv);
 
 			switch(DriveType)
 			{
@@ -369,7 +369,7 @@ void InfoList::DisplayObject()
 		SectionTitle = msg(lng::MInfoDiskTitle);
 	DrawTitle(SectionTitle,ILSS_DISKINFO,CurY);
 
-	const auto bytes_suffix = Upper(msg(lng::MListBytes));
+	const auto bytes_suffix = upper_copy(msg(lng::MListBytes));
 	const auto& size2str = [&bytes_suffix](ULONGLONG Size)
 	{
 		string str;
@@ -602,11 +602,11 @@ void InfoList::SelectShowMode()
 {
 	MenuDataEx ShowModeMenuItem[]=
 	{
-		msg(lng::MMenuInfoShowModeDisk),LIF_SELECTED,0,
-		msg(lng::MMenuInfoShowModeMemory),0,0,
-		msg(lng::MMenuInfoShowModeDirDiz),0,0,
-		msg(lng::MMenuInfoShowModePluginDiz),0,0,
-		msg(lng::MMenuInfoShowModePower),0,0,
+		msg(lng::MMenuInfoShowModeDisk).data(),LIF_SELECTED, 0,
+		msg(lng::MMenuInfoShowModeMemory).data(),0, 0,
+		msg(lng::MMenuInfoShowModeDirDiz).data(),0, 0,
+		msg(lng::MMenuInfoShowModePluginDiz).data(),0, 0,
+		msg(lng::MMenuInfoShowModePower).data(), 0, 0,
 	};
 
 	for_each_cnt(CONST_RANGE(SectionState, i, size_t index)

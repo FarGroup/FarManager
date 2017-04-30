@@ -148,6 +148,7 @@ private:
 	size_t m_SavedWorkDir;
 	long m_GetSelPosition;
 	int m_ExitCode; // актуально только для дерева, вызванного из копира!
+	bool m_ReadingTree{};
 };
 
 #endif // TREELIST_HPP_B2FDA185_E801_437B_A9D7_F4D3CE6D40A4

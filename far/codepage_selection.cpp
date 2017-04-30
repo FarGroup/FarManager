@@ -234,7 +234,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 }
 
 // Добавляем стандартную таблицу символов
-void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position, bool enabled) const
+void codepages::AddStandardCodePage(const string& codePageName, uintptr_t codePage, int position, bool enabled) const
 {
 	bool checked = false;
 
@@ -248,7 +248,7 @@ void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codeP
 }
 
 // Добавляем разделитель
-void codepages::AddSeparator(LPCWSTR Label, size_t position) const
+void codepages::AddSeparator(const string& Label, size_t position) const
 {
 	if (CallbackCallSource == CodePagesFill)
 	{
@@ -260,7 +260,7 @@ void codepages::AddSeparator(LPCWSTR Label, size_t position) const
 		}
 
 		FarListInsert item = { sizeof(FarListInsert), static_cast<intptr_t>(position) };
-		item.Item.Text = Label;
+		item.Item.Text = Label.data();
 		item.Item.Flags = LIF_SEPARATOR;
 		dialog->SendMessage(DM_LISTINSERT, control, &item);
 	}
@@ -645,12 +645,12 @@ void codepages::EditCodePageName()
 	CodePageName.erase(0, BoxPosition + 2);
 	FarDialogItem EditDialogData[] =
 	{
-		{ DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, msg(lng::MGetCodePageEditCodePageName) },
+		{ DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, msg(lng::MGetCodePageEditCodePageName).data() },
 		{ DI_EDIT, 5, 2, 48, 2, 0, L"CodePageName", nullptr, DIF_FOCUS | DIF_HISTORY, CodePageName.data() },
 		{ DI_TEXT, -1, 3, 0, 3, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MOk) },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel) },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MGetCodePageResetCodePageName) }
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MOk).data() },
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel).data() },
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MGetCodePageResetCodePageName).data() }
 	};
 	auto EditDialog = MakeDialogItemsEx(EditDialogData);
 	const auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);
@@ -823,7 +823,7 @@ F8CP::F8CP(bool viewer):
 		std::unordered_set<uintptr_t> used_cps;
 		for(const auto& str_cp: split<std::vector<string>>(cps, 0))
 		{
-			auto s = Upper(str_cp);
+			auto s = upper_copy(str_cp);
 			uintptr_t cp = 0;
 			if (s == L"ANSI" || s == L"ACP" || s == L"WIN")
 				cp = GetACP();

@@ -254,7 +254,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="language.cpp" />
     <ClCompile Include="lasterror.cpp" />
-    <ClCompile Include="local.cpp" />
     <ClCompile Include="locale.cpp" />
     <ClCompile Include="lockscrn.cpp" />
     <ClCompile Include="macro.cpp" />
@@ -302,6 +301,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </ClCompile>
     <ClCompile Include="sqlitedb.cpp" />
     <ClCompile Include="stddlg.cpp" />
+    <ClCompile Include="string_utils.cpp" />
     <ClCompile Include="strmix.cpp" />
     <ClCompile Include="syslog.cpp" />
     <ClCompile Include="TaskBar.cpp" />
@@ -332,7 +332,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\enumerator.hpp" />
     <ClInclude Include="common\conditional.hpp" />
     <ClInclude Include="common\function_traits.hpp" />
-    <ClInclude Include="common\iterator_range.hpp" />
+    <ClInclude Include="common\range.hpp" />
     <ClInclude Include="common\monitored.hpp" />
     <ClInclude Include="common\noncopyable.hpp" />
     <ClInclude Include="common\preprocessor.hpp" />
@@ -433,7 +433,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="KnownGuids.hpp" />
     <ClInclude Include="language.hpp" />
     <ClInclude Include="lasterror.hpp" />
-    <ClInclude Include="local.hpp" />
     <ClInclude Include="locale.hpp" />
     <ClInclude Include="lockscrn.hpp" />
     <ClInclude Include="macro.hpp" />
@@ -482,6 +481,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="sqlite_unicode.hpp" />
     <ClInclude Include="sqlitedb.hpp" />
     <ClInclude Include="stddlg.hpp" />
+    <ClInclude Include="string_utils.hpp" />
     <ClInclude Include="strmix.hpp" />
     <ClInclude Include="synchro.hpp" />
     <ClInclude Include="syslog.hpp" />
@@ -613,6 +613,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="far.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="far.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -82,7 +82,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "viewer.hpp"
 #include "datetime.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "filemasks.hpp"
 
@@ -1238,7 +1238,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 			Title,
 			MsgItems,
 			Buttons,
-			EmptyToNull(strTopic.data()), PluginNumber, Id);
+			EmptyToNull(strTopic.data()), Id, PluginNumber);
 
 		return MsgCode;
 	}
@@ -1535,7 +1535,15 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			return FALSE;
 
 		{
-			const auto& PR_FarGetDirListMsg = [](){ Message(0, 0, L"", msg(lng::MPreparingList)); };
+			const auto& PR_FarGetDirListMsg = []
+			{
+				Message(0,
+					L"",
+					{
+						msg(lng::MPreparingList)
+					},
+					{});
+			};
 
 			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
 			SCOPED_ACTION(SaveScreen);
@@ -1959,7 +1967,7 @@ void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
 	try
 	{
-		return UpperBuf(Buf, Length);
+		return upper(Buf, Length);
 	}
 	catch (...)
 	{
@@ -1972,7 +1980,7 @@ void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
 	try
 	{
-		return LowerBuf(Buf, Length);
+		return lower(Buf, Length);
 	}
 	catch (...)
 	{
@@ -1985,7 +1993,7 @@ void WINAPI apiStrUpper(wchar_t *s1) noexcept
 {
 	try
 	{
-		return StrUpper(s1);
+		return upper(s1);
 	}
 	catch (...)
 	{
@@ -1998,7 +2006,7 @@ void WINAPI apiStrLower(wchar_t *s1) noexcept
 {
 	try
 	{
-		return StrLower(s1);
+		return lower(s1);
 	}
 	catch (...)
 	{
@@ -2011,7 +2019,7 @@ wchar_t WINAPI apiUpper(wchar_t Ch) noexcept
 {
 	try
 	{
-		return Upper(Ch);
+		return upper(Ch);
 	}
 	catch (...)
 	{
@@ -2024,7 +2032,7 @@ wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 {
 	try
 	{
-		return Lower(Ch);
+		return lower(Ch);
 	}
 	catch (...)
 	{
@@ -2063,7 +2071,7 @@ int WINAPI apiIsLower(wchar_t Ch) noexcept
 {
 	try
 	{
-		return IsLower(Ch);
+		return is_lower(Ch);
 	}
 	catch (...)
 	{
@@ -2076,7 +2084,7 @@ int WINAPI apiIsUpper(wchar_t Ch) noexcept
 {
 	try
 	{
-		return IsUpper(Ch);
+		return is_upper(Ch);
 	}
 	catch (...)
 	{
@@ -2089,7 +2097,7 @@ int WINAPI apiIsAlpha(wchar_t Ch) noexcept
 {
 	try
 	{
-		return IsAlpha(Ch);
+		return is_alpha(Ch);
 	}
 	catch (...)
 	{
@@ -2103,7 +2111,7 @@ int WINAPI apiIsAlphaNum(wchar_t Ch) noexcept
 {
 	try
 	{
-		return IsAlphaNum(Ch);
+		return is_alphanumeric(Ch);
 	}
 	catch (...)
 	{
@@ -2512,7 +2520,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 					const auto strPath = ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2));
 					const auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 					{
-						return !StrCmpI(i->GetModuleName(), strPath);
+						return equal_icase(i->GetModuleName(), strPath);
 					});
 					if (ItemIterator != Global->CtrlObject->Plugins->cend())
 					{

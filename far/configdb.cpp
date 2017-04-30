@@ -2295,7 +2295,7 @@ bool config_provider::Export(const string& File)
 		for(auto& i: os::fs::enum_files(DbPath))
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
-			InplaceUpper(i.strFileName);
+			upper(i.strFileName);
 			if (std::regex_search(i.strFileName, uuid_regex()))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");
@@ -2346,7 +2346,7 @@ bool config_provider::Import(const string& Filename)
 		const auto guid = plugin->Attribute("guid");
 		if (!guid)
 			continue;
-		const auto Guid = Upper(encoding::utf8::get_chars(guid));
+		const auto Guid = upper_copy(encoding::utf8::get_chars(guid));
 
 		if (std::regex_search(Guid, uuid_regex()))
 		{
@@ -2367,7 +2367,10 @@ bool config_provider::ShowProblems() const
 {
 	if (m_Problems.empty())
 		return false;
-	return Message(MSG_WARNING, msg(lng::MProblemDb), m_Problems, { msg(lng::MShowConfigFolders), msg(lng::MIgnore) }) == Message::first_button;
+	return Message(MSG_WARNING,
+		msg(lng::MProblemDb),
+		m_Problems,
+		{ lng::MShowConfigFolders, lng::MIgnore }) == Message::first_button;
 }
 
 void config_provider::AsyncCall(const std::function<void()>& Routine)

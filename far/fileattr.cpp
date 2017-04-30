@@ -40,34 +40,49 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "fileowner.hpp"
 
+struct response
+{
+	enum
+	{
+		retry = 0,
+		skip = 1,
+		skip_all = 2,
+		cancel = 3
+	};
+};
+
+static int ShowErrorMessage(lng Id, const string& Name)
+{
+	return Message(MSG_WARNING | MSG_ERRORTYPE,
+		msg(lng::MError),
+		{
+			msg(Id),
+			Name
+		},
+		{ lng::MHRetry, lng::MHSkip, lng::MHSkipAll, lng::MHCancel }
+	);
+}
+
 int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 {
-//_SVS(SysLog(L"Attr=0x%08X",Attr));
 	if (Attr&FILE_ATTRIBUTE_DIRECTORY && Attr&FILE_ATTRIBUTE_TEMPORARY)
 		Attr&=~FILE_ATTRIBUTE_TEMPORARY;
 
 	while (!os::SetFileAttributes(Name,Attr))
 	{
 		Global->CatchError();
-
-		int Code;
-
-		if (SkipMode!=-1)
-			Code=SkipMode;
-		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
-			             msg(lng::MSetAttrCannotFor),Name.data(),msg(lng::MHRetry),msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
-
-		switch (Code)
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrCannotFor, Name))
 		{
-			case -2:
-			case -1:
-			case 1:
-				return SETATTR_RET_SKIP;
-			case 2:
-				return SETATTR_RET_SKIPALL;
-			case 3:
-				return SETATTR_RET_ERROR;
+		case response::retry:
+			break;
+		case response::skip:
+			return SETATTR_RET_SKIP;
+		case response::skip_all:
+			return SETATTR_RET_SKIPALL;
+		case -2:
+		case -1:
+		case response::cancel:
+			return SETATTR_RET_ERROR;
 		}
 	}
 
@@ -91,10 +106,14 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 	if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
 		return SETATTR_RET_OK;
 
-	int Ret=SETATTR_RET_OK;
-
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
 		os::SetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+
+	SCOPE_EXIT
+	{
+		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
+			os::SetFileAttributes(Name, FileAttr);
+	};
 
 	// Drop Encryption
 	if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
@@ -103,38 +122,22 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 	while (!SetFileCompression(Name,State))
 	{
 		Global->CatchError();
-
-		int Code;
-
-		if (SkipMode!=-1)
-			Code=SkipMode;
-		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
-			             msg(lng::MSetAttrCompressedCannotFor),Name.data(),msg(lng::MHRetry),
-			             msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
-
-		if (Code==1 || Code<0)
+		switch(SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrCompressedCannotFor, Name))
 		{
-			Ret=SETATTR_RET_SKIP;
+		case response::retry:
 			break;
-		}
-		else if (Code==2)
-		{
-			Ret=SETATTR_RET_SKIPALL;
-			break;
-		}
-		else if (Code==3)
-		{
-			Ret=SETATTR_RET_ERROR;
-			break;
+		case response::skip:
+			return SETATTR_RET_SKIP;
+		case response::skip_all:
+			return SETATTR_RET_SKIPALL;
+		case -2:
+		case -1:
+		case response::cancel:
+			return SETATTR_RET_ERROR;
 		}
 	}
 
-	// Set ReadOnly
-	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		os::SetFileAttributes(Name,FileAttr);
-
-	return Ret;
+	return SETATTR_RET_OK;
 }
 
 
@@ -143,55 +146,38 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 	if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
 		return SETATTR_RET_OK;
 
-	int Ret=SETATTR_RET_OK;
-
-	// Drop ReadOnly
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
 		os::SetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+
+	SCOPE_EXIT
+	{
+		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
+		os::SetFileAttributes(Name, FileAttr);
+	};
 
 	while (!os::SetFileEncryption(Name, State))
 	{
 		Global->CatchError();
 
 		if (Silent)
+			return SETATTR_RET_ERROR;
+
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrEncryptedCannotFor, Name))
 		{
-			Ret=SETATTR_RET_ERROR;
+		case response::retry:
 			break;
-		}
-
-		int Code;
-
-		if (SkipMode!=-1)
-			Code=SkipMode;
-		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
-			             msg(lng::MSetAttrEncryptedCannotFor),Name.data(),msg(lng::MHRetry), //BUGBUG
-			             msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
-
-		if (Code==1 || Code<0)
-		{
-			Ret=SETATTR_RET_SKIP;
-			break;
-		}
-
-		if (Code==2)
-		{
-			Ret=SETATTR_RET_SKIPALL;
-			break;
-		}
-
-		if (Code==3)
-		{
-			Ret=SETATTR_RET_ERROR;
-			break;
+		case response::skip:
+			return SETATTR_RET_SKIP;
+		case response::skip_all:
+			return SETATTR_RET_SKIPALL;
+		case -2:
+		case -1:
+		case response::cancel:
+			return SETATTR_RET_ERROR;
 		}
 	}
 
-	// Set ReadOnly
-	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		os::SetFileAttributes(Name,FileAttr);
-
-	return Ret;
+	return SETATTR_RET_OK;
 }
 
 
@@ -233,25 +219,18 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 		if (SetTime)
 			break;
 
-		int Code;
-
-		if (SkipMode!=-1)
-			Code=SkipMode;
-		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
-			             msg(lng::MSetAttrTimeCannotFor),Name.data(),msg(lng::MHRetry), //BUGBUG
-			             msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
-
-		switch (Code)
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrTimeCannotFor, Name))
 		{
-			case -2:
-			case -1:
-			case 3:
-				return SETATTR_RET_ERROR;
-			case 2:
-				return SETATTR_RET_SKIPALL;
-			case 1:
-				return SETATTR_RET_SKIP;
+		case response::retry:
+			break;
+		case response::skip:
+			return SETATTR_RET_SKIP;
+		case response::skip_all:
+			return SETATTR_RET_SKIPALL;
+		case -2:
+		case -1:
+		case response::cancel:
+			return SETATTR_RET_ERROR;
 		}
 	}
 
@@ -271,78 +250,59 @@ static bool SetFileSparse(const string& Name,bool State)
 
 int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 {
-	int Ret=SETATTR_RET_OK;
+	if (((FileAttr & FILE_ATTRIBUTE_SPARSE_FILE) != 0) == State || FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+		return SETATTR_RET_OK;
 
-	if ((((FileAttr&FILE_ATTRIBUTE_SPARSE_FILE)!=0)!=State) && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
+	if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
+		os::SetFileAttributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+
+	SCOPE_EXIT
 	{
-		if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-			os::SetFileAttributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
+		os::SetFileAttributes(Name, FileAttr);
+	};
 
-		while (!SetFileSparse(Name,State))
+	while (!SetFileSparse(Name,State))
+	{
+		Global->CatchError();
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrSparseCannotFor, Name))
 		{
-			Global->CatchError();
-			int Code;
-
-			if (SkipMode!=-1)
-				Code=SkipMode;
-			else
-				Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),
-				             msg(lng::MSetAttrSparseCannotFor),Name.data(),msg(lng::MHRetry),
-				             msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
-
-			if (Code==1 || Code<0)
-			{
-				Ret=SETATTR_RET_SKIP;
-				break;
-			}
-			else if (Code==2)
-			{
-				Ret=SETATTR_RET_SKIPALL;
-				break;
-			}
-			else if (Code==3)
-			{
-				Ret=SETATTR_RET_ERROR;
-				break;
-			}
+		case response::retry:
+			break;
+		case response::skip:
+			return SETATTR_RET_SKIP;
+		case response::skip_all:
+			return SETATTR_RET_SKIPALL;
+		case -2:
+		case -1:
+		case response::cancel:
+			return SETATTR_RET_ERROR;
 		}
-
-		if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-			os::SetFileAttributes(Name,FileAttr);
 	}
 
-	return Ret;
+	return SETATTR_RET_OK;
 }
 
 int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 {
-	int Ret=SETATTR_RET_OK;
 	while (!SetFileOwner(Name, Owner))
 	{
 		Global->CatchError();
-		int Code;
-		if (SkipMode!=-1)
-			Code=SkipMode;
-		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),msg(lng::MSetAttrOwnerCannotFor),Name.data(),msg(lng::MHRetry),msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
-
-		if (Code==1 || Code<0)
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrOwnerCannotFor, Name))
 		{
-			Ret=SETATTR_RET_SKIP;
+		case response::retry:
 			break;
-		}
-		else if (Code==2)
-		{
-			Ret=SETATTR_RET_SKIPALL;
-			break;
-		}
-		else if (Code==3)
-		{
-			Ret=SETATTR_RET_ERROR;
-			break;
+		case response::skip:
+			return SETATTR_RET_SKIP;
+		case response::skip_all:
+			return SETATTR_RET_SKIPALL;
+		case -2:
+		case -1:
+		case response::cancel:
+			return SETATTR_RET_ERROR;
 		}
 	}
-	return Ret;
+	return SETATTR_RET_OK;
 }
 
 int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
@@ -350,33 +310,24 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 	if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
 		return SETATTR_RET_OK;
 
-	int Ret=SETATTR_RET_OK;
 	while (!DeleteReparsePoint(Name))
 	{
 		Global->CatchError();
-		int Code;
-		if (SkipMode!=-1)
-			Code=SkipMode;
-		else
-			Code=Message(MSG_WARNING|MSG_ERRORTYPE,4,msg(lng::MError),msg(lng::MSetAttrCannotFor),Name.data(),msg(lng::MHRetry),msg(lng::MHSkip),msg(lng::MHSkipAll),msg(lng::MHCancel));
-
-		if (Code==1 || Code<0)
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrCannotFor, Name))
 		{
-			Ret=SETATTR_RET_SKIP;
+		case response::retry:
 			break;
-		}
-		else if (Code==2)
-		{
-			Ret=SETATTR_RET_SKIPALL;
-			break;
-		}
-		else if (Code==3)
-		{
-			Ret=SETATTR_RET_ERROR;
-			break;
+		case response::skip:
+			return SETATTR_RET_SKIP;
+		case response::skip_all:
+			return SETATTR_RET_SKIPALL;
+		case -2:
+		case -1:
+		case response::cancel:
+			return SETATTR_RET_ERROR;
 		}
 	}
-	return Ret;
+	return SETATTR_RET_OK;
 }
 
 void enum_attributes(const std::function<bool(DWORD, wchar_t)>& Pred)

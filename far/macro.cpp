@@ -75,7 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "colormix.hpp"
 #include "strmix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "tvar.hpp"
 
 #if 0
@@ -628,10 +628,13 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 				Plugin* LuaMacro = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
 				if (!LuaMacro || LuaMacro->IsPendingRemove())
 				{
-					Message(MSG_WARNING,1,msg(lng::MError),
-					   msg(lng::MMacroPluginLuamacroNotLoaded),
-					   msg(lng::MMacroRecordingIsDisabled),
-					   msg(lng::MOk));
+					Message(MSG_WARNING,
+						msg(lng::MError),
+						{
+							msg(lng::MMacroPluginLuamacroNotLoaded),
+							msg(lng::MMacroRecordingIsDisabled)
+						},
+						{ lng::MOk });
 					return false;
 				}
 
@@ -655,7 +658,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 						key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
 
 					if (key<0xFFFF)
-						key=Upper(static_cast<wchar_t>(key));
+						key=upper(static_cast<wchar_t>(key));
 
 					if (key != Rec->IntKey)
 						KeyToText(key,textKey);
@@ -677,7 +680,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
 				{
-					m_RecCode = concat(L"Keys(\"", m_RecCode, L"\")");
+					m_RecCode = concat(L"Keys(\""_sv, m_RecCode, L"\")"_sv);
 					// добавим проверку на удаление
 					// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
 					//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
@@ -1156,29 +1159,29 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_
 	FarDialogItem MacroSettingsDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,69,19,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MMacroSequence)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MMacroSequence).data()},
 		{DI_EDIT,5,3,67,3,0,L"MacroSequence",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
-		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MMacroDescription)},
+		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MMacroDescription).data()},
 		{DI_EDIT,5,5,67,5,0,L"MacroDescription",nullptr,DIF_HISTORY,L""},
 
 		{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MMacroSettingsEnableOutput)},
-		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,msg(lng::MMacroSettingsRunAfterStart)},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MMacroSettingsEnableOutput).data()},
+		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,msg(lng::MMacroSettingsRunAfterStart).data()},
 		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsActivePanel)},
-		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel)},
-		{DI_CHECKBOX,7,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders)},
-		{DI_CHECKBOX,7,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent)},
-		{DI_CHECKBOX,37,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsPassivePanel)},
-		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel)},
-		{DI_CHECKBOX,39,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders)},
-		{DI_CHECKBOX,39,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent)},
+		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsActivePanel).data()},
+		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel).data()},
+		{DI_CHECKBOX,7,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders).data()},
+		{DI_CHECKBOX,7,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent).data()},
+		{DI_CHECKBOX,37,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsPassivePanel).data()},
+		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel).data()},
+		{DI_CHECKBOX,39,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders).data()},
+		{DI_CHECKBOX,39,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent).data()},
 		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,15,0,15,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsCommandLine)},
-		{DI_CHECKBOX,5,16,0,16,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsSelectionBlockPresent)},
+		{DI_CHECKBOX,5,15,0,15,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsCommandLine).data()},
+		{DI_CHECKBOX,5,16,0,16,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsSelectionBlockPresent).data()},
 		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk)},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel)},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
 	};
 	auto MacroSettingsDlg = MakeDialogItemsEx(MacroSettingsDlgData);
 	string strKeyText;
@@ -2874,6 +2877,10 @@ static bool indexFunc(FarMacroCall* Data)
 	auto Params = parseParams(3, Data);
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
+
+	const auto& StrStr = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
+	const auto& StrStrI = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_to_icase{}); };
+
 	const auto i = Params[2].asInteger()? StrStr(s, p) : StrStrI(s, p);
 	const auto Position = i != s.cend() ? i - s.cbegin() : -1;
 	PassNumber(Position, Data);
@@ -2886,6 +2893,10 @@ static bool rindexFunc(FarMacroCall* Data)
 	auto Params = parseParams(3, Data);
 	const auto& s = Params[0].toString();
 	const auto& p = Params[1].toString();
+
+	const auto& RevStrStr = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
+	const auto& RevStrStrI = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_to_icase{}); };
+
 	const auto i = Params[2].asInteger()? RevStrStr(s, p) : RevStrStrI(s, p);
 	const auto Position = i != s.cend()? i - s.cbegin() : -1;
 	PassNumber(Position, Data);
@@ -3260,9 +3271,8 @@ static bool menushowFunc(FarMacroCall* Data)
 			string strName2(b.strName);
 			RemoveHighlights(strName1);
 			RemoveHighlights(strName2);
-			bool Less = NumStrCmpI(strName1.data() + Param.Offset, strName2.data() + Param.Offset) < 0;
-
-			return Param.Reverse ? !Less : Less;
+			bool Less = NumStrCmpI(make_string_view(strName1, Param.Offset), make_string_view(strName2, Param.Offset)) < 0;
+			return Param.Reverse? !Less : Less;
 		});
 	}
 
@@ -4642,7 +4652,7 @@ static bool ucaseFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
-	Val = Upper(Val.toString());
+	Val = upper_copy(Val.toString());
 	PassValue(Val, Data);
 	return true;
 }
@@ -4651,7 +4661,7 @@ static bool lcaseFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
-	Val = Lower(Val.toString());
+	Val = lower_copy(Val.toString());
 	PassValue(Val, Data);
 	return true;
 }
@@ -5168,7 +5178,7 @@ M1:
 
 		if (key<0xFFFF)
 		{
-			key=Upper(static_cast<wchar_t>(key));
+			key=upper(static_cast<wchar_t>(key));
 		}
 
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
@@ -5199,14 +5209,18 @@ M1:
 				}
 				const auto strBuf = format(MessageTemplate, strKeyText);
 
-				const auto Result = Message(MSG_WARNING,SetChange?3:2,msg(lng::MWarning),
-					          strBuf.data(),
-					          msg(lng::MMacroSequence),
-					          strBufKey.data(),
-					          msg(SetChange? lng::MMacroDeleteKey2 : lng::MMacroReDefinedKey2),
-					          msg(lng::MYes),
-					          msg(SetChange? lng::MMacroEditKey : lng::MNo),
-					          (!SetChange?nullptr:msg(lng::MNo))).GetExitCode();
+				const std::vector<lng> ChangeButtons = { lng::MYes, lng::MMacroEditKey, lng::MNo };
+				const std::vector<lng> NoChangeButtons = { lng::MYes, lng::MNo };
+
+				const int Result = Message(MSG_WARNING,
+					msg(lng::MWarning),
+					{
+						strBuf,
+						msg(lng::MMacroSequence),
+						strBufKey,
+						msg(SetChange? lng::MMacroDeleteKey2 : lng::MMacroReDefinedKey2)
+					},
+					SetChange? ChangeButtons : NoChangeButtons);
 
 				if (Result == Message::first_button)
 				{
@@ -5263,8 +5277,8 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	*/
 	FarDialogItem MacroAssignDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,msg(lng::MDefineMacroTitle)},
-		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MDefineMacro)},
+		{DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,msg(lng::MDefineMacroTitle).data()},
+		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MDefineMacro).data()},
 		{DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
 	};
 	auto MacroAssignDlg = MakeDialogItemsEx(MacroAssignDlgData);

@@ -171,24 +171,19 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD Flags, const string& Title, const std::vector<string>& Strings, const std::vector<string>& Buttons, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id, const std::vector<string>& Inserts):
+Message::Message(DWORD Flags, const string& Title, const std::vector<string>& Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
 	m_ExitCode(0)
 {
-	Init(Flags, Title, Strings, Buttons, Inserts, HelpTopic, PluginNumber, Id);
+	std::vector<string> StrButtons;
+	StrButtons.reserve(Buttons.size());
+	std::transform(ALL_CONST_RANGE(Buttons), std::back_inserter(StrButtons), msg);
+	Init(Flags, Title, Strings, StrButtons, Inserts, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags,size_t Buttons,const string& Title,const wchar_t *Str1, const wchar_t *Str2, const wchar_t *Str3, const wchar_t *Str4, const wchar_t *Str5,
-                 const wchar_t *Str6, const wchar_t *Str7, const wchar_t *Str8, const wchar_t *Str9, const wchar_t *Str10, const wchar_t *Str11,const wchar_t *Str12):
+Message::Message(DWORD Flags, const string& Title, const std::vector<string>& Strings, const std::vector<string>& Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
 	m_ExitCode(0)
 {
-	// BUGBUG
-	const wchar_t *Str[] = { Str1, Str2, Str3, Str4, Str5, Str6, Str7, Str8, Str9, Str10, Str11, Str12 };
-	size_t Size = std::count_if(CONST_RANGE(Str, i) { return i != nullptr; });
-
-	std::vector<string> StringsVector(std::cbegin(Str), std::cbegin(Str) + Size - Buttons);
-	std::vector<string> ButtonsVector(std::cbegin(Str) + Size - Buttons, std::cbegin(Str) + Size);
-
-	Init(Flags, Title, StringsVector, ButtonsVector, {}, nullptr, nullptr, nullptr);
+	Init(Flags, Title, Strings, Buttons, {}, HelpTopic, PluginNumber, Id);
 }
 
 void Message::Init(
@@ -232,7 +227,7 @@ void Message::Init(
 	if (!Title.empty())
 	{
 		MaxLength = std::max(MaxLength, Title.size() + 2); // 2 for surrounding spaces
-		append(strClipText, Title, L"\r\n\r\n");
+		append(strClipText, Title, L"\r\n\r\n"_sv);
 	}
 
 	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
@@ -281,7 +276,7 @@ void Message::Init(
 		FarFormatText(strErrStr, LenErrStr, strErrStr, L"\n", 0); //?? MaxLength ??
 		for (const auto& i : enum_tokens(strErrStr, L"\n"))
 		{
-			MessageStrings.emplace_back(i.cbegin(), i.cend());
+			MessageStrings.emplace_back(ALL_CONST_RANGE(i));
 		}
 	}
 
@@ -292,9 +287,9 @@ void Message::Init(
 
 	for (const auto& i: Strings)
 	{
-		append(strClipText, i, L"\r\n");
+		append(strClipText, i, L"\r\n"_sv);
 	}
-	strClipText += L"\r\n"s;
+	append(strClipText, L"\r\n"_sv);
 
 	if (!Buttons.empty())
 	{
@@ -583,9 +578,12 @@ bool AbortMessage()
 	}
 
 	SCOPED_ACTION(TaskBarPause);
-	int Res = Message(MSG_WARNING | MSG_KILLSAVESCREEN, 2, msg(lng::MKeyESCWasPressed),
-		msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToStopWork2 : lng::MDoYouWantToStopWork),
-		msg(lng::MYes), msg(lng::MNo));
+	int Res = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
+		msg(lng::MKeyESCWasPressed),
+		{
+			msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToStopWork2 : lng::MDoYouWantToStopWork)
+		},
+		{ lng::MYes, lng::MNo });
 
 	if (Res == -1) // Set "ESC" equal to "NO" button
 		Res = 1;

@@ -68,7 +68,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "components.hpp"
 #include "desktop.hpp"
 #include "keybar.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
+
 
 enum
 {
@@ -531,7 +532,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 void CommandLine::SetCurDir(const string& CurDir)
 {
-	if (StrCmpI(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
 	{
 		m_CurDir = CurDir;
 
@@ -589,7 +590,7 @@ static bool AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& Ta
 			return true;
 		};
 
-		if (Upper(Color[0]) == L'T')
+		if (upper(Color[0]) == L'T')
 		{
 			if (!Convert(Color.data() + 1, Target))
 			{
@@ -681,7 +682,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 			{
 				if (*it == L'$' && it + 1 != strExpandedDestStr.cend())
 				{
-					const auto Chr = Upper(*++it);
+					const auto Chr = upper(*++it);
 
 					const auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, Item)
 					{
@@ -751,9 +752,9 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							{
 								const auto Type = ParsePath(m_CurDir);
 								if(Type == PATH_DRIVELETTER)
-									strDestStr += Upper(m_CurDir[0]);
+									strDestStr += upper(m_CurDir[0]);
 								else if(Type == PATH_DRIVELETTERUNC)
-									strDestStr += Upper(m_CurDir[4]);
+									strDestStr += upper(m_CurDir[4]);
 								else
 									strDestStr += L'?';
 								break;
@@ -997,27 +998,27 @@ private:
 
 static bool ProcessFarCommands(const string& Command, const std::function<void(bool)>& ConsoleActivatior)
 {
-	if (!StrCmpI(Command.data(), L"far:config"))
+	if (equal_icase(Command, L"far:config"_sv))
 	{
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
 
-	if (!StrCmpI(Command.data(), L"far:about"))
+	if (equal_icase(Command, L"far:about"_sv))
 	{
 		string strOut = concat(L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n');
 
 		const auto& ComponentsInfo = components::GetComponentsInfo();
 		if (!ComponentsInfo.empty())
 		{
-			strOut += L"\nLibraries:\n";
+			append(strOut, L"\nLibraries:\n"_sv);
 
 			for (const auto& i: ComponentsInfo)
 			{
 				strOut += i.first;
 				if (!i.second.empty())
 				{
-					append(strOut, L", version ", i.second);
+					append(strOut, L", version "_sv, i.second);
 				}
 				strOut += L'\n';
 			}
@@ -1031,7 +1032,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
-				append(strOut, i->GetTitle(), L", version ", i->GetVersionString(), L'\n');
+				append(strOut, i->GetTitle(), L", version "_sv, i->GetVersionString(), L'\n');
 			}
 		}
 
@@ -1148,8 +1149,8 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	const auto& IsCommand = [&CmdLine](const string& cmd, bool bslash)
 	{
 		const auto n = cmd.size();
-		return (!StrCmpNI(CmdLine.data(), cmd.data(), n)
-			&& (n == CmdLine.size() || nullptr != wcschr(L"/ \t", CmdLine[n]) || (bslash && CmdLine[n] == L'\\')));
+		return starts_with_icase(CmdLine, cmd)
+			&& (n == CmdLine.size() || nullptr != wcschr(L"/ \t", CmdLine[n]) || (bslash && CmdLine[n] == L'\\'));
 	};
 
 	const auto& FindKey = [&CmdLine](wchar_t Key)
@@ -1160,7 +1161,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		return NotSpacePos != string::npos &&
 			CmdLine.size() > NotSpacePos + 1 &&
 			CmdLine[NotSpacePos] == L'/' &&
-			Upper(CmdLine[NotSpacePos + 1]) == Upper(Key);
+			upper(CmdLine[NotSpacePos + 1]) == upper(Key);
 	};
 
 	const auto& FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
@@ -1169,7 +1170,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || CmdLine.find_first_not_of(L' ', 2) == string::npos))
 	{
-		const auto DriveLetter = Upper(CmdLine[0]);
+		const auto DriveLetter = upper(CmdLine[0]);
 		if (!FarChDir(os::fs::get_drive(DriveLetter)))
 		{
 			FarChDir(os::fs::get_root_directory(DriveLetter));
@@ -1207,9 +1208,9 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 				const auto EnvStringsPtr = EnvStrings.data();
 				for (const auto& i: enum_substrings(EnvStringsPtr))
 				{
-					if (!StrCmpNI(i.data(), strCmdLine.data(), strCmdLine.size()))
+					if (starts_with_icase(i, strCmdLine))
 					{
-						strOut.append(i.data(), i.size()).append(1, L'\n');
+						append(strOut, i, L'\n');
 					}
 				}
 			}
@@ -1336,7 +1337,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (!StrCmpNI(strCmdLine.data(),L"/D",2) && IsSpaceOrEos(strCmdLine[2]))
+		if (starts_with_icase(strCmdLine, L"/D"_sv) && IsSpaceOrEos(strCmdLine[2]))
 		{
 			strCmdLine.erase(0, 2);
 			RemoveLeadingSpaces(strCmdLine);
@@ -1444,7 +1445,12 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	{
 		Global->CatchError();
 		if (!Selent)
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MError),strExpandedDir.data(),msg(lng::MOk));
+			Message(MSG_WARNING | MSG_ERRORTYPE,
+				msg(lng::MError),
+				{
+					strExpandedDir
+				},
+				{ lng::MOk });
 
 		return false;
 	}

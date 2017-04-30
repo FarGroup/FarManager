@@ -33,15 +33,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "enumerator.hpp"
-#include "iterator_range.hpp"
 
 // Enumerator for string1\0string2\0string3\0...stringN\0\0
 
 template<class char_type>
-auto enum_substrings(char_type* Data)
+auto enum_substrings(const char_type* Data)
 {
 	size_t Offset = 0;
-	using value_type = range<char_type*>;
+	using value_type = basic_string_view<char_type>;
 	return make_inline_enumerator<value_type>([Offset, Data](size_t Index, value_type& Value) mutable
 	{
 		if (!Index)
@@ -55,7 +54,7 @@ auto enum_substrings(char_type* Data)
 		if (End == Begin)
 			return false;
 
-		Value = { Begin, End };
+		Value = { Begin, static_cast<size_t>(End - Begin) };
 		Offset += Value.size() + 1;
 		return true;
 	});
@@ -78,7 +77,7 @@ inline auto enum_tokens(const string& Data, const wchar_t* Separators)
 		if (Pos == string::npos)
 			Pos = Data.size();
 
-		Value = { Data.data() + Offset, Data.data() + Pos };
+		Value = { Data.data() + Offset, Pos - Offset };
 		Offset = Pos + 1;
 		return true;
 	});

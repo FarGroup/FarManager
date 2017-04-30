@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "mix.hpp"
 #include "lang.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 
 static void PR_DrawGetDirInfoMsg();
@@ -74,11 +74,18 @@ struct DirInfoPreRedrawItem : public PreRedrawItem
 	unsigned long long Size;
 };
 
-static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name, unsigned long long Size)
+static void DrawGetDirInfoMsg(const string& Title,const wchar_t *Name, unsigned long long Size)
 {
 	auto strSize = FileSizeToStr(Size, 8, COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
-	Message(0,0,Title,msg(lng::MScanningFolder),Name,strSize.data());
+	Message(0,
+		Title,
+		{
+			msg(lng::MScanningFolder),
+			Name,
+			strSize
+		},
+		{});
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<DirInfoPreRedrawItem*>(PreRedrawStack().top());
@@ -100,12 +107,12 @@ static void PR_DrawGetDirInfoMsg()
 		assert(item);
 		if (item)
 		{
-			DrawGetDirInfoMsg(item->Title.data(), item->Name.data(), item->Size);
+			DrawGetDirInfoMsg(item->Title, item->Name.data(), item->Size);
 		}
 	}
 }
 
-int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags)
+int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags)
 {
 	SaveScreen SaveScr;
 	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScr);
@@ -236,7 +243,7 @@ int GetDirInfo(const wchar_t *Title, const string& DirName, DirInfoData& Data, g
 				strCurDirName = strFullName;
 				CutToSlash(strCurDirName); //???
 
-				if (StrCmpI(strCurDirName, strLastDirName))
+				if (!equal_icase(strCurDirName, strLastDirName))
 				{
 					Data.DirCount++;
 					strLastDirName = strCurDirName;
@@ -285,7 +292,13 @@ struct PluginDirInfoPreRedrawItem : public PreRedrawItem
 
 static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 {
-	Message(Flags,0,L"",msg(lng::MPreparingList),Name.data());
+	Message(Flags,
+		L"",
+		{
+			msg(lng::MPreparingList),
+			Name
+		},
+		{});
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<PluginDirInfoPreRedrawItem*>(PreRedrawStack().top());
@@ -405,7 +418,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,s
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
 		if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-		        StrCmp(CurPanelItem->FileName,L".") &&
+		        CurPanelItem->FileName != L"."s &&
 		        !TestParentFolderName(CurPanelItem->FileName))
 		{
 			/* $ 30.11.2001 DJ
@@ -503,7 +516,7 @@ bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, s
 				OpenPanelInfo NewInfo;
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 
-				if (StrCmpI(strPrevDir.data(), NullToEmpty(NewInfo.CurDir)))
+				if (!equal_icase(strPrevDir, NullToEmpty(NewInfo.CurDir)))
 				{
 					PluginPanelItem *PanelData=nullptr;
 					size_t ItemCount=0;

@@ -135,13 +135,13 @@ void copy_progress::FlushScan()
 static string FormatCounter(lng CounterId, lng AnotherId, unsigned long long CurrentValue, unsigned long long TotalValue, bool ShowTotal, size_t MaxWidth)
 {
 	string Label = msg(CounterId);
-	const auto PaddedLabelSize = std::max(Label.size(), wcslen(msg(AnotherId))) + 1;
+	const auto PaddedLabelSize = std::max(Label.size(), msg(AnotherId).size()) + 1;
 	Label.resize(PaddedLabelSize, L' ');
 
 	auto StrCurrent = InsertCommas(CurrentValue);
 	auto StrTotal = ShowTotal? InsertCommas(TotalValue) : string();
 
-	auto Value = ShowTotal? concat(StrCurrent, L" / ", StrTotal) : StrCurrent;
+	auto Value = ShowTotal? concat(StrCurrent, L" / "_sv, StrTotal) : StrCurrent;
 	if (MaxWidth > PaddedLabelSize)
 	{
 		const auto PaddedValueSize = MaxWidth - PaddedLabelSize;
@@ -179,7 +179,7 @@ void copy_progress::Flush()
 	if (m_Total || (m_Files.Total == 1))
 	{
 		ConsoleTitle::SetFarTitle(concat(
-			L'{', str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_Total? m_TotalPercent : m_CurrentPercent), L"%} ",
+			L'{', str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_Total? m_TotalPercent : m_CurrentPercent), L"%} "_sv,
 			msg(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle))
 		);
 	}

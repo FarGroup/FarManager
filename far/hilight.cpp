@@ -523,10 +523,10 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 	}
 	Data[] =
 	{
-		{0, FirstCount, msg(lng::MHighlightUpperSortGroup)},
-		{FirstCount, FirstCount+UpperCount, msg(lng::MHighlightLowerSortGroup)},
-		{FirstCount+UpperCount, FirstCount+UpperCount+LowerCount, msg(lng::MHighlightLastGroup)},
-		{FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount, nullptr}
+		{ 0, FirstCount, msg(lng::MHighlightUpperSortGroup).data() },
+		{ FirstCount, FirstCount+UpperCount, msg(lng::MHighlightLowerSortGroup).data() },
+		{ FirstCount + UpperCount, FirstCount + UpperCount + LowerCount, msg(lng::MHighlightLastGroup).data() },
+		{ FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount, nullptr}
 	};
 
 	std::for_each(CONST_RANGE(Data, i)
@@ -647,10 +647,16 @@ void highlight::configuration::HiEdit(int MenuPos)
 				case KEY_RCTRLR:
 				{
 
-					if (Message(MSG_WARNING,2,msg(lng::MHighlightTitle),
-					            msg(lng::MHighlightWarning),msg(lng::MHighlightAskRestore),
-					            msg(lng::MYes),msg(lng::MCancel)) != Message::first_button)
+					if (Message(MSG_WARNING,
+						msg(lng::MHighlightTitle),
+						{
+							msg(lng::MHighlightWarning),
+							msg(lng::MHighlightAskRestore)
+						},
+						{ lng::MYes, lng::MCancel }) != Message::first_button)
+					{
 						break;
+					}
 
 					const auto cfg = ConfigProvider().CreateHighlightConfig();
 					SetHighlighting(true, cfg.get()); //delete old settings
@@ -668,10 +674,16 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 					if (Count && RealSelectPos<(int)HiData.size())
 					{
-						if (Message(MSG_WARNING,2,msg(lng::MHighlightTitle),
-						            msg(lng::MHighlightAskDel), HiData[RealSelectPos].GetMask().data(),
-						            msg(lng::MDelete),msg(lng::MCancel)) != Message::first_button)
+						if (Message(MSG_WARNING,
+							msg(lng::MHighlightTitle),
+							{
+								msg(lng::MHighlightAskDel),
+								HiData[RealSelectPos].GetMask()
+							},
+							{ lng::MDelete, lng::MCancel }) != Message::first_button)
+						{
 							break;
+						}
 						HiData.erase(HiData.begin()+RealSelectPos);
 						(*Count)--;
 						NeedUpdate=TRUE;

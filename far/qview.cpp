@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "strmix.hpp"
 #include "keyboard.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 
 static bool LastMode = false;
@@ -137,15 +137,15 @@ void QuickView::DisplayObject()
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_X1+2,m_Y1+2);
 		auto DisplayName = strCurFileName;
-		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - StrLength(msg(lng::MQuickViewFolder)) - 5));
+		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - StrLength(msg(lng::MQuickViewFolder).data()) - 5));
 		PrintText(format(LR"({0} "{1}")", msg(lng::MQuickViewFolder), DisplayName));
 
 		DWORD currAttr=os::GetFileAttributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 		{
-			string Tmp, Target;
+			string Target;
 			DWORD ReparseTag=0;
-			const wchar_t* PtrName;
+			string TypeName;
 			if (GetReparsePointInfo(strCurFileName, Target, &ReparseTag))
 			{
 				NormalizeSymlinkName(Target);
@@ -160,76 +160,75 @@ void QuickView::DisplayObject()
 						{
 							ID_Msg = lng::MQuickViewVolMount;
 						}
-						PtrName = msg(ID_Msg);
+						TypeName = msg(ID_Msg);
 					}
 					break;
 				// 0xA000000CL = Directory or File Symbolic Link
 				case IO_REPARSE_TAG_SYMLINK:
-					PtrName = msg(lng::MQuickViewSymlink);
+					TypeName = msg(lng::MQuickViewSymlink);
 					break;
 				// 0x8000000AL = Distributed File System
 				case IO_REPARSE_TAG_DFS:
-					PtrName = msg(lng::MQuickViewDFS);
+					TypeName = msg(lng::MQuickViewDFS);
 					break;
 				// 0x80000012L = Distributed File System Replication
 				case IO_REPARSE_TAG_DFSR:
-					PtrName = msg(lng::MQuickViewDFSR);
+					TypeName = msg(lng::MQuickViewDFSR);
 					break;
 				// 0xC0000004L = Hierarchical Storage Management
 				case IO_REPARSE_TAG_HSM:
-					PtrName = msg(lng::MQuickViewHSM);
+					TypeName = msg(lng::MQuickViewHSM);
 					break;
 				// 0x80000006L = Hierarchical Storage Management2
 				case IO_REPARSE_TAG_HSM2:
-					PtrName = msg(lng::MQuickViewHSM2);
+					TypeName = msg(lng::MQuickViewHSM2);
 					break;
 				// 0x80000007L = Single Instance Storage
 				case IO_REPARSE_TAG_SIS:
-					PtrName = msg(lng::MQuickViewSIS);
+					TypeName = msg(lng::MQuickViewSIS);
 					break;
 				// 0x80000008L = Windows Imaging Format
 				case IO_REPARSE_TAG_WIM:
-					PtrName = msg(lng::MQuickViewWIM);
+					TypeName = msg(lng::MQuickViewWIM);
 					break;
 				// 0x80000009L = Cluster Shared Volumes
 				case IO_REPARSE_TAG_CSV:
-					PtrName = msg(lng::MQuickViewCSV);
+					TypeName = msg(lng::MQuickViewCSV);
 					break;
 				case IO_REPARSE_TAG_DEDUP:
-					PtrName = msg(lng::MQuickViewDEDUP);
+					TypeName = msg(lng::MQuickViewDEDUP);
 					break;
 				case IO_REPARSE_TAG_NFS:
-					PtrName = msg(lng::MQuickViewNFS);
+					TypeName = msg(lng::MQuickViewNFS);
 					break;
 				case IO_REPARSE_TAG_FILE_PLACEHOLDER:
-					PtrName = msg(lng::MQuickViewPlaceholder);
+					TypeName = msg(lng::MQuickViewPlaceholder);
 					break;
 					// 0x????????L = anything else
 				default:
 					if (Global->Opt->ShowUnknownReparsePoint)
 					{
-						Tmp = format(L":{0:0>8X}", ReparseTag);
-						PtrName = Tmp.data();
+						TypeName = format(L":{0:0>8X}", ReparseTag);
 					}
 					else
 					{
-						PtrName=msg(lng::MQuickViewUnknownReparsePoint);
+						TypeName = msg(lng::MQuickViewUnknownReparsePoint);
 					}
 				}
 			}
 			else
 			{
-				PtrName = msg(lng::MQuickViewUnknownReparsePoint);
+				TypeName = msg(lng::MQuickViewUnknownReparsePoint);
 				Target = msg(lng::MQuickViewNoData);
 			}
 
-			TruncPathStr(Target,std::max(0, m_X2-m_X1-1-StrLength(PtrName)-5));
+			TruncPathStr(Target, std::max(0, m_X2 - m_X1 - 1 - static_cast<int>(TypeName.size()) - 5));
 			SetColor(COL_PANELTEXT);
 			GotoXY(m_X1+2,m_Y1+3);
-			PrintText(format(LR"({0} "{1}")", PtrName, Target));
+			PrintText(format(LR"({0} "{1}")", TypeName, Target));
 		}
 
-		const auto bytes_suffix = Upper(msg(lng::MListBytes));
+		const auto bytes_suffix = upper_copy(msg(lng::MListBytes));
 		const auto& size2str = [&bytes_suffix](ULONGLONG Size)
 		{
 			if (Global->Opt->ShowBytes)
@@ -561,7 +560,7 @@ void QuickView::RefreshTitle()
 	m_Title = L'{';
 	if (!strCurFileName.empty())
 	{
-		append(m_Title, strCurFileName, L" - ");
+		append(m_Title, strCurFileName, L" - "_sv);
 	}
 	append(m_Title, msg(lng::MQuickViewTitle), L'}');
 }

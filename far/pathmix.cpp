@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "regex_helpers.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 
 void NTPath::Transform()
@@ -63,7 +63,7 @@ void NTPath::Transform()
 		{
 			// "\\?\C:" -> "\\?\c:"
 			// Some file operations fail on Win2k if a drive letter is in upper case
-			InplaceLower(Data, 4, 1);
+			lower(Data, 4, 1);
 		}
 	}
 }
@@ -198,7 +198,7 @@ bool TestParentFolderName(const string& Name)
 
 bool TestCurrentDirectory(const string& TestDir)
 {
-	return !StrCmpI(os::GetCurrentDirectory(), TestDir);
+	return equal_icase(os::GetCurrentDirectory(), TestDir);
 }
 
 const wchar_t* PointToName(const wchar_t* Path)

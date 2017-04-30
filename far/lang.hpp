@@ -47,7 +47,7 @@ inline lng operator++(lng& Id, int)
 	return Value;
 }
 
-const wchar_t* msg(lng Id);
+const string& msg(lng Id);
 
 template<typename... args>
 auto format(lng Id, args&&... Args)

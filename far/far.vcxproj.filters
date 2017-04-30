@@ -221,9 +221,6 @@
     <ClCompile Include="lasterror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="local.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="locale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -342,6 +339,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stddlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="string_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="strmix.cpp">
@@ -649,9 +649,6 @@
     <ClInclude Include="lasterror.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="local.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="locale.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -793,6 +790,9 @@
     <ClInclude Include="stddlg.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="string_utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="strmix.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -884,9 +884,6 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\function_traits.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
-    <ClInclude Include="common\iterator_range.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\noncopyable.hpp">
@@ -982,6 +979,9 @@
     <ClInclude Include="common\type_traits.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\range.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Far.ico">
@@ -1057,5 +1057,8 @@
     <MASM Include="vc_crt_fix.asm">
       <Filter>Source Files</Filter>
     </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="far.natvis" />
   </ItemGroup>
 </Project>

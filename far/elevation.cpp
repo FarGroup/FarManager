@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pipe.hpp"
 #include "console.hpp"
 #include "constitle.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 using namespace os::security;
 
@@ -431,15 +431,15 @@ void ElevationApproveDlgSync(const EAData& Data)
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem ElevationApproveDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MAccessDenied)},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired)},
-		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,msg(Data.Why)},
+		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MAccessDenied).data()},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired).data()},
+		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,msg(Data.Why).data()},
 		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data.Object.data()},
-		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,msg(lng::MElevationDoForAll)},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MElevationDoNotAskAgainInTheCurrentSession)},
+		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,msg(lng::MElevationDoForAll).data()},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MElevationDoNotAskAgainInTheCurrentSession).data()},
 		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,msg(lng::MOk)},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSkip)},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,msg(lng::MOk).data()},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSkip).data()},
 	};
 	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
 	const auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
@@ -843,7 +843,7 @@ public:
 			if (!os::GetModuleFileNameEx(GetCurrentProcess(), nullptr, CurrentProcessFileName))
 				return GetLastError();
 
-			if (StrCmpI(CurrentProcessFileName, ParentProcessFileName))
+			if (!equal_icase(CurrentProcessFileName, ParentProcessFileName))
 				return DNS_ERROR_INVALID_NAME;
 		}
 
@@ -1174,5 +1174,5 @@ int ElevationMain(const wchar_t* guid, DWORD PID, bool UsePrivileges)
 
 bool IsElevationArgument(const wchar_t* Argument)
 {
-	return !StrCmp(Argument, ElevationArgument);
+	return equal(Argument, ElevationArgument);
 }

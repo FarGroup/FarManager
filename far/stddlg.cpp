@@ -75,10 +75,10 @@ int GetSearchReplaceString(
 		ReplaceHistoryName = L"ReplaceText";
 
 	if (!Title)
-		Title=msg(IsReplaceMode? lng::MEditReplaceTitle : lng::MEditSearchTitle);
+		Title = msg(IsReplaceMode? lng::MEditReplaceTitle : lng::MEditSearchTitle).data();
 
 	if (!SubTitle)
-		SubTitle=msg(lng::MEditSearchFor);
+		SubTitle = msg(lng::MEditSearchFor).data();
 
 
 	bool Case=pCase?*pCase:false;
@@ -88,8 +88,8 @@ int GetSearchReplaceString(
 	bool PreserveStyle=pPreserveStyle?*pPreserveStyle:false;
 
 	const auto DlgWidth = 76;
-	const auto WordLabel = msg(lng::MEditSearchPickWord);
-	const auto SelectionLabel = msg(lng::MEditSearchPickSelection);
+	const auto WordLabel = msg(lng::MEditSearchPickWord).data();
+	const auto SelectionLabel = msg(lng::MEditSearchPickSelection).data();
 	const auto WordButtonSize = HiStrlen(WordLabel) + 4;
 	const auto SelectionButtonSize = HiStrlen(SelectionLabel) + 4;
 	const auto SelectionButtonX2 = static_cast<intptr_t>(DlgWidth - 4 - 1);
@@ -127,18 +127,18 @@ int GetSearchReplaceString(
 		{ DI_BUTTON, SelectionButtonX1, 2, SelectionButtonX2, 2, 0, nullptr, nullptr, DIF_BTNNOCLOSE, SelectionLabel },
 		{ DI_TEXT, 5, 2, 0, 2, 0, nullptr, nullptr, 0, SubTitle },
 		{ DI_EDIT, 5, 3, 70, 3, 0, TextHistoryName, nullptr, DIF_FOCUS | DIF_USELASTHISTORY | (*TextHistoryName? DIF_HISTORY : 0), SearchStr.data() },
-		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, msg(lng::MEditReplaceWith) },
+		{ DI_TEXT, 5, 4, 0, 4, 0, nullptr, nullptr, 0, msg(lng::MEditReplaceWith).data() },
 		{ DI_EDIT, 5, 5, 70, 5, 0, ReplaceHistoryName, nullptr, DIF_USELASTHISTORY | (*ReplaceHistoryName? DIF_HISTORY : 0), ReplaceStr.data() },
 		{ DI_TEXT, -1, 6 - YCorrection, 0, 6 - YCorrection, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_CHECKBOX, 5, 7 - YCorrection, 0, 7 - YCorrection, Case, nullptr, nullptr, 0, msg(lng::MEditSearchCase) },
-		{ DI_CHECKBOX, 5, 8 - YCorrection, 0, 8 - YCorrection, WholeWords, nullptr, nullptr, 0, msg(lng::MEditSearchWholeWords) },
-		{ DI_CHECKBOX, 5, 9 - YCorrection, 0, 9 - YCorrection, Reverse, nullptr, nullptr, 0, msg(lng::MEditSearchReverse) },
-		{ DI_CHECKBOX, 40, 7 - YCorrection, 0, 7 - YCorrection, Regexp, nullptr, nullptr, 0, msg(lng::MEditSearchRegexp) },
-		{ DI_CHECKBOX, 40, 8 - YCorrection, 0, 8 - YCorrection, PreserveStyle, nullptr, nullptr, 0, msg(lng::MEditSearchPreserveStyle) },
+		{ DI_CHECKBOX, 5, 7 - YCorrection, 0, 7 - YCorrection, Case, nullptr, nullptr, 0, msg(lng::MEditSearchCase).data() },
+		{ DI_CHECKBOX, 5, 8 - YCorrection, 0, 8 - YCorrection, WholeWords, nullptr, nullptr, 0, msg(lng::MEditSearchWholeWords).data() },
+		{ DI_CHECKBOX, 5, 9 - YCorrection, 0, 9 - YCorrection, Reverse, nullptr, nullptr, 0, msg(lng::MEditSearchReverse).data() },
+		{ DI_CHECKBOX, 40, 7 - YCorrection, 0, 7 - YCorrection, Regexp, nullptr, nullptr, 0, msg(lng::MEditSearchRegexp).data() },
+		{ DI_CHECKBOX, 40, 8 - YCorrection, 0, 8 - YCorrection, PreserveStyle, nullptr, nullptr, 0, msg(lng::MEditSearchPreserveStyle).data() },
 		{ DI_TEXT, -1, 10 - YCorrection, 0, 10 - YCorrection, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(IsReplaceMode? lng::MEditReplaceReplace : lng::MEditSearchSearch) },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchAll) },
-		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchCancel) },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(IsReplaceMode? lng::MEditReplaceReplace : lng::MEditSearchSearch).data() },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchAll).data() },
+		{ DI_BUTTON, 0, 11 - YCorrection, 0, 11 - YCorrection, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MEditSearchCancel).data() },
 	};
 	auto ReplaceDlg = MakeDialogItemsEx(ReplaceDlgData);
 
@@ -373,13 +373,13 @@ bool GetNameAndPassword(const string& Title, string &strUserName, string &strPas
 	FarDialogItem PassDlgData[]=
 	{
 		{DI_DOUBLEBOX,  3, 1,72, 8,0,nullptr,nullptr,0,NullToEmpty(Title.data())},
-		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MNetUserName)},
+		{DI_TEXT,       5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MNetUserName).data()},
 		{DI_EDIT,       5, 3,70, 3,0,L"NetworkUser",nullptr,DIF_FOCUS|DIF_USELASTHISTORY|DIF_HISTORY,(Flags&GNP_USELAST)?strLastName.data():strUserName.data()},
-		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MNetUserPassword)},
+		{DI_TEXT,       5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MNetUserPassword).data()},
 		{DI_PSWEDIT,    5, 5,70, 5,0,nullptr,nullptr,0,(Flags&GNP_USELAST)?strLastPassword.data():strPassword.data()},
 		{DI_TEXT,      -1, 6, 0, 6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk)},
-		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel)},
+		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
+		{DI_BUTTON,     0, 7, 0, 7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
 	};
 	auto PassDlg = MakeDialogItemsEx(PassDlgData);
 
@@ -518,9 +518,9 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 
 							if (*i.strServiceShortName)
 							{
-								append(tmp, L" [", i.strServiceShortName, L']');
+								append(tmp, L" ["_sv, i.strServiceShortName, L']');
 							}
-							append(tmp, L" (PID: ", str(i.Process.dwProcessId));
+							append(tmp, L" (PID: "_sv, str(i.Process.dwProcessId));
 							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, i.Process.dwProcessId)))
 							{
 								FILETIME ftCreate, ftExit, ftKernel, ftUser;
@@ -529,7 +529,7 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 									string Name;
 									if (os::GetModuleFileNameEx(Process.native_handle(), nullptr, Name))
 									{
-										append(tmp, L", ", Name);
+										append(tmp, L", "_sv, Name);
 									}
 								}
 							}
@@ -549,19 +549,19 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
 	}
 
-	std::vector<string> Buttons;
+	std::vector<lng> Buttons;
 	Buttons.reserve(4);
 	if(SwitchBtn)
 	{
-		Buttons.emplace_back(msg(lng::MObjectLockedSwitchTo));
+		Buttons.emplace_back(lng::MObjectLockedSwitchTo);
 	}
-	Buttons.emplace_back(msg(CloseBtn? lng::MObjectLockedClose : lng::MDeleteRetry));
+	Buttons.emplace_back(CloseBtn? lng::MObjectLockedClose : lng::MDeleteRetry);
 	if(AllowSkip)
 	{
-		Buttons.emplace_back(msg(lng::MDeleteSkip));
-		Buttons.emplace_back(msg(lng::MDeleteFileSkipAll));
+		Buttons.emplace_back(lng::MDeleteSkip);
+		Buttons.emplace_back(lng::MDeleteFileSkipAll);
 	}
-	Buttons.emplace_back(msg(lng::MDeleteCancel));
+	Buttons.emplace_back(lng::MDeleteCancel);
 
 	int Result;
 	for(;;)
@@ -644,17 +644,25 @@ static string GetReErrorString(int code)
 
 void ReCompileErrorMessage(const RegExp& re, const string& str)
 {
-	Message(MSG_WARNING | MSG_LEFTALIGN, msg(lng::MError),
-		{ GetReErrorString(re.LastError()), str, string(re.ErrorPosition(), L' ') + L'^' },
-		{ msg(lng::MOk) });
+	Message(MSG_WARNING | MSG_LEFTALIGN,
+		msg(lng::MError),
+		{
+			GetReErrorString(re.LastError()),
+			str,
+			string(re.ErrorPosition(), L' ') + L'^'
+		},
+		{ lng::MOk });
 }
 
 void ReMatchErrorMessage(const RegExp& re)
 {
 	if (re.LastError() != errNone)
 	{
-		Message(MSG_WARNING | MSG_LEFTALIGN, msg(lng::MError),
-			{ GetReErrorString(re.LastError()) },
-			{ msg(lng::MOk) });
+		Message(MSG_WARNING | MSG_LEFTALIGN,
+			msg(lng::MError),
+			{
+				GetReErrorString(re.LastError())
+			},
+			{ lng::MOk });
 	}
 }

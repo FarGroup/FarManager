@@ -66,7 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "tracer.hpp"
 #include "constitle.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "drivemix.hpp"
 
@@ -398,7 +398,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 {
 	const auto& isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
-		return (*Arg == L'/' || *Arg == L'-') && !StrCmpI(Arg + 1, Name);
+		return (*Arg == L'/' || *Arg == L'-') && equal_icase(Arg + 1, Name);
 	};
 
 	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {GUID} PID UsePrivileges
@@ -551,10 +551,10 @@ static int mainImpl(const range<wchar_t**>& Args)
 		const auto& Arg = *Iter;
 		if ((Arg[0]==L'/' || Arg[0]==L'-') && Arg[1])
 		{
-			switch (Upper(Arg[1]))
+			switch (upper(Arg[1]))
 			{
 				case L'A':
-					switch (Upper(Arg[2]))
+					switch (upper(Arg[2]))
 					{
 					case 0:
 						Global->Opt->CleanAscii = true;
@@ -591,7 +591,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'M':
-					switch (Upper(Arg[2]))
+					switch (upper(Arg[2]))
 					{
 					case L'\0':
 						Global->Opt->Macro.DisableMacro|=MDOL_ALL;
@@ -617,11 +617,11 @@ static int mainImpl(const range<wchar_t**>& Args)
 				case L'S':
 					{
 						constexpr auto SetParam = L"set:"_sv;
-						if (!StrCmpNI(Arg + 1, SetParam.data(), SetParam.size()))
+						if (starts_with_icase(Arg + 1, SetParam))
 						{
 							if (const auto EqualPtr = wcschr(Arg + 1, L'='))
 							{
-								Overridden.emplace_back(string(Arg + 1 + 4, EqualPtr), EqualPtr + 1);
+								Overridden.emplace_back(string(Arg + 1 + SetParam.size(), EqualPtr), EqualPtr + 1);
 							}
 						}
 						else if (Iter + 1 != Args.end())
@@ -638,15 +638,18 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'T':
-					if (!StrCmpNI(Arg + 1, L"title", 5))
 					{
-						CustomTitle.second = true;
-						if (Arg[6] == L':')
-							CustomTitle.first = Arg + 7;
-					}
-					else if (Iter + 1 != Args.end())
-					{
-						strTemplatePath = *++Iter;
+						const auto Title = L"title"_sv;
+						if (starts_with_icase(Arg + 1, Title))
+						{
+							CustomTitle.second = true;
+							if (Arg[1 + Title.size()] == L':')
+								CustomTitle.first = Arg + 1 + Title.size() + 1;
+						}
+						else if (Iter + 1 != Args.end())
+						{
+							strTemplatePath = *++Iter;
+						}
 					}
 					break;
 
@@ -670,7 +673,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'C':
-					if (Upper(Arg[2])==L'O' && !Arg[3])
+					if (upper(Arg[2])==L'O' && !Arg[3])
 					{
 						Global->Opt->LoadPlug.PluginsCacheOnly = true;
 						Global->Opt->LoadPlug.PluginsPersonal = false;
@@ -685,7 +688,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 #ifdef DIRECT_RT
 				case L'D':
-					if (Upper(Arg[2])==L'O' && !Arg[3])
+					if (upper(Arg[2])==L'O' && !Arg[3])
 						Global->DirectRT=true;
 					break;
 #endif
@@ -703,7 +706,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 					break;
 
 				case L'R':
-					if (Upper(Arg[2]) == L'O')
+					if (upper(Arg[2]) == L'O')
 					{
 						if (!Arg[3]) // -ro
 						{

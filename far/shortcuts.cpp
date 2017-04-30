@@ -249,22 +249,22 @@ static string MakeName(const Shortcuts::shortcut& Item)
 				string TechInfo;
 
 				if (!Item.strPluginFile.empty())
-					append(TechInfo, msg(lng::MFSShortcutPluginFile), L' ', Item.strPluginFile, L", ");
+					append(TechInfo, msg(lng::MFSShortcutPluginFile), L' ', Item.strPluginFile, L", "_sv);
 
 				if (!Item.strFolder.empty())
-					append(TechInfo, msg(lng::MFSShortcutPath), L' ', Item.strFolder, L", ");
+					append(TechInfo, msg(lng::MFSShortcutPath), L' ', Item.strFolder, L", "_sv);
 
 				if (!Item.strPluginData.empty())
 				{
 					const string PrintablePluginData(Item.strPluginData.cbegin(), std::find_if(ALL_CONST_RANGE(Item.strPluginData), [](const auto i) { return i < L' '; }));
 					if (!PrintablePluginData.empty())
-						append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", ");
+						append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "_sv);
 				}
 
 				if (!TechInfo.empty())
 				{
 					TechInfo.resize(TechInfo.size() - 2);
-					append(result, L" (", TechInfo, L')');
+					append(result, L" ("_sv, TechInfo, L')');
 				}
 			}
 		}
@@ -525,7 +525,13 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 			if ((!raw || !strTemp.empty()) && !os::fs::exists(strTemp))
 			{
 				Global->CatchError();
-				Save = Message(MSG_WARNING | MSG_ERRORTYPE, 2, msg(lng::MError), NewItem.strFolder.data(), msg(lng::MSaveThisShortcut), msg(lng::MYes), msg(lng::MNo)) == Message::first_button;
+				Save = Message(MSG_WARNING | MSG_ERRORTYPE,
+					msg(lng::MError),
+					{
+						NewItem.strFolder,
+						msg(lng::MSaveThisShortcut)
+					},
+					{ lng::MYes, lng::MNo }) == Message::first_button;
 			}
 		}
 

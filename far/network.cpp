@@ -134,7 +134,12 @@ bool ConnectToNetworkResource(const string& NewDir)
 
 			if (res != ERROR_ACCESS_DENIED && res != ERROR_INVALID_PASSWORD && res != ERROR_LOGON_FAILURE)
 			{
-				Message(MSG_WARNING, 1, msg(lng::MError), GetErrorString().data(), msg(lng::MOk));
+				Message(MSG_WARNING,
+					msg(lng::MError),
+					{
+						GetErrorString()
+					},
+					{ lng::MOk });
 				break;
 			}
 		}

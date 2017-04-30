@@ -153,15 +153,25 @@ void ShowProcessList()
 				{
 					if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
 					{
-						if (Message(MSG_WARNING, msg(lng::MKillProcessTitle),
-							{ msg(lng::MAskKillProcess), MenuData->Title.data(), msg(lng::MKillProcessWarning) },
-							{ msg(lng::MKillProcessKill), msg(lng::MCancel) }) == Message::first_button)
+						if (Message(MSG_WARNING,
+							msg(lng::MKillProcessTitle),
+							{
+								msg(lng::MAskKillProcess),
+								MenuData->Title,
+								msg(lng::MKillProcessWarning)
+							},
+							{ lng::MKillProcessKill, lng::MCancel }) == Message::first_button)
 						{
 							const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
 							if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
 							{
 								Global->CatchError();
-								Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MKillProcessTitle),msg(lng::MCannotKillProcess),msg(lng::MOk));
+								Message(MSG_WARNING | MSG_ERRORTYPE,
+									msg(lng::MKillProcessTitle),
+									{
+										msg(lng::MCannotKillProcess)
+									},
+									{ lng::MOk });
 							}
 						}
 					}

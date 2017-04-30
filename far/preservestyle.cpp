@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "preservestyle.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 static const wchar_t PreserveStyleTokenSeparators[] = L"_-.";
 
@@ -63,13 +63,13 @@ static int GetPeserveCaseStyleMask(const string& strStr)
 
 	for (size_t I = 0; I < strStr.size(); I++)
 	{
-		int Upper = IsUpper(strStr[I]);
-		int Lower = IsLower(strStr[I]);
+		int Upper = is_upper(strStr[I]);
+		int Lower = is_lower(strStr[I]);
 		if (!Upper)
 			Result &= ~(1 << UPPERCASE_ALL);
 		if (!Lower)
 			Result &= ~(1 << LOWERCASE_ALL);
-		if ((!Upper || !IsAlpha(strStr[I])) && I == 0)
+		if ((!Upper || !is_alpha(strStr[I])) && I == 0)
 			Result &= ~(1 << UPPERCASE_FIRST);
 		if (!Lower && I > 0)
 			Result &= ~(1 << UPPERCASE_FIRST);
@@ -109,7 +109,7 @@ static auto InternalPreserveStyleTokenize(const string& strStr, size_t From, siz
 			continue;
 		}
 
-		if (!Seps[I-From-1] && IsLower(strStr[I-1]) && IsUpper(strStr[I]))
+		if (!Seps[I-From-1] && is_lower(strStr[I-1]) && is_upper(strStr[I]))
 		{
 			PreserveStyleToken T;
 			T.Token = strStr.substr(L, I-L);
@@ -171,13 +171,13 @@ static void ToPreserveStyleType(string& strStr, PreserveStyleType type)
 	switch (type)
 	{
 	case UPPERCASE_ALL:
-		Handler = [&strStr](size_t I) { strStr[I] = Upper(strStr[I]); };
+		Handler = [&strStr](size_t I) { strStr[I] = upper(strStr[I]); };
 		break;
 	case LOWERCASE_ALL:
-		Handler = [&strStr](size_t I) { strStr[I] = Lower(strStr[I]); };
+		Handler = [&strStr](size_t I) { strStr[I] = lower(strStr[I]); };
 		break;
 	case UPPERCASE_FIRST:
-		Handler = [&strStr](size_t I) { strStr[I] = I? Lower(strStr[I]) : Upper(strStr[I]); };
+		Handler = [&strStr](size_t I) { strStr[I] = I? lower(strStr[I]) : upper(strStr[I]); };
 		break;
 	case UNKNOWN:
 		break;
@@ -211,13 +211,13 @@ void FindStyleTypeMaskAndPrependCharByExpansion(const wchar_t* Source, const siz
 	{
 		int Right = End;
 
-		if (static_cast<size_t>(Right) < StrSize && (IsAlphaNum(Source[Right]) || IsPreserveStyleTokenSeparator(Source[Right])))
+		if (static_cast<size_t>(Right) < StrSize && (is_alphanumeric(Source[Right]) || IsPreserveStyleTokenSeparator(Source[Right])))
 		{
 			Right++;
 			
 			while (static_cast<size_t>(Right) < StrSize)
 			{
-				if (!IsAlphaNum(Source[Right]) || (IsLower(Source[Right-1]) && IsUpper(Source[Right])))
+				if (!is_alphanumeric(Source[Right]) || (is_lower(Source[Right-1]) && is_upper(Source[Right])))
 					break;
 				Right++;
 			}
@@ -237,13 +237,13 @@ void FindStyleTypeMaskAndPrependCharByExpansion(const wchar_t* Source, const siz
 	{
 		int Left = Begin - 1;
 
-		if (Left >= 1 && (IsAlphaNum(Source[Left]) || IsPreserveStyleTokenSeparator(Source[Left])))
+		if (Left >= 1 && (is_alphanumeric(Source[Left]) || IsPreserveStyleTokenSeparator(Source[Left])))
 		{
 			Left--;
 
 			while (Left >= 0)
 			{
-				if (!IsAlphaNum(Source[Left]) || (IsLower(Source[Left]) && IsUpper(Source[Left + 1])))
+				if (!is_alphanumeric(Source[Left]) || (is_lower(Source[Left]) && is_upper(Source[Left + 1])))
 					break;
 				Left--;
 			}
@@ -318,7 +318,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 				}
 			}
 
-			Sep = (static_cast<size_t>(I) < Idx && IsLower(Source[Idx-1]) && IsUpper(Source[Idx])
+			Sep = (static_cast<size_t>(I) < Idx && is_lower(Source[Idx-1]) && is_upper(Source[Idx])
 					&& !IsPreserveStyleTokenSeparator(Source[Idx-1])
 					&& !IsPreserveStyleTokenSeparator(Source[Idx]));
 
@@ -349,7 +349,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 				break;
 			}
 
-			if (!Case && Upper(Source[Idx]) != Upper(j->Token[T]))
+			if (!Case && upper(Source[Idx]) != upper(j->Token[T]))
 			{
 				Matched = false;
 				break;

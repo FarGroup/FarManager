@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "strmix.hpp"
 #include "lasterror.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "farexcpt.hpp"
 #include "drivemix.hpp"
@@ -348,12 +348,12 @@ namespace fs
 
 	bool is_standard_drive_letter(wchar_t Letter)
 	{
-		return InRange(L'A', Upper(Letter), L'Z');
+		return InRange(L'A', upper(Letter), L'Z');
 	}
 
 	int get_drive_number(wchar_t Letter)
 	{
-		return Upper(Letter) - L'A';
+		return upper(Letter) - L'A';
 	}
 
 	string get_drive(wchar_t Letter)
@@ -2159,7 +2159,7 @@ string GuidToStr(const GUID& Guid)
 		SCOPE_EXIT{ RpcStringFree(&str); };
 		result = reinterpret_cast<const wchar_t*>(str);
 	}
-	return Upper(result);
+	return upper_copy(result);
 }
 
 bool StrToGuid(const wchar_t* Value, GUID& Guid)

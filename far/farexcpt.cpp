@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
@@ -84,7 +84,10 @@ static void ShowStackTrace(const std::vector<string>& Symbols)
 {
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		Message(MSG_WARNING | MSG_LEFTALIGN, msg(lng::MExcTrappedException), Symbols, { msg(lng::MOk) });
+		Message(MSG_WARNING | MSG_LEFTALIGN,
+			msg(lng::MExcTrappedException),
+			Symbols,
+			{ lng::MOk });
 	}
 	else
 	{
@@ -190,20 +193,20 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const except
 
 	FarDialogItem EditDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,msg(lng::MExcTrappedException)},
-		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,msg(lng::MExcException)},
+		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,msg(lng::MExcTrappedException).data()},
+		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,msg(lng::MExcException).data()},
 		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception},
-		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcAddress)},
+		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcAddress).data()},
 		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,strAddr.data()},
-		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcFunction)},
+		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcFunction).data()},
 		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Function},
-		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcModule)},
+		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcModule).data()},
 		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcStack)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcMinidump)},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore)},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).data()},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcStack).data()},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcMinidump).data()},
+		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore).data()},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<exception_context*>(&Context));
@@ -260,9 +263,9 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const excep
 		std::wcin >> Input;
 		if (Input.size() == 1)
 		{
-			if (Upper(Input.front()) == L'Y')
+			if (upper(Input.front()) == L'Y')
 				return reply_handle;
-			else if (Upper(Input.front()) == L'N')
+			else if (upper(Input.front()) == L'N')
 				return reply_ignore;
 		}
 	}
@@ -411,7 +414,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 
 	if (ItemIterator != std::cend(ECode))
 	{
-		Exception = far_language::instance().is_loaded()? msg(ItemIterator->IdMsg) : ItemIterator->DefaultMsg;
+		Exception = far_language::instance().is_loaded()? msg(ItemIterator->IdMsg).data() : ItemIterator->DefaultMsg;
 
 		if (Context.GetCode() == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 		{
@@ -442,22 +445,22 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 			}
 			else
 			{
-				const wchar_t* AVs[] = {L"read from ", L"write to ", L"execute at "};
-				strBuf = concat(Exception, L" (", AVs[Offset], strBuf, L')');
+				static const string_view AVs[] = {L"read from "_sv, L"write to "_sv, L"execute at "_sv };
+				strBuf = concat(Exception, L" ("_sv, AVs[Offset], strBuf, L')');
 				Exception=strBuf.data();
 			}
 		}
 		else if (Context.GetCode() == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS))
 		{
-			strBuf = concat(Exception, L" (");
+			strBuf = concat(Exception, L" ("_sv);
 			const auto ObjectName = xr->NumberParameters? ExtractObjectName(xr) : L"";
 			strBuf += ObjectName;
 			if (Message)
 			{
 				if (!ObjectName.empty())
-					append(strBuf, L" -> ");
+					append(strBuf, L" -> "_sv);
 
-				append(strBuf, L"std::exception: ", encoding::utf8::get_chars(Message));
+				append(strBuf, L"std::exception: "_sv, encoding::utf8::get_chars(Message));
 			}
 			strBuf += L')';
 			Exception = strBuf.data();
@@ -467,7 +470,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 	if (!Exception)
 	{
 		const auto Template = far_language::instance().is_loaded()? msg(lng::MExcUnknown) : L"Unknown exception";
-		append(strBuf, Template, L" (0x", to_hex_wstring(Context.GetCode()), L')');
+		append(strBuf, Template, L" (0x"_sv, to_hex_wstring(Context.GetCode()), L')');
 		Exception = strBuf.data();
 	}
 
@@ -724,7 +727,14 @@ static bool ExceptionTestHook(Manager::Key key)
 			break;
 		}
 
-		Message(MSG_WARNING, 1, L"Test Exceptions failed", L"", Names[ExitCode], L"", msg(lng::MOk));
+		Message(MSG_WARNING,
+			L"Test Exceptions failed",
+			{
+				L"",
+				Names[ExitCode],
+				L"",
+			},
+			{ lng::MOk });
 		return true;
 	}
 	return false;

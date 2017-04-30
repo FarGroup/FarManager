@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "vmenu2.hpp"
 #include "strmix.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 #include "exception.hpp"
 
 MenuItemEx FarList2MenuItem(const FarListItem& FItem)
@@ -630,7 +630,7 @@ void VMenu::FilterStringUpdated()
 		{
 			RemoveExternalSpaces(strName);
 			RemoveHighlights(strName);
-			if(StrStrI(strName, strFilter) == strName.cend())
+			if(!contains_icase(strName, strFilter))
 			{
 				CurItem.Flags |= LIF_HIDDEN;
 				ItemHiddenCount++;
@@ -803,19 +803,16 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 					switch (iParam)
 					{
 						case 0: // full compare
-							Res = !StrCmpI(strTemp, str);
+							Res = equal_icase(strTemp, str);
 							break;
 						case 1: // begin compare
-							Res = StrStrI(strTemp, str) == strTemp.cbegin();
+							Res = starts_with_icase(strTemp, str);
 							break;
 						case 2: // end compare
-							{
-								const auto Iter = RevStrStrI(strTemp, str);
-								Res = Iter != strTemp.cend() && Iter + str.size() == strTemp.cend();
-							}
+							Res = ends_with_icase(strTemp, str);
 							break;
 						case 3: // in str
-							Res = StrStrI(strTemp, str) != strTemp.cend();
+							Res = contains_icase(strTemp, str);
 							break;
 					}
 
@@ -2336,7 +2333,7 @@ void VMenu::ShowMenu(bool IsParent)
 int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 {
 	if (CheckSymbol)
-		CheckSymbol=Upper(CheckSymbol);
+		CheckSymbol=upper(CheckSymbol);
 
 	for (size_t I=StartPos; I < Items.size(); I++)
 	{
@@ -2347,7 +2344,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 
 		if (Ch)
 		{
-			if (CheckSymbol == Upper(Ch) || CheckSymbol == Upper(KeyToKeyLayout(Ch)))
+			if (CheckSymbol == upper(Ch) || CheckSymbol == upper(KeyToKeyLayout(Ch)))
 				return static_cast<int>(I);
 		}
 		else if (!CheckSymbol)
@@ -2382,7 +2379,8 @@ wchar_t VMenu::GetHighlights(const MenuItemEx *_item) const
 
 void VMenu::AssignHighlights(int Reverse)
 {
-	std::bitset<65536> Used;
+	static_assert(sizeof(wchar_t) == 2, "512 MB for a bitset is too much, rewrite it.");
+	std::bitset<std::numeric_limits<wchar_t>::max() + 1> Used;
 
 	/* $ 02.12.2001 KM
 	   + Поелику VMENU_SHOWAMPERSAND сбрасывается для корректной
@@ -2414,13 +2412,13 @@ void VMenu::AssignHighlights(int Reverse)
 				Ch = Items[I].strName[AmpPos + 1];
 		}
 
-		if (Ch && !Used[Upper(Ch)] && !Used[Lower(Ch)])
+		if (Ch && !Used[upper(Ch)] && !Used[lower(Ch)])
 		{
 			wchar_t ChKey=KeyToKeyLayout(Ch);
-			Used[Upper(ChKey)] = true;
-			Used[Lower(ChKey)] = true;
-			Used[Upper(Ch)] = true;
-			Used[Lower(Ch)] = true;
+			Used[upper(ChKey)] = true;
+			Used[lower(ChKey)] = true;
+			Used[upper(Ch)] = true;
+			Used[lower(Ch)] = true;
 			Items[I].AmpPos = static_cast<short>(AmpPos + 1 + ShowPos);
 		}
 	}
@@ -2439,13 +2437,13 @@ void VMenu::AssignHighlights(int Reverse)
 			{
 				wchar_t Ch = Name[J];
 
-				if ((Ch == L'&' || IsAlpha(Ch) || std::iswdigit(Ch)) && !Used[Upper(Ch)] && !Used[Lower(Ch)])
+				if ((Ch == L'&' || is_alpha(Ch) || std::iswdigit(Ch)) && !Used[upper(Ch)] && !Used[lower(Ch)])
 				{
 					wchar_t ChKey=KeyToKeyLayout(Ch);
-					Used[Upper(ChKey)] = true;
-					Used[Lower(ChKey)] = true;
-					Used[Upper(Ch)] = true;
-					Used[Lower(Ch)] = true;
+					Used[upper(ChKey)] = true;
+					Used[lower(ChKey)] = true;
+					Used[upper(Ch)] = true;
+					Used[lower(Ch)] = true;
 					Items[I].AmpPos = J + ShowPos;
 					break;
 				}
@@ -2801,17 +2799,14 @@ int VMenu::FindItem(int StartIndex, const string& Pattern, unsigned long long Fl
 {
 	if ((DWORD)StartIndex < (DWORD)Items.size())
 	{
-		size_t LenPattern = Pattern.size();
-
 		for (size_t I=StartIndex; I < Items.size(); I++)
 		{
 			string strTmpBuf(Items[I].strName);
-			size_t LenNamePtr = strTmpBuf.size();
 			RemoveHighlights(strTmpBuf);
 
 			if (Flags&LIFIND_EXACTMATCH)
 			{
-				if (!StrCmpNI(strTmpBuf.data(),Pattern.data(), std::max(LenPattern, LenNamePtr)))
+				if (starts_with_icase(strTmpBuf, Pattern))
 					return static_cast<int>(I);
 			}
 			else

@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panelctype.hpp"
-#include "local.hpp"
+#include "string_utils.hpp"
 
 class RegExp;
 struct RegExpMatch;
@@ -70,17 +70,7 @@ string& QuoteSpaceOnly(string &strStr);
 string& QuoteOuterSpace(string &strStr);
 inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return strStr; }
 
-size_t ReplaceStrings(string &strStr, const wchar_t* FindStr, size_t FindStrSize, const wchar_t* ReplStr, size_t ReplStrSize, bool IgnoreCase = false, size_t Count = string::npos);
-
-inline auto ReplaceStrings(string &strStr, const string& FindStr, const string& ReplStr, bool IgnoreCase = false, size_t Count = string::npos)
-{
-	return ReplaceStrings(strStr, FindStr.data(), FindStr.size(), ReplStr.data(), ReplStr.size(), IgnoreCase, Count);
-}
-
-inline auto ReplaceStrings(string &strStr, const wchar_t* FindStr, const wchar_t* ReplStr, bool IgnoreCase = false, size_t Count = string::npos)
-{
-	return ReplaceStrings(strStr, FindStr, wcslen(FindStr), ReplStr, wcslen(ReplStr), IgnoreCase, Count);
-}
+size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_view& ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
@@ -112,19 +102,6 @@ bool IsCaseMixed(const string &strStr);
 string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch);
 
 bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp,int PreserveStyle, int *SearchLength,const wchar_t* WordDiv=nullptr);
-
-int StrCmp(const string& a, const string& b);
-int StrCmp(const wchar_t* a, const string& b);
-int StrCmp(const string& a, const wchar_t* b);
-
-int StrCmpI(const string& a, const string& b);
-int StrCmpI(const wchar_t* a, const string& b);
-int StrCmpI(const string& a, const wchar_t* b);
-
-string& InplaceUpper(string& str, size_t pos = 0, size_t n = string::npos);
-string& InplaceLower(string& str, size_t pos = 0, size_t n = string::npos);
-inline string Upper(string str, size_t pos = 0, size_t n = string::npos) { return InplaceUpper(str, pos, n); }
-inline string Lower(string str, size_t pos = 0, size_t n = string::npos) { return InplaceLower(str, pos, n); }
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 
@@ -181,10 +158,7 @@ auto StringToFlags(const string& strFlags, const container& From, const wchar_t*
 
 	for (const auto& i: enum_tokens(strFlags, Separators))
 	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(From, j)
-		{
-			return !StrCmpNNI(i.data(), i.size(), j.second.data(), j.second.size());
-		});
+		const auto ItemIterator = std::find_if(CONST_RANGE(From, j) { return equal_icase(i, j.second); });
 		if (ItemIterator != std::cend(From))
 			Flags |= ItemIterator->first;
 	}

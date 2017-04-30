@@ -157,7 +157,7 @@ static void st_time(string &strDest, const tm *tmPtr, const locale_cache::names&
 			Names.Months[tmPtr->tm_mon].Short,
 			tmPtr->tm_year+1900);
 
-		InplaceUpper(strDest, 3, 3);
+		upper(strDest, 3, 3);
 	}
 	else
 	{
@@ -530,9 +530,13 @@ string MkStrFTime(const wchar_t *Format)
 void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Separator)
 {
 	const wchar_t Separators[] = { Separator, 0 };
-	const auto Components = split<std::vector<string>>(Src, STLF_ALLOWEMPTY, Separators);
-	assert(Components.size() == Count);
-	std::transform(ALL_CONST_RANGE(Components), Dst, [](const auto& i) { return i.empty()? -1 : std::stoul(i); });
+	const auto Components = enum_tokens(Src, Separators);
+	std::transform(ALL_CONST_RANGE(Components), Dst, [](const auto& i)
+	{
+		auto Str = make_string(i);
+		RemoveExternalSpaces(Str);
+		return Str.empty()? -1 : std::stoul(Str);
+	});
 }
 
 void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative)
