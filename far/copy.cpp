@@ -1828,7 +1828,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 				if (Rename)
 				{
-					CmpCode = equal_icase(PointToName(Src), PointToName(strDestPath));
+					CmpCode = equal(PointToName(Src), PointToName(strDestPath));
 				}
 
 				if (CmpCode==1)
@@ -2201,7 +2201,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (Rename)
 					{
-						CmpCode = equal_icase(PointToName(Src), PointToName(strDestPath));
+						CmpCode = equal(PointToName(Src), PointToName(strDestPath));
 					}
 
 					if (CmpCode==1 && !Rename)
