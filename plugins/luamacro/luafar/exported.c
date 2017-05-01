@@ -1086,7 +1086,8 @@ intptr_t LF_ProcessPanelEvent(lua_State* L, const struct ProcessPanelEventInfo *
 {
 	int res = FALSE;
 
-	if(GetExportFunction(L, "ProcessPanelEvent"))    //+1: Func
+	if (!(GetPluginData(L)->Flags & PDF_PROCESSINGERROR) &&
+			GetExportFunction(L, "ProcessPanelEvent"))     //+1: Func
 	{
 		PushPluginPair(L, Info->hPanel);   //+3
 		lua_pushinteger(L, Info->Event);   //+4
@@ -1306,7 +1307,8 @@ intptr_t LF_ProcessEditorEvent(lua_State* L, const struct ProcessEditorEventInfo
 {
 	intptr_t ret = 0;
 
-	if(GetExportFunction(L, "ProcessEditorEvent"))     //+1: Func
+	if (!(GetPluginData(L)->Flags & PDF_PROCESSINGERROR) &&
+			GetExportFunction(L, "ProcessEditorEvent"))     //+1: Func
 	{
 		lua_pushinteger(L, Info->EditorID); //+2;
 		lua_pushinteger(L, Info->Event);    //+3;
@@ -1350,7 +1352,8 @@ intptr_t LF_ProcessViewerEvent(lua_State* L, const struct ProcessViewerEventInfo
 {
 	intptr_t ret = 0;
 
-	if(GetExportFunction(L, "ProcessViewerEvent"))     //+1: Func
+	if (!(GetPluginData(L)->Flags & PDF_PROCESSINGERROR) &&
+			GetExportFunction(L, "ProcessViewerEvent"))     //+1: Func
 	{
 		lua_pushinteger(L, Info->ViewerID);
 		lua_pushinteger(L, Info->Event);
