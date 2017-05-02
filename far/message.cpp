@@ -250,7 +250,7 @@ void Message::Init(
 
 	if (!strErrStr.empty())
 	{
-		strClipText += strErrStr + L"\r\n";
+		append(strClipText, strErrStr, L"\r\n\r\n"_sv);
 
 		// вычисление "красивого" размера
 		auto LenErrStr = strErrStr.size();
