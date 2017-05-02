@@ -215,7 +215,13 @@ void copy_progress::SetScanName(const string& Name)
 
 void copy_progress::CreateScanBackground()
 {
-	Message m(MSG_LEFTALIGN | MSG_NOFLUSH, msg(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle), { msg(lng::MCopyScanning), m_CurrentBar }, {});
+	Message m(MSG_LEFTALIGN | MSG_NOFLUSH,
+		msg(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle),
+			{
+				msg(lng::MCopyScanning),
+				m_CurrentBar
+			},
+			{});
 	int MX1, MY1, MX2, MY2;
 	m.GetMessagePosition(MX1, MY1, MX2, MY2);
 	m_Rect.Left = MX1;
@@ -253,7 +259,10 @@ void copy_progress::CreateBackground()
 		Items.emplace_back(L"");
 	}
 
-	Message m(MSG_LEFTALIGN | MSG_NOFLUSH, Title, Items, {});
+	Message m(MSG_LEFTALIGN | MSG_NOFLUSH,
+		Title,
+		std::move(Items),
+		{});
 
 	int MX1, MY1, MX2, MY2;
 	m.GetMessagePosition(MX1, MY1, MX2, MY2);

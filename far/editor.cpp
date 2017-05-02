@@ -6779,7 +6779,7 @@ void Editor::EditorShowMsg(const string& Title,const string& Msg, const string& 
 
 		Message(MSG_LEFTALIGN,
 			Title,
-			MsgItems,
+			std::move(MsgItems),
 			{});
 	}
 

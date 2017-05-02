@@ -2719,7 +2719,7 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 
 		Message(MSG_LEFTALIGN,
 			msg(lng::MViewSearchTitle),
-			MsgItems,
+			std::move(MsgItems),
 			{});
 	}
 	if (!PreRedrawStack().empty())

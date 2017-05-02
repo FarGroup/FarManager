@@ -385,7 +385,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 
 		MessageResult = Message(MSG_WARNING,
 			msg(lng::MChangeHotPlugDisconnectDriveTitle),
-			MessageItems,
+			std::move(MessageItems),
 			{ lng::MHRemove, lng::MHCancel });
 	}
 

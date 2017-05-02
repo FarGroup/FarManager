@@ -136,7 +136,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 
 		Message(0,
 			msg((Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS) ? lng::MDeleteWipeTitle : lng::MDeleteTitle),
-			MsgItems,
+			std::move(MsgItems),
 			{});
 	}
 	if (!PreRedrawStack().empty())

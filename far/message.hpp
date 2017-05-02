@@ -55,7 +55,7 @@ public:
 	Message(
 		DWORD Flags,
 		const string& Title,
-		const std::vector<string>& Strings,
+		std::vector<string> Strings,
 		const std::vector<lng>& Buttons,
 		const wchar_t* HelpTopic = nullptr,
 		const GUID* Id = nullptr,
@@ -65,8 +65,8 @@ public:
 	Message(
 		DWORD Flags,
 		const string& Title,
-		const std::vector<string>& Strings,
-		const std::vector<string>& Buttons,
+		std::vector<string> Strings,
+		std::vector<string> Buttons,
 		const wchar_t* HelpTopic,
 		const GUID* Id,
 		Plugin* PluginNumber
@@ -89,8 +89,8 @@ private:
 	void Init(
 		DWORD Flags,
 		const string& Title,
-		const std::vector<string>& Strings,
-		const std::vector<string>& Buttons,
+		std::vector<string>&& Strings,
+		std::vector<string>&& Buttons,
 		const std::vector<string>& Inserts,
 		const wchar_t* HelpTopic,
 		Plugin* PluginNumber,

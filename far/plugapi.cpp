@@ -1236,8 +1236,8 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 
 		int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),
 			Title,
-			MsgItems,
-			Buttons,
+			std::move(MsgItems),
+			std::move(Buttons),
 			EmptyToNull(strTopic.data()), Id, PluginNumber);
 
 		return MsgCode;

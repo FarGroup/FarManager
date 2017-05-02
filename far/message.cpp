@@ -171,26 +171,26 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD Flags, const string& Title, const std::vector<string>& Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
+Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
 	m_ExitCode(0)
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
 	std::transform(ALL_CONST_RANGE(Buttons), std::back_inserter(StrButtons), msg);
-	Init(Flags, Title, Strings, StrButtons, Inserts, HelpTopic, nullptr, Id);
+	Init(Flags, Title, std::move(Strings), std::move(StrButtons), Inserts, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags, const string& Title, const std::vector<string>& Strings, const std::vector<string>& Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
+Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, std::vector<string> Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
 	m_ExitCode(0)
 {
-	Init(Flags, Title, Strings, Buttons, {}, HelpTopic, PluginNumber, Id);
+	Init(Flags, Title, std::move(Strings), std::move(Buttons), {}, HelpTopic, PluginNumber, Id);
 }
 
 void Message::Init(
 	DWORD Flags,
 	const string& Title,
-	const std::vector<string>& Strings,
-	const std::vector<string>& Buttons,
+	std::vector<string>&& Strings,
+	std::vector<string>&& Buttons,
 	const std::vector<string>& Inserts,
 	const wchar_t* HelpTopic,
 	Plugin* PluginNumber,
@@ -216,11 +216,7 @@ void Message::Init(
 		}
 	}
 
-	size_t MaxLength = 0;
-	for (const auto& i: Strings)
-	{
-		MaxLength = std::max(MaxLength, i.size());
-	}
+	auto MaxLength = std::max_element(ALL_CONST_RANGE(Strings), [](const auto& a, const auto &b) { return a.size() < b.size(); })->size();
 
 	string strClipText;
 
@@ -246,7 +242,11 @@ void Message::Init(
 
 	MaxLength = std::min(MaxLength, MAX_MESSAGE_WIDTH);
 
-	auto MessageStrings = Strings;
+	for (const auto& i : Strings)
+	{
+		append(strClipText, i, L"\r\n"_sv);
+	}
+	append(strClipText, L"\r\n"_sv);
 
 	if (!strErrStr.empty())
 	{
@@ -276,20 +276,9 @@ void Message::Init(
 		FarFormatText(strErrStr, LenErrStr, strErrStr, L"\n", 0); //?? MaxLength ??
 		for (const auto& i : enum_tokens(strErrStr, L"\n"))
 		{
-			MessageStrings.emplace_back(ALL_CONST_RANGE(i));
+			Strings.emplace_back(ALL_CONST_RANGE(i));
 		}
 	}
-
-	if (MessageStrings.empty())
-	{
-		MessageStrings.resize(1);
-	}
-
-	for (const auto& i: Strings)
-	{
-		append(strClipText, i, L"\r\n"_sv);
-	}
-	append(strClipText, L"\r\n"_sv);
 
 	if (!Buttons.empty())
 	{
@@ -317,7 +306,7 @@ void Message::Init(
 	MessageX1 = X1;
 	MessageX2 = X2; 
 
-	int MessageHeight = static_cast<int>(MessageStrings.size() + 2 + 2); // 2 for frame, 2 for border
+	int MessageHeight = static_cast<int>(Strings.size() + 2 + 2); // 2 for frame, 2 for border
 	if (!Buttons.empty())
 	{
 		MessageHeight += 2; // 1 for separator, 1 for buttons line
@@ -345,7 +334,7 @@ void Message::Init(
 	if (!Buttons.empty())
 	{
 		std::vector<DialogItemEx> MsgDlg;
-		MsgDlg.reserve(MessageStrings.size() + Buttons.size() + 1 + 1); // 1 for border, 1 for separator
+		MsgDlg.reserve(Strings.size() + Buttons.size() + 1 + 1); // 1 for border, 1 for separator
 
 		int RetCode;
 
@@ -362,7 +351,7 @@ void Message::Init(
 
 		bool StrSeparator=false;
 
-		for (size_t i = 0; i != MessageStrings.size(); ++i)
+		for (size_t i = 0; i != Strings.size(); ++i)
 		{
 			DialogItemEx Item;
 
@@ -372,28 +361,25 @@ void Message::Init(
 			Item.X1 = (Flags & MSG_LEFTALIGN) ? 5 : -1;
 			Item.Y1 = i + 2;
 
-			if (!MessageStrings[i].empty() && (MessageStrings[i].front() == L'\1' || MessageStrings[i].front() == L'\2'))
+			if (!Strings[i].empty() && (Strings[i].front() == L'\1' || Strings[i].front() == L'\2'))
 			{
-				Item.Flags |= (MessageStrings[i].front() == L'\2' ? DIF_SEPARATOR2 : DIF_SEPARATOR);
-				if(i == MessageStrings.size() - 1)
+				Item.Flags |= (Strings[i].front() == L'\2' ? DIF_SEPARATOR2 : DIF_SEPARATOR);
+				if(i == Strings.size() - 1)
 				{
 					StrSeparator=true;
 				}
 			}
 			else
 			{
-				if (MessageStrings[i].size() + 6 + 2 + 2 > static_cast<size_t>(MessageWidth)) // 6 for frame, 2 for border, 2 for inner margin
+				if (Strings[i].size() + 6 + 2 + 2 > static_cast<size_t>(MessageWidth)) // 6 for frame, 2 for border, 2 for inner margin
 				{
 					Item.Type = DI_EDIT;
 					Item.Flags |= DIF_READONLY | DIF_BTNNOCLOSE | DIF_SELECTONENTRY;
 					Item.X1 = 5;
 					Item.X2 = X2-X1-5;
-					Item.strData = MessageStrings[i];
 				}
-				else
-				{
-					Item.strData = MessageStrings[i];
-				}
+
+				Item.strData = std::move(Strings[i]);
 			}
 			MsgDlg.emplace_back(std::move(Item));
 		}
@@ -405,7 +391,7 @@ void Message::Init(
 
 			Item.Type = DI_TEXT;
 			Item.Flags = DIF_SEPARATOR;
-			Item.Y1 = Item.Y2 = MessageStrings.size() + 2;
+			Item.Y1 = Item.Y2 = Strings.size() + 2;
 
 			MsgDlg.emplace_back(std::move(Item));
 		}
@@ -429,7 +415,7 @@ void Message::Init(
 			Item.Flags = DIF_CENTERGROUP;
 
 			Item.Y1 = Y2 - Y1 - 2;
-			Item.strData = Buttons[i];
+			Item.strData = std::move(Buttons[i]);
 
 			if (!i)
 			{
@@ -438,6 +424,9 @@ void Message::Init(
 
 			MsgDlg.emplace_back(std::move(Item));
 		}
+
+		clear_and_shrink(Strings);
+		clear_and_shrink(Buttons);
 
 		const auto Dlg = Dialog::create(MsgDlg, &Message::MsgDlgProc, this, &strClipText);
 		if (X1 == -1) X1 = 0;
@@ -496,9 +485,9 @@ void Message::Init(
 		Text(concat(L' ', strTempTitle, L' '));
 	}
 
-	for (size_t i = 0; i != MessageStrings.size(); ++i)
+	for (size_t i = 0; i != Strings.size(); ++i)
 	{
-		const auto& SrcItem = MessageStrings[i];
+		const auto& SrcItem = Strings[i];
 
 		if (!SrcItem.empty() && (SrcItem.front() == L'\1' || SrcItem.front() == L'\2'))
 		{
@@ -544,7 +533,7 @@ void Message::Init(
 	     макроса запретом отрисовки (bugz#533).
 	*/
 
-	if (Buttons.empty() && !(Flags & MSG_NOFLUSH))
+	if (!(Flags & MSG_NOFLUSH))
 	{
 		if (Global->ScrBuf->GetLockCount()>0 && !Global->CtrlObject->Macro.PeekKey())
 			Global->ScrBuf->SetLockCount(0);

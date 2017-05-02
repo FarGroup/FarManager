@@ -2678,8 +2678,14 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 		{
 			string strSrcName(SrcName);
 			InsertQuote(strSrcName);
-			MsgCode = Message(MSG_WARNING, msg(lng::MWarning),
-				{ msg(lng::MCopyEncryptWarn1), strSrcName, msg(lng::MCopyEncryptWarn2), msg(lng::MCopyEncryptWarn3) },
+			MsgCode = Message(MSG_WARNING,
+				msg(lng::MWarning),
+				{
+					msg(lng::MCopyEncryptWarn1),
+					strSrcName,
+					msg(lng::MCopyEncryptWarn2),
+					msg(lng::MCopyEncryptWarn3)
+				},
 				{ lng::MCopyIgnore, lng::MCopyIgnoreAll, lng::MCopyCancel },
 				L"WarnCopyEncrypt");
 		}

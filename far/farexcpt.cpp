@@ -80,13 +80,13 @@ enum exception_dialog
 	ed_last_button = ed_button_ignore
 };
 
-static void ShowStackTrace(const std::vector<string>& Symbols)
+static void ShowStackTrace(std::vector<string>&& Symbols)
 {
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		Message(MSG_WARNING | MSG_LEFTALIGN,
 			msg(lng::MExcTrappedException),
-			Symbols,
+			std::move(Symbols),
 			{ lng::MOk });
 	}
 	else

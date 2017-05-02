@@ -566,7 +566,10 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 	int Result;
 	for(;;)
 	{
-		Result = Message(MSG_WARNING|MSG_ERRORTYPE, msg(Title), Msgs, Buttons);
+		Result = Message(MSG_WARNING | MSG_ERRORTYPE,
+			msg(Title),
+			std::move(Msgs),
+			std::move(Buttons));
 
 		if(SwitchBtn)
 		{

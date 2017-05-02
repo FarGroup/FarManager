@@ -1046,7 +1046,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 		Message(MSG_WARNING | MSG_ERRORTYPE,
 			msg(lng::MError),
-			Strings,
+			std::move(Strings),
 			{ lng::MOk },
 			L"ErrCannotExecute",
 			nullptr,
