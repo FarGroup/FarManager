@@ -1109,7 +1109,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 		if (!PtrCmd || !*PtrCmd || !starts_with_icase(PtrCmd, Token_If)) //??? IF/I не обрабатывается
 			break;
 
-		PtrCmd += Token_If.size() + 1;
+		PtrCmd += Token_If.size();
 
 		while (*PtrCmd && IsSpace(*PtrCmd))
 			++PtrCmd;
@@ -1121,7 +1121,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 		{
 			Not=TRUE;
 
-			PtrCmd += Token_Not.size() + 1;
+			PtrCmd += Token_Not.size();
 
 			while (*PtrCmd && IsSpace(*PtrCmd))
 				++PtrCmd;
@@ -1133,7 +1133,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 		if (*PtrCmd && starts_with_icase(PtrCmd, Token_Exist))
 		{
 
-			PtrCmd += Token_Exist.size() + 1;
+			PtrCmd += Token_Exist.size();
 
 			while (*PtrCmd && IsSpace(*PtrCmd))
 				++PtrCmd;
@@ -1203,7 +1203,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 		else if (*PtrCmd && starts_with_icase(PtrCmd, Token_Defined))
 		{
 
-			PtrCmd += Token_Defined.size() + 1;
+			PtrCmd += Token_Defined.size();
 
 			while (*PtrCmd && IsSpace(*PtrCmd))
 				++PtrCmd;
