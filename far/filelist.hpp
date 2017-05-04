@@ -258,7 +258,7 @@ public:
 	bool PluginPanelHelp(const plugin_panel* hPlugin) const;
 	void ResetLastUpdateTime()
 	{
-		LastUpdateTime = 0;
+		LastUpdateTime = {};
 	}
 	string GetPluginPrefix() const;
 
@@ -424,7 +424,7 @@ private:
 	unsigned long long SelFileSize{};
 	unsigned long long TotalFileSize{};
 	unsigned long long FreeDiskSize = -1;
-	clock_t LastUpdateTime{};
+	std::chrono::steady_clock::time_point LastUpdateTime;
 	int m_Height{};
 	int m_Columns{};
 	int ColumnsInGlobal{};

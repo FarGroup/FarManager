@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "blob_builder.hpp"
 #include "string_utils.hpp"
 #include "exception.hpp"
+#include "datetime.hpp"
 
 DizList::DizList():
 	m_CodePage(CP_DEFAULT),
@@ -121,7 +122,7 @@ void DizList::Read(const string& Path, const string* DizName)
 
 		if (const auto DizFile = os::fs::file(m_DizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
-			clock_t StartTime=clock();
+			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 			uintptr_t CodePage=CP_DEFAULT;
 			bool bSigFound=false;
 
@@ -134,7 +135,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			string DizText;
 			while (GetStr.GetString(DizText))
 			{
-				if (!(m_DizData.size() & 127) && clock() - StartTime > CLOCKS_PER_SEC)
+				if (TimeCheck)
 				{
 					SetCursorType(false, 0);
 					PR_ReadingMsg();

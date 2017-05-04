@@ -64,7 +64,7 @@ public:
 
 	// BUGBUG
 
-	clock_t StartIdleTime;
+	std::chrono::steady_clock::time_point StartIdleTime;
 	string g_strFarModuleName;
 	string g_strFarINI;
 	string g_strFarPath;
@@ -119,8 +119,8 @@ public:
 
 private:
 	DWORD m_MainThreadId;
-	os::hp_clock m_FarUpTime;
 	os::handle m_MainThreadHandle;
+	std::chrono::steady_clock::time_point m_FarStartTime;
 
 	string m_SearchString;
 	bool m_SearchHex;

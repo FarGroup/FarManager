@@ -4174,7 +4174,7 @@ void Dialog::SetDialogData(void* NewDataDialog)
    пользовательских ответов в одном месте (здесь).
    Сброс этой переменной должен осуществляться перед общим началом операции
 */
-long WaitUserTime;
+std::chrono::steady_clock::duration WaitUserTime;
 
 /* $ 11.08.2000 SVS
    + Для того, чтобы послать DM_CLOSE нужно переопределить Process
@@ -4196,27 +4196,24 @@ void Dialog::Process()
 	if (m_ExitCode == -1)
 	{
 		static std::atomic_long DialogsCount(0);
-		clock_t btm = 0;
-		long    save = 0;
+		std::chrono::steady_clock::time_point btm;
+
 		DialogMode.Set(DMODE_BEGINLOOP);
 
-		++DialogsCount;
-
-		if (DialogsCount == 1)
+		if (!DialogsCount)
 		{
-			btm = clock();
-			save = WaitUserTime;
-			WaitUserTime = -1;
+			btm = std::chrono::steady_clock::now();
 		}
 
+		++DialogsCount;
 		Global->WindowManager->ExecuteWindow(shared_from_this());
 		Global->WindowManager->ExecuteModal(shared_from_this());
-		save += (clock() - btm);
-
 		--DialogsCount;
 
 		if (!DialogsCount)
-			WaitUserTime = save;
+		{
+			WaitUserTime += std::chrono::steady_clock::now() - btm;
+		}
 	}
 
 	if (SavedItems)

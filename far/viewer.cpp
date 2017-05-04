@@ -160,7 +160,7 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	AdjustSelPosition(),
 	redraw_selection(),
 	m_bQuickView(bQuickView),
-	m_IdleCheck(std::make_unique<time_check>(time_check::mode::delayed, 500)),
+	m_IdleCheck(std::make_unique<time_check>(time_check::mode::delayed, 500ms)),
 	vread_buffer(std::max(MaxViewLineBufferSize(), size_t(8192))),
 	lcache_first(-1),
 	lcache_last(-1),
@@ -432,20 +432,25 @@ bool Viewer::OpenFile(const string& Name,int warning)
 	ChangeViewKeyBar();
 	AdjustWidth();
 
-	const auto strRoot = GetPathRoot(strFullFileName);
-	int DriveType = FAR_GetDriveType(strRoot, 2); // media inserted here
-	int update_check_period;
-	switch (DriveType) //??? make it configurable
+	const auto update_check_period = [&]() -> std::chrono::milliseconds
 	{
-		case DRIVE_REMOVABLE: update_check_period = -1;  break; // floppy: never
-		case DRIVE_USBDRIVE:  update_check_period = 500; break; // flash drive: 0.5 sec
-		case DRIVE_FIXED:     update_check_period = +1;  break; // hard disk: 1 msec
-		case DRIVE_REMOTE:    update_check_period = 500; break; // network drive: 0.5 sec
-		case DRIVE_CDROM:     update_check_period = -1;  break; // cd/dvd: never
-		case DRIVE_RAMDISK:   update_check_period = +1;  break; // ram-drive: 1 msec
-		default:              update_check_period = -1;  break; // unknown: never
+		// media inserted here
+		switch (FAR_GetDriveType(GetPathRoot(strFullFileName), 2)) //??? make it configurable
+		{
+			case DRIVE_REMOVABLE: return 0s;
+			case DRIVE_USBDRIVE:  return 500ms;
+			case DRIVE_FIXED:     return 1s;
+			case DRIVE_REMOTE:    return 500ms;
+			case DRIVE_CDROM:     return 0s;
+			case DRIVE_RAMDISK:   return 1s;
+			default:              return 0s;
+		}
+	}();
+
+	if (update_check_period != 0s)
+	{
+		m_TimeCheck = std::make_unique<time_check>(time_check::mode::delayed, update_check_period);
 	}
-	m_TimeCheck = std::make_unique<time_check>(time_check::mode::delayed, update_check_period);
 
 	if (!HostFileViewer) ReadEvent();
 
@@ -558,7 +563,9 @@ void Viewer::ShowPage(int nMode)
 			break;
 		case SHOW_RELOAD:
 			{
-				m_TimeCheck->reset();
+				if (m_TimeCheck)
+					m_TimeCheck->reset();
+
 				CheckChanged();
 
 				Strings.clear();
@@ -1606,7 +1613,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 			if (ViewFile)
 			{
-				if (!*m_TimeCheck)
+				if (m_TimeCheck && !*m_TimeCheck)
 					return true;
 
 				CheckChanged();

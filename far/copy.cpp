@@ -1874,8 +1874,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	if (!(Flags&FCOPY_COPYTONUL) && !equal_icase(strDestPath, L"prn"_sv))
 		SetDestDizPath(strDestPath);
 
+	CP->SetNames(Src, strDestPath);
 	CP->SetProgressValue(0,0);
-	CP->SetNames(Src,strDestPath);
 
 	int IsSetSecuty=FALSE;
 

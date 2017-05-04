@@ -64,7 +64,7 @@ private:
 	unsigned long long GetBytesDone() const { return m_Bytes.Copied + m_Bytes.Skipped; }
 	static size_t GetCanvasWidth();
 
-	clock_t m_CopyStartTime;
+	std::chrono::steady_clock::time_point m_CopyStartTime;
 	IndeterminateTaskBar m_TB;
 	wakeful m_Wakeful;
 	SMALL_RECT m_Rect;
@@ -90,7 +90,7 @@ private:
 	string m_TimeLeft;
 	string m_Speed;
 	string m_FilesCopied;
-	long m_CalcTime;
+	std::chrono::steady_clock::duration m_CalcTime;
 
 	// BUGBUG
 public:

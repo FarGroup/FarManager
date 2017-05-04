@@ -516,15 +516,13 @@ string StrFTime(const wchar_t* Format, const tm* t)
 
 string MkStrFTime(const wchar_t *Format)
 {
-	time_t secs_now;
-	_tzset();
-	time(&secs_now);
-	const auto time_now = localtime(&secs_now);
+	const auto Time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
 	if (!Format || !*Format)
 		Format = Global->Opt->Macro.strDateFormat.data();
 
-	return StrFTime(Format, time_now);
+	_tzset();
+	return StrFTime(Format, std::localtime(&Time));
 }
 
 void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Separator)

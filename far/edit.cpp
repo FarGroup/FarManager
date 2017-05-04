@@ -1725,16 +1725,16 @@ bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
-		static clock_t PrevDoubleClick = 0;
+		static std::chrono::steady_clock::time_point PrevDoubleClick;
 		static COORD PrevPosition={};
 
-		const auto CurrentTime = clock();
+		const auto CurrentTime = std::chrono::steady_clock::now();
 
-		if (static_cast<unsigned long>((CurrentTime - PrevDoubleClick) / CLOCKS_PER_SEC * 1000) <= GetDoubleClickTime() && MouseEvent->dwEventFlags != MOUSE_MOVED &&
+		if (CurrentTime - PrevDoubleClick <= std::chrono::milliseconds(GetDoubleClickTime()) && MouseEvent->dwEventFlags != MOUSE_MOVED &&
 		        PrevPosition.X == MouseEvent->dwMousePosition.X && PrevPosition.Y == MouseEvent->dwMousePosition.Y)
 		{
 			Select(0, m_Str.size());
-			PrevDoubleClick=0;
+			PrevDoubleClick = {};
 			PrevPosition.X=0;
 			PrevPosition.Y=0;
 		}
@@ -1747,7 +1747,7 @@ bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 		else
 		{
-			PrevDoubleClick=0;
+			PrevDoubleClick = {};
 			PrevPosition.X=0;
 			PrevPosition.Y=0;
 		}

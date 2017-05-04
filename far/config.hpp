@@ -901,6 +901,6 @@ private:
 string GetFarIniString(const string& AppName, const string& KeyName, const string& Default);
 int GetFarIniInt(const string& AppName, const string& KeyName, int Default);
 
-clock_t GetRedrawTimeout();
+std::chrono::steady_clock::duration GetRedrawTimeout();
 
 #endif // CONFIG_HPP_E468759B_688C_4D45_A5BA_CF1D4FCC9A08

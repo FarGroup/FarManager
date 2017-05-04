@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <array>
 #include <atomic>
 #include <bitset>
+#include <chrono>
 #include <forward_list>
 #include <fstream>
 #include <functional>
@@ -183,6 +184,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using string = std::wstring;
 using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 #include "sdk.hpp"
 

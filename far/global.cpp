@@ -48,6 +48,7 @@ global::global():
 	OnlyEditorViewerUsed(),
 	m_MainThreadId(GetCurrentThreadId()),
 	m_MainThreadHandle(os::OpenCurrentThread()),
+	m_FarStartTime(std::chrono::steady_clock::now()),
 	m_SearchHex(),
 	m_ConfigProvider(),
 	Opt(std::make_unique<Options>()),
@@ -62,7 +63,6 @@ global::global():
 	// идет процесс назначения клавиши в макросе?
 	IsProcessAssignMacroKey = 0;
 	PluginPanelsCount = 0;
-	StartIdleTime=0;
 	GlobalSearchCase=false;
 	GlobalSearchWholeWords=false; // значение "Whole words" для поиска
 	GlobalSearchReverse=false;
@@ -99,7 +99,7 @@ global::~global()
 
 unsigned long long global::FarUpTime() const
 {
-	return m_FarUpTime.query(os::hp_clock::factor::microseconds);
+	return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_FarStartTime).count();
 }
 
 void global::CatchError()

@@ -6505,7 +6505,7 @@ void FileList::Update(int Mode)
 			break;
 		}
 
-	LastUpdateTime=clock();
+	LastUpdateTime = std::chrono::steady_clock::now();
 }
 
 void FileList::UpdateIfRequired()
@@ -6942,7 +6942,7 @@ bool FileList::UpdateIfChanged(bool Idle)
 	{
 		/* $ 19.12.2001 VVM
 		  ! Сменим приоритеты. При Force обновление всегда! */
-		if (IsVisible() && (clock() - LastUpdateTime > 2 * CLOCKS_PER_SEC))
+		if (IsVisible() && (std::chrono::steady_clock::now() - LastUpdateTime > 2s))
 		{
 			if (Idle) ProcessPluginEvent(FE_IDLE,nullptr);
 

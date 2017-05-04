@@ -230,7 +230,7 @@ static int per_char_compare(const string_view& Str1, const string_view& Str2, co
 	return Iterator.first == End.first? -1 : 1;
 }
 
-static const auto create_alt_sort_table()
+static auto create_alt_sort_table()
 {
 	static_assert(sizeof(wchar_t) == 2, "4 GB for a sort table is too much, rewrite it.");
 	static const auto TableSize = std::numeric_limits<wchar_t>::max() + 1;
@@ -289,7 +289,7 @@ int StrCmpC(const string_view& Str1, const string_view& Str2)
 	});
 }
 
-static int NumStrCmp_base(const string_view& Str1, const string_view Str2, int(*Comparer)(const string_view&, const string_view&))
+static int NumStrCmp_base(const string_view& Str1, const string_view& Str2, int(*Comparer)(const string_view&, const string_view&))
 {
 	return per_char_compare(Str1, Str2, [&](const wchar_t*& It1, const wchar_t* End1, const wchar_t*& It2, const wchar_t* End2)
 	{

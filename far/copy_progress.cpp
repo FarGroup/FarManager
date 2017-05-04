@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 
 /* Общее время ожидания пользователя */
-extern long WaitUserTime;
+extern std::chrono::steady_clock::duration WaitUserTime;
 
 copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_CopyStartTime(),
@@ -59,8 +59,7 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_IsCancelled(false),
 	m_Color(colors::PaletteColorToFarColor(COL_DIALOGTEXT)),
 	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
-	m_SpeedUpdateCheck(time_check::mode::immediate, 3000 * CLOCKS_PER_SEC / 1000),
-	m_CalcTime(),
+	m_SpeedUpdateCheck(time_check::mode::immediate, 3s),
 	m_SecurityTimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
 	m_Files(),
 	m_Bytes()
@@ -278,8 +277,9 @@ void copy_progress::SetNames(const string& Src, const string& Dst)
 	{
 		if (!m_Files.Copied)
 		{
-			m_CopyStartTime = clock();
-			WaitUserTime = m_CalcTime = 0;
+			m_CopyStartTime = std::chrono::steady_clock::now();
+			WaitUserTime = 0s;
+			m_CalcTime = 0s;
 		}
 	}
 
@@ -307,22 +307,10 @@ void copy_progress::SetTotalProgress(unsigned long long CompletedSize, unsigned 
 
 void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo)
 {
-	const auto CurrentTime = clock();
-
-	if (WaitUserTime != -1) // -1 => находимся в процессе ожидания ответа юзера
-	{
-		m_CalcTime = CurrentTime - m_CopyStartTime - WaitUserTime;
-	}
+	m_CalcTime = std::chrono::steady_clock::now() - m_CopyStartTime - WaitUserTime;
 
 	string tmp[3];
-
-	const auto CalcTime = m_CalcTime / CLOCKS_PER_SEC;
-
-	if (!CalcTime)
-	{
-		tmp[0] = tmp[1] = tmp[2] = string(8, L' ');
-	}
-	else
+	if (const auto CalcTime = std::chrono::duration_cast<std::chrono::seconds>(m_CalcTime).count())
 	{
 		SizeDone -= m_Bytes.Skipped;
 
@@ -348,6 +336,10 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 		tmp[0] = strCalcTimeStr;
 		tmp[1] = m_TimeLeft;
 		tmp[2] = m_Speed;
+	}
+	else
+	{
+		tmp[0] = tmp[1] = tmp[2] = string(8, L' ');
 	}
 
 	m_Time = format(lng::MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);

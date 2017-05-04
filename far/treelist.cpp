@@ -81,7 +81,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 
-static clock_t TreeStartTime;
+static std::chrono::steady_clock::time_point TreeStartTime;
 static int LastScrX = -1;
 static int LastScrY = -1;
 
@@ -381,7 +381,7 @@ public:
 
 	void remove(const wchar_t* Name)
 	{
-		erase_if(m_Names, [NameView = string_view(Name, wcslen(Name))](const auto& i)
+		erase_if(m_Names, [NameView = string_view(Name)](const auto& i)
 		{
 			return starts_with_icase(i, NameView) && (i.size() == NameView.size() || (i.size() > NameView.size() && IsSlash(i[NameView.size()])));
 		});
@@ -709,7 +709,7 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 		LastScrY = ScrY;
 	}
 
-	if (IsChangeConsole || (clock() - TreeStartTime) > CLOCKS_PER_SEC)
+	if (IsChangeConsole || std::chrono::steady_clock::now() - TreeStartTime > 1s)
 	{
 		Message(FirstCall? 0 : MSG_KEEPBACKGROUND,
 			msg(lng::MTreeTitle),
@@ -727,7 +727,7 @@ static int MsgReadTree(size_t TreeCount, int FirstCall)
 				item->TreeCount = TreeCount;
 			}
 		}
-		TreeStartTime = clock();
+		TreeStartTime = std::chrono::steady_clock::now();
 	}
 
 	return 1;
@@ -880,7 +880,7 @@ bool TreeList::ReadTree()
 	m_ListData.emplace_back(m_Root);
 
 	auto FirstCall = true, AscAbort = false;
-	TreeStartTime = clock();
+	TreeStartTime = std::chrono::steady_clock::now();
 	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
 	ScTree.SetFindPath(m_Root, L"*", 0);
 	LastScrX = ScrX;

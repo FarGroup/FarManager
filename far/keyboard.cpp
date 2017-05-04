@@ -80,7 +80,7 @@ enum MODIF_PRESSED_LAST
 };
 static TBitFlags<size_t> PressedLast;
 
-static clock_t KeyPressedLastTime;
+static std::chrono::steady_clock::time_point KeyPressedLastTime;
 
 /* ----------------------------------------------------------------- */
 struct TFKey
@@ -799,7 +799,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	static auto LastEventIdle = false;
 
 	if (!LastEventIdle)
-		Global->StartIdleTime=clock();
+		Global->StartIdleTime = std::chrono::steady_clock::now();
 
 	LastEventIdle = false;
 
@@ -861,7 +861,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 		if (!(LoopCount & 15))
 		{
-			clock_t CurTime=clock();
+			const auto CurTime = std::chrono::steady_clock::now();
 
 			if (EnableShowTime)
 				ShowTimeInBackground();
@@ -872,7 +872,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 				{
 					static bool UpdateReenter = false;
 
-					if (!UpdateReenter && CurTime-KeyPressedLastTime>300)
+					if (!UpdateReenter && CurTime - KeyPressedLastTime > 300ms)
 					{
 						if (Global->WindowManager->IsPanelsActive())
 						{
@@ -885,10 +885,13 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 				}
 			}
 
-			if (Global->Opt->ScreenSaver && Global->Opt->ScreenSaverTime>0 &&
-			        CurTime-Global->StartIdleTime>Global->Opt->ScreenSaverTime*60000)
+			if (Global->Opt->ScreenSaver &&
+				Global->Opt->ScreenSaverTime > 0 &&
+				CurTime - Global->StartIdleTime > std::chrono::minutes(Global->Opt->ScreenSaverTime))
+			{
 				if (!ScreenSaver())
 					return KEY_NONE;
+			}
 
 			if (!Global->IsPanelsActive() && LoopCount==64)
 			{
@@ -912,7 +915,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	}
 
 
-	clock_t CurClock=clock();
+	const auto CurTime = std::chrono::steady_clock::now();
 
 	if (rec->EventType==KEY_EVENT)
 	{
@@ -961,7 +964,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 		UpdateIntKeyState(CtrlState);
 
-		KeyPressedLastTime=CurClock;
+		KeyPressedLastTime = CurTime;
 	}
 	else
 	{
@@ -1110,7 +1113,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 */
 DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 {
-	clock_t CheckTime=clock()+delayMS;
+	time_check TimeCheck(time_check::mode::delayed, std::chrono::milliseconds(delayMS));
 	DWORD Key;
 
 	for (;;)
@@ -1131,7 +1134,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 		else if (Key == KeyWait)
 			break;
 
-		if (delayMS && clock() >= CheckTime)
+		if (TimeCheck)
 		{
 			Key=KEY_NONE;
 			break;
@@ -2055,7 +2058,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 		return KEY_IDLE;
 	}
 
-	static time_check TimeCheck(time_check::mode::delayed, 50);
+	static time_check TimeCheck(time_check::mode::delayed, 50ms);
 
 	if (!AltValue)
 	{

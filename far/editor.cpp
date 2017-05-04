@@ -2749,12 +2749,12 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
-		static clock_t EditorPrevDoubleClick=0;
+		static std::chrono::steady_clock::time_point EditorPrevDoubleClick;
 		static COORD EditorPrevPosition={};
 
-		const auto CurrentTime = clock();
+		const auto CurrentTime = std::chrono::steady_clock::now();
 
-		if (static_cast<unsigned long>((CurrentTime - EditorPrevDoubleClick) / CLOCKS_PER_SEC * 1000) <= GetDoubleClickTime() && MouseEvent->dwEventFlags != MOUSE_MOVED &&
+		if (CurrentTime - EditorPrevDoubleClick <= std::chrono::milliseconds(GetDoubleClickTime()) && MouseEvent->dwEventFlags != MOUSE_MOVED &&
 		        EditorPrevPosition.X == MouseEvent->dwMousePosition.X && EditorPrevPosition.Y == MouseEvent->dwMousePosition.Y)
 		{
 			m_it_CurLine->Select(0, m_it_CurLine->m_Str.size());
@@ -2764,7 +2764,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				BeginStreamMarking(m_it_CurLine);
 			}
 
-			EditorPrevDoubleClick=0;
+			EditorPrevDoubleClick = {};
 			EditorPrevPosition.X=0;
 			EditorPrevPosition.Y=0;
 			Show();
@@ -2786,7 +2786,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 		else
 		{
-			EditorPrevDoubleClick=0;
+			EditorPrevDoubleClick = {};
 			EditorPrevPosition.X=0;
 			EditorPrevPosition.Y=0;
 		}

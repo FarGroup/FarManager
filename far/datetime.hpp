@@ -101,16 +101,20 @@ bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft);
 
 class time_check: noncopyable, public conditional<time_check>
 {
+	using clock_type = std::chrono::steady_clock;
+
 public:
 	enum class mode { delayed, immediate };
-	time_check(mode Mode, clock_t Interval): m_Begin(Mode == mode::delayed ? clock() : 0), m_Interval(Interval) {}
+	time_check(mode Mode, clock_type::duration Interval):
+		m_Begin(Mode == mode::delayed? clock_type::now() : clock_type::now() - Interval),
+		m_Interval(Interval) {}
 
-	void reset(clock_t Value = clock()) const { m_Begin = Value; }
+	void reset(clock_type::time_point Value = clock_type::now()) const { m_Begin = Value; }
 
 	bool operator!() const noexcept
 	{
-		const auto Current = clock();
-		if (m_Interval > 0 && Current - m_Begin > m_Interval)
+		const auto Current = clock_type::now();
+		if (m_Interval != 0s && Current - m_Begin > m_Interval)
 		{
 			reset(Current);
 			return false;
@@ -119,8 +123,8 @@ public:
 	}
 
 private:
-	mutable clock_t m_Begin;
-	const clock_t m_Interval;
+	mutable clock_type::time_point m_Begin;
+	const clock_type::duration m_Interval;
 };
 
 

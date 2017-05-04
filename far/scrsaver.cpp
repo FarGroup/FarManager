@@ -142,16 +142,14 @@ static void ShowSaver(int Step, const std::function<void(star&)>& Fill)
 
 int ScreenSaver()
 {
-	INPUT_RECORD rec;
-	clock_t WaitTime;
-
 	if (Global->ScreenSaverActive)
 		return 1;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_IDLE);
 
-	for (WaitTime = clock(); clock() - WaitTime < CLOCKS_PER_SEC / 2;)
+	for (const auto WaitTime = std::chrono::steady_clock::now(); std::chrono::steady_clock::now() - WaitTime < 500ms;)
 	{
+		INPUT_RECORD rec;
 		if (PeekInputRecord(&rec))
 			return 1;
 
@@ -182,6 +180,7 @@ int ScreenSaver()
 			TypeDist(0, 77),
 			ColorDist(0, 2);
 
+		INPUT_RECORD rec;
 		while (!PeekInputRecord(&rec))
 		{
 			Sleep(50);
@@ -200,7 +199,7 @@ int ScreenSaver()
 	SetCursorType(CursorInfo.bVisible!=FALSE, CursorInfo.dwSize);
 	Global->ScreenSaverActive = false;
 	FlushInputBuffer();
-	Global->StartIdleTime=clock();
+	Global->StartIdleTime = std::chrono::steady_clock::now();
 	return 1;
 }
 

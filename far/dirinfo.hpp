@@ -61,7 +61,7 @@ enum getdirinfo_message_delay
 {
 	getdirinfo_infinite_delay = -1,
 	getdirinfo_no_delay = 0,
-	getdirinfo_default_delay = 500,
+	getdirinfo_default_delay = 500, // ms
 };
 
 int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);

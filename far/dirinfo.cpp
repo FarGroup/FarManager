@@ -120,7 +120,7 @@ int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, ge
 	SCOPED_ACTION(IndeterminateTaskBar)(MessageDelay != getdirinfo_infinite_delay);
 	SCOPED_ACTION(wakeful);
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
-	clock_t StartTime=clock();
+	auto StartTime = std::chrono::steady_clock::now();
 	SetCursorType(false, 0);
 	/* $ 20.03.2002 DJ
 	   для . - покажем имя родительского каталога
@@ -198,9 +198,9 @@ int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, ge
 			}
 		}
 
-		clock_t CurTime=clock();
+		const auto CurTime = std::chrono::steady_clock::now();
 
-		if (MessageDelay != getdirinfo_infinite_delay && CurTime - StartTime > MessageDelay)
+		if (MessageDelay != getdirinfo_infinite_delay && CurTime - StartTime > std::chrono::milliseconds(MessageDelay))
 		{
 			StartTime=CurTime;
 			MessageDelay = getdirinfo_default_delay;
