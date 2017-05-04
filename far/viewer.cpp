@@ -432,18 +432,18 @@ bool Viewer::OpenFile(const string& Name,int warning)
 	ChangeViewKeyBar();
 	AdjustWidth();
 
-	const auto update_check_period = [&]() -> std::chrono::milliseconds
+	const auto update_check_period = [&]
 	{
 		// media inserted here
 		switch (FAR_GetDriveType(GetPathRoot(strFullFileName), 2)) //??? make it configurable
 		{
-			case DRIVE_REMOVABLE: return 0s;
+			case DRIVE_REMOVABLE: return 0ms;
 			case DRIVE_USBDRIVE:  return 500ms;
-			case DRIVE_FIXED:     return 1s;
+			case DRIVE_FIXED:     return 1ms;
 			case DRIVE_REMOTE:    return 500ms;
-			case DRIVE_CDROM:     return 0s;
-			case DRIVE_RAMDISK:   return 1s;
-			default:              return 0s;
+			case DRIVE_CDROM:     return 0ms;
+			case DRIVE_RAMDISK:   return 1ms;
+			default:              return 0ms;
 		}
 	}();
 
