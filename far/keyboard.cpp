@@ -1432,7 +1432,7 @@ bool KeyToLocalizedText(int Key, string &strKeyText)
 		{
 			if (i->LocalizedNameId != lng(-1))
 			{
-				const auto Msg = msg(i->LocalizedNameId);
+				const auto& Msg = msg(i->LocalizedNameId);
 				if (!Msg.empty())
 					return make_string_view(Msg);
 			}
