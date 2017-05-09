@@ -216,7 +216,7 @@ void Message::Init(
 		}
 	}
 
-	auto MaxLength = std::max_element(ALL_CONST_RANGE(Strings), [](const auto& a, const auto &b) { return a.size() < b.size(); })->size();
+	auto MaxLength = !Strings.empty()? std::max_element(ALL_CONST_RANGE(Strings), [](const auto& a, const auto &b) { return a.size() < b.size(); })->size() : 0;
 
 	string strClipText;
 
