@@ -96,7 +96,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define NONCOPYABLE(Type) \
 Type(const Type&) = delete; \
-Type& operator=(const Type&) = delete; \
+Type& operator=(const Type&) = delete;
 
 #define COPY_AND_MOVE(...) \
 auto& operator=(__VA_ARGS__ rhs) { return *this = std::remove_reference_t<decltype(*this)>(rhs); }

@@ -482,7 +482,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	SCOPED_ACTION(global);
 
-	auto NoElevetionDuringBoot = std::make_unique<elevation::suppress>();
+	auto NoElevationDuringBoot = std::make_unique<elevation::suppress>();
 
 	SetErrorMode(Global->ErrorMode);
 
@@ -786,7 +786,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	Global->CtrlObject = new ControlObject;
 
-	NoElevetionDuringBoot.reset();
+	NoElevationDuringBoot.reset();
 
 	try
 	{

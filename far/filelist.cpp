@@ -513,7 +513,11 @@ public:
 		if (ListSelectedFirst && Item1.Selected != Item2.Selected)
 			return Item1.Selected > Item2.Selected;
 
-		if (ListSortGroups && Item1.SortGroup != Item2.SortGroup)
+		if (ListSortGroups &&
+			// Controversial decision. Configuration?
+			// (ListSortMode == panel_sort::BY_NAME || ListSortMode == panel_sort::BY_EXT || ListSortMode == panel_sort::BY_FULLNAME) &&
+			Item1.SortGroup != Item2.SortGroup
+		)
 			return Item1.SortGroup < Item2.SortGroup;
 
 		// Reverse sorting is taken into account from this point
@@ -7372,8 +7376,6 @@ void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILE
 // flshow.cpp
 // Файловая панель - вывод на экран
 
-static wchar_t OutCharacter[8]={};
-
 void FileList::UpdateHeight()
 {
 	m_Height = m_Y2 - m_Y1 - 1 - (Global->Opt->ShowColumnTitles? 1 : 0) - (Global->Opt->ShowPanelStatus? 2 : 0);
@@ -7545,7 +7547,8 @@ void FileList::ShowFileList(bool Fast)
 
 	if (Global->Opt->ShowSortMode)
 	{
-		const wchar_t *Ch = nullptr;
+		wchar_t Indicator = 0;
+
 		if (m_SortMode < panel_sort::COUNT)
 		{
 			static const std::pair<panel_sort, lng> ModeNames[] =
@@ -7569,10 +7572,17 @@ void FileList::ShowFileList(bool Fast)
 			};
 			static_assert(std::size(ModeNames) == static_cast<size_t>(panel_sort::COUNT));
 
-			Ch = wcschr(msg(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second).data(), L'&');
+			if (const auto Ptr = wcschr(msg(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second).data(), L'&'))
+			{
+				Indicator = m_ReverseSortOrder? upper(Ptr[1]) : lower(Ptr[1]);
+			}
+		}
+		else
+		{
+			Indicator = m_ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
 		}
 
-		if (Ch || m_SortMode >= panel_sort::COUNT)
+		if (Indicator)
 		{
 			if (Global->Opt->ShowColumnTitles)
 				GotoXY(NextX1,m_Y1+1);
@@ -7580,18 +7590,12 @@ void FileList::ShowFileList(bool Fast)
 				GotoXY(NextX1,m_Y1);
 
 			SetColor(COL_PANELCOLUMNTITLE);
-			if (Ch)
-				OutCharacter[0] = m_ReverseSortOrder? upper(Ch[1]) : lower(Ch[1]);
-			else
-				OutCharacter[0] = m_ReverseSortOrder? CustomSortIndicator[1] : CustomSortIndicator[0];
-
-			Text(OutCharacter);
+			Text({ Indicator });
 			NextX1++;
 
 			if (m_Filter && m_Filter->IsEnabledOnPanel())
 			{
-				OutCharacter[0]=L'*';
-				Text(OutCharacter);
+				Text(L"*"s);
 				NextX1++;
 			}
 		}
@@ -7606,27 +7610,21 @@ void FileList::ShowFileList(bool Fast)
 			GotoXY(NextX1,m_Y1);
 
 		SetColor(COL_PANELCOLUMNTITLE);
-		wchar_t *PtrOutCharacter=OutCharacter;
-		*PtrOutCharacter=0;
 
+		string Indicators;
+		
 		//if (GetSelectedFirstMode())
-			*PtrOutCharacter++=L'^';
+			Indicators.push_back(L'^');
 
 		/*
-		    if(GetNumericSort())
-		      *PtrOutCharacter++=L'#';
-		    if(GetSortGroups())
-		      *PtrOutCharacter++=L'@';
-		*/
-		/*
+		if(GetNumericSort())
+			Indicators.push_back(L'#');
+		if(GetSortGroups())
+			Indicators.push_back(L'@');
 		if(GetCaseSensitiveSort())
-		{
-
-		}
+			Indicators.push_back(L'\');
 		*/
-		*PtrOutCharacter=0;
-		Text(OutCharacter);
-		PtrOutCharacter[1]=0;
+		Text(Indicators);
 	}
 
 	/* </режимы сортировки> */
@@ -8348,13 +8346,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && m_ListData[ListPos].Colors->Mark.Char && Width>1)
 							{
 								Width--;
-								OutCharacter[0] = m_ListData[ListPos].Colors->Mark.Char;
-								FarColor OldColor=GetColor();
-
+								const auto OldColor = GetColor();
 								if (!ShowStatus)
 									SetShowColor(ListPos, false);
 
-								Text(OutCharacter);
+								Text({ m_ListData[ListPos].Colors->Mark.Char });
 								SetColor(OldColor);
 							}
 

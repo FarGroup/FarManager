@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "RegExp.hpp"
+#include "scrbuf.hpp"
 
 enum class image_type
 {
@@ -1019,6 +1020,15 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	    вследствие своей оптимизации, которая в данном случае выходит боком.
 	*/
 	SetCursorType(Visible, CursorSize);
+
+	{
+		// Could be changed by external program
+		const auto CurrentTitle = Global->ScrBuf->GetTitle();
+		// Invalidate cache:
+		Global->ScrBuf->SetTitle({});
+		Global->ScrBuf->SetTitle(CurrentTitle);
+	}
+
 	CONSOLE_CURSOR_INFO cci = { CursorSize, Visible };
 	Console().SetCursorInfo(cci);
 
