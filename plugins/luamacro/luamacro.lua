@@ -323,11 +323,21 @@ end
 
 local function ShowAndPass(...) far.Show(...) return ... end
 
+local function ShowCmdLineHelp()
+  local windir, fardir = win.GetEnv("WINDIR"), win.GetEnv("FARHOME")
+  if windir and fardir then
+    local suffix = win.GetEnv("FARLANG")=="Russian" and "ru" or "en"
+    local topic = fardir.."\\Encyclopedia\\macroapi_manual."..suffix..".chm::/92.html"
+    win.ShellExecute(nil, nil, windir.."\\hh.exe", topic)
+  end
+end
+
 local function ProcessCommandLine (strCmdLine)
   local prefix, text = strCmdLine:match("^%s*([^:%s]+):%s*(.-)%s*$")
   if not prefix then return end -- this can occur with Plugin.Command()
   prefix = prefix:lower()
   if prefix == "lm" or prefix == "macro" then
+    if text=="" then ShowCmdLineHelp(); return;  end
     local cmd = text:match("%S*"):lower()
     if cmd == "load" then
       local paths = text:match("%S.*",5)
@@ -338,6 +348,7 @@ local function ProcessCommandLine (strCmdLine)
     elseif cmd == "about" then About()
     elseif cmd ~= "" then ErrMsg(Msg.CL_UnsupportedCommand .. cmd) end
   elseif prefix == "lua" or prefix == "moon" or prefix == "luas" or prefix == "moons" then
+    if text=="" then ShowCmdLineHelp(); return;  end
     local show = false
     if text:find("^=") then
       show, text = true, text:sub(2)
