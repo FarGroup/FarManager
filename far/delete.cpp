@@ -206,18 +206,11 @@ static bool MoveToRecycleBinInternal(const string& Objects)
 	fop.pFrom = Objects.data();
 	fop.pTo = L"\0\0";
 	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT|FOF_ALLOWUNDO;
-	DWORD Result=SHFileOperation(&fop);
 
-	if (Result == 0x78 // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
-		&& Global->Opt->ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
-	{
-		Result = elevation::instance().fMoveToRecycleBin(fop);
-	}
+	auto Result = SHErrorToWinError(SHFileOperation(&fop));
 
-	if (Result)
-	{
-		SetLastError(SHErrorToWinError(Result));
-	}
+	if (Result == ERROR_ACCESS_DENIED && Global->Opt->ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
+		Result = SHErrorToWinError(elevation::instance().fMoveToRecycleBin(fop));
 
 	return !Result && !fop.fAnyOperationsAborted;
 }

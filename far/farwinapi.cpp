@@ -858,6 +858,8 @@ bool DeleteFile(const string& FileName)
 	if (::DeleteFile(strNtName.data()))
 		return true;
 
+	const auto IsElevationRequired = ElevationRequired(ELEVATION_MODIFY_REQUEST);
+
 	if (!os::fs::exists(strNtName))
 	{
 		// Someone deleted it already,
@@ -865,7 +867,7 @@ bool DeleteFile(const string& FileName)
 		return true;
 	}
 
-	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
+	if(IsElevationRequired)
 		return elevation::instance().fDeleteFile(strNtName);
 
 	return false;
@@ -877,6 +879,8 @@ bool RemoveDirectory(const string& DirName)
 	if (::RemoveDirectory(strNtName.data()))
 		return true;
 
+	const auto IsElevationRequired = ElevationRequired(ELEVATION_MODIFY_REQUEST);
+
 	if (!os::fs::exists(strNtName))
 	{
 		// Someone deleted it already,
@@ -884,7 +888,7 @@ bool RemoveDirectory(const string& DirName)
 		return true;
 	}
 
-	if(ElevationRequired(ELEVATION_MODIFY_REQUEST))
+	if(IsElevationRequired)
 		return elevation::instance().fRemoveDirectory(strNtName);
 
 	return false;
@@ -1367,12 +1371,15 @@ bool CreateDirectoryEx(const string& TemplateDirectory, const string& NewDirecto
 DWORD GetFileAttributes(const string& FileName)
 {
 	NTPath NtName(FileName);
-	DWORD Result = ::GetFileAttributes(NtName.data());
-	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired(ELEVATION_READ_REQUEST))
-	{
-		Result = elevation::instance().fGetFileAttributes(NtName);
-	}
-	return Result;
+
+	const auto Result = ::GetFileAttributes(NtName.data());
+	if (Result != INVALID_FILE_ATTRIBUTES)
+		return Result;
+
+	if(ElevationRequired(ELEVATION_READ_REQUEST))
+		return elevation::instance().fGetFileAttributes(NtName);
+
+	return INVALID_FILE_ATTRIBUTES;
 }
 
 bool SetFileAttributes(const string& FileName, DWORD dwFileAttributes)

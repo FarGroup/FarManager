@@ -1263,7 +1263,7 @@ public:
 
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
 	{
-		return Name.UName? m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), Name.UName) : nullptr;
+		return *Name.UName? m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), Name.UName) : nullptr;
 	}
 
 private:

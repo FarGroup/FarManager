@@ -86,7 +86,6 @@ public:
 
 private:
 	elevation();
-	void Write(const blob_view& Data) const;
 
 	template<typename T>
 	T Read() const;
@@ -94,13 +93,15 @@ private:
 	template<typename T>
 	void Read(T& Data) const { Data = Read<T>(); }
 
-	static void Write() {};
+	static void Write() {}
 
 	template<typename T, typename... args>
 	void Write(const T& Data, args&&... Args) const;
 
-	template<typename... args>
-	void SendCommand(ELEVATION_COMMAND Command, args&&... Args) const;
+	template<typename T>
+	void WriteArg(const T& Data) const;
+
+	void WriteArg(const blob_view& Data) const;
 
 	void RetrieveLastError() const;
 
