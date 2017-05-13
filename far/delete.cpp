@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "DlgGuid.hpp"
 #include "cvtname.hpp"
+#include "fileattr.hpp"
 
 enum DEL_MODE
 {
@@ -1075,7 +1076,7 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 
 	return DELETE_SUCCESS;
 }
-#include "fileattr.hpp"
+
 bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret)
 {
 	auto strFullName = ConvertNameToFull(Name);
