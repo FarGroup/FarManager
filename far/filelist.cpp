@@ -573,10 +573,8 @@ public:
 		case panel_sort::BY_EXT:
 			UseReverseNameSort = true;
 
-			{
-				Ext1 = GetExt(a);
-				Ext2 = GetExt(b);
-			}
+			Ext1 = GetExt(a);
+			Ext2 = GetExt(b);
 
 			if (Ext1.empty())
 			{
@@ -743,10 +741,20 @@ public:
 			NameCmp = Comparer(Ext1, Ext2);
 		}
 
-		if (!NameCmp)
-			NameCmp = a.Position < b.Position? -1 : 1;
-
-		return UseReverseNameSort & RevertSorting? NameCmp > 0 : NameCmp < 0;
+		if (NameCmp)
+		{
+			if (RevertSorting && !UseReverseNameSort)
+			{
+				// We have swapped references earlier for convenience.
+				// However, we don't want to reverse fallback sorting by name, so it's time to "undo" that:
+				return NameCmp > 0;
+			}
+			return NameCmp < 0;
+		}
+		else
+		{
+			return a.Position < b.Position;
+		}
 	}
 
 private:
