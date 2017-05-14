@@ -213,7 +213,9 @@ static bool MoveToRecycleBinInternal(const string& Objects)
 	if (Result == ERROR_ACCESS_DENIED && Global->Opt->ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
 		Result = SHErrorToWinError(elevation::instance().fMoveToRecycleBin(fop));
 
-	return !Result && !fop.fAnyOperationsAborted;
+	SetLastError(Result);
+
+	return Result == ERROR_SUCCESS && !fop.fAnyOperationsAborted;
 }
 
 static bool WipeFileData(const string& Name, int TotalPercent, bool& Cancel)
