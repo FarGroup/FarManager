@@ -2989,6 +2989,13 @@ struct GetContentDataInfo
 	void* Instance;
 };
 
+struct ErrorInfo
+{
+	size_t StructSize;
+	const wchar_t* Summary;
+	const wchar_t* Description;
+};
+
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
 static const GUID FarGuid =

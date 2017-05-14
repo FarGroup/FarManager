@@ -128,6 +128,8 @@ public:
 	virtual bool Destroy(plugin_module_ptr& module) = 0;
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) = 0;
 
+	virtual void ProcessError(const wchar_t* Function) const {}
+
 	auto GetOwner() const { return m_owner; }
 	const auto& ExportsNames() const { return m_ExportsNames; }
 
@@ -306,6 +308,7 @@ protected:
 		{
 			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(Exports[T::export_id::value].first), std::forward<args>(Args)...);
 			RethrowIfNeeded(GlobalExceptionPtr());
+			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id::value].UName);
 		}
 		catch (const std::exception& e)
 		{

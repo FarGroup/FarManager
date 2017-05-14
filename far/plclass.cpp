@@ -1222,7 +1222,7 @@ public:
 			Info.Author && *Info.Author)
 		{
 			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
-
+			ProcessError(L"Initialize");
 			// TODO: store info, show message if version is bad
 		}
 	}
@@ -1234,13 +1234,16 @@ public:
 
 		ExitInfo Info = { sizeof(Info) };
 		m_Imports.pFree(&Info);
+		ProcessError(L"Free");
 	}
 
 	bool Success() const { return m_Success; }
 
 	virtual bool IsPlugin(const string& Filename) const override
 	{
-		return m_Imports.pIsPlugin(Filename.data()) != FALSE;
+		const auto Result = m_Imports.pIsPlugin(Filename.data()) != FALSE;
+		ProcessError(L"IsPlugin");
+		return Result;
 	}
 
 	virtual plugin_module_ptr Create(const string& Filename) override
@@ -1251,6 +1254,7 @@ public:
 			Global->CatchError();
 			Module.reset();
 		}
+		ProcessError(L"Create");
 		return Module;
 	}
 
@@ -1258,12 +1262,36 @@ public:
 	{
 		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->get_opaque()) != FALSE;
 		Module.reset();
+		ProcessError(L"Destroy");
 		return Result;
 	}
 
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
 	{
-		return *Name.UName? m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), Name.UName) : nullptr;
+		if (!*Name.UName)
+			return nullptr;
+		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), Name.UName);
+		ProcessError(L"GetFunction");
+		return Result;
+	}
+
+	virtual void ProcessError(const wchar_t* Function) const override
+	{
+		if (!m_Imports.pGetError)
+			return;
+
+		ErrorInfo Info = { sizeof(Info) };
+		if (!m_Imports.pGetError(&Info))
+			return;
+
+		std::vector<string> MessageLines;
+		string Summary = Info.Summary, Description = Info.Description;
+		const auto Enumerator = enum_tokens(Description, L"\n");
+		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view& View) { return make_string(View); });
+		Message(MSG_WARNING | MSG_LEFTALIGN,
+			Summary,
+			MessageLines,
+			{ lng::MOk });
 	}
 
 private:
@@ -1274,6 +1302,7 @@ private:
 		os::rtdl::function_pointer<BOOL(WINAPI*)(const wchar_t* filename)> pIsPlugin;
 		os::rtdl::function_pointer<HANDLE(WINAPI*)(const wchar_t* filename)> pCreateInstance;
 		os::rtdl::function_pointer<void*(WINAPI*)(HANDLE Instance, const wchar_t* functionname)> pGetFunctionAddress;
+		os::rtdl::function_pointer<BOOL (WINAPI*)(ErrorInfo* info)> pGetError;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
 		os::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
 
@@ -1283,10 +1312,11 @@ private:
 			INIT_IMPORT(IsPlugin),
 			INIT_IMPORT(CreateInstance),
 			INIT_IMPORT(GetFunctionAddress),
+			INIT_IMPORT(GetError),
 			INIT_IMPORT(DestroyInstance),
 			INIT_IMPORT(Free),
 			#undef INIT_IMPORT
-			m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pDestroyInstance && pFree)
+			m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pGetError && pDestroyInstance && pFree)
 		{
 		}
 
