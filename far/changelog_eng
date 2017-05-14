@@ -3,6 +3,89 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.05.2017 20:32:53 +0000 - build 4960
+
+1. Correction of 4957.
+
+drkns 14.05.2017 20:09:37 +0000 - build 4959
+
+1. Extend Adapter API a little:
+   BOOL WINAPI GetError(ErrorInfo* info)
+     - Far calls the function after each adapter invocation to know if everything is ok.
+       If not, the error message will be shown.
+
+drkns 13.05.2017 20:07:39 +0000 - build 4958
+
+1. Fix broken sorting.
+
+drkns 13.05.2017 11:11:40 +0000 - build 4957
+
+1. 0003430: Privilege escalation error in Far 3.0.4949
+
+drkns 11.05.2017 00:06:47 +0000 - build 4956
+
+1. 0003433: FAR doesn't restore console caption changed by a program
+
+2. A pair of minor issues.
+
+drkns 09.05.2017 22:40:36 +0000 - build 4955
+
+1. Correction of 4950 - crash on messages without strings.
+
+drkns 06.05.2017 21:45:46 +0000 - build 4954
+
+1. Correction of 4945.
+
+drkns 05.05.2017 00:31:34 +0000 - build 4953
+
+1. Correction of 4952.
+
+drkns 04.05.2017 20:45:42 +0000 - build 4952
+
+1. Refactoring.
+
+drkns 03.05.2017 00:02:38 +0000 - build 4951
+
+1. Correction of 4950.
+
+drkns 02.05.2017 23:55:28 +0000 - build 4950
+
+1. Somewhat reduce data copying in Message().
+
+zg 02.05.2017 16:38:35 +0200 - build 4949
+
+1. correction of 4945: 'if exist' would not work.
+
+drkns 01.05.2017 22:42:32 +0000 - build 4948
+
+1. Correction of 4945.
+
+zg 01.05.2017 16:49:59 +0200 - build 4947
+
+1. correction of 4945: CtrlEnd would not work in command line and editor lines when autocompletion was off.
+
+zg 01.05.2017 16:05:46 +0200 - build 4946
+
+1. correction of 4945: case-insensitive search in editor would not work.
+
+drkns 01.05.2017 00:21:40 +0000 - build 4945
+
+1. Refactoring.
+
+drkns 27.04.2017 20:58:46 +0000 - build 4944
+
+1. Remove space characters when processing 'pushd'.
+
+2. More correct removal of quotes when processing 'set'.
+
+zg 25.04.2017 12:59:57 +0200 - build 4943
+
+1. exception on mf.fsplit('a.:',0x4+0x8) call
+
+drkns 24.04.2017 07:59:10 +0000 - build 4942
+
+1. Correction of 4940 once more.
+
 drkns 23.04.2017 22:24:28 +0000 - build 4941
 
 1. Correction of 4936.
