@@ -494,7 +494,6 @@ public:
 		bool PluginsCacheOnly; // set by '/co' switch, not saved
 		bool PluginsPersonal;
 
-		BoolOption SilentLoadPlugin;
 #ifndef NO_WRAPPER
 		BoolOption OEMPluginsSupport;
 #endif // NO_WRAPPER

@@ -5798,16 +5798,6 @@ $ #far:config System.PluginMaxReadData#
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
-@System.SilentLoadPlugin
-$ #far:config System.SilentLoadPlugin#
-    Если Far Manager не смог загрузить DLL-модуль плагина, то выдаётся сообщение об ошибке.
-Параметр "System.SilentLoadPlugin" позволяет задавать "тихую" загрузку, без выдачи сообщения об ошибке.
-Значение true соответствует "тихому" режиму.
-
-    По умолчанию значение = false (выдавать сообщения).
-
-    Изменение этого параметра возможно через ~far:config~@FarConfig@
-
 @System.SetAttrFolderRules
 $ #far:config System.SetAttrFolderRules#
     Параметр "System.SetAttrFolderRules" позволяет задавать значение по умолчанию опции "Process subfolders"

@@ -165,6 +165,16 @@ plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& fi
 	{
 		Global->CatchError();
 		Module.reset();
+
+		Message(MSG_WARNING | MSG_ERRORTYPE | MSG_NOPLUGINS,
+			msg(lng::MError),
+			{
+				msg(lng::MPlgLoadPluginError),
+				filename
+			},
+			{ lng::MOk },
+			L"ErrLoadPlugin");
+
 	}
 	return Module;
 }
@@ -547,19 +557,6 @@ bool Plugin::LoadData()
 	{
 		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
 		WorkFlags.Set(PIWF_DONTLOADAGAIN);
-
-		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
-		{
-			Message(MSG_WARNING | MSG_ERRORTYPE | MSG_NOPLUGINS,
-				msg(lng::MError),
-				{
-					msg(lng::MPlgLoadPluginError),
-					m_strModuleName
-				},
-				{ lng::MOk },
-				L"ErrLoadPlugin");
-		}
-
 		return false;
 	}
 

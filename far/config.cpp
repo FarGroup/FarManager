@@ -1939,7 +1939,6 @@ void Options::InitConfigData()
 		{FSSF_PRIVATE,       NKeySystem,L"SetAttrFolderRules", OPT_DEF(SetAttrFolderRules, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"ShowCheckingFile", OPT_DEF(ShowCheckingFile, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"ShowStatusInfo", OPT_DEF(InfoPanel.strShowStatusInfo, L"")},
-		{FSSF_PRIVATE,       NKeySystem,L"SilentLoadPlugin", OPT_DEF(LoadPlug.SilentLoadPlugin, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"SmartFolderMonitor", OPT_DEF(SmartFolderMonitor, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"SubstNameRule", OPT_DEF(SubstNameRule, 2)},
 		{FSSF_PRIVATE,       NKeySystem,L"SubstPluginPrefix", OPT_DEF(SubstPluginPrefix, false)},

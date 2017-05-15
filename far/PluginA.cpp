@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "headers.hpp"
+
 #pragma hdrstop
 
 #ifndef NO_WRAPPER
@@ -55,6 +56,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pluginold.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "message.hpp"
+#include "lang.hpp"
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
 
@@ -210,6 +213,16 @@ public:
 		if (!Module->m_Module)
 		{
 			Global->CatchError();
+
+			Message(MSG_WARNING | MSG_ERRORTYPE | MSG_NOPLUGINS,
+				msg(lng::MError),
+				{
+					msg(lng::MPlgLoadPluginError),
+					filename
+				},
+				{ lng::MOk },
+				L"ErrLoadPlugin");
+
 			Module.reset();
 		}
 		return Module;
