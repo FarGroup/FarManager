@@ -584,14 +584,19 @@ bool Plugin::LoadData()
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
 
-		bool ok=true;
-		if(m_Guid != FarGuid && m_Guid != Info.Guid)
+		bool ok = false;
+
+		if (Info.Guid != FarGuid)
 		{
-			ok = m_Factory->GetOwner()->UpdateId(this, Info.Guid);
-		}
-		else
-		{
-			SetGuid(Info.Guid);
+			if (m_Guid != FarGuid && m_Guid != Info.Guid)
+			{
+				ok = m_Factory->GetOwner()->UpdateId(this, Info.Guid);
+			}
+			else
+			{
+				SetGuid(Info.Guid);
+				ok = true;
+			}
 		}
 
 		if (ok)
