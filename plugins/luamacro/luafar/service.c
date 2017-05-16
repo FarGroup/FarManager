@@ -3997,10 +3997,12 @@ static int viewer_SetMode(lua_State *L)
 
 static int far_ShowHelp(lua_State *L)
 {
-	const wchar_t *ModuleName = check_utf8_string(L,1,NULL);
+	const wchar_t *ModuleName = (const wchar_t*)luaL_checkstring(L, 1);
 	const wchar_t *HelpTopic = opt_utf8_string(L,2,NULL);
 	UINT64 Flags = CheckFlags(L,3);
 	PSInfo *Info = GetPluginData(L)->Info;
+	if ((Flags & FHELP_GUID) == 0)
+		ModuleName = check_utf8_string(L,1,NULL);
 	lua_pushboolean(L, Info->ShowHelp(ModuleName, HelpTopic, Flags));
 	return 1;
 }
