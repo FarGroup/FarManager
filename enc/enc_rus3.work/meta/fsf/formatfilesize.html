@@ -33,7 +33,7 @@ size_t WINAPI FormatFileSize(
   <div class=dfn>Size</div>
     <div class=dfndescr>Число для форматирования.</div>
   <div class=dfn>Width</div>
-    <div class=dfndescr>Ширина поля (примером может служить ширина колонки в панели). При значении равном <code>-1</code> подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать слева.</div>
+    <div class=dfndescr>Ширина поля (примером может служить ширина колонки в панели). При значении равном <code>0</code> подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать по левому краю.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Формат представления, может быть комбинацией следующих значений (тип <a name="FARFORMATFILESIZEFLAGS">FARFORMATFILESIZEFLAGS</a>):
     <table class="cont">
@@ -41,7 +41,7 @@ size_t WINAPI FormatFileSize(
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_COMMAS">FFFS_COMMAS</a></td>
     <td class="cont" width="60%">Вставлять разделитель между тысячами - "12 345".</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_FLOATSIZE">FFFS_FLOATSIZE</a></td>
-    <td class="cont" width="60%">Показывать размер файла в стиле Windows Explorer (т.е. "999" байт будут показаны как "999", а "1000" байт как "0.97 K").</td></tr>
+    <td class="cont" width="60%">Показывать размер в виде десятичной дроби, используя наиболее подходящую единицу измерения, например 0,97 К, 1,44 М, 53,2 Г.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_SHOWBYTESINDEX">FFFS_SHOWBYTESINDEX</a></td>
     <td class="cont" width="60%">Добавлять суффиксы: B - для байт, K - килобайт, M - мегабайт, G - гигабайт, T - терабайт, P - петабайт, E - эксабайт</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_ECONOMIC">FFFS_ECONOMIC</a></td>
