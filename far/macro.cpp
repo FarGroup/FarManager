@@ -2908,7 +2908,7 @@ static bool size2strFunc(FarMacroCall* Data)
 {
 	const auto Params = parseParams(3, Data);
 	const auto Width = static_cast<int>(Params[2].asInteger());
-	PassString(FileSizeToStr(Params[0].asInteger(), !Width? -1 : Width, Params[1].asInteger()), Data);
+	PassString(FileSizeToStr(Params[0].asInteger(), Width, Params[1].asInteger()), Data);
 	return true;
 }
 

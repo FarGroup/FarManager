@@ -139,7 +139,7 @@ void OnIntlSettingsChange()
 DWORD ConvertYearToFull(DWORD ShortYear)
 {
 	DWORD UpperBoundary = 0;
-	if(!GetCalendarInfo(LOCALE_USER_DEFAULT, CAL_GREGORIAN, CAL_ITWODIGITYEARMAX|CAL_RETURN_NUMBER, nullptr, 0, &UpperBoundary))
+	if(!GetCalendarInfo(GetThreadLocale(), CAL_GREGORIAN, CAL_ITWODIGITYEARMAX|CAL_RETURN_NUMBER, nullptr, 0, &UpperBoundary))
 	{
 		UpperBoundary = 2029; // Magic, current default value.
 	}

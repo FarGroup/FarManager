@@ -80,8 +80,7 @@ void PrepareUnitStr();
 string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_COMMAS);
 bool CheckFileSizeStringFormat(const string& FileSizeStr);
 unsigned long long ConvertFileSizeString(const string& FileSizeStr);
-string FormatNumber(const string& Src, int NumDigits=0);
-inline string InsertCommas(unsigned long long Value) { return FormatNumber(str(Value)); }
+string GroupDigits(unsigned long long Value);
 
 inline bool IsWordDiv(const string& WordDiv, wchar_t Chr) { return !Chr || contains(WordDiv, Chr); }
 

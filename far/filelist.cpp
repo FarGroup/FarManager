@@ -7799,27 +7799,24 @@ void FileList::SetShowColor(int Position, bool FileColor) const
 	SetColor(GetShowColor(Position,FileColor));
 }
 
-static string size2str(ULONGLONG Size, int width, int short_mode = -1)
+static string size2str(ULONGLONG Size, int width, bool FloatStyle, bool short_mode)
 {
-	if (short_mode < 0)
-		short_mode = Global->Opt->ShowBytes ? 0 : +1;
-
 	if (!short_mode)
 	{
-		return InsertCommas(Size);
+		return GroupDigits(Size);
 	}
-	else if (width <= 0) // float style
+	else if (FloatStyle) // float style
 	{
-		auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
+		auto str = FileSizeToStr(Size, width, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
 		RemoveExternalSpaces(str);
 		return str;
 	}
 	else
 	{
 		string Str = str(Size);
-		if (Str.size() > static_cast<size_t>(width))
+		if (static_cast<int>(Str.size()) > width)
 		{
-			Str = FileSizeToStr(Size, width, COLUMN_SHOWMULTIPLIER);
+			Str = FileSizeToStr(Size, width, COLUMN_SHOWUNIT);
 			RemoveExternalSpaces(Str);
 		}
 		return Str;
@@ -7847,12 +7844,12 @@ void FileList::ShowSelectedSize()
 	}
 	if (m_SelFileCount)
 	{
-		auto strFormStr = size2str(SelFileSize, 6, 0);
+		auto strFormStr = size2str(SelFileSize, 6, false, false);
 		auto strSelStr = format(lng::MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
 		auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
 		if (strSelStr.size() > avail_width)
 		{
-			strFormStr = size2str(SelFileSize, 6, +1);
+			strFormStr = size2str(SelFileSize, 6, false, true);
 			strSelStr = format(lng::MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
 			if (strSelStr.size() > avail_width)
 				TruncStrFromEnd(strSelStr, static_cast<int>(avail_width));
@@ -7870,12 +7867,12 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	if (!Global->Opt->ShowPanelTotals && m_PanelMode == panel_mode::PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
 		return;
 
-	const auto& calc_total_string = [this, Info](int short_mode)
+	const auto& calc_total_string = [this, Info](bool short_mode)
 	{
 		string strFreeSize, strTotalSize;
-		auto strFormSize = size2str(TotalFileSize, 6, short_mode);
+		auto strFormSize = size2str(TotalFileSize, 6, false, short_mode);
 		if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & (OPIF_REALNAMES | OPIF_USEFREESIZE))))
-			strFreeSize = (FreeDiskSize != static_cast<unsigned long long>(-1)) ? size2str(FreeDiskSize, 0, short_mode) : L"?";
+			strFreeSize = (FreeDiskSize != static_cast<unsigned long long>(-1)) ? size2str(FreeDiskSize, 10, true, short_mode) : L"?";
 
 		if (Global->Opt->ShowPanelTotals)
 		{
@@ -7897,7 +7894,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	};
 
 	auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
-	auto strTotalStr = calc_total_string(-1);
+	auto strTotalStr = calc_total_string(!Global->Opt->ShowBytes);
 	if (strTotalStr.size() > avail_width)
 	{
 		if (Global->Opt->ShowBytes)

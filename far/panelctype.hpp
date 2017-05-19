@@ -69,20 +69,23 @@ enum FILEPANEL_COLUMN_MODES: unsigned long long
 	COLUMN_THOUSAND               = 0x0400000000000000LL, // Вместо делителя 1024 использовать делитель 1000
 	COLUMN_BRIEF                  = 0x0200000000000000LL,
 	COLUMN_MONTH                  = 0x0100000000000000LL,
-	COLUMN_FLOATSIZE              = 0x0080000000000000LL, // Показывать размер файла в стиле Windows Explorer (т.е. 999 байт будут показаны как 999, а 1000 байт как 0.97 K)
+	COLUMN_FLOATSIZE              = 0x0080000000000000LL, // Показывать размер в виде десятичной дроби, используя наиболее подходящую единицу измерения, например 0,97 К, 1,44 М, 53,2 Г.
+
 	COLUMN_ECONOMIC               = 0x0040000000000000LL, // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)
-	COLUMN_SHOWMULTIPLIER         = 0x0010000000000000LL, // Показывать суффиксы B,K,M,G,T,P,E
+	COLUMN_SHOWUNIT               = 0x0010000000000000LL, // Показывать суффиксы B,K,M,G,T,P,E
 	COLUMN_FULLOWNER              = 0x0008000000000000LL,
 	COLUMN_NOEXTENSION            = 0x0004000000000000LL,
 	COLUMN_RIGHTALIGNFORCE        = 0x0001000000000000LL,
 	COLUMN_MARK_DYNAMIC           = 0x0000800000000000LL,
 
-	COLUMN_USE_MULTIPLIER         = 0x0020000000000000LL, // Минимально допустимый множитель при форматировании
-	COLUMN_MULTIPLIER_K           = COLUMN_USE_MULTIPLIER | 0,
-	COLUMN_MULTIPLIER_M           = COLUMN_USE_MULTIPLIER | 1,
-	COLUMN_MULTIPLIER_G           = COLUMN_USE_MULTIPLIER | 2,
-	COLUMN_MULTIPLIER_T           = COLUMN_USE_MULTIPLIER | 3,
-	COLUMN_MULTIPLIER_MASK        = 0x0000000000000003LL  // может быть только 0, 1, 2 или 3 (K,M,G,T), например, 1 - "размер как минимум в мегабайтах"
+	COLUMN_USE_UNIT               = 0x0020000000000000LL, // Минимально допустимыая единица измерения при форматировании например, 1 - "размер как минимум в мегабайтах"
+	COLUMN_UNIT_K                 = COLUMN_USE_UNIT | 0,
+	COLUMN_UNIT_M                 = COLUMN_USE_UNIT | 1,
+	COLUMN_UNIT_G                 = COLUMN_USE_UNIT | 2,
+	COLUMN_UNIT_T                 = COLUMN_USE_UNIT | 3,
+	COLUMN_UNIT_P                 = COLUMN_USE_UNIT | 4,
+	COLUMN_UNIT_E                 = COLUMN_USE_UNIT | 5,
+	COLUMN_UNIT_MASK              = 0x000000000000000FLL
 };
 
 enum col_width

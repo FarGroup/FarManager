@@ -51,32 +51,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace strmix
 {
 
-string FormatNumber(const string& Src, int NumDigits)
+string GroupDigits(unsigned long long Value)
 {
-	static bool first = true;
-	static NUMBERFMT fmt;
-	static wchar_t DecimalSep[4] = {};
-	static wchar_t ThousandSep[4] = {};
+	NUMBERFMT Fmt{};
 
-	if (first)
-	{
-		DecimalSep[0] = locale::GetDecimalSeparator();
-		ThousandSep[0] = locale::GetThousandSeparator();
+	wchar_t DecimalSeparator[] = { locale::GetDecimalSeparator(), L'\0' };
+	wchar_t ThousandSeparator[] = { locale::GetThousandSeparator(), L'\0' };
 
-		fmt.LeadingZero = 1;
-		fmt.Grouping = 3;
-		fmt.lpDecimalSep = DecimalSep;
-		fmt.lpThousandSep = ThousandSep;
-		fmt.NegativeOrder = 1;
-		first = false;
-	}
+	// TODO pick regional settings
+	Fmt.NumDigits = 0;
+	Fmt.LeadingZero = 1;
+	Fmt.Grouping = 3;
+	Fmt.lpDecimalSep = DecimalSeparator;
+	Fmt.lpThousandSep = ThousandSeparator;
+	Fmt.NegativeOrder = 1;
 
-	fmt.NumDigits = NumDigits;
-	string strSrc=Src;
-	int Size=GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt,nullptr,0);
+	string strSrc = str(Value);
+	const size_t Size = GetNumberFormat(GetThreadLocale(), 0, strSrc.data(), &Fmt, nullptr, 0);
 	wchar_t_ptr Dest(Size);
-	GetNumberFormat(LOCALE_USER_DEFAULT,0,strSrc.data(),&fmt, Dest.get(), Size);
-	return string(Dest.get(), Size - 1);
+	GetNumberFormat(GetThreadLocale(), 0, strSrc.data(), &Fmt, Dest.get(), static_cast<int>(Size));
+	return { Dest.get(), Size - 1 };
 }
 
 static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
@@ -500,150 +494,129 @@ enum
 	UNIT_COUNT = 7, // byte, kilobyte, megabyte, gigabyte, terabyte, petabyte, exabyte.
 };
 
-static string& UnitStr(size_t B, size_t Div)
+static string& UnitStr(size_t Unit, bool Binary)
 {
 	static string Data[UNIT_COUNT][2];
-	return Data[B][Div];
+	return Data[Unit][Binary? 1 : 0];
 }
 
 void PrepareUnitStr()
 {
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
-		UnitStr(i, 0) = lower_copy(msg(lng::MListBytes + i));
-		UnitStr(i, 1) = upper_copy(msg(lng::MListBytes + i));
+		UnitStr(i, false) = lower_copy(msg(lng::MListBytes + i));
+		UnitStr(i, true) = upper_copy(msg(lng::MListBytes + i));
 	}
 }
 
-string FileSizeToStr(unsigned long long Size, int WidthWithSign, unsigned long long ViewFlags)
+string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned long long ViewFlags)
 {
 	// подготовительные мероприятия
-	if (UnitStr(0, 0) != lower_copy(msg(lng::MListBytes)))
+	if (UnitStr(0, false) != lower_copy(msg(lng::MListBytes)))
 	{
 		PrepareUnitStr();
 	}
 
-	size_t Width = abs(WidthWithSign);
-	const auto LeftAlign = WidthWithSign < 0;
+	const size_t Width = std::abs(WidthWithSign);
+	const bool LeftAlign = WidthWithSign < 0;
+	const bool UseCommas = (ViewFlags & COLUMN_COMMAS) != 0;
+	const bool UseFloatSize = (ViewFlags & COLUMN_FLOATSIZE) != 0;
+	const bool UseCompact = (ViewFlags & COLUMN_ECONOMIC) != 0;
+	const bool UseUnit = (ViewFlags & COLUMN_USE_UNIT) != 0;
+	const bool ShowUnit = (ViewFlags & COLUMN_SHOWUNIT) != 0;
+	const bool UseBinaryUnit = (ViewFlags & COLUMN_THOUSAND) == 0;
+	const size_t MinUnit = (ViewFlags & COLUMN_UNIT_MASK) + 1;
 
-	const bool Commas=(ViewFlags & COLUMN_COMMAS)!=0;
-	const bool FloatSize=(ViewFlags & COLUMN_FLOATSIZE)!=0;
-	const bool Economic=(ViewFlags & COLUMN_ECONOMIC)!=0;
-	const bool UseMultiplier=(ViewFlags & COLUMN_USE_MULTIPLIER)!=0;
-	const size_t Multiplier=(ViewFlags & COLUMN_MULTIPLIER_MASK)+1;
-	const bool ShowMultiplier=(ViewFlags & COLUMN_SHOWMULTIPLIER)!=0;
+	static const auto BinaryDivider = std::make_pair(1024, std::log(1024));
+	static const auto DecimalDivider = std::make_pair(1000, std::log(1000));
 
-	size_t IndexDiv;
-	unsigned long long Divider;
+	const auto& Divider = ViewFlags & COLUMN_THOUSAND? DecimalDivider : BinaryDivider;
 
-	if (ViewFlags & COLUMN_THOUSAND)
+	const auto& FormatSize = [&](string&& StrSize, size_t UnitIndex)
 	{
-		Divider=1000;
-		IndexDiv=0;
-	}
-	else
-	{
-		Divider=1024;
-		IndexDiv=1;
-	}
-
-	unsigned long long Sz = Size, Divider2 = Divider/2, Divider64 = Divider, OldSize;
-
-	const auto FormatSize = [&](const string& Str, size_t IndexB)
-	{
-		wchar_t Format[] = L"{0:>{1}.{1}}{2}{3}";
-		// Library doesn't support dynamic alignment currently. TODO: fix it?
-		if (LeftAlign)
+		const auto& FitToWidth = [&](string&& Str)
 		{
-			Format[3] = L'<';
-		}
-		return format(Format, Str, Width, Economic? L"" : L" ", UnitStr(IndexB, IndexDiv).front());
+			if (!Width)
+				return Str;
+
+			if (Str.size() <= Width)
+				return (LeftAlign? pad_right : pad_left)(std::move(Str), Width, L' ');
+
+			Str = (LeftAlign? cut_right : cut_left)(std::move(Str), Width - 1);
+			Str.insert(LeftAlign? Str.end() : Str.begin(), L'\x2026');
+			return Str;
+		};
+
+		if (!UnitIndex && !ShowUnit)
+			return FitToWidth(std::move(StrSize));
+
+		return FitToWidth(concat(StrSize, UseCompact? L""_sv : L" "_sv, UnitStr(UnitIndex, UseBinaryUnit).front()));
 	};
 
-	const auto ReduceWidth = [&]
+	if (UseFloatSize)
 	{
-		const auto Subtraction = Economic? 1u : 2u;
-		Width = Width > Subtraction? Width - Subtraction : 0;
-	};
-
-	const auto Align = LeftAlign? fit_to_left : fit_to_right;
-
-	if (FloatSize)
-	{
-		unsigned long long Divider64F = 1, Divider64F_mul = 1000, Divider64F2 = 1, Divider64F2_mul = Divider;
-
-		//выравнивание идёт по 1000 но само деление происходит на Divider
-		//например 999 bytes покажутся как 999 а вот 1000 bytes уже покажутся как 0.97 K
-		size_t IndexB = 0;
-		for (; IndexB != UNIT_COUNT - 1; ++IndexB)
-		{
-			if (Sz < Divider64F*Divider64F_mul)
-				break;
-
-			Divider64F = Divider64F*Divider64F_mul;
-			Divider64F2  = Divider64F2*Divider64F2_mul;
-		}
+		const size_t UnitIndex = FileSize? std::log(FileSize) / Divider.second : 0;
 
 		string Str;
 
-		if (!IndexB)
+		if (!UnitIndex)
 		{
-			Str = str(Sz);
+			Str = str(FileSize);
 		}
 		else
 		{
-			Sz = (OldSize=Sz) / Divider64F2;
-			OldSize = (OldSize % Divider64F2) / (Divider64F2 / Divider64F2_mul);
-			DWORD Decimal = (DWORD)(0.5+(double)(DWORD)OldSize/(double)Divider*100.0);
+			const auto SizeInUnits = FileSize / std::pow(Divider.first, UnitIndex);
 
-			if (Decimal >= 100)
+			double Parts[2];
+			Parts[1] = std::modf(SizeInUnits, &Parts[0]);
+			
+			const auto Integral = static_cast<int>(Parts[0]);
+			Str = str(Integral);
+			if (const auto NumDigits = Integral < 10? 2 : Integral < 100? 1 : 0)
 			{
-				Decimal -= 100;
-				Sz++;
+
+				auto Fractional = static_cast<int>(std::round(Parts[1] * (NumDigits == 2? 100 : 10)) * (NumDigits == 1? 10 : 1));
+				if (Fractional == 100)
+				{
+					Str = str(Integral + 1);
+					Fractional = 0;
+				}
+
+				// Explorer-style
+				//auto Fractional = static_cast<int>(Parts[1] * 100);
+
+				const auto Div = std::div(Fractional, 10);
+				const wchar_t StrFractional[] = { wchar_t(L'0' + Div.quot), wchar_t(L'0' + Div.rem), L'\0' };
+				append(Str, locale::GetDecimalSeparator(), string_view(StrFractional, NumDigits));
 			}
-
-			// BUGBUG too complex
-			Str = FormatNumber(format(L"{0}.{1:02}", Sz, Decimal), 2);
 		}
 
-		if (IndexB <= 0 && !ShowMultiplier)
-			return Align(Str, Width);
-
-		ReduceWidth();
-		return FormatSize(Str, IndexB);
+		return FormatSize(std::move(Str), UnitIndex);
 	}
 
+	const auto& ToStr = [UseCommas](auto Size)
 	{
-		auto Str = Commas? InsertCommas(Sz) : str(Sz);
+		return UseCommas? GroupDigits(Size) : str(Size);
+	};
 
-		if ((!UseMultiplier && Str.size() <= Width) || Width < 5)
+	size_t UnitIndex = 0;
+	auto Str = ToStr(FileSize);
+
+	const auto SuffixSize = UseCompact? 1u : 2u;
+	const auto MaxNumberWidth = Width > SuffixSize? Width - SuffixSize : 0;
+
+	while ((UseUnit && UnitIndex < MinUnit) || (Width && Str.size() > MaxNumberWidth))
+	{
+		if (unsigned long long SizeInUnits = std::round(FileSize / std::pow(Divider.first, UnitIndex + 1)))
 		{
-			if (!ShowMultiplier)
-				return Align(Str, Width);
-
-			ReduceWidth();
-			return FormatSize(Str, 0);
+			++UnitIndex;
+			Str = ToStr(SizeInUnits);
 		}
+		else
+			break;
 	}
 
-	ReduceWidth();
-	size_t IndexB = 0;
-	string Str;
-
-	do
-	{
-		//Sz=(Sz+Divider2)/Divider64;
-		Sz = (OldSize=Sz) / Divider64;
-
-		if (OldSize % Divider64 > Divider2)
-			++Sz;
-
-		IndexB++;
-		Str = Commas? InsertCommas(Sz) : str(Sz);
-	}
-	while ((UseMultiplier && IndexB < Multiplier) || Str.size() > Width);
-
-	return FormatSize(Str, IndexB);
+	return FormatSize(std::move(Str), UnitIndex);
 }
 
 

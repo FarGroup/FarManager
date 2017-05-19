@@ -137,8 +137,8 @@ static string FormatCounter(lng CounterId, lng AnotherId, unsigned long long Cur
 	const auto PaddedLabelSize = std::max(Label.size(), msg(AnotherId).size()) + 1;
 	Label.resize(PaddedLabelSize, L' ');
 
-	auto StrCurrent = InsertCommas(CurrentValue);
-	auto StrTotal = ShowTotal? InsertCommas(TotalValue) : string();
+	const auto StrCurrent = GroupDigits(CurrentValue);
+	const auto StrTotal = ShowTotal? GroupDigits(TotalValue) : string();
 
 	auto Value = ShowTotal? concat(StrCurrent, L" / "_sv, StrTotal) : StrCurrent;
 	if (MaxWidth > PaddedLabelSize)

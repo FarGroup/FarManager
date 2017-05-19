@@ -233,11 +233,11 @@ void QuickView::DisplayObject()
 		{
 			if (Global->Opt->ShowBytes)
 			{
-				return InsertCommas(Size); // + L' ' + bytes_suffix;
+				return GroupDigits(Size); // + L' ' + bytes_suffix;
 			}
 			else
 			{
-				auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
+				auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
 				RemoveExternalSpaces(str);
 				if (str.back() != bytes_suffix[0])
 					str += bytes_suffix;
@@ -278,7 +278,7 @@ void QuickView::DisplayObject()
 				GotoXY(m_X1+2,m_Y1+11);
 				PrintText(msg(lng::MQuickViewCluster));
 				SetColor(iColor);
-				PrintText(prefix + InsertCommas(Data.ClusterSize));
+				PrintText(prefix + GroupDigits(Data.ClusterSize));
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(m_X1+2,m_Y1+12);

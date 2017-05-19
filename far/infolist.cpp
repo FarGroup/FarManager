@@ -375,11 +375,11 @@ void InfoList::DisplayObject()
 		string str;
 		if (Global->Opt->ShowBytes)
 		{
-			str = InsertCommas(Size); // + L' ';
+			str = GroupDigits(Size); // + L' ';
 		}
 		else
 		{
-			str = FileSizeToStr(Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWMULTIPLIER);
+			str = FileSizeToStr(Size, 16, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
 			if (str.back() != bytes_suffix[0])
 				str += bytes_suffix;
 		}

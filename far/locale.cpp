@@ -40,7 +40,7 @@ int locale::GetDateFormat()
 	int Result;
 
 	// TODO: log
-	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IDATE | LOCALE_RETURN_NUMBER, reinterpret_cast<wchar_t*>(&Result), sizeof(Result) / sizeof(wchar_t)))
+	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_IDATE | LOCALE_RETURN_NUMBER, reinterpret_cast<wchar_t*>(&Result), sizeof(Result) / sizeof(wchar_t)))
 		return 0;
 
 	return Result;
@@ -49,7 +49,7 @@ int locale::GetDateFormat()
 wchar_t locale::GetDateSeparator()
 {
 	wchar_t Info[100];
-	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDATE, Info, static_cast<int>(std::size(Info))))
+	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_SDATE, Info, static_cast<int>(std::size(Info))))
 	{
 		// TODO: log
 		return L'/';
@@ -60,7 +60,7 @@ wchar_t locale::GetDateSeparator()
 wchar_t locale::GetTimeSeparator()
 {
 	wchar_t Info[100];
-	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STIME, Info, static_cast<int>(std::size(Info))))
+	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_STIME, Info, static_cast<int>(std::size(Info))))
 	{
 		// TODO: log
 		return L':';
@@ -71,7 +71,7 @@ wchar_t locale::GetTimeSeparator()
 wchar_t locale::GetDecimalSeparator()
 {
 	wchar_t Separator[4];
-	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, Separator, static_cast<int>(std::size(Separator))))
+	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_SDECIMAL, Separator, static_cast<int>(std::size(Separator))))
 	{
 		// TODO: log
 		*Separator = L'.';
@@ -86,7 +86,7 @@ wchar_t locale::GetDecimalSeparator()
 wchar_t locale::GetThousandSeparator()
 {
 	wchar_t Separator[4];
-	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Separator, static_cast<int>(std::size(Separator))))
+	if (!GetLocaleInfo(GetThreadLocale(), LOCALE_STHOUSAND, Separator, static_cast<int>(std::size(Separator))))
 	{
 		// TODO: log
 		*Separator = L',';
@@ -106,7 +106,7 @@ string locale::GetValue(LCID lcid, LCTYPE id)
 string locale::GetTimeFormat()
 {
 	wchar_t TimeBuffer[MAX_PATH];
-	const size_t Size = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, TimeBuffer, static_cast<int>(std::size(TimeBuffer)));
+	const size_t Size = ::GetTimeFormat(GetThreadLocale(), TIME_NOSECONDS, nullptr, nullptr, TimeBuffer, static_cast<int>(std::size(TimeBuffer)));
 
 	if (!Size)
 	{

@@ -131,7 +131,7 @@ private:
 
 		hMem.release();
 
-		auto Locale = os::memory::global::copy<LCID>(LOCALE_USER_DEFAULT);
+		auto Locale = os::memory::global::copy<LCID>(GetThreadLocale());
 		if (!Locale)
 			return false;
 

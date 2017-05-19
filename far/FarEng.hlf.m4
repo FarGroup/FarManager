@@ -1773,10 +1773,9 @@ Allowed column types are:
     G[C,T,F,E] - size of file streams
                  where: C - format file size;
                         T - use 1000 instead of 1024 as a divider;
-                        F - show file sizes similar to Windows
-                            Explorer (i.e. 999 bytes will be
-                            displayed as 999 and 1000 bytes will
-                            be displayed as 0.97 K);
+                        F - show size as a decimal fraction
+                            using the most appropriate unit,
+                            e. g. 0.97 K, 1.44 M, 3.5 G etc.
                         E - economic mode, no space between file
                             size and suffix will be shown
                             (i.e. 0.97K);
@@ -3454,8 +3453,8 @@ $ #Change Drive Menu Options#
     Показать общее и свободное место на диске.
     Комбинация клавиш в меню: Ctrl-5
 
-    #Показывать размер в стиле Windows Explorer#
-    Уточние опции показа размеров диска в стиле Windows Explorer (в виде числа с плавающей точкой).
+    #Показывать размер в виде десятичной дроби#
+    Показать общее и свободное место на диске в виде десятичной дроби.
     Комбинация клавиш в меню: Ctrl-5 (повторное нажатие).
 
     #Показывать сетевое имя/путь SUBST/имя VHD#
