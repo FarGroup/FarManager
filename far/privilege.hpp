@@ -44,8 +44,6 @@ namespace os
 			NONCOPYABLE(privilege);
 			MOVABLE(privilege);
 
-			template<class... args>
-			privilege(args&&... Args): privilege({ std::forward<args>(Args)... }) {}
 			privilege(const std::initializer_list<const wchar_t*>& Names): privilege(Names.begin(), Names.size()) {}
 			privilege(const std::vector<const wchar_t*>& Names): privilege(Names.data(), Names.size()) {}
 			privilege(const wchar_t* const* Names, size_t Size);

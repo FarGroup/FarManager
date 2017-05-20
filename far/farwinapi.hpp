@@ -48,7 +48,7 @@ namespace os
 			MOVABLE(handle_t);
 
 			constexpr handle_t() = default;
-			constexpr handle_t(nullptr_t) {}
+			constexpr handle_t(std::nullptr_t) {}
 			explicit handle_t(HANDLE Handle): base_type(normalise(Handle)) {}
 			void reset(HANDLE Handle = nullptr) { base_type::reset(normalise(Handle)); }
 			auto native_handle() const { return base_type::get(); }

@@ -161,7 +161,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	};
 
 	const auto PreserveLFN = SubstFileName(nullptr, strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-	const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), std::mem_fn(&string::empty));
+	const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), [](const string* Str) { return Str->empty(); });
 
 	if (!strCommand.empty())
 	{

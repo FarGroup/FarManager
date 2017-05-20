@@ -49,7 +49,7 @@ struct PreRedrawItem: noncopyable
 class TPreRedrawFunc: noncopyable
 {
 public:
-	void push(std::unique_ptr<PreRedrawItem>&& Source){return Items.emplace(std::move(Source));}
+	void push(std::unique_ptr<PreRedrawItem>&& Source){ Items.emplace(std::move(Source)); }
 	std::unique_ptr<PreRedrawItem> pop() { auto Top = std::move(Items.top()); Items.pop(); return Top; }
 	PreRedrawItem* top() { return Items.top().get(); }
 	bool empty() const {return Items.empty();}

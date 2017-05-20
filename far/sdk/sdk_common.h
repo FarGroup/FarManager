@@ -253,10 +253,13 @@ IsWindowsServer()
 }
 #endif
 
+#if !defined _WIN32_WINNT_WIN10 || defined __GNUC__ // mingw defines the constant, but not the helper below. Awesome.
+
 #ifndef _WIN32_WINNT_WIN10
 #define _WIN32_WINNT_WIN10 0xA00
-VERSIONHELPERAPI
-IsWindows10OrGreater()
+#endif
+
+VERSIONHELPERAPI IsWindows10OrGreater()
 {
 	return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0);
 }

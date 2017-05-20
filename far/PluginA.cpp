@@ -5893,7 +5893,7 @@ private:
 		~ansi_language_data() override = default;
 
 		void reserve(size_t Size) override { return m_Messages.reserve(Size); }
-		void add(string&& Str) override { return m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }
+		void add(string&& Str) override { m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }
 		void set_at(size_t Index, string&& Str) override { m_Messages[Index] = encoding::oem::get_bytes(Str); }
 		const string& at(size_t Index) const override { throw MAKE_FAR_EXCEPTION(L"Not supported"); }
 		size_t size() const override { return m_Messages.size(); }

@@ -380,7 +380,7 @@ public:
 	~language_data() override = default;
 
 	void reserve(size_t Size) override { return m_Messages.reserve(Size); }
-	void add(string&& Str) override { return m_Messages.emplace_back(std::move(Str)); }
+	void add(string&& Str) override { m_Messages.emplace_back(std::move(Str)); }
 	void set_at(size_t Index, string&& Str) override { m_Messages[Index] = std::move(Str); }
 	const string& at(size_t Index) const override { return m_Messages[Index]; }
 	size_t size() const override { return m_Messages.size(); }

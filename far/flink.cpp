@@ -126,7 +126,7 @@ static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 	if (!IsReparseTagValid(rdb->ReparseTag))
 		return false;
 
-	SCOPED_ACTION(os::security::privilege)(SE_CREATE_SYMBOLIC_LINK_NAME);
+	SCOPED_ACTION(os::security::privilege){ SE_CREATE_SYMBOLIC_LINK_NAME };
 
 	const auto Attributes = os::GetFileAttributes(Object);
 	if(Attributes&FILE_ATTRIBUTE_READONLY)
