@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.05.2017 23:45:02 +0000 - build 4964
+
+1. gcc 7.
+
+drkns 19.05.2017 23:29:09 +0000 - build 4963
+
+1. 0003434: FormatFileSize function had Width parameter which did not fully meet the documentation.
+   API changes: "undetermined" defaults now for 0 instead of -1.
+
+2. Other fixes (and possibly new bugs) around the function.
+
+drkns 16.05.2017 07:34:39 +0000 - build 4962
+
+1. Correction of plugin loading process.
+
+drkns 15.05.2017 14:39:00 +0000 - build 4961
+
+1. Continuation of 4959 - displaying of plugin loading errors is now done by the corresponding loader
+   in order to not try showing LastError where there's none. SilentLoadPlugin parameter is removed.
+
 drkns 14.05.2017 20:32:53 +0000 - build 4960
 
 1. Correction of 4957.
