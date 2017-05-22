@@ -3601,7 +3601,7 @@ lv=2
 dt=Text
 nm=DN_CONTROLINPUT
 ctime=3507553254
-mtime=3602352372
+mtime=3704631390
 <article>
 #_**Param1**
 #_    integer; according to Far API 
@@ -3610,12 +3610,13 @@ mtime=3602352372
 #_    `tInputRecord`
 #_
 #_**Return**
-#_    default processing of the return value, see description.
+#_    default processing of the return value, see `description`.
 #_
 #_**Far API used:**
 #_  DlgProc, DN_CONTROLINPUT
 #_
 #_@@@
+#_[description]: 285.html
 #_[tInputRecord]: 187.html
 #_
 #_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
