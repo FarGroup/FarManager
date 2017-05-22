@@ -1367,14 +1367,13 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLRALTL:
 		case KEY_CTRLRALTL:
 		case KEY_RCTRLALTL:
-		{
 			if (bFilterEnabled)
 			{
 				bFilterLocked=!bFilterLocked;
 				DisplayObject();
-				break;
 			}
-		}
+			break;
+
 		case KEY_OP_XLAT:
 		{
 			if (bFilterEnabled && !bFilterLocked)
@@ -1409,6 +1408,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 				ProcessEnter();
 				break;
 			}
+			// fallthrough
 		default:
 		{
 			if (ProcessFilterKey(LocalKey))

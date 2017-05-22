@@ -339,7 +339,9 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 				{
 				case KEY_NUMPAD0:
 				case KEY_INS:
-					if (!Accept()) break;
+					if (!Accept())
+						break;
+					// fallthrough
 				case KEY_NUMDEL:
 				case KEY_DEL:
 					{
@@ -581,7 +583,9 @@ void Shortcuts::Configure()
 		case KEY_INS:
 		case KEY_SHIFTINS:
 		case KEY_SHIFTNUMPAD0:
-			if (!Accept()) break;
+			if (!Accept())
+				break;
+			// fallthrough
 		case KEY_NUMDEL:
 		case KEY_DEL:
 			{

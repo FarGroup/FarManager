@@ -1334,6 +1334,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			if (!IsEmptyCmdline)
 				return false;
+			// fallthrough
 
 		case KEY_CTRLSHIFTINS:  case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
 		case KEY_RCTRLSHIFTINS: case KEY_RCTRLSHIFTNUMPAD0:

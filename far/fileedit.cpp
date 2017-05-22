@@ -876,6 +876,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 								FirstSave=0;
 								break;
 							}
+							// fallthrough
 
 						default:
 							return false;
@@ -1196,10 +1197,11 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 				if (!ProcessKey(Manager::Key(KEY_F2))) // учтем факт того, что могли отказаться от сохранения
 					return false;
-
+				// fallthrough
 			case KEY_F4:
 				if (F4KeyOnly)
 					return true;
+				// fallthrough
 			case KEY_ESC:
 			case KEY_F10:
 			{

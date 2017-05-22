@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "RegExp.hpp"
 
+WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
+
 #ifdef RE_DEBUG
 #include "console.hpp"
 #include "strmix.hpp"

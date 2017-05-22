@@ -3565,9 +3565,11 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 				return ret;
 			}
-			case oldfar::FCTL_SETANOTHERSELECTION:
-				hPlugin=PANEL_PASSIVE;
-			case oldfar::FCTL_SETSELECTION:
+
+		case oldfar::FCTL_SETANOTHERSELECTION:
+			hPlugin=PANEL_PASSIVE;
+			// fallthrough
+		case oldfar::FCTL_SETSELECTION:
 			{
 				if (!Param)
 					return FALSE;
@@ -3583,9 +3585,11 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				NativeInfo.PanelControl(hPlugin, FCTL_ENDSELECTION, 0, nullptr);
 				return TRUE;
 			}
-			case oldfar::FCTL_REDRAWANOTHERPANEL:
-				hPlugin = PANEL_PASSIVE;
-			case oldfar::FCTL_REDRAWPANEL:
+
+		case oldfar::FCTL_REDRAWANOTHERPANEL:
+			hPlugin = PANEL_PASSIVE;
+			// fallthrough
+		case oldfar::FCTL_REDRAWPANEL:
 			{
 				if (!Param)
 					return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL, 0, nullptr));
@@ -3594,13 +3598,17 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				PanelRedrawInfo pri = {sizeof(PanelRedrawInfo), static_cast<size_t>(priA->CurrentItem),static_cast<size_t>(priA->TopPanelItem)};
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri));
 			}
-			case oldfar::FCTL_SETANOTHERNUMERICSORT:
+
+		case oldfar::FCTL_SETANOTHERNUMERICSORT:
+			hPlugin = PANEL_PASSIVE;
+			// fallthrough
+		case oldfar::FCTL_SETNUMERICSORT:
+			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETNUMERICSORT, (Param && *static_cast<int*>(Param))? 1 : 0, nullptr));
+
+		case oldfar::FCTL_SETANOTHERPANELDIR:
 				hPlugin = PANEL_PASSIVE;
-			case oldfar::FCTL_SETNUMERICSORT:
-				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETNUMERICSORT, (Param && *static_cast<int*>(Param))? 1 : 0, nullptr));
-			case oldfar::FCTL_SETANOTHERPANELDIR:
-				hPlugin = PANEL_PASSIVE;
-			case oldfar::FCTL_SETPANELDIR:
+				// fallthrough
+		case oldfar::FCTL_SETPANELDIR:
 			{
 				if (!Param)
 					return FALSE;
@@ -3610,26 +3618,35 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY,0,&dirInfo));
 				return ret;
 			}
+
 			case oldfar::FCTL_SETANOTHERSORTMODE:
 				hPlugin = PANEL_PASSIVE;
+				// fallthrough
 			case oldfar::FCTL_SETSORTMODE:
 
 				if (!Param)
 					return FALSE;
 
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETSORTMODE, *static_cast<int*>(Param), nullptr));
+
 			case oldfar::FCTL_SETANOTHERSORTORDER:
 				hPlugin = PANEL_PASSIVE;
+				// fallthrough
 			case oldfar::FCTL_SETSORTORDER:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETSORTORDER, Param && *static_cast<int*>(Param), nullptr));
+
 			case oldfar::FCTL_SETANOTHERVIEWMODE:
 				hPlugin = PANEL_PASSIVE;
+				// fallthrough
 			case oldfar::FCTL_SETVIEWMODE:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETVIEWMODE, Param? *static_cast<int *>(Param) : 0, nullptr));
+
 			case oldfar::FCTL_UPDATEANOTHERPANEL:
 				hPlugin = PANEL_PASSIVE;
+				// fallthrough
 			case oldfar::FCTL_UPDATEPANEL:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_UPDATEPANEL, Param? 1 : 0, nullptr));
+
 			case oldfar::FCTL_GETCMDLINE:
 			case oldfar::FCTL_GETCMDLINESELECTEDTEXT:
 			{
@@ -5518,7 +5535,8 @@ private:
 			case EE_GOTFOCUS:
 			case EE_KILLFOCUS:
 				Info->Param = &Info->EditorID;
-			case EE_READ:
+				// fallthrough
+		case EE_READ:
 			case EE_SAVE:
 			case EE_REDRAW:
 				ExecuteFunction(es, Info->Event, Info->Param);
@@ -5571,6 +5589,7 @@ private:
 			case VE_GOTFOCUS:
 			case VE_KILLFOCUS:
 				Info->Param = &Info->ViewerID;
+				// fallthrough
 			case VE_READ:
 				ExecuteFunction(es, Info->Event, Info->Param);
 				break;

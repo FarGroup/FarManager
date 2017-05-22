@@ -253,7 +253,8 @@ static size_t get_bytes_impl(uintptr_t const Codepage, const wchar_t* const Data
 		return Utf8::get_bytes(Data, DataSize, Buffer, BufferSize);
 
 	case CP_UNICODE:
-		memcpy(Buffer, Data, std::min(DataSize * sizeof(wchar_t), BufferSize));
+		if (BufferSize) // paranoid gcc null checks are paranoid
+			memcpy(Buffer, Data, std::min(DataSize * sizeof(wchar_t), BufferSize));
 		return DataSize * sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
@@ -308,7 +309,8 @@ static size_t get_chars_impl(uintptr_t const Codepage, const char* const Data, s
 		return Utf7::get_chars(Data, DataSize, Buffer, BufferSize, nullptr);
 
 	case CP_UNICODE:
-		memcpy(Buffer, Data, std::min(DataSize, BufferSize * sizeof(wchar_t)));
+		if (BufferSize) // paranoid gcc null checks are paranoid
+			memcpy(Buffer, Data, std::min(DataSize, BufferSize * sizeof(wchar_t)));
 		return DataSize / sizeof(wchar_t);
 
 	case CP_REVERSEBOM:

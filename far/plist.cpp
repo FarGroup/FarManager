@@ -176,6 +176,7 @@ void ShowProcessList()
 						}
 					}
 				}
+				// fallthrough
 				case KEY_CTRLR:
 				case KEY_RCTRLR:
 				{

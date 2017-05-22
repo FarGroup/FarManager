@@ -297,6 +297,7 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 		if (os::GetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
 			break;
 		// else fall down to default:
+		// fallthrough
 	default:
 		return 0;
 	}

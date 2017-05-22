@@ -481,6 +481,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTSHIFTHOME:   case KEY_ALTSHIFTNUMPAD7:
 		case KEY_RALTSHIFTHOME:  case KEY_RALTSHIFTNUMPAD7:
 			LocalKey&=~(KEY_ALT|KEY_RALT);
+			// fallthrough
 		default:
 
 			//   Сбрасываем выделение на некоторых клавишах

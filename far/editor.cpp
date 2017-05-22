@@ -746,6 +746,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 				}
 			}
 		}
+		// fallthrough
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
 			*reinterpret_cast<string*>(vParam) = IsVerticalSelection()? VBlock2Text() : Block2Text();
@@ -1487,9 +1488,9 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_SHIFTDEL:
 		case KEY_SHIFTNUMDEL:
 		case KEY_SHIFTDECIMAL:
-		{
 			Copy(FALSE);
-		}
+			// fallthrough
+
 		case KEY_CTRLD:
 		case KEY_RCTRLD:
 		{

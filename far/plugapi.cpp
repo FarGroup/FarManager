@@ -2345,6 +2345,7 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 				break;
 			}
 		}
+		// fallthrough
 
 		case FCT_ANY:
 			size = apiPasteFromClipboardEx(false, Data, Length);

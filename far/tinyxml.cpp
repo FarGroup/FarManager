@@ -44,8 +44,9 @@ WARNING_PUSH()
 
 WARNING_DISABLE_MSC(4296) // https://msdn.microsoft.com/en-us/library/wz2y40yt.aspx 'operator' : expression is always true
 
-WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
+WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 WARNING_DISABLE_GCC("-Wsuggest-override")
+WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 
 #ifdef MEMCHECK
 #pragma push_macro("new")

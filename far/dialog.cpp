@@ -1219,9 +1219,9 @@ void Dialog::DeleteDialogObjects()
 			case DI_COMBOBOX:
 			case DI_MEMOEDIT:
 				delete static_cast<DlgEdit*>(i.ObjPtr);
+				// fallthrough
 
 			case DI_LISTBOX:
-
 				if ((i.Type == DI_COMBOBOX || i.Type == DI_LISTBOX))
 					 i.ListPtr.reset();
 
@@ -2139,6 +2139,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
 			case KEY_HOME:      case KEY_NUMPAD7:
 				rr=(Key == KEY_CTRLLEFT || Key == KEY_RCTRLLEFT || Key == KEY_CTRLNUMPAD4 || Key == KEY_RCTRLNUMPAD4)?10:m_X1;
+				// fallthrough
 			case KEY_LEFT:      case KEY_NUMPAD4:
 				Hide();
 
@@ -2159,6 +2160,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RCTRLEND:   case KEY_RCTRLNUMPAD1:
 			case KEY_END:       case KEY_NUMPAD1:
 				rr=(Key == KEY_CTRLRIGHT || Key == KEY_RCTRLRIGHT || Key == KEY_CTRLNUMPAD6 || Key == KEY_RCTRLNUMPAD6)?10:std::max(0,ScrX-m_X2);
+				// fallthrough
 			case KEY_RIGHT:     case KEY_NUMPAD6:
 				Hide();
 
@@ -2179,6 +2181,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLUP:    case KEY_CTRLNUMPAD8:
 			case KEY_RCTRLUP:   case KEY_RCTRLNUMPAD8:
 				rr=(Key == KEY_CTRLUP || Key == KEY_RCTRLUP || Key == KEY_CTRLNUMPAD8 || Key == KEY_RCTRLNUMPAD8)?5:m_Y1;
+				// fallthrough
 			case KEY_UP:        case KEY_NUMPAD8:
 				Hide();
 
@@ -2199,6 +2202,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RCTRLPGDN: case KEY_RCTRLNUMPAD3:
 			case KEY_PGDN:      case KEY_NUMPAD3:
 				rr=(Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN || Key == KEY_CTRLNUMPAD2 || Key == KEY_RCTRLNUMPAD2)? 5:std::max(0,ScrY-m_Y2);
+				// fallthrough
 			case KEY_DOWN:      case KEY_NUMPAD2:
 				Hide();
 
@@ -2370,6 +2374,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 						Ret=Items[m_FocusPos].ListPtr->VMProcess(OpCode,vParam,iParam);
 						break;
 					}
+					// fallthrough
 
 				case DI_EDIT:
 				case DI_PSWEDIT:
@@ -2627,6 +2632,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				return true; // делать больше не чего
 			}
 		}
+		// fallthrough
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
@@ -2793,6 +2799,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				}
 			}
 		}
+		// fallthrough
 		case KEY_UP:    case KEY_NUMPAD8:
 		case KEY_DOWN:  case KEY_NUMPAD2:
 
@@ -2829,6 +2836,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				return true;
 			}
 
+			// fallthrough
 			// ???
 			// ЭТО перед default последний!!!
 		case KEY_PGDN:   case KEY_NUMPAD3:
@@ -2854,6 +2862,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				}
 				return true;
 			}
+			// fallthrough
 
 		default:
 		{
@@ -4475,6 +4484,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			// изменим вызов RESIZE.
 			Param1=-1;
 			/*****************************************************************/
+			// fallthrough
 		case DM_MOVEDIALOG:
 		{
 			int W1,H1;
@@ -5598,6 +5608,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						Len = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetLength();
 						break;
 					}
+					// fallthrough
 
 				case DI_LISTBOX:
 				{

@@ -39,8 +39,9 @@ WARNING_DISABLE_MSC(4701) // https://msdn.microsoft.com/en-us/library/1wea5zwe.a
 WARNING_DISABLE_MSC(4703) // https://msdn.microsoft.com/en-us/library/jj851030.aspx Potentially uninitialized local pointer variable 'name' used
 
 WARNING_DISABLE_GCC("-Warray-bounds")
-WARNING_DISABLE_GCC("-Wunused-but-set-variable")
 WARNING_DISABLE_GCC("-Wcast-qual")
+WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
+WARNING_DISABLE_GCC("-Wunused-but-set-variable")
 
 #ifdef _MSC_VER
 #include <windows.h>

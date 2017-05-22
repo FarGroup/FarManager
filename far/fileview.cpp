@@ -340,6 +340,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 
 			if (F3KeyOnly)
 				return true;
+			// fallthrough
 
 		case KEY_ESC:
 		case KEY_F10:

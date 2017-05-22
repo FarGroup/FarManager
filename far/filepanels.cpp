@@ -493,6 +493,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLT: case KEY_RCTRLT:
 			if (Global->Opt->Tree.TurnOffCompletely)
 				break;
+			// fallthrough
 		case KEY_CTRLL: case KEY_RCTRLL:
 		case KEY_CTRLQ: case KEY_RCTRLQ:
 		{

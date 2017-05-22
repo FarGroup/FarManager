@@ -75,7 +75,6 @@ CFLAGS += \
 -Wno-char-subscripts \
 -Wno-unused-parameter \
 -Wno-missing-field-initializers \
--Wno-implicit-fallthrough \
 
 CCFLAGS = $(CFLAGS) -std=c++1z \
 -Wnon-virtual-dtor \

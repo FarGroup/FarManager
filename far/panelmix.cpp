@@ -181,6 +181,7 @@ bool MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool Short
 		case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
 		case KEY_RALTSHIFTBACKBRACKET:
 			NeedRealName = true;
+			// fallthrough
 		case KEY_CTRLBRACKET:          // Вставить путь из левой панели
 		case KEY_RCTRLBRACKET:
 		case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели

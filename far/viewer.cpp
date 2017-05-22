@@ -2005,12 +2005,14 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 			return true;
 		}
+
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
 		case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
 			// Перейти на начало файла
 			if (ViewFile)
 				LeftPos=0;
+			// fallthrough
 
 		case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:   case KEY_RCTRLNUMPAD9:
@@ -2019,18 +2021,18 @@ bool Viewer::process_key(const Manager::Key& Key)
 				FilePos=0;
 				Show();
 			}
-
 			return true;
+
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
 		case KEY_RCTRLEND:    case KEY_RCTRLNUMPAD1:
 		case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
 			// Перейти на конец файла
 			if (ViewFile)
 				LeftPos=0;
+			// fallthrough
 
 		case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
 		case KEY_RCTRLPGDN:   case KEY_RCTRLNUMPAD3:
-
 			if (ViewFile)
 			{
 				int max_counter = m_Y2 - m_Y1;
@@ -3486,8 +3488,10 @@ void Viewer::Search(int Next,int FirstChar)
 					StartSearchPos = LastSelectPos;
 
 				break;
-			} // else pass to case 0 (below)
-		default: //case 0:
+			}
+			// fallthrough
+		case 0:
+		default:
 			assert(Next >= -1 && Next <= +1);
 			if (!Next || LastSelectSize < 0)
 				LastSelectSize = SelectSize = -1;
@@ -4357,6 +4361,8 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			Global->ScrBuf->Flush();
 			return TRUE;
 		}
+		// fallthrough
+
 		// Param2=0
 		case VCTL_QUIT:
 		{
@@ -4380,6 +4386,8 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				return TRUE;
 			}
 		}
+		// fallthrough
+
 		/* Функция установки режимов
 		     Param2 = ViewerSetMode
 		*/

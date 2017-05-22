@@ -946,10 +946,12 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 				return DELETE_CANCEL;
 			case 3:
 				SkipWipeMode = 2; // fallthrough down
+				// fallthrough
 			case 2:
 				return DELETE_SKIP;
 			case 1:
 				SkipWipeMode = 0;
+				// fallthrough
 			case 0:
 				{
 					bool Cancel = false;
@@ -1160,7 +1162,8 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 			if (dir)
 				SkipFoldersMode = 2;
 			else
-				m_SkipMode = 2;             // fallthrough down
+				m_SkipMode = 2;
+			// fallthrough
 		case 1:                         // [Skip]
 			ret =  DELETE_SKIP;
 			break;

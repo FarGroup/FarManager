@@ -681,6 +681,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						return 1; // Закрыть меню
 					}
 				}
+				// fallthrough
 
 				/* $ 28.06.2000 tran
 				выход из пользовательского меню по ShiftF10 из любого уровня
@@ -698,13 +699,13 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					return 1;
 
 				case KEY_BS: // Показать меню из родительского каталога только в MM_LOCAL режиме
-
 					if (m_MenuMode == menu_mode::local)
 					{
 						ReturnCode=EC_PARENT_MENU;
 						UserMenu->Close(-1);
 						return 1;
 					}
+					// fallthrough
 
 				default:
 					KeyProcessed = 0;
@@ -966,6 +967,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			case -1:
 			case -2:
 				Continue = false;
+				// fallthrough
 			case Message::second_button:
 				SubMenu = true;
 		}
