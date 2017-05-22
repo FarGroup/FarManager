@@ -602,7 +602,8 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	size_t UnitIndex = 0;
 	auto Str = ToStr(FileSize);
 
-	const auto SuffixSize = UseCompact? 1u : 2u;
+	const auto SuffixSize = (ShowUnit || (Width && Str.size() > Width))? UseCompact? 1u : 2u : 0u;
+	
 	const auto MaxNumberWidth = Width > SuffixSize? Width - SuffixSize : 0;
 
 	while ((UseUnit && UnitIndex < MinUnit) || (Width && Str.size() > MaxNumberWidth))
