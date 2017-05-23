@@ -570,15 +570,17 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 			double Parts[2];
 			Parts[1] = std::modf(SizeInUnits, &Parts[0]);
 			
-			const auto Integral = static_cast<int>(Parts[0]);
-			Str = str(Integral);
-			if (const auto NumDigits = Integral < 10? 2 : Integral < 100? 1 : 0)
-			{
+			auto Integral = static_cast<int>(Parts[0]);
 
+			const auto UseFixedPoint = false; // "Old" style. TODO: option?
+
+			if (const auto NumDigits = UseFixedPoint? 2 : Integral < 10? 2 : Integral < 100? 1 : 0)
+			{
 				auto Fractional = static_cast<int>(std::round(Parts[1] * (NumDigits == 2? 100 : 10)) * (NumDigits == 1? 10 : 1));
+
 				if (Fractional == 100)
 				{
-					Str = str(Integral + 1);
+					++Integral;
 					Fractional = 0;
 				}
 
@@ -587,7 +589,11 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 				const auto Div = std::div(Fractional, 10);
 				const wchar_t StrFractional[] = { wchar_t(L'0' + Div.quot), wchar_t(L'0' + Div.rem), L'\0' };
-				append(Str, locale::GetDecimalSeparator(), string_view(StrFractional, NumDigits));
+				Str = concat(str(Integral), locale::GetDecimalSeparator(), string_view(StrFractional, NumDigits));
+			}
+			else
+			{
+				Str = str(static_cast<int>(std::round(SizeInUnits)));
 			}
 		}
 
