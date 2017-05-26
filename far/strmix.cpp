@@ -569,27 +569,23 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 			double Parts[2];
 			Parts[1] = std::modf(SizeInUnits, &Parts[0]);
-			
+
 			auto Integral = static_cast<int>(Parts[0]);
 
-			const auto UseFixedPoint = false; // "Old" style. TODO: option?
+			const auto FixedPrecision = 0; // 0 for floating, else fixed. TODO: option?
 
-			if (const auto NumDigits = UseFixedPoint? 2 : Integral < 10? 2 : Integral < 100? 1 : 0)
+			if (const auto NumDigits = FixedPrecision? FixedPrecision : Integral < 10? 2 : Integral < 100? 1 : 0)
 			{
-				auto Fractional = static_cast<int>(std::round(Parts[1] * (NumDigits == 2? 100 : 10)) * (NumDigits == 1? 10 : 1));
-
-				if (Fractional == 100)
+				const auto AjustedParts = [&]
 				{
-					++Integral;
-					Fractional = 0;
-				}
+					const auto Multiplier = std::pow(10, NumDigits);
+					const auto Value = Parts[1] * Multiplier;
+					const auto UseRound = false;
+					const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);
+					return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
+				}();
 
-				// Explorer-style
-				//auto Fractional = static_cast<int>(Parts[1] * 100);
-
-				const auto Div = std::div(Fractional, 10);
-				const wchar_t StrFractional[] = { wchar_t(L'0' + Div.quot), wchar_t(L'0' + Div.rem), L'\0' };
-				Str = concat(str(Integral), locale::GetDecimalSeparator(), string_view(StrFractional, NumDigits));
+				Str = concat(str(AjustedParts.first), locale::GetDecimalSeparator(), pad_left(str(AjustedParts.second), NumDigits, L'0'));
 			}
 			else
 			{
