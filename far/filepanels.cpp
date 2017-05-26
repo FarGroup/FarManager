@@ -1012,8 +1012,7 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 			NewPanel->SetPosition(X1,Y1,X2,Y2);
 		}
 
-		if (OldSortMode < panel_sort::COUNT)
-			NewPanel->SetSortMode(OldSortMode);
+		NewPanel->SetSortMode(OldSortMode);
 		NewPanel->SetSortOrder(OldSortOrder);
 		NewPanel->SetNumericSort(OldNumericSort);
 		NewPanel->SetCaseSensitiveSort(OldCaseSensitiveSort);
