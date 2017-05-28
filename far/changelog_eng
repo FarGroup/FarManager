@@ -3,6 +3,30 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 27.05.2017 02:27:03 +0200 - build 4970
+
+1. Correction of 4585: switching between FAR and plugin panel would not save custom sorting.
+
+drkns 26.05.2017 21:45:31 +0000 - build 4969
+
+1. Continuation of 4963.
+
+svs 24.05.2017 21:58:27 +0300 - build 4968
+
+1. SQLite 3.19.1
+
+drkns 23.05.2017 23:10:16 +0000 - build 4967
+
+1. Another correction of 4963.
+
+drkns 22.05.2017 23:20:20 +0000 - build 4966
+
+1. Correction of 4963.
+
+drkns 22.05.2017 20:44:12 +0000 - build 4965
+
+1. More on gcc 7.
+
 drkns 20.05.2017 23:45:02 +0000 - build 4964
 
 1. gcc 7.
