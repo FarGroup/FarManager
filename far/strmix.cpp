@@ -580,7 +580,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 				{
 					const auto Multiplier = std::pow(10, NumDigits);
 					const auto Value = Parts[1] * Multiplier;
-					const auto UseRound = false;
+					const auto UseRound = true;
 					const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);
 					return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
 				}();
