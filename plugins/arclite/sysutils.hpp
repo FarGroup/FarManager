@@ -93,6 +93,7 @@ public:
     DWORD size_ret;
     return DeviceIoControl(h_file, code, nullptr, 0, &data, sizeof(Type), &size_ret, nullptr) != 0;
   }
+  static DWORD attributes(const wstring& file_path) throw();
   static bool exists(const wstring& file_path) throw();
   static void set_attr(const wstring& file_path, DWORD attr);
   static bool set_attr_nt(const wstring& file_path, DWORD attr) throw();
@@ -148,6 +149,8 @@ protected:
   wstring file_mask;
   HANDLE h_find;
   FindData find_data;
+  int n_far_items;
+  std::list<FindData> far_items;
 public:
   FileEnum(const wstring& file_mask) throw();
   ~FileEnum() throw();
@@ -156,6 +159,8 @@ public:
   const FindData& data() const throw() {
     return find_data;
   }
+public:
+  int far_emum_cb(const PluginPanelItem& item);
 };
 
 class DirList: public FileEnum {

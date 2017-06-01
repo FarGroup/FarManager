@@ -2,6 +2,12 @@
 #include "farutils.hpp"
 #include "sysutils.hpp"
 
+#ifdef _MSC_VER
+# pragma warning (disable : 4996)
+#endif
+
+namespace Far { extern FarStandardFunctions g_fsf; }
+
 HINSTANCE g_h_instance = nullptr;
 
 CriticalSection& GetSync()
@@ -243,11 +249,15 @@ bool File::get_info_nt(BY_HANDLE_FILE_INFORMATION& info) {
 }
 
 bool File::exists(const wstring& file_path) {
+	return attributes(file_path) != INVALID_FILE_ATTRIBUTES;
+}
+
+DWORD File::attributes(const wstring& file_path) {
   ArclitePrivateInfo* system_functions = Far::get_system_functions();
   if (system_functions)
-    return system_functions->GetFileAttributes(long_path(file_path).c_str()) != INVALID_FILE_ATTRIBUTES;
+    return system_functions->GetFileAttributes(long_path(file_path).c_str()); 
   else
-    return GetFileAttributesW(long_path(file_path).c_str()) != INVALID_FILE_ATTRIBUTES;
+    return GetFileAttributesW(long_path(file_path).c_str());
 }
 
 void File::set_attr(const wstring& file_path, DWORD attr) {
@@ -563,6 +573,7 @@ bool Key::delete_sub_key_nt(const wchar_t* name) {
 }
 
 FileEnum::FileEnum(const wstring& file_mask): file_mask(file_mask), h_find(INVALID_HANDLE_VALUE) {
+  n_far_items = -1;
 }
 
 FileEnum::~FileEnum() {
@@ -577,12 +588,60 @@ bool FileEnum::next() {
   return more;
 }
 
+static int WINAPI find_cb(const struct PluginPanelItem *FData, const wchar_t *FullName, void *Param)
+{
+	(void)FullName;
+	return ((FileEnum *)Param)->far_emum_cb(*FData);
+}
+
+int FileEnum::far_emum_cb(const PluginPanelItem& item)
+{
+  far_items.emplace_back();
+  auto& fdata = far_items.back();
+
+  fdata.dwFileAttributes = static_cast<DWORD>(item.FileAttributes & 0xFFFFFFFF);
+  fdata.ftCreationTime = item.CreationTime;
+  fdata.ftLastAccessTime = item.LastAccessTime;
+  fdata.ftLastWriteTime = item.LastWriteTime;
+  fdata.nFileSizeHigh = static_cast<DWORD>((item.FileSize >> 32) & 0xFFFFFFFF);
+  fdata.nFileSizeLow = static_cast<DWORD>(item.FileSize & 0xFFFFFFFF);
+  fdata.dwReserved0 = static_cast<DWORD>(item.Reserved[0]);
+  fdata.dwReserved1 = static_cast<DWORD>(item.Reserved[1]);
+  wcscpy(fdata.cAlternateFileName, null_to_empty(item.AlternateFileName));
+  wcsncpy(fdata.cFileName, null_to_empty(item.FileName), sizeof(fdata.cFileName)/sizeof(fdata.cFileName[0]));
+
+  ++n_far_items;
+  return TRUE;
+}
+
 bool FileEnum::next_nt(bool& more) {
-  while (true) {
+	for (;;) {
     if (h_find == INVALID_HANDLE_VALUE) {
-      h_find = FindFirstFileW(long_path(file_mask).c_str(), &find_data);
-      if (h_find == INVALID_HANDLE_VALUE)
-        return false;
+      if (n_far_items >= 0) {
+        if (!(more = n_far_items > 0))
+          return true;
+		  find_data = far_items.front();
+		  far_items.pop_front();
+		  --n_far_items;
+      }
+		else {
+        if ((h_find = FindFirstFileW(long_path(file_mask).c_str(), &find_data)) == INVALID_HANDLE_VALUE) {
+          if (GetLastError() == ERROR_ACCESS_DENIED) { // 
+            auto dir = extract_file_path(file_mask);   // M$ FindFirst/NextFile doesn't work for junction/symlink folder.
+            auto msk = extract_file_name(file_mask);   // Try to use FarRecursiveSearch in such case.
+            if (!dir.empty() && !msk.empty()) {        // 
+              auto attr = File::attributes(dir);       //
+              if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY) && (attr & FILE_ATTRIBUTE_REPARSE_POINT)) {
+                n_far_items = 0;
+                Far::g_fsf.FarRecursiveSearch(long_path(dir).data(), msk.data(), find_cb, FRS_NONE, this);
+                continue;
+				  }
+            }
+          }
+		    more = false;
+          return false;
+        }
+      }
     }
     else {
       if (!FindNextFileW(h_find, &find_data)) {
