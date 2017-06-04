@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 30.05.2017 23:13:19 +0300 - build 4972
+
+1. SQLite 3.19.2
+
+drkns 29.05.2017 14:46:17 +0000 - build 4971
+
+1. Correction of 4969.
+
 shmuel 27.05.2017 02:27:03 +0200 - build 4970
 
 1. Correction of 4585: switching between FAR and plugin panel would not save custom sorting.
