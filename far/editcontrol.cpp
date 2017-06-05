@@ -116,7 +116,7 @@ void EditControl::SetMenuPos(VMenu2& menu)
 {
 	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), static_cast<long long>(menu.size())) + 1;
 
-	const auto NewX2 = Clamp(static_cast<int>(m_X2), m_X1 + 20, ScrX - 2);
+	const auto NewX2 = std::max(std::min(ScrX - 2, static_cast<int>(m_X2)), m_X1 + 20);
 
 	if((ScrY-m_Y1<MaxHeight && m_Y1>ScrY/2) || MenuUp)
 	{
@@ -791,7 +791,7 @@ bool EditControl::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					{
 						SelectionStart=m_CurPos;
 					}
-					Select(std::min(SelectionStart, m_CurPos), Clamp(m_CurPos, SelectionStart, m_Str.size()));
+					Select(std::min(SelectionStart, m_CurPos), std::min(m_Str.size(), std::max(SelectionStart, m_CurPos)));
 					Show();
 				}
 			}

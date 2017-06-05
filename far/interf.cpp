@@ -1309,10 +1309,10 @@ bool IsConsoleFullscreen()
 
 void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
 {
-	X1 = Clamp(X1, 0, static_cast<int>(ScrX));
-	X2 = Clamp(X2, 0, static_cast<int>(ScrX));
-	Y1 = Clamp(Y1, 0, static_cast<int>(ScrY));
-	Y2 = Clamp(Y2, 0, static_cast<int>(ScrY));
+	X1 = std::clamp(X1, 0, static_cast<int>(ScrX));
+	X2 = std::clamp(X2, 0, static_cast<int>(ScrX));
+	Y1 = std::clamp(Y1, 0, static_cast<int>(ScrY));
+	Y2 = std::clamp(Y2, 0, static_cast<int>(ScrY));
 }
 
 void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)

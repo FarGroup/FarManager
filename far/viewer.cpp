@@ -1453,7 +1453,7 @@ long long Viewer::XYfilepos(int col, int row)
 	default:
 		return -1;
 	}
-	return Clamp(pos, 0ll, FileSize);
+	return std::clamp(pos, 0ll, FileSize);
 }
 
 
@@ -2717,7 +2717,7 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	const auto strMsg = concat(msg(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', MsgStr);
 	if (Percent>=0)
 	{
-		const size_t Length = Clamp(static_cast<int>(strMsg.size()), 40, ScrX - 1 - 10);
+		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
 		strProgress = make_progressbar(Length, Percent, true, true);
 	}
 
@@ -4082,7 +4082,7 @@ void Viewer::GoTo(bool ShowDlg, long long Offset, unsigned long long Flags)
 			{
 				Column = LeftPos + IsColumnRelative * Column;
 			}
-			NewLeftPos = Clamp(Column, 0ll, ViOpt.MaxLineSize.Get());
+			NewLeftPos = std::clamp(Column, 0ll, ViOpt.MaxLineSize.Get());
 		}
 	}
 	else
@@ -4096,7 +4096,7 @@ void Viewer::GoTo(bool ShowDlg, long long Offset, unsigned long long Flags)
 	}
 
 	FilePos = IsOffsetRelative? FilePos + Offset * IsOffsetRelative : Offset;
-	FilePos = Clamp(FilePos, 0ll, FileSize);
+	FilePos = std::clamp(FilePos, 0ll, FileSize);
 
 	AdjustFilePos();
 	if (NewLeftPos != -1)

@@ -545,7 +545,7 @@ m1:
 					string strDescription,strKeyName;
 					while (Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 					{
-						SizeKeyName = Clamp(strKeyName.size(), SizeKeyName, static_cast<size_t>(MaxLength) / 2);
+						SizeKeyName = std::min(std::max(SizeKeyName, strKeyName.size()), static_cast<size_t>(MaxLength) / 2);
 						MI++;
 					}
 					MI=0;
@@ -1130,7 +1130,7 @@ void Help::OutString(const wchar_t *Str)
 
 void Help::CorrectPosition() const
 {
-	StackData->CurX = Clamp(StackData->CurX, 0, CanvasWidth() - 1);
+	StackData->CurX = std::clamp(StackData->CurX, 0, CanvasWidth() - 1);
 
 	if (StackData->CurY > BodyHeight() - 1)
 	{

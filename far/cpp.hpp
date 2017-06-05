@@ -76,7 +76,7 @@ using std::wmemchr;
 
 #endif
 
-#if COMPILER == C_GCC && !defined(__cpp_lib_nonmember_container_access)
+#if !defined _MSC_VER && !defined __cpp_lib_nonmember_container_access
 namespace std
 {
 	template <class C>
@@ -139,7 +139,7 @@ namespace std
 }
 #endif
 
-#if COMPILER == C_GCC && !defined(__cpp_lib_invoke)
+#if !defined _MSC_VER && !defined __cpp_lib_invoke
 namespace std
 {
 	template<typename... args>
@@ -150,7 +150,7 @@ namespace std
 }
 #endif
 
-#if (COMPILER == C_CL && _MSC_VER < 1910) || (COMPILER != C_CL && !defined(__cpp_lib_apply))
+#if (!defined _MSC_VER && !defined __cpp_lib_apply) || (defined _MSC_VER && _MSC_VER < 1910)
 namespace std
 {
 	namespace detail
@@ -170,7 +170,7 @@ namespace std
 }
 #endif
 
-#if COMPILER == C_GCC && !defined(__cpp_lib_uncaught_exceptions)
+#if !defined _MSC_VER && !defined __cpp_lib_uncaught_exceptions
 namespace __cxxabiv1
 {
 	extern "C" struct __cxa_eh_globals* __cxa_get_globals() noexcept;
@@ -185,7 +185,25 @@ namespace std
 }
 #endif
 
-#if (COMPILER == C_CL && _MSC_VER < 1910) || (COMPILER != C_CL && __cpp_static_assert < 201411)
+#if !defined _MSC_VER && !defined __cpp_lib_clamp
+namespace std
+{
+	template<typename type, typename compare>
+	constexpr const type& clamp(const type& Value, const type& Low, const type& High, compare Compare)
+	{
+		assert(!Compare(High, Low));
+		return Compare(Value, Low)? Low : Compare(High, Value)? High : Value;
+	}
+
+	template<typename type>
+	constexpr const type& clamp(const type& Value, const type& Low, const type& High)
+	{
+		return clamp(Value, Low, High, std::less<>());
+	}
+}
+#endif
+
+#if (!defined _MSC_VER && __cpp_static_assert < 201411) || (defined _MSC_VER && _MSC_VER < 1910)
 #define DETAIL_GET_MACRO(_1, _2, NAME, ...) NAME
 #define DETAIL_STATIC_ASSERT_2(expression, message) static_assert(expression, message)
 #define DETAIL_STATIC_ASSERT_1(expression) DETAIL_STATIC_ASSERT_2(expression, #expression)

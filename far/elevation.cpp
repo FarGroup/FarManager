@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "scrbuf.hpp"
 #include "synchro.hpp"
-#include "strmix.hpp"
 #include "manager.hpp"
 #include "pipe.hpp"
 #include "console.hpp"

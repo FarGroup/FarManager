@@ -52,102 +52,103 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 	static COLORREF LastTrueColors[2] = {};
 	static FARCOLORFLAGS LastFlags = 0;
 	static WORD Result = 0;
-	if (Color.BackgroundColor != LastTrueColors[0] || Color.ForegroundColor != LastTrueColors[1] || (Color.Flags & FCF_4BITMASK) != (LastFlags & FCF_4BITMASK))
+
+	if (Color.BackgroundColor == LastTrueColors[0] && Color.ForegroundColor == LastTrueColors[1] && (Color.Flags & FCF_4BITMASK) == (LastFlags & FCF_4BITMASK))
+		return Result;
+
+	LastFlags = Color.Flags;
+
+	static BYTE IndexColors[2] = {};
+
+	const struct
 	{
-		LastFlags = Color.Flags;
+		const COLORREF Color;
+		const rgba RGBA;
+		FARCOLORFLAGS Flags;
+		COLORREF* LastColor;
+		BYTE* IndexColor;
+	}
+	data[] =
+	{
+		{Color.BackgroundColor, Color.BackgroundRGBA, FCF_BG_4BIT, &LastTrueColors[0], &IndexColors[0]},
+		{Color.ForegroundColor, Color.ForegroundRGBA, FCF_FG_4BIT, &LastTrueColors[1], &IndexColors[1]}
+	};
 
-		static BYTE IndexColors[2] = {};
-		const struct
+	enum console_mask
+	{
+		BlueMask      = bit(0),
+		GreenMask     = bit(1),
+		RedMask       = bit(2),
+		IntensityMask = bit(3),
+	};
+
+	for (auto& i: data)
+	{
+		if (i.Color == *i.LastColor)
+			continue;
+
+		*i.LastColor = i.Color;
+		if(Color.Flags & i.Flags)
 		{
-			COLORREF Color;
-			rgba RGBA;
-			FARCOLORFLAGS Flags;
-			COLORREF* LastColor;
-			BYTE* IndexColor;
+			*i.IndexColor = i.Color & ConsoleMask;
+			continue;
 		}
-		data[2] =
-		{
-			{Color.BackgroundColor, Color.BackgroundRGBA, FCF_BG_4BIT, &LastTrueColors[0], &IndexColors[0]},
-			{Color.ForegroundColor, Color.ForegroundRGBA, FCF_FG_4BIT, &LastTrueColors[1], &IndexColors[1]}
-		};
 
-		enum console_mask
-		{
-			BlueMask      = bit(0),
-			GreenMask     = bit(1),
-			RedMask       = bit(2),
-			IntensityMask = bit(3),
-		};
+		int R = i.RGBA.r;
+		int G = i.RGBA.g;
+		int B = i.RGBA.b;
 
-		for (auto& i: data)
+		// special case, silver color:
+		if (InRange(160, R, 223) && InRange(160, G, 223) && InRange(160, B, 223))
 		{
-			if(i.Color != *i.LastColor)
+			*i.IndexColor = RedMask | GreenMask | BlueMask;
+			continue;
+		}
+
+		int* p[] = { &R, &G, &B };
+		size_t IntenseCount = 0;
+		for (auto& component : p)
+		{
+			if(InRange(0, *component, 63))
 			{
-				*i.LastColor = i.Color;
-				if(Color.Flags & i.Flags)
+				*component = 0;
+			}
+			else if(InRange(64, *component, 191))
+			{
+				*component = 128;
+			}
+			else if(InRange(192, *component, 255))
+			{
+				*component = 255;
+				++IntenseCount;
+			}
+		}
+
+		// eliminate mixed intensity
+		if(IntenseCount > 0 && IntenseCount < 3)
+		{
+			for(auto& component: p)
+			{
+				if(*component == 128)
 				{
-					*i.IndexColor = i.Color & ConsoleMask;
-				}
-				else
-				{
-					int R = i.RGBA.r;
-					int G = i.RGBA.g;
-					int B = i.RGBA.b;
-
-					// special case, silver color:
-					if (InRange(160, R, 223) && InRange(160, G, 223) && InRange(160, B, 223))
-					{
-						*i.IndexColor = RedMask|GreenMask|BlueMask;
-					}
-					else
-					{
-						int* p[] = { &R, &G, &B };
-						size_t IntenseCount = 0;
-						for (auto& component : p)
-						{
-							if(InRange(0, *component, 63))
-							{
-								*component = 0;
-							}
-							else if(InRange(64, *component, 191))
-							{
-								*component = 128;
-							}
-							else if(InRange(192, *component, 255))
-							{
-								*component = 255;
-								++IntenseCount;
-							}
-						}
-
-						// eliminate mixed intensity
-						if(IntenseCount > 0 && IntenseCount < 3)
-						{
-							for(auto& component: p)
-							{
-								if(*component == 128)
-								{
-									*component = IntenseCount==1? 0 : 255;
-								}
-							}
-						}
-
-						const auto& ToMask = [](size_t component, console_mask mask) { return component ? mask : 0; };
-						*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
-					}
+					*component = IntenseCount == 1? 0 : 255;
 				}
 			}
 		}
 
-		if (COLORVALUE(data[0].Color) != COLORVALUE(data[1].Color) && IndexColors[0] == IndexColors[1])
-		{
-			// oops, unreadable
-			IndexColors[0]&IntensityMask? IndexColors[0]&=~IntensityMask : IndexColors[1]|=IntensityMask;
-		}
-		Result = (IndexColors[0] << ConsoleBgShift) | (IndexColors[1] << ConsoleFgShift);
+		const auto& ToMask = [](size_t component, console_mask mask) { return component? mask : 0; };
+		*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
 	}
 
-	return (WORD)(Result | ((WORD)(Color.Flags & ConsoleExtraMask)));
+	if (COLORVALUE(data[0].Color) != COLORVALUE(data[1].Color) && IndexColors[0] == IndexColors[1])
+	{
+		// oops, unreadable
+		IndexColors[0] & IntensityMask? IndexColors[0] &= ~IntensityMask : IndexColors[1] |= IntensityMask;
+	}
+
+	Result = (IndexColors[0] << ConsoleBgShift) | (IndexColors[1] << ConsoleFgShift) | (Color.Flags & ConsoleExtraMask);
+
+	return Result;
 }
 
 FarColor ConsoleColorToFarColor(WORD Color)
