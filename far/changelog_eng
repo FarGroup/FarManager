@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.06.2017 10:59:10 +0000 - build 4974
+
+1. Correction of 4945.
+
+drkns 05.06.2017 13:26:32 +0200 - build 4973
+
+1. Correction of 4887.
+
+2. Refactoring.
+
 svs 30.05.2017 23:13:19 +0300 - build 4972
 
 1. SQLite 3.19.2
