@@ -114,13 +114,13 @@ void lower(wchar_t* Str)
 
 string& upper(string& Str, size_t Pos, size_t Count)
 {
-	upper(&Str[0] + Pos, Count == string::npos? Str.size() - Pos : Str.size());
+	upper(&Str[0] + Pos, Count == string::npos? Str.size() - Pos : Count);
 	return Str;
 }
 
 string& lower(string& Str, size_t Pos, size_t Count)
 {
-	lower(&Str[0] + Pos, Count == string::npos ? Str.size() - Pos : Str.size());
+	lower(&Str[0] + Pos, Count == string::npos? Str.size() - Pos : Count);
 	return Str;
 }
 
