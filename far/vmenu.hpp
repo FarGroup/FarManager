@@ -232,8 +232,9 @@ public:
 	void SetFilterLocked(bool bLocked) { bFilterEnabled = bLocked; }
 	bool AddToFilter(const wchar_t *str);
 	void SetFilterString(const wchar_t *str);
-	size_t size() const { return Items.size(); }
-	bool empty() const { return Items.empty(); }
+	// SelectPos == -1 & non-empty Items - everything is filtered
+	size_t size() const { return SelectPos == -1? 0 : Items.size(); }
+	bool empty() const { return SelectPos == -1 || Items.empty(); }
 	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
 	int GetVisualPos(int Pos);
 	int VisualPosToReal(int VPos);
