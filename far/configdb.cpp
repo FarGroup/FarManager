@@ -198,7 +198,7 @@ private:
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool GetValue(const string& Key, const string& Name, bool& Value, bool Default) override
+	virtual bool GetValue(const string& Key, const string& Name, bool& Value, bool Default) const override
 	{
 		long long Data = Default;
 		const auto Result = GetValue(Key, Name, Data, Data);
@@ -206,17 +206,17 @@ private:
 		return Result;
 	}
 
-	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) override
+	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) const override
 	{
 		return GetValueT<column_type::integer>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t* Default) override
+	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t* Default) const override
 	{
 		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool GetValue(const string& Key, const string& Name, string& Value, const string& Default) override
+	virtual bool GetValue(const string& Key, const string& Name, string& Value, const string& Default) const override
 	{
 		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
@@ -226,17 +226,17 @@ private:
 		return ExecuteStatement(stmtDelValue, Key, Name);
 	}
 
-	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, string &Value) override
+	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, string &Value) const override
 	{
 		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, long long& Value) override
+	virtual bool EnumValues(const string& Key, DWORD Index, string &Name, long long& Value) const override
 	{
 		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual void Export(representation_destination& Representation) override
+	virtual void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), GetKeyName());
 
@@ -312,7 +312,7 @@ private:
 	virtual const char* GetKeyName() const = 0;
 
 	template<column_type TypeId, class getter_t, class T, class DT>
-	bool GetValueT(const string& Key, const string& Name, T& Value, const DT& Default, getter_t Getter)
+	bool GetValueT(const string& Key, const string& Name, T& Value, const DT& Default, getter_t Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Key, Name).Step() || Stmt->GetColType(0) != TypeId)
@@ -335,7 +335,7 @@ private:
 	}
 
 	template<class T, class getter_t>
-	bool EnumValuesT(const string& Key, DWORD Index, string& Name, T& Value, getter_t Getter)
+	bool EnumValuesT(const string& Key, DWORD Index, string& Name, T& Value, getter_t Getter) const
 	{
 		auto Stmt = AutoStatement(stmtEnumValues);
 		if (Index == 0)
@@ -453,7 +453,7 @@ protected:
 		return Key;
 	}
 
-	virtual key FindByName(const key& Root, const string& Name) override
+	virtual key FindByName(const key& Root, const string& Name) const override
 	{
 		const auto Stmt = AutoStatement(stmtFindKey);
 		if (!Stmt->Bind(Root.get(), Name).Step())
@@ -487,17 +487,17 @@ protected:
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) override
+	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(const key& Root, const string& Name, string &Value) override
+	virtual bool GetValue(const key& Root, const string& Name, string &Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool GetValue(const key& Root, const string& Name, writable_blob_view& Value) override
+	virtual bool GetValue(const key& Root, const string& Name, writable_blob_view& Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColBlob);
 	}
@@ -513,7 +513,7 @@ protected:
 		return ExecuteStatement(stmtDelValue, Root.get(), Name);
 	}
 
-	virtual bool EnumKeys(const key& Root, DWORD Index, string& Name) override
+	virtual bool EnumKeys(const key& Root, DWORD Index, string& Name) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumKeys);
 		if (Index == 0)
@@ -527,7 +527,7 @@ protected:
 		return true;
 	}
 
-	virtual bool EnumValues(const key& Root, DWORD Index, string& Name, int& Type) override
+	virtual bool EnumValues(const key& Root, DWORD Index, string& Name, int& Type) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumValues);
 		if (Index == 0)
@@ -542,18 +542,18 @@ protected:
 		return true;
 	}
 
-	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::XMLElement& e)
+	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::XMLElement& e) const
 	{
 		e.SetAttribute("type", "hex");
 		e.SetAttribute("value", BlobToHexString(Blob, Size).data());
 	}
 
-	virtual void Export(representation_destination& Representation) override
+	virtual void Export(representation_destination& Representation) const override
 	{
 		Export(Representation, root_key(), CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
 	}
 
-	virtual std::vector<char> DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e)
+	virtual std::vector<char> DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e) const
 	{
 		return HexStringToBlob(Value);
 	}
@@ -567,7 +567,7 @@ protected:
 		}
 	}
 
-	void Export(representation_destination& Representation, const key& Key, tinyxml::XMLElement& XmlKey)
+	void Export(representation_destination& Representation, const key& Key, tinyxml::XMLElement& XmlKey) const
 	{
 		{
 			const auto Stmt = AutoStatement(stmtEnumValues);
@@ -672,7 +672,7 @@ protected:
 	}
 
 	template<class T, class getter_t>
-	bool GetValueT(const key& Root, const string& Name, T& Value, getter_t Getter)
+	bool GetValueT(const key& Root, const string& Name, T& Value, getter_t Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Root.get(), Name).Step())
@@ -721,7 +721,7 @@ public:
 	using HierarchicalConfigDb::HierarchicalConfigDb;
 
 private:
-	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::XMLElement& e) override
+	virtual void SerializeBlob(const char* Name, const void* Blob, size_t Size, tinyxml::XMLElement& e) const override
 	{
 		static const char* ColorKeys[] =
 		{
@@ -745,7 +745,7 @@ private:
 		}
 	}
 
-	virtual std::vector<char> DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e) override
+	virtual std::vector<char> DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e) const override
 	{
 		if(!strcmp(Type, "color"))
 		{
@@ -807,7 +807,7 @@ private:
 		return b;
 	}
 
-	virtual bool GetValue(const string& Name, FarColor& Value) override
+	virtual bool GetValue(const string& Name, FarColor& Value) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Name).Step())
@@ -820,7 +820,7 @@ private:
 		return true;
 	}
 
-	virtual void Export(representation_destination& Representation) override
+	virtual void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "colors");
 
@@ -1020,7 +1020,7 @@ private:
 		return ExecuteStatement(stmtDelType, id);
 	}
 
-	virtual void Export(representation_destination& Representation) override
+	virtual void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "associations");
 
@@ -1200,7 +1200,7 @@ private:
 	}
 
 	virtual void Import(const representation_source&) override {}
-	virtual void Export(representation_destination&) override {}
+	virtual void Export(representation_destination&) const override {}
 
 	virtual unsigned long long CreateCache(const string& CacheName) override
 	{
@@ -1518,7 +1518,7 @@ private:
 		return ExecuteStatement(stmtDelHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType));
 	}
 
-	virtual void Export(representation_destination& Representation) override
+	virtual void Export(representation_destination& Representation) const override
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "pluginhotkeys");
 
@@ -2104,7 +2104,7 @@ private:
 	// TODO: log
 	// TODO: implementation
 	virtual void Import(const representation_source&) override {}
-	virtual void Export(representation_destination&) override {}
+	virtual void Export(representation_destination&) const override {}
 };
 
 class HistoryConfigMemory: public HistoryConfigCustom
@@ -2117,7 +2117,7 @@ public:
 
 private:
 	virtual void Import(const representation_source&) override {}
-	virtual void Export(representation_destination&) override {}
+	virtual void Export(representation_destination&) const override {}
 };
 
 static const std::wregex& uuid_regex()

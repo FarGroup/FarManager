@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tracer.hpp"
 #include "string_utils.hpp"
 
-void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
+void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 #define EXCEPTION_MICROSOFT_CPLUSPLUS ((NTSTATUS)0xE06D7363)
 
@@ -327,7 +327,7 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 				LocalStartupInfo = {};
 				static FarStandardFunctions LocalStandardFunctions;
 				LocalStandardFunctions = {};
-				CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
+				CreatePluginStartupInfo(&LocalStartupInfo, &LocalStandardFunctions);
 				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.data();
 				static PLUGINRECORD PlugRec;
 

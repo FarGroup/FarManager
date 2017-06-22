@@ -79,8 +79,8 @@ public:
 	void AddToHistory(const string& Str, history_record_type Type = HR_DEFAULT, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);
 	history_return_type Select(const string& Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
 	history_return_type Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
-	void GetPrev(string &strStr);
-	void GetNext(string &strStr);
+	string GetPrev();
+	string GetNext();
 	bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 	std::vector<std::tuple<string, unsigned long long, bool>> GetAllSimilar(const string& Str) const;
 	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);

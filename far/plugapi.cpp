@@ -898,7 +898,7 @@ intptr_t WINAPI apiMenuFn(
 				if (Msg!=DN_INPUT || !BreakKeys)
 					return 0;
 
-				INPUT_RECORD *ReadRec=static_cast<INPUT_RECORD*>(param);
+				const auto ReadRec = static_cast<INPUT_RECORD*>(param);
 				int ReadKey=InputRecordToKey(ReadRec);
 
 				if (ReadKey==KEY_NONE)

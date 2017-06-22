@@ -1210,7 +1210,7 @@ bool CheckForEsc()
 using tfkey_to_text = string_view(const TFKey*);
 using add_separator = void(string&);
 
-static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
+static string GetShiftKeyName(DWORD Key, tfkey_to_text ToText, add_separator AddSeparator)
 {
 	static const std::pair<far_key_code, modifs> Mapping[] =
 	{
@@ -1223,14 +1223,16 @@ static void GetShiftKeyName(string& strName, DWORD Key, tfkey_to_text ToText, ad
 		{ KEY_M_OEM, m_oem },
 	};
 
+	string Result;
 	for (const auto& i:  Mapping)
 	{
 		if (Key & i.first)
 		{
-			AddSeparator(strName);
-			append(strName, ToText(ModifKeyName + i.second));
+			AddSeparator(Result);
+			append(Result, ToText(ModifKeyName + i.second));
 		}
 	}
+	return Result;
 }
 
 
@@ -1361,7 +1363,7 @@ bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separ
 
 	DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFFFF;
 
-	GetShiftKeyName(strKeyText, Key, ToText, AddSeparator);
+	strKeyText = GetShiftKeyName(Key, ToText, AddSeparator);
 
 	const auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
 	if (FKeys1Iterator != std::cend(FKeys1))

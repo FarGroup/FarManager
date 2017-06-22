@@ -84,7 +84,7 @@ static void ReadUserBackgound(SaveScreen *SaveScr)
 	}
 }
 
-static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
+static string GetHotKeyPluginKey(Plugin *pPlugin)
 {
 	/*
 	FarPath
@@ -96,18 +96,17 @@ static void GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 	C:\MultiArc\MULTIARC.DLL                            -> C:\MultiArc\MULTIARC.DLL
 	---------------------------------------------------------------------------------------
 	*/
-	strPluginKey = pPlugin->GetHotkeyName();
+	auto PluginKey = pPlugin->GetHotkeyName();
 #ifndef NO_WRAPPER
 	if (pPlugin->IsOemPlugin() && starts_with_icase(pPlugin->GetModuleName(), Global->g_strFarPath))
-		strPluginKey.erase(0, Global->g_strFarPath.size());
+		PluginKey.erase(0, Global->g_strFarPath.size());
 #endif // NO_WRAPPER
+	return PluginKey;
 }
 
 static wchar_t GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType)
 {
-	string strPluginKey;
-	GetHotKeyPluginKey(pPlugin, strPluginKey);
-	const auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);
+	const auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(GetHotKeyPluginKey(pPlugin), Guid, HotKeyType);
 	return strHotKey.empty()? L'\0' : strHotKey.front();
 }
 
@@ -143,7 +142,7 @@ PluginManager::~PluginManager()
 
 	std::for_each(CONST_RANGE(SortedPlugins, i)
 	{
-		if (i->GetGUID() == Global->Opt->KnownIDs.Luamacro.Id)
+		if (!Luamacro && i->GetGUID() == Global->Opt->KnownIDs.Luamacro.Id)
 		{
 			Luamacro=i;
 		}
@@ -1570,9 +1569,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, const string& DlgPluginTitle)
 {
-	string strPluginKey;
-	GetHotKeyPluginKey(pPlugin, strPluginKey);
-	string strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);
+	const auto strPluginKey = GetHotKeyPluginKey(pPlugin);
+	auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);
 
 	DialogBuilder Builder(lng::MPluginHotKeyTitle, L"SetHotKeyDialog");
 	Builder.AddText(lng::MPluginHotKey);
@@ -1591,8 +1589,8 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_ty
 
 void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 {
-	string strPluginGuid = GuidToStr(pPlugin->GetGUID());
-	string strItemGuid = GuidToStr(Guid);
+	const auto strPluginGuid = GuidToStr(pPlugin->GetGUID());
+	const auto strItemGuid = GuidToStr(Guid);
 	string strPluginPrefix;
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{

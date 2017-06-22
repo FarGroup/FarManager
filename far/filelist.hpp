@@ -212,7 +212,7 @@ public:
 	virtual void ReadDiz(PluginPanelItem *ItemList = nullptr, int ItemLength = 0, DWORD dwFlags = 0) override;
 	virtual void DeleteDiz(const string& Name, const string& ShortName) override;
 	virtual void FlushDiz() override;
-	virtual void GetDizName(string &strDizName) const override;
+	virtual string GetDizName() const override;
 	virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
 	virtual bool IsDizDisplayed() const override;
 	virtual bool IsColumnDisplayed(int Type) const override;

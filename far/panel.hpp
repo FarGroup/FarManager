@@ -154,7 +154,7 @@ public:
 	virtual bool FilterIsEnabled() {return false;}
 	virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
 	virtual void DeleteDiz(const string& Name,const string& ShortName) {}
-	virtual void GetDizName(string &strDizName) const {}
+	virtual string GetDizName() const { return {}; }
 	virtual void FlushDiz() {}
 	virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
 	virtual bool IsDizDisplayed() const { return false; }

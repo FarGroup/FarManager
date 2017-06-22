@@ -145,10 +145,10 @@ public:
 		return FindList.size();
 	}
 
-	void GetFindMessage(string& To) const
+	string GetFindMessage() const
 	{
 		SCOPED_ACTION(os::critical_section_lock)(DataCS);
-		To=strFindMessage;
+		return strFindMessage;
 	}
 
 	void SetFindMessage(const string& From)
@@ -1008,7 +1008,7 @@ bool background_searcher::LookForString(const string& Name)
 	// Основной цикл чтения из файла
 	while (!Stopped() && File.Read(readBufferA.data(), (!SearchInFirst || alreadyRead + readBufferA.size() <= SearchInFirst)? readBufferA.size() : SearchInFirst - alreadyRead, readBlockSize))
 	{
-		UINT Percents=static_cast<UINT>(FileSize?alreadyRead*100/FileSize:0);
+		const auto Percents = static_cast<UINT>(FileSize? alreadyRead * 100 / FileSize : 0);
 
 		if (Percents!=LastPercents)
 		{
@@ -1362,8 +1362,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				strSearchStr = format(lng::MFindSearchingIn, concat(L'"', strFStr + L'"'));
 			}
 
-			string strFM;
-			itd->GetFindMessage(strFM);
+			auto strFM = itd->GetFindMessage();
 			SMALL_RECT Rect;
 			Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
 

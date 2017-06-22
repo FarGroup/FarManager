@@ -56,7 +56,7 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 		Name.clear();
 		if (DomainLength)
 		{
-			Name.assign(DomainName.get(), DomainLength).append(1, L'\\');
+			Name = concat(string_view(DomainName.get(), DomainLength), L'\\');
 		}
 		Name.append(AccountName.get(), AccountLength);
 		return true;

@@ -133,7 +133,7 @@ private:
 	friend class Options;
 
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const = 0;
-	virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) = 0;
+	virtual bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) = 0;
 
 	void MakeUnchanged() { m_Value.forget(); }
 
@@ -171,7 +171,7 @@ namespace detail
 		virtual bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
 		virtual void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
 
-		virtual bool ReceiveValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
+		virtual bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
 		virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }

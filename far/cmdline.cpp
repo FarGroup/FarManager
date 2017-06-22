@@ -254,21 +254,11 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 					m_CurCmdStr = CmdStr.GetString();
 				}
 
-				string strStr;
-				if (LocalKey() == KEY_CTRLE || LocalKey() == KEY_RCTRLE)
-				{
-					Global->CtrlObject->CmdHistory->GetPrev(strStr);
-				}
-				else
-				{
-					Global->CtrlObject->CmdHistory->GetNext(strStr);
-				}
-
-				{
-					SCOPED_ACTION(SetAutocomplete)(&CmdStr);
-					SetString(Global->CtrlObject->CmdHistory->IsOnTop()? m_CurCmdStr : strStr, true);
-				}
-
+				SCOPED_ACTION(SetAutocomplete)(&CmdStr);
+				const auto strStr = LocalKey() == KEY_CTRLE || LocalKey() == KEY_RCTRLE?
+					Global->CtrlObject->CmdHistory->GetPrev() :
+					Global->CtrlObject->CmdHistory->GetNext();
+				SetString(Global->CtrlObject->CmdHistory->IsOnTop()? m_CurCmdStr : strStr, true);
 			}
 			return true;
 

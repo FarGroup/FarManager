@@ -5559,7 +5559,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_SETPOSITION:
 		{
-			auto Pos=static_cast<EditorSetPosition*>(Param2);
+			auto Pos = static_cast<const EditorSetPosition*>(Param2);
 			if (CheckStructSize(Pos))
 			{
 				_ECTLLOG(SysLog(L"EditorSetPosition{"));

@@ -948,16 +948,19 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	if (FileName == L"." || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		return -1;
 
-	size_t DotPos = FileName.rfind(L'.');
+	const auto DotPos = FileName.rfind(L'.');
 	string strMask;
 
-	// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
 	if (DotPos == string::npos)
+	{
 		strMask = L"*.";
-	else if (FileName.find_first_of(L",;", DotPos) != string::npos)
-		strMask.assign(L"\"*", 2).append(FileName, DotPos, string::npos).append(1, '"');
+	}
 	else
-		strMask.assign(1, L'*').append(FileName, DotPos, string::npos);
+	{
+		const auto Ext = make_string_view(FileName, DotPos);
+		// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
+		strMask = FileName.find_first_of(L",;", DotPos) != string::npos? concat(L"\"*"_sv, Ext, L'"') : concat(L'*', Ext);
+	}
 
 	if (std::any_of(CONST_RANGE(Extensions, i) { return equal_icase(i.first, strMask); }))
 		return -1;

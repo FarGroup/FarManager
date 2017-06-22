@@ -426,7 +426,10 @@ namespace os
 		}
 
 		template<class T>
-		bool GetValue(const key& Key, const string& Name, T& Value) { static_assert(detail::is_supported_type<T>::value); return GetValue(Key, Name.data(), Value); }
+		bool GetValue(const key& Key, const string& Name, T& Value)
+		{
+			static_assert(detail::is_supported_type<T>::value); return GetValue(Key, Name.data(), Value);
+		}
 
 		template<class T>
 		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0)
@@ -437,11 +440,22 @@ namespace os
 		}
 
 		template<class T>
-		bool GetValue(HKEY RootKey, const string& SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0) { static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey.data(), Name, Value, Sam); }
+		bool GetValue(HKEY RootKey, const string& SubKey, const wchar_t* Name, T& Value, REGSAM Sam = 0)
+		{
+			static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey.data(), Name, Value, Sam);
+		}
+		
 		template<class T>
-		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const string& Name, T& Value, REGSAM Sam = 0) { static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey, Name.data(), Value, Sam); }
+		bool GetValue(HKEY RootKey, const wchar_t* SubKey, const string& Name, T& Value, REGSAM Sam = 0)
+		{
+			static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey, Name.data(), Value, Sam);
+		}
+		
 		template<class T>
-		bool GetValue(HKEY RootKey, const string& SubKey, const string& Name, T& Value, REGSAM Sam = 0) { static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey.data(), Name.data(), Value, Sam); }
+		bool GetValue(HKEY RootKey, const string& SubKey, const string& Name, T& Value, REGSAM Sam = 0)
+		{
+			static_assert(detail::is_supported_type<T>::value); return GetValue(RootKey, SubKey.data(), Name.data(), Value, Sam);
+		}
 
 		class enum_key: noncopyable, public enumerator<enum_key, string>
 		{

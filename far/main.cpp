@@ -477,6 +477,11 @@ static int mainImpl(const range<wchar_t**>& Args)
 {
 	setlocale(LC_ALL, "");
 
+#ifdef _MSC_VER
+	_setmode(_fileno(stdout), _O_U16TEXT);
+	_setmode(_fileno(stderr), _O_U16TEXT);
+#endif
+
 	// Must be static - dependent static objects exist
 	static SCOPED_ACTION(os::com::co_initialize);
 

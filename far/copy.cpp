@@ -3207,8 +3207,8 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		{
 			if (Param1==WDLG_FILENAME)
 			{
-				FarColor Color=colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
-				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
+				const auto Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
+				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = Color;
 				Colors->Colors[2] = Color;
 			}

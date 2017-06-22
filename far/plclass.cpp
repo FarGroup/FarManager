@@ -383,27 +383,29 @@ static MacroPrivateInfo MacroInfo =
 	pluginapi::apiCallFar,
 };
 
+void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF)
+{
+	*PSI = NativeInfo;
+	*FSF = NativeFSF;
+	PSI->FSF = FSF;
+}
+
 void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
 {
-	*PSI=NativeInfo;
-	*FSF=NativeFSF;
-	PSI->FSF=FSF;
+	CreatePluginStartupInfo(PSI, FSF);
 
-	if (pPlugin)
+	PSI->ModuleName = pPlugin->GetModuleName().data();
+	if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Arclite.Id)
 	{
-		PSI->ModuleName = pPlugin->GetModuleName().data();
-		if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Arclite.Id)
-		{
-			PSI->Private = &ArcliteInfo;
-		}
-		else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Netbox.Id)
-		{
-			PSI->Private = &NetBoxInfo;
-		}
-		else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Luamacro.Id)
-		{
-			PSI->Private = &MacroInfo;
-		}
+		PSI->Private = &ArcliteInfo;
+	}
+	else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Netbox.Id)
+	{
+		PSI->Private = &NetBoxInfo;
+	}
+	else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Luamacro.Id)
+	{
+		PSI->Private = &MacroInfo;
 	}
 }
 

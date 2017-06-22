@@ -839,7 +839,7 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 	{
 		const auto SaveColor = CurColor;
 		SetColor(HiColor);
-		TextFunc(string(1, c));
+		TextFunc({ c });
 		SetColor(SaveColor);
 	});
 }

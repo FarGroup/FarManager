@@ -457,7 +457,7 @@ static DWORD OldKeyToKey(DWORD dOldKey)
 
 		if (CleanKey>0x80 && CleanKey<0x100)
 		{
-			char OemChar = static_cast<char>(CleanKey);
+			const auto OemChar = static_cast<char>(CleanKey);
 			wchar_t WideChar = 0;
 			if (encoding::oem::get_chars(&OemChar, 1, &WideChar, 1))
 				dOldKey = (dOldKey^CleanKey) | WideChar;
@@ -483,7 +483,7 @@ static DWORD KeyToOldKey(DWORD dKey)
 
 		if (CleanKey>0x80 && CleanKey<0x10000)
 		{
-			wchar_t WideChar = static_cast<wchar_t>(CleanKey);
+			const auto WideChar = static_cast<wchar_t>(CleanKey);
 			char OemChar = 0;
 			if (encoding::oem::get_bytes(&WideChar, 1, &OemChar, 1))
 				dKey = (dKey^CleanKey) | OemChar;
@@ -4708,15 +4708,17 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 
 				const auto vspA = static_cast<oldfar::ViewerSetPosition*>(Param);
 				ViewerSetPosition vsp={sizeof(ViewerSetPosition)};
-				vsp.Flags = 0;
 
-				if (vspA->Flags&oldfar::VSP_NOREDRAW)    vsp.Flags|=VSP_NOREDRAW;
+				static const std::pair<oldfar::VIEWER_SETPOS_FLAGS, VIEWER_SETPOS_FLAGS> PluginFlagsMap[] =
+				{
+					OLDFAR_TO_FAR_MAP(VSP_NOREDRAW),
+					OLDFAR_TO_FAR_MAP(VSP_PERCENT),
+					OLDFAR_TO_FAR_MAP(VSP_RELATIVE),
+					OLDFAR_TO_FAR_MAP(VSP_NORETNEWPOS),
+				};
 
-				if (vspA->Flags&oldfar::VSP_PERCENT)     vsp.Flags|=VSP_PERCENT;
-
-				if (vspA->Flags&oldfar::VSP_RELATIVE)    vsp.Flags|=VSP_RELATIVE;
-
-				if (vspA->Flags&oldfar::VSP_NORETNEWPOS) vsp.Flags|=VSP_NORETNEWPOS;
+				vsp.Flags = VSP_NONE;
+				FirstFlagsToSecond(vspA->Flags, vsp.Flags, PluginFlagsMap);
 
 				vsp.StartPos = vspA->StartPos;
 				vsp.LeftPos = vspA->LeftPos;
@@ -4809,10 +4811,10 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			encoding::oem::get_bytes(sTableName, TableSet->TableName);
 			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin(reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable), nCP));
 
-			CharLowerBuff(us.get(), static_cast<DWORD>(std::size(TableSet->DecodeTable)));
+			lower(us.get(), std::size(TableSet->DecodeTable));
 			encoding::get_bytes(nCP, us.get(), std::size(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable));
 
-			CharUpperBuff(us.get(), static_cast<DWORD>(std::size(TableSet->DecodeTable)));
+			upper(us.get(), std::size(TableSet->DecodeTable));
 			encoding::get_bytes(nCP, us.get(), std::size(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable));
 
 			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, reinterpret_cast<char *>(TableSet->DecodeTable), std::size(TableSet->DecodeTable));
@@ -4837,19 +4839,16 @@ char* WINAPI XlatA(
 {
 	try
 	{
-		DWORD NewFlags = 0;
+		static const std::pair<oldfar::XLATMODE, XLAT_FLAGS> PluginFlagsMap[] =
+		{
+			OLDFAR_TO_FAR_MAP(XLAT_SWITCHKEYBLAYOUT),
+			OLDFAR_TO_FAR_MAP(XLAT_SWITCHKEYBBEEP),
+			OLDFAR_TO_FAR_MAP(XLAT_USEKEYBLAYOUTNAME),
+			OLDFAR_TO_FAR_MAP(XLAT_CONVERTALLCMDLINE),
+		};
 
-		if (Flags&oldfar::XLAT_SWITCHKEYBLAYOUT)
-			NewFlags |= XLAT_SWITCHKEYBLAYOUT;
-
-		if (Flags&oldfar::XLAT_SWITCHKEYBBEEP)
-			NewFlags |= XLAT_SWITCHKEYBBEEP;
-
-		if (Flags&oldfar::XLAT_USEKEYBLAYOUTNAME)
-			NewFlags |= XLAT_USEKEYBLAYOUTNAME;
-
-		if (Flags&oldfar::XLAT_CONVERTALLCMDLINE)
-			NewFlags |= XLAT_CONVERTALLCMDLINE;
+		auto NewFlags = XLAT_NONE;
+		FirstFlagsToSecond(Flags, NewFlags, PluginFlagsMap);
 
 		const auto strLine = encoding::oem::get_chars(Line);
 		// XLat expects null-terminated string

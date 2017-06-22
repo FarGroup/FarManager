@@ -204,7 +204,7 @@ highlight::configuration::configuration()
 	UpdateCurrentTime();
 }
 
-static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, const string& Mask, int SortGroup, bool bSortGroup)
+static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, const string& Mask, int SortGroup, bool bSortGroup)
 {
 	//Дефолтные значения выбраны так чтоб как можно правильней загрузить
 	//настройки старых версий фара.
@@ -295,7 +295,7 @@ static void LoadFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	HData.SetContinueProcessing(ContinueProcessing!=0);
 }
 
-void highlight::configuration::InitHighlightFiles(HierarchicalConfig* cfg)
+void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
 {
 	const struct
 	{

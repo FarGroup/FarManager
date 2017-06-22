@@ -2352,14 +2352,10 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		}
 		case MCODE_V_DLGINFOOWNER:        // Dlg->Info.Owner
 		{
-			static string strOwner;
-			GUID Owner = FarGuid;
-			if (PluginOwner)
-			{
-				Owner = PluginOwner->GetGUID();
-			}
-			strOwner = GuidToStr(Owner);
-			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strOwner));
+			const auto OwnerId = PluginOwner? PluginOwner->GetGUID() : FarGuid;
+			static string strOwnerId;
+			strOwnerId = GuidToStr(OwnerId);
+			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strOwnerId));
 		}
 		case MCODE_V_ITEMCOUNT:
 		case MCODE_V_CURPOS:
@@ -4850,8 +4846,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					{
 						case DM_LISTINFO:// Param1=ID Param2=FarListInfo
 						{
-							FarListInfo* li=static_cast<FarListInfo*>(Param2);
-							return CheckStructSize(li)&&ListBox->GetVMenuInfo(li);
+							const auto li = static_cast<FarListInfo*>(Param2);
+							return CheckStructSize(li) && ListBox->GetVMenuInfo(li);
 						}
 						case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
 						{
@@ -4880,7 +4876,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
 						{
-							FarListDelete *ListItems=(FarListDelete *)Param2;
+							const auto ListItems = static_cast<const FarListDelete*>(Param2);
 							if(CheckNullOrStructSize(ListItems))
 							{
 								int Count;
@@ -4895,15 +4891,15 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
 						{
-							FarListInsert* li=static_cast<FarListInsert *>(Param2);
-							if (!CheckStructSize(li) || (Ret=ListBox->InsertItem((FarListInsert *)Param2)) == -1)
+							const auto li = static_cast<const FarListInsert*>(Param2);
+							if (!CheckStructSize(li) || (Ret = ListBox->InsertItem(li)) == -1)
 								return -1;
 
 							break;
 						}
 						case DM_LISTUPDATE: // Param1=ID Param2=FarListUpdate: Index=Index, Items=Src
 						{
-							FarListUpdate* lu=static_cast<FarListUpdate *>(Param2);
+							const auto lu = static_cast<const FarListUpdate*>(Param2);
 							if (CheckStructSize(lu) && ListBox->UpdateItem(lu))
 								break;
 
@@ -5021,12 +5017,12 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 						case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
 						{
-							FarListPos* lp=static_cast<FarListPos *>(Param2);
-							return CheckStructSize(lp)?ListBox->GetSelectPos(lp):ListBox->GetSelectPos();
+							const auto lp = static_cast<FarListPos*>(Param2);
+							return CheckStructSize(lp)? ListBox->GetSelectPos(lp) : ListBox->GetSelectPos();
 						}
 						case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
 						{
-							FarListPos* lp=static_cast<FarListPos *>(Param2);
+							const auto lp = static_cast<const FarListPos*>(Param2);
 							if(CheckStructSize(lp))
 							{
 								/* 26.06.2001 KM Подадим перед изменением позиции об этом сообщение */

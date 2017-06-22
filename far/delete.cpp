@@ -335,7 +335,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	string strDeleteFilesMsg;
 	string strSelName;
 	string strSelShortName;
-	string strDizName;
 	int DizPresent;
 	int Ret;
 	bool NeedUpdate = true, NeedSetUpADir = false;
@@ -544,7 +543,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	if (UpdateDiz)
 		SrcPanel->ReadDiz();
 
-	SrcPanel->GetDizName(strDizName);
+	const auto strDizName = SrcPanel->GetDizName();
 	DizPresent=(!strDizName.empty() && os::fs::exists(strDizName));
 
 	NeedSetUpADir = CheckUpdateAnotherPanel(SrcPanel, strSelName);

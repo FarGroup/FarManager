@@ -552,15 +552,19 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 	return RetCode;
 }
 
-void History::GetPrev(string &strStr)
+string History::GetPrev()
 {
-	m_CurrentItem = HistoryCfgRef()->GetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, strStr);
+	string Result;
+	m_CurrentItem = HistoryCfgRef()->GetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, Result);
+	return Result;
 }
 
 
-void History::GetNext(string &strStr)
+string History::GetNext()
 {
-	m_CurrentItem = HistoryCfgRef()->GetNext(m_TypeHistory, m_HistoryName, m_CurrentItem, strStr);
+	string Result;
+	m_CurrentItem = HistoryCfgRef()->GetNext(m_TypeHistory, m_HistoryName, m_CurrentItem, Result);
+	return Result;
 }
 
 

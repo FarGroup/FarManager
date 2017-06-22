@@ -50,7 +50,7 @@ class representable: noncopyable
 {
 public:
 	virtual ~representable() = default;
-	virtual void Export(representation_destination& Representation) = 0;
+	virtual void Export(representation_destination& Representation) const = 0;
 	virtual void Import(const representation_source& Representation) = 0;
 };
 
@@ -70,19 +70,19 @@ public:
 		return SetValue(Key, Name, &Value, sizeof(Value));
 	}
 
-	virtual bool GetValue(const string& Key, const string& Name, bool& Value, bool Default) = 0;
-	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) = 0;
-	virtual bool GetValue(const string& Key, const string& Name, string& Value, const string& Default) = 0;
-	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t *Default) = 0;
+	virtual bool GetValue(const string& Key, const string& Name, bool& Value, bool Default) const = 0;
+	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) const = 0;
+	virtual bool GetValue(const string& Key, const string& Name, string& Value, const string& Default) const = 0;
+	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t *Default) const = 0;
 
 	virtual bool DeleteValue(const string& Key, const string& Name) = 0;
-	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) = 0;
-	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, long long& Value) = 0;
+	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) const = 0;
+	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, long long& Value) const = 0;
 
 	template<typename T>
-	auto ValuesEnumerator(const string&&) = delete;
+	auto ValuesEnumerator(const string&&) const = delete;
 	template<typename T>
-	auto ValuesEnumerator(const string& Key)
+	auto ValuesEnumerator(const string& Key) const
 	{
 		using value_type = std::pair<string, T>;
 		return make_inline_enumerator<value_type>([this, &Key](size_t Index, value_type& Value)
@@ -115,7 +115,7 @@ public:
 
 	virtual void AsyncFinish() = 0;
 	virtual key CreateKey(const key& Root, const string& Name, const string* Description = nullptr) = 0;
-	virtual key FindByName(const key& Root, const string& Name) = 0;
+	virtual key FindByName(const key& Root, const string& Name) const = 0;
 	virtual bool SetKeyDescription(const key& Root, const string& Description) = 0;
 
 	virtual bool SetValue(const key& Root, const string& Name, const string& Value) = 0;
@@ -128,11 +128,11 @@ public:
 		return SetValue(Root, Name, make_blob_view(Value));
 	}
 
-	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) = 0;
-	virtual bool GetValue(const key& Root, const string& Name, string &strValue) = 0;
-	virtual bool GetValue(const key& Root, const string& Name, writable_blob_view& Value) = 0;
+	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) const = 0;
+	virtual bool GetValue(const key& Root, const string& Name, string &strValue) const = 0;
+	virtual bool GetValue(const key& Root, const string& Name, writable_blob_view& Value) const = 0;
 	template<class T, REQUIRES(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
-	bool GetValue(const key& Root, const string& Name, T& Value)
+	bool GetValue(const key& Root, const string& Name, T& Value) const
 	{
 		static_assert(std::is_pod<T>::value);
 		writable_blob_view Blob(&Value, sizeof(Value));
@@ -141,12 +141,12 @@ public:
 
 	virtual bool DeleteKeyTree(const key& Key) = 0;
 	virtual bool DeleteValue(const key& Root, const string& Name) = 0;
-	virtual bool EnumKeys(const key& Root, DWORD Index, string &strName) = 0;
-	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, int& Type) = 0;
+	virtual bool EnumKeys(const key& Root, DWORD Index, string &strName) const = 0;
+	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, int& Type) const = 0;
 	virtual bool Flush() = 0;
 
-	void KeysEnumerator(const key&&) = delete;
-	auto KeysEnumerator(const key& Root)
+	void KeysEnumerator(const key&&) const = delete;
+	auto KeysEnumerator(const key& Root) const
 	{
 		using value_type = string;
 		return make_inline_enumerator<value_type>([this, &Root](size_t Index, value_type& Value)
@@ -155,8 +155,8 @@ public:
 		});
 	}
 
-	void ValuesEnumerator(const key&&) = delete;
-	auto ValuesEnumerator(const key& Root)
+	void ValuesEnumerator(const key&&) const = delete;
+	auto ValuesEnumerator(const key& Root) const
 	{
 		using value_type = std::pair<string, int>;
 		return make_inline_enumerator<value_type>([this, &Root](size_t Index, value_type& Value)
@@ -187,7 +187,7 @@ class ColorsConfig: public representable, virtual public transactional
 public:
 	virtual ~ColorsConfig() override = default;
 	virtual bool SetValue(const string& Name, const FarColor& Value) = 0;
-	virtual bool GetValue(const string& Name, FarColor& Value) = 0;
+	virtual bool GetValue(const string& Name, FarColor& Value) const = 0;
 
 protected:
 	ColorsConfig() = default;

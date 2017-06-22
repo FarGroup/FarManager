@@ -54,18 +54,16 @@ namespace
 		return components::component::info{ L"SQLite Unicode extension"s, sqlite_unicode::SQLite_Unicode_Version };
 	});
 
-	static void GetDatabasePath(const string& FileName, string &strOut, bool Local)
+	static string GetDatabasePath(const string& FileName, bool Local)
 	{
 		if (FileName != L":memory:")
 		{
-			strOut = Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-			AddEndSlash(strOut);
-			strOut += FileName;
+			auto Result = Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
+			AddEndSlash(Result);
+			return Result + FileName;
 		}
-		else
-		{
-			strOut = FileName;
-		}
+
+		return FileName;
 	}
 }
 
@@ -207,7 +205,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).data(), &ptr_setter(Db), WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK;
 	};
 
-	GetDatabasePath(DbFile, m_Path, Local);
+	m_Path = GetDatabasePath(DbFile, Local);
 	const auto mem_db = DbFile == L":memory:";
 
 	if (!Global->Opt->ReadOnlyConfig || mem_db)

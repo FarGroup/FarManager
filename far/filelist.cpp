@@ -203,7 +203,7 @@ static bool CanSort(int SortMode)
 
 FileListItem::FileListItem()
 {
-	m_Owner.assign(1, values::uninitialised(wchar_t()));
+	m_Owner = values::uninitialised(wchar_t());
 }
 
 static string GetItemFullName(const FileListItem& Item, const FileList* Owner)
@@ -3462,9 +3462,7 @@ bool FileList::IsSelected(const string& Name)
 
 bool FileList::IsSelected(size_t idxItem)
 {
-	if (idxItem < m_ListData.size()) // BUGBUG
-		return m_ListData[idxItem].Selected; //  || (Sel!FileCount && idxItem==CurFile) ???
-	return false;
+	return idxItem < m_ListData.size() && m_ListData[idxItem].Selected; //  || (Sel!FileCount && idxItem==CurFile) ???
 }
 
 bool FileList::FilterIsEnabled()
@@ -3474,9 +3472,7 @@ bool FileList::FilterIsEnabled()
 
 bool FileList::FileInFilter(size_t idxItem)
 {
-	if ( ( idxItem < m_ListData.size() ) && ( !m_Filter || !m_Filter->IsEnabledOnPanel() || m_Filter->FileInFilter(&m_ListData[idxItem]) ) ) // BUGBUG, cast
-		return true;
-	return false;
+	return (idxItem < m_ListData.size()) && (!m_Filter || !m_Filter->IsEnabledOnPanel() || m_Filter->FileInFilter(&m_ListData[idxItem])); // BUGBUG, cast
 }
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
@@ -4805,12 +4801,10 @@ void FileList::FlushDiz()
 }
 
 
-void FileList::GetDizName(string &strDizName) const
+string FileList::GetDizName() const
 {
-	if (m_PanelMode == panel_mode::NORMAL_PANEL)
-		strDizName = Diz.GetDizName();
+	return m_PanelMode == panel_mode::NORMAL_PANEL? Diz.GetDizName() : string();
 }
-
 
 void FileList::CopyDiz(const string& Name, const string& ShortName,const string& DestName,
                        const string& DestShortName,DizList *DestDiz)
@@ -5358,7 +5352,7 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 		return false;
 	}
 
-	const PluginsListItem CurPlugin = std::move(PluginsList.back());
+	const auto CurPlugin = std::move(PluginsList.back());
 
 	PluginsList.pop_back();
 	--Global->PluginPanelsCount;
