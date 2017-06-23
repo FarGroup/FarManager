@@ -1,4 +1,8 @@
-﻿shmuel 16.05.2017 11:42:28 +0200 - build 607
+﻿shmuel 23.06.2017 10:09:22 +0200 - build 608
+
+1. LuaFAR: minor refactoring and GCC warnings.
+
+shmuel 16.05.2017 11:42:28 +0200 - build 607
 
 1. LuaFAR: (FIX) функция far.ShowHelp неправильно обрабатывала флаг FHELP_GUID.
 

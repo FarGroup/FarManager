@@ -9672,7 +9672,7 @@ id=213
 lv=3
 dt=Text
 nm=win.GetFileInfo
-mtime=3602278965
+mtime=3705999657
 <article>
 #_<markdown>
 #_    Info = win.GetFileInfo (FileName)
@@ -9683,7 +9683,8 @@ mtime=3602278965
 #_   wildcard characters (`*` and `?`)
 #_
 #_###Returns
-#_  **`Info`**: [`tPluginPanelItem`][] table, or nil
+#_  On success: [`tPluginPanelItem`][] table <br>
+#_  On failure: `nil` + error message
 #_
 #_###Description
 #_  This function provides information about the specified file.
@@ -10481,15 +10482,15 @@ lv=3
 dt=Text
 nm=win.GetConsoleScreenBufferInfo
 ctime=3483001149
-mtime=3532720056
+mtime=3707371971
 <article>
 #_info = win.GetConsoleScreenBufferInfo ()
 #_
 #_**Parameters:**
 #_  none
 #_
-#_**Returns:**
-#_  info : table, or nil
+#_**Returns (on success):**
+#_  info : table
 #_    fields of *info*:
 #_      SizeX:              integer
 #_      SizeY:              integer
@@ -10502,6 +10503,9 @@ mtime=3532720056
 #_      WindowBottom:       integer
 #_      MaximumWindowSizeX: integer
 #_      MaximumWindowSizeY: integer
+#_
+#_**Returns (on failure):**
+#_  nil + error message
 #_
 #_**Windows API used:**
 #_  GetStdHandle(STD_OUTPUT_HANDLE), GetConsoleScreenBufferInfo

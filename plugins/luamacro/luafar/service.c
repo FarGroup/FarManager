@@ -4868,12 +4868,13 @@ static int far_MakeMenuItems(lua_State *L)
 	{
 		int item = 1, i;
 		char delim[] = { 226,148,130,0 };        // Unicode char 9474 in UTF-8
-		char buf_prefix[64], buf_space[64];
+		char buf_prefix[64], buf_space[64], buf_format[64];
 		int maxno = 0;
 		size_t len_prefix;
 
 		for (i=argn; i; maxno++,i/=10) {}
 		len_prefix = sprintf(buf_space, "%*s%s ", maxno, "", delim);
+		sprintf(buf_format, "%%%dd%%s ", maxno);
 
 		for(i=1; i<=argn; i++)
 		{
@@ -4894,7 +4895,7 @@ static int far_MakeMenuItems(lua_State *L)
 			if(lua_type(L, -1) != LUA_TSTRING)
 				luaL_error(L, "tostring() returned a non-string value");
 
-			sprintf(buf_prefix, "%*d%s ", maxno, i, delim);
+			sprintf(buf_prefix, buf_format, i, delim);
 			start = lua_tolstring(L, -1, &len_arg);
 			str = (char*) malloc(len_arg + 1);
 			memcpy(str, start, len_arg + 1);

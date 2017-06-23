@@ -362,7 +362,7 @@ static void PushWinFindData(lua_State *L, const WIN32_FIND_DATAW *FData)
 {
 	lua_createtable(L, 0, 7);
 	PutAttrToTable(L,                          FData->dwFileAttributes);
-	PutNumToTable(L, "FileSize", FData->nFileSizeLow + 65536.*65536.*FData->nFileSizeHigh);
+	PutNumToTable(L, "FileSize", FData->nFileSizeLow + (double)(0x100000000ULL)*FData->nFileSizeHigh);
 	PutFileTimeToTable(L, "LastWriteTime",     FData->ftLastWriteTime);
 	PutFileTimeToTable(L, "LastAccessTime",    FData->ftLastAccessTime);
 	PutFileTimeToTable(L, "CreationTime",      FData->ftCreationTime);
@@ -377,7 +377,7 @@ static int win_GetFileInfo(lua_State *L)
 	HANDLE h = FindFirstFileW(fname, &fd);
 
 	if(h == INVALID_HANDLE_VALUE)
-		lua_pushnil(L);
+		return SysErrorReturn(L);
 	else
 	{
 		PushWinFindData(L, &fd);
@@ -513,7 +513,7 @@ static int win_GetConsoleScreenBufferInfo(lua_State* L)
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	if(!GetConsoleScreenBufferInfo(h, &info))
-		return lua_pushnil(L), 1;
+		return SysErrorReturn(L);
 
 	lua_createtable(L, 0, 11);
 	PutIntToTable(L, "SizeX",              info.dwSize.X);
