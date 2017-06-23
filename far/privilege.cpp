@@ -82,14 +82,20 @@ privilege::~privilege()
 	AdjustTokenPrivileges(m_Token.native_handle(), FALSE, m_SavedState.get(), static_cast<DWORD>(m_SavedState.size()), nullptr, nullptr);
 }
 
-bool privilege::check(const wchar_t* const* Names, size_t Size)
+bool operator==(const LUID& a, const LUID& b)
+{
+	return a.LowPart == b.LowPart && a.HighPart == b.HighPart;
+}
+
+bool privilege::check(const range<const wchar_t* const*>& Names)
 {
 	const auto Token{ OpenCurrentProcessToken(TOKEN_QUERY) };
 	if (!Token)
 		return false;
 
 	DWORD TokenInformationLength{};
-	if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, nullptr, 0, &TokenInformationLength) || !TokenInformationLength)
+	GetTokenInformation(Token.native_handle(), TokenPrivileges, nullptr, 0, &TokenInformationLength);
+	if (!TokenInformationLength)
 		return false;
 
 	block_ptr<TOKEN_PRIVILEGES> TokenInformation{ TokenInformationLength };
@@ -98,20 +104,13 @@ bool privilege::check(const wchar_t* const* Names, size_t Size)
 
 	const auto PrivilegesEnd{ TokenInformation->Privileges + TokenInformation->PrivilegeCount };
 
-	TOKEN_PRIVILEGES State{ static_cast<DWORD>(Size) };
-
-	for (size_t i = 0; i != Size; ++i)
+	for (const auto& Name: Names)
 	{
-		auto& Luid = State.Privileges[i].Luid;
-
-		if (!LookupPrivilegeValue(nullptr, Names[i], &Luid))
+		LUID Luid;
+		if (!LookupPrivilegeValue(nullptr, Name, &Luid))
 			return false;
 
-		const auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&Luid](const auto& Item)
-		{
-			return Item.Luid.LowPart == Luid.LowPart && Item.Luid.HighPart == Luid.HighPart;
-		});
-
+		const auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&](const auto& Item) { return Item.Luid == Luid; });
 		if (ItemIterator == PrivilegesEnd || !(ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT)))
 			return false;
 	}
