@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.06.2017 02:03:37 +0000 - build 4979
+
+1. Refactoring.
+
+drkns 23.06.2017 16:48:00 +0000 - build 4978
+
+1. Forum: unnecessary privilege request
+
+drkns 22.06.2017 23:26:01 +0000 - build 4977
+
+1. Refactoring.
+
+drkns 21.06.2017 07:30:17 +0000 - build 4976
+
+1. In some cases, the plugin could cause an exception in a menu with filter enabled.
+
+svs 19.06.2017 07:24:13 +0300 - build 4975
+
+1. SQLite 3.19.3
+
 drkns 18.06.2017 10:59:10 +0000 - build 4974
 
 1. Correction of 4945.
