@@ -59,7 +59,7 @@ taskbar& Taskbar();
 class IndeterminateTaskBar: noncopyable
 {
 public:
-	IndeterminateTaskBar(bool EndFlash = true);
+	explicit IndeterminateTaskBar(bool EndFlash = true);
 	~IndeterminateTaskBar();
 
 private:

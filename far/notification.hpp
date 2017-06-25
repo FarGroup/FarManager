@@ -69,7 +69,7 @@ namespace detail
 	public:
 		using handler_type = std::function<void()>;
 
-		event_handler(const handler_type& Handler):
+		explicit event_handler(const handler_type& Handler):
 			m_Handler(Handler)
 		{
 		}
@@ -88,7 +88,7 @@ namespace detail
 	public:
 		using handler_type = std::function<void(const any&)>;
 
-		parametrized_event_handler(const handler_type& Handler):
+		explicit parametrized_event_handler(const handler_type& Handler):
 			m_Handler(Handler)
 		{
 		}
@@ -156,7 +156,7 @@ namespace detail
 		{
 		}
 
-		listener_t(const typename T::handler_type& EventHandler):
+		explicit listener_t(const typename T::handler_type& EventHandler):
 			listener_t(CreateEventName(), EventHandler)
 		{
 		}

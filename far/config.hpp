@@ -121,7 +121,7 @@ public:
 
 protected:
 	template<class T>
-	Option(const T& Value): m_Value(Value) {}
+	explicit Option(const T& Value): m_Value(Value) {}
 
 	template<class T>
 	const T& GetT() const { return any_cast<T>(m_Value); }

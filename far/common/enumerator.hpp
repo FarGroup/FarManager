@@ -106,7 +106,7 @@ class inline_enumerator: public enumerator<inline_enumerator<value_type, callabl
 	IMPLEMENTS_ENUMERATOR(inline_enumerator);
 
 public:
-	inline_enumerator(callable&& Callable):
+	explicit inline_enumerator(callable&& Callable):
 		m_Callable(std::forward<callable>(Callable))
 	{
 	}

@@ -38,7 +38,7 @@ class null_iterator_t:
 	public rel_ops<null_iterator_t<T>>
 {
 public:
-	null_iterator_t(T* Data): m_Data(Data) {}
+	explicit null_iterator_t(T* Data): m_Data(Data) {}
 	auto& operator++() { ++m_Data; return *this; }
 	auto operator++(int) { return null_iterator_t(m_Data++); }
 	auto& operator*() { return *m_Data; }

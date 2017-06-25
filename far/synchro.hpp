@@ -148,7 +148,7 @@ public:
 	NONCOPYABLE(mutex);
 	MOVABLE(mutex);
 
-	mutex(const wchar_t* Name = nullptr): handle(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
+	explicit mutex(const wchar_t* Name = nullptr): handle(CreateMutex(nullptr, false, EmptyToNull(Name))) {}
 
 	static auto get_namespace() { return L"Far_Manager_Mutex_"; }
 

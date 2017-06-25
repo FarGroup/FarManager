@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ChangePriority: noncopyable
 {
 public:
-	ChangePriority(int NewPriority);
+	explicit ChangePriority(int NewPriority);
 	~ChangePriority();
 
 private:

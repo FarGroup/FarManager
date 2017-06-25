@@ -40,7 +40,7 @@ struct PreRedrawItem: noncopyable
 {
 	using handler_type = std::function<void()>;
 
-	PreRedrawItem(const handler_type& PreRedrawFunc) : m_PreRedrawFunc(PreRedrawFunc) {}
+	explicit PreRedrawItem(const handler_type& PreRedrawFunc) : m_PreRedrawFunc(PreRedrawFunc) {}
 	virtual ~PreRedrawItem() = default;
 
 	handler_type m_PreRedrawFunc;
@@ -70,7 +70,7 @@ inline TPreRedrawFunc& PreRedrawStack()
 class TPreRedrawFuncGuard: noncopyable
 {
 public:
-	TPreRedrawFuncGuard(std::unique_ptr<PreRedrawItem>&& Item)
+	explicit TPreRedrawFuncGuard(std::unique_ptr<PreRedrawItem>&& Item)
 	{
 		PreRedrawStack().push(std::move(Item));
 	}

@@ -69,12 +69,12 @@ protected:
 		NONCOPYABLE(SQLiteStmt);
 		MOVABLE(SQLiteStmt);
 
-		SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
+		explicit SQLiteStmt(sqlite::sqlite3_stmt* Stmt): m_Stmt(Stmt), m_Param(1) {}
 
 		template<class T>
 		struct transient_t
 		{
-			transient_t(const T& Value): m_Value(Value) {}
+			explicit transient_t(const T& Value): m_Value(Value) {}
 			const T& m_Value;
 		};
 

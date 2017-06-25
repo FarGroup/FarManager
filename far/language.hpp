@@ -62,7 +62,7 @@ public:
 	virtual ~language() = default;
 
 protected:
-	language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
+	explicit language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
 
 	// Throws on failure, strong exception safety guarantee
 	void load(const string& Path, int CountNeed = -1);
@@ -74,7 +74,7 @@ private:
 class plugin_language final: public language
 {
 public:
-	plugin_language(const string& Path);
+	explicit plugin_language(const string& Path);
 	const wchar_t* GetMsg(intptr_t Id) const;
 
 private:

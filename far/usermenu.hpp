@@ -41,8 +41,8 @@ class UserMenu: noncopyable
 	struct UserMenuItem;
 
 public:
-	UserMenu(bool ChooseMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
-	UserMenu(const string& MenuFileName);
+	explicit UserMenu(bool ChooseMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
+	explicit UserMenu(const string& MenuFileName);
 	~UserMenu();
 
 	using menu_container = std::list<UserMenuItem>;

@@ -42,7 +42,7 @@ namespace components
 		using info = std::pair<string, string>;
 		using get_info = info(*)();
 
-		component(get_info getInfo);
+		explicit component(get_info getInfo);
 
 	private:
 		friend class components_list;

@@ -42,7 +42,7 @@ class desktop: public window
 
 public:
 	static desktop_ptr create();
-	desktop(private_tag);
+	explicit desktop(private_tag);
 
 	virtual int GetType() const override { return windowtype_desktop; }
 	virtual int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }

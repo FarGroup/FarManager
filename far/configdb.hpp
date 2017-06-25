@@ -107,7 +107,7 @@ public:
 	private:
 		friend class HierarchicalConfig;
 
-		key(unsigned long long Key): m_Key(Key) {}
+		explicit key(unsigned long long Key): m_Key(Key) {}
 		unsigned long long m_Key;
 	};
 
@@ -369,7 +369,8 @@ class config_provider: noncopyable
 {
 public:
 	enum class mode { m_default, m_import, m_export };
-	config_provider(mode Mode = mode::m_default);
+
+	explicit config_provider(mode Mode = mode::m_default);
 	~config_provider();
 	bool ShowProblems() const;
 	bool ServiceMode(const string& File);

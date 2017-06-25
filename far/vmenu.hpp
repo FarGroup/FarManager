@@ -100,7 +100,7 @@ struct MenuItemEx
 	NONCOPYABLE(MenuItemEx);
 	MOVABLE(MenuItemEx);
 
-	MenuItemEx(const string& Text = {}):
+	explicit MenuItemEx(const string& Text = {}):
 		strName(Text),
 		Flags(),
 		ShowPos(),

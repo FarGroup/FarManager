@@ -42,7 +42,7 @@ class DizViewer: public Viewer
 		int InRecursion;
 
 	public:
-		DizViewer(window_ptr Owner):Viewer(Owner), InRecursion(0) {}
+		explicit DizViewer(window_ptr Owner):Viewer(Owner), InRecursion(0) {}
 
 	public:
 		virtual bool ProcessKey(const Manager::Key& Key) override

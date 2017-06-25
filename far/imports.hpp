@@ -55,7 +55,7 @@ private:
 	class unique_function_pointer: noncopyable, public conditional<unique_function_pointer<T, Y, stub>>
 	{
 	public:
-		unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
+		explicit unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
 		bool operator!() const noexcept { return get_pointer() == stub; }
 

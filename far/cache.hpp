@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CachedRead: noncopyable
 {
 public:
-	CachedRead(os::fs::file& file, size_t buffer_size = 0);
+	explicit CachedRead(os::fs::file& file, size_t buffer_size = 0);
 	void AdjustAlignment(); // file have to be opened already
 	bool Read(void* Data, size_t DataSize, size_t* BytesRead);
 	bool FillBuffer();
@@ -57,7 +57,7 @@ private:
 class CachedWrite: noncopyable
 {
 public:
-	CachedWrite(os::fs::file& file);
+	explicit CachedWrite(os::fs::file& file);
 	~CachedWrite();
 	bool Write(const void* Data, size_t DataSize);
 	bool Flush();

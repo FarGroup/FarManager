@@ -273,7 +273,7 @@ namespace os
 			}
 
 			template<typename... args>
-			file(args... Args)
+			explicit file(args... Args)
 			{
 				Open(std::forward<args>(Args)...);
 			}
@@ -462,7 +462,7 @@ namespace os
 			IMPLEMENTS_ENUMERATOR(enum_key);
 
 		public:
-			enum_key(const key& Key): m_KeyRef(Key) {}
+			explicit enum_key(const key& Key): m_KeyRef(Key) {}
 			enum_key(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(open_key(RootKey, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam)), m_KeyRef(m_Key) {}
 
 		private:
@@ -477,7 +477,7 @@ namespace os
 			IMPLEMENTS_ENUMERATOR(enum_value);
 
 		public:
-			enum_value(const key& Key): m_KeyRef(Key) {}
+			explicit enum_value(const key& Key): m_KeyRef(Key) {}
 			enum_value(HKEY RootKey, const wchar_t* SubKey, REGSAM Sam = 0): m_Key(open_key(RootKey, SubKey, KEY_QUERY_VALUE | Sam)), m_KeyRef(m_Key) {}
 
 		private:
@@ -549,7 +549,7 @@ namespace os
 			NONCOPYABLE(module);
 			MOVABLE(module);
 
-			module(string name, bool AlternativeLoad = false):
+			explicit module(string name, bool AlternativeLoad = false):
 				m_name(std::move(name)),
 				m_tried(),
 				m_AlternativeLoad(AlternativeLoad)

@@ -64,7 +64,7 @@ private:
 	class veh_handler: noncopyable
 	{
 	public:
-		veh_handler(PVECTORED_EXCEPTION_HANDLER Handler);
+		explicit veh_handler(PVECTORED_EXCEPTION_HANDLER Handler);
 		~veh_handler();
 
 	private:

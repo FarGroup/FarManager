@@ -479,7 +479,7 @@ void FileList::CorrectPosition()
 class list_less
 {
 public:
-	list_less(const FileList* Owner): m_Owner(Owner) {}
+	explicit list_less(const FileList* Owner): m_Owner(Owner) {}
 	bool operator()(const FileListItem& Item1, const FileListItem& Item2) const
 	{
 		{

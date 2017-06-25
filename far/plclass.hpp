@@ -108,7 +108,7 @@ public:
 class plugin_factory
 {
 public:
-	plugin_factory(PluginManager* owner);
+	explicit plugin_factory(PluginManager* owner);
 	using plugin_module_ptr = std::unique_ptr<i_plugin_module>;
 	using function_address = void*;
 	using exports_array = std::array<std::pair<function_address, bool>, ExportsCount>;
@@ -144,7 +144,7 @@ class native_plugin_module: public i_plugin_module
 {
 public:
 	NONCOPYABLE(native_plugin_module);
-	native_plugin_module(const string& Name): m_Module(Name, true) {}
+	explicit native_plugin_module(const string& Name): m_Module(Name, true) {}
 	virtual void* get_opaque() const override { return nullptr; }
 
 	os::rtdl::module m_Module;
@@ -284,7 +284,7 @@ protected:
 	template<EXPORTS_ENUM ExportId, bool Native = true>
 	struct ExecuteStruct: detail::ExecuteStruct
 	{
-		ExecuteStruct(intptr_t FallbackValue = 0)
+		explicit ExecuteStruct(intptr_t FallbackValue = 0)
 		{
 			id = ExportId;
 			Result = FallbackValue;

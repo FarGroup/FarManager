@@ -105,7 +105,7 @@ struct RadioButtonBinding: public DialogItemBinding<T>
 		int *Value;
 
 	public:
-		RadioButtonBinding(int *aValue) : Value(aValue) { }
+		explicit RadioButtonBinding(int *aValue) : Value(aValue) { }
 
 		virtual void SaveValue(T *Item, int RadioGroupIndex) override
 		{

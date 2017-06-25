@@ -87,7 +87,7 @@ public:
 
 	string HelpStr;
 
-	HelpRecord(const string& HStr): HelpStr(HStr) {}
+	explicit HelpRecord(const string& HStr): HelpStr(HStr) {}
 
 	bool operator ==(const HelpRecord& rhs) const
 	{

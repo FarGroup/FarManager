@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class MenuBar:public SimpleScreenObject
 {
 public:
-	MenuBar(window_ptr Owner): SimpleScreenObject(Owner) {}
+	explicit MenuBar(window_ptr Owner): SimpleScreenObject(Owner) {}
 
 private:
 	virtual void DisplayObject() override;

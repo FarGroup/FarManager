@@ -38,7 +38,7 @@ class blob_builder
 public:
 	NONCOPYABLE(blob_builder);
 
-	blob_builder(uintptr_t CodePage):
+	explicit blob_builder(uintptr_t CodePage):
 		m_CodePage(CodePage),
 		m_Signature(IsUnicodeOrUtfCodePage(m_CodePage))
 	{

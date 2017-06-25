@@ -623,7 +623,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
 	public:
-		Guard_Macro_DskShowPosType(panel_ptr curPanel) { Global->Macro_DskShowPosType = curPanel->Parent()->IsLeft(curPanel)? 1 : 2; }
+		explicit Guard_Macro_DskShowPosType(panel_ptr curPanel) { Global->Macro_DskShowPosType = curPanel->Parent()->IsLeft(curPanel)? 1 : 2; }
 		~Guard_Macro_DskShowPosType() { Global->Macro_DskShowPosType = 0; }
 	};
 	SCOPED_ACTION(Guard_Macro_DskShowPosType)(Owner);

@@ -69,7 +69,7 @@ class dev_info: noncopyable, public conditional<dev_info>
 	using devinfo_handle = os::detail::handle_t<detail::devinfo_handle_closer>;
 
 public:
-	dev_info(DEVINST DevInst)
+	explicit dev_info(DEVINST DevInst)
 	{
 		wchar_t szDeviceID[MAX_DEVICE_ID_LEN];
 		if (CM_Get_Device_ID(DevInst, szDeviceID, static_cast<ULONG>(std::size(szDeviceID)), 0) != CR_SUCCESS)

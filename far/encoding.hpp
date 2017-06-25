@@ -216,7 +216,7 @@ class raw_eol
 {
 public:
 	raw_eol(): m_Cr('\r'), m_Lf('\n') {}
-	raw_eol(uintptr_t Codepage): m_Cr(to(Codepage, L'\r')), m_Lf(to(Codepage, L'\n')) {}
+	explicit raw_eol(uintptr_t Codepage): m_Cr(to(Codepage, L'\r')), m_Lf(to(Codepage, L'\n')) {}
 
 	template <class T>
 	T cr() const = delete;

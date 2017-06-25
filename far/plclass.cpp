@@ -1199,7 +1199,7 @@ class custom_plugin_module: public i_plugin_module
 {
 public:
 	NONCOPYABLE(custom_plugin_module);
-	custom_plugin_module(void* Opaque) : m_Opaque(Opaque) {}
+	explicit custom_plugin_module(void* Opaque) : m_Opaque(Opaque) {}
 	virtual void* get_opaque() const override { return m_Opaque; }
 
 private:
@@ -1226,7 +1226,7 @@ public:
 			Info.Author && *Info.Author)
 		{
 			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
-			ProcessError(L"Initialize");
+			custom_plugin_factory::ProcessError(L"Initialize");
 			// TODO: store info, show message if version is bad
 		}
 	}
@@ -1238,7 +1238,7 @@ public:
 
 		ExitInfo Info = { sizeof(Info) };
 		m_Imports.pFree(&Info);
-		ProcessError(L"Free");
+		custom_plugin_factory::ProcessError(L"Free");
 	}
 
 	bool Success() const { return m_Success; }
@@ -1310,7 +1310,7 @@ private:
 		os::rtdl::function_pointer<BOOL(WINAPI*)(HANDLE Instance)> pDestroyInstance;
 		os::rtdl::function_pointer<void (WINAPI*)(const ExitInfo* info)> pFree;
 
-		ModuleImports(const os::rtdl::module& Module):
+		explicit ModuleImports(const os::rtdl::module& Module):
 			#define INIT_IMPORT(name) p ## name(Module, #name)
 			INIT_IMPORT(Initialize),
 			INIT_IMPORT(IsPlugin),

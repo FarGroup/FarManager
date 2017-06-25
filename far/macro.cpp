@@ -1486,9 +1486,9 @@ static auto parseParams(size_t Count, FarMacroCall* Data)
 
 class LockOutput: noncopyable
 {
-	public:
-		LockOutput(bool Lock): m_Lock(Lock) { if (m_Lock) Global->ScrBuf->Lock(); }
-		~LockOutput() { if (m_Lock) Global->ScrBuf->Unlock(); }
+public:
+	explicit LockOutput(bool Lock): m_Lock(Lock) { if (m_Lock) Global->ScrBuf->Lock(); }
+	~LockOutput() { if (m_Lock) Global->ScrBuf->Unlock(); }
 
 private:
 	const bool m_Lock;

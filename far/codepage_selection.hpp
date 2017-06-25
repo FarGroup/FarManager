@@ -113,7 +113,7 @@ codepages& Codepages();
 class F8CP
 {
 public:
-	F8CP(bool viewer = false);
+	explicit F8CP(bool viewer = false);
 
 	uintptr_t NextCP(uintptr_t cp) const;
 	const string& NextCPname(uintptr_t cp) const;

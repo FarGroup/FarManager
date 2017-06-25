@@ -99,7 +99,7 @@ public:
 		ArcListItem* m_Arc{};
 
 		AddMenuData() = default;
-		AddMenuData(type2 Type): m_Type(Type) {}
+		explicit AddMenuData(type2 Type): m_Type(Type) {}
 		AddMenuData(const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
 			m_Type(data),
 			m_FullName(FullName),

@@ -49,7 +49,7 @@ class Edit;
 class Editor: public SimpleScreenObject
 {
 public:
-	Editor(window_ptr Owner, bool DialogUsed = false);
+	explicit Editor(window_ptr Owner, bool DialogUsed = false);
 	virtual ~Editor() override;
 
 	virtual bool ProcessKey(const Manager::Key& Key) override;

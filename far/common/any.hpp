@@ -46,7 +46,7 @@ namespace detail
 	{
 	public:
 		template<class Y>
-		any_impl(Y&& Data):
+		explicit any_impl(Y&& Data):
 			m_Data(std::forward<Y>(Data))
 		{
 		}

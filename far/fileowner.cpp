@@ -78,7 +78,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 		NONCOPYABLE(sid);
 		MOVABLE(sid);
 
-		sid(PSID rhs)
+		explicit sid(PSID rhs)
 		{
 			DWORD Size = GetLengthSid(rhs);
 			m_Data.reset(Size);

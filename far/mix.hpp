@@ -90,9 +90,9 @@ WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType);
 class SetAutocomplete: noncopyable
 {
 public:
-	SetAutocomplete(class EditControl* edit, bool NewState = false);
-	SetAutocomplete(class DlgEdit* dedit, bool NewState = false);
-	SetAutocomplete(class CommandLine* cedit, bool NewState = false);
+	explicit SetAutocomplete(class EditControl* edit, bool NewState = false);
+	explicit SetAutocomplete(class DlgEdit* dedit, bool NewState = false);
+	explicit SetAutocomplete(class CommandLine* cedit, bool NewState = false);
 	~SetAutocomplete();
 
 private:

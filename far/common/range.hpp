@@ -107,7 +107,7 @@ class i_iterator: public std::iterator<std::random_access_iterator_tag, T>, publ
 public:
 	using value_type = T;
 
-	i_iterator(const T& value): m_value(value) {}
+	explicit i_iterator(const T& value): m_value(value) {}
 	i_iterator(const i_iterator& rhs): m_value(rhs.m_value) {}
 
 	auto& operator=(const i_iterator& rhs) { m_value = rhs.m_value; return *this; }

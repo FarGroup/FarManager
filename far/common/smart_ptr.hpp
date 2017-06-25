@@ -40,7 +40,7 @@ public:
 	MOVABLE(array_ptr);
 
 	array_ptr() noexcept: m_size() {}
-	array_ptr(size_t size, bool init = false) { reset(size, init); }
+	explicit array_ptr(size_t size, bool init = false) { reset(size, init); }
 
 	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
 	void reset() noexcept { m_array.reset(); m_size = 0; }
@@ -107,7 +107,7 @@ class ptr_setter_t
 public:
 	NONCOPYABLE(ptr_setter_t)
 	MOVABLE(ptr_setter_t)
-	ptr_setter_t(T& Ptr): m_Ptr(&Ptr) {}
+	explicit ptr_setter_t(T& Ptr): m_Ptr(&Ptr) {}
 	~ptr_setter_t() { if (m_Ptr) m_Ptr->reset(m_RawPtr); }
 	auto operator&() { return &m_RawPtr; }
 

@@ -40,7 +40,7 @@ class SaveScreen;
 class UndoGlobalSaveScrPtr: noncopyable
 {
 public:
-	UndoGlobalSaveScrPtr(SaveScreen *SaveScr);
+	explicit UndoGlobalSaveScrPtr(SaveScreen *SaveScr);
 	~UndoGlobalSaveScrPtr();
 };
 

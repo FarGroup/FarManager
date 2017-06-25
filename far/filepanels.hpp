@@ -49,7 +49,7 @@ class FilePanels:public window, public ViewerContainer
 public:
 	static filepanels_ptr create(bool CreateRealPanels, int DirCount);
 
-	FilePanels(private_tag);
+	explicit FilePanels(private_tag);
 	virtual ~FilePanels() override;
 
 	virtual bool ProcessKey(const Manager::Key& Key) override;

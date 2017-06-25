@@ -77,7 +77,7 @@ public:
 	window_ptr GetOwner() const {return m_Owner.lock();}
 
 protected:
-	SimpleScreenObject(window_ptr Owner);
+	explicit SimpleScreenObject(window_ptr Owner);
 
 private:
 	virtual void DisplayObject() = 0;
@@ -99,7 +99,7 @@ public:
 	void HideButKeepSaveScreen();
 
 protected:
-	ScreenObject(window_ptr Owner);
+	explicit ScreenObject(window_ptr Owner);
 	virtual ~ScreenObject() override;
 
 public: // BUGBUG
@@ -113,7 +113,7 @@ public:
 	virtual void Hide() override;
 
 protected:
-	ScreenObjectWithShadow(window_ptr Owner);
+	explicit ScreenObjectWithShadow(window_ptr Owner);
 	virtual ~ScreenObjectWithShadow() override;
 
 	void Shadow(bool Full=false);

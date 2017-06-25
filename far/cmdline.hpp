@@ -66,7 +66,7 @@ public:
 class CommandLine:public SimpleScreenObject
 {
 public:
-	CommandLine(window_ptr Owner);
+	explicit CommandLine(window_ptr Owner);
 	virtual ~CommandLine() override;
 
 	virtual bool ProcessKey(const Manager::Key& Key) override;

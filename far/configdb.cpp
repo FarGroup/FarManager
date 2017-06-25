@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class representation_source
 {
 public:
-	representation_source(const string& File):
+	explicit representation_source(const string& File):
 		m_File(File),
 		m_Root(nullptr)
 	{

@@ -77,7 +77,7 @@ enum KEYBARAREA
 class KeyBar: public SimpleScreenObject
 {
 public:
-	KeyBar(window_ptr Owner);
+	explicit KeyBar(window_ptr Owner);
 
 	virtual bool ProcessKey(const Manager::Key& Key) override;
 	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -90,14 +90,14 @@ public:
 	class keybar_area
 	{
 	public:
-		keybar_area(std::vector<keybar_item>* Items): m_Items(Items) {}
+		explicit keybar_area(std::vector<keybar_item>* Items): m_Items(Items) {}
 		string& operator[](fkeys Key) const { return (*m_Items)[Key].first; }
 
 	private:
 		std::vector<keybar_item>* m_Items;
 	};
 
-	keybar_area operator[](keybar_group Group) { return keybar_area(&Items[Group]); }
+	auto operator[](keybar_group Group) { return keybar_area(&Items[Group]); }
 	size_t Change(const KeyBarTitles* Kbt);
 
 	void RedrawIfChanged();

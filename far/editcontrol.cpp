@@ -167,14 +167,8 @@ static bool ParseStringWithQuotes(const string& Str, string& Start, string& Toke
 	else
 	{
 		auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
-		static const string NoQuote = L"\":\\/%.-";
-		for (size_t i = 0; i != WordDiv.size(); ++i)
-		{
-			if (contains(NoQuote, WordDiv[i]))
-			{
-				WordDiv.erase(i--, 1);
-			}
-		}
+		static const auto NoQuote = L"\":\\/%.-"s;
+		WordDiv.erase(std::remove_if(ALL_RANGE(WordDiv), [&](wchar_t i) { return contains(NoQuote, i); }));
 
 		for (Pos = Str.size() - 1; Pos != static_cast<size_t>(-1); Pos--)
 		{
@@ -436,19 +430,19 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 			else if (pList)
 			{
-				for (size_t i = 0; i < pList->ItemsNumber; i++)
+				std::for_each(pList->Items, pList->Items + pList->ItemsNumber, [&](const FarListItem& i)
 				{
-					if (starts_with_icase(pList->Items[i].Text, Str) && pList->Items[i].Text != Str.data())
+					if (starts_with_icase(i.Text, Str) && i.Text != Str.data())
 					{
 						MenuItemEx Item;
 						// Preserve the case of the already entered part
 						if (Global->Opt->AutoComplete.AppendCompletion)
 						{
-							Item.UserData = cmp_user_data{ Str + (pList->Items[i].Text + Str.size()) };
+							Item.UserData = cmp_user_data{ Str + (i.Text + Str.size()) };
 						}
-						ComplMenu->AddItem(pList->Items[i].Text);
+						ComplMenu->AddItem(i.Text);
 					}
-				}
+				});
 			}
 
 			string Prefix;

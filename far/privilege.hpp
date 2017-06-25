@@ -44,14 +44,15 @@ namespace os
 			NONCOPYABLE(privilege);
 			MOVABLE(privilege);
 
-			privilege(const std::initializer_list<const wchar_t*>& Names): privilege(Names.begin(), Names.size()) {}
-			privilege(const std::vector<const wchar_t*>& Names): privilege(Names.data(), Names.size()) {}
-			privilege(const wchar_t* const* Names, size_t Size);
+			privilege(const std::initializer_list<const wchar_t*>& Names): privilege(make_range(Names.begin(), Names.size())) {}
+			explicit privilege(const std::vector<const wchar_t*>& Names): privilege(make_range(Names.data(), Names.size())) {}
+			explicit privilege(const range<const wchar_t* const*>& Names);
 			~privilege();
 
 			template<class... args>
 			static bool check(args&&... Args) { return check({ std::forward<args>(Args)... }); }
 			static bool check(const std::initializer_list<const wchar_t*>& Names) { return check(make_range(Names.begin(), Names.size())); }
+			static bool check(const std::vector<const wchar_t*>& Names) { return check(make_range(Names.data(), Names.size())); }
 			static bool check(const range<const wchar_t* const*>& Names);
 
 		private:

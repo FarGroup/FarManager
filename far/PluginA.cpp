@@ -96,7 +96,7 @@ DECLARE_PLUGIN_FUNCTION(iProcessDialogEvent,  int    (WINAPI*)(int Event, void *
 class file_version: noncopyable
 {
 public:
-	file_version(const string& File):
+	explicit file_version(const string& File):
 		m_File(File)
 	{
 	}
@@ -148,7 +148,8 @@ class oem_plugin_module: public native_plugin_module
 {
 public:
 	NONCOPYABLE(oem_plugin_module);
-	oem_plugin_module(const string& Name):
+
+	explicit oem_plugin_module(const string& Name):
 		native_plugin_module(Name),
 		m_FileVersion(Name)
 	{
@@ -161,7 +162,8 @@ class oem_plugin_factory: public native_plugin_factory
 {
 public:
 	NONCOPYABLE(oem_plugin_factory);
-	oem_plugin_factory(PluginManager* Owner):
+
+	explicit oem_plugin_factory(PluginManager* Owner):
 		native_plugin_factory(Owner)
 	{
 		static const export_name ExportsNames[] =
@@ -1163,11 +1165,7 @@ static void FreeUnicodeDialogItem(FarDialogItem &di)
 		{
 			if (di.ListItems->Items)
 			{
-				for (size_t i = 0; i < di.ListItems->ItemsNumber; i++)
-				{
-					delete[] di.ListItems->Items[i].Text;
-				}
-
+				std::for_each(di.ListItems->Items, di.ListItems->Items + di.ListItems->ItemsNumber, [](const FarListItem& i) { delete[] i.Text; });
 				delete[] di.ListItems->Items;
 				di.ListItems->Items = nullptr;
 			}
@@ -3215,8 +3213,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 
 				if (newlist.Items)
 				{
-					for (size_t i=0; i<newlist.ItemsNumber; i++)
-						delete[] newlist.Items[i].Text;
+					std::for_each(newlist.Items, newlist.Items + newlist.ItemsNumber, [](const FarListItem& i) { delete[] i.Text; });
 					delete[] newlist.Items;
 				}
 
@@ -5925,7 +5922,7 @@ private:
 	class ansi_plugin_language final: public language
 	{
 	public:
-		ansi_plugin_language(const string& Path):
+		explicit ansi_plugin_language(const string& Path):
 			language(m_Data),
 			m_Data(std::make_unique<ansi_language_data>())
 		{

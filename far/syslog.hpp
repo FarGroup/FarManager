@@ -299,7 +299,7 @@ FILE *OpenLogStream(const string& file);
 class CleverSysLog  // ;-)
 {
 	public:
-		CleverSysLog(const wchar_t *Title=nullptr);
+	explicit CleverSysLog(const wchar_t *Title=nullptr);
 		CleverSysLog(int Line,const wchar_t *Title);
 		~CleverSysLog();
 };

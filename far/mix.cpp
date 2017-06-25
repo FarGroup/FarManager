@@ -136,8 +136,7 @@ void FindDataExToPluginPanelItemHolder(const os::FAR_FIND_DATA& Src, PluginPanel
 	Dest.CustomColumnData = nullptr;
 	Dest.CustomColumnNumber = 0;
 	Dest.Flags = 0;
-	Dest.UserData.Data = nullptr;
-	Dest.UserData.FreeData = nullptr;
+	Dest.UserData = {};
 	Dest.FileAttributes = Src.dwFileAttributes;
 	Dest.NumberOfLinks = 1;
 	Dest.CRC32 = 0;

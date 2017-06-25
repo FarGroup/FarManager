@@ -311,7 +311,7 @@ enum FINDDLG
 
 struct background_searcher::CodePageInfo
 {
-	CodePageInfo(uintptr_t CodePage):
+	explicit CodePageInfo(uintptr_t CodePage):
 		CodePage(CodePage),
 		MaxCharSize(0),
 		LastSymbol(0),

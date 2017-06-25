@@ -44,9 +44,9 @@ static handle OpenCurrentProcessToken(DWORD DesiredAccess)
 	return handle(OpenProcessToken(GetCurrentProcess(), DesiredAccess, &Handle)? Handle : nullptr);
 }
 
-privilege::privilege(const wchar_t* const* Names, size_t Size)
+privilege::privilege(const range<const wchar_t* const*>& Names)
 {
-	if (!Size)
+	if (Names.empty())
 		return;
 
 	m_Token = OpenCurrentProcessToken(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
@@ -55,10 +55,10 @@ privilege::privilege(const wchar_t* const* Names, size_t Size)
 	if (!m_Token)
 		return;
 
-	block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Size - 1));
-	NewState->PrivilegeCount = static_cast<DWORD>(Size);
+	block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Names.size() - 1));
+	NewState->PrivilegeCount = static_cast<DWORD>(Names.size());
 
-	std::transform(Names, Names + Size, std::begin(NewState->Privileges), [](const auto& i)
+	std::transform(ALL_CONST_RANGE(Names), std::begin(NewState->Privileges), [](const auto& i)
 	{
 		LUID_AND_ATTRIBUTES laa = { {}, SE_PRIVILEGE_ENABLED };
 		LookupPrivilegeValue(nullptr, i, &laa.Luid);
@@ -102,7 +102,7 @@ bool privilege::check(const range<const wchar_t* const*>& Names)
 	if (!GetTokenInformation(Token.native_handle(), TokenPrivileges, TokenInformation.get(), TokenInformationLength, &TokenInformationLength))
 		return false;
 
-	const auto PrivilegesEnd{ TokenInformation->Privileges + TokenInformation->PrivilegeCount };
+	const auto Privileges = make_range(TokenInformation->Privileges, TokenInformation->PrivilegeCount);
 
 	for (const auto& Name: Names)
 	{
@@ -110,8 +110,8 @@ bool privilege::check(const range<const wchar_t* const*>& Names)
 		if (!LookupPrivilegeValue(nullptr, Name, &Luid))
 			return false;
 
-		const auto ItemIterator = std::find_if(TokenInformation->Privileges, PrivilegesEnd, [&](const auto& Item) { return Item.Luid == Luid; });
-		if (ItemIterator == PrivilegesEnd || !(ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT)))
+		const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Privileges), [&](const auto& Item) { return Item.Luid == Luid; });
+		if (ItemIterator == Privileges.end() || !(ItemIterator->Attributes & (SE_PRIVILEGE_ENABLED | SE_PRIVILEGE_ENABLED_BY_DEFAULT)))
 			return false;
 	}
 

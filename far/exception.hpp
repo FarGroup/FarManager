@@ -37,7 +37,7 @@ struct error_codes
 	struct ignore{};
 
 	error_codes();
-	error_codes(ignore);
+	explicit error_codes(ignore);
 
 	DWORD Win32Error;
 	NTSTATUS NtError;
@@ -79,7 +79,7 @@ class exception_context
 public:
 	NONCOPYABLE(exception_context);
 
-	exception_context(DWORD Code = 0, const EXCEPTION_POINTERS* Pointers = nullptr, bool ResumeThread = false);
+	explicit exception_context(DWORD Code = 0, const EXCEPTION_POINTERS* Pointers = nullptr, bool ResumeThread = false);
 	~exception_context();
 
 	auto GetCode() const { return m_Code; }

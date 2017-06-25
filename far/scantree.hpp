@@ -60,7 +60,7 @@ enum
 class ScanTree: noncopyable
 {
 public:
-	ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1);
+	explicit ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1);
 	~ScanTree();
 
 	// 3-й параметр - флаги из старшего слова

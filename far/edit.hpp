@@ -116,7 +116,7 @@ public:
 
 	using delete_color_condition = std::function<bool(const ColorItem&)>;
 
-	Edit(window_ptr Owner);
+	explicit Edit(window_ptr Owner);
 	virtual ~Edit() override = default;
 
 	void FastShow(const ShowInfo* Info=nullptr);

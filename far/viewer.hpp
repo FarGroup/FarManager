@@ -52,7 +52,7 @@ enum SEARCHER_RESULT: int;
 class Viewer:public SimpleScreenObject
 {
 public:
-	Viewer(window_ptr Owner, bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
+	explicit Viewer(window_ptr Owner, bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
 	virtual ~Viewer() override;
 
 	virtual bool ProcessKey(const Manager::Key& Key) override;

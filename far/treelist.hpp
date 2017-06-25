@@ -65,7 +65,7 @@ public:
 		{
 		}
 
-		TreeItem(const string& Name):
+		explicit TreeItem(const string& Name):
 			strName(Name),
 			Last(MAX_PATH/2),
 			Depth(0)

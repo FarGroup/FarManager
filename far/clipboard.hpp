@@ -91,7 +91,7 @@ private:
 class clipboard_accessor:noncopyable
 {
 public:
-	clipboard_accessor(clipboard_mode Mode = default_clipboard_mode::get()): m_Clipboard(Clipboard::GetInstance(Mode)) {}
+	explicit clipboard_accessor(clipboard_mode Mode = default_clipboard_mode::get()): m_Clipboard(Clipboard::GetInstance(Mode)) {}
 	~clipboard_accessor() { m_Clipboard.Close(); }
 	auto operator->() const { return &m_Clipboard; }
 

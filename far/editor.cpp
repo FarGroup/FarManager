@@ -3288,7 +3288,7 @@ struct FindCoord
 class undo_block
 {
 public:
-	undo_block(Editor* Owner): m_Owner(Owner) { m_Owner->AddUndoData(UNDO_BEGIN); }
+	explicit undo_block(Editor* Owner): m_Owner(Owner) { m_Owner->AddUndoData(UNDO_BEGIN); }
 	~undo_block() { m_Owner->AddUndoData(UNDO_END); }
 
 private:

@@ -45,7 +45,7 @@ struct EditFieldBinding: public DialogItemBinding<DialogItemEx>
 {
 	T& TextValue;
 
-	EditFieldBinding(T& aTextValue)
+	explicit EditFieldBinding(T& aTextValue)
 		: TextValue(aTextValue)
 	{
 	}
@@ -94,7 +94,7 @@ template<class T>
 struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 {
 public:
-	EditFieldHexBinding(T *aIntValue) : IntValue(aIntValue)
+	explicit EditFieldHexBinding(T *aIntValue) : IntValue(aIntValue)
 	{
 		Mask[0] = L'0';
 		Mask[1] = L'x';
@@ -126,7 +126,7 @@ private:
 	int Mask;
 
 public:
-	FarCheckBoxIntBinding(T& aValue, int aMask=0) : Value(aValue), Mask(aMask) { }
+	explicit FarCheckBoxIntBinding(T& aValue, int aMask=0) : Value(aValue), Mask(aMask) { }
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
@@ -151,7 +151,7 @@ private:
 	T& Value;
 
 public:
-	FarCheckBoxBool3Binding(T& aValue) : Value(aValue) { }
+	explicit FarCheckBoxBool3Binding(T& aValue) : Value(aValue) { }
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
@@ -166,7 +166,7 @@ private:
 	T& Value;
 
 public:
-	FarCheckBoxBoolBinding(T& aValue) : Value(aValue) { }
+	explicit FarCheckBoxBoolBinding(T& aValue) : Value(aValue) { }
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
@@ -218,7 +218,7 @@ private:
 	T& Value;
 
 public:
-	FarRadioButtonBinding(T& aValue) : Value(aValue) { }
+	explicit FarRadioButtonBinding(T& aValue) : Value(aValue) { }
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{

@@ -40,7 +40,7 @@ class TBitFlags
 {
 public:
 	TBitFlags():m_Flags(0) {}
-	TBitFlags(const T& Flags):m_Flags(Flags) {}
+	explicit TBitFlags(const T& Flags):m_Flags(Flags) {}
 
 	const T& Flags() const { return m_Flags; }
 	// установить набор флагов

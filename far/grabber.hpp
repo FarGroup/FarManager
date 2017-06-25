@@ -43,7 +43,7 @@ class Grabber: public SimpleModal
 
 public:
 	static grabber_ptr create();
-	Grabber(private_tag);
+	explicit Grabber(private_tag);
 	virtual ~Grabber() override;
 
 	virtual int GetType() const override { return windowtype_grabber; }

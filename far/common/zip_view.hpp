@@ -106,7 +106,7 @@ class zip_iterator:
 {
 public:
 	zip_iterator() = default;
-	zip_iterator(const args&... Args): m_Tuple(Args...) {}
+	explicit zip_iterator(const args&... Args): m_Tuple(Args...) {}
 	auto& operator++() { detail::traits<args...>::unary_for_each(detail::increment{}, m_Tuple); return *this; }
 	auto& operator--() { detail::traits<args...>::unary_for_each(detail::decrement{}, m_Tuple); return *this; }
 	// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
@@ -125,7 +125,7 @@ class zip_view
 public:
 	using iterator = zip_iterator<decltype(std::begin(std::declval<args>()))...>;
 
-	zip_view(args&&... Args):
+	explicit zip_view(args&&... Args):
 		m_Begin(std::begin(Args)...),
 		m_End(std::end(Args)...)
 	{

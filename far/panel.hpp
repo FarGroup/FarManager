@@ -269,7 +269,7 @@ public:
 	int ProcessingPluginCommand;
 
 protected:
-	Panel(window_ptr Owner);
+	explicit Panel(window_ptr Owner);
 	virtual void ClearAllItem(){}
 
 	void FastFind(const Manager::Key& FirstKey);
@@ -320,7 +320,7 @@ private:
 class dummy_panel : public Panel
 {
 public:
-	dummy_panel(window_ptr Owner): Panel(Owner){}
+	explicit dummy_panel(window_ptr Owner): Panel(Owner){}
 
 private:
 	virtual void Update(int Mode) override {};
