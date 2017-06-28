@@ -28272,14 +28272,14 @@ upd:"opened"
 
 MObjectLockedSwitchTo
 "Переключиться"
-"Switch to:"
+"Switch to"
 "Přepnout na"
 "Gehe zu"
 upd:"Switch to"
 upd:"Switch to"
-"Cambiar a:"
+"Cambiar a"
 "Prepnúť na"
-"Vai A:"
+"Vai A"
 "Перемкнутися"
 
 MObjectLockedClose

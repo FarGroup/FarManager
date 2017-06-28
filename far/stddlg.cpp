@@ -568,8 +568,8 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 	{
 		Result = Message(MSG_WARNING | MSG_ERRORTYPE,
 			msg(Title),
-			std::move(Msgs),
-			std::move(Buttons));
+			Msgs,
+			Buttons);
 
 		if(SwitchBtn)
 		{

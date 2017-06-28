@@ -41,6 +41,9 @@
 #endif
 
 #if FMT_USE_WINDOWS_H
+# if !defined(FMT_HEADER_ONLY) && !defined(WIN32_LEAN_AND_MEAN)
+#  define WIN32_LEAN_AND_MEAN
+# endif
 # if defined(NOMINMAX) || defined(FMT_WIN_MINMAX)
 #  include <windows.h>
 # else
@@ -49,8 +52,6 @@
 #  undef NOMINMAX
 # endif
 #endif
-
-using fmt::internal::Arg;
 
 #if FMT_EXCEPTIONS
 # define FMT_TRY try
@@ -211,16 +212,6 @@ void report_error(FormatFunc func, int error_code,
   std::fputc('\n', stderr);
 }
 }  // namespace
-
-namespace internal {
-
-// This method is used to preserve binary compatibility with fmt 3.0.
-// It can be removed in 4.0.
-FMT_FUNC void format_system_error(
-  Writer &out, int error_code, StringRef message) FMT_NOEXCEPT {
-  fmt::format_system_error(out, error_code, message);
-}
-}  // namespace internal
 
 FMT_FUNC void SystemError::init(
     int err_code, CStringRef format_str, ArgList args) {
@@ -455,14 +446,14 @@ void internal::FixedBuffer<Char>::grow(std::size_t) {
   FMT_THROW(std::runtime_error("buffer overflow"));
 }
 
-FMT_FUNC Arg internal::FormatterBase::do_get_arg(
+FMT_FUNC internal::Arg internal::FormatterBase::do_get_arg(
     unsigned arg_index, const char *&error) {
-  Arg arg = args_[arg_index];
+  internal::Arg arg = args_[arg_index];
   switch (arg.type) {
-  case Arg::NONE:
+  case internal::Arg::NONE:
     error = "argument index out of range";
     break;
-  case Arg::NAMED_ARG:
+  case internal::Arg::NAMED_ARG:
     arg = *static_cast<const internal::Arg*>(arg.pointer);
     break;
   default:
@@ -513,11 +504,11 @@ template void internal::FixedBuffer<char>::grow(std::size_t);
 
 template void internal::ArgMap<char>::init(const ArgList &args);
 
-template int internal::CharTraits<char>::format_float(
+template FMT_API int internal::CharTraits<char>::format_float(
     char *buffer, std::size_t size, const char *format,
     unsigned width, int precision, double value);
 
-template int internal::CharTraits<char>::format_float(
+template FMT_API int internal::CharTraits<char>::format_float(
     char *buffer, std::size_t size, const char *format,
     unsigned width, int precision, long double value);
 
@@ -527,11 +518,11 @@ template void internal::FixedBuffer<wchar_t>::grow(std::size_t);
 
 template void internal::ArgMap<wchar_t>::init(const ArgList &args);
 
-template int internal::CharTraits<wchar_t>::format_float(
+template FMT_API int internal::CharTraits<wchar_t>::format_float(
     wchar_t *buffer, std::size_t size, const wchar_t *format,
     unsigned width, int precision, double value);
 
-template int internal::CharTraits<wchar_t>::format_float(
+template FMT_API int internal::CharTraits<wchar_t>::format_float(
     wchar_t *buffer, std::size_t size, const wchar_t *format,
     unsigned width, int precision, long double value);
 
