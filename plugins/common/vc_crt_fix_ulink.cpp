@@ -30,7 +30,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "disable_warnings_in_std_begin.hpp"
 #include <windows.h>
+#include "disable_warnings_in_std_end.hpp"
 #include <delayimp.h>
 
 //----------------------------------------------------------------------------
@@ -56,6 +58,9 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
 }
 
 //----------------------------------------------------------------------------
+#if _MSC_FULL_VER >= 190024215 // VS2015sp3
+const
+#endif
 PfnDliHook __pfnDliFailureHook2 = (PfnDliHook)delayFailureHook;
 
 //----------------------------------------------------------------------------
