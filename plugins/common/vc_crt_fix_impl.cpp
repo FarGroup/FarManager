@@ -140,7 +140,14 @@ namespace slist
 	namespace implementation
 	{
 #ifdef _WIN64
-#error Not implemented
+		// These stubs are here only to unify compilation, they shall never be needed on x64.
+		static void WINAPI InitializeSListHead(PSLIST_HEADER ListHead) {}
+		static PSLIST_ENTRY WINAPI InterlockedFlushSList(PSLIST_HEADER ListHead) { return nullptr; }
+		static PSLIST_ENTRY WINAPI InterlockedPopEntrySList(PSLIST_HEADER ListHead) { return nullptr; }
+		static PSLIST_ENTRY WINAPI InterlockedPushEntrySList(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry) { return nullptr; }
+		static PSLIST_ENTRY WINAPI InterlockedPushListSListEx(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count) { return nullptr; }
+		static PSLIST_ENTRY WINAPI RtlFirstEntrySList(PSLIST_HEADER ListHead) { return nullptr; }
+		static USHORT WINAPI QueryDepthSList(PSLIST_HEADER ListHead) { return 0; }
 #else
 		class critical_section
 		{
