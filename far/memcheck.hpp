@@ -49,6 +49,4 @@ void operator delete[](void* block, const char* Function, const char* File, int 
 #define new new(__FUNCTION__, __FILE__, __LINE__)
 #endif
 
-void PrintMemory();
-
 #endif // MEMCHECK_HPP_3DC127D2_3D5C_4E0C_BFDD_6CE23AE099DB

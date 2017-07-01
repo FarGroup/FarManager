@@ -113,6 +113,8 @@ static int& GetMarker(MEMINFO* Info)
 	return *reinterpret_cast<int*>(reinterpret_cast<char*>(Info)+Info->Size-sizeof(EndMarker));
 }
 
+void PrintMemory();
+
 static void RegisterBlock(MEMINFO *block)
 {
 	if (!MonitoringEnabled)
@@ -121,6 +123,13 @@ static void RegisterBlock(MEMINFO *block)
 	if (!AllocatedMemoryBlocks)
 		InitializeCriticalSection(&CS);
 	EnterCriticalSection(&CS);
+
+	static auto AtExitSet = false;
+	if (!AtExitSet)
+	{
+		atexit(PrintMemory);
+		AtExitSet = true;
+	}
 
 	block->prev = LastMemBlock;
 	block->next = nullptr;
@@ -265,8 +274,7 @@ static string FindStr(const void* Data, size_t Size)
 
 void PrintMemory()
 {
-	bool MonitoringState = MonitoringEnabled;
-	MonitoringEnabled = false;
+	const auto MonitoringState = std::exchange(MonitoringEnabled, false);
 
 	if (CallNewDeleteVector || CallNewDeleteScalar || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{
@@ -291,9 +299,10 @@ void PrintMemory()
 		for(auto i = FirstMemBlock.next; i; i = i->next)
 		{
 			const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
-			Message = concat(encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
-				L"\nData: "_sv, BlobToHexWString(ToUser(i), std::min(BlockSize, size_t(16)), L' '),
-				L"\nhr: "_sv, FindStr(ToUser(i), BlockSize), L'\n');
+			const auto UserAddress = ToUser(i);
+			Message = concat(str(UserAddress), L", "_sv, encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
+				L"\nData: "_sv, BlobToHexWString(UserAddress, std::min(BlockSize, size_t(16)), L' '),
+				L"\nhr: "_sv, FindStr(UserAddress, BlockSize), L'\n');
 
 			std::wcerr << Message;
 			OutputDebugString(Message.data());
@@ -380,10 +389,3 @@ wchar_t* DuplicateString(const wchar_t * str, const char* Function, const char* 
 }
 
 #endif
-
-void PrintMemory()
-{
-#ifdef MEMCHECK
-	memcheck::PrintMemory();
-#endif
-}

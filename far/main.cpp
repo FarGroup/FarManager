@@ -815,7 +815,6 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 static int wmain_seh(int Argc, wchar_t *Argv[])
 {
-	atexit(PrintMemory);
 #if defined(SYSLOG)
 	atexit(PrintSysLogStat);
 #endif

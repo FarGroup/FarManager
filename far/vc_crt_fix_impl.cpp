@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 #endif // END FAR_USE_INTERNALS
 #include <windows.h>
+#include <utility>
 #ifdef FAR_USE_INTERNALS
 //----------------------------------------------------------------------------
 #include "disable_warnings_in_std_end.hpp"
@@ -55,12 +56,33 @@ static const auto Function = GetFunctionPointer(ModuleName, #FunctionName, &impl
 
 static const wchar_t kernel32[] = L"kernel32";
 
+static void* XorPointer(void* Ptr)
+{
+	static const auto Cookie = []
+	{
+		static void* Ptr;
+		auto Result = reinterpret_cast<uintptr_t>(&Ptr);
+
+		FILETIME CreationTime, NotUsed;
+		if (GetThreadTimes(GetCurrentThread(), &CreationTime, &NotUsed, &NotUsed, &NotUsed))
+		{
+			Result ^= CreationTime.dwLowDateTime;
+			Result ^= CreationTime.dwHighDateTime;
+		}
+		return Result;
+	}();
+	return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(Ptr) ^ Cookie);
+}
+
 // EncodePointer (VC2010)
 extern "C" PVOID WINAPI EncodePointerWrapper(PVOID Ptr)
 {
 	struct implementation
 	{
-		static PVOID WINAPI EncodePointer(PVOID Ptr) { return Ptr; }
+		static PVOID WINAPI EncodePointer(PVOID Ptr)
+		{
+			return XorPointer(Ptr);
+		}
 	};
 
 	CREATE_FUNCTION_POINTER(kernel32, EncodePointer);
@@ -72,7 +94,10 @@ extern "C" PVOID WINAPI DecodePointerWrapper(PVOID Ptr)
 {
 	struct implementation
 	{
-		static PVOID WINAPI DecodePointer(PVOID Ptr) { return Ptr; }
+		static PVOID WINAPI DecodePointer(PVOID Ptr)
+		{
+			return XorPointer(Ptr);
+		}
 	};
 
 	CREATE_FUNCTION_POINTER(kernel32, DecodePointer);
@@ -86,18 +111,34 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 	{
 		static BOOL WINAPI GetModuleHandleExW(DWORD Flags, LPCWSTR ModuleName, HMODULE *Module)
 		{
-			if (Flags)
+			if (Flags & GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS)
 			{
-				SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-				return FALSE;
+				MEMORY_BASIC_INFORMATION mbi;
+				if (!VirtualQuery(ModuleName, &mbi, sizeof(mbi)))
+					return FALSE;
+
+				const auto ModuleValue = static_cast<HMODULE>(mbi.AllocationBase);
+
+				if (!(Flags & GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT))
+				{
+					wchar_t Buffer[MAX_PATH];
+					if (!GetModuleFileName(ModuleValue, Buffer, ARRAYSIZE(Buffer)))
+						return FALSE;
+					LoadLibrary(Buffer);
+				}
+
+				*Module = ModuleValue;
+				return TRUE;
 			}
 
-			const auto Handle = GetModuleHandleW(ModuleName);
-			if (!Handle)
-				return FALSE;
+			// GET_MODULE_HANDLE_EX_FLAG_PIN not implemented
 
-			*Module = Handle;
-			return TRUE;
+			if (const auto ModuleValue = (Flags & GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT? GetModuleHandle : LoadLibrary)(ModuleName))
+			{
+				*Module = ModuleValue;
+				return TRUE;
+			}
+			return FALSE;
 		}
 	};
 
@@ -105,17 +146,163 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 	return Function(Flags, ModuleName, Module);
 }
 
+namespace slist
+{
+	namespace implementation
+	{
+#ifdef _WIN64
+#error Not implemented
+#else
+		class critical_section
+		{
+		public:
+			critical_section() { InitializeCriticalSection(&m_Lock); }
+			~critical_section() { DeleteCriticalSection(&m_Lock); }
+			void lock() { EnterCriticalSection(&m_Lock); }
+			void unlock() { LeaveCriticalSection(&m_Lock); }
+
+		private:
+			CRITICAL_SECTION m_Lock;
+		};
+
+		struct service_entry: SLIST_ENTRY, critical_section
+		{
+			// InitializeSListHead might be called during runtime initialisation
+			// when operator new might not be ready yet (especially in presence of leak detectors)
+
+			void* operator new(size_t Size)
+			{
+				return malloc(Size);
+			}
+
+			void operator delete(void* Ptr)
+			{
+				free(Ptr);
+			}
+
+			service_entry* ServiceNext;
+		};
+
+		class slist_lock
+		{
+		public:
+			explicit slist_lock(PSLIST_HEADER ListHead):
+				m_Entry(static_cast<service_entry&>(*ListHead->Next.Next))
+			{
+				m_Entry.lock();
+			}
+
+			~slist_lock()
+			{
+				m_Entry.unlock();
+			}
+
+		private:
+			service_entry& m_Entry;
+		};
+
+		class service_deleter
+		{
+		public:
+			~service_deleter()
+			{
+				while (m_Data.ServiceNext)
+				{
+					delete std::exchange(m_Data.ServiceNext, m_Data.ServiceNext->ServiceNext);
+				}
+			}
+
+			void add(service_entry* Entry)
+			{
+				m_Data.lock();
+				Entry->ServiceNext = m_Data.ServiceNext;
+				m_Data.ServiceNext = Entry;
+				m_Data.unlock();
+			}
+
+		private:
+			service_entry m_Data{};
+		};
+
+		static SLIST_ENTRY*& top(PSLIST_HEADER ListHead)
+		{
+			return ListHead->Next.Next->Next;
+		}
+
+		static void WINAPI InitializeSListHead(PSLIST_HEADER ListHead)
+		{
+			*ListHead = {};
+
+			const auto Entry = new service_entry();
+			ListHead->Next.Next = Entry;
+
+			static service_deleter Deleter;
+			Deleter.add(Entry);
+		}
+
+		static PSLIST_ENTRY WINAPI InterlockedFlushSList(PSLIST_HEADER ListHead)
+		{
+			slist_lock Lock(ListHead);
+
+			ListHead->Depth = 0;
+			return std::exchange(top(ListHead), nullptr);
+		}
+
+		static PSLIST_ENTRY WINAPI InterlockedPopEntrySList(PSLIST_HEADER ListHead)
+		{
+			slist_lock Lock(ListHead);
+
+			auto& Top = top(ListHead);
+			if (!Top)
+				return nullptr;
+
+			--ListHead->Depth;
+			return std::exchange(Top, Top->Next);
+		}
+
+		static PSLIST_ENTRY WINAPI InterlockedPushEntrySList(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
+		{
+			slist_lock Lock(ListHead);
+
+			auto& Top = top(ListHead);
+
+			++ListHead->Depth;
+			ListEntry->Next = Top;
+			return std::exchange(Top, ListEntry);
+		}
+
+		static PSLIST_ENTRY WINAPI InterlockedPushListSListEx(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count)
+		{
+			slist_lock Lock(ListHead);
+
+			auto& Top = top(ListHead);
+
+			ListHead->Depth += Count;
+			ListEnd->Next = Top;
+			return std::exchange(Top, List);
+		}
+
+		static PSLIST_ENTRY WINAPI RtlFirstEntrySList(PSLIST_HEADER ListHead)
+		{
+			slist_lock Lock(ListHead);
+
+			return top(ListHead);
+		}
+
+		static USHORT WINAPI QueryDepthSList(PSLIST_HEADER ListHead)
+		{
+			slist_lock Lock(ListHead);
+
+			return ListHead->Depth;
+		}
+#endif
+	};
+}
+
 // InitializeSListHead (VC2015)
 extern "C" void WINAPI InitializeSListHeadWrapper(PSLIST_HEADER ListHead)
 {
-	struct implementation
-	{
-		static void WINAPI InitializeSListHead(PSLIST_HEADER ListHead)
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		}
-	};
-
+	using namespace slist;
 	CREATE_FUNCTION_POINTER(kernel32, InitializeSListHead);
 	return Function(ListHead);
 }
@@ -123,15 +310,7 @@ extern "C" void WINAPI InitializeSListHeadWrapper(PSLIST_HEADER ListHead)
 // InterlockedFlushSList (VC2015)
 extern "C" PSLIST_ENTRY WINAPI InterlockedFlushSListWrapper(PSLIST_HEADER ListHead)
 {
-	struct implementation
-	{
-		static PSLIST_ENTRY WINAPI InterlockedFlushSList(PSLIST_HEADER ListHead)
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-			return nullptr;
-		}
-	};
-
+	using namespace slist;
 	CREATE_FUNCTION_POINTER(kernel32, InterlockedFlushSList);
 	return Function(ListHead);
 }
@@ -139,15 +318,7 @@ extern "C" PSLIST_ENTRY WINAPI InterlockedFlushSListWrapper(PSLIST_HEADER ListHe
 // InterlockedPopEntrySList (VC2015)
 extern "C" PSLIST_ENTRY WINAPI InterlockedPopEntrySListWrapper(PSLIST_HEADER ListHead)
 {
-	struct implementation
-	{
-		static PSLIST_ENTRY WINAPI InterlockedPopEntrySList(PSLIST_HEADER ListHead)
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-			return nullptr;
-		}
-	};
-
+	using namespace slist;
 	CREATE_FUNCTION_POINTER(kernel32, InterlockedPopEntrySList);
 	return Function(ListHead);
 }
@@ -155,31 +326,15 @@ extern "C" PSLIST_ENTRY WINAPI InterlockedPopEntrySListWrapper(PSLIST_HEADER Lis
 // InterlockedPushEntrySList (VC2015)
 extern "C" PSLIST_ENTRY WINAPI InterlockedPushEntrySListWrapper(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
 {
-	struct implementation
-	{
-		static PSLIST_ENTRY WINAPI InterlockedPushEntrySList(PSLIST_HEADER ListHead, PSLIST_ENTRY ListEntry)
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-			return nullptr;
-		}
-	};
-
+	using namespace slist;
 	CREATE_FUNCTION_POINTER(kernel32, InterlockedPushEntrySList);
 	return Function(ListHead, ListEntry);
 }
 
-// InterlockedPushListSList (VC2015)
+// InterlockedPushListSListEx (VC2015)
 extern "C" PSLIST_ENTRY WINAPI InterlockedPushListSListExWrapper(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count)
 {
-	struct implementation
-	{
-		static PSLIST_ENTRY WINAPI InterlockedPushListSListEx(PSLIST_HEADER ListHead, PSLIST_ENTRY List, PSLIST_ENTRY ListEnd, ULONG Count)
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-			return nullptr;
-		}
-	};
-
+	using namespace slist;
 	CREATE_FUNCTION_POINTER(kernel32, InterlockedPushListSListEx);
 	return Function(ListHead, List, ListEnd, Count);
 }
@@ -187,15 +342,7 @@ extern "C" PSLIST_ENTRY WINAPI InterlockedPushListSListExWrapper(PSLIST_HEADER L
 // RtlFirstEntrySList (VC2015)
 extern "C" PSLIST_ENTRY WINAPI RtlFirstEntrySListWrapper(PSLIST_HEADER ListHead)
 {
-	struct implementation
-	{
-		static PSLIST_ENTRY WINAPI RtlFirstEntrySList(PSLIST_HEADER ListHead)
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-			return nullptr;
-		}
-	};
-
+	using namespace slist;
 	CREATE_FUNCTION_POINTER(kernel32, RtlFirstEntrySList);
 	return Function(ListHead);
 }
@@ -203,15 +350,7 @@ extern "C" PSLIST_ENTRY WINAPI RtlFirstEntrySListWrapper(PSLIST_HEADER ListHead)
 // QueryDepthSList (VC2015)
 extern "C" USHORT WINAPI QueryDepthSListWrapper(PSLIST_HEADER ListHead)
 {
-	struct implementation
-	{
-		static USHORT WINAPI QueryDepthSList(PSLIST_HEADER ListHead)
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-			return 0;
-		}
-	};
-
+	using namespace slist;
 	CREATE_FUNCTION_POINTER(kernel32, QueryDepthSList);
 	return Function(ListHead);
 }
