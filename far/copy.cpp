@@ -2254,8 +2254,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	{
 		for (;;)
 		{
-			unsigned long long SaveTotalSize = CP->m_Bytes.Copied;
-
 			if (!(Flags&FCOPY_COPYTONUL) && Rename)
 			{
 				int AskDelete;
@@ -2506,7 +2504,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					return COPY_CANCEL;
 				}
 			}
-			CP->m_Bytes.Copied = SaveTotalSize;
+
 			int RetCode = COPY_CANCEL;
 			string strNewName;
 
