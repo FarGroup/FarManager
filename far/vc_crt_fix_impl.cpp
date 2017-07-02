@@ -122,9 +122,9 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 				if (!(Flags & GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT))
 				{
 					wchar_t Buffer[MAX_PATH];
-					if (!GetModuleFileName(ModuleValue, Buffer, ARRAYSIZE(Buffer)))
+					if (!GetModuleFileNameW(ModuleValue, Buffer, ARRAYSIZE(Buffer)))
 						return FALSE;
-					LoadLibrary(Buffer);
+					LoadLibraryW(Buffer);
 				}
 
 				*Module = ModuleValue;
@@ -133,7 +133,7 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 
 			// GET_MODULE_HANDLE_EX_FLAG_PIN not implemented
 
-			if (const auto ModuleValue = (Flags & GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT? GetModuleHandle : LoadLibrary)(ModuleName))
+			if (const auto ModuleValue = (Flags & GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT? GetModuleHandleW : LoadLibraryW)(ModuleName))
 			{
 				*Module = ModuleValue;
 				return TRUE;
@@ -284,7 +284,7 @@ namespace slist
 
 			auto& Top = top(ListHead);
 
-			ListHead->Depth += Count;
+			ListHead->Depth += static_cast<WORD>(Count);
 			ListEnd->Next = Top;
 			return std::exchange(Top, List);
 		}

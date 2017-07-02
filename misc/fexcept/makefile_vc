@@ -5,10 +5,6 @@ NAME = FExcept
 DOCS = SetFarExceptionHandler.farconfig demangle$(DIRBIT).dll
 LINK_OBJS = $(OBJDIR)\FExcept.obj
 
-!if "$(BUILD_PLATFORM)" == "X86"
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc_crt_fix.obj $(OBJDIR)\vc_crt_fix_impl.obj
-!endif
-
 COMMON = ..\..\plugins\common
 
 All: dirs
@@ -24,9 +20,3 @@ excdump:
 	@cd execdump
 	$(MAKE) /f makefile_vc $(_MKDO_)COPYTO=..\$(WORKDIR) $(_MDEFS)
 	@cd ..
-
-$(OUTDIR)\vc_crt_fix.obj: $(COMMON)\vc_crt_fix.asm
-  $(AS) $(ASFLAGS) $(COMMON)\vc_crt_fix.asm
-
-$(OUTDIR)\vc_crt_fix_impl.obj: $(COMMON)\vc_crt_fix_impl.cpp
-  $(CPP) $(CPPFLAGS) $(COMMON)\vc_crt_fix_impl.cpp

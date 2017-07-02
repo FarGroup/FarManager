@@ -21,6 +21,14 @@
       <UniqueIdentifier>{9b8726bd-d9c1-416c-8039-5e686cf23409}</UniqueIdentifier>
       <Extensions>hlf</Extensions>
     </Filter>
+    <Filter Include="Lua Files">
+      <UniqueIdentifier>{83777BB8-EFFB-4DAE-B725-B2489A60BE52}</UniqueIdentifier>
+      <Extensions>lua</Extensions>
+    </Filter>
+    <Filter Include="Configuration Files">
+      <UniqueIdentifier>{D2B7A990-2418-447E-B615-BCEC9A202D5C}</UniqueIdentifier>
+      <Extensions>farconfig;ini</Extensions>
+    </Filter>
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +46,15 @@
     </CustomBuild>
     <CustomBuild Include="*.hlf">
       <Filter>Help Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="*.lua">
+      <Filter>Lua Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="*.farconfig">
+      <Filter>Configuration Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="*.ini">
+      <Filter>Configuration Files</Filter>
     </CustomBuild>
     <None Include="*.def">
       <Filter>Source Files</Filter>
