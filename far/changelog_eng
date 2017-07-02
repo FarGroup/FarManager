@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.07.2017 13:53:50 +0000 - build 4982
+
+1. Forum: Weird values in copy/move dialogs
+
+drkns 01.07.2017 13:08:48 +0000 - build 4981
+
+1. Stubs in vc_crt_fix_impl.cpp are replaced with more or less working implementations.
+
+2. Correct the leak detector.
+
+drkns 28.06.2017 19:02:42 +0000 - build 4980
+
+1. Incorrect display of information on locked file.
+
+2. fmt v4.0.0.
+
+3. TinyXML-2 v5.0.1
+
 drkns 25.06.2017 02:03:37 +0000 - build 4979
 
 1. Refactoring.
