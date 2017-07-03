@@ -876,6 +876,8 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
+			if (empty())
+				return 0;
 			*reinterpret_cast<string*>(vParam) = at(SelectPos).strName;
 			return 1;
 		}
