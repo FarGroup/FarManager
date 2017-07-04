@@ -156,6 +156,7 @@ namespace os
 	bool IsWow64Process();
 	DWORD GetAppPathsRedirectionFlag();
 	bool GetDefaultPrinter(string& Printer);
+	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags);
 	bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);

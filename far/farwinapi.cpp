@@ -1850,6 +1850,11 @@ bool GetDefaultPrinter(string& Printer)
 	});
 }
 
+find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter)
+{
+	return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).data(), WatchSubtree, NotifyFilter));
+}
+
 handle OpenCurrentThread()
 {
 	HANDLE Handle;

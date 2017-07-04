@@ -47,17 +47,20 @@ public:
 	bool Signaled() const;
 
 private:
-	void WatchRegister() const;
+	void Register();
+	void PropagateException() const;
 
 	string m_Directory;
 	FILETIME m_PreviousLastWriteTime;
 	FILETIME m_CurrentLastWriteTime;
-	bool m_bOpen;
 	bool m_WatchSubtree;
-	os::event m_WatchRegistered;
-	os::event m_Done;
-	os::event m_DoneDone;
-	os::event m_Changed;
+	mutable os::thread m_RegistrationThread;
+	os::find_notification_handle m_Notification;
+	os::event m_Cancelled;
+	// TODO: optional
+	std::pair<bool, bool> m_IsFatFilesystem;
+	mutable std::exception_ptr m_ExceptionPtr;
+	bool m_IsRegularException{};
 };
 
 #endif // FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
