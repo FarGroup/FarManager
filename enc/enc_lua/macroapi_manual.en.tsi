@@ -1872,7 +1872,7 @@ lv=3
 dt=Text
 nm=Call
 ctime=3560706460
-mtime=3648884251
+mtime=3708724602
 <article>
 #_... = Plugin.Call (PluginId [, ...])
 #_
@@ -1914,6 +1914,7 @@ mtime=3648884251
 #_       FMVT_STRING  -> string (automatically converted from UTF-16LE to UTF-8)
 #_       FMVT_BINARY  -> table (the table contains a string as an element with its key==1;
 #_                              the string is placed as is, without conversion)
+#_       FMVT_POINTER -> light userdata
 #_       FMVT_ARRAY   -> table (array of elements; the table contains 2 fields:
 #_                              ["type"] = "array", and
 #_                              ["n"] = number of array elements)
@@ -1927,6 +1928,7 @@ mtime=3648884251
 #_{fmvt_integer}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_INTEGER
 #_{fmvt_nil}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_NIL
 #_{fmvt_string}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_STRING
+#_{fmvt_pointer}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_POINTER
 #_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
 #_
 #_
