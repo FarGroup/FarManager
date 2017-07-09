@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.07.2017 23:44:29 +0000 - build 4984
+
+1. Automatic update of panels would not work in folders with unusual names.
+
+2. Related to #1 refactoring of filesystemwatcher, which was somewhat unclear.
+
+drkns 03.07.2017 19:31:28 +0000 - build 4983
+
+1. A macro could cause an exception in menu with active filter under some circumstances.
+
 drkns 02.07.2017 13:53:50 +0000 - build 4982
 
 1. Forum: Weird values in copy/move dialogs
