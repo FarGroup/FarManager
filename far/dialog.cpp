@@ -5722,7 +5722,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							LUpdate.Index=ListBox->GetSelectPos();
 							auto& ListMenuItem = ListBox->at(LUpdate.Index);
 							LUpdate.Item.Flags = ListMenuItem.Flags;
-							LUpdate.Item.Text = Ptr;
+							LUpdate.Item.Text = CurItem->strData.data();
 							SendMessage(DM_LISTUPDATE, Param1, &LUpdate);
 
 							break;
