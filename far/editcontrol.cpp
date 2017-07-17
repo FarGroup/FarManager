@@ -168,7 +168,7 @@ static bool ParseStringWithQuotes(const string& Str, string& Start, string& Toke
 	{
 		auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
 		static const auto NoQuote = L"\":\\/%.-"s;
-		WordDiv.erase(std::remove_if(ALL_RANGE(WordDiv), [&](wchar_t i) { return contains(NoQuote, i); }));
+		WordDiv.erase(std::remove_if(ALL_RANGE(WordDiv), [&](wchar_t i) { return contains(NoQuote, i); }), WordDiv.end());
 
 		for (Pos = Str.size() - 1; Pos != static_cast<size_t>(-1); Pos--)
 		{
