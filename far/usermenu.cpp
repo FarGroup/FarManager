@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "blob_builder.hpp"
 #include "string_utils.hpp"
 #include "exception.hpp"
+#include "DlgGuid.hpp"
 
 enum
 {
@@ -318,7 +319,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 	{
 		Global->CatchError(e.get_error_codes());
 		Message(MSG_WARNING | MSG_ERRORTYPE,
-			msg(lng::MError), 
+			msg(lng::MError),
 			{
 				msg(lng::MEditMenuError),
 				e.get_message()
@@ -962,7 +963,8 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			{
 				msg(lng::MAskInsertMenuOrCommand)
 			},
-			{ lng::MMenuInsertCommand, lng::MMenuInsertMenu }))
+			{ lng::MMenuInsertCommand, lng::MMenuInsertMenu },
+			nullptr, &AskInsertMenuOrCommandId))
 		{
 			case -1:
 			case -2:
@@ -1046,6 +1048,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 		const auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
 		Dlg->SetHelp(L"UserMenu");
+		Dlg->SetId(EditUserMenuId);
 		Dlg->SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg->Process();
 
