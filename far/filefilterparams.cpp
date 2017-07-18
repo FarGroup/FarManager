@@ -394,15 +394,15 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 	string strDest;
 
 	const wchar_t DownArrow = L'\x2193';
-	const wchar_t *Name, *Mask;
+	const wchar_t* Name;
+	const wchar_t* Mask = L"";
 	wchar_t MarkChar[]=L"' '";
 	DWORD IncludeAttr, ExcludeAttr;
-	bool UseMask, UseSize, UseHardLinks, UseDate, RelativeDate;
+	bool UseSize, UseHardLinks, UseDate, RelativeDate;
 
 	if (bPanelType)
 	{
 		Name=Title;
-		UseMask=true;
 		Mask=FMask;
 		IncludeAttr=0;
 		ExcludeAttr=FILE_ATTRIBUTE_DIRECTORY;
@@ -416,8 +416,9 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 			*MarkChar=0;
 
 		Name=FF->GetTitle().data();
-		Mask = FF->GetMask().data();
-		UseMask=FF->IsMaskUsed();
+		
+		if (FF->IsMaskUsed())
+			Mask = FF->GetMask().data();
 
 		if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
 			IncludeAttr=ExcludeAttr=0;
@@ -473,7 +474,7 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 	{
 		if (FF->GetContinueProcessing())
 			SizeDate[3]=DownArrow;
-		strDest = format(L"{1:3} {0} {2} {3} {0} {4}", BoxSymbols[BS_V1], MarkChar, Attr, SizeDate, UseMask? Mask : L"");
+		strDest = format(L"{1:3} {0} {2} {3} {0} {4}", BoxSymbols[BS_V1], MarkChar, Attr, SizeDate, Mask);
 	}
 	else
 	{
@@ -481,14 +482,14 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 
 		if (!Hotkey && !bPanelType)
 		{
-			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Name, 21 + (wcschr(Name, L'&')? 1 : 0), Attr, SizeDate, UseMask? Mask : L"");
+			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Name, 21 + (wcschr(Name, L'&')? 1 : 0), Attr, SizeDate, Mask);
 		}
 		else
 		{
 			if (Hotkey)
-				strDest = format(L"&{1}. {2:18.18} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Hotkey, Name, Attr, SizeDate, UseMask? Mask : L"");
+				strDest = format(L"&{1}. {2:18.18} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Hotkey, Name, Attr, SizeDate, Mask);
 			else
-				strDest = format(L"   {1:18.18} {0} {2} {3} {0} {4}", BoxSymbols[BS_V1], Name, Attr, SizeDate, UseMask? Mask : L"");
+				strDest = format(L"   {1:18.18} {0} {2} {3} {0} {4}", BoxSymbols[BS_V1], Name, Attr, SizeDate, Mask);
 		}
 	}
 

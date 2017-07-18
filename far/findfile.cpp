@@ -2495,7 +2495,7 @@ void background_searcher::DoPrepareFileList()
 				continue;
 			}
 
-			if (std::none_of(CONST_RANGE(Volumes, i) {return i.compare(0, VolumeName.size(), VolumeName) == 0;}))
+			if (std::none_of(CONST_RANGE(Volumes, i) { return starts_with(i, VolumeName); }))
 			{
 				append(InitString, VolumeName, L';');
 			}

@@ -3859,17 +3859,25 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 
 		if (CallDialog)
 		{
-			fgv.Value.Type=(FARMACROVARTYPE)Ret.type();
 			switch (Ret.type())
 			{
 				case vtUnknown:
+					fgv.Value.Type = FMVT_UNKNOWN;
+					fgv.Value.Integer = Ret.asInteger();
+					break;
+
 				case vtInteger:
+					fgv.Value.Type = FMVT_INTEGER;
 					fgv.Value.Integer=Ret.asInteger();
 					break;
+
 				case vtString:
+					fgv.Value.Type = FMVT_STRING;
 					fgv.Value.String=Ret.asString().data();
 					break;
+
 				case vtDouble:
+					fgv.Value.Type = FMVT_DOUBLE;
 					fgv.Value.Double=Ret.asDouble();
 					break;
 			}

@@ -120,4 +120,6 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
 #define REQUIRES(...) std::enable_if_t<__VA_ARGS__>* = nullptr
 
+#define FWD(x) std::forward<decltype(x)>(x)
+
 #endif // PREPROCESSOR_HPP_35FF3F1D_40F4_4741_9366_6A0723C14CBB

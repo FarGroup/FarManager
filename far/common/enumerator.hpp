@@ -107,7 +107,7 @@ class inline_enumerator: public enumerator<inline_enumerator<value_type, callabl
 
 public:
 	explicit inline_enumerator(callable&& Callable):
-		m_Callable(std::forward<callable>(Callable))
+		m_Callable(FWD(Callable))
 	{
 	}
 
@@ -123,7 +123,7 @@ private:
 template<typename value_type, typename callable>
 auto make_inline_enumerator(callable&& Callable)
 {
-	return inline_enumerator<value_type, callable>(std::forward<callable>(Callable));
+	return inline_enumerator<value_type, callable>(FWD(Callable));
 }
 
 #endif // ENUMERATOR_HPP_6BCD3B36_3A68_400C_82B5_AB3644D0A874

@@ -181,13 +181,13 @@ namespace detail
 template<typename container, typename... args>
 std::enable_if_t<detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
 {
-	Container.emplace_hint(Container.end(), std::forward<args>(Args)...);
+	Container.emplace_hint(Container.end(), FWD(Args)...);
 }
 
 template<typename container, typename... args>
 std::enable_if_t<!detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
 {
-	Container.emplace(Container.end(), std::forward<args>(Args)...);
+	Container.emplace(Container.end(), FWD(Args)...);
 }
 
 

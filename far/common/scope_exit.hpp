@@ -56,7 +56,7 @@ namespace scope_exit
 		NONCOPYABLE(scope_guard);
 		MOVABLE(scope_guard);
 
-		explicit scope_guard(F&& f): m_f(std::forward<F>(f)) {}
+		explicit scope_guard(F&& f): m_f(FWD(f)) {}
 
 		~scope_guard() noexcept(Type == scope_type::fail)
 		{
@@ -75,7 +75,7 @@ namespace scope_exit
 	{
 	public:
 		template<typename F>
-		auto operator << (F&& f) { return scope_guard<F, Type>(std::forward<F>(f)); }
+		auto operator << (F&& f) { return scope_guard<F, Type>(FWD(f)); }
 	};
 }
 

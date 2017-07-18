@@ -188,13 +188,13 @@ namespace detail
 	template<typename function, typename... args, REQUIRES(std::is_void<std::result_of_t<function(args...)>>::value)>
 	void ExecuteFunctionImpl(ExecuteStruct&, const function& Function, args&&... Args)
 	{
-		Function(std::forward<args>(Args)...);
+		Function(FWD(Args)...);
 	}
 
 	template<typename function, typename... args, REQUIRES(!std::is_void<std::result_of_t<function(args...)>>::value)>
 	void ExecuteFunctionImpl(ExecuteStruct& es, const function& Function, args&&... Args)
 	{
-		es = Function(std::forward<args>(Args)...);
+		es = Function(FWD(Args)...);
 	}
 }
 
@@ -301,12 +301,12 @@ protected:
 
 		const auto& ProcessException = [&](const auto& Handler, auto&&... ProcArgs)
 		{
-			Handler(std::forward<decltype(ProcArgs)>(ProcArgs)..., m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
+			Handler(FWD(ProcArgs)..., m_Factory->ExportsNames()[T::export_id::value].UName, this)? HandleFailure(T::export_id::value) : throw;
 		};
 
 		try
 		{
-			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(Exports[T::export_id::value].first), std::forward<args>(Args)...);
+			detail::ExecuteFunctionImpl(es, reinterpret_cast<prototype_t<T::export_id::value, T::native::value>>(Exports[T::export_id::value].first), FWD(Args)...);
 			RethrowIfNeeded(GlobalExceptionPtr());
 			m_Factory->ProcessError(m_Factory->ExportsNames()[T::export_id::value].UName);
 		}
@@ -326,7 +326,7 @@ protected:
 		seh_invoke_with_ui(
 		[&]
 		{
-			ExecuteFunctionSeh(es, std::forward<args>(Args)...);
+			ExecuteFunctionSeh(es, FWD(Args)...);
 		},
 		[this]
 		{

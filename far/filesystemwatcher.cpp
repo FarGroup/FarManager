@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "farexcpt.hpp"
 #include "pathmix.hpp"
+#include "string_utils.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
 	m_PreviousLastWriteTime(),
@@ -92,7 +93,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 			{
 				string strFileSystem;
 				if (os::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
-					m_IsFatFilesystem.first = !strFileSystem.compare(0, 3, L"FAT", 3);
+					m_IsFatFilesystem.first = starts_with(strFileSystem, L"FAT"_sv);
 			}
 
 			m_IsFatFilesystem.second = true;

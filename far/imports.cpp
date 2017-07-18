@@ -46,7 +46,7 @@ const ImportedFunctions& Imports()
 ImportedFunctions::ImportedFunctions():
 #define INIT_MODULE(module) m_ ## module(L## #module)
 
-INIT_MODULE(ntdll),
+	INIT_MODULE(ntdll),
 	INIT_MODULE(kernel32),
 	INIT_MODULE(shell32),
 	INIT_MODULE(user32),

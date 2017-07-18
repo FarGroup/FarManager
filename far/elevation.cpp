@@ -146,7 +146,7 @@ template<typename T, typename... args>
 void elevation::Write(const T& Data, args&&... Args) const
 {
 	WriteArg(Data);
-	Write(std::forward<args>(Args)...);
+	Write(FWD(Args)...);
 }
 
 template<typename T>
@@ -791,8 +791,8 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 
 	if(UseNtStatus && Imports().RtlGetLastNtStatus)
 	{
-			const auto LastNtStatus = os::GetLastNtStatus();
-			return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
+		const auto LastNtStatus = os::GetLastNtStatus();
+		return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
 	}
 
 	// RtlGetLastNtStatus not implemented in w2k.
@@ -889,7 +889,7 @@ private:
 	{
 		if (!pipe::Write(m_Pipe, Data))
 			throw MAKE_FAR_EXCEPTION(L"Pipe write error");
-		Write(std::forward<args>(Args)...);
+		Write(FWD(Args)...);
 	}
 
 	void ExitHandler() const

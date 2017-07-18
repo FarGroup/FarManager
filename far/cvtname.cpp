@@ -264,7 +264,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 			const auto Enumerator = os::fs::enum_drives(os::fs::get_logical_drives());
 			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 			{
-				return os::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) && Path.compare(0, DirectoryOffset, strVolumeGuid.data(), DirectoryOffset) == 0;
+				return os::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) && starts_with(Path, { strVolumeGuid.data(), DirectoryOffset });
 			});
 			if (ItemIterator != Enumerator.cend())
 			{

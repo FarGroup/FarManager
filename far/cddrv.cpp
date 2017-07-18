@@ -108,22 +108,19 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 	});
 }
 
-static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
+static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS& Sptwb)
 {
-	*pSptwb = {};
+	Sptwb = {};
 
-	pSptwb->Spt.PathId = 0;
-	pSptwb->Spt.TargetId = 1;
-	pSptwb->Spt.Length = sizeof(SCSI_PASS_THROUGH);
-	pSptwb->Spt.SenseInfoLength = 24;
-	pSptwb->Spt.SenseInfoOffset = static_cast<ULONG>(offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, SenseBuf));
-	pSptwb->Spt.DataTransferLength = sizeof(pSptwb->DataBuf);
-	pSptwb->Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, DataBuf);
-	pSptwb->Spt.DataIn = SCSI_IOCTL_DATA_IN;
-	pSptwb->Spt.TimeOutValue = 2;
-
-	ClearArray(pSptwb->DataBuf);
-	ClearArray(pSptwb->Spt.Cdb);
+	Sptwb.Spt.PathId = 0;
+	Sptwb.Spt.TargetId = 1;
+	Sptwb.Spt.Length = sizeof(Sptwb.Spt);
+	Sptwb.Spt.SenseInfoLength = 24;
+	Sptwb.Spt.SenseInfoOffset = static_cast<ULONG>(offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, SenseBuf));
+	Sptwb.Spt.DataTransferLength = sizeof(Sptwb.DataBuf);
+	Sptwb.Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, DataBuf);
+	Sptwb.Spt.DataIn = SCSI_IOCTL_DATA_IN;
+	Sptwb.Spt.TimeOutValue = 2;
 }
 
 static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
@@ -133,7 +130,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 	SCSI_PASS_THROUGH_WITH_BUFFERS sptwb;
 	const auto sDataLength = sizeof(sptwb.DataBuf);
 
-	InitSCSIPassThrough(&sptwb);
+	InitSCSIPassThrough(sptwb);
 
 	//MODE SENSE FIRST
 	sptwb.Spt.Cdb[0] = SCSIOP_MODE_SENSE;
@@ -189,7 +186,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 	}
 
 	// GET CONFIGURATION NOW
-	InitSCSIPassThrough(&sptwb);
+	InitSCSIPassThrough(sptwb);
 
 	sptwb.Spt.Cdb[0] = 0x46; //GET CONFIGURATION
 	sptwb.Spt.Cdb[7] = static_cast<unsigned char>(sDataLength >> 8);	// Allocation length (MSB).
@@ -322,36 +319,34 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 		}
 	}
 
-	return (CDROM_DeviceCapabilities)caps;
+	return static_cast<CDROM_DeviceCapabilities>(caps);
 }
 
 static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Device)
 {
-	STORAGE_DESCRIPTOR_HEADER hdr = {};
-	STORAGE_PROPERTY_QUERY query = {StorageDeviceProperty, PropertyStandardQuery};
+	STORAGE_DESCRIPTOR_HEADER hdr{};
+	STORAGE_PROPERTY_QUERY query{ StorageDeviceProperty, PropertyStandardQuery };
 	DWORD returnedLength;
-	if (Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), &hdr, sizeof(hdr), &returnedLength) && hdr.Size)
-	{
-		std::vector<char> Buffer(hdr.Size);
-		if (Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
-		{
-			const auto devDesc = reinterpret_cast<const PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), &hdr, sizeof(hdr), &returnedLength) || !hdr.Size)
+		return CAPABILITIES_NONE;
 
-			if (devDesc->ProductIdOffset && Buffer[devDesc->ProductIdOffset])
-			{
-				return getCapsUsingProductId(&Buffer[devDesc->ProductIdOffset]);
-			}
-		}
-	}
+	std::vector<char> Buffer(hdr.Size);
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
+		return CAPABILITIES_NONE;
 
-	return CAPABILITIES_NONE;
+	const auto devDesc = reinterpret_cast<const PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
+
+	if (!devDesc->ProductIdOffset || !Buffer[devDesc->ProductIdOffset])
+		return CAPABILITIES_NONE;
+
+	return getCapsUsingProductId(&Buffer[devDesc->ProductIdOffset]);
 }
 
 static CDROM_DeviceCapabilities GetDeviceCapabilities(const os::fs::file& Device)
 {
 	auto caps = getCapsUsingMagic(Device);
 
-	if ( caps == CAPABILITIES_NONE )
+	if (caps == CAPABILITIES_NONE)
 		caps = getCapsUsingDeviceProps(Device);
 
 	return caps;
@@ -404,8 +399,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		string VolumePath = strRootDir;
 		DeleteEndSlash(VolumePath);
 
-		constexpr auto UncPathPrefix = L"\\\\?\\"_sv;
-		if (VolumePath.compare(0, UncPathPrefix.size(), UncPathPrefix.data()) == 0)
+		if (starts_with(VolumePath, L"\\\\?\\"_sv))
 		{
 			VolumePath[2] = L'.';
 		}

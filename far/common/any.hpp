@@ -47,7 +47,7 @@ namespace detail
 	public:
 		template<class Y>
 		explicit any_impl(Y&& Data):
-			m_Data(std::forward<Y>(Data))
+			m_Data(FWD(Data))
 		{
 		}
 
@@ -76,7 +76,7 @@ public:
 
 	template<class T>
 	any(T&& rhs):
-		m_Data(construct(std::forward<T>(rhs)))
+		m_Data(construct(FWD(rhs)))
 	{
 	}
 
@@ -91,7 +91,7 @@ public:
 	template<class T>
 	any& operator=(T&& rhs)
 	{
-		any Tmp(std::forward<T>(rhs));
+		any Tmp(FWD(rhs));
 		using std::swap;
 		swap(*this, Tmp);
 		return *this;
@@ -113,7 +113,7 @@ private:
 	template<class T, REQUIRES(!std::is_same<std::decay_t<T>, any>::value)>
 	static std::unique_ptr<detail::any_base> construct(T&& rhs)
 	{
-		return std::make_unique<detail::any_impl<std::decay_t<T>>>(std::forward<T>(rhs));
+		return std::make_unique<detail::any_impl<std::decay_t<T>>>(FWD(rhs));
 	}
 
 	static std::unique_ptr<detail::any_base> construct(const any& rhs)

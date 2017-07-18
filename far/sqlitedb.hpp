@@ -85,7 +85,7 @@ protected:
 		template<typename arg, typename... args>
 		auto& Bind(arg&& Arg, args&&... Args)
 		{
-			return BindImpl(std::forward<arg>(Arg)), Bind(std::forward<args>(Args)...);
+			return BindImpl(FWD(Arg)), Bind(FWD(Args)...);
 		}
 
 		const wchar_t *GetColText(int Col) const;
@@ -170,7 +170,7 @@ protected:
 	template<typename... args>
 	auto ExecuteStatement(size_t Index, args&&... Args) const
 	{
-		return AutoStatement(Index)->Bind(std::forward<args>(Args)...).FinalStep();
+		return AutoStatement(Index)->Bind(FWD(Args)...).FinalStep();
 	}
 
 private:

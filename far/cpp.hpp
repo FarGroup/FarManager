@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "common/compiler.hpp"
+#include "common/preprocessor.hpp"
 
 #if COMPILER == C_GCC
 // These inline implementations in gcc/cwchar are wrong and non-compilable if _CONST_RETURN is defined.
@@ -145,7 +146,7 @@ namespace std
 	template<typename... args>
 	decltype(auto) invoke(args&&... Args)
 	{
-		return __invoke(std::forward<args>(Args)...);
+		return __invoke(FWD(Args)...);
 	}
 }
 #endif
@@ -158,14 +159,14 @@ namespace std
 		template <class F, class Tuple, size_t... I>
 		constexpr decltype(auto) apply_impl(F&& f, Tuple&& t, std::index_sequence<I...>)
 		{
-			return std::invoke(std::forward<F>(f), std::get<I>(std::forward<Tuple>(t))...);
+			return std::invoke(FWD(f), std::get<I>(FWD(t))...);
 		}
 	}
 
 	template <class F, class Tuple>
 	constexpr decltype(auto) apply(F&& f, Tuple&& t)
 	{
-		return detail::apply_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>{});
+		return detail::apply_impl(FWD(f), FWD(t), std::make_index_sequence<std::tuple_size<std::decay_t<Tuple>>::value>{});
 	}
 }
 #endif

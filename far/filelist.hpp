@@ -402,9 +402,9 @@ private:
 		decltype(auto) resize(size_t Size) { return Items.resize(Size); }
 		decltype(auto) reserve(size_t Size) { return Items.reserve(Size); }
 		template<typename... args>
-		decltype(auto) emplace_back(args&&... Args) { return Items.emplace_back(std::forward<args>(Args)...); }
+		decltype(auto) emplace_back(args&&... Args) { return Items.emplace_back(FWD(Args)...); }
 		template<typename T>
-		decltype(auto) push_back(T&& Value) { return Items.push_back(std::forward<T>(Value)); }
+		decltype(auto) push_back(T&& Value) { return Items.push_back(FWD(Value)); }
 	private:
 		std::vector<FileListItem> Items;
 		plugin_panel* m_Plugin{};

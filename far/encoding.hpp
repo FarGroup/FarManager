@@ -128,16 +128,16 @@ namespace encoding
 		{
 		public:
 			template<class... args>
-			static auto get_bytes_count(args&&... Args) { return encoding::get_bytes_count(Codepage, std::forward<args>(Args)...); }
+			static auto get_bytes_count(args&&... Args) { return encoding::get_bytes_count(Codepage, FWD(Args)...); }
 
 			template<class... args>
-			static auto get_bytes(args&&... Args) { return encoding::get_bytes(Codepage, std::forward<args>(Args)...); }
+			static auto get_bytes(args&&... Args) { return encoding::get_bytes(Codepage, FWD(Args)...); }
 
 			template<class... args>
-			static auto get_chars_count(args&&... Args) { return encoding::get_chars_count(Codepage, std::forward<args>(Args)...); }
+			static auto get_chars_count(args&&... Args) { return encoding::get_chars_count(Codepage, FWD(Args)...); }
 
 			template<class... args>
-			static auto get_chars(args&&... Args) { return encoding::get_chars(Codepage, std::forward<args>(Args)...); }
+			static auto get_chars(args&&... Args) { return encoding::get_chars(Codepage, FWD(Args)...); }
 		};
 	}
 

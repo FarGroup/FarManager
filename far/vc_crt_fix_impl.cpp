@@ -124,10 +124,13 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 					wchar_t Buffer[MAX_PATH];
 					if (!GetModuleFileNameW(ModuleValue, Buffer, ARRAYSIZE(Buffer)))
 						return FALSE;
-					LoadLibraryW(Buffer);
+					// It's the same so not really necessary, but analysers report handle leak otherwise.
+					*Module = LoadLibraryW(Buffer);
 				}
-
-				*Module = ModuleValue;
+				else
+				{
+					*Module = ModuleValue;
+				}
 				return TRUE;
 			}
 
@@ -165,6 +168,13 @@ namespace slist
 		public:
 			critical_section() { InitializeCriticalSection(&m_Lock); }
 			~critical_section() { DeleteCriticalSection(&m_Lock); }
+
+			critical_section(const critical_section&) = delete;
+			critical_section(critical_section&&) = default;
+
+			critical_section& operator=(const critical_section&) = delete;
+			critical_section& operator=(critical_section&&) = default;
+
 			void lock() { EnterCriticalSection(&m_Lock); }
 			void unlock() { LeaveCriticalSection(&m_Lock); }
 

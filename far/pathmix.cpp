@@ -481,9 +481,9 @@ bool IsRootPath(const string &Path)
 
 bool PathStartsWith(const string &Path, const string &Start)
 {
-	string PathPart(Start);
+	auto PathPart = Start;
 	DeleteEndSlash(PathPart);
-	return Path.compare(0, PathPart.size(), PathPart) == 0 && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
+	return starts_with(Path, PathPart) && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
 }
 
 void TestPathParser()

@@ -79,7 +79,7 @@ public:
 	template<typename callable, typename... args>
 	thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
 	{
-		starter(std::bind(std::forward<callable>(Callable), std::forward<args>(Args)...));
+		starter(std::bind(FWD(Callable), FWD(Args)...));
 	}
 
 	~thread()
@@ -209,13 +209,13 @@ public:
 	void emplace(args... Args)
 	{
 		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
-		m_Queue.emplace(std::forward<args>(Args)...);
+		m_Queue.emplace(FWD(Args)...);
 	}
 
 	void push(T&& item)
 	{
 		SCOPED_ACTION(critical_section_lock)(m_QueueCS);
-		m_Queue.push(std::forward<T>(item));
+		m_Queue.push(FWD(item));
 	}
 
 	bool try_pop(T& To)

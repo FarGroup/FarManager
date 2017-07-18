@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "elevation.hpp"
 #include "cvtname.hpp"
+#include "string_utils.hpp"
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
@@ -398,12 +399,12 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 			string Name;
 			if (os::QueryDosDevice(DeviceName, Name))
 			{
-				if (Name.compare(0, 8, L"\\??\\UNC\\") == 0)
+				if (starts_with(Name, L"\\??\\UNC\\"_sv))
 				{
 					strTargetPath = L"\\\\" + Name.substr(8);
 					Ret = true;
 				}
-				else if (Name.compare(0, 4, L"\\??\\") == 0)
+				else if (starts_with(Name, L"\\??\\"_sv))
 				{
 					strTargetPath=Name.substr(4);
 					Ret=true;
@@ -517,7 +518,7 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (strLinkName.compare(0, 4, L"\\??\\"))
+	if (!starts_with(strLinkName, L"\\??\\"_sv))
 		return;
 
 	strLinkName[1] = L'\\';

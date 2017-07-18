@@ -41,7 +41,7 @@ public:
 	NONCOPYABLE(NamesList);
 	MOVABLE(NamesList);
 
-	NamesList(): CurPos(Names.end()) {};
+	NamesList(): CurPos(Names.end()) {}
 
 	void AddName(const string& Name);
 	bool GetNextName(string& strName);

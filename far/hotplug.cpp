@@ -186,7 +186,7 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 	const auto Enumerator = os::fs::enum_drives(Drives);
 	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 	{
-		return os::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strCurrentVolumeName) && strCurrentVolumeName.compare(0, VolumeName.size(), VolumeName) == 0;
+		return os::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strCurrentVolumeName) && starts_with(strCurrentVolumeName, VolumeName);
 	});
 	if (ItemIterator != Enumerator.cend() && os::fs::is_standard_drive_letter(*ItemIterator))
 	{

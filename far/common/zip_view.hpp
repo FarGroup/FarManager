@@ -89,7 +89,7 @@ namespace detail
 	void check(arg&&, args&&... Args)
 	{
 		static_assert(std::is_lvalue_reference<arg>::value);
-		check(std::forward<args>(Args)...);
+		check(FWD(Args)...);
 	}
 }
 
@@ -129,7 +129,7 @@ public:
 		m_Begin(std::begin(Args)...),
 		m_End(std::end(Args)...)
 	{
-		detail::check(std::forward<args>(Args)...);
+		detail::check(FWD(Args)...);
 	}
 
 	auto begin() const { return m_Begin; }
@@ -145,7 +145,7 @@ private:
 template<typename... args>
 auto zip(args&&... Args)
 {
-	return zip_view<args...>(std::forward<args>(Args)...);
+	return zip_view<args...>(FWD(Args)...);
 }
 
 #endif // ZIP_VIEW_HPP_92A80223_8204_4A14_AACC_93D632A39884

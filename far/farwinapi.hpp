@@ -276,7 +276,7 @@ namespace os
 			template<typename... args>
 			explicit file(args... Args)
 			{
-				Open(std::forward<args>(Args)...);
+				Open(FWD(Args)...);
 			}
 
 			bool operator!() const noexcept { return !m_Handle; }

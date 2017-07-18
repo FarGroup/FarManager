@@ -44,8 +44,8 @@ namespace detail
 	template<typename arg, typename... args>
 	void append_impl(string& Str, const size_t* Sizes, arg&& Arg, args&&... Args)
 	{
-		append_one(Str, std::forward<arg>(Arg), *Sizes);
-		append_impl(Str, Sizes + 1, std::forward<args>(Args)...);
+		append_one(Str, FWD(Arg), *Sizes);
+		append_impl(Str, Sizes + 1, FWD(Args)...);
 	}
 
 	template<typename T, REQUIRES(std::is_same<T, wchar_t>::value)>
@@ -67,8 +67,8 @@ namespace detail
 	template<typename arg, typename... args>
 	size_t size_impl(size_t* Sizes, arg&& Arg, args&&... Args)
 	{
-		*Sizes = size_one(std::forward<arg>(Arg));
-		return *Sizes + size_impl(Sizes + 1, std::forward<args>(Args)...);
+		*Sizes = size_one(FWD(Arg));
+		return *Sizes + size_impl(Sizes + 1, FWD(Args)...);
 	}
 }
 
@@ -76,15 +76,15 @@ template<typename... args>
 void append(string& Str, args&&... Args)
 {
 	size_t Sizes[sizeof...(Args)];
-	Str.reserve(Str.size() + detail::size_impl(Sizes, std::forward<args>(Args)...));
-	detail::append_impl(Str, Sizes, std::forward<args>(Args)...);
+	Str.reserve(Str.size() + detail::size_impl(Sizes, FWD(Args)...));
+	detail::append_impl(Str, Sizes, FWD(Args)...);
 }
 
 template<typename... args>
 auto concat(args&&... Args)
 {
 	string Str;
-	append(Str, std::forward<args>(Args)...);
+	append(Str, FWD(Args)...);
 	return Str;
 }
 

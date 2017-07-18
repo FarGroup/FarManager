@@ -163,7 +163,7 @@ strType - сюда запишется результат, если будет н
 */
 static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strType)
 {
-	for (const auto& i: os::reg::enum_value(hExtKey.get(), L"OpenWithProgids", KEY_ENUMERATE_SUB_KEYS))
+	for (const auto& i: os::reg::enum_value(hExtKey.get(), L"OpenWithProgIds", KEY_ENUMERATE_SUB_KEYS))
 	{
 		if (i.Type() == REG_SZ && IsProperProgID(i.Name()))
 		{

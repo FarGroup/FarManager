@@ -88,19 +88,19 @@ template<class function, class handler>
 auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const wchar_t* Function, Plugin* Module = nullptr)
 {
 	int SehFilter(int, EXCEPTION_POINTERS*, const wchar_t*, Plugin*);
-	return seh_invoke(std::forward<function>(Callable), [&](auto Code, auto Info) { return SehFilter(Code, Info, Function, Module); }, std::forward<handler>(Handler));
+	return seh_invoke(FWD(Callable), [&](auto Code, auto Info) { return SehFilter(Code, Info, Function, Module); }, FWD(Handler));
 }
 
 template<class function, class handler>
 auto seh_invoke_no_ui(function&& Callable, handler&& Handler)
 {
-	return seh_invoke(std::forward<function>(Callable), [](auto, auto) { return EXCEPTION_EXECUTE_HANDLER; }, std::forward<handler>(Handler));
+	return seh_invoke(FWD(Callable), [](auto, auto) { return EXCEPTION_EXECUTE_HANDLER; }, FWD(Handler));
 }
 
 template<class function>
 auto seh_invoke_thread(std::exception_ptr& ExceptionPtr, function&& Callable)
 {
-	return seh_invoke(std::forward<function>(Callable), [&](auto Code, auto Info)
+	return seh_invoke(FWD(Callable), [&](auto Code, auto Info)
 	{
 		ExceptionPtr = std::make_exception_ptr(seh_exception(Code, Info, true));
 		return EXCEPTION_EXECUTE_HANDLER;

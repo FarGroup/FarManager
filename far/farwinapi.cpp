@@ -1601,7 +1601,7 @@ static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalF
 
 	const auto& ReplaceRoot = [&](const auto& OldRoot, const auto& NewRoot)
 	{
-		if (NtPath.compare(0, OldRoot.size(), OldRoot.data()))
+		if (!starts_with(NtPath, OldRoot))
 			return false;
 		FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.data(), NewRoot.size());
 		return true;
@@ -1617,7 +1617,7 @@ static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalF
 		const auto Device = os::fs::get_drive(i);
 		if (const auto Len = MatchNtPathRoot(NtPath, Device))
 		{
-			FinalFilePath = NtPath.compare(0, 14, L"\\Device\\WinDfs")? NtPath.replace(0, Len, Device) : NtPath.replace(0, Len, 1, L'\\');
+			FinalFilePath = starts_with(NtPath, L"\\Device\\WinDfs"_sv)? NtPath.replace(0, Len, 1, L'\\') : NtPath.replace(0, Len, Device);
 			return true;
 		}
 	}

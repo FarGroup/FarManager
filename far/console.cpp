@@ -252,18 +252,19 @@ virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const override
 {
 	DWORD dwNumberOfEventsRead = 0;
-	bool Result=ReadConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead)!=FALSE;
-	if (Result)
+	if (!ReadConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead))
+		return false;
+
+	NumberOfEventsRead = dwNumberOfEventsRead;
+
+	if (Global->Opt->WindowMode)
 	{
-		NumberOfEventsRead = dwNumberOfEventsRead;
-		if (Global->Opt->WindowMode)
-		{
-			COORD Size = {};
-			GetSize(Size);
-			AdjustMouseEvents(Buffer, NumberOfEventsRead, GetDelta(), Size.X - 1);
-		}
+		COORD Size = {};
+		GetSize(Size);
+		AdjustMouseEvents(Buffer, NumberOfEventsRead, GetDelta(), Size.X - 1);
 	}
-	return Result;
+
+	return true;
 }
 
 virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const override
@@ -677,13 +678,11 @@ virtual bool IsFullscreenSupported() const override
 #ifdef _WIN64
 	return false;
 #else
-	bool Result = true;
-	CONSOLE_SCREEN_BUFFER_INFOEX csbiex = {sizeof(csbiex)};
+	CONSOLE_SCREEN_BUFFER_INFOEX csbiex{ sizeof(csbiex) };
 	if(Imports().GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
-	{
-		Result = csbiex.bFullscreenSupported != FALSE;
-	}
-	return Result;
+		return csbiex.bFullscreenSupported != FALSE;
+
+	return true;
 #endif
 }
 
@@ -832,7 +831,7 @@ private:
 		os::rtdl::function_pointer<BOOL(WINAPI*)(const FarColor* Color, int Mode)> pClearExtraRegions;
 		os::rtdl::function_pointer<BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent)> pGetColorDialog;
 
-		ModuleImports(const os::rtdl::module& Module):
+		explicit ModuleImports(const os::rtdl::module& Module):
 #define INIT_IMPORT(name) p ## name(Module, #name)
 			INIT_IMPORT(ReadOutput),
 			INIT_IMPORT(WriteOutput),

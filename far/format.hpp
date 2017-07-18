@@ -43,13 +43,13 @@ WARNING_POP()
 template<typename F, typename... args>
 auto format(F&& Format, args&&... Args)
 {
-	return fmt::format(std::forward<F>(Format), std::forward<args>(Args)...);
+	return fmt::format(FWD(Format), FWD(Args)...);
 }
 
 template<typename T>
 auto str(T&& Value)
 {
-	return format(L"{0}", std::forward<T>(Value));
+	return format(L"{0}", FWD(Value));
 }
 
 template<typename T>

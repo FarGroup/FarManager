@@ -87,6 +87,7 @@ VMenu::VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentD
 	bFilterLocked(false),
 	ItemHiddenCount(0),
 	ItemSubMenusCount(0),
+	Colors(),
 	MaxLineWidth(),
 	bRightBtnPressed(),
 	MenuId(FarGuid)
