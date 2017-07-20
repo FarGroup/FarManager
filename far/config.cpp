@@ -2136,7 +2136,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 			{
 				const auto DotPos = ovr.first.rfind(L'.');
 				if (DotPos != string::npos &&
-					starts_with_icase(ovr.first, string_view(j.KeyName, DotPos)) &&
+					starts_with_icase(ovr.first, { j.KeyName, DotPos }) &&
 					equal_icase(make_string_view(ovr.first, DotPos + 1), j.ValName))
 				{
 					// TODO: log if failed

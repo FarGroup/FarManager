@@ -123,11 +123,10 @@ public:
 	~PluginManager();
 
 	// API functions
-	// BUGBUG plugin_panel* can be a pointer to some valid data, nullptr or PANEL_STOP. Consider changing to variant.
-	plugin_panel* Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item);
-	plugin_panel* OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type);
-	plugin_panel* OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
-	static void ClosePanel(const plugin_panel* hPlugin);
+	std::unique_ptr<plugin_panel> Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item) const;
+	std::unique_ptr<plugin_panel> OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type);
+	std::unique_ptr<plugin_panel> OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
+	static void ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin);
 	static void GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo *Info);
 	static int GetFindData(const plugin_panel* hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int OpMode);
 	static void FreeFindData(const plugin_panel* hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
@@ -198,7 +197,7 @@ public:
 	int ProcessCommandLine(const string& Command, panel_ptr Target = nullptr);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
-	int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
+	bool CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
 	bool CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
 	void RefreshPluginsList();
 

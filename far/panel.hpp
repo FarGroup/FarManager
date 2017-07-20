@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "panelfwd.hpp"
+//BUGBUG
+#include "plugins.hpp"
 
 class DizList;
 
@@ -132,7 +134,6 @@ class VMenu2;
 class Edit;
 struct PanelMenuItem;
 class Viewer;
-class plugin_panel;
 class FilePanels;
 
 class Panel: public ScreenObject, public std::enable_shared_from_this<Panel>
@@ -163,7 +164,7 @@ public:
 	virtual void SetReturnCurrentFile(bool Mode) {}
 	virtual void QViewDelTempName() {}
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const {}
-	virtual void SetPluginMode(plugin_panel* hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
+	virtual void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin,const string& PluginFile,bool SendOnFocus=false) {}
 	virtual void SetPluginModified() {}
 	virtual bool ProcessPluginEvent(int Event,void *Param) {return false;}
 	virtual plugin_panel* GetPluginHandle() const {return nullptr;}

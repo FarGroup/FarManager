@@ -549,7 +549,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         L"PrevDirectoriesFirst=%02d "
 				         L"HostFile=%s\n",
 				         I,
-				         ListItems[I].m_Plugin,
+				         ListItems[I].m_Plugin.get(),
 				         (ListItems[I].m_Modified?L"True ":L"False"),
 				         ListItems[I].m_PrevViewMode,
 				         static_cast<int>(ListItems[I].m_PrevSortMode),

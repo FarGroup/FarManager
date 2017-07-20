@@ -806,7 +806,7 @@ string& FarFormatText(const string& SrcText,      // источник
 			{
 				if (text[i+l] == breakchar[0])
 				{
-					if (breakcharlen == 1 || starts_with(text+i+l, string_view(breakchar, breakcharlen)))
+					if (breakcharlen == 1 || starts_with(text + i + l, { breakchar, breakcharlen }))
 						break;
 				}
 

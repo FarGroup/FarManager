@@ -1211,7 +1211,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	}
 	else //эта плагин, да
 	{
-		const auto hPlugin = Global->CtrlObject->Plugins->Open(
+		auto hPlugin = Global->CtrlObject->Plugins->Open(
 			mitem->pPlugin,
 			Owner->Parent()->IsLeft(Owner)? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU,
 			mitem->Guid,
@@ -1221,7 +1221,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		{
 			const auto IsActive = Owner->IsFocused();
 			const auto NewPanel = Owner->Parent()->ChangePanel(Owner, panel_type::FILE_PANEL, TRUE, TRUE);
-			NewPanel->SetPluginMode(hPlugin, L"", IsActive || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+			NewPanel->SetPluginMode(std::move(hPlugin), L"", IsActive || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
 			NewPanel->Show();
 

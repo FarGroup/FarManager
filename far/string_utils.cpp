@@ -151,22 +151,22 @@ bool equal_icase(const string_view& Str1, const string_view& Str2)
 
 bool starts_with(const string_view& Str, const string_view& Prefix)
 {
-	return Str.size() >= Prefix.size() && equal(string_view(Str.data(), Prefix.size()), Prefix);
+	return Str.size() >= Prefix.size() && equal({ Str.data(), Prefix.size() }, Prefix);
 }
 
 bool starts_with_icase(const string_view& Str, const string_view& Prefix)
 {
-	return Str.size() >= Prefix.size() && equal_icase(string_view(Str.data(), Prefix.size()), Prefix);
+	return Str.size() >= Prefix.size() && equal_icase({ Str.data(), Prefix.size() }, Prefix);
 }
 
 bool ends_with(const string_view& Str, const string_view& Suffix)
 {
-	return Str.size() >= Suffix.size() && equal(string_view(Str.data() + Str.size() - Suffix.size(), Suffix.size()), Suffix);
+	return Str.size() >= Suffix.size() && equal({ Str.data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
 }
 
 bool ends_with_icase(const string_view& Str, const string_view& Suffix)
 {
-	return Str.size() >= Suffix.size() && equal_icase(string_view(Str.data() + Str.size() - Suffix.size(), Suffix.size()), Suffix);
+	return Str.size() >= Suffix.size() && equal_icase({ Str.data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
 }
 
 bool contains(const string_view& Str, const string_view& Token)
@@ -237,7 +237,7 @@ static auto create_alt_sort_table()
 	static wchar_t alt_sort_table[TableSize];
 	std::vector<wchar_t> chars(TableSize);
 	std::iota(ALL_RANGE(chars), 0);
-	std::sort(chars.begin() + 1, chars.end(), [](wchar_t a, wchar_t b) { return StrCmp(string_view(&a, 1), string_view(&b, 1)) < 0; });
+	std::sort(chars.begin() + 1, chars.end(), [](wchar_t a, wchar_t b) { return StrCmp({ &a, 1 }, { &b, 1 }) < 0; });
 
 	int u_beg = 0, u_end = 0xffff;
 	for (int ic=0; ic < 0x10000; ++ic)
@@ -323,7 +323,7 @@ static int NumStrCmp_base(const string_view& Str1, const string_view& Str2, int(
 			return EndOrNonDigit1? -1 : 1;
 		}
 
-		return Comparer(string_view(It1++, 1), string_view(It2++, 1));
+		return Comparer({ It1++, 1 }, { It2++, 1 });
 	});
 }
 

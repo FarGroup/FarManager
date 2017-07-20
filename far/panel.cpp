@@ -1391,15 +1391,16 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 					IsActive? FOSF_ACTIVE : FOSF_NONE
 				};
 
-				if (const auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, (intptr_t)&info))
+				if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, reinterpret_cast<intptr_t>(&info)))
 				{
 					const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
-					NewPanel->SetPluginMode(hNewPlugin, L"", IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+					const auto NewPluginCopy = hNewPlugin.get();
+					NewPanel->SetPluginMode(std::move(hNewPlugin), L"", IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 
 					if (!strShortcutFolder.empty())
 					{
 						UserDataItem UserData = {}; //????
-						Global->CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0,&UserData);
+						Global->CtrlObject->Plugins->SetDirectory(NewPluginCopy, strShortcutFolder, 0, &UserData);
 					}
 
 					NewPanel->Update(0);

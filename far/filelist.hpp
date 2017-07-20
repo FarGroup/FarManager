@@ -127,8 +127,8 @@ struct PluginsListItem
 	NONCOPYABLE(PluginsListItem);
 	MOVABLE(PluginsListItem);
 
-	PluginsListItem(plugin_panel* hPlugin, const string& HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
-		m_Plugin(hPlugin),
+	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, const string& HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+		m_Plugin(std::move(hPlugin)),
 		m_HostFile(HostFile),
 		m_Modified(Modified),
 		m_PrevViewMode(PrevViewMode),
@@ -140,7 +140,7 @@ struct PluginsListItem
 		m_PrevViewSettings(PrevViewSettings.clone())
 	{}
 
-	plugin_panel* m_Plugin;
+	std::unique_ptr<plugin_panel> m_Plugin;
 	string m_HostFile;
 	int m_Modified;
 	int m_PrevViewMode;
@@ -222,7 +222,7 @@ public:
 	}
 	virtual void SetReturnCurrentFile(bool Mode) override;
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
-	virtual void SetPluginMode(plugin_panel* hPlugin, const string& PluginFile, bool SendOnFocus = false) override;
+	virtual void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin, const string& PluginFile, bool SendOnFocus = false) override;
 	virtual size_t GetSelCount() const override;
 	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::FAR_FIND_DATA *fde = nullptr) override;
 	virtual void UngetSelName() override;
@@ -320,7 +320,7 @@ private:
 	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
 	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
 	void MoveSelection(list_data& From, list_data& To);
-	void PushPlugin(plugin_panel* hPlugin, const string& HostFile);
+	void PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin, const string& HostFile);
 	bool PopPlugin(int EnableRestoreViewMode);
 	void PopPrevData(const string& DefaultName, bool Closed, bool UsePrev, bool Position, bool SetDirectorySuccess);
 	void CopyFiles(bool bMoved = false);
@@ -329,7 +329,7 @@ private:
 	bool ApplyCommand();
 	void DescribeFiles();
 	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot = true);
-	plugin_panel* OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type);
+	std::unique_ptr<plugin_panel> OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 	int PreparePanelView(PanelViewSettings *PanelView);
 	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
 	void PrepareViewSettings(int ViewMode);
