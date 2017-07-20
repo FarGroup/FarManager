@@ -3,7 +3,7 @@
 #pragma once
 
 /*
-iterator_range.hpp
+range.hpp
 */
 /*
 Copyright © 2014 Far Group

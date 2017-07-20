@@ -48,8 +48,8 @@ public:
 	HANDLE MainThreadHandle() const {return m_MainThreadHandle.native_handle();}
 	bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
 	unsigned long long FarUpTime() const;
-	static const wchar_t* Version();
-	static const wchar_t* Copyright();
+	static string_view Version();
+	static string_view Copyright();
 
 	static void CatchError();
 	static void CatchError(const error_codes& ErrorCodes);

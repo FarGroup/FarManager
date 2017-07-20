@@ -103,6 +103,7 @@ SRCS = \
 	modal.cpp \
 	namelist.cpp \
 	network.cpp \
+	new_handler.cpp \
 	notification.cpp \
 	nsUniversalDetectorEx.cpp \
 	palette.cpp \

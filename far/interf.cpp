@@ -831,7 +831,7 @@ static void HiTextBase(const string& Str, const std::function<void(const string&
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 {
-	using text_func = void (*)(const string&);
+	using text_func = void (*)(const string_view&);
 	const text_func fText = Text, fVText = VText; //BUGBUG
 	const auto TextFunc  = isVertText ? fVText : fText;
 
@@ -839,7 +839,7 @@ void HiText(const string& Str,const FarColor& HiColor,int isVertText)
 	{
 		const auto SaveColor = CurColor;
 		SetColor(HiColor);
-		TextFunc({ c });
+		TextFunc({ &c, 1 });
 		SetColor(SaveColor);
 	});
 }

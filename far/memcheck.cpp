@@ -193,36 +193,6 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 	return format("{0}:{1} -> {2}:{3} ({4} bytes)", File, Line, Function, sType, Size);
 }
 
-static thread_local bool inside_far_bad_alloc = false;
-
-class far_bad_alloc: public std::bad_alloc
-{
-public:
-	COPYABLE(far_bad_alloc);
-	MOVABLE(far_bad_alloc);
-
-	far_bad_alloc(const char* File, int Line, const char* Function, allocation_type Type, size_t Size) noexcept
-	{
-		if (!inside_far_bad_alloc)
-		{
-			inside_far_bad_alloc = true;
-			try
-			{
-				m_What = "bad allocation at " + FormatLine(File, Line, Function, Type, Size);
-			}
-			catch (...)
-			{
-			}
-			inside_far_bad_alloc = false;
-		}
-	}
-
-	virtual const char* what() const noexcept override { return m_What.empty() ? std::bad_alloc::what() : m_What.data(); }
-
-private:
-	std::string m_What;
-};
-
 static size_t GetRequiredSize(size_t RequestedSize)
 {
 	return sizeof(MEMINFO) + RequestedSize + sizeof(EndMarker);
@@ -230,16 +200,27 @@ static size_t GetRequiredSize(size_t RequestedSize)
 
 static void* DebugAllocator(size_t size, bool Noexcept, allocation_type type,const char* Function,  const char* File, int Line)
 {
-	size_t realSize = GetRequiredSize(size);
-	if (const auto Info = static_cast<MEMINFO*>(malloc(realSize)))
-	{
-		*Info = { type, Line, File, Function, realSize };
-		GetMarker(Info) = EndMarker;
-		RegisterBlock(Info);
-		return ToUser(Info);
-	}
+	const auto realSize = GetRequiredSize(size);
 
-	return Noexcept? nullptr : throw far_bad_alloc(File, Line, Function, type, size);
+	for(;;)
+	{
+		if (const auto Info = static_cast<MEMINFO*>(malloc(realSize)))
+		{
+			*Info = { type, Line, File, Function, realSize };
+			GetMarker(Info) = EndMarker;
+			RegisterBlock(Info);
+			return ToUser(Info);
+		}
+
+		if (const auto Handler = std::get_new_handler())
+		{
+			Handler();
+			if (std::get_new_handler())
+				continue;
+		}
+
+		return Noexcept? nullptr : throw std::bad_alloc{};
+	}
 }
 
 static void DebugDeallocator(void* block, allocation_type type)

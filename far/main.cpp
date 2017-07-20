@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "drivemix.hpp"
+#include "new_handler.hpp"
 
 global *Global = nullptr;
 
@@ -821,6 +822,7 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 
 	SCOPED_ACTION(tracer);
 	SCOPED_ACTION(unhandled_exception_filter);
+	SCOPED_ACTION(new_handler);
 
 	try
 	{
