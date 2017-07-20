@@ -805,14 +805,18 @@ bool Archive::get_main_file(UInt32& index) const {
 
 DWORD Archive::get_attr(UInt32 index) const {
   PropVariant prop;
+  DWORD attr = 0;
+
   if (index >= num_indices)
     return FILE_ATTRIBUTE_DIRECTORY;
-  else if (in_arc->GetProperty(index, kpidAttrib, prop.ref()) == S_OK && prop.is_uint())
-    return static_cast<DWORD>(prop.get_uint());
-  else if (file_list[index].is_dir)
-    return FILE_ATTRIBUTE_DIRECTORY;
-  else
-    return 0;
+  
+  if (in_arc->GetProperty(index, kpidAttrib, prop.ref()) == S_OK && prop.is_uint())
+    attr = static_cast<DWORD>(prop.get_uint());
+
+  if (file_list[index].is_dir)
+    attr |= FILE_ATTRIBUTE_DIRECTORY;
+
+  return attr;
 }
 
 unsigned __int64 Archive::get_size(UInt32 index) const {
