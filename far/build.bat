@@ -102,11 +102,12 @@ goto :EOF
 
 :set_vcver
   set "vcver="
-  for %%v in (10 11 12 14) do for %%a in (%*) do if /i "vc%%v" == "%%a" set "vcver=%%v"
+  for %%v in (10 11 12 14 15) do for %%a in (%*) do if /i "vc%%v" == "%%a" set "vcver=%%v"
 goto :EOF
 
 :set_vc
 :set_vcvars
+  if "" == "%vcver%" if not "" == "%VS150COMNTOOLS%" if exist "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvarsall.bat" set "vcver=15"
   if "" == "%vcver%" if not "" == "%VS140COMNTOOLS%" if exist "%VS140COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=14"
   if "" == "%vcver%" if not "" == "%VS120COMNTOOLS%" if exist "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=12"
   if "" == "%vcver%" if not "" == "%VS100COMNTOOLS%" if exist "%VS100COMNTOOLS%\..\..\vc\vcvarsall.bat" set "vcver=10"
@@ -121,5 +122,6 @@ goto :EOF
   if "%vcver%" == "11" call "%VS110COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
   if "%vcver%" == "12" call "%VS120COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
   if "%vcver%" == "14" call "%VS140COMNTOOLS%\..\..\vc\vcvarsall.bat" %vcmod%
+  if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvarsall.bat" %vcmod%
   set "vcmod="
 goto :EOF
