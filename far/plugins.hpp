@@ -124,7 +124,7 @@ public:
 
 	// API functions
 	std::unique_ptr<plugin_panel> Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item) const;
-	std::unique_ptr<plugin_panel> OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type);
+	std::unique_ptr<plugin_panel> OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
 	std::unique_ptr<plugin_panel> OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
 	static void ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin);
 	static void GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo *Info);

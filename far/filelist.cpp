@@ -2669,8 +2669,13 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			{
 				const auto IsItExecutable = IsExecutable(strFileName);
 
-				if (!IsItExecutable && !SeparateWindow && (OpenedPlugin = OpenFilePlugin(strFileName, TRUE, Type) != nullptr) != false)
-					return;
+				auto StopProcessing = false;
+				if (!IsItExecutable && !SeparateWindow)
+				{
+					OpenedPlugin = OpenFilePlugin(strFileName, TRUE, Type, &StopProcessing) != nullptr;
+					if (OpenedPlugin || StopProcessing)
+						return;
+				}
 
 				if (IsItExecutable || SeparateWindow || Global->Opt->UseRegisteredTypes)
 				{
@@ -5092,7 +5097,7 @@ bool FileList::GetPrevDirectoriesFirst() const
 	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevDirectoriesFirst:m_DirectoriesFirst;
 }
 
-plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
+plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type, bool* StopProcessing)
 {
 	if (!PushPrev && m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
@@ -5100,6 +5105,8 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
 			{
+				if (StopProcessing)
+					*StopProcessing = true;
 				return nullptr;
 			}
 
@@ -5108,7 +5115,7 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 		}
 	}
 
-	auto hNewPlugin = OpenPluginForFile(FileName, 0, Type);
+	auto hNewPlugin = OpenPluginForFile(FileName, 0, Type, StopProcessing);
 
 	auto hNewPluginRawCopy = hNewPlugin.get();
 
@@ -5673,14 +5680,14 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 }
 
 
-std::unique_ptr<plugin_panel> FileList::OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
+std::unique_ptr<plugin_panel> FileList::OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type, bool* StopProcessing)
 {
 	if (FileName.empty() || FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return nullptr;
 
 	SetCurPath();
 	Parent()->GetAnotherPanel(this)->CloseFile();
-	return Global->CtrlObject->Plugins->OpenFilePlugin(&FileName, OPM_NONE, Type);
+	return Global->CtrlObject->Plugins->OpenFilePlugin(&FileName, OPM_NONE, Type, StopProcessing);
 }
 
 

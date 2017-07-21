@@ -1861,6 +1861,16 @@ handle OpenCurrentThread()
 	return os::handle(DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Handle, 0, FALSE, DUPLICATE_SAME_ACCESS) ? Handle : nullptr);
 }
 
+handle OpenConsoleInputBuffer()
+{
+	return handle(CreateFile(L"CONIN$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
+}
+
+handle OpenConsoleActiveScreenBuffer()
+{
+	return handle(CreateFile(L"CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
+}
+
 	namespace reg
 	{
 		key open_key(HKEY RootKey, const wchar_t* SubKey, DWORD SamDesired)

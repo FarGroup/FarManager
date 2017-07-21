@@ -298,12 +298,12 @@ void InitConsole(int FirstInit)
 		DWORD Mode;
 		if(!Console().GetMode(Console().GetInputHandle(), Mode))
 		{
-			static const os::handle ConIn(CreateFile(L"CONIN$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr));
+			static const auto ConIn = os::OpenConsoleInputBuffer();
 			SetStdHandle(STD_INPUT_HANDLE, ConIn.native_handle());
 		}
 		if(!Console().GetMode(Console().GetOutputHandle(), Mode))
 		{
-			static const os::handle ConOut(CreateFile(L"CONOUT$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
+			static const auto ConOut = os::OpenConsoleActiveScreenBuffer();
 			SetStdHandle(STD_OUTPUT_HANDLE, ConOut.native_handle());
 			SetStdHandle(STD_ERROR_HANDLE, ConOut.native_handle());
 		}

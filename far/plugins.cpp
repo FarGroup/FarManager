@@ -462,8 +462,11 @@ void PluginManager::LoadPluginsFromCache()
 	}
 }
 
-std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type)
+std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessingPtr)
 {
+	bool StopProcessing_Unused;
+	auto& StopProcessing = StopProcessingPtr? *StopProcessingPtr : StopProcessing_Unused;
+
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	// We're conditionally messing with the title down there.
@@ -550,6 +553,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 			if (hPlugin == PANEL_STOP)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
 			{
+				StopProcessing = true;
 				break;
 			}
 
@@ -596,7 +600,11 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			}
 
 			const auto ExitCode = menu->Run();
-			if (ExitCode >= 0)
+			if (ExitCode < 0)
+			{
+				StopProcessing = true;
+			}
+			else
 			{
 				pResult = std::next(items.begin(), ExitCode);
 			}
@@ -619,6 +627,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			const auto h = pResult->first.plugin()->Open(&oInfo);
 			if (h == PANEL_STOP)
 			{
+				StopProcessing = true;
 				pResult = items.end();
 			}
 			else if (h)

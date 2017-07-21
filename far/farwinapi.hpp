@@ -166,6 +166,10 @@ namespace os
 
 	handle OpenCurrentThread();
 
+	handle OpenConsoleInputBuffer();
+	handle OpenConsoleActiveScreenBuffer();
+
+
 	namespace fs
 	{
 		using drives_set = std::bitset<26>;

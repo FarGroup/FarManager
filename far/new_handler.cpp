@@ -43,11 +43,12 @@ new_handler::new_handler():
 	if (!m_Screen)
 		return;
 
-	SMALL_RECT WindowInfo{ 0, 0, 79, 24 };
+	const COORD BufferSize{ 80, 25 };
+
+	const SMALL_RECT WindowInfo{ 0, 0, BufferSize.X - 1, BufferSize.Y - 1 };
 	if (!SetConsoleWindowInfo(m_Screen.native_handle(), true, &WindowInfo))
 		return;
 
-	const COORD BufferSize{ 80, 25 };
 	if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), BufferSize))
 		return;
 
