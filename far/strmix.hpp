@@ -60,7 +60,6 @@ inline string InsertQuote(string&& strStr) { InsertQuote(strStr); return strStr;
 string& Unquote(string &strStr);
 inline string Unquote(string&& strStr) { Unquote(strStr); return strStr; }
 
-string& InsertRegexpQuote(string& strStr);
 void UnquoteExternal(string &strStr);
 string& RemoveLeadingSpaces(string &strStr);
 string& RemoveTrailingSpaces(string &strStr);

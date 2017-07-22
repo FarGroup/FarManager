@@ -3430,8 +3430,6 @@ bool Editor::Search(bool Next)
 
 		auto CurPtr = FindAllReferences? FirstLine() : m_it_CurLine, TmpPtr = CurPtr;
 
-		string strSlash(strSearchStr);
-		InsertRegexpQuote(strSlash);
 		std::vector<RegExpMatch> m;
 		MatchHash hm;
 		RegExp re;
@@ -3439,9 +3437,9 @@ bool Editor::Search(bool Next)
 		if (Regexp)
 		{
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+			if (!re.Compile(strSearchStr.data(), OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
 			{
-				ReCompileErrorMessage(re, strSlash);
+				ReCompileErrorMessage(re, strSearchStr);
 				return false; //BUGBUG
 			}
 			m.resize(re.GetBracketsCount() * 2);

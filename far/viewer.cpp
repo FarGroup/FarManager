@@ -3429,16 +3429,15 @@ void Viewer::Search(int Next,int FirstChar)
 		sd.ch_size = getCharSize();
 		sd.search_text = strSearchStr.data();
 
+		InsertQuote(strMsgStr);
+
 		if (SearchRegexp)
 		{
 			WholeWords = false;
 			searcher = (ReverseSearch ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
-			InsertRegexpQuote(strMsgStr);
-			string strSlash = strSearchStr;
-			InsertRegexpQuote(strSlash);
-			if (!sd.InitRegEx(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)))
+			if (!sd.InitRegEx(strSearchStr, OP_OPTIMIZE | (Case ? 0 : OP_IGNORECASE)))
 			{
-				ReCompileErrorMessage(*sd.pRex, strSlash);
+				ReCompileErrorMessage(*sd.pRex, strSearchStr);
 				return; // wrong regular expression...
 			}
 			sd.RexMatchCount = sd.pRex->GetBracketsCount();
@@ -3447,7 +3446,6 @@ void Viewer::Search(int Next,int FirstChar)
 		else
 		{
 			searcher = (ReverseSearch ? &Viewer::search_text_backward : &Viewer::search_text_forward);
-			InsertQuote(strMsgStr);
 		}
 	}
 

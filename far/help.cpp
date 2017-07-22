@@ -1896,8 +1896,6 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	GetFileString GetStr(HelpFile, nCodePage);
 	string strCurTopic, strEntryName, strReadStr;
 
-	string strSlash(strLastSearchStr);
-	InsertRegexpQuote(strSlash);
 	std::vector<RegExpMatch> m;
 	MatchHash hm;
 	RegExp re;
@@ -1905,9 +1903,9 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	if (LastSearchRegexp)
 	{
 		// Q: что важнее: опция диалога или опция RegExp`а?
-		if (!re.Compile(strSlash.data(), OP_PERLSTYLE|OP_OPTIMIZE|(!LastSearchCase?OP_IGNORECASE:0)))
+		if (!re.Compile(strLastSearchStr.data(), OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
 		{
-			ReCompileErrorMessage(re, strSlash);
+			ReCompileErrorMessage(re, strLastSearchStr);
 			return; //BUGBUG
 		}
 
