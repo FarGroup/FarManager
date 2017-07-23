@@ -583,8 +583,8 @@
        <col class="value">
        <col>
        <tr><th><var>Op</var></th><th>Описание</th></tr>
-        <tr><td>0</td><td>заполнение слева от <var>V</var></td></tr>
-        <tr><td>1</td><td>заполнение справа от <var>V</var></td></tr>
+        <tr><td>0</td><td>заполнение справа от <var>V</var></td></tr>
+        <tr><td>1</td><td>заполнение слева от <var>V</var></td></tr>
         <tr><td>2</td><td>заполнение вокруг <var>V</var></td></tr>
        </table>
        <p>Если <var>Size</var> меньше или равна длине <var>V</var> либо опущена, то дополнения не происходит (возвращается <var>V</var>).</p>
@@ -604,7 +604,7 @@
          <tr><td>strpad("Foo",10,"-")</td><td><code>'Foo-------'</code></td></tr>
          <tr><td>strpad("Foo",10,,1)</td><td><code>'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Foo'</code></td></tr>
          <tr><td>strpad("Foo",10,,2)</td><td><code>'&nbsp;&nbsp;&nbsp;Foo&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
-         <tr><td>strpad("Foo",10,"1234567890",1)</td><td><code>'123Foo1234'</code></td></tr>
+         <tr><td>strpad("Foo",10,"1234567890",2)</td><td><code>'123Foo1234'</code></td></tr>
       </table>
 
       </td>
