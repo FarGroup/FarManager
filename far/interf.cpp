@@ -416,6 +416,10 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 		Mode |= ENABLE_EXTENDED_FLAGS;
 		Mode &= ~ENABLE_QUICK_EDIT_MODE;
 	}
+	else
+	{
+		Mode &= ~ENABLE_MOUSE_INPUT;
+	}
 
 	ChangeConsoleMode(Console().GetInputHandle(), Mode);
 

@@ -228,7 +228,7 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 	if (CM_Get_Device_ID_List_Size(&dwSize, szDeviceID, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS || !dwSize)
 		return 0;
 
-	wchar_t_ptr DeviceIdList(dwSize);
+	wchar_t_ptr_n<MAX_PATH> DeviceIdList(dwSize);
 	if (CM_Get_Device_ID_List(szDeviceID, DeviceIdList.get(), dwSize, CM_GETIDLIST_FILTER_REMOVALRELATIONS) != CR_SUCCESS)
 		return 0;
 
@@ -292,7 +292,7 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& strValue
 	Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, nullptr, 0, &RequiredSize);
 	if(RequiredSize)
 	{
-		wchar_t_ptr Buffer(RequiredSize);
+		wchar_t_ptr_n<MAX_PATH> Buffer(RequiredSize);
 		if (!Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, reinterpret_cast<BYTE*>(Buffer.get()), RequiredSize, nullptr))
 			return false;
 

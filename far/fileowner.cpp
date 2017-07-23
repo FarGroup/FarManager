@@ -49,7 +49,7 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 	LookupAccountSid(Computer.data(), Sid, nullptr, &AccountLength, nullptr, &DomainLength, &snu);
 	if (AccountLength && DomainLength)
 	{
-		wchar_t_ptr AccountName(AccountLength), DomainName(DomainLength);
+		wchar_t_ptr_n<MAX_PATH> AccountName(AccountLength), DomainName(DomainLength);
 		if (!LookupAccountSid(Computer.data(), Sid, AccountName.get(), &AccountLength, DomainName.get(), &DomainLength, &snu))
 			return false;
 
@@ -80,7 +80,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 
 		explicit sid(PSID rhs)
 		{
-			DWORD Size = GetLengthSid(rhs);
+			const auto Size = GetLengthSid(rhs);
 			m_Data.reset(Size);
 			CopySid(Size, m_Data.get(), rhs);
 		}
@@ -160,43 +160,43 @@ bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 	return SidToNameCached(pOwner, strOwner, Computer);
 }
 
+static auto get_sid(const string& Name)
+{
+	os::memory::local::ptr<void> Sid;
+	if (ConvertStringSidToSid(Name.data(), &ptr_setter(Sid)))
+		return Sid;
+
+	SID_NAME_USE Use;
+	DWORD SidSize = 0, ReferencedDomainNameSize = 0;
+	LookupAccountName(nullptr, Name.data(), nullptr, &SidSize, nullptr, &ReferencedDomainNameSize, &Use);
+	if (!SidSize)
+		return Sid;
+
+	Sid = os::memory::local::alloc<SID>(LMEM_FIXED, SidSize);
+	if (!Sid)
+		return Sid;
+
+	wchar_t_ptr_n<MAX_PATH> Buffer(ReferencedDomainNameSize);
+	LookupAccountName(nullptr, Name.data(), Sid.get(), &SidSize, Buffer.get(), &ReferencedDomainNameSize, &Use);
+
+	return Sid;
+}
+
 bool SetOwnerInternal(const string& Object, const string& Owner)
 {
-	bool Result = false;
+	const auto Sid = get_sid(Owner);
+	if (!Sid)
+		return false;
 
-	os::memory::local::ptr<void> Sid;
-	if (!ConvertStringSidToSid(Owner.data(), &ptr_setter(Sid)))
+	SCOPED_ACTION(os::security::privilege){ SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME };
+
+	const auto Result = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.data()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
+	if(Result != ERROR_SUCCESS)
 	{
-		SID_NAME_USE Use;
-		DWORD cSid=0, ReferencedDomain=0;
-		LookupAccountName(nullptr, Owner.data(), nullptr, &cSid, nullptr, &ReferencedDomain, &Use);
-		if(cSid)
-		{
-			Sid = os::memory::local::alloc<SID>(LMEM_FIXED, cSid);
-			if(Sid)
-			{
-				std::vector<wchar_t> ReferencedDomainName(ReferencedDomain);
-				if(LookupAccountName(nullptr, Owner.data(), Sid.get(), &cSid, ReferencedDomainName.data(), &ReferencedDomain, &Use))
-				{
-					;
-				}
-			}
-		}
+		SetLastError(Result);
+		return false;
 	}
-	if(Sid)
-	{
-		SCOPED_ACTION(os::security::privilege){ SE_TAKE_OWNERSHIP_NAME, SE_RESTORE_NAME };
-		DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object.data()), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid.get(), nullptr, nullptr, nullptr);
-		if(dwResult == ERROR_SUCCESS)
-		{
-			Result = true;
-		}
-		else
-		{
-			SetLastError(dwResult);
-		}
-	}
-	return Result;
+	return true;
 }
 
 bool SetFileOwner(const string& Object, const string& Owner)

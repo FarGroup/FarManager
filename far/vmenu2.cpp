@@ -318,7 +318,7 @@ LISTITEMFLAGS VMenu2::GetItemFlags(int Position)
 
 string VMenu2::GetMenuTitle(bool bottom)
 {
-	wchar_t_ptr title;
+	wchar_t_ptr_n<256> title;
 	FarListTitles titles={sizeof(FarListTitles)};
 	if(!SendMessage(DM_LISTGETTITLES, 0, &titles))
 		return {};

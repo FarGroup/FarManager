@@ -115,6 +115,8 @@ namespace os
 	DWORD GetTempPath(string &strBuffer);
 	bool GetModuleFileName(HMODULE hModule, string &strFileName);
 	bool GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName);
+	bool GetShortPathName(const string& LongPath, string& ShortPath);
+	bool GetLongPathName(const string& ShortPath, string& LongPath);
 	bool WNetGetConnection(const string& LocalName, string &RemoteName);
 	bool GetVolumeInformation(const string& RootPathName, string *pVolumeName, LPDWORD lpVolumeSerialNumber, LPDWORD lpMaximumComponentLength, LPDWORD lpFileSystemFlags, string *pFileSystemName);
 	bool GetFindDataEx(const string& FileName, FAR_FIND_DATA& FindData, bool ScanSymLink=true);
@@ -145,6 +147,7 @@ namespace os
 	bool SearchPath(const wchar_t *Path, const string& FileName, const wchar_t *Extension, string &strDest);
 	bool QueryDosDevice(const string& DeviceName, string& Path);
 	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName);
+	bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames);
 	bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
 	void EnableLowFragmentationHeap();
 	using FAR_SECURITY_DESCRIPTOR = block_ptr<SECURITY_DESCRIPTOR>;
@@ -157,6 +160,10 @@ namespace os
 	DWORD GetAppPathsRedirectionFlag();
 	bool GetDefaultPrinter(string& Printer);
 	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
+	bool GetComputerName(string& Name);
+	bool GetComputerNameEx(COMPUTER_NAME_FORMAT NameFormat, string& Name);
+	bool GetUserName(string& Name);
+	bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name);
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags);
 	bool SetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);

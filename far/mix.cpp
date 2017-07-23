@@ -69,7 +69,7 @@ bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, cons
 
 	AddEndSlash(strPath);
 
-	wchar_t_ptr Buffer(wcslen(Prefix) + strPath.size() + 13);
+	wchar_t_ptr_n<MAX_PATH> Buffer(wcslen(Prefix) + strPath.size() + 13);
 
 	UINT uniq = 23*GetCurrentProcessId() + s_shift, uniq0 = uniq ? uniq : 1;
 	s_shift = (s_shift + 1) % 23;

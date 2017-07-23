@@ -1994,7 +1994,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 	{
 		const auto strP1 = encoding::oem::get_chars(Param1), strP2 = encoding::oem::get_chars(Param2);
 		const auto size = static_cast<int>(strP1.size() + strP2.size() + oldfar::NM) + 1; //а хрен ещё как угадать скока там этот Param2 для PN_GENERATENAME
-		wchar_t_ptr p(size);
+		wchar_t_ptr_n<MAX_PATH> p(size);
 		*std::copy(ALL_CONST_RANGE(strP2), p.get()) = L'\0';
 
 		auto newFlags = PN_NONE;
@@ -2328,7 +2328,7 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 		auto NewFlags = FIB_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
-		wchar_t_ptr Buffer(DestLength);
+		wchar_t_ptr_n<256> Buffer(DestLength);
 
 		int ret = NativeInfo.InputBox(&FarGuid, &FarGuid,
 			Title? encoding::oem::get_chars(Title).data() : nullptr,
@@ -4268,7 +4268,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					*oei = {};
 					if (const size_t FileNameSize = NativeInfo.EditorControl(-1, ECTL_GETFILENAME, 0, nullptr))
 					{
-						wchar_t_ptr FileName(FileNameSize);
+						wchar_t_ptr_n<MAX_PATH> FileName(FileNameSize);
 						NativeInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName.get());
 						static std::unique_ptr<char[]> fn;
 						fn.reset(UnicodeToAnsi(FileName.get()));
@@ -4650,7 +4650,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 
 				if (const size_t FileNameSize = NativeInfo.ViewerControl(-1, VCTL_GETFILENAME, 0, nullptr))
 				{
-					wchar_t_ptr FileName(FileNameSize);
+					wchar_t_ptr_n<MAX_PATH> FileName(FileNameSize);
 					NativeInfo.ViewerControl(-1,VCTL_GETFILENAME,FileNameSize,FileName.get());
 					static std::unique_ptr<char[]> filename;
 					filename.reset(UnicodeToAnsi(FileName.get()));
@@ -5328,7 +5328,7 @@ private:
 		{
 			pVFDPanelItemA = nullptr;
 			const auto Length = wcslen(Info->Path);
-			char_ptr PathA(Length + 1);
+			char_ptr_n<MAX_PATH> PathA(Length + 1);
 			encoding::oem::get_bytes(Info->Path, Length, PathA.get(), Length + 1);
 			int ItemsNumber = 0;
 			ExecuteFunction(es, Info->hPanel, &pVFDPanelItemA, &ItemsNumber, PathA.get());

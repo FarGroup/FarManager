@@ -1584,7 +1584,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		{
 			if (SelectSize >= 0 && ViewFile)
 			{
-				wchar_t_ptr SelData(SelectSize);
+				wchar_t_ptr_n<256> SelData(SelectSize);
 				long long CurFilePos=vtell();
 				vseek(SelectPos, FILE_BEGIN);
 				vread(SelData.get(), (int)SelectSize);

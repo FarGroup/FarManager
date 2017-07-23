@@ -4708,13 +4708,15 @@ static bool strpadFunc(FarMacroCall* Data)
 
 		if (FineLength > 0)
 		{
-			wchar_t_ptr NewFill(FineLength + 1);
+			string NewFill;
+			NewFill.reserve(FineLength + 1);
 
 			const auto& pFill = Fill.asString();
 
-			for (int I=0; I < FineLength; ++I)
-				NewFill[I]=pFill[I%LengthFill];
-			NewFill[FineLength]=0;
+			for (int i = 0; i != FineLength; ++i)
+			{
+				NewFill.push_back(pFill[i % LengthFill]);
+			}
 
 			int CntL=0, CntR=0;
 			switch (Op)
@@ -4736,10 +4738,7 @@ static bool strpadFunc(FarMacroCall* Data)
 				break;
 			}
 
-			string strPad(NewFill.get(), CntL);
-			strPad+=strDest;
-			strPad.append(NewFill.get(), CntR);
-			strDest=strPad;
+			strDest = concat(string_view(NewFill.data(), CntL), strDest, string_view(NewFill.data(), CntR));
 		}
 	}
 

@@ -68,7 +68,7 @@ string GroupDigits(unsigned long long Value)
 
 	string strSrc = str(Value);
 	const size_t Size = GetNumberFormat(GetThreadLocale(), 0, strSrc.data(), &Fmt, nullptr, 0);
-	wchar_t_ptr Dest(Size);
+	wchar_t_ptr_n<MAX_PATH> Dest(Size);
 	GetNumberFormat(GetThreadLocale(), 0, strSrc.data(), &Fmt, Dest.get(), static_cast<int>(Size));
 	return { Dest.get(), Size - 1 };
 }

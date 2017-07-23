@@ -50,55 +50,47 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
+	enum
+	{
+		default_buffer_size = MAX_PATH
+	};
+
 	template<typename T>
 	bool ApiDynamicStringReceiver(string& Destination, const T& Callable)
 	{
-		wchar_t Buffer[MAX_PATH];
-		auto Size = Callable(Buffer, std::size(Buffer));
+		wchar_t_ptr_n<default_buffer_size> Buffer(default_buffer_size);
+		auto Size = Callable(Buffer.get(), Buffer.size());
+
+		while(Size >= Buffer.size())
+		{
+			Buffer.reset(Size);
+			Size = Callable(Buffer.get(), Buffer.size());
+		}
+
 		if (!Size)
 			return false;
 
-		if (Size < std::size(Buffer))
-		{
-			Destination.assign(Buffer, Size);
-			return true;
-		}
-
-		for (;;)
-		{
-			wchar_t_ptr vBuffer(Size);
-			Size = Callable(vBuffer.get(), vBuffer.size());
-			if (!Size)
-				return false;
-			if (Size < vBuffer.size())
-			{
-				Destination.assign(vBuffer.get(), Size);
-				return true;
-			}
-		}
+		Destination.assign(Buffer.get(), Size);
+		return true;
 	}
 
 	template<typename T>
 	bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, const T& Callable)
 	{
-		wchar_t Buffer[MAX_PATH];
-		if (const auto Size = Callable(Buffer, std::size(Buffer)))
+		wchar_t_ptr_n<default_buffer_size> Buffer(default_buffer_size);
+		auto Size = Callable(Buffer.get(), Buffer.size());
+
+		while (!Size && GetLastError() == ExpectedErrorCode)
 		{
-			Destination.assign(Buffer, Size);
-			return true;
+			Buffer.reset(Buffer.size() * 2);
+			Size = Callable(Buffer.get(), Buffer.size());
 		}
 
-		auto BufferSize = std::size(Buffer);
-		while (GetLastError() == ExpectedErrorCode)
-		{
-			wchar_t_ptr vBuffer(BufferSize *= 2);
-			if (const auto Size = Callable(vBuffer.get(), vBuffer.size()))
-			{
-				Destination.assign(vBuffer.get(), Size);
-				return true;
-			}
-		}
-		return false;
+		if (!Size)
+			return false;
+
+		Destination.assign(Buffer.get(), Size);
+		return true;
 	}
 
 	namespace detail
@@ -1146,36 +1138,46 @@ bool GetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileName)
 	});
 }
 
+bool GetShortPathName(const string& LongPath, string& ShortPath)
+{
+	return ApiDynamicStringReceiver(ShortPath, [&](wchar_t* Buffer, size_t Size)
+	{
+		return ::GetShortPathName(LongPath.data(), Buffer, static_cast<DWORD>(Size));
+	});
+}
+
+bool GetLongPathName(const string& ShortPath, string& LongPath)
+{
+	return ApiDynamicStringReceiver(LongPath, [&](wchar_t* Buffer, size_t Size)
+	{
+		return ::GetLongPathName(ShortPath.data(), Buffer, static_cast<DWORD>(Size));
+	});
+}
+
 bool WNetGetConnection(const string& LocalName, string &RemoteName)
 {
-	wchar_t Buffer[MAX_PATH];
+	wchar_t_ptr_n<MAX_PATH> Buffer(MAX_PATH);
 	// MSDN says that call can fail with ERROR_NOT_CONNECTED or ERROR_CONNECTION_UNAVAIL if calling application
 	// is running in a different logon session than the application that made the connection.
 	// However, it may fail with ERROR_NOT_CONNECTED for non-network too, in this case Buffer will not be initialised.
 	// Deliberately initialised with empty string to fix that.
 	Buffer[0] = L'\0';
-	auto Size = static_cast<DWORD>(std::size(Buffer));
-	auto Result = ::WNetGetConnection(LocalName.data(), Buffer, &Size);
-	
+	auto Size = static_cast<DWORD>(Buffer.size());
+	auto Result = ::WNetGetConnection(LocalName.data(), Buffer.get(), &Size);
+
+	while (Result == ERROR_MORE_DATA)
+	{
+		Buffer.reset(Size);
+		Result = ::WNetGetConnection(LocalName.data(), Buffer.get(), &Size);
+	}
+
 	const auto& IsReceived = [](int Code) { return Code == NO_ERROR || Code == ERROR_NOT_CONNECTED || Code == ERROR_CONNECTION_UNAVAIL; };
 
 	if (IsReceived(Result) && *Buffer)
 	{
 		// Size isn't updated if the buffer is large enough
-		RemoteName = Buffer;
+		RemoteName = Buffer.get();
 		return true;
-	}
-	
-	while (Result == ERROR_MORE_DATA)
-	{
-		wchar_t_ptr vBuffer(Size);
-		Result = ::WNetGetConnection(LocalName.data(), vBuffer.get(), &Size);
-		if (IsReceived(Result) && *Buffer)
-		{
-			// Size isn't updated if the buffer is large enough
-			RemoteName = vBuffer.get();
-			return true;
-		}
 	}
 
 	return false;
@@ -1696,6 +1698,17 @@ bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& Vol
 	return true;
 }
 
+bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames)
+{
+	return ApiDynamicStringReceiver(VolumePathNames, [&](wchar_t* Buffer, size_t Size)
+	{
+		DWORD ReturnLength = 0;
+		return Imports().GetVolumePathNamesForVolumeNameW(VolumeName.data(), Buffer, static_cast<DWORD>(Size), &ReturnLength) || !ReturnLength?
+			ReturnLength :
+			ReturnLength + 1;
+	});
+}
+
 void EnableLowFragmentationHeap()
 {
 	if (!Imports().HeapSetInformation)
@@ -1855,6 +1868,50 @@ find_notification_handle FindFirstChangeNotification(const string& PathName, boo
 	return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).data(), WatchSubtree, NotifyFilter));
 }
 
+bool GetComputerName(string& Name)
+{
+	wchar_t Buffer[MAX_COMPUTERNAME_LENGTH + 1];
+	auto Size = static_cast<DWORD>(std::size(Buffer));
+	if (!::GetComputerName(Buffer, &Size))
+		return false;
+
+	Name.assign(Buffer, Size);
+	return true;
+}
+
+bool GetComputerNameEx(COMPUTER_NAME_FORMAT NameFormat, string& Name)
+{
+	return ApiDynamicStringReceiver(Name, [&](wchar_t* Buffer, size_t Size)
+	{
+		auto dwSize = static_cast<DWORD>(Size);
+		if (!::GetComputerNameEx(NameFormat, Buffer, &dwSize) && GetLastError() != ERROR_MORE_DATA)
+			return 0ul;
+		return dwSize;
+	});
+}
+
+bool GetUserName(string& Name)
+{
+	wchar_t Buffer[UNLEN + 1];
+	auto Size = static_cast<DWORD>(std::size(Buffer));
+	if (!::GetUserName(Buffer, &Size))
+		return false;
+
+	Name.assign(Buffer, Size - 1);
+	return true;
+}
+
+bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name)
+{
+	return ApiDynamicStringReceiver(Name, [&](wchar_t* Buffer, size_t Size)
+	{
+		auto dwSize = static_cast<DWORD>(Size);
+		if (!::GetUserNameEx(NameFormat, Buffer, &dwSize) && GetLastError() != ERROR_MORE_DATA)
+			return 0ul;
+		return dwSize;
+	});
+}
+
 handle OpenCurrentThread()
 {
 	HANDLE Handle;
@@ -1904,28 +1961,26 @@ handle OpenConsoleActiveScreenBuffer()
 
 		bool EnumKey(const key& Key, size_t Index, string& Name)
 		{
-			LONG ExitCode = ERROR_MORE_DATA;
-
-			for (DWORD Size = 512; ExitCode == ERROR_MORE_DATA; Size *= 2)
+			return ApiDynamicErrorBasedStringReceiver(ERROR_MORE_DATA, Name, [&](wchar_t* Buffer, size_t Size)
 			{
-				wchar_t_ptr Buffer(Size);
-				DWORD RetSize = Size;
-				ExitCode = RegEnumKeyEx(Key.get(), static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, nullptr, nullptr, nullptr);
-				if (ExitCode == ERROR_SUCCESS)
+				auto RetSize = static_cast<DWORD>(Size);
+				const auto ExitCode = RegEnumKeyEx(Key.get(), static_cast<DWORD>(Index), Buffer, &RetSize, nullptr, nullptr, nullptr, nullptr);
+				if (ExitCode != ERROR_SUCCESS)
 				{
-					Name.assign(Buffer.get(), RetSize);
+					SetLastError(ExitCode);
+					return DWORD(0);
 				}
-			}
-			return ExitCode == ERROR_SUCCESS;
+				return RetSize;
+			});
 		}
 
 		bool EnumValue(const key& Key, size_t Index, value& Value)
 		{
 			LONG ExitCode = ERROR_MORE_DATA;
 
-			for (DWORD Size = 512; ExitCode == ERROR_MORE_DATA; Size *= 2)
+			for (DWORD Size = MAX_PATH; ExitCode == ERROR_MORE_DATA; Size *= 2)
 			{
-				wchar_t_ptr Buffer(Size);
+				wchar_t_ptr_n<MAX_PATH> Buffer(Size);
 				DWORD RetSize = Size;
 				ExitCode = RegEnumValue(Key.get(), static_cast<DWORD>(Index), Buffer.get(), &RetSize, nullptr, &Value.m_Type, nullptr, nullptr);
 				if (ExitCode == ERROR_SUCCESS)

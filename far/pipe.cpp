@@ -70,7 +70,7 @@ namespace pipe
 		if (!DataSize)
 			return true;
 
-		wchar_t_ptr Buffer(DataSize / sizeof(wchar_t));
+		wchar_t_ptr_n<256> Buffer(DataSize / sizeof(wchar_t));
 		if (!ReadPipe(Pipe, Buffer.get(), DataSize))
 			return false;
 

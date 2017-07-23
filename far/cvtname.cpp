@@ -212,7 +212,7 @@ string ConvertNameToFull(const string& Object)
 
 // try to replace volume GUID (if present) with drive letter
 // used by ConvertNameToReal() only
-static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t *path=nullptr, size_t path_len=0)
+static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_view& AbsPath = {})
 {
 	string Result = Path;
 	size_t DirectoryOffset;
@@ -220,42 +220,29 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 	{
 		if (Imports().GetVolumePathNamesForVolumeNameW)
 		{
-			wchar_t_ptr Buffer(os::NT_MAX_PATH);
-			DWORD RetSize;
-			bool Res = Imports().GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize) != FALSE;
-
-			if (!Res && RetSize > Buffer.size())
+			string VolumePathNames;
+			if (os::GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), VolumePathNames))
 			{
-				Buffer.reset(RetSize);
-				Res = Imports().GetVolumePathNamesForVolumeName(ExtractPathRoot(Path).data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), &RetSize) != FALSE;
-			}
-
-			if (Res)
-			{
-				const wchar_t* PathName = Buffer.get();
-
-				while (*PathName)
+				for(const auto& i: enum_substrings(VolumePathNames.data()))
 				{
-					string strPath(PathName);
+					const auto VolumePathName = make_string(i);
 
-					if (path && strPath.size() <= path_len && starts_with_icase(path, strPath))
-						return strPath;
+					if (!AbsPath.empty() && starts_with_icase(AbsPath, VolumePathName))
+						return VolumePathName;
 
-					if (IsRootPath(strPath))
+					if (IsRootPath(VolumePathName))
 					{
-						Result.replace(0, DirectoryOffset, strPath);
+						Result.replace(0, DirectoryOffset, VolumePathName);
 						break;
 					}
-
-					PathName += strPath.size() + 1;
 				}
 			}
 
-			if (path)
+			if (!AbsPath.empty())
 				Result.clear();
 		}
 
-		else if (path)
+		else if (!AbsPath.empty())
 			Result.clear();
 
 		else
@@ -273,7 +260,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const wchar_t 
 		}
 	}
 
-	else if (path)
+	else if (!AbsPath.empty())
 		Result.clear();
 
 	return Result;
@@ -302,7 +289,7 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 		return 0;
 	}
 
-	string mount_point = TryConvertVolumeGuidToDrivePath(vol_guid, abs_path.data(), abs_path.size());
+	string mount_point = TryConvertVolumeGuidToDrivePath(vol_guid, abs_path);
 	return mount_point.size();
 }
 
@@ -361,34 +348,13 @@ string ConvertNameToReal(const string& Object)
 string ConvertNameToShort(const string& Object)
 {
 	string strDest;
-	const auto& GetShortName = [&strDest](const string& str)
-	{
-		wchar_t Buffer[MAX_PATH];
-		if (auto Size = GetShortPathName(str.data(), Buffer, static_cast<DWORD>(std::size(Buffer))))
-		{
-			if (Size < std::size(Buffer))
-			{
-				strDest.assign(Buffer, Size);
-			}
-			else
-			{
-				wchar_t_ptr vBuffer(Size);
-				Size = GetShortPathName(str.data(), vBuffer.get(), Size);
-				strDest.assign(vBuffer.get(), Size);
-			}
-			return true;
-		}
-		return false;
-	};
-
-	if(!GetShortName(Object))
+	if(!os::GetShortPathName(Object, strDest))
 	{
 		strDest = Object;
 
-		bool Prefixed = HasPathPrefix(Object);
-		if (!Prefixed)
+		if (!HasPathPrefix(Object))
 		{
-			if (GetShortName(NTPath(Object)))
+			if (os::GetShortPathName(NTPath(Object), strDest))
 			{
 				switch (ParsePath(strDest))
 				{
@@ -412,21 +378,33 @@ string ConvertNameToShort(const string& Object)
 
 string ConvertNameToLong(const string& Object)
 {
-	wchar_t Buffer[MAX_PATH];
-	if (auto Size = GetLongPathName(Object.data(), Buffer, static_cast<DWORD>(std::size(Buffer))))
+	string strDest;
+	if (!os::GetLongPathName(Object, strDest))
 	{
-		if (Size < std::size(Buffer))
+		strDest = Object;
+
+		if (!HasPathPrefix(Object))
 		{
-			return { Buffer, Size };
-		}
-		else
-		{
-			wchar_t_ptr vBuffer(Size);
-			Size = GetLongPathName(Object.data(), vBuffer.get(), Size);
-			return { vBuffer.get(), Size };
+			if (os::GetLongPathName(NTPath(Object), strDest))
+			{
+				switch (ParsePath(strDest))
+				{
+				case PATH_DRIVELETTERUNC:
+					strDest = strDest.substr(4); // \\?\X:\path -> X:\path
+					break;
+
+				case PATH_REMOTEUNC:
+					strDest.erase(2, 6); // \\?\UNC\server -> \\server
+					break;
+
+				default:
+					// should never happen
+					break;
+				}
+			}
 		}
 	}
-	return Object;
+	return strDest;
 }
 
 string ConvertNameToUNC(const string& Object)

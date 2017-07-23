@@ -32,30 +32,90 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<typename T>
-class array_ptr: public conditional<array_ptr<T>>
+template<typename T, size_t StaticSize>
+class array_ptr: public conditional<array_ptr<T, StaticSize>>
 {
 public:
 	NONCOPYABLE(array_ptr);
 	MOVABLE(array_ptr);
 
-	array_ptr() noexcept: m_size() {}
-	explicit array_ptr(size_t size, bool init = false) { reset(size, init); }
+	array_ptr() noexcept:
+		m_Buffer(),
+		m_Size()
+	{
+	}
 
-	void reset(size_t size, bool init = false) { m_array.reset(init? new T[size]() : new T[size]); m_size = size;}
-	void reset() noexcept { m_array.reset(); m_size = 0; }
-	size_t size() const noexcept { return m_size; }
-	bool operator!() const noexcept { return !m_array; }
-	decltype(auto) get() const noexcept {return m_array.get();}
-	decltype(auto) operator[](size_t n) const { assert(n < m_size); return m_array[n]; }
+	explicit array_ptr(size_t Size, bool Init = false)
+	{
+		reset(Size, Init);
+	}
+
+	void reset(size_t Size, bool Init = false)
+	{
+		if (Size > StaticSize)
+		{
+			m_DynamicBuffer.reset(Init? new T[Size]() : new T[Size]);
+			m_Buffer = m_DynamicBuffer.get();
+		}
+		else
+		{
+			m_DynamicBuffer.reset();
+			m_Buffer = m_StaticBuffer;
+		}
+
+		m_Size = Size;
+	}
+
+	void reset() noexcept
+	{
+		m_DynamicBuffer.reset();
+		m_Buffer = nullptr;
+		m_Size = 0;
+	}
+
+	size_t size() const noexcept
+	{
+		return m_Size;
+	}
+
+	bool operator!() const noexcept
+	{
+		return !m_Buffer;
+	}
+
+	decltype(auto) get() const noexcept
+	{
+		return m_Buffer;
+	}
+
+	decltype(auto) operator*() const
+	{
+		assert(m_Size);
+		return *m_Buffer;
+	}
+
+	decltype(auto) operator[](size_t Index) const
+	{
+		assert(Index < m_Size);
+		return m_Buffer[Index];
+	}
 
 private:
-	std::unique_ptr<T[]> m_array;
-	size_t m_size;
+	T* m_Buffer;
+	size_t m_Size;
+	std::unique_ptr<T[]> m_DynamicBuffer;
+	T m_StaticBuffer[StaticSize];
 };
 
-using wchar_t_ptr = array_ptr<wchar_t>;
-using char_ptr = array_ptr<char>;
+template<size_t Size = 1>
+using wchar_t_ptr_n = array_ptr<wchar_t, Size>;
+
+template<size_t Size = 1>
+using char_ptr_n = array_ptr<char, Size>;
+
+using wchar_t_ptr = wchar_t_ptr_n<1>;
+using char_ptr = char_ptr_n<1>;
+
 
 template<typename T>
 class block_ptr: public char_ptr

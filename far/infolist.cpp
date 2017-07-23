@@ -191,15 +191,8 @@ void InfoList::DisplayObject()
 
 	/* #1 - computer name/user name */
 	{
-		string strComputerName, strUserName;
-		DWORD dwSize = 256; //MAX_COMPUTERNAME_LENGTH+1;
-		wchar_t_ptr ComputerName(dwSize);
-		if (Global->Opt->InfoPanel.ComputerNameFormat == ComputerNamePhysicalNetBIOS || !GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Global->Opt->InfoPanel.ComputerNameFormat.Get()), ComputerName.get(), &dwSize))
-		{
-			dwSize = MAX_COMPUTERNAME_LENGTH+1;
-			GetComputerName(ComputerName.get(), &dwSize);  // retrieves only the NetBIOS name of the local computer
-		}
-		strComputerName = ComputerName.get();
+		string strComputerName;
+		os::GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Global->Opt->InfoPanel.ComputerNameFormat.Get()), strComputerName) || os::GetComputerName(strComputerName);
 
 		GotoXY(m_X1+2,CurY++);
 		PrintText(lng::MInfoCompName);
@@ -216,50 +209,45 @@ void InfoList::DisplayObject()
 			}
 		}
 
-
-		dwSize = UNLEN+1;
-		wchar_t_ptr UserName(dwSize);
-		if (Global->Opt->InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get()), UserName.get(), &dwSize))
-		{
-			dwSize = UNLEN+1;
-			GetUserName(UserName.get(), &dwSize);
-		}
-		strUserName = UserName.get();
+		string strUserName;
+		os::GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get()), strUserName) || os::GetUserName(strUserName);
 
 		GotoXY(m_X1+2,CurY++);
 		PrintText(lng::MInfoUserName);
 		PrintInfo(strUserName);
 
-		dwSize = UNLEN+1;
-		wchar_t UserNameBuffer[UNLEN+1];
-		if (GetUserName(UserNameBuffer, &dwSize))
+		os::memory::netapi::ptr<USER_INFO_1> UserInfo;
+		if (NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
 		{
-			os::memory::netapi::ptr<USER_INFO_1> UserInfo;
-			if (NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
+			if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 			{
-				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
-				{
-					GotoXY(m_X1+2,CurY++);
-					PrintText(lng::MInfoUserDescription);
-					PrintInfo(UserInfo->usri1_comment);
-				}
-				lng LabelId = lng::MInfoUserAccessLevelUnknown;
-				switch (UserInfo->usri1_priv)
-				{
-				case USER_PRIV_GUEST:
-					LabelId = lng::MInfoUserAccessLevelGuest;
-					break;
-				case USER_PRIV_USER:
-					LabelId = lng::MInfoUserAccessLevelUser;
-						break;
-				case USER_PRIV_ADMIN:
-					LabelId = lng::MInfoUserAccessLevelAdministrator;
-						break;
-				}
 				GotoXY(m_X1+2,CurY++);
-				PrintText(lng::MInfoUserAccessLevel);
-				PrintInfo(LabelId);
+				PrintText(lng::MInfoUserDescription);
+				PrintInfo(UserInfo->usri1_comment);
 			}
+
+			lng LabelId;
+			switch (UserInfo->usri1_priv)
+			{
+			case USER_PRIV_GUEST:
+				LabelId = lng::MInfoUserAccessLevelGuest;
+				break;
+
+			case USER_PRIV_USER:
+				LabelId = lng::MInfoUserAccessLevelUser;
+				break;
+
+			case USER_PRIV_ADMIN:
+				LabelId = lng::MInfoUserAccessLevelAdministrator;
+				break;
+
+			default:
+				LabelId = lng::MInfoUserAccessLevelUnknown;
+				break;
+			}
+			GotoXY(m_X1+2,CurY++);
+			PrintText(lng::MInfoUserAccessLevel);
+			PrintInfo(LabelId);
 		}
 
 	}
