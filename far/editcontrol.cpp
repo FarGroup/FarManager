@@ -508,6 +508,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
 			{
 				AppendCmd();
+				Show();
 			}
 			if(Global->Opt->AutoComplete.ShowList)
 			{

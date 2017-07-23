@@ -1917,7 +1917,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	if (!LastSearchCase)
 	{
 		upper(strSearchStrUpper);
-		upper(strSearchStrLower);
+		lower(strSearchStrLower);
 	}
 
 	for (;;)
