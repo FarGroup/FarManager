@@ -3115,7 +3115,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3696102226
+mtime=3710394893
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3150,6 +3150,7 @@ mtime=3696102226
 #_DM_SETDLGDATA,
 #_DM_SETDROPDOWNOPENED,
 #_DM_SETFOCUS,
+#_DM_SETINPUTNOTIFY,
 #_DM_SETITEMDATA,
 #_DM_SETMAXTEXTLENGTH,
 #_DM_SETMOUSEEVENTNOTIFY,
@@ -3386,6 +3387,7 @@ mtime=3696102226
 #_{dm_setitemdata}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setitemdata.html
 #_{dm_setitemposition}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setitemposition.html
 #_{dm_setmaxtextlength}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmaxtextlength.html
+#_{dm_setinputnotify}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmouseeventnotify.html
 #_{dm_setmouseeventnotify}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setmouseeventnotify.html
 #_{dm_setselection}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_setselection.html
 #_{dm_settextptr}: http://api.farmanager.com/ru/dialogapi/dmsg/dm_settextptr.html
