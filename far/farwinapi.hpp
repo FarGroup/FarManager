@@ -151,7 +151,7 @@ namespace os
 	bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
 	void EnableLowFragmentationHeap();
 	using FAR_SECURITY_DESCRIPTOR = block_ptr<SECURITY_DESCRIPTOR>;
-	bool GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
+	FAR_SECURITY_DESCRIPTOR GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation);
 	bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 	bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 	string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName);
@@ -294,8 +294,9 @@ namespace os
 
 			// TODO: half of these should be free functions
 			bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
-			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr) const;
-			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr) const;
+			// TODO: async overloads when needed
+			bool Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead) const;
+			bool Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten) const;
 			bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const;
 			unsigned long long GetPointer() const { return m_Pointer; }
 			bool SetEnd();
@@ -533,21 +534,21 @@ namespace os
 			};
 		}
 
-		bool get_variable(const wchar_t* Name, string& strBuffer);
-		inline bool get_variable(const string& Name, string& strBuffer) { return get_variable(Name.data(), strBuffer); }
+		bool get(const wchar_t* Name, string& strBuffer);
+		inline bool get(const string& Name, string& strBuffer) { return get(Name.data(), strBuffer); }
 		template<class T>
-		string get_variable(const T& Name) { string Result; get_variable(Name, Result); return Result; }
+		string get(const T& Name) { string Result; get(Name, Result); return Result; }
 
-		bool set_variable(const wchar_t* Name, const wchar_t* Value);
-		inline bool set_variable(const wchar_t* Name, const string& Value) { return set_variable(Name, Value.data()); }
-		inline bool set_variable(const string& Name, const wchar_t* Value) { return set_variable(Name.data(), Value); }
-		inline bool set_variable(const string& Name, const string& Value) { return set_variable(Name.data(), Value.data()); }
+		bool set(const wchar_t* Name, const wchar_t* Value);
+		inline bool set(const wchar_t* Name, const string& Value) { return set(Name, Value.data()); }
+		inline bool set(const string& Name, const wchar_t* Value) { return set(Name.data(), Value); }
+		inline bool set(const string& Name, const string& Value) { return set(Name.data(), Value.data()); }
 
-		bool delete_variable(const wchar_t* Name);
-		inline bool delete_variable(const string& Name) { return delete_variable(Name.data()); }
+		bool del(const wchar_t* Name);
+		inline bool del(const string& Name) { return del(Name.data()); }
 
-		string expand_strings(const wchar_t* str);
-		inline string expand_strings(const string& str) { return expand_strings(str.data()); }
+		string expand(const wchar_t* str);
+		inline string expand(const string& str) { return expand(str.data()); }
 
 		string get_pathext();
 	}
@@ -625,28 +626,31 @@ namespace os
 			ptr copy(const T& Object)
 			{
 				static_assert(std::is_pod<T>::value);
-				if (auto Memory = alloc(GMEM_MOVEABLE, sizeof(Object)))
-				{
-					if (const auto Copy = lock<T*>(Memory))
-					{
-						*Copy = Object;
-						return Memory;
-					}
-				}
-				return nullptr;
+
+				auto Memory = alloc(GMEM_MOVEABLE, sizeof(Object));
+				if (!Memory)
+					return nullptr;
+
+				const auto Copy = lock<T*>(Memory);
+				if (!Copy)
+					return nullptr;
+
+				*Copy = Object;
+				return Memory;
 			}
 
 			inline ptr copy(const wchar_t* Data, size_t Size)
 			{
-				if (auto Memory = alloc(GMEM_MOVEABLE, (Size + 1) * sizeof(wchar_t)))
-				{
-					if (const auto Copy = lock<wchar_t*>(Memory))
-					{
-						*std::copy_n(Data, Size, Copy.get()) = L'\0';
-						return Memory;
-					}
-				}
-				return nullptr;
+				auto Memory = alloc(GMEM_MOVEABLE, (Size + 1) * sizeof(wchar_t));
+				if (!Memory)
+					return nullptr;
+
+				const auto Copy = lock<wchar_t*>(Memory);
+				if (!Copy)
+					return nullptr;
+
+				*std::copy_n(Data, Size, Copy.get()) = L'\0';
+				return Memory;
 			}
 
 		}
@@ -687,18 +691,17 @@ namespace os
 
 	namespace com
 	{
-		class co_initialize: noncopyable
+		class initialize: noncopyable
 		{
 		public:
-			co_initialize(): m_hr(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)) {}
-			~co_initialize() { if (SUCCEEDED(m_hr)) CoUninitialize(); }
-			operator HRESULT() const { return m_hr; }
+			initialize(): m_hr(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)) {}
+			~initialize() { if (SUCCEEDED(m_hr)) CoUninitialize(); }
 
 		private:
 			const HRESULT m_hr;
 		};
 
-		namespace detail
+		namespace detail 
 		{
 			template<typename T>
 			struct releaser

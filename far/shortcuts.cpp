@@ -203,7 +203,7 @@ static void Fill(const Shortcuts::shortcut& RetItem, string* Folder, GUID* Plugi
 {
 	if(Folder)
 	{
-		*Folder = os::env::expand_strings(RetItem.strFolder);
+		*Folder = os::env::expand(RetItem.strFolder);
 	}
 	if(PluginGuid)
 	{
@@ -233,7 +233,7 @@ static string MakeName(const Shortcuts::shortcut& Item)
 		{
 			result = Item.strFolder;
 		}
-		result = os::env::expand_strings(result);
+		result = os::env::expand(result);
 	}
 	else
 	{
@@ -516,13 +516,13 @@ void Shortcuts::EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw)
 		if (Item.PluginGuid == FarGuid)
 		{
 			bool PathRoot = false;
-			const auto Type = ParsePath(Unquote(NewItem.strFolder), nullptr, &PathRoot);
+			const auto Type = ParsePath(inplace::unquote(NewItem.strFolder), nullptr, &PathRoot);
 			if(!(PathRoot && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID)))
 			{
 				DeleteEndSlash(NewItem.strFolder);
 			}
 
-			string strTemp = os::env::expand_strings(NewItem.strFolder);
+			const auto strTemp = os::env::expand(NewItem.strFolder);
 
 			if ((!raw || !strTemp.empty()) && !os::fs::exists(strTemp))
 			{

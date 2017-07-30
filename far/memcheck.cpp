@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "string_utils.hpp"
 #include "exception.hpp"
+#include "synchro.hpp"
 
 #ifdef MEMCHECK
 
@@ -50,15 +51,13 @@ static intptr_t CallNewDeleteScalar = 0;
 static size_t AllocatedMemoryBlocks = 0;
 static size_t AllocatedMemorySize = 0;
 static size_t TotalAllocationCalls = 0;
-static bool MonitoringEnabled = true;
+static std::atomic<bool> MonitoringEnabled = true;
 
 enum class allocation_type: unsigned
 {
 	scalar = 0xa75ca1ae,
 	vector = 0xa77ec10e,
 };
-
-static CRITICAL_SECTION CS;
 
 struct alignas(MEMORY_ALLOCATION_ALIGNMENT) MEMINFO
 {
@@ -115,14 +114,18 @@ static int& GetMarker(MEMINFO* Info)
 
 void PrintMemory();
 
+static auto& CriticalSection()
+{
+	static os::critical_section s_Cs;
+	return s_Cs;
+}
+
 static void RegisterBlock(MEMINFO *block)
 {
 	if (!MonitoringEnabled)
 		return;
 
-	if (!AllocatedMemoryBlocks)
-		InitializeCriticalSection(&CS);
-	EnterCriticalSection(&CS);
+	SCOPED_ACTION(std::lock_guard<os::critical_section>)(CriticalSection());
 
 	static auto AtExitSet = false;
 	if (!AtExitSet)
@@ -143,8 +146,6 @@ static void RegisterBlock(MEMINFO *block)
 	++AllocatedMemoryBlocks;
 	++TotalAllocationCalls;
 	AllocatedMemorySize+=block->Size;
-
-	LeaveCriticalSection(&CS);
 }
 
 static void UnregisterBlock(MEMINFO *block)
@@ -152,7 +153,7 @@ static void UnregisterBlock(MEMINFO *block)
 	if (!MonitoringEnabled)
 		return;
 
-	EnterCriticalSection(&CS);
+	SCOPED_ACTION(std::lock_guard<os::critical_section>)(CriticalSection());
 
 	if (block->prev)
 		block->prev->next = block->next;
@@ -166,11 +167,6 @@ static void UnregisterBlock(MEMINFO *block)
 	updateCallCount(block->AllocationType, false);
 	--AllocatedMemoryBlocks;
 	AllocatedMemorySize-=block->Size;
-
-	LeaveCriticalSection(&CS);
-
-	if (!AllocatedMemoryBlocks)
-		DeleteCriticalSection(&CS);
 }
 
 static std::string FormatLine(const char* File, int Line, const char* Function, allocation_type Type, size_t Size)
@@ -255,7 +251,7 @@ static string FindStr(const void* Data, size_t Size)
 
 void PrintMemory()
 {
-	const auto MonitoringState = std::exchange(MonitoringEnabled, false);
+	const auto MonitoringState = MonitoringEnabled.exchange(false);
 
 	if (CallNewDeleteVector || CallNewDeleteScalar || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{

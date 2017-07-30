@@ -152,7 +152,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 				else
 				{
 					const auto DriveVar = L'=' + os::fs::get_drive(stPath[0]);
-					const auto strValue(os::env::get_variable(DriveVar));
+					const auto strValue(os::env::get(DriveVar));
 
 					if (!strValue.empty())
 					{

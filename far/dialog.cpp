@@ -1271,7 +1271,7 @@ void Dialog::GetDialogObjectsExpandData()
 					   (DI_FIXEDIT допускается для случая если нету маски)
 					*/
 
-					strData = os::env::expand_strings(strData);
+					strData = os::env::expand(strData);
 					//как бы грязный хак, нам нужно обновить строку чтоб отдавалась правильная строка
 					//для различных DM_* после закрытия диалога, но ни в коем случае нельзя чтоб
 					//высылался DN_EDITCHANGE для этого изменения, ибо диалог уже закрыт.
@@ -1726,7 +1726,7 @@ void Dialog::ShowDialog(size_t ID)
 
 					if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CX1 != -1)
 					{
-						strStr = fit_to_center(strStr, CX2 - CX1 + 1);
+						inplace::fit_to_center(strStr, CX2 - CX1 + 1);
 						LenText = LenStrItem(I, strStr);
 					}
 
@@ -1803,9 +1803,9 @@ void Dialog::ShowDialog(size_t ID)
 						string strResult = strWrap.substr(pos, end-pos);
 
 						if (Items[I].Flags & DIF_CENTERTEXT)
-							strResult = fit_to_center(strResult, CW);
+							inplace::fit_to_center(strResult, CW);
 						else if (Items[I].Flags & DIF_RIGHTTEXT)
-							strResult = fit_to_right(strResult, CW);
+							inplace::fit_to_right(strResult, CW);
 
 						LenText=LenStrItem(I,strResult);
 						X=(CX1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(CW-LenText)/2:CX1;
@@ -1836,7 +1836,7 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1 != -1)
 				{
-					strStr = fit_to_center(strStr, CY2 - CY1 + 1);
+					inplace::fit_to_center(strStr, CY2 - CY1 + 1);
 					LenText = static_cast<int>(strStr.size());
 				}
 

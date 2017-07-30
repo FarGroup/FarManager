@@ -235,9 +235,14 @@ wchar_t* WINAPI apiInsertQuote(wchar_t *Str) noexcept
 }
 
 void WINAPI apiUnquote(wchar_t *Str) noexcept
-{	try
+{
+	try
 	{
-		return Unquote(Str);
+		if (!Str)
+			return;
+
+		const auto Iterator = null_iterator(Str);
+		*std::remove(Iterator, Iterator.end(), L'"') = 0;
 	}
 	catch (...)
 	{
@@ -1967,7 +1972,7 @@ void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
 	try
 	{
-		return upper(Buf, Length);
+		return inplace::upper(Buf, Length);
 	}
 	catch (...)
 	{
@@ -1980,7 +1985,7 @@ void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length) noexcept
 {
 	try
 	{
-		return lower(Buf, Length);
+		return inplace::lower(Buf, Length);
 	}
 	catch (...)
 	{
@@ -1993,7 +1998,7 @@ void WINAPI apiStrUpper(wchar_t *s1) noexcept
 {
 	try
 	{
-		return upper(s1);
+		return inplace::upper(s1);
 	}
 	catch (...)
 	{
@@ -2006,7 +2011,7 @@ void WINAPI apiStrLower(wchar_t *s1) noexcept
 {
 	try
 	{
-		return lower(s1);
+		return inplace::lower(s1);
 	}
 	catch (...)
 	{

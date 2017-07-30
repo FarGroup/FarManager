@@ -228,7 +228,7 @@ void QuickView::DisplayObject()
 			PrintText(format(LR"({0} "{1}")", TypeName, Target));
 		}
 
-		const auto bytes_suffix = upper_copy(msg(lng::MListBytes));
+		const auto bytes_suffix = upper(msg(lng::MListBytes));
 		const auto& size2str = [&bytes_suffix](ULONGLONG Size)
 		{
 			if (Global->Opt->ShowBytes)

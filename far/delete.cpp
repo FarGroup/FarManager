@@ -118,9 +118,9 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 		ConsoleTitle::SetFarTitle(concat(L'{', str(Percent), L"%} "_sv, msg(Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS? lng::MDeleteWipeTitle : lng::MDeleteTitle)));
 	}
 
-	string strOutFileName(Name);
+	auto strOutFileName = Name;
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
-	strOutFileName = fit_to_center(strOutFileName, Width);
+	inplace::fit_to_center(strOutFileName, Width);
 
 	{
 		std::vector<string> MsgItems =
@@ -335,8 +335,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	string strDeleteFilesMsg;
 	string strSelName;
 	string strSelShortName;
-	int DizPresent;
-	int Ret;
 	bool NeedUpdate = true, NeedSetUpADir = false;
 	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
@@ -399,7 +397,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		strDeleteFilesMsg = format(lng::MAskDeleteItems, SelCount, Ends);
 	}
 
-	Ret=1;
+	int Ret = 1;
 
 	//   Обработка "удаления" линков
 	if ((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
@@ -544,7 +542,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		SrcPanel->ReadDiz();
 
 	const auto strDizName = SrcPanel->GetDizName();
-	DizPresent=(!strDizName.empty() && os::fs::exists(strDizName));
+	const auto DizPresent = !strDizName.empty() && os::fs::exists(strDizName);
 
 	NeedSetUpADir = CheckUpdateAnotherPanel(SrcPanel, strSelName);
 
@@ -1206,16 +1204,13 @@ void DeleteDirTree(const string& Dir)
 
 bool DeleteFileWithFolder(const string& FileName)
 {
-	bool Result = false;
-	string strFileOrFolderName(FileName);
-	if (os::SetFileAttributes(Unquote(strFileOrFolderName), FILE_ATTRIBUTE_NORMAL))
-	{
-		if (os::DeleteFile(strFileOrFolderName)) //BUGBUG
-		{
-			Result = CutToParent(strFileOrFolderName) && os::RemoveDirectory(strFileOrFolderName);
-		}
-	}
-	return Result;
+	auto strFileOrFolderName = unquote(FileName);
+	os::SetFileAttributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL);
+
+	if (!os::DeleteFile(strFileOrFolderName))
+		return false;
+
+	return CutToParent(strFileOrFolderName) && os::RemoveDirectory(strFileOrFolderName);
 }
 
 delayed_deleter::delayed_deleter(const string& pathToDelete):

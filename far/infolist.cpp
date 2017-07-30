@@ -357,7 +357,7 @@ void InfoList::DisplayObject()
 		SectionTitle = msg(lng::MInfoDiskTitle);
 	DrawTitle(SectionTitle,ILSS_DISKINFO,CurY);
 
-	const auto bytes_suffix = upper_copy(msg(lng::MListBytes));
+	const auto bytes_suffix = upper(msg(lng::MListBytes));
 	const auto& size2str = [&bytes_suffix](ULONGLONG Size)
 	{
 		string str;

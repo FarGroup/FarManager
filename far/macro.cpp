@@ -3459,7 +3459,7 @@ static bool environFunc(FarMacroCall* Data)
 	string strEnv;
 
 
-	if (os::env::get_variable(S.toString(), strEnv))
+	if (os::env::get(S.toString(), strEnv))
 		Ret=true;
 	else
 		strEnv.clear();
@@ -3467,9 +3467,9 @@ static bool environFunc(FarMacroCall* Data)
 	if (Mode.asInteger()) // Mode != 0: Set
 	{
 		if (Value.isUnknown() || Value.asString().empty())
-			os::env::delete_variable(S.toString());
+			os::env::del(S.toString());
 		else
-			os::env::set_variable(S.toString(), Value.toString());
+			os::env::set(S.toString(), Value.toString());
 	}
 
 	PassString(strEnv, Data);
@@ -4660,7 +4660,7 @@ static bool ucaseFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
-	Val = upper_copy(Val.toString());
+	Val = upper(Val.toString());
 	PassValue(Val, Data);
 	return true;
 }
@@ -4669,7 +4669,7 @@ static bool lcaseFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(1, Data);
 	TVar& Val(Params[0]);
-	Val = lower_copy(Val.toString());
+	Val = lower(Val.toString());
 	PassValue(Val, Data);
 	return true;
 }

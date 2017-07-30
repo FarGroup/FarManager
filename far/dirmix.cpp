@@ -62,7 +62,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 	if (NewDir.size() == 2 && NewDir[1]==L':')
 	{
 		Drive[1] = upper(NewDir[0]);
-		strCurDir = os::env::get_variable(Drive);
+		strCurDir = os::env::get(Drive);
 		if (strCurDir.empty())
 		{
 			strCurDir = NewDir;
@@ -106,7 +106,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 		if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
 			Drive[1] = upper(strCurDir[0]);
-			os::env::set_variable(Drive, strCurDir);
+			os::env::set(Drive, strCurDir);
 		}
 	}
 

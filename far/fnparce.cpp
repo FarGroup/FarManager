@@ -323,7 +323,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 		if (RealPath)
 		{
 			MakePath1(SubstData.PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET, strCurDir, L"", ShortN0);
-			Unquote(strCurDir);
+			inplace::unquote(strCurDir);
 		}
 
 		if (ShortN0)
@@ -456,7 +456,7 @@ bool SubstFileName(const wchar_t *DlgTitle,
 
 	if (!IgnoreInput)
 	{
-		ReplaceVariables(os::env::expand_strings(NullToEmpty(DlgTitle)), strStr, SubstData);
+		ReplaceVariables(os::env::expand(NullToEmpty(DlgTitle)), strStr, SubstData);
 	}
 
 	return SubstData.PreserveLFN;
@@ -603,7 +603,7 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 		}
 
 		//do it - типа здесь все уже раскрыто и преобразовано
-		DlgData[DlgData.size() - 2].strData = os::env::expand_strings(strTitle);
+		DlgData[DlgData.size() - 2].strData = os::env::expand(strTitle);
 
 		// Заполняем поле ввода заданным шаблоном - если есть
 		string strTxt;
@@ -712,7 +712,7 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 		}
 	}
 
-	strStr = os::env::expand_strings(strTmpStr);
+	strStr = os::env::expand(strTmpStr);
 	return 1;
 }
 

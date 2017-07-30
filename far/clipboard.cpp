@@ -334,8 +334,7 @@ bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
 	if (NamesData.empty())
 		return false;
 
-	const auto RawDataSize = (NamesData.size() + 1) * sizeof(wchar_t);
-	auto hMemory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + RawDataSize);
+	auto hMemory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + (NamesData.size() + 1) * sizeof(wchar_t));
 	if (!hMemory)
 		return false;
 
@@ -348,7 +347,7 @@ bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
 	Drop->pt.y = 0;
 	Drop->fNC = TRUE;
 	Drop->fWide = TRUE;
-	memcpy(Drop.get() + 1, NamesData.data(), RawDataSize);
+	*std::copy(ALL_CONST_RANGE(NamesData), reinterpret_cast<wchar_t*>(Drop.get() + 1)) = 0;
 
 	if (!Clear() || !SetData(CF_HDROP, std::move(hMemory)))
 		return false;

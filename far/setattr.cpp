@@ -540,9 +540,9 @@ void ShellSetFileAttributesMsg(const string& Name)
 
 	WidthTemp=std::min(WidthTemp, ScrX/2);
 	Width=std::max(Width,WidthTemp);
-	string strOutFileName=Name;
+	auto strOutFileName = Name;
 	TruncPathStr(strOutFileName,Width);
-	strOutFileName = fit_to_center(strOutFileName, Width + 4);
+	inplace::fit_to_center(strOutFileName, Width + 4);
 	Message(0,
 		msg(lng::MSetAttrTitle),
 		{
@@ -1260,8 +1260,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				//reparse point editor
 				if (!equal_icase(AttrDlg[SA_EDIT_SYMLINK].strData, strLinkName))
 				{
-					string strTarget = AttrDlg[SA_EDIT_SYMLINK].strData;
-					if(!ModifyReparsePoint(strSelName, Unquote(strTarget)))
+					if(!ModifyReparsePoint(strSelName, unquote(AttrDlg[SA_EDIT_SYMLINK].strData)))
 					{
 						Global->CatchError();
 						Message(MSG_WARNING | MSG_ERRORTYPE,

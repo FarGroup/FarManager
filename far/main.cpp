@@ -309,7 +309,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 	if (!strTemplatePath.empty())
 	{
-		strTemplatePath = ConvertNameToFull(Unquote(os::env::expand_strings(strTemplatePath)));
+		strTemplatePath = ConvertNameToFull(unquote(os::env::expand(strTemplatePath)));
 		DeleteEndSlash(strTemplatePath);
 
 		if (os::fs::is_directory(strTemplatePath))
@@ -323,11 +323,11 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (!strProfilePath.empty())
 	{
-		strProfilePath = ConvertNameToFull(Unquote(os::env::expand_strings(strProfilePath)));
+		strProfilePath = ConvertNameToFull(unquote(os::env::expand(strProfilePath)));
 	}
 	if (!strLocalProfilePath.empty())
 	{
-		strLocalProfilePath = ConvertNameToFull(Unquote(os::env::expand_strings(strLocalProfilePath)));
+		strLocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strLocalProfilePath)));
 	}
 
 	if (strProfilePath.empty())
@@ -367,8 +367,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		{
 			const auto strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
 			const auto strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
-			Global->Opt->ProfilePath = ConvertNameToFull(Unquote(os::env::expand_strings(strUserProfileDir)));
-			Global->Opt->LocalProfilePath = ConvertNameToFull(Unquote(os::env::expand_strings(strUserLocalProfileDir)));
+			Global->Opt->ProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserProfileDir)));
+			Global->Opt->LocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserLocalProfileDir)));
 		}
 	}
 	else
@@ -379,8 +379,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
-	os::env::set_variable(L"FARPROFILE", Global->Opt->ProfilePath);
-	os::env::set_variable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
+	os::env::set(L"FARPROFILE", Global->Opt->ProfilePath);
+	os::env::set(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
 		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
@@ -484,7 +484,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 #endif
 
 	// Must be static - dependent static objects exist
-	static SCOPED_ACTION(os::com::co_initialize);
+	static SCOPED_ACTION(os::com::initialize);
 
 	SCOPED_ACTION(global);
 
@@ -496,12 +496,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	RegisterTestExceptionsHook();
 
-	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
-	// Applications do not need to enable the LFH for their heaps.
-	if (!IsWindowsVistaOrGreater())
-	{
-		os::EnableLowFragmentationHeap();
-	}
+	os::EnableLowFragmentationHeap();
 
 	if(!Console().IsFullscreenSupported())
 	{
@@ -520,13 +515,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	os::env::set_variable(L"FARHOME", Global->g_strFarPath);
+	os::env::set(L"FARHOME", Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
 	if (os::security::is_admin())
-		os::env::set_variable(L"FARADMINMODE", L"1");
+		os::env::set(L"FARADMINMODE", L"1");
 	else
-		os::env::delete_variable(L"FARADMINMODE");
+		os::env::del(L"FARADMINMODE");
 
 	{
 		int ServiceResult;
@@ -736,7 +731,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 				}
 				else
 				{
-					auto ArgvI = ConvertNameToFull(Unquote(os::env::expand_strings(Arg)));
+					auto ArgvI = ConvertNameToFull(unquote(os::env::expand(Arg)));
 					if (os::fs::exists(ArgvI))
 					{
 						DestNames[CntDestName++] = ArgvI;
@@ -781,10 +776,10 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	far_language::instance().load(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
 
-	os::env::set_variable(L"FARLANG", Global->Opt->strLanguage);
+	os::env::set(L"FARLANG", Global->Opt->strLanguage);
 
 	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
-		Global->Opt->LoadPlug.strCustomPluginsPath = ConvertNameToFull(Unquote(os::env::expand_strings(Global->Opt->LoadPlug.strCustomPluginsPath)));
+		Global->Opt->LoadPlug.strCustomPluginsPath = ConvertNameToFull(unquote(os::env::expand(Global->Opt->LoadPlug.strCustomPluginsPath)));
 
 	UpdateErrorMode();
 

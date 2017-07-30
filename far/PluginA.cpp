@@ -2241,7 +2241,7 @@ static DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t si
 {
 	try
 	{
-		const auto strD = os::env::expand_strings(encoding::oem::get_chars(src));
+		const auto strD = os::env::expand(encoding::oem::get_chars(src));
 		const auto len = std::min(strD.size(), size - 1);
 		encoding::oem::get_bytes(strD, dest, len + 1);
 		return static_cast<DWORD>(len);
@@ -5138,9 +5138,9 @@ private:
 			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().data();
 
 			if (Global->strRegUser.empty())
-				os::env::delete_variable(L"FARUSER");
+				os::env::del(L"FARUSER");
 			else
-				os::env::set_variable(L"FARUSER", Global->strRegUser);
+				os::env::set(L"FARUSER", Global->strRegUser);
 
 			ExecuteFunction(es, &InfoCopy);
 

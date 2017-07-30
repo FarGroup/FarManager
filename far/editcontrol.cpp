@@ -203,8 +203,7 @@ static bool ParseStringWithQuotes(const string& Str, string& Start, string& Toke
 	}
 
 	Start = Str.substr(0, Pos);
-	Token = Str.substr(Pos);
-	Unquote(Token);
+	Token = unquote(Str.substr(Pos));
 	return !Token.empty();
 }
 
@@ -266,7 +265,7 @@ static bool EnumFiles(VMenu2& Menu, const string& strStart, const string& Token,
 
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		const auto Pattern = os::env::expand_strings(Token) + L'*';
+		const auto Pattern = os::env::expand(Token) + L'*';
 		const auto FileName = PointToName(Token);
 
 		for (const auto& i: os::fs::enum_files(Pattern))
@@ -287,7 +286,7 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		for (const auto& i: split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds)))
+		for (const auto& i: split<std::vector<string>>(os::env::expand(Global->Opt->Exec.strExcludeCmds)))
 		{
 			if (starts_with_icase(i, Token))
 			{
@@ -296,7 +295,7 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 		}
 
 		{
-			const auto strPathEnv(os::env::get_variable(L"PATH"));
+			const auto strPathEnv(os::env::get(L"PATH"));
 			if (!strPathEnv.empty())
 			{
 				const auto PathExt = os::env::get_pathext();

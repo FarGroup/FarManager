@@ -56,7 +56,6 @@ namespace os
 			static bool check(const range<const wchar_t* const*>& Names);
 
 		private:
-			handle m_Token;
 			block_ptr<TOKEN_PRIVILEGES> m_SavedState;
 			bool m_Changed {};
 		};

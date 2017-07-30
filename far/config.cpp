@@ -2149,7 +2149,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 
 	Palette.Load();
-	GlobalUserMenuDir = ConvertNameToFull(os::env::expand_strings(GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath)));
+	GlobalUserMenuDir = ConvertNameToFull(os::env::expand(GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath)));
 	AddEndSlash(GlobalUserMenuDir);
 
 	if(WindowMode == -1)
@@ -3103,7 +3103,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 						SelectHelpLanguage();
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						os::env::set_variable(L"FARLANG", strLanguage);
+						os::env::set(L"FARLANG", strLanguage);
 						PrepareUnitStr();
 						Global->WindowManager->InitKeyBar();
 						Global->CtrlObject->Cp()->RedrawKeyBar();

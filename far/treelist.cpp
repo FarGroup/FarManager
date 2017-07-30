@@ -241,7 +241,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 		}
 		if ( !strPath.empty() )
 		{
-			strDest = os::env::expand_strings(strPath);
+			strDest = os::env::expand(strPath);
 		}
 		else
 		{

@@ -63,7 +63,7 @@ void NTPath::Transform()
 		{
 			// "\\?\C:" -> "\\?\c:"
 			// Some file operations fail on Win2k if a drive letter is in upper case
-			lower(Data, 4, 1);
+			inplace::lower(Data, 4, 1);
 		}
 	}
 }

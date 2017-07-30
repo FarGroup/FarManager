@@ -1916,8 +1916,8 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	string strSearchStrLower = strLastSearchStr;
 	if (!LastSearchCase)
 	{
-		upper(strSearchStrUpper);
-		lower(strSearchStrLower);
+		inplace::upper(strSearchStrUpper);
+		inplace::lower(strSearchStrLower);
 	}
 
 	for (;;)
@@ -2166,7 +2166,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 
 			if (Success)
 			{
-				strAction = os::env::expand_strings(strAction);
+				strAction = os::env::expand(strAction);
 
 				string FilteredURLPath(URLPath);
 				// удалим два идущих подряд ~~

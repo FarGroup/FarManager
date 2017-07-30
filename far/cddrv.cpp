@@ -344,12 +344,11 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Devi
 
 static CDROM_DeviceCapabilities GetDeviceCapabilities(const os::fs::file& Device)
 {
-	auto caps = getCapsUsingMagic(Device);
+	const auto caps = getCapsUsingMagic(Device);
+	if (caps != CAPABILITIES_NONE)
+		return caps;
 
-	if (caps == CAPABILITIES_NONE)
-		caps = getCapsUsingDeviceProps(Device);
-
-	return caps;
+	return getCapsUsingDeviceProps(Device);
 }
 
 static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)

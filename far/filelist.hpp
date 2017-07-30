@@ -410,7 +410,6 @@ private:
 		plugin_panel* m_Plugin{};
 	}
 	m_ListData;
-	plugin_panel* m_hPlugin{};
 	std::list<PrevDataItem> PrevDataList;
 	std::list<PluginsListItem> PluginsList;
 	FileSystemWatcher FSWatcher;

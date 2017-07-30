@@ -157,7 +157,7 @@ static void st_time(string &strDest, const tm *tmPtr, const locale_cache::names&
 			Names.Months[tmPtr->tm_mon].Short,
 			tmPtr->tm_year+1900);
 
-		upper(strDest, 3, 3);
+		inplace::upper(strDest, 3, 3);
 	}
 	else
 	{

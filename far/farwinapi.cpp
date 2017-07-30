@@ -55,42 +55,58 @@ namespace os
 		default_buffer_size = MAX_PATH
 	};
 
-	template<typename T>
-	bool ApiDynamicStringReceiver(string& Destination, const T& Callable)
+	template<typename buffer_type, typename receiver, typename condition, typename assigner>
+	bool ApiDynamicReceiver(const receiver& Receiver, const condition& Condition, const assigner& Assigner)
 	{
-		wchar_t_ptr_n<default_buffer_size> Buffer(default_buffer_size);
-		auto Size = Callable(Buffer.get(), Buffer.size());
+		array_ptr<buffer_type, default_buffer_size> Buffer(default_buffer_size);
+		auto Size = Receiver(Buffer.get(), Buffer.size());
 
-		while(Size >= Buffer.size())
+		while (Condition(Size, Buffer.size()))
 		{
-			Buffer.reset(Size);
-			Size = Callable(Buffer.get(), Buffer.size());
+			Buffer.reset(Size? Size : Buffer.size() * 2);
+			Size = Receiver(Buffer.get(), Buffer.size());
 		}
 
 		if (!Size)
 			return false;
 
-		Destination.assign(Buffer.get(), Size);
+		Assigner(Buffer.get(), Size);
 		return true;
+	}
+
+	template<typename T>
+	bool ApiDynamicStringReceiver(string& Destination, const T& Callable)
+	{
+		return ApiDynamicReceiver<wchar_t>(
+			Callable,
+			[](size_t ReturnedSize, size_t AllocatedSize)
+			{
+				// Why such condition?
+				// Usually API functions return string length (without \0) on success and
+				// required buffer size (i. e. string length + \0) on failure.
+				// Some of them, however, always return buffer size.
+				// It's Callable's responsibility to handle and fix that.
+				return ReturnedSize >= AllocatedSize;
+			},
+			[&](const wchar_t* Buffer, size_t Size)
+			{
+				Destination.assign(Buffer, Size);
+			});
 	}
 
 	template<typename T>
 	bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, const T& Callable)
 	{
-		wchar_t_ptr_n<default_buffer_size> Buffer(default_buffer_size);
-		auto Size = Callable(Buffer.get(), Buffer.size());
-
-		while (!Size && GetLastError() == ExpectedErrorCode)
-		{
-			Buffer.reset(Buffer.size() * 2);
-			Size = Callable(Buffer.get(), Buffer.size());
-		}
-
-		if (!Size)
-			return false;
-
-		Destination.assign(Buffer.get(), Size);
-		return true;
+		return ApiDynamicReceiver<wchar_t>(
+			Callable,
+			[&](size_t ReturnedSize, size_t AllocatedSize)
+			{
+				return !ReturnedSize && GetLastError() == ExpectedErrorCode;
+			},
+			[&](const wchar_t* Buffer, size_t Size)
+			{
+				Destination.assign(Buffer, Size);
+			});
 	}
 
 	namespace detail
@@ -502,47 +518,49 @@ bool file::Open(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSE
 
 void file::SyncPointer() const
 {
-	if(m_NeedSyncPointer)
-	{
-		LARGE_INTEGER Distance, NewPointer;
-		Distance.QuadPart = m_Pointer;
-		if (SetFilePointerEx(m_Handle.native_handle(), Distance, &NewPointer, FILE_BEGIN))
-		{
-			m_Pointer = NewPointer.QuadPart;
-			m_NeedSyncPointer = false;
-		}
-	}
+	if (!m_NeedSyncPointer)
+		return;
+
+	LARGE_INTEGER Distance, NewPointer;
+	Distance.QuadPart = m_Pointer;
+	if (!SetFilePointerEx(m_Handle.native_handle(), Distance, &NewPointer, FILE_BEGIN))
+		return;
+
+	m_Pointer = NewPointer.QuadPart;
+	m_NeedSyncPointer = false;
 }
 
 
-bool file::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead, LPOVERLAPPED Overlapped) const
+bool file::Read(LPVOID Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead) const
 {
 	assert(NumberOfBytesToRead <= std::numeric_limits<DWORD>::max());
 
 	SyncPointer();
+
+	NumberOfBytesRead = 0;
 	DWORD BytesRead = 0;
-	bool Result = ReadFile(m_Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToRead), &BytesRead, Overlapped) != FALSE;
+	if (!ReadFile(m_Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToRead), &BytesRead, nullptr))
+		return false;
+
 	NumberOfBytesRead = BytesRead;
-	if(Result)
-	{
-		m_Pointer += NumberOfBytesRead;
-	}
-	return Result;
+	m_Pointer += NumberOfBytesRead;
+	return true;
 }
 
-bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten, LPOVERLAPPED Overlapped) const
+bool file::Write(LPCVOID Buffer, size_t NumberOfBytesToWrite, size_t& NumberOfBytesWritten) const
 {
 	assert(NumberOfBytesToWrite <= std::numeric_limits<DWORD>::max());
 
 	SyncPointer();
+
+	NumberOfBytesWritten = 0;
 	DWORD BytesWritten = 0;
-	bool Result = WriteFile(m_Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToWrite), &BytesWritten, Overlapped) != FALSE;
+	if (!WriteFile(m_Handle.native_handle(), Buffer, static_cast<DWORD>(NumberOfBytesToWrite), &BytesWritten, nullptr))
+		return false;
+
 	NumberOfBytesWritten = BytesWritten;
-	if(Result)
-	{
-		m_Pointer += NumberOfBytesWritten;
-	}
-	return Result;
+	m_Pointer += NumberOfBytesWritten;
+	return true;
 }
 
 bool file::SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const
@@ -744,51 +762,54 @@ file_walker::~file_walker() = default;
 
 bool file_walker::InitWalk(size_t BlockSize)
 {
-	bool Result = false;
-	m_ChunkSize = static_cast<DWORD>(BlockSize);
-	if(GetSize(m_FileSize) && m_FileSize)
-	{
-		BY_HANDLE_FILE_INFORMATION bhfi;
-		m_IsSparse = GetInformation(bhfi) && bhfi.dwFileAttributes&FILE_ATTRIBUTE_SPARSE_FILE;
+	if (!GetSize(m_FileSize) || !m_FileSize)
+		return false;
 
-		if(m_IsSparse)
+	m_ChunkSize = static_cast<DWORD>(BlockSize);
+
+	bool Result = false;
+
+	BY_HANDLE_FILE_INFORMATION bhfi;
+	m_IsSparse = GetInformation(bhfi) && bhfi.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE;
+
+	if(m_IsSparse)
+	{
+		FILE_ALLOCATED_RANGE_BUFFER QueryRange = {};
+		QueryRange.Length.QuadPart = m_FileSize;
+		FILE_ALLOCATED_RANGE_BUFFER Ranges[1024];
+		DWORD BytesReturned;
+		for(;;)
 		{
-			FILE_ALLOCATED_RANGE_BUFFER QueryRange = {};
-			QueryRange.Length.QuadPart = m_FileSize;
-			FILE_ALLOCATED_RANGE_BUFFER Ranges[1024];
-			DWORD BytesReturned;
-			for(;;)
+			const bool QueryResult = IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &QueryRange, sizeof(QueryRange), Ranges, sizeof(Ranges), &BytesReturned);
+			if((QueryResult || GetLastError() == ERROR_MORE_DATA) && BytesReturned)
 			{
-				const bool QueryResult = IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &QueryRange, sizeof(QueryRange), Ranges, sizeof(Ranges), &BytesReturned);
-				if((QueryResult || GetLastError() == ERROR_MORE_DATA) && BytesReturned)
+				for (const auto& i: make_range(Ranges, BytesReturned / sizeof(*Ranges)))
 				{
-					for (const auto& i: make_range(Ranges, BytesReturned / sizeof(*Ranges)))
+					m_AllocSize += i.Length.QuadPart;
+					const unsigned long long RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
+					for(auto j = static_cast<unsigned long long>(i.FileOffset.QuadPart); j < RangeEndOffset; j+=m_ChunkSize)
 					{
-						m_AllocSize += i.Length.QuadPart;
-						const unsigned long long RangeEndOffset = i.FileOffset.QuadPart + i.Length.QuadPart;
-						for(auto j = static_cast<unsigned long long>(i.FileOffset.QuadPart); j < RangeEndOffset; j+=m_ChunkSize)
-						{
-							m_ChunkList.emplace_back(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<unsigned long long>(m_ChunkSize))));
-						}
+						m_ChunkList.emplace_back(j, static_cast<DWORD>(std::min(RangeEndOffset - j, static_cast<unsigned long long>(m_ChunkSize))));
 					}
-					QueryRange.FileOffset.QuadPart = m_ChunkList.back().Offset+m_ChunkList.back().Size;
-					QueryRange.Length.QuadPart = m_FileSize - QueryRange.FileOffset.QuadPart;
 				}
-				else
-				{
-					break;
-				}
+				QueryRange.FileOffset.QuadPart = m_ChunkList.back().Offset+m_ChunkList.back().Size;
+				QueryRange.Length.QuadPart = m_FileSize - QueryRange.FileOffset.QuadPart;
 			}
-			Result = !m_ChunkList.empty();
+			else
+			{
+				break;
+			}
 		}
-		else
-		{
-			m_AllocSize = m_FileSize;
-			m_ChunkList.emplace_back(0, static_cast<DWORD>(std::min(static_cast<unsigned long long>(BlockSize), m_FileSize)));
-			Result = true;
-		}
-		m_CurrentChunk = m_ChunkList.begin();
+		Result = !m_ChunkList.empty();
 	}
+	else
+	{
+		m_AllocSize = m_FileSize;
+		m_ChunkList.emplace_back(0, static_cast<DWORD>(std::min(static_cast<unsigned long long>(BlockSize), m_FileSize)));
+		Result = true;
+	}
+	m_CurrentChunk = m_ChunkList.begin();
+
 	return Result;
 }
 
@@ -1711,6 +1732,11 @@ bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePat
 
 void EnableLowFragmentationHeap()
 {
+	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
+	// Applications do not need to enable the LFH for their heaps.
+	if (IsWindowsVistaOrGreater())
+		return;
+
 	if (!Imports().HeapSetInformation)
 		return;
 
@@ -1737,17 +1763,25 @@ bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETI
 	return File.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 }
 
-bool GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
+FAR_SECURITY_DESCRIPTOR GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation)
 {
-	bool Result = false;
+	FAR_SECURITY_DESCRIPTOR Result;
 	NTPath NtObject(Object);
-	DWORD LengthNeeded = 0;
-	::GetFileSecurity(NtObject.data(), RequestedInformation, nullptr, 0, &LengthNeeded);
-	if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	ApiDynamicReceiver<char>([&](char* Buffer, size_t Size)
 	{
-		SecurityDescriptor.reset(LengthNeeded);
-		Result = ::GetFileSecurity(NtObject.data(), RequestedInformation, SecurityDescriptor.get(), LengthNeeded, &LengthNeeded) != FALSE;
-	}
+		DWORD LengthNeeded = 0;
+		::GetFileSecurity(NtObject.data(), RequestedInformation, reinterpret_cast<SECURITY_DESCRIPTOR*>(Buffer), static_cast<DWORD>(Size), &LengthNeeded);
+		return LengthNeeded;
+	},
+	[](size_t ReturnedSize, size_t AllocatedSize)
+	{
+		return ReturnedSize > AllocatedSize;
+	},
+	[&](const char* Buffer, size_t Size)
+	{
+		Result.reset(Size);
+		memcpy(Result.get(), Buffer, Size);
+	});
 	return Result;
 }
 
@@ -2104,7 +2138,7 @@ handle OpenConsoleActiveScreenBuffer()
 			}
 		}
 
-		bool get_variable(const wchar_t* Name, string& strBuffer)
+		bool get(const wchar_t* Name, string& strBuffer)
 		{
 			GuardLastError ErrorGuard;
 			// GetEnvironmentVariable might return 0 not only in case of failure, but also when variable is empty.
@@ -2129,17 +2163,17 @@ handle OpenConsoleActiveScreenBuffer()
 			return false;
 		}
 
-		bool set_variable(const wchar_t* Name, const wchar_t* Value)
+		bool set(const wchar_t* Name, const wchar_t* Value)
 		{
 			return ::SetEnvironmentVariable(Name, Value) != FALSE;
 		}
 
-		bool delete_variable(const wchar_t* Name)
+		bool del(const wchar_t* Name)
 		{
 			return ::SetEnvironmentVariable(Name, nullptr) != FALSE;
 		}
 
-		string expand_strings(const wchar_t* Str)
+		string expand(const wchar_t* Str)
 		{
 			string Result;
 			if (!ApiDynamicStringReceiver(Result, [&](wchar_t* Buffer, size_t Size)
@@ -2158,7 +2192,7 @@ handle OpenConsoleActiveScreenBuffer()
 
 		string get_pathext()
 		{
-			auto PathExt(os::env::get_variable(L"PATHEXT"));
+			auto PathExt(os::env::get(L"PATHEXT"));
 			if (PathExt.empty())
 				PathExt = L".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC";
 			return PathExt;
@@ -2236,7 +2270,7 @@ string GuidToStr(const GUID& Guid)
 		SCOPE_EXIT{ RpcStringFree(&str); };
 		result = reinterpret_cast<const wchar_t*>(str);
 	}
-	return upper_copy(result);
+	return upper(result);
 }
 
 bool StrToGuid(const wchar_t* Value, GUID& Guid)

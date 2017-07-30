@@ -387,8 +387,7 @@ void Search::DisplayObject(void)
 
 void Search::ProcessName(const string& Src) const
 {
-	auto Buffer = m_FindEdit->GetString();
-	Buffer = Unquote(Buffer + Src);
+	auto Buffer = unquote(m_FindEdit->GetString() + Src);
 
 	for (; !Buffer.empty() && !m_Owner->FindPartName(Buffer, FALSE, 1); Buffer.pop_back())
 		;
@@ -1478,11 +1477,11 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWOR
 		{
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				upper(strFileName);
+				inplace::upper(strFileName);
 			}
 			else
 			{
-				upper(strFileName, 0, FindLastSlash(strFileName));
+				inplace::upper(strFileName, 0, FindLastSlash(strFileName));
 			}
 		}
 
@@ -1491,7 +1490,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWOR
 			const auto pos = FindLastSlash(strFileName);
 			if (pos != string::npos && !IsCaseMixed(strFileName.data() + pos))
 			{
-				lower(strFileName, pos);
+				inplace::lower(strFileName, pos);
 			}
 		}
 
@@ -1500,7 +1499,7 @@ bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWOR
 			const auto pos = FindLastSlash(strFileName);
 			if (pos != string::npos)
 			{
-				lower(strFileName, pos);
+				inplace::lower(strFileName, pos);
 			}
 		}
 	}

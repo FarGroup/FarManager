@@ -78,17 +78,19 @@ namespace components
 		return true;
 	}
 
-	std::map<string, string>& GetComponentsInfo()
+	const std::map<string, string>& GetComponentsInfo()
 	{
-		static FN_RETURN_TYPE(GetComponentsInfo) sList;
-		if (sList.empty())
+		static const auto sList = []
 		{
+			FN_RETURN_TYPE(GetComponentsInfo) Result;
 			const auto& ComponentsList = GetComponentsList();
-			std::transform(ALL_CONST_RANGE(ComponentsList), std::inserter(sList, sList.end()), [](const auto& i)
+			std::transform(ALL_CONST_RANGE(ComponentsList), std::inserter(Result, Result.end()), [](const auto& i)
 			{
 				return i();
 			});
-		}
+			return Result;
+		}();
+
 		return sList;
 	}
 }

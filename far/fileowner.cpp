@@ -124,34 +124,13 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 // TODO: elevation
 bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 {
-	const SECURITY_INFORMATION si = OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION;;
-	NTPath strName(Name);
-	static thread_local char StaticBuffer[64 * 1024];
-	block_ptr<SECURITY_DESCRIPTOR> DynamicBuffer;
-	auto Buffer = reinterpret_cast<SECURITY_DESCRIPTOR*>(StaticBuffer);
-	auto BufferSize = std::size(StaticBuffer);
-
-	for (;;)
-	{
-		DWORD LengthNeeded = 0;
-		if (GetFileSecurity(strName.data(), si, Buffer, static_cast<DWORD>(BufferSize), &LengthNeeded))
-			break;
-
-		if (LengthNeeded > BufferSize)
-		{
-			BufferSize = LengthNeeded;
-			DynamicBuffer.reset(BufferSize);
-			Buffer = DynamicBuffer.get();
-		}
-		else
-		{
-			return false;
-		}
-	}
+	const auto SecurityDescriptor = os::GetFileSecurity(Name, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION);
+	if (!SecurityDescriptor)
+		return false;
 
 	PSID pOwner;
 	BOOL OwnerDefaulted;
-	if (!GetSecurityDescriptorOwner(Buffer, &pOwner, &OwnerDefaulted))
+	if (!GetSecurityDescriptorOwner(SecurityDescriptor.get(), &pOwner, &OwnerDefaulted))
 		return false;
 
 	if (!IsValidSid(pOwner))

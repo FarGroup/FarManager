@@ -545,7 +545,7 @@ bool Plugin::LoadData()
 	{
 		Drive[0] = L'=';
 		Drive[1] = m_strModuleName.front();
-		strCurPlugDiskPath = os::env::get_variable(Drive);
+		strCurPlugDiskPath = os::env::get(Drive);
 	}
 
 	PrepareModulePath(m_strModuleName);
@@ -553,7 +553,7 @@ bool Plugin::LoadData()
 	FarChDir(strCurPath);
 
 	if (Drive[0]) // вернем ее (переменную окружения) обратно
-		os::env::set_variable(Drive, strCurPlugDiskPath);
+		os::env::set(Drive, strCurPlugDiskPath);
 
 	if (!m_Instance)
 	{

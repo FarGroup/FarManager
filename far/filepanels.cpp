@@ -95,7 +95,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 	}
 	else
 	{
-		strSrc = os::env::expand_strings(strSrc);
+		strSrc = os::env::expand(strSrc);
 	}
 
 	if (strSrc == L"/")

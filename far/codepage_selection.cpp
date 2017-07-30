@@ -823,7 +823,7 @@ F8CP::F8CP(bool viewer):
 		std::unordered_set<uintptr_t> used_cps;
 		for(const auto& str_cp: split<std::vector<string>>(cps, 0))
 		{
-			auto s = upper_copy(str_cp);
+			const auto s = upper(str_cp);
 			uintptr_t cp = 0;
 			if (s == L"ANSI" || s == L"ACP" || s == L"WIN")
 				cp = GetACP();

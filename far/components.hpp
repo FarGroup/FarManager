@@ -73,7 +73,7 @@ namespace components
 		size_t m_size{};
 	};
 
-	std::map<string, string>& GetComponentsInfo();
+	const std::map<string, string>& GetComponentsInfo();
 }
 
 #endif // COMPONENTS_HPP_5EB4061D_47B2_4941_8B57_FE405EBD3D83

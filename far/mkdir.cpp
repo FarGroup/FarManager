@@ -138,7 +138,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		{
 			// уберем все лишние кавычки
 			// возьмем в кавычки, т.к. могут быть разделители
-			InsertQuote(Unquote(strDirName));
+			InsertQuote(inplace::unquote(strDirName));
 		}
 
 		const auto DirList = split<std::vector<string>>(strDirName, STLF_UNIQUE);
@@ -210,8 +210,7 @@ void ShellMakeDir(Panel *SrcPanel)
 			{
 				if(MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos)
 				{
-					string strTarget=MkDirDlg[MKDIR_EDIT_LINKPATH].strData;
-					Unquote(strTarget);
+					const auto strTarget = unquote(MkDirDlg[MKDIR_EDIT_LINKPATH].strData);
 					while(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR) && !SkipAll)
 					{
 						Global->CatchError();

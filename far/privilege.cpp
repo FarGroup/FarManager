@@ -49,12 +49,6 @@ privilege::privilege(const range<const wchar_t* const*>& Names)
 	if (Names.empty())
 		return;
 
-	m_Token = OpenCurrentProcessToken(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
-
-	// TODO: log if failed
-	if (!m_Token)
-		return;
-
 	block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Names.size() - 1));
 	NewState->PrivilegeCount = static_cast<DWORD>(Names.size());
 
@@ -68,18 +62,29 @@ privilege::privilege(const range<const wchar_t* const*>& Names)
 
 	m_SavedState.reset(NewState.size());
 
+	const auto Token = OpenCurrentProcessToken(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
+	if (!Token)
+		// TODO: log
+		return;
+
 	DWORD ReturnLength;
+	m_Changed = AdjustTokenPrivileges(Token.native_handle(), FALSE, NewState.get(), static_cast<DWORD>(NewState.size()), m_SavedState.get(), &ReturnLength) && m_SavedState->PrivilegeCount;
 	// TODO: log if failed
-	m_Changed = AdjustTokenPrivileges(m_Token.native_handle(), FALSE, NewState.get(), static_cast<DWORD>(NewState.size()), m_SavedState.get(), &ReturnLength) && m_SavedState->PrivilegeCount;
 }
 
 privilege::~privilege()
 {
-	if (!m_Token || !m_Changed)
+	if (!m_Changed)
+		return;
+
+	const auto Token = OpenCurrentProcessToken(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
+	if (!Token)
+		// TODO: log
 		return;
 
 	SCOPED_ACTION(GuardLastError);
-	AdjustTokenPrivileges(m_Token.native_handle(), FALSE, m_SavedState.get(), static_cast<DWORD>(m_SavedState.size()), nullptr, nullptr);
+	AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.get(), static_cast<DWORD>(m_SavedState.size()), nullptr, nullptr);
+	// TODO: log if failed
 }
 
 bool operator==(const LUID& a, const LUID& b)
@@ -89,7 +94,7 @@ bool operator==(const LUID& a, const LUID& b)
 
 bool privilege::check(const range<const wchar_t* const*>& Names)
 {
-	const auto Token{ OpenCurrentProcessToken(TOKEN_QUERY) };
+	const auto Token = OpenCurrentProcessToken(TOKEN_QUERY);
 	if (!Token)
 		return false;
 

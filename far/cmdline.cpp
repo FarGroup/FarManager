@@ -654,7 +654,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 		std::for_each(RANGE(Result, i)
 		{
 			auto& strDestStr = i.first;
-			const auto strExpandedDestStr = os::env::expand_strings(strDestStr);
+			const auto strExpandedDestStr = os::env::expand(strDestStr);
 			strDestStr.clear();
 			static const std::pair<wchar_t, wchar_t> ChrFmt[] =
 			{
@@ -1192,7 +1192,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 				return false;
 
 			string strOut;
-			Unquote(strCmdLine);
+			inplace::unquote(strCmdLine);
 
 			{
 				const os::env::provider::strings EnvStrings;
@@ -1215,16 +1215,17 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			return true;
 		}
 
-		if (strCmdLine.size() == pos+1) //set var=
+		const auto Value = strCmdLine.substr(pos + 1);
+		strCmdLine.resize(pos);
+		inplace::unquote(strCmdLine);
+
+		if (Value.empty()) //set var=
 		{
-			strCmdLine.resize(pos);
-			os::env::delete_variable(Unquote(strCmdLine));
+			os::env::del(strCmdLine);
 		}
 		else
 		{
-			const auto strExpandedStr = os::env::expand_strings(strCmdLine.substr(pos + 1));
-			strCmdLine.resize(pos);
-			os::env::set_variable(Unquote(strCmdLine), strExpandedStr);
+			os::env::set(strCmdLine, os::env::expand(Value));
 		}
 
 		return true;
@@ -1255,7 +1256,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		if (IntChDir(strCmdLine, true))
 		{
 			ppstack.push(PushDir);
-			os::env::set_variable(L"FARDIRSTACK", PushDir);
+			os::env::set(L"FARDIRSTACK", PushDir);
 		}
 		else
 		{
@@ -1274,11 +1275,11 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			ppstack.pop();
 			if (!ppstack.empty())
 			{
-				os::env::set_variable(L"FARDIRSTACK", ppstack.top());
+				os::env::set(L"FARDIRSTACK", ppstack.top());
 			}
 			else
 			{
-				os::env::delete_variable(L"FARDIRSTACK");
+				os::env::del(L"FARDIRSTACK");
 			}
 			return Result;
 		}
@@ -1289,7 +1290,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	else if (IsCommand(L"CLRD",false))
 	{
 		clear_and_shrink(ppstack);
-		os::env::delete_variable(L"FARDIRSTACK");
+		os::env::del(L"FARDIRSTACK");
 		return true;
 	}
 	/*
@@ -1368,7 +1369,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
-	string strExpandedDir = Unquote(os::env::expand_strings(CmdLine));
+	auto strExpandedDir = unquote(os::env::expand(CmdLine));
 
 	if (SetPanel->GetMode() != panel_mode::PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && !os::fs::exists(strExpandedDir)) || IsSlash(strExpandedDir[1])))
 	{
@@ -1383,7 +1384,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 			}
 
 			DeleteEndSlash(strTemp);
-			strExpandedDir = os::env::expand_strings(strTemp);
+			strExpandedDir = os::env::expand(strTemp);
 		}
 	}
 

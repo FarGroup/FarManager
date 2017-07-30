@@ -42,11 +42,8 @@ class RegExp;
 struct RegExpMatch;
 struct MatchHash;
 
-namespace strmix
-{
 wchar_t* QuoteSpace(wchar_t *Str);
 wchar_t* InsertQuote(wchar_t *Str);
-void Unquote(wchar_t *Str);
 wchar_t* RemoveLeadingSpaces(wchar_t *Str);
 wchar_t * RemoveTrailingSpaces(wchar_t *Str);
 wchar_t* RemoveExternalSpaces(wchar_t *Str);
@@ -56,9 +53,6 @@ string &QuoteSpace(string &strStr);
 
 string& InsertQuote(string& strStr);
 inline string InsertQuote(string&& strStr) { InsertQuote(strStr); return strStr; }
-
-string& Unquote(string &strStr);
-inline string Unquote(string&& strStr) { Unquote(strStr); return strStr; }
 
 void UnquoteExternal(string &strStr);
 string& RemoveLeadingSpaces(string &strStr);
@@ -211,9 +205,5 @@ std::pair<string, string> split_name_value(const T& Line)
 	const auto SeparatorPos = std::find(ALL_CONST_RANGE(Line), L'=');
 	return { { Line.begin(), SeparatorPos }, { SeparatorPos + 1, Line.end() } };
 }
-
-};
-
-using namespace strmix;
 
 #endif // STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA

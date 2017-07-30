@@ -395,7 +395,6 @@ void PluginManager::LoadPlugins()
 	{
 		ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
 		string strPluginsDir;
-		string strFullName;
 		os::FAR_FIND_DATA FindData;
 
 		// сначала подготовим список
@@ -415,7 +414,7 @@ void PluginManager::LoadPlugins()
 		for (const auto& i: split<std::vector<string>>(strPluginsDir, STLF_UNIQUE))
 		{
 			// расширяем значение пути
-			strFullName = Unquote(os::env::expand_strings(i)); //??? здесь ХЗ
+			auto strFullName = unquote(os::env::expand(i)); //??? здесь ХЗ
 
 			if (!IsAbsolutePath(strFullName))
 			{

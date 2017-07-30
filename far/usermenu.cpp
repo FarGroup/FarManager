@@ -508,7 +508,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		{
 			string strLabel = MenuItem->strLabel;
 			SubstFileName(nullptr,strLabel,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-			strLabel = os::env::expand_strings(strLabel);
+			strLabel = os::env::expand(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			bool have_hotkey = !strHotKey.empty();
@@ -729,7 +729,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
 			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
 			SubstFileName(nullptr,strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-			strSubMenuLabel = os::env::expand_strings(strSubMenuLabel);
+			strSubMenuLabel = os::env::expand(strSubMenuLabel);
 
 			size_t pos = strSubMenuLabel.find(L'&');
 			if (pos != string::npos)

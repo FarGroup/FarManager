@@ -182,7 +182,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 	// нулевой проход - смотрим исключения
 	// Берем "исключения" из реестра, которые должны исполняться директом,
 	// например, некоторые внутренние команды ком. процессора.
-	const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand_strings(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
+	const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
 
 	if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
 	{
@@ -222,7 +222,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 	}
 
 	// второй проход - по правилам SearchPath
-	const auto strPathEnv(os::env::get_variable(L"PATH"));
+	const auto strPathEnv(os::env::get(L"PATH"));
 	if (!strPathEnv.empty())
 	{
 		for (const auto& Path: split<std::vector<string>>(strPathEnv, STLF_UNIQUE))
@@ -284,7 +284,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 
 			if (os::reg::GetValue(RootFindKey[i], strFullName, L"", strFullName, samDesired))
 			{
-				strDest = Unquote(os::env::expand_strings(strFullName));
+				strDest = unquote(os::env::expand(strFullName));
 				return true;
 			}
 		}
@@ -298,7 +298,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 				if (!os::reg::GetValue(i, strFullName, L"", strFullName))
 					return false;
 
-				strDest = Unquote(os::env::expand_strings(strFullName));
+				strDest = unquote(os::env::expand(strFullName));
 				return true;
 			});
 		});
@@ -322,7 +322,7 @@ static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strN
 	// gcc implementation is total rubbish - it just causes a stack overflow. Shame on them.
 
 	// If anything goes wrong, e. g. pattern is incorrect or search failed - default condition (checking for presence of <>|& characters outside the quotes) will be used.
-	const auto Condition = os::env::expand_strings(Global->Opt->Exec.ComspecCondition);
+	const auto Condition = os::env::expand(Global->Opt->Exec.ComspecCondition);
 	if (!Condition.empty())
 	{
 		auto& Re = Global->Opt->Exec.ComspecConditionRe;
@@ -508,7 +508,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 
 		if (os::reg::GetValue(HKEY_CLASSES_ROOT, strValue, L"", strNewValue) && !strNewValue.empty())
 		{
-			strNewValue = os::env::expand_strings(strNewValue);
+			strNewValue = os::env::expand(strNewValue);
 
 			// Выделяем имя модуля
 			if (strNewValue.front() == L'\"')
@@ -655,8 +655,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	{
 		Silent = true;
 
-		auto Unquoted = strNewCmdStr;
-		Unquote(Unquoted);
+		const auto Unquoted = unquote(strNewCmdStr);
 		IsDirectory = os::fs::is_directory(Unquoted);
 
 		if (strNewCmdPar.empty() && IsDirectory)
@@ -724,7 +723,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			// return false;
 		};
 
-		const auto ModuleName = Unquote(os::env::expand_strings(strNewCmdStr));
+		const auto ModuleName = unquote(os::env::expand(strNewCmdStr));
 		auto FoundModuleName = ModuleName;
 
 		bool Internal = false;
@@ -773,7 +772,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					// We can run it directly
 					Info.ExecMode = execute_info::exec_mode::direct;
 					strNewCmdStr = FoundModuleName;
-					strNewCmdPar = os::env::expand_strings(strNewCmdPar);
+					strNewCmdPar = os::env::expand(strNewCmdPar);
 
 					if (ImageType == image_type::graphical)
 					{
@@ -865,10 +864,10 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 	else
 	{
-		strComspec = os::env::expand_strings(Global->Opt->Exec.Comspec);
+		strComspec = os::env::expand(Global->Opt->Exec.Comspec);
 		if (strComspec.empty())
 		{
-			strComspec = os::env::get_variable(L"COMSPEC");
+			strComspec = os::env::get(L"COMSPEC");
 			if (strComspec.empty())
 			{
 				Message(MSG_WARNING,
@@ -881,7 +880,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			}
 		}
 
-		ComSpecParams = format(os::env::expand_strings(Global->Opt->Exec.ComspecArguments), Info.Command);
+		ComSpecParams = format(os::env::expand(Global->Opt->Exec.ComspecArguments), Info.Command);
 
 		seInfo.lpFile = strComspec.data();
 		seInfo.lpParameters = ComSpecParams.data();
@@ -1089,7 +1088,6 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 	if (CmdLine.empty())
 		return nullptr;
 
-	string strCmd;
 	string strExpandedStr;
 	const wchar_t *PtrCmd=CmdLine.data(), *CmdStart;
 	int Not=FALSE;
@@ -1170,7 +1168,9 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			if (*PtrCmd == L' ')
 			{
 //_SVS(SysLog(L"Cmd='%s'", strCmd.data()));
-				strExpandedStr = os::env::expand_strings(Unquote(strCmd.assign(CmdStart, PtrCmd - CmdStart)));
+				string strCmd(CmdStart, PtrCmd - CmdStart);
+				inplace::unquote(strCmd);
+				strExpandedStr = os::env::expand(strCmd);
 				string strFullPath;
 
 				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
@@ -1232,9 +1232,9 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 				if (PtrCmd && *PtrCmd == L' ')
 				{
-					strCmd.assign(CmdStart,PtrCmd-CmdStart);
+					string strCmd(CmdStart,PtrCmd-CmdStart);
 
-					const auto ERet = os::env::get_variable(strCmd, strExpandedStr);
+					const auto ERet = os::env::get(strCmd, strExpandedStr);
 
 //_SVS(SysLog(Cmd));
 					if ((ERet && !Not) || (!ERet && Not))
@@ -1300,7 +1300,7 @@ bool IsExecutable(const string& Filename)
 	if (DotPos == string::npos || DotPos == Filename.size() - 1)
 		return false;
 
-	const auto Extension = lower_copy(Filename.substr(DotPos + 1));
+	const auto Extension = lower(Filename.substr(DotPos + 1));
 
 	// these guys have specific association in Windows Registry: "%1" %*
 	// That means we can't find the associated program etc., so they shall be hard-coded.
@@ -1321,7 +1321,7 @@ bool ExpandOSAliases(string &strStr)
 
 	if (!ret)
 	{
-		const auto strComspec(os::env::get_variable(L"COMSPEC"));
+		const auto strComspec(os::env::get(L"COMSPEC"));
 		if (!strComspec.empty())
 		{
 			ExeName=PointToName(strComspec);

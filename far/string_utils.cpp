@@ -92,46 +92,46 @@ wchar_t lower(wchar_t Char)
 	return Char;
 }
 
-void upper(wchar_t *Str, size_t Size)
+void inplace::upper(wchar_t *Str, size_t Size)
 {
 	CharUpperBuff(Str, static_cast<DWORD>(Size));
 }
 
-void lower(wchar_t *Str, size_t Size)
+void inplace::lower(wchar_t *Str, size_t Size)
 {
 	CharLowerBuff(Str, static_cast<DWORD>(Size));
 }
 
-void upper(wchar_t* Str)
+void inplace::upper(wchar_t* Str)
 {
 	upper(Str, wcslen(Str));
 }
 
-void lower(wchar_t* Str)
+void inplace::lower(wchar_t* Str)
 {
 	lower(Str, wcslen(Str));
 }
 
-string& upper(string& Str, size_t Pos, size_t Count)
+string& inplace::upper(string& Str, size_t Pos, size_t Count)
 {
 	upper(&Str[0] + Pos, Count == string::npos? Str.size() - Pos : Count);
 	return Str;
 }
 
-string& lower(string& Str, size_t Pos, size_t Count)
+string& inplace::lower(string& Str, size_t Pos, size_t Count)
 {
 	lower(&Str[0] + Pos, Count == string::npos? Str.size() - Pos : Count);
 	return Str;
 }
 
-string upper_copy(string Str, size_t Pos, size_t Count)
+string upper(string Str, size_t Pos, size_t Count)
 {
-	return upper(Str, Pos, Count);
+	return inplace::upper(Str, Pos, Count);
 }
 
-string lower_copy(string Str, size_t Pos, size_t Count)
+string lower(string Str, size_t Pos, size_t Count)
 {
-	return lower(Str, Pos, Count);
+	return inplace::lower(Str, Pos, Count);
 }
 
 bool equal_to_icase::operator()(wchar_t c1, wchar_t c2) const
@@ -139,19 +139,9 @@ bool equal_to_icase::operator()(wchar_t c1, wchar_t c2) const
 	return upper(c1) == upper(c2);
 }
 
-bool equal(const string_view& Str1, const string_view& Str2)
-{
-	return Str1 == Str2;
-}
-
 bool equal_icase(const string_view& Str1, const string_view& Str2)
 {
 	return std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_to_icase{});
-}
-
-bool starts_with(const string_view& Str, const string_view& Prefix)
-{
-	return Str.size() >= Prefix.size() && equal({ Str.data(), Prefix.size() }, Prefix);
 }
 
 bool starts_with_icase(const string_view& Str, const string_view& Prefix)
@@ -159,19 +149,9 @@ bool starts_with_icase(const string_view& Str, const string_view& Prefix)
 	return Str.size() >= Prefix.size() && equal_icase({ Str.data(), Prefix.size() }, Prefix);
 }
 
-bool ends_with(const string_view& Str, const string_view& Suffix)
-{
-	return Str.size() >= Suffix.size() && equal({ Str.data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
-}
-
 bool ends_with_icase(const string_view& Str, const string_view& Suffix)
 {
 	return Str.size() >= Suffix.size() && equal_icase({ Str.data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
-}
-
-bool contains(const string_view& Str, const string_view& Token)
-{
-	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token)) != Str.cend();
 }
 
 bool contains_icase(const string_view& Str, const string_view& Token)

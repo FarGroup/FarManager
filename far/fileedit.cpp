@@ -1040,7 +1040,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, m_bAddSignature))
 							return false;
 
-						strSaveAsName = Unquote(os::env::expand_strings(strSaveAsName));
+						strSaveAsName = unquote(os::env::expand(strSaveAsName));
 						const auto NameChanged = !equal_icase(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
 
 						if (!NameChanged)
@@ -2011,6 +2011,9 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		if (!bSaveAs)
 			AddSignature=m_bAddSignature;
 
+		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		CachedWrite Cache(EditFile);
+
 		if (AddSignature)
 		{
 			DWORD dwSignature = 0;
@@ -2032,16 +2035,13 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 					break;
 			}
 
-			size_t dwWritten;
-			if (!EditFile.Write(&dwSignature,SignLength,dwWritten,nullptr)||dwWritten!=SignLength)
+			if (!Cache.Write(&dwSignature, SignLength))
 			{
 				throw MAKE_FAR_EXCEPTION(L"Write error");
 			}
 		}
 
-		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		size_t LineNumber = -1;
-		CachedWrite Cache(EditFile);
 
 		std::vector<char> Buffer;
 
@@ -2229,9 +2229,7 @@ bool FileEditor::CanFastHide() const
 
 int FileEditor::ProcessEditorInput(const INPUT_RECORD& Rec)
 {
-	int RetCode;
-	RetCode=Global->CtrlObject->Plugins->ProcessEditorInput(&Rec);
-	return RetCode;
+	return Global->CtrlObject->Plugins->ProcessEditorInput(&Rec);
 }
 
 void FileEditor::SetPluginTitle(const string* PluginTitle)

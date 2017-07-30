@@ -242,7 +242,7 @@ void ReloadEnvironment()
 
 	std::transform(ALL_CONST_RANGE(PreservedNames), std::back_inserter(PreservedVariables), [](const wchar_t* i)
 	{
-		return std::make_pair(i, os::env::get_variable(i));
+		return std::make_pair(i, os::env::get(i));
 	});
 
 	{
@@ -251,13 +251,13 @@ void ReloadEnvironment()
 		for (const auto& i: enum_substrings(EnvBlockPtr))
 		{
 			const auto Data = split_name_value(i);
-			os::env::set_variable(Data.first, Data.second);
+			os::env::set(Data.first, Data.second);
 		}
 	}
 
 	for (const auto& i: PreservedVariables)
 	{
-		os::env::set_variable(i.first, i.second);
+		os::env::set(i.first, i.second);
 	}
 }
 

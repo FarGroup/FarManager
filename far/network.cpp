@@ -43,14 +43,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 
-static bool GetStoredUserName(wchar_t Drive, string &strUserName)
+static string GetStoredUserName(wchar_t Drive)
 {
 	//Тут может быть надо заюзать WNetGetUser
-	strUserName.clear();
-	wchar_t KeyName[] = L"Network\?";
-	*std::prev(std::end(KeyName)) = Drive;
-
-	return os::reg::GetValue(HKEY_CURRENT_USER, KeyName, L"UserName", strUserName);
+	string UserName;
+	os::reg::GetValue(HKEY_CURRENT_USER, concat(L"Network\\"_sv, Drive), L"UserName", UserName);
+	return UserName;
 }
 
 os::fs::drives_set GetSavedNetworkDrives()
@@ -102,11 +100,8 @@ bool ConnectToNetworkResource(const string& NewDir)
 		RemoteName = NewDir;
 	}
 
-	string strUserName, strPassword;
-	if (IsDrive)
-	{
-		GetStoredUserName(NewDir[0], strUserName);
-	}
+	auto strUserName = IsDrive? GetStoredUserName(NewDir[0]) : L""s;
+	string strPassword;
 
 	NETRESOURCE netResource {};
 	netResource.dwType = RESOURCETYPE_DISK;
@@ -163,8 +158,7 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 	}
 	else
 	{
-		string LocalName(CurDir, 0, 2);
-		os::WNetGetConnection(LocalName, strNetDir);
+		os::WNetGetConnection(CurDir.substr(0, 2), strNetDir);
 	}
 
 	if (!strNetDir.empty())

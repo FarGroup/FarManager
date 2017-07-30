@@ -48,15 +48,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "exception.hpp"
 
-namespace strmix
-{
-
 string GroupDigits(unsigned long long Value)
 {
 	NUMBERFMT Fmt{};
 
-	wchar_t DecimalSeparator[] = { locale::GetDecimalSeparator(), L'\0' };
-	wchar_t ThousandSeparator[] = { locale::GetThousandSeparator(), L'\0' };
+	wchar_t DecimalSeparator[] { locale::GetDecimalSeparator(), L'\0' };
+	wchar_t ThousandSeparator[] { locale::GetThousandSeparator(), L'\0' };
 
 	// TODO pick regional settings
 	Fmt.NumDigits = 0;
@@ -435,22 +432,6 @@ bool IsCaseMixed(const string &strSrc)
 	return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return is_alpha(c) && is_lower(c) != Case; });
 }
 
-void Unquote(wchar_t *Str)
-{
-	if (!Str)
-		return;
-
-	const auto Iterator = null_iterator(Str);
-	*std::remove(Iterator, Iterator.end(), L'"') = 0;
-}
-
-string& Unquote(string &strStr)
-{
-	strStr.erase(std::remove(ALL_RANGE(strStr), L'"'), strStr.end());
-	return strStr;
-}
-
-
 void UnquoteExternal(string &strStr)
 {
 	auto len = strStr.size();
@@ -492,15 +473,15 @@ void PrepareUnitStr()
 {
 	for (int i=0; i<UNIT_COUNT; i++)
 	{
-		UnitStr(i, false) = lower_copy(msg(lng::MListBytes + i));
-		UnitStr(i, true) = upper_copy(msg(lng::MListBytes + i));
+		UnitStr(i, false) = lower(msg(lng::MListBytes + i));
+		UnitStr(i, true) = upper(msg(lng::MListBytes + i));
 	}
 }
 
 string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned long long ViewFlags)
 {
 	// подготовительные мероприятия
-	if (UnitStr(0, false) != lower_copy(msg(lng::MListBytes)))
+	if (UnitStr(0, false) != lower(msg(lng::MListBytes)))
 	{
 		PrepareUnitStr();
 	}
@@ -528,9 +509,9 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 				return Str;
 
 			if (Str.size() <= Width)
-				return (LeftAlign? pad_right : pad_left)(std::move(Str), Width, L' ');
+				return (LeftAlign? inplace::pad_right : inplace::pad_left)(Str, Width, L' ');
 
-			Str = (LeftAlign? cut_right : cut_left)(std::move(Str), Width - 1);
+			Str = (LeftAlign? inplace::cut_right : inplace::cut_left)(Str, Width - 1);
 			Str.insert(LeftAlign? Str.end() : Str.begin(), L'\x2026');
 			return Str;
 		};
@@ -1301,7 +1282,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 				RemoveExternalSpaces(Token);
 
 			if (!Flags.Check(STLF_NOUNQUOTE))
-				Unquote(Token);
+				inplace::unquote(Token);
 
 			return true;
 		}
@@ -1469,6 +1450,4 @@ std::pair<string, string> split_name_value(const wchar_t* Line)
 {
 	const auto SeparatorPos = wcschr(Line + 1, L'=');
 	return { { Line, SeparatorPos }, SeparatorPos + 1 };
-}
-
 }

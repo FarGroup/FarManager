@@ -359,7 +359,7 @@ void background_searcher::InitInFileSearch()
 			// Формируем строку поиска
 			if (!CmpCase)
 			{
-				findStringBuffer = upper_copy(strFindStr) + lower_copy(strFindStr);
+				findStringBuffer = upper(strFindStr) + lower(strFindStr);
 				findString = findStringBuffer.data();
 			}
 			else
@@ -2440,7 +2440,7 @@ void background_searcher::DoPrepareFileList()
 
 	if (SearchMode==FINDAREA_INPATH)
 	{
-		InitString = os::env::get_variable(L"PATH");
+		InitString = os::env::get(L"PATH");
 	}
 	else if (SearchMode==FINDAREA_ROOT)
 	{

@@ -314,7 +314,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 		column NewColumn;
 
-		auto strArgOrig = upper_copy(strArgName);
+		const auto strArgOrig = upper(strArgName);
 
 		if (strArgName.front() == L'N')
 		{
@@ -603,7 +603,7 @@ string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 		return OutStr.size() < Width;
 	});
 
-	return fit_to_left(OutStr, Width);
+	return inplace::fit_to_left(OutStr, Width);
 }
 
 string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned long long Flags, int Width)

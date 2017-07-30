@@ -734,7 +734,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		{
 			// уберем все лишние кавычки
 			// возьмем в кавычки, т.к. могут быть разделители
-			InsertQuote(Unquote(CopyDlg[ID_SC_TARGETEDIT].strData));
+			InsertQuote(inplace::unquote(CopyDlg[ID_SC_TARGETEDIT].strData));
 		}
 	}
 	else
@@ -759,7 +759,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				{
 					// уберем все лишние кавычки
 					// возьмем в кавычки, т.к. могут быть разделители
-					InsertQuote(Unquote(CopyDlg[ID_SC_TARGETEDIT].strData));
+					InsertQuote(inplace::unquote(CopyDlg[ID_SC_TARGETEDIT].strData));
 				}
 
 				break;
@@ -775,7 +775,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				while (CopyDlg[ID_SC_TARGETEDIT].strData.size()<2)
 					CopyDlg[ID_SC_TARGETEDIT].strData += L':';
 
-				strPluginFormat = upper_copy(CopyDlg[ID_SC_TARGETEDIT].strData);
+				strPluginFormat = upper(CopyDlg[ID_SC_TARGETEDIT].strData);
 				break;
 			}
 		}
@@ -842,8 +842,8 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	string strCopyDlgValue;
 	if (!Ask)
 	{
-		strCopyDlgValue = os::env::expand_strings(CopyDlg[ID_SC_TARGETEDIT].strData);
-		m_DestList = split<std::vector<string>>(InsertQuote(Unquote(strCopyDlgValue)), STLF_UNIQUE);
+		strCopyDlgValue = unquote(os::env::expand(CopyDlg[ID_SC_TARGETEDIT].strData));
+		m_DestList = split<std::vector<string>>(InsertQuote(strCopyDlgValue), STLF_UNIQUE);
 		if (m_DestList.empty())
 			Ask = true;
 	}
@@ -918,7 +918,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				auto tmp = strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
 				DeleteEndSlash(tmp);
 				if (tmp != DestPanel->GetCurDir())
-					strCopyDlgValue = os::env::expand_strings(strCopyDlgValue);
+					strCopyDlgValue = os::env::expand(strCopyDlgValue);
 
 				if(!Move)
 				{
@@ -930,7 +930,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 					// уберем лишние кавычки
 					// добавим кавычки, чтобы "список" удачно скомпилировался вне
 					// зависимости от наличия разделителей в оном
-					InsertQuote(Unquote(strCopyDlgValue));
+					InsertQuote(inplace::unquote(strCopyDlgValue));
 				}
 
 				m_DestList = split<std::vector<string>>(strCopyDlgValue, STLF_UNIQUE);
@@ -1994,7 +1994,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 								int CopySecurity = Flags&FCOPY_COPYSECURITY;
 								os::FAR_SECURITY_DESCRIPTOR tmpsd;
 
-								if ((CopySecurity) && !GetSecurity(Src,tmpsd))
+								if (CopySecurity && !GetSecurity(Src,tmpsd))
 									CopySecurity = FALSE;
 								SECURITY_ATTRIBUTES TmpSecAttr  ={sizeof(TmpSecAttr), tmpsd.get(), FALSE};
 								if (os::CreateDirectory(strDestPath,CopySecurity?&TmpSecAttr:nullptr))
@@ -2908,7 +2908,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 			if (!(Flags&FCOPY_COPYTONUL))
 			{
 				DestFile.SetPointer(SrcFile.GetChunkOffset() + (Append? AppendPos : 0), nullptr, FILE_BEGIN);
-				while (!DestFile.Write(CopyBuffer.get(),BytesRead,BytesWritten,nullptr))
+				while (!DestFile.Write(CopyBuffer.get(), BytesRead, BytesWritten))
 				{
 					DWORD LastError=GetLastError();
 					Global->CatchError();
@@ -2923,7 +2923,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 						if (os::GetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 						{
 							if (FreeSize<BytesRead &&
-								DestFile.Write(CopyBuffer.get(),(DWORD)FreeSize,BytesWritten,nullptr) &&
+								DestFile.Write(CopyBuffer.get(), (DWORD)FreeSize, BytesWritten) &&
 								SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 							{
 								DestFile.Close();
@@ -3541,63 +3541,61 @@ bool ShellCopy::AskOverwrite(const os::FAR_FIND_DATA &SrcData,
 
 bool ShellCopy::GetSecurity(const string& FileName, os::FAR_SECURITY_DESCRIPTOR& sd)
 {
-	if (!os::GetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
-	{
-		if (!SkipSecurityErrors)
+	sd = os::GetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION);
+	if (sd)
+		return true;
+
+	if (SkipSecurityErrors)
+		return true;
+
+	Global->CatchError();
+	switch (Message(MSG_WARNING | MSG_ERRORTYPE,
+		msg(lng::MError),
 		{
-			Global->CatchError();
-			switch (Message(MSG_WARNING | MSG_ERRORTYPE,
-				msg(lng::MError),
-				{
-					msg(lng::MCannotGetSecurity),
-					FileName
-				},
-				{ lng::MSkip, lng::MCopySkipAll, lng::MCancel }))
-			{
-			case 0:
-				break;
+			msg(lng::MCannotGetSecurity),
+			FileName
+		},
+		{ lng::MSkip, lng::MCopySkipAll, lng::MCancel }))
+	{
+	case Message::first_button:
+		return true;
 
-			case 1:
-				SkipSecurityErrors = true;
-				break;
+	case Message::second_button:
+		SkipSecurityErrors = true;
+		return true;
 
-			default:
-				return false;
-			}
-		}
+	default:
+		return false;
 	}
-	return true;
 }
-
 
 bool ShellCopy::SetSecurity(const string& FileName, const os::FAR_SECURITY_DESCRIPTOR& sd)
 {
-	if (!os::SetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
-	{
-		if (!SkipSecurityErrors)
+	if (os::SetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd))
+		return true;
+
+	if (SkipSecurityErrors)
+		return true;
+
+	Global->CatchError();
+	switch (Message(MSG_WARNING | MSG_ERRORTYPE,
+		msg(lng::MError),
 		{
-			Global->CatchError();
-			switch (Message(MSG_WARNING | MSG_ERRORTYPE,
-				msg(lng::MError),
-				{
-					msg(lng::MCannotSetSecurity),
-					FileName
-				},
-				{ lng::MSkip, lng::MCopySkipAll, lng::MCancel }))
-			{
-			case 0:
-				break;
+			msg(lng::MCannotSetSecurity),
+			FileName
+		},
+		{ lng::MSkip, lng::MCopySkipAll, lng::MCancel }))
+	{
+	case Message::first_button:
+		return true;
 
-			case 1:
-				SkipSecurityErrors = true;
-				break;
+	case Message::second_button:
+		SkipSecurityErrors = true;
+		return true;
 
-			default:
-				return false;
-			}
-		}
+	default:
+		return false;
 	}
-	return true;
 }
 
 // BUGBUG move to copy_progress
@@ -3617,9 +3615,9 @@ static bool ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 		WidthTemp=std::min(WidthTemp, ScrX/2);
 		Width=std::max(Width,WidthTemp);
 
-		string strOutFileName = Name; //??? nullptr ???
+		auto strOutFileName = Name; //??? nullptr ???
 		TruncPathStr(strOutFileName,Width);
-		strOutFileName = fit_to_center(strOutFileName, Width + 4);
+		inplace::fit_to_center(strOutFileName, Width + 4);
 		Message(0,
 			msg(lng::MMoveDlgTitle),
 			{

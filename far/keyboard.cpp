@@ -1268,7 +1268,7 @@ int KeyNameToKey(const string& Name)
 
 	size_t Pos = 0;
 	static string strTmpName;
-	strTmpName = upper_copy(Name);
+	strTmpName = upper(Name);
 	const auto Len = strTmpName.size();
 
 	// пройдемся по всем модификаторам

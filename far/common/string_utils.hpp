@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "preprocessor.hpp"
+
 namespace detail
 {
 	inline void append_one(string& Str, wchar_t Arg, size_t) { Str += Arg; }
@@ -88,48 +90,118 @@ auto concat(args&&... Args)
 	return Str;
 }
 
+namespace inplace
+{
+	inline auto& cut_left(string& Str, size_t MaxWidth)
+	{
+		if (Str.size() > MaxWidth)
+			Str.erase(0, Str.size() - MaxWidth);
+		return Str;
+	}
+
+	inline auto& cut_right(string& Str, size_t MaxWidth)
+	{
+		if (Str.size() > MaxWidth)
+			Str.resize(MaxWidth);
+		return Str;
+	}
+
+	inline auto& pad_left(string& Str, size_t MinWidth, wchar_t Padding = L' ')
+	{
+		if (Str.size() < MinWidth)
+			Str.insert(0, MinWidth - Str.size(), Padding);
+		return Str;
+	}
+
+	inline auto& pad_right(string& Str, size_t MinWidth, wchar_t Padding = L' ')
+	{
+		if (Str.size() < MinWidth)
+			Str.append(MinWidth - Str.size(), Padding);
+		return Str;
+	}
+
+	inline auto& fit_to_left(string& Str, size_t Size)
+	{
+		return Str.size() < Size? pad_right(Str, Size) : cut_right(Str, Size);
+	}
+
+	inline auto& fit_to_center(string& Str, size_t Size)
+	{
+		const auto StrSize = Str.size();
+		return Str.size() < Size? pad_right(pad_left(Str, StrSize + (Size - StrSize) / 2), Size) : cut_right(Str, Size);
+	}
+
+	inline auto& fit_to_right(string& Str, size_t Size)
+	{
+		return Str.size() < Size? pad_left(Str, Size) : cut_right(Str, Size);
+	}
+
+	inline auto& unquote(string& Str)
+	{
+		Str.erase(std::remove(ALL_RANGE(Str), L'"'), Str.end());
+		return Str;
+	}
+}
+
 inline auto cut_left(string Str, size_t MaxWidth)
 {
-	if (Str.size() > MaxWidth)
-		Str.erase(0, Str.size() - MaxWidth);
-	return Str;
+	return inplace::cut_left(Str, MaxWidth);
 }
 
 inline auto cut_right(string Str, size_t MaxWidth)
 {
-	if (Str.size() > MaxWidth)
-		Str.resize(MaxWidth);
-	return Str;
+	return inplace::cut_right(Str, MaxWidth);
 }
 
 inline auto pad_left(string Str, size_t MinWidth, wchar_t Padding = L' ')
 {
-	if (Str.size() < MinWidth)
-		Str.insert(0, MinWidth - Str.size(), Padding);
-	return Str;
+	return inplace::pad_left(Str, MinWidth, Padding);
 }
 
 inline auto pad_right(string Str, size_t MinWidth, wchar_t Padding = L' ')
 {
-	if (Str.size() < MinWidth)
-		Str.append(MinWidth - Str.size(), Padding);
-	return Str;
+	return inplace::pad_right(Str, MinWidth, Padding);
 }
 
 inline auto fit_to_left(string Str, size_t Size)
 {
-	return Str.size() < Size? pad_right(std::move(Str), Size) : cut_right(std::move(Str), Size);
+	return inplace::fit_to_left(Str, Size);
 }
 
 inline auto fit_to_center(string Str, size_t Size)
 {
-	const auto StrSize = Str.size();
-	return Str.size() < Size? pad_right(pad_left(std::move(Str), StrSize + (Size - StrSize) / 2), Size) : cut_right(std::move(Str), Size);
+	return inplace::fit_to_center(Str, Size);
 }
 
 inline auto fit_to_right(string Str, size_t Size)
 {
-	return Str.size() < Size? pad_left(std::move(Str), Size) : cut_right(std::move(Str), Size);
+	return inplace::fit_to_right(Str, Size);
 }
+
+inline auto unquote(string Str)
+{
+	return inplace::unquote(Str);
+}
+
+inline bool equal(const string_view& Str1, const string_view& Str2)
+{
+	return Str1 == Str2;
+}
+
+inline bool starts_with(const string_view& Str, const string_view& Prefix)
+{
+	return Str.size() >= Prefix.size() && equal({ Str.data(), Prefix.size() }, Prefix);
+}
+
+inline bool ends_with(const string_view& Str, const string_view& Suffix)
+{
+	return Str.size() >= Suffix.size() && equal({ Str.data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
+}
+
+inline bool contains(const string_view& Str, const string_view& Token)
+{
+	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token)) != Str.cend();
+}
+
 
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8

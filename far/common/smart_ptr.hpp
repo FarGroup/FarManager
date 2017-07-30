@@ -83,18 +83,18 @@ public:
 		return !m_Buffer;
 	}
 
-	decltype(auto) get() const noexcept
+	T* get() const noexcept
 	{
 		return m_Buffer;
 	}
 
-	decltype(auto) operator*() const
+	T& operator*() const
 	{
 		assert(m_Size);
 		return *m_Buffer;
 	}
 
-	decltype(auto) operator[](size_t Index) const
+	T& operator[](size_t Index) const
 	{
 		assert(Index < m_Size);
 		return m_Buffer[Index];

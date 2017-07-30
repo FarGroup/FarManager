@@ -119,10 +119,7 @@ bool FileFilter::FilterEdit()
 				//(для которых нету файлов на панели) которые выбраны в области данного меню
 				if (i.GetFlags(FFFT))
 				{
-					auto strMask = i.GetMask();
-					Unquote(strMask);
-
-					if (!ParseAndAddMasks(Extensions, strMask, 0, GetCheck(i)))
+					if (!ParseAndAddMasks(Extensions, unquote(i.GetMask()), 0, GetCheck(i)))
 						break;
 				}
 			}
@@ -479,20 +476,18 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 		else if (i > FilterData().size() + 1)
 		{
 			const auto& Mask = *FilterList->GetUserDataPtr<string>(i);
-			string strMask1(Mask);
 			//AY: Так как в меню мы показываем только те выбранные авто фильтры
 			//которые выбраны в области данного меню и TempFilterData вполне
 			//может содержать маску которую тока что выбрали в этом меню но
 			//она уже была выбрана в другом и так как TempFilterData
 			//и авто фильтры в меню отсортированы по алфавиту то немного
 			//поколдуем чтоб не было дубликатов в памяти.
-			Unquote(strMask1);
+			string strMask1 = unquote(Mask);
 
 			while (j < TempFilterData().size())
 			{
 				CurFilterData = &TempFilterData()[j];
-				auto strMask2 = CurFilterData->GetMask();
-				Unquote(strMask2);
+				const auto strMask2 = unquote(CurFilterData->GetMask());
 
 				if (StrCmpI(strMask1, strMask2) < 1)
 					break;

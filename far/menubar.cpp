@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "lang.hpp"
 #include "interf.hpp"
-#include "strmix.hpp"
 
 void MenuBar::DisplayObject()
 {

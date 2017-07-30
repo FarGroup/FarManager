@@ -463,7 +463,7 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in f
 	const auto CurrentPos = vtell();
 	vseek(0, FILE_BEGIN);
 	size_t BytesRead = 0;
-	bool Result = ViewFile.Read(Buffer, sizeof(Buffer), BytesRead, nullptr);
+	bool Result = ViewFile.Read(Buffer, sizeof(Buffer), BytesRead);
 	vseek(CurrentPos, FILE_BEGIN);
 
 	if (!Result)
@@ -3451,7 +3451,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 	if (!Case && !SearchRegexp)
 	{
-		upper(strSearchStr);
+		inplace::upper(strSearchStr);
 		sd.search_text = strSearchStr.data();
 	}
 

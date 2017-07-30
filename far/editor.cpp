@@ -3449,8 +3449,8 @@ bool Editor::Search(bool Next)
 		string strSearchStrLower = strSearchStr;
 		if (!Case)
 		{
-			upper(strSearchStrUpper);
-			lower(strSearchStrLower);
+			inplace::upper(strSearchStrUpper);
+			inplace::lower(strSearchStrLower);
 		}
 
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());

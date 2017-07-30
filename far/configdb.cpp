@@ -2295,7 +2295,7 @@ bool config_provider::Export(const string& File)
 		for(auto& i: os::fs::enum_files(DbPath))
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
-			upper(i.strFileName);
+			inplace::upper(i.strFileName);
 			if (std::regex_search(i.strFileName, uuid_regex()))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");
@@ -2346,7 +2346,7 @@ bool config_provider::Import(const string& Filename)
 		const auto guid = plugin->Attribute("guid");
 		if (!guid)
 			continue;
-		const auto Guid = upper_copy(encoding::utf8::get_chars(guid));
+		const auto Guid = upper(encoding::utf8::get_chars(guid));
 
 		if (std::regex_search(Guid, uuid_regex()))
 		{

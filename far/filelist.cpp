@@ -1454,7 +1454,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							string strFullName = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
 
 							if (Global->Opt->PanelCtrlFRule && (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE))
-								upper(strFullName);
+								inplace::upper(strFullName);
 
 							if (!strFullName.empty())
 								AddEndSlash(strFullName,0);
@@ -1464,11 +1464,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								/* $ 13.10.2000 tran
 								  по Ctrl-f имя должно отвечать условиям на панели */
 								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									lower(strFileName);
+									inplace::lower(strFileName);
 
 								if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE))
 									if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strFileName))
-										lower(strFileName);
+										inplace::lower(strFileName);
 							}
 
 							strFullName += strFileName;
@@ -1767,7 +1767,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 						if (!strFileName.empty())
 						{
-							strShortFileName = ConvertNameToShort(Unquote(strFileName));
+							strShortFileName = ConvertNameToShort(inplace::unquote(strFileName));
 
 							if (IsAbsolutePath(strFileName))
 							{
@@ -4419,7 +4419,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				string strFullName = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
 
 				if (Global->Opt->PanelCtrlFRule && (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE))
-					upper(strFullName);
+					inplace::upper(strFullName);
 
 				if (!strFullName.empty())
 					AddEndSlash(strFullName);
@@ -4428,11 +4428,11 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				{
 					// имя должно отвечать условиям на панели
 					if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-						lower(strQuotedName);
+						inplace::lower(strQuotedName);
 
 					if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 						if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strQuotedName))
-							lower(strQuotedName);
+							inplace::lower(strQuotedName);
 				}
 
 				strFullName += strQuotedName;
@@ -8443,13 +8443,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							{
 								if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
 									if (!(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
-										lower(strName);
+										inplace::lower(strName);
 
 								if ((m_ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									upper(strName);
+									inplace::upper(strName);
 
 								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-									lower(strName);
+									inplace::lower(strName);
 							}
 
 							Text(strName);

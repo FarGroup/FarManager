@@ -259,7 +259,7 @@ bool filemasks::masks::assign(const string& masks, DWORD Flags)
 	static const string PathExtName = L"%PATHEXT%";
 	if (contains_icase(expmasks, PathExtName))
 	{
-		const auto strSysPathExt(os::env::get_variable(L"PATHEXT"));
+		const auto strSysPathExt(os::env::get(L"PATHEXT"));
 		if (!strSysPathExt.empty())
 		{
 			const auto MaskList = split<std::vector<string>>(strSysPathExt, STLF_UNIQUE);

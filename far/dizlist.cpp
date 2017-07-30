@@ -58,7 +58,7 @@ DizList::DizList():
 
 size_t DizList::hasher::operator()(const string& Key) const
 {
-	return make_hash(lower_copy(Key));
+	return make_hash(lower(Key));
 }
 
 bool DizList::key_equal::operator()(const string& a, const string& b) const

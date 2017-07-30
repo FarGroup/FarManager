@@ -55,8 +55,7 @@ const string& GetEols();
 
 const string& GetSpacesAndEols();
 
-bool 
-is_alpha(wchar_t Char);
+bool is_alpha(wchar_t Char);
 bool is_alphanumeric(wchar_t Char);
 
 bool is_upper(wchar_t Char);
@@ -65,33 +64,29 @@ bool is_lower(wchar_t Char);
 wchar_t upper(wchar_t Char);
 wchar_t lower(wchar_t Char);
 
-void upper(wchar_t* Str, size_t Size);
-void lower(wchar_t* Str, size_t Size);
+namespace inplace
+{
+	void upper(wchar_t* Str, size_t Size);
+	void lower(wchar_t* Str, size_t Size);
 
-void upper(wchar_t* Str);
-void lower(wchar_t* Str);
+	void upper(wchar_t* Str);
+	void lower(wchar_t* Str);
 
-string& upper(string& Str, size_t Pos = 0, size_t Count = string::npos);
-string& lower(string& Str, size_t Pos = 0, size_t Count = string::npos);
+	string& upper(string& Str, size_t Pos = 0, size_t Count = string::npos);
+	string& lower(string& Str, size_t Pos = 0, size_t Count = string::npos);
+}
 
-string upper_copy(string Str, size_t Pos = 0, size_t Count = string::npos);
-string lower_copy(string Str, size_t Pos = 0, size_t Count = string::npos);
+string upper(string Str, size_t Pos = 0, size_t Count = string::npos);
+string lower(string Str, size_t Pos = 0, size_t Count = string::npos);
 
 struct equal_to_icase
 {
 	bool operator()(wchar_t c1, wchar_t c2) const;
 };
 
-bool equal(const string_view& Str1, const string_view& Str2);
 bool equal_icase(const string_view& Str1, const string_view& Str2);
-
-bool starts_with(const string_view& Str, const string_view& Prefix);
 bool starts_with_icase(const string_view& Str, const string_view& Prefix);
-
-bool ends_with(const string_view& Str, const string_view& Suffix);
 bool ends_with_icase(const string_view& Str, const string_view& Suffix);
-
-bool contains(const string_view& Str, const string_view& Token);
 bool contains_icase(const string_view& Str, const string_view& Token);
 
 int StrCmp(const wchar_t *s1, const wchar_t *s2);
