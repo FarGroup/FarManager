@@ -503,10 +503,11 @@ local function Init()
   utils.FixInitialModules()
   utils.InitMacroSystem()
   AddCfindFunction()
-  local modules = win.GetEnv("farprofile").."\\Macros\\modules\\"
+  local macros = win.GetEnv("farprofile").."\\Macros\\"
+  local modules = macros .. "modules\\"
   package.path = modules.."?.lua;"..modules.."?\\init.lua;"..package.path
   package.moonpath = modules.."?.moon;"..modules.."?\\init.moon;"..package.moonpath
-  package.cpath = modules.."?.dll;"..package.cpath
+  package.cpath = macros..(win.IsProcess64bit() and "lib64" or "lib32").."\\?.dll;"..package.cpath
 
   if _G.IsLuaStateRecreated then
     _G.IsLuaStateRecreated = nil
