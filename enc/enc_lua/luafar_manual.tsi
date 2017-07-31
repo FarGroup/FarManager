@@ -10649,6 +10649,27 @@ mtime=3509699035
 </article>
 </node>
 <node>
+id=523
+lv=3
+dt=Text
+nm=win.IsProcess64bit
+ctime=3710673110
+mtime=3710673277
+<article>
+#_result = win.IsProcess64bit ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  result: boolean
+#_
+#_**Description:**
+#_  Returns **true** if called from FAR x64, **false** otherwise.
+#_
+</article>
+</node>
+<node>
 id=507
 lv=3
 dt=Text

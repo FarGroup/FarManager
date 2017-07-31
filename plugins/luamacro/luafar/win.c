@@ -707,6 +707,12 @@ static int win_ShellExecute(lua_State *L)
 	return 1;
 }
 
+static int win_IsProcess64bit(lua_State *L)
+{
+	lua_pushboolean(L, sizeof(void*) == 8);
+	return 1;
+}
+
 const luaL_Reg win_funcs[] =
 {
 	{"CompareString",       win_CompareString},
@@ -726,6 +732,7 @@ const luaL_Reg win_funcs[] =
 	{"GetRegKey",           win_GetRegKey},
 	{"GetSystemTimeAsFileTime", win_GetSystemTimeAsFileTime},
 	{"GetVirtualKeys",      win_GetVirtualKeys},
+	{"IsProcess64bit",      win_IsProcess64bit},
 	{"MoveFile",            win_MoveFile},
 	{"RemoveDir",           win_RemoveDir},
 	{"RenameFile",          win_MoveFile}, // alias

@@ -1,4 +1,15 @@
-﻿shmuel 23.06.2017 10:09:22 +0200 - build 608
+﻿shmuel 31.07.2017 17:05:07 +0200 - build 609
+
+1. LuaFAR: добавлена функция win.IsProcess64bit().
+
+2. Изменено значение по умолчанию для package.cpath. Вместо %FARPROFILE%\Macros\modules\?.dll
+   теперь используется %FARPROFILE%\Macros\lib32\?.dll или %FARPROFILE%\Macros\lib64\?.dll
+   в зависимости от битности процесса.
+
+3. Папки %FARPROFILE%\Macros\modules, %FARPROFILE%\Macros\lib32 и %FARPROFILE%\Macros\lib64
+   создаются плагином автоматически.
+
+shmuel 23.06.2017 10:09:22 +0200 - build 608
 
 1. LuaFAR: minor refactoring and GCC warnings.
 
