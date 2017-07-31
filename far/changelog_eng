@@ -3,6 +3,56 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 30.07.2017 01:45:36 +0000 - build 4995
+
+1. Refactoring.
+
+drkns 23.07.2017 22:34:57 +0000 - build 4994
+
+1. 0003457: Mouse is functional in FAR even if the "Interface settings - Mouse" setting is off
+
+2. Refactoring.
+
+drkns 23.07.2017 10:31:34 +0000 - build 4993
+
+1. Search would not work in help.
+
+2. Autocompletion would not work in some cases.
+
+drkns 22.07.2017 13:25:18 +0000 - build 4992
+
+1. Forum: Incorrect indication of error position in regular expression
+
+drkns 21.07.2017 19:29:12 +0000 - build 4991
+
+1. Correction of 4989.
+
+drkns 20.07.2017 23:10:16 +0000 - build 4990
+
+1. Return low memory protection, added in 1741 and lost in 3791.
+
+drkns 20.07.2017 01:09:52 +0000 - build 4989
+
+1. Refactoring. Stop spreading PANEL_STOP all over the codebase.
+
+drkns 18.07.2017 20:34:50 +0000 - build 4988
+
+1. Refactoring.
+
+2. Coverity warnings.
+
+shmuel 18.07.2017 13:36:33 +0200 - build 4987
+
+1. M#3428: add GUIDs for dialogs of editing/insertion of user menu items.
+
+drkns 17.07.2017 21:53:50 +0000 - build 4986
+
+1. 0003454: Completion of paths stopped recognition of / as a separator.
+
+shmuel 12.07.2017 23:53:19 +0200 - build 4985
+
+1. Erroneous DM_SETTEXT for DI_LISTBOX (since build 4248).
+
 drkns 04.07.2017 23:44:29 +0000 - build 4984
 
 1. Automatic update of panels would not work in folders with unusual names.
