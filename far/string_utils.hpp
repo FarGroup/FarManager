@@ -61,9 +61,6 @@ bool is_alphanumeric(wchar_t Char);
 bool is_upper(wchar_t Char);
 bool is_lower(wchar_t Char);
 
-wchar_t upper(wchar_t Char);
-wchar_t lower(wchar_t Char);
-
 namespace inplace
 {
 	void upper(wchar_t* Str, size_t Size);
@@ -76,8 +73,11 @@ namespace inplace
 	string& lower(string& Str, size_t Pos = 0, size_t Count = string::npos);
 }
 
-string upper(string Str, size_t Pos = 0, size_t Count = string::npos);
-string lower(string Str, size_t Pos = 0, size_t Count = string::npos);
+wchar_t upper(wchar_t Char);
+wchar_t lower(wchar_t Char);
+
+string upper(string Str);
+string lower(string Str);
 
 struct equal_to_icase
 {

@@ -124,14 +124,14 @@ string& inplace::lower(string& Str, size_t Pos, size_t Count)
 	return Str;
 }
 
-string upper(string Str, size_t Pos, size_t Count)
+string upper(string Str)
 {
-	return inplace::upper(Str, Pos, Count);
+	return inplace::upper(Str, 0, string::npos);
 }
 
-string lower(string Str, size_t Pos, size_t Count)
+string lower(string Str)
 {
-	return inplace::lower(Str, Pos, Count);
+	return inplace::lower(Str, 0, string::npos);
 }
 
 bool equal_to_icase::operator()(wchar_t c1, wchar_t c2) const

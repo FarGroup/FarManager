@@ -3392,9 +3392,6 @@ bool Editor::Search(bool Next)
 	if (strSearchStr.empty())
 		return true;
 
-	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
-		UnmarkBlock();
-
 	const auto FindAllList = VMenu2::create({}, nullptr, 0);
 	UINT AllRefLines = 0;
 	{
@@ -3404,7 +3401,8 @@ bool Editor::Search(bool Next)
 		SetCursorType(false, -1);
 		Match = false;
 		UserBreak = false;
-		int CurPos=m_it_CurLine->GetCurPos();
+
+		auto CurPos = FindAllReferences? 0 : m_it_CurLine->GetCurPos();
 
 		if (Next && m_FoundLine == m_it_CurLine)
 		{
@@ -3512,6 +3510,9 @@ bool Editor::Search(bool Next)
 				}
 				else
 				{
+					if (!EdOpt.PersistentBlocks)
+						UnmarkBlock();
+
 					if (EdOpt.SearchSelFound && !ReplaceMode)
 					{
 						Pasting++;
@@ -3717,8 +3718,7 @@ bool Editor::Search(bool Next)
 						}
 					}
 
-					if (at_end)
-						CurPtr->SetCurPos(m_FoundPos + at_end);
+					CurPtr->SetCurPos(m_FoundPos + at_end);
 
 					if (!ReplaceMode)
 						break;

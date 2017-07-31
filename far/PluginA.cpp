@@ -4808,10 +4808,10 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			encoding::oem::get_bytes(sTableName, TableSet->TableName);
 			std::unique_ptr<wchar_t[]> us(AnsiToUnicodeBin(reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable), nCP));
 
-			lower(us.get(), std::size(TableSet->DecodeTable));
+			inplace::lower(us.get(), std::size(TableSet->DecodeTable));
 			encoding::get_bytes(nCP, us.get(), std::size(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable));
 
-			upper(us.get(), std::size(TableSet->DecodeTable));
+			inplace::upper(us.get(), std::size(TableSet->DecodeTable));
 			encoding::get_bytes(nCP, us.get(), std::size(TableSet->DecodeTable), reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable));
 
 			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, reinterpret_cast<char *>(TableSet->DecodeTable), std::size(TableSet->DecodeTable));
