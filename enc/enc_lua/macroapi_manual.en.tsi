@@ -343,17 +343,17 @@ mtime=3636460034
 id=77
 lv=2
 dt=Text
-nm=Lua modules
+nm=Modules
 ctime=3580139041
-mtime=3600534120
+mtime=3710685519
 <article>
 #_<markdown>
 #_
-#_Lua modules can be placed in `%FARPROFILE%\Macros\modules` and its subdirectories, as
+#_Lua modules can be placed in `%FARPROFILE%\Macros\modules` and its subdirectories, as<br>
+#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`<br>
+#_is automatically added to `package.path`.
 #_
-#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`
-#_
-#_is automatically included in `package.path`.
+#_Binary modules (DLL) can be placed in `%FARPROFILE%\Macros\lib32` and `%FARPROFILE%\Macros\lib64` and their subdirectories as those paths are automatically added to `package.cpath`.
 #_
 </article>
 </node>

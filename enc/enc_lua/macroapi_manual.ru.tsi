@@ -345,17 +345,17 @@ mtime=3636460943
 id=77
 lv=2
 dt=Text
-nm=Lua-модули
+nm=Модули
 ctime=3580139041
-mtime=3580219485
+mtime=3710685784
 <article>
 #_<markdown>
 #_
-#_Lua-модули могут быть помещены в папку `%FARPROFILE%\Macros\modules` и её подпапки, так как
-#_
-#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`
-#_
+#_Lua-модули могут быть помещены в папку `%FARPROFILE%\Macros\modules` и её подпапки, так как<br>
+#_`%FARPROFILE%\Macros\modules\?.lua;%FARPROFILE%\Macros\modules\?\init.lua;`<br>
 #_автоматически добавляется в `package.path`.
+#_
+#_Бинарные модули (DLL) могут быть помещены в папки `%FARPROFILE%\Macros\lib32` или `%FARPROFILE%\Macros\lib64` и их подпапки, так как эти пути автоматически добавляются в `package.cpath`.
 #_
 </article>
 </node>
