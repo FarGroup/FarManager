@@ -1762,9 +1762,9 @@ bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
    Немного изменён алгоритм из-за необходимости
    добавления поиска целых слов.
 */
-int Edit::Search(const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr, int Position, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength)
+int Edit::Search(const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& Position, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength)
 {
-	return SearchString(m_Str.data(), m_Str.size(), Str, UpperStr, LowerStr, re, pm, hm, ReplaceStr, m_CurPos, Position, Case, WholeWords, Reverse, Regexp, PreserveStyle, SearchLength, WordDiv().data());
+	return SearchString(m_Str.data(), m_Str.size(), Str, UpperStr, LowerStr, re, pm, hm, ReplaceStr, Position, Case, WholeWords, Reverse, Regexp, PreserveStyle, SearchLength, WordDiv().data());
 }
 
 void Edit::InsertTab()

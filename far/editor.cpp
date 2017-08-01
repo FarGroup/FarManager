@@ -3487,12 +3487,11 @@ bool Editor::Search(bool Next)
 				Match = true;
 
 				m_FoundLine = CurPtr;
-				m_FoundPos = CurPtr->GetCurPos();
+				m_FoundPos = CurPos;
 				m_FoundSize = SearchLength;
 
 				if(FindAllReferences)
 				{
-					CurPos = m_FoundPos;
 					int NextPos = CurPos + (SearchLength? SearchLength : 1);
 
 					const int service_len = 12;

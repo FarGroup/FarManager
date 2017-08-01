@@ -38,7 +38,8 @@ static new_handler* NewHandler;
 
 new_handler::new_handler():
 	m_BufferSize{ 80, 25 },
-	m_Screen(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CONSOLE_TEXTMODE_BUFFER, nullptr))
+	m_Screen(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CONSOLE_TEXTMODE_BUFFER, nullptr)),
+	m_OldHandler()
 {
 	if (!m_Screen)
 		return;
@@ -98,6 +99,9 @@ new_handler::new_handler():
 
 new_handler::~new_handler()
 {
+	if (!NewHandler)
+		return;
+
 	std::set_new_handler(m_OldHandler);
 	NewHandler = nullptr;
 }

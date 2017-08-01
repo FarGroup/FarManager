@@ -33,6 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const string& Str, string& ReplaceStr, int& CurPos, int Position, int Case, int WholeWords, const wchar_t *WordDiv, int Reverse, int& SearchLength);
+bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const string& Str, string& ReplaceStr, int& CurPos, int Case, int WholeWords, const wchar_t *WordDiv, int Reverse, int& SearchLength);
 
 #endif // PRESERVESTYLE_HPP_07024896_908E_4C05_9275_59B20F7E8AA2

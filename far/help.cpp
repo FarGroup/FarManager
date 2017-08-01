@@ -1955,7 +1955,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result = SearchString(strReadStr.data(), (int)strReadStr.size(), strLastSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, ReplaceStr, CurPos, 0, LastSearchCase, LastSearchWholeWords, false, false, LastSearchRegexp, &SearchLength);
+			bool Result = SearchString(strReadStr.data(), (int)strReadStr.size(), strLastSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, ReplaceStr, CurPos, LastSearchCase, LastSearchWholeWords, false, false, LastSearchRegexp, &SearchLength);
 
 			if (Result)
 			{
