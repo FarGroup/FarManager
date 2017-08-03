@@ -3509,6 +3509,9 @@ bool Editor::Search(bool Next)
 				}
 				else
 				{
+					// BUGBUG Too much in editor depends on it
+					CurPtr->SetCurPos(CurPos);
+
 					if (!EdOpt.PersistentBlocks)
 						UnmarkBlock();
 
@@ -3541,11 +3544,11 @@ bool Editor::Search(bool Next)
 					}
 
 					m_it_TopScreen=TmpPtr;
-					int LeftPos=CurPtr->GetLeftPos();
-					int TabCurPos=CurPtr->GetTabCurPos();
 
-					if (ObjWidth()>8 && TabCurPos-LeftPos+SearchLength>ObjWidth()-8)
-						CurPtr->SetLeftPos(TabCurPos+SearchLength-ObjWidth()+8);
+					const auto TabCurPos = CurPtr->GetTabCurPos();
+
+					if (TabCurPos + SearchLength + 8 > CurPtr->GetLeftPos() + ObjWidth())
+						CurPtr->SetLeftPos(TabCurPos + SearchLength + 8 - ObjWidth());
 
 					if (ReplaceMode)
 					{
@@ -3561,13 +3564,9 @@ bool Editor::Search(bool Next)
 							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
 							CurPtr->AddColor(newcol);
 
-							string strQSearchStr(CurPtr->GetString().data() + CurPtr->GetCurPos(), SearchLength), strQReplaceStr = strReplaceStrCurrent;
-
 							// do not use InsertQuote, AI is not suitable here
-							strQSearchStr.insert(0, 1, L'"');
-							strQSearchStr.push_back(L'"');
-							strQReplaceStr.insert(0, 1, L'"');
-							strQReplaceStr.push_back(L'"');
+							const auto strQSearchStr = concat(L'"', make_string_view(CurPtr->GetString(), CurPos, SearchLength), L'"');
+							const auto strQReplaceStr = concat(L'"', strReplaceStrCurrent, L'"');
 
 							if (!SearchLength && !strReplaceStrCurrent.length())
 								ZeroLength = true;
@@ -3636,9 +3635,15 @@ bool Editor::Search(bool Next)
 									if (Ch==L'\r')
 									{
 										ProcessKeyInternal(Manager::Key(KEY_DEL), RefreshMe);
-									}
 
-									if (Ch!=KEY_BS)
+										// ProcessKeyInternal('\r') changes m_it_CurLine!
+										m_Flags.Clear(FEDITOR_OVERTYPE);
+										m_it_CurLine->SetOvertypeMode(false);
+										ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
+										m_Flags.Set(FEDITOR_OVERTYPE);
+										m_it_CurLine->SetOvertypeMode(true);
+									}
+									else if (Ch!=KEY_BS)
 										ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
 								}
 
@@ -3675,27 +3680,23 @@ bool Editor::Search(bool Next)
 							else
 							{
 								/* Fast method */
-								const auto& Str = m_it_CurLine->GetString();
-								const auto LocalCurPos = m_it_CurLine->GetCurPos();
-								const auto IsSelection = m_it_CurLine->IsSelection();
+								const auto& Str = CurPtr->GetString();
+								const auto IsSelection = CurPtr->IsSelection();
 								std::pair<intptr_t, intptr_t> Selection;
 								if (IsSelection)
 								{
-									m_it_CurLine->GetSelection(Selection.first, Selection.second);
+									CurPtr->GetSelection(Selection.first, Selection.second);
 								}
-								string NewStr(Str, 0, LocalCurPos);
-								NewStr += strReplaceStrCurrent;
-								NewStr.append(Str.cbegin() + LocalCurPos + SearchLength, Str.cend());
-								NewStr += m_it_CurLine->GetEOL();
-								AddUndoData(UNDO_EDIT, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
-								m_it_CurLine->SetString(NewStr);
-								m_it_CurLine->SetCurPos(LocalCurPos + static_cast<int>(strReplaceStrCurrent.size()));
+								const auto NewStr = concat(make_string_view(Str, 0, CurPos), strReplaceStrCurrent, make_string_view(Str, CurPos + SearchLength), CurPtr->GetEOL());
+								AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), CurPos);
+								CurPtr->SetString(NewStr);
+								CurPtr->SetCurPos(CurPos + static_cast<int>(strReplaceStrCurrent.size()));
 
 								if (IsSelection)
 								{
 									const auto& AdjustPos = [&](int Pos)
 									{
-										if (Pos > LocalCurPos)
+										if (Pos > CurPos)
 										{
 											Pos -= SearchLength;
 											Pos += static_cast<int>(strReplaceStrCurrent.size());
@@ -3703,10 +3704,10 @@ bool Editor::Search(bool Next)
 										return Pos;
 									};
 
-									m_it_CurLine->Select(AdjustPos(Selection.first), AdjustPos(Selection.second));
+									CurPtr->Select(AdjustPos(Selection.first), AdjustPos(Selection.second));
 								}
 
-								Change(ECTYPE_CHANGED, m_it_CurLine.Number());
+								Change(ECTYPE_CHANGED, CurPtr.Number());
 								TextChanged(true);
 							}
 

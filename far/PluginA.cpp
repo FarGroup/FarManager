@@ -96,20 +96,15 @@ DECLARE_PLUGIN_FUNCTION(iProcessDialogEvent,  int    (WINAPI*)(int Event, void *
 class file_version: noncopyable
 {
 public:
-	explicit file_version(const string& File):
-		m_File(File)
+	bool Read(const string& Filename)
 	{
-	}
-
-	bool Read()
-	{
-		const auto Size = GetFileVersionInfoSize(m_File.data(), nullptr);
+		const auto Size = GetFileVersionInfoSize(Filename.data(), nullptr);
 		if (!Size)
 			return false;
 
 		m_Buffer.reset(Size);
 
-		if (!GetFileVersionInfo(m_File.data(), 0, Size, m_Buffer.get()))
+		if (!GetFileVersionInfo(Filename.data(), 0, Size, m_Buffer.get()))
 			return false;
 
 		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation");
@@ -120,9 +115,9 @@ public:
 		return true;
 	}
 
-	auto GetStringValue(const string& value) const
+	auto GetStringValue(const string& Value) const
 	{
-		return GetValue<wchar_t>((m_BlockPath + value).data());
+		return GetValue<wchar_t>((m_BlockPath + Value).data());
 	}
 
 	auto GetFixedInfo() const
@@ -139,7 +134,6 @@ private:
 		return VerQueryValue(m_Buffer.get(), SubBlock, reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
 	}
 
-	string m_File;
 	string m_BlockPath;
 	wchar_t_ptr m_Buffer;
 };
@@ -150,8 +144,7 @@ public:
 	NONCOPYABLE(oem_plugin_module);
 
 	explicit oem_plugin_module(const string& Name):
-		native_plugin_module(Name),
-		m_FileVersion(Name)
+		native_plugin_module(Name)
 	{
 	}
 
@@ -4985,7 +4978,7 @@ private:
 
 		auto& FileVersion = static_cast<oem_plugin_module*>(m_Instance.get())->m_FileVersion;
 
-		if (FileVersion.Read())
+		if (FileVersion.Read(GetModuleName()))
 		{
 			const wchar_t* Value;
 			if (((Value = FileVersion.GetStringValue(L"InternalName")) != nullptr || (Value = FileVersion.GetStringValue(L"OriginalName")) != nullptr) && *Value)
