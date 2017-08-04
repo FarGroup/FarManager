@@ -412,6 +412,7 @@ private:
 	m_ListData;
 	std::list<PrevDataItem> PrevDataList;
 	std::list<PluginsListItem> PluginsList;
+	plugin_panel* m_ExpiringPluginPanel{};
 	FileSystemWatcher FSWatcher;
 	long UpperFolderTopFile{}, LastCurFile{ -1 };
 	bool ReturnCurrentFile{};

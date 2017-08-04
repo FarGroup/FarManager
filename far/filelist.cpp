@@ -5370,11 +5370,17 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 	}
 
 	auto CurPlugin = std::move(PluginsList.back());
-
 	PluginsList.pop_back();
 	--Global->PluginPanelsCount;
 
-	Global->CtrlObject->Plugins->ClosePanel(std::move(CurPlugin.m_Plugin));
+	// We have removed current plugin panel from PluginsList already.
+	// However, ClosePanel provides a notification and plugins might call API functions from it.
+	// So GetPluginHandle() will look into m_ExpiringPluginPanel first.
+	{
+		m_ExpiringPluginPanel = CurPlugin.m_Plugin.get();
+		SCOPE_EXIT{ m_ExpiringPluginPanel = nullptr; };
+		Global->CtrlObject->Plugins->ClosePanel(std::move(CurPlugin.m_Plugin));
+	}
 
 	if (!PluginsList.empty())
 	{
@@ -6449,7 +6455,7 @@ void FileList::SetPluginModified()
 
 plugin_panel* FileList::GetPluginHandle() const
 {
-	return PluginsList.empty()? nullptr : PluginsList.back().m_Plugin.get();
+	return m_ExpiringPluginPanel? m_ExpiringPluginPanel : !PluginsList.empty()? PluginsList.back().m_Plugin.get() : nullptr;
 }
 
 
