@@ -934,7 +934,7 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3623048023
+mtime=3711104214
 <article>
 #_ret = mf.mload (key, name [, location])
 #_
@@ -949,6 +949,8 @@ mtime=3623048023
 #_**Описание:**
 #_  Функция *mload* читает значение из базы данных.
 #_
+#_**Примечание**
+#_  int64 - особый тип userdata, создаваемый библиотекой bit64.
 #_
 </article>
 </node>
