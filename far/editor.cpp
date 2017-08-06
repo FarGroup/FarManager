@@ -3524,8 +3524,6 @@ bool Editor::Search(bool Next)
 						Pasting--;
 					}
 
-					int at_end = EdOpt.SearchCursorAtEnd ? SearchLength : 0;
-
 					bool Skip=false, ZeroLength=false;
 
 					// Отступим на четверть и проверим на перекрытие диалогом замены
@@ -3550,7 +3548,12 @@ bool Editor::Search(bool Next)
 					if (TabCurPos + SearchLength + 8 > CurPtr->GetLeftPos() + ObjWidth())
 						CurPtr->SetLeftPos(TabCurPos + SearchLength + 8 - ObjWidth());
 
-					if (ReplaceMode)
+					if (!ReplaceMode)
+					{
+						CurPtr->SetCurPos(m_FoundPos + (EdOpt.SearchCursorAtEnd? SearchLength : 0));
+						break;
+					}
+					else
 					{
 						int MsgCode=0;
 
@@ -3591,6 +3594,7 @@ bool Editor::Search(bool Next)
 
 							if (MsgCode < 0 || MsgCode == 3)
 							{
+								CurPtr->SetCurPos(m_FoundPos + (EdOpt.SearchCursorAtEnd? SearchLength : 0));
 								UserBreak = true;
 								break;
 							}
@@ -3711,17 +3715,9 @@ bool Editor::Search(bool Next)
 								TextChanged(true);
 							}
 
-							if (at_end)
-								at_end = static_cast<int>(strReplaceStrCurrent.size());
-
 							Pasting--;
 						}
 					}
-
-					CurPtr->SetCurPos(m_FoundPos + at_end);
-
-					if (!ReplaceMode)
-						break;
 
 					CurPos = m_it_CurLine->GetCurPos();
 					if ((Skip || ZeroLength) && !ReverseSearch)
