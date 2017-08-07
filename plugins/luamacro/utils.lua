@@ -846,7 +846,7 @@ local function WriteMacros()
   return true
 end
 
-local function GetFromMenu (macrolist)
+local function GetFromMenu (macrolist, area, key)
   local menuitems = {}
   for i,macro in ipairs(macrolist) do
     local descr = macro.description
@@ -863,13 +863,15 @@ local function GetFromMenu (macrolist)
     end)
 
   for i,item in ipairs(menuitems) do
-    local ch = i<10 and i or i<36 and string.char(i+55)
+    local ch = i<10 and tostring(i) or i<36 and string.char(i+55)
     item.text = ch and (ch..". "..item.text) or item.text
+    if ch then item.AccelKey=ch end
   end
 
   local props, bkeys = {
-      Title = Msg.UtExecuteMacroTitle, Bottom = Msg.UtExecuteMacroBottom,
-      Flags = { FMENU_AUTOHIGHLIGHT=1, FMENU_WRAPMODE=1, FMENU_CHANGECONSOLETITLE=1 },
+      Title = ("%s: %s | %s"):format(Msg.UtExecuteMacroTitle, area, key),
+      Bottom = Msg.UtExecuteMacroBottom,
+      Flags = { FMENU_WRAPMODE=1, FMENU_CHANGECONSOLETITLE=1 },
       Id = win.Uuid("165AA6E3-C89B-4F82-A0C5-C309243FD21B") }, { {BreakKey="A+F4"} }
   while true do
     local item, pos = far.Menu(props, menuitems, bkeys)
@@ -1004,7 +1006,7 @@ local function GetMacro (argMode, argKey, argUseCommon, argCheckOnly)
   -- Make order of macros in the menu consistent
   table.sort(macrolist, function(m1,m2) return Collector[m1] < Collector[m2] end)
 
-  local m = GetFromMenu(macrolist)
+  local m = GetFromMenu(macrolist, GetTrueAreaName(argMode), argKey)
   if m then return m, CInfo[Collector[m]+1] end
   return {}, nil
 

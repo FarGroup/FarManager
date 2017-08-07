@@ -4,7 +4,7 @@
 "Error parsing macro"
 
 "Execute a macro"
-"AltF4 - open in editor"
+"Digit: execute | AltF4: open in editor"
 
 // macro browser help window
 "F1         show this help window"

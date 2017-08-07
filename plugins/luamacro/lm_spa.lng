@@ -4,7 +4,7 @@
 "Error analizando macro"
 
 "Ejecutar un macro"
-"AltF4 - abrir en editor"
+"Dígito: ejecutar | AltF4: abrir en editor"
 
 // macro browser help window
 "F1         mostrar esta ventana de ayuda"
