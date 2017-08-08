@@ -1,17 +1,31 @@
-ifeq ($(LUAVERSION),52)
-  PATH_LUASRC = ../../../../lua_thirdparty/lua-5.2/src
-  LUADLLNAME = lua52
+# bitness (32 or 64)
+DIRBIT = 32
+
+# path to GCC
+PATH = $(GCC$(DIRBIT))
+
+# path to Lua or LuaJIT source directory
+LUADIR = $(CROOT)\work\github\luajit-2.1\src
+
+# path to directory with lua51.dll and luafar3.dll
+LIBDIR = $(CROOT)\Programs\Far3-$(DIRBIT)bit
+
+# interpreter object file (either 'lua.o' or 'luajit.o')
+OBJ_INTERPR = luajit.o
+
+ifeq ($(DIRBIT),64)
+TARGET = lfjit64.exe
 else
-  PATH_LUASRC = ../../../../lua_thirdparty/lua/src
-  LUADLLNAME = lua51
+TARGET = lfjit.exe
 endif
 
-TARGET = lflua.exe
+vpath %.c $(LUADIR)
 
-vpath %.c $(PATH_LUASRC)
-ARCH = -m32
-CFLAGS = -O2 -W -Wall -I$(PATH_LUASRC) $(ARCH)
-LIBS = -lluafar3 -l$(LUADLLNAME)
+CFLAGS = -O2 -W -Wall -I$(LUADIR)
+LIBS = -L$(LIBDIR) -lluafar3 -llua51 -static-libgcc
 
-$(TARGET): linit.o lua.o
-	gcc -o $@ $^ $(ARCH) $(LIBS) -s
+$(TARGET): linit.o $(OBJ_INTERPR)
+	gcc -o $@ $^ $(LIBS) -s
+
+clean:
+	del *.o *.exe
