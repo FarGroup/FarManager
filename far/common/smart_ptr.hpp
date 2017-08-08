@@ -40,8 +40,8 @@ public:
 	MOVABLE(array_ptr);
 
 	array_ptr() noexcept:
-		m_Buffer(),
-		m_Size()
+		m_Size(),
+		m_IsStatic()
 	{
 	}
 
@@ -54,13 +54,13 @@ public:
 	{
 		if (Size > StaticSize)
 		{
+			m_IsStatic = false;
 			m_DynamicBuffer.reset(Init? new T[Size]() : new T[Size]);
-			m_Buffer = m_DynamicBuffer.get();
 		}
 		else
 		{
+			m_IsStatic = true;
 			m_DynamicBuffer.reset();
-			m_Buffer = m_StaticBuffer;
 		}
 
 		m_Size = Size;
@@ -68,8 +68,8 @@ public:
 
 	void reset() noexcept
 	{
+		m_IsStatic = false;
 		m_DynamicBuffer.reset();
-		m_Buffer = nullptr;
 		m_Size = 0;
 	}
 
@@ -80,31 +80,31 @@ public:
 
 	bool operator!() const noexcept
 	{
-		return !m_Buffer;
+		return !m_IsStatic && !m_DynamicBuffer;
 	}
 
 	T* get() const noexcept
 	{
-		return m_Buffer;
+		return m_IsStatic? m_StaticBuffer.data() : m_DynamicBuffer.get();
 	}
 
 	T& operator*() const
 	{
 		assert(m_Size);
-		return *m_Buffer;
+		return *get();
 	}
 
 	T& operator[](size_t Index) const
 	{
 		assert(Index < m_Size);
-		return m_Buffer[Index];
+		return get()[Index];
 	}
 
 private:
-	T* m_Buffer;
-	size_t m_Size;
+	mutable std::array<T, StaticSize> m_StaticBuffer;
 	std::unique_ptr<T[]> m_DynamicBuffer;
-	T m_StaticBuffer[StaticSize];
+	size_t m_Size;
+	bool m_IsStatic;
 };
 
 template<size_t Size = 1>
@@ -117,16 +117,16 @@ using wchar_t_ptr = wchar_t_ptr_n<1>;
 using char_ptr = char_ptr_n<1>;
 
 
-template<typename T>
-class block_ptr: public char_ptr
+template<typename T, size_t Size = 1>
+class block_ptr: public char_ptr_n<Size>
 {
 public:
 	NONCOPYABLE(block_ptr);
 	MOVABLE(block_ptr);
 
-	using char_ptr::char_ptr;
+	using char_ptr_n<Size>::char_ptr_n;
 	block_ptr() = default;
-	decltype(auto) get() const noexcept {return reinterpret_cast<T*>(char_ptr::get());}
+	decltype(auto) get() const noexcept {return reinterpret_cast<T*>(char_ptr_n<Size>::get());}
 	decltype(auto) operator->() const noexcept { return get(); }
 	decltype(auto) operator*() const noexcept {return *get();}
 };

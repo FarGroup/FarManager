@@ -37,6 +37,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
+	enum
+	{
+		default_buffer_size = MAX_PATH
+	};
+
 	namespace detail
 	{
 		template<class deleter>
@@ -150,7 +155,7 @@ namespace os
 	bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames);
 	bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime);
 	void EnableLowFragmentationHeap();
-	using FAR_SECURITY_DESCRIPTOR = block_ptr<SECURITY_DESCRIPTOR>;
+	using FAR_SECURITY_DESCRIPTOR = block_ptr<SECURITY_DESCRIPTOR, default_buffer_size>;
 	FAR_SECURITY_DESCRIPTOR GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation);
 	bool SetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 	bool DetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);

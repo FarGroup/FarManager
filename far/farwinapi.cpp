@@ -50,15 +50,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
-	enum
+	template<typename buffer_type>
+	auto default_buffer()
 	{
-		default_buffer_size = MAX_PATH
-	};
+		return array_ptr<buffer_type, default_buffer_size>(default_buffer_size);
+	}
 
 	template<typename buffer_type, typename receiver, typename condition, typename assigner>
-	bool ApiDynamicReceiver(const receiver& Receiver, const condition& Condition, const assigner& Assigner)
+	bool ApiDynamicReceiver(buffer_type&& Buffer, const receiver& Receiver, const condition& Condition, const assigner& Assigner)
 	{
-		array_ptr<buffer_type, default_buffer_size> Buffer(default_buffer_size);
 		auto Size = Receiver(Buffer.get(), Buffer.size());
 
 		while (Condition(Size, Buffer.size()))
@@ -77,7 +77,8 @@ namespace os
 	template<typename T>
 	bool ApiDynamicStringReceiver(string& Destination, const T& Callable)
 	{
-		return ApiDynamicReceiver<wchar_t>(
+		return ApiDynamicReceiver(
+			default_buffer<wchar_t>(),
 			Callable,
 			[](size_t ReturnedSize, size_t AllocatedSize)
 			{
@@ -97,7 +98,8 @@ namespace os
 	template<typename T>
 	bool ApiDynamicErrorBasedStringReceiver(DWORD ExpectedErrorCode, string& Destination, const T& Callable)
 	{
-		return ApiDynamicReceiver<wchar_t>(
+		return ApiDynamicReceiver(
+			default_buffer<wchar_t>(),
 			Callable,
 			[&](size_t ReturnedSize, size_t AllocatedSize)
 			{
@@ -1765,24 +1767,21 @@ bool GetFileTimeSimple(const string &FileName, LPFILETIME CreationTime, LPFILETI
 
 FAR_SECURITY_DESCRIPTOR GetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation)
 {
-	FAR_SECURITY_DESCRIPTOR Result;
+	FAR_SECURITY_DESCRIPTOR Result(default_buffer_size);
 	NTPath NtObject(Object);
-	ApiDynamicReceiver<char>([&](char* Buffer, size_t Size)
+	ApiDynamicReceiver(Result, [&](SECURITY_DESCRIPTOR* Buffer, size_t Size)
 	{
 		DWORD LengthNeeded = 0;
-		if (!::GetFileSecurity(NtObject.data(), RequestedInformation, reinterpret_cast<SECURITY_DESCRIPTOR*>(Buffer), static_cast<DWORD>(Size), &LengthNeeded))
-			return size_t(0);
-		return LengthNeeded <= Size? Size : (size_t)LengthNeeded;
+		if (!::GetFileSecurity(NtObject.data(), RequestedInformation, Buffer, static_cast<DWORD>(Size), &LengthNeeded))
+			return static_cast<size_t>(LengthNeeded);
+		return Size;
 	},
 	[](size_t ReturnedSize, size_t AllocatedSize)
 	{
 		return ReturnedSize > AllocatedSize;
 	},
-	[&](const char* Buffer, size_t Size)
-	{
-		Result.reset(Size);
-		memcpy(Result.get(), Buffer, Size);
-	});
+	[](...){});
+
 	return Result;
 }
 
