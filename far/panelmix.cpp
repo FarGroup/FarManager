@@ -309,8 +309,12 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 	{
 		string strArgName;
 		TextPtr = GetCommaWord(TextPtr, strArgName);
+
 		if (!TextPtr)
 			break;
+
+		if (strArgName.empty())
+			continue;
 
 		column NewColumn;
 
@@ -431,6 +435,12 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				if (1 == swscanf(strArgOrig.data()+1, L"%u", &num))
 					NewColumn.type = CUSTOM_COLUMN0 + num;
 			}
+			else
+			{
+				// Unknown column type
+				// TODO: error message
+				continue;
+			}
 		}
 
 		Columns.emplace_back(NewColumn);
@@ -441,9 +451,16 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 	for (auto& i: Columns)
 	{
 		string strArgName;
-		TextPtr = GetCommaWord(TextPtr, strArgName);
-		if (!TextPtr)
-			break;
+
+		if (TextPtr)
+			TextPtr = GetCommaWord(TextPtr, strArgName);
+
+		// "column types" is a determinant here (see the loop header) so we can't break or continue here -
+		// if "column sizes" ends earlier or if user entered two commas we just use default size.
+		if (!TextPtr || strArgName.empty())
+		{
+			strArgName = L"0"s;
+		}
 
 		try
 		{

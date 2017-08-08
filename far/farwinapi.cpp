@@ -1770,8 +1770,9 @@ FAR_SECURITY_DESCRIPTOR GetFileSecurity(const string& Object, SECURITY_INFORMATI
 	ApiDynamicReceiver<char>([&](char* Buffer, size_t Size)
 	{
 		DWORD LengthNeeded = 0;
-		::GetFileSecurity(NtObject.data(), RequestedInformation, reinterpret_cast<SECURITY_DESCRIPTOR*>(Buffer), static_cast<DWORD>(Size), &LengthNeeded);
-		return LengthNeeded;
+		if (!::GetFileSecurity(NtObject.data(), RequestedInformation, reinterpret_cast<SECURITY_DESCRIPTOR*>(Buffer), static_cast<DWORD>(Size), &LengthNeeded))
+			return size_t(0);
+		return LengthNeeded <= Size? Size : LengthNeeded;
 	},
 	[](size_t ReturnedSize, size_t AllocatedSize)
 	{
