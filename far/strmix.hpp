@@ -51,9 +51,6 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str);
 
 string &QuoteSpace(string &strStr);
 
-string& InsertQuote(string& strStr);
-inline string InsertQuote(string&& strStr) { InsertQuote(strStr); return strStr; }
-
 void UnquoteExternal(string &strStr);
 string& RemoveLeadingSpaces(string &strStr);
 string& RemoveTrailingSpaces(string &strStr);

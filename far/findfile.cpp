@@ -2432,7 +2432,7 @@ void background_searcher::DoPrepareFileList()
 	{
 		auto CurDir = Global->CtrlObject->CmdLine()->GetCurDir();
 		if (CurDir.find_first_of(L";,") != string::npos)
-			InsertQuote(CurDir);
+			inplace::quote(CurDir);
 		return CurDir;
 	};
 

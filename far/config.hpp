@@ -40,6 +40,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class GeneralConfig;
 class RegExp;
 struct PanelViewSettings;
+struct hash_icase;
+struct equal_to_icase;
+struct column;
+struct FARConfigItem;
 
 enum
 {
@@ -99,9 +103,6 @@ enum disk_menu_mode
 	DRIVE_SHOW_REMOTE            = bit(9),
 	DRIVE_SORT_PLUGINS_BY_HOTKEY = bit(10),
 };
-
-struct column;
-struct FARConfigItem;
 
 class Option
 {
@@ -279,7 +280,7 @@ public:
 	Options();
 	~Options();
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
-	void Load(const std::vector<std::pair<string, string>>& Overridden);
+	void Load(std::unordered_map<string, string, hash_icase, equal_to_icase>&& Overrides);
 	void Save(bool Manual);
 	const Option* GetConfigValue(const wchar_t *Key, const wchar_t *Name) const;
 	const Option* GetConfigValue(size_t Root, const wchar_t* Name) const;
@@ -862,8 +863,8 @@ public:
 	class farconfig;
 
 private:
-	void InitConfig();
-	void InitConfigData();
+	void InitConfigs();
+	void InitConfigsData();
 	farconfig& GetConfig(config_type Type);
 	const farconfig& GetConfig(config_type Type) const;
 	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
@@ -890,7 +891,7 @@ private:
 	void ReadPanelModes();
 	void SavePanelModes(bool always);
 
-	std::vector<farconfig> m_Config;
+	std::vector<farconfig> m_Configs;
 	std::vector<string>* m_ConfigStrings;
 	config_type m_CurrentConfigType;
 	std::vector<PanelViewSettings> m_ViewSettings;

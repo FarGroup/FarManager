@@ -469,7 +469,7 @@ bool DeleteTypeRecord(unsigned long long DeletePos)
 {
 	string strMask;
 	ConfigProvider().AssocConfig()->GetMask(DeletePos,strMask);
-	InsertQuote(strMask);
+	inplace::quote_unconditional(strMask);
 
 	if (Message(MSG_WARNING,
 		msg(lng::MAssocTitle),

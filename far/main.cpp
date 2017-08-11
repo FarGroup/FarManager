@@ -546,7 +546,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	// TODO: std::optional
 	std::pair<string, bool> CustomTitle;
 
-	std::vector<std::pair<string, string>> Overridden;
+	std::unordered_map<string, string, hash_icase, equal_to_icase> Overrides;
 	FOR_RANGE(Args, Iter)
 	{
 		const auto& Arg = *Iter;
@@ -622,7 +622,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 						{
 							if (const auto EqualPtr = wcschr(Arg + 1, L'='))
 							{
-								Overridden.emplace_back(string(Arg + 1 + SetParam.size(), EqualPtr), EqualPtr + 1);
+								Overrides.emplace(string(Arg + 1 + SetParam.size(), EqualPtr), EqualPtr + 1);
 							}
 						}
 						else if (Iter + 1 != Args.end())
@@ -745,7 +745,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	InitProfile(strProfilePath, strLocalProfilePath);
 	Global->m_ConfigProvider = new config_provider;
 
-	Global->Opt->Load(Overridden);
+	Global->Opt->Load(std::move(Overrides));
 
 	//Инициализация массива клавиш.
 	InitKeysArray();

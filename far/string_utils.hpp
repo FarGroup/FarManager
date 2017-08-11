@@ -79,9 +79,15 @@ wchar_t lower(wchar_t Char);
 string upper(string Str);
 string lower(string Str);
 
+struct hash_icase
+{
+	size_t operator()(const string& Str) const;
+};
+
 struct equal_to_icase
 {
-	bool operator()(wchar_t c1, wchar_t c2) const;
+	bool operator()(wchar_t Chr1, wchar_t Chr2) const;
+	bool operator()(const string_view& Str1, const string_view& Str2) const;
 };
 
 bool equal_icase(const string_view& Str1, const string_view& Str2);

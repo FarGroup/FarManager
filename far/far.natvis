@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-  <Type Name="basic_string_view&lt;*&gt;" Priority="MediumLow">
+
+  <Type Name="basic_string_view&lt;*&gt;">
       <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
       <StringView>m_Begin,[m_End - m_Begin]</StringView>
       <Expand>
@@ -11,7 +12,8 @@
           </ArrayItems>
       </Expand>
   </Type>
-  <Type Name="range&lt;*&gt;" Priority="MediumLow">
+
+  <Type Name="range&lt;*&gt;">
       <DisplayString>{m_Begin,[m_End - m_Begin]}</DisplayString>
       <Expand>
           <Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
@@ -21,4 +23,40 @@
           </ArrayItems>
       </Expand>
   </Type>
+
+  <Type Name="detail::any_impl&lt;*&gt;">
+      <DisplayString>{m_Data}</DisplayString>
+      <StringView>m_Data</StringView>
+      <Expand>
+          <Item Name="[value]" ExcludeView="simple">m_Data</Item>
+      </Expand>
+  </Type>
+
+  <Type Name="any">
+      <DisplayString Condition="m_Data._Mypair._Myval2 != 0">{m_Data._Mypair._Myval2,na}</DisplayString>
+      <DisplayString Condition="m_Data._Mypair._Myval2 == 0">empty</DisplayString>
+      <StringView>m_Data._Mypair._Myval2</StringView>
+      <Expand>
+          <ExpandedItem Condition="m_Data._Mypair._Myval2 != 0">m_Data._Mypair._Myval2,na</ExpandedItem>
+      </Expand>
+  </Type>
+
+  <Type Name="monitored&lt;*&gt;">
+      <DisplayString>{m_Value}</DisplayString>
+      <StringView>m_Value</StringView>
+      <Expand>
+          <ExpandedItem>m_Value</ExpandedItem>
+          <Item Name="[touched]" ExcludeView="simple">m_Touched</Item>
+      </Expand>
+  </Type>
+
+  <Type Name="detail::OptionImpl&lt;*&gt;">
+      <DisplayString>{m_Value}</DisplayString>
+      <StringView>m_Value</StringView>
+      <Expand>
+          <ExpandedItem>m_Value</ExpandedItem>
+          <Item Name="[validator]" ExcludeView="simple">m_Validator</Item>
+      </Expand>
+  </Type>
+
 </AutoVisualizer>

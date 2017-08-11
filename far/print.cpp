@@ -91,8 +91,6 @@ void PrintFiles(FileList* SrcPanel)
 	_ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
 	string strPrinterName;
 	DWORD Needed = 0, Returned;
-	DWORD FileAttr;
-	string strSelName;
 	size_t DirsCount=0;
 	size_t SelCount=SrcPanel->GetSelCount();
 
@@ -103,13 +101,16 @@ void PrintFiles(FileList* SrcPanel)
 	}
 
 	// проверка каталогов
-	_ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
-	SrcPanel->GetSelName(nullptr,FileAttr);
-
-	while (SrcPanel->GetSelName(&strSelName,FileAttr))
 	{
-		if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-			DirsCount++;
+		_ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
+		DWORD FileAttr;
+		string strSelName;
+		SrcPanel->GetSelName(nullptr, FileAttr);
+		while (SrcPanel->GetSelName(&strSelName, FileAttr))
+		{
+			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				DirsCount++;
+		}
 	}
 
 	if (DirsCount==SelCount)
@@ -139,11 +140,12 @@ void PrintFiles(FileList* SrcPanel)
 		string strTitle;
 		if (SelCount==1)
 		{
+			DWORD FileAttr;
+			string strSelName;
 			SrcPanel->GetSelName(nullptr,FileAttr);
-			string strName;
-			SrcPanel->GetSelName(&strName,FileAttr);
-			strSelName = TruncStr(strName,50);
-			strTitle = format(lng::MPrintTo, InsertQuote(strSelName));
+			SrcPanel->GetSelName(&strSelName, FileAttr);
+			strSelName = inplace::quote_unconditional(TruncStr(strSelName, 50));
+			strTitle = format(lng::MPrintTo, strSelName);
 		}
 		else
 		{
@@ -203,8 +205,10 @@ void PrintFiles(FileList* SrcPanel)
 		const auto hPlugin = SrcPanel->GetPluginHandle();
 		int PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
 		               !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
-		SrcPanel->GetSelName(nullptr,FileAttr);
 
+		DWORD FileAttr;
+		string strSelName;
+		SrcPanel->GetSelName(nullptr,FileAttr);
 		while (SrcPanel->GetSelName(&strSelName,FileAttr))
 		{
 			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))

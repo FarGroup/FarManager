@@ -1320,7 +1320,7 @@ string __FARKEY_ToName(int Key)
 	string Name;
 	if (!(far_key_code(Key) >= KEY_MACRO_BASE && far_key_code(Key) <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name))
 	{
-		InsertQuote(Name);
+		inplace::quote_unconditional(Name);
 		return str_printf(L"%s [%u/0x%08X]",Name.data(),Key,Key);
 	}
 

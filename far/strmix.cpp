@@ -70,8 +70,9 @@ string GroupDigits(unsigned long long Value)
 	return { Dest.get(), Size - 1 };
 }
 
-static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
+wchar_t* InsertQuote(wchar_t *Str)
 {
+	const auto QuoteChar = L'"';
 	size_t l = wcslen(Str);
 
 	if (*Str != QuoteChar)
@@ -87,29 +88,6 @@ static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 	}
 
 	return Str;
-}
-
-static string& InsertCustomQuote(string &strStr, wchar_t QuoteChar)
-{
-	size_t l = strStr.size();
-
-	if (!l || strStr[0] != QuoteChar)
-	{
-		strStr.insert(0, 1, QuoteChar);
-		l++;
-	}
-
-	if (l==1 || strStr[l-1] != QuoteChar)
-	{
-		strStr += QuoteChar;
-	}
-
-	return strStr;
-}
-
-wchar_t * InsertQuote(wchar_t *Str)
-{
-	return InsertCustomQuote(Str,L'\"');
 }
 
 wchar_t* QuoteSpace(wchar_t *Str)
@@ -129,17 +107,11 @@ wchar_t* QuoteSpace(wchar_t *Str)
 	return Str;
 }
 
-
-string& InsertQuote(string &strStr)
-{
-	return InsertCustomQuote(strStr,L'\"');
-}
-
 string &QuoteSpace(string &strStr)
 {
 	if (strStr.find_first_of(Global->Opt->strQuotedSymbols) != string::npos)
 	{
-		InsertQuote(strStr);
+		inplace::quote(strStr);
 		
 		// forward slash can't harm the quotation mark, but consistency is preferable
 		if (IsSlash(*(strStr.end() - 2)))
@@ -161,7 +133,7 @@ wchar_t* QuoteSpaceOnly(wchar_t *Str)
 string& QuoteSpaceOnly(string &strStr)
 {
 	if (contains(strStr, L' '))
-		InsertQuote(strStr);
+		inplace::quote(strStr);
 
 	return strStr;
 }
@@ -169,7 +141,7 @@ string& QuoteSpaceOnly(string &strStr)
 string &QuoteOuterSpace(string &strStr)
 {
 	if (!strStr.empty() && (strStr.front() == L' ' || strStr.back() == L' '))
-		InsertQuote(strStr);
+		inplace::quote(strStr);
 
 	return strStr;
 }

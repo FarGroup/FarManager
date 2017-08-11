@@ -430,7 +430,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					{
 						// Добавим кавычки, если имя каталога содержит символы-разделители
 						if (strNewFolder.find_first_of(L";,") != string::npos)
-							InsertQuote(strNewFolder);
+							inplace::quote(strNewFolder);
 
 						if (strOldFolder.size())
 							strOldFolder += L';'; // добавим разделитель к непустому списку
@@ -473,7 +473,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
                      bool CurrentOnly,        // =1 - только текущий файл, под курсором
                      bool Ask,                // =1 - выводить диалог?
                      int& ToPlugin,          // =?
-                     const wchar_t* PluginDestPath,
+                     string* PluginDestPath,
                      bool ToSubdir):
 	m_Filter(std::make_unique<FileFilter>(SrcPanel.get(), FFT_COPY)),
 	Flags((Move? FCOPY_MOVE : FCOPY_NONE) | (Link? FCOPY_LINK : FCOPY_NONE) | (CurrentOnly? FCOPY_CURRENTONLY : FCOPY_NONE)),
@@ -734,7 +734,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		{
 			// уберем все лишние кавычки
 			// возьмем в кавычки, т.к. могут быть разделители
-			InsertQuote(inplace::unquote(CopyDlg[ID_SC_TARGETEDIT].strData));
+			inplace::quote_normalise(CopyDlg[ID_SC_TARGETEDIT].strData);
 		}
 	}
 	else
@@ -759,7 +759,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				{
 					// уберем все лишние кавычки
 					// возьмем в кавычки, т.к. могут быть разделители
-					InsertQuote(inplace::unquote(CopyDlg[ID_SC_TARGETEDIT].strData));
+					inplace::quote_normalise(CopyDlg[ID_SC_TARGETEDIT].strData);
 				}
 
 				break;
@@ -842,8 +842,8 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	string strCopyDlgValue;
 	if (!Ask)
 	{
-		strCopyDlgValue = unquote(os::env::expand(CopyDlg[ID_SC_TARGETEDIT].strData));
-		m_DestList = split<std::vector<string>>(InsertQuote(strCopyDlgValue), STLF_UNIQUE);
+		strCopyDlgValue = quote_normalise(os::env::expand(CopyDlg[ID_SC_TARGETEDIT].strData));
+		m_DestList = split<std::vector<string>>(strCopyDlgValue, STLF_UNIQUE);
 		if (m_DestList.empty())
 			Ask = true;
 	}
@@ -930,7 +930,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 					// уберем лишние кавычки
 					// добавим кавычки, чтобы "список" удачно скомпилировался вне
 					// зависимости от наличия разделителей в оном
-					InsertQuote(inplace::unquote(strCopyDlgValue));
+					inplace::quote_normalise(strCopyDlgValue);
 				}
 
 				m_DestList = split<std::vector<string>>(strCopyDlgValue, STLF_UNIQUE);
@@ -1060,7 +1060,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	if (DestPlugin==2)
 	{
 		if (PluginDestPath)
-			strCopyDlgValue = PluginDestPath;
+			*PluginDestPath = strCopyDlgValue;
 
 		return;
 	}
@@ -2416,15 +2416,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					os::SetFileAttributes(strDestPath,DestAttr);
 			}
 
-			string strMsg1, strMsg2;
-			lng MsgMCannot = (Flags&FCOPY_LINK)? lng::MCannotLink: (Flags&FCOPY_MOVE)? lng::MCannotMove : lng::MCannotCopy;
-			strMsg1 = Src;
-			strMsg2 = strDestPath;
-			InsertQuote(strMsg1);
-			InsertQuote(strMsg2);
-
+			const auto MsgMCannot = Flags & FCOPY_LINK? lng::MCannotLink : Flags & FCOPY_MOVE? lng::MCannotMove : lng::MCannotCopy;
+			const auto strMsg1 = quote_unconditional(Src);
+			const auto strMsg2 = quote_unconditional(strDestPath);
 			int MsgCode;
-			if ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED))
+			if (SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED)
 			{
 				if (SkipEncMode != -1)
 				{
@@ -2677,13 +2673,11 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::FAR_FIND_DATA &SrcD
 		}
 		else
 		{
-			string strSrcName(SrcName);
-			InsertQuote(strSrcName);
 			MsgCode = Message(MSG_WARNING,
 				msg(lng::MWarning),
 				{
 					msg(lng::MCopyEncryptWarn1),
-					strSrcName,
+					quote_unconditional(SrcName),
 					msg(lng::MCopyEncryptWarn2),
 					msg(lng::MCopyEncryptWarn3)
 				},

@@ -138,7 +138,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		{
 			// уберем все лишние кавычки
 			// возьмем в кавычки, т.к. могут быть разделители
-			InsertQuote(inplace::unquote(strDirName));
+			inplace::quote_normalise(strDirName);
 		}
 
 		const auto DirList = split<std::vector<string>>(strDirName, STLF_UNIQUE);

@@ -134,9 +134,19 @@ string lower(string Str)
 	return inplace::lower(Str, 0, string::npos);
 }
 
-bool equal_to_icase::operator()(wchar_t c1, wchar_t c2) const
+size_t hash_icase::operator()(const string& Str) const
 {
-	return upper(c1) == upper(c2);
+	return std::hash<string>{}(Str);
+}
+
+bool equal_to_icase::operator()(wchar_t Chr1, wchar_t Chr2) const
+{
+	return upper(Chr1) == upper(Chr2);
+}
+
+bool equal_to_icase::operator()(const string_view& Str1, const string_view& Str2) const
+{
+	return equal_icase(Str1, Str2);
 }
 
 bool equal_icase(const string_view& Str1, const string_view& Str2)

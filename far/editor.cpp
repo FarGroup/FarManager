@@ -3297,22 +3297,20 @@ private:
 
 bool Editor::Search(bool Next)
 {
-	string strSearchStr, strReplaceStr;
 	static string strLastReplaceStr;
-	string strMsgStr;
-	bool Case,WholeWords,ReverseSearch,Regexp,PreserveStyle,Match,UserBreak,RefreshMe = false;
+	bool Match,UserBreak,RefreshMe = false;
 	std::unique_ptr<undo_block> UndoBlock;
 
 	if (Next && strLastSearchStr.empty())
 		return true;
 
-	strSearchStr = strLastSearchStr;
-	strReplaceStr = strLastReplaceStr;
-	Case=LastSearchCase;
-	WholeWords=LastSearchWholeWords;
-	ReverseSearch=LastSearchReverse;
-	PreserveStyle=LastSearchPreserveStyle;
-	Regexp=LastSearchRegexp;
+	auto strSearchStr = strLastSearchStr;
+	auto strReplaceStr = strLastReplaceStr;
+	auto Case = LastSearchCase;
+	auto WholeWords = LastSearchWholeWords;
+	auto ReverseSearch = LastSearchReverse;
+	auto PreserveStyle = LastSearchPreserveStyle;
+	auto Regexp = LastSearchRegexp;
 
 	bool FindAllReferences = false;
 
@@ -3392,12 +3390,12 @@ bool Editor::Search(bool Next)
 	if (strSearchStr.empty())
 		return true;
 
+	const auto QuotedStr = quote_unconditional(strSearchStr);
+
 	const auto FindAllList = VMenu2::create({}, nullptr, 0);
 	UINT AllRefLines = 0;
 	{
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());
-		strMsgStr=strSearchStr;
-		InsertQuote(strMsgStr);
 		SetCursorType(false, -1);
 		Match = false;
 		UserBreak = false;
@@ -3443,13 +3441,8 @@ bool Editor::Search(bool Next)
 			m.resize(re.GetBracketsCount() * 2);
 		}
 
-		string strSearchStrUpper = strSearchStr;
-		string strSearchStrLower = strSearchStr;
-		if (!Case)
-		{
-			inplace::upper(strSearchStrUpper);
-			inplace::lower(strSearchStrLower);
-		}
+		const auto strSearchStrUpper = Case? strSearchStr : upper(strSearchStr);
+		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
 
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		int StartLine = m_it_CurLine.Number();
@@ -3470,12 +3463,10 @@ bool Editor::Search(bool Next)
 					}
 				}
 
-				strMsgStr=strSearchStr;
-				InsertQuote(strMsgStr);
 				SetCursorType(false, -1);
-				int Total=FindAllReferences? m_LinesCount : (ReverseSearch? StartLine : m_LinesCount - StartLine);
-				int Current=abs(CurPtr.Number() - StartLine);
-				EditorShowMsg(msg(lng::MEditSearchTitle),msg(lng::MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
+				const auto Total = FindAllReferences? m_LinesCount : ReverseSearch? StartLine : m_LinesCount - StartLine;
+				const auto Current = abs(CurPtr.Number() - StartLine);
+				EditorShowMsg(msg(lng::MEditSearchTitle), msg(lng::MEditSearchingFor), QuotedStr, Total > 0? Current * 100 / Total : 100);
 				Taskbar().SetProgressValue(Current,Total);
 			}
 
@@ -3567,10 +3558,6 @@ bool Editor::Search(bool Next)
 							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
 							CurPtr->AddColor(newcol);
 
-							// do not use InsertQuote, AI is not suitable here
-							const auto strQSearchStr = concat(L'"', make_string_view(CurPtr->GetString(), CurPos, SearchLength), L'"');
-							const auto strQReplaceStr = concat(L'"', strReplaceStrCurrent, L'"');
-
 							if (!SearchLength && !strReplaceStrCurrent.length())
 								ZeroLength = true;
 
@@ -3578,9 +3565,9 @@ bool Editor::Search(bool Next)
 								msg(lng::MEditReplaceTitle),
 								{
 									msg(lng::MEditAskReplace),
-									strQSearchStr,
+									quote_unconditional(CurPtr->GetString().substr(CurPos, SearchLength)),
 									msg(lng::MEditAskReplaceWith),
-									strQReplaceStr
+									quote_unconditional(strReplaceStrCurrent)
 								},
 								{ lng::MEditReplace, lng::MEditReplaceAll, lng::MEditSkip, lng::MEditCancel });
 
@@ -3863,7 +3850,7 @@ bool Editor::Search(bool Next)
 			msg(lng::MEditSearchTitle),
 			{
 				msg(lng::MEditNotFound),
-				strMsgStr
+				QuotedStr
 			},
 			{ lng::MOk });
 

@@ -141,6 +141,29 @@ namespace inplace
 		Str.erase(std::remove(ALL_RANGE(Str), L'"'), Str.end());
 		return Str;
 	}
+
+	inline auto& quote(string& Str)
+	{
+		if (Str.empty() || Str.front() != L'"')
+			Str.insert(0, 1, L'"');
+
+		if (Str.size() == 1 || Str.back() != L'"')
+			Str.push_back(L'"');
+
+		return Str;
+	}
+
+	inline auto& quote_unconditional(string& Str)
+	{
+		Str.insert(0, 1, L'"');
+		Str.push_back(L'"');
+		return Str;
+	}
+
+	inline auto& quote_normalise(string& Str)
+	{
+		return quote(unquote(Str));
+	}
 }
 
 inline auto cut_left(string Str, size_t MaxWidth)
@@ -181,6 +204,21 @@ inline auto fit_to_right(string Str, size_t Size)
 inline auto unquote(string Str)
 {
 	return inplace::unquote(Str);
+}
+
+inline auto quote(string Str)
+{
+	return inplace::quote(Str);
+}
+
+inline auto quote_unconditional(string Str)
+{
+	return inplace::quote_unconditional(Str);
+}
+
+inline auto quote_normalise(string Str)
+{
+	return inplace::quote_normalise(Str);
 }
 
 inline bool equal(const string_view& Str1, const string_view& Str2)

@@ -5175,7 +5175,7 @@ void FileList::ProcessCopyKeys(int Key)
 				        !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
 				{
 					ToPlugin=2;
-					ShellCopy(shared_from_this(), Move, false, false, Ask, ToPlugin, strPluginDestPath.data());
+					ShellCopy(shared_from_this(), Move, false, false, Ask, ToPlugin, &strPluginDestPath);
 				}
 
 				if (ToPlugin!=-1)

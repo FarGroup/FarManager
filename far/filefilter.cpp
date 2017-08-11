@@ -341,14 +341,11 @@ bool FileFilter::FilterEdit()
 
 				if (SelPos<(int)FilterData().size())
 				{
-					string strQuotedTitle = FilterData()[SelPos].GetTitle();
-					InsertQuote(strQuotedTitle);
-
 					if (Message(0,
 						msg(lng::MFilterTitle),
 						{
 							msg(lng::MAskDeleteFilter),
-							strQuotedTitle
+							quote_unconditional(FilterData()[SelPos].GetTitle())
 						},
 						{ lng::MDelete, lng::MCancel }) == Message::first_button)
 					{
@@ -482,7 +479,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 			//она уже была выбрана в другом и так как TempFilterData
 			//и авто фильтры в меню отсортированы по алфавиту то немного
 			//поколдуем чтоб не было дубликатов в памяти.
-			string strMask1 = unquote(Mask);
+			const auto strMask1 = unquote(Mask);
 
 			while (j < TempFilterData().size())
 			{

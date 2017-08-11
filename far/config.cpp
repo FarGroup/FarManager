@@ -1644,7 +1644,7 @@ Options::Options():
 
 Options::~Options() = default;
 
-void Options::InitConfigData()
+void Options::InitConfigsData()
 {
 	static const wchar_t DefaultBoxSymbols[] =
 	{
@@ -2024,17 +2024,17 @@ void Options::InitConfigData()
 
 	};
 
-	m_Config.emplace_back(RoamingData, std::size(RoamingData), ConfigProvider().GeneralCfg().get());
-	m_Config.emplace_back(LocalData, std::size(LocalData), ConfigProvider().LocalGeneralCfg().get());
+	m_Configs.emplace_back(RoamingData, std::size(RoamingData), ConfigProvider().GeneralCfg().get());
+	m_Configs.emplace_back(LocalData, std::size(LocalData), ConfigProvider().LocalGeneralCfg().get());
 }
 
 Options::farconfig& Options::GetConfig(config_type Type)
 {
-	return m_Config[static_cast<size_t>(Type)];
+	return m_Configs[static_cast<size_t>(Type)];
 }
 const Options::farconfig& Options::GetConfig(config_type Type) const
 {
-	return m_Config[static_cast<size_t>(Type)];
+	return m_Configs[static_cast<size_t>(Type)];
 }
 
 template<class container, class pred>
@@ -2059,11 +2059,11 @@ const Option* Options::GetConfigValue(size_t Root, const wchar_t* Name) const
 	return GetConfigValuePtr(GetConfig(config_type::roaming), [&](const FARConfigItem& i) { return Root == i.ApiRoot && equal_icase(i.ValName, Name); });
 }
 
-void Options::InitConfig()
+void Options::InitConfigs()
 {
-	if(m_Config.empty())
+	if(m_Configs.empty())
 	{
-		InitConfigData();
+		InitConfigsData();
 	}
 }
 
@@ -2079,7 +2079,7 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 	}
 }
 
-void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
+void Options::Load(std::unordered_map<string, string, hash_icase, equal_to_icase>&& Overrides)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
 	static std::pair<GUID, string> DefaultKnownGuids[] =
@@ -2112,9 +2112,9 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 		b->Default = a.second.data();
 		b->Id = a.first;
 		b->StrId = a.second;
-	};
+	}
 
-	InitConfig();
+	InitConfigs();
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 
@@ -2125,24 +2125,28 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 	*/
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-	for (auto& i: m_Config)
+	const auto& GetOverride = [&](const FARConfigItem& Item)
 	{
-		const auto Cfg = i.GetConfig();
-		for(const auto& j: i)
-		{
-			j.Value->ReceiveValue(Cfg, j.KeyName, j.ValName, j.Default);
+		if (Overrides.empty())
+			return false;
 
-			for (const auto& ovr: Overridden)
-			{
-				const auto DotPos = ovr.first.rfind(L'.');
-				if (DotPos != string::npos &&
-					starts_with_icase(ovr.first, { j.KeyName, DotPos }) &&
-					equal_icase(make_string_view(ovr.first, DotPos + 1), j.ValName))
-				{
-					// TODO: log if failed
-					j.Value->TryParse(ovr.second);
-				}
-			}
+		const auto ItemIterator = Overrides.find(concat(Item.KeyName, L'.', Item.ValName));
+		if (ItemIterator == Overrides.end())
+			return false;
+
+		const auto Result = Item.Value->TryParse(ItemIterator->second);
+		// We need it only once
+		Overrides.erase(ItemIterator);
+		return Result;
+	};
+
+
+	for (auto& Config: m_Configs)
+	{
+		const auto ConfigStorage = Config.GetConfig();
+		for(const auto& Item: Config)
+		{
+			GetOverride(Item) || Item.Value->ReceiveValue(ConfigStorage, Item.KeyName, Item.ValName, Item.Default);
 		}
 	}
 
@@ -2194,7 +2198,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 /* *************************************************** </ПОСТПРОЦЕССЫ> */
 
 	// we assume that any changes after this point will be made by the user
-	std::for_each(RANGE(m_Config, i)
+	std::for_each(RANGE(m_Configs, i)
 	{
 		std::for_each(RANGE(i, j)
 		{
@@ -2205,7 +2209,7 @@ void Options::Load(const std::vector<std::pair<string, string>>& Overridden)
 
 void Options::Save(bool Manual)
 {
-	InitConfig();
+	InitConfigs();
 
 	if (Manual && Message(0,
 		msg(lng::MSaveSetupTitle),
@@ -2251,7 +2255,7 @@ void Options::Save(bool Manual)
 
 	Palette.Save(Manual);
 
-	for (const auto& Config: m_Config)
+	for (const auto& Config: m_Configs)
 	{
 		const auto ConfigStorage = Config.GetConfig();
 		SCOPED_ACTION(auto)(ConfigStorage->ScopedTransaction());

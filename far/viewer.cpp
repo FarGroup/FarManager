@@ -3429,7 +3429,7 @@ void Viewer::Search(int Next,int FirstChar)
 		sd.ch_size = getCharSize();
 		sd.search_text = strSearchStr.data();
 
-		InsertQuote(strMsgStr);
+		inplace::quote_unconditional(strMsgStr);
 
 		if (SearchRegexp)
 		{

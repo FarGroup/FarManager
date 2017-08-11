@@ -5199,9 +5199,7 @@ M1:
 			// общие макросы учитываем только при удалении.
 			if (m_RecCode.empty() || Data.Area!=MACROAREA_COMMON)
 			{
-				string strBufKey=Data.Code;
-				InsertQuote(strBufKey);
-
+				auto strBufKey = quote_unconditional(Data.Code);
 				bool SetChange = m_RecCode.empty();
 				lng MessageTemplate;
 				if (Data.Area==MACROAREA_COMMON)

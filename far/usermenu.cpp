@@ -1102,14 +1102,11 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 
 bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<UserMenuItem>::iterator& MenuItem)
 {
-	string strItemName=MenuItem->strLabel;
-	InsertQuote(strItemName);
-
 	if (Message(MSG_WARNING,
 		msg(lng::MUserMenuTitle),
 		{
 			msg(!MenuItem->Submenu ? lng::MAskDeleteMenuItem : lng::MAskDeleteSubMenuItem),
-			strItemName
+			quote_unconditional(MenuItem->strLabel)
 		},
 		{ lng::MDelete, lng::MCancel }) != Message::first_button)
 		return false;
