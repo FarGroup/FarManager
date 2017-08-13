@@ -1226,9 +1226,9 @@ public:
 			Info.Author && *Info.Author)
 		{
 			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
-			custom_plugin_factory::ProcessError(L"Initialize");
 			// TODO: store info, show message if version is bad
 		}
+		custom_plugin_factory::ProcessError(L"Initialize");
 	}
 
 	~custom_plugin_factory()
