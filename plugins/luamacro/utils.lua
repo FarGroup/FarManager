@@ -862,17 +862,21 @@ local function GetFromMenu (macrolist, area, key)
       return p1>p2 or p1==p2 and far.LStricmp(item1.text, item2.text) < 0
     end)
 
+  local bkeys = { {BreakKey="A+F4"} }
   for i,item in ipairs(menuitems) do
     local ch = i<10 and tostring(i) or i<36 and string.char(i+55)
-    item.text = ch and (ch..". "..item.text) or item.text
-    if ch then item.AccelKey=ch end
+    if ch then
+      item.text = ch..". "..item.text
+      table.insert(bkeys, {BreakKey=ch, pos=i})
+      if i>=10 then table.insert(bkeys, {BreakKey=ch:lower(), pos=i}) end
+    end
   end
 
-  local props, bkeys = {
+  local props = {
       Title = ("%s: %s | %s"):format(Msg.UtExecuteMacroTitle, area, key),
       Bottom = Msg.UtExecuteMacroBottom,
       Flags = { FMENU_WRAPMODE=1, FMENU_CHANGECONSOLETITLE=1 },
-      Id = win.Uuid("165AA6E3-C89B-4F82-A0C5-C309243FD21B") }, { {BreakKey="A+F4"} }
+      Id = win.Uuid("165AA6E3-C89B-4F82-A0C5-C309243FD21B") }
   while true do
     local item, pos = far.Menu(props, menuitems, bkeys)
     if not item then
@@ -886,6 +890,8 @@ local function GetFromMenu (macrolist, area, key)
         local startline = m.action and debug.getinfo(m.action,"S").linedefined
         editor.Editor(m.FileName,nil,nil,nil,nil,nil,nil,startline,nil,65001)
       end
+    elseif item.pos then
+      return menuitems[item.pos].macro
     end
   end
 end
