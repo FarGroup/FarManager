@@ -3,6 +3,54 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 13.08.2017 17:07:42 +0000 - build 5005
+
+1. Correction of 4959.
+
+drkns 11.08.2017 01:15:42 +0000 - build 5004
+
+1. Refactoring.
+
+drkns 09.08.2017 00:11:01 +0000 - build 5003
+
+1. Once more for the owners.
+
+drkns 08.08.2017 20:27:34 +0000 - build 5002
+
+1. 0003466: Memory depletion crash when adding new panel columns with unspecified width
+
+2. Forum: File owner is not shown for a Windows share
+
+svs 08.08.2017 12:26:57 +0300 - build 5001
+
+1. SQLite 3.20.0
+
+drkns 06.08.2017 11:07:04 +0000 - build 5000
+
+1. Another correction of 4996.
+
+drkns 04.08.2017 20:07:24 +0000 - build 4999
+
+1. Forum: "Crash on going upwards from RESearch panel"
+
+drkns 04.08.2017 00:27:23 +0000 - build 4998
+
+1. Correction of 4997 - broken replace.
+
+2. Fix for the old bug on replacing a line containing "\r".
+
+drkns 01.08.2017 20:39:18 +0000 - build 4997
+
+1. Continuation of #3462 - do not change cursor position without the need.
+
+drkns 31.07.2017 20:01:11 +0000 - build 4996
+
+1. Correction of 4995.1.
+
+2. 0003462: Searching for all matches skips match in the first line
+
+3. Do not clear selection ahead of time nor if nothing is found.
+
 drkns 30.07.2017 01:45:36 +0000 - build 4995
 
 1. Refactoring.
