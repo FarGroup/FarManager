@@ -46,7 +46,7 @@ intptr_t WINAPI PanelControl(
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>FALSE</code>, если Far Manager запущен с ключами /e или /v (в качестве внешнего редактора или программы просмотра). В этом режиме панели не создаются.
     <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST" width="10" height="10"> Внимание!<br><br></p>
-    <UL class=note><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только одну эту команду - <code>FCTL_CHECKPANELSEXIST</code>.</LI></UL></td></tr>
+    <UL class=note><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только команды <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> и <code>FCTL_SETUSERSCREEN</code>.</LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_ISACTIVEPANEL">FCTL_ISACTIVEPANEL</a></td>
     <td class="cont" width="60%">Проверяет, является ли панель активной.<br>
