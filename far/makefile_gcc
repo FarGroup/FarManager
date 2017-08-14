@@ -31,6 +31,7 @@ SRCS = \
 	config.cpp \
 	configdb.cpp \
 	console.cpp \
+	console_session.cpp \
 	constitle.cpp \
 	copy.cpp \
 	copy_progress.cpp \

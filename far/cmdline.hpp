@@ -52,17 +52,6 @@ struct execute_info
 	bool RunAs{};
 };
 
-class i_execution_context
-{
-public:
-	virtual void Activate() = 0;
-	virtual void DrawCommand(const string& Command) = 0;
-	virtual void DoPrologue() = 0;
-	virtual void DoEpilogue() = 0;
-	virtual void Consolise(bool SetTextColour = true) = 0;
-	virtual ~i_execution_context() = default;
-};
-
 class CommandLine:public SimpleScreenObject
 {
 public:
@@ -93,9 +82,6 @@ public:
 	int GetPromptSize() const {return PromptSize;}
 	void SetPromptSize(int NewSize);
 	void DrawFakeCommand(const string& FakeCommand);
-	void EnterPluginExecutionContext();
-	void LeavePluginExecutionContext();
-	std::shared_ptr<i_execution_context> GetExecutionContext();
 
 private:
 	virtual void DisplayObject() override;
@@ -113,9 +99,6 @@ private:
 	int LastCmdPartLength;
 	string m_CurCmdStr;
 	std::stack<string> ppstack;
-	std::weak_ptr<i_execution_context> m_ExecutionContext;
-	std::shared_ptr<i_execution_context> m_PluginExecutionContext;
-	unsigned m_PluginExecutionContextInvocations{};
 };
 
 #endif // CMDLINE_HPP_7E68C776_4AA9_4A24_BE9F_7F7FA6D50F30

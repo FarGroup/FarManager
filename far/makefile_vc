@@ -114,6 +114,7 @@ LINK_OBJS = \
 	"$(INTDIR)\config.obj" \
 	"$(INTDIR)\configdb.obj" \
 	"$(INTDIR)\console.obj" \
+	"$(INTDIR)\console_session.obj" \
 	"$(INTDIR)\constitle.obj" \
 	"$(INTDIR)\copy.obj" \
 	"$(INTDIR)\copy_progress.obj" \

@@ -295,7 +295,6 @@ static int MainProcess(
 		Console().SetTextAttributes(InitAttributes);
 		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
-		MoveRealCursor(0,0);
 
 		return 0;
 }

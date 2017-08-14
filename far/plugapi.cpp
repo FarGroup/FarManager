@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "filemasks.hpp"
+#include "desktop.hpp"
 
 static Plugin* GuidToPlugin(const GUID* Id)
 {
@@ -1266,7 +1267,22 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		if (Command == FCTL_CHECKPANELSEXIST)
 			return !Global->OnlyEditorViewerUsed;
 
-		if (Global->OnlyEditorViewerUsed || !Global->CtrlObject || Global->WindowManager->ManagerIsDown())
+		if (!Global->CtrlObject || Global->WindowManager->ManagerIsDown())
+			return 0;
+
+		if (Command == FCTL_GETUSERSCREEN)
+		{
+			Global->CtrlObject->Desktop->ConsoleSession().EnterPluginContext();
+			return TRUE;
+		}
+		
+		if (Command == FCTL_SETUSERSCREEN)
+		{
+			Global->CtrlObject->Desktop->ConsoleSession().LeavePluginContext();
+			return TRUE;
+		}
+
+		if (Global->OnlyEditorViewerUsed)
 			return 0;
 
 		const auto FPanels = Global->CtrlObject->Cp();
@@ -1350,18 +1366,6 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			}
 
 			return Processed;
-		}
-
-		case FCTL_GETUSERSCREEN:
-		{
-			Global->CtrlObject->CmdLine()->EnterPluginExecutionContext();
-			return TRUE;
-		}
-
-		case FCTL_SETUSERSCREEN:
-		{
-			Global->CtrlObject->CmdLine()->LeavePluginExecutionContext();
-			return TRUE;
 		}
 
 		case FCTL_GETCMDLINE:

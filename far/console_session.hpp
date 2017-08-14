@@ -1,14 +1,14 @@
-﻿#ifndef DESKTOP_HPP_16E84F3B_443F_487F_A5E6_FC6432462DB5
-#define DESKTOP_HPP_16E84F3B_443F_487F_A5E6_FC6432462DB5
+﻿#ifndef CONSOLE_SESSION_HPP_807900C8_23FD_4505_AEB4_B63E7AF2FF7F
+#define CONSOLE_SESSION_HPP_807900C8_23FD_4505_AEB4_B63E7AF2FF7F
 #pragma once
 
 /*
-desktop.hpp
+console_session.hpp
 
 
 */
 /*
-Copyright © 2014 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,32 +34,29 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "window.hpp"
-#include "console_session.hpp"
-
-class desktop: public window
+class i_context
 {
-	struct private_tag {};
-
 public:
-	static desktop_ptr create();
-	explicit desktop(private_tag);
-
-	virtual int GetType() const override { return windowtype_desktop; }
-	virtual int GetTypeAndName(string& Type, string& Name) override { Type = GetTitle();  return GetType(); }
-	virtual void ResizeConsole() override;
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-
-	void TakeSnapshot();
-
-	console_session& ConsoleSession() { return m_ConsoleSession; }
-
-private:
-	virtual string GetTitle() const override { return L"Desktop"s; } // TODO: localization
-	virtual void DisplayObject() override;
-
-	std::unique_ptr<SaveScreen> m_Background;
-	console_session m_ConsoleSession;
+	virtual void Activate() = 0;
+	virtual void DrawCommand(const string& Command) = 0;
+	virtual void DoPrologue() = 0;
+	virtual void DoEpilogue() = 0;
+	virtual void Consolise(bool SetTextColour = true) = 0;
+	virtual ~i_context() = default;
 };
 
-#endif // DESKTOP_HPP_16E84F3B_443F_487F_A5E6_FC6432462DB5
+class console_session
+{
+public:
+	void EnterPluginContext();
+	void LeavePluginContext();
+	std::shared_ptr<i_context> GetContext();
+
+private:
+	std::unique_ptr<SaveScreen> m_Background;
+	std::weak_ptr<i_context> m_Context;
+	std::shared_ptr<i_context> m_PluginContext;
+	unsigned m_PluginContextInvocations{};
+};
+
+#endif // CONSOLE_SESSION_HPP_807900C8_23FD_4505_AEB4_B63E7AF2FF7F

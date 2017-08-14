@@ -95,6 +95,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "filefilterparams.hpp"
+#include "desktop.hpp"
 
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static panel_sort ListSortMode(panel_sort::UNSORTED);
@@ -4934,7 +4935,7 @@ bool FileList::ApplyCommand()
 	GetSelName(nullptr,FileAttr);
 	Parent()->GetCmdLine()->LockUpdatePanel(true);
 	{
-		const auto ExecutionContext = Parent()->GetCmdLine()->GetExecutionContext();
+		const auto ExecutionContext = Global->CtrlObject->Desktop->ConsoleSession().GetContext();
 		while (GetSelName(&strSelName, FileAttr, &strSelShortName) && !CheckForEsc())
 		{
 			string strListName, strAnotherListName;

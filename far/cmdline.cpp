@@ -873,120 +873,6 @@ void CommandLine::SetPromptSize(int NewSize)
 	PromptSize = NewSize? std::clamp(NewSize, 5, 95) : DEFAULT_CMDLINE_WIDTH;
 }
 
-class execution_context: noncopyable, public i_execution_context
-{
-public:
-	void Activate() override
-	{
-		if (m_Activated)
-			return;
-
-		m_Activated = true;
-		++Global->SuppressIndicators;
-		++Global->SuppressClock;
-
-		Global->WindowManager->ModalDesktopWindow();
-		Global->WindowManager->PluginCommit();
-	}
-
-	void DrawCommand(const string& Command) override
-	{
-		Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
-		ScrollScreen(1);
-
-		m_Command = Command;
-		m_ShowCommand = true;
-
-		DoPrologue();
-	}
-
-	void Consolise(bool SetTextColour = true) override
-	{
-		assert(m_Activated);
-
-		if (m_Consolised)
-			return;
-		m_Consolised = true;
-
-		Global->ScrBuf->MoveCursor(0, WhereY());
-		SetInitialCursorType();
-
-		if (!m_Command.empty())
-			ConsoleTitle::SetFarTitle(m_Command);
-
-		// BUGBUG, implement better & safer way to do this
-		const auto LockCount = Global->ScrBuf->GetLockCount();
-		Global->ScrBuf->SetLockCount(0);
-
-		Global->ScrBuf->Flush();
-
-		// BUGBUG, implement better & safer way to do this
-		Global->ScrBuf->SetLockCount(LockCount);
-
-		if (SetTextColour)
-			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-	}
-
-	void DoPrologue() override
-	{
-		Global->CtrlObject->Desktop->TakeSnapshot();
-		int X1, Y1, X2, Y2;
-		Global->CtrlObject->CmdLine()->GetPosition(X1, Y1, X2, Y2);
-		GotoXY(0, Y1);
-		m_Finalised = false;
-	}
-
-	void DoEpilogue() override
-	{
-		if (!m_Activated)
-			return;
-
-		if (m_Finalised)
-			return;
-
-		if (m_Consolised)
-		{
-			if (Global->Opt->ShowKeyBar)
-			{
-				Console().Write(L"\n");
-			}
-			Console().Commit();
-			Global->ScrBuf->FillBuf();
-
-			m_Consolised = false;
-		}
-
-		// Empty command means that user simply pressed Enter in command line, in this case we don't want additional scrolling
-		// ShowCommand is false when there is no "command" - class instantiated by FCTL_GETUSERSCREEN.
-		if (!m_Command.empty() || !m_ShowCommand)
-		{
-			ScrollScreen(1);
-		}
-
-		Global->CtrlObject->Desktop->TakeSnapshot();
-
-		m_Finalised = true;
-	}
-
-	~execution_context() override
-	{
-		if (!m_Activated)
-			return;
-
-		Global->WindowManager->UnModalDesktopWindow();
-		Global->WindowManager->PluginCommit();
-		--Global->SuppressClock;
-		--Global->SuppressIndicators;
-	}
-
-private:
-	string m_Command;
-	bool m_ShowCommand{};
-	bool m_Activated{};
-	bool m_Finalised{};
-	bool m_Consolised{};
-};
-
 static bool ProcessFarCommands(const string& Command, const std::function<void(bool)>& ConsoleActivatior)
 {
 	if (equal_icase(Command, L"far:config"_sv))
@@ -1041,7 +927,7 @@ void CommandLine::ExecString(execute_info& Info)
 	bool Silent = false;
 	bool IsUpdateNeeded = false;
 
-	const auto ExecutionContext = GetExecutionContext();
+	const auto ExecutionContext = Global->CtrlObject->Desktop->ConsoleSession().GetContext();
 
 	SCOPE_EXIT
 	{
@@ -1453,65 +1339,4 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 void CommandLine::LockUpdatePanel(bool Mode)
 {
 	m_Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);
-}
-
-void CommandLine::EnterPluginExecutionContext()
-{
-	if (!m_PluginExecutionContextInvocations)
-	{
-		m_PluginExecutionContext = GetExecutionContext();
-		m_PluginExecutionContext->Activate();
-	}
-	else
-	{
-		m_PluginExecutionContext->DoEpilogue();
-	}
-
-	m_PluginExecutionContext->DoPrologue();
-	m_PluginExecutionContext->Consolise(!m_PluginExecutionContextInvocations);
-
-	++m_PluginExecutionContextInvocations;
-}
-
-void CommandLine::LeavePluginExecutionContext()
-{
-	if (m_PluginExecutionContextInvocations)
-		--m_PluginExecutionContextInvocations;
-
-	if (m_PluginExecutionContext)
-	{
-		m_PluginExecutionContext->DoEpilogue();
-	}
-	else
-	{
-		// FCTL_SETUSERSCREEN without corresponding FCTL_GETUSERSCREEN
-		// Old (1.x) behaviour emulation:
-		if (Global->Opt->ShowKeyBar)
-		{
-			Console().Write(L"\n");
-		}
-		Console().Commit();
-		Global->ScrBuf->FillBuf();
-		ScrollScreen(1);
-		Global->CtrlObject->Desktop->TakeSnapshot();
-	}
-
-	if (m_PluginExecutionContextInvocations)
-		return;
-
-	m_PluginExecutionContext.reset();
-}
-
-std::shared_ptr<i_execution_context> CommandLine::GetExecutionContext()
-{
-	if (auto Result = m_ExecutionContext.lock())
-	{
-		return Result;
-	}
-	else
-	{
-		Result = std::make_shared<execution_context>();
-		m_ExecutionContext = Result;
-		return Result;
-	}
 }

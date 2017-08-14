@@ -362,6 +362,7 @@ void InitConsole(int FirstInit)
 void CloseConsole()
 {
 	Global->ScrBuf->Flush();
+	MoveRealCursor(0, ScrY);
 	Console().SetCursorInfo(InitialCursorInfo);
 	ChangeConsoleMode(Console().GetInputHandle(), InitialConsoleMode);
 
