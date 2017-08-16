@@ -1724,7 +1724,7 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					LenText=LenStrItem(I,strStr);
 
-					if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CX1 != -1)
+					if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CX1 != -1 && CX2 != -1)
 					{
 						inplace::fit_to_center(strStr, CX2 - CX1 + 1);
 						LenText = LenStrItem(I, strStr);
@@ -1733,7 +1733,7 @@ void Dialog::ShowDialog(size_t ID)
 					if ((CX2 <= 0) || (CX2 < CX1))
 						CW = LenText;
 
-					X=(CX1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(m_X2-m_X1+1-LenText)/2:CX1;
+					X=(CX1==-1)?(m_X2-m_X1+1-LenText)/2:CX1;
 					Y=(CY1==-1)?(m_Y2-m_Y1+1)/2:CY1;
 					int XS=(CX1==-1 || !(Items[I].Flags&DIF_SEPARATORUSER))?X:CX1;
 
@@ -1806,6 +1806,8 @@ void Dialog::ShowDialog(size_t ID)
 							inplace::fit_to_center(strResult, CW);
 						else if (Items[I].Flags & DIF_RIGHTTEXT)
 							inplace::fit_to_right(strResult, CW);
+						else
+							inplace::fit_to_left(strResult, CW);
 
 						LenText=LenStrItem(I,strResult);
 						X=(CX1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(CW-LenText)/2:CX1;
@@ -1834,7 +1836,7 @@ void Dialog::ShowDialog(size_t ID)
 				strStr = Items[I].strData;
 				LenText=LenStrItem(I,strStr);
 
-				if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1 != -1)
+				if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1 != -1 && CY1 != -1)
 				{
 					inplace::fit_to_center(strStr, CY2 - CY1 + 1);
 					LenText = static_cast<int>(strStr.size());
@@ -1844,7 +1846,7 @@ void Dialog::ShowDialog(size_t ID)
 					CH = LenStrItem(I,strStr);
 
 				X=(CX1==-1)?(m_X2-m_X1+1)/2:CX1;
-				Y=(CY1==-1 || (Items[I].Flags & DIF_CENTERTEXT))?(m_Y2-m_Y1+1-LenText)/2:CY1;
+				Y=(CY1==-1)?(m_Y2-m_Y1+1-LenText)/2:CY1;
 				int YS=(CY1==-1 || !(Items[I].Flags&DIF_SEPARATORUSER))?Y:CY1;
 
 				if( (Items[I].Flags & DIF_RIGHTTEXT) && CY2 > CY1 )
