@@ -1724,9 +1724,15 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					LenText=LenStrItem(I,strStr);
 
-					if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CX1 != -1 && CX2 != -1)
+					if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && CX1 != -1 && CX2 != -1 && CX1 != CX2)
 					{
-						inplace::fit_to_center(strStr, CX2 - CX1 + 1);
+						if (Items[I].Flags & DIF_RIGHTTEXT)
+							inplace::fit_to_right(strStr, CX2 - CX1 + 1);
+						if (Items[I].Flags & DIF_CENTERTEXT)
+							inplace::fit_to_center(strStr, CX2 - CX1 + 1);
+						else
+							inplace::fit_to_left(strStr, CX2 - CX1 + 1);
+
 						LenText = LenStrItem(I, strStr);
 					}
 
