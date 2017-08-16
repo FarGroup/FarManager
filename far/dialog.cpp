@@ -1724,7 +1724,7 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					LenText=LenStrItem(I,strStr);
 
-					if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && CX1 != -1 && CX2 != -1 && CX1 != CX2)
+					if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && CX1 != -1 && CX2 > CX1)
 					{
 						if (Items[I].Flags & DIF_RIGHTTEXT)
 							inplace::fit_to_right(strStr, CX2 - CX1 + 1);
