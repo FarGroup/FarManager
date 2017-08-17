@@ -3328,7 +3328,7 @@ static int far_SendDlgMessage(lua_State *L)
 			luaL_checktype(L, 4, LUA_TTABLE);
 			flp.SelectPos = GetOptIntFromTable(L, "SelectPos", 1) - 1;
 			flp.TopPos = GetOptIntFromTable(L, "TopPos", 1) - 1;
-			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flp));
+			lua_pushinteger(L, 1 + Info->SendDlgMessage(hDlg, Msg, Param1, &flp));
 			return 1;
 		}
 		case DM_LISTSETDATA:

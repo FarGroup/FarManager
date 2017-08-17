@@ -3115,7 +3115,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3710394893
+mtime=3712149782
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3242,6 +3242,8 @@ mtime=3710394893
 #_    *Example:*
 #_      res = far.SendDlgMessage(hDlg, "DM_LISTSETCURPOS", id,
 #_        { SelectPos=5, TopPos=2 })
+#_    *Note:*
+#_      Elements numbering is 1-based.
 #_
 #_DM_LISTSETTITLES:
 #_    Param2:  table
