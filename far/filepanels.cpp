@@ -640,6 +640,20 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 			if (!IsLeftActive())
 				ActivePanel()->SetCurPath();
 
+			/*
+			It's not the best place to update the keybar.
+			Usually it's called from PopPlugin with EnableRestoreViewMode = true (and works),
+			but in this case PopPlugin is called from ~FileList with EnableRestoreViewMode = false,
+			which is kinda makes sense in general (e. g. exiting), except that ChangeDisk
+			causes FileList destruction as well.
+
+			It shall be consistent for all ways of closing plugin panel - "..", Disk menu, "cd c:" etc.
+
+			Same for KEY_ALTF2 below.
+			 */
+			if (IsLeftActive())
+				LeftPanel()->UpdateKeyBar();
+
 			break;
 		}
 		case KEY_ALTF2:
@@ -649,6 +663,9 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 
 			if (!IsRightActive())
 				ActivePanel()->SetCurPath();
+
+			if (IsRightActive())
+				RightPanel()->UpdateKeyBar();
 
 			break;
 		}

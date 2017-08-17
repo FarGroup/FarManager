@@ -1448,14 +1448,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 				break;
 
-			case KEY_ALTF9:
-			case KEY_RALTF9:
-			case KEY_F11:
-			case KEY_CTRLW:
-			case KEY_RCTRLW:
-				Global->WindowManager->ProcessKey(Manager::Key(key));
-				return TRUE;
-
 			case KEY_RIGHT:
 			case KEY_NUMPAD6:
 			case KEY_TAB:
@@ -1748,6 +1740,10 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				SMALL_RECT rect;
 				Dlg->SendMessage( DM_GETITEMPOSITION, i, &rect);
 
+				if (i == FD_SEPARATOR1)
+				{
+					rect.Left = rect.Right = -1;
+				}
 				if (i == FD_TEXT_STATUS)
 				{
 					rect.Right += IncX;
