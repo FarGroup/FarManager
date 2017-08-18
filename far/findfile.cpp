@@ -1711,11 +1711,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			int IncY = pCoord->Y - DlgHeight - 2;
 			Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 
-			for (int i = 0; i <= FD_BUTTON_STOP; i++)
-			{
-				Dlg->SendMessage(DM_SHOWITEM, i, ToPtr(FALSE));
-			}
-
 			if ((IncX > 0) || (IncY > 0))
 			{
 				pCoord->X = DlgWidth + (IncX > 0 ? IncX : 0);
@@ -1742,9 +1737,10 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				if (i == FD_SEPARATOR1)
 				{
+					// Center text
 					rect.Left = rect.Right = -1;
 				}
-				if (i == FD_TEXT_STATUS)
+				else if (i == FD_TEXT_STATUS)
 				{
 					rect.Right += IncX;
 				}
@@ -1764,11 +1760,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				pCoord->X = DlgWidth;
 				pCoord->Y = DlgHeight;
 				Dlg->SendMessage( DM_RESIZEDIALOG, 0, pCoord);
-			}
-
-			for (int i = 0; i <= FD_BUTTON_STOP; i++)
-			{
-				Dlg->SendMessage( DM_SHOWITEM, i, ToPtr(TRUE));
 			}
 
 			Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
