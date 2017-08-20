@@ -3,6 +3,32 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.08.2017 09:30:57 +0000 - build 5011
+
+1. Adjustment of buttons to the center of search dialog on size change would not work.
+
+drkns 17.08.2017 22:31:49 +0000 - build 5010
+
+1. Forum: hotkeys line would not refresh after browsing the network.
+
+2. Forum: search dialog had the separator incorrectly redrawn on size change.
+
+drkns 16.08.2017 11:43:28 +0000 - build 5009
+
+1. Correction of 5008.
+
+drkns 16.08.2017 09:54:19 +0000 - build 5008
+
+1. Forum: text adjusted to the left/right border was displayed completely even if it would not fit in the borders.
+
+drkns 16.08.2017 09:22:10 +0000 - build 5007
+
+1. Forum: DI_TEXT + DIF_CENTERTEXT was adjusted to dialog center instead of coordinates X1 and X2.
+
+drkns 14.08.2017 21:38:39 +0000 - build 5006
+
+1. Now FCTL_<G|S>ETUSERSCREEN can be used also from editor (-e) and viewer (-v) modes.
+
 drkns 13.08.2017 17:07:42 +0000 - build 5005
 
 1. Correction of 4959.
