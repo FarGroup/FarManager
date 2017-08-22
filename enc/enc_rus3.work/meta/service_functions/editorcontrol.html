@@ -32,6 +32,9 @@ intptr_t WINAPI EditorControl(
 <div class=descr>
   <div class=dfn>EditorID</div>
     <div class=dfndescr>Идентификатор экземпляра редактора (текущий редактор: <code>-1</code>). Каждый экземпляр редактора имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
+    <p class="note"><img src="../../images/warning.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
+    <ul class="note"><li>Обращение к текущему редактору безопасно только в контексте ProcessEditorInputW. Во всех остальных случаях текущим внезапно может оказаться совсем не тот редактор, который вы ожидали увидеть. Используйте EditorInfo.EditorID или ProcessEditorEventInfo.EditorID (в зависимости от контекста).</li>
+    </ul>
   <div class=dfn>Command</div>
     <div class=dfndescr>Тип команды. Может быть одним из следующих (перечисление <a name="EDITOR_CONTROL_COMMANDS">EDITOR_CONTROL_COMMANDS</a>):
     <table class="cont">
