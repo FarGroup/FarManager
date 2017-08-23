@@ -929,11 +929,12 @@ bool KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,DWORD AKey)
 {
 	const wchar_t* Lang = GetMacroLanguage(InputFlags);
+	bool onlyCheck = (InputFlags & KMFLAGS_SILENTCHECK) != 0;
 	MACROFLAGS_MFLAGS Flags = MFLAGS_POSTFROMPLUGIN;
 	if (InputFlags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
 	if (InputFlags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
-	FarMacroValue values[]={7.0,Lang,Sequence,(double)Flags,(double)AKey};
+	FarMacroValue values[]={7.0,Lang,Sequence,(double)Flags,(double)AKey,onlyCheck};
 	FarMacroCall fmc={sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	return CallMacroPlugin(&info);

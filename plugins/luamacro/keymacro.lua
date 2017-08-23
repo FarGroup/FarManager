@@ -437,12 +437,12 @@ function KeyMacro.Dispatch (opcode, ...)
   elseif opcode == OP_ISPOSTMACROENABLED then
     return not (IsExecuting() and GetCurMacro()) and 1 or 0
   elseif opcode == OP_POSTNEWMACRO then -- from API MacroControl(MSSC_POST)
-    local Lang,Code,Flags,AKey = ...
+    local Lang,Code,Flags,AKey,onlyCheck = ...
     local f1,f2 = loadmacro(Lang,Code)
     if f1 then
       CurState.MacroQueue:add(NewMacroRecord({ f1,f2,HasFunction=true },Flags,AKey))
       return true
-    else
+    elseif not onlyCheck then
       ErrMsg(f2, Msg.MMacroParseErrorTitle)
     end
   elseif opcode == OP_SETMACROVALUE then
