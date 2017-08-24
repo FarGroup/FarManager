@@ -1275,7 +1275,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			Global->CtrlObject->Desktop->ConsoleSession().EnterPluginContext();
 			return TRUE;
 		}
-		
+
 		if (Command == FCTL_SETUSERSCREEN)
 		{
 			Global->CtrlObject->Desktop->ConsoleSession().LeavePluginContext();
@@ -2467,11 +2467,10 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			//Param1=size of buffer, Param2 - MacroParseResult*
 			case MCTL_GETLASTERROR:
 			{
-				DWORD ErrCode = MPEC_SUCCESS;
 				COORD ErrPos = {};
 				string ErrSrc;
 
-				Macro.GetMacroParseError(&ErrCode, &ErrPos, &ErrSrc);
+				DWORD ErrCode = Macro.GetMacroParseError(&ErrPos, ErrSrc);
 
 				int Size = aligned_sizeof<MacroParseResult>();
 				size_t stringOffset = Size;

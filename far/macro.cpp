@@ -492,7 +492,6 @@ KeyMacro::KeyMacro():
 	m_Area(MACROAREA_SHELL),
 	m_StartMode(MACROAREA_OTHER),
 	m_Recording(MACROSTATE_NOMACRO),
-	m_LastErrorLine(0),
 	m_InternalInput(0),
 	m_WaitKey(0),
 	m_StringToPrint()
@@ -1292,14 +1291,10 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, FARKEYMACROFLAGS Flags,
 	{
 		if (info.Ret.ReturnType == MPRT_NORMALFINISH)
 		{
-			m_LastErrorStr.clear();
-			m_LastErrorLine = 0;
 			return true;
 		}
-		if (info.Ret.ReturnType == MPRT_ERRORPARSE)
+		else if (info.Ret.ReturnType == MPRT_ERRORPARSE)
 		{
-			m_LastErrorStr = info.Ret.Values[0].String;
-			m_LastErrorLine = (int)info.Ret.Values[1].Double;
 			if (!onlyCheck)
 			{
 				RestoreMacroChar();
@@ -1312,7 +1307,8 @@ bool KeyMacro::ParseMacroString(const wchar_t* Sequence, FARKEYMACROFLAGS Flags,
 
 bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 {
-	FarMacroValue values[]={GetMacroLanguage(Data->Flags), Data->SequenceText, FarMacroValue(Data->InValues,Data->InCount)};
+	bool onlyCheck = (Data->Flags & KMFLAGS_SILENTCHECK) != 0;
+	FarMacroValue values[]={GetMacroLanguage(Data->Flags), Data->SequenceText, FarMacroValue(Data->InValues,Data->InCount), onlyCheck};
 	FarMacroCall fmc={sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_EXECSTRING,&fmc};
 
@@ -1326,12 +1322,22 @@ bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 	return false;
 }
 
-void KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const
+DWORD KeyMacro::GetMacroParseError(COORD* ErrPos, string& ErrSrc) const
 {
-	*ErrCode = m_LastErrorStr.empty()? MPEC_SUCCESS : MPEC_ERROR;
-	ErrPos->X = 0;
-	ErrPos->Y = static_cast<SHORT>(m_LastErrorLine);
-	*ErrSrc = m_LastErrorStr;
+	MacroPluginReturn Ret;
+	if (MacroPluginOp(11.0, false, &Ret))
+	{
+		ErrSrc = Ret.Values[0].String;
+		ErrPos->Y = static_cast<SHORT>(Ret.Values[1].Double);
+		ErrPos->X = static_cast<SHORT>(Ret.Values[2].Double);
+		return ErrSrc.empty() ? MPEC_SUCCESS : MPEC_ERROR;
+	}
+	else
+	{
+		ErrSrc = L"No response from macro plugin";
+		ErrPos->Y = ErrPos->X = 0;
+		return MPEC_ERROR;
+	}
 }
 
 static bool absFunc(FarMacroCall*);

@@ -6,6 +6,7 @@ local MacroInit, MacroStep = Shared.MacroInit, Shared.MacroStep
 local pack, loadmacro, utils = Shared.pack, Shared.loadmacro, Shared.utils
 local MacroCallFar = Shared.MacroCallFar
 local FarMacroCallToLua = Shared.FarMacroCallToLua
+local GetLastParseError = Shared.GetLastParseError
 Shared = nil
 
 local F = far.Flags
@@ -416,6 +417,7 @@ local OP_POSTNEWMACRO             = 7
 local OP_SETMACROVALUE            = 8
 local OP_GETINPUTFROMMACRO        = 9
 local OP_TRYTOPOSTMACRO           = 10
+local OP_GETLASTERROR             = 11
 
 function KeyMacro.Dispatch (opcode, ...)
   local p1 = (...)
@@ -450,6 +452,8 @@ function KeyMacro.Dispatch (opcode, ...)
     if m then m:SetValue(p1) end
   elseif opcode == OP_TRYTOPOSTMACRO then
     return TryToPostMacro(...)
+  elseif opcode == OP_GETLASTERROR then
+    return GetLastParseError()
   end
 end
 

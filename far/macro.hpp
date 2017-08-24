@@ -88,7 +88,7 @@ public:
 	bool CheckWaitKeyFunc() const;
 	int  GetState() const;
 	int  GetKey();
-	void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc) const;
+	DWORD GetMacroParseError(COORD* ErrPos, string& ErrSrc) const;
 	FARMACROAREA GetArea() const { return m_Area; }
 	const wchar_t* GetStringToPrint() const { return m_StringToPrint; }
 	bool IsRecording() const { return m_Recording != MACROSTATE_NOMACRO; }
@@ -112,8 +112,6 @@ private:
 	FARMACROSTATE m_Recording;
 	string m_RecCode;
 	string m_RecDescription;
-	string m_LastErrorStr;
-	int m_LastErrorLine;
 	int m_InternalInput;
 	int m_WaitKey;
 	const wchar_t* m_StringToPrint;

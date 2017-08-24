@@ -14,6 +14,7 @@ local co_yield, co_resume, co_status = coroutine.yield, coroutine.resume, corout
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
 local LastMessage
+local strParseError = ""
 local Shared
 local TablePanelSort -- must be separate from LastMessage, otherwise Far crashes after a macro is called from CtrlF12.
 local TableExecString -- must be separate from LastMessage, otherwise Far crashes
@@ -179,18 +180,21 @@ local function loadmacro (Lang, Text, Env, ConvertPath)
   if fname then
     fname = ConvertPath and far.ConvertPath(fname, F.CPM_NATIVE) or fname
     f2,msg = _loadstring("return "..params)
-    if not f2 then return nil,msg end
-    f1,msg = _loadfile(fname)
+    if f2 then
+      f1,msg = _loadfile(fname)
+    end
   else
     f1,msg = _loadstring(Text)
   end
 
   if f1 then
+    strParseError = ""
     Env = Env or setmetatable({_filename=fname}, gmeta)
     setfenv(f1, Env)
     if f2 then setfenv(f2, Env) end
     return f1,f2
   else
+    strParseError = msg
     return nil,msg
   end
 end
@@ -278,24 +282,30 @@ local function MacroParse (Lang, Text, onlyCheck, skipFile)
   end
 
   if ok then
+    strParseError = ""
     return F.MPRT_NORMALFINISH
   else
+    strParseError = msg
     if not onlyCheck then
       far.Message(msg, Msg.MMacroParseErrorTitle, Msg.MOk, "lw")
     end
-    LastMessage = pack(msg, tonumber(msg:match(":(%d+): ")) or 0)
-    return F.MPRT_ERRORPARSE, LastMessage
+    return F.MPRT_ERRORPARSE
   end
 end
 
-local function ExecString (lang, text, params)
+local function GetLastParseError()
+  LastMessage = pack(strParseError, tonumber(strParseError:match(":(%d+): ")) or 0, 0)
+  return LastMessage
+end
+
+local function ExecString (lang, text, params, onlyCheck)
   if type(text)=="string" then
     local chunk, msg = loadmacro(lang, text)
     if chunk then
       TableExecString = pack(chunk(unpack(params,1,params.n)))
       return F.MPRT_NORMALFINISH, TableExecString
     else
-      ErrMsg(msg)
+      if not onlyCheck then ErrMsg(msg) end
       TableExecString = { msg }
       return F.MPRT_ERRORPARSE, TableExecString
     end
@@ -451,8 +461,17 @@ local function AddCfindFunction()
 end
 
 local function Init()
-  Shared = { ErrMsg=ErrMsg, pack=pack, checkarg=checkarg, loadmacro=loadmacro, yieldcall=yieldcall,
-             MacroInit=MacroInit, MacroStep=MacroStep, ExpandEnv=ExpandEnv }
+  Shared = {
+    ErrMsg            = ErrMsg,
+    ExpandEnv         = ExpandEnv,
+    GetLastParseError = GetLastParseError,
+    MacroInit         = MacroInit,
+    MacroStep         = MacroStep,
+    checkarg          = checkarg,
+    loadmacro         = loadmacro,
+    pack              = pack,
+    yieldcall         = yieldcall,
+  }
   Shared.MacroCallFar, far.MacroCallFar = far.MacroCallFar, nil
   Shared.FarMacroCallToLua, far.FarMacroCallToLua = far.FarMacroCallToLua, nil
 
