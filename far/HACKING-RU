@@ -61,7 +61,7 @@ Macro {
 Keys("CtrlHome End CtrlLeft")
 build=mf.int(mf.substr(Editor.Value,Editor.RealPos-1))+1;
 Keys("CtrlHome")
-print(mf.date("name %d.%m0.%Y %H:%M:%S %Z - build ")) print(build)
+print(mf.date("name %d.%m0.%Y %H:%M:%S %z - build ")) print(build)
 for RCounter=4,1,-1 do  Keys("Enter") end
 Keys("Up Up 1 . Space")
   end;
