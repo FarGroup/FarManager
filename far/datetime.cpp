@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "imports.hpp"
 #include "locale.hpp"
+#include "encoding.hpp"
 
 class locale_cache
 {
@@ -473,10 +474,16 @@ string StrFTime(const wchar_t* Format, const tm* t)
 				case L'Y':
 					strBuf = str(1900+t->tm_year);
 					break;
-					// Имя часового пояса или пусто, если часовой пояс не задан
+					// ISO 8601 offset from UTC in timezone
+				case L'z':
+					{
+						const auto Offset = -(_timezone + _dstbias);
+						strBuf = format(L"{0:+05}", Offset / 3600 * 100 + Offset / 60 % 60);
+					}
+					break;
+					// Timezone name or abbreviation
 				case L'Z':
-					strBuf = format(L"{0:+03}{1:02}", -(_timezone / 3600), -(_timezone / 60) % 60);
-					//Ptr = _tzname[ t->tm_isdst ];
+					strBuf = encoding::ansi::get_chars(_tzname[t->tm_isdst]);
 					break;
 					// same as \n
 				case L'n':
