@@ -247,11 +247,16 @@ local function MacroStep (handle, ...)
   if handle then
     local status = co_status(handle.coro)
     if status == "suspended" then
-      local ok, ret1, ret_type, ret_values
       if handle.params then
         local params = handle.params
         handle.params = nil
-        return FixReturn(handle, co_resume(handle.coro, params()))
+        local tt = pack(xpcall(params, debug.traceback))
+        if tt[1] then
+          return FixReturn(handle, co_resume(handle.coro, unpack(tt,2,tt.n)))
+        else
+          ErrMsg(tt[2])
+          return F.MPRT_ERRORFINISH
+        end
       else
         return FixReturn(handle, co_resume(handle.coro, ...))
       end
