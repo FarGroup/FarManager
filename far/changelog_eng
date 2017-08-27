@@ -3,6 +3,29 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.08.2017 11:20:44 +0100 - build 5014
+
+1. The 'date' macrofunction was a mess:
+   According to documentation, "%Z" should return "Timezone name or empty if timezone unspecified".
+   It actually returned the difference between UTC and current TZ as ±hhmm, that is almost as %z in strftime but, ATTENTION, not taking DST bias into consideration.
+   As an example, this means that all dates in changelogs (including this one) have little to do with reality.
+
+   Now:
+     %Z - is actually the NAME of the timezone, as promised.
+     %z - is relative offset of local time to UTC.
+
+   Do not forget to replace %Z with %z in your macros.
+
+shmuel 24.08.2017 15:16:45 +0200 - build 5013
+
+1. MCTL_GETLASTERROR can now be also called after MSSC_POST and MCTL_EXECSTRING.
+
+2. MCTL_EXECSTRING now respects KMFLAGS_SILENTCHECK flag.
+
+shmuel 23.08.2017 12:57:35 +0200 - build 5012
+
+1. KMFLAGS_SILENTCHECK flag was ignored in MSSC_POST command.
+
 drkns 18.08.2017 09:30:57 +0000 - build 5011
 
 1. Adjustment of buttons to the center of search dialog on size change would not work.
