@@ -91,6 +91,7 @@ SRCS = \
 	keyboard.cpp \
 	language.cpp \
 	lasterror.cpp \
+	legacy_cpu_check.cpp \
 	locale.cpp \
 	lockscrn.cpp \
 	macro.cpp \

@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "drivemix.hpp"
 #include "new_handler.hpp"
+#include "legacy_cpu_check.hpp"
 
 global *Global = nullptr;
 
@@ -149,33 +150,11 @@ static int MainProcess(
 			ppanel = Global->Opt->LocalProfilePath;
 		}
 
-#if defined(_WIN32) && !defined(_WIN64) && (defined(_MSC_VER) || defined(__GNUC__))
-      // actual lua51.dll uses SSE2 instructions on x86.
-		// so we have to preload legacy lua51.dll if x86 CPU doesn't support SSE2
+		if (IsLegacyCPU())
 		{
-			bool have_sse2 = false;
-			int info[4] = { 0, 0, 0, 0 };
-#ifdef _MSC_VER
-#include <intrin.h>
-			__cpuidex(info, 0, 0);
-			if (info[0] >= 1) {
-				__cpuidex(info, 1, 0);
-#else
-#include <cpuid.h>
-			__cpuid_count(0, 0, info[0], info[1], info[2], info[3]);
-			if (info[0] >= 1) {
-				__cpuid_count(1, 0, info[0], info[1], info[2], info[3]);
-#endif
-				have_sse2 = (info[3] & ((int)1 << 26)) != 0;
-			}
-
-			if (!have_sse2)
-			{
-				auto legay_path = Global->g_strFarPath + L"\\legacy\\lua51.dll"; // %FARHOME%\legacy\lua51.dll
-				LoadLibraryW(legay_path.data());
-			}
+			auto legacy_path = Global->g_strFarPath + L"\\legacy\\lua51.dll"; // %FARHOME%\legacy\lua51.dll
+			LoadLibraryW(legacy_path.data());
 		}
-#endif
 
 		if (!ename.empty() || !vname.empty())
 		{

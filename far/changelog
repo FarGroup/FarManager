@@ -1,3 +1,7 @@
+w17 30.08.2017 13:19:19 +0300 - build 5016
+
+1. Уточнение 5015
+
 w17 30.08.2017 12:21:12 +0300 - build 5015
 
 1. Plerolad %FARHOME%\legacy\lua51.dll if x86 CPU doesn't support SSE2.

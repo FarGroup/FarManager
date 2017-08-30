@@ -221,6 +221,9 @@
     <ClCompile Include="lasterror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="legacy_cpu_check.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="locale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -653,6 +656,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lasterror.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy_cpu_check.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="locale.hpp">
