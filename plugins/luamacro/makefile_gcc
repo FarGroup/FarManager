@@ -25,12 +25,18 @@ include ../makefile_gcc_def_inc
 SKIPCLEAN = 1
 include ../makefile_gcc_target_inc
 
-$(DLLFULLNAME): lualib
+$(DLLFULLNAME): lualib lualegacy
 
-.PHONY: lualib clean
+.PHONY: lualib lualegacy clean
 
 lualib:
 	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR) LUAVER=$(LUAVER)
+
+ifeq ($(DIRBIT),32)
+lualegacy:
+	@if not exist $(FAR_WORKDIR)\Legacy\$(NULL) $(MKDIR) $(FAR_WORKDIR)\Legacy
+	@$(CP) luasdk\32\legacy\lua51.dll $(FAR_WORKDIR)\Legacy
+endif
 
 clean:
 	@$(RM) $(OBJS) $(DEPS) $(DLLDIR)/*

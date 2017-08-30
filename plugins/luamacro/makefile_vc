@@ -29,7 +29,7 @@ DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua \
 
 !include ..\makefile_vc_def_inc
 
-$(DLLFULLNAME) : lualib
+$(DLLFULLNAME) : lualib lualegacy
 
 LINK_OBJS = $(OBJDIR)\luaplug.obj
 
@@ -47,9 +47,15 @@ LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< } 
 !endif
 
-.PHONY: lualib
+.PHONY: lualib lualegacy
 
 !include ../makefile_vc_getmode
 
 lualib:
 	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR) $(_MDEFS)
+
+!if "$(DIRBIT)" == "32"
+lualegacy:
+	if not exist $(FAR_WORKDIR)\Legacy\$(NULL) mkdir $(FAR_WORKDIR)\Legacy
+	copy /y luasdk\32\legacy\lua51.dll $(FAR_WORKDIR)\Legacy
+!endif
