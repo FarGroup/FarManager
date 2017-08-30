@@ -29,6 +29,9 @@
         <File Id="lpeg.dll" KeyPath="yes" Source="$(var.SourceDir)\lpeg.dll" />
       </Component>
 <?if $(var.Platform) = x86 ?>
+      <Component Id="lua51.dll_1" Guid="$(var.Guid.lua51.dll_1)" Win64="$(var.Win64)">
+        <File Id="lua51.dll_1" KeyPath="yes" Source="$(var.SourceDir)\Legacy\lua51.dll" />
+      </Component>
       <Component Id="Far.map" Guid="$(var.Guid.Far.map)" Win64="$(var.Win64)">
         <File Id="Far.map" KeyPath="yes" Source="$(var.SourceDir)\Far.map" />
       </Component>

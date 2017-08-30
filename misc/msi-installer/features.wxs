@@ -595,6 +595,9 @@
           <ComponentRef Id="luafar3.dll" />
           <ComponentRef Id="lua5.1.dll" />
           <ComponentRef Id="lua51.dll" />
+<?if $(var.Platform) = x86 ?>
+          <ComponentRef Id="lua51.dll_1" />
+<?endif?>
           <ComponentRef Id="lpeg.dll" />
           <ComponentRef Id="_globalinfo.lua" />
           <ComponentRef Id="api.lua" />
