@@ -70,7 +70,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "drivemix.hpp"
 #include "new_handler.hpp"
-#include "legacy_cpu_check.hpp"
 
 global *Global = nullptr;
 
@@ -148,12 +147,6 @@ static int MainProcess(
 			StartLine = StartChar = -1;
 			apanel = Global->Opt->ProfilePath;
 			ppanel = Global->Opt->LocalProfilePath;
-		}
-
-		if (IsLegacyCPU())
-		{
-			auto legacy_path = Global->g_strFarPath + L"\\legacy\\lua51.dll"; // %FARHOME%\legacy\lua51.dll
-			LoadLibraryW(legacy_path.data());
 		}
 
 		if (!ename.empty() || !vname.empty())

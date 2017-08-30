@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "delete.hpp"
+#include "legacy_cpu_check.hpp"
 
 static const wchar_t PluginsFolderName[] = L"Plugins";
 
@@ -125,6 +126,16 @@ static void CallPluginSynchroEvent(const any& Payload)
 		Info.Param = Data.second;
 		pPlugin->ProcessSynchroEvent(&Info);
 	}
+}
+
+static void EnsureLuaCpuCompatibility()
+{
+	if (!IsLegacyCPU())
+		return;
+
+	static os::rtdl::module LuaModule(Global->g_strFarPath + L"\\legacy\\lua51.dll");
+	// modules are lazy loaded
+	LuaModule.operator bool();
 }
 
 PluginManager::PluginManager():
@@ -382,7 +393,19 @@ void PluginManager::LoadFactories()
 
 void PluginManager::LoadPlugins()
 {
+	const auto AnyPluginsPossible =
+		Global->Opt->LoadPlug.PluginsCacheOnly ||
+		Global->Opt->LoadPlug.MainPluginDir ||
+		Global->Opt->LoadPlug.PluginsPersonal ||
+		!Global->Opt->LoadPlug.strCustomPluginsPath.empty();
+
+	if (!AnyPluginsPossible)
+		return;
+
 	SCOPED_ACTION(IndeterminateTaskBar)(false);
+
+	EnsureLuaCpuCompatibility();
+
 	m_PluginsLoaded = false;
 
 	LoadFactories();
@@ -391,7 +414,7 @@ void PluginManager::LoadPlugins()
 	{
 		LoadPluginsFromCache();
 	}
-	else if (Global->Opt->LoadPlug.MainPluginDir || !Global->Opt->LoadPlug.strCustomPluginsPath.empty() || (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty()))
+	else
 	{
 		ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
 		string strPluginsDir;
@@ -402,7 +425,7 @@ void PluginManager::LoadPlugins()
 		{
 			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
 			// ...а персональные есть?
-			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.empty())
+			if (Global->Opt->LoadPlug.PluginsPersonal)
 				append(strPluginsDir, L';', Global->Opt->LoadPlug.strPersonalPluginsPath);
 		}
 		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // только "заказные" пути?

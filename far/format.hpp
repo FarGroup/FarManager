@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 WARNING_PUSH(3)
 
 #include "thirdparty/fmt/format.h"
+#include "thirdparty/fmt/string.h"
 
 WARNING_POP()
 
@@ -49,7 +50,7 @@ auto format(F&& Format, args&&... Args)
 template<typename T>
 auto str(T&& Value)
 {
-	return format(L"{0}", FWD(Value));
+	return fmt::to_wstring(FWD(Value));
 }
 
 template<typename T>

@@ -1,15 +1,14 @@
-#ifndef LEGACY_CPU_CHECK_HPP_38B388C1_AF11_4F09_9643_074418E35699
+п»ї#ifndef LEGACY_CPU_CHECK_HPP_38B388C1_AF11_4F09_9643_074418E35699
 #define LEGACY_CPU_CHECK_HPP_38B388C1_AF11_4F09_9643_074418E35699
 #pragma once
 
 /*
 legacy_cpu_check.hpp
 
-Проверка поддержки SSE2 для x86
+РџСЂРѕРІРµСЂРєР° РїРѕРґРґРµСЂР¶РєРё SSE2 РґР»СЏ x86
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright В© 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
