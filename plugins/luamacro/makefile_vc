@@ -54,8 +54,8 @@ LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 lualib:
 	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR) $(_MDEFS)
 
-!if "$(DIRBIT)" == "32"
 lualegacy:
+!if "$(DIRBIT)" == "32"
 	if not exist $(FAR_WORKDIR)\Legacy\$(NULL) mkdir $(FAR_WORKDIR)\Legacy
 	copy /y luasdk\32\legacy\lua51.dll $(FAR_WORKDIR)\Legacy
 !endif

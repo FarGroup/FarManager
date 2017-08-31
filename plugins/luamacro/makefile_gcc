@@ -32,8 +32,8 @@ $(DLLFULLNAME): lualib lualegacy
 lualib:
 	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR) LUAVER=$(LUAVER)
 
-ifeq ($(DIRBIT),32)
 lualegacy:
+ifeq ($(DIRBIT),32)
 	@if not exist $(FAR_WORKDIR)\Legacy\$(NULL) $(MKDIR) $(FAR_WORKDIR)\Legacy
 	@$(CP) luasdk\32\legacy\lua51.dll $(FAR_WORKDIR)\Legacy
 endif
