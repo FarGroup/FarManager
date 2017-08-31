@@ -58,4 +58,6 @@ lualegacy:
 !if "$(DIRBIT)" == "32"
 	@if not exist $(FAR_WORKDIR)\Legacy\$(NULL) mkdir $(FAR_WORKDIR)\Legacy
 	@copy /y luasdk\32\legacy\lua51.dll $(FAR_WORKDIR)\Legacy 1>nul
+!else
+        @echo >nul
 !endif
