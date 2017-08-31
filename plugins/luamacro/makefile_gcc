@@ -34,8 +34,8 @@ lualib:
 
 lualegacy:
 ifeq ($(DIRBIT),32)
-	@if not exist $(FAR_WORKDIR)\Legacy\$(NULL) $(MKDIR) $(FAR_WORKDIR)\Legacy
-	@$(CP) luasdk\32\legacy\lua51.dll $(FAR_WORKDIR)\Legacy 1>nul
+	@$(MKDIR) $(FAR_WORKDIR)/Legacy
+	@$(CP) luasdk/32/legacy/lua51.dll $(FAR_WORKDIR)/Legacy
 endif
 
 clean:

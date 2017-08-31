@@ -54,11 +54,6 @@ else
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
   cd ..
 fi
-
-if [ ("$PLUGIN" == "luamacro") && ("$BIT" == "32") ]; then
-  mkdir -p ../../outfinalnew${BIT}/Legacy/
-  cp -f luasdk/32/legacy/lua51.dll ../../outfinalnew${BIT}/Legacy/ || return 1
-fi
 }
 
 function bplugin {
