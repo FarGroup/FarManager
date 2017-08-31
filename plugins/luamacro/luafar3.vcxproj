@@ -133,7 +133,9 @@
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>@for %%s in (lua51 lua5.1 lpeg) do @copy /y luasdk\32\%%s.dll $(OutDir) 1&gt;nul</Command>
+      <Command>@for %%s in (lua51 lua5.1 lpeg) do @copy /y luasdk\32\%%s.dll $(OutDir) 1&gt;nul
+@if not exist $(OutDir)\Legacy @md $(OutDir)\Legacy 1&gt;nul
+@copy /y luasdk\32\Legacy\lua51.dll $(OutDir)\Legacy 1&gt;nul</Command>
       <Message>copy prebuilt DLLs</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -212,7 +214,9 @@
       <Message>generate sources</Message>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>@for %%s in (lua51 lua5.1 lpeg) do @copy /y luasdk\32\%%s.dll $(OutDir) 1&gt;nul</Command>
+      <Command>@for %%s in (lua51 lua5.1 lpeg) do @copy /y luasdk\32\%%s.dll $(OutDir) 1&gt;nul
+@if not exist $(OutDir)\Legacy @md $(OutDir)\Legacy 1&gt;nul
+@copy /y luasdk\32\Legacy\lua51.dll $(OutDir)\Legacy 1&gt;nul</Command>
       <Message>copy prebuilt DLLs</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
