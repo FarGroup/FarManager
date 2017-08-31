@@ -32,9 +32,6 @@ if [ "$PLUGIN" == "FExcept" ]; then
   cd $FINAL || return 1
   cp -f $FILES ../../../outfinalnew${BIT}/FExcept/ || return 1
   cd ..
-elif [ ("$PLUGIN" == "luamacro") && ("$BIT" == "32") ]; then
-  mkdir -p ../../outfinalnew${BIT}/Legacy/
-  cp -f luasdk/32/legacy/lua51.dll ../../outfinalnew${BIT}/Legacy/ || return 1
 elif [ $ADD -eq 1 ]; then
   mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
   mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7
@@ -56,6 +53,11 @@ else
   cd $FINAL || return 1
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
   cd ..
+fi
+
+if [ ("$PLUGIN" == "luamacro") && ("$BIT" == "32") ]; then
+  mkdir -p ../../outfinalnew${BIT}/Legacy/
+  cp -f luasdk/32/legacy/lua51.dll ../../outfinalnew${BIT}/Legacy/ || return 1
 fi
 }
 
