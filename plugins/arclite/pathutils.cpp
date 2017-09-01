@@ -192,7 +192,7 @@ static const wchar_t RightPointing_Double_Angle_Quotation_Mark = L'\u00BB'; // '
 static wchar_t quotes2[2] = { LeftPointing_Double_Angle_Quotation_Mark, RightPointing_Double_Angle_Quotation_Mark };
 //static wchar_t quotes1[2] = { Single_LeftPointing_Angle_Quotation_Mark, Single_RightPointing_Angle_Quotation_Mark };
 
-//	':'
+// ':'
 //static const wchar_t Division_Sign                             = L'\u00F7'; // '÷'
 //static const wchar_t Identical_To                              = L'\u2216'; // '≡'
 static const wchar_t Horizontal_Ellipsis                       = L'\u2026'; // '…'
@@ -213,7 +213,7 @@ static const wchar_t Inverted_Question_Mark                    = L'\u00BF'; // '
 static const wchar_t Broken_Bar                                = L'\u00A6'; // '¦'
 //static const wchar_t Dental_Click                              = L'\u01C0'; // 'ǀ' --missed in Lucida Console font
 
-//	'"'
+// '"'
 static const wchar_t Left_Double_Quotation_Mark                = L'\u201C'; // '“'
 static const wchar_t Right_Double_Quotation_Mark               = L'\u201D'; // '”'
 static wchar_t quotes3[2] = { Left_Double_Quotation_Mark, Right_Double_Quotation_Mark };
@@ -227,37 +227,37 @@ static const wchar_t Not_Sign                                  = L'\u00AC'; // '
 //static const wchar_t Middle_Dot                              = L'\u00B7'; // '·' 
 
 static const wchar_t control_chars[32 - 1] =
-{	L'\u263A' // \x01  '☺'  (White Smiling Face)
-,	L'\u263B' // \x02  '☻'  (Black Smiling Face)
-,	L'\u2665' // \x03  '♥'  (Black Heart Suit)
-,	L'\u2666' // \x04  '♦'  (Black Diamond Suit)
-,	L'\u2663' // \x05  '♣'  (Black Club Suit)
-,	L'\u2660' // \x06  '♠'  (Black Spade Suit)
-,	L'\u2022' // \x07  '•'  (Bullet)
-,	L'\u25D8' // \x08  '◘'  (Inverse Bullet)
-,	L'\u25CB' // \x09  '○'  (White Circle)
-,	L'\u25D9' // \x0A  '◙'  (Inverse White Circle)
-,	L'\u2642' // \x0B  '♂'  (Male Sign)
-,	L'\u2640' // \x0C  '♀'  (Female Sign)
-,	L'\u266A' // \x0D  '♪'  (Eight Note)
-,	L'\u266B' // \x0E  '♫'  (Beamed Eight Note)
-,	L'\u263C' // \x0F  '☼'  (White Sun With Rays)
-,	L'\u25BA' // \x10  '►'  (Black Right-Pointing Pointer)
-,	L'\u25C4' // \x11  '◄'  (Black Left-Pointing Pointer)
-,	L'\u2195' // \x12  '↕'  (Up Down Arrow)
-,	L'\u203C' // \x13  '‼'  (Double Exclamation Mark)
-,	L'\u00B6' // \x14  '¶'  (Pilcrow Sign)
-,	L'\u00A7' // \x15  '§'  (Section Sign)
-,	L'\u25AC' // \x16  '▬'  (Black Rectangle)
-,	L'\u21A8' // \x17  '↨'  (Up Down Arrow With Base)
-,	L'\u2191' // \x18  '↑'  (Upwards Arrow)
-,	L'\u2193' // \x19  '↓'  (Downwards Arrow)
-,	L'\u2192' // \x1A  '→'  (Rightwards Arrow)
-,	L'\u2190' // \x1B  '←'  (Leftwards Arrow)
-,	L'\u221F' // \x1C  '∟'  (Right Angle)
-,	L'\u2194' // \x1D  '↔'  (Left Right Arrow)
-,	L'\u25B2' // \x1E  '▲'  (Black Up-Pointing Triangle)
-,	L'\u25BC' // \x1F  '▼'  (Black Down-Pointing Triangle)
+{ L'\u263A' // \x01  '☺'  (White Smiling Face)
+, L'\u263B' // \x02  '☻'  (Black Smiling Face)
+, L'\u2665' // \x03  '♥'  (Black Heart Suit)
+, L'\u2666' // \x04  '♦'  (Black Diamond Suit)
+, L'\u2663' // \x05  '♣'  (Black Club Suit)
+, L'\u2660' // \x06  '♠'  (Black Spade Suit)
+, L'\u2022' // \x07  '•'  (Bullet)
+, L'\u25D8' // \x08  '◘'  (Inverse Bullet)
+, L'\u25CB' // \x09  '○'  (White Circle)
+, L'\u25D9' // \x0A  '◙'  (Inverse White Circle)
+, L'\u2642' // \x0B  '♂'  (Male Sign)
+, L'\u2640' // \x0C  '♀'  (Female Sign)
+, L'\u266A' // \x0D  '♪'  (Eight Note)
+, L'\u266B' // \x0E  '♫'  (Beamed Eight Note)
+, L'\u263C' // \x0F  '☼'  (White Sun With Rays)
+, L'\u25BA' // \x10  '►'  (Black Right-Pointing Pointer)
+, L'\u25C4' // \x11  '◄'  (Black Left-Pointing Pointer)
+, L'\u2195' // \x12  '↕'  (Up Down Arrow)
+, L'\u203C' // \x13  '‼'  (Double Exclamation Mark)
+, L'\u00B6' // \x14  '¶'  (Pilcrow Sign)
+, L'\u00A7' // \x15  '§'  (Section Sign)
+, L'\u25AC' // \x16  '▬'  (Black Rectangle)
+, L'\u21A8' // \x17  '↨'  (Up Down Arrow With Base)
+, L'\u2191' // \x18  '↑'  (Upwards Arrow)
+, L'\u2193' // \x19  '↓'  (Downwards Arrow)
+, L'\u2192' // \x1A  '→'  (Rightwards Arrow)
+, L'\u2190' // \x1B  '←'  (Leftwards Arrow)
+, L'\u221F' // \x1C  '∟'  (Right Angle)
+, L'\u2194' // \x1D  '↔'  (Left Right Arrow)
+, L'\u25B2' // \x1E  '▲'  (Black Up-Pointing Triangle)
+, L'\u25BC' // \x1F  '▼'  (Black Down-Pointing Triangle)
 };
 
 //-----------------------------------------------------------------------------
@@ -267,107 +267,107 @@ static const wchar_t* reserved_names[] =
 
 static bool is_matched(const wstring& name, const wchar_t *res)
 {
-	size_t i = 0, len = name.size();
-	while (i < len)
-	{
-		auto c1 = res[i];
-		auto c2 = name[i];
-		if (!c1) {
-			break;
-		}
-		else if (c1 == L'9') {
-			if (c2 < '0' || c2 > L'9')
-				return false;
-		}
-		else {
-			if (c1 != (wchar_t)(size_t)CharUpperW((LPWSTR)c2))
-				return false;
-		}
-		++i;
-	}
-	if (res[i])
-		return false;
+  size_t i = 0, len = name.size();
+  while (i < len)
+  {
+    auto c1 = res[i];
+    auto c2 = name[i];
+    if (!c1) {
+      break;
+    }
+    else if (c1 == L'9') {
+      if (c2 < '0' || c2 > L'9')
+        return false;
+    }
+    else {
+      if (c1 != (wchar_t)(size_t)CharUpperW((LPWSTR)c2))
+        return false;
+    }
+    ++i;
+  }
+  if (res[i])
+    return false;
 
-	while (i < len)
-	{
-		if (name[i] == L'.')
-			return true;
-		else if (name[i] != L' ')
-			return false;
-		++i;
-	}
-	return true;
+  while (i < len)
+  {
+    if (name[i] == L'.')
+      return true;
+    else if (name[i] != L' ')
+      return false;
+    ++i;
+  }
+  return true;
 }
 
 static bool is_reserved_name(const wstring& name)
 {
-	for (const auto& res : reserved_names)
-	{
-		if (is_matched(name, res))
-			return true;
-	}
-	return false;
+  for (const auto& res : reserved_names)
+  {
+    if (is_matched(name, res))
+      return true;
+  }
+  return false;
 }
 
 //-----------------------------------------------------------------------------
 
 wstring correct_filename(const wstring& orig_name, int mode)
 {
-	bool correct_empty = (mode & 0x10) != 0;
-	bool remove_final_dotsp = (mode & 0x20) != 0;
-	bool correct_reserved = (mode & 0x40) != 0;
-	int m = std::min(mode & 0x0f, 3);
-
-	auto name(orig_name);
-	if (m > 0)
-	{
-		int i = 0, q = 0;
-		for (const auto c : name)
-		{
-			switch (c) {
-			case L'<':  name[i] = m > 1 ? quotes2[0] : simple_replace_char;
-				break;
-			case L'>':  name[i] = m > 1 ? quotes2[1] : simple_replace_char;
-				break;
-			case L':':  name[i] = m > 1 ? colons[m-2] : simple_replace_char;
-				break;
-			case L'*':  name[i] = m > 1 ? asterisks[m-2] : simple_replace_char;
-				break;
-			case L'?':  name[i] = m > 1 ? Inverted_Question_Mark : simple_replace_char;
-				break;
-			case L'|':  name[i] = m > 1 ? Broken_Bar : simple_replace_char;
-				break;
-			case L'"':  name[i] = m > 1 ? quotes3[q] : simple_replace_char; q = 1 - q;
-				break;
-			case L'/':  name[i] = m > 1 ? Fraction_Slash : simple_replace_char;
-				break;
-			case L'\\': name[i] = m > 1 ? Not_Sign : simple_replace_char;
-				break;
-			default: if (c < L' ' && c > L'\0') name[i] = m > 1 ? control_chars[c - L'\x01'] : simple_replace_char;
-				break;
-			}
-			++i;
-		}
-	}
-
-	if (correct_reserved)
-	{
-		if (is_reserved_name(name))
-			name = simple_replace_str + name;
-	}
-
-	if (remove_final_dotsp)
-	{
-		while (!name.empty() && (name.back() == L'.' || name.back() == L' '))
-			name.pop_back();
-	}
-
-	if (name.empty() && correct_empty)
-	{
-		name = simple_replace_str;
-	}
-
-	return name;
+  bool correct_empty = (mode & 0x10) != 0;
+  bool remove_final_dotsp = (mode & 0x20) != 0;
+  bool correct_reserved = (mode & 0x40) != 0;
+  int m = std::min(mode & 0x0f, 3);
+    
+  auto name(orig_name);
+  if (m > 0)
+  {
+    int i = 0, q = 0;
+    for (const auto c : name)
+    {
+      switch (c) {
+      case L'<':  name[i] = m > 1 ? quotes2[0] : simple_replace_char;
+        break;
+      case L'>':  name[i] = m > 1 ? quotes2[1] : simple_replace_char;
+        break;
+      case L':':  name[i] = m > 1 ? colons[m-2] : simple_replace_char;
+        break;
+      case L'*':  name[i] = m > 1 ? asterisks[m-2] : simple_replace_char;
+        break;
+      case L'?':  name[i] = m > 1 ? Inverted_Question_Mark : simple_replace_char;
+        break;
+      case L'|':  name[i] = m > 1 ? Broken_Bar : simple_replace_char;
+        break;
+      case L'"':  name[i] = m > 1 ? quotes3[q] : simple_replace_char; q = 1 - q;
+        break;
+      case L'/':  name[i] = m > 1 ? Fraction_Slash : simple_replace_char;
+        break;
+      case L'\\': name[i] = m > 1 ? Not_Sign : simple_replace_char;
+        break;
+      default: if (c < L' ' && c > L'\0') name[i] = m > 1 ? control_chars[c - L'\x01'] : simple_replace_char;
+        break;
+      }
+      ++i;
+    }
+  }
+    
+  if (correct_reserved)
+  {
+    if (is_reserved_name(name))
+      name = simple_replace_str + name;
+  }
+    
+  if (remove_final_dotsp)
+  {
+    while (!name.empty() && (name.back() == L'.' || name.back() == L' '))
+      name.pop_back();
+  }
+    
+  if (name.empty() && correct_empty)
+  {
+    name = simple_replace_str;
+  }
+    
+  return name;
 }
 
 //-----------------------------------------------------------------------------

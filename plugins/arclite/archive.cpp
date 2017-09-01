@@ -7,10 +7,18 @@
 #include "archive.hpp"
 #include "options.hpp"
 
-const wchar_t* c_method_copy = L"Copy";
-const wchar_t* c_method_lzma = L"LZMA";
-const wchar_t* c_method_lzma2 = L"LZMA2";
-const wchar_t* c_method_ppmd = L"PPMD";
+const wchar_t* c_method_copy   = L"Copy";
+
+const wchar_t* c_method_lzma   = L"LZMA";
+const wchar_t* c_method_lzma2  = L"LZMA2";
+const wchar_t* c_method_ppmd   = L"PPMD";
+
+const wchar_t* c_method_lzham  = L"LZHAM";
+const wchar_t* c_method_zstd   = L"ZSTD";
+const wchar_t* c_method_lz4    = L"LZ4";
+const wchar_t* c_method_lz5    = L"LZ5";
+const wchar_t* c_method_brotli = L"BROTLI";
+const wchar_t* c_method_lizard = L"LIZARD";
 
 #define DEFINE_ARC_ID(name, value) \
   const unsigned char c_guid_##name[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10" value "\x00\x00"; \

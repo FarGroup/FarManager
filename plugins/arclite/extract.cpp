@@ -405,8 +405,8 @@ public:
     if (file_info.is_dir)
       return S_OK;
 
-	 const auto cmode = static_cast<int>(g_options.correct_name_mode);
-	 file_path = correct_filename(file_info.name, cmode);
+    const auto cmode = static_cast<int>(g_options.correct_name_mode);
+    file_path = correct_filename(file_info.name, cmode);
     UInt32 parent_index = file_info.parent;
     while (parent_index != src_dir_index && parent_index != c_root_index) {
       const ArcFileInfo& file_info = archive->file_list[parent_index];

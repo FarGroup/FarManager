@@ -15,10 +15,18 @@ extern const ArcType c_wim;
 extern const ArcType c_tar;
 extern const ArcType c_SWFc;
 
-extern const wchar_t* c_method_copy;
-extern const wchar_t* c_method_lzma;
-extern const wchar_t* c_method_lzma2;
-extern const wchar_t* c_method_ppmd;
+extern const wchar_t* c_method_copy;   // pseudo method
+
+extern const wchar_t* c_method_lzma;   // standard 7z methods
+extern const wchar_t* c_method_lzma2;  //
+extern const wchar_t* c_method_ppmd;   // 
+
+extern const wchar_t* c_method_lzham;  // known external 7z codecs
+extern const wchar_t* c_method_zstd;   //
+extern const wchar_t* c_method_lz4;    //
+extern const wchar_t* c_method_lz5;    //
+extern const wchar_t* c_method_brotli; //
+extern const wchar_t* c_method_lizard; //
 
 extern const unsigned __int64 c_min_volume_size;
 
@@ -154,7 +162,7 @@ public:
   static void free();
 
   static bool is_single_file_format(const ArcType& arc_ty) {
-	  return arc_ty == c_bzip2 || arc_ty == c_gzip || arc_ty == c_xz || arc_ty == c_SWFc;
+    return arc_ty == c_bzip2 || arc_ty == c_gzip || arc_ty == c_xz || arc_ty == c_SWFc;
   }
 };
 

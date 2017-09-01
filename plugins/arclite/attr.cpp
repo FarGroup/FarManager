@@ -373,24 +373,24 @@ void Archive::load_update_props() {
   method.clear();
   if (in_arc->GetArchiveProperty(kpidMethod, prop.ref()) == S_OK && prop.is_str()) {
     list<wstring> m_list = split(prop.get_str(), L' ');
+
+    static const wchar_t *known_methods[] = {
+      c_method_lzma, c_method_lzma2, c_method_ppmd,
+      c_method_lzham, c_method_zstd, c_method_lz4, c_method_lz5, c_method_brotli, c_method_lizard
+    };
+
     for (list<wstring>::const_iterator m_str = m_list.begin(); m_str != m_list.end(); m_str++) {
       if (_wcsicmp(m_str->c_str(), c_method_copy) == 0) {
         level = 0;
         method = c_method_lzma;
         break;
       }
-      else if (_wcsicmp(m_str->c_str(), c_method_lzma) == 0) {
-        method = c_method_lzma;
-        break;
+      for (const auto known : known_methods) {
+        if (_wcsicmp(m_str->c_str(), known) == 0)
+        { method = known; break; }
       }
-      else if (_wcsicmp(m_str->c_str(), c_method_lzma2) == 0) {
-        method = c_method_lzma2;
+      if (!method.empty())
         break;
-      }
-      else if (_wcsicmp(m_str->c_str(), c_method_ppmd) == 0) {
-        method = c_method_ppmd;
-        break;
-      }
     }
   }
 

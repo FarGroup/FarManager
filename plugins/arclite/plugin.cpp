@@ -475,8 +475,8 @@ public:
       return;
     UpdateOptions options;
     bool new_arc = !archive->is_open();
-	 bool multifile = items_number > 1 || (items_number == 1 && (panel_items[0].FileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
-	 if (!new_arc && !archive->updatable()) {
+    bool multifile = items_number > 1 || (items_number == 1 && (panel_items[0].FileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0);
+    if (!new_arc && !archive->updatable()) {
       FAIL_MSG(Far::get_msg(MSG_ERROR_NOT_UPDATABLE));
     }
     if (new_arc) {
@@ -510,15 +510,15 @@ public:
       options.volume_size = g_options.update_volume_size;
 
       options.move_files = g_options.update_move_files;
-	 }
+    }
     else {
       options.arc_type = archive->arc_chain.back().type; // required to set update properties
-		if (ArcAPI::is_single_file_format(options.arc_type)) {
-          if (items_number != 1 || panel_items[0].FileName != archive->file_list[0].name) {
-            FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNSUPPORTED_FOR_SINGLEFILEARCHIVE));
-          }
+      if (ArcAPI::is_single_file_format(options.arc_type)) {
+        if (items_number != 1 || panel_items[0].FileName != archive->file_list[0].name) {
+          FAIL_MSG(Far::get_msg(MSG_ERROR_UPDATE_UNSUPPORTED_FOR_SINGLEFILEARCHIVE));
         }
-		archive->load_update_props();
+      }
+      archive->load_update_props();
       options.level = archive->level;
       options.method = archive->method;
       options.solid = archive->solid;
@@ -619,12 +619,12 @@ public:
     vector<wstring> file_list;
     file_list.reserve(panel_info.SelectedItemsNumber);
     wstring src_path = Far::get_panel_dir(PANEL_ACTIVE);
-	 bool multifile = false;
+    bool multifile = false;
     for (size_t i = 0; i < panel_info.SelectedItemsNumber; i++) {
       Far::PanelItem panel_item = Far::get_selected_panel_item(PANEL_ACTIVE, i);
       file_list.push_back(panel_item.file_name);
-		if (file_list.size() > 1 || (panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
-			multifile = true;
+      if (file_list.size() > 1 || (panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+        multifile = true;
     }
     if (file_list.empty())
       FAIL(E_ABORT);

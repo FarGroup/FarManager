@@ -778,7 +778,7 @@ private:
         auto ndel = search.size();
         while (pos+ndel < options.levels.size() && wcschr(L"0123456789", options.levels[pos+ndel])) ++ndel;
         if (pos+ndel < options.levels.size() && options.levels[pos+ndel] == L';') ++ndel;
-		  if (pos > 0 && pos + ndel >= options.levels.size() && options.levels[pos-1] == L';') { --pos; ++ndel; }
+        if (pos > 0 && pos + ndel >= options.levels.size() && options.levels[pos-1] == L';') { --pos; ++ndel; }
          options.levels.erase(pos, ndel);
         break;
       }
@@ -1196,7 +1196,7 @@ private:
         g_options.update_levels = options.levels;
         g_options.update_method = options.method;
         g_options.update_solid = options.solid;
-		  g_options.update_advanced = options.advanced;
+        g_options.update_advanced = options.advanced;
         g_options.update_encrypt = options.encrypt;
         g_options.update_encrypt_header = options.encrypt_header;
         g_options.update_password = options.password;

@@ -500,10 +500,10 @@ public:
     if (!pSize) {
       FAIL(E_INVALIDARG);
     }
-	 else {
+    else {
       *pSize = size();
       return S_OK;
-	 }
+    }
     COM_ERROR_HANDLER_END
   }
 };
@@ -787,15 +787,98 @@ public:
 void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options) {
   ComObject<ISetProperties> set_props;
   if (SUCCEEDED(out_arc->QueryInterface(IID_ISetProperties, reinterpret_cast<void**>(&set_props)))) {
+    struct extra_method {
+      const wchar_t *name;
+      unsigned minL; unsigned maxL;
+      unsigned L1; unsigned L3; unsigned L5; unsigned L7; unsigned L9;
+      unsigned mod0;
+      bool bcj_only;
+    };
+    static const extra_method defopts = { nullptr, 1,9, 1,3,5,7,9, 0, false };
+    static const extra_method extra[] = {
+    //{c_method_lzham,   1,  9,  1, 3, 5, 7, 9,  0, false}, === default
+      { c_method_zstd,   1, 22,  1, 5,11,17,22,  0, true },
+      { c_method_lz4,    1, 12,  1, 3, 6, 9,12,  0, true },
+      { c_method_lz5,    1, 15,  1, 3, 7,11,15,  0, true },
+      { c_method_brotli, 1, 11,  1, 3, 6, 9,11,  0, true },
+      { c_method_lizard, 11,49, 21,23,25,27,29, 10, true }
+    };
+
+    auto method_params = &defopts;
+    for (size_t i = 0; i < _countof(extra); ++i) {
+      if (options.method == extra[i].name) {
+        method_params = &extra[i];
+        break;
+      }
+    }
+
+    auto adv_params = split(options.advanced, L' ');
+    int adv_level = -1;
+    bool adv_have_0 = false, adv_have_1 = false, adv_have_bcj = false;
+    for (auto it = adv_params.begin(); it != adv_params.end(); ) {
+      auto param = *it;
+      if (param == L"s" || param == L"s1")
+        *it = param = L"s=on";
+      else if (param.size() >= 2 && param[0] == L'x' && param[1] >= L'0' && param[1] <= L'9') {
+        param.insert(1, 1, L'=');
+        *it = param;
+      }
+      auto sep = param.find(L'=');
+      if (sep == wstring::npos || sep == 0) {
+        it = adv_params.erase(it);
+        continue;
+      }
+      else {
+        auto name = param.substr(0, sep);
+        auto value = param.substr(sep + 1);
+        if (0 == _wcsicmp(name.data(), L"x")) {
+          it = adv_params.erase(it);
+          if (!value.empty() && value[0] >= L'0' && value[0] <= L'9')
+            adv_level = static_cast<int>(str_to_uint(value));
+            continue;
+        }
+        adv_have_0 = adv_have_0 || name == L"0";
+        adv_have_1 = adv_have_0 || name == L"1";
+        if (name.size() == 1 && name[0] >= L'0' && name[0] <= '9' && value.size() >= 3)
+          adv_have_bcj = adv_have_bcj || 0 == _wcsicmp(value.substr(0,3).data(), L"BCJ");
+      }
+      it++;
+    }
+
+    auto level = options.level;
+    if (adv_level < 0) {
+      if (level == 1) level = method_params->L1;
+      else if (level == 3) level = method_params->L3;
+      else if (level == 5) level = method_params->L5;
+      else if (level == 7) level = method_params->L7;
+      else if (level == 9) level = method_params->L9;
+    }
+    else {
+      level = adv_level;
+      if (method_params->mod0 && level % method_params->mod0 == 0)
+        level = 0;
+      else if (level > 0 && level < method_params->minL)
+        level = method_params->minL;
+      else if (level > 0 && level > method_params->maxL)
+        level = method_params->maxL;
+    }
+
     vector<wstring> names;
     vector<PropVariant> values;
+    int n_01 = 0;
 
     if (options.arc_type == c_7z) {
-      if (options.method != c_method_lzma2) { // LZMA2 is default method
+      //if (options.method != c_method_lzma2) { // LZMA2 is default method
+      {
         names.push_back(L"0"); values.push_back(options.method);
+        n_01 = 1;
+        if (method_params->bcj_only && !adv_have_bcj) {
+          names.push_back(L"1"); values.push_back(L"BCJ");
+          n_01 = 2;
+        }
       }
-      names.push_back(L"x"); values.push_back(options.level);
-      if (options.level != 0) {
+      names.push_back(L"x"); values.push_back(level);
+      if (level != 0) {
         names.push_back(L"s"); values.push_back(options.solid);
       }
       if (options.encrypt) {
@@ -805,34 +888,36 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       }
     }
     else if (options.arc_type == c_zip || options.arc_type == c_gzip || options.arc_type == c_xz) {
-      names.push_back(L"x"); values.push_back(options.level);
+      names.push_back(L"x"); values.push_back(level);
     }
     else if (options.arc_type == c_bzip2) {
-      if (options.level != 0) {
-        names.push_back(L"x"); values.push_back(options.level);
+      if (level != 0) {
+        names.push_back(L"x"); values.push_back(level);
       }
     }
 
-    list<wstring> adv_params = split(options.method == c_method_copy ? wstring() : options.advanced, L' ');
-    for_each(adv_params.begin(), adv_params.end(), [&](const wstring& param) {
-      size_t sep = param.find(L'=');
-      if (sep != wstring::npos) {
-        wstring name = param.substr(0, sep);
-        wstring value = param.substr(sep + 1);
-        bool found = false;
-        for (unsigned i = 0; i < names.size(); i++) {
-          if (_wcsicmp(names[i].c_str(), name.c_str()) == 0) {
-            found = true;
-            values[i] = value;
-            break;
-          }
+    int n_shift = (adv_have_0 || adv_have_1) ? n_01 : 0;
+    for (const auto& param : adv_params) {
+      auto sep = param.find(L'=');
+      wstring name = param.substr(0, sep);
+      wstring value = param.substr(sep + 1);
+      if (n_shift && name.size() == 1 && name[0] >= L'0' && name[0] <= '7')
+        name[0] = static_cast<wchar_t>(name[0] + n_shift);
+      bool found = false;
+      unsigned i = 0;
+      for (const auto& n : names) {
+        if (0 == _wcsicmp(n.data(), name.data())) {
+          found = true;
+          values[i] = value;
+          break;
         }
-        if (!found) {
-          names.push_back(name);
-          values.push_back(value);
-        }
+        ++i;
       }
-    });
+      if (!found) {
+        names.push_back(name);
+        values.push_back(value);
+      }
+    }
 
     vector<const wchar_t*> name_ptrs;
     name_ptrs.reserve(names.size());

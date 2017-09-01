@@ -249,7 +249,7 @@ bool File::get_info_nt(BY_HANDLE_FILE_INFORMATION& info) {
 }
 
 bool File::exists(const wstring& file_path) {
-	return attributes(file_path) != INVALID_FILE_ATTRIBUTES;
+  return attributes(file_path) != INVALID_FILE_ATTRIBUTES;
 }
 
 DWORD File::attributes(const wstring& file_path) {
@@ -590,8 +590,8 @@ bool FileEnum::next() {
 
 static int WINAPI find_cb(const struct PluginPanelItem *FData, const wchar_t *FullName, void *Param)
 {
-	(void)FullName;
-	return ((FileEnum *)Param)->far_emum_cb(*FData);
+  (void)FullName;
+  return ((FileEnum *)Param)->far_emum_cb(*FData);
 }
 
 int FileEnum::far_emum_cb(const PluginPanelItem& item)
@@ -615,16 +615,16 @@ int FileEnum::far_emum_cb(const PluginPanelItem& item)
 }
 
 bool FileEnum::next_nt(bool& more) {
-	for (;;) {
+  for (;;) {
     if (h_find == INVALID_HANDLE_VALUE) {
       if (n_far_items >= 0) {
         if (!(more = n_far_items > 0))
           return true;
-		  find_data = far_items.front();
-		  far_items.pop_front();
-		  --n_far_items;
+        find_data = far_items.front();
+        far_items.pop_front();
+        --n_far_items;
       }
-		else {
+      else {
         if ((h_find = FindFirstFileW(long_path(file_mask).c_str(), &find_data)) == INVALID_HANDLE_VALUE) {
           if (GetLastError() == ERROR_ACCESS_DENIED) { // 
             auto dir = extract_file_path(file_mask);   // M$ FindFirst/NextFile doesn't work for junction/symlink folder.
@@ -635,10 +635,10 @@ bool FileEnum::next_nt(bool& more) {
                 n_far_items = 0;
                 Far::g_fsf.FarRecursiveSearch(long_path(dir).data(), msk.data(), find_cb, FRS_NONE, this);
                 continue;
-				  }
+              }
             }
           }
-		    more = false;
+          more = false;
           return false;
         }
       }
