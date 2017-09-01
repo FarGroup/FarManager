@@ -1327,6 +1327,13 @@
           </Component>
         </Directory>
       </Directory>
+<?if $(var.Platform) = x86 ?>
+      <Directory Id="Legacy" Name="Legacy">
+        <Component Id="lua51.dll_1" Guid="$(var.Guid.lua51.dll_1)" Win64="$(var.Win64)">
+          <File Id="lua51.dll_1" KeyPath="yes" Source="$(var.SourceDir)\Legacy\lua51.dll" />
+        </Component>
+      </Directory>
+<?endif?>
     </DirectoryRef>
   </Fragment>
 </Wix>
