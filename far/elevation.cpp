@@ -113,12 +113,6 @@ elevation::~elevation()
 	DisconnectNamedPipe(m_Pipe.native_handle());
 }
 
-elevation& elevation::instance()
-{
-	static elevation s_Elevation;
-	return s_Elevation;
-}
-
 void elevation::ResetApprove()
 {
 	if (m_DontAskAgain)

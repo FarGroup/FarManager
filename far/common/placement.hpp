@@ -1,11 +1,9 @@
-﻿#ifndef LEGACY_CPU_CHECK_HPP_38B388C1_AF11_4F09_9643_074418E35699
-#define LEGACY_CPU_CHECK_HPP_38B388C1_AF11_4F09_9643_074418E35699
+﻿#ifndef PLACEMENT_HPP_846A43B8_5BFF_4131_87E6_CFC3E6C44956
+#define PLACEMENT_HPP_846A43B8_5BFF_4131_87E6_CFC3E6C44956
 #pragma once
 
 /*
-legacy_cpu_check.hpp
-
-Проверка поддержки SSE2 для x86
+placement.hpp
 */
 /*
 Copyright © 2017 Far Group
@@ -34,6 +32,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool IsLegacyCPU();
+namespace placement
+{
+	template<typename T, typename... args>
+	auto& construct(T& Object, args&&... Args)
+	{
+#ifdef MEMCHECK
+#pragma push_macro("new")
+#undef new
+#endif
+		return *new(std::addressof(Object)) T(FWD(Args)...);
+#ifdef MEMCHECK
+#pragma pop_macro("new")
+#endif
+	}
 
-#endif // LEGACY_CPU_CHECK_HPP_38B388C1_AF11_4F09_9643_074418E35699
+	template<typename T>
+	void destruct(T& Object)
+	{
+		Object.~T();
+	}
+}
+
+#endif // PLACEMENT_HPP_846A43B8_5BFF_4131_87E6_CFC3E6C44956

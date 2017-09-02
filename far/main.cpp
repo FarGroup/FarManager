@@ -53,7 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "clipboard.hpp"
 #include "pathmix.hpp"
-#include "strmix.hpp"
 #include "dirmix.hpp"
 #include "elevation.hpp"
 #include "cmdline.hpp"
@@ -75,7 +74,7 @@ global *Global = nullptr;
 
 static void show_help()
 {
-	WCHAR HelpMsg[]=
+	static const auto HelpMsg =
 		L"Usage: far [switches] [apath [ppath]]" EOL_STR EOL_STR
 		L"where" EOL_STR
 		L"  apath - path to a folder (or a file or an archive or command with prefix)" EOL_STR
@@ -120,8 +119,9 @@ static void show_help()
 		L" -v <filename>" EOL_STR
 		L"      View the specified file. If <filename> is -, data is read from the stdin." EOL_STR
 		L" -w[-] Stretch to console window instead of console buffer or vise versa." EOL_STR
-		;
-	Console().Write(HelpMsg, std::size(HelpMsg)-1);
+		""_sv;
+
+	Console().Write(HelpMsg);
 	Console().Commit();
 }
 

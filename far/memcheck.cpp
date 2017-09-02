@@ -234,16 +234,16 @@ static string FindStr(const void* Data, size_t Size)
 {
 	const auto ABegin = reinterpret_cast<const char*>(Data), AEnd = ABegin + Size - 1;
 
-	if (std::all_of(ABegin, AEnd, [](char c){ return c >= ' ' || IsEol(c); }))
+	if (std::all_of(ABegin, AEnd, [](char c){ return c >= ' ' || IsEol(c) || c == '\t'; }))
 	{
-		return string(encoding::ansi::get_chars(ABegin, AEnd - ABegin));
+		return encoding::ansi::get_chars(ABegin, AEnd - ABegin);
 	}
 
 	const auto WBegin = reinterpret_cast<const wchar_t*>(Data), WEnd = WBegin + (Size - 1) / sizeof(wchar_t);
 
-	if (std::all_of(WBegin, WEnd, [](wchar_t c){ return c >= L' ' || IsEol(c); }))
+	if (std::all_of(WBegin, WEnd, [](wchar_t c){ return c >= L' ' || IsEol(c) || c == L'\t'; }))
 	{
-		return string(WBegin, WEnd);
+		return { WBegin, WEnd };
 	}
 
 	return {};
@@ -277,9 +277,10 @@ void PrintMemory()
 		{
 			const auto BlockSize = i->Size - sizeof(MEMINFO) - sizeof(EndMarker);
 			const auto UserAddress = ToUser(i);
+			const size_t Width = 16;
 			Message = concat(str(UserAddress), L", "_sv, encoding::ansi::get_chars(FormatLine(i->File, i->Line, i->Function, i->AllocationType, BlockSize)),
-				L"\nData: "_sv, BlobToHexWString(UserAddress, std::min(BlockSize, size_t(16)), L' '),
-				L"\nhr: "_sv, FindStr(UserAddress, BlockSize), L'\n');
+				L"\nData: "_sv, BlobToHexWString(UserAddress, std::min(BlockSize, Width), L' '),
+				L"\nText: "_sv, FindStr(UserAddress, std::min(BlockSize, Width * 3)), L'\n');
 
 			std::wcerr << Message;
 			OutputDebugString(Message.data());

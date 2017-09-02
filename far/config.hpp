@@ -263,6 +263,7 @@ public:
 	size_t size() const { return Get().size(); }
 
 	operator const string&() const { return Get(); }
+	operator string_view() const { return Get(); }
 };
 
 class Options: noncopyable

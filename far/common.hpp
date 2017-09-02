@@ -39,9 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/compiler.hpp"
 #include "common/preprocessor.hpp"
+#include "common/utility.hpp"
 #include "common/movable.hpp"
 #include "common/noncopyable.hpp"
-#include "common/swapable.hpp"
 #include "common/rel_ops.hpp"
 #include "common/conditional.hpp"
 #include "common/scope_exit.hpp"
@@ -59,32 +59,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/string_utils.hpp"
 #include "common/zip_view.hpp"
 #include "common/blob_view.hpp"
+#include "common/singleton.hpp"
 
 // TODO: clean up & split
-
-template<class T>
-void resize_nomove(T& container, size_t size)
-{
-	T Tmp(size);
-	using std::swap;
-	swap(container, Tmp);
-}
-
-template<class T>
-void clear_and_shrink(T& container)
-{
-	T Tmp;
-	using std::swap;
-	swap(container, Tmp);
-}
-
-template<class T>
-void node_swap(T& Container, const typename T::const_iterator& a, const typename T::const_iterator& b)
-{
-	const auto NextA = std::next(a), NextB = std::next(b);
-	Container.splice(NextA, Container, b);
-	Container.splice(NextB, Container, a);
-}
 
 template <typename T>
 bool CheckStructSize(const T* s)
@@ -98,12 +75,6 @@ bool CheckNullOrStructSize(const T* s)
 	return !s || CheckStructSize(s);
 }
 
-template<typename T, size_t N>
-void ClearArray(T(&a)[N]) noexcept
-{
-	std::fill_n(a, N, T{});
-}
-
 template<class T>
 auto NullToEmpty(const T* Str)
 {
@@ -115,12 +86,6 @@ template<class T>
 auto EmptyToNull(const T* Str)
 {
 	return (Str && !*Str)? nullptr : Str;
-}
-
-template<class T>
-auto make_hash(const T& value)
-{
-	return std::hash<T>{}(value);
 }
 
 template <class T>
@@ -140,35 +105,6 @@ bool InRange(const T& from, const Y& what, const T& to)
 	return from <= what && what <= to;
 }
 
-template<typename owner, typename acquire, typename release>
-auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
-{
-	std::invoke(Acquire, Owner);
-	auto&& Releaser = [Release](owner* Owner){ std::invoke(Release, Owner); };
-	return std::unique_ptr<owner, std::remove_reference_t<decltype(Releaser)>>(Owner, std::move(Releaser));
-}
-
-template<typename T>
-constexpr auto as_unsigned(T Value)
-{
-	return static_cast<std::make_unsigned_t<T>>(Value);
-}
-
-template<typename T>
-constexpr auto as_underlying_type(T Value)
-{
-	return static_cast<std::underlying_type_t<T>>(Value);
-}
-
-namespace enum_helpers
-{
-	template<class O, class R = void, class T>
-	constexpr auto operation(T a, T b)
-	{
-		return static_cast<std::conditional_t<std::is_same<R, void>::value, T, R>>(O()(as_underlying_type(a), as_underlying_type(b)));
-	}
-}
-
 #ifdef _DEBUG
 #define SELF_TEST(code) \
 namespace \
@@ -185,38 +121,10 @@ namespace \
 #define SELF_TEST(code)
 #endif
 
-constexpr auto bit(size_t Number)
-{
-	return 1 << Number;
-}
-
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
 #define EOL_STR L"\r\n"
-
-constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_ALIGNMENT)
-{
-	return (Size + (Alignment - 1)) & ~(Alignment - 1);
-}
-
-namespace detail
-{
-	template<class T, int Alignment>
-	struct aligned_sizeof_t
-	{
-		enum
-		{
-			value = aligned_size(sizeof(T), Alignment)
-		};
-	};
-}
-
-template<typename T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
-constexpr auto aligned_sizeof()
-{
-	return detail::aligned_sizeof_t<T, Alignment>::value;
-}
 
 template<typename T>
 class base: public T
@@ -225,18 +133,5 @@ protected:
 	using T::T;
 	using base_type = base;
 };
-
-template<typename type>
-class singleton
-{
-public:
-	static type& instance()
-	{
-		static type sInstance;
-		return sInstance;
-	}
-};
-
-#define IMPLEMENTS_SINGLETON(...) friend class singleton<__VA_ARGS__>
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

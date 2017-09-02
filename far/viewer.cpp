@@ -1588,7 +1588,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 				long long CurFilePos=vtell();
 				vseek(SelectPos, FILE_BEGIN);
 				vread(SelData.get(), (int)SelectSize);
-				SetClipboardText(SelData.get(), SelectSize);
+				SetClipboardText({ SelData.get(), static_cast<size_t>(SelectSize) });
 				vseek(CurFilePos, FILE_BEGIN);
 			}
 			return true;

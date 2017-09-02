@@ -256,7 +256,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="language.cpp" />
     <ClCompile Include="lasterror.cpp" />
-    <ClCompile Include="legacy_cpu_check.cpp" />
     <ClCompile Include="locale.cpp" />
     <ClCompile Include="lockscrn.cpp" />
     <ClCompile Include="macro.cpp" />
@@ -335,19 +334,21 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\enumerator.hpp" />
     <ClInclude Include="common\conditional.hpp" />
     <ClInclude Include="common\function_traits.hpp" />
+    <ClInclude Include="common\placement.hpp" />
     <ClInclude Include="common\range.hpp" />
     <ClInclude Include="common\monitored.hpp" />
     <ClInclude Include="common\noncopyable.hpp" />
     <ClInclude Include="common\preprocessor.hpp" />
     <ClInclude Include="common\rel_ops.hpp" />
     <ClInclude Include="common\scope_exit.hpp" />
+    <ClInclude Include="common\singleton.hpp" />
     <ClInclude Include="common\smart_ptr.hpp" />
     <ClInclude Include="common\string_utils.hpp" />
     <ClInclude Include="common\string_view.hpp" />
-    <ClInclude Include="common\swapable.hpp" />
     <ClInclude Include="common\any.hpp" />
     <ClInclude Include="codepage_selection.hpp" />
     <ClInclude Include="common\type_traits.hpp" />
+    <ClInclude Include="common\utility.hpp" />
     <ClInclude Include="common\zip_view.hpp" />
     <ClInclude Include="configdb.hpp" />
     <ClInclude Include="console_session.hpp" />
@@ -399,6 +400,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="farwinapi.hpp" />
     <ClInclude Include="filemasks.hpp" />
     <ClInclude Include="filesystemwatcher.hpp" />
+    <ClInclude Include="lasterror.hpp" />
     <ClInclude Include="new_handler.hpp" />
     <ClInclude Include="nsUniversalDetectorEx.hpp" />
     <ClInclude Include="panelctype.hpp" />
@@ -437,7 +439,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="keys.hpp" />
     <ClInclude Include="KnownGuids.hpp" />
     <ClInclude Include="language.hpp" />
-    <ClInclude Include="legacy_cpu_check.hpp" />
     <ClInclude Include="locale.hpp" />
     <ClInclude Include="lockscrn.hpp" />
     <ClInclude Include="macro.hpp" />

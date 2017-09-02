@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void ColorItem::SetOwner(const GUID& Value)
 {
-	static std::unordered_set<GUID, uuid_hash, uuid_equal> GuidSet;
+	static std::unordered_set<GUID, uuid_hash> GuidSet;
 	Owner = &*GuidSet.emplace(Value).first;
 }
 
@@ -1222,7 +1222,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				}
 				else if (m_SelEnd <= m_Str.size()) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
 				{
-					SetClipboardText(m_Str.data() + m_SelStart, m_SelEnd - m_SelStart);
+					SetClipboardText(make_string_view(m_Str, m_SelStart, m_SelEnd - m_SelStart));
 				}
 			}
 

@@ -2138,16 +2138,17 @@ handle OpenConsoleActiveScreenBuffer()
 			}
 		}
 
-		bool get(const wchar_t* Name, string& strBuffer)
+		bool get(const string_view& Name, string& strBuffer)
 		{
 			GuardLastError ErrorGuard;
+			null_terminated C_Name(Name);
 			// GetEnvironmentVariable might return 0 not only in case of failure, but also when variable is empty.
 			// To recognise this, we set LastError to ERROR_SUCCESS manually and check it after the call,
 			// which doesn't change it upon success.
 			SetLastError(ERROR_SUCCESS);
 			if (ApiDynamicStringReceiver(strBuffer, [&](wchar_t* Buffer, size_t Size)
 			{
-				return ::GetEnvironmentVariable(Name, Buffer, static_cast<DWORD>(Size));
+				return ::GetEnvironmentVariable(C_Name.data(), Buffer, static_cast<DWORD>(Size));
 			}))
 			{
 				return true;
@@ -2163,39 +2164,37 @@ handle OpenConsoleActiveScreenBuffer()
 			return false;
 		}
 
-		bool set(const wchar_t* Name, const wchar_t* Value)
+		bool set(const string_view& Name, const string_view& Value)
 		{
-			return ::SetEnvironmentVariable(Name, Value) != FALSE;
+			return ::SetEnvironmentVariable(null_terminated(Name).data(), null_terminated(Value).data()) != FALSE;
 		}
 
-		bool del(const wchar_t* Name)
+		bool del(const string_view& Name)
 		{
-			return ::SetEnvironmentVariable(Name, nullptr) != FALSE;
+			return ::SetEnvironmentVariable(null_terminated(Name).data(), nullptr) != FALSE;
 		}
 
-		string expand(const wchar_t* Str)
+		string expand(const string_view& Str)
 		{
+			null_terminated C_Str(Str);
+
 			string Result;
 			if (!ApiDynamicStringReceiver(Result, [&](wchar_t* Buffer, size_t Size)
 			{
-				auto ReturnedSize = ::ExpandEnvironmentStrings(Str, Buffer, static_cast<DWORD>(Size));
+				const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.data(), Buffer, static_cast<DWORD>(Size));
 				// This pesky function includes the terminating null character even upon success, breaking the usual pattern
-				if (ReturnedSize <= Size)
-					--ReturnedSize;
-				return ReturnedSize;
+				return ReturnedSize <= Size? ReturnedSize - 1 : ReturnedSize;
 			}))
 			{
-				Result = Str;
+				Result = make_string(Str);
 			}
 			return Result;
 		}
 
 		string get_pathext()
 		{
-			auto PathExt(os::env::get(L"PATHEXT"));
-			if (PathExt.empty())
-				PathExt = L".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC";
-			return PathExt;
+			const auto PathExt = get(L"PATHEXT");
+			return !PathExt.empty()? PathExt : L".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC"s;
 		}
 	}
 

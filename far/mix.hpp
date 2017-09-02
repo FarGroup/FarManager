@@ -109,15 +109,6 @@ struct uuid_hash
 	}
 };
 
-struct uuid_equal
-{
-	bool operator ()(const GUID& a, const GUID& b) const
-	{
-		// In WinSDK's older than 8.0 operator== for GUIDs declared as int (sic!), This will suppress the warning:
-		return (a == b) != 0;
-	}
-};
-
 void ReloadEnvironment();
 
 unsigned int CRC32(unsigned int crc, const void* buffer, size_t size);

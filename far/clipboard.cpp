@@ -51,7 +51,7 @@ clipboard_mode default_clipboard_mode::get()
 }
 
 //-----------------------------------------------------------------------------
-enum class Clipboard::clipboard_format
+enum class clipboard::clipboard_format
 {
 	vertical_block_oem,
 	vertical_block_unicode,
@@ -64,15 +64,11 @@ enum class Clipboard::clipboard_format
 };
 
 //-----------------------------------------------------------------------------
-class system_clipboard: noncopyable, public Clipboard
+class system_clipboard: public clipboard, public singleton<system_clipboard>, noncopyable
 {
-public:
-	static Clipboard& GetInstance()
-	{
-		static system_clipboard s_Clipboard;
-		return s_Clipboard;
-	}
+	IMPLEMENTS_SINGLETON(system_clipboard);
 
+public:
 	virtual ~system_clipboard() override
 	{
 		system_clipboard::Close();
@@ -171,18 +167,14 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-class internal_clipboard: noncopyable, public Clipboard
+class internal_clipboard: public clipboard, public singleton<internal_clipboard>, noncopyable
 {
-public:
-	static Clipboard& GetInstance()
-	{
-		static internal_clipboard s_Clipboard;
-		return s_Clipboard;
-	}
+	IMPLEMENTS_SINGLETON(internal_clipboard);
 
+public:
 	static auto CreateInstance()
 	{
-		return std::unique_ptr<Clipboard>(new internal_clipboard);
+		return std::unique_ptr<clipboard>(new internal_clipboard);
 	}
 
 	virtual ~internal_clipboard() override
@@ -259,36 +251,41 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-static thread_local Clipboard* OverridenInternalClipboard;
+static thread_local clipboard* OverridenInternalClipboard;
 
-void clipboard_restorer::operator()(Clipboard* Clip) const
+void clipboard_restorer::operator()(clipboard* Clip) const
 {
 	OverridenInternalClipboard = nullptr;
 	delete Clip;
 }
 
-std::unique_ptr<Clipboard, clipboard_restorer> OverrideClipboard()
+std::unique_ptr<clipboard, clipboard_restorer> OverrideClipboard()
 {
 	auto ClipPtr = internal_clipboard::CreateInstance();
 	OverridenInternalClipboard = ClipPtr.get();
-	return std::unique_ptr<Clipboard, clipboard_restorer>(ClipPtr.release());
+	return std::unique_ptr<clipboard, clipboard_restorer>(ClipPtr.release());
 }
 
-Clipboard& Clipboard::GetInstance(clipboard_mode Mode)
+clipboard& clipboard::GetInstance(clipboard_mode Mode)
 {
-	return OverridenInternalClipboard? *OverridenInternalClipboard :
-	       Mode == clipboard_mode::system? system_clipboard::GetInstance() : internal_clipboard::GetInstance();
+	if (OverridenInternalClipboard)
+		return *OverridenInternalClipboard;
+
+	if (Mode == clipboard_mode::system)
+		return system_clipboard::instance();
+
+	return internal_clipboard::instance();
 }
 
-bool Clipboard::SetText(const wchar_t *Data, size_t Size)
+bool clipboard::SetText(const string_view& Str)
 {
 	if (!Clear())
 		return false;
 
-	if (!Data)
+	if (Str.empty())
 		return true;
 
-	auto hData = os::memory::global::copy(Data, Size);
+	auto hData = os::memory::global::copy(Str.data(), Str.size());
 	if (!hData)
 		return false;
 
@@ -297,17 +294,17 @@ bool Clipboard::SetText(const wchar_t *Data, size_t Size)
 
 	// 'Notepad++ binary text length'
 	// return value is ignored - non-critical feature
-	SetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length), os::memory::global::copy(static_cast<uint32_t>(Size)));
+	SetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length), os::memory::global::copy(static_cast<uint32_t>(Str.size())));
 
 	return true;
 }
 
-bool Clipboard::SetVText(const wchar_t *Data, size_t Size)
+bool clipboard::SetVText(const string_view& Str)
 {
-	if (!SetText(Data, Size))
+	if (!SetText(Str))
 		return false;
 
-	if (!Data)
+	if (Str.empty())
 		return true;
 
 	const auto FarVerticalBlock = RegisterFormat(clipboard_format::vertical_block_unicode);
@@ -329,7 +326,7 @@ bool Clipboard::SetVText(const wchar_t *Data, size_t Size)
 	return true;
 }
 
-bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
+bool clipboard::SetHDROP(const string_view& NamesData, bool bMoved)
 {
 	if (NamesData.empty())
 		return false;
@@ -362,7 +359,7 @@ bool Clipboard::SetHDROP(const string& NamesData, bool bMoved)
 	return SetData(RegisterFormat(clipboard_format::preferred_drop_effect), std::move(hMemoryMove));
 }
 
-bool Clipboard::GetText(string& Data) const
+bool clipboard::GetText(string& Data) const
 {
 	auto hClipData = GetData(CF_UNICODETEXT);
 	if (!hClipData)
@@ -387,7 +384,7 @@ bool Clipboard::GetText(string& Data) const
 	return true;
 }
 
-bool Clipboard::GetHDROPAsText(string& data) const
+bool clipboard::GetHDROPAsText(string& data) const
 {
 	const auto hClipData = GetData(CF_HDROP);
 	if (!hClipData)
@@ -418,7 +415,7 @@ bool Clipboard::GetHDROPAsText(string& data) const
 	return true;
 }
 
-bool Clipboard::GetVText(string& data) const
+bool clipboard::GetVText(string& data) const
 {
 	const auto& IsBorlandVerticalBlock = [this]
 	{
@@ -450,16 +447,16 @@ bool Clipboard::GetVText(string& data) const
 }
 
 //-----------------------------------------------------------------------------
-bool SetClipboardText(const wchar_t* Data, size_t Size)
+bool SetClipboardText(const string_view& Str)
 {
 	clipboard_accessor Clip;
-	return Clip->Open() && Clip->SetText(Data, Size);
+	return Clip->Open() && Clip->SetText(Str);
 }
 
-bool SetClipboardVText(const wchar_t *Data, size_t Size)
+bool SetClipboardVText(const string_view& Str)
 {
 	clipboard_accessor Clip;
-	return Clip->Open() && Clip->SetVText(Data, Size);
+	return Clip->Open() && Clip->SetVText(Str);
 }
 
 bool GetClipboardText(string& data)

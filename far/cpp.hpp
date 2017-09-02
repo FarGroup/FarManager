@@ -205,10 +205,10 @@ namespace std
 #endif
 
 #if (!defined _MSC_VER && __cpp_static_assert < 201411) || (defined _MSC_VER && _MSC_VER < 1910)
-#define DETAIL_GET_MACRO(_1, _2, NAME, ...) NAME
 #define DETAIL_STATIC_ASSERT_2(expression, message) static_assert(expression, message)
 #define DETAIL_STATIC_ASSERT_1(expression) DETAIL_STATIC_ASSERT_2(expression, #expression)
-#define static_assert(...) EXPAND(DETAIL_GET_MACRO(__VA_ARGS__, DETAIL_STATIC_ASSERT_2, DETAIL_STATIC_ASSERT_1)(__VA_ARGS__))
+#define DETAIL_STATIC_ASSERT_GET_MACRO(_1, _2, NAME, ...) NAME
+#define static_assert(...) EXPAND(DETAIL_STATIC_ASSERT_GET_MACRO(__VA_ARGS__, DETAIL_STATIC_ASSERT_2, DETAIL_STATIC_ASSERT_1)(__VA_ARGS__))
 #endif
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

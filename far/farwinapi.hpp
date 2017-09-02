@@ -539,22 +539,11 @@ namespace os
 			};
 		}
 
-		bool get(const wchar_t* Name, string& strBuffer);
-		inline bool get(const string& Name, string& strBuffer) { return get(Name.data(), strBuffer); }
-		template<class T>
-		string get(const T& Name) { string Result; get(Name, Result); return Result; }
-
-		bool set(const wchar_t* Name, const wchar_t* Value);
-		inline bool set(const wchar_t* Name, const string& Value) { return set(Name, Value.data()); }
-		inline bool set(const string& Name, const wchar_t* Value) { return set(Name.data(), Value); }
-		inline bool set(const string& Name, const string& Value) { return set(Name.data(), Value.data()); }
-
-		bool del(const wchar_t* Name);
-		inline bool del(const string& Name) { return del(Name.data()); }
-
-		string expand(const wchar_t* str);
-		inline string expand(const string& str) { return expand(str.data()); }
-
+		bool get(const string_view& Name, string& strBuffer);
+		inline string get(const string_view& Name) { string Result; get(Name, Result); return Result; }
+		bool set(const string_view& Name, const string_view& Value);
+		bool del(const string_view& Name);
+		string expand(const string_view& str);
 		string get_pathext();
 	}
 

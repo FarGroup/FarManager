@@ -391,25 +391,15 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 	return true;
 }
 
-virtual bool Write(LPCWSTR Buffer) const override
-{
-	return Write(Buffer, wcslen(Buffer));
-}
-
-virtual bool Write(const string& Buffer) const override
-{
-	return Write(Buffer.data(), Buffer.size());
-}
-
-virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const override
+virtual bool Write(const string_view& Str) const override
 {
 	DWORD NumberOfCharsWritten;
 	const auto OutputHandle = GetOutputHandle();
 
 	DWORD Mode;
 	return GetMode(OutputHandle, Mode)?
-	       WriteConsole(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite), &NumberOfCharsWritten, nullptr) != FALSE :
-	       WriteFile(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite*sizeof(wchar_t)), &NumberOfCharsWritten, nullptr) != FALSE;
+	       WriteConsole(OutputHandle, Str.data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr) != FALSE :
+	       WriteFile(OutputHandle, Str.data(), static_cast<DWORD>(Str.size() * sizeof(wchar_t)), &NumberOfCharsWritten, nullptr) != FALSE;
 }
 
 virtual bool Commit() const override

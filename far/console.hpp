@@ -91,9 +91,7 @@ public:
 	bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& ReadRegion) const { COORD BufferCoord = {}; return ReadOutput(Buffer, BufferCoord, ReadRegion); }
 	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const = 0;
 	bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& WriteRegion) const { COORD BufferCoord = {}; return WriteOutput(Buffer, BufferCoord, WriteRegion); }
-	virtual bool Write(LPCWSTR Buffer) const = 0;
-	virtual bool Write(const string& Buffer) const = 0;
-	virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const = 0;
+	virtual bool Write(const string_view& Str) const = 0;
 	virtual bool Commit() const = 0;
 
 	virtual bool GetTextAttributes(FarColor& Attributes) const = 0;

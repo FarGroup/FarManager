@@ -34,6 +34,62 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "preprocessor.hpp"
 
+/*
+Helper class to safely pass string_view to low level C or platform API.
+Builds a compatible null-terminated std::basic_string if the given view is not null-terminated,
+otherwise uses the same data.
+*/
+
+#include "placement.hpp"
+
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4582) // no page                                                '%$S': constructor is not implicitly called
+WARNING_DISABLE_MSC(4583) // no page                                                '%$S': destructor is not implicitly called
+
+template<typename T>
+class null_terminated_t
+{
+public:
+	explicit null_terminated_t(const basic_string_view<T>& Str):
+		m_Terminated(Str.data()[Str.size()] == 0)
+	{
+		if (m_Terminated)
+			placement::construct(m_View, Str);
+		else
+			placement::construct(m_Str, ALL_CONST_RANGE(Str));
+	}
+
+	~null_terminated_t()
+	{
+		if (m_Terminated)
+			placement::destruct(m_View);
+		else
+			placement::destruct(m_Str);
+	}
+
+	auto data() const
+	{
+		return m_Terminated? m_View.data() : m_Str.data();
+	}
+
+	auto size() const
+	{
+		return m_Terminated? m_View.size() : m_Str.size();
+	}
+
+private:
+	union
+	{
+		std::basic_string<T> m_Str;
+		basic_string_view<T> m_View;
+	};
+	bool m_Terminated;
+};
+
+WARNING_POP()
+
+using null_terminated = null_terminated_t<wchar_t>;
+
 namespace detail
 {
 	inline void append_one(string& Str, wchar_t Arg, size_t) { Str += Arg; }
@@ -240,6 +296,5 @@ inline bool contains(const string_view& Str, const string_view& Token)
 {
 	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token)) != Str.cend();
 }
-
 
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8

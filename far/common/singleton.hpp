@@ -1,12 +1,12 @@
-﻿#ifndef SWAPABLE_HPP_681890D0_0B8D_4C94_BB0A_2C6D3281332A
-#define SWAPABLE_HPP_681890D0_0B8D_4C94_BB0A_2C6D3281332A
+﻿#ifndef SINGLETON_HPP_689EF327_41C5_4AB7_B9A6_CB5361D7B040
+#define SINGLETON_HPP_689EF327_41C5_4AB7_B9A6_CB5361D7B040
 #pragma once
 
 /*
-swapable.hpp
+singleton.hpp
 */
 /*
-Copyright © 2015 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-template<class T>
-struct swapable
+template<typename type>
+class singleton
 {
-	friend void swap(T& a, T& b) noexcept
+public:
+	static type& instance()
 	{
-		a.swap(b);
+		static type Instance;
+		return Instance;
 	}
+
+protected:
+	using singleton_type = singleton<type>;
 };
 
-#endif // SWAPABLE_HPP_681890D0_0B8D_4C94_BB0A_2C6D3281332A
+#define IMPLEMENTS_SINGLETON(...) friend class singleton<__VA_ARGS__>
+
+#endif // SINGLETON_HPP_689EF327_41C5_4AB7_B9A6_CB5361D7B040

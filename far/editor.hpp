@@ -330,7 +330,7 @@ private:
 	numbered_iterator m_it_CurLine{ EndIterator() };
 	numbered_iterator m_it_LastGetLine{ EndIterator() };
 
-	std::unordered_set<GUID, uuid_hash, uuid_equal> ChangeEventSubscribers;
+	std::unordered_set<GUID, uuid_hash> ChangeEventSubscribers;
 	std::list<EditorUndoData> UndoData;
 	std::list<EditorUndoData>::iterator UndoPos{ UndoData.end() };
 	std::list<EditorUndoData>::iterator UndoSavePos{ UndoData.end() };

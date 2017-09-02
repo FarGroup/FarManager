@@ -179,4 +179,15 @@ private:
 template<typename T>
 auto ptr_setter(T& Ptr) { return ptr_setter_t<T>(Ptr); }
 
+template<typename owner, typename acquire, typename release>
+auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
+{
+	std::invoke(Acquire, Owner);
+	auto&& Releaser = [Release](owner* Owner)
+	{
+		std::invoke(Release, Owner);
+	};
+	return std::unique_ptr<owner, std::remove_reference_t<decltype(Releaser)>>(Owner, std::move(Releaser));
+}
+
 #endif // SMART_PTR_HPP_DE65D1E8_C925_40F7_905A_B7E3FF40B486

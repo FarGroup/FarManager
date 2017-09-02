@@ -52,7 +52,6 @@ class elevation: noncopyable, public singleton<elevation>
 	IMPLEMENTS_SINGLETON(elevation);
 
 public:
-	static elevation& instance();
 	~elevation();
 	void ResetApprove();
 	bool Elevated() const {return m_Elevation;}

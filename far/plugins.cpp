@@ -69,7 +69,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "delete.hpp"
-#include "legacy_cpu_check.hpp"
 
 static const wchar_t PluginsFolderName[] = L"Plugins";
 
@@ -130,12 +129,15 @@ static void CallPluginSynchroEvent(const any& Payload)
 
 static void EnsureLuaCpuCompatibility()
 {
-	if (!IsLegacyCPU())
+// All AMD64 processors have SSE2
+#ifndef _WIN64
+	if (IsProcessorFeaturePresent(PF_XMMI64_INSTRUCTIONS_AVAILABLE))
 		return;
 
 	static os::rtdl::module LuaModule(Global->g_strFarPath + L"\\legacy\\lua51.dll");
 	// modules are lazy loaded
 	LuaModule.operator bool();
+#endif
 }
 
 PluginManager::PluginManager():
@@ -817,7 +819,7 @@ int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* Edit
 }
 
 
-int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<GUID, uuid_hash, uuid_equal>& PluginIds) const
+int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<GUID, uuid_hash>& PluginIds) const
 {
 	int nResult = 0;
 	if (const auto Container = EditorInstance->GetOwner())

@@ -221,9 +221,6 @@
     <ClCompile Include="lasterror.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="legacy_cpu_check.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="locale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -658,9 +655,6 @@
     <ClInclude Include="lasterror.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="legacy_cpu_check.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="locale.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -934,9 +928,6 @@
     <ClInclude Include="common\null_iterator.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\swapable.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\conditional.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -999,6 +990,15 @@
     </ClInclude>
     <ClInclude Include="console_session.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\placement.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\singleton.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\utility.hpp">
+      <Filter>Header Files\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

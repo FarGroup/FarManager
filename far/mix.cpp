@@ -140,7 +140,7 @@ void FindDataExToPluginPanelItemHolder(const os::FAR_FIND_DATA& Src, PluginPanel
 	Dest.FileAttributes = Src.dwFileAttributes;
 	Dest.NumberOfLinks = 1;
 	Dest.CRC32 = 0;
-	ClearArray(Dest.Reserved);
+	std::fill(ALL_RANGE(Dest.Reserved), 0);
 }
 
 PluginPanelItemHolder::~PluginPanelItemHolder()

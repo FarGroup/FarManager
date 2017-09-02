@@ -51,25 +51,19 @@ private:
 	static clipboard_mode m_Mode;
 };
 
-class Clipboard
+class clipboard
 {
 public:
-	static Clipboard& GetInstance(clipboard_mode Mode);
-	virtual ~Clipboard() = default;
+	static clipboard& GetInstance(clipboard_mode Mode);
+	virtual ~clipboard() = default;
 
 	virtual bool Open() = 0;
 	virtual bool Close() = 0;
 	virtual bool Clear() = 0;
 
-	bool SetText(const wchar_t *Data, size_t Size);
-	bool SetText(const wchar_t *Data) { return SetText(Data, wcslen(Data)); }
-	bool SetText(const string& Data) { return SetText(Data.data(), Data.size()); }
-
-	bool SetVText(const wchar_t *Data, size_t Size);
-	bool SetVText(const wchar_t *Data) { return SetVText(Data, wcslen(Data)); }
-	bool SetVText(const string& Data) { return SetVText(Data.data(), Data.size()); }
-
-	bool SetHDROP(const string& NamesData, bool bMoved);
+	bool SetText(const string_view& Str);
+	bool SetVText(const string_view& Str);
+	bool SetHDROP(const string_view& NamesData, bool bMoved);
 
 	bool GetText(string& data) const;
 	bool GetVText(string& data) const;
@@ -91,22 +85,17 @@ private:
 class clipboard_accessor:noncopyable
 {
 public:
-	explicit clipboard_accessor(clipboard_mode Mode = default_clipboard_mode::get()): m_Clipboard(Clipboard::GetInstance(Mode)) {}
+	explicit clipboard_accessor(clipboard_mode Mode = default_clipboard_mode::get()): m_Clipboard(clipboard::GetInstance(Mode)) {}
 	~clipboard_accessor() { m_Clipboard.Close(); }
 	auto operator->() const { return &m_Clipboard; }
 
 private:
-	Clipboard& m_Clipboard;
+	clipboard& m_Clipboard;
 };
 
 
-bool SetClipboardText(const wchar_t* Data, size_t Size);
-inline bool SetClipboardText(const wchar_t* Data) { return SetClipboardText(Data, wcslen(Data)); }
-inline bool SetClipboardText(const string& Data) { return SetClipboardText(Data.data(), Data.size()); }
-
-bool SetClipboardVText(const wchar_t *Data, size_t Size);
-inline bool SetClipboardVText(const wchar_t* Data) { return SetClipboardVText(Data, wcslen(Data)); }
-inline bool SetClipboardVText(const string& Data) { return SetClipboardVText(Data.data(), Data.size()); }
+bool SetClipboardText(const string_view& Str);
+bool SetClipboardVText(const string_view& Str);
 
 bool GetClipboardText(string& data);
 bool GetClipboardVText(string& data);
@@ -117,9 +106,9 @@ bool CopyData(const clipboard_accessor& From, const clipboard_accessor& To);
 
 struct clipboard_restorer
 {
-	void operator()(Clipboard* Clip) const;
+	void operator()(clipboard* Clip) const;
 };
 
-std::unique_ptr<Clipboard, clipboard_restorer> OverrideClipboard();
+std::unique_ptr<clipboard, clipboard_restorer> OverrideClipboard();
 
 #endif // CLIPBOARD_HPP_989E040C_4D10_4D7C_88C0_5EF499171878
