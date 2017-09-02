@@ -16341,7 +16341,7 @@ upd:"Show disk type"
 "Mostra Tipo &Disco"
 "Показувати &тип диска"
 
-MChangeDriveShowNetworkName
+MChangeDriveShowPath
 "Показывать &сетевое имя/путь SUBST/имя VHD"
 "Show &network name/SUBST path/VHD name"
 "Zobrazit síťový &název/cestu SUBST/název VHD"

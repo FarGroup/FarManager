@@ -207,7 +207,7 @@ static void ConfigureChangeDriveMode()
 	ShowSizeFloat->Indent(4);
 	Builder.LinkFlags(ShowSize, ShowSizeFloat, DIF_DISABLE);
 
-	Builder.AddCheckbox(lng::MChangeDriveShowNetworkName, Global->Opt->ChangeDriveMode, DRIVE_SHOW_NETNAME);
+	Builder.AddCheckbox(lng::MChangeDriveShowPath, Global->Opt->ChangeDriveMode, DRIVE_SHOW_PATH);
 	Builder.AddCheckbox(lng::MChangeDriveShowPlugins, Global->Opt->ChangeDriveMode, DRIVE_SHOW_PLUGINS);
 	Builder.AddCheckbox(lng::MChangeDriveSortPluginsByHotkey, Global->Opt->ChangeDriveMode, DRIVE_SORT_PLUGINS_BY_HOTKEY)->Indent(4);
 	Builder.AddCheckbox(lng::MChangeDriveShowRemovableDrive, Global->Opt->ChangeDriveMode, DRIVE_SHOW_REMOVABLE);
@@ -668,48 +668,56 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			DiskMenuItem NewItem;
 			NewItem.Letter = L'&' + LocalName;
+
+			// We have to determine at least the basic drive type (fixed/removable/remote) regardlessly of the DRIVE_SHOW_TYPE state,
+			// as it affects the visibility of the other metrics
 			NewItem.DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
 			if (DisconnectedNetworkDrives[os::fs::get_drive_number(i)])
 			{
 				NewItem.DriveType = DRIVE_REMOTE_NOT_CONNECTED;
 			}
-			else if (GetSubstName(NewItem.DriveType, LocalName, NewItem.Path))
-			{
-				NewItem.DriveType = DRIVE_SUBSTITUTE;
-			}
-			else if (DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(LocalName, NewItem.Path))
-			{
-				NewItem.DriveType = DRIVE_VIRTUAL;
-			}
 
-			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_NETNAME))
+			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE | DRIVE_SHOW_PATH))
 			{
-				static const std::pair<int, lng> DriveTypes[] =
+				// These types don't affect other checks so we can retrieve them only if needed:
+				if (GetSubstName(NewItem.DriveType, LocalName, NewItem.Path))
 				{
-					{ DRIVE_REMOVABLE, lng::MChangeDriveRemovable },
-					{ DRIVE_FIXED, lng::MChangeDriveFixed },
-					{ DRIVE_REMOTE, lng::MChangeDriveNetwork },
-					{ DRIVE_REMOTE_NOT_CONNECTED, lng::MChangeDriveDisconnectedNetwork },
-					{ DRIVE_CDROM, lng::MChangeDriveCDROM },
-					{ DRIVE_CD_RW, lng::MChangeDriveCD_RW },
-					{ DRIVE_CD_RWDVD, lng::MChangeDriveCD_RWDVD },
-					{ DRIVE_DVD_ROM, lng::MChangeDriveDVD_ROM },
-					{ DRIVE_DVD_RW, lng::MChangeDriveDVD_RW },
-					{ DRIVE_DVD_RAM, lng::MChangeDriveDVD_RAM },
-					{ DRIVE_BD_ROM, lng::MChangeDriveBD_ROM },
-					{ DRIVE_BD_RW, lng::MChangeDriveBD_RW },
-					{ DRIVE_HDDVD_ROM, lng::MChangeDriveHDDVD_ROM },
-					{ DRIVE_HDDVD_RW, lng::MChangeDriveHDDVD_RW },
-					{ DRIVE_RAMDISK, lng::MChangeDriveRAM },
-					{ DRIVE_SUBSTITUTE, lng::MChangeDriveSUBST },
-					{ DRIVE_VIRTUAL, lng::MChangeDriveVirtual },
-					{ DRIVE_USBDRIVE, lng::MChangeDriveRemovable },
-				};
+					NewItem.DriveType = DRIVE_SUBSTITUTE;
+				}
+				else if (DriveCanBeVirtual(NewItem.DriveType) && GetVHDInfo(LocalName, NewItem.Path))
+				{
+					NewItem.DriveType = DRIVE_VIRTUAL;
+				}
 
-				const auto ItemIterator = std::find_if(CONST_RANGE(DriveTypes, DriveTypeItem) { return DriveTypeItem.first == NewItem.DriveType; });
-				if (ItemIterator != std::cend(DriveTypes))
-					NewItem.Type = msg(ItemIterator->second);
+				if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_TYPE)
+				{
+					static const std::pair<int, lng> DriveTypes[] =
+					{
+						{ DRIVE_REMOVABLE, lng::MChangeDriveRemovable },
+						{ DRIVE_FIXED, lng::MChangeDriveFixed },
+						{ DRIVE_REMOTE, lng::MChangeDriveNetwork },
+						{ DRIVE_REMOTE_NOT_CONNECTED, lng::MChangeDriveDisconnectedNetwork },
+						{ DRIVE_CDROM, lng::MChangeDriveCDROM },
+						{ DRIVE_CD_RW, lng::MChangeDriveCD_RW },
+						{ DRIVE_CD_RWDVD, lng::MChangeDriveCD_RWDVD },
+						{ DRIVE_DVD_ROM, lng::MChangeDriveDVD_ROM },
+						{ DRIVE_DVD_RW, lng::MChangeDriveDVD_RW },
+						{ DRIVE_DVD_RAM, lng::MChangeDriveDVD_RAM },
+						{ DRIVE_BD_ROM, lng::MChangeDriveBD_ROM },
+						{ DRIVE_BD_RW, lng::MChangeDriveBD_RW },
+						{ DRIVE_HDDVD_ROM, lng::MChangeDriveHDDVD_ROM },
+						{ DRIVE_HDDVD_RW, lng::MChangeDriveHDDVD_RW },
+						{ DRIVE_RAMDISK, lng::MChangeDriveRAM },
+						{ DRIVE_SUBSTITUTE, lng::MChangeDriveSUBST },
+						{ DRIVE_VIRTUAL, lng::MChangeDriveVirtual },
+						{ DRIVE_USBDRIVE, lng::MChangeDriveRemovable },
+					};
+
+					const auto ItemIterator = std::find_if(CONST_RANGE(DriveTypes, DriveTypeItem) { return DriveTypeItem.first == NewItem.DriveType; });
+					if (ItemIterator != std::cend(DriveTypes))
+						NewItem.Type = msg(ItemIterator->second);
+				}
 			}
 
 			auto ShowDiskInfo = (NewItem.DriveType != DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
@@ -758,7 +766,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				}
 			}
 
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME)
+			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_PATH)
 			{
 				switch (NewItem.DriveType)
 				{
@@ -826,7 +834,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				append(ItemName, Separator.Get(), fit_to_right(i.TotalSize, TotalSizeWidth));
 				append(ItemName, Separator.Get(), fit_to_right(i.FreeSize, FreeSizeWidth));
 			}
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME && PathWidth)
+			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_PATH && PathWidth)
 			{
 				append(ItemName, Separator.Get(), i.Path);
 			}
@@ -999,7 +1007,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				break;
 			case KEY_CTRL2:
 			case KEY_RCTRL2:
-				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_NETNAME;
+				Global->Opt->ChangeDriveMode ^= DRIVE_SHOW_PATH;
 				RetCode = SelPos;
 				break;
 			case KEY_CTRL3:

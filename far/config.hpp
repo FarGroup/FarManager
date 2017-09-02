@@ -92,7 +92,7 @@ enum DIZUPDATETYPE
 enum disk_menu_mode
 {
 	DRIVE_SHOW_TYPE              = bit(0),
-	DRIVE_SHOW_NETNAME           = bit(1),
+	DRIVE_SHOW_PATH              = bit(1),
 	DRIVE_SHOW_LABEL             = bit(2),
 	DRIVE_SHOW_FILESYSTEM        = bit(3),
 	DRIVE_SHOW_SIZE              = bit(4),

@@ -1,3 +1,7 @@
+drkns 02.09.2017 20:59:58 +0100 - build 5023
+
+1. 0003470: GetVHDInfo called even DRIVE_SHOW_TYPE is not set and even under XP where VHD API is not available
+
 shmuel 02.09.2017 20:34:02 +0200 - build 5022
 
 1. FileList::SetSortMode() - было чтение памяти за пределами массива.

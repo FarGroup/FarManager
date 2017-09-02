@@ -382,7 +382,7 @@ bool IsDriveTypeCDROM(UINT DriveType)
 
 bool DriveCanBeVirtual(UINT DriveType)
 {
-	return DriveType == DRIVE_FIXED || (IsWindows8OrGreater() && IsDriveTypeCDROM(DriveType));
+	return (DriveType == DRIVE_FIXED && IsWindows7OrGreater()) || (IsDriveTypeCDROM(DriveType) && IsWindows8OrGreater());
 }
 
 UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
