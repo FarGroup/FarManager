@@ -2308,10 +2308,10 @@ BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 		switch (Type)
 		{
 		case FCT_STREAM:
-			return SetClipboardText({ NullToEmpty(Data) });
+			return Data? SetClipboardText(Data) : ClearClipboard();
 
 		case FCT_COLUMN:
-			return SetClipboardVText({ NullToEmpty(Data) });
+			return Data? SetClipboardVText(Data) : ClearClipboard();
 
 		default:
 			return FALSE;

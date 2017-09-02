@@ -1947,7 +1947,7 @@ static int WINAPI CopyToClipboardA(const char *Data) noexcept
 {
 	try
 	{
-		return NativeFSF.CopyToClipboard(FCT_STREAM, encoding::oem::get_chars(Data).data());
+		return NativeFSF.CopyToClipboard(FCT_STREAM, Data? encoding::oem::get_chars(Data).data() : nullptr);
 	}
 	catch (...)
 	{

@@ -282,9 +282,6 @@ bool clipboard::SetText(const string_view& Str)
 	if (!Clear())
 		return false;
 
-	if (Str.empty())
-		return true;
-
 	auto hData = os::memory::global::copy(Str.data(), Str.size());
 	if (!hData)
 		return false;
@@ -303,9 +300,6 @@ bool clipboard::SetVText(const string_view& Str)
 {
 	if (!SetText(Str))
 		return false;
-
-	if (Str.empty())
-		return true;
 
 	const auto FarVerticalBlock = RegisterFormat(clipboard_format::vertical_block_unicode);
 
@@ -469,6 +463,12 @@ bool GetClipboardVText(string& data)
 {
 	clipboard_accessor Clip;
 	return Clip->Open() && Clip->GetVText(data);
+}
+
+bool ClearClipboard()
+{
+	clipboard_accessor Clip;
+	return Clip->Open() && Clip->Clear();
 }
 
 bool ClearInternalClipboard()

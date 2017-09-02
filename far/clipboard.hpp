@@ -100,6 +100,8 @@ bool SetClipboardVText(const string_view& Str);
 bool GetClipboardText(string& data);
 bool GetClipboardVText(string& data);
 
+bool ClearClipboard();
+
 bool ClearInternalClipboard();
 
 bool CopyData(const clipboard_accessor& From, const clipboard_accessor& To);
