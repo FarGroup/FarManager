@@ -3338,35 +3338,38 @@ void FileList::ApplySortMode(panel_sort Mode)
 
 void FileList::SetSortMode(panel_sort Mode, bool KeepOrder)
 {
-	if (!KeepOrder)
+	if (Mode < panel_sort::COUNT)
 	{
-		static bool InvertByDefault[] =
+		if (!KeepOrder)
 		{
-			false, // UNSORTED,
-			false, // BY_NAME,
-			false, // BY_EXT,
-			true,  // BY_MTIME,
-			true,  // BY_CTIME,
-			true,  // BY_ATIME,
-			true,  // BY_SIZE,
-			false, // BY_DIZ,
-			false, // BY_OWNER,
-			true,  // BY_COMPRESSEDSIZE,
-			true,  // BY_NUMLINKS,
-			true,  // BY_NUMSTREAMS,
-			true,  // BY_STREAMSSIZE,
-			false, // BY_FULLNAME,
-			true,  // BY_CHTIME,
-			false  // BY_CUSTOMDATA,
-		};
-		static_assert(std::size(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT));
+			static bool InvertByDefault[] =
+			{
+				false, // UNSORTED,
+				false, // BY_NAME,
+				false, // BY_EXT,
+				true,  // BY_MTIME,
+				true,  // BY_CTIME,
+				true,  // BY_ATIME,
+				true,  // BY_SIZE,
+				false, // BY_DIZ,
+				false, // BY_OWNER,
+				true,  // BY_COMPRESSEDSIZE,
+				true,  // BY_NUMLINKS,
+				true,  // BY_NUMSTREAMS,
+				true,  // BY_STREAMSSIZE,
+				false, // BY_FULLNAME,
+				true,  // BY_CHTIME,
+				false  // BY_CUSTOMDATA,
+			};
+			static_assert(std::size(InvertByDefault) == static_cast<size_t>(panel_sort::COUNT));
 
-		assert(Mode < panel_sort::COUNT);
+			m_ReverseSortOrder = (m_SortMode == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault[static_cast<size_t>(Mode)];
+		}
 
-		m_ReverseSortOrder = (m_SortMode == Mode && Global->Opt->ReverseSort)? !m_ReverseSortOrder : InvertByDefault[static_cast<size_t>(Mode)];
+		ApplySortMode(Mode);
 	}
-
-	ApplySortMode(Mode);
+	else
+		SetCustomSortMode(static_cast<int>(Mode), (KeepOrder ? SO_KEEPCURRENT : SO_AUTO), false);
 }
 
 void FileList::SetCustomSortMode(int Mode, sort_order Order, bool InvertByDefault)
@@ -7628,7 +7631,7 @@ void FileList::ShowFileList(bool Fast)
 		SetColor(COL_PANELCOLUMNTITLE);
 
 		string Indicators;
-		
+
 		//if (GetSelectedFirstMode())
 			Indicators.push_back(L'^');
 
