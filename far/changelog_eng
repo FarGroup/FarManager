@@ -3,6 +3,50 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 03.09.2017 14:24:00 FLE Daylight Time - build 5024
+
+1. if selection was removed in an inactive editor then it would be drawn on top of all the windows.
+
+drkns 02.09.2017 20:59:58 +0100 - build 5023
+
+1. 0003470: GetVHDInfo called even DRIVE_SHOW_TYPE is not set and even under XP where VHD API is not available
+
+shmuel 02.09.2017 20:34:02 +0200 - build 5022
+
+1. FileList::SetSortMode() - memory read out of array bounds.
+
+drkns 02.09.2017 16:16:24 +0100 - build 5021
+
+1. Correction of 5020.1.
+
+drkns 02.09.2017 15:38:54 +0100 - build 5020
+
+1. Refactoring. Remove duplicated code and move something out from common.hpp.
+
+2. Use IsProcessorFeaturePresent to detect absence of SSE2.
+
+drkns 30.08.2017 20:44:52 +0100 - build 5019
+
+1. New versions of tinyxml2 and fmt.
+
+2. Do not preload lua51.dll for no plugins installed.
+
+svs 30.08.2017 14:14:51 +0300 - build 5018
+
+1. SQLite 3.20.1
+
+w17 30.08.2017 13:53:46 +0300 - build 5017
+
+1. Correction+ of 5015
+
+w17 30.08.2017 13:19:19 +0300 - build 5016
+
+1. Correction of 5015
+
+w17 30.08.2017 12:21:12 +0300 - build 5015
+
+1. Preload %FARHOME%\legacy\lua51.dll if x86 CPU doesn't support SSE2.
+
 drkns 26.08.2017 11:20:44 +0100 - build 5014
 
 1. The 'date' macrofunction was a mess:
