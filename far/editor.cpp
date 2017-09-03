@@ -4257,7 +4257,7 @@ void Editor::UnmarkBlock()
 	}
 
 	Unselect();
-	Show();
+	Refresh();
 }
 
 /* $ 07.03.2002 IS
