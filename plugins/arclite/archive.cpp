@@ -245,7 +245,7 @@ static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index,
   info.DecoderIsAssigned = info.EncoderIsAssigned = false;
   std::fill((char *)&info.Decoder, sizeof(info.Decoder) + (char *)&info.Decoder, 0);
   info.Encoder = info.Decoder;
-  PropVariant prop1, prop2, prop3;
+  PropVariant prop1, prop2, prop3, prop4;
   if (S_OK != getMethodProperty(index, NMethodPropID::kDecoder, prop1.ref()))
     return false;
   if (prop1.vt != VT_EMPTY) {
@@ -265,6 +265,9 @@ static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index,
   if (S_OK != getMethodProperty(index, NMethodPropID::kName, prop3.ref()) || !prop3.is_str())
     return false;
   info.Name = prop3.get_str();
+  if (S_OK != getMethodProperty(index, NMethodPropID::kID, prop4.ref()) || !prop4.is_uint())
+    return false;
+  info.CodecId = static_cast<UInt32>(prop4.get_uint());
   return info.DecoderIsAssigned || info.EncoderIsAssigned;
 }
 
@@ -341,7 +344,18 @@ void ArcAPI::load_codecs(const wstring& path) {
       FreeLibrary(arc_lib.h_module);
   }
 
+  n_7z_codecs = 0;
   if (arc_codecs.size() > 0) {
+    std::sort(arc_codecs.begin(), arc_codecs.end(), [&](const auto&a, const auto& b) {
+      bool a_is_zip = (a.CodecId & 0xffffff00U) == 0x040100;
+      bool b_is_zip = (b.CodecId & 0xffffff00U) == 0x040100;
+      if (a_is_zip != b_is_zip)
+        return b_is_zip;
+      else
+        return _wcsicmp(a.Name.data(), b.Name.data()) < 0;
+    });
+    for (const auto& c : arc_codecs) { if ((c.CodecId & 0xffffff00U) != 0x040100) ++n_7z_codecs; }
+
     compressinfo = new MyCompressCodecsInfo(arc_libs, arc_codecs);
     for (size_t i = 0; i < n_base_format_libs; ++i) {
       if (arc_libs[i].SetCodecs)

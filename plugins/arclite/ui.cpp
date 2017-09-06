@@ -1351,7 +1351,7 @@ public:
     vector<wstring> method_names;
     const auto& codecs = ArcAPI::codecs();
     unsigned method_sel = 0;
-    for (unsigned i = 0; i < ARRAYSIZE(c_methods)+codecs.size(); ++i) {
+    for (unsigned i = 0; i < ARRAYSIZE(c_methods) + ArcAPI::Count7zCodecs(); ++i) {
       wstring method_name = i < ARRAYSIZE(c_methods) ? c_methods[i].value : codecs[i - ARRAYSIZE(c_methods)].Name;
       if (method == method_name)
         method_sel = i;

@@ -817,11 +817,14 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     bool adv_have_0 = false, adv_have_1 = false, adv_have_bcj = false;
     for (auto it = adv_params.begin(); it != adv_params.end(); ) {
       auto param = *it;
-      if (param == L"s" || param == L"s1")
+      if (param == L"s" || param == L"s1" || param == L"s+") {
         *it = param = L"s=on";
+      }
+      if (param == L"s0" || param == L"s-") {
+        *it = param = L"s=off";
+      }
       else if (param.size() >= 2 && param[0] == L'x' && param[1] >= L'0' && param[1] <= L'9') {
-        param.insert(1, 1, L'=');
-        *it = param;
+        *it = param.insert(1, 1, L'=');
       }
       auto sep = param.find(L'=');
       if (sep == wstring::npos || sep == 0) {
@@ -835,7 +838,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
           it = adv_params.erase(it);
           if (!value.empty() && value[0] >= L'0' && value[0] <= L'9')
             adv_level = static_cast<int>(str_to_uint(value));
-            continue;
+          continue;
         }
         adv_have_0 = adv_have_0 || name == L"0";
         adv_have_1 = adv_have_0 || name == L"1";

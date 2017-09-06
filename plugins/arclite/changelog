@@ -1,3 +1,7 @@
+w17 06.09.2017 15:56:47 +0300 - build 257
+
+1. Skip external Zip codecs in 7z compression method list.
+
 w17 01.09.2017 16:44:40 +0300 - build 256
 
 1. Adjust extra codec compression level.
