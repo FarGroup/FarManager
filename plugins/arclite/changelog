@@ -1,3 +1,7 @@
+w17 06.09.2017 17:35:57 +0300 - build 258
+
+1. Sort other formats by (library, name).
+
 w17 06.09.2017 15:56:47 +0300 - build 257
 
 1. Skip external Zip codecs in 7z compression method list.

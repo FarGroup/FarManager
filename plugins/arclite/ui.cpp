@@ -1306,29 +1306,38 @@ public:
         }
       };
 
-      vector<wstring> format_names;
-      unsigned other_format_index = 0;
-      bool found = false;
       for (ArcFormats::const_iterator arc_iter = arc_formats.begin(); arc_iter != arc_formats.end(); arc_iter++) {
         if (arc_iter->second.updatable && (!multifile || !ArcAPI::is_single_file_format(arc_iter->first))) {
           if (!multifile && arc_iter->first == c_SWFc && !is_SWFu(options.arc_path))
             continue;
-          const auto main_type = find(main_formats.begin(), main_formats.end(), arc_iter->first);
-          if (main_type == main_formats.end()) {
+          if (find(main_formats.begin(), main_formats.end(), arc_iter->first) == main_formats.end()) {
             other_formats.push_back(arc_iter->first);
-            format_names.push_back(arc_iter->second.name);
-            if (options.arc_type == arc_iter->first) {
-              other_format_index = static_cast<unsigned>(other_formats.size()) - 1;
-              found = true;
-            }
           }
         }
+      }
+      std::sort(other_formats.begin(), other_formats.end(), [&](const auto& a, const auto& b) {
+        const auto& a_format = arc_formats.at(a);
+        const auto& b_format = arc_formats.at(b);
+        if (a_format.lib_index != b_format.lib_index)
+          return a_format.lib_index < b_format.lib_index;
+        else
+          return _wcsicmp(a_format.name.data(), b_format.name.data()) < 0;
+      });
+      vector<wstring> other_format_names;
+      unsigned other_format_index = 0;
+      bool found = false;
+      for (const auto& t : other_formats) {
+        if (t == options.arc_type) {
+          other_format_index = static_cast<unsigned>(other_formats.size()) - 1;
+          found = true;
+        }
+        other_format_names.push_back(arc_formats.at(t).name);
       }
       if (!other_formats.empty()) {
         if (!main_formats.empty())
           spacer(1);
         other_formats_ctrl_id = radio_button(Far::get_msg(MSG_UPDATE_DLG_ARC_TYPE_OTHER), found);
-        combo_box(format_names, other_format_index, AUTO_SIZE, DIF_DROPDOWNLIST);
+        combo_box(other_format_names, other_format_index, AUTO_SIZE, DIF_DROPDOWNLIST);
       }
 
       new_line();
