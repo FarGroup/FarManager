@@ -150,7 +150,7 @@ void elevation::WriteArg(const T& Data) const
 		throw MAKE_FAR_EXCEPTION(L"Pipe write error");
 }
 
-void elevation::WriteArg(const blob_view& Data) const
+void elevation::WriteArg(const bytes_view& Data) const
 {
 	if (!pipe::Write(m_Pipe, Data.data(), Data.size()))
 		throw MAKE_FAR_EXCEPTION(L"Pipe write error");
@@ -194,7 +194,7 @@ auto elevation::execute(lng Why, const string& Object, T Fallback, const F1& Pri
 	{
 		return ElevatedHandler();
 	}
-	catch(const far_exception&)
+	catch (const far_exception&)
 	{
 		// Something went really bad, it's better to stop any further attempts
 		TerminateChildProcess();
@@ -677,8 +677,8 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 		[&]
 		{
 			Write(C_FUNCTION_MOVETORECYCLEBIN, FileOpStruct,
-				make_blob_view(FileOpStruct.pFrom, (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t)), // achtung! +1
-				make_blob_view(FileOpStruct.pTo, FileOpStruct.pTo ? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)); // achtung! +1
+				bytes_view(FileOpStruct.pFrom, (wcslen(FileOpStruct.pFrom) + 1 + 1) * sizeof(wchar_t)), // achtung! +1
+				bytes_view(FileOpStruct.pTo, FileOpStruct.pTo ? (wcslen(FileOpStruct.pTo) + 1 + 1) * sizeof(wchar_t) : 0)); // achtung! +1
 
 			Read(FileOpStruct.fAnyOperationsAborted);
 			// achtung! no "last error" here
@@ -1098,11 +1098,9 @@ private:
 				Context->Process(Result);
 			}
 		}
-		catch(...)
-		{
-			Param->ExceptionPtr = std::current_exception();
-			return PROGRESS_CANCEL;
-		}
+		CATCH_AND_SAVE_EXCEPTION_TO(Param->ExceptionPtr)
+
+		return PROGRESS_CANCEL;
 	}
 
 	bool Process(int Command) const
@@ -1136,7 +1134,7 @@ private:
 			std::invoke(Handlers[Command], this);
 			return m_Active;
 		}
-		catch(...)
+		catch (...)
 		{
 			// TODO: log
 			return false;

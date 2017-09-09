@@ -174,8 +174,8 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 		cfg->SetValue(Key, HLS.IgnoreMask, i.IgnoreMask);
 		cfg->SetValue(Key, HLS.IncludeAttributes, i.IncludeAttr);
 
-		cfg->SetValue(Key, HLS.NormalColor, i.NormalColor);
-		cfg->SetValue(Key, HLS.CursorColor, i.CursorColor);
+		cfg->SetValue(Key, HLS.NormalColor, bytes_view(i.NormalColor));
+		cfg->SetValue(Key, HLS.CursorColor, bytes_view(i.CursorColor));
 
 		static const wchar_t* const Names[] =
 		{
@@ -190,7 +190,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 		for (const auto& j: Names)
 		{
 			static const FarColor DefaultColor = {FCF_FG_4BIT | FCF_BG_4BIT, 0xff000000, 0x00000000};
-			cfg->SetValue(Key, j, DefaultColor);
+			cfg->SetValue(Key, j, bytes_view(DefaultColor));
 		}
 	}
 }
@@ -222,9 +222,9 @@ static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::
 	}
 
 	FILETIME DateAfter = {};
-	cfg->GetValue(key,HLS.DateAfter, DateAfter);
+	cfg->GetValue(key,HLS.DateAfter, bytes(DateAfter));
 	FILETIME DateBefore = {};
-	cfg->GetValue(key,HLS.DateBefore, DateBefore);
+	cfg->GetValue(key,HLS.DateBefore, bytes(DateBefore));
 	unsigned long long UseDate = 0;
 	cfg->GetValue(key, HLS.UseDate, UseDate);
 	unsigned long long DateType = 0;
@@ -273,14 +273,14 @@ static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::
 	HData.SetSortGroup(SortGroup);
 
 	highlight::element Colors = {};
-	cfg->GetValue(key,HLS.NormalColor, Colors.Color[highlight::color::normal].FileColor);
-	cfg->GetValue(key,HLS.SelectedColor, Colors.Color[highlight::color::selected].FileColor);
-	cfg->GetValue(key,HLS.CursorColor, Colors.Color[highlight::color::normal_current].FileColor);
-	cfg->GetValue(key,HLS.SelectedCursorColor, Colors.Color[highlight::color::selected_current].FileColor);
-	cfg->GetValue(key,HLS.MarkCharNormalColor, Colors.Color[highlight::color::normal].MarkColor);
-	cfg->GetValue(key,HLS.MarkCharSelectedColor, Colors.Color[highlight::color::selected].MarkColor);
-	cfg->GetValue(key,HLS.MarkCharCursorColor, Colors.Color[highlight::color::normal_current].MarkColor);
-	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[highlight::color::selected_current].MarkColor);
+	cfg->GetValue(key,HLS.NormalColor, bytes(Colors.Color[highlight::color::normal].FileColor));
+	cfg->GetValue(key,HLS.SelectedColor, bytes(Colors.Color[highlight::color::selected].FileColor));
+	cfg->GetValue(key,HLS.CursorColor, bytes(Colors.Color[highlight::color::normal_current].FileColor));
+	cfg->GetValue(key,HLS.SelectedCursorColor, bytes(Colors.Color[highlight::color::selected_current].FileColor));
+	cfg->GetValue(key,HLS.MarkCharNormalColor, bytes(Colors.Color[highlight::color::normal].MarkColor));
+	cfg->GetValue(key,HLS.MarkCharSelectedColor, bytes(Colors.Color[highlight::color::selected].MarkColor));
+	cfg->GetValue(key,HLS.MarkCharCursorColor, bytes(Colors.Color[highlight::color::normal_current].MarkColor));
+	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, bytes(Colors.Color[highlight::color::selected_current].MarkColor));
 
 	unsigned long long MarkChar;
 	if (cfg->GetValue(key, HLS.MarkChar, MarkChar))
@@ -855,8 +855,8 @@ static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	bool bRelative;
 	cfg->SetValue(key,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
 	cfg->SetValue(key,HLS.DateType,DateType);
-	cfg->SetValue(key,HLS.DateAfter, DateAfter);
-	cfg->SetValue(key,HLS.DateBefore, DateBefore);
+	cfg->SetValue(key,HLS.DateAfter, bytes_view(DateAfter));
+	cfg->SetValue(key,HLS.DateBefore, bytes_view(DateBefore));
 	cfg->SetValue(key,HLS.DateRelative,bRelative?1:0);
 	cfg->SetValue(key, HLS.UseSize, CurHiData->IsSizeUsed());
 	cfg->SetValue(key, HLS.SizeAbove, CurHiData->GetSizeAbove());
@@ -870,14 +870,14 @@ static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 	cfg->SetValue(key,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
 	cfg->SetValue(key,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
 	const auto Colors = CurHiData->GetColors();
-	cfg->SetValue(key,HLS.NormalColor, Colors.Color[highlight::color::normal].FileColor);
-	cfg->SetValue(key,HLS.SelectedColor, Colors.Color[highlight::color::selected].FileColor);
-	cfg->SetValue(key,HLS.CursorColor, Colors.Color[highlight::color::normal_current].FileColor);
-	cfg->SetValue(key,HLS.SelectedCursorColor, Colors.Color[highlight::color::selected_current].FileColor);
-	cfg->SetValue(key,HLS.MarkCharNormalColor, Colors.Color[highlight::color::normal].MarkColor);
-	cfg->SetValue(key,HLS.MarkCharSelectedColor, Colors.Color[highlight::color::selected].MarkColor);
-	cfg->SetValue(key,HLS.MarkCharCursorColor, Colors.Color[highlight::color::normal_current].MarkColor);
-	cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, Colors.Color[highlight::color::selected_current].MarkColor);
+	cfg->SetValue(key,HLS.NormalColor, bytes_view(Colors.Color[highlight::color::normal].FileColor));
+	cfg->SetValue(key,HLS.SelectedColor, bytes_view(Colors.Color[highlight::color::selected].FileColor));
+	cfg->SetValue(key,HLS.CursorColor, bytes_view(Colors.Color[highlight::color::normal_current].FileColor));
+	cfg->SetValue(key,HLS.SelectedCursorColor, bytes_view(Colors.Color[highlight::color::selected_current].FileColor));
+	cfg->SetValue(key,HLS.MarkCharNormalColor, bytes_view(Colors.Color[highlight::color::normal].MarkColor));
+	cfg->SetValue(key,HLS.MarkCharSelectedColor, bytes_view(Colors.Color[highlight::color::selected].MarkColor));
+	cfg->SetValue(key,HLS.MarkCharCursorColor, bytes_view(Colors.Color[highlight::color::normal_current].MarkColor));
+	cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, bytes_view(Colors.Color[highlight::color::selected_current].MarkColor));
 	cfg->SetValue(key,HLS.MarkChar, MAKELONG(Colors.Mark.Char, MAKEWORD(Colors.Mark.Transparent? 0xff : 0, 0)));
 	cfg->SetValue(key,HLS.ContinueProcessing, CurHiData->GetContinueProcessing()?1:0);
 }

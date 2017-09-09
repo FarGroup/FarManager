@@ -173,31 +173,41 @@ const exception_context* tracer::get_exception_context(const void* CppObject)
 	return GetInstance()->get_context(CppObject);
 }
 
+class with_symbols
+{
+public:
+	NONCOPYABLE(with_symbols);
+
+	with_symbols()
+	{
+		tracer::GetInstance()->SymInitialise();
+	}
+
+	~with_symbols()
+	{
+		tracer::GetInstance()->SymCleanup();
+	}
+};
+
 std::vector<string> tracer::get(const void* CppObject)
 {
 	const auto Context = GetInstance()->get_context(CppObject);
 	if (!Context)
 		return {};
 
-	GetInstance()->SymInitialise();
-	SCOPE_EXIT{ GetInstance()->SymCleanup(); };
-
+	SCOPED_ACTION(with_symbols);
 	return GetSymbols(GetBackTrace(*Context));
 }
 
 std::vector<string> tracer::get(const exception_context& Context)
 {
-	GetInstance()->SymInitialise();
-	SCOPE_EXIT{ GetInstance()->SymCleanup(); };
-
+	SCOPED_ACTION(with_symbols);
 	return GetSymbols(GetBackTrace(Context));
 }
 
 string tracer::get_one(const void* Address)
 {
-	GetInstance()->SymInitialise();
-	SCOPE_EXIT{ GetInstance()->SymCleanup(); };
-
+	SCOPED_ACTION(with_symbols);
 	return GetSymbols({Address}).front();
 }
 

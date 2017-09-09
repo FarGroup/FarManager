@@ -44,6 +44,38 @@ class Plugin;
 class language;
 class PluginsCacheConfig;
 
+std::exception_ptr& GlobalExceptionPtr();
+
+namespace detail
+{
+	template<typename callable, typename fallback>
+	auto invoke_and_store_exception(callable&& Callable, fallback&& Fallback)
+	{
+		try
+		{
+			return Callable();
+		}
+		CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
+		return Fallback();
+	}
+}
+
+template<typename callable>
+auto invoke_and_store_exception(callable&& Callable)
+{
+	return detail::invoke_and_store_exception(FWD(Callable), [] {});
+}
+
+template<typename callable, typename fallback>
+auto invoke_and_store_exception(fallback Result, callable&& Callable)
+{
+	using result_type = std::common_type_t<std::result_of_t<callable()>, fallback>;
+	return detail::invoke_and_store_exception(
+		FWD(Callable),
+		[&]() -> result_type { return Result; }
+	);
+}
+
 enum EXPORTS_ENUM
 {
 	iGetGlobalInfo,
@@ -115,8 +147,8 @@ public:
 
 	struct export_name
 	{
-		const wchar_t* UName;
-		const char* AName;
+		string_view UName;
+		basic_string_view<char> AName;
 	};
 
 	virtual ~plugin_factory() = default;
@@ -128,7 +160,7 @@ public:
 	virtual bool Destroy(plugin_module_ptr& module) = 0;
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) = 0;
 
-	virtual void ProcessError(const wchar_t* Function) const {}
+	virtual void ProcessError(const string_view& Function) const {}
 
 	auto GetOwner() const { return m_owner; }
 	const auto& ExportsNames() const { return m_ExportsNames; }
@@ -164,7 +196,7 @@ public:
 private:
 	// the rest shouldn't be here, just an optimization for OEM plugins
 	bool IsPlugin2(const void* Module) const;
-	virtual bool FindExport(const char* ExportName) const;
+	virtual bool FindExport(const basic_string_view<char>& ExportName) const;
 };
 
 template<EXPORTS_ENUM id, bool Native>
@@ -383,6 +415,6 @@ private:
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);
 
 #define DECLARE_GEN_PLUGIN_FUNCTION(name, is_native, signature) template<> struct prototype<name, is_native>  { using type = signature; };
-#define WA(string) {L##string, string}
+#define WA(string) { L##string##_sv, string##_sv }
 
 #endif // PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D

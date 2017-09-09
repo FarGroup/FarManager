@@ -738,7 +738,7 @@ void FileFilter::InitFilter()
 		}
 
 		DWORD Flags[FFFT_COUNT] = {};
-		cfg->GetValue(root,L"FoldersFilterFFlags", Flags);
+		cfg->GetValue(root, L"FoldersFilterFFlags", bytes(Flags));
 
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			FoldersFilter->SetFlags((enumFileFilterFlagsType)i, Flags[i]);
@@ -764,8 +764,8 @@ void FileFilter::InitFilter()
 		NewItem.SetMask(UseMask != 0, strMask);
 
 		FILETIME DateAfter = {}, DateBefore = {};
-		cfg->GetValue(key,L"DateAfter", DateAfter);
-		cfg->GetValue(key,L"DateBefore", DateBefore);
+		cfg->GetValue(key,L"DateAfter", bytes(DateAfter));
+		cfg->GetValue(key,L"DateBefore", bytes(DateBefore));
 
 		unsigned long long UseDate = 0;
 		cfg->GetValue(key, L"UseDate", UseDate);
@@ -800,7 +800,7 @@ void FileFilter::InitFilter()
 		NewItem.SetAttr(UseAttr != 0, (DWORD)AttrSet, (DWORD)AttrClear);
 
 		DWORD Flags[FFFT_COUNT] = {};
-		cfg->GetValue(key,L"FFlags", Flags);
+		cfg->GetValue(key,L"FFlags", bytes(Flags));
 
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			NewItem.SetFlags((enumFileFilterFlagsType)i, Flags[i]);
@@ -821,7 +821,7 @@ void FileFilter::InitFilter()
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
 		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 		DWORD Flags[FFFT_COUNT] = {};
-		cfg->GetValue(key,L"FFlags", Flags);
+		cfg->GetValue(key,L"FFlags", bytes(Flags));
 
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			NewItem.SetFlags((enumFileFilterFlagsType)i, Flags[i]);
@@ -871,8 +871,8 @@ void FileFilter::Save(bool always)
 		bool bRelative;
 		cfg->SetValue(Key, L"UseDate",CurFilterData.GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)? 1 : 0);
 		cfg->SetValue(Key, L"DateType", DateType);
-		cfg->SetValue(Key, L"DateAfter", DateAfter);
-		cfg->SetValue(Key, L"DateBefore", DateBefore);
+		cfg->SetValue(Key, L"DateAfter", bytes_view(DateAfter));
+		cfg->SetValue(Key, L"DateBefore", bytes_view(DateBefore));
 		cfg->SetValue(Key, L"RelativeDate", bRelative?1:0);
 		cfg->SetValue(Key, L"UseSize", CurFilterData.IsSizeUsed());
 		cfg->SetValue(Key, L"SizeAboveS", CurFilterData.GetSizeAbove());
@@ -890,7 +890,7 @@ void FileFilter::Save(bool always)
 		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
 			Flags[j] = CurFilterData.GetFlags((enumFileFilterFlagsType)j);
 
-		cfg->SetValue(Key, L"FFlags", Flags);
+		cfg->SetValue(Key, L"FFlags", bytes_view(Flags));
 	}
 
 	for (size_t i=0; i<TempFilterData().size(); ++i)
@@ -906,7 +906,7 @@ void FileFilter::Save(bool always)
 		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
 			Flags[j] = CurFilterData.GetFlags((enumFileFilterFlagsType)j);
 
-		cfg->SetValue(Key, L"FFlags", Flags);
+		cfg->SetValue(Key, L"FFlags", bytes_view(Flags));
 	}
 
 	{
@@ -915,7 +915,7 @@ void FileFilter::Save(bool always)
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			Flags[i] = FoldersFilter->GetFlags((enumFileFilterFlagsType)i);
 
-		cfg->SetValue(root,L"FoldersFilterFFlags", Flags);
+		cfg->SetValue(root,L"FoldersFilterFFlags", bytes_view(Flags));
 	}
 }
 

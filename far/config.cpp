@@ -219,19 +219,15 @@ void Options::TreeSettings()
 {
 	DialogBuilder Builder(lng::MConfigTreeTitle, L"TreeSettings");
 
-	DialogItemEx *TemplateEdit;
-
 	Builder.AddCheckbox(lng::MConfigTreeAutoChange, Tree.AutoChangeFolder);
 
-	TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
+	auto TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
 	Builder.AddTextBefore(TemplateEdit, lng::MConfigTreeLabelMinFolder);
 
 #if defined(TREEFILE_PROJECT)
-	DialogItemEx *Checkbox;
-
 	Builder.AddSeparator(lng::MConfigTreeLabel1);
 
-	Checkbox = Builder.AddCheckbox(lng::MConfigTreeLabelLocalDisk, Tree.LocalDisk);
+	auto Checkbox = Builder.AddCheckbox(lng::MConfigTreeLabelLocalDisk, Tree.LocalDisk);
 	TemplateEdit = Builder.AddEditField(Tree.strLocalDisk, 44);
 	TemplateEdit->Indent(4);
 	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);

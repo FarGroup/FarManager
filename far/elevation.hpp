@@ -100,7 +100,7 @@ private:
 	template<typename T>
 	void WriteArg(const T& Data) const;
 
-	void WriteArg(const blob_view& Data) const;
+	void WriteArg(const bytes_view& Data) const;
 
 	void RetrieveLastError() const;
 

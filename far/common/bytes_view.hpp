@@ -1,9 +1,9 @@
-﻿#ifndef BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
-#define BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+﻿#ifndef BYTES_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+#define BYTES_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
 #pragma once
 
 /*
-blob_view.hpp
+bytes_view.hpp
 */
 /*
 Copyright © 2016 Far Group
@@ -32,21 +32,46 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using blob_view = range<const char*>;
-
-class writable_blob_view: public range<char*>
+class bytes_view: public range<const char*>
 {
 public:
-	NONCOPYABLE(writable_blob_view);
-	writable_blob_view() = default;
-	writable_blob_view(void* Data, size_t Size): range<char*>(reinterpret_cast<char*>(Data), reinterpret_cast<char*>(Data) + Size) {}
-	~writable_blob_view()
+	bytes_view(const void* Data, size_t Size):
+		range<const char*>(reinterpret_cast<const char*>(Data), reinterpret_cast<const char*>(Data) + Size)
 	{
-		if (m_Allocated)
+	}
+
+	template<typename T>
+	explicit bytes_view(T& Object):
+		bytes_view(&Object, sizeof(Object))
+	{
+		static_assert(std::is_trivially_copyable<T>::value);
+	}
+};
+
+class bytes: public range<char*>
+{
+public:
+	NONCOPYABLE(bytes);
+	MOVABLE(bytes);
+
+	bytes() = default;
+
+	bytes(void* Data, size_t Size): range<char*>(reinterpret_cast<char*>(Data), reinterpret_cast<char*>(Data) + Size) {}
+
+	template<typename T>
+	explicit bytes(T& Object):
+		bytes(&Object, sizeof(Object))
+	{
+		static_assert(std::is_trivially_copyable<T>::value);
+	}
+
+	~bytes()
+	{
+		if (*m_Allocated)
 			delete[] static_cast<const char*>(data());
 	}
 
-	writable_blob_view& operator=(const blob_view& rhs)
+	auto& operator=(const bytes_view& rhs)
 	{
 		if (data())
 		{
@@ -56,25 +81,14 @@ public:
 		else
 		{
 			static_cast<range<char*>&>(*this) = make_range(new char[rhs.size()], rhs.size());
-			m_Allocated = true;
+			*m_Allocated = true;
 		}
 		memcpy(data(), rhs.data(), size());
 		return *this;
 	}
+
 private:
-	bool m_Allocated{};
+	movable<bool> m_Allocated{ false };
 };
 
-inline auto make_blob_view(const void* Object, size_t Size)
-{
-	return make_range(reinterpret_cast<const char*>(Object), Size);
-}
-
-template<typename T>
-auto make_blob_view(const T& Object)
-{
-	static_assert(std::is_pod<T>::value);
-	return make_blob_view(&Object, sizeof Object);
-}
-
-#endif // BLOB_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3
+#endif // BYTES_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3

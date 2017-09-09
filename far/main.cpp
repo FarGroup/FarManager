@@ -794,7 +794,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"mainImpl"))
+		if (ProcessStdException(e, L"mainImpl"_sv))
 		{
 			std::terminate();
 		}
@@ -824,7 +824,7 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"wmain"))
+		if (ProcessStdException(e, L"wmain"_sv))
 		{
 			std::terminate();
 		}

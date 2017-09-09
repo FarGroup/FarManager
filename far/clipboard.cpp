@@ -282,7 +282,7 @@ bool clipboard::SetText(const string_view& Str)
 	if (!Clear())
 		return false;
 
-	auto hData = os::memory::global::copy(Str.data(), Str.size());
+	auto hData = os::memory::global::copy(Str.raw_data(), Str.size());
 	if (!hData)
 		return false;
 
@@ -402,7 +402,7 @@ bool clipboard::GetHDROPAsText(string& data) const
 	{
 		for (const auto& i: enum_substrings(StartA))
 		{
-			append(data, encoding::ansi::get_chars(i.data(), i.size()), L"\r\n"_sv);
+			append(data, encoding::ansi::get_chars(i), L"\r\n"_sv);
 		}
 	}
 

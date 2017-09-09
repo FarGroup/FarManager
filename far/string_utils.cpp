@@ -156,12 +156,12 @@ bool equal_icase(const string_view& Str1, const string_view& Str2)
 
 bool starts_with_icase(const string_view& Str, const string_view& Prefix)
 {
-	return Str.size() >= Prefix.size() && equal_icase({ Str.data(), Prefix.size() }, Prefix);
+	return Str.size() >= Prefix.size() && equal_icase(Str.substr(0, Prefix.size()), Prefix);
 }
 
 bool ends_with_icase(const string_view& Str, const string_view& Suffix)
 {
-	return Str.size() >= Suffix.size() && equal_icase({ Str.data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
+	return Str.size() >= Suffix.size() && equal_icase(Str.substr(Str.size() - Suffix.size()), Suffix);
 }
 
 bool contains_icase(const string_view& Str, const string_view& Token)
@@ -187,12 +187,12 @@ int StrCmpNI(const wchar_t *s1, const wchar_t *s2, size_t n)
 
 int StrCmp(const string_view& Str1, const string_view& Str2)
 {
-	return CompareString(0, SORT_STRINGSORT, Str1.data(), static_cast<int>(Str1.size()), Str2.data(), static_cast<int>(Str2.size())) - 2;
+	return CompareString(0, SORT_STRINGSORT, Str1.raw_data(), static_cast<int>(Str1.size()), Str2.raw_data(), static_cast<int>(Str2.size())) - 2;
 }
 
 int StrCmpI(const string_view& Str1, const string_view& Str2)
 {
-	return CompareString(0, SORT_STRINGSORT | NORM_IGNORECASE, Str1.data(), static_cast<int>(Str1.size()), Str2.data(), static_cast<int>(Str2.size())) - 2;
+	return CompareString(0, SORT_STRINGSORT | NORM_IGNORECASE, Str1.raw_data(), static_cast<int>(Str1.size()), Str2.raw_data(), static_cast<int>(Str2.size())) - 2;
 }
 
 static int per_char_compare(const string_view& Str1, const string_view& Str2, const std::function<int(const wchar_t*&, const wchar_t*, const wchar_t*&, const wchar_t*)>& Comparer)

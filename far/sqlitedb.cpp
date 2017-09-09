@@ -100,6 +100,12 @@ bool SQLiteDb::SQLiteStmt::FinalStep() const
 	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_DONE;
 }
 
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(std::nullptr_t)
+{
+	sqlite::sqlite3_bind_null(m_Stmt.get(), m_Param++);
+	return *this;
+}
+
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(int Value)
 {
 	sqlite::sqlite3_bind_int(m_Stmt.get(), m_Param++, Value);
@@ -112,25 +118,13 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(long long Value)
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const wchar_t* Value, bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view& Value, bool bStatic)
 {
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value, -1, bStatic? sqlite::static_destructor : sqlite::transient_destructor);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.raw_data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string& Value, bool bStatic)
-{
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
-	return *this;
-}
-
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(string&& Value)
-{
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), sqlite::transient_destructor);
-	return *this;
-}
-
-SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const blob_view& Value, bool bStatic)
+SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const bytes_view& Value, bool bStatic)
 {
 	sqlite::sqlite3_bind_blob(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
@@ -156,9 +150,9 @@ unsigned long long SQLiteDb::SQLiteStmt::GetColInt64(int Col) const
 	return sqlite::sqlite3_column_int64(m_Stmt.get(), Col);
 }
 
-blob_view SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
+bytes_view SQLiteDb::SQLiteStmt::GetColBlob(int Col) const
 {
-	return make_blob_view(sqlite::sqlite3_column_blob(m_Stmt.get(), Col), sqlite::sqlite3_column_bytes(m_Stmt.get(), Col));
+	return bytes_view(sqlite::sqlite3_column_blob(m_Stmt.get(), Col), sqlite::sqlite3_column_bytes(m_Stmt.get(), Col));
 }
 
 SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const

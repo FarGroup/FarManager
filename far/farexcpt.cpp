@@ -80,10 +80,19 @@ enum exception_dialog
 	ed_last_button = ed_button_ignore
 };
 
-static void ShowStackTrace(std::vector<string>&& Symbols)
+static void ShowStackTrace(std::vector<string>&& Symbols, const std::vector<string>* NestedStack)
 {
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
+		if (NestedStack && !NestedStack->empty())
+		{
+			Symbols.reserve(Symbols.size() + 3 + NestedStack->size());
+			Symbols.emplace_back(40, L'-');
+			Symbols.emplace_back(L"Nested stack:");
+			Symbols.emplace_back(40, L'-');
+			Symbols.insert(Symbols.end(), ALL_CONST_RANGE(*NestedStack));
+		}
+
 		Message(MSG_WARNING | MSG_LEFTALIGN,
 			msg(lng::MExcTrappedException),
 			std::move(Symbols),
@@ -112,6 +121,8 @@ static bool write_minidump(const exception_context& Context)
 	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.GetThreadId(), Context.GetPointers() };
 	return Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.handle().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
+
+using dialog_data_type = std::pair<const exception_context*, const std::vector<string>*>;
 
 intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
@@ -156,16 +167,16 @@ intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 		case DN_CLOSE:
 		{
-			const auto& Context = *reinterpret_cast<exception_context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto& DialogData = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			switch (Param1)
 			{
 			case ed_button_stack:
-				ShowStackTrace(tracer::get(Context));
+				ShowStackTrace(tracer::get(*DialogData.first), DialogData.second);
 				return FALSE;
 
 			case ed_button_minidump:
-				write_minidump(Context);
+				write_minidump(*DialogData.first);
 				return FALSE;
 			}
 		}
@@ -184,12 +195,13 @@ enum reply
 	reply_ignore,
 };
 
-static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const exception_context& Context, const wchar_t* Function, const Plugin* PluginModule)
+static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const exception_context& Context, const string_view& Function, const Plugin* PluginModule, const std::vector<string>* NestedStack)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
 	const auto strAddr = tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress);
+	const null_terminated FunctionName(Function);
 
 	FarDialogItem EditDlgData[]=
 	{
@@ -199,7 +211,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const except
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcAddress).data()},
 		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,strAddr.data()},
 		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcFunction).data()},
-		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Function},
+		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY, FunctionName.data() },
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcModule).data()},
 		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
@@ -209,7 +221,8 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const except
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore).data()},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
-	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, const_cast<exception_context*>(&Context));
+	auto DlgData = dialog_data_type(&Context, NestedStack);
+	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg->SetPosition(-1, -1, 80, 10);
 	Dlg->Process();
@@ -225,7 +238,7 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const except
 	}
 }
 
-static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const exception_context& Context, const wchar_t* Function, const Plugin* Module)
+static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const exception_context& Context, const string_view& Function, const Plugin* Module, const std::vector<string>* NestedStack)
 {
 	const auto strAddr = tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress);
 
@@ -245,15 +258,15 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const excep
 		Msg[3] = L"Module:   ";
 	}
 
-	string Dump =
-		Msg[0] + L' ' + Exception + L'\n' +
-		Msg[1] + L' ' + strAddr + L'\n' +
-		Msg[2] + L' ' + Function + L'\n' +
-		Msg[3] + L' ' + ModuleName + L'\n';
+	const auto Dump = concat(
+		Msg[0], L' ', Exception, L'\n',
+		Msg[1], L' ', strAddr, L'\n',
+		Msg[2], L' ', Function, L'\n',
+		Msg[3], L' ', ModuleName, L'\n');
 
 	std::wcerr << Dump << std::endl;
 
-	ShowStackTrace(tracer::get(Context));
+	ShowStackTrace(tracer::get(Context), NestedStack);
 
 	for (;;)
 	{
@@ -295,7 +308,7 @@ static string ExtractObjectName(const EXCEPTION_RECORD* xr)
 	return encoding::ansi::get_chars(DataPtr);
 }
 
-static bool ProcessGenericException(const exception_context& Context, const wchar_t* Function, const Plugin* PluginModule, const char* Message)
+static bool ProcessGenericException(const exception_context& Context, const string_view& Function, const Plugin* PluginModule, const char* Message, const std::vector<string>* NestedStack = nullptr)
 {
 	if (Global)
 		Global->ProcessException = true;
@@ -478,12 +491,12 @@ static bool ProcessGenericException(const exception_context& Context, const wcha
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		MsgCode = ExcDialog(strFileName, Exception, Context, Function, PluginModule);
+		MsgCode = ExcDialog(strFileName, Exception, Context, Function, PluginModule, NestedStack);
 		ShowMessages = true;
 	}
 	else
 	{
-		MsgCode = ExcConsole(strFileName, Exception, Context, Function, PluginModule);
+		MsgCode = ExcConsole(strFileName, Exception, Context, Function, PluginModule, NestedStack);
 	}
 
 	if (ShowMessages && !PluginModule)
@@ -507,7 +520,27 @@ void RestoreGPFaultUI()
 	SetErrorMode(Global? Global->ErrorMode & ~SEM_NOGPFAULTERRORBOX : 0);
 }
 
-bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugin* Module)
+static std::string extract_nested_messages(const std::exception& Exception)
+{
+	std::string Result = Exception.what();
+
+	try
+	{
+		std::rethrow_if_nested(Exception);
+	}
+	catch (const std::exception& e)
+	{
+		Result.append(" -> "s).append(extract_nested_messages(e));
+	}
+	catch (...)
+	{
+		Result.append(" -> "s).append("Unknown exception");
+	}
+
+	return Result;
+}
+
+bool ProcessStdException(const std::exception& e, const string_view& Function, Plugin* Module)
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
@@ -525,10 +558,16 @@ bool ProcessStdException(const std::exception& e, const wchar_t* Function, Plugi
 		ContextPtr = Context.get();
 	}
 
+	if (const auto FarException = dynamic_cast<const far_exception*>(&e))
+	{
+		const auto Message = extract_nested_messages(e);
+		return ProcessGenericException(*ContextPtr, Function, Module, Message.data(), &FarException->get_stack());
+	}
+
 	return ProcessGenericException(*ContextPtr, Function, Module, e.what());
 }
 
-bool ProcessUnknownException(const wchar_t* Function, Plugin* Module)
+bool ProcessUnknownException(const string_view& Function, Plugin* Module)
 {
 	exception_context Context;
 	return ProcessGenericException(Context, Function, Module, nullptr);
@@ -537,7 +576,7 @@ bool ProcessUnknownException(const wchar_t* Function, Plugin* Module)
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
 	exception_context Context(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo);
-	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter", nullptr, nullptr))
+	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"_sv, nullptr, nullptr))
 	{
 		std::terminate();
 	}
@@ -766,7 +805,7 @@ void ResetStackOverflowIfNeeded()
 	}
 }
 
-int SehFilter(int Code, EXCEPTION_POINTERS* Info, const wchar_t* Function, Plugin* Module)
+int SehFilter(int Code, EXCEPTION_POINTERS* Info, const string_view& Function, Plugin* Module)
 {
 	exception_context Context(Code, Info);
 	if (Code == EXCEPTION_STACK_OVERFLOW)

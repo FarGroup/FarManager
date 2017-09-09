@@ -1628,7 +1628,7 @@ static bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalF
 	{
 		if (!starts_with(NtPath, OldRoot))
 			return false;
-		FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.data(), NewRoot.size());
+		FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.raw_data(), NewRoot.size());
 		return true;
 	};
 

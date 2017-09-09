@@ -1274,10 +1274,13 @@ int KeyNameToKey(const string& Name)
 	// пройдемся по всем модификаторам
 	for (const auto& i: ModifKeyName)
 	{
-		if (!(Key & i.Key) && contains(strTmpName, i.UpperName.data()))
+		if (!(Key & i.Key))
 		{
-			Key |= i.Key;
-			Pos += i.UpperName.size() * ReplaceStrings(strTmpName, i.UpperName.data(), L"", true);
+			if (const auto Count = ReplaceStrings(strTmpName, i.UpperName, L"", true))
+			{
+				Key |= i.Key;
+				Pos += i.UpperName.size() * Count;
+			}
 		}
 	}
 

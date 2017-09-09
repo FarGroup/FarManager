@@ -51,7 +51,7 @@ class null_terminated_t
 {
 public:
 	explicit null_terminated_t(const basic_string_view<T>& Str):
-		m_Terminated(Str.data()[Str.size()] == 0)
+		m_Terminated(!Str.raw_data()[Str.size()])
 	{
 		if (m_Terminated)
 			placement::construct(m_View, Str);
@@ -69,7 +69,7 @@ public:
 
 	auto data() const
 	{
-		return m_Terminated? m_View.data() : m_Str.data();
+		return m_Terminated? m_View.raw_data() : m_Str.data();
 	}
 
 	auto size() const
@@ -95,7 +95,7 @@ namespace detail
 	inline void append_one(string& Str, wchar_t Arg, size_t) { Str += Arg; }
 	inline void append_one(string& Str, const wchar_t* Arg, size_t Size) { Str.append(Arg, Size); }
 	inline void append_one(string& Str, const string& Arg, size_t) { Str += Arg; }
-	inline void append_one(string& Str, const string_view& Arg, size_t) { Str.append(Arg.data(), Arg.size()); }
+	inline void append_one(string& Str, const string_view& Arg, size_t) { Str.append(Arg.raw_data(), Arg.size()); }
 
 	inline void append_impl(string&, const size_t*) {}
 
@@ -284,12 +284,12 @@ inline bool equal(const string_view& Str1, const string_view& Str2)
 
 inline bool starts_with(const string_view& Str, const string_view& Prefix)
 {
-	return Str.size() >= Prefix.size() && equal({ Str.data(), Prefix.size() }, Prefix);
+	return Str.size() >= Prefix.size() && equal({ Str.raw_data(), Prefix.size() }, Prefix);
 }
 
 inline bool ends_with(const string_view& Str, const string_view& Suffix)
 {
-	return Str.size() >= Suffix.size() && equal({ Str.data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
+	return Str.size() >= Suffix.size() && equal({ Str.raw_data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
 }
 
 inline bool contains(const string_view& Str, const string_view& Token)

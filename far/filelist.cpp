@@ -730,8 +730,8 @@ public:
 
 		const auto Name1Ptr = PointToName(a.strName);
 		const auto Name2Ptr = PointToName(b.strName);
-		const string_view Name1(Name1Ptr, Ext1.data() - Name1Ptr);
-		const string_view Name2(Name2Ptr, Ext2.data() - Name2Ptr);
+		const string_view Name1(Name1Ptr, Ext1.raw_data() - Name1Ptr);
+		const string_view Name2(Name2Ptr, Ext2.raw_data() - Name2Ptr);
 
 		const auto Comparer = get_comparer(ListNumericSort, ListCaseSensitiveSort);
 

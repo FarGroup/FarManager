@@ -96,11 +96,9 @@ public:
 
 			return TRUE;
 		}
-		catch(...)
-		{
-			context->m_ExceptionPtr = std::current_exception();
-			return FALSE;
-		}
+		CATCH_AND_SAVE_EXCEPTION_TO(context->m_ExceptionPtr);
+
+		return FALSE;
 	}
 };
 

@@ -48,6 +48,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "configdb.hpp"
 
+std::exception_ptr& GlobalExceptionPtr()
+{
+	static std::exception_ptr ExceptionPtr;
+	return ExceptionPtr;
+}
+
 #define DECLARE_PLUGIN_FUNCTION(name, signature) DECLARE_GEN_PLUGIN_FUNCTION(name, true, signature)
 
 DECLARE_PLUGIN_FUNCTION(iClosePanel,          void     (WINAPI*)(const ClosePanelInfo *Info))
@@ -187,13 +193,13 @@ bool native_plugin_factory::Destroy(plugin_factory::plugin_module_ptr& instance)
 
 plugin_factory::function_address native_plugin_factory::GetFunction(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
 {
-	return Name.AName? static_cast<native_plugin_module*>(Instance.get())->m_Module.GetProcAddress(Name.AName) : nullptr;
+	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->m_Module.GetProcAddress(null_terminated_t<char>(Name.AName).data()) : nullptr;
 }
 
-bool native_plugin_factory::FindExport(const char* ExportName) const
+bool native_plugin_factory::FindExport(const basic_string_view<char>& ExportName) const
 {
 	// only module with GetGlobalInfoW can be native plugin
-	return !std::strcmp(ExportName, m_ExportsNames[iGetGlobalInfo].AName);
+	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;
 }
 
 bool native_plugin_factory::IsPlugin2(const void* Module) const
@@ -1228,7 +1234,7 @@ public:
 			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
 			// TODO: store info, show message if version is bad
 		}
-		custom_plugin_factory::ProcessError(L"Initialize");
+		custom_plugin_factory::ProcessError(L"Initialize"_sv);
 	}
 
 	~custom_plugin_factory()
@@ -1238,7 +1244,7 @@ public:
 
 		ExitInfo Info = { sizeof(Info) };
 		m_Imports.pFree(&Info);
-		custom_plugin_factory::ProcessError(L"Free");
+		custom_plugin_factory::ProcessError(L"Free"_sv);
 	}
 
 	bool Success() const { return m_Success; }
@@ -1246,7 +1252,7 @@ public:
 	virtual bool IsPlugin(const string& Filename) const override
 	{
 		const auto Result = m_Imports.pIsPlugin(Filename.data()) != FALSE;
-		ProcessError(L"IsPlugin");
+		ProcessError(L"IsPlugin"_sv);
 		return Result;
 	}
 
@@ -1258,7 +1264,7 @@ public:
 			Global->CatchError();
 			Module.reset();
 		}
-		ProcessError(L"Create");
+		ProcessError(L"Create"_sv);
 		return Module;
 	}
 
@@ -1266,20 +1272,20 @@ public:
 	{
 		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->get_opaque()) != FALSE;
 		Module.reset();
-		ProcessError(L"Destroy");
+		ProcessError(L"Destroy"_sv);
 		return Result;
 	}
 
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
 	{
-		if (!*Name.UName)
+		if (Name.UName.empty())
 			return nullptr;
-		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), Name.UName);
-		ProcessError(L"GetFunction");
+		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), null_terminated(Name.UName).data());
+		ProcessError(L"GetFunction"_sv);
 		return Result;
 	}
 
-	virtual void ProcessError(const wchar_t* Function) const override
+	virtual void ProcessError(const string_view& Function) const override
 	{
 		if (!m_Imports.pGetError)
 			return;
@@ -1289,7 +1295,7 @@ public:
 			return;
 
 		std::vector<string> MessageLines;
-		string Summary = Info.Summary, Description = Info.Description;
+		const string Summary = concat(Info.Summary, L" ("_sv, Function, L')'), Description = Info.Description;
 		const auto Enumerator = enum_tokens(Description, L"\n");
 		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view& View) { return make_string(View); });
 		Message(MSG_WARNING | MSG_LEFTALIGN,

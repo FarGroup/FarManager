@@ -2106,7 +2106,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		EditFile.SetEnd();
 	}
-	catch(const far_exception& e)
+	catch (const far_exception& e)
 	{
 		RetCode = SAVEFILE_ERROR;
 		Global->CatchError(e.get_error_codes());

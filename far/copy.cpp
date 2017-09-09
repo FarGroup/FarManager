@@ -3684,11 +3684,9 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 			{
 				return CallbackData->Owner->CopyProgressRoutine(TotalFileSize.QuadPart, TotalBytesTransferred.QuadPart, StreamSize.QuadPart, StreamBytesTransferred.QuadPart, StreamNumber, CallbackReason, SourceFile, DestinationFile);
 			}
-			catch(...)
-			{
-				CallbackData->ExceptionPtr = std::current_exception();
-				return PROGRESS_CANCEL;
-			}
+			CATCH_AND_SAVE_EXCEPTION_TO(CallbackData->ExceptionPtr)
+
+			return PROGRESS_CANCEL;
 		}
 	};
 

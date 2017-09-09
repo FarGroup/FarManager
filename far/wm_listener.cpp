@@ -110,10 +110,8 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 
 		}
 	}
-	catch(...)
-	{
-		*WndProcExceptionPtr = std::current_exception();
-	}
+	CATCH_AND_SAVE_EXCEPTION_TO(*WndProcExceptionPtr)
+
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
 

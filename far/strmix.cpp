@@ -580,7 +580,7 @@ size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_v
 		if (!AreEqual(make_string_view(strStr, I, FindStr.size()), FindStr))
 			continue;
 
-		strStr.replace(I, FindStr.size(), ReplStr.data(), ReplStr.size());
+		strStr.replace(I, FindStr.size(), ReplStr.raw_data(), ReplStr.size());
 
 		L += ReplStr.size();
 		L -= FindStr.size();
@@ -890,35 +890,20 @@ unsigned long long ConvertFileSizeString(const string& FileSizeStr)
 	if (!CheckFileSizeStringFormat(FileSizeStr))
 		return 0;
 
-	auto n = std::stoull(FileSizeStr);
-	wchar_t c = ::upper(FileSizeStr.back());
+	const auto n = std::stoull(FileSizeStr);
 
-	// http://en.wikipedia.org/wiki/SI_prefix
-	switch (c)
+	// https://en.wikipedia.org/wiki/Binary_prefix
+	// https://en.wikipedia.org/wiki/SI_prefix
+	switch (upper(FileSizeStr.back()))
 	{
-		case L'K':		// kilo 10x3
-			n <<= 10;
-			break;
-		case L'M':		// mega 10x6
-			n <<= 20;
-			break;
-		case L'G':		// giga 10x9
-			n <<= 30;
-			break;
-		case L'T':		// tera 10x12
-			n <<= 40;
-			break;
-		case L'P':		// peta 10x15
-			n <<= 50;
-			break;
-		case L'E':		// exa  10x18
-			n <<= 60;
-			break;
-			// Z - zetta 10x21
-			// Y - yotta 10x24
+		case L'K': return n << 10; // Ki kibi 1024^1 - ~kilo ~10^3
+		case L'M': return n << 20; // Mi mebi 1024^2 - ~mega ~10^6
+		case L'G': return n << 30; // Gi gibi 1024^3 - ~giga ~10^9
+		case L'T': return n << 40; // Ti tebi 1024^4 - ~tera ~10^12
+		case L'P': return n << 50; // Pi pebi 1024^5 - ~peta ~10^15
+		case L'E': return n << 60; // Ei exbi 1024^6 - ~exa  ~10^18
+		default:   return n;
 	}
-
-	return n;
 }
 
 string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch)

@@ -59,25 +59,18 @@ class GeneralConfig: public representable, virtual public transactional
 public:
 	virtual ~GeneralConfig() override = default;
 
-	virtual bool SetValue(const string& Key, const string& Name, const string& Value) = 0;
-	virtual bool SetValue(const string& Key, const string& Name, const wchar_t* Value) = 0;
-	virtual bool SetValue(const string& Key, const string& Name, unsigned long long Value) = 0;
-	virtual bool SetValue(const string& Key, const string& Name, const blob_view& Value) = 0;
-	template<class T, REQUIRES(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
-	bool SetValue(const string& Key, const string& Name, const T& Value)
-	{
-		static_assert(std::is_pod<T>::value);
-		return SetValue(Key, Name, &Value, sizeof(Value));
-	}
+	virtual bool SetValue(const string_view& Key, const string_view& Name, const string_view& Value) = 0;
+	virtual bool SetValue(const string_view& Key, const string_view& Name, unsigned long long Value) = 0;
+	virtual bool SetValue(const string_view& Key, const string_view& Name, const bytes_view& Value) = 0;
 
-	virtual bool GetValue(const string& Key, const string& Name, bool& Value, bool Default) const = 0;
-	virtual bool GetValue(const string& Key, const string& Name, long long& Value, long long Default) const = 0;
-	virtual bool GetValue(const string& Key, const string& Name, string& Value, const string& Default) const = 0;
-	virtual bool GetValue(const string& Key, const string& Name, string& Value, const wchar_t *Default) const = 0;
+	virtual bool GetValue(const string_view& Key, const string_view& Name, bool& Value, bool Default) const = 0;
+	virtual bool GetValue(const string_view& Key, const string_view& Name, long long& Value, long long Default) const = 0;
+	virtual bool GetValue(const string_view& Key, const string_view& Name, string& Value, const string& Default) const = 0;
+	virtual bool GetValue(const string_view& Key, const string_view& Name, string& Value, const wchar_t* Default) const = 0;
 
-	virtual bool DeleteValue(const string& Key, const string& Name) = 0;
-	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, string &strValue) const = 0;
-	virtual bool EnumValues(const string& Key, DWORD Index, string &strName, long long& Value) const = 0;
+	virtual bool DeleteValue(const string_view& Key, const string_view& Name) = 0;
+	virtual bool EnumValues(const string_view& Key, DWORD Index, string& strName, string& strValue) const = 0;
+	virtual bool EnumValues(const string_view& Key, DWORD Index, string& strName, long long& Value) const = 0;
 
 	template<typename T>
 	auto ValuesEnumerator(const string&&) const = delete;
@@ -101,48 +94,35 @@ public:
 	class key: public conditional<key>
 	{
 	public:
+		explicit key(unsigned long long Key): m_Key(Key) {}
+
 		unsigned long long get() const { return m_Key; }
 		bool operator!() const noexcept { return m_Key == 0; }
 
 	private:
-		friend class HierarchicalConfig;
-
-		explicit key(unsigned long long Key): m_Key(Key) {}
 		unsigned long long m_Key;
 	};
 
-	static key root_key() { return make_key(0); }
+	static key root_key() { return key(0); }
 
 	virtual void AsyncFinish() = 0;
-	virtual key CreateKey(const key& Root, const string& Name, const string* Description = nullptr) = 0;
-	virtual key FindByName(const key& Root, const string& Name) const = 0;
-	virtual bool SetKeyDescription(const key& Root, const string& Description) = 0;
+	virtual key CreateKey(const key& Root, const string_view& Name, const string* Description = nullptr) = 0;
+	virtual key FindByName(const key& Root, const string_view& Name) const = 0;
+	virtual bool SetKeyDescription(const key& Root, const string_view& Description) = 0;
 
-	virtual bool SetValue(const key& Root, const string& Name, const string& Value) = 0;
-	virtual bool SetValue(const key& Root, const string& Name, const wchar_t* Value) = 0;
-	virtual bool SetValue(const key& Root, const string& Name, unsigned long long Value) = 0;
-	virtual bool SetValue(const key& Root, const string& Name, const blob_view& Value) = 0;
-	template<class T, REQUIRES(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
-	bool SetValue(const key& Root, const string& Name, const T& Value)
-	{
-		return SetValue(Root, Name, make_blob_view(Value));
-	}
+	virtual bool SetValue(const key& Root, const string_view& Name, const string_view& Value) = 0;
+	virtual bool SetValue(const key& Root, const string_view& Name, unsigned long long Value) = 0;
+	virtual bool SetValue(const key& Root, const string_view& Name, const bytes_view& Value) = 0;
 
-	virtual bool GetValue(const key& Root, const string& Name, unsigned long long& Value) const = 0;
-	virtual bool GetValue(const key& Root, const string& Name, string &strValue) const = 0;
-	virtual bool GetValue(const key& Root, const string& Name, writable_blob_view& Value) const = 0;
-	template<class T, REQUIRES(!std::is_pointer<T>::value && !std::is_integral<T>::value)>
-	bool GetValue(const key& Root, const string& Name, T& Value) const
-	{
-		static_assert(std::is_pod<T>::value);
-		writable_blob_view Blob(&Value, sizeof(Value));
-		return GetValue(Root, Name, Blob);
-	}
+	virtual bool GetValue(const key& Root, const string_view& Name, unsigned long long& Value) const = 0;
+	virtual bool GetValue(const key& Root, const string_view& Name, string& strValue) const = 0;
+	virtual bool GetValue(const key& Root, const string_view& Name, bytes& Value) const = 0;
+	bool GetValue(const key& Root, const string_view& Name, bytes&& Value) const { return GetValue(Root, Name, Value); }
 
 	virtual bool DeleteKeyTree(const key& Key) = 0;
-	virtual bool DeleteValue(const key& Root, const string& Name) = 0;
-	virtual bool EnumKeys(const key& Root, DWORD Index, string &strName) const = 0;
-	virtual bool EnumValues(const key& Root, DWORD Index, string &strName, int& Type) const = 0;
+	virtual bool DeleteValue(const key& Root, const string_view& Name) = 0;
+	virtual bool EnumKeys(const key& Root, DWORD Index, string& strName) const = 0;
+	virtual bool EnumValues(const key& Root, DWORD Index, string& strName, int& Type) const = 0;
 	virtual bool Flush() = 0;
 
 	void KeysEnumerator(const key&&) const = delete;
@@ -168,8 +148,6 @@ public:
 protected:
 	HierarchicalConfig() = default;
 	virtual ~HierarchicalConfig() override = default;
-
-	static key make_key(unsigned long long Key) { return key(Key); }
 };
 
 namespace detail
@@ -186,8 +164,8 @@ class ColorsConfig: public representable, virtual public transactional
 {
 public:
 	virtual ~ColorsConfig() override = default;
-	virtual bool SetValue(const string& Name, const FarColor& Value) = 0;
-	virtual bool GetValue(const string& Name, FarColor& Value) const = 0;
+	virtual bool SetValue(const string_view& Name, const FarColor& Value) = 0;
+	virtual bool GetValue(const string_view& Name, FarColor& Value) const = 0;
 
 protected:
 	ColorsConfig() = default;
@@ -202,10 +180,10 @@ public:
 	virtual bool GetMask(unsigned long long id, string &strMask) = 0;
 	virtual bool GetDescription(unsigned long long id, string &strDescription) = 0;
 	virtual bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled=nullptr) = 0;
-	virtual bool SetCommand(unsigned long long id, int Type, const string& Command, bool Enabled) = 0;
+	virtual bool SetCommand(unsigned long long id, int Type, const string_view& Command, bool Enabled) = 0;
 	virtual bool SwapPositions(unsigned long long id1, unsigned long long id2) = 0;
-	virtual unsigned long long AddType(unsigned long long after_id, const string& Mask, const string& Description) = 0;
-	virtual bool UpdateType(unsigned long long id, const string& Mask, const string& Description) = 0;
+	virtual unsigned long long AddType(unsigned long long after_id, const string_view& Mask, const string_view& Description) = 0;
+	virtual bool UpdateType(unsigned long long id, const string_view& Mask, const string_view& Description) = 0;
 	virtual bool DelType(unsigned long long id) = 0;
 
 	auto MasksEnumerator()
@@ -234,12 +212,12 @@ class PluginsCacheConfig: public representable, virtual public transactional
 {
 public:
 	virtual ~PluginsCacheConfig() override = default;
-	virtual unsigned long long CreateCache(const string& CacheName) = 0;
-	virtual unsigned long long GetCacheID(const string& CacheName) const = 0;
-	virtual bool DeleteCache(const string& CacheName) = 0;
+	virtual unsigned long long CreateCache(const string_view& CacheName) = 0;
+	virtual unsigned long long GetCacheID(const string_view& CacheName) const = 0;
+	virtual bool DeleteCache(const string_view& CacheName) = 0;
 	virtual bool IsPreload(unsigned long long id) const = 0;
 	virtual string GetSignature(unsigned long long id) const = 0;
-	virtual bool GetExportState(unsigned long long id, const wchar_t* ExportName) const = 0;
+	virtual bool GetExportState(unsigned long long id, const string_view& ExportName) const = 0;
 	virtual string GetGuid(unsigned long long id) const = 0;
 	virtual string GetTitle(unsigned long long id) const = 0;
 	virtual string GetAuthor(unsigned long long id) const = 0;
@@ -252,19 +230,19 @@ public:
 	virtual string GetCommandPrefix(unsigned long long id) const = 0;
 	virtual unsigned long long GetFlags(unsigned long long id) const = 0;
 	virtual bool SetPreload(unsigned long long id, bool Preload) = 0;
-	virtual bool SetSignature(unsigned long long id, const string& Signature) = 0;
-	virtual bool SetDiskMenuItem(unsigned long long id, size_t index, const string& Text, const GUID& Guid) = 0;
-	virtual bool SetPluginsMenuItem(unsigned long long id, size_t index, const string& Text, const GUID& Guid) = 0;
-	virtual bool SetPluginsConfigMenuItem(unsigned long long id, size_t index, const string& Text, const GUID& Guid) = 0;
-	virtual bool SetCommandPrefix(unsigned long long id, const string& Prefix) = 0;
+	virtual bool SetSignature(unsigned long long id, const string_view& Signature) = 0;
+	virtual bool SetDiskMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) = 0;
+	virtual bool SetPluginsMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) = 0;
+	virtual bool SetPluginsConfigMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) = 0;
+	virtual bool SetCommandPrefix(unsigned long long id, const string_view& Prefix) = 0;
 	virtual bool SetFlags(unsigned long long id, unsigned long long Flags) = 0;
-	virtual bool SetExportState(unsigned long long id, const wchar_t* ExportName, bool Exists) = 0;
+	virtual bool SetExportState(unsigned long long id, const string_view& ExportName, bool Exists) = 0;
 	virtual bool SetMinFarVersion(unsigned long long id, const VersionInfo *Version) = 0;
 	virtual bool SetVersion(unsigned long long id, const VersionInfo *Version) = 0;
-	virtual bool SetGuid(unsigned long long id, const string& Guid) = 0;
-	virtual bool SetTitle(unsigned long long id, const string& Title) = 0;
-	virtual bool SetAuthor(unsigned long long id, const string& Author) = 0;
-	virtual bool SetDescription(unsigned long long id, const string& Description) = 0;
+	virtual bool SetGuid(unsigned long long id, const string_view& Guid) = 0;
+	virtual bool SetTitle(unsigned long long id, const string_view& Title) = 0;
+	virtual bool SetAuthor(unsigned long long id, const string_view& Author) = 0;
+	virtual bool SetDescription(unsigned long long id, const string_view& Description) = 0;
 	virtual bool EnumPlugins(DWORD index, string &CacheName) const = 0;
 	virtual bool DiscardCache() = 0;
 	virtual bool IsCacheEmpty() const = 0;
@@ -285,9 +263,9 @@ class PluginsHotkeysConfig: public representable, virtual public transactional
 public:
 	virtual ~PluginsHotkeysConfig() override = default;
 	virtual bool HotkeysPresent(hotkey_type HotKeyType) = 0;
-	virtual string GetHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
-	virtual bool SetHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, const string& HotKey) = 0;
-	virtual bool DelHotkey(const string& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
+	virtual string GetHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
+	virtual bool SetHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, const string_view& HotKey) = 0;
+	virtual bool DelHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
 
 protected:
 	PluginsHotkeysConfig() = default;
@@ -301,29 +279,29 @@ public:
 	virtual ~HistoryConfig() override = default;
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string& HistoryName, unsigned long long *id, string &strName, history_record_type* Type, bool *Lock, unsigned long long *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
+	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long *id, string &strName, history_record_type* Type, bool *Lock, unsigned long long *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned long long id) = 0;
-	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string& HistoryName, const string& strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
-	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
+	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string_view& HistoryName, const string_view& strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
+	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string_view& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	virtual bool EnumLargeHistories(DWORD index, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;
-	virtual bool GetNewest(unsigned int TypeHistory, const string& HistoryName, string &strName) = 0;
+	virtual bool GetNewest(unsigned int TypeHistory, const string_view& HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned long long id, string &strName) = 0;
 	virtual bool Get(unsigned long long id, string &strName, history_record_type& Type, string &strGuid, string &strFile, string &strData) = 0;
-	virtual DWORD Count(unsigned int TypeHistory, const string& HistoryName) = 0;
+	virtual DWORD Count(unsigned int TypeHistory, const string_view& HistoryName) = 0;
 	virtual bool FlipLock(unsigned long long id) = 0;
 	virtual bool IsLocked(unsigned long long id) = 0;
-	virtual bool DeleteAllUnlocked(unsigned int TypeHistory, const string& HistoryName) = 0;
-	virtual unsigned long long GetNext(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string &strName) = 0;
-	virtual unsigned long long GetPrev(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string &strName) = 0;
-	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, const string& HistoryName, unsigned long long id, string &strName) = 0;
+	virtual bool DeleteAllUnlocked(unsigned int TypeHistory, const string_view& HistoryName) = 0;
+	virtual unsigned long long GetNext(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string &strName) = 0;
+	virtual unsigned long long GetPrev(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string &strName) = 0;
+	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string &strName) = 0;
 
 	//view,edit file positions and bookmarks history
-	virtual unsigned long long SetEditorPos(const string& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
-	virtual unsigned long long GetEditorPos(const string& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) = 0;
+	virtual unsigned long long SetEditorPos(const string_view& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
+	virtual unsigned long long GetEditorPos(const string_view& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) = 0;
 	virtual bool SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) = 0;
 	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) = 0;
-	virtual unsigned long long SetViewerPos(const string& Name, long long FilePos, long long LeftPos, int Hex_Wrap, uintptr_t CodePage) = 0;
-	virtual unsigned long long GetViewerPos(const string& Name, long long *FilePos, long long *LeftPos, int *Hex, uintptr_t *CodePage) = 0;
+	virtual unsigned long long SetViewerPos(const string_view& Name, long long FilePos, long long LeftPos, int Hex_Wrap, uintptr_t CodePage) = 0;
+	virtual unsigned long long GetViewerPos(const string_view& Name, long long *FilePos, long long *LeftPos, int *Hex, uintptr_t *CodePage) = 0;
 	virtual bool SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) = 0;
 	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) = 0;
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) = 0;
@@ -388,7 +366,7 @@ public:
 	const auto& HistoryCfg() const { return m_HistoryCfg; }
 	const auto& HistoryCfgMem() const { return m_HistoryCfgMem; }
 
-	HierarchicalConfigUniquePtr CreatePluginsConfig(const string& guid, bool Local=false);
+	HierarchicalConfigUniquePtr CreatePluginsConfig(const string_view& guid, bool Local=false);
 	HierarchicalConfigUniquePtr CreateFiltersConfig();
 	HierarchicalConfigUniquePtr CreateHighlightConfig();
 	HierarchicalConfigUniquePtr CreateShortcutsConfig();

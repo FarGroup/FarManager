@@ -58,7 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_substrings.hpp"
 #include "common/string_utils.hpp"
 #include "common/zip_view.hpp"
-#include "common/blob_view.hpp"
+#include "common/bytes_view.hpp"
 #include "common/singleton.hpp"
 
 // TODO: clean up & split

@@ -69,6 +69,11 @@ class far_exception: public detail::exception_impl, public std::runtime_error
 {
 public:
 	far_exception(const string& Message, const char* Function, const char* File, int Line);
+	far_exception(const string& Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line);
+	const std::vector<string>& get_stack() const;
+
+private:
+	std::vector<string> m_Stack;
 };
 
 #define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__VA_ARGS__, __FUNCTION__, __FILE__, __LINE__)
@@ -113,8 +118,18 @@ private:
 };
 
 
-std::exception_ptr& GlobalExceptionPtr();
-void StoreGlobalException();
+std::exception_ptr CurrentException();
+std::exception_ptr CurrentException(const std::exception& e);
 void RethrowIfNeeded(std::exception_ptr& Ptr);
+
+#define CATCH_AND_SAVE_EXCEPTION_TO(ExceptionPtr) \
+		catch (const std::exception& e) \
+		{ \
+			ExceptionPtr = CurrentException(e); \
+		} \
+		catch (...) \
+		{ \
+			ExceptionPtr = CurrentException(); \
+		}
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

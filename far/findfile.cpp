@@ -2540,11 +2540,8 @@ void background_searcher::Search()
 			m_PluginMode? DoPreparePluginList(false) : DoPrepareFileList();
 			ReleaseInFileSearch();
 		}
-		catch (...)
-		{
-			m_ExceptionPtr = std::current_exception();
-			m_IsRegularException = true;
-		}
+		CATCH_AND_SAVE_EXCEPTION_TO(m_ExceptionPtr)
+		m_IsRegularException = true;
 	});
 }
 

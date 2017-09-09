@@ -51,6 +51,8 @@ public:
 	static const exception_context* get_exception_context(const void* CppObject);
 
 private:
+	friend class with_symbols;
+
 	const exception_context* get_context(const void* CppObject) const;
 
 	bool SymInitialise();

@@ -137,7 +137,7 @@ bool PluginSettings::Set(const FarSettingsItem& Item)
 		return PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, Item.String);
 
 	case FST_DATA:
-		return PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, make_blob_view(Item.Data.Data, Item.Data.Size));
+		return PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, bytes_view(Item.Data.Data, Item.Data.Size));
 
 	default:
 		return false;
@@ -178,7 +178,7 @@ bool PluginSettings::Get(FarSettingsItem& Item)
 
 	case FST_DATA:
 		{
-			writable_blob_view data;
+			bytes data;
 			if (PluginsCfg->GetValue(m_Keys[Item.Root], Item.Name, data))
 			{
 				Item.Data.Data = Add(data.data(), data.size());

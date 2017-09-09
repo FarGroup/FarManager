@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "imports.hpp"
 #include "encoding.hpp"
+#include "tracer.hpp"
 
 error_codes::error_codes():
 	Win32Error(GetLastError()),
@@ -51,6 +52,18 @@ far_exception::far_exception(const string& Message, const char* Function, const 
 	exception_impl(Message, Function, File, Line),
 	std::runtime_error(encoding::utf8::get_bytes(get_full_message()))
 {
+}
+
+far_exception::far_exception(const string& Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line):
+	exception_impl(Message, Function, File, Line),
+	std::runtime_error(encoding::utf8::get_bytes(get_full_message())),
+	m_Stack(std::move(Stack))
+{
+}
+
+const std::vector<string>& far_exception::get_stack() const
+{
+	return m_Stack;
 }
 
 
@@ -85,15 +98,21 @@ exception_context::~exception_context()
 }
 
 
-std::exception_ptr& GlobalExceptionPtr()
+std::exception_ptr CurrentException()
 {
-	static std::exception_ptr ExceptionPtr;
-	return ExceptionPtr;
+	return std::current_exception();
 }
 
-void StoreGlobalException()
+std::exception_ptr CurrentException(const std::exception& e)
 {
-	GlobalExceptionPtr() = std::current_exception();
+	try
+	{
+		std::throw_with_nested(MAKE_FAR_EXCEPTION(L"->", tracer::get(&e)));
+	}
+	catch (...)
+	{
+		return CurrentException();
+	}
 }
 
 void RethrowIfNeeded(std::exception_ptr& Ptr)

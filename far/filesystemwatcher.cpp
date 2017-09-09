@@ -56,7 +56,7 @@ FileSystemWatcher::~FileSystemWatcher()
 	{
 		Release();
 	}
-	catch(...)
+	catch (...)
 	{
 		// TODO: log
 	}
@@ -161,12 +161,10 @@ void FileSystemWatcher::Register()
 			waiter.add(m_Notification.native_handle());
 			waiter.add(m_Cancelled);
 			waiter.wait(os::multi_waiter::mode::any);
+			return;
 		}
-		catch (...)
-		{
-			m_ExceptionPtr = std::current_exception();
-			m_IsRegularException = true;
-		}
+		CATCH_AND_SAVE_EXCEPTION_TO(m_ExceptionPtr)
+		m_IsRegularException = true;
 	});
 }
 

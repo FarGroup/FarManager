@@ -405,7 +405,7 @@ UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 		else
 		{
 			constexpr auto UncDevicePrefix = L"\\\\.\\"_sv;
-			VolumePath.insert(0, UncDevicePrefix.data(), UncDevicePrefix.size());
+			VolumePath.insert(0, UncDevicePrefix.raw_data(), UncDevicePrefix.size());
 		}
 
 		if(const auto Device = os::fs::file(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))

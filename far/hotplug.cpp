@@ -237,7 +237,7 @@ static DWORD GetRelationDrivesMask(DEVINST hDevInst)
 	for (const auto& i: enum_substrings(DeviceIdListPtr))
 	{
 		DEVINST hRelationDevInst;
-		if (CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID_W>(i.data()), 0) == CR_SUCCESS)
+		if (CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID_W>(i.raw_data()), 0) == CR_SUCCESS)
 			dwMask |= GetDriveMaskFromMountPoints(hRelationDevInst);
 	}
 

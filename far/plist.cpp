@@ -93,11 +93,9 @@ static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM Param)
 
 		return TRUE;
 	}
-	catch(...)
-	{
-		pi->ExceptionPtr = std::current_exception();
-		return FALSE;
-	}
+	CATCH_AND_SAVE_EXCEPTION_TO(pi->ExceptionPtr)
+
+	return FALSE;
 }
 
 void ShowProcessList()

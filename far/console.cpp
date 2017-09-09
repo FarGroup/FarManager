@@ -398,8 +398,8 @@ virtual bool Write(const string_view& Str) const override
 
 	DWORD Mode;
 	return GetMode(OutputHandle, Mode)?
-	       WriteConsole(OutputHandle, Str.data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr) != FALSE :
-	       WriteFile(OutputHandle, Str.data(), static_cast<DWORD>(Str.size() * sizeof(wchar_t)), &NumberOfCharsWritten, nullptr) != FALSE;
+	       WriteConsole(OutputHandle, Str.raw_data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr) != FALSE :
+	       WriteFile(OutputHandle, Str.raw_data(), static_cast<DWORD>(Str.size() * sizeof(wchar_t)), &NumberOfCharsWritten, nullptr) != FALSE;
 }
 
 virtual bool Commit() const override
@@ -494,7 +494,7 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 	std::vector<wchar_t> AliasesBuffer;
 	for (const auto& ExeToken: enum_substrings(ExeBuffer.data()))
 	{
-		const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.data());
+		const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.raw_data());
 		const auto AliasesLength = GetConsoleAliasesLength(ExeNamePtr);
 		AliasesBuffer.resize(AliasesLength / sizeof(wchar_t) + 1); // +1 for double \0
 		if (!GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))

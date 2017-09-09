@@ -55,23 +55,23 @@ public:
 		return *this;
 	}
 
-	blob_view get() const
+	bytes_view get() const
 	{
 		if (m_Data.empty() || (m_Signature && m_Data.size() == 1))
 		{
-			return {};
+			return { nullptr, 0 };
 		}
 
 		if (m_CodePage == CP_UNICODE)
 		{
-			return make_blob_view(m_Data.data(), m_Data.size() * sizeof(wchar_t));
+			return bytes_view(m_Data.data(), m_Data.size() * sizeof(wchar_t));
 		}
 
 		if (m_Buffer.empty())
 		{
 			m_Buffer = encoding::get_bytes(m_CodePage, m_Data);
 		}
-		return make_blob_view(m_Buffer.data(), m_Buffer.size());
+		return bytes_view(m_Buffer.data(), m_Buffer.size());
 	}
 
 private:

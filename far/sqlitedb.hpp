@@ -92,18 +92,23 @@ protected:
 		const char *GetColTextUTF8(int Col) const;
 		int GetColInt(int Col) const;
 		unsigned long long GetColInt64(int Col) const;
-		blob_view GetColBlob(int Col) const;
+		bytes_view GetColBlob(int Col) const;
 		column_type GetColType(int Col) const;
 
 	private:
 		auto& Bind() { return *this; }
 
+		template<typename type>
+		SQLiteStmt& BindImpl(const type* Value)
+		{
+			return Value? BindImpl(*Value) : BindImpl(nullptr);
+		}
+
+		SQLiteStmt& BindImpl(std::nullptr_t);
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(long long Value);
-		SQLiteStmt& BindImpl(const wchar_t* Value, bool bStatic = true);
-		SQLiteStmt& BindImpl(const string& Value, bool bStatic = true);
-		SQLiteStmt& BindImpl(string&& Value);
-		SQLiteStmt& BindImpl(const blob_view& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(const string_view& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(const bytes_view& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
 		SQLiteStmt& BindImpl(unsigned long long Value) { return BindImpl(static_cast<long long>(Value)); }
 		template<class T>
