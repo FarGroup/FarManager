@@ -336,9 +336,8 @@ bool Help::ReadHelp(const string& Mask)
 	wchar_t DrawLineChar = 0;
 	const int MaxLength = CanvasWidth();
 
-	StartPos = (DWORD)-1;
-	LastStartPos = (DWORD)-1;
-	int RealMaxLength;
+	StartPos = 0;
+	LastStartPos = 0;
 	bool MacroProcess=false;
 	int MI=0;
 	string strMacroArea;
@@ -350,10 +349,7 @@ bool Help::ReadHelp(const string& Mask)
 
 	for (;;)
 	{
-		if (StartPos != (DWORD)-1)
-			RealMaxLength = MaxLength-StartPos;
-		else
-			RealMaxLength = MaxLength;
+		const int RealMaxLength = MaxLength - StartPos;
 
 		if (!MacroProcess && !RepeatLastLine && !BreakProcess)
 		{
@@ -561,8 +557,8 @@ m1:
 				*/
 				if (NearTopicFound)
 				{
-					StartPos = (DWORD)-1;
-					LastStartPos = (DWORD)-1;
+					StartPos = 0;
+					LastStartPos = 0;
 				}
 
 				if ((!strReadStr.empty() && strReadStr[0]==L'$') && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
@@ -586,8 +582,8 @@ m1:
 								if (StringLen(strReadStr)<RealMaxLength)
 								{
 									AddLine(strReadStr);
-									LastStartPos = (DWORD)-1;
-									StartPos = (DWORD)-1;
+									LastStartPos = 0;
+									StartPos = 0;
 									continue;
 								}
 							}
@@ -616,7 +612,7 @@ m1:
 							if (!strSplitLine.empty())
 							{
 								AddLine(strSplitLine);
-								StartPos = (DWORD)-1;
+								StartPos = 0;
 							}
 
 							for (size_t nl = strReadStr.find(L'\n'); nl != string::npos; )
@@ -640,7 +636,7 @@ m1:
 						if (!strSplitLine.empty())
 						{
 							AddLine(strSplitLine);
-							StartPos = (DWORD)-1;
+							StartPos = 0;
 						}
 						wchar_t userSeparator[4] = { L' ', (DrawLineChar ? DrawLineChar : BoxSymbols[BS_H1]), L' ', 0 }; // left-center-right
 						int Mul = (DrawLineChar == L'@' || DrawLineChar == L'~' || DrawLineChar == L'#' ? 2 : 1); // Double. See Help::OutString
@@ -740,22 +736,8 @@ m1:
 
 void Help::AddLine(const string& Line)
 {
-	string strLine;
-
-	if (StartPos != 0xFFFFFFFF)
-	{
-		DWORD StartPos0=StartPos;
-		if (!Line.empty() && Line[0] == L' ')
-			StartPos0--;
-
-		if (StartPos0 > 0)
-		{
-			strLine.assign(StartPos0, L' ');
-		}
-	}
-
-	strLine += Line;
-	HelpList.emplace_back(strLine);
+	const auto Width = StartPos && !Line.empty() && Line[0] == L' '? StartPos - 1 : StartPos;
+	HelpList.emplace_back(string(Width, L' ') + Line);
 }
 
 void Help::AddTitle(const string& Title)
