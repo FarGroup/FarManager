@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 09.09.2017 22:00:37 +0100 - build 5026
+
+1. Capture the stack also for the exceptions that have been caught and rethrown via exception_ptr.
+
+2. Refactoring.
+
+drkns 09.09.2017 17:32:31 +0100 - build 5025
+
+1. 0003485: Exception on attempt of viewing an incorrect? hlf
+
 zg 03.09.2017 14:24:00 FLE Daylight Time - build 5024
 
 1. if selection was removed in an inactive editor then it would be drawn on top of all the windows.
