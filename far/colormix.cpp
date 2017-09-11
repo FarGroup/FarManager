@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colormix.hpp"
 #include "config.hpp"
+#include "string_utils.hpp"
 
 enum
 {
@@ -175,4 +176,80 @@ const FarColor* StoreColor(const FarColor& Value)
 	static std::unordered_set<FarColor> ColorSet;
 	return &*ColorSet.emplace(Value).first;
 }
+
+static COLORREF ARGB2ABGR(COLORREF Color)
+{
+	return (Color & 0xFF000000) | ((Color & 0x00FF0000) >> 16) | (Color & 0x0000FF00) | ((Color & 0x000000FF) << 16);
+}
+
+static const wchar_t* ExtractColor(const wchar_t* Color, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
+{
+	// Empty string - default color
+	if (!*Color)
+		return Color;
+
+	const auto& Convert = [](const wchar_t*& Ptr, COLORREF& Result)
+	{
+		wchar_t* EndPtr;
+		const auto Value = std::wcstoul(Ptr, &EndPtr, 16);
+		if (EndPtr == Ptr)
+		{
+			return false;
+		}
+		Result = Value;
+		Ptr = EndPtr;
+		return true;
+	};
+
+	if (upper(Color[0]) == L'T')
+	{
+		auto NewPtr = Color + 1;
+		if (!Convert(NewPtr, Target))
+		{
+			return Color;
+		}
+		Color = NewPtr;
+		Target = ARGB2ABGR(Target);
+		TargetFlags &= ~SetFlag;
+	}
+	else
+	{
+		if (!Convert(Color, Target))
+		{
+			return Color;
+		}
+		TargetFlags |= SetFlag;
+	}
+	return Color;
+}
+
+string_view ExtractColorInNewFormat(string_view Str, FarColor& Color, bool& Stop)
+{
+	Stop = false;
+	if (Str[0] != L'(')
+		return Str;
+
+	const auto FgColorBegin = Str.cbegin() + 1;
+	const auto ColorEnd = std::find(FgColorBegin, Str.cend(), L')');
+	if (ColorEnd == Str.cend())
+	{
+		Stop = true;
+		return Str;
+	}
+
+	const auto FgColorEnd = std::find(FgColorBegin, ColorEnd, L':');
+	const auto BgColorBegin = FgColorEnd == ColorEnd? ColorEnd : FgColorEnd + 1;
+	const auto BgColorEnd = ColorEnd;
+
+	auto NewColor = Color;
+	if ((FgColorBegin == FgColorEnd || ExtractColor(&*FgColorBegin, NewColor.ForegroundColor, NewColor.Flags, FCF_FG_4BIT)) &&
+		(BgColorBegin == BgColorEnd || ExtractColor(&*BgColorBegin, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_4BIT)))
+	{
+		Color = NewColor;
+		return Str.substr(ColorEnd + 1 - Str.cbegin());
+	}
+
+	return Str;
+}
+
 }

@@ -8230,7 +8230,7 @@ void FileList::HighlightBorder(int Level, int ListPos) const
 		{
 			FarColor Color = colors::PaletteColorToFarColor(COL_PANELBOX);
 			Color.BackgroundColor = FileColor.BackgroundColor;
-			FileColor.Flags&FCF_BG_4BIT? Color.Flags|=FCF_BG_4BIT : Color.Flags&=~FCF_BG_4BIT;
+			Color.SetBg4Bit(FileColor.IsBg4Bit());
 			SetColor(Color);
 		}
 	}

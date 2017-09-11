@@ -42,7 +42,9 @@ namespace colors
 	FarColor ConsoleColorToFarColor(WORD Color);
 	const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex);
 	const FarColor* StoreColor(const FarColor& Value);
-};
+	// ([[T]FFFFFFFF][:[T]BBBBBBBB])
+	string_view ExtractColorInNewFormat(string_view Str, FarColor& Color, bool& Stop);
+}
 
 namespace std
 {

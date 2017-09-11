@@ -133,6 +133,11 @@ string Help::MakeLink(const string& path, const string& topic)
 	return concat(L'<', path, L"\\>"_sv, topic);
 }
 
+bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName, string &strValue, UINT nCodePage)
+{
+	return GetLangParam(LangFile, (L"Options "s + KeyName).data(), strValue, nullptr, nCodePage);
+}
+
 Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	FixCount(0),
@@ -144,8 +149,6 @@ Help::Help(private_tag):
 	MsY(-1),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(0),
-	LastStartPos(0),
-	StartPos(0),
 	MouseDown(false),
 	IsNewTopic(true),
 	m_TopicFound(false),
@@ -312,7 +315,7 @@ bool Help::ReadHelp(const string& Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
+	if (!GetLangParam(HelpFile, L"PluginContents", strCurPluginContents, nullptr, nCodePage))
 		strCurPluginContents.clear();
 
 	string strTabSpace(CtrlTabSize, L' ');
@@ -334,10 +337,10 @@ bool Help::ReadHelp(const string& Mask)
 	wchar_t PrevSymbol=0;
 	bool drawline = false;
 	wchar_t DrawLineChar = 0;
-	const int MaxLength = CanvasWidth();
+	const size_t MaxLength = CanvasWidth();
 
-	StartPos = 0;
-	LastStartPos = 0;
+	size_t StartPos = 0;
+
 	bool MacroProcess=false;
 	int MI=0;
 	string strMacroArea;
@@ -345,20 +348,44 @@ bool Help::ReadHelp(const string& Mask)
 	GetFileString GetStr(HelpFile, nCodePage);
 	const size_t StartSizeKeyName = 20;
 	size_t SizeKeyName = StartSizeKeyName;
-	string strSplitLine;
+
+	// (Line, its StartPos)
+	// Keeping them together to prevent overwriting paragraph-specific StartPos
+	// with the one from the next paragraph, if any.
+	std::pair<string, size_t> SplitLine;
+
+	const auto& AddSplitLine = [this](const std::pair<string, size_t>& Line)
+	{
+		AddLine(Line.first, Line.second);
+	};
+
+	const auto& SplitLineLength = [this](const std::pair<string, size_t>& Line)
+	{
+		return StringLen(Line.first) + Line.second;
+	};
+
+	bool InHeader = true;
 
 	for (;;)
 	{
-		const int RealMaxLength = MaxLength - StartPos;
-
 		if (!MacroProcess && !RepeatLastLine && !BreakProcess)
 		{
-			if (!GetStr.GetString(strReadStr))
+			if (GetStr.GetString(strReadStr))
 			{
-				if (StringLen(strSplitLine)<MaxLength)
+				if (InHeader)
 				{
-					if (!strSplitLine.empty())
-						AddLine(strSplitLine);
+					// Everything up to the first topic is header, we don't care about it here
+					InHeader = strReadStr.empty() || strReadStr.front() != L'@';
+					if (InHeader)
+						continue;
+				}
+			}
+			else
+			{
+				if (SplitLineLength(SplitLine) < MaxLength)
+				{
+					if (!SplitLine.first.empty())
+						AddSplitLine(SplitLine);
 				}
 				else
 				{
@@ -455,7 +482,7 @@ bool Help::ReadHelp(const string& Mask)
 				size_t p1 = strReadStr.rfind(L'\n') + 1;
 				if (p1 > pos)
 					p1 = 0;
-				LastStartPos = StringLen(strReadStr.substr(p1, pos-p1));
+				StartPos = StringLen(strReadStr.substr(p1, pos-p1));
 				strReadStr.erase(pos, strCtrlStartPosChar.size());
 			}
 		}
@@ -494,7 +521,7 @@ bool Help::ReadHelp(const string& Mask)
 					goto m1;
 				}
 
-				if (!strSplitLine.empty())
+				if (!SplitLine.first.empty())
 				{
 					BreakProcess = true;
 					strReadStr.clear();
@@ -523,7 +550,7 @@ bool Help::ReadHelp(const string& Mask)
 		else
 		{
 m1:
-			if (strReadStr.empty() && BreakProcess && strSplitLine.empty())
+			if (strReadStr.empty() && BreakProcess && SplitLine.first.empty())
 				break;
 
 			if (m_TopicFound)
@@ -558,12 +585,11 @@ m1:
 				if (NearTopicFound)
 				{
 					StartPos = 0;
-					LastStartPos = 0;
 				}
 
 				if ((!strReadStr.empty() && strReadStr[0]==L'$') && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
 				{
-					AddLine(strReadStr.data()+1);
+					AddLine(strReadStr.data()+1, StartPos);
 					FixCount++;
 				}
 				else
@@ -572,18 +598,16 @@ m1:
 
 					if (strReadStr.empty() || !Formatting)
 					{
-						if (!strSplitLine.empty())
+						if (!SplitLine.first.empty())
 						{
-							if (StringLen(strSplitLine)<RealMaxLength)
+							if (SplitLineLength(SplitLine) < MaxLength)
 							{
-								AddLine(strSplitLine);
-								strSplitLine.clear();
+								AddSplitLine(SplitLine);
+								SplitLine.first.clear();
 
-								if (StringLen(strReadStr)<RealMaxLength)
+								if (StringLen(strReadStr) + StartPos < MaxLength)
 								{
-									AddLine(strReadStr);
-									LastStartPos = 0;
-									StartPos = 0;
+									AddLine(strReadStr, StartPos);
 									continue;
 								}
 							}
@@ -592,13 +616,13 @@ m1:
 						}
 						else if (!strReadStr.empty())
 						{
-							if (StringLen(strReadStr)<RealMaxLength)
+							if (StringLen(strReadStr) + StartPos < MaxLength)
 							{
-								AddLine(strReadStr);
+								AddLine(strReadStr, StartPos);
 								continue;
 							}
 						}
-						else if (strReadStr.empty() && strSplitLine.empty())
+						else if (strReadStr.empty() && SplitLine.first.empty())
 						{
 							AddLine(L"");
 							continue;
@@ -607,22 +631,21 @@ m1:
 
 					if (!strReadStr.empty() && IsSpace(strReadStr[0]) && Formatting)
 					{
-						if (StringLen(strSplitLine)<RealMaxLength)
+						if (SplitLineLength(SplitLine) < MaxLength)
 						{
-							if (!strSplitLine.empty())
+							if (!SplitLine.first.empty())
 							{
-								AddLine(strSplitLine);
-								StartPos = 0;
+								AddSplitLine(SplitLine);
 							}
 
 							for (size_t nl = strReadStr.find(L'\n'); nl != string::npos; )
 							{
-								AddLine(strReadStr.substr(0, nl));
+								AddLine(strReadStr.substr(0, nl), StartPos);
 								strReadStr.erase(0, nl+1);
 								nl = strReadStr.find(L'\n');
 							}
 
-							strSplitLine = strReadStr;
+							SplitLine = { strReadStr, StartPos };
 							strReadStr.clear();
 							continue;
 						}
@@ -633,28 +656,27 @@ m1:
 					if (drawline)
 					{
 						drawline = false;
-						if (!strSplitLine.empty())
+						if (!SplitLine.first.empty())
 						{
-							AddLine(strSplitLine);
-							StartPos = 0;
+							AddSplitLine(SplitLine);
 						}
 						wchar_t userSeparator[4] = { L' ', (DrawLineChar ? DrawLineChar : BoxSymbols[BS_H1]), L' ', 0 }; // left-center-right
 						int Mul = (DrawLineChar == L'@' || DrawLineChar == L'~' || DrawLineChar == L'#' ? 2 : 1); // Double. See Help::OutString
 						AddLine(MakeSeparator(CanvasWidth() * Mul - (Mul>>1), 12, userSeparator)); // 12 -> UserSep horiz
 						strReadStr.clear();
-						strSplitLine.clear();
+						SplitLine.first.clear();
 						continue;
 					}
 
 					if (!RepeatLastLine)
 					{
-						if (!strSplitLine.empty())
-							strSplitLine += L' ';
+						if (!SplitLine.first.empty())
+							SplitLine.first += L' ';
 
-						strSplitLine += strReadStr;
+						SplitLine.first += strReadStr;
 					}
 
-					if (StringLen(strSplitLine)<RealMaxLength)
+					if (SplitLineLength(SplitLine) < MaxLength)
 					{
 						if (strReadStr.empty() && BreakProcess)
 							goto m1;
@@ -664,34 +686,25 @@ m1:
 
 					int Splitted=0;
 
-					for (int I=(int)strSplitLine.size()-1; I > 0; I--)
+					for (int I=(int)SplitLine.first.size()-1; I > 0; I--)
 					{
-						if (I > 0 && strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
-						 {
-							I--;
-							continue;
-						}
-
-						if (I > 0 && strSplitLine[I] == L'~' && strSplitLine[I - 1] != L'~')
+						if (I > 0 && SplitLine.first[I] == L'~')
 						{
 							do
-							{
 								I--;
-							}
-							while (I > 0 && strSplitLine[I] != L'~');
-
+							while (I > 0 && SplitLine.first[I] != L'~');
 							continue;
 						}
 
-						if (strSplitLine[I] == L' ')
+						if (SplitLine.first[I] == L' ')
 						{
-							string FirstPart = strSplitLine.substr(0, I);
-							if (StringLen(FirstPart) < RealMaxLength)
+							string FirstPart = SplitLine.first.substr(0, I);
+							if (StringLen(FirstPart) + SplitLine.second < MaxLength)
 							{
-								AddLine(FirstPart);
-								strSplitLine.erase(1, I);
-								strSplitLine[0] = L' ';
-								HighlightsCorrection(strSplitLine);
+								AddLine(FirstPart, SplitLine.second);
+								SplitLine.first.erase(1, I);
+								SplitLine.first[0] = L' ';
+								HighlightsCorrection(SplitLine.first);
 								Splitted=TRUE;
 								break;
 							}
@@ -700,19 +713,15 @@ m1:
 
 					if (!Splitted)
 					{
-						AddLine(strSplitLine);
-						strSplitLine.clear();
-					}
-					else
-					{
-						StartPos = LastStartPos;
+						AddSplitLine(SplitLine);
+						SplitLine.first.clear();
 					}
 				}
 			}
 
 			if (BreakProcess)
 			{
-				if (!strSplitLine.empty())
+				if (!SplitLine.first.empty())
 					goto m1;
 
 				break;
@@ -734,9 +743,9 @@ m1:
 	return m_TopicFound;
 }
 
-void Help::AddLine(const string& Line)
+void Help::AddLine(const string& Line, size_t Offset)
 {
-	const auto Width = StartPos && !Line.empty() && Line[0] == L' '? StartPos - 1 : StartPos;
+	const auto Width = Offset && !Line.empty() && Line[0] == L' '? Offset - 1 : Offset;
 	HelpList.emplace_back(string(Width, L' ') + Line);
 }
 
@@ -838,11 +847,11 @@ void Help::FastShow()
 
 		if (StrPos < static_cast<int>(HelpList.size()))
 		{
-			const wchar_t *OutStr = HelpList[StrPos].HelpStr.data();
+			string_view OutStr = HelpList[StrPos].HelpStr;
 
-			if (*OutStr==L'^')
+			if (!OutStr.empty() && OutStr.front() == L'^')
 			{
-				OutStr++;
+				OutStr.remove_prefix(1);
 				GotoXY(m_X1 + 1 + std::max(0, (CanvasWidth() - StringLen(OutStr)) / 2), m_Y1 + i + 1);
 			}
 			else
@@ -877,80 +886,101 @@ void Help::DrawWindowFrame() const
 	Text(concat(L' ', strHelpTitleBuf, L' '));
 }
 
-static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
+static string_view SkipLink(string_view Str, string *Name)
 {
 	for (;;)
 	{
-		while (*Str && *Str != L'@')
+		while (!Str.empty() && Str[0] != L'@')
 		{
 			if (Name)
-				Name->push_back(*Str);
-			++Str;
+				Name->push_back(Str[0]);
+			Str.remove_prefix(1);
 		}
-		if (*Str)
-			++Str;
-		if (*Str != L'@')
+
+		if (!Str.empty())
+			Str.remove_prefix(1);
+
+		if (Str.empty() || Str[0] != L'@')
 			break;
+
 		if (Name)
-			Name->push_back(*Str);
-		++Str;
+			Name->push_back(Str[0]);
+
+		Str.remove_prefix(1);
 	}
 	return Str;
 }
 
-static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, FarColor &color)
+static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 {
-	if (!cColor || Str[0] != cColor)
+	if (!cColor || Str.size() < 2 || Str[0] != cColor || Str[1] == cColor)
 		return false;
 
-	wchar_t wc1 = Str[1];
-	if (wc1 == L'-')     // '\-' set default color
+	// '\-' set default color
+	if (Str[1] == L'-')
 	{
 		color = colors::PaletteColorToFarColor(COL_HELPTEXT);
-		Str += 2;
+		Str.remove_prefix(2);
 		return true;
 	}
 
-	if (!std::iswxdigit(wc1)) // '\hh' custom color
-		return false;
-	wchar_t wc2 = Str[2];
-	if (!std::iswxdigit(wc2))
-		return false;
+	// '\hh' custom color index
+	if (Str.size() > 2 && std::iswxdigit(Str[1]) && std::iswxdigit(Str[2]))
+	{
+		const auto b = HexToInt(Str[1]);
+		const auto f = HexToInt(Str[2]);
+		color = colors::ConsoleColorToFarColor((b & 0x0f) << 4 | (f & 0x0f));
+		Str.remove_prefix(3);
+		return true;
+	}
 
-	if (wc1 > L'9')
-		wc1 -= L'A' - 10;
-	if (wc2 > L'9')
-		wc2 -= L'A' - 10;
+	bool Stop;
+	const auto Next = colors::ExtractColorInNewFormat(Str.substr(1), color, Stop);
+	if (Next.cbegin() != Str.cbegin() + 1)
+	{
+		Str = Next;
+		return true;
+	}
 
-	color = colors::ConsoleColorToFarColor(((wc1 & 0x0f) << 4) | (wc2 & 0x0f));
-	Str += 3;
-	return true;
-
-	// TODO: TrueColor support
+	return false;
 }
 
-static bool FastParseLine(const wchar_t *Str, int *pLen, int x0, int realX, string *pTopic, wchar_t cColor)
+static bool FastParseLine(string_view Str, int *pLen, int x0, int realX, string *pTopic, wchar_t cColor)
 {
 	int x = x0, start_topic = -1;
 	bool found = false;
 
-	while (*Str)
+	while (!Str.empty())
 	{
-		wchar_t wc = *Str++;
-		if (wc == *Str && (wc == L'~' || wc == L'@' || wc == L'#' || wc == cColor))
-			++Str;
+		wchar_t wc = Str[0];
+		Str.remove_prefix(1);
+		if (!Str.empty() && wc == Str[0] && (wc == L'~' || wc == L'@' || wc == L'#' || wc == cColor))
+			Str.remove_prefix(1);
 		else if (wc == L'#') // start/stop highlighting
 			continue;
 		else if (cColor && wc == cColor)
 		{
-			if (*Str == L'-')	// '\-' default color
+			if (Str.empty())
+				break;
+
+			if (Str[0] == L'-') // '\-' default color
 			{
-				Str += 2-1;
+				Str.remove_prefix(1);
 				continue;
 			}
-			else if (std::iswxdigit(*Str) && std::iswxdigit(Str[1])) // '\hh' custom color
+
+			if (Str.size() > 1 && std::iswxdigit(Str[0]) && std::iswxdigit(Str[1])) // '\hh' custom color
 			{
-				Str += 3-1;
+				Str.remove_prefix(2);
+				continue;
+			}
+
+			FarColor Color;
+			bool Stop;
+			const auto Next = colors::ExtractColorInNewFormat(Str, Color, Stop);
+			if (Next.cbegin() != Str.cbegin())
+			{
+				Str = Next;
 				continue;
 			}
 		}
@@ -966,8 +996,8 @@ static bool FastParseLine(const wchar_t *Str, int *pLen, int x0, int realX, stri
 			else
 			{
 				found = (realX >= start_topic && realX < x);
-				if (*Str == L'@')
-					Str = SkipLink(Str+1, found ? pTopic : nullptr);
+				if (!Str.empty() && Str[0] == L'@')
+					Str = SkipLink(Str.substr(1), found ? pTopic : nullptr);
 				if (found)
 					break;
 				start_topic = -1;
@@ -1018,34 +1048,35 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
 }
 
-int Help::StringLen(const string& Str)
+int Help::StringLen(const string_view& Str)
 {
 	int len = 0;
-	FastParseLine(Str.data(), &len, 0, -1, nullptr, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
+	FastParseLine(Str, &len, 0, -1, nullptr, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
 	return len;
 }
 
-void Help::OutString(const wchar_t *Str)
+void Help::OutString(string_view Str)
 {
 	wchar_t OutStr[512]; //BUGBUG
-	const wchar_t *StartTopic=nullptr;
+	auto StartTopic = Str.cbegin();
 	int OutPos=0,Highlight=0,Topic=0;
 	wchar_t cColor = strCtrlColorChar.empty()? 0 : strCtrlColorChar[0];
 
 	while (OutPos<(int)(std::size(OutStr)-10))
 	{
-		if ((Str[0]==L'~' && Str[1]==L'~') ||
-		        (Str[0]==L'#' && Str[1]==L'#') ||
-		        (Str[0]==L'@' && Str[1]==L'@') ||
-		        (cColor && Str[0]==cColor && Str[1]==cColor)
-		   )
+		if (!Str.empty() && (
+			(Str[0]==L'~' && Str[1]==L'~') ||
+		    (Str[0]==L'#' && Str[1]==L'#') ||
+		    (Str[0]==L'@' && Str[1]==L'@') ||
+		    (cColor && Str[0]==cColor && Str[1]==cColor)
+		))
 		{
-			OutStr[OutPos++]=*Str;
-			Str+=2;
+			OutStr[OutPos++] = Str[0];
+			Str.remove_prefix(2);
 			continue;
 		}
 
-		if (*Str==L'~' || ((*Str==L'#' || *Str == cColor) && !Topic) /*|| *Str==HelpBeginLink*/ || !*Str)
+		if (Str[0] == L'~' || ((Str[0] == L'#' || Str[0] == cColor) && !Topic) /*|| *Str==HelpBeginLink*/ || Str.empty())
 		{
 			OutStr[OutPos]=0;
 
@@ -1053,12 +1084,12 @@ void Help::OutString(const wchar_t *Str)
 			{
 				int RealCurX = m_X1 + StackData->CurX + 1;
 				int RealCurY = m_Y1 + StackData->CurY + HeaderHeight() + 1;
-				bool found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str - StartTopic) - 1;
+				bool found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str.cbegin() - StartTopic) - 1;
 
 				SetColor(found ? COL_HELPSELECTEDTOPIC : COL_HELPTOPIC);
-				if (*Str && Str[1]==L'@')
+				if (Str.size() > 1 && Str[1]==L'@')
 				{
-					Str = SkipLink(Str+2, found ? &StackData->strSelTopic : nullptr);
+					Str = SkipLink(Str.substr(2), found ? &StackData->strSelTopic : nullptr);
 					Topic = 0;
 				}
 			}
@@ -1077,29 +1108,31 @@ void Help::OutString(const wchar_t *Str)
 			OutPos=0;
 		}
 
-		if (!*Str)
+		if (Str.empty())
 		{
 			break;
 		}
-		else if (*Str==L'~')
+
+		if (Str[0] == L'~')
 		{
 			if (!Topic)
-				StartTopic = Str;
+				StartTopic = Str.cbegin();
 			Topic = !Topic;
-			Str++;
+			Str.remove_prefix(1);
 		}
-		else if (*Str==L'@')
+		else if (Str[0] == L'@')
 		{
-			Str = SkipLink(Str+1, nullptr);
+			Str = SkipLink(Str.substr(1), nullptr);
 		}
-		else if (*Str==L'#')
+		else if (Str[0] ==L'#')
 		{
 			Highlight = !Highlight;
-			Str++;
+			Str.remove_prefix(1);
 		}
 		else if (!GetHelpColor(Str, cColor, CurColor))
 		{
-			OutStr[OutPos++]=*(Str++);
+			OutStr[OutPos++] = Str[0];
+			Str.remove_prefix(1);
 		}
 	}
 
@@ -1995,7 +2028,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				{
 					string strEntryName, strSecondParam;
 
-					if (GetLangParam(HelpFile,ContentsName,&strEntryName,&strSecondParam, nCodePage))
+					if (GetLangParam(HelpFile, ContentsName, strEntryName, &strSecondParam, nCodePage))
 					{
 						string strHelpLine = L"   ~" + strEntryName;
 						if (!strSecondParam.empty())

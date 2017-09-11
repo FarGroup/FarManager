@@ -98,8 +98,7 @@ private:
 
 
 bool OpenLangFile(os::fs::file& LangFile, const string& Path, const string& Mask, const string& Language, string &strFileName, uintptr_t &nCodePage, bool StrongLang = false, string *pstrLangName = nullptr);
-bool GetLangParam(const os::fs::file& LangFile, const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage);
-bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName,string &strValue, UINT nCodePage);
+bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string& strParam1, string *strParam2, UINT nCodePage);
 bool SelectInterfaceLanguage();
 bool SelectHelpLanguage();
 

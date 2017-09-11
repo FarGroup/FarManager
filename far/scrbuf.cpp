@@ -184,7 +184,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 	{
 		Element.Attributes.BackgroundColor = 0;
 
-		if (Element.Attributes.Flags&FCF_FG_4BIT)
+		if (Element.Attributes.IsFg4Bit())
 		{
 			Element.Attributes.ForegroundColor &= ~0x8;
 			if (!COLORVALUE(Element.Attributes.ForegroundColor))

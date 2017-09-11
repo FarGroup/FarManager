@@ -131,6 +131,29 @@ struct FarColor
 	{
 		return !(*this == rhs);
 	}
+
+	bool IsBg4Bit() const
+	{
+		return (Flags & FCF_BG_4BIT) != 0;
+	}
+
+	bool IsFg4Bit() const
+	{
+		return (Flags & FCF_FG_4BIT) != 0;
+	}
+
+	FarColor& SetBg4Bit(bool Value)
+	{
+		Value? Flags |= FCF_BG_4BIT : Flags &= ~FCF_BG_4BIT;
+		return *this;
+	}
+
+	FarColor& SetFg4Bit(bool Value)
+	{
+		Value? Flags |= FCF_FG_4BIT : Flags &= ~FCF_FG_4BIT;
+		return *this;
+	}
+
 #endif
 };
 

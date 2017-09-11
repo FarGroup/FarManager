@@ -560,48 +560,6 @@ bool CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return CmdStr.ProcessMouse(MouseEvent);
 }
 
-static COLORREF ARGB2ABGR(COLORREF Color)
-{
-	return (Color & 0xFF000000) | ((Color & 0x00FF0000) >> 16) | (Color & 0x0000FF00) | ((Color & 0x000000FF) << 16);
-}
-
-static bool AssignColor(const string& Color, COLORREF& Target, FARCOLORFLAGS& TargetFlags, FARCOLORFLAGS SetFlag)
-{
-	if (!Color.empty())
-	{
-		const auto& Convert = [](const wchar_t* Ptr, COLORREF& Result)
-		{
-			wchar_t* EndPtr;
-			const auto Value = std::wcstoul(Ptr, &EndPtr, 16);
-			if (EndPtr == Ptr)
-			{
-				return false;
-			}
-			Result = Value;
-			return true;
-		};
-
-		if (upper(Color[0]) == L'T')
-		{
-			if (!Convert(Color.data() + 1, Target))
-			{
-				return false;
-			}
-			Target = ARGB2ABGR(Target);
-			TargetFlags &= ~SetFlag;
-		}
-		else
-		{
-			if (!Convert(Color.data(), Target))
-			{
-				return false;
-			}
-			TargetFlags |= SetFlag;
-		}
-	}
-	return true;
-}
-
 std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 {
 	FN_RETURN_TYPE(CommandLine::GetPrompt) Result;
@@ -612,44 +570,30 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
 		const auto& Format = Global->Opt->CmdLine.strPromptFormat.Get();
-		auto F = PrefixColor;
-		auto Str = Format;
-		FOR_CONST_RANGE(Format, Ptr)
+		auto Tail = Format.cbegin();
+		auto Color = PrefixColor;
+		FOR_CONST_RANGE(Format, Iterator)
 		{
-			// color in ([[T]ffffffff][:[T]bbbbbbbb]) format
-			if (*Ptr == L'(')
+			bool Stop;
+			auto NewColor = PrefixColor;
+			const string_view CurrentView(&*Iterator, Format.cend() - Iterator);
+			const auto NextView = colors::ExtractColorInNewFormat(CurrentView, NewColor, Stop);
+			if (NextView.cbegin() == CurrentView.cbegin())
 			{
-				string Color = &*Ptr + 1;
-				auto Pos = Color.find(L')');
-				if(Pos != string::npos)
-				{
-					if (Ptr != Format.cbegin())
-					{
-						Str.resize(Str.find(L'('));
-						Result.emplace_back(Str, F);
-					}
-					Ptr += Pos+2;
-					Color.resize(Pos);
-					string BgColor;
-					Pos = Color.find(L':');
-					if (Pos != string::npos)
-					{
-						BgColor = Color.substr(Pos+1);
-						Color.resize(Pos);
-					}
-
-					F = PrefixColor;
-
-					if (AssignColor(Color, F.ForegroundColor, F.Flags, FCF_FG_4BIT) &&
-						AssignColor(BgColor, F.BackgroundColor, F.Flags, FCF_BG_4BIT))
-					{
-						Str = &*Ptr;
-					}
-				}
+				if (Stop)
+					break;
+				continue;
 			}
-		}
 
-		Result.emplace_back(Str, F);
+			if (Iterator != Format.cbegin())
+			{
+				Result.emplace_back(string(Tail, Iterator), Color);
+			}
+			Iterator += NextView.cbegin() - CurrentView.cbegin();
+			Tail = Iterator;
+			Color = NewColor;
+		}
+		Result.emplace_back(string(Tail, Format.cend()), Color);
 
 		std::for_each(RANGE(Result, i)
 		{

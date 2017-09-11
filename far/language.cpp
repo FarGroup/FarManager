@@ -72,7 +72,7 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 		{
 			GetFileFormat(LangFile, nCodePage, nullptr, false);
 
-			if (GetLangParam(LangFile,L"Language",&strLangName,nullptr, nCodePage) && equal_icase(strLangName, Language))
+			if (GetLangParam(LangFile, L"Language", strLangName, nullptr, nCodePage) && equal_icase(strLangName, Language))
 				break;
 
 			LangFile.Close();
@@ -107,14 +107,11 @@ bool OpenLangFile(os::fs::file& LangFile, const string& Path,const string& Mask,
 }
 
 
-bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *strParam1, string *strParam2, UINT nCodePage)
+bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string& strParam1, string* strParam2, UINT nCodePage)
 {
 	const auto strFullParamName = concat(L'.', ParamName);
-	/* $ 29.11.2001 DJ
-	   не поганим позицию в файле; дальше @Contents не читаем
-	*/
-	auto Found = false;
-	const auto OldPos = LangFile.GetPointer();
+	const auto CurFilePos = LangFile.GetPointer();
+	SCOPE_EXIT{ LangFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN); };
 
 	string ReadStr;
 	GetFileString GetStr(LangFile, nCodePage);
@@ -126,39 +123,37 @@ bool GetLangParam(const os::fs::file& LangFile,const string& ParamName,string *s
 
 			if (Pos != string::npos)
 			{
-				*strParam1 = ReadStr.substr(Pos + 1);
+				strParam1 = ReadStr.substr(Pos + 1);
 
 				if (strParam2)
 					strParam2->clear();
 
-				size_t pos = strParam1->find(L',');
+				size_t pos = strParam1.find(L',');
 
 				if (pos != string::npos)
 				{
 					if (strParam2)
 					{
-						*strParam2 = *strParam1;
+						*strParam2 = strParam1;
 						strParam2->erase(0, pos+1);
 						RemoveTrailingSpaces(*strParam2);
 					}
 
-					strParam1->resize(pos);
+					strParam1.resize(pos);
 				}
 
-				RemoveTrailingSpaces(*strParam1);
-				Found = true;
-				break;
+				RemoveTrailingSpaces(strParam1);
+				return true;
 			}
 		}
-		else
+		else if (!ReadStr.empty() && ReadStr.front() != L'.')
 		{
-			if (starts_with_icase(ReadStr, L"@Contents"_sv))
-				break;
+			// Parameters can be only in the header, no point to go deeper
+			return false;
 		}
 	}
 
-	LangFile.SetPointer(OldPos, nullptr, FILE_BEGIN);
-	return Found;
+	return false;
 }
 
 static bool SelectLanguage(bool HelpLanguage)
@@ -197,12 +192,13 @@ static bool SelectLanguage(bool HelpLanguage)
 		GetFileFormat(LangFile, nCodePage, nullptr, false);
 		string strLangName, strLangDescr;
 
-		if (GetLangParam(LangFile,L"Language",&strLangName,&strLangDescr,nCodePage))
+		if (GetLangParam(LangFile, L"Language", strLangName, &strLangDescr, nCodePage))
 		{
 			string strEntryName;
 
-			if (!HelpLanguage || (!GetLangParam(LangFile,L"PluginContents",&strEntryName,nullptr,nCodePage) &&
-			                      !GetLangParam(LangFile,L"DocumentContents",&strEntryName,nullptr,nCodePage)))
+			if (!HelpLanguage || (
+				!GetLangParam(LangFile, L"PluginContents", strEntryName, nullptr, nCodePage) &&
+				!GetLangParam(LangFile, L"DocumentContents", strEntryName, nullptr, nCodePage)))
 			{
 				MenuItemEx LangMenuItem(!strLangDescr.empty()? strLangDescr : strLangName);
 
@@ -233,45 +229,6 @@ static bool SelectLanguage(bool HelpLanguage)
 
 bool SelectInterfaceLanguage() {return SelectLanguage(false);}
 bool SelectHelpLanguage() {return SelectLanguage(true);}
-
-
-/* $ 01.09.2000 SVS
-  + Новый метод, для получения параметров для .Options
-   .Options <KeyName>=<Value>
-*/
-bool GetOptionsParam(const os::fs::file& SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage)
-{
-	const auto CurFilePos = SrcFile.GetPointer();
-	string ReadStr;
-	GetFileString GetStr(SrcFile, nCodePage);
-	const auto OptionsTag = L".Options"_sv;
-	while (GetStr.GetString(ReadStr))
-	{
-		if (starts_with_icase(ReadStr, OptionsTag))
-		{
-			string strFullParamName = ReadStr.substr(OptionsTag.size());
-			RemoveExternalSpaces(strFullParamName);
-			size_t pos = strFullParamName.rfind(L'=');
-			if (pos != string::npos)
-			{
-				strValue = strFullParamName;
-				strValue.erase(0, pos+1);
-				RemoveExternalSpaces(strValue);
-				strFullParamName.resize(pos);
-				RemoveExternalSpaces(strFullParamName);
-
-				if (equal_icase(strFullParamName, KeyName))
-				{
-					SrcFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN);
-					return true;
-				}
-			}
-		}
-	}
-
-	SrcFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN);
-	return false;
-}
 
 static string ConvertString(const wchar_t *Src, size_t size)
 {

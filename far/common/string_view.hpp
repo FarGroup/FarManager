@@ -58,7 +58,32 @@ public:
 
 	constexpr basic_string_view substr(size_t Pos = 0, size_t Count = std::basic_string<T>::npos) const
 	{
+		assert(Pos <= this->size());
 		return { this->raw_data() + Pos, std::min(Count, this->size() - Pos) };
+	}
+
+	constexpr const auto& front() const
+	{
+		assert(!this->empty());
+		return *this->cbegin();
+	}
+
+	constexpr const auto& back() const
+	{
+		assert(!this->empty());
+		return *std::prev(this->cend());
+	}
+
+	/*constexpr*/ void remove_prefix(size_t Size)
+	{
+		assert(Size <= this->size());
+		*this = substr(Size);
+	}
+
+	/*constexpr*/ void remove_suffix(size_t Size)
+	{
+		assert(Size <= this->size());
+		*this = substr(0, this->size() - Size);
 	}
 
 	/*

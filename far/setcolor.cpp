@@ -468,12 +468,12 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (Param1 <= 17) // Fore
 				{
 					CurColor->ForegroundColor = GetColor(2).BackgroundColor;
-					CurColor->Flags |= FCF_FG_4BIT;
+					CurColor->SetFg4Bit(true);
 				}
 				else if (Param1 >= 19) // Back
 				{
 					CurColor->BackgroundColor = GetColor(19).BackgroundColor;
-					CurColor->Flags |= FCF_BG_4BIT;
+					CurColor->SetBg4Bit(true);
 				}
 
 				return TRUE;
