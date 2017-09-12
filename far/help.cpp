@@ -353,6 +353,7 @@ bool Help::ReadHelp(const string& Mask)
 	// Keeping them together to prevent overwriting paragraph-specific StartPos
 	// with the one from the next paragraph, if any.
 	std::pair<string, size_t> SplitLine;
+	bool SplitLineBegin = false;
 
 	const auto& AddSplitLine = [this](const std::pair<string, size_t>& Line)
 	{
@@ -608,6 +609,7 @@ m1:
 								if (StringLen(strReadStr) + StartPos < MaxLength)
 								{
 									AddLine(strReadStr, StartPos);
+									StartPos = 0;
 									continue;
 								}
 							}
@@ -646,6 +648,8 @@ m1:
 							}
 
 							SplitLine = { strReadStr, StartPos };
+							SplitLineBegin = true;
+
 							strReadStr.clear();
 							continue;
 						}
@@ -701,7 +705,8 @@ m1:
 							string FirstPart = SplitLine.first.substr(0, I);
 							if (StringLen(FirstPart) + SplitLine.second < MaxLength)
 							{
-								AddLine(FirstPart, SplitLine.second);
+								AddLine(FirstPart, SplitLineBegin? 0 : SplitLine.second);
+								SplitLineBegin = false;
 								SplitLine.first.erase(1, I);
 								SplitLine.first[0] = L' ';
 								HighlightsCorrection(SplitLine.first);
