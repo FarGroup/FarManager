@@ -184,20 +184,55 @@ static PropInfo c_prop_info[] =
   { kpidSectorSize, MSG_KPID_SECTORSIZE, format_size_prop },
   { kpidPosixAttrib, MSG_KPID_POSIXATTRIB, format_posix_attrib_prop },
   { kpidSymLink, MSG_KPID_LINK, nullptr },
+  { kpidError, MSG_KPID_ERROR, nullptr },
   { kpidTotalSize, MSG_KPID_TOTALSIZE, format_size_prop },
   { kpidFreeSpace, MSG_KPID_FREESPACE, format_size_prop },
   { kpidClusterSize, MSG_KPID_CLUSTERSIZE, format_size_prop },
   { kpidVolumeName, MSG_KPID_VOLUMENAME, nullptr },
   { kpidLocalName, MSG_KPID_LOCALNAME, nullptr },
   { kpidProvider, MSG_KPID_PROVIDER, nullptr },
+  { kpidNtSecure, MSG_KPID_NTSECURE, nullptr },
+  { kpidIsAltStream, MSG_KPID_ISALTSTREAM, nullptr },
+  { kpidIsAux, MSG_KPID_ISAUX, nullptr },
+  { kpidIsDeleted, MSG_KPID_ISDELETED, nullptr },
+  { kpidIsTree, MSG_KPID_ISTREE, nullptr },
+  { kpidSha1, MSG_KPID_SHA1, nullptr },
+  { kpidSha256, MSG_KPID_SHA256, nullptr },
+  { kpidErrorType, MSG_KPID_ERRORTYPE, nullptr },
+  { kpidNumErrors, MSG_KPID_NUMERRORS, nullptr },
+  { kpidErrorFlags, MSG_KPID_ERRORFLAGS, nullptr },
+  { kpidWarningFlags, MSG_KPID_WARNINGFLAGS, nullptr },
+  { kpidWarning, MSG_KPID_WARNING, nullptr },
+  { kpidNumStreams, MSG_KPID_NUMSTREAMS, nullptr },
+  { kpidNumAltStreams, MSG_KPID_NUMALTSTREAMS, nullptr },
+  { kpidAltStreamsSize, MSG_KPID_ALTSTREAMSSIZE, format_size_prop },
+  { kpidVirtualSize, MSG_KPID_VIRTUALSIZE, format_size_prop },
+  { kpidUnpackSize, MSG_KPID_UNPACKSIZE, format_size_prop },
+  { kpidTotalPhySize, MSG_KPID_TOTALPHYSIZE, format_size_prop },
+  { kpidVolumeIndex, MSG_KPID_VOLUMEINDEX, nullptr },
+  { kpidSubType, MSG_KPID_SUBTYPE, nullptr },
+  { kpidShortComment, MSG_KPID_SHORTCOMMENT, nullptr },
+  { kpidCodePage, MSG_KPID_CODEPAGE, nullptr },
+  { kpidIsNotArcType, MSG_KPID_ISNOTARCTYPE, nullptr },
+  { kpidPhySizeCantBeDetected, MSG_KPID_PHYSIZECANTBEDETECTED, nullptr },
+  { kpidZerosTailIsAllowed, MSG_KPID_ZEROSTAILISALLOWED, nullptr },
+  { kpidTailSize, MSG_KPID_TAILSIZE, format_size_prop },
+  { kpidEmbeddedStubSize, MSG_KPID_EMBEDDEDSTUBSIZE, format_size_prop },
+  { kpidNtReparse, MSG_KPID_NTREPARSE, nullptr },
+  { kpidHardLink, MSG_KPID_HARDLINK, nullptr },
+  { kpidINode, MSG_KPID_INODE, nullptr },
+  { kpidStreamId, MSG_KPID_STREAMID, nullptr },
+  { kpidReadOnly, MSG_KPID_READONLY, nullptr },
+  { kpidOutName, MSG_KPID_OUTNAME, nullptr },
+  { kpidCopyLink, MSG_KPID_COPYLINK, nullptr }
 };
 
 const PropInfo* find_prop_info(PROPID prop_id) {
-  for (unsigned i = 0; i < ARRAYSIZE(c_prop_info); i++) {
-    if (c_prop_info[i].prop_id == prop_id)
-      return c_prop_info + i;
-  }
-  return nullptr;
+  static_assert(_countof(c_prop_info) == kpid_NUM_DEFINED-kpidPath, "Missed items in c_prop_info");
+  if (prop_id < kpidPath || prop_id >= kpid_NUM_DEFINED)
+	  return nullptr;
+  else
+	  return c_prop_info + (prop_id - kpidPath);
 }
 
 AttrList Archive::get_attr_list(UInt32 item_index) {
