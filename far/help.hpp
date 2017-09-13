@@ -69,7 +69,7 @@ private:
 	virtual string GetTitle() const override { return {}; }
 	void init(const string& Topic, const wchar_t *Mask, unsigned long long Flags);
 	bool ReadHelp(const string& Mask);
-	void AddLine(const string& Line, size_t Offset = 0);
+	void AddLine(const string& Line);
 	void AddTitle(const string& Title);
 	static void HighlightsCorrection(string &strStr);
 	void FastShow();
@@ -106,6 +106,9 @@ private:
 	// символа - для атрибутов
 	FarColor CurColor;             // CurColor - текущий цвет отрисовки
 	int CtrlTabSize;          // CtrlTabSize - опция! размер табуляции
+
+	DWORD LastStartPos;
+	DWORD StartPos;
 
 	bool MouseDown;
 	bool IsNewTopic;
