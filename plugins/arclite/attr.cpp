@@ -84,43 +84,110 @@ wstring format_crc_prop(const PropVariant& prop) {
   return uint_to_hex_str(prop.get_uint(), prop.get_int_size() * 2);
 }
 
-wstring format_attrib_prop(const PropVariant& prop) {
-  if (!prop.is_uint())
-    return wstring();
-  const wchar_t c_win_attr[] = L"RHS8DAdNTsrCOnE_";
-  wchar_t attr[ARRAYSIZE(c_win_attr)];
-  unsigned pos = 0;
-  unsigned val = static_cast<unsigned>(prop.get_uint());
-  for (unsigned i = 0; i < ARRAYSIZE(c_win_attr); i++) {
-    if ((val & (1 << i)) && i != 7) {
-      attr[pos] = c_win_attr[i];
-      pos++;
-    }
-  }
-  return wstring(attr, pos);
-}
-
+static const wchar_t kPosixTypes[16 + 1] = L"0pc3d5b7-9lBsDEF";
 #define ATTR_CHAR(a, n, c) (((a) & (1 << (n))) ? c : L'-')
-wstring format_posix_attrib_prop(const PropVariant& prop) {
+
+wstring format_posix_attrib_prop(const PropVariant& prop)
+{
   if (!prop.is_uint())
     return wstring();
+
   unsigned val = static_cast<unsigned>(prop.get_uint());
   wchar_t attr[10];
-  attr[0] = ATTR_CHAR(val, 14, L'd');
-  for (int i = 6; i >= 0; i -= 3)  {
+
+  attr[0] = kPosixTypes[(val >> 12) & 0xF];
+  for (int i = 6; i >= 0; i -= 3)
+  {
     attr[7 - i] = ATTR_CHAR(val, i + 2, L'r');
     attr[8 - i] = ATTR_CHAR(val, i + 1, L'w');
     attr[9 - i] = ATTR_CHAR(val, i + 0, L'x');
   }
-  wstring res(attr, ARRAYSIZE(attr));
+  if ((val & 0x800) != 0) attr[3] = ((val & (1 << 6)) ? L's' : L'S');
+  if ((val & 0x400) != 0) attr[6] = ((val & (1 << 3)) ? L's' : L'S');
+  if ((val & 0x200) != 0) attr[9] = ((val & (1 << 0)) ? L't' : L'T');
 
-  unsigned extra = val & 0x3E00;
-  if (extra)
-    res = uint_to_hex_str(extra, 4) + L' ' + res;
+  val &= ~(unsigned)0xFFFF;
+  return val ? wstring(attr, 10) + L' ' + uint_to_hex_str(val, 8) : wstring(attr, 10);
+}
+
+static const unsigned kNumWinAtrribFlags = 21;
+static const wchar_t g_WinAttribChars[kNumWinAtrribFlags + 1] = L"RHS8DAdNTsLCOIEV.X.PU";
+
+/* FILE_ATTRIBUTE_
+ 0 READONLY
+ 1 HIDDEN
+ 2 SYSTEM
+ 3 (Volume label - obsolete)
+ 4 DIRECTORY
+ 5 ARCHIVE
+ 6 DEVICE
+ 7 NORMAL
+ 8 TEMPORARY
+ 9 SPARSE_FILE
+10 REPARSE_POINT
+11 COMPRESSED
+12 OFFLINE
+13 NOT_CONTENT_INDEXED (I - Win10 attrib/Explorer)
+14 ENCRYPTED
+15 INTEGRITY_STREAM (V - ReFS Win8/Win2012)
+16 VIRTUAL (reserved)
+17 NO_SCRUB_DATA (X - ReFS Win8/Win2012 attrib)
+18 RECALL_ON_OPEN or EA
+19 PINNED
+20 UNPINNED
+21 STRICTLY_SEQUENTIAL
+22 RECALL_ON_DATA_ACCESS
+*/
+
+wstring format_attrib_prop(const PropVariant& prop)
+{
+  if (!prop.is_uint())
+    return wstring();
+
+  // some programs store posix attributes in high 16 bits.
+  // p7zip - stores additional 0x8000 flag marker.
+  // macos - stores additional 0x4000 flag marker.
+  // info-zip - no additional marker.
+
+  unsigned val = static_cast<unsigned>(prop.get_uint());
+  bool isPosix = ((val & 0xF0000000) != 0);
+
+  unsigned posix = 0;
+  if (isPosix) {
+    posix = val >> 16;
+    val &= (unsigned)0x3FFF;
+  }
+
+  wchar_t attr[kNumWinAtrribFlags];
+  size_t na = 0;
+  for (unsigned i = 0; i < kNumWinAtrribFlags; i++) {
+    unsigned flag = (1U << i);
+    if ((val & flag) != 0) {
+		  auto c = g_WinAttribChars[i];
+		  if (c != L'.') {
+			  val &= ~flag;
+			  // if (i != 7) // we can disable N (NORMAL) printing
+			  attr[na++] = c;
+		  }
+	  }
+  }
+  auto res = wstring(attr, na);
+
+  if (val != 0) {
+    if (na)
+      res += L' ';
+	  res += uint_to_hex_str(val, 8);
+  }
+
+  if (isPosix) {
+    if (!res.empty())
+      res += L' ';
+    PropVariant p((UInt32)posix);
+    res += format_posix_attrib_prop(p);
+  }
+
   return res;
 }
-#undef ATTR_CHAR
-
 
 typedef wstring (*PropToString)(const PropVariant& var);
 
