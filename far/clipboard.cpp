@@ -253,7 +253,7 @@ private:
 //-----------------------------------------------------------------------------
 static thread_local clipboard* OverridenInternalClipboard;
 
-void clipboard_restorer::operator()(clipboard* Clip) const
+void clipboard_restorer::operator()(const clipboard* Clip) const
 {
 	OverridenInternalClipboard = nullptr;
 	delete Clip;
@@ -492,4 +492,3 @@ bool CopyData(const clipboard_accessor& From, const clipboard_accessor& To)
 
 	return false;
 }
-

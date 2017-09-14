@@ -6302,16 +6302,16 @@ l:
 "Посилання на папки"
 
 MFolderShortcutBottom
-"Редактирование: Del,Ins,Shift+Ins,F4"
-"Edit: Del,Ins,Shift+Ins,F4"
-"Změnit: Del,Ins,Shift+Ins,F4"
-"Bearb.: Entf,Einf,Shift+Einf,F4"
-"Szerk.: Del,Ins,Shift+Ins,F4"
-"Edycja: Del,Ins,Shift+Ins,F4"
-"Editar: Del,Ins,Shift+Ins,F4"
-"Upraviť: Del,Ins,ShiftIns,F4"
-"Edita: [DEL] [INS] [SHIFT-INS] [F4]"
-"Редагування: Del,Ins,Shift+Ins,F4"
+"Редактирование: Del,Ins,F4"
+"Edit: Del,Ins,F4"
+"Změnit: Del,Ins,F4"
+"Bearb.: Entf,Einf,F4"
+"Szerk.: Del,Ins,F4"
+"Edycja: Del,Ins,F4"
+"Editar: Del,Ins,F4"
+"Upraviť: Del,Ins,F4"
+"Edita: [DEL] [INS] [F4]"
+"Редагування: Del,Ins,F4"
 
 MFolderShortcutBottomSub
 "Редактирование: Del,Ins,F4"

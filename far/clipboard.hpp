@@ -108,7 +108,7 @@ bool CopyData(const clipboard_accessor& From, const clipboard_accessor& To);
 
 struct clipboard_restorer
 {
-	void operator()(clipboard* Clip) const;
+	void operator()(const clipboard* Clip) const;
 };
 
 std::unique_ptr<clipboard, clipboard_restorer> OverrideClipboard();

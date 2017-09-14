@@ -43,8 +43,7 @@ class Shortcuts: noncopyable
 public:
 	Shortcuts();
 	~Shortcuts();
-	bool Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData, bool raw=false);
-	bool Get(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
+	bool Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
 	void Set(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
 	void Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
 	void Configure();
@@ -63,18 +62,20 @@ public:
 		using value_type = enum_data;
 		return make_inline_enumerator<value_type>([this, Pos](size_t Index, value_type& Value)
 		{
-			return Get(Pos, Index, &Value.Folder, &Value.PluginGuid, &Value.PluginFile, &Value.PluginData);
+			return GetOne(Pos, Index, &Value.Folder, &Value.PluginGuid, &Value.PluginFile, &Value.PluginData);
 		});
 	}
 
-	struct shortcut;
+	class shortcut;
 
 private:
+	std::list<shortcut>::const_iterator Select(size_t Pos, bool Raw);
+	bool GetOne(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
 	void MakeItemName(size_t Pos, MenuItemEx& str);
-	void EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw = false);
+	bool EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw = false);
 
-	std::array<std::list<shortcut>, 10> Items;
-	bool Changed;
+	std::array<std::list<shortcut>, 10> m_Items;
+	bool m_Changed{};
 };
 
 #endif // SHORTCUTS_HPP_29F659B5_FECB_4C3C_8499_D17E01487D1C
