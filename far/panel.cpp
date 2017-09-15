@@ -1277,7 +1277,7 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add) const
 	if(GetShortcutInfo(Info))
 	{
 		const auto Function = Add? &Shortcuts::Add : &Shortcuts::Set;
-		std::invoke(Function, Shortcuts(), Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+		std::invoke(Function, Shortcuts(Pos), Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		return true;
 	}
 	return false;
@@ -1326,7 +1326,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 	string strShortcutFolder,strPluginFile,strPluginData;
 	GUID PluginGuid;
 
-	if (Shortcuts().Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData))
+	if (Shortcuts(Pos).Get(&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData))
 	{
 		return ExecShortcutFolder(strShortcutFolder,PluginGuid,strPluginFile,strPluginData,true);
 	}

@@ -2323,8 +2323,8 @@ void FileEditor::ShowStatus() const
 		SizeLineStr = 12;
 
 	strLineStr = str(m_editor->m_it_CurLine.Number() + 1) + L'/' + str(m_editor->m_LinesCount);
-	string strAttr(AttrStr);
-	const auto StatusLine = format(L"{0:{1}} {2}{3}{4}{5:5} {6:>3} {7:>{8}} {9:>3} {10:<4} {11:>2} {12:<4} {13:>3}",
+	const auto strAttr = *AttrStr? L" "s + AttrStr : L""s;
+	const auto StatusLine = format(L"{0:{1}} {2}{3}{4}{5:5} {6:>3} {7:>{8}} {9:>3} {10:<4} {11:>2} {12:<4}{13}",
 		strLocalTitle, NameLength,
 		m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?L'*':L' ',
 		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)?L'-':L' ',
@@ -2338,24 +2338,19 @@ void FileEditor::ShowStatus() const
 		m_editor->m_it_CurLine->GetCurPos() + 1,
 		strAttr);
 
-	int StatusWidth = ObjWidth();
-	if (Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN))
-		StatusWidth -= static_cast<int>(Global->CurrentTime.size());
+	const auto ClockSize = Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size()) : 0;
+	const auto StatusWidth = std::max(0, ObjWidth() - ClockSize);
 
-	if (StatusWidth<0)
-		StatusWidth=0;
+	Text(fit_to_left(StatusLine, StatusWidth - 1));
+	Text(L" "_sv); // Separator before the clock
 
-	Text(fit_to_left(StatusLine, StatusWidth));
-
+	if (auto SpaceLeft = std::max(0, StatusWidth - static_cast<int>(StatusLine.size()) - 1 - 1)) // 1 for the separator after the main status
 	{
 		const auto& Str = m_editor->m_it_CurLine->GetString();
 		size_t CurPos = m_editor->m_it_CurLine->GetCurPos();
 
 		if (CurPos < Str.size())
 		{
-			const int ClockSize = Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size() + 1) : 0;
-			GotoXY(m_X2 - 14 - ClockSize - (!m_editor->EdOpt.CharCodeBase?3:0), m_Y1);
-			SetColor(COL_EDITORSTATUS);
 			/* $ 27.02.2001 SVS
 			Показываем в зависимости от базы */
 
@@ -2377,9 +2372,12 @@ void FileEditor::ShowStatus() const
 				break;
 			}
 
-			Text(CharStr);
+			GotoXY(StatusWidth - 1 - SpaceLeft, m_Y1);
+			Text(fit_to_left(CharStr, SpaceLeft));
 
-			if (!IsUnicodeOrUtfCodePage(m_codepage))
+			SpaceLeft = std::max(0, SpaceLeft - static_cast<int>(CharStr.size()));
+
+			if (SpaceLeft && !IsUnicodeOrUtfCodePage(m_codepage))
 			{
 				char Buffer;
 				bool UsedDefaultChar;
@@ -2400,7 +2398,9 @@ void FileEditor::ShowStatus() const
 						CharStr = format(L"{0:3}", CharCode);
 						break;
 					}
-					Text(L'/' + CharStr);
+
+					GotoXY(StatusWidth - 1 - SpaceLeft, m_Y1);
+					Text(fit_to_left(L'/' + CharStr, SpaceLeft));
 				}
 			}
 		}

@@ -405,7 +405,7 @@ bool FarSettings::Enum(FarSettingsEnum& Enum)
 		{
 			FarSettingsHistory item{};
 			FarSettingsHistoryItems NewEnumItem;
-			for(auto& i: Shortcuts().Enumerator(Enum.Root - FSSF_FOLDERSHORTCUT_0))
+			for(auto& i: Shortcuts(Enum.Root - FSSF_FOLDERSHORTCUT_0).Enumerator())
 			{
 				NewEnumItem.add(item, std::move(i.Folder), std::move(i.PluginData), std::move(i.PluginFile), i.PluginGuid);
 			}

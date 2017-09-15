@@ -38,16 +38,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VMenu2;
 struct MenuItemEx;
 
-class Shortcuts: noncopyable
+class Shortcuts
 {
 public:
-	Shortcuts();
+	NONCOPYABLE(Shortcuts);
+	MOVABLE(Shortcuts);
+
+	explicit Shortcuts(size_t Pos);
 	~Shortcuts();
-	bool Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
-	void Set(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
-	void Add(size_t Pos, const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
-	void Configure();
-	void Save();
+
+	bool Get(string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
+	void Set(const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
+	void Add(const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
+
+	static void Configure();
 
 	struct enum_data
 	{
@@ -57,25 +61,26 @@ public:
 		string PluginData;
 	};
 
-	auto Enumerator(size_t Pos)
+	auto Enumerator()
 	{
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([this, Pos](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this](size_t Index, value_type& Value)
 		{
-			return GetOne(Pos, Index, &Value.Folder, &Value.PluginGuid, &Value.PluginFile, &Value.PluginData);
+			return GetOne(Index, &Value.Folder, &Value.PluginGuid, &Value.PluginFile, &Value.PluginData);
 		});
 	}
 
 	class shortcut;
 
 private:
-	std::list<shortcut>::const_iterator Select(size_t Pos, bool Raw);
-	bool GetOne(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
-	void MakeItemName(size_t Pos, MenuItemEx& str);
-	bool EditItem(VMenu2& Menu, shortcut& Item, bool Root, bool raw = false);
+	std::list<shortcut>::const_iterator Select(bool Raw);
+	bool GetOne(size_t Index, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData) const;
+	static bool EditItem(VMenu2& Menu, shortcut& Item, bool raw = false);
+	void Save();
 
-	std::array<std::list<shortcut>, 10> m_Items;
-	bool m_Changed{};
+	std::list<shortcut> m_Items;
+	string m_KeyName;
+	movable<bool> m_Changed = false;
 };
 
 #endif // SHORTCUTS_HPP_29F659B5_FECB_4C3C_8499_D17E01487D1C
