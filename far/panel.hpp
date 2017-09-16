@@ -250,8 +250,8 @@ public:
 	void SetShowShortNamesMode(bool Mode) {m_ShowShortNames=Mode;}
 	void InitCurDir(const string& CurDir);
 	bool ExecShortcutFolder(int Pos);
-	bool ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest = true, bool Silent = false);
-	bool SaveShortcutFolder(int Pos, bool Add) const;
+	bool ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest = true, bool Silent = false);
+	bool SaveShortcutFolder(int Pos) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);
 	bool ProcessMouseDrag(const MOUSE_EVENT_RECORD* MouseEvent);
 	bool IsMouseInClientArea(const MOUSE_EVENT_RECORD *MouseEvent) const;

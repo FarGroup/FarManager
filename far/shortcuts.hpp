@@ -44,29 +44,28 @@ public:
 	NONCOPYABLE(Shortcuts);
 	MOVABLE(Shortcuts);
 
-	explicit Shortcuts(size_t Pos);
+	explicit Shortcuts(size_t Index);
 	~Shortcuts();
 
-	bool Get(string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
-	void Set(const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
-	void Add(const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
-
-	static void Configure();
-
-	struct enum_data
+	struct data
 	{
 		string Folder;
-		GUID PluginGuid;
 		string PluginFile;
 		string PluginData;
+		GUID PluginGuid{};
 	};
+
+	bool Get(data& Data);
+	void Add(const string& Folder, const GUID& PluginGuid, const string& PluginFile, const string& PluginData);
+
+	static int Configure();
 
 	auto Enumerator()
 	{
-		using value_type = enum_data;
+		using value_type = data;
 		return make_inline_enumerator<value_type>([this](size_t Index, value_type& Value)
 		{
-			return GetOne(Index, &Value.Folder, &Value.PluginGuid, &Value.PluginFile, &Value.PluginData);
+			return GetOne(Index, Value);
 		});
 	}
 
@@ -74,8 +73,7 @@ public:
 
 private:
 	std::list<shortcut>::const_iterator Select(bool Raw);
-	bool GetOne(size_t Index, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData) const;
-	static bool EditItem(VMenu2& Menu, shortcut& Item, bool raw = false);
+	bool GetOne(size_t Index, data& Data) const;
 	void Save();
 
 	std::list<shortcut> m_Items;

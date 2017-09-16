@@ -59,4 +59,9 @@
       </Expand>
   </Type>
 
+  <Type Name="movable&lt;*&gt;">
+    <DisplayString>{m_Value}</DisplayString>
+    <StringView>m_Value</StringView>
+  </Type>
+
 </AutoVisualizer>

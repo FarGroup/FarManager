@@ -71,6 +71,7 @@ CFLAGS += \
 -Wlogical-op \
 -Wodr \
 -Winvalid-pch \
+-Wlogical-op \
 -Wno-unknown-pragmas \
 -Wno-char-subscripts \
 -Wno-unused-parameter \

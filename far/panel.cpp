@@ -1189,11 +1189,10 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_SETPANELDIRECTORY:
 		{
-			FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+			const auto dirInfo = static_cast<const FarPanelDirectory*>(Param2);
 			if (CheckStructSize(dirInfo))
 			{
-				string strName(NullToEmpty(dirInfo->Name)), strFile(NullToEmpty(dirInfo->File)), strParam(NullToEmpty(dirInfo->Param));
-				Result = ExecShortcutFolder(strName, dirInfo->PluginId, strFile, strParam, false, false, true);
+				Result = ExecShortcutFolder(NullToEmpty(dirInfo->Name), dirInfo->PluginId, NullToEmpty(dirInfo->File), NullToEmpty(dirInfo->Param), false, false, true);
 				// restore current directory to active panel path
 				if (Result)
 				{
@@ -1271,13 +1270,12 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
 	return result;
 }
 
-bool Panel::SaveShortcutFolder(int Pos, bool Add) const
+bool Panel::SaveShortcutFolder(int Pos) const
 {
 	ShortcutInfo Info;
 	if(GetShortcutInfo(Info))
 	{
-		const auto Function = Add? &Shortcuts::Add : &Shortcuts::Set;
-		std::invoke(Function, Shortcuts(Pos), Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+		Shortcuts(Pos).Add(Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		return true;
 	}
 	return false;
@@ -1323,17 +1321,11 @@ int Panel::ProcessShortcutFolder(int Key,bool ProcTreePanel)
 
 bool Panel::ExecShortcutFolder(int Pos)
 {
-	string strShortcutFolder,strPluginFile,strPluginData;
-	GUID PluginGuid;
-
-	if (Shortcuts(Pos).Get(&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData))
-	{
-		return ExecShortcutFolder(strShortcutFolder,PluginGuid,strPluginFile,strPluginData,true);
-	}
-	return false;
+	Shortcuts::data Data;
+	return Shortcuts(Pos).Get(Data) && ExecShortcutFolder(std::move(Data.Folder), Data.PluginGuid, Data.PluginFile, Data.PluginData, true);
 }
 
-bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent)
+bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent)
 {
 	auto SrcPanel = shared_from_this();
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
@@ -1369,9 +1361,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 			{
 				if (!strPluginFile.empty())
 				{
-					string strRealDir;
-					strRealDir = strPluginFile;
-
+					auto strRealDir = strPluginFile;
 					if (CutToSlash(strRealDir))
 					{
 						SrcPanel->SetCurDir(strRealDir,true);
@@ -1410,6 +1400,8 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder, const GUID& PluginGuid
 
 		return true;
 	}
+
+	strShortcutFolder = os::env::expand(strShortcutFolder);
 
 	if (!CheckShortcutFolder(strShortcutFolder, TryClosest, Silent) || ProcessPluginEvent(FE_CLOSE, nullptr))
 	{

@@ -1200,15 +1200,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 	{
 		// Create a folder shortcut?
 		if ((LocalKey>=KEY_CTRLSHIFT0 && LocalKey<=KEY_CTRLSHIFT9) ||
-			(LocalKey>=KEY_RCTRLSHIFT0 && LocalKey<=KEY_RCTRLSHIFT9) ||
-			(LocalKey>=KEY_CTRLALT0 && LocalKey<=KEY_CTRLALT9) ||
-			(LocalKey>=KEY_RCTRLRALT0 && LocalKey<=KEY_RCTRLRALT9) ||
-			(LocalKey>=KEY_CTRLRALT0 && LocalKey<=KEY_CTRLRALT9) ||
-			(LocalKey>=KEY_RCTRLALT0 && LocalKey<=KEY_RCTRLALT9)
-		)
+		    (LocalKey>=KEY_RCTRLSHIFT0 && LocalKey<=KEY_RCTRLSHIFT9))
 		{
-			bool Add = (LocalKey&KEY_SHIFT) == KEY_SHIFT;
-			SaveShortcutFolder((LocalKey&(~(KEY_CTRL|KEY_RCTRL|KEY_ALT|KEY_RALT|KEY_SHIFT|KEY_RSHIFT)))-'0', Add);
+			SaveShortcutFolder((LocalKey&(~(KEY_CTRL | KEY_RCTRL | KEY_SHIFT | KEY_RSHIFT))) - L'0');
 			return true;
 		}
 		// Jump to a folder shortcut?

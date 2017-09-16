@@ -367,7 +367,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 					//Type==1 - плагиновый путь
 					//Type==0 - обычный путь
-					Panel->ExecShortcutFolder(strStr,Guid,strFile,strData,true);
+					Panel->ExecShortcutFolder(std::move(strStr), Guid, strFile, strData, true);
 					// Panel may be changed
 					if(SelectType == HRT_CTRLSHIFTENTER)
 					{

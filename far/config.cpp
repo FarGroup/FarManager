@@ -3044,7 +3044,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				EditFileTypes();
 				break;
 			case MENU_COMMANDS_FOLDERSHORTCUTS: // Folder shortcuts
-				Shortcuts::Configure();
+				{
+					const auto Result = Shortcuts::Configure();
+					if (Result != -1)
+						Global->CtrlObject->Cp()->ActivePanel()->ExecShortcutFolder(Result);
+				}
 				break;
 			case MENU_COMMANDS_FILTER: // File panel filter
 				Global->CtrlObject->Cp()->ActivePanel()->EditFilter();

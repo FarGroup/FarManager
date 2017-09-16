@@ -426,32 +426,29 @@ bool Edit::RecurseProcessKey(int Key)
 // Функция вставки всякой хреновени - от шорткатов до имен файлов
 bool Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 {
-	auto RetCode = false;
-	string strPathName;
+	Shortcuts::data Data;
 
-	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // шорткаты?
+	if (Key >= KEY_RCTRL0 && Key <= KEY_RCTRL9)
 	{
-		if (Shortcuts(Key - KEY_RCTRL0).Get(&strPathName, nullptr, nullptr, nullptr))
-			RetCode = true;
+		if (!Shortcuts(Key - KEY_RCTRL0).Get(Data))
+			return false;
+		Data.Folder = os::env::expand(Data.Folder);
 	}
-	else // Пути/имена?
+	else
 	{
-		RetCode = MakePath1(Key, strPathName, L"");
-	}
-
-	// Если что-нить получилось, именно его и вставим (PathName)
-	if (RetCode)
-	{
-		if (PrevSelStart!=-1)
-		{
-			m_SelStart=PrevSelStart;
-			m_SelEnd=PrevSelEnd;
-		}
-
-		InsertString(strPathName);
+		if (!MakePath1(Key, Data.Folder, L""))
+			return false;
 	}
 
-	return RetCode;
+	if (PrevSelStart != -1)
+	{
+		m_SelStart = PrevSelStart;
+		m_SelEnd = PrevSelEnd;
+	}
+
+	InsertString(Data.Folder);
+
+	return true;
 }
 
 long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
