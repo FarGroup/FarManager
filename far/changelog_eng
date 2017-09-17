@@ -3,6 +3,40 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.09.2017 23:23:44 +0100 - build 5032
+
+1. Continuation of 5030.3.
+
+drkns 15.09.2017 23:44:07 +0100 - build 5031
+
+1. Continuation of 5030.3 - only load/save required folder shortcuts, not all of them.
+
+2. 0003492: Incorrect indication in upper status line
+
+drkns 15.09.2017 00:48:00 +0100 - build 5030
+
+1. 0003490: Crash on F4 in empty submenu
+
+2. 0003491: Unreasonable creation of a submenu after editing undone
+
+3. Folder shortcuts are simplified and reworked.
+
+drkns 13.09.2017 20:19:28 +0100 - build 5029
+
+1. Rollback 5027.2 and 5028.1.
+
+drkns 12.09.2017 21:04:02 +0100 - build 5028
+
+1. Continuation of 0003481.
+
+drkns 11.09.2017 20:45:30 +0100 - build 5027
+
+1. 0003481: hlf: Text can be indented despite absence of <CtrlStartPosChar>
+
+2. CtrlStartPosChar could unexpectedly affect the previous paragraph.
+
+3. Experimental - support for TrueColor in hlf. The format is ([[T]FFFFFFFF][:[T]BBBBBBBB]), same as in prompt.
+
 drkns 09.09.2017 22:00:37 +0100 - build 5026
 
 1. Capture the stack also for the exceptions that have been caught and rethrown via exception_ptr.
