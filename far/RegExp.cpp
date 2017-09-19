@@ -479,6 +479,7 @@ RegExp::RegExp():
 	minlength(),
 	errorcode(errNotCompiled),
 	errorpos(),
+	srcstart(),
 	ignorecase(),
 	bracketscount(),
 	maxbackref(),
@@ -642,9 +643,7 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 
 	if (count)
 	{
-		errorpos=brackets[0];
-		errorcode=errBrackets;
-		return 0;
+		return SetError(errBrackets, brackets[0]);
 	}
 
 	return length;
@@ -652,8 +651,6 @@ int RegExp::CalcLength(const wchar_t* src,int srclength)
 
 int RegExp::Compile(const wchar_t* src,int options)
 {
-	int srcstart=0,srclength/*=0*/,relength;
-
 	if (options&OP_CPPMODE)
 	{
 		slashChar='\\';
@@ -668,6 +665,8 @@ int RegExp::Compile(const wchar_t* src,int options)
 	havefirst=0;
 
 	code.clear();
+
+	int srclength;
 
 	if (options&OP_PERLSTYLE)
 	{
@@ -711,11 +710,12 @@ int RegExp::Compile(const wchar_t* src,int options)
 	}
 	else
 	{
+		srcstart = 0;
 		srclength=(int)wcslen(src);
 	}
 
 	ignorecase=options&OP_IGNORECASE?1:0;
-	relength=CalcLength(src+srcstart,srclength);
+	int relength=CalcLength(src+srcstart,srclength);
 
 	if (!relength)
 	{

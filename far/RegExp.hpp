@@ -128,6 +128,7 @@ public:
 		// error info
 		mutable int errorcode;
 		mutable int errorpos;
+		int srcstart;
 
 		// options
 		int ignorecase;
@@ -226,7 +227,7 @@ public:
 		    \return position of the last error in the regexp source.
 		    \sa LastError
 		*/
-		int ErrorPosition() const {return errorpos;}
+		int ErrorPosition() const { return srcstart + errorpos; }
 		/*! Get number of brackets in expression
 		    \return number of brackets, excluding brackets of type (:expr)
 		    and named brackets.

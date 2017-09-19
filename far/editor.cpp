@@ -3390,7 +3390,7 @@ bool Editor::Search(bool Next)
 	if (strSearchStr.empty())
 		return true;
 
-	const auto QuotedStr = quote_unconditional(strSearchStr);
+	string QuotedStr;
 
 	const auto FindAllList = VMenu2::create({}, nullptr, 0);
 	UINT AllRefLines = 0;
@@ -3432,13 +3432,21 @@ bool Editor::Search(bool Next)
 
 		if (Regexp)
 		{
+			const auto strSlash = InsertRegexpQuote(strSearchStr);
+
+			QuotedStr = strSlash;
+
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSearchStr.data(), OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
+			if (!re.Compile(strSlash.data(), OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
 			{
-				ReCompileErrorMessage(re, strSearchStr);
+				ReCompileErrorMessage(re, strSlash);
 				return false; //BUGBUG
 			}
 			m.resize(re.GetBracketsCount() * 2);
+		}
+		else
+		{
+			QuotedStr = quote_unconditional(strSearchStr);
 		}
 
 		const auto strSearchStrUpper = Case? strSearchStr : upper(strSearchStr);

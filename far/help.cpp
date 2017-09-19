@@ -1925,10 +1925,12 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 
 	if (LastSearchRegexp)
 	{
+		const auto strSlash = InsertRegexpQuote(strLastSearchStr);
+
 		// Q: что важнее: опция диалога или опция RegExp`а?
-		if (!re.Compile(strLastSearchStr.data(), OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
+		if (!re.Compile(strSlash.data(), OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
 		{
-			ReCompileErrorMessage(re, strLastSearchStr);
+			ReCompileErrorMessage(re, strSlash);
 			return; //BUGBUG
 		}
 

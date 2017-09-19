@@ -107,6 +107,18 @@ wchar_t* QuoteSpace(wchar_t *Str)
 	return Str;
 }
 
+string InsertRegexpQuote(string strStr)
+{
+	//выражение вида /regexp/i не дополняем слешами
+	if (!strStr.empty() && strStr[0] != L'/')
+	{
+		strStr.insert(0, 1, L'/');
+		strStr += L'/';
+	}
+
+	return strStr;
+}
+
 string &QuoteSpace(string &strStr)
 {
 	if (strStr.find_first_of(Global->Opt->strQuotedSymbols) != string::npos)
