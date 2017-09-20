@@ -510,18 +510,19 @@ int Shortcuts::Configure()
 			UpdateItem();
 		};
 
-		auto& CurrentList = AllShortcuts[Pos].m_Items;
+		auto& CurrentList = AllShortcuts[Pos];
 
 		switch (Key)
 		{
 		case KEY_NUMPAD0:
 		case KEY_INS:
 			// Direct insertion only allowed if the list is empty. Otherwise do it in a submenu.
-			if (CurrentList.empty())
+			if (CurrentList.m_Items.empty())
 			{
 				if (Accept())
 				{
-					CurrentList.emplace_back(CreateShortcutFromPanel());
+					CurrentList.m_Items.emplace_back(CreateShortcutFromPanel());
+					CurrentList.m_Changed = true;
 					UpdateItem();
 				}
 			}
@@ -533,12 +534,13 @@ int Shortcuts::Configure()
 
 		case KEY_NUMDEL:
 		case KEY_DEL:
-			if (!CurrentList.empty())
+			if (!CurrentList.m_Items.empty())
 			{
 				// Direct deletion only allowed if there's exactly one item in the list. Otherwise do it in a submenu.
-				if (CurrentList.size() == 1)
+				if (CurrentList.m_Items.size() == 1)
 				{
-					CurrentList.pop_front();
+					CurrentList.m_Items.pop_front();
+					CurrentList.m_Changed = true;
 					UpdateItem();
 				}
 				else
@@ -549,13 +551,14 @@ int Shortcuts::Configure()
 			return true;
 
 		case KEY_F4:
-			if (!CurrentList.empty())
+			if (!CurrentList.m_Items.empty())
 			{
 				// Direct editing only allowed if there's exactly one item in the list. Otherwise do it in a submenu.
-				if (CurrentList.size() == 1)
+				if (CurrentList.m_Items.size() == 1)
 				{
-					if (EditListItem(AllShortcuts[Pos].m_Items, *FolderList, CurrentList.front(), true))
+					if (EditListItem(AllShortcuts[Pos].m_Items, *FolderList, CurrentList.m_Items.front(), true))
 					{
+						CurrentList.m_Changed = true;
 						UpdateItem();
 					}
 				}
