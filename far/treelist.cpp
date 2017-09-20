@@ -1086,7 +1086,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		return false;
 
 	if ((LocalKey >= KEY_CTRLSHIFT0 && LocalKey <= KEY_CTRLSHIFT9) ||
-	    (LocalKey >= KEY_RCTRLSHIFT0 && LocalKey <= KEY_CTRLSHIFT9))
+	    (LocalKey >= KEY_RCTRLSHIFT0 && LocalKey <= KEY_RCTRLSHIFT9))
 	{
 		SaveShortcutFolder((LocalKey&(~(KEY_CTRL | KEY_RCTRL | KEY_SHIFT | KEY_RSHIFT))) - L'0');
 		return true;
