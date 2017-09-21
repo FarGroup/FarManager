@@ -902,7 +902,7 @@ void CommandLine::ExecString(execute_info& Info)
 	{
 		if (CommandDrawn)
 			return;
-		ExecutionContext->DrawCommand(Info.Command);
+		ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
 		CommandDrawn = true;
 	};
 

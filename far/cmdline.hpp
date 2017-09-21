@@ -45,6 +45,7 @@ struct execute_info
 	enum class source_mode { unknown, known };
 
 	string Command;
+	string DisplayCommand;
 	wait_mode WaitMode{ wait_mode::no_wait };
 	bool NewWindow{};
 	exec_mode ExecMode{ exec_mode::detect };

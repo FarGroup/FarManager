@@ -2675,13 +2675,13 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				if (IsItExecutable || SeparateWindow || Global->Opt->UseRegisteredTypes)
 				{
 					execute_info Info;
-					Info.Command = strFileName;
+					Info.DisplayCommand = strFileName;
 					Info.WaitMode = PluginMode? execute_info::wait_mode::wait_finish : execute_info::wait_mode::no_wait;
 					Info.NewWindow = SeparateWindow;
 					Info.SourceMode = execute_info::source_mode::known;
 					Info.RunAs = RunAs;
 
-					Info.Command = ConvertNameToFull(Info.Command);
+					Info.Command = ConvertNameToFull(strFileName);
 					QuoteSpace(Info.Command);
 
 					Parent()->GetCmdLine()->ExecString(Info);

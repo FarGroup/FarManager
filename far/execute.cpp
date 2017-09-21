@@ -192,13 +192,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 
 	auto strFullName = Module;
 	const auto ModuleExt = wcsrchr(PointToName(Module), L'.');
-	auto strPathExt = os::env::get_pathext();
-	if (Global->Opt->UseRegisteredTypes)
-	{
-		// ";;" to also try no extension if nothing else matches
-		strPathExt += L";;";
-	}
-
+	const auto strPathExt = os::env::get_pathext() + L";;"; // ";;" to also try no extension if nothing else matches
 	const auto PathExtList = enum_tokens(strPathExt, L";");
 	for (const auto& i: PathExtList) // первый проход - в текущем каталоге
 	{
