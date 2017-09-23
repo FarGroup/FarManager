@@ -1002,7 +1002,6 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 			case KEY_SHIFTF2:
 			{
 				auto Done = false;
-				const auto strOldCurDir = os::GetCurrentDirectory();
 				while (!Done) // бьемся до упора
 				{
 					// проверим путь к файлу, может его уже снесли...
@@ -1043,38 +1042,17 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 						strSaveAsName = unquote(os::env::expand(strSaveAsName));
 						const auto NameChanged = !equal_icase(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
 
-						if (!NameChanged)
-							FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
-
 						if (NameChanged)
 						{
 							if (!AskOverwrite(strSaveAsName))
 							{
-								FarChDir(strOldCurDir);
 								return true;
 							}
 						}
 
 						strFullSaveAsName = ConvertNameToFull(strSaveAsName);  //BUGBUG, не проверяем имя на правильность
-						//это не про нас, про нас ниже, все куда страшнее
-						/*string strFileNameTemp = strSaveAsName;
-
-						if(!SetFileName(strFileNameTemp))
-						{
-						  SetLastError(ERROR_INVALID_NAME);
-						  Global->CatchError();
-						  Message(MSG_WARNING|MSG_ERRORTYPE,1,msg(lng::MEditTitle),strFileNameTemp,msg(lng::MOk));
-						  if(!NameChanged)
-						    FarChDir(strOldCurDir);
-						  continue;
-						  //return false;
-						} */
-
-						if (!NameChanged)
-							FarChDir(strOldCurDir);
 					}
 
-					FarChDir(strStartDir); //???
 					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage, m_bAddSignature);
 
 					if (SaveResult==SAVEFILE_ERROR)
@@ -1419,11 +1397,8 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 
 int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWindow)
 {
-	const auto strOldCurDir = os::GetCurrentDirectory();
-
 	for (;;)
 	{
-		FarChDir(strStartDir); // ПОЧЕМУ? А нужно ли???
 		int SaveCode=SAVEFILE_SUCCESS;
 
 		if (NeedQuestion)
@@ -1458,7 +1433,6 @@ int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWind
 		{
 			if (!ProcessKey(Manager::Key(KEY_SHIFTF2)))
 			{
-				FarChDir(strOldCurDir);
 				return FALSE;
 			}
 			else
@@ -1470,8 +1444,6 @@ int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWind
 
 		FirstSave=0;
 	}
-
-	FarChDir(strOldCurDir);
 	return GetExitCode() == XC_QUIT;
 }
 
