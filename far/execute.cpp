@@ -650,7 +650,7 @@ void OpenFolderInShell(const string& Folder)
 	Execute(Info, true, true);
 }
 
-void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::function<void()>& ConsoleActivator)
+void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::function<void(bool)>& ConsoleActivator)
 {
 	bool Result = false;
 	string strNewCmdStr;
@@ -841,10 +841,10 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	seInfo.lpDirectory=strCurDir.data();
 	seInfo.nShow = SW_SHOWNORMAL;
 
+	ConsoleActivator(!Silent);
+
 	if(!Silent)
 	{
-		ConsoleActivator();
-
 		ConsoleCP = Console().GetInputCodepage();
 		ConsoleOutputCP = Console().GetOutputCodepage();
 		FlushInputBuffer();

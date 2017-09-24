@@ -821,6 +821,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 {
 	if (equal_icase(Command, L"far:config"_sv))
 	{
+		ConsoleActivatior(false);
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
@@ -897,20 +898,19 @@ void CommandLine::ExecString(execute_info& Info)
 		}
 	};
 
-	bool CommandDrawn = false;
-	const auto& DrawCommand = [&]
+	const auto& Activator = [&](bool DoConsolise)
 	{
-		if (CommandDrawn)
-			return;
+		ExecutionContext->Activate();
 		ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
-		CommandDrawn = true;
+
+		if (DoConsolise)
+			ExecutionContext->Consolise();
 	};
 
 	if (Info.Command.empty())
 	{
 		// Just scroll the screen
-		ExecutionContext->Activate();
-		DrawCommand();
+		Activator(false);
 		return;
 	}
 
@@ -933,13 +933,6 @@ void CommandLine::ExecString(execute_info& Info)
 
 		if (!Info.NewWindow && !Info.RunAs)
 		{
-			const auto& Activator = [&](bool DoConsolise)
-			{
-				ExecutionContext->Activate();
-				DrawCommand();
-				if (DoConsolise)
-					ExecutionContext->Consolise();
-			};
 
 			if (ProcessFarCommands(Info.Command, Activator))
 				return;
@@ -952,9 +945,7 @@ void CommandLine::ExecString(execute_info& Info)
 		}
 	}
 
-	ExecutionContext->Activate();
-	DrawCommand();
-	Execute(Info, false, Silent, [&ExecutionContext](){ ExecutionContext->Consolise(); });
+	Execute(Info, false, Silent, Activator);
 
 	// BUGBUG do we really need to update panels at all?
 	IsUpdateNeeded = true;
@@ -987,10 +978,10 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 	const auto& FindHelpKey = [&FindKey]() { return FindKey(L'?'); };
 
-	ConsoleActivatior(false);
-
 	if (CmdLine.size() > 1 && CmdLine[1] == L':' && (CmdLine.size() == 2 || CmdLine.find_first_not_of(L' ', 2) == string::npos))
 	{
+		ConsoleActivatior(false);
+
 		const auto DriveLetter = upper(CmdLine[0]);
 		if (!FarChDir(os::fs::get_drive(DriveLetter)))
 		{
@@ -1004,7 +995,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		return false;
 
 	// SET [variable=[value]]
-	if (IsCommand(L"SET",false))
+	if (IsCommand(L"SET", false))
 	{
 		if (FindKey(L'A') || FindKey(L'P'))
 			return false; //todo: /p - dialog, /a - calculation; then set variable ...
@@ -1045,6 +1036,8 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			return true;
 		}
 
+		ConsoleActivatior(false);
+
 		const auto Value = strCmdLine.substr(pos + 1);
 		strCmdLine.resize(pos);
 		inplace::unquote(strCmdLine);
@@ -1060,7 +1053,8 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 		return true;
 	}
-	else if (IsCommand(L"CLS",false))
+
+	if (IsCommand(L"CLS", false))
 	{
 		auto strCmdLine = CmdLine.substr(3);
 		RemoveLeadingSpaces(strCmdLine);
@@ -1072,12 +1066,17 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			// We have more complex logic in execute::PartCmdLine, but using it here isn't worth the effort.
 			return false;
 		}
+
+		ConsoleActivatior(false);
 		ClearScreen(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 		return true;
 	}
+
 	// PUSHD путь | ..
-	else if (IsCommand(L"PUSHD",false))
+	if (IsCommand(L"PUSHD", false))
 	{
+		ConsoleActivatior(false);
+
 		auto strCmdLine = CmdLine.substr(5);
 		RemoveExternalSpaces(strCmdLine);
 
@@ -1095,13 +1094,17 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 		return true;
 	}
+
 	// POPD
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
-	else if (IsCommand(L"POPD",false))
+	if (IsCommand(L"POPD", false))
 	{
+		ConsoleActivatior(false);
+
 		if (!ppstack.empty())
 		{
-			const auto Result = IntChDir(ppstack.top(), true);
+			IntChDir(ppstack.top(), true);
+
 			ppstack.pop();
 			if (!ppstack.empty())
 			{
@@ -1111,25 +1114,28 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			{
 				os::env::del(L"FARDIRSTACK");
 			}
-			return Result;
 		}
 
 		return true;
 	}
+
 	// CLRD
-	else if (IsCommand(L"CLRD",false))
+	if (IsCommand(L"CLRD", false))
 	{
+		ConsoleActivatior(false);
+
 		clear_and_shrink(ppstack);
 		os::env::del(L"FARDIRSTACK");
 		return true;
 	}
+
 	/*
 		Displays or sets the active code page number.
 		CHCP [nnn]
 			nnn   Specifies a code page number (Dec or Hex).
 		Type CHCP without a parameter to display the active code page number.
 	*/
-	else if (IsCommand(L"CHCP",false))
+	if (IsCommand(L"CHCP", false))
 	{
 		auto strCmdLine = CmdLine.substr(4);
 		RemoveExternalSpaces(strCmdLine);
@@ -1146,11 +1152,14 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		if (!Console().SetInputCodepage(cp) || !Console().SetOutputCodepage(cp))
 			return false;
 
+		ConsoleActivatior(false);
+
 		Text(strCmdLine);
 		ScrollScreen(1);
 		return true;
 	}
-	else if (IsCommand(L"CD",true) || IsCommand(L"CHDIR",true))
+
+	if (IsCommand(L"CD", true) || IsCommand(L"CHDIR", true))
 	{
 		const int Length = IsCommand(L"CD", true)? 2 : 5;
 
@@ -1168,11 +1177,16 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		if (strCmdLine.empty())
 			return false;
 
+		ConsoleActivatior(false);
+
 		IntChDir(strCmdLine, Length == 5);
 		return true;
 	}
-	else if (IsCommand(L"TITLE", false))
+
+	if (IsCommand(L"TITLE", false))
 	{
+		ConsoleActivatior(false);
+
 		auto Title = CmdLine.data() + 5; // wcslen(L"title")
 
 		ConsoleTitle::SetUserTitle(*Title? Title + 1 : Title);
@@ -1183,8 +1197,10 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		}
 		return true;
 	}
-	else if (IsCommand(L"EXIT",false))
+
+	if (IsCommand(L"EXIT",false))
 	{
+		ConsoleActivatior(false);
 		Global->WindowManager->ExitMainLoop(FALSE);
 		return true;
 	}
