@@ -1336,7 +1336,7 @@ bool IsExecutable(const string& Filename)
 	static const string_view Executables[] = { L"exe"_sv, L"cmd"_sv, L"com"_sv, L"bat"_sv };
 	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view& Extension)
 	{
-		return equal_icase(Extension, Ext);
+		return equal_icase(Extension, Ext + 1);
 	});
 }
 
