@@ -3,6 +3,48 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.09.2017 23:23:04 +0100 - build 5041
+
+1. 0003501: Do not hide panels on launching a prefix according to association from command line
+
+drkns 24.09.2017 21:26:19 +0100 - build 5040
+
+1. 0003504: Hotkey continues functioning after rebind
+
+drkns 24.09.2017 18:26:06 +0100 - build 5039
+
+1. Correction of 5038.2.
+
+drkns 24.09.2017 16:59:37 +0100 - build 5038
+
+1. 0003505: FarMenu.ini may be a folder, we don't try to process it in this case.
+
+2. Some corrections in launcher on files without extensions and on logic of searching for a file to be launched.
+
+zg 23.09.2017 15:25:28 +0300 - build 5037
+
+1. on file save in editor the current directory was set to where the editor was invoked.
+   removed.
+
+drkns 21.09.2017 21:43:58 +0100 - build 5036
+
+1. 0003499: Excessive full file path is displayed in command line on launch from panel
+
+2. For some reason, "Use registered types" option would have influence on launch of files without extensions from command line.
+   If someone remembers the reason then post it.
+
+drkns 20.09.2017 21:35:37 +0100 - build 5035
+
+1. Continuation of 5030.3.
+
+drkns 20.09.2017 07:37:25 +0100 - build 5034
+
+1. Correction of 5032.
+
+drkns 19.09.2017 23:14:44 +0100 - build 5033
+
+1. 0003497: regexps stopped working (more correct fix than 4492).
+
 drkns 16.09.2017 23:23:44 +0100 - build 5032
 
 1. Continuation of 5030.3.
