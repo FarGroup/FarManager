@@ -179,123 +179,154 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 	if (Module.empty())
 		return false;
 
-	// нулевой проход - смотрим исключения
-	// Берем "исключения" из реестра, которые должны исполняться директом,
-	// например, некоторые внутренние команды ком. процессора.
-	const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
-
-	if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
-	{
-		Internal = true;
-		return true;
-	}
-
-	auto strFullName = Module;
-	const auto ModuleExt = wcsrchr(PointToName(Module), L'.');
-	const auto strPathExt = os::env::get_pathext() + L";;"; // ";;" to also try no extension if nothing else matches
+	const auto ModuleExt = PointToExt(Module);
+	const auto strPathExt = os::env::get_pathext();
 	const auto PathExtList = enum_tokens(strPathExt, L";");
-	for (const auto& i: PathExtList) // первый проход - в текущем каталоге
-	{
-		string strTmpName=strFullName;
 
-		if (!ModuleExt)
+	const auto& TryWithExtOrPathExt = [&](const string& Name, const auto& Predicate)
+	{
+		if (*ModuleExt)
 		{
-			append(strTmpName, i);
+			// Extension has been specified, we don't have to do anything here.
+			return Predicate(Name);
 		}
 
-		if (os::fs::is_file(strTmpName))
 		{
-			strDest = ConvertNameToFull(strTmpName);
+			// Try "as is" first.
+			// This is rather controversial, as, even though it's the best possible match,
+			// picking a name without extension might be unexpected on the current target platform.
+			// TODO: Consider doing this AFTER trying the %PATHEXT%.
+			const auto Result = Predicate(Name);
+			if (Result.first)
+			{
+				return Result;
+			}
+		}
+
+		// Now try all the %PATHEXT%:
+		for (const auto& Ext: PathExtList)
+		{
+			const auto NameWithExt = Name + Ext;
+			const auto Result = Predicate(NameWithExt);
+			if (Result.first)
+				return Result;
+		}
+
+		// Nothing has been found:
+		return std::make_pair(false, L""s);
+	};
+
+	if (IsAbsolutePath(Module))
+	{
+		// If absolute path has been specified it makes no sense to walk through the %PATH%, App Paths etc.
+		// Just try all the extensions and we are done here:
+		const auto Result = TryWithExtOrPathExt(Module, [](const string& NameWithExt)
+		{
+			return std::make_pair(os::fs::is_file(NameWithExt), NameWithExt);
+		});
+
+		if (Result.first)
+		{
+			strDest = Result.second;
 			return true;
 		}
+	}
 
-		if (ModuleExt)
+	if (!*ModuleExt)
+	{
+		// Neither path nor extension has been specified, it could be some internal %COMSPEC% command:
+		const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
+
+		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
 		{
-			break;
+			Internal = true;
+			return true;
 		}
 	}
 
-	// второй проход - по правилам SearchPath
-	const auto strPathEnv(os::env::get(L"PATH"));
-	if (!strPathEnv.empty())
 	{
-		for (const auto& Path: split<std::vector<string>>(strPathEnv, STLF_UNIQUE))
+		// Look in the current directory:
+		const auto FullName = ConvertNameToFull(Module);
+		const auto Result = TryWithExtOrPathExt(FullName, [](const string& NameWithExt)
 		{
-			for (const auto& Ext: PathExtList)
+			return std::make_pair(os::fs::is_file(NameWithExt), NameWithExt);
+		});
+
+		if (Result.first)
+		{
+			strDest = Result.second;
+			return true;
+		}
+	}
+
+	{
+		// Look in the %PATH%:
+		const auto PathEnv = os::env::get(L"PATH");
+		if (!PathEnv.empty())
+		{
+			for (const auto& Path : split<std::vector<string>>(PathEnv, STLF_UNIQUE))
 			{
-				string Dest;
-				if (os::SearchPath(Path.data(), strFullName, make_string(Ext).data(), Dest))
+				auto FullName = Path;
+				AddEndSlash(FullName);
+				FullName += Module;
+
+				const auto Result = TryWithExtOrPathExt(FullName, [](const string& NameWithExt)
 				{
-					if (os::fs::is_file(Dest))
+					return std::make_pair(os::fs::is_file(NameWithExt), NameWithExt);
+				});
+
+				if (Result.first)
+				{
+					strDest = Result.second;
+					return true;
+				}
+			}
+		}
+	}
+
+	{
+		// Look in the App Paths registry keys:
+		if (Global->Opt->Exec.ExecuteUseAppPath && !contains(Module, L'\\'))
+		{
+			static const wchar_t RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+			static const HKEY RootFindKey[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE };
+			const auto FullName = RegPath + Module;
+
+			DWORD samDesired = KEY_QUERY_VALUE;
+
+			for (size_t i = 0; i < std::size(RootFindKey); i++)
+			{
+				if (i == std::size(RootFindKey) - 1)
+				{
+					if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
 					{
-						strDest = Dest;
-						return true;
+						samDesired |= RedirectionFlag;
+					}
+					else
+					{
+						break;
 					}
 				}
-			}
-		}
-	}
 
-	for (const auto& Ext: PathExtList)
-	{
-		string Dest;
-		if (os::SearchPath(nullptr, strFullName, make_string(Ext).data(), Dest))
-		{
-			if (os::fs::is_file(Dest))
-			{
-				strDest = Dest;
-				return true;
-			}
-		}
-	}
-
-	// третий проход - лезем в реестр в "App Paths"
-	if (Global->Opt->Exec.ExecuteUseAppPath && !contains(strFullName, L'\\'))
-	{
-		static const wchar_t RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-		// В строке Module заменить исполняемый модуль на полный путь, который
-		// берется из SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths
-		// Сначала смотрим в HKCU, затем - в HKLM
-		static const HKEY RootFindKey[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE };
-		strFullName = RegPath;
-		strFullName += Module;
-
-		DWORD samDesired = KEY_QUERY_VALUE;
-
-		for (size_t i = 0; i < std::size(RootFindKey); i++)
-		{
-			if (i == std::size(RootFindKey) - 1)
-			{
-				if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
+				const auto Result = TryWithExtOrPathExt(FullName, [&](const string& NameWithExt)
 				{
-					samDesired |= RedirectionFlag;
-				}
-				else
+					string RealName;
+					if (os::reg::GetValue(RootFindKey[i], NameWithExt, L"", RealName, samDesired))
+					{
+						RealName = unquote(os::env::expand(RealName));
+						return std::make_pair(os::fs::is_file(RealName), RealName);
+					}
+
+					return std::make_pair(false, L""s);
+				});
+
+				if (Result.first)
 				{
-					break;
+					strDest = Result.second;
+					return true;
 				}
 			}
-
-			if (os::reg::GetValue(RootFindKey[i], strFullName, L"", strFullName, samDesired))
-			{
-				strDest = unquote(os::env::expand(strFullName));
-				return true;
-			}
 		}
-
-		return std::any_of(CONST_RANGE(PathExtList, Ext)
-		{
-			strFullName = concat(RegPath, Module, Ext);
-
-			return std::any_of(CONST_RANGE(RootFindKey, i)
-			{
-				if (!os::reg::GetValue(i, strFullName, L"", strFullName))
-					return false;
-
-				strDest = unquote(os::env::expand(strFullName));
-				return true;
-			});
-		});
 	}
 
 	return false;
@@ -398,12 +429,18 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 	const wchar_t command_action[]=L"\\command";
 	Error = ERROR_SUCCESS;
 
-	const auto ExtPtr = wcsrchr(FileName.data(), L'.');
-	if (!ExtPtr)
-		return nullptr;
+	auto Ext = PointToExt(FileName);
+	if (!*Ext)
+	{
+		// Yes, no matter how mad it looks - it is possible to specify actions for empty extension too
+		Ext = L".";
+	}
 
-	if (!GetShellType(ExtPtr, strValue))
-		return nullptr;
+	if (!GetShellType(Ext, strValue))
+	{
+		// Type is absent, however, verbs could be specified right in the extension key
+		strValue = Ext;
+	}
 
 	if (const auto Key = os::reg::open_key(HKEY_CLASSES_ROOT, strValue.data(), KEY_QUERY_VALUE))
 	{
@@ -1290,15 +1327,17 @@ bool ExtractIfExistCommand(string &strCommandText)
 
 bool IsExecutable(const string& Filename)
 {
-	const auto DotPos = Filename.find_last_of('.');
-	if (DotPos == string::npos || DotPos == Filename.size() - 1)
+	const auto Ext = PointToExt(Filename);
+	if (!*Ext)
 		return false;
-
-	const auto Extension = lower(Filename.substr(DotPos + 1));
 
 	// these guys have specific association in Windows Registry: "%1" %*
 	// That means we can't find the associated program etc., so they shall be hard-coded.
-	return Extension == L"exe" || Extension == L"com" || Extension == L"bat" || Extension == L"cmd";
+	static const string_view Executables[] = { L"exe"_sv, L"cmd"_sv, L"com"_sv, L"bat"_sv };
+	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view& Extension)
+	{
+		return equal_icase(Extension, Ext);
+	});
 }
 
 bool ExpandOSAliases(string &strStr)

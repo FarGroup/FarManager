@@ -376,9 +376,10 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 		m_Menu.clear();
 
 		// Пытаемся открыть файл на локальном диске
-		if (const auto MenuFile = os::fs::file(strMenuFileFullPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+		if (os::fs::is_file(strMenuFileFullPath))
 		{
-			DeserializeMenu(m_Menu, MenuFile, m_MenuCP);
+			if (const auto MenuFile = os::fs::file(strMenuFileFullPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+				DeserializeMenu(m_Menu, MenuFile, m_MenuCP);
 		}
 		else if (m_MenuMode != menu_mode::user)
 		{
