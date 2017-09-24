@@ -482,10 +482,13 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel(), false);
 }
 
+using fkey_to_pos_map = std::array<int, 24>;
+
 // заполнение меню
-static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, int MenuPos, int *FuncPos, const string& Name, const string& ShortName)
+static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, int MenuPos, fkey_to_pos_map& FuncPos, const string& Name, const string& ShortName)
 {
 	FarUserMenu.clear();
+	FuncPos.fill(-1);
 	int NumLines = -1;
 
 	FOR_RANGE(Menu, MenuItem)
@@ -540,11 +543,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 {
 	for (;;)
 	{
-		int ExitCode, FuncPos[24];
-
-		// очистка F-хоткеев
-		std::fill(ALL_RANGE(FuncPos), -1);
-
 		string strName,strShortName;
 		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(strName,strShortName);
 		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
@@ -558,9 +556,11 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		int ReturnCode=1;
 
+		fkey_to_pos_map FuncPos;
+
 		FillUserMenu(*UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 
-		ExitCode=UserMenu->Run([&](const Manager::Key& RawKey)
+		const auto ExitCode = UserMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			MenuPos=UserMenu->GetSelectPos();
