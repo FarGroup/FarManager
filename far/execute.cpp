@@ -191,19 +191,7 @@ static bool FindObject(const string& Module, string &strDest, bool* Internal)
 			return Predicate(Name);
 		}
 
-		{
-			// Try "as is" first.
-			// This is rather controversial, as, even though it's the best possible match,
-			// picking a name without extension might be unexpected on the current target platform.
-			// TODO: Consider doing this AFTER trying the %PATHEXT%.
-			const auto Result = Predicate(Name);
-			if (Result.first)
-			{
-				return Result;
-			}
-		}
-
-		// Now try all the %PATHEXT%:
+		// Try all the %PATHEXT%:
 		for (const auto& Ext: PathExtList)
 		{
 			const auto NameWithExt = Name + Ext;
@@ -212,7 +200,13 @@ static bool FindObject(const string& Module, string &strDest, bool* Internal)
 				return Result;
 		}
 
-		// Nothing has been found:
+		// Try "as is".
+		// Even though it could be the best possible match, picking a name without extension
+		// is rather unexpected on the current target platform, it's better to disable it for good.
+		// This comment is kept for historic purposes and to stop trying this again in future.
+		// If you really want to look for files w/o extension - add ";;" to the %PATHEXT%.
+		// return Predicate(Name);
+
 		return std::make_pair(false, L""s);
 	};
 
