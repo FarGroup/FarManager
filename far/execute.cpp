@@ -841,7 +841,10 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	seInfo.lpDirectory=strCurDir.data();
 	seInfo.nShow = SW_SHOWNORMAL;
 
-	ConsoleActivator(!Silent);
+	if (ConsoleActivator)
+	{
+		ConsoleActivator(!Silent);
+	}
 
 	if(!Silent)
 	{
