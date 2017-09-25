@@ -63,9 +63,6 @@ public:
 
 	void DrawCommand(const string& Command) override
 	{
-		if (m_ShowCommand)
-			return;
-
 		Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
 		ScrollScreen(1);
 
