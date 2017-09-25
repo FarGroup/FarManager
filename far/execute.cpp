@@ -180,7 +180,7 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 		return false;
 
 	const auto ModuleExt = PointToExt(Module);
-	const auto strPathExt = os::env::get_pathext();
+	const auto strPathExt = lower(os::env::get_pathext());
 	const auto PathExtList = enum_tokens(strPathExt, L";");
 
 	const auto& TryWithExtOrPathExt = [&](const string& Name, const auto& Predicate)
@@ -281,6 +281,21 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 					return true;
 				}
 			}
+		}
+	}
+
+	{
+		// Use SearchPath:
+		const auto Result = TryWithExtOrPathExt(Module, [](const string& NameWithExt)
+		{
+			string Result;
+			return std::make_pair(os::SearchPath(nullptr, NameWithExt, nullptr, Result), Result);
+		});
+
+		if (Result.first)
+		{
+			strDest = Result.second;
+			return true;
 		}
 	}
 
