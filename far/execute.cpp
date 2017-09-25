@@ -174,7 +174,7 @@ static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strTyp
 	return false;
 }
 
-static bool FindObject(const string& Module, string &strDest, bool &Internal)
+static bool FindObject(const string& Module, string &strDest, bool* Internal)
 {
 	if (Module.empty())
 		return false;
@@ -232,14 +232,14 @@ static bool FindObject(const string& Module, string &strDest, bool &Internal)
 		}
 	}
 
-	if (!*ModuleExt)
+	if (Internal && !*ModuleExt)
 	{
 		// Neither path nor extension has been specified, it could be some internal %COMSPEC% command:
 		const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
 		{
-			Internal = true;
+			*Internal = true;
 			return true;
 		}
 	}
@@ -746,7 +746,9 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 				if (!Verb.empty() && !Application.empty() && SaError != ERROR_NO_ASSOCIATION)
 				{
-					return GetImageType(Application, ImageType) || GetAssociatedImageTypeForBatCmd(Application, ImageType);
+					string FoundApplication;
+					if (FindObject(Application, FoundApplication, nullptr))
+						return GetImageType(FoundApplication, ImageType) || GetAssociatedImageTypeForBatCmd(FoundApplication, ImageType);
 				}
 			}
 			return false;
@@ -776,7 +778,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 		auto ImageType = image_type::unknown;
 
-		if (Info.SourceMode == execute_info::source_mode::known || FindObject(ModuleName, FoundModuleName, Internal))
+		if (Info.SourceMode == execute_info::source_mode::known || FindObject(ModuleName, FoundModuleName, &Internal))
 		{
 			if (Internal)
 			{
