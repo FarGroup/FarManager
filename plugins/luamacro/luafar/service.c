@@ -2856,6 +2856,7 @@ TDialogData* NewDialogData(lua_State* L, PSInfo *Info, HANDLE hDlg,
 	dd->hDlg     = hDlg;
 	dd->isOwned  = isOwned;
 	dd->wasError = FALSE;
+	dd->isModal  = TRUE;
 	luaL_getmetatable(L, FarDialogType);
 	lua_setmetatable(L, -2);
 
@@ -3621,13 +3622,13 @@ intptr_t ProcessDNResult(lua_State *L, intptr_t Msg, void *Param2)
 	return ret;
 }
 
-intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+static intptr_t DoDlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
 	intptr_t ret;
 	PSInfo *Info = GetPluginData(L)->Info;
 	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
-	if(dd->wasError)
+	if(!dd || dd->wasError)
 		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
 
 	L = dd->L; // the dialog may be called from a lua_State other than the main one
@@ -3658,6 +3659,30 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 		ProcessDNResult(L, Msg, Param2);
 
 	lua_pop(L, 1);
+	return ret;
+}
+
+static void RemoveDialogFromRegistry(lua_State *L, TDialogData *dd)
+{
+	dd->hDlg = INVALID_HANDLE_VALUE;
+	lua_pushlightuserdata(L, dd);
+	lua_pushnil(L);
+	lua_rawset(L, LUA_REGISTRYINDEX);
+}
+
+intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+{
+	intptr_t ret=DoDlgProc(L, hDlg, Msg, Param1, Param2);
+	if (Msg == DN_CLOSE && ret)
+	{
+		PSInfo *Info = GetPluginData(L)->Info;
+		TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+		if (dd && !dd->isModal)
+		{
+			Info->SendDlgMessage(hDlg, DM_SETDLGDATA, 0, 0);
+			RemoveDialogFromRegistry(L, dd);
+		}
+	}
 	return ret;
 }
 
@@ -3708,6 +3733,7 @@ static int far_DialogInit(lua_State *L)
 	// 8-th parameter (flags)
 	Flags = CheckFlags(L, 8);
 	dd = NewDialogData(L, pd->Info, INVALID_HANDLE_VALUE, TRUE);
+	dd->isOwned = (Flags&0x20) == 0;
 	// 9-th parameter (DlgProc function)
 	Proc = NULL;
 	Param = NULL;
@@ -3718,29 +3744,30 @@ static int far_DialogInit(lua_State *L)
 		Param = dd;
 	}
 
+	// Put some values into the registry
+	lua_pushlightuserdata(L, dd); // important: index it with dd
+	lua_createtable(L, 3, 0);
+	lua_pushvalue(L, 1);      // store the "histories" table
+	lua_rawseti(L, -2, 1);
+
+	if(lua_isfunction(L, 9))
+	{
+		lua_pushvalue(L, 9);    // store the procedure
+		lua_rawseti(L, -2, 2);
+		lua_pushvalue(L, -3);   // store the handle
+		lua_rawseti(L, -2, 3);
+	}
+
+	lua_rawset(L, LUA_REGISTRYINDEX);
+
 	dd->hDlg = pd->Info->DialogInit(pd->PluginId, &Id, X1, Y1, X2, Y2, HelpTopic,
 	                                Items, ItemsNumber, 0, Flags, Proc, Param);
 
-	if(dd->hDlg != INVALID_HANDLE_VALUE)
+	if(dd->hDlg == INVALID_HANDLE_VALUE)
 	{
-		// Put some values into the registry
-		lua_pushlightuserdata(L, dd); // important: index it with dd
-		lua_createtable(L, 3, 0);
-		lua_pushvalue(L, 1);      // store the "histories" table
-		lua_rawseti(L, -2, 1);
-
-		if(lua_isfunction(L, 9))
-		{
-			lua_pushvalue(L, 9);    // store the procedure
-			lua_rawseti(L, -2, 2);
-			lua_pushvalue(L, -3);   // store the handle
-			lua_rawseti(L, -2, 3);
-		}
-
-		lua_rawset(L, LUA_REGISTRYINDEX);
-	}
-	else
+		RemoveDialogFromRegistry(L, dd);
 		lua_pushnil(L);
+	}
 
 	return 1;
 }
@@ -3749,13 +3776,10 @@ static void free_dialog(TDialogData* dd)
 {
 	lua_State* L = dd->L;
 
-	if(dd->isOwned && dd->hDlg != INVALID_HANDLE_VALUE)
+	if(dd->isOwned && dd->isModal && dd->hDlg != INVALID_HANDLE_VALUE)
 	{
 		dd->Info->DialogFree(dd->hDlg);
-		dd->hDlg = INVALID_HANDLE_VALUE;
-		lua_pushlightuserdata(L, dd);
-		lua_pushnil(L);
-		lua_rawset(L, LUA_REGISTRYINDEX);
+		RemoveDialogFromRegistry(L, dd);
 	}
 }
 

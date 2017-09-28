@@ -4208,24 +4208,31 @@ void Dialog::Process()
 
 	if (m_ExitCode == -1)
 	{
-		static std::atomic_long DialogsCount(0);
-		std::chrono::steady_clock::time_point btm;
-
 		DialogMode.Set(DMODE_BEGINLOOP);
 
-		if (!DialogsCount)
+		if(GetCanLoseFocus())
 		{
-			btm = std::chrono::steady_clock::now();
+			Global->WindowManager->InsertWindow(shared_from_this());
 		}
-
-		++DialogsCount;
-		Global->WindowManager->ExecuteWindow(shared_from_this());
-		Global->WindowManager->ExecuteModal(shared_from_this());
-		--DialogsCount;
-
-		if (!DialogsCount)
+		else
 		{
-			WaitUserTime += std::chrono::steady_clock::now() - btm;
+			static std::atomic_long DialogsCount(0);
+			std::chrono::steady_clock::time_point btm;
+
+			if (!DialogsCount)
+			{
+				btm = std::chrono::steady_clock::now();
+			}
+
+			++DialogsCount;
+			Global->WindowManager->ExecuteWindow(shared_from_this());
+			Global->WindowManager->ExecuteModal(shared_from_this());
+			--DialogsCount;
+
+			if (!DialogsCount)
+			{
+				WaitUserTime += std::chrono::steady_clock::now() - btm;
+			}
 		}
 	}
 

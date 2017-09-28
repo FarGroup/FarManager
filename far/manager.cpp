@@ -759,7 +759,7 @@ bool Manager::ProcessKey(Key key)
 				}
 				case KEY_F12:
 				{
-					if (!std::dynamic_pointer_cast<Modal>(Global->WindowManager->GetCurrentWindow()))
+					if (!std::dynamic_pointer_cast<Modal>(Global->WindowManager->GetCurrentWindow()) || Global->WindowManager->GetCurrentWindow()->GetCanLoseFocus())
 					{
 						WindowMenu();
 						//_MANAGER(SysLog(-1));
@@ -1207,7 +1207,7 @@ Manager::sorted_windows Manager::GetSortedWindows(void) const
 
 void* Manager::GetCurrent(const std::function<void*(windows::const_reverse_iterator)>& Check) const
 {
-	const auto iterator = std::find_if(CONST_REVERSE_RANGE(m_windows, i) { return !std::dynamic_pointer_cast<Modal>(i); });
+	const auto iterator = std::find_if(CONST_REVERSE_RANGE(m_windows, i) { return !std::dynamic_pointer_cast<Modal>(i) || GetCurrentWindow()->GetCanLoseFocus(); });
 	if (iterator!=m_windows.crend())
 	{
 		return Check(iterator);

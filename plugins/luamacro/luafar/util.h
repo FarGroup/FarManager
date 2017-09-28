@@ -58,6 +58,7 @@ typedef struct
 	HANDLE            hDlg;
 	BOOL              isOwned;
 	BOOL              wasError;
+	BOOL              isModal;
 } TDialogData;
 
 int   GetAttrFromTable(lua_State *L);

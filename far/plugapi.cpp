@@ -1004,7 +1004,11 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 
 			if (FarDialog->InitOK())
 			{
-				Plugin->AddDialog(FarDialog);
+				if (Flags & FDLG_NONMODAL)
+					FarDialog->SetCanLoseFocus(TRUE);
+				else
+					Plugin->AddDialog(FarDialog);
+
 				hDlg = FarDialog.get();
 
 				FarDialog->SetPosition(X1,Y1,X2,Y2);
@@ -1024,9 +1028,6 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				if (Flags & FDLG_KEEPCONSOLETITLE)
 					FarDialog->SetDialogMode(DMODE_KEEPCONSOLETITLE);
 
-				if (Flags & FDLG_NONMODAL)
-					FarDialog->SetCanLoseFocus(TRUE);
-
 				FarDialog->SetHelp(NullToEmpty(HelpTopic));
 
 				FarDialog->SetId(*Id);
@@ -1034,6 +1035,9 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				   Запомним номер плагина - сейчас в основном для формирования HelpTopic
 				*/
 				FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
+
+				if (FarDialog->GetCanLoseFocus())
+					FarDialog->Process();
 			}
 		}
 		return hDlg;
@@ -1051,12 +1055,11 @@ intptr_t WINAPI apiDialogRun(HANDLE hDlg) noexcept
 
 		const auto FarDialog = static_cast<Dialog*>(hDlg);
 
-		FarDialog->Process();
-		int ExitCode = FarDialog->GetExitCode();
-
-		if (Global->IsMainThread()) // BUGBUG, findfile
-			Global->WindowManager->RefreshWindow(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
-		return ExitCode;
+		if (!FarDialog->GetCanLoseFocus())
+		{
+			FarDialog->Process();
+			return FarDialog->GetExitCode();
+		}
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return -1;
@@ -1068,9 +1071,13 @@ void WINAPI apiDialogFree(HANDLE hDlg) noexcept
 	{
 		if (hDlg != INVALID_HANDLE_VALUE)
 		{
-			const auto Dlg = static_cast<Dialog*>(hDlg)->shared_from_this();
-			const auto& Plugins = Global->CtrlObject->Plugins;
-			std::any_of(RANGE(*Plugins, i) { return i->RemoveDialog(Dlg); });
+			const auto FarDialog = static_cast<Dialog*>(hDlg);
+			if (!FarDialog->GetCanLoseFocus())
+			{
+				const auto Dlg = FarDialog->shared_from_this();
+				const auto& Plugins = Global->CtrlObject->Plugins;
+				std::any_of(RANGE(*Plugins, i) { return i->RemoveDialog(Dlg); });
+			}
 		}
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
