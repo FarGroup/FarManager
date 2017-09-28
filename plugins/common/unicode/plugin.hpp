@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 4908
+Plugin API for Far Manager 3.0 build 5047
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 4908
+#define FARMANAGERVERSION_BUILD 5047
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -115,6 +115,29 @@ struct FarColor
 	{
 		return !(*this == rhs);
 	}
+
+	bool IsBg4Bit() const
+	{
+		return (Flags & FCF_BG_4BIT) != 0;
+	}
+
+	bool IsFg4Bit() const
+	{
+		return (Flags & FCF_FG_4BIT) != 0;
+	}
+
+	FarColor& SetBg4Bit(bool Value)
+	{
+		Value? Flags |= FCF_BG_4BIT : Flags &= ~FCF_BG_4BIT;
+		return *this;
+	}
+
+	FarColor& SetFg4Bit(bool Value)
+	{
+		Value? Flags |= FCF_FG_4BIT : Flags &= ~FCF_FG_4BIT;
+		return *this;
+	}
+
 #endif
 };
 
@@ -590,6 +613,7 @@ static const FARDIALOGFLAGS
 	FDLG_NODRAWSHADOW        = 0x0000000000000004ULL,
 	FDLG_NODRAWPANEL         = 0x0000000000000008ULL,
 	FDLG_KEEPCONSOLETITLE    = 0x0000000000000010ULL,
+	FDLG_NONMODAL            = 0x0000000000000020ULL,
 	FDLG_NONE                = 0;
 
 typedef intptr_t(WINAPI *FARWINDOWPROC)(
@@ -2815,6 +2839,13 @@ struct GetContentDataInfo
 	const wchar_t* const *Names;
 	const wchar_t **Values;
 	void* Instance;
+};
+
+struct ErrorInfo
+{
+	size_t StructSize;
+	const wchar_t* Summary;
+	const wchar_t* Description;
 };
 
 static const GUID FarGuid =
