@@ -166,6 +166,7 @@ public:
 	virtual void Show() override;
 	virtual void Hide() override;
 	virtual void SetExitCode(int Code) override;
+	virtual void OnChangeFocus(bool focus) override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_dialog; }
 	virtual bool CanFastHide() const override;
