@@ -3622,11 +3622,9 @@ intptr_t ProcessDNResult(lua_State *L, intptr_t Msg, void *Param2)
 	return ret;
 }
 
-static intptr_t DoDlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+static intptr_t DoDlgProc(lua_State *L, PSInfo *Info, TDialogData *dd, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
 	intptr_t ret;
-	PSInfo *Info = GetPluginData(L)->Info;
-	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
 
 	if(!dd || dd->wasError)
 		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
@@ -3670,18 +3668,24 @@ static void RemoveDialogFromRegistry(lua_State *L, TDialogData *dd)
 	lua_rawset(L, LUA_REGISTRYINDEX);
 }
 
+static inline BOOL NonModal(TDialogData *dd)
+{
+	return dd && !dd->isModal;
+}
+
 intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
-	intptr_t ret=DoDlgProc(L, hDlg, Msg, Param1, Param2);
-	if (Msg == DN_CLOSE && ret)
+	PSInfo *Info = GetPluginData(L)->Info;
+	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+	if (Msg == DN_INITDIALOG && NonModal(dd))
 	{
-		PSInfo *Info = GetPluginData(L)->Info;
-		TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
-		if (dd && !dd->isModal)
-		{
-			Info->SendDlgMessage(hDlg, DM_SETDLGDATA, 0, 0);
-			RemoveDialogFromRegistry(L, dd);
-		}
+		dd->hDlg = hDlg;
+	}
+	intptr_t ret=DoDlgProc(L, Info, dd, hDlg, Msg, Param1, Param2);
+	if (Msg == DN_CLOSE && ret && NonModal(dd))
+	{
+		Info->SendDlgMessage(hDlg, DM_SETDLGDATA, 0, 0);
+		RemoveDialogFromRegistry(L, dd);
 	}
 	return ret;
 }
