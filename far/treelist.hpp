@@ -81,7 +81,7 @@ public:
 
 	virtual bool ProcessKey(const Manager::Key& Key) override;
 	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual bool GoToFile(const string& Name, bool OnlyPartName = false) override;
+	virtual bool GoToFile(const string_view& Name, bool OnlyPartName = false) override;
 	virtual bool FindPartName(const string& Name, int Next, int Direct = 1) override;
 	virtual void Update(int Mode) override;
 	virtual const string& GetCurDir() const override;
@@ -107,7 +107,7 @@ private:
 	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual bool GetPlainString(string& Dest, int ListPos) const override;
 	virtual bool GoToFile(long idxItem) override;
-	virtual long FindFile(const string& Name, bool OnlyPartName = false) override;
+	virtual long FindFile(const string_view& Name, bool OnlyPartName = false) override;
 	virtual long FindFirst(const string& Name) override;
 	virtual long FindNext(int StartPos, const string& Name) override;
 	virtual size_t GetFileCount() const override { return m_ListData.size(); }
@@ -117,7 +117,7 @@ private:
 	virtual void OnFocusChange(bool Get) override;
 	virtual void UpdateKeyBar() override;
 	virtual int GetCurrentPos() const override;
-	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) override;
+	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::fs::find_data *fd = nullptr) override;
 	virtual void DisplayObject() override;
 	virtual size_t GetSelCount() const override;
 

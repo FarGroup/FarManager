@@ -304,7 +304,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	bool IsPersistent = true;
 	const wchar_t KeyName[] = { L'N', L'e', L't', L'w', L'o', L'r', L'k', L'\\', Letter, L'\0' };
 
-	if (os::reg::open_key(HKEY_CURRENT_USER, KeyName, KEY_QUERY_VALUE))
+	if (os::reg::key::open(os::reg::key::current_user, KeyName, KEY_QUERY_VALUE))
 	{
 		DCDlg[5].Selected = Global->Opt->ChangeDriveDisconnectMode;
 	}
@@ -489,7 +489,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			VIRTUAL_STORAGE_TYPE VirtualStorageType;
 			if (GetVHDInfo(DiskLetter, strVhdPath, &VirtualStorageType) && !strVhdPath.empty())
 			{
-				if (os::DetachVirtualDisk(strVhdPath, VirtualStorageType))
+				if (os::fs::detach_virtual_disk(strVhdPath, VirtualStorageType))
 				{
 					return DRIVE_DEL_SUCCESS;
 				}
@@ -727,7 +727,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL | DRIVE_SHOW_FILESYSTEM))
 			{
 				auto Absent = false;
-				if (ShowDiskInfo && !os::GetVolumeInformation(strRootDir, &NewItem.Label, nullptr, nullptr, nullptr, &NewItem.Fs))
+				if (ShowDiskInfo && !os::fs::GetVolumeInformation(strRootDir, &NewItem.Label, nullptr, nullptr, nullptr, &NewItem.Fs))
 				{
 					Absent = true;
 					ShowDiskInfo = false;
@@ -735,8 +735,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 				if (NewItem.Label.empty())
 				{
-					static const HKEY Roots[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
-					if (!std::any_of(CONST_RANGE(Roots, Root){ return os::reg::GetValue(Root, string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label); }) && Absent)
+					static const os::reg::key* Roots[] = { &os::reg::key::current_user, &os::reg::key::local_machine };
+					if (!std::any_of(CONST_RANGE(Roots, Root){ return Root->get(string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label); }) && Absent)
 					{
 						NewItem.Label = msg(lng::MChangeDriveLabelAbsent);
 					}
@@ -747,7 +747,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			{
 				unsigned long long TotalSize = 0, UserFree = 0;
 
-				if (ShowDiskInfo && os::GetDiskSize(strRootDir, &TotalSize, nullptr, &UserFree))
+				if (ShowDiskInfo && os::fs::get_disk_size(strRootDir, &TotalSize, nullptr, &UserFree))
 				{
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{
@@ -1132,7 +1132,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	if (Global->Opt->CloseCDGate && mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType))
 	{
-		if (!os::IsDiskInDrive(os::fs::get_drive(mitem->cDrive)))
+		if (!os::fs::IsDiskInDrive(os::fs::get_drive(mitem->cDrive)))
 		{
 			if (!EjectVolume(mitem->cDrive, EJECT_READY | EJECT_NO_MESSAGE))
 			{
@@ -1193,7 +1193,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 		}
 
-		const auto strNewCurDir = os::GetCurrentDirectory();
+		const auto strNewCurDir = os::fs::GetCurrentDirectory();
 
 		if ((Owner->GetMode() == panel_mode::NORMAL_PANEL) &&
 			(Owner->GetType() == panel_type::FILE_PANEL) &&

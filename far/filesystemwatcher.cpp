@@ -69,7 +69,7 @@ void FileSystemWatcher::Set(const string& Directory, bool WatchSubtree)
 	m_Directory = NTPath(Directory);
 	m_WatchSubtree = WatchSubtree;
 
-	if (os::GetFileTimeSimple(Directory,nullptr,nullptr,&m_PreviousLastWriteTime,nullptr))
+	if (os::fs::GetFileTimeSimple(Directory, nullptr, nullptr, &m_PreviousLastWriteTime, nullptr))
 		m_CurrentLastWriteTime = m_PreviousLastWriteTime;
 
 	m_IsFatFilesystem = {};
@@ -92,7 +92,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 			if (!strRoot.empty())
 			{
 				string strFileSystem;
-				if (os::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
+				if (os::fs::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
 					m_IsFatFilesystem.first = starts_with(strFileSystem, L"FAT"_sv);
 			}
 
@@ -111,7 +111,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 
 	if (check_time)
 	{
-		if (!os::GetFileTimeSimple(m_Directory, nullptr, nullptr, &m_CurrentLastWriteTime, nullptr))
+		if (!os::fs::GetFileTimeSimple(m_Directory, nullptr, nullptr, &m_CurrentLastWriteTime, nullptr))
 		{
 			m_PreviousLastWriteTime = {};
 			m_CurrentLastWriteTime = {};
@@ -147,7 +147,7 @@ void FileSystemWatcher::Register()
 	{
 		try
 		{
-			m_Notification = os::FindFirstChangeNotification(m_Directory, m_WatchSubtree,
+			m_Notification = os::fs::FindFirstChangeNotification(m_Directory, m_WatchSubtree,
 				FILE_NOTIFY_CHANGE_FILE_NAME |
 				FILE_NOTIFY_CHANGE_DIR_NAME |
 				FILE_NOTIFY_CHANGE_ATTRIBUTES |

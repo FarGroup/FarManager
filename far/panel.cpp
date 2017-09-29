@@ -111,7 +111,7 @@ void Panel::SetViewMode(int ViewMode)
 
 void Panel::ChangeDirToCurrent()
 {
-	SetCurDir(os::GetCurrentDirectory(), true);
+	SetCurDir(os::fs::GetCurrentDirectory(), true);
 }
 
 long long Panel::VMProcess(int OpCode, void* vParam, long long iParam)
@@ -548,11 +548,10 @@ void Panel::DragMessage(int X,int Y,int Move)
 	}
 	else if (SelCount == 1)
 	{
-		string strCvtName;
 		DWORD FileAttr;
 		SrcDragPanel->GetSelName(nullptr,FileAttr);
 		SrcDragPanel->GetSelName(&strSelName,FileAttr);
-		strCvtName = PointToName(strSelName);
+		auto strCvtName = make_string(PointToName(strSelName));
 		QuoteSpace(strCvtName);
 		strSelName = strCvtName;
 	}
@@ -658,7 +657,7 @@ bool Panel::SetCurPath()
 		{
 			const auto strRoot = GetPathRoot(m_CurDir);
 
-			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || os::IsDiskInDrive(strRoot))
+			if (FAR_GetDriveType(strRoot) != DRIVE_REMOVABLE || os::fs::IsDiskInDrive(strRoot))
 			{
 				if (!os::fs::is_directory(m_CurDir))
 				{

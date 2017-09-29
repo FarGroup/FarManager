@@ -3536,8 +3536,8 @@ static bool fattrFuncImpl(int Type, FarMacroCall* Data)
 	{
 		auto Params = parseParams(1, Data);
 		TVar& Str(Params[0]);
-		os::FAR_FIND_DATA FindData;
-		os::GetFindDataEx(Str.toString(), FindData);
+		os::fs::find_data FindData;
+		os::fs::get_find_data(Str.toString(), FindData);
 		FileAttr=FindData.dwFileAttributes;
 		Ret=true;
 	}

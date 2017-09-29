@@ -158,12 +158,12 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	UINT DriveType = FAR_GetDriveType(strRootDir, 0);
 	const auto PathType = ParsePath(strRootDir);
 	/*
-	PATH_UNKNOWN,
-	PATH_DRIVELETTER,
-	PATH_DRIVELETTERUNC,
-	PATH_REMOTE,
-	PATH_REMOTEUNC,
-	PATH_VOLUMEGUID,
+	root_type::unknown,
+	root_type::drive_letter,
+	root_type::unc_drive_letter,
+	root_type::remote,
+	root_type::unc_remote,
+	root_type::volume,
 	PATH_PIPE,
 	*/
 
@@ -171,7 +171,7 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength = 0, FileSystemFlags = 0, VolumeNumber = 0;
 
-	if (os::GetVolumeInformation(strRootDir, &strVolumeName,
+	if (os::fs::GetVolumeInformation(strRootDir, &strVolumeName,
 		&VolumeNumber, &MaxNameLength, &FileSystemFlags,
 		&strFileSystemName))
 	{
@@ -203,13 +203,13 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 			if (Global->Opt->Tree.NetDisk || Global->Opt->Tree.NetPath)
 			{
 				string strServer, strShare;
-				if (PathType == PATH_REMOTE)
+				if (PathType == root_type::remote)
 				{
 					strServer = ExtractComputerName(strRootDir, &strShare);
 					DeleteEndSlash(strShare);
 				}
 
-				ConvertTemplateTreeName(strTreeFileName, PathType == PATH_DRIVELETTER ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), strServer.data(), strShare.data());
+				ConvertTemplateTreeName(strTreeFileName, PathType == root_type::drive_letter ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), strServer.data(), strShare.data());
 				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveNetPath;
 			}
@@ -294,7 +294,7 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	string strVolumeName, strFileSystemName;
 	DWORD dwVolumeSerialNumber;
 
-	if (!os::GetVolumeInformation(
+	if (!os::fs::GetVolumeInformation(
 		Root,
 		&strVolumeName,
 		&dwVolumeSerialNumber,
@@ -313,20 +313,20 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 
 	if (CreateDir)
 	{
-		os::CreateDirectory(strFolderName, nullptr);
-		os::SetFileAttributes(strFolderName, Global->Opt->Tree.TreeFileAttr);
+		os::fs::create_directory(strFolderName);
+		os::fs::set_file_attributes(strFolderName, Global->Opt->Tree.TreeFileAttr);
 	}
 
 	string strRemoteName;
 
 	const auto PathType = ParsePath(Root);
-	if (PathType == PATH_REMOTE || PathType == PATH_REMOTEUNC)
+	if (PathType == root_type::remote || PathType == root_type::unc_remote)
 	{
 		strRemoteName = Root;
 	}
-	else if (PathType == PATH_DRIVELETTER || PathType == PATH_DRIVELETTERUNC)
+	else if (PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter)
 	{
-		if (os::WNetGetConnection(os::fs::get_drive(Root[PathType == PATH_DRIVELETTER ? 0 : 4]), strRemoteName))
+		if (os::WNetGetConnection(os::fs::get_drive(Root[PathType == root_type::drive_letter ? 0 : 4]), strRemoteName))
 			AddEndSlash(strRemoteName);
 	}
 
@@ -808,10 +808,10 @@ template<class string_type, class container_type, class opener_type>
 static void WriteTree(string_type& Name, const container_type& Container, const opener_type& Opener, size_t offset)
 {
 	// получим и сразу сбросим атрибуты (если получится)
-	DWORD SavedAttributes = os::GetFileAttributes(Name);
+	DWORD SavedAttributes = os::fs::get_file_attributes(Name);
 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
-		os::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL);
+		os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL);
 
 	os::fs::file TreeFile = Opener(Name);
 
@@ -842,11 +842,11 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	if (Result)
 	{
 		if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-			os::SetFileAttributes(Name, SavedAttributes);
+			os::fs::set_file_attributes(Name, SavedAttributes);
 	}
 	else
 	{
-		os::DeleteFile(TreeCache().GetTreeName());
+		os::fs::delete_file(TreeCache().GetTreeName());
 		if (!Global->WindowManager->ManagerIsDown())
 			Message(MSG_WARNING | MSG_ERRORTYPE,
 				msg(lng::MError),
@@ -867,7 +867,7 @@ bool TreeList::ReadTree()
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false);
-	os::FAR_FIND_DATA fdata;
+	os::fs::find_data fdata;
 	string strFullName;
 	FlushCache();
 	SaveState();
@@ -951,7 +951,7 @@ void TreeList::SaveTreeFile()
 	WriteTree(strName, m_ListData, Opener, RootLength);
 
 #if defined(TREEFILE_PROJECT)
-	os::SetFileAttributes(strName, Global->Opt->Tree.TreeFileAttr);
+	os::fs::set_file_attributes(strName, Global->Opt->Tree.TreeFileAttr);
 #endif
 
 }
@@ -1772,7 +1772,7 @@ bool TreeList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int i=m_CurFile+(Next?Direct:0); i >= 0 && static_cast<size_t>(i) < m_ListData.size(); i+=Direct)
 	{
-		if (CmpName(strMask.data(),m_ListData[i].strName.data(),true,(i==m_CurFile)))
+		if (CmpName(strMask, m_ListData[i].strName, true, i == m_CurFile))
 		{
 			m_CurFile=i;
 			m_CurTopFile=m_CurFile-(m_Y2-m_Y1-1)/2;
@@ -1783,7 +1783,7 @@ bool TreeList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (size_t i=(Direct > 0)?0:m_ListData.size()-1; (Direct > 0) ? i < static_cast<size_t>(m_CurFile):i > static_cast<size_t>(m_CurFile); i+=Direct)
 	{
-		if (CmpName(strMask.data(),m_ListData[i].strName.data(),true))
+		if (CmpName(strMask, m_ListData[i].strName, true))
 		{
 			m_CurFile=static_cast<int>(i);
 			m_CurTopFile=m_CurFile-(m_Y2-m_Y1-1)/2;
@@ -1800,7 +1800,7 @@ size_t TreeList::GetSelCount() const
 	return 1;
 }
 
-bool TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::FAR_FIND_DATA *fd)
+bool TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::fs::find_data *fd)
 {
 	if (!strName)
 	{
@@ -1847,15 +1847,15 @@ void TreeList::AddTreeName(const string& Name)
 
 	const auto strFullName = ConvertNameToFull(Name);
 	const auto strRoot = ExtractPathRoot(strFullName);
-	const auto NamePtr = strFullName.data() + strRoot.size() - 1;
+	string NamePart = strFullName.substr(strRoot.size() - 1);
 
-	if (!ContainsSlash(NamePtr))
+	if (!ContainsSlash(NamePart))
 	{
 		return;
 	}
 
 	ReadCache(strRoot);
-	TreeCache().add(NamePtr);
+	TreeCache().add(std::move(NamePart));
 }
 
 void TreeList::DelTreeName(const string& Name)
@@ -1913,7 +1913,7 @@ void TreeList::ReadSubTree(const string& Path)
 	LastScrX = ScrX;
 	LastScrY = ScrY;
 
-	os::FAR_FIND_DATA fdata;
+	os::fs::find_data fdata;
 	string strFullName;
 	int Count = 0;
 	while (ScTree.GetNextName(fdata, strFullName))
@@ -2004,16 +2004,16 @@ bool TreeList::GoToFile(long idxItem)
 	return false;
 }
 
-bool TreeList::GoToFile(const string& Name, bool OnlyPartName)
+bool TreeList::GoToFile(const string_view& Name, bool OnlyPartName)
 {
 	return GoToFile(FindFile(Name,OnlyPartName));
 }
 
-long TreeList::FindFile(const string& Name, bool OnlyPartName)
+long TreeList::FindFile(const string_view& Name, bool OnlyPartName)
 {
 	const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
 	{
-		return equal_icase(Name, OnlyPartName? PointToName(i.strName) : i.strName.data());
+		return equal_icase(Name, OnlyPartName? PointToName(i.strName) : i.strName);
 	});
 
 	return ItemIterator == m_ListData.cend()? -1 : ItemIterator - m_ListData.cbegin();
@@ -2030,7 +2030,7 @@ long TreeList::FindNext(int StartPos, const string& Name)
 	{
 		const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
 		{
-			return CmpName(Name.data(), i.strName.data(), true) && !TestParentFolderName(i.strName);
+			return CmpName(Name, i.strName, true) && !TestParentFolderName(i.strName);
 		});
 
 		if (ItemIterator != m_ListData.cend())
@@ -2046,7 +2046,7 @@ bool TreeList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 		return false;
 
 	strName = m_ListData[Pos].strName;
-	FileAttr=FILE_ATTRIBUTE_DIRECTORY|os::GetFileAttributes(m_ListData[Pos].strName);
+	FileAttr = FILE_ATTRIBUTE_DIRECTORY | os::fs::get_file_attributes(m_ListData[Pos].strName);
 	return true;
 }
 

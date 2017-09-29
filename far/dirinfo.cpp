@@ -152,7 +152,7 @@ int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, ge
 	std::unordered_set<unsigned long long> FileIds;
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
-	const auto CheckHardlinks = os::GetVolumeInformation(GetPathRoot(DirName), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName)?
+	const auto CheckHardlinks = os::fs::GetVolumeInformation(GetPathRoot(DirName), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName)?
 		IsWindows7OrGreater()?
 			(FileSystemFlags & FILE_SUPPORTS_HARD_LINKS) != 0 :
 			FileSystemName == L"NTFS" :
@@ -160,7 +160,7 @@ int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, ge
 	string strFullName;
 	// Временные хранилища имён каталогов
 	string strCurDirName, strLastDirName;
-	os::FAR_FIND_DATA FindData;
+	os::fs::find_data FindData;
 	while (ScTree.GetNextName(FindData,strFullName))
 	{
 		// Mantis#0002692

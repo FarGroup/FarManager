@@ -72,7 +72,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 
 		if (ChangeDir)
 		{
-			rc=os::SetCurrentDirectory(strCurDir);
+			rc=os::fs::SetCurrentDirectory(strCurDir);
 		}
 
 		if (!rc && GetLastError() == ERROR_PATH_NOT_FOUND)
@@ -88,20 +88,20 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 			ReplaceSlashToBackslash(strCurDir);
 			AddEndSlash(strCurDir);
 			PrepareDiskPath(strCurDir,false); // resolving not needed, very slow
-			rc=os::SetCurrentDirectory(strCurDir);
+			rc=os::fs::SetCurrentDirectory(strCurDir);
 		}
 	}
 
 	if (!rc && (IsNetworkDrive || GetLastError() == ERROR_LOGON_FAILURE))
 	{
 		ConnectToNetworkResource(strCurDir);
-		rc = os::SetCurrentDirectory(strCurDir);
+		rc = os::fs::SetCurrentDirectory(strCurDir);
 	}
 
 	if (rc || !ChangeDir)
 	{
 		if (ChangeDir)
-			strCurDir = os::GetCurrentDirectory();
+			strCurDir = os::fs::GetCurrentDirectory();
 
 		if (strCurDir.size() > 1 && strCurDir[1]==L':')
 		{
@@ -249,7 +249,7 @@ void CreatePath(const string &InputPath, bool Simple)
 			Part = Path.substr(0, i);
 			if (!os::fs::exists(Part))
 			{
-				if(os::CreateDirectory(Part, nullptr) && !Simple)
+				if(os::fs::create_directory(Part) && !Simple)
 					TreeList::AddTreeName(Part);
 			}
 		}

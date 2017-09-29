@@ -366,7 +366,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	// !        Длинное имя файла без расширения
 	if (*CurStr==L'!')
 	{
-		strOut += PointToName(SubstData.Default().Normal.NameOnly);
+		append(strOut, PointToName(SubstData.Default().Normal.NameOnly));
 		CurStr++;
 	}
 
@@ -750,7 +750,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 
 		if (!Modifers.empty())
 		{
-			if (contains(Modifers, L'F') && PointToName(strFileName) == strFileName.data()) // 'F' - использовать полный путь; //BUGBUG ?
+			if (contains(Modifers, L'F') && PointToName(strFileName).size() == strFileName.size()) // 'F' - использовать полный путь; //BUGBUG ?
 			{
 				auto strTempFileName = ShortNames? ConvertNameToShort(m_CurDir) : m_CurDir;
 				AddEndSlash(strTempFileName);
@@ -779,9 +779,8 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 		if (!ListFile)
 			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
 
-		size_t Written;
 		const auto Blob = BlobBuilder.get();
-		if (!ListFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
+		if (!ListFile.Write(Blob.data(), Blob.size()))
 		{
 			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListWrite));
 		}
@@ -790,7 +789,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 	}
 	catch (const far_exception& e)
 	{
-		os::DeleteFile(strListFileName);
+		os::fs::delete_file(strListFileName);
 		Global->CatchError(e.get_error_codes());
 		Message(MSG_WARNING | MSG_ERRORTYPE,
 			msg(lng::MError),

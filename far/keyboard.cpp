@@ -264,11 +264,11 @@ void InitKeysArray()
 	else // GetKeyboardLayoutList can return 0 in telnet mode
 	{
 		Layout().reserve(10);
-		for (const auto& i: os::reg::enum_value(HKEY_CURRENT_USER, L"Keyboard Layout\\Preload"))
+		for (const auto& i: os::reg::enum_value(os::reg::key::current_user, L"Keyboard Layout\\Preload"_sv))
 		{
-			if (i.Type() == REG_SZ && std::iswdigit(i.Name().front()))
+			if (i.type() == REG_SZ && std::iswdigit(i.name().front()))
 			{
-				string Value = i.GetString();
+				string Value = i.get_string();
 				if (!Value.empty() && std::iswxdigit(Value.front()))
 				{
 					try

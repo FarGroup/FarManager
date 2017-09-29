@@ -58,10 +58,10 @@ void UpdateSavedDrives(const any& Payload)
 static unsigned GetVisibilityMask()
 {
 	unsigned NoDrivesMask = 0;
-	static const HKEY Roots[] = { HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER };
+	static const os::reg::key* Roots[] = { &os::reg::key::local_machine, &os::reg::key::current_user };
 	std::any_of(CONST_RANGE(Roots, i)
 	{
-		return os::reg::GetValue(i, L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrivesMask);
+		return i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrivesMask);
 	});
 	return ~NoDrivesMask;
 }

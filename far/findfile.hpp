@@ -78,7 +78,7 @@ public:
 	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
 	static bool IsWordDiv(const wchar_t symbol);
 	// BUGBUG
-	void AddMenuRecord(Dialog* Dlg, const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc);
+	void AddMenuRecord(Dialog* Dlg, const string& FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc);
 
 	enum type2
 	{
@@ -93,14 +93,14 @@ public:
 		FindFiles* m_Owner{};
 		Dialog* m_Dlg{};
 		string m_FullName;
-		os::FAR_FIND_DATA m_FindData;
+		os::fs::find_data m_FindData;
 		void* m_Data{};
 		FARPANELITEMFREECALLBACK m_FreeData{};
 		ArcListItem* m_Arc{};
 
 		AddMenuData() = default;
 		explicit AddMenuData(type2 Type): m_Type(Type) {}
-		AddMenuData(const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
+		AddMenuData(const string& FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
 			m_Type(data),
 			m_FullName(FullName),
 			m_FindData(FindData),
@@ -128,7 +128,7 @@ private:
 	bool FindFilesProcess();
 	void ProcessMessage(const AddMenuData& Data);
 	void SetPluginDirectory(const string& DirName, plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
-	bool GetPluginFile(struct ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
+	bool GetPluginFile(struct ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 

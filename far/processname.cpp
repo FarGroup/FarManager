@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
 bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolderNameLength)
 {
-	size_t DestNamePos = PointToName(strDest.data()) - strDest.data();
+	size_t DestNamePos = strDest.size() - PointToName(strDest).size();
 
 	if (strDest.find_first_of(L"*?", DestNamePos) == string::npos)
 	{
@@ -61,13 +61,13 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 
 	const string strSrc = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
 	const wchar_t *Src = strSrc.data();
-	const wchar_t *SrcNamePtr = PointToName(Src);
+	auto SrcNamePtr = PointToName(strSrc);
 
 	strDest.resize(strDest.size() + SrcName.size());
 
-	size_t BeforeNameLength = DestNamePos? 0 : SrcNamePtr-Src;
+	size_t BeforeNameLength = DestNamePos? 0 : strSrc.size() - SrcNamePtr.size();
 
-	const wchar_t *SrcNameDot = wcsrchr(SrcNamePtr, L'.');
+	const auto SrcNameDot = std::find(ALL_CONST_RANGE(SrcNamePtr), L'.');
 	const wchar_t *CurWildPtr = strWildName.data();
 
 	while (*CurWildPtr)
@@ -77,26 +77,31 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 		case L'?':
 			CurWildPtr++;
 
-			if (*SrcNamePtr)
+			if (!SrcNamePtr.empty())
 			{
-				strDest[DestNamePos++] = *(SrcNamePtr++);
+				strDest[DestNamePos] = SrcNamePtr[0];
+				++DestNamePos;
+				SrcNamePtr.remove_prefix(1);
 			}
 			break;
 
 		case L'*':
 			CurWildPtr++;
-			while (*SrcNamePtr)
+			while (!SrcNamePtr.empty())
 			{
 				if (*CurWildPtr==L'.' && SrcNameDot && !wcschr(CurWildPtr+1,L'.'))
 				{
-					if (SrcNamePtr==SrcNameDot)
+					if (SrcNamePtr.cbegin() == SrcNameDot)
 						break;
 				}
-				else if (*SrcNamePtr==*CurWildPtr)
+				else if (SrcNamePtr[0] == *CurWildPtr)
 				{
 					break;
 				}
-				strDest[DestNamePos++] = *(SrcNamePtr++);
+
+				strDest[DestNamePos] = SrcNamePtr[0];
+				++DestNamePos;
+				SrcNamePtr.remove_prefix(1);
 			}
 			break;
 
@@ -105,15 +110,19 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 			strDest[DestNamePos++] = L'.';
 
 			if (wcspbrk(CurWildPtr,L"*?"))
-				while (*SrcNamePtr)
-					if (*(SrcNamePtr++)==L'.')
+				while (!SrcNamePtr.empty())
+				{
+					const auto Char = SrcNamePtr[0];
+					SrcNamePtr.remove_prefix(1);
+					if (Char == L'.')
 						break;
+				}
 			break;
 
 		default:
 			strDest[DestNamePos++] = *(CurWildPtr++);
-			if (*SrcNamePtr && *SrcNamePtr!=L'.')
-				SrcNamePtr++;
+			if (!SrcNamePtr.empty() && SrcNamePtr[0] != L'.')
+				SrcNamePtr.remove_prefix(1);
 			break;
 		}
 	}
@@ -130,73 +139,81 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 	return true;
 }
 
-bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool CmpNameSearchMode)
+bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSearchMode)
 {
-	if (!pattern || !str)
+	if (pattern.empty() || str.empty())
 		return false;
 
 	if (skippath)
 		str = PointToName(str);
 
-	for (;; ++str)
+	for (;; str.remove_prefix(1))
 	{
-		/* $ 01.05.2001 DJ
-		   используем инлайновые версии
-		*/
-		wchar_t stringc=upper(*str);
-		wchar_t patternc=upper(*pattern++);
+		if (pattern.empty())
+			return str.empty();
+
+		const auto stringc = str.empty()? 0 : upper(str.front());
+		const auto patternc = upper(pattern.front());
+		pattern.remove_prefix(1);
 
 		switch (patternc)
 		{
-		case 0:
-			return !stringc;
-
 		case L'?':
-			if (!stringc)
+			if (str.empty())
 				return false;
 			break;
 
 		case L'*':
-			if (!*pattern)
+			if (pattern.empty())
 				return true;
 
 			/* $ 01.05.2001 DJ
 				оптимизированная ветка работает и для имен с несколькими
 				точками
 			*/
-			if (*pattern==L'.')
+			if (pattern[0] == L'.')
 			{
 				if (pattern[1]==L'*' && !pattern[2])
 					return true;
 
-				if (!wcspbrk(pattern, L"*?["))
+				const auto SpecIt = std::find_if(ALL_CONST_RANGE(pattern), [](wchar_t Char)
 				{
-					const wchar_t *dot = wcsrchr(str, L'.');
+					return wcschr(L"*?[", Char) != nullptr;
+				});
 
+				if (SpecIt != pattern.cend())
+				{
+					const auto DotIt = std::find(ALL_CONST_RANGE(str), L'.');
+					
 					if (!pattern[1])
-						return !dot || !dot[1];
+						return DotIt == str.cend() || DotIt + 1 == str.cend();
 
-					const wchar_t *patdot = wcschr(pattern+1, L'.');
+					const auto PatternDotIt = std::find(pattern.cbegin() + 1, pattern.cend(), L'.');
 
-					if (patdot  && !dot)
+					if (PatternDotIt != pattern.cend() && DotIt == str.cend())
 						return false;
 
-					if (!patdot && dot )
-						return equal_icase(pattern+1, dot+1);
+					if (PatternDotIt == pattern.cend() && DotIt != str.cend())
+						return equal_icase(pattern.substr(1), str.substr(DotIt + 1 - str.cbegin()));
 				}
 			}
 
-			do
+			for(;;)
 			{
 				if(CmpName(pattern,str,false,CmpNameSearchMode))
 					return true;
+
+				str.remove_prefix(1);
+
+				if (str.empty())
+					break;
 			}
-			while (*str++);
+
 			return false;
 
 		case L'[':
 			{
-				if (!wcschr(pattern,L']'))
+				if (std::find(ALL_CONST_RANGE(pattern), L']') == pattern.cend())
 				{
 					if (patternc != stringc)
 						return false;
@@ -204,19 +221,26 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 					break;
 				}
 
-				if (*pattern && *(pattern+1)==L']')
+				if (pattern.size() > 1 && pattern[1] == L']')
 				{
-					if (*pattern!=*str)
+					if (pattern[0] != str[0])
 						return false;
 
-					pattern+=2;
+					pattern.remove_prefix(2);
 					break;
 				}
 
 				int match = 0;
-				wchar_t rangec;
-				while ((rangec = upper(*pattern++)) != 0)
+
+				for(;;)
 				{
+					if (pattern.empty())
+						return false;
+
+					const auto rangec = upper(pattern[0]);
+
+					pattern.remove_prefix(1);
+
 					if (rangec == L']')
 					{
 						if (match)
@@ -228,18 +252,15 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 					if (match)
 						continue;
 
-					if (rangec == L'-' && *(pattern - 2) != L'[' && *pattern != L']')
+					if (rangec == L'-' && *(pattern.cbegin() - 2) != L'[' && pattern[0] != L']')
 					{
-						match = (stringc <= upper(*pattern) &&
-									upper(*(pattern - 2)) <= stringc);
-						pattern++;
+						match = (stringc <= upper(pattern[0]) &&
+									upper(*(pattern.cbegin() - 2)) <= stringc);
+						pattern.remove_prefix(1);
 					}
 					else
 						match = (stringc == rangec);
 				}
-
-				if (!rangec)
-					return false;
 			}
 			break;
 
@@ -247,9 +268,9 @@ bool CmpName(const wchar_t *pattern, const wchar_t *str, bool skippath, bool Cmp
 			if (patternc != stringc)
 			{
 				if (patternc==L'.' && !stringc && !CmpNameSearchMode)
-					return *pattern != L'.' && CmpName(pattern, str, true, CmpNameSearchMode);
-				else
-					return false;
+					return pattern[0] != L'.' && CmpName(pattern, str, true, CmpNameSearchMode);
+
+				return false;
 			}
 			break;
 		}

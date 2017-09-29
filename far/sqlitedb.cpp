@@ -232,12 +232,12 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 		if (WAL && !can_create_file(concat(m_Path, L'.', GuidToStr(CreateUuid())))) // can't open db -- copy to %TEMP%
 		{
 			string strTmp;
-			os::GetTempPath(strTmp);
+			os::fs::GetTempPath(strTmp);
 			append(strTmp, str(GetCurrentProcessId()), L'-', DbFile);
-			ok = copied = os::CopyFileEx(m_Path, strTmp, nullptr, nullptr, nullptr, 0);
+			ok = copied = os::fs::copy_file(m_Path, strTmp, nullptr, nullptr, nullptr, 0);
 			if (ok)
 			{
-				os::SetFileAttributes(strTmp, FILE_ATTRIBUTE_NORMAL);
+				os::fs::set_file_attributes(strTmp, FILE_ATTRIBUTE_NORMAL);
 				m_Path = strTmp;
 				ok = v1_opener(m_Path, db_source);
 			}
@@ -262,7 +262,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	}
 
 	if (copied)
-		os::DeleteFile(m_Path);
+		os::fs::delete_file(m_Path);
 
 	m_Path = L":memory:";
 	if (!ok)
@@ -284,7 +284,7 @@ void SQLiteDb::Initialize(const string& DbName, bool Local)
 		++init_status;
 
 		bool in_memory = (Global->Opt->ReadOnlyConfig != 0) ||
-			!os::MoveFileEx(m_Path, m_Path + L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
+			!os::fs::move_file(m_Path, m_Path + L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
 
 		if (in_memory)
 		{

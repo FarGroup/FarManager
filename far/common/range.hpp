@@ -68,10 +68,23 @@ public:
 	constexpr auto crbegin() const { static_assert(is_const); return rbegin(); }
 	constexpr auto crend() const { static_assert(is_const); return rend(); }
 
-	constexpr auto& front() const { return *m_Begin; }
-	constexpr auto& back() const { return *std::prev(m_End); }
+	constexpr auto& front() const
+	{
+		assert(!empty());
+		return *m_Begin;
+	}
 
-	constexpr auto& operator[](size_t n) const { return *(m_Begin + n); }
+	constexpr auto& back() const
+	{
+		assert(!empty());
+		return *std::prev(m_End);
+	}
+
+	constexpr auto& operator[](size_t n) const
+	{
+		assert(n < size());
+		return *(m_Begin + n);
+	}
 
 	constexpr auto data() const { return &*m_Begin; }
 	constexpr size_t size() const { return m_End - m_Begin; }

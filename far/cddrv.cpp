@@ -387,7 +387,7 @@ bool DriveCanBeVirtual(UINT DriveType)
 
 UINT FAR_GetDriveType(const string& RootDir, DWORD Detect)
 {
-	auto strRootDir = RootDir.empty()? GetPathRoot(os::GetCurrentDirectory()) : RootDir;
+	auto strRootDir = RootDir.empty()? GetPathRoot(os::fs::GetCurrentDirectory()) : RootDir;
 	AddEndSlash(strRootDir);
 
 	UINT DrvType = GetDriveType(strRootDir.data());

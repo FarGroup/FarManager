@@ -1,15 +1,9 @@
-﻿#ifndef EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
-#define EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
-#pragma once
+﻿/*
+platform.memory.cpp
 
-/*
-execute.hpp
-
-"Запускатель" программ.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,16 +29,73 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool GetShellType(const string_view& Ext, string& strType, ASSOCIATIONTYPE aType = AT_FILEEXTENSION);
+#include "headers.hpp"
+#pragma hdrstop
 
-void OpenFolderInShell(const string& Folder);
+#include "platform.memory.hpp"
 
-void Execute(struct execute_info& Info, bool FolderRun, bool Silent, const std::function<void(bool)>& ConsoleActivator = nullptr);
+namespace os::memory
+{
+	namespace global
+	{
+		namespace detail
+		{
+			void deleter::operator()(HGLOBAL MemoryBlock) const
+			{
+				GlobalFree(MemoryBlock);
+			}
 
-bool IsExecutable(const string& Filename);
+			void unlocker::operator()(const void* MemoryBlock) const
+			{
+				GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock));
+			}
+		}
 
-bool ExpandOSAliases(string& strStr);
+		ptr alloc(UINT Flags, size_t size)
+		{
+			return ptr(GlobalAlloc(Flags, size));
+		}
 
-bool ExtractIfExistCommand(string& strCommandText);
+		ptr copy(const wchar_t* Data, size_t Size)
+		{
+			auto Memory = alloc(GMEM_MOVEABLE, (Size + 1) * sizeof(wchar_t));
+			if (!Memory)
+				return nullptr;
 
-#endif // EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
+			const auto Copy = lock<wchar_t*>(Memory);
+			if (!Copy)
+				return nullptr;
+
+			*std::copy_n(Data, Size, Copy.get()) = L'\0';
+			return Memory;
+		}
+
+	}
+
+	namespace local
+	{
+		namespace detail
+		{
+			void deleter::operator()(HLOCAL MemoryBlock) const
+			{
+				LocalFree(MemoryBlock);
+			}
+		}
+	}
+
+	bool is_pointer(const void* Address)
+	{
+		static const auto info = []
+		{
+			SYSTEM_INFO Info;
+			GetSystemInfo(&Info);
+			return Info;
+		}();
+
+		return InRange(
+			reinterpret_cast<uintptr_t>(info.lpMinimumApplicationAddress),
+			reinterpret_cast<uintptr_t>(Address),
+			reinterpret_cast<uintptr_t>(info.lpMaximumApplicationAddress)
+		);
+	}
+}

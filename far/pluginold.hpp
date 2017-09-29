@@ -549,7 +549,7 @@ PACK_PUSH(2)
 
 	struct PluginPanelItem
 	{
-		FAR_FIND_DATA FindData;
+		FAR_FIND_DATA        FindData;
 		DWORD                PackSizeHigh;
 		DWORD                PackSize;
 		DWORD                Flags;

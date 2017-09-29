@@ -39,7 +39,11 @@ class NTPath:public string
 {
 	void Transform();
 public:
-	NTPath(const string& Src):string(Src) {Transform();}
+	NTPath(const string_view& Src):
+		string(make_string(Src))
+	{
+		Transform();
+	}
 };
 
 
@@ -48,18 +52,18 @@ string KernelPath(string&& NtPath);
 
 inline bool IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
-enum PATH_TYPE
+enum class root_type
 {
-	PATH_UNKNOWN,
-	PATH_DRIVELETTER,
-	PATH_DRIVELETTERUNC,
-	PATH_REMOTE,
-	PATH_REMOTEUNC,
-	PATH_VOLUMEGUID,
-	PATH_PIPE,
+	unknown,
+	drive_letter,
+	unc_drive_letter,
+	remote,
+	unc_remote,
+	volume,
+	pipe,
 };
 
-PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset = nullptr, bool* Root = nullptr);
+root_type ParsePath(const string_view& Path, size_t* DirectoryOffset = nullptr, bool* Root = nullptr);
 
 inline bool IsRelativeRoot(const string& Path) { return Path.size() == 1 && IsSlash(Path.front()); }
 bool IsAbsolutePath(const string &Path);
@@ -70,15 +74,9 @@ bool PathCanHoldRegularFile(const string& Path);
 bool IsPluginPrefixPath(const string &Path);
 bool CutToSlash(string &strStr, bool bInclude = false); // BUGBUG, deprecated. Use CutToParent.
 bool CutToParent(string &strStr);
-const wchar_t* PointToName(const wchar_t *Path);
-const wchar_t* PointToName(const wchar_t *Path,const wchar_t* EndPtr);
-const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path);
-const wchar_t* PointToExt(const wchar_t *Path);
-const wchar_t* PointToExt(const wchar_t *Path,const wchar_t* EndPtr);
-
-inline const wchar_t* PointToName(const string& Path) {return PointToName(Path.data(), Path.data() + Path.size());}
-inline const wchar_t* PointToExt(const string& Path) {return PointToExt(Path.data(), Path.data() + Path.size());}
-
+string_view PointToName(string_view Path);
+string_view PointToFolderNameIfFolder(string_view Path);
+string_view PointToExt(string_view Path);
 
 void AddEndSlash(string &strPath, wchar_t TypeSlash);
 void AddEndSlash(string &strPath);
@@ -89,9 +87,9 @@ void DeleteEndSlash(string& Path);
 inline void ReplaceSlashToBackslash(string &strStr) { std::replace(ALL_RANGE(strStr), L'/', L'\\'); }
 inline void ReplaceBackslashToSlash(string &strStr) { std::replace(ALL_RANGE(strStr), L'\\', L'/'); }
 
-bool ContainsSlash(const wchar_t *Str);
-size_t FindSlash(const string &Str);
-size_t FindLastSlash(const string &Str);
+bool ContainsSlash(const string_view& Str);
+size_t FindSlash(const string_view& Str);
+size_t FindLastSlash(const string_view& Str);
 
 bool TestParentFolderName(const string& Name);
 bool TestCurrentDirectory(const string& TestDir);

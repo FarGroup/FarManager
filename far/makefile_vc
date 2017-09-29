@@ -141,7 +141,6 @@ LINK_OBJS = \
 	"$(INTDIR)\FarDlgBuilder.obj" \
 	"$(INTDIR)\farexcpt.obj" \
 	"$(INTDIR)\farversion.obj" \
-	"$(INTDIR)\farwinapi.obj" \
 	"$(INTDIR)\fileattr.obj" \
 	"$(INTDIR)\fileedit.obj" \
 	"$(INTDIR)\filefilter.obj" \
@@ -196,6 +195,11 @@ LINK_OBJS = \
 	"$(INTDIR)\panelmix.obj" \
 	"$(INTDIR)\pathmix.obj" \
 	"$(INTDIR)\pipe.obj" \
+	"$(INTDIR)\platform.obj" \
+	"$(INTDIR)\platform.env.obj" \
+	"$(INTDIR)\platform.fs.obj" \
+	"$(INTDIR)\platform.memory.obj" \
+	"$(INTDIR)\platform.reg.obj" \
 	"$(INTDIR)\plclass.obj" \
 	"$(INTDIR)\plist.obj" \
 	"$(INTDIR)\plugapi.obj" \

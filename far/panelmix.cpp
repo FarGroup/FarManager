@@ -728,13 +728,13 @@ string FormatStr_Size(long long Size, const string& strName,
 						{
 							string strLinkName=CurDir?CurDir:L"";
 							AddEndSlash(strLinkName);
-							strLinkName+=PointToName(strName);
+							append(strLinkName, PointToName(strName));
 
 							if (GetReparsePointInfo(strLinkName, strLinkName))
 							{
 								NormalizeSymlinkName(strLinkName);
 								bool Root;
-								if(ParsePath(strLinkName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
+								if(ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root)
 								{
 									ID_Msg = lng::MListVolMount;
 								}

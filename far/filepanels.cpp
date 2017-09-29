@@ -153,7 +153,7 @@ void FilePanels::Init(int DirCount)
 	SetActivePanelInternal(ActivePanel());
 
 	// пытаемся избавится от зависания при запуске
-	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
+	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==root_type::drive_letter;
 
 	const auto& SetFolder = [&](const std::pair<panel_ptr, Options::PanelOptions&>& Params)
 	{
@@ -522,7 +522,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 
 					if (ActivePanel() == AnotherPanel && (AnotherPanel->GetType() == panel_type::FILE_PANEL || AnotherPanel->GetType() == panel_type::TREE_PANEL))
 					{
-						os::SetCurrentDirectory(AnotherPanel->GetCurDir());
+						os::fs::SetCurrentDirectory(AnotherPanel->GetCurDir());
 					}
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 
@@ -1209,7 +1209,7 @@ bool FilePanels::CanFastHide() const
 	return (Global->Opt->AllCtrlAltShiftRule & CASR_PANEL) != 0;
 }
 
-void FilePanels::GoToFile(const string& FileName)
+void FilePanels::GoToFile(const string_view& FileName)
 {
 	if (FindSlash(FileName) != string::npos)
 	{
@@ -1231,8 +1231,8 @@ void FilePanels::GoToFile(const string& FileName)
 			AddEndSlash(ADir);
 		}
 
-		string strNameFile = PointToName(FileName);
-		string strNameDir = FileName;
+		const auto strNameFile = PointToName(FileName);
+		string strNameDir = make_string(FileName);
 		CutToSlash(strNameDir);
 		/* $ 10.04.2001 IS
 		     Не делаем SetCurDir, если нужный путь уже есть на открытых

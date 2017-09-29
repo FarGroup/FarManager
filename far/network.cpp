@@ -47,7 +47,7 @@ static string GetStoredUserName(wchar_t Drive)
 {
 	//Тут может быть надо заюзать WNetGetUser
 	string UserName;
-	os::reg::GetValue(HKEY_CURRENT_USER, concat(L"Network\\"_sv, Drive), L"UserName", UserName);
+	os::reg::key::current_user.get(concat(L"Network\\"_sv, Drive), L"UserName", UserName);
 	return UserName;
 }
 
@@ -87,7 +87,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 {
 	string LocalName, RemoteName;
 
-	const auto IsDrive = ParsePath(NewDir) == PATH_DRIVELETTER;
+	const auto IsDrive = ParsePath(NewDir) == root_type::drive_letter;
 	if (IsDrive)
 	{
 		LocalName = NewDir.substr(0, 2);
@@ -152,7 +152,7 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 		strTail->clear();
 
 	const auto CurDirPathType = ParsePath(CurDir);
-	if (CurDirPathType == PATH_REMOTE || CurDirPathType == PATH_REMOTEUNC)
+	if (CurDirPathType == root_type::remote || CurDirPathType == root_type::unc_remote)
 	{
 		strNetDir = CurDir;
 	}
@@ -164,9 +164,9 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 	if (!strNetDir.empty())
 	{
 		const auto NetDirPathType = ParsePath(strNetDir);
-		if (NetDirPathType == PATH_REMOTE || NetDirPathType == PATH_REMOTEUNC)
+		if (NetDirPathType == root_type::remote || NetDirPathType == root_type::unc_remote)
 		{
-			Result = strNetDir.substr(NetDirPathType == PATH_REMOTE? 2 : 8);
+			Result = strNetDir.substr(NetDirPathType == root_type::remote? 2 : 8);
 
 			const auto pos = FindSlash(Result);
 			if (pos != string::npos)

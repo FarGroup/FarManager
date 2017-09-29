@@ -119,7 +119,7 @@ static bool write_minidump(const exception_context& Context)
 		return false;
 
 	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.GetThreadId(), Context.GetPointers() };
-	return Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.handle().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
+	return Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
 using dialog_data_type = std::pair<const exception_context*, const std::vector<string>*>;
@@ -410,7 +410,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 		}
 		else
 		{
-			os::GetModuleFileName(nullptr, strFileName);
+			os::fs::GetModuleFileName(nullptr, nullptr, strFileName);
 		}
 	}
 	else

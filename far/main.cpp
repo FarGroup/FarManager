@@ -203,7 +203,7 @@ static int MainProcess(
 
 				bool Root = false;
 				const auto Type = ParsePath(strPath, nullptr, &Root);
-				if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
+				if(Root && (Type == root_type::drive_letter || Type == root_type::unc_drive_letter || Type == root_type::volume))
 				{
 					AddEndSlash(strPath);
 				}
@@ -249,7 +249,7 @@ static int MainProcess(
 					}
 					else
 					{
-						string strPath = PointToName(ppanel);
+						const auto strPath = PointToName(ppanel);
 
 						if (!strPath.empty())
 						{
@@ -270,7 +270,7 @@ static int MainProcess(
 				}
 				else
 				{
-					string strPath = PointToName(apanel);
+					const auto strPath = PointToName(apanel);
 
 					if (!strPath.empty())
 					{
@@ -503,9 +503,9 @@ static int mainImpl(const range<wchar_t**>& Args)
 		Imports().SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
-	os::InitCurrentDirectory();
+	os::fs::InitCurrentDirectory();
 
-	if (os::GetModuleFileName(nullptr, Global->g_strFarModuleName))
+	if (os::fs::GetModuleFileName(nullptr, nullptr, Global->g_strFarModuleName))
 	{
 		Global->g_strFarModuleName = ConvertNameToLong(Global->g_strFarModuleName);
 		PrepareDiskPath(Global->g_strFarModuleName);

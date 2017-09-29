@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "execute.hpp"
 #include "fnparce.hpp"
-#include "strmix.hpp"
 #include "configdb.hpp"
 #include "pathmix.hpp"
 #include "lang.hpp"
@@ -78,7 +77,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		filemasks FMask; // для работы с масками файлов
 
 		int CommandCount=0;
-		string FileName = PointToName(Name);
+		const auto FileName = PointToName(Name);
 
 		std::vector<MenuItemEx> MenuItems;
 
@@ -184,7 +183,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	std::for_each(CONST_RANGE(ListNames, i)
 	{
 		if (!i->empty())
-			os::DeleteFile(*i);
+			os::fs::delete_file(*i);
 	});
 
 	return true;
@@ -289,7 +288,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	for (const auto& i: ListNames)
 	{
 		if (!i.empty())
-			os::DeleteFile(i);
+			os::fs::delete_file(i);
 	}
 }
 

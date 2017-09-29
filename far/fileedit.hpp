@@ -155,7 +155,7 @@ private:
 	string strTitle;
 	string strPluginTitle;
 	string strPluginData;
-	os::FAR_FIND_DATA FileInfo;
+	os::fs::find_data FileInfo;
 	wchar_t AttrStr[4]{};            // 13.02.2001 IS - Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
 	DWORD m_FileAttributes{};          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
 	bool FileAttributesModified{};  // 04.11.2003 SKV - надо ли восстанавливать аттрибуты при save

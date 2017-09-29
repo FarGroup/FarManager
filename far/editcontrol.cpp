@@ -265,16 +265,15 @@ static bool EnumFiles(VMenu2& Menu, const string& strStart, const string& Token,
 
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
 	{
-		const auto Pattern = os::env::expand(Token) + L'*';
 		const auto FileName = PointToName(Token);
 
-		for (const auto& i: os::fs::enum_files(Pattern))
+		for (const auto& i: os::fs::enum_files(os::env::expand(Token) + L'*'))
 		{
 			const auto NameMatch = starts_with_icase(i.strFileName, FileName);
 			const auto AltNameMatch = !NameMatch && starts_with_icase(i.strAlternateFileName, FileName);
 			if (NameMatch || AltNameMatch)
 			{
-				Inserter(Token.substr(0, FileName - Token.data()) + (NameMatch? i.strFileName : i.strAlternateFileName));
+				Inserter(Token.substr(0, Token.size() - FileName.size()) + (NameMatch? i.strFileName : i.strAlternateFileName));
 			}
 		}
 	});
@@ -322,12 +321,12 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 			}
 		}
 
-		static const wchar_t RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-		static const HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
+		static const auto RegPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"_sv;
+		static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
 
 		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
 
-		for (size_t i=0; i<std::size(RootFindKey); i++)
+		for (size_t i = 0; i != std::size(RootFindKey); ++i)
 		{
 			if (i==std::size(RootFindKey)-1)
 			{
@@ -341,13 +340,13 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 				}
 			}
 
-			if (const auto Key = os::reg::open_key(RootFindKey[i], RegPath, samDesired))
+			if (const auto Key = os::reg::key::open(*RootFindKey[i], RegPath, samDesired))
 			{
 				for (const auto& SubkeyName: os::reg::enum_key(Key))
 				{
-					if (const auto SubKey = os::reg::open_key(Key.get(), SubkeyName.data(), samDesired))
+					if (const auto SubKey = os::reg::key::open(Key, SubkeyName, samDesired))
 					{
-						if(os::reg::GetValue(SubKey, L""))
+						if(SubKey.get(L""))
 						{
 							if (starts_with_icase(SubkeyName, Token))
 							{

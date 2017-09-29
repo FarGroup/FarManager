@@ -183,11 +183,11 @@ void OpenSysLog()
 	if (!LogStream)
 	{
 		string strLogFileName=Global->g_strFarPath+L"$Log";
-		DWORD Attr=os::GetFileAttributes(strLogFileName);
+		DWORD Attr=os::fs::get_file_attributes(strLogFileName);
 
 		if (Attr == INVALID_FILE_ATTRIBUTES)
 		{
-			if (!os::CreateDirectory(strLogFileName,nullptr))
+			if (!os::fs::create_directory(strLogFileName))
 				strLogFileName.resize(Global->g_strFarPath.size());
 		}
 		else if (!(Attr&FILE_ATTRIBUTE_DIRECTORY))
@@ -717,7 +717,7 @@ void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		fwprintf(LogStream,L"%s %s%s:: %s\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),PointToName(ModuleName),msg.data());
+		fwprintf(LogStream, L"%s %s%s:: %s\n", PrintTime(timebuf, std::size(timebuf)), MakeSpace(), null_terminated(PointToName(ModuleName)).data(), msg.data());
 		fflush(LogStream);
 	}
 

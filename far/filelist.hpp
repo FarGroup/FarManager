@@ -195,8 +195,8 @@ public:
 	virtual bool FindPartName(const string& Name, int Next, int Direct = 1) override;
 	virtual bool GetPlainString(string& Dest, int ListPos) const override;
 	virtual bool GoToFile(long idxItem) override;
-	virtual bool GoToFile(const string& Name, bool OnlyPartName = false) override;
-	virtual long FindFile(const string& Name, bool OnlyPartName = false) override;
+	virtual bool GoToFile(const string_view& Name, bool OnlyPartName = false) override;
+	virtual long FindFile(const string_view& Name, bool OnlyPartName = false) override;
 	virtual bool IsSelected(const string& Name) override;
 	virtual bool IsSelected(size_t idxItem) override;
 	virtual long FindFirst(const string& Name) override;
@@ -224,7 +224,7 @@ public:
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
 	virtual void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin, const string& PluginFile, bool SendOnFocus = false) override;
 	virtual size_t GetSelCount() const override;
-	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::FAR_FIND_DATA *fde = nullptr) override;
+	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::fs::find_data *fde = nullptr) override;
 	virtual void UngetSelName() override;
 	virtual void ClearLastGetSelection() override;
 	virtual unsigned long long GetLastSelectedSize() const override;
@@ -309,7 +309,7 @@ private:
 	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
-	bool ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
+	bool ConvertName(const string_view& SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
 	void Select(FileListItem& SelItem, bool Selection);
 	long SelectFiles(int Mode, const wchar_t *Mask = nullptr);
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);

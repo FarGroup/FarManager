@@ -87,7 +87,7 @@ string& TruncStrFromEnd(string &strStr, int MaxLength);
 string& TruncStrFromCenter(string &strStr, int MaxLength);
 string& TruncPathStr(string &strStr, int MaxLength);
 
-bool IsCaseMixed(const string &strStr);
+bool IsCaseMixed(const string_view& strStr);
 
 string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch);
 

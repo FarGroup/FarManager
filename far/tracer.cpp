@@ -136,7 +136,7 @@ tracer::tracer():
 	m_Handler(StackLogger)
 {
 	string Path;
-	if (os::GetModuleFileName(nullptr, Path))
+	if (os::fs::GetModuleFileName(nullptr, nullptr, Path))
 	{
 		CutToParent(Path);
 		m_SymbolSearchPath = encoding::ansi::get_bytes(Path);

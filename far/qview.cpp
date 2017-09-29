@@ -121,7 +121,7 @@ void QuickView::DisplayObject()
 	DrawSeparator(m_Y2-2);
 	SetColor(COL_PANELTEXT);
 	GotoXY(m_X1+1,m_Y2-1);
-	Text(fit_to_left(PointToName(strCurFileName), m_X2 - m_X1 - 1));
+	Text(fit_to_left(make_string(PointToName(strCurFileName)), m_X2 - m_X1 - 1));
 
 	if (!strCurFileType.empty())
 	{
@@ -140,7 +140,7 @@ void QuickView::DisplayObject()
 		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - StrLength(msg(lng::MQuickViewFolder).data()) - 5));
 		PrintText(format(LR"({0} "{1}")", msg(lng::MQuickViewFolder), DisplayName));
 
-		DWORD currAttr=os::GetFileAttributes(strCurFileName); // обламывается, если нет доступа
+		DWORD currAttr=os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 		{
 			string Target;
@@ -156,7 +156,7 @@ void QuickView::DisplayObject()
 					{
 						auto ID_Msg = lng::MQuickViewJunction;
 						bool Root;
-						if(ParsePath(Target, nullptr, &Root) == PATH_VOLUMEGUID && Root)
+						if(ParsePath(Target, nullptr, &Root) == root_type::volume && Root)
 						{
 							ID_Msg = lng::MQuickViewVolMount;
 						}
@@ -436,9 +436,9 @@ void QuickView::ShowFile(const string& FileName, bool TempFile, plugin_panel* hD
 	{
 		string strValue;
 
-		if (GetShellType(strCurFileName.data()+pos, strValue))
+		if (GetShellType(make_string_view(strCurFileName, pos), strValue))
 		{
-			os::reg::GetValue(HKEY_CLASSES_ROOT, strValue, L"", strCurFileType);
+			os::reg::key::classes_root.get(strValue, L"", strCurFileType);
 		}
 	}
 
@@ -524,11 +524,11 @@ void QuickView::QViewDelTempName()
 			QView=nullptr;
 		}
 
-		os::SetFileAttributes(strCurFileName, FILE_ATTRIBUTE_ARCHIVE);
-		os::DeleteFile(strCurFileName);  //BUGBUG
+		os::fs::set_file_attributes(strCurFileName, FILE_ATTRIBUTE_ARCHIVE);
+		os::fs::delete_file(strCurFileName);  //BUGBUG
 		string TempDirectoryName = strCurFileName;
 		CutToSlash(TempDirectoryName);
-		os::RemoveDirectory(TempDirectoryName);
+		os::fs::remove_directory(TempDirectoryName);
 		m_TemporaryFile = false;
 	}
 }

@@ -49,7 +49,7 @@ unsigned int ToPercent(T N1, T N2)
 
 bool FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, bool WithTempPath = true, const wchar_t *UserTempPath=nullptr);
 
-void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& Dest);
+void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest);
 
 class PluginPanelItemHolder
 {
@@ -71,7 +71,7 @@ public:
 	}
 };
 
-void FindDataExToPluginPanelItemHolder(const os::FAR_FIND_DATA& Src, PluginPanelItemHolder& Dest);
+void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanelItemHolder& Dest);
 
 void FreePluginPanelItem(const PluginPanelItem& Data);
 void FreePluginPanelItems(std::vector<PluginPanelItem>& Items);

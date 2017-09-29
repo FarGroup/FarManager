@@ -153,7 +153,7 @@ static bool GetImageType(const string& FileName, image_type& ImageType)
 
 static bool IsProperProgID(const string& ProgID)
 {
-	return !ProgID.empty() && os::reg::open_key(HKEY_CLASSES_ROOT, ProgID.data(), KEY_QUERY_VALUE);
+	return !ProgID.empty() && os::reg::key::open(os::reg::key::classes_root, ProgID, KEY_QUERY_VALUE);
 }
 
 /*
@@ -161,20 +161,20 @@ static bool IsProperProgID(const string& ProgID)
 hExtKey - корневой ключ для поиска (ключ расширения)
 strType - сюда запишется результат, если будет найден
 */
-static bool SearchExtHandlerFromList(const os::reg::key& hExtKey, string &strType)
+static bool SearchExtHandlerFromList(const os::reg::key& ExtKey, string& strType)
 {
-	for (const auto& i: os::reg::enum_value(hExtKey.get(), L"OpenWithProgIds", KEY_ENUMERATE_SUB_KEYS))
+	for (const auto& i: os::reg::enum_value(ExtKey, L"OpenWithProgIds"_sv, KEY_ENUMERATE_SUB_KEYS))
 	{
-		if (i.Type() == REG_SZ && IsProperProgID(i.Name()))
+		if (i.type() == REG_SZ && IsProperProgID(i.name()))
 		{
-			strType = i.Name();
+			strType = i.name();
 			return true;
 		}
 	}
 	return false;
 }
 
-static bool FindObject(const string& Module, string &strDest, bool* Internal)
+static bool FindObject(const string& Module, string& strDest, bool* Internal)
 {
 	if (Module.empty())
 		return false;
@@ -185,7 +185,7 @@ static bool FindObject(const string& Module, string &strDest, bool* Internal)
 
 	const auto& TryWithExtOrPathExt = [&](const string& Name, const auto& Predicate)
 	{
-		if (*ModuleExt)
+		if (!ModuleExt.empty())
 		{
 			// Extension has been specified, we don't have to do anything here.
 			return Predicate(Name);
@@ -226,7 +226,7 @@ static bool FindObject(const string& Module, string &strDest, bool* Internal)
 		}
 	}
 
-	if (Internal && !*ModuleExt)
+	if (Internal && ModuleExt.empty())
 	{
 		// Neither path nor extension has been specified, it could be some internal %COMSPEC% command:
 		const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
@@ -283,7 +283,7 @@ static bool FindObject(const string& Module, string &strDest, bool* Internal)
 		const auto Result = TryWithExtOrPathExt(Module, [](const string& NameWithExt)
 		{
 			string Result;
-			return std::make_pair(os::SearchPath(nullptr, NameWithExt, nullptr, Result), Result);
+			return std::make_pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Result), Result);
 		});
 
 		if (Result.first)
@@ -298,12 +298,12 @@ static bool FindObject(const string& Module, string &strDest, bool* Internal)
 		if (Global->Opt->Exec.ExecuteUseAppPath && !contains(Module, L'\\'))
 		{
 			static const wchar_t RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-			static const HKEY RootFindKey[] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE };
+			static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
 			const auto FullName = RegPath + Module;
 
 			DWORD samDesired = KEY_QUERY_VALUE;
 
-			for (size_t i = 0; i < std::size(RootFindKey); i++)
+			for (size_t i = 0; i != std::size(RootFindKey); i++)
 			{
 				if (i == std::size(RootFindKey) - 1)
 				{
@@ -320,7 +320,7 @@ static bool FindObject(const string& Module, string &strDest, bool* Internal)
 				const auto Result = TryWithExtOrPathExt(FullName, [&](const string& NameWithExt)
 				{
 					string RealName;
-					if (os::reg::GetValue(RootFindKey[i], NameWithExt, L"", RealName, samDesired))
+					if (RootFindKey[i]->get(NameWithExt, L"", RealName, samDesired))
 					{
 						RealName = unquote(os::env::expand(RealName));
 						return std::make_pair(os::fs::is_file(RealName), RealName);
@@ -345,7 +345,7 @@ static bool FindObject(const string& Module, string &strDest, bool* Internal)
  true: ok, found command & arguments.
  false: it's too complex, let's comspec deal with it.
 */
-static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
+static bool PartCmdLine(const string& CmdStr, string& strNewCmdStr, string& strNewCmdPar)
 {
 	auto UseDefaultCondition = true;
 
@@ -423,10 +423,13 @@ static bool PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strN
 	return true;
 }
 
-static bool RunAsSupported(LPCWSTR Name)
+static bool RunAsSupported(const wchar_t* Name)
 {
-	string Extension(PointToExt(Name)), Type;
-	return !Extension.empty() && GetShellType(Extension, Type) && os::reg::open_key(HKEY_CLASSES_ROOT, Type.append(L"\\shell\\runas\\command").data(), KEY_QUERY_VALUE);
+	const auto Extension = PointToExt(Name);
+	string Type;
+	return !Extension.empty() &&
+		GetShellType(Extension, Type) &&
+		os::reg::key::open(os::reg::key::classes_root, Type.append(L"\\shell\\runas\\command"), KEY_QUERY_VALUE);
 }
 
 // TODO: rewrite
@@ -439,33 +442,33 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 	Error = ERROR_SUCCESS;
 
 	auto Ext = PointToExt(FileName);
-	if (!*Ext)
+	if (Ext.empty())
 	{
 		// Yes, no matter how mad it looks - it is possible to specify actions for empty extension too
-		Ext = L".";
+		Ext = L"."_sv;
 	}
 
 	if (!GetShellType(Ext, strValue))
 	{
 		// Type is absent, however, verbs could be specified right in the extension key
-		strValue = Ext;
+		strValue = make_string(Ext);
 	}
 
-	if (const auto Key = os::reg::open_key(HKEY_CLASSES_ROOT, strValue.data(), KEY_QUERY_VALUE))
+	if (const auto Key = os::reg::key::open(os::reg::key::classes_root, strValue, KEY_QUERY_VALUE))
 	{
-		if (os::reg::GetValue(Key, L"IsShortcut"))
+		if (Key.get(L"IsShortcut"))
 			return nullptr;
 	}
 
 	strValue += L"\\shell";
 
-	const auto Key = os::reg::open_key(HKEY_CLASSES_ROOT, strValue.data(), KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
+	const auto Key = os::reg::key::open(os::reg::key::classes_root, strValue, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
 	if (!Key)
 		return nullptr;
 
 	strValue += L'\\';
 
-	if (os::reg::GetValue(Key, L"", strAction))
+	if (Key.get(L"", strAction))
 	{
 		RetPtr = EmptyToNull(strAction.data());
 		LONG RetEnum = ERROR_SUCCESS;
@@ -479,7 +482,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 				strNewValue += i;
 				strNewValue += command_action;
 
-				if (os::reg::open_key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
+				if (os::reg::key::open(os::reg::key::classes_root, strNewValue, KEY_QUERY_VALUE))
 				{
 					strValue += i;
 					strAction = i;
@@ -515,7 +518,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 		strNewValue += strAction;
 		strNewValue += command_action;
 
-		if (os::reg::open_key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
+		if (os::reg::key::open(os::reg::key::classes_root, strNewValue, KEY_QUERY_VALUE))
 		{
 			strValue += strAction;
 			RetPtr = strAction.data();
@@ -532,7 +535,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 				strNewValue += strAction;
 				strNewValue += command_action;
 
-				if (os::reg::open_key(HKEY_CLASSES_ROOT, strNewValue.data(), KEY_QUERY_VALUE))
+				if (os::reg::key::open(os::reg::key::classes_root, strNewValue, KEY_QUERY_VALUE))
 				{
 					strValue += strAction;
 					RetPtr = strAction.data();
@@ -546,7 +549,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 	{
 		strValue += command_action;
 
-		if (os::reg::GetValue(HKEY_CLASSES_ROOT, strValue, L"", strNewValue) && !strNewValue.empty())
+		if (os::reg::key::classes_root.get(strValue, L"", strNewValue) && !strNewValue.empty())
 		{
 			strNewValue = os::env::expand(strNewValue);
 
@@ -586,7 +589,7 @@ string GetShellActionAndAssociatedApplication(const string& FileName, string& Ap
 	return NullToEmpty(GetShellActionAndAssociatedApplicationImpl(FileName, Action, Application, Error));
 }
 
-bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
+bool GetShellType(const string_view& Ext, string& strType, ASSOCIATIONTYPE aType)
 {
 	bool bVistaType = false;
 	strType.clear();
@@ -597,7 +600,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 		if (SUCCEEDED(Imports().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
 		{
 			wchar_t *p;
-			if (AAR->QueryCurrentDefault(Ext.data(), aType, AL_EFFECTIVE, &p) == S_OK)
+			if (AAR->QueryCurrentDefault(null_terminated(Ext).data(), aType, AL_EFFECTIVE, &p) == S_OK)
 			{
 				bVistaType = true;
 				strType = p;
@@ -610,19 +613,19 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 	{
 		if (aType == AT_URLPROTOCOL)
 		{
-			strType = Ext;
+			strType = make_string(Ext);
 			return true;
 		}
 
-		os::reg::key hCRKey, hUserKey;
+		os::reg::key CRKey, UserKey;
 		string strFoundValue;
 
 		if (aType == AT_FILEEXTENSION)
 		{
 			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
-			if ((hUserKey = os::reg::open_key(HKEY_CURRENT_USER, (L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\" + Ext).data(), KEY_QUERY_VALUE)))
+			if ((UserKey = os::reg::key::open(os::reg::key::current_user, concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\", Ext), KEY_QUERY_VALUE)))
 			{
-				if (os::reg::GetValue(hUserKey, L"ProgID", strFoundValue) && IsProperProgID(strFoundValue))
+				if (UserKey.get(L"ProgID", strFoundValue) && IsProperProgID(strFoundValue))
 				{
 					strType = strFoundValue;
 				}
@@ -630,19 +633,19 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 		}
 
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
-		if (strType.empty() && (hCRKey = os::reg::open_key(HKEY_CLASSES_ROOT, Ext.data(), KEY_QUERY_VALUE)) != nullptr)
+		if (strType.empty() && (CRKey = os::reg::key::open(os::reg::key::classes_root, Ext, KEY_QUERY_VALUE)))
 		{
-			if (os::reg::GetValue(hCRKey, L"", strFoundValue) && IsProperProgID(strFoundValue))
+			if (CRKey.get(L"", strFoundValue) && IsProperProgID(strFoundValue))
 			{
 				strType = strFoundValue;
 			}
 		}
 
-		if (strType.empty() && hUserKey)
-			SearchExtHandlerFromList(hUserKey, strType);
+		if (strType.empty() && UserKey)
+			SearchExtHandlerFromList(UserKey, strType);
 
-		if (strType.empty() && hCRKey)
-			SearchExtHandlerFromList(hCRKey, strType);
+		if (strType.empty() && CRKey)
+			SearchExtHandlerFromList(CRKey, strType);
 	}
 
 	return !strType.empty();
@@ -848,7 +851,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
-	const auto strCurDir = os::GetCurrentDirectory();
+	const auto strCurDir = os::fs::GetCurrentDirectory();
 	seInfo.lpDirectory=strCurDir.data();
 	seInfo.nShow = SW_SHOWNORMAL;
 
@@ -1220,7 +1223,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 				if (!(strCmd[1] == L':' || (strCmd[0] == L'\\' && strCmd[1]==L'\\') || strExpandedStr[1] == L':' || (strExpandedStr[0] == L'\\' && strExpandedStr[1]==L'\\')))
 				{
-					strFullPath = Global->CtrlObject? Global->CtrlObject->CmdLine()->GetCurDir() : os::GetCurrentDirectory();
+					strFullPath = Global->CtrlObject? Global->CtrlObject->CmdLine()->GetCurDir() : os::fs::GetCurrentDirectory();
 					AddEndSlash(strFullPath);
 				}
 
@@ -1231,8 +1234,8 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				bool FileExists;
 				if (strExpandedStr.find_first_of(L"*?", DirOffset) != string::npos) // это маска?
 				{
-					os::FAR_FIND_DATA wfd;
-					FileExists = os::GetFindDataEx(strFullPath, wfd);
+					os::fs::find_data wfd;
+					FileExists = os::fs::get_find_data(strFullPath, wfd);
 				}
 				else
 				{
@@ -1307,7 +1310,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 выполено, и FALSE в противном случае/
 */
 
-bool ExtractIfExistCommand(string &strCommandText)
+bool ExtractIfExistCommand(string& strCommandText)
 {
 	bool Result = true;
 	const wchar_t *wPtrCmd = PrepareOSIfExist(strCommandText);
@@ -1342,19 +1345,20 @@ bool ExtractIfExistCommand(string &strCommandText)
 bool IsExecutable(const string& Filename)
 {
 	const auto Ext = PointToExt(Filename);
-	if (!*Ext)
+	if (Ext.empty())
 		return false;
 
 	// these guys have specific association in Windows Registry: "%1" %*
 	// That means we can't find the associated program etc., so they shall be hard-coded.
 	static const string_view Executables[] = { L"exe"_sv, L"cmd"_sv, L"com"_sv, L"bat"_sv };
+	const auto ExtWithoutDot = Ext.substr(1);
 	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view& Extension)
 	{
-		return equal_icase(Extension, Ext + 1);
+		return equal_icase(Extension, ExtWithoutDot);
 	});
 }
 
-bool ExpandOSAliases(string &strStr)
+bool ExpandOSAliases(string& strStr)
 {
 	string strNewCmdStr;
 	string strNewCmdPar;
@@ -1362,9 +1366,9 @@ bool ExpandOSAliases(string &strStr)
 	if (!PartCmdLine(strStr, strNewCmdStr, strNewCmdPar))
 		return false;
 
-	const wchar_t* ExeName=PointToName(Global->g_strFarModuleName);
+	auto ExeName = PointToName(Global->g_strFarModuleName);
 	wchar_t_ptr Buffer(4096);
-	int ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
+	int ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), null_terminated(ExeName).data());
 
 	if (!ret)
 	{
@@ -1372,7 +1376,7 @@ bool ExpandOSAliases(string &strStr)
 		if (!strComspec.empty())
 		{
 			ExeName=PointToName(strComspec);
-			ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , ExeName);
+			ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , null_terminated(ExeName).data());
 		}
 	}
 

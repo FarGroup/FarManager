@@ -60,7 +60,7 @@ bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, cons
 
 	if (WithTempPath)
 	{
-		os::GetTempPath(strPath);
+		os::fs::GetTempPath(strPath);
 	}
 	else if(UserTempPath)
 	{
@@ -80,8 +80,7 @@ bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, cons
 
 		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
 		{
-			const string Path = Buffer.get();
-			const auto Find = os::fs::enum_files(Path, false);
+			const auto Find = os::fs::enum_files(Buffer.get(), false);
 			if (Find.begin() == Find.end())
 				break;
 		}
@@ -97,7 +96,7 @@ bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, cons
 	return !strDest.empty();
 }
 
-void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& Dest)
+void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest)
 {
 	Dest.ftCreationTime = Src.CreationTime;
 	Dest.ftLastAccessTime = Src.LastAccessTime;
@@ -112,7 +111,7 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::FAR_FIND_DATA& 
 	Dest.dwReserved0 = 0;
 }
 
-void FindDataExToPluginPanelItemHolder(const os::FAR_FIND_DATA& Src, PluginPanelItemHolder& Holder)
+void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanelItemHolder& Holder)
 {
 	auto& Dest = Holder.Item;
 

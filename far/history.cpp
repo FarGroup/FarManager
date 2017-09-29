@@ -255,7 +255,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				HistoryMenu.AddItem(MenuItem);
 			}
 
-			if (!SetUpMenuPos && !bSelected && m_TypeHistory!=HISTORYTYPE_DIALOG)
+			if (!SetUpMenuPos && !bSelected && m_TypeHistory!=HISTORYTYPE_DIALOG && !HistoryMenu.empty())
 			{
 				FarListPos p={sizeof(FarListPos)};
 				p.SelectPos = HistoryMenu.size() - 1;

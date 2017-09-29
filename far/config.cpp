@@ -2112,15 +2112,6 @@ void Options::Load(std::unordered_map<string, string, hash_icase, equal_to_icase
 
 	InitConfigs();
 
-	/* <ПРЕПРОЦЕССЫ> *************************************************** */
-
-	/* BUGBUG??
-	SetRegRootKey(HKEY_LOCAL_MACHINE);
-	DWORD OptPolicies_ShowHiddenDrives=GetRegKey(NKeyPolicies,L"ShowHiddenDrives",1)&1;
-	SetRegRootKey(HKEY_CURRENT_USER);
-	*/
-	/* *************************************************** </ПРЕПРОЦЕССЫ> */
-
 	const auto& GetOverride = [&](const FARConfigItem& Item)
 	{
 		if (Overrides.empty())

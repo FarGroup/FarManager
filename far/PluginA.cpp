@@ -107,7 +107,7 @@ public:
 		if (!GetFileVersionInfo(Filename.data(), 0, Size, m_Buffer.get()))
 			return false;
 
-		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation");
+		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"_sv);
 		if (!Translation)
 			return false;
 
@@ -117,21 +117,21 @@ public:
 
 	auto GetStringValue(const string& Value) const
 	{
-		return GetValue<wchar_t>((m_BlockPath + Value).data());
+		return GetValue<wchar_t>(m_BlockPath + Value);
 	}
 
 	auto GetFixedInfo() const
 	{
-		return GetValue<VS_FIXEDFILEINFO>(L"\\");
+		return GetValue<VS_FIXEDFILEINFO>(L"\\"_sv);
 	}
 
 private:
 	template<class T>
-	const T* GetValue(const wchar_t* SubBlock) const
+	const T* GetValue(const string_view& SubBlock) const
 	{
 		UINT Length;
 		T* Result;
-		return VerQueryValue(m_Buffer.get(), SubBlock, reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
+		return VerQueryValue(m_Buffer.get(), null_terminated(SubBlock).data(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
 	}
 
 	string m_BlockPath;
@@ -4800,7 +4800,7 @@ private:
 		Info->Author = L"unknown";
 
 		const string& module = GetModuleName();
-		Info->Title = PointToName(module);
+		Info->Title = PointToName(module).cbegin();
 
 		bool GuidFound = false;
 		GUID PluginGuid = {};

@@ -176,7 +176,7 @@ void ShellMakeDir(Panel *SrcPanel)
 					Part = strDirName.substr(0, j);
 					if (!os::fs::exists(Part) || j == strDirName.size()) // skip all intermediate dirs, but not last.
 					{
-						while((bSuccess = os::CreateDirectory(Part, nullptr)) == false && !SkipAll)
+						while((bSuccess = os::fs::create_directory(Part)) == false && !SkipAll)
 						{
 							Global->CatchError();
 							const auto Result = OperationFailed(strOriginalDirName, lng::MError, msg(lng::MCannotCreateFolder));

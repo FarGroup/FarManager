@@ -60,11 +60,11 @@ static const int CallbackMagic= 0xCA11BAC6;
 enum ELEVATION_COMMAND: int
 {
 	C_SERVICE_EXIT,
-	C_FUNCTION_CREATEDIRECTORYEX,
+	C_FUNCTION_CREATEDIRECTORY,
 	C_FUNCTION_REMOVEDIRECTORY,
 	C_FUNCTION_DELETEFILE,
-	C_FUNCTION_COPYFILEEX,
-	C_FUNCTION_MOVEFILEEX,
+	C_FUNCTION_COPYFILE,
+	C_FUNCTION_MOVEFILE,
 	C_FUNCTION_GETFILEATTRIBUTES,
 	C_FUNCTION_SETFILEATTRIBUTES,
 	C_FUNCTION_CREATEHARDLINK,
@@ -74,7 +74,7 @@ enum ELEVATION_COMMAND: int
 	C_FUNCTION_CREATEFILE,
 	C_FUNCTION_SETENCRYPTION,
 	C_FUNCTION_DETACHVIRTUALDISK,
-	C_FUNCTION_GETDISKFREESPACEEX,
+	C_FUNCTION_GETDISKFREESPACE,
 
 	C_COMMANDS_COUNT
 };
@@ -502,29 +502,29 @@ bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 	return m_IsApproved;
 }
 
-bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes)
+bool elevation::create_directory(const string& TemplateObject, const string& Object, SECURITY_ATTRIBUTES* Attributes)
 {
 	return execute(lng::MElevationRequiredCreate, Object,
 		false,
 		[&]
 		{
-			return TemplateObject.empty()? CreateDirectory(Object.data(), Attributes) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), Attributes) != FALSE;
+			return os::fs::low::create_directory(TemplateObject.data(), Object.data(), Attributes);
 		},
 		[&]
 		{
-			Write(C_FUNCTION_CREATEDIRECTORYEX, TemplateObject, Object);
+			Write(C_FUNCTION_CREATEDIRECTORY, TemplateObject, Object);
 			// BUGBUG: SecurityAttributes ignored
 			return RetrieveLastErrorAndResult<bool>();
 		});
 }
 
-bool elevation::fRemoveDirectory(const string& Object)
+bool elevation::remove_directory(const string& Object)
 {
 	return execute(lng::MElevationRequiredDelete, Object,
 		false,
 		[&]
 		{
-			return RemoveDirectory(Object.data()) != FALSE;
+			return os::fs::low::remove_directory(Object.data());
 		},
 		[&]
 		{
@@ -533,13 +533,13 @@ bool elevation::fRemoveDirectory(const string& Object)
 		});
 }
 
-bool elevation::fDeleteFile(const string& Object)
+bool elevation::delete_file(const string& Object)
 {
 	return execute(lng::MElevationRequiredDelete, Object,
 		false,
 		[&]
 		{
-			return DeleteFile(Object.data()) != FALSE;
+			return delete_file(Object.data()) != FALSE;
 		},
 		[&]
 		{
@@ -548,7 +548,7 @@ bool elevation::fDeleteFile(const string& Object)
 		});
 }
 
-void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
+void elevation::progress_routine(LPPROGRESS_ROUTINE ProgressRoutine) const
 {
 	if (!ProgressRoutine)
 		return;
@@ -567,50 +567,50 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 	Write(CallbackMagic, Result);
 }
 
-bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
+bool elevation::copy_file(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD Flags)
 {
 	return execute(lng::MElevationRequiredCopy, From,
 		false,
 		[&]
 		{
-			return CopyFileEx(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
+			return os::fs::low::copy_file(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
 		},
 		[&]
 		{
-			Write(C_FUNCTION_COPYFILEEX, From, To, reinterpret_cast<intptr_t>(ProgressRoutine), reinterpret_cast<intptr_t>(Data), Flags);
+			Write(C_FUNCTION_COPYFILE, From, To, reinterpret_cast<intptr_t>(ProgressRoutine), reinterpret_cast<intptr_t>(Data), Flags);
 			// BUGBUG: Cancel ignored
 
 			while (Read<int>() == CallbackMagic)
 			{
-				fCallbackRoutine(ProgressRoutine);
+				progress_routine(ProgressRoutine);
 			}
 
 			return RetrieveLastErrorAndResult<bool>();
 		});
 }
 
-bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
+bool elevation::move_file(const string& From, const string& To, DWORD Flags)
 {
 	return execute(lng::MElevationRequiredMove, From,
 		false,
 		[&]
 		{
-			return MoveFileEx(From.data(), To.data(), Flags) != FALSE;
+			return os::fs::low::move_file(From.data(), To.data(), Flags);
 		},
 		[&]
 		{
-			Write(C_FUNCTION_MOVEFILEEX, From, To, Flags);
+			Write(C_FUNCTION_MOVEFILE, From, To, Flags);
 			return RetrieveLastErrorAndResult<bool>();
 		});
 }
 
-DWORD elevation::fGetFileAttributes(const string& Object)
+DWORD elevation::get_file_attributes(const string& Object)
 {
 	return execute(lng::MElevationRequiredGetAttributes, Object,
 		INVALID_FILE_ATTRIBUTES,
 		[&]
 		{
-			return GetFileAttributes(Object.data());
+			return os::fs::low::get_file_attributes(Object.data());
 		},
 		[&]
 		{
@@ -619,13 +619,13 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 		});
 }
 
-bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
+bool elevation::set_file_attributes(const string& Object, DWORD FileAttributes)
 {
 	return execute(lng::MElevationRequiredSetAttributes, Object,
 		false,
 		[&]
 		{
-			return SetFileAttributes(Object.data(), FileAttributes) != FALSE;
+			return os::fs::low::set_file_attributes(Object.data(), FileAttributes) != FALSE;
 		},
 		[&]
 		{
@@ -634,13 +634,13 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 		});
 }
 
-bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
+bool elevation::create_hard_link(const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes)
 {
 	return execute(lng::MElevationRequiredHardLink, Object,
 		false,
 		[&]
 		{
-			return CreateHardLink(Object.data(), Target.data(), SecurityAttributes) != FALSE;
+			return os::fs::low::create_hard_link(Object.data(), Target.data(), SecurityAttributes) != FALSE;
 		},
 		[&]
 		{
@@ -656,7 +656,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 		false,
 		[&]
 		{
-			return os::CreateSymbolicLinkInternal(Object, Target, Flags);
+			return os::fs::CreateSymbolicLinkInternal(Object, Target, Flags);
 		},
 		[&]
 		{
@@ -701,13 +701,13 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 		});
 }
 
-HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
+HANDLE elevation::create_file(const string& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
 {
 	return execute(lng::MElevationRequiredOpen, Object,
 		INVALID_HANDLE_VALUE,
 		[&]
 		{
-			return CreateFile(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+			return os::fs::low::create_file(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		},
 		[&]
 		{
@@ -717,13 +717,13 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 		});
 }
 
-bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
+bool elevation::set_file_encryption(const string& Object, bool Encrypt)
 {
 	return execute(Encrypt? lng::MElevationRequiredEncryptFile : lng::MElevationRequiredDecryptFile, Object,
 		false,
 		[&]
 		{
-			return os::SetFileEncryptionInternal(Object.data(), Encrypt);
+			return os::fs::low::set_file_encryption(Object.data(), Encrypt);
 		},
 		[&]
 		{
@@ -732,13 +732,13 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 		});
 }
 
-bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
+bool elevation::detach_virtual_disk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 {
 	return execute(lng::MElevationRequiredCreate, Object,
 		false,
 		[&]
 		{
-			return os::DetachVirtualDiskInternal(Object, VirtualStorageType);
+			return os::fs::low::detach_virtual_disk(Object.data(), VirtualStorageType);
 		},
 		[&]
 		{
@@ -747,26 +747,26 @@ bool elevation::fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& V
 		});
 }
 
-bool elevation::fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBytesAvailableToCaller, ULARGE_INTEGER* TotalNumberOfBytes, ULARGE_INTEGER* TotalNumberOfFreeBytes)
+bool elevation::get_disk_free_space(const string& Object, unsigned long long* FreeBytesAvailableToCaller, unsigned long long* TotalNumberOfBytes, unsigned long long* TotalNumberOfFreeBytes)
 {
 	return execute(lng::MElevationRequiredList, Object,
 		false,
 		[&]
 		{
-			return GetDiskFreeSpaceEx(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes) != FALSE;
+			return os::fs::low::get_disk_free_space(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes);
 		},
 		[&]
 		{
-			Write(C_FUNCTION_GETDISKFREESPACEEX, Object);
+			Write(C_FUNCTION_GETDISKFREESPACE, Object);
 			const auto Result = RetrieveLastErrorAndResult<bool>();
 			if (Result)
 			{
 				const auto& ReadAndAssign = [this](auto* Destination)
 				{
-					ULARGE_INTEGER Buffer;
-					Read(Buffer);
+					unsigned long long Value;
+					Read(Value);
 					if (Destination)
-						*Destination = Buffer;
+						*Destination = Value;
 				};
 
 				ReadAndAssign(FreeBytesAvailableToCaller);
@@ -812,7 +812,7 @@ public:
 
 		const auto PipeName = string(L"\\\\.\\pipe\\") + guid;
 		WaitNamedPipe(PipeName.data(), NMPWAIT_WAIT_FOREVER);
-		m_Pipe.reset(CreateFile(PipeName.data(),GENERIC_READ|GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
+		m_Pipe.reset(os::fs::low::create_file(PipeName.data(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
 		if (!m_Pipe)
 			return GetLastError();
 
@@ -827,11 +827,11 @@ public:
 				return GetLastError();
 
 			string ParentProcessFileName;
-			if (!os::GetModuleFileNameEx(ParentProcess.native_handle(), nullptr, ParentProcessFileName))
+			if (!os::fs::GetModuleFileName(ParentProcess.native_handle(), nullptr, ParentProcessFileName))
 				return GetLastError();
 
 			string CurrentProcessFileName;
-			if (!os::GetModuleFileNameEx(GetCurrentProcess(), nullptr, CurrentProcessFileName))
+			if (!os::fs::GetModuleFileName(GetCurrentProcess(), nullptr, CurrentProcessFileName))
 				return GetLastError();
 
 			if (!equal_icase(CurrentProcessFileName, ParentProcessFileName))
@@ -891,13 +891,13 @@ private:
 		m_Active = false;
 	}
 
-	void CreateDirectoryExHandler() const
+	void CreateDirectoryHandler() const
 	{
 		const auto TemplateObject = Read<string>();
 		const auto Object = Read<string>();
 		// BUGBUG, SecurityAttributes ignored
 
-		const auto Result = TemplateObject.empty()? CreateDirectory(Object.data(), nullptr) != FALSE : CreateDirectoryEx(TemplateObject.data(), Object.data(), nullptr) != FALSE;
+		const auto Result = os::fs::low::create_directory(TemplateObject.data(), Object.data(), nullptr);
 
 		Write(error_codes{}, Result);
 	}
@@ -906,7 +906,7 @@ private:
 	{
 		const auto Object = Read<string>();
 
-		const auto Result = RemoveDirectory(Object.data()) != FALSE;
+		const auto Result = os::fs::low::remove_directory(Object.data());
 
 		Write(error_codes{}, Result);
 	}
@@ -915,12 +915,12 @@ private:
 	{
 		const auto Object = Read<string>();
 
-		const auto Result = DeleteFile(Object.data()) != FALSE;
+		const auto Result = os::fs::low::delete_file(Object.data());
 
 		Write(error_codes{}, Result);
 	}
 
-	void CopyFileExHandler() const
+	void CopyFileHandler() const
 	{
 		const auto From = Read<string>();
 		const auto To = Read<string>();
@@ -930,20 +930,20 @@ private:
 		// BUGBUG: Cancel ignored
 
 		callback_param Param{ this, reinterpret_cast<void*>(Data) };
-		const auto Result = CopyFileEx(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags) != FALSE;
+		const auto Result = os::fs::low::copy_file(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
 
 		Write(0 /* not CallbackMagic */, error_codes{}, Result);
 
 		RethrowIfNeeded(Param.ExceptionPtr);
 	}
 
-	void MoveFileExHandler() const
+	void MoveFileHandler() const
 	{
 		const auto From = Read<string>();
 		const auto To = Read<string>();
 		const auto Flags = Read<DWORD>();
 
-		const auto Result = MoveFileEx(From.data(), To.data(), Flags) != FALSE;
+		const auto Result = os::fs::low::move_file(From.data(), To.data(), Flags);
 
 		Write(error_codes{}, Result);
 	}
@@ -952,7 +952,7 @@ private:
 	{
 		const auto Object = Read<string>();
 
-		const auto Result = GetFileAttributes(Object.data());
+		const auto Result = os::fs::low::get_file_attributes(Object.data());
 
 		Write(error_codes{}, Result);
 	}
@@ -962,7 +962,7 @@ private:
 		const auto Object = Read<string>();
 		const auto Attributes = Read<DWORD>();
 
-		const auto Result = SetFileAttributes(Object.data(), Attributes) != FALSE;
+		const auto Result = os::fs::low::set_file_attributes(Object.data(), Attributes);
 
 		Write(error_codes{}, Result);
 	}
@@ -973,7 +973,7 @@ private:
 		const auto Target = Read<string>();
 		// BUGBUG: SecurityAttributes ignored.
 
-		const auto Result = CreateHardLink(Object.data(), Target.data(), nullptr) != FALSE;
+		const auto Result = os::fs::low::create_hard_link(Object.data(), Target.data(), nullptr);
 
 		Write(error_codes{}, Result);
 	}
@@ -984,7 +984,7 @@ private:
 		const auto Target = Read<string>();
 		const auto Flags = Read<DWORD>();
 
-		const auto Result = os::CreateSymbolicLinkInternal(Object, Target, Flags);
+		const auto Result = os::fs::CreateSymbolicLinkInternal(Object, Target, Flags);
 
 		Write(error_codes{}, Result);
 	}
@@ -1023,7 +1023,7 @@ private:
 		// BUGBUG: SecurityAttributes, TemplateFile ignored
 
 		auto Duplicate = INVALID_HANDLE_VALUE;
-		if (const auto Handle = os::CreateFile(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr))
+		if (const auto Handle = os::fs::create_file(Object, DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr))
 		{
 			if (const auto ParentProcess = os::handle(OpenProcess(PROCESS_DUP_HANDLE, FALSE, m_ParentPid)))
 			{
@@ -1039,7 +1039,7 @@ private:
 		const auto Object = Read<string>();
 		const auto Encrypt = Read<bool>();
 
-		const auto Result = os::SetFileEncryptionInternal(Object.data(), Encrypt);
+		const auto Result = os::fs::low::set_file_encryption(Object.data(), Encrypt);
 
 		Write(error_codes{}, Result);
 	}
@@ -1049,17 +1049,17 @@ private:
 		const auto Object = Read<string>();
 		auto VirtualStorageType = Read<VIRTUAL_STORAGE_TYPE>();
 
-		const auto Result = os::DetachVirtualDiskInternal(Object, VirtualStorageType);
+		const auto Result = os::fs::low::detach_virtual_disk(Object.data(), VirtualStorageType);
 
 		Write(error_codes{}, Result);
 	}
 
-	void GetDiskFreeSpaceExHandler() const
+	void GetDiskFreeSpaceHandler() const
 	{
 		const auto Object = Read<string>();
 
-		ULARGE_INTEGER FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes;
-		const auto Result = GetDiskFreeSpaceEx(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes) != FALSE;
+		unsigned long long FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes;
+		const auto Result = os::fs::low::get_disk_free_space(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
 
 		Write(error_codes{}, Result);
 
@@ -1110,11 +1110,11 @@ private:
 		static const decltype(&elevated::ExitHandler) Handlers[] =
 		{
 			&elevated::ExitHandler,
-			&elevated::CreateDirectoryExHandler,
+			&elevated::CreateDirectoryHandler,
 			&elevated::RemoveDirectoryHandler,
 			&elevated::DeleteFileHandler,
-			&elevated::CopyFileExHandler,
-			&elevated::MoveFileExHandler,
+			&elevated::CopyFileHandler,
+			&elevated::MoveFileHandler,
 			&elevated::GetFileAttributesHandler,
 			&elevated::SetFileAttributesHandler,
 			&elevated::CreateHardLinkHandler,
@@ -1124,7 +1124,7 @@ private:
 			&elevated::CreateFileHandler,
 			&elevated::SetEncryptionHandler,
 			&elevated::DetachVirtualDiskHandler,
-			&elevated::GetDiskFreeSpaceExHandler,
+			&elevated::GetDiskFreeSpaceHandler,
 		};
 
 		static_assert(std::size(Handlers) == C_COMMANDS_COUNT);

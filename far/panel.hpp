@@ -177,7 +177,7 @@ public:
 	virtual const string& GetCurDir() const;
 	virtual size_t GetSelCount() const { return 0; }
 	virtual size_t GetRealSelCount() const {return 0;}
-	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::FAR_FIND_DATA *fd = nullptr) { return false; }
+	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::fs::find_data *fd = nullptr) { return false; }
 	virtual void UngetSelName() {}
 	virtual void ClearLastGetSelection() {}
 	virtual unsigned long long GetLastSelectedSize() const { return -1; }
@@ -197,8 +197,8 @@ public:
 	virtual bool FindPartName(const string& Name,int Next,int Direct=1) {return false;}
 	virtual bool GetPlainString(string& Dest, int ListPos) const { return false; }
 	virtual bool GoToFile(long idxItem) {return true;}
-	virtual bool GoToFile(const string& Name, bool OnlyPartName = false) {return true;}
-	virtual long FindFile(const string& Name, bool OnlyPartName = false) {return -1;}
+	virtual bool GoToFile(const string_view& Name, bool OnlyPartName = false) {return true;}
+	virtual long FindFile(const string_view& Name, bool OnlyPartName = false) {return -1;}
 	virtual bool IsSelected(const string& Name) {return false;}
 	virtual bool IsSelected(size_t indItem) {return false;}
 	virtual long FindFirst(const string& Name) {return -1;}

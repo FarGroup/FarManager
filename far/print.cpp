@@ -222,7 +222,7 @@ void PrintFiles(FileList* SrcPanel)
 			{
 				if (FarMkTempEx(strTempDir))
 				{
-					os::CreateDirectory(strTempDir,nullptr);
+					os::fs::create_directory(strTempDir);
 					if (const auto ListItem = SrcPanel->GetLastSelectedItem())
 					{
 						PluginPanelItemHolder PanelItem;
@@ -231,7 +231,7 @@ void PrintFiles(FileList* SrcPanel)
 						if (Global->CtrlObject->Plugins->GetFile(hPlugin, &PanelItem.Item, strTempDir, strTempName, OPM_SILENT))
 							FileName = strTempName;
 						else
-							os::RemoveDirectory(strTempDir);
+							os::fs::remove_directory(strTempDir);
 					}
 				}
 			}

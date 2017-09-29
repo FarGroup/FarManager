@@ -198,7 +198,11 @@ using namespace std::chrono_literals;
 
 #include "format.hpp"
 
-#include "farwinapi.hpp"
+#include "platform.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "platform.memory.hpp"
+#include "platform.reg.hpp"
 
 #include "plugin.hpp"
 

@@ -77,7 +77,7 @@ static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM Param)
 				{
 					if (const auto Process = os::handle(OpenProcess(Imports().QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, ProcID)))
 					{
-						os::GetModuleFileNameEx(Process.native_handle(), nullptr, MenuItem);
+						os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
 					}
 				}
 				else

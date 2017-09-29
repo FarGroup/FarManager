@@ -394,8 +394,8 @@ FileEditor::~FileEditor()
 				DeleteFileWithFolder(strFullFileName);
 			else
 			{
-				os::SetFileAttributes(strFullFileName,FILE_ATTRIBUTE_NORMAL);
-				os::DeleteFile(strFullFileName); //BUGBUG
+				os::fs::set_file_attributes(strFullFileName,FILE_ATTRIBUTE_NORMAL);
+				os::fs::delete_file(strFullFileName); //BUGBUG
 			}
 		}
 	}
@@ -441,7 +441,7 @@ void FileEditor::Init(
 	SetPluginData(PluginData);
 	m_editor->SetHostFileEditor(this);
 	SetCanLoseFocus(m_Flags.Check(FFILEEDIT_ENABLEF6));
-	strStartDir = os::GetCurrentDirectory();
+	strStartDir = os::fs::GetCurrentDirectory();
 
 	if (!SetFileName(Name))
 	{
@@ -1654,7 +1654,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak)
 	EditFile.Close();
 	m_editor->SetCacheParams(pc, m_bAddSignature);
 	Global->CatchError();
-	os::GetFindDataEx(Name, FileInfo);
+	os::fs::get_find_data(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 	return true;
 
@@ -1766,14 +1766,14 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	int NewFile=TRUE;
 	FileAttributesModified=false;
 
-	if ((m_FileAttributes=os::GetFileAttributes(Name))!=INVALID_FILE_ATTRIBUTES)
+	if ((m_FileAttributes = os::fs::get_file_attributes(Name)) != INVALID_FILE_ATTRIBUTES)
 	{
 		// Проверка времени модификации...
 		if (!m_Flags.Check(FFILEEDIT_SAVEWQUESTIONS))
 		{
-			os::FAR_FIND_DATA FInfo;
+			os::fs::find_data FInfo;
 
-			if (os::GetFindDataEx(Name, FInfo) && !FileInfo.strFileName.empty())
+			if (os::fs::get_find_data(Name, FInfo) && !FileInfo.strFileName.empty())
 			{
 				if (FileInfo.ftLastWriteTime != FInfo.ftLastWriteTime || FInfo.nFileSize != FileInfo.nFileSize)
 				{
@@ -1822,13 +1822,13 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
 
-			os::SetFileAttributes(Name,m_FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
+			os::fs::set_file_attributes(Name, m_FileAttributes & ~FILE_ATTRIBUTE_READONLY); // сняты атрибуты
 			FileAttributesModified=true;
 		}
 
 		if (m_FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
 		{
-			os::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+			os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL);
 			FileAttributesModified=true;
 		}
 	}
@@ -2086,10 +2086,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
 	{
-		os::SetFileAttributes(Name,m_FileAttributes|FILE_ATTRIBUTE_ARCHIVE);
+		os::fs::set_file_attributes(Name, m_FileAttributes | FILE_ATTRIBUTE_ARCHIVE);
 	}
 
-	os::GetFindDataEx(Name, FileInfo);
+	os::fs::get_find_data(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 
 	if (m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)
@@ -2223,8 +2223,8 @@ bool FileEditor::SetFileName(const string& NewFileName)
 
 		if (CutToParent(strFilePath))
 		{
-			if (equal_icase(strFilePath, os::GetCurrentDirectory()))
-				strFileName=PointToName(strFullFileName);
+			if (equal_icase(strFilePath, os::fs::GetCurrentDirectory()))
+				strFileName = make_string(PointToName(strFullFileName));
 		}
 
 		//Дабы избежать бардака, развернём слешики...
@@ -2388,7 +2388,7 @@ void FileEditor::ShowStatus() const
 */
 DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 {
-	m_FileAttributes=os::GetFileAttributes(Name);
+	m_FileAttributes = os::fs::get_file_attributes(Name);
 	int ind=0;
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES)
@@ -2409,9 +2409,9 @@ DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 bool FileEditor::UpdateFileList() const
 {
 	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-	const wchar_t *FileName = PointToName(strFullFileName);
+	const auto FileName = PointToName(strFullFileName);
 	string strFilePath(strFullFileName), strPanelPath(ActivePanel->GetCurDir());
-	strFilePath.resize(FileName - strFullFileName.data());
+	strFilePath.resize(strFullFileName.size() - FileName.size());
 	AddEndSlash(strPanelPath);
 	AddEndSlash(strFilePath);
 
@@ -2782,8 +2782,7 @@ bool FileEditor::LoadFromCache(EditorPosCache &pc) const
 
 	if (*GetPluginData())
 	{
-		strCacheName=GetPluginData();
-		strCacheName+=PointToName(strFullFileName);
+		strCacheName = concat(GetPluginData(), PointToName(strFullFileName));
 	}
 	else
 	{

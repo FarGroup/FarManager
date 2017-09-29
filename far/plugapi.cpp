@@ -365,7 +365,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 					if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
 					{
 						if (Flags&FHELP_CUSTOMFILE)
-							strMask = PointToName(strPath);
+							strMask = make_string(PointToName(strPath));
 						else
 							strMask.clear();
 
@@ -1497,7 +1497,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
 			SCOPED_ACTION(SaveScreen);
-			os::FAR_FIND_DATA FindData;
+			os::fs::find_data FindData;
 			string strFullName;
 			ScanTree ScTree(false);
 			ScTree.SetFindPath(ConvertNameToFull(Dir), L"*");
@@ -2043,7 +2043,7 @@ const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
 {
 	try
 	{
-		return PointToName(Path);
+		return PointToName(Path).raw_data();
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return Path;
@@ -2601,7 +2601,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 {
 	try
 	{
-		const auto strCurDir = os::GetCurrentDirectory();
+		const auto strCurDir = os::fs::GetCurrentDirectory();
 
 		if (Buffer && Size)
 		{
@@ -2653,7 +2653,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 
 		Flags=Flags&0x000000FF; // только младший байт!
 		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0);
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 		string strFullName;
 		ScTree.SetFindPath(InitDir,L"*");
 
@@ -2875,7 +2875,7 @@ HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD Sh
 {
 	try
 	{
-		return os::CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile).release();
+		return os::fs::create_file(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile).release();
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return INVALID_HANDLE_VALUE;
@@ -2885,7 +2885,7 @@ DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept
 {
 	try
 	{
-		return os::GetFileAttributes(FileName);
+		return os::fs::get_file_attributes(FileName);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return INVALID_FILE_ATTRIBUTES;
@@ -2895,7 +2895,7 @@ BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName, DWORD dwFileAttributes
 {
 	try
 	{
-		return os::SetFileAttributes(FileName, dwFileAttributes);
+		return os::fs::set_file_attributes(FileName, dwFileAttributes);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2905,7 +2905,7 @@ BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName, const wchar_t *NewFil
 {
 	try
 	{
-		return os::MoveFileEx(ExistingFileName, NewFileName, dwFlags);
+		return os::fs::move_file(ExistingFileName, NewFileName, dwFlags);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2915,7 +2915,7 @@ BOOL WINAPI apiDeleteFile(const wchar_t *FileName) noexcept
 {
 	try
 	{
-		return os::DeleteFile(FileName);
+		return os::fs::delete_file(FileName);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2925,17 +2925,17 @@ BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName) noexcept
 {
 	try
 	{
-		return os::RemoveDirectory(DirName);
+		return os::fs::remove_directory(DirName);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
 }
 
-BOOL WINAPI apiCreateDirectory(const wchar_t *PathName, LPSECURITY_ATTRIBUTES lpSecurityAttributes) noexcept
+BOOL WINAPI apiCreateDirectory(const wchar_t* PathName, SECURITY_ATTRIBUTES* SecurityAttributes) noexcept
 {
 	try
 	{
-		return os::CreateDirectory(PathName, lpSecurityAttributes);
+		return os::fs::create_directory(PathName, SecurityAttributes);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;

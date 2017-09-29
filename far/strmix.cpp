@@ -406,7 +406,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 	return Src;
 }
 
-bool IsCaseMixed(const string &strSrc)
+bool IsCaseMixed(const string_view& strSrc)
 {
 	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), is_alpha);
 	if (AlphaBegin == strSrc.cend())

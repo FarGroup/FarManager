@@ -119,7 +119,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 		size_t PathOffset = PathDirOffset;
 		switch (PathType)
 		{
-			case PATH_UNKNOWN:
+			case root_type::unknown:
 			{
 				if (HasPathPrefix(stPath)) // \\?\<ANY_UNKNOWN_FORMAT>
 				{
@@ -131,7 +131,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 					if (!stCurrentDir.empty())
 					{
 						size_t CurDirDirOffset = 0;
-						if (ParsePath(stCurrentDir, &CurDirDirOffset) != PATH_UNKNOWN)
+						if (ParsePath(stCurrentDir, &CurDirDirOffset) != root_type::unknown)
 						{
 							strDest = string(stCurrentDir.data(), CurDirDirOffset);
 						}
@@ -143,7 +143,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 				}
 			}
 			break;
-			case PATH_DRIVELETTER: //"C:" or "C:abc"
+			case root_type::drive_letter: //"C:" or "C:abc"
 			{
 				if(stPath.size() > 2 && IsSlash(stPath[2]))
 				{
@@ -173,15 +173,15 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 				}
 			}
 			break;
-			case PATH_REMOTE: //"\\abc"
+			case root_type::remote: //"\\abc"
 			{
 				PathOffset = 0;
 			}
 			break;
-			case PATH_DRIVELETTERUNC: //"\\?\whatever"
-			case PATH_REMOTEUNC:
-			case PATH_VOLUMEGUID:
-			case PATH_PIPE:
+			case root_type::unc_drive_letter: //"\\?\whatever"
+			case root_type::unc_remote:
+			case root_type::volume:
+			case root_type::pipe:
 			{
 				blIgnore=true;
 				PathOffset = 0;
@@ -206,7 +206,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 string ConvertNameToFull(const string& Object)
 {
 	string strDest;
-	MixToFullPath(Object, strDest, os::GetCurrentDirectory());
+	MixToFullPath(Object, strDest, os::fs::GetCurrentDirectory());
 	return strDest;
 }
 
@@ -216,12 +216,12 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 {
 	string Result = Path;
 	size_t DirectoryOffset;
-	if (ParsePath(Path, &DirectoryOffset) == PATH_VOLUMEGUID)
+	if (ParsePath(Path, &DirectoryOffset) == root_type::volume)
 	{
 		if (Imports().GetVolumePathNamesForVolumeNameW)
 		{
 			string VolumePathNames;
-			if (os::GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), VolumePathNames))
+			if (os::fs::GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), VolumePathNames))
 			{
 				for(const auto& i: enum_substrings(VolumePathNames.data()))
 				{
@@ -248,10 +248,10 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 		else
 		{
 			string strVolumeGuid;
-			const auto Enumerator = os::fs::enum_drives(os::fs::get_logical_drives());
+			const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
 			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 			{
-				return os::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) && starts_with(Path, { strVolumeGuid.data(), DirectoryOffset });
+				return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) && starts_with(Path, { strVolumeGuid.data(), DirectoryOffset });
 			});
 			if (ItemIterator != Enumerator.cend())
 			{
@@ -272,16 +272,16 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 		return drive_root.size();
 
 	size_t dir_offset = 0;
-	if (ParsePath(abs_path, &dir_offset) == PATH_VOLUMEGUID)
+	if (ParsePath(abs_path, &dir_offset) == root_type::volume)
 		return dir_offset;
 
 	string vol_guid(drive_root);
 	switch (ParsePath(drive_root))
 	{
-	case PATH_VOLUMEGUID:
+	case root_type::volume:
 		break;
-	case PATH_DRIVELETTER:
-		if (os::GetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
+	case root_type::drive_letter:
+		if (os::fs::GetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
 			break;
 		// else fall down to default:
 		// fallthrough
@@ -306,11 +306,11 @@ string ConvertNameToReal(const string& Object)
 	auto strDest = FullPath;
 
 	string Path = FullPath;
-	os::handle File;
+	os::fs::file File;
 
 	for (;;)
 	{
-		if ((File = os::CreateFile(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0)))
+		if (File.Open(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 			break;
 
 		if (IsRootPath(Path))
@@ -322,8 +322,8 @@ string ConvertNameToReal(const string& Object)
 	if (File)
 	{
 		string FinalFilePath;
-		os::GetFinalPathNameByHandle(File.native_handle(), FinalFilePath);
-		File.close();
+		File.GetFinalPathName(FinalFilePath);
+		File.Close();
 
 		//assert(!FinalFilePath.empty());
 
@@ -348,21 +348,21 @@ string ConvertNameToReal(const string& Object)
 string ConvertNameToShort(const string& Object)
 {
 	string strDest;
-	if(!os::GetShortPathName(Object, strDest))
+	if(!os::fs::GetShortPathName(Object, strDest))
 	{
 		strDest = Object;
 
 		if (!HasPathPrefix(Object))
 		{
-			if (os::GetShortPathName(NTPath(Object), strDest))
+			if (os::fs::GetShortPathName(NTPath(Object), strDest))
 			{
 				switch (ParsePath(strDest))
 				{
-				case PATH_DRIVELETTERUNC:
+				case root_type::unc_drive_letter:
 					strDest = strDest.substr(4); // \\?\X:\path -> X:\path
 					break;
 
-				case PATH_REMOTEUNC:
+				case root_type::unc_remote:
 					strDest.erase(2, 6); // \\?\UNC\server -> \\server
 					break;
 
@@ -379,21 +379,21 @@ string ConvertNameToShort(const string& Object)
 string ConvertNameToLong(const string& Object)
 {
 	string strDest;
-	if (!os::GetLongPathName(Object, strDest))
+	if (!os::fs::GetLongPathName(Object, strDest))
 	{
 		strDest = Object;
 
 		if (!HasPathPrefix(Object))
 		{
-			if (os::GetLongPathName(NTPath(Object), strDest))
+			if (os::fs::GetLongPathName(NTPath(Object), strDest))
 			{
 				switch (ParsePath(strDest))
 				{
-				case PATH_DRIVELETTERUNC:
+				case root_type::unc_drive_letter:
 					strDest = strDest.substr(4); // \\?\X:\path -> X:\path
 					break;
 
-				case PATH_REMOTEUNC:
+				case root_type::unc_remote:
 					strDest.erase(2, 6); // \\?\UNC\server -> \\server
 					break;
 
@@ -412,7 +412,7 @@ string ConvertNameToUNC(const string& Object)
 	auto strFileName = ConvertNameToFull(Object);
 	// Посмотрим на тип файловой системы
 	string strFileSystemName;
-	os::GetVolumeInformation(GetPathRoot(strFileName), nullptr, nullptr, nullptr, nullptr, &strFileSystemName);
+	os::fs::GetVolumeInformation(GetPathRoot(strFileName), nullptr, nullptr, nullptr, nullptr, &strFileSystemName);
 
 	DWORD uniSize = 1024;
 	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
@@ -483,7 +483,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 				size_t DirOffset = 0;
 				const auto Type = ParsePath(strPath, &DirOffset);
-				if (Type == PATH_UNKNOWN && HasPathPrefix(strPath))
+				if (Type == root_type::unknown && HasPathPrefix(strPath))
 				{
 					DirOffset = 4;
 				}
@@ -502,9 +502,9 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 						if ((i < strPath.size() && IsSlash(strPath[i])) || (i == strPath.size() && !EndsWithSlash))
 						{
 							TmpStr = strPath.substr(0, i);
-							os::FAR_FIND_DATA fd;
+							os::fs::find_data fd;
 
-							if (os::GetFindDataEx(TmpStr, fd))
+							if (os::fs::get_find_data(TmpStr, fd))
 							{
 								strPath.replace(LastPos, i - LastPos, fd.strFileName);
 								i += fd.strFileName.size() - (i - LastPos);
@@ -519,7 +519,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 				}
 			}
 
-			if (ParsePath(strPath) == PATH_DRIVELETTER)
+			if (ParsePath(strPath) == root_type::drive_letter)
 			{
 				strPath[0] = upper(strPath[0]);
 			}

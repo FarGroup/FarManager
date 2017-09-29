@@ -124,7 +124,7 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 // TODO: elevation
 bool GetFileOwner(const string& Computer,const string& Name, string &strOwner)
 {
-	const auto SecurityDescriptor = os::GetFileSecurity(Name, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION);
+	const auto SecurityDescriptor = os::fs::get_file_security(Name, OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION);
 	if (!SecurityDescriptor)
 		return false;
 

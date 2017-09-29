@@ -229,7 +229,7 @@ bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Own
 	});
 }
 
-bool FileFilterParams::FileInFilter(const os::FAR_FIND_DATA& fde, unsigned long long CurrentTime,const string* FullName) const
+bool FileFilterParams::FileInFilter(const os::fs::find_data& fde, unsigned long long CurrentTime,const string* FullName) const
 {
 	filter_file_object Object;
 	Object.Attributes = fde.dwFileAttributes;

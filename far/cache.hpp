@@ -37,20 +37,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CachedRead: noncopyable
 {
 public:
-	explicit CachedRead(os::fs::file& file, size_t buffer_size = 0);
-	void AdjustAlignment(); // file have to be opened already
+	explicit CachedRead(os::fs::file& File, size_t BufferSize = 0);
+	void AdjustAlignment(); // file has to be opened already
 	bool Read(void* Data, size_t DataSize, size_t* BytesRead);
-	bool FillBuffer();
 	bool Unread(size_t BytesUnread);
 	void Clear();
 
 private:
-	os::fs::file& file;
-	size_t ReadSize;
-	size_t BytesLeft;
-	unsigned long long LastPtr;
-	int Alignment;
-	std::vector<char> Buffer; // = 2*k*Alignment (k >= 2)
+	bool FillBuffer();
+
+	os::fs::file& m_File;
+	size_t m_ReadSize{};
+	size_t m_BytesLeft{};
+	unsigned long long m_LastPtr{};
+	int m_Alignment;
+	std::vector<char> m_Buffer; // = 2*k*Alignment (k >= 2)
 };
 
 
@@ -63,10 +64,9 @@ public:
 	bool Flush();
 
 private:
-	os::fs::file& file;
-	std::vector<char> Buffer;
-	size_t FreeSize;
-	bool Flushed;
+	os::fs::file& m_File;
+	std::vector<char> m_Buffer;
+	size_t m_UsedSize{};
 };
 
 #endif // CACHE_HPP_2D98721D_C727_4F3B_86A2_BEDD0B1D6D8A

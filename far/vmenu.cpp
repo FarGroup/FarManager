@@ -2814,7 +2814,7 @@ int VMenu::FindItem(int StartIndex, const string& Pattern, unsigned long long Fl
 			}
 			else
 			{
-				if (CmpName(Pattern.data(),strTmpBuf.data(),true))
+				if (CmpName(Pattern, strTmpBuf, true))
 					return static_cast<int>(I);
 			}
 		}

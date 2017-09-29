@@ -227,7 +227,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 }
 
 
-Plugin* PluginManager::LoadPlugin(const string& FileName, const os::FAR_FIND_DATA &FindData, bool LoadToMem)
+Plugin* PluginManager::LoadPlugin(const string& FileName, const os::fs::find_data &FindData, bool LoadToMem)
 {
 	std::unique_ptr<Plugin> pPlugin;
 
@@ -287,9 +287,9 @@ Plugin* PluginManager::LoadPluginExternal(const string& ModuleName, bool LoadToM
 	}
 	else
 	{
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 
-		if (os::GetFindDataEx(ModuleName, FindData))
+		if (os::fs::get_find_data(ModuleName, FindData))
 		{
 			pPlugin = LoadPlugin(ModuleName, FindData, LoadToMem);
 		}
@@ -377,13 +377,13 @@ void PluginManager::LoadFactories()
 #endif // NO_WRAPPER
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
-	os::FAR_FIND_DATA FindData;
+	os::fs::find_data FindData;
 	ScTree.SetFindPath(Global->g_strFarPath + L"\\Adapters", L"*");
 
 	string filename;
 	while (ScTree.GetNextName(FindData, filename))
 	{
-		if (CmpName(L"*.dll", filename.data(), false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		if (CmpName(L"*.dll"_sv, filename, false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			if (auto CustomModel = CreateCustomPluginFactory(this, filename))
 			{
@@ -420,7 +420,7 @@ void PluginManager::LoadPlugins()
 	{
 		ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
 		string strPluginsDir;
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 
 		// сначала подготовим список
 		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
@@ -479,9 +479,9 @@ void PluginManager::LoadPluginsFromCache()
 	{
 		ReplaceSlashToBackslash(strModuleName);
 
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 
-		if (os::GetFindDataEx(strModuleName, FindData))
+		if (os::fs::get_find_data(strModuleName, FindData))
 			LoadPlugin(strModuleName, FindData, false);
 	}
 }
@@ -998,8 +998,8 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 
 		if (GetCode!=1)
 		{
-			os::SetFileAttributes(strResultName,FILE_ATTRIBUTE_NORMAL);
-			os::DeleteFile(strResultName); //BUGBUG
+			os::fs::set_file_attributes(strResultName,FILE_ATTRIBUTE_NORMAL);
+			os::fs::delete_file(strResultName); //BUGBUG
 		}
 		else
 			Found=TRUE;
@@ -1096,7 +1096,7 @@ int PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 	Global->KeepUserScreen=FALSE;
 
 	static string strCurrentDirectory;
-	strCurrentDirectory = os::GetCurrentDirectory();
+	strCurrentDirectory = os::fs::GetCurrentDirectory();
 	PutFilesInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItem;
@@ -1123,8 +1123,8 @@ void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo 
 	Info->hPanel = hPlugin->panel();
 	hPlugin->plugin()->GetOpenPanelInfo(Info);
 
-	if (Info->CurDir && *Info->CurDir && (Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle() == hPlugin) && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
-		os::SetCurrentDirectory(Info->CurDir, false);
+	if (Info->CurDir && *Info->CurDir && (Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle() == hPlugin) && ParsePath(Info->CurDir)!=root_type::unknown)
+		os::fs::SetCurrentDirectory(Info->CurDir, false);
 }
 
 
@@ -1995,7 +1995,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 		std::for_each(CONST_RANGE(items, i)
 		{
 			MenuItemEx mitem;
-			mitem.strName=PointToName(i.pPlugin->GetModuleName());
+			mitem.strName = make_string(PointToName(i.pPlugin->GetModuleName()));
 			menu->AddItem(mitem);
 		});
 

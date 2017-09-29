@@ -527,7 +527,7 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 								if (GetProcessTimes(Process.native_handle(), &ftCreate, &ftExit, &ftKernel, &ftUser) && i.Process.ProcessStartTime == ftCreate)
 								{
 									string Name;
-									if (os::GetModuleFileNameEx(Process.native_handle(), nullptr, Name))
+									if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))
 									{
 										append(tmp, L", "_sv, Name);
 									}

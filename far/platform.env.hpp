@@ -1,15 +1,13 @@
-﻿#ifndef EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
-#define EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
+﻿#ifndef PLATFORM_ENV_HPP_0266D13F_F208_49D6_B3FF_A87D0131D2D3
+#define PLATFORM_ENV_HPP_0266D13F_F208_49D6_B3FF_A87D0131D2D3
 #pragma once
 
 /*
-execute.hpp
+platform.env.hpp
 
-"Запускатель" программ.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,16 +33,45 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool GetShellType(const string_view& Ext, string& strType, ASSOCIATIONTYPE aType = AT_FILEEXTENSION);
+namespace os::env
+{
+	namespace provider
+	{
+		namespace detail
+		{
+			class provider: noncopyable
+			{
+			public:
+				const wchar_t* data() const;
 
-void OpenFolderInShell(const string& Folder);
+			protected:
+				provider() = default;
 
-void Execute(struct execute_info& Info, bool FolderRun, bool Silent, const std::function<void(bool)>& ConsoleActivator = nullptr);
+				wchar_t* m_Data;
+			};
+		}
 
-bool IsExecutable(const string& Filename);
+		class strings: public detail::provider
+		{
+		public:
+			strings();
+			~strings();
+		};
 
-bool ExpandOSAliases(string& strStr);
+		class block: public detail::provider
+		{
+		public:
+			block();
+			~block();
+		};
+	}
 
-bool ExtractIfExistCommand(string& strCommandText);
+	bool get(const string_view& Name, string& Value);
+	string get(const string_view& Name);
+	bool set(const string_view& Name, const string_view& Value);
+	bool del(const string_view& Name);
+	string expand(const string_view& Str);
+	string get_pathext();
+}
 
-#endif // EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
+#endif // PLATFORM_ENV_HPP_0266D13F_F208_49D6_B3FF_A87D0131D2D3

@@ -42,9 +42,9 @@ PreserveLongName::PreserveLongName(const string& ShortName, bool Preserve):
 {
 	if (Preserve)
 	{
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 
-		if (os::GetFindDataEx(ShortName, FindData))
+		if (os::fs::get_find_data(ShortName, FindData))
 			m_SaveLongName = FindData.strFileName;
 		else
 			m_SaveLongName.clear();
@@ -58,9 +58,9 @@ PreserveLongName::~PreserveLongName()
 {
 	if (m_Preserve && os::fs::exists(m_SaveShortName))
 	{
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 
-		if (!os::GetFindDataEx(m_SaveShortName, FindData) || m_SaveLongName != FindData.strFileName)
+		if (!os::fs::get_find_data(m_SaveShortName, FindData) || m_SaveLongName != FindData.strFileName)
 		{
 			string strNewName;
 			strNewName = m_SaveShortName;
@@ -72,7 +72,7 @@ PreserveLongName::~PreserveLongName()
 			else
 				strNewName = m_SaveLongName;
 
-			os::MoveFile(m_SaveShortName, strNewName);
+			os::fs::move_file(m_SaveShortName, strNewName);
 		}
 	}
 }

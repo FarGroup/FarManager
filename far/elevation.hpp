@@ -56,22 +56,23 @@ public:
 	void ResetApprove();
 	bool Elevated() const {return m_Elevation;}
 
-	bool fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes);
-	bool fRemoveDirectory(const string& Object);
-	bool fDeleteFile(const string& Object);
-	void fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const;
-	bool fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
-	bool fMoveFileEx(const string& From, const string& To, DWORD Flags);
-	DWORD fGetFileAttributes(const string& Object);
-	bool fSetFileAttributes(const string& Object, DWORD FileAttributes);
-	bool fCreateHardLink(const string& Object,const string& Target,LPSECURITY_ATTRIBUTES SecurityAttributes);
+	bool create_directory(const string& TemplateObject, const string& Object, SECURITY_ATTRIBUTES* Attributes);
+	bool remove_directory(const string& Object);
+	bool delete_file(const string& Object);
+	bool copy_file(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD Flags);
+	bool move_file(const string& From, const string& To, DWORD Flags);
+	DWORD get_file_attributes(const string& Object);
+	bool set_file_attributes(const string& Object, DWORD FileAttributes);
+	bool create_hard_link(const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes);
+
 	bool fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags);
 	int fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
 	bool fSetOwner(const string& Object, const string& Owner);
-	HANDLE fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
-	bool fSetFileEncryption(const string& Object, bool Encrypt);
-	bool fDetachVirtualDisk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
-	bool fGetDiskFreeSpaceEx(const string& Object, ULARGE_INTEGER* FreeBytesAvailableToCaller, ULARGE_INTEGER* TotalNumberOfBytes, ULARGE_INTEGER* TotalNumberOfFreeBytes);
+
+	HANDLE create_file(const string& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
+	bool set_file_encryption(const string& Object, bool Encrypt);
+	bool detach_virtual_disk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
+	bool get_disk_free_space(const string& Object, unsigned long long* FreeBytesAvailableToCaller, unsigned long long* TotalNumberOfBytes, unsigned long long* TotalNumberOfFreeBytes);
 
 	class suppress: noncopyable
 	{
@@ -113,6 +114,8 @@ private:
 
 	template<typename T, typename F1, typename F2>
 	auto execute(lng Why, const string& Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler);
+
+	void progress_routine(LPPROGRESS_ROUTINE ProgressRoutine) const;
 
 	std::atomic_ulong m_Suppressions;
 	os::handle m_Pipe;

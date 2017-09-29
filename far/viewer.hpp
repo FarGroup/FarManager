@@ -174,7 +174,7 @@ private:
 	os::fs::file ViewFile;
 	CachedRead Reader;
 
-	os::FAR_FIND_DATA ViewFindData;
+	os::fs::find_data ViewFindData;
 
 	string strTempViewName;
 

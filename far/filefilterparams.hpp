@@ -119,7 +119,7 @@ public:
 	// Возвращает true  - попадает;
 	//            false - не попадает.
 	bool FileInFilter(const FileListItem* fli, const FileList* Owner, unsigned long long CurrentTime) const;
-	bool FileInFilter(const os::FAR_FIND_DATA& fde, unsigned long long CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
+	bool FileInFilter(const os::fs::find_data& fde, unsigned long long CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
 	bool FileInFilter(const PluginPanelItem& fd, unsigned long long CurrentTime) const;
 
 

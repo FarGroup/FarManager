@@ -213,8 +213,8 @@ Viewer::~Viewer()
 			DeleteFileWithFolder(strTempViewName);
 		else
 		{
-			os::SetFileAttributes(strTempViewName,FILE_ATTRIBUTE_NORMAL);
-			os::DeleteFile(strTempViewName); //BUGBUG
+			os::fs::set_file_attributes(strTempViewName,FILE_ATTRIBUTE_NORMAL);
+			os::fs::delete_file(strTempViewName); //BUGBUG
 		}
 	}
 }
@@ -300,17 +300,14 @@ bool Viewer::OpenFile(const string& Name,int warning)
 		}
 
 		DWORD ReadSize = 0;
-		size_t WrittenSize;
-
 		while (ReadFile(Console().GetOriginalInputHandle(),vread_buffer.data(),(DWORD)vread_buffer.size(),&ReadSize,nullptr) && ReadSize)
 		{
-			ViewFile.Write(vread_buffer.data(),ReadSize,WrittenSize);
+			ViewFile.Write(vread_buffer.data(), ReadSize);
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
 		//after reading from the pipe, redirect stdin to the real console stdin
-		//CONIN$ must be opened with the exact flags and name as below so api::CreateFile() is not good
-		SetStdHandle(STD_INPUT_HANDLE,CreateFile(L"CONIN$",GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING,0,nullptr));
+		SetStdHandle(STD_INPUT_HANDLE, os::fs::low::create_file(L"CONIN$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr));
 		ReadStdin=TRUE;
 	}
 	else
@@ -340,7 +337,7 @@ bool Viewer::OpenFile(const string& Name,int warning)
 	Reader.AdjustAlignment();
 
 	strFullFileName = ConvertNameToFull(strFileName);
-	os::GetFindDataEx(strFileName, ViewFindData);
+	os::fs::get_find_data(strFileName, ViewFindData);
 	uintptr_t CachedCodePage=0;
 
 	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveShortPos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
@@ -493,8 +490,8 @@ void Viewer::AdjustWidth()
 
 bool Viewer::CheckChanged()
 {
-	os::FAR_FIND_DATA NewViewFindData;
-	if (!os::GetFindDataEx(strFullFileName, NewViewFindData))
+	os::fs::find_data NewViewFindData;
+	if (!os::fs::get_find_data(strFullFileName, NewViewFindData))
 		return true;
 
 	// Smart file change check -- thanks Dzirt2005

@@ -212,7 +212,7 @@ private:
 
 	void LoadFactories();
 	void LoadIfCacheAbsent() const;
-	Plugin* LoadPlugin(const string& ModuleName, const os::FAR_FIND_DATA &FindData, bool LoadToMem);
+	Plugin* LoadPlugin(const string& ModuleName, const os::fs::find_data &FindData, bool LoadToMem);
 	Plugin* AddPlugin(std::unique_ptr<Plugin>&& pPlugin);
 	bool RemovePlugin(Plugin *pPlugin);
 	int UnloadPlugin(Plugin *pPlugin, int From);

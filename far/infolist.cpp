@@ -198,7 +198,7 @@ void InfoList::DisplayObject()
 		PrintText(lng::MInfoCompName);
 		PrintInfo(strComputerName);
 
-		os::memory::netapi::ptr<SERVER_INFO_101> ServerInfo;
+		os::netapi::ptr<SERVER_INFO_101> ServerInfo;
 		if (NetServerGetInfo(nullptr, 101, reinterpret_cast<LPBYTE*>(&ptr_setter(ServerInfo))) == NERR_Success)
 		{
 			if(ServerInfo->sv101_comment && *ServerInfo->sv101_comment)
@@ -216,7 +216,7 @@ void InfoList::DisplayObject()
 		PrintText(lng::MInfoUserName);
 		PrintInfo(strUserName);
 
-		os::memory::netapi::ptr<USER_INFO_1> UserInfo;
+		os::netapi::ptr<USER_INFO_1> UserInfo;
 		if (NetUserGetInfo(nullptr, strUserName.data(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
 		{
 			if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
@@ -260,7 +260,7 @@ void InfoList::DisplayObject()
 		m_CurDir = AnotherPanel->GetCurDir();
 
 		if (m_CurDir.empty())
-			m_CurDir = os::GetCurrentDirectory();
+			m_CurDir = os::fs::GetCurrentDirectory();
 
 		/*
 			Корректно отображать инфу при заходе в Juction каталог
@@ -279,7 +279,7 @@ void InfoList::DisplayObject()
 		else
 			strDriveRoot = GetPathRoot(m_CurDir);
 
-		if (os::GetVolumeInformation(strDriveRoot,&strVolumeName,
+		if (os::fs::GetVolumeInformation(strDriveRoot,&strVolumeName,
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
 		                            &strFileSystemName))
 		{
@@ -379,7 +379,7 @@ void InfoList::DisplayObject()
 		/* #2.2 - disk info: size */
 		unsigned long long TotalSize, UserFree;
 
-		if (os::GetDiskSize(m_CurDir,&TotalSize, nullptr, &UserFree))
+		if (os::fs::get_disk_size(m_CurDir,&TotalSize, nullptr, &UserFree))
 		{
 			GotoXY(m_X1+2,CurY++);
 			PrintText(lng::MInfoDiskTotal);
@@ -942,12 +942,10 @@ bool InfoList::ShowDirDescription(int YPos)
 
 	while ((NamePtr=GetCommaWord(NamePtr,strArgName)) != nullptr)
 	{
-		string strFullDizName;
-		strFullDizName = strDizDir;
-		strFullDizName += strArgName;
-		os::FAR_FIND_DATA FindData;
+		auto strFullDizName = strDizDir + strArgName;
+		os::fs::find_data FindData;
 
-		if (!os::GetFindDataEx(strFullDizName, FindData))
+		if (!os::fs::get_find_data(strFullDizName, FindData))
 			continue;
 
 		CutToSlash(strFullDizName, false);

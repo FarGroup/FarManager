@@ -55,7 +55,7 @@ private:
 	FILETIME m_CurrentLastWriteTime;
 	bool m_WatchSubtree;
 	mutable os::thread m_RegistrationThread;
-	os::find_notification_handle m_Notification;
+	os::fs::find_notification_handle m_Notification;
 	os::event m_Cancelled;
 	// TODO: optional
 	std::pair<bool, bool> m_IsFatFilesystem;

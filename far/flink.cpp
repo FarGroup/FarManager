@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
 	string VolumeName;
-	return os::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.data(), VolumeName.data());
+	return os::fs::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.data(), VolumeName.data());
 }
 
 static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& PrintName, const string& SubstituteName)
@@ -129,16 +129,16 @@ static bool SetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rd
 
 	SCOPED_ACTION(os::security::privilege){ SE_CREATE_SYMBOLIC_LINK_NAME };
 
-	const auto Attributes = os::GetFileAttributes(Object);
+	const auto Attributes = os::fs::get_file_attributes(Object);
 	if(Attributes&FILE_ATTRIBUTE_READONLY)
 	{
-		os::SetFileAttributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
+		os::fs::set_file_attributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY);
 	}
 
 	SCOPE_EXIT
 	{
 		if (Attributes&FILE_ATTRIBUTE_READONLY)
-			os::SetFileAttributes(Object, Attributes);
+			os::fs::set_file_attributes(Object, Attributes);
 	};
 
 	const auto& SetBuffer = [&](bool ForceElevation)
@@ -183,12 +183,12 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 					}
 					if (Imports().CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
 					{
-						Result=os::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
+						Result=os::fs::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}
 					else
 					{
 						const auto ObjectCreated = Type==RP_SYMLINKDIR?
-							os::fs::is_directory(ObjectStatus) || os::CreateDirectory(Object,nullptr) :
+							os::fs::is_directory(ObjectStatus) || os::fs::create_directory(Object) :
 							os::fs::is_file(ObjectStatus) || os::fs::file(Object, 0, 0, nullptr, CREATE_NEW);
 
 						if (ObjectCreated)
@@ -247,7 +247,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 
 static bool GetREPARSE_DATA_BUFFER(const string& Object, REPARSE_DATA_BUFFER* rdb)
 {
-	const auto FileAttr = os::GetFileAttributes(Object);
+	const auto FileAttr = os::fs::get_file_attributes(Object);
 	if (FileAttr == INVALID_FILE_ATTRIBUTES || !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
 		return false;
 
@@ -334,7 +334,7 @@ int GetNumberOfLinks(const string& Name, bool negative_if_error)
 
 int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 {
-	const auto Result = os::CreateHardLink(NewName, ExistingName, nullptr);
+	const auto Result = os::fs::create_hard_link(NewName, ExistingName, nullptr);
 
 	if (!Result && !Silent)
 	{
@@ -376,7 +376,7 @@ bool EnumStreams(const string& FileName, unsigned long long& StreamsSize, DWORD&
 bool DelSubstDrive(const string& DeviceName)
 {
 	string strTargetPath;
-	return os::QueryDosDevice(DeviceName, strTargetPath) &&
+	return os::fs::QueryDosDevice(DeviceName, strTargetPath) &&
 		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, DeviceName.data(), strTargetPath.data()) != FALSE;
 }
 
@@ -394,10 +394,10 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 	if (DriveType==DRIVE_NOT_INIT || (((Global->Opt->SubstNameRule & 1) || !DriveRemovable) && ((Global->Opt->SubstNameRule & 2) || DriveRemovable)))
 	{
 		const auto Type = ParsePath(DeviceName);
-		if (Type == PATH_DRIVELETTER)
+		if (Type == root_type::drive_letter)
 		{
 			string Name;
-			if (os::QueryDosDevice(DeviceName, Name))
+			if (os::fs::QueryDosDevice(DeviceName, Name))
 			{
 				if (starts_with(Name, L"\\??\\UNC\\"_sv))
 				{
@@ -522,7 +522,7 @@ void NormalizeSymlinkName(string &strLinkName)
 		return;
 
 	strLinkName[1] = L'\\';
-	if (ParsePath(strLinkName) != PATH_DRIVELETTERUNC)
+	if (ParsePath(strLinkName) != root_type::unc_drive_letter)
 		return;
 
 	strLinkName.erase(0, 4);
@@ -601,7 +601,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 				if (CreateDir)
 				{
-					if (os::CreateDirectory(strFullLink,nullptr))
+					if (os::fs::create_directory(strFullLink))
 						TreeList::AddTreeName(strFullLink);
 					else
 						CreatePath(strFullLink);
@@ -614,7 +614,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					{
 						if (!os::fs::exists(strPath))
 							CreatePath(strPath);
-						os::fs::file(strFullLink, 0, 0, nullptr, CREATE_NEW, os::GetFileAttributes(strFullTarget));
+						os::fs::file(strFullLink, 0, 0, nullptr, CREATE_NEW, os::fs::get_file_attributes(strFullTarget));
 					}
 				}
 

@@ -35,43 +35,40 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "cache.hpp"
 
-CachedRead::CachedRead(os::fs::file& file, size_t buffer_size):
-	file(file),
-	ReadSize(0),
-	BytesLeft(0),
-	LastPtr(0),
-	Alignment(512),
-	Buffer(buffer_size? aligned_size(buffer_size, 512) : 65536)
+CachedRead::CachedRead(os::fs::file& File, size_t BufferSize):
+	m_File(File),
+	m_Alignment(512),
+	m_Buffer(BufferSize? aligned_size(BufferSize, m_Alignment) : 65536)
 {
 }
 
 void CachedRead::AdjustAlignment()
 {
-	if (!file)
+	if (!m_File)
 		return;
 
-	auto buff_size = Buffer.size();
+	auto BufferSize = m_Buffer.size();
 
-	STORAGE_PROPERTY_QUERY q;
-	DWORD ret = 0;
-	STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR a = {0};
+	STORAGE_PROPERTY_QUERY Spq{};
+	Spq.QueryType  = PropertyStandardQuery;
+	Spq.PropertyId = StorageAccessAlignmentProperty;
 
-	q.QueryType  = PropertyStandardQuery;
-	q.PropertyId = StorageAccessAlignmentProperty;
+	STORAGE_ACCESS_ALIGNMENT_DESCRIPTOR Saad;
+	DWORD BytesReturned;
 
-	if (file.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &q,sizeof(q), &a,sizeof(a), &ret, nullptr))
+	if (m_File.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &Spq, sizeof(Spq), &Saad, sizeof(Saad), &BytesReturned))
 	{
-		if (a.BytesPerPhysicalSector > 512 && a.BytesPerPhysicalSector <= 256*1024)
+		if (Saad.BytesPerPhysicalSector > 512 && Saad.BytesPerPhysicalSector <= 256*1024)
 		{
-			Alignment = (int)a.BytesPerPhysicalSector;
-			buff_size = 16 * a.BytesPerPhysicalSector;
+			m_Alignment = static_cast<int>(Saad.BytesPerPhysicalSector);
+			BufferSize = 16 * Saad.BytesPerPhysicalSector;
 		}
-		file.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr,0, nullptr,0, &ret,nullptr);
+		m_File.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0, &BytesReturned, nullptr);
 	}
 
-	if (buff_size > Buffer.size())
+	if (BufferSize > m_Buffer.size())
 	{
-		Buffer.resize(buff_size);
+		m_Buffer.resize(BufferSize);
 	}
 
 	Clear();
@@ -79,121 +76,121 @@ void CachedRead::AdjustAlignment()
 
 void CachedRead::Clear()
 {
-	ReadSize=0;
-	BytesLeft=0;
-	LastPtr=0;
+	m_ReadSize = 0;
+	m_BytesLeft = 0;
+	m_LastPtr = 0;
 }
 
 bool CachedRead::Read(void* Data, size_t DataSize, size_t* BytesRead)
 {
-	const auto Ptr = file.GetPointer();
+	const auto Ptr = m_File.GetPointer();
 
-	if(Ptr!=LastPtr)
+	if (Ptr != m_LastPtr)
 	{
-		const auto MaxValidPtr=LastPtr+BytesLeft, MinValidPtr=MaxValidPtr-ReadSize;
-		if(Ptr>=MinValidPtr && Ptr<MaxValidPtr)
+		const auto ValidRangeBegin = m_LastPtr + m_BytesLeft;
+		const auto ValidRangeEnd = ValidRangeBegin - m_ReadSize;
+
+		if (Ptr >= ValidRangeEnd && Ptr < ValidRangeBegin)
 		{
-			BytesLeft-=static_cast<int>(Ptr-LastPtr);
+			m_BytesLeft -= static_cast<int>(Ptr - m_LastPtr);
 		}
 		else
 		{
-			BytesLeft=0;
+			m_BytesLeft = 0;
 		}
-		LastPtr=Ptr;
+		m_LastPtr = Ptr;
 	}
-	bool Result=false;
-	*BytesRead=0;
-	if(DataSize<=Buffer.size())
+
+	bool Result = false;
+	*BytesRead = 0;
+
+	if (DataSize <= m_Buffer.size())
 	{
 		while (DataSize)
 		{
-			if (!BytesLeft)
+			if (!m_BytesLeft)
 			{
 				FillBuffer();
 
-				if (!BytesLeft)
+				if (!m_BytesLeft)
 					break;
 			}
 
-			Result=true;
+			Result = true;
 
-			const auto Actual = std::min(BytesLeft, DataSize);
-			memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
-			Data=((LPBYTE)Data)+Actual;
-			BytesLeft-=Actual;
-			file.SetPointer(Actual, &LastPtr, FILE_CURRENT);
-			*BytesRead+=Actual;
-			DataSize-=Actual;
+			const auto Actual = std::min(m_BytesLeft, DataSize);
+			memcpy(Data, &m_Buffer[m_ReadSize - m_BytesLeft], Actual);
+			Data = static_cast<char*>(Data) + Actual;
+			m_BytesLeft -= Actual;
+			m_File.SetPointer(Actual, &m_LastPtr, FILE_CURRENT);
+			*BytesRead += Actual;
+			DataSize -= Actual;
 		}
 	}
 	else
 	{
-		Result = file.Read(Data, DataSize, *BytesRead);
+		Result = m_File.Read(Data, DataSize, *BytesRead);
 	}
 	return Result;
 }
 
 bool CachedRead::Unread(size_t BytesUnread)
 {
-	if (BytesUnread + BytesLeft <= ReadSize)
-	{
-		BytesLeft += BytesUnread;
-		const long long off = BytesUnread;
-		file.SetPointer(-off, &LastPtr, FILE_CURRENT);
-		return true;
-	}
-	return false;
+	if (m_BytesLeft + BytesUnread > m_ReadSize)
+		return false;
+
+	m_BytesLeft += BytesUnread;
+	const long long Offset = BytesUnread;
+	m_File.SetPointer(-Offset, &m_LastPtr, FILE_CURRENT);
+	return true;
 }
 
 bool CachedRead::FillBuffer()
 {
-	bool Result=false;
-	if (!file.Eof())
+	if (m_File.Eof())
+		return false;
+
+	const auto Pointer = m_File.GetPointer();
+
+	auto Shift = static_cast<int>(Pointer % m_Alignment);
+	if (Pointer > m_Buffer.size() / 2 + Shift)
+		Shift += static_cast<int>(m_Buffer.size() / 2);
+
+	if (Shift)
+		m_File.SetPointer(-Shift, nullptr, FILE_CURRENT);
+
+	auto ReadSize = m_Buffer.size();
+	unsigned long long FileSize = 0;
+	if (m_File.GetSize(FileSize) && Pointer - Shift + m_Buffer.size() > FileSize)
+		ReadSize = FileSize - Pointer + Shift;
+
+	auto Result = m_File.Read(m_Buffer.data(), ReadSize, m_ReadSize);
+	if (Result)
 	{
-		const auto Pointer = file.GetPointer();
-
-		int shift = (int)(Pointer % Alignment);
-		if (Pointer-shift > Buffer.size()/2)
-			shift += static_cast<int>(Buffer.size() / 2);
-
-		if (shift)
-			file.SetPointer(-shift, nullptr, FILE_CURRENT);
-
-		size_t read_size = Buffer.size();
-		unsigned long long FileSize = 0;
-		if (file.GetSize(FileSize) && Pointer - shift + Buffer.size() > FileSize)
-			read_size = FileSize - Pointer + shift;
-
-		Result = file.Read(Buffer.data(), read_size, ReadSize);
-		if (Result)
+		if (m_ReadSize > static_cast<size_t>(Shift))
 		{
-			if (ReadSize > (DWORD)shift)
-			{
-				BytesLeft = ReadSize - shift;
-				file.SetPointer(Pointer, nullptr, FILE_BEGIN);
-			}
-			else
-			{
-				BytesLeft = 0;
-			}
+			m_BytesLeft = m_ReadSize - Shift;
+			m_File.SetPointer(Pointer, nullptr, FILE_BEGIN);
 		}
 		else
 		{
-			if (shift)
-				file.SetPointer(Pointer, nullptr, FILE_BEGIN);
-			ReadSize=0;
-			BytesLeft=0;
+			m_BytesLeft = 0;
 		}
+	}
+	else
+	{
+		if (Shift)
+			m_File.SetPointer(Pointer, nullptr, FILE_BEGIN);
+		m_ReadSize = 0;
+		m_BytesLeft = 0;
 	}
 
 	return Result;
 }
 
-CachedWrite::CachedWrite(os::fs::file& file):
-	file(file),
-	Buffer(0x10000),
-	FreeSize(Buffer.size()),
-	Flushed(false)
+CachedWrite::CachedWrite(os::fs::file& File):
+	m_File(File),
+	m_Buffer(0x10000)
 {
 }
 
@@ -204,48 +201,28 @@ CachedWrite::~CachedWrite()
 
 bool CachedWrite::Write(const void* Data, size_t DataSize)
 {
-	bool Result=false;
-
-	bool SuccessFlush=true;
-	if (DataSize>FreeSize)
+	if (DataSize > m_Buffer.size() - m_UsedSize)
 	{
-		SuccessFlush=Flush();
+		if (!Flush())
+			return false;
 	}
 
-	if(SuccessFlush)
-	{
-		if (DataSize>FreeSize)
-		{
-			size_t WrittenSize=0;
+	if (DataSize > m_Buffer.size() - m_UsedSize)
+		return m_File.Write(Data, DataSize);
 
-			if (file.Write(Data, DataSize,WrittenSize) && DataSize==WrittenSize)
-			{
-				Result=true;
-			}
-		}
-		else
-		{
-			memcpy(&Buffer[Buffer.size() - FreeSize], Data, DataSize);
-			FreeSize -= DataSize;
-			Flushed=false;
-			Result=true;
-		}
-	}
-	return Result;
+	memcpy(&m_Buffer[m_UsedSize], Data, DataSize);
+	m_UsedSize += DataSize;
+	return true;
 }
 
 bool CachedWrite::Flush()
 {
-	if (!Flushed)
-	{
-		size_t WrittenSize = 0;
+	if (!m_UsedSize)
+		return true;
 
-		if (file.Write(Buffer.data(), Buffer.size() - FreeSize, WrittenSize) && Buffer.size() - FreeSize == WrittenSize)
-		{
-			Flushed=true;
-			FreeSize = Buffer.size();
-		}
-	}
+	if (!m_File.Write(m_Buffer.data(), m_UsedSize))
+		return false;
 
-	return Flushed;
+	m_UsedSize = 0;
+	return true;
 }

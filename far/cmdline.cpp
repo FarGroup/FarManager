@@ -686,9 +686,9 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							case L'N': // $N - Current drive
 							{
 								const auto Type = ParsePath(m_CurDir);
-								if(Type == PATH_DRIVELETTER)
+								if(Type == root_type::drive_letter)
 									strDestStr += upper(m_CurDir[0]);
-								else if(Type == PATH_DRIVELETTERUNC)
+								else if(Type == root_type::unc_drive_letter)
 									strDestStr += upper(m_CurDir[4]);
 								else
 									strDestStr += L'?';
@@ -1238,9 +1238,9 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	ParsePath(strExpandedDir, &DirOffset);
 	if (strExpandedDir.find_first_of(L"?*", DirOffset) != string::npos) // это маска?
 	{
-		os::FAR_FIND_DATA wfd;
+		os::fs::find_data wfd;
 
-		if (os::GetFindDataEx(strExpandedDir, wfd))
+		if (os::fs::get_find_data(strExpandedDir, wfd))
 		{
 			const auto pos = FindLastSlash(strExpandedDir);
 			if (pos != string::npos)

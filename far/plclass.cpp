@@ -145,10 +145,10 @@ plugin_factory::plugin_factory(PluginManager* owner):
 
 bool native_plugin_factory::IsPlugin(const string& filename) const
 {
-	if (!CmpName(L"*.dll", filename.data(), false))
+	if (!CmpName(L"*.dll"_sv, filename, false))
 		return false;
 
-	const auto ModuleFile = os::CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+	const auto ModuleFile = os::fs::create_file(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!ModuleFile)
 		return false;
 
@@ -434,7 +434,7 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 	);
 }
 
-static auto MakeSignature(const os::FAR_FIND_DATA& Data)
+static auto MakeSignature(const os::fs::find_data& Data)
 {
 	return concat(to_hex_wstring(Data.nFileSize), to_hex_wstring(Data.ftCreationTime.dwLowDateTime), to_hex_wstring(Data.ftLastWriteTime.dwLowDateTime));
 }
@@ -460,8 +460,8 @@ bool Plugin::SaveToCache()
 		return true;
 	}
 
-	os::FAR_FIND_DATA fdata;
-	os::GetFindDataEx(m_strModuleName, fdata);
+	os::fs::find_data fdata;
+	os::fs::get_find_data(m_strModuleName, fdata);
 	PlCache->SetSignature(id, MakeSignature(fdata));
 
 	const auto& SaveItems = [&PlCache, &id](const auto& Setter, const auto& Item)
@@ -545,9 +545,9 @@ bool Plugin::LoadData()
 
 	string strCurPlugDiskPath;
 	wchar_t Drive[]={0,L' ',L':',0}; //ставим 0, как признак того, что вертать обратно ненадо!
-	const auto strCurPath = os::GetCurrentDirectory();
+	const auto strCurPath = os::fs::GetCurrentDirectory();
 
-	if (ParsePath(m_strModuleName) == PATH_DRIVELETTER)  // если указан локальный путь, то...
+	if (ParsePath(m_strModuleName) == root_type::drive_letter)  // если указан локальный путь, то...
 	{
 		Drive[0] = L'=';
 		Drive[1] = m_strModuleName.front();
@@ -660,7 +660,7 @@ bool Plugin::Load()
 	return true;
 }
 
-bool Plugin::LoadFromCache(const os::FAR_FIND_DATA &FindData)
+bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 {
 	const auto& PlCache = ConfigProvider().PlCacheCfg();
 

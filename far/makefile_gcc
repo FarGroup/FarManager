@@ -58,7 +58,6 @@ SRCS = \
 	FarDlgBuilder.cpp \
 	farexcpt.cpp \
 	farversion.cpp \
-	farwinapi.cpp \
 	fileattr.cpp \
 	fileedit.cpp \
 	filefilter.cpp \
@@ -112,6 +111,11 @@ SRCS = \
 	panelmix.cpp \
 	pathmix.cpp \
 	pipe.cpp \
+	platform.cpp \
+	platform.env.cpp \
+	platform.fs.cpp \
+	platform.memory.cpp \
+	platform.reg.cpp \
 	plist.cpp \
 	plclass.cpp \
 	plugapi.cpp \

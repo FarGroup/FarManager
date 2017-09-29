@@ -258,9 +258,7 @@ static bool WipeFileData(const string& Name, int TotalPercent, bool& Cancel)
 			}
 		}
 
-		size_t Written;
-		const auto WriteSize = WipeFile.GetChunkSize();
-		if (!WipeFile.Write(Buf.data(), WriteSize, Written) || Written != WriteSize)
+		if (!WipeFile.Write(Buf.data(), WipeFile.GetChunkSize()))
 			return false;
 
 		if (TimeCheck)
@@ -287,7 +285,7 @@ static bool WipeFileData(const string& Name, int TotalPercent, bool& Cancel)
 
 static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 {
-	if (!os::SetFileAttributes(Name, FILE_ATTRIBUTE_NORMAL))
+	if (!os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL))
 		return false;
 
 	if (!WipeFileData(Name, TotalPercent, Cancel))
@@ -297,10 +295,10 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 	if (!FarMkTempEx(strTempName, nullptr, false))
 		return false;
 
-	if (!os::MoveFile(Name, strTempName))
+	if (!os::fs::move_file(Name, strTempName))
 		return false;;
 
-	return os::DeleteFile(strTempName);
+	return os::fs::delete_file(strTempName);
 }
 
 static bool WipeDirectory(const string& Name)
@@ -314,12 +312,12 @@ static bool WipeDirectory(const string& Name)
 
 	FarMkTempEx(strTempName,nullptr, false, strPath.empty()?nullptr:strPath.data());
 
-	if (!os::MoveFile(Name, strTempName))
+	if (!os::fs::move_file(Name, strTempName))
 	{
 		return false;
 	}
 
-	return os::RemoveDirectory(strTempName);
+	return os::fs::remove_directory(strTempName);
 }
 
 ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
@@ -331,7 +329,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 {
 	SCOPED_ACTION(ChangePriority)(Global->Opt->DelThreadPriority);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DelPreRedrawItem>());
-	os::FAR_FIND_DATA FindData;
+	os::fs::find_data FindData;
 	string strDeleteFilesMsg;
 	string strSelName;
 	string strSelShortName;
@@ -702,7 +700,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 							if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
 							{
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-									os::SetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+									os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
 								int MsgCode=ERemoveDirectory(strFullName, Wipe? D_WIPE : D_DEL);
 
@@ -755,7 +753,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 							if (ScTree.IsDirSearchDone())
 							{
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
-									os::SetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+									os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
 								int MsgCode=ERemoveDirectory(strFullName, Wipe? D_WIPE : D_DEL);
 
@@ -796,7 +794,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 				if (!Cancel)
 				{
 					if (FileAttr & FILE_ATTRIBUTE_READONLY)
-						os::SetFileAttributes(strSelName,FILE_ATTRIBUTE_NORMAL);
+						os::fs::set_file_attributes(strSelName,FILE_ATTRIBUTE_NORMAL);
 
 					int DeleteCode;
 
@@ -897,7 +895,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 			return DELETE_CANCEL;
 	}
 
-	os::SetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+	os::fs::set_file_attributes(Name,FILE_ATTRIBUTE_NORMAL);
 	return DELETE_YES;
 }
 
@@ -961,7 +959,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 		}
 		else if (!Global->Opt->DeleteToRecycleBin)
 		{
-			if (os::DeleteFile(strFullName))
+			if (os::fs::delete_file(strFullName))
 				break;
 		}
 		else
@@ -977,7 +975,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			if (m_SkipMode == -1 && ret == DELETE_YES)
 			{
 				recycle_bin = false;
-				if (os::DeleteFile(strFullName))
+				if (os::fs::delete_file(strFullName))
 					break;
 			}
 		}
@@ -1024,7 +1022,7 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 		switch(Type)
 		{
 		case D_DEL:
-			Success = os::RemoveDirectory(Name);
+			Success = os::fs::remove_directory(Name);
 			break;
 
 		case D_WIPE:
@@ -1086,7 +1084,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	if (!IsWindowsVistaOrGreater() && os::fs::is_directory(Name))
 	{
 		string strFullName2;
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 		ScanTree ScTree(true, true, FALSE);
 		ScTree.SetFindPath(Name,L"*", 0);
 
@@ -1181,36 +1179,36 @@ void DeleteDirTree(const string& Dir)
 		return;
 
 	string strFullName;
-	os::FAR_FIND_DATA FindData;
+	os::fs::find_data FindData;
 	ScanTree ScTree(true, true, FALSE);
 	ScTree.SetFindPath(Dir,L"*",0);
 
 	while (ScTree.GetNextName(FindData, strFullName))
 	{
-		os::SetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
+		os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
 		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if (ScTree.IsDirSearchDone())
-				os::RemoveDirectory(strFullName);
+				os::fs::remove_directory(strFullName);
 		}
 		else
-			os::DeleteFile(strFullName);
+			os::fs::delete_file(strFullName);
 	}
 
-	os::SetFileAttributes(Dir,FILE_ATTRIBUTE_NORMAL);
-	os::RemoveDirectory(Dir);
+	os::fs::set_file_attributes(Dir,FILE_ATTRIBUTE_NORMAL);
+	os::fs::remove_directory(Dir);
 }
 
 bool DeleteFileWithFolder(const string& FileName)
 {
 	auto strFileOrFolderName = unquote(FileName);
-	os::SetFileAttributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL);
+	os::fs::set_file_attributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL);
 
-	if (!os::DeleteFile(strFileOrFolderName))
+	if (!os::fs::delete_file(strFileOrFolderName))
 		return false;
 
-	return CutToParent(strFileOrFolderName) && os::RemoveDirectory(strFileOrFolderName);
+	return CutToParent(strFileOrFolderName) && os::fs::remove_directory(strFileOrFolderName);
 }
 
 delayed_deleter::delayed_deleter(const string& pathToDelete):

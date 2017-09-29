@@ -85,7 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
 {
-	os::FAR_FIND_DATA FindData;
+	os::fs::find_data FindData;
 	FindFiles::ArcListItem* Arc;
 	DWORD Used;
 	void* Data;
@@ -196,7 +196,7 @@ public:
 		return ArcList.back();
 	}
 
-	FindListItem& AddFindListItem(const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
+	FindListItem& AddFindListItem(const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
 		SCOPED_ACTION(os::critical_section_lock)(DataCS);
 
@@ -503,11 +503,11 @@ void FindFiles::SetPluginDirectory(const string& DirName, plugin_panel* hPlugin,
 	{
 		string strName(DirName);
 		//const wchar_t* DirPtr = ;
-		const wchar_t* NamePtr = PointToName(strName.data());
+		const auto NamePtr = PointToName(strName);
 
-		if (NamePtr != strName.data())
+		if (NamePtr.size() != strName.size())
 		{
-			string Dir = strName.substr(0, NamePtr - strName.data());
+			string Dir = strName.substr(0, strName.size() - NamePtr.size());
 
 			// force plugin to update its file list (that can be empty at this time)
 			// if not done SetDirectory may fail
@@ -878,7 +878,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::FAR_FIND_DATA& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData)
+bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData)
 {
 	SCOPED_ACTION(os::critical_section_lock)(PluginCS);
 
@@ -1271,7 +1271,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string
 		{
 			string strTempDir;
 			FarMkTempEx(strTempDir); // А проверка на nullptr???
-			os::CreateDirectory(strTempDir,nullptr);
+			os::fs::create_directory(strTempDir);
 
 			const auto& GetFile = [&]
 			{
@@ -1281,7 +1281,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string
 
 			if (!GetFile())
 			{
-				os::RemoveDirectory(strTempDir);
+				os::fs::remove_directory(strTempDir);
 				return false;
 			}
 
@@ -1590,7 +1590,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								}
 							}
 							FarMkTempEx(strTempDir);
-							os::CreateDirectory(strTempDir, nullptr);
+							os::fs::create_directory(strTempDir);
 							UserDataItem UserData = {FindItem->Data,FindItem->FreeData};
 
 							const auto bGet = GetPluginFile(FindItem->Arc, FindItem->FindData, strTempDir, strSearchFileName, &UserData);
@@ -1604,7 +1604,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 							if (!bGet)
 							{
-								os::RemoveDirectory(strTempDir);
+								os::fs::remove_directory(strTempDir);
 								return FALSE;
 							}
 
@@ -1862,7 +1862,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 	Console().SetTitle(strOldTitle);
 }
 
-void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_FIND_DATA& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc)
+void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc)
 {
 	if (!Dlg)
 		return;
@@ -1988,10 +1988,8 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_
 	// т.к. некоторые плагины возвращают имя вместе с полным путём,
 	// к примеру временная панель.
 
-	const wchar_t *DisplayName0=DisplayName;
-	if (Arc)
-		DisplayName0 = PointToName(DisplayName0);
-	MenuText += DisplayName0;
+	const auto DisplayName0 = Arc? PointToName(DisplayName) : DisplayName;
+	append(MenuText, DisplayName0);
 
 	string strPathName=FullName;
 	{
@@ -2080,7 +2078,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::FAR_
 
 void background_searcher::AddMenuRecord(const string& FullName, PluginPanelItem& FindData) const
 {
-	os::FAR_FIND_DATA fdata;
+	os::fs::find_data fdata;
 	PluginPanelItemToFindDataEx(FindData, fdata);
 	m_Owner->m_Messages.emplace(FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData, m_Owner->itd->GetFindFileArcItem());
 	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
@@ -2182,67 +2180,45 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 		ScTree.SetFindPath(strCurRoot,L"*");
 		m_Owner->itd->SetFindMessage(strCurRoot);
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 		string strFullName;
 
 		while (!Stopped() && ScTree.GetNextName(FindData, strFullName))
 		{
-			os::find_file_handle FindStream;
+			os::fs::enum_streams StreamsEnumerator(strFullName);
+			os::fs::enum_streams::const_iterator StreamsIterator;
 
 			Sleep(0);
 			PauseEvent.wait();
 
 			bool bContinue=false;
-			WIN32_FIND_STREAM_DATA sd;
-			bool FirstCall=true;
 			string strFindDataFileName=FindData.strFileName;
 
-			if (Global->Opt->FindOpt.FindAlternateStreams)
-			{
-				FindStream = os::FindFirstStream(strFullName, FindStreamInfoStandard, &sd);
-			}
-
-			// process default streams first
+			// process default stream first
 			bool ProcessAlternateStreams = false;
 			while (!Stopped())
 			{
-				string strFullStreamName=strFullName;
+				auto strFullStreamName = strFullName;
 
 				if (ProcessAlternateStreams)
 				{
-					if (FindStream)
+					StreamsIterator = StreamsIterator? std::next(StreamsIterator) : StreamsEnumerator.cbegin();
+
+					if (StreamsIterator != StreamsEnumerator.cend())
 					{
-						if (!FirstCall)
-						{
-							if (!os::FindNextStream(FindStream, &sd))
-							{
-								break;
-							}
-						}
-						else
-						{
-							FirstCall=false;
-						}
+						const auto& StreamData = *StreamsIterator;
 
-						LPWSTR NameEnd=wcschr(sd.cStreamName+1,L':');
+						const auto NameBegin = StreamData.cStreamName + 1;
+						const auto NameEnd = wcschr(NameBegin, L':');
+						const string_view StreamName(NameBegin, NameEnd? NameEnd - NameBegin : wcslen(NameBegin));
 
-						if (NameEnd)
-						{
-							*NameEnd=L'\0';
-						}
-
-						if (sd.cStreamName[1]) // alternate stream
-						{
-							strFullStreamName+=sd.cStreamName;
-							FindData.strFileName=strFindDataFileName+sd.cStreamName;
-							FindData.nFileSize=sd.StreamSize.QuadPart;
-							FindData.dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
-						}
-						else
-						{
-							// default stream is already processed
+						if (StreamName.empty()) // default stream has already been processed
 							continue;
-						}
+
+						append(strFullStreamName, L':', StreamName);
+						FindData.strFileName = strFindDataFileName + StreamName;
+						FindData.nFileSize = StreamData.StreamSize.QuadPart;
+						FindData.dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
 					}
 					else
 					{
@@ -2289,7 +2265,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 				}
 
 				ProcessAlternateStreams = Global->Opt->FindOpt.FindAlternateStreams;
-				if (!Global->Opt->FindOpt.FindAlternateStreams || !FindStream)
+				if (!ProcessAlternateStreams || StreamsIterator == StreamsEnumerator.cend())
 				{
 					break;
 				}
@@ -2448,7 +2424,7 @@ void background_searcher::DoPrepareFileList()
 			if (DriveType != DRIVE_REMOVABLE && !IsDriveTypeCDROM(DriveType) && (DriveType != DRIVE_REMOTE || SearchMode != FINDAREA_ALL_BUTNETWORK))
 			{
 				string strGuidVolime;
-				if(os::GetVolumeNameForVolumeMountPoint(RootDir, strGuidVolime))
+				if(os::fs::GetVolumeNameForVolumeMountPoint(RootDir, strGuidVolime))
 				{
 					Volumes.emplace_back(std::move(strGuidVolime));
 				}
@@ -2787,8 +2763,8 @@ bool FindFiles::FindFilesProcess()
 					if (!os::fs::exists(strFileName) && (GetLastError() != ERROR_ACCESS_DENIED))
 						break;
 
-					const wchar_t *NamePtr = PointToName(strFileName);
-					strSetName = NamePtr;
+					const auto NamePtr = PointToName(strFileName);
+					strSetName = make_string(NamePtr);
 
 					if (Global->Opt->FindOpt.FindAlternateStreams)
 					{
@@ -2798,7 +2774,7 @@ bool FindFiles::FindFilesProcess()
 							strSetName.resize(Pos);
 					}
 
-					strFileName.resize(NamePtr-strFileName.data());
+					strFileName.resize(strFileName.size() - NamePtr.size());
 					Length=strFileName.size();
 
 					if (Length>1 && IsSlash(strFileName[Length-1]) && strFileName[Length-2] != L':')

@@ -84,7 +84,7 @@ public:
 	masks() = default;
 
 	bool assign(const string& Masks, DWORD Flags);
-	bool operator ==(const string& Name) const;
+	bool operator ==(const string_view& Name) const;
 	bool empty() const;
 
 private:
@@ -227,7 +227,7 @@ void filemasks::clear()
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::Compare(const string& FileName) const
+bool filemasks::Compare(const string_view& FileName) const
 {
 	return contains(Include, FileName) && !contains(Exclude, FileName);
 }
@@ -298,15 +298,15 @@ bool filemasks::masks::assign(const string& masks, DWORD Flags)
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::masks::operator ==(const string& FileName) const
+bool filemasks::masks::operator ==(const string_view& FileName) const
 {
 	if (!re)
 	{
-		return std::any_of(CONST_RANGE(Masks, i) { return CmpName(i.data(), FileName.data(), false); });
+		return std::any_of(CONST_RANGE(Masks, i) { return CmpName(i, FileName, false); });
 	}
 
 	intptr_t i = m.size();
-	return re->Search(FileName.data(), FileName.data() + FileName.size(), const_cast<RegExpMatch *>(m.data()), i) != 0; // BUGBUG
+	return re->Search(ALL_CONST_RANGE(FileName), const_cast<RegExpMatch *>(m.data()), i) != 0; // BUGBUG
 }
 
 bool filemasks::masks::empty() const

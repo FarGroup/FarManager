@@ -147,7 +147,7 @@ public:
 
 	decltype(auto) AddCheckbox(lng TextMessageId, int *Value, int Mask = 0, bool ThreeState = false)
 	{
-		return base::AddCheckbox(static_cast<int>(TextMessageId), Value, Mask, ThreeState);
+		return base_type::AddCheckbox(static_cast<int>(TextMessageId), Value, Mask, ThreeState);
 	}
 	DialogItemEx *AddCheckbox(lng TextMessageId, IntOption& Value, int Mask=0, bool ThreeState=false);
 	DialogItemEx *AddCheckbox(lng TextMessageId, Bool3Option& Value);
@@ -175,7 +175,7 @@ public:
 		return base_type::AddTextAfter(RelativeTo, static_cast<int>(LabelId), skip);
 	}
 
-	using base::AddSeparator;
+	using base_type::AddSeparator;
 
 	decltype(auto) AddSeparator(lng LabelId)
 	{

@@ -304,7 +304,7 @@ public:
 	bool Load();
 	int Unload(bool bExitFAR = false);
 	bool LoadData();
-	bool LoadFromCache(const os::FAR_FIND_DATA &FindData);
+	bool LoadFromCache(const os::fs::find_data &FindData);
 	bool SaveToCache();
 	bool IsPanelPlugin();
 	bool Active() const {return Activity != 0;}

@@ -1072,7 +1072,7 @@ void Help::OutString(string_view Str)
 
 	while (OutPos<(int)(std::size(OutStr)-10))
 	{
-		if (!Str.empty() && (
+		if (Str.size() > 1 && (
 		    (Str[0]==L'~' && Str[1]==L'~') ||
 		    (Str[0]==L'#' && Str[1]==L'#') ||
 		    (Str[0]==L'@' && Str[1]==L'@') ||
@@ -1084,7 +1084,7 @@ void Help::OutString(string_view Str)
 			continue;
 		}
 
-		if (Str[0] == L'~' || ((Str[0] == L'#' || Str[0] == cColor) && !Topic) /*|| *Str==HelpBeginLink*/ || Str.empty())
+		if (Str.empty() /*|| *Str==HelpBeginLink*/ || Str[0] == L'~' || ((Str[0] == L'#' || Str[0] == cColor) && !Topic))
 		{
 			OutStr[OutPos]=0;
 
@@ -2186,7 +2186,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 			else
 			{
 				strType += L"\\shell\\open\\command";
-				Success = os::reg::GetValue(HKEY_CLASSES_ROOT, strType, L"", strAction);
+				Success = os::reg::key::classes_root.get(strType, L"", strAction);
 			}
 
 			if (Success)
@@ -2224,7 +2224,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 					СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
 					ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
 					*/
-					const auto strCurDir = os::GetCurrentDirectory();
+					const auto strCurDir = os::fs::GetCurrentDirectory();
 
 					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 					{

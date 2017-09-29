@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "exception.hpp"
 
 void NTPath::Transform()
 {
@@ -52,7 +53,7 @@ void NTPath::Transform()
 			if (!HasPathPrefix(Data))
 			{
 				ReplaceSlashToBackslash(Data);
-				string Prefix(ParsePath(Data) == PATH_DRIVELETTER? L"\\\\?\\" : L"\\\\?\\UNC");
+				string Prefix(ParsePath(Data) == root_type::drive_letter? L"\\\\?\\" : L"\\\\?\\UNC");
 				while(ReplaceStrings(Data,L"\\\\",L"\\"))
 					;
 				Data=Prefix+Data;
@@ -83,13 +84,13 @@ string KernelPath(string&& NtPath)
 }
 
 
-PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
+root_type ParsePath(const string_view& Path, size_t* DirectoryOffset, bool* Root)
 {
-	PATH_TYPE Result = PATH_UNKNOWN;
+	auto Result = root_type::unknown;
 
 	static struct
 	{
-		PATH_TYPE Type;
+		root_type Type;
 		const wchar_t* REStr;
 		std::wregex re;
 	}
@@ -100,17 +101,17 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 #define RE_PATH_PREFIX(x) RE_C_GROUP(RE_BEGIN RE_BACKSLASH RE_REPEAT(2) RE_ANY_OF(RE_Q_MARK RE_DOT) RE_BACKSLASH x )
 
 		// x:<whatever> or x:\\<whatever>
-		{ PATH_DRIVELETTER, RE_C_GROUP(RE_BEGIN RE_ANY RE_ESCAPE(L":")) RE_NC_GROUP(RE_ANY_SLASH RE_ZERO_OR_ONE_GREEDY) },
+		{ root_type::drive_letter, RE_C_GROUP(RE_BEGIN RE_ANY RE_ESCAPE(L":")) RE_NC_GROUP(RE_ANY_SLASH RE_ZERO_OR_ONE_GREEDY) },
 		// \\?\x: or \\?\x:\ or \\?\x:\<whatever>
-		{ PATH_DRIVELETTERUNC, RE_PATH_PREFIX(L".\\:") RE_ANY_SLASH_OR_NONE },
+		{ root_type::unc_drive_letter, RE_PATH_PREFIX(L".\\:") RE_ANY_SLASH_OR_NONE },
 		// \\server\share or \\server\share\ or \\server\share<whatever>
-		{ PATH_REMOTE, RE_C_GROUP(RE_BEGIN RE_ANY_SLASH RE_REPEAT(2) RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ONE_OR_MORE_LAZY RE_ANY_SLASH RE_ONE_OR_MORE_LAZY RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
+		{ root_type::remote, RE_C_GROUP(RE_BEGIN RE_ANY_SLASH RE_REPEAT(2) RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ONE_OR_MORE_LAZY RE_ANY_SLASH RE_ONE_OR_MORE_LAZY RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
 		// \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
-		{ PATH_REMOTEUNC, RE_PATH_PREFIX(L"unc" RE_BACKSLASH RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ONE_OR_MORE_LAZY RE_BACKSLASH RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
+		{ root_type::unc_remote, RE_PATH_PREFIX(L"unc" RE_BACKSLASH RE_NONE_OF(RE_SPACE RE_SLASHES RE_Q_MARK) RE_ONE_OR_MORE_LAZY RE_BACKSLASH RE_NONE_OF(RE_SLASHES) RE_ONE_OR_MORE_GREEDY) RE_ANY_SLASH_OR_NONE },
 		// \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
-		{ PATH_VOLUMEGUID, RE_PATH_PREFIX(L"volume" RE_ESCAPE(L"{") RE_ANY_UUID RE_ESCAPE(L"}")) RE_ANY_SLASH_OR_NONE },
+		{ root_type::volume, RE_PATH_PREFIX(L"volume" RE_ESCAPE(L"{") RE_ANY_UUID RE_ESCAPE(L"}")) RE_ANY_SLASH_OR_NONE },
 		// \\?\pipe\ or \\?\pipe
-		{ PATH_PIPE, RE_PATH_PREFIX(L"pipe") RE_ANY_SLASH_OR_NONE },
+		{ root_type::pipe, RE_PATH_PREFIX(L"pipe") RE_ANY_SLASH_OR_NONE },
 
 #undef RE_PATH_REFIX
 	};
@@ -124,23 +125,22 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 		REInit = true;
 	}
 
-	std::wsmatch SMatch;
+	std::wcmatch Match;
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(PathTypes, i) { return std::regex_search(path, SMatch, i.re); });
+	const auto ItemIterator = std::find_if(CONST_RANGE(PathTypes, i) { return std::regex_search(ALL_CONST_RANGE(Path), Match, i.re); });
 
 	if (ItemIterator != std::cend(PathTypes))
 	{
-		const size_t MatchLength = SMatch[0].length();
+		const size_t MatchLength = Match[0].length();
 		if (DirectoryOffset)
 		{
 			*DirectoryOffset = MatchLength;
 		}
 		if (Root)
 		{
-			*Root = path.size() == MatchLength || (path.size() == (MatchLength + 1) && IsSlash(path[MatchLength]));
+			*Root = Path.size() == MatchLength || (Path.size() == (MatchLength + 1) && IsSlash(Path[MatchLength]));
 		}
 		Result = ItemIterator->Type;
-
 	}
 
 	return Result;
@@ -149,7 +149,9 @@ PATH_TYPE ParsePath(const string& path, size_t* DirectoryOffset, bool* Root)
 bool IsAbsolutePath(const string& Path)
 {
 	const auto Type = ParsePath(Path);
-	return Type == PATH_DRIVELETTERUNC || Type == PATH_REMOTE || Type == PATH_REMOTEUNC || Type == PATH_VOLUMEGUID || (Type == PATH_DRIVELETTER && (Path.size() > 2 && IsSlash(Path[2])));
+
+	return (Type != root_type::unknown && Type != root_type::drive_letter) ||
+	       (Type == root_type::drive_letter && (Path.size() > 2 && IsSlash(Path[2])));
 }
 
 bool HasPathPrefix(const string& Path)
@@ -164,7 +166,7 @@ bool HasPathPrefix(const string& Path)
 
 bool PathCanHoldRegularFile(const string& Path)
 {
-	return ParsePath(Path) != PATH_UNKNOWN;
+	return ParsePath(Path) != root_type::unknown;
 }
 
 bool IsPluginPrefixPath(const string& Path) //Max:
@@ -183,7 +185,7 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 			return false;
 
 		string dev;
-		if (os::QueryDosDevice(Path.substr(0,2), dev))
+		if (os::fs::QueryDosDevice(Path.substr(0,2), dev))
 			return false;
 	}
 
@@ -198,96 +200,41 @@ bool TestParentFolderName(const string& Name)
 
 bool TestCurrentDirectory(const string& TestDir)
 {
-	return equal_icase(os::GetCurrentDirectory(), TestDir);
+	return equal_icase(os::fs::GetCurrentDirectory(), TestDir);
 }
 
-const wchar_t* PointToName(const wchar_t* Path)
+string_view PointToName(string_view Path)
 {
-	return PointToName(Path,nullptr);
-}
-
-const wchar_t* PointToName(const wchar_t* Path,const wchar_t* EndPtr)
-{
-	if (!Path)
-		return nullptr;
-
-	if (*Path && *(Path+1)==L':') Path+=2;
-
-	auto NamePtr = EndPtr? EndPtr : Path + wcslen(Path);
-
-	while (NamePtr != Path)
-	{
-		if (IsSlash(*NamePtr))
-			return NamePtr+1;
-
-		NamePtr--;
-	}
-
-	if (IsSlash(*Path))
-		return Path+1;
-	else
+	if (Path.empty())
 		return Path;
+
+	auto NameStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), IsSlash);
+	Path.remove_prefix(Path.crend() - NameStart);
+
+	return Path;
 }
 
 //   Аналог PointToName, только для строк типа
 //   "name\" (оканчивается на слеш) возвращает указатель на name, а не на пустую
 //   строку
-const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path)
+string_view PointToFolderNameIfFolder(string_view Path)
 {
-	if (!Path)
-		return nullptr;
+	while(!Path.empty() && IsSlash(Path.back()))
+		Path.remove_suffix(1);
 
-	const wchar_t *NamePtr=Path, *prevNamePtr=Path;
-
-	while (*Path)
-	{
-		if (IsSlash(*Path) ||
-		        (*Path==L':' && Path==NamePtr+1))
-		{
-			prevNamePtr=NamePtr;
-			NamePtr=Path+1;
-		}
-
-		++Path;
-	}
-
-	return *NamePtr? NamePtr : prevNamePtr;
+	return PointToName(Path);
 }
 
-const wchar_t* PointToExt(const wchar_t* Path)
+string_view PointToExt(string_view Path)
 {
-	return Path? PointToExt(Path, Path + wcslen(Path)) : nullptr;
-}
+	Path = PointToName(Path);
 
-const wchar_t* PointToExt(const wchar_t* Path,const wchar_t* EndPtr)
-{
-	if (!Path || !EndPtr)
-		return nullptr;
+	if (Path.empty())
+		return Path;
 
-	const wchar_t* ExtPtr = EndPtr;
-
-	const auto& IsPath = [&Path](const wchar_t* Ptr)
-	{
-		return IsSlash(*Ptr) || (*Ptr == L':' && Ptr - Path == 1); // ':' only in c:
-	};
-
-	while (ExtPtr != Path)
-	{
-		if (*ExtPtr==L'.')
-		{
-			if (IsPath(ExtPtr - 1))
-				return EndPtr;
-			else
-				return ExtPtr;
-		}
-
-		if (IsPath(ExtPtr))
-			return EndPtr;
-
-		ExtPtr--;
-	}
-
-	return EndPtr;
+	const auto ExtensionStart = std::find(ALL_CONST_REVERSE_RANGE(Path), L'.');
+	Path.remove_prefix(ExtensionStart == Path.crend()? Path.size() : Path.crend() - ExtensionStart - 1);
+	return Path;
 }
 
 
@@ -333,12 +280,12 @@ bool AddEndSlash(wchar_t *Path)
 void AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
 	const wchar_t *Path = strPath.data();
-	int len = static_cast<int>(strPath.size());
+	auto len = strPath.size();
 	if (!IsSlash(TypeSlash))
 		SlashType(Path, Path+len, TypeSlash);
 
 	wchar_t LastSlash = L'\0';
-	if (len > 0 && IsSlash(Path[len-1]))
+	if (len && IsSlash(Path[len-1]))
 		LastSlash = Path[--len];
 
 	if (TypeSlash != LastSlash)
@@ -385,49 +332,52 @@ bool CutToSlash(string &strStr, bool bInclude)
 	return false;
 }
 
-bool CutToParent(string &strStr)
+bool CutToParent(string& Str)
 {
-	bool Result = false;
+	if (Str.empty())
+		return false;
+
 	size_t RootLength = 0;
-	ParsePath(strStr, &RootLength);
-	const auto RootOnly = RootLength == strStr.size();
-	const auto EndPos = !strStr.empty() && IsSlash(strStr.back()) && !RootOnly? strStr.size() - 1 : strStr.size();
-	const auto RBegin = strStr.rbegin() + strStr.size() - EndPos, REnd = strStr.rend() - RootLength;
-	const auto LastSlashIter = std::find_if(RBegin, REnd, IsSlash);
-	if (LastSlashIter != REnd)
-	{
-		strStr.resize(strStr.rend() - LastSlashIter - 1);
-		Result = true;
-	}
-	else if (RootLength && !RootOnly)
-	{
-		strStr.resize(RootLength);
-		Result = true;
-	}
-	return Result;
+	ParsePath(Str, &RootLength);
+
+	if (RootLength == Str.size())
+		return false;
+
+	const auto REnd = Str.crend() - RootLength;
+	const auto LastNotSlash = std::find_if_not(Str.crbegin(), REnd, IsSlash);
+	const auto PrevSlash = std::find_if(LastNotSlash, REnd, IsSlash);
+	const auto PrevNotSlash = std::find_if_not(PrevSlash, REnd, IsSlash);
+
+	const auto NewSize = RootLength + REnd - PrevNotSlash;
+	if (!NewSize)
+		return false;
+
+	Str.resize(NewSize);
+	return true;
 }
 
-bool ContainsSlash(const wchar_t *Str)
+bool ContainsSlash(const string_view& Str)
 {
-	const auto Iterator = null_iterator(Str);
-	return std::find_if(Iterator, Iterator.end(), IsSlash) != Iterator.end();
+	return FindSlash(Str) != string::npos;
 }
 
-size_t FindSlash(const string &Str)
+size_t FindSlash(const string_view& Str)
 {
-	return Str.find_first_of(L"/\\", 0, 2);
+	const auto SlashPos = std::find_if(ALL_CONST_RANGE(Str), IsSlash);
+	return SlashPos == Str.cend()? string::npos : SlashPos - Str.cbegin();
 }
 
-size_t FindLastSlash(const string &Str)
+size_t FindLastSlash(const string_view& Str)
 {
-	return Str.find_last_of(L"/\\", string::npos, 2);
+	const auto SlashPos = std::find_if(ALL_CONST_REVERSE_RANGE(Str), IsSlash);
+	return SlashPos == Str.crend()? string::npos : Str.crend() - SlashPos - 1;
 }
 
 // find path root component (drive letter / volume name / server share) and calculate its length
 size_t GetPathRootLength(const string &Path)
 {
 	size_t DirOffset = 0;
-	return (ParsePath(Path, &DirOffset) == PATH_UNKNOWN)? 0 : DirOffset;
+	return (ParsePath(Path, &DirOffset) == root_type::unknown)? 0 : DirOffset;
 }
 
 string ExtractPathRoot(const string &Path)
@@ -554,6 +504,37 @@ void TestPathParser()
     assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file") == L"file");
     assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file") == L"file");
 
+	assert(PointToName(L""_sv) == L""_sv);
+	assert(PointToName(L"\\"_sv) == L""_sv);
+	assert(PointToName(L"\\file"_sv) == L"file"_sv);
+	assert(PointToName(L"file"_sv) == L"file"_sv);
+	assert(PointToName(L"path\\"_sv) == L""_sv);
+	assert(PointToName(L"path\\file"_sv) == L"file"_sv);
+	//assert(PointToName(L"C:"_sv) == L""_sv);
+	assert(PointToName(L"C:\\"_sv) == L""_sv);
+	assert(PointToName(L"C:\\file"_sv) == L"file"_sv);
+	assert(PointToName(L"C:\\path\\file"_sv) == L"file"_sv);
+	//assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"_sv) == L""_sv);
+	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"_sv) == L""_sv);
+	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"_sv) == L"file"_sv);
+	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"_sv) == L"file"_sv);
+	//assert(PointToName(L"\\\\server\\share"_sv) == L""_sv);
+	assert(PointToName(L"\\\\server\\share\\"_sv) == L""_sv);
+	assert(PointToName(L"\\\\server\\share\\file"_sv) == L"file"_sv);
+	assert(PointToName(L"\\\\server\\share\\path\\file"_sv) == L"file"_sv);
+	//assert(PointToName(L"\\\\?\\UNC\\server\\share"_sv) == L""_sv);
+	assert(PointToName(L"\\\\?\\UNC\\server\\share\\"_sv) == L""_sv);
+	assert(PointToName(L"\\\\?\\UNC\\server\\share\\file"_sv) == L"file"_sv);
+	assert(PointToName(L"\\\\?\\UNC\\server\\share\\path\\file"_sv) == L"file"_sv);
+
+	assert(PointToExt(L""_sv) == L""_sv);
+	assert(PointToExt(L"file"_sv) == L""_sv);
+	assert(PointToExt(L"path\\file"_sv) == L""_sv);
+	assert(PointToExt(L"file.ext"_sv) == L".ext"_sv);
+	assert(PointToExt(L"path\\file.ext"_sv) == L".ext"_sv);
+	assert(PointToExt(L"file.ext1.ext2"_sv) == L".ext2"_sv);
+	assert(PointToExt(L"path\\file.ext1.ext2"_sv) == L".ext2"_sv);
+
     assert(IsRootPath(L"C:"));
     assert(IsRootPath(L"C:\\"));
     assert(IsRootPath(L"\\"));
@@ -582,7 +563,7 @@ void TestPathParser()
 		const wchar_t* InputPath;
 		const wchar_t* ExpectedPath;
 		bool RootMustExist;
-		bool ExpectedReult;
+		bool ExpectedResult;
 	}
 	TestCases[] =
 	{
@@ -614,7 +595,7 @@ void TestPathParser()
 			Baseline = format(Test.ExpectedPath, Root);
 
 			const auto Result = CutToParent(Path);
-			assert(Result == Test.ExpectedReult);
+			assert(Result == Test.ExpectedResult);
 			assert(Path == Baseline);
 		}
 	}

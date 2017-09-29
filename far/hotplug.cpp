@@ -182,11 +182,10 @@ static DWORD DriveMaskFromVolumeName(const string& VolumeName)
 {
 	DWORD Result = 0;
 	string strCurrentVolumeName;
-	const auto Drives = os::fs::get_logical_drives();
-	const auto Enumerator = os::fs::enum_drives(Drives);
+	const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
 	const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 	{
-		return os::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strCurrentVolumeName) && starts_with(strCurrentVolumeName, VolumeName);
+		return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strCurrentVolumeName) && starts_with(strCurrentVolumeName, VolumeName);
 	});
 	if (ItemIterator != Enumerator.cend() && os::fs::is_standard_drive_letter(*ItemIterator))
 	{
@@ -210,7 +209,7 @@ static DWORD GetDriveMaskFromMountPoints(DEVINST hDevInst)
 
 		AddEndSlash(strMountPoint);
 		string strVolumeName;
-		if (os::GetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
+		if (os::fs::GetVolumeNameForVolumeMountPoint(strMountPoint,strVolumeName))
 		{
 			dwMask |= DriveMaskFromVolumeName(strVolumeName);
 		}

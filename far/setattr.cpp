@@ -270,8 +270,8 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								}
 
 
-								os::FAR_FIND_DATA FindData;
-								if (os::GetFindDataEx(DlgParam->strSelName, FindData))
+								os::fs::find_data FindData;
+								if (os::fs::get_find_data(DlgParam->strSelName, FindData))
 								{
 									const std::pair<SETATTRDLG, PFILETIME> Items[] =
 									{
@@ -349,9 +349,9 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			// Set Original? / Set All? / Clear All?
 			else if (Param1 == SA_BUTTON_ORIGINAL)
 			{
-				os::FAR_FIND_DATA FindData;
+				os::fs::find_data FindData;
 
-				if (os::GetFindDataEx(DlgParam->strSelName, FindData))
+				if (os::fs::get_find_data(DlgParam->strSelName, FindData))
 				{
 					Dlg->SendMessage(DM_SETATTR,SA_TEXT_LASTWRITE,&FindData.ftLastWriteTime);
 					Dlg->SendMessage(DM_SETATTR,SA_TEXT_CREATION,&FindData.ftCreationTime);
@@ -563,8 +563,8 @@ void ShellSetFileAttributesMsg(const string& Name)
 
 bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& OSrcDate,const string& OSrcTime)
 {
-	os::FAR_FIND_DATA ffd;
-	if (!os::GetFindDataEx(Name, ffd))
+	os::fs::find_data ffd;
+	if (!os::fs::get_find_data(Name, ffd))
 		return false;
 
 	FILETIME* Times[] =
@@ -730,7 +730,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 	if (!DlgParam.Plugin)
 	{
-		if (os::GetVolumeInformation(GetPathRoot(os::GetCurrentDirectory()), nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
+		if (os::fs::GetVolumeInformation(GetPathRoot(os::fs::GetCurrentDirectory()), nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
 		{
 			if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 			{
@@ -752,7 +752,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	{
 		DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 		string strSelName;
-		os::FAR_FIND_DATA FindData;
+		os::fs::find_data FindData;
 		if(SrcPanel)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
@@ -761,7 +761,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		else
 		{
 			strSelName=*Object;
-			os::GetFindDataEx(strSelName, FindData);
+			os::fs::get_find_data(strSelName, FindData);
 			FileAttr=FindData.dwFileAttributes;
 		}
 
@@ -824,7 +824,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{
 				if (!DlgParam.Plugin)
 				{
-					DWORD AddFileAttr=os::GetFileAttributes(strSelName);
+					DWORD AddFileAttr=os::fs::get_file_attributes(strSelName);
 					if (AddFileAttr != INVALID_FILE_ATTRIBUTES)
 						FileAttr|=AddFileAttr;
 				}
@@ -843,7 +843,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				if (Global->Opt->SetAttrFolderRules)
 				{
-					if (DlgParam.Plugin || os::GetFindDataEx(strSelName, FindData))
+					if (DlgParam.Plugin || os::fs::get_find_data(strSelName, FindData))
 					{
 						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2);
 						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2);
@@ -879,7 +879,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{
 				bool IsRoot = false;
 				const auto PathType = ParsePath(strSelName, nullptr, &IsRoot);
-				IsMountPoint = IsRoot && ((PathType == PATH_DRIVELETTER || PathType == PATH_DRIVELETTERUNC));
+				IsMountPoint = IsRoot && ((PathType == root_type::drive_letter || PathType == root_type::unc_drive_letter));
 			}
 
 			if ((FileAttr != INVALID_FILE_ATTRIBUTES && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) || IsMountPoint)
@@ -894,7 +894,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						// BUGBUG, cheating
 						KnownReparsePoint = true;
 						ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
-						os::GetVolumeNameForVolumeMountPoint(strSelName, strLinkName);
+						os::fs::GetVolumeNameForVolumeMountPoint(strSelName, strLinkName);
 					}
 					else
 					{
@@ -914,7 +914,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							else if (ReparseTag == IO_REPARSE_TAG_DFS)
 							{
 								string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
-								os::memory::netapi::ptr<DFS_INFO_3> DfsInfo;
+								os::netapi::ptr<DFS_INFO_3> DfsInfo;
 								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
 								{
 									KnownReparsePoint = true;
@@ -967,7 +967,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
 				{
 					bool Root;
-					if(ParsePath(strLinkName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
+					if(ParsePath(strLinkName, nullptr, &Root) == root_type::volume && Root)
 					{
 						ID_Msg = lng::MSetAttrVolMount;
 					}
@@ -991,7 +991,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[SA_CHECKBOX_REPARSEPOINT].Flags |= DIF_DISABLE;
 
 				DlgParam.FileSystemFlags=0;
-				if (os::GetVolumeInformation(GetPathRoot(strSelName), nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
+				if (os::fs::GetVolumeInformation(GetPathRoot(strSelName), nullptr, nullptr, nullptr, &DlgParam.FileSystemFlags, nullptr))
 				{
 					if (!(DlgParam.FileSystemFlags&FILE_FILE_COMPRESSION))
 					{
@@ -1071,7 +1071,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{SA_EDIT_XDATE, SA_EDIT_XTIME, &FindData.ftChangeTime},
 			};
 
-			if (DlgParam.Plugin || (!DlgParam.Plugin&&os::GetFindDataEx(strSelName, FindData)))
+			if (DlgParam.Plugin || (!DlgParam.Plugin && os::fs::get_find_data(strSelName, FindData)))
 			{
 				std::for_each(CONST_RANGE(Dates, i)
 				{
@@ -1733,12 +1733,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AddEndSlash(strFullName);
 				}
 				seInfo.lpFile = strFullName.data();
-				if (!IsWindowsVistaOrGreater() && ParsePath(seInfo.lpFile) == PATH_DRIVELETTERUNC)
+				if (!IsWindowsVistaOrGreater() && ParsePath(seInfo.lpFile) == root_type::unc_drive_letter)
 				{	// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
 				}
 				seInfo.lpVerb = L"properties";
-				const auto strCurDir = os::GetCurrentDirectory();
+				const auto strCurDir = os::fs::GetCurrentDirectory();
 				seInfo.lpDirectory=strCurDir.data();
 				ShellExecuteExW(&seInfo);
 			}

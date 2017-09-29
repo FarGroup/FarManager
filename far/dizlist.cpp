@@ -322,7 +322,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		m_DizFileName += strArgName;
 	}
 
-	DWORD FileAttr=os::GetFileAttributes(m_DizFileName);
+	DWORD FileAttr=os::fs::get_file_attributes(m_DizFileName);
 
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
@@ -330,7 +330,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if(Global->Opt->Diz.ROUpdate)
 			{
-				if(os::SetFileAttributes(m_DizFileName,FileAttr))
+				if(os::fs::set_file_attributes(m_DizFileName,FileAttr))
 				{
 					FileAttr^=FILE_ATTRIBUTE_READONLY;
 				}
@@ -339,7 +339,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!(FileAttr&FILE_ATTRIBUTE_READONLY))
 		{
-			os::SetFileAttributes(m_DizFileName,FILE_ATTRIBUTE_ARCHIVE);
+			os::fs::set_file_attributes(m_DizFileName,FILE_ATTRIBUTE_ARCHIVE);
 		}
 		else
 		{
@@ -375,8 +375,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if(const auto DizFile = os::fs::file(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
 			{
-				size_t Written;
-				if (!DizFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
+				if (!DizFile.Write(Blob.data(), Blob.size()))
 				{
 					throw MAKE_FAR_EXCEPTION(L"Write error");
 				}
@@ -391,11 +390,11 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				FileAttr = FILE_ATTRIBUTE_ARCHIVE | (Global->Opt->Diz.SetHidden? FILE_ATTRIBUTE_HIDDEN : 0);
 			}
 			// No error checking - non-critical (TODO: log)
-			os::SetFileAttributes(m_DizFileName, FileAttr);
+			os::fs::set_file_attributes(m_DizFileName, FileAttr);
 		}
 		else
 		{
-			if (!os::DeleteFile(m_DizFileName))
+			if (!os::fs::delete_file(m_DizFileName))
 			{
 				throw MAKE_FAR_EXCEPTION(L"Can't delete file");
 			}

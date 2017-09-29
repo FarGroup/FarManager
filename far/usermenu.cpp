@@ -256,7 +256,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 	if (!m_MenuModified)
 		return;
 
-	DWORD FileAttr=os::GetFileAttributes(MenuFileName);
+	DWORD FileAttr=os::fs::get_file_attributes(MenuFileName);
 
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
@@ -271,11 +271,11 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 				},
 				{ lng::MYes, lng::MNo }) == Message::first_button)
 
-				os::SetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+				os::fs::set_file_attributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 		}
 
 		if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
-			os::SetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
+			os::fs::set_file_attributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
 	}
 
 	blob_builder BlobBuilder(m_MenuCP);
@@ -289,8 +289,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
 			if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
 			{
-				size_t Written;
-				if (!MenuFile.Write(Blob.data(), Blob.size(), Written) || Written != Blob.size())
+				if (!MenuFile.Write(Blob.data(), Blob.size()))
 				{
 					throw MAKE_FAR_EXCEPTION(L"Write error");
 				}
@@ -303,13 +302,13 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			if (FileAttr != INVALID_FILE_ATTRIBUTES)
 			{
 				// No error checking - non-critical (TODO: log)
-				os::SetFileAttributes(MenuFileName, FileAttr);
+				os::fs::set_file_attributes(MenuFileName, FileAttr);
 			}
 		}
 		else
 		{
 			// если файл FarMenu.ini пуст, то удалим его
-			if (!os::DeleteFile(MenuFileName))
+			if (!os::fs::delete_file(MenuFileName))
 			{
 				throw MAKE_FAR_EXCEPTION(L"Can't delete file");
 			}
@@ -811,7 +810,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			for (auto& i: Names)
 			{
 				if (!i->empty())
-					os::DeleteFile(*i);
+					os::fs::delete_file(*i);
 			}
 		});
 

@@ -68,7 +68,7 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 	if (Attr&FILE_ATTRIBUTE_DIRECTORY && Attr&FILE_ATTRIBUTE_TEMPORARY)
 		Attr&=~FILE_ATTRIBUTE_TEMPORARY;
 
-	while (!os::SetFileAttributes(Name,Attr))
+	while (!os::fs::set_file_attributes(Name,Attr))
 	{
 		Global->CatchError();
 		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrCannotFor, Name))
@@ -107,17 +107,17 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 		return SETATTR_RET_OK;
 
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		os::SetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+		os::fs::set_file_attributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
 	SCOPE_EXIT
 	{
 		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
-			os::SetFileAttributes(Name, FileAttr);
+			os::fs::set_file_attributes(Name, FileAttr);
 	};
 
 	// Drop Encryption
 	if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
-		os::SetFileEncryption(Name, false);
+		os::fs::set_file_encryption(Name, false);
 
 	while (!SetFileCompression(Name,State))
 	{
@@ -147,15 +147,15 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 		return SETATTR_RET_OK;
 
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		os::SetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+		os::fs::set_file_attributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
 	SCOPE_EXIT
 	{
 		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
-		os::SetFileAttributes(Name, FileAttr);
+		os::fs::set_file_attributes(Name, FileAttr);
 	};
 
-	while (!os::SetFileEncryption(Name, State))
+	while (!os::fs::set_file_encryption(Name, State))
 	{
 		Global->CatchError();
 
@@ -189,7 +189,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 	for(;;)
 	{
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
-			os::SetFileAttributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+			os::fs::set_file_attributes(Name,FileAttr & ~FILE_ATTRIBUTE_READONLY);
 
 		bool SetTime=false;
 		DWORD LastError;
@@ -211,7 +211,7 @@ int ESetFileTime(const string& Name, const FILETIME *LastWriteTime, const FILETI
 		}
 
 		if (FileAttr & FILE_ATTRIBUTE_READONLY)
-			os::SetFileAttributes(Name,FileAttr);
+			os::fs::set_file_attributes(Name,FileAttr);
 
 		SetLastError(LastError);
 		Global->CatchError();
@@ -254,12 +254,12 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 		return SETATTR_RET_OK;
 
 	if (FileAttr&(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
-		os::SetFileAttributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
+		os::fs::set_file_attributes(Name,FileAttr&~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
 	SCOPE_EXIT
 	{
 		if (FileAttr & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM))
-		os::SetFileAttributes(Name, FileAttr);
+		os::fs::set_file_attributes(Name, FileAttr);
 	};
 
 	while (!SetFileSparse(Name,State))

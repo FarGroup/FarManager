@@ -2279,8 +2279,7 @@ bool config_provider::Export(const string& File)
 	{
 		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		const auto& DbPath = Global->Opt->ProfilePath + L"\\PluginsData\\*.db";
-		for(auto& i: os::fs::enum_files(DbPath))
+		for(auto& i: os::fs::enum_files(Global->Opt->ProfilePath + L"\\PluginsData\\*.db"))
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
 			inplace::upper(i.strFileName);
