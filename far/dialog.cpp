@@ -3238,6 +3238,11 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
 				ProcessKey(Manager::Key(KEY_ENTER));
 		}
+		else if (DialogMode.Check(DMODE_CLICKOUTSIDE))
+		{
+			DialogMode.Clear(DMODE_CLICKOUTSIDE);
+			return true;
+		}
 
 		if (mouse.Event.MouseEvent.dwButtonState)
 			DialogMode.Set(DMODE_CLICKOUTSIDE);
