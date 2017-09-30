@@ -1037,7 +1037,10 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 				FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
 
 				if (FarDialog->GetCanLoseFocus())
+				{
 					FarDialog->Process();
+					Global->WindowManager->PluginCommit();
+				}
 			}
 		}
 		return hDlg;

@@ -1080,8 +1080,7 @@ bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect)
 
 	if (DialogMode.Check(DMODE_SHOW))
 	{
-		ShowDialog((size_t)-1);
-		Global->ScrBuf->Flush();
+		SendMessage(DM_REDRAW, 0, nullptr);
 	}
 
 	return true;
@@ -4618,8 +4617,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_REDRAW:
 		{
 			if (DialogMode.Check(DMODE_OBJECTS_INITED))
-				Show();
-
+			{
+				Global->WindowManager->RefreshWindow(shared_from_this());
+				Global->WindowManager->PluginCommit();
+				Global->ScrBuf->Flush();
+			}
 			return 0;
 		}
 		/*****************************************************************/
@@ -4637,8 +4639,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (!m_DisableRedraw && Prev != m_DisableRedraw)
 				if (DialogMode.Check(DMODE_OBJECTS_INITED))
 				{
-					ShowDialog();
-					Global->ScrBuf->Flush();
+					SendMessage(DM_REDRAW, 0, nullptr);
 				}
 
 			return Prev;
@@ -5098,8 +5099,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 					if (DialogMode.Check(DMODE_SHOW) && ListBox->UpdateRequired())
 					{
-						ShowDialog(Param1);
-						Global->ScrBuf->Flush();
+						SendMessage(DM_REDRAW, 0, nullptr);
 					}
 
 					return Ret;
@@ -5131,8 +5131,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (DialogMode.Check(DMODE_SHOW))
 				{
-					ShowDialog(Param1);
-					Global->ScrBuf->Flush();
+					SendMessage(DM_REDRAW, 0, nullptr);
 				}
 
 				return TRUE;
@@ -5182,7 +5181,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				EditPtr->SetCurPos(((COORD*)Param2)->X);
 				//EditPtr->Show();
 				EditPtr->SetClearFlag(false);
-				ShowDialog(Param1);
+				SendMessage(DM_REDRAW, 0, nullptr);
 				return TRUE;
 			}
 			else if (Type == DI_USERCONTROL && CurItem->UCData)
@@ -5209,7 +5208,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				{
 					// что-то одно надо убрать :-)
 					MoveCursor(Coord.X+m_X1,Coord.Y+m_Y1); // ???
-					ShowDialog(Param1); //???
+					SendMessage(DM_REDRAW, 0, nullptr); //???
 				}
 
 				return TRUE;
@@ -5270,8 +5269,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							EditPtr->SetLeftPos(esp->LeftPos);
 						if(esp->Overtype>=0)
 							EditPtr->SetOvertypeMode(esp->Overtype!=0);
-						ShowDialog(Param1);
-						Global->ScrBuf->Flush();
+						SendMessage(DM_REDRAW, 0, nullptr);
 						return TRUE;
 					}
 				}
@@ -5437,8 +5435,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						Param1=-1;
 					}
 
-					ShowDialog(Param1);
-					Global->ScrBuf->Flush();
+					SendMessage(DM_REDRAW, 0, nullptr);
 				}
 
 				return Selected;
@@ -5449,8 +5446,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (DialogMode.Check(DMODE_SHOW))
 				{
-					ShowDialog();
-					Global->ScrBuf->Flush();
+					SendMessage(DM_REDRAW, 0, nullptr);
 				}
 
 				return Param1;
@@ -5491,7 +5487,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (DialogMode.Check(DMODE_DRAWING))
 					DialogMode.Set(DMODE_NEEDUPDATE);
 				else
-					ShowDialog();
+					SendMessage(DM_REDRAW, 0, nullptr);
 				return TRUE;
 			}
 
@@ -5698,8 +5694,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						if (DialogMode.Check(DMODE_SHOW))
 						{
 							ShowConsoleTitle();
-							ShowDialog(Param1);
-							Global->ScrBuf->Flush();
+							SendMessage(DM_REDRAW, 0, nullptr);
 						}
 
 						return Len-(!Len?0:1);
@@ -5760,8 +5755,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (DialogMode.Check(DMODE_SHOW)) // достаточно ли этого????!!!!
 				{
-					ShowDialog(Param1);
-					Global->ScrBuf->Flush();
+					SendMessage(DM_REDRAW, 0, nullptr);
 				}
 
 				//CurItem->strData = did->PtrData;
@@ -5828,8 +5822,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			ShowConsoleTitle();
 			if (DialogMode.Check(DMODE_SHOW))
 			{
-				ShowDialog(Param1);
-				Global->ScrBuf->Flush();
+				SendMessage(DM_REDRAW, 0, nullptr);
 			}
 
 			return TRUE;
@@ -5860,9 +5853,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						ChangeFocus2(ChangeFocus(Param1, 1, true));
 					}
 
-					// Либо все,  либо... только 1
-					ShowDialog(GetDropDownOpened()||(CurItem->Flags&DIF_HIDDEN)?-1:Param1);
-					Global->ScrBuf->Flush();
+					SendMessage(DM_REDRAW, 0, nullptr);
 				}
 			}
 
@@ -5933,8 +5924,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (DialogMode.Check(DMODE_SHOW)) //???
 			{
-				ShowDialog(Param1);
-				Global->ScrBuf->Flush();
+				SendMessage(DM_REDRAW, 0, nullptr);
 			}
 
 			return !(PrevFlags&DIF_DISABLE);
@@ -5981,8 +5971,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 					if (DialogMode.Check(DMODE_SHOW)) //???
 					{
-						ShowDialog(Param1);
-						Global->ScrBuf->Flush();
+						SendMessage(DM_REDRAW, 0, nullptr);
 					}
 				}
 
@@ -6031,8 +6020,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 					if (DialogMode.Check(DMODE_SHOW)) //???
 					{
-						ShowDialog(Param1);
-						Global->ScrBuf->Flush();
+						SendMessage(DM_REDRAW, 0, nullptr);
 					}
 
 					return TRUE;
