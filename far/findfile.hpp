@@ -222,7 +222,7 @@ private:
 
 	std::vector<char> readBufferA;
 	std::vector<wchar_t> readBuffer;
-	std::vector<char> hexFindString;
+	bytes hexFindString;
 	std::vector<size_t> skipCharsTable;
 	struct CodePageInfo;
 	std::list<CodePageInfo> m_CodePages;

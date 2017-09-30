@@ -176,15 +176,11 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 				if (pattern[1]==L'*' && !pattern[2])
 					return true;
 
-				const auto SpecIt = std::find_if(ALL_CONST_RANGE(pattern), [](wchar_t Char)
+				if (std::none_of(ALL_CONST_RANGE(pattern), [](wchar_t Char) { return wcschr(L"*?[", Char) != nullptr; }))
 				{
-					return wcschr(L"*?[", Char) != nullptr;
-				});
+					const auto RDotIt = std::find(ALL_CONST_REVERSE_RANGE(str), L'.');
+					auto DotIt = RDotIt == str.crend()? str.cend() : (RDotIt + 1).base();
 
-				if (SpecIt != pattern.cend())
-				{
-					const auto DotIt = std::find(ALL_CONST_RANGE(str), L'.');
-					
 					if (!pattern[1])
 						return DotIt == str.cend() || DotIt + 1 == str.cend();
 
@@ -223,7 +219,7 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 
 				if (pattern.size() > 1 && pattern[1] == L']')
 				{
-					if (pattern[0] != str[0])
+					if (str.empty() || pattern[0] != str[0])
 						return false;
 
 					pattern.remove_prefix(2);

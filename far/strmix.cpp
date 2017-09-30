@@ -1327,17 +1327,17 @@ static auto HexStringToBlobT(const C* Hex, size_t Size, C Separator)
 	const auto AlignedSize = Size + SeparatorSize;
 	const auto BlobSize = AlignedSize / StepSize;
 
-	std::vector<char> Blob;
-
 	if (!BlobSize)
-		return Blob;
+		return bytes();
 
+	std::vector<char> Blob;
 	Blob.reserve(BlobSize);
 	for (size_t i = 0; i != AlignedSize; i += StepSize)
 	{
 		Blob.emplace_back(HexToInt(Hex[i]) << 4 | HexToInt(Hex[i + 1]));
 	}
-	return Blob;
+
+	return bytes::copy(bytes_view(Blob.data(), Blob.size()));
 }
 
 std::string BlobToHexString(const void* Blob, size_t Size, char Separator)
@@ -1345,7 +1345,12 @@ std::string BlobToHexString(const void* Blob, size_t Size, char Separator)
 	return BlobToHexStringT<std::string>(Blob, Size, Separator);
 }
 
-std::vector<char> HexStringToBlob(const char* Hex, char Separator)
+std::string BlobToHexString(const bytes_view& Blob, char Separator)
+{
+	return BlobToHexString(Blob.data(), Blob.size(), Separator);
+}
+
+bytes HexStringToBlob(const char* Hex, char Separator)
 {
 	return HexStringToBlobT(Hex, strlen(Hex), Separator);
 }
@@ -1355,7 +1360,12 @@ string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator)
 	return BlobToHexStringT<string>(Blob, Size, Separator);
 }
 
-std::vector<char> HexStringToBlob(const wchar_t* Hex, wchar_t Separator)
+string BlobToHexWString(const bytes_view& Blob, char Separator)
+{
+	return BlobToHexWString(Blob.data(), Blob.size(), Separator);
+}
+
+bytes HexStringToBlob(const wchar_t* Hex, wchar_t Separator)
 {
 	return HexStringToBlobT(Hex, wcslen(Hex), Separator);
 }

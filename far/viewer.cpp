@@ -3312,16 +3312,13 @@ void Viewer::Search(int Next,int FirstChar)
 	if (!ViewFile || (Next && strLastSearchStr.empty()))
 		return;
 
-	string strSearchStr, strMsgStr;
-	std::vector<char> search_bytes;
-	bool Case,WholeWords,ReverseSearch,SearchRegexp,SearchHex;
+	auto SearchHex = LastSearchHex;
+	auto Case = LastSearchCase;
+	auto WholeWords = LastSearchWholeWords;
+	auto ReverseSearch = LastSearchReverse;
+	auto SearchRegexp = LastSearchRegexp;
 
-	SearchHex = LastSearchHex;
-	Case = LastSearchCase;
-	WholeWords = LastSearchWholeWords;
-	ReverseSearch = LastSearchReverse;
-	SearchRegexp = LastSearchRegexp;
-	strSearchStr.clear();
+	string strSearchStr;
 	if (!strLastSearchStr.empty())
 		strSearchStr = strLastSearchStr;
 
@@ -3401,24 +3398,27 @@ void Viewer::Search(int Next,int FirstChar)
 	LastSearchWholeWords = WholeWords;
 	LastSearchReverse = ReverseSearch;
 	LastSearchRegexp = SearchRegexp;
+	LastSearchHex = SearchHex;
 
 	if (Next == -1)
 		ReverseSearch = !ReverseSearch;
 
-	strMsgStr = strLastSearchStr = strSearchStr;
+	auto strMsgStr = strLastSearchStr = strSearchStr;
 
-	sd.search_len = (int)strSearchStr.size();
+	sd.search_len = static_cast<int>(strSearchStr.size());
 
-	SEARCHER_RESULT(Viewer::* searcher)(Viewer::search_data *p_sd) = nullptr;
+	bytes search_bytes;
+	decltype(&Viewer::search_hex_forward) searcher;
 
-	if (true == (LastSearchHex = SearchHex))
+	if (SearchHex)
 	{
 		search_bytes = hex2ss(strSearchStr);
 		sd.search_len = (int)search_bytes.size();
 		sd.search_bytes = search_bytes.data();
 		sd.ch_size = 1;
 		Case = true;
-		WholeWords = SearchRegexp = false;
+		WholeWords = false;
+		SearchRegexp = false;
 		searcher = (ReverseSearch ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
 	}
 	else
@@ -3459,7 +3459,8 @@ void Viewer::Search(int Next,int FirstChar)
 	int search_direction = ReverseSearch ? -1 : +1;
 	switch (Next)
 	{
-		case +1: case -1:
+		case +1:
+		case -1:
 			if ( SelectPos >= 0 && SelectSize >= 0 )
 			{
 				if (sd.ch_size >= 1)

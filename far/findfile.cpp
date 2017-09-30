@@ -443,7 +443,7 @@ void background_searcher::ReleaseInFileSearch()
 		clear_and_shrink(readBufferA);
 		clear_and_shrink(readBuffer);
 		clear_and_shrink(skipCharsTable);
-		hexFindString.clear();
+		hexFindString = {};
 		m_CodePages.clear();
 		InFileSearchInited=false;
 	}

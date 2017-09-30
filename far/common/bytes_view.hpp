@@ -56,13 +56,31 @@ public:
 
 	bytes() = default;
 
-	bytes(void* Data, size_t Size): range<char*>(reinterpret_cast<char*>(Data), reinterpret_cast<char*>(Data) + Size) {}
+	static bytes copy(const bytes_view& Object)
+	{
+		bytes Bytes;
+		Bytes = Object;
+		return Bytes;
+	}
 
 	template<typename T>
-	explicit bytes(T& Object):
-		bytes(&Object, sizeof(Object))
+	static bytes copy(const T& Object)
+	{
+		return copy(bytes_view(Object));
+	}
+
+	template<typename T>
+	static bytes reference(T& Object)
 	{
 		static_assert(std::is_trivially_copyable<T>::value);
+
+		bytes Bytes;
+		static_cast<range<char*>&>(Bytes) =
+		{
+			static_cast<char*>(static_cast<void*>(&Object)),
+			static_cast<char*>(static_cast<void*>(&Object)) + sizeof(Object)
+		};
+		return Bytes;
 	}
 
 	~bytes()
@@ -71,7 +89,7 @@ public:
 			delete[] static_cast<const char*>(data());
 	}
 
-	auto& operator=(const bytes_view& rhs)
+	bytes& operator=(const bytes_view& rhs)
 	{
 		if (data())
 		{
@@ -87,8 +105,25 @@ public:
 		return *this;
 	}
 
+	operator bytes_view() const
+	{
+		return { data(), size() };
+	}
+
 private:
 	movable<bool> m_Allocated{ false };
 };
+
+template<typename T>
+T deserialise(const bytes_view& Bytes)
+{
+	static_assert(std::is_trivially_copyable<T>::value);
+	if (Bytes.size() != sizeof(T))
+		throw std::runtime_error("Incorrect blob size: " + std::to_string(Bytes.size()) + ", expected " + std::to_string(sizeof(T)));
+
+	T Value;
+	std::memcpy(&Value, Bytes.data(), sizeof(T));
+	return Value;
+}
 
 #endif // BYTES_VIEW_HPP_3707377A_7C4B_4B2E_89EC_6411A1988FB3

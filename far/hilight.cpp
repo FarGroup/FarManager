@@ -222,9 +222,9 @@ static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::
 	}
 
 	FILETIME DateAfter = {};
-	cfg->GetValue(key,HLS.DateAfter, bytes(DateAfter));
+	cfg->GetValue(key,HLS.DateAfter, bytes::reference(DateAfter));
 	FILETIME DateBefore = {};
-	cfg->GetValue(key,HLS.DateBefore, bytes(DateBefore));
+	cfg->GetValue(key,HLS.DateBefore, bytes::reference(DateBefore));
 	unsigned long long UseDate = 0;
 	cfg->GetValue(key, HLS.UseDate, UseDate);
 	unsigned long long DateType = 0;
@@ -273,14 +273,14 @@ static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::
 	HData.SetSortGroup(SortGroup);
 
 	highlight::element Colors = {};
-	cfg->GetValue(key,HLS.NormalColor, bytes(Colors.Color[highlight::color::normal].FileColor));
-	cfg->GetValue(key,HLS.SelectedColor, bytes(Colors.Color[highlight::color::selected].FileColor));
-	cfg->GetValue(key,HLS.CursorColor, bytes(Colors.Color[highlight::color::normal_current].FileColor));
-	cfg->GetValue(key,HLS.SelectedCursorColor, bytes(Colors.Color[highlight::color::selected_current].FileColor));
-	cfg->GetValue(key,HLS.MarkCharNormalColor, bytes(Colors.Color[highlight::color::normal].MarkColor));
-	cfg->GetValue(key,HLS.MarkCharSelectedColor, bytes(Colors.Color[highlight::color::selected].MarkColor));
-	cfg->GetValue(key,HLS.MarkCharCursorColor, bytes(Colors.Color[highlight::color::normal_current].MarkColor));
-	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, bytes(Colors.Color[highlight::color::selected_current].MarkColor));
+	cfg->GetValue(key,HLS.NormalColor, bytes::reference(Colors.Color[highlight::color::normal].FileColor));
+	cfg->GetValue(key,HLS.SelectedColor, bytes::reference(Colors.Color[highlight::color::selected].FileColor));
+	cfg->GetValue(key,HLS.CursorColor, bytes::reference(Colors.Color[highlight::color::normal_current].FileColor));
+	cfg->GetValue(key,HLS.SelectedCursorColor, bytes::reference(Colors.Color[highlight::color::selected_current].FileColor));
+	cfg->GetValue(key,HLS.MarkCharNormalColor, bytes::reference(Colors.Color[highlight::color::normal].MarkColor));
+	cfg->GetValue(key,HLS.MarkCharSelectedColor, bytes::reference(Colors.Color[highlight::color::selected].MarkColor));
+	cfg->GetValue(key,HLS.MarkCharCursorColor, bytes::reference(Colors.Color[highlight::color::normal_current].MarkColor));
+	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, bytes::reference(Colors.Color[highlight::color::selected_current].MarkColor));
 
 	unsigned long long MarkChar;
 	if (cfg->GetValue(key, HLS.MarkChar, MarkChar))

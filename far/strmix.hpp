@@ -160,10 +160,12 @@ char IntToHex(int h);
 int HexToInt(char h);
 
 std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
-std::vector<char> HexStringToBlob(const char* Hex, char Separator = ',');
+std::string BlobToHexString(const bytes_view& Blob, char Separator = ',');
+bytes HexStringToBlob(const char* Hex, char Separator = ',');
 
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
-std::vector<char> HexStringToBlob(const wchar_t* Hex, wchar_t Separator = L',');
+string BlobToHexWString(const bytes_view& Blob, char Separator = ',');
+bytes HexStringToBlob(const wchar_t* Hex, wchar_t Separator = L',');
 
 template<class S, class T>
 auto to_hex_string_t(T Value)

@@ -7931,26 +7931,25 @@ bool FileList::ConvertName(const string_view& SrcName,string &strDest,int MaxLen
 		return SrcLength > MaxLength;
 	}
 
-	const wchar_t *DotIt;
+	string_view Extension;
 
 	if (!ShowStatus &&
-	        ((!(FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags&PVS_ALIGNEXTENSIONS))
-	         || ((FileAttr&FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags&PVS_FOLDERALIGNEXTENSIONS)))
-	        && SrcLength<=MaxLength &&
-	        (DotIt = std::find(ALL_CONST_RANGE(SrcName) ,L'.')) != SrcName.cend() && DotIt != SrcName.cbegin() &&
-	        (SrcName.size() > 2 || SrcName[0] != L'.') && std::find(DotIt + 1, SrcName.cend(), L' ') == SrcName.cend())
+	        ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags & PVS_ALIGNEXTENSIONS)) ||
+	          ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags & PVS_FOLDERALIGNEXTENSIONS))) &&
+	        SrcLength <= MaxLength &&
+	        (Extension = PointToExt(SrcName)).size() > 1 && Extension.size() != SrcName.size() &&
+	        (SrcName.size() > 2 || SrcName[0] != L'.') && std::find(ALL_CONST_RANGE(Extension), L' ') == SrcName.cend())
 	{
-		int DotLength = SrcName.cend() - (DotIt + 1);
-		int NameLength=DotLength? static_cast<int>(DotIt - SrcName.cbegin()) : SrcLength;
-		int DotPos = std::max(MaxLength - std::max(DotLength,3), NameLength + 1);
+		Extension.remove_prefix(1);
+		auto Name = SrcName.substr(0, SrcName.size() - Extension.size());
+		const auto DotPos = std::max(MaxLength - std::max(Extension.size(), size_t(3)), Name.size());
 
-		strDest = make_string(SrcName.substr(0, NameLength));
+		if (Name.size() > 1 && Name[Name.size() - 2] != L' ')
+			Name.remove_suffix(1);
 
-		if (DotPos>0 && NameLength>0 && SrcName[NameLength-1]==L' ')
-			strDest += L'.';
-
+		strDest.append(ALL_CONST_RANGE(Name));
 		strDest.resize(DotPos, L' ');
-		strDest.append(DotIt + 1, DotLength);
+		strDest.append(ALL_CONST_RANGE(Extension));
 		strDest.resize(MaxLength, L' ');
 	}
 	else
