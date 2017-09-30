@@ -2851,7 +2851,6 @@ TDialogData* NewDialogData(lua_State* L, PSInfo *Info, HANDLE hDlg,
                            BOOL isOwned)
 {
 	TDialogData *dd = (TDialogData*) lua_newuserdata(L, sizeof(TDialogData));
-	dd->L        = L;
 	dd->Info     = Info;
 	dd->hDlg     = hDlg;
 	dd->isOwned  = isOwned;
@@ -3629,7 +3628,6 @@ static intptr_t DoDlgProc(lua_State *L, PSInfo *Info, TDialogData *dd, HANDLE hD
 	if(!dd || dd->wasError)
 		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
 
-	L = dd->L; // the dialog may be called from a lua_State other than the main one
 	lua_pushlightuserdata(L, dd);        //+1   retrieve the table
 	lua_rawget(L, LUA_REGISTRYINDEX);    //+1
 	lua_rawgeti(L, -1, 2);               //+2   retrieve the procedure
@@ -3776,10 +3774,8 @@ static int far_DialogInit(lua_State *L)
 	return 1;
 }
 
-static void free_dialog(TDialogData* dd)
+static void free_dialog(lua_State *L, TDialogData* dd)
 {
-	lua_State* L = dd->L;
-
 	if(dd->isOwned && dd->isModal && dd->hDlg != INVALID_HANDLE_VALUE)
 	{
 		dd->Info->DialogFree(dd->hDlg);
@@ -3795,7 +3791,7 @@ static int far_DialogRun(lua_State *L)
 
 	if(dd->wasError)
 	{
-		free_dialog(dd);
+		free_dialog(L, dd);
 		luaL_error(L, "error occured in dialog procedure");
 	}
 
@@ -3805,7 +3801,7 @@ static int far_DialogRun(lua_State *L)
 
 static int far_DialogFree(lua_State *L)
 {
-	free_dialog(CheckDialog(L, 1));
+	free_dialog(L, CheckDialog(L, 1));
 	return 0;
 }
 
