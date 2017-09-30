@@ -53,6 +53,7 @@ typedef struct
 
 typedef struct
 {
+	lua_State         *L;
 	struct PluginStartupInfo *Info;
 	HANDLE            hDlg;
 	BOOL              isOwned;

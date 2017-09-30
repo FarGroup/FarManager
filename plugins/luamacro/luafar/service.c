@@ -2851,6 +2851,7 @@ TDialogData* NewDialogData(lua_State* L, PSInfo *Info, HANDLE hDlg,
                            BOOL isOwned)
 {
 	TDialogData *dd = (TDialogData*) lua_newuserdata(L, sizeof(TDialogData));
+	dd->L        = GetPluginData(L)->MainLuaState;
 	dd->Info     = Info;
 	dd->hDlg     = hDlg;
 	dd->isOwned  = isOwned;
@@ -3640,9 +3641,7 @@ static intptr_t DoDlgProc(lua_State *L, PSInfo *Info, TDialogData *dd, HANDLE hD
 		return Info->DefDlgProc(hDlg, Msg, Param1, Param2);
 	}
 
-	ret = pcall_msg(L, 4, 1);  //+2
-
-	if(ret)
+	if (pcall_msg(L, 4, 1))  //+2
 	{
 		lua_pop(L, 1);
 		dd->wasError = TRUE;
@@ -3673,13 +3672,17 @@ static inline BOOL NonModal(TDialogData *dd)
 
 intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
+	intptr_t ret;
 	PSInfo *Info = GetPluginData(L)->Info;
 	TDialogData *dd = (TDialogData*) Info->SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
+
 	if (Msg == DN_INITDIALOG && NonModal(dd))
 	{
 		dd->hDlg = hDlg;
 	}
-	intptr_t ret=DoDlgProc(L, Info, dd, hDlg, Msg, Param1, Param2);
+
+	L = dd->L; // the dialog may be called from a lua_State other than the main one
+	ret = DoDlgProc(L, Info, dd, hDlg, Msg, Param1, Param2);
 	if (Msg == DN_CLOSE && ret && NonModal(dd))
 	{
 		Info->SendDlgMessage(hDlg, DM_SETDLGDATA, 0, 0);
@@ -3774,8 +3777,10 @@ static int far_DialogInit(lua_State *L)
 	return 1;
 }
 
-static void free_dialog(lua_State *L, TDialogData* dd)
+static void free_dialog(TDialogData* dd)
 {
+	lua_State* L = dd->L;
+
 	if(dd->isOwned && dd->isModal && dd->hDlg != INVALID_HANDLE_VALUE)
 	{
 		dd->Info->DialogFree(dd->hDlg);
@@ -3791,7 +3796,7 @@ static int far_DialogRun(lua_State *L)
 
 	if(dd->wasError)
 	{
-		free_dialog(L, dd);
+		free_dialog(dd);
 		luaL_error(L, "error occured in dialog procedure");
 	}
 
@@ -3801,7 +3806,7 @@ static int far_DialogRun(lua_State *L)
 
 static int far_DialogFree(lua_State *L)
 {
-	free_dialog(L, CheckDialog(L, 1));
+	free_dialog(CheckDialog(L, 1));
 	return 0;
 }
 
