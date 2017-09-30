@@ -3665,7 +3665,7 @@ static void RemoveDialogFromRegistry(lua_State *L, TDialogData *dd)
 	lua_rawset(L, LUA_REGISTRYINDEX);
 }
 
-static inline BOOL NonModal(TDialogData *dd)
+static __inline BOOL NonModal(TDialogData *dd)
 {
 	return dd && !dd->isModal;
 }
