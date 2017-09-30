@@ -4492,6 +4492,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	_DIALOG(CleverSysLog CL(L"Dialog.SendDlgMessage()"));
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
+	const auto redraw=[this]
+	{
+		Global->WindowManager->RefreshWindow(shared_from_this());
+		Global->WindowManager->PluginCommit();
+	};
 	// Сообщения, касаемые только диалога и не затрагивающие элементы
 	switch (Msg)
 	{
@@ -4618,8 +4623,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (DialogMode.Check(DMODE_OBJECTS_INITED))
 			{
-				Global->WindowManager->RefreshWindow(shared_from_this());
-				Global->WindowManager->PluginCommit();
+				redraw();
 				Global->ScrBuf->Flush();
 			}
 			return 0;
@@ -5181,7 +5185,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				EditPtr->SetCurPos(((COORD*)Param2)->X);
 				//EditPtr->Show();
 				EditPtr->SetClearFlag(false);
-				SendMessage(DM_REDRAW, 0, nullptr);
+				redraw();
 				return TRUE;
 			}
 			else if (Type == DI_USERCONTROL && CurItem->UCData)
@@ -5208,7 +5212,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				{
 					// что-то одно надо убрать :-)
 					MoveCursor(Coord.X+m_X1,Coord.Y+m_Y1); // ???
-					SendMessage(DM_REDRAW, 0, nullptr); //???
+					redraw(); //???
 				}
 
 				return TRUE;
@@ -5487,7 +5491,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (DialogMode.Check(DMODE_DRAWING))
 					DialogMode.Set(DMODE_NEEDUPDATE);
 				else
-					SendMessage(DM_REDRAW, 0, nullptr);
+					redraw();
 				return TRUE;
 			}
 
