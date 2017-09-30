@@ -1,3 +1,9 @@
+drkns 30.09.2017 23:23:55 +0100 - build 5054
+
+1. С форума: Search stops after folder (symlink) excluded in filter.
+
+2. Уточнение поиска в альтернативных потоках.
+
 zg 01.10.2017 00:05:03 +0300 - build 5053
 
 1. ошибочная посылка DN_CONTROLINPUT с Param1=-1 на любое передвижение мыши, если в первый раз вернули TRUE.

@@ -2185,99 +2185,59 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 		while (!Stopped() && ScTree.GetNextName(FindData, strFullName))
 		{
-			os::fs::enum_streams StreamsEnumerator(strFullName);
-			os::fs::enum_streams::const_iterator StreamsIterator;
-
 			Sleep(0);
 			PauseEvent.wait();
 
-			bool bContinue=false;
-			string strFindDataFileName=FindData.strFileName;
-
-			// process default stream first
-			bool ProcessAlternateStreams = false;
-			while (!Stopped())
+			const auto& ProcessStream = [&](const string& FullStreamName)
 			{
-				auto strFullStreamName = strFullName;
-
-				if (ProcessAlternateStreams)
+				enumFileInFilterType foundType;
+				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &foundType, &FullStreamName))
 				{
-					StreamsIterator = StreamsIterator? std::next(StreamsIterator) : StreamsEnumerator.cbegin();
-
-					if (StreamsIterator != StreamsEnumerator.cend())
-					{
-						const auto& StreamData = *StreamsIterator;
-
-						const auto NameBegin = StreamData.cStreamName + 1;
-						const auto NameEnd = wcschr(NameBegin, L':');
-						const string_view StreamName(NameBegin, NameEnd? NameEnd - NameBegin : wcslen(NameBegin));
-
-						if (StreamName.empty()) // default stream has already been processed
-							continue;
-
-						append(strFullStreamName, L':', StreamName);
-						FindData.strFileName = strFindDataFileName + StreamName;
-						FindData.nFileSize = StreamData.StreamSize.QuadPart;
-						FindData.dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
-					}
-					else
-					{
-						if (bContinue)
-						{
-							break;
-						}
-					}
-				}
-
-				if (UseFilter)
-				{
-					enumFileInFilterType foundType;
-
-					if (!m_Owner->GetFilter()->FileInFilter(FindData, &foundType, &strFullName))
-					{
-						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
-						if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
-							ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
-
-						{
-							bContinue=true;
-
-							if (ProcessAlternateStreams)
-							{
-								continue;
-							}
-							else
-							{
-								break;
-							}
-						}
-					}
+					// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
+					if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && foundType == FIFT_EXCLUDE)
+						ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
+					return;
 				}
 
 				if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
-					m_Owner->itd->SetFindMessage(strFullName);
+					m_Owner->itd->SetFindMessage(FullStreamName);
 				}
 
-				if (IsFileIncluded(nullptr,strFullStreamName,FindData.dwFileAttributes,strFullName))
+				if (IsFileIncluded(nullptr, FullStreamName, FindData.dwFileAttributes, strFullName))
 				{
-					m_Owner->m_Messages.emplace(strFullStreamName, FindData, nullptr, nullptr, nullptr);
+					m_Owner->m_Messages.emplace(FullStreamName, FindData, nullptr, nullptr, nullptr);
 				}
 
-				ProcessAlternateStreams = Global->Opt->FindOpt.FindAlternateStreams;
-				if (!ProcessAlternateStreams || StreamsIterator == StreamsEnumerator.cend())
-				{
-					break;
-				}
-			}
+				if (SearchInArchives)
+					ArchiveSearch(FullStreamName);
+			};
 
-			if (bContinue)
+			// default stream first:
+			ProcessStream(strFullName);
+
+			// now the rest:
+			if (Global->Opt->FindOpt.FindAlternateStreams)
 			{
-				continue;
-			}
+				const auto FindDataFileName = FindData.strFileName;
 
-			if (SearchInArchives)
-				ArchiveSearch(strFullName);
+				for(const auto& StreamData: os::fs::enum_streams(strFullName))
+				{
+					const auto NameBegin = StreamData.cStreamName + 1;
+					const auto NameEnd = wcschr(NameBegin, L':');
+					const string_view StreamName(NameBegin, NameEnd? NameEnd - NameBegin : wcslen(NameBegin));
+
+					if (StreamName.empty()) // default stream has already been processed
+						continue;
+
+					const auto FullStreamName = concat(strFullName, L':', StreamName);
+					FindData.strFileName = concat(FindDataFileName, L':', StreamName);
+					FindData.nFileSize = StreamData.StreamSize.QuadPart;
+					FindData.dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
+
+					ProcessStream(FullStreamName);
+				}
+			}
 		}
 
 		if (SearchMode!=FINDAREA_SELECTED)

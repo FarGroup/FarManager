@@ -80,26 +80,31 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 	Flags.Change(FSCANTREE_SCANSYMLINK, ScanJunction == -1? Global->Opt->ScanJunction.Get() : ScanJunction != 0);
 }
 
-ScanTree::~ScanTree()
-{
-}
+ScanTree::~ScanTree() = default;
 
 void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
 {
 	ScanItems.clear();
-	ScanItems.emplace_back();
+
 	Flags.Clear(FSCANTREE_FILESFIRST);
+
 	strFindMask = Mask;
-	strFindPath = Path;
-	strFindPathOriginal = strFindPath;
+
+	strFindPathOriginal = Path;
 	AddEndSlash(strFindPathOriginal);
-	strFindPath = ConvertNameToReal(strFindPath);
-	strFindPath = NTPath(strFindPath);
-	ScanItems.back().RealPath = strFindPath;
-	ScanItems.back().ActiveDirectories.emplace(strFindPath);
+
+	strFindPath = NTPath(ConvertNameToReal(Path));
+
+	scantree_item Item;
+	Item.RealPath = strFindPath;
+	Item.ActiveDirectories.emplace(strFindPath);
+
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
+
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
+
+	ScanItems.emplace_back(std::move(Item));
 }
 
 bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
@@ -248,6 +253,21 @@ void ScanTree::SkipDir()
 {
 	if (ScanItems.empty())
 		return;
+
+	{
+		const auto& Current = ScanItems.back();
+		if (!Flags.Check(FSCANTREE_SCANSYMLINK) &&
+			Current.Find &&
+			Current.Iterator != Current.Find->end() &&
+			(Current.Iterator->dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)) == (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)
+			)
+		{
+			// The current item is a directory link but we don't treat it as a directory so it's nothing to skip
+			// (perhaps it could have been better to add a special flag for this case rather than the quite complex condition above,
+			// but these flags is already a mess).
+			return;
+		}
+	}
 
 	ScanItems.pop_back();
 
