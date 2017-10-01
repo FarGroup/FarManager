@@ -114,13 +114,13 @@ void inplace::lower(wchar_t* Str)
 
 string& inplace::upper(string& Str, size_t Pos, size_t Count)
 {
-	upper(&Str[0] + Pos, Count == string::npos? Str.size() - Pos : Count);
+	upper(&Str[Pos], Count == string::npos? Str.size() - Pos : Count);
 	return Str;
 }
 
 string& inplace::lower(string& Str, size_t Pos, size_t Count)
 {
-	lower(&Str[0] + Pos, Count == string::npos? Str.size() - Pos : Count);
+	lower(&Str[Pos], Count == string::npos? Str.size() - Pos : Count);
 	return Str;
 }
 
@@ -136,7 +136,7 @@ string lower(string Str)
 
 size_t hash_icase::operator()(const string& Str) const
 {
-	return std::hash<string>{}(Str);
+	return make_hash(upper(Str));
 }
 
 bool equal_to_icase::operator()(wchar_t Chr1, wchar_t Chr2) const

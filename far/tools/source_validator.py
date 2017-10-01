@@ -34,7 +34,7 @@ def check(filename):
 			Raise()
 
 		if extension in [".hpp", ".h"] and CheckIncludeGuards:
-			LockGuardName = "{0}_{1}".format(name.upper(), extension[1:].upper())
+			LockGuardName = basename.upper().replace(".", "_")
 			LockGuardTemplate1 = "#ifndef " + LockGuardName
 			LockGuardTemplate2 = "#define " + LockGuardName
 			LockGuardTemplate3 = "#endif // " + LockGuardName

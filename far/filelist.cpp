@@ -7938,7 +7938,7 @@ bool FileList::ConvertName(const string_view& SrcName,string &strDest,int MaxLen
 	          ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (m_ViewSettings.Flags & PVS_FOLDERALIGNEXTENSIONS))) &&
 	        SrcLength <= MaxLength &&
 	        (Extension = PointToExt(SrcName)).size() > 1 && Extension.size() != SrcName.size() &&
-	        (SrcName.size() > 2 || SrcName[0] != L'.') && std::find(ALL_CONST_RANGE(Extension), L' ') == SrcName.cend())
+	        (SrcName.size() > 2 || SrcName[0] != L'.') && !contains(Extension, L' '))
 	{
 		Extension.remove_prefix(1);
 		auto Name = SrcName.substr(0, SrcName.size() - Extension.size());

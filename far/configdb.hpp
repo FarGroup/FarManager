@@ -88,7 +88,14 @@ protected:
 	GeneralConfig() = default;
 };
 
-class HierarchicalConfig: public representable, virtual public transactional, public conditional<HierarchicalConfig>
+class async_delete
+{
+public:
+	virtual ~async_delete() = default;
+	virtual void finish() = 0;
+};
+
+class HierarchicalConfig: public representable, virtual public async_delete, virtual public transactional, public conditional<HierarchicalConfig>
 {
 public:
 	class key: public conditional<key>
@@ -105,7 +112,6 @@ public:
 
 	static key root_key() { return key(0); }
 
-	virtual void AsyncFinish() = 0;
 	virtual key CreateKey(const key& Root, const string_view& Name, const string* Description = nullptr) = 0;
 	virtual key FindByName(const key& Root, const string_view& Name) const = 0;
 	virtual bool SetKeyDescription(const key& Root, const string_view& Description) = 0;
@@ -152,13 +158,16 @@ protected:
 
 namespace detail
 {
-	struct HierarchicalConfigDeleter
+	struct async_deleter
 	{
-		void operator()(HierarchicalConfig *ptr) const { ptr->AsyncFinish(); }
+		void operator()(async_delete* Ptr) const
+		{
+			Ptr->finish();
+		}
 	};
 }
 
-using HierarchicalConfigUniquePtr = std::unique_ptr<HierarchicalConfig, detail::HierarchicalConfigDeleter>;
+using HierarchicalConfigUniquePtr = std::unique_ptr<HierarchicalConfig, detail::async_deleter>;
 
 class ColorsConfig: public representable, virtual public transactional
 {

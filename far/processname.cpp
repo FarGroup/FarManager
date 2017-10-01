@@ -184,12 +184,12 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 					if (!pattern[1])
 						return DotIt == str.cend() || DotIt + 1 == str.cend();
 
-					const auto PatternDotIt = std::find(pattern.cbegin() + 1, pattern.cend(), L'.');
+					const auto PatternContainsDot = contains(pattern.substr(1), L'.');
 
-					if (PatternDotIt != pattern.cend() && DotIt == str.cend())
+					if (PatternContainsDot && DotIt == str.cend())
 						return false;
 
-					if (PatternDotIt == pattern.cend() && DotIt != str.cend())
+					if (!PatternContainsDot && DotIt != str.cend())
 						return equal_icase(pattern.substr(1), str.substr(DotIt + 1 - str.cbegin()));
 				}
 			}
@@ -209,7 +209,7 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 
 		case L'[':
 			{
-				if (std::find(ALL_CONST_RANGE(pattern), L']') == pattern.cend())
+				if (!contains(pattern, L']'))
 				{
 					if (patternc != stringc)
 						return false;

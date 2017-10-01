@@ -171,10 +171,9 @@ SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
 }
 
 
-SQLiteDb::SQLiteDb():
-	init_status(-1),
-	db_exists(-1)
+SQLiteDb::SQLiteDb(initialiser Initialiser, const string& DbName, bool Local, bool WAL)
 {
+	Initialize(Initialiser, DbName, Local, WAL);
 }
 
 static bool can_create_file(const string& fname)
@@ -270,27 +269,31 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	return ok;
 }
 
-void SQLiteDb::Initialize(const string& DbName, bool Local)
+void SQLiteDb::Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL)
 {
 	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data());
 	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
 
 	m_Name = DbName;
-	init_status = 0;
 
-	if (!InitializeImpl(DbName, Local))
+	const auto& OpenAndInitialise = [&](const string& Name)
+	{
+		return Open(Name, Local, WAL) && Initialiser(db_initialiser(this));
+	};
+
+	if (!OpenAndInitialise(DbName))
 	{
 		Close();
 		++init_status;
 
-		bool in_memory = (Global->Opt->ReadOnlyConfig != 0) ||
-			!os::fs::move_file(m_Path, m_Path + L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
+		bool in_memory = Global->Opt->ReadOnlyConfig ||
+			!(os::fs::move_file(m_Path, m_Path + L".bad", MOVEFILE_REPLACE_EXISTING) && OpenAndInitialise(DbName));
 
 		if (in_memory)
 		{
 			Close();
 			++init_status;
-			InitializeImpl(L":memory:", Local);
+			OpenAndInitialise(L":memory:"s);
 		}
 	}
 }
@@ -299,6 +302,17 @@ int SQLiteDb::GetInitStatus(string& name, bool full_name) const
 {
 	name = (full_name && !m_Path.empty() && m_Path != L":memory:") ? m_Path : m_Name;
 	return init_status;
+}
+
+const wchar_t* SQLiteDb::GetErrorMessage(int InitStatus)
+{
+	switch (InitStatus)
+	{
+	case 0:  return L"no errors";
+	case 1:  return L"database file is renamed to *.bad and new one is created";
+	case 2:  return L"database is opened in memory";
+	default: return L"unknown error";
+	}
 }
 
 bool SQLiteDb::Exec(const char *Command) const

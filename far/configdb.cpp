@@ -149,13 +149,13 @@ private:
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
 {
 protected:
-	iGeneralConfigDb(const wchar_t* DbName, bool local)
+	iGeneralConfigDb(const string& DbName, bool Local):
+		SQLiteDb(&iGeneralConfigDb::Initialise, DbName, Local)
 	{
-		Initialize(DbName, local);
 	}
 
 private:
-	virtual bool InitializeImpl(const string& DbName, bool Local) override
+	static bool Initialise(const db_initialiser& Db)
 	{
 		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));"
@@ -170,9 +170,9 @@ private:
 			{ stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;" },
 		};
 
-		return Open(DbName, Local)
-		    && Exec(Schema)
-		    && PrepareStatements(Statements)
+		return
+			Db.Exec(Schema) &&
+			Db.PrepareStatements(Statements)
 		;
 	}
 
@@ -372,32 +372,54 @@ private:
 	virtual const char* GetKeyName() const override {return "localconfig";}
 };
 
-class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb
+class async_delete_impl: virtual public async_delete
 {
 public:
-	explicit HierarchicalConfigDb(const string& DbName, bool Local = false):
+	virtual ~async_delete_impl()
+	{
+		m_AsyncDone.set();
+	}
+
+	void finish() override
+	{
+		m_AsyncDone.reset();
+		// TODO: SEH guard, try/catch, exception_ptr
+		ConfigProvider().AsyncCall([this]
+		{
+			delete this;
+		});
+	}
+
+protected:
+	explicit async_delete_impl(const wchar_t* Name):
 		// If a thread with same event name is running, we will open that event here
-		AsyncDone(os::event::type::manual, os::event::state::signaled, os::make_name<os::event>(GetPath(), GetName()).data())
+		m_AsyncDone(os::event::type::manual, os::event::state::signaled, Name)
 	{
 		// and wait for the signal
-		AsyncDone.wait();
-		Initialize(DbName, Local);
+		m_AsyncDone.wait();
+	}
+
+private:
+	os::event m_AsyncDone;
+};
+
+class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig, public SQLiteDb
+{
+public:
+	explicit HierarchicalConfigDb(const string& DbName, bool Local):
+		async_delete_impl(os::make_name<os::event>(GetPath(), GetName()).data()),
+		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
+	{
+		BeginTransaction();
 	}
 
 	virtual ~HierarchicalConfigDb() override
 	{
-		HierarchicalConfigDb::EndTransaction(); AsyncDone.set();
+		HierarchicalConfigDb::EndTransaction();
 	}
 
 protected:
-	virtual void AsyncFinish() override
-	{
-		AsyncDone.reset();
-		// TODO: SEH guard, try/catch, exception_ptr
-		ConfigProvider().AsyncCall([this]{ delete this; });
-	}
-
-	virtual bool InitializeImpl(const string& DbName, bool Local) override
+	static bool Initialise(const db_initialiser& Db)
 	{
 		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
@@ -419,11 +441,10 @@ protected:
 			{ stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;" },
 		};
 
-		return Open(DbName, Local)
-		    && EnableForeignKeysConstraints()
-		    && Exec(Schema)
-		    && PrepareStatements(Statements)
-		    && BeginTransaction()
+		return
+			Db.EnableForeignKeysConstraints() &&
+			Db.Exec(Schema) &&
+			Db.PrepareStatements(Statements)
 		;
 	}
 
@@ -683,8 +704,6 @@ protected:
 
 		stmt_count
 	};
-
-	os::event AsyncDone;
 };
 
 static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[] =
@@ -749,13 +768,13 @@ private:
 class ColorsConfigDb: public ColorsConfig, public SQLiteDb
 {
 public:
-	ColorsConfigDb()
+	ColorsConfigDb():
+		SQLiteDb(&ColorsConfigDb::Initialise, L"colors.db")
 	{
-		Initialize(L"colors.db");
 	}
 
 private:
-	virtual bool InitializeImpl(const string& DbName, bool Local) override
+	static bool Initialise(const db_initialiser& Db)
 	{
 		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);"
@@ -769,9 +788,9 @@ private:
 			{ stmtDelValue, L"DELETE FROM colors WHERE name=?1;" },
 		};
 
-		return Open(DbName, Local)
-		    && Exec(Schema)
-		    && PrepareStatements(Statements)
+		return
+			Db.Exec(Schema) &&
+			Db.PrepareStatements(Statements)
 		;
 	}
 
@@ -856,13 +875,13 @@ private:
 class AssociationsConfigDb: public AssociationsConfig, public SQLiteDb
 {
 public:
-	AssociationsConfigDb()
+	AssociationsConfigDb():
+		SQLiteDb(&AssociationsConfigDb::Initialise, L"associations.db")
 	{
-		Initialize(L"associations.db");
 	}
 
 private:
-	virtual bool InitializeImpl(const string& DbName, bool Local) override
+	static bool Initialise(const db_initialiser& Db)
 	{
 		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER NOT NULL, mask TEXT, description TEXT);"
@@ -886,10 +905,10 @@ private:
 			{ stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;" },
 		};
 
-		return Open(DbName, Local)
-		    && EnableForeignKeysConstraints()
-		    && Exec(Schema)
-		    && PrepareStatements(Statements)
+		return
+			Db.EnableForeignKeysConstraints() &&
+			Db.Exec(Schema) &&
+			Db.PrepareStatements(Statements)
 		;
 	}
 
@@ -1099,9 +1118,9 @@ private:
 class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb
 {
 public:
-	PluginsCacheConfigDb()
+	PluginsCacheConfigDb():
+		SQLiteDb(&PluginsCacheConfigDb::Initialise, L"plugincache" PLATFORM_SUFFIX L".db", true, true)
 	{
-		Initialize(L"plugincache" PLATFORM_SUFFIX L".db", true);
 	}
 
 	virtual bool DiscardCache() override
@@ -1111,7 +1130,7 @@ public:
 	}
 
 private:
-	virtual bool InitializeImpl(const string& DbName, bool Local) override
+	static bool Initialise(const db_initialiser& Db)
 	{
 		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
@@ -1162,11 +1181,11 @@ private:
 			{ stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);" },
 		};
 
-		return Open(DbName, Local, true)
-		    && SetWALJournalingMode()
-		    && EnableForeignKeysConstraints()
-		    && Exec(Schema)
-		    && PrepareStatements(Statements)
+		return
+			Db.SetWALJournalingMode() &&
+			Db.EnableForeignKeysConstraints() &&
+			Db.Exec(Schema) &&
+			Db.PrepareStatements(Statements)
 		;
 	}
 
@@ -1435,13 +1454,13 @@ private:
 class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public SQLiteDb
 {
 public:
-	PluginsHotkeysConfigDb()
+	PluginsHotkeysConfigDb():
+		SQLiteDb(&PluginsHotkeysConfigDb::Initialise, L"pluginhotkeys.db")
 	{
-		Initialize(L"pluginhotkeys.db");
 	}
 
 private:
-	virtual bool InitializeImpl(const string& DbName, bool Local) override
+	static bool Initialise(const db_initialiser& Db)
 	{
 		static const auto Schema =
 			"CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));"
@@ -1455,9 +1474,9 @@ private:
 			{ stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;" },
 		};
 
-		return Open(DbName, Local)
-		    && Exec(Schema)
-		    && PrepareStatements(Statements)
+		return
+			Db.Exec(Schema) &&
+			Db.PrepareStatements(Statements)
 		;
 	}
 
@@ -1577,6 +1596,12 @@ private:
 class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 {
 public:
+	HistoryConfigCustom(const string& DbName, bool Local):
+		SQLiteDb(&HistoryConfigCustom::Initialise, DbName, Local, true)
+	{
+		StartThread();
+	}
+
 	virtual ~HistoryConfigCustom() override
 	{
 		WaitAllAsync();
@@ -1721,7 +1746,7 @@ private:
 
 	virtual bool RollbackTransaction() override { WaitAllAsync(); return SQLiteDb::RollbackTransaction(); }
 
-	virtual bool InitializeImpl(const string& DbName, bool Local) override
+	static bool Initialise(const db_initialiser& Db)
 	{
 		static const auto Schema =
 			//command,view,edit,folder,dialog history
@@ -1769,12 +1794,11 @@ private:
 			{ stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);" },
 		};
 
-		return Open(DbName, Local, true)
-		    && SetWALJournalingMode()
-		    && EnableForeignKeysConstraints()
-		    && Exec(Schema)
-		    && PrepareStatements(Statements)
-		    && StartThread()
+		return
+			Db.SetWALJournalingMode() &&
+			Db.EnableForeignKeysConstraints() &&
+			Db.Exec(Schema) &&
+			Db.PrepareStatements(Statements)
 		;
 	}
 
@@ -2063,9 +2087,9 @@ private:
 class HistoryConfigDb: public HistoryConfigCustom
 {
 public:
-	HistoryConfigDb()
+	HistoryConfigDb():
+		HistoryConfigCustom(L"history.db", true)
 	{
-		Initialize(L"history.db", true);
 	}
 
 private:
@@ -2078,9 +2102,9 @@ private:
 class HistoryConfigMemory: public HistoryConfigCustom
 {
 public:
-	HistoryConfigMemory()
+	HistoryConfigMemory():
+		HistoryConfigCustom(L":memory:", true)
 	{
-		Initialize(L":memory:", true);
 	}
 
 private:
@@ -2099,18 +2123,18 @@ static const std::wregex& uuid_regex()
 void config_provider::CheckDatabase(SQLiteDb *pDb)
 {
 	string pname;
-	const auto rc = pDb->GetInitStatus(pname, m_Mode != mode::m_default);
-	if ( rc > 0 )
+	const auto Status = pDb->GetInitStatus(pname, m_Mode != mode::m_default);
+	if (!Status)
+		return;
+
+	if (m_Mode != mode::m_default)
 	{
-		if (m_Mode != mode::m_default)
-		{
-			Console().Write(format(L"problem with {0}:\n  {1}\n", pname, rc <= 1 ? L"database file is renamed to *.bad and new one is created" : L"database is opened in memory"));
-			Console().Commit();
-		}
-		else
-		{
-			m_Problems.emplace_back(pname);
-		}
+		Console().Write(format(L"Problem with {0}:\n  {1}\n", pname, SQLiteDb::GetErrorMessage(Status)));
+		Console().Commit();
+	}
+	else
+	{
+		m_Problems.emplace_back(pname);
 	}
 }
 

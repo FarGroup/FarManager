@@ -45,8 +45,12 @@ namespace sqlite
 class SQLiteDb: noncopyable, virtual transactional
 {
 public:
-	SQLiteDb();
-	virtual ~SQLiteDb() override = default;
+	int GetInitStatus(string& name, bool full_name) const;
+	static const wchar_t* GetErrorMessage(int InitStatus);
+
+	bool IsNew() const { return db_exists <= 0; }
+	static int library_load();
+	static void library_free();
 
 	enum class column_type
 	{
@@ -56,13 +60,13 @@ public:
 		blob,
 	};
 
-	bool IsNew() const { return db_exists <= 0; }
-	int GetInitStatus(string& name, bool full_name) const;
-
-	static int library_load();
-	static void library_free();
-
 protected:
+	class db_initialiser;
+
+	using initialiser = bool(const db_initialiser& Db);
+
+	SQLiteDb(initialiser Initialiser, const string& DbName, bool Local = false, bool WAL = false);
+
 	class SQLiteStmt
 	{
 	public:
@@ -132,8 +136,6 @@ protected:
 	template<class T>
 	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
-	bool Open(const string& DbName, bool Local, bool WAL=false);
-	void Initialize(const string& DbName, bool Local = false);
 	SQLiteStmt create_stmt(const wchar_t *Stmt) const;
 
 	template<typename T, size_t N>
@@ -178,9 +180,36 @@ protected:
 		return AutoStatement(Index)->Bind(FWD(Args)...).FinalStep();
 	}
 
+	class db_initialiser
+	{
+	public:
+		explicit db_initialiser(SQLiteDb* Db):
+			m_Db(Db)
+		{
+		}
+
+#define FORWARD_FUNCTION(FunctionName) \
+		template<typename... args> \
+		decltype(auto) FunctionName(args&&... Args) const \
+		{ \
+			return m_Db->FunctionName(FWD(Args)...); \
+		}
+
+		FORWARD_FUNCTION(Exec)
+		FORWARD_FUNCTION(SetWALJournalingMode)
+		FORWARD_FUNCTION(EnableForeignKeysConstraints)
+		FORWARD_FUNCTION(PrepareStatements)
+
+#undef FORWARD_FUNCTION
+
+	private:
+		SQLiteDb* m_Db;
+	};
+
 private:
+	void Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL);
+	bool Open(const string& DbName, bool Local, bool WAL);
 	void Close();
-	virtual bool InitializeImpl(const string& DbName, bool Local) = 0;
 
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };
 	using database_ptr = std::unique_ptr<sqlite::sqlite3, db_closer>;
@@ -190,8 +219,8 @@ private:
 	mutable std::vector<SQLiteStmt> m_Statements;
 	string m_Path;
 	string m_Name;
-	int init_status;
-	int db_exists;
+	int init_status{};
+	int db_exists{-1};
 };
 
 #endif // SQLITEDB_HPP_1C228281_1C8E_467F_9070_520E01F7DB70

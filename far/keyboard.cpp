@@ -1661,8 +1661,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					    (FKey==KEY_DECIMAL?NUMLOCK_ON:0);
 
 					static const DWORD ExtKey[] = {KEY_PGUP, KEY_PGDN, KEY_END, KEY_HOME, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_INS, KEY_DEL, KEY_NUMENTER};
-					const auto ItemIterator = std::find(ALL_CONST_RANGE(ExtKey), FKey);
-					if (ItemIterator != std::cend(ExtKey))
+					if (contains(ExtKey, FKey))
 						Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
 				}
 				break;
