@@ -4626,10 +4626,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_REDRAW:
 		{
-			if (DialogMode.Check(DMODE_OBJECTS_INITED))
+			if (DialogMode.Check(DMODE_OBJECTS_INITED) && IsRedrawEnabled())
 			{
 				redraw();
-				Global->ScrBuf->Flush();
+				if (!DialogMode.Check(DMODE_DRAWING))
+					Global->ScrBuf->Flush();
 			}
 			return 0;
 		}
