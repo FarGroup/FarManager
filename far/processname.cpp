@@ -199,10 +199,10 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 				if(CmpName(pattern,str,false,CmpNameSearchMode))
 					return true;
 
-				str.remove_prefix(1);
-
 				if (str.empty())
 					break;
+
+				str.remove_prefix(1);
 			}
 
 			return false;
