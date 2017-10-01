@@ -407,7 +407,7 @@ class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig,
 {
 public:
 	explicit HierarchicalConfigDb(const string& DbName, bool Local):
-		async_delete_impl(os::make_name<os::event>(GetPath(), GetName()).data()),
+		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data()),
 		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
 	{
 		BeginTransaction();
