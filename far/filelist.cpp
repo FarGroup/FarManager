@@ -725,12 +725,14 @@ public:
 		if (Ext2.empty())
 			Ext2 = GetExt(b);
 
-		const auto Name1 = PointToName(a.strName);
-		const auto Name2 = PointToName(b.strName);
+		const auto& GetNameOnly = [](const string_view& NameWithExt, const string_view& Ext)
+		{
+			return NameWithExt.substr(0, NameWithExt.size() - Ext.size());
+		};
 
 		const auto Comparer = get_comparer(ListNumericSort, ListCaseSensitiveSort);
 
-		int NameCmp = Comparer(Name1, Name2);
+		int NameCmp = Comparer(GetNameOnly(PointToName(a.strName), Ext1), GetNameOnly(PointToName(b.strName), Ext2));
 
 		if (!NameCmp)
 		{
