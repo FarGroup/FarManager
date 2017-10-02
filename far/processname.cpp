@@ -173,7 +173,7 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 			*/
 			if (pattern[0] == L'.')
 			{
-				if (pattern[1]==L'*' && !pattern[2])
+				if (pattern.size() == 2 && pattern[1]==L'*')
 					return true;
 
 				if (std::none_of(ALL_CONST_RANGE(pattern), [](wchar_t Char) { return wcschr(L"*?[", Char) != nullptr; }))
@@ -181,7 +181,7 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 					const auto RDotIt = std::find(ALL_CONST_REVERSE_RANGE(str), L'.');
 					auto DotIt = RDotIt == str.crend()? str.cend() : (RDotIt + 1).base();
 
-					if (!pattern[1])
+					if (pattern.size() == 1)
 						return DotIt == str.cend() || DotIt + 1 == str.cend();
 
 					const auto PatternContainsDot = contains(pattern.substr(1), L'.');
