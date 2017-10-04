@@ -239,8 +239,9 @@ static void GenerateName(string &strName, const string& Path)
 		strName = strTmp + PointToName(strName);
 	}
 
-	const auto Ext = PointToExt(strName);
-	size_t NameLength=strName.size() - Ext.size();
+	// The source string will be altered below so the view must be copied
+	const auto Ext = make_string(PointToExt(strName));
+	const auto NameLength = strName.size() - Ext.size();
 
 	// file (2).ext, file (3).ext and so on
 	for (int i = 2; os::fs::exists(strName); ++i)
