@@ -67,7 +67,9 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 
 	size_t BeforeNameLength = DestNamePos? 0 : strSrc.size() - SrcNamePtr.size();
 
-	const auto SrcNameDot = std::find(ALL_CONST_RANGE(SrcNamePtr), L'.');
+	const auto SrcNameRDot = std::find(ALL_CONST_REVERSE_RANGE(SrcNamePtr), L'.');
+	const auto SrcNameDot = SrcNameRDot == SrcNamePtr.crend()? SrcNamePtr.cend() : (SrcNameRDot + 1).base();
+
 	const wchar_t *CurWildPtr = strWildName.data();
 
 	while (*CurWildPtr)
@@ -179,7 +181,7 @@ bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSe
 				if (std::none_of(ALL_CONST_RANGE(pattern), [](wchar_t Char) { return wcschr(L"*?[", Char) != nullptr; }))
 				{
 					const auto RDotIt = std::find(ALL_CONST_REVERSE_RANGE(str), L'.');
-					auto DotIt = RDotIt == str.crend()? str.cend() : (RDotIt + 1).base();
+					const auto DotIt = RDotIt == str.crend()? str.cend() : (RDotIt + 1).base();
 
 					if (pattern.size() == 1)
 						return DotIt == str.cend() || DotIt + 1 == str.cend();
