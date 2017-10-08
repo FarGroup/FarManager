@@ -5,7 +5,7 @@
 /*
 DlgBuilder.hpp
 
-Dynamic construction of dialogs for FAR Manager 3.0 build 5047
+Dynamic construction of dialogs for FAR Manager 3.0 build 5063
 */
 /*
 Copyright © 2009 Far Group

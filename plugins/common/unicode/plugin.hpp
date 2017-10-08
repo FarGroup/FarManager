@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5047
+Plugin API for Far Manager 3.0 build 5063
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5047
+#define FARMANAGERVERSION_BUILD 5063
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1153,6 +1153,7 @@ static const FARADDKEYMACROFLAGS
 
 typedef intptr_t (WINAPI *FARMACROCALLBACK)(void* Id,FARADDKEYMACROFLAGS Flags);
 
+
 struct MacroAddMacro
 {
 	size_t StructSize;
@@ -1163,6 +1164,7 @@ struct MacroAddMacro
 	INPUT_RECORD AKey;
 	enum FARMACROAREA Area;
 	FARMACROCALLBACK Callback;
+	intptr_t Priority;
 };
 
 enum FARMACROVARTYPE
