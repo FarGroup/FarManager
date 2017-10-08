@@ -3,6 +3,106 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 08.10.2017 14:45:39 +0300 - build 5063
+
+1. 0003514: Possibility of setting priority for macros defined via MCTL_ADDMACRO.
+
+drkns 06.10.2017 18:12:24 +0100 - build 5062
+
+1. And another one.
+
+drkns 04.10.2017 23:47:28 +0100 - build 5061
+
+1. Another one.
+
+drkns 02.10.2017 16:09:16 +0100 - build 5060
+
+1. Another one.
+
+drkns 02.10.2017 15:59:05 +0100 - build 5059
+
+1. Another correction of 5049.
+
+drkns 02.10.2017 00:34:01 +0100 - build 5058
+
+1. Correction of 5057 (actually not, the bug is 4+ years old).
+
+drkns 01.10.2017 22:59:43 +0100 - build 5057
+
+1. Refactoring.
+
+drkns 01.10.2017 10:02:27 +0100 - build 5056
+
+1. Another correction of 5049.
+
+zg 01.10.2017 03:15:57 +0300 - build 5055
+
+1. correction of 5050.1: Start VisRen plugin and press Down many times, some UI flashing occurs.
+
+drkns 30.09.2017 23:23:55 +0100 - build 5054
+
+1. Forum: Search stops after folder (symlink) excluded in filter.
+
+2. Correction of search in alternate streams.
+
+zg 01.10.2017 00:05:03 +0300 - build 5053
+
+1. incorrect sending of DN_CONTROLINPUT with Param1=-1 on any mouse movement if TRUE was returned the first time.
+
+zg 30.09.2017 23:33:20 +0300 - build 5052
+
+1. correction of 5050.1: lua: Keys"F7 Tab" Dlg.SetFocus(3) win.Sleep(200) Keys"Esc"
+   A dialog is shown on screen when it seems not to be.
+
+drkns 30.09.2017 14:00:05 +0100 - build 5051
+
+1. Refactoring.
+
+2. Correction of 5049 - incorrect processing of masks containing [] and alignment of extensions.
+
+zg 30.09.2017 15:01:48 +0300 - build 5050
+
+1. partial fix for direct drawing dialog on screen.
+
+2. a non-modal dialog is shown immediately.
+
+drkns 29.09.2017 23:31:12 +0100 - build 5049
+
+1. Start dividing big and ugly farwinapi to separate modules.
+
+2. Refactoring.
+
+3. Forum - crash on empty history.
+
+zg 29.09.2017 11:35:02 +0300 - build 5048
+
+1. DN_GOTFOCUS/DN_KILLFOCUS events with param1=-1 are issued for non-modal dialogs when the window gains/loses the focus.
+
+zg 28.09.2017 19:22:53 +0300 - build 5047
+
+1. if DialogInit has FDLG_NONMODAL flag specified then a non-modal dialog is created and started immediately.
+   DialogRun and DialogFree needn't be specified for such a dialog. the dialog is destroyed automatically when closed.
+
+drkns 25.09.2017 22:30:09 +0100 - build 5046
+
+1. Another correction of 5038.
+
+drkns 25.09.2017 20:58:23 +0100 - build 5045
+
+1. Continuation of 4679 - recognition of launch type for system associations given without full path.
+
+drkns 25.09.2017 20:22:04 +0100 - build 5044
+
+1. Correction of 5038.
+
+drkns 25.09.2017 19:57:02 +0100 - build 5043
+
+1. Correction of 5041.
+
+drkns 25.09.2017 08:43:19 +0100 - build 5042
+
+1. 0003506: Crash when Shift+Enter on any folder
+
 drkns 24.09.2017 23:23:04 +0100 - build 5041
 
 1. 0003501: Do not hide panels on launching a prefix according to association from command line
