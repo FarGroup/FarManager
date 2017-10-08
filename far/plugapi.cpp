@@ -2286,7 +2286,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 			case MCTL_ADDMACRO:
 			{
-				const auto Data = static_cast<const MacroAddMacro*>(Param2);
+				const auto Data = static_cast<const MacroAddMacroV1*>(Param2);
 				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
 					return Macro.AddMacro(*PluginId, Data) ? 1 : 0;

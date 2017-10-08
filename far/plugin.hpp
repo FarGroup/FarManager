@@ -1260,6 +1260,20 @@ static const FARADDKEYMACROFLAGS
 
 typedef intptr_t (WINAPI *FARMACROCALLBACK)(void* Id,FARADDKEYMACROFLAGS Flags);
 
+#ifdef FAR_USE_INTERNALS
+struct MacroAddMacroV1
+{
+	size_t StructSize;
+	void* Id;
+	const wchar_t *SequenceText;
+	const wchar_t *Description;
+	FARKEYMACROFLAGS Flags;
+	INPUT_RECORD AKey;
+	enum FARMACROAREA Area;
+	FARMACROCALLBACK Callback;
+};
+#endif // END FAR_USE_INTERNALS
+
 struct MacroAddMacro
 {
 	size_t StructSize;
@@ -1270,6 +1284,7 @@ struct MacroAddMacro
 	INPUT_RECORD AKey;
 	enum FARMACROAREA Area;
 	FARMACROCALLBACK Callback;
+	intptr_t Priority;
 };
 
 enum FARMACROVARTYPE

@@ -888,7 +888,7 @@ void KeyMacro::RunStartMacro()
 	}
 }
 
-bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
+bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacroV1* Data)
 {
 	if (!(Data->Area >= 0 && (Data->Area < MACROAREA_LAST || Data->Area == MACROAREA_COMMON)))
 		return false;
@@ -901,6 +901,8 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 	if (Data->Flags & KMFLAGS_ENABLEOUTPUT)        Flags |= MFLAGS_ENABLEOUTPUT;
 	if (Data->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
+	intptr_t Priority = 50;
+	if (Data->StructSize >= sizeof(MacroAddMacro)) Priority = reinterpret_cast<const MacroAddMacro*>(Data)->Priority;
 	FarMacroValue values[] = {
 		(double)Data->Area,
 		strKeyText,
@@ -910,7 +912,8 @@ bool KeyMacro::AddMacro(const GUID& PluginId, const MacroAddMacro* Data)
 		Data->Description,
 		PluginId,
 		(void*)Data->Callback,
-		Data->Id
+		Data->Id,
+		Priority
 	};
 	FarMacroCall fmc = {sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info = {MCT_ADDMACRO,&fmc};

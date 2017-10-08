@@ -4791,13 +4791,18 @@ static int far_MacroAdd(lua_State* L)
 	OptInputRecord(L, pd, 3, &data.AKey);
 	data.SequenceText = check_utf8_string(L, 4, NULL);
 	data.Description = opt_utf8_string(L, 5, L"");
-	lua_settop(L, 6);
+	lua_settop(L, 7);
 	if (lua_toboolean(L, 6))
 	{
 		luaL_checktype(L, 6, LUA_TFUNCTION);
 		data.Callback = MacroAddCallback;
 	}
 	data.Id = lua_newuserdata(L, sizeof(MacroAddData));
+	data.Priority = 50;
+	if (lua_isnumber(L, 7))
+	{
+		data.Priority = lua_tointeger(L, 7);
+	}
 
 	if (pd->Info->MacroControl(pd->PluginId, MCTL_ADDMACRO, 0, &data))
 	{

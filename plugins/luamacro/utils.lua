@@ -1061,10 +1061,10 @@ local function ProcessRecordedMacro (Mode, Key, code, flags, description)
   end
 end
 
-local function AddMacroFromFAR (mode, key, lang, code, flags, description, guid, callback, callbackId)
+local function AddMacroFromFAR (mode, key, lang, code, flags, description, guid, callback, callbackId, priority)
   local area = GetTrueAreaName(mode)
   local m = AddRegularMacro { area=area, key=key, code=code, flags=flags, description=description,
-                              guid=guid, callback=callback, callbackId=callbackId, language=lang }
+                              guid=guid, callback=callback, callbackId=callbackId, language=lang, priority=priority }
   local action = m and m.action
   if action then
     local env = setmetatable({}, gmeta)
