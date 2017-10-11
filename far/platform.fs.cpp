@@ -1152,7 +1152,7 @@ namespace os::fs
 
 		bool create_directory(const wchar_t* TemplateDirectory, const wchar_t* NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes)
 		{
-			return (TemplateDirectory? ::CreateDirectoryEx(TemplateDirectory, NewDirectory, SecurityAttributes) : ::CreateDirectory(NewDirectory, SecurityAttributes)) != FALSE;
+			return (*TemplateDirectory? ::CreateDirectoryEx(TemplateDirectory, NewDirectory, SecurityAttributes) : ::CreateDirectory(NewDirectory, SecurityAttributes)) != FALSE;
 		}
 
 		bool remove_directory(const wchar_t* PathName)
@@ -1329,7 +1329,7 @@ namespace os::fs
 
 		const auto& Create = [&](const string& Template)
 		{
-			if (low::create_directory(EmptyToNull(Template.data()), NtNewDirectory.data(), SecurityAttributes))
+			if (low::create_directory(Template.data(), NtNewDirectory.data(), SecurityAttributes))
 				return true;
 
 			if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1337,6 +1337,9 @@ namespace os::fs
 
 			return false;
 		};
+
+		if (TemplateDirectory.empty())
+			return Create({});
 
 		return Create(NTPath(TemplateDirectory)) ||
 			// CreateDirectoryEx may fail on some FS, try to create anyway.
