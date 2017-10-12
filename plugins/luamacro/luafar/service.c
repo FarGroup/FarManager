@@ -46,6 +46,7 @@ extern int GetExportFunction(lua_State* L, const char* FuncName);
 
 const char FarFileFilterType[] = "FarFileFilter";
 const char FarTimerType[]      = "FarTimer";
+const char FarTimerQueueKey[]  = "FarTimerQueue";
 const char FarDialogType[]     = "FarDialog";
 const char SettingsType[]      = "FarSettings";
 const char SettingsHandles[]   = "FarSettingsHandles";
@@ -162,6 +163,21 @@ BOOL WINAPI DllMain(HANDLE hDll, DWORD dwReason, LPVOID lpReserved)
 		}
 	}
 	return TRUE;
+}
+
+HANDLE GetLuaStateTimerQueue(lua_State *L)
+{
+	HANDLE hQueue;
+	lua_getfield(L, LUA_REGISTRYINDEX, FarTimerQueueKey);
+	hQueue = lua_touserdata(L, -1);
+	lua_pop(L, 1);
+	return hQueue;
+}
+
+void DeleteLuaStateTimerQueue(lua_State *L)
+{
+  lua_pushnil(L);
+	lua_setfield(L, LUA_REGISTRYINDEX, FarTimerQueueKey);
 }
 
 static TSynchroData* CreateSynchroData(TTimerData *td, int action, int data)
@@ -5338,13 +5354,7 @@ void CALLBACK TimerCallback(void *lpParameter, BOOLEAN TimerOrWaitFired)
 	TTimerData *td = (TTimerData*)lpParameter;
 	TSynchroData *sd;
 	(void)TimerOrWaitFired;
-	if (td->needClose)
-	{
-		DeleteTimerQueueTimer(td->hQueue, td->hTimer, NULL);
-		sd = CreateSynchroData(td, LUAFAR_TIMER_UNREF, 0);
-		td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
-	}
-	else if (td->enabled)
+	if (!td->needClose && td->enabled)
 	{
 		sd = CreateSynchroData(td, LUAFAR_TIMER_CALL, 0);
 		td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
@@ -5355,6 +5365,7 @@ static int far_Timer(lua_State *L)
 {
 	TPluginData *pd;
 	TTimerData *td;
+	HANDLE hQueue;
 	int interval, index, tabSize;
 
 	interval = (int)luaL_checkinteger(L, 1);
@@ -5387,14 +5398,11 @@ static int far_Timer(lua_State *L)
 
 	lua_pushvalue(L, -2);
 	td->tabRef = luaL_ref(L, LUA_REGISTRYINDEX);
-	td->needClose = 0;
+	td->needClose = FALSE;
 	td->enabled = 1;
+	hQueue = GetLuaStateTimerQueue(L);
 
-	lua_getfield(L, LUA_REGISTRYINDEX, LREG_FARTIMERQUEUE);
-	td->hQueue = lua_touserdata(L, -1);
-	lua_pop(L, 1);
-
-	if (td->hQueue && CreateTimerQueueTimer(&td->hTimer,td->hQueue,TimerCallback,td,td->interval,td->interval,WT_EXECUTEDEFAULT))
+	if (hQueue && CreateTimerQueueTimer(&td->hTimer,hQueue,TimerCallback,td,td->interval,td->interval,WT_EXECUTEDEFAULT))
 		return 1;
 
 	luaL_unref(L, LUA_REGISTRYINDEX, td->tabRef);
@@ -5409,14 +5417,38 @@ TTimerData* CheckTimer(lua_State* L, int pos)
 TTimerData* CheckValidTimer(lua_State* L, int pos)
 {
 	TTimerData* td = CheckTimer(L, pos);
-	luaL_argcheck(L, td->needClose == 0, pos, "attempt to access closed timer");
+	luaL_argcheck(L, !td->needClose, pos, "attempt to access closed timer");
 	return td;
 }
 
 static int timer_Close(lua_State *L)
 {
+	HANDLE hQueue;
+	TSynchroData* sd;
 	TTimerData* td = CheckTimer(L, 1);
-	td->needClose = 1;
+	if (!td->needClose)
+	{
+		td->needClose = TRUE;
+		hQueue = GetLuaStateTimerQueue(L);
+		if (hQueue)
+			DeleteTimerQueueTimer(hQueue, td->hTimer, NULL);
+		sd = CreateSynchroData(td, LUAFAR_TIMER_UNREF, 0);
+		td->Info->AdvControl(td->PluginGuid, ACTL_SYNCHRO, 0, sd);
+	}
+	return 0;
+}
+
+static int timer_gc(lua_State *L)
+{
+	HANDLE hQueue;
+	TTimerData* td = CheckTimer(L, 1);
+	if (!td->needClose)
+	{
+		td->needClose = TRUE;
+		hQueue = GetLuaStateTimerQueue(L);
+		if (hQueue)
+			DeleteTimerQueueTimer(hQueue, td->hTimer, NULL);
+	}
 	return 0;
 }
 
@@ -5424,7 +5456,7 @@ static int timer_tostring(lua_State *L)
 {
 	TTimerData* td = CheckTimer(L, 1);
 
-	if(td->needClose == 0)
+	if (!td->needClose)
 		lua_pushfstring(L, "%s (%p)", FarTimerType, td);
 	else
 		lua_pushfstring(L, "%s (closed)", FarTimerType);
@@ -5469,8 +5501,12 @@ static int timer_newindex(lua_State *L)
 	else if(!strcmp(method, "Interval"))
 	{
 		int interval = (int)luaL_checkinteger(L, 3);
-		td->interval = interval < 1 ? 1 : interval;
-		ChangeTimerQueueTimer(td->hQueue, td->hTimer, td->interval, td->interval);
+		HANDLE hQueue = GetLuaStateTimerQueue(L);
+		if (hQueue)
+		{
+			td->interval = interval < 1 ? 1 : interval;
+			ChangeTimerQueueTimer(hQueue, td->hTimer, td->interval, td->interval);
+		}
 	}
 	else if(!strcmp(method, "OnTimer"))
 	{
@@ -5814,7 +5850,7 @@ static int far_ColorDialog(lua_State *L)
 
 const luaL_Reg timer_methods[] =
 {
-	{"__gc",                timer_Close},
+	{"__gc",                timer_gc},
 	{"__tostring",          timer_tostring},
 	{"__index",             timer_index},
 	{"__newindex",          timer_newindex},
@@ -6062,7 +6098,7 @@ static int luaopen_far(lua_State *L)
 	if (TimerQueue)
 	{
 		lua_pushlightuserdata(L, TimerQueue);
-		lua_setfield(L, LUA_REGISTRYINDEX, LREG_FARTIMERQUEUE);
+		lua_setfield(L, LUA_REGISTRYINDEX, FarTimerQueueKey);
 	}
 
 	lua_newtable(L);

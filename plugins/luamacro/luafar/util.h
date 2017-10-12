@@ -24,7 +24,6 @@ _CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, uns
 
 #define LUAFAR_TIMER_CALL  0x1
 #define LUAFAR_TIMER_UNREF 0x2
-#define LREG_FARTIMERQUEUE "FarTimerQueue"
 
 typedef struct
 {
@@ -36,12 +35,11 @@ typedef struct
 {
 	GUID* PluginGuid;
 	struct PluginStartupInfo *Info;
-	int interval;
-	int tabRef;
-	int needClose;
-	int enabled;
-	HANDLE hQueue;
-	HANDLE hTimer;
+	int interval;   // timer period, in milliseconds
+	int tabRef;     // reference of a Lua table in the registry
+	int needClose;  // timer needs to be closed; boolean value
+	int enabled;    // timer is enabled; the callback function is called only when (enabled != 0)
+	HANDLE hTimer;  // timer handle
 } TTimerData;
 
 typedef struct

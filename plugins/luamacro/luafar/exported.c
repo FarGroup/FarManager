@@ -24,6 +24,8 @@ extern int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Para
 extern int PushDMParams (lua_State *L, intptr_t Msg, intptr_t Param1);
 extern intptr_t ProcessDNResult(lua_State *L, intptr_t Msg, void *Param2);
 extern HANDLE Open_Luamacro(lua_State *L, const struct OpenInfo *Info);
+extern HANDLE GetLuaStateTimerQueue(lua_State *L);
+extern void DeleteLuaStateTimerQueue(lua_State *L);
 
 void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values); // forward declaration
 
@@ -104,9 +106,9 @@ int pcall_msg(lua_State* L, int narg, int nret)
 	{
 		int status2 = 1;
 		intptr_t *Flags = &GetPluginData(L)->Flags;
-		
+
 		*Flags |= PDF_PROCESSINGERROR;
-		
+
 		if(GetExportFunction(L, "OnError"))
 		{
 			lua_insert(L,-2);
@@ -118,7 +120,7 @@ int pcall_msg(lua_State* L, int narg, int nret)
 			LF_Error(L, check_utf8_string(L, -1, NULL));
 			lua_pop(L, 1);
 		}
-		
+
 		*Flags &= ~PDF_PROCESSINGERROR;
 	}
 
@@ -1223,17 +1225,18 @@ intptr_t LF_SetFindList(lua_State* L, const struct SetFindListInfo *Info)
 
 void LF_ExitFAR(lua_State* L, const struct ExitInfo *Info)
 {
-	HANDLE TimerQueue = NULL;
+	HANDLE hQueue;
 	(void)Info;
 
 	if(GetExportFunction(L, "ExitFAR"))    //+1: Func
 		pcall_msg(L, 0, 0);                  //+0
 
-	lua_getfield(L, LUA_REGISTRYINDEX, LREG_FARTIMERQUEUE); //+1
-	TimerQueue = lua_touserdata(L, -1);
-	lua_pop(L, 1);                         //+0
-	if (TimerQueue)
-		DeleteTimerQueueEx(TimerQueue, NULL);
+	hQueue = GetLuaStateTimerQueue(L);     //+0
+	if (hQueue)
+	{
+		DeleteLuaStateTimerQueue(L);
+		DeleteTimerQueueEx(hQueue, NULL);
+	}
 }
 
 void getPluginMenuItems(lua_State* L, struct PluginMenuItem *pmi, const char* namestrings,
@@ -1379,7 +1382,7 @@ intptr_t LF_ProcessDialogEvent(lua_State* L, const struct ProcessDialogEventInfo
 
 	if (*Flags & PDF_PROCESSINGERROR)
 		return 0;
-	
+
 	if (Info->Event == DE_DLGPROCINIT && fde->Msg == DN_INITDIALOG)
 	{
 		*Flags &= ~PDF_DIALOGEVENTDRAWENABLE;
@@ -1669,7 +1672,7 @@ intptr_t LF_ProcessConsoleInput(lua_State* L, struct ProcessConsoleInputInfo *In
 		if(pcall_msg(L, 2, 1) == 0)                      //+1: Res
 		{
 			if(lua_type(L,-1) == LUA_TNUMBER && lua_tonumber(L,-1) == 0)
-				ret = 0;				
+				ret = 0;
 			else if(lua_type(L,-1) == LUA_TTABLE)
 			{
 				FillInputRecord(L, -1, &Info->Rec);
