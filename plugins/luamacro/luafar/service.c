@@ -176,7 +176,7 @@ HANDLE GetLuaStateTimerQueue(lua_State *L)
 
 void DeleteLuaStateTimerQueue(lua_State *L)
 {
-  lua_pushnil(L);
+	lua_pushnil(L);
 	lua_setfield(L, LUA_REGISTRYINDEX, FarTimerQueueKey);
 }
 
