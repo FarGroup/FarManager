@@ -189,7 +189,8 @@ local function loadmacro (Lang, Text, Env, ConvertPath)
 
   if f1 then
     strParseError = ""
-    Env = Env or setmetatable({_filename=fname}, gmeta)
+    Env = Env or setmetatable({}, gmeta)
+    Env._filename = fname
     setfenv(f1, Env)
     if f2 then setfenv(f2, Env) end
     return f1,f2
