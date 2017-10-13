@@ -30,6 +30,7 @@ struct MacroAddMacro
   INPUT_RECORD AKey;
   enum FARMACROAREA Area;
   FARMACROCALLBACK Callback;
+  intptr_t Priority;
 };
 </pre>
 
@@ -81,6 +82,8 @@ struct MacroAddMacro
     Где: <code>Id</code> - идентификатор (<code>MacroAddMacro.Id</code>). <code>Flags</code> - сейчас не используются.<br>
     Функция может что-то проверить и вернуть <code>TRUE</code> - запустить макрос, или <code>FALSE</code> - не запускать.
     </div>
+  <div class=dfn>Priority</div>
+    <div class=dfndescr>Приоритет макроса.</div>
 </div>
 
 <h3>Замечания</h3>

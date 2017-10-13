@@ -3469,6 +3469,8 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 
 		case DN_CLOSE:
 		case DN_CONTROLINPUT:
+		case DN_GOTFOCUS:
+		case DN_KILLFOCUS:
 			if (Param1 >= 0)
 				++Param1;
 			break;
@@ -3481,11 +3483,9 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		case DN_DROPDOWNOPENED:
 		case DN_EDITCHANGE:
 		case DN_GETVALUE:
-		case DN_GOTFOCUS:
 		case DN_HELP:
 		case DN_HOTKEY:
 		case DN_INITDIALOG:
-		case DN_KILLFOCUS:
 		case DN_LISTCHANGE:
 		case DN_LISTHOTKEY:
 			++Param1; // dialog element position

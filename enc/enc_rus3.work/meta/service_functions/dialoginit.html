@@ -61,7 +61,7 @@ HANDLE WINAPI DialogInit(
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_WARNING">FDLG_WARNING</a></td>
     <td class="cont" width="60%">Задаёт для диалога цветовую схему "Предупреждение".</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_SMALLDIALOG">FDLG_SMALLDIALOG</a></td>
-    <td class="cont" width="60%">Позволяет создавать диалоги с уменьшенным размером рамки. Для таких диалогов при отрисовке разделительных линий (<code>DIF_SEPARATOR</code>) предполагается 
+    <td class="cont" width="60%">Позволяет создавать диалоги с уменьшенным размером рамки. Для таких диалогов при отрисовке разделительных линий (<code>DIF_SEPARATOR</code>) предполагается
     нулевой отступ между границей диалога и окружающей его двойной рамкой.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NODRAWSHADOW">FDLG_NODRAWSHADOW</a></td>
     <td class="cont" width="60%">Не рисовать тень диалога.</td></tr>
@@ -69,6 +69,8 @@ HANDLE WINAPI DialogInit(
     <td class="cont" width="60%">Не рисовать поле диалога.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_KEEPCONSOLETITLE">FDLG_KEEPCONSOLETITLE</a></td>
     <td class="cont" width="60%">Отключить установку заголовка консоли Far Manager по заголовку диалога.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_KEEPCONSOLETITLE">FDLG_NONMODAL</a></td>
+    <td class="cont" width="60%">Создать немодальный диалог. Диалог отображается сразу и сам освобождается при закрытии. Вызывать DialogRun и DialogFree для такого диалога не нужно.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NONE">FDLG_NONE</a></td>
     <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
