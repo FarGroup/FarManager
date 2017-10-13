@@ -4814,11 +4814,7 @@ static int far_MacroAdd(lua_State* L)
 		data.Callback = MacroAddCallback;
 	}
 	data.Id = lua_newuserdata(L, sizeof(MacroAddData));
-	data.Priority = 50;
-	if (lua_isnumber(L, 7))
-	{
-		data.Priority = lua_tointeger(L, 7);
-	}
+	data.Priority = luaL_optinteger(L, 7, 50);
 
 	if (pd->Info->MacroControl(pd->PluginId, MCTL_ADDMACRO, 0, &data))
 	{

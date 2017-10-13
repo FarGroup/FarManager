@@ -6777,9 +6777,9 @@ lv=2
 dt=Text
 nm=far.MacroAdd
 ctime=3523354795
-mtime=3612862418
+mtime=3717057110
 <article>
-#_Id = far.MacroAdd (Area, Flags, AKey, SequenceText, Description, Callback)
+#_Id = far.MacroAdd (Area, Flags, AKey, SequenceText, Description, Callback, Priority)
 #_
 #_**Parameters:**
 #_  Area:         flags (defaults to MACROAREA_COMMON)
@@ -6788,6 +6788,7 @@ mtime=3612862418
 #_  SequenceText: string
 #_  Description:  string (defaults to "")
 #_  Callback:     function, or nil
+#_  Priority:     integer (defaults to 50)
 #_
 #_**Returns:**
 #_  Id:           userdata (success), or nil (failure)

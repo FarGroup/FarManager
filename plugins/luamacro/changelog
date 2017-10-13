@@ -1,4 +1,8 @@
-﻿shmuel 12.10.2017 16:44:33 +0200 - build 622
+﻿shmuel 13.10.2017 11:40:50 +0200 - build 623
+
+1. LuaFAR: minor refactoring.
+
+shmuel 12.10.2017 16:44:33 +0200 - build 622
 
 1. LuaFAR: M#3458: Падение Far в far.Timer при малых значениях периода
 
