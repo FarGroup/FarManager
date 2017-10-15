@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 15.10.2017 16:22:28 +0300 - build 5065
+
+1. correction of 5050.1: macro Align Block Special is broken.
+
+drkns 11.10.2017 22:04:47 +0100 - build 5064
+
+1. Privilege escalation on directory creation was broken in 5049.
+
 zg 08.10.2017 14:45:39 +0300 - build 5063
 
 1. 0003514: Possibility of setting priority for macros defined via MCTL_ADDMACRO.
