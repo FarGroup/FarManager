@@ -4497,10 +4497,15 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	_DIALOG(CleverSysLog CL(L"Dialog.SendDlgMessage()"));
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
-	const auto redraw=[this]
+	const auto redraw=[this](bool Flush)
 	{
-		Global->WindowManager->RefreshWindow(shared_from_this());
-		Global->WindowManager->PluginCommit();
+		if (DialogMode.Check(DMODE_OBJECTS_INITED) && !DialogMode.Check(DMODE_DRAWING) && IsRedrawEnabled())
+		{
+			Global->WindowManager->RefreshWindow(shared_from_this());
+			Global->WindowManager->PluginCommit();
+			if (Flush)
+				Global->ScrBuf->Flush();
+		}
 	};
 	// Сообщения, касаемые только диалога и не затрагивающие элементы
 	switch (Msg)
@@ -4626,12 +4631,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_REDRAW:
 		{
-			if (DialogMode.Check(DMODE_OBJECTS_INITED) && IsRedrawEnabled())
-			{
-				redraw();
-				if (!DialogMode.Check(DMODE_DRAWING))
-					Global->ScrBuf->Flush();
-			}
+			redraw(true);
 			return 0;
 		}
 		/*****************************************************************/
@@ -5191,7 +5191,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				EditPtr->SetCurPos(((COORD*)Param2)->X);
 				//EditPtr->Show();
 				EditPtr->SetClearFlag(false);
-				redraw();
+				redraw(false);
 				return TRUE;
 			}
 			else if (Type == DI_USERCONTROL && CurItem->UCData)
@@ -5218,7 +5218,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				{
 					// что-то одно надо убрать :-)
 					MoveCursor(Coord.X+m_X1,Coord.Y+m_Y1); // ???
-					redraw(); //???
+					redraw(false); //???
 				}
 
 				return TRUE;
@@ -5497,7 +5497,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				if (DialogMode.Check(DMODE_DRAWING))
 					DialogMode.Set(DMODE_NEEDUPDATE);
 				else
-					redraw();
+					redraw(false);
 				return TRUE;
 			}
 
