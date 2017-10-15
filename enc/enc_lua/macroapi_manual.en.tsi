@@ -468,12 +468,15 @@ lv=1
 dt=Text
 nm=Libraries of macro functions
 ctime=3553243413
-mtime=3601971499
+mtime=3717182713
 <article>
 #_<markdown>
 #_The description of the APIs in this document is **not** self-contained, it is *supplementing and clarifying* the description of the Far objects' properties and functions in the [Macro language][2] section of Far Encyclopedia.
 #_
 #_Ideally, the API must match the original macro language API, with the exception of the cases listed in article [API changes in comparison to the macro language][1].
+#_
+#_**See also:**<br>
+#_[Restrictions in the use of some functions](62.html)
 #_
 #_[1]: 38.html
 #_[2]: http://api.farmanager.com/ru/macro/macrocmd/index.html
@@ -488,7 +491,7 @@ lv=2
 dt=Text
 nm=API changes in comparison to the macro language
 ctime=3553185939
-mtime=3629991950
+mtime=3717182723
 <article>
 #_<markdown>
 #_
@@ -541,6 +544,9 @@ mtime=3629991950
 #_   editor/viewer/dialog areas. For these areas one should use respectively `EVSelection` and
 #_   `NoEVSelection` flags.
 #_1. Macro specification: flag `RunAfterFARStart` is in effect also when Far Manager is run with `/e` or `/v` command line switch. In those cases only macros whose `area` field contains respectively `Editor` or `Viewer` are run.
+#_
+#_**See also:**<br>
+#_[Restrictions in the use of some functions](62.html)
 #_
 #_[exit]: 61.html
 #_[mload]: 13.html
@@ -643,7 +649,7 @@ lv=3
 dt=Text
 nm=exit
 ctime=3555411121
-mtime=3600459808
+mtime=3717266496
 <article>
 #_exit ()
 #_
@@ -656,6 +662,12 @@ mtime=3600459808
 #_**Description:**
 #_  Exit macro.
 #_
+#_**See also:**
+#_`Restrictions in the use of some functions`
+#_
+#_@@@
+#_[Restrictions in the use of some functions]: 62.html
+#_
 </article>
 </node>
 <node>
@@ -664,7 +676,7 @@ lv=3
 dt=Text
 nm=Keys
 ctime=3551902602
-mtime=3663579073
+mtime=3717266590
 <article>
 #_Keys (...)
 #_
@@ -694,6 +706,11 @@ mtime=3663579073
 #_  mykeys = "CtrlF5 Esc"
 #_  Keys("AKey A b CtrlC ShiftEnter", mykeys)
 #_
+#_**See also:**
+#_`Restrictions in the use of some functions`
+#_
+#_@@@
+#_[Restrictions in the use of some functions]: 62.html
 #_
 </article>
 </node>
@@ -800,7 +817,7 @@ lv=3
 dt=Text
 nm=acall
 ctime=3614688602
-mtime=3614691589
+mtime=3717266648
 <article>
 #_... = mf.acall (func, ...)
 #_
@@ -825,7 +842,11 @@ mtime=3614691589
 #_  If the function *func* pops up no dialogs or menus on the screen, it is a "synchronous"
 #_  operation mode: in this case *mf.acall* returns all values, returned by the function *func*.
 #_
+#_**See also:**
+#_`Restrictions in the use of some functions`
+#_
 #_@@@
+#_[Restrictions in the use of some functions]: 62.html
 #_[Plugin.Call]: 65.html
 #_[LuaMacro]: 7.html
 #_
@@ -1027,7 +1048,7 @@ lv=3
 dt=Text
 nm=usermenu
 ctime=3571243204
-mtime=3607090852
+mtime=3717266700
 <article>
 #_mf.usermenu (mode, filename)
 #_
@@ -1053,6 +1074,11 @@ mtime=3607090852
 #_  the menu (synchronous call). If that bit is cleared the function will return
 #_  immediately when the menu is opened (asynchronous call).
 #_
+#_**See also:**
+#_`Restrictions in the use of some functions`
+#_
+#_@@@
+#_[Restrictions in the use of some functions]: 62.html
 #_
 </article>
 </node>
@@ -1874,7 +1900,7 @@ lv=3
 dt=Text
 nm=Call
 ctime=3560706460
-mtime=3708724602
+mtime=3717266757
 <article>
 #_... = Plugin.Call (PluginId [, ...])
 #_
@@ -1921,7 +1947,12 @@ mtime=3708724602
 #_                              ["type"] = "array", and
 #_                              ["n"] = number of array elements)
 #_
+#_**See also:**
+#_`Restrictions in the use of some functions`
+#_
 #_@@@
+#_[Restrictions in the use of some functions]: 62.html
+#_
 #_{farmacrocall}: http://api.farmanager.com/ru/structures/farmacrocall.html
 #_{fmvt_array}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_ARRAY
 #_{fmvt_binary}: http://api.farmanager.com/ru/structures/farmacrovalue.html#FMVT_BINARY
