@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5063
+Plugin API for Far Manager 3.0 build 5066
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5063
+#define FARMANAGERVERSION_BUILD 5066
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1094,7 +1094,7 @@ enum FARMACROSENDSTRINGCOMMAND
 
 enum FARMACROAREA
 {
-	MACROAREA_OTHER                      =   0,   // Mode of copying text from the screen; vertical menus
+	MACROAREA_OTHER                      =   0,   // Reserved
 	MACROAREA_SHELL                      =   1,   // File panels
 	MACROAREA_VIEWER                     =   2,   // Internal viewer program
 	MACROAREA_EDITOR                     =   3,   // Editor
@@ -1111,6 +1111,8 @@ enum FARMACROAREA
 	MACROAREA_USERMENU                   =  14,   // User menu
 	MACROAREA_SHELLAUTOCOMPLETION        =  15,   // Autocompletion list in command line
 	MACROAREA_DIALOGAUTOCOMPLETION       =  16,   // Autocompletion list in dialogs
+	MACROAREA_GRABBER                    =  17,   // Mode of copying text from the screen
+	MACROAREA_DESKTOP                    =  18,   // Desktop
 
 	MACROAREA_COMMON                     = 255,
 };
@@ -1279,6 +1281,8 @@ enum WINDOWINFO_TYPE
 	WTYPE_VMENU                     = 5,
 	WTYPE_HELP                      = 6,
 	WTYPE_COMBOBOX                  = 7,
+	WTYPE_GRABBER                   = 8,
+	WTYPE_HMENU                     = 9,
 };
 
 typedef unsigned long long WINDOWINFO_FLAGS;
