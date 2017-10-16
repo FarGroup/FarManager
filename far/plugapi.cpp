@@ -415,9 +415,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				case WTYPE_VMENU:
 				case WTYPE_HELP:
 				case WTYPE_COMBOBOX:
+				case WTYPE_GRABBER:
+				case WTYPE_HMENU:
 				//case WTYPE_FINDFOLDER:
-				//case WTYPE_GRABBER:
-				//case WTYPE_HMENU:
 					info->Type=type;
 					return TRUE;
 				default:

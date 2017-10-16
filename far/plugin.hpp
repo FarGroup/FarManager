@@ -1197,7 +1197,7 @@ enum FARMACROSENDSTRINGCOMMAND
 
 enum FARMACROAREA
 {
-	MACROAREA_OTHER                      =   0,   // Mode of copying text from the screen; vertical menus
+	MACROAREA_OTHER                      =   0,   // Reserved
 	MACROAREA_SHELL                      =   1,   // File panels
 	MACROAREA_VIEWER                     =   2,   // Internal viewer program
 	MACROAREA_EDITOR                     =   3,   // Editor
@@ -1214,6 +1214,8 @@ enum FARMACROAREA
 	MACROAREA_USERMENU                   =  14,   // User menu
 	MACROAREA_SHELLAUTOCOMPLETION        =  15,   // Autocompletion list in command line
 	MACROAREA_DIALOGAUTOCOMPLETION       =  16,   // Autocompletion list in dialogs
+	MACROAREA_GRABBER                    =  17,   // Mode of copying text from the screen
+	MACROAREA_DESKTOP                    =  18,   // Desktop
 #ifdef FAR_USE_INTERNALS
 	MACROAREA_LAST,
 	MACROAREA_INVALID                    =  -1,
@@ -1402,10 +1404,10 @@ enum WINDOWINFO_TYPE
 	WTYPE_VMENU                     = 5,
 	WTYPE_HELP                      = 6,
 	WTYPE_COMBOBOX                  = 7,
+	WTYPE_GRABBER                   = 8,
+	WTYPE_HMENU                     = 9,
 #ifdef FAR_USE_INTERNALS
 	WTYPE_FINDFOLDER,
-	WTYPE_GRABBER,
-	WTYPE_HMENU,
 #endif // END FAR_USE_INTERNALS
 };
 

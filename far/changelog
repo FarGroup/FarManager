@@ -1,3 +1,9 @@
+zg 16.10.2017 17:28:26 +0300 - build 5066
+
+1. 0002760: Отдельные макрообласти для GRABBER, HMENU, DESKTOP.
+
+2. 0002761: Отдать в АПИ константы WTYPE_GRABBER, WTYPE_HMENU, WTYPE_DESKTOP, WTYPE_FINDFOLDER.
+
 zg 15.10.2017 16:22:28 +0300 - build 5065
 
 1. уточнение 5050.1: macro Align Block Special is broken.

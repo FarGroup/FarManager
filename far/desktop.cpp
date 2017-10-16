@@ -46,6 +46,7 @@ desktop::desktop(private_tag)
 {
 	SetCanLoseFocus(true);
 	desktop::SetPosition(0, 0, ScrX, ScrY);
+	SetMacroMode(MACROAREA_DESKTOP);
 }
 
 desktop_ptr desktop::create()

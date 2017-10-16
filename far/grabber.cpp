@@ -67,6 +67,7 @@ grabber_ptr Grabber::create()
 
 void Grabber::init()
 {
+	SetMacroMode(MACROAREA_GRABBER);
 	SaveScr = std::make_unique<SaveScreen>();
 	bool Visible=false;
 	DWORD Size=0;
