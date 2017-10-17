@@ -131,6 +131,8 @@ local prop_Area = {
   UserMenu   = function() return MacroCallFar(0)==14 end,
   ShellAutoCompletion = function()  return MacroCallFar(0)==15 end,
   DialogAutoCompletion = function() return MacroCallFar(0)==16 end,
+  Grabber    = function() return MacroCallFar(0)==17 end,
+  Desktop    = function() return MacroCallFar(0)==18 end,
 }
 
 local prop_APanel = {
