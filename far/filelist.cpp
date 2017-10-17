@@ -5249,12 +5249,11 @@ void FileList::UpdateKeyBar()
 
 bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
-	string strPath, strFileName;
-	strPath = hPlugin->plugin()->GetModuleName();
+	auto strPath = hPlugin->plugin()->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
-	os::fs::file HelpFile;
-	if (!OpenLangFile(HelpFile, strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage))
+	const auto HelpFile = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage, nCodePage);
+	if (!HelpFile)
 		return false;
 
 	Help::create(Help::MakeLink(strPath, L"Contents"));

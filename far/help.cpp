@@ -269,9 +269,8 @@ bool Help::ReadHelp(const string& Mask)
 	}
 
 	uintptr_t nCodePage = CP_OEMCP;
-	os::fs::file HelpFile;
-
-	if (!OpenLangFile(HelpFile, strPath,(Mask.empty()?Global->HelpFileMask:Mask),Global->Opt->strHelpLanguage,strFullHelpPathName, nCodePage))
+	const auto HelpFile = OpenLangFile(strPath, (Mask.empty()?Global->HelpFileMask:Mask), Global->Opt->strHelpLanguage, nCodePage);
+	if (!HelpFile)
 	{
 		ErrorHelp = true;
 
@@ -293,6 +292,8 @@ bool Help::ReadHelp(const string& Mask)
 
 		return false;
 	}
+
+	strFullHelpPathName = HelpFile.GetName();
 
 	string strReadStr;
 
@@ -2007,7 +2008,6 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	StackData->CurX=StackData->CurY=0;
 	strCtrlColorChar.clear();
 	const wchar_t *PtrTitle = nullptr, *ContentsName = nullptr;
-	string strPath, strFullFileName;
 
 	switch (TypeIndex)
 	{
@@ -2030,11 +2030,11 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 		{
 			std::for_each(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 			{
-				strPath = i->GetModuleName();
+				auto strPath = i->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
-				os::fs::file HelpFile;
-				if (OpenLangFile(HelpFile,strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage))
+				const auto HelpFile = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage, nCodePage);
+				if (HelpFile)
 				{
 					string strEntryName, strSecondParam;
 
