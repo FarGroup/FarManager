@@ -45,7 +45,8 @@ local function TestArea (area, msg)
 end
 
 function MT.test_areas()
-  Keys "AltIns"              TestArea "Other"      Keys "Esc"
+  Keys "AltIns"              TestArea "Grabber"    Keys "Esc"
+  Keys "F12 0"               TestArea "Desktop"    Keys "F12 1"
   Keys "ShiftF4 CtrlY Enter" TestArea "Editor"     Keys "Esc"
   Keys "F7"                  TestArea "Dialog"     Keys "Esc"
   Keys "Alt?"                TestArea "Search"     Keys "Esc"
