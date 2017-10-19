@@ -4,7 +4,7 @@
 #
 #LINK_ULINK - set if you want to use ulink for linking
 #
-#VC - set Visual C++ version (VC=15 - 2015) (we try to autodetect if not set)
+#VC - set Visual C++ version (VC=14 for 2015, VC=15 for 2017, default is 14, we try to autodetect if not set)
 #
 #AMD64 or CPU=AMD64 - set for x64 build
 #IA64 or CPU=IA64 - for IA64 build
@@ -196,6 +196,7 @@ LINK_OBJS = \
 	"$(INTDIR)\pathmix.obj" \
 	"$(INTDIR)\pipe.obj" \
 	"$(INTDIR)\platform.obj" \
+	"$(INTDIR)\platform.chrono.obj" \
 	"$(INTDIR)\platform.env.obj" \
 	"$(INTDIR)\platform.fs.obj" \
 	"$(INTDIR)\platform.memory.obj" \
@@ -334,7 +335,7 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 
 # compiler-specific
 !if "$(VC)"=="15"
-CPPFLAGS=$(CPPFLAGS) /diagnostics:caret
+CPPFLAGS=$(CPPFLAGS) /permissive- /diagnostics:caret
 !endif
 
 !ifdef ICL

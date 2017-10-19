@@ -265,7 +265,8 @@ public:
 	multi_waiter(T Begin, T End) { std::for_each(Begin, End, [this](const auto& i){ this->add(i); }); }
 	void add(const handle& Object) { assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS); m_Objects.emplace_back(Object.native_handle()); }
 	void add(HANDLE handle) { assert(m_Objects.size() < MAXIMUM_WAIT_OBJECTS); m_Objects.emplace_back(handle); }
-	DWORD wait(mode Mode = mode::all, DWORD Milliseconds = INFINITE) const { return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, Milliseconds); }
+	DWORD wait(mode Mode, std::chrono::milliseconds Timeout) const { return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, Timeout.count()); }
+	DWORD wait(mode Mode = mode::all) const { return WaitForMultipleObjects(static_cast<DWORD>(m_Objects.size()), m_Objects.data(), Mode == mode::all, INFINITE); }
 	void clear() {m_Objects.clear();}
 
 private:

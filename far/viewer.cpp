@@ -496,7 +496,7 @@ bool Viewer::CheckChanged()
 
 	// Smart file change check -- thanks Dzirt2005
 	//
-	bool changed = ViewFindData.ftLastWriteTime != NewViewFindData.ftLastWriteTime || ViewFindData.nFileSize != NewViewFindData.nFileSize;
+	bool changed = ViewFindData.LastWriteTime != NewViewFindData.LastWriteTime || ViewFindData.nFileSize != NewViewFindData.nFileSize;
 	if (changed)
 	{
 		ViewFindData = NewViewFindData;

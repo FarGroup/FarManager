@@ -477,8 +477,9 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// ISO 8601 offset from UTC in timezone
 				case L'z':
 					{
-						const auto Offset = -(_timezone + _dstbias);
-						strBuf = format(L"{0:+05}", Offset / 3600 * 100 + Offset / 60 % 60);
+						using namespace std::chrono;
+						const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + _dstbias));
+						strBuf = format(L"{0:+05}", std::get<hours>(Offset).count() * 100 + std::get<minutes>(Offset).count());
 					}
 					break;
 					// Timezone name or abbreviation
@@ -523,7 +524,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 
 string MkStrFTime(const wchar_t *Format)
 {
-	const auto Time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	const auto Time = nt_clock::to_time_t(nt_clock::now());
 
 	if (!Format || !*Format)
 		Format = Global->Opt->Macro.strDateFormat.data();
@@ -532,222 +533,207 @@ string MkStrFTime(const wchar_t *Format)
 	return StrFTime(Format, std::localtime(&Time));
 }
 
-void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Separator)
+void ParseDateComponents(const string& Src, const range<WORD*>& Dst, wchar_t Separator, WORD Default)
 {
 	const wchar_t Separators[] = { Separator, 0 };
 	const auto Components = enum_tokens(Src, Separators);
-	std::transform(ALL_CONST_RANGE(Components), Dst, [](const auto& i)
+	std::transform(ALL_CONST_RANGE(Components), Dst.begin(), [&](const string_view& i)
 	{
 		auto Str = make_string(i);
 		RemoveExternalSpaces(Str);
-		return Str.empty()? -1 : std::stoul(Str);
+		return Str.empty()? Default : std::stoul(Str);
 	});
 }
 
-void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative)
+time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator)
 {
-	WORD DateN[3]={},TimeN[4]={};
-	SYSTEMTIME st={};
-	// Преобразуем введённые пользователем дату и время
-	GetFileDateAndTime(CDate, DateN, bRelative? 1 : std::size(DateN), DateSeparator);
-	GetFileDateAndTime(CTime, TimeN, std::size(TimeN), TimeSeparator);
+	WORD DateN[3]{};
+	ParseDateComponents(Date, make_range(DateN), DateSeparator, 0);
+	WORD TimeN[4]{};
+	ParseDateComponents(Time, make_range(TimeN), TimeSeparator, 0);
 
-	if (!bRelative)
+	if (!DateN[0] || !DateN[1] || !DateN[2])
 	{
-		if (DateN[0]==(WORD)-1||DateN[1]==(WORD)-1||DateN[2]==(WORD)-1)
-		{
-			// Пользователь оставил дату пустой, значит обнулим дату и время.
-			ft = {};
-			return;
-		}
-
-		// "Оформим"
-		switch (DateFormat)
-		{
-			case 0:
-				st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:0;
-				st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:0;
-				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:0;
-				break;
-			case 1:
-				st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:0;
-				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:0;
-				st.wYear =DateN[2]!=(WORD)-1?DateN[2]:0;
-				break;
-			default:
-				st.wYear =DateN[0]!=(WORD)-1?DateN[0]:0;
-				st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:0;
-				st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:0;
-				break;
-		}
-
-		if (st.wYear<100)
-		{
-			st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
-		}
-	}
-	else
-	{
-		st.wDay = DateN[0]!=(WORD)-1?DateN[0]:0;
+		// Пользователь оставил дату пустой, значит обнулим дату и время.
+		return {};
 	}
 
-	st.wHour   = TimeN[0]!=(WORD)-1?(TimeN[0]):0;
-	st.wMinute = TimeN[1]!=(WORD)-1?(TimeN[1]):0;
-	st.wSecond = TimeN[2]!=(WORD)-1?(TimeN[2]):0;
-	st.wMilliseconds = TimeN[3]!=(WORD)-1?(TimeN[3]):0;
+	SYSTEMTIME st{};
 
-	// преобразование в "удобоваримый" формат
-	if (bRelative)
+	switch (DateFormat)
 	{
-		unsigned long long time;
-		time = st.wMilliseconds;
-		time += static_cast<unsigned long long>(st.wSecond) * 1000;
-		time += static_cast<unsigned long long>(st.wMinute) * 1000 * 60;
-		time += static_cast<unsigned long long>(st.wHour)   * 1000 * 60 * 60;
-		time += static_cast<unsigned long long>(st.wDay)    * 1000 * 60 * 60 * 24;
-		time *= 10000;
-		ft = UI64ToFileTime(time);
+	case 0:
+		st.wMonth = DateN[0];
+		st.wDay   = DateN[1];
+		st.wYear  = DateN[2];
+		break;
+
+	case 1:
+		st.wDay   = DateN[0];
+		st.wMonth = DateN[1];
+		st.wYear  = DateN[2];
+		break;
+
+	default:
+		st.wYear  = DateN[0];
+		st.wMonth = DateN[1];
+		st.wDay   = DateN[2];
+		break;
 	}
-	else
+
+	if (st.wYear < 100)
 	{
-		Local2Utc(st, ft);
+		st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
 	}
+
+	st.wHour         = TimeN[0];
+	st.wMinute       = TimeN[1];
+	st.wSecond       = TimeN[2];
+	st.wMilliseconds = TimeN[3];
+
+	time_point Point;
+	Local2Utc(st, Point);
+	return Point;
 }
 
-void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength,
-                 int Brief,int TextMonth,int FullYear)
+duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator)
 {
-	const auto DateFormat = LocaleCache().DateFormat();
-	const auto DateSeparator = LocaleCache().DateSeparator();
-	const auto TimeSeparator = LocaleCache().TimeSeparator();
-	const auto DecimalSeparator = LocaleCache().DecimalSeparator();
+	WORD DateN[1]{};
+	ParseDateComponents(Date, make_range(DateN), DateSeparator, 0);
 
-	int CurDateFormat=DateFormat;
+	WORD TimeN[4]{};
+	ParseDateComponents(Time, make_range(TimeN), TimeSeparator, 0);
 
-	if (Brief && CurDateFormat==2)
-		CurDateFormat=0;
+	using namespace std::chrono;
+	using namespace chrono;
+	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + milliseconds(TimeN[3]);
+}
 
-	if (!ft.dwHighDateTime)
+
+void ConvertDate(time_point Point, string& strDateText, string& strTimeText, int TimeLength, int Brief, int TextMonth, int FullYear)
+{
+	// Epoch => empty
+	if (!Point.time_since_epoch().count())
 	{
 		strDateText.clear();
 		strTimeText.clear();
 		return;
 	}
 
+	const auto DateFormat = LocaleCache().DateFormat();
+	const auto DateSeparator = LocaleCache().DateSeparator();
+	const auto TimeSeparator = LocaleCache().TimeSeparator();
+	const auto DecimalSeparator = LocaleCache().DecimalSeparator();
+
+	const auto CurDateFormat = Brief && DateFormat == 2? 0 : DateFormat;
+
 	SYSTEMTIME st;
-	Utc2Local(ft, st);
-	//if ( !strTimeText.empty() )
+	if (!Utc2Local(Point, st))
+		return;
+
+	auto Letter = L"";
+
+	if (TimeLength == 6)
 	{
-		const wchar_t *Letter=L"";
+		Letter = st.wHour < 12 ? L"a" : L"p";
 
-		if (TimeLength==6)
-		{
-			Letter=(st.wHour<12) ? L"a":L"p";
+		if (st.wHour > 12)
+			st.wHour -= 12;
 
-			if (st.wHour>12)
-				st.wHour-=12;
-
-			if (!st.wHour)
-				st.wHour=12;
-		}
-
-		if (TimeLength < 7)
-		{
-			strTimeText = format(L"{0:02}{1}{2:02}{3}", st.wHour, TimeSeparator, st.wMinute, Letter);
-		}
-		else
-		{
-			strTimeText = cut_right(format(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:03}",
-				st.wHour, TimeSeparator, st.wMinute, st.wSecond, DecimalSeparator, st.wMilliseconds), TimeLength);
-		}
+		if (!st.wHour)
+			st.wHour = 12;
 	}
-	//if ( !strDateText.empty() )
+
+	if (TimeLength < 7)
 	{
-		int Year=st.wYear;
+		strTimeText = format(L"{0:02}{1}{2:02}{3}", st.wHour, TimeSeparator, st.wMinute, Letter);
+	}
+	else
+	{
+		strTimeText = cut_right(format(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:03}",
+			st.wHour, TimeSeparator, st.wMinute, st.wSecond, DecimalSeparator, st.wMilliseconds), TimeLength);
+	}
 
-		if (!FullYear)
-			Year%=100;
+	const auto Year = FullYear? st.wYear : st.wYear % 100;
 
-		if (TextMonth)
+	if (TextMonth)
+	{
+		const auto GetFormat = [CurDateFormat]
 		{
-			const auto GetFormat = [CurDateFormat]
-			{
-				switch (CurDateFormat)
-				{
-				case 0:  return L"{1:3.3} {0:2} {2:02}";
-				case 1:  return L"{0:2} {1:3.3} {2:02}";
-				default: return L"{2:02} {1:3.3} {0:2}";
-				}
-			};
-
-			strDateText = format(GetFormat(), st.wDay, LocaleCache().LocalNames().Months[st.wMonth - 1].Short, Year);
-		}
-		else
-		{
-			int p1,p2,p3=Year;
-			int w1=2, w2=2, w3=2;
-			wchar_t f1=L'0', f2=L'0', f3=FullYear==2?L' ':L'0';
 			switch (CurDateFormat)
 			{
-				case 0:
-					p1=st.wMonth;
-					p2=st.wDay;
-					break;
-				case 1:
-					p1=st.wDay;
-					p2=st.wMonth;
-					break;
-				default:
-					p1=Year;
-					w1=FullYear==2?5:2;
-					using std::swap;
-					swap(f1, f3);
-					p2=st.wMonth;
-					p3=st.wDay;
-					break;
+			case 0:  return L"{1:3.3} {0:2} {2:02}";
+			case 1:  return L"{0:2} {1:3.3} {2:02}";
+			default: return L"{2:02} {1:3.3} {0:2}";
 			}
-			// Library doesn't support dynamic fill currently. TODO: fix it?
-			wchar_t Format[] = L"{0: >{1}}{6}{2: >{3}}{6}{4: >{5}}";
-			Format[3] = f1;
-			Format[15] = f2;
-			Format[27] = f3;
-			strDateText = format(Format, p1, w1, p2, w2, p3, w3, DateSeparator);
+		};
+
+		strDateText = format(GetFormat(), st.wDay, LocaleCache().LocalNames().Months[st.wMonth - 1].Short, Year);
+	}
+	else
+	{
+		int p1, p2, p3 = Year;
+		int w1 = 2, w2 = 2, w3 = 2;
+		wchar_t f1 = L'0', f2 = L'0', f3 = FullYear == 2? L' ' : L'0';
+		switch (CurDateFormat)
+		{
+		case 0:
+			p1 = st.wMonth;
+			p2 = st.wDay;
+			break;
+		case 1:
+			p1 = st.wDay;
+			p2 = st.wMonth;
+			break;
+		default:
+			p1 = Year;
+			w1 = FullYear == 2?5:2;
+			using std::swap;
+			swap(f1, f3);
+			p2 = st.wMonth;
+			p3 = st.wDay;
+			break;
 		}
+
+		// Library doesn't support dynamic fill currently. TODO: fix it?
+		wchar_t Format[] = L"{0: >{1}}{6}{2: >{3}}{6}{4: >{5}}";
+		Format[3] = f1;
+		Format[15] = f2;
+		Format[27] = f3;
+		strDateText = format(Format, p1, w1, p2, w2, p3, w3, DateSeparator);
 	}
 
 	if (Brief)
 	{
-		strDateText.resize(TextMonth ? 6 : 5);
+		strDateText.resize(TextMonth? 6 : 5);
 
 		if (get_local_time().wYear != st.wYear)
 			strTimeText = format(L"{0:5}", st.wYear);
 	}
 }
 
-void ConvertRelativeDate(const FILETIME &ft, string &strDaysText, string &strTimeText)
+void ConvertDuration(duration Duration, string& strDaysText, string& strTimeText)
 {
-	auto time = FileTimeToUI64(ft);
+	using namespace std::chrono;
+	using namespace chrono;
 
-	const auto ms = (time /= 10000) % 1000;
-	const auto s = (time /= 1000) % 60;
-	const auto m = (time /= 60) % 60;
-	const auto h = (time /= 60) % 24;
-	const auto d = time /= 24;
+	const auto Result = split_duration<days, hours, minutes, seconds, milliseconds>(Duration);
 
-	strDaysText = str(d);
-	strTimeText = format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}", h, m, s, ms, LocaleCache().TimeSeparator(), LocaleCache().DecimalSeparator());
+	strDaysText = str(std::get<days>(Result).count());
+	strTimeText = format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}",
+		std::get<hours>(Result).count(),
+		std::get<minutes>(Result).count(),
+		std::get<seconds>(Result).count(),
+		std::get<milliseconds>(Result).count(),
+		LocaleCache().TimeSeparator(),
+		LocaleCache().DecimalSeparator());
 }
 
-bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst)
+bool Utc2Local(time_point UtcTime, SYSTEMTIME& LocalTime)
 {
-	SYSTEMTIME st;
-	return FileTimeToSystemTime(&ft, &st) && SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst);
-}
-
-bool Utc2Local(SYSTEMTIME &st, FILETIME &lft)
-{
-	SYSTEMTIME lst;
-	return SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst) && SystemTimeToFileTime(&lst, &lft);
+	SYSTEMTIME SystemTime;
+	const auto FileTime = nt_clock::to_filetime(UtcTime);
+	return FileTimeToSystemTime(&FileTime, &SystemTime) && SystemTimeToTzSpecificLocalTime(nullptr, &SystemTime, &LocalTime);
 }
 
 static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
@@ -789,14 +775,16 @@ static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 	return SystemTimeToFileTime(&lst, &lft) && LocalFileTimeToFileTime(&lft, &uft) && FileTimeToSystemTime(&uft, &ust);
 }
 
-bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st)
+bool Local2Utc(const SYSTEMTIME& LocalTime, time_point& UtcTime)
 {
-	SYSTEMTIME lst;
-	return FileTimeToSystemTime(&lft, &lst) && local_to_utc(lst, st);
-}
+	SYSTEMTIME SystemUtcTime;
+	if (!local_to_utc(LocalTime, SystemUtcTime))
+		return false;
 
-bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft)
-{
-	SYSTEMTIME st;
-	return local_to_utc(lst, st) && SystemTimeToFileTime(&st, &ft);
+	FILETIME FileUtcTime;
+	if (!SystemTimeToFileTime(&SystemUtcTime, &FileUtcTime))
+		return false;
+
+	UtcTime = nt_clock::from_filetime(FileUtcTime);
+	return true;
 }

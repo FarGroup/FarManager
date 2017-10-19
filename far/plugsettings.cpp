@@ -467,7 +467,7 @@ bool FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum
 	{
 		if(Filter(i.Type))
 		{
-			item.Time = UI64ToFileTime(i.Time);
+			item.Time = nt_clock::to_filetime(i.Time);
 			item.Lock = i.Lock;
 			GUID Guid;
 			if (i.Guid.empty() || !StrToGuid(i.Guid, Guid))

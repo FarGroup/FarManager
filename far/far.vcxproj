@@ -23,6 +23,7 @@
     <ProjectGuid>{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}</ProjectGuid>
     <RootNamespace>far</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -42,6 +43,8 @@
   <PropertyGroup Label="UserMacros">
     <FarBit Condition="'$(Platform)'=='Win32'">32</FarBit>
     <FarBit Condition="'$(Platform)'=='x64'">64</FarBit>
+    <NewOptions Condition="'$(VisualStudioVersion)' == '14.0'"></NewOptions>
+    <NewOptions Condition="'$(VisualStudioVersion)' == '15.0'">/permissive-</NewOptions>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.21006.1</_ProjectFileVersion>
@@ -68,7 +71,7 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/J /Zc:strictStrings,throwingNew,referenceBinding /std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J /Zc:strictStrings,throwingNew,referenceBinding /std:c++latest $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -274,6 +277,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="panelmix.cpp" />
     <ClCompile Include="pathmix.cpp" />
     <ClCompile Include="platform.cpp" />
+    <ClCompile Include="platform.chrono.cpp" />
     <ClCompile Include="platform.env.cpp" />
     <ClCompile Include="platform.fs.cpp" />
     <ClCompile Include="platform.memory.cpp" />
@@ -318,7 +322,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="usermenu.cpp" />
     <ClCompile Include="vc_crt_fix_impl.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:threadSafeInit- $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="viewer.cpp" />
     <ClCompile Include="vmenu.cpp" />
@@ -331,6 +335,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="blob_builder.hpp" />
     <ClInclude Include="common\algorithm.hpp" />
     <ClInclude Include="common\bytes_view.hpp" />
+    <ClInclude Include="common\chrono.hpp" />
     <ClInclude Include="common\compiler.hpp" />
     <ClInclude Include="common\enum_substrings.hpp" />
     <ClInclude Include="common\movable.hpp" />
@@ -463,6 +468,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="pathmix.hpp" />
     <ClInclude Include="pipe.hpp" />
     <ClInclude Include="platform.hpp" />
+    <ClInclude Include="platform.chrono.hpp" />
     <ClInclude Include="platform.env.hpp" />
     <ClInclude Include="platform.fs.hpp" />
     <ClInclude Include="platform.memory.hpp" />

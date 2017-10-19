@@ -112,6 +112,7 @@ SRCS = \
 	pathmix.cpp \
 	pipe.cpp \
 	platform.cpp \
+	platform.chrono.cpp \
 	platform.env.cpp \
 	platform.fs.cpp \
 	platform.memory.cpp \

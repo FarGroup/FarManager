@@ -37,67 +37,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 inline auto get_local_time() { SYSTEMTIME Time; GetLocalTime(&Time); return Time; }
 inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time; }
-inline auto get_utc_time_as_filetime() { FILETIME Time; GetSystemTimeAsFileTime(&Time); return Time; }
 
 DWORD ConvertYearToFull(DWORD ShortYear);
 
 void OnIntlSettingsChange();
 
-void GetFileDateAndTime(const string& Src, LPWORD Dst, size_t Count, wchar_t Separator);
-void StrToDateTime(const string& CDate, const string& CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative=false);
-void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength, int Brief=FALSE,int TextMonth=FALSE,int FullYear=0);
-void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);
+void ParseDateComponents(const string& Src, const range<WORD*>& Dst, wchar_t Separator, WORD Default = -1);
+time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
+duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
+void ConvertDate(time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);
+void ConvertDuration(duration Duration, string& strDaysText, string& strTimeText);
 
 string StrFTime(const wchar_t* Format, const tm* t);
 string MkStrFTime(const wchar_t* Format = nullptr);
 
-inline auto FileTimeToUI64(const FILETIME& ft)
-{
-	return ULARGE_INTEGER {ft.dwLowDateTime, ft.dwHighDateTime}.QuadPart;
-}
-
-inline auto UI64ToFileTime(LARGE_INTEGER time)
-{
-	return FILETIME{ time.LowPart, static_cast<DWORD>(time.HighPart) };
-}
-
-inline auto UI64ToFileTime(unsigned long long time)
-{
-	LARGE_INTEGER i;
-	i.QuadPart = time;
-	return UI64ToFileTime(i);
-}
-
-inline int CompareFileTime(const FILETIME& a, const FILETIME& b)
-{
-	const long long Result = FileTimeToUI64(a) - FileTimeToUI64(b);
-	return Result ? (Result > 0 ? 1 : -1) : 0;
-}
-
-inline bool operator==(const FILETIME& a, const FILETIME& b)
-{
-	return a.dwLowDateTime == b.dwLowDateTime && a.dwHighDateTime == b.dwHighDateTime;
-}
-
-inline bool operator!=(const FILETIME& a, const FILETIME& b)
-{
-	return !(a == b);
-}
-
-inline bool operator<(const FILETIME& a, const FILETIME& b)
-{
-	return CompareFileTime(a, b) < 0;
-}
-
-inline unsigned long long GetCurrentUTCTimeInUI64()
-{
-	return FileTimeToUI64(get_utc_time_as_filetime());
-}
-
-bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst);
-bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st);
-bool Utc2Local(const SYSTEMTIME &st, FILETIME &lft);
-bool Local2Utc(const SYSTEMTIME &lst, FILETIME &ft);
+bool Utc2Local(time_point UtcTime, SYSTEMTIME& LocalTime);
+bool Local2Utc(const SYSTEMTIME& LocalTime, time_point& UtcTime);
 
 class time_check: noncopyable, public conditional<time_check>
 {
@@ -107,9 +62,14 @@ public:
 	enum class mode { delayed, immediate };
 	time_check(mode Mode, clock_type::duration Interval):
 		m_Begin(Mode == mode::delayed? clock_type::now() : clock_type::now() - Interval),
-		m_Interval(Interval) {}
+		m_Interval(Interval)
+	{
+	}
 
-	void reset(clock_type::time_point Value = clock_type::now()) const { m_Begin = Value; }
+	void reset(clock_type::time_point Value = clock_type::now()) const
+	{
+		m_Begin = Value;
+	}
 
 	bool operator!() const noexcept
 	{

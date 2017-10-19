@@ -184,13 +184,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 #include "disable_warnings_in_std_end.hpp"
 
-using string = std::wstring;
-using namespace std::string_literals;
-using namespace std::chrono_literals;
-
 #include "sdk.hpp"
 
 #include "cpp.hpp"
+
+using string = std::wstring;
+
+using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 #include "memcheck.hpp"
 
@@ -199,6 +200,7 @@ using namespace std::chrono_literals;
 #include "format.hpp"
 
 #include "platform.hpp"
+#include "platform.chrono.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"

@@ -48,7 +48,7 @@ template<typename T>
 T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
 	const auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
-	return Address? reinterpret_cast<T>(Address) : Replacement;
+	return Address? static_cast<T>(static_cast<void*>(Address)) : Replacement;
 }
 
 #define CREATE_FUNCTION_POINTER(ModuleName, FunctionName)\

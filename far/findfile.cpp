@@ -1956,27 +1956,27 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 			case CDATE_COLUMN:
 			case CHDATE_COLUMN:
 			{
-				const FILETIME *FileTime;
+				const time_point* FileTime;
 				switch (CurColumnType)
 				{
 					case CDATE_COLUMN:
-						FileTime=&FindData.ftCreationTime;
+						FileTime = &FindData.CreationTime;
 						break;
 					case ADATE_COLUMN:
-						FileTime=&FindData.ftLastAccessTime;
+						FileTime = &FindData.LastAccessTime;
 						break;
 					case CHDATE_COLUMN:
-						FileTime=&FindData.ftChangeTime;
+						FileTime = &FindData.ChangeTime;
 						break;
 					case DATE_COLUMN:
 					case TIME_COLUMN:
 					case WDATE_COLUMN:
 					default:
-						FileTime=&FindData.ftLastWriteTime;
+						FileTime = &FindData.LastWriteTime;
 						break;
 				}
 
-				append(MenuText, FormatStr_DateTime(FileTime, CurColumnType, i.type, Width), BoxSymbols[BS_V1]);
+				append(MenuText, FormatStr_DateTime(*FileTime, CurColumnType, i.type, Width), BoxSymbols[BS_V1]);
 				break;
 			}
 		}

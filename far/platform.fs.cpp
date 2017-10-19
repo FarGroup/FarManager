@@ -168,10 +168,10 @@ namespace os::fs
 	static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, find_data& FindData, bool IsExtended)
 	{
 		FindData.dwFileAttributes = DirectoryInfo.FileAttributes;
-		FindData.ftCreationTime = UI64ToFileTime(DirectoryInfo.CreationTime);
-		FindData.ftLastAccessTime = UI64ToFileTime(DirectoryInfo.LastAccessTime);
-		FindData.ftLastWriteTime = UI64ToFileTime(DirectoryInfo.LastWriteTime);
-		FindData.ftChangeTime = UI64ToFileTime(DirectoryInfo.ChangeTime);
+		FindData.CreationTime = time_point(duration(DirectoryInfo.CreationTime.QuadPart));
+		FindData.LastAccessTime = time_point(duration(DirectoryInfo.LastAccessTime.QuadPart));
+		FindData.LastWriteTime = time_point(duration(DirectoryInfo.LastWriteTime.QuadPart));
+		FindData.ChangeTime = time_point(duration(DirectoryInfo.ChangeTime.QuadPart));
 		FindData.nFileSize = DirectoryInfo.EndOfFile.QuadPart;
 		FindData.nAllocationSize = DirectoryInfo.AllocationSize.QuadPart;
 		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
@@ -673,7 +673,7 @@ namespace os::fs
 		return ok;
 	}
 
-	bool file::GetTime(FILETIME* CreationTime, FILETIME* LastAccessTime, FILETIME* LastWriteTime, FILETIME* ChangeTime) const
+	bool file::GetTime(time_point* CreationTime, time_point* LastAccessTime, time_point* LastWriteTime, time_point* ChangeTime) const
 	{
 		FILE_BASIC_INFORMATION fbi;
 
@@ -681,35 +681,35 @@ namespace os::fs
 			return false;
 
 		if (CreationTime)
-			*CreationTime = UI64ToFileTime(fbi.CreationTime);
+			*CreationTime = time_point(duration(fbi.CreationTime.QuadPart));
 
 		if (LastAccessTime)
-			*LastAccessTime = UI64ToFileTime(fbi.LastAccessTime);
+			*LastAccessTime = time_point(duration(fbi.LastAccessTime.QuadPart));
 
 		if (LastWriteTime)
-			*LastWriteTime = UI64ToFileTime(fbi.LastWriteTime);
+			*LastWriteTime = time_point(duration(fbi.LastWriteTime.QuadPart));
 
 		if (ChangeTime)
-			*ChangeTime = UI64ToFileTime(fbi.ChangeTime);
+			*ChangeTime = time_point(duration(fbi.ChangeTime.QuadPart));
 
 		return true;
 	}
 
-	bool file::SetTime(const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime) const
+	bool file::SetTime(const time_point* CreationTime, const time_point* LastAccessTime, const time_point* LastWriteTime, const time_point* ChangeTime) const
 	{
 		FILE_BASIC_INFORMATION fbi{};
 
 		if (CreationTime)
-			fbi.CreationTime.QuadPart = FileTimeToUI64(*CreationTime);
+			fbi.CreationTime.QuadPart = CreationTime->time_since_epoch().count();
 
 		if (LastAccessTime)
-			fbi.LastAccessTime.QuadPart = FileTimeToUI64(*LastAccessTime);
+			fbi.LastAccessTime.QuadPart = LastAccessTime->time_since_epoch().count();
 
 		if (LastWriteTime)
-			fbi.LastWriteTime.QuadPart = FileTimeToUI64(*LastWriteTime);
+			fbi.LastWriteTime.QuadPart = LastWriteTime->time_since_epoch().count();
 
 		if (ChangeTime)
-			fbi.ChangeTime.QuadPart = FileTimeToUI64(*ChangeTime);
+			fbi.ChangeTime.QuadPart = ChangeTime->time_since_epoch().count();
 
 		IO_STATUS_BLOCK IoStatusBlock;
 		const auto Status = Imports().NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
@@ -1669,7 +1669,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool GetFileTimeSimple(const string& FileName, FILETIME* CreationTime, FILETIME* LastAccessTime, FILETIME* LastWriteTime, FILETIME* ChangeTime)
+	bool GetFileTimeSimple(const string& FileName, time_point* CreationTime, time_point* LastAccessTime, time_point* LastWriteTime, time_point* ChangeTime)
 	{
 		file File;
 		return File.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
@@ -1699,7 +1699,7 @@ namespace os::fs
 		// Ага, значит файл таки есть. Заполним структуру ручками.
 		if (const auto File = file(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 		{
-			File.GetTime(&FindData.ftCreationTime, &FindData.ftLastAccessTime, &FindData.ftLastWriteTime, &FindData.ftChangeTime);
+			File.GetTime(&FindData.CreationTime, &FindData.LastAccessTime, &FindData.LastWriteTime, &FindData.ChangeTime);
 			File.GetSize(FindData.nFileSize);
 		}
 

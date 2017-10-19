@@ -223,9 +223,9 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 							strRecord += i.File + L':';
 					}
 				}
-				const auto FTTime = UI64ToFileTime(i.Time);
+
 				SYSTEMTIME SavedTime;
-				Utc2Local(FTTime, SavedTime);
+				Utc2Local(i.Time, SavedTime);
 				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
 				{
 					LastDay = SavedTime.wDay;
@@ -234,7 +234,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string strTime;
-					ConvertDate(FTTime, Separator.strName, strTime, 5, FALSE, FALSE, TRUE);
+					ConvertDate(i.Time, Separator.strName, strTime, 5, FALSE, FALSE, TRUE);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += i.Name;

@@ -124,8 +124,9 @@ namespace os
 			void reset(HANDLE Handle = nullptr) { base_type::reset(normalise(Handle)); }
 			auto native_handle() const { return base_type::get(); }
 			void close() { reset(); }
-			bool wait(DWORD Milliseconds = INFINITE) const { return WaitForSingleObject(native_handle(), Milliseconds) == WAIT_OBJECT_0; }
-			bool is_signaled() const { return wait(0); }
+			bool wait(std::chrono::milliseconds Timeout) const { return WaitForSingleObject(native_handle(), Timeout.count()) == WAIT_OBJECT_0; }
+			bool wait() const { return WaitForSingleObject(native_handle(), INFINITE) == WAIT_OBJECT_0; }
+			bool is_signaled() const { return wait(0ms); }
 
 		private:
 			static HANDLE normalise(HANDLE Handle) { return Handle == INVALID_HANDLE_VALUE? nullptr : Handle; }

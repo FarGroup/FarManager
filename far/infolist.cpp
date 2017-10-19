@@ -507,16 +507,17 @@ void InfoList::DisplayObject()
 			}
 			PrintInfo(strOutStr);
 
-			auto GetBatteryTime = [](size_t Seconds)
+			auto GetBatteryTime = [](size_t SecondsCount)
 			{
-				if (Seconds == BATTERY_LIFE_UNKNOWN)
+				if (SecondsCount == BATTERY_LIFE_UNKNOWN)
 					return string(msg(lng::MInfoPowerStatusUnknown));
 
 				string Days, Time;
-				ConvertRelativeDate(UI64ToFileTime(Seconds * 1000ull * 10000ull), Days, Time);
+				const std::chrono::seconds Seconds(SecondsCount);
+				ConvertDuration(Seconds, Days, Time);
 				if (Days != L"0")
 				{
-					const auto Hours = str(Seconds / 3600);
+					const auto Hours = str(std::chrono::duration_cast<std::chrono::hours>(Seconds).count());
 					Time = Hours + Time.substr(2);
 				}
 

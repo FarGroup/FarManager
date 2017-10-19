@@ -275,6 +275,9 @@
     <ClCompile Include="platform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platform.chrono.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="platform.env.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -727,6 +730,9 @@
     <ClInclude Include="platform.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="platform.chrono.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="platform.env.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -957,6 +963,9 @@
     </ClInclude>
     <ClInclude Include="regex_helpers.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\chrono.hpp">
+      <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\compiler.hpp">
       <Filter>Header Files\common</Filter>

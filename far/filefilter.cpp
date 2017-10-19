@@ -54,8 +54,37 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "DlgGuid.hpp"
 #include "lang.hpp"
-#include "datetime.hpp"
-#include "colormix.hpp"
+
+static const struct
+{
+	const string_view
+
+	Filters,
+	Filter,
+	FFlags,
+	FoldersFilterFFlags,
+
+	Title,
+	UseAttr, AttrSet, AttrClear,
+	UseMask, Mask,
+	UseDate, DateType, DateTimeAfter, DateTimeBefore, DateRelative,
+	UseSize, SizeAbove, SizeBelow,
+	UseHardLinks, HardLinksAbove, HardLinksBelow;
+}
+Strings =
+{
+	L"Filters"_sv,
+	L"Filter"_sv,
+	L"FFlags"_sv,
+	L"FoldersFilterFFlags"_sv,
+
+	L"Title"_sv,
+	L"UseAttr"_sv, L"AttrSet"_sv, L"AttrClear"_sv,
+	L"UseMask"_sv, L"Mask"_sv,
+	L"UseDate"_sv, L"DateType"_sv, L"DateTimeAfter"_sv, L"DateTimeBefore"_sv, L"DateRelative"_sv,
+	L"UseSize"_sv, L"SizeAboveS"_sv, L"SizeBelowS"_sv,
+	L"UseHardLinks"_sv, L"HardLinksAbove"_sv, L"HardLinksBelow"_sv,
+};
 
 static auto& FilterData()
 {
@@ -92,7 +121,7 @@ bool FileFilter::FilterEdit()
 	int ExitCode;
 	bool bNeedUpdate=false;
 	const auto FilterList = VMenu2::create(msg(lng::MFilterTitle), nullptr, 0, ScrY - 6);
-	FilterList->SetHelp(L"FiltersMenu");
+	FilterList->SetHelp(L"FiltersMenu"_sv);
 	FilterList->SetPosition(-1,-1,0,0);
 	FilterList->SetBottomTitle(msg(lng::MFilterBottom));
 	FilterList->SetMenuFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
@@ -296,13 +325,13 @@ bool FileFilter::FilterEdit()
 					if (SelPos2 < FilterData().size())
 					{
 						NewFilter = FilterData()[SelPos2].Clone();
-						NewFilter.SetTitle(L"");
+						NewFilter.SetTitle({});
 						NewFilter.ClearAllFlags();
 					}
 					else if (SelPos2 == FilterData().size() + 2)
 					{
 						NewFilter = FoldersFilter->Clone();
-						NewFilter.SetTitle(L"");
+						NewFilter.SetTitle({});
 						NewFilter.ClearAllFlags();
 					}
 					else if (SelPos2 > FilterData().size() + 2)
@@ -557,17 +586,17 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 
 void FileFilter::UpdateCurrentTime()
 {
-	CurrentTime = GetCurrentUTCTimeInUI64();
+	CurrentTime = nt_clock::now();
 }
 
 bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foundType)
 {
 	os::fs::find_data fde;
 	fde.dwFileAttributes=fli->FileAttr;
-	fde.ftCreationTime=fli->CreationTime;
-	fde.ftLastAccessTime=fli->AccessTime;
-	fde.ftLastWriteTime=fli->WriteTime;
-	fde.ftChangeTime=fli->ChangeTime;
+	fde.CreationTime = fli->CreationTime;
+	fde.LastAccessTime = fli->AccessTime;
+	fde.LastWriteTime = fli->WriteTime;
+	fde.ChangeTime = fli->ChangeTime;
 	fde.nFileSize=fli->FileSize;
 	fde.nAllocationSize=fli->AllocationSize;
 	fde.strFileName=fli->strName;
@@ -719,112 +748,151 @@ bool FileFilter::IsEnabledOnPanel()
 	return std::any_of(CONST_RANGE(TempFilterData(), i) { return i.GetFlags(FFFT); });
 }
 
+void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long KeyId, FileFilterParams& Item)
+{
+	HierarchicalConfig::key Key(KeyId);
+
+	string Title;
+	cfg->GetValue(Key, Strings.Title, Title);
+	Item.SetTitle(Title);
+
+	unsigned long long UseMask = 1;
+	if (!cfg->GetValue(Key, Strings.UseMask, UseMask))
+	{
+		// TODO 2018 Q4: remove
+		unsigned long long IgnoreMask = 0;
+		cfg->GetValue(Key, L"IgnoreMask"_sv, IgnoreMask);
+		UseMask = !IgnoreMask;
+	}
+
+	string Mask;
+	cfg->GetValue(Key, Strings.Mask, Mask);
+	Item.SetMask(UseMask != 0, Mask);
+
+	unsigned long long DateAfter = 0;
+	if (!cfg->GetValue(Key, Strings.DateTimeAfter, DateAfter))
+	{
+		// TODO 2018 Q4: remove
+		cfg->GetValue(Key, L"DateAfter"_sv, bytes::reference(DateAfter));
+	}
+
+	unsigned long long DateBefore = 0;
+	if (!cfg->GetValue(Key, Strings.DateTimeBefore, DateBefore))
+	{
+		// TODO 2018 Q4: remove
+		cfg->GetValue(Key, L"DateBefore"_sv, bytes::reference(DateBefore));
+	}
+
+	unsigned long long UseDate = 0;
+	cfg->GetValue(Key, Strings.UseDate, UseDate);
+
+	unsigned long long DateType = 0;
+	cfg->GetValue(Key, Strings.DateType, DateType);
+
+	unsigned long long DateRelative = 0;
+	if (!cfg->GetValue(Key, Strings.DateRelative, DateRelative))
+	{
+		// TODO 2018 Q4: remove
+		cfg->GetValue(Key, L"RelativeDate"_sv, DateRelative);
+	}
+	
+	Item.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateRelative?
+		filter_dates(duration(DateAfter), duration(DateBefore)) :
+		filter_dates(time_point(duration(DateAfter)), time_point(duration(DateBefore))));
+
+	string SizeAbove;
+	cfg->GetValue(Key, Strings.SizeAbove, SizeAbove);
+
+	string SizeBelow;
+	cfg->GetValue(Key, Strings.SizeBelow, SizeBelow);
+
+	unsigned long long UseSize = 0;
+	cfg->GetValue(Key, Strings.UseSize, UseSize);
+	Item.SetSize(UseSize != 0, SizeAbove, SizeBelow);
+
+	unsigned long long UseHardLinks = 0;
+	cfg->GetValue(Key, Strings.UseHardLinks, UseHardLinks);
+
+	unsigned long long HardLinksAbove = 0;
+	cfg->GetValue(Key, Strings.HardLinksAbove, HardLinksAbove);
+
+	unsigned long long HardLinksBelow = 0;
+	cfg->GetValue(Key, Strings.HardLinksBelow, HardLinksBelow);
+
+	Item.SetHardLinks(UseHardLinks != 0, HardLinksAbove, HardLinksBelow);
+
+	unsigned long long UseAttr = 0;
+	cfg->GetValue(Key, Strings.UseAttr, UseAttr);
+
+	unsigned long long AttrSet = 0;
+	if (!cfg->GetValue(Key, Strings.AttrSet, AttrSet))
+	{
+		// TODO 2018 Q4: remove
+		cfg->GetValue(Key, L"IncludeAttributes"_sv, AttrSet);
+	}
+
+	unsigned long long AttrClear = 0;
+	if (!cfg->GetValue(Key, Strings.AttrClear, AttrClear))
+	{
+		// TODO 2018 Q4: remove
+		cfg->GetValue(Key, L"ExcludeAttributes"_sv, AttrClear);
+	}
+
+	Item.SetAttr(UseAttr != 0, static_cast<DWORD>(AttrSet), static_cast<DWORD>(AttrClear));
+}
+
 void FileFilter::InitFilter()
 {
-	string strTitle, strMask, strSizeBelow, strSizeAbove;
+	static FileFilterParams _FoldersFilter;
+	FoldersFilter = &_FoldersFilter;
+	FoldersFilter->SetMask(false, L"*");
+	FoldersFilter->SetAttr(true, FILE_ATTRIBUTE_DIRECTORY, 0);
 
 	const auto cfg = ConfigProvider().CreateFiltersConfig();
-	const auto root = cfg->FindByName(cfg->root_key(), L"Filters");
+	const auto root = cfg->FindByName(cfg->root_key(), Strings.Filters);
 
+	if (!root)
+		return;
+
+	const auto& LoadFlags = [](const auto& cfg, const auto& Key, const auto& Name, auto& Item)
 	{
-		static FileFilterParams _FoldersFilter;
-		FoldersFilter = &_FoldersFilter;
-		FoldersFilter->SetMask(false, L"*");
-		FoldersFilter->SetAttr(true, FILE_ATTRIBUTE_DIRECTORY, 0);
+		DWORD Flags[FFFT_COUNT]{};
+		cfg->GetValue(Key, Name, bytes::reference(Flags));
+		
+		for (DWORD i = FFFT_FIRST; i < FFFT_COUNT; i++)
+			Item.SetFlags(static_cast<enumFileFilterFlagsType>(i), Flags[i]);
+	};
 
-		if (!root)
-		{
-			return;
-		}
-
-		DWORD Flags[FFFT_COUNT] = {};
-		cfg->GetValue(root, L"FoldersFilterFFlags", bytes::reference(Flags));
-
-		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
-			FoldersFilter->SetFlags(static_cast<enumFileFilterFlagsType>(i), Flags[i]);
-	}
+	LoadFlags(cfg, root, Strings.FoldersFilterFFlags, *FoldersFilter);
 
 	for (;;)
 	{
-		const auto key = cfg->FindByName(root, L"Filter" + str(FilterData().size()));
-
-		if (!key || !cfg->GetValue(key,L"Title",strTitle))
+		const auto key = cfg->FindByName(root, Strings.Filter + str(FilterData().size()));
+		if (!key)
 			break;
 
 		FileFilterParams NewItem;
-
-		//Дефолтные значения выбраны так чтоб как можно правильней загрузить
-		//настройки старых версий фара.
-		NewItem.SetTitle(strTitle);
-
-		strMask.clear();
-		cfg->GetValue(key,L"Mask",strMask);
-		unsigned long long UseMask = 1;
-		cfg->GetValue(key, L"UseMask", UseMask);
-		NewItem.SetMask(UseMask != 0, strMask);
-
-		FILETIME DateAfter = {}, DateBefore = {};
-		cfg->GetValue(key,L"DateAfter", bytes::reference(DateAfter));
-		cfg->GetValue(key,L"DateBefore", bytes::reference(DateBefore));
-
-		unsigned long long UseDate = 0;
-		cfg->GetValue(key, L"UseDate", UseDate);
-		unsigned long long DateType = 0;
-		cfg->GetValue(key, L"DateType", DateType);
-		unsigned long long RelativeDate = 0;
-		cfg->GetValue(key, L"RelativeDate", RelativeDate);
-		NewItem.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateAfter, DateBefore, RelativeDate != 0);
-
-		strSizeAbove.clear();
-		cfg->GetValue(key,L"SizeAboveS",strSizeAbove);
-		strSizeBelow.clear();
-		cfg->GetValue(key,L"SizeBelowS",strSizeBelow);
-		unsigned long long UseSize = 0;
-		cfg->GetValue(key, L"UseSize", UseSize);
-		NewItem.SetSize(UseSize != 0, strSizeAbove, strSizeBelow);
-
-		unsigned long long UseHardLinks = 0;
-		cfg->GetValue(key, L"UseHardLinks", UseHardLinks);
-		unsigned long long HardLinksAbove = 0;
-		cfg->GetValue(key, L"HardLinksAbove", HardLinksAbove);
-		unsigned long long HardLinksBelow = 0;
-		cfg->GetValue(key, L"HardLinksAbove", HardLinksBelow);
-		NewItem.SetHardLinks(UseHardLinks != 0, HardLinksAbove, HardLinksBelow);
-
-		unsigned long long UseAttr = 1;
-		cfg->GetValue(key, L"UseAttr", UseAttr);
-		unsigned long long AttrSet = 0;
-		cfg->GetValue(key, L"AttrSet", AttrSet);
-		unsigned long long AttrClear = FILE_ATTRIBUTE_DIRECTORY;
-		cfg->GetValue(key, L"AttrClear", AttrClear);
-		NewItem.SetAttr(UseAttr != 0, (DWORD)AttrSet, (DWORD)AttrClear);
-
-		DWORD Flags[FFFT_COUNT] = {};
-		cfg->GetValue(key,L"FFlags", bytes::reference(Flags));
-
-		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
-			NewItem.SetFlags(static_cast<enumFileFilterFlagsType>(i), Flags[i]);
-
+		LoadFilter(cfg.get(), key.get(), NewItem);
+		LoadFlags(cfg, key, Strings.FFlags, NewItem);
 		FilterData().emplace_back(std::move(NewItem));
 	}
 
 	for (;;)
 	{
-		const auto key = cfg->FindByName(root, L"PanelMask" + str(TempFilterData().size()));
-
-		if (!key || !cfg->GetValue(key,L"Mask",strMask))
+		const auto key = cfg->FindByName(root, L"PanelMask"_sv + str(TempFilterData().size()));
+		if (!key)
 			break;
 
 		FileFilterParams NewItem;
 
-		NewItem.SetMask(true, strMask);
+		string Mask;
+		cfg->GetValue(key, Strings.Mask, Mask);
+		NewItem.SetMask(true, Mask);
+
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
 		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
-		DWORD Flags[FFFT_COUNT] = {};
-		cfg->GetValue(key,L"FFlags", bytes::reference(Flags));
 
-		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
-			NewItem.SetFlags(static_cast<enumFileFilterFlagsType>(i), Flags[i]);
+		LoadFlags(cfg, key, Strings.FFlags, NewItem);
 
 		TempFilterData().emplace_back(std::move(NewItem));
 	}
@@ -836,6 +904,72 @@ void FileFilter::CloseFilter()
 	FilterData().clear();
 	TempFilterData().clear();
 }
+void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, const FileFilterParams& Item)
+{
+	HierarchicalConfig::key Key(KeyId);
+
+	cfg->SetValue(Key, Strings.Title, Item.GetTitle());
+	cfg->SetValue(Key, Strings.UseMask, Item.IsMaskUsed());
+
+	// TODO 2018 Q2: remove
+	cfg->SetValue(Key, L"IgnoreMask"_sv, !Item.IsMaskUsed());
+
+	cfg->SetValue(Key, Strings.Mask, Item.GetMask());
+
+	DWORD DateType;
+	filter_dates Dates;
+	cfg->SetValue(Key, Strings.UseDate, Item.GetDate(&DateType, &Dates));
+	cfg->SetValue(Key, Strings.DateType, DateType);
+
+	Dates.visit(overload
+	(
+		[&](duration After, duration Before)
+		{
+			cfg->SetValue(Key, Strings.DateTimeAfter, After.count());
+			cfg->SetValue(Key, Strings.DateTimeBefore, Before.count());
+			cfg->SetValue(Key, Strings.DateRelative, true);
+
+			// TODO 2018 Q2: remove
+			cfg->SetValue(Key, L"DateAfter"_sv, bytes_view(After.count()));
+			// TODO 2018 Q2: remove
+			cfg->SetValue(Key, L"DateBefore"_sv, bytes_view(Before.count()));
+			// TODO 2018 Q2: remove
+			cfg->SetValue(Key, L"RelativeDate"_sv, true);
+		},
+		[&](time_point After, time_point Before)
+		{
+			cfg->SetValue(Key, Strings.DateTimeAfter, After.time_since_epoch().count());
+			cfg->SetValue(Key, Strings.DateTimeBefore, Before.time_since_epoch().count());
+			cfg->SetValue(Key, Strings.DateRelative, false);
+
+			// TODO 2018 Q2: remove
+			cfg->SetValue(Key, L"DateAfter"_sv, bytes_view(After.time_since_epoch().count()));
+			// TODO 2018 Q2: remove
+			cfg->SetValue(Key, L"DateBefore"_sv, bytes_view(Before.time_since_epoch().count()));
+			// TODO 2018 Q2: remove
+			cfg->SetValue(Key, L"RelativeDate"_sv, false);
+		}
+	));
+
+	cfg->SetValue(Key, Strings.UseSize, Item.IsSizeUsed());
+	cfg->SetValue(Key, Strings.SizeAbove, Item.GetSizeAbove());
+	cfg->SetValue(Key, Strings.SizeBelow, Item.GetSizeBelow());
+
+	DWORD HardLinksAbove,HardLinksBelow;
+	cfg->SetValue(Key, Strings.UseHardLinks, Item.GetHardLinks(&HardLinksAbove,&HardLinksBelow)? 1 : 0);
+	cfg->SetValue(Key, Strings.HardLinksAbove, HardLinksAbove);
+	cfg->SetValue(Key, Strings.HardLinksBelow, HardLinksBelow);
+
+	DWORD AttrSet, AttrClear;
+	cfg->SetValue(Key, Strings.UseAttr, Item.GetAttr(&AttrSet, &AttrClear));
+	cfg->SetValue(Key, Strings.AttrSet, AttrSet);
+	cfg->SetValue(Key, Strings.AttrClear, AttrClear);
+
+	// TODO 2018 Q2: remove
+	cfg->SetValue(Key, L"IncludeAttributes"_sv, AttrSet);
+	// TODO 2018 Q2: remove
+	cfg->SetValue(Key, L"ExcludeAttributes"_sv, AttrClear);
+}
 
 void FileFilter::Save(bool always)
 {
@@ -846,77 +980,49 @@ void FileFilter::Save(bool always)
 
 	const auto cfg = ConfigProvider().CreateFiltersConfig();
 
-	auto root = cfg->FindByName(cfg->root_key(), L"Filters");
+	auto root = cfg->FindByName(cfg->root_key(), Strings.Filters);
 	if (root)
 		cfg->DeleteKeyTree(root);
 
-	root = cfg->CreateKey(cfg->root_key(), L"Filters");
+	root = cfg->CreateKey(cfg->root_key(), Strings.Filters);
 	if (!root)
-	{
 		return;
-	}
+
+	const auto& SaveFlags = [](const auto& cfg, const auto& Key, const auto& Name, const auto& Item)
+	{
+		DWORD Flags[FFFT_COUNT];
+
+		for (DWORD j = FFFT_FIRST; j < FFFT_COUNT; j++)
+			Flags[j] = Item.GetFlags(static_cast<enumFileFilterFlagsType>(j));
+
+		cfg->SetValue(Key, Name, bytes_view(Flags));
+	};
 
 	for (size_t i=0; i<FilterData().size(); ++i)
 	{
-		const auto Key = cfg->CreateKey(root, L"Filter" + str(i));
+		const auto Key = cfg->CreateKey(root, Strings.Filter + str(i));
 		if (!Key)
 			break;
+
 		const auto& CurFilterData = FilterData()[i];
 
-		cfg->SetValue(Key, L"Title",CurFilterData.GetTitle());
-		cfg->SetValue(Key, L"UseMask", CurFilterData.IsMaskUsed());
-		cfg->SetValue(Key, L"Mask", CurFilterData.GetMask());
-		DWORD DateType;
-		FILETIME DateAfter, DateBefore;
-		bool bRelative;
-		cfg->SetValue(Key, L"UseDate",CurFilterData.GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)? 1 : 0);
-		cfg->SetValue(Key, L"DateType", DateType);
-		cfg->SetValue(Key, L"DateAfter", bytes_view(DateAfter));
-		cfg->SetValue(Key, L"DateBefore", bytes_view(DateBefore));
-		cfg->SetValue(Key, L"RelativeDate", bRelative?1:0);
-		cfg->SetValue(Key, L"UseSize", CurFilterData.IsSizeUsed());
-		cfg->SetValue(Key, L"SizeAboveS", CurFilterData.GetSizeAbove());
-		cfg->SetValue(Key, L"SizeBelowS", CurFilterData.GetSizeBelow());
-		DWORD HardLinksAbove,HardLinksBelow;
-		cfg->SetValue(Key, L"UseHardLinks", CurFilterData.GetHardLinks(&HardLinksAbove,&HardLinksBelow)? 1 : 0);
-		cfg->SetValue(Key, L"HardLinksAboveS", HardLinksAbove);
-		cfg->SetValue(Key, L"HardLinksBelowS", HardLinksBelow);
-		DWORD AttrSet, AttrClear;
-		cfg->SetValue(Key, L"UseAttr", CurFilterData.GetAttr(&AttrSet, &AttrClear)? 1 : 0);
-		cfg->SetValue(Key, L"AttrSet", AttrSet);
-		cfg->SetValue(Key, L"AttrClear", AttrClear);
-		DWORD Flags[FFFT_COUNT];
-
-		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
-			Flags[j] = CurFilterData.GetFlags((enumFileFilterFlagsType)j);
-
-		cfg->SetValue(Key, L"FFlags", bytes_view(Flags));
+		SaveFilter(cfg.get(), Key.get(), CurFilterData);
+		SaveFlags(cfg, Key, Strings.FFlags, CurFilterData);
 	}
 
 	for (size_t i=0; i<TempFilterData().size(); ++i)
 	{
-		const auto Key = cfg->CreateKey(root, L"PanelMask" + str(i));
+		const auto Key = cfg->CreateKey(root, L"PanelMask"_sv + str(i));
 		if (!Key)
 			break;
+
 		const auto& CurFilterData = TempFilterData()[i];
 
-		cfg->SetValue(Key, L"Mask", CurFilterData.GetMask());
-		DWORD Flags[FFFT_COUNT];
-
-		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
-			Flags[j] = CurFilterData.GetFlags((enumFileFilterFlagsType)j);
-
-		cfg->SetValue(Key, L"FFlags", bytes_view(Flags));
+		cfg->SetValue(Key, Strings.Mask, CurFilterData.GetMask());
+		SaveFlags(cfg, Key, Strings.FFlags, CurFilterData);
 	}
 
-	{
-		DWORD Flags[FFFT_COUNT];
-
-		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
-			Flags[i] = FoldersFilter->GetFlags((enumFileFilterFlagsType)i);
-
-		cfg->SetValue(root,L"FoldersFilterFFlags", bytes_view(Flags));
-	}
+	SaveFlags(cfg, root, Strings.FoldersFilterFFlags, *FoldersFilter);
 }
 
 void FileFilter::SwapPanelFlags(FileFilterParams& CurFilterData)

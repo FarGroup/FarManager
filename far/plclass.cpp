@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "configdb.hpp"
+#include "datetime.hpp"
 
 std::exception_ptr& GlobalExceptionPtr()
 {
@@ -436,7 +437,7 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 
 static auto MakeSignature(const os::fs::find_data& Data)
 {
-	return concat(to_hex_wstring(Data.nFileSize), to_hex_wstring(Data.ftCreationTime.dwLowDateTime), to_hex_wstring(Data.ftLastWriteTime.dwLowDateTime));
+	return concat(to_hex_wstring(Data.nFileSize), to_hex_wstring(nt_clock::to_filetime(Data.CreationTime).dwLowDateTime), to_hex_wstring(nt_clock::to_filetime(Data.LastWriteTime).dwLowDateTime));
 }
 
 bool Plugin::SaveToCache()

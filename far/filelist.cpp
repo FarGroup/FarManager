@@ -97,6 +97,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilterparams.hpp"
 #include "desktop.hpp"
 
+int CompareTime(time_point First, time_point Second)
+{
+	return First == Second? 0 : First < Second? -1 : 1;
+};
+
 static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
 static panel_sort ListSortMode(panel_sort::UNSORTED);
 static bool RevertSorting;
@@ -133,10 +138,10 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	pi.FileSize=fi.FileSize;
 	pi.AllocationSize=fi.AllocationSize;
 	pi.FileAttributes=fi.FileAttr;
-	pi.LastWriteTime=fi.WriteTime;
-	pi.CreationTime=fi.CreationTime;
-	pi.LastAccessTime=fi.AccessTime;
-	pi.ChangeTime=fi.ChangeTime;
+	pi.LastWriteTime = nt_clock::to_filetime(fi.WriteTime);
+	pi.CreationTime = nt_clock::to_filetime(fi.CreationTime);
+	pi.LastAccessTime = nt_clock::to_filetime(fi.AccessTime);
+	pi.ChangeTime = nt_clock::to_filetime(fi.ChangeTime);
 	pi.Flags=fi.UserFlags;
 
 	if (fi.Selected)
@@ -547,9 +552,9 @@ public:
 			}
 		}
 
-		const auto& CompareTime = [&a, &b](const FILETIME FileListItem::*time)
+		const auto& CompareTime = [&a, &b](const auto FileListItem::*time)
 		{
-			return CompareFileTime(std::invoke(time, a), std::invoke(time, b));
+			return ::CompareTime(std::invoke(time, a), std::invoke(time, b));
 		};
 
 		const auto& GetExt = [](const FileListItem& i)
@@ -1091,7 +1096,7 @@ public:
 
 private:
 	// TODO: Check the file size too?
-	std::pair<FILETIME, FILETIME> Times;
+	std::pair<time_point, time_point> Times;
 	bool IsValid{};
 };
 
@@ -3696,7 +3701,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 					case ADATE_COLUMN:
 					case CHDATE_COLUMN:
 					{
-						FILETIME *FileTime;
+						time_point* FileTime;
 
 						switch (ColumnType)
 						{
@@ -3717,7 +3722,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 								break;
 						}
 
-						Dest += FormatStr_DateTime(FileTime,ColumnType,ColumnTypes[K],ColumnWidth);
+						Dest += FormatStr_DateTime(*FileTime, ColumnType, ColumnTypes[K], ColumnWidth);
 						break;
 					}
 
@@ -3803,10 +3808,10 @@ bool FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName
 			if (fde)
 			{
 				fde->dwFileAttributes=m_ListData[m_CurFile].FileAttr;
-				fde->ftCreationTime=m_ListData[m_CurFile].CreationTime;
-				fde->ftLastAccessTime=m_ListData[m_CurFile].AccessTime;
-				fde->ftLastWriteTime=m_ListData[m_CurFile].WriteTime;
-				fde->ftChangeTime=m_ListData[m_CurFile].ChangeTime;
+				fde->CreationTime = m_ListData[m_CurFile].CreationTime;
+				fde->LastAccessTime = m_ListData[m_CurFile].AccessTime;
+				fde->LastWriteTime = m_ListData[m_CurFile].WriteTime;
+				fde->ChangeTime = m_ListData[m_CurFile].ChangeTime;
 				fde->nFileSize=m_ListData[m_CurFile].FileSize;
 				fde->nAllocationSize=m_ListData[m_CurFile].AllocationSize;
 				fde->strFileName = m_ListData[m_CurFile].strName;
@@ -3843,10 +3848,10 @@ bool FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName
 			if (fde)
 			{
 				fde->dwFileAttributes = PrevItem.FileAttr;
-				fde->ftCreationTime = PrevItem.CreationTime;
-				fde->ftLastAccessTime = PrevItem.AccessTime;
-				fde->ftLastWriteTime = PrevItem.WriteTime;
-				fde->ftChangeTime = PrevItem.ChangeTime;
+				fde->CreationTime = PrevItem.CreationTime;
+				fde->LastAccessTime = PrevItem.AccessTime;
+				fde->LastWriteTime = PrevItem.WriteTime;
+				fde->ChangeTime = PrevItem.ChangeTime;
 				fde->nFileSize = PrevItem.FileSize;
 				fde->nAllocationSize = PrevItem.AllocationSize;
 				fde->strFileName = PrevItem.strName;
@@ -4271,11 +4276,12 @@ void FileList::CompareDir()
 				if (CompareFatTime)
 				{
 					WORD DosDate,DosTime,AnotherDosDate,AnotherDosTime;
-					FileTimeToDosDateTime(&i.WriteTime,&DosDate,&DosTime);
-					FileTimeToDosDateTime(&j.WriteTime,&AnotherDosDate,&AnotherDosTime);
-					DWORD FullDosTime,AnotherFullDosTime;
-					FullDosTime=((DWORD)DosDate<<16)+DosTime;
-					AnotherFullDosTime=((DWORD)AnotherDosDate<<16)+AnotherDosTime;
+					const auto iTime = nt_clock::to_filetime(i.WriteTime);
+					const auto jTime = nt_clock::to_filetime(j.WriteTime);
+					FileTimeToDosDateTime(&iTime, &DosDate, &DosTime);
+					FileTimeToDosDateTime(&jTime, &AnotherDosDate, &AnotherDosTime);
+					DWORD FullDosTime = MAKELONG(DosTime, DosDate);
+					DWORD AnotherFullDosTime = MAKELONG(AnotherDosTime, AnotherDosDate);
 					int D=FullDosTime-AnotherFullDosTime;
 
 					if (D>=-1 && D<=1)
@@ -4285,7 +4291,7 @@ void FileList::CompareDir()
 				}
 				else
 				{
-					Cmp = CompareFileTime(i.WriteTime, j.WriteTime);
+					Cmp = CompareTime(i.WriteTime, j.WriteTime);
 				}
 
 				if (!Cmp && (i.FileSize != j.FileSize))
@@ -5510,10 +5516,10 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	pi.FileSize=fi.FileSize;
 	pi.AllocationSize=fi.AllocationSize;
 	pi.FileAttributes=fi.FileAttr;
-	pi.LastWriteTime=fi.WriteTime;
-	pi.CreationTime=fi.CreationTime;
-	pi.LastAccessTime=fi.AccessTime;
-	pi.ChangeTime=fi.ChangeTime;
+	pi.LastWriteTime = nt_clock::to_filetime(fi.WriteTime);
+	pi.CreationTime = nt_clock::to_filetime(fi.CreationTime);
+	pi.LastAccessTime = nt_clock::to_filetime(fi.AccessTime);
+	pi.ChangeTime = nt_clock::to_filetime(fi.ChangeTime);
 	pi.NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 	pi.Flags=fi.UserFlags;
 
@@ -5550,10 +5556,10 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			gpi->Item->FileSize=fi.FileSize;
 			gpi->Item->AllocationSize=fi.AllocationSize;
 			gpi->Item->FileAttributes=fi.FileAttr;
-			gpi->Item->LastWriteTime=fi.WriteTime;
-			gpi->Item->CreationTime=fi.CreationTime;
-			gpi->Item->LastAccessTime=fi.AccessTime;
-			gpi->Item->ChangeTime=fi.ChangeTime;
+			gpi->Item->LastWriteTime = nt_clock::to_filetime(fi.WriteTime);
+			gpi->Item->CreationTime = nt_clock::to_filetime(fi.CreationTime);
+			gpi->Item->LastAccessTime = nt_clock::to_filetime(fi.AccessTime);
+			gpi->Item->ChangeTime = nt_clock::to_filetime(fi.ChangeTime);
 			gpi->Item->NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 			gpi->Item->Flags=fi.UserFlags;
 			if (fi.Selected)
@@ -5612,10 +5618,10 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 
 FileListItem::FileListItem(const PluginPanelItem& pi)
 {
-	CreationTime = pi.CreationTime;
-	AccessTime = pi.LastAccessTime;
-	WriteTime = pi.LastWriteTime;
-	ChangeTime = pi.ChangeTime;
+	CreationTime = nt_clock::from_filetime(pi.CreationTime);
+	AccessTime = nt_clock::from_filetime(pi.LastAccessTime);
+	WriteTime = nt_clock::from_filetime(pi.LastWriteTime);
+	ChangeTime = nt_clock::from_filetime(pi.ChangeTime);
 
 	FileSize = pi.FileSize;
 	AllocationSize = pi.AllocationSize;
@@ -6751,10 +6757,10 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				FileListItem NewItem{};
 
 				NewItem.FileAttr = fdata.dwFileAttributes;
-				NewItem.CreationTime = fdata.ftCreationTime;
-				NewItem.AccessTime = fdata.ftLastAccessTime;
-				NewItem.WriteTime = fdata.ftLastWriteTime;
-				NewItem.ChangeTime = fdata.ftChangeTime;
+				NewItem.CreationTime = fdata.CreationTime;
+				NewItem.AccessTime = fdata.LastAccessTime;
+				NewItem.WriteTime = fdata.LastWriteTime;
+				NewItem.ChangeTime = fdata.ChangeTime;
 				NewItem.FileSize = fdata.nFileSize;
 				NewItem.AllocationSize = fdata.nAllocationSize;
 				NewItem.strName = fdata.strFileName;
@@ -6838,7 +6844,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network.Id))) // NetWork Plugin
 	{
-		FILETIME TwoDotsTimes[4]{};
+		time_point TwoDotsTimes[4];
 		os::fs::GetFileTimeSimple(m_CurDir, &TwoDotsTimes[0], &TwoDotsTimes[1], &TwoDotsTimes[2], &TwoDotsTimes[3]);
 
 		FileListItem NewItem;
@@ -7186,10 +7192,10 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 				if (os::fs::get_find_data(m_CachedOpenPanelInfo.HostFile, FindData))
 				{
-					NewItem.WriteTime = FindData.ftLastWriteTime;
-					NewItem.CreationTime = FindData.ftCreationTime;
-					NewItem.AccessTime = FindData.ftLastAccessTime;
-					NewItem.ChangeTime = FindData.ftChangeTime;
+					NewItem.WriteTime = FindData.LastWriteTime;
+					NewItem.CreationTime = FindData.CreationTime;
+					NewItem.AccessTime = FindData.LastAccessTime;
+					NewItem.ChangeTime = FindData.ChangeTime;
 				}
 			}
 			m_ListData.emplace_back(std::move(NewItem));
@@ -7358,7 +7364,7 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 }
 
 // занести предопределенные данные для каталога ".."
-void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const FILETIME* Times)
+void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const time_point* Times)
 {
 	Item.FileAttr = FILE_ATTRIBUTE_DIRECTORY;
 	Item.strName = L"..";
@@ -8540,7 +8546,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case ADATE_COLUMN:
 						case CHDATE_COLUMN:
 						{
-							FILETIME *FileTime;
+							time_point* FileTime;
 
 							switch (ColumnType)
 							{
@@ -8561,7 +8567,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									break;
 							}
 
-							Text(FormatStr_DateTime(FileTime,ColumnType,Columns[K].type,ColumnWidth));
+							Text(FormatStr_DateTime(*FileTime, ColumnType, Columns[K].type, ColumnWidth));
 							break;
 						}
 

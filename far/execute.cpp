@@ -990,7 +990,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					DWORD dwControlKeyState;
 
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
-					while (!Process.wait(100))
+					while (!Process.wait(100ms))
 					{
 						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console().PeekInput(ir, 256, rd) && rd)
 						{

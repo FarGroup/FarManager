@@ -4620,14 +4620,14 @@ static bool panelitemFunc(FarMacroCall* Data)
 			case 14:  // Position
 				PassNumber(filelistItem->Position, Data);
 				return false;
-			case 15:  // CreationTime (FILETIME)
-				PassInteger(FileTimeToUI64(filelistItem->CreationTime), Data);
+			case 15:  // CreationTime
+				PassInteger(filelistItem->CreationTime.time_since_epoch().count(), Data);
 				return false;
-			case 16:  // AccessTime (FILETIME)
-				PassInteger(FileTimeToUI64(filelistItem->AccessTime), Data);
+			case 16:  // AccessTime
+				PassInteger(filelistItem->AccessTime.time_since_epoch().count(), Data);
 				return false;
-			case 17:  // WriteTime (FILETIME)
-				PassInteger(FileTimeToUI64(filelistItem->WriteTime), Data);
+			case 17:  // WriteTime
+				PassInteger(filelistItem->WriteTime.time_since_epoch().count(), Data);
 				return false;
 			case 18: // NumberOfStreams
 				PassNumber(filelistItem->NumberOfStreams(fileList.get()), Data);
@@ -4639,18 +4639,16 @@ static bool panelitemFunc(FarMacroCall* Data)
 				ConvertDate(filelistItem->ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE);
 				Ret = concat(strDate, L' ', strTime);
 				break;
-			case 21:  // ChangeTime (FILETIME)
-				PassInteger(FileTimeToUI64(filelistItem->ChangeTime), Data);
+			case 21:  // ChangeTime
+				PassInteger(filelistItem->ChangeTime.time_since_epoch().count(), Data);
 				return false;
 			case 22:  // ContentData (was: CustomData)
 				//Ret=TVar(filelistItem->ContentData.size() ? filelistItem->ContentData[0] : L"");
 				Ret=TVar(L"");
 				break;
 			case 23:  // ReparseTag
-			{
 				PassNumber(filelistItem->ReparseTag, Data);
 				return false;
-			}
 		}
 	}
 

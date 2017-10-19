@@ -524,7 +524,9 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, i.Process.dwProcessId)))
 							{
 								FILETIME ftCreate, ftExit, ftKernel, ftUser;
-								if (GetProcessTimes(Process.native_handle(), &ftCreate, &ftExit, &ftKernel, &ftUser) && i.Process.ProcessStartTime == ftCreate)
+								if (GetProcessTimes(Process.native_handle(), &ftCreate, &ftExit, &ftKernel, &ftUser) &&
+									i.Process.ProcessStartTime.dwLowDateTime == ftCreate.dwLowDateTime &&
+									i.Process.ProcessStartTime.dwHighDateTime == ftCreate.dwHighDateTime)
 								{
 									string Name;
 									if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))

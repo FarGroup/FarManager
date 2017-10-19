@@ -1,14 +1,9 @@
-﻿#ifndef FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
-#define FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
-#pragma once
+﻿/*
+platform.chrono.cpp
 
-/*
-filesystemwatcher.hpp
-
-Класс FileSystemWatcher
 */
 /*
-Copyright © 2012 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,33 +29,40 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
+#include "headers.hpp"
+#pragma hdrstop
 
-class FileSystemWatcher: noncopyable
+#include "platform.chrono.hpp"
+
+nt_clock::time_point nt_clock::now() noexcept
 {
-public:
-	FileSystemWatcher();
-	~FileSystemWatcher();
-	void Set(const string& Directory, bool WatchSubtree);
-	void Watch(bool got_focus=false, bool check_time=true);
-	void Release();
-	bool Signaled() const;
+	FILETIME Time;
+	GetSystemTimeAsFileTime(&Time);
+	return from_filetime(Time);
+}
 
-private:
-	void Register();
-	void PropagateException() const;
+static nt_clock::duration posix_shift()
+{
+	return std::chrono::seconds{ 11644473600 };
+}
 
-	string m_Directory;
-	time_point m_PreviousLastWriteTime;
-	time_point m_CurrentLastWriteTime;
-	bool m_WatchSubtree;
-	mutable os::thread m_RegistrationThread;
-	os::fs::find_notification_handle m_Notification;
-	os::event m_Cancelled;
-	// TODO: optional
-	std::pair<bool, bool> m_IsFatFilesystem;
-	mutable std::exception_ptr m_ExceptionPtr;
-	bool m_IsRegularException{};
-};
+time_t nt_clock::to_time_t(const time_point& Time) noexcept
+{
+	return std::chrono::duration_cast<std::chrono::seconds>(Time.time_since_epoch() - posix_shift()).count();
+}
 
-#endif // FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
+time_point nt_clock::from_time_t(time_t Time) noexcept
+{
+	return time_point(posix_shift() + std::chrono::seconds(Time));
+}
+
+FILETIME nt_clock::to_filetime(const time_point& Time) noexcept
+{
+	const auto Count = Time.time_since_epoch().count();
+	return { static_cast<DWORD>(Count), static_cast<DWORD>(Count >> 32) };
+}
+
+time_point nt_clock::from_filetime(FILETIME Time) noexcept
+{
+	return time_point(duration(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime));
+}

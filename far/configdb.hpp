@@ -288,7 +288,7 @@ public:
 	virtual ~HistoryConfig() override = default;
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long *id, string &strName, history_record_type* Type, bool *Lock, unsigned long long *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
+	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) = 0;
 	virtual bool Delete(unsigned long long id) = 0;
 	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string_view& HistoryName, const string_view& strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
 	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string_view& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
@@ -321,7 +321,7 @@ public:
 		string Name;
 		history_record_type Type;
 		bool Lock;
-		unsigned long long Time;
+		time_point Time;
 		string Guid;
 		string File;
 		string Data;
@@ -333,7 +333,7 @@ public:
 		using value_type = enum_data;
 		return make_inline_enumerator<value_type>([this, HistoryType, &HistoryName, Reverse](size_t Index, value_type& Value)
 		{
-			return Enum(static_cast<DWORD>(Index), HistoryType, HistoryName, &Value.Id, Value.Name, &Value.Type, &Value.Lock, &Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
+			return Enum(static_cast<DWORD>(Index), HistoryType, HistoryName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
 		});
 	}
 

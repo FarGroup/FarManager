@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/zip_view.hpp"
 #include "common/bytes_view.hpp"
 #include "common/singleton.hpp"
+#include "common/chrono.hpp"
 
 // TODO: clean up & split
 

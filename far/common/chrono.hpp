@@ -1,14 +1,12 @@
-﻿#ifndef FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
-#define FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
+﻿#ifndef CHRONO_HPP_D4A71D62_47D4_45B1_B667_84D6E1E31A14
+#define CHRONO_HPP_D4A71D62_47D4_45B1_B667_84D6E1E31A14
 #pragma once
 
 /*
-filesystemwatcher.hpp
-
-Класс FileSystemWatcher
+chrono.hpp
 */
 /*
-Copyright © 2012 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,33 +32,34 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
-
-class FileSystemWatcher: noncopyable
+template<typename... tuple_types>
+class split_duration: public std::tuple<tuple_types...>
 {
 public:
-	FileSystemWatcher();
-	~FileSystemWatcher();
-	void Set(const string& Directory, bool WatchSubtree);
-	void Watch(bool got_focus=false, bool check_time=true);
-	void Release();
-	bool Signaled() const;
+	template<typename duration_type>
+	split_duration(duration_type Duration)
+	{
+		split<0, duration_type, tuple_types...>(Duration);
+	}
 
 private:
-	void Register();
-	void PropagateException() const;
+	template<size_t Index, typename duration_type>
+	void split(duration_type) const
+	{
+	}
 
-	string m_Directory;
-	time_point m_PreviousLastWriteTime;
-	time_point m_CurrentLastWriteTime;
-	bool m_WatchSubtree;
-	mutable os::thread m_RegistrationThread;
-	os::fs::find_notification_handle m_Notification;
-	os::event m_Cancelled;
-	// TODO: optional
-	std::pair<bool, bool> m_IsFatFilesystem;
-	mutable std::exception_ptr m_ExceptionPtr;
-	bool m_IsRegularException{};
+	template<size_t Index, typename duration_type, typename arg, typename... args>
+	void split(duration_type Duration)
+	{
+		const auto Value = std::chrono::duration_cast<arg>(Duration);
+		std::get<Index>(*this) = Value;
+		split<Index + 1, duration_type, args...>(Duration - Value);
+	}
 };
 
-#endif // FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
+namespace chrono
+{
+	using days = std::chrono::duration<int, std::ratio_multiply<std::ratio<24>, std::chrono::hours::period>>;
+}
+
+#endif // CHRONO_HPP_D4A71D62_47D4_45B1_B667_84D6E1E31A14

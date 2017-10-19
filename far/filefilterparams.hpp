@@ -75,6 +75,28 @@ enum enumFDateType
 	FDATE_COUNT, // всегда последний !!!
 };
 
+class filter_dates: public conditional<filter_dates>
+{
+public:
+	explicit filter_dates(duration After = {}, duration Before = {});
+	explicit filter_dates(time_point After, time_point Before);
+
+	bool operator!() const;
+
+	template<typename callable>
+	decltype(auto) visit(const callable& Callable) const
+	{
+		return m_Relative?
+			Callable(m_After, m_Before) :
+			Callable(time_point(m_After), time_point(m_Before));
+	}
+
+private:
+	duration m_After;
+	duration m_Before;
+	bool m_Relative;
+};
+
 class FileFilterParams
 {
 public:
@@ -87,7 +109,7 @@ public:
 
 	void SetTitle(const string& Title);
 	void SetMask(bool Used, const string& Mask);
-	void SetDate(bool Used, enumFDateType DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
+	void SetDate(bool Used, enumFDateType DateType, const filter_dates& Dates);
 	void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
 	void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
 	void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
@@ -100,7 +122,7 @@ public:
 	const string& GetTitle() const;
 	const string& GetMask() const { return FMask.strMask; }
 	bool IsMaskUsed() const { return FMask.Used; }
-	bool  GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
+	bool GetDate(DWORD* DateType, filter_dates* Dates) const;
 	bool IsSizeUsed() const {return FSize.Used;}
 	const string& GetSizeAbove() const {return FSize.SizeAbove;}
 	const string& GetSizeBelow() const {return FSize.SizeBelow;}
@@ -118,13 +140,13 @@ public:
 	// попадает ли файл fd под условие установленного фильтра.
 	// Возвращает true  - попадает;
 	//            false - не попадает.
-	bool FileInFilter(const FileListItem* fli, const FileList* Owner, unsigned long long CurrentTime) const;
-	bool FileInFilter(const os::fs::find_data& fde, unsigned long long CurrentTime,const string* FullName=nullptr) const; //Used in dirinfo, copy, findfile
-	bool FileInFilter(const PluginPanelItem& fd, unsigned long long CurrentTime) const;
+	bool FileInFilter(const FileListItem* fli, const FileList* Owner, time_point CurrentTime) const;
+	bool FileInFilter(const os::fs::find_data& fde, time_point CurrentTime, const string* FullName = nullptr) const; //Used in dirinfo, copy, findfile
+	bool FileInFilter(const PluginPanelItem& fd, time_point CurrentTime) const;
 
 
 private:
-	bool FileInFilter(struct filter_file_object& Object, unsigned long long CurrentTime, const std::function<void(filter_file_object&)>& Getter) const;
+	bool FileInFilter(struct filter_file_object& Object, time_point CurrentTime, const std::function<void(filter_file_object&)>& Getter) const;
 
 	string m_strTitle;
 
@@ -137,11 +159,9 @@ private:
 
 	struct
 	{
-		unsigned long long DateAfter;
-		unsigned long long DateBefore;
+		filter_dates Dates;
 		enumFDateType DateType;
 		bool Used;
-		bool bRelative;
 	} FDate;
 
 	struct

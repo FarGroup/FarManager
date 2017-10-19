@@ -52,51 +52,39 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "filefilterparams.hpp"
 #include "lang.hpp"
-#include "datetime.hpp"
 #include "DlgGuid.hpp"
 #include "elevation.hpp"
+#include "filefilter.hpp"
 
 static const struct
 {
-	const wchar_t *UseAttr,*IncludeAttributes,*ExcludeAttributes,*AttrSet,*AttrClear,
-	*IgnoreMask,*UseMask,*Mask,
+	const string_view
 
-	*NormalColor,
-	*SelectedColor,
-	*CursorColor,
-	*SelectedCursorColor,
-	*MarkCharNormalColor,
-	*MarkCharSelectedColor,
-	*MarkCharCursorColor,
-	*MarkCharSelectedCursorColor,
-
-	*MarkChar,
-	*ContinueProcessing,
-	*UseDate,*DateType,*DateAfter,*DateBefore,*DateRelative,
-	*UseSize,*SizeAbove,*SizeBelow,
-	*UseHardLinks,*HardLinksAbove,*HardLinksBelow,
-	*HighlightEdit,*HighlightList;
+	NormalColor,
+	SelectedColor,
+	CursorColor,
+	SelectedCursorColor,
+	MarkCharNormalColor,
+	MarkCharSelectedColor,
+	MarkCharCursorColor,
+	MarkCharSelectedCursorColor,
+	MarkChar,
+	ContinueProcessing,
+	HighlightEdit,HighlightList;
 }
 HLS =
 {
-	L"UseAttr",L"IncludeAttributes",L"ExcludeAttributes",L"AttrSet",L"AttrClear",
-	L"IgnoreMask",L"UseMask",L"Mask",
-
-	L"NormalColor",
-	L"SelectedColor",
-	L"CursorColor",
-	L"SelectedCursorColor",
-	L"MarkCharNormalColor",
-	L"MarkCharSelectedColor",
-	L"MarkCharCursorColor",
-	L"MarkCharSelectedCursorColor",
-
-	L"MarkChar",
-	L"ContinueProcessing",
-	L"UseDate",L"DateType",L"DateAfter",L"DateBefore",L"DateRelative",
-	L"UseSize",L"SizeAboveS",L"SizeBelowS",
-	L"UseHardLinks",L"HardLinksAbove",L"HardLinksBelow",
-	L"HighlightEdit",L"HighlightList"
+	L"NormalColor"_sv,
+	L"SelectedColor"_sv,
+	L"CursorColor"_sv,
+	L"SelectedCursorColor"_sv,
+	L"MarkCharNormalColor"_sv,
+	L"MarkCharSelectedColor"_sv,
+	L"MarkCharCursorColor"_sv,
+	L"MarkCharSelectedCursorColor"_sv,
+	L"MarkChar"_sv,
+	L"ContinueProcessing"_sv,
+	L"HighlightEdit"_sv,L"HighlightList"_sv
 };
 
 static const wchar_t fmtFirstGroup[]=L"Group";
@@ -167,17 +155,19 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 		i.CursorColor = colors::ConsoleColorToFarColor(i.InitCC);
 		MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
 
-		const auto Key = cfg->CreateKey(root, L"Group" + str(Index++));
+		const auto Key = cfg->CreateKey(root, L"Group"_sv + str(Index++));
 		if (!Key)
 			break;
-		cfg->SetValue(Key, HLS.Mask, i.Mask);
-		cfg->SetValue(Key, HLS.IgnoreMask, i.IgnoreMask);
-		cfg->SetValue(Key, HLS.IncludeAttributes, i.IncludeAttr);
+
+		FileFilterParams Params;
+		Params.SetMask(!i.IgnoreMask, i.Mask);
+		Params.SetAttr(i.IncludeAttr != 0, i.IncludeAttr, 0);
+		FileFilter::SaveFilter(cfg, Key.get(), Params);
 
 		cfg->SetValue(Key, HLS.NormalColor, bytes_view(i.NormalColor));
 		cfg->SetValue(Key, HLS.CursorColor, bytes_view(i.CursorColor));
 
-		static const wchar_t* const Names[] =
+		static const string_view Names[] =
 		{
 			HLS.SelectedColor,
 			HLS.SelectedCursorColor,
@@ -204,71 +194,9 @@ highlight::configuration::configuration()
 	UpdateCurrentTime();
 }
 
-static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, const string& Mask, int SortGroup, bool bSortGroup)
+static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup)
 {
-	//Дефолтные значения выбраны так чтоб как можно правильней загрузить
-	//настройки старых версий фара.
-	if (bSortGroup)
-	{
-		unsigned long long UseMask = 1;
-		cfg->GetValue(key, HLS.UseMask, UseMask);
-		HData.SetMask(UseMask!=0, Mask);
-	}
-	else
-	{
-		unsigned long long IgnoreMask = 0;
-		cfg->GetValue(key, HLS.IgnoreMask, IgnoreMask);
-		HData.SetMask(IgnoreMask==0, Mask);
-	}
-
-	FILETIME DateAfter = {};
-	cfg->GetValue(key,HLS.DateAfter, bytes::reference(DateAfter));
-	FILETIME DateBefore = {};
-	cfg->GetValue(key,HLS.DateBefore, bytes::reference(DateBefore));
-	unsigned long long UseDate = 0;
-	cfg->GetValue(key, HLS.UseDate, UseDate);
-	unsigned long long DateType = 0;
-	cfg->GetValue(key, HLS.DateType, DateType);
-	unsigned long long DateRelative = 0;
-	cfg->GetValue(key, HLS.DateRelative, DateRelative);
-	HData.SetDate(UseDate!=0, static_cast<enumFDateType>(DateType), DateAfter, DateBefore, DateRelative!=0);
-
-	string strSizeAbove;
-	cfg->GetValue(key,HLS.SizeAbove,strSizeAbove);
-	string strSizeBelow;
-	cfg->GetValue(key,HLS.SizeBelow,strSizeBelow);
-	unsigned long long UseSize = 0;
-	cfg->GetValue(key, HLS.UseSize, UseSize);
-	HData.SetSize(UseSize!=0, strSizeAbove, strSizeBelow);
-
-	unsigned long long UseHardLinks = 0;
-	cfg->GetValue(key, HLS.UseHardLinks, UseHardLinks);
-	unsigned long long HardLinksAbove = 0;
-	cfg->GetValue(key, HLS.HardLinksAbove, HardLinksAbove);
-	unsigned long long HardLinksBelow = 0;
-	cfg->GetValue(key, HLS.HardLinksBelow, HardLinksBelow);
-	HData.SetHardLinks(UseHardLinks!=0,HardLinksAbove,HardLinksBelow);
-
-	if (bSortGroup)
-	{
-		unsigned long long UseAttr = 1;
-		cfg->GetValue(key, HLS.UseAttr, UseAttr);
-		unsigned long long AttrSet = 0;
-		cfg->GetValue(key, HLS.AttrSet, AttrSet);
-		unsigned long long AttrClear = FILE_ATTRIBUTE_DIRECTORY;
-		cfg->GetValue(key, HLS.AttrClear, AttrClear);
-		HData.SetAttr(UseAttr!=0, (DWORD)AttrSet, (DWORD)AttrClear);
-	}
-	else
-	{
-		unsigned long long UseAttr = 1;
-		cfg->GetValue(key, HLS.UseAttr, UseAttr);
-		unsigned long long IncludeAttributes = 0;
-		cfg->GetValue(key, HLS.IncludeAttributes, IncludeAttributes);
-		unsigned long long ExcludeAttributes = 0;
-		cfg->GetValue(key, HLS.ExcludeAttributes, ExcludeAttributes);
-		HData.SetAttr(UseAttr!=0, (DWORD)IncludeAttributes, (DWORD)ExcludeAttributes);
-	}
+	FileFilter::LoadFilter(cfg, key.get(), HData);
 
 	HData.SetSortGroup(SortGroup);
 
@@ -327,12 +255,8 @@ void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
 			if (!key)
 				break;
 
-			string strMask;
-			if (!cfg->GetValue(key,HLS.Mask,strMask))
-				break;
-
 			FileFilterParams NewItem;
-			LoadFilter(cfg, key, NewItem, strMask, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
+			LoadFilter(cfg, key, NewItem, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
 			HiData.emplace_back(std::move(NewItem));
 			++*Item.Count;
 		}
@@ -469,7 +393,7 @@ void highlight::configuration::ApplyFinalColor(highlight::element::colors_array:
 
 void highlight::configuration::UpdateCurrentTime()
 {
-	CurrentTime = GetCurrentUTCTimeInUI64();
+	CurrentTime = nt_clock::now();
 }
 
 const highlight::element* highlight::configuration::GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting)
@@ -839,36 +763,8 @@ void highlight::configuration::HiEdit(int MenuPos)
 
 static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& key, FileFilterParams *CurHiData, bool bSortGroup)
 {
-	if (bSortGroup)
-	{
-		cfg->SetValue(key,HLS.UseMask, CurHiData->IsMaskUsed());
-		cfg->SetValue(key, HLS.Mask, CurHiData->GetMask());
-	}
-	else
-	{
-		cfg->SetValue(key,HLS.IgnoreMask, !CurHiData->IsMaskUsed());
-		cfg->SetValue(key, HLS.Mask, CurHiData->GetMask());
-	}
+	FileFilter::SaveFilter(cfg, key.get(), *CurHiData);
 
-	DWORD DateType;
-	FILETIME DateAfter, DateBefore;
-	bool bRelative;
-	cfg->SetValue(key,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
-	cfg->SetValue(key,HLS.DateType,DateType);
-	cfg->SetValue(key,HLS.DateAfter, bytes_view(DateAfter));
-	cfg->SetValue(key,HLS.DateBefore, bytes_view(DateBefore));
-	cfg->SetValue(key,HLS.DateRelative,bRelative?1:0);
-	cfg->SetValue(key, HLS.UseSize, CurHiData->IsSizeUsed());
-	cfg->SetValue(key, HLS.SizeAbove, CurHiData->GetSizeAbove());
-	cfg->SetValue(key, HLS.SizeBelow, CurHiData->GetSizeBelow());
-	DWORD HardLinksAbove, HardLinksBelow;
-	cfg->SetValue(key,HLS.UseHardLinks,CurHiData->GetHardLinks(&HardLinksAbove, &HardLinksBelow)?1:0);
-	cfg->SetValue(key,HLS.HardLinksAbove,HardLinksAbove);
-	cfg->SetValue(key,HLS.HardLinksBelow,HardLinksBelow);
-	DWORD AttrSet, AttrClear;
-	cfg->SetValue(key,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear)?1:0);
-	cfg->SetValue(key,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);
-	cfg->SetValue(key,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
 	const auto Colors = CurHiData->GetColors();
 	cfg->SetValue(key,HLS.NormalColor, bytes_view(Colors.Color[highlight::color::normal].FileColor));
 	cfg->SetValue(key,HLS.SelectedColor, bytes_view(Colors.Color[highlight::color::selected].FileColor));

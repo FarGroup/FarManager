@@ -41,6 +41,7 @@ enum enumFileFilterFlagsType: int;
 class FileFilterParams;
 class FileListItem;
 class VMenu2;
+class HierarchicalConfig;
 
 // почему FileInFilter вернул true или false
 enum enumFileInFilterType
@@ -64,6 +65,8 @@ public:
 	bool IsEnabledOnPanel();
 
 	static void InitFilter();
+	static void LoadFilter(const HierarchicalConfig* cfg, unsigned long long Key, FileFilterParams& Item);
+	static void SaveFilter(HierarchicalConfig *cfg, unsigned long long Key, const FileFilterParams& Item);
 	static void CloseFilter();
 	static void SwapFilter();
 	static void Save(bool always);
@@ -77,7 +80,7 @@ private:
 
 	Panel *m_HostPanel;
 	FAR_FILE_FILTER_TYPE m_FilterType;
-	unsigned long long CurrentTime;
+	time_point CurrentTime;
 };
 
 #endif // FILEFILTER_HPP_DC322D87_FC69_401A_8EF8_9710B11909CB

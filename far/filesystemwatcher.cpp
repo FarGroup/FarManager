@@ -105,7 +105,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 			// otherwise changes missed (FAT folder time is NOT modified)
 			// the price is directory reload on each GOT_FOCUS event
 			check_time = false;
-			m_PreviousLastWriteTime.dwLowDateTime = m_CurrentLastWriteTime.dwLowDateTime - 1;
+			m_PreviousLastWriteTime = m_CurrentLastWriteTime - 1s;
 		}
 	}
 

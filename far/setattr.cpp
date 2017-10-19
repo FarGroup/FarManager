@@ -273,12 +273,12 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								os::fs::find_data FindData;
 								if (os::fs::get_find_data(DlgParam->strSelName, FindData))
 								{
-									const std::pair<SETATTRDLG, PFILETIME> Items[] =
+									const std::pair<SETATTRDLG, time_point*> Items[] =
 									{
-										{SA_TEXT_LASTWRITE, &FindData.ftLastWriteTime},
-										{SA_TEXT_CREATION, &FindData.ftCreationTime},
-										{SA_TEXT_LASTACCESS, &FindData.ftLastAccessTime},
-										{SA_TEXT_CHANGE, &FindData.ftChangeTime},
+										{SA_TEXT_LASTWRITE, &FindData.LastWriteTime},
+										{SA_TEXT_CREATION, &FindData.CreationTime},
+										{SA_TEXT_LASTACCESS, &FindData.LastAccessTime},
+										{SA_TEXT_CHANGE, &FindData.ChangeTime},
 									};
 
 									std::for_each(CONST_RANGE(Items, i)
@@ -353,10 +353,10 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (os::fs::get_find_data(DlgParam->strSelName, FindData))
 				{
-					Dlg->SendMessage(DM_SETATTR,SA_TEXT_LASTWRITE,&FindData.ftLastWriteTime);
-					Dlg->SendMessage(DM_SETATTR,SA_TEXT_CREATION,&FindData.ftCreationTime);
-					Dlg->SendMessage(DM_SETATTR,SA_TEXT_LASTACCESS,&FindData.ftLastAccessTime);
-					Dlg->SendMessage(DM_SETATTR,SA_TEXT_CHANGE,&FindData.ftChangeTime);
+					Dlg->SendMessage(DM_SETATTR, SA_TEXT_LASTWRITE, &FindData.LastWriteTime);
+					Dlg->SendMessage(DM_SETATTR, SA_TEXT_CREATION, &FindData.CreationTime);
+					Dlg->SendMessage(DM_SETATTR, SA_TEXT_LASTACCESS, &FindData.LastAccessTime);
+					Dlg->SendMessage(DM_SETATTR, SA_TEXT_CHANGE, &FindData.ChangeTime);
 				}
 
 				Dlg->SendMessage(DM_SETFOCUS, SA_EDIT_WDATE, nullptr);
@@ -365,10 +365,10 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			else if (Param1 == SA_BUTTON_CURRENT || Param1 == SA_BUTTON_BLANK)
 			{
 				void* Value = nullptr;
-				FILETIME CurrentTime;
+				time_point CurrentTime;
 				if(Param1 == SA_BUTTON_CURRENT)
 				{
-					CurrentTime = get_utc_time_as_filetime();
+					CurrentTime = nt_clock::now();
 					Value = &CurrentTime;
 				}
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_LASTWRITE, Value);
@@ -453,18 +453,18 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (Param2) // Set?
 			{
-				FILETIME ft;
+				time_point Point;
 
 				if (reinterpret_cast<intptr_t>(Param2)==-1)
 				{
-					ft = get_utc_time_as_filetime();
+					Point = nt_clock::now();
 				}
 				else
 				{
-					ft=*reinterpret_cast<PFILETIME>(Param2);
+					Point = *reinterpret_cast<const time_point*>(Param2);
 				}
 
-				ConvertDate(ft,strDate,strTime,12,FALSE,FALSE,2);
+				ConvertDate(Point,strDate,strTime,12,FALSE,FALSE,2);
 			}
 
 			// Глянем на место, где был клик
@@ -561,18 +561,18 @@ void ShellSetFileAttributesMsg(const string& Name)
 	}
 }
 
-bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& OSrcDate,const string& OSrcTime)
+static bool ReadFileTime(int Type, const string& Name, time_point& FileTime, const string& OSrcDate, const string& OSrcTime)
 {
 	os::fs::find_data ffd;
 	if (!os::fs::get_find_data(Name, ffd))
 		return false;
 
-	FILETIME* Times[] =
+	time_point* Times[] =
 	{
-		&ffd.ftLastWriteTime,
-		&ffd.ftCreationTime,
-		&ffd.ftLastAccessTime,
-		&ffd.ftChangeTime
+		&ffd.LastWriteTime,
+		&ffd.CreationTime,
+		&ffd.LastAccessTime,
+		&ffd.ChangeTime
 	};
 
 	auto& OriginalFileTime = *Times[Type];
@@ -581,9 +581,9 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const string& O
 		return false;
 
 	WORD DateN[3]{};
-	GetFileDateAndTime(OSrcDate, DateN, std::size(DateN), locale::GetDateSeparator());
+	ParseDateComponents(OSrcDate, make_range(DateN), locale::GetDateSeparator());
 	WORD TimeN[4]{};
-	GetFileDateAndTime(OSrcTime, TimeN, std::size(TimeN), locale::GetTimeSeparator());
+	ParseDateComponents(OSrcTime, make_range(TimeN), locale::GetTimeSeparator());
 
 	SYSTEMTIME st{};
 
@@ -845,10 +845,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					if (DlgParam.Plugin || os::fs::get_find_data(strSelName, FindData))
 					{
-						ConvertDate(FindData.ftLastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(FindData.ftCreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(FindData.ftLastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,2);
-						ConvertDate(FindData.ftChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(FindData.LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(FindData.CreationTime,  AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(FindData.LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData,12,FALSE,FALSE,2);
+						ConvertDate(FindData.ChangeTime,    AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData,12,FALSE,FALSE,2);
 					}
 
 					if (FileAttr!=INVALID_FILE_ATTRIBUTES)
@@ -1061,14 +1061,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{
 				SETATTRDLG DateId;
 				SETATTRDLG TimeId;
-				PFILETIME TimeValue;
+				time_point* TimeValue;
 			}
 			Dates[] =
 			{
-				{SA_EDIT_WDATE, SA_EDIT_WTIME, &FindData.ftLastWriteTime},
-				{SA_EDIT_CDATE, SA_EDIT_CTIME, &FindData.ftCreationTime},
-				{SA_EDIT_ADATE, SA_EDIT_ATIME, &FindData.ftLastAccessTime},
-				{SA_EDIT_XDATE, SA_EDIT_XTIME, &FindData.ftChangeTime},
+				{SA_EDIT_WDATE, SA_EDIT_WTIME, &FindData.LastWriteTime},
+				{SA_EDIT_CDATE, SA_EDIT_CTIME, &FindData.CreationTime},
+				{SA_EDIT_ADATE, SA_EDIT_ATIME, &FindData.LastAccessTime},
+				{SA_EDIT_XDATE, SA_EDIT_XTIME, &FindData.ChangeTime},
 			};
 
 			if (DlgParam.Plugin || (!DlgParam.Plugin && os::fs::get_find_data(strSelName, FindData)))
@@ -1309,7 +1309,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 					}
 
-					FILETIME LastWriteTime={},CreationTime={},LastAccessTime={}, ChangeTime={};
+					time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
 					int SetWriteTime = ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
 					int SetCreationTime = ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 					int SetLastAccessTime = ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
@@ -1458,7 +1458,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							}
 						}
 
-						FILETIME LastWriteTime,CreationTime,LastAccessTime, ChangeTime;
+						time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
 						bool SetWriteTime = ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
 						bool SetCreationTime = ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 						bool SetLastAccessTime = ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);

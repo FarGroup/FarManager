@@ -1775,7 +1775,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 			if (os::fs::get_find_data(Name, FInfo) && !FileInfo.strFileName.empty())
 			{
-				if (FileInfo.ftLastWriteTime != FInfo.ftLastWriteTime || FInfo.nFileSize != FileInfo.nFileSize)
+				if (FileInfo.LastWriteTime != FInfo.LastWriteTime || FInfo.nFileSize != FileInfo.nFileSize)
 				{
 					switch (Message(MSG_WARNING,
 						msg(lng::MEditTitle),

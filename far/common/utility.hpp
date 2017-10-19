@@ -117,4 +117,38 @@ namespace enum_helpers
 	}
 }
 
+namespace detail
+{
+	template<class... args>
+	struct overload_t;
+
+	template<typename arg>
+	struct overload_t<arg>: arg
+	{
+		using type = arg;
+		using arg::operator();
+	};
+
+	template<typename arg, typename... args>
+	struct overload_t<arg, args...>: arg, overload_t<args...>::type
+	{
+		using type = overload_t;
+
+		explicit overload_t(arg&& Arg, args&&... Args):
+			arg(FWD(Arg)),
+			args(FWD(Args))...
+		{
+		}
+
+		using arg::operator();
+		using overload_t<args...>::type::operator();
+	};
+}
+
+template<typename... args>
+auto overload(args&&... Args)
+{
+	return detail::overload_t<args...>(FWD(Args)...);
+}
+
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

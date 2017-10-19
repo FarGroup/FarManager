@@ -1,14 +1,13 @@
-﻿#ifndef FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
-#define FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
+﻿#ifndef PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D
+#define PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D
 #pragma once
 
 /*
-filesystemwatcher.hpp
+chrono.hpp
 
-Класс FileSystemWatcher
 */
 /*
-Copyright © 2012 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -34,33 +33,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "synchro.hpp"
-
-class FileSystemWatcher: noncopyable
+// TrivialClock with fixed period (100 ns) and epoch (1 Jan 1601)
+class nt_clock
 {
 public:
-	FileSystemWatcher();
-	~FileSystemWatcher();
-	void Set(const string& Directory, bool WatchSubtree);
-	void Watch(bool got_focus=false, bool check_time=true);
-	void Release();
-	bool Signaled() const;
+	using rep = unsigned long long;
+	using period = std::ratio_multiply<std::ratio<100, 1>, std::nano>;
+	using duration = std::chrono::duration<rep, period>;
+	using time_point = std::chrono::time_point<nt_clock>;
+	static constexpr bool is_steady = false;
+	static time_point now() noexcept;
 
-private:
-	void Register();
-	void PropagateException() const;
-
-	string m_Directory;
-	time_point m_PreviousLastWriteTime;
-	time_point m_CurrentLastWriteTime;
-	bool m_WatchSubtree;
-	mutable os::thread m_RegistrationThread;
-	os::fs::find_notification_handle m_Notification;
-	os::event m_Cancelled;
-	// TODO: optional
-	std::pair<bool, bool> m_IsFatFilesystem;
-	mutable std::exception_ptr m_ExceptionPtr;
-	bool m_IsRegularException{};
+	static time_t to_time_t(const time_point& Time) noexcept;
+	static time_point from_time_t(time_t Time) noexcept;
+	static FILETIME to_filetime(const time_point& Time) noexcept;
+	static time_point from_filetime(FILETIME Time) noexcept;
 };
 
-#endif // FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD
+using duration = nt_clock::duration;
+using time_point = nt_clock::time_point;
+
+#endif // PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D

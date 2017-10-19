@@ -810,6 +810,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 static int wmain_seh(int Argc, wchar_t *Argv[])
 {
+	FILETIME f;
+	GetSystemTimeAsFileTime(&f);
+	SYSTEMTIME s;
+	FileTimeToSystemTime(&f, &s);
+	FILETIME f2;
+	SystemTimeToFileTime(&s, &f2);
+
 #if defined(SYSLOG)
 	atexit(PrintSysLogStat);
 #endif

@@ -1,4 +1,4 @@
-﻿/*
+/*
 copy_progress.cpp
 */
 /*
@@ -73,14 +73,14 @@ size_t copy_progress::GetCanvasWidth()
 	return 52;
 }
 
-static string GetTimeText(DWORD Seconds)
+static string GetTimeText(std::chrono::seconds Seconds)
 {
 	string Days, Time;
-	ConvertRelativeDate(UI64ToFileTime(Seconds * 1000ull * 10000ull), Days, Time);
+	ConvertDuration(Seconds, Days, Time);
 	if (Days != L"0")
 	{
 		// BUGBUG copy time > 4.166 days (100 hrs) will not be displayed correctly
-		const auto Hours = str(std::min(Seconds / 3600, 99ul));
+		const auto Hours = str(std::min(std::chrono::duration_cast<std::chrono::hours>(Seconds), 99h).count());
 		Time[0] = Hours[0];
 		Time[1] = Hours[1];
 	}
@@ -310,11 +310,12 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 	m_CalcTime = std::chrono::steady_clock::now() - m_CopyStartTime - WaitUserTime;
 
 	string tmp[3];
-	if (const auto CalcTime = std::chrono::duration_cast<std::chrono::seconds>(m_CalcTime).count())
+	const auto CalcTime = std::chrono::duration_cast<std::chrono::seconds>(m_CalcTime);
+	if (CalcTime != CalcTime.zero())
 	{
 		SizeDone -= m_Bytes.Skipped;
 
-		const auto CPS = SizeDone / CalcTime;
+		const auto CPS = SizeDone / CalcTime.count();
 
 		const auto strCalcTimeStr = GetTimeText(CalcTime);
 
@@ -322,7 +323,7 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 		{
 			if (SizeToGo)
 			{
-				m_TimeLeft = GetTimeText(static_cast<DWORD>(CPS? SizeToGo / CPS:0));
+				m_TimeLeft = GetTimeText(std::chrono::seconds(CPS? SizeToGo / CPS : 0));
 			}
 
 			m_Speed = FileSizeToStr(CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);

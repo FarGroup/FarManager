@@ -46,10 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4996) // https://msdn.microsoft.com/en-us/library/ttcz0bys.aspx The compiler encountered a deprecated declaration
 #else
 // these in the rest of the code as well
-#pragma warning(disable: 4054) // https://msdn.microsoft.com/en-us/library/07d15ax5.aspx 'conversion' : from function pointer 'type1' to data pointer 'type2'
 #pragma warning(disable: 4061) // https://msdn.microsoft.com/en-us/library/96f5t7fy.aspx enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
 #pragma warning(disable: 4100) // https://msdn.microsoft.com/en-us/library/26kb9fy0.aspx 'identifier' : unreferenced formal parameter
-#pragma warning(disable: 4191) // https://msdn.microsoft.com/en-us/library/w0eaaaf7.aspx 'operator/operation' : unsafe conversion from 'type of expression' to 'type required'
 #pragma warning(disable: 4201) // https://msdn.microsoft.com/en-us/library/c89bw853.aspx nonstandard extension used : nameless struct/union
 #pragma warning(disable: 4242) // https://msdn.microsoft.com/en-us/library/3hca13eh.aspx 'identifier' : conversion from 'type1' to 'type2', possible loss of data
 #pragma warning(disable: 4244) // https://msdn.microsoft.com/en-us/library/th7a07tz.aspx 'conversion' conversion from 'type1' to 'type2', possible loss of data
@@ -72,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4711) // https://msdn.microsoft.com/en-us/library/k402bt7y.aspx function 'function' selected for inline expansion
 #pragma warning(disable: 4770) // no page                                                partially validated enum 'name' used as index
 #pragma warning(disable: 4738) // https://msdn.microsoft.com/en-us/library/c24hdbz6.aspx storing 32-bit float result in memory, possible loss of performance
+#pragma warning(disable: 4814) // no page                                                in C++14 'constexpr' will not imply 'const'; consider explicitly specifying 'const'
 #pragma warning(disable: 4820) // https://msdn.microsoft.com/en-us/library/t7khkyth.aspx 'bytes' bytes padding added after construct 'member_name'
 #pragma warning(disable: 5025) // no page                                                'class': move assignment operator was implicitly defined as deleted
 #pragma warning(disable: 5026) // no page                                                'class': move constructor was implicitly defined as deleted because a base class move constructor is inaccessible or deleted

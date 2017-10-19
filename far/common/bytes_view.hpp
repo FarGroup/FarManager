@@ -41,7 +41,7 @@ public:
 	}
 
 	template<typename T>
-	explicit bytes_view(T& Object):
+	explicit bytes_view(const T& Object):
 		bytes_view(&Object, sizeof(Object))
 	{
 		static_assert(std::is_trivially_copyable<T>::value);

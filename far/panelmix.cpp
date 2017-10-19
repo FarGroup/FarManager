@@ -623,7 +623,7 @@ string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 	return inplace::fit_to_left(OutStr, Width);
 }
 
-string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned long long Flags, int Width)
+string FormatStr_DateTime(time_point FileTime, int ColumnType, unsigned long long Flags, int Width)
 {
 	if (Width < 0)
 	{
@@ -668,7 +668,7 @@ string FormatStr_DateTime(const FILETIME* FileTime, int ColumnType, unsigned lon
 
 	string strDateStr,strTimeStr;
 
-	ConvertDate(*FileTime,strDateStr,strTimeStr,ColumnWidth,Brief,TextMonth,FullYear);
+	ConvertDate(FileTime,strDateStr,strTimeStr,ColumnWidth,Brief,TextMonth,FullYear);
 
 	string strOutStr;
 	switch(ColumnType)
