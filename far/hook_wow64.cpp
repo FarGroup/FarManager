@@ -158,10 +158,10 @@ union
 	} ur;
 
 	if ((ur.h = GetModuleHandleW(k32_w)) == nullptr
-	        || (IsWow = static_cast<ISWOW>(static_cast<void*>(GetProcAddress(ur.h, wow_c)))) == nullptr
+	        || (IsWow = reinterpret_cast<ISWOW>(reinterpret_cast<void*>(GetProcAddress(ur.h, wow_c)))) == nullptr
 	        || !(IsWow(GetCurrentProcess(), &b) && b)
-	        || (rwow.disable = static_cast<DISABLE>(static_cast<void*>(GetProcAddress(ur.h, dis_c)))) == nullptr
-	        || (rwow.revert = static_cast<REVERT>(static_cast<void*>(GetProcAddress(ur.h, rev_c)))) == nullptr
+	        || (rwow.disable = reinterpret_cast<DISABLE>(reinterpret_cast<void*>(GetProcAddress(ur.h, dis_c)))) == nullptr
+	        || (rwow.revert = reinterpret_cast<REVERT>(reinterpret_cast<void*>(GetProcAddress(ur.h, rev_c)))) == nullptr
 	        || (ur.h = GetModuleHandleW(ntd_w)) == nullptr
 	        || (ur.f = GetProcAddress(ur.h, ldr_c)) == nullptr) return;
 

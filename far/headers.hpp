@@ -94,8 +94,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef _W32API_OLD
 
 #ifdef _MSC_VER
-# if _MSC_VER < 1900
-#  error Visual C++ 2015 (or higher) required
+# if _MSC_FULL_VER < 190024215
+#  error Visual C++ 2015 Update 3 (or higher) required
 # endif
 # include <sdkddkver.h>
 # if _WIN32_WINNT < 0x0603
@@ -107,8 +107,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
 # define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 
-# if _GCC_VER < GCC_VER_(5,0,0)
-#  error gcc 5.0.0 (or higher) required
+# if _GCC_VER < GCC_VER_(6,0,0)
+#  error gcc 6.0.0 (or higher) required
 # endif
 
 # include <w32api.h>
