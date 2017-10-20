@@ -1720,19 +1720,19 @@ bool Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_F7:
 		{
-			Search(0,0);
+			Search(0,nullptr);
 			return true;
 		}
 		case KEY_SHIFTF7:
 		case KEY_SPACE:
 		{
-			Search(1,0);
+			Search(1,nullptr);
 			return true;
 		}
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
-			Search(-1,0);
+			Search(-1,nullptr);
 			return true;
 		}
 		case KEY_F8:
@@ -2074,7 +2074,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 			if (LocalKey >= ' ' && IsCharKey(LocalKey))
 			{
-				Search(0,LocalKey);
+				Search(0,&Key);
 				return true;
 			}
 	}
@@ -2672,6 +2672,14 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				Dlg->SendMessage(DM_SETFOCUS, (my->hex_mode ? SD_EDIT_HEX : SD_EDIT_TEXT), nullptr);
 				return FALSE;
 			}
+			break;
+		}
+		case DN_DRAWDIALOGDONE:
+		{
+			auto FirstChar = reinterpret_cast<const Manager::Key*>(Dlg->SendMessage(DM_SETDLGDATA, 0, nullptr));
+			if (FirstChar)
+				Global->WindowManager->CallbackWindow([Dlg, FirstChar]() { Dlg->ProcessKey(*FirstChar); });
+			break;
 		}
 		default:
 			break;
@@ -3307,7 +3315,7 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
  1 - Продолжить поиск со следующей позиции
 -1 - Продолжить поиск со следующей позиции в противоположном направлении
 */
-void Viewer::Search(int Next,int FirstChar)
+void Viewer::Search(int Next,const Manager::Key* FirstChar)
 {
 	if (!ViewFile || (Next && strLastSearchStr.empty()))
 		return;
@@ -3362,16 +3370,9 @@ void Viewer::Search(int Next,int FirstChar)
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
-		const auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this);
+		const auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this, const_cast<Manager::Key*>(FirstChar));
 		Dlg->SetPosition(-1,-1,76,13);
 		Dlg->SetHelp(L"ViewerSearch");
-
-		if (FirstChar)
-		{
-			Dlg->InitDialog();
-			Dlg->Show();
-			Dlg->ProcessKey(Manager::Key(FirstChar));
-		}
 
 		Dlg->Process();
 

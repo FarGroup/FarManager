@@ -120,7 +120,7 @@ private:
 	long long BegOfScreen();
 	long long XYfilepos(int col, int row);
 	void ChangeViewKeyBar();
-	void Search(int Next,int FirstChar);
+	void Search(int Next,const Manager::Key* FirstChar);
 	struct search_data;
 	SEARCHER_RESULT search_hex_forward( search_data* sd );
 	SEARCHER_RESULT search_hex_backward( search_data* sd );
