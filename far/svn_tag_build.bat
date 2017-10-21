@@ -7,7 +7,7 @@ for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do (
 	set build=%%k
 )
 
-set tag=%major%%minor%_b%build%
+set tag=%major%.%minor%.%build%
 
 echo --------------------------------------------------------------------
 echo Continue only if you are sure that you have set the correct
