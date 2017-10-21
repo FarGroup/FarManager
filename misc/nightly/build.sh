@@ -7,7 +7,7 @@ function run {
   fi
 }
 
-if svnsync sync file://`pwd`/syncrepo; then
+if cd far.git && git pull && cd ..; then
 
 	#start mspdbsrv.exe manually before compilation, with an infinite timeout
 	#prevents compilation being stuck when using cmake
@@ -19,6 +19,6 @@ if svnsync sync file://`pwd`/syncrepo; then
 	#kill mspdbsrv.exe as it is no longer needed
 	kill `pidof mspdbsrv.exe`
 else
-	echo "svnsync failed"
+	echo "git pull failed"
 	exit 1
 fi

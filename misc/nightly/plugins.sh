@@ -31,11 +31,11 @@ rm -fR plugins
 rm -fR misc
 
 ( \
-	svn co file://`pwd`/syncrepo/trunk/plugins plugins && \
-	svn co file://`pwd`/syncrepo/trunk/misc misc \
+	cp -R far.git/plugins ./ && \
+	cp -R far.git/misc ./ \
 ) || exit 1
 
-cp -f unicode_far/Include/*.hpp plugins/common/unicode/
+cp -f far/Include/*.hpp plugins/common/unicode/
 
 mkdir -p outfinalnew32/Plugins
 mkdir -p outfinalnew64/Plugins

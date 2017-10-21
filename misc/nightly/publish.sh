@@ -27,7 +27,7 @@ processFarBuild()
 
 ./installer.sh || exit 1
 
-cd unicode_far || exit 1
+cd far || exit 1
 LASTCHANGE=`head -1 changelog | dos2unix`
 ( \
 	processFarBuild 32 && \

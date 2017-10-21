@@ -77,10 +77,10 @@ cd ..
 return 0
 }
 
-rm -fR unicode_far
+rm -fR far
 ( \
-	svn export file://`pwd`/syncrepo/trunk/unicode_far unicode_far && \
-	buildfar unicode_far \
+	cp -R far.git/far ./ && \
+	buildfar far \
 ) || exit 1
 
 
