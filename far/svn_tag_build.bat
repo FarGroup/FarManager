@@ -28,7 +28,7 @@ echo.
 
 for /f "tokens=3" %%f in ('svn info ^| find "Root:"') do set repo=%%f
 
-set tag_path=%repo%/tags/unicode_far/%tag%
+set tag_path=%repo%/tags/%tag%
 
 svn info %tag_path% > nul 2>&1 & (
 	if not errorlevel 1 (
