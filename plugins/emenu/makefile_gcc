@@ -12,7 +12,7 @@ USERLIBS= -luuid
 
 DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng Hotkey.lua HotkeyClipboard.lua HotkeyProperties.lua
 
-include ../../unicode_far/makefile_gcc_common
+include ../../far/makefile_gcc_common
 
 include ../makefile_gcc_def_inc
 

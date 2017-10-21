@@ -3,7 +3,7 @@ SRCS = SameFolder.cpp
 DOCS = SameFolderEng.hlf SameFolderRus.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng
 USERLIBS = -lole32 -luuid
 
-include ../../unicode_far/makefile_gcc_common
+include ../../far/makefile_gcc_common
 
 include ../makefile_gcc_def_inc
 

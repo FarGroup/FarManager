@@ -108,7 +108,7 @@ $(ALLDIRS): $(FICTIVE) $(OUTPATH)
 !endif
 	@cd ..
 
-fdir=..\unicode_far\$(_ODF_).$(DIRBIT).vc
+fdir=..\far\$(_ODF_).$(DIRBIT).vc
 adir=%d\$(_ODN_).$(DIRBIT).vc
 wdir=%d\$(_ODN_).$(DIRBIT)W.vc
 pdir=multiarc\libpcre\obj.$(DIRBIT).vc

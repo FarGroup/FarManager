@@ -1,7 +1,7 @@
 ANSI = 1
 USERCPP = -I ./FStdLib -D__NOMEM__=1 -D__USEASSERT__=1 -Wno-unknown-pragmas -Wno-switch -Wno-missing-braces -Wno-parentheses
 
-include ../../unicode_far/makefile_gcc_common
+include ../../far/makefile_gcc_common
 
 include ../makefile_gcc_def_inc
 

@@ -14,7 +14,7 @@ endif
 USERCPP = -I ./libpcre
 USERLIBSFIRST = -L $(OBJDIR) -lPCRE
 
-include ../../unicode_far/makefile_gcc_common
+include ../../far/makefile_gcc_common
 
 include ../makefile_gcc_def_inc
 

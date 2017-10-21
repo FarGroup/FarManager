@@ -7,7 +7,7 @@
   set "c=Release" & set "c1=" & set "clean=N" & set "over=N"
   set "m=nmake" & rem msbuild
 
-  call "%~dp0..\..\unicode_far\build.bat" set_vcver %*
+  call "%~dp0..\..\far\build.bat" set_vcver %*
   for %%a in (%*) do call :opts %%a
 
   call :copy_7z "%~dp0" 7z\dll\final.32W.vc 7z\src\CPP\7zip\Bundles\Format7zF\Debug
@@ -54,5 +54,5 @@ goto :EOF
 goto :EOF
 
 :set_vc
-  call "%~dp0..\..\unicode_far\build.bat" set_vcvars %1
+  call "%~dp0..\..\far\build.bat" set_vcvars %1
 goto :EOF

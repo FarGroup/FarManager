@@ -13,7 +13,7 @@ FAR_DIRNAME=Release
 !else
 FAR_DIRNAME=Debug
 !endif
-FAR_WORKDIR=..\..\unicode_far\$(FAR_DIRNAME).$(DIRBIT).vc
+FAR_WORKDIR=..\..\far\$(FAR_DIRNAME).$(DIRBIT).vc
 !else
 !ifdef INSTALL
 FAR_WORKDIR=$(INSTALL)\$(FAR_WORKDIR)

@@ -11,7 +11,7 @@ LUAFARDLLNAME = luafar3
 LUADLLNAME = lua51
 
 ifndef PATH_LIBS
-  PATH_LIBS = $(FARDIR)\unicode_far\Release.$(DIRBIT).vc
+  PATH_LIBS = $(FARDIR)\far\Release.$(DIRBIT).vc
 endif
 
 ifndef TARGET
