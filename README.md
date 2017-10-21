@@ -3,23 +3,23 @@
                      http://www.farmanager.com
 
 
-Support forum
+Support forum  
 http://forum.farmanager.com/
 
-Bug tracker
+Bug tracker  
 http://bugs.farmanager.com/
 
-Developers mailing list (english)
-http://groups.google.com/group/fardeven
+Developers mailing list (english)  
+http://groups.google.com/group/fardeven  
 fardeven@googlegroups.com
 
-Developers mailing list (russian)
-http://groups.google.com/group/fardev
+Developers mailing list (russian)  
+http://groups.google.com/group/fardev  
 fardev@googlegroups.com
 
-Commits mailing list
-http://groups.google.com/group/farcommits
+Commits mailing list  
+http://groups.google.com/group/farcommits  
 farcommits@googlegroups.com
 
-Get the code
+Get the code  
 https://github.com/FarGroup/FarManager

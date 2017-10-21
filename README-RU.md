@@ -3,23 +3,23 @@
                     http://www.farmanager.com
 
 
-Форум поддержки
+Форум поддержки  
 http://forum.farmanager.com/
 
-Баг трекер
+Баг трекер  
 http://bugs.farmanager.com/
 
-Рассылка для разработчиков (русскоязычная)
-http://groups.google.com/group/fardev
+Рассылка для разработчиков (русскоязычная)  
+http://groups.google.com/group/fardev  
 fardev@googlegroups.com
 
-Рассылка для разработчиков (англоязычная)
-http://groups.google.com/group/fardeven
+Рассылка для разработчиков (англоязычная)  
+http://groups.google.com/group/fardeven  
 fardeven@googlegroups.com
 
-Рассылка коммитов
-http://groups.google.com/group/farcommits
+Рассылка коммитов  
+http://groups.google.com/group/farcommits  
 farcommits@googlegroups.com
 
-Взять исходный код
+Взять исходный код  
 https://github.com/FarGroup/FarManager
