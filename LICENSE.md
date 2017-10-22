@@ -23,9 +23,3 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-EXCEPTION:  
-Far Manager plugins that use only the following header files from this
-distribution (none or any): farcolor.hpp, plugin.hpp, farcolorW.pas and
-pluginW.pas; can be distributed under any other possible license with no
-implications from the above license on them.
