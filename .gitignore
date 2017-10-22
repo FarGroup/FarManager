@@ -1,0 +1,17 @@
+#Artefacts
+/_build/vc/_output
+Debug.*.vc
+Release.*.vc
+Debug.*.gcc
+Release.*.gcc
+
+# VS
+.vs
+ipch
+*.db
+*.opendb
+*.vcxproj.user
+*.suo
+
+# Build scripts
+__*.cmd
