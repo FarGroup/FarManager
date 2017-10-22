@@ -43,7 +43,7 @@ to the project, please follow those guidelines:
 
 1. All comments on committed changes should be written to the `changelog` file.
    You should leave comments in the source code only if you think the code is
-   not self explanatory and won't be understood by "future generations".
+   not self-explanatory and won't be understood by "future generations".
 2. Recent changes go on top.
 3. Each entry starts with a header of the form:
 >   warp 05.12.2006 01:39:38 +0300 - build 2149
@@ -67,7 +67,7 @@ to the project, please follow those guidelines:
 
 1. This file contains information used to generate Far version:
    * `BUILDTYPE`, a string that defines the build type:
-      - '' - empty string (release version)
+      - '' (an empty string) - release version
       - `alpha` - alpha version
       - `beta` - beta version
       - `RC` - release candidate
