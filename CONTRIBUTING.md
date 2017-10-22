@@ -15,7 +15,7 @@ to the project, please follow those guidelines:
    please provide the needed updates.
    Please create the patch against the latest code from the repository.
 5. Patches should be submitted as pull requests to the repository
-   or as diff files to our[bugtracker](http://bugs.farmanager.com)
+   or as diff files to our [bugtracker](http://bugs.farmanager.com)
    or [forum](http://forum.farmanager.com/viewforum.php?f=54)
 6. If you plan to create large patches or want to keep current with the
    development of Far Manager, subscribe to the
