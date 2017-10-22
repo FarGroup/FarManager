@@ -12,21 +12,24 @@ set tag=%major%.%minor%.%build%
 echo --------------------------------------------------------------------
 echo Continue only if you are sure that you have set the correct
 echo build and commited the changes.
-echo This command will tag the trunk under tag/%tag%.
+echo This command will tag the current state of the repository as:
+echo builds/%tag%
 echo --------------------------------------------------------------------
 echo If you're not sure press CtrlC.
 echo --------------------------------------------------------------------
 echo --------------------------------------------------------------------
 echo Продолжайте только если вы уверены, что вы выставили правильный
 echo номер билда и закоммитили изменения.
-echo Эта команда пометит текущий trunk в tags/%tag%.
+echo Эта команда пометит текущее состояние репозитория как:
+echo builds/%tag%
 echo --------------------------------------------------------------------
 echo Если вы не уверены, то нажмите CtrlC
 echo --------------------------------------------------------------------
 pause
 echo.
 
-for /f "tokens=3" %%f in ('svn info ^| find "Root:"') do set repo=%%f
+for /f "tokens=3" %%f in ('svn info 2^>nul ^| find "Root:"') do set repo=%%f
+if [%repo%] == [] goto git
 
 set tag_path=%repo%/tags/builds/%tag%
 
@@ -37,5 +40,11 @@ svn info %tag_path% > nul 2>&1 & (
 		svn copy %repo%/trunk %tag_path% -m "tag build %build%"
 	)
 )
+goto finish
 
+:git
+echo Sorry, git version is not yet implemented - you have to do it manually.
+goto finish
+
+:finish
 endlocal
