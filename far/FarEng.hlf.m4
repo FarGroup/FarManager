@@ -3572,8 +3572,8 @@ will not be analyzed, and only file attributes will be taken into account.
 
      - it has none of the excluded attributes.
 
-    The Compressed, Encrypted, Not indexed, Sparse, Temporary attributes and
-Symbolic links are valid for NTFS drives only. The #Integrity stream# and
+    The Compressed, Encrypted, Not indexed, Sparse, Temporary and Reparse point
+attributes are valid for NTFS drives only. The #Integrity stream# and
 #No scrub data# attributes only supported on ReFS voumes starting from
 Windows Server 2012.
 

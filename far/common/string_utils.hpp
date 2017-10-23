@@ -33,23 +33,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "preprocessor.hpp"
+#include "placement.hpp"
 
 /*
 Helper class to safely pass string_view to low level C or platform API.
 Builds a compatible null-terminated std::basic_string if the given view is not null-terminated,
 otherwise uses the same data.
 */
-
-#include "placement.hpp"
+template<typename T>
+class null_terminated_t
+{
+public:
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4582) // no page                                                '%$S': constructor is not implicitly called
 WARNING_DISABLE_MSC(4583) // no page                                                '%$S': destructor is not implicitly called
 
-template<typename T>
-class null_terminated_t
-{
-public:
 	explicit null_terminated_t(const basic_string_view<T>& Str):
 		m_Terminated(!Str.raw_data()[Str.size()])
 	{
@@ -66,6 +65,8 @@ public:
 		else
 			placement::destruct(m_Str);
 	}
+
+WARNING_POP()
 
 	auto data() const
 	{
@@ -86,9 +87,8 @@ private:
 	bool m_Terminated;
 };
 
-WARNING_POP()
-
 using null_terminated = null_terminated_t<wchar_t>;
+
 
 namespace detail
 {
@@ -284,12 +284,12 @@ inline bool equal(const string_view& Str1, const string_view& Str2)
 
 inline bool starts_with(const string_view& Str, const string_view& Prefix)
 {
-	return Str.size() >= Prefix.size() && equal({ Str.raw_data(), Prefix.size() }, Prefix);
+	return Str.size() >= Prefix.size() && Str.substr(0, Prefix.size()) == Prefix;
 }
 
 inline bool ends_with(const string_view& Str, const string_view& Suffix)
 {
-	return Str.size() >= Suffix.size() && equal({ Str.raw_data() + Str.size() - Suffix.size(), Suffix.size() }, Suffix);
+	return Str.size() >= Suffix.size() && Str.substr(Str.size() - Suffix.size()) == Suffix;
 }
 
 inline bool contains(const string_view& Str, const string_view& Token)

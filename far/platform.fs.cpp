@@ -1376,6 +1376,14 @@ namespace os::fs
 			FlagsAndAttributes |= FILE_FLAG_POSIX_SEMANTICS;
 		}
 
+		const auto& create_elevated = [&]
+		{
+			return handle(elevation::instance().create_file(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
+		};
+
+		if (ForceElevation)
+			return create_elevated();
+
 		if (auto Handle = handle(low::create_file(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
 			return Handle;
 
@@ -1395,7 +1403,7 @@ namespace os::fs
 		}
 
 		if (ElevationRequired(DesiredAccess & (GENERIC_ALL | GENERIC_WRITE | WRITE_OWNER | WRITE_DAC | DELETE | FILE_WRITE_DATA | FILE_ADD_FILE | FILE_APPEND_DATA | FILE_ADD_SUBDIRECTORY | FILE_CREATE_PIPE_INSTANCE | FILE_WRITE_EA | FILE_DELETE_CHILD | FILE_WRITE_ATTRIBUTES)? ELEVATION_MODIFY_REQUEST : ELEVATION_READ_REQUEST) || ForceElevation)
-			return handle(elevation::instance().create_file(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile));
+			return create_elevated();
 
 		return nullptr;
 	}
