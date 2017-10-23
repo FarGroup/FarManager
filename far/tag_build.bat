@@ -30,7 +30,7 @@ echo.
 
 if exist ..\.git goto git
 
-for /f "tokens=3" %%f in ('svn info 2^>nul ^| find "Root:"') do set repo=%%f
+for /f "tokens=3" %%f in ('svn info ^| find "Root:"') do set repo=%%f
 if [%repo%] == [] goto error
 
 set tag_path=%repo%/tags/%tag%
