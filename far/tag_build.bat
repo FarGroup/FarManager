@@ -28,8 +28,10 @@ echo --------------------------------------------------------------------
 pause
 echo.
 
+if exist ..\.git goto git
+
 for /f "tokens=3" %%f in ('svn info 2^>nul ^| find "Root:"') do set repo=%%f
-if [%repo%] == [] goto git
+if [%repo%] == [] goto error
 
 set tag_path=%repo%/tags/%tag%
 
@@ -45,6 +47,9 @@ goto finish
 :git
 git fetch && git tag %tag% origin/master && git push origin %tag%
 goto finish
+
+:error
+echo "Something went wrong"
 
 :finish
 endlocal
