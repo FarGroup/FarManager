@@ -51,9 +51,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const wchar_t LangFileMask[] = L"*.lng";
 
-os::fs::file OpenLangFile(const string& Path,const string& Mask,const string& Language, uintptr_t &nCodePage, bool StrongLang,string *pstrLangName)
+std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path,const string& Mask,const string& Language)
 {
-	os::fs::file EnglishFile;
+	FN_RETURN_TYPE(OpenLangFile) CurrentFileData, EnglishFileData;
 
 	auto PathWithSlash = Path;
 	AddEndSlash(PathWithSlash);
@@ -62,36 +62,27 @@ os::fs::file OpenLangFile(const string& Path,const string& Mask,const string& La
 	{
 		const auto CurrentFileName = PathWithSlash + FindData.strFileName;
 
-		
-		if (auto CurrentFile = os::fs::file(CurrentFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+		std::get<0>(CurrentFileData) = os::fs::file(CurrentFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		if (std::get<0>(CurrentFileData))
 		{
-			GetFileFormat(CurrentFile, nCodePage, nullptr, false);
+			GetFileFormat(std::get<0>(CurrentFileData), std::get<2>(CurrentFileData), nullptr, false);
 
-			string LanguageName;
-			if (GetLangParam(CurrentFile, L"Language", LanguageName, nullptr, nCodePage) && equal_icase(LanguageName, Language))
+			if (GetLangParam(std::get<0>(CurrentFileData), L"Language", std::get<1>(CurrentFileData), nullptr, std::get<2>(CurrentFileData)) && equal_icase(std::get<1>(CurrentFileData), Language))
 			{
-				return CurrentFile;
+				return CurrentFileData;
 			}
 
-			if (StrongLang)
+			if (equal_icase(std::get<1>(CurrentFileData), L"English"_sv))
 			{
-				return {};
-			}
-
-			if (equal_icase(LanguageName, L"English"_sv))
-			{
-				EnglishFile = std::move(CurrentFile);
+				EnglishFileData = std::move(CurrentFileData);
 			}
 		}
 	}
 
-	if (!EnglishFile)
-		return {};
+	if (std::get<0>(EnglishFileData))
+		return EnglishFileData;
 
-	if (pstrLangName)
-		*pstrLangName = L"English";
-
-	return EnglishFile;
+	return CurrentFileData;
 }
 
 
@@ -337,12 +328,12 @@ void language::load(const string& Path, int CountNeed)
 {
 	SCOPED_ACTION(GuardLastError);
 
-	uintptr_t nCodePage = CP_OEMCP;
-	string strLangName = Global->Opt->strLanguage;
-
 	auto Data = m_Data->create();
 
-	const auto LangFile = OpenLangFile(Path, LangFileMask, Global->Opt->strLanguage, nCodePage, false, &strLangName);
+	const auto LangFileData = OpenLangFile(Path, LangFileMask, Global->Opt->strLanguage);
+	const auto& LangFile = std::get<0>(LangFileData);
+	auto LangFileCodePage = std::get<2>(LangFileData);
+
 	if (!LangFile)
 	{
 		throw MAKE_FAR_EXCEPTION(L"Cannot find language data");
@@ -350,7 +341,7 @@ void language::load(const string& Path, int CountNeed)
 
 	Data->m_FileName = LangFile.GetName();
 
-	GetFileString GetStr(LangFile, nCodePage);
+	GetFileString GetStr(LangFile, LangFileCodePage);
 
 	if (CountNeed != -1)
 	{
@@ -388,12 +379,13 @@ void language::load(const string& Path, int CountNeed)
 	{
 		const auto& LoadStrings = [&](const string& FileName)
 		{
-			const os::fs::file File(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
-			if (!File)
+			const os::fs::file CustomFile(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+			if (!CustomFile)
 				return;
 
-			GetFileFormat(File, nCodePage, nullptr, false);
-			GetFileString get_str(File, nCodePage);
+			uintptr_t CustomFileCodePage = CP_OEMCP;
+			GetFileFormat(CustomFile, CustomFileCodePage, nullptr, false);
+			GetFileString get_str(CustomFile, CustomFileCodePage);
 			label.clear();
 			while (get_str.GetString(Buffer))
 			{

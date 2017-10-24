@@ -268,8 +268,9 @@ bool Help::ReadHelp(const string& Mask)
 		return true;
 	}
 
-	uintptr_t nCodePage = CP_OEMCP;
-	const auto HelpFile = OpenLangFile(strPath, (Mask.empty()?Global->HelpFileMask:Mask), Global->Opt->strHelpLanguage, nCodePage);
+	const auto HelpFileData = OpenLangFile(strPath, Mask.empty()? Global->HelpFileMask : Mask, Global->Opt->strHelpLanguage);
+	const auto& HelpFile = std::get<0>(HelpFileData);
+	const auto HelpFileCodePage = std::get<2>(HelpFileData);
 	if (!HelpFile)
 	{
 		ErrorHelp = true;
@@ -297,7 +298,7 @@ bool Help::ReadHelp(const string& Mask)
 
 	string strReadStr;
 
-	if (GetOptionsParam(HelpFile,L"TabSize",strReadStr, nCodePage))
+	if (GetOptionsParam(HelpFile, L"TabSize", strReadStr, HelpFileCodePage))
 	{
 		CtrlTabSize = std::stoi(strReadStr);
 	}
@@ -305,12 +306,12 @@ bool Help::ReadHelp(const string& Mask)
 	if (CtrlTabSize < 0 || CtrlTabSize > 16)
 		CtrlTabSize=Global->Opt->HelpTabSize;
 
-	if (GetOptionsParam(HelpFile,L"CtrlColorChar",strReadStr, nCodePage))
+	if (GetOptionsParam(HelpFile, L"CtrlColorChar", strReadStr, HelpFileCodePage))
 		strCtrlColorChar = strReadStr;
 	else
 		strCtrlColorChar.clear();
 
-	if (GetOptionsParam(HelpFile,L"CtrlStartPosChar",strReadStr, nCodePage))
+	if (GetOptionsParam(HelpFile, L"CtrlStartPosChar", strReadStr, HelpFileCodePage))
 		strCtrlStartPosChar = strReadStr;
 	else
 		strCtrlStartPosChar.clear();
@@ -318,7 +319,7 @@ bool Help::ReadHelp(const string& Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!GetLangParam(HelpFile, L"PluginContents", strCurPluginContents, nullptr, nCodePage))
+	if (!GetLangParam(HelpFile, L"PluginContents", strCurPluginContents, nullptr, HelpFileCodePage))
 		strCurPluginContents.clear();
 
 	string strTabSpace(CtrlTabSize, L' ');
@@ -327,7 +328,7 @@ bool Help::ReadHelp(const string& Mask)
 
 	if (StackData->strHelpTopic == FoundContents)
 	{
-		Search(HelpFile,nCodePage);
+		Search(HelpFile, HelpFileCodePage);
 		return true;
 	}
 
@@ -348,7 +349,7 @@ bool Help::ReadHelp(const string& Mask)
 	int MI=0;
 	string strMacroArea;
 
-	GetFileString GetStr(HelpFile, nCodePage);
+	GetFileString GetStr(HelpFile, HelpFileCodePage);
 	const size_t StartSizeKeyName = 20;
 	size_t SizeKeyName = StartSizeKeyName;
 	string strSplitLine;
@@ -2032,13 +2033,14 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			{
 				auto strPath = i->GetModuleName();
 				CutToSlash(strPath);
-				uintptr_t nCodePage = CP_OEMCP;
-				const auto HelpFile = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage, nCodePage);
+				const auto HelpFileData = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
+				const auto& HelpFile = std::get<0>(HelpFileData);
+				const auto HelpFileCodePage = std::get<2>(HelpFileData);
 				if (HelpFile)
 				{
 					string strEntryName, strSecondParam;
 
-					if (GetLangParam(HelpFile, ContentsName, strEntryName, &strSecondParam, nCodePage))
+					if (GetLangParam(HelpFile, ContentsName, strEntryName, &strSecondParam, HelpFileCodePage))
 					{
 						string strHelpLine = L"   ~" + strEntryName;
 						if (!strSecondParam.empty())

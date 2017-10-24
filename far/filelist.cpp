@@ -5257,9 +5257,8 @@ bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
 	auto strPath = hPlugin->plugin()->GetModuleName();
 	CutToSlash(strPath);
-	uintptr_t nCodePage = CP_OEMCP;
-	const auto HelpFile = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage, nCodePage);
-	if (!HelpFile)
+	const auto HelpFileData = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
+	if (!std::get<0>(HelpFileData))
 		return false;
 
 	Help::create(Help::MakeLink(strPath, L"Contents"));
