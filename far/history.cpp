@@ -478,11 +478,11 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && !os::fs::exists(strSelectedRecordName))
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
-				Global->CatchError();
+				const auto ErrorState = error_state::fetch();
 
 				if (SelectedRecordType == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{
-					if (Message(MSG_WARNING | MSG_ERRORTYPE,
+					if (Message(MSG_WARNING, ErrorState,
 						Title,
 						{
 							strSelectedRecordName,
@@ -493,7 +493,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				}
 				else
 				{
-					Message(MSG_WARNING | MSG_ERRORTYPE,
+					Message(MSG_WARNING, ErrorState,
 						Title,
 						{
 							strSelectedRecordName

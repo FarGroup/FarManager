@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "cddrv.hpp"
 #include "stddlg.hpp"
+#include "exception.hpp"
 
 #if 0
 static bool DismountVolume(HANDLE hVolume)
@@ -155,8 +156,9 @@ bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 			{
 				if (!(Flags & EJECT_NO_MESSAGE))
 				{
-					Global->CatchError();
-					if(OperationFailed(RootName, lng::MError, format(lng::MChangeCouldNotEjectMedia, Letter), false) != operation::retry)
+					const auto ErrorState = error_state::fetch();
+
+					if(OperationFailed(ErrorState, RootName, lng::MError, format(lng::MChangeCouldNotEjectMedia, Letter), false) != operation::retry)
 						Retry = false;
 				}
 				else

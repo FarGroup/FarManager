@@ -317,13 +317,14 @@ bool Viewer::OpenFile(const string& Name,int warning)
 
 	if (!ViewFile)
 	{
-		Global->CatchError();
+		const auto ErrorState = error_state::fetch();
+
 		/* $ 04.07.2000 tran
 		   + 'warning' flag processing, in QuickView it is FALSE
 		     so don't show red message box */
 		if (warning)
 		{
-			Message(MSG_WARNING | MSG_ERRORTYPE,
+			Message(MSG_WARNING, ErrorState,
 				msg(lng::MViewerTitle),
 				{
 					msg(lng::MViewerCannotOpenFile),

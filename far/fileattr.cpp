@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "message.hpp"
 #include "fileowner.hpp"
+#include "exception.hpp"
 
 struct response
 {
@@ -51,9 +52,9 @@ struct response
 	};
 };
 
-static int ShowErrorMessage(lng Id, const string& Name)
+static int ShowErrorMessage(const error_state& ErrorState, lng Id, const string& Name)
 {
-	return Message(MSG_WARNING | MSG_ERRORTYPE,
+	return Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),
 		{
 			msg(Id),
@@ -70,8 +71,9 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 
 	while (!os::fs::set_file_attributes(Name,Attr))
 	{
-		Global->CatchError();
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrCannotFor, Name))
+		const auto ErrorState = error_state::fetch();
+
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrCannotFor, Name))
 		{
 		case response::retry:
 			break;
@@ -121,8 +123,9 @@ int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode
 
 	while (!SetFileCompression(Name,State))
 	{
-		Global->CatchError();
-		switch(SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrCompressedCannotFor, Name))
+		const auto ErrorState = error_state::fetch();
+
+		switch(SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrCompressedCannotFor, Name))
 		{
 		case response::retry:
 			break;
@@ -157,12 +160,12 @@ int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipM
 
 	while (!os::fs::set_file_encryption(Name, State))
 	{
-		Global->CatchError();
-
 		if (Silent)
 			return SETATTR_RET_ERROR;
 
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrEncryptedCannotFor, Name))
+		const auto ErrorState = error_state::fetch();
+
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrEncryptedCannotFor, Name))
 		{
 		case response::retry:
 			break;
@@ -214,12 +217,12 @@ int ESetFileTime(const string& Name, const time_point* LastWriteTime, const time
 			os::fs::set_file_attributes(Name,FileAttr);
 
 		SetLastError(LastError);
-		Global->CatchError();
+		const auto ErrorState = error_state::fetch();
 
 		if (SetTime)
 			break;
 
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrTimeCannotFor, Name))
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrTimeCannotFor, Name))
 		{
 		case response::retry:
 			break;
@@ -264,8 +267,9 @@ int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 
 	while (!SetFileSparse(Name,State))
 	{
-		Global->CatchError();
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrSparseCannotFor, Name))
+		const auto ErrorState = error_state::fetch();
+
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrSparseCannotFor, Name))
 		{
 		case response::retry:
 			break;
@@ -287,8 +291,9 @@ int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 {
 	while (!SetFileOwner(Name, Owner))
 	{
-		Global->CatchError();
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrOwnerCannotFor, Name))
+		const auto ErrorState = error_state::fetch();
+
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrOwnerCannotFor, Name))
 		{
 		case response::retry:
 			break;
@@ -312,8 +317,9 @@ int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode)
 
 	while (!DeleteReparsePoint(Name))
 	{
-		Global->CatchError();
-		switch (SkipMode != -1? SkipMode : ShowErrorMessage(lng::MSetAttrCannotFor, Name))
+		const auto ErrorState = error_state::fetch();
+
+		switch (SkipMode != -1? SkipMode : ShowErrorMessage(ErrorState, lng::MSetAttrCannotFor, Name))
 		{
 		case response::retry:
 			break;

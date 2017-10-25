@@ -139,8 +139,8 @@ int TestFolder(const string& Path)
 		return TSTFLD_NOTEMPTY;
 	}
 
-	Global->CatchError();
-	const auto LastError = Global->CaughtError().Win32Error;
+	const auto ErrorState = error_state::fetch();
+	const auto LastError = ErrorState.Win32Error;
 	if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES)
 		return TSTFLD_EMPTY;
 
@@ -190,7 +190,7 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 	if (!Result)
 	{
 		SetLastError(ERROR_PATH_NOT_FOUND);
-		Global->CatchError();
+		const auto ErrorState = error_state::fetch();
 
 		string strTarget = pTestPath;
 		TruncPathStr(strTarget, ScrX-16);
@@ -198,7 +198,7 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 		if (!TryClosest)
 		{
 			if (!Silent)
-				Message(MSG_WARNING | MSG_ERRORTYPE,
+				Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
 					{
 						strTarget
@@ -207,7 +207,7 @@ bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent)
 		}
 		else // попытка найти!
 		{
-			if (Silent || Message(MSG_WARNING | MSG_ERRORTYPE,
+			if (Silent || Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
 					strTarget,

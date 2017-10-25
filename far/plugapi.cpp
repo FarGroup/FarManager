@@ -1110,8 +1110,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 {
 	try
 	{
-		if (Flags&FMSG_ERRORTYPE)
-			Global->CatchError();
+		const auto ErrorState = Flags & FMSG_ERRORTYPE? error_state::fetch() : error_state();
 
 		if (Global->WindowManager->ManagerIsDown())
 			return -1;
@@ -1197,13 +1196,18 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 			Help::MkTopic(PluginNumber,NullToEmpty(HelpTopic),strTopic);
 		}
 
-		int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),
+		const DWORD InternalFlags =
+			((Flags & FMSG_WARNING)? MSG_WARNING : 0) |
+			((Flags & FMSG_KEEPBACKGROUND)? MSG_KEEPBACKGROUND : 0) |
+			((Flags & FMSG_LEFTALIGN)? MSG_LEFTALIGN : 0);
+
+		return Message(
+			InternalFlags,
+			Flags & FMSG_ERRORTYPE? &ErrorState : nullptr,
 			Title,
 			std::move(MsgItems),
 			std::move(Buttons),
 			EmptyToNull(strTopic.data()), Id, PluginNumber);
-
-		return MsgCode;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return -1;

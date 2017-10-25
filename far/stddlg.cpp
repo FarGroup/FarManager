@@ -448,13 +448,13 @@ static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 	}
 }
 
-operation OperationFailed(const string& Object, lng Title, const string& Description, bool AllowSkip)
+operation OperationFailed(const error_state& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip)
 {
 	std::vector<string> Msg;
 	os::com::ptr<IFileIsInUse> fiu;
 	lng Reason = lng::MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
-	const auto Error = Global->CaughtError().Win32Error;
+	const auto Error = ErrorState.Win32Error;
 	if(Error == ERROR_ACCESS_DENIED ||
 		Error == ERROR_SHARING_VIOLATION ||
 		Error == ERROR_LOCK_VIOLATION ||
@@ -568,7 +568,7 @@ operation OperationFailed(const string& Object, lng Title, const string& Descrip
 	int Result;
 	for(;;)
 	{
-		Result = Message(MSG_WARNING | MSG_ERRORTYPE,
+		Result = Message(MSG_WARNING, ErrorState,
 			msg(Title),
 			Msgs,
 			Buttons);

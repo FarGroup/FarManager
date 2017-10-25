@@ -402,8 +402,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	}
 	catch (const far_exception& e)
 	{
-		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE,
+		Message(MSG_WARNING, e.get_error_state(),
 			msg(lng::MError),
 			{
 				msg(lng::MCannotUpdateDiz),

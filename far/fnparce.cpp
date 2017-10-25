@@ -790,8 +790,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 	catch (const far_exception& e)
 	{
 		os::fs::delete_file(strListFileName);
-		Global->CatchError(e.get_error_codes());
-		Message(MSG_WARNING | MSG_ERRORTYPE,
+		Message(MSG_WARNING, e.get_error_state(),
 			msg(lng::MError),
 			{
 				msg(lng::MCannotCreateListFile),

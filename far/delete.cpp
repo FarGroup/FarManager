@@ -986,8 +986,9 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			MsgCode = static_cast<operation>(m_SkipMode);
 		else
 		{
-			Global->CatchError();
-			MsgCode = OperationFailed(strFullName, lng::MError, msg(recycle_bin ? lng::MCannotRecycleFile : lng::MCannotDeleteFile));
+			const auto ErrorState = error_state::fetch();
+
+			MsgCode = OperationFailed(ErrorState, strFullName, lng::MError, msg(recycle_bin ? lng::MCannotRecycleFile : lng::MCannotDeleteFile));
 		}
 
 		switch (static_cast<operation>(MsgCode))
@@ -1051,8 +1052,9 @@ DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 			}
 			else
 			{
-				Global->CatchError();
-				MsgCode = OperationFailed(Name, lng::MError, msg(recycle_bin? lng::MCannotRecycleFolder : lng::MCannotDeleteFolder));
+				const auto ErrorState = error_state::fetch();
+
+				MsgCode = OperationFailed(ErrorState, Name, lng::MError, msg(recycle_bin? lng::MCannotRecycleFolder : lng::MCannotDeleteFolder));
 			}
 
 			switch (MsgCode)
@@ -1136,11 +1138,12 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 	DWORD dwe = GetLastError(); // probably bad path to recycle bin
 	if (ERROR_BAD_PATHNAME == dwe || ERROR_FILE_NOT_FOUND == dwe || (dir && ERROR_PATH_NOT_FOUND==dwe))
 	{
-		Global->CatchError();
+		const auto ErrorState = error_state::fetch();
+
 		string qName(strFullName);
 		QuoteOuterSpace(qName);
 
-		int MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE,
+		int MsgCode = Message(MSG_WARNING, ErrorState,
 			msg(lng::MError),
 			{
 				msg(dir? lng::MCannotRecycleFolder : lng::MCannotRecycleFile),

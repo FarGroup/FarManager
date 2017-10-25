@@ -543,8 +543,9 @@ void ShowHotplugDevices()
 					else if (bResult != -1)
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ...ю "The disk is in use or locked by another process."
-						Global->CatchError();
-						Message(MSG_WARNING | MSG_ERRORTYPE,
+						const auto ErrorState = error_state::fetch();
+
+						Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),
 							{
 								msg(lng::MChangeCouldNotEjectHotPlugMedia2),

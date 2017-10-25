@@ -36,16 +36,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "tracer.hpp"
 
-error_codes::error_codes():
-	Win32Error(GetLastError()),
-	NtError(Imports().RtlGetLastNtStatus())
+error_state error_state::fetch()
 {
+	error_state State;
+	State.Win32Error = GetLastError();
+	State.NtError = Imports().RtlGetLastNtStatus();
+	State.m_Engaged = true;
+	return State;
 }
 
-error_codes::error_codes(ignore):
-	Win32Error(ERROR_SUCCESS),
-	NtError(STATUS_SUCCESS)
-{}
+bool error_state::engaged() const
+{
+	return m_Engaged;
+}
 
 
 far_exception::far_exception(const string& Message, const char* Function, const char* File, int Line):

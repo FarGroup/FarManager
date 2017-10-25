@@ -338,8 +338,9 @@ int MkHardLink(const string& ExistingName,const string& NewName, bool Silent)
 
 	if (!Result && !Silent)
 	{
-		Global->CatchError();
-		Message(MSG_WARNING|MSG_ERRORTYPE,
+		const auto ErrorState = error_state::fetch();
+
+		Message(MSG_WARNING, ErrorState,
 			msg(lng::MError),
 			{
 				msg(lng::MCopyCannotCreateLink),
@@ -622,8 +623,9 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 				{
 					if (!Silent)
 					{
-						Global->CatchError();
-						Message(MSG_WARNING | MSG_ERRORTYPE,
+						const auto ErrorState = error_state::fetch();
+
+						Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),
 							{
 								msg(lng::MCopyCannotCreateLink),
@@ -646,8 +648,9 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 			{
 				if (!Silent)
 				{
-					Global->CatchError();
-					Message(MSG_WARNING | MSG_ERRORTYPE,
+					const auto ErrorState = error_state::fetch();
+
+					Message(MSG_WARNING, ErrorState,
 						msg(lng::MError),
 						{
 							msg(lng::MCopyCannotCreateLink),
@@ -669,8 +672,9 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 			{
 				if (!Silent)
 				{
-					Global->CatchError();
-					Message(MSG_WARNING | MSG_ERRORTYPE,
+					const auto ErrorState = error_state::fetch();
+
+					Message(MSG_WARNING, ErrorState,
 						msg(lng::MError),
 						{
 							format(lng::MCopyMountVolFailed, Target),

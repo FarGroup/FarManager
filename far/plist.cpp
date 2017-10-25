@@ -163,8 +163,9 @@ void ShowProcessList()
 							const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
 							if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
 							{
-								Global->CatchError();
-								Message(MSG_WARNING | MSG_ERRORTYPE,
+								const auto ErrorState = error_state::fetch();
+
+								Message(MSG_WARNING, ErrorState,
 									msg(lng::MKillProcessTitle),
 									{
 										msg(lng::MCannotKillProcess)

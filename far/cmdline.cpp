@@ -1281,15 +1281,17 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	}
 	else
 	{
-		Global->CatchError();
 		if (!Selent)
-			Message(MSG_WARNING | MSG_ERRORTYPE,
+		{
+			const auto ErrorState = error_state::fetch();
+
+			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
 					strExpandedDir
 				},
 				{ lng::MOk });
-
+		}
 		return false;
 	}
 

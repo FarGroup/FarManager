@@ -32,15 +32,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-struct error_codes
+struct error_state
 {
-	struct ignore{};
+	static error_state fetch();
+	bool engaged() const;
 
-	error_codes();
-	explicit error_codes(ignore);
+	DWORD Win32Error = ERROR_SUCCESS;
+	NTSTATUS NtError = STATUS_SUCCESS;
 
-	DWORD Win32Error;
-	NTSTATUS NtError;
+private:
+	bool m_Engaged = false;
 };
 
 namespace detail
@@ -50,18 +51,19 @@ namespace detail
 	public:
 		exception_impl(const string& Message, const char* Function, const char* File, int Line):
 			m_Message(Message),
-			m_FullMessage(format(L"{0} (at {1}, {2}:{3})", Message, Function, File, Line))
+			m_FullMessage(format(L"{0} (at {1}, {2}:{3})", Message, Function, File, Line)),
+			m_ErrorState(error_state::fetch())
 		{
 		}
 
 		const auto& get_message() const noexcept { return m_Message; }
 		const auto& get_full_message() const noexcept { return m_FullMessage; }
-		const auto& get_error_codes() const noexcept { return m_ErrorCodes; }
+		const auto& get_error_state() const noexcept { return m_ErrorState; }
 
 	private:
 		string m_Message;
 		string m_FullMessage;
-		error_codes m_ErrorCodes;
+		error_state m_ErrorState;
 	};
 }
 

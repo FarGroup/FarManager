@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
+#include "exception.hpp"
 
 static string GetStoredUserName(wchar_t Drive)
 {
@@ -125,14 +126,14 @@ bool ConnectToNetworkResource(const string& NewDir)
 			if (res == NO_ERROR)
 				break;
 
-			Global->CatchError();
+			const auto ErrorState = error_state::fetch();
 
 			if (res != ERROR_ACCESS_DENIED && res != ERROR_INVALID_PASSWORD && res != ERROR_LOGON_FAILURE)
 			{
-				Message(MSG_WARNING,
+				Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
 					{
-						GetErrorString()
+						NewDir
 					},
 					{ lng::MOk });
 				break;

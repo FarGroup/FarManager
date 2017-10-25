@@ -2150,12 +2150,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					string strDirName;
 					const wchar_t* DirName=strDirName.data();
 					int MakeCode=Global->CtrlObject->Plugins->MakeDirectory(GetPluginHandle(), &DirName,0);
-					Global->CatchError();
 					strDirName = DirName;
 
 					if (!MakeCode)
 					{
-						Message(MSG_WARNING,
+						Message(MSG_WARNING, 
 							msg(lng::MError),
 							{
 								msg(lng::MCannotCreateFolder),
@@ -2934,11 +2933,12 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 
 	if (!FarChDir(strSetDir))
 	{
-		Global->CatchError();
+		const auto ErrorState = error_state::fetch();
+
 		if (Global->WindowManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
-			Message(MSG_WARNING | MSG_ERRORTYPE,
+			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
 					dot2Present ? L".."s : strSetDir
@@ -6707,7 +6707,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	AddEndSlash(strFind);
 	strFind+=L'*';
 	const auto Find = os::fs::enum_files(strFind, true);
-	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
 	{
@@ -6742,12 +6741,12 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		}
 	}
 
+	error_state ErrorState;
 	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
 	std::all_of(CONST_RANGE(Find, fdata)
 	{
-		Global->CatchError();
-		FindErrorCode = Global->CaughtError().Win32Error;
+		ErrorState = error_state::fetch();
 
 		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{
@@ -6830,9 +6829,12 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		return true;
 	});
 
-	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
+	if (!ErrorState.engaged())
+		ErrorState = error_state::fetch();
+
+	if (!(ErrorState.Win32Error == ERROR_SUCCESS || ErrorState.Win32Error == ERROR_NO_MORE_FILES || ErrorState.Win32Error == ERROR_FILE_NOT_FOUND))
 	{
-		Message(MSG_WARNING | MSG_ERRORTYPE,
+		Message(MSG_WARNING, ErrorState,
 			msg(lng::MError),
 			{
 				msg(lng::MReadFolderError),

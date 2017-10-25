@@ -158,9 +158,9 @@ void elevation::WriteArg(const bytes_view& Data) const
 
 void elevation::RetrieveLastError() const
 {
-	const auto ErrorCodes = Read<error_codes>();
-	SetLastError(ErrorCodes.Win32Error);
-	Imports().RtlNtStatusToDosError(ErrorCodes.NtError);
+	const auto ErrorState = Read<error_state>();
+	SetLastError(ErrorState.Win32Error);
+	Imports().RtlNtStatusToDosError(ErrorState.NtError);
 }
 
 template<typename T>
@@ -899,7 +899,7 @@ private:
 
 		const auto Result = os::fs::low::create_directory(TemplateObject.data(), Object.data(), nullptr);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void RemoveDirectoryHandler() const
@@ -908,7 +908,7 @@ private:
 
 		const auto Result = os::fs::low::remove_directory(Object.data());
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void DeleteFileHandler() const
@@ -917,7 +917,7 @@ private:
 
 		const auto Result = os::fs::low::delete_file(Object.data());
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void CopyFileHandler() const
@@ -932,7 +932,7 @@ private:
 		callback_param Param{ this, reinterpret_cast<void*>(Data) };
 		const auto Result = os::fs::low::copy_file(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
 
-		Write(0 /* not CallbackMagic */, error_codes{}, Result);
+		Write(0 /* not CallbackMagic */, error_state::fetch(), Result);
 
 		RethrowIfNeeded(Param.ExceptionPtr);
 	}
@@ -945,7 +945,7 @@ private:
 
 		const auto Result = os::fs::low::move_file(From.data(), To.data(), Flags);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void GetFileAttributesHandler() const
@@ -954,7 +954,7 @@ private:
 
 		const auto Result = os::fs::low::get_file_attributes(Object.data());
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void SetFileAttributesHandler() const
@@ -964,7 +964,7 @@ private:
 
 		const auto Result = os::fs::low::set_file_attributes(Object.data(), Attributes);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void CreateHardLinkHandler() const
@@ -975,7 +975,7 @@ private:
 
 		const auto Result = os::fs::low::create_hard_link(Object.data(), Target.data(), nullptr);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void CreateSymbolicLinkHandler() const
@@ -986,7 +986,7 @@ private:
 
 		const auto Result = os::fs::CreateSymbolicLinkInternal(Object, Target, Flags);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void MoveToRecycleBinHandler() const
@@ -1010,7 +1010,7 @@ private:
 
 		const auto Result = SetOwnerInternal(Object, Owner);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void CreateFileHandler() const
@@ -1031,7 +1031,7 @@ private:
 			}
 		}
 
-		Write(error_codes{}, reinterpret_cast<intptr_t>(Duplicate));
+		Write(error_state::fetch(), reinterpret_cast<intptr_t>(Duplicate));
 	}
 
 	void SetEncryptionHandler() const
@@ -1041,7 +1041,7 @@ private:
 
 		const auto Result = os::fs::low::set_file_encryption(Object.data(), Encrypt);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void DetachVirtualDiskHandler() const
@@ -1051,7 +1051,7 @@ private:
 
 		const auto Result = os::fs::low::detach_virtual_disk(Object.data(), VirtualStorageType);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 	}
 
 	void GetDiskFreeSpaceHandler() const
@@ -1061,7 +1061,7 @@ private:
 		unsigned long long FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes;
 		const auto Result = os::fs::low::get_disk_free_space(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
 
-		Write(error_codes{}, Result);
+		Write(error_state::fetch(), Result);
 
 		if(Result)
 		{

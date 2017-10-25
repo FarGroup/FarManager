@@ -178,8 +178,9 @@ void ShellMakeDir(Panel *SrcPanel)
 					{
 						while((bSuccess = os::fs::create_directory(Part)) == false && !SkipAll)
 						{
-							Global->CatchError();
-							const auto Result = OperationFailed(strOriginalDirName, lng::MError, msg(lng::MCannotCreateFolder));
+							const auto ErrorState = error_state::fetch();
+
+							const auto Result = OperationFailed(ErrorState, strOriginalDirName, lng::MError, msg(lng::MCannotCreateFolder));
 							if (Result == operation::retry)
 							{
 								continue;
@@ -213,8 +214,9 @@ void ShellMakeDir(Panel *SrcPanel)
 					const auto strTarget = unquote(MkDirDlg[MKDIR_EDIT_LINKPATH].strData);
 					while(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR) && !SkipAll)
 					{
-						Global->CatchError();
-						const auto Result = OperationFailed(strDirName, lng::MError, msg(lng::MCopyCannotCreateLink));
+						const auto ErrorState = error_state::fetch();
+
+						const auto Result = OperationFailed(ErrorState, strDirName, lng::MError, msg(lng::MCopyCannotCreateLink));
 						if (Result == operation::retry)
 						{
 							continue;

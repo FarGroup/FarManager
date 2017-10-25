@@ -170,10 +170,11 @@ plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& fi
 	auto Module = std::make_unique<native_plugin_module>(filename);
 	if (!Module->m_Module)
 	{
-		Global->CatchError();
+		const auto ErrorState = error_state::fetch();
+
 		Module.reset();
 
-		Message(MSG_WARNING | MSG_ERRORTYPE | MSG_NOPLUGINS,
+		Message(MSG_WARNING | MSG_NOPLUGINS, ErrorState,
 			msg(lng::MError),
 			{
 				msg(lng::MPlgLoadPluginError),
@@ -1262,7 +1263,6 @@ public:
 		auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
 		if (!Module->get_opaque())
 		{
-			Global->CatchError();
 			Module.reset();
 		}
 		ProcessError(L"Create"_sv);

@@ -1262,8 +1262,9 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					if(!ModifyReparsePoint(strSelName, unquote(AttrDlg[SA_EDIT_SYMLINK].strData)))
 					{
-						Global->CatchError();
-						Message(MSG_WARNING | MSG_ERRORTYPE,
+						const auto ErrorState = error_state::fetch();
+
+						Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),
 							{
 								msg(lng::MCopyCannotCreateLink),

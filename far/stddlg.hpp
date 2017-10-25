@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum class lng : int;
 class RegExp;
+struct error_state;
 
 /*
   Функция GetSearchReplaceString выводит диалог поиска или замены, принимает
@@ -149,7 +150,7 @@ enum class operation
 	cancel,
 };
 
-operation OperationFailed(const string& Object, lng Title, const string& Description, bool AllowSkip = true);
+operation OperationFailed(const error_state& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip = true);
 
 void ReCompileErrorMessage(const RegExp& re, const string& str);
 void ReMatchErrorMessage(const RegExp& re);

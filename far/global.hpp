@@ -36,7 +36,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-struct error_codes;
 enum class lng;
 
 class global: noncopyable
@@ -50,10 +49,6 @@ public:
 	unsigned long long FarUpTime() const;
 	static string_view Version();
 	static string_view Copyright();
-
-	static void CatchError();
-	static void CatchError(const error_codes& ErrorCodes);
-	static const error_codes& CaughtError() { return m_ErrorCodes; }
 
 	const string& GetSearchString() const { return m_SearchString; }
 	bool GetSearchHex() const { return m_SearchHex; }
@@ -124,8 +119,6 @@ private:
 
 	string m_SearchString;
 	bool m_SearchHex;
-
-	static thread_local error_codes m_ErrorCodes;
 
 public:
 	// TODO: review the order and make private

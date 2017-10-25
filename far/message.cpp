@@ -69,12 +69,12 @@ static string GetNtErrorString(NTSTATUS LastNtStatus)
 	return FormatErrorString(true, LastNtStatus);
 }
 
-string GetErrorString()
+string GetErrorString(const error_state& ErrorState)
 {
 #ifdef USE_NT_MESSAGES
-	return GetNtErrorString(Global->CaughtError().NtError);
+	return GetNtErrorString(ErrorState.NtError);
 #else
-	return GetWin32ErrorString(Global->CaughtError().Win32Error);
+	return GetWin32ErrorString(ErrorState.Win32Error);
 #endif
 }
 
@@ -122,9 +122,8 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 					if(IsErrorType)
 					{
 						DialogBuilder Builder(lng::MError, nullptr);
-						const auto& CaughtError = Global->CaughtError();
-						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(CaughtError.Win32Error), GetWin32ErrorString(CaughtError.Win32Error)), 65);
-						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(CaughtError.NtError), GetNtErrorString(CaughtError.NtError)), 65);
+						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.Win32Error), GetWin32ErrorString(m_ErrorState.Win32Error)), 65);
+						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.NtError), GetNtErrorString(m_ErrorState.NtError)), 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
@@ -171,19 +170,28 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
+Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id):
 	m_ExitCode(0)
 {
 	std::vector<string> StrButtons;
 	StrButtons.reserve(Buttons.size());
 	std::transform(ALL_CONST_RANGE(Buttons), std::back_inserter(StrButtons), msg);
-	Init(Flags, Title, std::move(Strings), std::move(StrButtons), Inserts, HelpTopic, nullptr, Id);
+	Init(Flags, Title, std::move(Strings), std::move(StrButtons), nullptr, {}, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, std::vector<string> Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
+Message::Message(DWORD Flags, const error_state& ErrorState, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
 	m_ExitCode(0)
 {
-	Init(Flags, Title, std::move(Strings), std::move(Buttons), {}, HelpTopic, PluginNumber, Id);
+	std::vector<string> StrButtons;
+	StrButtons.reserve(Buttons.size());
+	std::transform(ALL_CONST_RANGE(Buttons), std::back_inserter(StrButtons), msg);
+	Init(Flags, Title, std::move(Strings), std::move(StrButtons), &ErrorState, Inserts, HelpTopic, nullptr, Id);
+}
+
+Message::Message(DWORD Flags, const error_state* ErrorState, const string& Title, std::vector<string> Strings, std::vector<string> Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
+	m_ExitCode(0)
+{
+	Init(Flags, Title, std::move(Strings), std::move(Buttons), ErrorState, {}, HelpTopic, PluginNumber, Id);
 }
 
 void Message::Init(
@@ -191,6 +199,7 @@ void Message::Init(
 	const string& Title,
 	std::vector<string>&& Strings,
 	std::vector<string>&& Buttons,
+	const error_state* ErrorState,
 	const std::vector<string>& Inserts,
 	const wchar_t* HelpTopic,
 	Plugin* PluginNumber,
@@ -198,13 +207,14 @@ void Message::Init(
 	)
 {
 	IsWarningStyle = (Flags&MSG_WARNING) != 0;
-	IsErrorType = (Flags&MSG_ERRORTYPE) != 0;
+	IsErrorType = ErrorState != nullptr;
 
 	string strErrStr;
 
 	if (IsErrorType)
 	{
-		strErrStr = GetErrorString();
+		m_ErrorState = *ErrorState;
+		strErrStr = GetErrorString(m_ErrorState);
 		if (!strErrStr.empty())
 		{
 			size_t index = 1;

@@ -817,6 +817,8 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 	bool Result = false;
 
+	error_state ErrorState;
+
 	if (TreeFile)
 	{
 		CachedWrite Cache(TreeFile);
@@ -829,14 +831,14 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 		Result = std::all_of(ALL_RANGE(Container), WriteLine) && Cache.Flush();
 
 		if (!Result)
-			Global->CatchError();
+			ErrorState = error_state::fetch();
 
 		TreeFile.SetEnd();
 		TreeFile.Close();
 	}
 	else
 	{
-		Global->CatchError();
+		ErrorState = error_state::fetch();
 	}
 
 	if (Result)
@@ -848,7 +850,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	{
 		os::fs::delete_file(TreeCache().GetTreeName());
 		if (!Global->WindowManager->ManagerIsDown())
-			Message(MSG_WARNING | MSG_ERRORTYPE,
+			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
 					msg(lng::MCannotSaveTree),

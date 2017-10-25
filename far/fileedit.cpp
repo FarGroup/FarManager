@@ -623,7 +623,8 @@ void FileEditor::Init(
 	if (m_Flags.Check(FFILEEDIT_LOCKED))
 		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
 
-	while (!LoadFile(strFullFileName,UserBreak))
+	error_state ErrorState;
+	while (!LoadFile(strFullFileName,UserBreak, ErrorState))
 	{
 		if (BlankFileName)
 		{
@@ -635,7 +636,7 @@ void FileEditor::Init(
 		{
 			if (UserBreak!=1)
 			{
-				if(OperationFailed(strFullFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) == operation::retry)
+				if(OperationFailed(ErrorState, strFullFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false) == operation::retry)
 					continue;
 				else
 					SetExitCode(XC_OPEN_ERROR);
@@ -1053,11 +1054,12 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 						strFullSaveAsName = ConvertNameToFull(strSaveAsName);  //BUGBUG, не проверяем имя на правильность
 					}
 
-					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, TextFormat, codepage, m_bAddSignature);
+					error_state ErrorState;
+					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, ErrorState, TextFormat, codepage, m_bAddSignature);
 
 					if (SaveResult==SAVEFILE_ERROR)
 					{
-						if (OperationFailed(strFullFileName, lng::MEditTitle, msg(lng::MEditCannotSave), false) != operation::retry)
+						if (OperationFailed(ErrorState, strFullFileName, lng::MEditTitle, msg(lng::MEditCannotSave), false) != operation::retry)
 						{
 							Done = true;
 							break;
@@ -1082,7 +1084,8 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 							{
 								//Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", msg(lng::MOk));
 								int UserBreak;
-								LoadFile(strFullSaveAsName, UserBreak); // BUGBUG check result
+								error_state LoadErrorState;
+								LoadFile(strFullSaveAsName, UserBreak, LoadErrorState); // BUGBUG check result
 								// TODO: возможно подобный ниже код здесь нужен (copy/paste из FileEditor::Init()). оформить его нужно по иному
 								//if(!Global->Opt->Confirm.Esc && UserBreak && GetExitCode()==XC_LOADING_INTERRUPTED && WindowManager)
 								//  WindowManager->RefreshWindow();
@@ -1400,10 +1403,11 @@ int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWind
 	for (;;)
 	{
 		int SaveCode=SAVEFILE_SUCCESS;
+		error_state ErrorState;
 
 		if (NeedQuestion)
 		{
-			SaveCode=SaveFile(strFullFileName, FirstSave, false, 0);
+			SaveCode=SaveFile(strFullFileName, FirstSave, false, ErrorState, 0);
 		}
 
 		if (SaveCode==SAVEFILE_CANCEL)
@@ -1439,7 +1443,7 @@ int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWind
 				break;
 		}
 
-		if (OperationFailed(strFullFileName, lng::MEditTitle, msg(lng::MEditCannotSave), false) != operation::retry)
+		if (OperationFailed(ErrorState, strFullFileName, lng::MEditTitle, msg(lng::MEditCannotSave), false) != operation::retry)
 			break;
 
 		FirstSave=0;
@@ -1448,7 +1452,7 @@ int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWind
 }
 
 
-bool FileEditor::LoadFile(const string& Name,int &UserBreak)
+bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorState)
 {
 	try
 	{
@@ -1463,8 +1467,8 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak)
 	os::fs::file EditFile(Name, FILE_READ_DATA, FILE_SHARE_READ | (Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!EditFile)
 	{
-		Global->CatchError();
-		if ((Global->CaughtError().Win32Error != ERROR_FILE_NOT_FOUND) && (Global->CaughtError().Win32Error != ERROR_PATH_NOT_FOUND))
+		ErrorState = error_state::fetch();
+		if ((ErrorState.Win32Error != ERROR_FILE_NOT_FOUND) && (ErrorState.Win32Error != ERROR_PATH_NOT_FOUND))
 		{
 			UserBreak = -1;
 			m_Flags.Set(FFILEEDIT_OPENFAILED);
@@ -1497,7 +1501,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak)
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
-					Global->CatchError();
+					ErrorState = error_state::fetch();
 					UserBreak=1;
 					m_Flags.Set(FFILEEDIT_OPENFAILED);
 					return false;
@@ -1517,7 +1521,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak)
 			{
 				EditFile.Close();
 				SetLastError(ERROR_OPEN_FAILED); //????
-				Global->CatchError();
+				ErrorState = error_state::fetch();
 				UserBreak=1;
 				m_Flags.Set(FFILEEDIT_OPENFAILED);
 				return false;
@@ -1632,7 +1636,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak)
 			{
 				EditFile.Close();
 				SetLastError(ERROR_OPEN_FAILED); //????
-				Global->CatchError();
+				ErrorState = error_state::fetch();
 				UserBreak=1;
 				m_Flags.Set(FFILEEDIT_OPENFAILED);
 				return false;
@@ -1653,7 +1657,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 	EditFile.Close();
 	m_editor->SetCacheParams(pc, m_bAddSignature);
-	Global->CatchError();
+	ErrorState = error_state::fetch();
 	os::fs::get_find_data(Name, FileInfo);
 	EditorGetFileAttributes(Name);
 	return true;
@@ -1665,7 +1669,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak)
 		m_editor->FreeAllocatedData();
 		m_Flags.Set(FFILEEDIT_OPENFAILED);
 		SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-		Global->CatchError();
+		ErrorState = error_state::fetch();
 		return false;
 	}
 }
@@ -1683,7 +1687,9 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 
 	int user_break = 0;
 	m_codepage = codepage;
-	int loaded = LoadFile(strFullFileName, user_break);
+	error_state ErrorState;
+
+	int loaded = LoadFile(strFullFileName, user_break, ErrorState);
 	if (!loaded)
 	{
 		m_codepage = save_codepage;
@@ -1697,7 +1703,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 		if (user_break != 1)
 		{
 			// BUGBUG result check???
-			OperationFailed(strFullFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false);
+			OperationFailed(ErrorState, strFullFileName, lng::MEditTitle, msg(lng::MEditCannotOpen), false);
 		}
 	}
 	else
@@ -1710,7 +1716,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 }
 
 //TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
-int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextFormat, uintptr_t codepage, bool AddSignature)
+int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& ErrorState, int TextFormat, uintptr_t codepage, bool AddSignature)
 {
 	if (!bSaveAs)
 	{
@@ -1844,7 +1850,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				// Раз уж
 				CreatePath(strCreatedPath);
 				if (!os::fs::exists(strCreatedPath))
+				{
+					ErrorState = error_state::fetch();
 					return SAVEFILE_ERROR;
+				}
 			}
 		}
 	}
@@ -2081,7 +2090,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 	catch (const far_exception& e)
 	{
 		RetCode = SAVEFILE_ERROR;
-		Global->CatchError(e.get_error_codes());
+		ErrorState = e.get_error_state();
 	}
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
@@ -2652,7 +2661,8 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 					m_Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
 					//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
-					return SaveFile(strName,FALSE,true,EOL,codepage,m_bAddSignature);
+					error_state ErrorState;
+					return SaveFile(strName, FALSE, true, ErrorState, EOL, codepage, m_bAddSignature);
 				}
 			}
 

@@ -125,8 +125,9 @@ void PrintFiles(FileList* SrcPanel)
 
 	if (!EnumPrinters(PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS, nullptr, PRINTER_INFO_LEVEL, reinterpret_cast<BYTE*>(pi.get()), Needed, &Needed, &Returned))
 	{
-		Global->CatchError();
-		Message(MSG_WARNING | MSG_ERRORTYPE,
+		const auto ErrorState = error_state::fetch();
+
+		Message(MSG_WARNING, ErrorState,
 			msg(lng::MPrintTitle),
 			{
 				msg(lng::MCannotEnumeratePrinters)
@@ -173,8 +174,9 @@ void PrintFiles(FileList* SrcPanel)
 
 	if (!OpenPrinter(UNSAFE_CSTR(strPrinterName), &ptr_setter(Printer), nullptr))
 	{
-		Global->CatchError();
-		Message(MSG_WARNING | MSG_ERRORTYPE,
+		const auto ErrorState = error_state::fetch();
+
+		Message(MSG_WARNING, ErrorState,
 			msg(lng::MPrintTitle),
 			{
 				msg(lng::MCannotOpenPrinter),
@@ -238,6 +240,8 @@ void PrintFiles(FileList* SrcPanel)
 			else
 				FileName = strSelName;
 
+			error_state ErrorState;
+
 			if(const auto SrcFile = os::fs::file(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
 				DOC_INFO_1 di1 = {UNSAFE_CSTR(FileName)};
@@ -253,7 +257,7 @@ void PrintFiles(FileList* SrcPanel)
 					{
 						if (!WritePrinter(Printer.native_handle(), Buffer, static_cast<DWORD>(Read), &Written))
 						{
-							Global->CatchError();
+							ErrorState = error_state::fetch();
 							Success = FALSE;
 							break;
 						}
@@ -271,7 +275,7 @@ void PrintFiles(FileList* SrcPanel)
 				SrcPanel->ClearLastGetSelection();
 			else
 			{
-				if (Message(MSG_WARNING | MSG_ERRORTYPE,
+				if (Message(MSG_WARNING, ErrorState,
 					msg(lng::MPrintTitle),
 					{
 						msg(lng::MCannotPrint),

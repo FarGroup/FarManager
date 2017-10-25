@@ -943,6 +943,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	seInfo.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Info.NewWindow? 0 : SEE_MASK_NO_CONSOLE);
 
 	os::handle Process;
+	error_state ErrorState;
 
 	{
 		// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
@@ -956,7 +957,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		}
 		else
 		{
-			Global->CatchError();
+			ErrorState = error_state::fetch();
 		}
 	}
 
@@ -1101,7 +1102,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		else
 			Strings = { msg(lng::MCannotInvokeComspec), strComspec, msg(lng::MCheckComspecVar) };
 
-		Message(MSG_WARNING | MSG_ERRORTYPE,
+		Message(MSG_WARNING, ErrorState,
 			msg(lng::MError),
 			std::move(Strings),
 			{ lng::MOk },

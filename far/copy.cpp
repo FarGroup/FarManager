@@ -1398,7 +1398,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		 && !IsSlash(strDest.back())
 		 && !os::fs::exists(strDest))
 		{
-			switch (Message(FMSG_WARNING,
+			switch (Message(MSG_WARNING,
 				msg(lng::MWarning),
 				{
 					strDest,
@@ -1426,8 +1426,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				auto Exists_2 = Exists_1;
 				while ( !Exists_2 && SkipMode != 2)
 				{
-					Global->CatchError();
-					const auto Result = OperationFailed(strDestDriveRoot, lng::MError, L"");
+					const auto ErrorState = error_state::fetch();
+
+					const auto Result = OperationFailed(ErrorState, strDestDriveRoot, lng::MError, L"");
 					if (Result == operation::retry)
 					{
 						continue;
@@ -1978,8 +1979,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 					else
 					{
-						Global->CatchError();
-						int MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE,
+						const auto ErrorState = error_state::fetch();
+
+						int MsgCode = Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),
 							{
 								msg(lng::MCopyCannotRenameFolder),
@@ -2031,8 +2033,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && Flags & FCOPY_COPYSYMLINKCONTENTS? L""s : Src,
 					strDestPath, Flags & FCOPY_COPYSECURITY? &SecAttr : nullptr))
 				{
-					Global->CatchError();
-					const int MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE,
+					const auto ErrorState = error_state::fetch();
+					const int MsgCode = Message(MSG_WARNING, ErrorState,
 						msg(lng::MError),
 						{
 							msg(lng::MCopyCannotCreateFolder),
@@ -2100,8 +2102,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					while (!ShellSetAttr(strDestPath,SetAttr))
 					{
-						Global->CatchError();
-						const int MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE,
+						const auto ErrorState = error_state::fetch();
+						const int MsgCode = Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),
 							{
 								msg(lng::MCopyCannotChangeFolderAttr),
@@ -2136,8 +2138,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					while (!ShellSetAttr(strDestPath,SetAttr))
 					{
-						Global->CatchError();
-						const int MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE,
+						const auto ErrorState = error_state::fetch();
+						const int MsgCode = Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),
 							{
 								msg(lng::MCopyCannotChangeFolderAttr),
@@ -2256,6 +2258,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	{
 		for (;;)
 		{
+			error_state ErrorState;
+
 			if (!(Flags&FCOPY_COPYTONUL) && Rename)
 			{
 				int AskDelete;
@@ -2300,16 +2304,13 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (!FileMoved)
 					{
-						int MoveLastError=GetLastError();
+						ErrorState = error_state::fetch();
 
 						if (NWFS_Attr)
 							os::fs::set_file_attributes(strSrcFullName,SrcData.dwFileAttributes);
 
-						if (MoveLastError==ERROR_NOT_SAME_DEVICE)
+						if (ErrorState.Win32Error == ERROR_NOT_SAME_DEVICE)
 							return COPY_FAILURE;
-
-						SetLastError(MoveLastError);
-						Global->CatchError();
 					}
 					else
 					{
@@ -2334,7 +2335,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					do
 					{
 						DWORD Attr=INVALID_FILE_ATTRIBUTES;
-						CopyCode=ShellCopyFile(Src,SrcData,strDestPath,Attr,Append);
+						CopyCode = ShellCopyFile(Src, SrcData, strDestPath, Attr, Append, ErrorState);
 					}
 					while (CopyCode==COPY_RETRY);
 
@@ -2382,7 +2383,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				int CopyCode;
 				do
 				{
-					CopyCode=ShellCopyFile(Src,SrcData,strDestPath,DestAttr,Append);
+					CopyCode = ShellCopyFile(Src, SrcData, strDestPath, DestAttr, Append, ErrorState);
 				}
 				while (CopyCode==COPY_RETRY);
 
@@ -2438,10 +2439,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					//if (GetLastError() == ERROR_ACCESS_DENIED)
 					{
 						SetLastError(ERROR_ENCRYPTION_FAILED);
+						ErrorState = error_state::fetch();
 					}
-					Global->CatchError();
 
-					MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE,
+					MsgCode = Message(MSG_WARNING, ErrorState,
 						msg(lng::MError),
 						{
 							msg(MsgMCannot),
@@ -2478,8 +2479,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					MsgCode=SkipMode;
 				else
 				{
-					Global->CatchError();
-					MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE,
+					if (!ErrorState.engaged())
+						ErrorState = error_state::fetch();
+
+					MsgCode = Message(MSG_WARNING, ErrorState,
 						msg(lng::MError),
 						{
 							msg(MsgMCannot),
@@ -2614,13 +2617,16 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 
 	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!os::fs::remove_directory(FullName):!os::fs::delete_file(FullName))
 	{
-		Global->CatchError();
 		operation MsgCode;
 
 		if (SkipDeleteMode!=-1)
 			MsgCode = static_cast<operation>(SkipDeleteMode);
 		else
-			MsgCode=OperationFailed(FullName, lng::MError, msg(lng::MCannotDeleteFile));
+		{
+			const auto ErrorState = error_state::fetch();
+
+			MsgCode = OperationFailed(ErrorState, FullName, lng::MError, msg(lng::MCannotDeleteFile));
+		}
 
 		switch (MsgCode)
 		{
@@ -2645,7 +2651,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 
 
 int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcData,
-                             string &strDestName,DWORD &DestAttr,int Append)
+                             string &strDestName,DWORD &DestAttr,int Append, error_state& ErrorState)
 {
 	if ((Flags&FCOPY_LINK))
 	{
@@ -2859,8 +2865,9 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 			size_t BytesRead;
 			while (!SrcFile.Read(CopyBuffer.get(), SrcFile.GetChunkSize(), BytesRead))
 			{
-				Global->CatchError();
-				const int MsgCode = Message(MSG_WARNING | MSG_ERRORTYPE,
+				ErrorState = error_state::fetch();
+
+				const int MsgCode = Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
 					{
 						msg(lng::MCopyReadError),
@@ -2870,7 +2877,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 				if (!MsgCode)
 					continue;
 
-				DWORD LastError=GetLastError();
 				SrcFile.Close();
 
 				if (!(Flags&FCOPY_COPYTONUL))
@@ -2891,8 +2897,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 				}
 
 				CP->SetProgressValue(0,0);
-				SetLastError(LastError);
-				Global->CatchError();
 				CP->m_Bytes.CurrCopied = 0; // Сбросить текущий прогресс
 				return COPY_FAILURE;
 			}
@@ -2907,11 +2911,11 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 				DestFile.SetPointer(SrcFile.GetChunkOffset() + (Append? AppendPos : 0), nullptr, FILE_BEGIN);
 				while (!DestFile.Write(CopyBuffer.get(), BytesRead))
 				{
-					DWORD LastError=GetLastError();
-					Global->CatchError();
+					ErrorState = error_state::fetch();
+
 					int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
 
-					if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
+					if ((ErrorState.Win32Error == ERROR_DISK_FULL || ErrorState.Win32Error == ERROR_HANDLE_DISK_FULL) &&
 						strDestName.size() > 1 && strDestName[1]==L':')
 					{
 						const auto strDriveRoot = GetPathRoot(strDestName);
@@ -2924,7 +2928,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 								SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 							{
 								DestFile.Close();
-								int MsgCode=Message(MSG_WARNING | MSG_ERRORTYPE,
+								int MsgCode=Message(MSG_WARNING, ErrorState,
 									msg(lng::MError),
 									{
 										strDestName
@@ -3027,7 +3031,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 					else
 					{
 						if (!SplitCancelled && !SplitSkipped &&
-							Message(MSG_WARNING | MSG_ERRORTYPE,
+							Message(MSG_WARNING, ErrorState,
 								msg(lng::MError),
 								{
 									msg(lng::MCopyWriteError),
@@ -3055,7 +3059,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 						}
 
 						CP->SetProgressValue(0,0);
-						SetLastError(LastError);
 
 						if (SplitSkipped)
 							return COPY_SKIPPED;
@@ -3541,8 +3544,9 @@ bool ShellCopy::GetSecurity(const string& FileName, os::fs::security_descriptor&
 	if (SkipSecurityErrors)
 		return true;
 
-	Global->CatchError();
-	switch (Message(MSG_WARNING | MSG_ERRORTYPE,
+	const auto ErrorState = error_state::fetch();
+
+	switch (Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),
 		{
 			msg(lng::MCannotGetSecurity),
@@ -3570,8 +3574,9 @@ bool ShellCopy::SetSecurity(const string& FileName, const os::fs::security_descr
 	if (SkipSecurityErrors)
 		return true;
 
-	Global->CatchError();
-	switch (Message(MSG_WARNING | MSG_ERRORTYPE,
+	const auto ErrorState = error_state::fetch();
+
+	switch (Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),
 		{
 			msg(lng::MCannotSetSecurity),

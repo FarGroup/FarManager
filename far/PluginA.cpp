@@ -207,9 +207,9 @@ public:
 		auto Module = std::make_unique<oem_plugin_module>(filename);
 		if (!Module->m_Module)
 		{
-			Global->CatchError();
+			const auto ErrorState = error_state::fetch();
 
-			Message(MSG_WARNING | MSG_ERRORTYPE | MSG_NOPLUGINS,
+			Message(MSG_WARNING | MSG_NOPLUGINS, ErrorState,
 				msg(lng::MError),
 				{
 					msg(lng::MPlgLoadPluginError),

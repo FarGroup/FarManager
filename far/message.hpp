@@ -35,10 +35,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "exception.hpp"
+
 enum
 {
 	MSG_WARNING        =0x00000001,
-	MSG_ERRORTYPE      =0x00000002,
 	MSG_KEEPBACKGROUND =0x00000004,
 	MSG_LEFTALIGN      =0x00000008,
 	MSG_KILLSAVESCREEN =0x10000000,
@@ -58,12 +59,23 @@ public:
 		std::vector<string> Strings,
 		const std::vector<lng>& Buttons,
 		const wchar_t* HelpTopic = nullptr,
+		const GUID* Id = nullptr
+	);
+
+	Message(
+		DWORD Flags,
+		const error_state& ErrorState,
+		const string& Title,
+		std::vector<string> Strings,
+		const std::vector<lng>& Buttons,
+		const wchar_t* HelpTopic = nullptr,
 		const GUID* Id = nullptr,
 		const std::vector<string>& Inserts = {}
 	);
 
 	Message(
 		DWORD Flags,
+		const error_state* ErrorState,
 		const string& Title,
 		std::vector<string> Strings,
 		std::vector<string> Buttons,
@@ -91,6 +103,7 @@ private:
 		const string& Title,
 		std::vector<string>&& Strings,
 		std::vector<string>&& Buttons,
+		const error_state* ErrorState,
 		const std::vector<string>& Inserts,
 		const wchar_t* HelpTopic,
 		Plugin* PluginNumber,
@@ -103,6 +116,7 @@ private:
 	int FirstButtonIndex,LastButtonIndex;
 	bool IsWarningStyle;
 	bool IsErrorType;
+	error_state m_ErrorState;
 };
 
 /* $ 12.03.2002 VVM
@@ -114,6 +128,6 @@ private:
 */
 bool AbortMessage();
 
-string GetErrorString();
+string GetErrorString(const error_state& ErrorState);
 
 #endif // MESSAGE_HPP_640AC104_875B_41AE_8EF5_8A99913A6896

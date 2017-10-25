@@ -42,8 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "locale.hpp"
 
-thread_local error_codes global::m_ErrorCodes{error_codes::ignore{}};
-
 global::global():
 	OnlyEditorViewerUsed(),
 	m_MainThreadId(GetCurrentThreadId()),
@@ -100,16 +98,6 @@ global::~global()
 unsigned long long global::FarUpTime() const
 {
 	return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_FarStartTime).count();
-}
-
-void global::CatchError()
-{
-	m_ErrorCodes = error_codes{};
-}
-
-void global::CatchError(const error_codes& ErrorCodes)
-{
-	m_ErrorCodes = ErrorCodes;
 }
 
 void global::StoreSearchString(const string& Str, bool Hex)

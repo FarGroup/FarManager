@@ -554,8 +554,9 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			{
 				if(ShowWarning)
 				{
-					Global->CatchError();
-					Message(MSG_WARNING|MSG_ERRORTYPE,
+					const auto ErrorState = error_state::fetch();
+
+					Message(MSG_WARNING, ErrorState,
 						L"",
 						{
 							msg(lng::MOpenPluginCannotOpenFile),

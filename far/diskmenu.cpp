@@ -371,12 +371,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 				return DRIVE_DEL_SUCCESS;
 			}
 
-			Global->CatchError();
-			const auto LastError = Global->CaughtError().Win32Error;
+			const auto ErrorState = error_state::fetch();
+
+			const auto LastError = ErrorState.Win32Error;
 			const auto strMsgText = format(lng::MChangeDriveCannotDelSubst, DiskLetter);
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING | MSG_ERRORTYPE,
+				if (Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
 					{
 						strMsgText,
@@ -397,7 +398,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 					return DRIVE_DEL_FAIL;
 				}
 			}
-			Message(MSG_WARNING | MSG_ERRORTYPE,
+			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
 					strMsgText
@@ -428,12 +429,13 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			if (WNetCancelConnection2(DiskLetter.data(), UpdateProfile, FALSE) == NO_ERROR)
 				return DRIVE_DEL_SUCCESS;
 
-			Global->CatchError();
+			const auto ErrorState = error_state::fetch();
+
 			const auto strMsgText = format(lng::MChangeDriveCannotDisconnect, DiskLetter);
-			const auto LastError = Global->CaughtError().Win32Error;
+			const auto LastError = ErrorState.Win32Error;
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
-				if (Message(MSG_WARNING | MSG_ERRORTYPE,
+				if (Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
 					{
 						strMsgText,
@@ -457,7 +459,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 
 			if (FAR_GetDriveType(os::fs::get_root_directory(Drive)) == DRIVE_REMOTE)
 			{
-				Message(MSG_WARNING | MSG_ERRORTYPE,
+				Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
 					{
 						strMsgText
@@ -487,6 +489,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 
 			string strVhdPath;
 			VIRTUAL_STORAGE_TYPE VirtualStorageType;
+			error_state ErrorState;
+
 			if (GetVHDInfo(DiskLetter, strVhdPath, &VirtualStorageType) && !strVhdPath.empty())
 			{
 				if (os::fs::detach_virtual_disk(strVhdPath, VirtualStorageType))
@@ -494,14 +498,14 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 					return DRIVE_DEL_SUCCESS;
 				}
 
-				Global->CatchError();
+				ErrorState = error_state::fetch();
 			}
 			else
 			{
-				Global->CatchError();
+				ErrorState = error_state::fetch();
 			}
 
-			Message(MSG_WARNING | MSG_ERRORTYPE,
+			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
 					format(lng::MChangeDriveCannotDetach, DiskLetter)
@@ -553,8 +557,9 @@ static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &C
 
 					// ... и выведем месаг о...
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-					Global->CatchError();
-					DoneEject = OperationFailed(os::fs::get_drive(item->cDrive), lng::MError, format(lng::MChangeCouldNotEjectMedia, item->cDrive), false) != operation::retry;
+					const auto ErrorState = error_state::fetch();
+
+					DoneEject = OperationFailed(ErrorState, os::fs::get_drive(item->cDrive), lng::MError, format(lng::MChangeCouldNotEjectMedia, item->cDrive), false) != operation::retry;
 				}
 				else
 					DoneEject = true;
@@ -600,8 +605,9 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 
 				// ... и выведем месаг о...
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-				Global->CatchError();
-				DoneEject = Message(MSG_WARNING | MSG_ERRORTYPE,
+				const auto ErrorState = error_state::fetch();
+
+				DoneEject = Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
 					{
 						format(lng::MChangeCouldNotEjectHotPlugMedia, item->cDrive)
@@ -1167,11 +1173,11 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				break;
 			}
 
-			Global->CatchError();
+			const auto ErrorState = error_state::fetch();
 
 			DialogBuilder Builder(lng::MError, nullptr);
 
-			Builder.AddTextWrap(GetErrorString().data(), true);
+			Builder.AddTextWrap(GetErrorString(ErrorState).data(), true);
 			Builder.AddText(L"");
 
 			string DriveLetter(1, mitem->cDrive);
