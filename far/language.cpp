@@ -62,17 +62,24 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path,cons
 	{
 		const auto CurrentFileName = PathWithSlash + FindData.strFileName;
 
-		std::get<0>(CurrentFileData) = os::fs::file(CurrentFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
-		if (std::get<0>(CurrentFileData))
-		{
-			GetFileFormat(std::get<0>(CurrentFileData), std::get<2>(CurrentFileData), nullptr, false);
+		auto& CurrentFile = std::get<0>(CurrentFileData);
+		auto& CurrentLngName = std::get<1>(CurrentFileData);
+		auto& CurrentCodepage = std::get<2>(CurrentFileData);
 
-			if (GetLangParam(std::get<0>(CurrentFileData), L"Language", std::get<1>(CurrentFileData), nullptr, std::get<2>(CurrentFileData)) && equal_icase(std::get<1>(CurrentFileData), Language))
+		CurrentFile = os::fs::file(CurrentFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		if (CurrentFile)
+		{
+			// Default
+			CurrentCodepage = CP_OEMCP;
+
+			GetFileFormat(CurrentFile, CurrentCodepage, nullptr, false);
+
+			if (GetLangParam(CurrentFile, L"Language", CurrentLngName, nullptr, CurrentCodepage) && equal_icase(CurrentLngName, Language))
 			{
 				return CurrentFileData;
 			}
 
-			if (equal_icase(std::get<1>(CurrentFileData), L"English"_sv))
+			if (equal_icase(CurrentLngName, L"English"_sv))
 			{
 				EnglishFileData = std::move(CurrentFileData);
 			}
