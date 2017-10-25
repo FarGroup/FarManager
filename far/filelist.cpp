@@ -520,8 +520,7 @@ public:
 			return Item1.Selected > Item2.Selected;
 
 		if (ListSortGroups &&
-			// Controversial decision. Configuration?
-			// (ListSortMode == panel_sort::BY_NAME || ListSortMode == panel_sort::BY_EXT || ListSortMode == panel_sort::BY_FULLNAME) &&
+			(ListSortMode == panel_sort::BY_NAME || ListSortMode == panel_sort::BY_EXT || ListSortMode == panel_sort::BY_FULLNAME) &&
 			Item1.SortGroup != Item2.SortGroup
 		)
 			return Item1.SortGroup < Item2.SortGroup;
