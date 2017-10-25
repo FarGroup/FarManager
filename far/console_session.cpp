@@ -181,6 +181,7 @@ void console_session::EnterPluginContext()
 
 void console_session::LeavePluginContext()
 {
+	Global->ScrBuf->Flush();
 	if (m_PluginContextInvocations)
 		--m_PluginContextInvocations;
 
