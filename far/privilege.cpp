@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "privilege.hpp"
 #include "lasterror.hpp"
+#include "synchro.hpp"
 
 
 namespace os::security {
@@ -48,8 +49,12 @@ static handle OpenCurrentProcessToken(DWORD DesiredAccess)
 static bool lookup_privilege_value(const wchar_t* Name, LUID& Value)
 {
 	using value_type = std::pair<LUID, bool>;
-	static std::unordered_map<string, value_type> sCache;
-	auto Result = sCache.emplace(Name, value_type{});
+	static std::unordered_map<string, value_type> s_Cache;
+	static os::critical_section s_CS;
+
+	SCOPED_ACTION(os::critical_section_lock)(s_CS);
+
+	auto Result = s_Cache.emplace(Name, value_type{});
 
 	const auto& MapKey = Result.first->first;
 	auto& MapValue = Result.first->second;
@@ -62,6 +67,7 @@ static bool lookup_privilege_value(const wchar_t* Name, LUID& Value)
 	Value = MapValue.first;
 	return MapValue.second;
 }
+
 privilege::privilege(const range<const wchar_t* const*>& Names)
 {
 	if (Names.empty())
