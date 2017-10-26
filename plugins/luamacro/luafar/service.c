@@ -2817,6 +2817,8 @@ static void PushDlgItem(lua_State *L, const struct FarDialogItem* pItem, BOOL ta
 	else
 		PutIntToArray(L, 6, pItem->Param.Selected);
 
+	PutWStrToArray(L, 7, pItem->History, -1);
+	PutWStrToArray(L, 8, pItem->Mask, -1);
 	PutFlagsToArray(L, 9, pItem->Flags);
 	lua_pushinteger(L, 10);
 	push_utf8_string(L, pItem->Data, -1);
