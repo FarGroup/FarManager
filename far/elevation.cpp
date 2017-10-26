@@ -539,7 +539,7 @@ bool elevation::delete_file(const string& Object)
 		false,
 		[&]
 		{
-			return delete_file(Object.data()) != FALSE;
+			return os::fs::low::delete_file(Object.data());
 		},
 		[&]
 		{
@@ -573,7 +573,7 @@ bool elevation::copy_file(const string& From, const string& To, LPPROGRESS_ROUTI
 		false,
 		[&]
 		{
-			return os::fs::low::copy_file(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags) != FALSE;
+			return os::fs::low::copy_file(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags);
 		},
 		[&]
 		{
@@ -625,7 +625,7 @@ bool elevation::set_file_attributes(const string& Object, DWORD FileAttributes)
 		false,
 		[&]
 		{
-			return os::fs::low::set_file_attributes(Object.data(), FileAttributes) != FALSE;
+			return os::fs::low::set_file_attributes(Object.data(), FileAttributes);
 		},
 		[&]
 		{
@@ -640,7 +640,7 @@ bool elevation::create_hard_link(const string& Object, const string& Target, SEC
 		false,
 		[&]
 		{
-			return os::fs::low::create_hard_link(Object.data(), Target.data(), SecurityAttributes) != FALSE;
+			return os::fs::low::create_hard_link(Object.data(), Target.data(), SecurityAttributes);
 		},
 		[&]
 		{

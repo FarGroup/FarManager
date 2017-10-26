@@ -36,7 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "lasterror.hpp"
 
-namespace os { namespace security {
+
+namespace os::security {
 
 static handle OpenCurrentProcessToken(DWORD DesiredAccess)
 {
@@ -44,21 +45,40 @@ static handle OpenCurrentProcessToken(DWORD DesiredAccess)
 	return handle(OpenProcessToken(GetCurrentProcess(), DesiredAccess, &Handle)? Handle : nullptr);
 }
 
+static bool lookup_privilege_value(const wchar_t* Name, LUID& Value)
+{
+	using value_type = std::pair<LUID, bool>;
+	static std::unordered_map<string, value_type> sCache;
+	auto Result = sCache.emplace(Name, value_type{});
+
+	const auto& MapKey = Result.first->first;
+	auto& MapValue = Result.first->second;
+
+	if (Result.second)
+	{
+		MapValue.second = LookupPrivilegeValue(nullptr, MapKey.data(), &MapValue.first) != FALSE;
+	}
+
+	Value = MapValue.first;
+	return MapValue.second;
+}
 privilege::privilege(const range<const wchar_t* const*>& Names)
 {
 	if (Names.empty())
 		return;
 
 	block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Names.size() - 1));
-	NewState->PrivilegeCount = static_cast<DWORD>(Names.size());
+	NewState->PrivilegeCount = 0;
 
-	std::transform(ALL_CONST_RANGE(Names), std::begin(NewState->Privileges), [](const auto& i)
+	for (const auto& i : Names)
 	{
 		LUID_AND_ATTRIBUTES laa = { {}, SE_PRIVILEGE_ENABLED };
-		LookupPrivilegeValue(nullptr, i, &laa.Luid);
+		if (lookup_privilege_value(i, laa.Luid))
+		{
+			NewState->Privileges[NewState->PrivilegeCount++] = laa;
+		}
 		// TODO: log if failed
-		return laa;
-	});
+	}
 
 	m_SavedState.reset(NewState.size());
 
@@ -112,7 +132,7 @@ bool privilege::check(const range<const wchar_t* const*>& Names)
 	for (const auto& Name: Names)
 	{
 		LUID Luid;
-		if (!LookupPrivilegeValue(nullptr, Name, &Luid))
+		if (!lookup_privilege_value(Name, Luid))
 			return false;
 
 		const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Privileges), [&](const auto& Item) { return Item.Luid == Luid; });
@@ -123,4 +143,4 @@ bool privilege::check(const range<const wchar_t* const*>& Names)
 	return true;
 }
 
-}}
+}
