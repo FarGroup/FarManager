@@ -524,7 +524,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 
 string MkStrFTime(const wchar_t *Format)
 {
-	const auto Time = nt_clock::to_time_t(nt_clock::now());
+	const auto Time = os::chrono::nt_clock::to_time_t(os::chrono::nt_clock::now());
 
 	if (!Format || !*Format)
 		Format = Global->Opt->Macro.strDateFormat.data();
@@ -545,7 +545,7 @@ void ParseDateComponents(const string& Src, const range<WORD*>& Dst, wchar_t Sep
 	});
 }
 
-time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator)
+os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator)
 {
 	WORD DateN[3]{};
 	ParseDateComponents(Date, make_range(DateN), DateSeparator, 0);
@@ -591,12 +591,12 @@ time_point ParseDate(const string& Date, const string& Time, int DateFormat, wch
 	st.wSecond       = TimeN[2];
 	st.wMilliseconds = TimeN[3];
 
-	time_point Point;
+	os::chrono::time_point Point;
 	Local2Utc(st, Point);
 	return Point;
 }
 
-duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator)
+os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator)
 {
 	WORD DateN[1]{};
 	ParseDateComponents(Date, make_range(DateN), DateSeparator, 0);
@@ -610,7 +610,7 @@ duration ParseDuration(const string& Date, const string& Time, int DateFormat, w
 }
 
 
-void ConvertDate(time_point Point, string& strDateText, string& strTimeText, int TimeLength, int Brief, int TextMonth, int FullYear)
+void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strTimeText, int TimeLength, int Brief, int TextMonth, int FullYear)
 {
 	// Epoch => empty
 	if (!Point.time_since_epoch().count())
@@ -712,7 +712,7 @@ void ConvertDate(time_point Point, string& strDateText, string& strTimeText, int
 	}
 }
 
-void ConvertDuration(duration Duration, string& strDaysText, string& strTimeText)
+void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string& strTimeText)
 {
 	using namespace std::chrono;
 	using namespace chrono;
@@ -729,10 +729,10 @@ void ConvertDuration(duration Duration, string& strDaysText, string& strTimeText
 		LocaleCache().DecimalSeparator());
 }
 
-bool Utc2Local(time_point UtcTime, SYSTEMTIME& LocalTime)
+bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)
 {
 	SYSTEMTIME SystemTime;
-	const auto FileTime = nt_clock::to_filetime(UtcTime);
+	const auto FileTime = os::chrono::nt_clock::to_filetime(UtcTime);
 	return FileTimeToSystemTime(&FileTime, &SystemTime) && SystemTimeToTzSpecificLocalTime(nullptr, &SystemTime, &LocalTime);
 }
 
@@ -775,7 +775,7 @@ static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 	return SystemTimeToFileTime(&lst, &lft) && LocalFileTimeToFileTime(&lft, &uft) && FileTimeToSystemTime(&uft, &ust);
 }
 
-bool Local2Utc(const SYSTEMTIME& LocalTime, time_point& UtcTime)
+bool Local2Utc(const SYSTEMTIME& LocalTime, os::chrono::time_point& UtcTime)
 {
 	SYSTEMTIME SystemUtcTime;
 	if (!local_to_utc(LocalTime, SystemUtcTime))
@@ -785,6 +785,6 @@ bool Local2Utc(const SYSTEMTIME& LocalTime, time_point& UtcTime)
 	if (!SystemTimeToFileTime(&SystemUtcTime, &FileUtcTime))
 		return false;
 
-	UtcTime = nt_clock::from_filetime(FileUtcTime);
+	UtcTime = os::chrono::nt_clock::from_filetime(FileUtcTime);
 	return true;
 }

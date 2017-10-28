@@ -586,7 +586,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 
 void FileFilter::UpdateCurrentTime()
 {
-	CurrentTime = nt_clock::now();
+	CurrentTime = os::chrono::nt_clock::now();
 }
 
 bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foundType)
@@ -797,8 +797,8 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	}
 	
 	Item.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateRelative?
-		filter_dates(duration(DateAfter), duration(DateBefore)) :
-		filter_dates(time_point(duration(DateAfter)), time_point(duration(DateBefore))));
+		filter_dates(os::chrono::duration(DateAfter), os::chrono::duration(DateBefore)) :
+		filter_dates(os::chrono::time_point(os::chrono::duration(DateAfter)), os::chrono::time_point(os::chrono::duration(DateBefore))));
 
 	string SizeAbove;
 	cfg->GetValue(Key, Strings.SizeAbove, SizeAbove);
@@ -923,7 +923,7 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 
 	Dates.visit(overload
 	(
-		[&](duration After, duration Before)
+		[&](os::chrono::duration After, os::chrono::duration Before)
 		{
 			cfg->SetValue(Key, Strings.DateTimeAfter, After.count());
 			cfg->SetValue(Key, Strings.DateTimeBefore, Before.count());
@@ -936,7 +936,7 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 			// TODO 2018 Q2: remove
 			cfg->SetValue(Key, L"RelativeDate"_sv, true);
 		},
-		[&](time_point After, time_point Before)
+		[&](os::chrono::time_point After, os::chrono::time_point Before)
 		{
 			cfg->SetValue(Key, Strings.DateTimeAfter, After.time_since_epoch().count());
 			cfg->SetValue(Key, Strings.DateTimeBefore, Before.time_since_epoch().count());

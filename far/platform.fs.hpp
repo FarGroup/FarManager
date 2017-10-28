@@ -69,10 +69,10 @@ namespace os::fs
 
 	struct find_data
 	{
-		time_point CreationTime;
-		time_point LastAccessTime;
-		time_point LastWriteTime;
-		time_point ChangeTime;
+		os::chrono::time_point CreationTime;
+		os::chrono::time_point LastAccessTime;
+		os::chrono::time_point LastWriteTime;
+		os::chrono::time_point ChangeTime;
 		unsigned long long nFileSize{};
 		unsigned long long nAllocationSize{};
 		unsigned long long FileId{};
@@ -186,8 +186,8 @@ namespace os::fs
 		unsigned long long GetPointer() const;
 		bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const;
 		bool SetEnd();
-		bool GetTime(time_point* CreationTime, time_point* LastAccessTime, time_point* LastWriteTime, time_point* ChangeTime) const;
-		bool SetTime(const time_point* CreationTime, const time_point* LastAccessTime, const time_point* LastWriteTime, const time_point* ChangeTime) const;
+		bool GetTime(os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime) const;
+		bool SetTime(const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* ChangeTime) const;
 		bool GetSize(unsigned long long& Size) const;
 		bool FlushBuffers() const;
 		bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;
@@ -314,7 +314,7 @@ namespace os::fs
 
 	bool get_disk_size(const string_view& Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
 
-	bool GetFileTimeSimple(const string& FileName, time_point* CreationTime, time_point* LastAccessTime, time_point* LastWriteTime, time_point* ChangeTime);
+	bool GetFileTimeSimple(const string& FileName, os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime);
 
 	bool get_find_data(const string& FileName, find_data& FindData, bool ScanSymLink = true);
 

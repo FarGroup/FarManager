@@ -122,7 +122,7 @@ namespace highlight
 		std::vector<FileFilterParams> HiData;
 
 		int FirstCount, UpperCount, LowerCount, LastCount;
-		time_point CurrentTime;
+		os::chrono::time_point CurrentTime;
 		bool Changed;
 	};
 }

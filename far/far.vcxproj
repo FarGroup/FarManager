@@ -282,6 +282,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="platform.fs.cpp" />
     <ClCompile Include="platform.memory.cpp" />
     <ClCompile Include="platform.reg.cpp" />
+    <ClCompile Include="platform.security.cpp" />
     <ClCompile Include="plist.cpp" />
     <ClCompile Include="plugapi.cpp" />
     <ClCompile Include="PluginA.cpp" />
@@ -291,7 +292,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="preservelongname.cpp" />
     <ClCompile Include="preservestyle.cpp" />
     <ClCompile Include="print.cpp" />
-    <ClCompile Include="privilege.cpp" />
     <ClCompile Include="processname.cpp" />
     <ClCompile Include="qview.cpp" />
     <ClCompile Include="refreshwindowmanager.cpp" />
@@ -473,6 +473,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="platform.fs.hpp" />
     <ClInclude Include="platform.memory.hpp" />
     <ClInclude Include="platform.reg.hpp" />
+    <ClInclude Include="platform.security.hpp" />
     <ClInclude Include="plclass.hpp" />
     <ClInclude Include="plist.hpp" />
     <ClInclude Include="plugapi.hpp" />
@@ -484,7 +485,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="preservelongname.hpp" />
     <ClInclude Include="preservestyle.hpp" />
     <ClInclude Include="print.hpp" />
-    <ClInclude Include="privilege.hpp" />
     <ClInclude Include="processname.hpp" />
     <ClInclude Include="qview.hpp" />
     <ClInclude Include="refreshwindowmanager.hpp" />

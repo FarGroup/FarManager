@@ -168,10 +168,10 @@ namespace os::fs
 	static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, find_data& FindData, bool IsExtended)
 	{
 		FindData.dwFileAttributes = DirectoryInfo.FileAttributes;
-		FindData.CreationTime = time_point(duration(DirectoryInfo.CreationTime.QuadPart));
-		FindData.LastAccessTime = time_point(duration(DirectoryInfo.LastAccessTime.QuadPart));
-		FindData.LastWriteTime = time_point(duration(DirectoryInfo.LastWriteTime.QuadPart));
-		FindData.ChangeTime = time_point(duration(DirectoryInfo.ChangeTime.QuadPart));
+		FindData.CreationTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.CreationTime.QuadPart));
+		FindData.LastAccessTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.LastAccessTime.QuadPart));
+		FindData.LastWriteTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.LastWriteTime.QuadPart));
+		FindData.ChangeTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.ChangeTime.QuadPart));
 		FindData.nFileSize = DirectoryInfo.EndOfFile.QuadPart;
 		FindData.nAllocationSize = DirectoryInfo.AllocationSize.QuadPart;
 		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
@@ -673,7 +673,7 @@ namespace os::fs
 		return ok;
 	}
 
-	bool file::GetTime(time_point* CreationTime, time_point* LastAccessTime, time_point* LastWriteTime, time_point* ChangeTime) const
+	bool file::GetTime(os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime) const
 	{
 		FILE_BASIC_INFORMATION fbi;
 
@@ -681,21 +681,21 @@ namespace os::fs
 			return false;
 
 		if (CreationTime)
-			*CreationTime = time_point(duration(fbi.CreationTime.QuadPart));
+			*CreationTime = os::chrono::time_point(os::chrono::duration(fbi.CreationTime.QuadPart));
 
 		if (LastAccessTime)
-			*LastAccessTime = time_point(duration(fbi.LastAccessTime.QuadPart));
+			*LastAccessTime = os::chrono::time_point(os::chrono::duration(fbi.LastAccessTime.QuadPart));
 
 		if (LastWriteTime)
-			*LastWriteTime = time_point(duration(fbi.LastWriteTime.QuadPart));
+			*LastWriteTime = os::chrono::time_point(os::chrono::duration(fbi.LastWriteTime.QuadPart));
 
 		if (ChangeTime)
-			*ChangeTime = time_point(duration(fbi.ChangeTime.QuadPart));
+			*ChangeTime = os::chrono::time_point(os::chrono::duration(fbi.ChangeTime.QuadPart));
 
 		return true;
 	}
 
-	bool file::SetTime(const time_point* CreationTime, const time_point* LastAccessTime, const time_point* LastWriteTime, const time_point* ChangeTime) const
+	bool file::SetTime(const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* ChangeTime) const
 	{
 		FILE_BASIC_INFORMATION fbi{};
 
@@ -1677,7 +1677,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool GetFileTimeSimple(const string& FileName, time_point* CreationTime, time_point* LastAccessTime, time_point* LastWriteTime, time_point* ChangeTime)
+	bool GetFileTimeSimple(const string& FileName, os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime)
 	{
 		file File;
 		return File.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);

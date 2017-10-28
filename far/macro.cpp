@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "macro.hpp"
+#include "platform.security.hpp"
 #include "FarGuid.hpp"
 #include "cmdline.hpp"
 #include "config.hpp"

@@ -33,24 +33,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// TrivialClock with fixed period (100 ns) and epoch (1 Jan 1601)
-class nt_clock
+namespace os::chrono
 {
-public:
-	using rep = unsigned long long;
-	using period = std::ratio_multiply<std::ratio<100, 1>, std::nano>;
-	using duration = std::chrono::duration<rep, period>;
-	using time_point = std::chrono::time_point<nt_clock>;
-	static constexpr bool is_steady = false;
-	static time_point now() noexcept;
+	// TrivialClock with fixed period (100 ns) and epoch (1 Jan 1601)
+	class nt_clock
+	{
+	public:
+		using rep = unsigned long long;
+		using period = std::ratio_multiply<std::ratio<100, 1>, std::nano>;
+		using duration = std::chrono::duration<rep, period>;
+		using time_point = std::chrono::time_point<nt_clock>;
+		static constexpr bool is_steady = false;
+		static time_point now() noexcept;
 
-	static time_t to_time_t(const time_point& Time) noexcept;
-	static time_point from_time_t(time_t Time) noexcept;
-	static FILETIME to_filetime(const time_point& Time) noexcept;
-	static time_point from_filetime(FILETIME Time) noexcept;
-};
+		static time_t to_time_t(const time_point& Time) noexcept;
+		static time_point from_time_t(time_t Time) noexcept;
+		static FILETIME to_filetime(const time_point& Time) noexcept;
+		static time_point from_filetime(FILETIME Time) noexcept;
+	};
 
-using duration = nt_clock::duration;
-using time_point = nt_clock::time_point;
-
+	using duration = nt_clock::duration;
+	using time_point = nt_clock::time_point;
+}
 #endif // PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D

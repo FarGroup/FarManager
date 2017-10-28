@@ -51,14 +51,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileattr.hpp"
 #include "DlgGuid.hpp"
 
-filter_dates::filter_dates(duration After, duration Before):
+filter_dates::filter_dates(os::chrono::duration After, os::chrono::duration Before):
 	m_After(After),
 	m_Before(Before),
 	m_Relative(true)
 {
 }
 
-filter_dates::filter_dates(time_point After, time_point Before):
+filter_dates::filter_dates(os::chrono::time_point After, os::chrono::time_point Before):
 	m_After(After.time_since_epoch()),
 	m_Before(Before.time_since_epoch()),
 	m_Relative(false)
@@ -208,15 +208,15 @@ struct filter_file_object
 {
 	string Name;
 	unsigned long long Size;
-	time_point CreationTime;
-	time_point ModificationTime;
-	time_point AccessTime;
-	time_point ChangeTime;
+	os::chrono::time_point CreationTime;
+	os::chrono::time_point ModificationTime;
+	os::chrono::time_point AccessTime;
+	os::chrono::time_point ChangeTime;
 	DWORD Attributes;
 	int NumberOfLinks;
 };
 
-bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Owner, time_point CurrentTime) const
+bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Owner, os::chrono::time_point CurrentTime) const
 {
 	filter_file_object Object;
 	Object.Attributes = fli->FileAttr;
@@ -233,7 +233,7 @@ bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Own
 	});
 }
 
-bool FileFilterParams::FileInFilter(const os::fs::find_data& fde, time_point CurrentTime,const string* FullName) const
+bool FileFilterParams::FileInFilter(const os::fs::find_data& fde, os::chrono::time_point CurrentTime,const string* FullName) const
 {
 	filter_file_object Object;
 	Object.Attributes = fde.dwFileAttributes;
@@ -245,27 +245,27 @@ bool FileFilterParams::FileInFilter(const os::fs::find_data& fde, time_point Cur
 	Object.Name = fde.strFileName;
 
 	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
-                    {
-	                    Item.NumberOfLinks = FullName? GetNumberOfLinks(*FullName) : 1;
-                    });
+	{
+		Item.NumberOfLinks = FullName? GetNumberOfLinks(*FullName) : 1;
+	});
 }
 
-bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, time_point CurrentTime) const
+bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, os::chrono::time_point CurrentTime) const
 {
 	filter_file_object Object;
 	Object.Attributes = fd.FileAttributes;
 	Object.Size = fd.FileSize;
-	Object.CreationTime = nt_clock::from_filetime(fd.CreationTime);
-	Object.ModificationTime = nt_clock::from_filetime(fd.LastWriteTime);
-	Object.AccessTime = nt_clock::from_filetime(fd.LastAccessTime);
-	Object.ChangeTime = nt_clock::from_filetime(fd.ChangeTime);
+	Object.CreationTime = os::chrono::nt_clock::from_filetime(fd.CreationTime);
+	Object.ModificationTime = os::chrono::nt_clock::from_filetime(fd.LastWriteTime);
+	Object.AccessTime = os::chrono::nt_clock::from_filetime(fd.LastAccessTime);
+	Object.ChangeTime = os::chrono::nt_clock::from_filetime(fd.ChangeTime);
 	Object.Name = fd.FileName;
 	Object.NumberOfLinks = fd.NumberOfLinks;
 
 	return FileInFilter(Object, CurrentTime, nullptr);
 }
 
-bool FileFilterParams::FileInFilter(filter_file_object& Object, time_point CurrentTime, const std::function<void(filter_file_object&)>& Getter) const
+bool FileFilterParams::FileInFilter(filter_file_object& Object, os::chrono::time_point CurrentTime, const std::function<void(filter_file_object&)>& Getter) const
 {
 	// Режим проверки атрибутов файла включен?
 	if (FAttr.Used)
@@ -319,7 +319,7 @@ bool FileFilterParams::FileInFilter(filter_file_object& Object, time_point Curre
 		// Есть введённая пользователем начальная / конечная дата?
 		if (FDate.Dates)
 		{
-			const time_point* ft = nullptr;
+			const os::chrono::time_point* ft = nullptr;
 
 			switch (FDate.DateType)
 			{
@@ -346,13 +346,13 @@ bool FileFilterParams::FileInFilter(filter_file_object& Object, time_point Curre
 				// Дата файла меньше начальной / больше конечной даты по фильтру?
 				if (FDate.Dates.visit(overload
 				(
-					[&](duration After, duration Before)
+					[&](os::chrono::duration After, os::chrono::duration Before)
 					{
 						return (After != After.zero() && *ft < CurrentTime - After) || (Before != Before.zero() && *ft > CurrentTime - Before);
 					},
-					[&](time_point After, time_point Before)
+					[&](os::chrono::time_point After, os::chrono::time_point Before)
 					{
-						return (After != time_point{} && *ft < After) || (Before != time_point{} && *ft > Before);
+						return (After != os::chrono::time_point{} && *ft < After) || (Before != os::chrono::time_point{} && *ft > Before);
 					}
 				)))
 				{
@@ -420,8 +420,8 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 		UseDate=FF->GetDate(nullptr, &Dates);
 		Dates.visit(overload
 		(
-			[&](duration, duration) { RelativeDate = true; },
-			[&](time_point, time_point) { RelativeDate = false; }
+			[&](os::chrono::duration, os::chrono::duration) { RelativeDate = true; },
+			[&](os::chrono::time_point, os::chrono::time_point) { RelativeDate = false; }
 		));
 		UseHardLinks=FF->GetHardLinks(nullptr,nullptr);
 	}
@@ -679,7 +679,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 
 				if (Param1==ID_FF_CURRENT)
 				{
-					ConvertDate(nt_clock::now(), strDate, strTime, 12, FALSE, FALSE, 2);
+					ConvertDate(os::chrono::nt_clock::now(), strDate, strTime, 12, FALSE, FALSE, 2);
 				}
 				else
 				{
@@ -1054,12 +1054,12 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 	Dates.visit(overload
 	(
-		[&](duration After, duration Before)
+		[&](os::chrono::duration After, os::chrono::duration Before)
 		{
 			ProcessDuration(After, ID_FF_DAYSAFTEREDIT, ID_FF_TIMEAFTEREDIT);
 			ProcessDuration(Before, ID_FF_DAYSBEFOREEDIT, ID_FF_TIMEBEFOREEDIT);
 		},
-		[&](time_point After, time_point Before)
+		[&](os::chrono::time_point After, os::chrono::time_point Before)
 		{
 			ProcessPoint(After, ID_FF_DATEAFTEREDIT, ID_FF_TIMEAFTEREDIT);
 			ProcessPoint(Before, ID_FF_DATEBEFOREEDIT, ID_FF_TIMEBEFOREEDIT);

@@ -34,35 +34,38 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.chrono.hpp"
 
-nt_clock::time_point nt_clock::now() noexcept
+namespace os::chrono
 {
-	FILETIME Time;
-	GetSystemTimeAsFileTime(&Time);
-	return from_filetime(Time);
-}
+	nt_clock::time_point nt_clock::now() noexcept
+	{
+		FILETIME Time;
+		GetSystemTimeAsFileTime(&Time);
+		return from_filetime(Time);
+	}
 
-static nt_clock::duration posix_shift()
-{
-	return std::chrono::seconds{ 11644473600 };
-}
+	static nt_clock::duration posix_shift()
+	{
+		return std::chrono::seconds{ 11644473600 };
+	}
 
-time_t nt_clock::to_time_t(const time_point& Time) noexcept
-{
-	return std::chrono::duration_cast<std::chrono::seconds>(Time.time_since_epoch() - posix_shift()).count();
-}
+	time_t nt_clock::to_time_t(const time_point& Time) noexcept
+	{
+		return std::chrono::duration_cast<std::chrono::seconds>(Time.time_since_epoch() - posix_shift()).count();
+	}
 
-time_point nt_clock::from_time_t(time_t Time) noexcept
-{
-	return time_point(posix_shift() + std::chrono::seconds(Time));
-}
+	time_point nt_clock::from_time_t(time_t Time) noexcept
+	{
+		return time_point(posix_shift() + std::chrono::seconds(Time));
+	}
 
-FILETIME nt_clock::to_filetime(const time_point& Time) noexcept
-{
-	const auto Count = Time.time_since_epoch().count();
-	return { static_cast<DWORD>(Count), static_cast<DWORD>(Count >> 32) };
-}
+	FILETIME nt_clock::to_filetime(const time_point& Time) noexcept
+	{
+		const auto Count = Time.time_since_epoch().count();
+		return { static_cast<DWORD>(Count), static_cast<DWORD>(Count >> 32) };
+	}
 
-time_point nt_clock::from_filetime(FILETIME Time) noexcept
-{
-	return time_point(duration(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime));
+	time_point nt_clock::from_filetime(FILETIME Time) noexcept
+	{
+		return time_point(duration(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime));
+	}
 }

@@ -34,13 +34,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "elevation.hpp"
+#include "platform.security.hpp"
 #include "config.hpp"
 #include "lang.hpp"
 #include "dialog.hpp"
 #include "farcolor.hpp"
 #include "colormix.hpp"
 #include "lasterror.hpp"
-#include "privilege.hpp"
 #include "fileowner.hpp"
 #include "imports.hpp"
 #include "TaskBar.hpp"
@@ -216,7 +216,7 @@ static os::handle create_named_pipe(const string& Name)
 	if (!InitializeSecurityDescriptor(pSD.get(), SECURITY_DESCRIPTOR_REVISION))
 		return nullptr;
 
-	const auto AdminSID = os::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+	const auto AdminSID = os::security::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
 
 	if (!AdminSID)
 		return nullptr;

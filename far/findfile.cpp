@@ -1956,7 +1956,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 			case CDATE_COLUMN:
 			case CHDATE_COLUMN:
 			{
-				const time_point* FileTime;
+				const os::chrono::time_point* FileTime;
 				switch (CurColumnType)
 				{
 					case CDATE_COLUMN:

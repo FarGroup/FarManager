@@ -74,10 +74,10 @@ public:
 	const content_data_ptr& ContentData(const FileList* Owner) const;
 
 	// KEEP ALIGNED!
-	time_point CreationTime;
-	time_point AccessTime;
-	time_point WriteTime;
-	time_point ChangeTime;
+	os::chrono::time_point CreationTime;
+	os::chrono::time_point AccessTime;
+	os::chrono::time_point WriteTime;
+	os::chrono::time_point ChangeTime;
 
 	unsigned long long FileSize{};
 	unsigned long long AllocationSize{};
@@ -356,7 +356,7 @@ private:
 	void MoveSelection(direction Direction);
 
 	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
-	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const time_point* Times = nullptr);
+	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const os::chrono::time_point* Times = nullptr);
 
 	std::unique_ptr<FileFilter> m_Filter;
 	DizList Diz;

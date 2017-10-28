@@ -288,7 +288,7 @@ public:
 	virtual ~HistoryConfig() override = default;
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) = 0;
+	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) = 0;
 	virtual bool Delete(unsigned long long id) = 0;
 	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string_view& HistoryName, const string_view& strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
 	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string_view& HistoryName, int DaysToKeep, int MinimumEntries) = 0;
@@ -321,7 +321,7 @@ public:
 		string Name;
 		history_record_type Type;
 		bool Lock;
-		time_point Time;
+		os::chrono::time_point Time;
 		string Guid;
 		string File;
 		string Data;

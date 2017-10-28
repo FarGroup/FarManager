@@ -117,6 +117,7 @@ SRCS = \
 	platform.fs.cpp \
 	platform.memory.cpp \
 	platform.reg.cpp \
+	platform.security.cpp \
 	plist.cpp \
 	plclass.cpp \
 	plugapi.cpp \
@@ -127,7 +128,6 @@ SRCS = \
 	preservelongname.cpp \
 	preservestyle.cpp \
 	print.cpp \
-	privilege.cpp \
 	processname.cpp \
 	qview.cpp \
 	refreshwindowmanager.cpp \

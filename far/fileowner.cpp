@@ -35,8 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fileowner.hpp"
+#include "platform.security.hpp"
 #include "pathmix.hpp"
-#include "privilege.hpp"
 #include "elevation.hpp"
 #include "mix.hpp"
 

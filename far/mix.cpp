@@ -99,10 +99,10 @@ bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, cons
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest)
 {
-	Dest.CreationTime = nt_clock::from_filetime(Src.CreationTime);
-	Dest.LastAccessTime = nt_clock::from_filetime(Src.LastAccessTime);
-	Dest.LastWriteTime = nt_clock::from_filetime(Src.LastWriteTime);
-	Dest.ChangeTime = nt_clock::from_filetime(Src.ChangeTime);
+	Dest.CreationTime = os::chrono::nt_clock::from_filetime(Src.CreationTime);
+	Dest.LastAccessTime = os::chrono::nt_clock::from_filetime(Src.LastAccessTime);
+	Dest.LastWriteTime = os::chrono::nt_clock::from_filetime(Src.LastWriteTime);
+	Dest.ChangeTime = os::chrono::nt_clock::from_filetime(Src.ChangeTime);
 	Dest.nFileSize = Src.FileSize;
 	Dest.nAllocationSize = Src.AllocationSize;
 	Dest.FileId = 0;
@@ -116,10 +116,10 @@ void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanel
 {
 	auto& Dest = Holder.Item;
 
-	Dest.CreationTime = nt_clock::to_filetime(Src.CreationTime);
-	Dest.LastAccessTime = nt_clock::to_filetime(Src.LastAccessTime);
-	Dest.LastWriteTime = nt_clock::to_filetime(Src.LastWriteTime);
-	Dest.ChangeTime = nt_clock::to_filetime(Src.ChangeTime);
+	Dest.CreationTime = os::chrono::nt_clock::to_filetime(Src.CreationTime);
+	Dest.LastAccessTime = os::chrono::nt_clock::to_filetime(Src.LastAccessTime);
+	Dest.LastWriteTime = os::chrono::nt_clock::to_filetime(Src.LastWriteTime);
+	Dest.ChangeTime = os::chrono::nt_clock::to_filetime(Src.ChangeTime);
 	Dest.FileSize = Src.nFileSize;
 	Dest.AllocationSize = Src.nAllocationSize;
 

@@ -290,6 +290,9 @@
     <ClCompile Include="platform.reg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platform.security.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="plist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -315,9 +318,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="print.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="privilege.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="processname.cpp">
@@ -745,6 +745,9 @@
     <ClInclude Include="platform.reg.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="platform.security.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="plclass.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -776,9 +779,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="print.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="privilege.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="processname.hpp">

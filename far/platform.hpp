@@ -155,14 +155,6 @@ namespace os
 
 	using printer_handle = detail::handle_t<detail::printer_handle_closer>;
 
-	using sid_ptr = std::unique_ptr<std::remove_pointer_t<PSID>, detail::sid_deleter>;
-
-	inline auto make_sid(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0 = 0, DWORD SubAuthority1 = 0, DWORD SubAuthority2 = 0, DWORD SubAuthority3 = 0, DWORD SubAuthority4 = 0, DWORD SubAuthority5 = 0, DWORD SubAuthority6 = 0, DWORD SubAuthority7 = 0)
-	{
-		PSID Sid;
-		return sid_ptr(AllocateAndInitializeSid(IdentifierAuthority, SubAuthorityCount, SubAuthority0, SubAuthority1, SubAuthority2, SubAuthority3, SubAuthority4, SubAuthority5, SubAuthority6, SubAuthority7, &Sid)? Sid : nullptr);
-	}
-
 	NTSTATUS GetLastNtStatus();
 
 	bool WNetGetConnection(const string& LocalName, string &RemoteName);
@@ -255,11 +247,6 @@ namespace os
 
 		template<class T>
 		using ptr = std::unique_ptr<T, detail::deleter<T>>;
-	}
-
-	namespace security
-	{
-		bool is_admin();
 	}
 
 	namespace com

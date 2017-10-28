@@ -393,7 +393,7 @@ void highlight::configuration::ApplyFinalColor(highlight::element::colors_array:
 
 void highlight::configuration::UpdateCurrentTime()
 {
-	CurrentTime = nt_clock::now();
+	CurrentTime = os::chrono::nt_clock::now();
 }
 
 const highlight::element* highlight::configuration::GetHiColor(const FileListItem& Item, const FileList* Owner, bool UseAttrHighlighting)

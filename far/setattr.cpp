@@ -273,7 +273,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 								os::fs::find_data FindData;
 								if (os::fs::get_find_data(DlgParam->strSelName, FindData))
 								{
-									const std::pair<SETATTRDLG, time_point*> Items[] =
+									const std::pair<SETATTRDLG, os::chrono::time_point*> Items[] =
 									{
 										{SA_TEXT_LASTWRITE, &FindData.LastWriteTime},
 										{SA_TEXT_CREATION, &FindData.CreationTime},
@@ -365,10 +365,10 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			else if (Param1 == SA_BUTTON_CURRENT || Param1 == SA_BUTTON_BLANK)
 			{
 				void* Value = nullptr;
-				time_point CurrentTime;
+				os::chrono::time_point CurrentTime;
 				if(Param1 == SA_BUTTON_CURRENT)
 				{
-					CurrentTime = nt_clock::now();
+					CurrentTime = os::chrono::nt_clock::now();
 					Value = &CurrentTime;
 				}
 				Dlg->SendMessage( DM_SETATTR, SA_TEXT_LASTWRITE, Value);
@@ -453,16 +453,9 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 
 			if (Param2) // Set?
 			{
-				time_point Point;
-
-				if (reinterpret_cast<intptr_t>(Param2)==-1)
-				{
-					Point = nt_clock::now();
-				}
-				else
-				{
-					Point = *reinterpret_cast<const time_point*>(Param2);
-				}
+				const auto Point = reinterpret_cast<intptr_t>(Param2)==-1?
+					os::chrono::nt_clock::now() :
+					*reinterpret_cast<const os::chrono::time_point*>(Param2);
 
 				ConvertDate(Point,strDate,strTime,12,FALSE,FALSE,2);
 			}
@@ -561,13 +554,13 @@ void ShellSetFileAttributesMsg(const string& Name)
 	}
 }
 
-static bool ReadFileTime(int Type, const string& Name, time_point& FileTime, const string& OSrcDate, const string& OSrcTime)
+static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& FileTime, const string& OSrcDate, const string& OSrcTime)
 {
 	os::fs::find_data ffd;
 	if (!os::fs::get_find_data(Name, ffd))
 		return false;
 
-	time_point* Times[] =
+	os::chrono::time_point* Times[] =
 	{
 		&ffd.LastWriteTime,
 		&ffd.CreationTime,
@@ -1061,7 +1054,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{
 				SETATTRDLG DateId;
 				SETATTRDLG TimeId;
-				time_point* TimeValue;
+				os::chrono::time_point* TimeValue;
 			}
 			Dates[] =
 			{
@@ -1310,7 +1303,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 					}
 
-					time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
+					os::chrono::time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
 					int SetWriteTime = ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
 					int SetCreationTime = ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 					int SetLastAccessTime = ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
@@ -1459,7 +1452,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							}
 						}
 
-						time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
+						os::chrono::time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
 						bool SetWriteTime = ReadFileTime(0,strSelName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
 						bool SetCreationTime = ReadFileTime(1,strSelName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
 						bool SetLastAccessTime = ReadFileTime(2,strSelName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);

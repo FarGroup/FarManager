@@ -1706,7 +1706,7 @@ private:
 
 	bool AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData) const
 	{
-		return ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, nt_clock::now().time_since_epoch().count(), strGuid, strFile, strData);
+		return ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::now().time_since_epoch().count(), strGuid, strFile, strData);
 	}
 
 	bool DeleteInternal(unsigned long long id) const
@@ -1812,7 +1812,7 @@ private:
 		return DeleteInternal(id);
 	}
 
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) override
+	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
@@ -1827,7 +1827,7 @@ private:
 		Name = Stmt->GetColText(1);
 		Type = static_cast<history_record_type>(Stmt->GetColInt(2));
 		Lock = Stmt->GetColInt(3) != 0;
-		Time = time_point(duration(Stmt->GetColInt64(4)));
+		Time = os::chrono::time_point(os::chrono::duration(Stmt->GetColInt64(4)));
 		strGuid = Stmt->GetColText(5);
 		strFile = Stmt->GetColText(6);
 		strData = Stmt->GetColText(7);
@@ -1860,7 +1860,7 @@ private:
 	{
 		WaitAllAsync();
 
-		const auto older = (nt_clock::now() - chrono::days(DaysToKeep)).time_since_epoch().count();
+		const auto older = (os::chrono::nt_clock::now() - chrono::days(DaysToKeep)).time_since_epoch().count();
 		return ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
@@ -1971,7 +1971,7 @@ private:
 	virtual unsigned long long SetEditorPos(const string_view& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		return ExecuteStatement(stmtSetEditorPos, Name, nt_clock::now().time_since_epoch().count(), Line, LinePos, ScreenLine, LeftPos, CodePage)? LastInsertRowID() : 0;
+		return ExecuteStatement(stmtSetEditorPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), Line, LinePos, ScreenLine, LeftPos, CodePage)? LastInsertRowID() : 0;
 	}
 
 	virtual unsigned long long GetEditorPos(const string_view& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) override
@@ -2012,7 +2012,7 @@ private:
 	virtual unsigned long long SetViewerPos(const string_view& Name, long long FilePos, long long LeftPos, int Hex_Wrap, uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		return ExecuteStatement(stmtSetViewerPos, Name, nt_clock::now().time_since_epoch().count(), FilePos, LeftPos, Hex_Wrap, CodePage)? LastInsertRowID() : 0;
+		return ExecuteStatement(stmtSetViewerPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), FilePos, LeftPos, Hex_Wrap, CodePage)? LastInsertRowID() : 0;
 	}
 
 	virtual unsigned long long GetViewerPos(const string_view& Name, long long *FilePos, long long *LeftPos, int *Hex, uintptr_t *CodePage) override
@@ -2051,7 +2051,7 @@ private:
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) override
 	{
 		WaitCommitAsync();
-		const auto older = (nt_clock::now() - chrono::days(DaysToKeep)).time_since_epoch().count();
+		const auto older = (os::chrono::nt_clock::now() - chrono::days(DaysToKeep)).time_since_epoch().count();
 		ExecuteStatement(stmtDeleteOldEditor, older, MinimumEntries);
 		ExecuteStatement(stmtDeleteOldViewer, older, MinimumEntries);
 	}

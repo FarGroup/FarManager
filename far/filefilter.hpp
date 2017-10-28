@@ -80,7 +80,7 @@ private:
 
 	Panel *m_HostPanel;
 	FAR_FILE_FILTER_TYPE m_FilterType;
-	time_point CurrentTime;
+	os::chrono::time_point CurrentTime;
 };
 
 #endif // FILEFILTER_HPP_DC322D87_FC69_401A_8EF8_9710B11909CB

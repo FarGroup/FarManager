@@ -35,11 +35,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "flink.hpp"
+#include "platform.security.hpp"
 #include "imports.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "drivemix.hpp"
-#include "privilege.hpp"
 #include "message.hpp"
 #include "lang.hpp"
 #include "dirmix.hpp"

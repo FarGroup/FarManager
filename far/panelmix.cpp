@@ -623,7 +623,7 @@ string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
 	return inplace::fit_to_left(OutStr, Width);
 }
 
-string FormatStr_DateTime(time_point FileTime, int ColumnType, unsigned long long Flags, int Width)
+string FormatStr_DateTime(os::chrono::time_point FileTime, int ColumnType, unsigned long long Flags, int Width)
 {
 	if (Width < 0)
 	{

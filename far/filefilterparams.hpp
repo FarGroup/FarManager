@@ -78,8 +78,8 @@ enum enumFDateType
 class filter_dates: public conditional<filter_dates>
 {
 public:
-	explicit filter_dates(duration After = {}, duration Before = {});
-	explicit filter_dates(time_point After, time_point Before);
+	explicit filter_dates(os::chrono::duration After = {}, os::chrono::duration Before = {});
+	explicit filter_dates(os::chrono::time_point After, os::chrono::time_point Before);
 
 	bool operator!() const;
 
@@ -88,12 +88,12 @@ public:
 	{
 		return m_Relative?
 			Callable(m_After, m_Before) :
-			Callable(time_point(m_After), time_point(m_Before));
+			Callable(os::chrono::time_point(m_After), os::chrono::time_point(m_Before));
 	}
 
 private:
-	duration m_After;
-	duration m_Before;
+	os::chrono::duration m_After;
+	os::chrono::duration m_Before;
 	bool m_Relative;
 };
 
@@ -140,13 +140,13 @@ public:
 	// попадает ли файл fd под условие установленного фильтра.
 	// Возвращает true  - попадает;
 	//            false - не попадает.
-	bool FileInFilter(const FileListItem* fli, const FileList* Owner, time_point CurrentTime) const;
-	bool FileInFilter(const os::fs::find_data& fde, time_point CurrentTime, const string* FullName = nullptr) const; //Used in dirinfo, copy, findfile
-	bool FileInFilter(const PluginPanelItem& fd, time_point CurrentTime) const;
+	bool FileInFilter(const FileListItem* fli, const FileList* Owner, os::chrono::time_point CurrentTime) const;
+	bool FileInFilter(const os::fs::find_data& fde, os::chrono::time_point CurrentTime, const string* FullName = nullptr) const; //Used in dirinfo, copy, findfile
+	bool FileInFilter(const PluginPanelItem& fd, os::chrono::time_point CurrentTime) const;
 
 
 private:
-	bool FileInFilter(struct filter_file_object& Object, time_point CurrentTime, const std::function<void(filter_file_object&)>& Getter) const;
+	bool FileInFilter(struct filter_file_object& Object, os::chrono::time_point CurrentTime, const std::function<void(filter_file_object&)>& Getter) const;
 
 	string m_strTitle;
 

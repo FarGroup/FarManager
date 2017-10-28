@@ -47,7 +47,7 @@ int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode=-1);
 int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode=-1);
 int ESetFileEncryption(const string& Name,bool State,DWORD FileAttr,int SkipMode=-1,int Silent=0);
 int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode=-1);
-int ESetFileTime(const string& Name, const time_point* LastWriteTime, const time_point* CreationTime, const time_point* LastAccessTime, const time_point* ChangeTime, DWORD FileAttr, int SkipMode=-1);
+int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD FileAttr, int SkipMode=-1);
 int ESetFileOwner(const string& Name, const string& Owner,int SkipMode=-1);
 int EDeleteReparsePoint(const string& Name, DWORD FileAttr, int SkipMode=-1);
 

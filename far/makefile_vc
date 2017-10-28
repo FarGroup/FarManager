@@ -201,6 +201,7 @@ LINK_OBJS = \
 	"$(INTDIR)\platform.fs.obj" \
 	"$(INTDIR)\platform.memory.obj" \
 	"$(INTDIR)\platform.reg.obj" \
+	"$(INTDIR)\platform.security.obj" \
 	"$(INTDIR)\plclass.obj" \
 	"$(INTDIR)\plist.obj" \
 	"$(INTDIR)\plugapi.obj" \
@@ -211,7 +212,6 @@ LINK_OBJS = \
 	"$(INTDIR)\preservelongname.obj" \
 	"$(INTDIR)\preservestyle.obj" \
 	"$(INTDIR)\print.obj" \
-	"$(INTDIR)\privilege.obj" \
 	"$(INTDIR)\processname.obj" \
 	"$(INTDIR)\qview.obj" \
 	"$(INTDIR)\refreshwindowmanager.obj" \

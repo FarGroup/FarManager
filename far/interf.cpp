@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "interf.hpp"
+#include "platform.security.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farcolor.hpp"

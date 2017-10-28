@@ -265,25 +265,6 @@ handle OpenConsoleActiveScreenBuffer()
 			return m_module.get();
 		}
 	}
-
-	namespace security
-	{
-		bool is_admin()
-		{
-			static const auto Result = []
-			{
-				SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
-				const auto AdministratorsGroup = make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
-				if (!AdministratorsGroup)
-					return false;
-
-				BOOL IsMember;
-				return CheckTokenMembership(nullptr, AdministratorsGroup.get(), &IsMember) && IsMember;
-			}();
-
-			return Result;
-		}
-	}
 }
 
 UUID CreateUuid()
