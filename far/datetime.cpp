@@ -478,7 +478,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 				case L'z':
 					{
 						using namespace std::chrono;
-						const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + _dstbias));
+						const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + (t->tm_isdst? _dstbias : 0)));
 						strBuf = format(L"{0:+05}", std::get<hours>(Offset).count() * 100 + std::get<minutes>(Offset).count());
 					}
 					break;
