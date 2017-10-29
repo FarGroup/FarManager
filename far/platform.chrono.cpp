@@ -68,4 +68,26 @@ namespace os::chrono
 	{
 		return time_point(duration(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime));
 	}
+
+	bool get_process_creation_time(HANDLE Process, time_point& CreationTime)
+	{
+		FILETIME FtCreationTime, NotUsed;
+		if (!GetProcessTimes(Process, &FtCreationTime, &NotUsed, &NotUsed, &NotUsed))
+			return false;
+
+		CreationTime = nt_clock::from_filetime(FtCreationTime);
+		return true;
+	}
+
+	duration process_uptime()
+	{
+		static const auto ProcessCreationTime = []
+		{
+			time_point CreationTime;
+			get_process_creation_time(GetCurrentProcess(), CreationTime);
+			return CreationTime;
+		}();
+
+		return nt_clock::now() - ProcessCreationTime;
+	}
 }

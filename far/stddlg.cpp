@@ -523,10 +523,9 @@ operation OperationFailed(const error_state& ErrorState, const string& Object, l
 							append(tmp, L" (PID: "_sv, str(i.Process.dwProcessId));
 							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, i.Process.dwProcessId)))
 							{
-								FILETIME ftCreate, ftExit, ftKernel, ftUser;
-								if (GetProcessTimes(Process.native_handle(), &ftCreate, &ftExit, &ftKernel, &ftUser) &&
-									i.Process.ProcessStartTime.dwLowDateTime == ftCreate.dwLowDateTime &&
-									i.Process.ProcessStartTime.dwHighDateTime == ftCreate.dwHighDateTime)
+								os::chrono::time_point CreationTime;
+								if (os::chrono::get_process_creation_time(Process.native_handle(), CreationTime) &&
+									os::chrono::nt_clock::from_filetime(i.Process.ProcessStartTime) == CreationTime)
 								{
 									string Name;
 									if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))

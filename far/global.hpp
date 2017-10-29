@@ -46,7 +46,6 @@ public:
 
 	HANDLE MainThreadHandle() const {return m_MainThreadHandle.native_handle();}
 	bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
-	unsigned long long FarUpTime() const;
 	static string_view Version();
 	static string_view Copyright();
 
@@ -115,7 +114,6 @@ public:
 private:
 	DWORD m_MainThreadId;
 	os::handle m_MainThreadHandle;
-	std::chrono::steady_clock::time_point m_FarStartTime;
 
 	string m_SearchString;
 	bool m_SearchHex;

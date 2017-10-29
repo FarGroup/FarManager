@@ -379,7 +379,7 @@ public:
 	HierarchicalConfigUniquePtr CreateFiltersConfig();
 	HierarchicalConfigUniquePtr CreateHighlightConfig();
 	HierarchicalConfigUniquePtr CreateShortcutsConfig();
-	HierarchicalConfigUniquePtr CreatePanelModeConfig();
+	HierarchicalConfigUniquePtr CreatePanelModesConfig();
 
 private:
 	template<class T> void CheckAndImportDatabase(T* Database, const char* ImportNodeName, bool IsPlugin);

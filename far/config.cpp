@@ -2426,17 +2426,17 @@ void Options::DeleteViewSettings(size_t Index)
 	m_ViewSettingsChanged = true;
 }
 
-static const wchar_t CustomModesKeyName[] = L"CustomModes";
-static const wchar_t ModesNameName[] = L"Name";
-static const wchar_t ModesColumnTitlesName[] = L"ColumnTitles";
-static const wchar_t ModesColumnWidthsName[] = L"ColumnWidths";
-static const wchar_t ModesStatusColumnTitlesName[] = L"StatusColumnTitles";
-static const wchar_t ModesStatusColumnWidthsName[] = L"StatusColumnWidths";
-static const wchar_t ModesFlagsName[] = L"Flags";
+static const auto CustomModesKeyName = L"CustomModes"_sv;
+static const auto ModesNameName = L"Name"_sv;
+static const auto ModesColumnTitlesName = L"ColumnTitles"_sv;
+static const auto ModesColumnWidthsName = L"ColumnWidths"_sv;
+static const auto ModesStatusColumnTitlesName = L"StatusColumnTitles"_sv;
+static const auto ModesStatusColumnWidthsName = L"StatusColumnWidths"_sv;
+static const auto ModesFlagsName = L"Flags"_sv;
 
 void Options::ReadPanelModes()
 {
-	const auto cfg = ConfigProvider().CreatePanelModeConfig();
+	const auto cfg = ConfigProvider().CreatePanelModesConfig();
 
 	auto root = HierarchicalConfig::root_key();
 
@@ -2497,7 +2497,7 @@ void Options::SavePanelModes(bool always)
 	if (!always && !m_ViewSettingsChanged)
 		return;
 
-	const auto cfg = ConfigProvider().CreatePanelModeConfig();
+	const auto cfg = ConfigProvider().CreatePanelModesConfig();
 	auto root = cfg->root_key();
 
 	const auto& SaveMode = [&](const auto& i, size_t Index)

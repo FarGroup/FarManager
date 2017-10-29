@@ -2239,7 +2239,7 @@ HierarchicalConfigUniquePtr config_provider::CreateShortcutsConfig()
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
 }
 
-HierarchicalConfigUniquePtr config_provider::CreatePanelModeConfig()
+HierarchicalConfigUniquePtr config_provider::CreatePanelModesConfig()
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
 }
@@ -2281,7 +2281,7 @@ bool config_provider::Export(const string& File)
 	Representation.SetRoot(CreateChild(root, "highlight"));
 	CreateHighlightConfig()->Export(Representation);
 	Representation.SetRoot(CreateChild(root, "panelmodes"));
-	CreatePanelModeConfig()->Export(Representation);
+	CreatePanelModesConfig()->Export(Representation);
 	Representation.SetRoot(CreateChild(root, "shortcuts"));
 	CreateShortcutsConfig()->Export(Representation);
 
@@ -2332,7 +2332,7 @@ bool config_provider::Import(const string& Filename)
 	Representation.SetRoot(root.FirstChildElement("highlight"));
 	CreateHighlightConfig()->Import(Representation);
 	Representation.SetRoot(root.FirstChildElement("panelmodes"));
-	CreatePanelModeConfig()->Import(Representation);
+	CreatePanelModesConfig()->Import(Representation);
 	Representation.SetRoot(root.FirstChildElement("shortcuts"));
 	CreateShortcutsConfig()->Import(Representation);
 

@@ -70,24 +70,7 @@ static Panel *SrcDragPanel;
 static SaveScreen *DragSaveScr=nullptr;
 
 Panel::Panel(window_ptr Owner):
-	ScreenObject(Owner),
-	ProcessingPluginCommand(0),
-	m_Type(panel_type::FILE_PANEL),
-	m_EnableUpdate(TRUE),
-	m_PanelMode(panel_mode::NORMAL_PANEL),
-	m_SortMode(panel_sort::UNSORTED),
-	m_ReverseSortOrder(false),
-	m_SortGroups(false),
-	m_PrevViewMode(VIEW_3),
-	m_ViewMode(0),
-	m_CurTopFile(0),
-	m_CurFile(0),
-	m_ShowShortNames(false),
-	m_NumericSort(false),
-	m_CaseSensitiveSort(false),
-	m_DirectoriesFirst(true),
-	m_ModalMode(0),
-	m_PluginCommand(0)
+	ScreenObject(Owner)
 {
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;

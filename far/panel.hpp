@@ -267,7 +267,7 @@ public:
 
 	static void EndDrag();
 
-	int ProcessingPluginCommand;
+	int ProcessingPluginCommand = 0;
 
 protected:
 	explicit Panel(window_ptr Owner);
@@ -295,22 +295,22 @@ private:
 protected:
 	PanelViewSettings m_ViewSettings;
 	string m_CurDir;
-	panel_type m_Type;
-	int m_EnableUpdate;
-	panel_mode m_PanelMode;
-	panel_sort m_SortMode;
-	bool m_ReverseSortOrder;
-	bool m_SortGroups;
-	int m_PrevViewMode;
-	int m_ViewMode;
-	int m_CurTopFile;
-	int m_CurFile;
-	bool m_ShowShortNames;
-	bool m_NumericSort;
-	bool m_CaseSensitiveSort;
-	bool m_DirectoriesFirst;
-	int m_ModalMode;
-	int m_PluginCommand;
+	panel_type m_Type = panel_type::FILE_PANEL;
+	int m_EnableUpdate = TRUE;
+	panel_mode m_PanelMode = panel_mode::NORMAL_PANEL;
+	panel_sort m_SortMode = panel_sort::UNSORTED;
+	bool m_ReverseSortOrder = false;
+	bool m_SortGroups = false;
+	int m_PrevViewMode = VIEW_3;
+	int m_ViewMode = 0;
+	int m_CurTopFile = 0;
+	int m_CurFile = 0;
+	bool m_ShowShortNames = false;
+	bool m_NumericSort = false;
+	bool m_CaseSensitiveSort = false;
+	bool m_DirectoriesFirst = true;
+	int m_ModalMode = 0;
+	int m_PluginCommand = -1;
 	string m_PluginParam;
 	string m_Title;
 

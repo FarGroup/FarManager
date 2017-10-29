@@ -102,13 +102,6 @@ int CompareTime(os::chrono::time_point First, os::chrono::time_point Second)
 	return First == Second? 0 : First < Second? -1 : 1;
 };
 
-static int ListSortGroups,ListSelectedFirst,ListDirectoriesFirst;
-static panel_sort ListSortMode(panel_sort::UNSORTED);
-static bool RevertSorting;
-static panel_mode ListPanelMode(panel_mode::NORMAL_PANEL);
-static bool ListNumericSort, ListCaseSensitiveSort;
-static plugin_panel* hSortPlugin;
-
 enum SELECT_MODES
 {
 	SELECT_INVERT,
@@ -368,21 +361,12 @@ FileList::FileList(private_tag, window_ptr Owner):
 
 		openBracket[1]=closeBracket[1]=0;
 	}
-	m_Type = panel_type::FILE_PANEL;
+
 	m_CurDir = os::fs::GetCurrentDirectory();
 	strOriginalCurDir = m_CurDir;
-	m_CurTopFile=m_CurFile=0;
-	m_ShowShortNames = false;
 	m_SortMode = panel_sort::BY_NAME;
-	m_ReverseSortOrder = false;
-	m_SortGroups = false;
-	m_ViewMode=VIEW_3;
 	m_ViewSettings = Global->Opt->ViewSettings[m_ViewMode].clone();
-	m_NumericSort = false;
-	m_CaseSensitiveSort = false;
-	m_DirectoriesFirst = true;
 	m_Columns=PreparePanelView(&m_ViewSettings);
-	m_PluginCommand=-1;
 }
 
 
@@ -485,7 +469,20 @@ void FileList::CorrectPosition()
 class list_less
 {
 public:
-	explicit list_less(const FileList* Owner): m_Owner(Owner) {}
+	explicit list_less(const FileList* Owner, const plugin_panel* SortPlugin):
+		m_Owner(Owner),
+		ListSortMode(Owner->GetSortMode()),
+		RevertSorting(Owner->GetSortOrder()),
+		ListPanelMode(Owner->GetMode()),
+		hSortPlugin(SortPlugin),
+		ListNumericSort(Owner->GetNumericSort()),
+		ListCaseSensitiveSort(Owner->GetCaseSensitiveSort()),
+		ListSortGroups(Owner->GetSortGroups()),
+		ListSelectedFirst(Owner->GetSelectedFirstMode()),
+		ListDirectoriesFirst(Owner->GetDirectoriesFirst())
+	{
+	}
+
 	bool operator()(const FileListItem& Item1, const FileListItem& Item2) const
 	{
 		{
@@ -761,6 +758,15 @@ public:
 
 private:
 	const FileList* const m_Owner;
+	const panel_sort ListSortMode;
+	const bool RevertSorting;
+	const panel_mode ListPanelMode;
+	const plugin_panel* hSortPlugin;
+	bool ListNumericSort;
+	bool ListCaseSensitiveSort;
+	bool ListSortGroups;
+	bool ListSelectedFirst;
+	bool ListDirectoriesFirst;
 };
 
 
@@ -773,32 +779,21 @@ void FileList::SortFileList(bool KeepPosition)
 		if (m_SortMode == panel_sort::BY_DIZ)
 			ReadDiz();
 
-		ListSortMode=m_SortMode;
-		RevertSorting = m_ReverseSortOrder;
-		ListSortGroups=m_SortGroups;
-		ListSelectedFirst=SelectedFirst;
-		ListDirectoriesFirst=m_DirectoriesFirst;
-		ListPanelMode=m_PanelMode;
-		ListNumericSort=m_NumericSort;
-		ListCaseSensitiveSort=m_CaseSensitiveSort;
-
 		if (KeepPosition)
 		{
 			assert(m_CurFile < static_cast<int>(m_ListData.size()));
 			strCurName = m_ListData[m_CurFile].strName;
 		}
 
-		{
-			const auto PluginPanel = GetPluginHandle();
-			hSortPlugin = (m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanel && PluginPanel->plugin()->has(iCompare))? PluginPanel : nullptr;
-		}
+		const auto PluginPanel = GetPluginHandle();
+		const auto hSortPlugin = (m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanel && PluginPanel->plugin()->has(iCompare))? PluginPanel : nullptr;
 
 		// ЭТО ЕСТЬ УЗКОЕ МЕСТО ДЛЯ СКОРОСТНЫХ ХАРАКТЕРИСТИК Far Manager
 		// при считывании директории
 
 		if (m_SortMode < panel_sort::COUNT)
 		{
-			std::sort(ALL_RANGE(m_ListData), list_less(this));
+			std::sort(ALL_RANGE(m_ListData), list_less(this, hSortPlugin));
 		}
 		else
 		{
@@ -810,13 +805,13 @@ void FileList::SortFileList(bool KeepPosition)
 			cs.Items = m_ListData.data();
 			cs.ItemsCount = m_ListData.size();
 			cs.FileListToSortingPanelItem = custom_sort::FileListToSortingPanelItem;
-			cs.ListSortGroups = ListSortGroups;
-			cs.ListSelectedFirst = ListSelectedFirst;
-			cs.ListDirectoriesFirst = ListDirectoriesFirst;
+			cs.ListSortGroups = m_SortGroups;
+			cs.ListSelectedFirst = SelectedFirst;
+			cs.ListDirectoriesFirst = m_DirectoriesFirst;
 			cs.ListSortMode = static_cast<int>(m_SortMode);
-			cs.RevertSorting = RevertSorting?1:0;
-			cs.ListNumericSort = ListNumericSort;
-			cs.ListCaseSensitiveSort = ListCaseSensitiveSort;
+			cs.RevertSorting = m_ReverseSortOrder;
+			cs.ListNumericSort = m_NumericSort;
+			cs.ListCaseSensitiveSort = m_CaseSensitiveSort;
 			cs.hSortPlugin = hSortPlugin;
 
 			if (custom_sort::SortFileList(&cs, CustomSortIndicator))
@@ -4549,7 +4544,6 @@ void FileList::EditFilter()
 	m_Filter->FilterEdit();
 }
 
-
 void FileList::SelectSortMode()
 {
 	const MenuDataEx InitSortMenuModes[]=
@@ -5319,7 +5313,6 @@ void FileList::IfGoHome(wchar_t Drive)
 		}
 	}
 }
-
 
 const FileListItem* FileList::GetItem(size_t Index) const
 {

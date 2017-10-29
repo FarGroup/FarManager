@@ -54,5 +54,9 @@ namespace os::chrono
 
 	using duration = nt_clock::duration;
 	using time_point = nt_clock::time_point;
+
+	bool get_process_creation_time(HANDLE Process, time_point& CreationTime);
+
+	duration process_uptime();
 }
 #endif // PLATFORM_CHRONO_HPP_4942BDE7_47FB_49F8_B8F6_EE0AFF4EC61D

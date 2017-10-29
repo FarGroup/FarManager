@@ -106,18 +106,11 @@ namespace detail
 		append_impl(Str, Sizes + 1, FWD(Args)...);
 	}
 
-	template<typename T, REQUIRES(std::is_same<T, wchar_t>::value)>
-	size_t size_one(T) { return 1; }
-
-	template<typename T, REQUIRES(std::is_same<T, const wchar_t*>::value)>
-	size_t size_one(T Str) { return wcslen(Str); }
-
-	template<typename T, REQUIRES(std::is_same<T, string>::value)>
-	size_t size_one(const T& Str) { return Str.size(); }
-
-	template<size_t N>
-	size_t size_one(const wchar_t(&Str)[N]) { return Str[N - 1]? N : N - 1; }
-
+	// The overload for string literals is deliberately omitted as it also matches arrays
+	// and while for string literals the length formula is pretty simple: N - 1,
+	// for arrays it is not, as they could have no trailing \0 at all, or (worse) have multiple.
+	// Use string_view literal if you need to.
+	inline size_t size_one(wchar_t) { return 1; }
 	inline size_t size_one(const string_view& Str) { return Str.size(); }
 
 	inline size_t size_impl(size_t*) { return 0; }
