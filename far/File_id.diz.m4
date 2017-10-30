@@ -16,9 +16,9 @@ Contacts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Internet distribution:
 
-http://www.farmanager.com
+https://www.farmanager.com
 
 Please post your comments and bug
 reports in the forum:
 
-http://forum.farmanager.com/
+https://forum.farmanager.com/

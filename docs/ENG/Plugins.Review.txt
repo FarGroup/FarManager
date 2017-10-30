@@ -45,18 +45,18 @@ because this list is constantly growing. As an information source, which can
 be used to search for specific plugins, one can recommend:
 
   - PlugRinG site
-    http://plugring.farmanager.com
+    https://plugring.farmanager.com
   - Online forum
-    http://forum.farmanager.com
+    https://forum.farmanager.com
   - Mailing lists
-    http://groups.google.com/group/fardev
-    http://groups.google.com/group/fardeven
-    http://groups.google.com/group/farcommits
+    https://groups.google.com/group/fardev
+    https://groups.google.com/group/fardeven
+    https://groups.google.com/group/farcommits
   - USENET echo conference
     news:fido7.far.support
-    Google Groups: http://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support
+    Google Groups: https://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support
     news:fido7.far.development
-    Google Groups: http://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.development
+    Google Groups: https://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.development
   - FidoNet echo conference
     far.support
     far.development

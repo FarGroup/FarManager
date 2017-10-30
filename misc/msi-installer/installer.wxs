@@ -14,9 +14,9 @@
     <Property Id="ALLUSERS" Value="1" />
     <Property Id="REINSTALLMODE" Value="amus" />
     <Property Id="ARPPRODUCTICON" Value="Far.ico" />
-    <Property Id="ARPHELPLINK" Value="http://forum.farmanager.com/" />
-    <Property Id="ARPURLINFOABOUT" Value="http://farmanager.com/" />
-    <Property Id="ARPURLUPDATEINFO" Value="http://farmanager.com/download.php" />
+    <Property Id="ARPHELPLINK" Value="https://forum.farmanager.com/" />
+    <Property Id="ARPURLINFOABOUT" Value="https://farmanager.com/" />
+    <Property Id="ARPURLUPDATEINFO" Value="https://farmanager.com/download.php" />
     <Media Id="1" Cabinet="far.cab" EmbedCab="yes" />
     <Property Id="KERNEL32VERSION">
         <DirectorySearch Id="Kernel32Version" Path="[SystemFolder]">

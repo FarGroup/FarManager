@@ -1060,15 +1060,15 @@ $ #Обзор возможностей плагинов#
 конкретных плагинов, можно порекомендовать:
 
   - Официальный сайт Far Manager
-    ~http://www.farmanager.com/~@http://www.farmanager.com@
+    ~https://www.farmanager.com/~@https://www.farmanager.com@
   - форум
-    ~http://forum.farmanager.com~@http://forum.farmanager.com@
+    ~https://forum.farmanager.com~@https://forum.farmanager.com@
   - Регистрация и обработка проблем
-    ~http://bugs.farmanager.com~@http://bugs.farmanager.com@
+    ~https://bugs.farmanager.com~@https://bugs.farmanager.com@
   - сайт PlugRinG
-    ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
+    ~https://plugring.farmanager.com~@https://plugring.farmanager.com@
   - листы рассылки
-    ~http://groups.google.com/group/fardev/~@http://groups.google.com/group/fardev@
+    ~https://groups.google.com/group/fardev/~@https://groups.google.com/group/fardev@
   - конференции USENET
     ~news:fido7.far.support~@news:fido7.far.support@
     ~news:fido7.far.development~@news:fido7.far.development@

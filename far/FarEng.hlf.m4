@@ -1037,15 +1037,15 @@ an almost limitless expansion of the features of Far.
 one can recommend:
 
   - Far Manager official site
-    ~http://www.farmanager.com~@http://www.farmanager.com@
+    ~https://www.farmanager.com~@https://www.farmanager.com@
   - Online forum
-    ~http://forum.farmanager.com~@http://forum.farmanager.com@
+    ~https://forum.farmanager.com~@https://forum.farmanager.com@
   - Registration and handling of problems
-    ~http://bugs.farmanager.com~@http://bugs.farmanager.com@
+    ~https://bugs.farmanager.com~@https://bugs.farmanager.com@
   - PlugRinG site
-    ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
+    ~https://plugring.farmanager.com~@https://plugring.farmanager.com@
   - Free email group service
-    ~http://groups.google.com/group/fardeven/~@http://groups.google.com/group/fardeven@
+    ~https://groups.google.com/group/fardeven/~@https://groups.google.com/group/fardeven@
   - USENET echo conference
     ~news:fido7.far.support~@news:fido7.far.support@
     ~news:fido7.far.development~@news:fido7.far.development@

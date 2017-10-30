@@ -893,13 +893,13 @@ sok más lehetőség...
     A letölthető pluginekről tájékoztató linkek:
 
   - FAR Manager official site
-    ~http://www.farmanager.com~@http://www.farmanager.com@
+    ~https://www.farmanager.com~@https://www.farmanager.com@
   - Online fórum
-    ~http://forum.farmanager.com~@http://forum.farmanager.com@
+    ~https://forum.farmanager.com~@https://forum.farmanager.com@
   - PlugRinG honlap
-    ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
+    ~https://plugring.farmanager.com~@https://plugring.farmanager.com@
   - Ingyenes levelezőcsoport-szolgáltatás
-    ~http://groups.google.com/group/fardev/~@http://groups.google.com/group/fardev@
+    ~https://groups.google.com/group/fardev/~@https://groups.google.com/group/fardev@
   - USENET echo konferencia
     ~news:fido7.far.support~@news:fido7.far.support@
     ~news:fido7.far.development~@news:fido7.far.development@
