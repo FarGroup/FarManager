@@ -683,7 +683,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 
 	if (pResult == items.end())
 		return nullptr;
-	
+
 	return std::make_unique<plugin_panel>(std::move(pResult->first));
 }
 
@@ -1902,7 +1902,7 @@ struct PluginData
 	unsigned long long PluginFlags;
 };
 
-int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Target)
+int PluginManager::ProcessCommandLine(const string& CommandParam)
 {
 	size_t PrefixLength=0;
 	string strCommand=CommandParam;
@@ -1978,10 +1978,7 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 	if (items.empty())
 		return FALSE;
 
-	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-	const auto CurPanel = Target? Target : ActivePanel;
-
-	if (CurPanel->ProcessPluginEvent(FE_CLOSE,nullptr))
+	if (Global->CtrlObject->Cp()->ActivePanel()->ProcessPluginEvent(FE_CLOSE,nullptr))
 		return FALSE;
 
 	auto PData = items.begin();
@@ -2010,16 +2007,20 @@ int PluginManager::ProcessCommandLine(const string& CommandParam, panel_ptr Targ
 
 	string strPluginCommand=strCommand.substr(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 	RemoveTrailingSpaces(strPluginCommand);
-	OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.data()}; //BUGBUG
-	auto hPlugin = Open(PData->pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info));
-
-	if (hPlugin)
+	auto pPlugin = PData->pPlugin;
+	Global->WindowManager->CallbackWindow([strPluginCommand, pPlugin]()
 	{
-		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(CurPanel, panel_type::FILE_PANEL, TRUE, TRUE);
-		NewPanel->SetPluginMode(std::move(hPlugin), L"", !Target || Target == ActivePanel);
-		NewPanel->Update(0);
-		NewPanel->Show();
-	}
+		OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.data()}; //BUGBUG
+		auto hPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info));
+
+		if (hPlugin)
+		{
+			const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
+			NewPanel->SetPluginMode(std::move(hPlugin), L"", true);
+			NewPanel->Update(0);
+			NewPanel->Show();
+		}
+	});
 
 	return TRUE;
 }
