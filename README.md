@@ -22,15 +22,15 @@ https://bugs.farmanager.com/
 
 #### Developers mailing list (english)
 https://groups.google.com/group/fardeven  
-fardeven@googlegroups.com
+<fardeven@googlegroups.com>
 
 #### Developers mailing list (russian)
 https://groups.google.com/group/fardev  
-fardev@googlegroups.com
+<fardev@googlegroups.com>
 
 #### Commits mailing list
 https://groups.google.com/group/farcommits  
-farcommits@googlegroups.com
+<farcommits@googlegroups.com>
 
-#### Get the code
+#### Source code
 https://github.com/FarGroup/FarManager

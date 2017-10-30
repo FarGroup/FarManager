@@ -13,23 +13,23 @@ Far Manager имеет многоязычный, легко настраивае
 ### Под ваши задачи
 Функциональность Far Manager существенно расширяется за счет внешних подключаемых DLL-модулей — плагинов (этому способствует набор специальных интерфейсов — [Plugins API](https://api.farmanager.com/)). Например, работа с архивами, FTP-клиент, временная панель и просмотр сети реализованы с помощью плагинов, включенных в стандартную поставку Far Manager.
 
-### Форум поддержки  
+### Форум поддержки
 https://forum.farmanager.com/
 
-### Баг трекер  
+### Баг трекер
 https://bugs.farmanager.com/
 
-### Рассылка для разработчиков (русскоязычная)  
+### Рассылка для разработчиков (русскоязычная)
 https://groups.google.com/group/fardev  
-fardev@googlegroups.com
+<fardev@googlegroups.com>
 
-### Рассылка для разработчиков (англоязычная)  
+### Рассылка для разработчиков (англоязычная)
 https://groups.google.com/group/fardeven  
-fardeven@googlegroups.com
+<fardeven@googlegroups.com>
 
-### Рассылка коммитов  
+### Рассылка коммитов
 https://groups.google.com/group/farcommits  
-farcommits@googlegroups.com
+<farcommits@googlegroups.com>
 
-### Взять исходный код  
+### Исходный код
 https://github.com/FarGroup/FarManager

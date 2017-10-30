@@ -20,7 +20,7 @@ to the project, please follow those guidelines:
 6. If you plan to create large patches or want to keep current with the
    development of Far Manager, subscribe to the
    [Developers mailing list](https://groups.google.com/group/fardeven)
-   (fardeven@googlegroups.com).
+   (<fardeven@googlegroups.com>).
 7. Frequent patchers will be eligible for full repository access, by our discretion.
 
 
