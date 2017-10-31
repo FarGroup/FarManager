@@ -1802,7 +1802,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,       NKeyPanel,L"RightClickRule", OPT_DEF(PanelRightClickRule, 2)},
 		{FSSF_PRIVATE,       NKeyPanel,L"SelectFolders", OPT_DEF(SelectFolders, false)},
 		{FSSF_PRIVATE,       NKeyPanel,L"ShellRightLeftArrowsRule", OPT_DEF(ShellRightLeftArrowsRule, false)},
-		{FSSF_PRIVATE,       NKeyPanel,L"ShowBytes", OPT_DEF(ShowBytes, false) },
+		{FSSF_PANEL,         NKeyPanel,L"ShowBytes", OPT_DEF(ShowBytes, false) },
 		{FSSF_PANEL,         NKeyPanel,L"ShowHidden", OPT_DEF(ShowHidden, true)},
 		{FSSF_PANEL,         NKeyPanel,L"ShortcutAlwaysChdir", OPT_DEF(ShortcutAlwaysChdir, false)},
 		{FSSF_PRIVATE,       NKeyPanel,L"SortFolderExt", OPT_DEF(SortFolderExt, false)},
