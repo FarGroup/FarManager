@@ -63,9 +63,7 @@ ControlObject::ControlObject()
 	GotoXY(0, ScrY - 2);
 	MoveCursor(0, ScrY - 1);
 
-	Desktop = desktop::create();
-	Global->WindowManager->InsertWindow(Desktop);
-	Desktop->TakeSnapshot();
+	Global->WindowManager->InitDesktop();
 
 	HiFiles = std::make_unique<highlight::configuration>();
 	Plugins = std::make_unique<PluginManager>();

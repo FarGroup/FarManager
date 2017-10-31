@@ -4921,7 +4921,7 @@ bool FileList::ApplyCommand()
 	GetSelName(nullptr,FileAttr);
 	Parent()->GetCmdLine()->LockUpdatePanel(true);
 	{
-		const auto ExecutionContext = Global->CtrlObject->Desktop->ConsoleSession().GetContext();
+		const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
 		while (GetSelName(&strSelName, FileAttr, &strSelShortName) && !CheckForEsc())
 		{
 			string strListName, strAnotherListName;

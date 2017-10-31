@@ -513,7 +513,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			}
 
 			if (!CmdStr.ProcessKey(LocalKey))
-				return Global->CtrlObject->Desktop->ProcessKey(Key);
+				return Global->WindowManager->Desktop()->ProcessKey(Key);
 
 			LastCmdPartLength=-1;
 
@@ -873,7 +873,7 @@ void CommandLine::ExecString(execute_info& Info)
 	bool Silent = false;
 	bool IsUpdateNeeded = false;
 
-	const auto ExecutionContext = Global->CtrlObject->Desktop->ConsoleSession().GetContext();
+	const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
 
 	SCOPE_EXIT
 	{

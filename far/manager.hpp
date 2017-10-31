@@ -71,6 +71,8 @@ public:
 		NextWindow
 	};
 
+	void InitDesktop();
+
 	// Эти функции можно безопасно вызывать практически из любого места кода
 	// они как бы накапливают информацию о том, что нужно будет сделать с окнами при следующем вызове Commit()
 	void InsertWindow(const window_ptr& NewWindow);
@@ -125,10 +127,11 @@ public:
 	void AddGlobalKeyHandler(const std::function<bool(const Key&)>& Handler);
 
 	static long GetCurrentWindowType() { return CurrentWindowType; }
-	static bool ShowBackground();
 
+	bool ShowBackground() const;
 	void UpdateMacroArea() const;
 
+	desktop* Desktop() const;
 	Viewer* GetCurrentViewer(void) const;
 	FileEditor* GetCurrentEditor(void) const;
 	// BUGBUG, do we need this?
@@ -188,6 +191,7 @@ private:
 	std::vector<std::function<bool(const Key&)>> m_GlobalKeyHandlers;
 	std::unordered_map<window_ptr, bool*> m_Executed;
 	std::unordered_set<window_ptr> m_Added;
+	desktop_ptr m_Desktop;
 };
 
 #endif // MANAGER_HPP_C3173B86_845B_4D8D_921F_803EA43A3C8A

@@ -1230,13 +1230,13 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 		if (Command == FCTL_GETUSERSCREEN)
 		{
-			Global->CtrlObject->Desktop->ConsoleSession().EnterPluginContext();
+			Global->WindowManager->Desktop()->ConsoleSession().EnterPluginContext();
 			return TRUE;
 		}
 
 		if (Command == FCTL_SETUSERSCREEN)
 		{
-			Global->CtrlObject->Desktop->ConsoleSession().LeavePluginContext();
+			Global->WindowManager->Desktop()->ConsoleSession().LeavePluginContext();
 			return TRUE;
 		}
 

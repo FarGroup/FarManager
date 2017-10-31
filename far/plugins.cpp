@@ -80,7 +80,7 @@ static void ReadUserBackgound(SaveScreen *SaveScr)
 			SaveScr->Discard();
 
 		Global->ScrBuf->FillBuf();
-		Global->CtrlObject->Desktop->TakeSnapshot();
+		Global->WindowManager->Desktop()->TakeSnapshot();
 	}
 }
 

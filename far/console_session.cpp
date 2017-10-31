@@ -101,7 +101,7 @@ public:
 
 	void DoPrologue() override
 	{
-		Global->CtrlObject->Desktop->TakeSnapshot();
+		Global->WindowManager->Desktop()->TakeSnapshot();
 
 		const auto XPos = 0;
 		const auto YPos = ScrY - (Global->Opt->ShowKeyBar? 1 : 0);
@@ -137,7 +137,7 @@ public:
 			ScrollScreen(1);
 		}
 
-		Global->CtrlObject->Desktop->TakeSnapshot();
+		Global->WindowManager->Desktop()->TakeSnapshot();
 
 		m_Finalised = true;
 	}
@@ -200,7 +200,7 @@ void console_session::LeavePluginContext()
 		Console().Commit();
 		Global->ScrBuf->FillBuf();
 		ScrollScreen(1);
-		Global->CtrlObject->Desktop->TakeSnapshot();
+		Global->WindowManager->Desktop()->TakeSnapshot();
 	}
 
 	if (m_PluginContextInvocations)

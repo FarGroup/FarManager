@@ -150,7 +150,7 @@ static bool CASHook(const Manager::Key& key)
 							const auto RightVisible = Global->CtrlObject->Cp()->RightPanel()->IsVisible();
 							const auto CmdLineVisible = Global->CtrlObject->CmdLine()->IsVisible();
 							const auto KeyBarVisible = Global->CtrlObject->Cp()->GetKeybar().IsVisible();
-							Manager::ShowBackground();
+							Global->WindowManager->ShowBackground();
 							Global->CtrlObject->Cp()->LeftPanel()->HideButKeepSaveScreen();
 							Global->CtrlObject->Cp()->RightPanel()->HideButKeepSaveScreen();
 
@@ -255,6 +255,7 @@ void Manager::CloseAll()
 		Commit();
 	}
 	m_windows.clear();
+	m_Desktop.reset();
 }
 
 void Manager::PushWindow(const window_ptr& Param, window_callback Callback)
@@ -271,6 +272,15 @@ void Manager::CheckAndPushWindow(const window_ptr& Param, window_callback Callba
 void Manager::CallbackWindow(const std::function<void(void)>& Callback)
 {
 	m_Queue.emplace(Callback);
+}
+
+void Manager::InitDesktop()
+{
+	assert(!m_Desktop);
+
+	m_Desktop = desktop::create();
+	InsertWindow(m_Desktop);
+	m_Desktop->TakeSnapshot();
 }
 
 void Manager::InsertWindow(const window_ptr& Inserted)
@@ -477,9 +487,9 @@ window_ptr Manager::FindWindowByFile(int ModalType,const string& FileName, const
 	return ItemIterator == m_windows.cend()? nullptr : *ItemIterator;
 }
 
-bool Manager::ShowBackground()
+bool Manager::ShowBackground() const
 {
-	Global->CtrlObject->Desktop->Show();
+	m_Desktop->Show();
 	return true;
 }
 
@@ -537,12 +547,12 @@ void Manager::ReplaceWindow(const window_ptr& Old, const window_ptr& New)
 
 void Manager::ModalDesktopWindow()
 {
-	CheckAndPushWindow(Global->CtrlObject->Desktop, &Manager::ModalDesktopCommit);
+	CheckAndPushWindow(m_Desktop, &Manager::ModalDesktopCommit);
 }
 
 void Manager::UnModalDesktopWindow()
 {
-	CheckAndPushWindow(Global->CtrlObject->Desktop, &Manager::UnModalDesktopCommit);
+	CheckAndPushWindow(m_Desktop, &Manager::UnModalDesktopCommit);
 }
 
 void Manager::SwitchToPanels()
@@ -1213,6 +1223,11 @@ void* Manager::GetCurrent(const std::function<void*(windows::const_reverse_itera
 		return Check(iterator);
 	}
 	return nullptr;
+}
+
+desktop* Manager::Desktop() const
+{
+	return m_Desktop.get();
 }
 
 Viewer* Manager::GetCurrentViewer(void) const
