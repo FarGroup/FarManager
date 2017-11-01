@@ -75,17 +75,17 @@ mutatnak. Szintén a főoldalon található ~A súgó betűrendes tartalomjegyz�
 is, rajta az összes témakör listája, ami egyes esetekben megkönnyíti a
 szükséges információk gyorsabb megtalálását.
 
-    A #Tab# és a #Shift-Tab# billentyűk a kurzort egyik hivatkozásról a másikra
+    A #Tab# és a #Shift+Tab# billentyűk a kurzort egyik hivatkozásról a másikra
 léptetik és az #Enter# vagy az egérgomb lenyomásával juthatunk el a
 hivatkozott oldalra.
 
     Ha a szöveg túlnyúlik a súgó ablakán, függőleges gördítősáv jelenik meg,
 ebben az esetben a #kurzorvezérlő billentyűkkel# görgethetjük a szöveget.
 
-    Az #Alt-F1# vagy a #BackSpace# segítségével léphetünk visszafelé a bejárt
-súgóoldalakon, #Shift-F1#-re pedig a súgó tartalma jelenik meg.
+    Az #Alt+F1# vagy a #BackSpace# segítségével léphetünk visszafelé a bejárt
+súgóoldalakon, #Shift+F1#-re pedig a súgó tartalma jelenik meg.
 
-    A #Shift-F2# a ~pluginek~@Plugins@ súgóját hívja meg.
+    A #Shift+F2# a ~pluginek~@Plugins@ súgóját hívja meg.
 
     A #súgó# alapértelmezés szerint csökkentett méretű ablakban jelenik meg,
 amit az #F5# #(Nagyít)# funkcióbillentyűvel maximalizálhatunk. Az #F5# újbóli
@@ -239,93 +239,93 @@ $ #Panelvezérlő parancsok#
   #Általános panelparancsok#
 
   Aktív panel váltó                                              #Tab#
-  Panelek megcserélése                                        #Ctrl-U#
-  Panel frissítése                                            #Ctrl-R#
-  Info panel be/ki                                            #Ctrl-L#
-  ~Gyorsnézet~@QViewPanel@ panel be/ki                                      #Ctrl-Q#
-  Fastruktúra panel be/ki                                     #Ctrl-T#
-  Mindkét panelt elrejti/megmutatja                           #Ctrl-O#
+  Panelek megcserélése                                        #Ctrl+U#
+  Panel frissítése                                            #Ctrl+R#
+  Info panel be/ki                                            #Ctrl+L#
+  ~Gyorsnézet~@QViewPanel@ panel be/ki                                      #Ctrl+Q#
+  Fastruktúra panel be/ki                                     #Ctrl+T#
+  Mindkét panelt elrejti/megmutatja                           #Ctrl+O#
   Átmenetileg elrejti mindkét panelt
-    (amíg a billentyűk le vannak nyomva)              #Ctrl-Alt-Shift#
-  Elrejti/megmutatja az inaktív panelt                        #Ctrl-P#
-  Elrejti/megmutatja a bal panelt                            #Ctrl-F1#
-  Elrejti/megmutatja a jobb panelt                           #Ctrl-F2#
-  A panelek magasságán változtat                    #Ctrl-Fel,Ctrl-Le#
+    (amíg a billentyűk le vannak nyomva)              #Ctrl+Alt+Shift#
+  Elrejti/megmutatja az inaktív panelt                        #Ctrl+P#
+  Elrejti/megmutatja a bal panelt                            #Ctrl+F1#
+  Elrejti/megmutatja a jobb panelt                           #Ctrl+F2#
+  A panelek magasságán változtat                    #Ctrl+Fel,Ctrl+Le#
   A panelek szélességén változtat
-    (ha a parancssor üres)                        #Ctrl-Jobb,Ctrl-Bal#
-  Visszaállítja a panelszélességek alapértékét          #Ctrl-Numpad5#
-  Visszaállítja a panelmagasságok alapértékét       #Ctrl-Alt-Numpad5#
+    (ha a parancssor üres)                        #Ctrl+Jobb,Ctrl+Bal#
+  Visszaállítja a panelszélességek alapértékét          #Ctrl+Numpad5#
+  Visszaállítja a panelmagasságok alapértékét       #Ctrl+Alt+Numpad5#
   Megmutatja/elrejti a funkcióbillentyűk sorát
-    a képernyő alján                                          #Ctrl-B#
+    a képernyő alján                                          #Ctrl+B#
 
   #Fájlpanel parancsok#
 
-  Fájlokat kijelöl/kijelölést levesz           #Ins,Shift-Kurzorbill.#
+  Fájlokat kijelöl/kijelölést levesz           #Ins,Shift+Kurzorbill.#
   Csoport kijelölése                                        #Szürke +#
   Csoportkijelölést levesz                                  #Szürke -#
   Kijelölést megfordít                                      #Szürke *#
   Kijelöli az aktuális fájl kiterjesztésével
-    megegyező fájlokat                               #Ctrl-<Szürke +>#
+    megegyező fájlokat                               #Ctrl+<Szürke +>#
   A kijelölést leveszi az aktuális fájl
-    kiterjesztésével megegyező fájlokról             #Ctrl-<Szürke ->#
+    kiterjesztésével megegyező fájlokról             #Ctrl+<Szürke ->#
   A kijelölést megfordítja a mappákon is
     (a parancssor állapotától és a mappák
-    kijelölhetőségi opciójától függetlenül)          #Ctrl-<Szürke *>#
-  Kijelöli az aktuális fájllal azonos nevű fájlokat   #Alt-<Szürke +>#
+    kijelölhetőségi opciójától függetlenül)          #Ctrl+<Szürke *>#
+  Kijelöli az aktuális fájllal azonos nevű fájlokat   #Alt+<Szürke +>#
   A kijelölést leveszi az aktuális fájllal
-    megegyező nevű fájlokról                          #Alt-<Szürke ->#
-  Minden fájl kijelölése                            #Shift-<Szürke +>#
-  Minden fájlról leveszi a kijelölést               #Shift-<Szürke ->#
-  Visszaállítja az előző kijelölést                           #Ctrl-M#
+    megegyező nevű fájlokról                          #Alt+<Szürke ->#
+  Minden fájl kijelölése                            #Shift+<Szürke +>#
+  Minden fájlról leveszi a kijelölést               #Shift+<Szürke ->#
+  Visszaállítja az előző kijelölést                           #Ctrl+M#
 
-  Túl hosszú fájlnevek és megjegyzések gördítése    #Alt-Bal,Alt-Jobb#
-                                                    #Alt-Home,Alt-End#
+  Túl hosszú fájlnevek és megjegyzések gördítése    #Alt+Bal,Alt+Jobb#
+                                                    #Alt+Home,Alt+End#
 
-  Rövid nézet módra vált                                   #BalCtrl-1#
-  Közepes nézet módra vált                                 #BalCtrl-2#
-  Teljes nézet módra vált                                  #BalCtrl-3#
-  Széles nézet módra vált                                  #BalCtrl-4#
-  Részletes nézet módra vált                               #BalCtrl-5#
-  Fájlmegjegyzések módra vált                              #BalCtrl-6#
-  Hosszú megjegyzések módra vált                           #BalCtrl-7#
-  Fájltulajdonos nézet módra vált                          #BalCtrl-8#
-  Fájl linkek nézet módra vált                             #BalCtrl-9#
-  Alternatív teljes nézet módra vált                       #BalCtrl-0#
+  Rövid nézet módra vált                                   #BalCtrl+1#
+  Közepes nézet módra vált                                 #BalCtrl+2#
+  Teljes nézet módra vált                                  #BalCtrl+3#
+  Széles nézet módra vált                                  #BalCtrl+4#
+  Részletes nézet módra vált                               #BalCtrl+5#
+  Fájlmegjegyzések módra vált                              #BalCtrl+6#
+  Hosszú megjegyzések módra vált                           #BalCtrl+7#
+  Fájltulajdonos nézet módra vált                          #BalCtrl+8#
+  Fájl linkek nézet módra vált                             #BalCtrl+9#
+  Alternatív teljes nézet módra vált                       #BalCtrl+0#
 
-  A rejtett és rendszerfájlokat megmutatja/elrejti            #Ctrl-H#
-  Hosszú és rövid fájlnév nézet között vált                   #Ctrl-N#
+  A rejtett és rendszerfájlokat megmutatja/elrejti            #Ctrl+H#
+  Hosszú és rövid fájlnév nézet között vált                   #Ctrl+N#
 
-  Elrejti/megmutatja a bal panelt                            #Ctrl-F1#
-  Elrejti/megmutatja a jobb panelt                           #Ctrl-F2#
+  Elrejti/megmutatja a bal panelt                            #Ctrl+F1#
+  Elrejti/megmutatja a jobb panelt                           #Ctrl+F2#
 
-  Név szerint rendezi az aktív panel fájljait                #Ctrl-F3#
-  Kiterjesztés szerint rendezi az aktív panel fájljait       #Ctrl-F4#
-  Módosítás ideje szerint rendezi az aktív panel fájljait    #Ctrl-F5#
-  Méret szerint rendezi az aktív panel fájljait              #Ctrl-F6#
-  Rendezetlenül mutatja az aktív panel fájljait              #Ctrl-F7#
-  Keletkezésük ideje szerint rendezi az aktív panel fájljait #Ctrl-F8#
-  Hozzáférésük ideje szerint rendezi az aktív panel fájljait #Ctrl-F9#
-  Megjegyzéseik szerint rendezi az aktív panel fájljait     #Ctrl-F10#
-  Fájltulajdonos szerint rendezi az aktív panel fájljait    #Ctrl-F11#
-  Megjeleníti a ~rendezési elv~@PanelCmdSort@ menüt                         #Ctrl-F12#
-  Rendezési csoportok szerint rendez                       #Shift-F11#
-  A kijelölt fájlokat előre helyezi                        #Shift-F12#
+  Név szerint rendezi az aktív panel fájljait                #Ctrl+F3#
+  Kiterjesztés szerint rendezi az aktív panel fájljait       #Ctrl+F4#
+  Módosítás ideje szerint rendezi az aktív panel fájljait    #Ctrl+F5#
+  Méret szerint rendezi az aktív panel fájljait              #Ctrl+F6#
+  Rendezetlenül mutatja az aktív panel fájljait              #Ctrl+F7#
+  Keletkezésük ideje szerint rendezi az aktív panel fájljait #Ctrl+F8#
+  Hozzáférésük ideje szerint rendezi az aktív panel fájljait #Ctrl+F9#
+  Megjegyzéseik szerint rendezi az aktív panel fájljait     #Ctrl+F10#
+  Fájltulajdonos szerint rendezi az aktív panel fájljait    #Ctrl+F11#
+  Megjeleníti a ~rendezési elv~@PanelCmdSort@ menüt                         #Ctrl+F12#
+  Rendezési csoportok szerint rendez                       #Shift+F11#
+  A kijelölt fájlokat előre helyezi                        #Shift+F12#
 
-  ~Mappa gyorsbillentyűt~@FolderShortcuts@ készít                      #Ctrl-Shift-0...9#
-  Gyorsbillentyűvel mappára ugrik                     #JobbCtrl-0...9#
+  ~Mappa gyorsbillentyűt~@FolderShortcuts@ készít                      #Ctrl+Shift+0...9#
+  Gyorsbillentyűvel mappára ugrik                     #JobbCtrl+0...9#
 
     Ha az aktív panel ~gyorsnézet panel~@QViewPanel@, ~fastruktúra panel~@TreePanel@ vagy
     ~info panel~@InfoPanel@, nem az aktív, hanem a passzív panel vált a
     megfelelő mappára.
 
   A kijelölt fájlok neveit a vágólapra másolja
-    (ha a parancssor üres)                                  #Ctrl-Ins#
+    (ha a parancssor üres)                                  #Ctrl+Ins#
   A kijelölt fájlok neveit a vágólapra másolja
-    (a parancssor állapotától függetlenül)            #Ctrl-Shift-Ins#
+    (a parancssor állapotától függetlenül)            #Ctrl+Shift+Ins#
   A kijelölt fájlok neveit elérési úttal a vágólapra
-    másolja (a parancssor állapotától függetlenül)     #Alt-Shift-Ins#
+    másolja (a parancssor állapotától függetlenül)     #Alt+Shift+Ins#
   A kijelölt fájlok hálózati (UNC) neveit a vágólapra
-    másolja (a parancssor állapotától függetlenül)      #Ctrl-Alt-Ins#
+    másolja (a parancssor állapotától függetlenül)      #Ctrl+Alt+Ins#
 
   Megjegyzések:
 
@@ -335,40 +335,40 @@ másodszori használata a rendezést növekvőről csökkenőre állítja át é
 fordítva.
 
   2. ^<wrap>A túl hosszú fájlneveket és megjegyzéseket jobbra-balra görgető
-#Alt-Bal# és #Alt-Jobb# billentyűkombináció csak a normál #Bal# és #Jobb#
+#Alt+Bal# és #Alt+Jobb# billentyűkombináció csak a normál #Bal# és #Jobb#
 kurzornyilakkal működik, a numerikus billentyűzet kurzorvezérlőivel nem. Ez
 azért van így, mert lenyomott #Alt#-nál a numerikus billentyűzet számai
 karakterek bevitelére szolgálnak, a karakterek decimális kódjaival.
 
-  3. ^<wrap>A #Ctrl-Alt-Ins# billentyűkombináció a következő szabály szerint
+  3. ^<wrap>A #Ctrl+Alt+Ins# billentyűkombináció a következő szabály szerint
 másol szöveget a vágólapra:
 
      - ^<wrap>hálózati meghajtóknál a fájl hálózati (UNC) nevét másolja ki;
      - helyi meghajtóknál a fájl helyi nevét másolja ki, a
 ~szimbolikus linkjeivel~@HardSymLink@ együtt.
 
-  4. ^<wrap>Ha az #Alt-Shift-Ins# vagy a #Ctrl-Alt-Ins# kombináció
+  4. ^<wrap>Ha az #Alt+Shift+Ins# vagy a #Ctrl+Alt+Ins# kombináció
 használatánál a kurzor a #..# nevű elem felett áll, akkor az aktuális mappa
 neve másolódik a vágólapra.
 
 
 @PanelCmdSort
 $ #Rendezési elv#
-    A Rendezési elv menü a #Ctrl-F12#-vel hívható meg és az éppen
+    A Rendezési elv menü a #Ctrl+F12#-vel hívható meg és az éppen
 aktív panelre fog vonatkozni. A következő rendezési módok használhatók:
 
-  Nevük szerint rendezi a fájlokat                           #Ctrl-F3#
-  Kiterjesztésük szerint rendezi a fájlokat                  #Ctrl-F4#
-  Módosításuk ideje szerint rendezi a fájlokat               #Ctrl-F5#
-  Méretük szerint rendezi a fájlokat                         #Ctrl-F6#
-  Rendezetlenül mutatja a fájlokat                           #Ctrl-F7#
-  Keletkezésük ideje szerint rendezi a fájlokat              #Ctrl-F8#
-  Hozzáférésük ideje szerint rendezi a fájlokat              #Ctrl-F9#
-  Megjegyzéseik szerint rendezi a fájlokat                  #Ctrl-F10#
-  Tulajdonosuk szerint rendezi a fájlokat                   #Ctrl-F11#
+  Nevük szerint rendezi a fájlokat                           #Ctrl+F3#
+  Kiterjesztésük szerint rendezi a fájlokat                  #Ctrl+F4#
+  Módosításuk ideje szerint rendezi a fájlokat               #Ctrl+F5#
+  Méretük szerint rendezi a fájlokat                         #Ctrl+F6#
+  Rendezetlenül mutatja a fájlokat                           #Ctrl+F7#
+  Keletkezésük ideje szerint rendezi a fájlokat              #Ctrl+F8#
+  Hozzáférésük ideje szerint rendezi a fájlokat              #Ctrl+F9#
+  Megjegyzéseik szerint rendezi a fájlokat                  #Ctrl+F10#
+  Tulajdonosuk szerint rendezi a fájlokat                   #Ctrl+F11#
 
-  Rendezési csoport használata                             #Shift-F11#
-  A kijelölt fájlok előre kerülnek                         #Shift-F12#
+  Rendezési csoport használata                             #Shift+F11#
+  A kijelölt fájlok előre kerülnek                         #Shift+F12#
   Numerikus rendezés
 
   #Megjegyzések a numerikus rendezéshez#
@@ -397,18 +397,18 @@ kétféle rendezés eltéréseit:
 $ #Gyorskeresés a paneleken#
     A fájlok gyors megkeresésére használhatjuk a #gyorskeresés# műveletet, a
 fájlnév karaktereinek begépelésével. A használatához először le kell
-nyomni és nyomva tartani az #Alt#-ot (vagy az #Alt-Shift#-et), majd addig kell
+nyomni és nyomva tartani az #Alt#-ot (vagy az #Alt+Shift#-et), majd addig kell
 beírni a keresett fájl nevének karaktereit, amíg a kurzor rá nem áll a
 fájlra.
 
-    Ha a keresőablak aktív, a #Ctrl-Enter# lenyomására a kurzor
+    Ha a keresőablak aktív, a #Ctrl+Enter# lenyomására a kurzor
 sorban végiglép a beírt karaktereknek megfelelő fájlneveken. A
-#Ctrl-Shift-Enter# hasonlóan működik, de visszafelé léptet.
+#Ctrl+Shift+Enter# hasonlóan működik, de visszafelé léptet.
 
     A karakterek beírásánál joker (#*# és #?#) karakter is használható.
 
-    A keresőablakba a vágólapról is beilleszthető szöveg (#Ctrl-V# vagy
-#Shift-Ins#), ebben az esetben az első találatig keres.
+    A keresőablakba a vágólapról is beilleszthető szöveg (#Ctrl+V# vagy
+#Shift+Ins#), ebben az esetben az első találatig keres.
 
     A keresőablakban idegen ábécé betűi is használhatók. Ha alkalmazzuk a
 transzliteráló funkciót, a bevitt szöveg átíródik és az új szövegnek megfelelő
@@ -420,65 +420,65 @@ következő találatig tart a keresés. A TechInfo ##10-ben leírtak szerint
 $ #A parancssor parancsai#
  #Általános parancssori parancsok#
 
-  Egy karakterrel balra                                   #Bal,Ctrl-S#
-  Egy karakterrel jobbra                                 #Jobb,Ctrl-D#
-  Egy szóval balra                                          #Ctrl-Bal#
-  Egy szóval jobbra                                        #Ctrl-Jobb#
-  A sor elejére                                            #Ctrl-Home#
-  A sor végére                                              #Ctrl-End#
+  Egy karakterrel balra                                   #Bal,Ctrl+S#
+  Egy karakterrel jobbra                                 #Jobb,Ctrl+D#
+  Egy szóval balra                                          #Ctrl+Bal#
+  Egy szóval jobbra                                        #Ctrl+Jobb#
+  A sor elejére                                            #Ctrl+Home#
+  A sor végére                                              #Ctrl+End#
   Karakter törlése (jobbra)                                      #Del#
   Karakter törlése balra                                   #BackSpace#
-  A sor végéig töröl (jobbra)                                 #Ctrl-K#
-  Szó törlése balra                                   #Ctrl-BackSpace#
-  Szó törlése jobbra                                        #Ctrl-Del#
-  Másolás a vágólapra                                       #Ctrl-Ins#
-  Beillesztés a vágólapról                                 #Shift-Ins#
-  Előző utasítás                                              #Ctrl-E#
-  Következő utasítás                                          #Ctrl-X#
-  Parancssor törlése                                          #Ctrl-Y#
+  A sor végéig töröl (jobbra)                                 #Ctrl+K#
+  Szó törlése balra                                   #Ctrl+BackSpace#
+  Szó törlése jobbra                                        #Ctrl+Del#
+  Másolás a vágólapra                                       #Ctrl+Ins#
+  Beillesztés a vágólapról                                 #Shift+Ins#
+  Előző utasítás                                              #Ctrl+E#
+  Következő utasítás                                          #Ctrl+X#
+  Parancssor törlése                                          #Ctrl+Y#
 
  #Beszúró parancsok#
 
   Beszúrja a parancssorba az akív panel
-  aktuális fájljának nevét                         #Ctrl-J,Ctrl-Enter#
+  aktuális fájljának nevét                         #Ctrl+J,Ctrl+Enter#
 
-     ~Gyorskeresés~@FastFind@ módban a #Ctrl-Enter# nem fájlnevet szúr be,
+     ~Gyorskeresés~@FastFind@ módban a #Ctrl+Enter# nem fájlnevet szúr be,
      hanem a találatnak megfelelő fájlokon lépked végig.
 
-  Beszúrja a passzív panel aktuális fájlnevét       #Ctrl-Shift-Enter#
-  Beszúrja az aktív panel fájlnevét, elérési úttal            #Ctrl-F#
-  Beszúrja a passzív panel fájlnevét, elérési úttal           #Ctrl-;#
-  Beszúrja az aktív panel hálózati (UNC) fájlnevét        #Ctrl-Alt-F#
-  Beszúrja a passzív panel hálózati (UNC) fájlnevét       #Ctrl-Alt-;#
+  Beszúrja a passzív panel aktuális fájlnevét       #Ctrl+Shift+Enter#
+  Beszúrja az aktív panel fájlnevét, elérési úttal            #Ctrl+F#
+  Beszúrja a passzív panel fájlnevét, elérési úttal           #Ctrl+;#
+  Beszúrja az aktív panel hálózati (UNC) fájlnevét        #Ctrl+Alt+F#
+  Beszúrja a passzív panel hálózati (UNC) fájlnevét       #Ctrl+Alt+;#
 
-  Beszúrja a bal panel elérési útvonalát                      #Ctrl-[#
-  Beszúrja a jobb panel elérési útvonalát                     #Ctrl-]#
-  Beszúrja a bal panel hálózati (UNC) elérési útvonalát   #Ctrl-Alt-[#
-  Beszúrja a jobb panel hálózati (UNC) elérési útvonalát  #Ctrl-Alt-]#
+  Beszúrja a bal panel elérési útvonalát                      #Ctrl+[#
+  Beszúrja a jobb panel elérési útvonalát                     #Ctrl+]#
+  Beszúrja a bal panel hálózati (UNC) elérési útvonalát   #Ctrl+Alt+[#
+  Beszúrja a jobb panel hálózati (UNC) elérési útvonalát  #Ctrl+Alt+]#
 
-  Beszúrja az aktív panel elérési útvonalát             #Ctrl-Shift-[#
-  Beszúrja a passzív panel elérési útvonalát            #Ctrl-Shift-]#
-  Beszúrja az aktív panel hálózati (UNC) elérési útját   #Alt-Shift-[#
-  Beszúrja a passzív panel hálózati (UNC) elérési útját  #Alt-Shift-]#
+  Beszúrja az aktív panel elérési útvonalát             #Ctrl+Shift+[#
+  Beszúrja a passzív panel elérési útvonalát            #Ctrl+Shift+]#
+  Beszúrja az aktív panel hálózati (UNC) elérési útját   #Alt+Shift+[#
+  Beszúrja a passzív panel hálózati (UNC) elérési útját  #Alt+Shift+]#
 
   Megjegyzések:
 
-  1. ^<wrap>Ha a parancssor üres, a #Ctrl-Ins# ugyanúgy átmásolja a kijelölt
-fájlneveket a panelről a vágólapra, mint a #Ctrl-Shift-Ins# (lásd
+  1. ^<wrap>Ha a parancssor üres, a #Ctrl+Ins# ugyanúgy átmásolja a kijelölt
+fájlneveket a panelről a vágólapra, mint a #Ctrl+Shift+Ins# (lásd
 ~Panelvezérlő parancsok~@PanelCmd@);
 
-  2. ^<wrap>A #Ctrl-End# lenyomása a parancssor végén azt eredményezi,
+  2. ^<wrap>A #Ctrl+End# lenyomása a parancssor végén azt eredményezi,
 hogy a parancssor jelenlegi tartalma helyére a parancssori
 ~előzmények~@History@ első olyan parancsa kerül, ami a parancssor aktuális
-tartalmával kezdődik, ha ilyen létezik. A #Ctrl-End# többszöri lenyomása
+tartalmával kezdődik, ha ilyen létezik. A #Ctrl+End# többszöri lenyomása
 sorban előhívja a többi ilyen parancsot.
 
   3. ^<wrap>A fent leírt parancsok többsége működik minden
 szerkesztőfunkcióban, beleértve a párbeszédablakok beviteli sorait és a belső
 szerkesztőt is.
 
-  4. ^<wrap>Az #Alt-Shift-Bal#, #Alt-Shift-Jobb#, #Alt-Shift-Home# és
-az #Alt-Shift-End# kijelölik a blokkot a parancssorban akkor is, ha a panelek
+  4. ^<wrap>Az #Alt+Shift+Bal#, #Alt+Shift+Jobb#, #Alt+Shift+Home# és
+az #Alt+Shift+End# kijelölik a blokkot a parancssorban akkor is, ha a panelek
 be vannak kapcsolva.
 
   5. ^<wrap>A helyi meghajtókra kiadott "Fájl hálózati (UNC) nevének
@@ -492,21 +492,21 @@ $ #Panelvezérlő parancsok - rendszerparancsok#
 
   ~Felhasználói menü~@UserMenu@ megjelenítése                                 #F2#
 
-  Megnéz                                 #Ctrl-Shift-F3, Numpad 5, F3#
+  Megnéz                                 #Ctrl+Shift+F3, Numpad 5, F3#
 
     Fájlon lenyomva a #Numpad 5# vagy az #F3# meghívja a ~belső~@Viewer@, a külső
     vagy a ~társított~@FileAssoc@ nézőkét, a fájl típusától és a
-    ~külső nézőke beállításaitól~@ViewerSettings@ függően. A #Ctrl-Shift-F3# mindig a
+    ~külső nézőke beállításaitól~@ViewerSettings@ függően. A #Ctrl+Shift+F3# mindig a
     belső nézőkét hívja meg, a fájl kiterjesztésétől függetlenül.
     Mappán lenyomva kiszámítja és megmutatja a kijelölt mappák
     méretét.
 
-  Szerkeszt                                        #Ctrl-Shift-F4, F4#
+  Szerkeszt                                        #Ctrl+Shift+F4, F4#
 
     Az #F4# meghívja a ~belső~@Editor@, a külső vagy a ~társított~@FileAssoc@ szerkesztőt,
     a fájl típusától és a ~külső szerkesztő beállításaitól~@EditorSettings@ függően.
-    A #Ctrl-Shift-F4# mindig a belső szerkesztőt hívja meg, a fájlok
-    társításaitól függetlenül. Az #F4# és a #Ctrl-Shift-F4# a mappákon
+    A #Ctrl+Shift+F4# mindig a belső szerkesztőt hívja meg, a fájlok
+    társításaitól függetlenül. Az #F4# és a #Ctrl+Shift+F4# a mappákon
     az ~attribútumok~@FileAttrDlg@ megváltoztatása párbeszédablakot hívja elő.
 
   ~Másol~@CopyFiles@                                                           #F5#
@@ -522,9 +522,9 @@ $ #Panelvezérlő parancsok - rendszerparancsok#
 
   ~Új mappát hoz létre~@MakeFolder@                                             #F7#
 
-  ~Töröl~@DeleteFile@                                      #Shift-Del, Shift-F8, F8#
+  ~Töröl~@DeleteFile@                                      #Shift+Del, Shift+F8, F8#
 
-  ~Kisöpör~@DeleteFile@                                                    #Alt-Del#
+  ~Kisöpör~@DeleteFile@                                                    #Alt+Del#
 
   ~Menüsor~@Menus@ megjelenítése                                           #F9#
 
@@ -532,66 +532,66 @@ $ #Panelvezérlő parancsok - rendszerparancsok#
 
   ~Plugin parancsok~@Plugins@ megjelenítése                                 #F11#
 
-  Bal panel meghajtóváltás                                    #Alt-F1#
+  Bal panel meghajtóváltás                                    #Alt+F1#
 
-  Jobb panel meghajtóváltás                                   #Alt-F2#
+  Jobb panel meghajtóváltás                                   #Alt+F2#
 
-  Belső/külső nézőke váltó                                    #Alt-F3#
+  Belső/külső nézőke váltó                                    #Alt+F3#
 
     Ha a belső nézőke az alapértelmezett, meghívja a Beállítások
     ~nézőke beállításokban~@ViewerSettings@ megadott külső nézőkét vagy a fájl
     típusához ~társított nézőkét~@FileAssoc@. Ha a külső nézőke alapértelmezett,
     meghívja a belső nézőkét.
 
-  Belső/külső szerkesztő váltó                                #Alt-F4#
+  Belső/külső szerkesztő váltó                                #Alt+F4#
 
     Ha a belső szerkesztő az alapértelmezett, meghívja a Beállítások
     ~szerkesztő beállításokban~@EditorSettings@ megadott külső szerkesztőt vagy a fájl
     típusához ~társított szerkesztőt~@FileAssoc@. Ha a külső szerkesztő az
     alapértelmezett, akkor meghívja a belső szerkesztőt.
 
-  Fájlok nyomtatása                                           #Alt-F5#
+  Fájlok nyomtatása                                           #Alt+F5#
 
     Ha a "Print Manager" plugin telepítve van, a kijelölt fájlok
     nyomtatása ezen a nyomtatóvezérlő pluginen keresztül történik.
     Ha nincs telepítve, akkor a belső lehetőségek szerint.
 
-  ~Fájl linkek~@HardSymLink@ létrehozása (csak NTFS)                         #Alt-F6#
+  ~Fájl linkek~@HardSymLink@ létrehozása (csak NTFS)                         #Alt+F6#
 
     A hardlinkek segítségével különböző fájlnevekkel hivatkozhatunk
     ugyanarra az adatra.
 
-  ~Fájlkeresés~@FindFile@ parancs végrehajtása                            #Alt-F7#
+  ~Fájlkeresés~@FindFile@ parancs végrehajtása                            #Alt+F7#
 
-  ~Parancs előzmények~@History@ megjelenítése                            #Alt-F8#
+  ~Parancs előzmények~@History@ megjelenítése                            #Alt+F8#
 
-  A FAR konzolablak méretének átkapcsolása                    #Alt-F9#
+  A FAR konzolablak méretének átkapcsolása                    #Alt+F9#
 
     Ablakban futtatás módban ezzel a paranccsal váltogatni lehet az
     aktuális ablakméret és a konzolablak lehető legnagyobb mérete
-    között. Teljes képernyős módban az #Alt-F9# váltogat a 25 soros
+    között. Teljes képernyős módban az #Alt+F9# váltogat a 25 soros
     és az 50 soros függőleges felbontás között. Részletek a TechInfo
     ##38-nál.
 
-  ~Plugin beállítások~@Plugins@                                    #Alt-Shift-F9#
+  ~Plugin beállítások~@Plugins@                                    #Alt+Shift+F9#
 
-  ~Mappakeresés~@FindFolder@ parancs végrehajtása                          #Alt-F10#
+  ~Mappakeresés~@FindFolder@ parancs végrehajtása                          #Alt+F10#
 
-  ~Megnézett és szerkesztett fájlok~@HistoryViews@ előzménye                 #Alt-F11#
+  ~Megnézett és szerkesztett fájlok~@HistoryViews@ előzménye                 #Alt+F11#
 
-  ~Mappa előzmények~@HistoryFolders@ megjelenítése                             #Alt-F12#
+  ~Mappa előzmények~@HistoryFolders@ megjelenítése                             #Alt+F12#
 
-  Fájlok hozzáadása tömörített fájlhoz                      #Shift-F1#
-  Fájlok kibontása tömörített fájlból                       #Shift-F2#
-  Tömörítettkezelő parancsok végrehajtása                   #Shift-F3#
-  ~Új fájl~@FileOpenCreate@ szerkesztése                                      #Shift-F4#
+  Fájlok hozzáadása tömörített fájlhoz                      #Shift+F1#
+  Fájlok kibontása tömörített fájlból                       #Shift+F2#
+  Tömörítettkezelő parancsok végrehajtása                   #Shift+F3#
+  ~Új fájl~@FileOpenCreate@ szerkesztése                                      #Shift+F4#
 
     Új fájl megnyitásánál a fájl ugyanazt a kódlapot kapja, mint amit
     a szerkesztőben utoljára használtunk. A FAR szerkesztője első
     megnyitásakor az alapértelmezett kódlapot fogja használni.
 
-  A kurzor alatti fájl másolása                             #Shift-F5#
-  A kurzor alatti fájl átnevezése/áthelyezése               #Shift-F6#
+  A kurzor alatti fájl másolása                             #Shift+F5#
+  A kurzor alatti fájl átnevezése/áthelyezése               #Shift+F6#
 
     Mappákon: ha a megadott (abszolút vagy relatív) elérési út létező
     mappára mutat, akkor a forrásmappát e célmappa belsejébe mozgatja.
@@ -605,40 +605,40 @@ $ #Panelvezérlő parancsok - rendszerparancsok#
     - ha nem létezik, akkor #c:\mappa1\# áthelyeződik (átneveződik)
       az újonnan létrehozott #d:\mappa2\# mappába (mappára).
 
-  A kurzor alatti ~fájl törlése~@DeleteFile@                              #Shift-F8#
-  Beállítások mentése                                       #Shift-F9#
-  A kurzor rááll a legutóbb végrehajtott menüelemre        #Shift-F10#
+  A kurzor alatti ~fájl törlése~@DeleteFile@                              #Shift+F8#
+  Beállítások mentése                                       #Shift+F9#
+  A kurzor rááll a legutóbb végrehajtott menüelemre        #Shift+F10#
 
   Végrehajtás, belépés mappába vagy tömörített fájlba          #Enter#
-  Végrehajtás külön ablakban                             #Shift-Enter#
+  Végrehajtás külön ablakban                             #Shift+Enter#
 
-    A #Shift-Enter# mappán lenyomva meghívja a Windows Intézőt és
+    A #Shift+Enter# mappán lenyomva meghívja a Windows Intézőt és
     megjeleníti a kijelölt mappa tartalmát. Ha egy meghajtó gyökerét
-    szeretnénk látni az Intézőben, használjuk a #Shift-Enter#-t a
-    ~meghajtók~@DriveDlg@ menü megfelelő meghajtóján. A #Shift-Enter# a mappák
+    szeretnénk látni az Intézőben, használjuk a #Shift+Enter#-t a
+    ~meghajtók~@DriveDlg@ menü megfelelő meghajtóján. A #Shift+Enter# a mappák
     #..# elemén lenyomva az aktuális mappát nyitja meg az Intézőben.
 
-  Belépés a gyökérmappába                                     #Ctrl-\\#
+  Belépés a gyökérmappába                                     #Ctrl+\\#
 
-  Belépés mappába vagy tömörített fájlba (SFX-be is)       #Ctrl-PgDn#
+  Belépés mappába vagy tömörített fájlba (SFX-be is)       #Ctrl+PgDn#
 
-    Ha a kurzor mappán áll, a #Ctrl-PgDn# beléptet a mappába. Ha a
+    Ha a kurzor mappán áll, a #Ctrl+PgDn# beléptet a mappába. Ha a
     kurzor fájlon áll, a fájl típusához ~társított parancsot~@FileAssoc@ hajtja
     végre, vagy belép a tömörítettbe.
 
-  Visszalépés a szülőmappába                               #Ctrl-PgUp#
+  Visszalépés a szülőmappába                               #Ctrl+PgUp#
 
-    Ha a "Kezelőfelület beállítások" ~A Ctrl-PgUp meghajtót vált~@InterfSettings@
-    opcióját engedélyeztük, a meghajtók gyökerében a #Ctrl-PgUp#
+    Ha a "Kezelőfelület beállítások" ~A Ctrl+PgUp meghajtót vált~@InterfSettings@
+    opcióját engedélyeztük, a meghajtók gyökerében a #Ctrl+PgUp#
     lenyomása a hálózati plugint hívja meg, vagy a ~Meghajtók~@DriveDlg@ menüt.
 
-  Gyorsbillentyűt rendel az aktuális mappához       #Ctrl-Shift-0...9#
+  Gyorsbillentyűt rendel az aktuális mappához       #Ctrl+Shift+0...9#
 
-  Mappa gyorsbillentyű használata                     #JobbCtrl-0...9#
+  Mappa gyorsbillentyű használata                     #JobbCtrl+0...9#
 
-  ~Fájl attribútumok~@FileAttrDlg@ beállítása                                #Ctrl-A#
-  ~Parancs végrehajtása~@ApplyCmd@ a kijelölt fájlokon                    #Ctrl-G#
-  ~Megjegyzést~@FileDiz@ fűz a kijelölt fájlokhoz vagy mappákhoz         #Ctrl-Z#
+  ~Fájl attribútumok~@FileAttrDlg@ beállítása                                #Ctrl+A#
+  ~Parancs végrehajtása~@ApplyCmd@ a kijelölt fájlokon                    #Ctrl+G#
+  ~Megjegyzést~@FileDiz@ fűz a kijelölt fájlokhoz vagy mappákhoz         #Ctrl+Z#
 
 
 @DeleteFile
@@ -649,22 +649,22 @@ törlésére és kisöprésére:
     #F8#         - ^<wrap>ha vannak a panelen kijelölt fájlok vagy mappák,
 törlődnek, egyébként csak a kurzor alatti fájl vagy mappa törlődik;
 
-    #Shift-F8#   - ^<wrap>csak a kurzor alatti elem törlődik, függetlenül
+    #Shift+F8#   - ^<wrap>csak a kurzor alatti elem törlődik, függetlenül
 attól, hogy van-e kijelölt fájl vagy mappa;
 
-    #Shift-Del#  - ^<wrap>végleg törli a kijelölt elemeket, ezért a Lomtárban
+    #Shift+Del#  - ^<wrap>végleg törli a kijelölt elemeket, ezért a Lomtárban
 sem jelennek meg;
 
-    #Alt-Del#    - kisöpri a fájlokat és mappákat (biztonsági törlés).
+    #Alt+Del#    - kisöpri a fájlokat és mappákat (biztonsági törlés).
 
 
     Megjegyzések:
 
     1. A ~rendszer beállításaitól~@SystemSettings@ függ, hogy az #F8# és
-a #Shift-F8# a törölt fájlokat a Lomtárba teszi-e vagy sem. Ezzel szemben
-a #Shift-Del# mindig a Lomtár kihagyásával töröl.
+a #Shift+F8# a törölt fájlokat a Lomtárba teszi-e vagy sem. Ezzel szemben
+a #Shift+Del# mindig a Lomtár kihagyásával töröl.
 
-    2. Kisöprésnél (#Alt-Del#) a FAR a fájl adatait törlés előtt nullákkal
+    2. Kisöprésnél (#Alt+Del#) a FAR a fájl adatait törlés előtt nullákkal
 írja felül (a TechInfo##29-ben elolvasható, hogyan lehet zéró helyett más
 felülíró karaktert megadni), ezután a fájl méretét nulla hosszúságúra
 állítja, átmeneti nevet ad neki, végül törli.
@@ -689,20 +689,20 @@ kiterjesztést, kezdve a ".BAT;.CMD;.EXE;.COM;" kiterjesztésekkel:
 
 @MiscCmd
 $ #Panelvezérlő parancsok - egyebek#
-  Képernyőgrabber                                            #Alt-Ins#
+  Képernyőgrabber                                            #Alt+Ins#
 
     A képernyőgrabberrel bármelyik képernyőterület kijelölhető és a
     vágólapra másolható. A kurzor a #kurzornyilakkal# vagy az #egérrel#
-    mozgatható. A szöveg a #Shift-kurzornyilakkal# vagy az egérrel,
+    mozgatható. A szöveg a #Shift+kurzornyilakkal# vagy az egérrel,
     lenyomott #bal gombnál# mozgatással jelölhető ki. Az #Enter#, a
-    #Ctrl-Ins#, a #jobb egérgomb# vagy a #kettős kattintás# a kijelölt
-    szöveget a vágólapra másolja, a #Ctrl-<Szürke +># hozzáfűzi a
+    #Ctrl+Ins#, a #jobb egérgomb# vagy a #kettős kattintás# a kijelölt
+    szöveget a vágólapra másolja, a #Ctrl+<Szürke +># hozzáfűzi a
     vágólap aktuális tartalmához, az #Esc# pedig kiléptet a grab
-    módból. A #Ctrl-U# leveszi a kijelölést a blokkról.
+    módból. A #Ctrl+U# leveszi a kijelölést a blokkról.
 
-  ~Makró~@KeyMacro@ rögzítése                                           #Ctrl-<.>#
+  ~Makró~@KeyMacro@ rögzítése                                           #Ctrl+<.>#
 
-  Párbeszédablak előzmények                        #Ctrl-Fel, Ctrl-Le#
+  Párbeszédablak előzmények                        #Ctrl+Fel, Ctrl+Le#
 
     A párbeszédablak szerkesztési előzményeiből az #Enterrel#
     másolhatjuk ki a lista kivánt elemét a beviteli mezőbe.
@@ -714,20 +714,20 @@ $ #Panelvezérlő parancsok - egyebek#
   Párbeszédablak szerkesztési előzményeinek törlése              #Del#
 
   Párbeszédablak szerkesztési előzmény aktuális elemének törlése
-    a listából (ha az elem nincs rögzítve)                 #Shift-Del#
+    a listából (ha az elem nincs rögzítve)                 #Shift+Del#
 
   A párbeszédablak alapértelmezett elemére állítja a kurzort    #PgDn#
 
-  A kurzor alatti fájlnevet a párbeszédablakba illeszti  #Shift-Enter#
+  A kurzor alatti fájlnevet a párbeszédablakba illeszti  #Shift+Enter#
 
   A paszív panel kurzora alatti fájlnevet
-    illeszti a párbeszédablakba                     #Ctrl-Shift-Enter#
+    illeszti a párbeszédablakba                     #Ctrl+Shift+Enter#
 
     Ez a billentyűkombináció minden szerkesztett sornál működik,
     beleértve a párbeszédablakokat és a ~belső szerkesztőt~@Editor@ is,
     kivéve a parancssort.
 
-    A #Ctrl-Enter# a párbeszédablakok alapértelmezett műveletét
+    A #Ctrl+Enter# a párbeszédablakok alapértelmezett műveletét
     hajtja végre (lenyomja az alapértelmezett gombot vagy más
     hasonló dolgot művel).
 
@@ -748,7 +748,7 @@ $ #Panelvezérlő parancsok - egyebek#
     A FAR Manager kezeli az ~egér görgőjét~@MsWheel@.
 
     A párbeszédablakok elmozdíthatók, ha az egérrel megfogjuk őket
-    és húzzuk, vagy mozgathatók a #Ctrl-F5# lenyomása után a
+    és húzzuk, vagy mozgathatók a #Ctrl+F5# lenyomása után a
     #kurzornyilakkal# is.
 
 
@@ -759,7 +759,7 @@ $ #Egér: görgő támogatása#
 helyzete változatlan marad.
 
    #Szerkesztő#   ^<wrap>A görgő a szöveget gördíti, a kurzor helyzete nem
-változik (hasonló, mint a #Ctrl-Fel#/#Ctrl-Le#).
+változik (hasonló, mint a #Ctrl+Fel#/#Ctrl+Le#).
 
    #Nézőke#       A görgő a szöveget gördíti.
 
@@ -811,9 +811,9 @@ nem működik megfelelően, használjuk az előbbit!
     A pluginek saját üzenetekkel és saját súgóval rendelkeznek. A
 pluginek súgóinak listája a következők szerint jeleníthető meg:
 
-    #Shift-F2# - a teljes FAR súgórendszerből használható
+    #Shift+F2# - a teljes FAR súgórendszerből használható
 
-    #Shift-F1# - ^<wrap>a pluginek listájában használható
+    #Shift+F1# - ^<wrap>a pluginek listájában használható
 (helyzetérzékeny súgó).
 
     Ha a pluginnek nincs súgója, a helyzetérzékeny súgó ablaka nem
@@ -824,7 +824,7 @@ parancssorból kiadott "CD" parancs a pluginnel emulált fájlrendszer mappái
 közt vált. A "CD"-vel ellentétben a "CHDIR" parancs mindig valódi mappanévként
 kezeli a megadott paramétert, függetlenül a fájlpanel típusától.
 
-    Az #Alt-Shift-F9# billentyűkombináció meghívja a
+    Az #Alt+Shift+F9# billentyűkombináció meghívja a
 ~plugin beállítások~@PluginsConfig@ menüt.
 
 
@@ -832,10 +832,10 @@ kezeli a megadott paramétert, függetlenül a fájlpanel típusától.
 $ #Plugin beállítások#
     A telepített ~plugineket~@Plugins@ a ~Beállítások menü~@OptMenu@
 #Plugin beállítások# menüpontjában konfigurálhatjuk. A menüt elérhetjük a
-~Meghajtók~@DriveDlg@ menüből is, az #Alt-Shift-F9# leütésével.
+~Meghajtók~@DriveDlg@ menüből is, az #Alt+Shift+F9# leütésével.
 
     A "Plugin beállításokban" a kijelölt plugin helyzetérzékeny súgójához
-a #Shift-F1#-gyel jutunk. Ha a pluginhez nem tartozik súgófájl, akkor a
+a #Shift+F1#-gyel jutunk. Ha a pluginhez nem tartozik súgófájl, akkor a
 helyzetérzékeny súgó nem jelenik meg.
 
     Ha a helyzetérzékeny súgót meghívjuk, a FAR megpróbálja megjeleníteni a
@@ -988,11 +988,11 @@ a FAR.EXE mappáján belül. A Tree3.Far fájl eredetileg nem létezik, a
 létre automatikusan. Ha a Tree3.Far már létezik és ha változik a fa, a FAR
 frissíti a megváltozott szerkezet adatait. Ha a szerkezeti
 változások akkor történtek, amikor a FAR nem futott és a Tree3.Far tartalma
-már nem teljesen időszerű, a #Ctrl-R# leütésével frissíthetjük.
+már nem teljesen időszerű, a #Ctrl+R# leütésével frissíthetjük.
 
     A #gyorskeresés# segítségével hamarabb megtalálhatjuk a mappákat. Tartsuk
 nyomva az Alt billentyűt és addig írjuk be a keresett mappa nevét, amíg rá nem
-áll a sávkurzor. A #Ctrl-Enter# lenyomásával a további találatokon
+áll a sávkurzor. A #Ctrl+Enter# lenyomásával a további találatokon
 lépkedhetünk.
 
     A #Szürke +# és a #Szürke -# billentyűkkel fel-le mozoghatunk ugyanannak
@@ -1093,7 +1093,7 @@ menüje jelölődik ki, a #Tab# pedig váltogat a Jobb és Bal menü közt. Ha a
 "Fájlok", "Parancsok" vagy "Beállítások" menü volt aktív, először a
 passzív panel aktivizálódik.
 
-    A #Shift-F10# billentyűkombináció a menü utoljára használt elemére ugrik.
+    A #Shift+F10# billentyűkombináció a menü utoljára használt elemére ugrik.
 
     A következő témakörök részletezik a menük szolgáltatásait:
 
@@ -1220,7 +1220,7 @@ információk a ~mappakeresés~@FindFolder@ témakörben.
    #Mappa előzmények#     ^<wrap>A bejárt ~mappák előzményeit~@HistoryFolders@
 jeleníti meg. A "Mappa előzmények" és a "Fájl előzmények" listák elemei
 kiválasztás után a lista aljára kerülnek. Ezt elkerülhetjük, ha Enter helyett
-#Shift-Enterrel# választunk közülük.
+#Shift+Enterrel# választunk közülük.
 
    #Panelcsere#           Megcseréli a bal és jobb panelt.
 
@@ -1385,7 +1385,7 @@ figyelembe a keresés során.
 egy konkrét kódlapot, vagy megjelölhető a #Minden kódlappal# lehetőség is,
 utóbbi esetben a FAR a szabványos és a #Kedvenc# kódlapok szerint keresi a
 szövegeket a fájlokban. A #Kedvenc# kódlapokat a nézőke vagy a szerkesztő
-kódlapválasztó párbeszédablakában (Shift-F8) jelölhetjük ki. Ha a
+kódlapválasztó párbeszédablakában (Shift+F8) jelölhetjük ki. Ha a
 #Minden kódlappal# opciót választottuk, de a kódlapok kínálatát túlzóan
 bőségesnek találjuk, az #Ins# vagy a #Space# billentyűvel leszűkíthetjük
 a szabványos és #Kedvenc# kódlapok körét, így kizárólag a megjelölt
@@ -1493,15 +1493,15 @@ karaktereinek begépelésével, joker karakterek is használhatók.
 
     Az #Enter# lenyomásával a kiválasztott mappára ugorhatunk.
 
-    A #Ctrl-R# vagy az #F2# újraolvassa a fastruktúrát.
+    A #Ctrl+R# vagy az #F2# újraolvassa a fastruktúrát.
 
     A #Szürke +# és #Szürke -# fel-le léptet a jelenlegi mappával azonos
 szinten lévő mappákon.
 
     Az #F5# a keresőablak teljes és eredeti mérete közt váltogat.
 
-    A #Ctrl-Enter# azokon a mappákon lépked lefelé, amelyeknek neve az addig
-begépelt karaktereknek megfelel. A #Ctrl-Shift-Enter# hasonlóan működik, de
+    A #Ctrl+Enter# azokon a mappákon lépked lefelé, amelyeknek neve az addig
+begépelt karaktereknek megfelel. A #Ctrl+Shift+Enter# hasonlóan működik, de
 felfelé léptet.
 
 @Filter
@@ -1583,22 +1583,22 @@ $ #Parancs előzmények#
 
   Előzőleg kiadott parancs végrehajtása                         #Enter#
 
-  Előzőleg kiadott parancs végrehajtása új ablakban       #Shift-Enter#
+  Előzőleg kiadott parancs végrehajtása új ablakban       #Shift+Enter#
 
-  Parancs másolása a parancssorba                          #Ctrl-Enter#
+  Parancs másolása a parancssorba                          #Ctrl+Enter#
 
   Az előzménylista törlése                                        #Del#
 
-  Az aktuális előzményelem törlése                          #Shift-Del#
+  Az aktuális előzményelem törlése                          #Shift+Del#
 
   Zárolja vagy megengedi az előzményelem módosítását              #Ins#
 
-  A kiválasztott parancsot a vágólapra másolja,                #Ctrl-C#
-    a lista legördítve marad                            vagy #Ctrl-Ins#
+  A kiválasztott parancsot a vágólapra másolja,                #Ctrl+C#
+    a lista legördítve marad                            vagy #Ctrl+Ins#
 
     Ha az előző vagy a következő parancsot közvetlenül a
-  parancssorból szeretnénk meghívni, használjuk a #Ctrl-E# vagy
-  a #Ctrl-X# billentyűket.
+  parancssorból szeretnénk meghívni, használjuk a #Ctrl+E# vagy
+  a #Ctrl+X# billentyűket.
 
     Ha parancsot szeretnénk választani a listából, a kurzorvezérlőkön
   és az #Enteren# kívül használhatjuk közvetlenül a parancs kiemelt
@@ -1620,18 +1620,18 @@ $ #Előzmények: megnézett és szerkesztett fájlok előzménye#
 
   Újbóli megnyitás a nézőkében vagy a szerkesztőben             #Enter#
 
-  Fájlnév másolása a parancssorba                          #Ctrl-Enter#
+  Fájlnév másolása a parancssorba                          #Ctrl+Enter#
 
   Előzménylista törlése                                           #Del#
 
-  Az aktuális előzményelem törlése                          #Shift-Del#
+  Az aktuális előzményelem törlése                          #Shift+Del#
 
   Zárolja vagy megengedi az előzményelem módosítását              #Ins#
 
-  Lista frissítése, a már nem élő bejegyzések törlése          #Ctrl-R#
+  Lista frissítése, a már nem élő bejegyzések törlése          #Ctrl+R#
 
-  A lista kiválasztott elemének vágólapra másolása,            #Ctrl-C#
-    a lista legördítve marad                            vagy #Ctrl-Ins#
+  A lista kiválasztott elemének vágólapra másolása,            #Ctrl+C#
+    a lista legördítve marad                            vagy #Ctrl+Ins#
 
   Fájl megnyitása a ~szerkesztőben~@Editor@                                  #F4#
 
@@ -1642,7 +1642,7 @@ $ #Előzmények: megnézett és szerkesztett fájlok előzménye#
   kívül elvégezhetjük közvetlenül a kiemelt betűjelükkel is.
 
     Az előzménylista aktivizált elemei a lista végére kerülnek. Ezt a
-  hatást elkerülhetjük, ha a #Shift-Enterrel# nyitjuk meg őket.
+  hatást elkerülhetjük, ha a #Shift+Enterrel# nyitjuk meg őket.
 
     Ha azt szeretnénk, hogy a FAR kilépéskor elmentse a fájlok
   előzményeit, jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
@@ -1650,7 +1650,7 @@ $ #Előzmények: megnézett és szerkesztett fájlok előzménye#
 
   Megjegyzések:
 
-     1. A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
+     1. A lista frissítése (Ctrl+R) hosszú időt vehet igénybe, ha
         jelenleg nem elérhető távoli helyeket kell vizsgálnia.
 
      2. A zárolt előzményelemek nem törlődnek az előzménylista
@@ -1665,26 +1665,26 @@ $ #Előzmények: mappa előzmények#
 
   Belépés a listán kiválasztott mappába                         #Enter#
 
-  Kiválasztott mappa megnyitása a passzív panelen    #Ctrl-Shift-Enter#
+  Kiválasztott mappa megnyitása a passzív panelen    #Ctrl+Shift+Enter#
 
-  Mappa nevének másolása a parancssorba                    #Ctrl-Enter#
+  Mappa nevének másolása a parancssorba                    #Ctrl+Enter#
 
   Előzménylista törlése                                           #Del#
 
-  Az aktuális előzményelem törlése                          #Shift-Del#
+  Az aktuális előzményelem törlése                          #Shift+Del#
 
   Zárolja vagy megengedi az előzményelem módosítását              #Ins#
 
-  Lista frissítése, a már nem élő bejegyzések törlése          #Ctrl-R#
+  Lista frissítése, a már nem élő bejegyzések törlése          #Ctrl+R#
 
-  A kiválasztott mappa nevét a vágólapra másolja,              #Ctrl-C#
-  a lista legördítve marad                              vagy #Ctrl-Ins#
+  A kiválasztott mappa nevét a vágólapra másolja,              #Ctrl+C#
+  a lista legördítve marad                              vagy #Ctrl+Ins#
 
     A lista mappáinak megnyitására a kurzorvezérlőkön és az #Enteren#
   kívül használatjuk a kiemelt betűjelüket is.
 
     Az előzménylista újraaktivált elemei a lista végére kerülnek. Ezt
-  a hatást elkerülhetjük, ha a #Shift-Enterrel# nyitjuk meg őket.
+  a hatást elkerülhetjük, ha a #Shift+Enterrel# nyitjuk meg őket.
 
     Ha azt szeretnénk, hogy a FAR kilépéskor elmentse a mappák
   előzményeit, jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
@@ -1692,7 +1692,7 @@ $ #Előzmények: mappa előzmények#
 
   Megjegyzések:
 
-    1. A lista frissítése (Ctrl-R) hosszú időt vehet igénybe, ha
+    1. A lista frissítése (Ctrl+R) hosszú időt vehet igénybe, ha
        pillanatnyilag nem elérhető távoli helyeket kell vizsgálnia.
 
     2. A zárolt előzményelemek nem törlődnek az előzménylista
@@ -1710,11 +1710,11 @@ sorai megegyeznek a futó programok ablakainak megnevezéseivel.
 minden elmentetlen adata elvész, ezért ezt a funkciót csak végszükség esetén
 használjuk, például a nem válaszoló programoknál.
 
-    A Futó programokat a ~Parancsok menüből~@CmdMenu@ vagy a #Ctrl-W#
-billentyűkombinációval hívhatjuk meg. A #Ctrl-W# kombináció a nézőkében és a
+    A Futó programokat a ~Parancsok menüből~@CmdMenu@ vagy a #Ctrl+W#
+billentyűkombinációval hívhatjuk meg. A #Ctrl+W# kombináció a nézőkében és a
 szerkesztőben is működik.
 
-    A #Ctrl-R# frissíti a programok listáját.
+    A #Ctrl+R# frissíti a programok listáját.
 
 
 @HotPlugList
@@ -1726,7 +1726,7 @@ csatlakoztatott egyéb analóg eszközök listáját jeleníti meg.
 rajta. Ezután a Windows gondoskodik az eszköz biztonságos eltávolításáról és
 értesítést kapunk, ha az eltávolítás már biztosan nem jár adatvesztéssel.
 
-    A #Ctrl-R# frissíti a csatlakozó eszközök listáját.
+    A #Ctrl+R# frissíti a csatlakozó eszközök listáját.
 
 
 @CompFolders
@@ -1756,13 +1756,13 @@ közvetlenül a végrehajtás előtt paraméterezhetjük a parancsokat.
 szerkeszthetjük vagy létrehozhatjuk fő és helyi felhasználói menüinket.
 Főmenüből csak egy lehet, helyi menüje bármelyik mappának lehet. Ha egy
 mappának nincs helyi menüje, F2-re a főmenü aktivizálódik. A fő- és a helyi
-menük között #Shift-F2#-vel váltogathatunk. A #BackSpace#-szel a helyi menüből
+menük között #Shift+F2#-vel váltogathatunk. A #BackSpace#-szel a helyi menüből
 visszafelé haladhatunk a főmenü felé.
 
     A felhasználói menü parancsai vagy almenüi közé választóvonalat is
 tehetünk: az #Ins# billentyűvel szúrjunk be egy új parancsot vagy menüt,
 adjunk #-# értéket a gyorsbillentyűnek és a többi mezőt hagyjuk üresen. A
-létrehozott választóvonalakat törölhetjük, ha az #Alt-F4#-gyel fájl módba
+létrehozott választóvonalakat törölhetjük, ha az #Alt+F4#-gyel fájl módba
 kapcsolunk és a szerkesztőben eltávolítjuk a felesleges #-:# sorokat.
 
     A felhasználói menü parancsait úgy hajthatjuk végre, ha kiválasztjuk a
@@ -1771,12 +1771,12 @@ gyorsbillentyű segítségével.
 
     Az #Ins# billentyűvel új menüelemeket, almenüket hozhatunk létre, az #F4#
 bilentyűvel szerkeszthetjük a jellemzőiket, a #Del#-lel pedig törölhetjük a
-menü elemeit. #Alt-F4#-gyel a menüket szövegfájl formátumban szerkeszthetjük.
+menü elemeit. #Alt+F4#-gyel a menüket szövegfájl formátumban szerkeszthetjük.
 
     A felhasználói menü elemeinek gyorsbillentyűjeként megadhatunk számokat,
 betűket vagy funkcióbillentyűket (#F1#..#F12#), utóbbiakat csak beírás útján
 fogadja el. Ha az #F1# vagy #F4# eredetileg más művelethez volt rendelve,
-a felhasználói menü felülbírálja eredeti funkcióikat, bár a #Shift-F4#-gyel
+a felhasználói menü felülbírálja eredeti funkcióikat, bár a #Shift+F4#-gyel
 ezután is szerkeszthetjük a menüt.
 
     Ha a szerkesztett menüelemünk parancs, meg kell adnunk a gyorsbillentyűjét,
@@ -1789,7 +1789,7 @@ mentődik. A főmenüt a FAR alaphelyzetben a regisztrációs adatbázisba menti
 fájlba is menthető. Ha helyi menüt készítettünk a FAR mappájában, a FAR ezt
 fogja használni a registrybe mentett főmenü helyett.
 
-    A #Shift-F10# azonnal bezárja a felhasználói menü ablakát, akár főmenü,
+    A #Shift+F10# azonnal bezárja a felhasználói menü ablakát, akár főmenü,
 akár almenü volt megnyitva benne.
 
 
@@ -1827,20 +1827,20 @@ végrehajtható parancsot lehet hozzárendelni:
     #Végrehajtandó parancs#         #Enter#-re indul
     #(Enterre)#
 
-    #Végrehajtandó parancs#         #Ctrl-PgDn#-ra indul
-    #(Ctrl-PgDn-ra)#
+    #Végrehajtandó parancs#         #Ctrl+PgDn#-ra indul
+    #(Ctrl+PgDn-ra)#
 
     #Nézőke parancs#                #F3#-ra indul
     #(F3-ra)#
 
-    #Nézőke parancs#                #Alt-F3#-ra indul
-    #(Alt-F3-ra)#
+    #Nézőke parancs#                #Alt+F3#-ra indul
+    #(Alt+F3-ra)#
 
     #Szerkesztés parancs#           #F4#-re indul
     #(F4-re)#
 
-    #Szerkesztés parancs#           #Alt-F4#-re indul
-    #(Alt-F4-re)#
+    #Szerkesztés parancs#           #Alt+F4#-re indul
+    #(Alt+F4-re)#
 
     A társítások tulajdonságait néhány szóval jellemezhetjük
 #A társítás leírása# mezőben.
@@ -2006,13 +2006,13 @@ nézőke vagy szerkesztő.
 
   #Mappa előzmények#        A FAR kilépés előtt elmenti, indításnál
   #mentése#                 visszatölti a ~mappa előzményeket~@HistoryFolders@.
-                          ^<wrap>A mappa előzmények listája az #Alt-F12#-vel
+                          ^<wrap>A mappa előzmények listája az #Alt+F12#-vel
 is megjeleníthető.
 
   #Nézőke és szerkesztő#    A FAR kilépés előtt elmenti, indításnál
   #előzmények mentése#      pedig betölti a ~nézőke és a szerkesztő~@HistoryViews@
                           ~előzményeit~@HistoryViews@.
-                          ^<wrap>Az előzmények listáját az #Alt-F11#-gyel is
+                          ^<wrap>Az előzmények listáját az #Alt+F11#-gyel is
 megjeleníthetjük.
 
   #Windows regisztrált#     Ha az opció be van kapcsolva és #Enter#-t
@@ -2043,7 +2043,7 @@ vagy /co ~parancssori~@CmdLine@ kapcsolóval indul.
 $ #Beállítások: panel beállítások#
   #Rejtett és rendszer-#    Megjeleníti a rejtett és rendszer
   #fájlok mutatva#          attribútumú fájlokat. Ez az opció
-                          a #Ctrl-H#-val is átkapcsolható.
+                          a #Ctrl+H#-val is átkapcsolható.
 
   #Fájlok kiemelése#        A ~fájlkiemelések~@Highlight@ engedélyezése.
 
@@ -2070,7 +2070,7 @@ mappákat akkor is név szerint rendezi, ha a fájlokat kiterjesztésük szerint
 
                           ^<wrap>Az automatikus frissítés csak FAT,
 FAT32 és NTFS fájlrendszerben működik. A "0" érték azt jelenti, hogy
-"mindig frissít". A frissítés kézzel is elvégezhető a #Ctrl-R#-rel.
+"mindig frissít". A frissítés kézzel is elvégezhető a #Ctrl+R#-rel.
 
   #Hálózati meghajtók#      Engedélyezi a panelek automatikus
   #autom. frissítése#       frissítését, ha a hálózati meghajtók
@@ -2119,7 +2119,7 @@ sarkában.
   #Egér kezelése#           A FAR egérrel is vezérelhető.
 
   #Funkcióbillentyűk#       Megjeleníti a funkcióbillentyűk sorát a
-  #sora mutatva#            ^<wrap>képernyő alján. Ez az opció #Ctrl-B#-vel
+  #sora mutatva#            ^<wrap>képernyő alján. Ez az opció #Ctrl+B#-vel
 is átváltható.
 
   #A menüsor mindig#        A felső menüsor mindig látható, akkor
@@ -2150,7 +2150,7 @@ igényel, ezért ha a "Másolás összesen folyamatjelző" ki van kapcsolva és
 sok apró fájlt kell másolni, valószínűleg semmilyen információ nem jelenik
 meg.
 
-  #A Ctrl-PgUp#             A #Ctrl-PgUp# leütése egy meghajtó
+  #A Ctrl+PgUp#             A #Ctrl+PgUp# leütése egy meghajtó
   #meghajtót vált#          gyökérmappájában:
                         - ^<wrap>helyi meghajtónál megjeleníti a Meghajtók
 menüt;
@@ -2163,7 +2163,7 @@ $ #Beállítások: párbeszédablak beállítások#
   #Beviteli sorok#          Megőrzi egyes FAR párbeszédablakok
   #előzménykövetése#        beviteli sorainak előzményeit.
                           ^<wrap>Az előzőleg beírt sztringek listáját
-legördíthetjük az egérrel vagy a #Ctrl-Fel# és #Ctrl-Le# billentyűvel. Ha nem
+legördíthetjük az egérrel vagy a #Ctrl+Fel# és #Ctrl+Le# billentyűvel. Ha nem
 szeretnénk ezt a fajta előzménykövetést használni (például biztonsági
 megfontolásból), kapcsoljuk ki.
 
@@ -2179,7 +2179,7 @@ sem a párbeszédablakok parancssoraiban.
   #Beviteli sorok auto-#    Engedélyezi az előzménylistával rendelkező
   #matikus kiegészítése#    szövegbeviteli sorok és lenyíló ablakok
                           önműködő kiegészítését beírásnál.
-                          ^<wrap>Ha az opciót letiltottuk, a #Ctrl-End#-del
+                          ^<wrap>Ha az opciót letiltottuk, a #Ctrl+End#-del
 ideiglenesen feloldható a tiltás egy-egy sorra. A makrók rögzítése vagy
 végrehajtása átmenetileg letiltja az automatikus kiegészítést.
 
@@ -2239,60 +2239,60 @@ $ #Nézőke: vezérlőbillentyűk#
     #Jobb#               Egy karakterrel jobbra
     #Fel#                Egy sorral fel
     #Le#                 Egy sorral le
-    #Ctrl-Bal#           ^<wrap>20 karakterrel balra, hexa módban 1 hellyel
+    #Ctrl+Bal#           ^<wrap>20 karakterrel balra, hexa módban 1 hellyel
 balra
-    #Ctrl-Jobb#          20 karakterrel jobbra, hexa módban 1 hellyel
+    #Ctrl+Jobb#          20 karakterrel jobbra, hexa módban 1 hellyel
 jobbra
     #PgUp#               Egy oldallal fel
     #PgDn#               Egy oldallal le
-    #Ctrl-Shift-Bal#     A sorok kezdő pozíciójára ugrik (ha a sortörés
+    #Ctrl+Shift+Bal#     A sorok kezdő pozíciójára ugrik (ha a sortörés
 nincs bekapcsolva és a sorok túlnyúlnak a kép méretén)
-    #Ctrl-Shift-Jobb#    A sorok végső pozíciójára ugrik (ha a sortörés
+    #Ctrl+Shift+Jobb#    A sorok végső pozíciójára ugrik (ha a sortörés
 nincs bekapcsolva és a sorok túlnyúlnak a kép méretén)
-    #Home, Ctrl-Home#    A fájl elejére ugrik
-    #End, Ctrl-End#      A fájl végére ugrik
+    #Home, Ctrl+Home#    A fájl elejére ugrik
+    #End, Ctrl+End#      A fájl végére ugrik
 
     #F1#                 Súgó
     #F2#                 Sortörés be/ki
-    #Shift-F2#           Betűtörés/szótörés átkapcsoló
+    #Shift+F2#           Betűtörés/szótörés átkapcsoló
     #F4#                 Szöveg/hexa mód átkapcsoló
     #F6#                 Átvált ~szerkesztésre~@Editor@
-    #Alt-F5#             ^<wrap>Fájl nyomtatása (a Nyomtatóvezérlő plugin
+    #Alt+F5#             ^<wrap>Fájl nyomtatása (a Nyomtatóvezérlő plugin
 segítségével)
     #F7#                 ~Keresés~@ViewerSearch@
-    #Shift-F7, Szóköz#   Tovább keres
-    #Alt-F7#             Tovább keres, de visszafelé
+    #Shift+F7, Szóköz#   Tovább keres
+    #Alt+F7#             Tovább keres, de visszafelé
     #F8#                 OEM/ANSI kódlap váltó
-    #Shift-F8#           Kódlap kiválasztása
-    #Alt-F8#             ~Ugrás~@ViewerGotoPos@ a jelenlegi
+    #Shift+F8#           Kódlap kiválasztása
+    #Alt+F8#             ~Ugrás~@ViewerGotoPos@ a jelenlegi
 szövegpozícióból másik pozícióba
-    #Alt-F9#             Átváltja a FAR konzolablak méretét (video)
-    #Alt-Shift-F9#       Meghívja a
+    #Alt+F9#             Átváltja a FAR konzolablak méretét (video)
+    #Alt+Shift+F9#       Meghívja a
 ~nézőke beállítások~@ViewerSettings@ párbeszédablakot
     #Numpad5,F3,F10,Esc# Kilépés
-    #Ctrl-F10#           Megállapítja a megnézett fájl helyét
+    #Ctrl+F10#           Megállapítja a megnézett fájl helyét
 (a konzolablak fejlécének szövegét - "X fájl megnézése" - a "(meghajtó+elérési
 út)" információra cseréli, tehát megmutatja a fájl helyét a fastruktúrán - a
 ford.)
     #F11#                Meghívja a ~plugin parancsok~@Plugins@ menüt
-    #Alt-F11#            Megjeleníti a ~fájl előzményeket~@HistoryViews@
+    #Alt+F11#            Megjeleníti a ~fájl előzményeket~@HistoryViews@
     #+#                  A mappa következő fájlját nyitja meg
     #-#                  A mappa előző fájlját nyitja meg
-    #Ctrl-O#             Megjeleníti a konzolhátteret
-    #Ctrl-Alt-Shift#     Átmenetileg megmutatja a konzolhátteret
+    #Ctrl+O#             Megjeleníti a konzolhátteret
+    #Ctrl+Alt+Shift#     Átmenetileg megmutatja a konzolhátteret
 (amíg a billentyűket lenyomva tartjuk)
-    #Ctrl-B#             Elrejti vagy megmutatja a képernyő alján
+    #Ctrl+B#             Elrejti vagy megmutatja a képernyő alján
 a funkcióbillentyűsort
-    #Ctrl-Shift-B#       Megmutatja/elrejti az állapotsort
-    #Ctrl-S#             Megmutatja/elrejti a gördítősávot
-    #Alt-BS, Ctrl-Z#     Visszalép a fájlban az előző pozícióra
-    #JobbCtrl-0..9#      0-tól 9-ig könyvjelzőt tesz a pozícióba
-    #Ctrl-Shift-0..9#    0-tól 9-ig könyvjelzőt tesz a pozícióba
-    #LeftCtrl-0..9#      A 0...9-es könyvjelzőre ugrik
+    #Ctrl+Shift+B#       Megmutatja/elrejti az állapotsort
+    #Ctrl+S#             Megmutatja/elrejti a gördítősávot
+    #Alt+BS, Ctrl+Z#     Visszalép a fájlban az előző pozícióra
+    #JobbCtrl+0..9#      0-tól 9-ig könyvjelzőt tesz a pozícióba
+    #Ctrl+Shift+0..9#    0-tól 9-ig könyvjelzőt tesz a pozícióba
+    #LeftCtrl+0..9#      A 0...9-es könyvjelzőre ugrik
 
-    #Ctrl-Ins, Ctrl-C#   ^<wrap>A keresés találataként kiemelt szöveget
+    #Ctrl+Ins, Ctrl+C#   ^<wrap>A keresés találataként kiemelt szöveget
 a vágólapra másolja.
-    #Ctrl-U#             Leveszi a keresés találatáról a kiemelést.
+    #Ctrl+U#             Leveszi a keresés találatáról a kiemelést.
 
     Lásd még a ~nézőke makróinak~@KeyMacroViewerList@ listáját.
 
@@ -2386,7 +2386,7 @@ szerkesztővel nyithatjuk meg.
 
     #Új fájl létrehozása a szerkesztővel#
 
-    Ha a #Shift-F4# billentyűk lenyomása után egy nem létező fájl nevét
+    Ha a #Shift+F4# billentyűk lenyomása után egy nem létező fájl nevét
 adjuk meg, ~új fájlt~@FileOpenCreate@ hozhatunk létre.
 
     Megjegyzések:
@@ -2409,23 +2409,23 @@ menüben kikapcsolható.
   Kurzorvezérlés
 
    #Bal#                     Egy karakterrel balra
-   #Ctrl-S#                  ^<wrap>Egy karakterrel balra viszi a kurzort,
+   #Ctrl+S#                  ^<wrap>Egy karakterrel balra viszi a kurzort,
 de ha eléri a sor elejét, nem lép fel az előző sorra
    #Jobb#                    Egy karakterrel jobbra
    #Fel#                     Egy sort fel
    #Le#                      Egy sort le
-   #Ctrl-Bal#                Egy szóval balra
-   #Ctrl-Jobb#               Egy szóval jobbra
-   #Ctrl-Fel#                Egy sorral felfelé gördít
-   #Ctrl-Le#                 Egy sorral lefelé gördít
+   #Ctrl+Bal#                Egy szóval balra
+   #Ctrl+Jobb#               Egy szóval jobbra
+   #Ctrl+Fel#                Egy sorral felfelé gördít
+   #Ctrl+Le#                 Egy sorral lefelé gördít
    #PgUp#                    Egy lappal fel
    #PgDn#                    Egy lappal le
    #Home#                    A sor elejére
    #End#                     A sor végére
-   #Ctrl-Home, Ctrl-PgUp#    A fájl elejére
-   #Ctrl-End, Ctrl-PgDn#     A fájl végére
-   #Ctrl-N#                  A képernyő tetejére
-   #Ctrl-E#                  A képernyő aljára
+   #Ctrl+Home, Ctrl+PgUp#    A fájl elejére
+   #Ctrl+End, Ctrl+PgDn#     A fájl végére
+   #Ctrl+N#                  A képernyő tetejére
+   #Ctrl+E#                  A képernyő aljára
 
   Törlő műveletek
 
@@ -2433,92 +2433,92 @@ de ha eléri a sor elejét, nem lép fel az előző sorra
 kijelölt szöveget is törölheti, a
 ~szerkesztő beállításaitól~@EditorSettings@ függően)
    #BackSpace#               Egy karakterrel balra töröl
-   #Ctrl-Y#                  Egy sort töröl
-   #Ctrl-K#                  Törlés a sor végéig
-   #Ctrl-BackSpace#          Szó törlése balra
-   #Ctrl-T, Ctrl-Del#        Szó törlése jobbra
+   #Ctrl+Y#                  Egy sort töröl
+   #Ctrl+K#                  Törlés a sor végéig
+   #Ctrl+BackSpace#          Szó törlése balra
+   #Ctrl+T, Ctrl+Del#        Szó törlése jobbra
 
   Blokkműveletek
 
-   #Shift-Kurzorbill.#       Blokk kijelölése
-   #Ctrl-Shift-Kurzorbill.#  Blokk kijelölése
-   #Alt-Szürke kurzorbill.#  Függőleges blokk kijelölése
-   #Alt-Shift-Kurzorbill.#   Függőleges blokk kijelölése
-   #Ctrl-Alt-Szürke bill.#   Függőleges blokk kijelölése
-   #Ctrl-A#                  Az egész szöveg kijelölése
-   #Ctrl-U#                  Leveszi a blokk kijelölését
-   #Shift-Ins, Ctrl-V#       Blokk beillesztése a vágólapról
-   #Shift-Del, Ctrl-X#       Blokk kivágása
-   #Ctrl-Ins, Ctrl-C#        Blokk másolása a vágólapra
-   #Ctrl-<Szürke +>#         Blokk hozzáfűzése a vágólaphoz
-   #Ctrl-D#                  Blokk törlése
-   #Ctrl-P#                  ^<wrap>Blokk másolása a jelenlegi
+   #Shift+Kurzorbill.#       Blokk kijelölése
+   #Ctrl+Shift+Kurzorbill.#  Blokk kijelölése
+   #Alt+Szürke kurzorbill.#  Függőleges blokk kijelölése
+   #Alt+Shift+Kurzorbill.#   Függőleges blokk kijelölése
+   #Ctrl+Alt+Szürke bill.#   Függőleges blokk kijelölése
+   #Ctrl+A#                  Az egész szöveg kijelölése
+   #Ctrl+U#                  Leveszi a blokk kijelölését
+   #Shift+Ins, Ctrl+V#       Blokk beillesztése a vágólapról
+   #Shift+Del, Ctrl+X#       Blokk kivágása
+   #Ctrl+Ins, Ctrl+C#        Blokk másolása a vágólapra
+   #Ctrl+<Szürke +>#         Blokk hozzáfűzése a vágólaphoz
+   #Ctrl+D#                  Blokk törlése
+   #Ctrl+P#                  ^<wrap>Blokk másolása a jelenlegi
 kurzorpozícióba (csak maradó blokk módban)
-   #Ctrl-M#                  Blokk mozgatása a jelenlegi
+   #Ctrl+M#                  Blokk mozgatása a jelenlegi
 kurzorpozícióba (csak maradó blokk módban)
-   #Alt-U#                   Blokk eltolása balra
-   #Alt-I#                   Blokk eltolása jobbra
+   #Alt+U#                   Blokk eltolása balra
+   #Alt+I#                   Blokk eltolása jobbra
 
   Egyéb műveletek
 
    #F1#                      Súgó
    #F2#                      Fájl mentése
-   #Shift-F2#                ~Fájl mentése másként~@FileSaveAs@
-   #Shift-F4#                ~Új fájl~@FileOpenCreate@ szerkesztése
-   #Alt-F5#                  ^<wrap>Fájl vagy kijelölt blokk nyomtatása
+   #Shift+F2#                ~Fájl mentése másként~@FileSaveAs@
+   #Shift+F4#                ~Új fájl~@FileOpenCreate@ szerkesztése
+   #Alt+F5#                  ^<wrap>Fájl vagy kijelölt blokk nyomtatása
 (a Nyomtatásvezérlő pluginnel)
    #F6#                      ~Nézőke~@Viewer@ módba kapcsol
    #F7#                      ~Keresés~@EditorSearch@
-   #Ctrl-F7#                 ~Keresés és csere~@EditorSearch@
-   #Shift-F7#                Keresés és csere folytatása
-   #Alt-F7#                  Keresés és csere folytatása, visszafelé
+   #Ctrl+F7#                 ~Keresés és csere~@EditorSearch@
+   #Shift+F7#                Keresés és csere folytatása
+   #Alt+F7#                  Keresés és csere folytatása, visszafelé
    #F8#                      OEM/ANSI kódlap váltó
-   #Shift-F8#                Kódlap kiválasztása
-   #Alt-F8#                  ~Ugrás~@EditorGotoPos@ megadott sorra és oszlopra
-   #Alt-F9#                  A FAR konzolablak méretének átváltása
-   #Alt-Shift-F9#            A ~szerkesztő beállítások~@EditorSettings@
+   #Shift+F8#                Kódlap kiválasztása
+   #Alt+F8#                  ~Ugrás~@EditorGotoPos@ megadott sorra és oszlopra
+   #Alt+F9#                  A FAR konzolablak méretének átváltása
+   #Alt+Shift+F9#            A ~szerkesztő beállítások~@EditorSettings@
 párbeszédablakot jeleníti meg
    #F10, Esc#                Kilépés
-   #Shift-F10#               Mentés és kilépés
-   #Ctrl-F10#                A szerkesztett fájl helyzete a fán
+   #Shift+F10#               Mentés és kilépés
+   #Ctrl+F10#                A szerkesztett fájl helyzete a fán
    #F11#                     A ~plugin parancsok~@Plugins@ menü (a
 szerkesztőhöz tervezett pluginekkel)
-   #Alt-F11#                 ~Szerkesztő előzmények~@HistoryViews@
+   #Alt+F11#                 ~Szerkesztő előzmények~@HistoryViews@
 megjelenítése
-   #Alt-BackSpace, Ctrl-Z#   Utolsó művelet visszavonása
-   #Ctrl-L#                  A szerkesztett szöveg módosítását tiltja
-   #Ctrl-O#                  A konzolablak hátterére vált
-   #Ctrl-Alt-Shift#          A konzolablak háttere (amíg a billentyűk
+   #Alt+BackSpace, Ctrl+Z#   Utolsó művelet visszavonása
+   #Ctrl+L#                  A szerkesztett szöveg módosítását tiltja
+   #Ctrl+O#                  A konzolablak hátterére vált
+   #Ctrl+Alt+Shift#          A konzolablak háttere (amíg a billentyűk
 le vannak nyomva)
-   #Ctrl-Q#                  A következő billentyűkombinációt
+   #Ctrl+Q#                  A következő billentyűkombinációt
 karakterkódként kezeli
-   #JobbCtrl-0...9#          0-tól 9-ig könyvjelzőt tesz az aktuális
+   #JobbCtrl+0...9#          0-tól 9-ig könyvjelzőt tesz az aktuális
 kurzorpozícióba
-   #Ctrl-Shift-0...9#        0-tól 9-ig könyvjelzőt tesz az aktuális
+   #Ctrl+Shift+0...9#        0-tól 9-ig könyvjelzőt tesz az aktuális
 kurzorpozícióba
-   #BalCtrl-0...9#           A 0...9-es könyvjelzőre ugrik
-   #Shift-Enter#             Beszúrja az aktív panelről az aktuális
+   #BalCtrl+0...9#           A 0...9-es könyvjelzőre ugrik
+   #Shift+Enter#             Beszúrja az aktív panelről az aktuális
 fájlnevet a kurzorpozícióba
-   #Ctrl-Shift-Enter#        Beszúrja a passzív panelről az aktuális
+   #Ctrl+Shift+Enter#        Beszúrja a passzív panelről az aktuális
 fájlnevet a kurzorpozícióba
-   #Ctrl-F#                  Beszúrja a most szerkesztett fájl elérési
+   #Ctrl+F#                  Beszúrja a most szerkesztett fájl elérési
 útját és nevét a kurzorpozícióba
-   #Ctrl-B#                  Megmutatja/elrejti a funkcióbillentyűsort
+   #Ctrl+B#                  Megmutatja/elrejti a funkcióbillentyűsort
 a képernyő alján
-   #Ctrl-Shift-B#            Megmutatja/elrejti a felső állapotsort
+   #Ctrl+Shift+B#            Megmutatja/elrejti a felső állapotsort
 
     Lásd még a ~szerkesztő makróinak~@KeyMacroEditList@ listáját.
 
 
     Megjegyzések:
 
-    1. ^<wrap>Az #Alt-U#/#Alt-I# a sor behúzását állítja, ha nincs
+    1. ^<wrap>Az #Alt+U#/#Alt+I# a sor behúzását állítja, ha nincs
 kijelölt blokk.
 
     2. ^<wrap>Lenyomott #Alt#-tal a karaktereket decimális kódjukkal
 írhatjuk be a numerikus billentyűzeten (0-65535).
 
-    3. ^<wrap>Ha nincs kijelölt blokk, a #Ctrl-Ins#/#Ctrl-C# kijelöli
+    3. ^<wrap>Ha nincs kijelölt blokk, a #Ctrl+Ins#/#Ctrl+C# kijelöli
 a teljes aktuális sort és a vágólapra másolja.
 
 @EditorSearch
@@ -2527,7 +2527,7 @@ $ #Editor: search/replace#
 
 @FileOpenCreate
 $ #Szerkesztő: fájl megnyitása/létrehozása#
-    A #Shift-F4# billentyűkombinációval létező vagy új fájlt nyithatunk meg
+    A #Shift+F4# billentyűkombinációval létező vagy új fájlt nyithatunk meg
 szerkesztésre.
 
     A ~szerkesztő beállításaitól~@EditorSettings@ függően az új fájl OEM
@@ -2540,7 +2540,7 @@ ha például az "Automatikus felismerés" funkció rossz kódlapot állít be.
 
 @FileSaveAs
 $ #Szerkesztő: fájl mentése másként#
-    A #Shift-F2# billentyűkombinációval a jelenleg szerkesztett fájlt új
+    A #Shift+F2# billentyűkombinációval a jelenleg szerkesztett fájlt új
 néven, másik kódlappal és más sortörés karakterrel menthetjük el.
 
     Ha UTF-8, UNICODE vagy REVERSEBOM kódlapot választottunk,
@@ -2646,7 +2646,7 @@ nyithatunk meg.
 betűjelekkel és számokkal választhatunk. Ha a panel típusa eredetileg
 nem ~fájlpanel~@FilePanel@ volt, meghajtóváltás után az lesz.
 
-    #Ctrl-A#, #F4# nyílt a Windows meghajtó tulajdonságai párbeszédpanelen.
+    #Ctrl+A#, #F4# nyílt a Windows meghajtó tulajdonságai párbeszédpanelen.
 
     A #Del# billentyűvel:
 
@@ -2661,41 +2661,41 @@ lemezeit.
       ^<wrap>A ZIP meghajtók lemezének kiadásához rendszergazda jogosultság
 szükséges. A CD-ROM-ok tálcáját az #Ins# billentyűvel tolhatjuk be.
 
-    A #Shift-Del# billentyűkombinációval biztonságosan eltávolíthatjuk az USB
+    A #Shift+Del# billentyűkombinációval biztonságosan eltávolíthatjuk az USB
 portra csatlakoztatott tárolóeszközöket. Ha olyan kártyaolvasóba
 helyezett flash memóriakártyára adtuk ki a ~biztonságos eltávolítás~@HotPlugList@
 parancsot, ahol a kártyalvasó több lemez kezelésére képes, a parancs a
 kártyaolvasót választja le.
 
-    A Meghajtók menüben a #Ctrl-1 - Ctrl-9# billentyűkkel a meghajtókra
+    A Meghajtók menüben a #Ctrl+1 - Ctrl+9# billentyűkkel a meghajtókra
 vonatkozó különféle információk megjelenítését kapcsolhatjuk ki vagy be:
 
-    Ctrl-1 - a lemez típusa;
-    Ctrl-2 - ^<wrap>a hálózat neve (és a SUBST meghajtó gazdalemezén annak a
+    Ctrl+1 - a lemez típusa;
+    Ctrl+2 - ^<wrap>a hálózat neve (és a SUBST meghajtó gazdalemezén annak a
 mappának az elérési útvonala, amihez a virtuális meghajtót hozzárendeltük);
-    Ctrl-3 - a lemez címkéje;
-    Ctrl-4 - a fájlrendszer;
-    Ctrl-5 - a teljes és a szabad lemezterület mérete (kétféle
+    Ctrl+3 - a lemez címkéje;
+    Ctrl+4 - a fájlrendszer;
+    Ctrl+5 - a teljes és a szabad lemezterület mérete (kétféle
 megjelenítési módja van, nyomjuk le kétszer);
-    Ctrl-6 - a kivehető lemez paraméterei;
-    Ctrl-7 - pluginek megjelenítése;
-    Ctrl-8 - a CD meghajtók fajtái;
-    Ctrl-9 - a hálózat jellemzői.
+    Ctrl+6 - a kivehető lemez paraméterei;
+    Ctrl+7 - pluginek megjelenítése;
+    Ctrl+8 - a CD meghajtók fajtái;
+    Ctrl+9 - a hálózat jellemzői.
 
     A #Meghajtók# menü beállításait a FAR a többi konfigurációs adattal együtt
 menti.
 
-    Ha ~A Ctrl-PgUp meghajtót vált~@InterfSettings@ opciót engedélyeztük, a
-#Ctrl-PgUp# ugyanúgy működik, mint az #Esc#: kilép a Meghajtók menüből és
+    Ha ~A Ctrl+PgUp meghajtót vált~@InterfSettings@ opciót engedélyeztük, a
+#Ctrl+PgUp# ugyanúgy működik, mint az #Esc#: kilép a Meghajtók menüből és
 bezárja az ablakot.
 
-    A #Shift-Enter# meghívja a Windows Explorert, megjelenítve benne a
+    A #Shift+Enter# meghívja a Windows Explorert, megjelenítve benne a
 kiválasztott meghajtó gyökerét (csak "valódi" meghajtóknál működik,
 pluginnel emulált fájlrendszereknél nem).
 
-    A #Ctrl-R# frissíti a Meghajtók menü tartalmát.
+    A #Ctrl+R# frissíti a Meghajtók menü tartalmát.
 
-    Ha a #CD meghajtó típusa# mód engedélyezve van (#Ctrl-8#), a FAR
+    Ha a #CD meghajtó típusa# mód engedélyezve van (#Ctrl+8#), a FAR
 igyekszik felismerni az összes rendszerbe csatlakozó CD meghajtó
 típusát. A felismert típusok: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW és
 DVD-RAM. Ez a funkció csak a rendszergazda jogokkal rendelkező
@@ -2706,14 +2706,14 @@ beállítások" szerkesztőjében a
 szabályt engedélyeztük. A biztonsági szerkesztőprogramot a
 parancssorból a #secpol.msc# parancs kiadásával is elindíthatjuk.
 
-    A Meghajtók menüben az #Alt-Shift-F9# meghívja a
-~plugin beállítások~@PluginsConfig@ menüt (ha #Ctrl-7#-tel engedélyeztük
+    A Meghajtók menüben az #Alt+Shift+F9# meghívja a
+~plugin beállítások~@PluginsConfig@ menüt (ha #Ctrl+7#-tel engedélyeztük
 a pluginek megjelenítését).
 
-    A #Shift-F9# pluginen lenyomva meghívja a plugin beállításainak
+    A #Shift+F9# pluginen lenyomva meghívja a plugin beállításainak
 párbeszédablakát.
 
-    A #Shift-F1# pluginen lenyomva meghívja a plugin helyzetérzékeny
+    A #Shift+F1# pluginen lenyomva meghívja a plugin helyzetérzékeny
 súgóját (ha a súgófájl létezik).
 
 @ChangeDriveMode
@@ -2762,12 +2762,12 @@ műveleteket hajthatunk végre a csoportok listáján, a következő billentyűk
 
   #Enter# vagy #F4#  - Az aktuális kiemelési csoport ~szerkesztése~@HighlightEdit@
 
-  #Ctrl-R#         - ^<wrap>Visszaállítja az alapértelmezett kiemelési
+  #Ctrl+R#         - ^<wrap>Visszaállítja az alapértelmezett kiemelési
 csoportokat
 
-  #Ctrl-Fel#       - A csoportot felfelé mozgatja
+  #Ctrl+Fel#       - A csoportot felfelé mozgatja
 
-  #Ctrl-Le#        - A csoportot lefelé mozgatja
+  #Ctrl+Le#        - A csoportot lefelé mozgatja
 
     A FAR a csoportkiemeléseket felülről lefelé haladva vizsgálja. Ha érzékeli,
 hogy a fájl valamelyik csoport tagja, további hovatartozását nem vizsgálja.
@@ -2825,7 +2825,7 @@ beállításait változtathatjuk meg.
 
     Külső nézőke
 
-  #Alt-F3 helyett F3 in-#   Az #Alt-F3# helyett #F3# hívja meg
+  #Alt+F3 helyett F3 in-#   Az #Alt+F3# helyett #F3# hívja meg
   #dítja a külső nézőkét#   a külső nézőkét.
 
   #Nézőke parancs#          A külső nézőkét elindító parancssor.
@@ -2847,13 +2847,13 @@ megnézett fájlok szöveghelyzetét, vele a kódlapot is (ha "kézzel" választ
 ki), valamint a nézet módját (normál vagy hexadecimális).
 
   #Könyvjelzők mentése#     ^<wrap>Elmenti és visszatölti az utoljára
-megnézett fájlokban a #JobbCtrl-0...9# vagy a #Ctrl-Shift-0...9# leütésével
+megnézett fájlokban a #JobbCtrl+0...9# vagy a #Ctrl+Shift+0...9# leütésével
 elhelyezett könyvjelzőinket.
 
   #Tabulátor mérete#        A tabulátor szóközökben mért hossza.
 
   #Gördítősáv mutatva#      ^<wrap>Az oldalsó gördítősáv megjelenítése a
-belső nézőkében. Ezt a lehetőséget a #Ctrl-S# leütésével is bekapcsolhatjuk.
+belső nézőkében. Ezt a lehetőséget a #Ctrl+S# leütésével is bekapcsolhatjuk.
 
   #Kódlap automatikus#      ~Automatikusan felismeri~@CodePage@ a megnézett
   #felismerése#             szöveg kódlapját.
@@ -2868,7 +2868,7 @@ ha az aktuális fájltípushoz nincs ~társítva~@FileAssoc@ nézőke.
 megnyitott belső nézőke ablakokra.
 
     A nézőke beállításainak párbeszédablakát meghívhatjuk úgy is, ha a
-~belső nézőkében~@Viewer@ #Alt-Shift-F9#-et ütünk. Ebben az esetben a
+~belső nézőkében~@Viewer@ #Alt+Shift+F9#-et ütünk. Ebben az esetben a
 változtatások rögtön életbe lépnek, de csak az aktuális munkafolyamatra
 érvényesek.
 
@@ -2880,7 +2880,7 @@ alapértelmezett beállításait változtathatjuk meg.
 
     Külső szerkesztő
 
-  #Alt-F4 helyett F4#       Az #Alt-F4# helyett #F4# hívja meg a külső
+  #Alt+F4 helyett F4#       Az #Alt+F4# helyett #F4# hívja meg a külső
   #indítja a külső#         szerkesztőt.
   #szerkesztőt#
 
@@ -2916,7 +2916,7 @@ szerkesztett fájlok szöveghelyzetét és a kódlapot is, ha utóbbit kézzel
 választottuk ki.
 
   #Könyvjelzők mentése#     ^<wrap>Elmenti és visszatölti az utoljára
-szerkesztett fájlokban a #JobbCtrl-0...9# vagy a #Ctrl-Shift-0...9# leütésével
+szerkesztett fájlokban a #JobbCtrl+0...9# vagy a #Ctrl+Shift+0...9# leütésével
 elhelyezett könyvjelzőinket.
 
   #Automatikus behúzás#     ^<wrap>Szöveg beírásánál engedélyezi az
@@ -2938,7 +2938,7 @@ de veszélyessé válhat, ha a fájl szerkesztés közben módosul.
 
   #Csak olvasható fájlok#   Ha "csak olvasható" attribútumú fájlt
   #szerkesztése tiltva#     ^<wrap>nyitottunk meg szerkesztésre, a
-szerkesztő ugyanúgy letiltja a szöveg módosítását, mintha #Ctrl-L#-t ütnénk.
+szerkesztő ugyanúgy letiltja a szöveg módosítását, mintha #Ctrl+L#-t ütnénk.
 
   #Figyelmeztet csak#       Ha "csak olvasható" attribútumú fájlt
   #olvasható fájl#          próbálunk megnyitni szerkesztésre,
@@ -2960,7 +2960,7 @@ ha az aktuális fájltípushoz nincs ~társítva~@FileAssoc@ szerkesztő.
 megnyitott belső szerkesztő ablakokra.
 
     A szerkesztő beállításainak párbeszédablakát meghívhatjuk úgy is, hogy a
-~belső szerkesztőben~@Editor@ #Alt-Shift-F9#-et ütünk. Ebben az esetben a
+~belső szerkesztőben~@Editor@ #Alt+Shift+F9#-et ütünk. Ebben az esetben a
 változtatások rögtön életbe lépnek, de csak az aktuális munkafolyamatra
 érvényesek.
 
@@ -3042,9 +3042,9 @@ csoportra nem.
 @FolderShortcuts
 $ #Mappa gyorsbillentyűk#
     A mappa gyorsbillentyűkkel a sűrűn használt mappákat egyszerűbben érhetjük
-el, ha a #Ctrl-Shift-0...9# kombináció lenyomásával gyorsbillentyűt rendelünk
+el, ha a #Ctrl+Shift+0...9# kombináció lenyomásával gyorsbillentyűt rendelünk
 az aktív panel aktuális mappájához. A gyorsbillentyűkhöz rendelt mappákra a
-#JobbCtrl-0...9# lenyomásával válthatunk. Ha a gyorsbillentyűket szövegbeviteli
+#JobbCtrl+0...9# lenyomásával válthatunk. Ha a gyorsbillentyűket szövegbeviteli
 sorban használjuk, a FAR beilleszti a sorba a mappa elérési útvonalát.
 
     A ~Parancsok menü~@CmdMenu@ #Mappa gyorsbillentyűk# menüpontjában
@@ -3079,9 +3079,9 @@ párbeszédablakot kapunk, amit nekünk kell beállítani).
 
    #Del#        Szűrő törlése.
 
-   #Ctrl-Fel#   A szűrőt egy hellyel feljebb mozgatja.
+   #Ctrl+Fel#   A szűrőt egy hellyel feljebb mozgatja.
 
-   #Ctrl-Le#    A szűrőt egy hellyel lejjebb mozgatja.
+   #Ctrl+Le#    A szűrőt egy hellyel lejjebb mozgatja.
 
 
     A #Felhasználói szűrőkre# és az automatikusan generált szűrőkre (azaz a
@@ -3100,7 +3100,7 @@ funkciójához, de találat esetén magasabb a prioritásuk.
 
    #Backspace#           Az aktuális elem jelölését törli.
 
-   #Shift-Backspace#     Minden elem jelölését törli.
+   #Shift+Backspace#     Minden elem jelölését törli.
 
     A #Szűrők menü# párbeszédablakban a szűrőjelöléseken végzett
 változtatások akkor lépnek életbe, ha #Enterrel# jóváhagyjuk őket.
@@ -3129,7 +3129,7 @@ szóköz, majd a megjegyzés szövege.
     Alapértelmezés szerint a megjegyzéseket két ~fájlpanel nézet mód~@PanelViewModes@
 képes megjeleníteni, a #Fájlmegjegyzések# és a #Hosszú megjegyzés# mód.
 
-    A ~Fájlok menü~@FilesMenu@ #Fájlmegjegyzés# (#Ctrl-Z#) menüpontjának
+    A ~Fájlok menü~@FilesMenu@ #Fájlmegjegyzés# (#Ctrl+Z#) menüpontjának
 segítségével írhatjuk be a kijelölt fájlok megjegyzéseit.
 
     A megjegyzésfájlok neveit a ~Beállítások menü~@OptMenu@ #Fájl megjegyzésfájlok#
@@ -3164,9 +3164,9 @@ vagy lecserélhetjük őket teljesen újakra.
     A ~Beállítások menü~@OptMenu@ #Fájlpanel módok# almenüjében az említett
 nézet módokat megváltoztathatjuk. Először ki kell választani a módosítani
 kívánt nézetet a felkínált listából, ahol a "Rövid mód" megfelel a fájlpanelek
-"Rövid" módjának (#BalCtrl-1#), a "Közepes mód" megfelel a fájlpanelek
-"Közepes" módjának (#BalCtrl-2#) és így tovább az utolsó elemig, a
-#BalCtrl-0#-val meghívható "Alternatív teljes" nézet módig bezárólag.
+"Rövid" módjának (#BalCtrl+1#), a "Közepes mód" megfelel a fájlpanelek
+"Közepes" módjának (#BalCtrl+2#) és így tovább az utolsó elemig, a
+#BalCtrl+0#-val meghívható "Alternatív teljes" nézet módig bezárólag.
 
     Ha választottunk, a párbeszédablakban a következő jellemzőket állíthatjuk
 be:
@@ -3285,7 +3285,7 @@ fájlnevek betűméreteit.
 $ #Rendezési csoportok#
     A fájlok akkor rendezhetők csoportba, ha a ~fájlpanel~@FilePanel@
 #név szerint# vagy #kiterjesztés szerint# rendezett. A csoportos rendezést a
-#Shift-F11# kapcsolja ki vagy be. Rendezési csoportok definiálásával új
+#Shift+F11# kapcsolja ki vagy be. Rendezési csoportok definiálásával új
 rendezési szabályokkal egészíthetjük ki a már létezőket.
 
     Minden csoport tartalmaz egy (vagy több, vesszővel elválasztott)
@@ -3358,25 +3358,25 @@ kizáró maszkok csoportját választja el egymástól.
 $ #Fájlok kijelölése#
     A ~fájlpanelek~@FilePanel@ fájljai és mappái kijelölésére többféle módszer
 kínálkozik. Az #Ins# billentyű kijelöli a kurzor alatti fájlnevet, majd egyet
-lefelé léptet, a #Shift-Kurzorvezérlőkkel# (kurzornyilak, PgUp, PgDn, Home,
+lefelé léptet, a #Shift+Kurzorvezérlőkkel# (kurzornyilak, PgUp, PgDn, Home,
 End) pedig az adott kurzorvezérlő egységnyi lépéséig jelölhetünk ki fájlokat.
 
     A #Szürke +# és a #Szürke -# használatával csoportokat jelölhetünk ki vagy
 a kijelölést levehetjük a csoportokról, ~fájlmaszkok~@FileMasks@
 segítségével. A #Szürke *# megfordítja az aktuális kijelölést. A
-#Jelölést visszatesz# parancs (#Ctrl-M#) visszaállítja az előző kijelölést.
+#Jelölést visszatesz# parancs (#Ctrl+M#) visszaállítja az előző kijelölést.
 
-    A #Ctrl-<Szürke +># és a #Ctrl-<Szürke -># kijelöli a kurzor alatti fájl
+    A #Ctrl+<Szürke +># és a #Ctrl+<Szürke -># kijelöli a kurzor alatti fájl
 kiterjesztésével megegyező fájlokat, illetve leveszi róluk a kijelölést.
 
-    Az #Alt-<Szürke +># és az #Alt-<Szürke -># kijelöli a kurzor alatti fájl
+    Az #Alt+<Szürke +># és az #Alt+<Szürke -># kijelöli a kurzor alatti fájl
 nevével megegyező fájlokat, illetve leveszi a kijelölést.
 
-    A #Ctrl-<Szürke *># megfordítja a kijelöléseket a mappákon is. Ha a
+    A #Ctrl+<Szürke *># megfordítja a kijelöléseket a mappákon is. Ha a
 ~Panel beállítások~@PanelSettings@ menü #A mappák is kijelölhetők# opciója
 be van kapcsolva, ugyanaz a hatása, mint a #Szürke *#-nak.
 
-    A #Shift-<Szürke +># minden fájlt kijelöl, a #Shift-<Szürke -># minden
+    A #Shift+<Szürke +># minden fájlt kijelöl, a #Shift+<Szürke -># minden
 kijelölést levesz.
 
     Ha nincsenek kjelölt fájlok, a műveletek csak a kurzor alatti fájlra
@@ -3391,12 +3391,12 @@ $ #Másolás, mozgatás, átnevezés és linkek létrehozása#
   A ~kijelölt~@SelectFiles@ fájlok másolása                                    #F5#
 
   A kurzor alatti fájl másolása,
-  a kijelöléstől függetlenül                              #Shift-F5#
+  a kijelöléstől függetlenül                              #Shift+F5#
 
   A kijelölt fájlok átnevezése vagy mozgatása                   #F6#
 
   A kurzor alatti fájl átnevezése vagy mozgatása,
-  a kijelöléstől függetlenül                              #Shift-F6#
+  a kijelöléstől függetlenül                              #Shift+F6#
 
     Mappákon: ha a megadott (abszolút vagy relatív) elérési út
  létező mappára mutat, akkor a forrásmappát a célmappa belsejébe
@@ -3409,7 +3409,7 @@ $ #Másolás, mozgatás, átnevezés és linkek létrehozása#
     - ha nem létezik, akkor #c:\mappa1\# áthelyeződik (átneveződik)
       az újonnan létrehozott #d:\mappa2\# mappába (mappára).
 
-  ~Fájl linkek~@HardSymLink@ létrehozása                                   #Alt-F6#
+  ~Fájl linkek~@HardSymLink@ létrehozása                                   #Alt+F6#
 
     Ha a "#Többszörös cél létrehozása#" opciót engedélyeztük, a beviteli
 mezőben másolási vagy mozgatási célként több elérési utat is megadhatunk,
@@ -3418,8 +3418,8 @@ mezőben másolási vagy mozgatási célként több elérési utat is megadhatun
 
     Ha nem létező célmappákat adunk meg, amit szeretnénk létrehozni, a
 mappák nevei közt és után mindig álljon \\-jel. A Másolás párbeszédablakban
-#F10#-zel az aktív panel, #Alt-F10#-zel a passzív panel fastruktúrájának mappái
-között kereshetünk célmappát. A #Shift-F10# a beviteli sorba beírt elérési út
+#F10#-zel az aktív panel, #Alt+F10#-zel a passzív panel fastruktúrájának mappái
+között kereshetünk célmappát. A #Shift+F10# a beviteli sorba beírt elérési út
 fastruktúráját bontja ki (ha több útvonalat adtunk meg, azokból csak az elsőt).
 Ha a "Többszörös cél létrehozása" opció engedélyezett, a fastruktúrán
 kiválasztott mappa elérési útját a FAR hozzáfűzi a szerkesztett sorhoz.
@@ -3557,7 +3557,7 @@ a kapcsolt linkekhez), végül a forráslinket törli.
 
 @HardSymLink
 $ #Hardlinkek és szimbolikus linkek#
-    NTFS partíciókon az #Alt-F6# paranccsal #hardlinkeket# hozhatunk létre
+    NTFS partíciókon az #Alt+F6# paranccsal #hardlinkeket# hozhatunk létre
 fájlokhoz, #csomópontokat# mappákhoz és #szimbolikus linkeket# mind
 fájlokhoz, mind mappákhoz (Vista).
 
@@ -3665,9 +3665,9 @@ engedi, hogy a plugin a rendszerbe töltődjön.
 @ScrSwitch
 $ #Képernyők váltása#
     A FAR-ban a belső nézőkét és a belső szerkesztőt egyidejűleg több
-példányban használhatjuk és a #Ctrl-Tab#, #Ctrl-Shift-Tab# vagy az #F12#
+példányban használhatjuk és a #Ctrl+Tab#, #Ctrl+Shift+Tab# vagy az #F12#
 billentyűkkel kapcsolgathatunk a panelek és az említett példányok között.
-A #Ctrl-Tab# a következő, a #Ctrl-Shift-Tab# az előző képernyőre vált, az
+A #Ctrl+Tab# a következő, a #Ctrl+Shift+Tab# az előző képernyőre vált, az
 #F12# pedig listát jelenít meg a megnyitott példányokról.
 
     \1B[1+3]════ C:\\\-    A háttérben futó nézőkék és szerkesztők
@@ -3858,14 +3858,14 @@ $ #Makrók: gyorsbillentyűk#
     2. ^<wrap>bármelyik, módosítóval (#Ctrl#, #Alt# vagy #Shift#) együtt
 lenyomott billentyűhöz;
     3. bármelyik két módosítóval együtt lenyomott billentyűhöz. A
-lehetséges módosítópárok:  #Ctrl-Shift-<bill.>#, #Ctrl-Alt-<bill.># és
-#Alt-Shift-<bill.>#
+lehetséges módosítópárok:  #Ctrl+Shift+<bill.>#, #Ctrl+Alt+<bill.># és
+#Alt+Shift+<bill.>#
 
-    A következő kombinációk #nem használhatók# makróhoz: #Alt-Ins#, #Ctrl-<.>#,
-#Ctrl-Shift-<.>#, #Ctrl-Alt#, #Ctrl-Shift#, #Shift-Alt#, #Shift-<szimbólum>#.
+    A következő kombinációk #nem használhatók# makróhoz: #Alt+Ins#, #Ctrl+<.>#,
+#Ctrl+Shift+<.>#, #Ctrl+Alt#, #Ctrl+Shift#, #Shift+Alt#, #Shift+<szimbólum>#.
 
     Néhány billentyűkombinációt és egérműveletet nem vihetünk be közvetlenül,
-főleg az #Enter#, #Esc#, #F1#, #Ctrl-F5#, az #MsWheelUp#
+főleg az #Enter#, #Esc#, #F1#, #Ctrl+F5#, az #MsWheelUp#
 (EgérGörgőFel) és az #MsWheelDown# (EgérGörgőLe) a #Ctrl#, a #Shift# és az
 #Alt# módosítókkal, speciális funkcióik miatt. Ezeket legördülő
 listából választhatjuk ki és rendelhetjük a makróhoz.
@@ -3889,9 +3889,9 @@ rá a szokott módon.
 
     1. Makrórögzítés inditása
 
-       ^<wrap>Normál módú makrófelvételhez nyomjuk le a #Ctrl-<.># (először
+       ^<wrap>Normál módú makrófelvételhez nyomjuk le a #Ctrl+<.># (először
 a #Ctrl# és utána rövid ideig vele kell nyomni a #<.>#-ot), a különleges módú
-makrófelvételhez pedig a #Ctrl-Shift-<.># kombinációt (#Ctrl# és #Shift#,
+makrófelvételhez pedig a #Ctrl+Shift+<.># kombinációt (#Ctrl# és #Shift#,
 utána rövid ideig velük kell nyomni a #<.>#-ot).
 
        ^<wrap>Bármelyik módú felvételt indítottuk ek, a makrórögzítésről
@@ -3911,8 +3911,8 @@ billentyűműveleteket tárolja a makróban.
 
        ^<wrap>A felvételek leállításához ki kell választanunk a célnak
 megfelelőbb módszert. Mivel a makrók a rögzítés leállítása után is
-konfigurálhatók, kétféle megoldás kínálkozik: a #Ctrl-<.># és a
-#Ctrl-Shift-<.>#. Az első esetben a makró leállítása után csak gyorsbillentyűt
+konfigurálhatók, kétféle megoldás kínálkozik: a #Ctrl+<.># és a
+#Ctrl+Shift+<.>#. Az első esetben a makró leállítása után csak gyorsbillentyűt
 kell megadni és a makró az alapértelmezett beállítások szerint játszható
 vissza. A második esetben is megtörténik a leállítás és a billentyű
 hozzárendelése, de ezután egy párbeszédablakban módosíthatjuk a makró futási
@@ -3934,8 +3934,8 @@ választ.
 
     Lépésekre bontva:
 
-    1. Indítsuk el a makrórögzítést (#Ctrl-<.>#).
-    2. Állítsuk le a rögzítést (#Ctrl-<.>#).
+    1. Indítsuk el a makrórögzítést (#Ctrl+<.>#).
+    2. Állítsuk le a rögzítést (#Ctrl+<.>#).
     3. ^<wrap>Nyomjuk le, vagy a listából válasszuk ki a törölni kívánt
 gyorsbillentyűt.
 
@@ -3947,7 +3947,7 @@ billentyűkombinációt, az a korábbi beállításnak megfelelően működik ez
 @KeyMacroSetting
 $ #Makrók: beállítások#
     Ha a ~makrók~@KeyMacro@ egyéb tulajdonságait is szeretnénk módosítani,
-a felvétel leállítására a #Ctrl-<.># helyett használjuk a #Ctrl-Shift-<.>#
+a felvétel leállítására a #Ctrl+<.># helyett használjuk a #Ctrl+Shift+<.>#
 kombinációt, így a rögzítést követően egy párbeszédablakban állíthatjuk be
 a kívánt jellemzőket:
 
@@ -4003,7 +4003,7 @@ párbeszédablak szövegsorában van kijelölt blokk
 ellenőriz.
 
     2. ^<wrap>Egyes billentyűkombinációkat, például az #Enter#, #Esc#, #F1# és
-a #Ctrl-F5#; az #MsWheelUp# (EgérGörgőFel). az #MsWheelDown# (EgérGörgőLe),
+a #Ctrl+F5#; az #MsWheelUp# (EgérGörgőFel). az #MsWheelDown# (EgérGörgőLe),
 valamint más egérgomb műveleteket a #Ctrl#, #Shift# és #Alt# módosítóval
 együtt nem vihetünk be közvetlenül gyorsbillentyűként, a párbeszédablakban
 betöltött speciális szerepük miatt. Ezeket a billentyűkombinációkat
