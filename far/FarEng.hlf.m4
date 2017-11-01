@@ -1217,75 +1217,75 @@ active informantion panel. Available display modes:
   Power status information can be enabled in InfoPanel ~settings~@InfoPanelSettings@.
 
 @InfoPanelSettings
-$ #Настройка информационной панели#
-  #Показывать состояние питания#
+$ #InfoPanel settings#
+  #Show power status#
 
-    Если опция включена, то в ~информационной панели~@InfoPanel@ будет выводится
-секция, описывающая состояние системы питания.
+    If enabled, ~InfoPanel~@InfoPanel@ will contain a section with power status details.
 
-  #Показывать параметры компакт-дисков#
+  #Show CD drive parameters#
 
-    Если опция включена, то Far будет пытаться определить тип CD-привода. 
-Различаются следующие приводы: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW и DVD-RAM. 
+    If enabled, Far will try to detect the CD drive type.
+Supported types: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM. 
 
-  #Формат вывода имени компьютера#
+  #Computer name format#
 
-  Задаёт формат вывода имени компьютера. Может быть одним из:
-
-    #Physical NetBIOS#
-      ^<wrap>NetBIOS имя локального компьютера.
-
-    #Physical DNS hostname#
-      ^<wrap>DNS имя локального компьютера.
-
-    #Physical DNS domain#
-      ^<wrap>DNS имя домена, которому принадлежит компьютер.
-
-    #Physical DNS fully-qualified#
-      ^<wrap>Полное доменное имя, которое однозначно идентифицирует этот компьютер. Имя представляет собой комбинацию DNS имени хоста и DNS имени домена (формат HostName.DomainName).
+  Can be one of:
 
     #NetBIOS#
-      ^<wrap>NetBIOS имя локального компьютера. Если компьютер является узлом кластера, то выводится NetBIOS имя кластера виртуального сервера.
+      ^<wrap>The NetBIOS name of the local computer. If the local computer is a node in a cluster, the NetBIOS name of the cluster virtual server.
 
     #DNS hostname#
-      ^<wrap>DNS имя локального компьютера. Если компьютер является узлом кластера, то выводится DNS имя кластера виртуального сервера.
+      ^<wrap>The DNS host name of the local computer. If the local computer is a node in a cluster, the DNS host name of the cluster virtual server.
 
     #DNS domain#
-      ^<wrap>DNS имя домена, которому принадлежит компьютер. Если компьютер является узлом кластера, то выводится DNS имя домена кластера виртуального сервера.
+      ^<wrap>The name of the DNS domain assigned to the local computer. If the local computer is a node in a cluster, the DNS domain name of the cluster virtual server.
 
     #DNS fully-qualified#
-      ^<wrap>Полное доменное имя, которое однозначно идентифицирует этот компьютер. Имя представляет собой комбинацию DNS имени хоста и DNS имени домена (формат HostName.DomainName). Если компьютер является узлом кластера, то выводится полное DNS имя кластера виртуального сервера.
+      ^<wrap>The fully qualified DNS name that uniquely identifies the local computer. This name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName. If the local computer is a node in a cluster, the fully qualified DNS name of the cluster virtual server.
 
-    Формат вывода зависит от наличия доменной структуры, групповых политик, настроек DNS.
+    #Physical NetBIOS#
+      ^<wrap>The NetBIOS name of the local computer. If the local computer is a node in a cluster, the NetBIOS name of the local computer, not the name of the cluster virtual server.
 
-  #Формат вывода имени пользователя#
+    #Physical DNS hostname#
+      ^<wrap>The DNS host name of the local computer. If the local computer is a node in a cluster, the DNS host name of the local computer, not the name of the cluster virtual server.
 
-  Задаёт формат вывода имени пользователя. Может быть одним из:
+    #Physical DNS domain#
+      ^<wrap>The name of the DNS domain assigned to the local computer. If the local computer is a node in a cluster, the DNS domain name of the local computer, not the name of the cluster virtual server.
 
-    #По умолчанию#
-      Логин пользователя, например, JohnDoe
-    #Полностью определённое имя домена#
-      ^<wrap>FQDN (Fully Qualified Domain Name) - включает наименования всех уровней иерархии, начиная от имени конечного узла и заканчивая корневой точкой (логином), например,
-      CN=JohnDoe, OU=Software, OU=Engineering, O=Widget, C=US
+    #Physical DNS fully-qualified#
+      ^<wrap>The fully qualified DNS name that uniquely identifies the computer. If the local computer is a node in a cluster, the fully qualified DNS name of the local computer, not the name of the cluster virtual server. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
+
+    The output format depends on the domain structure, group policies and DNS settings.
+
+  #User name format#
+
+  Can be one of:
+
+    #Fully Qualified Domain Name#
+      ^<wrap>The fully qualified distinguished name (for example, CN=Jeff Smith,OU=Users,DC=Engineering,DC=Microsoft,DC=Com).
+
     #Sam Compatible#
-      Engineering\JohnDoe
-    #Display#
-      Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.
-    #Уникальный идентификатор#
-      ^<wrap>Уникальный идентификатор имени пользователя (GUID), например,
-      {4fa050f0-f561-11cf-bdd9-00aa003a77b6}
-    #Канонический вид#
-      ^<wrap>ADCN (Active Directory Canonical Name) - данный формат является путём в иерархической структуре к объекту (логину), например,
-      engineering.widget.com/software/JohnDoe
-    #Основное имя пользователя#
-      ^<wrap>UPN (User Principial Name) - известен также как адрес электронной почты, например,
-      someone@example.com
-    #Service Principal#
-      www/srv.engineering.com/engineering.com
-    #Dns Domain#
-      engineering.widget.com\JohnDoe
+      ^<wrap>A legacy account name (for example, Engineering\JSmith). The domain-only version includes trailing backslashes (\\).
 
-    Формат вывода зависит от наличия доменной структуры.
+    #Display Name#
+      ^<wrap>A "friendly" display name (for example, Jeff Smith). The display name is not necessarily the defining relative distinguished name (RDN).
+
+    #Unique Id#
+      ^<wrap>A GUID string (for example, {4fa050f0-f561-11cf-bdd9-00aa003a77b6}).
+
+    #Canonical Name#
+      ^<wrap>The complete canonical name (for example, engineering.microsoft.com/software/someone). The domain-only version includes a trailing forward slash (/).
+
+    #User Principial Name#
+      ^<wrap>The user principal name (for example, someone@example.com).
+
+    #Service Principal#
+      ^<wrap>The generalized service principal name (for example, www/www.microsoft.com@microsoft.com).
+
+    #DNS Domain#
+      ^<wrap>The DNS domain name followed by a backward-slash and the SAM user name.
+
+    The ouput format depends on the domain structure.
 
 @QViewPanel
 $ #Panels: quick view panel#
@@ -1602,22 +1602,22 @@ following operations:
 
 
 @PluginsManagerSettings
-$ #Plugins manager#
-  #Поддержка OEM-плагинов#
-  Позволяет использовать OEM-плагины (для Far Manager 1.x)
+$ #Plugins manager settings#
+  #OEM plugins support#
+  Controls support for old Far Manager 1.x non-unicode plugins.
 
-  #Сканировать символические ссылки#
-  Позволяет искать плагины в ~символических ссылках~@HardSymLink@ наравне с обычными подкаталогами.
+  #Scan symbolic links#
+  Look for plugins in ~symbolic links~@HardSymLink@ as well as in normal directories.
 
-  #Обработка файла#
+  #File processing#
 
-  #Пункт вызова стандартной ассоциации#
+  #Show standard association item#
 
-  #Даже если найден всего один плагин#
+  #Even if only one plugin found#
 
-  #Результаты поиска (SetFindList)#
+  #Search results (SetFindList)#
 
-  #Обработка префикса#
+  #Prefix processing#
 
 @MaskGroupsSettings
 $ #Groups of file masks#
@@ -1630,26 +1630,26 @@ $ #Groups of file masks#
     For example, the #<arc># group contains the "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar" masks.
 To ~highlight~@Highlight@ all archives except "*.rar" #<arc>|*.rar# should be used.
 
-    Клавиши управление списком.
+    Control keys:
 
-    #Ctrl+R#      - ^<wrap>восстановить исходное значение для предопределенных групп ("arc", "temp" и "exec").
+    #Ctrl+R#      - ^<wrap>restore the default predefined groups ("arc", "temp" and "exec").
 
-    #Ins#         - добавить новую группу
+    #Ins#         - ^<wrap>add a new group
 
-    #Del#         - удалить существующую группу
+    #Del#         - ^<wrap>remove the current group
 
-    #Enter#/#F4#    - изменить параметры группы
+    #Enter#/#F4#  - ^<wrap>edit the current group
 
-    #F7#          - найти группы, содержащие маску
-    
-    См. также: ~Меню параметров~@OptMenu@ и клавиатурные команды, общие ~для всех меню~@MenuCmd@.
+    #F7#          - ^<wrap>find all groups containing the specified mask
+
+    Also see ~Options menu~@OptMenu@ and ~Menu control commands~@MenuCmd@.
 
 @ChoosePluginMenu
 $ #Plugin selection menu#
-    Позволяет выбрать плагин-обработчик, если хост-файл (например, архив) 
-могут обработать несколько плагинов.
+    Allows to choose the processing plugin if the host file (e. g. an archive) 
+can be processed by multiple plugins.
 
-    See also: common ~menu~@MenuCmd@ keyboard commands.
+    Also see common ~menu~@MenuCmd@ keyboard commands.
 
 @MakeFolder
 $ #Make folder#
@@ -1660,9 +1660,9 @@ simply separate the folder names with the backslash character. For example:
 
     #%USERDOMAIN%\\%USERNAME%\\Folder3#
 
-    Опция "#Link Type#" позволяет создавать одну из ~ссылок~@HardSymLink@ на папки 
-("#directory junction#" или "#symbolic link#"). В этом случае необходимо в поле "#Target#" 
-указать папку, на которую будет ссылаться вновь созданная папка.
+    The "#Link Type#" option allows to choose the link ~type~@HardSymLink@
+("#directory junction#" or "#symbolic link#"). If selected, the #Target# field
+should contain a target directory path.
 
     If the option "#Process multiple names#" is enabled, it is possible to
 create multiple folders in a single operation. In this case, folder names
@@ -1691,7 +1691,7 @@ containing hexadecimal sequence of the specified bytes. In this case #Case#
 #sensitive#, #Whole words#, #Using code page# and #Search for folders#
 options are disabled and their values doesn't affect the search process.
 
-    Параметр #не содержащих# позволяет искать файлы, #не# содержащие указанный текст или код.
+    #Not containing# allows to find files #not# containing the specified text or code.
 
     Выпадающий список #Используя кодовую страницу# позволяет выбрать конкретную
 кодовую страницу, применяемую для поиска текста. Если в выпадающем списке выбрать
@@ -2439,10 +2439,9 @@ is being modified at the same time as copying.
 determining the total file size in the sub-folders.
 
   #Update panels only when Far is active#
-  Если эта опция выставлена, то мониторинг файловых панелей фар будет выполняться только тогда когда фар активен,
-т.е. обновления панелей не будет до тех пор, пока фар не получит фокус ввода. Это позволяет не блокировать каталоги текущих панелей.
-Но синхронизация состояния панелей при получении фокуса #иногда не срабатывает#. Поэтому эта опция по-умолчанию отключена,
-и мониторинг файловых панелей выполняется даже тогда, когда фар работатет в фоне.
+  If enabled, file panels will be monitored only when Far is active, i.e. panels will not be updated until Far window is focused.
+This allows to avoid blocking the directories opened on panels. However, sometimes the update is not triggered after receiving focus,
+so this option is disabled by default and directories are always monitored.
 
   #Save commands history#
   Forces saving ~commands history~@History@ before exit and restoring after starting Far.
@@ -2466,23 +2465,22 @@ tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not w
 correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
 
   #Automatic update of environment variables#
-  При глобальном изменении переменных среды Far Manager автоматические корректирует значения своего окружения.
+  Automatically update the environment variables if they have been changed globally.
 
-  #Запрос прав администратора#
-  Во время выполнения разнообразных операций с файловой системой у текущего
-пользователя может не хватать прав. В этом случае Far Manager может повторить 
-попытку от имени администратора (повысить права текущего пользователя).
+  #Request administrator rights#
+  The current user might not always has the required rights to work with certain file system objects.
+Far allows to retry the operation using the privileged account.
 
-  Доступны следующие опции:
+  Available options:
 
-    #для изменения#
-    ^<wrap>разрешить выполнять от имени администратора операции, изменяющие состояние файловой системы (например, создание, изменение и удаление файлов)
+    #for modification#
+    ^<wrap>allow requesting rights for operations that change the state of the file system (e.g. file or directory creation/modification/deletion)
 
-    #для чтения#
-    ^<wrap>разрешить выполнять от имени администратора операции, не изменяющие состояние файловой системы (например, чтение файлов и просмотр папок).
+    #for read#
+    ^<wrap>allow requesting rights for operations that do not change the state of the file system (e.g. reading files or listing directories).
 
-    #использовать дополнительные привилегии#
-    ^<wrap>при выполнении действий от имени администратора будет предоставлен доступ ко всем файлам, независимо от их списков контроля доступа (ACL).
+    #use additional privileges#
+    ^<wrap>Try to ignore Access Control List if possible.
 
   #Auto save setup#
   If checked, Far will save setup automatically. The current folders for both panels will be also saved.
@@ -2638,13 +2636,13 @@ then the used icon will be red instead of blue. This option is only relevant if 
 option #Set console icon# is activated.
   
   #Far window title addons#
-  Дополнительная информация, выводимая в заголовке окна консоли.
-Может содержать любой текст, включая следующие переменные:
-  - #%Ver# - версия Far;
-  - #%Build# - номер сборки Far;
-  - #%Platform# - архитектура Far;
-  - #%Admin# - ^<wrap>слово "Администратор", если Far запущен от имени администратора, иначе пустая строка.
-  - #%PID# - ИД текущего процесса Far;
+  Additional information, displayed in the window title.
+Can contain any text, including the following variables:
+  - #%Ver# - Far version;
+  - #%Build# - Far build number;
+  - #%Platform# - Far platform;
+  - #%Admin# - ^<wrap>"Administrator" if running as administrator, otherwise an empty string.
+  - #%PID# - Far process ID;
 
 
 @DialogSettings

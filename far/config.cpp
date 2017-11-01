@@ -332,7 +332,6 @@ void Options::InfoPanelSettings()
 {
 	static const FarDialogBuilderListItem UNListItems[]=
 	{
-		{ lng::MConfigInfoPanelUNUnknown, NameUnknown },                            // 0  - unknown name type
 		{ lng::MConfigInfoPanelUNFullyQualifiedDN, NameFullyQualifiedDN },          // 1  - CN=John Doe, OU=Software, OU=Engineering, O=Widget, C=US
 		{ lng::MConfigInfoPanelUNSamCompatible, NameSamCompatible },                // 2  - Engineering\JohnDoe, If the user account is not in a domain, only NameSamCompatible is supported.
 		{ lng::MConfigInfoPanelUNDisplay, NameDisplay },                            // 3  - Probably "John Doe" but could be something else.  I.e. The display name is not necessarily the defining RDN.

@@ -2895,18 +2895,6 @@ upd:"&User name format"
 "&Formato Nome Utente"
 "Формат відображення імені &користувача"
 
-MConfigInfoPanelUNUnknown
-"По умолчанию"
-"Default"
-"Výchozí"
-"Standardmäßig voreingestellt"
-upd:"Default"
-upd:"Default"
-"Por defecto"
-"Predvolené"
-"Default"
-"За замовчуванням"
-
 MConfigInfoPanelUNFullyQualifiedDN
 "Полностью определённое имя домена"
 "Fully Qualified Domain Name"
