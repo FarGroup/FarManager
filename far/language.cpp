@@ -132,8 +132,9 @@ bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string&
 				return true;
 			}
 		}
-		else if (!ReadStr.empty() && ReadStr.front() != L'.')
+		else if (!ReadStr.empty() && ReadStr.front() == L'"')
 		{
+			// '"' indicates some meaningful string.
 			// Parameters can be only in the header, no point to go deeper
 			return false;
 		}
