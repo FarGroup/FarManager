@@ -6270,7 +6270,10 @@ void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, const 
 
 	if (m_CachedOpenPanelInfo.StartSortMode)
 	{
-		m_SortMode = panel_sort(m_CachedOpenPanelInfo.StartSortMode - (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED)));
+		if (m_CachedOpenPanelInfo.StartSortMode < SM_COUNT)
+			m_SortMode = panel_sort(m_CachedOpenPanelInfo.StartSortMode - (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED)));
+		else
+			m_SortMode = panel_sort(m_CachedOpenPanelInfo.StartSortMode);
 		m_ReverseSortOrder = m_CachedOpenPanelInfo.StartSortOrder != 0;
 	}
 
