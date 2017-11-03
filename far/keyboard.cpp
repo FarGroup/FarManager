@@ -1838,14 +1838,14 @@ int IsShiftKey(DWORD Key)
 		KEY_RALTPGUP,
 		KEY_ALTPGDN,
 		KEY_RALTPGDN,
-		KEY_ALT,
-		KEY_RALT,
-		KEY_CTRL,
-		KEY_RCTRL,
-		KEY_SHIFT,
 	};
 
-	return contains(ShiftKeys, Key);
+	return IsModifKey(Key) || contains(ShiftKeys, Key);
+}
+
+bool IsModifKey(DWORD Key)
+{
+	return Key && (Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT)) == Key;
 }
 
 unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)

@@ -281,8 +281,7 @@ bool Search::ProcessKey(const Manager::Key& Key)
 		default:
 
 			if ((LocalKey()<32 || LocalKey()>=65536) && LocalKey()!=KEY_BS && LocalKey()!=KEY_CTRLY && LocalKey()!=KEY_RCTRLY &&
-			        LocalKey()!=KEY_CTRLBS && LocalKey()!=KEY_RCTRLBS && LocalKey()!=KEY_ALT && LocalKey()!=KEY_SHIFT &&
-			        LocalKey()!=KEY_CTRL && LocalKey()!=KEY_RALT && LocalKey()!=KEY_RCTRL &&
+			        LocalKey()!=KEY_CTRLBS && LocalKey()!=KEY_RCTRLBS && !IsModifKey(LocalKey()) &&
 			        !(LocalKey()==KEY_CTRLINS||LocalKey()==KEY_CTRLNUMPAD0) && // KEY_RCTRLINS/NUMPAD0 passed to panels
 			        !(LocalKey()==KEY_SHIFTINS||LocalKey()==KEY_SHIFTNUMPAD0) &&
 			        !((LocalKey() == KEY_KILLFOCUS || LocalKey() == KEY_GOTFOCUS) && IsWindowsVistaOrGreater()) // Mantis #2903
