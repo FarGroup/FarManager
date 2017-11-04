@@ -2007,20 +2007,16 @@ int PluginManager::ProcessCommandLine(const string& CommandParam)
 
 	string strPluginCommand=strCommand.substr(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 	RemoveTrailingSpaces(strPluginCommand);
-	auto pPlugin = PData->pPlugin;
-	Global->WindowManager->CallbackWindow([strPluginCommand, pPlugin]()
-	{
-		OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.data()}; //BUGBUG
-		auto hPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info));
+	OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.data()}; //BUGBUG
+	auto hPlugin = Global->CtrlObject->Plugins->Open(PData->pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info));
 
-		if (hPlugin)
-		{
-			const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
-			NewPanel->SetPluginMode(std::move(hPlugin), L"", true);
-			NewPanel->Update(0);
-			NewPanel->Show();
-		}
-	});
+	if (hPlugin)
+	{
+		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
+		NewPanel->SetPluginMode(std::move(hPlugin), L"", true);
+		NewPanel->Update(0);
+		NewPanel->Show();
+	}
 
 	return TRUE;
 }

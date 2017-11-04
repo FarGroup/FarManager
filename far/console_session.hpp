@@ -38,6 +38,7 @@ class i_context
 {
 public:
 	virtual void Activate() = 0;
+	virtual void Deactivate() = 0;
 	virtual void DrawCommand(const string& Command) = 0;
 	virtual void DoPrologue() = 0;
 	virtual void DoEpilogue() = 0;

@@ -61,6 +61,18 @@ public:
 		Global->WindowManager->PluginCommit();
 	}
 
+	void Deactivate() override
+	{
+		if (!m_Activated)
+			return;
+
+		m_Activated = false;
+		Global->WindowManager->UnModalDesktopWindow();
+		Global->WindowManager->PluginCommit();
+		--Global->SuppressClock;
+		--Global->SuppressIndicators;
+	}
+
 	void DrawCommand(const string& Command) override
 	{
 		Global->CtrlObject->CmdLine()->DrawFakeCommand(Command);
@@ -144,13 +156,7 @@ public:
 
 	~context() override
 	{
-		if (!m_Activated)
-			return;
-
-		Global->WindowManager->UnModalDesktopWindow();
-		Global->WindowManager->PluginCommit();
-		--Global->SuppressClock;
-		--Global->SuppressIndicators;
+		Deactivate();
 	}
 
 private:
@@ -206,6 +212,7 @@ void console_session::LeavePluginContext()
 	if (m_PluginContextInvocations)
 		return;
 
+	m_PluginContext->Deactivate();
 	m_PluginContext.reset();
 }
 
