@@ -3,6 +3,50 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.11.2017 15:25:38 +0000 - build 5091
+
+1. Smarter clipping of command line prompt (by its components).
+
+zg 04.11.2017 20:22:28 +0200 - build 5090
+
+1. rollback of 5082.
+
+2. the last FCTL_SETUSERSCREEN always closes Desktop.
+
+shmuel 03.11.2017 16:34:19 +0200 - build 5089
+
+1. Correction of 5088.
+
+shmuel 03.11.2017 16:12:16 +0200 - build 5088
+
+1. Correction of 4575 for plugin panels.
+
+zg 03.11.2017 13:24:25 +0200 - build 5087
+
+1. various combinations of ctrl, alt and shift do not interrupt selection in editor and do not close quick search in panels.
+
+drkns 01.11.2017 22:08:24 +0000 - build 5086
+
+1. An excessive item is removed from user name format settings in info panel.
+
+2. English translation in Help.
+
+drkns 01.11.2017 17:34:28 +0000 - build 5085
+
+1. In some cases, instructions at the beginning of language files could be ignored.
+
+drkns 31.10.2017 18:35:11 +0000 - build 5084
+
+1. "lua:panel.GetUserScreen(), then f10 and exit - crash".
+
+w17 31.10.2017 20:58:37 +0300 - build 5083
+
+1. Panel.ShowBytes setting will be visible to plugins.
+
+zg 30.10.2017 18:50:05 +0200 - build 5082
+
+1. plugin prefixes are processed outside of launcher context.
+
 drkns 29.10.2017 19:39:55 +0000 - build 5081
 
 1. Error in processing the "%z" parameter of date() function - DST bias was always taken into account.
