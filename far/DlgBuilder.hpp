@@ -403,9 +403,7 @@ class DialogBuilderBase
 		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
 		T *AddText(int LabelId)
 		{
-			T *Item = AddDialogItem(DI_TEXT, LabelId == -1 ? L"" : GetLangString(LabelId));
-			SetNextY(Item);
-			return Item;
+			return AddText(LabelId == -1 ? L"" : GetLangString(LabelId));
 		}
 
 		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
@@ -417,9 +415,9 @@ class DialogBuilderBase
 		}
 
 		// Добавляет чекбокс.
-		T *AddCheckbox(int TextMessageId, int *Value, int Mask=0, bool ThreeState=false)
+		T *AddCheckbox(const wchar_t* TextMessage, int *Value, int Mask=0, bool ThreeState=false)
 		{
-			T *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
+			T *Item = AddDialogItem(DI_CHECKBOX, TextMessage);
 			if (ThreeState && !Mask)
 				Item->Flags |= DIF_3STATE;
 			SetNextY(Item);
@@ -432,16 +430,26 @@ class DialogBuilderBase
 			return Item;
 		}
 
-		// Добавляет группу радиокнопок.
-		void AddRadioButtons(int *Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected=false)
+		// Добавляет чекбокс.
+		T *AddCheckbox(int TextMessageId, int *Value, int Mask = 0, bool ThreeState = false)
 		{
+			return AddCheckbox(GetLangString(TextMessageId), Value, Mask, ThreeState);
+		}
+
+		// Добавляет группу радиокнопок.
+		T* AddRadioButtons(int *Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected=false)
+		{
+			T* firstButton = nullptr;
 			for(int i=0; i<OptionCount; i++)
 			{
 				T *Item = AddDialogItem(DI_RADIOBUTTON, GetLangString(MessageIDs[i]));
 				SetNextY(Item);
 				Item->X2 = Item->X1 + ItemWidth(*Item);
 				if (!i)
+				{
 					Item->Flags |= DIF_GROUP;
+					firstButton = Item;
+				}
 				if (*Value == i)
 				{
 					Item->Selected = TRUE;
@@ -450,6 +458,7 @@ class DialogBuilderBase
 				}
 				SetLastItemBinding(CreateRadioButtonBinding(Value));
 			}
+			return firstButton;
 		}
 
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
@@ -464,9 +473,9 @@ class DialogBuilderBase
 		}
 
 		// Добавляет указанную текстовую строку слева от элемента RelativeTo.
-		T *AddTextBefore(T *RelativeTo, int LabelId)
+		T *AddTextBefore(T *RelativeTo, const wchar_t* Label)
 		{
-			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
+			T *Item = AddDialogItem(DI_TEXT, Label);
 			Item->Y1 = Item->Y2 = RelativeTo->Y1;
 			Item->X1 = 5 + m_Indent;
 			Item->X2 = Item->X1 + ItemWidth(*Item) - 1;
@@ -480,6 +489,12 @@ class DialogBuilderBase
 				Binding->BeforeLabelID = GetItemID(Item);
 
 			return Item;
+		}
+
+		// Добавляет указанную текстовую строку слева от элемента RelativeTo.
+		T *AddTextBefore(T *RelativeTo, int LabelId)
+		{
+			return AddTextBefore(RelativeTo, GetLangString(LabelId));
 		}
 
 		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
@@ -502,9 +517,9 @@ class DialogBuilderBase
 		}
 
 		// Добавляет кнопку справа от элемента RelativeTo.
-		T *AddButtonAfter(T *RelativeTo, int LabelId)
+		T *AddButtonAfter(T *RelativeTo, const wchar_t* Label)
 		{
-			T *Item = AddDialogItem(DI_BUTTON, GetLangString(LabelId));
+			T *Item = AddDialogItem(DI_BUTTON, Label);
 			Item->Y1 = Item->Y2 = RelativeTo->Y1;
 			Item->X1 = RelativeTo->X1 + ItemWidth(*RelativeTo) - 1 + 2;
 
@@ -513,6 +528,12 @@ class DialogBuilderBase
 				Binding->AfterLabelID = GetItemID(Item);
 
 			return Item;
+		}
+
+		// Добавляет кнопку справа от элемента RelativeTo.
+		T *AddButtonAfter(T *RelativeTo, int LabelId)
+		{
+			return AddButtonAfter(RelativeTo, GetLangString(LabelId));
 		}
 
 		// Начинает располагать поля диалога в две колонки.
