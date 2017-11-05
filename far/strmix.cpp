@@ -288,7 +288,7 @@ wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 	{
 		int nLength = StrLength(Str);
 
-		if (nLength > MaxLength && nLength >= 2)
+		if (nLength > MaxLength)
 		{
 			int start = StartOffset(Str);
 
@@ -306,9 +306,10 @@ string& TruncPathStr(string &strStr, int MaxLength)
 {
 	assert(MaxLength >= 0);
 	MaxLength = std::max(0, MaxLength);
+
 	int nLength = static_cast<int>(strStr.size());
 
-	if (nLength > MaxLength && nLength >= 2)
+	if (nLength > MaxLength)
 	{
 		int start = StartOffset(strStr);
 

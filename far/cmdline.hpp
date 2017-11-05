@@ -88,7 +88,13 @@ private:
 	virtual void DisplayObject() override;
 	size_t DrawPrompt();
 	bool ProcessOSCommands(const string& CmdLine, const std::function<void(bool)>& ConsoleActivatior);
-	std::list<std::pair<string, FarColor>> GetPrompt();
+	struct segment
+	{
+		string Text;
+		FarColor Colour;
+		bool Collapsible;
+	};
+	std::list<segment> GetPrompt();
 	static bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
 
 	friend class SetAutocomplete;

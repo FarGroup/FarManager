@@ -119,18 +119,56 @@ size_t CommandLine::DrawPrompt()
 {
 	const auto PromptList = GetPrompt();
 	const size_t MaxLength = PromptSize*ObjWidth() / 100;
+
+	std::vector<size_t> Sizes;
+	Sizes.reserve(PromptList.size());
+
+	size_t PromptLength = 0;
+	size_t FixedLength = 0;
+	size_t CollapsibleCount = 0;
+	for (const auto& i: PromptList)
+	{
+		Sizes.emplace_back(i.Text.size());
+		PromptLength += i.Text.size();
+		if (i.Collapsible)
+			++CollapsibleCount;
+		else
+			FixedLength += i.Text.size();
+	}
+
+	size_t CollapsibleItemLength = 0;
+	bool TryCollapse = false;
+	if (PromptLength > MaxLength)
+	{
+		if (CollapsibleCount)
+		{
+			if (FixedLength < MaxLength)
+				CollapsibleItemLength = (MaxLength - FixedLength) / CollapsibleCount;
+			TryCollapse = true;
+		}
+	}
+
 	size_t CurLength = 0;
 	GotoXY(m_X1, m_Y1);
 
-	std::for_each(CONST_RANGE(PromptList, i)
+	for (const auto& i: PromptList)
 	{
-		SetColor(i.second);
-		string str(i.first);
+		auto str = i.Text;
+
+		if (TryCollapse && i.Collapsible)
+		{
+			TruncPathStr(str, static_cast<int>(CollapsibleItemLength));
+		}
+
 		if (CurLength + str.size() > MaxLength)
 			TruncPathStr(str, std::max(0, static_cast<int>(MaxLength - CurLength)));
+		SetColor(i.Colour);
 		Text(str);
 		CurLength += str.size();
-	});
+
+		if (CurLength >= MaxLength)
+			break;
+	}
 	return CurLength;
 }
 
@@ -561,7 +599,7 @@ bool CommandLine::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return CmdStr.ProcessMouse(MouseEvent);
 }
 
-std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
+std::list<CommandLine::segment> CommandLine::GetPrompt()
 {
 	FN_RETURN_TYPE(CommandLine::GetPrompt) Result;
 	int NewPromptSize = DEFAULT_CMDLINE_WIDTH;
@@ -588,19 +626,18 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 
 			if (Iterator != Format.cbegin())
 			{
-				Result.emplace_back(string(Tail, Iterator), Color);
+				Result.emplace_back(segment{ string(Tail, Iterator), Color });
 			}
 			Iterator += NextView.cbegin() - CurrentView.cbegin();
 			Tail = Iterator;
 			Color = NewColor;
 		}
-		Result.emplace_back(string(Tail, Format.cend()), Color);
+		Result.emplace_back(segment{ string(Tail, Format.cend()), Color });
 
-		std::for_each(RANGE(Result, i)
+		for (auto Iterator = Result.begin(); Iterator != Result.end(); ++Iterator)
 		{
-			auto& strDestStr = i.first;
-			const auto strExpandedDestStr = os::env::expand(strDestStr);
-			strDestStr.clear();
+			const auto strExpandedDestStr = os::env::expand(Iterator->Text);
+			Iterator->Text.clear();
 			static const std::pair<wchar_t, wchar_t> ChrFmt[] =
 			{
 				{L'A', L'&'},   // $A - & (Ampersand)
@@ -616,6 +653,8 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 
 			FOR_CONST_RANGE(strExpandedDestStr, it)
 			{
+				auto& strDestStr = Iterator->Text;
+
 				if (*it == L'$' && it + 1 != strExpandedDestStr.cend())
 				{
 					const auto Chr = upper(*++it);
@@ -631,6 +670,25 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					}
 					else
 					{
+						const auto& AddCollapsible = [&](string&& Str)
+						{
+							if (strDestStr.empty())
+							{
+								strDestStr = std::move(Str);
+								Iterator->Collapsible = true;
+							}
+							else
+							{
+								Iterator = Result.insert(std::next(Iterator), segment{ std::move(Str), Iterator->Colour, true });
+							}
+
+							// No need to introduce a new segment if we're at the very end
+							if (std::next(Iterator) != Result.end() && std::next(it) != strExpandedDestStr.cend())
+							{
+								Iterator = Result.insert(std::next(Iterator), segment{ {}, Iterator->Colour, false });
+							}
+						};
+
 						switch (Chr)
 						{
 								/* эти не реaлизованы
@@ -643,8 +701,7 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 								string strTemp;
 								if (DriveLocalToRemoteName(DRIVE_UNKNOWN, m_CurDir[0], strTemp))
 								{
-									strDestStr += strTemp;
-									//strDestStr += L' '; // ???
+									AddCollapsible(std::move(strTemp));
 								}
 								break;
 							}
@@ -656,7 +713,22 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 							case L'H': // $H - Backspace (erases previous character)
 							{
 								if (!strDestStr.empty())
+								{
 									strDestStr.pop_back();
+								}
+								else
+								{
+									auto Prev = Iterator;
+									while (Prev != Result.begin())
+									{
+										--Prev;
+										if (!Prev->Text.empty())
+										{
+											Prev->Text.pop_back();
+											break;
+										}
+									}
+								}
 
 								break;
 							}
@@ -700,16 +772,16 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 								const auto pos = FindLastSlash(m_CurDir);
 								if (pos != string::npos)
 								{
-									strDestStr += m_CurDir.substr(pos + 1);
+									AddCollapsible(m_CurDir.substr(pos + 1));
 								}
 								break;
 							}
 							case L'P': // $P - Current drive and path
 							{
-								strDestStr += m_CurDir;
+								AddCollapsible(string(m_CurDir));
 								break;
 							}
-							case L'#': //$#nn - max promt width in %
+							case L'#': //$#nn - max prompt width in %
 							{
 								if (it + 1 != strExpandedDestStr.end())
 								{
@@ -739,13 +811,16 @@ std::list<std::pair<string, FarColor>> CommandLine::GetPrompt()
 					strDestStr += *it;
 				}
 			}
-		});
-
+		}
 	}
 	else
 	{
 		// default prompt = "$p$g"
-		Result.emplace_back(m_CurDir + L'>', PrefixColor);
+		Result =
+		{
+			{ m_CurDir, PrefixColor, true },
+			{ L">", PrefixColor, false },
+		};
 	}
 	SetPromptSize(NewPromptSize);
 	return Result;
