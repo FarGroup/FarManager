@@ -166,81 +166,6 @@ wstring ArcChain::to_string() const {
   return result;
 }
 
-class MyCompressCodecsInfo : public ICompressCodecsInfo, private ComBase {
-private:
-  const ArcLibs& libs_;
-  const vector<CDllCodecInfo> &codecs_;
-public:
-  MyCompressCodecsInfo(const ArcLibs& libs, const vector<CDllCodecInfo> &codecs)
-   : libs_(libs), codecs_(codecs) {}
-
-  ~MyCompressCodecsInfo() {}
-
-  UNKNOWN_IMPL_BEGIN
-  UNKNOWN_IMPL_ITF(ICompressCodecsInfo)
-  UNKNOWN_IMPL_END
-
-  STDMETHODIMP GetNumMethods(UInt32 *numMethods) {
-    *numMethods = static_cast<UInt32>(codecs_.size());
-    return S_OK;
-  }
-
-  STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) {
-    const CDllCodecInfo &ci = codecs_[index];
-    if (propID == NMethodPropID::kDecoderIsAssigned || propID == NMethodPropID::kEncoderIsAssigned) {
-      PropVariant prop;
-      prop = (bool)((propID == NMethodPropID::kDecoderIsAssigned) ? ci.DecoderIsAssigned : ci.EncoderIsAssigned);
-      prop.detach(value);
-      return S_OK;
-    }
-    const auto &lib = libs_[ci.LibIndex];
-    return lib.GetMethodProperty(ci.CodecIndex, propID, value);
-  }
-
-  STDMETHODIMP CreateDecoder(UInt32 index, const GUID *iid, void **coder) {
-    const CDllCodecInfo &ci = codecs_[index];
-    if (ci.DecoderIsAssigned) {
-      const auto &lib = libs_[ci.LibIndex];
-      if (lib.CreateDecoder)
-        return lib.CreateDecoder(ci.CodecIndex, iid, (void **)coder);
-      else
-        return lib.CreateObject(&ci.Decoder, iid, (void **)coder);
-    }
-    return S_OK;
-  }
-
-  STDMETHODIMP CreateEncoder(UInt32 index, const GUID *iid, void **coder) {
-    const CDllCodecInfo &ci = codecs_[index];
-    if (ci.EncoderIsAssigned) {
-      const auto &lib = libs_[ci.LibIndex];
-      if (lib.CreateEncoder)
-        return lib.CreateEncoder(ci.CodecIndex, iid, (void **)coder);
-      else
-        return lib.CreateObject(&ci.Encoder, iid, (void **)coder);
-    }
-    return S_OK;
-  }
-};
-
-ArcAPI* ArcAPI::arc_api = nullptr;
-
-ArcAPI::~ArcAPI() {
-  //delete compressinfo;
-  for_each(arc_libs.begin(), arc_libs.end(), [&] (const ArcLib& arc_lib) {
-    if (arc_lib.h_module)
-      FreeLibrary(arc_lib.h_module);
-  });
-}
-
-ArcAPI* ArcAPI::get() {
-  if (arc_api == nullptr) {
-    arc_api = new ArcAPI();
-    arc_api->load();
-    Patch7zCP::SetCP(static_cast<UINT>(g_options.oemCP), static_cast<UINT>(g_options.ansiCP));
-  }
-  return arc_api;
-}
-
 static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index, CDllCodecInfo& info) {
   info.DecoderIsAssigned = info.EncoderIsAssigned = false;
   std::fill((char *)&info.Decoder, sizeof(info.Decoder) + (char *)&info.Decoder, 0);
@@ -271,6 +196,110 @@ static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index,
   return info.DecoderIsAssigned || info.EncoderIsAssigned;
 }
 
+class MyCompressCodecsInfo : public ICompressCodecsInfo, private ComBase {
+private:
+  const ArcLibs& libs_;
+  const vector<CDllCodecInfo> &x_codecs_;
+  vector <CDllCodecInfo> base_codecs_;
+  UInt32 n_base_codecs_;
+public:
+  MyCompressCodecsInfo(const ArcLibs& libs, const vector<CDllCodecInfo> &codecs, size_t skip_lib_index)
+   : libs_(libs), x_codecs_(codecs), n_base_codecs_(0)
+  {
+    size_t n_formats = codecs.empty() ? libs.size() : codecs[0].LibIndex;
+    for (size_t ilib = 0; ilib < n_formats; ++ilib) {
+      if (ilib == skip_lib_index)
+        continue;
+      const auto& arc_lib = libs[ilib];
+      if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
+        UInt32 numMethods = 1;
+        bool ok = true;
+        if (arc_lib.GetNumberOfMethods)
+			 ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
+        for (UInt32 i = 0; ok && i < numMethods; ++i) {
+          CDllCodecInfo info;
+          info.LibIndex = static_cast<UInt32>(ilib);
+          info.CodecIndex = i;
+          if (GetCoderInfo(arc_lib.GetMethodProperty, i, info)) {
+            base_codecs_.push_back(info);
+            ++n_base_codecs_;
+          }
+        }
+      }
+    }
+  }
+
+  ~MyCompressCodecsInfo() {}
+
+  UNKNOWN_IMPL_BEGIN
+  UNKNOWN_IMPL_ITF(ICompressCodecsInfo)
+  UNKNOWN_IMPL_END
+
+  STDMETHODIMP GetNumMethods(UInt32 *numMethods) {
+    *numMethods = static_cast<UInt32>(base_codecs_.size() + x_codecs_.size());
+    return S_OK;
+  }
+
+  STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) {
+    const CDllCodecInfo &ci = index < n_base_codecs_ ? base_codecs_[index] : x_codecs_[index-n_base_codecs_];
+    if (propID == NMethodPropID::kDecoderIsAssigned || propID == NMethodPropID::kEncoderIsAssigned) {
+      PropVariant prop;
+      prop = (bool)((propID == NMethodPropID::kDecoderIsAssigned) ? ci.DecoderIsAssigned : ci.EncoderIsAssigned);
+      prop.detach(value);
+      return S_OK;
+    }
+    const auto &lib = libs_[ci.LibIndex];
+    return lib.GetMethodProperty(ci.CodecIndex, propID, value);
+  }
+
+  STDMETHODIMP CreateDecoder(UInt32 index, const GUID *iid, void **coder) {
+    const CDllCodecInfo &ci = index < n_base_codecs_ ? base_codecs_[index] : x_codecs_[index-n_base_codecs_];
+    if (ci.DecoderIsAssigned) {
+      const auto &lib = libs_[ci.LibIndex];
+      if (lib.CreateDecoder)
+        return lib.CreateDecoder(ci.CodecIndex, iid, (void **)coder);
+      else
+        return lib.CreateObject(&ci.Decoder, iid, (void **)coder);
+    }
+    return S_OK;
+  }
+
+  STDMETHODIMP CreateEncoder(UInt32 index, const GUID *iid, void **coder) {
+    const CDllCodecInfo &ci = index < n_base_codecs_ ? base_codecs_[index] : x_codecs_[index-n_base_codecs_];
+    if (ci.EncoderIsAssigned) {
+      const auto &lib = libs_[ci.LibIndex];
+      if (lib.CreateEncoder)
+        return lib.CreateEncoder(ci.CodecIndex, iid, (void **)coder);
+      else
+        return lib.CreateObject(&ci.Encoder, iid, (void **)coder);
+    }
+    return S_OK;
+  }
+};
+
+ArcAPI* ArcAPI::arc_api = nullptr;
+
+ArcAPI::~ArcAPI() {
+  for (size_t i = 0; i < n_format_libs; ++i) {
+    if (arc_libs[i].SetCodecs)
+      arc_libs[i].SetCodecs(nullptr); // calls ~MyCompressInfo()
+  }
+  compress_info.clear();
+  for_each(arc_libs.begin(), arc_libs.end(), [&] (const ArcLib& arc_lib) {
+    if (arc_lib.h_module)
+      FreeLibrary(arc_lib.h_module);
+  });
+}
+
+ArcAPI* ArcAPI::get() {
+  if (arc_api == nullptr) {
+    arc_api = new ArcAPI();
+    arc_api->load();
+    Patch7zCP::SetCP(static_cast<UINT>(g_options.oemCP), static_cast<UINT>(g_options.ansiCP));
+  }
+  return arc_api;
+}
+
 void ArcAPI::load_libs(const wstring& path) {
   FileEnum file_enum(path);
   wstring dir = extract_file_path(path);
@@ -282,6 +311,8 @@ void ArcAPI::load_libs(const wstring& path) {
     if (arc_lib.h_module == nullptr)
       continue;
     arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(GetProcAddress(arc_lib.h_module, "CreateObject"));
+    arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(GetProcAddress(arc_lib.h_module, "CreateDecoder"));
+    arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(GetProcAddress(arc_lib.h_module, "CreateEncoder"));
     arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
     arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
     arc_lib.GetNumberOfFormats = reinterpret_cast<Func_GetNumberOfFormats>(GetProcAddress(arc_lib.h_module, "GetNumberOfFormats"));
@@ -289,8 +320,6 @@ void ArcAPI::load_libs(const wstring& path) {
     arc_lib.GetHandlerProperty2 = reinterpret_cast<Func_GetHandlerProperty2>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty2"));
     arc_lib.GetIsArc = reinterpret_cast<Func_GetIsArc>(GetProcAddress(arc_lib.h_module, "GetIsArc"));
     arc_lib.SetCodecs = reinterpret_cast<Func_SetCodecs>(GetProcAddress(arc_lib.h_module, "SetCodecs"));
-    arc_lib.CreateDecoder = nullptr;
-    arc_lib.CreateEncoder = nullptr;
     if (arc_lib.CreateObject && ((arc_lib.GetNumberOfFormats && arc_lib.GetHandlerProperty2) || arc_lib.GetHandlerProperty)) {
       arc_lib.version = get_module_version(arc_lib.module_path);
       arc_libs.push_back(arc_lib);
@@ -355,11 +384,19 @@ void ArcAPI::load_codecs(const wstring& path) {
         return _wcsicmp(a.Name.data(), b.Name.data()) < 0;
     });
     for (const auto& c : arc_codecs) { if ((c.CodecId & 0xffffff00U) != 0x040100) ++n_7z_codecs; }
-
-    compressinfo = new MyCompressCodecsInfo(arc_libs, arc_codecs);
-    for (size_t i = 0; i < n_base_format_libs; ++i) {
-      if (arc_libs[i].SetCodecs)
+  }
+  for (size_t i = 0; i < n_format_libs; ++i) {
+    if (arc_libs[i].SetCodecs) {
+      auto compressinfo = new MyCompressCodecsInfo(arc_libs, arc_codecs, i);
+      UInt32 n = 0;
+      compressinfo->GetNumMethods(&n);
+      if (n > 0) {
+        compress_info.push_back(compressinfo);
         arc_libs[i].SetCodecs(compressinfo);
+      }
+      else {
+        delete compressinfo;
+      }
     }
   }
 }

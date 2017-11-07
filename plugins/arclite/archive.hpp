@@ -135,11 +135,11 @@ private:
   size_t n_format_libs;
   ArcCodecs arc_codecs;
   size_t n_7z_codecs;
-  MyCompressCodecsInfo *compressinfo;
+  vector<MyCompressCodecsInfo *> compress_info;
   ArcFormats arc_formats;
   SfxModules sfx_modules;
   static ArcAPI* arc_api;
-  ArcAPI() { n_base_format_libs = n_format_libs = n_7z_codecs = 0; compressinfo = nullptr; }
+  ArcAPI() { n_base_format_libs = n_format_libs = n_7z_codecs = 0; }
   ~ArcAPI();
   void load_libs(const wstring& path);
   void load_codecs(const wstring& path);
