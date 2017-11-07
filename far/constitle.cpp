@@ -42,6 +42,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "scrbuf.hpp"
 #include "strmix.hpp"
+#include "platform.hpp"
+
+static string GetUserNameInternal()
+{
+	string strUserName;
+	os::GetUserName(strUserName);
+	return strUserName;
+}
 
 static const string& GetFarTitleAddons()
 {
@@ -61,6 +69,7 @@ static const string& GetFarTitleAddons()
 	static const string strVer = concat(str(FAR_VERSION.Major), L'.', str(FAR_VERSION.Minor));
 	static const string strBuild = str(FAR_VERSION.Build);
 	static const string strPID = str(GetCurrentProcessId());
+	static const string strUserName = GetUserNameInternal();
 
 	ReplaceStrings(strTitleAddons, L"%PID", strPID, true);
 	ReplaceStrings(strTitleAddons, L"%Ver", strVer, true);
@@ -77,6 +86,7 @@ static const string& GetFarTitleAddons()
 #endif
 	true);
 	ReplaceStrings(strTitleAddons, L"%Admin", os::security::is_admin() ? msg(lng::MFarTitleAddonsAdmin) : L"", true);
+	ReplaceStrings(strTitleAddons, L"%UserName", strUserName, true);
 	RemoveTrailingSpaces(strTitleAddons);
 
 	return strTitleAddons;

@@ -2,6 +2,9 @@
 This file is a translation of the main russian changelog and is provided by volunteers.
 It might not always be as up to date as the main changelog.
 =======================================================================================
+pmisik 08.11.2017 00:00:00 +0000 - build 5092
+
+1. Add support to show current user name in title. It is useful in case you run FarManager as different user.
 
 drkns 05.11.2017 15:25:38 +0000 - build 5091
 

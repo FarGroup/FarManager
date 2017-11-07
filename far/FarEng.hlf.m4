@@ -2643,6 +2643,7 @@ Can contain any text, including the following variables:
   - #%Platform# - Far platform;
   - #%Admin# - ^<wrap>"Administrator" if running as administrator, otherwise an empty string.
   - #%PID# - Far process ID;
+  - #%UserName - Current User Name (can be usefull in case you run FarManager as different user)
 
 
 @DialogSettings
