@@ -1677,7 +1677,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool GetFileTimeSimple(const string& FileName, os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime)
+	bool GetFileTimeSimple(const string_view& FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime)
 	{
 		file File;
 		return File.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);

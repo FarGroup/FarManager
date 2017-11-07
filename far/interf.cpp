@@ -423,6 +423,18 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 		Mode &= ~ENABLE_MOUSE_INPUT;
 	}
 
+	// Feature: if window rect is in unusual position (shifted up or right) - enable mouse selection
+	{
+		CONSOLE_SCREEN_BUFFER_INFO csbi;
+		if (Global->Opt->WindowMode
+			&& GetConsoleScreenBufferInfo(Console().GetOutputHandle(), &csbi)
+			&& (csbi.srWindow.Bottom != csbi.dwSize.Y - 1 || csbi.srWindow.Left))
+		{
+			Mode &= ~ENABLE_MOUSE_INPUT;
+			Mode |= ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;
+		}
+	}
+
 	ChangeConsoleMode(Console().GetInputHandle(), Mode);
 
 	if (SetsActiveBuffer)

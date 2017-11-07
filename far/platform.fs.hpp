@@ -314,7 +314,7 @@ namespace os::fs
 
 	bool get_disk_size(const string_view& Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
 
-	bool GetFileTimeSimple(const string& FileName, os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime);
+	bool GetFileTimeSimple(const string_view& FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime);
 
 	bool get_find_data(const string& FileName, find_data& FindData, bool ScanSymLink = true);
 

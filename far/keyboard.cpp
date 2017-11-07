@@ -820,7 +820,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 		if (!(LoopCount & 15))
 		{
-			if(Global->CtrlObject && Global->CtrlObject->Plugins->size())
+			if(Global->CtrlObject)
 			{
 				SetFarConsoleMode();
 			}
