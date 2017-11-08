@@ -2637,7 +2637,8 @@ option #Set console icon# is activated.
   
   #Far window title addons#
   Additional information, displayed in the window title.
-Can contain any text, including the following variables:
+Can contain any text, including environment variables (e.g. "%USERDOMAIN%\%USERNAME%") and the following special variables:
+
   - #%Ver# - Far version;
   - #%Build# - Far build number;
   - #%Platform# - Far platform;

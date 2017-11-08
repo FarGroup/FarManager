@@ -2,6 +2,14 @@
 This file is a translation of the main russian changelog and is provided by volunteers.
 It might not always be as up to date as the main changelog.
 =======================================================================================
+pmisik 08.11.2017 18:40:00 +0000 - build 5093
+
+1. Support to expand environment variables in title
+
+drkns 07.11.2017 20:28:56 +0000 - build 5092
+
+1. 0002323: WindowMode: click in empty space opens menu
+   0002648: Mouse selection for copying from the console buffer when MindowMode=true
 
 drkns 05.11.2017 15:25:38 +0000 - build 5091
 

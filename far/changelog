@@ -1,3 +1,7 @@
+pmisik 08.11.2017 18:40:00 +0000 - build 5093
+
+1. Support to expand environment variables in title
+
 drkns 07.11.2017 20:28:56 +0000 - build 5092
 
 1. 0002323: WindowMode: клик в пустом пространстве вызывает меню
