@@ -2644,6 +2644,7 @@ Can contain any text, including the following variables:
   - #%Admin# - ^<wrap>"Administrator" if running as administrator, otherwise an empty string.
   - #%PID# - Far process ID;
 
+Environment variables can also be used e.g.: "%USERDOMAIN%\%USERNAME%".
 
 @DialogSettings
 $ #Settings dialog: dialogs#
