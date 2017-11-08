@@ -2637,14 +2637,14 @@ option #Set console icon# is activated.
   
   #Far window title addons#
   Additional information, displayed in the window title.
-Can contain any text, including the following variables:
+Can contain any text, including environment variables (e.g. "%USERDOMAIN%\%USERNAME%") and the following special variables:
+
   - #%Ver# - Far version;
   - #%Build# - Far build number;
   - #%Platform# - Far platform;
   - #%Admin# - ^<wrap>"Administrator" if running as administrator, otherwise an empty string.
   - #%PID# - Far process ID;
 
-Environment variables can also be used e.g.: "%USERDOMAIN%\%USERNAME%".
 
 @DialogSettings
 $ #Settings dialog: dialogs#

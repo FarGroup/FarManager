@@ -55,8 +55,7 @@ static const string& GetFarTitleAddons()
 	*/
 	static string strTitleAddons;
 
-	strTitleAddons.assign(L" - Far ",7);
-	strTitleAddons += os::env::expand(Global->Opt->strTitleAddons);
+	strTitleAddons = concat(L" - Far "_sv, os::env::expand(Global->Opt->strTitleAddons));
 
 	static const string strVer = concat(str(FAR_VERSION.Major), L'.', str(FAR_VERSION.Minor));
 	static const string strBuild = str(FAR_VERSION.Build);
