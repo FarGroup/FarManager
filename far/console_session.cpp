@@ -212,7 +212,7 @@ void console_session::LeavePluginContext()
 	if (m_PluginContextInvocations)
 		return;
 
-	m_PluginContext->Deactivate();
+	if (m_PluginContext) m_PluginContext->Deactivate();
 	m_PluginContext.reset();
 }
 
