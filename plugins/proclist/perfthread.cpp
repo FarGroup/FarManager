@@ -412,19 +412,23 @@ void PerfThread::Refresh()
 	SetEvent(hEvtRefreshDone);
 }
 
-#define LASTBYTE(_arr) ((_arr)[sizeof(_arr)-1])
+template<size_t N>
+static auto& LastChar(wchar_t(&Arr)[N])
+{
+	return Arr[N - 1];
+}
 
 void PerfThread::RefreshWMIData()
 {
 	for (unsigned i=0; i<pData->length(); i++)
 	{
-		if (*HostName && LASTBYTE((*pData)[i].FullPath)!='*')
+		if (*HostName && LastChar((*pData)[i].FullPath)!='*')
 		{
 			WMI.GetProcessExecutablePath((*pData)[i].dwProcessId, (*pData)[i].FullPath);
-			LASTBYTE((*pData)[i].FullPath) = '*';
+			LastChar((*pData)[i].FullPath) = '*';
 		}
 
-		if (LASTBYTE((*pData)[i].Owner)!='*')
+		if (LastChar((*pData)[i].Owner)!='*')
 		{
 			WMI.GetProcessOwner((*pData)[i].dwProcessId, (*pData)[i].Owner);
 			int iSessionId = WMI.GetProcessSessionId((*pData)[i].dwProcessId);
@@ -436,7 +440,7 @@ void PerfThread::RefreshWMIData()
 				FSF.itoa(iSessionId, p, 10);
 			}
 
-			LASTBYTE((*pData)[i].Owner) = '*';
+			LastChar((*pData)[i].Owner) = '*';
 		}
 	}
 }
