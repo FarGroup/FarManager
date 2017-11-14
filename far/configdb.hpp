@@ -43,7 +43,10 @@ class representation_destination;
 
 namespace os
 {
-	class thread;
+	inline namespace concurrency
+	{
+		class thread;
+	}
 }
 
 class representable: noncopyable

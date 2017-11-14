@@ -181,8 +181,8 @@ private:
 		bool operator==(const T& rhs) const { return rhs == *this; }
 
 		T& base() { return *this; }
-		const std::conditional_t<std::is_base_of<ConstT, T>::value, ConstT, T>& base() const { return *this; }
-		std::conditional_t<std::is_base_of<ConstT, T>::value, const ConstT&, ConstT> cbase() const { return *this; }
+		const std::conditional_t<std::is_base_of_v<ConstT, T>, ConstT, T>& base() const { return *this; }
+		std::conditional_t<std::is_base_of_v<ConstT, T>, const ConstT&, ConstT> cbase() const { return *this; }
 
 	private:
 		// Intentionally not implemented, use prefix forms.

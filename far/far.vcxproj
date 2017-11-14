@@ -278,6 +278,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="pathmix.cpp" />
     <ClCompile Include="platform.cpp" />
     <ClCompile Include="platform.chrono.cpp" />
+    <ClCompile Include="platform.concurrency.cpp" />
     <ClCompile Include="platform.env.cpp" />
     <ClCompile Include="platform.fs.cpp" />
     <ClCompile Include="platform.memory.cpp" />
@@ -469,6 +470,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="pipe.hpp" />
     <ClInclude Include="platform.hpp" />
     <ClInclude Include="platform.chrono.hpp" />
+    <ClInclude Include="platform.concurrency.hpp" />
     <ClInclude Include="platform.env.hpp" />
     <ClInclude Include="platform.fs.hpp" />
     <ClInclude Include="platform.memory.hpp" />
@@ -503,7 +505,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="stddlg.hpp" />
     <ClInclude Include="string_utils.hpp" />
     <ClInclude Include="strmix.hpp" />
-    <ClInclude Include="synchro.hpp" />
     <ClInclude Include="syslog.hpp" />
     <ClInclude Include="TaskBar.hpp" />
     <ClInclude Include="tinyxml.hpp" />

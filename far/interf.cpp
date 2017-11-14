@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "interf.hpp"
-#include "platform.security.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farcolor.hpp"
@@ -48,11 +47,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 #include "imports.hpp"
-#include "synchro.hpp"
 #include "res.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "TaskBar.hpp"
+#include "platform.concurrency.hpp"
+#include "platform.security.hpp"
 
 consoleicons& ConsoleIcons()
 {

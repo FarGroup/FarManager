@@ -2388,8 +2388,7 @@ void PluginManager::RefreshPluginsList()
 			if (!i->Active())
 			{
 				i->Unload(true);
-				// gcc bug, this-> required
-				this->RemovePlugin(i);
+				RemovePlugin(i);
 				return true;
 			}
 			return false;

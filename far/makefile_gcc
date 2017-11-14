@@ -113,6 +113,7 @@ SRCS = \
 	pipe.cpp \
 	platform.cpp \
 	platform.chrono.cpp \
+	platform.concurrency.cpp \
 	platform.env.cpp \
 	platform.fs.cpp \
 	platform.memory.cpp \

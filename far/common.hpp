@@ -101,7 +101,7 @@ inline void* ToPtr(intptr_t Value)
 }
 
 template<class T, class Y>
-bool InRange(const T& from, const Y& what, const T& to)
+constexpr bool InRange(const T& from, const Y& what, const T& to)
 {
 	return from <= what && what <= to;
 }

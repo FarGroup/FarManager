@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "string_utils.hpp"
 #include "exception.hpp"
-#include "synchro.hpp"
+#include "platform.concurrency.hpp"
 
 #ifdef MEMCHECK
 

@@ -695,7 +695,7 @@ Pressing #Shift+Enter# on "#..#" opens the current directory in the Explorer.
 
   Change to the root folder                                   #Ctrl+\\#
 
-  Change folder, enter an archive (also a SFX archive)     #Ctrl+[Shift+]PgDn#
+  Change folder, enter an archive (also an SFX archive)     #Ctrl+[Shift+]PgDn#
 
     If the cursor points to a directory, pressing #Ctrl+PgDn# changes to that
 directory. If the cursor points to a file, then, depending on the file type,
@@ -1151,7 +1151,7 @@ $ #Panels: info panel#
 in the system. Known types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM,
 DVD-RW and DVD-RAM. This function is available only for users either with
 administrative privileges or all local users, when it's stated explicitly in
-the Local Policy Editor (to do this, run a #secpol.msc# from the command
+the Local Policy Editor (to do this, run #secpol.msc# from the command
 prompt, and set the '#Local Policies/Security Options/Devices: Restrict#
 #CD-ROM access to locally logged-on user only#' setting to '#Enabled#')
 
@@ -2708,22 +2708,22 @@ feature is disabled while a macro is being recorded or executed.
 
 @AutoCompleteSettings
 $ #Settings dialog: AutoComplete#
-  #Показывать список#
-  Показать варианты автозавершения в виде списка.
+  #Show a list#
+  Show completion suggestions as a list.
 
-  #Модальный режим#
-  Список будет модальным.
+  #Modal mode#
+  Make the list modal.
 
-  #Подставлять первый подходящий вариант#
-  По мере ввода строка будет дополняться первым подходящим значением.
+  #Append the first matched item#
+  Append the first matched item to the command line text as you type.
 
-  There are several additional options to control what data sources will be used to populate completion list:
+  There are several additional options to control what data sources will be used to populate the completion list:
     #Interface.Completion.UseFilesystem#
     #Interface.Completion.UseHistory#
     #Interface.Completion.UsePath#
     #Interface.Completion.UseEnvironment#
-  Все параметры могут принимаеть 3 состояния - да, нет, только в ручном режиме (после #Ctrl+Space#).
-Управлять этими параметрами можно через ~far:config~@FarConfig@
+  All parameters are 3-state - yes / no / only if called manually (via #Ctrl+Space#).
+These parameters can be changed via ~far:config~@FarConfig@
 
 
 @CommandPrompt
@@ -2747,21 +2747,20 @@ code words:
      $l - the < character
      $n - drive letter of the current drive
      $p - current drive and path
-     $m - ^<wrap>полное имя удаленного диска, связанного с именем текущего диска, или пустой строки, если текущий диск не является сетевым
-     $w - ^<wrap>текущий рабочий каталог (без указания пути)
+     $m - ^<wrap>full network path of the current drive or empty, if the current drive is not a network drive
+     $w - ^<wrap>current working directory (without the path)
      $q - the = character
      $s - space
      $t - current time in HH:MM:SS format
      $$ - the $ character
-     $+ - глубина стека каталогов
+     $+ - the depth of the folders stack
      $##nn - max promt width, given in percents relative to the width of the window
 
-     $@@xx - ^<wrap>"Администратор", если Far Manager запущен от имени администратора.
-Вместо 'xx' необходимо указать два символа, которые будут обрамлять слово "Администратор".
-Например, #$@@{}$s$p$g# будет представлен как "{Администратор} C:\>"
+     $@@xx - ^<wrap>"Administrator", if Far Manager is running as administrator.
+xx is a placeholder for two symbols that will surround the "Administrator" word.
+For example, #$@@{}$s$p$g# will be shown as "{Administrator} C:\>"
 
-   By default the #$p$g# sequence is used - current drive and
-path ("C:\>").
+   By default the #$p$g# sequence is used - current drive and path ("C:\>").
 
    Examples.
 
@@ -2779,7 +2778,7 @@ saved path.
 
    Prompt elements can be highlighted with #colours#.
    Format:
-   #([[T]FFFFFFFF][:[T]BBBBBBBB])#, где
+   #([[T]FFFFFFFF][:[T]BBBBBBBB])#, where:
 
    #FFFFFFFF#
    Foreground colour in aarrggbb format or index in the console palette.
@@ -2945,7 +2944,7 @@ while searching (so, for example, #Text# will not be found when searching for #t
         #Whole words#         - ^<wrap>the given text will be found only if it occurs in the text as a whole word.
 
         #Regular expressions# - ^<wrap>enable the use of ~regular expressions~@RegExp@ in the search string.
-Поиск построчный, поэтому многострочные конструкции и переводы строк не будут найдены.
+The multiline search is not supported.
 
     #Search for hex#
 
@@ -3323,9 +3322,7 @@ It can alter the way of ~codepage autodetect~@CodePageAuto@ in builtin Editor/Vi
 See also ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@ parameter.
 
     #Ins# keypress moves codepage from #Other# to #Favorites#, #Del# moves the
-codepage back. Клавиша #F4# позволяет изменять отображаемые
-имена для #избранных# и #прочих# кодовых страниц (кодовые страницы для которых было
-изменено имя помечаются символом #*# перед именем).
+codepage back. #F4# allows to rename #Favorites# and #Other# codepages (renamed codepages will be marked with the #*#).
 
     Диалог ~Изменение имени кодовой страницы~@EditCodePageNameDlg@
 
@@ -3408,7 +3405,7 @@ determine the type of each of the CD drives available in the system. Known
 types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
 This function is available only for users either with administrative privileges
 or all local users, when it's stated explicitly in the Local Policy Editor
-(to do this, run a #secpol.msc# from the command prompt, and set the '#Local#
+(to do this, run #secpol.msc# from the command prompt, and set the '#Local#
 #Policies/Security Options/Devices: Restrict CD-ROM access to locally logged-on#
 #user only#' setting to '#Enabled#').
 
@@ -4811,7 +4808,7 @@ by pressing a single hotkey.
 
     Each macro command has the following parameters:
 
-    - an hotkey, that will execute the recorded sequence when
+    - a hotkey, that will execute the recorded sequence when
       pressed;
     - additional ~settings~@KeyMacroSetting@, that influence the method and
       the area of execution of the recorded sequence.

@@ -88,7 +88,7 @@ namespace detail
 	template<typename arg, typename... args>
 	void check(arg&&, args&&... Args)
 	{
-		static_assert(std::is_lvalue_reference<arg>::value);
+		static_assert(std::is_lvalue_reference_v<arg>);
 		check(FWD(Args)...);
 	}
 }

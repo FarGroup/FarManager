@@ -57,7 +57,6 @@ public:
 
 	void Clear()
 	{
-		// gcc bug, this-> required
 		this->fill(T());
 	}
 };

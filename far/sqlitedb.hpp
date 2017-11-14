@@ -149,8 +149,7 @@ protected:
 		std::transform(ALL_CONST_RANGE(Init), std::back_inserter(m_Statements), [this](const auto& i)
 		{
 			assert(static_cast<size_t>(i.first) == m_Statements.size());
-			// gcc bug, this-> required
-			return this->create_stmt(i.second);
+			return create_stmt(i.second);
 		});
 		return true;
 	}

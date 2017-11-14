@@ -90,7 +90,7 @@ public:
 	constexpr size_t size() const { return m_End - m_Begin; }
 
 private:
-	enum { is_const = std::is_const<std::remove_reference_t<reference>>::value };
+	enum { is_const = std::is_const_v<std::remove_reference_t<reference>> };
 
 	iterator m_Begin {};
 	iterator m_End {};

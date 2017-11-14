@@ -110,7 +110,7 @@ public:
 	}
 
 private:
-	template<class T, REQUIRES(!std::is_same<std::decay_t<T>, any>::value)>
+	template<class T, REQUIRES(!std::is_same_v<std::decay_t<T>, any>)>
 	static std::unique_ptr<detail::any_base> construct(T&& rhs)
 	{
 		return std::make_unique<detail::any_impl<std::decay_t<T>>>(FWD(rhs));

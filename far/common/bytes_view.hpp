@@ -44,7 +44,7 @@ public:
 	explicit bytes_view(const T& Object):
 		bytes_view(&Object, sizeof(Object))
 	{
-		static_assert(std::is_trivially_copyable<T>::value);
+		static_assert(std::is_trivially_copyable_v<T>);
 	}
 };
 
@@ -72,7 +72,7 @@ public:
 	template<typename T>
 	static bytes reference(T& Object)
 	{
-		static_assert(std::is_trivially_copyable<T>::value);
+		static_assert(std::is_trivially_copyable_v<T>);
 
 		bytes Bytes;
 		static_cast<range<char*>&>(Bytes) =
@@ -117,7 +117,7 @@ private:
 template<typename T>
 T deserialise(const bytes_view& Bytes)
 {
-	static_assert(std::is_trivially_copyable<T>::value);
+	static_assert(std::is_trivially_copyable_v<T>);
 	if (Bytes.size() != sizeof(T))
 		throw std::runtime_error("Incorrect blob size: " + std::to_string(Bytes.size()) + ", expected " + std::to_string(sizeof(T)));
 

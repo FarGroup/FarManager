@@ -1696,8 +1696,7 @@ int VMenu::GetVisualPos(int Pos)
 	if (Pos >= static_cast<int>(Items.size()))
 		return GetShowItemCount();
 
-	// gcc bug, this-> required
-	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [this](const auto& Item) { return this->ItemIsVisible(Item.Flags); });
+	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [this](const auto& Item) { return ItemIsVisible(Item.Flags); });
 }
 
 int VMenu::VisualPosToReal(int VPos)

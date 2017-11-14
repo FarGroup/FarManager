@@ -35,13 +35,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "constitle.hpp"
-#include "platform.security.hpp"
 #include "lang.hpp"
 #include "config.hpp"
-#include "synchro.hpp"
 #include "farversion.hpp"
 #include "scrbuf.hpp"
 #include "strmix.hpp"
+#include "platform.concurrency.hpp"
+#include "platform.security.hpp"
 
 static const string& GetFarTitleAddons()
 {

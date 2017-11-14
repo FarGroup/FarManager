@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "datetime.hpp"
-#include "synchro.hpp"
+#include "platform.concurrency.hpp"
 
 enum FINDAREA
 {

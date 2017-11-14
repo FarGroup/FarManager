@@ -62,8 +62,8 @@ namespace os::reg
 		template<class T>
 		bool get(const string_view& SubKey, const string_view& Name, T& Value, REGSAM Sam = 0) const
 		{
-			using is_supported_type = is_one_of_t<T, string, unsigned int, unsigned long long>;
-			static_assert(is_supported_type::value);
+			constexpr auto is_supported_type = is_one_of_v<T, string, unsigned int, unsigned long long>;
+			static_assert(is_supported_type);
 
 			const auto NewKey = open(*this, SubKey, KEY_QUERY_VALUE | Sam);
 			if (!NewKey)

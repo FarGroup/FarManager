@@ -285,14 +285,11 @@ static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const excep
 }
 
 template<char c0, char c1, char c2, char c3>
-struct MakeFourCC
-{
-	enum { value = MAKELONG(MAKEWORD(c0, c1), MAKEWORD(c2, c3)) };
-};
+constexpr uint32_t fourcc = MAKELONG(MAKEWORD(c0, c1), MAKEWORD(c2, c3));
 
 enum FARRECORDTYPE
 {
-	RTYPE_PLUGIN = MakeFourCC<'C', 'P', 'L', 'G'>::value, // информация о текущем плагине
+	RTYPE_PLUGIN = fourcc<'C', 'P', 'L', 'G'>, // информация о текущем плагине
 };
 
 static string ExtractObjectName(const EXCEPTION_RECORD* xr)

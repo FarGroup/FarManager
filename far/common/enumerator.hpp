@@ -97,7 +97,7 @@ public:
 	auto cend() const { return end(); }
 
 protected:
-	enumerator() { static_assert((std::is_base_of<enumerator, Derived>::value)); }
+	enumerator() { static_assert((std::is_base_of_v<enumerator, Derived>)); }
 
 private:
 	template<typename iterator_type, typename owner_type>

@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "elevation.hpp"
-#include "platform.security.hpp"
 #include "config.hpp"
 #include "lang.hpp"
 #include "dialog.hpp"
@@ -46,12 +45,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 #include "notification.hpp"
 #include "scrbuf.hpp"
-#include "synchro.hpp"
 #include "manager.hpp"
 #include "pipe.hpp"
 #include "console.hpp"
 #include "constitle.hpp"
 #include "string_utils.hpp"
+#include "platform.concurrency.hpp"
+#include "platform.security.hpp"
 
 using namespace os::security;
 

@@ -32,9 +32,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "platform.security.hpp"
 #include "lasterror.hpp"
-#include "synchro.hpp"
+#include "platform.concurrency.hpp"
+#include "platform.security.hpp"
 
 namespace
 {

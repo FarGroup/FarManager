@@ -69,10 +69,10 @@ namespace os::fs
 
 	struct find_data
 	{
-		os::chrono::time_point CreationTime;
-		os::chrono::time_point LastAccessTime;
-		os::chrono::time_point LastWriteTime;
-		os::chrono::time_point ChangeTime;
+		chrono::time_point CreationTime;
+		chrono::time_point LastAccessTime;
+		chrono::time_point LastWriteTime;
+		chrono::time_point ChangeTime;
 		unsigned long long nFileSize{};
 		unsigned long long nAllocationSize{};
 		unsigned long long FileId{};
@@ -186,8 +186,8 @@ namespace os::fs
 		unsigned long long GetPointer() const;
 		bool SetPointer(long long DistanceToMove, unsigned long long* NewFilePointer, DWORD MoveMethod) const;
 		bool SetEnd();
-		bool GetTime(os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime) const;
-		bool SetTime(const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* ChangeTime) const;
+		bool GetTime(chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime) const;
+		bool SetTime(const chrono::time_point* CreationTime, const chrono::time_point* LastAccessTime, const chrono::time_point* LastWriteTime, const chrono::time_point* ChangeTime) const;
 		bool GetSize(unsigned long long& Size) const;
 		bool FlushBuffers() const;
 		bool GetInformation(BY_HANDLE_FILE_INFORMATION& info) const;

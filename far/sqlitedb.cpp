@@ -38,9 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sqlite_unicode.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
-#include "synchro.hpp"
 #include "components.hpp"
 #include "encoding.hpp"
+#include "platform.concurrency.hpp"
 
 namespace
 {

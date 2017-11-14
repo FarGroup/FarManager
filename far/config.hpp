@@ -180,7 +180,7 @@ namespace detail
 	protected:
 		OptionImpl(): Option(base_type())
 		{
-			static_assert((std::is_base_of<OptionImpl, derived>::value));
+			static_assert((std::is_base_of_v<OptionImpl, derived>));
 		}
 
 	private:

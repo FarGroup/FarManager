@@ -278,6 +278,9 @@
     <ClCompile Include="platform.chrono.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platform.concurrency.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="platform.env.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -733,6 +736,9 @@
     <ClInclude Include="platform.chrono.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="platform.concurrency.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="platform.env.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -830,9 +836,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="strmix.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="synchro.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="syslog.hpp">

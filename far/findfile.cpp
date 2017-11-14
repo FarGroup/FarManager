@@ -65,7 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "constitle.hpp"
 #include "DlgGuid.hpp"
-#include "synchro.hpp"
 #include "console.hpp"
 #include "wakeful.hpp"
 #include "panelmix.hpp"
@@ -81,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "farexcpt.hpp"
 #include "drivemix.hpp"
+#include "platform.concurrency.hpp"
 
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem

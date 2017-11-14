@@ -141,14 +141,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 
 	DWORD returned = 0;
 
-	if ( Device.IoControl(
-			IOCTL_SCSI_PASS_THROUGH,
-			&sptwb,
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
-			&sptwb,
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
-			&returned
-			) && (sptwb.Spt.ScsiStatus == 0) )
+	if (Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, sizeof(sptwb), &returned) && !sptwb.Spt.ScsiStatus)
 	{
 		// Notes:
 		// 1. The header of 6-byte MODE commands is 4 bytes long.
@@ -196,14 +189,7 @@ static CDROM_DeviceCapabilities getCapsUsingMagic(const os::fs::file& Device)
 
 	returned = 0;
 
-	if ( Device.IoControl(
-			IOCTL_SCSI_PASS_THROUGH,
-			&sptwb,
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
-			&sptwb,
-			sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS),
-			&returned
-			) && (sptwb.Spt.ScsiStatus == 0) )
+	if (Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &sptwb, sizeof(sptwb), &sptwb, sizeof(sptwb), &returned) && !sptwb.Spt.ScsiStatus)
 	{
 		const auto* ptr = sptwb.DataBuf;
 		const auto* ptr_end = &sptwb.DataBuf[sDataLength];
@@ -327,11 +313,11 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Devi
 	STORAGE_DESCRIPTOR_HEADER hdr{};
 	STORAGE_PROPERTY_QUERY query{ StorageDeviceProperty, PropertyStandardQuery };
 	DWORD returnedLength;
-	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), &hdr, sizeof(hdr), &returnedLength) || !hdr.Size)
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), &hdr, sizeof(hdr), &returnedLength) || !hdr.Size)
 		return CAPABILITIES_NONE;
 
 	std::vector<char> Buffer(hdr.Size);
-	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(STORAGE_PROPERTY_QUERY), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
+	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
 		return CAPABILITIES_NONE;
 
 	const auto devDesc = reinterpret_cast<const PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
@@ -369,7 +355,7 @@ static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 
 	const auto ItemIterator = std::find_if(CONST_RANGE(DeviceCaps, i)
 	{
-		return (caps & i.second) == i.second;
+		return (caps & i.second) != 0;
 	});
 
 	return ItemIterator == std::cend(DeviceCaps)? DRIVE_UNKNOWN : ItemIterator->first;

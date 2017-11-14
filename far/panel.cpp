@@ -1026,7 +1026,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				Reenter++;
 				ShortcutInfo Info;
 				GetShortcutInfo(Info);
-				Result = aligned_sizeof<FarPanelDirectory>();
+				Result = static_cast<int>(aligned_sizeof<FarPanelDirectory>());
 				size_t folderOffset=Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.size()+1));
 				size_t pluginFileOffset=Result;

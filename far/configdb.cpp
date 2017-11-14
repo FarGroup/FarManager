@@ -45,8 +45,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "lang.hpp"
 #include "message.hpp"
-#include "synchro.hpp"
 #include "regex_helpers.hpp"
+#include "platform.concurrency.hpp"
 
 class representation_source
 {

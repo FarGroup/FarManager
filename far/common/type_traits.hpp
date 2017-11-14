@@ -45,6 +45,6 @@ template<typename type1, typename type2, typename... args>
 struct is_one_of<type1, type2, args...>: is_one_of<type1, args...> {};
 
 template<typename... args>
-using is_one_of_t = typename is_one_of<args...>::type;
+constexpr bool is_one_of_v = is_one_of<args...>::value;
 
 #endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

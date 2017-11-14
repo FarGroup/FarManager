@@ -90,22 +90,10 @@ constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_
 	return (Size + (Alignment - 1)) & ~(Alignment - 1);
 }
 
-namespace detail
-{
-	template<class T, int Alignment>
-	struct aligned_sizeof_t
-	{
-		enum
-		{
-			value = aligned_size(sizeof(T), Alignment)
-		};
-	};
-}
-
 template<typename T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
 constexpr auto aligned_sizeof()
 {
-	return detail::aligned_sizeof_t<T, Alignment>::value;
+	return aligned_size(sizeof(T), Alignment);
 }
 
 namespace enum_helpers
@@ -113,7 +101,7 @@ namespace enum_helpers
 	template<class O, class R = void, class T>
 	constexpr auto operation(T a, T b)
 	{
-		return static_cast<std::conditional_t<std::is_same<R, void>::value, T, R>>(O()(as_underlying_type(a), as_underlying_type(b)));
+		return static_cast<std::conditional_t<std::is_same_v<R, void>, T, R>>(O()(as_underlying_type(a), as_underlying_type(b)));
 	}
 }
 

@@ -173,19 +173,20 @@ namespace detail
 	template<typename T>
 	struct has_emplace_hint<T, std::void_t<decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()))>>: std::true_type {};
 
-	template<typename T>
-	using has_emplace_hint_t = typename has_emplace_hint<T>::type;
+	template<class T>
+	constexpr bool has_emplace_hint_v = has_emplace_hint<T>::value;
+
 }
 
 // Unified container emplace
 template<typename container, typename... args>
-std::enable_if_t<detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
+std::enable_if_t<detail::has_emplace_hint_v<container>> emplace(container& Container, args&&... Args)
 {
 	Container.emplace_hint(Container.end(), FWD(Args)...);
 }
 
 template<typename container, typename... args>
-std::enable_if_t<!detail::has_emplace_hint_t<container>::value> emplace(container& Container, args&&... Args)
+std::enable_if_t<!detail::has_emplace_hint_v<container>> emplace(container& Container, args&&... Args)
 {
 	Container.emplace(Container.end(), FWD(Args)...);
 }
@@ -209,19 +210,19 @@ namespace detail
 	struct has_find<T, std::void_t<decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()))>>: std::true_type {};
 
 	template<typename T>
-	using has_find_t = typename has_find<T>::type;
+	constexpr bool has_find_v = has_find<T>::value;
 }
 
 // associative containers
 template<typename container, typename element>
-std::enable_if_t<detail::has_find_t<container>::value, bool> contains(const container& Container, const element& Element)
+std::enable_if_t<detail::has_find_v<container>, bool> contains(const container& Container, const element& Element)
 {
 	return Container.find(Element) != Container.cend();
 }
 
 // everything else
 template<typename container, typename element>
-std::enable_if_t<!detail::has_find_t<container>::value, bool> contains(const container& Container, const element& Element)
+std::enable_if_t<!detail::has_find_v<container>, bool> contains(const container& Container, const element& Element)
 {
 	const auto End = std::cend(Container);
 	return std::find(std::cbegin(Container), End, Element) != End;

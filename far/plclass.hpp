@@ -217,13 +217,13 @@ namespace detail
 		intptr_t Result;
 	};
 
-	template<typename function, typename... args, REQUIRES(std::is_void<std::result_of_t<function(args...)>>::value)>
+	template<typename function, typename... args, REQUIRES(std::is_void_v<std::result_of_t<function(args...)>>)>
 	void ExecuteFunctionImpl(ExecuteStruct&, const function& Function, args&&... Args)
 	{
 		Function(FWD(Args)...);
 	}
 
-	template<typename function, typename... args, REQUIRES(!std::is_void<std::result_of_t<function(args...)>>::value)>
+	template<typename function, typename... args, REQUIRES(!std::is_void_v<std::result_of_t<function(args...)>>)>
 	void ExecuteFunctionImpl(ExecuteStruct& es, const function& Function, args&&... Args)
 	{
 		es = Function(FWD(Args)...);
