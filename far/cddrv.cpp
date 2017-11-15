@@ -355,7 +355,7 @@ static UINT GetDeviceTypeByCaps(CDROM_DeviceCapabilities caps)
 
 	const auto ItemIterator = std::find_if(CONST_RANGE(DeviceCaps, i)
 	{
-		return (caps & i.second) != 0;
+		return (caps & i.second) == i.second;
 	});
 
 	return ItemIterator == std::cend(DeviceCaps)? DRIVE_UNKNOWN : ItemIterator->first;
