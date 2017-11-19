@@ -2,6 +2,29 @@
 This file is a translation of the main russian changelog and is provided by volunteers.
 It might not always be as up to date as the main changelog.
 =======================================================================================
+
+drkns 15.11.2017 21:09:49 +0000 - build 5097
+
+1. Correction of 5095.1.
+
+drkns 15.11.2017 18:56:07 +0000 - build 5096
+
+1. Correction of 5095.1.
+
+drkns 14.11.2017 22:59:35 +0000 - build 5095
+
+1. Refactoring.
+
+2. A new version for fmt.
+
+3. Some help translation.
+
+4. gcc min version is 7.1.
+
+zg 11.11.2017 01:34:14 +0200 - build 5094
+
+1. correction of 5090.
+
 pmisik 08.11.2017 18:40:00 +0000 - build 5093
 
 1. Support to expand environment variables in title
