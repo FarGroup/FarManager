@@ -491,7 +491,7 @@ lv=2
 dt=Text
 nm=API changes in comparison to the macro language
 ctime=3553185939
-mtime=3717182723
+mtime=3720362166
 <article>
 #_<markdown>
 #_
@@ -520,7 +520,7 @@ mtime=3717182723
 #_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
 #_1. `CallPlugin` -> [`Plugin.Call`][Call]. This call is always asynchronous.
 #_   For synchronous calls use [`Plugin.SyncCall`][SyncCall].
-#_1. Functions `Plugin.Menu`, `Plugin.Config` and `Plugin.Command` return a boolean value.
+#_1. Functions `Plugin.Exist`, `Plugin.Menu`, `Plugin.Config` and `Plugin.Command` return a boolean value.
 #_1. `mmode(3,x)` no more affects synchronicity/asynchronicity of calls to plugins;
 #_   it does nothing and returns `0`.
 #_1. `Dlg.Info.Id -> Dlg.Id`
@@ -588,6 +588,7 @@ mtime=3717182723
 #_{msx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
 #_{msy}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
 #_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
+#_{plugin.exist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.exist
 #_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
 #_{rcounter}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#RCounter
 #_{window.scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
