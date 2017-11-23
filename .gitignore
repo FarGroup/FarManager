@@ -15,3 +15,6 @@ ipch
 
 # Build scripts
 __*.cmd
+
+#logs
+logs

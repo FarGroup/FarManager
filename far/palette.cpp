@@ -110,7 +110,7 @@ Init[]=
 	{L"Help.Box",                                    F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_HELPBOX,
 	{L"Help.Box.Title",                              F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_HELPBOXTITLE,
 	{L"Panel.DragText",                              F_YELLOW|B_CYAN,        F_BLACK|B_LIGHTGRAY,   }, // COL_PANELDRAGTEXT,
-	{L"Dialog.Edit.Unchanged",                       F_LIGHTGRAY|B_CYAN,     F_WHITE|B_BLACK,       },  // COL_DIALOGEDITUNCHANGED,
+	{L"Dialog.Edit.Unchanged",                       F_LIGHTGRAY|B_CYAN,     F_WHITE|B_BLACK,       }, // COL_DIALOGEDITUNCHANGED,
 	{L"Panel.Scrollbar",                             F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_PANELSCROLLBAR,
 	{L"Help.Scrollbar",                              F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_HELPSCROLLBAR,
 	{L"Panel.Box",                                   F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_PANELBOX,

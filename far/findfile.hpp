@@ -148,7 +148,6 @@ private:
 	FINDAREA SearchMode{ FINDAREA_ALL };
 	int favoriteCodePages{};
 	uintptr_t CodePage{ CP_DEFAULT };
-	unsigned long long SearchInFirst {};
 	struct FindListItem* FindExitItem{};
 	string strFindMask;
 	string strFindStr;

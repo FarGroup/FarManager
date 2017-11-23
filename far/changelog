@@ -1,3 +1,11 @@
+drkns 23.11.2017 22:33:18 +0000 - build 5098
+
+1. 0003554: Параметр "Search only in the first" не учитывается при повторном поиске
+
+2. "Search only in the first" вообще не работало, причем уже аж 9 лет как.
+
+3. 0003558: No search result in FindFiles if current directory ends with a space character
+
 drkns 15.11.2017 21:09:49 +0000 - build 5097
 
 1. Уточнение 5095.1.

@@ -3012,11 +3012,11 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	auto Ret = true;
 	HKL RetLayout = nullptr;
 
-	wchar_t LayoutName[1024]={}; // BUGBUG!!!
-	if (Imports().GetConsoleKeyboardLayoutNameW(LayoutName))
+	string LayoutName;
+	if (Console().GetKeyboardLayoutName(LayoutName))
 	{
 		wchar_t *endptr;
-		DWORD res = std::wcstoul(LayoutName, &endptr, 16);
+		DWORD res = std::wcstoul(LayoutName.data(), &endptr, 16);
 		RetLayout=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 	}
 

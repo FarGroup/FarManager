@@ -592,8 +592,6 @@ void FindFiles::AdvancedDialog()
 	if (ExitCode==AD_BUTTON_OK)
 	{
 		Global->Opt->FindOpt.strSearchInFirstSize = AdvancedDlg[AD_EDIT_SEARCHFIRST].strData;
-		SearchInFirst=ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize);
-
 		Global->Opt->SetSearchColumns(AdvancedDlg[AD_EDIT_COLUMNSFORMAT].strData, AdvancedDlg[AD_EDIT_COLUMNSWIDTH].strData);
 	}
 }
@@ -1200,7 +1198,7 @@ bool background_searcher::LookForString(const string& Name)
 				while (++index<=bufferCount-findStringCount);
 
 				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска
-				if (SearchInFirst && SearchInFirst>=alreadyRead)
+				if (SearchInFirst && alreadyRead >= SearchInFirst)
 				{
 					ErrorState = true;
 					continue;
@@ -2412,9 +2410,9 @@ void background_searcher::DoPrepareFileList()
 		InitString = GetCurDir();
 	}
 
-	for (const auto& i: split<std::vector<string>>(InitString, STLF_UNIQUE))
+	for (const auto& i: enum_tokens(InitString, L";"))
 	{
-		DoScanTree(i);
+		DoScanTree(make_string(i));
 	}
 
 	m_Owner->itd->SetPercent(0);
@@ -2571,7 +2569,7 @@ bool FindFiles::FindFilesProcess()
 		m_Messages.clear();
 
 		{
-			background_searcher BC(this, strFindStr, SearchMode, CodePage, SearchInFirst, CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);
+			background_searcher BC(this, strFindStr, SearchMode, CodePage, ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize), CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);
 
 			// BUGBUG
 			m_Searcher = &BC;
