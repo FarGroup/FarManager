@@ -13,6 +13,8 @@ PLDIR=FExcept
 
 pushd $PLUGIN || return 1
 
+unix2dos changelog
+
 mkdir -p execdump/final.32.vc/obj/LibObj
 #mkdir -p execdump/final.64.vc/obj/LibObj
 

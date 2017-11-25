@@ -24,7 +24,7 @@ m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix Far.exe.manifest.m4 > ${BOOTSTRAP}Far.exe
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix farversion.inc.m4 > ${BOOTSTRAP}farversion.inc
 m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix copyright.inc.m4 > ${BOOTSTRAP}copyright.inc
 
-m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix File_id.diz.m4 > $OUTDIR/File_id.diz
+m4 -P -DFARBIT=$DIRBIT -DHOSTTYPE=Unix File_id.diz.m4 | unix2dos -m > $OUTDIR/File_id.diz
 dos2unix FarEng.hlf.m4
 dos2unix FarRus.hlf.m4
 dos2unix FarHun.hlf.m4
@@ -66,6 +66,10 @@ dos2unix PluginW.pas
 dos2unix FarColorW.pas
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=PluginW.pas headers.m4 | unix2dos > Include/PluginW.pas
 m4 -P -DFARBIT=32 -DHOSTTYPE=Unix -DINPUT=FarColorW.pas headers.m4 | unix2dos > Include/FarColorW.pas
+
+unix2dos -m changelog
+unix2dos -m changelog_eng
+unix2dos Far.exe.example.ini
 
 ls *.cpp *.hpp *.c *.rc > bootstrap/mkdep.list
 gawk -f ./scripts/mkdep.awk bootstrap/mkdep.list | unix2dos > ${BOOTSTRAP}far.vc.dep
