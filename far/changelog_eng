@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.11.2017 21:10:49 +0000 - build 5101
+
+1. Don't use GetThreadLocale().
+
+zg 26.11.2017 17:18:49 +0200 - build 5100
+
+1. remove implementation of panel.SetPath macro function.
+
+drkns 26.11.2017 14:25:46 +0000 - build 5099
+
+1. Correction of 5068 - more correct loading for filters of old format.
+
+2. Refactoring.
+
+drkns 23.11.2017 22:33:18 +0000 - build 5098
+
+1. 0003554: "Search only in the first" parameter is not taken into account in repeated search
+
+2. "Search only in the first" has not been working for 9 years now.
+
+3. 0003558: No search result in FindFiles if current directory ends with a space character
+
 drkns 15.11.2017 21:09:49 +0000 - build 5097
 
 1. Correction of 5095.1.
