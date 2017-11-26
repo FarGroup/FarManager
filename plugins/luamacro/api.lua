@@ -361,7 +361,25 @@ Panel = {
   FExist    = function(...) return MacroCallFar(0x80C24, ...) end,
   Item      = function(...) return MacroCallFar(0x80C28, ...) end,
   Select    = function(...) return MacroCallFar(0x80C27, ...) end,
-  SetPath   = function(...) return MacroCallFar(0x80C23, ...) end,
+  SetPath   = function(whatpanel,path,filename)
+    whatpanel=(whatpanel==0 or not whatpanel) and 1 or 0
+    local result=panel.SetPanelDirectory(nil,whatpanel,path)
+    if result and type(filename)=='string' then
+      local info=panel.GetPanelInfo(nil,whatpanel)
+      if info then
+        filename=filename:lower()
+        for ii=1,info.ItemsNumber do
+          local item=panel.GetPanelItem(nil,whatpanel,ii)
+          if not item then break end
+          if filename==item.FileName:lower() then
+            panel.RedrawPanel(nil,whatpanel,{TopPanelItem=1,CurrentItem=ii})
+            break
+          end
+        end
+      end
+    end
+    return result
+  end,
   SetPos    = function(...) return MacroCallFar(0x80C25, ...) end,
   SetPosIdx = function(...) return MacroCallFar(0x80C26, ...) end,
 }
