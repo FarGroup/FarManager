@@ -83,7 +83,7 @@ enum MACRO_OP_CODE
 	MCODE_F_MSAVE,                    // B=msave(var)
 	MCODE_F_MSGBOX,                   // N=msgbox(["Title"[,"Text"[,flags]]])
 	MCODE_F_PANEL_FATTR,              // N=Panel.FAttr(panelType,fileMask)
-	MCODE_F_PANEL_SETPATH,            // N=panel.SetPath(panelType,pathName[,fileName])
+	MCODE_F_UNUSED_001,               //
 	MCODE_F_PANEL_FEXIST,             // N=Panel.FExist(panelType,fileMask)
 	MCODE_F_PANEL_SETPOS,             // N=Panel.SetPos(panelType,fileName)
 	MCODE_F_PANEL_SETPOSIDX,          // N=Panel.SetPosIdx(panelType,Idx[,InSelection])

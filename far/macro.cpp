@@ -122,7 +122,6 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_MSAVE=0x%X // B=msave(var)\n", MCODE_F_MSAVE);
 	fprintf(fp, "MCODE_F_MSGBOX=0x%X // N=msgbox([\"Title\"[,\"Text\"[,flags]]])\n", MCODE_F_MSGBOX);
 	fprintf(fp, "MCODE_F_PANEL_FATTR=0x%X // N=Panel.FAttr(panelType,fileMask)\n", MCODE_F_PANEL_FATTR);
-	fprintf(fp, "MCODE_F_PANEL_SETPATH=0x%X // N=panel.SetPath(panelType,pathName[,fileName])\n", MCODE_F_PANEL_SETPATH);
 	fprintf(fp, "MCODE_F_PANEL_FEXIST=0x%X // N=Panel.FExist(panelType,fileMask)\n", MCODE_F_PANEL_FEXIST);
 	fprintf(fp, "MCODE_F_PANEL_SETPOS=0x%X // N=Panel.SetPos(panelType,fileName)\n", MCODE_F_PANEL_SETPOS);
 	fprintf(fp, "MCODE_F_PANEL_SETPOSIDX=0x%X // N=Panel.SetPosIdx(panelType,Idx[,InSelection])\n", MCODE_F_PANEL_SETPOSIDX);
@@ -1387,7 +1386,6 @@ static bool panelfattrFunc(FarMacroCall*);
 static bool panelfexistFunc(FarMacroCall*);
 static bool panelitemFunc(FarMacroCall*);
 static bool panelselectFunc(FarMacroCall*);
-static bool panelsetpathFunc(FarMacroCall*);
 static bool panelsetposFunc(FarMacroCall*);
 static bool panelsetposidxFunc(FarMacroCall*);
 static bool promptFunc(FarMacroCall*);
@@ -2135,7 +2133,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_PANEL_FEXIST:    return panelfexistFunc(Data);
 		case MCODE_F_PANELITEM:       return panelitemFunc(Data);
 		case MCODE_F_PANEL_SELECT:    return panelselectFunc(Data);
-		case MCODE_F_PANEL_SETPATH:   return panelsetpathFunc(Data);
 		case MCODE_F_PANEL_SETPOS:    return panelsetposFunc(Data);
 		case MCODE_F_PANEL_SETPOSIDX: return panelsetposidxFunc(Data);
 		case MCODE_F_PLUGIN_EXIST:    return pluginexistFunc(Data);
@@ -4406,57 +4403,6 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 
 	PassNumber(Ret, Data);
 	return Ret != 0;
-}
-
-// N=panel.SetPath(panelType,pathName[,fileName])
-static bool panelsetpathFunc(FarMacroCall* Data)
-{
-	auto Params = parseParams(3, Data);
-	TVar& ValFileName(Params[2]);
-	TVar& Val(Params[1]);
-	int typePanel=(int)Params[0].asInteger();
-	bool Ret = false;
-
-	if (!(Val.isInteger() && !Val.asInteger()))
-	{
-		const auto& pathName=Val.asString();
-
-		auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-		auto PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
-
-		//const auto CurrentWindow=WindowManager->GetCurrentWindow();
-		auto SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
-
-		if (SelPanel)
-		{
-			if (SelPanel->SetCurDir(pathName, SelPanel->GetMode() == panel_mode::PLUGIN_PANEL && IsAbsolutePath(pathName), Global->WindowManager->GetCurrentWindow()->GetType() == windowtype_panels))
-			{
-				// BUGBUG, why again?
-				ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
-				PassivePanel = Global->CtrlObject->Cp()->PassivePanel();
-				SelPanel = typePanel? (typePanel == 1? PassivePanel : panel_ptr()) : ActivePanel;
-
-				//восстановим текущую папку из активной панели.
-				if (ActivePanel)
-					ActivePanel->SetCurPath();
-				// Need PointToName()?
-				if (SelPanel)
-				{
-					SelPanel->GoToFile(ValFileName.isInteger()? L"" : ValFileName.asString()); // здесь без проверки, т.к. параметр fileName аля опциональный
-					//SelPanel->Show();
-					// <Mantis#0000289> - грозно, но со вкусом :-)
-					//ShellUpdatePanels(SelPanel);
-					SelPanel->UpdateIfChanged(false);
-				}
-				Global->WindowManager->RefreshWindow(Global->WindowManager->GetCurrentWindow());
-				// </Mantis#0000289>
-				Ret = true;
-			}
-		}
-	}
-
-	PassBoolean(Ret, Data);
-	return Ret;
 }
 
 // N=Panel.SetPos(panelType,fileName)
