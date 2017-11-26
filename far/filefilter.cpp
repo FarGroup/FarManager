@@ -589,7 +589,7 @@ void FileFilter::UpdateCurrentTime()
 	CurrentTime = os::chrono::nt_clock::now();
 }
 
-bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foundType)
+bool FileFilter::FileInFilter(const FileListItem* fli, filter_status* FilterStatus)
 {
 	os::fs::find_data fde;
 	fde.dwFileAttributes=fli->FileAttr;
@@ -601,135 +601,138 @@ bool FileFilter::FileInFilter(const FileListItem* fli,enumFileInFilterType *foun
 	fde.nAllocationSize=fli->AllocationSize;
 	fde.strFileName=fli->strName;
 	fde.strAlternateFileName=fli->strShortName;
-	return FileInFilter(fde, foundType, &fli->strName);
+	return FileInFilter(fde, FilterStatus, &fli->strName);
 }
 
-bool FileFilter::FileInFilter(const os::fs::find_data& fde,enumFileInFilterType *foundType, const string* FullName)
+bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus, const string* FullName)
 {
 	const auto FFFT = GetFFFT();
-	bool bFound=false;
-	bool bAnyIncludeFound=false;
-	bool bAnyFolderIncludeFound=false;
-	bool bInc=false;
-	bool bFolder=(fde.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)!=0;
-	DWORD Flags;
+	const auto bFolder = (fde.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
-	for (const auto& CurFilterData: FilterData())
+	auto IsFound = false;
+	auto IsAnyIncludeFound = false;
+	auto IsAnyFolderIncludeFound = false;
+	auto IsIncluded = false;
+
+	const auto& ProcessFilters = [&]
 	{
-		Flags = CurFilterData.GetFlags(FFFT);
-
-		if (Flags)
+		for (const auto& CurFilterData : FilterData())
 		{
-			if (bFound && !(Flags&FFF_STRONG))
+			const auto Flags = CurFilterData.GetFlags(FFFT);
+
+			if (!Flags || (IsFound && !(Flags & FFF_STRONG)))
 				continue;
 
-			if (Flags&FFF_INCLUDE)
+			if (Flags & FFF_INCLUDE)
 			{
-				bAnyIncludeFound = true;
-				DWORD AttrClear;
+				IsAnyIncludeFound = true;
 
-				if (CurFilterData.GetAttr(nullptr,&AttrClear))
-					bAnyFolderIncludeFound = bAnyFolderIncludeFound || !(AttrClear&FILE_ATTRIBUTE_DIRECTORY);
+				DWORD AttrClear;
+				if (CurFilterData.GetAttr(nullptr, &AttrClear))
+					IsAnyFolderIncludeFound = IsAnyFolderIncludeFound || !(AttrClear & FILE_ATTRIBUTE_DIRECTORY);
 			}
 
 			if (CurFilterData.FileInFilter(fde, CurrentTime, FullName))
 			{
-				bFound = true;
+				IsFound = true;
+				IsIncluded = (Flags & FFF_INCLUDE) != 0;
 
-				if (Flags&FFF_INCLUDE)
-					bInc = true;
-				else
-					bInc = false;
-
-				if (Flags&FFF_STRONG)
-					goto final;
+				if (Flags & FFF_STRONG)
+					return false;
 			}
 		}
-	}
 
-	//авто-фильтр папки
-	if (FFFT != FFFT_CUSTOM)
+		return true;
+	};
+
+	const auto& ProcessFoldersAutoFilter = [&]
 	{
-		Flags = FoldersFilter->GetFlags(FFFT);
+		if (FFFT == FFFT_CUSTOM)
+			return true;
 
-		if (Flags && (!bFound || (Flags&FFF_STRONG)))
+		const auto Flags = FoldersFilter->GetFlags(FFFT);
+
+		if (Flags && (!IsFound || (Flags&FFF_STRONG)))
 		{
 			if (Flags&FFF_INCLUDE)
 			{
-				bAnyIncludeFound = true;
-				bAnyFolderIncludeFound = true;
+				IsAnyIncludeFound = true;
+				IsAnyFolderIncludeFound = true;
 			}
 
 			if (bFolder && FoldersFilter->FileInFilter(fde, CurrentTime, FullName))
 			{
-				bFound = true;
+				IsFound = true;
 
 				if (Flags&FFF_INCLUDE)
-					bInc = true;
+					IsIncluded = true;
 				else
-					bInc = false;
+					IsIncluded = false;
 
 				if (Flags&FFF_STRONG)
-					goto final;
+					return false;
 			}
 		}
-	}
+		return true;
+	};
 
-	//авто-фильтры
-	for (const auto& CurFilterData: TempFilterData())
+	const auto& ProcessAutoFilters = [&]
 	{
-		Flags = CurFilterData.GetFlags(FFFT);
+		if (bFolder)
+			return true;
 
-		if (Flags && (!bFound || (Flags&FFF_STRONG)))
+		for (const auto& CurFilterData : TempFilterData())
 		{
-			bAnyIncludeFound = bAnyIncludeFound || (Flags&FFF_INCLUDE);
+			const auto Flags = CurFilterData.GetFlags(FFFT);
 
-			if (bFolder) //авто-фильтры никогда не могут быть для папок
+			if (!Flags || (IsFound && !(Flags&FFF_STRONG)))
 				continue;
+
+			IsAnyIncludeFound = IsAnyIncludeFound || (Flags&FFF_INCLUDE);
 
 			if (CurFilterData.FileInFilter(fde, CurrentTime, FullName))
 			{
-				bFound = true;
+				IsFound = true;
 
-				if (Flags&FFF_INCLUDE)
-					bInc = true;
-				else
-					bInc = false;
+				IsIncluded = (Flags & FFF_INCLUDE) != 0;
 
 				if (Flags&FFF_STRONG)
-					goto final;
+					return false;
 			}
+		}
+		return true;
+	};
+
+	if (ProcessFilters() && ProcessFoldersAutoFilter() && ProcessAutoFilters())
+	{
+		//Если папка и она не попала ни под какой exclude фильтр то самое логичное
+		//будет сделать ей include если не было дугих include фильтров на папки.
+		//А вот Select логичней всего работать чисто по заданному фильтру.
+		if (!IsFound && bFolder && !IsAnyFolderIncludeFound && m_FilterType != FFT_SELECT)
+		{
+			if (FilterStatus)
+				*FilterStatus = filter_status::in_include; //???
+
+			return true;
 		}
 	}
 
-	//Если папка и она не попала ни под какой exclude фильтр то самое логичное
-	//будет сделать ей include если не было дугих include фильтров на папки.
-	//А вот Select логичней всего работать чисто по заданному фильтру.
-	if (!bFound && bFolder && !bAnyFolderIncludeFound && m_FilterType!=FFT_SELECT)
-	{
-		if (foundType)
-			*foundType=FIFT_INCLUDE; //???
+	if (FilterStatus)
+		*FilterStatus = !IsFound? filter_status::not_in_filter : IsIncluded? filter_status::in_include : filter_status::in_exclude;
 
-		return true;
-	}
-
-final:
-
-	if (foundType)
-		*foundType=!bFound?FIFT_NOTINTFILTER:(bInc?FIFT_INCLUDE:FIFT_EXCLUDE);
-
-	if (bFound) return bInc;
+	if (IsFound)
+		return IsIncluded;
 
 	//Если элемент не попал ни под один фильтр то он будет включен
 	//только если не было ни одного Include фильтра (т.е. были только фильтры исключения).
-	return !bAnyIncludeFound;
+	return !IsAnyIncludeFound;
 }
 
-bool FileFilter::FileInFilter(const PluginPanelItem& fd,enumFileInFilterType *foundType)
+bool FileFilter::FileInFilter(const PluginPanelItem& fd, filter_status* FilterStatus)
 {
 	os::fs::find_data fde;
 	PluginPanelItemToFindDataEx(fd, fde);
-	return FileInFilter(fde, foundType, &fde.strFileName);
+	return FileInFilter(fde, FilterStatus, &fde.strFileName);
 }
 
 bool FileFilter::IsEnabledOnPanel()
@@ -748,7 +751,7 @@ bool FileFilter::IsEnabledOnPanel()
 	return std::any_of(CONST_RANGE(TempFilterData(), i) { return i.GetFlags(FFFT); });
 }
 
-void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long KeyId, FileFilterParams& Item)
+void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long KeyId, FileFilterParams& Item, bool& OldFormat)
 {
 	HierarchicalConfig::key Key(KeyId);
 
@@ -761,7 +764,8 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	{
 		// TODO 2018 Q4: remove
 		unsigned long long IgnoreMask = 0;
-		cfg->GetValue(Key, L"IgnoreMask"_sv, IgnoreMask);
+		if (cfg->GetValue(Key, L"IgnoreMask"_sv, IgnoreMask))
+			OldFormat = true;
 		UseMask = !IgnoreMask;
 	}
 
@@ -773,14 +777,16 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	if (!cfg->GetValue(Key, Strings.DateTimeAfter, DateAfter))
 	{
 		// TODO 2018 Q4: remove
-		cfg->GetValue(Key, L"DateAfter"_sv, bytes::reference(DateAfter));
+		if (cfg->GetValue(Key, L"DateAfter"_sv, bytes::reference(DateAfter)))
+			OldFormat = true;
 	}
 
 	unsigned long long DateBefore = 0;
 	if (!cfg->GetValue(Key, Strings.DateTimeBefore, DateBefore))
 	{
 		// TODO 2018 Q4: remove
-		cfg->GetValue(Key, L"DateBefore"_sv, bytes::reference(DateBefore));
+		if (cfg->GetValue(Key, L"DateBefore"_sv, bytes::reference(DateBefore)))
+			OldFormat = true;
 	}
 
 	unsigned long long UseDate = 0;
@@ -793,7 +799,8 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	if (!cfg->GetValue(Key, Strings.DateRelative, DateRelative))
 	{
 		// TODO 2018 Q4: remove
-		cfg->GetValue(Key, L"RelativeDate"_sv, DateRelative);
+		if (cfg->GetValue(Key, L"RelativeDate"_sv, DateRelative))
+			OldFormat = true;
 	}
 	
 	Item.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateRelative?
@@ -821,21 +828,31 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 
 	Item.SetHardLinks(UseHardLinks != 0, HardLinksAbove, HardLinksBelow);
 
-	unsigned long long UseAttr = 0;
-	cfg->GetValue(Key, Strings.UseAttr, UseAttr);
-
 	unsigned long long AttrSet = 0;
 	if (!cfg->GetValue(Key, Strings.AttrSet, AttrSet))
 	{
 		// TODO 2018 Q4: remove
-		cfg->GetValue(Key, L"IncludeAttributes"_sv, AttrSet);
+		if (cfg->GetValue(Key, L"IncludeAttributes"_sv, AttrSet))
+			OldFormat = true;
 	}
 
 	unsigned long long AttrClear = 0;
 	if (!cfg->GetValue(Key, Strings.AttrClear, AttrClear))
 	{
 		// TODO 2018 Q4: remove
-		cfg->GetValue(Key, L"ExcludeAttributes"_sv, AttrClear);
+		if (cfg->GetValue(Key, L"ExcludeAttributes"_sv, AttrClear))
+			OldFormat = true;
+	}
+
+	unsigned long long UseAttr = 0;
+	if (!cfg->GetValue(Key, Strings.UseAttr, UseAttr))
+	{
+		// TODO 2018 Q4: remove
+		if (AttrSet || AttrClear)
+		{
+			UseAttr = true;
+			OldFormat = true;
+		}
 	}
 
 	Item.SetAttr(UseAttr != 0, static_cast<DWORD>(AttrSet), static_cast<DWORD>(AttrClear));
@@ -872,7 +889,7 @@ void FileFilter::InitFilter()
 			break;
 
 		FileFilterParams NewItem;
-		LoadFilter(cfg.get(), key.get(), NewItem);
+		LoadFilter(cfg.get(), key.get(), NewItem, Changed);
 		LoadFlags(cfg, key, Strings.FFlags, NewItem);
 		FilterData().emplace_back(std::move(NewItem));
 	}
@@ -904,6 +921,7 @@ void FileFilter::CloseFilter()
 	FilterData().clear();
 	TempFilterData().clear();
 }
+
 void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, const FileFilterParams& Item)
 {
 	HierarchicalConfig::key Key(KeyId);

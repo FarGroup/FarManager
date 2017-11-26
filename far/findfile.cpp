@@ -2188,11 +2188,11 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 			const auto& ProcessStream = [&](const string& FullStreamName)
 			{
-				enumFileInFilterType foundType;
-				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &foundType, &FullStreamName))
+				filter_status FilterStatus;
+				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, &FullStreamName))
 				{
 					// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
-					if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && foundType == FIFT_EXCLUDE)
+					if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)
 						ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
 					return;
 				}

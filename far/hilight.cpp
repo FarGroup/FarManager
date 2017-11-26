@@ -187,16 +187,15 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 
 highlight::configuration::configuration()
 {
-	Changed = false;
 	const auto cfg = ConfigProvider().CreateHighlightConfig();
 	SetHighlighting(false, cfg.get());
 	InitHighlightFiles(cfg.get());
 	UpdateCurrentTime();
 }
 
-static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup)
+static void LoadFilter(const HierarchicalConfig* cfg, const HierarchicalConfig::key& key, FileFilterParams& HData, int SortGroup, bool bSortGroup, bool& OldFormat)
 {
-	FileFilter::LoadFilter(cfg, key.get(), HData);
+	FileFilter::LoadFilter(cfg, key.get(), HData, OldFormat);
 
 	HData.SetSortGroup(SortGroup);
 
@@ -256,7 +255,7 @@ void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
 				break;
 
 			FileFilterParams NewItem;
-			LoadFilter(cfg, key, NewItem, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP);
+			LoadFilter(cfg, key, NewItem, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : i), Item.Delta != DEFAULT_SORT_GROUP, m_Changed);
 			HiData.emplace_back(std::move(NewItem));
 			++*Item.Count;
 		}
@@ -740,7 +739,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 			if (NeedUpdate)
 			{
 				Global->ScrBuf->Lock(); // отменяем всякую прорисовку
-				Changed = true;
+				m_Changed = true;
 				UpdateHighlighting();
 				FillMenu(HiMenu.get(), MenuPos = SelectPos);
 
@@ -780,10 +779,10 @@ static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& k
 
 void highlight::configuration::Save(bool always)
 {
-	if (!always && !Changed)
+	if (!always && !m_Changed)
 		return;
 
-	Changed = false;
+	m_Changed = false;
 
 	const auto cfg = ConfigProvider().CreateHighlightConfig();
 	auto root = cfg->FindByName(cfg->root_key(), HighlightKeyName);

@@ -123,7 +123,7 @@ namespace highlight
 
 		int FirstCount, UpperCount, LowerCount, LastCount;
 		os::chrono::time_point CurrentTime;
-		bool Changed;
+		bool m_Changed{};
 	};
 }
 
