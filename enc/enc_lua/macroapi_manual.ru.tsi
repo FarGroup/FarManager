@@ -494,7 +494,7 @@ lv=2
 dt=Text
 nm=Изменения API в сравнении с макроязыком
 ctime=3553185939
-mtime=3720362089
+mtime=3720944750
 <article>
 #_<markdown>
 #_
@@ -508,8 +508,7 @@ mtime=3720362089
 #_1. Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
 #_1. Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
 #_   например: `mf.abs`, `mf.fsplit` и т.д.
-#_1. Функция `mf.beep` возвращает булевое значение, а не число.
-#_1. Функция `mf.fexist` возвращает булевое значение, а не число.
+#_1. Функции `Far.Window_Scroll`, `mf.beep`, `mf.fexist` и `Panel.SetPath` возвращают булевое значение, а не число.
 #_1. Функции [`mload`] [mload] и [`msave`] [msave] изменились, см. их описание.
 #_1. Свойства, зависящие от контекста исполнения, находятся в таблице [`Object`][Object],
 #_   например: `Object.CurPos`, `Object.Empty`.
@@ -566,6 +565,7 @@ mtime=3720362089
 #_{dlg.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/dialog.html#Dlg.Info.Id
 #_{far.cfg.err}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Far.Cfg.Err
 #_{far.cfg.get}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#far.cfg.get
+#_{far.window_scroll}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Window.Scroll
 #_{fullscreen}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#Fullscreen
 #_{gethotkey}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#gethotkey
 #_{history.disable}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#history.disable
@@ -578,12 +578,15 @@ mtime=3720362089
 #_{macro.keyword}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.keyword
 #_{macro.var}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#macro.var
 #_{menu.info.id}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/menus.html#Menu.Info.Id
+#_{mf.beep}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#beep
+#_{mf.fexist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#fexist
 #_{mmode}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#mmode
 #_{msbutton}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsButton
 #_{msctrlstate}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsCtrlState
 #_{mseventflags}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsEventFlags
 #_{msx}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsX
 #_{msy}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#MsY
+#_{panel.setpath}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/panels.html#panel.setpath
 #_{plugin.call}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.call
 #_{plugin.exist}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.exist
 #_{prompt}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#prompt
