@@ -1,3 +1,9 @@
+zg 28.11.2017 17:39:59 +0200 - build 5102
+
+1. FCTL_SETPANELDIRECTORY: для плагиновых панелей всегда возвращалось TRUE.
+
+2. FCTL_SETPANELDIRECTORY: при установке директории на плагиновой панели не использовался флаг OPM_SILENT.
+
 drkns 26.11.2017 21:10:49 +0000 - build 5101
 
 1. Не используем GetThreadLocale().

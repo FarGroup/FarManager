@@ -1175,12 +1175,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			{
 				Result = ExecShortcutFolder(NullToEmpty(dirInfo->Name), dirInfo->PluginId, NullToEmpty(dirInfo->File), NullToEmpty(dirInfo->Param), false, false, true);
 				// restore current directory to active panel path
-				if (Result)
+				if (!IsFocused())
 				{
-					if (!IsFocused())
-					{
-						Parent()->ActivePanel()->SetCurPath();
-					}
+					Parent()->ActivePanel()->SetCurPath();
 				}
 			}
 			break;
@@ -1333,9 +1330,10 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 	{
 		if (ProcessPluginEvent(FE_CLOSE, nullptr))
 		{
-			return true;
+			return false;
 		}
 
+		bool Result = false;
 		if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
 		{
 			if (pPlugin->has(iOpen))
@@ -1370,7 +1368,7 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 					if (!strShortcutFolder.empty())
 					{
 						UserDataItem UserData = {}; //????
-						Global->CtrlObject->Plugins->SetDirectory(NewPluginCopy, strShortcutFolder, 0, &UserData);
+						Result = Global->CtrlObject->Plugins->SetDirectory(NewPluginCopy, strShortcutFolder, Silent?OPM_SILENT:0, &UserData) != 0;
 					}
 
 					NewPanel->Update(0);
@@ -1379,7 +1377,7 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 			}
 		}
 
-		return true;
+		return Result;
 	}
 
 	strShortcutFolder = os::env::expand(strShortcutFolder);
@@ -1388,13 +1386,6 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 	{
 		return false;
 	}
-
-    /*
-	if (SrcPanel->GetType()!=FILE_PANEL)
-	{
-		SrcPanel = Parent()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
-	}
-    */
 
 	SrcPanel->SetCurDir(strShortcutFolder,true);
 
