@@ -640,20 +640,6 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 			if (!IsLeftActive())
 				ActivePanel()->SetCurPath();
 
-			/*
-			It's not the best place to update the keybar.
-			Usually it's called from PopPlugin with EnableRestoreViewMode = true (and works),
-			but in this case PopPlugin is called from ~FileList with EnableRestoreViewMode = false,
-			which is kinda makes sense in general (e. g. exiting), except that ChangeDisk
-			causes FileList destruction as well.
-
-			It shall be consistent for all ways of closing plugin panel - "..", Disk menu, "cd c:" etc.
-
-			Same for KEY_ALTF2 below.
-			 */
-			if (IsLeftActive())
-				LeftPanel()->UpdateKeyBar();
-
 			break;
 		}
 		case KEY_ALTF2:
@@ -663,9 +649,6 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 
 			if (!IsRightActive())
 				ActivePanel()->SetCurPath();
-
-			if (IsRightActive())
-				RightPanel()->UpdateKeyBar();
 
 			break;
 		}
@@ -861,17 +844,24 @@ bool FilePanels::ChangePanelViewMode(panel_ptr Current, int Mode, bool RefreshWi
 void FilePanels::SetActivePanel(Panel* ToBeActive)
 {
 	if (ActivePanel().get() != ToBeActive)
+	{
+		SetPassivePanelInternal(ActivePanel());
 		SetActivePanelInternal(ToBeActive->shared_from_this());
+	}
+}
+
+void FilePanels::SetPassivePanelInternal(panel_ptr ToBePassive)
+{
+	ToBePassive->OnFocusChange(false);
 }
 
 void FilePanels::SetActivePanelInternal(panel_ptr ToBeActive)
 {
-	const auto ToBePassive = ActivePanel();
 	m_ActivePanelIndex = IsLeft(ToBeActive)? panel_left : panel_right;
 
 	Global->WindowManager->UpdateMacroArea();
 
-	ToBePassive->OnFocusChange(false);
+	PassivePanel()->Redraw();
 	ToBeActive->OnFocusChange(true);
 
 	FarChDir(ToBeActive->GetCurDir());
@@ -938,6 +928,7 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 	                                    ((OldFullScreen && !FileList::IsModeFullScreen(OldViewMode)) ||
 	                                     (!OldFullScreen && FileList::IsModeFullScreen(OldViewMode)))));
 
+	if (OldFocus) SetPassivePanelInternal(Current);
 	if (!ChangePosition)
 	{
 		TemporarySaveScr = std::move(Current->SaveScr);
@@ -1041,6 +1032,7 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 		NewPanel->SetDirectoriesFirst(OldDirectoriesFirst);
 	}
 
+	if (NewPanel->IsFocused()) SetActivePanelInternal(NewPanel);
 	return NewPanel;
 }
 

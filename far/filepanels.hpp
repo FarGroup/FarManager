@@ -98,7 +98,8 @@ public:
 private:
 
 	void Init(int DirCount);
-	void SetActivePanelInternal(panel_ptr p);
+	void SetPassivePanelInternal(panel_ptr ToBePassive);
+	void SetActivePanelInternal(panel_ptr ToBeActive);
 
 	panel_ptr CreatePanel(panel_type Type);
 	void SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const;

@@ -424,7 +424,7 @@ bool Panel::IsFocused() const
 void Panel::OnFocusChange(bool Get)
 {
 	ProcessPluginEvent(Get? FE_GOTFOCUS : FE_KILLFOCUS, nullptr);
-	Redraw();
+	if (Get) Redraw();
 }
 
 bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent) const
