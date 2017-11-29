@@ -289,6 +289,7 @@ private:
 		GUID PluginGuid;
 	};
 	bool GetShortcutInfo(ShortcutInfo& Info) const;
+	bool SetPluginDirectory(const string& strDirectory, bool Silent);
 
 	static void DragMessage(int X,int Y,int Move);
 

@@ -1297,6 +1297,20 @@ int Panel::ProcessShortcutFolder(int Key,bool ProcTreePanel)
 }
 */
 
+bool Panel::SetPluginDirectory(const string& strDirectory, bool Silent)
+{
+    bool Result = false;
+	if (!strDirectory.empty())
+	{
+		UserDataItem UserData = {}; //????
+		Result = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strDirectory, Silent?OPM_SILENT:0, &UserData) != 0;
+	}
+
+	Update(0);
+	Show();
+	return Result;
+}
+
 bool Panel::ExecShortcutFolder(int Pos)
 {
 	Shortcuts::data Data;
@@ -1328,55 +1342,54 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 
 	if (PluginGuid != FarGuid)
 	{
-		if (ProcessPluginEvent(FE_CLOSE, nullptr))
-		{
-			return false;
-		}
-
 		bool Result = false;
-		if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
+		ShortcutInfo Info;
+		GetShortcutInfo(Info);
+		if (Info.PluginGuid == PluginGuid && Info.PluginFile == strPluginFile && Info.PluginData == strPluginData)
 		{
-			if (pPlugin->has(iOpen))
+			Result = SetPluginDirectory(strShortcutFolder, Silent);
+		}
+		else
+		{
+			if (ProcessPluginEvent(FE_CLOSE, nullptr))
 			{
-				if (!strPluginFile.empty())
+				return false;
+			}
+
+			if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid))
+			{
+				if (pPlugin->has(iOpen))
 				{
-					auto strRealDir = strPluginFile;
-					if (CutToSlash(strRealDir))
+					if (!strPluginFile.empty())
 					{
-						SrcPanel->SetCurDir(strRealDir,true);
-						SrcPanel->GoToFile(PointToName(strPluginFile));
+						auto strRealDir = strPluginFile;
+						if (CutToSlash(strRealDir))
+						{
+							SrcPanel->SetCurDir(strRealDir,true);
+							SrcPanel->GoToFile(PointToName(strPluginFile));
 
-						SrcPanel->ClearAllItem();
-					}
-				}
-
-				const auto IsActive = SrcPanel->IsFocused();
-				OpenShortcutInfo info=
-				{
-					sizeof(OpenShortcutInfo),
-					strPluginFile.empty()?nullptr:strPluginFile.data(),
-					strPluginData.empty()?nullptr:strPluginData.data(),
-					IsActive? FOSF_ACTIVE : FOSF_NONE
-				};
-
-				if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, reinterpret_cast<intptr_t>(&info)))
-				{
-					const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
-					const auto NewPluginCopy = hNewPlugin.get();
-					NewPanel->SetPluginMode(std::move(hNewPlugin), L"", IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
-
-					if (!strShortcutFolder.empty())
-					{
-						UserDataItem UserData = {}; //????
-						Result = Global->CtrlObject->Plugins->SetDirectory(NewPluginCopy, strShortcutFolder, Silent?OPM_SILENT:0, &UserData) != 0;
+							SrcPanel->ClearAllItem();
+						}
 					}
 
-					NewPanel->Update(0);
-					NewPanel->Show();
+					const auto IsActive = SrcPanel->IsFocused();
+					OpenShortcutInfo info=
+					{
+						sizeof(OpenShortcutInfo),
+						strPluginFile.empty()?nullptr:strPluginFile.data(),
+						strPluginData.empty()?nullptr:strPluginData.data(),
+						IsActive? FOSF_ACTIVE : FOSF_NONE
+					};
+
+					if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, reinterpret_cast<intptr_t>(&info)))
+					{
+						const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
+						NewPanel->SetPluginMode(std::move(hNewPlugin), L"", IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+						Result = NewPanel->SetPluginDirectory(strShortcutFolder, Silent);
+					}
 				}
 			}
 		}
-
 		return Result;
 	}
 
