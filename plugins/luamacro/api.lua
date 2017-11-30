@@ -357,10 +357,11 @@ Plugin = {
 --------------------------------------------------------------------------------
 
 local function SetPath(whatpanel,path,filename)
+  local function IsAbsolutePath(path) return path:lower()==far.ConvertPath(path):lower() end
   whatpanel=(whatpanel==0 or not whatpanel) and 1 or 0
   local current=panel.GetPanelDirectory(nil,whatpanel) or {}
   current.Name=path
-  local result=not win.GetFileAttr(path) and panel.SetPanelDirectory(nil,whatpanel,current)
+  local result=not IsAbsolutePath(path) and panel.SetPanelDirectory(nil,whatpanel,current)
   if not result then result=panel.SetPanelDirectory(nil,whatpanel,path) end
   if result and type(filename)=='string' then
     local info=panel.GetPanelInfo(nil,whatpanel)
