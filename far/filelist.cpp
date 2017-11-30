@@ -2149,7 +2149,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 					if (!MakeCode)
 					{
-						Message(MSG_WARNING, 
+						Message(MSG_WARNING,
 							msg(lng::MError),
 							{
 								msg(lng::MCannotCreateFolder),
@@ -6260,8 +6260,8 @@ void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, const 
 
 	m_PanelMode = panel_mode::PLUGIN_PANEL;
 
-	if (SendOnFocus && ParentWindow)
-		ParentWindow->SetActivePanel(shared_from_this());
+	if (SendOnFocus)
+		OnFocusChange(true);
 
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 
