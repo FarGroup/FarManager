@@ -361,8 +361,7 @@ local function SetPath(whatpanel,path,filename)
   whatpanel=(whatpanel==0 or not whatpanel) and 1 or 0
   local current=panel.GetPanelDirectory(nil,whatpanel) or {}
   current.Name=path
-  local result=not IsAbsolutePath(path) and panel.SetPanelDirectory(nil,whatpanel,current)
-  if not result then result=panel.SetPanelDirectory(nil,whatpanel,path) end
+  local result=panel.SetPanelDirectory(nil,whatpanel,IsAbsolutePath(path) and path or current)
   if result and type(filename)=='string' then
     local info=panel.GetPanelInfo(nil,whatpanel)
     if info then
