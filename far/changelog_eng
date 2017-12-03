@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 30.11.2017 02:10:31 +0200 - build 5105
+
+1. 0003529: FE_GOTFOCUS is not sent on panel create.
+
+zg 29.11.2017 23:09:27 +0200 - build 5104
+
+1. 0003561: Macro area is not changed on QView switch off.
+
+zg 29.11.2017 18:50:13 +0200 - build 5103
+
+1. 0002737: FCTL_SETPANELDIR closes plugin panels for no purpose.
+
+zg 28.11.2017 17:39:59 +0200 - build 5102
+
+1. FCTL_SETPANELDIRECTORY: always returned TRUE for plugin panels.
+
+2. FCTL_SETPANELDIRECTORY: OPM_SILENT flag would not be used when setting the directory for a plugin panel.
+
 drkns 26.11.2017 21:10:49 +0000 - build 5101
 
 1. Don't use GetThreadLocale().
