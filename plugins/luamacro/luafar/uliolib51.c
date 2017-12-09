@@ -612,6 +612,13 @@ static int f_flush(lua_State *L)
 }
 
 
+static int f_rawhandle(lua_State *L)
+{
+	lua_pushlightuserdata(L, tofile(L));
+	return 1;
+}
+
+
 static const luaL_Reg iolib[] =
 {
 	{"close", io_close},
@@ -638,6 +645,7 @@ static const luaL_Reg flib[] =
 	{"seek", f_seek},
 	{"setvbuf", f_setvbuf},
 	{"write", f_write},
+	{"rawhandle", f_rawhandle},
 	{"__gc", io_gc},
 	{"__tostring", io_tostring},
 	{NULL, NULL}
