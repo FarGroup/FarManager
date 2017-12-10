@@ -1368,40 +1368,6 @@ nm=Version 0.4
 </article>
 </node>
 <node>
-id=524
-lv=0
-dt=Text
-nm=Extensions
-ctime=3721974296
-mtime=3721979604
-<article>
-</article>
-</node>
-<node>
-id=525
-lv=1
-dt=Text
-nm=file:rawhandle
-ctime=3721974412
-mtime=3721982984
-<article>
-#_rh = file:rawhandle()
-#_
-#_**Parameters:**
-#_  none
-#_
-#_**Returns:**
-#_  rh:      light userdata
-#_
-#_**Description**
-#_  This is an additional method of a file handle returned by *io.open* function.
-#_  It returns the value of FILE`*` that is suitable for using with LuaJIT FFI.
-#_
-#_@@@
-#_
-</article>
-</node>
-<node>
 id=92
 lv=0
 dt=Text
@@ -10993,6 +10959,40 @@ mtime=3579944916
 #_
 #_**Note:**
 #_  This is added function, not present in the original **Selene Unicode** library.
+#_
+</article>
+</node>
+<node>
+id=524
+lv=0
+dt=Text
+nm=Extensions
+ctime=3721974296
+mtime=3721979604
+<article>
+</article>
+</node>
+<node>
+id=525
+lv=1
+dt=Text
+nm=file:rawhandle
+ctime=3721974412
+mtime=3721982984
+<article>
+#_rh = file:rawhandle()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  rh:      light userdata
+#_
+#_**Description**
+#_  This is an additional method of a file handle returned by *io.open* function.
+#_  It returns the value of FILE`*` that is suitable for using with LuaJIT FFI.
+#_
+#_@@@
 #_
 </article>
 </node>
