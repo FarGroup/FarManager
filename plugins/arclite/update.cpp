@@ -5,6 +5,7 @@
 #include "common.hpp"
 #include "ui.hpp"
 #include "archive.hpp"
+#include "options.hpp"
 
 wstring format_time(unsigned __int64 t) {
   unsigned __int64 s = t % 60;
@@ -787,41 +788,31 @@ public:
 void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options) {
   ComObject<ISetProperties> set_props;
   if (SUCCEEDED(out_arc->QueryInterface(IID_ISetProperties, reinterpret_cast<void**>(&set_props)))) {
-    struct extra_method {
-      const wchar_t *name;
-      unsigned minL; unsigned maxL;
-      unsigned L1; unsigned L3; unsigned L5; unsigned L7; unsigned L9;
-      unsigned mod0;
-      bool bcj_only;
-    };
-    static const extra_method defopts = { nullptr, 1,9, 1,3,5,7,9, 0, false };
-    static const extra_method extra[] = {
-    //{c_method_lzham,   1,  9,  1, 3, 5, 7, 9,  0, false}, === default
-      { c_method_zstd,   1, 22,  1, 5,11,17,22,  0, true },
-      { c_method_lz4,    1, 12,  1, 3, 6, 9,12,  0, true },
-      { c_method_lz5,    1, 15,  1, 3, 7,11,15,  0, true },
-      { c_method_brotli, 1, 11,  1, 3, 6, 9,11,  0, true },
-      { c_method_lizard, 11,49, 21,23,25,27,29, 10, true }
-    };
-
+    static const ExternalCodec defopts { L"", 1,9, 1,3,5,7,9, 0, false };
     auto method_params = &defopts;
-    for (size_t i = 0; i < _countof(extra); ++i) {
-      if (options.method == extra[i].name) {
-        method_params = &extra[i];
+    for (size_t i = 0; i < g_options.codecs.size(); ++i) {
+      if (options.method == g_options.codecs[i].name) {
+        method_params = &g_options.codecs[i];
         break;
       }
     }
 
     auto adv_params = split(options.advanced, L' ');
     int adv_level = -1;
-    bool adv_have_0 = false, adv_have_1 = false, adv_have_bcj = false;
+    bool adv_have_0 = false, adv_have_1 = false, adv_have_bcj = false, adv_have_qs = false;
     for (auto it = adv_params.begin(); it != adv_params.end(); ) {
       auto param = *it;
       if (param == L"s" || param == L"s1" || param == L"s+") {
         *it = param = L"s=on";
       }
-      if (param == L"s0" || param == L"s-") {
+      else if (param == L"s0" || param == L"s-") {
         *it = param = L"s=off";
+      }
+      else if (param == L"qs1" || param == L"qs+" || param == L"qs=on") {
+        *it = param = L"qs=on"; adv_have_qs = true;
+      }
+      else if (param == L"qs0" || param == L"qs-" || param == L"qs=off") {
+        *it = param = L"qs=off"; adv_have_qs = true;
       }
       else if (param.size() >= 2 && param[0] == L'x' && param[1] >= L'0' && param[1] <= L'9') {
         *it = param.insert(1, 1, L'=');
@@ -847,6 +838,8 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       }
       it++;
     }
+    if (!adv_have_qs && g_options.qs_by_default && options.arc_type == c_7z)
+      adv_params.emplace_back(L"qs=on");
 
     auto level = options.level;
     if (adv_level < 0) {
@@ -858,7 +851,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     }
     else {
       level = adv_level;
-      if (method_params->mod0 && level % method_params->mod0 == 0)
+      if (method_params->mod0L && level % method_params->mod0L == 0)
         level = 0;
       else if (level > 0 && level < method_params->minL)
         level = method_params->minL;
@@ -871,14 +864,11 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     int n_01 = 0;
 
     if (options.arc_type == c_7z) {
-      //if (options.method != c_method_lzma2) { // LZMA2 is default method
-      {
-        names.push_back(L"0"); values.push_back(options.method);
-        n_01 = 1;
-        if (method_params->bcj_only && !adv_have_bcj) {
-          names.push_back(L"1"); values.push_back(L"BCJ");
-          n_01 = 2;
-        }
+      names.push_back(L"0"); values.push_back(options.method);
+      n_01 = 1;
+      if (method_params->bcj_only && !adv_have_bcj) {
+        names.push_back(L"1"); values.push_back(L"BCJ");
+        n_01 = 2;
       }
       names.push_back(L"x"); values.push_back(level);
       if (level != 0) {

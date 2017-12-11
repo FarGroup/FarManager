@@ -1,5 +1,18 @@
 #pragma once
 
+struct ExternalCodec {
+  wstring name;
+  unsigned minL, maxL,  mod0L;
+  unsigned L1, L3, L5, L7, L9;
+  bool bcj_only;
+  void reset() {
+    name.clear();
+    minL = 1; maxL = 9; mod0L = 0;
+    L1 = 1; L3 = 3; L5 = 5; L7 = 7; L9 = 9;
+    bcj_only = false;
+  }
+};
+
 struct Options {
   bool handle_create;
   bool handle_commands;
@@ -50,6 +63,16 @@ struct Options {
   uintptr_t oemCP;
   uintptr_t ansiCP;
   unsigned correct_name_mode;
+  bool qs_by_default;
+
+  struct LoadedFromXML {
+    bool max_check_size{};
+    bool correct_name_mode{};
+    bool qs_by_default{};
+  } loaded_from_xml;
+
+  vector<ExternalCodec> codecs;
+
   Options();
   // profiles
   void load();

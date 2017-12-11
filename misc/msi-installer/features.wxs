@@ -315,6 +315,7 @@
           <ComponentRef Id="arclite_eng.hlf" />
           <ComponentRef Id="arclite_eng.lng" />
           <ComponentRef Id="arclite_spa.lng" />
+          <ComponentRef Id="arclite.xml" />
           <Feature Id="_7z.dll" Level="1" Title="!(loc.Feature.Title._7z.dll)" AllowAdvertise="no" Description="!(loc.Feature.Description._7z.dll)">
             <ComponentRef Id="_7z.dll" />
           </Feature>

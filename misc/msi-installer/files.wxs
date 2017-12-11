@@ -521,6 +521,9 @@
           <Component Id="arclite_rus.lng" Guid="$(var.Guid.arclite_rus.lng)" Win64="$(var.Win64)">
             <File Id="arclite_rus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_rus.lng" />
           </Component>
+          <Component Id="arclite.xml" Guid="$(var.Guid.arclite.xml)" Win64="$(var.Win64)">
+            <File Id="arclite.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite.xml" />
+          </Component>
           <Component Id="changelog_18" Guid="$(var.Guid.changelog_18)" Win64="$(var.Win64)">
             <File Id="changelog_18" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\changelog" />
           </Component>

@@ -21,13 +21,6 @@ extern const wchar_t* c_method_lzma;   // standard 7z methods
 extern const wchar_t* c_method_lzma2;  //
 extern const wchar_t* c_method_ppmd;   // 
 
-extern const wchar_t* c_method_lzham;  // known external 7z codecs
-extern const wchar_t* c_method_zstd;   //
-extern const wchar_t* c_method_lz4;    //
-extern const wchar_t* c_method_lz5;    //
-extern const wchar_t* c_method_brotli; //
-extern const wchar_t* c_method_lizard; //
-
 extern const unsigned __int64 c_min_volume_size;
 
 extern const wchar_t* c_sfx_ext; 
@@ -49,6 +42,7 @@ struct ArcLib {
   Func_CreateDecoder CreateDecoder;
   Func_CreateEncoder CreateEncoder;
   Func_GetIsArc GetIsArc;
+  ComObject<IHashers> ComHashers;
 
   HRESULT get_prop(UInt32 index, PROPID prop_id, PROPVARIANT* prop) const;
   HRESULT get_bool_prop(UInt32 index, PROPID prop_id, bool& value) const;
@@ -107,6 +101,13 @@ struct CDllCodecInfo {
 };
 typedef vector<CDllCodecInfo> ArcCodecs;
 
+struct CDllHasherInfo
+{
+  unsigned LibIndex;
+  UInt32 HasherIndex;
+};
+typedef vector<CDllHasherInfo> ArcHashers;
+
 class ArcFormats: public map<ArcType, ArcFormat> {
 public:
   ArcTypes get_arc_types() const;
@@ -135,7 +136,7 @@ private:
   size_t n_format_libs;
   ArcCodecs arc_codecs;
   size_t n_7z_codecs;
-  vector<MyCompressCodecsInfo *> compress_info;
+  ArcHashers arc_hashers;
   ArcFormats arc_formats;
   SfxModules sfx_modules;
   static ArcAPI* arc_api;
@@ -159,7 +160,10 @@ public:
   static size_t Count7zCodecs() {
     return get()->n_7z_codecs;
   }
-  
+  static const ArcHashers& hashers() {
+    return get()->arc_hashers;
+  }
+
   static const SfxModules& sfx() {
     return get()->sfx_modules;
   }

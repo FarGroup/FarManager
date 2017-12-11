@@ -656,6 +656,12 @@ bool FileEnum::next_nt(bool& more) {
       if ((find_data.cFileName[0] == L'.') && ((find_data.cFileName[1] == 0) || ((find_data.cFileName[1] == L'.') && (find_data.cFileName[2] == 0))))
         continue;
     }
+    auto mask_dot_pos = file_mask.find_last_of(L'.'); // avoid found "name.ext_" using mask "*.ext"
+    if (mask_dot_pos != wstring::npos && file_mask.find_first_of(L'*', mask_dot_pos) == wstring::npos) {
+      const auto last_dot_in_fname = wcsrchr(find_data.cFileName, L'.');
+      if (nullptr != last_dot_in_fname && wcslen(last_dot_in_fname) > file_mask.size() - mask_dot_pos)
+        continue;
+    }
     more = true;
     return true;
   }
