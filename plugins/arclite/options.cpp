@@ -54,13 +54,12 @@ static void parse_uints(const Sv& view, unsigned* p1, unsigned* p2=nullptr, unsi
 class xml_parser : public SimpleXML::IParseCallback
 {
 private:
-  const wstring& xml_name;
   Options& options;
   mutable ExternalCodec codec;
 
 public:
   ~xml_parser() {}
-  xml_parser(const wstring& fname, Options& opt) : xml_name(fname), options(opt) {}
+  xml_parser(Options& opt) : options(opt) {}
   
   Rt OnTag(int top, const Sv *path, const Sv& /*attrs*/) const override {
     if (top == 2 && path[1] == codecs_v) {
@@ -69,8 +68,17 @@ public:
     return Rt::Continue;
   }
   Rt OnBody(int top, const Sv *path, const Sv& /*body*/) const override {
-    if (top == 2 && path[1] == codecs_v && !codec.name.empty())
-      options.codecs.push_back(codec);
+    if (top == 2 && path[1] == codecs_v && !codec.name.empty()) {
+      int i = static_cast<int>(options.codecs.size());
+      while (--i >= 0) {
+        if (codec.name == options.codecs[i].name)
+          break;
+      }
+      if (i < 0)
+        options.codecs.push_back(codec);
+      else
+        options.codecs[i] = codec;
+    }
     return Rt::Continue;
   }
   Rt OnAttr(int top, const Sv *path, const Sv& name, const Sv& value) const override {
@@ -97,7 +105,7 @@ public:
     return Rt::Continue;
   }
   
-  bool parse() {
+  bool parse(const wstring& xml_name) {
     File file;
     if (!file.open_nt(xml_name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, 0))
       return false;
@@ -116,9 +124,14 @@ public:
 };
 
 static bool load_arclite_xml(Options& options) {
-  auto xml_path = add_trailing_slash(Far::get_plugin_module_path()) + L"arclite.xml";
-  xml_parser xml(xml_path, options);
-  return xml.parse();
+  xml_parser xml(options);
+  auto plugin_path = add_trailing_slash(Far::get_plugin_module_path());
+  auto r1 = xml.parse(plugin_path + L"arclite.xml");
+  xml.parse(plugin_path + L"arclite.xml.custom");
+  auto profile_path = add_trailing_slash(expand_env_vars(L"%FARPROFILE%"));
+  if (!profile_path.empty())
+    xml.parse(profile_path + L"arclite.xml.custom");
+  return r1;
 }
 
 class OptionsKey: public Far::Settings {

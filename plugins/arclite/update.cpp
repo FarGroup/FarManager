@@ -802,7 +802,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     bool adv_have_0 = false, adv_have_1 = false, adv_have_bcj = false, adv_have_qs = false;
     for (auto it = adv_params.begin(); it != adv_params.end(); ) {
       auto param = *it;
-      if (param == L"s" || param == L"s1" || param == L"s+") {
+      if (param == L"s" || param == L"s1" || param == L"s+") { // s s+ s1
         *it = param = L"s=on";
       }
       else if (param == L"s0" || param == L"s-") {
@@ -817,8 +817,11 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       else if (param.size() >= 2 && param[0] == L'x' && param[1] >= L'0' && param[1] <= L'9') {
         *it = param.insert(1, 1, L'=');
       }
+      else if (param.size() >= 3 && param[0] == L'm' && param[1] == 't' && param[2] >= L'1' && param[2] <= L'9') { // mtN
+        *it = param.insert(2, 1, L'='); // mt=N
+      }
       auto sep = param.find(L'=');
-      if (sep == wstring::npos || sep == 0) {
+      if (sep == wstring::npos || sep == 0) { // process only "param=value" strings
         it = adv_params.erase(it);
         continue;
       }
@@ -853,9 +856,9 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       level = adv_level;
       if (method_params->mod0L && level % method_params->mod0L == 0)
         level = 0;
-      else if (level > 0 && level < method_params->minL)
+      else if (level && level < method_params->minL)
         level = method_params->minL;
-      else if (level > 0 && level > method_params->maxL)
+      else if (level > method_params->maxL)
         level = method_params->maxL;
     }
 
