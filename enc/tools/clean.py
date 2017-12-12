@@ -1,5 +1,5 @@
 ﻿"""
-Aux buildbot script to cleanup Encyclopaedia build directory
+Aux buildbot script to cleanup Encyclopedia build directory
 """
 
 
