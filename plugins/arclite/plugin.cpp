@@ -396,6 +396,63 @@ public:
     extract(arc_list, options);
   }
 
+  static void extract_items(const wstring& arch_name, const ExtractOptions& options, const vector<wstring>& items) {
+    unique_ptr<Archives> archives;
+    OpenOptions open_options;
+    open_options.arc_path = arch_name;
+    open_options.detect = false;
+    open_options.password = options.password;
+    open_options.arc_types = ArcAPI::formats().get_arc_types();
+    archives = Archive::open(open_options);
+    if (archives->empty())
+      throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arch_name, __FILE__, __LINE__);
+    
+    shared_ptr<Archive> archive = (*archives)[0];
+    if (archive->password.empty())
+      archive->password = options.password;
+    archive->make_index();
+    auto nf = static_cast<UInt32>(archive->file_list.size());
+    vector<UInt32> matched_indices;
+    for (UInt32 j = 0; j < nf; ++j) {
+      auto file_path = archive->get_path(j);
+      for (const auto& n : items)
+      if (lstrcmpiW(file_path.data(), n.data()) == 0)
+        matched_indices.push_back(j);
+    }
+    if (!matched_indices.empty()) {
+      sort(matched_indices.begin(), matched_indices.end(), [&](const auto&a, const auto& b) { // group by parent
+        return static_cast<Int32>(archive->file_list[a].parent) < static_cast<Int32>(archive->file_list[a].parent);
+      });
+      shared_ptr<ErrorLog> error_log(new ErrorLog());
+      size_t im = 0, nm = matched_indices.size();
+      while (im < nm) {
+        vector<UInt32> indices;
+        auto parent = archive->file_list[matched_indices[im]].parent;
+        while (im < nm && archive->file_list[matched_indices[im]].parent == parent)
+          indices.push_back(matched_indices[im++]);
+        archive->extract(parent, indices, options, error_log);
+      }
+      if (!error_log->empty()) {
+        show_error_log(*error_log);
+      }
+      else {
+        Far::update_panel(PANEL_ACTIVE, false);
+    	  Far::progress_notify();
+      }
+    }
+    return;
+  }
+
+  static void cmdline_extract(const ExtractItemsCommand& cmd) {
+    auto full_arch_name = Far::get_absolute_path(cmd.archname);
+	 auto options = cmd.options;
+	 if (cmd.options.dst_dir.empty())
+      options.dst_dir = Far::get_panel_dir(PANEL_ACTIVE);
+    if (!is_absolute_path(options.dst_dir))
+      options.dst_dir = Far::get_absolute_path(options.dst_dir);
+    extract_items(full_arch_name, options, cmd.items);
+  }
+
   void test_files(struct PluginPanelItem* panel_items, intptr_t items_number, OPERATION_MODES op_mode) {
     UInt32 src_dir_index = archive->find_dir(current_dir);
     vector<UInt32> indices;
@@ -1037,6 +1094,9 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
         break;
       case cmdExtract:
         Plugin::cmdline_extract(parse_extract_command(cmd_args));
+        break;
+      case cmdExtractItems:
+        Plugin::cmdline_extract(parse_extractitems_command(cmd_args));
         break;
       case cmdTest:
         Plugin::cmdline_test(parse_test_command(cmd_args));

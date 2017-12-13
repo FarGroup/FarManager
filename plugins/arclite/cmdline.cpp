@@ -54,6 +54,8 @@ CommandArgs parse_command(const wstring& cmd_text) {
       cmd_args.cmd = cmdUpdate;
     else if (cmd == L"x")
       cmd_args.cmd = cmdExtract;
+    else if (cmd == L"e")
+      cmd_args.cmd = cmdExtractItems;
     else if (cmd == L"t")
       cmd_args.cmd = cmdTest;
     if (cmd_args.cmd != cmdOpen)
@@ -292,56 +294,72 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
 
 
 // arc:x [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-sd[:(a|y|n)]] [-da[:(y|n)]] <archive1> <archive2> ... <path>
-
-ExtractCommand parse_extract_command(const CommandArgs& ca) {
-  ExtractCommand command;
-  const vector<wstring>& args = ca.args;
-  unsigned i = 0;
-  for (; i < args.size() && is_param(args[i]); i++) {
-    Param param = parse_param(args[i]);
-    if (param.name == L"ie")
-      command.options.ignore_errors = parse_bool_value(param.value);
-    else if (param.name == L"o") {
-      wstring lcvalue = lc(param.value);
-      if (lcvalue.empty())
-        command.options.overwrite = oaOverwrite;
-      else if (lcvalue == L"o")
-        command.options.overwrite = oaOverwrite;
-      else if (lcvalue == L"s")
-        command.options.overwrite = oaSkip;
-      else if (lcvalue == L"r")
-        command.options.overwrite = oaRename;
-      else if (lcvalue == L"a")
-        command.options.overwrite = oaAppend;
+//
+// arc:e [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-out:<outdir>] <archive> <extract_item> ...
+//
+static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, vector<wstring>& items) {
+	bool options_enabled = true;
+	for (const auto& a : ca.args) {
+    if (options_enabled && a == L"--")
+      options_enabled = false;
+    else if (options_enabled && is_param(a)) {
+      auto param = parse_param(a);
+      if (param.name == L"ie")
+        o.ignore_errors = parse_bool_value(param.value);
+      else if (param.name == L"o") {
+        auto lcvalue = lc(param.value);
+        if (lcvalue.empty() || lcvalue == L"o")
+          o.overwrite = oaOverwrite;
+        else if (lcvalue == L"s")
+          o.overwrite = oaSkip;
+        else if (lcvalue == L"r")
+          o.overwrite = oaRename;
+        else if (lcvalue == L"a")
+          o.overwrite = oaAppend;
+        else
+          CHECK_FMT(false);
+      }
+      else if (param.name == L"mf")
+        o.move_files = parse_tri_state_value(param.value);
+      else if (param.name == L"p") {
+        CHECK_FMT(!param.value.empty());
+        o.password = param.value;
+      }
+      else if (ca.cmd != cmdExtractItems && param.name == L"sd")
+        o.separate_dir = parse_tri_state_value(param.value);
+      else if (ca.cmd != cmdExtractItems && param.name == L"da")
+        o.delete_archive = parse_bool_value(param.value);
+      else if (ca.cmd == cmdExtractItems && param.name == L"out" && !param.value.empty())
+        o.dst_dir = unquote(param.value);
       else
         CHECK_FMT(false);
     }
-    else if (param.name == L"mf")
-      command.options.move_files = parse_tri_state_value(param.value);
-    else if (param.name == L"p") {
-      CHECK_FMT(!param.value.empty());
-      command.options.password = param.value;
+    else {
+      items.push_back(unquote(a));
     }
-    else if (param.name == L"sd")
-      command.options.separate_dir = parse_tri_state_value(param.value);
-    else if (param.name == L"da")
-      command.options.delete_archive = parse_bool_value(param.value);
-    else
-      CHECK_FMT(false);
   }
-  CHECK_FMT(i + 1 < args.size());
-  for (; i + 1 < args.size(); i++) {
-    CHECK_FMT(!is_param(args[i]));
-    command.arc_list.push_back(unquote(args[i]));
-  }
-  CHECK_FMT(!is_param(args[i]));
-  command.options.dst_dir = unquote(args[i]);
+}
+//
+ExtractCommand parse_extract_command(const CommandArgs& ca) {
+  ExtractCommand command;
+  parse_extract_params(ca, command.options, command.arc_list);
+  CHECK_FMT(command.arc_list.size() >= 2);
+  command.options.dst_dir = command.arc_list.back();
+  command.arc_list.pop_back();
+  return command;
+}
+//
+ExtractItemsCommand parse_extractitems_command(const CommandArgs& ca) {
+  ExtractItemsCommand command;
+  parse_extract_params(ca, command.options, command.items);
+  CHECK_FMT(command.items.size() >= 2);
+  command.archname = command.items.front();
+  command.items.erase(command.items.begin());
   return command;
 }
 
-
 // arc:t <archive1> <archive2> ...
-
+//
 TestCommand parse_test_command(const CommandArgs& ca) {
   TestCommand command;
   const vector<wstring>& args = ca.args;

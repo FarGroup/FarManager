@@ -8,6 +8,7 @@ enum CommandType {
   cmdUpdate,
   cmdExtract,
   cmdTest,
+  cmdExtractItems
 };
 
 struct CommandArgs {
@@ -44,6 +45,14 @@ struct ExtractCommand {
 };
 
 ExtractCommand parse_extract_command(const CommandArgs& args);
+
+struct ExtractItemsCommand {
+	ExtractOptions options;
+	wstring       archname;
+	vector<wstring>  items;
+};
+
+ExtractItemsCommand parse_extractitems_command(const CommandArgs& args);
 
 struct TestCommand {
   vector<wstring> arc_list;

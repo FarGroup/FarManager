@@ -420,7 +420,7 @@ void ArcAPI::load_codecs(const wstring& path) {
 
   n_7z_codecs = 0;
   if (arc_codecs.size() > 0) {
-    std::sort(arc_codecs.begin(), arc_codecs.end(), [&](const auto&a, const auto& b) {
+    sort(arc_codecs.begin(), arc_codecs.end(), [&](const auto&a, const auto& b) {
       bool a_is_zip = (a.CodecId & 0xffffff00U) == 0x040100;
       bool b_is_zip = (b.CodecId & 0xffffff00U) == 0x040100;
       if (a_is_zip != b_is_zip)

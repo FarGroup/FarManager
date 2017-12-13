@@ -144,8 +144,11 @@ bool File::open_nt(const wstring& file_path, DWORD desired_access, DWORD share_m
   close();
   this->file_path = file_path;
   ArclitePrivateInfo* system_functions = Far::get_system_functions();
-  if (system_functions)
+  if (system_functions) {
     h_file = system_functions->CreateFile(long_path(file_path).c_str(), desired_access, share_mode, nullptr, creation_disposition, flags_and_attributes, nullptr);
+    if (h_file == nullptr)
+      h_file = INVALID_HANDLE_VALUE;
+  }
   else
     h_file = CreateFileW(long_path(file_path).c_str(), desired_access, share_mode, nullptr, creation_disposition, flags_and_attributes, nullptr);
   return h_file != INVALID_HANDLE_VALUE;

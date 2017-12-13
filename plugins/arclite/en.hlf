@@ -202,6 +202,11 @@ $ #Prefix command line format#
 	<archive> ... = list of archives
 	<path> = target path
 
+	#Extract archive item(s)#
+	arc:e [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-out:<path>] <archive> <item> ...
+	-ie -o -mf -p <path> = same as for arc:x command
+	<item> = path to file or directory in archive
+
 	#Test archive#
 	arc:t <archive> ...
 	<archive> ... = list of archives

@@ -128,9 +128,9 @@ static bool load_arclite_xml(Options& options) {
   auto plugin_path = add_trailing_slash(Far::get_plugin_module_path());
   auto r1 = xml.parse(plugin_path + L"arclite.xml");
   xml.parse(plugin_path + L"arclite.xml.custom");
-  auto profile_path = add_trailing_slash(expand_env_vars(L"%FARPROFILE%"));
+  auto profile_path = expand_env_vars(L"%FARPROFILE%");
   if (!profile_path.empty())
-    xml.parse(profile_path + L"arclite.xml.custom");
+    xml.parse(add_trailing_slash(profile_path) + L"arclite.xml.custom");
   return r1;
 }
 
