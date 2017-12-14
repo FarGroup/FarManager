@@ -416,7 +416,7 @@ public:
     for (UInt32 j = 0; j < nf; ++j) {
       auto file_path = archive->get_path(j);
       for (const auto& n : items)
-      if (lstrcmpiW(file_path.data(), n.data()) == 0)
+      if (lstrcmpiW(file_path.data(),n.data()) == 0 || Far::match_masks(file_path, n))
         matched_indices.push_back(j);
     }
     if (!matched_indices.empty()) {
