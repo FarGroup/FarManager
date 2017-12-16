@@ -61,3 +61,10 @@ pushd enc/build/lua || exit 1
 ) || exit 1
 
 popd
+
+#update api.farmanager.com
+pushd enc/tools || exit 1
+python ./tool.make_inet.py || exit 1
+popd 
+rm -Rf /var/www/api/* || exit 1
+cp -Rf enc/build/inet/* /var/www/api/ || exit 1

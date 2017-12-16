@@ -427,7 +427,6 @@ table.params
 table.params td, table.params th
 {
     border-width: 1px;
-    /*padding: 0.364em 0.727em*/
 }
 
 /* облегчённый стиль*/
@@ -464,22 +463,3 @@ table.tiny {width: auto}
 table.funcs   col.descr {width: 80%}
 table.params  col.value {width: 5%}
 table.params  col.widevalue {width: 25%}
-
-/*
-http://riddle.pl/emcalc/
-http://pxtoem.com/
-
-0.5px=0.045em
-0.75px=0.068em
-1px=0.091em
-1.5px=0.136em
-2px=0.182em
-3px=0.273em
-4px=0.364em
-5px=0.455em
-6px=0.545em
-7px=0.636em
-8px=0.727em
-9px=0.818em
-10px=0.909em
-*/
