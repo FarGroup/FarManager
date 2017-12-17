@@ -3,6 +3,15 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.12.2017 16:24:34 +0000 - build 5107
+
+1. 0003120: Search and Replace in Editor fails if Replace pattern contains 0x0D + Search Pattern
+   Also, block Undo has been added.
+
+drkns 13.12.2017 17:28:49 +0000 - build 5106
+
+1. arclite and netbox could get unexpected values from apiCreateFile.
+
 zg 30.11.2017 02:10:31 +0200 - build 5105
 
 1. 0003529: FE_GOTFOCUS is not sent on panel create.
