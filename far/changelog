@@ -1,3 +1,8 @@
+drkns 17.12.2017 16:24:34 +0000 - build 5107
+
+1. 0003120: Search and Replace in Editor fails if Replace pattern contains 0x0D + Search Pattern
+   Там же добавлено блочное Undo, дабы скрыть тот факт, что замена производится per rectum.
+
 drkns 13.12.2017 17:28:49 +0000 - build 5106
 
 1. arclite и netbox могли получать неожиданные значения из apiCreateFile.

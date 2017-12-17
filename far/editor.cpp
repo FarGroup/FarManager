@@ -3601,6 +3601,7 @@ bool Editor::Search(bool Next)
 						if (!MsgCode || MsgCode==1)
 						{
 							Pasting++;
+							AddUndoData(UNDO_BEGIN);
 
 							// If Replace string doesn't contain control symbols (tab and return),
 							// processed with fast method, otherwise use improved old one.
@@ -3641,6 +3642,7 @@ bool Editor::Search(bool Next)
 										ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
 										m_Flags.Set(FEDITOR_OVERTYPE);
 										m_it_CurLine->SetOvertypeMode(true);
+										CurPtr = m_it_CurLine;
 									}
 									else if (Ch!=KEY_BS)
 										ProcessKeyInternal(Manager::Key(Ch), RefreshMe);
@@ -3710,6 +3712,7 @@ bool Editor::Search(bool Next)
 								TextChanged(true);
 							}
 
+							AddUndoData(UNDO_END);
 							Pasting--;
 						}
 					}
