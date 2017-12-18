@@ -1613,7 +1613,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 				if (Percent > 100)
 				{
 					EditFile.GetSize(FileSize);
-					Percent = std::min(CurPos * 100 / FileSize, size_t(100));
+					Percent = std::min(CurPos * 100 / FileSize, 100ull);
 				}
 				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditReading), Name, Percent);
 			}
