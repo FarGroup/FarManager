@@ -79,7 +79,7 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 		}
 		catch (const std::exception&)
 		{
-			// don't changed
+			// not changed
 			// TODO: diagnostics
 		}
 	}
@@ -234,18 +234,14 @@ static bool IsEditField(DialogItemEx *Item)
 }
 */
 
-DialogBuilder::DialogBuilder(lng TitleMessageId, const wchar_t *HelpTopic, Dialog::dialog_handler handler):
-	m_HelpTopic(NullToEmpty(HelpTopic)),
-	m_Mode(0),
-	m_Id(GUID_NULL),
-	m_IdExist(false),
+DialogBuilder::DialogBuilder(lng TitleMessageId, const string_view& HelpTopic, Dialog::dialog_handler handler):
+	m_HelpTopic(make_string(HelpTopic)),
 	m_handler(handler)
 {
 	AddBorder(GetLangString(TitleMessageId));
 }
 
-DialogBuilder::DialogBuilder():
-	m_HelpTopic(L""),  m_Mode(0), m_Id(GUID_NULL), m_IdExist(false)
+DialogBuilder::DialogBuilder()
 {
 	AddBorder(L"");
 }

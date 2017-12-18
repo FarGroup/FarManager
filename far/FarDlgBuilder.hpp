@@ -114,7 +114,7 @@ struct ListControlBinding: public DialogItemBinding<T>
 class DialogBuilder: noncopyable, public base<DialogBuilderBase<DialogItemEx>>
 {
 public:
-	explicit DialogBuilder(lng TitleMessageId, const wchar_t *HelpTopic = nullptr, Dialog::dialog_handler handler = nullptr);
+	explicit DialogBuilder(lng TitleMessageId, const string_view& HelpTopic = {}, Dialog::dialog_handler handler = nullptr);
 	DialogBuilder();
 	~DialogBuilder();
 
@@ -223,10 +223,10 @@ private:
 	static void LinkFlagsByID(DialogItemEx *Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags);
 	virtual const wchar_t* GetLangString(int MessageID) override;
 
-	const wchar_t *m_HelpTopic;
-	DWORD m_Mode;
-	GUID m_Id;
-	bool m_IdExist;
+	string m_HelpTopic;
+	DWORD m_Mode{};
+	GUID m_Id{ GUID_NULL };
+	bool m_IdExist{};
 	Dialog::dialog_handler m_handler;
 };
 

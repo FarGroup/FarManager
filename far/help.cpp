@@ -523,7 +523,7 @@ bool Help::ReadHelp(const string& Mask)
 
 				break;
 			}
-			else if (equal_icase(make_string_view(strReadStr, 1), StackData->strHelpTopic))
+			else if (equal_icase(string_view(strReadStr).substr(1), StackData->strHelpTopic))
 			{
 				m_TopicFound = true;
 				NearTopicFound=1;
@@ -1110,7 +1110,7 @@ void Help::OutString(string_view Str)
 
 			/* $ 24.09.2001 VVM
 			  ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
-			if (StrLength(OutStr) + WhereX() > m_X2)
+			if (static_cast<int>(wcslen(OutStr)) + WhereX() > m_X2)
 				OutStr[m_X2 - WhereX()] = 0;
 
 			Text(OutStr);
@@ -1585,7 +1585,7 @@ bool Help::JumpTopic()
 					strNewTopic.erase(EndPos, Pos2 - EndPos);
 
 					size_t Pos3 = StackData->strHelpMask.rfind(L'.');
-					if (Pos3 != string::npos && !equal_icase(make_string_view(StackData->strHelpMask, Pos3), L".hlf"_sv))
+					if (Pos3 != string::npos && !equal_icase(string_view(StackData->strHelpMask).substr(Pos3), L".hlf"_sv))
 						StackData->strHelpMask.clear();
 
 					break;
@@ -1963,7 +1963,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			strEntryName.clear();
 			strCurTopic.clear();
 			RemoveExternalSpaces(strReadStr);
-			if (!equal_icase(make_string_view(strReadStr, 1), HelpContents))
+			if (!equal_icase(string_view(strReadStr).substr(1), HelpContents))
 			{
 				strCurTopic=strReadStr;
 				TopicFound=true;

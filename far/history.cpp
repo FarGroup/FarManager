@@ -593,7 +593,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			continue;
 		}
 
-		if (starts_with_icase(strName, make_string_view(strStr, 0, Length)) && strStr != strName)
+		if (starts_with_icase(strName, string_view(strStr).substr(0, Length)) && strStr != strName)
 		{
 			if (bAppend)
 				strStr.append(strName, Length, string::npos);

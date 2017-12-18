@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "colormix.hpp"
 #include "strmix.hpp"
-#include "string_utils.hpp"
 
 void ColorItem::SetOwner(const GUID& Value)
 {
@@ -64,28 +63,6 @@ void ColorItem::SetColor(const FarColor& Value)
 
 static int Recurse=0;
 
-enum
-{
-	EOL_NONE,
-	EOL_CR,
-	EOL_LF,
-	EOL_CRLF,
-	EOL_CRCRLF,
-
-	EOL_COUNT
-};
-
-static const wchar_t* const EOL_TYPE_CHARS[] =
-{
-	L"",
-	L"\r",
-	L"\n",
-	L"\r\n",
-	L"\r\r\n"
-};
-
-static_assert(std::size(EOL_TYPE_CHARS) == EOL_COUNT);
-
 static const wchar_t EDMASK_ANY    = L'X'; // позволяет вводить в строку ввода любой символ;
 static const wchar_t EDMASK_DSS    = L'#'; // позволяет вводить в строку ввода цифры, пробел и знак минуса;
 static const wchar_t EDMASK_DIGIT  = L'9'; // позволяет вводить в строку ввода только цифры;
@@ -99,7 +76,7 @@ Edit::Edit(window_ptr Owner):
 	m_SelStart(-1),
 	m_SelEnd(0),
 	LeftPos(0),
-	EndType(EOL_NONE)
+	m_Eol(eol::none)
 {
 	m_Flags.Set(FEDITLINE_EDITBEYONDEND);
 	const auto& EdOpt = Global->Opt->EdOpt;
@@ -311,22 +288,25 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 
 		if (m_Flags.Check(FEDITLINE_SHOWLINEBREAK) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < EditLength))
 		{
-			switch(EndType)
+			switch(m_Eol)
 			{
-			case EOL_CR:
+			case eol::mac:
 				OutStr.push_back(Oem2Unicode[13]);
 				break;
-			case EOL_LF:
+
+			case eol::unix:
 				OutStr.push_back(Oem2Unicode[10]);
 				break;
-			case EOL_CRLF:
+
+			case eol::win:
 				OutStr.push_back(Oem2Unicode[13]);
 				if(OutStr.size() < EditLength)
 				{
 					OutStr.push_back(Oem2Unicode[10]);
 				}
 				break;
-			case EOL_CRCRLF:
+
+			case eol::bad_win:
 				OutStr.push_back(Oem2Unicode[13]);
 				if(OutStr.size() < EditLength)
 				{
@@ -336,6 +316,9 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 						OutStr.push_back(Oem2Unicode[10]);
 					}
 				}
+				break;
+
+			case eol::none:
 				break;
 			}
 		}
@@ -1219,7 +1202,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				}
 				else if (m_SelEnd <= m_Str.size()) // TODO: если в начало условия добавить "StrSize &&", то пропадет баг "Ctrl-Ins в пустой строке очищает клипборд"
 				{
-					SetClipboardText(make_string_view(m_Str, m_SelStart, m_SelEnd - m_SelStart));
+					SetClipboardText(string_view(m_Str).substr(m_SelStart, m_SelEnd - m_SelStart));
 				}
 			}
 
@@ -1459,27 +1442,14 @@ void Edit::SetHiString(const string& Str)
 	SetString(NewStr);
 }
 
-void Edit::SetEOL(const wchar_t *EOL)
+void Edit::SetEOL(eol::type Eol)
 {
-	EndType=EOL_NONE;
-
-	if (EOL && *EOL)
-	{
-		if (EOL[0]==L'\r')
-			if (EOL[1]==L'\n')
-				EndType=EOL_CRLF;
-			else if (EOL[1]==L'\r' && EOL[2]==L'\n')
-				EndType=EOL_CRCRLF;
-			else
-				EndType=EOL_CR;
-		else if (EOL[0]==L'\n')
-			EndType=EOL_LF;
-	}
+	m_Eol = Eol;
 }
 
-const wchar_t *Edit::GetEOL() const
+eol::type Edit::GetEOL() const
 {
-	return EOL_TYPE_CHARS[EndType];
+	return m_Eol;
 }
 
 /* $ 25.07.2000 tran
@@ -1487,49 +1457,49 @@ const wchar_t *Edit::GetEOL() const
    в этом методе DropDownBox не обрабатывается
    ибо он вызывается только из SetString и из класса Editor
    в Dialog он нигде не вызывается */
-void Edit::SetString(const wchar_t *Str, size_t Length)
+void Edit::SetString(string_view Str)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
 	// коррекция вставляемого размера, если определен GetMaxLength()
-	if (GetMaxLength() != -1 && Length > static_cast<size_t>(GetMaxLength()))
+	if (GetMaxLength() != -1 && Str.size() > static_cast<size_t>(GetMaxLength()))
 	{
-		Length=GetMaxLength(); // ??
+		Str = Str.substr(0, GetMaxLength()); // ??
 	}
 
 	RemoveSelection();
 
-	if (Length && !m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
+	if (!Str.empty() && !m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
 	{
-		if (Str[Length-1]==L'\r')
+		if (Str.back() == L'\r')
 		{
-			EndType=EOL_CR;
-			Length--;
+			m_Eol = eol::mac;
+			Str.remove_suffix(1);
 		}
 		else
 		{
-			if (Str[Length-1]==L'\n')
+			if (Str.back() == L'\n')
 			{
-				Length--;
+				Str.remove_suffix(1);
 
-				if (Length && Str[Length-1]==L'\r')
+				if (!Str.empty() && Str.back() == L'\r')
 				{
-					Length--;
+					Str.remove_suffix(1);
 
-					if (Length && Str[Length-1]==L'\r')
+					if (!Str.empty() && Str.back() == L'\r')
 					{
-						Length--;
-						EndType=EOL_CRCRLF;
+						Str.remove_suffix(1);
+						m_Eol = eol::bad_win;
 					}
 					else
-						EndType=EOL_CRLF;
+						m_Eol = eol::win;
 				}
 				else
-					EndType=EOL_LF;
+					m_Eol = eol::unix;
 			}
 			else
-				EndType=EOL_NONE;
+				m_Eol = eol::none;
 		}
 	}
 
@@ -1539,7 +1509,7 @@ void Edit::SetString(const wchar_t *Str, size_t Length)
 	if (!Mask.empty())
 	{
 		RefreshStrByMask(TRUE);
-		for (size_t i = 0, j = 0, maskLen = Mask.size(); i < maskLen && j < maskLen && j < Length;)
+		for (size_t i = 0, j = 0, maskLen = Mask.size(); i < maskLen && j < maskLen && j < Str.size();)
 		{
 			if (CheckCharMask(Mask[i]))
 			{
@@ -1567,11 +1537,11 @@ void Edit::SetString(const wchar_t *Str, size_t Length)
 		   обычно вводится нечто вроде SetString("",0)
 		   Т.е. таким образом мы добиваемся "инициализации" строки с маской
 		*/
-		RefreshStrByMask(!*Str);
+		RefreshStrByMask(Str.empty());
 	}
 	else
 	{
-		m_Str.assign(Str, Length);
+		m_Str.assign(ALL_CONST_RANGE(Str));
 
 		if (GetTabExpandMode() == EXPAND_ALLTABS)
 			ReplaceTabs();
@@ -1593,15 +1563,15 @@ string Edit::GetSelString() const
 	return { m_Str.cbegin() + m_SelStart, m_SelEnd == -1 ? m_Str.cend() : m_Str.cbegin() + std::min(m_Str.size(), m_SelEnd) };
 }
 
-void Edit::AppendString(const wchar_t *Str, size_t Length)
+void Edit::AppendString(string_view Str)
 {
 	int LastPos = m_CurPos;
 	m_CurPos = GetLength();
-	InsertString(Str, Length);
+	InsertString(Str);
 	m_CurPos = LastPos;
 }
 
-void Edit::InsertString(const wchar_t *Str, size_t Length)
+void Edit::InsertString(string_view Str)
 {
 	if (m_Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
 		return;
@@ -1616,7 +1586,7 @@ void Edit::InsertString(const wchar_t *Str, size_t Length)
 	{
 		LeftPos = 0;
 		m_Flags.Clear(FEDITLINE_CLEARFLAG);
-		SetString(Str, Length);
+		SetString(Str);
 		return;
 	}
 
@@ -1629,7 +1599,7 @@ void Edit::InsertString(const wchar_t *Str, size_t Length)
 		if (Pos<MaskLen)
 		{
 			//_SVS(SysLog(L"InsertString ==> Str='%s' (Length=%d) Mask='%s'",Str,Length,Mask+Pos));
-			const size_t StrLen = (MaskLen - Pos > Length) ? Length : MaskLen - Pos;
+			const size_t StrLen = (MaskLen - Pos > Str.size())? Str.size() : MaskLen - Pos;
 
 			/* $ 15.11.2000 KM
 			   Внесены исправления для правильной работы PasteFromClipboard
@@ -1641,7 +1611,7 @@ void Edit::InsertString(const wchar_t *Str, size_t Length)
 				{
 					int goLoop=FALSE;
 
-					if (j < Length && KeyMatchedMask(Str[j], Mask))
+					if (j < Str.size() && KeyMatchedMask(Str[j], Mask))
 					{
 						InsertKey(Str[j]);
 						//_SVS(SysLog(L"InsertString ==> InsertKey(Str[%d]='%c');",j,Str[j]));
@@ -1672,26 +1642,26 @@ void Edit::InsertString(const wchar_t *Str, size_t Length)
 	}
 	else
 	{
-		if (GetMaxLength() != -1 && m_Str.size() + Length > static_cast<size_t>(GetMaxLength()))
+		if (GetMaxLength() != -1 && m_Str.size() + Str.size() > static_cast<size_t>(GetMaxLength()))
 		{
 			// коррекция вставляемого размера, если определен GetMaxLength()
 			if (m_Str.size() < GetMaxLength())
 			{
-				Length = GetMaxLength() - m_Str.size();
+				Str = Str.substr(0, GetMaxLength() - m_Str.size());
 			}
 		}
 
-		if (GetMaxLength() == -1 || m_Str.size() + Length <= static_cast<size_t>(GetMaxLength()))
+		if (GetMaxLength() == -1 || m_Str.size() + Str.size() <= static_cast<size_t>(GetMaxLength()))
 		{
 			if (m_CurPos > m_Str.size())
 			{
 				m_Str.resize(m_CurPos, L' ');
 			}
 
-			m_Str.insert(m_CurPos, Str, Length);
+			m_Str.insert(m_CurPos, Str.raw_data(), Str.size());
 
 			SetPrevCurPos(m_CurPos);
-			m_CurPos += static_cast<int>(Length);
+			m_CurPos += static_cast<int>(Str.size());
 
 			if (GetTabExpandMode() == EXPAND_ALLTABS)
 				ReplaceTabs();

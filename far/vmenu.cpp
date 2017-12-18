@@ -1382,7 +1382,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			if (bFilterEnabled && !bFilterLocked)
 			{
 				const wchar_t *FilterString=strFilter.data();
-				int start=StrLength(FilterString);
+				int start = static_cast<int>(wcslen(FilterString));
 				bool DoXlat = true;
 
 				if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]))
@@ -1397,7 +1397,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 						start--;
 
 					start++;
-					::Xlat(const_cast<wchar_t*>(FilterString), start, StrLength(FilterString), Global->Opt->XLat.Flags);
+					::Xlat(const_cast<wchar_t*>(FilterString), start, static_cast<int>(wcslen(FilterString)), Global->Opt->XLat.Flags);
 					SetFilterString(FilterString);
 					FilterStringUpdated();
 					DisplayObject();

@@ -494,7 +494,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 		intptr_t start_hilite = 0, end_hilite = 0;
 
-		DialogBuilder Builder(mTitle, nullptr, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+		DialogBuilder Builder(mTitle, {}, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 		{
 			if (bHilite && Msg == DN_CTLCOLORDLGITEM && Param1 >= start_hilite && Param1 <= end_hilite)
 			{

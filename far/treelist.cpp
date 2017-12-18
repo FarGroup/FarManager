@@ -795,11 +795,6 @@ static void ReadLines(const os::fs::file& TreeFile, const std::function<void(str
 		if (Record.empty() || !IsSlash(Record.front()))
 			continue;
 
-		size_t pos = Record.find(L'\n');
-
-		if (pos != string::npos)
-			Record.resize(pos);
-
 		Inserter(Record);
 	}
 }
@@ -1039,7 +1034,7 @@ bool TreeList::FillLastData()
 			}
 			else
 			{
-				if (starts_with_icase(j->strName, make_string_view(i->strName, 0, PathLength)))
+				if (starts_with_icase(j->strName, string_view(i->strName).substr(0, PathLength)))
 					Last=0;
 				break;
 			}

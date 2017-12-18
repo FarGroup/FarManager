@@ -121,7 +121,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_F3:
 					if(IsErrorType)
 					{
-						DialogBuilder Builder(lng::MError, nullptr);
+						DialogBuilder Builder(lng::MError);
 						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.Win32Error), GetWin32ErrorString(m_ErrorState.Win32Error)), 65);
 						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.NtError), GetNtErrorString(m_ErrorState.NtError)), 65);
 						Builder.AddOK();

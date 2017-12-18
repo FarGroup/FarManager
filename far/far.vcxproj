@@ -200,7 +200,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dirinfo.cpp" />
     <ClCompile Include="dirmix.cpp" />
     <ClCompile Include="dizlist.cpp" />
-    <ClCompile Include="exception.cpp" />
     <ClCompile Include="FarDlgBuilder.cpp" />
     <ClCompile Include="filemasks.cpp" />
     <ClCompile Include="dlgedit.cpp" />
@@ -210,6 +209,8 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="editor.cpp" />
     <ClCompile Include="eject.cpp" />
     <ClCompile Include="encoding.cpp" />
+    <ClCompile Include="eol.cpp" />
+    <ClCompile Include="exception.cpp" />
     <ClCompile Include="execute.cpp" />
     <ClCompile Include="farexcpt.cpp" />
     <ClCompile Include="farversion.cpp" />
@@ -400,6 +401,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="editor.hpp" />
     <ClInclude Include="eject.hpp" />
     <ClInclude Include="encoding.hpp" />
+    <ClInclude Include="eol.hpp" />
     <ClInclude Include="exception.hpp" />
     <ClInclude Include="execute.hpp" />
     <ClInclude Include="exitcode.hpp" />

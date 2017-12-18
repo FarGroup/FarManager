@@ -1293,7 +1293,7 @@ int KeyNameToKey(const string& Name)
 
 		const auto ItemIterator = std::find_if(CONST_REVERSE_RANGE(FKeys1, i)
 		{
-			return PtrLen == i.Name.size() && equal_icase(make_string_view(Name, Pos), i.Name);
+			return PtrLen == i.Name.size() && equal_icase(string_view(Name).substr(Pos), i.Name);
 		});
 
 		if (ItemIterator != std::crend(FKeys1))
@@ -1439,7 +1439,7 @@ bool KeyToLocalizedText(int Key, string &strKeyText)
 			{
 				const auto& Msg = msg(i->LocalizedNameId);
 				if (!Msg.empty())
-					return make_string_view(Msg);
+					return string_view(Msg);
 			}
 			return i->Name;
 		},

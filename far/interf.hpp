@@ -182,7 +182,7 @@ void DrawLine(int Length,int Type, const wchar_t *UserSep=nullptr);
 inline void ShowSeparator(int Length, int Type) { return DrawLine(Length,Type); }
 inline void ShowUserSeparator(int Length, int Type, const wchar_t* UserSep) { return DrawLine(Length,Type,UserSep); }
 string MakeSeparator(int Length, int Type=1, const wchar_t* UserSep=nullptr);
-string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool PropagateToTasbkar);
+string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool PropagateToTasbkar);
 
 void InitRecodeOutTable();
 

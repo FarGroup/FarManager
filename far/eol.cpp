@@ -1,15 +1,10 @@
-﻿#ifndef FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F
-#define FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F
-#pragma once
+﻿/*
+eol.cpp
 
-/*
-filestr.hpp
-
-Класс GetFileString
+Line endings
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2017 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,42 +30,34 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "encoding.hpp"
+#include "headers.hpp"
+#pragma hdrstop
+
 #include "eol.hpp"
 
-class GetFileString: noncopyable
+static const auto
+	none_s = L""_sv,
+	win_s = L"\r\n"_sv,       // DOS/Windows
+	unix_s = L"\n"_sv,        // Unix
+	mac_s = L"\r"_sv,         // Mac
+	bad_win_s = L"\r\r\n"_sv; // result of <CR><LF> text mode conversion
+
+string_view eol::str(type Value)
 {
-public:
-	GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage);
-	bool PeekString(string_view& Str, eol::type* Eol = nullptr);
-	bool GetString(string_view& Str, eol::type* Eol = nullptr);
-	bool GetString(string& str, eol::type* Eol = nullptr);
-	bool IsConversionValid() const { return !SomeDataLost; }
+	return
+		Value == win? win_s :
+		Value == unix? unix_s :
+		Value == mac? mac_s :
+		Value == bad_win? bad_win_s :
+		none_s;
+}
 
-private:
-	template<typename T>
-	bool GetTString(std::vector<T>& From, std::vector<T>& To, eol::type* Eol, bool bBigEndian = false);
-
-	const os::fs::file& SrcFile;
-	uintptr_t m_CodePage;
-	size_t ReadPos{};
-	size_t ReadSize{};
-
-	bool Peek{};
-	string_view LastStr;
-	bool LastResult{};
-
-	std::vector<char> m_ReadBuf;
-	std::vector<wchar_t> m_wReadBuf;
-	std::vector<wchar_t> m_wStr;
-
-	raw_eol m_Eol;
-
-	bool SomeDataLost{};
-	bool m_CrSeen{};
-	bool bCrCr{};
-};
-
-bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);
-
-#endif // FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F
+eol::type eol::parse(const string_view& Value)
+{
+	return
+		Value == win_s? win :
+		Value == unix_s? unix :
+		Value == mac_s? mac :
+		Value == bad_win_s? bad_win :
+		none;
+}

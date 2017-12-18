@@ -1,3 +1,9 @@
+drkns 18.12.2017 19:00:52 +0000 - build 5108
+
+1. Рефакторинг. Несколько переделана причудливая работа с концами строк в редакторе. Возможны баги.
+
+2. Поддержка очередного апдейта VS2017.
+
 drkns 17.12.2017 16:24:34 +0000 - build 5107
 
 1. 0003120: Search and Replace in Editor fails if Replace pattern contains 0x0D + Search Pattern

@@ -52,17 +52,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "lang.hpp"
 
-static const wchar_t FolderShortcutsKey[] = L"Shortcuts";
+static const auto
+	FolderShortcutsKey = L"Shortcuts"_sv,
+	FolderName = L"Shortcut"_sv,
+	NameName = L"Name"_sv,
+	PluginGuidName = L"PluginGuid"_sv,
+	PluginFileName = L"PluginFile"_sv,
+	PluginDataName = L"PluginData"_sv,
 
-static const wchar_t FolderName[] = L"Shortcut";
-static const wchar_t NameName[] = L"Name";
-static const wchar_t PluginGuidName[] = L"PluginGuid";
-static const wchar_t PluginFileName[] = L"PluginFile";
-static const wchar_t PluginDataName[] = L"PluginData";
-
-static const wchar_t HelpFolderShortcuts[] = L"FolderShortcuts";
-
-static const wchar_t SeparatorToken[] = L"--";
+	HelpFolderShortcuts = L"FolderShortcuts"_sv,
+	SeparatorToken = L"--"_sv;
 
 class Shortcuts::shortcut: public data, public rel_ops<shortcut>
 {
@@ -295,7 +294,7 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 		if (NewItem.Folder.empty())
 		{
 			if (NewItem.Name.empty())
-				NewItem.Name = SeparatorToken;
+				NewItem.Name = make_string(SeparatorToken);
 		}
 		else if (!raw)
 		{

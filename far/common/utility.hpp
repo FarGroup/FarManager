@@ -33,11 +33,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-void resize_nomove(T& container, size_t size)
+void resize_nomove(T& Container, size_t Size)
 {
-	T Tmp(size);
-	using std::swap;
-	swap(container, Tmp);
+	if (Size <= Container.capacity())
+		Container.resize(Size);
+	else
+		T(Size).swap(Container);
 }
 
 

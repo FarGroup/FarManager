@@ -67,7 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
-static SaveScreen *DragSaveScr=nullptr;
+static std::unique_ptr<SaveScreen> DragSaveScr;
 
 Panel::Panel(window_ptr Owner):
 	ScreenObject(Owner)
@@ -477,8 +477,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 			}
 			else
 			{
-				delete DragSaveScr;
-				DragSaveScr=nullptr;
+				DragSaveScr.reset();
 			}
 		}
 	}
@@ -510,8 +509,7 @@ bool Panel::IsDragging()
 
 void Panel::EndDrag()
 {
-	delete DragSaveScr;
-	DragSaveScr=nullptr;
+	DragSaveScr.reset();
 	DragX=DragY=-1;
 }
 
@@ -559,8 +557,7 @@ void Panel::DragMessage(int X,int Y,int Move)
 		MsgX=X;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	delete DragSaveScr;
-	DragSaveScr=new SaveScreen(MsgX,Y,MsgX+Length-1,Y);
+	DragSaveScr = std::make_unique<SaveScreen>(MsgX,Y,MsgX+Length-1,Y);
 	GotoXY(MsgX,Y);
 	SetColor(COL_PANELDRAGTEXT);
 	Text(strDragMsg);

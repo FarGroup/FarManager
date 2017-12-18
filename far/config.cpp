@@ -524,7 +524,7 @@ void Options::MaskGroupsSettings()
 			case KEY_F7:
 				{
 					string Value;
-					DialogBuilder Builder(lng::MFileFilterTitle, nullptr);
+					DialogBuilder Builder(lng::MFileFilterTitle);
 					Builder.AddText(lng::MMaskGroupFindMask);
 					Builder.AddEditField(Value, 60, L"MaskGroupsFindMask");
 					Builder.AddOKCancel();

@@ -86,6 +86,16 @@ public:
 		*this = substr(0, this->size() - Size);
 	}
 
+	constexpr bool starts_with(const basic_string_view<T>& Str) const
+	{
+		return this->size() >= Str.size() && this->substr(0, Str.size()) == Str;
+	}
+
+	constexpr bool ends_with(const basic_string_view<T>& Str) const
+	{
+		return this->size() >= Str.size() && this->substr(this->size() - Str.size()) == Str;
+	}
+
 	/*
 	ISO/IEC N4659 24.4.2.4 771
 	"Note: Unlike basic_string::data() and string literals, data() may return a pointer to a buffer that
@@ -147,28 +157,37 @@ bool operator==(const basic_string_view<T>& Lhs, const basic_string_view<T>& Rhs
 template<typename T>
 bool operator==(const basic_string_view<T>& Lhs, const std::basic_string<T>& Rhs)
 {
-	return Lhs == Rhs;
+	return Lhs == basic_string_view<T>(Rhs);
 }
 
 template<typename T>
 bool operator==(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
 {
-	return Rhs == Lhs;
+	return basic_string_view<T>(Lhs) == Rhs;
+}
+
+template<typename T>
+bool operator!=(const basic_string_view<T>& Lhs, const basic_string_view<T>& Rhs)
+{
+	return !(Lhs == Rhs);
+}
+
+template<typename T>
+bool operator!=(const basic_string_view<T>& Lhs, const std::basic_string<T>& Rhs)
+{
+	return !(Lhs == Rhs);
+}
+
+template<typename T>
+bool operator!=(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
+{
+	return !(Lhs == Rhs);
 }
 
 template<typename T>
 std::basic_string<T> make_string(const basic_string_view<T>& View)
 {
 	return { View.raw_data(), View.size() };
-}
-
-template<typename T>
-void make_string_view(const T&& Str, size_t = 0, size_t = 0) = delete;
-
-template<typename T>
-auto make_string_view(const T& Str, size_t Offset = 0, size_t Size = std::numeric_limits<size_t>::max())
-{
-	return basic_string_view<std::decay_t<decltype(*std::cbegin(Str))>>(Str.data() + Offset, std::min(Size, Str.size() - Offset));
 }
 
 using string_view = basic_string_view<wchar_t>;

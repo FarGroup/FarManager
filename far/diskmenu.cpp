@@ -1175,7 +1175,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			const auto ErrorState = error_state::fetch();
 
-			DialogBuilder Builder(lng::MError, nullptr);
+			DialogBuilder Builder(lng::MError);
 
 			Builder.AddTextWrap(GetErrorString(ErrorState).data(), true);
 			Builder.AddText(L"");

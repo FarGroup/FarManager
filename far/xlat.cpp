@@ -121,7 +121,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	if (!Line || !*Line)
 		return nullptr;
 
-	int Length=StrLength(Line);
+	int Length = static_cast<int>(wcslen(Line));
 	EndPos=std::min(EndPos,Length);
 	StartPos=std::max(StartPos,0);
 

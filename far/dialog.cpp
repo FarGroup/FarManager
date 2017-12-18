@@ -126,7 +126,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 	}
 	else
 	{
-		if (AmpPos >= StrLength(Str))
+		if (static_cast<size_t>(AmpPos) > str.size())
 			return false;
 
 		Str=Str+AmpPos;
@@ -4801,7 +4801,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
 			{
 				const auto Ptr = strTitleDialog.data();
-				//Len=StrLength(Ptr);
+				//Len = wcslen(Ptr);
 				if (!did->PtrLength)
 					did->PtrLength = Len;
 				else if (Len > did->PtrLength)

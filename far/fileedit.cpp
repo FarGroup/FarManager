@@ -149,7 +149,7 @@ bool dlgBadEditorCodepage(uintptr_t &codepage)
 {
 	intptr_t id = 0, id_cp, id_ok;
 
-	DialogBuilder Builder(lng::MWarning, nullptr, [&](Dialog* dlg, intptr_t msg,intptr_t p1,void* p2) -> intptr_t
+	DialogBuilder Builder(lng::MWarning, {}, [&](Dialog* dlg, intptr_t msg, intptr_t p1, void* p2) -> intptr_t
 	{
 		if (msg == DN_INITDIALOG)
 		{
@@ -192,7 +192,7 @@ enum enumSaveFileAs
 	ID_SF_SEPARATOR2,
 	ID_SF_SAVEASFORMATTITLE,
 	ID_SF_DONOTCHANGE,
-	ID_SF_DOS,
+	ID_SF_WINDOWS,
 	ID_SF_UNIX,
 	ID_SF_MAC,
 	ID_SF_SEPARATOR3,
@@ -262,7 +262,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 
 
 
-bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,bool &AddSignature)
+static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepage,bool &AddSignature)
 {
    bool ucp = IsUnicodeOrUtfCodePage(codepage);
 
@@ -292,7 +292,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 		if (pos != string::npos)
 			EditDlg[ID_SF_FILENAME].strData.resize(pos);
 	}
-	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
+	EditDlg[ID_SF_DONOTCHANGE + Eol].Selected = TRUE;
 	const auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
 	Dlg->SetPosition(-1,-1,76,17);
 	Dlg->SetHelp(L"FileSaveAs");
@@ -305,13 +305,13 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,boo
 		AddSignature=EditDlg[ID_SF_SIGNATURE].Selected!=0;
 
 		if (EditDlg[ID_SF_DONOTCHANGE].Selected)
-			TextFormat=0;
-		else if (EditDlg[ID_SF_DOS].Selected)
-			TextFormat=1;
+			Eol = eol::none;
+		else if (EditDlg[ID_SF_WINDOWS].Selected)
+			Eol = eol::win;
 		else if (EditDlg[ID_SF_UNIX].Selected)
-			TextFormat=2;
+			Eol = eol::unix;
 		else if (EditDlg[ID_SF_MAC].Selected)
-			TextFormat=3;
+			Eol = eol::mac;
 
 		return true;
 	}
@@ -786,7 +786,7 @@ long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 		return m_editor->m_it_CurLine.Number() + 1;
 
 	if (OpCode == MCODE_V_ITEMCOUNT || OpCode == MCODE_V_EDITORLINES)
-		return m_editor->m_LinesCount;
+		return m_editor->Lines.size();
 
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
@@ -1028,7 +1028,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 						m_Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
 					}
 
-					static int TextFormat=0;
+					static eol::type SavedEol = eol::none; // none here means "do not change"
 					uintptr_t codepage = m_codepage;
 					const auto SaveAs = LocalKey==KEY_SHIFTF2 || m_Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 					string strFullSaveAsName = strFullFileName;
@@ -1037,7 +1037,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					{
 						string strSaveAsName = m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)?strFullFileName:strFileName;
 
-						if (!dlgSaveFileAs(strSaveAsName, TextFormat, codepage, m_bAddSignature))
+						if (!dlgSaveFileAs(strSaveAsName, SavedEol, codepage, m_bAddSignature))
 							return false;
 
 						strSaveAsName = unquote(os::env::expand(strSaveAsName));
@@ -1055,7 +1055,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					}
 
 					error_state ErrorState;
-					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, ErrorState, TextFormat, codepage, m_bAddSignature);
+					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, ErrorState, SavedEol, codepage, m_bAddSignature);
 
 					if (SaveResult==SAVEFILE_ERROR)
 					{
@@ -1074,7 +1074,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 							if (!bInPlace)
 							{
 								m_editor->FreeAllocatedData();
-								m_editor->PushString(nullptr, 0);
+								m_editor->PushString({});
 								m_codepage = codepage;
 							}
 
@@ -1407,7 +1407,7 @@ int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWind
 
 		if (NeedQuestion)
 		{
-			SaveCode=SaveFile(strFullFileName, FirstSave, false, ErrorState, 0);
+			SaveCode=SaveFile(strFullFileName, FirstSave, false, ErrorState);
 		}
 
 		if (SaveCode==SAVEFILE_CANCEL)
@@ -1461,7 +1461,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
 	SCOPED_ACTION(IndeterminateTaskBar);
 	SCOPED_ACTION(wakeful);
-	int LastLineCR = 0;
+
 	EditorPosCache pc;
 	UserBreak = 0;
 	os::fs::file EditFile(Name, FILE_READ_DATA, FILE_SHARE_READ | (Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
@@ -1543,7 +1543,6 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 		if (Cached && pc.CodePage && !codepages::IsCodePageSupported(pc.CodePage))
 			pc.CodePage = 0;
 
-		m_editor->GlobalEOL = Editor::GetDefaultEOL();
 		bool testBOM = true;
 
 		const auto Redetect = (m_codepage == CP_REDETECT);
@@ -1573,24 +1572,26 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 				m_codepage = GetDefaultCodePage();
 		}
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
+		m_editor->GlobalEOL = eol::none;
 
 		unsigned long long FileSize = 0;
 		EditFile.GetSize(FileSize);
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
 		GetFileString GetStr(EditFile, m_codepage);
-		wchar_t *Str;
-		size_t StrLength;
-
-		while (GetStr.GetString(&Str, StrLength))
+		string_view Str;
+		eol::type Eol;
+		while (GetStr.GetString(Str, &Eol))
 		{
 			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))
 			{
-				if (StrLength > 0 && Str[0] == SIGN_UNICODE)
-					++Str, --StrLength, m_bAddSignature = true;
+				if (!Str.empty() && Str.front() == SIGN_UNICODE)
+				{
+					Str.remove_prefix(1);
+					m_bAddSignature = true;
+				}
 			}
 			testBOM = false;
-			LastLineCR=0;
 
 			if (TimeCheck)
 			{
@@ -1606,26 +1607,24 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 
 				SetCursorType(false, 0);
 				const auto CurPos = EditFile.GetPointer();
-				int Percent = static_cast<int>(CurPos*100/FileSize);
+				auto Percent = CurPos * 100 / FileSize;
 				// В случае если во время загрузки файл увеличивается размере, то количество
 				// процентов может быть больше 100. Обрабатываем эту ситуацию.
 				if (Percent > 100)
 				{
 					EditFile.GetSize(FileSize);
-					Percent = std::min(static_cast<int>(CurPos*100/FileSize), 100);
+					Percent = std::min(CurPos * 100 / FileSize, size_t(100));
 				}
-				Editor::EditorShowMsg(msg(lng::MEditTitle),msg(lng::MEditReading),Name,Percent);
+				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditReading), Name, Percent);
 			}
 
-			size_t Offset = StrLength > 3 ? StrLength - 3 : 0;
-			const auto eol = std::find_if(Str + Offset, Str + StrLength, IsEol);
-			if (eol != Str + StrLength)
+			if (!m_editor->GlobalEOL && Eol)
 			{
-				m_editor->GlobalEOL = eol;
-				LastLineCR=1;
+				m_editor->GlobalEOL = Eol;
 			}
 
-			m_editor->PushString(Str, StrLength);
+			m_editor->PushString(Str);
+			m_editor->LastLine()->SetEOL(Eol);
 		}
 
 		BadConversion = !GetStr.IsConversionValid();
@@ -1652,8 +1651,11 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 		break;
 	}
 
-	if (LastLineCR||!m_editor->m_LinesCount)
-		m_editor->PushString(L"", 0);
+	if (m_editor->Lines.empty() || m_editor->Lines.back().GetEOL())
+		m_editor->PushString({});
+
+	if (!m_editor->GlobalEOL)
+		m_editor->GlobalEOL = Editor::GetDefaultEOL();
 
 	EditFile.Close();
 	m_editor->SetCacheParams(pc, m_bAddSignature);
@@ -1716,11 +1718,11 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 }
 
 //TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
-int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& ErrorState, int TextFormat, uintptr_t codepage, bool AddSignature)
+int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& ErrorState, eol::type Eol, uintptr_t codepage, bool AddSignature)
 {
 	if (!bSaveAs)
 	{
-		TextFormat=0;
+		Eol = eol::none;
 		codepage=m_editor->GetCodePage();
 	}
 
@@ -1878,23 +1880,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 
 	int RetCode=SAVEFILE_SUCCESS;
 
-	if (TextFormat)
-		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
-
-	switch (TextFormat)
+	if (Eol)
 	{
-		case 1:
-			m_editor->GlobalEOL = WIN_EOL_fmt;
-			break;
-		case 2:
-			m_editor->GlobalEOL = UNIX_EOL_fmt;
-			break;
-		case 3:
-			m_editor->GlobalEOL = OLD_MAC_EOL_fmt;
-			break;
-		case 4:
-			m_editor->GlobalEOL = BAD_WIN_EOL_fmt;
-			break;
+		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
+		m_editor->GlobalEOL = Eol;
 	}
 
 	if (!os::fs::exists(Name))
@@ -1915,17 +1904,14 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 		{
 			++LineNumber;
 			const auto& SaveStr = Line.GetString();
-			auto EndSeq = Line.GetEOL();
+			auto LineEol = Line.GetEOL();
 
 			bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr.data(), SaveStr.size(), nullptr, 0, &UsedDefaultCharStr) && UsedDefaultCharStr;
 
-			if (!*EndSeq && !m_editor->IsLastLine(&Line))
-				EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
+			if (Eol && LineEol)
+				LineEol = m_editor->GlobalEOL;
 
-			if (TextFormat&&*EndSeq)
-				EndSeq=m_editor->GlobalEOL.data();
-
-			bool UsedDefaultCharEOL = encoding::get_bytes(codepage, EndSeq, wcslen(EndSeq), nullptr, 0, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
+			bool UsedDefaultCharEOL = encoding::get_bytes(codepage, eol::str(LineEol), nullptr, 0, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
 
 			if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
 			{
@@ -1971,7 +1957,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 		}
 	}
 
-	EditorSaveFile esf = {sizeof(esf), Name.data(), m_editor->GlobalEOL.data(), codepage};
+	EditorSaveFile esf = {sizeof(esf), Name.data(), eol::str(m_editor->GlobalEOL).raw_data(), codepage};
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor.get());
 
 	try
@@ -2032,28 +2018,23 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 
 			if (TimeCheck)
 			{
-				Editor::EditorShowMsg(msg(lng::MEditTitle),msg(lng::MEditSaving),Name,(int)(LineNumber*100/m_editor->m_LinesCount));
+				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditSaving), Name, LineNumber * 100 / m_editor->Lines.size());
 			}
 
 			const auto& SaveStr = Line.GetString();
-			auto EndSeq = Line.GetEOL();
+			auto LineEol = Line.GetEOL();
 
-			if (!*EndSeq && !m_editor->IsLastLine(&Line) && *Line.GetEOL())
-				EndSeq = m_editor->GlobalEOL.empty() ? Editor::GetDefaultEOL() : m_editor->GlobalEOL.data();
-
-			if (TextFormat && *EndSeq)
+			if (Eol && LineEol)
 			{
-				EndSeq = m_editor->GlobalEOL.data();
-				Line.SetEOL(EndSeq);
+				LineEol = m_editor->GlobalEOL;
+				Line.SetEOL(LineEol);
 			}
-
-			const auto EndLength = wcslen(EndSeq);
 
 			if (codepage == CP_UNICODE)
 			{
 				if (
 				    (!SaveStr.empty() && !Cache.Write(SaveStr.data(), SaveStr.size() * sizeof(wchar_t))) ||
-				    (EndLength && !Cache.Write(EndSeq,EndLength*sizeof(wchar_t)))
+				    (LineEol && !Cache.Write(eol::str(LineEol).raw_data(), eol::str(LineEol).size() * sizeof(wchar_t)))
 				   )
 				{
 					throw MAKE_FAR_EXCEPTION(L"Write error");
@@ -2061,22 +2042,23 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 			}
 			else
 			{
-				const auto& EncodeAndWriteBlock = [&](const wchar_t* Data, size_t Size)
+				const auto& EncodeAndWriteBlock = [&](const string_view& Data)
 				{
-					if (Size)
+					if (!Data.size())
+						return;
+
+					const auto EncodedSize = encoding::get_bytes_count(codepage, Data);
+					Buffer.resize(EncodedSize);
+					encoding::get_bytes(codepage, Data, Buffer);
+					if (!Cache.Write(Buffer.data(), Buffer.size()))
 					{
-						const auto EncodedSize = encoding::get_bytes_count(codepage, Data, Size);
-						Buffer.resize(EncodedSize);
-						encoding::get_bytes(codepage, Data, Size, Buffer);
-						if (!Cache.Write(Buffer.data(), Buffer.size()))
-						{
-							throw MAKE_FAR_EXCEPTION(L"Write error");
-						}
+						throw MAKE_FAR_EXCEPTION(L"Write error");
 					}
+
 				};
 
-				EncodeAndWriteBlock(SaveStr.data(), SaveStr.size());
-				EncodeAndWriteBlock(EndSeq, EndLength);
+				EncodeAndWriteBlock(SaveStr);
+				EncodeAndWriteBlock(eol::str(LineEol));
 			}
 		}
 
@@ -2295,7 +2277,7 @@ void FileEditor::ShowStatus() const
 		TruncPathStr(strLocalTitle, NameLength);
 
 	//предварительный расчет
-	strLineStr = str(m_editor->m_LinesCount) + L'/' + str(m_editor->m_LinesCount);
+	strLineStr = str(m_editor->Lines.size()) + L'/' + str(m_editor->Lines.size());
 	int SizeLineStr = (int)strLineStr.size();
 
 	if (SizeLineStr > 12)
@@ -2303,7 +2285,7 @@ void FileEditor::ShowStatus() const
 	else
 		SizeLineStr = 12;
 
-	strLineStr = str(m_editor->m_it_CurLine.Number() + 1) + L'/' + str(m_editor->m_LinesCount);
+	strLineStr = str(m_editor->m_it_CurLine.Number() + 1) + L'/' + str(m_editor->Lines.size());
 	const auto strAttr = *AttrStr? L" "s + AttrStr : L""s;
 	const auto StatusLine = format(L"{0:{1}} {2}{3}{4}{5:5} {6:>3} {7:>{8}} {9:>3} {10:<4} {11:>2} {12:<4}{13}",
 		strLocalTitle, NameLength,
@@ -2619,7 +2601,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		case ECTL_SAVEFILE:
 		{
 			string strName = strFullFileName;
-			int EOL=0;
+			auto Eol = eol::none;
 			uintptr_t codepage=m_codepage;
 
 			const auto esf = static_cast<const EditorSaveFile*>(Param2);
@@ -2630,16 +2612,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					strName=esf->FileName;
 
 				if (esf->FileEOL)
-				{
-					if (equal(esf->FileEOL, WIN_EOL_fmt))
-						EOL=1;
-					else if (equal(esf->FileEOL, UNIX_EOL_fmt))
-						EOL=2;
-					else if (equal(esf->FileEOL, OLD_MAC_EOL_fmt))
-						EOL=3;
-					else if (equal(esf->FileEOL, BAD_WIN_EOL_fmt))
-						EOL=4;
-				}
+					Eol = eol::parse(esf->FileEOL);
 
 				if (esf->CodePage != CP_DEFAULT)
 					codepage=esf->CodePage;
@@ -2662,7 +2635,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					m_Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
 					//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
 					error_state ErrorState;
-					return SaveFile(strName, FALSE, true, ErrorState, EOL, codepage, m_bAddSignature);
+					return SaveFile(strName, FALSE, true, ErrorState, Eol, codepage, m_bAddSignature);
 				}
 			}
 

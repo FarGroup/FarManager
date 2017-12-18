@@ -262,7 +262,7 @@ bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 	if (!Path)
 		return false;
 
-	int len = IsSlash(TypeSlash) ? StrLength(Path) : SlashType(Path, nullptr, TypeSlash);
+	int len = IsSlash(TypeSlash)? static_cast<int>(wcslen(Path)) : SlashType(Path, nullptr, TypeSlash);
 
 	if (len > 0 && IsSlash(Path[len-1]))
 		--len;

@@ -555,9 +555,8 @@ public:
 
 		const auto& GetExt = [](const FileListItem& i)
 		{
-			const auto EndPtr = i.strName.data() + i.strName.size();
 			if ((i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !Global->Opt->SortFolderExt)
-				return string_view(EndPtr, 0);
+				return string_view(i.strName).substr(i.strName.size());
 
 			return PointToExt(i.strName);
 		};
@@ -8317,7 +8316,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ShowStatus && LeftPos>0)
 					{
-						int Length=StrLength(ColumnData);
+						int Length = static_cast<int>(wcslen(ColumnData));
 						if (Length>ColumnWidth)
 						{
 							CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
@@ -8579,7 +8578,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (!ShowStatus && LeftPos>0)
 							{
-								int Length=m_ListData[ListPos].DizText ? StrLength(m_ListData[ListPos].DizText):0;
+								int Length = static_cast<int>(wcslen(NullToEmpty(m_ListData[ListPos].DizText)));
 								if (Length>ColumnWidth)
 								{
 									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);

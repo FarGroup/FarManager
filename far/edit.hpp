@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "bitflags.hpp"
+#include "eol.hpp"
 
 class RegExp;
 struct RegExpMatch;
@@ -134,23 +135,17 @@ public:
 
 	void SetHiString(const string& Str);
 
-	void SetEOL(const wchar_t *EOL);
-	void SetEOL(const string& EOL) { return SetEOL(EOL.data()); }
+	void SetEOL(eol::type Eol);
+	eol::type GetEOL() const;
 
-	const wchar_t *GetEOL() const;
 	string GetSelString() const;
 	int GetLength() const;
 
-	void SetString(const string& Str) { SetString(Str.data(), Str.size()); }
-	void SetString(const wchar_t *Str, size_t Length);
+	void SetString(string_view Str);
+	void InsertString(string_view Str);
+	void AppendString(string_view Str);
 
-	void InsertString(const string& Str) { InsertString(Str.data(), Str.size()); }
-	void InsertString(const wchar_t *Str, size_t Length);
-
-	void AppendString(const string& Str) { AppendString(Str.data(), Str.size()); }
-	void AppendString(const wchar_t *Str, size_t Length);
-
-	void ClearString() { SetString(L"", 0); }
+	void ClearString() { SetString({}); }
 
 	int Search(const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& Position, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength);
 	void SetCurPos(int NewPos) {m_CurPos=NewPos; SetPrevCurPos(NewPos);}
@@ -255,7 +250,7 @@ private:
 	int m_SelStart;
 	int m_SelEnd;
 	int LeftPos;
-	unsigned char EndType;
+	eol::type m_Eol;
 };
 
 #endif // EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B

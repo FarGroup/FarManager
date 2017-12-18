@@ -1147,7 +1147,7 @@ string MakeSeparator(int Length, int Type, const wchar_t* UserSep)
 	return Result;
 }
 
-string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool PropagateToTasbkar)
+string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool PropagateToTasbkar)
 {
 	string StrPercent;
 	if (ShowPercent)
@@ -1156,7 +1156,7 @@ string make_progressbar(size_t Size, int Percent, bool ShowPercent, bool Propaga
 		Size = Size > StrPercent.size()? Size - StrPercent.size(): 0;
 	}
 	string Str(Size, BoxSymbols[BS_X_B0]);
-	const auto Pos = std::min(Percent, 100) * Size / 100;
+	const auto Pos = std::min(Percent, size_t(100)) * Size / 100;
 	std::fill_n(Str.begin(), Pos, BoxSymbols[BS_X_DB]);
 	if (ShowPercent)
 	{

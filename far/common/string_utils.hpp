@@ -277,12 +277,12 @@ inline bool equal(const string_view& Str1, const string_view& Str2)
 
 inline bool starts_with(const string_view& Str, const string_view& Prefix)
 {
-	return Str.size() >= Prefix.size() && Str.substr(0, Prefix.size()) == Prefix;
+	return Str.starts_with(Prefix);
 }
 
 inline bool ends_with(const string_view& Str, const string_view& Suffix)
 {
-	return Str.size() >= Suffix.size() && Str.substr(Str.size() - Suffix.size()) == Suffix;
+	return Str.ends_with(Suffix);
 }
 
 inline bool contains(const string_view& Str, const string_view& Token)

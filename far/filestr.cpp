@@ -43,21 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const size_t DELTA = 1024;
 static const size_t ReadBufCount = 0x2000;
 
-enum EolType
-{
-	FEOL_NONE,
-	// \r\n
-	FEOL_WINDOWS,
-	// \n
-	FEOL_UNIX,
-	// \r
-	FEOL_MAC,
-	// \r\r (это не реальное завершение строки, а состояние парсера)
-	FEOL_MAC2,
-	// \r\r\n (появление таких концов строк вызвано багом Notepad-а)
-	FEOL_NOTEPAD
-};
-
 bool IsTextUTF8(const char* Buffer, size_t Length, bool& PureAscii)
 {
 	bool Ascii=true;
@@ -106,15 +91,7 @@ bool IsTextUTF8(const char* Buffer, size_t Length, bool& PureAscii)
 GetFileString::GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	SrcFile(SrcFile),
 	m_CodePage(CodePage),
-	ReadPos(0),
-	ReadSize(0),
-	Peek(false),
-	LastLength(0),
-	LastString(nullptr),
-	LastResult(false),
-	m_Eol(m_CodePage),
-	SomeDataLost(false),
-	bCrCr(false)
+	m_Eol(m_CodePage)
 {
 	if (m_CodePage == CP_UNICODE || m_CodePage == CP_REVERSEBOM)
 		m_wReadBuf.resize(ReadBufCount);
@@ -124,42 +101,34 @@ GetFileString::GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	m_wStr.reserve(DELTA);
 }
 
-bool GetFileString::PeekString(LPWSTR* DestStr, size_t& Length)
+bool GetFileString::PeekString(string_view& Str, eol::type* Eol)
 {
 	if(!Peek)
 	{
-		LastResult = GetString(DestStr, Length);
+		LastResult = GetString(LastStr);
 		Peek = true;
-		LastString = *DestStr;
-		LastLength = Length;
 	}
-	else
-	{
-		*DestStr = LastString;
-		Length = LastLength;
-	}
+
+	Str = LastStr;
 	return LastResult;
 }
 
-bool GetFileString::GetString(string& str)
+bool GetFileString::GetString(string& Str, eol::type* Eol)
 {
-	wchar_t* s;
-	size_t len;
-	if (GetString(&s, len))
-	{
-		str.assign(s, len);
-		return true;
-	}
-	return false;
+	string_view Tmp;
+	if (!GetString(Tmp))
+		return false;
+
+	Str.assign(ALL_CONST_RANGE(Tmp));
+	return true;
 }
 
-bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
+bool GetFileString::GetString(string_view& Str, eol::type* Eol)
 {
 	if(Peek)
 	{
 		Peek = false;
-		*DestStr = LastString;
-		Length = LastLength;
+		Str = LastStr;
 		return LastResult;
 	}
 
@@ -167,57 +136,62 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 	{
 	case CP_UNICODE:
 	case CP_REVERSEBOM:
-		if (GetTString(m_wReadBuf, m_wStr, m_CodePage == CP_REVERSEBOM))
-		{
-			*DestStr = m_wStr.data();
-			Length = m_wStr.size() - 1;
-			return true;
-		}
-		return false;
+		if (!GetTString(m_wReadBuf, m_wStr, Eol, m_CodePage == CP_REVERSEBOM))
+			return false;
+
+		Str = { m_wStr.data(), m_wStr.size() };
+		return true;
 
 	case CP_UTF8:
 	case CP_UTF7:
 		{
 			std::vector<char> CharStr;
 			CharStr.reserve(DELTA);
-			bool ExitCode = GetTString(m_ReadBuf, CharStr);
+			if (!GetTString(m_ReadBuf, CharStr, Eol))
+				return false;
 
-			if (ExitCode)
+			if (!CharStr.empty())
 			{
 				Utf::errors errs;
-				const auto len = Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), m_wStr.size(), &errs);
+				const auto len = Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size(), &errs);
 
 				SomeDataLost = SomeDataLost || errs.Conversion.Error;
 				if (len > m_wStr.size())
 				{
-					resize_nomove(m_wStr, len + 1);
-					Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size() - 1, m_wStr.data(), len, nullptr);
+					resize_nomove(m_wStr, len);
+					Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size(), nullptr);
 				}
-
-				m_wStr.resize(len+1);
-				m_wStr[len] = L'\0';
-				*DestStr = m_wStr.data();
-				Length = m_wStr.size() - 1;
+				else
+				{
+					m_wStr.resize(len);
+				}
 			}
-			return ExitCode;
+			else
+			{
+				m_wStr.clear();
+			}
+
+			Str = { m_wStr.data(), m_wStr.size() };
+			return true;
 		}
 
 	default:
 		{
 			std::vector<char> CharStr;
 			CharStr.reserve(DELTA);
-			bool ExitCode = GetTString(m_ReadBuf, CharStr);
+			if (!GetTString(m_ReadBuf, CharStr, Eol))
+				return false;
 
-			if (ExitCode)
+			if (!CharStr.empty())
 			{
 				DWORD Result = ERROR_SUCCESS;
-				size_t nResultLength = 0;
 				bool bGet = false;
 				m_wStr.resize(CharStr.size());
 
+				size_t nResultLength = 0;
 				if (!SomeDataLost)
 				{
-					nResultLength = MultiByteToWideChar(m_CodePage, SomeDataLost ? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
+					nResultLength = MultiByteToWideChar(m_CodePage, SomeDataLost? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
 
 					if (!nResultLength)
 					{
@@ -233,6 +207,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 				{
 					bGet = true;
 				}
+
 				if (bGet)
 				{
 					nResultLength = encoding::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr);
@@ -241,6 +216,7 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 						Result = ERROR_INSUFFICIENT_BUFFER;
 					}
 				}
+
 				if (Result == ERROR_INSUFFICIENT_BUFFER)
 				{
 					nResultLength = encoding::get_chars_count(m_CodePage, CharStr.data(), CharStr.size());
@@ -248,119 +224,124 @@ bool GetFileString::GetString(LPWSTR* DestStr, size_t& Length)
 					encoding::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr);
 				}
 
-				m_wStr.resize(nResultLength);
+				if (!nResultLength)
+					return false;
 
-				*DestStr = m_wStr.data();
-				Length = m_wStr.size() - 1;
-				ExitCode = !m_wStr.empty();
+				m_wStr.resize(nResultLength);
+			}
+			else
+			{
+				m_wStr.clear();
 			}
 
-			return ExitCode;
+			Str = { m_wStr.data(), m_wStr.size() };
+			return true;
 		}
 	}
 }
 
-template<class T>
-bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, bool bBigEndian)
+template<typename T>
+bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::type* Eol, bool bBigEndian)
 {
-	bool ExitCode = true;
-	T* ReadBufPtr = ReadPos < ReadSize ? From.data() + ReadPos / sizeof(T) : nullptr;
-
 	To.clear();
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
 	if (bCrCr)
 	{
-		To.emplace_back(m_Eol.cr<T>());
 		bCrCr = false;
+		if (Eol)
+			*Eol = eol::mac;
+		return true;
 	}
-	else
+
+	auto CurrentEol = eol::none;
+	for (const auto* ReadBufPtr = ReadPos < ReadSize? From.data() + ReadPos / sizeof(T) : nullptr; ; ++ReadBufPtr, ReadPos += sizeof(T))
 	{
-		EolType Eol = FEOL_NONE;
-		for (;;)
+		if (ReadPos >= ReadSize)
 		{
-			if (ReadPos >= ReadSize)
+			if (!(SrcFile.Read(From.data(), ReadBufCount * sizeof(T), ReadSize) && ReadSize))
 			{
-				if (!(SrcFile.Read(From.data(), ReadBufCount*sizeof(T), ReadSize) && ReadSize))
-				{
-					if (To.empty())
-					{
-						ExitCode = false;
-					}
-					break;
-				}
+				if (Eol)
+					*Eol = CurrentEol;
+				return !To.empty() || CurrentEol != eol::none;
+			}
 
-				if (bBigEndian && sizeof(T) != 1)
-				{
-					swap_bytes(From.data(), From.data(), ReadSize);
-				}
+			if (bBigEndian && sizeof(T) != 1)
+			{
+				swap_bytes(From.data(), From.data(), ReadSize);
+			}
 
-				ReadPos = 0;
-				ReadBufPtr = From.data();
-			}
-			if (Eol == FEOL_NONE)
+			ReadPos = 0;
+			ReadBufPtr = From.data();
+		}
+
+		if (!CurrentEol)
+		{
+			// UNIX
+			if (*ReadBufPtr == m_Eol.lf<T>())
 			{
-				// UNIX
-				if (*ReadBufPtr == m_Eol.lf<T>())
-				{
-					Eol = FEOL_UNIX;
-				}
-				// MAC / Windows? / Notepad?
-				else if (*ReadBufPtr == m_Eol.cr<T>())
-				{
-					Eol = FEOL_MAC;
-				}
+				CurrentEol = eol::unix;
+				continue;
 			}
-			else if (Eol == FEOL_MAC)
+			// MAC / Windows? / Notepad?
+			else if (*ReadBufPtr == m_Eol.cr<T>())
 			{
-				// Windows
-				if (*ReadBufPtr == m_Eol.lf<T>())
-				{
-					Eol = FEOL_WINDOWS;
-				}
-				// Notepad?
-				else if (*ReadBufPtr == m_Eol.cr<T>())
-				{
-					Eol = FEOL_MAC2;
-				}
-				else
-				{
-					break;
-				}
+				CurrentEol = eol::mac;
+				continue;
 			}
-			else if (Eol == FEOL_WINDOWS || Eol == FEOL_UNIX)
+		}
+		else if (CurrentEol == eol::mac)
+		{
+			if (m_CrSeen)
 			{
-				break;
-			}
-			else if (Eol == FEOL_MAC2)
-			{
+				m_CrSeen = false;
+
 				// Notepad
 				if (*ReadBufPtr == m_Eol.lf<T>())
 				{
-					Eol = FEOL_NOTEPAD;
+					CurrentEol = eol::bad_win;
+					continue;
 				}
 				else
 				{
 					// Пришёл \r\r, а \n не пришёл, поэтому считаем \r\r двумя MAC окончаниями строк
-					To.pop_back();
 					bCrCr = true;
 					break;
 				}
 			}
 			else
 			{
-				break;
+				// Windows
+				if (*ReadBufPtr == m_Eol.lf<T>())
+				{
+					CurrentEol = eol::win;
+					continue;
+				}
+				// Notepad or two MACs?
+				else if (*ReadBufPtr == m_Eol.cr<T>())
+				{
+					m_CrSeen = true;
+					continue;
+				}
+				else
+				{
+					break;
+				}
 			}
-
-			ReadPos += sizeof(T);
-
-			To.emplace_back(*ReadBufPtr);
-			++ReadBufPtr;
 		}
+		else
+		{
+			break;
+		}
+
+		To.emplace_back(*ReadBufPtr);
+		CurrentEol = eol::none;
 	}
-	To.emplace_back(0);
-	return ExitCode;
+
+	if (Eol)
+		*Eol = CurrentEol;
+	return true;
 }
 
 bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics, bool* pPureAscii)

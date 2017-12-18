@@ -94,17 +94,15 @@ namespace detail
 }
 
 template<typename... args>
-class zip_iterator:
-	public std::iterator<
-		typename detail::traits<args...>::iterator_category,
-		typename detail::traits<args...>::value_type,
-		typename detail::traits<args...>::difference_type,
-		typename detail::traits<args...>::pointer,
-		typename detail::traits<args...>::reference
-	>,
-	public rel_ops<zip_iterator<args...>>
+class zip_iterator: public rel_ops<zip_iterator<args...>>
 {
 public:
+	using iterator_category = typename detail::traits<args...>::iterator_category;
+	using value_type = typename detail::traits<args...>::value_type;
+	using difference_type = typename detail::traits<args...>::difference_type;
+	using pointer = typename detail::traits<args...>::pointer;
+	using reference = typename detail::traits<args...>::reference;
+
 	zip_iterator() = default;
 	explicit zip_iterator(const args&... Args): m_Tuple(Args...) {}
 	auto& operator++() { detail::traits<args...>::unary_for_each(detail::increment{}, m_Tuple); return *this; }

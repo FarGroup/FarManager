@@ -89,6 +89,12 @@ public:
 	constexpr auto data() const { return &*m_Begin; }
 	constexpr size_t size() const { return m_End - m_Begin; }
 
+	void swap(range& Rhs)
+	{
+		using std::swap;
+		swap(*this, Rhs);
+	}
+
 private:
 	enum { is_const = std::is_const_v<std::remove_reference_t<reference>> };
 

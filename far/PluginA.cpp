@@ -1301,10 +1301,11 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di, HANDLE 
 	}
 	else if ((diA->Type == oldfar::DI_EDIT || diA->Type == oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
-		const auto Length = StrLength(di.Data);
-		diA->Ptr.PtrLength = Length;
+		const auto Length = wcslen(di.Data);
+		diA->Ptr.PtrLength = static_cast<int>(Length);
 		auto Data = std::make_unique<char[]>(Length + 1);
-		encoding::oem::get_bytes(di.Data, Length, Data.get(), Length + 1);
+		encoding::oem::get_bytes(di.Data, Length, Data.get(), Length);
+		Data[Length] = L'\0';
 		diA->Ptr.PtrData = Data.release();
 	}
 	else
@@ -3702,7 +3703,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{}};
 					if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 					{
-						const auto Length = StrLength(item.String);
+						const auto Length = wcslen(item.String);
 						Result = Length + 1;
 						if (Param)
 							encoding::oem::get_bytes(item.String, Length, static_cast<char*>(Param), oldfar::NM);
@@ -4848,7 +4849,7 @@ private:
 		}
 		else
 		{
-			int nb = std::min(StrLength(Info->Title), 8);
+			int nb = std::min(static_cast<int>(wcslen(Info->Title)), 8);
 			while (nb > 0) {
 				--nb;
 				reinterpret_cast<char *>(&Info->Guid)[8 + nb] = static_cast<char>(Info->Title[nb]);
@@ -5566,8 +5567,8 @@ private:
 		{
 			if (Size)
 			{
-				const auto p = new wchar_t*[Size];
-				const auto guid = new GUID[Size]();
+				auto p = std::make_unique<const wchar_t*[]>(Size);
+				auto guid = std::make_unique<GUID[]>(Size);
 
 				for (size_t i = 0; i != Size; ++i)
 				{
@@ -5575,8 +5576,8 @@ private:
 					guid[i].Data1 = static_cast<decltype(guid[i].Data1)>(i);
 				}
 
-				Item.Guids = guid;
-				Item.Strings = p;
+				Item.Guids = guid.release();
+				Item.Strings = p.release();
 				Item.Count = Size;
 			}
 

@@ -2945,7 +2945,7 @@ static bool xlatFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
 	wchar_t* Str = const_cast<wchar_t*>(Params[0].toString().data());
-	bool Ret = Xlat(Str,0,StrLength(Str),Params[1].asInteger()) != nullptr;
+	bool Ret = Xlat(Str, 0, static_cast<int>(wcslen(Str)), Params[1].asInteger()) != nullptr;
 	PassString(Str, Data);
 	return Ret;
 }
@@ -3102,19 +3102,18 @@ static bool promptFunc(FarMacroCall* Data)
 static bool msgBoxFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(3, Data);
-	DWORD Flags = (DWORD)Params[2].asInteger();
-	TVar& ValB(Params[1]);
-	TVar& ValT(Params[0]);
-	const wchar_t *title = L"";
 
+	auto& ValT = Params[0];
+	string_view title;
 	if (!(ValT.isInteger() && !ValT.asInteger()))
 		title = ValT.toString().data();
 
-	const wchar_t *text  = L"";
-
+	auto& ValB = Params[1];
+	string_view text;
 	if (!(ValB.isInteger() && !ValB.asInteger()))
 		text = ValB.toString().data();
 
+	auto Flags = static_cast<DWORD>(Params[2].asInteger());
 	Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
 	Flags|=FMSG_ALLINONE;
 
@@ -3123,10 +3122,8 @@ static bool msgBoxFunc(FarMacroCall* Data)
 
 	//_KEYMACRO(SysLog(L"title='%s'",title));
 	//_KEYMACRO(SysLog(L"text='%s'",text));
-	string TempBuf = title;
-	TempBuf += L"\n";
-	TempBuf += text;
-	int Result=pluginapi::apiMessageFn(&FarGuid,&FarGuid,Flags,nullptr,(const wchar_t * const *)UNSAFE_CSTR(TempBuf),0,0)+1;
+	const auto TempBuf = concat(title, L'\n', text);
+	int Result = pluginapi::apiMessageFn(&FarGuid, &FarGuid, Flags, nullptr, reinterpret_cast<const wchar_t* const*>(TempBuf.data()), 0, 0) + 1;
 	PassNumber(Result, Data);
 	return true;
 }
@@ -3279,7 +3276,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			string strName2(b.strName);
 			RemoveHighlights(strName1);
 			RemoveHighlights(strName2);
-			bool Less = NumStrCmpI(make_string_view(strName1, Param.Offset), make_string_view(strName2, Param.Offset)) < 0;
+			bool Less = NumStrCmpI(string_view(strName1).substr(Param.Offset), string_view(strName2).substr(Param.Offset)) < 0;
 			return Param.Reverse? !Less : Less;
 		});
 	}

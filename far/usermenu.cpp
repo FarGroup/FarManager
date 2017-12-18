@@ -194,9 +194,8 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 			MenuItem->strLabel = MenuStr.substr(ChPos + 1);
 			RemoveLeadingSpaces(MenuItem->strLabel);
 
-			wchar_t* Tmp;
-			size_t TmpLength;
-			MenuItem->Submenu = (GetStr.PeekString(&Tmp, TmpLength) && *Tmp == L'{');
+			string_view Tmp;
+			MenuItem->Submenu = GetStr.PeekString(Tmp) && !Tmp.empty() && Tmp.front() == L'{';
 
 			// Support for old 1.x separator format
 			if (OldFormat && MenuItem->strHotKey == L"-" && MenuItem->strLabel.empty())

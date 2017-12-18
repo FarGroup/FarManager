@@ -29,9 +29,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="elevation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -110,7 +107,16 @@
     <ClCompile Include="eject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="elevation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="encoding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="eol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="exception.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="execute.cpp">
@@ -449,9 +455,6 @@
     <ClCompile Include="copy_progress.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="exception.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="new_handler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -551,6 +554,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="encoding.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="eol.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="exception.hpp">

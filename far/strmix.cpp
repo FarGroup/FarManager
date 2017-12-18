@@ -182,7 +182,7 @@ wchar_t* TruncStrFromEnd(wchar_t *Str, int MaxLength)
 
 	if (Str)
 	{
-		int Length = StrLength(Str);
+		int Length = static_cast<int>(wcslen(Str));
 
 		if (Length > MaxLength)
 		{
@@ -202,7 +202,7 @@ wchar_t* TruncStr(wchar_t *Str, int MaxLength)
 
 	if (Str)
 	{
-		int Length = StrLength(Str);
+		int Length = static_cast<int>(wcslen(Str));
 
 		if (Length > MaxLength)
 		{
@@ -237,7 +237,7 @@ wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 	if (!Str)
 		return nullptr;
 
-	const auto Length = StrLength(Str);
+	const auto Length = static_cast<int>(wcslen(Str));
 	if (Length <= MaxLength)
 		return Str;
 
@@ -286,7 +286,7 @@ wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 
 	if (Str)
 	{
-		int nLength = StrLength(Str);
+		int nLength = static_cast<int>(wcslen(Str));
 
 		if (nLength > MaxLength)
 		{
@@ -417,26 +417,27 @@ bool IsCaseMixed(const string_view& strSrc)
 	return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return is_alpha(c) && is_lower(c) != Case; });
 }
 
-void UnquoteExternal(string &strStr)
+void UnquoteExternal(string& Str)
 {
-	auto len = strStr.size();
-	if (len > 0 && strStr.front() == L'\"')
+	if (Str.empty())
+		return;
+
+	if (Str.back() == L'"')
 	{
-		if (len < 2) // '"'
-		{
-			strStr.clear();
-		}
-		else if (strStr.back() == L'\"') // '"D:\Path Name"'
-		{
-			strStr.pop_back();
-			strStr.erase(0, 1);
-		}
-		else if (len >= 3 && IsSlash(strStr[len-1]) && strStr[len-2] == L'\"') // '"D:\Path Name"\'
-		{
-			strStr.erase(len-2, 1);
-			strStr.erase(0, 1);
-		}
+		Str.pop_back();
 	}
+	else
+	{
+		const auto Size = Str.size();
+		if (Size > 1 && IsSlash(Str.back()) && Str[Size - 2] == L'"')
+			Str.erase(Size - 2, 1);
+	}
+
+	if (Str.empty())
+		return;
+
+	if (Str.front() == L'"')
+		Str.erase(0, 1);
 }
 
 
@@ -582,7 +583,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 // Return - количество замен
 size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_view& ReplStr, bool IgnoreCase, size_t Count)
 {
-	if (FindStr.empty() || !Count)
+	if (strStr.empty() || FindStr.empty() || !Count)
 		return 0;
 
 	const auto AreEqual = IgnoreCase? equal_icase : equal;
@@ -590,7 +591,7 @@ size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_v
 	size_t replaced = 0;
 	for (size_t I = 0, L = strStr.size(); I + FindStr.size() <= L; ++I)
 	{
-		if (!AreEqual(make_string_view(strStr, I, FindStr.size()), FindStr))
+		if (!AreEqual(string_view(strStr).substr(I, FindStr.size()), FindStr))
 			continue;
 
 		strStr.replace(I, FindStr.size(), ReplStr.raw_data(), ReplStr.size());

@@ -79,7 +79,7 @@ enum ELEVATION_COMMAND: int
 	C_COMMANDS_COUNT
 };
 
-static const wchar_t ElevationArgument[] = L"/service:elevation";
+static const auto ElevationArgument = L"/service:elevation"_sv;
 
 static auto CreateBackupRestorePrivilege() { return privilege{SE_BACKUP_NAME, SE_RESTORE_NAME}; }
 

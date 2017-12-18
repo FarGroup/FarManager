@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "mix.hpp"
+#include "eol.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -136,7 +137,7 @@ public:
 
 	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);
-	static const wchar_t* GetDefaultEOL();
+	static eol::type GetDefaultEOL();
 
 	struct EditorUndoData;
 
@@ -169,8 +170,10 @@ private:
 		{
 		}
 
-		// BUGBUG, size_t
+		// BUGBUG, migrate to uNumber, rename uNumber to Number
 		int Number() const { return static_cast<int>(m_Number); }
+		size_t uNumber() const { return m_Number; }
+
 		void IncrementNumber() { ++m_Number; }
 		void DecrementNumber() { --m_Number; }
 
@@ -204,8 +207,8 @@ private:
 	void ScrollDown();
 	void ScrollUp();
 	bool Search(bool Next);
-	void GoToLine(int Line);
-	void GoToLineAndShow(int Line);
+	void GoToLine(size_t Line);
+	void GoToLineAndShow(size_t Line);
 	void GoToPosition();
 	void TextChanged(bool State);
 	static int CalcDistance(const numbered_iterator& From, const numbered_iterator& To);
@@ -217,8 +220,8 @@ private:
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();
 	void UnmarkMacroBlock();
-	void AddUndoData(int Type) { return AddUndoData(Type, {}, nullptr, 0, 0); }
-	void AddUndoData(int Type, const string& Str, const wchar_t *Eol, int StrNum, int StrPos);
+	void AddUndoData(int Type) { return AddUndoData(Type, {}, eol::none, 0, 0); }
+	void AddUndoData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos);
 	void Undo(int redo);
 	void SelectAll();
 	void BlockLeft();
@@ -276,8 +279,8 @@ private:
 	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
 	DWORD EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
-	numbered_iterator InsertString(const wchar_t *Str, int Length, const numbered_iterator& Where);
-	numbered_iterator PushString(const wchar_t* Str, size_t Size) { return InsertString(Str, static_cast<int>(Size), EndIterator()); }
+	numbered_iterator InsertString(const string_view& Str, const numbered_iterator& Where);
+	numbered_iterator PushString(const string_view& Str) { return InsertString(Str, EndIterator()); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
 	bool ProcessKeyInternal(const Manager::Key& Key, bool& Refresh);
@@ -297,7 +300,7 @@ private:
 	bool IsLastLine(const iterator& Line) const;
 
 	static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param, size_t Count, size_t& Size);
-	static void EditorShowMsg(const string& Title, const string& Msg, const string& Name, int Percent);
+	static void EditorShowMsg(const string& Title, const string& Msg, const string& Name, size_t Percent);
 
 	bool IsAnySelection() const { assert(Lines.end() == m_it_AnyBlockStart || m_BlockType != BTYPE_NONE); return Lines.end() != m_it_AnyBlockStart; }
 	bool IsStreamSelection() const { return IsAnySelection() && m_BlockType == BTYPE_STREAM; }
@@ -336,14 +339,13 @@ private:
 	std::list<EditorUndoData>::iterator UndoSavePos{ UndoData.end() };
 	int UndoSkipLevel{};
 	int LastChangeStrPos{};
-	int m_LinesCount{};
 	/* $ 26.02.2001 IS
 	Сюда запомним размер табуляции и в дальнейшем будем использовать его,
 	а не Global->Opt->TabSize
 	*/
 	Options::EditorOptions EdOpt;
 	int Pasting{};
-	string GlobalEOL;
+	eol::type GlobalEOL;
 	// работа с блоками из макросов (MCODE_F_EDITOR_SEL)
 	numbered_iterator m_it_MBlockStart{ EndIterator() };
 	numbered_iterator m_it_AnyBlockStart{ EndIterator() };
@@ -391,7 +393,7 @@ private:
 		string Title;
 		string Msg;
 		string Name;
-		int Percent;
+		size_t Percent{};
 	};
 };
 
