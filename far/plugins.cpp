@@ -1902,123 +1902,91 @@ struct PluginData
 	unsigned long long PluginFlags;
 };
 
-int PluginManager::ProcessCommandLine(const string& CommandParam)
+bool PluginManager::ProcessCommandLine(const string& Command)
 {
-	size_t PrefixLength=0;
-	string strCommand=CommandParam;
-	UnquoteExternal(strCommand);
-	RemoveLeadingSpaces(strCommand);
-
-	if (!IsPluginPrefixPath(strCommand))
-		return FALSE;
+	if (!IsPluginPrefixPath(Command))
+		return false;
 
 	LoadIfCacheAbsent();
-	string strPrefix = strCommand.substr(0, strCommand.find(L':'));
-	string strPluginPrefix;
-	std::list<PluginData> items;
+	const auto Prefix = string_view(Command).substr(0, Command.find(L':'));
+	std::vector<PluginData> items;
 
 	for (const auto& i: SortedPlugins)
 	{
-		unsigned long long PluginFlags = 0;
+		string PluginPrefixes;
+		unsigned long long PluginFlags;
 
 		if (i->CheckWorkFlags(PIWF_CACHED))
 		{
 			unsigned long long id = ConfigProvider().PlCacheCfg()->GetCacheID(i->GetCacheName());
-			strPluginPrefix = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
+			PluginPrefixes = ConfigProvider().PlCacheCfg()->GetCommandPrefix(id);
 			PluginFlags = ConfigProvider().PlCacheCfg()->GetFlags(id);
 		}
 		else
 		{
-			PluginInfo Info = {sizeof(Info)};
-
-			if (i->GetPluginInfo(&Info))
-			{
-				strPluginPrefix = NullToEmpty(Info.CommandPrefix);
-				PluginFlags = Info.Flags;
-			}
-			else
+			PluginInfo Info{sizeof(Info)};
+			if (!i->GetPluginInfo(&Info))
 				continue;
+
+			PluginPrefixes = NullToEmpty(Info.CommandPrefix);
+			PluginFlags = Info.Flags;
 		}
 
-		if (strPluginPrefix.empty())
+		if (PluginPrefixes.empty())
 			continue;
 
-		const wchar_t *PrStart = strPluginPrefix.data();
-		PrefixLength=strPrefix.size();
+		const auto Enumerator = enum_tokens(PluginPrefixes, L":");
+		if (!std::any_of(ALL_CONST_RANGE(Enumerator), [&](const auto& p) { return equal_icase(p, Prefix); }))
+			continue;
 
-		for (;;)
-		{
-			const wchar_t *PrEnd = wcschr(PrStart, L':');
-			size_t Len = PrEnd? (PrEnd - PrStart) : wcslen(PrStart);
+		if (!i->Load() || !i->has(iOpen))
+			continue;
 
-			if (Len<PrefixLength)Len=PrefixLength;
+		items.emplace_back(PluginData{ i, PluginFlags });
 
-			if (starts_with_icase(strPrefix, { PrStart, Len }))
-			{
-				if (i->Load() && i->has(iOpen))
-				{
-					PluginData pD;
-					pD.pPlugin = i;
-					pD.PluginFlags=PluginFlags;
-					items.emplace_back(pD);
-					break;
-				}
-			}
-
-			if (!PrEnd)
-				break;
-
-			PrStart = ++PrEnd;
-		}
-
-		if (!items.empty() && !Global->Opt->PluginConfirm.Prefix)
+		if (!Global->Opt->PluginConfirm.Prefix)
 			break;
 	}
 
 	if (items.empty())
-		return FALSE;
+		return false;
 
 	if (Global->CtrlObject->Cp()->ActivePanel()->ProcessPluginEvent(FE_CLOSE,nullptr))
-		return FALSE;
+		return false;
 
-	auto PData = items.begin();
+	auto PluginIterator = items.cbegin();
 
-	if (items.size()>1)
+	if (items.size() > 1)
 	{
-		const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
-		menu->SetPosition(-1, -1, 0, 0);
-		menu->SetHelp(L"ChoosePluginMenu");
-		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
+		const auto Menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+		Menu->SetPosition(-1, -1, 0, 0);
+		Menu->SetHelp(L"ChoosePluginMenu");
+		Menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
-		std::for_each(CONST_RANGE(items, i)
+		for (const auto& i: items)
 		{
-			MenuItemEx mitem;
-			mitem.strName = make_string(PointToName(i.pPlugin->GetModuleName()));
-			menu->AddItem(mitem);
-		});
-
-		int ExitCode=menu->Run();
-
-		if (ExitCode>=0)
-		{
-			std::advance(PData, ExitCode);
+			Menu->AddItem(make_string(PointToName(i.pPlugin->GetModuleName())));
 		}
+
+		const auto ExitCode = Menu->Run();
+
+		if (ExitCode < 0)
+			return false;
+
+		PluginIterator += ExitCode;
 	}
 
-	string strPluginCommand=strCommand.substr(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
-	RemoveTrailingSpaces(strPluginCommand);
-	OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.data()}; //BUGBUG
-	auto hPlugin = Global->CtrlObject->Plugins->Open(PData->pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info));
-
-	if (hPlugin)
+	// Copy instead of string_view as it goes into the wild
+	const auto PluginCommand = Command.substr(PluginIterator->PluginFlags & PF_FULLCMDLINE? 0 : Prefix.size() + 1);
+	const OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), PluginCommand.data() };
+	if (auto hPlugin = Global->CtrlObject->Plugins->Open(PluginIterator->pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info)))
 	{
 		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
 		NewPanel->SetPluginMode(std::move(hPlugin), L"", true);
 		NewPanel->Update(0);
 		NewPanel->Show();
 	}
-
-	return TRUE;
+	return true;
 }
 
 

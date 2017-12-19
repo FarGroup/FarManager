@@ -194,7 +194,7 @@ public:
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
 	bool GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid) const;
 	void ReloadLanguage() const;
-	int ProcessCommandLine(const string& Command);
+	bool ProcessCommandLine(const string& Command);
 	size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 	bool CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);

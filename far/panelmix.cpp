@@ -160,142 +160,142 @@ bool CheckUpdateAnotherPanel(panel_ptr SrcPanel, const string& SelName)
 	return false;
 }
 
-bool MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2, bool ShortNameAsIs)
+bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool ShortNameAsIs, string& strPathName)
 {
-	auto RetCode = false;
-	auto NeedRealName = false;
-	strPathName.clear();
+	if (FilePath)
+	{
+		string strShortFileName;
+		SrcPanel->GetCurName(strPathName,strShortFileName);
+
+		if (ShortNameAsIs && SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
+			strPathName = strShortFileName;
+	}
+	else
+	{
+		if (!(SrcPanel->GetType() == panel_type::FILE_PANEL || SrcPanel->GetType() == panel_type::TREE_PANEL))
+			return false;
+
+		strPathName = SrcPanel->GetCurDir();
+
+		if (SrcPanel->GetMode() != panel_mode::PLUGIN_PANEL)
+		{
+			if (RealName)
+				SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, true, ShortNameAsIs);
+
+			if (SrcPanel->GetShowShortNamesMode() && ShortNameAsIs)
+				strPathName = ConvertNameToShort(strPathName);
+		}
+		else
+		{
+			if (const auto SrcFileList = std::dynamic_pointer_cast<FileList>(SrcPanel))
+			{
+				OpenPanelInfo Info;
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(SrcFileList->GetPluginHandle(), &Info);
+				strPathName = SrcFileList->GetPluginPrefix();
+				if (Info.HostFile && *Info.HostFile)
+				{
+					append(strPathName, Info.HostFile, L'/');
+				}
+				strPathName += NullToEmpty(Info.CurDir);
+			}
+		}
+
+		AddEndSlash(strPathName);
+	}
+
+	return true;
+}
+
+bool MakePathForUI(DWORD Key, string &strPathName)
+{
+	auto RealName = false;
 
 	switch (Key)
 	{
-		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
-		case KEY_RCTRLRALTBRACKET:
-		case KEY_CTRLRALTBRACKET:
-		case KEY_RCTRLALTBRACKET:
-		case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
-		case KEY_RCTRLRALTBACKBRACKET:
-		case KEY_CTRLRALTBACKBRACKET:
-		case KEY_RCTRLALTBACKBRACKET:
-		case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
-		case KEY_RALTSHIFTBRACKET:
-		case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
-		case KEY_RALTSHIFTBACKBRACKET:
-			NeedRealName = true;
-			// fallthrough
-		case KEY_CTRLBRACKET:          // Вставить путь из левой панели
-		case KEY_RCTRLBRACKET:
-		case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
-		case KEY_RCTRLBACKBRACKET:
-		case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
-		case KEY_RCTRLSHIFTBRACKET:
-		case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
-		case KEY_RCTRLSHIFTBACKBRACKET:
-		case KEY_CTRLSHIFTNUMENTER:    // Текущий файл с пасс.панели
-		case KEY_RCTRLSHIFTNUMENTER:
-		case KEY_SHIFTNUMENTER:        // Текущий файл с актив.панели
-		case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
-		case KEY_RCTRLSHIFTENTER:
-		case KEY_SHIFTENTER:           // Текущий файл с актив.панели
+	case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+	case KEY_RCTRLRALTBRACKET:
+	case KEY_CTRLRALTBRACKET:
+	case KEY_RCTRLALTBRACKET:
+	case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+	case KEY_RCTRLRALTBACKBRACKET:
+	case KEY_CTRLRALTBACKBRACKET:
+	case KEY_RCTRLALTBACKBRACKET:
+	case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+	case KEY_RALTSHIFTBRACKET:
+	case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+	case KEY_RALTSHIFTBACKBRACKET:
+		RealName = true;
+		// fallthrough
+	case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+	case KEY_RCTRLBRACKET:
+	case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+	case KEY_RCTRLBACKBRACKET:
+	case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+	case KEY_RCTRLSHIFTBRACKET:
+	case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+	case KEY_RCTRLSHIFTBACKBRACKET:
+	case KEY_CTRLSHIFTNUMENTER:    // Текущий файл с пасс.панели
+	case KEY_RCTRLSHIFTNUMENTER:
+	case KEY_SHIFTNUMENTER:        // Текущий файл с актив.панели
+	case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
+	case KEY_RCTRLSHIFTENTER:
+	case KEY_SHIFTENTER:           // Текущий файл с актив.панели
 		{
 			panel_ptr SrcPanel;
-			FilePanels *Cp=Global->CtrlObject->Cp();
+			const auto Cp = Global->CtrlObject->Cp();
 
 			switch (Key)
 			{
-				case KEY_CTRLALTBRACKET:
-				case KEY_RCTRLRALTBRACKET:
-				case KEY_CTRLRALTBRACKET:
-				case KEY_RCTRLALTBRACKET:
-				case KEY_CTRLBRACKET:
-				case KEY_RCTRLBRACKET:
-					SrcPanel=Cp->LeftPanel();
-					break;
-				case KEY_CTRLALTBACKBRACKET:
-				case KEY_RCTRLRALTBACKBRACKET:
-				case KEY_CTRLRALTBACKBRACKET:
-				case KEY_RCTRLALTBACKBRACKET:
-				case KEY_CTRLBACKBRACKET:
-				case KEY_RCTRLBACKBRACKET:
-					SrcPanel=Cp->RightPanel();
-					break;
-				case KEY_SHIFTNUMENTER:
-				case KEY_SHIFTENTER:
-				case KEY_ALTSHIFTBRACKET:
-				case KEY_RALTSHIFTBRACKET:
-				case KEY_CTRLSHIFTBRACKET:
-				case KEY_RCTRLSHIFTBRACKET:
-					SrcPanel=Cp->ActivePanel();
-					break;
-				case KEY_CTRLSHIFTNUMENTER:
-				case KEY_RCTRLSHIFTNUMENTER:
-				case KEY_CTRLSHIFTENTER:
-				case KEY_RCTRLSHIFTENTER:
-				case KEY_ALTSHIFTBACKBRACKET:
-				case KEY_RALTSHIFTBACKBRACKET:
-				case KEY_CTRLSHIFTBACKBRACKET:
-				case KEY_RCTRLSHIFTBACKBRACKET:
-					SrcPanel=Cp->PassivePanel();
-					break;
+			case KEY_CTRLALTBRACKET:
+			case KEY_RCTRLRALTBRACKET:
+			case KEY_CTRLRALTBRACKET:
+			case KEY_RCTRLALTBRACKET:
+			case KEY_CTRLBRACKET:
+			case KEY_RCTRLBRACKET:
+				SrcPanel = Cp->LeftPanel();
+				break;
+			case KEY_CTRLALTBACKBRACKET:
+			case KEY_RCTRLRALTBACKBRACKET:
+			case KEY_CTRLRALTBACKBRACKET:
+			case KEY_RCTRLALTBACKBRACKET:
+			case KEY_CTRLBACKBRACKET:
+			case KEY_RCTRLBACKBRACKET:
+				SrcPanel = Cp->RightPanel();
+				break;
+			case KEY_SHIFTNUMENTER:
+			case KEY_SHIFTENTER:
+			case KEY_ALTSHIFTBRACKET:
+			case KEY_RALTSHIFTBRACKET:
+			case KEY_CTRLSHIFTBRACKET:
+			case KEY_RCTRLSHIFTBRACKET:
+				SrcPanel = Cp->ActivePanel();
+				break;
+			case KEY_CTRLSHIFTNUMENTER:
+			case KEY_RCTRLSHIFTNUMENTER:
+			case KEY_CTRLSHIFTENTER:
+			case KEY_RCTRLSHIFTENTER:
+			case KEY_ALTSHIFTBACKBRACKET:
+			case KEY_RALTSHIFTBACKBRACKET:
+			case KEY_CTRLSHIFTBACKBRACKET:
+			case KEY_RCTRLSHIFTBACKBRACKET:
+				SrcPanel = Cp->PassivePanel();
+				break;
 			}
 
-			if (SrcPanel)
-			{
-				if (Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_RCTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER || Key == KEY_RCTRLSHIFTNUMENTER)
-				{
-					string strShortFileName;
-					SrcPanel->GetCurName(strPathName,strShortFileName);
+			const auto FilePath = Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_RCTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER || Key == KEY_RCTRLSHIFTNUMENTER;
+			if (!SrcPanel || !MakePath(SrcPanel, FilePath, RealName, true, strPathName))
+				return false;
 
-					if (SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
-						strPathName = strShortFileName;
-				}
-				else
-				{
-					if (!(SrcPanel->GetType() == panel_type::FILE_PANEL || SrcPanel->GetType() == panel_type::TREE_PANEL))
-						return false;
+			if (Global->Opt->QuotedName & QUOTEDNAME_INSERT)
+				QuoteSpace(strPathName);
 
-					strPathName = SrcPanel->GetCurDir();
-
-					if (SrcPanel->GetMode() != panel_mode::PLUGIN_PANEL)
-					{
-						if (NeedRealName)
-							SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, true, ShortNameAsIs);
-
-						if (SrcPanel->GetShowShortNamesMode() && ShortNameAsIs)
-							strPathName = ConvertNameToShort(strPathName);
-					}
-					else
-					{
-						if (const auto SrcFileList = std::dynamic_pointer_cast<FileList>(SrcPanel))
-						{
-							OpenPanelInfo Info;
-							Global->CtrlObject->Plugins->GetOpenPanelInfo(SrcFileList->GetPluginHandle(), &Info);
-							strPathName = SrcFileList->GetPluginPrefix();
-							if (Info.HostFile && *Info.HostFile)
-							{
-								append(strPathName, Info.HostFile, L'/');
-							}
-							strPathName += NullToEmpty(Info.CurDir);
-						}
-					}
-
-					AddEndSlash(strPathName);
-				}
-
-				if (Global->Opt->QuotedName&QUOTEDNAME_INSERT)
-					QuoteSpace(strPathName);
-
-				if (Param2)
-					strPathName += Param2;
-
-				RetCode = true;
-			}
+			return true;
 		}
-		break;
+
+	default:
+		return false;
 	}
-
-	return RetCode;
 }
-
 
 std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const string& ColumnWidths)
 {

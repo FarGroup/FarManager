@@ -419,7 +419,7 @@ bool Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 	}
 	else
 	{
-		if (!MakePath1(Key, Data.Folder, L""))
+		if (!MakePathForUI(Key, Data.Folder))
 			return false;
 	}
 

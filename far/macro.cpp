@@ -1890,9 +1890,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
 		{
 			string Filename;
-			if (MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH? KEY_ALTSHIFTBRACKET : KEY_ALTSHIFTBACKBRACKET, Filename, L""))
+			if (MakePath(CheckCode == MCODE_V_APANEL_UNCPATH? Global->CtrlObject->Cp()->ActivePanel() : Global->CtrlObject->Cp()->PassivePanel(), false, true, false, Filename))
 			{
-				UnquoteExternal(Filename);
 				DeleteEndSlash(Filename);
 			}
 			return PassString(Filename, Data);

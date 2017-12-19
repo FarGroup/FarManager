@@ -417,30 +417,6 @@ bool IsCaseMixed(const string_view& strSrc)
 	return std::any_of(AlphaBegin, strSrc.cend(), [Case](wchar_t c){ return is_alpha(c) && is_lower(c) != Case; });
 }
 
-void UnquoteExternal(string& Str)
-{
-	if (Str.empty())
-		return;
-
-	if (Str.back() == L'"')
-	{
-		Str.pop_back();
-	}
-	else
-	{
-		const auto Size = Str.size();
-		if (Size > 1 && IsSlash(Str.back()) && Str[Size - 2] == L'"')
-			Str.erase(Size - 2, 1);
-	}
-
-	if (Str.empty())
-		return;
-
-	if (Str.front() == L'"')
-		Str.erase(0, 1);
-}
-
-
 /* FileSizeToStr()
    Форматирование размера файла в удобочитаемый вид.
 */

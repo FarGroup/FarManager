@@ -322,8 +322,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 
 		if (RealPath)
 		{
-			MakePath1(SubstData.PassivePanel?KEY_ALTSHIFTBACKBRACKET:KEY_ALTSHIFTBRACKET, strCurDir, L"", ShortN0);
-			inplace::unquote(strCurDir);
+			MakePath(SubstData.PassivePanel? Global->CtrlObject->Cp()->PassivePanel() : Global->CtrlObject->Cp()->ActivePanel(), false, true, ShortN0, strCurDir);
 		}
 
 		if (ShortN0)

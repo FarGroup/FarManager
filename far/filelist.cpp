@@ -1407,7 +1407,8 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 				if (LocalKey==KEY_CTRLSHIFTENTER || LocalKey==KEY_RCTRLSHIFTENTER || LocalKey==KEY_CTRLSHIFTNUMENTER || LocalKey==KEY_RCTRLSHIFTNUMENTER)
 				{
-					MakePath1(LocalKey, strFileName, L" ");
+					if (MakePathForUI(LocalKey, strFileName))
+						strFileName += ' ';
 				}
 				else
 				{
@@ -1509,7 +1510,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		{
 			string strPanelDir;
 
-			if (MakePath1(LocalKey, strPanelDir, L""))
+			if (MakePathForUI(LocalKey, strPanelDir))
 				Parent()->GetCmdLine()->InsertString(strPanelDir);
 
 			return true;
