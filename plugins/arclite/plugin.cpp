@@ -161,6 +161,7 @@ public:
     options.dst_dir = dst_dir;
     options.move_files = archive->updatable() ? (move ? triTrue : triFalse) : triUndef;
     options.delete_archive = false;
+	 options.nested_archive = is_far_temp_path(archive->arc_path); // very approximate heuristic
     bool show_dialog = (op_mode & (OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;
     if (show_dialog && (op_mode & OPM_SILENT))
       show_dialog = false;
@@ -178,10 +179,8 @@ public:
       options.separate_dir = triFalse;
     }
 
-    const auto update_dst_dir = [&]
-    {
-      if (options.separate_dir == triTrue || (options.separate_dir == triUndef && !single_item && (op_mode & OPM_TOPLEVEL)))
-      {
+    const auto update_dst_dir = [&] {
+      if (options.separate_dir == triTrue || (options.separate_dir == triUndef && !single_item && (op_mode & OPM_TOPLEVEL))) {
         options.dst_dir = get_separate_dir_path(dst_dir, archive->arc_name());
       }
     };
@@ -415,9 +414,12 @@ public:
     vector<UInt32> matched_indices;
     for (UInt32 j = 0; j < nf; ++j) {
       auto file_path = archive->get_path(j);
-      for (const auto& n : items)
-      if (lstrcmpiW(file_path.data(),n.data()) == 0 || Far::match_masks(file_path, n))
-        matched_indices.push_back(j);
+      for (const auto& n : items) {
+        if (lstrcmpiW(file_path.data(),n.data()) == 0 || Far::match_masks(file_path, n)) {
+          matched_indices.push_back(j);
+			 break;
+        }
+      }
     }
     if (!matched_indices.empty()) {
       sort(matched_indices.begin(), matched_indices.end(), [&](const auto&a, const auto& b) { // group by parent
@@ -1079,6 +1081,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       }
     }
   }
+
   else if (info->OpenFrom == OPEN_COMMANDLINE) {
     try {
       CommandArgs cmd_args = parse_command(reinterpret_cast<OpenCommandLineInfo*>(info->Data)->CommandLine);
@@ -1110,6 +1113,33 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
         throw;
     }
   }
+
+  else if (info->OpenFrom == OPEN_FROMMACRO) {
+    try {
+      CommandArgs cmd_args = parse_plugin_call(reinterpret_cast<const OpenMacroInfo*>(info->Data));
+      switch (cmd_args.cmd) {
+      case cmdCreate:
+      case cmdUpdate:
+        Plugin::cmdline_update(parse_update_command(cmd_args));
+        break;
+      case cmdExtract:
+        Plugin::cmdline_extract(parse_extract_command(cmd_args));
+        break;
+      case cmdExtractItems:
+        Plugin::cmdline_extract(parse_extractitems_command(cmd_args));
+        break;
+      case cmdTest:
+        Plugin::cmdline_test(parse_test_command(cmd_args));
+        break;
+      }
+    }
+    catch (const Error& e) {
+      if (e.code != E_BAD_FORMAT)
+        throw;
+    }
+	 return INVALID_HANDLE_VALUE;
+  }
+
   else if (info->OpenFrom == OPEN_ANALYSE) {
     const OpenAnalyseInfo* oai = reinterpret_cast<const OpenAnalyseInfo*>(info->Data);
     unique_ptr<Archives> archives(static_cast<Archives*>(oai->Handle));
@@ -1120,6 +1150,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       return Plugin::open(*archives);
     }
   }
+
   else if (info->OpenFrom == OPEN_SHORTCUT) {
     const OpenShortcutInfo* osi = reinterpret_cast<const OpenShortcutInfo*>(info->Data);
     OpenOptions options;
@@ -1128,6 +1159,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     options.detect = true;
     return Plugin::open(*Archive::open(options));
   }
+
   return nullptr;
   FAR_ERROR_HANDLER_END(return nullptr, return nullptr, false);
 }

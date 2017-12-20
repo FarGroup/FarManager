@@ -17,6 +17,7 @@ struct CommandArgs {
 };
 
 CommandArgs parse_command(const wstring& cmd_text);
+CommandArgs parse_plugin_call(const OpenMacroInfo *omi);
 
 list<wstring> parse_listfile(const wstring& str);
 

@@ -64,6 +64,25 @@ CommandArgs parse_command(const wstring& cmd_text) {
   return cmd_args;
 }
 
+CommandArgs parse_plugin_call(const OpenMacroInfo *omi) {
+  CommandArgs cmd_args;
+  cmd_args.cmd = cmdOpen;
+  for (size_t i = 0; i < omi->Count; ++i) {
+    const auto& v = omi->Values[i];
+    CHECK_FMT(v.Type == FMVT_STRING);
+    wstring s = v.String;
+    if (i == 0) {
+      if (s == L"c" || s == L"C") { cmd_args.cmd = cmdCreate; continue; }
+      if (s == L"u" || s == L"U") { cmd_args.cmd = cmdUpdate; continue; }
+      if (s == L"x" || s == L"X") { cmd_args.cmd = cmdExtract; continue; }
+      if (s == L"e" || s == L"E") { cmd_args.cmd = cmdExtractItems; continue; }
+      if (s == L"t" || s == L"T") { cmd_args.cmd = cmdTest; continue; }
+    }
+    cmd_args.args.push_back(s);
+  }
+  return cmd_args;
+}
+
 struct Param {
   wstring name;
   wstring value;
