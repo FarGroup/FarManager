@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class eol
 {
 public:
-	enum type : char
+	enum class type : char
 	{
 		none = 0,
 		win,      // <CR><LF>      \r\n

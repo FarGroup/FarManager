@@ -76,7 +76,7 @@ Edit::Edit(window_ptr Owner):
 	m_SelStart(-1),
 	m_SelEnd(0),
 	LeftPos(0),
-	m_Eol(eol::none)
+	m_Eol(eol::type::none)
 {
 	m_Flags.Set(FEDITLINE_EDITBEYONDEND);
 	const auto& EdOpt = Global->Opt->EdOpt;
@@ -290,15 +290,15 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 		{
 			switch(m_Eol)
 			{
-			case eol::mac:
+			case eol::type::mac:
 				OutStr.push_back(Oem2Unicode[13]);
 				break;
 
-			case eol::unix:
+			case eol::type::unix:
 				OutStr.push_back(Oem2Unicode[10]);
 				break;
 
-			case eol::win:
+			case eol::type::win:
 				OutStr.push_back(Oem2Unicode[13]);
 				if(OutStr.size() < EditLength)
 				{
@@ -306,7 +306,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 				}
 				break;
 
-			case eol::bad_win:
+			case eol::type::bad_win:
 				OutStr.push_back(Oem2Unicode[13]);
 				if(OutStr.size() < EditLength)
 				{
@@ -318,7 +318,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 				}
 				break;
 
-			case eol::none:
+			case eol::type::none:
 				break;
 			}
 		}
@@ -1474,7 +1474,7 @@ void Edit::SetString(string_view Str)
 	{
 		if (Str.back() == L'\r')
 		{
-			m_Eol = eol::mac;
+			m_Eol = eol::type::mac;
 			Str.remove_suffix(1);
 		}
 		else
@@ -1490,16 +1490,16 @@ void Edit::SetString(string_view Str)
 					if (!Str.empty() && Str.back() == L'\r')
 					{
 						Str.remove_suffix(1);
-						m_Eol = eol::bad_win;
+						m_Eol = eol::type::bad_win;
 					}
 					else
-						m_Eol = eol::win;
+						m_Eol = eol::type::win;
 				}
 				else
-					m_Eol = eol::unix;
+					m_Eol = eol::type::unix;
 			}
 			else
-				m_Eol = eol::none;
+				m_Eol = eol::type::none;
 		}
 	}
 

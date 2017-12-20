@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
-#include "datetime.hpp"
 #include "tinyxml.hpp"
 #include "farversion.hpp"
 #include "console.hpp"

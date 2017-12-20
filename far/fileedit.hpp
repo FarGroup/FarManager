@@ -133,7 +133,7 @@ private:
 	bool LoadFile(const string& Name, int &UserBreak, error_state& ErrorState);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-	int SaveFile(const string& Name, int Ask, bool bSaveAs, error_state& ErrorState, eol::type Eol = eol::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
+	int SaveFile(const string& Name, int Ask, bool bSaveAs, error_state& ErrorState, eol::type Eol = eol::type::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
 	void SetTitle(const string* Title);
 	bool SetFileName(const string& NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);

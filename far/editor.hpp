@@ -220,7 +220,7 @@ private:
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();
 	void UnmarkMacroBlock();
-	void AddUndoData(int Type) { return AddUndoData(Type, {}, eol::none, 0, 0); }
+	void AddUndoData(int Type) { return AddUndoData(Type, {}, eol::type::none, 0, 0); }
 	void AddUndoData(int Type, const string& Str, eol::type Eol, int StrNum, int StrPos);
 	void Undo(int redo);
 	void SelectAll();

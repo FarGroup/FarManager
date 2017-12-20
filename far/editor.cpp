@@ -103,7 +103,7 @@ private:
 
 eol::type Editor::GetDefaultEOL()
 {
-	return Global->Opt->EdOpt.NewFileUnixEOL? eol::unix : eol::win;
+	return Global->Opt->EdOpt.NewFileUnixEOL? eol::type::unix : eol::type::win;
 }
 
 Editor::Editor(window_ptr Owner, bool DialogUsed):
@@ -1573,7 +1573,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 						const auto NextLine = std::next(m_it_CurLine);
 						if (NextLine == Lines.end())
 						{
-							m_it_CurLine->SetEOL(eol::none);
+							m_it_CurLine->SetEOL(eol::type::none);
 						}
 						else
 						{
@@ -2927,7 +2927,7 @@ Editor::numbered_iterator Editor::DeleteString(numbered_iterator DelPtr, bool De
 
 	if (IsLastLine(DelPtr))
 	{
-		std::prev(DelPtr)->SetEOL(eol::none);
+		std::prev(DelPtr)->SetEOL(eol::type::none);
 	}
 
 	AddUndoData(UNDO_DELSTR, DelPtr->GetString(), DelPtr->GetEOL(), DelPtr.Number(), 0);
@@ -3085,13 +3085,13 @@ void Editor::InsertString()
 		AddUndoData(UNDO_INSSTR, {}, m_it_CurLine->GetEOL(), m_it_CurLine.Number() + 1, 0);
 	}
 
-	if (LineEol)
+	if (LineEol != eol::type::none)
 	{
 		m_it_CurLine->SetEOL(LineEol);
 	}
 	else
 	{
-		m_it_CurLine->SetEOL(GlobalEOL? GlobalEOL : GetDefaultEOL());
+		m_it_CurLine->SetEOL(GlobalEOL != eol::type::none? GlobalEOL : GetDefaultEOL());
 		NewString->SetEOL(LineEol);
 	}
 
@@ -3684,7 +3684,7 @@ bool Editor::Search(bool Next)
 								{
 									CurPtr->GetSelection(Selection.first, Selection.second);
 								}
-								const auto NewStr = concat(string_view(Str).substr(0, CurPos), strReplaceStrCurrent, string_view(Str).substr(CurPos + SearchLength), CurPtr->GetEOL());
+								const auto NewStr = concat(string_view(Str).substr(0, CurPos), strReplaceStrCurrent, string_view(Str).substr(CurPos + SearchLength), eol::str(CurPtr->GetEOL()));
 								AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), CurPtr.Number(), CurPos);
 								CurPtr->SetString(NewStr);
 								CurPtr->SetCurPos(CurPos + static_cast<int>(strReplaceStrCurrent.size()));
@@ -3913,7 +3913,7 @@ void Editor::Paste(const string& Data)
 		int StartPos=m_it_CurLine->GetCurPos();
 		bool oldAutoIndent=EdOpt.AutoIndent;
 
-		auto keep_eol = eol::none;
+		auto keep_eol = eol::type::none;
 		if (EdOpt.KeepEOL)
 		{
 			auto line = m_it_CurLine;
@@ -3934,17 +3934,17 @@ void Editor::Paste(const string& Data)
 				const auto PrevLine = m_it_CurLine;
 				ProcessKeyInternal(Manager::Key(KEY_ENTER), RefreshMe);
 
-				auto Eol = eol::unix;
+				auto Eol = eol::type::unix;
 				if (Data[i] == L'\r' && i + 1 != size)
 				{
-					Eol = eol::mac;
+					Eol = eol::type::mac;
 					if (Data[i + 1] == L'\n')
-						Eol = eol::win;
+						Eol = eol::type::win;
 					else if (Data[i + 1] == L'\r' && i + 2 != size && Data[i + 2] == L'\n')
-						Eol = eol::bad_win;
+						Eol = eol::type::bad_win;
 				}
 
-				if (keep_eol)
+				if (keep_eol != eol::type::none)
 				{
 					PrevLine->SetEOL(keep_eol);
 				}
@@ -4068,7 +4068,7 @@ string Editor::Block2Text()
 		i.GetSelection(StartSel, EndSel);
 		if (EndSel == -1)
 		{
-			append(CopyData, i.GetEOL());
+			append(CopyData, eol::str(i.GetEOL()));
 		}
 	}
 
@@ -4506,7 +4506,7 @@ public:
 		m_Type(),
 		m_StrPos(),
 		m_StrNum(),
-		m_EOL(eol::none)
+		m_EOL(eol::type::none)
 	{
 		SetData(Type, Str, Eol, StrNum, StrPos);
 	}
@@ -5020,7 +5020,7 @@ void Editor::DeleteVBlock()
 			TmpStr.append(CurStr.cbegin() + TBlockX + TBlockSizeX, CurStr.cend());
 		}
 
-		append(TmpStr, CurPtr->GetEOL());
+		append(TmpStr, eol::str(CurPtr->GetEOL()));
 		size_t CurPos = CurPtr->GetCurPos();
 		CurPtr->SetString(TmpStr);
 
@@ -5092,7 +5092,7 @@ string Editor::VBlock2Text()
 			CopyData.append(TBlockSizeX, L' ');
 		}
 
-		append(CopyData, GetDefaultEOL());
+		append(CopyData, eol::str(GetDefaultEOL()));
 	}
 
 	return CopyData;
@@ -5244,7 +5244,7 @@ void Editor::VBlockShift(int Left)
 		while (!TmpStr.empty() && TmpStr.back() == L' ')
 			TmpStr.pop_back();
 
-		append(TmpStr, CurPtr->GetEOL());
+		append(TmpStr, eol::str(CurPtr->GetEOL()));
 		CurPtr->SetString(TmpStr);
 		Change(ECTYPE_CHANGED, CurPtr.Number());
 	}

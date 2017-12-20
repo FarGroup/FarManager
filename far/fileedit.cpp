@@ -292,7 +292,7 @@ static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepa
 		if (pos != string::npos)
 			EditDlg[ID_SF_FILENAME].strData.resize(pos);
 	}
-	EditDlg[ID_SF_DONOTCHANGE + Eol].Selected = TRUE;
+	EditDlg[ID_SF_DONOTCHANGE + static_cast<int>(Eol)].Selected = TRUE;
 	const auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
 	Dlg->SetPosition(-1,-1,76,17);
 	Dlg->SetHelp(L"FileSaveAs");
@@ -305,13 +305,13 @@ static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepa
 		AddSignature=EditDlg[ID_SF_SIGNATURE].Selected!=0;
 
 		if (EditDlg[ID_SF_DONOTCHANGE].Selected)
-			Eol = eol::none;
+			Eol = eol::type::none;
 		else if (EditDlg[ID_SF_WINDOWS].Selected)
-			Eol = eol::win;
+			Eol = eol::type::win;
 		else if (EditDlg[ID_SF_UNIX].Selected)
-			Eol = eol::unix;
+			Eol = eol::type::unix;
 		else if (EditDlg[ID_SF_MAC].Selected)
-			Eol = eol::mac;
+			Eol = eol::type::mac;
 
 		return true;
 	}
@@ -1028,7 +1028,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 						m_Flags.Clear(FFILEEDIT_SAVETOSAVEAS);
 					}
 
-					static eol::type SavedEol = eol::none; // none here means "do not change"
+					static eol::type SavedEol = eol::type::none; // none here means "do not change"
 					uintptr_t codepage = m_codepage;
 					const auto SaveAs = LocalKey==KEY_SHIFTF2 || m_Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 					string strFullSaveAsName = strFullFileName;
@@ -1572,7 +1572,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 				m_codepage = GetDefaultCodePage();
 		}
 		m_editor->SetCodePage(m_codepage);  //BUGBUG
-		m_editor->GlobalEOL = eol::none;
+		m_editor->GlobalEOL = eol::type::none;
 
 		unsigned long long FileSize = 0;
 		EditFile.GetSize(FileSize);
@@ -1618,7 +1618,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditReading), Name, Percent);
 			}
 
-			if (!m_editor->GlobalEOL && Eol)
+			if (m_editor->GlobalEOL == eol::type::none && Eol != eol::type::none)
 			{
 				m_editor->GlobalEOL = Eol;
 			}
@@ -1651,10 +1651,10 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorS
 		break;
 	}
 
-	if (m_editor->Lines.empty() || m_editor->Lines.back().GetEOL())
+	if (m_editor->Lines.empty() || m_editor->Lines.back().GetEOL() != eol::type::none)
 		m_editor->PushString({});
 
-	if (!m_editor->GlobalEOL)
+	if (m_editor->GlobalEOL == eol::type::none)
 		m_editor->GlobalEOL = Editor::GetDefaultEOL();
 
 	EditFile.Close();
@@ -1722,7 +1722,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 {
 	if (!bSaveAs)
 	{
-		Eol = eol::none;
+		Eol = eol::type::none;
 		codepage=m_editor->GetCodePage();
 	}
 
@@ -1880,7 +1880,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 
 	int RetCode=SAVEFILE_SUCCESS;
 
-	if (Eol)
+	if (Eol != eol::type::none)
 	{
 		m_editor->m_Flags.Set(Editor::FEDITOR_WASCHANGED);
 		m_editor->GlobalEOL = Eol;
@@ -1908,7 +1908,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 
 			bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr.data(), SaveStr.size(), nullptr, 0, &UsedDefaultCharStr) && UsedDefaultCharStr;
 
-			if (Eol && LineEol)
+			if (Eol != eol::type::none && LineEol != eol::type::none)
 				LineEol = m_editor->GlobalEOL;
 
 			bool UsedDefaultCharEOL = encoding::get_bytes(codepage, eol::str(LineEol), nullptr, 0, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
@@ -2024,7 +2024,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 			const auto& SaveStr = Line.GetString();
 			auto LineEol = Line.GetEOL();
 
-			if (Eol && LineEol)
+			if (Eol != eol::type::none && LineEol != eol::type::none)
 			{
 				LineEol = m_editor->GlobalEOL;
 				Line.SetEOL(LineEol);
@@ -2034,7 +2034,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 			{
 				if (
 				    (!SaveStr.empty() && !Cache.Write(SaveStr.data(), SaveStr.size() * sizeof(wchar_t))) ||
-				    (LineEol && !Cache.Write(eol::str(LineEol).raw_data(), eol::str(LineEol).size() * sizeof(wchar_t)))
+				    (LineEol != eol::type::none && !Cache.Write(eol::str(LineEol).raw_data(), eol::str(LineEol).size() * sizeof(wchar_t)))
 				   )
 				{
 					throw MAKE_FAR_EXCEPTION(L"Write error");
@@ -2601,7 +2601,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		case ECTL_SAVEFILE:
 		{
 			string strName = strFullFileName;
-			auto Eol = eol::none;
+			auto Eol = eol::type::none;
 			uintptr_t codepage=m_codepage;
 
 			const auto esf = static_cast<const EditorSaveFile*>(Param2);

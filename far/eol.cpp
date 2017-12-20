@@ -45,19 +45,19 @@ static const auto
 string_view eol::str(type Value)
 {
 	return
-		Value == win? win_s :
-		Value == unix? unix_s :
-		Value == mac? mac_s :
-		Value == bad_win? bad_win_s :
+		Value == type::win? win_s :
+		Value == type::unix? unix_s :
+		Value == type::mac? mac_s :
+		Value == type::bad_win? bad_win_s :
 		none_s;
 }
 
 eol::type eol::parse(const string_view& Value)
 {
 	return
-		Value == win_s? win :
-		Value == unix_s? unix :
-		Value == mac_s? mac :
-		Value == bad_win_s? bad_win :
-		none;
+		Value == win_s? type::win :
+		Value == unix_s? type::unix :
+		Value == mac_s? type::mac :
+		Value == bad_win_s? type::bad_win :
+		type::none;
 }

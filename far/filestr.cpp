@@ -251,11 +251,11 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 	{
 		bCrCr = false;
 		if (Eol)
-			*Eol = eol::mac;
+			*Eol = eol::type::mac;
 		return true;
 	}
 
-	auto CurrentEol = eol::none;
+	auto CurrentEol = eol::type::none;
 	for (const auto* ReadBufPtr = ReadPos < ReadSize? From.data() + ReadPos / sizeof(T) : nullptr; ; ++ReadBufPtr, ReadPos += sizeof(T))
 	{
 		if (ReadPos >= ReadSize)
@@ -264,7 +264,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 			{
 				if (Eol)
 					*Eol = CurrentEol;
-				return !To.empty() || CurrentEol != eol::none;
+				return !To.empty() || CurrentEol != eol::type::none;
 			}
 
 			if (bBigEndian && sizeof(T) != 1)
@@ -276,22 +276,22 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 			ReadBufPtr = From.data();
 		}
 
-		if (!CurrentEol)
+		if (CurrentEol == eol::type::none)
 		{
 			// UNIX
 			if (*ReadBufPtr == m_Eol.lf<T>())
 			{
-				CurrentEol = eol::unix;
+				CurrentEol = eol::type::unix;
 				continue;
 			}
 			// MAC / Windows? / Notepad?
 			else if (*ReadBufPtr == m_Eol.cr<T>())
 			{
-				CurrentEol = eol::mac;
+				CurrentEol = eol::type::mac;
 				continue;
 			}
 		}
-		else if (CurrentEol == eol::mac)
+		else if (CurrentEol == eol::type::mac)
 		{
 			if (m_CrSeen)
 			{
@@ -300,7 +300,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 				// Notepad
 				if (*ReadBufPtr == m_Eol.lf<T>())
 				{
-					CurrentEol = eol::bad_win;
+					CurrentEol = eol::type::bad_win;
 					continue;
 				}
 				else
@@ -315,7 +315,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 				// Windows
 				if (*ReadBufPtr == m_Eol.lf<T>())
 				{
-					CurrentEol = eol::win;
+					CurrentEol = eol::type::win;
 					continue;
 				}
 				// Notepad or two MACs?
@@ -336,7 +336,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 		}
 
 		To.emplace_back(*ReadBufPtr);
-		CurrentEol = eol::none;
+		CurrentEol = eol::type::none;
 	}
 
 	if (Eol)
