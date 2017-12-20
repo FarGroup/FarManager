@@ -4351,8 +4351,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					const auto oldss = static_cast<const oldfar::EditorSetString*>(Param);
 					newss.StringNumber=oldss->StringNumber;
 					const auto CodePage = GetEditorCodePageA();
-					newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength,CodePage):nullptr;
-					newss.StringEOL=(oldss->StringEOL && *oldss->StringEOL)?AnsiToUnicodeBin(oldss->StringEOL,strlen(oldss->StringEOL),CodePage):nullptr;
+					newss.StringText = oldss->StringText? AnsiToUnicodeBin(oldss->StringText, oldss->StringLength, CodePage) : nullptr;
+					newss.StringEOL = oldss->StringEOL? AnsiToUnicodeBin(oldss->StringEOL, strlen(oldss->StringEOL), CodePage) : nullptr;
 					newss.StringLength=oldss->StringLength;
 				}
 

@@ -5414,7 +5414,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				intptr_t SelStart, SelEnd;
 				CurPtr->GetSelection(SelStart, SelEnd);
 				CurPtr->SetString({ SetString->StringText, static_cast<size_t>(SetString->StringLength) });
-				CurPtr->SetEOL(Eol);
+				if (CurPtr->GetEOL() == eol::type::none)
+				{
+					CurPtr->SetEOL(Eol);
+				}
 				CurPtr->SetCurPos(CurPos);
 				CurPtr->Select(SelStart, SelEnd);
 				Change(ECTYPE_CHANGED,DestLine);
