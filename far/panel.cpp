@@ -557,7 +557,9 @@ void Panel::DragMessage(int X,int Y,int Move)
 		MsgX=X;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	DragSaveScr = std::make_unique<SaveScreen>(MsgX,Y,MsgX+Length-1,Y);
+	// Important - the old one must be deleted before creating a new one, not after
+	DragSaveScr.reset();
+	DragSaveScr = std::make_unique<SaveScreen>(MsgX, Y, MsgX + Length - 1, Y);
 	GotoXY(MsgX,Y);
 	SetColor(COL_PANELDRAGTEXT);
 	Text(strDragMsg);
