@@ -788,7 +788,7 @@ public:
 void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options) {
   ComObject<ISetProperties> set_props;
   if (SUCCEEDED(out_arc->QueryInterface(IID_ISetProperties, reinterpret_cast<void**>(&set_props)))) {
-    static const ExternalCodec defopts { L"", 1,9, 1,3,5,7,9, 0, false };
+    static const ExternalCodec defopts { L"", 1,9,0, 1,3,5,7,9, false };
     auto method_params = &defopts;
     for (size_t i = 0; i < g_options.codecs.size(); ++i) {
       if (options.method == g_options.codecs[i].name) {
