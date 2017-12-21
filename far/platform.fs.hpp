@@ -329,6 +329,7 @@ namespace os::fs
 	bool set_file_encryption(const string_view& FileName, bool Encrypt);
 	bool detach_virtual_disk(const string_view& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
+	bool is_directory_symbolic_link(const find_data& Data);
 
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags);

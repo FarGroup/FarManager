@@ -56,23 +56,6 @@ public:
 	std::unordered_set<string> ActiveDirectories;
 };
 
-static bool LinkToRealPath(const string& Src, string& Real)
-{
-	auto Test = ConvertNameToReal(Src);
-	if (!Test.empty())
-	{
-		Test = NTPath(Test);
-		if (Src != Test)
-		{
-			Real = Test;
-			return true;
-		}
-	}
-
-	Real = Src;
-	return false;
-}
-
 ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
@@ -201,17 +184,18 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 	}
 	else
 	{
-		auto is_link = (fdata.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+		const auto is_link = os::fs::is_directory_symbolic_link(fdata);
 		if ((fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) && (!is_link || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{
 			string RealPath(ScanItems.back().RealPath);
 			AddEndSlash(RealPath);
 			RealPath += fdata.strFileName;
 
-			bool real_path = !is_link || LinkToRealPath(RealPath, RealPath);
+			if (is_link)
+				RealPath = NTPath(ConvertNameToReal(RealPath));
 
 			//recursive symlinks guard
-			if (real_path && !ScanItems.back().ActiveDirectories.count(RealPath))
+			if (!ScanItems.back().ActiveDirectories.count(RealPath))
 			{
 				CutToSlash(strFindPath);
 				append(strFindPath, fdata.strFileName, L'\\', strFindMask);
@@ -259,7 +243,7 @@ void ScanTree::SkipDir()
 		if (!Flags.Check(FSCANTREE_SCANSYMLINK) &&
 			Current.Find &&
 			Current.Iterator != Current.Find->end() &&
-			(Current.Iterator->dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)) == (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)
+			os::fs::is_directory_symbolic_link(*Current.Iterator)
 			)
 		{
 			// The current item is a directory link but we don't treat it as a directory so it's nothing to skip

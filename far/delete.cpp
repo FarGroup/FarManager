@@ -329,7 +329,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 {
 	SCOPED_ACTION(ChangePriority)(Global->Opt->DelThreadPriority);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DelPreRedrawItem>());
-	os::fs::find_data FindData;
 	string strDeleteFilesMsg;
 	string strSelName;
 	string strSelShortName;
@@ -565,11 +564,12 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			SrcPanel->GetSelName(nullptr,FileAttr);
 			auto MessageDelay = getdirinfo_default_delay;
 
-			while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName) && !Cancel)
+			os::fs::find_data SelFindData;
+			while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName, &SelFindData) && !Cancel)
 			{
 				++ItemsCount;
 
-				if (FileAttr&FILE_ATTRIBUTE_DIRECTORY && !(FileAttr&FILE_ATTRIBUTE_REPARSE_POINT))
+				if (FileAttr&FILE_ATTRIBUTE_DIRECTORY && !os::fs::is_directory_symbolic_link(SelFindData))
 				{
 					DirInfoData Data = {};
 
@@ -586,7 +586,8 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			}
 		}
 
-		SrcPanel->GetSelName(nullptr,FileAttr);
+		os::fs::find_data SelFindData;
+		SrcPanel->GetSelName(nullptr, FileAttr, nullptr, &SelFindData);
 		time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 		bool cannot_recycle_try_delete_folder = false;
 
@@ -609,6 +610,8 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 			{
+				const auto DirSymLink = os::fs::is_directory_symbolic_link(SelFindData);
+
 				if (!DeleteAllFolders && !cannot_recycle_try_delete_folder)
 				{
 					const auto strFullName = ConvertNameToFull(strSelName);
@@ -616,7 +619,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					if (os::fs::is_not_empty_directory(strFullName))
 					{
 						int MsgCode = 0; // для symlink не нужно подтверждение
-						if (!(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+						if (!DirSymLink)
 						{
 							const GUID* guidId = &DeleteFolderId;
 							auto tit = lng::MDeleteFolderTitle, con = lng::MDeleteFolderConfirm, del = lng::MDeleteFileDelete;
@@ -654,8 +657,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					}
 				}
 
-				bool DirSymLink=(FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT);
-
 				if (!DirSymLink && (!Global->Opt->DeleteToRecycleBin || Wipe))
 				{
 					string strFullName;
@@ -676,6 +677,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					ScTree.SetFindPath(strSelFullName,L"*", 0);
 					time_check TreeTimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 
+					os::fs::find_data FindData;
 					while (ScTree.GetNextName(FindData,strFullName))
 					{
 						int TreeTotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
@@ -697,7 +699,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 						{
-							if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+							if (os::fs::is_directory_symbolic_link(FindData))
 							{
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 									os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
@@ -1095,7 +1097,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		
 		while (ScTree.GetNextName(FindData,strFullName2))
 		{
-			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+			if (os::fs::is_directory_symbolic_link(FindData))
 			{
 				if (!MessageShown)
 				{

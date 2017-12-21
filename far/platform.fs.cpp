@@ -1809,6 +1809,12 @@ namespace os::fs
 		return false;
 	}
 
+	bool is_directory_symbolic_link(const find_data& Data)
+	{
+		const auto Attributes = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT;
+		return (Data.dwFileAttributes & Attributes) == Attributes && (Data.dwReserved0 == IO_REPARSE_TAG_MOUNT_POINT || Data.dwReserved0 == IO_REPARSE_TAG_SYMLINK);
+	}
+
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 	{
 		return Imports().CreateSymbolicLinkW?

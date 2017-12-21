@@ -108,7 +108,7 @@ enum COPY_FLAGS
 	FCOPY_STREAMSKIP              = bit(9), // потоки
 	FCOPY_STREAMALL               = bit(10), // потоки
 	FCOPY_SKIPSETATTRFLD          = bit(11), // больше не пытаться ставить атрибуты для каталогов - когда нажали Skip All
-	FCOPY_COPYSYMLINKCONTENTS     = bit(12), // Копировать содержимое символических связей?
+	FCOPY_COPYSYMLINKCONTENTS     = bit(12), // Копировать содержимое символических ссылок?
 	FCOPY_COPYPARENTSECURITY      = bit(13), // Накладывать родительские права, в случае если мы не копируем права доступа
 	FCOPY_LEAVESECURITY           = bit(14), // Move: [?] Ничего не делать с правами доступа
 	FCOPY_DECRYPTED_DESTINATION   = bit(15), // для криптованных файлов - расшифровывать...
@@ -1536,7 +1536,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		if (move_rename)
 		{
-			if ((m_UseFilter || !SameDisk) || ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
+			if ((m_UseFilter || !SameDisk) || (os::fs::is_directory_symbolic_link(SrcData) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
 			{
 				CopyCode=COPY_FAILURE;
 			}
@@ -1619,12 +1619,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		// Mantis#44 - Потеря данных при копировании ссылок на папки
 		// если каталог (или нужно копировать симлинк) - придется рекурсивно спускаться...
-		if (RPT!=RP_SYMLINKFILE && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-			      (
-			          !(SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) ||
-			          ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))
-			      )
-			  )
+		if (RPT != RP_SYMLINKFILE && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && ((Flags & FCOPY_COPYSYMLINKCONTENTS) || !os::fs::is_directory_symbolic_link(SrcData)))
 		{
 			int SubCopyCode;
 			string strFullName;
@@ -1634,7 +1629,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			if (DestAttr==INVALID_FILE_ATTRIBUTES)
 				KeepPathPos=(int)strSubName.size();
 
-			int NeedRename=!((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
+			int NeedRename = !(os::fs::is_directory_symbolic_link(SrcData) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
 			ScTree.SetFindPath(strSubName,L"*",FSCANTREE_FILESFIRST);
 
 			while (ScTree.GetNextName(SrcData,strFullName))
@@ -1720,7 +1715,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 						if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 						{
 							if (ScTree.IsDirSearchDone() ||
-								      ((SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS)))
+								      (os::fs::is_directory_symbolic_link(SrcData) && !(Flags&FCOPY_COPYSYMLINKCONTENTS)))
 							{
 								if (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 									os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
@@ -1903,10 +1898,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				cpc = true; // ???
 			else
 			{
-				DWORD rpTag = 0;
-				string strRptInfo;
-				GetReparsePointInfo(Src, strRptInfo, &rpTag);
-				cpc = (rpTag != IO_REPARSE_TAG_SYMLINK) && (rpTag != IO_REPARSE_TAG_MOUNT_POINT);
+				const auto rpTag = SrcData.dwReserved0;
+				cpc = !(rpTag == IO_REPARSE_TAG_SYMLINK || rpTag == IO_REPARSE_TAG_MOUNT_POINT);
 			}
 			if (cpc)
 				Flags |= FCOPY_COPYSYMLINKCONTENTS;
@@ -2030,7 +2023,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				while (!os::fs::create_directory(
 					// CreateDirectoryEx preserves reparse points,
 					// so we shouldn't use template when copying with content
-					SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && Flags & FCOPY_COPYSYMLINKCONTENTS? L""s : Src,
+					os::fs::is_directory_symbolic_link(SrcData) && (Flags & FCOPY_COPYSYMLINKCONTENTS)? L""s : Src,
 					strDestPath, Flags & FCOPY_COPYSECURITY? &SecAttr : nullptr))
 				{
 					const auto ErrorState = error_state::fetch();
@@ -3360,7 +3353,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 				{
 					unsigned long long SrcSize = SrcData.nFileSize;
 					auto SrcLastWriteTime = SrcData.LastWriteTime;
-					if (Flags&FCOPY_COPYSYMLINKCONTENTS && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+					if ((Flags & FCOPY_COPYSYMLINKCONTENTS) && os::fs::is_directory_symbolic_link(SrcData))
 					{
 						os::fs::find_data FindData;
 						if (os::fs::get_find_data(ConvertNameToReal(SrcName), FindData))
@@ -3750,7 +3743,7 @@ bool ShellCopy::CalcTotalSize() const
 
 	while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName,&fd))
 	{
-		if ((FileAttr&FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
+		if (!(Flags&FCOPY_COPYSYMLINKCONTENTS) && os::fs::is_directory_symbolic_link(fd))
 			continue;
 
 		if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
