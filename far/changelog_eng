@@ -3,6 +3,44 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.12.2017 21:50:42 +0000 - build 5114
+
+1. After 4563 the recursive tree walk would not enter DFS catalogs.
+   Conceptually, while walking the tree we are only interested in junction and symlink, but FILE_ATTRIBUTE_REPARSE_POINT
+   can formally mean anything, therefore checking only this attribute is not enough.
+   Now protection from recursive links and other useful and useless intellect in this and other places
+   is applied only to IO_REPARSE_TAG_MOUNT_POINT and IO_REPARSE_TAG_SYMLINK.
+
+drkns 20.12.2017 23:36:38 +0000 - build 5113
+
+1. Another correction of 5108.
+
+2. For lines inserted by ansi plugins, explicit absence of EOL could be ignored.
+
+drkns 20.12.2017 12:25:34 +0000 - build 5112
+
+1. G#12 - correction of 5108.
+
+drkns 20.12.2017 07:56:47 +0000 - build 5111
+
+1. Correction of 5108.1 - bugs as expected.
+
+drkns 19.12.2017 23:12:07 +0000 - build 5110
+
+1. Remove excessively smart processing of prefixes (rollback down to 1840), it also fixes G#11.
+
+2. Refactoring.
+
+drkns 19.12.2017 08:16:14 +0000 - build 5109
+
+1. Correction of 5108.
+
+drkns 18.12.2017 19:00:52 +0000 - build 5108
+
+1. Refactoring. Weird processing of line ends in editor has been redone. Bugs are possible.
+
+2. Support for the next VS2017 update.
+
 drkns 17.12.2017 16:24:34 +0000 - build 5107
 
 1. 0003120: Search and Replace in Editor fails if Replace pattern contains 0x0D + Search Pattern
