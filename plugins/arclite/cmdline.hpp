@@ -8,7 +8,8 @@ enum CommandType {
   cmdUpdate,
   cmdExtract,
   cmdTest,
-  cmdExtractItems
+  cmdExtractItems,
+  cmdDeleteItems
 };
 
 struct CommandArgs {

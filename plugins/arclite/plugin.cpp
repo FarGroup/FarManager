@@ -395,6 +395,39 @@ public:
     extract(arc_list, options);
   }
 
+  static void delete_items(const wstring& arch_name, const ExtractOptions& options, const vector<wstring>& items) {
+    unique_ptr<Archives> archives;
+    OpenOptions open_options;
+    open_options.arc_path = arch_name;
+    open_options.detect = false;
+    open_options.password = options.password;
+    open_options.arc_types = ArcAPI::formats().get_arc_types();
+    archives = Archive::open(open_options);
+    if (archives->empty())
+      throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arch_name, __FILE__, __LINE__);
+    
+    shared_ptr<Archive> archive = (*archives)[0];
+    if (archive->password.empty())
+      archive->password = options.password;
+    archive->make_index();
+    auto nf = static_cast<UInt32>(archive->file_list.size());
+    vector<UInt32> matched_indices;
+    for (UInt32 j = 0; j < nf; ++j) {
+      auto file_path = archive->get_path(j);
+      for (const auto& n : items) {
+        if (lstrcmpiW(file_path.data(),n.data()) == 0 || Far::match_masks(file_path, n)) {
+          matched_indices.push_back(j);
+			 break;
+        }
+      }
+    }
+    if (!matched_indices.empty()) {
+      archive->delete_files(matched_indices);
+      Far::progress_notify();
+    }
+    return;
+  }
+
   static void extract_items(const wstring& arch_name, const ExtractOptions& options, const vector<wstring>& items) {
     unique_ptr<Archives> archives;
     OpenOptions open_options;
@@ -439,7 +472,7 @@ public:
       }
       else {
         Far::update_panel(PANEL_ACTIVE, false);
-    	  Far::progress_notify();
+        Far::progress_notify();
       }
     }
     return;
@@ -453,6 +486,12 @@ public:
     if (!is_absolute_path(options.dst_dir))
       options.dst_dir = Far::get_absolute_path(options.dst_dir);
     extract_items(full_arch_name, options, cmd.items);
+  }
+
+  static void cmdline_delete(const ExtractItemsCommand& cmd) {
+    auto full_arch_name = Far::get_absolute_path(cmd.archname);
+    auto options = cmd.options;
+    delete_items(full_arch_name, options, cmd.items);
   }
 
   void test_files(struct PluginPanelItem* panel_items, intptr_t items_number, OPERATION_MODES op_mode) {
@@ -1101,6 +1140,9 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       case cmdExtractItems:
         Plugin::cmdline_extract(parse_extractitems_command(cmd_args));
         break;
+      case cmdDeleteItems:
+        Plugin::cmdline_delete(parse_extractitems_command(cmd_args));
+        break;
       case cmdTest:
         Plugin::cmdline_test(parse_test_command(cmd_args));
         break;
@@ -1128,16 +1170,19 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       case cmdExtractItems:
         Plugin::cmdline_extract(parse_extractitems_command(cmd_args));
         break;
+      case cmdDeleteItems:
+        Plugin::cmdline_delete(parse_extractitems_command(cmd_args));
+        break;
       case cmdTest:
         Plugin::cmdline_test(parse_test_command(cmd_args));
         break;
       }
     }
     catch (const Error& e) {
-      if (e.code != E_BAD_FORMAT)
-        throw;
+      (void)e; //if (e.code != E_BAD_FORMAT) throw;
+      return nullptr;
     }
-	 return INVALID_HANDLE_VALUE;
+    return INVALID_HANDLE_VALUE;
   }
 
   else if (info->OpenFrom == OPEN_ANALYSE) {

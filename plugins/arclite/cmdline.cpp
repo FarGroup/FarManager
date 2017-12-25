@@ -56,6 +56,8 @@ CommandArgs parse_command(const wstring& cmd_text) {
       cmd_args.cmd = cmdExtract;
     else if (cmd == L"e")
       cmd_args.cmd = cmdExtractItems;
+    else if (cmd == L"d")
+      cmd_args.cmd = cmdDeleteItems;
     else if (cmd == L"t")
       cmd_args.cmd = cmdTest;
     if (cmd_args.cmd != cmdOpen)
@@ -76,6 +78,7 @@ CommandArgs parse_plugin_call(const OpenMacroInfo *omi) {
       if (s == L"u" || s == L"U") { cmd_args.cmd = cmdUpdate; continue; }
       if (s == L"x" || s == L"X") { cmd_args.cmd = cmdExtract; continue; }
       if (s == L"e" || s == L"E") { cmd_args.cmd = cmdExtractItems; continue; }
+      if (s == L"d" || s == L"D") { cmd_args.cmd = cmdDeleteItems; continue; }
       if (s == L"t" || s == L"T") { cmd_args.cmd = cmdTest; continue; }
     }
     cmd_args.args.push_back(s);
@@ -316,6 +319,8 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
 //
 // arc:e [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-out:<outdir>] <archive> <extract_item> ...
 //
+// arc:d [-ie[:(y|n)]] [-p:<password>] <archive> <delete_item> ...
+//
 static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, vector<wstring>& items) {
 	bool options_enabled = true;
 	for (const auto& a : ca.args) {
@@ -325,7 +330,7 @@ static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, vecto
       auto param = parse_param(a);
       if (param.name == L"ie")
         o.ignore_errors = parse_bool_value(param.value);
-      else if (param.name == L"o") {
+      else if (ca.cmd != cmdDeleteItems && param.name == L"o") {
         auto lcvalue = lc(param.value);
         if (lcvalue.empty() || lcvalue == L"o")
           o.overwrite = oaOverwrite;
@@ -338,15 +343,15 @@ static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, vecto
         else
           CHECK_FMT(false);
       }
-      else if (param.name == L"mf")
+      else if (ca.cmd != cmdDeleteItems && param.name == L"mf")
         o.move_files = parse_tri_state_value(param.value);
       else if (param.name == L"p") {
         CHECK_FMT(!param.value.empty());
         o.password = param.value;
       }
-      else if (ca.cmd != cmdExtractItems && param.name == L"sd")
+      else if (ca.cmd == cmdExtract && param.name == L"sd")
         o.separate_dir = parse_tri_state_value(param.value);
-      else if (ca.cmd != cmdExtractItems && param.name == L"da")
+      else if (ca.cmd == cmdExtract && param.name == L"da")
         o.delete_archive = parse_bool_value(param.value);
       else if (ca.cmd == cmdExtractItems && param.name == L"out" && !param.value.empty())
         o.dst_dir = unquote(param.value);
