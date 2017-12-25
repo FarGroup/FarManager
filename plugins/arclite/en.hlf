@@ -205,13 +205,13 @@ $ #Prefix command line format#
 	#Extract archive item(s)#
 	arc:e [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-out:<path>] <archive> <item> ...
 	-ie -o -mf -p <path> = same as for arc:x command
-   <archive> = source archive
+	<archive> = source archive
 	<item> ... = listpath of extracted archive elements
 
 	#Delete archive item(s)#
 	arc:d [-ie[:(y|n)]] [-p:<password>] [-out:<path>] <archive> <item> ...
 	-ie -p = same as for arc:e command
-   <archive> = modified archive name
+	<archive> = modified archive name
 	<item> ... = listpath of deleted archive elements
 
 	#Test archive#
