@@ -587,11 +587,11 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		}
 
 		os::fs::find_data SelFindData;
-		SrcPanel->GetSelName(nullptr, FileAttr, nullptr, &SelFindData);
+		SrcPanel->GetSelName(nullptr, FileAttr);
 		time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 		bool cannot_recycle_try_delete_folder = false;
 
-		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName)))
+		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName, &SelFindData)))
 		{
 			if (strSelName.empty() || IsRelativeRoot(strSelName) || IsRootPath(strSelName))
 				continue;
