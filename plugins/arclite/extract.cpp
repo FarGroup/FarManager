@@ -13,7 +13,7 @@ ExtractOptions::ExtractOptions():
   move_files(triUndef),
   separate_dir(triFalse),
   delete_archive(false),
-  nested_archive(false),
+  disable_delete_archive(false),
   open_dir(triFalse) {
 }
 

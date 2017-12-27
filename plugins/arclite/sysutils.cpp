@@ -737,21 +737,3 @@ wstring search_path(const wstring& file_name) {
   CHECK(size < path.size());
   return wstring(path.data(), size);
 }
-
-bool is_far_temp_path(const wstring& path) {
-  static wstring temp_pattern;
-  static size_t fix_head_len = 0;
-  if (temp_pattern.empty()) {
-    auto tlen = Far::g_fsf.MkTemp(nullptr, 0, nullptr);
-    temp_pattern.resize(tlen);
-    Far::g_fsf.MkTemp(&temp_pattern.front(), tlen, nullptr);
-	 temp_pattern.resize(--tlen); // last L'\0'
-	 auto last_slash_pos = temp_pattern.rfind(L'\\');
-    if (last_slash_pos != wstring::npos && last_slash_pos > 4 && last_slash_pos+4 < temp_pattern.size()) {
-      fix_head_len = last_slash_pos + 4;
-    }
-  }
-  if (fix_head_len <= 0 || path.size() < temp_pattern.size())
-    return false;
-  return wcsncmp(temp_pattern.data(), path.data(), fix_head_len) == 0;
-}

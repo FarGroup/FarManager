@@ -187,8 +187,6 @@ wstring create_guid();
 void enable_lfh();
 wstring search_path(const wstring& file_name);
 
-bool is_far_temp_path(const wstring& path);
-
 class DisableSleepMode {
 private:
   EXECUTION_STATE saved_state;

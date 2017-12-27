@@ -26,12 +26,12 @@ private:
   wstring host_file;
   wstring panel_title;
   vector<InfoPanelLine> info_lines;
+  bool real_archive_file;
 
 public:
-  Plugin(): archive(new Archive()) {
-  }
+  Plugin(bool real_file=true): archive(new Archive()), real_archive_file(real_file) {}
 
-  static Plugin* open(const Archives& archives) {
+  static Plugin* open(const Archives& archives, bool real_file=true) {
     if (archives.size() == 0)
       FAIL(E_ABORT);
 
@@ -49,7 +49,7 @@ public:
         FAIL(E_ABORT);
     }
 
-    unique_ptr<Plugin> plugin(new Plugin());
+    unique_ptr<Plugin> plugin(new Plugin(real_file));
     plugin->archive = archives[format_idx];
     return plugin.release();
   }
@@ -161,7 +161,8 @@ public:
     options.dst_dir = dst_dir;
     options.move_files = archive->updatable() ? (move ? triTrue : triFalse) : triUndef;
     options.delete_archive = false;
-	 options.nested_archive = is_far_temp_path(archive->arc_path); // very approximate heuristic
+    options.disable_delete_archive = !real_archive_file;
+
     bool show_dialog = (op_mode & (OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;
     if (show_dialog && (op_mode & OPM_SILENT))
       show_dialog = false;
@@ -1079,7 +1080,8 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       Far::PanelItem panel_item = Far::get_current_panel_item(PANEL_ACTIVE);
       if (panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY)
         return nullptr;
-      if (!Far::is_real_file_panel(panel_info)) {
+      bool real_panel = Far::is_real_file_panel(panel_info);
+      if (!real_panel) {
         if ((panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
           Far::post_macro(L"Keys('CtrlPgDn')");
           g_detect_next_time = options.detect ? triTrue : triFalse;
@@ -1088,7 +1090,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       }
       options.arc_path = add_trailing_slash(Far::get_panel_dir(PANEL_ACTIVE)) + panel_item.file_name;
       options.arc_types = ArcAPI::formats().get_arc_types();
-      return Plugin::open(*Archive::open(options));
+      return Plugin::open(*Archive::open(options), real_panel);
     }
     else if (item == create_menu_id) {
       Plugin::create_archive();
@@ -1188,11 +1190,15 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
   else if (info->OpenFrom == OPEN_ANALYSE) {
     const OpenAnalyseInfo* oai = reinterpret_cast<const OpenAnalyseInfo*>(info->Data);
     unique_ptr<Archives> archives(static_cast<Archives*>(oai->Handle));
+    bool real_panel = true;
+    PanelInfo panel_info;
+    if (Far::get_panel_info(PANEL_ACTIVE, panel_info) && !Far::is_real_file_panel(panel_info))
+      real_panel = false;
     if (archives->empty()) {
-      return new Plugin();
+      return new Plugin(real_panel);
     }
     else {
-      return Plugin::open(*archives);
+      return Plugin::open(*archives, real_panel);
     }
   }
 
