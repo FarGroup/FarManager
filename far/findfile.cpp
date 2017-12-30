@@ -1816,21 +1816,15 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 
 			ViewList.SetCurName(FindItem->FindData.strFileName);
 
-			Dlg->SendMessage(DM_SHOWDIALOG, FALSE, nullptr);
-			Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
-			{
-				const auto ShellViewer = FileViewer::create(strSearchFileName, false, false, false, -1, nullptr, (list_count > 1? &ViewList : nullptr));
-				ShellViewer->SetEnableF6(TRUE);
+			const auto ShellViewer = FileViewer::create(strSearchFileName, false, false, false, -1, nullptr, (list_count > 1? &ViewList : nullptr));
+			ShellViewer->SetEnableF6(TRUE);
 
-				if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
-					ShellViewer->SetSaveToSaveAs(true);
+			if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
+				ShellViewer->SetSaveToSaveAs(true);
 
-				Global->WindowManager->ExecuteModal(ShellViewer);
-				// заставляем рефрешится экран
-				Global->WindowManager->ResizeAllWindows();
-			}
-			Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
-			Dlg->SendMessage(DM_SHOWDIALOG, TRUE, nullptr);
+			Global->WindowManager->ExecuteModal(ShellViewer);
+			// заставляем рефрешится экран
+			Global->WindowManager->ResizeAllWindows();
 		}
 
 		if (openMode == FILETYPE_EDIT)
