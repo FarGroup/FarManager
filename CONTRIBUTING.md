@@ -26,6 +26,10 @@ to the project, please follow those guidelines:
 
 #### Compilation
 
+```
+cd far
+```
+
 1. To compile with Visual Studio you can either use the IDE project or makefile.  
    Example for msbuild & vcxproj:  
      `msbuild /property:Configuration=Release;platform=x64 far.vcxproj`  
