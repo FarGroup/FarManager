@@ -152,19 +152,17 @@ bool GetFileString::GetString(string_view& Str, eol::type* Eol)
 
 			if (!CharStr.empty())
 			{
-				Utf::errors errs;
-				const auto len = Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size(), &errs);
+				Utf::errors Errors;
+				m_wStr.resize(m_wStr.capacity());
 
-				SomeDataLost = SomeDataLost || errs.Conversion.Error;
-				if (len > m_wStr.size())
+				for (auto Overflow = true; Overflow;)
 				{
-					resize_nomove(m_wStr, len);
-					Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size(), nullptr);
+					const auto Size = Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size(), &Errors);
+					Overflow = Size > m_wStr.size();
+					m_wStr.resize(Size);
 				}
-				else
-				{
-					m_wStr.resize(len);
-				}
+
+				SomeDataLost = SomeDataLost || Errors.Conversion.Error;
 			}
 			else
 			{

@@ -33,16 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-void resize_nomove(T& Container, size_t Size)
-{
-	if (Size <= Container.capacity())
-		Container.resize(Size);
-	else
-		T(Size).swap(Container);
-}
-
-
-template<class T>
 void clear_and_shrink(T& container)
 {
 	T Tmp;
