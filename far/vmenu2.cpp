@@ -183,7 +183,7 @@ int VMenu2::Call(int Msg, void *param)
 	if(!mfn)
 		return 0;
 
-	SendMessage(DM_ENABLEREDRAW, 0, nullptr);
+	++InsideCall;
 	int r=mfn(Msg, param);
 
 	bool Visible;
@@ -192,8 +192,7 @@ int VMenu2::Call(int Msg, void *param)
 	GetCursorType(Visible, Size);
 	GetCursorPos(X, Y);
 
-	if(SendMessage(DM_ENABLEREDRAW, -1, nullptr)<0)
-		SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+	--InsideCall;
 
 	if(NeedResize)
 		Resize();
@@ -215,7 +214,7 @@ int VMenu2::Call(int Msg, void *param)
 
 void VMenu2::Resize(bool force)
 {
-	if(!force && (!ProcessEvents() || SendMessage(DM_ENABLEREDRAW, -1, nullptr)<0))
+	if(!force && (!ProcessEvents() || InsideCall>0))
 	{
 		NeedResize=true;
 		return;
@@ -354,6 +353,7 @@ VMenu2::VMenu2(private_tag, int MaxHeight):
 	m_Y2(0),
 	ShortBox(false),
 	DefRec(),
+	InsideCall(0),
 	NeedResize(false),
 	closing(false),
 	ForceClosing(false)

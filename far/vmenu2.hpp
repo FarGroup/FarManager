@@ -116,6 +116,7 @@ private:
 	int m_Y2;
 	bool ShortBox;
 	INPUT_RECORD DefRec;
+	int InsideCall;
 	bool NeedResize;
 	bool closing;
 	bool ForceClosing;
