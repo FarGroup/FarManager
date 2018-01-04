@@ -1,3 +1,7 @@
+zg 04.01.2018 14:17:44 +0200 - build 5117
+
+1. если при нажатии ctrlf5 диалог отказался от перемещения, нажатие отдаётся в диалоговую процедуру.
+
 zg 30.12.2017 19:30:26 +0200 - build 5116
 
 1. 0003573: If File View (F3) is invoked from Find Files (Alt-F7) results, switching to Edit (F6) shows Find Files dialog.

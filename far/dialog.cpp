@@ -2261,9 +2261,8 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			m_Drag.OldX1=m_X1; m_Drag.OldX2=m_X2; m_Drag.OldY1=m_Y1; m_Drag.OldY2=m_Y2;
 			//# GetText(0,0,3,0,LV);
 			Show();
+			return true;
 		}
-
-		return true;
 	}
 
 	return false;
