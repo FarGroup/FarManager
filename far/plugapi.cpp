@@ -1110,7 +1110,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 {
 	try
 	{
-		const auto ErrorState = Flags & FMSG_ERRORTYPE? error_state::fetch() : error_state();
+		const error_state_ex ErrorState = Flags & FMSG_ERRORTYPE? error_state::fetch() : error_state();
 
 		if (Global->WindowManager->ManagerIsDown())
 			return -1;

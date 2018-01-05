@@ -812,7 +812,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 	bool Result = false;
 
-	error_state ErrorState;
+	error_state_ex ErrorState;
 
 	if (TreeFile)
 	{

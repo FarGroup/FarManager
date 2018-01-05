@@ -67,11 +67,13 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 	std::function<DWORD(DWORD, EXCEPTION_POINTERS*)> FilterWrapper = Filter;
 #define Filter FilterWrapper
 #endif
+	void SetFloatingPointExceptions(bool);
+
 	__try
 	{
 		return Callable();
 	}
-	__except (Filter(GetExceptionCode(), GetExceptionInformation()))
+	__except (SetFloatingPointExceptions(false), Filter(GetExceptionCode(), GetExceptionInformation()))
 	{
 		void ResetStackOverflowIfNeeded();
 

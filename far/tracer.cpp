@@ -67,36 +67,46 @@ static auto GetBackTrace(const exception_context& Context)
 	return Result;
 }
 
-static auto GetSymbols(const std::vector<const void*>& BackTrace)
+static void GetSymbols(const std::vector<const void*>& BackTrace, const std::function<void(string&&, string&&, string&&)>& Consumer)
 {
-	std::vector<string> Result;
-
 	const auto Process = GetCurrentProcess();
 	const auto MaxNameLen = MAX_SYM_NAME;
 	block_ptr<SYMBOL_INFO> Symbol(sizeof(SYMBOL_INFO) + MaxNameLen + 1);
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 	Symbol->MaxNameLen = MaxNameLen;
 
-	Imports().SymSetOptions(SYMOPT_LOAD_LINES);
+	Imports().SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
 	IMAGEHLP_LINE64 Line = { sizeof(Line) };
 	DWORD Displacement;
 
+	string StrAddress, StrName, StrSource;
 	for (const auto i: BackTrace)
 	{
-		auto Buffer = str(i);
 		const auto Address = reinterpret_cast<DWORD_PTR>(i);
-		if (Imports().SymFromAddr(Process, Address, nullptr, Symbol.get()))
-		{
-			Buffer += format(L" {0}", Symbol->Name);
-		}
-		if (Imports().SymGetLineFromAddr64(Process, Address, &Displacement, &Line))
-		{
-			Buffer += format(L" ({0}:{1})", Line.FileName, Line.LineNumber);
-		}
-		Result.emplace_back(Buffer);
+		const auto GotName = Imports().SymFromAddr(Process, Address, nullptr, Symbol.get()) != FALSE;
+		const auto GotSource = Imports().SymGetLineFromAddr64(Process, Address, &Displacement, &Line) != FALSE;
+
+		Consumer(str(i), GotName? format(L"{0}", Symbol->Name) : L""s, GotSource? format(L"{0}:{1}", Line.FileName, Line.LineNumber) : L""s);
 	}
+}
+
+static auto GetSymbols(const std::vector<const void*>& BackTrace)
+{
+	std::vector<string> Result;
+	GetSymbols(BackTrace, [&](string&& Address, string&& Name, string&& Source)
+	{
+		if (!Name.empty())
+			append(Address, L' ', Name);
+
+		if (!Source.empty())
+			append(Address, L" ("_sv, Source, L')');
+
+		Result.emplace_back(std::move(Address));
+	});
 	return Result;
 }
+
+tracer* StaticInstance;
 
 static LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 {
@@ -105,17 +115,11 @@ static LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 		// 0 indicates rethrow
 		if (xp->ExceptionRecord->ExceptionInformation[1])
 		{
-			tracer::GetInstance()->store(ToPtr(xp->ExceptionRecord->ExceptionInformation[1]), xp);
+			if (StaticInstance)
+				StaticInstance->store(ToPtr(xp->ExceptionRecord->ExceptionInformation[1]), xp);
 		}
 	}
 	return EXCEPTION_CONTINUE_SEARCH;
-}
-
-tracer* tracer::sTracer;
-
-tracer* tracer::GetInstance()
-{
-	return sTracer;
 }
 
 tracer::veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
@@ -131,6 +135,8 @@ tracer::veh_handler::~veh_handler()
 tracer::tracer():
 	m_Handler(StackLogger)
 {
+	assert(!StaticInstance);
+
 	string Path;
 	if (os::fs::GetModuleFileName(nullptr, nullptr, Path))
 	{
@@ -138,12 +144,14 @@ tracer::tracer():
 		m_SymbolSearchPath = encoding::ansi::get_bytes(Path);
 	}
 
-	sTracer = this;
+	StaticInstance = this;
 }
 
 tracer::~tracer()
 {
-	sTracer = nullptr;
+	assert(StaticInstance);
+
+	StaticInstance = nullptr;
 }
 
 void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo)
@@ -166,7 +174,7 @@ const exception_context* tracer::get_context(const void* CppObject) const
 
 const exception_context* tracer::get_exception_context(const void* CppObject)
 {
-	return GetInstance()->get_context(CppObject);
+	return StaticInstance? StaticInstance->get_context(CppObject) : nullptr;
 }
 
 class with_symbols
@@ -176,18 +184,20 @@ public:
 
 	with_symbols()
 	{
-		tracer::GetInstance()->SymInitialise();
+		if (StaticInstance)
+			StaticInstance->SymInitialise();
 	}
 
 	~with_symbols()
 	{
-		tracer::GetInstance()->SymCleanup();
+		if (StaticInstance)
+			StaticInstance->SymCleanup();
 	}
 };
 
 std::vector<string> tracer::get(const void* CppObject)
 {
-	const auto Context = GetInstance()->get_context(CppObject);
+	const auto Context = StaticInstance? StaticInstance->get_context(CppObject) : nullptr;
 	if (!Context)
 		return {};
 
@@ -201,10 +211,15 @@ std::vector<string> tracer::get(const exception_context& Context)
 	return GetSymbols(GetBackTrace(Context));
 }
 
-string tracer::get_one(const void* Address)
+void tracer::get_one(const void* Ptr, string& Address, string& Name, string& Source)
 {
 	SCOPED_ACTION(with_symbols);
-	return GetSymbols({Address}).front();
+	GetSymbols({Ptr}, [&](string&& StrAddress, string&& StrName, string&& StrSource)
+	{
+		Address = std::move(StrAddress);
+		Name = std::move(StrName);
+		Source = std::move(StrSource);
+	});
 }
 
 bool tracer::SymInitialise()

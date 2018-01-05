@@ -50,32 +50,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "strmix.hpp"
 
-static string FormatErrorString(bool Nt, DWORD Code)
+static string GetWin32ErrorString(const error_state_ex& ErrorState)
 {
-	os::memory::local::ptr<wchar_t> Buffer;
-	size_t size = FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&ptr_setter(Buffer)), 0, nullptr);
-	string Result(Buffer.get(), size);
-	RemoveUnprintableCharacters(Result);
-	return Result;
+	return os::GetErrorString(false, ErrorState.Win32Error);
 }
 
-static string GetWin32ErrorString(DWORD LastWin32Error)
+static string GetNtErrorString(const error_state_ex& ErrorState)
 {
-	return FormatErrorString(false, LastWin32Error);
+	return os::GetErrorString(true, ErrorState.NtError);
 }
 
-static string GetNtErrorString(NTSTATUS LastNtStatus)
+string GetErrorString(const error_state_ex& ErrorState)
 {
-	return FormatErrorString(true, LastNtStatus);
-}
+	auto Str = ErrorState.What;
+	if (!Str.empty())
+		append(Str, L": "_sv);
 
-string GetErrorString(const error_state& ErrorState)
-{
-#ifdef USE_NT_MESSAGES
-	return GetNtErrorString(ErrorState.NtError);
-#else
-	return GetWin32ErrorString(ErrorState.Win32Error);
-#endif
+	const auto UseNtMessages = false;
+
+	Str += (UseNtMessages? GetNtErrorString : GetWin32ErrorString)(ErrorState);
+
+	return Str;
 }
 
 intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
@@ -122,8 +117,8 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 					if(IsErrorType)
 					{
 						DialogBuilder Builder(lng::MError);
-						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.Win32Error), GetWin32ErrorString(m_ErrorState.Win32Error)), 65);
-						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.NtError), GetNtErrorString(m_ErrorState.NtError)), 65);
+						Builder.AddConstEditField(format(L"LastError: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.Win32Error), GetWin32ErrorString(m_ErrorState)), 65);
+						Builder.AddConstEditField(format(L"NTSTATUS: 0x{0:0>8X} - {1}", as_unsigned(m_ErrorState.NtError), GetNtErrorString(m_ErrorState)), 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}
@@ -179,7 +174,7 @@ Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, 
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), nullptr, {}, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags, const error_state& ErrorState, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
+Message::Message(DWORD Flags, const error_state_ex& ErrorState, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
 	m_ExitCode(0)
 {
 	std::vector<string> StrButtons;
@@ -188,7 +183,7 @@ Message::Message(DWORD Flags, const error_state& ErrorState, const string& Title
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), &ErrorState, Inserts, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags, const error_state* ErrorState, const string& Title, std::vector<string> Strings, std::vector<string> Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
+Message::Message(DWORD Flags, const error_state_ex* ErrorState, const string& Title, std::vector<string> Strings, std::vector<string> Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
 	m_ExitCode(0)
 {
 	Init(Flags, Title, std::move(Strings), std::move(Buttons), ErrorState, {}, HelpTopic, PluginNumber, Id);
@@ -199,7 +194,7 @@ void Message::Init(
 	const string& Title,
 	std::vector<string>&& Strings,
 	std::vector<string>&& Buttons,
-	const error_state* ErrorState,
+	const error_state_ex* ErrorState,
 	const std::vector<string>& Inserts,
 	const wchar_t* HelpTopic,
 	Plugin* PluginNumber,
@@ -283,6 +278,7 @@ void Message::Init(
 		MaxLength = std::max(MaxLength, LenErrStr);
 
 		// а теперь проврапим
+		Strings.emplace_back(L"\1"s);
 		FarFormatText(strErrStr, LenErrStr, strErrStr, L"\n", 0); //?? MaxLength ??
 		for (const auto& i : enum_tokens(strErrStr, L"\n"))
 		{

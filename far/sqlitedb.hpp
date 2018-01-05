@@ -167,6 +167,7 @@ protected:
 	// TODO: use in log
 	int GetLastErrorCode() const;
 	string GetLastErrorString() const;
+	string GetErrorString(int Code) const;
 
 	const string& GetPath() const { return m_Path; }
 	const string& GetName() const { return m_Name; }

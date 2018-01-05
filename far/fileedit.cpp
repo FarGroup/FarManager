@@ -623,7 +623,7 @@ void FileEditor::Init(
 	if (m_Flags.Check(FFILEEDIT_LOCKED))
 		m_editor->m_Flags.Set(Editor::FEDITOR_LOCKMODE);
 
-	error_state ErrorState;
+	error_state_ex ErrorState;
 	while (!LoadFile(strFullFileName,UserBreak, ErrorState))
 	{
 		if (BlankFileName)
@@ -1054,7 +1054,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 						strFullSaveAsName = ConvertNameToFull(strSaveAsName);  //BUGBUG, не проверяем имя на правильность
 					}
 
-					error_state ErrorState;
+					error_state_ex ErrorState;
 					int SaveResult=SaveFile(strFullSaveAsName, 0, SaveAs, ErrorState, SavedEol, codepage, m_bAddSignature);
 
 					if (SaveResult==SAVEFILE_ERROR)
@@ -1084,7 +1084,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 							{
 								//Message(MSG_WARNING, 1, L"WARNING!", L"Editor will be reopened with new file!", msg(lng::MOk));
 								int UserBreak;
-								error_state LoadErrorState;
+								error_state_ex LoadErrorState;
 								LoadFile(strFullSaveAsName, UserBreak, LoadErrorState); // BUGBUG check result
 								// TODO: возможно подобный ниже код здесь нужен (copy/paste из FileEditor::Init()). оформить его нужно по иному
 								//if(!Global->Opt->Confirm.Esc && UserBreak && GetExitCode()==XC_LOADING_INTERRUPTED && WindowManager)
@@ -1400,7 +1400,7 @@ bool FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWin
 	for (;;)
 	{
 		int SaveCode=SAVEFILE_SUCCESS;
-		error_state ErrorState;
+		error_state_ex ErrorState;
 
 		if (NeedQuestion)
 		{
@@ -1448,7 +1448,7 @@ bool FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWin
 	return GetExitCode() == XC_QUIT;
 }
 
-bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorState)
+bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& ErrorState)
 {
 	try
 	{
@@ -1685,7 +1685,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 
 	int user_break = 0;
 	m_codepage = codepage;
-	error_state ErrorState;
+	error_state_ex ErrorState;
 
 	int loaded = LoadFile(strFullFileName, user_break, ErrorState);
 	if (!loaded)
@@ -1714,7 +1714,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 }
 
 //TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
-int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& ErrorState, eol::type Eol, uintptr_t codepage, bool AddSignature)
+int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_ex& ErrorState, eol::type Eol, uintptr_t codepage, bool AddSignature)
 {
 	if (!bSaveAs)
 	{
@@ -2634,7 +2634,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 					m_Flags.Set(FFILEEDIT_SAVEWQUESTIONS);
 					//всегда записываем в режиме save as - иначе не сменить кодировку и концы линий.
-					error_state ErrorState;
+					error_state_ex ErrorState;
 					return SaveFile(strName, FALSE, true, ErrorState, Eol, codepage, m_bAddSignature);
 				}
 			}

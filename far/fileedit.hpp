@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "namelist.hpp"
 #include "codepage_selection.hpp"
 
-struct error_state;
+struct error_state_ex;
 
 // коды возврата Editor::SaveFile()
 enum
@@ -130,10 +130,10 @@ private:
 	bool ReProcessKey(const Manager::Key& Key, bool CalledFromControl = true);
 	bool AskOverwrite(const string& FileName);
 	void Init(const string& Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile);
-	bool LoadFile(const string& Name, int &UserBreak, error_state& ErrorState);
+	bool LoadFile(const string& Name, int &UserBreak, error_state_ex& ErrorState);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-	int SaveFile(const string& Name, int Ask, bool bSaveAs, error_state& ErrorState, eol::type Eol = eol::type::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
+	int SaveFile(const string& Name, int Ask, bool bSaveAs, error_state_ex& ErrorState, eol::type Eol = eol::type::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
 	void SetTitle(const string* Title);
 	bool SetFileName(const string& NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);

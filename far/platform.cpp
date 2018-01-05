@@ -52,6 +52,18 @@ NTSTATUS GetLastNtStatus()
 	return Imports().RtlGetLastNtStatus? Imports().RtlGetLastNtStatus() : STATUS_SUCCESS;
 }
 
+string GetErrorString(bool Nt, DWORD Code)
+{
+	os::memory::local::ptr<wchar_t> Buffer;
+	size_t size = FormatMessage((Nt? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, (Nt? GetModuleHandle(L"ntdll.dll") : nullptr), Code, 0, reinterpret_cast<wchar_t*>(&ptr_setter(Buffer)), 0, nullptr);
+	string Result(Buffer.get(), size);
+	std::replace_if(ALL_RANGE(Result), IsEol, L' ');
+	const auto End = Result.find_last_not_of(' ');
+	if (End != Result.npos)
+		Result.resize(End);
+	return Result;
+}
+
 bool WNetGetConnection(const string& LocalName, string &RemoteName)
 {
 	wchar_t_ptr_n<MAX_PATH> Buffer(MAX_PATH);

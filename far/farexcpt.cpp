@@ -64,8 +64,12 @@ enum exception_dialog
 	ed_doublebox,
 	ed_text_exception,
 	ed_edit_exception,
+	ed_text_details,
+	ed_edit_details,
 	ed_text_address,
 	ed_edit_address,
+	ed_text_source,
+	ed_edit_source,
 	ed_text_function,
 	ed_edit_function,
 	ed_text_module,
@@ -104,7 +108,6 @@ static void ShowStackTrace(std::vector<string>&& Symbols, const std::vector<stri
 		{
 			std::wcerr << Str << L'\n';
 		}
-		std::wcerr.flush();
 	}
 }
 
@@ -195,36 +198,44 @@ enum reply
 	reply_ignore,
 };
 
-static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const exception_context& Context, const string_view& Function, const Plugin* PluginModule, const std::vector<string>* NestedStack)
+static reply ExcDialog(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view& Function, const Plugin* PluginModule, const std::vector<string>* NestedStack)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	const auto strAddr = tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress);
+	string Address, Name, Source;
+	tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	if (!Name.empty())
+		append(Address, L" - "_sv, Name);
+
 	const null_terminated FunctionName(Function);
 
 	FarDialogItem EditDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,8,0,nullptr,nullptr,0,msg(lng::MExcTrappedException).data()},
+		{DI_DOUBLEBOX,3,1,76,10,0,nullptr,nullptr,0,msg(lng::MExcTrappedException).data()},
 		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,msg(lng::MExcException).data()},
-		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception},
-		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcAddress).data()},
-		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,strAddr.data()},
-		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcFunction).data()},
-		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY, FunctionName.data() },
-		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcModule).data()},
-		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
-		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).data()},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcStack).data()},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcMinidump).data()},
-		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore).data()},
+		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception.data()},
+		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcDetails).data()},
+		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Details.data()},
+		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcAddress).data()},
+		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Address.data()},
+		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcSource).data()},
+		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Source.data()},
+		{DI_TEXT,     5,6, 17,6,0,nullptr,nullptr,0,msg(lng::MExcFunction).data()},
+		{DI_EDIT,    18,6, 75,6,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY, FunctionName.data()},
+		{DI_TEXT,     5,7, 17,7,0,nullptr,nullptr,0,msg(lng::MExcModule).data()},
+		{DI_EDIT,    18,7, 75,7,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
+		{DI_TEXT,    -1,8,  0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).data()},
+		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcStack).data()},
+		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcMinidump).data()},
+		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore).data()},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	auto DlgData = dialog_data_type(&Context, NestedStack);
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetPosition(-1, -1, 80, 10);
+	Dlg->SetPosition(-1, -1, 80, 12);
 	Dlg->Process();
 
 	switch (Dlg->GetExitCode())
@@ -238,48 +249,77 @@ static reply ExcDialog(const string& ModuleName, LPCWSTR Exception, const except
 	}
 }
 
-static reply ExcConsole(const string& ModuleName, LPCWSTR Exception, const exception_context& Context, const string_view& Function, const Plugin* Module, const std::vector<string>* NestedStack)
+static reply ExcConsole(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view& Function, const Plugin* Module, const std::vector<string>* NestedStack)
 {
-	const auto strAddr = tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress);
+	string Address, Name, Source;
+	tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	if (!Name.empty())
+		append(Address, L" - "_sv, Name);
 
-	string Msg[4];
+	std::array<string_view, 6> Msg;
 	if (far_language::instance().is_loaded())
 	{
-		Msg[0] = msg(lng::MExcException);
-		Msg[1] = msg(lng::MExcAddress);
-		Msg[2] = msg(lng::MExcFunction);
-		Msg[3] = msg(lng::MExcModule);
+		Msg =
+		{
+			msg(lng::MExcException),
+			msg(lng::MExcDetails),
+			msg(lng::MExcAddress),
+			msg(lng::MExcSource),
+			msg(lng::MExcFunction),
+			msg(lng::MExcModule),
+		};
 	}
 	else
 	{
-		Msg[0] = L"Exception:";
-		Msg[1] = L"Address:  ";
-		Msg[2] = L"Function: ";
-		Msg[3] = L"Module:   ";
+		Msg =
+		{
+			L"Exception:"_sv,
+			L"Details:  "_sv,
+			L"Address:  "_sv,
+			L"Source:   "_sv,
+			L"Function: "_sv,
+			L"Module:   "_sv,
+		};
 	}
 
-	const auto Dump = concat(
-		Msg[0], L' ', Exception, L'\n',
-		Msg[1], L' ', strAddr, L'\n',
-		Msg[2], L' ', Function, L'\n',
-		Msg[3], L' ', ModuleName, L'\n');
+	const string_view Values[] =
+	{
+		Exception,
+		Details,
+		Address,
+		Source,
+		Function,
+		ModuleName,
+	};
 
-	std::wcerr << Dump << std::endl;
+	static_assert(std::size(Msg) == std::size(Values));
+
+	for (const auto& i : zip(Msg, Values))
+	{
+		std::wcerr << std::get<0>(i) << L' ' << std::get<1>(i) << L'\n';
+	}
 
 	ShowStackTrace(tracer::get(Context), NestedStack);
 
+	std::wcerr << std::endl;
+
 	for (;;)
 	{
-		std::wcin.clear();
-		std::wcout << L"\nTerminate process? [Y/N]: ";
-		string Input;
-		std::wcin >> Input;
-		if (Input.size() == 1)
+		std::wcout << L"Terminate process (Y/N)? " << std::flush;
+
+		wchar_t Input;
+		std::wcin.get(Input).ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
+
+		switch (upper(Input))
 		{
-			if (upper(Input.front()) == L'Y')
-				return reply_handle;
-			else if (upper(Input.front()) == L'N')
-				return reply_ignore;
+		case L'Y':
+			return reply_handle;
+
+		case L'N':
+			return reply_ignore;
+
+		default:
+			break;
 		}
 	}
 }
@@ -300,9 +340,14 @@ static string ExtractObjectName(const EXCEPTION_RECORD* xr)
 	const auto Ptr2 = reinterpret_cast<const DWORD*>(Ptr1[3] + BaseAddress);
 	const auto Ptr3 = reinterpret_cast<const DWORD*>(Ptr2[1] + BaseAddress);
 	const auto Ptr4 = reinterpret_cast<const char*>(Ptr3[1] + BaseAddress);
-	auto DataPtr = Ptr4 + sizeof(void*) * 2 + 1;
-	// TODO: try to undecorate?
-	return encoding::ansi::get_chars(DataPtr);
+	auto DataPtr = Ptr4 + sizeof(void*) * 2;
+
+	char Buffer[MAX_SYM_NAME];
+	// https://stackoverflow.com/a/19637731
+	if (Imports().UnDecorateSymbolName(DataPtr + 1, Buffer, static_cast<DWORD>(std::size(Buffer)), UNDNAME_32_BIT_DECODE | UNDNAME_NO_ARGUMENTS))
+		DataPtr = Buffer;
+
+	return encoding::ansi::get_chars(Buffer);
 }
 
 static bool ProcessGenericException(const exception_context& Context, const string_view& Function, const Plugin* PluginModule, const char* Message, const std::vector<string>* NestedStack = nullptr)
@@ -366,37 +411,42 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 		return true;
 	}
 
-	static const struct
-	{
-		const wchar_t* DefaultMsg; // Lng-files may not be loaded yet
-		NTSTATUS Code;     // код исключения
-		lng IdMsg;    // ID сообщения из LNG-файла
-	}
-	ECode[]=
+	static const std::pair<const wchar_t*, NTSTATUS> KnownExceptions[] =
 	{
 		#define TEXTANDCODE(x) L###x, x
-		{TEXTANDCODE(EXCEPTION_ACCESS_VIOLATION), lng::MExcRAccess},
-		{TEXTANDCODE(EXCEPTION_ARRAY_BOUNDS_EXCEEDED), lng::MExcOutOfBounds},
-		{TEXTANDCODE(EXCEPTION_INT_DIVIDE_BY_ZERO), lng::MExcDivideByZero},
-		{TEXTANDCODE(EXCEPTION_STACK_OVERFLOW), lng::MExcStackOverflow},
-		{TEXTANDCODE(EXCEPTION_BREAKPOINT), lng::MExcBreakPoint},
-		{TEXTANDCODE(EXCEPTION_FLT_DIVIDE_BY_ZERO), lng::MExcFloatDivideByZero}, // BUGBUG: Floating-point exceptions (VC) are disabled by default. See http://msdn2.microsoft.com/en-us/library/aa289157(vs.71).aspx#floapoint_topic8
-		{TEXTANDCODE(EXCEPTION_FLT_OVERFLOW), lng::MExcFloatOverflow},           // BUGBUG:  ^^^
-		{TEXTANDCODE(EXCEPTION_FLT_STACK_CHECK), lng::MExcFloatStackOverflow},   // BUGBUG:  ^^^
-		{TEXTANDCODE(EXCEPTION_FLT_UNDERFLOW), lng::MExcFloatUnderflow},         // BUGBUG:  ^^^
-		{TEXTANDCODE(EXCEPTION_ILLEGAL_INSTRUCTION), lng::MExcBadInstruction},
-		{TEXTANDCODE(EXCEPTION_PRIV_INSTRUCTION), lng::MExcBadInstruction},
-		{TEXTANDCODE(EXCEPTION_DATATYPE_MISALIGNMENT), lng::MExcDatatypeMisalignment},
-		{TEXTANDCODE(EXCEPTION_MICROSOFT_CPLUSPLUS), lng::MExcCplusPlus},
-		// сюды добавляем.
 
-		#undef TEXTANDCODE
+		{TEXTANDCODE(EXCEPTION_ACCESS_VIOLATION)},
+		{TEXTANDCODE(EXCEPTION_DATATYPE_MISALIGNMENT)},
+		{TEXTANDCODE(EXCEPTION_BREAKPOINT)},
+		{TEXTANDCODE(EXCEPTION_SINGLE_STEP)},
+		{TEXTANDCODE(EXCEPTION_ARRAY_BOUNDS_EXCEEDED)},
+		{TEXTANDCODE(EXCEPTION_FLT_DENORMAL_OPERAND)},
+		{TEXTANDCODE(EXCEPTION_FLT_DIVIDE_BY_ZERO)},
+		{TEXTANDCODE(EXCEPTION_FLT_INEXACT_RESULT)},
+		{TEXTANDCODE(EXCEPTION_FLT_INVALID_OPERATION)},
+		{TEXTANDCODE(EXCEPTION_FLT_OVERFLOW)},
+		{TEXTANDCODE(EXCEPTION_FLT_STACK_CHECK)},
+		{TEXTANDCODE(EXCEPTION_FLT_UNDERFLOW)},
+		{TEXTANDCODE(EXCEPTION_INT_DIVIDE_BY_ZERO)},
+		{TEXTANDCODE(EXCEPTION_INT_OVERFLOW)},
+		{TEXTANDCODE(EXCEPTION_PRIV_INSTRUCTION)},
+		{TEXTANDCODE(EXCEPTION_IN_PAGE_ERROR)},
+		{TEXTANDCODE(EXCEPTION_ILLEGAL_INSTRUCTION)},
+		{TEXTANDCODE(EXCEPTION_NONCONTINUABLE_EXCEPTION)},
+		{TEXTANDCODE(EXCEPTION_STACK_OVERFLOW)},
+		{TEXTANDCODE(EXCEPTION_INVALID_DISPOSITION)},
+		{TEXTANDCODE(EXCEPTION_GUARD_PAGE)},
+		{TEXTANDCODE(EXCEPTION_INVALID_HANDLE)},
+		{TEXTANDCODE(EXCEPTION_POSSIBLE_DEADLOCK)},
+		{TEXTANDCODE(CONTROL_C_EXIT)},
+#undef TEXTANDCODE
+
+		{L"C++ exception", EXCEPTION_MICROSOFT_CPLUSPLUS},
 	};
 
-	string strBuf;
 	string strFileName;
 	auto ShowMessages = false;
-	// получим запись исключения
+
 	const auto xr = Context.GetPointers()->ExceptionRecord;
 
 	if (!PluginModule)
@@ -415,85 +465,57 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 		strFileName = PluginModule->GetModuleName();
 	}
 
-	LPCWSTR Exception=nullptr;
-	// просмотрим "знакомые" FAR`у исключения и обработаем...
-	const auto ItemIterator = std::find_if(CONST_RANGE(ECode, i)
+	const auto Exception = [&](NTSTATUS Code)
 	{
-		return i.Code == static_cast<NTSTATUS>(Context.GetCode());
-	});
+		const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return i.second == Code; });
+		const auto Name = ItemIterator != std::cend(KnownExceptions)? ItemIterator->first : L"Unknown exception"s;
+		return format(L"0x{0:0>8X} - {1}", static_cast<DWORD>(Code), Name);
+	}(Context.GetCode());
 
-	if (ItemIterator != std::cend(ECode))
+	string Details;
+
+	switch(static_cast<NTSTATUS>(Context.GetCode()))
 	{
-		Exception = far_language::instance().is_loaded()? msg(ItemIterator->IdMsg).data() : ItemIterator->DefaultMsg;
-
-		if (Context.GetCode() == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
+	case EXCEPTION_ACCESS_VIOLATION:
+	case EXCEPTION_IN_PAGE_ERROR:
 		{
-			int Offset = 0;
-			// вот только не надо здесь неочевидных оптимизаций вида
-			// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
-			// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
-
-			switch (xr->ExceptionInformation[0])
+			const auto Location = to_hex_wstring(xr->ExceptionInformation[1]);
+			const auto Mode = [](ULONG_PTR Code)
 			{
-				case 0: // read
-					Offset = 0;
-					break;
-				case 1: // write
-					Offset = 1;
-					break;
-				case 8: // execute
-					Offset = 2;
-					break;
-			}
+				switch (Code)
+				{
+				default:
+				case 0: return L"read"_sv;
+				case 1: return L"written"_sv;
+				case 8: return L"executed"_sv;
+				}
+			}(xr->ExceptionInformation[0]);
 
-			strBuf = L"0x" + to_hex_wstring(xr->ExceptionInformation[1]);
-
-			if (far_language::instance().is_loaded())
-			{
-				strBuf = format(lng::MExcRAccess + Offset, strBuf);
-				Exception=strBuf.data();
-			}
-			else
-			{
-				static const string_view AVs[] = {L"read from "_sv, L"write to "_sv, L"execute at "_sv };
-				strBuf = concat(Exception, L" ("_sv, AVs[Offset], strBuf, L')');
-				Exception=strBuf.data();
-			}
+			Details = format(L"Memory at {0} could not be {1}", Location, Mode);
 		}
-		else if (Context.GetCode() == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS))
-		{
-			strBuf = concat(Exception, L" ("_sv);
-			const auto ObjectName = xr->NumberParameters? ExtractObjectName(xr) : L"";
-			strBuf += ObjectName;
-			if (Message)
-			{
-				if (!ObjectName.empty())
-					append(strBuf, L" -> "_sv);
+		break;
 
-				append(strBuf, L"std::exception: "_sv, encoding::utf8::get_chars(Message));
-			}
-			strBuf += L')';
-			Exception = strBuf.data();
-		}
-	}
+	case EXCEPTION_MICROSOFT_CPLUSPLUS:
+		Details = xr->NumberParameters? ExtractObjectName(xr) : L""s;
+		if (Message)
+			append(Details, Details.empty()? L""_sv : L", "_sv, L"what(): ", encoding::utf8::get_chars(Message));
+		break;
 
-	if (!Exception)
-	{
-		const auto Template = far_language::instance().is_loaded()? msg(lng::MExcUnknown) : L"Unknown exception";
-		append(strBuf, Template, L" (0x"_sv, to_hex_wstring(Context.GetCode()), L')');
-		Exception = strBuf.data();
+	default:
+		Details = os::GetErrorString(true, Context.GetCode());
+		break;
 	}
 
 	reply MsgCode;
 
 	if (Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
-		MsgCode = ExcDialog(strFileName, Exception, Context, Function, PluginModule, NestedStack);
+		MsgCode = ExcDialog(strFileName, Exception, Details, Context, Function, PluginModule, NestedStack);
 		ShowMessages = true;
 	}
 	else
 	{
-		MsgCode = ExcConsole(strFileName, Exception, Context, Function, PluginModule, NestedStack);
+		MsgCode = ExcConsole(strFileName, Exception, Details, Context, Function, PluginModule, NestedStack);
 	}
 
 	if (ShowMessages && !PluginModule)
@@ -510,6 +532,12 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 	default:
 		return false;
 	}
+}
+
+void SetFloatingPointExceptions(bool Enable)
+{
+	_clearfp();
+	_controlfp(Enable? 0 : _MCW_EM, _MCW_EM);
 }
 
 void RestoreGPFaultUI()
@@ -548,7 +576,7 @@ bool ProcessStdException(const std::exception& e, const string_view& Function, P
 	auto ContextPtr = tracer::get_exception_context(&e);
 	if (!ContextPtr)
 	{
-		// std::exception to EXCEPTION_POINTERS translation relies on Microsoft C++ exception implementation.
+		// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
 		// It won't work in gcc etc.
 		// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
 		Context = std::make_unique<exception_context>(EXCEPTION_MICROSOFT_CPLUSPLUS);
@@ -566,12 +594,16 @@ bool ProcessStdException(const std::exception& e, const string_view& Function, P
 
 bool ProcessUnknownException(const string_view& Function, Plugin* Module)
 {
-	exception_context Context;
+	// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
+	// It won't work in gcc etc.
+	// Set ExceptionCode manually so ProcessGenericException will at least report it as C++ exception
+	exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS);
 	return ProcessGenericException(Context, Function, Module, nullptr);
 }
 
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
+	SetFloatingPointExceptions(false);
 	exception_context Context(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo);
 	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"_sv, nullptr, nullptr))
 	{
@@ -602,14 +634,10 @@ WARNING_PUSH()
 WARNING_DISABLE_MSC(4717) // https://msdn.microsoft.com/en-us/library/97c54274.aspx 'function' : recursive on all control paths, function will cause runtime stack overflow
 WARNING_DISABLE_CLANG("-Winfinite-recursion")
 
-static void Test_EXCEPTION_STACK_OVERFLOW(char* target)
+static void Test_EXCEPTION_STACK_OVERFLOW(volatile char* target)
 {
-	char Buffer[2048]; /* чтобы быстрее рвануло */
-
+	volatile char Buffer[10240];
 	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
-
-	// "side effect" to prevent deletion of this function call due to C4718.
-	Sleep(0);
 }
 WARNING_POP()
 
@@ -626,6 +654,7 @@ static bool ExceptionTestHook(Manager::Key key)
 		enum class exception_types
 		{
 			cpp_std,
+			cpp_std_bad_alloc,
 			cpp_unknown,
 			access_violation_read,
 			access_violation_write,
@@ -634,10 +663,11 @@ static bool ExceptionTestHook(Manager::Key key)
 			illegal_instruction,
 			stack_overflow,
 			fp_divide_by_zero,
+			fp_overflow,
+			fp_underflow,
+			fp_inexact_result,
 			breakpoint,
-#ifdef _M_IA64
 			alignment_fault,
-#endif
 
 			count
 		};
@@ -645,6 +675,7 @@ static bool ExceptionTestHook(Manager::Key key)
 		static const wchar_t* Names[] =
 		{
 			L"C++ std::exception",
+			L"C++ std::bad_alloc",
 			L"C++ unknown exception",
 			L"Access Violation (Read)",
 			L"Access Violation (Write)",
@@ -653,19 +684,18 @@ static bool ExceptionTestHook(Manager::Key key)
 			L"Illegal instruction",
 			L"Stack Overflow",
 			L"Floating-point divide by zero",
+			L"Floating-point overflow",
+			L"Floating-point underflow",
+			L"Floating-point inexact result",
 			L"Breakpoint",
-#ifdef _M_IA64
-			L"Alignment fault (IA64 specific)",
-#endif
+			L"Alignment fault",
+
 			/*
-			L"EXCEPTION_FLT_OVERFLOW",
 			L"EXCEPTION_SINGLE_STEP",
 			L"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",
 			L"EXCEPTION_FLT_DENORMAL_OPERAND",
-			L"EXCEPTION_FLT_INEXACT_RESULT",
 			L"EXCEPTION_FLT_INVALID_OPERATION",
 			L"EXCEPTION_FLT_STACK_CHECK",
-			L"EXCEPTION_FLT_UNDERFLOW",
 			L"EXCEPTION_INT_OVERFLOW",
 			L"EXCEPTION_PRIV_INSTRUCTION",
 			L"EXCEPTION_IN_PAGE_ERROR",
@@ -678,13 +708,6 @@ static bool ExceptionTestHook(Manager::Key key)
 
 		static_assert(std::size(Names) == static_cast<size_t>(exception_types::count));
 
-		static union
-		{
-			int     i;
-			int     *iptr;
-			double  d;
-		} zero_const; //, refers;
-		zero_const.i = 0L;
 		const auto ModalMenu = VMenu2::create(L"Test Exceptions", nullptr, 0, ScrY - 4);
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1, -1, 0, 0);
@@ -694,7 +717,7 @@ static bool ExceptionTestHook(Manager::Key key)
 			ModalMenu->AddItem(i);
 		});
 
-		int ExitCode = ModalMenu->Run();
+		const auto ExitCode = ModalMenu->Run();
 		if (ExitCode == -1)
 			return true;
 
@@ -703,37 +726,58 @@ static bool ExceptionTestHook(Manager::Key key)
 		case exception_types::cpp_std:
 			throw MAKE_FAR_EXCEPTION(L"Test error");
 
+		case exception_types::cpp_std_bad_alloc:
+			// Less than the physical limit to leave some space for a service block, if any
+			std::make_unique<char[]>(std::numeric_limits<size_t>::max() - 1024 * 1024);
+			break;
+
 		case exception_types::cpp_unknown:
 			throw 42;
 
 		case exception_types::access_violation_read:
-			zero_const.i = *zero_const.iptr;
+			{
+				volatile const int* InvalidAddress = nullptr;
+				volatile const auto Result = *InvalidAddress;
+				(void)Result;
+			}
 			break;
 
 		case exception_types::access_violation_write:
-			*zero_const.iptr = 0;
+			{
+				volatile int* InvalidAddress = nullptr;
+				*InvalidAddress = 42;
+			}
 			break;
 
 		case exception_types::access_violation_execute:
-			using func_t = void(*)();
-			func_t{}();
+			{
+				using func_t = void(*)();
+				volatile const func_t InvalidAddress = nullptr;
+				InvalidAddress();
+			}
 			break;
 
 		case exception_types::divide_by_zero:
-			zero_const.i = 1 / zero_const.i;
+			{
+				volatile const auto InvalidDenominator = 0;
+				volatile const auto Result = 42 / InvalidDenominator;
+				(void)Result;
+			}
 			break;
 
 		case exception_types::illegal_instruction:
+			{
 #if COMPILER == C_CL || COMPILER == C_INTEL
 #ifdef _M_IA64
-			const int REG_IA64_IntR0 = 1024;
-			__setReg(REG_IA64_IntR0, 666);
+				const int REG_IA64_IntR0 = 1024;
+				__setReg(REG_IA64_IntR0, 666);
 #else
-			__ud2();
+				__ud2();
 #endif
 #elif COMPILER == C_GCC || COMPILER == C_CLANG
-			asm("ud2");
+				asm("ud2");
 #endif
+			}
 			break;
 
 		case exception_types::stack_overflow:
@@ -741,23 +785,57 @@ static bool ExceptionTestHook(Manager::Key key)
 			break;
 
 		case exception_types::fp_divide_by_zero:
-			zero_const.d = 1.0 / zero_const.d;
+			{
+				SetFloatingPointExceptions(true);
+				volatile const auto InvalidDenominator = 0.0;
+				volatile const auto Result = 42.0 / InvalidDenominator;
+				(void)Result;
+			}
+			break;
+
+		case exception_types::fp_overflow:
+			{
+				SetFloatingPointExceptions(true);
+				volatile const auto Max = std::numeric_limits<double>::max();
+				volatile const auto Result = Max * 2;
+				(void)Result;
+			}
+			break;
+
+		case exception_types::fp_underflow:
+			{
+				SetFloatingPointExceptions(true);
+				volatile const auto Min = std::numeric_limits<double>::min();
+				volatile const auto Result = Min / 2;
+				(void)Result;
+			}
+			break;
+
+		case exception_types::fp_inexact_result:
+			{
+				SetFloatingPointExceptions(true);
+				volatile const auto Max = std::numeric_limits<double>::max();
+				volatile const auto Result = Max + 1;
+				(void)Result;
+			}
 			break;
 
 		case exception_types::breakpoint:
 			DebugBreak();
 			break;
 
-#ifdef _M_IA64
 		case exception_types::alignment_fault:
 			{
-				BYTE temp[10] = {};
-				double* val;
-				val = (double*)(&temp[3]);
-				printf("%lf\n", *val);
-				break;
+				volatile const struct data
+				{
+					char Data[3 + sizeof(double)];
+				}
+				Data{};
+				volatile const auto Result = *reinterpret_cast<volatile const double*>(Data.Data + 3);
+				(void)Result;
 			}
-#endif
+			break;
+
 		case exception_types::count:
 			// makes no sense, just to make compiler happy
 			break;
@@ -809,7 +887,7 @@ int SehFilter(int Code, EXCEPTION_POINTERS* Info, const string_view& Function, P
 	{
 		bool Result = false;
 		{
-			os::thread(&os::thread::join, [&]{ Result = ProcessGenericException(Context, nullptr, nullptr, nullptr); });
+			os::thread(&os::thread::join, [&]{ Result = ProcessGenericException(Context, Function, nullptr, nullptr); });
 		}
 
 		StackOverflowHappened = true;

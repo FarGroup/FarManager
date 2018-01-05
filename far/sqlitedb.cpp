@@ -338,10 +338,10 @@ bool SQLiteDb::RollbackTransaction()
 SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(const wchar_t* Stmt) const
 {
 	sqlite::sqlite3_stmt* pStmt;
-	if (sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt, -1, &pStmt, nullptr) != SQLITE_OK)
-	{
-		throw MAKE_FAR_EXCEPTION(L"SQLiteDb::create_stmt failed");
-	}
+	const auto Result = sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt, -1, &pStmt, nullptr);
+	if (Result != SQLITE_OK)
+		throw MAKE_FAR_EXCEPTION(format(L"SQLiteDb::create_stmt error {0} - {1}", Result, GetErrorString(Result)));
+
 	return SQLiteStmt(pStmt);
 }
 
@@ -381,4 +381,9 @@ int SQLiteDb::GetLastErrorCode() const
 string SQLiteDb::GetLastErrorString() const
 {
 	return static_cast<const wchar_t*>(sqlite::sqlite3_errmsg16(m_Db.get()));
+}
+
+string SQLiteDb::GetErrorString(int Code) const
+{
+	return encoding::utf8::get_chars(sqlite::sqlite3_errstr(Code));
 }

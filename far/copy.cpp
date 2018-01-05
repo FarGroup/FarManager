@@ -2251,7 +2251,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	{
 		for (;;)
 		{
-			error_state ErrorState;
+			error_state_ex ErrorState;
 
 			if (!(Flags&FCOPY_COPYTONUL) && Rename)
 			{
@@ -2644,7 +2644,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 
 
 int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcData,
-                             string &strDestName,DWORD &DestAttr,int Append, error_state& ErrorState)
+                             string &strDestName,DWORD &DestAttr,int Append, error_state_ex& ErrorState)
 {
 	if ((Flags&FCOPY_LINK))
 	{

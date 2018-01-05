@@ -252,6 +252,8 @@ void Manager::CloseAll()
 	}
 	m_windows.clear();
 	m_Desktop.reset();
+
+	EndLoop = true;
 }
 
 void Manager::PushWindow(const window_ptr& Param, window_callback Callback)

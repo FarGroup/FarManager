@@ -64,7 +64,7 @@ public:
 
 	Message(
 		DWORD Flags,
-		const error_state& ErrorState,
+		const error_state_ex& ErrorState,
 		const string& Title,
 		std::vector<string> Strings,
 		const std::vector<lng>& Buttons,
@@ -75,7 +75,7 @@ public:
 
 	Message(
 		DWORD Flags,
-		const error_state* ErrorState,
+		const error_state_ex* ErrorState,
 		const string& Title,
 		std::vector<string> Strings,
 		std::vector<string> Buttons,
@@ -103,7 +103,7 @@ private:
 		const string& Title,
 		std::vector<string>&& Strings,
 		std::vector<string>&& Buttons,
-		const error_state* ErrorState,
+		const error_state_ex* ErrorState,
 		const std::vector<string>& Inserts,
 		const wchar_t* HelpTopic,
 		Plugin* PluginNumber,
@@ -116,7 +116,7 @@ private:
 	int FirstButtonIndex,LastButtonIndex;
 	bool IsWarningStyle;
 	bool IsErrorType;
-	error_state m_ErrorState;
+	error_state_ex m_ErrorState;
 };
 
 /* $ 12.03.2002 VVM
@@ -128,6 +128,6 @@ private:
 */
 bool AbortMessage();
 
-string GetErrorString(const error_state& ErrorState);
+string GetErrorString(const error_state_ex& ErrorState);
 
 #endif // MESSAGE_HPP_640AC104_875B_41AE_8EF5_8A99913A6896

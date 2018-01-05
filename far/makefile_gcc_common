@@ -77,7 +77,7 @@ CFLAGS += \
 -Wno-unused-parameter \
 -Wno-missing-field-initializers \
 
-CCFLAGS = $(CFLAGS) -std=c++1z \
+CCFLAGS = $(CFLAGS) -std=gnu++1z \
 -Wnon-virtual-dtor \
 -Woverloaded-virtual \
 -Wctor-dtor-privacy \

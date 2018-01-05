@@ -42,7 +42,7 @@ class Dialog;
 class copy_progress;
 class FileFilter;
 
-struct error_state;
+struct error_state_ex;
 
 enum COPY_CODES: int;
 enum ReparsePointTypes: int;
@@ -59,7 +59,7 @@ private:
 	COPY_CODES CopyFileTree(const string&  Dest);
 	COPY_CODES ShellCopyOneFile(const string& Src, const os::fs::find_data &SrcData, string &strDest, int KeepPathPos, int Rename);
 	COPY_CODES CheckStreams(const string& Src,const string& DestPath);
-	int ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcData, string &strDestName,DWORD &DestAttr,int Append, error_state& ErrorState);
+	int ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcData, string &strDestName,DWORD &DestAttr,int Append, error_state_ex& ErrorState);
 	int ShellSystemCopy(const string& SrcName,const string& DestName,const os::fs::find_data &SrcData);
 	int DeleteAfterMove(const string& Name,DWORD Attr);
 	bool AskOverwrite(const os::fs::find_data &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);

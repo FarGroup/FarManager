@@ -447,7 +447,7 @@ static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 	}
 }
 
-operation OperationFailed(const error_state& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip)
+operation OperationFailed(const error_state_ex& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip)
 {
 	std::vector<string> Msg;
 	os::com::ptr<IFileIsInUse> fiu;

@@ -40,13 +40,11 @@ public:
 	tracer();
 	~tracer();
 
-	static tracer* GetInstance();
-
 	void store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInfo);
 
 	static std::vector<string> get(const void* CppObject);
 	static std::vector<string> get(const exception_context& Context);
-	static string get_one(const void* Address);
+	static void get_one(const void* Ptr, string& Address, string& Name, string& Source);
 
 	static const exception_context* get_exception_context(const void* CppObject);
 

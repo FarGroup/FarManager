@@ -796,17 +796,22 @@ static int mainImpl(const range<wchar_t**>& Args)
 	catch (const std::exception& e)
 	{
 		if (ProcessStdException(e, L"mainImpl"_sv))
-		{
 			std::terminate();
-		}
-		else
-		{
-			throw;
-		}
+		throw;
 	}
+#if COMPILER == C_GCC
+	catch (...)
+	{
+		if (ProcessUnknownException(L"mainImpl"_sv))
+			std::terminate();
+		throw;
+	}
+#else
 	// Absence of catch (...) block here is deliberate:
 	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
 	// and processed as SEH exceptions in more advanced way
+#endif
+
 }
 
 static int wmain_seh(int Argc, wchar_t *Argv[])
@@ -826,19 +831,27 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 	catch (const std::exception& e)
 	{
 		if (ProcessStdException(e, L"wmain"_sv))
-		{
 			std::terminate();
-		}
-		else
-		{
-			unhandled_exception_filter::dismiss();
-			RestoreGPFaultUI();
-			throw;
-		}
+
+		unhandled_exception_filter::dismiss();
+		RestoreGPFaultUI();
+		throw;
 	}
+#if COMPILER == C_GCC
+	catch (...)
+	{
+		if (ProcessUnknownException(L"mainImpl"_sv))
+			std::terminate();
+
+		unhandled_exception_filter::dismiss();
+		RestoreGPFaultUI();
+		throw;
+	}
+#else
 	// Absence of catch (...) block here is deliberate:
 	// Unknown C++ exceptions will be caught by FarUnhandledExceptionFilter
 	// and processed as SEH exceptions in more advanced way
+#endif
 }
 
 int main()

@@ -112,7 +112,8 @@ ImportedFunctions::ImportedFunctions():
 	INIT_IMPORT(m_dbghelp, SymCleanup),
 	INIT_IMPORT(m_dbghelp, SymFromAddr),
 	INIT_IMPORT(m_dbghelp, SymSetOptions),
-	INIT_IMPORT(m_dbghelp, SymGetLineFromAddr64)
+	INIT_IMPORT(m_dbghelp, SymGetLineFromAddr64),
+	INIT_IMPORT(m_dbghelp, UnDecorateSymbolName)
 
 #undef INIT_IMPORT
 {
@@ -428,4 +429,11 @@ BOOL WINAPI ImportedFunctions::stub_SymGetLineFromAddr64(HANDLE Process, DWORD64
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
+}
+
+DWORD WINAPI ImportedFunctions::stub_UnDecorateSymbolName(PCSTR Name, PSTR OutputString, DWORD MaxStringLength, DWORD Flags)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
 }

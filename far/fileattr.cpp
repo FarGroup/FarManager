@@ -52,7 +52,7 @@ struct response
 	};
 };
 
-static int ShowErrorMessage(const error_state& ErrorState, lng Id, const string& Name)
+static int ShowErrorMessage(const error_state_ex& ErrorState, lng Id, const string& Name)
 {
 	return Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),

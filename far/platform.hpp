@@ -157,6 +157,8 @@ namespace os
 
 	NTSTATUS GetLastNtStatus();
 
+	string GetErrorString(bool Nt, DWORD Code);
+
 	bool WNetGetConnection(const string& LocalName, string &RemoteName);
 
 	void EnableLowFragmentationHeap();
