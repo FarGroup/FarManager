@@ -344,10 +344,7 @@ bool KeyToKeyLayoutCompare(int Key, int CompareKey)
 	Key = KeyToVKey[Key&0xFFFF]&0xFF;
 	CompareKey = KeyToVKey[CompareKey&0xFFFF]&0xFF;
 
-	if (Key  && Key == CompareKey)
-		return true;
-
-	return false;
+	return Key && Key == CompareKey;
 }
 
 //Должно вернуть клавишный Eng эквивалент Key
@@ -780,7 +777,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		return static_cast<DWORD>(KEY_NONE);
 	};
 
-	if (KeyQueue().size())
+	if (!KeyQueue().empty())
 	{
 		CalcKey=KeyQueue().front();
 		KeyQueue().pop_front();
@@ -1263,7 +1260,7 @@ int KeyNameToKey(const string& Name)
 		return -1;
 
 		if (Name.find_first_of(L"()") != string::npos) // встречаются '(' или ')', то это явно не клавиша!
-		return -1;
+			return -1;
 	}
 
 	size_t Pos = 0;

@@ -383,7 +383,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 		//BUGBUG: DefDlgProc вызывается дважды, второй раз Param1 может быть другим.
 		case DN_CONTROLINPUT:
 		{
-			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+			const auto record = static_cast<const INPUT_RECORD*>(Param2);
 			if (record->EventType==MOUSE_EVENT)
 			{
 				//_SVS(SysLog(L"Msg=DN_MOUSECLICK Param1=%d Param2=%d",Param1,Param2));

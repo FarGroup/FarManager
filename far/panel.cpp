@@ -70,7 +70,7 @@ static Panel *SrcDragPanel;
 static std::unique_ptr<SaveScreen> DragSaveScr;
 
 Panel::Panel(window_ptr Owner):
-	ScreenObject(Owner)
+	ScreenObject(std::move(Owner))
 {
 	_OT(SysLog(L"[%p] Panel::Panel()", this));
 	SrcDragPanel=nullptr;
@@ -152,8 +152,7 @@ private:
 Search::Search(private_tag, Panel* Owner, const Manager::Key& FirstKey):
 	m_Owner(Owner),
 	m_FirstKey(FirstKey),
-	m_FindEdit(),
-	m_KeyToProcess()
+	m_FindEdit()
 {
 }
 
@@ -1216,11 +1215,7 @@ bool Panel::GetCurBaseName(string &strName, string &strShortName) const
 bool Panel::NeedUpdatePanel(const Panel *AnotherPanel) const
 {
 	/* Обновить, если обновление разрешено и пути совпадают */
-	if ((!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) &&
-		equal_icase(AnotherPanel->m_CurDir, m_CurDir))
-		return true;
-
-	return false;
+	return (!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(GetFileCount()) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit)) && equal_icase(AnotherPanel->m_CurDir, m_CurDir);
 }
 
 bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const

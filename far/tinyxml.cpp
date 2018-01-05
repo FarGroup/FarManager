@@ -67,5 +67,3 @@ SCOPED_ACTION(components::component)([]
 });
 
 }
-
-namespace tinyxml = tinyxml_impl::tinyxml2;

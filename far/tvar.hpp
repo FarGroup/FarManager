@@ -61,7 +61,7 @@ public:
 	explicit TVar();
 	explicit TVar(int);
 	explicit TVar(long long);
-	explicit TVar(const string&);
+	explicit TVar(string);
 	explicit TVar(const wchar_t*);
 	explicit TVar(double);
 

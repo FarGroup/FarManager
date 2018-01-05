@@ -299,7 +299,7 @@ void Message::Init(
 		strClipText.pop_back();
 	}
 
-	int X1, Y1, X2, Y2;
+	int X1;
 
 	int MessageWidth = static_cast<int>(MaxLength + 6 + 2 + 2); // 6 for frame, 2 for border, 2 for inner margin
 	if (MessageWidth < ScrX)
@@ -311,7 +311,7 @@ void Message::Init(
 		X1 = 0;
 	}
 
-	X2 = X1 + MessageWidth - 1;
+	int X2 = X1 + MessageWidth - 1;
 
 	MessageX1 = X1;
 	MessageX2 = X2; 
@@ -321,6 +321,8 @@ void Message::Init(
 	{
 		MessageHeight += 2; // 1 for separator, 1 for buttons line
 	}
+
+	int Y1;
 
 	if (MessageHeight < ScrY)
 	{
@@ -334,7 +336,7 @@ void Message::Init(
 		Y1 = 0;
 	}
 
-	Y2 = Y1 + MessageHeight - 1;
+	int Y2 = Y1 + MessageHeight - 1;
 
 	MessageY1 = Y1;
 	MessageY2 = Y2;
@@ -345,8 +347,6 @@ void Message::Init(
 	{
 		std::vector<DialogItemEx> MsgDlg;
 		MsgDlg.reserve(Strings.size() + Buttons.size() + 1 + 1); // 1 for border, 1 for separator
-
-		int RetCode;
 
 		{
 			DialogItemEx Item;
@@ -463,7 +463,7 @@ void Message::Init(
 			Dlg->SendMessage(DM_KILLSAVESCREEN, 0, nullptr);
 
 		Dlg->Process();
-		RetCode=Dlg->GetExitCode();
+		const auto RetCode = Dlg->GetExitCode();
 
 		m_ExitCode = RetCode < 0?
 			RetCode:

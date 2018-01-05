@@ -37,7 +37,7 @@ class split_duration: public std::tuple<tuple_types...>
 {
 public:
 	template<typename duration_type>
-	split_duration(duration_type Duration)
+	explicit split_duration(duration_type Duration)
 	{
 		split<0, duration_type, tuple_types...>(Duration);
 	}

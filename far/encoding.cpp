@@ -617,7 +617,7 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 
 	const auto& InvalidChar = [](unsigned char c) { return 0xDC00 + c; };
 
-	const auto c1 = *DataIterator++;
+	const unsigned char c1 = *DataIterator++;
 
 	if (c1 < 0x80)
 	{

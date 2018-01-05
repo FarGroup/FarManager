@@ -76,7 +76,7 @@ public:
 
 	const std::unique_ptr<filemasks>& GetFileMask() const { return FileMaskForFindFile; }
 	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
-	static bool IsWordDiv(const wchar_t symbol);
+	static bool IsWordDiv(wchar_t symbol);
 	// BUGBUG
 	void AddMenuRecord(Dialog* Dlg, const string& FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc);
 
@@ -100,10 +100,10 @@ public:
 
 		AddMenuData() = default;
 		explicit AddMenuData(type2 Type): m_Type(Type) {}
-		AddMenuData(const string& FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
+		AddMenuData(string FullName, os::fs::find_data FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
 			m_Type(data),
-			m_FullName(FullName),
-			m_FindData(FindData),
+			m_FullName(std::move(FullName)),
+			m_FindData(std::move(FindData)),
 			m_Data(Data),
 			m_FreeData(FreeData),
 			m_Arc(Arc)
@@ -178,7 +178,7 @@ class background_searcher: noncopyable
 {
 public:
 	background_searcher(FindFiles* Owner,
-		const string& FindString,
+		string FindString,
 		FINDAREA SearchMode,
 		uintptr_t CodePage,
 		unsigned long long SearchInFirst,

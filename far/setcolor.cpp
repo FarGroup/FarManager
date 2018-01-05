@@ -373,9 +373,9 @@ void SetColors()
 			GroupsMenu->AddItem(tmp);
 		}
 
-		const int DefaultId = static_cast<int>(GroupsMenu->size());
+		const auto DefaultId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MSetDefaultColors));
-		const int BlackWhiteId = static_cast<int>(GroupsMenu->size());
+		const auto BlackWhiteId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MSetBW));
 
 		GroupsMenu->SetPosition(2,1,0,0);

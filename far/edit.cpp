@@ -71,7 +71,7 @@ static const wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить 
 static const wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 Edit::Edit(window_ptr Owner):
-	SimpleScreenObject(Owner),
+	SimpleScreenObject(std::move(Owner)),
 	m_CurPos(0),
 	m_SelStart(-1),
 	m_SelEnd(0),
@@ -149,7 +149,7 @@ int Edit::GetNextCursorPos(int Position,int Where) const
 	if (!Mask.empty() && (Where==-1 || Where==1))
 	{
 		int PosChanged=FALSE;
-		const int MaskLen = static_cast<int>(Mask.size());
+		const auto MaskLen = static_cast<int>(Mask.size());
 
 		for (int i=Position; i<MaskLen && i>=0; i+=Where)
 		{

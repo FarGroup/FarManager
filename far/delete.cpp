@@ -798,12 +798,10 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					if (FileAttr & FILE_ATTRIBUTE_READONLY)
 						os::fs::set_file_attributes(strSelName,FILE_ATTRIBUTE_NORMAL);
 
-					int DeleteCode;
-
 					// нефига здесь выделываться, а надо учесть, что удаление
 					// симлинка в корзину чревато потерей оригинала.
 					DIRDELTYPE Type = Wipe ? D_WIPE : (Global->Opt->DeleteToRecycleBin && !(DirSymLink && !IsWindowsVistaOrGreater()) ? D_RECYCLE : D_DEL);
-					DeleteCode=ERemoveDirectory(strSelName, Type);
+					const auto DeleteCode = ERemoveDirectory(strSelName, Type);
 
 					if (cannot_recycle_try_delete_folder)
 					{
@@ -1216,8 +1214,8 @@ bool DeleteFileWithFolder(const string& FileName)
 	return CutToParent(strFileOrFolderName) && os::fs::remove_directory(strFileOrFolderName);
 }
 
-delayed_deleter::delayed_deleter(const string& pathToDelete):
-	m_pathToDelete(pathToDelete)
+delayed_deleter::delayed_deleter(string pathToDelete):
+	m_pathToDelete(std::move(pathToDelete))
 {
 }
 

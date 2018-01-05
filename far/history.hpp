@@ -73,8 +73,7 @@ enum history_return_type
 class History: noncopyable
 {
 public:
-	History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave);
-	~History();
+	History(history_type TypeHistory, string HistoryName, const BoolOption& EnableSave);
 
 	void AddToHistory(const string& Str, history_record_type Type = HR_DEFAULT, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);
 	history_return_type Select(const string& Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);

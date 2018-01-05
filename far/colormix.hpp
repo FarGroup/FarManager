@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace colors
 {
+	FarColor merge(const FarColor& Bottom, const FarColor& Top);
 	WORD FarColorToConsoleColor(const FarColor& Color);
 	FarColor ConsoleColorToFarColor(WORD Color);
 	const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex);

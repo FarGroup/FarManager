@@ -87,7 +87,7 @@ public:
 
 	string HelpStr;
 
-	explicit HelpRecord(const string& HStr): HelpStr(HStr) {}
+	explicit HelpRecord(string HStr): HelpStr(std::move(HStr)) {}
 
 	bool operator ==(const HelpRecord& rhs) const
 	{
@@ -135,7 +135,7 @@ string Help::MakeLink(const string& path, const string& topic)
 
 bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName, string &strValue, UINT nCodePage)
 {
-	return GetLangParam(LangFile, (L"Options "s + KeyName).data(), strValue, nullptr, nCodePage);
+	return GetLangParam(LangFile, L"Options "s + KeyName, strValue, nullptr, nCodePage);
 }
 
 Help::Help(private_tag):
@@ -232,10 +232,6 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 			m_Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		}
 	}
-}
-
-Help::~Help()
-{
 }
 
 bool Help::ReadHelp(const string& Mask)
@@ -882,15 +878,7 @@ void Help::DrawWindowFrame() const
 	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HELPTEXT));
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_HELPBOX),DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
-	string strHelpTitleBuf;
-	strHelpTitleBuf = msg(lng::MHelpTitle);
-	strHelpTitleBuf += L" - ";
-
-	if (!strCurPluginContents.empty())
-		strHelpTitleBuf += strCurPluginContents;
-	else
-		strHelpTitleBuf += L"FAR";
-
+	auto strHelpTitleBuf = concat(msg(lng::MHelpTitle), L" - "_sv, strCurPluginContents.empty()? L"Far"s : strCurPluginContents);
 	TruncStrFromEnd(strHelpTitleBuf, CanvasWidth() - 2);
 	GotoXY(m_X1 + (ObjWidth() - (int)strHelpTitleBuf.size() - 2) / 2, m_Y1);
 	Text(concat(L' ', strHelpTitleBuf, L' '));

@@ -48,10 +48,6 @@ SimpleScreenObject::SimpleScreenObject(window_ptr Owner):
 	//assert(m_Owner!=nullptr);
 }
 
-SimpleScreenObject::~SimpleScreenObject()
-{
-}
-
 void SimpleScreenObject::SetPosition(int X1,int Y1,int X2,int Y2)
 {
 	m_X1 = X1;
@@ -105,7 +101,8 @@ void SimpleScreenObject::Refresh(void)
 	}
 }
 
-ScreenObject::ScreenObject(window_ptr Owner): SimpleScreenObject(Owner)
+ScreenObject::ScreenObject(window_ptr Owner):
+	SimpleScreenObject(std::move(Owner))
 {
 }
 
@@ -157,7 +154,7 @@ void ScreenObject::SetPosition(int X1, int Y1, int X2, int Y2)
 }
 
 
-ScreenObjectWithShadow::ScreenObjectWithShadow(window_ptr Owner): ScreenObject(Owner)
+ScreenObjectWithShadow::ScreenObjectWithShadow(window_ptr Owner): ScreenObject(std::move(Owner))
 {
 }
 

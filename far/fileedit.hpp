@@ -143,7 +143,7 @@ private:
 	bool LoadFromCache(EditorPosCache &pc) const;
 	void SaveToCache() const;
 	void ReadEvent(void);
-	int  ProcessQuitKey(int FirstSave, bool NeedQuestion = true, bool DeleteWindow = true);
+	bool ProcessQuitKey(int FirstSave, bool NeedQuestion = true, bool DeleteWindow = true);
 	bool UpdateFileList() const;
 
 	static uintptr_t GetDefaultCodePage();

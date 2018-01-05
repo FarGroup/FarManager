@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "TaskBar.hpp"
 #include "interf.hpp"
-#include "colormix.hpp"
 #include "message.hpp"
 #include "delete.hpp"
 #include "datetime.hpp"
@@ -501,13 +500,12 @@ void FindFiles::SetPluginDirectory(const string& DirName, plugin_panel* hPlugin,
 {
 	if (!DirName.empty())
 	{
-		string strName(DirName);
 		//const wchar_t* DirPtr = ;
-		const auto NamePtr = PointToName(strName);
+		const auto NamePtr = PointToName(DirName);
 
-		if (NamePtr.size() != strName.size())
+		if (NamePtr.size() != DirName.size())
 		{
-			string Dir = strName.substr(0, strName.size() - NamePtr.size());
+			auto Dir = DirName.substr(0, DirName.size() - NamePtr.size());
 
 			// force plugin to update its file list (that can be empty at this time)
 			// if not done SetDirectory may fail
@@ -730,7 +728,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!iParam));
 					Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX, const_cast<wchar_t*>(msg(Param2? lng::MFindFileHex : lng::MFindFileText).data()));
 
-					if (strDataStr.size()>0)
+					if (!strDataStr.empty())
 					{
 						int UnchangeFlag=(int)Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,ToPtr(-1));
 						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(UnchangeFlag));
@@ -2112,9 +2110,8 @@ void background_searcher::ArchiveSearch(const string& ArcName)
 		m_Owner->itd->SetFindFileArcItem(&m_Owner->itd->AddArcListItem(ArcName, hArc.get(), Info.Flags, NullToEmpty(Info.CurDir)));
 		// Запомним каталог перед поиском в архиве. И если ничего не нашли - не рисуем его снова.
 		{
-			string strSaveSearchPath;
 			// Запомним пути поиска в плагине, они могут измениться.
-			strSaveSearchPath = strPluginSearchPath;
+			const auto strSaveSearchPath = strPluginSearchPath;
 			m_Owner->m_Messages.emplace(FindFiles::push);
 			DoPreparePluginList(true);
 			strPluginSearchPath = strSaveSearchPath;
@@ -2703,7 +2700,6 @@ bool FindFiles::FindFilesProcess()
 				}
 				else
 				{
-					string strSetName;
 					size_t Length=strFileName.size();
 
 					if (!Length)
@@ -2716,7 +2712,7 @@ bool FindFiles::FindFilesProcess()
 						break;
 
 					const auto NamePtr = PointToName(strFileName);
-					strSetName = make_string(NamePtr);
+					auto strSetName = make_string(NamePtr);
 
 					if (Global->Opt->FindOpt.FindAlternateStreams)
 					{
@@ -2929,14 +2925,13 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_CASE].Selected=CmpCase;
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
-		int ExitCode;
 		const auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg->SetHelp(L"FindFile");
 		Dlg->SetId(FindFileId);
 		Dlg->SetPosition(-1,-1,80,21);
 		Dlg->Process();
-		ExitCode=Dlg->GetExitCode();
+		const auto ExitCode = Dlg->GetExitCode();
 		//Рефреш текущему времени для фильтра сразу после выхода из диалога
 		Filter->UpdateCurrentTime();
 
@@ -3032,7 +3027,7 @@ FindFiles::~FindFiles() = default;
 
 background_searcher::background_searcher(
 	FindFiles* Owner,
-	const string& FindString,
+	string FindString,
 	FINDAREA SearchMode,
 	uintptr_t CodePage,
 	unsigned long long SearchInFirst,
@@ -3048,7 +3043,7 @@ background_searcher::background_searcher(
 	findString(),
 	InFileSearchInited(),
 	m_Autodetection(),
-	strFindStr(FindString),
+	strFindStr(std::move(FindString)),
 	SearchMode(SearchMode),
 	CodePage(CodePage),
 	SearchInFirst(SearchInFirst),

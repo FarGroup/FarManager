@@ -432,7 +432,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 						if (strNewFolder.find_first_of(L";,") != string::npos)
 							inplace::quote(strNewFolder);
 
-						if (strOldFolder.size())
+						if (!strOldFolder.empty())
 							strOldFolder += L';'; // добавим разделитель к непустому списку
 
 						strOldFolder += strNewFolder;
@@ -1371,7 +1371,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					tpath = strSelName.substr(0, SlashPos + 1);
 				}
 			}
-			strDest = tpath + strDest;
+			strDest.insert(0, tpath);
 		}
 
 		bool check_samedisk = false, dest_changed = false;

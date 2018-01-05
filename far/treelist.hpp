@@ -65,8 +65,8 @@ public:
 		{
 		}
 
-		explicit TreeItem(const string& Name):
-			strName(Name),
+		explicit TreeItem(string Name):
+			strName(std::move(Name)),
 			Last(MAX_PATH/2),
 			Depth(0)
 		{

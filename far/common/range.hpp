@@ -89,7 +89,7 @@ public:
 	constexpr auto data() const { return &*m_Begin; }
 	constexpr size_t size() const { return m_End - m_Begin; }
 
-	void swap(range& Rhs)
+	void swap(range& Rhs) noexcept
 	{
 		using std::swap;
 		swap(*this, Rhs);
@@ -121,15 +121,16 @@ constexpr auto make_range(container& Container)
 }
 
 template<class T>
-class i_iterator: public std::iterator<std::random_access_iterator_tag, T>, public rel_ops<i_iterator<T>>
+class i_iterator: public rel_ops<i_iterator<T>>
 {
 public:
+	using iterator_category = std::random_access_iterator_tag;
 	using value_type = T;
+	using difference_type = std::ptrdiff_t;
+	using pointer = T*;
+	using reference = T&;
 
 	explicit i_iterator(const T& value): m_value(value) {}
-	i_iterator(const i_iterator& rhs): m_value(rhs.m_value) {}
-
-	auto& operator=(const i_iterator& rhs) { m_value = rhs.m_value; return *this; }
 
 	auto operator->() const { return &m_value; }
 	auto& operator*() const { return m_value; }

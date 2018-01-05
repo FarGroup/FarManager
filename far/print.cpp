@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "lang.hpp"
 #include "plugins.hpp"
-#include "colormix.hpp"
 #include "strmix.hpp"
 
 #define PRINTER_INFO_LEVEL 4

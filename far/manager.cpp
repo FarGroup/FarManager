@@ -204,10 +204,6 @@ Manager::Manager():
 	AddGlobalKeyHandler(CASHook);
 }
 
-Manager::~Manager()
-{
-}
-
 /* $ 29.12.2000 IS
   Аналог CloseAll, но разрешает продолжение полноценной работы в фаре,
   если пользователь продолжил редактировать файл.
@@ -392,7 +388,8 @@ window_ptr Manager::WindowMenu()
 	if (AlreadyShown)
 		return nullptr;
 
-	int ExitCode, CheckCanLoseFocus=GetCurrentWindow()->GetCanLoseFocus();
+	const auto CheckCanLoseFocus = GetCurrentWindow()->GetCanLoseFocus();
+
 	{
 		std::vector<std::tuple<string, string, window_ptr>> Data;
 
@@ -429,7 +426,7 @@ window_ptr Manager::WindowMenu()
 		}
 
 		AlreadyShown=TRUE;
-		ExitCode=ModalMenu->Run();
+		const auto ExitCode = ModalMenu->Run();
 		AlreadyShown=FALSE;
 
 		if (CheckCanLoseFocus)
@@ -458,12 +455,11 @@ int Manager::GetWindowCountByType(int Type)
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
 window_ptr Manager::FindWindowByFile(int ModalType,const string& FileName, const wchar_t *Dir)
 {
-	string strBufFileName;
-	string strFullFileName = FileName;
+	auto strFullFileName = FileName;
 
 	if (Dir)
 	{
-		strBufFileName = Dir;
+		string strBufFileName = Dir;
 		AddEndSlash(strBufFileName);
 		strBufFileName += FileName;
 		strFullFileName = strBufFileName;

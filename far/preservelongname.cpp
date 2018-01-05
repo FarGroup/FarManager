@@ -62,8 +62,7 @@ PreserveLongName::~PreserveLongName()
 
 		if (!os::fs::get_find_data(m_SaveShortName, FindData) || m_SaveLongName != FindData.strFileName)
 		{
-			string strNewName;
-			strNewName = m_SaveShortName;
+			auto strNewName = m_SaveShortName;
 
 			if (CutToSlash(strNewName,true))
 			{

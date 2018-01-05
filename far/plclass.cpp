@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "configdb.hpp"
-#include "datetime.hpp"
 
 std::exception_ptr& GlobalExceptionPtr()
 {
@@ -506,7 +505,6 @@ void Plugin::InitExports()
 }
 
 Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
-	Exports(),
 	m_Factory(Factory),
 	Activity(0),
 	bPendingRemove(false),

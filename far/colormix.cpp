@@ -48,6 +48,28 @@ enum
 
 namespace colors
 {
+	FarColor merge(const FarColor& Bottom, const FarColor& Top)
+	{
+		FarColor Result = Bottom;
+
+		const auto& ApplyColorPart = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
+		{
+			const auto TopPart = std::invoke(ColorAccessor, Top);
+			if (IS_OPAQUE(TopPart))
+			{
+				std::invoke(ColorAccessor, Result) = TopPart;
+				(Top.Flags & Flag)? (Result.Flags |= Flag) : (Result.Flags &= ~Flag);
+			}
+		};
+
+		ApplyColorPart(&FarColor::BackgroundColor, FCF_BG_4BIT);
+		ApplyColorPart(&FarColor::ForegroundColor, FCF_FG_4BIT);
+
+		Result.Flags |= Top.Flags & FCF_EXTENDEDFLAGS;
+
+		return Result;
+	}
+
 WORD FarColorToConsoleColor(const FarColor& Color)
 {
 	static COLORREF LastTrueColors[2] = {};

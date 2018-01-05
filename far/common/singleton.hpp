@@ -36,6 +36,9 @@ template<typename type>
 class singleton
 {
 public:
+	NONCOPYABLE(singleton);
+	MOVABLE(singleton);
+
 	static type& instance()
 	{
 		static type Instance;
@@ -43,7 +46,7 @@ public:
 	}
 
 protected:
-	using singleton_type = singleton<type>;
+	singleton() = default;
 };
 
 #define IMPLEMENTS_SINGLETON(...) friend class singleton<__VA_ARGS__>

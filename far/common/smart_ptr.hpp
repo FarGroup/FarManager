@@ -165,8 +165,8 @@ template<typename T>
 class ptr_setter_t
 {
 public:
-	NONCOPYABLE(ptr_setter_t)
-	MOVABLE(ptr_setter_t)
+	NONCOPYABLE(ptr_setter_t);
+	MOVABLE(ptr_setter_t);
 	explicit ptr_setter_t(T& Ptr): m_Ptr(&Ptr) {}
 	~ptr_setter_t() { if (m_Ptr) m_Ptr->reset(m_RawPtr); }
 	auto operator&() { return &m_RawPtr; }

@@ -45,12 +45,12 @@ static auto GetBackTrace(const exception_context& Context)
 	auto ContextRecord = *Context.GetPointers()->ContextRecord;
 	STACKFRAME64 StackFrame = {};
 #if defined(_WIN64)
-	int machine_type = IMAGE_FILE_MACHINE_AMD64;
+	const DWORD MachineType = IMAGE_FILE_MACHINE_AMD64;
 	StackFrame.AddrPC.Offset = ContextRecord.Rip;
 	StackFrame.AddrFrame.Offset = ContextRecord.Rbp;
 	StackFrame.AddrStack.Offset = ContextRecord.Rsp;
 #else
-	int machine_type = IMAGE_FILE_MACHINE_I386;
+	const DWORD MachineType = IMAGE_FILE_MACHINE_I386;
 	StackFrame.AddrPC.Offset = ContextRecord.Eip;
 	StackFrame.AddrFrame.Offset = ContextRecord.Ebp;
 	StackFrame.AddrStack.Offset = ContextRecord.Esp;
@@ -59,11 +59,7 @@ static auto GetBackTrace(const exception_context& Context)
 	StackFrame.AddrFrame.Mode = AddrModeFlat;
 	StackFrame.AddrStack.Mode = AddrModeFlat;
 
-	block_ptr<SYMBOL_INFO> Symbol(sizeof(SYMBOL_INFO) + 256);
-	Symbol->MaxNameLen = 255;
-	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-
-	while (Imports().StackWalk64(machine_type, GetCurrentProcess(), Context.GetThreadHandle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
+	while (Imports().StackWalk64(MachineType, GetCurrentProcess(), Context.GetThreadHandle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
 	{
 		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}

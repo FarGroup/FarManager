@@ -36,14 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filesystemwatcher.hpp"
 #include "flink.hpp"
 #include "elevation.hpp"
-#include "datetime.hpp"
 #include "farexcpt.hpp"
 #include "pathmix.hpp"
-#include "string_utils.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
-	m_PreviousLastWriteTime(),
-	m_CurrentLastWriteTime(),
 	m_WatchSubtree(false),
 	m_Cancelled(os::event::type::manual, os::event::state::nonsignaled)
 {

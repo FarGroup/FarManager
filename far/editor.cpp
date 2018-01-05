@@ -107,7 +107,7 @@ eol::type Editor::GetDefaultEOL()
 }
 
 Editor::Editor(window_ptr Owner, bool DialogUsed):
-	SimpleScreenObject(Owner),
+	SimpleScreenObject(std::move(Owner)),
 	EdOpt(Global->Opt->EdOpt),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
@@ -214,8 +214,6 @@ void Editor::ShowEditor()
 	Color = colors::PaletteColorToFarColor(COL_EDITORTEXT);
 	SelColor = colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT);
 
-	int LeftPos,CurPos,Y;
-
 	XX2=m_X2 - (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size())? 1 : 0);
 	/* 17.04.2002 skv
 	  Что б курсор не бегал при Alt-F9 в конце длинного файла.
@@ -245,7 +243,7 @@ void Editor::ShowEditor()
 		++m_it_TopScreen;
 	}
 
-	CurPos = m_it_CurLine->GetTabCurPos();
+	auto CurPos = m_it_CurLine->GetTabCurPos();
 
 	if (!EdOpt.CursorBeyondEOL)
 	{
@@ -284,9 +282,9 @@ void Editor::ShowEditor()
 
 	DrawScrollbar();
 
-	LeftPos=m_it_CurLine->GetLeftPos();
+	auto LeftPos = m_it_CurLine->GetLeftPos();
 	Edit::ShowInfo info={LeftPos,CurPos};
-	Y = m_Y1;
+	auto Y = m_Y1;
 	for (auto CurPtr=m_it_TopScreen; Y<=m_Y2; Y++)
 	{
 		if (CurPtr != Lines.end())
@@ -2077,7 +2075,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			//_D(SysLog(L"---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos()));
 			Pasting++;
 			{
-				int Delta;
 				/* $ 18.07.2000 tran
 				     встань в начало текста, нажми alt-right, alt-pagedown,
 				     выделится блок шириной в 1 колонку, нажми еще alt-right
@@ -2087,7 +2084,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				           NextVisPos=m_it_CurLine->RealPosToTab(CurPos+1);
 				//_D(SysLog(L"CurPos=%i, VisPos=%i, NextVisPos=%i",
 				//    CurPos,VisPos, NextVisPos); //,CurLine->GetTabCurPos()));
-				Delta=NextVisPos-VisPos;
+				const auto Delta=NextVisPos-VisPos;
 				//_D(SysLog(L"Delta=%i",Delta));
 
 				if (m_it_CurLine->GetTabCurPos()>=VBlockX+VBlockSizeX)

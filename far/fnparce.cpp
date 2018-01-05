@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fnparce.hpp"
 #include "panel.hpp"
-#include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "flink.hpp"
 #include "cmdline.hpp"
@@ -50,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "lang.hpp"
 #include "blob_builder.hpp"
-#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "exception.hpp"
 

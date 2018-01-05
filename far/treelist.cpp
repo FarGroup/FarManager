@@ -393,7 +393,7 @@ public:
 		remove(OldName);
 		if (m_Names.size() == Count)
 			return;
-		m_Names.emplace(std::move(NewName));
+		m_Names.emplace(NewName);
 	}
 
 	const string& GetTreeName() const { return m_TreeName; }
@@ -442,7 +442,7 @@ tree_panel_ptr TreeList::create(window_ptr Owner, int ModalMode)
 }
 
 TreeList::TreeList(private_tag, window_ptr Owner, int ModalMode):
-	Panel(Owner),
+	Panel(std::move(Owner)),
 	m_WorkDir(0),
 	m_SavedWorkDir(0),
 	m_GetSelPosition(0),

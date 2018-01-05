@@ -110,10 +110,19 @@ public:
 	and "rescue the Princess, her dog, her entire wardrobe & everything she has ever eaten...".
 	Hopefully we will thin out C strings numbers enough by the time we switch to a C++17-conformant compiler.
 	*/
-	constexpr auto data() const = delete;
-	constexpr auto raw_data() const
+private:
+	constexpr auto data() const
 	{
 		return range<const T*>::data();
+	}
+
+	template<typename container>
+	friend constexpr auto std::data(const container& Container) -> decltype(Container.data());
+
+public:
+	constexpr auto raw_data() const
+	{
+		return data();
 	}
 
 private:
@@ -182,6 +191,12 @@ template<typename T>
 bool operator!=(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
 {
 	return !(Lhs == Rhs);
+}
+
+template<typename T>
+auto& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T>& Str)
+{
+	return Stream.write(Str.raw_data(), Str.size());
 }
 
 template<typename T>

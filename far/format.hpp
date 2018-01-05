@@ -38,6 +38,7 @@ WARNING_PUSH(3)
 
 #include "thirdparty/fmt/format.h"
 #include "thirdparty/fmt/string.h"
+#include "thirdparty/fmt/ostream.h"
 
 WARNING_POP()
 

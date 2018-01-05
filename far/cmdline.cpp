@@ -71,7 +71,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "string_utils.hpp"
 
-
 enum
 {
 	FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
@@ -1034,7 +1033,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
-	const auto& IsCommand = [&CmdLine](const string& cmd, bool bslash)
+	const auto& IsCommand = [&CmdLine](const string_view& cmd, bool bslash)
 	{
 		const auto n = cmd.size();
 		return starts_with_icase(CmdLine, cmd)
@@ -1071,7 +1070,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		return false;
 
 	// SET [variable=[value]]
-	if (IsCommand(L"SET", false))
+	if (IsCommand(L"SET"_sv, false))
 	{
 		if (FindKey(L'A') || FindKey(L'P'))
 			return false; //todo: /p - dialog, /a - calculation; then set variable ...
@@ -1130,7 +1129,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		return true;
 	}
 
-	if (IsCommand(L"CLS", false))
+	if (IsCommand(L"CLS"_sv, false))
 	{
 		auto strCmdLine = CmdLine.substr(3);
 		RemoveLeadingSpaces(strCmdLine);
@@ -1149,7 +1148,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	}
 
 	// PUSHD путь | ..
-	if (IsCommand(L"PUSHD", false))
+	if (IsCommand(L"PUSHD"_sv, false))
 	{
 		ConsoleActivatior(false);
 
@@ -1173,7 +1172,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 	// POPD
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
-	if (IsCommand(L"POPD", false))
+	if (IsCommand(L"POPD"_sv, false))
 	{
 		ConsoleActivatior(false);
 
@@ -1196,7 +1195,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	}
 
 	// CLRD
-	if (IsCommand(L"CLRD", false))
+	if (IsCommand(L"CLRD"_sv, false))
 	{
 		ConsoleActivatior(false);
 
@@ -1211,7 +1210,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			nnn   Specifies a code page number (Dec or Hex).
 		Type CHCP without a parameter to display the active code page number.
 	*/
-	if (IsCommand(L"CHCP", false))
+	if (IsCommand(L"CHCP"_sv, false))
 	{
 		auto strCmdLine = CmdLine.substr(4);
 		RemoveExternalSpaces(strCmdLine);
@@ -1235,9 +1234,9 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		return true;
 	}
 
-	if (IsCommand(L"CD", true) || IsCommand(L"CHDIR", true))
+	if (IsCommand(L"CD"_sv, true) || IsCommand(L"CHDIR"_sv, true))
 	{
-		const int Length = IsCommand(L"CD", true)? 2 : 5;
+		const int Length = IsCommand(L"CD"_sv, true)? 2 : 5;
 
 		auto strCmdLine = CmdLine.substr(Length);
 		RemoveExternalSpaces(strCmdLine);
@@ -1259,7 +1258,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		return true;
 	}
 
-	if (IsCommand(L"TITLE", false))
+	if (IsCommand(L"TITLE"_sv, false))
 	{
 		ConsoleActivatior(false);
 
@@ -1274,7 +1273,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		return true;
 	}
 
-	if (IsCommand(L"EXIT",false))
+	if (IsCommand(L"EXIT"_sv, false))
 	{
 		ConsoleActivatior(false);
 		Global->WindowManager->ExitMainLoop(FALSE);

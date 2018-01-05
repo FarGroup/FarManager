@@ -85,7 +85,7 @@ void DeleteRawArray(const T* const* Data, size_t Size)
 	delete[] Data;
 }
 
-WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType);
+WINDOWINFO_TYPE WindowTypeToPluginWindowType(int fType);
 
 class SetAutocomplete: noncopyable
 {

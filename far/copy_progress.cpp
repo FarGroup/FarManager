@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern std::chrono::steady_clock::duration WaitUserTime;
 
 copy_progress::copy_progress(bool Move, bool Total, bool Time):
-	m_CopyStartTime(),
 	m_Rect(),
 	m_CurrentBarSize(GetCanvasWidth()),
 	m_CurrentPercent(0),
@@ -231,7 +230,7 @@ void copy_progress::CreateScanBackground()
 
 void copy_progress::CreateBackground()
 {
-	const auto Title = msg(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle);
+	const auto& Title = msg(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle);
 
 	std::vector<string> Items =
 	{
@@ -283,7 +282,7 @@ void copy_progress::SetNames(const string& Src, const string& Dst)
 		}
 	}
 
-	const int NameWidth = static_cast<int>(GetCanvasWidth());
+	const auto NameWidth = static_cast<int>(GetCanvasWidth());
 	m_Src = Src;
 	TruncPathStr(m_Src, NameWidth);
 	m_Dst = Dst;

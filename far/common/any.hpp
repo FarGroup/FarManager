@@ -42,9 +42,11 @@ namespace detail
 	};
 
 	template<class T>
-	class any_impl: noncopyable, public any_base
+	class any_impl: public any_base
 	{
 	public:
+		NONCOPYABLE(any_impl);
+
 		template<class Y>
 		explicit any_impl(Y&& Data):
 			m_Data(FWD(Data))

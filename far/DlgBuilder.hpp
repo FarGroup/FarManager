@@ -1005,8 +1005,7 @@ public:
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;
-			PluginIntEditFieldBinding *Binding;
-			Binding = new PluginIntEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Width);
+			PluginIntEditFieldBinding* Binding = new PluginIntEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Width);
 			Item->Data = Binding->GetBuffer();
 			Item->Mask = Binding->GetMask();
 			SetNextY(Item);
@@ -1019,8 +1018,7 @@ public:
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;
-			PluginUIntEditFieldBinding *Binding;
-			Binding = new PluginUIntEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Width);
+			PluginUIntEditFieldBinding* Binding = new PluginUIntEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Width);
 			Item->Data = Binding->GetBuffer();
 			Item->Mask = Binding->GetMask();
 			SetNextY(Item);

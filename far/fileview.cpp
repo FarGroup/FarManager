@@ -77,7 +77,7 @@ fileviewer_ptr FileViewer::create(const string& Name, bool EnableSwitch, bool Di
 {
 	const auto FileViewerPtr = std::make_shared<FileViewer>(private_tag(), DisableEdit, Title);
 	FileViewerPtr->SetPosition(0, 0, ScrX, ScrY);
-	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, aCodePage, Update);
+	FileViewerPtr->Init(Name, EnableSwitch, DisableHistory, ViewStartPos, PluginData, ViewNamesList, ToSaveAs, aCodePage, std::move(Update));
 
 	if (DeleteOnClose)
 	{

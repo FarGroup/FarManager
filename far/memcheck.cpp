@@ -191,6 +191,8 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 
 static size_t GetRequiredSize(size_t RequestedSize)
 {
+	assert(std::numeric_limits<size_t>::max() - RequestedSize >= sizeof(MEMINFO) + sizeof(EndMarker));
+
 	return sizeof(MEMINFO) + RequestedSize + sizeof(EndMarker);
 }
 

@@ -580,7 +580,6 @@ enum enumFileFilterConfig
 
 void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
 {
-	FarColor Color;
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
 
@@ -589,7 +588,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 		auto& CurColor= std::get<0>(i);
 		const auto pal = std::get<1>(i);
 
-		Color = CurColor.FileColor;
+		auto Color = CurColor.FileColor;
 
 		if (!COLORVALUE(Color.BackgroundColor) && !COLORVALUE(Color.ForegroundColor))
 		{
@@ -848,7 +847,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	// Маски для диалога настройки
 	// Маска для ввода дней для относительной даты
 	const wchar_t DaysMask[] = L"9999";
-	string strDateMask, strTimeMask;
+	string strDateMask;
 	// Определение параметров даты и времени в системе.
 	wchar_t DateSeparator = locale::GetDateSeparator();
 	wchar_t TimeSeparator = locale::GetTimeSeparator();
@@ -858,21 +857,19 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	switch (DateFormat)
 	{
 	case 0:
-		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-		strDateMask = string(L"99") + DateSeparator + L"99" + DateSeparator + L"9999N";
-		break;
 	case 1:
 		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-		strDateMask = string(L"99") + DateSeparator + L"99" + DateSeparator + L"9999N";
+		strDateMask = format(L"99{0}99{0}9999N", DateSeparator);
 		break;
+
 	default:
 		// Маска даты для формата YYYYY.MM.DD
-		strDateMask = string(L"N9999") + DateSeparator + L"99" + DateSeparator + L"99";
+		strDateMask = format(L"N9999{0}99{0}99", DateSeparator);
 		break;
 	}
 
 	// Маска времени
-	strTimeMask = string(L"99") + TimeSeparator + L"99" + TimeSeparator + L"99" + DecimalSeparator + L"999";
+	const auto strTimeMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 	FarDialogItem FilterDlgData[]=
 	{

@@ -138,7 +138,7 @@ private:
 		value = index? value->NextSiblingElement(m_name) :
 		        m_base? m_base->FirstChildElement(m_name) : nullptr;
 
-		return value? true : false;
+		return value != nullptr;
 	}
 
 	const char* m_name;
@@ -409,10 +409,10 @@ public:
 		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data()),
 		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
 	{
-		BeginTransaction();
+		HierarchicalConfigDb::BeginTransaction();
 	}
 
-	virtual ~HierarchicalConfigDb() override
+	~HierarchicalConfigDb() override
 	{
 		HierarchicalConfigDb::EndTransaction();
 	}
@@ -970,7 +970,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled = nullptr) override
+	virtual bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled) override
 	{
 		const auto Stmt = AutoStatement(stmtGetCommand);
 		if (!Stmt->Bind(id, Type).Step())
@@ -1811,7 +1811,7 @@ private:
 		return DeleteInternal(id);
 	}
 
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) override
+	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(Reverse? stmtEnumDesc : stmtEnum);

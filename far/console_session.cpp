@@ -84,7 +84,7 @@ public:
 		DoPrologue();
 	}
 
-	void Consolise(bool SetTextColour = true) override
+	void Consolise(bool SetTextColour) override
 	{
 		assert(m_Activated);
 
@@ -156,7 +156,7 @@ public:
 
 	~context() override
 	{
-		Deactivate();
+		context::Deactivate();
 	}
 
 private:

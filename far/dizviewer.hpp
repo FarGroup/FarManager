@@ -38,27 +38,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class DizViewer: public Viewer
 {
-	public:
-		int InRecursion;
+public:
+	explicit DizViewer(window_ptr Owner):
+		Viewer(std::move(Owner))
+	{
+	}
 
-	public:
-		explicit DizViewer(window_ptr Owner):Viewer(Owner), InRecursion(0) {}
+	bool ProcessKey(const Manager::Key& Key) override
+	{
+		InRecursion++;
+		const auto Result = Viewer::ProcessKey(Key);
+		InRecursion--;
+		return Result;
+	}
 
-	public:
-		virtual bool ProcessKey(const Manager::Key& Key) override
-		{
-			InRecursion++;
-			const auto Result = Viewer::ProcessKey(Key);
-			InRecursion--;
-			return Result;
-		}
-		virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override
-		{
-			InRecursion++;
-			const auto Result = Viewer::ProcessMouse(MouseEvent);
-			InRecursion--;
-			return Result;
-		}
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override
+	{
+		InRecursion++;
+		const auto Result = Viewer::ProcessMouse(MouseEvent);
+		InRecursion--;
+		return Result;
+	}
+
+	int InRecursion{};
 };
 
 #endif // DIZVIEWER_HPP_689FBC27_88B8_4A44_966E_7EAE71EE7B25

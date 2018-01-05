@@ -83,7 +83,7 @@ public:
 	void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;}
 	void GoTo(bool ShowDlg = true, long long NewPos = 0, unsigned long long Flags = 0);
 	void GetSelectedParam(long long &Pos, long long &Length, DWORD &Flags) const;
-	void SelectText(const long long &MatchPos,const long long &SearchLength, const DWORD Flags=0x1);
+	void SelectText(const long long &MatchPos,const long long &SearchLength, DWORD Flags=0x1);
 	bool GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
 	void SetShowScrollbar(bool newValue) { ViOpt.ShowScrollbar=newValue; }
 	uintptr_t GetCodePage() const { return m_Codepage; }

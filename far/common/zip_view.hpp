@@ -114,7 +114,7 @@ public:
 	auto operator-(const zip_iterator& rhs) const { return std::get<0>(m_Tuple) - std::get<0>(rhs.m_Tuple); }
 
 private:
-	typename zip_iterator::pointer m_Tuple;
+	pointer m_Tuple;
 };
 
 template<typename... args>

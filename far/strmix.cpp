@@ -647,17 +647,15 @@ string& FarFormatText(const string& SrcText,      // источник
 		return strDestText;
 	}
 
-	const auto strSrc = SrcText; //copy string in case of SrcText == strDestText
-
-	if (strSrc.find_first_of(breakchar) == string::npos && strSrc.size() <= static_cast<size_t>(Width))
+	if (SrcText.find_first_of(breakchar) == string::npos && SrcText.size() <= static_cast<size_t>(Width))
 	{
-		strDestText = strSrc;
+		strDestText = SrcText;
 		return strDestText;
 	}
 
 	long l=0, pgr=0;
 	string newtext;
-	const wchar_t *text= strSrc.data();
+	const wchar_t *text= SrcText.data();
 	long linelength = static_cast<long>(Width);
 	size_t breakcharlen = wcslen(breakchar);
 	int docut = Flags&FFTM_BREAKLONGWORD?1:0;

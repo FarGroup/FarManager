@@ -74,7 +74,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "interf.hpp"
 #include "lang.hpp"
-#include "colormix.hpp"
 #include "strmix.hpp"
 #include "string_utils.hpp"
 #include "tvar.hpp"
@@ -1052,10 +1051,7 @@ static bool CheckAll(FARMACROAREA Area, MACROFLAGS_MFLAGS CurFlags)
 			}
 	}
 
-	if (!CheckEditSelected(Area, CurFlags))
-		return false;
-
-	return true;
+	return CheckEditSelected(Area, CurFlags);
 }
 
 static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
@@ -2570,7 +2566,7 @@ static bool SplitFileName(const string& lpFullName, string& strDest, int nFlags)
 	const wchar_t *s = lpFullName.data(); //start of sub-string
 	const wchar_t *p = s; //current string pointer
 	const wchar_t *es = s + lpFullName.size(); //end of string
-	const wchar_t *e; //end of sub-string
+	const wchar_t *e = nullptr; //end of sub-string
 
 	if (!*p)
 		return false;
@@ -2609,7 +2605,6 @@ static bool SplitFileName(const string& lpFullName, string& strDest, int nFlags)
 		}
 	}
 
-	e = nullptr;
 	s = p;
 
 	while (p)
@@ -2683,7 +2678,7 @@ static bool fsplitFunc(FarMacroCall* Data)
 	bool Ret=false;
 	string strPath;
 
-	if (!SplitFileName(Params[0].toString().data(), strPath, m))
+	if (!SplitFileName(Params[0].toString(), strPath, m))
 		strPath.clear();
 	else
 		Ret=true;
@@ -3198,9 +3193,8 @@ static bool menushowFunc(FarMacroCall* Data)
 	int SelectedPos=0;
 	int LineCount=0;
 	size_t CurrentPos=0;
-	size_t PosLF;
 	ReplaceStrings(strTitle,L"\r\n",L"\n");
-	PosLF = strTitle.find(L'\n');
+	auto PosLF = strTitle.find(L'\n');
 	bool CRFound = PosLF != string::npos;
 
 	if(CRFound)

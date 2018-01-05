@@ -68,12 +68,12 @@ class Shortcuts::shortcut: public data, public rel_ops<shortcut>
 public:
 	shortcut() = default;
 
-	shortcut(const string& Name, const string& Folder, const string& PluginFile, const string& PluginData, const GUID& PluginGuid):
-		Name(Name)
+	shortcut(string Name, string Folder, string PluginFile, string PluginData, const GUID& PluginGuid):
+		Name(std::move(Name))
 	{
-		this->Folder = Folder;
-		this->PluginFile = PluginFile;
-		this->PluginData = PluginData;
+		this->Folder = std::move(Folder);
+		this->PluginFile = std::move(PluginFile);
+		this->PluginData = std::move(PluginData);
 		this->PluginGuid = PluginGuid;
 	}
 

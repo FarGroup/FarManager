@@ -322,7 +322,10 @@ private:
 class dummy_panel : public Panel
 {
 public:
-	explicit dummy_panel(window_ptr Owner): Panel(Owner){}
+	explicit dummy_panel(window_ptr Owner):
+		Panel(std::move(Owner))
+	{
+	}
 
 private:
 	virtual void Update(int Mode) override {};

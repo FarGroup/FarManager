@@ -987,8 +987,6 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					int alt=ctrl&(PKF_ALT|PKF_RALT);
 					int shift=ctrl&PKF_SHIFT;
 					ctrl=ctrl&(PKF_CONTROL|PKF_RCONTROL);
-					bool bAlt, bShift, bCtrl;
-					DWORD dwControlKeyState;
 
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
 					while (!Process.wait(100ms))
@@ -1003,17 +1001,17 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 								if (pir->EventType==KEY_EVENT)
 								{
-									dwControlKeyState = pir->Event.KeyEvent.dwControlKeyState;
-									bAlt = (dwControlKeyState & LEFT_ALT_PRESSED) || (dwControlKeyState & RIGHT_ALT_PRESSED);
-									bCtrl = (dwControlKeyState & LEFT_CTRL_PRESSED) || (dwControlKeyState & RIGHT_CTRL_PRESSED);
-									bShift = (dwControlKeyState & SHIFT_PRESSED)!=0;
+									const auto dwControlKeyState = pir->Event.KeyEvent.dwControlKeyState;
+									const auto bAlt = (dwControlKeyState & LEFT_ALT_PRESSED) || (dwControlKeyState & RIGHT_ALT_PRESSED);
+									const auto bCtrl = (dwControlKeyState & LEFT_CTRL_PRESSED) || (dwControlKeyState & RIGHT_CTRL_PRESSED);
+									const auto bShift = (dwControlKeyState & SHIFT_PRESSED)!=0;
 
 									if (vkey==pir->Event.KeyEvent.wVirtualKeyCode &&
 									        (alt ?bAlt:!bAlt) &&
 									        (ctrl ?bCtrl:!bCtrl) &&
 									        (shift ?bShift:!bShift))
 									{
-										auto Aliases = Console().GetAllAliases();
+										const auto Aliases = Console().GetAllAliases();
 
 										ConsoleIcons().restorePreviousIcons();
 

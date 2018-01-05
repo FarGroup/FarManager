@@ -40,6 +40,7 @@ WARNING_PUSH(3)
 WARNING_DISABLE_GCC("-Wformat-nonliteral")
 
 #include "thirdparty/fmt/format.cc"
+#include "thirdparty/fmt/ostream.cc"
 
 WARNING_POP()
 

@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugsettings.hpp"
 #include "ctrlobj.hpp"
 #include "history.hpp"
-#include "datetime.hpp"
 #include "FarGuid.hpp"
 #include "shortcuts.hpp"
 #include "dizlist.hpp"

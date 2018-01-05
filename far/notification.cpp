@@ -67,7 +67,7 @@ message_manager::handlers_map::iterator message_manager::subscribe(const string&
 void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 {
 	SCOPED_ACTION(os::critical_section_lock)(m_QueueCS);
-	m_Handlers.erase(HandlerIterator);
+	m_Handlers.erase(std::move(HandlerIterator));
 }
 
 void message_manager::notify(event_id EventId, any&& Payload)

@@ -54,18 +54,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
 
-History::History(history_type TypeHistory, const string& HistoryName, const BoolOption& EnableSave):
+History::History(history_type TypeHistory, string HistoryName, const BoolOption& EnableSave):
 	m_TypeHistory(TypeHistory),
-	m_HistoryName(HistoryName),
+	m_HistoryName(std::move(HistoryName)),
 	m_EnableSave(EnableSave),
 	m_EnableAdd(true),
 	m_KeepSelectedPos(false),
 	m_RemoveDups(1),
 	m_CurrentItem(0)
-{
-}
-
-History::~History()
 {
 }
 

@@ -984,7 +984,7 @@ string Dialog::GetTitle() const
 		        i->Type==DI_DOUBLEBOX ||
 		        i->Type==DI_SINGLEBOX))
 		{
-			Title = i->strData.data();
+			Title = i->strData;
 			RemoveExternalSpaces(Title);
 			return Title;
 		}
@@ -1546,7 +1546,7 @@ void Dialog::ShowDialog(size_t ID)
 
 	string strStr;
 	int X,Y;
-	size_t I,DrawItemCount;
+	size_t DrawItemCount;
 	FarColor ItemColor[4] = {};
 	bool DrawFullDialog = false;
 
@@ -1620,7 +1620,7 @@ void Dialog::ShowDialog(size_t ID)
 		SetCursorType(CursorVisible,CursorSize);
 	}
 
-	for (I=ID; I < DrawItemCount; I++)
+	for (size_t I = ID; I < DrawItemCount; I++)
 	{
 		if (Items[I].Flags&DIF_HIDDEN)
 			continue;
@@ -1920,7 +1920,7 @@ void Dialog::ShowDialog(size_t ID)
 					const wchar_t Check[] = { L'[',(Items[I].Selected ? (((Items[I].Flags&DIF_3STATE) && Items[I].Selected == 2) ? msg(lng::MCheckBox2State).front() : L'x') : L' '),L']',L'\0' };
 					strStr=Check;
 
-					if (Items[I].strData.size())
+					if (!Items[I].strData.empty())
 						strStr += L' ';
 				}
 				else
@@ -1937,7 +1937,7 @@ void Dialog::ShowDialog(size_t ID)
 						Dot[2]=L')';
 						strStr=Dot;
 
-						if (Items[I].strData.size())
+						if (!Items[I].strData.empty())
 							strStr += L' ';
 					}
 				}
@@ -2282,7 +2282,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		case MCODE_F_MENU_FILTER:
 		case MCODE_F_MENU_FILTERSTR:
 		{
-			const wchar_t *str = (const wchar_t *)vParam;
+			const auto str = static_cast<const wchar_t*>(vParam);
 
 			if (GetDropDownOpened() || Items[m_FocusPos].Type == DI_LISTBOX)
 			{
@@ -3115,7 +3115,6 @@ void Dialog::ProcessKey(int Key, size_t ItemPos)
 */
 bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	int MsX,MsY;
 	FARDIALOGITEMTYPES Type;
 	SMALL_RECT Rect;
 	INPUT_RECORD mouse = {};
@@ -3141,8 +3140,8 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	MsX=MouseRecord.dwMousePosition.X;
-	MsY=MouseRecord.dwMousePosition.Y;
+	const auto MsX = MouseRecord.dwMousePosition.X;
+	const auto MsY = MouseRecord.dwMousePosition.Y;
 
 	//for (I=0;I<ItemCount;I++)
 	for (size_t I=Items.size()-1; I!=(size_t)-1; I--)
@@ -3872,7 +3871,6 @@ int Dialog::SelectFromComboBox(
 {
 		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
 		const auto ComboBox = CurItem->ListPtr;
-		int Dest, OriginalPos;
 		int EditX1,EditY1,EditX2,EditY2;
 		EditLine->GetPosition(EditX1,EditY1,EditX2,EditY2);
 
@@ -3903,17 +3901,16 @@ int Dialog::SelectFromComboBox(
 
 		ComboBox->SetSelectPos(ComboBox->FindItem(0,strStr,LIFIND_EXACTMATCH),1);
 
-		OriginalPos = ComboBox->GetSelectPos();
+		const auto OriginalPos = ComboBox->GetSelectPos();
 		CurItem->IFlags.Set(DLGIIF_COMBOBOXNOREDRAWEDIT);
 		ComboBox->Process();
 
 		CurItem->IFlags.Clear(DLGIIF_COMBOBOXNOREDRAWEDIT);
 		ComboBox->ClearDone();
 
-		if (GetDropDownOpened()) // Закрылся не программным путём?
-			Dest=ComboBox->SimpleModal::GetExitCode();
-		else
-			Dest=-1;
+		const auto Dest = GetDropDownOpened()? // Закрылся не программным путём?
+			ComboBox->GetExitCode():
+			-1;
 
 		if (Dest == -1)
 			ComboBox->SetSelectPos(OriginalPos,0); //????
@@ -4354,7 +4351,6 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
 
 
-	intptr_t Result;
 	FarDialogEvent de={sizeof(FarDialogEvent),this,Msg,Param1,Param2,0};
 
 	if(!CheckDialogMode(DMODE_NOPLUGINS))
@@ -4363,7 +4359,7 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 			return de.Result;
 	}
 
-	Result = m_handler(this,Msg,Param1,Param2);
+	const auto Result = m_handler(this,Msg,Param1,Param2);
 
 	if(!CheckDialogMode(DMODE_NOPLUGINS))
 	{
@@ -4517,9 +4513,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			// fallthrough
 		case DM_MOVEDIALOG:
 		{
-			int W1,H1;
-			W1=m_X2-m_X1+1;
-			H1=m_Y2-m_Y1+1;
+			auto W1 = m_X2 - m_X1 + 1;
+			auto H1 = m_Y2 - m_Y1 + 1;
 			m_Drag.OldX1=m_X1;
 			m_Drag.OldY1=m_Y1;
 			m_Drag.OldX2=m_X2;
@@ -4541,9 +4536,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			}
 			else // Resize, Param2=width/height
 			{
-				int OldW1,OldH1;
-				OldW1=W1;
-				OldH1=H1;
+				const auto OldW1 = W1;
+				const auto OldH1 = H1;
 				W1=((COORD*)Param2)->X;
 				H1=((COORD*)Param2)->Y;
 				RealWidth = W1;
@@ -4689,7 +4683,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DM_KEY:
 		{
-			const INPUT_RECORD *KeyArray=(const INPUT_RECORD *)Param2;
+			const auto KeyArray = static_cast<const INPUT_RECORD*>(Param2);
 			DialogMode.Set(DMODE_KEY);
 
 			for (unsigned int I=0; I < (size_t)Param1; ++I)

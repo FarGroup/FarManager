@@ -234,10 +234,6 @@ void FilePanels::Init(int DirCount)
 	SetScreenPosition();
 }
 
-FilePanels::~FilePanels()
-{
-}
-
 void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) const
 {
 	if (Global->Opt->WidthDecrement < -(ScrX/2-10))

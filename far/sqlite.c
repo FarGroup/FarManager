@@ -68,6 +68,8 @@ static int rand_s(unsigned int* randomValue)
 }
 #endif
 
+#define SQLITE_WIN32_NO_ANSI
+
 #include "thirdparty/sqlite/sqlite3.c"
 
 WARNING_POP()

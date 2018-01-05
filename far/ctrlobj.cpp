@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "poscache.hpp"
 #include "plugins.hpp"
-#include "desktop.hpp"
 #include "scrbuf.hpp"
 
 ControlObject::ControlObject()

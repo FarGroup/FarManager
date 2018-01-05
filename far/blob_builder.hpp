@@ -48,10 +48,10 @@ public:
 		}
 	}
 
-	auto& append(const string& Data)
+	auto& append(const string_view& Str)
 	{
 		m_Buffer.clear();
-		m_Data += Data;
+		::append(m_Data, Str);
 		return *this;
 	}
 

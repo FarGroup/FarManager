@@ -100,8 +100,8 @@ struct MenuItemEx
 	NONCOPYABLE(MenuItemEx);
 	MOVABLE(MenuItemEx);
 
-	explicit MenuItemEx(const string& Text = {}):
-		strName(Text),
+	explicit MenuItemEx(string Text = {}):
+		strName(std::move(Text)),
 		Flags(),
 		ShowPos(),
 		AccelKey(),
@@ -180,9 +180,9 @@ class VMenu: public SimpleModal
 {
 	struct private_tag {};
 public:
-	static vmenu_ptr create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
+	static vmenu_ptr create(string Title, const MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
-	VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentDialog);
+	VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog);
 	virtual ~VMenu() override;
 
 	virtual void Show() override;

@@ -319,34 +319,13 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 	auto SrcColors = Src;
 	ApplyBlackOnBlackColors(SrcColors.Color);
 
-	const auto& ApplyColor = [](FarColor& Dst, const FarColor& Src)
-	{
-		//Если текущие цвета в Src (fore и/или back) не прозрачные
-		//то унаследуем их в Dest.
-
-		const auto& ApplyColorPart = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
-		{
-			const auto SrcPart = std::invoke(ColorAccessor, Src);
-			if(IS_OPAQUE(SrcPart))
-			{
-				std::invoke(ColorAccessor, Dst) = SrcPart;
-				(Src.Flags & Flag)? (Dst.Flags |= Flag) : (Dst.Flags &= ~Flag);
-			}
-		};
-
-		ApplyColorPart(&FarColor::BackgroundColor, FCF_BG_4BIT);
-		ApplyColorPart(&FarColor::ForegroundColor, FCF_FG_4BIT);
-
-		Dst.Flags |= Src.Flags&FCF_EXTENDEDFLAGS;
-	};
-
 	for (const auto& i: zip(SrcColors.Color, DestColors.Color))
 	{
 		const auto& SrcItem = std::get<0>(i);
 		auto& DstItem = std::get<1>(i);
 
-		ApplyColor(DstItem.FileColor, SrcItem.FileColor);
-		ApplyColor(DstItem.MarkColor, SrcItem.MarkColor);
+		DstItem.FileColor = colors::merge(DstItem.FileColor, SrcItem.FileColor);
+		DstItem.MarkColor = colors::merge(DstItem.MarkColor, SrcItem.MarkColor);
 	}
 
 	//Унаследуем пометку из Src если она не прозрачная

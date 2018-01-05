@@ -304,14 +304,14 @@ int SQLiteDb::GetInitStatus(string& name, bool full_name) const
 	return init_status;
 }
 
-const wchar_t* SQLiteDb::GetErrorMessage(int InitStatus)
+string_view SQLiteDb::GetErrorMessage(int InitStatus)
 {
 	switch (InitStatus)
 	{
-	case 0:  return L"no errors";
-	case 1:  return L"database file is renamed to *.bad and new one is created";
-	case 2:  return L"database is opened in memory";
-	default: return L"unknown error";
+	case 0:  return L"no errors"_sv;
+	case 1:  return L"database file is renamed to *.bad and new one is created"_sv;
+	case 2:  return L"database is opened in memory"_sv;
+	default: return L"unknown error"_sv;
 	}
 }
 

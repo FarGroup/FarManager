@@ -370,7 +370,7 @@ bool clipboard::GetText(string& Data) const
 			return string::npos;
 
 		const auto ClipLength = os::memory::global::lock<const uint32_t*>(hClipDataLen);
-		return ClipLength? static_cast<size_t>(*ClipLength.get()) : string::npos;
+		return ClipLength? static_cast<size_t>(*ClipLength) : string::npos;
 	};
 
 	const auto DataSize = GetBinaryTextLength();

@@ -64,7 +64,7 @@ bool DeleteFileWithFolder(const string& FileName);
 class delayed_deleter: noncopyable
 {
 public:
-	explicit delayed_deleter(const string& pathToDelete);
+	explicit delayed_deleter(string pathToDelete);
 	~delayed_deleter();
 
 private:

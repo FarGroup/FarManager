@@ -209,8 +209,8 @@ namespace detail
 {
 	struct ExecuteStruct
 	{
-		void operator=(intptr_t value) { Result = value; }
-		void operator=(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); }
+		auto& operator=(intptr_t value) { Result = value; return *this; }
+		auto& operator=(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
 		operator intptr_t() const { return Result; }
 		operator void*() const { return ToPtr(Result); }
 		EXPORTS_ENUM id;

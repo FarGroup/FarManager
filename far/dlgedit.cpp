@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 
 DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
-	SimpleScreenObject(Owner),
+	SimpleScreenObject(std::move(Owner)),
 	LastPartLength(-1),
 	m_Index(Index),
 	Type(Type),

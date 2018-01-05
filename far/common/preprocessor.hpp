@@ -96,18 +96,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define NONCOPYABLE(Type) \
 Type(const Type&) = delete; \
-Type& operator=(const Type&) = delete;
+Type& operator=(const Type&) = delete
 
 #define COPY_AND_MOVE(...) \
 auto& operator=(__VA_ARGS__ rhs) { return *this = std::remove_reference_t<decltype(*this)>(rhs); }
 
 #define COPYABLE(Type) \
-Type(const Type&) = default; \
-COPY_AND_MOVE(const Type&)
+COPY_AND_MOVE(const Type&) \
+Type(const Type&) = default
 
 #define MOVABLE(Type) \
 Type(Type&&) = default; \
-Type& operator=(Type&&) = default;
+Type& operator=(Type&&) = default
 
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ANONYMOUS_VARIABLE(scoped_object_)

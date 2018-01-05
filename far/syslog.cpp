@@ -42,11 +42,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "datetime.hpp"
 #include "pathmix.hpp"
-#include "strmix.hpp"
 #include "interf.hpp"
 #include "console.hpp"
 #include "farversion.hpp"
-#include "colormix.hpp"
 #include "string_utils.hpp"
 
 #if !defined(SYSLOG)
@@ -467,14 +465,14 @@ void SaveScreenDumpBuffer(const wchar_t *Title,const FAR_CHAR_INFO *Buffer,int X
 
 	if (fp && line)
 	{
-		int x,y,i;
+		int x,i;
 
 		if (!InternalLog && Title && *Title)
 			fwprintf(fp,L"FAR_CHAR_INFO DumpBuffer: %s\n",Title);
 
 		fwprintf(fp,L"XY={%i,%i - %i,%i}\n",X1,Y1,X2,Y2);
 
-		for (y=Y1; y <= Y2; y++)
+		for (int y=Y1; y <= Y2; y++)
 		{
 			fwprintf(fp,L"%04d: ",y);
 
@@ -1296,11 +1294,11 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(V_MENUINFOID),               // Menu.Info.Id
 	};
 
-	for (size_t i=0; i<std::size(MCODE); i++)
+	for (const auto& i : MCODE)
 	{
-		if (MCODE[i].Val == OpCode)
+		if (i.Val == OpCode)
 		{
-			return str_printf(L"%08X | MCODE_%-20s",OpCode,MCODE[i].Name);
+			return str_printf(L"%08X | MCODE_%-20s", OpCode, i.Name);
 		}
 	}
 
@@ -1379,11 +1377,11 @@ string __DLGDIF_ToName(DWORD Msg)
 		DEF_DIF_(NONE),
 	};
 
-	for (size_t i=0; i<std::size(Message); i++)
+	for (const auto& i: Message)
 	{
-		if (Message[i].Val == Msg)
+		if (i.Val == Msg)
 		{
-			return str_printf(L"\"DIF_%s\" [%I64d/0x%016I64X]",Message[i].Name,Msg,Msg);
+			return str_printf(L"\"DIF_%s\" [%I64d/0x%016I64X]", i.Name, Msg, Msg);
 		}
 	}
 
@@ -1503,21 +1501,21 @@ string __DLGMSG_ToName(DWORD Msg)
 
 	if (Msg < DN_FIRST)
 	{
-		for (size_t i = 0; i < std::size(DM); i++)
+		for (const auto& i: DM)
 		{
-			if (DM[i].Val == Msg)
+			if (i.Val == Msg)
 			{
-				return str_printf(L"\"DM_%s\" [%d/0x%08X]", DM[i].Name, Msg, Msg);
+				return str_printf(L"\"DM_%s\" [%d/0x%08X]", i.Name, Msg, Msg);
 			}
 		}
 	}
 	else
 	{
-		for (size_t i = 0; i<std::size(DN); i++)
+		for (const auto& i: DN)
 		{
-			if (DN[i].Val == Msg)
+			if (i.Val == Msg)
 			{
-				return str_printf(L"\"DN_%s\" [%d/0x%08X]", DN[i].Name, Msg, Msg);
+				return str_printf(L"\"DN_%s\" [%d/0x%08X]", i.Name, Msg, Msg);
 			}
 		}
 	}

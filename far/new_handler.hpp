@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class new_handler
 {
 public:
-	NONCOPYABLE(new_handler)
+	NONCOPYABLE(new_handler);
 
 	new_handler();
 	~new_handler();

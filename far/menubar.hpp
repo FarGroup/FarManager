@@ -37,13 +37,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 
-class MenuBar:public SimpleScreenObject
+class MenuBar: public SimpleScreenObject
 {
 public:
-	explicit MenuBar(window_ptr Owner): SimpleScreenObject(Owner) {}
+	explicit MenuBar(window_ptr Owner):
+		SimpleScreenObject(std::move(Owner))
+	{
+	}
 
 private:
-	virtual void DisplayObject() override;
+	void DisplayObject() override;
 };
 
 #endif // MENUBAR_HPP_E5C002A7_9CB0_41C3_9BB6_5C7A02A23355

@@ -324,8 +324,8 @@ struct FileList::PrevDataItem
 	NONCOPYABLE(PrevDataItem);
 	MOVABLE(PrevDataItem);
 
-	PrevDataItem(const string& rhsPrevName, list_data&& rhsPrevListData, int rhsPrevTopFile):
-		strPrevName(rhsPrevName),
+	PrevDataItem(string rhsPrevName, list_data&& rhsPrevListData, int rhsPrevTopFile):
+		strPrevName(std::move(rhsPrevName)),
 		PrevListData(std::move(rhsPrevListData)),
 		PrevTopFile(rhsPrevTopFile)
 	{
@@ -342,7 +342,7 @@ file_panel_ptr FileList::create(window_ptr Owner)
 }
 
 FileList::FileList(private_tag, window_ptr Owner):
-	Panel(Owner)
+	Panel(std::move(Owner))
 {
 	_OT(SysLog(L"[%p] FileList::FileList()", this));
 	{
@@ -1243,10 +1243,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			_ALGO(CleverSysLog clv(L"F1"));
 			_ALGO(SysLog(L"%s, FileCount=%d",(m_PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
 
-			if (m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanelHelp(GetPluginHandle()))
-				return true;
-
-			return false;
+			return m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanelHelp(GetPluginHandle());
 		}
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
@@ -2766,12 +2763,11 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 
 bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE ofp_type)
 {
-	string strFindDir, strSetDir;
-
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !TestCurrentDirectory(m_CurDir))
 		FarChDir(m_CurDir);
 
-	strSetDir = NewDir;
+	string strFindDir;
+	auto strSetDir = NewDir;
 	bool dot2Present = strSetDir == L"..";
 
 	bool RootPath = false;
@@ -4157,15 +4153,14 @@ void FileList::UpdateViewPanel()
 		}
 		else if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			string strTempDir,strFileName;
-			strFileName = CurPtr->strName;
-
+			string strTempDir;
 			if (!FarMkTempEx(strTempDir))
 				return;
 
 			os::fs::create_directory(strTempDir);
 			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(*CurPtr, PanelItem);
+			auto strFileName = CurPtr->strName;
 			int Result = Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW);
 
 			if (!Result)
@@ -4824,15 +4819,15 @@ void FileList::DescribeFiles()
 
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName))
 	{
-		string strDizText, strQuotedName;
 		const auto PrevText = NullToEmpty(Diz.Get(strSelName,strSelShortName,GetLastSelectedSize()));
-		strQuotedName = strSelName;
+		auto strQuotedName = strSelName;
 		QuoteSpaceOnly(strQuotedName);
 		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', strQuotedName, L':');
 
 		/* $ 09.08.2000 SVS
 		   Для Ctrl-Z не нужно брать предыдущее значение!
 		*/
+		string strDizText;
 		if (!GetString(
 			msg(lng::MDescribeFiles).data(),
 			strMsg.data(),
@@ -6871,7 +6866,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				i = *PluginPtr;
 				i.Position = Position;
 				TotalFileSize += PluginPtr->FileSize;
-				i.PrevSelected = i.Selected=0;
+				i.PrevSelected = i.Selected = false;
 				i.ShowFolderSize = 0;
 				i.SortGroup=Global->CtrlObject->HiFiles->GetGroup(&i, this);
 
@@ -7149,7 +7144,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		if (!Global->Opt->ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
-		FileListItem NewItem = PanelData[i];
+		FileListItem NewItem(PanelData[i]);
 		NewItem.Position = i;
 
 		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem, this);
@@ -7212,7 +7207,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	}
 
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
-		m_CurFile = m_ListData.size() ? static_cast<int>(m_ListData.size() - 1) : 0;
+		m_CurFile = m_ListData.empty()? 0 : static_cast<int>(m_ListData.size() - 1);
 
 	/* $ 25.02.2001 VVM
 	    ! Не считывать повторно список файлов с панели плагина */
@@ -7594,7 +7589,7 @@ void FileList::ShowFileList(bool Fast)
 				GotoXY(NextX1,m_Y1);
 
 			SetColor(COL_PANELCOLUMNTITLE);
-			Text({ Indicator });
+			Text(Indicator);
 			NextX1++;
 
 			if (m_Filter && m_Filter->IsEnabledOnPanel())
@@ -7664,7 +7659,7 @@ void FileList::ShowFileList(bool Fast)
 	strTitle.insert(0, 1, L' ');
 	strTitle.push_back(L' ');
 
-	const int TitleSize = static_cast<int>(strTitle.size());
+	const auto TitleSize = static_cast<int>(strTitle.size());
 	int TitleX = m_X1 + 1 + XShift + (TitleX2 - m_X1 - XShift - TitleSize) / 2;
 
 	if (Global->Opt->Clock && !Global->Opt->ShowMenuBar && TitleX + TitleSize > ScrX - static_cast<int>(Global->CurrentTime.size()))
@@ -7894,7 +7889,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	if (strTotalStr.size() > avail_width)
 	{
 		if (Global->Opt->ShowBytes)
-			strTotalStr = calc_total_string(+1);
+			strTotalStr = calc_total_string(true);
 		TruncStrFromEnd(strTotalStr, static_cast<int>(avail_width));
 	}
 	SetColor(COL_PANELTOTALINFO);
@@ -8051,10 +8046,11 @@ int FileList::PreparePanelView(PanelViewSettings *PanelView)
 
 int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine)
 {
-	int TotalPercentWidth,TotalPercentCount,ZeroLengthCount,EmptyColumns;
-	ZeroLengthCount=EmptyColumns=0;
-	int TotalWidth = static_cast<int>(Columns.size()-1);
-	TotalPercentCount=TotalPercentWidth=0;
+	int ZeroLengthCount = 0;
+	int EmptyColumns = 0;
+	int TotalPercentCount = 0;
+	int TotalPercentWidth = 0;
+	int TotalWidth = static_cast<int>(Columns.size() - 1);
 
 	for (auto& i: Columns)
 	{
@@ -8350,7 +8346,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								if (!ShowStatus)
 									SetShowColor(ListPos, false);
 
-								Text({ m_ListData[ListPos].Colors->Mark.Char });
+								Text(m_ListData[ListPos].Colors->Mark.Char);
 								SetColor(OldColor);
 							}
 

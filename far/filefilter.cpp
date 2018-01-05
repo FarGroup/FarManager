@@ -118,7 +118,6 @@ bool FileFilter::FilterEdit()
 
 	Changed = true;
 	bMenuOpen = true;
-	int ExitCode;
 	bool bNeedUpdate=false;
 	const auto FilterList = VMenu2::create(msg(lng::MFilterTitle), nullptr, 0, ScrY - 6);
 	FilterList->SetHelp(L"FiltersMenu"_sv);
@@ -209,7 +208,7 @@ bool FileFilter::FilterEdit()
 		}
 	}
 
-	ExitCode=FilterList->RunEx([&](int Msg, void *param)
+	const auto ExitCode=FilterList->RunEx([&](int Msg, void *param)
 	{
 		if (Msg==DN_LISTHOTKEY)
 			return 1;
@@ -663,11 +662,7 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* Filte
 			if (bFolder && FoldersFilter->FileInFilter(fde, CurrentTime, FullName))
 			{
 				IsFound = true;
-
-				if (Flags&FFF_INCLUDE)
-					IsIncluded = true;
-				else
-					IsIncluded = false;
+				IsIncluded = (Flags & FFF_INCLUDE) != 0;
 
 				if (Flags&FFF_STRONG)
 					return false;

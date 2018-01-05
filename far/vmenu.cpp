@@ -70,8 +70,8 @@ MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 	return Result;
 }
 
-VMenu::VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentDialog) :
-	strTitle(Title),
+VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
+	strTitle(std::move(Title)),
 	SelectPos(-1),
 	SelectPosResult(-1),
 	TopPos(0),
@@ -81,7 +81,7 @@ VMenu::VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentD
 	m_BoxType(DOUBLE_BOX),
 	PrevCursorVisible(),
 	PrevCursorSize(),
-	ParentDialog(ParentDialog),
+	ParentDialog(std::move(ParentDialog)),
 	DialogItemID(),
 	bFilterEnabled(false),
 	bFilterLocked(false),
@@ -94,9 +94,9 @@ VMenu::VMenu(private_tag, const string& Title, int MaxHeight, dialog_ptr ParentD
 {
 }
 
-vmenu_ptr VMenu::create(const string& Title, const MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
+vmenu_ptr VMenu::create(string Title, const MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags, dialog_ptr ParentDialog)
 {
-	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), Title, MaxHeight, ParentDialog);
+	auto VmenuPtr = std::make_shared<VMenu>(private_tag(), std::move(Title), MaxHeight, ParentDialog);
 	VmenuPtr->init(Data, ItemCount, Flags);
 	return VmenuPtr;
 }
@@ -740,14 +740,14 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_C_BOF:
 			return GetVisualPos(SelectPos)<=0;
 		case MCODE_C_SELECTED:
-			return Items.size() > 0 && SelectPos >= 0;
+			return !Items.empty() && SelectPos >= 0;
 		case MCODE_V_ITEMCOUNT:
 			return GetShowItemCount();
 		case MCODE_V_CURPOS:
 			return GetVisualPos(SelectPos)+1;
 		case MCODE_F_MENU_CHECKHOTKEY:
 		{
-			const wchar_t *str = (const wchar_t *)vParam;
+			const auto str = static_cast<const wchar_t*>(vParam);
 			return GetVisualPos(CheckHighlights(*str, VisualPosToReal((int)iParam))) + 1;
 		}
 		case MCODE_F_MENU_SELECT:
@@ -757,7 +757,6 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			if (!str.empty())
 			{
 				string strTemp;
-				int Res;
 				int Direct=(iParam >> 8)&0xFF;
 				/*
 					Direct:
@@ -797,7 +796,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 					if (!ItemCanHaveFocus(Item.Flags))
 						continue;
 
-					Res = 0;
+					int Res = 0;
 					strTemp = HiText2Str(Item.strName);
 					RemoveExternalSpaces(strTemp);
 

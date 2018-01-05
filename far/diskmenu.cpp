@@ -114,16 +114,14 @@ struct PanelMenuItem
 static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelected)
 {
 	std::list<ChDiskPluginItem> MPItems;
-	int PluginItem;
 	bool ItemPresent, Done = false;
-	string strMenuText;
 	string strPluginText;
 
 	for (const auto& pPlugin: *Global->CtrlObject->Plugins)
 	{
 		if (Done)
 			break;
-		for (PluginItem = 0;; ++PluginItem)
+		for (int PluginItem = 0;; ++PluginItem)
 		{
 			WCHAR HotKey = 0;
 			GUID guid;
@@ -143,16 +141,14 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 			if (!ItemPresent)
 				break;
 
-			strMenuText = strPluginText;
-
-			if (!strMenuText.empty())
+			if (!strPluginText.empty())
 			{
 				ChDiskPluginItem OneItem;
 #ifndef NO_WRAPPER
 				if (pPlugin->IsOemPlugin())
 					OneItem.getItem().Flags = LIF_CHECKED | L'A';
 #endif // NO_WRAPPER
-				OneItem.getItem().strName = strMenuText;
+				OneItem.getItem().strName = strPluginText;
 				OneItem.getHotKey() = HotKey;
 
 				PanelMenuItem item = {};

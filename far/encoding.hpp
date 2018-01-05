@@ -201,7 +201,7 @@ namespace Utf
 namespace Utf8
 {
 	// returns the number of decoded chars, 1 or 2. Moves the DataIterator forward as required.
-	size_t get_char(const char*& DataIterator, const char* const DataEnd, wchar_t& First, wchar_t& Second);
+	size_t get_char(const char*& DataIterator, const char* DataEnd, wchar_t& First, wchar_t& Second);
 	// returns the number of decoded chars, up to the BufferSize. Stops on buffer overflow. Tail contains the number of unprocessed bytes.
 	size_t get_chars(const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, int& Tail);
 	// returns the required buffer size. Fills Buffer up to the BufferSize.

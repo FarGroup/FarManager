@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "fileattr.hpp"
-#include "colormix.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 

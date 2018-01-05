@@ -187,11 +187,11 @@ private:
 		const std::conditional_t<std::is_base_of_v<ConstT, T>, ConstT, T>& base() const { return *this; }
 		std::conditional_t<std::is_base_of_v<ConstT, T>, const ConstT&, ConstT> cbase() const { return *this; }
 
-	private:
 		// Intentionally not implemented, use prefix forms.
 		numbered_iterator_t operator++(int) = delete;
 		numbered_iterator_t operator--(int) = delete;
 
+	private:
 		size_t m_Number;
 	};
 

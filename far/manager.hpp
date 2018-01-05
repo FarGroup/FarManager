@@ -63,7 +63,6 @@ public:
 	};
 
 	Manager();
-	~Manager();
 
 	enum DirectionType
 	{

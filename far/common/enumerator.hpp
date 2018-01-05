@@ -41,12 +41,16 @@ public:
 
 	template<typename item_type, typename owner>
 	class iterator_t:
-		public std::iterator<std::forward_iterator_tag, item_type>,
 		public rel_ops<iterator_t<item_type, owner>>,
 		public conditional<iterator_t<item_type, owner>>
 	{
 	public:
+		using iterator_category = std::forward_iterator_tag;
 		using value_type = item_type;
+		using difference_type = std::ptrdiff_t;
+		using pointer = T*;
+		using reference = T&;
+
 		using owner_type = owner;
 
 		iterator_t() = default;

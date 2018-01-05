@@ -1654,10 +1654,8 @@ static char* WINAPI RemoveTrailingSpacesA(char *Str) noexcept
 		if (*Str == '\0')
 			return Str;
 
-		char *ChPtr;
 		size_t I;
-
-		for (ChPtr = Str + (I = strlen(Str)) - 1; I > 0; I--, ChPtr--)
+		for (auto ChPtr = Str + (I = strlen(Str)) - 1; I > 0; I--, ChPtr--)
 		{
 			if (IsSpaceA(*ChPtr) || IsEolA(*ChPtr))
 				*ChPtr = 0;
@@ -1686,7 +1684,7 @@ static char *WINAPI FarItoa64A(long long value, char *string, int radix) noexcep
 static int WINAPI FarAtoiA(const char *s) noexcept
 {
 	// noexcept
-	return std::atoi(s);
+	return std::strtol(s, nullptr, 10);
 }
 
 static long long WINAPI FarAtoi64A(const char *s) noexcept
@@ -1841,10 +1839,9 @@ static BOOL WINAPI AddEndSlashA(char *Path) noexcept
 		изменение уже существующего конечного слеша на такой, который
 		встречается чаще.
 		*/
-		char *end;
 		int Slash = 0, BackSlash = 0;
 
-		end = Path;
+		auto end = Path;
 
 		while (*end)
 		{

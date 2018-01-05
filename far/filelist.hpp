@@ -127,9 +127,9 @@ struct PluginsListItem
 	NONCOPYABLE(PluginsListItem);
 	MOVABLE(PluginsListItem);
 
-	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, const string& HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, string HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(std::move(hPlugin)),
-		m_HostFile(HostFile),
+		m_HostFile(std::move(HostFile)),
 		m_Modified(Modified),
 		m_PrevViewMode(PrevViewMode),
 		m_PrevSortMode(PrevSortMode),
@@ -378,7 +378,7 @@ private:
 
 		using value_type = FileListItem;
 
-		list_data() {}
+		list_data() = default;
 		~list_data() { clear(); }
 
 		void initialise(plugin_panel* ph) { clear(); m_Plugin = ph; }
@@ -390,8 +390,8 @@ private:
 		decltype(auto) end() const { return Items.end(); }
 		decltype(auto) begin() { return Items.begin(); }
 		decltype(auto) end() { return Items.end(); }
-		decltype(auto) cbegin() { return Items.cbegin(); }
-		decltype(auto) cend() { return Items.cend(); }
+		decltype(auto) cbegin() const { return Items.cbegin(); }
+		decltype(auto) cend() const { return Items.cend(); }
 		decltype(auto) front() const { return Items.front(); }
 		decltype(auto) back() const { return Items.back(); }
 		decltype(auto) front() { return Items.front(); }

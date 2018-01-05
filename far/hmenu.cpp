@@ -87,7 +87,6 @@ void HMenu::DisplayObject()
 
 void HMenu::ShowMenu()
 {
-	string strTmpStr;
 	GotoXY(m_X1+2,m_Y1);
 
 	for (auto& i: Item)
@@ -96,10 +95,7 @@ void HMenu::ShowMenu()
 
 		SetColor(i.Selected? COL_HMENUSELECTEDTEXT : COL_HMENUTEXT);
 
-		strTmpStr=L"  ";
-		strTmpStr+=i.Name;
-		strTmpStr+=L"  ";
-		HiText(strTmpStr, colors::PaletteColorToFarColor(i.Selected? COL_HMENUSELECTEDHIGHLIGHT : COL_HMENUHIGHLIGHT));
+		HiText(concat(L"  "_sv, i.Name, L"  "_sv), colors::PaletteColorToFarColor(i.Selected? COL_HMENUSELECTEDHIGHLIGHT : COL_HMENUHIGHLIGHT));
 	}
 }
 
@@ -344,12 +340,10 @@ bool HMenu::TestMouse(const MOUSE_EVENT_RECORD *MouseEvent) const
 
 bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	int MsX,MsY;
-
 	UpdateSelectPos();
 
-	MsX=MouseEvent->dwMousePosition.X;
-	MsY=MouseEvent->dwMousePosition.Y;
+	const auto MsX = MouseEvent->dwMousePosition.X;
+	const auto MsY = MouseEvent->dwMousePosition.Y;
 
 	if (MsY==m_Y1 && MsX>=m_X1 && MsX<=m_X2)
 	{

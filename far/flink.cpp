@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "elevation.hpp"
 #include "cvtname.hpp"
-#include "string_utils.hpp"
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
@@ -534,9 +533,9 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 {
 	if (!Target.empty() && !LinkName.empty())
 	{
-		string strFullTarget, strFullLink, strSelOnlyName;
+		string strFullTarget;
 		// выделим имя
-		strSelOnlyName = Target;
+		auto strSelOnlyName = Target;
 		DeleteEndSlash(strSelOnlyName);
 		const auto SlashPos = FindLastSlash(strSelOnlyName);
 		const auto SelName = SlashPos != string::npos? strSelOnlyName.substr(SlashPos + 1) : strSelOnlyName;
@@ -560,7 +559,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 		else
 			strFullTarget = ConvertNameToFull(Target);
 
-		strFullLink = ConvertNameToFull(LinkName);
+		auto strFullLink = ConvertNameToFull(LinkName);
 
 		if (IsSlash(strFullLink.back()))
 		{

@@ -69,8 +69,8 @@ namespace detail
 	public:
 		using handler_type = std::function<void()>;
 
-		explicit event_handler(const handler_type& Handler):
-			m_Handler(Handler)
+		explicit event_handler(handler_type Handler):
+			m_Handler(std::move(Handler))
 		{
 		}
 
@@ -88,8 +88,8 @@ namespace detail
 	public:
 		using handler_type = std::function<void(const any&)>;
 
-		explicit parametrized_event_handler(const handler_type& Handler):
-			m_Handler(Handler)
+		explicit parametrized_event_handler(handler_type Handler):
+			m_Handler(std::move(Handler))
 		{
 		}
 

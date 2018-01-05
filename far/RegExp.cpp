@@ -469,7 +469,6 @@ struct RegExp::REOpCode: public REOpCode_data
 };
 
 RegExp::RegExp():
-	code(),
 	slashChar('/'),
 	backslashChar('\\'),
 	firstptr(std::make_unique<UniSet>()),
@@ -489,20 +488,18 @@ RegExp::RegExp():
 {
 }
 
-RegExp::~RegExp()
-{
-}
+RegExp::~RegExp() = default;
 
 int RegExp::CalcLength(const wchar_t* src,int srclength)
 {
 	int length=3;//global brackets
 	int brackets[MAXDEPTH];
 	int count=0;
-	int i,save;
+	int save;
 	bracketscount=1;
 	int inquote=0;
 
-	for (i=0; i<srclength; i++,length++)
+	for (int i=0; i<srclength; i++,length++)
 	{
 		if (inquote && src[i]!=backslashChar && src[i+1] != L'E')
 		{
@@ -2061,7 +2058,6 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 				{
 					if (hmatch)
 					{
-						RegExpMatch* m2;
 						if (!hmatch->Matches.count(op->nbracket.name))
 						{
 							RegExpMatch sm;
@@ -2069,7 +2065,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 							sm.end = -1;
 							hmatch->Matches[op->nbracket.name] = sm;
 						}
-						m2 = &hmatch->Matches[op->nbracket.name];
+						const auto m2 = &hmatch->Matches[op->nbracket.name];
 
 						//if (inrangebracket) Mantis#1388
 						{

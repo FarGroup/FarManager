@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ctrlobj.hpp"
 #include "cvtname.hpp"
-#include "datetime.hpp"
 #include "drivemix.hpp"
 #include "elevation.hpp"
 #include "flink.hpp"

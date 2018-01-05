@@ -141,11 +141,11 @@ public:
 #endif
 
 		int CalcLength(const wchar_t* src,int srclength);
-		int InnerCompile(const wchar_t* const start, const wchar_t* src, int srclength, int options);
+		int InnerCompile(const wchar_t* start, const wchar_t* src, int srclength, int options);
 
-		int InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* end, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch, std::vector<StateStackItem>& stack) const;
+		int InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* end, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch, std::vector<StateStackItem>& stack) const;
 
-		void TrimTail(const wchar_t* const start, const wchar_t*& end) const;
+		void TrimTail(const wchar_t* start, const wchar_t*& end) const;
 
 		// BUGBUG not thread safe!
 		// TODO: split to compile errors (stateful) and match errors (stateless)

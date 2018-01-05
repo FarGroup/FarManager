@@ -46,7 +46,7 @@ class SQLiteDb: noncopyable, virtual transactional
 {
 public:
 	int GetInitStatus(string& name, bool full_name) const;
-	static const wchar_t* GetErrorMessage(int InitStatus);
+	static string_view GetErrorMessage(int InitStatus);
 
 	bool IsNew() const { return db_exists <= 0; }
 	static int library_load();

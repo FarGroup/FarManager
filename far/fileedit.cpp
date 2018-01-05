@@ -1240,10 +1240,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 						NeedQuestion = false;
 				}
 
-				if (!ProcessQuitKey(FirstSave,NeedQuestion))
-					return false;
-
-				return true;
+				return ProcessQuitKey(FirstSave, NeedQuestion);
 			}
 
 			case KEY_F8:
@@ -1398,7 +1395,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 		return need_reload ? EC_CP_CANNOT_RELOAD : EC_CP_CANNOT_SET;
 }
 
-int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWindow)
+bool FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWindow)
 {
 	for (;;)
 	{
@@ -1450,7 +1447,6 @@ int FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWind
 	}
 	return GetExitCode() == XC_QUIT;
 }
-
 
 bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state& ErrorState)
 {
@@ -2044,7 +2040,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 			{
 				const auto& EncodeAndWriteBlock = [&](const string_view& Data)
 				{
-					if (!Data.size())
+					if (Data.empty())
 						return;
 
 					const auto EncodedSize = encoding::get_bytes_count(codepage, Data);
@@ -2073,6 +2069,11 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state& 
 	{
 		RetCode = SAVEFILE_ERROR;
 		ErrorState = e.get_error_state();
+	}
+	catch (const std::exception&)
+	{
+		RetCode = SAVEFILE_ERROR;
+		ErrorState = error_state::fetch();
 	}
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)
@@ -2259,8 +2260,7 @@ void FileEditor::ShowStatus() const
 
 	SetColor(COL_EDITORSTATUS);
 	GotoXY(m_X1,m_Y1); //??
-	string strLineStr;
-	string strLocalTitle = GetTitle();
+	auto strLocalTitle = GetTitle();
 	int NameLength = 21;
 
 	if (m_X2 > 80)
@@ -2277,7 +2277,7 @@ void FileEditor::ShowStatus() const
 		TruncPathStr(strLocalTitle, NameLength);
 
 	//предварительный расчет
-	strLineStr = str(m_editor->Lines.size()) + L'/' + str(m_editor->Lines.size());
+	auto strLineStr = str(m_editor->Lines.size()) + L'/' + str(m_editor->Lines.size());
 	int SizeLineStr = (int)strLineStr.size();
 
 	if (SizeLineStr > 12)
@@ -2285,7 +2285,7 @@ void FileEditor::ShowStatus() const
 	else
 		SizeLineStr = 12;
 
-	strLineStr = str(m_editor->m_it_CurLine.Number() + 1) + L'/' + str(m_editor->Lines.size());
+	strLineStr = format(L"{0}/{1}", m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
 	const auto strAttr = *AttrStr? L" "s + AttrStr : L""s;
 	const auto StatusLine = format(L"{0:{1}} {2}{3}{4}{5:5} {6:>3} {7:>{8}} {9:>3} {10:<4} {11:>2} {12:<4}{13}",
 		strLocalTitle, NameLength,
@@ -2775,10 +2775,7 @@ bool FileEditor::LoadFromCache(EditorPosCache &pc) const
 
 	pc.Clear();
 
-	if (FilePositionCache::GetPosition(strCacheName, pc))
-		return true;
-
-	return false;
+	return FilePositionCache::GetPosition(strCacheName, pc);
 }
 
 void FileEditor::SaveToCache() const

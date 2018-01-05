@@ -115,7 +115,7 @@ static bool IsCodePageSupported(uintptr_t cp)
 
 // seems like this initialization list is toooooo long
 Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
-	SimpleScreenObject(Owner),
+	SimpleScreenObject(std::move(Owner)),
 	ViOpt(Global->Opt->ViOpt),
 	Signature(),
 	m_ViewKeyBar(),
@@ -987,7 +987,7 @@ void Viewer::ShowHex()
 				{
 					if (SelectPos >= fpos && SelectPos < fpos+16)
 					{
-						const int off = (int)(SelectPos - fpos);
+						const auto off = static_cast<int>(SelectPos - fpos);
 						bSelStartFound = true;
 						SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < 8 ? 0 : BorderLen));
 						if (!SelectSize)
@@ -996,7 +996,7 @@ void Viewer::ShowHex()
 					const auto selectEnd = SelectPos + SelectSize - 1;
 					if (selectEnd >= fpos && selectEnd < fpos+16)
 					{
-						const int off = (int)(selectEnd - fpos);
+						const auto off = static_cast<int>(selectEnd - fpos);
 						bSelEndFound = true;
 						SelEnd = SelectSize? static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLen) + 1) : SelStart;
 					}
@@ -2391,9 +2391,9 @@ void Viewer::Up( int nlines, bool adjust )
 		}
 	}
 
-	int buff_size, ch_size = getCharSize();
+	int ch_size = getCharSize();
 
-	raw_eol eol;
+	const raw_eol eol;
 
 	while ( nlines > 0 )
 	{
@@ -2409,7 +2409,7 @@ void Viewer::Up( int nlines, bool adjust )
 		//
 		for (int j = 0; j < max_backward_size/portion_size; ++j )
 		{
-			buff_size = (fpos > (long long)portion_size ? portion_size : (int)fpos);
+			int buff_size = (fpos > (long long)portion_size ? portion_size : (int)fpos);
 			if ( buff_size <= 0 )
 				break;
 			fpos -= buff_size;
@@ -2689,8 +2689,6 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-static void PR_ViewerSearchMsg();
-
 struct ViewerPreRedrawItem : public PreRedrawItem
 {
 	ViewerPreRedrawItem():
@@ -2947,15 +2945,15 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t prev_char = L'\0', *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
-	long long to1, to, cpos = sd->CurPos;
-	int swrap = ViOpt.SearchWrapStop;
+	long long to, cpos = sd->CurPos;
+	const auto swrap = ViOpt.SearchWrapStop;
 
 	vseek(cpos, FILE_BEGIN);
 	if ( ww )
 		prev_char = vgetc_prev();
 
-	bool tail_part = cpos >= StartSearchPos;
-	if ( swrap != SearchWrap_CYCLE || tail_part )
+	const auto tail_part = cpos >= StartSearchPos;
+	if (swrap != SearchWrap_CYCLE || tail_part )
 	{
 		if ( (to = FileSize) - cpos <= bsize )
 			SetFileSize();
@@ -2970,7 +2968,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 
 	int nb = (to - cpos > bsize ? bsize : static_cast<int>(to - cpos));
 	int nw = vread(buff, nb, t_buff);
-	to1 = vtell();
+	auto to1 = vtell();
 	if ( swrap == SearchWrap_CYCLE && !tail_part && nb + 3*(slen+ww) < bsize && !veof() )
 	{
 		int nw1 = vread(buff+nw, 3*(slen+ww), t_buff ? t_buff+nw : nullptr);
@@ -3030,11 +3028,11 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 	int bsize = 8192, slen = sd->search_len, ww = (LastSearchWholeWords ? 1 : 0);
 	wchar_t *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	const wchar_t *search_str = sd->search_text;
-	long long to, cpos = sd->CurPos;
-	int swrap = ViOpt.SearchWrapStop;
+	long long cpos = sd->CurPos;
+	const auto swrap = ViOpt.SearchWrapStop;
 
-	bool tail_part = cpos > StartSearchPos;
-	to = (tail_part && swrap == SearchWrap_CYCLE ? StartSearchPos : 0);
+	const auto tail_part = cpos > StartSearchPos;
+	const auto to = (tail_part && swrap == SearchWrap_CYCLE ? StartSearchPos : 0);
 
 	int nb = (cpos - to > bsize ? bsize : static_cast<int>(cpos- to));
 	if (tail_part && swrap == SearchWrap_CYCLE && nb + 3*(slen+ww) < bsize && cpos > nb)
@@ -3117,7 +3115,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, long long cpos, int adjust, l
 	const auto OldWrapTouched = m_Wrap.touched();
 	const auto OldWordWrap = m_WordWrap;
 	const auto OldWordWrapTouched = m_WordWrap.touched();
-	const auto OldDisplayMode = std::move(m_DisplayMode);
+	const auto OldDisplayMode = m_DisplayMode;
 
 	m_DisplayMode = VMT_TEXT;
 	m_Wrap = m_WordWrap = false;
@@ -3141,7 +3139,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, long long cpos, int adjust, l
 		llen -= vString.eol_length; // remove eol-s
 	buf[llen >= 0 ? llen : 0] = L'\0';
 
-	m_DisplayMode = std::move(OldDisplayMode);
+	m_DisplayMode = OldDisplayMode;
 
 	m_Wrap = OldWrap;
 	m_WordWrap = OldWordWrap;
@@ -3246,11 +3244,11 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 	wchar_t *line = Search_buffer.data(), *t_line = sd->ch_size < 0 ? Search_buffer.data() + MaxViewLineBufferSize() : nullptr;
 	long long cpos = sd->CurPos, bpos = 0, prev_pos = -1;
 
-	bool tail_part = cpos > StartSearchPos;
-	int swrap = ViOpt.SearchWrapStop;
+	const auto tail_part = cpos > StartSearchPos;
+	const auto swrap = ViOpt.SearchWrapStop;
 
-	int off=0, lsize=0, nw, prev_len = -1;
-	nw = read_line(line, t_line, cpos, -1, bpos, lsize);
+	int off=0, lsize=0, prev_len = -1;
+	const auto nw = read_line(line, t_line, cpos, -1, bpos, lsize);
 	for (;;)
 	{
 		if (lsize <= 0 || off > nw)
@@ -3534,7 +3532,8 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				return;
 			}
 			else // Search_ Eof/Bof/Cycle
-			{	  // MviewSearch Eod,FromBegin/Bod,FromEnd/Cycle,Repeat
+			{
+				// MviewSearch Eod,FromBegin/Bod,FromEnd/Cycle,Repeat
 				static_assert(Search_Bof - Search_Eof == 1 && Search_Cycle - Search_Eof == 2, "Wrong enum order");
 				static_assert(lng::MViewSearchEod + 1 == lng::MViewSearchFromBegin, "Wrong .lng file order");
 				static_assert(lng::MViewSearchBod + 1 == lng::MViewSearchFromEnd, "Wrong .lng file order");

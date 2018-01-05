@@ -90,11 +90,6 @@ void Grabber::init()
 	Global->WindowManager->RefreshWindow();
 }
 
-
-Grabber::~Grabber()
-{
-}
-
 static wchar_t GetChar(const FAR_CHAR_INFO& Cell)
 {
 	WORD Chr2 = Cell.Char;

@@ -49,10 +49,11 @@ enum
 	FSCROBJ_ISREDRAWING          = 0x00000008,   // идет процесс Show?
 };
 
-class SimpleScreenObject: noncopyable
+class SimpleScreenObject
 {
 public:
-	virtual ~SimpleScreenObject();
+	NONCOPYABLE(SimpleScreenObject);
+	virtual ~SimpleScreenObject() = default;
 
 	int ObjWidth() const {return m_X2 - m_X1 + 1;}
 	int ObjHeight() const {return m_Y2 - m_Y1 + 1;}
@@ -92,6 +93,7 @@ protected:
 class ScreenObject:public SimpleScreenObject
 {
 public:
+	NONCOPYABLE(ScreenObject);
 	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
 	virtual void Show() override;
 	virtual void Hide() override;
@@ -110,6 +112,7 @@ public: // BUGBUG
 class ScreenObjectWithShadow:public ScreenObject
 {
 public:
+	NONCOPYABLE(ScreenObjectWithShadow);
 	virtual void Hide() override;
 
 protected:

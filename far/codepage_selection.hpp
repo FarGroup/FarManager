@@ -53,9 +53,10 @@ struct FarDialogBuilderListItem2;
 class VMenu2;
 enum CodePagesCallbackCallSource: int;
 
-class codepages: noncopyable
+class codepages
 {
 public:
+	NONCOPYABLE(codepages);
 	~codepages();
 
 	static bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1));

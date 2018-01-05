@@ -93,7 +93,7 @@ info_panel_ptr InfoList::create(window_ptr Owner)
 }
 
 InfoList::InfoList(private_tag, window_ptr Owner):
-	Panel(Owner),
+	Panel(std::move(Owner)),
 	OldWrapMode(),
 	OldWrapType(),
 	SectionState(ILSS_SIZE),

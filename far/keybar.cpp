@@ -52,7 +52,7 @@ enum
 };
 
 KeyBar::KeyBar(window_ptr Owner):
-	SimpleScreenObject(Owner),
+	SimpleScreenObject(std::move(Owner)),
 	Items(KBL_GROUP_COUNT),
 	CustomArea(),
 	AltState(),
@@ -91,8 +91,6 @@ void KeyBar::DisplayObject()
 		Text(str(i + 1));
 		SetColor(COL_KEYBARTEXT);
 
-		string Label;
-
 		static const std::pair<bool(FarKeyboardState::*)() const, keybar_group> Mapping[] =
 		{
 			{ &FarKeyboardState::NonePressed, KBL_MAIN },
@@ -109,7 +107,7 @@ void KeyBar::DisplayObject()
 
 		const auto State = std::find_if(ALL_CONST_RANGE(Mapping), [&](const auto& Item) { return std::invoke(Item.first, IntKeyState); });
 		// State should always be valid so check is excessive, but style is style
-		Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
+		auto Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
 
 		if (contains(Label, L'|'))
 		{
