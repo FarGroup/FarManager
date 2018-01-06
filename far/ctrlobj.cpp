@@ -141,9 +141,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 {
 	if (Flags&1)
 	{
-		string strOut = concat(Global->Version(), EOL_STR, Global->Copyright(), EOL_STR);
-		Console().Write(strOut);
-		Console().Commit();
+		std::wcout << Global->Version() << L'\n' << Global->Copyright() << std::endl;
 	}
 	else
 	{

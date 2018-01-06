@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "setcolor.hpp"
 #include "strmix.hpp"
+#include "exception.hpp"
 
 class basic_console: public console, public singleton<basic_console>
 {
@@ -391,15 +392,55 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 	return true;
 }
 
+virtual bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const override
+{
+	const auto InputHandle = GetInputHandle();
+
+	DWORD NumberOfCharsRead;
+
+	DWORD Mode;
+	if (GetMode(InputHandle, Mode))
+	{
+		if (!ReadConsole(InputHandle, Buffer.data(), static_cast<DWORD>(Buffer.size()), &NumberOfCharsRead, nullptr))
+			return false;
+	}
+	else
+	{
+		if (!ReadFile(InputHandle, Buffer.data(), static_cast<DWORD>(Buffer.size() * sizeof(wchar_t)), &NumberOfCharsRead, nullptr))
+			return false;
+
+		NumberOfCharsRead /= sizeof(wchar_t);
+	}
+
+	Size = NumberOfCharsRead;
+	return true;
+}
+
 virtual bool Write(const string_view& Str) const override
 {
 	DWORD NumberOfCharsWritten;
 	const auto OutputHandle = GetOutputHandle();
 
 	DWORD Mode;
-	return GetMode(OutputHandle, Mode)?
-	       WriteConsole(OutputHandle, Str.raw_data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr) != FALSE :
-	       WriteFile(OutputHandle, Str.raw_data(), static_cast<DWORD>(Str.size() * sizeof(wchar_t)), &NumberOfCharsWritten, nullptr) != FALSE;
+	if (GetMode(OutputHandle, Mode))
+		return WriteConsole(OutputHandle, Str.raw_data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr) != FALSE;
+
+	// Redirected output
+
+	if (m_FileHandle == -1)
+	{
+		HANDLE OsHandle;
+		if (!DuplicateHandle(GetCurrentProcess(), OutputHandle, GetCurrentProcess(), &OsHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
+			return false;
+
+		m_FileHandle = _open_osfhandle(reinterpret_cast<intptr_t>(OsHandle), _O_U8TEXT);
+		if (m_FileHandle == -1)
+			return false;
+
+		_setmode(m_FileHandle, _O_U8TEXT);
+	}
+
+	return _write(m_FileHandle, Str.raw_data(), static_cast<unsigned int>(Str.size() * sizeof(wchar_t))) != -1;
 }
 
 virtual bool Commit() const override
@@ -719,10 +760,17 @@ protected:
 	{
 	}
 
+	~basic_console()
+	{
+		if (m_FileHandle != -1)
+			_close(m_FileHandle);
+	}
+
 private:
 	const unsigned int MAXSIZE;
 	HANDLE m_OriginalInputHandle;
 	mutable string m_Title;
+	mutable int m_FileHandle{-1};
 };
 
 bool console::ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const
@@ -840,4 +888,80 @@ private:
 console& Console()
 {
 	return extended_console::instance();
+}
+
+enum
+{
+	BufferSize = 10240
+};
+
+consolebuf::consolebuf():
+	m_InBuffer(BufferSize),
+	m_OutBuffer(BufferSize)
+
+{
+	setg(m_InBuffer.data(), m_InBuffer.data() + m_InBuffer.size(), m_InBuffer.data() + m_InBuffer.size());
+	setp(m_OutBuffer.data(), m_OutBuffer.data() + m_OutBuffer.size());
+}
+
+void consolebuf::color(const FarColor& Color)
+{
+	m_Colour.first = Color;
+	m_Colour.second = true;
+}
+
+consolebuf::int_type consolebuf::underflow()
+{
+	size_t Read;
+	if (!Console().Read(m_InBuffer, Read))
+		throw MAKE_FAR_EXCEPTION(L"Console read error");
+
+	if (!Read)
+		return traits_type::eof();
+
+	setg(m_InBuffer.data(), m_InBuffer.data(), m_InBuffer.data() + Read);
+	return m_InBuffer[0];
+}
+
+consolebuf::int_type consolebuf::overflow(consolebuf::int_type Ch)
+{
+	if (!Write({ pbase(), static_cast<size_t>(pptr() - pbase()) }))
+		return traits_type::eof();
+
+	setp(m_OutBuffer.data(), m_OutBuffer.data() + m_OutBuffer.size());
+
+	if (traits_type::eq_int_type(Ch, traits_type::eof()))
+	{
+		Console().Commit();
+	}
+	else
+	{
+		sputc(Ch);
+	}
+
+	return 0;
+}
+
+int consolebuf::sync()
+{
+	overflow(traits_type::eof());
+	return 0;
+}
+
+bool consolebuf::Write(const string_view& Str)
+{
+	if (Str.empty())
+		return true;
+
+	FarColor CurrentColor;
+	const auto ChangeColour = m_Colour.second && Console().GetTextAttributes(CurrentColor);
+
+	if (ChangeColour)
+	{
+		Console().SetTextAttributes(colors::merge(CurrentColor, m_Colour.first));
+	}
+
+	SCOPE_EXIT{ if (ChangeColour) Console().SetTextAttributes(CurrentColor); };
+
+	return Console().Write(Str);
 }

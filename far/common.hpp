@@ -125,7 +125,6 @@ namespace \
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
-#define EOL_STR L"\r\n"
 
 template<typename T>
 class base: public T
@@ -134,5 +133,34 @@ protected:
 	using T::T;
 	using base_type = base;
 };
+
+namespace io
+{
+	template<typename char_type>
+	class basic_streambuf_override
+	{
+	public:
+		NONCOPYABLE(basic_streambuf_override);
+
+		basic_streambuf_override(std::basic_ios<char_type>& Ios, std::basic_streambuf<char_type>& Buf) :
+			m_Ios(Ios),
+			m_OriginalBuffer(*Ios.rdbuf())
+		{
+			m_Ios.rdbuf(&Buf);
+		}
+
+		~basic_streambuf_override()
+		{
+			m_Ios.rdbuf(&m_OriginalBuffer);
+		}
+
+	private:
+		std::basic_ios<char_type>& m_Ios;
+		std::basic_streambuf<char_type>& m_OriginalBuffer;
+	};
+
+	using wstreambuf_override = basic_streambuf_override<wchar_t>;
+
+}
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

@@ -934,7 +934,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 		}
 
 		ConsoleActivatior(true);
-		Console().Write(strOut);
+		std::wcout << strOut << std::flush;
 
 		return true;
 	}
@@ -1105,7 +1105,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			if (!strOut.empty())
 			{
 				ConsoleActivatior(true);
-				Console().Write(strOut);
+				std::wcout << strOut << std::flush;
 			}
 
 			return true;

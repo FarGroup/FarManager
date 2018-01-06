@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "tinyxml.hpp"
 #include "farversion.hpp"
-#include "console.hpp"
 #include "lang.hpp"
 #include "message.hpp"
 #include "regex_helpers.hpp"
@@ -70,7 +69,10 @@ public:
 
 	void SetRoot(tinyxml::XMLHandle Root) { m_Root = Root; }
 
-	void PrintError() const { m_Document.PrintError(); }
+	string GetError() const
+	{
+		return encoding::utf8::get_chars(m_Document.ErrorStr());
+	}
 
 private:
 	tinyxml::XMLDocument m_Document;
@@ -2133,8 +2135,7 @@ void config_provider::CheckDatabase(SQLiteDb *pDb)
 
 	if (m_Mode != mode::m_default)
 	{
-		Console().Write(format(L"Problem with {0}:\n  {1}\n", pname, SQLiteDb::GetErrorMessage(Status)));
-		Console().Commit();
+		std::wcerr << format(L"Problem with {0}:\n  {1}", pname, SQLiteDb::GetErrorMessage(Status)) << std::endl;
 	}
 	else
 	{
@@ -2317,7 +2318,8 @@ bool config_provider::Import(const string& Filename)
 
 	if (!root.ToNode())
 	{
-		Representation.PrintError();
+
+		std::wcerr << L"Error importing " << Filename << L":\n " << Representation.GetError() << std::endl;
 		return false;
 	}
 

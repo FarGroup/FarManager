@@ -76,54 +76,53 @@ global *Global = nullptr;
 static void show_help()
 {
 	static const auto HelpMsg =
-		L"Usage: far [switches] [apath [ppath]]" EOL_STR EOL_STR
-		L"where" EOL_STR
-		L"  apath - path to a folder (or a file or an archive or command with prefix)" EOL_STR
-		L"          for the active panel" EOL_STR
-		L"  ppath - path to a folder (or a file or an archive or command with prefix)" EOL_STR
-		L"          for the passive panel" EOL_STR
-		L"The following switches may be used in the command line:" EOL_STR
-		L" -?   This help." EOL_STR
-		L" -a   Disable display of characters with codes 0 - 31 and 255." EOL_STR
-		L" -ag  Disable display of pseudographics characters." EOL_STR
-		L" -clearcache [profilepath [localprofilepath]]" EOL_STR
-		L"      Clear plugins cache." EOL_STR
-		L" -co  Forces FAR to load plugins from the cache only." EOL_STR
+		L"Usage: far [switches] [apath [ppath]]\n\n"
+		L"where\n"
+		L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
+		L"          for the active panel\n"
+		L"  ppath - path to a folder (or a file or an archive or command with prefix)\n"
+		L"          for the passive panel\n"
+		L"The following switches may be used in the command line:\n"
+		L" -?   This help.\n"
+		L" -a   Disable display of characters with codes 0 - 31 and 255.\n"
+		L" -ag  Disable display of pseudographics characters.\n"
+		L" -clearcache [profilepath [localprofilepath]]\n"
+		L"      Clear plugins cache.\n"
+		L" -co  Forces FAR to load plugins from the cache only.\n"
 #ifdef DIRECT_RT
-		L" -do  Direct output." EOL_STR
+		L" -do  Direct output.\n"
 #endif
-		L" -e[<line>[:<pos>]] <filename>" EOL_STR
-		L"      Edit the specified file." EOL_STR
-		L" -export <out.farconfig> [profilepath [localprofilepath]]" EOL_STR
-		L"      Export settings." EOL_STR
-		L" -import <in.farconfig> [profilepath [localprofilepath]]" EOL_STR
-		L"      Import settings." EOL_STR
-		L" -m   Do not load macros." EOL_STR
-		L" -ma  Do not execute auto run macros." EOL_STR
-		L" -p[<path>]" EOL_STR
-		L"      Search for \"common\" plugins in the directory, specified by <path>." EOL_STR
-		L" -ro[-] Read-Only or Normal config mode." EOL_STR
-		L" -s <profilepath> [<localprofilepath>]" EOL_STR
-		L"      Custom location for Far configuration files - overrides Far.exe.ini." EOL_STR
-		L" -set:<parameter>=<value>" EOL_STR
-		L"      Override the configuration parameter, see far:config for details." EOL_STR
-		L" -t <path>" EOL_STR
-		L"      Location of Far template configuration file - overrides Far.exe.ini." EOL_STR
-		L" -title[:<valuestring>]" EOL_STR
-		L"      If <valuestring> is given, use it as the window title;" EOL_STR
-		L"      otherwise, inherit the console window's title." EOL_STR
+		L" -e[<line>[:<pos>]] <filename>\n"
+		L"      Edit the specified file.\n"
+		L" -export <out.farconfig> [profilepath [localprofilepath]]\n"
+		L"      Export settings.\n"
+		L" -import <in.farconfig> [profilepath [localprofilepath]]\n"
+		L"      Import settings.\n"
+		L" -m   Do not load macros.\n"
+		L" -ma  Do not execute auto run macros.\n"
+		L" -p[<path>]\n"
+		L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
+		L" -ro[-] Read-Only or Normal config mode.\n"
+		L" -s <profilepath> [<localprofilepath>]\n"
+		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
+		L" -set:<parameter>=<value>\n"
+		L"      Override the configuration parameter, see far:config for details.\n"
+		L" -t <path>\n"
+		L"      Location of Far template configuration file - overrides Far.exe.ini.\n"
+		L" -title[:<valuestring>]\n"
+		L"      If <valuestring> is given, use it as the window title;\n"
+		L"      otherwise, inherit the console window's title.\n"
 #ifndef NO_WRAPPER
-		L" -u <username>" EOL_STR
-		L"      Allows to have separate registry settings for different users." EOL_STR
-		L"      Affects only 1.x Far Manager plugins." EOL_STR
+		L" -u <username>\n"
+		L"      Allows to have separate registry settings for different users.\n"
+		L"      Affects only 1.x Far Manager plugins.\n"
 #endif // NO_WRAPPER
-		L" -v <filename>" EOL_STR
-		L"      View the specified file. If <filename> is -, data is read from the stdin." EOL_STR
-		L" -w[-] Stretch to console window instead of console buffer or vise versa." EOL_STR
+		L" -v <filename>\n"
+		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
+		L" -w[-] Stretch to console window instead of console buffer or vise versa.\n"
 		""_sv;
 
-	Console().Write(HelpMsg);
-	Console().Commit();
+	std::wcout << HelpMsg << std::flush;
 }
 
 static int MainProcess(
@@ -478,11 +477,6 @@ static int mainImpl(const range<wchar_t**>& Args)
 {
 	setlocale(LC_ALL, "");
 
-#ifdef _MSC_VER
-	_setmode(_fileno(stdout), _O_U16TEXT);
-	_setmode(_fileno(stderr), _O_U16TEXT);
-#endif
-
 	// Must be static - dependent static objects exist
 	static SCOPED_ACTION(os::com::initialize);
 
@@ -814,11 +808,34 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 }
 
+void override_stream_buffers()
+{
+	std::ios::sync_with_stdio(false);
+
+	static consolebuf
+		BufIn,
+		BufOut,
+		BufErr,
+		BufLog;
+
+	auto Color = colors::ConsoleColorToFarColor(F_LIGHTRED);
+	MAKE_TRANSPARENT(Color.BackgroundColor);
+	BufErr.color(Color);
+
+	static const io::wstreambuf_override
+		In(std::wcin, BufIn),
+		Out(std::wcout, BufOut),
+		Err(std::wcerr, BufErr),
+		Log(std::wclog, BufLog);
+}
+
 static int wmain_seh(int Argc, wchar_t *Argv[])
 {
 #if defined(SYSLOG)
 	atexit(PrintSysLogStat);
 #endif
+
+	override_stream_buffers();
 
 	SCOPED_ACTION(tracer);
 	SCOPED_ACTION(unhandled_exception_filter);

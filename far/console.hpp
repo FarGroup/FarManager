@@ -91,6 +91,7 @@ public:
 	bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
 	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const = 0;
 	bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
+	virtual bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const = 0;
 	virtual bool Write(const string_view& Str) const = 0;
 	virtual bool Commit() const = 0;
 
@@ -145,5 +146,26 @@ private:
 };
 
 console& Console();
+
+class consolebuf : public std::wstreambuf
+{
+public:
+	NONCOPYABLE(consolebuf);
+
+	consolebuf();
+
+	void color(const FarColor& Color);
+
+protected:
+	int_type underflow() override;
+	int_type overflow(int_type Ch) override;
+	int sync() override;
+
+private:
+	bool Write(const string_view& Str);
+
+	std::vector<wchar_t> m_InBuffer, m_OutBuffer;
+	std::pair<FarColor, bool> m_Colour;
+};
 
 #endif // CONSOLE_HPP_DB857D87_FD76_4E96_A9EE_4C06712C6B6D

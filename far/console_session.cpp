@@ -134,9 +134,9 @@ public:
 		{
 			if (Global->Opt->ShowKeyBar)
 			{
-				Console().Write(L"\n");
+				std::wcout << L'\n';
 			}
-			Console().Commit();
+			std::wcout.flush();
 			Global->ScrBuf->FillBuf();
 
 			m_Consolised = false;
@@ -201,9 +201,9 @@ void console_session::LeavePluginContext()
 		// Old (1.x) behaviour emulation:
 		if (Global->Opt->ShowKeyBar)
 		{
-			Console().Write(L"\n");
+			std::wcout << L'\n';
 		}
-		Console().Commit();
+		std::wcout.flush();
 		Global->ScrBuf->FillBuf();
 		ScrollScreen(1);
 		Global->WindowManager->Desktop()->TakeSnapshot();
