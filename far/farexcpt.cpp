@@ -637,6 +637,8 @@ WARNING_DISABLE_CLANG("-Winfinite-recursion")
 static void Test_EXCEPTION_STACK_OVERFLOW(volatile char* target)
 {
 	volatile char Buffer[10240];
+	// "side effect" to prevent deletion of this function call due to C4718.
+	*Buffer = 0;
 	Test_EXCEPTION_STACK_OVERFLOW(Buffer);
 }
 WARNING_POP()
