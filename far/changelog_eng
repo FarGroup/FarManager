@@ -2008,7 +2008,7 @@ zg 12.06.2016 21:04:46 +0200 - build 4705
 
 drkns 12.06.2016 16:32:43 +0200 - build 4704
 
-1. Ещё раз 0003254:
+1. 0003254 again:
    - System.Executor.ComspecCondition is empty by default and built-in logic is used (<>|& are outside the quotes like before).
    - inner RegExp is used because std::regex implementations in supported compilers are far from good (especially in gcc).
 
@@ -2163,7 +2163,7 @@ drkns 13.05.2016 00:33:18 +0200 - build 4671
 
 drkns 11.05.2016 23:59:21 +0200 - build 4670
 
-1. Correction of processing DM_GETDIALOGINFО.
+1. Correction of processing DM_GETDIALOGINFO.
 
 2. Warnings.
 
@@ -2296,7 +2296,7 @@ drkns 28.04.2016 16:47:33 +0200 - build 4644
 1. Continuation of experimental changes in launcher:
    - System.Executor.NotQuotedShell and System.Executor.ComSpecParams are removed. Hovewer, there is now System.Executor.ComspecArguments managing both keys and quotes.
      The default value is compatible with cmd.exe - /S /C "{0}" where {0} is replaced with the executed command.
-     For bash replace it to -c '{0}', for tcc - to -с {0}
+     For bash replace it to -c '{0}', for tcc - to -c {0}
    - (partially) #0003223: when passing to comspec there was unwrapped more than needed.
 
 2. Use std::atomic<T> instead of Interlocked*().
@@ -3161,7 +3161,7 @@ drkns 12.12.2015 18:50:14 +0200
 
 drkns 12.12.2015 15:41:11 +0200 - build 4472
 
-1. С форума: If volume types are hidden (Ctrl-1) then del does not remove subst volume.
+1. Forum: If volume types are hidden (Ctrl-1) then del does not remove subst volume.
 
 drkns 11.12.2015 22:58:53 +0200 - build 4471
 
@@ -3468,7 +3468,7 @@ svs 10.09.2015 10:31:11 +0300 - build 4418
 
     RecycleFolderConfirmDeleteLinkId = {26A7AB9F-51F5-40F7-9061-1AE6E2FBD00A}  --> Dlg.Id
     Warning on a folder containing symbolic links and data loss after cleaning the recycle bin
-    so the links have to be deleted (см. MRecycleFolderConfirmDeleteLink?)
+    so the links have to be deleted (see MRecycleFolderConfirmDeleteLink?)
 
     CannotRecycleFileId              = {52CEB5A5-06FA-43DD-B37C-239C02652C99}  --> Dlg.Id
     Could not delete file to recycle bin
@@ -5149,7 +5149,7 @@ svs 21.08.2014 15:07:45 +0400 - build 4063
 drkns 21.08.2014 02:09:09 +0200 - build 4062
 
 1. As it turned out, the current regex implementation is not thread safe.
-   As a consequence, it could crash могло in a bizarre way if something were done during the search. Especially in debug.
+   As a consequence, it could crash in a bizarre way if something was done during the search. Especially in debug.
    Trying to fix.
 
 zg 21.08.2014 01:26:03 +0200 - build 4061
@@ -5342,7 +5342,7 @@ zg 23.07.2014 23:11:32 +0200 - build 4020
 
 1. the horizontal menu and the grabber are now real windows.
 
-2. при изменении размеров консоли граббер закрывается. раньше падал.
+2. Close the grabber on console resize insted of crashing.
 
 3. gcc warning.
 
@@ -5508,9 +5508,9 @@ drkns 09.07.2014 22:10:05 +0200 - build 3987
 
 zg 09.07.2014 21:38:08 +0200 - build 3986
 
-1. редкое падение при переоткрытии файла в редакторе.
+1. Rare crash during reopening a file in editor.
 
-2. зависание при последовательном открытии/закрытии редактора через апи.
+2. Sequential opening/closing of editor via API could hang.
 
 3. correction of 3981.
 
@@ -7034,7 +7034,7 @@ svs 15.11.2013 15:35:21 +0400 - build 3711
 
 w17 13.11.2013 01:12:09 +0400 - build 3710
 
-1. M#2524: Падает при переименовании файла на маковском сетевом диске
+1. M#2524: Crash when renaming a file on Mac network drive.
    Experimental workaround for buggy OSX SMB.
 
 w17 12.11.2013 20:11:28 +0400 - build 3709
