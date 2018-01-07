@@ -551,6 +551,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							CurrentInput = GetString();
 							if(strPrev != CurrentInput)
 							{
+								ComplMenu->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
+								SCOPE_EXIT{ComplMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);};
 								ComplMenu->clear();
 								PrevPos=0;
 
