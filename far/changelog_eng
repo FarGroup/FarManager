@@ -3,6 +3,46 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 07.01.2018 17:29:09 +0200 - build 5123
+
+1. after 5118 filling of autocompletion menu vas visible.
+
+drkns 06.01.2018 18:38:21 +0000 - build 5122
+
+1. Standard input/output streams use their own buffer (for more correct processing of unicode).
+
+2. New version of tinyxml2.
+
+drkns 05.01.2018 23:03:50 +0000 - build 5121
+
+1. Fixes for handling exceptions.
+
+drkns 05.01.2018 21:47:18 +0000 - build 5120
+
+1. Static analysis warnings & minor refactoring.
+
+drkns 04.01.2018 18:17:13 +0000 - build 5119
+
+1. Correction of 5108.
+
+2. Optimization for GetFileString.
+
+zg 04.01.2018 15:56:53 +0200 - build 5118
+
+1. reduce the number of redraws for vertical menu.
+
+zg 04.01.2018 14:17:44 +0200 - build 5117
+
+1. if the dialog has cancelled moving while ctrlf5 effect, the keypress is passed to the dialog procedure.
+
+zg 30.12.2017 19:30:26 +0200 - build 5116
+
+1. 0003573: If File View (F3) is invoked from Find Files (Alt-F7) results, switching to Edit (F6) shows Find Files dialog.
+
+drkns 27.12.2017 21:45:47 +0000 - build 5115
+
+1. Correction of 5114.
+
 drkns 21.12.2017 21:50:42 +0000 - build 5114
 
 1. After 4563 the recursive tree walk would not enter DFS catalogs.
