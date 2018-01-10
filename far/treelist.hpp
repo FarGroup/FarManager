@@ -72,7 +72,7 @@ public:
 		{
 		}
 
-		operator const string&() const { return strName; }
+		operator string_view() const { return strName; }
 	};
 
 	static tree_panel_ptr create(window_ptr Owner, int ModalMode = 0);

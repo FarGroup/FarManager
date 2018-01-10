@@ -161,6 +161,12 @@ namespace io
 
 	using wstreambuf_override = basic_streambuf_override<wchar_t>;
 
+	template<typename container>
+	void write(std::ostream& Stream, const container& Container)
+	{
+		static_assert(std::is_trivially_copyable_v<VALUE_TYPE(Container)>);
+		Stream.write(static_cast<const char*>(static_cast<const void*>(std::data(Container))), std::size(Container) * sizeof(*std::data(Container)));
+	}
 }
 
 #endif // COMMON_HPP_1BD5AB87_3379_4AFE_9F63_DB850DCF72B4

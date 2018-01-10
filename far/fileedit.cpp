@@ -1975,7 +1975,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			AddSignature=m_bAddSignature;
 
 		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
-		CachedWrite Cache(EditFile);
+
+		os::fs::filebuf StreamBuffer(EditFile, std::ios::out);
+		std::ostream Stream(&StreamBuffer);
+		Stream.exceptions(Stream.badbit | Stream.failbit);
 
 		if (AddSignature)
 		{
@@ -1998,10 +2001,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 					break;
 			}
 
-			if (!Cache.Write(&dwSignature, SignLength))
-			{
-				throw MAKE_FAR_EXCEPTION(L"Write error");
-			}
+			io::write(Stream, make_range(reinterpret_cast<const char*>(&dwSignature), SignLength));
 		}
 
 		size_t LineNumber = -1;
@@ -2028,13 +2028,11 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 			if (codepage == CP_UNICODE)
 			{
-				if (
-				    (!SaveStr.empty() && !Cache.Write(SaveStr.data(), SaveStr.size() * sizeof(wchar_t))) ||
-				    (LineEol != eol::type::none && !Cache.Write(eol::str(LineEol).raw_data(), eol::str(LineEol).size() * sizeof(wchar_t)))
-				   )
-				{
-					throw MAKE_FAR_EXCEPTION(L"Write error");
-				}
+				if (!SaveStr.empty())
+					io::write(Stream, make_range(SaveStr));
+
+				if (LineEol != eol::type::none)
+					io::write(Stream, eol::str(LineEol));
 			}
 			else
 			{
@@ -2046,11 +2044,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 					const auto EncodedSize = encoding::get_bytes_count(codepage, Data);
 					Buffer.resize(EncodedSize);
 					encoding::get_bytes(codepage, Data, Buffer);
-					if (!Cache.Write(Buffer.data(), Buffer.size()))
-					{
-						throw MAKE_FAR_EXCEPTION(L"Write error");
-					}
-
+					io::write(Stream, Buffer);
 				};
 
 				EncodeAndWriteBlock(SaveStr);
@@ -2058,11 +2052,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			}
 		}
 
-		if (!Cache.Flush())
-		{
-			throw MAKE_FAR_EXCEPTION(L"Write error");
-		}
-
+		Stream.flush();
 		EditFile.SetEnd();
 	}
 	catch (const far_exception& e)

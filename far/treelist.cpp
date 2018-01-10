@@ -808,25 +808,35 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
 		os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL);
 
-	os::fs::file TreeFile = Opener(Name);
-
-	bool Result = false;
-
 	error_state_ex ErrorState;
 
-	if (TreeFile)
+	if (auto TreeFile = Opener(Name))
 	{
-		CachedWrite Cache(TreeFile);
-
-		const auto& WriteLine = [&](const string& str)
+		try
 		{
-			return Cache.Write(str.data() + offset, (str.size() - offset) * sizeof(wchar_t)) && Cache.Write(L"\n", 1 * sizeof(wchar_t));
-		};
+			os::fs::filebuf StreamBuffer(TreeFile, std::ios::out);
+			std::ostream Stream(&StreamBuffer);
+			Stream.exceptions(Stream.badbit | Stream.failbit);
 
-		Result = std::all_of(ALL_RANGE(Container), WriteLine) && Cache.Flush();
+			for (const auto& i: Container)
+			{
+				io::write(Stream, string_view(i).substr(offset));
+				io::write(Stream, L"\n"_sv);
+			}
 
-		if (!Result)
+			Stream.flush();
+
+			if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
+				os::fs::set_file_attributes(Name, SavedAttributes);
+		}
+		catch (const far_exception& e)
+		{
+			ErrorState = e.get_error_state();
+		}
+		catch (const std::exception&)
+		{
 			ErrorState = error_state::fetch();
+		}
 
 		TreeFile.SetEnd();
 		TreeFile.Close();
@@ -836,12 +846,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 		ErrorState = error_state::fetch();
 	}
 
-	if (Result)
-	{
-		if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-			os::fs::set_file_attributes(Name, SavedAttributes);
-	}
-	else
+	if (ErrorState.engaged())
 	{
 		os::fs::delete_file(TreeCache().GetTreeName());
 		if (!Global->WindowManager->ManagerIsDown())

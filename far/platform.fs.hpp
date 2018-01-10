@@ -234,6 +234,23 @@ namespace os::fs
 		bool m_IsSparse{};
 	};
 
+	class filebuf : public std::streambuf
+	{
+	public:
+		NONCOPYABLE(filebuf);
+
+		filebuf(const file& File, std::ios::openmode Mode, size_t BufferSize = 65536);
+
+	protected:
+		int_type overflow(int_type Ch) override;
+		int sync() override;
+	private:
+		void reset_put_area();
+		const file& m_File;
+		std::ios::openmode m_Mode;
+		std::vector<char> m_Buffer;
+	};
+
 	class file_status
 	{
 	public:

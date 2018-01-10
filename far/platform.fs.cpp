@@ -1068,6 +1068,55 @@ namespace os::fs
 	}
 
 	//-------------------------------------------------------------------------
+	filebuf::filebuf(const file& File, std::ios::openmode Mode, size_t BufferSize):
+		m_File(File),
+		m_Mode(Mode),
+		m_Buffer(BufferSize)
+	{
+		//if (!(m_Mode & std::ios::in) == !(m_Mode & std::ios::out))
+		if (m_Mode != std::ios::out)
+			throw MAKE_FAR_EXCEPTION(L"Unsupported mode");
+
+		reset_put_area();
+	}
+
+	filebuf::int_type filebuf::overflow(int_type Ch)
+	{
+		if (!m_File)
+			throw MAKE_FAR_EXCEPTION(L"File not opened");
+
+		if (!(m_Mode && std::ios::out))
+			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for writing");
+
+		if (pptr() != pbase())
+		{
+			if (!m_File.Write(pbase(), static_cast<size_t>(pptr() - pbase()) * sizeof(char)))
+				throw MAKE_FAR_EXCEPTION(L"Write error");
+		}
+
+		reset_put_area();
+
+		if (!traits_type::eq_int_type(Ch, traits_type::eof()))
+			sputc(Ch);
+
+		return 0;
+	}
+
+	int filebuf::sync()
+	{
+		if (m_Mode & std::ios::out)
+			overflow(traits_type::eof());
+
+		return 0;
+	}
+
+	void filebuf::reset_put_area()
+	{
+		// buffer is available for writing
+		setp(m_Buffer.data(), m_Buffer.data() + m_Buffer.size());
+	}
+
+	//-------------------------------------------------------------------------
 
 	file_status::file_status():
 		m_Data(INVALID_FILE_ATTRIBUTES)
