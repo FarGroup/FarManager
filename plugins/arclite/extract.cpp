@@ -477,23 +477,46 @@ public:
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     RETRY_OR_IGNORE_BEGIN
-    if (resultEOperationResult == NArchive::NExtract::NOperationResult::kOK)
-      return S_OK;
     bool encrypted = !archive->password.empty();
     Error error;
-    error.code = E_MESSAGE;
-    if (resultEOperationResult == NArchive::NExtract::NOperationResult::kUnsupportedMethod)
+    switch (resultEOperationResult) {
+    case NArchive::NExtract::NOperationResult::kOK:
+    case NArchive::NExtract::NOperationResult::kDataAfterEnd:
+      return S_OK;
+    case NArchive::NExtract::NOperationResult::kUnsupportedMethod:
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
-    else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kDataError) {
+      break;
+    case NArchive::NExtract::NOperationResult::kDataError:
       archive->password.clear();
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));
-    }
-    else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kCRCError) {
+      break;
+    case NArchive::NExtract::NOperationResult::kCRCError:
       archive->password.clear();
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_CRC_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_CRC_ERROR));
-    }
-    else
+      break;
+    case NArchive::NExtract::NOperationResult::kUnavailable:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNAVAILABLE_DATA));
+      break;
+    case NArchive::NExtract::NOperationResult::kUnexpectedEnd:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNEXPECTED_END_DATA));
+      break;
+    //case NArchive::NExtract::NOperationResult::kDataAfterEnd:
+    //  error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_AFTER_END));
+    //  break;
+    case NArchive::NExtract::NOperationResult::kIsNotArc:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_IS_NOT_ARCHIVE));
+      break;
+    case NArchive::NExtract::NOperationResult::kHeadersError:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_HEADERS_ERROR));
+      break;
+    case NArchive::NExtract::NOperationResult::kWrongPassword:
+      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_WRONG_PASSWORD));
+      break;
+    default:
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNKNOWN));
+      break;
+    }
+    error.code = E_MESSAGE;
     error.messages.push_back(file_path);
     error.messages.push_back(archive->arc_path);
     throw error;
