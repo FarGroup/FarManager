@@ -67,7 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "exitcode.hpp"
-#include "cache.hpp"
 #include "constitle.hpp"
 #include "wakeful.hpp"
 #include "DlgGuid.hpp"
@@ -1974,35 +1973,12 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		if (!bSaveAs)
 			AddSignature=m_bAddSignature;
 
-		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
 		os::fs::filebuf StreamBuffer(EditFile, std::ios::out);
 		std::ostream Stream(&StreamBuffer);
 		Stream.exceptions(Stream.badbit | Stream.failbit);
-
-		if (AddSignature)
-		{
-			DWORD dwSignature = 0;
-			DWORD SignLength=0;
-
-			switch (codepage)
-			{
-				case CP_UNICODE:
-					dwSignature = SIGN_UNICODE;
-					SignLength=2;
-					break;
-				case CP_REVERSEBOM:
-					dwSignature = SIGN_REVERSEBOM;
-					SignLength=2;
-					break;
-				case CP_UTF8:
-					dwSignature = SIGN_UTF8;
-					SignLength=3;
-					break;
-			}
-
-			io::write(Stream, make_range(reinterpret_cast<const char*>(&dwSignature), SignLength));
-		}
+		encoding::writer Writer(Stream, codepage, AddSignature);
 
 		size_t LineNumber = -1;
 
@@ -2026,30 +2002,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 				Line.SetEOL(LineEol);
 			}
 
-			if (codepage == CP_UNICODE)
-			{
-				if (!SaveStr.empty())
-					io::write(Stream, make_range(SaveStr));
-
-				if (LineEol != eol::type::none)
-					io::write(Stream, eol::str(LineEol));
-			}
-			else
-			{
-				const auto& EncodeAndWriteBlock = [&](const string_view& Data)
-				{
-					if (Data.empty())
-						return;
-
-					const auto EncodedSize = encoding::get_bytes_count(codepage, Data);
-					Buffer.resize(EncodedSize);
-					encoding::get_bytes(codepage, Data, Buffer);
-					io::write(Stream, Buffer);
-				};
-
-				EncodeAndWriteBlock(SaveStr);
-				EncodeAndWriteBlock(eol::str(LineEol));
-			}
+			Writer.write(SaveStr);
+			Writer.write(eol::str(LineEol));
 		}
 
 		Stream.flush();
@@ -2059,11 +2013,6 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	{
 		RetCode = SAVEFILE_ERROR;
 		ErrorState = e.get_error_state();
-	}
-	catch (const std::exception&)
-	{
-		RetCode = SAVEFILE_ERROR;
-		ErrorState = error_state::fetch();
 	}
 
 	if (m_FileAttributes!=INVALID_FILE_ATTRIBUTES && FileAttributesModified)

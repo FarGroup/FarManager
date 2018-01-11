@@ -245,6 +245,9 @@ size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_
 
 static size_t get_bytes_impl(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
 {
+	if (!DataSize)
+		return 0;
+
 	switch(Codepage)
 	{
 	case CP_UTF8:
@@ -262,9 +265,19 @@ static size_t get_bytes_impl(uintptr_t const Codepage, const wchar_t* const Data
 	default:
 		{
 			BOOL bUsedDefaultChar = FALSE;
-			const auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
+			auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
+			if (!Result && BufferSize < DataSize && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			{
+				// https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130.aspx
+				// If BufferSize is less than DataSize, this function writes the number of characters specified by BufferSize to the buffer indicated by Buffer.
+
+				// If the function succeeds and BufferSize is 0, the return value is the required size, in bytes, for the buffer indicated by Buffer.
+				Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Data, static_cast<int>(DataSize), nullptr, 0, nullptr, UsedDefaultChar ? &bUsedDefaultChar : nullptr);
+			}
+
 			if (UsedDefaultChar)
 				*UsedDefaultChar = bUsedDefaultChar != FALSE;
+
 			return Result;
 		}
 	}
@@ -282,13 +295,21 @@ size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, 
 
 std::string encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, bool* const UsedDefaultChar)
 {
-	if (const auto NewSize = encoding::get_bytes_count(Codepage, Data, DataSize))
+	if (!DataSize)
+		return {};
+
+	// DataSize is a good estimation for the bytes count.
+	// With this approach we can fill the buffer with only one attempt in many cases.
+	std::string Buffer(DataSize, '\0');
+
+	for (auto Overflow = true; Overflow;)
 	{
-		std::string Buffer(NewSize, L'\0');
-		encoding::get_bytes(Codepage, Data, DataSize, &Buffer[0], Buffer.size(), UsedDefaultChar);
-		return Buffer;
+		const auto Size = get_bytes(Codepage, Data, DataSize, &Buffer[0], Buffer.size(), UsedDefaultChar);
+		Overflow = Size > Buffer.size();
+		Buffer.resize(Size);
 	}
-	return {};
+
+	return Buffer;
 }
 
 namespace Utf7
@@ -332,13 +353,88 @@ size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, siz
 
 string encoding::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize)
 {
-	if (const auto NewSize = encoding::get_chars_count(Codepage, Data, DataSize))
+	if (!DataSize)
+		return {};
+
+	const auto& EstimatedCharsCount = [&]
 	{
-		string Buffer(NewSize, L'\0');
-		encoding::get_chars(Codepage, Data, DataSize, &Buffer[0], Buffer.size());
-		return Buffer;
+		switch (Codepage)
+		{
+		case CP_UNICODE:
+		case CP_REVERSEBOM:
+			return DataSize / sizeof(wchar_t);
+
+		case CP_UTF7:
+		case CP_UTF8:
+			// Even though DataSize is always >= BufferSize for these guys, we can't use DataSize for estimation - it can be three times larger than necessary.
+			return get_chars_count(Codepage, Data, DataSize);
+
+		default:
+			return DataSize;
+		}
+	};
+
+	// With this approach we can fill the buffer with only one attempt in many cases.
+	string Buffer(EstimatedCharsCount(), L'\0');
+	for (auto Overflow = true; Overflow;)
+	{
+		const auto Size = get_chars(Codepage, Data, DataSize, &Buffer[0], Buffer.size());
+		Overflow = Size > Buffer.size();
+		Buffer.resize(Size);
 	}
-	return {};
+
+	return Buffer;
+}
+
+basic_string_view<char> encoding::get_signature_bytes(uintptr_t Cp)
+{
+	switch (Cp)
+	{
+	case CP_UNICODE:
+		return "\xFF\xFE"_sv;
+	case CP_REVERSEBOM:
+		return "\xFE\xFF"_sv;
+	case CP_UTF8:
+		return "\xEF\xBB\xBF"_sv;
+	default:
+		return {};
+	}
+}
+
+encoding::writer::writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature):
+	m_Stream(&Stream),
+	m_Codepage(Codepage),
+	m_AddSignature(AddSignature)
+{
+}
+
+void encoding::writer::write(const string_view& Str)
+{
+	if (m_AddSignature)
+	{
+		io::write(*m_Stream, get_signature_bytes(m_Codepage));
+		m_AddSignature = false;
+	}
+
+	// Nothing to do here
+	if (Str.empty())
+		return;
+
+	// No need to encode
+	if (m_Codepage == CP_UNICODE)
+		return io::write(*m_Stream, Str);
+
+	// External buffer to minimise allocations
+	m_Buffer.resize(m_Buffer.capacity());
+
+	for (auto Overflow = true; Overflow;)
+	{
+		const auto Size = get_bytes(m_Codepage, Str, m_Buffer);
+		Overflow = Size > m_Buffer.size();
+		m_Buffer.resize(Size);
+	}
+
+	io::write(*m_Stream, m_Buffer);
 }
 
 //################################################################################################

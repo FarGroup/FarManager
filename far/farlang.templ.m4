@@ -16498,18 +16498,6 @@ MCannotCreateListTemp
 "(Non Posso Creare Il File Temporaneo Per La Lista)"
 "(Неможливо створити тимчасовий файл для списку)"
 
-MCannotCreateListWrite
-"(невозможно записать данные в файл)"
-"(cannot write data in file)"
-"(nelze zapsat data do souboru)"
-"(Fehler beim Schreiben der Daten)"
-"(a fájlba nem írható adat)"
-"(nie można zapisać danych do pliku)"
-"(no se puede escribir datos en el archivo)"
-"(nemôžem zapísať dáta do súboru)"
-"(Non Posso Scrivere I Dati Nel File)"
-"(Неможливо записати дані в файл)"
-
 MDragFiles
 l:
 "{0} файлов"

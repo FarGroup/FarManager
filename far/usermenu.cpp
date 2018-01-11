@@ -54,7 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filestr.hpp"
 #include "interf.hpp"
 #include "lang.hpp"
-#include "blob_builder.hpp"
 #include "string_utils.hpp"
 #include "exception.hpp"
 #include "DlgGuid.hpp"
@@ -277,21 +276,21 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			os::fs::set_file_attributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
 	}
 
-	blob_builder BlobBuilder(m_MenuCP);
-	BlobBuilder.append(SerializeMenu(m_Menu));
+	const auto SerialisedMenu = SerializeMenu(m_Menu);
 
 	try
 	{
-		const auto Blob = BlobBuilder.get();
-		if (!Blob.empty())
+		if (!SerialisedMenu.empty())
 		{
 			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
 			if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
 			{
-				if (!MenuFile.Write(Blob.data(), Blob.size()))
-				{
-					throw MAKE_FAR_EXCEPTION(L"Write error");
-				}
+				os::fs::filebuf StreamBuffer(MenuFile, std::ios::out);
+				std::ostream Stream(&StreamBuffer);
+				Stream.exceptions(Stream.badbit | Stream.failbit);
+				encoding::writer Writer(Stream, m_MenuCP);
+				Writer.write(SerialisedMenu);
+				Stream.flush();
 			}
 			else
 			{

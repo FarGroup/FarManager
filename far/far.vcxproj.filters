@@ -1012,9 +1012,6 @@
     <ClInclude Include="common\string_view.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="blob_builder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dizviewer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

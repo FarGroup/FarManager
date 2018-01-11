@@ -165,7 +165,12 @@ namespace io
 	void write(std::ostream& Stream, const container& Container)
 	{
 		static_assert(std::is_trivially_copyable_v<VALUE_TYPE(Container)>);
-		Stream.write(static_cast<const char*>(static_cast<const void*>(std::data(Container))), std::size(Container) * sizeof(*std::data(Container)));
+
+		const auto Size = std::size(Container);
+		if (!Size)
+			return;
+
+		Stream.write(static_cast<const char*>(static_cast<const void*>(std::data(Container))), Size * sizeof(*std::data(Container)));
 	}
 }
 

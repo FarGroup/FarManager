@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "filestr.hpp"
 #include "encoding.hpp"
-#include "blob_builder.hpp"
 #include "string_utils.hpp"
 #include "exception.hpp"
 #include "datetime.hpp"
@@ -354,31 +353,31 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		}
 	}
 
-	blob_builder BlobBuilder(Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
-
-	for (const auto& i_ptr: m_OrderForWrite)
-	{
-		const auto& i = *i_ptr;
-		auto FileName = i.first;
-		QuoteSpaceOnly(FileName);
-		BlobBuilder.append(FileName);
-		for (const auto& Description : i.second)
-		{
-			BlobBuilder.append(Description).append(L"\r\n"s);
-		}
-	}
-
 	try
 	{
-		const auto Blob = BlobBuilder.get();
-		if (!Blob.empty())
+		if (!m_OrderForWrite.empty())
 		{
 			if(const auto DizFile = os::fs::file(m_DizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr == INVALID_FILE_ATTRIBUTES? CREATE_NEW : TRUNCATE_EXISTING))
 			{
-				if (!DizFile.Write(Blob.data(), Blob.size()))
+				os::fs::filebuf StreamBuffer(DizFile, std::ios::out);
+				std::ostream Stream(&StreamBuffer);
+				Stream.exceptions(Stream.badbit | Stream.failbit);
+				encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
+
+				for (const auto& i_ptr : m_OrderForWrite)
 				{
-					throw MAKE_FAR_EXCEPTION(L"Write error");
+					const auto& i = *i_ptr;
+					auto FileName = i.first;
+					QuoteSpaceOnly(FileName);
+					Writer.write(FileName);
+					for (const auto& Description : i.second)
+					{
+						Writer.write(Description);
+						Writer.write(L"\r\n"_sv);
+					}
 				}
+
+				Stream.flush();
 			}
 			else
 			{

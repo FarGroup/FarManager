@@ -3092,7 +3092,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 									e.get_message()
 								},
 								{ lng::MOk });
-							strLanguage = SavedLanguage;
+							strLanguage = std::move(SavedLanguage);
 						}
 
 						SelectHelpLanguage();

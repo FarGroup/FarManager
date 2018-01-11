@@ -817,11 +817,12 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 			os::fs::filebuf StreamBuffer(TreeFile, std::ios::out);
 			std::ostream Stream(&StreamBuffer);
 			Stream.exceptions(Stream.badbit | Stream.failbit);
+			encoding::writer Writer(Stream, CP_UNICODE, false);
 
 			for (const auto& i: Container)
 			{
-				io::write(Stream, string_view(i).substr(offset));
-				io::write(Stream, L"\n"_sv);
+				Writer.write(string_view(i).substr(offset));
+				Writer.write(L"\n"_sv);
 			}
 
 			Stream.flush();
@@ -832,10 +833,6 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 		catch (const far_exception& e)
 		{
 			ErrorState = e.get_error_state();
-		}
-		catch (const std::exception&)
-		{
-			ErrorState = error_state::fetch();
 		}
 
 		TreeFile.SetEnd();

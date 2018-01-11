@@ -334,7 +334,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="xlat.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="blob_builder.hpp" />
     <ClInclude Include="common\algorithm.hpp" />
     <ClInclude Include="common\bytes_view.hpp" />
     <ClInclude Include="common\chrono.hpp" />

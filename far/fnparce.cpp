@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "mix.hpp"
 #include "lang.hpp"
-#include "blob_builder.hpp"
 #include "cvtname.hpp"
 #include "exception.hpp"
 
@@ -733,18 +732,8 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 		}
 	}
 
-	DWORD FileAttr;
-	GetSelName(nullptr, FileAttr);
-	string strFileName, strShortName;
-	blob_builder BlobBuilder(CodePage);
-
-	while (GetSelName(&strFileName, FileAttr, &strShortName))
+	const auto& transform = [&](string& strFileName)
 	{
-		if (ShortNames)
-		{
-			strFileName = strShortName;
-		}
-
 		if (!Modifers.empty())
 		{
 			if (contains(Modifers, L'F') && PointToName(strFileName).size() == strFileName.size()) // 'F' - использовать полный путь; //BUGBUG ?
@@ -763,23 +752,40 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 				ReplaceBackslashToSlash(strFileName);
 			}
 		}
+	};
 
-		BlobBuilder.append(strFileName).append(L"\r\n"s);
-	}
 
 	try
 	{
 		if (!FarMkTempEx(strListFileName))
 			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
 
-		os::fs::file ListFile(strListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS);
-		if (!ListFile)
-			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
-
-		const auto Blob = BlobBuilder.get();
-		if (!ListFile.Write(Blob.data(), Blob.size()))
+		if (const auto ListFile = os::fs::file(strListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS))
 		{
-			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListWrite));
+			os::fs::filebuf StreamBuffer(ListFile, std::ios::out);
+			std::ostream Stream(&StreamBuffer);
+			Stream.exceptions(Stream.badbit | Stream.failbit);
+			encoding::writer Writer(Stream, CodePage);
+
+			DWORD FileAttr;
+			string strFileName, strShortName;
+			GetSelName(nullptr, FileAttr);
+			while (GetSelName(&strFileName, FileAttr, &strShortName))
+			{
+				if (ShortNames)
+					strFileName = strShortName;
+
+				transform(strFileName);
+
+				Writer.write(strFileName);
+				Writer.write(L"\r\n"_sv);
+			}
+			
+			Stream.flush();
+		}
+		else
+		{
+			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
 		}
 
 		return true;

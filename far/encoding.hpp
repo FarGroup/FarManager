@@ -144,6 +144,22 @@ namespace encoding
 	using utf8 = detail::codepage<CP_UTF8>;
 	using ansi = detail::codepage<CP_ACP>;
 	using oem = detail::codepage<CP_OEMCP>;
+
+	basic_string_view<char> get_signature_bytes(uintptr_t Cp);
+
+	class writer
+	{
+	public:
+		NONCOPYABLE(writer);
+		writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature = true);
+		void write(const string_view& Str);
+
+	private:
+		std::vector<char> m_Buffer;
+		std::ostream* m_Stream;
+		uintptr_t m_Codepage;
+		bool m_AddSignature;
+	};
 }
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);
