@@ -7,8 +7,8 @@
 #include "msearch.hpp"
 #include "archive.hpp"
 
-OpenOptions::OpenOptions(): detect(false) {
-}
+OpenOptions::OpenOptions() : detect(false), open_password(0)
+{}
 
 class ArchiveSubStream : public IInStream, private ComBase {
 private:
@@ -289,8 +289,13 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (archive->password.empty()) {
       ProgressSuspend ps(*this);
-      if (!password_dialog(archive->password, archive->arc_path))
+      if (!password_dialog(archive->password, archive->arc_path)) {
+        archive->open_password = -3;
         FAIL(E_ABORT);
+      }
+		else {
+        archive->open_password = static_cast<int>(archive->password.size());
+      }
     }
     BStr(archive->password).detach(password);
     return S_OK;
@@ -468,7 +473,7 @@ UInt64 Archive::get_skip_header(IInStream *stream, const ArcType& type)
   return 0;
 }
 
-void Archive::open(const OpenOptions& options, Archives& archives) {
+void Archive::open(OpenOptions& options, Archives& archives) {
   size_t parent_idx = -1;
   if (!archives.empty())
     parent_idx = archives.size() - 1;
@@ -512,6 +517,8 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     bool opened = false;
     if (!arc_entry->sig_pos) {
       opened = archive->open(stream, arc_entry->type);
+      if (archive->open_password)
+        options.open_password = archive->open_password;
       if (!opened && first_open) {
         auto next_entry = arc_entry;
         ++next_entry;
@@ -521,11 +528,13 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
       }
     }
     else if (arc_entry->sig_pos >= skip_header) {
-       archive->arc_info.set_size(arc_info.size() - arc_entry->sig_pos);
-       ComObject<IInStream> substream(new ArchiveSubStream(stream, arc_entry->sig_pos));
-       opened = archive->open(substream, arc_entry->type);
-       if (opened)
-         archive->base_stream = stream;
+      archive->arc_info.set_size(arc_info.size() - arc_entry->sig_pos);
+      ComObject<IInStream> substream(new ArchiveSubStream(stream, arc_entry->sig_pos));
+      opened = archive->open(substream, arc_entry->type);
+      if (archive->open_password)
+        options.open_password = archive->open_password;
+      if (opened)
+        archive->base_stream = stream;
     }
     if (opened /*&& archive->get_nitems() > 0*/) {
       if (parent_idx != -1)
@@ -546,7 +555,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     stream_impl->CacheHeader(nullptr, 0);
 }
 
-unique_ptr<Archives> Archive::open(const OpenOptions& options) {
+unique_ptr<Archives> Archive::open(OpenOptions& options) {
   unique_ptr<Archives> archives(new Archives());
   open(options, *archives);
   if (!options.detect && !archives->empty())

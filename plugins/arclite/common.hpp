@@ -95,6 +95,7 @@ struct OpenOptions {
   bool detect;
   ArcTypes arc_types;
   wstring password;
+  int open_password;
   OpenOptions();
 };
 

@@ -998,7 +998,7 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   if (info->FileName == nullptr) {
     if (!g_options.handle_create)
-      FAIL(E_ABORT);
+      FAIL(E_INVALIDARG);
     return new Archives();
   }
   else {
@@ -1009,13 +1009,13 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
     if (g_detect_next_time == triUndef) {
       options.detect = false;
       if (!g_options.handle_commands)
-        FAIL(E_ABORT);
+        FAIL(E_INVALIDARG);
       bool pgdn = (info->OpMode & OPM_PGDN) != 0;
       if (!pgdn || g_options.pgdn_masks) {
         if (g_options.use_include_masks && !Far::match_masks(extract_file_name(info->FileName), g_options.include_masks))
-          FAIL(E_ABORT);
+          FAIL(E_INVALIDARG);
         if (g_options.use_exclude_masks && Far::match_masks(extract_file_name(info->FileName), g_options.exclude_masks))
-          FAIL(E_ABORT);
+          FAIL(E_INVALIDARG);
       }
       if ((g_options.use_enabled_formats || g_options.use_disabled_formats) && (pgdn ? g_options.pgdn_formats : true)) {
         set<wstring> enabled_formats;
@@ -1042,18 +1042,23 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
         }
 
         if (options.arc_types.empty())
-          FAIL(E_ABORT);
+          FAIL(E_INVALIDARG);
       }
     }
     else
       options.detect = g_detect_next_time == triTrue;
 
-    unique_ptr<Archives> archives(Archive::open(options));
-    if (archives->empty())
-      FAIL(E_ABORT);
-    return archives.release();
+    for (;;) {
+      options.open_password = 0;
+      unique_ptr<Archives> archives(Archive::open(options));
+      if (!archives->empty())
+        return archives.release();
+      if (!options.open_password)
+        break;
+	 }
+    FAIL(E_FAIL);
   }
-  FAR_ERROR_HANDLER_END(return nullptr, return nullptr, true);
+  FAR_ERROR_HANDLER_END(return nullptr, return PANEL_STOP, true);
 }
 
 void WINAPI CloseAnalyseW(const CloseAnalyseInfo* info) {
@@ -1189,6 +1194,8 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
 
   else if (info->OpenFrom == OPEN_ANALYSE) {
     const OpenAnalyseInfo* oai = reinterpret_cast<const OpenAnalyseInfo*>(info->Data);
+    if (oai->Handle == PANEL_STOP)
+      return PANEL_STOP;
     unique_ptr<Archives> archives(static_cast<Archives*>(oai->Handle));
     bool real_panel = true;
     PanelInfo panel_info;
