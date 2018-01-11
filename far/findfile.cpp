@@ -2340,23 +2340,15 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 
 void background_searcher::DoPrepareFileList()
 {
-	const auto& GetCurDir = []
-	{
-		auto CurDir = Global->CtrlObject->CmdLine()->GetCurDir();
-		if (CurDir.find_first_of(L";,") != string::npos)
-			inplace::quote(CurDir);
-		return CurDir;
-	};
-
-	string InitString;
+	std::vector<string> Locations;
 
 	if (SearchMode==FINDAREA_INPATH)
 	{
-		InitString = os::env::get(L"PATH");
+		Locations = split<std::vector<string>>(os::env::get(L"PATH"), 0, L";");
 	}
 	else if (SearchMode==FINDAREA_ROOT)
 	{
-		InitString = GetPathRoot(GetCurDir());
+		Locations = {GetPathRoot(Global->CtrlObject->CmdLine()->GetCurDir())};
 	}
 	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
 	{
@@ -2366,7 +2358,7 @@ void background_searcher::DoPrepareFileList()
 
 		for (const auto& i: os::fs::enum_drives(Drives))
 		{
-			const auto RootDir = os::fs::get_root_directory(i);
+			auto RootDir = os::fs::get_root_directory(i);
 
 			int DriveType=FAR_GetDriveType(RootDir);
 
@@ -2377,11 +2369,11 @@ void background_searcher::DoPrepareFileList()
 				{
 					Volumes.emplace_back(std::move(strGuidVolime));
 				}
-				append(InitString, RootDir, L';');
+				Locations.emplace_back(std::move(RootDir));
 			}
 		}
 
-		for (const auto& VolumeName: os::fs::enum_volumes())
+		for (auto& VolumeName: os::fs::enum_volumes())
 		{
 			int DriveType=FAR_GetDriveType(VolumeName);
 
@@ -2392,22 +2384,22 @@ void background_searcher::DoPrepareFileList()
 
 			if (std::none_of(CONST_RANGE(Volumes, i) { return starts_with(i, VolumeName); }))
 			{
-				append(InitString, VolumeName, L';');
+				Locations.emplace_back(std::move(VolumeName));
 			}
 		}
 	}
 	else
 	{
-		InitString = GetCurDir();
+		Locations = {Global->CtrlObject->CmdLine()->GetCurDir()};
 	}
 
-	for (const auto& i: enum_tokens(InitString, L";"))
+	for (const auto& i: Locations)
 	{
-		DoScanTree(make_string(i));
+		DoScanTree(i);
 	}
 
 	m_Owner->itd->SetPercent(0);
-	// BUGBUG, better way to stop searcher?
+	// BUGBUG, better way to stop the searcher?
 	Stop();
 }
 

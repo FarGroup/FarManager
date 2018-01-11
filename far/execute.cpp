@@ -258,7 +258,7 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 		const auto PathEnv = os::env::get(L"PATH");
 		if (!PathEnv.empty())
 		{
-			for (const auto& Path : split<std::vector<string>>(PathEnv, STLF_UNIQUE))
+			for (const auto& Path : split<std::vector<string>>(PathEnv, 0, L";"))
 			{
 				auto FullName = Path;
 				AddEndSlash(FullName);

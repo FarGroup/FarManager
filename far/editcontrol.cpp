@@ -301,7 +301,7 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 				const auto PathExtList = enum_tokens(PathExt, L";");
 
 				string str;
-				for (const auto& Path: split<std::vector<string>>(strPathEnv))
+				for (const auto& Path: split<std::vector<string>>(strPathEnv, 0, L";"))
 				{
 					str = Path;
 					AddEndSlash(str);
