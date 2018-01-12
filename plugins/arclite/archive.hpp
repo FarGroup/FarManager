@@ -215,7 +215,7 @@ private:
   UInt64 get_physize();
   UInt64 get_skip_header(IInStream *stream, const ArcType& type);
   static ArcEntries detect(Byte *buffer, UInt32 size, bool eof, const wstring& file_ext, const ArcTypes& arc_types);
-  static void open(OpenOptions& options, Archives& archives);
+  static void open(const OpenOptions& options, Archives& archives);
 public:
   static unsigned max_check_size;
   wstring arc_path;
@@ -229,7 +229,7 @@ public:
     wstring name = extract_file_name(arc_path);
     return name.empty() ? arc_path : name;
   }
-  static unique_ptr<Archives> open(OpenOptions& options);
+  static unique_ptr<Archives> open(const OpenOptions& options);
   void close();
   void reopen();
   bool is_open() const {

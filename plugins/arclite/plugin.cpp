@@ -1048,15 +1048,17 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
     else
       options.detect = g_detect_next_time == triTrue;
 
+    int password_len;
+    options.open_password_len = &password_len;
     for (;;) {
-      options.open_password = 0;
+      password_len = 0;
       unique_ptr<Archives> archives(Archive::open(options));
       if (!archives->empty())
         return archives.release();
-      if (!options.open_password)
+      if (password_len <= 0)
         break;
 	 }
-    FAIL(E_FAIL);
+    FAIL(password_len ? E_ABORT : E_FAIL);
   }
   FAR_ERROR_HANDLER_END(return nullptr, return PANEL_STOP, true);
 }

@@ -7,7 +7,7 @@
 #include "msearch.hpp"
 #include "archive.hpp"
 
-OpenOptions::OpenOptions() : detect(false), open_password(0)
+OpenOptions::OpenOptions() : detect(false), open_password_len(nullptr)
 {}
 
 class ArchiveSubStream : public IInStream, private ComBase {
@@ -473,7 +473,7 @@ UInt64 Archive::get_skip_header(IInStream *stream, const ArcType& type)
   return 0;
 }
 
-void Archive::open(OpenOptions& options, Archives& archives) {
+void Archive::open(const OpenOptions& options, Archives& archives) {
   size_t parent_idx = -1;
   if (!archives.empty())
     parent_idx = archives.size() - 1;
@@ -517,8 +517,8 @@ void Archive::open(OpenOptions& options, Archives& archives) {
     bool opened = false;
     if (!arc_entry->sig_pos) {
       opened = archive->open(stream, arc_entry->type);
-      if (archive->open_password)
-        options.open_password = archive->open_password;
+      if (archive->open_password && options.open_password_len)
+        *options.open_password_len = archive->open_password;
       if (!opened && first_open) {
         auto next_entry = arc_entry;
         ++next_entry;
@@ -531,8 +531,8 @@ void Archive::open(OpenOptions& options, Archives& archives) {
       archive->arc_info.set_size(arc_info.size() - arc_entry->sig_pos);
       ComObject<IInStream> substream(new ArchiveSubStream(stream, arc_entry->sig_pos));
       opened = archive->open(substream, arc_entry->type);
-      if (archive->open_password)
-        options.open_password = archive->open_password;
+      if (archive->open_password && options.open_password_len)
+        *options.open_password_len = archive->open_password;
       if (opened)
         archive->base_stream = stream;
     }
@@ -555,7 +555,7 @@ void Archive::open(OpenOptions& options, Archives& archives) {
     stream_impl->CacheHeader(nullptr, 0);
 }
 
-unique_ptr<Archives> Archive::open(OpenOptions& options) {
+unique_ptr<Archives> Archive::open(const OpenOptions& options) {
   unique_ptr<Archives> archives(new Archives());
   open(options, *archives);
   if (!options.detect && !archives->empty())
