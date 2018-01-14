@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.01.2018 23:30:04 +0000 - build 5126
+
+1. Refactoring.
+
+drkns 11.01.2018 16:23:01 +0000 - build 5125
+
+1. 0003574: Alt+F7 search won't work in directories if their names contain a comma
+
+drkns 10.01.2018 23:23:33 +0000 - build 5124
+
+1. Private buffer for ostream as a replacement for CachedWrite.
+
 zg 07.01.2018 17:29:09 +0200 - build 5123
 
 1. after 5118 filling of autocompletion menu vas visible.
