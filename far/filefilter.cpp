@@ -673,9 +673,6 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* Filte
 
 	const auto& ProcessAutoFilters = [&]
 	{
-		if (bFolder)
-			return true;
-
 		for (const auto& CurFilterData : TempFilterData())
 		{
 			const auto Flags = CurFilterData.GetFlags(FFFT);
@@ -684,6 +681,11 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* Filte
 				continue;
 
 			IsAnyIncludeFound = IsAnyIncludeFound || (Flags&FFF_INCLUDE);
+
+			// AutoFilters are not relevant for folders.
+			// However, we cannot skip the whole loop as we still need to check if any "include" exists (see above)
+			if (bFolder)
+				continue;
 
 			if (CurFilterData.FileInFilter(fde, CurrentTime, FullName))
 			{
