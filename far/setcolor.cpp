@@ -112,7 +112,6 @@ static void SetItemColors(const color_item* Items, size_t Size, COORD Position =
 		if (Msg != DN_CLOSE || ItemsCode < 0)
 			return 0;
 
-		ItemsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 		if (Items[ItemsCode].SubColor)
 		{
 			SetItemColors(Items[ItemsCode].SubColor, Items[ItemsCode].SubColorCount, Position);
@@ -385,7 +384,6 @@ void SetColors()
 			const auto ItemsCode = reinterpret_cast<intptr_t>(param);
 			if (Msg != DN_CLOSE || ItemsCode < 0 || static_cast<size_t>(ItemsCode) >= std::size(Groups))
 				return 0;
-			GroupsMenu->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 			SetItemColors(Groups[ItemsCode].Subitems.data(), Groups[ItemsCode].Subitems.size());
 			return 1;
 		});

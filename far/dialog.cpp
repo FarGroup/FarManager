@@ -4632,7 +4632,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			int Prev=m_DisableRedraw;
 
-			if (Param1 == TRUE)
+			if (Param1 == TRUE && m_DisableRedraw < 0)
 				m_DisableRedraw++;
 			else if (Param1 == FALSE)
 				m_DisableRedraw--;
