@@ -811,7 +811,7 @@ void Archive::make_index() {
 
   // fix parent references
   for_each(file_list.begin(), file_list.end(), [&] (ArcFileInfo& file_info) {
-    if (file_info.parent != c_root_index)
+    if (file_info.parent != c_root_index && file_info.parent != c_dup_index)
       file_info.parent = dir_index_map[file_info.parent];
   });
 
