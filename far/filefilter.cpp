@@ -312,30 +312,27 @@ bool FileFilter::FilterEdit()
 						break;
 					pos=0;
 				}
-				size_t SelPos=pos;
-				size_t SelPos2=pos+1;
-
-				SelPos = std::min(FilterData().size(), SelPos);
 
 				FileFilterParams NewFilter;
 
 				if (Key==KEY_F5)
 				{
-					if (SelPos2 < FilterData().size())
+					size_t ListPos = pos;
+					if (ListPos < FilterData().size())
 					{
-						NewFilter = FilterData()[SelPos2].Clone();
+						NewFilter = FilterData()[ListPos].Clone();
 						NewFilter.SetTitle({});
 						NewFilter.ClearAllFlags();
 					}
-					else if (SelPos2 == FilterData().size() + 2)
+					else if (ListPos == FilterData().size() + 1)
 					{
 						NewFilter = FoldersFilter->Clone();
 						NewFilter.SetTitle({});
 						NewFilter.ClearAllFlags();
 					}
-					else if (SelPos2 > FilterData().size() + 2)
+					else if (ListPos > FilterData().size() + 1)
 					{
-						NewFilter.SetMask(true, *FilterList->GetUserDataPtr<string>(SelPos2-1));
+						NewFilter.SetMask(true, *FilterList->GetUserDataPtr<string>(ListPos));
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
 						NewFilter.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 					}
@@ -352,10 +349,11 @@ bool FileFilter::FilterEdit()
 
 				if (FileFilterConfig(&NewFilter))
 				{
-					const auto FilterIterator = FilterData().emplace(FilterData().begin() + SelPos, std::move(NewFilter));
+					const auto NewPos = std::min(FilterData().size(), static_cast<size_t>(pos));
+					const auto FilterIterator = FilterData().emplace(FilterData().begin() + NewPos, std::move(NewFilter));
 					MenuItemEx ListItem(MenuString(&*FilterIterator));
-					FilterList->AddItem(ListItem,static_cast<int>(SelPos));
-					FilterList->SetSelectPos(static_cast<int>(SelPos),1);
+					FilterList->AddItem(ListItem,static_cast<int>(NewPos));
+					FilterList->SetSelectPos(static_cast<int>(NewPos),1);
 					bNeedUpdate=true;
 				}
 				break;
