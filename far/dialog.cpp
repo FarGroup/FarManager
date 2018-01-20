@@ -5576,7 +5576,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						break;
 					case DI_LISTBOX:
 					{
-						if (!CurItem->ListPtr->empty())
+						if (CurItem->ListPtr->GetShowItemCount())
 						{
 							const auto& ListMenuItem = CurItem->ListPtr->current();
 							Ptr = ListMenuItem.strName.data();
@@ -5629,7 +5629,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				case DI_LISTBOX:
 				{
 					Len=0;
-					if (!CurItem->ListPtr->empty())
+					if (CurItem->ListPtr->GetShowItemCount())
 					{
 						Len = CurItem->ListPtr->current().strName.size();
 					}

@@ -3077,12 +3077,13 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				break;
 			case MENU_OPTIONS_LANGUAGES:   // Languages
 				{
-					string SavedLanguage = strLanguage.Get();
-					if (SelectInterfaceLanguage())
+					auto InterfaceLanguage = strLanguage.Get();
+					if (SelectInterfaceLanguage(InterfaceLanguage))
 					{
 						try
 						{
-							far_language::instance().load(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
+							far_language::instance().load(Global->g_strFarPath, InterfaceLanguage, static_cast<int>(lng::MNewFileName + 1));
+							strLanguage = InterfaceLanguage;
 						}
 						catch (const far_exception& e)
 						{
@@ -3092,10 +3093,13 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 									e.get_message()
 								},
 								{ lng::MOk });
-							strLanguage = std::move(SavedLanguage);
 						}
 
-						SelectHelpLanguage();
+						auto HelpLanguage = strHelpLanguage.Get();
+						if (SelectHelpLanguage(HelpLanguage))
+						{
+							strHelpLanguage = HelpLanguage;
+						}
 						Global->CtrlObject->Plugins->ReloadLanguage();
 						os::env::set(L"FARLANG", strLanguage);
 						PrepareUnitStr();

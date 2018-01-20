@@ -2318,7 +2318,6 @@ bool config_provider::Import(const string& Filename)
 
 	if (!root.ToNode())
 	{
-
 		std::wcerr << L"Error importing " << Filename << L":\n " << Representation.GetError() << std::endl;
 		return false;
 	}

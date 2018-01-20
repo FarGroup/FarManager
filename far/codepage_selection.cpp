@@ -103,7 +103,7 @@ uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
 
 const string& codepages::FavoriteCodePagesKey()
 {
-	static string sFavourites = L"CodePages.Favorites"s;
+	static const auto sFavourites = L"CodePages.Favorites"s;
 	return sFavourites;
 }
 

@@ -143,23 +143,20 @@ bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string&
 	return false;
 }
 
-static bool SelectLanguage(bool HelpLanguage)
+static bool SelectLanguage(bool HelpLanguage, string& Dest)
 {
 	lng Title;
 	const wchar_t* Mask;
-	StringOption *strDest;
 
 	if (HelpLanguage)
 	{
 		Title = lng::MHelpLangTitle;
 		Mask=Global->HelpFileMask;
-		strDest=&Global->Opt->strHelpLanguage;
 	}
 	else
 	{
 		Title = lng::MLangTitle;
 		Mask=LangFileMask;
-		strDest=&Global->Opt->strLanguage;
 	}
 
 	const auto LangMenu = VMenu2::create(msg(Title), nullptr, 0, ScrY - 4);
@@ -195,7 +192,7 @@ static bool SelectLanguage(bool HelpLanguage)
 				*/
 				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
 				{
-					LangMenuItem.SetSelect(equal_icase(strDest->Get(), strLangName));
+					LangMenuItem.SetSelect(equal_icase(Dest, strLangName));
 					LangMenuItem.UserData = strLangName;
 					LangMenu->AddItem(LangMenuItem);
 				}
@@ -209,12 +206,12 @@ static bool SelectLanguage(bool HelpLanguage)
 	if (LangMenu->GetExitCode()<0)
 		return false;
 
-	*strDest = *LangMenu->GetUserDataPtr<string>();
+	Dest = *LangMenu->GetUserDataPtr<string>();
 	return true;
 }
 
-bool SelectInterfaceLanguage() {return SelectLanguage(false);}
-bool SelectHelpLanguage() {return SelectLanguage(true);}
+bool SelectInterfaceLanguage(string& Dest) {return SelectLanguage(false, Dest);}
+bool SelectHelpLanguage(string& Dest) {return SelectLanguage(true, Dest);}
 
 static string ConvertString(const wchar_t *Src, size_t size)
 {
@@ -332,15 +329,15 @@ private:
 	std::vector<string> m_Messages;
 };
 
-void language::load(const string& Path, int CountNeed)
+void language::load(const string& Path, const string& Language, int CountNeed)
 {
 	SCOPED_ACTION(GuardLastError);
 
 	auto Data = m_Data->create();
 
-	const auto LangFileData = OpenLangFile(Path, LangFileMask, Global->Opt->strLanguage);
+	const auto LangFileData = OpenLangFile(Path, LangFileMask, Language);
 	const auto& LangFile = std::get<0>(LangFileData);
-	auto LangFileCodePage = std::get<2>(LangFileData);
+	const auto LangFileCodePage = std::get<2>(LangFileData);
 
 	if (!LangFile)
 	{
@@ -445,11 +442,11 @@ bool i_language_data::validate(size_t MsgId) const
 	return false;
 }
 
-plugin_language::plugin_language(const string & Path):
+plugin_language::plugin_language(const string & Path, const string& Language):
 	language(m_Data),
 	m_Data(std::make_unique<language_data>())
 {
-	load(Path);
+	load(Path, Language);
 }
 
 const wchar_t* plugin_language::GetMsg(intptr_t Id) const

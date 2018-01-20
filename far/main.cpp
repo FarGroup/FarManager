@@ -768,7 +768,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 		CloseConsole();
 	};
 
-	far_language::instance().load(Global->g_strFarPath, static_cast<int>(lng::MNewFileName + 1));
+	far_language::instance().load(Global->g_strFarPath, Global->Opt->strLanguage, static_cast<int>(lng::MNewFileName + 1));
 
 	os::env::set(L"FARLANG", Global->Opt->strLanguage);
 

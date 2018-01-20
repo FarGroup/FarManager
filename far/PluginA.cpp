@@ -2303,7 +2303,7 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 		string strPath = pPlugin->GetModuleName();
 		CutToSlash(strPath);
 
-		if (pPlugin->InitLang(strPath))
+		if (pPlugin->InitLang(strPath, Global->Opt->strLanguage))
 			return GetPluginMsg(pPlugin, MsgId);
 
 		return "";
@@ -5492,14 +5492,14 @@ private:
 		return GetCacheName();
 	}
 
-	virtual bool InitLang(const string& Path) override
+	virtual bool InitLang(const string& Path, const string& Language) override
 	{
 		bool Result = true;
 		if (!PluginLang)
 		{
 			try
 			{
-				PluginLang = std::make_unique<ansi_plugin_language>(Path);
+				PluginLang = std::make_unique<ansi_plugin_language>(Path, Language);
 			}
 			catch (const std::exception&)
 			{
@@ -5742,12 +5742,13 @@ private:
 	class ansi_plugin_language final: public language
 	{
 	public:
-		explicit ansi_plugin_language(const string& Path):
+		explicit ansi_plugin_language(const string& Path, const string& Language):
 			language(m_Data),
 			m_Data(std::make_unique<ansi_language_data>())
 		{
-			load(Path);
+			load(Path, Language);
 		}
+
 		const char* GetMsgA(int Id) const
 		{
 			return m_Data->validate(Id)? static_cast<const ansi_language_data&>(*m_Data).ansi_at(Id).data() : "";

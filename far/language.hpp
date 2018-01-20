@@ -65,7 +65,7 @@ protected:
 	explicit language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
 
 	// Throws on failure, strong exception safety guarantee
-	void load(const string& Path, int CountNeed = -1);
+	void load(const string& Path, const string& Language, int CountNeed = -1);
 
 private:
 	std::unique_ptr<i_language_data>& m_Data;
@@ -74,7 +74,7 @@ private:
 class plugin_language final: public language
 {
 public:
-	explicit plugin_language(const string& Path);
+	explicit plugin_language(const string& Path, const string& Language);
 	const wchar_t* GetMsg(intptr_t Id) const;
 
 private:
@@ -99,7 +99,7 @@ private:
 
 std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path, const string& Mask, const string& Language);
 bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string& strParam1, string *strParam2, UINT nCodePage);
-bool SelectInterfaceLanguage();
-bool SelectHelpLanguage();
+bool SelectInterfaceLanguage(string& Dest);
+bool SelectHelpLanguage(string& Dest);
 
 #endif // LANGUAGE_HPP_36726BFA_4EBB_4CFF_A8F0_42434C4F4865

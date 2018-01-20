@@ -822,14 +822,14 @@ bool Plugin::CheckMinFarVersion()
 	return true;
 }
 
-bool Plugin::InitLang(const string& Path)
+bool Plugin::InitLang(const string& Path, const string& Language)
 {
 	if (PluginLang)
 		return true;
 
 	try
 	{
-		PluginLang = std::make_unique<plugin_language>(Path);
+		PluginLang = std::make_unique<plugin_language>(Path, Language);
 		return true;
 	}
 	catch (const std::exception&)

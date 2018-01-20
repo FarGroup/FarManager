@@ -175,10 +175,10 @@ void CommandLine::DisplayObject()
 {
 	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
 
-	size_t CurLength = DrawPrompt();
+	const auto CurLength = DrawPrompt();
 
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
-	CmdStr.SetPosition(m_X1+(int)CurLength,m_Y1,m_X2,m_Y2);
+	CmdStr.SetPosition(m_X1 + static_cast<int>(CurLength), m_Y1, m_X2, m_Y2);
 	CmdStr.Show();
 
 	GotoXY(m_X2+1,m_Y1);
@@ -234,13 +234,13 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			strLastCmdStr = CmdStr.GetString();
 
 		auto strStr = strLastCmdStr;
-		int CurCmdPartLength=(int)strStr.size();
+		const auto CurCmdPartLength = strStr.size();
 		Global->CtrlObject->CmdHistory->GetSimilar(strStr,LastCmdPartLength);
 
 		if (LastCmdPartLength==-1)
 		{
 			strLastCmdStr = CmdStr.GetString();
-			LastCmdPartLength=CurCmdPartLength;
+			LastCmdPartLength = static_cast<int>(CurCmdPartLength);
 		}
 
 		{
@@ -491,7 +491,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 			// иначе неправильно работает ctrl-end
 			strLastCmdStr = CmdStr.GetString();
-			LastCmdPartLength=(int)strLastCmdStr.size();
+			LastCmdPartLength = static_cast<int>(strLastCmdStr.size());
 
 			return true;
 		}
@@ -735,15 +735,13 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 							{
 								if (it + 1 != strExpandedDestStr.cend())
 								{
-									wchar_t lb = *(++it);
+									const auto lb = *++it;
 									if (it + 1 != strExpandedDestStr.cend())
 									{
-										wchar_t rb = *(++it);
+										const auto rb = *++it;
 										if (os::security::is_admin())
 										{
-											strDestStr += lb;
-											strDestStr += msg(lng::MConfigCmdlinePromptFormatAdmin);
-											strDestStr += rb;
+											append(strDestStr, lb, msg(lng::MConfigCmdlinePromptFormatAdmin), rb);
 										}
 									}
 								}
@@ -1263,7 +1261,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	{
 		ConsoleActivatior(false);
 
-		auto Title = CmdLine.data() + 5; // wcslen(L"title")
+		const auto Title = CmdLine.data() + 5; // wcslen(L"title")
 
 		ConsoleTitle::SetUserTitle(*Title? Title + 1 : Title);
 

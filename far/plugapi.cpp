@@ -1095,7 +1095,7 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
 			string strPath = pPlugin->GetModuleName();
 			CutToSlash(strPath);
 
-			if (pPlugin->InitLang(strPath))
+			if (pPlugin->InitLang(strPath, Global->Opt->strLanguage))
 				return pPlugin->GetMsg(MsgId);
 		}
 		return L"";

@@ -355,7 +355,7 @@ bool clipboard::SetHDROP(const string_view& NamesData, bool bMoved)
 
 bool clipboard::GetText(string& Data) const
 {
-	auto hClipData = GetData(CF_UNICODETEXT);
+	const auto hClipData = GetData(CF_UNICODETEXT);
 	if (!hClipData)
 		return GetHDROPAsText(Data);
 
@@ -365,7 +365,7 @@ bool clipboard::GetText(string& Data) const
 
 	const auto& GetBinaryTextLength = [this]
 	{
-		auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length));
+		const auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length));
 		if (!hClipDataLen)
 			return string::npos;
 
