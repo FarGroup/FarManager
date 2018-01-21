@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 21.01.2018 15:17:46 +0200 - build 5130
+
+1. correction of 5118.
+
+drkns 20.01.2018 15:25:15 +0000 - build 5129
+
+1. Forum: F5 in filters menu works for the next item
+
+drkns 15.01.2018 21:52:18 +0000 - build 5128
+
+1. 0003575: Selection with "+" with the use of filters
+
+zg 15.01.2018 17:29:26 +0200 - build 5127
+
+1. SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0) forbid dialog redraw if it was enabled.
+
+2. excessive DM_ENABLEREDRAW calls in color settings menu.
+
 drkns 11.01.2018 23:30:04 +0000 - build 5126
 
 1. Refactoring.
