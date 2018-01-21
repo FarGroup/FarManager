@@ -797,7 +797,7 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 		if (cfg->GetValue(Key, L"RelativeDate"_sv, DateRelative))
 			OldFormat = true;
 	}
-	
+
 	Item.SetDate(UseDate != 0, static_cast<enumFDateType>(DateType), DateRelative?
 		filter_dates(os::chrono::duration(DateAfter), os::chrono::duration(DateBefore)) :
 		filter_dates(os::chrono::time_point(os::chrono::duration(DateAfter)), os::chrono::time_point(os::chrono::duration(DateBefore))));
@@ -870,7 +870,7 @@ void FileFilter::InitFilter()
 	{
 		DWORD Flags[FFFT_COUNT]{};
 		cfg->GetValue(Key, Name, bytes::reference(Flags));
-		
+
 		for (DWORD i = FFFT_FIRST; i < FFFT_COUNT; i++)
 			Item.SetFlags(static_cast<enumFileFilterFlagsType>(i), Flags[i]);
 	};

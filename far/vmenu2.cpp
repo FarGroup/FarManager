@@ -197,8 +197,12 @@ int VMenu2::Call(int Msg, void *param)
 	if(NeedResize)
 		Resize();
 
+
 	SetCursorType(Visible, Size);
 	MoveCursor(X, Y);
+
+	if(InsideCall==0 && ListBox().UpdateRequired())
+		SendMessage(DM_REDRAW, 0, nullptr);
 
 	if(closing)
 	{
