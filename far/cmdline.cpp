@@ -998,7 +998,8 @@ void CommandLine::ExecString(execute_info& Info)
 		if (!Info.Command.empty() && Info.Command[0] == L'@')
 		{
 			Info.Command.erase(0, 1);
-			Silent=true;
+			// Disabled for now - users tend to abuse this. Far knows better when to be silent.
+			//Silent=true;
 		}
 
 		ExpandOSAliases(Info.Command);

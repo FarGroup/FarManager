@@ -1328,8 +1328,7 @@ bool ExtractIfExistCommand(string& strCommandText)
 			// прокинем "if exist"
 			if (strCommandText.front() == L'@')
 			{
-				strCommandText.resize(1);
-				strCommandText += wPtrCmd;
+				strCommandText.erase(1, wPtrCmd - strCommandText.data() - 1);
 			}
 			else
 			{

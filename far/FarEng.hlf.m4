@@ -2289,10 +2289,6 @@ as a ~mask~@FileMasks@:
     The association can be described in the #Description of the association#
 field.
 
-    If you do not wish to switch panels off before executing the associated
-program, start its command line with '#@@#' character (note that it only makes
-sense for programs that do not produce any text output).
-
     The following ~special symbols~@MetaSymbols@ can be used in the associated
 command.
 
@@ -3586,10 +3582,7 @@ $ #Settings dialog: viewer#
 
   #Viewer command#          Command to execute external viewer.
                           Use ~special symbols~@MetaSymbols@ to specify the
-                          name of the file to view. If you do
-                          not wish to switch panels off before
-                          executing the external viewer, start
-                          command from '@@' character.
+                          name of the file to view.
 
     Internal viewer
 
@@ -3659,11 +3652,7 @@ $ #Settings dialog: editor#
 
   #Editor command#          Command to execute the external editor.
                           Use ~special symbols~@MetaSymbols@ to specify the name
-                          of the file to edit. If you do not wish
-                          to switch panels off before executing
-                          the external editor, start the command with
-                          the '@@' character.
-
+                          of the file to edit.
 
     Internal editor
 
