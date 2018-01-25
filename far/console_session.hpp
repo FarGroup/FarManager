@@ -41,7 +41,7 @@ public:
 	virtual void Deactivate() = 0;
 	virtual void DrawCommand(const string& Command) = 0;
 	virtual void DoPrologue() = 0;
-	virtual void DoEpilogue() = 0;
+	virtual void DoEpilogue(bool Scroll) = 0;
 	virtual void Consolise(bool SetTextColour = true) = 0;
 	virtual ~i_context() = default;
 };
@@ -49,8 +49,8 @@ public:
 class console_session
 {
 public:
-	void EnterPluginContext();
-	void LeavePluginContext();
+	void EnterPluginContext(bool Scroll);
+	void LeavePluginContext(bool Scroll);
 	std::shared_ptr<i_context> GetContext();
 
 private:

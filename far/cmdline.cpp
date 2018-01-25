@@ -949,7 +949,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 	SCOPE_EXIT
 	{
-		ExecutionContext->DoEpilogue();
+		ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty());
 
 		if (!IsUpdateNeeded)
 			return;
@@ -974,7 +974,11 @@ void CommandLine::ExecString(execute_info& Info)
 	const auto& Activator = [&](bool DoConsolise)
 	{
 		ExecutionContext->Activate();
-		ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
+
+		if (Info.Echo)
+			ExecutionContext->DrawCommand(Info.DisplayCommand.empty()? Info.Command : Info.DisplayCommand);
+
+		ExecutionContext->DoPrologue();
 
 		if (DoConsolise)
 			ExecutionContext->Consolise();
@@ -995,9 +999,10 @@ void CommandLine::ExecString(execute_info& Info)
 	{
 		if (!Info.Command.empty() && Info.Command[0] == L'@')
 		{
+			Info.Echo = false;
+			if (Info.DisplayCommand.empty())
+				Info.DisplayCommand = Info.Command;
 			Info.Command.erase(0, 1);
-			// Disabled for now - users tend to abuse this. Far knows better when to be silent.
-			//Silent=true;
 		}
 
 		ExpandOSAliases(Info.Command);

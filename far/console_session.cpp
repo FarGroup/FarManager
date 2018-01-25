@@ -80,8 +80,6 @@ public:
 
 		m_Command = Command;
 		m_ShowCommand = true;
-
-		DoPrologue();
 	}
 
 	void Consolise(bool SetTextColour) override
@@ -122,7 +120,7 @@ public:
 		m_Finalised = false;
 	}
 
-	void DoEpilogue() override
+	void DoEpilogue(bool Scroll) override
 	{
 		if (!m_Activated)
 			return;
@@ -142,9 +140,7 @@ public:
 			m_Consolised = false;
 		}
 
-		// Empty command means that user simply pressed Enter in command line, in this case we don't want additional scrolling
-		// ShowCommand is false when there is no "command" - class instantiated by FCTL_GETUSERSCREEN.
-		if (!m_Command.empty() || !m_ShowCommand)
+		if (Scroll)
 		{
 			ScrollScreen(1);
 		}
@@ -167,7 +163,7 @@ private:
 	bool m_Consolised{};
 };
 
-void console_session::EnterPluginContext()
+void console_session::EnterPluginContext(bool Scroll)
 {
 	if (!m_PluginContextInvocations)
 	{
@@ -176,7 +172,7 @@ void console_session::EnterPluginContext()
 	}
 	else
 	{
-		m_PluginContext->DoEpilogue();
+		m_PluginContext->DoEpilogue(Scroll);
 	}
 
 	m_PluginContext->DoPrologue();
@@ -185,7 +181,7 @@ void console_session::EnterPluginContext()
 	++m_PluginContextInvocations;
 }
 
-void console_session::LeavePluginContext()
+void console_session::LeavePluginContext(bool Scroll)
 {
 	Global->ScrBuf->Flush();
 	if (m_PluginContextInvocations)
@@ -193,7 +189,7 @@ void console_session::LeavePluginContext()
 
 	if (m_PluginContext)
 	{
-		m_PluginContext->DoEpilogue();
+		m_PluginContext->DoEpilogue(Scroll);
 	}
 	else
 	{
@@ -205,7 +201,8 @@ void console_session::LeavePluginContext()
 		}
 		std::wcout.flush();
 		Global->ScrBuf->FillBuf();
-		ScrollScreen(1);
+		if (Scroll)
+			ScrollScreen(1);
 		Global->WindowManager->Desktop()->TakeSnapshot();
 	}
 
