@@ -2485,24 +2485,26 @@ static int panel_ClearSelection(lua_State *L)
 	return ChangePanelSelection(L, FALSE);
 }
 
-// CtrlSetUserScreen (handle)
+// CtrlSetUserScreen (handle, scrolltype)
 //   handle:       FALSE=INVALID_HANDLE_VALUE, TRUE=lua_State*
 static int panel_SetUserScreen(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle(L);
-	int ret = Info->PanelControl(handle, FCTL_SETUSERSCREEN, 0, 0) != 0;
+	intptr_t scrolltype = luaL_optinteger(L,2,0);
+	int ret = Info->PanelControl(handle, FCTL_SETUSERSCREEN, scrolltype, 0) != 0;
 	lua_pushboolean(L, ret);
 	return 1;
 }
 
-// CtrlGetUserScreen (handle)
+// CtrlGetUserScreen (handle, scrolltype)
 //   handle:       FALSE=INVALID_HANDLE_VALUE, TRUE=lua_State*
 static int panel_GetUserScreen(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle(L);
-	int ret = Info->PanelControl(handle, FCTL_GETUSERSCREEN, 0, 0) != 0;
+	intptr_t scrolltype = luaL_optinteger(L,2,0);
+	int ret = Info->PanelControl(handle, FCTL_GETUSERSCREEN, scrolltype, 0) != 0;
 	lua_pushboolean(L, ret);
 	return 1;
 }

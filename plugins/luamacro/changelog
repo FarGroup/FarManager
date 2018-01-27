@@ -1,4 +1,8 @@
-﻿shmuel 09.12.2017 12:06:14 +0200 - build 635
+﻿zg 27.01.2018 14:27:28 +0200 - build 636
+
+1. у panel.GetUserScreen/panel.SetUserScreen второй параметр - тип скролирования.
+
+shmuel 09.12.2017 12:06:14 +0200 - build 635
 
 1. LuaFAR: добавлен метод rawhandle для дескриптора, возвращаемого io.open().
 
