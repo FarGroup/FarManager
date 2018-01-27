@@ -5814,12 +5814,13 @@ id=228
 lv=2
 dt=Text
 nm=panel.GetUserScreen
-mtime=3582913573
+mtime=3726225741
 <article>
-#_result = panel.GetUserScreen ([handle])
+#_result = panel.GetUserScreen ([handle], [scrolltype])
 #_
 #_**Parameters:**
-#_  handle: panel handle
+#_  handle:     panel handle
+#_  scrolltype: integer (defaults to 0)
 #_
 #_**Returns:**
 #_  result: boolean
@@ -6222,12 +6223,13 @@ id=15
 lv=2
 dt=Text
 nm=panel.SetUserScreen
-mtime=3582913564
+mtime=3726225783
 <article>
-#_result = panel.SetUserScreen ([handle])
+#_result = panel.SetUserScreen ([handle], [scrolltype])
 #_
 #_**Parameters:**
-#_  handle: panel handle
+#_  handle:     panel handle
+#_  scrolltype: integer (defaults to 0)
 #_
 #_**Returns:**
 #_  result: boolean
