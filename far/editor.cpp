@@ -724,7 +724,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 				{
 					const auto NewEditPtr = InsertString(NullToEmpty(static_cast<const wchar_t*>(vParam)), std::next(EditPtr));
 					NewEditPtr->SetEOL(EditPtr->GetEOL());
-					AddUndoData(UNDO_INSSTR, NewEditPtr->GetString(), EditPtr->GetEOL(), DestLine,0);
+					AddUndoData(UNDO_INSSTR, NewEditPtr->GetString(), EditPtr->GetEOL(), DestLine + 1, 0);
 					Change(ECTYPE_ADDED,DestLine+1);
 					TextChanged(true);
 					return 1;
