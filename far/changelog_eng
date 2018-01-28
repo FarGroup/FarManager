@@ -3,6 +3,27 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 27.01.2018 14:55:05 +0200 - build 5134
+
+1. 0003577: Incorrect UNDO functioning after Editor.InsStr.
+
+drkns 25.01.2018 22:03:48 +0000 - build 5133
+
+1. '@' in launcher now turns off the echo.
+
+2. 0003525: FCTL_SETUSERSCREEN: undesirable carriage return.
+   Suppress it by passing 1 to Param1.
+
+3. Refactoring.
+
+svs 24.01.2018 11:56:03 +0300 - build 5132
+
+1. SQLite 3.22.0
+
+drkns 24.01.2018 07:37:22 +0000 - build 5131
+
+1. '@' now has no meaning in launcher and is ignored.
+
 zg 21.01.2018 15:17:46 +0200 - build 5130
 
 1. correction of 5118.
