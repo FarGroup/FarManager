@@ -5246,7 +5246,7 @@ $ #Macros: Autocompletion in dialogs#
 
 @FarAbout
 $ #Version invformation#
-    Starts from the command line #far:about#
+    Starts with the command #far:about#
 
     Displays:
     - Far Manager version and bitness
@@ -5255,7 +5255,7 @@ $ #Version invformation#
 
 @FarConfig
 $ #Configuration editor#
-    Starts from the command line #far:config#
+    Starts with the command #far:config#
 
     Allows to view and edit all Far Manager’s options.
     Most options can be changed from the ~Options menu~@OptMenu@, however some options are available only here or using configuration import.
@@ -5265,7 +5265,7 @@ If current value of an option is other than the default, the option is marked wi
 
     Besides the list navigation keys, the following key combinations are supported:
 
-    #Enter# или #F4#  Change option value
+    #Enter# or #F4#   Change option value
                   boolean and 3-state are changed in place,
                   for integer and string a dialog is opened.
 
