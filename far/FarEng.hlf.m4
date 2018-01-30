@@ -5244,41 +5244,39 @@ $ #Macros: Autocompletion in dialogs#
 
     See also ~«The list of installed macros»~@KeyMacroList@
 
-
 @FarAbout
-$ #Информация о версиях#
-    Запускается из командной строки #far:about#
+$ #Version invformation#
+    Starts with the command #far:about#
 
-    Позволяет посмотреть:
-    - версию и битность Far Manager
-    - версии используемых в проекте сторонних библиотек
-    - имена и версии подключённых плагинов
-
+    Displays:
+    - Far Manager version and bitness
+    - versions of the third-party libraries used in the project
+    - names and versions of the active plugins
 
 @FarConfig
-$ #Редактор конфигурации#
-    Запускается из командной строки #far:config#
+$ #Configuration editor#
+    Starts with the command #far:config#
 
-    Позволяет просмотреть и изменить все настройки Far Manager.
-    Большинство настроек можно изменить через ~Меню параметров~@OptMenu@, но некоторые доступны только отсюда или через импорт конфигурации.
-Параметры показаны в виде единого списка, состоящего из трёх полей: имя в формате SectionName.ParamName (например Editor.TabSize),
-тип (boolean, 3-state, integer, string) и значение параметра (для типа integer дополнительно отображаются шестнадцатиричное и символьное представления).
-Если значение параметра отличается от значения по умолчанию, он помечается символом '*' слева от имени.
+    Allows to view and edit all Far Manager’s options.
+    Most options can be changed from the ~Options menu~@OptMenu@, however some options are available only here or using configuration import.
+The options are displayed in a list with three fields per item: the name in the SectionName.ParamName format (for example, Editor.TabSize),
+the type (boolean, 3-state, integer, string), and the value (for the integer type, hexadecimal and symbolic representations additionally displayed).
+If current value of an option is other than the default, the option is marked with the '*' symbol to the left of the name.
 
-    Кроме клавиш перемещения по списку доступны следующие сочетания:
+    Besides the list navigation keys, the following key combinations are supported:
 
-    #Enter# или #F4#  изменить значение параметра,
-                  boolean и 3-state на месте,
-                  для integer и string вызывается диалог
+    #Enter# or #F4#   Change option value
+                  boolean and 3-state are changed in place,
+                  for integer and string a dialog is opened.
 
-    #Shift+F4#      Для типа integer вызывается диалог ввода шестнадцатиричного числа,
-                  всё прочее как для F4
-    #Ctrl+H#        Скрыть/показать параметры, значения которых не изменены (соответствуют значениям по умолчанию)
+    #Shift+F4#      For the integer type, hexadecimal editor dialog is opened,
+                  for other types works as #F4#.
 
-    #Shift+F1#      Показать описание параметра, если оно доступно.
+    #Ctrl+H#        Hide/show options having default values.
 
-    #Ctrl+Alt+F#    Включить/Выключить режим фильтрации
+    #Shift+F1#      Show option help, if available.
 
+    #Ctrl+Alt+F#    Toggle quick filtering mode.
 
 @Codepages.NoAutoDetectCP
 $ #far:config Codepages.NoAutoDetectCP#
