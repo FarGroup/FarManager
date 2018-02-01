@@ -221,6 +221,14 @@ void FileViewer::Show()
 		SetPosition(0,0,ScrX,ScrY-(Global->Opt->ViOpt.ShowKeyBar?1:0));
 		m_View->SetPosition(0,(Global->Opt->ViOpt.ShowTitleBar?1:0),ScrX,ScrY-(Global->Opt->ViOpt.ShowKeyBar?1:0));
 	}
+	else
+	{
+		if (Global->Opt->EdOpt.ShowKeyBar)
+		{
+			m_windowKeyBar->Redraw();
+		}
+		m_View->SetPosition(m_X1,m_Y1+(Global->Opt->ViOpt.ShowTitleBar?1:0),m_X2,m_Y2-(Global->Opt->ViOpt.ShowKeyBar?1:0));
+	}
 
 	ScreenObjectWithShadow::Show();
 	ShowStatus();
@@ -314,7 +322,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 			else
 				m_windowKeyBar->Hide();
 
-			Show();
+			Global->WindowManager->RefreshWindow();
 			m_KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 			return true;
 		case KEY_CTRLSHIFTB:
@@ -331,7 +339,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 			{
 				SetCursorType(false, 0);
 				WaitKey();
-				Global->WindowManager->RefreshWindow();
+				Global->WindowManager->RefreshAll();
 			}
 
 			return true;

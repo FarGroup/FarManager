@@ -744,6 +744,14 @@ void FileEditor::Show()
 		ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 		m_editor->SetPosition(0,(Global->Opt->EdOpt.ShowTitleBar?1:0),ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 	}
+	else
+	{
+		if (Global->Opt->EdOpt.ShowKeyBar)
+		{
+			m_windowKeyBar->Redraw();
+		}
+		m_editor->SetPosition(m_X1,m_Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),m_X2,m_Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
+	}
 
 	ScreenObjectWithShadow::Show();
 }
@@ -994,7 +1002,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					WaitKey();
 				}
 
-				Show();
+				Global->WindowManager->RefreshAll();
 
 				return true;
 			}
