@@ -1550,7 +1550,7 @@ $ #Menus: options menu#
 
    #Editor settings#       External and internal ~editor settings~@EditorSettings@.
 
-   #Codepages#             Shows ~codepages menu~@CodePagesMenu@
+   #Code pages#            Shows ~Code pages menu~@CodePagesMenu@
 
 
    #Colors#                Allows to select colors for different
@@ -1673,7 +1673,7 @@ enclosed in quotes. For example, if the user enters
 and "#D:\\foo3#" will be created.
 
 @FindFile
-$ #Find file #
+$ #Find file#
     This command allows to locate in the folder tree one or more files and
 folders matching one or more ~wildcards~@FileMasks@ (delimited with commas). It
 can also be used with file systems emulated by ~plugins~@Plugins@.
@@ -1693,14 +1693,14 @@ options are disabled and their values doesn't affect the search process.
 
     #Not containing# allows to find files #not# containing the specified text or code.
 
-    Выпадающий список #Используя кодовую страницу# позволяет выбрать конкретную
-кодовую страницу, применяемую для поиска текста. Если в выпадающем списке выбрать
-пункт #Все кодовые страницы#, то Far будет использовать для поиска все стандартные
-(ANSI, OEM, UTF-8, UTF-16, UTF-16 BE) и #Избранные# кодовые страницы (список #избранных#
-кодовых страниц можно настроить в ~меню выбора кодовой страницы~@CodepagesMenu@
-настроек, редактора или программы просмотра). При необходимости поиска по собственному
-набору кодовых страниц отметьте их в списке при помощи клавиш #Ins# или #Space# и выберите
-пункт #Отмеченные кодовые страницы#.
+    Dropdown list #Using code page# allows to choose a specific code page
+to be used for the search. If the item #All standard code pages# is selected
+in the dropdown list, Far will use all standard code pages (ANSI, OEM, UTF-8,
+UTF-16, UTF-16 BE), as well as #Favorite# code pages (the list of #favorite#
+code pages can be specified in the ~Code pages menu~@CodepagesMenu@
+in the options, editor, or viewer). To search using a custom set of code pages,
+select required code pages in the dropdown list with the #Ins# or #Space# keys,
+then choose #Selected code pages# menu item.
 
     If the option #Search in archives# is set, Far also performs the search in
 archives with known formats. However, using this option significantly decreases
@@ -1713,10 +1713,9 @@ folders.
     The #Search in symbolic links# option allows searching files in
 ~symbolic links~@HardSymLink@ along with normal sub-folders.
 
-    #Search in alternate streams# - помимо основного потока данных
-(представляющего собой непосредственно содержимое файла)
-производить поиск также в альтернативных именованных потоках, поддерживаемых некоторыми
-файловыми системами (например, #NTFS#).
+    #Search in alternate streams# - besides the primary data stream (which is
+the content of the file itself), allows to search alternate named data streams
+supported by some file systems (for example, #NTFS#).
 
     Search can be performed:
 
@@ -3203,12 +3202,12 @@ $ #Editor: Open/Create file#
 @FileSaveAs
 $ #Editor: save file as...#
     To save edited file with another name press #Shift+F2# and specify
-new name, codepage and carriage return symbols format.
+new name, code page and carriage return symbols format.
 
-    If file has been edited in one of the following codepages: UTF-8,
+    If file has been edited in one of the following code pages: UTF-8,
 UTF-16 (Little endian) or UTF-16 (Big endian), then if the option #Add signature (BOM)# is on,
 the appropriate marker is inserted into the beginning of the file, which
-helps applications to identify the codepage of this file.
+helps applications to identify the code page of this file.
 
     You can also specify the format of the line break characters:
 
@@ -3296,29 +3295,29 @@ the external program will be lost.
 
 @CodePagesMenu
 $ #Code pages menu#
-    This menu allows codepage selection in the editor and viewer.
+    This menu allows code page selection in the editor and viewer.
 
     The menu is divided into several parts:
 
-    #Automatic detection# - Far tries to autodetect the codepage of the text;
+    #Automatic detection# - Far tries to autodetect the code page of the text;
 
-    #System# - main 8-bit system codepages - ANSI and OEM;
+    #System# - main 8-bit system code pages - ANSI and OEM;
 
-    #Unicode# - Unicode codepages;
+    #Unicode# - Unicode code pages;
 
-    #Favorites# - user controlled list of codepages;
+    #Favorites# - user controlled list of code pages;
 
-    #Other# - the rest of codepages installed in the system.
+    #Other# - the rest of code pages installed in the system.
 
     The menu has two modes: full mode with visible #Other# section and brief
 mode with hidden #Other# section. The modes can be switched by pressing #Ctrl+H#.
 
     Current menu mode state corresponds to ~far:config~@FarConfig@ parameter #Codepages.CPMenuMode#.
-It can alter the way of ~codepage autodetect~@CodePageAuto@ in builtin Editor/Viewer.
+It can alter the way of ~code page autodetect~@CodePageAuto@ in builtin Editor/Viewer.
 See also ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@ parameter.
 
-    #Ins# keypress moves codepage from #Other# to #Favorites#, #Del# moves the
-codepage back. #F4# allows to rename #Favorites# and #Other# codepages (renamed codepages will be marked with the #*#).
+    #Ins# keypress moves code page from #Other# to #Favorites#, #Del# moves the
+code page back. #F4# allows to rename #Favorites# and #Other# code pages (renamed code pages will be marked with the #*#).
 
     Диалог ~Изменение имени кодовой страницы~@EditCodePageNameDlg@
 
@@ -3603,7 +3602,7 @@ $ #Settings dialog: viewer#
                           (created with #RightCtrl+0..9# or
                           #Ctrl+Shift+0..9#)
 
-  #Save file codepage#      Save and restore selected file codepage.
+  #Save file code page#     Save and restore selected file code page.
                           This is automatically enabled if #Save file position#
                           is enabled, as file position depends on its encoding.
 
@@ -3740,7 +3739,7 @@ $ #Auto detect code pages#
 Note that correct detection is not guaranteed, especially for small or
 non-typical text files.
 
-    See also ~codepages~@CodePagesMenu@ and ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
+    See also ~Code pages menu~@CodePagesMenu@ and ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
 
 
 @FileAttrDlg

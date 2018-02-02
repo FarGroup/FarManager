@@ -2,10 +2,23 @@
 This file is a translation of the main russian changelog and is provided by volunteers.
 It might not always be as up to date as the main changelog.
 =======================================================================================
+MZK 01.02.2018 22:43:46 -0800
+
+1. Translated @FindFile help page to English in FarEng.hlf.m4.
+
+2. Replaced "codepage" with "code page" in the help and resource files.
+
+zg 01.02.2018 22:12:58 +0200 - build 5135
+
+1. In the part-screen editor/viewer, only editor/viewer was redrawn after CtrlO.
+
+2. In the part-screen editor/viewer, CtrlB/CtrlShiftB did not work.
+
+3. Forum: In the part-screen editor/viewer, hotkey panel sometimes did not refresh.
 
 MZK 28.01.2018 15:50:33 -0800
 
-1. Translated @FarAbout and @FarConfig help pages to English in FarEng.hlf.m4
+1. Translated @FarAbout and @FarConfig help pages to English in FarEng.hlf.m4.
 
 zg 27.01.2018 14:55:05 +0200 - build 5134
 
