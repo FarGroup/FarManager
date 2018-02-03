@@ -250,7 +250,7 @@ private:
 
 public:
   OverwriteDialog(const wstring& file_path, const OverwriteFileInfo& src_file_info, const OverwriteFileInfo& dst_file_info, OverwriteDialogKind kind, OverwriteOptions& options):
-    Far::Dialog(Far::get_msg(MSG_OVERWRITE_DLG_TITLE), &c_overwrite_dialog_guid, c_client_xs),
+    Far::Dialog(Far::get_msg(MSG_OVERWRITE_DLG_TITLE), &c_overwrite_dialog_guid, c_client_xs, nullptr, FDLG_WARNING),
     file_path(file_path),
     src_file_info(src_file_info),
     dst_file_info(dst_file_info),

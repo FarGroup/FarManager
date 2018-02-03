@@ -322,7 +322,9 @@ intptr_t Dialog::send_message(intptr_t msg, intptr_t param1, void* param2) {
   return g_far.SendDlgMessage(h_dlg, msg, param1, param2);
 }
 
-Dialog::Dialog(const wstring& title, const GUID* guid, unsigned width, const wchar_t* help): guid(guid), client_xs(width), x(c_x_frame), y(c_y_frame), help(help), events_enabled(true) {
+Dialog::Dialog(const wstring& title, const GUID* guid, unsigned width, const wchar_t* help, FARDIALOGFLAGS flags):
+  guid(guid), client_xs(width), x(c_x_frame), y(c_y_frame), help(help), events_enabled(true), flags(flags)
+{
   frame(title);
 }
 
@@ -579,7 +581,7 @@ intptr_t Dialog::show() {
   }
 
   intptr_t res = -1;
-  HANDLE h_dlg = g_far.DialogInit(&c_plugin_guid, guid, -1, -1, client_xs + 2 * c_x_frame, client_ys + 2 * c_y_frame, help, dlg_items.data(), static_cast<unsigned>(dlg_items.size()), 0, 0, internal_dialog_proc, this);
+  HANDLE h_dlg = g_far.DialogInit(&c_plugin_guid, guid, -1, -1, client_xs + 2 * c_x_frame, client_ys + 2 * c_y_frame, help, dlg_items.data(), static_cast<unsigned>(dlg_items.size()), 0, flags, internal_dialog_proc, this);
   if (h_dlg != INVALID_HANDLE_VALUE) {
     res = g_far.DialogRun(h_dlg);
     g_far.DialogFree(h_dlg);

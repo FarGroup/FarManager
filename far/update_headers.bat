@@ -9,7 +9,7 @@ for /f "tokens=1,2,4 delims=," %%i in ('tools\m4 -P farversion.inc.m4') do (
 
 set hdrpath=..\plugins\common\unicode
 if exist %hdrpath% (
-	copy Include\*.hpp %hdrpath% && call :commit %hdrpath% "update headers to %build%"
+	copy Include\*.hpp %hdrpath% && copy Include\vc_crt_fix* %hdrpath%\.. && call :commit %hdrpath% "update headers to %build%"
 ) else (
 	echo %hdrpath% directory is absent
 )

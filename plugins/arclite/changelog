@@ -1,3 +1,7 @@
+drkns 03.02.2018 14:55:34 +0000 - build 273
+
+1. Используем warning style для диалога перезаписи (FDLG_WARNING) для единообразия с Far.
+
 w17 18.01.2018 02:25:38 +0300 - build 272
 
 1. M#3576: Arclite produces invalid archive files list
