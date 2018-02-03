@@ -48,7 +48,7 @@ template<typename T>
 T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
 	const auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
-	return Address? static_cast<T>(static_cast<void*>(Address)) : Replacement;
+	return Address? reinterpret_cast<T>(reinterpret_cast<void*>(Address)) : Replacement;
 }
 
 #define CREATE_FUNCTION_POINTER(ModuleName, FunctionName)\
@@ -197,7 +197,7 @@ namespace slist
 				free(Ptr);
 			}
 
-			service_entry* ServiceNext;
+			service_entry* ServiceNext{};
 		};
 
 		class slist_lock
@@ -213,6 +213,9 @@ namespace slist
 			{
 				m_Entry.unlock();
 			}
+
+			slist_lock(const slist_lock&) = delete;
+			slist_lock& operator=(const slist_lock&) = delete;
 
 		private:
 			service_entry& m_Entry;

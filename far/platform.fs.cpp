@@ -1775,15 +1775,6 @@ namespace os::fs
 		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).data(), WatchSubtree, NotifyFilter));
 	}
 
-	int GetFileTypeByName(const string& Name)
-	{
-		if (const auto File = create_file(Name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
-		{
-			return ::GetFileType(File.native_handle());
-		}
-		return FILE_TYPE_UNKNOWN;
-	}
-
 	bool IsDiskInDrive(const string& Root)
 	{
 		string strVolName;
@@ -1866,7 +1857,7 @@ namespace os::fs
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 	{
 		return Imports().CreateSymbolicLinkW?
-			(Imports().CreateSymbolicLink(Object.data(), Target.data(), dwFlags) != FALSE) :
+			(Imports().CreateSymbolicLink(Object.data(), Target.data(), dwFlags | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != FALSE) :
 			CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 	}
 }

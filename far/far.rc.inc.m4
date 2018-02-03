@@ -6,7 +6,7 @@ PRODUCTVERSION MAJOR, MINOR, BUILD, REVISION
 	{
 		BLOCK "000004E4"
 		{
-			VALUE "CompanyName", "Eugene Roshal & FAR Group"
+			VALUE "CompanyName", "Eugene Roshal & Far Group"
 			VALUE "FileDescription", "File and archive manager"
 			VALUE "FileVersion", "`v'FULLVERSION"
 			VALUE "InternalName", "Far"

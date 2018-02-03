@@ -336,7 +336,6 @@ namespace os::fs
 	bool get_find_data(const string& FileName, find_data& FindData, bool ScanSymLink = true);
 
 	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
-	int GetFileTypeByName(const string& Name);
 	bool IsDiskInDrive(const string& Root);
 
 	bool create_hard_link(const string& FileName, const string& ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);

@@ -1465,12 +1465,10 @@ namespace magic
 	template<typename T>
 	static auto CastVectorToRawData(std::unique_ptr<std::vector<T>>&& Items)
 	{
-		std::tuple<T*, size_t> Result;
-		std::get<1>(Result) = Items->size();
-		T Item;
+		T Item{};
 		Item.Reserved[0] = reinterpret_cast<intptr_t>(Items.get());
 		Items->emplace_back(Item);
-		std::get<0>(Result) = Items->data();
+		const auto Result = std::make_tuple(Items->data(), Items->size() - 1);
 		Items.release();
 		return Result;
 	}

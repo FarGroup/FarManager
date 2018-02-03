@@ -849,7 +849,7 @@ executed.
 @SpecCmd
 $ #Special commands#
 
-  ~Version invformation~@FarAbout@
+  ~Version information~@FarAbout@
   ~Configuration editor~@FarConfig@
 
 
@@ -5244,7 +5244,7 @@ $ #Macros: Autocompletion in dialogs#
     See also ~«The list of installed macros»~@KeyMacroList@
 
 @FarAbout
-$ #Version invformation#
+$ #Version information#
     Starts with the command #far:about#
 
     Displays:

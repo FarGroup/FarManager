@@ -99,7 +99,6 @@ enum COPY_FLAGS
 	FCOPY_COPYTONUL               = bit(0), // Признак копирования в NUL
 	FCOPY_CURRENTONLY             = bit(1), // Только текущий?
 	FCOPY_ONLYNEWERFILES          = bit(2), // Copy only newer files
-	FCOPY_OVERWRITENEXT           = bit(3), // Overwrite all
 	FCOPY_LINK                    = bit(4), // создание линков
 	FCOPY_MOVE                    = bit(5), // перенос/переименование
 	FCOPY_DIZREAD                 = bit(6), //
@@ -1490,7 +1489,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		os::fs::find_data SrcData;
 		int CopyCode = COPY_SUCCESS;
-		Flags &= ~FCOPY_OVERWRITENEXT;
 
 		auto KeepPathPos = static_cast<int>(strSelName.size() - PointToName(strSelName).size());
 
@@ -1578,9 +1576,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					CP->UpdateAllBytesInfo(SrcData.nFileSize);
 					continue;
 				}
-
-				if (!(Flags&FCOPY_MOVE) || CopyCode==COPY_FAILURE)
-					Flags|=FCOPY_OVERWRITENEXT;
 			}
 		}
 
@@ -1593,8 +1588,6 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				CopyCode=ShellCopyOneFile(strSelName,SrcData,strCopyDest,KeepPathPos,0);
 			}
 			while (CopyCode==COPY_RETRY);
-
-			Flags&=~FCOPY_OVERWRITENEXT;
 
 			if (CopyCode==COPY_CANCEL)
 				return COPY_CANCEL;
@@ -1924,11 +1917,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					return ConvertNameToFull(Src) == strDestPath? COPY_SKIPPED : COPY_SUCCESS;
 				}
-
-				int Type=os::fs::GetFileTypeByName(strDestPath);
-
-				if (Type==FILE_TYPE_CHAR || Type==FILE_TYPE_PIPE)
-					return Rename? COPY_SKIPPED : COPY_SUCCESS;
 			}
 
 			if (Rename)
@@ -3329,12 +3317,10 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 
 		if (OvrMode == -1)
 		{
-			int Type;
-
-			if ((!Global->Opt->Confirm.Copy && !Rename) || (!Global->Opt->Confirm.Move && Rename) ||
-				SameName || (Type = os::fs::GetFileTypeByName(DestName)) == FILE_TYPE_CHAR ||
-				Type == FILE_TYPE_PIPE || (Flags&FCOPY_OVERWRITENEXT))
-				MsgCode = 1;
+			if (!(Rename? Global->Opt->Confirm.Move : Global->Opt->Confirm.Copy) || SameName)
+			{
+				MsgCode = 0;
+			}
 			else
 			{
 				DestData = {};
@@ -3441,7 +3427,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 
 	if (RetCode!=COPY_RETRY)
 	{
-		if ((DestAttr & FILE_ATTRIBUTE_READONLY) && !(Flags&FCOPY_OVERWRITENEXT))
+		if (DestAttr & FILE_ATTRIBUTE_READONLY)
 		{
 			int MsgCode=0;
 

@@ -4224,11 +4224,11 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 	{
 		case VCTL_GETINFO:
 		{
-			ViewerInfo *Info=(ViewerInfo *)Param2;
+			const auto Info=static_cast<ViewerInfo*>(Param2);
 			if (CheckStructSize(Info))
 			{
 				memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
-				Info->ViewerID=Viewer::ViewerID;
+				Info->ViewerID = ViewerID;
 				Info->WindowSizeX=ObjWidth();
 				Info->WindowSizeY=m_Y2-m_Y1+1;
 				Info->FilePos=FilePos;
@@ -4272,7 +4272,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case VCTL_SETPOSITION:
 		{
-			ViewerSetPosition *vsp=(ViewerSetPosition*)Param2;
+			const auto vsp = static_cast<ViewerSetPosition*>(Param2);
 			if (CheckStructSize(vsp))
 			{
 				bool isReShow=vsp->StartPos != FilePos;
@@ -4299,7 +4299,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		// Param2=ViewerSelect
 		case VCTL_SELECT:
 		{
-			ViewerSelect *vs=(ViewerSelect *)Param2;
+			const auto vs = static_cast<const ViewerSelect*>(Param2);
 			if (CheckStructSize(vs))
 			{
 				long long SPos=vs->BlockStartPos;
@@ -4332,7 +4332,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case VCTL_SETKEYBAR:
 		{
-			FarSetKeyBarTitles *Kbt=(FarSetKeyBarTitles*)Param2;
+			const auto Kbt = static_cast<const FarSetKeyBarTitles*>(Param2);
 
 			if (!Kbt)
 			{        // восстановить пред значение!
@@ -4394,7 +4394,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case VCTL_SETMODE:
 		{
-			ViewerSetMode *vsmode=(ViewerSetMode *)Param2;
+			const auto vsmode = static_cast<const ViewerSetMode*>(Param2);
 
 			if (CheckStructSize(vsmode))
 			{

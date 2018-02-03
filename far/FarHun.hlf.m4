@@ -7,7 +7,7 @@
 $^#Fájl- és archívumkezelő program#
 `$^#'FULLVERSIONNOBRACES`#'
 $^#Copyright © 1996-2000 Eugene Roshal#
-`$^#Copyright ©' COPYRIGHTYEARS `FAR Group#'
+`$^#Copyright ©' COPYRIGHTYEARS `Far Group#'
 $^(help file last translated for build 882)
    ~A súgó betűrendes tartalomjegyzéke~@Index@
    ~A súgó használata~@Help@
