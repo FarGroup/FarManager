@@ -173,7 +173,6 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
 	m_CanLoseFocus = false;
-	m_KeyBarVisible = true;
 	SetRestoreScreenMode(true);
 
 	StackData->Flags=Flags;

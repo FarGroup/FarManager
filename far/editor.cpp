@@ -5502,12 +5502,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						Info->Options|=EOPT_SHOWLINEBREAK;
 				}
 
-				if (Global->Opt->EdOpt.ShowTitleBar)
-					Info->Options|=EOPT_SHOWTITLEBAR;
-
-				if (Global->Opt->EdOpt.ShowKeyBar)
-					Info->Options|=EOPT_SHOWKEYBAR;
-
 				if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()))
 					Info->Options |= EOPT_SHOWSCROLLBAR;
 

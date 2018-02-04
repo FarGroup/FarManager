@@ -73,13 +73,14 @@ public:
 	virtual bool CanFastHide() const;
 	virtual string GetTitle() const = 0;
 	virtual bool ProcessEvents() {return true;}
+	virtual bool IsTitleBarVisible() const { return false; }
+	virtual bool IsKeyBarVisible() const { return false; }
 
 	virtual void Refresh(void) override;
 
 	void SetCanLoseFocus(bool Value) { m_CanLoseFocus = Value; }
 	int GetExitCode() const { return m_ExitCode; }
 	void UpdateKeyBar() const;
-	bool IsTitleBarVisible() const {return m_TitleBarVisible;}
 	bool IsTopWindow() const;
 	bool HasSaveScreen() const;
 	void SetFlags( DWORD flags ) { m_Flags.Set(flags); }
@@ -99,8 +100,6 @@ protected:
 	int m_ID;
 	bool m_CanLoseFocus{};
 	int m_ExitCode{ -1 };
-	bool m_KeyBarVisible{};
-	bool m_TitleBarVisible{};
 	std::unique_ptr<KeyBar> m_windowKeyBar;
 
 private:

@@ -65,6 +65,8 @@ public:
 	/* $ Введена для нужд CtrlAltShift OT */
 	virtual bool CanFastHide() const override;
 	virtual string GetTitle() const override;
+	virtual bool IsKeyBarVisible() const override;
+	virtual bool IsTitleBarVisible() const override;
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;
 

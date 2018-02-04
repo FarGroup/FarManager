@@ -120,6 +120,8 @@ private:
 	virtual bool GetCanLoseFocus(bool DynamicMode = false) const override;
 	virtual bool CanFastHide() const override; // для нужд CtrlAltShift
 	virtual string GetTitle() const override;
+	virtual bool IsKeyBarVisible() const override;
+	virtual bool IsTitleBarVisible() const override;
 
 	/* Ret:
 		0 - не удалять ничего

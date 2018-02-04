@@ -59,6 +59,7 @@ public:
 	virtual bool CanFastHide() const override;
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_findfolder; }
+	virtual bool IsKeyBarVisible() const override { return true; }
 
 private:
 	virtual string GetTitle() const override { return {}; }

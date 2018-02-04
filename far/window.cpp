@@ -56,7 +56,7 @@ window::~window()
 
 void window::UpdateKeyBar() const
 {
-	if (m_windowKeyBar && m_KeyBarVisible)
+	if (m_windowKeyBar && IsKeyBarVisible())
 		m_windowKeyBar->RedrawIfChanged();
 }
 

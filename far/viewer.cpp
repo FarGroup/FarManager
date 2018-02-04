@@ -4246,12 +4246,6 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				if (ViOpt.AutoDetectCodePage)
 					Info->Options|=VOPT_AUTODETECTCODEPAGE;
 
-				if (Global->Opt->ViOpt.ShowTitleBar)
-					Info->Options |= VOPT_SHOWTITLEBAR;
-
-				if (Global->Opt->ViOpt.ShowKeyBar)
-					Info->Options |= VOPT_SHOWKEYBAR;
-
 				if (ViOpt.ShowScrollbar)
 					Info->Options |= VOPT_SHOWSCROLLBAR;
 

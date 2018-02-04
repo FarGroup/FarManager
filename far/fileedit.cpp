@@ -345,13 +345,13 @@ fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD 
 	if (Y2 < 0 || Y2 > ScrY)
 		Y2=ScrY;
 
-	if (X1 >= X2)
+	if (X1 > X2)
 	{
 		X1=0;
 		X2=ScrX;
 	}
 
-	if (Y1 >= Y2)
+	if (Y1 > Y2)
 	{
 		Y1=0;
 		Y2=ScrY;
@@ -426,8 +426,6 @@ void FileEditor::Init(
 	m_FileAttributes=INVALID_FILE_ATTRIBUTES;
 	FileAttributesModified=false;
 	SetTitle(Title);
-	m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
-	m_TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
 	m_Flags.Change(FFILEEDIT_SAVETOSAVEAS, BlankFileName != 0);
 
@@ -601,7 +599,7 @@ void FileEditor::Init(
 		}
 	}
 
-	m_editor->SetPosition(m_X1,m_Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),m_X2,m_Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
+	m_editor->SetPosition(m_X1,m_Y1+(IsTitleBarVisible()?1:0),m_X2,m_Y2-(IsKeyBarVisible()?1:0));
 	m_editor->SetStartPos(StartLine,StartChar);
 	SetDeleteOnClose(DeleteOnClose);
 	int UserBreak;
@@ -669,7 +667,7 @@ void FileEditor::Init(
 	InitKeyBar();
 	m_windowKeyBar->SetPosition(m_X1, m_Y2, m_X2, m_Y2);
 
-	if (Global->Opt->EdOpt.ShowKeyBar)
+	if (IsKeyBarVisible())
 	{
 		m_windowKeyBar->Show();
 	}
@@ -722,8 +720,6 @@ void FileEditor::InitKeyBar()
 	(*m_windowKeyBar)[KBL_MAIN][F8] = f8cps.NextCPname(m_codepage);
 
 	m_windowKeyBar->SetCustomLabels(KBA_EDITOR);
-
-	//m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 }
 
 void FileEditor::SetNamesList(NamesList& Names)
@@ -735,24 +731,17 @@ void FileEditor::Show()
 {
 	if (m_Flags.Check(FFILEEDIT_FULLSCREEN))
 	{
-		if (Global->Opt->EdOpt.ShowKeyBar)
+		if (IsKeyBarVisible())
 		{
 			m_windowKeyBar->SetPosition(0,ScrY,ScrX,ScrY);
-			m_windowKeyBar->Redraw();
 		}
-
-		ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
-		m_editor->SetPosition(0,(Global->Opt->EdOpt.ShowTitleBar?1:0),ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
+		ScreenObjectWithShadow::SetPosition(0,0,ScrX,ScrY);
 	}
-	else
+	if (IsKeyBarVisible())
 	{
-		if (Global->Opt->EdOpt.ShowKeyBar)
-		{
-			m_windowKeyBar->Redraw();
-		}
-		m_editor->SetPosition(m_X1,m_Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),m_X2,m_Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
+		m_windowKeyBar->Redraw();
 	}
-
+	m_editor->SetPosition(m_X1,m_Y1+(IsTitleBarVisible()?1:0),m_X2,m_Y2-(IsKeyBarVisible()?1:0));
 	ScreenObjectWithShadow::Show();
 }
 
@@ -797,7 +786,7 @@ long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
-		int PrevMode=Global->Opt->EdOpt.ShowKeyBar?2:1;
+		int PrevMode=IsKeyBarVisible()?2:1;
 		switch (iParam)
 		{
 			case 0:
@@ -806,13 +795,11 @@ long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 				Global->Opt->EdOpt.ShowKeyBar = true;
 				m_windowKeyBar->Show();
 				Show();
-				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 2:
 				Global->Opt->EdOpt.ShowKeyBar = false;
 				m_windowKeyBar->Hide();
 				Show();
-				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 3:
 				ProcessKey(Manager::Key(KEY_CTRLB));
@@ -1164,20 +1151,18 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 			{
 				Global->Opt->EdOpt.ShowKeyBar=!Global->Opt->EdOpt.ShowKeyBar;
 
-				if (Global->Opt->EdOpt.ShowKeyBar)
+				if (IsKeyBarVisible())
 					m_windowKeyBar->Show();
 				else
 					m_windowKeyBar->Hide();
 
 				Show();
-				m_KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				return true;
 			}
 			case KEY_CTRLSHIFTB:
 			case KEY_RCTRLSHIFTB:
 			{
 				Global->Opt->EdOpt.ShowTitleBar=!Global->Opt->EdOpt.ShowTitleBar;
-				m_TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 				Show();
 				return true;
 			}
@@ -1274,7 +1259,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 				m_windowKeyBar->Show(); //???? Нужно ли????
 				SetEditorOptions(EdOpt);
 
-				if (Global->Opt->EdOpt.ShowKeyBar)
+				if (IsKeyBarVisible())
 					m_windowKeyBar->Show();
 
 				m_editor->Show();
@@ -1283,7 +1268,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 			default:
 			{
 				if (m_Flags.Check(FFILEEDIT_FULLSCREEN) && !Global->CtrlObject->Macro.IsExecuting())
-					if (Global->Opt->EdOpt.ShowKeyBar)
+					if (IsKeyBarVisible())
 						m_windowKeyBar->Show();
 
 				if (!m_windowKeyBar->ProcessKey(Key))
@@ -2202,7 +2187,7 @@ string FileEditor::GetTitle() const
 
 void FileEditor::ShowStatus() const
 {
-	if (!Global->Opt->EdOpt.ShowTitleBar)
+	if (!IsTitleBarVisible())
 		return;
 
 	SetColor(COL_EDITORSTATUS);
@@ -2697,11 +2682,16 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 	}
 
 	int result=m_editor->EditorControl(Command,Param1,Param2);
-	if (result&&Param2&&ECTL_GETINFO==Command)
+	if (result&&ECTL_GETINFO==Command)
 	{
 		const auto Info=static_cast<EditorInfo*>(Param2);
-		if (CheckStructSize(Info)&&m_bAddSignature)
+		if (m_bAddSignature)
 			Info->Options|=EOPT_BOM;
+		if (Global->Opt->EdOpt.ShowTitleBar)
+			Info->Options|=EOPT_SHOWTITLEBAR;
+		if (Global->Opt->EdOpt.ShowKeyBar)
+			Info->Options|=EOPT_SHOWKEYBAR;
+
 	}
 	return result;
 }
@@ -2809,4 +2799,14 @@ uintptr_t FileEditor::GetDefaultCodePage()
 Editor* FileEditor::GetEditor(void)
 {
 	return m_editor.get();
+}
+
+bool FileEditor::IsKeyBarVisible() const
+{
+	return Global->Opt->EdOpt.ShowKeyBar && ObjHeight() > 2;
+}
+
+bool FileEditor::IsTitleBarVisible() const
+{
+	return Global->Opt->EdOpt.ShowTitleBar && ObjHeight() > 1;
 }

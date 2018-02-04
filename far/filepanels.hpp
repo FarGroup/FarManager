@@ -65,6 +65,7 @@ public:
 	virtual void Show() override;
 	virtual void DisplayObject() override;
 	virtual string GetTitle() const override { return {}; }
+	virtual bool IsKeyBarVisible() const override { return Global->Opt->ShowKeyBar; }
 
 	virtual Viewer* GetViewer(void) override;
 	virtual Viewer* GetById(int ID) override;

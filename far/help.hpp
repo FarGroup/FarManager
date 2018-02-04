@@ -56,6 +56,7 @@ public:
 	virtual int GetTypeAndName(string &strType, string &strName) override;
 	virtual int GetType() const override { return windowtype_help; }
 	virtual long long VMProcess(int OpCode, void* vParam, long long iParam) override;
+	virtual bool IsKeyBarVisible() const override { return true; }
 
 	bool GetError() const {return ErrorHelp;}
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);

@@ -70,7 +70,6 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 
 	FilePanelsPtr->m_windowKeyBar = std::make_unique<KeyBar>(FilePanelsPtr);
 	FilePanelsPtr->SetMacroMode(MACROAREA_SHELL);
-	FilePanelsPtr->m_KeyBarVisible = Global->Opt->ShowKeyBar;
 
 	if (CreateRealPanels)
 	{
@@ -375,14 +374,12 @@ long long FilePanels::VMProcess(int OpCode, void* vParam, long long iParam)
 			case 1:
 				Global->Opt->ShowKeyBar = true;
 				m_windowKeyBar->Show();
-				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->WindowManager->RefreshWindow();
 				break;
 			case 2:
 				Global->Opt->ShowKeyBar = false;
 				m_windowKeyBar->Hide();
-				m_KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				Global->WindowManager->RefreshWindow();
 				break;
@@ -477,9 +474,8 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLB:
 		{
 			Global->Opt->ShowKeyBar=!Global->Opt->ShowKeyBar;
-			m_KeyBarVisible = Global->Opt->ShowKeyBar;
 
-			if (!m_KeyBarVisible)
+			if (!IsKeyBarVisible())
 				m_windowKeyBar->Hide();
 
 			SetScreenPosition();
@@ -1072,7 +1068,6 @@ void FilePanels::DisplayObject()
 	else if (m_windowKeyBar->IsVisible())
 		m_windowKeyBar->Hide();
 
-	m_KeyBarVisible=Global->Opt->ShowKeyBar;
 #if 1
 
 	if (LeftPanel()->IsVisible())
