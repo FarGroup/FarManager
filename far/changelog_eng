@@ -2,6 +2,30 @@
 This file is a translation of the main russian changelog and is provided by volunteers.
 It might not always be as up to date as the main changelog.
 =======================================================================================
+
+zg 04.02.2018 19:58:46 +0200 - build 5138
+
+1. guid for "Plugin information" dialog.
+
+zg 04.02.2018 15:03:05 +0200 - build 5137
+
+1. if the height of editor/viewer is less than 3 then the hotkeys panel is not shown.
+
+2. if the height of editor/viewer is less than 2 then the status line is not shown.
+
+drkns 03.02.2018 14:02:24 +0000 - build 5136
+
+1. There were no warnings on rewrite when moving multiple files into one of them.
+   An old bug existing from 1.0 b4.
+
+2. GH #22: Add support for symbolic links creation without elevation.
+
+3. Corrections of hlf, lng and documentation.
+
+4. Support for git in update_headers.bat
+
+5. Minor fixes.
+
 MZK 01.02.2018 22:43:46 -0800
 
 1. Translated @FindFile help page to English in FarEng.hlf.m4.
