@@ -1628,6 +1628,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	}
 	const int Width = 36;
 	DialogBuilder Builder(lng::MPluginInformation, L"ShowPluginInfo");
+	Builder.SetId(PluginInformationId);
 	Builder.AddText(lng::MPluginModuleTitle);
 	Builder.AddConstEditField(pPlugin->GetTitle(), Width);
 	Builder.AddText(lng::MPluginDescription);
