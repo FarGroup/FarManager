@@ -1856,8 +1856,29 @@ namespace os::fs
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 	{
-		return Imports().CreateSymbolicLinkW?
-			(Imports().CreateSymbolicLink(Object.data(), Target.data(), dwFlags | SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE) != FALSE) :
-			CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
+		if (!Imports().CreateSymbolicLinkW)
+			return CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY ? RP_SYMLINKDIR : RP_SYMLINKFILE);
+
+		static DWORD unpriv_flag = (DWORD)-1;
+		if (unpriv_flag == (DWORD)-1)
+		{
+			DWORD const Win10_1703_build = 15063;
+			OSVERSIONINFOEXW osvi = {sizeof(osvi), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), Win10_1703_build};
+
+			DWORDLONG const dwlConditionMask = VerSetConditionMask(
+				VerSetConditionMask(
+					VerSetConditionMask(
+						0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+					VER_MINORVERSION, VER_GREATER_EQUAL),
+				VER_BUILDNUMBER, VER_GREATER_EQUAL
+			);
+
+			if (VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, dwlConditionMask) != FALSE)
+				unpriv_flag = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+			else
+				unpriv_flag = 0;
+		}
+
+		return Imports().CreateSymbolicLinkW(Object.data(), Target.data(), dwFlags | unpriv_flag) != FALSE;
 	}
 }
