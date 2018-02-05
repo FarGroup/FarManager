@@ -690,7 +690,7 @@ newly created #d:\folder2\#.
 
     Pressing #Shift+Enter# on a directory invokes the Windows Explorer and
 shows the selected directory. To show a root directory in the Explorer, you
-should press #Shift+Enter# on the required drive in the ~drive selection menu~@DriveDlg@.
+should press #Shift+Enter# on the required drive in the ~Change drive menu~@DriveDlg@.
 Pressing #Shift+Enter# on "#..#" opens the current directory in the Explorer.
 
   Change to the root folder                                   #Ctrl+\\#
@@ -707,7 +707,7 @@ command configuration.
 
     If the option "~Use Ctrl+PgUp to change drive~@InterfSettings@" is enabled,
 pressing #Ctrl+PgUp# in the root directory switches to the network plugin or
-shows the ~drive selection menu~@DriveDlg@.
+shows the ~Change drive menu~@DriveDlg@.
 
   Create shortcut to the current folder              #Ctrl+Shift+0..9#
 
@@ -974,7 +974,7 @@ in filenames and in editor).
 $ #Plugins configuration#
     You can configure the installed ~plugins~@Plugins@ using the command
 #"Plugins configuration"# from the ~Options menu~@OptMenu@ or by pressing
-#Alt+Shift+F9# in the ~drive selection menu~@DriveDlg@ or plugins menu.
+#Alt+Shift+F9# in the ~Change drive menu~@DriveDlg@ or plugins menu.
 
     To get the help on the currently selected plugin, press #Shift+F1# -
 context-sensitive help on plugin configuration. If the plugin doesn't have a
@@ -1743,14 +1743,13 @@ defined conditions. Press the #Filter# button to open the ~filters menu~@Filters
     The #Advanced# button invokes the ~find file advanced options~@FindFileAdvanced@
 dialog that can be used to specify extended set of search properties.
 
-
 @FindFileAdvanced
 $ #Find file advanced options#
-    The text string that is entered in #Containing text# (or #Containing hex#)
-field can be searched not only in the whole file, but also inside a specified
-range at the beginning of the file, defined by the #Search only in the first#
-property. If the specified value is less than the file size, the rest of the
-file will be ignored even if the required sequence exists there.
+    #Search only in the first# - The string entered in the #Containing text#
+(or #Containing hex#) field can be searched for not only in the whole
+file, but also within the specified range at the beginning of the file.
+If the specified value is less than the file size, the rest of the file
+is ignored even if the searched for sequence exists there.
 
     The following file size suffixes can be used:
     B - for bytes (no suffix also means bytes);
@@ -1761,21 +1760,20 @@ file will be ignored even if the required sequence exists there.
     P - for petabytes;
     E - for exabytes.
 
-  - #Column types# - позволяет задавать формат вывода результатов поиска.
-Column types are encoded as one or several characters, delimited with commas.
-Allowed column types are:
+    #Column types# - Allows to specify search results output format.
+Column types are encoded with one or more characters delimited with commas.
+The following column types are supported:
 
     S[C,T,F,E] - file size
     P[C,T,F,E] - allocation file size
-    G[C,T,F,E] - size of file streams
+    G[C,T,F,E] - size of alternate file streams
                  where: C - format file size;
-                        T - use 1000 instead of 1024 as a divider;
+                        T - use 1000 instead of 1024 as the divisor;
                         F - show size as a decimal fraction
                             using the most appropriate unit,
-                            e. g. 0.97 K, 1.44 M, 3.5 G etc.
-                        E - economic mode, no space between file
-                            size and suffix will be shown
-                            (i.e. 0.97K);
+                            e.g. 0.97 K, 1.44 M, 3.5 G;
+                        E - compact mode, no space before
+                            the file size suffix (e.g 0.97K).
 
     D          - file last write date
     T          - file last write time
@@ -1785,17 +1783,17 @@ Allowed column types are:
     DA[B,M]    - file last access date and time
     DE[B,M]    - file change date and time
                  where: B - brief (Unix style) file time format;
-                        M - use text month names;
+                        M - use text month names.
 
     A          - file attributes
-    Z          - file descriptions
+    Z          - file description
 
     O[L]       - file owner
-                 where: L - show domain name;
+                 where: L - show domain name.
 
     LN         - number of hard links
 
-    F          - number of streams
+    F          - number of alternate streams
 
 
     File attributes are denoted as follows:
@@ -1816,31 +1814,28 @@ Allowed column types are:
        #G#         - Integrity stream
        #N#         - No scrub data
 
-    #Ширина колонок# - позволяет изменить ширину колонок результатов поиска.
-Если ширина равна 0, то используется значение по умолчанию.
+    #Column widths# - allows to change column widths in the search results
+output. If the width equals 0, the default value is used.
 
-    Для использования 12-часового формата времени надо увеличить
-на единицу стандартную ширину колонки времени файла или колонки
-времени и даты файла. После дальнейшего увеличения в этих колонках
-также будут показаны секунды и миллисекунды.
+    To use 12-hour time format, add one to the standard width of
+the file time column or file date and time column. Increase the width
+of these columns even more to show seconds and milliseconds.
 
-    Для показа года в 4-х символьном формате нужно увеличить ширину
-колонки даты на 2.
+    To display the year in 4-digit format, add two to the width of
+the file date column.
 
-    В отличии от режимов панелей, результат поиска может содержать только
-одну колонку. Имя файла присутствует всегда - добавляется последней колонкой
-автоматически.
+    Unlike the panel modes, the search results can have only one column.
+File name is always displayed and added automatically as the last column.
 
-    При указании колонок, отвечающих за показ ссылок и потоков (G, LN, и F) время
-поиска увеличивается.
+    Adding columns for the links and alternate streams information
+(G, LN, and F) increases search time.
 
-    Чтобы в результатах поиска отображать только имена файловых объектов без
-дополнительных атрибутов, оставьте поле "Типы колонок" пустым.
+    To display only file names without additional attributes in the search
+results, leave the “Column types” field empty.
 
-    По умолчанию значения колонок равны:
-    "Типы колонок"   - D,S,A
-    "Ширина колонок" - 14,13,0
-
+    Default field values are:
+    “Column types”  - D,S,A
+    “Column widths” - 14,13,0
 
 @FindFileResult
 $ #Find file: control keys#
@@ -2455,7 +2450,7 @@ Windows and absent in the list of Far ~file associations~@FileAssoc@, the Window
 registered to process this file type will be executed.
 
   #CD drive auto mount#
-  When a CD-ROM drive is selected from the ~drive menu~@DriveDlg@, Far will close the open
+  When a CD-ROM drive is selected from the ~Change drive menu~@DriveDlg@, Far will close the open
 tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
 correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
 
@@ -2483,19 +2478,23 @@ Far allows to retry the operation using the privileged account.
 
 @PanelSettings
 $ #Settings dialog: panel#
-  #Show hidden and#         Enable to show files with Hidden
-  #system files#            and System attributes. This option can
+  #Show hidden and#         Enables displaying files with Hidden
+  #system files#            or System attributes. This option can
                           also be switched by #Ctrl+H#.
 
-  #Highlight files#         Enable ~files highlighting~@Highlight@.
+  #Highlight files#         Enables ~files highlighting~@Highlight@.
 
-  #Select folders#          Enable to select folders, using #Gray +#
-                          and #Gray *#. Otherwise these keys will
-                          select files only.
+  #Select folders#          Enables folder selection with #Gray +#
+                          and #Gray *#. If this option is off, these
+                          keys select only files.
 
-  #Sort folder names#       Apply sorting by extension not only
+  #Right click#             If this option is on, #right mouse click#
+  #selects files#           selects files. Otherwise, it opens Windows
+                          Explorer Context menu.
+
+  #Sort folder names#       Applies sort by extension not only
   #by extension#            to files, but also to folders.
-                          When the option is turned on, sorting
+                          When this option is turned on, sorting
                           by extension works the same as it did
                           in Far 1.65. If the option is turned
                           off, in the extension sort mode the
@@ -2506,56 +2505,54 @@ $ #Settings dialog: panel#
   #sort modes#              panel sort mode is reselected, reverse
                           sort mode will be set.
 
-  #Disable automatic#       The mechanism for automatically updating
-  #update of panels#        the panels when the state of the file
-                          system changes will be disabled if the
-                          count of file objects exceeds the
-                          specified value.
+  #Disable automatic#       If this option is on and the number of file
+  #panel update#            objects exceeds the specified value,
+                          the automatic panel update when the file
+                          system state changes is disabled.
 
-    The auto-update mechanism works only for FAT/FAT32/NTFS file
-    systems. The value of 0 means "update always". To force an
-    update of the panels, press #Ctrl+R#.
+    Auto-update works only for FAT/FAT32/NTFS file systems.
+    The value of 0 means "update always".
+    To force an update of the panels, press #Ctrl+R#.
 
   #Network drives#          This option enables panel autorefresh
-  #autorefresh#             when state of filesystem on network
-                          drives is being changed. It can be useful
+  #autorefresh#             when the file system state of a network
+                          drive is changed. It may be helpful
                           to disable this option on slow network
-                          connections
+                          connections.
 
-  #Show column titles#      Enable display of ~file panel~@FilePanel@ column titles.
+  #Show column titles#      Enables displaying ~file panel~@FilePanel@ column titles.
 
-  #Show status line#        Enable display of file panel status line.
+  #Show status line#        Enables displaying file panel status line.
 
-  #Определять точки#        Различать обычные связи для папок
-  #монтирования диска#      (Junction) и точки монтирования дисков
-                          томов (Volume).
-                          ^<wrap>Эта опция существенно замедляет отображение каталога на медленных сетевых подключениях.
+  #Detect volume#           Distiguishes between normal directory links
+  #mount points#            (Junctions) and volume mount points.
+                          This option significanty slows down displaying
+                          directories on slow network connections.
 
-  #Show total#              Enable display of total information data
-  #information#             at the bottom line of file panel.
+  #Show files total#        Enables displaying the file totals
+  #information#             at the bottom line of the file panel.
 
-  #Show free size#          Enable display of the current disk free
-                          size.
+  #Show free size#          Enables displaying the current disk free space.
 
-  #Show scrollbar#          Enable display of file and ~tree panel~@TreePanel@
-  #in Panels#               scrollbars.
+  #Show scrollbar#          Enables displaying file and ~tree panel~@TreePanel@ scrollbars.
 
-  #Show background#         Enable display of the number of
-  #screens number#          ~background screens~@ScrSwitch@.
+  #Show background#         Enables displaying the number of ~background screens~@ScrSwitch@.
+  #screens number#
 
-  #Show sort mode#          Indicate current sort mode in the
-  #letter#                  upper left panel corner.
+  #Show sort mode#          Displays current sort mode in the upper
+  #letter#                  left-hand corner of the panel.
 
+  #Show ".." in#            Enables displaying the ".." item on root folder
+  #root folders#            lists. Pressing #Enter# on this item opens
+                          ~Change drive menu~@DriveDlg@.
 
-  #Подсвечивать#            Внутренние разделители колонок рисовать
-  #разделители колонок#     цветом, выбранным для конкретного типа
-                          файлового объекта.
-                          Если опция снята, разделители будут 
-                          отрисованы цветом внешних рамок.
+  #Highlight column#        If this option is on, internal column separators
+  #separators#              are displayed in the list item's color.
+                          Otherwise, the color of the outer frames is used.
 
-  #Удваивать глобальные#    Вместо одинарной будет рисоваться 
-  #разделители колонок#     двойная внутренняя рамка между колонками.
-
+  #Double global#           If this option is on, the double internal frame
+  #column separators#       between columns is displayed instead of the single
+                          frame.
 
 @TreeSettings
 $ #Tree settings#
@@ -3424,7 +3421,7 @@ Far 3 (these are, in particular, Unicode characters in filenames and in editor).
 
 @ChangeDriveMode
 $ #Change Drive Menu Options#
-    Диалог позволяют управлять показом информации в ~меню выбора диска~@DriveDlg@.
+    Диалог позволяют управлять показом информации в ~Change drive menu~@DriveDlg@.
 
     #Показывать тип диска#
     Показать тип диска: "жёсткий", "сетевой" и т.п. 

@@ -2096,7 +2096,7 @@ MConfigReverseSort
 
 MConfigAutoUpdateLimit
 "Отключать автооб&новление панелей,"
-"&Disable automatic update of panels"
+"&Disable automatic panel update"
 "Vypnout a&utomatickou aktualizaci panelů"
 "Automatisches Panelupdate &deaktivieren"
 "Pan&el automatikus frissítése kikapcsolva,"
@@ -2156,13 +2156,13 @@ MConfigShowStatus
 
 MConfigDetailedJunction
 "Определять точки монтирования &диска"
-"Determine Volume Mount &point"
-upd:"Determine Volume Mount point"
+"Detect volume mount &points"
+upd:"Detect volume mount &points"
 "Einhängepunkte des Volumes bestimmen"
-upd:"Determine Volume Mount point"
-upd:"Determine Volume Mount point"
+upd:"Detect volume mount &points"
+upd:"Detect volume mount &points"
 "Determinar &punto Montaje Volumen"
-upd:"Determine Volume Mount point"
+upd:"Detect volume mount &points"
 "Determnina Punto Di Montaggio &Volume"
 "Визначати точки монтування &диска"
 
@@ -2231,8 +2231,8 @@ MConfigShowDotsInRoot
 "Show \"..\" in root folders"
 "Zobrazovat \"..\" v kořenových adresářích"
 "In Wurzelverzeichnis \"..\" zeigen"
-"Show \"..\" in root folders"
-"Show \"..\" in root folders"
+upd:"Show \"..\" in root folders"
+upd:"Show \"..\" in root folders"
 "Mostrar \"
 "Zobrazovať \"..\" v koreňových priečinkoch"
 "Mostra \"..\" Nella Cartella Principale"
@@ -13081,7 +13081,7 @@ l:
 "Додаткові параметри пошуку"
 
 MFindFileSearchFirst
-"Проводить поиск в &первых:"
+"Искать только в &первых:"
 "Search only in the &first:"
 "Hledat po&uze v prvních:"
 "Nur &in den ersten x Bytes:"
@@ -15773,7 +15773,7 @@ MMaskGroupTotal
 MChangeDriveTitle
 l:
 "Диск"
-"Drive"
+"Change drive"
 "Jednotka"
 "Laufwerke"
 "Meghajtók"
