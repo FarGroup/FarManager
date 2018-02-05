@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 04.02.2018 22:16:59 -0800
+
+1. Translated @FindFileAdvanced and @PanelSettings help pages to English in FarEng.hlf.m4.
+
+2. Added missing option descriptions to Russian and English help.
+
 zg 04.02.2018 19:58:46 +0200 - build 5138
 
 1. guid for "Plugin information" dialog.
