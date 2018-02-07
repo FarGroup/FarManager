@@ -78,19 +78,14 @@ static auto SkipRE(string::const_iterator Iterator, const string::const_iterator
 class filemasks::masks
 {
 public:
-	NONCOPYABLE(masks);
-	MOVABLE(masks);
-
-	masks() = default;
-
 	bool assign(const string& Masks, DWORD Flags);
-	bool operator ==(const string_view& Name) const;
+	bool operator==(const string_view& FileName) const;
 	bool empty() const;
 
 private:
-	std::vector<string> Masks;
-	std::unique_ptr<RegExp> re;
-	std::vector<RegExpMatch> m;
+	std::vector<string> m_Masks;
+	std::unique_ptr<RegExp> m_Regex;
+	mutable std::vector<RegExpMatch> m_Match;
 };
 
 filemasks::filemasks() = default;
@@ -110,22 +105,23 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 	auto ExpMasks = Masks;
 	std::unordered_set<string> UsedGroups;
 	size_t LBPos, RBPos;
+	string MaskGroupValue;
 
 	while ((LBPos = ExpMasks.find(L'<')) != string::npos && (RBPos = ExpMasks.find(L'>', LBPos)) != string::npos)
 	{
-		string MaskGroupNameWB = ExpMasks.substr(LBPos, RBPos - LBPos + 1);
-		string MaskGroupName = ExpMasks.substr(LBPos + 1, RBPos - LBPos - 1);
-		string MaskGroupValue;
-		if (!UsedGroups.count(MaskGroupName))
+		const auto MaskGroupNameWithBrackets = string_view(ExpMasks).substr(LBPos, RBPos - LBPos + 1);
+		auto MaskGroupName = make_string(MaskGroupNameWithBrackets.substr(1, MaskGroupNameWithBrackets.size() - 2));
+
+		if (contains(UsedGroups, MaskGroupName))
 		{
-			ConfigProvider().GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
-			ReplaceStrings(ExpMasks, MaskGroupNameWB, MaskGroupValue);
-			UsedGroups.emplace(MaskGroupName);
+			MaskGroupValue.clear();
 		}
 		else
 		{
-			ReplaceStrings(ExpMasks, MaskGroupNameWB, L"");
+			ConfigProvider().GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
+			UsedGroups.emplace(std::move(MaskGroupName));
 		}
+		ReplaceStrings(ExpMasks, MaskGroupNameWithBrackets, MaskGroupValue);
 	}
 
 	if (!ExpMasks.empty())
@@ -146,7 +142,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 			auto nextpos = SkipRE(ptr, End);
 			if (nextpos != ptr)
 			{
-				filemasks::masks m;
+				masks m;
 				Result = m.assign(string(ptr, nextpos), Flags);
 				if (Result)
 				{
@@ -182,7 +178,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 
 		if (Result && !SimpleMasksInclude.empty())
 		{
-			filemasks::masks m;
+			masks m;
 			Result = m.assign(SimpleMasksInclude, Flags);
 			if (Result)
 				Include.emplace_back(std::move(m));
@@ -190,7 +186,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 
 		if (Result && !SimpleMasksExclude.empty())
 		{
-			filemasks::masks m;
+			masks m;
 			Result = m.assign(SimpleMasksExclude, Flags);
 			if (Result)
 				Exclude.emplace_back(std::move(m));
@@ -198,7 +194,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 
 		if (Result && Include.empty() && !Exclude.empty())
 		{
-			filemasks::masks m;
+			masks m;
 			Result = m.assign(L"*", Flags);
 			if (Result)
 				Include.emplace_back(std::move(m));
@@ -248,68 +244,87 @@ void filemasks::ErrorMessage()
 		{ lng::MOk });
 }
 
-bool filemasks::masks::assign(const string& masks, DWORD Flags)
+bool filemasks::masks::assign(const string& Masks, DWORD Flags)
 {
-	Masks.clear();
-	re.reset();
-	m.clear();
+	m_Masks.clear();
+	m_Regex.reset();
+	m_Match.clear();
 
-	string expmasks(masks);
+	auto expmasks = Masks;
 
-	static const string PathExtName = L"%PATHEXT%";
+	static const auto PathExtName = L"%PATHEXT%"_sv;
 	if (contains_icase(expmasks, PathExtName))
 	{
-		const auto strSysPathExt(os::env::get(L"PATHEXT"));
-		if (!strSysPathExt.empty())
+		string FarPathExt;
+		for (const auto& i: enum_tokens_with_quotes(os::env::get(L"PATHEXT"_sv), L";"_sv))
 		{
-			const auto MaskList = split<std::vector<string>>(strSysPathExt, STLF_UNIQUE);
-			if (!MaskList.empty())
-			{
-				string strFarPathExt;
-				std::for_each(CONST_RANGE(MaskList, i)
-				{
-					append(strFarPathExt, L'*', i, L',');
-				});
-				strFarPathExt.pop_back();
-				ReplaceStrings(expmasks, PathExtName, strFarPathExt, true);
-			}
+			if (i.empty())
+				continue;
+
+			append(FarPathExt, L'*', i, L',');
 		}
+
+		if (!FarPathExt.empty())
+			FarPathExt.pop_back();
+
+		ReplaceStrings(expmasks, PathExtName, FarPathExt, true);
 	}
 
 	if (expmasks[0] != RE_start)
 	{
-		Masks = split<std::vector<string>>(expmasks, STLF_PACKASTERISKS | STLF_PROCESSBRACKETS | STLF_SORT | STLF_UNIQUE);
-		return !Masks.empty();
+		for (const auto& Mask: enum_tokens_with_quotes(expmasks, L",;"_sv))
+		{
+			if (Mask.empty())
+				continue;
+
+			if (equal(Mask, L"*.*"_sv))
+			{
+				m_Masks.emplace_back(1, L'*');
+			}
+			else if (contains(Mask, L"**"))
+			{
+				auto NewMask = make_string(Mask);
+				ReplaceStrings(NewMask, L"**"_sv, L"*"_sv);
+				m_Masks.emplace_back(std::move(NewMask));
+			}
+			else
+			{
+				m_Masks.emplace_back(ALL_CONST_RANGE(Mask));
+			}
+		}
+
+		return !m_Masks.empty();
 	}
 
-	re = std::make_unique<RegExp>();
+	m_Regex = std::make_unique<RegExp>();
 
-	if (!re->Compile(expmasks.data(), OP_PERLSTYLE | OP_OPTIMIZE))
+	if (!m_Regex->Compile(expmasks.data(), OP_PERLSTYLE | OP_OPTIMIZE))
 	{
 		if (!(Flags & FMF_SILENT))
 		{
-			ReCompileErrorMessage(*re, expmasks);
+			ReCompileErrorMessage(*m_Regex, expmasks);
 		}
 		return false;
 	}
-	m.resize(re->GetBracketsCount());
+
+	m_Match.resize(m_Regex->GetBracketsCount());
 	return true;
 }
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::masks::operator ==(const string_view& FileName) const
+bool filemasks::masks::operator==(const string_view& FileName) const
 {
-	if (!re)
+	if (!m_Regex)
 	{
-		return std::any_of(CONST_RANGE(Masks, i) { return CmpName(i, FileName, false); });
+		return std::any_of(CONST_RANGE(m_Masks, i) { return CmpName(i, FileName, false); });
 	}
 
-	intptr_t i = m.size();
-	return re->Search(ALL_CONST_RANGE(FileName), const_cast<RegExpMatch *>(m.data()), i) != 0; // BUGBUG
+	intptr_t i = m_Match.size();
+	return m_Regex->Search(ALL_CONST_RANGE(FileName), m_Match.data(), i) != 0; // BUGBUG
 }
 
 bool filemasks::masks::empty() const
 {
-	return re? m.empty() : Masks.empty();
+	return m_Regex? m_Match.empty() : m_Masks.empty();
 }

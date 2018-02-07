@@ -280,7 +280,7 @@ void Message::Init(
 		// а теперь проврапим
 		Strings.emplace_back(L"\1"s);
 		FarFormatText(strErrStr, LenErrStr, strErrStr, L"\n", 0); //?? MaxLength ??
-		for (const auto& i : enum_tokens(strErrStr, L"\n"))
+		for (const auto& i : enum_tokens(strErrStr, L"\n"_sv))
 		{
 			Strings.emplace_back(ALL_CONST_RANGE(i));
 		}

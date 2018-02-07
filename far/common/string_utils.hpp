@@ -95,7 +95,7 @@ namespace detail
 	inline void append_one(string& Str, wchar_t Arg, size_t) { Str += Arg; }
 	inline void append_one(string& Str, const wchar_t* Arg, size_t Size) { Str.append(Arg, Size); }
 	inline void append_one(string& Str, const string& Arg, size_t) { Str += Arg; }
-	inline void append_one(string& Str, const string_view& Arg, size_t) { Str.append(Arg.raw_data(), Arg.size()); }
+	inline void append_one(string& Str, const string_view& Arg, size_t) { Str.append(ALL_CONST_RANGE(Arg)); }
 
 	inline void append_impl(string&, const size_t*) {}
 
@@ -137,6 +137,12 @@ auto concat(args&&... Args)
 	string Str;
 	append(Str, FWD(Args)...);
 	return Str;
+}
+
+template<typename char_type>
+void assign(std::basic_string<char_type>& Str, const basic_string_view<char_type>& View)
+{
+	Str.assign(ALL_CONST_RANGE(View));
 }
 
 namespace inplace
@@ -212,6 +218,15 @@ namespace inplace
 	inline auto& quote_normalise(string& Str)
 	{
 		return quote(unquote(Str));
+	}
+}
+
+namespace copy
+{
+	template<typename iterator>
+	void unquote(const string_view& Str, iterator Destination)
+	{
+		std::remove_copy(ALL_CONST_RANGE(Str), Destination, L'"');
 	}
 }
 

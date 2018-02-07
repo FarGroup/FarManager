@@ -1164,7 +1164,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		if (IntChDir(strCmdLine, true))
 		{
 			ppstack.push(PushDir);
-			os::env::set(L"FARDIRSTACK", PushDir);
+			os::env::set(L"FARDIRSTACK"_sv, PushDir);
 		}
 		else
 		{
@@ -1187,11 +1187,11 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			ppstack.pop();
 			if (!ppstack.empty())
 			{
-				os::env::set(L"FARDIRSTACK", ppstack.top());
+				os::env::set(L"FARDIRSTACK"_sv, ppstack.top());
 			}
 			else
 			{
-				os::env::del(L"FARDIRSTACK");
+				os::env::del(L"FARDIRSTACK"_sv);
 			}
 		}
 
@@ -1204,7 +1204,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 		ConsoleActivatior(false);
 
 		clear_and_shrink(ppstack);
-		os::env::del(L"FARDIRSTACK");
+		os::env::del(L"FARDIRSTACK"_sv);
 		return true;
 	}
 

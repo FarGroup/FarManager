@@ -294,7 +294,7 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 		if (NewItem.Folder.empty())
 		{
 			if (NewItem.Name.empty())
-				NewItem.Name = make_string(SeparatorToken);
+				assign(NewItem.Name, SeparatorToken);
 		}
 		else if (!raw)
 		{

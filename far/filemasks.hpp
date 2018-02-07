@@ -62,7 +62,7 @@ private:
 
 	void clear();
 
-	std::list<masks> Include, Exclude;
+	std::vector<masks> Include, Exclude;
 };
 
 #endif // FILEMASKS_HPP_80DC5089_9F1B_484C_BC52_39A6AA1C7299

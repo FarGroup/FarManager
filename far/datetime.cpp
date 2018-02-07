@@ -535,8 +535,7 @@ string MkStrFTime(const wchar_t *Format)
 
 void ParseDateComponents(const string& Src, const range<WORD*>& Dst, wchar_t Separator, WORD Default)
 {
-	const wchar_t Separators[] = { Separator, 0 };
-	const auto Components = enum_tokens(Src, Separators);
+	const auto Components = enum_tokens(Src, string_view(&Separator, 1));
 	std::transform(ALL_CONST_RANGE(Components), Dst.begin(), [&](const string_view& i)
 	{
 		auto Str = make_string(i);

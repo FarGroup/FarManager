@@ -109,10 +109,10 @@ static void MixToFullPath(string& strPath)
 	}
 }
 
-static void MixToFullPath(const string& stPath, string& Dest, const string& stCurrentDir)
+static void MixToFullPath(const string_view& stPath, string& Dest, const string_view& stCurrentDir)
 {
 		string strDest;
-		const string* pstCurrentDir = nullptr;
+		string_view pstCurrentDir;
 		bool blIgnore = false;
 		size_t PathDirOffset = 0;
 		const auto PathType = ParsePath(stPath, &PathDirOffset);
@@ -133,13 +133,13 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 						size_t CurDirDirOffset = 0;
 						if (ParsePath(stCurrentDir, &CurDirDirOffset) != root_type::unknown)
 						{
-							strDest = string(stCurrentDir.data(), CurDirDirOffset);
+							assign(strDest, stCurrentDir.substr(0, CurDirDirOffset));
 						}
 					}
 				}
 				else //"abc" or whatever
 				{
-					pstCurrentDir = &stCurrentDir;
+					pstCurrentDir = stCurrentDir;
 				}
 			}
 			break;
@@ -162,7 +162,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 					{
 						if (upper(stPath[0])==upper(stCurrentDir[0]))
 						{
-							strDest=stCurrentDir;
+							assign(strDest, stCurrentDir);
 						}
 						else
 						{
@@ -189,13 +189,13 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 			break;
 		}
 
-		if (pstCurrentDir)
+		if (!pstCurrentDir.empty())
 		{
-			strDest += *pstCurrentDir;
+			append(strDest, pstCurrentDir);
 			AddEndSlash(strDest);
 		}
 
-		strDest.append(stPath, PathOffset, string::npos);
+		append(strDest, stPath.substr(PathOffset));
 
 		if (!blIgnore && !HasPathPrefix(strDest))
 			MixToFullPath(strDest);
@@ -203,7 +203,7 @@ static void MixToFullPath(const string& stPath, string& Dest, const string& stCu
 		Dest = std::move(strDest);
 }
 
-string ConvertNameToFull(const string& Object)
+string ConvertNameToFull(const string_view& Object)
 {
 	string strDest;
 	MixToFullPath(Object, strDest, os::fs::GetCurrentDirectory());

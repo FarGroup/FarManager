@@ -1294,8 +1294,8 @@ public:
 			return;
 
 		std::vector<string> MessageLines;
-		const string Summary = concat(Info.Summary, L" ("_sv, Function, L')'), Description = Info.Description;
-		const auto Enumerator = enum_tokens(Description, L"\n");
+		const string Summary = concat(Info.Summary, L" ("_sv, Function, L')');
+		const auto Enumerator = enum_tokens(Info.Description, L"\n"_sv);
 		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view& View) { return make_string(View); });
 		Message(MSG_WARNING | MSG_LEFTALIGN,
 			Summary,

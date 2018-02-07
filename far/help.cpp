@@ -96,7 +96,7 @@ public:
 
 	bool operator <(const HelpRecord& rhs) const
 	{
-		return StrCmpI(HelpStr, rhs.HelpStr) < 0;
+		return less_icase{}(HelpStr, rhs.HelpStr);
 	}
 };
 

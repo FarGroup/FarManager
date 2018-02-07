@@ -927,19 +927,21 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 			if (mps->Mode == 1 && static_cast<size_t>(mps->Index) >= m_ListData.size())
 				return Result;
 
-			std::vector<string> itemsList;
-
-			if (mps->Action != 3)
+			const auto& ApplyToList = [&](const auto& Selector)
 			{
-				if (mps->Mode == 2)
+				for (const auto& i : enum_tokens_with_quotes(mps->Item, L"\r\n"_sv))
 				{
-					itemsList = split<decltype(itemsList)>(mps->Item, STLF_UNIQUE, L"\r\n");
-					if (itemsList.empty())
-						return Result;
-				}
+					if (i.empty())
+						continue;
 
-				SaveSelection();
-			}
+					const auto Pos = FindFile(PointToName(i), true);
+					if (Pos == -1)
+						continue;
+
+					Selector(Pos);
+					Result++;
+				}
+			};
 
 			// mps->ActionFlags
 			switch (mps->Action)
@@ -949,28 +951,25 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 					switch(mps->Mode)
 					{
 						case 0: // снять со всего?
+							SaveSelection();
 							Result=GetRealSelCount();
 							ClearSelection();
 							break;
+
 						case 1: // по индексу?
+							SaveSelection();
 							Result=1;
 							Select(m_ListData[mps->Index], false);
 							break;
+
 						case 2: // набор строк
-						{
+							SaveSelection();
 							Result=0;
-							std::for_each(CONST_RANGE(itemsList, i)
-							{
-								int Pos = FindFile(PointToName(i), true);
-								if (Pos != -1)
-								{
-									Select(m_ListData[Pos], false);
-									Result++;
-								}
-							});
+							ApplyToList([&](size_t Pos){ Select(m_ListData[Pos], false); });
 							break;
-						}
+
 						case 3: // масками файлов, разделенных запятыми
+							SaveSelection();
 							Result = SelectFiles(SELECT_REMOVEMASK, mps->Item.data());
 							break;
 					}
@@ -982,31 +981,28 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 					switch(mps->Mode)
 					{
 						case 0: // выделить все?
+							SaveSelection();
 							std::for_each(RANGE(m_ListData, i)
 							{
 								Select(i, true);
 							});
 							Result=GetRealSelCount();
 							break;
+
 						case 1: // по индексу?
+							SaveSelection();
 							Result=1;
 							Select(m_ListData[mps->Index], true);
 							break;
+
 						case 2: // набор строк через CRLF
-						{
+							SaveSelection();
 							Result=0;
-							std::for_each(CONST_RANGE(itemsList, i)
-							{
-								int Pos = FindFile(PointToName(i), true);
-								if (Pos != -1)
-								{
-									Select(m_ListData[Pos], true);
-									Result++;
-								}
-							});
+							ApplyToList([&](size_t Pos) { Select(m_ListData[Pos], true); });
 							break;
-						}
+
 						case 3: // масками файлов, разделенных запятыми
+							SaveSelection();
 							Result = SelectFiles(SELECT_ADDMASK, mps->Item.data());
 							break;
 					}
@@ -1018,31 +1014,28 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 					switch(mps->Mode)
 					{
 						case 0: // инвертировать все?
+							SaveSelection();
 							std::for_each(RANGE(m_ListData, i)
 							{
 								Select(i, !i.Selected);
 							});
 							Result=GetRealSelCount();
 							break;
+
 						case 1: // по индексу?
+							SaveSelection();
 							Result=1;
 							Select(m_ListData[mps->Index], !m_ListData[mps->Index].Selected);
 							break;
+
 						case 2: // набор строк через CRLF
-						{
+							SaveSelection();
 							Result=0;
-							std::for_each(CONST_RANGE(itemsList, i)
-							{
-								int Pos = FindFile(PointToName(i), true);
-								if (Pos != -1)
-								{
-									Select(m_ListData[Pos], !m_ListData[Pos].Selected);
-									Result++;
-								}
-							});
+							ApplyToList([&](size_t Pos) { Select(m_ListData[Pos], !m_ListData[Pos].Selected); });
 							break;
-						}
+
 						case 3: // масками файлов, разделенных запятыми
+							SaveSelection();
 							Result = SelectFiles(SELECT_INVERTMASK, mps->Item.data());
 							break;
 					}
@@ -2903,7 +2896,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 		}
 	}
 
-	strFindDir = make_string(PointToName(m_CurDir));
+	assign(strFindDir, PointToName(m_CurDir));
 	/*
 		// вот и зачем это? мы уже и так здесь, в Options.Folder
 		// + дальше по тексту strSetDir уже содержит полный путь
@@ -3917,7 +3910,7 @@ bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty()) // для плагинов
 	{
-		strName = make_string(PointToName(PluginsList.front().m_HostFile));
+		assign(strName, PointToName(PluginsList.front().m_HostFile));
 	}
 	else if (m_PanelMode == panel_mode::NORMAL_PANEL)
 	{
@@ -4441,7 +4434,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 					strQuotedName = GetCurDir();
 				}
 
-				strQuotedName = make_string(PointToName(strQuotedName));
+				assign(strQuotedName, PointToName(strQuotedName));
 			}
 		}
 
@@ -5180,7 +5173,7 @@ void FileList::ProcessCopyKeys(int Key)
 
 								if (m_CachedOpenPanelInfo.HostFile && *m_CachedOpenPanelInfo.HostFile)
 								{
-									strDestPath = make_string(PointToName(m_CachedOpenPanelInfo.HostFile));
+									assign(strDestPath, PointToName(m_CachedOpenPanelInfo.HostFile));
 									size_t pos = strDestPath.rfind(L'.');
 									if (pos != string::npos)
 										strDestPath.resize(pos);
@@ -5956,7 +5949,7 @@ void FileList::PluginHostGetFiles()
 	if (((!AnotherPanel->IsVisible() || AnotherPanel->GetType() != panel_type::FILE_PANEL) &&
 	        !m_SelFileCount) || strDestPath.empty())
 	{
-		strDestPath = make_string(PointToName(strSelName));
+		assign(strDestPath, PointToName(strSelName));
 		// SVS: А зачем здесь велся поиск точки с начала?
 		size_t pos = strDestPath.rfind(L'.');
 		if (pos != string::npos)
@@ -7919,7 +7912,7 @@ bool FileList::ConvertName(const string_view& SrcName,string &strDest,int MaxLen
 	{
 		if (SrcLength>MaxLength)
 		{
-			strDest = make_string(SrcName.substr(SrcLength - MaxLength, MaxLength));
+			assign(strDest, SrcName.substr(SrcLength - MaxLength, MaxLength));
 		}
 		else
 		{
@@ -8358,7 +8351,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								const auto ExtPtr = PointToExt(Name);
 								if (!ExtPtr.empty())
 								{
-									strNameCopy = make_string(Name.substr(0, Name.size() - ExtPtr.size()));
+									assign(strNameCopy, Name.substr(0, Name.size() - ExtPtr.size()));
 									Name = strNameCopy;
 								}
 							}

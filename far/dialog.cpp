@@ -4271,7 +4271,7 @@ intptr_t Dialog::CloseDialog()
 */
 void Dialog::SetHelp(const string_view& Topic)
 {
-	HelpTopic = make_string(Topic);
+	assign(HelpTopic, Topic);
 }
 
 void Dialog::ShowHelp() const

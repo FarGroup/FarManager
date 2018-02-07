@@ -1039,6 +1039,9 @@
     <ClInclude Include="common\bytes_view.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\enum_tokens.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Far.ico">

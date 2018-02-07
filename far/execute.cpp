@@ -180,8 +180,7 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 		return false;
 
 	const auto ModuleExt = PointToExt(Module);
-	const auto strPathExt = lower(os::env::get_pathext());
-	const auto PathExtList = enum_tokens(strPathExt, L";");
+	const auto PathExtList = enum_tokens(lower(os::env::get_pathext()), L";"_sv);
 
 	const auto& TryWithExtOrPathExt = [&](const string& Name, const auto& Predicate)
 	{
@@ -229,7 +228,7 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 	if (Internal && ModuleExt.empty())
 	{
 		// Neither path nor extension has been specified, it could be some internal %COMSPEC% command:
-		const auto ExcludeCmdsList = split<std::vector<string>>(os::env::expand(Global->Opt->Exec.strExcludeCmds), STLF_UNIQUE);
+		const auto ExcludeCmdsList = enum_tokens_with_quotes(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"_sv);
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
 		{
@@ -255,12 +254,16 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 
 	{
 		// Look in the %PATH%:
-		const auto PathEnv = os::env::get(L"PATH");
+		const auto PathEnv = os::env::get(L"PATH"_sv);
 		if (!PathEnv.empty())
 		{
-			for (const auto& Path : split<std::vector<string>>(PathEnv, 0, L";"))
+			string FullName;
+			for (const auto& Path : enum_tokens_with_quotes(PathEnv, L";"_sv))
 			{
-				auto FullName = Path;
+				if (Path.empty())
+					continue;
+
+				assign(FullName, Path);
 				AddEndSlash(FullName);
 				FullName += Module;
 
@@ -451,7 +454,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 	if (!GetShellType(Ext, strValue))
 	{
 		// Type is absent, however, verbs could be specified right in the extension key
-		strValue = make_string(Ext);
+		assign(strValue, Ext);
 	}
 
 	if (const auto Key = os::reg::key::open(os::reg::key::classes_root, strValue, KEY_QUERY_VALUE))
@@ -460,7 +463,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 			return nullptr;
 	}
 
-	strValue += L"\\shell";
+	strValue += L"\\shell\\shell";
 
 	const auto Key = os::reg::key::open(os::reg::key::classes_root, strValue, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
 	if (!Key)
@@ -471,35 +474,32 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 	if (Key.get(L"", strAction))
 	{
 		RetPtr = EmptyToNull(strAction.data());
-		LONG RetEnum = ERROR_SUCCESS;
-		const auto ActionList = split<std::vector<string>>(strAction, STLF_UNIQUE);
-
-		if (RetPtr && !ActionList.empty())
+		bool ItemFound = false;
+		if (RetPtr)
 		{
-			for (const auto& i: ActionList)
+			for (const auto& i: enum_tokens_with_quotes(strAction, L","_sv))
 			{
-				strNewValue = strValue;
-				strNewValue += i;
-				strNewValue += command_action;
+				if (i.empty())
+					continue;
+
+				strNewValue = concat(strValue, i, command_action);
 
 				if (os::reg::key::open(os::reg::key::classes_root, strNewValue, KEY_QUERY_VALUE))
 				{
-					strValue += i;
-					strAction = i;
+					append(strValue, i);
+					assign(strAction, i);
 					RetPtr = strAction.data();
-					RetEnum = ERROR_NO_MORE_ITEMS;
-				}
-				if (RetEnum != ERROR_SUCCESS)
+					ItemFound = true;
 					break;
+				}
 			}
 		}
-		else
+
+		if (!ItemFound)
 		{
 			strValue += strAction;
+			RetPtr = nullptr;
 		}
-
-		if (RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
-			RetPtr=nullptr;
 	}
 	else
 	{
@@ -554,9 +554,9 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 			strNewValue = os::env::expand(strNewValue);
 
 			// Выделяем имя модуля
-			if (strNewValue.front() == L'\"')
+			if (strNewValue.front() == L'"')
 			{
-				size_t QuotePos = strNewValue.find(L'\"', 1);
+				size_t QuotePos = strNewValue.find(L'"', 1);
 
 				if (QuotePos != string::npos)
 				{
@@ -613,7 +613,7 @@ bool GetShellType(const string_view& Ext, string& strType, ASSOCIATIONTYPE aType
 	{
 		if (aType == AT_URLPROTOCOL)
 		{
-			strType = make_string(Ext);
+			assign(strType, Ext);
 			return true;
 		}
 
@@ -915,7 +915,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		strComspec = os::env::expand(Global->Opt->Exec.Comspec);
 		if (strComspec.empty())
 		{
-			strComspec = os::env::get(L"COMSPEC");
+			strComspec = os::env::get(L"COMSPEC"_sv);
 			if (strComspec.empty())
 			{
 				Message(MSG_WARNING,
@@ -1204,7 +1204,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 			while (*PtrCmd)
 			{
-				if (*PtrCmd == L'\"')
+				if (*PtrCmd == L'"')
 					InQuotes = !InQuotes;
 				else if (*PtrCmd == L' ' && !InQuotes)
 					break;
@@ -1370,7 +1370,7 @@ bool ExpandOSAliases(string& strStr)
 
 	if (!ret)
 	{
-		const auto strComspec(os::env::get(L"COMSPEC"));
+		const auto strComspec(os::env::get(L"COMSPEC"_sv));
 		if (!strComspec.empty())
 		{
 			ExeName=PointToName(strComspec);

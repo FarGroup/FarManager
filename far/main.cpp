@@ -378,8 +378,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
-	os::env::set(L"FARPROFILE", Global->Opt->ProfilePath);
-	os::env::set(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
+	os::env::set(L"FARPROFILE"_sv, Global->Opt->ProfilePath);
+	os::env::set(L"FARLOCALPROFILE"_sv, Global->Opt->LocalProfilePath);
 
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
 		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
@@ -509,13 +509,13 @@ static int mainImpl(const range<wchar_t**>& Args)
 	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	os::env::set(L"FARHOME", Global->g_strFarPath);
+	os::env::set(L"FARHOME"_sv, Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
 	if (os::security::is_admin())
-		os::env::set(L"FARADMINMODE", L"1");
+		os::env::set(L"FARADMINMODE"_sv, L"1"_sv);
 	else
-		os::env::del(L"FARADMINMODE");
+		os::env::del(L"FARADMINMODE"_sv);
 
 	{
 		int ServiceResult;
@@ -770,7 +770,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	far_language::instance().load(Global->g_strFarPath, Global->Opt->strLanguage, static_cast<int>(lng::MNewFileName + 1));
 
-	os::env::set(L"FARLANG", Global->Opt->strLanguage);
+	os::env::set(L"FARLANG"_sv, Global->Opt->strLanguage);
 
 	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
 		Global->Opt->LoadPlug.strCustomPluginsPath = ConvertNameToFull(unquote(os::env::expand(Global->Opt->LoadPlug.strCustomPluginsPath)));

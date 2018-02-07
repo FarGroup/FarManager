@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // TODO: use std::wstring_view
 
 template<typename T>
-class basic_string_view: public range<const T*>
+class basic_string_view : public range<const T*>
 {
 public:
 	constexpr basic_string_view() = default;
@@ -51,12 +51,14 @@ public:
 	{
 	}
 
-	constexpr basic_string_view(const std::basic_string<T>& Str):
+	constexpr basic_string_view(const std::basic_string<T>& Str) :
 		basic_string_view(Str.data(), Str.size())
 	{
 	}
 
-	constexpr basic_string_view substr(size_t Pos = 0, size_t Count = std::basic_string<T>::npos) const
+	static constexpr size_t npos = size_t(-1);
+
+	constexpr basic_string_view substr(size_t Pos = 0, size_t Count = npos) const
 	{
 		assert(Pos <= this->size());
 		return { this->raw_data() + Pos, std::min(Count, this->size() - Pos) };
@@ -86,14 +88,28 @@ public:
 		*this = substr(0, this->size() - Size);
 	}
 
-	constexpr bool starts_with(const basic_string_view<T>& Str) const
+	constexpr bool starts_with(const basic_string_view<T>& Str) const noexcept
 	{
 		return this->size() >= Str.size() && this->substr(0, Str.size()) == Str;
 	}
 
-	constexpr bool ends_with(const basic_string_view<T>& Str) const
+	constexpr bool ends_with(const basic_string_view<T>& Str) const noexcept
 	{
 		return this->size() >= Str.size() && this->substr(this->size() - Str.size()) == Str;
+	}
+
+	/*constexpr*/ size_t find(const basic_string_view<T>& Str, size_t Pos = 0) const noexcept
+	{
+		if (Pos >= this->size())
+			return npos;
+
+		const auto Result = std::search(this->cbegin() + Pos, this->cend(), ALL_CONST_RANGE(Str));
+		return Result == this->cend()? npos : Result - this->begin();
+	}
+
+	/*constexpr*/ size_t find(T Char, size_t Pos = 0) const noexcept
+	{
+		return find({&Char, 1}, Pos);
 	}
 
 	/*
@@ -136,25 +152,19 @@ constexpr auto operator "" _sv(const wchar_t* Data, size_t Size) noexcept { retu
 template<typename T>
 auto operator+(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
 {
-	std::basic_string<T> Result;
-	Result.reserve(Lhs.size() + Rhs.size());
-	return Result.append(Lhs).append(Rhs.raw_data(), Rhs.size());
+	return concat(Lhs, Rhs);
 }
 
 template<typename T>
 auto operator+(const basic_string_view<T>& Lhs, const std::basic_string<T>& Rhs)
 {
-	std::basic_string<T> Result;
-	Result.reserve(Lhs.size() + Rhs.size());
-	return Result.append(Lhs.raw_data(), Lhs.size()).append(Rhs);
+	return concat(Lhs, Rhs);
 }
 
 template<typename T>
 auto operator+(const basic_string_view<T>& Lhs, const basic_string_view<T>& Rhs)
 {
-	std::basic_string<T> Result;
-	Result.reserve(Lhs.size() + Rhs.size());
-	return Result.append(Lhs.raw_data(), Lhs.size()).append(Rhs.raw_data(), Rhs.size());
+	return concat(Lhs, Rhs);
 }
 
 template<typename T>
@@ -202,7 +212,7 @@ auto& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T>& Str)
 template<typename T>
 std::basic_string<T> make_string(const basic_string_view<T>& View)
 {
-	return { View.raw_data(), View.size() };
+	return { ALL_CONST_RANGE(View) };
 }
 
 using string_view = basic_string_view<wchar_t>;

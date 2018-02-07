@@ -115,7 +115,10 @@ private:
 
 class PluginManager: noncopyable
 {
-	struct plugin_less { bool operator ()(const Plugin* a, const Plugin *b) const; };
+	struct plugin_less
+	{
+		bool operator()(const Plugin* a, const Plugin *b) const;
+	};
 
 public:
 	PluginManager();

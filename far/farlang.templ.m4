@@ -6263,18 +6263,30 @@ upd:"Default"
 "Default"
 "За замовчуванням"
 
-MEditGoToLine
+MGoTo
 l:
 "Перейти"
-"Go to position"
-"Jít na pozici"
-"Gehe zu Zeile"
-"Sorra ugrás"
-"Idź do linii"
-"Ir a posición"
-"Ísť na pozíciu"
-"Vai Alla Linea"
+"Go to"
+"Jdi na"
+"Gehe zu"
+"Ugrás"
+"Idź do"
+"Ir a"
+"Ísť na"
+"Vai A "
 "Перейти"
+
+MGoToHex
+"16-ричное &значение"
+"&Hex value"
+upd:"&Hex value"
+upd:"&Hex value"
+"&Hexában"
+"&Szesnastkowo"
+"&Hexa"
+upd:"&Hex offset"
+"&Esadecimale"
+"16-ове &значення"
 
 MFolderShortcutsTitle
 l:
@@ -22054,55 +22066,6 @@ l:
 "PravýCtrl"
 "CtrlDestra"
 "ПравийCtrl"
-
-MViewerGoTo
-l:
-"Перейти"
-"Go to"
-"Jdi na"
-"Gehe zu"
-"Ugrás"
-"Idź do"
-"Ir a:"
-"Ísť na"
-"Vai A "
-"Перейти"
-
-MGoToPercent
-"&Процент"
-"&Percent"
-"&Procent"
-"&Prozent"
-"&Százalékban"
-"&Procent"
-"&Porcentaje"
-"&Percent"
-"&Percentuale"
-"&Відсоток"
-
-MGoToHex
-"16-ричное &смещение"
-"&Hex offset"
-"&Hex offset"
-"Position (&Hex)"
-"&Hexában"
-"Pozycja (&szesnastkowo)"
-"Dirección &hexa"
-"&Hex offset"
-"Posizione &Esadecimale"
-"16-ове &зміщення"
-
-MGoToDecimal
-"10-ичное с&мещение"
-"&Decimal offset"
-"&Desítkový offset"
-"Position (&dezimal)"
-"&Decimálisan"
-"Pozycja (&dziesiętnie)"
-"Dirección &decimal"
-"&Desiatkový offset"
-"Posizione &Decimale"
-"10-ове з&міщення"
 
 MExcTrappedException
 "Исключительная ситуация"

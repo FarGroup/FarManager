@@ -577,7 +577,7 @@ namespace os::fs
 			return false;
 		}
 
-		m_Name = make_string(Object);
+		assign(m_Name, Object);
 		m_ShareMode = ShareMode;
 		return true;
 	}
@@ -1765,7 +1765,7 @@ namespace os::fs
 			GetReparsePointInfo(FileName, strTmp, &FindData.dwReserved0); //MSDN
 		}
 
-		FindData.strFileName = make_string(PointToName(FileName));
+		assign(FindData.strFileName, PointToName(FileName));
 		FindData.strAlternateFileName = ConvertNameToShort(FileName);
 		return true;
 	}
@@ -1859,8 +1859,7 @@ namespace os::fs
 		if (!Imports().CreateSymbolicLinkW)
 			return CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY ? RP_SYMLINKDIR : RP_SYMLINKFILE);
 
-		static DWORD unpriv_flag = (DWORD)-1;
-		if (unpriv_flag == (DWORD)-1)
+		static const DWORD unpriv_flag = []
 		{
 			DWORD const Win10_1703_build = 15063;
 			OSVERSIONINFOEXW osvi = {sizeof(osvi), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), Win10_1703_build};
@@ -1873,11 +1872,11 @@ namespace os::fs
 				VER_BUILDNUMBER, VER_GREATER_EQUAL
 			);
 
-			if (VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, dwlConditionMask) != FALSE)
-				unpriv_flag = SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
-			else
-				unpriv_flag = 0;
-		}
+			if (VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, dwlConditionMask))
+				return SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+
+			return 0;
+		}();
 
 		return Imports().CreateSymbolicLinkW(Object.data(), Target.data(), dwFlags | unpriv_flag) != FALSE;
 	}

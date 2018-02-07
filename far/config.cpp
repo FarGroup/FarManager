@@ -3101,7 +3101,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 							strHelpLanguage = HelpLanguage;
 						}
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						os::env::set(L"FARLANG", strLanguage);
+						os::env::set(L"FARLANG"_sv, strLanguage);
 						PrepareUnitStr();
 						Global->WindowManager->InitKeyBar();
 						Global->CtrlObject->Cp()->RedrawKeyBar();

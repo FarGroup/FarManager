@@ -551,11 +551,11 @@ static PanelMode* ConvertPanelModesA(const oldfar::PanelMode *pnmA, size_t iCoun
 		const auto& Src = std::get<0>(i);
 		auto& Dest = std::get<1>(i);
 
-		size_t iColumnCount = 0;
+		size_t iColumnCount = 0; 
 		if (Src.ColumnTypes)
 		{
-			// BUGBUG why not just count commas?
-			iColumnCount = split<std::vector<string>>(encoding::oem::get_chars(Src.ColumnTypes), 0, L",").size();
+			const auto Iterator = null_iterator(Src.ColumnTypes);
+			iColumnCount = std::count(Iterator, Iterator.end(), ',') + 1;
 		}
 
 		Dest.ColumnTypes = AnsiToUnicode(Src.ColumnTypes);
@@ -830,7 +830,7 @@ static char *InsertQuoteA(char *Str)
 
 	if (Str[l - 1] != '"')
 	{
-		Str[l++] = '\"';
+		Str[l++] = '"';
 		Str[l] = 0;
 	}
 
@@ -1721,7 +1721,7 @@ static void WINAPI UnquoteA(char *Str) noexcept
 
 	while (*Str)
 	{
-		if (*Str != '\"')
+		if (*Str != '"')
 			*Dst++ = *Str;
 
 		Str++;
@@ -4958,9 +4958,9 @@ private:
 			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().data();
 
 			if (Global->strRegUser.empty())
-				os::env::del(L"FARUSER");
+				os::env::del(L"FARUSER"_sv);
 			else
-				os::env::set(L"FARUSER", Global->strRegUser);
+				os::env::set(L"FARUSER"_sv, Global->strRegUser);
 
 			ExecuteFunction(es, &InfoCopy);
 

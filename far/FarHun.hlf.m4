@@ -2320,34 +2320,20 @@ tartalmú fájlt, vigyük a kurzort a fájl végére (az End billentyűvel).
 
 
 @ViewerGotoPos
-$ #Nézőke: ugrás a megadott pozícióba#
-    A párbeszédablak segítségével a nézőkében megnyitott fájl megadott részére
-ugorhatunk.
+$ #Viewer: go to specified position#
+    This dialog allows to change the position in the internal viewer.
 
-    Megadhatunk decimális eltolást, százalékot vagy hexadecimális eltolást.
-Az értékeket beírhatjuk olyan specifikus formában, ahol a számok elé
-vagy mögé írt kiegészítő elemek határozzák meg az értékek kezelését. Ha nem
-adunk meg ilyen kiegészítőket, csak számokat, az értékek kezelési
-módját a rádiógombokkal jelölhetjük ki.
+    ^<wrap>You can enter an absolute or relative value or percentage, in decimal or hexadecimal.
+    ^<wrap>For relative add #+# or #-# before the value.
+    ^<wrap>For percentage add #%# after the value.
+    ^<wrap>For decimal either add #m# after the value or uncheck the #Hex value#.
+    ^<wrap>For hexadecimal either add #0x# or #$# before the value, #h# after the value, or check the #Hex value#.
 
-    A számok elé írt + vagy - jel relatív eltolást eredményez.
-
-    A hexadecimális eltolást a következő formátumokban adhatjuk meg:
-       0xNNNN, NNNNh, $NNNN
-
-    A decimális eltolás (nem százalékos) formátuma NNNNd.
-
-   Példák:
-
-     #50%#           A fájl közepére ugrik (50%).
-     #-10%#          ^<wrap>A jelenlegi helyzettől 10%-ot lép
-visszafelé (ha 50%-on álltunk, az új pozíció 40%-on lesz).
-     #0x100#         A 0x100 (256) bájtpozícióba lép.
-     #+0x300#        0x300 (768) bájtot lép előre.
-
-    Ha a számértéket az említett formátumleírók valamelyikével ("%", "0x",
-"h", "$", "d") kiegészítve adtuk meg, a rádiógombok állapotát a FAR nem veszi
-figyelembe.
+    The value will be interpreted as an offset from the beginning of the file.
+If the current view mode is #unwrapped text# it is possible to enter an additional value
+which will be interpreted as a first visible column.
+Values must be delimited by space or one of the following characters: #,.;:#.
+If a value is omitted the corresponding parameter will not be changed.
 
 
 @ViewerSearch
@@ -2569,21 +2555,18 @@ Mac OS formátumnak megfelelően.
 
 
 @EditorGotoPos
-$ #Szerkesztő: ugrás megadott sorra és oszlopra#
-    A párbeszédablakban a belső szerkesztőbe betöltött fájl pozícióiba
-ugrást definiálhatjuk.
+$ #Editor: go to specified line and character#
+    This dialog allows to change the position in the internal editor.
 
-    Megadhatjuk a #sort#, az #oszlopot# (col) vagy mindkettőt.
+    ^<wrap>You can enter an absolute or relative value or percentage, in decimal or hexadecimal.
+    ^<wrap>For relative add #+# or #-# before the value.
+    ^<wrap>For percentage add #%# after the value.
+    ^<wrap>For decimal either add #m# after the value or uncheck the #Hex value#.
+    ^<wrap>For hexadecimal either add #0x# or #$# before the value, #h# after the value, or check the #Hex value#.
 
-    Az első érték a sor számát, a második az oszlop számát jelképezi.
-A számokat a következő karakterek valamelyikével kell elválasztani: "," "."
-";" ":" vagy szóköz.
-
-    Ha az értéket ",Col" formátumban adjuk meg, a szerkesztő a jelenlegi sor
-megadott oszlopára ugrik.
-
-    Ha a sorszám után "%"-ot írunk, a szerkesztő a fájl megadott százalékú
-pozíciójába lép, például #50%#-ot beírva a fájl közepére ugrik.
+    The first value will be interpreted as a row number, the second as a character number.
+Values must be delimited by space or one of the following characters: #,.;:#.
+If a value is omitted the corresponding parameter will not be changed.
 
 
 @EditorReload

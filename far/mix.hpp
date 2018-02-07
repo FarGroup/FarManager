@@ -36,16 +36,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<class T>
-unsigned int ToPercent(T N1, T N2)
+auto ToPercent(T Value, T Base)
 {
-	if (N1 > 10000)
-	{
-		N1 /= 100;
-		N2 /= 100;
-	}
+	if (!Base)
+		return 0;
 
-	return N2? static_cast<unsigned int>(N1 * 100 / N2) : 0;
+	return static_cast<int>(std::numeric_limits<T>::max() / 100 > Value?
+		Value * 100 / Base :
+		Value / Base * 100);
 }
+
+template<typename T>
+T FromPercent(int Percent, T Base)
+{
+	if (!Percent)
+		return 0;
+
+	return std::numeric_limits<T>::max() / Percent > Base?
+		Base * Percent / 100 :
+		Base / 100 * Percent;
+};
 
 bool FarMkTempEx(string &strDest, const wchar_t *Prefix=nullptr, bool WithTempPath = true, const wchar_t *UserTempPath=nullptr);
 

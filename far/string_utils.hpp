@@ -83,6 +83,12 @@ struct equal_to_icase
 	bool operator()(const string_view& Str1, const string_view& Str2) const;
 };
 
+struct less_icase
+{
+	bool operator()(wchar_t Chr1, wchar_t Chr2) const;
+	bool operator()(const string_view& Str1, const string_view& Str2) const;
+};
+
 bool equal_icase(const string_view& Str1, const string_view& Str2);
 bool starts_with_icase(const string_view& Str, const string_view& Prefix);
 bool ends_with_icase(const string_view& Str, const string_view& Suffix);

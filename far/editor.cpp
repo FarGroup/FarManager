@@ -4375,110 +4375,39 @@ void Editor::GoToLineAndShow(size_t Line)
 
 void Editor::GoToPosition()
 {
-	DialogBuilder Builder(lng::MEditGoToLine, L"EditorGotoPos");
-	string strData;
-	Builder.AddEditField(strData,28,L"LineNumber",DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_NOAUTOCOMPLETE);
-	Builder.AddOKCancel();
-	Builder.ShowDialog();
-	if(!strData.empty())
+	goto_coord Row{};
+	goto_coord Col{};
+
+	if (GoToRowCol(Row, Col, m_GotoHex, L"EditorGotoPos"))
 	{
-		int LeftPos=m_it_CurLine->GetLeftPos();
-		int NewLine=0, NewCol=0;
-		try
+		if (Row.exist)
 		{
-			GetRowCol(strData, NewLine, NewCol);
-			GoToLine(NewLine);
-			m_it_CurLine->SetLeftPos(LeftPos);
-			m_it_CurLine->SetCurPos(NewCol);
+			if (!Row.percent && !Row.relative)
+				--Row.value;
+
+			auto NewRow = Row.percent? FromPercent(Row.value, Lines.size()) : Row.value;
+	
+			if (Row.relative)
+				NewRow = m_it_CurLine.Number() + NewRow * Row.relative;
+
+			GoToLine(NewRow);
 		}
-		catch (const std::exception&)
+
+		if (Col.exist)
 		{
-			// TODO: log
-			// maybe we need to display a message in case of an incorrect input
+			if (!Col.percent && !Col.relative)
+				--Col.value;
+
+			auto NewCol = Col.percent? FromPercent(Col.value, m_it_CurLine->m_Str.size()) : Col.value;
+
+			if (Col.relative)
+				NewCol = m_it_CurLine->GetCurPos() + NewCol * Col.relative;
+
+			m_it_CurLine->SetCurPos(static_cast<int>(NewCol));
 		}
+
 		Show();
 	}
-}
-
-void Editor::GetRowCol(const string& argv, int& row, int& col)
-{
-	static const std::wregex re(
-		RE_BEGIN
-		RE_ANY_WHITESPACE
-		RE_C_GROUP(
-			RE_C_GROUP(
-				RE_C_GROUP(RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY) L"%"
-			)
-			RE_OR
-			RE_C_GROUP(
-				RE_C_GROUP(
-					RE_ANY_OF(L"+-") RE_ZERO_OR_ONE_GREEDY
-				)
-				RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY
-			)
-		) RE_ZERO_OR_ONE_GREEDY
-		RE_C_GROUP(
-			RE_ANY_WHITESPACE
-			RE_ANY_OF(L".,;:" RE_SPACE)
-			RE_ANY_WHITESPACE
-			RE_C_GROUP
-			(
-				RE_C_GROUP(RE_ANY_OF(L"+-") RE_ZERO_OR_ONE_GREEDY)
-				RE_ANY_OF(L"0-9") RE_ONE_OR_MORE_GREEDY
-			)
-		) RE_ZERO_OR_ONE_GREEDY
-		RE_ANY_WHITESPACE
-		RE_END, std::regex::optimize);
-
-	std::wsmatch SMatch;
-
-	const auto& get_match = [&SMatch](size_t index)
-	{
-		return string(SMatch[index].first, SMatch[index].second);
-	};
-
-	const auto& is_match_empty = [&SMatch](size_t index)
-	{
-		return !SMatch[index].length();
-	};
-
-	if (std::regex_match(argv, SMatch, re))
-	{
-		enum
-		{
-			b_row=1,
-			b_row_percent,
-			b_row_percent_value,
-			b_row_absolute,
-			b_row_absolute_sign,
-			b_col,
-			b_col_absolute,
-			b_col_sign
-		};
-		row = m_it_CurLine.Number();
-		if (SMatch[b_row].matched)
-		{
-			if (SMatch[b_row_percent].matched)
-			{
-				row = std::stoi(get_match(b_row_percent_value));
-				row = static_cast<int>(Lines.size()) * row / 100;
-			}
-			else if (SMatch[b_row_absolute].matched)
-			{
-				const auto y = std::stoi(get_match(b_row_absolute));
-				row = is_match_empty(b_row_absolute_sign)?y-1:row+y;
-			}
-		}
-		row = std::min(row, static_cast<int>(Lines.size() - 1));
-		const auto CurPtr=GetStringByNumber(row);
-		col=CurPtr->TabPosToReal(m_it_CurLine->GetTabCurPos());
-		if (SMatch[b_col].matched)
-		{
-			const auto x = std::stoi(get_match(b_col_absolute));
-			col = is_match_empty(b_col_sign)?x-1:col+x;
-		}
-	}
-	else throw MAKE_FAR_EXCEPTION(L"Invalid syntax");
 }
 
 struct Editor::EditorUndoData

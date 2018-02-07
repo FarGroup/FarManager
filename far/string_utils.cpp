@@ -144,6 +144,16 @@ bool equal_to_icase::operator()(const string_view& Str1, const string_view& Str2
 	return equal_icase(Str1, Str2);
 }
 
+bool less_icase::operator()(wchar_t Chr1, wchar_t Chr2) const
+{
+	return upper(Chr1) < upper(Chr2);
+}
+
+bool less_icase::operator()(const string_view& Str1, const string_view& Str2) const
+{
+	return StrCmpI(Str1, Str2) < 0;
+}
+
 bool equal_icase(const string_view& Str1, const string_view& Str2)
 {
 	return std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_to_icase{});

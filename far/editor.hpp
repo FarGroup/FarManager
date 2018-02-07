@@ -105,7 +105,6 @@ public:
 	// передавайте в качестве значения параметра "-1" для параметра,
 	// который не нужно менять
 	void SetSavePosMode(int SavePos, int SaveShortPos);
-	void GetRowCol(const string& argv, int& row, int& col);
 	int GetLineCurPos() const;
 	void BeginVBlockMarking();
 	void ProcessVBlockMarking();
@@ -386,6 +385,8 @@ private:
 	int m_FoundSize{};
 
 	int m_InEERedraw{};
+
+	bool m_GotoHex{};
 
 	struct EditorPreRedrawItem : public PreRedrawItem
 	{

@@ -821,23 +821,22 @@ F8CP::F8CP(bool viewer):
 	if (cps != L"-1")
 	{
 		std::unordered_set<uintptr_t> used_cps;
-		for(const auto& str_cp: split<std::vector<string>>(cps, 0))
+		for(const auto& i: enum_tokens(cps, L",;"_sv))
 		{
-			const auto s = upper(str_cp);
 			uintptr_t cp = 0;
-			if (s == L"ANSI" || s == L"ACP" || s == L"WIN")
+			if (equal_icase(i, L"ansi"_sv) || equal_icase(i, L"acp"_sv) || equal_icase(i, L"win"_sv))
 				cp = GetACP();
-			else if (s == L"OEM" || s == L"OEMCP" || s == L"DOS")
+			else if (equal_icase(i, L"oem"_sv) || equal_icase(i, L"oemcp"_sv) || equal_icase(i, L"dos"_sv))
 				cp = GetOEMCP();
-			else if (s == L"UTF8" || s == L"UTF-8")
+			else if (equal_icase(i, L"utf8"_sv) || equal_icase(i, L"utf-8"_sv))
 				cp = CP_UTF8;
-			else if (s == L"DEFAULT")
+			else if (equal_icase(i, L"default"_sv))
 				cp = defcp;
 			else
 			{
 				try
 				{
-					cp = std::stoul(s);
+					cp = std::stoul(make_string(i));
 				}
 				catch (const std::exception&)
 				{

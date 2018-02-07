@@ -155,7 +155,7 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 	}
 }
 
-using enumerator_type = void(VMenu2&, const string&, const std::function<void(const string&)>&);
+using enumerator_type = void(VMenu2&, const string_view&, const std::function<void(const string_view&)>&);
 
 static bool ParseStringWithQuotes(const string& Str, string& Start, string& Token, bool& StartQuote)
 {
@@ -213,13 +213,13 @@ struct cmp_user_data
 	unsigned long long HistoryRecordId;
 };
 
-static bool EnumWithQuoutes(VMenu2& Menu, const string& strStart, const string& Token, bool StartQuote, lng Title, enumerator_type Enumerator)
+static bool EnumWithQuoutes(VMenu2& Menu, const string_view& strStart, const string_view& Token, bool StartQuote, lng Title, enumerator_type Enumerator)
 {
-	std::set<string, string_i_less> ResultStrings;
+	std::set<string, less_icase> ResultStrings;
 
-	Enumerator(Menu, Token, [&](const string& strAdd)
+	Enumerator(Menu, Token, [&](const string_view& strAdd)
 	{
-		ResultStrings.emplace(strAdd);
+		ResultStrings.emplace(ALL_CONST_RANGE(strAdd));
 	});
 
 	if (ResultStrings.empty())
@@ -234,7 +234,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string& strStart, const string& 
 			if (!StartQuote)
 				QuoteSpace(Str);
 
-			auto Result = strStart + Str;
+			auto Result = concat(strStart, Str);
 			if (StartQuote)
 				Result += L'"';
 
@@ -259,11 +259,11 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string& strStart, const string& 
 	return true;
 }
 
-static bool EnumFiles(VMenu2& Menu, const string& strStart, const string& Token, bool StartQuote)
+static bool EnumFiles(VMenu2& Menu, const string_view& strStart, const string_view& Token, bool StartQuote)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string_view& Token, const std::function<void(const string_view&)>& Inserter)
 	{
 		const auto FileName = PointToName(Token);
 
@@ -279,13 +279,13 @@ static bool EnumFiles(VMenu2& Menu, const string& strStart, const string& Token,
 	});
 }
 
-static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Token, bool StartQuote)
+static bool EnumModules(VMenu2& Menu, const string_view& strStart, const string_view& Token, bool StartQuote)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string_view& Token, const std::function<void(const string_view&)>& Inserter)
 	{
-		for (const auto& i: split<std::vector<string>>(os::env::expand(Global->Opt->Exec.strExcludeCmds)))
+		for (const auto& i: enum_tokens_with_quotes(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"_sv))
 		{
 			if (starts_with_icase(i, Token))
 			{
@@ -294,16 +294,18 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 		}
 
 		{
-			const auto strPathEnv(os::env::get(L"PATH"));
+			const auto strPathEnv(os::env::get(L"PATH"_sv));
 			if (!strPathEnv.empty())
 			{
-				const auto PathExt = os::env::get_pathext();
-				const auto PathExtList = enum_tokens(PathExt, L";");
+				const auto PathExtList = enum_tokens(os::env::get_pathext(), L";"_sv);
 
 				string str;
-				for (const auto& Path: split<std::vector<string>>(strPathEnv, 0, L";"))
+				for (const auto& Path: enum_tokens_with_quotes(strPathEnv, L";"_sv))
 				{
-					str = Path;
+					if (Path.empty())
+						continue;
+
+					assign(str, Path);
 					AddEndSlash(str);
 					append(str, Token, L'*');
 					for (const auto& FindData: os::fs::enum_files(str))
@@ -360,11 +362,11 @@ static bool EnumModules(VMenu2& Menu, const string& strStart, const string& Toke
 	});
 }
 
-static bool EnumEnvironment(VMenu2& Menu, const string& strStart, const string& Token, bool StartQuote)
+static bool EnumEnvironment(VMenu2& Menu, const string_view& strStart, const string_view& Token, bool StartQuote)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionEnvironmentTitle, [](VMenu2& Menu, const string& Token, const std::function<void(const string&)>& Inserter)
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionEnvironmentTitle, [](VMenu2& Menu, const string_view& Token, const std::function<void(const string_view&)>& Inserter)
 	{
 		const os::env::provider::strings EnvStrings;
 		for (const auto& i : enum_substrings(EnvStrings.data()))

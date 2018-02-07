@@ -153,7 +153,7 @@ bool IsAbsolutePath(const string& Path)
 	       (Type == root_type::drive_letter && (Path.size() > 2 && IsSlash(Path[2])));
 }
 
-bool HasPathPrefix(const string& Path)
+bool HasPathPrefix(const string_view& Path)
 {
 	/*
 		\\?\

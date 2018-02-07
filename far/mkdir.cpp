@@ -141,25 +141,18 @@ void ShellMakeDir(Panel *SrcPanel)
 			inplace::quote_normalise(strDirName);
 		}
 
-		const auto DirList = split<std::vector<string>>(strDirName, STLF_UNIQUE);
-		if (DirList.empty())
-		{
-			Message(MSG_WARNING,
-				msg(lng::MWarning),
-				{
-					msg(lng::MIncorrectDirList)
-				},
-				{ lng::MOk });
-			return;
-		}
-
 		string strOriginalDirName;
 		bool SkipAll = false;
-		for (const auto& i: DirList)
+		auto EmptyList = true;
+		for (const auto& i: enum_tokens_with_quotes(std::move(strDirName), L",;"_sv))
 		{
+			if (i.empty())
+				continue;
+
+			EmptyList = false;
 			// TODO: almost the same code in dirmix::CreatePath()
 
-			strOriginalDirName = i;
+			assign(strOriginalDirName, i);
 			strDirName = ConvertNameToFull(i);
 			DeleteEndSlash(strDirName);
 			bool bSuccess = false;
@@ -237,6 +230,17 @@ void ShellMakeDir(Panel *SrcPanel)
 					}
 				}
 			}
+		}
+
+		if (EmptyList)
+		{
+			Message(MSG_WARNING,
+				msg(lng::MWarning),
+				{
+					msg(lng::MIncorrectDirList)
+				},
+				{ lng::MOk });
+			return;
 		}
 
 		SrcPanel->Update(UPDATE_KEEP_SELECTION);

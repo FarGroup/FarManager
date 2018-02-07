@@ -147,9 +147,9 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 	string strPath;
 	strDest = L"";
 
-	for (const auto& i: split<std::vector<string>>(Global->Opt->Tree.strExceptPath, STLF_UNIQUE, L";"))
+	for (const auto& i: enum_strings_ex(Global->Opt->Tree.strExceptPath, 0, L";"))
 	{
-		if (strRootDir == i)
+		if (equal_icase(strRootDir,  i))
 		{
 			return strDest;
 		}

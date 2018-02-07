@@ -155,4 +155,14 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 void ReCompileErrorMessage(const RegExp& re, const string& str);
 void ReMatchErrorMessage(const RegExp& re);
 
+struct goto_coord
+{
+	long long value;
+	bool exist;
+	bool percent;
+	int relative;
+};
+
+bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, const wchar_t* HelpTopic);
+
 #endif // STDDLG_HPP_D7E3481D_D478_4F57_8C20_7E0A21FAE788

@@ -138,7 +138,7 @@ namespace os::env
 			return ReturnedSize <= Size? ReturnedSize - 1 : ReturnedSize;
 		}))
 		{
-			Result = make_string(Str);
+			assign(Result, Str);
 		}
 		return Result;
 	}

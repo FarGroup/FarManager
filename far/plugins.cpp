@@ -110,9 +110,9 @@ static wchar_t GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, hotkey_type Ho
 	return strHotKey.empty()? L'\0' : strHotKey.front();
 }
 
-bool PluginManager::plugin_less::operator ()(const Plugin* a, const Plugin *b) const
+bool PluginManager::plugin_less::operator()(const Plugin* a, const Plugin *b) const
 {
-	return StrCmpI(PointToName(a->GetModuleName()),PointToName(b->GetModuleName())) < 0;
+	return less_icase{}(PointToName(a->GetModuleName()), PointToName(b->GetModuleName()));
 }
 
 static void CallPluginSynchroEvent(const any& Payload)
@@ -419,50 +419,47 @@ void PluginManager::LoadPlugins()
 	else
 	{
 		ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
-		string strPluginsDir;
+		std::vector<string> PluginDirectories;
 		os::fs::find_data FindData;
 
 		// сначала подготовим список
 		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
 		{
-			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
+			PluginDirectories = { Global->g_strFarPath + PluginsFolderName };
 			// ...а персональные есть?
 			if (Global->Opt->LoadPlug.PluginsPersonal)
-				append(strPluginsDir, L';', Global->Opt->LoadPlug.strPersonalPluginsPath);
+				PluginDirectories.emplace_back(Global->Opt->LoadPlug.strPersonalPluginsPath);
 		}
 		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // только "заказные" пути?
 		{
-			strPluginsDir = Global->Opt->LoadPlug.strCustomPluginsPath;
+			for (const auto& i: enum_tokens_with_quotes(Global->Opt->LoadPlug.strCustomPluginsPath, L";"_sv))
+			{
+				if (i.empty())
+					continue;
+
+				PluginDirectories.emplace_back(i.raw_data(), i.size());
+			}
 		}
 
 		// теперь пройдемся по всему ранее собранному списку
-		for (const auto& i: split<std::vector<string>>(strPluginsDir, STLF_UNIQUE))
+		for (const auto& i: PluginDirectories)
 		{
-			// расширяем значение пути
 			auto strFullName = unquote(os::env::expand(i)); //??? здесь ХЗ
 
 			if (!IsAbsolutePath(strFullName))
 			{
-				strPluginsDir = Global->g_strFarPath;
-				strPluginsDir += strFullName;
-				strFullName = strPluginsDir;
+				strFullName.insert(0, Global->g_strFarPath);
 			}
 
-			// Получим реальное значение полного длинного пути
-			strFullName = ConvertNameToLong(ConvertNameToFull(strFullName));
-			strPluginsDir = strFullName;
+			ScTree.SetFindPath(ConvertNameToLong(ConvertNameToFull(strFullName)), L"*");
 
-			// ставим на поток очередной путь из списка...
-			ScTree.SetFindPath(strPluginsDir,L"*");
-
-			// ...и пройдемся по нему
 			while (ScTree.GetNextName(FindData,strFullName))
 			{
 				if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					LoadPlugin(strFullName, FindData, false);
 				}
-			} // end while
+			}
 		}
 	}
 
@@ -1936,7 +1933,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 		if (PluginPrefixes.empty())
 			continue;
 
-		const auto Enumerator = enum_tokens(PluginPrefixes, L":");
+		const auto Enumerator = enum_tokens(PluginPrefixes, L":"_sv);
 		if (!std::any_of(ALL_CONST_RANGE(Enumerator), [&](const auto& p) { return equal_icase(p, Prefix); }))
 			continue;
 

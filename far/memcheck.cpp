@@ -196,7 +196,7 @@ static size_t GetRequiredSize(size_t RequestedSize)
 	return sizeof(MEMINFO) + RequestedSize + sizeof(EndMarker);
 }
 
-static void* DebugAllocator(size_t size, bool Noexcept, allocation_type type,const char* Function,  const char* File, int Line)
+static void* DebugAllocator(size_t size, bool Noexcept, allocation_type type, const char* Function, const char* File, int Line)
 {
 	const auto realSize = GetRequiredSize(size);
 

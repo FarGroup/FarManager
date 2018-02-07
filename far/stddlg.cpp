@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "exception.hpp"
 #include "RegExp.hpp"
+#include "FarDlgBuilder.hpp"
+#include "config.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -667,5 +669,129 @@ void ReMatchErrorMessage(const RegExp& re)
 				GetReErrorString(re.LastError())
 			},
 			{ lng::MOk });
+	}
+}
+
+static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& Col)
+{
+	const auto& Parse = [Hex](string Part, goto_coord& Dest)
+	{
+		Part.resize(std::remove(ALL_RANGE(Part), L' ') - Part.begin());
+
+		if (Part.empty())
+			return;
+
+		// юзер хочет относительности
+		switch (Part.front())
+		{
+		case L'-':
+			Part.erase(0, 1);
+			Dest.relative = -1;
+			break;
+
+		case L'+':
+			Part.erase(0, 1);
+			Dest.relative = +1;
+			break;
+
+		default:
+			break;
+		}
+
+		if (Part.empty())
+			return;
+
+		// он хочет процентов
+		if (Part.back() == L'%')
+		{
+			Part.pop_back();
+			Dest.percent = true;
+		}
+
+		if (Part.empty())
+			return;
+
+		auto Radix = 0;
+
+		// он умный - hex код ввел!
+		if (starts_with(Part, L"0x"_sv))
+		{
+			Part.erase(0, 2);
+			Radix = 16;
+		}
+		else if (starts_with(Part, L"$"_sv))
+		{
+			Part.erase(0, 1);
+			Radix = 16;
+		}
+		else if (ends_with(Part, L"h"_sv))
+		{
+			Part.pop_back();
+			Radix = 16;
+		}
+		else if (ends_with(Part, L"m"_sv))
+		{
+			Part.pop_back();
+			Radix = 10;
+		}
+
+		if (Part.empty())
+			return;
+
+		if (!Radix)
+			Radix = Hex? 16 : 10;
+
+		try
+		{
+			Dest.value = std::stoull(Part, nullptr, Radix);
+			Dest.exist = true;
+		}
+		catch(const std::exception&)
+		{
+			// TODO: log
+			// maybe we need to display a message in case of an incorrect input
+		}
+	};
+
+	const auto SeparatorPos = Str.find_first_of(L".,;:");
+
+	if (SeparatorPos == Str.npos)
+	{
+		Parse(Str, Row);
+	}
+	else
+	{
+		Parse(Str.substr(0, SeparatorPos), Row);
+		Parse(Str.substr(SeparatorPos + 1), Col);
+	}
+}
+
+bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, const wchar_t* HelpTopic)
+{
+	BoolOption HexOption;
+	HexOption.Set(Hex);
+
+	DialogBuilder Builder(lng::MGoTo, HelpTopic);
+	string strData;
+	Builder.AddEditField(strData, 28, L"LineNumber", DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_NOAUTOCOMPLETE);
+	Builder.AddSeparator();
+	Builder.AddCheckbox(lng::MGoToHex, HexOption);
+	Builder.AddOKCancel();
+
+	if (!Builder.ShowDialog())
+		return false;
+
+	Hex = HexOption;
+
+	try
+	{
+		GetRowCol(strData, Hex, Row, Col);
+		return true;
+	}
+	catch (const std::exception&)
+	{
+		// TODO: log
+		// maybe we need to display a message in case of an incorrect input
+		return false;
 	}
 }

@@ -441,9 +441,7 @@ bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignat
 					}
 					else
 					{
-						const auto BannedCpList = split<std::vector<string>>(Global->Opt->strNoAutoDetectCP, STLF_UNIQUE);
-
-						if (contains(BannedCpList, str(cp)))
+						if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"_sv), str(cp)))
 						{
 							cp = -1;
 						}

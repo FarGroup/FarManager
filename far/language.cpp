@@ -229,8 +229,8 @@ static string ConvertString(const wchar_t *Src, size_t size)
 				strDest.push_back(L'\\');
 				Src+=2;
 				break;
-			case L'\"':
-				strDest.push_back(L'\"');
+			case L'"':
+				strDest.push_back(L'"');
 				Src+=2;
 				break;
 			case L'n':
@@ -284,7 +284,7 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	}
 
 	//-- "Text"
-	if (!str.empty() && str.front() == L'\"')
+	if (!str.empty() && str.front() == L'"')
 	{
 		have_data = true;
 		data = str.substr(1);

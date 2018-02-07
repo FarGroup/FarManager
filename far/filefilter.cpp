@@ -193,7 +193,7 @@ bool FileFilter::FilterEdit()
 
 		Extensions.sort([](const extension_list::value_type& a, const extension_list::value_type& b)
 		{
-			return StrCmpI(a.first, b.first) < 0;
+			return less_icase{}(a.first, b.first);
 		});
 
 		wchar_t h = L'1';

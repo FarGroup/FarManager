@@ -68,7 +68,7 @@ root_type ParsePath(const string_view& Path, size_t* DirectoryOffset = nullptr, 
 inline bool IsRelativeRoot(const string& Path) { return Path.size() == 1 && IsSlash(Path.front()); }
 bool IsAbsolutePath(const string &Path);
 bool IsRootPath(const string &Path);
-bool HasPathPrefix(const string &Path);
+bool HasPathPrefix(const string_view& Path);
 bool PathStartsWith(const string &Path, const string &Start);
 bool PathCanHoldRegularFile(const string& Path);
 bool IsPluginPrefixPath(const string &Path);

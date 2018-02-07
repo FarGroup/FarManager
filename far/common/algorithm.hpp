@@ -201,6 +201,12 @@ bool contains(const std::basic_string<traits...>& Str, const find_type& What)
 	return Str.find(What) != Str.npos;
 }
 
+template<typename find_type, typename... traits>
+bool contains(const basic_string_view<traits...>& Str, const find_type& What)
+{
+	return Str.find(What) != Str.npos;
+}
+
 namespace detail
 {
 	template<typename T, typename = std::void_t<>>

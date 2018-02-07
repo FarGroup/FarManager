@@ -2890,34 +2890,17 @@ $ #Viewer: control keys#
 $ #Viewer: go to specified position#
     This dialog allows to change the position in the internal viewer.
 
-    You can enter decimal offset, percent, or hexadecimal offset. The meaning
-of the value you enter is defined either by the radio buttons in the dialog or
-by format specifiers added before or after the value.
+    ^<wrap>You can enter an absolute or relative value or percentage, in decimal or hexadecimal.
+    ^<wrap>For relative add #+# or #-# before the value.
+    ^<wrap>For percentage add #%# after the value.
+    ^<wrap>For decimal either add #m# after the value or uncheck the #Hex value#.
+    ^<wrap>For hexadecimal either add #0x# or #$# before the value, #h# after the value, or check the #Hex value#.
 
-    You can also enter relative values, just add + or - before the number.
-
-    Hexadecimal offsets must be specified in one of the following formats:
-       0xNNNN, NNNNh, $NNNN
-
-    Decimal offsets (not percentages) must be specified in the format NNNNm.
-
-  Examples
-   #50%#                     Go to middle of file (50%)
-   #-10%#                    Go to 10% percent back from current offset
-                           If the old position was 50%, the new
-                           position will be 40%
-   #0x100#                   Go to offset 0x100 (256)
-   #+0x300#                  Go 0x300 (768) bytes forward
-
-  If you enter the value with one of the format specifiers (%, '0x', 'h',
-'$', 'm'), the radio buttons selected in the dialog will be ignored.
-
-    ^<wrap>If current view mode is #unwrapped text# It is possible to set additional parameter - first visible column.
-0=start of the line; really first visible-1 (one char is used to indicate special show mode).
-
-  Examples
-   #50%, 10#                 Go to middle of the file (50%), visible text start column = 10
-   #, +10#                 Increase current start offset by 10 symbols
+    The value will be interpreted as an offset from the beginning of the file.
+If the current view mode is #unwrapped text# it is possible to enter an additional value
+which will be interpreted as a first visible column.
+Values must be delimited by space or one of the following characters: #,.;:#.
+If a value is omitted the corresponding parameter will not be changed.
 
 
 @ViewerSearch
@@ -3228,18 +3211,15 @@ helps applications to identify the code page of this file.
 $ #Editor: go to specified line and character#
     This dialog allows to change the position in the internal editor.
 
-    You can enter a #row# or a #character#, or both.
+    ^<wrap>You can enter an absolute or relative value or percentage, in decimal or hexadecimal.
+    ^<wrap>For relative add #+# or #-# before the value.
+    ^<wrap>For percentage add #%# after the value.
+    ^<wrap>For decimal either add #m# after the value or uncheck the #Hex value#.
+    ^<wrap>For hexadecimal either add #0x# or #$# before the value, #h# after the value, or check the #Hex value#.
 
-    The first number will be interpreted as a row number, the second as a
-character number. Numbers must be delimited by one of the following characters:
-"," "." ";" ":" or space.
-
-    If you enter the value in the form ",Ch", the editor will jump to the
-specified character in the current line.
-
-    If you enter the row with "%" at the end, the editor will jump to the
-specified percent of the file. For example, if you enter #50%#, the editor will
-jump to the middle of the text.
+    The first value will be interpreted as a row number, the second as a character number.
+Values must be delimited by space or one of the following characters: #,.;:#.
+If a value is omitted the corresponding parameter will not be changed.
 
 
 @EditorReload

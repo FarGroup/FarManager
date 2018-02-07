@@ -94,29 +94,6 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 
-enum STL_FLAGS
-{
-	STLF_PACKASTERISKS   = bit(0), // вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
-	STLF_PROCESSBRACKETS = bit(1), // учитывать квадратные скобки при анализе строки инициализации
-	STLF_ALLOWEMPTY      = bit(2), // allow empty items
-	STLF_UNIQUE          = bit(3), // убирать дублирующиеся элементы
-	STLF_SORT            = bit(4), // отсортировать (с учетом регистра)
-	STLF_NOTRIM          = bit(5), // не удалять пробелы
-	STLF_NOUNQUOTE       = bit(6), // не раскавычивать
-	STLF_NOQUOTING       = bit(7), // do not give special meaning for quotes
-};
-
-void split(const string& InitString, DWORD Flags, const wchar_t* Separators, const std::function<void(string&&)>& inserter);
-
-// TODO: replace with enum_tokens. ACHTUNG: there are many side effects due to way too flexible flags above, be extremely careful
-template <typename container>
-auto split(const string& InitString, DWORD Flags = 0, const wchar_t* Separators = L";,")
-{
-	container Container;
-	split(InitString, Flags, Separators, [&](string&& Str) { emplace(Container, std::move(Str)); });
-	return Container;
-}
-
 template<class container>
 auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')
 {
@@ -138,7 +115,7 @@ auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Sepa
 }
 
 template<class container>
-auto StringToFlags(const string& strFlags, const container& From, const wchar_t* Separators = L"|;, ")
+auto StringToFlags(const string& strFlags, const container& From, const string_view& Separators = L"|;, "_sv)
 {
 	decltype(std::begin(From)->first) Flags {};
 
@@ -184,14 +161,6 @@ auto to_hex_wstring(T Value) { return to_hex_string_t<string>(Value); }
 
 string ExtractHexString(const string& HexString);
 string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex);
-
-struct string_i_less
-{
-	bool operator()(const string& a, const string& b) const
-	{
-		return StrCmpI(a, b) < 0;
-	}
-};
 
 char* xstrncpy(char* dest, const char* src, size_t DestSize);
 wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);

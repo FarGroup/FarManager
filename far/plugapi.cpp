@@ -365,7 +365,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 					if (Flags == FHELP_SELFHELP || (Flags&(FHELP_CUSTOMFILE)))
 					{
 						if (Flags&FHELP_CUSTOMFILE)
-							strMask = make_string(PointToName(strPath));
+							assign(strMask, PointToName(strPath));
 						else
 							strMask.clear();
 
@@ -1172,9 +1172,8 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 
 		if (Flags & FMSG_ALLINONE)
 		{
-			const string StrItems(reinterpret_cast<const wchar_t*>(Items));
 			std::vector<string> Strings;
-			for (const auto& i : enum_tokens(StrItems, L"\n"))
+			for (const auto& i : enum_tokens(reinterpret_cast<const wchar_t*>(Items), L"\n"_sv))
 			{
 				Strings.emplace_back(ALL_CONST_RANGE(i));
 			}

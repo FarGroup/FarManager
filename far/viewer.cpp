@@ -3970,129 +3970,45 @@ wchar_t Viewer::vgetc_prev()
 	return Result;
 }
 
-enum input_mode
-{
-	RB_PRC = 0,
-	RB_HEX = 1,
-	RB_DEC = 2,
-};
-
 void Viewer::GoTo(bool ShowDlg, long long Offset, unsigned long long Flags)
 {
 	long long NewLeftPos = -1;
 
 	int IsOffsetRelative = 0;
 
-	const auto& CalcPercent = [](long long Value, long long PercentBase)
-	{
-		const auto Percent = std::min(Value, 100ll);
-		Value = PercentBase / 100 * Percent;
-		while (ToPercent(Value, PercentBase) < Percent)
-			++Value;
-		return Value;
-	};
-
 	if (ShowDlg)
 	{
-		static int PrevMode = -1;
+		if (!m_GotoHex.second)
+		{
+			m_GotoHex.first = m_DisplayMode == VMT_HEX;
+			m_GotoHex.second = true;
+		}
 
-		if (PrevMode == -1)
-			PrevMode = m_DisplayMode == VMT_HEX? RB_HEX : RB_DEC;
-
-		IntOption InputMode;
-		InputMode.Set(PrevMode);
-		static const lng MsgIds[] = { lng::MGoToPercent, lng::MGoToHex, lng::MGoToDecimal };
-
-		DialogBuilder Builder(lng::MViewerGoTo, L"ViewerGotoPos");
-		string InputString;
-		Builder.AddEditField(InputString, 29, L"LineNumber", DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_NOAUTOCOMPLETE);
-		Builder.AddSeparator();
-		Builder.AddRadioButtons(InputMode, 3, MsgIds);
-		Builder.AddOKCancel();
-		if (!Builder.ShowDialog())
+		goto_coord Row{};
+		goto_coord Col{};
+		if (!GoToRowCol(Row, Col, m_GotoHex.first, L"ViewerGotoPos"))
 			return;
 
-		PrevMode = InputMode;
-
-		const auto& ParseInput = [CalcPercent](string Str, int InputMode, long long& Result, int& IsRelative, long long PercentBase)
+		if (Row.exist)
 		{
-			if (Str.empty())
-			{
-				// empty string => don't change anything
-				Result = 0;
-				IsRelative = 1;
-				return;
-			}
+			Offset = Row.percent? FromPercent(Row.value, FileSize) : Row.value;
+			IsOffsetRelative = Row.relative;
+		}
 
-			size_t Pos = 0;
-
-			// юзер хочет относительности
-			switch (Str[Pos])
-			{
-			case L'+': IsRelative = +1; ++Pos; break;
-			case L'-': IsRelative = -1; ++Pos; break;
-			default: break;
-			}
-
-			// он хочет процентов
-			if (PercentBase && Str.find('%', Pos) != string::npos)
-			{
-				InputMode = RB_PRC;
-			}
-			// он умный - hex код ввел!
-			else if (starts_with_icase(&Str[Pos], L"0x"_sv) || Str[Pos] == L'$' || Str.find_first_of(L"Hh", Pos) != string::npos)
-			{
-				InputMode = RB_HEX;
-				if (Str[Pos] == L'$')
-					++Pos;
-			}
-			else if (Str.find_first_of(L"Mm", Pos) != string::npos)
-			{
-				InputMode = RB_DEC;
-			}
-
-			try
-			{
-				const auto Base = InputMode == RB_PRC? 10 : InputMode == RB_HEX? 16 : 10;
-				Result = std::stoull(Str.substr(Pos), nullptr, Base);
-
-				if (InputMode == RB_PRC)
-				{
-					Result = CalcPercent(Result, PercentBase);
-				}
-			}
-			catch (const std::exception&)
-			{
-				// wrong input, Offset is unchanged.
-				// TODO: diagnostics
-			}
-		};
-
-		const auto InputStrings = split<std::vector<string>>(InputString, STLF_ALLOWEMPTY);
-		if (InputStrings.empty())
-			return;
-
-		ParseInput(InputStrings[0], InputMode, Offset, IsOffsetRelative, FileSize);
-		if (m_DisplayMode == VMT_TEXT && !m_Wrap && InputStrings.size() > 1) // Pos[, LeftPos]
+		if (m_DisplayMode == VMT_TEXT && !m_Wrap && Col.exist)
 		{
-			int IsColumnRelative = 0;
-			long long Column = 0;
-			ParseInput(InputStrings[1], InputMode, Column, IsColumnRelative, 0);
-
-			if (IsColumnRelative)
-			{
-				Column = LeftPos + IsColumnRelative * Column;
-			}
-			NewLeftPos = std::clamp(Column, 0ll, ViOpt.MaxLineSize.Get());
+			NewLeftPos = Col.percent? 0 : Col.value;
+			if (Col.relative)
+				NewLeftPos = LeftPos + NewLeftPos * Row.relative;
 		}
 	}
 	else
 	{
-		IsOffsetRelative = (Flags&VSP_RELATIVE) * (Offset < 0? -1 : 1);
+		IsOffsetRelative = Flags & VSP_RELATIVE? Offset < 0? -1 : 1 : 0;
 
 		if (Flags&VSP_PERCENT)
 		{
-			Offset = CalcPercent(Offset, FileSize);
+			Offset = FromPercent(Offset, FileSize);
 		}
 	}
 

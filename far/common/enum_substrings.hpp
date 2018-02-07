@@ -36,49 +36,31 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Enumerator for string1\0string2\0string3\0...stringN\0\0
 
-template<class char_type>
-auto enum_substrings(const char_type* Data)
+namespace detail
 {
-	size_t Offset = 0;
-	using value_type = basic_string_view<char_type>;
-	return make_inline_enumerator<value_type>([Offset, Data](size_t Index, value_type& Value) mutable
-	{
-		if (!Index)
-			Offset = 0;
-
-		const auto Begin = Data + Offset;
-		auto End = Begin;
-		while (*End)
-			++End;
-
-		if (End == Begin)
-			return false;
-
-		Value = { Begin, static_cast<size_t>(End - Begin) };
-		Offset += Value.size() + 1;
-		return true;
-	});
+	inline auto length(const char* Str) { return strlen(Str); }
+	inline auto length(const wchar_t* Str) { return wcslen(Str); }
 }
 
-void enum_tokens(const string&&, const wchar_t*) = delete;
-inline auto enum_tokens(const string& Data, const wchar_t* Separators)
+template<class char_type>
+auto enum_substrings(const char_type* Str)
 {
-	size_t Offset = 0;
-	using value_type = string_view;
-	return make_inline_enumerator<value_type>([Offset, &Data, Separators](size_t Index, value_type& Value) mutable
+	const char_type* Iterator = nullptr;
+	using value_type = basic_string_view<char_type>;
+	return make_inline_enumerator<value_type>([Iterator, Str](size_t Index, value_type& Value) mutable
 	{
 		if (!Index)
-			Offset = 0;
+			Iterator = Str;
+		else
+			++Iterator;
 
-		if (Offset >= Data.size())
+		const auto NewIterator = Iterator + detail::length(Iterator);
+
+		if (NewIterator == Iterator)
 			return false;
 
-		auto Pos = Data.find_first_of(Separators, Offset);
-		if (Pos == string::npos)
-			Pos = Data.size();
-
-		Value = { Data.data() + Offset, Pos - Offset };
-		Offset = Pos + 1;
+		Value = { Iterator, static_cast<size_t>(NewIterator - Iterator) };
+		Iterator = NewIterator;
 		return true;
 	});
 }

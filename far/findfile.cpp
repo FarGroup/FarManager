@@ -1355,7 +1355,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				string strFStr(strFindStr);
 				TruncStrFromEnd(strFStr,10);
-				strSearchStr = format(lng::MFindSearchingIn, concat(L'"', strFStr + L'"'));
+				strSearchStr = format(lng::MFindSearchingIn, quote_unconditional(strFStr));
 			}
 
 			auto strFM = itd->GetFindMessage();
@@ -2344,7 +2344,13 @@ void background_searcher::DoPrepareFileList()
 
 	if (SearchMode==FINDAREA_INPATH)
 	{
-		Locations = split<std::vector<string>>(os::env::get(L"PATH"), 0, L";");
+		for (const auto& i: enum_tokens_with_quotes(os::env::get(L"PATH"_sv), L";"_sv))
+		{
+			if (i.empty())
+				continue;
+
+			Locations.emplace_back(ALL_CONST_RANGE(i));
+		}
 	}
 	else if (SearchMode==FINDAREA_ROOT)
 	{

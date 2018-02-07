@@ -109,23 +109,28 @@ void KeyBar::DisplayObject()
 		// State should always be valid so check is excessive, but style is style
 		auto Label = Items[(State != std::cend(Mapping)? State : std::cbegin(Mapping))->second][i].first;
 
-		if (contains(Label, L'|'))
 		{
-			auto LabelList = split<std::list<string>>(Label, STLF_NOTRIM | STLF_NOUNQUOTE, L"|");
-			if(!LabelList.empty())
+			string_view Beginning, Ending;
+			auto FirstEntry = true;
+			for (const auto& Part: enum_tokens_with_quotes(Label, L"|"_sv))
 			{
-				string strLabelTest, strLabel2;
-				Label = LabelList.front();
-				LabelList.pop_front();
-				std::for_each(CONST_RANGE(LabelList, Label2)
+				if (FirstEntry)
 				{
-					strLabelTest = Label + Label2;
-					if (strLabelTest.size() <= static_cast<size_t>(LabelWidth))
-						if (Label2.size() > strLabel2.size())
-							strLabel2 = Label2;
-				});
+					Beginning = Part;
+					FirstEntry = false;
+					continue;
+				}
 
-				Label+=strLabel2;
+				if (Beginning.size() + Part.size() > static_cast<size_t>(LabelWidth))
+					break;
+
+				if (Part.size() > Ending.size())
+					Ending = Part;
+			}
+
+			if (!Beginning.empty())
+			{
+				Label = concat(Beginning, Ending);
 			}
 		}
 

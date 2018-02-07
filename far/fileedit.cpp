@@ -2148,7 +2148,7 @@ bool FileEditor::SetFileName(const string& NewFileName)
 		if (CutToParent(strFilePath))
 		{
 			if (equal_icase(strFilePath, os::fs::GetCurrentDirectory()))
-				strFileName = make_string(PointToName(strFullFileName));
+				assign(strFileName, PointToName(strFullFileName));
 		}
 
 		//Дабы избежать бардака, развернём слешики...

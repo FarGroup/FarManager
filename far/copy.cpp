@@ -398,9 +398,14 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 				if (MultiCopy)
 				{
-					const auto DestList = split<std::vector<string>>(strOldFolder, STLF_UNIQUE);
-					if (!DestList.empty())
-						strNewFolder = DestList.front();
+					for (const auto& i: enum_tokens_with_quotes(strOldFolder, L",;"_sv))
+					{
+						if (i.empty())
+							continue;
+
+						assign(strNewFolder, i);
+						break;
+					}
 				}
 
 				if (strNewFolder.empty())
@@ -428,7 +433,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					if (MultiCopy) // мультикопирование
 					{
 						// Добавим кавычки, если имя каталога содержит символы-разделители
-						if (strNewFolder.find_first_of(L";,") != string::npos)
+						if (strNewFolder.find_first_of(L",;") != string::npos)
 							inplace::quote(strNewFolder);
 
 						if (!strOldFolder.empty())
@@ -726,14 +731,12 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 
 	if (CurrentOnly)
 	{
-		//   При копировании только элемента под курсором берем его имя в кавычки, если оно содержит разделители.
+		// При копировании только элемента под курсором берем его имя в кавычки, если оно содержит разделители.
 		CopyDlg[ID_SC_TARGETEDIT].strData = strSelName;
 
-		if (!Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;") != string::npos)
+		if (Ask && !Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;") != string::npos)
 		{
-			// уберем все лишние кавычки
-			// возьмем в кавычки, т.к. могут быть разделители
-			inplace::quote_normalise(CopyDlg[ID_SC_TARGETEDIT].strData);
+			inplace::quote(CopyDlg[ID_SC_TARGETEDIT].strData);
 		}
 	}
 	else
@@ -754,11 +757,10 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				   Если цель содержит разделители, то возьмем ее в кавычки, дабы не получить
 				   ерунду при F5, Enter в панелях, когда пользователь включит MultiCopy
 				*/
-				if (!Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;") != string::npos)
+				if (Ask &&!Move && CopyDlg[ID_SC_TARGETEDIT].strData.find_first_of(L",;") != string::npos)
 				{
-					// уберем все лишние кавычки
 					// возьмем в кавычки, т.к. могут быть разделители
-					inplace::quote_normalise(CopyDlg[ID_SC_TARGETEDIT].strData);
+					inplace::quote(CopyDlg[ID_SC_TARGETEDIT].strData);
 				}
 
 				break;
@@ -766,14 +768,9 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 
 		case panel_mode::PLUGIN_PANEL:
 			{
-				OpenPanelInfo Info;
+				OpenPanelInfo Info{};
 				DestPanel->GetOpenPanelInfo(&Info);
-				string strFormat = NullToEmpty(Info.Format);
-				CopyDlg[ID_SC_TARGETEDIT].strData = strFormat + L':';
-
-				while (CopyDlg[ID_SC_TARGETEDIT].strData.size()<2)
-					CopyDlg[ID_SC_TARGETEDIT].strData += L':';
-
+				CopyDlg[ID_SC_TARGETEDIT].strData = Info.Format? concat(Info.Format, L':') : L"::"s;
 				strPluginFormat = upper(CopyDlg[ID_SC_TARGETEDIT].strData);
 				break;
 			}
@@ -841,17 +838,14 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	string strCopyDlgValue;
 	if (!Ask)
 	{
-		strCopyDlgValue = quote_normalise(os::env::expand(CopyDlg[ID_SC_TARGETEDIT].strData));
-		m_DestList = split<std::vector<string>>(strCopyDlgValue, STLF_UNIQUE);
-		if (m_DestList.empty())
-			Ask = true;
+		strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
+		m_DestList = { strCopyDlgValue };
 	}
-
-	// ***********************************************************************
-	// *** Вывод и обработка диалога
-	// ***********************************************************************
-	if (Ask)
+	else
 	{
+		// ***********************************************************************
+		// *** Вывод и обработка диалога
+		// ***********************************************************************
 		FarList ComboList={sizeof(FarList)};
 		FarListItem LinkTypeItems[5]={},CopyModeItems[8]={};
 
@@ -924,15 +918,25 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 					Global->Opt->CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected == BSTATE_CHECKED;
 				}
 
-				if (!CopyDlg[ID_SC_MULTITARGET].Selected || strCopyDlgValue.find_first_of(L",;") == string::npos) // отключено multi*
+				if (!CopyDlg[ID_SC_MULTITARGET].Selected)
 				{
-					// уберем лишние кавычки
-					// добавим кавычки, чтобы "список" удачно скомпилировался вне
-					// зависимости от наличия разделителей в оном
-					inplace::quote_normalise(strCopyDlgValue);
+					m_DestList = { unquote(strCopyDlgValue) };
+				}
+				else
+				{
+					if (strCopyDlgValue.find_first_of(L",;") == string::npos)
+					{
+						m_DestList = { unquote(strCopyDlgValue) };
+					}
+					else
+					{
+						for (const auto& i: enum_tokens_with_quotes(strCopyDlgValue, L",;"_sv))
+						{
+							m_DestList.emplace_back(ALL_CONST_RANGE(i));
+						}
+					}
 				}
 
-				m_DestList = split<std::vector<string>>(strCopyDlgValue, STLF_UNIQUE);
 				if (!m_DestList.empty())
 				{
 					// Запомнить признак использования фильтра. KM
@@ -1087,18 +1091,12 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	// ПОКА! принудительно выставим обновление.
 	// В последствии этот флаг будет выставляться в ShellCopy::CheckUpdatePanel()
 	Flags|=FCOPY_UPDATEPPANEL;
-	/*
-	   ЕСЛИ ПРИНЯТЬ В КАЧЕСТВЕ РАЗДЕЛИТЕЛЯ ПУТЕЙ, НАПРИМЕР ';',
-	   то нужно парсить CopyDlgValue на предмет MultiCopy и
-	   вызывать CopyFileTree нужное количество раз.
-	*/
 	{
 		Flags&=~FCOPY_MOVE;
-		m_DestList = split<std::vector<string>>(strCopyDlgValue, STLF_UNIQUE);
 		if (!m_DestList.empty())
 		{
 			string strNameTmp;
-			// посчитаем количество целей.
+
 			m_NumberOfTargets=m_DestList.size();
 
 			if (m_NumberOfTargets > 1)
@@ -1901,7 +1899,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		if (dir || (rpt && RPT==RP_EXACTCOPY && !cpc))
 		{
 			if (!Rename)
-				strCopiedName = make_string(PointToName(strDestPath));
+				assign(strCopiedName, PointToName(strDestPath));
 
 			if (DestAttr!=INVALID_FILE_ATTRIBUTES)
 			{
@@ -1953,7 +1951,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						if (NamePart.size() == strDestPath.size())
 							strRenamedName = strDestPath;
 						else
-							strCopiedName = make_string(NamePart);
+							assign(strCopiedName, NamePart);
 
 						TreeList::RenTreeName(strSrcFullName, ConvertNameToFull(strDest));
 						return SameName? COPY_SKIPPED : COPY_SUCCESS_MOVE;
@@ -1987,7 +1985,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 									if (NamePart.size() == strDestPath.size())
 										strRenamedName = strDestPath;
 									else
-										strCopiedName = make_string(NamePart);
+										assign(strCopiedName, NamePart);
 
 									TreeList::AddTreeName(strDestPath);
 									return COPY_SUCCESS;
@@ -2345,7 +2343,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						if (NamePart.size() == strDestPath.size())
 							strRenamedName = strDestPath;
 						else
-							strCopiedName = make_string(NamePart);
+							assign(strCopiedName, NamePart);
 					}
 
 					if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
@@ -2370,7 +2368,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 				if (CopyCode==COPY_SUCCESS)
 				{
-					strCopiedName = make_string(PointToName(strDestPath));
+					assign(strCopiedName, PointToName(strDestPath));
 
 					if (!(Flags&FCOPY_COPYTONUL))
 					{
