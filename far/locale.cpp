@@ -49,11 +49,22 @@ int locale::GetDateFormat()
 wchar_t locale::GetDateSeparator()
 {
 	wchar_t Info[100];
-	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDATE, Info, static_cast<int>(std::size(Info))))
+	if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, Info, static_cast<int>(std::size(Info))))
 	{
-		// TODO: log
-		return L'/';
+		size_t pos = 0;
+		if (Info[0] == L'd' && Info[1] == L'd' && Info[2] == L'd') // starts with week day
+		{
+			pos = Info[3] == L'd' ? 4 : 3;
+			while (Info[pos] != L'd' && Info[pos] != L'M' && Info[pos] != L'y') ++pos; // skip separators
+		}
+		while (Info[pos] == L'd' || Info[pos] == L'M' || Info[pos] == L'y') ++pos; // find separator
+		if (Info[pos])
+			return Info[pos];
 	}
+
+	if (!GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDATE, Info, static_cast<int>(std::size(Info))))
+		return L'/'; // TODO: log
+
 	return *Info;
 }
 
