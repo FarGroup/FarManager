@@ -3294,11 +3294,11 @@ akár semmilyen karakter);
 
     #?#           egyetlen helyiértéknyi karakter;
 
-    #[c,x-z]#     ^<wrap>a szögletes zárójelek közt álló bármelyik karakter.
+    #[cx-z]#     ^<wrap>a szögletes zárójelek közt álló bármelyik karakter.
 Lehet egyedüli, lehet tartomány vagy a kettő kombinációja.
 
     Például az ftp.exe, fc.exe és az f.ext fájl az f*.ex? maszkkal írható le,
-a *co* maszba belefér a color.ini és az edit.com is, a [c-f,t]*.txt maszknak
+a *co* maszba belefér a color.ini és az edit.com is, a [c-ft]*.txt maszknak
 pedig a config.txt, demo.txt, faq.txt és a tips.txt egyaránt megfelel.
 
     Sok FAR parancs megengedi egyidejűleg több különféle maszk használatát,

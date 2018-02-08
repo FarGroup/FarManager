@@ -4069,12 +4069,12 @@ wildcards ('*' and '?') and special expressions:
 
     #?#           any single character;
 
-    #[c,x-z]#     any character enclosed by the brackets.
+    #[cx-z]#     any character enclosed by the brackets.
                 Both separate characters and character intervals
                 are allowed.
 
     For example, files ftp.exe, fc.exe and f.ext can be selected using mask
-f*.ex?, mask *co* will select both color.ini and edit.com, mask [c-f,t]*.txt
+f*.ex?, mask *co* will select both color.ini and edit.com, mask [c-ft]*.txt
 can select config.txt, demo.txt, faq.txt and tips.txt.
 
     In many Far commands you can enter several file masks separated with commas
