@@ -78,7 +78,7 @@ static auto SkipRE(string::const_iterator Iterator, const string::const_iterator
 class filemasks::masks
 {
 public:
-	bool assign(const string& Masks, DWORD Flags);
+	bool assign(string&& Masks, DWORD Flags);
 	bool operator==(const string_view& FileName) const;
 	bool empty() const;
 
@@ -158,7 +158,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 			nextpos = SkipMasks(ptr, End);
 			if (nextpos != ptr)
 			{
-				*DestString += string(ptr, nextpos);
+				DestString->append(ptr, nextpos);
 				ptr = nextpos;
 			}
 			if (ptr != End && *ptr == ExcludeMaskSeparator)
@@ -179,7 +179,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 		if (Result && !SimpleMasksInclude.empty())
 		{
 			masks m;
-			Result = m.assign(SimpleMasksInclude, Flags);
+			Result = m.assign(std::move(SimpleMasksInclude), Flags);
 			if (Result)
 				Include.emplace_back(std::move(m));
 		}
@@ -187,7 +187,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 		if (Result && !SimpleMasksExclude.empty())
 		{
 			masks m;
-			Result = m.assign(SimpleMasksExclude, Flags);
+			Result = m.assign(std::move(SimpleMasksExclude), Flags);
 			if (Result)
 				Exclude.emplace_back(std::move(m));
 		}
@@ -195,7 +195,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 		if (Result && Include.empty() && !Exclude.empty())
 		{
 			masks m;
-			Result = m.assign(L"*", Flags);
+			Result = m.assign(L"*"s, Flags);
 			if (Result)
 				Include.emplace_back(std::move(m));
 		}
@@ -244,19 +244,13 @@ void filemasks::ErrorMessage()
 		{ lng::MOk });
 }
 
-bool filemasks::masks::assign(const string& Masks, DWORD Flags)
+static void add_pathext(string& Masks)
 {
-	m_Masks.clear();
-	m_Regex.reset();
-	m_Match.clear();
-
-	auto expmasks = Masks;
-
 	static const auto PathExtName = L"%PATHEXT%"_sv;
-	if (contains_icase(expmasks, PathExtName))
+	if (contains_icase(Masks, PathExtName))
 	{
 		string FarPathExt;
-		for (const auto& i: enum_tokens_with_quotes(os::env::get(L"PATHEXT"_sv), L";"_sv))
+		for (const auto& i : enum_tokens_with_quotes(os::env::get(L"PATHEXT"_sv), L";"_sv))
 		{
 			if (i.empty())
 				continue;
@@ -267,12 +261,55 @@ bool filemasks::masks::assign(const string& Masks, DWORD Flags)
 		if (!FarPathExt.empty())
 			FarPathExt.pop_back();
 
-		ReplaceStrings(expmasks, PathExtName, FarPathExt, true);
+		ReplaceStrings(Masks, PathExtName, FarPathExt, true);
+	}
+}
+
+class brackets_overrider
+{
+public:
+	void reset()
+	{
+		m_InBrackets = false;
 	}
 
-	if (expmasks[0] != RE_start)
+	bool active(string_view::iterator i)
 	{
-		for (const auto& Mask: enum_tokens_with_quotes(expmasks, L",;"_sv))
+		if (!m_InBrackets && *i == L'[')
+		{
+			m_InBrackets = true;
+			return true;
+		}
+
+		if (m_InBrackets)
+		{
+			if (*i == L']')
+				m_InBrackets = false;
+			return true;
+		}
+
+		return false;
+	}
+
+	static void postprocess(string_view&)
+	{
+	}
+
+private:
+	bool m_InBrackets{};
+};
+
+bool filemasks::masks::assign(string&& Masks, DWORD Flags)
+{
+	m_Masks.clear();
+	m_Regex.reset();
+	m_Match.clear();
+
+	if (Masks[0] != RE_start)
+	{
+		add_pathext(Masks);
+
+		for (const auto& Mask: enum_tokens_with_quotes_t<brackets_overrider>(Masks, L",;"_sv))
 		{
 			if (Mask.empty())
 				continue;
@@ -298,11 +335,11 @@ bool filemasks::masks::assign(const string& Masks, DWORD Flags)
 
 	m_Regex = std::make_unique<RegExp>();
 
-	if (!m_Regex->Compile(expmasks.data(), OP_PERLSTYLE | OP_OPTIMIZE))
+	if (!m_Regex->Compile(Masks.data(), OP_PERLSTYLE | OP_OPTIMIZE))
 	{
 		if (!(Flags & FMF_SILENT))
 		{
-			ReCompileErrorMessage(*m_Regex, expmasks);
+			ReCompileErrorMessage(*m_Regex, Masks);
 		}
 		return false;
 	}

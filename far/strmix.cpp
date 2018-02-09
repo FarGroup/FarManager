@@ -961,7 +961,7 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 
 					if (Success)
 					{
-						result += string(SearchStr + start, end - start);
+						result.append(SearchStr + start, end - start);
 					}
 				}
 			}

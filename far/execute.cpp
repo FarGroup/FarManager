@@ -397,6 +397,7 @@ static bool PartCmdLine(const string& CmdStr, string& strNewCmdStr, string& strN
 		if (*i == L'"')
 		{
 			InQuotes = !InQuotes;
+			continue;
 		}
 
 		if (!InQuotes && UseDefaultCondition && wcschr(L"<>|&", *i))
@@ -463,7 +464,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 			return nullptr;
 	}
 
-	strValue += L"\\shell\\shell";
+	strValue += L"\\shell";
 
 	const auto Key = os::reg::key::open(os::reg::key::classes_root, strValue, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
 	if (!Key)

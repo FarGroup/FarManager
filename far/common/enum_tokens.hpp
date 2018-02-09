@@ -34,9 +34,96 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "enumerator.hpp"
 
-namespace detail::enum_tokens_policy
+namespace detail
 {
-	class simple
+	template<typename... args>
+	class composite_overrider: std::tuple<args...>
+	{
+	public:
+		void reset()
+		{
+			return reset_impl();
+		}
+
+		bool active(string_view::iterator i)
+		{
+			return active_impl(i);
+		}
+
+		void postprocess(string_view& Value)
+		{
+			return postprocess_impl(Value);
+		}
+
+	private:
+		template<size_t index, REQUIRES(index >= sizeof...(args))>
+		void reset_impl() {}
+
+		template<size_t index = 0, REQUIRES(index < sizeof...(args))>
+		void reset_impl()
+		{
+			std::get<index>(*this).reset();
+			reset_impl<index + 1>();
+		}
+
+		template<size_t index, REQUIRES(index >= sizeof...(args))>
+		bool active_impl(string_view::iterator) { return false; }
+
+		template<size_t index = 0, REQUIRES(index < sizeof...(args))>
+		bool active_impl(string_view::iterator i)
+		{
+			return std::get<index>(*this).active(i) || active_impl<index + 1>(i);
+		}
+
+		template<size_t index, REQUIRES(index >= sizeof...(args))>
+		void postprocess_impl(string_view&) {}
+
+		template<size_t index = 0, REQUIRES(index < sizeof...(args))>
+		void postprocess_impl(string_view& Value)
+		{
+			std::get<index>(*this).postprocess(Value);
+			postprocess_impl<index + 1>(Value);
+		}
+	};
+
+	class quotes_overrider
+	{
+	public:
+		void reset()
+		{
+			m_InQuotes = false;
+			m_MetQuote = false;
+		}
+
+		bool active(string_view::iterator i)
+		{
+			if (*i == L'"')
+			{
+				m_InQuotes = !m_InQuotes;
+				m_MetQuote = true;
+				return true;
+			}
+
+			return false;
+		}
+
+		void postprocess(string_view& Value)
+		{
+			if (!m_MetQuote)
+				return;
+
+			m_Cache.clear();
+			m_Cache.reserve(Value.size());
+			copy::unquote(Value, std::back_inserter(m_Cache));
+			Value = m_Cache;
+		}
+
+		bool m_InQuotes{};
+		bool m_MetQuote{};
+		string m_Cache;
+	};
+
+	class simple_policy
 	{
 	public:
 		string_view::iterator extract(const string_view& View, const string_view& Separators, string_view& Value) const
@@ -47,25 +134,22 @@ namespace detail::enum_tokens_policy
 		}
 	};
 
-	class with_quotes
+	template<typename... overriders>
+	class custom_policy
 	{
 	public:
 		string_view::iterator extract(const string_view& View, const string_view& Separators, string_view& Value) const
 		{
-			auto MetQuote = false;
+			m_Overrider.reset();
 
 			const auto NewIterator = [&]
 			{
-				auto InQuotes = false;
 				for (auto i = View.cbegin(); i != View.cend(); ++i)
 				{
-					if (*i == L'"')
-					{
-						InQuotes = !InQuotes;
-						MetQuote = true;
-					}
+					if (m_Overrider.active(i))
+						continue;
 
-					if (!InQuotes && contains(Separators, *i))
+					if (contains(Separators, *i))
 						return i;
 				}
 				return View.cend();
@@ -73,19 +157,13 @@ namespace detail::enum_tokens_policy
 
 			Value = View.substr(0, NewIterator - View.cbegin());
 
-			if (MetQuote)
-			{
-				m_Cache.clear();
-				m_Cache.reserve(Value.size());
-				copy::unquote(Value, std::back_inserter(m_Cache));
-				Value = m_Cache;
-			}
+			m_Overrider.postprocess(Value);
 
 			return NewIterator;
 		}
 
 	private:
-		mutable string m_Cache;
+		mutable composite_overrider<overriders...> m_Overrider;
 	};
 }
 
@@ -139,7 +217,14 @@ private:
 	mutable string_view::iterator m_Iterator{};
 };
 
-using enum_tokens = enum_tokens_t<detail::enum_tokens_policy::simple>;
-using enum_tokens_with_quotes = enum_tokens_t<detail::enum_tokens_policy::with_quotes>;
+using enum_tokens = enum_tokens_t<detail::simple_policy>;
+
+template<typename... args>
+using enum_tokens_custom_t = enum_tokens_t<detail::custom_policy<args...>>;
+
+template<typename... args>
+using enum_tokens_with_quotes_t = enum_tokens_custom_t<detail::quotes_overrider, args...>;
+
+using enum_tokens_with_quotes = enum_tokens_with_quotes_t<>;
 
 #endif // ENUM_TOKENS_HPP_0472A061_7BE9_4932_B0C4_26DC64B4AB45

@@ -810,7 +810,7 @@ public:
 
 		SCOPED_ACTION(privilege)(Privileges);
 
-		const auto PipeName = string(L"\\\\.\\pipe\\") + guid;
+		const auto PipeName = concat(L"\\\\.\\pipe\\"_sv, guid);
 		WaitNamedPipe(PipeName.data(), NMPWAIT_WAIT_FOREVER);
 		m_Pipe.reset(os::fs::low::create_file(PipeName.data(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
 		if (!m_Pipe)

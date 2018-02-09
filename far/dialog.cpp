@@ -5674,7 +5674,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_PSWEDIT:
 					case DI_FIXEDIT:
 					case DI_LISTBOX: // меняет только текущий элемент
-						CurItem->strData = string(did->PtrData, did->PtrLength);
+						CurItem->strData.assign(did->PtrData, did->PtrLength);
 						Len = CurItem->strData.size();
 						break;
 					default:

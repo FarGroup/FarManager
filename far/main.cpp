@@ -409,7 +409,7 @@ static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult
 
 	if (InRange(2u, Args.size(), 5u) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
 	{
-		bool Export = isArg(Args[0], L"export");
+		const auto Export = isArg(Args[0], L"export");
 		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);

@@ -922,7 +922,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										auto& Item = std::get<1>(i);
 										const auto& Storage = std::get<2>(i);
 
-										Link = string(L"\\\\") + Storage.ServerName + L'\\' + Storage.ShareName;
+										Link = concat(L"\\\\"_sv, Storage.ServerName, L'\\', Storage.ShareName);
 										Item.Text = Link.data();
 										Item.Flags =
 											((Storage.State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
