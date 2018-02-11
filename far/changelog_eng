@@ -3,11 +3,39 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 11.02.2018 14:03:19 +0000 - build 5143
+
+1. Correction of 5140 - revert trimming of spaces in lists.
+
+2. Refactoring.
+
+drkns 09.02.2018 00:33:16 +0000 - build 5142
+
+1. Correction of 5140 - revert the logic "separator in square brackets is not a separator" for lists of masks.
+
+2. Refactoring.
+
+w17 08.02.2018 15:04:43 +0300 - build 5141
+
+1. Forum: Commas in date
+
+drkns 07.02.2018 23:31:59 +0000 - build 5140
+
+1. Unify Go To dialogs (Alt+F8) in viewer and editor - now this is one dialog. Bugs are expected.
+
+2. UserDefinedList is fully removed. String tokenization is now lazy everywhere and does minimum or zero allocations.
+
+3. Other refactoring.
+
 MZK 04.02.2018 22:16:59 -0800
 
 1. Translated @FindFileAdvanced and @PanelSettings help pages to English in FarEng.hlf.m4.
 
 2. Added missing option descriptions to Russian and English help.
+
+w17 05.02.2018 01:51:12 +0300 - build 5139
+
+1. fix 5136.2
 
 zg 04.02.2018 19:58:46 +0200 - build 5138
 
