@@ -38,7 +38,7 @@ os::fs::drives_set GetSavedNetworkDrives();
 
 bool ConnectToNetworkResource(const string& NewDir);
 
-string ExtractComputerName(const string& CurDir, string* strTail = nullptr);
+string ExtractComputerName(const string_view& CurDir, string* strTail = nullptr);
 
 // Получить из имени диска RemoteName
 bool DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);

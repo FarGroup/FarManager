@@ -145,7 +145,7 @@ root_type ParsePath(const string_view& Path, size_t* DirectoryOffset, bool* Root
 	return Result;
 }
 
-bool IsAbsolutePath(const string& Path)
+bool IsAbsolutePath(const string_view& Path)
 {
 	const auto Type = ParsePath(Path);
 
@@ -312,6 +312,11 @@ void DeleteEndSlash(string &Path)
 	Path.resize(Path.rend() - std::find_if_not(Path.rbegin(), Path.rend(), IsSlash));
 }
 
+void DeleteEndSlash(string_view& Path)
+{
+	Path.remove_suffix(std::find_if_not(Path.rbegin(), Path.rend(), IsSlash) - Path.rbegin());
+}
+
 bool CutToSlash(string &strStr, bool bInclude)
 {
 	const auto pos = FindLastSlash(strStr);
@@ -421,14 +426,14 @@ string ExtractFilePath(const string &Path)
 	return string(Path.data(), p);
 }
 
-bool IsRootPath(const string &Path)
+bool IsRootPath(const string_view& Path)
 {
 	bool IsRoot = false;
 	ParsePath(Path, nullptr, &IsRoot);
 	return IsRoot || IsRelativeRoot(Path);
 }
 
-bool PathStartsWith(const string &Path, const string &Start)
+bool PathStartsWith(const string_view& Path, const string_view& Start)
 {
 	auto PathPart = Start;
 	DeleteEndSlash(PathPart);

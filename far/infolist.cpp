@@ -507,7 +507,7 @@ void InfoList::DisplayObject()
 			}
 			PrintInfo(strOutStr);
 
-			auto GetBatteryTime = [](size_t SecondsCount)
+			const auto& GetBatteryTime = [](size_t SecondsCount)
 			{
 				if (SecondsCount == BATTERY_LIFE_UNKNOWN)
 					return string(msg(lng::MInfoPowerStatusUnknown));

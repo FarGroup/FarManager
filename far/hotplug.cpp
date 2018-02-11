@@ -349,11 +349,11 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 {
 	string strFriendlyName;
 	GetDeviceProperty(Info.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName, true);
-	RemoveExternalSpaces(strFriendlyName);
+	inplace::trim(strFriendlyName);
 
 	string strDescription;
 	GetDeviceProperty(Info.DevInst, SPDRP_DEVICEDESC, strDescription, true);
-	RemoveExternalSpaces(strDescription);
+	inplace::trim(strDescription);
 
 	int MessageResult = 0;
 
@@ -462,13 +462,13 @@ void ShowHotplugDevices()
 				string strFriendlyName, strDescription;
 				if (GetDeviceProperty(i.DevInst, SPDRP_DEVICEDESC, strDescription, true) && !strDescription.empty())
 				{
-					RemoveExternalSpaces(strDescription);
+					inplace::trim(strDescription);
 					ListItem.strName = strDescription;
 				}
 
 				if (GetDeviceProperty(i.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName, true))
 				{
-					RemoveExternalSpaces(strFriendlyName);
+					inplace::trim(strFriendlyName);
 
 					if (!strDescription.empty())
 					{

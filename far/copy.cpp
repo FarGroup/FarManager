@@ -239,7 +239,7 @@ static void GenerateName(string &strName, const string& Path)
 	}
 
 	// The source string will be altered below so the view must be copied
-	const auto Ext = make_string(PointToExt(strName));
+	const string Ext(PointToExt(strName));
 	const auto NameLength = strName.size() - Ext.size();
 
 	// file (2).ext, file (3).ext and so on
@@ -398,7 +398,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 				if (MultiCopy)
 				{
-					for (const auto& i: enum_tokens_with_quotes(strOldFolder, L",;"_sv))
+					for (const auto& i: enum_tokens_with_quotes_t<with_trim>(strOldFolder, L",;"_sv))
 					{
 						if (i.empty())
 							continue;
@@ -930,7 +930,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 					}
 					else
 					{
-						for (const auto& i: enum_tokens_with_quotes(strCopyDlgValue, L",;"_sv))
+						for (const auto& i: enum_tokens_with_quotes_t<with_trim>(strCopyDlgValue, L",;"_sv))
 						{
 							m_DestList.emplace_back(ALL_CONST_RANGE(i));
 						}
@@ -1365,7 +1365,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				const auto SlashPos = FindLastSlash(strSelName);
 				if (SlashPos)
 				{
-					tpath = strSelName.substr(0, SlashPos + 1);
+					tpath.assign(strSelName, 0, SlashPos + 1);
 				}
 			}
 			strDest.insert(0, tpath);
@@ -1454,8 +1454,8 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		const auto pos = FindLastSlash(strDest);
 		if (!copy_to_null && pos != string::npos && (!DestMountLen || pos > DestMountLen))
 		{
-			string strNewPath = strDest.substr(0, pos);
-			os::fs::file_status NewPathStatus(strNewPath);
+			const auto strNewPath = strDest.substr(0, pos);
+			const os::fs::file_status NewPathStatus(strNewPath);
 			if (!os::fs::exists(NewPathStatus))
 			{
 				if (os::fs::create_directory(strNewPath))

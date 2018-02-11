@@ -69,8 +69,8 @@ private:
 	virtual string GetTitle() const override { return {}; }
 	void init(const string& Topic, const wchar_t *Mask, unsigned long long Flags);
 	bool ReadHelp(const string& Mask);
-	void AddLine(const string& Line);
-	void AddTitle(const string& Title);
+	void AddLine(const string_view& Line);
+	void AddTitle(const string_view& Title);
 	static void HighlightsCorrection(string &strStr);
 	void FastShow();
 	void DrawWindowFrame() const;

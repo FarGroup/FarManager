@@ -34,13 +34,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-inline bool IsSpace(wchar_t x) { return x == L' ' || x == L'\t'; }
-
 inline bool IsEol(wchar_t x) { return x == L'\r' || x == L'\n'; }
 
-inline bool IsSpaceOrEos(wchar_t x) { return IsSpace(x) || !x; }
-
-inline bool IsSpaceOrEol(wchar_t x) { return IsSpace(x) || IsEol(x); }
+inline bool IsBlankOrEos(wchar_t x) { return std::iswblank(x) || !x; }
 
 const string& GetSpaces();
 

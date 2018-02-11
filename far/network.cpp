@@ -143,7 +143,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	return res == NO_ERROR;
 }
 
-string ExtractComputerName(const string& CurDir, string* strTail)
+string ExtractComputerName(const string_view& CurDir, string* strTail)
 {
 	string Result;
 
@@ -155,7 +155,7 @@ string ExtractComputerName(const string& CurDir, string* strTail)
 	const auto CurDirPathType = ParsePath(CurDir);
 	if (CurDirPathType == root_type::remote || CurDirPathType == root_type::unc_remote)
 	{
-		strNetDir = CurDir;
+		assign(strNetDir, CurDir);
 	}
 	else
 	{

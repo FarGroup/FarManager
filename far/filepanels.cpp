@@ -1215,7 +1215,7 @@ void FilePanels::GoToFile(const string_view& FileName)
 		}
 
 		const auto strNameFile = PointToName(FileName);
-		auto strNameDir = make_string(FileName);
+		string strNameDir(FileName);
 		CutToSlash(strNameDir);
 		/* $ 10.04.2001 IS
 		     Не делаем SetCurDir, если нужный путь уже есть на открытых

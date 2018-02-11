@@ -762,8 +762,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 						NewItem.TotalSize = FileSizeToStr(TotalSize, 9, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
 						NewItem.FreeSize = FileSizeToStr(UserFree, 9, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
 					}
-					RemoveExternalSpaces(NewItem.TotalSize);
-					RemoveExternalSpaces(NewItem.FreeSize);
+					inplace::trim(NewItem.TotalSize);
+					inplace::trim(NewItem.FreeSize);
 				}
 			}
 
@@ -967,9 +967,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					}
 					else
 					{
-						string strName = ChDisk->at(SelPos).strName.substr(3);
-						RemoveExternalSpaces(strName);
-						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::drive_menu, strName))
+						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::drive_menu, trim(string_view(ChDisk->at(SelPos).strName).substr(3))))
 							RetCode = SelPos;
 					}
 				}

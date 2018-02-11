@@ -64,7 +64,7 @@ string GetErrorString(bool Nt, DWORD Code)
 	return Result;
 }
 
-bool WNetGetConnection(const string& LocalName, string &RemoteName)
+bool WNetGetConnection(const string_view& LocalName, string &RemoteName)
 {
 	wchar_t_ptr_n<MAX_PATH> Buffer(MAX_PATH);
 	// MSDN says that call can fail with ERROR_NOT_CONNECTED or ERROR_CONNECTION_UNAVAIL if calling application
@@ -73,12 +73,13 @@ bool WNetGetConnection(const string& LocalName, string &RemoteName)
 	// Deliberately initialised with empty string to fix that.
 	Buffer[0] = L'\0';
 	auto Size = static_cast<DWORD>(Buffer.size());
-	auto Result = ::WNetGetConnection(LocalName.data(), Buffer.get(), &Size);
+	null_terminated C_LocalName(LocalName);
+	auto Result = ::WNetGetConnection(C_LocalName.data(), Buffer.get(), &Size);
 
 	while (Result == ERROR_MORE_DATA)
 	{
 		Buffer.reset(Size);
-		Result = ::WNetGetConnection(LocalName.data(), Buffer.get(), &Size);
+		Result = ::WNetGetConnection(C_LocalName.data(), Buffer.get(), &Size);
 	}
 
 	const auto& IsReceived = [](int Code) { return Code == NO_ERROR || Code == ERROR_NOT_CONNECTED || Code == ERROR_CONNECTION_UNAVAIL; };

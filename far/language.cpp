@@ -105,30 +105,28 @@ bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string&
 	{
 		if (starts_with_icase(ReadStr, strFullParamName))
 		{
-			size_t Pos = ReadStr.find(L'=');
+			const auto EqPos = ReadStr.find(L'=');
 
-			if (Pos != string::npos)
+			if (EqPos != string::npos)
 			{
-				strParam1 = ReadStr.substr(Pos + 1);
+				strParam1.assign(ReadStr, EqPos + 1);
 
 				if (strParam2)
 					strParam2->clear();
 
-				size_t pos = strParam1.find(L',');
+				const auto pos = strParam1.find(L',');
 
 				if (pos != string::npos)
 				{
 					if (strParam2)
 					{
-						*strParam2 = strParam1;
-						strParam2->erase(0, pos+1);
-						RemoveTrailingSpaces(*strParam2);
+						*strParam2 = trim_right(strParam1.substr(pos + 1));
 					}
 
 					strParam1.resize(pos);
 				}
 
-				RemoveTrailingSpaces(strParam1);
+				inplace::trim_right(strParam1);
 				return true;
 			}
 		}
@@ -275,8 +273,7 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	//-- //[Label]
 	if (str.size() > 4 && str[0] == L'/' && str[1] == L'/' && str[2] == L'[' && str.back() == L']')
 	{
-		label = str.substr(3);
-		label.pop_back();
+		label.assign(str, 3, str.size() - 4);
 		auto eq_pos = label.find(L'=');
 		if (eq_pos != string::npos)
 			label.erase(eq_pos); //-- //[Label=0]
@@ -287,7 +284,7 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	if (!str.empty() && str.front() == L'"')
 	{
 		have_data = true;
-		data = str.substr(1);
+		data.assign(str, 1);
 		if (!data.empty() && data.back() == L'"')
 			data.pop_back();
 		return;
@@ -296,15 +293,13 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	//-- MLabel="Text"
 	if (!str.empty() && str.back() == L'"')
 	{
-		auto eq_pos = str.find(L'=');
+		const auto eq_pos = str.find(L'=');
 		if (eq_pos != string::npos && upper(str[0]) >= L'A' && upper(str[0]) <= L'Z')
 		{
-			data = str.substr(eq_pos + 1);
-			RemoveExternalSpaces(data);
+			assign(data, trim(string_view(str).substr(eq_pos + 1)));
 			if (data.size() > 1 && data[0] == L'"')
 			{
-				label = str.substr(0, eq_pos);
-				RemoveExternalSpaces(label);
+				assign(label, trim(string_view(str).substr(0, eq_pos)));
 				have_data = true;
 				data.pop_back();
 				data.erase(0, 1);
@@ -357,7 +352,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 	string label, Buffer, text;
 	while (GetStr.GetString(Buffer))
 	{
-		RemoveExternalSpaces(Buffer);
+		inplace::trim(Buffer);
 		bool have_text;
 		parse_lng_line(Buffer, label, text, have_text);
 		if (have_text)
@@ -394,7 +389,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 			label.clear();
 			while (get_str.GetString(Buffer))
 			{
-				RemoveExternalSpaces(Buffer);
+				inplace::trim(Buffer);
 				bool have_text;
 				parse_lng_line(Buffer, label, text, have_text);
 				if (have_text && !label.empty())

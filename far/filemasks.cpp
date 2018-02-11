@@ -110,7 +110,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 	while ((LBPos = ExpMasks.find(L'<')) != string::npos && (RBPos = ExpMasks.find(L'>', LBPos)) != string::npos)
 	{
 		const auto MaskGroupNameWithBrackets = string_view(ExpMasks).substr(LBPos, RBPos - LBPos + 1);
-		auto MaskGroupName = make_string(MaskGroupNameWithBrackets.substr(1, MaskGroupNameWithBrackets.size() - 2));
+		string MaskGroupName(MaskGroupNameWithBrackets.substr(1, MaskGroupNameWithBrackets.size() - 2));
 
 		if (contains(UsedGroups, MaskGroupName))
 		{
@@ -265,7 +265,7 @@ static void add_pathext(string& Masks)
 	}
 }
 
-class brackets_overrider
+class with_brackets
 {
 public:
 	void reset()
@@ -291,10 +291,6 @@ public:
 		return false;
 	}
 
-	static void postprocess(string_view&)
-	{
-	}
-
 private:
 	bool m_InBrackets{};
 };
@@ -309,7 +305,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 	{
 		add_pathext(Masks);
 
-		for (const auto& Mask: enum_tokens_with_quotes_t<brackets_overrider>(Masks, L",;"_sv))
+		for (const auto& Mask: enum_tokens_with_quotes_t<with_brackets, with_trim>(Masks, L",;"_sv))
 		{
 			if (Mask.empty())
 				continue;
@@ -320,7 +316,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 			}
 			else if (contains(Mask, L"**"))
 			{
-				auto NewMask = make_string(Mask);
+				string NewMask(Mask);
 				ReplaceStrings(NewMask, L"**"_sv, L"*"_sv);
 				m_Masks.emplace_back(std::move(NewMask));
 			}

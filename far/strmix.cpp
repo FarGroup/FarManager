@@ -321,49 +321,6 @@ string& TruncPathStr(string &strStr, int MaxLength)
 	return strStr;
 }
 
-
-wchar_t* RemoveLeadingSpaces(wchar_t *Str)
-{
-	const auto Iterator = null_iterator(Str);
-	const auto NewBegin = std::find_if_not(Iterator, Iterator.end(), IsSpaceOrEol);
-	if (NewBegin != Iterator)
-	{
-		*std::copy(NewBegin, Iterator.end(), Str) = L'\0';
-	}
-	return Str;
-}
-
-string& RemoveLeadingSpaces(string &strStr)
-{
-	strStr.erase(strStr.begin(), std::find_if_not(ALL_RANGE(strStr), IsSpaceOrEol));
-	return strStr;
-}
-
-// удалить конечные пробелы
-wchar_t* RemoveTrailingSpaces(wchar_t *Str)
-{
-	const auto REnd = std::make_reverse_iterator(Str);
-	Str[REnd - std::find_if_not(REnd - wcslen(Str), REnd, IsSpaceOrEol)] = 0;
-	return Str;
-}
-
-string& RemoveTrailingSpaces(string &strStr)
-{
-	strStr.resize(strStr.rend() - std::find_if_not(ALL_REVERSE_RANGE(strStr), IsSpaceOrEol));
-	return strStr;
-}
-
-wchar_t* RemoveExternalSpaces(wchar_t *Str)
-{
-	return RemoveTrailingSpaces(RemoveLeadingSpaces(Str));
-}
-
-string& RemoveExternalSpaces(string &strStr)
-{
-	return RemoveTrailingSpaces(RemoveLeadingSpaces(strStr));
-}
-
-
 /* $ 02.02.2001 IS
    Заменяет пробелами непечатные символы в строке. В настоящий момент
    обрабатываются только cr и lf.
@@ -371,7 +328,7 @@ string& RemoveExternalSpaces(string &strStr)
 string& RemoveUnprintableCharacters(string &strStr)
 {
 	std::replace_if(ALL_RANGE(strStr), IsEol, L' ');
-	return RemoveExternalSpaces(strStr);
+	return inplace::trim(strStr);
 }
 
 const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
@@ -395,7 +352,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 		{
 			Src++;
 
-			while (IsSpace(*Src))
+			while (std::iswblank(*Src))
 				Src++;
 
 			strWord.assign(StartPtr,WordLen);
@@ -847,18 +804,18 @@ bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& E
 		// Go deeper and find one-character words even if they are in WordDiv, e.g. {}()<>,.= etc. (except whitespace)
 		if (Begin == Str.size())
 		{
-			if (!IsSpaceOrEol(Str[Begin - 1]))
+			if (!std::iswspace(Str[Begin - 1]))
 				--Begin;
 		}
 		else
 		{
-			if (!IsSpaceOrEol(Str[Begin]))
+			if (!std::iswspace(Str[Begin]))
 			{
 				++End;
 			}
 			else
 			{
-				if (Begin && !IsSpaceOrEol(Str[Begin - 1]))
+				if (Begin && !std::iswspace(Str[Begin - 1]))
 					--Begin;
 			}
 		}
@@ -1074,8 +1031,8 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 
 				if (WholeWords)
 				{
-					const auto locResultLeft = I <= 0 || IsSpace(Source[I - 1]) || wcschr(WordDiv, Source[I - 1]);
-					const auto locResultRight = I + Length >= StrSize || IsSpace(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
+					const auto locResultLeft = I <= 0 || std::iswblank(Source[I - 1]) || wcschr(WordDiv, Source[I - 1]);
+					const auto locResultRight = I + Length >= StrSize || std::iswblank(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
 
 					if (!locResultLeft || !locResultRight)
 						break;
@@ -1147,16 +1104,16 @@ static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 	return Hex;
 }
 
-template<class C>
-static auto HexStringToBlobT(const C* Hex, size_t Size, C Separator)
+template<typename char_type>
+static auto HexStringToBlobT(const basic_string_view<char_type>& Hex, char_type Separator)
 {
 	// Size shall be either 3 * N + 2 or even
-	if (Size && (Separator? Size % 3 != 2 : Size & 1))
+	if (!Hex.empty() && (Separator? Hex.size() % 3 != 2 : Hex.size() & 1))
 		throw MAKE_FAR_EXCEPTION(L"Incomplete hex string");
 
 	const auto SeparatorSize = Separator? 1 : 0;
 	const auto StepSize = 2 + SeparatorSize;
-	const auto AlignedSize = Size + SeparatorSize;
+	const auto AlignedSize = Hex.size() + SeparatorSize;
 	const auto BlobSize = AlignedSize / StepSize;
 
 	if (!BlobSize)
@@ -1182,9 +1139,9 @@ std::string BlobToHexString(const bytes_view& Blob, char Separator)
 	return BlobToHexString(Blob.data(), Blob.size(), Separator);
 }
 
-bytes HexStringToBlob(const char* Hex, char Separator)
+bytes HexStringToBlob(const basic_string_view<char>& Hex, char Separator)
 {
-	return HexStringToBlobT(Hex, strlen(Hex), Separator);
+	return HexStringToBlobT(Hex, Separator);
 }
 
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator)
@@ -1197,9 +1154,9 @@ string BlobToHexWString(const bytes_view& Blob, char Separator)
 	return BlobToHexWString(Blob.data(), Blob.size(), Separator);
 }
 
-bytes HexStringToBlob(const wchar_t* Hex, wchar_t Separator)
+bytes HexStringToBlob(const string_view& Hex, wchar_t Separator)
 {
-	return HexStringToBlobT(Hex, wcslen(Hex), Separator);
+	return HexStringToBlobT(Hex, Separator);
 }
 
 string ExtractHexString(const string& HexString)
@@ -1223,7 +1180,7 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 	const auto CompatibleCp = IsVirtualCodePage(Codepage)? CP_ACP : Codepage;
 	if (FromHex)
 	{
-		const auto Blob = HexStringToBlob(ExtractHexString(From).data(), 0);
+		const auto Blob = HexStringToBlob(ExtractHexString(From), 0);
 		return encoding::get_chars(CompatibleCp, Blob.data(), Blob.size());
 	}
 	else

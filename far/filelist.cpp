@@ -3965,12 +3965,12 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 	if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
 	{
-		size_t pos = strCurName.rfind(L'.');
+		const auto pos = strCurName.rfind(L'.');
 
 		if (pos != string::npos)
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask = concat(L'"', L"*."_sv, strCurName.substr(pos + 1), L'"');
+			strRawMask = concat(L'"', L"*."_sv, string_view(strCurName).substr(pos + 1), L'"');
 			WrapBrackets=true;
 		}
 		else
@@ -4454,9 +4454,7 @@ void FileList::RefreshTitle()
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
-		string strPluginTitle = NullToEmpty(m_CachedOpenPanelInfo.PanelTitle);
-		RemoveExternalSpaces(strPluginTitle);
-		m_Title += strPluginTitle;
+		append(m_Title, trim(string_view(NullToEmpty(m_CachedOpenPanelInfo.PanelTitle))));
 	}
 	else
 	{
@@ -4898,7 +4896,7 @@ bool FileList::ApplyCommand()
 		return false;
 
 	strPrevCommand = strCommand;
-	RemoveLeadingSpaces(strCommand);
+	inplace::trim_left(strCommand);
 
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
@@ -5260,8 +5258,8 @@ string FileList::GetPluginPrefix() const
 			PluginInfo PInfo = {sizeof(PInfo)};
 			if (GetPluginHandle()->plugin()->GetPluginInfo(&PInfo) && PInfo.CommandPrefix && *PInfo.CommandPrefix)
 			{
-				string Prefix = PInfo.CommandPrefix;
-				return Prefix.substr(0, Prefix.find(L':')) + L':';
+				string_view Prefix = PInfo.CommandPrefix;
+				return Prefix.substr(0, Prefix.find(L':')) + L":"_sv;
 			}
 		}
 	}
@@ -7789,22 +7787,17 @@ static string size2str(ULONGLONG Size, int width, bool FloatStyle, bool short_mo
 	{
 		return GroupDigits(Size);
 	}
-	else if (FloatStyle) // float style
+
+	if (FloatStyle) // float style
 	{
-		auto str = FileSizeToStr(Size, width, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
-		RemoveExternalSpaces(str);
-		return str;
+		return trim(FileSizeToStr(Size, width, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT));
 	}
-	else
-	{
-		string Str = str(Size);
-		if (static_cast<int>(Str.size()) > width)
-		{
-			Str = FileSizeToStr(Size, width, COLUMN_SHOWUNIT);
-			RemoveExternalSpaces(Str);
-		}
+
+	auto Str = str(Size);
+	if (static_cast<int>(Str.size()) <= width)
 		return Str;
-	}
+
+	return trim(FileSizeToStr(Size, width, COLUMN_SHOWUNIT));
 }
 
 void FileList::ShowSelectedSize()
@@ -7877,28 +7870,35 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		return strTotalSize;
 	};
 
-	auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
-	auto strTotalStr = calc_total_string(!Global->Opt->ShowBytes);
-	if (strTotalStr.size() > avail_width)
+	const auto TotalStr = [&]
 	{
-		if (Global->Opt->ShowBytes)
-			strTotalStr = calc_total_string(true);
-		TruncStrFromEnd(strTotalStr, static_cast<int>(avail_width));
-	}
+		const auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
+		auto Str = calc_total_string(!Global->Opt->ShowBytes);
+		if (Str.size() > avail_width)
+		{
+			if (Global->Opt->ShowBytes)
+				Str = calc_total_string(true);
+			TruncStrFromEnd(Str, static_cast<int>(avail_width));
+		}
+		return Str;
+	}();
+
+	const string_view TotalStrView = TotalStr;
+
 	SetColor(COL_PANELTOTALINFO);
-	GotoXY(m_X1 + (m_X2 - m_X1 + 1 - static_cast<int>(strTotalStr.size()))/2, m_Y2);
-	size_t BoxPos = strTotalStr.find(BoxSymbols[BS_H2]);
-	if (int BoxLength = BoxPos == string::npos? 0 : std::count(strTotalStr.begin() + BoxPos, strTotalStr.end(), BoxSymbols[BS_H2]))
+	GotoXY(m_X1 + (m_X2 - m_X1 + 1 - static_cast<int>(TotalStrView.size()))/2, m_Y2);
+	const auto BoxPos = TotalStrView.find(BoxSymbols[BS_H2]);
+	if (const auto BoxLength = BoxPos == string::npos? 0 : std::count(TotalStrView.begin() + BoxPos, TotalStrView.end(), BoxSymbols[BS_H2]))
 	{
-		Text(strTotalStr.substr(0, BoxPos));
+		Text(TotalStrView.substr(0, BoxPos));
 		SetColor(COL_PANELBOX);
-		Text(strTotalStr.substr(BoxPos, BoxLength));
+		Text(TotalStrView.substr(BoxPos, BoxLength));
 		SetColor(COL_PANELTOTALINFO);
-		Text(strTotalStr.data() + BoxPos + BoxLength);
+		Text(TotalStrView.substr(BoxPos + BoxLength));
 	}
 	else
 	{
-		Text(strTotalStr);
+		Text(TotalStrView);
 	}
 }
 
@@ -8480,7 +8480,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								ExtPtr.remove_prefix(1);
 
 							unsigned long long ViewFlags=Columns[K].type;
-							Text((ViewFlags & COLUMN_RIGHTALIGN? fit_to_right : fit_to_left)(make_string(ExtPtr), ColumnWidth));
+							Text((ViewFlags & COLUMN_RIGHTALIGN? fit_to_right : fit_to_left)(string(ExtPtr), ColumnWidth));
 
 							if (!ShowStatus && static_cast<int>(ExtPtr.size()) > ColumnWidth)
 							{

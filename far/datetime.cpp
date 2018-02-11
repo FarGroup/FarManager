@@ -538,9 +538,8 @@ void ParseDateComponents(const string& Src, const range<WORD*>& Dst, wchar_t Sep
 	const auto Components = enum_tokens(Src, string_view(&Separator, 1));
 	std::transform(ALL_CONST_RANGE(Components), Dst.begin(), [&](const string_view& i)
 	{
-		auto Str = make_string(i);
-		RemoveExternalSpaces(Str);
-		return Str.empty()? Default : std::stoul(Str);
+		const auto Str = trim(i);
+		return Str.empty()? Default : std::stoul(string(Str));
 	});
 }
 

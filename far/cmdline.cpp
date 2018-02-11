@@ -1080,8 +1080,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			return false; //todo: /p - dialog, /a - calculation; then set variable ...
 
 		size_t pos;
-		auto strCmdLine = CmdLine.substr(3);
-		RemoveLeadingSpaces(strCmdLine);
+		auto strCmdLine = trim_left(CmdLine.substr(3));
 
 		// "set" (display all) or "set var" (display all that begin with "var")
 		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
@@ -1135,9 +1134,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 	if (IsCommand(L"CLS"_sv, false))
 	{
-		auto strCmdLine = CmdLine.substr(3);
-		RemoveLeadingSpaces(strCmdLine);
-		if (!strCmdLine.empty())
+		if (!trim_left(string_view(CmdLine).substr(3)).empty())
 		{
 			// Theoretically, in cmd "cls" and "cls blablabla" are the same things.
 			// But, if user passed some parameters to cls it's quite probably
@@ -1156,12 +1153,9 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	{
 		ConsoleActivatior(false);
 
-		auto strCmdLine = CmdLine.substr(5);
-		RemoveExternalSpaces(strCmdLine);
-
 		const auto PushDir = m_CurDir;
 
-		if (IntChDir(strCmdLine, true))
+		if (IntChDir(trim(CmdLine.substr(5)), true))
 		{
 			ppstack.push(PushDir);
 			os::env::set(L"FARDIRSTACK"_sv, PushDir);
@@ -1216,8 +1210,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	*/
 	if (IsCommand(L"CHCP"_sv, false))
 	{
-		auto strCmdLine = CmdLine.substr(4);
-		RemoveExternalSpaces(strCmdLine);
+		const auto strCmdLine = trim(CmdLine.substr(4));
 		uintptr_t cp;
 		try
 		{
@@ -1242,15 +1235,14 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	{
 		const int Length = IsCommand(L"CD"_sv, true)? 2 : 5;
 
-		auto strCmdLine = CmdLine.substr(Length);
-		RemoveExternalSpaces(strCmdLine);
+		auto strCmdLine = trim(CmdLine.substr(Length));
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (starts_with_icase(strCmdLine, L"/D"_sv) && IsSpaceOrEos(strCmdLine[2]))
+		if (starts_with_icase(strCmdLine, L"/D"_sv) && IsBlankOrEos(strCmdLine[2]))
 		{
 			strCmdLine.erase(0, 2);
-			RemoveLeadingSpaces(strCmdLine);
+			inplace::trim_left(strCmdLine);
 		}
 
 		if (strCmdLine.empty())

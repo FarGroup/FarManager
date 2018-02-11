@@ -166,7 +166,7 @@ static void MixToFullPath(const string_view& stPath, string& Dest, const string_
 						}
 						else
 						{
-							strDest=DriveVar.substr(1);
+							strDest.assign(DriveVar, 1);
 						}
 					}
 					AddEndSlash(strDest);
@@ -225,7 +225,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 			{
 				for(const auto& i: enum_substrings(VolumePathNames.data()))
 				{
-					const auto VolumePathName = make_string(i);
+					const string VolumePathName(i);
 
 					if (!AbsPath.empty() && starts_with_icase(AbsPath, VolumePathName))
 						return VolumePathName;
@@ -359,7 +359,7 @@ string ConvertNameToShort(const string& Object)
 				switch (ParsePath(strDest))
 				{
 				case root_type::unc_drive_letter:
-					strDest = strDest.substr(4); // \\?\X:\path -> X:\path
+					strDest.erase(0, 4); // \\?\X:\path -> X:\path
 					break;
 
 				case root_type::unc_remote:
@@ -390,7 +390,7 @@ string ConvertNameToLong(const string& Object)
 				switch (ParsePath(strDest))
 				{
 				case root_type::unc_drive_letter:
-					strDest = strDest.substr(4); // \\?\X:\path -> X:\path
+					strDest.erase(0, 4); // \\?\X:\path -> X:\path
 					break;
 
 				case root_type::unc_remote:
@@ -447,7 +447,7 @@ string ConvertNameToUNC(const string& Object)
 			if (SlashPos != string::npos)
 			{
 				AddEndSlash(strTemp);
-				strTemp += strFileName.substr(SlashPos + 1);
+				strTemp.append(strFileName, SlashPos + 1);
 			}
 
 			strFileName = strTemp;
@@ -495,13 +495,13 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 					string TmpStr;
 					TmpStr.reserve(strPath.size());
 					size_t LastPos = StartPos;
-					bool EndsWithSlash = IsSlash(strPath.back());
+					const auto EndsWithSlash = IsSlash(strPath.back());
 
 					for (size_t i = StartPos; i <= strPath.size(); ++i)
 					{
 						if ((i < strPath.size() && IsSlash(strPath[i])) || (i == strPath.size() && !EndsWithSlash))
 						{
-							TmpStr = strPath.substr(0, i);
+							TmpStr.assign(strPath, 0, i);
 							os::fs::find_data fd;
 
 							if (os::fs::get_find_data(TmpStr, fd))

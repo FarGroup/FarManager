@@ -203,7 +203,7 @@ static string MakeName(const Shortcuts::shortcut& Item)
 			append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "_sv);
 	}
 
-	return plugin->GetTitle() + (TechInfo.empty()? TechInfo : concat(L" ("_sv, TechInfo.substr(0, TechInfo.size() - 2), L')'));
+	return plugin->GetTitle() + (TechInfo.empty()? TechInfo : concat(L" ("_sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')'));
 }
 
 static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool raw_mode)

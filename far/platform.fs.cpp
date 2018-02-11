@@ -417,7 +417,7 @@ namespace os::fs
 	}
 
 	enum_names::enum_names(const string_view& Object):
-		m_Object(make_string(Object))
+		m_Object(Object)
 	{
 	}
 
@@ -509,7 +509,7 @@ namespace os::fs
 	}
 
 	enum_streams::enum_streams(const string_view& Object):
-		m_Object(make_string(Object))
+		m_Object(Object)
 	{
 	}
 

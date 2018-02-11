@@ -1004,7 +1004,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					const auto pos = FindLastSlash(strFullFileName);
 					if (pos != string::npos)
 					{
-						string Path = strFullFileName.substr(pos);
+						const auto Path = string_view(strFullFileName).substr(pos);
 
 						// В корне?
 						if(IsRootPath(Path))
@@ -1472,16 +1472,13 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		{
 			if (FileSize > static_cast<unsigned long long>(Global->Opt->EdOpt.FileSizeLimit))
 			{
-				// Ширина = 8 - это будет... в Kb и выше...
-				auto strTempStr1 = FileSizeToStr(FileSize, 8);
-				auto strTempStr2 = FileSizeToStr(Global->Opt->EdOpt.FileSizeLimit, 8);
-
 				if (Message(MSG_WARNING,
 					msg(lng::MEditTitle),
 					{
 						Name,
-						format(lng::MEditFileLong, RemoveExternalSpaces(strTempStr1)),
-						format(lng::MEditFileLong2, RemoveExternalSpaces(strTempStr2)),
+						// Ширина = 8 - это будет... в Kb и выше...
+						format(lng::MEditFileLong, trim(FileSizeToStr(FileSize, 8))),
+						format(lng::MEditFileLong2, trim(FileSizeToStr(Global->Opt->EdOpt.FileSizeLimit, 8))),
 						msg(lng::MEditROOpen)
 					},
 					{ lng::MYes, lng::MNo },

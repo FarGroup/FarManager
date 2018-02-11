@@ -568,11 +568,11 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 		{
 			// !?$zz$xxxx(fffff)ddddd
 			//                  ^   ^
-			string strTitle2 = strTitle.substr(end_t - 2 + 1 - hist_correct, scr - end_t - 1);
+			const auto strTitle2 = strTitle.substr(end_t - 2 + 1 - hist_correct, scr - end_t - 1);
 
 			// !?$zz$xxxx(ffffff)ddddd
 			//            ^    ^
-			string strTitle3 = strTitle.substr(beg_t - 2 + 1 - hist_correct, end_t - beg_t - 1);
+			const auto strTitle3 = strTitle.substr(beg_t - 2 + 1 - hist_correct, end_t - beg_t - 1);
 
 			// !?$zz$xxxx(fffff)ddddd
 			//       ^  ^
@@ -594,8 +594,7 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 				}
 			}
 
-			strTitle += strTmp;
-			strTitle += strTitle2;
+			append(strTitle, strTmp, strTitle2);
 		}
 
 		//do it - типа здесь все уже раскрыто и преобразовано
@@ -615,11 +614,11 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 		{
 			// !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
 			//                                  ^   ^
-			string strTxt2 = strTxt.substr(end_s - scr, end - end_s - 1);
+			const auto strTxt2 = strTxt.substr(end_s - scr, end - end_s - 1);
 
 			// !?$zz$xxxx(ffffff)ddddd?rrrr(pppp)qqqqq!
 			//                              ^  ^
-			string strTxt3 = strTxt.substr(beg_s - scr, end_s - beg_s - 1);
+			const auto strTxt3 = strTxt.substr(beg_s - scr, end_s - beg_s - 1);
 
 			// !?$zz$xxxx(fffff)ddddd?rrrr(pppp)qqqqq!
 			//                        ^  ^
@@ -641,8 +640,7 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 				}
 			}
 
-			strTxt += strTmp;
-			strTxt += strTxt2;
+			append(strTxt, strTmp, strTxt2);
 		}
 
 		DlgData.back().strData = strTxt;

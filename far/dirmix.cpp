@@ -257,7 +257,7 @@ void CreatePath(const string &InputPath, bool Simple)
 	{
 		if (i == Path.size() || IsSlash(Path[i]))
 		{
-			Part = Path.substr(0, i);
+			Part.assign(Path, 0, i);
 			if (!os::fs::exists(Part))
 			{
 				if(os::fs::create_directory(Part) && !Simple)

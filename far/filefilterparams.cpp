@@ -491,7 +491,7 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 		}
 	}
 
-	RemoveTrailingSpaces(strDest);
+	inplace::trim_right(strDest);
 	return strDest;
 }
 

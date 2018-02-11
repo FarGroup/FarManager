@@ -167,15 +167,11 @@ void erase_if(std::unordered_multimap<traits...>& Container, predicate Predicate
 
 namespace detail
 {
-	template<typename T, typename = std::void_t<>>
-	struct has_emplace_hint: std::false_type {};
-
 	template<typename T>
-	struct has_emplace_hint<T, std::void_t<decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()))>>: std::true_type {};
+	using try_emplace_hint = decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()));
 
 	template<class T>
-	constexpr bool has_emplace_hint_v = has_emplace_hint<T>::value;
-
+	constexpr bool has_emplace_hint_v = is_valid<T, try_emplace_hint>::value;
 }
 
 // Unified container emplace
@@ -209,14 +205,11 @@ bool contains(const basic_string_view<traits...>& Str, const find_type& What)
 
 namespace detail
 {
-	template<typename T, typename = std::void_t<>>
-	struct has_find: std::false_type {};
-
 	template<typename T>
-	struct has_find<T, std::void_t<decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()))>>: std::true_type {};
+	using try_find = decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()));
 
-	template<typename T>
-	constexpr bool has_find_v = has_find<T>::value;
+	template<class T>
+	constexpr bool has_find_v = is_valid<T, try_find>::value;
 }
 
 // associative containers

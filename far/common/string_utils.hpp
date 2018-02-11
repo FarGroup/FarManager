@@ -44,6 +44,7 @@ template<typename T>
 class null_terminated_t
 {
 public:
+	NONCOPYABLE(null_terminated_t);
 
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4582) // no page                                                '%$S': constructor is not implicitly called
@@ -127,11 +128,12 @@ template<typename... args>
 void append(string& Str, args&&... Args)
 {
 	size_t Sizes[sizeof...(Args)];
-	Str.reserve(Str.size() + detail::size_impl(Sizes, FWD(Args)...));
+	reserve_exp_noshrink(Str, Str.size() + detail::size_impl(Sizes, FWD(Args)...));
 	detail::append_impl(Str, Sizes, FWD(Args)...);
 }
 
 template<typename... args>
+[[nodiscard]]
 auto concat(args&&... Args)
 {
 	string Str;
@@ -143,6 +145,15 @@ template<typename char_type>
 void assign(std::basic_string<char_type>& Str, const basic_string_view<char_type>& View)
 {
 	Str.assign(ALL_CONST_RANGE(View));
+}
+
+namespace detail
+{
+	template<typename begin_iterator, typename end_iterator>
+	size_t get_space_count(begin_iterator Begin, end_iterator End)
+	{
+		return std::find_if_not(Begin, End, std::iswspace) - Begin;
+	}
 }
 
 namespace inplace
@@ -219,6 +230,23 @@ namespace inplace
 	{
 		return quote(unquote(Str));
 	}
+
+	inline auto& trim_left(string& Str)
+	{
+		Str.erase(0, detail::get_space_count(ALL_CONST_RANGE(Str)));
+		return Str;
+	}
+
+	inline auto& trim_right(string& Str)
+	{
+		Str.resize(Str.size() - detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
+		return Str;
+	}
+
+	inline auto& trim(string& Str)
+	{
+		return trim_left(trim_right(Str));
+	}
 }
 
 namespace copy
@@ -230,79 +258,148 @@ namespace copy
 	}
 }
 
+[[nodiscard]]
 inline auto cut_left(string Str, size_t MaxWidth)
 {
 	return inplace::cut_left(Str, MaxWidth);
 }
 
+[[nodiscard]]
 inline auto cut_right(string Str, size_t MaxWidth)
 {
 	return inplace::cut_right(Str, MaxWidth);
 }
 
+[[nodiscard]]
+inline auto cut_left(string_view Str, size_t MaxWidth)
+{
+	if (Str.size() > MaxWidth)
+		Str.remove_prefix(Str.size() - MaxWidth);
+	return Str;
+}
+
+[[nodiscard]]
+inline auto cut_right(string_view Str, size_t MaxWidth)
+{
+	if (Str.size() > MaxWidth)
+		Str.remove_suffix(Str.size() - MaxWidth);
+	return Str;
+}
+
+[[nodiscard]]
 inline auto pad_left(string Str, size_t MinWidth, wchar_t Padding = L' ')
 {
 	return inplace::pad_left(Str, MinWidth, Padding);
 }
 
+[[nodiscard]]
 inline auto pad_right(string Str, size_t MinWidth, wchar_t Padding = L' ')
 {
 	return inplace::pad_right(Str, MinWidth, Padding);
 }
 
+[[nodiscard]]
 inline auto fit_to_left(string Str, size_t Size)
 {
 	return inplace::fit_to_left(Str, Size);
 }
 
+[[nodiscard]]
 inline auto fit_to_center(string Str, size_t Size)
 {
 	return inplace::fit_to_center(Str, Size);
 }
 
+[[nodiscard]]
 inline auto fit_to_right(string Str, size_t Size)
 {
 	return inplace::fit_to_right(Str, Size);
 }
 
+[[nodiscard]]
 inline auto unquote(string Str)
 {
 	return inplace::unquote(Str);
 }
 
+[[nodiscard]]
 inline auto quote(string Str)
 {
 	return inplace::quote(Str);
 }
 
+[[nodiscard]]
 inline auto quote_unconditional(string Str)
 {
 	return inplace::quote_unconditional(Str);
 }
 
+[[nodiscard]]
 inline auto quote_normalise(string Str)
 {
 	return inplace::quote_normalise(Str);
 }
 
+[[nodiscard]]
 inline bool equal(const string_view& Str1, const string_view& Str2)
 {
 	return Str1 == Str2;
 }
 
+[[nodiscard]]
 inline bool starts_with(const string_view& Str, const string_view& Prefix)
 {
 	return Str.starts_with(Prefix);
 }
 
+[[nodiscard]]
 inline bool ends_with(const string_view& Str, const string_view& Suffix)
 {
 	return Str.ends_with(Suffix);
 }
 
+[[nodiscard]]
 inline bool contains(const string_view& Str, const string_view& Token)
 {
 	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token)) != Str.cend();
+}
+
+[[nodiscard]]
+inline auto trim_left(string Str)
+{
+	return inplace::trim_left(Str);
+}
+
+[[nodiscard]]
+inline auto trim_right(string Str)
+{
+	return inplace::trim_right(Str);
+}
+
+[[nodiscard]]
+inline auto trim(string Str)
+{
+	return inplace::trim(Str);
+}
+
+[[nodiscard]]
+inline auto trim_left(string_view Str)
+{
+	Str.remove_prefix(detail::get_space_count(ALL_CONST_RANGE(Str)));
+	return Str;
+}
+
+[[nodiscard]]
+inline auto trim_right(string_view Str)
+{
+	Str.remove_suffix(detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
+	return Str;
+}
+
+[[nodiscard]]
+inline auto trim(string_view Str)
+{
+	return trim_left(trim_right(Str));
 }
 
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8

@@ -836,7 +836,7 @@ F8CP::F8CP(bool viewer):
 			{
 				try
 				{
-					cp = std::stoul(make_string(i));
+					cp = std::stoul(string(i));
 				}
 				catch (const std::exception&)
 				{

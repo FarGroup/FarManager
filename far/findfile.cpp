@@ -421,7 +421,7 @@ void background_searcher::InitInFileSearch()
 			// Формируем hex-строку для поиска
 			if (SearchHex)
 			{
-				hexFindString = HexStringToBlob(strFindStr.data(), 0);
+				hexFindString = HexStringToBlob(strFindStr, 0);
 			}
 
 			// Инициализируем данные для аглоритма поиска
@@ -471,8 +471,8 @@ string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot) const
 // Проверяем символ на принадлежность разделителям слов
 bool FindFiles::IsWordDiv(const wchar_t symbol)
 {
-	// Так же разделителем является конец строки и пробельные символы
-	return !symbol||IsSpace(symbol)||IsEol(symbol)||::IsWordDiv(Global->Opt->strWordDiv,symbol);
+	// Также разделителем является конец строки и пробельные символы
+	return !symbol || std::iswspace(symbol) || ::IsWordDiv(Global->Opt->strWordDiv,symbol);
 }
 
 #if defined(MANTIS_0002207)
@@ -496,7 +496,7 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const PluginPanel
 }
 #endif
 
-void FindFiles::SetPluginDirectory(const string& DirName, plugin_panel* hPlugin, bool UpdatePanel, UserDataItem *UserData)
+void FindFiles::SetPluginDirectory(const string_view& DirName, plugin_panel* hPlugin, bool UpdatePanel, UserDataItem *UserData)
 {
 	if (!DirName.empty())
 	{
@@ -521,7 +521,7 @@ void FindFiles::SetPluginDirectory(const string& DirName, plugin_panel* hPlugin,
 			DeleteEndSlash(Dir);
 
 			SCOPED_ACTION(os::critical_section_lock)(PluginCS);
-			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\" : Dir.data(), OPM_SILENT, Dir.empty()? nullptr : UserData);
+			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\" : null_terminated(Dir).data(), OPM_SILENT, Dir.empty()? nullptr : UserData);
 		}
 
 		// Отрисуем панель при необходимости.
@@ -2710,7 +2710,7 @@ bool FindFiles::FindFilesProcess()
 						break;
 
 					const auto NamePtr = PointToName(strFileName);
-					auto strSetName = make_string(NamePtr);
+					string strSetName(NamePtr);
 
 					if (Global->Opt->FindOpt.FindAlternateStreams)
 					{

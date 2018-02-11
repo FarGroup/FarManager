@@ -32,6 +32,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+template<typename container>
+void reserve_exp_noshrink(container& Container, size_t Capacity)
+{
+	// Unlike vector, string is allowed to shrink (another splendid design decision from the committee):
+	// "Calling reserve() with a res_arg argument less than capacity() is in effect a non-binding shrink request." (21.4.4 basic_string capacity)
+	// gcc decided to go mental and made that a _binding_ shrink request.
+	const auto CurrentCapacity = Container.capacity();
+	if (Capacity <= CurrentCapacity)
+		return;
+
+	// For vector reserve typically allocates exactly the requested amount instead of exponential growth.
+	// This can be really bad if called in a loop.
+	Capacity = std::max(static_cast<size_t>(CurrentCapacity * 1.5), Capacity);
+
+	Container.reserve(Capacity);
+}
+
+
 template<class T>
 void clear_and_shrink(T& container)
 {

@@ -555,7 +555,7 @@ void TreeList::DisplayTree(bool Fast)
 
 			if (!J)
 			{
-				DisplayTreeName(L"\\",J);
+				DisplayTreeName(L"\\"_sv, J);
 			}
 			else
 			{
@@ -572,7 +572,7 @@ void TreeList::DisplayTree(bool Fast)
 				const auto pos = FindLastSlash(CurPtr.strName);
 				if (pos != string::npos)
 				{
-					DisplayTreeName(CurPtr.strName.data() + pos + 1, J);
+					DisplayTreeName(string_view(CurPtr.strName).substr(pos + 1), J);
 				}
 			}
 		}
@@ -604,7 +604,7 @@ void TreeList::DisplayTree(bool Fast)
 	RefreshTitle(); // не забудем прорисовать заголовок
 }
 
-void TreeList::DisplayTreeName(const wchar_t *Name, size_t Pos) const
+void TreeList::DisplayTreeName(const string_view& Name, size_t Pos) const
 {
 	if (WhereX()>m_X2-4)
 		GotoXY(m_X2-4,WhereY());
@@ -1837,7 +1837,7 @@ bool TreeList::GetCurName(string &strName, string &strShortName) const
 	return true;
 }
 
-void TreeList::AddTreeName(const string& Name)
+void TreeList::AddTreeName(const string_view& Name)
 {
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
@@ -1857,7 +1857,7 @@ void TreeList::AddTreeName(const string& Name)
 	TreeCache().add(std::move(NamePart));
 }
 
-void TreeList::DelTreeName(const string& Name)
+void TreeList::DelTreeName(const string_view& Name)
 {
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;

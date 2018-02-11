@@ -57,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "colormix.hpp"
 #include "message.hpp"
 #include "eject.hpp"
 #include "filefilter.hpp"
@@ -246,7 +245,13 @@ wchar_t* WINAPI apiRemoveLeadingSpaces(wchar_t *Str) noexcept
 {
 	try
 	{
-		return RemoveLeadingSpaces(Str);
+		const auto Iterator = null_iterator(Str);
+		const auto NewBegin = std::find_if_not(Iterator, Iterator.end(), std::iswspace);
+		if (NewBegin != Iterator)
+		{
+			*std::copy(NewBegin, Iterator.end(), Str) = L'\0';
+		}
+		return Str;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return nullptr;
@@ -256,7 +261,9 @@ wchar_t * WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
 {
 	try
 	{
-		return RemoveTrailingSpaces(Str);
+		const auto REnd = std::make_reverse_iterator(Str);
+		Str[REnd - std::find_if_not(REnd - wcslen(Str), REnd, std::iswspace)] = 0;
+		return Str;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return nullptr;
@@ -264,12 +271,8 @@ wchar_t * WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
 
 wchar_t* WINAPI apiRemoveExternalSpaces(wchar_t *Str) noexcept
 {
-	try
-	{
-		return RemoveExternalSpaces(Str);
-	}
-	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
-	return nullptr;
+	//noexcept
+	return apiRemoveTrailingSpaces(apiRemoveLeadingSpaces(Str));
 }
 
 wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str) noexcept
@@ -301,9 +304,9 @@ intptr_t WINAPI apiInputBox(
 			return FALSE;
 
 		string strDest;
-		int nResult = GetString(Title, Prompt, HistoryName, SrcText, strDest, HelpTopic, Flags&~FIB_CHECKBOX, nullptr, nullptr, GuidToPlugin(PluginId), Id);
+		const auto Result = GetString(Title, Prompt, HistoryName, SrcText, strDest, HelpTopic, Flags&~FIB_CHECKBOX, nullptr, nullptr, GuidToPlugin(PluginId), Id);
 		xwcsncpy(DestText, strDest.data(), DestSize);
-		return nResult;
+		return Result;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -404,7 +407,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			const auto info = static_cast<WindowType*>(Param2);
 			if (CheckStructSize(info))
 			{
-				WINDOWINFO_TYPE type=WindowTypeToPluginWindowType(Manager::GetCurrentWindowType());
+				const auto type = WindowTypeToPluginWindowType(Manager::GetCurrentWindowType());
 				switch(type)
 				{
 				case WTYPE_DESKTOP:
@@ -833,7 +836,7 @@ intptr_t WINAPI apiMenuFn(
 				CurItem.Flags=Item[i].Flags;
 				CurItem.strName.clear();
 				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
-				DWORD SelCurItem=CurItem.Flags&LIF_SELECTED;
+				const auto SelCurItem = CurItem.Flags&LIF_SELECTED;
 				CurItem.Flags&=~LIF_SELECTED;
 
 				if (!Selected && !(CurItem.Flags&LIF_SEPARATOR) && SelCurItem)
@@ -1510,7 +1513,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 
 			auto Items = std::make_unique<std::vector<PluginPanelItem>>();
 
-			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+			const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 			bool MsgOut = false;
 			while (ScTree.GetNextName(FindData,strFullName))
 			{
@@ -1552,7 +1555,7 @@ intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const 
 			return FALSE;
 
 		auto Items = std::make_unique<std::vector<PluginPanelItem>>();
-		auto Result = GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, *Items);
+		const auto Result = GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, *Items);
 		std::tie(*pPanelItem, *pItemsNumber) = magic::CastVectorToRawData(std::move(Items));
 		return Result;
 	}
@@ -1564,7 +1567,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noex
 {
 	try
 	{
-		auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
+		const auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
 		FreePluginPanelItems(*Items);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -1574,7 +1577,7 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItems, si
 {
 	try
 	{
-		auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
+		const auto Items = magic::CastRawDataToVector(PanelItems, ItemsNumber);
 		FreePluginDirList(hPlugin, *Items);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -1668,10 +1671,10 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		 Проверка флагов редактора (раньше они игнорировались) и открытие
 		 немодального редактора, если есть соответствующий флаг
 		 */
-		int CreateNew = (Flags & EF_CREATENEW) != 0;
-		int Locked=(Flags & EF_LOCKED) != 0;
-		int DisableHistory=(Flags & EF_DISABLEHISTORY) != 0;
-		int DisableSavePos=(Flags & EF_DISABLESAVEPOS) != 0;
+		const auto CreateNew = (Flags & EF_CREATENEW) != 0;
+		const auto  Locked = (Flags & EF_LOCKED) != 0;
+		const auto  DisableHistory = (Flags & EF_DISABLEHISTORY) != 0;
+		const auto  DisableSavePos = (Flags & EF_DISABLESAVEPOS) != 0;
 		/* $ 14.06.2002 IS
 		   Обработка EF_DELETEONLYFILEONCLOSE - этот флаг имеет более низкий
 		   приоритет по сравнению с EF_DELETEONCLOSE
@@ -1825,7 +1828,7 @@ void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *S
 
 		if (!Str)
 		{
-			int PrevLockCount = Global->ScrBuf->GetLockCount();
+			const auto PrevLockCount = Global->ScrBuf->GetLockCount();
 			Global->ScrBuf->SetLockCount(0);
 			Global->ScrBuf->Flush();
 			Global->ScrBuf->SetLockCount(PrevLockCount);
@@ -2106,7 +2109,7 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 {
 	try
 	{
-		string strSrc(Src);
+		const string strSrc = Src;
 		string strDest;
 		AddEndSlash(strDest);
 		if (!GetReparsePointInfo(strSrc, strDest, nullptr))
@@ -2306,10 +2309,10 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 				COORD ErrPos = {};
 				string ErrSrc;
 
-				DWORD ErrCode = Macro.GetMacroParseError(&ErrPos, ErrSrc);
+				const auto ErrCode = Macro.GetMacroParseError(&ErrPos, ErrSrc);
 
 				int Size = static_cast<int>(aligned_sizeof<MacroParseResult>());
-				size_t stringOffset = Size;
+				const size_t stringOffset = Size;
 				Size += static_cast<int>((ErrSrc.size() + 1)*sizeof(wchar_t));
 
 				const auto Result = static_cast<MacroParseResult*>(Param2);
@@ -2632,9 +2635,9 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWUNIT},       // Показывать суффиксы B,K,M,G,T,P,E
 		};
 
-		unsigned long long FinalFlags = std::accumulate(ALL_CONST_RANGE(FlagsPair), Flags & COLUMN_UNIT_MASK, [Flags](auto FinalFlags, const auto& i){ return FinalFlags | ((Flags & i.first)? i.second : 0); });
+		const auto FinalFlags = std::accumulate(ALL_CONST_RANGE(FlagsPair), Flags & COLUMN_UNIT_MASK, [Flags](auto FinalFlags, const auto& i){ return FinalFlags | ((Flags & i.first)? i.second : 0); });
 
-		auto strDestStr = FileSizeToStr(Size, Width, FinalFlags);
+		const auto strDestStr = FileSizeToStr(Size, Width, FinalFlags);
 
 		if (Dest && DestSize)
 		{
@@ -2698,9 +2701,9 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 		//           0xFF0000 - mode
 		// 0xFFFFFFFFFF000000 - flags
 
-		PROCESSNAME_FLAGS Flags = flags&0xFFFFFFFFFF000000;
-		PROCESSNAME_FLAGS Mode = flags&0xFF0000;
-		int Length = flags&0xFFFF;
+		const PROCESSNAME_FLAGS Flags = flags&0xFFFFFFFFFF000000;
+		const PROCESSNAME_FLAGS Mode = flags&0xFF0000;
+		const int Length = flags&0xFFFF;
 
 		switch(Mode)
 		{
@@ -2766,11 +2769,11 @@ size_t WINAPI apiInputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText,
 {
 	try
 	{
-		int iKey = InputRecordToKey(Key);
+		const auto iKey = InputRecordToKey(Key);
 		string strKT;
 		if (iKey == KEY_NONE || !KeyToText(iKey, strKT))
 			return 0;
-		size_t len = strKT.size();
+		auto len = strKT.size();
 		if (Size && KeyText)
 		{
 			if (Size <= len)
@@ -2790,7 +2793,7 @@ BOOL WINAPI apiKeyNameToInputRecord(const wchar_t *Name, INPUT_RECORD* RecKey) n
 {
 	try
 	{
-		int Key = KeyNameToKey(Name);
+		const auto Key = KeyNameToKey(Name);
 		return Key > 0 ? KeyToInputRecord(Key, RecKey) : FALSE;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())

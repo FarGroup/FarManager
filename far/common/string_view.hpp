@@ -56,6 +56,11 @@ public:
 	{
 	}
 
+	explicit operator std::basic_string<T>() const
+	{
+		return { ALL_CONST_RANGE(*this) };
+	}
+
 	static constexpr size_t npos = size_t(-1);
 
 	constexpr basic_string_view substr(size_t Pos = 0, size_t Count = npos) const
@@ -207,12 +212,6 @@ template<typename T>
 auto& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T>& Str)
 {
 	return Stream.write(Str.raw_data(), Str.size());
-}
-
-template<typename T>
-std::basic_string<T> make_string(const basic_string_view<T>& View)
-{
-	return { ALL_CONST_RANGE(View) };
 }
 
 using string_view = basic_string_view<wchar_t>;

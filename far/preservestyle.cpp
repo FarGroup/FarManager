@@ -285,7 +285,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 
 	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I)<StrSize); Reverse ? I--:I++)
 	{
-		if (WholeWords && I && !IsSpace(Source[I-1]) && !wcschr(WordDiv, Source[I-1]))
+		if (WholeWords && I && !std::iswblank(Source[I-1]) && !wcschr(WordDiv, Source[I-1]))
 			continue;
 
 		bool Matched = true;
@@ -360,7 +360,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 			Idx++;
 		}
 
-		if (WholeWords && !(Idx >= StrSize || IsSpace(Source[Idx]) || wcschr(WordDiv, Source[Idx])))
+		if (WholeWords && !(Idx >= StrSize || std::iswblank(Source[Idx]) || wcschr(WordDiv, Source[Idx])))
 			continue;
 		
 		if (Matched && T == j->Token.size() && j == LastItem)

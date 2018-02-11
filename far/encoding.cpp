@@ -88,7 +88,8 @@ public:
 					const auto CloseBracketPos = cp_data.rfind(L')');
 					if (CloseBracketPos != string::npos && CloseBracketPos > OpenBracketPos)
 					{
-						cp_data = cp_data.substr(OpenBracketPos + 1, CloseBracketPos - OpenBracketPos - 1);
+						cp_data.resize(CloseBracketPos);
+						cp_data.erase(0, OpenBracketPos + 1);
 					}
 				}
 				context->insert(cp, cpix.MaxCharSize, cp_data);

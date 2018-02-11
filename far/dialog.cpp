@@ -862,7 +862,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 				//  Маска не должна быть пустой (строка из пробелов не учитывается)!
 				if ((ItemFlags & DIF_MASKEDIT) && !Items[I].strMask.empty())
 				{
-					RemoveExternalSpaces(Items[I].strMask);
+					inplace::trim(Items[I].strMask);
 					if(!Items[I].strMask.empty())
 					{
 						DialogEdit->SetInputMask(Items[I].strMask);
@@ -975,8 +975,6 @@ string Dialog::GetTitle() const
 {
 	const DialogItemEx *CurItemList=nullptr;
 
-	string Title;
-
 	FOR_CONST_RANGE(Items, i)
 	{
 		// по первому попавшемуся "тексту" установим заголовок консоли!
@@ -984,20 +982,14 @@ string Dialog::GetTitle() const
 		        i->Type==DI_DOUBLEBOX ||
 		        i->Type==DI_SINGLEBOX))
 		{
-			Title = i->strData;
-			RemoveExternalSpaces(Title);
-			return Title;
+			return trim(i->strData);
 		}
-		else if (i->Type==DI_LISTBOX && i == Items.begin())
+
+		if (i->Type==DI_LISTBOX && i == Items.begin())
 			CurItemList = &*i;
 	}
 
-	if (CurItemList)
-	{
-		Title = CurItemList->ListPtr->GetTitle();
-	}
-
-	return Title;
+	return CurItemList? CurItemList->ListPtr->GetTitle() : L""s;
 }
 
 void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
@@ -2974,15 +2966,15 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 						{
 							if (m_FocusPos<Items.size() + 1 && IsEmulatedEditorLine(Items[m_FocusPos + 1]))
 							{
-								int CurPos=edt->GetCurPos();
-								int Length=edt->GetLength();
+								const int CurPos=edt->GetCurPos();
+								const int Length=edt->GetLength();
 								intptr_t SelStart, SelEnd;
 								edt->GetSelection(SelStart, SelEnd);
 								strStr = edt->GetString();
 
 								if (SelStart > -1)
 								{
-									string strEnd=strStr.substr(SelEnd);
+									const auto strEnd = strStr.substr(SelEnd);
 									strStr.resize(SelStart);
 									strStr+=strEnd;
 									edt->SetString(strStr);

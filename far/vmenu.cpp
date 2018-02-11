@@ -629,7 +629,7 @@ void VMenu::FilterStringUpdated()
 		}
 		else
 		{
-			RemoveExternalSpaces(strName);
+			inplace::trim(strName);
 			RemoveHighlights(strName);
 			if(!contains_icase(strName, strFilter))
 			{
@@ -797,8 +797,7 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 						continue;
 
 					int Res = 0;
-					strTemp = HiText2Str(Item.strName);
-					RemoveExternalSpaces(strTemp);
+					strTemp = trim(HiText2Str(Item.strName));
 
 					switch (iParam)
 					{
@@ -1953,7 +1952,7 @@ void VMenu::DrawTitles() const
 		GotoXY(m_X1+(m_X2-m_X1-1-WidthTitle)/2,m_Y1);
 		SetColor(Colors[VMenuColorTitle]);
 
-		Text(concat(L' ', strDisplayTitle.substr(0, WidthTitle), L' '));
+		Text(concat(L' ', string_view(strDisplayTitle).substr(0, WidthTitle), L' '));
 	}
 
 	if (!strBottomTitle.empty())
@@ -1966,7 +1965,7 @@ void VMenu::DrawTitles() const
 		GotoXY(m_X1+(m_X2-m_X1-1-WidthTitle)/2,m_Y2);
 		SetColor(Colors[VMenuColorTitle]);
 
-		Text(concat(L' ', strBottomTitle.substr(0, WidthTitle), L' '));
+		Text(concat(L' ', string_view(strBottomTitle).substr(0, WidthTitle), L' '));
 	}
 }
 
@@ -2252,19 +2251,19 @@ void VMenu::ShowMenu(bool IsParent)
 							size_t pre_len = i.first - Items[I].ShowPos + StartOffset - Pos + 1;
 							if (Pos < strMenuLine.size())
 							{
-								Text(strMenuLine.substr(Pos, pre_len));
+								Text(string_view(strMenuLine).substr(Pos, pre_len));
 								Pos += pre_len;
 								if (Pos < strMenuLine.size())
 								{
 									SetColor(Col);
-									Text(strMenuLine.substr(Pos, i.second));
+									Text(string_view(strMenuLine).substr(Pos, i.second));
 									Pos += i.second;
 									SetColor(CurColor);
 								}
 							}
 						});
 						if (Pos < strMenuLine.size())
-							Text(strMenuLine.data() + Pos);
+							Text(string_view(strMenuLine).substr(Pos));
 					}
 				}
 				else

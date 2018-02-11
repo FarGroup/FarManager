@@ -76,7 +76,7 @@ static const string& GetFarTitleAddons()
 #endif
 	true);
 	ReplaceStrings(strTitleAddons, L"%Admin", os::security::is_admin() ? msg(lng::MFarTitleAddonsAdmin) : L"", true);
-	RemoveTrailingSpaces(strTitleAddons);
+	inplace::trim_right(strTitleAddons);
 
 	return strTitleAddons;
 }

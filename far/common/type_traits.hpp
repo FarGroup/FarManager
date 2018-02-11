@@ -32,6 +32,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+template<class type, template<class> class operation, class = void>
+struct is_valid: std::false_type {};
+
+template<class type, template<class> class operation>
+struct is_valid<type, operation, std::void_t<operation<type>>>: std::true_type {};
+
+template<typename type, template<class> class operation>
+constexpr bool is_valid_v = is_valid<type, operation>::value;
+
+
 template<typename type, typename... args>
 struct is_one_of;
 

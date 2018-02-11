@@ -129,7 +129,7 @@ struct UserMenu::UserMenuItem
 static string SerializeMenu(const UserMenu::menu_container& Menu)
 {
 	string Result;
-	const auto Eol = L"\r\n"s;
+	const auto Eol = eol::str(eol::type::win);
 	for (const auto& i: Menu)
 	{
 		auto HotkeyStr = pad_right(i.strHotKey + L':', 5);
@@ -141,9 +141,10 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 		}
 		else
 		{
+			const string Padding(HotkeyStr.size(), L' ');
 			for (const auto& str: i.Commands)
 			{
-				append(Result, string(HotkeyStr.size(), L' '), str, Eol);
+				append(Result, Padding, str, Eol);
 			}
 		}
 	}
@@ -157,7 +158,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 	string MenuStr;
 	while (GetStr.GetString(MenuStr))
 	{
-		RemoveTrailingSpaces(MenuStr);
+		inplace::trim_right(MenuStr);
 
 		if (MenuStr.empty())
 			continue;
@@ -173,7 +174,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 		if (MenuStr.front() == L'}' && MenuStr[1] != L':')
 			break;
 
-		if (!IsSpace(MenuStr.front()))
+		if (!std::iswblank(MenuStr.front()))
 		{
 			size_t ChPos = MenuStr.find(L':');
 
@@ -190,8 +191,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 			MenuItem = &Menu.back();
 
 			MenuItem->strHotKey = MenuStr.substr(0, ChPos);
-			MenuItem->strLabel = MenuStr.substr(ChPos + 1);
-			RemoveLeadingSpaces(MenuItem->strLabel);
+			MenuItem->strLabel = trim_left(MenuStr.substr(ChPos + 1));
 
 			string_view Tmp;
 			MenuItem->Submenu = GetStr.PeekString(Tmp) && !Tmp.empty() && Tmp.front() == L'{';
@@ -204,7 +204,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 		}
 		else if (MenuItem)
 		{
-			RemoveLeadingSpaces(MenuStr);
+			inplace::trim_left(MenuStr);
 			MenuItem->Commands.emplace_back(MenuStr);
 		}
 	}
@@ -755,7 +755,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
 
-			if (!((starts_with_icase(strCommand, L"REM"_sv) && (strCommand.size() == 3 || IsSpace(strCommand[3]))) || starts_with_icase(strCommand, L"::"_sv)))
+			if (!((starts_with_icase(strCommand, L"REM"_sv) && (strCommand.size() == 3 || std::iswblank(strCommand[3]))) || starts_with_icase(strCommand, L"::"_sv)))
 			{
 				/*
 				  Осталось корректно обработать ситуацию, например:

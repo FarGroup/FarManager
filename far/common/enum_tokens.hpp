@@ -36,52 +36,80 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
+	class null_overrider
+	{
+	public:
+		void reset() {}
+		bool active(string_view::iterator i) { return false; }
+		void postprocess(string_view& Value) {}
+	};
+
 	template<typename... args>
-	class composite_overrider: std::tuple<args...>
+	class composite_overrider: public std::tuple<null_overrider, args...>
 	{
 	public:
 		void reset()
 		{
+			// applied to all args
 			return reset_impl();
 		}
 
 		bool active(string_view::iterator i)
 		{
+			// applied to all args left to right
 			return active_impl(i);
 		}
 
 		void postprocess(string_view& Value)
 		{
+			// applied to all args right to left
 			return postprocess_impl(Value);
 		}
 
 	private:
-		template<size_t index, REQUIRES(index >= sizeof...(args))>
+		template<size_t index, template<class> typename operation>
+		auto& get_opt()
+		{
+			using nth_type = std::tuple_element_t<index, std::tuple<null_overrider, args...>>;
+			using is_valid = is_valid<nth_type, operation>;
+			return std::get<is_valid::value? index : 0>(*this);
+		}
+
+		template<typename T>
+		using try_reset = decltype(std::declval<T&>().reset());
+
+		template<size_t index, REQUIRES(index >= sizeof...(args) + 1)>
 		void reset_impl() {}
 
-		template<size_t index = 0, REQUIRES(index < sizeof...(args))>
+		template<size_t index = 1, REQUIRES(index < sizeof...(args) + 1)>
 		void reset_impl()
 		{
-			std::get<index>(*this).reset();
+			get_opt<index, try_reset>().reset();
 			reset_impl<index + 1>();
 		}
 
-		template<size_t index, REQUIRES(index >= sizeof...(args))>
+		template<class T>
+		using try_active = decltype(std::declval<T&>().active(std::declval<string_view::iterator&>()));
+
+		template<size_t index, REQUIRES(index >= sizeof...(args) + 1)>
 		bool active_impl(string_view::iterator) { return false; }
 
-		template<size_t index = 0, REQUIRES(index < sizeof...(args))>
+		template<size_t index = 1, REQUIRES(index < sizeof...(args) + 1)>
 		bool active_impl(string_view::iterator i)
 		{
-			return std::get<index>(*this).active(i) || active_impl<index + 1>(i);
+			return get_opt<index, try_active>().active(i) || active_impl<index + 1>(i);
 		}
 
-		template<size_t index, REQUIRES(index >= sizeof...(args))>
+		template<typename T>
+		using try_postprocess = decltype(std::declval<T&>().postprocess(std::declval<string_view&>()));
+
+		template<size_t index, REQUIRES(index >= sizeof...(args) + 1)>
 		void postprocess_impl(string_view&) {}
 
-		template<size_t index = 0, REQUIRES(index < sizeof...(args))>
+		template<size_t index = 1, REQUIRES(index < sizeof...(args) + 1)>
 		void postprocess_impl(string_view& Value)
 		{
-			std::get<index>(*this).postprocess(Value);
+			get_opt<sizeof...(args) + 1 - index, try_postprocess>().postprocess(Value);
 			postprocess_impl<index + 1>(Value);
 		}
 	};
@@ -104,7 +132,7 @@ namespace detail
 				return true;
 			}
 
-			return false;
+			return m_InQuotes;
 		}
 
 		void postprocess(string_view& Value)
@@ -113,7 +141,7 @@ namespace detail
 				return;
 
 			m_Cache.clear();
-			m_Cache.reserve(Value.size());
+			reserve_exp_noshrink(m_Cache, Value.size());
 			copy::unquote(Value, std::back_inserter(m_Cache));
 			Value = m_Cache;
 		}
@@ -121,6 +149,15 @@ namespace detail
 		bool m_InQuotes{};
 		bool m_MetQuote{};
 		string m_Cache;
+	};
+
+	class trimmer
+	{
+	public:
+		static void postprocess(string_view& Value)
+		{
+			Value = trim(Value);
+		}
 	};
 
 	class simple_policy
@@ -218,6 +255,9 @@ private:
 };
 
 using enum_tokens = enum_tokens_t<detail::simple_policy>;
+
+using with_quotes = detail::quotes_overrider;
+using with_trim = detail::trimmer;
 
 template<typename... args>
 using enum_tokens_custom_t = enum_tokens_t<detail::custom_policy<args...>>;

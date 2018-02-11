@@ -40,7 +40,7 @@ class NTPath:public string
 	void Transform();
 public:
 	NTPath(const string_view& Src):
-		string(make_string(Src))
+		string(Src)
 	{
 		Transform();
 	}
@@ -65,11 +65,11 @@ enum class root_type
 
 root_type ParsePath(const string_view& Path, size_t* DirectoryOffset = nullptr, bool* Root = nullptr);
 
-inline bool IsRelativeRoot(const string& Path) { return Path.size() == 1 && IsSlash(Path.front()); }
-bool IsAbsolutePath(const string &Path);
-bool IsRootPath(const string &Path);
+inline bool IsRelativeRoot(const string_view& Path) { return Path.size() == 1 && IsSlash(Path.front()); }
+bool IsAbsolutePath(const string_view& Path);
+bool IsRootPath(const string_view& Path);
 bool HasPathPrefix(const string_view& Path);
-bool PathStartsWith(const string &Path, const string &Start);
+bool PathStartsWith(const string_view& Path, const string_view& Start);
 bool PathCanHoldRegularFile(const string& Path);
 bool IsPluginPrefixPath(const string &Path);
 bool CutToSlash(string &strStr, bool bInclude = false); // BUGBUG, deprecated. Use CutToParent.
@@ -84,6 +84,7 @@ bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
 bool AddEndSlash(wchar_t *Path);
 void DeleteEndSlash(wchar_t* Path);
 void DeleteEndSlash(string& Path);
+void DeleteEndSlash(string_view& Path);
 inline void ReplaceSlashToBackslash(string &strStr) { std::replace(ALL_RANGE(strStr), L'/', L'\\'); }
 inline void ReplaceBackslashToSlash(string &strStr) { std::replace(ALL_RANGE(strStr), L'\\', L'/'); }
 

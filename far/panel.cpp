@@ -515,7 +515,6 @@ void Panel::EndDrag()
 
 void Panel::DragMessage(int X,int Y,int Move)
 {
-
 	string strSelName;
 	int MsgX,Length;
 
@@ -530,9 +529,8 @@ void Panel::DragMessage(int X,int Y,int Move)
 		DWORD FileAttr;
 		SrcDragPanel->GetSelName(nullptr,FileAttr);
 		SrcDragPanel->GetSelName(&strSelName,FileAttr);
-		auto strCvtName = make_string(PointToName(strSelName));
-		QuoteSpace(strCvtName);
-		strSelName = strCvtName;
+		strSelName.erase(0, strSelName.size() - PointToName(strSelName).size());
+		QuoteSpace(strSelName);
 	}
 	else
 	{
@@ -803,9 +801,7 @@ string Panel::GetTitle() const
 
 	OpenPanelInfo Info;
 	GetOpenPanelInfo(&Info);
-	string strTitle = NullToEmpty(Info.PanelTitle);
-	RemoveExternalSpaces(strTitle);
-	return strTitle;
+	return string(trim(string_view(NullToEmpty(Info.PanelTitle))));
 }
 
 int Panel::SetPluginCommand(int Command,int Param1,void* Param2)

@@ -126,7 +126,7 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 
 	if (Global->GetSearchHex())
 	{
-		const auto Blob = HexStringToBlob(Global->GetSearchString().data(), 0);
+		const auto Blob = HexStringToBlob(Global->GetSearchString(), 0);
 		strLastSearchStr.assign(ALL_CONST_RANGE(Blob));
 	}
 	else
@@ -1167,7 +1167,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (!LocalCurPos)
 						break;
 
-					if (IsSpace(Str[LocalCurPos-1]) || IsWordDiv(EdOpt.strWordDiv,Str[LocalCurPos-1]))
+					if (std::iswblank(Str[LocalCurPos-1]) || IsWordDiv(EdOpt.strWordDiv,Str[LocalCurPos-1]))
 					{
 						if (SkipSpace)
 						{
@@ -1202,7 +1202,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (LocalCurPos >= Str.size())
 						break;
 
-					if (IsSpace(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
+					if (std::iswblank(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
 					{
 						if (SkipSpace)
 						{
@@ -2133,7 +2133,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (!LocalCurPos)
 						break;
 
-					if (IsSpace(Str[LocalCurPos - 1]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos - 1]))
+					if (std::iswblank(Str[LocalCurPos - 1]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos - 1]))
 					{
 						if (SkipSpace)
 						{
@@ -2166,7 +2166,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					if (LocalCurPos >= Str.size())
 						break;
 
-					if (IsSpace(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
+					if (std::iswblank(Str[LocalCurPos]) || IsWordDiv(EdOpt.strWordDiv, Str[LocalCurPos]))
 					{
 						if (SkipSpace)
 						{
@@ -2526,7 +2526,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 				const auto& Str = m_it_CurLine->GetString();
 				string CmpStr;
-
 				if (!SkipCheckUndo)
 				{
 					CmpStr = Str;
@@ -2554,7 +2553,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 						m_it_CurLine->SetCurPos(0);
 						const auto PrevStr = PrevLine->GetString();
 
-						for (size_t I = 0; I != PrevStr.size() && IsSpace(PrevStr[I]); ++I)
+						for (size_t I = 0; I != PrevStr.size() && std::iswblank(PrevStr[I]); ++I)
 						{
 							int NewTabPos=m_it_CurLine->GetTabCurPos();
 
@@ -3018,7 +3017,7 @@ void Editor::InsertString()
 		{
 			const auto& Str = PrevLine->GetString();
 
-			const auto It = std::find_if_not(ALL_CONST_RANGE(Str), IsSpace);
+			const auto It = std::find_if_not(ALL_CONST_RANGE(Str), std::iswblank);
 			if (It != Str.cend())
 			{
 				PrevLine->SetCurPos(static_cast<int>(It - Str.cbegin()));
@@ -3042,14 +3041,14 @@ void Editor::InsertString()
 	{
 		const auto& CurLineStr = m_it_CurLine->GetString();
 
-		if (IndentPos > 0 && !std::all_of(CurLineStr.cbegin(), CurLineStr.cbegin() + CurPos, IsSpace))
+		if (IndentPos > 0 && !std::all_of(CurLineStr.cbegin(), CurLineStr.cbegin() + CurPos, std::iswblank))
 		{
 			SpaceOnly = FALSE;
 		}
 
 		NewString->SetString(string_view(CurLineStr).substr(CurPos));
 
-		if (!std::all_of(CurLineStr.cbegin() + CurPos, CurLineStr.cend(), IsSpace))
+		if (!std::all_of(CurLineStr.cbegin() + CurPos, CurLineStr.cend(), std::iswblank))
 		{
 			NewLineEmpty = FALSE;
 		}
@@ -3063,7 +3062,7 @@ void Editor::InsertString()
 
 		if (EdOpt.AutoIndent && NewLineEmpty)
 		{
-			RemoveTrailingSpaces(NewCurLineStr);
+			inplace::trim_right(NewCurLineStr);
 		}
 
 		m_it_CurLine->SetString(NewCurLineStr);
@@ -3129,7 +3128,7 @@ void Editor::InsertString()
 			int Decrement=0;
 			const auto& Str = m_it_CurLine->GetString();
 			const auto MaxI = std::min(static_cast<size_t>(IndentPos), Str.size());
-			for (size_t I = 0; I != MaxI && IsSpace(Str[I]); ++I)
+			for (size_t I = 0; I != MaxI && std::iswblank(Str[I]); ++I)
 			{
 				if (Str[I]==L' ')
 					Decrement++;
@@ -3156,7 +3155,7 @@ void Editor::InsertString()
 					const auto& PrevStr = SrcIndent->GetString();
 					for (size_t I = 0; m_it_CurLine->GetTabCurPos() < IndentPos; ++I)
 					{
-						if (I < PrevStr.size() && IsSpace(PrevStr[I]))
+						if (I < PrevStr.size() && std::iswblank(PrevStr[I]))
 						{
 							m_it_CurLine->ProcessKey(Manager::Key(PrevStr[I]));
 						}
@@ -3189,7 +3188,7 @@ void Editor::InsertString()
 
 		if (SpaceOnly)
 		{
-			const auto SpaceIterator = std::find_if_not(ALL_CONST_RANGE(Str), IsSpace);
+			const auto SpaceIterator = std::find_if_not(ALL_CONST_RANGE(Str), std::iswblank);
 			const auto NewPos = std::min<size_t>(SpaceIterator - Str.cbegin(), OrgIndentPos);
 			if (NewPos > CurPos)
 				m_it_CurLine->SetCurPos(static_cast<int>(NewPos));
@@ -4805,13 +4804,13 @@ void Editor::BlockLeft()
 			else if (CurStr.front() == L'\t')
 			{
 				TmpStr.assign(EdOpt.TabSize - 1, L' ');
-				TmpStr += CurStr.substr(1);
+				TmpStr.append(CurStr, 1);
 			}
 
-			if ((EndSel == -1 || EndSel > StartSel) && IsSpace(CurStr.front()))
+			if ((EndSel == -1 || EndSel > StartSel) && std::iswblank(CurStr.front()))
 			{
 				AddUndoData(UNDO_EDIT, CurStr, CurPtr->GetEOL(), CurPtr.Number(), 0); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
-				int CurPos = CurPtr->GetCurPos();
+				const auto CurPos = CurPtr->GetCurPos();
 				CurPtr->SetString(TmpStr);
 				CurPtr->SetEOL(Eol);
 				CurPtr->SetCurPos(CurPos > 0? CurPos - 1 : CurPos);

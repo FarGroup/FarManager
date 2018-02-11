@@ -1949,7 +1949,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						break;
 				}
 			}
-			RemoveExternalSpaces(Filename);
+			inplace::trim(Filename);
 			return PassString(Filename, Data);
 		}
 
@@ -1991,8 +1991,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						case MCODE_V_MENU_VALUE:
 							if (f->VMProcess(CheckCode, &Value))
 							{
-								Value = HiText2Str(Value);
-								RemoveExternalSpaces(Value);
+								Value = trim(HiText2Str(Value));
 								return PassString(Value, Data);
 							}
 							break;
@@ -2355,8 +2354,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						string NewStr;
 						if (f->VMProcess(CheckCode,&NewStr,MenuItemPos))
 						{
-							NewStr = HiText2Str(NewStr);
-							RemoveExternalSpaces(NewStr);
+							NewStr = trim(HiText2Str(NewStr));
 							tmpVar=NewStr;
 						}
 						else
@@ -2476,10 +2474,10 @@ static bool trimFunc(FarMacroCall* Data)
 
 	switch (mode)
 	{
-		case 0: p=RemoveExternalSpaces(p); break;  // alltrim
-		case 1: p=RemoveLeadingSpaces(p); break;   // ltrim
-		case 2: p=RemoveTrailingSpaces(p); break;  // rtrim
-		default: Ret=false;
+	case 0: inplace::trim(p); break;
+	case 1: inplace::trim_left(p); break;
+	case 2: inplace::trim_right(p); break;
+	default: Ret = false;
 	}
 
 	PassString(p, Data);

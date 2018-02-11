@@ -228,7 +228,7 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 	if (Internal && ModuleExt.empty())
 	{
 		// Neither path nor extension has been specified, it could be some internal %COMSPEC% command:
-		const auto ExcludeCmdsList = enum_tokens_with_quotes(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"_sv);
+		const auto ExcludeCmdsList = enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"_sv);
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
 		{
@@ -478,6 +478,7 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 		bool ItemFound = false;
 		if (RetPtr)
 		{
+			// Need to clarify if we need to support quotes here
 			for (const auto& i: enum_tokens_with_quotes(strAction, L","_sv))
 			{
 				if (i.empty())
@@ -1151,7 +1152,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 		// ExtractIfExistCommand
 		PtrCmd++;
 
-		while (*PtrCmd && IsSpace(*PtrCmd))
+		while (*PtrCmd && std::iswblank(*PtrCmd))
 			++PtrCmd;
 	}
 
@@ -1167,7 +1168,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 		PtrCmd += Token_If.size();
 
-		while (*PtrCmd && IsSpace(*PtrCmd))
+		while (*PtrCmd && std::iswblank(*PtrCmd))
 			++PtrCmd;
 
 		if (!*PtrCmd)
@@ -1179,7 +1180,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 			PtrCmd += Token_Not.size();
 
-			while (*PtrCmd && IsSpace(*PtrCmd))
+			while (*PtrCmd && std::iswblank(*PtrCmd))
 				++PtrCmd;
 
 			if (!*PtrCmd)
@@ -1191,7 +1192,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 			PtrCmd += Token_Exist.size();
 
-			while (*PtrCmd && IsSpace(*PtrCmd))
+			while (*PtrCmd && std::iswblank(*PtrCmd))
 				++PtrCmd;
 
 			if (!*PtrCmd)
@@ -1246,7 +1247,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 //_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
 				if ((FileExists && !Not) || (!FileExists && Not))
 				{
-					while (*PtrCmd && IsSpace(*PtrCmd))
+					while (*PtrCmd && std::iswblank(*PtrCmd))
 						++PtrCmd;
 
 					Exist++;
@@ -1263,7 +1264,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 			PtrCmd += Token_Defined.size();
 
-			while (*PtrCmd && IsSpace(*PtrCmd))
+			while (*PtrCmd && std::iswblank(*PtrCmd))
 				++PtrCmd;
 
 			if (!*PtrCmd)
@@ -1287,7 +1288,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 //_SVS(SysLog(Cmd));
 					if ((ERet && !Not) || (!ERet && Not))
 					{
-						while (*PtrCmd && IsSpace(*PtrCmd))
+						while (*PtrCmd && std::iswblank(*PtrCmd))
 							++PtrCmd;
 
 						Exist++;

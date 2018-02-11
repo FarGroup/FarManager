@@ -401,12 +401,12 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 			{
 				if (starts_with(Name, L"\\??\\UNC\\"_sv))
 				{
-					strTargetPath = L"\\\\" + Name.substr(8);
+					strTargetPath = concat(L"\\\\"_sv, string_view(Name).substr(8));
 					Ret = true;
 				}
 				else if (starts_with(Name, L"\\??\\"_sv))
 				{
-					strTargetPath=Name.substr(4);
+					assign(strTargetPath, string_view(Name).substr(4));
 					Ret=true;
 				}
 			}
@@ -538,9 +538,9 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 		auto strSelOnlyName = Target;
 		DeleteEndSlash(strSelOnlyName);
 		const auto SlashPos = FindLastSlash(strSelOnlyName);
-		const auto SelName = SlashPos != string::npos? strSelOnlyName.substr(SlashPos + 1) : strSelOnlyName;
+		const auto SelName = SlashPos != string::npos? string_view(strSelOnlyName).substr(SlashPos + 1) : string_view(strSelOnlyName);
 
-		bool symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
+		const auto symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
 
 		if (Target[1] == L':' && (!Target[2] || (IsSlash(Target[2]) && !Target[3]))) // C: или C:/
 		{
@@ -564,7 +564,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 		if (IsSlash(strFullLink.back()))
 		{
 			if (LinkType!=RP_VOLMOUNT)
-				strFullLink += SelName;
+				append(strFullLink, SelName);
 			else
 			{
 				append(strFullLink, L"Disk_"_sv, Target.front());

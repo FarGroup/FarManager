@@ -37,12 +37,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "RegExp.hpp"
 
+#include "string_utils.hpp"
+
 WARNING_DISABLE_GCC("-Wpragmas")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 
 #ifdef RE_DEBUG
-#include "console.hpp"
-#include "strmix.hpp"
 
 #ifdef dpf
 #undef dpf
@@ -110,14 +110,14 @@ static const wchar_t* ops[]=
 #endif
 
 
-#define ISDIGIT(c) iswdigit(c)
-#define ISSPACE(c) iswspace(c)
-#define ISWORD(c)  (IsCharAlphaNumeric(c) || c=='_')
-#define ISLOWER(c) IsCharLower(c)
-#define ISUPPER(c) IsCharUpper(c)
-#define ISALPHA(c) IsCharAlpha(c)
-#define TOUPPER(c) ((wchar_t)(intptr_t)CharUpper((LPTSTR)(intptr_t)c))
-#define TOLOWER(c) ((wchar_t)(intptr_t)CharLower((LPTSTR)(intptr_t)c))
+#define ISDIGIT(c) std::iswdigit(c)
+#define ISSPACE(c) std::iswspace(c)
+#define ISWORD(c)  (is_alphanumeric(c) || c == '_')
+#define ISLOWER(c) is_lower(c)
+#define ISUPPER(c) is_upper(c)
+#define ISALPHA(c) is_alpha(c)
+#define TOUPPER(c) upper(c)
+#define TOLOWER(c) lower(c)
 
 //! Max brackets depth
 enum

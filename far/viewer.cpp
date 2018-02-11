@@ -1100,13 +1100,13 @@ void Viewer::SetStatusMode(int Mode)
 static bool is_word_div(const wchar_t ch)
 {
 	static const wchar_t extra_div[] = { Utf::BOM_CHAR, Utf::REPLACE_CHAR };
-	return IsSpaceOrEos(ch) || IsEol(ch) || contains(Global->Opt->strWordDiv.Get(), ch) || contains(extra_div, ch);
+	return !ch || std::iswspace(ch) || contains(Global->Opt->strWordDiv.Get(), ch) || contains(extra_div, ch);
 }
 
 static bool wrapped_char(const wchar_t ch)
 {
 	static const wchar_t wrapped_chars[] = {L',', L';', L'>', L')'}; // word-wrap enabled after it
-	return IsSpaceOrEos(ch) || contains(wrapped_chars, ch);
+	return IsBlankOrEos(ch) || contains(wrapped_chars, ch);
 }
 
 void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
@@ -1193,7 +1193,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 
 		if ( OutPtr > Width )
 		{
-			if ( wrap_out <= 0 || IsSpaceOrEos(ch) )
+			if ( wrap_out <= 0 || IsBlankOrEos(ch) )
 			{
 				wrap_out = OutPtr - 1;
 				wrap_pos = fpos;
@@ -1201,7 +1201,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 
 			OutPtr = wrap_out;
 			vseek(wrap_pos, FILE_BEGIN);
-			while (OutPtr > 0 && IsSpaceOrEos(ReadBuffer[OutPtr-1]))
+			while (OutPtr > 0 && IsBlankOrEos(ReadBuffer[OutPtr-1]))
 				--OutPtr;
 
 			if ( bSelEndFound && pString->nSelEnd > OutPtr )
@@ -1224,7 +1224,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 			if (!vgetc(&ch))
 				break;
 
-			if (skip_space && !eol_char && IsSpaceOrEos(ch))
+			if (skip_space && !eol_char && IsBlankOrEos(ch))
 				continue;
 
 			if ( ch == L'\n' )
@@ -2748,13 +2748,11 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	}
 }
 
-static auto hex2ss(const string& from, intptr_t *pos = nullptr)
+static auto hex2ss(const string_view& from, intptr_t *pos = nullptr)
 {
-	string strFrom(from);
-	RemoveTrailingSpaces(strFrom);
 	if (pos)
 		*pos /= 2;
-	return HexStringToBlob(strFrom.data(), 0);
+	return HexStringToBlob(trim_right(from), 0);
 }
 
 struct Viewer::search_data

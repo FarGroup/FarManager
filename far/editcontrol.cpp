@@ -202,7 +202,7 @@ static bool ParseStringWithQuotes(const string& Str, string& Start, string& Toke
 		StartQuote = false;
 	}
 
-	Start = Str.substr(0, Pos);
+	Start.assign(Str, 0, Pos);
 	Token = unquote(Str.substr(Pos));
 	return !Token.empty();
 }
@@ -285,7 +285,7 @@ static bool EnumModules(VMenu2& Menu, const string_view& strStart, const string_
 
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string_view& Token, const std::function<void(const string_view&)>& Inserter)
 	{
-		for (const auto& i: enum_tokens_with_quotes(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"_sv))
+		for (const auto& i: enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"_sv))
 		{
 			if (starts_with_icase(i, Token))
 			{

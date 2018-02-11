@@ -940,7 +940,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			case 4: case -1: case -2:
 				return DELETE_CANCEL;
 			case 3:
-				SkipWipeMode = 2; // fallthrough down
+				SkipWipeMode = 2;
 				// fallthrough
 			case 2:
 				return DELETE_SKIP;

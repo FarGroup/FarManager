@@ -144,7 +144,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		string strOriginalDirName;
 		bool SkipAll = false;
 		auto EmptyList = true;
-		for (const auto& i: enum_tokens_with_quotes(std::move(strDirName), L",;"_sv))
+		for (const auto& i: enum_tokens_with_quotes_t<with_trim>(std::move(strDirName), L",;"_sv))
 		{
 			if (i.empty())
 				continue;
@@ -159,14 +159,12 @@ void ShellMakeDir(Panel *SrcPanel)
 
 			size_t DirOffset = 0;
 			ParsePath(strDirName, &DirOffset);
-			string Part;
-			Part.reserve(strDirName.size());
 
 			for (size_t j = DirOffset; j <= strDirName.size(); ++j)
 			{
 				if (j == strDirName.size() || IsSlash(strDirName[j]))
 				{
-					Part = strDirName.substr(0, j);
+					const auto Part = string_view(strDirName).substr(0, j);
 					if (!os::fs::exists(Part) || j == strDirName.size()) // skip all intermediate dirs, but not last.
 					{
 						while((bSuccess = os::fs::create_directory(Part)) == false && !SkipAll)

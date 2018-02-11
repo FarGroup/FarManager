@@ -1841,8 +1841,8 @@ private:
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
 		item->TypeHistory=TypeHistory;
-		item->HistoryName = make_string(HistoryName);
-		item->strName = make_string(Name);
+		item->HistoryName = string(HistoryName);
+		item->strName = string(Name);
 		item->Type=Type;
 		item->Lock=Lock;
 		item->strGuid=strGuid;

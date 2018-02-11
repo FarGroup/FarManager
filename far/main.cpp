@@ -831,7 +831,7 @@ void override_stream_buffers()
 
 static int wmain_seh(int Argc, wchar_t *Argv[])
 {
-#if defined(SYSLOG)
+	#if defined(SYSLOG)
 	atexit(PrintSysLogStat);
 #endif
 

@@ -121,7 +121,7 @@ void QuickView::DisplayObject()
 	DrawSeparator(m_Y2-2);
 	SetColor(COL_PANELTEXT);
 	GotoXY(m_X1+1,m_Y2-1);
-	Text(fit_to_left(make_string(PointToName(strCurFileName)), m_X2 - m_X1 - 1));
+	Text(fit_to_left(string(PointToName(strCurFileName)), m_X2 - m_X1 - 1));
 
 	if (!strCurFileType.empty())
 	{
@@ -237,11 +237,8 @@ void QuickView::DisplayObject()
 			}
 			else
 			{
-				auto str = FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT);
-				RemoveExternalSpaces(str);
-				if (str.back() != bytes_suffix[0])
-					str += bytes_suffix;
-				return str;
+				const auto str = trim(FileSizeToStr(Size, 10, COLUMN_FLOATSIZE | COLUMN_SHOWUNIT));
+				return str.back() == bytes_suffix[0]? str : str + bytes_suffix;
 			}
 		};
 

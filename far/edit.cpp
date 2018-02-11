@@ -252,7 +252,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 		auto TrailingSpaces = OutStrTmp.cend();
 		if (m_Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && Mask.empty() && !OutStrTmp.empty())
 		{
-			TrailingSpaces = std::find_if_not(OutStrTmp.crbegin(), OutStrTmp.crend(), [](wchar_t i) { return IsSpace(i);}).base();
+			TrailingSpaces = std::find_if_not(OutStrTmp.crbegin(), OutStrTmp.crend(), [](wchar_t i) { return std::iswblank(i);}).base();
 		}
 
 		FOR_RANGE(OutStrTmp, i)
@@ -338,7 +338,7 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 			SetColor(GetUnchangedColor());
 
 			if (!Mask.empty())
-				RemoveTrailingSpaces(OutStr);
+				inplace::trim_right(OutStr);
 
 			Text(OutStr);
 			SetColor(GetNormalColor());
@@ -375,13 +375,13 @@ void Edit::FastShow(const Edit::ShowInfo* Info)
 		{
 			if (TabSelStart < static_cast<int>(EditLength))
 			{
-				Text(cut_right(OutStr.substr(TabSelStart), TabSelEnd - TabSelStart));
+				Text(cut_right(string_view(OutStr).substr(TabSelStart), TabSelEnd - TabSelStart));
 
 				if (TabSelEnd < static_cast<int>(EditLength))
 				{
 					//SetColor(Flags.Check(FEDITLINE_CLEARFLAG)? SelColor : Color);
 					SetColor(GetNormalColor());
-					Text(OutStr.substr(TabSelEnd));
+					Text(string_view(OutStr).substr(TabSelEnd));
 				}
 			}
 
@@ -722,9 +722,9 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				RecurseProcessKey(KEY_SHIFTLEFT);
 
 			while (m_CurPos>0 && !(!IsWordDiv(WordDiv(), m_Str[m_CurPos]) &&
-			                     IsWordDiv(WordDiv(),m_Str[m_CurPos-1]) && !IsSpace(m_Str[m_CurPos])))
+			                     IsWordDiv(WordDiv(),m_Str[m_CurPos-1]) && !std::iswblank(m_Str[m_CurPos])))
 			{
-				if (!IsSpace(m_Str[m_CurPos]) && (IsSpace(m_Str[m_CurPos-1]) ||
+				if (!std::iswblank(m_Str[m_CurPos]) && (std::iswblank(m_Str[m_CurPos-1]) ||
 				                              IsWordDiv(WordDiv(), m_Str[m_CurPos-1])))
 					break;
 
@@ -745,7 +745,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			while (m_CurPos < m_Str.size() && !(IsWordDiv(WordDiv(), m_Str[m_CurPos]) &&
 			                           !IsWordDiv(WordDiv(), m_Str[m_CurPos-1])))
 			{
-				if (!IsSpace(m_Str[m_CurPos]) && (IsSpace(m_Str[m_CurPos-1]) || IsWordDiv(WordDiv(), m_Str[m_CurPos-1])))
+				if (!std::iswblank(m_Str[m_CurPos]) && (std::iswblank(m_Str[m_CurPos-1]) || IsWordDiv(WordDiv(), m_Str[m_CurPos-1])))
 					break;
 
 				RecurseProcessKey(KEY_SHIFTRIGHT);
@@ -770,8 +770,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				string ShortStr = m_Str;
-				Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
+				Len = static_cast<int>(trim_right(string_view(m_Str)).size());
 			}
 			else
 				Len = m_Str.size();
@@ -846,7 +845,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				{
 					int StopDelete = FALSE;
 
-					if (m_CurPos > 1 && IsSpace(m_Str[m_CurPos - 1]) != IsSpace(m_Str[m_CurPos - 2]))
+					if (m_CurPos > 1 && std::iswblank(m_Str[m_CurPos - 1]) != std::iswblank(m_Str[m_CurPos - 2]))
 						StopDelete = TRUE;
 
 					RecurseProcessKey(KEY_BS);
@@ -925,7 +924,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 						ptr++;
 
 						if (!CheckCharMask(Mask[ptr]) ||
-							(IsSpace(m_Str[ptr]) && !IsSpace(m_Str[ptr + 1])) ||
+							(std::iswblank(m_Str[ptr]) && !std::iswblank(m_Str[ptr + 1])) ||
 							(IsWordDiv(WordDiv(), m_Str[ptr])))
 							break;
 					}
@@ -940,7 +939,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 					{
 						int StopDelete = FALSE;
 
-						if (m_CurPos < m_Str.size() - 1 && IsSpace(m_Str[m_CurPos]) && !IsSpace(m_Str[m_CurPos + 1]))
+						if (m_CurPos < m_Str.size() - 1 && std::iswblank(m_Str[m_CurPos]) && !std::iswblank(m_Str[m_CurPos + 1]))
 							StopDelete = TRUE;
 
 						RecurseProcessKey(KEY_DEL);
@@ -1016,8 +1015,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				string ShortStr = m_Str;
-				m_CurPos = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
+				m_CurPos = static_cast<int>(trim_right(string_view(m_Str)).size());
 			}
 			else
 				m_CurPos = m_Str.size();
@@ -1044,8 +1042,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				string ShortStr = m_Str;
-				int Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
+				const auto Len = static_cast<int>(trim_right(string_view(m_Str)).size());
 
 				if (Len>m_CurPos)
 					m_CurPos++;
@@ -1125,9 +1122,9 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				m_CurPos--;
 
 			while (m_CurPos>0 && !(!IsWordDiv(WordDiv(), m_Str[m_CurPos]) &&
-			                     IsWordDiv(WordDiv(), m_Str[m_CurPos-1]) && !IsSpace(m_Str[m_CurPos])))
+			                     IsWordDiv(WordDiv(), m_Str[m_CurPos-1]) && !std::iswblank(m_Str[m_CurPos])))
 			{
-				if (!IsSpace(m_Str[m_CurPos]) && IsSpace(m_Str[m_CurPos-1]))
+				if (!std::iswblank(m_Str[m_CurPos]) && std::iswblank(m_Str[m_CurPos-1]))
 					break;
 
 				m_CurPos--;
@@ -1147,8 +1144,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				string ShortStr = m_Str;
-				Len = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
+				Len = static_cast<int>(trim_right(string_view(m_Str)).size());
 
 				if (Len>m_CurPos)
 					m_CurPos++;
@@ -1162,7 +1158,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			while (m_CurPos<Len/*StrSize*/ && !(IsWordDiv(WordDiv(),m_Str[m_CurPos]) &&
 			                                  !IsWordDiv(WordDiv(), m_Str[m_CurPos-1])))
 			{
-				if (!IsSpace(m_Str[m_CurPos]) && IsSpace(m_Str[m_CurPos-1]))
+				if (!std::iswblank(m_Str[m_CurPos]) && std::iswblank(m_Str[m_CurPos-1]))
 					break;
 
 				m_CurPos++;
@@ -1192,8 +1188,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				{
 					if (!Mask.empty())
 					{
-						string ShortStr = m_Str;
-						SetClipboardText(RemoveTrailingSpaces(ShortStr));
+						SetClipboardText(trim_right(string_view(m_Str)));
 					}
 					else
 					{
@@ -1809,8 +1804,7 @@ void Edit::SetTabCurPos(int NewPos)
 	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		string ShortStr = m_Str;
-		int Pos = static_cast<int>(RemoveTrailingSpaces(ShortStr).size());
+		const auto Pos = static_cast<int>(trim_right(string_view(m_Str)).size());
 
 		if (NewPos>Pos)
 			NewPos=Pos;

@@ -245,7 +245,7 @@ bool Help::ReadHelp(const string& Mask)
 		if (pos == string::npos)
 			return false;
 
-		StackData->strHelpTopic = strPath.substr(pos + 1);
+		StackData->strHelpTopic.assign(strPath, pos + 1);
 		strPath.resize(pos);
 		DeleteEndSlash(strPath);
 		AddEndSlash(strPath);
@@ -459,7 +459,7 @@ bool Help::ReadHelp(const string& Mask)
 			}
 		}
 
-		RemoveTrailingSpaces(strReadStr);
+		inplace::trim_right(strReadStr);
 
 		if (!strCtrlStartPosChar.empty())
 		{
@@ -469,7 +469,7 @@ bool Help::ReadHelp(const string& Mask)
 				size_t p1 = strReadStr.rfind(L'\n') + 1;
 				if (p1 > pos)
 					p1 = 0;
-				LastStartPos = StringLen(strReadStr.substr(p1, pos-p1));
+				LastStartPos = StringLen(string_view(strReadStr).substr(p1, pos-p1));
 				strReadStr.erase(pos, strCtrlStartPosChar.size());
 			}
 		}
@@ -529,7 +529,7 @@ bool Help::ReadHelp(const string& Mask)
 				size_t n2 = strReadStr.size();
 				if (1 + n1 + 1 < n2 && starts_with_icase(strReadStr.data() + 1, StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
 				{
-					StackData->strHelpTopic = strReadStr.substr(1 + n1 + 1);
+					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1);
 					continue;
 				}
 			}
@@ -548,7 +548,7 @@ m1:
 					if (PosTab != string::npos && strReadStr[PosTab - 1] != L'!')
 						continue;
 
-					strMacroArea=strReadStr.substr(8,PosTab-1-8); //???
+					strMacroArea.assign(strReadStr, 8, PosTab - 1 - 8); //???
 					MacroProcess=true;
 					MI=0;
 					SizeKeyName = StartSizeKeyName;
@@ -619,7 +619,7 @@ m1:
 						}
 					}
 
-					if (!strReadStr.empty() && IsSpace(strReadStr[0]) && Formatting)
+					if (!strReadStr.empty() && std::iswblank(strReadStr[0]) && Formatting)
 					{
 						if (StringLen(strSplitLine)<RealMaxLength)
 						{
@@ -631,7 +631,7 @@ m1:
 
 							for (size_t nl = strReadStr.find(L'\n'); nl != string::npos; )
 							{
-								AddLine(strReadStr.substr(0, nl));
+								AddLine(string_view(strReadStr).substr(0, nl));
 								strReadStr.erase(0, nl+1);
 								nl = strReadStr.find(L'\n');
 							}
@@ -699,7 +699,7 @@ m1:
 
 						if (strSplitLine[I] == L' ')
 						{
-							string FirstPart = strSplitLine.substr(0, I);
+							const auto FirstPart = string_view(strSplitLine).substr(0, I);
 							if (StringLen(FirstPart) < RealMaxLength)
 							{
 								AddLine(FirstPart);
@@ -748,13 +748,13 @@ m1:
 	return m_TopicFound;
 }
 
-void Help::AddLine(const string& Line)
+void Help::AddLine(const string_view& Line)
 {
 	const auto Width = StartPos && !Line.empty() && Line[0] == L' '? StartPos - 1 : StartPos;
 	HelpList.emplace_back(string(Width, L' ') + Line);
 }
 
-void Help::AddTitle(const string& Title)
+void Help::AddTitle(const string_view& Title)
 {
 	AddLine(concat(L"^ #"_sv, Title, L'#'));
 }
@@ -1941,7 +1941,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			break;
 		}
 
-		RemoveTrailingSpaces(strReadStr);
+		inplace::trim_right(strReadStr);
 
 		if ((!strReadStr.empty() && strReadStr[0] == L'@') &&
 		    !(strReadStr.size() > 1 && (strReadStr[1] == L'+' || strReadStr[1] == L'-')) &&
@@ -1949,7 +1949,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		{
 			strEntryName.clear();
 			strCurTopic.clear();
-			RemoveExternalSpaces(strReadStr);
+			inplace::trim(strReadStr);
 			if (!equal_icase(string_view(strReadStr).substr(1), HelpContents))
 			{
 				strCurTopic=strReadStr;
@@ -1958,8 +1958,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		}
 		else if (TopicFound && strReadStr.size() > 1 && strReadStr[0] == L'$' && !strCurTopic.empty())
 		{
-			strEntryName=strReadStr.substr(1);
-			RemoveExternalSpaces(strEntryName);
+			strEntryName = trim(strReadStr.substr(1));
 			strEntryName.erase(std::remove(ALL_RANGE(strEntryName), L'#'), strEntryName.end());
 		}
 
@@ -2062,7 +2061,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 	{
 		if (HelpTopic.front() == L':')
 		{
-			strTopic = HelpTopic.substr(1);
+			strTopic.erase(0, 1);
 		}
 		else
 		{
@@ -2218,7 +2217,7 @@ static int RunURL(const string& Protocol, const string& URLPath)
 					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 					{
 						strAction=FilteredURLPath;
-						EditCode = ShellExecute(nullptr, nullptr, RemoveExternalSpaces(strAction).data(), nullptr, strCurDir.data(), SW_SHOWNORMAL) ? 1 : 2;
+						EditCode = ShellExecute(nullptr, nullptr, inplace::trim(strAction).data(), nullptr, strCurDir.data(), SW_SHOWNORMAL) ? 1 : 2;
 					}
 					else
 					{

@@ -236,14 +236,14 @@ static string FindStr(const void* Data, size_t Size)
 {
 	const auto ABegin = reinterpret_cast<const char*>(Data), AEnd = ABegin + Size - 1;
 
-	if (std::all_of(ABegin, AEnd, [](char c){ return c >= ' ' || IsEol(c) || c == '\t'; }))
+	if (std::all_of(ABegin, AEnd, [](char c){ return c > ' ' || std::isspace(c); }))
 	{
 		return encoding::ansi::get_chars(ABegin, AEnd - ABegin);
 	}
 
-	const auto WBegin = reinterpret_cast<const wchar_t*>(Data), WEnd = WBegin + (Size - 1) / sizeof(wchar_t);
+	const auto WBegin = reinterpret_cast<const wchar_t*>(Data), WEnd = WBegin + Size / sizeof(wchar_t) - 1;
 
-	if (std::all_of(WBegin, WEnd, [](wchar_t c){ return c >= L' ' || IsEol(c) || c == L'\t'; }))
+	if (std::all_of(WBegin, WEnd, [](wchar_t c){ return c > L' ' || std::iswspace(c); }))
 	{
 		return { WBegin, WEnd };
 	}

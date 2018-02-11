@@ -50,7 +50,7 @@ struct error_state_ex: public error_state
 
 	error_state_ex(const error_state& State, const string_view& Message = L""_sv) :
 		error_state(State),
-		What(make_string(Message))
+		What(Message)
 	{
 	}
 

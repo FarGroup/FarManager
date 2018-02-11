@@ -210,7 +210,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		}
 		else
 		{
-			RemoveTrailingSpaces(Line);
+			inplace::trim_right(Line);
 		}
 
 		CopyBuf += Line;

@@ -44,17 +44,11 @@ struct MatchHash;
 
 wchar_t* QuoteSpace(wchar_t *Str);
 wchar_t* InsertQuote(wchar_t *Str);
-wchar_t* RemoveLeadingSpaces(wchar_t *Str);
-wchar_t * RemoveTrailingSpaces(wchar_t *Str);
-wchar_t* RemoveExternalSpaces(wchar_t *Str);
 wchar_t* QuoteSpaceOnly(wchar_t *Str);
 
 string &QuoteSpace(string &strStr);
 
 string InsertRegexpQuote(string strStr);
-string& RemoveLeadingSpaces(string &strStr);
-string& RemoveTrailingSpaces(string &strStr);
-string& RemoveExternalSpaces(string &strStr);
 string& RemoveUnprintableCharacters(string &strStr);
 string& QuoteSpaceOnly(string &strStr);
 string& QuoteOuterSpace(string &strStr);
@@ -137,11 +131,11 @@ int HexToInt(char h);
 
 std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
 std::string BlobToHexString(const bytes_view& Blob, char Separator = ',');
-bytes HexStringToBlob(const char* Hex, char Separator = ',');
+bytes HexStringToBlob(const basic_string_view<char>& Hex, char Separator = ',');
 
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
 string BlobToHexWString(const bytes_view& Blob, char Separator = ',');
-bytes HexStringToBlob(const wchar_t* Hex, wchar_t Separator = L',');
+bytes HexStringToBlob(const string_view& Hex, wchar_t Separator = L',');
 
 template<class S, class T>
 auto to_hex_string_t(T Value)

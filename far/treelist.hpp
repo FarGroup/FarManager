@@ -91,8 +91,8 @@ public:
 	int GetExitCode() const { return m_ExitCode; }
 	const TreeItem* GetItem(size_t Index) const;
 
-	static void AddTreeName(const string& Name);
-	static void DelTreeName(const string& Name);
+	static void AddTreeName(const string_view& Name);
+	static void DelTreeName(const string_view& Name);
 	static void RenTreeName(const string& SrcName, const string& DestName);
 	static void ReadSubTree(const string& Path);
 	static void ClearCache();
@@ -123,7 +123,7 @@ private:
 
 	bool ReadTree();
 	void DisplayTree(bool Fast);
-	void DisplayTreeName(const wchar_t *Name, size_t Pos) const;
+	void DisplayTreeName(const string_view& Name, size_t Pos) const;
 	void Up(int Count);
 	void Down(int Count);
 	void Scroll(int Count);

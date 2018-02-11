@@ -143,11 +143,11 @@ void DizList::Read(const string& Path, const string* DizName)
 						break;
 				}
 
-				RemoveTrailingSpaces(DizText);
+				inplace::trim_right(DizText);
 
 				if (!DizText.empty())
 				{
-					if(!IsSpace(DizText.front()))
+					if(!std::iswblank(DizText.front()))
 					{
 						auto NameBegin = DizText.cbegin();
 						auto NameEnd = DizText.cend();
@@ -226,13 +226,13 @@ const wchar_t* DizList::Get(const string& Name, const string& ShortName, const l
 			}
 		}
 
-		if (SkipSize && IsSpace(*DescrIterator))
+		if (SkipSize && std::iswblank(*DescrIterator))
 		{
 			Begin = DescrIterator;
 		}
 	}
 
-	Begin = std::find_if_not(Begin, Description.cend(), IsSpace);
+	Begin = std::find_if_not(Begin, Description.cend(), std::iswblank);
 	if (Begin == Description.cend())
 	{
 		return nullptr;

@@ -432,7 +432,7 @@ void PluginManager::LoadPlugins()
 		}
 		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // только "заказные" пути?
 		{
-			for (const auto& i: enum_tokens_with_quotes(Global->Opt->LoadPlug.strCustomPluginsPath, L";"_sv))
+			for (const auto& i: enum_tokens_with_quotes_t<with_trim>(Global->Opt->LoadPlug.strCustomPluginsPath, L";"_sv))
 			{
 				if (i.empty())
 					continue;
@@ -1314,12 +1314,8 @@ void PluginManager::Configure(int StartPos)
 					case KEY_F4:
 						if (item)
 						{
-							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList->current().strName.substr(nOffset);
-							RemoveExternalSpaces(strTitle);
-
-							if (SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::config_menu, strTitle))
+							if (SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::config_menu, trim(string_view(PluginList->current().strName).substr(nOffset))))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
@@ -1478,12 +1474,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					case KEY_F4:
 						if (ItemPtr)
 						{
-							string strTitle;
 							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList->current().strName.substr(nOffset);
-							RemoveExternalSpaces(strTitle);
-
-							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, hotkey_type::plugins_menu, strTitle))
+							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, hotkey_type::plugins_menu, trim(string_view(PluginList->current().strName).substr(nOffset))))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
@@ -1585,14 +1577,14 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	return TRUE;
 }
 
-bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, const string& DlgPluginTitle)
+bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, const string_view& DlgPluginTitle)
 {
 	const auto strPluginKey = GetHotKeyPluginKey(pPlugin);
 	auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);
 
 	DialogBuilder Builder(lng::MPluginHotKeyTitle, L"SetHotKeyDialog");
 	Builder.AddText(lng::MPluginHotKey);
-	Builder.AddTextAfter(Builder.AddFixEditField(strHotKey, 1), DlgPluginTitle.data());
+	Builder.AddTextAfter(Builder.AddFixEditField(strHotKey, 1), null_terminated(DlgPluginTitle).data());
 	Builder.AddOKCancel();
 	if(Builder.ShowDialog())
 	{
@@ -1963,7 +1955,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 
 		for (const auto& i: items)
 		{
-			Menu->AddItem(make_string(PointToName(i.pPlugin->GetModuleName())));
+			Menu->AddItem(string(PointToName(i.pPlugin->GetModuleName())));
 		}
 
 		const auto ExitCode = Menu->Run();
