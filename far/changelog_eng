@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 11.02.2018 19:01:14 -0800 - build 5144
+
+1. In the FileList class, renamed "global columns" to "stripes" + refactoring.
+
 drkns 11.02.2018 14:03:19 +0000 - build 5143
 
 1. Correction of 5140 - revert trimming of spaces in lists.
