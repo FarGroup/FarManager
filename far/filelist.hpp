@@ -218,7 +218,7 @@ public:
 	virtual bool IsColumnDisplayed(int Type) const override;
 	virtual int GetColumnsCount() const override
 	{
-		return m_Columns;
+		return m_Stripes;
 	}
 	virtual void SetReturnCurrentFile(bool Mode) override;
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) const override;
@@ -330,8 +330,9 @@ private:
 	void DescribeFiles();
 	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot = true);
 	std::unique_ptr<plugin_panel> OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
-	int PreparePanelView(PanelViewSettings *PanelView);
-	int PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine);
+	void PreparePanelView();
+	void PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen);
+	void PrepareStripes(const std::vector<column>& Columns);
 	void PrepareViewSettings(int ViewMode);
 	void PluginDelete();
 	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz);
@@ -426,8 +427,8 @@ private:
 	unsigned long long FreeDiskSize = -1;
 	std::chrono::steady_clock::time_point LastUpdateTime;
 	int m_Height{};
-	int m_Columns{};
-	int ColumnsInGlobal{};
+	int m_Stripes{}; // Stripe is a logical column representing one list item == group of columns repeated across the list
+	int m_ColumnsInStripe{}; // number of columns (item attributes) in a stripe
 	int LeftPos{};
 	int ShiftSelection{ -1 };
 	bool MouseSelection{};

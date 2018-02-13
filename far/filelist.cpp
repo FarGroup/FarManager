@@ -366,7 +366,7 @@ FileList::FileList(private_tag, window_ptr Owner):
 	strOriginalCurDir = m_CurDir;
 	m_SortMode = panel_sort::BY_NAME;
 	m_ViewSettings = Global->Opt->ViewSettings[m_ViewMode].clone();
-	m_Columns=PreparePanelView(&m_ViewSettings);
+	PreparePanelView();
 }
 
 
@@ -444,8 +444,8 @@ void FileList::CorrectPosition()
 		return;
 	}
 
-	if (m_CurTopFile+m_Columns*m_Height > static_cast<int>(m_ListData.size()))
-		m_CurTopFile = static_cast<int>(m_ListData.size() - m_Columns * m_Height);
+	if (m_CurTopFile+m_Stripes*m_Height > static_cast<int>(m_ListData.size()))
+		m_CurTopFile = static_cast<int>(m_ListData.size() - m_Stripes * m_Height);
 
 	if (m_CurFile<0)
 		m_CurFile=0;
@@ -462,8 +462,8 @@ void FileList::CorrectPosition()
 	if (m_CurFile<m_CurTopFile)
 		m_CurTopFile=m_CurFile;
 
-	if (m_CurFile>m_CurTopFile+m_Columns*m_Height-1)
-		m_CurTopFile=m_CurFile-m_Columns*m_Height+1;
+	if (m_CurFile>m_CurTopFile+m_Stripes*m_Height-1)
+		m_CurTopFile=m_CurFile-m_Stripes*m_Height+1;
 }
 
 class list_less
@@ -1205,7 +1205,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 	    [*] В панели с одной колонкой Shift-Left/Right аналогично нажатию
 	        Shift-PgUp/PgDn.
 	*/
-	if (m_Columns == 1 && IsEmptyCmdline)
+	if (m_Stripes == 1 && IsEmptyCmdline)
 	{
 		if (LocalKey == KEY_SHIFTLEFT || LocalKey == KEY_SHIFTNUMPAD4)
 			LocalKey=KEY_SHIFTPGUP;
@@ -2260,18 +2260,18 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			MoveCursorAndShow(1);
 			return true;
 		case KEY_PGUP:         case KEY_NUMPAD9:
-			N=m_Columns*m_Height-1;
+			N=m_Stripes*m_Height-1;
 			m_CurTopFile-=N;
 			MoveCursorAndShow(-N);
 			return true;
 		case KEY_PGDN:         case KEY_NUMPAD3:
-			N=m_Columns*m_Height-1;
+			N=m_Stripes*m_Height-1;
 			m_CurTopFile+=N;
 			MoveCursorAndShow(N);
 			return true;
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
-			if ((m_Columns == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Columns>1 || IsEmptyCmdline)
+			if ((m_Stripes == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Stripes>1 || IsEmptyCmdline)
 			{
 				if (m_CurTopFile>=m_Height && m_CurFile-m_CurTopFile<m_Height)
 					m_CurTopFile-=m_Height;
@@ -2283,9 +2283,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			return false;
 		case KEY_RIGHT:        case KEY_NUMPAD6:
 
-			if ((m_Columns == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Columns>1 || IsEmptyCmdline)
+			if ((m_Stripes == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Stripes>1 || IsEmptyCmdline)
 			{
-				if (m_CurFile+m_Height < static_cast<int>(m_ListData.size()) && m_CurFile-m_CurTopFile>=(m_Columns-1)*(m_Height))
+				if (m_CurFile+m_Height < static_cast<int>(m_ListData.size()) && m_CurFile-m_CurTopFile>=(m_Stripes-1)*(m_Height))
 					m_CurTopFile+=m_Height;
 
 				MoveCursorAndShow(m_Height);
@@ -2329,7 +2329,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTPGUP:    case KEY_SHIFTNUMPAD9:
 		case KEY_SHIFTPGDN:    case KEY_SHIFTNUMPAD3:
 		{
-			N=m_Columns*m_Height-1;
+			N=m_Stripes*m_Height-1;
 			InternalProcessKey++;
 
 			while (N--)
@@ -2349,7 +2349,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			if (m_ListData.empty())
 				return true;
 
-			if (m_Columns>1)
+			if (m_Stripes>1)
 			{
 				N=m_Height;
 				InternalProcessKey++;
@@ -3187,7 +3187,7 @@ void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	for (const auto& i: m_ViewSettings.PanelColumns)
 	{
-		if (Level == ColumnsInGlobal)
+		if (Level == m_ColumnsInStripe)
 		{
 			CurColumn++;
 			Level = 0;
@@ -7510,7 +7510,7 @@ void FileList::ShowFileList(bool Fast)
 		ColumnPos += m_ViewSettings.PanelColumns[I].width;
 		GotoXY(static_cast<int>(ColumnPos),m_Y1);
 
-		bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%ColumnsInGlobal));
+		bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%m_ColumnsInStripe));
 
 		BoxText(BoxSymbols[DoubleLine?BS_T_H2V2:BS_T_H2V1]);
 
@@ -7720,7 +7720,7 @@ void FileList::ShowFileList(bool Fast)
 	if (Global->Opt->ShowPanelScrollbar)
 	{
 		SetColor(COL_PANELSCROLLBAR);
-		ScrollBarEx(m_X2,m_Y1+1+Global->Opt->ShowColumnTitles,m_Height,Round(m_CurTopFile,m_Columns),Round(static_cast<int>(m_ListData.size()), m_Columns));
+		ScrollBarEx(m_X2,m_Y1+1+Global->Opt->ShowColumnTitles,m_Height,Round(m_CurTopFile,m_Stripes),Round(static_cast<int>(m_ListData.size()), m_Stripes));
 	}
 
 	ShowScreensCount();
@@ -7814,7 +7814,7 @@ void FileList::ShowSelectedSize()
 			ColumnPos += m_ViewSettings.PanelColumns[I].width;
 			GotoXY(static_cast<int>(ColumnPos),m_Y2-2);
 
-			bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%ColumnsInGlobal));
+			bool DoubleLine = Global->Opt->DoubleGlobalColumnSeparator && (!((I+1)%m_ColumnsInStripe));
 			BoxText(BoxSymbols[DoubleLine?BS_B_H1V2:BS_B_H1V1]);
 			ColumnPos++;
 		}
@@ -8025,19 +8025,20 @@ void FileList::PrepareViewSettings(int ViewMode)
 		}
 	}
 
-	m_Columns=PreparePanelView(&m_ViewSettings);
+	PreparePanelView();
 	UpdateHeight();
 }
 
 
-int FileList::PreparePanelView(PanelViewSettings *PanelView)
+void FileList::PreparePanelView()
 {
-	PrepareColumnWidths(PanelView->StatusColumns, (PanelView->Flags&PVS_FULLSCREEN) != 0, true);
-	return PrepareColumnWidths(PanelView->PanelColumns, (PanelView->Flags&PVS_FULLSCREEN) != 0, false);
+	PrepareColumnWidths(m_ViewSettings.StatusColumns, (m_ViewSettings.Flags&PVS_FULLSCREEN) != 0);
+	PrepareColumnWidths(m_ViewSettings.PanelColumns, (m_ViewSettings.Flags&PVS_FULLSCREEN) != 0);
+	PrepareStripes(m_ViewSettings.PanelColumns);
 }
 
 
-int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen, bool StatusLine)
+void FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen)
 {
 	int ZeroLengthCount = 0;
 	int EmptyColumns = 0;
@@ -8153,42 +8154,56 @@ int FileList::PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen,
 		else
 			Columns.pop_back();
 	}
+}
 
-	ColumnsInGlobal = 1;
-	int GlobalColumns=0;
 
-	FOR_CONST_RANGE(m_ViewSettings.PanelColumns, i)
+namespace
+{
+inline bool CanMakeStripes(const std::vector<column>& Columns, int StripeStride)
+{
+	if (Columns.size() % StripeStride != 0)
+		return false;
+
+	auto FirstStripeBegin = Columns.cbegin();
+	auto FirstStripeEnd = FirstStripeBegin;
+	std::advance(FirstStripeEnd, StripeStride);
+
+	for (auto Stripe = FirstStripeEnd; Stripe < Columns.cend(); std::advance(Stripe, StripeStride))
 	{
-		int Remainder = m_ViewSettings.PanelColumns.size() % ColumnsInGlobal;
-		GlobalColumns = static_cast<int>(m_ViewSettings.PanelColumns.size() / ColumnsInGlobal);
-
-		if (!Remainder)
+		if (!std::equal(FirstStripeBegin, FirstStripeEnd, Stripe,
+			[](const auto& a, const auto& b) { return (a.type & 0xFF) == (b.type & 0xFF); }))
 		{
-			bool UnEqual = false;
-			for (int k = 0; k < GlobalColumns-1 && !UnEqual; k++)
-			{
-				for (int j = 0; j < ColumnsInGlobal && !UnEqual; j++)
-				{
-					if ((m_ViewSettings.PanelColumns[k*ColumnsInGlobal+j].type & 0xFF) !=
-					        (m_ViewSettings.PanelColumns[(k+1)*ColumnsInGlobal+j].type & 0xFF))
-						UnEqual = true;
-				}
-			}
-
-			if (!UnEqual)
-				break;
+			return false;
 		}
-
-		ColumnsInGlobal++;
 	}
 
-	return GlobalColumns;
+	return true;
+}
+}
+
+
+void FileList::PrepareStripes(const std::vector<column>& Columns)
+{
+	int ColumnsSize = static_cast<int>(Columns.size());
+
+	for (int StripeStride = 1; StripeStride <= ColumnsSize / 2; StripeStride++)
+	{
+		if (CanMakeStripes(Columns, StripeStride))
+		{
+			m_Stripes = ColumnsSize / StripeStride;
+			m_ColumnsInStripe = StripeStride;
+			return;
+		}
+	}
+
+	m_Stripes = 1;
+	m_ColumnsInStripe = ColumnsSize;
 }
 
 
 void FileList::HighlightBorder(int Level, int ListPos) const
 {
-	if (Level == ColumnsInGlobal)
+	if (Level == m_ColumnsInStripe)
 	{
 		SetColor(COL_PANELBOX);
 	}
@@ -8460,7 +8475,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									Text(closeBracket);
 									ShowDivider=FALSE;
 
-									if (Level == ColumnsInGlobal)
+									if (Level == m_ColumnsInStripe)
 										SetColor(COL_PANELTEXT);
 									else
 										SetShowColor(J);
@@ -8492,7 +8507,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								Text(closeBracket);
 								ShowDivider=FALSE;
 
-								if (Level == ColumnsInGlobal)
+								if (Level == m_ColumnsInStripe)
 									SetColor(COL_PANELTEXT);
 								else
 									SetShowColor(J);
@@ -8658,7 +8673,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				if (K==ColumnCount-1)
 					BoxText(CurX+ColumnWidth==m_X2 ? BoxSymbols[BS_V2]:L' ');
 				else
-					BoxText(ShowStatus ? L' ':BoxSymbols[(Global->Opt->DoubleGlobalColumnSeparator && Level == ColumnsInGlobal)?BS_V2:BS_V1]);
+					BoxText(ShowStatus ? L' ':BoxSymbols[(Global->Opt->DoubleGlobalColumnSeparator && Level == m_ColumnsInStripe)?BS_V2:BS_V1]);
 
 				if (!ShowStatus)
 					SetColor(COL_PANELTEXT);
@@ -8666,7 +8681,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 			if (!ShowStatus)
 			{
-				if (Level == ColumnsInGlobal)
+				if (Level == m_ColumnsInStripe)
 				{
 					Level = 0;
 					CurColumn++;
