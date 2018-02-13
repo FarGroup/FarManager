@@ -66,7 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "processname.hpp"
 #include "RegExp.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "console.hpp"
 #include "plugsettings.hpp"
 #include "farversion.hpp"
@@ -687,7 +687,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_SETPROGRESSSTATE:
-			Taskbar().SetProgressState(static_cast<TBPFLAG>(Param1));
+			taskbar::instance().SetProgressState(static_cast<TBPFLAG>(Param1));
 			return TRUE;
 
 		case ACTL_SETPROGRESSVALUE:
@@ -696,7 +696,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			const auto PV = static_cast<const ProgressValue*>(Param2);
 			if(CheckStructSize(PV))
 			{
-				Taskbar().SetProgressValue(PV->Completed,PV->Total);
+				taskbar::instance().SetProgressValue(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
 			return Result;
@@ -757,7 +757,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_PROGRESSNOTIFY:
 		{
-			Taskbar().Flash();
+			taskbar::instance().Flash();
 			return TRUE;
 		}
 

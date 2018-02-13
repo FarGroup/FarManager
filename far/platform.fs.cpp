@@ -395,7 +395,7 @@ namespace os::fs
 		os::detail::ApiDynamicStringReceiver(LinkName, [&](wchar_t* Buffer, size_t Size)
 		{
 			auto BufferSize = static_cast<DWORD>(Size);
-			Handle.reset(Imports().FindFirstFileNameW(NtFileName.data(), Flags, &BufferSize, Buffer));
+			Handle.reset(imports::instance().FindFirstFileNameW(NtFileName.data(), Flags, &BufferSize, Buffer));
 			if (Handle)
 				// FindFirstFileNameW always includes terminating \0 in the returned size
 				return BufferSize - 1;
@@ -409,7 +409,7 @@ namespace os::fs
 		return os::detail::ApiDynamicStringReceiver(LinkName, [&](wchar_t* Buffer, size_t Size)
 		{
 			auto BufferSize = static_cast<DWORD>(Size);
-			if (Imports().FindNextFileNameW(hFindStream.native_handle(), &BufferSize, Buffer))
+			if (imports::instance().FindNextFileNameW(hFindStream.native_handle(), &BufferSize, Buffer))
 				// FindNextFileNameW always includes terminating \0 in the returned size
 				return BufferSize - 1;
 			return GetLastError() == ERROR_MORE_DATA? BufferSize : 0;
@@ -447,9 +447,9 @@ namespace os::fs
 
 	find_file_handle FindFirstStream(const string_view& FileName, STREAM_INFO_LEVELS InfoLevel, void* FindStreamData, DWORD Flags)
 	{
-		if (Imports().FindFirstStreamW && Imports().FindNextStreamW)
+		if (imports::instance().FindFirstStreamW && imports::instance().FindNextStreamW)
 		{
-			os_find_file_handle_impl Handle(Imports().FindFirstStreamW(NTPath(FileName).data(), InfoLevel, FindStreamData, Flags));
+			os_find_file_handle_impl Handle(imports::instance().FindFirstStreamW(NTPath(FileName).data(), InfoLevel, FindStreamData, Flags));
 			return find_file_handle(Handle? std::make_unique<os_find_file_handle_impl>(Handle.release()).release() : nullptr);
 		}
 
@@ -491,9 +491,9 @@ namespace os::fs
 
 	bool FindNextStream(const find_file_handle& hFindStream, void* FindStreamData)
 	{
-		if (Imports().FindFirstStreamW && Imports().FindNextStreamW)
+		if (imports::instance().FindFirstStreamW && imports::instance().FindNextStreamW)
 		{
-			return Imports().FindNextStreamW(static_cast<os_find_file_handle_impl*>(hFindStream.native_handle())->native_handle(), FindStreamData) != FALSE;
+			return imports::instance().FindNextStreamW(static_cast<os_find_file_handle_impl*>(hFindStream.native_handle())->native_handle(), FindStreamData) != FALSE;
 		}
 
 		const auto Handle = static_cast<far_find_file_handle_impl*>(hFindStream.native_handle());
@@ -554,9 +554,9 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	bool file::operator!() const noexcept
+	file::operator bool() const noexcept
 	{
-		return !m_Handle;
+		return m_Handle.operator bool();
 	}
 
 	bool file::Open(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, const file* TemplateFile, bool ForceElevation)
@@ -711,8 +711,8 @@ namespace os::fs
 			fbi.ChangeTime.QuadPart = ChangeTime->time_since_epoch().count();
 
 		IO_STATUS_BLOCK IoStatusBlock;
-		const auto Status = Imports().NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
-		::SetLastError(Imports().RtlNtStatusToDosError(Status));
+		const auto Status = imports::instance().NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
+		::SetLastError(imports::instance().RtlNtStatusToDosError(Status));
 
 		return Status == STATUS_SUCCESS;
 	}
@@ -749,7 +749,7 @@ namespace os::fs
 
 	bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const
 	{
-		DWORD Result = Imports().GetStorageDependencyInformation(m_Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+		DWORD Result = imports::instance().GetStorageDependencyInformation(m_Handle.native_handle(), Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 		SetLastError(Result);
 		return Result == ERROR_SUCCESS;
 	}
@@ -769,8 +769,8 @@ namespace os::fs
 		const auto di = reinterpret_cast<FILE_ID_BOTH_DIR_INFORMATION*>(FileInformation);
 		di->NextEntryOffset = 0xffffffffUL;
 
-		NTSTATUS Result = Imports().NtQueryDirectoryFile(m_Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
-		SetLastError(Imports().RtlNtStatusToDosError(Result));
+		NTSTATUS Result = imports::instance().NtQueryDirectoryFile(m_Handle.native_handle(), nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+		SetLastError(imports::instance().RtlNtStatusToDosError(Result));
 		if (Status)
 		{
 			*Status = Result;
@@ -782,8 +782,8 @@ namespace os::fs
 	bool file::NtQueryInformationFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status) const
 	{
 		IO_STATUS_BLOCK IoStatusBlock;
-		NTSTATUS Result = Imports().NtQueryInformationFile(m_Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
-		SetLastError(Imports().RtlNtStatusToDosError(Result));
+		NTSTATUS Result = imports::instance().NtQueryInformationFile(m_Handle.native_handle(), &IoStatusBlock, FileInformation, static_cast<ULONG>(Length), FileInformationClass);
+		SetLastError(imports::instance().RtlNtStatusToDosError(Result));
 		if (Status)
 		{
 			*Status = Result;
@@ -798,7 +798,7 @@ namespace os::fs
 
 		const auto& QueryObject = [&]
 		{
-			return Imports().NtQueryObject(hFile, ObjectNameInformation, oni.get(), static_cast<unsigned long>(oni.size()), &ReturnLength);
+			return imports::instance().NtQueryObject(hFile, ObjectNameInformation, oni.get(), static_cast<unsigned long>(oni.size()), &ReturnLength);
 		};
 
 		auto Result = QueryObject();
@@ -832,10 +832,10 @@ namespace os::fs
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
 
 		HANDLE hSymLink;
-		if (Imports().NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs) != STATUS_SUCCESS)
+		if (imports::instance().NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs) != STATUS_SUCCESS)
 			return 0;
 
-		SCOPE_EXIT{ Imports().NtClose(hSymLink); };
+		SCOPE_EXIT{ imports::instance().NtClose(hSymLink); };
 
 		ULONG BufSize = 32767;
 		wchar_t_ptr Buffer(BufSize);
@@ -843,7 +843,7 @@ namespace os::fs
 		LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
 		LinkTarget.Buffer = Buffer.get();
 
-		if (Imports().NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) != STATUS_SUCCESS)
+		if (imports::instance().NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) != STATUS_SUCCESS)
 			return 0;
 
 		TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
@@ -907,7 +907,7 @@ namespace os::fs
 			return seh_invoke_no_ui(
 			[&]
 			{
-				return Imports().GetFinalPathNameByHandle(File, Buffer, Size, Flags);
+				return imports::instance().GetFinalPathNameByHandle(File, Buffer, Size, Flags);
 			},
 			[]
 			{
@@ -924,7 +924,7 @@ namespace os::fs
 			});
 		};
 
-		return (Imports().GetFinalPathNameByHandleW && GetFinalPathNameByHandleImpl()) || internalNtQueryGetFinalPathNameByHandle(m_Handle.native_handle(), FinalFilePath);
+		return (imports::instance().GetFinalPathNameByHandleW && GetFinalPathNameByHandleImpl()) || internalNtQueryGetFinalPathNameByHandle(m_Handle.native_handle(), FinalFilePath);
 	}
 
 	void file::Close()
@@ -1241,14 +1241,14 @@ namespace os::fs
 		bool detach_virtual_disk(const wchar_t* Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 		{
 			handle Handle;
-			DWORD Result = Imports().OpenVirtualDisk(&VirtualStorageType, Object, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &ptr_setter(Handle));
+			DWORD Result = imports::instance().OpenVirtualDisk(&VirtualStorageType, Object, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, nullptr, &ptr_setter(Handle));
 			if (Result != ERROR_SUCCESS)
 			{
 				SetLastError(Result);
 				return false;
 			}
 
-			Result = Imports().DetachVirtualDisk(Handle.native_handle(), DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
+			Result = imports::instance().DetachVirtualDisk(Handle.native_handle(), DETACH_VIRTUAL_DISK_FLAG_NONE, 0);
 			if (Result != ERROR_SUCCESS)
 			{
 				SetLastError(Result);
@@ -1624,7 +1624,7 @@ namespace os::fs
 		return os::detail::ApiDynamicStringReceiver(VolumePathNames, [&](wchar_t* Buffer, size_t Size)
 		{
 			DWORD ReturnLength = 0;
-			return Imports().GetVolumePathNamesForVolumeNameW(VolumeName.data(), Buffer, static_cast<DWORD>(Size), &ReturnLength) || !ReturnLength?
+			return imports::instance().GetVolumePathNamesForVolumeNameW(VolumeName.data(), Buffer, static_cast<DWORD>(Size), &ReturnLength) || !ReturnLength?
 				ReturnLength :
 				ReturnLength + 1;
 		});
@@ -1673,10 +1673,10 @@ namespace os::fs
 				return ReturnedSize;
 			}
 
-			if (Imports().QueryFullProcessImageNameW && !hModule)
+			if (imports::instance().QueryFullProcessImageNameW && !hModule)
 			{
 				auto sz = static_cast<DWORD>(Size);
-				return Imports().QueryFullProcessImageNameW(hProcess, 0, Buffer, &sz)? sz : 0;
+				return imports::instance().QueryFullProcessImageNameW(hProcess, 0, Buffer, &sz)? sz : 0;
 			}
 			else
 			{
@@ -1856,7 +1856,7 @@ namespace os::fs
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 	{
-		if (!Imports().CreateSymbolicLinkW)
+		if (!imports::instance().CreateSymbolicLinkW)
 			return CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY ? RP_SYMLINKDIR : RP_SYMLINKFILE);
 
 		static const DWORD unpriv_flag = []
@@ -1878,6 +1878,6 @@ namespace os::fs
 			return 0;
 		}();
 
-		return Imports().CreateSymbolicLinkW(Object.data(), Target.data(), dwFlags | unpriv_flag) != FALSE;
+		return imports::instance().CreateSymbolicLinkW(Object.data(), Target.data(), dwFlags | unpriv_flag) != FALSE;
 	}
 }

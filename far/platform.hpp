@@ -190,7 +190,7 @@ namespace os
 	// Run-Time Dynamic Linking
 	namespace rtdl
 	{
-		class module: public conditional<module>
+		class module
 		{
 		public:
 			NONCOPYABLE(module);
@@ -203,7 +203,7 @@ namespace os
 			{}
 
 			void* GetProcAddress(const char* name) const { return reinterpret_cast<void*>(::GetProcAddress(get_module(), name)); }
-			bool operator!() const noexcept { return !get_module(); }
+			explicit operator bool() const noexcept { return get_module() != nullptr; }
 
 		private:
 			HMODULE get_module() const;

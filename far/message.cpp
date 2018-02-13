@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "scrbuf.hpp"
 #include "keys.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "interf.hpp"
 #include "colormix.hpp"
 #include "config.hpp"
@@ -572,7 +572,7 @@ bool AbortMessage()
 		return true;
 	}
 
-	SCOPED_ACTION(TaskBarPause);
+	SCOPED_ACTION(TaskbarPause);
 	int Res = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
 		msg(lng::MKeyESCWasPressed),
 		{

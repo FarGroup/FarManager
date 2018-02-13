@@ -417,7 +417,7 @@ void InfoList::DisplayObject()
 			PrintInfo(str(ms.dwMemoryLoad) + L'%');
 
 			ULONGLONG TotalMemoryInKilobytes=0;
-			if(Imports().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+			if(imports::instance().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 			{
 				GotoXY(m_X1+2,CurY++);
 				PrintText(lng::MInfoMemoryInstalled);

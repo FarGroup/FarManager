@@ -218,7 +218,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 	size_t DirectoryOffset;
 	if (ParsePath(Path, &DirectoryOffset) == root_type::volume)
 	{
-		if (Imports().GetVolumePathNamesForVolumeNameW)
+		if (imports::instance().GetVolumePathNamesForVolumeNameW)
 		{
 			string VolumePathNames;
 			if (os::fs::GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), VolumePathNames))

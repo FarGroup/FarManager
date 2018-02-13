@@ -374,7 +374,7 @@
     <ClCompile Include="syslog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TaskBar.cpp">
+    <ClCompile Include="taskbar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="treelist.cpp">
@@ -847,7 +847,7 @@
     <ClInclude Include="syslog.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TaskBar.hpp">
+    <ClInclude Include="taskbar.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TPreRedrawFunc.hpp">
@@ -965,9 +965,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\null_iterator.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
-    <ClInclude Include="common\conditional.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="regex_helpers.hpp">

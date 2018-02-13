@@ -233,7 +233,6 @@ namespace detail
 class Plugin: noncopyable
 {
 public:
-	NONCOPYABLE(Plugin);
 	Plugin(plugin_factory* Factory, const string& ModuleName);
 	virtual ~Plugin() = default;
 

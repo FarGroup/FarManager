@@ -180,7 +180,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 					{
 						Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
 					}
-					if (Imports().CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
+					if (imports::instance().CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
 					{
 						Result=os::fs::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}

@@ -182,7 +182,7 @@ virtual bool SetTitle(const string& Title) const override
 virtual bool GetKeyboardLayoutName(string &strName) const override
 {
 	wchar_t Buffer[KL_NAMELENGTH];
-	if (!Imports().GetConsoleKeyboardLayoutNameW(Buffer))
+	if (!imports::instance().GetConsoleKeyboardLayoutNameW(Buffer))
 		return false;
 
 	strName = Buffer;
@@ -710,7 +710,7 @@ virtual bool IsFullscreenSupported() const override
 	return false;
 #else
 	CONSOLE_SCREEN_BUFFER_INFOEX csbiex{ sizeof(csbiex) };
-	if(Imports().GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
+	if(imports::instance().GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
 		return csbiex.bFullscreenSupported != FALSE;
 
 	return true;

@@ -43,12 +43,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class noncopyable
 {
+public:
+	NONCOPYABLE(noncopyable);
+	MOVABLE(noncopyable);
+
 protected:
 	noncopyable() = default;
-
-public:
-	noncopyable(const noncopyable&) = delete;
-	noncopyable& operator=(const noncopyable&) = delete;
 };
 
 #endif // NONCOPYABLE_HPP_AD5ABD9E_DA14_463E_84DE_CDA0B230F816

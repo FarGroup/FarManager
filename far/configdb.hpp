@@ -98,16 +98,16 @@ public:
 	virtual void finish() = 0;
 };
 
-class HierarchicalConfig: public representable, virtual public async_delete, virtual public transactional, public conditional<HierarchicalConfig>
+class HierarchicalConfig: public representable, virtual public async_delete, virtual public transactional
 {
 public:
-	class key: public conditional<key>
+	class key
 	{
 	public:
 		explicit key(unsigned long long Key): m_Key(Key) {}
 
 		unsigned long long get() const { return m_Key; }
-		bool operator!() const noexcept { return m_Key == 0; }
+		explicit operator bool() const noexcept { return m_Key != 0; }
 
 	private:
 		unsigned long long m_Key;

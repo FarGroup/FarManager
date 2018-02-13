@@ -232,7 +232,7 @@ LINK_OBJS = \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\tinyxml.obj" \
-	"$(INTDIR)\TaskBar.obj" \
+	"$(INTDIR)\taskbar.obj" \
 	"$(INTDIR)\tracer.obj" \
 	"$(INTDIR)\treelist.obj" \
 	"$(INTDIR)\tvar.obj" \

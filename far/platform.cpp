@@ -49,7 +49,7 @@ namespace os
 
 NTSTATUS GetLastNtStatus()
 {
-	return Imports().RtlGetLastNtStatus? Imports().RtlGetLastNtStatus() : STATUS_SUCCESS;
+	return imports::instance().RtlGetLastNtStatus? imports::instance().RtlGetLastNtStatus() : STATUS_SUCCESS;
 }
 
 string GetErrorString(bool Nt, DWORD Code)
@@ -101,7 +101,7 @@ void EnableLowFragmentationHeap()
 	if (IsWindowsVistaOrGreater())
 		return;
 
-	if (!Imports().HeapSetInformation)
+	if (!imports::instance().HeapSetInformation)
 		return;
 
 	std::vector<HANDLE> Heaps(10);
@@ -117,7 +117,7 @@ void EnableLowFragmentationHeap()
 	for (const auto i: Heaps)
 	{
 		ULONG HeapFragValue = 2;
-		Imports().HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+		imports::instance().HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
 	}
 }
 
@@ -160,7 +160,7 @@ bool IsWow64Process()
 #ifdef _WIN64
 	return false;
 #else
-	static const auto Wow64Process = []{ BOOL Value = FALSE; return Imports().IsWow64Process(GetCurrentProcess(), &Value) && Value; }();
+	static const auto Wow64Process = []{ BOOL Value = FALSE; return imports::instance().IsWow64Process(GetCurrentProcess(), &Value) && Value; }();
 	return Wow64Process;
 #endif
 }

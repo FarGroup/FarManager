@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 GuardLastError::GuardLastError():
 	m_LastError(GetLastError()),
-	m_LastStatus(Imports().RtlGetLastNtStatus()),
+	m_LastStatus(imports::instance().RtlGetLastNtStatus()),
 	m_Active(true)
 {
 }
@@ -49,5 +49,5 @@ GuardLastError::~GuardLastError()
 		return;
 
 	SetLastError(m_LastError);
-	Imports().RtlNtStatusToDosError(m_LastStatus);
+	imports::instance().RtlNtStatusToDosError(m_LastStatus);
 }

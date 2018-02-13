@@ -59,7 +59,7 @@ static auto GetBackTrace(const exception_context& Context)
 	StackFrame.AddrFrame.Mode = AddrModeFlat;
 	StackFrame.AddrStack.Mode = AddrModeFlat;
 
-	while (Imports().StackWalk64(MachineType, GetCurrentProcess(), Context.GetThreadHandle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
+	while (imports::instance().StackWalk64(MachineType, GetCurrentProcess(), Context.GetThreadHandle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
 	{
 		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}
@@ -75,7 +75,7 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 	Symbol->MaxNameLen = MaxNameLen;
 
-	Imports().SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
+	imports::instance().SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
 	IMAGEHLP_LINE64 Line = { sizeof(Line) };
 	DWORD Displacement;
 
@@ -83,8 +83,8 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	for (const auto i: BackTrace)
 	{
 		const auto Address = reinterpret_cast<DWORD_PTR>(i);
-		const auto GotName = Imports().SymFromAddr(Process, Address, nullptr, Symbol.get()) != FALSE;
-		const auto GotSource = Imports().SymGetLineFromAddr64(Process, Address, &Displacement, &Line) != FALSE;
+		const auto GotName = imports::instance().SymFromAddr(Process, Address, nullptr, Symbol.get()) != FALSE;
+		const auto GotSource = imports::instance().SymGetLineFromAddr64(Process, Address, &Displacement, &Line) != FALSE;
 
 		Consumer(str(i), GotName? format(L"{0}", Symbol->Name) : L""s, GotSource? format(L"{0}:{1}", Line.FileName, Line.LineNumber) : L""s);
 	}
@@ -123,13 +123,13 @@ static LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 }
 
 tracer::veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
-	m_Handler(Imports().AddVectoredExceptionHandler(TRUE, Handler))
+	m_Handler(imports::instance().AddVectoredExceptionHandler(TRUE, Handler))
 {
 }
 
 tracer::veh_handler::~veh_handler()
 {
-	Imports().RemoveVectoredExceptionHandler(m_Handler);
+	imports::instance().RemoveVectoredExceptionHandler(m_Handler);
 }
 
 tracer::tracer():
@@ -226,7 +226,7 @@ bool tracer::SymInitialise()
 {
 	if (!m_SymInitialised)
 	{
-		m_SymInitialised = Imports().SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.data()), TRUE) != FALSE;
+		m_SymInitialised = imports::instance().SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.data()), TRUE) != FALSE;
 	}
 	return m_SymInitialised;
 }
@@ -235,6 +235,6 @@ void tracer::SymCleanup()
 {
 	if (m_SymInitialised)
 	{
-		m_SymInitialised = !Imports().SymCleanup(GetCurrentProcess());
+		m_SymInitialised = !imports::instance().SymCleanup(GetCurrentProcess());
 	}
 }

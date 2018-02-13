@@ -41,8 +41,7 @@ public:
 
 	template<typename item_type, typename owner>
 	class iterator_t:
-		public rel_ops<iterator_t<item_type, owner>>,
-		public conditional<iterator_t<item_type, owner>>
+		public rel_ops<iterator_t<item_type, owner>>
 	{
 	public:
 		using iterator_category = std::forward_iterator_tag;
@@ -75,9 +74,9 @@ public:
 			return m_Owner == rhs.m_Owner && m_Index == rhs.m_Index;
 		}
 
-		bool operator!() const
+		explicit operator bool() const
 		{
-			return !m_Owner;
+			return m_Owner != nullptr;
 		}
 
 		static const size_t invalid_index{ size_t(-1) };

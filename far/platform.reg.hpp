@@ -37,7 +37,7 @@ namespace os::reg
 {
 	class value;
 
-	class key: public conditional<key>
+	class key
 	{
 	public:
 		key() = default;
@@ -72,7 +72,7 @@ namespace os::reg
 			return NewKey.get(Name, Value);
 		}
 
-		bool operator!() const;
+		explicit operator bool() const;
 
 	private:
 		explicit key(HKEY Key);

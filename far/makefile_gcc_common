@@ -6,7 +6,6 @@ FARDIR := $(dir $(COMMON_MAKEFILE))
 #
 #DEBUG - set if a debug build is needed
 #
-DIRBIT ?= 32
 
 ifndef DEBUG
  DIRNAME=Release
@@ -55,6 +54,18 @@ WINDRES = $(GCC_PREFIX)windres
 DLLTOOL = $(GCC_PREFIX)dlltool
 RANLIB = $(GCC_PREFIX)ranlib
 AR = $(GCC_PREFIX)ar
+
+ifndef DIRBIT
+ ifneq (,$(findstring i686-w64,$(shell $(CC) -dumpmachine)))
+  DIRBIT = 32
+ else
+  ifeq (,$(findstring 64,$(shell $(CC) -dumpmachine)))
+   DIRBIT = 32
+  else
+   DIRBIT = 64
+  endif
+ endif
+endif
 
 M4 = $(strip $(call os_name, $(TOOLS_PREFIX)m4)) -P -DFARBIT=$(DIRBIT) -DHOSTTYPE=$(HOST_TYPE)
 GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))

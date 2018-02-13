@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "refreshwindowmanager.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "cddrv.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -884,7 +884,7 @@ bool TreeList::ReadTree()
 	ScTree.SetFindPath(m_Root, L"*", 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
-	SCOPED_ACTION(IndeterminateTaskBar);
+	SCOPED_ACTION(IndeterminateTaskbar);
 	SCOPED_ACTION(wakeful);
 	while (ScTree.GetNextName(fdata,strFullName))
 	{

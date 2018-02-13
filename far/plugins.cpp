@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "refreshwindowmanager.hpp"
 #include "plugapi.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "processname.hpp"
@@ -404,7 +404,7 @@ void PluginManager::LoadPlugins()
 	if (!AnyPluginsPossible)
 		return;
 
-	SCOPED_ACTION(IndeterminateTaskBar)(false);
+	SCOPED_ACTION(IndeterminateTaskbar)(false);
 
 	EnsureLuaCpuCompatibility();
 

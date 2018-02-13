@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilter.hpp"
 #include "interf.hpp"
 #include "message.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "constitle.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
@@ -115,7 +115,7 @@ int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, ge
 	SaveScreen SaveScr;
 	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScr);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
-	SCOPED_ACTION(IndeterminateTaskBar)(MessageDelay != getdirinfo_infinite_delay);
+	SCOPED_ACTION(IndeterminateTaskbar)(MessageDelay != getdirinfo_infinite_delay);
 	SCOPED_ACTION(wakeful);
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
 	auto StartTime = std::chrono::steady_clock::now();

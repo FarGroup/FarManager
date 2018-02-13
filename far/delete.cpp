@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "cddrv.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
@@ -548,7 +548,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 	{
 		ConsoleTitle::SetFarTitle(msg(lng::MDeletingTitle));
-		SCOPED_ACTION(IndeterminateTaskBar);
+		SCOPED_ACTION(IndeterminateTaskbar);
 		SCOPED_ACTION(wakeful);
 		bool Cancel=false;
 		SetCursorType(false, 0);

@@ -75,13 +75,13 @@ enum enumFDateType
 	FDATE_COUNT, // всегда последний !!!
 };
 
-class filter_dates: public conditional<filter_dates>
+class filter_dates
 {
 public:
 	explicit filter_dates(os::chrono::duration After = {}, os::chrono::duration Before = {});
 	explicit filter_dates(os::chrono::time_point After, os::chrono::time_point Before);
 
-	bool operator!() const;
+	explicit operator bool() const;
 
 	template<typename callable>
 	decltype(auto) visit(const callable& Callable) const

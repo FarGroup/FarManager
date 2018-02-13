@@ -64,7 +64,7 @@ enum class clipboard::clipboard_format
 };
 
 //-----------------------------------------------------------------------------
-class system_clipboard: public clipboard, public singleton<system_clipboard>, noncopyable
+class system_clipboard: public clipboard, public singleton<system_clipboard>
 {
 	IMPLEMENTS_SINGLETON(system_clipboard);
 
@@ -167,7 +167,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-class internal_clipboard: public clipboard, public singleton<internal_clipboard>, noncopyable
+class internal_clipboard: public clipboard, public singleton<internal_clipboard>
 {
 	IMPLEMENTS_SINGLETON(internal_clipboard);
 

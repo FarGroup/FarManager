@@ -207,26 +207,29 @@ COORD GetNonMaximisedBufferSize();
 
 void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen);
 
-class consoleicons:noncopyable
+class consoleicons: public singleton<consoleicons>
 {
+	IMPLEMENTS_SINGLETON(consoleicons);
+
 public:
 	void setFarIcons();
 	void restorePreviousIcons();
 
 private:
-	friend consoleicons& ConsoleIcons();
+	consoleicons() = default;
 
-	consoleicons();
+	struct icon
+	{
+		bool IsBig;
+		HICON Icon;
+		HICON PreviousIcon;
+		bool Changed;
+	};
 
-	HICON LargeIcon;
-	HICON SmallIcon;
-	HICON PreviousLargeIcon;
-	HICON PreviousSmallIcon;
-	bool Loaded;
-	bool LargeChanged;
-	bool SmallChanged;
+	icon m_Large{true};
+	icon m_Small{false};
+
+	bool m_Loaded{};
 };
-
-consoleicons& ConsoleIcons();
 
 #endif // INTERF_HPP_A91E1A99_C78E_41EC_B0F8_5C35A6C99116

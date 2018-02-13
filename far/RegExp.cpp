@@ -224,9 +224,9 @@ struct RegExp::UniSet
 			else set.ClearBit(idx);
 			return *this;
 		}
-		bool operator!()const
+		explicit operator bool() const
 		{
-			return !set.GetBit(idx);
+			return set.GetBit(idx) != 0;
 		}
 	};
 

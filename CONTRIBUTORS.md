@@ -103,6 +103,9 @@
 * Mauro72
 * dimfish
 * Dmitri Davydok
+* Pavol Misik
+* Timofey Vasenin
+* Michael Z. Kadaner
  
 > And special thanks to all of our community members!  
 > You are not less important than the people mentioned here.

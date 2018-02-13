@@ -317,7 +317,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="string_utils.cpp" />
     <ClCompile Include="strmix.cpp" />
     <ClCompile Include="syslog.cpp" />
-    <ClCompile Include="TaskBar.cpp" />
+    <ClCompile Include="taskbar.cpp" />
     <ClCompile Include="tinyxml.cpp" />
     <ClCompile Include="tracer.cpp" />
     <ClCompile Include="treelist.cpp" />
@@ -344,7 +344,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\movable.hpp" />
     <ClInclude Include="common\null_iterator.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
-    <ClInclude Include="common\conditional.hpp" />
     <ClInclude Include="common\function_traits.hpp" />
     <ClInclude Include="common\placement.hpp" />
     <ClInclude Include="common\range.hpp" />
@@ -509,7 +508,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="string_utils.hpp" />
     <ClInclude Include="strmix.hpp" />
     <ClInclude Include="syslog.hpp" />
-    <ClInclude Include="TaskBar.hpp" />
+    <ClInclude Include="taskbar.hpp" />
     <ClInclude Include="tinyxml.hpp" />
     <ClInclude Include="TPreRedrawFunc.hpp" />
     <ClInclude Include="tracer.hpp" />

@@ -32,7 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "wakeful.hpp"
 #include "datetime.hpp"
 
@@ -65,7 +65,7 @@ private:
 	static size_t GetCanvasWidth();
 
 	std::chrono::steady_clock::time_point m_CopyStartTime;
-	IndeterminateTaskBar m_TB;
+	IndeterminateTaskbar m_TB;
 	wakeful m_Wakeful;
 	SMALL_RECT m_Rect;
 

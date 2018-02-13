@@ -42,7 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lasterror.hpp"
 #include "fileowner.hpp"
 #include "imports.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "notification.hpp"
 #include "scrbuf.hpp"
 #include "manager.hpp"
@@ -160,7 +160,7 @@ void elevation::RetrieveLastError() const
 {
 	const auto ErrorState = Read<error_state>();
 	SetLastError(ErrorState.Win32Error);
-	Imports().RtlNtStatusToDosError(ErrorState.NtError);
+	imports::instance().RtlNtStatusToDosError(ErrorState.NtError);
 }
 
 template<typename T>
@@ -332,7 +332,7 @@ bool elevation::Initialize()
 			return false;
 	}
 
-	SCOPED_ACTION(IndeterminateTaskBar);
+	SCOPED_ACTION(IndeterminateTaskbar);
 	DisconnectNamedPipe(m_Pipe.native_handle());
 
 	const auto Param = concat(ElevationArgument, L' ', m_PipeName, L' ', str(GetCurrentProcessId()), L' ', (Global->Opt->ElevationMode & ELEVATION_USE_PRIVILEGES)? L'1' : L'0');
@@ -479,7 +479,7 @@ bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 	{
 		++m_Recurse;
 		SCOPED_ACTION(GuardLastError);
-		SCOPED_ACTION(TaskBarPause);
+		SCOPED_ACTION(TaskbarPause);
 		EAData Data(Object, Why, m_AskApprove, m_IsApproved, m_DontAskAgain);
 
 		if(!Global->IsMainThread())
@@ -783,7 +783,7 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	if (!Global || !Global->Opt || !(Global->Opt->ElevationMode & Mode))
 		return false;
 
-	if(UseNtStatus && Imports().RtlGetLastNtStatus)
+	if(UseNtStatus && imports::instance().RtlGetLastNtStatus)
 	{
 		const auto LastNtStatus = os::GetLastNtStatus();
 		return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
@@ -819,7 +819,7 @@ public:
 		{
 			// basic security checks
 			ULONG ServerProcessId;
-			if (Imports().GetNamedPipeServerProcessId && (!Imports().GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) || ServerProcessId != PID))
+			if (imports::instance().GetNamedPipeServerProcessId && (!imports::instance().GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) || ServerProcessId != PID))
 				return GetLastError();
 
 			auto ParentProcess = os::handle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID));

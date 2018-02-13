@@ -40,7 +40,7 @@ error_state error_state::fetch()
 {
 	error_state State;
 	State.Win32Error = GetLastError();
-	State.NtError = Imports().RtlGetLastNtStatus();
+	State.NtError = imports::instance().RtlGetLastNtStatus();
 	State.m_Engaged = true;
 	return State;
 }

@@ -35,11 +35,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class ImportedFunctions: noncopyable
+class imports: public singleton<imports>
 {
+	IMPLEMENTS_SINGLETON(imports);
+
 private:
-	ImportedFunctions();
-	friend const ImportedFunctions& Imports();
+	imports();
 
 	const os::rtdl::module
 		m_ntdll,
@@ -52,12 +53,14 @@ private:
 		m_dbghelp;
 
 	template<typename T, class Y, T stub>
-	class unique_function_pointer: noncopyable, public conditional<unique_function_pointer<T, Y, stub>>
+	class unique_function_pointer
 	{
 	public:
+		NONCOPYABLE(unique_function_pointer);
+
 		explicit unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
 		operator T() const { return get_pointer(); }
-		bool operator!() const noexcept { return get_pointer() == stub; }
+		explicit operator bool() const noexcept { return get_pointer() != stub; }
 
 	private:
 		T get_pointer() const
@@ -74,7 +77,7 @@ private:
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
 private: struct name_##NAME { static auto get() { return #NAME; } };\
-public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME), name_##NAME, ImportedFunctions::stub_##NAME> NAME;
+public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NAME, imports::stub_##NAME> NAME;
 
 	// ntdll
 	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
@@ -141,7 +144,5 @@ public: const unique_function_pointer<decltype(&ImportedFunctions::stub_##NAME),
 
 #undef DECLARE_IMPORT_FUNCTION
 };
-
-const ImportedFunctions& Imports();
 
 #endif // IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280

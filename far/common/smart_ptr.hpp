@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 template<typename T, size_t StaticSize>
-class array_ptr: public conditional<array_ptr<T, StaticSize>>
+class array_ptr
 {
 public:
 	NONCOPYABLE(array_ptr);
@@ -78,9 +78,9 @@ public:
 		return m_Size;
 	}
 
-	bool operator!() const noexcept
+	explicit operator bool() const noexcept
 	{
-		return !m_IsStatic && !m_DynamicBuffer;
+		return m_IsStatic || m_DynamicBuffer;
 	}
 
 	T* get() const noexcept
@@ -132,14 +132,14 @@ public:
 };
 
 template <typename T>
-class unique_ptr_with_ondestroy: public conditional<unique_ptr_with_ondestroy<T>>
+class unique_ptr_with_ondestroy
 {
 public:
 	~unique_ptr_with_ondestroy() { OnDestroy(); }
 	decltype(auto) get() const noexcept { return ptr.get(); }
 	decltype(auto) operator->() const noexcept { return ptr.operator->(); }
 	decltype(auto) operator*() const { return *ptr; }
-	bool operator!() const noexcept { return !ptr; }
+	explicit operator bool() const noexcept { return ptr.operator bool(); }
 	decltype(auto) operator=(std::unique_ptr<T>&& value) noexcept { OnDestroy(); ptr = std::move(value); return *this; }
 
 private:

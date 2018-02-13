@@ -50,85 +50,71 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "res.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.security.hpp"
 
-consoleicons& ConsoleIcons()
+static HICON load_icon(int IconId, bool Big)
 {
-	static consoleicons icons;
-	return icons;
-}
-
-consoleicons::consoleicons():
-	LargeIcon(),
-	SmallIcon(),
-	PreviousLargeIcon(),
-	PreviousSmallIcon(),
-	Loaded(),
-	LargeChanged(),
-	SmallChanged()
-{
-}
-
-enum icon_mode
-{
-	icon_big,
-	icon_small
+	return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Big? SM_CYICON : SM_CYSMICON), LR_SHARED));
 };
 
-static HICON set_icon(HWND Wnd, icon_mode Mode, HICON Icon)
+static HICON set_icon(HWND Wnd, bool Big, HICON Icon)
 {
-	return reinterpret_cast<HICON>(SendMessage(Wnd, WM_SETICON, Mode == icon_big? ICON_BIG : ICON_SMALL, reinterpret_cast<LPARAM>(Icon)));
+	return reinterpret_cast<HICON>(SendMessage(Wnd, WM_SETICON, Big? ICON_BIG : ICON_SMALL, reinterpret_cast<LPARAM>(Icon)));
 }
 
 void consoleicons::setFarIcons()
 {
-	if(Global->Opt->SetIcon)
-	{
-		if(!Loaded)
-		{
-			const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
-			const auto& load_icon = [IconId](icon_mode Mode) { return static_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(Mode == icon_big? SM_CXICON : SM_CXSMICON), GetSystemMetrics(Mode == icon_big? SM_CYICON : SM_CYSMICON), LR_SHARED)); };
-			LargeIcon = load_icon(icon_big);
-			SmallIcon = load_icon(icon_small);
-			Loaded = true;
-		}
+	if (!Global->Opt->SetIcon)
+		return;
 
-		if (const auto hWnd = Console().GetWindow())
-		{
-			if(LargeIcon)
-			{
-				PreviousLargeIcon = set_icon(hWnd, icon_big, LargeIcon);
-				LargeChanged = true;
-			}
-			if(SmallIcon)
-			{
-				PreviousSmallIcon = set_icon(hWnd, icon_small, SmallIcon);
-				SmallChanged = true;
-			}
-		}
+	const auto hWnd = Console().GetWindow();
+	if (!hWnd)
+		return;
+
+	if (!m_Loaded)
+	{
+		const int IconId = (Global->Opt->SetAdminIcon && os::security::is_admin())? FAR_ICON_A : FAR_ICON;
+
+		m_Large.Icon = load_icon(IconId, m_Large.IsBig);
+		m_Small.Icon = load_icon(IconId, m_Small.IsBig);
+		m_Loaded = true;
 	}
+
+	const auto& Set = [hWnd](icon& Icon)
+	{
+		if (Icon.Icon)
+		{
+			Icon.PreviousIcon = set_icon(hWnd, Icon.IsBig, Icon.Icon);
+			Icon.Changed = true;
+		}
+	};
+
+	Set(m_Large);
+	Set(m_Small);
 }
 
 void consoleicons::restorePreviousIcons()
 {
-	if(Global->Opt->SetIcon)
+	if (!Global->Opt->SetIcon)
+		return;
+
+	const auto hWnd = Console().GetWindow();
+	if (!hWnd)
+		return;
+
+	const auto& Restore = [hWnd](icon& Icon)
 	{
-		if (const auto hWnd = Console().GetWindow())
-		{
-			if(LargeChanged)
-			{
-				set_icon(hWnd, icon_big, PreviousLargeIcon);
-				LargeChanged = false;
-			}
-			if(SmallChanged)
-			{
-				set_icon(hWnd, icon_small, PreviousSmallIcon);
-				SmallChanged = false;
-			}
-		}
-	}
+		if (!Icon.Changed)
+			return;
+
+		set_icon(hWnd, Icon.IsBig, Icon.PreviousIcon);
+		Icon.Changed = false;
+	};
+
+	Restore(m_Large);
+	Restore(m_Small);
 }
 
 static int CurX,CurY;
@@ -158,7 +144,7 @@ static os::event& CancelIoInProgress()
 unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
 	// TODO: SEH guard, try/catch, exception_ptr
-	unsigned int Result = Imports().CancelSynchronousIo(Thread);
+	unsigned int Result = imports::instance().CancelSynchronousIo(Thread);
 	CancelIoInProgress().reset();
 	return Result;
 }
@@ -357,7 +343,7 @@ void InitConsole(int FirstInit)
 	UpdateScreenSize();
 	Global->ScrBuf->FillBuf();
 
-	ConsoleIcons().setFarIcons();
+	consoleicons::instance().setFarIcons();
 }
 
 void CloseConsole()
@@ -392,7 +378,7 @@ void CloseConsole()
 	}
 
 	ClearKeyQueue();
-	ConsoleIcons().restorePreviousIcons();
+	consoleicons::instance().restorePreviousIcons();
 	CancelIoInProgress().close();
 }
 
@@ -1164,7 +1150,7 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 	}
 	if (PropagateToTasbkar)
 	{
-		Taskbar().SetProgressValue(Percent, 100);
+		taskbar::instance().SetProgressValue(Percent, 100);
 	}
 	return Str;
 }

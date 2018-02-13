@@ -1,5 +1,9 @@
-﻿/*
-TaskBar.cpp
+﻿#ifndef TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
+#define TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
+#pragma once
+
+/*
+taskbar.hpp
 
 Windows 7 taskbar support
 */
@@ -30,79 +34,61 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
-#include "TaskBar.hpp"
-#include "console.hpp"
-
-taskbar& Taskbar()
+class taskbar: public singleton<taskbar>
 {
-	static taskbar tb;
-	return tb;
-}
+	IMPLEMENTS_SINGLETON(taskbar);
 
-taskbar::taskbar():
-	State(TBPF_NOPROGRESS)
+public:
+	TBPFLAG GetProgressState() const;
+	void SetProgressState(TBPFLAG tbpFlags);
+	void SetProgressValue(unsigned long long Completed, unsigned long long Total);
+	static void Flash();
+
+private:
+	taskbar();
+
+	os::com::ptr<ITaskbarList3> m_TaskbarList;
+	TBPFLAG m_State;
+};
+
+class IndeterminateTaskbar: noncopyable
 {
-	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(mTaskbarList)));
-}
+public:
+	explicit IndeterminateTaskbar(bool EndFlash = true);
+	~IndeterminateTaskbar();
 
-void taskbar::SetProgressState(TBPFLAG tbpFlags)
+private:
+	bool EndFlash;
+};
+
+template<TBPFLAG T>
+class taskbar_state: noncopyable
 {
-	if (!mTaskbarList)
-		return;
-
-	State=tbpFlags;
-	mTaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
-}
-
-void taskbar::SetProgressValue(unsigned long long Completed, unsigned long long Total)
-{
-	if (!mTaskbarList)
-		return;
-
-	State=TBPF_NORMAL;
-	mTaskbarList->SetProgressValue(Console().GetWindow(),Completed,Total);
-}
-
-TBPFLAG taskbar::GetProgressState() const
-{
-	return State;
-}
-
-void taskbar::Flash()
-{
-	WINDOWINFO WI={sizeof(WI)};
-
-	if (!GetWindowInfo(Console().GetWindow(), &WI))
-		return;
-
-	if (WI.dwWindowStatus == WS_ACTIVECAPTION)
-		return;
-
-	FLASHWINFO FWI={sizeof(FWI),Console().GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
-	FlashWindowEx(&FWI);
-}
-
-
-IndeterminateTaskBar::IndeterminateTaskBar(bool EndFlash):
-	EndFlash(EndFlash)
-{
-	if (Taskbar().GetProgressState()!=TBPF_INDETERMINATE)
+public:
+	taskbar_state():
+		m_PreviousState(taskbar::instance().GetProgressState())
 	{
-		Taskbar().SetProgressState(TBPF_INDETERMINATE);
+		if (m_PreviousState != TBPF_ERROR && m_PreviousState != TBPF_PAUSED)
+		{
+			if (m_PreviousState == TBPF_INDETERMINATE || m_PreviousState == TBPF_NOPROGRESS)
+			{
+				taskbar::instance().SetProgressValue(1, 1);
+			}
+			taskbar::instance().SetProgressState(T);
+			taskbar::instance().Flash();
+		}
 	}
-}
 
-IndeterminateTaskBar::~IndeterminateTaskBar()
-{
-	if (Taskbar().GetProgressState()!=TBPF_NOPROGRESS)
+	~taskbar_state()
 	{
-		Taskbar().SetProgressState(TBPF_NOPROGRESS);
+		taskbar::instance().SetProgressState(m_PreviousState);
 	}
-	if(EndFlash)
-	{
-		Taskbar().Flash();
-	}
-}
+
+private:
+	TBPFLAG m_PreviousState;
+};
+
+using TaskbarPause = taskbar_state<TBPF_PAUSED>;
+using TaskbarError = taskbar_state<TBPF_ERROR>;
+
+#endif // TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1

@@ -167,9 +167,9 @@ namespace os::reg
 		return true;
 	}
 
-	bool key::operator!() const
+	key::operator bool() const
 	{
-		return !m_Key;
+		return m_Key.operator bool();
 	}
 
 	key::key(HKEY Key):

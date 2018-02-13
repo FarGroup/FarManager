@@ -495,18 +495,18 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 		{
 			DWORD dwSession;
 			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
-			if (Imports().RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
+			if (imports::instance().RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
 			{
-				SCOPE_EXIT{ Imports().RmEndSession(dwSession); };
+				SCOPE_EXIT{ imports::instance().RmEndSession(dwSession); };
 				auto pszFile = FullName.data();
-				if (Imports().RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
+				if (imports::instance().RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
 				{
 					DWORD dwReason;
 					DWORD RmGetListResult;
 					UINT nProcInfoNeeded;
 					UINT nProcInfo = 1;
 					std::vector<RM_PROCESS_INFO> rgpi(nProcInfo);
-					while((RmGetListResult=Imports().RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.data(), &dwReason)) == ERROR_MORE_DATA)
+					while((RmGetListResult = imports::instance().RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.data(), &dwReason)) == ERROR_MORE_DATA)
 					{
 						nProcInfo = nProcInfoNeeded;
 						rgpi.resize(nProcInfo);

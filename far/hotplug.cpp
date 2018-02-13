@@ -64,7 +64,7 @@ namespace detail
 	struct devinfo_handle_closer { void operator()(HDEVINFO Handle) const { SetupDiDestroyDeviceInfoList(Handle); } };
 }
 
-class dev_info: noncopyable, public conditional<dev_info>
+class dev_info: noncopyable
 {
 	using devinfo_handle = os::detail::handle_t<detail::devinfo_handle_closer>;
 
@@ -82,7 +82,7 @@ public:
 		}
 	}
 
-	bool operator!() const noexcept { return !m_info; }
+	explicit operator bool() const noexcept { return m_info != nullptr; }
 
 	bool OpenDeviceInfo(SP_DEVINFO_DATA& info_data) const
 	{

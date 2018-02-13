@@ -65,9 +65,9 @@ filter_dates::filter_dates(os::chrono::time_point After, os::chrono::time_point 
 {
 }
 
-bool filter_dates::operator!() const
+filter_dates::operator bool() const
 {
-	return m_After == m_After.zero() && m_Before == m_Before.zero();
+	return m_After != m_After.zero() || m_Before != m_Before.zero();
 }
 
 

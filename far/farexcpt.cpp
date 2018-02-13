@@ -113,7 +113,7 @@ static void ShowStackTrace(std::vector<string>&& Symbols, const std::vector<stri
 
 static bool write_minidump(const exception_context& Context)
 {
-	if (!Imports().MiniDumpWriteDump)
+	if (!imports::instance().MiniDumpWriteDump)
 		return false;
 
 	// TODO: subdirectory && timestamp
@@ -122,7 +122,7 @@ static bool write_minidump(const exception_context& Context)
 		return false;
 
 	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.GetThreadId(), Context.GetPointers() };
-	return Imports().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
+	return imports::instance().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
 using dialog_data_type = std::pair<const exception_context*, const std::vector<string>*>;
@@ -344,7 +344,7 @@ static string ExtractObjectName(const EXCEPTION_RECORD* xr)
 
 	char Buffer[MAX_SYM_NAME];
 	// https://stackoverflow.com/a/19637731
-	if (Imports().UnDecorateSymbolName(DataPtr + 1, Buffer, static_cast<DWORD>(std::size(Buffer)), UNDNAME_32_BIT_DECODE | UNDNAME_NO_ARGUMENTS))
+	if (imports::instance().UnDecorateSymbolName(DataPtr + 1, Buffer, static_cast<DWORD>(std::size(Buffer)), UNDNAME_32_BIT_DECODE | UNDNAME_NO_ARGUMENTS))
 		DataPtr = Buffer;
 
 	return encoding::ansi::get_chars(Buffer);

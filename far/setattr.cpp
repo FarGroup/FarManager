@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -908,7 +908,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								string path(SrcPanel->GetCurDir() + L'\\' + strSelName);
 								os::netapi::ptr<DFS_INFO_3> DfsInfo;
-								if (Imports().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
+								if (imports::instance().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
 								{
 									KnownReparsePoint = true;
 
@@ -1416,7 +1416,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					{
 						SrcPanel->GetSelName(nullptr,FileAttr);
 					}
-					SCOPED_ACTION(IndeterminateTaskBar);
+					SCOPED_ACTION(IndeterminateTaskbar);
 					SCOPED_ACTION(wakeful);
 					bool Cancel=false;
 

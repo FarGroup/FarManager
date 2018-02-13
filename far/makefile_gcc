@@ -148,7 +148,7 @@ SRCS = \
 	strmix.cpp \
 	syslog.cpp \
 	tinyxml.cpp \
-	TaskBar.cpp \
+	taskbar.cpp \
 	tracer.cpp \
 	treelist.cpp \
 	tvar.cpp \

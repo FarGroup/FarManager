@@ -84,7 +84,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "language.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "fileowner.hpp"
 #include "colormix.hpp"
 #include "keybar.hpp"
@@ -6554,7 +6554,7 @@ static void PR_ReadFileNamesMsg()
 void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)
 {
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<FileListPreRedrawItem>());
-	SCOPED_ACTION(IndeterminateTaskBar)(false);
+	SCOPED_ACTION(IndeterminateTaskbar)(false);
 
 	strOriginalCurDir = m_CurDir;
 

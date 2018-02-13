@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "syslog.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
 #include "history.hpp"
@@ -4192,10 +4192,10 @@ void Dialog::Process()
 	PrevMouseRecord = {};
 	ClearDone();
 	InitDialog();
-	std::unique_ptr<TaskBarError> TBE;
+	std::unique_ptr<TaskbarError> TBE;
 	if (DialogMode.Check(DMODE_WARNINGSTYLE))
 	{
-		TBE = std::make_unique<TaskBarError>();
+		TBE = std::make_unique<TaskbarError>();
 	}
 
 	if (m_ExitCode == -1)

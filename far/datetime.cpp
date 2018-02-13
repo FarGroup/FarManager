@@ -736,9 +736,9 @@ bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)
 
 static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 {
-	if (Imports().TzSpecificLocalTimeToSystemTime)
+	if (imports::instance().TzSpecificLocalTimeToSystemTime)
 	{
-		return Imports().TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
+		return imports::instance().TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
 	}
 
 	tm ltm;

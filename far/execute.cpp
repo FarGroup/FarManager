@@ -599,7 +599,7 @@ bool GetShellType(const string_view& Ext, string& strType, ASSOCIATIONTYPE aType
 	if (IsWindowsVistaOrGreater())
 	{
 		os::com::ptr<IApplicationAssociationRegistration> AAR;
-		if (SUCCEEDED(Imports().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
+		if (SUCCEEDED(imports::instance().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
 		{
 			wchar_t *p;
 			if (AAR->QueryCurrentDefault(null_terminated(Ext).data(), aType, AL_EFFECTIVE, &p) == S_OK)
@@ -1015,7 +1015,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 									{
 										const auto Aliases = Console().GetAllAliases();
 
-										ConsoleIcons().restorePreviousIcons();
+										consoleicons::instance().restorePreviousIcons();
 
 										Console().ReadInput(ir, 256, rd);
 										/*
@@ -1038,7 +1038,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 										Sleep(100);
 										InitConsole(0);
 
-										ConsoleIcons().setFarIcons();
+										consoleicons::instance().setFarIcons();
 										Console().SetAllAliases(Aliases);
 										stop=1;
 										break;

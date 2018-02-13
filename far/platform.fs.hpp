@@ -158,7 +158,7 @@ namespace os::fs
 		mutable find_volume_handle m_Handle;
 	};
 
-	class file: public conditional<file>
+	class file
 	{
 	public:
 		NONCOPYABLE(file);
@@ -177,7 +177,7 @@ namespace os::fs
 			Open(FWD(Args)...);
 		}
 
-		bool operator!() const noexcept;
+		explicit operator bool() const noexcept;
 		// TODO: half of these should be free functions
 		bool Open(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
 		// TODO: async overloads when needed

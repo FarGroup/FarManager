@@ -47,7 +47,7 @@ enum ELEVATION_MODE
 
 enum ELEVATION_COMMAND: int;
 
-class elevation: noncopyable, public singleton<elevation>
+class elevation: public singleton<elevation>
 {
 	IMPLEMENTS_SINGLETON(elevation);
 
@@ -74,9 +74,11 @@ public:
 	bool detach_virtual_disk(const string& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 	bool get_disk_free_space(const string& Object, unsigned long long* FreeBytesAvailableToCaller, unsigned long long* TotalNumberOfBytes, unsigned long long* TotalNumberOfFreeBytes);
 
-	class suppress: noncopyable
+	class suppress
 	{
 	public:
+		NONCOPYABLE(suppress);
+
 		suppress(): m_owner(Global? &instance() : nullptr) { if (m_owner) ++m_owner->m_Suppressions; }
 		~suppress() { if (m_owner) --m_owner->m_Suppressions; }
 

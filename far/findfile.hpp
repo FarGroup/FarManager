@@ -52,7 +52,7 @@ enum FINDAREA
 class Dialog;
 class plugin_panel;
 struct THREADPARAM;
-class IndeterminateTaskBar;
+class IndeterminateTaskbar;
 class InterThreadData;
 class filemasks;
 class FileFilter;
@@ -153,7 +153,7 @@ private:
 	string strFindStr;
 	std::unique_ptr<filemasks> FileMaskForFindFile;
 	std::unique_ptr<FileFilter> Filter;
-	std::unique_ptr<IndeterminateTaskBar> TB;
+	std::unique_ptr<IndeterminateTaskbar> TB;
 
 	std::list<delayed_deleter> m_DelayedDeleters;
 

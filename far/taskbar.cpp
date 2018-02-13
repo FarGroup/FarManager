@@ -1,9 +1,5 @@
-﻿#ifndef TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
-#define TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
-#pragma once
-
-/*
-TaskBar.hpp
+﻿/*
+taskbar.cpp
 
 Windows 7 taskbar support
 */
@@ -34,63 +30,73 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class taskbar: noncopyable
+#include "headers.hpp"
+#pragma hdrstop
+
+#include "taskbar.hpp"
+#include "console.hpp"
+
+taskbar::taskbar():
+	m_State(TBPF_NOPROGRESS)
 {
-public:
-	TBPFLAG GetProgressState() const;
-	void SetProgressState(TBPFLAG tbpFlags);
-	void SetProgressValue(unsigned long long Completed, unsigned long long Total);
-	static void Flash();
+	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(m_TaskbarList)));
+}
 
-private:
-	friend taskbar& Taskbar();
-
-	taskbar();
-
-	TBPFLAG State;
-
-	os::com::ptr<ITaskbarList3> mTaskbarList;
-};
-
-taskbar& Taskbar();
-
-class IndeterminateTaskBar: noncopyable
+void taskbar::SetProgressState(TBPFLAG tbpFlags)
 {
-public:
-	explicit IndeterminateTaskBar(bool EndFlash = true);
-	~IndeterminateTaskBar();
+	if (!m_TaskbarList)
+		return;
 
-private:
-	bool EndFlash;
-};
+	m_State=tbpFlags;
+	m_TaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
+}
 
-template<TBPFLAG T>
-class TaskBarState: noncopyable
+void taskbar::SetProgressValue(unsigned long long Completed, unsigned long long Total)
 {
-public:
-	TaskBarState():PrevState(Taskbar().GetProgressState())
+	if (!m_TaskbarList)
+		return;
+
+	m_State=TBPF_NORMAL;
+	m_TaskbarList->SetProgressValue(Console().GetWindow(),Completed,Total);
+}
+
+TBPFLAG taskbar::GetProgressState() const
+{
+	return m_State;
+}
+
+void taskbar::Flash()
+{
+	WINDOWINFO WI={sizeof(WI)};
+
+	if (!GetWindowInfo(Console().GetWindow(), &WI))
+		return;
+
+	if (WI.dwWindowStatus == WS_ACTIVECAPTION)
+		return;
+
+	FLASHWINFO FWI={sizeof(FWI),Console().GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
+	FlashWindowEx(&FWI);
+}
+
+
+IndeterminateTaskbar::IndeterminateTaskbar(bool EndFlash):
+	EndFlash(EndFlash)
+{
+	if (taskbar::instance().GetProgressState()!=TBPF_INDETERMINATE)
 	{
-		if (PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
-		{
-			if (PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
-			{
-				Taskbar().SetProgressValue(1,1);
-			}
-			Taskbar().SetProgressState(T);
-			Taskbar().Flash();
-		}
+		taskbar::instance().SetProgressState(TBPF_INDETERMINATE);
 	}
+}
 
-	~TaskBarState()
+IndeterminateTaskbar::~IndeterminateTaskbar()
+{
+	if (taskbar::instance().GetProgressState()!=TBPF_NOPROGRESS)
 	{
-		Taskbar().SetProgressState(PrevState);
+		taskbar::instance().SetProgressState(TBPF_NOPROGRESS);
 	}
-
-private:
-	TBPFLAG PrevState;
-};
-
-using TaskBarPause = TaskBarState<TBPF_PAUSED>;
-using TaskBarError = TaskBarState<TBPF_ERROR>;
-
-#endif // TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1
+	if(EndFlash)
+	{
+		taskbar::instance().Flash();
+	}
+}

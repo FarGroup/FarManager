@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "encoding.hpp"
 #include "cddrv.hpp"
-#include "TaskBar.hpp"
+#include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "delete.hpp"
@@ -2553,7 +2553,7 @@ bool FindFiles::FindFilesProcess()
 
 	m_ResultsDialogPtr = Dlg.get();
 
-		TB = std::make_unique<IndeterminateTaskBar>();
+		TB = std::make_unique<IndeterminateTaskbar>();
 
 		m_Messages.clear();
 
