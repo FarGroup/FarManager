@@ -2260,7 +2260,7 @@ upd:"Double stripe separators"
 upd:"Separador de columna doble"
 upd:"Dvojité oddeľovače hlavných stĺpcov"
 upd:"Raddoppia Il Separatore di Banda"
-upd:"Подвоювати глобальні роздільники колонок"
+"Подвоювати роздільники шпальт"
 
 MConfigInterfaceTitle
 l:

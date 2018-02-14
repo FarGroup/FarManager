@@ -3927,7 +3927,7 @@ may be followed by modifiers. Supported column types (properties and
 their modifiers) are listed below.
 
     If the list of column types consists of two or more repeated groups,
-the files on the panel will be listed in “stripes.” Properties of each
+the files on the panel will be listed in “stripes”. Properties of each
 file will be displayed in the columns of a stripe, and the list of files
 will wrap from one stripe to the next like text of a newspaper article.
 If column type list cannot be properly split into the equal groups, the
