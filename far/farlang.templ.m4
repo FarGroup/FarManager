@@ -2250,17 +2250,17 @@ upd:"Highlight column separators"
 "Evidenzia Separatori Di Colonna"
 "Підсвічувати роздільники колонок"
 
-MConfigDoubleGlobalColumnSeparator
-"Удваивать глобальные разделители колонок"
-"Double global column separators"
-"Dvojité oddělovače hlavních sloupců"
-"Globale Spaltentrennzeichen verdoppeln"
-upd:"Double global column separators"
-upd:"Double global column separators"
-"Separador de columna doble"
-"Dvojité oddeľovače hlavných stĺpcov"
-"Raddoppia Globalmente Il Separatore Colonna"
-"Подвоювати глобальні роздільники колонок"
+MConfigDoubleStripeSeparator
+"Удваивать разделители полос"
+"Double stripe separators"
+upd:"Dvojité oddělovače hlavních sloupců"
+upd:"Globale Spaltentrennzeichen verdoppeln"
+upd:"Double stripe separators"
+upd:"Double stripe separators"
+upd:"Separador de columna doble"
+upd:"Dvojité oddeľovače hlavných stĺpcov"
+upd:"Raddoppia Il Separatore di Banda"
+upd:"Подвоювати глобальні роздільники колонок"
 
 MConfigInterfaceTitle
 l:

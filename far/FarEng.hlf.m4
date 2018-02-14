@@ -2550,9 +2550,10 @@ $ #Settings dialog: panel#
   #separators#              are displayed in the list item's color.
                           Otherwise, the color of the outer frames is used.
 
-  #Double global#           If this option is on, the double internal frame
-  #column separators#       between columns is displayed instead of the single
-                          frame.
+  #Double stripe#           If this option is on, panel stripes are separated
+  #separators#              by double frames; otherwise, by single frames.
+                          For the explanation of panel stripes see
+                          ~Customizing file panel view modes~@PanelViewModes@.
 
 @TreeSettings
 $ #Tree settings#
@@ -3920,8 +3921,19 @@ the list. In this list "Brief mode" item corresponds to brief panel mode
 on. The last item, "Alternative full", corresponds to view mode called with
 #LeftCtrl+0#. After selecting the mode, you can change the following settings:
 
-  - #Column types# - column types are encoded as one or several
-characters, delimited with commas. Allowed column types are:
+  - #Column types# - a comma-separated list. Each column type starts with
+a file property character, such as name, size, etc. Some file properties
+may be followed by modifiers. Supported column types (properties and
+their modifiers) are listed below.
+
+    If the list of column types consists of two or more repeated groups,
+the files on the panel will be listed in “stripes.” Properties of each
+file will be displayed in the columns of a stripe, and the list of files
+will wrap from one stripe to the next like text of a newspaper article.
+If column type list cannot be properly split into the equal groups, the
+files will be listed on a single stripe.
+
+    The following column types are supported:
 
     N[M[D],O,R[F],N] - file name
                  where: M - show selection marks

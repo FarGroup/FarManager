@@ -3,6 +3,16 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 13.02.2018 23:19:56 -0800
+
+1. Description of columns and stripes on @PanelViewModes and @PanelSettings help pages.
+
+drkns 13.02.2018 20:42:25 +0000 - build 5145
+
+1. Refactoring.
+
+2. Autodetect gcc platform.
+
 MZK 11.02.2018 19:01:14 -0800 - build 5144
 
 1. In the FileList class, renamed "global columns" to "stripes" + refactoring.
