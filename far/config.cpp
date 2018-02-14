@@ -201,7 +201,7 @@ void Options::PanelSettings()
 	Builder.AddCheckbox(lng::MConfigShowSortMode, ShowSortMode);
 	Builder.AddCheckbox(lng::MConfigShowDotsInRoot, ShowDotsInRoot);
 	Builder.AddCheckbox(lng::MConfigHighlightColumnSeparator, HighlightColumnSeparator);
-	Builder.AddCheckbox(lng::MConfigDoubleGlobalColumnSeparator, DoubleGlobalColumnSeparator);
+	Builder.AddCheckbox(lng::MConfigDoubleStripeSeparator, DoubleGlobalColumnSeparator);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
