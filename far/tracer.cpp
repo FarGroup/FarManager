@@ -76,17 +76,21 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	Symbol->MaxNameLen = MaxNameLen;
 
 	imports::instance().SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
-	IMAGEHLP_LINE64 Line = { sizeof(Line) };
+
+	IMAGEHLP_MODULEW64 Module{ static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8)) }; // use the pre-07-Jun-2002 struct size, aligned to 8
+	IMAGEHLP_LINE64 Line{ sizeof(Line) };
 	DWORD Displacement;
 
-	string StrAddress, StrName, StrSource;
 	for (const auto i: BackTrace)
 	{
 		const auto Address = reinterpret_cast<DWORD_PTR>(i);
 		const auto GotName = imports::instance().SymFromAddr(Process, Address, nullptr, Symbol.get()) != FALSE;
+		const auto GotModule = imports::instance().SymGetModuleInfoW64(Process, Address, &Module) != FALSE;
 		const auto GotSource = imports::instance().SymGetLineFromAddr64(Process, Address, &Displacement, &Line) != FALSE;
 
-		Consumer(str(i), GotName? format(L"{0}", Symbol->Name) : L""s, GotSource? format(L"{0}:{1}", Line.FileName, Line.LineNumber) : L""s);
+		Consumer(str(i),
+			format(L"{0}!{1}", GotModule? PointToName(Module.ImageName) : L""_sv, GotName? Symbol->Name : ""),
+			GotSource? format(L"{0}:{1}", Line.FileName, Line.LineNumber) : L""s);
 	}
 }
 

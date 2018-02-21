@@ -140,6 +140,7 @@ public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NA
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymFromAddr, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol);
 	DECLARE_IMPORT_FUNCTION(DWORD,WINAPI, SymSetOptions, DWORD SymOptions);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymGetLineFromAddr64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line);
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymGetModuleInfoW64, HANDLE Process, DWORD64 Addr, PIMAGEHLP_MODULEW64 ModuleInfo);
 	DECLARE_IMPORT_FUNCTION(DWORD,WINAPI, UnDecorateSymbolName, PCSTR Name, PSTR OutputString, DWORD MaxStringLength, DWORD Flags);
 
 #undef DECLARE_IMPORT_FUNCTION

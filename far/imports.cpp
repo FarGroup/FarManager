@@ -106,6 +106,7 @@ imports::imports():
 	INIT_IMPORT(m_dbghelp, SymFromAddr),
 	INIT_IMPORT(m_dbghelp, SymSetOptions),
 	INIT_IMPORT(m_dbghelp, SymGetLineFromAddr64),
+	INIT_IMPORT(m_dbghelp, SymGetModuleInfoW64),
 	INIT_IMPORT(m_dbghelp, UnDecorateSymbolName)
 
 #undef INIT_IMPORT
@@ -418,6 +419,13 @@ DWORD WINAPI imports::stub_SymSetOptions(DWORD SymOptions)
 }
 
 BOOL WINAPI imports::stub_SymGetLineFromAddr64(HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
+}
+
+BOOL WINAPI imports::stub_SymGetModuleInfoW64(HANDLE Process, DWORD64 Addr, PIMAGEHLP_MODULEW64 ModuleInfo)
 {
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
