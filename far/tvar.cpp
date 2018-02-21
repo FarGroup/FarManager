@@ -461,7 +461,7 @@ static bool _cmp_Lt(TVarType vt,const void *a, const void *b)
 		case vtUnknown:
 		case vtInteger: r = *(const long long*)a < *(const long long*)b; break;
 		case vtDouble:  r = *(const double*)a < *(const double*)b; break;
-		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) < 0; break;
+		case vtString:  r = StrCmpI((const wchar_t*)a, (const wchar_t*)b) < 0; break;
 	}
 
 	return r;
@@ -476,7 +476,7 @@ static bool _cmp_Gt(TVarType vt, const void *a, const void *b)
 		case vtUnknown:
 		case vtInteger: r = *(const long long*)a > *(const long long*)b; break;
 		case vtDouble:  r = *(const double*)a > *(const double*)b; break;
-		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) > 0; break;
+		case vtString:  r = StrCmpI((const wchar_t*)a, (const wchar_t*)b) > 0; break;
 	}
 
 	return r;

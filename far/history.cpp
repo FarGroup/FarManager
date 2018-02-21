@@ -106,7 +106,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 	if (m_RemoveDups) // удалять дубликаты?
 	{
 		using CompareFunction = int(*)(const string_view&, const string_view&);
-		CompareFunction CaseSensitive = StrCmp, CaseInsensitive = StrCmpI;
+		CompareFunction CaseSensitive = StrCmpC, CaseInsensitive = StrCmpI;
 		const auto CmpFunction = m_RemoveDups == 2? CaseInsensitive : CaseSensitive;
 
 		for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))

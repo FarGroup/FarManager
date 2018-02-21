@@ -174,30 +174,25 @@ bool contains_icase(const string_view& Str, const string_view& Token)
 	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token), equal_to_icase{}) != Str.cend();
 }
 
-int StrCmp(const wchar_t *s1, const wchar_t *s2)
-{
-	return CompareString(0, SORT_STRINGSORT, s1, -1, s2, -1) - 2;
-}
-
 int StrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
-	return CompareString(0, SORT_STRINGSORT | NORM_IGNORECASE, s1, -1, s2, -1) - 2;
+	return CompareString(LOCALE_USER_DEFAULT, SORT_STRINGSORT | NORM_IGNORECASE, s1, -1, s2, -1) - 2;
 }
 
 // deprecated, for pluginapi::apiStrCmpNI only
 int StrCmpNI(const wchar_t *s1, const wchar_t *s2, size_t n)
 {
-	return CompareString(0, NORM_STOP_ON_NULL | SORT_STRINGSORT | NORM_IGNORECASE, s1, static_cast<int>(n), s2, static_cast<int>(n)) - 2;
+	return CompareString(LOCALE_USER_DEFAULT, NORM_STOP_ON_NULL | SORT_STRINGSORT | NORM_IGNORECASE, s1, static_cast<int>(n), s2, static_cast<int>(n)) - 2;
 }
 
 int StrCmp(const string_view& Str1, const string_view& Str2)
 {
-	return CompareString(0, SORT_STRINGSORT, Str1.raw_data(), static_cast<int>(Str1.size()), Str2.raw_data(), static_cast<int>(Str2.size())) - 2;
+	return CompareString(LOCALE_USER_DEFAULT, SORT_STRINGSORT, Str1.raw_data(), static_cast<int>(Str1.size()), Str2.raw_data(), static_cast<int>(Str2.size())) - 2;
 }
 
 int StrCmpI(const string_view& Str1, const string_view& Str2)
 {
-	return CompareString(0, SORT_STRINGSORT | NORM_IGNORECASE, Str1.raw_data(), static_cast<int>(Str1.size()), Str2.raw_data(), static_cast<int>(Str2.size())) - 2;
+	return CompareString(LOCALE_USER_DEFAULT, SORT_STRINGSORT | NORM_IGNORECASE, Str1.raw_data(), static_cast<int>(Str1.size()), Str2.raw_data(), static_cast<int>(Str2.size())) - 2;
 }
 
 static int per_char_compare(const string_view& Str1, const string_view& Str2, const std::function<int(const wchar_t*&, const wchar_t*, const wchar_t*&, const wchar_t*)>& Comparer)
@@ -292,11 +287,17 @@ static int NumStrCmp_base(const string_view& Str1, const string_view& Str2, int(
 		{
 			auto NotZero = [](wchar_t Char) { return Char != L'0'; };
 
+			const auto Begin1 = It1;
+			const auto Begin2 = It2;
+
 			It1 = std::find_if(It1, End1, NotZero);
 			It2 = std::find_if(It2, End2, NotZero);
 
+			// 00 is less than 0 in Windows numeric sort implementation
+			const auto ZerosResult = (It2 - Begin2) - (It1 - Begin1);
+
 			if (It1 == End1 && It2 == End2)
-				return 0;
+				return ZerosResult;
 
 			// compare numbers
 			int Result = 0;
@@ -313,7 +314,7 @@ static int NumStrCmp_base(const string_view& Str1, const string_view& Str2, int(
 			const auto EndOrNonDigit2 = It2 == End2 || !std::iswdigit(*It2);
 
 			if (EndOrNonDigit1 && EndOrNonDigit2)
-				return Result;
+				return Result? Result : ZerosResult;
 
 			return EndOrNonDigit1? -1 : 1;
 		}
@@ -322,14 +323,20 @@ static int NumStrCmp_base(const string_view& Str1, const string_view& Str2, int(
 	});
 }
 
-int NumStrCmp(const string_view& Str1, const string_view& Str2)
+static int ModernNumericComparer(const string_view& Str1, const string_view& Str2)
 {
-	return NumStrCmp_base(Str1, Str2, StrCmp);
+	return CompareString(LOCALE_USER_DEFAULT, SORT_STRINGSORT | SORT_DIGITSASNUMBERS | NORM_IGNORECASE, Str1.raw_data(), static_cast<int>(Str1.size()), Str2.raw_data(), static_cast<int>(Str2.size())) - 2;
+}
+
+static int LegacyNumericComparer(const string_view& Str1, const string_view& Str2)
+{
+	return NumStrCmp_base(Str1, Str2, StrCmpI);
 }
 
 int NumStrCmpI(const string_view& Str1, const string_view& Str2)
 {
-	return NumStrCmp_base(Str1, Str2, StrCmpI);
+	static const auto Handler = IsWindows7OrGreater()? ModernNumericComparer : LegacyNumericComparer;
+	return Handler(Str1, Str2);
 }
 
 int NumStrCmpC(const string_view& Str1, const string_view& Str2)
@@ -350,28 +357,28 @@ str_comparer get_comparer(bool Numeric, bool CaseSensitive)
 }
 
 SELF_TEST(
-	assert(NumStrCmp(L"", L"") == 0);
-	assert(NumStrCmp(L"", L"a") < 0);
-	assert(NumStrCmp(L"a", L"a") == 0);
+	assert(NumStrCmpI(L"", L"") == 0);
+	assert(NumStrCmpI(L"", L"a") < 0);
+	assert(NumStrCmpI(L"a", L"a") == 0);
 
-	assert(NumStrCmp(L"0", L"1") < 0);
-	assert(NumStrCmp(L"0", L"00") < 0);
-	assert(NumStrCmp(L"1", L"00") > 0);
-	assert(NumStrCmp(L"10", L"1") > 0);
-	assert(NumStrCmp(L"10", L"2") > 0);
-	assert(NumStrCmp(L"10", L"0100") < 0);
-	assert(NumStrCmp(L"1", L"001") < 0);
+	assert(NumStrCmpI(L"0", L"1") < 0);
+	assert(NumStrCmpI(L"0", L"00") > 0);
+	assert(NumStrCmpI(L"1", L"00") > 0);
+	assert(NumStrCmpI(L"10", L"1") > 0);
+	assert(NumStrCmpI(L"10", L"2") > 0);
+	assert(NumStrCmpI(L"10", L"0100") < 0);
+	assert(NumStrCmpI(L"1", L"001") > 0);
 
-	assert(NumStrCmp(L"10a", L"2b") > 0);
-	assert(NumStrCmp(L"10a", L"0100b") < 0);
-	assert(NumStrCmp(L"a1a", L"a001a") < 0);
-	assert(NumStrCmp(L"a1b2c", L"a1b2c") == 0);
-	assert(NumStrCmp(L"a01b2c", L"a1b002c") < 0);
-	assert(NumStrCmp(L"a01b3c", L"a1b002") > 0);
+	assert(NumStrCmpI(L"10a", L"2b") > 0);
+	assert(NumStrCmpI(L"10a", L"0100b") < 0);
+	assert(NumStrCmpI(L"a1a", L"a001a") > 0);
+	assert(NumStrCmpI(L"a1b2c", L"a1b2c") == 0);
+	assert(NumStrCmpI(L"a01b2c", L"a1b002c") < 0);
+	assert(NumStrCmpI(L"a01b3c", L"a1b002") < 0);
 
-	assert(NumStrCmp(L"10", L"01") > 0);
-	assert(!NumStrCmp(L"01", L"01"));
+	assert(NumStrCmpI(L"10", L"01") > 0);
+	assert(NumStrCmpI(L"01", L"01") == 0);
 
-	assert(NumStrCmp(L"A1", L"a2") > 0);
+	assert(NumStrCmpC(L"A1", L"a2") < 0);
 	assert(NumStrCmpI(L"A1", L"a2") < 0);
 )

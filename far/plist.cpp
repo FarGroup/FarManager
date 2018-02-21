@@ -123,7 +123,7 @@ void ShowProcessList()
 
 		ProcList->SortItems([](const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p)
 		{
-			return StrCmp(any_cast<menu_data>(a.UserData).Title, any_cast<menu_data>(b.UserData).Title) < 0;
+			return StrCmpI(any_cast<menu_data>(a.UserData).Title, any_cast<menu_data>(b.UserData).Title) < 0;
 		});
 
 		return true;

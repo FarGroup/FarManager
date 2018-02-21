@@ -43,7 +43,7 @@ static auto GetBackTrace(const exception_context& Context)
 
 	// StackWalk64() may modify context record passed to it, so we will use a copy.
 	auto ContextRecord = *Context.GetPointers()->ContextRecord;
-	STACKFRAME64 StackFrame = {};
+	STACKFRAME64 StackFrame{};
 #if defined(_WIN64)
 	const DWORD MachineType = IMAGE_FILE_MACHINE_AMD64;
 	StackFrame.AddrPC.Offset = ContextRecord.Rip;

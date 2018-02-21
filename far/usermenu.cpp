@@ -883,7 +883,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				const auto Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				int FocusPos=-1;
 
-				if(StrCmp(HotKey,L"--"))
+				if (!equal(HotKey, L"--"_sv))
 				{
 					if (!*Label)
 					{

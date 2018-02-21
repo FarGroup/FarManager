@@ -460,22 +460,20 @@ active panel. The following sort modes are available:
 
   #Remarks on the numeric sort#
 
-    The sorting algorithm which is used by the operating system to sort file
-lists was changed in Windows XP. A numeric, not a string sort is used. Far also
-allows to use a numeric sort as in Windows XP - leading zeros in a file name
-are ignored. The following example shows how the files are sorted:
+    When numeric sort is enabled, sequential groups of digits are treated
+as numbers. The following example shows how the files are sorted:
 
-    Numeric sort (Windows XP)    String sort (Windows 2000)
+    String sort                 Numeric sort
 
-    Ie4_01                       Ie4_01
-    Ie4_128                      Ie4_128
-    Ie5                          Ie401sp2
-    Ie6                          Ie5
-    Ie401sp2                     Ie501sp2
-    Ie501sp2                     Ie6
-    5.txt                        11.txt
-    11.txt                       5.txt
-    88.txt                       88.txt
+    Ie4_01                      Ie4_01
+    Ie4_128                     Ie4_128
+    Ie401sp2                    Ie5
+    Ie5                         Ie6
+    Ie501sp2                    Ie401sp2
+    Ie6                         Ie501sp2
+    11.txt                      5.txt
+    5.txt                       11.txt
+    88.txt                      88.txt
 
     See also: common ~menu~@MenuCmd@ keyboard commands.
 
@@ -740,7 +738,7 @@ $ #Deleting and wiping files and folders#
 #Shift+F8# do or do not move the deleted files to the Recycle Bin. The
 #Shift+Del# hotkey always deletes, skipping the Recycle Bin.
 
-    2. ^<wrap>Before file deletion its data is overwritten with zeroes (you can
+    2. ^<wrap>Before file deletion its data is overwritten with zeros (you can
 specify other overwrite characters - see ~System.WipeSymbol~@System.WipeSymbol@), after which the file
 is truncated to a zero sized file, renamed to a temporary name and then
 deleted.
@@ -1418,7 +1416,7 @@ $ #Menus: files menu#
    #Delete#             Delete files and folders.
 
    #Wipe#               Wipe files and folders. Before file deletion
-                      its data are overwritten with zeroes, after
+                      its data are overwritten with zeros, after
                       which the file is truncated and renamed to
                       a temporary name.
 

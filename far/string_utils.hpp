@@ -90,17 +90,14 @@ bool starts_with_icase(const string_view& Str, const string_view& Prefix);
 bool ends_with_icase(const string_view& Str, const string_view& Suffix);
 bool contains_icase(const string_view& Str, const string_view& Token);
 
-int StrCmp(const wchar_t *s1, const wchar_t *s2);
 int StrCmpI(const wchar_t *s1, const wchar_t *s2);
 
 // deprecated, for pluginapi::apiStrCmpNI only
 int StrCmpNI(const wchar_t *s1, const wchar_t *s2, size_t n);
 
-int StrCmp(const string_view& Str1, const string_view& Str2);
 int StrCmpI(const string_view& Str1, const string_view& Str2);
 int StrCmpC(const string_view& Str1, const string_view& Str2);
 
-int NumStrCmp(const string_view& Str1, const string_view& Str2);
 int NumStrCmpI(const string_view& Str1, const string_view& Str2);
 int NumStrCmpC(const string_view& Str1, const string_view& Str2);
 
