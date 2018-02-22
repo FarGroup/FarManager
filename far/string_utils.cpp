@@ -294,7 +294,7 @@ static int NumStrCmp_base(const string_view& Str1, const string_view& Str2, int(
 			It2 = std::find_if(It2, End2, NotZero);
 
 			// 00 is less than 0 in Windows numeric sort implementation
-			const auto ZerosResult = (It2 - Begin2) - (It1 - Begin1);
+			const auto ZerosResult = static_cast<int>((It2 - Begin2) - (It1 - Begin1));
 
 			if (It1 == End1 && It2 == End2)
 				return ZerosResult;

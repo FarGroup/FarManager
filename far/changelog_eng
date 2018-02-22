@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 21.02.2018 22:37:57 -0800 - build 5149
+
+1. Fixed VC15 64-bit compilation error: C3487: 'int': all return expressions must deduce to the same type: previously it was '__int64'.
+
+drkns 21.02.2018 21:29:53 +0000 - build 5148
+
+1. Numeric sort is now more like "as in Windows" with regard to sequences of zeros.
+
+2. In Windows 7 and above, the system function (SORT_DIGITSASNUMBERS) is used for case-insensitive numeric sort.
+
+drkns 21.02.2018 01:56:58 +0000 - build 5147
+
+1. Show module name in the stack trace.
+
 zg 17.02.2018 17:43:21 +0200 - build 5146
 
 1. 0003580: Text in input field is shifted when entering text in another field.
