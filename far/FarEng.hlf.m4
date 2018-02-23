@@ -3,32 +3,10 @@
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
 
-@ConfirmationsSettings=ConfirmDlg
-@InterfaceSettings=InterfSettings
-@ScreenSettings=InterfSettings
-@DescriptionsSettings=FileDiz
 @CodepagesSettings=CodepagesMenu
-@Interface.CompletionSettings=AutoCompleteSettings
-@Panel.Left=PanelCmdSort
-@Panel.Right=PanelCmdSort
-@Interface.ViewerTitleFormat=TitleFormat
-@Interface.EditorTitleFormat=TitleFormat
-@Interface.CursorSize1=Interface.CursorSize
-@Interface.CursorSize2=Interface.CursorSize
-@Interface.CursorSize3=Interface.CursorSize
-@Interface.CursorSize4=Interface.CursorSize
-@Interface.DelShowSelected=Interface.DelHighlightSelected
-@System.MsWheelDeltaView=System.MsWheelDelta
-@System.MsWheelDeltaEdit=System.MsWheelDelta
-@System.MsWheelDeltaHelp=System.MsWheelDelta
-@System.MsHWheelDelta=System.MsWheelDelta
-@System.MsHWheelDeltaView=System.MsWheelDelta
-@System.MsHWheelDeltaEdit=System.MsWheelDelta
-@XLat.Rules1=XLat.Tables
-@XLat.Rules2=XLat.Tables
-@XLat.Rules3=XLat.Tables
-@XLat.Table1=XLat.Tables
-@XLat.Table2=XLat.Tables
+@ConfirmationsSettings=ConfirmDlg
+@DescriptionsSettings=FileDiz
+@Editor.WordDiv=System.WordDiv
 @History.CommandHistory.Count=History.Config
 @History.CommandHistory.Lifetime=History.Config
 @History.DialogHistory.Count=History.Config
@@ -37,9 +15,34 @@
 @History.FolderHistory.Lifetime=History.Config
 @History.ViewEditHistory.Count=History.Config
 @History.ViewEditHistory.Lifetime=History.Config
-@Viewer.F8CPs=Editor.F8CPs
-@Editor.WordDiv=System.WordDiv
+@Interface.CompletionSettings=AutoCompleteSettings
+@Interface.CursorSize1=Interface.CursorSize
+@Interface.CursorSize2=Interface.CursorSize
+@Interface.CursorSize3=Interface.CursorSize
+@Interface.CursorSize4=Interface.CursorSize
+@Interface.DelShowSelected=Interface.DelHighlightSelected
+@Interface.EditorTitleFormat=TitleFormat
+@Interface.ViewerTitleFormat=TitleFormat
+@InterfaceSettings=InterfSettings
 @Panel.InfoSettings=InfoPanel
+@Panel.Layout.DoubleGlobalColumnSeparator=PanelSettings
+@Panel.Left=PanelCmdSort
+@Panel.Right=PanelCmdSort
+@Panel.Tree.AutoChangeFolder=TreeSettings
+@Panel.Tree.MinTreeCount=TreeSettings
+@ScreenSettings=InterfSettings
+@System.MsHWheelDelta=System.MsWheelDelta
+@System.MsHWheelDeltaEdit=System.MsWheelDelta
+@System.MsHWheelDeltaView=System.MsWheelDelta
+@System.MsWheelDeltaEdit=System.MsWheelDelta
+@System.MsWheelDeltaHelp=System.MsWheelDelta
+@System.MsWheelDeltaView=System.MsWheelDelta
+@Viewer.F8CPs=Editor.F8CPs
+@XLat.Rules1=XLat.Tables
+@XLat.Rules2=XLat.Tables
+@XLat.Rules3=XLat.Tables
+@XLat.Table1=XLat.Tables
+@XLat.Table2=XLat.Tables
 
 @Contents
 $^#File and archive manager#
@@ -314,7 +317,7 @@ $ #Menu control commands#
 
 
 @PanelCmd
-$ #Panel control commands  #
+$ #Panel control commands#
     #Common panel commands#
 
   Change active panel                                            #Tab#
@@ -322,7 +325,7 @@ $ #Panel control commands  #
   Re-read panel                                               #Ctrl+R#
   Toggle info panel                                           #Ctrl+L#
   Toggle ~quick view panel~@QViewPanel@                                     #Ctrl+Q#
-  Toggle tree panel                                           #Ctrl+T#
+  Toggle ~tree panel~@TreePanel@                                           #Ctrl+T#
   Hide/show both panels                                       #Ctrl+O#
   Temporarily hide both panels                        #Ctrl+Alt+Shift#
     (as long as these keys are held down)
@@ -1058,7 +1061,7 @@ $ #Panels #
 information. If you want to change the type of information displayed in the
 panel, use the ~panel menu~@LeftRightMenu@ or corresponding ~keyboard commands~@KeyRef@.
 
-    See also the following topics to obtain more information:
+    See also the following topics for more information:
 
       ~File panel~@FilePanel@                 ~Tree panel~@TreePanel@
       ~Info panel~@InfoPanel@                 ~Quick view panel~@QViewPanel@
@@ -1507,7 +1510,9 @@ $ #Menus: options menu#
 
    #Panel settings#        Shows ~panel settings~@PanelSettings@ dialog.
 
-   #Tree settings#         Show ~Tree settings~@TreeSettings@ dialog.
+   #Tree settings#         Shows ~Tree settings~@TreeSettings@ dialog.
+                         Available only if ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
+                         parameter in ~far:config~@FarConfig@ is set to “false.”
 
    #Interface settings#    Shows ~interface settings~@InterfSettings@ dialog.
 
@@ -1533,8 +1538,8 @@ $ #Menus: options menu#
    #File group mask#       Shows ~file group mask settings~@MaskGroupsSettings@.
    #settings#
 
-   #Confirmation#          Switch on or off ~confirmations~@ConfirmDlg@ for
-                         some operations.
+   #Confirmations#         Shows dialog to turn on or off ~confirmations~@ConfirmDlg@
+                         of some operations.
 
    #File panel modes#      ~Customize file panel view modes~@PanelViewModes@ settings.
 
@@ -2555,15 +2560,13 @@ $ #Settings dialog: panel#
 
 @TreeSettings
 $ #Tree settings#
-  #Auto change folder#      If checked, cursor moves in the ~tree panel~@TreePanel@
-                          will cause a folder change in the other
-                          panel. If it is not checked, you must press
-                          #Enter# to change the folder from the tree
-                          panel.
+  #Auto change folder#      If turned on, moving cursor on the ~tree panel~@TreePanel@
+                          will synchronously change the folder on the other panel.
+                          If turned off, to change the folder from the tree panel,
+                          you need to press #Enter#.
 
-  #Минимальное#             Минимальное количество папок на диске,
-  #количество папок#        после которого будет создаваться файл
-                          #tree3.far#.
+  #Minimum number#          The minimal number of folders on the disk for which
+  #of folders#              folder tree cache file #tree3.far# will be created.
 
 @InterfSettings
 $ #Settings dialog: interface#
@@ -4180,7 +4183,7 @@ $ #Selecting files#
 
 @CopyFiles
 $ #Copying, moving, renaming and creating links#
-    Following commands can be used to copy, move and rename files and folders:
+    The following commands can be used to copy, move and rename files and folders:
 
   Copy ~selected~@SelectFiles@ files                                           #F5#
 
@@ -4191,95 +4194,107 @@ $ #Copying, moving, renaming and creating links#
   Rename or move the file under the cursor                #Shift+F6#
   regardless of selection
 
-    For folders: if the specified path (absolute or relative) points to an
-existing folder, the source folder is moved inside that folder. Otherwise the
-folder is renamed/moved to the new path.
-    E.g. when moving #c:\folder1\# to #d:\folder2\#:
-    - if #d:\folder2\# exists, contents of #c:\folder1\# is
-moved into #d:\folder2\folder1\#;
-    - otherwise contents of #c:\folder1\# is moved into the
-newly created #d:\folder2\#.
-
   Create ~file links~@HardSymLink@                                         #Alt+F6#
 
-    If the option "#Process multiple destinations#" is enabled, you can specify
-multiple copy or move targets in the input line. In this case, targets should
-be separated with a character "#;#" or "#,#". If the name of a target contains
-the character ";" or ",", it must be enclosed in quotes.
+    For a folder: if the folder at the specified target path (relative
+or absolute) exists, the source folder will be copied / moved inside the
+target folder. Otherwise, a new folder will be created at the target
+path and the contents of the source folder will be copied / moved into
+the newly created folder.
 
-    If you wish to create the destination folder before copying, terminate the
-name with backslash. Also in the Copy dialog you can press #F10# to select a
-folder from the active file panel tree or #Alt+F10# to select from the passive
-file panel tree. #Shift+F10# allows to open the tree for the path entered in
-the input line (if several paths are entered, only the first one is taken into
-account). If the option "Process multiple destinations" is enabled, the dialog
-selected in the tree is appended to the edit line.
+    For example, when moving #c:\folder1\# to #d:\folder2\#:
 
-    The possibility of copying, moving and renaming files for plugins depends
+    - ^<wrap>if #d:\folder2\# exists, the contents of #c:\folder1\# will be moved into
+#d:\folder2\folder1\#;
+
+    - ^<wrap>otherwise, the contents of #c:\folder1\# will be moved into the newly
+created #d:\folder2\#.
+
+    If the option “#Process multiple destinations#” is enabled, you can specify
+multiple copy or move targets on the input line. The targets should be separated
+with character “#;#” or “#,#”. If a target name contains these characters,
+enclose it in double quotes.
+
+    If you want to create the destination folder before copying,
+append backslash to its name.
+
+    If ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
+parameter in ~far:config~@FarConfig@ is set to “false,” you can use
+~Find folder~@FindFolder@ dialog to select the target path. The
+following shortcuts open the dialog with different pre-selected folders:
+
+    - ^<wrap>#F10# selects the folder from the active panel.
+
+    - ^<wrap>#Alt+F10# selects the folder from the passive panel.
+
+    - ^<wrap>#Shift+F10# selects the specified target folder. If several
+paths are entered on the input line, only the first one is used.
+
+    If the option “#Process multiple destinations#” is enabled, the folder
+selected in the tree is appended to the input line.
+
+    Whether copying, moving or renaming files works for a plugin depends
 upon the plugin functionality.
 
-    If a destination file already exists, it can be overwritten, skipped or
-appended with the file being copied.
+    If the destination disk of the copy or move operation becomes full,
+it is possible to either cancel the operation or replace the disk and
+select the “Split” option. In the latter case the file being copied will
+be split between disks. This feature is available only when the
+“#Use system copy routine#” option in the ~System settings~@SystemSettings@
+dialog is switched off.
 
-    If during copying or moving the destination disk becomes full, it is
-possible to either cancel the operation or replace the disk and select the
-"Split" item. In the last case the file being copied will be split between
-disks. This feature is available only when "Use system copy routine" option in
-the ~System settings~@SystemSettings@ dialog is switched off.
+    The #Access rights# parameter is valid only for the NTFS file system
+and controls how access rights of the created files and folders are set.
+The #Default# option leaves access rights processing to the file system.
+The #Copy# option applies the access rights of the original objects. The
+#Inherit# option applies the inheritable access rights of the
+destination’s parent folder.
 
-    The "Access rights" option is valid only for the NTFS file system and
-allows the copying of file access information. The "Default" action which
-leaves the access rights processing to the underlying system is selected by
-default for copy and move operations. If the "Copy" action is selected then
-the original access rights will be applied to the copied/moved files and
-folders. If the "Inherit" action is selected then after copying/moving the
-inheritable access rights of the destination parent folder will be applied to
-the copied/moved files and folders.
-
-    The "Already existing files" option controls Far behavior if a target file
-of the same name already exists.
+    The “#Already existing files#” parameter controls Far behavior
+if the target file with the same name already exists.
     Possible values:
-    #Ask# - a ~confirmation dialog~@CopyAskOverwrite@ will be shown;
-    #Overwrite# - all target files will be replaced;
-    #Skip# - target files will not be replaced;
-    #Append# - target file will be appended with the file being copied;
-    #Only newer file(s)# - only files with newer write date and time
+    ^<wrap>#Ask# - a ~confirmation dialog~@CopyAskOverwrite@ will be shown;
+    ^<wrap>#Overwrite# - all target files will be replaced;
+    ^<wrap>#Skip# - target files will not be replaced;
+    ^<wrap>#Rename# - existing target files will stay unchanged, copied
+files will be renamed;
+    ^<wrap>#Append# - target file will be appended with the file being copied;
+    ^<wrap>#Only newer file(s)# - only files with the newer write date and time
 will be copied;
-    #Also ask on R/O files# - controls whether an additional confirmation
-dialog should be displayed for read-only files.
+    ^<wrap>#Also ask on R/O files# - controls whether an additional confirmation
+dialog should be displayed for the read-only files.
 
-    Option "Use system copy routine" from ~System settings~@SystemSettings@
-dialog forces the Windows function CopyFileEx usage (or CopyFile if CopyFileEx
-is not available) instead of the internal copy implementation to copy files. It
-could be useful on NTFS, because CopyFileEx performs a more rational disk space
-allocation and copies file extended attributes.
-The system copy routine is not used when the file is encrypted and you are
-copying it outside of the current disk.
+    The “#Use system copy routine#” option of the ~System settings~@SystemSettings@
+dialog enables the use of Windows operating system function CopyFileEx
+(or CopyFile if CopyFileEx is not available). This may be useful
+on NTFS, because CopyFileEx optimizes disk space allocation and copies
+extended file attributes. If this option is off, the internal
+implementation of the file copy routine is used. The internal
+function is also used if the source file is encrypted and is being
+copied to a different volume.
 
-    The "Copy contents of symbolic links" option allows to control the
-~logic~@CopyRule@ of Far processing of ~symbolic links~@HardSymLink@ when
-copying/moving.
+    The “#Copy contents of symbolic links#” parameter controls the
+~logic~@CopyRule@ of ~symbolic links~@HardSymLink@ processing.
 
     When moving files, to determine whether the operation should be performed
-as a copy with subsequent deletion or as a direct move (within one physical
+as a copy with subsequent deletion or as a direct move (within the same physical
 drive), Far takes into account ~symbolic links~@HardSymLink@.
 
-    Far handles copying to #con# in the same way as copying to #nul# or
-#\\\\.\\nul# - that is, the file is read from the disk but not written
+    Far handles copying to #con# the same way as copying to #nul# or
+#\\\\.\\nul#, that is the file is read from the disk but not written
 anywhere.
 
-    When files are moved to #nul#, #\\\\.\\nul# or #con#, they are not deleted
+    When moving to #nul#, #\\\\.\\nul# or #con#, the files are not deleted
 from the disk.
 
-    The options "Access rights" and "Only newer files" affect only the current
-copy session and are not saved for later copy operations.
+    The parameters “#Access rights#” and “#Only newer files#” affect only the current
+copy session.
 
-    Check the #Use filter# checkbox to copy the files that meet the user
-defined conditions. Press the #Filter# button to open the ~filters menu~@FiltersMenu@.
-Consider, that if you copy the folder with files and all of them does not meet
-the filter conditions, then the empty folder will not be copied to the
-destination.
-
+    To copy only the files that match the user defined criteria, check
+the #Use filter# checkbox, then press the #Filter# button to open the
+~filters menu~@FiltersMenu@. Remember that if you copy a folder and none
+of the files in it match the criteria, the empty folder will #not# be
+created at the destination.
 
 @CopyAskOverwrite
 $ #Copying: confirmation dialog#
@@ -5507,7 +5522,7 @@ $ #far:config System.Executor.ComspecArguments#
 
     Default value: #/S /C "{0}"# (compatible with cmd.exe)
 
-    This parameter can be changed only via ~far:config~@FarConfig@
+    This parameter can be changed via ~far:config~@FarConfig@ only.
 
 @System.Executor.FullTitle
 $ #far:config System.Executor.FullTitle#
@@ -5844,7 +5859,7 @@ $ #far:config System.CopySecurityOptions#
     Параметр "System.CopySecurityOptions" не влияет на создание связей (Alt+F6). В этом случае 
 права всегда копируются.
 
- Изменение этого параметра возможно через ~far:config~@FarConfig@
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
 
 @Interface.CursorSize
 $ #far:config Interface.CursorSizeX#
@@ -6162,7 +6177,7 @@ $ #far:config History.*#
       максимальный размер списка (.Count) = 1000 элементов
       время жизни элемента (.Lifetime) = 90 дней
 
-    Изменить эти параметры возможно через ~far:config~@FarConfig@
+    Изменить эти параметры можно через ~far:config~@FarConfig@
 
 @Editor.F8CPs
 $ #far:config Editor.F8CPs#
@@ -6185,16 +6200,22 @@ $ #far:config Viewer.F8CPs#
 
 @Panel.Tree.TurnOffCompletely
 $ #far:config Panel.Tree.TurnOffCompletely#
-    Отключает (если = True) режим работы с деревом каталогов в панелях.
+    If “true”, all folder tree operations are unavailable:
 
-    При отключении становятся недоступными для выбора режимы дерева в панелях, поиске каталога (Alt+F10),
-конфигурация дерева в настройках и выбор каталога из дерева в диалогах копирования/перемещения файлов.
-Также не обновляются файлы кеша дерева каталогов (даже если они уже созданы) при создании/удалении/переименовании
-каталогов.
+  - ~Tree panel~@TreePanel@ mode in ~left and right menus~@LeftRightMenu@,
+as well as toggle tree panel shortcut key #Ctrl+T#.
 
-    По умолчанию значение = True
+  - ~Find folder~@FindFolder@ panel command (#Alt+F10#).
 
-    Изменение этого параметра возможно через ~far:config~@FarConfig@
+  - Folder tree operations in ~copy, move and rename~@CopyFiles@
+dialog (#F10# #Alt+F10# #Shift+F10#).
+
+    Also, folder tree cache files, even if already exist, are not updated
+during folder create / delete / rename operations.
+
+    Default value: True
+
+    This parameter can be changed via ~far:config~@FarConfig@ only.
 
 @Index
 $ #Index help file#
