@@ -102,7 +102,7 @@ static int SplitCopy(
 	{
 		iLen -= 4; cpName += 4; // skip '\\?\'
 	}
-	
+
 	int i = 0, nitems = (iLen+iTruncLen-1) / iTruncLen;
 	if (nitems > mitems)
 	{
@@ -495,6 +495,8 @@ static bool CheckForEsc(void)
 
 				if (!Info.Message(&MainGuid, nullptr, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 2))
 					return bBrokenByEsc = true;
+				else
+					nAdds = -1;
 			}
 			else
 			{
