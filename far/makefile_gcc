@@ -144,6 +144,7 @@ SRCS = \
 	shortcuts.cpp \
 	sqlitedb.cpp \
 	stddlg.cpp \
+	string_sort.cpp \
 	string_utils.cpp \
 	strmix.cpp \
 	syslog.cpp \

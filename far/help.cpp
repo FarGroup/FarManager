@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "keybar.hpp"
-#include "string_utils.hpp"
+#include "string_sort.hpp"
 #include "cvtname.hpp"
 
 static const wchar_t* FoundContents = L"__FoundContents__";
@@ -96,7 +96,7 @@ public:
 
 	bool operator <(const HelpRecord& rhs) const
 	{
-		return less_icase{}(HelpStr, rhs.HelpStr);
+		return string_sort::less(HelpStr, rhs.HelpStr);
 	}
 };
 

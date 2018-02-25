@@ -127,15 +127,13 @@ struct PluginsListItem
 	NONCOPYABLE(PluginsListItem);
 	MOVABLE(PluginsListItem);
 
-	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, string HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevNumericSort, bool PrevCaseSensitiveSort, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, string HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
 		m_Plugin(std::move(hPlugin)),
 		m_HostFile(std::move(HostFile)),
 		m_Modified(Modified),
 		m_PrevViewMode(PrevViewMode),
 		m_PrevSortMode(PrevSortMode),
 		m_PrevSortOrder(PrevSortOrder),
-		m_PrevNumericSort(PrevNumericSort),
-		m_PrevCaseSensitiveSort(PrevCaseSensitiveSort),
 		m_PrevDirectoriesFirst(PrevDirectoriesFirst),
 		m_PrevViewSettings(PrevViewSettings.clone())
 	{}
@@ -146,8 +144,6 @@ struct PluginsListItem
 	int m_PrevViewMode;
 	panel_sort m_PrevSortMode;
 	bool m_PrevSortOrder;
-	bool m_PrevNumericSort;
-	bool m_PrevCaseSensitiveSort;
 	bool m_PrevDirectoriesFirst;
 	PanelViewSettings m_PrevViewSettings;
 };
@@ -180,15 +176,12 @@ public:
 	virtual void SetSortMode(panel_sort SortMode, bool KeepOrder = false) override;
 	virtual void SetCustomSortMode(int SortMode, sort_order Order = SO_AUTO, bool InvertByDefault = false) override;
 	virtual void ChangeSortOrder(bool Reverse) override;
-	virtual void ChangeNumericSort(bool Mode) override;
-	virtual void ChangeCaseSensitiveSort(bool Mode) override;
 	virtual void ChangeDirectoriesFirst(bool Mode) override;
+	virtual void OnSortingChange() override;
 	virtual bool SetCurDir(const string& NewDir, bool ClosePanel, bool IsUpdated = true) override;
 	virtual panel_sort GetPrevSortMode() const override;
 	virtual bool GetPrevSortOrder() const override;
 	virtual int GetPrevViewMode() const override;
-	virtual bool GetPrevNumericSort() const override;
-	virtual bool GetPrevCaseSensitiveSort() const override;
 	virtual bool GetPrevDirectoriesFirst() const override;
 	virtual bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
 	virtual int GetCurrentPos() const override;

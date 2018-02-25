@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "DlgGuid.hpp"
 #include "lang.hpp"
+#include "string_sort.hpp"
 
 static const struct
 {
@@ -193,7 +194,7 @@ bool FileFilter::FilterEdit()
 
 		Extensions.sort([](const extension_list::value_type& a, const extension_list::value_type& b)
 		{
-			return less_icase{}(a.first, b.first);
+			return string_sort::less(a.first, b.first);
 		});
 
 		wchar_t h = L'1';
@@ -512,7 +513,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 				CurFilterData = &TempFilterData()[j];
 				const auto strMask2 = unquote(CurFilterData->GetMask());
 
-				if (StrCmpI(strMask1, strMask2) < 1)
+				if (!string_sort::less(strMask2, strMask1))
 					break;
 
 				j++;

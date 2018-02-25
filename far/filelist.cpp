@@ -96,6 +96,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "filefilterparams.hpp"
 #include "desktop.hpp"
+#include "string_sort.hpp"
 
 int CompareTime(os::chrono::time_point First, os::chrono::time_point Second)
 {
@@ -475,8 +476,6 @@ public:
 		RevertSorting(Owner->GetSortOrder()),
 		ListPanelMode(Owner->GetMode()),
 		hSortPlugin(SortPlugin),
-		ListNumericSort(Owner->GetNumericSort()),
-		ListCaseSensitiveSort(Owner->GetCaseSensitiveSort()),
 		ListSortGroups(Owner->GetSortGroups()),
 		ListSelectedFirst(Owner->GetSelectedFirstMode()),
 		ListDirectoriesFirst(Owner->GetDirectoriesFirst())
@@ -586,7 +585,7 @@ public:
 			if (Ext2.empty())
 				return false;
 
-			if (const auto Result = get_comparer(ListNumericSort, ListCaseSensitiveSort)(Ext1, Ext2))
+			if (const auto Result = string_sort::compare(Ext1, Ext2))
 				return Result < 0;
 
 			break;
@@ -628,13 +627,13 @@ public:
 			if (!b.DizText)
 				return true;
 
-			if (const auto Result = get_comparer(ListNumericSort, ListCaseSensitiveSort)(a.DizText, b.DizText))
+			if (const auto Result = string_sort::compare(a.DizText, b.DizText))
 				return Result < 0;
 			break;
 
 		case panel_sort::BY_OWNER:
 			{
-				if (const auto Result = get_comparer(ListNumericSort, ListCaseSensitiveSort)(a.Owner(m_Owner), b.Owner(m_Owner)))
+				if (const auto Result = string_sort::compare(a.Owner(m_Owner), b.Owner(m_Owner)))
 					return Result < 0;
 			}
 			break;
@@ -673,26 +672,7 @@ public:
 
 		case panel_sort::BY_FULLNAME:
 			UseReverseNameSort = true;
-			if (const auto Result = [&]
-			{
-				const auto Comparer = get_comparer(false, ListCaseSensitiveSort);
-
-				if (ListNumericSort)
-				{
-					const auto Name1 = PointToName(a.strName);
-					const auto Name2 = PointToName(b.strName);
-					const string_view Path1(a.strName.data(), a.strName.size() - Name1.size());
-					const string_view Path2(b.strName.data(), b.strName.size() - Name2.size());
-
-					return !Comparer(Path1, Path2)?
-						get_comparer(true, ListCaseSensitiveSort)(Name1, Name2):
-						Comparer(a.strName, b.strName);
-				}
-				else
-				{
-					return Comparer(a.strName, b.strName);
-				}
-			}())
+			if (const auto Result = string_sort::compare(a.strName, b.strName))
 				return Result < 0;
 			break;
 
@@ -709,7 +689,7 @@ public:
 			if (b.strCustomData.empty())
 				return true;
 
-			if (const auto Result = GetStrComparer(ListNumericSort, ListCaseSensitiveSort)(a.strCustomData, b.strCustomData))
+			if (const auto Result = string_sort::compare(a.strCustomData, b.strCustomData))
 					return Result < 0;
 #endif
 			break;
@@ -730,13 +710,11 @@ public:
 			return NameWithExt.substr(0, NameWithExt.size() - Ext.size());
 		};
 
-		const auto Comparer = get_comparer(ListNumericSort, ListCaseSensitiveSort);
-
-		int NameCmp = Comparer(GetNameOnly(PointToName(a.strName), Ext1), GetNameOnly(PointToName(b.strName), Ext2));
+		int NameCmp = string_sort::compare(GetNameOnly(PointToName(a.strName), Ext1), GetNameOnly(PointToName(b.strName), Ext2));
 
 		if (!NameCmp)
 		{
-			NameCmp = Comparer(Ext1, Ext2);
+			NameCmp = string_sort::compare(Ext1, Ext2);
 		}
 
 		if (NameCmp)
@@ -761,8 +739,6 @@ private:
 	const bool RevertSorting;
 	const panel_mode ListPanelMode;
 	const plugin_panel* hSortPlugin;
-	bool ListNumericSort;
-	bool ListCaseSensitiveSort;
 	bool ListSortGroups;
 	bool ListSelectedFirst;
 	bool ListDirectoriesFirst;
@@ -809,8 +785,8 @@ void FileList::SortFileList(bool KeepPosition)
 			cs.ListDirectoriesFirst = m_DirectoriesFirst;
 			cs.ListSortMode = static_cast<int>(m_SortMode);
 			cs.RevertSorting = m_ReverseSortOrder;
-			cs.ListNumericSort = m_NumericSort;
-			cs.ListCaseSensitiveSort = m_CaseSensitiveSort;
+			cs.ListNumericSort = Global->Opt->Sort.DigitsAsNumbers;
+			cs.ListCaseSensitiveSort = Global->Opt->Sort.CaseSensitive;
 			cs.hSortPlugin = hSortPlugin;
 
 			if (custom_sort::SortFileList(&cs, CustomSortIndicator))
@@ -3367,28 +3343,21 @@ void FileList::SetCustomSortMode(int Mode, sort_order Order, bool InvertByDefaul
 	}
 }
 
-void FileList::ChangeNumericSort(bool Mode)
-{
-	Panel::ChangeNumericSort(Mode);
-	SortFileList(true);
-	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
-	Show();
-}
-
-void FileList::ChangeCaseSensitiveSort(bool Mode)
-{
-	Panel::ChangeCaseSensitiveSort(Mode);
-	SortFileList(true);
-	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
-	Show();
-}
-
 void FileList::ChangeDirectoriesFirst(bool Mode)
 {
 	Panel::ChangeDirectoriesFirst(Mode);
 	SortFileList(true);
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	Show();
+}
+
+void FileList::OnSortingChange()
+{
+	Panel::OnSortingChange();
+	SortFileList(true);
+	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
+	if (IsVisible())
+		Show();
 }
 
 bool FileList::GoToFile(long idxItem)
@@ -4629,8 +4598,6 @@ void FileList::SelectSortMode()
 
 	enum SortOptions
 	{
-		SortOptUseNumeric,
-		SortOptUseCaseSensitive,
 		SortOptUseGroups,
 		SortOptSelectedFirst,
 		SortOptDirectoriesFirst,
@@ -4639,8 +4606,6 @@ void FileList::SelectSortMode()
 	};
 	const MenuDataEx InitSortMenuOptions[]=
 	{
-		{ msg(lng::MMenuSortUseNumeric).data(), m_NumericSort? (DWORD)MIF_CHECKED : 0, 0 },
-		{ msg(lng::MMenuSortUseCaseSensitive).data(), m_CaseSensitiveSort? (DWORD)MIF_CHECKED : 0, 0 },
 		{ msg(lng::MMenuSortUseGroups).data(), GetSortGroups()? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF11 },
 		{ msg(lng::MMenuSortSelectedFirst).data(), SelectedFirst? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF12 },
 		{ msg(lng::MMenuSortDirectoriesFirst).data(), m_DirectoriesFirst? (DWORD)MIF_CHECKED : 0, 0 },
@@ -4745,14 +4710,6 @@ void FileList::SelectSortMode()
 
 		switch (SortCode - std::size(SortModes) - extra - 1) // -1 for separator
 		{
-		case SortOptUseNumeric:
-			ChangeNumericSort(Switch(m_NumericSort));
-			break;
-
-		case SortOptUseCaseSensitive:
-			ChangeCaseSensitiveSort(Switch(m_CaseSensitiveSort));
-			break;
-
 		case SortOptUseGroups:
 			if (m_SortGroups != Switch(m_SortGroups))
 				ProcessKey(Manager::Key(KEY_SHIFTF11));
@@ -5055,16 +5012,6 @@ bool FileList::GetPrevSortOrder() const
 	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevSortOrder : m_ReverseSortOrder;
 }
 
-bool FileList::GetPrevNumericSort() const
-{
-	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevNumericSort:m_NumericSort;
-}
-
-bool FileList::GetPrevCaseSensitiveSort() const
-{
-	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevCaseSensitiveSort:m_CaseSensitiveSort;
-}
-
 bool FileList::GetPrevDirectoriesFirst() const
 {
 	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevDirectoriesFirst:m_DirectoriesFirst;
@@ -5325,7 +5272,7 @@ void FileList::ClearAllItem()
 
 void FileList::PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin,const string& HostFile)
 {
-	PluginsList.emplace_back(std::move(hPlugin), HostFile, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_NumericSort, m_CaseSensitiveSort, m_DirectoriesFirst, m_ViewSettings);
+	PluginsList.emplace_back(std::move(hPlugin), HostFile, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_DirectoriesFirst, m_ViewSettings);
 	++Global->PluginPanelsCount;
 }
 
@@ -5358,8 +5305,6 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 		{
 			SetViewMode(CurPlugin.m_PrevViewMode);
 			m_SortMode = CurPlugin.m_PrevSortMode;
-			m_NumericSort = CurPlugin.m_PrevNumericSort;
-			m_CaseSensitiveSort = CurPlugin.m_PrevCaseSensitiveSort;
 			m_ReverseSortOrder = CurPlugin.m_PrevSortOrder;
 			m_DirectoriesFirst = CurPlugin.m_PrevDirectoriesFirst;
 		}
@@ -5399,8 +5344,6 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 		{
 			SetViewMode(CurPlugin.m_PrevViewMode);
 			m_SortMode = CurPlugin.m_PrevSortMode;
-			m_NumericSort = CurPlugin.m_PrevNumericSort;
-			m_CaseSensitiveSort = CurPlugin.m_PrevCaseSensitiveSort;
 			m_ReverseSortOrder = CurPlugin.m_PrevSortOrder;
 			m_DirectoriesFirst = CurPlugin.m_PrevDirectoriesFirst;
 		}

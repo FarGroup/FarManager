@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "dirmix.hpp"
 #include "lockscrn.hpp"
-#include "string_utils.hpp"
+#include "string_sort.hpp"
 #include "pathmix.hpp"
 
 class ChDiskPluginItem
@@ -80,7 +80,7 @@ public:
 	{
 		return (Global->Opt->ChangeDriveMode & DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey != rhs.HotKey)?
 			HotKey < rhs.HotKey :
-			StrCmpI(Item.strName, rhs.Item.strName) < 0;
+			string_sort::less(Item.strName, rhs.Item.strName);
 	}
 
 	MenuItemEx& getItem() { return Item; }

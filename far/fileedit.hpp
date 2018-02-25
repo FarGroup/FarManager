@@ -174,6 +174,5 @@ private:
 };
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);
-bool dlgBadEditorCodepage(uintptr_t &codepage);
 
 #endif // FILEEDIT_HPP_4BC43BC9_43BB_4F5B_ADAE_E2C370D65E69

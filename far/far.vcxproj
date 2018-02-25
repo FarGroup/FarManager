@@ -314,6 +314,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </ClCompile>
     <ClCompile Include="sqlitedb.cpp" />
     <ClCompile Include="stddlg.cpp" />
+    <ClCompile Include="string_sort.cpp" />
     <ClCompile Include="string_utils.cpp" />
     <ClCompile Include="strmix.cpp" />
     <ClCompile Include="syslog.cpp" />
@@ -342,6 +343,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\enum_substrings.hpp" />
     <ClInclude Include="common\enum_tokens.hpp" />
     <ClInclude Include="common\movable.hpp" />
+    <ClInclude Include="common\multifunction.hpp" />
     <ClInclude Include="common\null_iterator.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
     <ClInclude Include="common\function_traits.hpp" />
@@ -505,6 +507,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="sqlite_unicode.hpp" />
     <ClInclude Include="sqlitedb.hpp" />
     <ClInclude Include="stddlg.hpp" />
+    <ClInclude Include="string_sort.hpp" />
     <ClInclude Include="string_utils.hpp" />
     <ClInclude Include="strmix.hpp" />
     <ClInclude Include="syslog.hpp" />

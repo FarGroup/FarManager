@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "filemasks.hpp"
 #include "RegExp.hpp"
+#include "string_sort.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -106,6 +107,7 @@ static const wchar_t NKeyDialog[] = L"Dialog";
 static const wchar_t NKeyEditor[] = L"Editor";
 static const wchar_t NKeyXLat[] = L"XLat";
 static const wchar_t NKeySystem[] = L"System";
+static const wchar_t NKeySystemSort[] = L"System.Sort";
 static const wchar_t NKeySystemException[] = L"System.Exception";
 static const wchar_t NKeySystemKnownIDs[] = L"System.KnownIDs";
 static const wchar_t NKeySystemExecutor[] = L"System.Executor";
@@ -143,6 +145,13 @@ static size_t RealModeToDisplay(size_t Mode)
 
 void Options::SystemSettings()
 {
+	const auto& GetSortingState = [&]
+	{
+		return std::make_tuple(Sort.Collation.Get(), Sort.DigitsAsNumbers.Get(), Sort.CaseSensitive.Get());
+	};
+
+	const auto CurrentSortingState = GetSortingState();
+
 	DialogBuilder Builder(lng::MConfigSystemTitle, L"SystemSettings");
 
 	Builder.AddCheckbox(lng::MConfigRecycleBin, DeleteToRecycleBin);
@@ -161,12 +170,31 @@ void Options::SystemSettings()
 	Builder.AddCheckbox(lng::MConfigElevationModify, StoredElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
 	Builder.AddCheckbox(lng::MConfigElevationRead, StoredElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
 	Builder.AddCheckbox(lng::MConfigElevationUsePrivileges, StoredElevationMode, ELEVATION_USE_PRIVILEGES)->Indent(4);
+
+	static const FarDialogBuilderListItem SortingMethods[] =
+	{
+		{ lng::MConfigSortingOrdinal, as_underlying_type(SortingOptions::collation::ordinal) },
+		{ lng::MConfigSortingInvariant, as_underlying_type(SortingOptions::collation::invariant) },
+		{ lng::MConfigSortingLinguistic, as_underlying_type(SortingOptions::collation::linguistic) },
+	};
+
+	const auto SortingMethodsComboBox = Builder.AddComboBox(Sort.Collation, nullptr, 20, SortingMethods, std::size(SortingMethods), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
+	Builder.AddTextBefore(SortingMethodsComboBox, lng::MConfigSortingCollation);
+	Builder.AddCheckbox(lng::MConfigSortingDigitsAsNumbers, Sort.DigitsAsNumbers)->Indent(4);
+	Builder.AddCheckbox(lng::MConfigSortingCase, Sort.CaseSensitive)->Indent(4);
+
 	Builder.AddCheckbox(lng::MConfigAutoSave, AutoSaveSetup);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
 	{
 		ElevationMode = StoredElevationMode;
+		
+		if (CurrentSortingState != GetSortingState())
+		{
+			Global->CtrlObject->Cp()->ActivePanel()->OnSortingChange();
+			Global->CtrlObject->Cp()->PassivePanel()->OnSortingChange();
+		}
 	}
 }
 
@@ -221,7 +249,7 @@ void Options::TreeSettings()
 
 	Builder.AddCheckbox(lng::MConfigTreeAutoChange, Tree.AutoChangeFolder);
 
-	auto TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
+	const auto TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
 	Builder.AddTextBefore(TemplateEdit, lng::MConfigTreeLabelMinFolder);
 
 #if defined(TREEFILE_PROJECT)
@@ -358,9 +386,9 @@ void Options::InfoPanelSettings()
 	Builder.AddCheckbox(lng::MConfigInfoPanelShowPowerStatus, InfoPanel.ShowPowerStatus);
 	Builder.AddCheckbox(lng::MConfigInfoPanelShowCDInfo, InfoPanel.ShowCDInfo);
 	Builder.AddText(lng::MConfigInfoPanelCNTitle);
-	Builder.AddComboBox(InfoPanel.ComputerNameFormat, nullptr, 50, CNListItems, std::size(CNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(InfoPanel.ComputerNameFormat, nullptr, 50, CNListItems, std::size(CNListItems), DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	Builder.AddText(lng::MConfigInfoPanelUNTitle);
-	Builder.AddComboBox(InfoPanel.UserNameFormat, nullptr, 50, UNListItems, std::size(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(InfoPanel.UserNameFormat, nullptr, 50, UNListItems, std::size(UNListItems), DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -782,7 +810,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		Builder.EndColumns();
 		Builder.AddText(lng::MViewConfigDefaultCodePage);
 		Codepages().FillCodePagesList(Items, false, false, false, false, true);
-		Builder.AddComboBox(ViOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
+		Builder.AddComboBox(ViOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	}
 
 	Builder.AddOKCancel();
@@ -838,7 +866,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 		Builder.AddCheckbox(lng::MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
 		Builder.AddText(lng::MEditConfigDefaultCodePage);
 		Codepages().FillCodePagesList(Items, false, false, false, false, false);
-		Builder.AddComboBox(EdOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTWRAPMODE|DIF_LISTAUTOHIGHLIGHT);
+		Builder.AddComboBox(EdOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	}
 
 	Builder.AddOKCancel();
@@ -1571,31 +1599,31 @@ Options::Options():
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
 {
-	const auto& TabSizeValidator = [](long long TabSize)
+	const auto& TabSizeValidator = option::validator([](long long TabSize)
 	{
 		return InRange(1, TabSize, 512)? TabSize : DefaultTabSize;
-	};
+	});
 
-	EdOpt.TabSize.SetValidator(TabSizeValidator);
-	ViOpt.TabSize.SetValidator(TabSizeValidator);
+	EdOpt.TabSize.SetCallback(TabSizeValidator);
+	ViOpt.TabSize.SetCallback(TabSizeValidator);
 
-	ViOpt.MaxLineSize.SetValidator([](long long Value)
+	ViOpt.MaxLineSize.SetCallback(option::validator([](long long Value)
 	{
 		return Value?
 			std::clamp(Value, static_cast<long long>(ViewerOptions::eMinLineSize), static_cast<long long>(ViewerOptions::eMaxLineSize)) :
 			static_cast<long long>(ViewerOptions::eDefLineSize);
-	});
+	}));
 
-	PluginMaxReadData.SetValidator([](long long Value) { return std::max(Value, 0x20000ll); });
+	PluginMaxReadData.SetCallback(option::validator([](long long Value) { return std::max(Value, 0x20000ll); }));
 
 	// Исключаем случайное стирание разделителей
-	EdOpt.strWordDiv.SetValidator([](const string& Value) { return Value.empty()? WordDiv0 : Value; });
-	XLat.strWordDivForXlat.SetValidator([](const string& Value) { return Value.empty()? WordDivForXlat0 : Value; });
+	EdOpt.strWordDiv.SetCallback(option::validator([](const string& Value) { return Value.empty()? WordDiv0 : Value; }));
+	XLat.strWordDivForXlat.SetCallback(option::validator([](const string& Value) { return Value.empty()? WordDivForXlat0 : Value; }));
 
-	PanelRightClickRule.SetValidator([](long long Value) { return Value %= 3; });
-	PanelCtrlAltShiftRule.SetValidator([](long long Value) { return Value %= 3; });
+	PanelRightClickRule.SetCallback(option::validator([](long long Value) { return Value %= 3; }));
+	PanelCtrlAltShiftRule.SetCallback(option::validator([](long long Value) { return Value %= 3; }));
 
-	HelpTabSize.SetValidator([](long long Value) { return DefaultTabSize; }); // пока жестко пропишем...
+	HelpTabSize.SetCallback(option::validator([](long long Value) { return DefaultTabSize; })); // пока жестко пропишем...
 
 	const auto& MacroKeyValidator = [](const string& Value, DWORD& Key, const string& DefaultValue, DWORD DefaultKey)
 	{
@@ -1607,25 +1635,29 @@ Options::Options():
 		return Value;
 	};
 
-	Macro.strKeyMacroCtrlDot.SetValidator([&](const string& Value)
+	Macro.strKeyMacroCtrlDot.SetCallback(option::validator([MacroKeyValidator, this](const string& Value)
 	{
 		return MacroKeyValidator(Value, Macro.KeyMacroCtrlDot, L"Ctrl.", KEY_CTRLDOT);
-	});
+	}));
 
-	Macro.strKeyMacroRCtrlDot.SetValidator([&](const string& Value)
+	Macro.strKeyMacroRCtrlDot.SetCallback(option::validator([MacroKeyValidator, this](const string& Value)
 	{
 		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlDot, L"RCtrl.", KEY_RCTRLDOT);
-	});
+	}));
 
-	Macro.strKeyMacroCtrlShiftDot.SetValidator([&](const string& Value)
+	Macro.strKeyMacroCtrlShiftDot.SetCallback(option::validator([MacroKeyValidator, this](const string& Value)
 	{
 		return MacroKeyValidator(Value, Macro.KeyMacroCtrlShiftDot, L"CtrlShift.", KEY_CTRLSHIFTDOT);
-	});
+	}));
 
-	Macro.strKeyMacroRCtrlShiftDot.SetValidator([&](const string& Value)
+	Macro.strKeyMacroRCtrlShiftDot.SetCallback(option::validator([MacroKeyValidator, this](const string& Value)
 	{
 		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlShiftDot, L"RCtrlShift.", KEY_RCTRL | KEY_SHIFT | KEY_DOT);
-	});
+	}));
+
+	Sort.Collation.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
+	Sort.DigitsAsNumbers.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
+	Sort.CaseSensitive.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
 
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
@@ -1825,9 +1857,7 @@ void Options::InitConfigsData()
 		{FSSF_PANELLAYOUT,   NKeyPanelLayout,L"StatusLine", OPT_DEF(ShowPanelStatus, true)},
 		{FSSF_PRIVATE,       NKeyPanelLayout,L"TotalInfo", OPT_DEF(ShowPanelTotals, true)},
 
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"CaseSensitiveSort", OPT_DEF(LeftPanel.CaseSensitiveSort, false)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"DirectoriesFirst", OPT_DEF(LeftPanel.DirectoriesFirst, true)},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"NumericSort", OPT_DEF(LeftPanel.NumericSort, false)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SelectedFirst", OPT_DEF(LeftPanel.SelectedFirst, false)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ShortNames", OPT_DEF(LeftPanel.ShowShortNames, false)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SortGroups", OPT_DEF(LeftPanel.SortGroups, false)},
@@ -1837,9 +1867,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ViewMode", OPT_DEF(LeftPanel.ViewMode, 2)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Visible", OPT_DEF(LeftPanel.Visible, true)},
 
-		{FSSF_PRIVATE,       NKeyPanelRight,L"CaseSensitiveSort", OPT_DEF(RightPanel.CaseSensitiveSort, false)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"DirectoriesFirst", OPT_DEF(RightPanel.DirectoriesFirst, true)},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"NumericSort", OPT_DEF(RightPanel.NumericSort, false)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SelectedFirst", OPT_DEF(RightPanel.SelectedFirst, false)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ShortNames", OPT_DEF(RightPanel.ShowShortNames, false)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SortGroups", OPT_DEF(RightPanel.SortGroups, false)},
@@ -1947,6 +1975,10 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,       NKeySystem,L"WindowMode.StickyY", OPT_DEF(WindowModeStickyY, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"WipeSymbol", OPT_DEF(WipeSymbol, 0)},
 		{FSSF_SYSTEM,        NKeySystem,L"WordDiv", OPT_DEF(strWordDiv, WordDiv0)},
+
+		{FSSF_PRIVATE,       NKeySystemSort, L"Collation", OPT_DEF(Sort.Collation, as_underlying_type(Sort.collation::linguistic))},
+		{FSSF_PRIVATE,       NKeySystemSort, L"DigitsAsNumbers", OPT_DEF(Sort.DigitsAsNumbers, IsWindows7OrGreater())},
+		{FSSF_PRIVATE,       NKeySystemSort, L"CaseSensitive", OPT_DEF(Sort.CaseSensitive, false)},
 
 		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"EMenu", OPT_DEF(KnownIDs.Emenu.StrId, KnownIDs.Emenu.Default)},
 		{FSSF_PRIVATE,       NKeySystemKnownIDs, L"Network", OPT_DEF(KnownIDs.Network.StrId, KnownIDs.Network.Default)},
@@ -2074,7 +2106,7 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 	}
 }
 
-void Options::Load(std::unordered_map<string, string, hash_icase, equal_to_icase>&& Overrides)
+void Options::Load(std::unordered_map<string, string, hash_icase_t, equal_icase_t>&& Overrides)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
 	static std::pair<GUID, string> DefaultKnownGuids[] =
@@ -2218,8 +2250,6 @@ void Options::Save(bool Manual)
 			Panel.ReverseSortOrder = PanelPtr->GetSortOrder();
 			Panel.SortGroups = PanelPtr->GetSortGroups();
 			Panel.ShowShortNames = PanelPtr->GetShowShortNamesMode();
-			Panel.NumericSort = PanelPtr->GetNumericSort();
-			Panel.CaseSensitiveSort = PanelPtr->GetCaseSensitiveSort();
 			Panel.SelectedFirst = PanelPtr->GetSelectedFirstMode();
 			Panel.DirectoriesFirst = PanelPtr->GetDirectoriesFirst();
 		}

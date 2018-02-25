@@ -228,6 +228,7 @@ LINK_OBJS = \
 	"$(INTDIR)\shortcuts.obj" \
 	"$(INTDIR)\sqlitedb.obj" \
 	"$(INTDIR)\stddlg.obj" \
+	"$(INTDIR)\string_sort.obj" \
 	"$(INTDIR)\string_utils.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\syslog.obj" \

@@ -78,7 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"
-#include "string_utils.hpp"
+#include "string_sort.hpp"
 #include "cvtname.hpp"
 
 static std::chrono::steady_clock::time_point TreeStartTime;
@@ -335,30 +335,6 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 	return true;
 }
 
-static int tree_compare(const string& a, const string& b, bool Numeric, bool CaseSensitive)
-{
-	return get_comparer(Numeric, CaseSensitive)(a, b);
-}
-
-class three_list_less
-{
-public:
-	three_list_less(bool Numeric, bool CaseSensitive):
-		m_Numeric(Numeric),
-		m_CaseSensitive(CaseSensitive)
-	{
-	}
-
-	bool operator()(const TreeList::TreeItem& a, const TreeList::TreeItem& b) const
-	{
-		return tree_compare(a.strName, b.strName, m_Numeric, m_CaseSensitive) < 0;
-	}
-
-private:
-	bool m_Numeric;
-	bool m_CaseSensitive;
-};
-
 class TreeListCache
 {
 public:
@@ -401,12 +377,7 @@ public:
 	void SetTreeName(const string& Name) { m_TreeName = Name; }
 
 private:
-	struct cache_less
-	{
-		bool operator()(const string& a, const string& b) const { return tree_compare(a, b, false, true) < 0; }
-	};
-
-	using cache_set = std::set<string, cache_less>;
+	using cache_set = std::set<string, string_sort::less_t>;
 
 public:
 	using const_iterator = cache_set::const_iterator;
@@ -481,24 +452,7 @@ void TreeList::DisplayObject()
 		Update(0);
 
 	if (m_ExitCode)
-	{
-		const auto RootPanel = GetRootPanel();
-
-		if (RootPanel->GetType() == panel_type::FILE_PANEL)
-		{
-			const auto RootCaseSensitiveSort = RootPanel->GetCaseSensitiveSort();
-			const auto RootNumeric = RootPanel->GetNumericSort();
-
-			if (RootNumeric != m_NumericSort || RootCaseSensitiveSort != m_CaseSensitiveSort)
-			{
-				std::sort(ALL_RANGE(m_ListData), three_list_less(m_NumericSort, m_CaseSensitiveSort));
-				FillLastData();
-				SyncDir();
-			}
-		}
-
 		DisplayTree(false);
-	}
 
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }
@@ -913,8 +867,7 @@ bool TreeList::ReadTree()
 		return false;
 	}
 
-	m_NumericSort = m_CaseSensitiveSort = false;
-	std::sort(ALL_RANGE(m_ListData), three_list_less(m_NumericSort, m_CaseSensitiveSort));
+	std::sort(ALL_RANGE(m_ListData), string_sort::less);
 
 	if (!FillLastData())
 		return false;
@@ -1745,8 +1698,6 @@ bool TreeList::ReadTreeFile()
 	if (m_ListData.empty())
 		return false;
 
-	m_NumericSort = false;
-	m_CaseSensitiveSort = false;
 	return FillLastData();
 }
 

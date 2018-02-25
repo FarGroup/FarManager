@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "interf.hpp"
 #include "imports.hpp"
-#include "strmix.hpp"
+#include "string_sort.hpp"
 #include "exception.hpp"
 
 struct menu_data
@@ -123,7 +123,7 @@ void ShowProcessList()
 
 		ProcList->SortItems([](const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p)
 		{
-			return StrCmpI(any_cast<menu_data>(a.UserData).Title, any_cast<menu_data>(b.UserData).Title) < 0;
+			return string_sort::less(any_cast<menu_data>(a.UserData).Title, any_cast<menu_data>(b.UserData).Title);
 		});
 
 		return true;

@@ -209,12 +209,9 @@ public:
 	virtual int GetPrevViewMode() const {return m_PrevViewMode;}
 	virtual panel_sort GetPrevSortMode() const { return m_SortMode; }
 	virtual bool GetPrevSortOrder() const { return m_ReverseSortOrder; }
-	virtual bool GetPrevNumericSort() const { return m_NumericSort; }
-	virtual void ChangeNumericSort(bool Mode) { SetNumericSort(Mode); }
-	virtual bool GetPrevCaseSensitiveSort() const { return m_CaseSensitiveSort; }
-	virtual void ChangeCaseSensitiveSort(bool Mode) {SetCaseSensitiveSort(Mode);}
 	virtual bool GetPrevDirectoriesFirst() const { return m_DirectoriesFirst; }
 	virtual void ChangeDirectoriesFirst(bool Mode) { SetDirectoriesFirst(Mode); }
+	virtual void OnSortingChange() {}
 	virtual void SetSortMode(panel_sort Mode, bool KeepOrder = false) { m_SortMode = Mode; }
 	virtual void SetCustomSortMode(int SortMode, sort_order Order = SO_AUTO, bool InvertByDefault = false) {}
 	virtual void ChangeSortOrder(bool Reverse) {SetSortOrder(Reverse);}
@@ -236,10 +233,6 @@ public:
 	int GetViewMode() const { return m_ViewMode; }
 	void SetPrevViewMode(int PrevViewMode) {m_PrevViewMode=PrevViewMode;}
 	panel_sort GetSortMode() const { return m_SortMode; }
-	bool GetNumericSort() const { return m_NumericSort; }
-	void SetNumericSort(bool Mode) { m_NumericSort = Mode; }
-	bool GetCaseSensitiveSort() const { return m_CaseSensitiveSort; }
-	void SetCaseSensitiveSort(bool Mode) {m_CaseSensitiveSort = Mode;}
 	bool GetDirectoriesFirst() const { return m_DirectoriesFirst; }
 	void SetDirectoriesFirst(bool Mode) { m_DirectoriesFirst = Mode != 0; }
 	bool GetSortOrder() const { return m_ReverseSortOrder; }
@@ -307,8 +300,6 @@ protected:
 	int m_CurTopFile = 0;
 	int m_CurFile = 0;
 	bool m_ShowShortNames = false;
-	bool m_NumericSort = false;
-	bool m_CaseSensitiveSort = false;
 	bool m_DirectoriesFirst = true;
 	int m_ModalMode = 0;
 	int m_PluginCommand = -1;

@@ -68,18 +68,12 @@ wchar_t lower(wchar_t Char);
 string upper(string Str);
 string lower(string Str);
 
-struct hash_icase
+struct hash_icase_t
 {
 	size_t operator()(const string& Str) const;
 };
 
-struct equal_to_icase
-{
-	bool operator()(wchar_t Chr1, wchar_t Chr2) const;
-	bool operator()(const string_view& Str1, const string_view& Str2) const;
-};
-
-struct less_icase
+struct equal_icase_t
 {
 	bool operator()(wchar_t Chr1, wchar_t Chr2) const;
 	bool operator()(const string_view& Str1, const string_view& Str2) const;
@@ -89,19 +83,5 @@ bool equal_icase(const string_view& Str1, const string_view& Str2);
 bool starts_with_icase(const string_view& Str, const string_view& Prefix);
 bool ends_with_icase(const string_view& Str, const string_view& Suffix);
 bool contains_icase(const string_view& Str, const string_view& Token);
-
-int StrCmpI(const wchar_t *s1, const wchar_t *s2);
-
-// deprecated, for pluginapi::apiStrCmpNI only
-int StrCmpNI(const wchar_t *s1, const wchar_t *s2, size_t n);
-
-int StrCmpI(const string_view& Str1, const string_view& Str2);
-int StrCmpC(const string_view& Str1, const string_view& Str2);
-
-int NumStrCmpI(const string_view& Str1, const string_view& Str2);
-int NumStrCmpC(const string_view& Str1, const string_view& Str2);
-
-using str_comparer = int(*)(const string_view&, const string_view&);
-str_comparer get_comparer(bool Numeric, bool CaseSensitive);
 
 #endif // STRING_UTILS_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9

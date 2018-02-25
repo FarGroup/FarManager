@@ -66,7 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "desktop.hpp"
 #include "PluginA.hpp"
-#include "string_utils.hpp"
+#include "string_sort.hpp"
 #include "cvtname.hpp"
 #include "delete.hpp"
 
@@ -112,7 +112,7 @@ static wchar_t GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, hotkey_type Ho
 
 bool PluginManager::plugin_less::operator()(const Plugin* a, const Plugin *b) const
 {
-	return less_icase{}(PointToName(a->GetModuleName()), PointToName(b->GetModuleName()));
+	return string_sort::less(PointToName(a->GetModuleName()), PointToName(b->GetModuleName()));
 }
 
 static void CallPluginSynchroEvent(const any& Payload)

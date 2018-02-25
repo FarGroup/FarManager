@@ -59,7 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "vmenu2.hpp"
 #include "strmix.hpp"
-#include "string_utils.hpp"
+#include "string_sort.hpp"
 #include "exception.hpp"
 
 MenuItemEx FarList2MenuItem(const FarListItem& FItem)
@@ -2830,7 +2830,7 @@ void VMenu::SortItems(bool Reverse, int Offset)
 		string strName2(b.strName);
 		RemoveHighlights(strName1);
 		RemoveHighlights(strName2);
-		bool Less = StrCmpI(strName1.data()+Param.Offset, strName2.data() + Param.Offset) < 0;
+		bool Less = string_sort::less(string_view(strName1).substr(Param.Offset), string_view(strName2).substr(Param.Offset));
 		return Param.Reverse? !Less : Less;
 	}, Reverse, Offset);
 }

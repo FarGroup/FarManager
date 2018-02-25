@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "tvar.hpp"
-#include "string_utils.hpp"
+#include "string_sort.hpp"
 
 enum TypeString
 {
@@ -461,7 +461,7 @@ static bool _cmp_Lt(TVarType vt,const void *a, const void *b)
 		case vtUnknown:
 		case vtInteger: r = *(const long long*)a < *(const long long*)b; break;
 		case vtDouble:  r = *(const double*)a < *(const double*)b; break;
-		case vtString:  r = StrCmpI((const wchar_t*)a, (const wchar_t*)b) < 0; break;
+		case vtString:  r = string_sort::less((const wchar_t*)a, (const wchar_t*)b); break;
 	}
 
 	return r;
@@ -476,7 +476,7 @@ static bool _cmp_Gt(TVarType vt, const void *a, const void *b)
 		case vtUnknown:
 		case vtInteger: r = *(const long long*)a > *(const long long*)b; break;
 		case vtDouble:  r = *(const double*)a > *(const double*)b; break;
-		case vtString:  r = StrCmpI((const wchar_t*)a, (const wchar_t*)b) > 0; break;
+		case vtString:  r = string_sort::less((const wchar_t*)b, (const wchar_t*)a); break;
 	}
 
 	return r;

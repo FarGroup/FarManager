@@ -40,8 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class GeneralConfig;
 class RegExp;
 struct PanelViewSettings;
-struct hash_icase;
-struct equal_to_icase;
+struct hash_icase_t;
+struct equal_icase_t;
 struct column;
 struct FARConfigItem;
 
@@ -141,6 +141,30 @@ private:
 	monitored<any> m_Value;
 };
 
+namespace option
+{
+	class validator_tag{};
+	class notifier_tag{};
+
+	template<typename callable>
+	auto validator(callable&& Callable)
+	{
+		return overload(
+			[Callable =FWD(Callable)](validator_tag, const auto& Value){ return Callable(Value); },
+			[](notifier_tag, const auto&){}
+		);
+	}
+
+	template<typename callable>
+	auto notifier(callable&& Callable)
+	{
+		return overload(
+			[](validator_tag, const auto& Value){ return Value; },
+			[Callable = FWD(Callable)](notifier_tag, const auto& Value){ Callable(Value); }
+		);
+	}
+}
+
 namespace detail
 {
 	template<class base_type, class derived>
@@ -148,15 +172,19 @@ namespace detail
 	{
 	public:
 		using underlying_type = base_type;
-		using validator_type = std::function<base_type(const base_type&)>;
 		using impl_type = OptionImpl<base_type, derived>;
+
+		using callback_type = multifunction<
+			base_type(option::validator_tag, const base_type&),
+			void(option::notifier_tag, const base_type&)
+		>;
 
 		auto& operator=(const base_type& Value) { Set(Value); return static_cast<derived&>(*this); }
 
-		void SetValidator(const validator_type& Validator) { m_Validator = Validator; }
+		void SetCallback(const callback_type& Callback) { m_Callback = Callback; }
 
 		const auto& Get() const { return GetT<base_type>(); }
-		void Set(const base_type& Value) { SetT(Validate(Value)); }
+		void Set(const base_type& Value) { SetT(Validate(Value)); Notify(); }
 		bool TrySet(const base_type& Value)
 		{
 			if (Validate(Value) != Value)
@@ -164,6 +192,7 @@ namespace detail
 				return false;
 			}
 			SetT(Value);
+			Notify();
 			return true;
 		}
 
@@ -184,9 +213,20 @@ namespace detail
 		}
 
 	private:
-		base_type Validate(const base_type& Value) const { return m_Validator? m_Validator(Value) : Value; }
+		base_type Validate(const base_type& Value) const
+		{
+			return m_Callback?
+				m_Callback(option::validator_tag{}, Value) :
+				Value;
+		}
 
-		validator_type m_Validator;
+		void Notify() const
+		{
+			if (m_Callback)
+				m_Callback(option::notifier_tag{}, Get());
+		}
+
+		callback_type m_Callback;
 	};
 }
 
@@ -281,7 +321,7 @@ public:
 	Options();
 	~Options();
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
-	void Load(std::unordered_map<string, string, hash_icase, equal_to_icase>&& Overrides);
+	void Load(std::unordered_map<string, string, hash_icase_t, equal_icase_t>&& Overrides);
 	void Save(bool Manual);
 	const Option* GetConfigValue(const wchar_t *Key, const wchar_t *Name) const;
 	const Option* GetConfigValue(size_t Root, const wchar_t* Name) const;
@@ -289,6 +329,20 @@ public:
 	void LocalViewerConfig(ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
 	static void SetSearchColumns(const string& Columns, const string& Widths);
+
+	struct SortingOptions
+	{
+		enum class collation
+		{
+			ordinal    = 0,
+			invariant  = 1,
+			linguistic = 2,
+		};
+
+		IntOption Collation;
+		BoolOption DigitsAsNumbers;
+		BoolOption CaseSensitive;
+	};
 
 	struct PanelOptions
 	{
@@ -299,8 +353,6 @@ public:
 		BoolOption ReverseSortOrder;
 		BoolOption SortGroups;
 		BoolOption ShowShortNames;
-		BoolOption NumericSort;
-		BoolOption CaseSensitiveSort;
 		BoolOption SelectedFirst;
 		BoolOption DirectoriesFirst;
 		StringOption Folder;
@@ -621,6 +673,8 @@ public:
 		BoolOption   UseHomeDir; // cd ~
 		StringOption strHomeDir; // cd ~
 	};
+
+	SortingOptions Sort;
 
 	palette Palette;
 	BoolOption Clock;

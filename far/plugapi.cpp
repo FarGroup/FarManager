@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "filemasks.hpp"
 #include "desktop.hpp"
+#include "string_sort.hpp"
 
 static Plugin* GuidToPlugin(const GUID* Id)
 {
@@ -1946,21 +1947,21 @@ wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 	return Ch;
 }
 
-int WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n) noexcept
+int WINAPI apiStrCmpNI(const wchar_t* Str1, const wchar_t* Str2, intptr_t MaxSize) noexcept
 {
 	try
 	{
-		return StrCmpNI(s1, s2, n);
+		return string_sort::compare(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize));
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return -1;
 }
 
-int WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2) noexcept
+int WINAPI apiStrCmpI(const wchar_t* Str1, const wchar_t* Str2) noexcept
 {
 	try
 	{
-		return StrCmpI(s1, s2);
+		return string_sort::compare(Str1, Str2);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return -1;
@@ -2223,6 +2224,16 @@ unsigned long long WINAPI apiFarClock() noexcept
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return 0;
+}
+
+int WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wchar_t* Str2, size_t Size2) noexcept
+{
+	try
+	{
+		return string_sort::compare({ Str1, Size1 }, { Str2, Size2 });
+	}
+	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
+	return -1;
 }
 
 intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept

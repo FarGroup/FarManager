@@ -458,25 +458,6 @@ active panel. The following sort modes are available:
 
   Use group sorting                                        #Shift+F11#
   Show selected files first                                #Shift+F12#
-  Use numeric sort
-  Use case sensitive sort.
-
-  #Remarks on the numeric sort#
-
-    When numeric sort is enabled, sequential groups of digits are treated
-as numbers. The following example shows how the files are sorted:
-
-    String sort                 Numeric sort
-
-    Ie4_01                      Ie4_01
-    Ie4_128                     Ie4_128
-    Ie401sp2                    Ie5
-    Ie5                         Ie6
-    Ie501sp2                    Ie401sp2
-    Ie6                         Ie501sp2
-    11.txt                      5.txt
-    5.txt                       11.txt
-    88.txt                      88.txt
 
     See also: common ~menu~@MenuCmd@ keyboard commands.
 
@@ -2474,6 +2455,33 @@ Far allows to retry the operation using the privileged account.
 
     #use additional privileges#
     ^<wrap>Try to ignore Access Control List if possible.
+
+  #Sorting collation#
+  ^<wrap>Allows to choose and configure the sorting collation.
+
+    #ordinal# - based on the ordinal value of the characters in the string
+    #invariant# - invariant collation
+    #linguistic# - based on the culture-specific sorting conventions
+
+  #Treat digits as numbers#
+  ^<wrap>When enabled, sequential groups of digits are treated as numbers. The following example shows how the files are sorted:
+
+    Disabled                    Enabled
+
+    Ie4_01                      Ie4_01
+    Ie4_128                     Ie4_128
+    Ie401sp2                    Ie5
+    Ie5                         Ie6
+    Ie501sp2                    Ie401sp2
+    Ie6                         Ie501sp2
+    11.txt                      5.txt
+    5.txt                       11.txt
+    88.txt                      88.txt
+
+  ^<wrap>Note: treating digits as numbers in linguistic collation is possible in Windows 7 and above. In older systems invariant collation will be used automatically.
+
+  #Case sensitive#
+  ^<wrap>Take into account the case of the characters in the string.
 
   #Auto save setup#
   If checked, Far will save setup automatically. The current folders for both panels will be also saved.

@@ -542,8 +542,6 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         L"PrevViewMode=VIEW_%02d "
 				         L"PrevSortMode=%d/%-17s "
 				         L"PrevSortOrder=%02d "
-				         L"PrevNumericSort=%02d "
-						 L"PrevCaseSensitiveSort=%02d "
 				         L"PrevDirectoriesFirst=%02d "
 				         L"HostFile=%s\n",
 				         I,
@@ -553,8 +551,6 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         static_cast<int>(ListItems[I].m_PrevSortMode),
 				         (ListItems[I].m_PrevSortMode < panel_sort::BY_CUSTOMDATA? __SORT[static_cast<int>(ListItems[I].m_PrevSortMode)].Name : L"<Unknown>"),
 				         ListItems[I].m_PrevSortOrder,
-				         ListItems[I].m_PrevNumericSort,
-						 ListItems[I].m_PrevCaseSensitiveSort,
 				         ListItems[I].m_PrevDirectoriesFirst,
 				         ListItems[I].m_HostFile.data());
 		}

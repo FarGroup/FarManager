@@ -365,6 +365,9 @@
     <ClCompile Include="stddlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="string_sort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="string_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -838,6 +841,9 @@
     <ClInclude Include="stddlg.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="string_sort.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="string_utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1001,6 +1007,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common\movable.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\multifunction.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\string_utils.hpp">

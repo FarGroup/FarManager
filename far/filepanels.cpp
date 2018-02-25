@@ -135,8 +135,6 @@ void FilePanels::Init(int DirCount)
 		if (panel_sort(Params.second.SortMode.Get()) < panel_sort::COUNT)
 			Params.first->SetSortMode(panel_sort(Params.second.SortMode.Get()));
 
-		Params.first->SetNumericSort(Params.second.NumericSort);
-		Params.first->SetCaseSensitiveSort(Params.second.CaseSensitiveSort);
 		Params.first->SetSortOrder(Params.second.ReverseSortOrder);
 		Params.first->SetSortGroups(Params.second.SortGroups);
 		Params.first->SetShowShortNamesMode(Params.second.ShowShortNames);
@@ -904,8 +902,6 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 	bool OldFullScreen=Current->IsFullScreen();
 	const auto OldSortMode=Current->GetPrevSortMode();
 	bool OldSortOrder=Current->GetPrevSortOrder();
-	bool OldNumericSort=Current->GetPrevNumericSort();
-	bool OldCaseSensitiveSort=Current->GetPrevCaseSensitiveSort();
 	bool OldSortGroups=Current->GetSortGroups();
 	bool OldShowShortNames=Current->GetShowShortNamesMode();
 	bool OldFocus = Current->IsFocused();
@@ -1014,8 +1010,6 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 		NewPanel->SetSortMode(OldSortMode);
 		NewPanel->SetSortOrder(OldSortOrder);
-		NewPanel->SetNumericSort(OldNumericSort);
-		NewPanel->SetCaseSensitiveSort(OldCaseSensitiveSort);
 		NewPanel->SetSortGroups(OldSortGroups);
 		NewPanel->SetShowShortNamesMode(OldShowShortNames);
 		NewPanel->SetPrevViewMode(OldViewMode);

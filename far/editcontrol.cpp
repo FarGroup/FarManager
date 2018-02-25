@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "ctrlobj.hpp"
 #include "strmix.hpp"
-#include "string_utils.hpp"
+#include "string_sort.hpp"
 
 EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback* aCallback, History* iHistory, FarList* iList, DWORD iFlags):
 	Edit(std::move(Owner)),
@@ -215,7 +215,7 @@ struct cmp_user_data
 
 static bool EnumWithQuoutes(VMenu2& Menu, const string_view& strStart, const string_view& Token, bool StartQuote, lng Title, enumerator_type Enumerator)
 {
-	std::set<string, less_icase> ResultStrings;
+	std::set<string, string_sort::less_t> ResultStrings;
 
 	Enumerator(Menu, Token, [&](const string_view& strAdd)
 	{

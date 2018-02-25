@@ -540,7 +540,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 	// TODO: std::optional
 	std::pair<string, bool> CustomTitle;
 
-	std::unordered_map<string, string, hash_icase, equal_to_icase> Overrides;
+	std::unordered_map<string, string, hash_icase_t, equal_icase_t> Overrides;
 	FOR_RANGE(Args, Iter)
 	{
 		const auto& Arg = *Iter;

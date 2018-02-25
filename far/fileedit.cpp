@@ -144,7 +144,7 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 	return false;
 }
 
-bool dlgBadEditorCodepage(uintptr_t &codepage)
+static bool dlgBadEditorCodepage(uintptr_t &codepage)
 {
 	intptr_t id = 0, id_cp, id_ok;
 
@@ -171,10 +171,10 @@ bool dlgBadEditorCodepage(uintptr_t &codepage)
 
 	IntOption cp_val;
 	std::vector<FarDialogBuilderListItem2> items;
-	id_cp = ++id; Builder.AddComboBox(cp_val, nullptr, 46, items, DIF_LISTWRAPMODE);
+	id_cp = ++id; Builder.AddComboBox(cp_val, nullptr, 46, items, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	id_ok = id+2; Builder.AddOKCancel();
 
-   Builder.SetDialogMode(DMODE_WARNINGSTYLE);
+	Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 	Builder.SetId(BadEditorCodePageId);
 	return Builder.ShowDialog();
 }

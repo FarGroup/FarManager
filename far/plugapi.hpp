@@ -121,6 +121,7 @@ namespace pluginapi
 	BOOL     WINAPI apiAddEndSlash(wchar_t *Path) noexcept;
 	wchar_t* WINAPI apiXlat(wchar_t *Line, intptr_t StartPos, intptr_t EndPos, XLAT_FLAGS Flags) noexcept;
 	unsigned long long  WINAPI apiFarClock() noexcept;
+	int      WINAPI apiCompareStrings(const wchar_t* Str1, size_t Size1, const wchar_t* Str2, size_t Size2) noexcept;
 	//arclite
 	HANDLE   WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile) noexcept;
 	DWORD    WINAPI apiGetFileAttributes(const wchar_t *FileName) noexcept;

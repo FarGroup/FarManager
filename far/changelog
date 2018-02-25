@@ -1,3 +1,14 @@
+drkns 25.02.2018 23:42:42 +0000 - build 5150
+
+1. Настройки сортировки (numeric & case-sensitive) вынесены в System Settings.
+   Там же теперь можно выбрать базовое сравнение (linguistic / invariant / ordinal).
+   Настройки сортировки применяются глобально ко всему.
+
+2. Для плагинов доступна функция FSF.CompareStrings, позволяющая сортировать так же, как сортирует Far (как именно - не оговорено и зависит от настроек).
+   FSF.LStricmp и FSF.LStrnicmp - deprecated и не рекомендуются к использованию.
+
+3. FCTL_SETNUMERICSORT, FCTL_SETCASESENSITIVESORT, PFLAGS_NUMERICSORT, PFLAGS_CASESENSITIVESORT больше нет.
+
 MZK 22.02.2018 23:18:21 -0800
 
 1. Отредактировал страницу @CopyFiles справки (английскую и русскую).
