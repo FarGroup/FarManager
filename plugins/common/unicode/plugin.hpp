@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5135
+Plugin API for Far Manager 3.0 build 5151
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5135
+#define FARMANAGERVERSION_BUILD 5151
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -795,11 +795,9 @@ static const PANELINFOFLAGS
 	PFLAGS_USESORTGROUPS      = 0x0000000000000008ULL,
 	PFLAGS_SELECTEDFIRST      = 0x0000000000000010ULL,
 	PFLAGS_REALNAMES          = 0x0000000000000020ULL,
-	PFLAGS_NUMERICSORT        = 0x0000000000000040ULL,
 	PFLAGS_PANELLEFT          = 0x0000000000000080ULL,
 	PFLAGS_DIRECTORIESFIRST   = 0x0000000000000100ULL,
 	PFLAGS_USECRC32           = 0x0000000000000200ULL,
-	PFLAGS_CASESENSITIVESORT  = 0x0000000000000400ULL,
 	PFLAGS_PLUGIN             = 0x0000000000000800ULL,
 	PFLAGS_VISIBLE            = 0x0000000000001000ULL,
 	PFLAGS_FOCUS              = 0x0000000000002000ULL,
@@ -902,7 +900,6 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_SETCMDLINESELECTION        = 15,
 	FCTL_GETCMDLINESELECTION        = 16,
 	FCTL_CHECKPANELSEXIST           = 17,
-	FCTL_SETNUMERICSORT             = 18,
 	FCTL_GETUSERSCREEN              = 19,
 	FCTL_ISACTIVEPANEL              = 20,
 	FCTL_GETPANELITEM               = 21,
@@ -917,7 +914,6 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_SETDIRECTORIESFIRST        = 30,
 	FCTL_GETPANELFORMAT             = 31,
 	FCTL_GETPANELHOSTFILE           = 32,
-	FCTL_SETCASESENSITIVESORT       = 33,
 	FCTL_GETPANELPREFIX             = 34,
 	FCTL_SETACTIVEPANEL             = 35,
 };
@@ -2073,9 +2069,10 @@ typedef void (WINAPI *FARSTDLOCALUPPERBUF)(wchar_t *Buf,intptr_t Length);
 typedef void (WINAPI *FARSTDLOCALLOWERBUF)(wchar_t *Buf,intptr_t Length);
 typedef void (WINAPI *FARSTDLOCALSTRUPR)(wchar_t *s1);
 typedef void (WINAPI *FARSTDLOCALSTRLWR)(wchar_t *s1);
-typedef int (WINAPI *FARSTDLOCALSTRICMP)(const wchar_t *s1,const wchar_t *s2);
-typedef int (WINAPI *FARSTDLOCALSTRNICMP)(const wchar_t *s1,const wchar_t *s2,intptr_t n);
+typedef int (WINAPI *FARSTDLOCALSTRICMP)(const wchar_t *s1,const wchar_t *s2); // Deprecated, don't use
+typedef int (WINAPI *FARSTDLOCALSTRNICMP)(const wchar_t *s1,const wchar_t *s2,intptr_t n); // Deprecated, don't use
 typedef unsigned long long (WINAPI *FARSTDFARCLOCK)();
+typedef int (WINAPI *FARSTDCOMPARESTRINGS)(const wchar_t*Str1, size_t Size1, const wchar_t* Str2, size_t Size2);
 
 typedef unsigned long long PROCESSNAME_FLAGS;
 static const PROCESSNAME_FLAGS
@@ -2198,8 +2195,8 @@ typedef struct FarStandardFunctions
 	FARSTDLOCALLOWERBUF        LLowerBuf;
 	FARSTDLOCALSTRUPR          LStrupr;
 	FARSTDLOCALSTRLWR          LStrlwr;
-	FARSTDLOCALSTRICMP         LStricmp;
-	FARSTDLOCALSTRNICMP        LStrnicmp;
+	FARSTDLOCALSTRICMP         LStricmp; // Deprecated, don't use
+	FARSTDLOCALSTRNICMP        LStrnicmp; // Deprecated, don't use
 
 	FARSTDUNQUOTE              Unquote;
 	FARSTDLTRIM                LTrim;
@@ -2227,6 +2224,7 @@ typedef struct FarStandardFunctions
 	FARGETCURRENTDIRECTORY     GetCurrentDirectory;
 	FARFORMATFILESIZE          FormatFileSize;
 	FARSTDFARCLOCK             FarClock;
+	FARSTDCOMPARESTRINGS       CompareStrings;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
