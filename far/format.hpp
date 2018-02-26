@@ -36,9 +36,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH(3)
 
+WARNING_DISABLE_MSC(4396) // https://msdn.microsoft.com/en-us/library/bb384968.aspx 'name': the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
+WARNING_DISABLE_MSC(4702) // https://msdn.microsoft.com/en-us/library/c26da40e.aspx unreachable code
+
+WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
+
+#pragma push_macro("static_assert")
+#undef static_assert
+
 #include "thirdparty/fmt/format.h"
-#include "thirdparty/fmt/string.h"
 #include "thirdparty/fmt/ostream.h"
+
+#pragma pop_macro("static_assert")
 
 WARNING_POP()
 

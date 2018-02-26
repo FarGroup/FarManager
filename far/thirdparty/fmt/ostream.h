@@ -1,11 +1,9 @@
-/*
- Formatting library for C++ - std::ostream support
-
- Copyright (c) 2012 - 2016, Victor Zverovich
- All rights reserved.
-
- For the license information refer to format.h.
- */
+// Formatting library for C++ - std::ostream support
+//
+// Copyright (c) 2012 - 2016, Victor Zverovich
+// All rights reserved.
+//
+// For the license information refer to format.h.
 
 #ifndef FMT_OSTREAM_H_
 #define FMT_OSTREAM_H_
@@ -23,10 +21,10 @@ class FormatBuf : public std::basic_streambuf<Char> {
   typedef typename std::basic_streambuf<Char>::int_type int_type;
   typedef typename std::basic_streambuf<Char>::traits_type traits_type;
 
-  Buffer<Char> &buffer_;
+  basic_buffer<Char> &buffer_;
 
  public:
-  FormatBuf(Buffer<Char> &buffer) : buffer_(buffer) {}
+  FormatBuf(basic_buffer<Char> &buffer) : buffer_(buffer) {}
 
  protected:
   // The put-area is actually always empty. This makes the implementation
@@ -48,44 +46,83 @@ class FormatBuf : public std::basic_streambuf<Char> {
   }
 };
 
-Yes &convert(std::ostream &);
-
-struct DummyStream : std::ostream {
-  DummyStream();  // Suppress a bogus warning in MSVC.
-
-  // Hide all operator<< overloads from std::ostream.
-  template <typename T>
-  typename EnableIf<sizeof(T) == 0>::type operator<<(const T &);
+template <typename Char>
+struct test_stream : std::basic_ostream<Char> {
+ private:
+  struct null;
+  // Hide all operator<< from std::basic_ostream<Char>.
+  void operator<<(null);
 };
 
-No &operator<<(std::ostream &, int);
+// Disable conversion to int if T has an overloaded operator<< which is a free
+// function (not a member of std::ostream).
+template <typename T, typename Char>
+class convert_to_int<T, Char, true> {
+ private:
+  template <typename U>
+  static decltype(
+    std::declval<test_stream<Char>&>() << std::declval<U>(), std::true_type())
+      test(int);
 
-template <typename T>
-struct ConvertToIntImpl<T, true> {
-  // Convert to int only if T doesn't have an overloaded operator<<.
-  enum {
-    value = sizeof(convert(get<DummyStream>() << get<T>())) == sizeof(No)
-  };
+  template <typename>
+  static std::false_type test(...);
+
+ public:
+  static const bool value = !decltype(test<T>(0))::value;
 };
 
-// Write the content of w to os.
-FMT_API void write(std::ostream &os, Writer &w);
-}  // namespace internal
+// Write the content of buf to os.
+template <typename Char>
+void write(std::basic_ostream<Char> &os, basic_buffer<Char> &buf) {
+  const Char *data = buf.data();
+  typedef std::make_unsigned<std::streamsize>::type UnsignedStreamSize;
+  UnsignedStreamSize size = buf.size();
+  UnsignedStreamSize max_size =
+      internal::to_unsigned((std::numeric_limits<std::streamsize>::max)());
+  do {
+    UnsignedStreamSize n = size <= max_size ? size : max_size;
+    os.write(data, static_cast<std::streamsize>(n));
+    data += n;
+    size -= n;
+  } while (size != 0);
+}
 
-// Formats a value.
-template <typename Char, typename ArgFormatter_, typename T>
-void format_arg(BasicFormatter<Char, ArgFormatter_> &f,
-                const Char *&format_str, const T &value) {
-  internal::MemoryBuffer<Char, internal::INLINE_BUFFER_SIZE> buffer;
-
+template <typename Char, typename T>
+void format_value(basic_buffer<Char> &buffer, const T &value) {
   internal::FormatBuf<Char> format_buf(buffer);
   std::basic_ostream<Char> output(&format_buf);
   output.exceptions(std::ios_base::failbit | std::ios_base::badbit);
   output << value;
+  buffer.resize(buffer.size());
+}
 
-  BasicStringRef<Char> str(&buffer[0], buffer.size());
-  typedef internal::MakeArg< BasicFormatter<Char> > MakeArg;
-  format_str = f.format(format_str, MakeArg(str));
+// Disable builtin formatting of enums and use operator<< instead.
+template <typename T>
+struct format_enum<T,
+    typename std::enable_if<std::is_enum<T>::value>::type> : std::false_type {};
+}  // namespace internal
+
+// Formats an object of type T that has an overloaded ostream operator<<.
+template <typename T, typename Char>
+struct formatter<T, Char,
+    typename std::enable_if<!internal::format_type<
+      typename buffer_context<Char>::type, T>::value>::type>
+    : formatter<basic_string_view<Char>, Char> {
+
+  template <typename Context>
+  auto format(const T &value, Context &ctx) -> decltype(ctx.begin()) {
+    basic_memory_buffer<Char> buffer;
+    internal::format_value(buffer, value);
+    basic_string_view<Char> str(buffer.data(), buffer.size());
+    formatter<basic_string_view<Char>, Char>::format(str, ctx);
+    return ctx.begin();
+  }
+};
+
+inline void vprint(std::ostream &os, string_view format_str, format_args args) {
+  memory_buffer buffer;
+  vformat_to(buffer, format_str, args);
+  internal::write(os, buffer);
 }
 
 /**
@@ -97,12 +134,11 @@ void format_arg(BasicFormatter<Char, ArgFormatter_> &f,
     print(cerr, "Don't {}!", "panic");
   \endrst
  */
-FMT_API void print(std::ostream &os, CStringRef format_str, ArgList args);
-FMT_VARIADIC(void, print, std::ostream &, CStringRef)
+template <typename... Args>
+inline void print(std::ostream &os, string_view format_str,
+                  const Args & ... args) {
+  vprint(os, format_str, make_args(args...));
+}
 }  // namespace fmt
-
-#ifdef FMT_HEADER_ONLY
-# include "ostream.cc"
-#endif
 
 #endif  // FMT_OSTREAM_H_

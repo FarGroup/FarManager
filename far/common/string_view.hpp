@@ -209,7 +209,7 @@ bool operator!=(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs
 }
 
 template<typename T>
-auto& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T>& Str)
+std::basic_ostream<T>& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T>& Str)
 {
 	return Stream.write(Str.raw_data(), Str.size());
 }
