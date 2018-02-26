@@ -5947,33 +5947,6 @@ mtime=3573119438
 </article>
 </node>
 <node>
-id=395
-lv=2
-dt=Text
-nm=panel.SetCaseSensitiveSort
-ctime=3501391498
-mtime=3571803026
-<article>
-#_result = panel.SetCaseSensitiveSort (handle, whatpanel [, set])
-#_
-#_**Parameters:**
-#_  handle:    panel handle, or nil
-#_  whatpanel: 1=active panel; 0=passive panel;
-#_  set:       boolean, defaults to false
-#_
-#_**Returns:**
-#_  result: boolean
-#_
-#_**Far API used:**
-#_  PanelControl, FCTL_SETCASESENSITIVESORT
-#_
-#_@@@
-#_{fctl_setcasesensitivesort}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETCASESENSITIVESORT
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
-#_
-</article>
-</node>
-<node>
 id=11
 lv=2
 dt=Text
@@ -6074,32 +6047,6 @@ mtime=3584893925
 #_
 #_@@@
 #_{fctl_setdirectoriesfirst}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETDIRECTORIESFIRST
-#_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
-#_
-</article>
-</node>
-<node>
-id=146
-lv=2
-dt=Text
-nm=panel.SetNumericSort
-mtime=3571803044
-<article>
-#_result = panel.SetNumericSort (handle, whatpanel [, set])
-#_
-#_**Parameters:**
-#_  handle:    panel handle, or nil
-#_  whatpanel: 1=active panel; 0=passive panel;
-#_  set:       boolean, defaults to false
-#_
-#_**Returns:**
-#_  result: boolean
-#_
-#_**Far API used:**
-#_  PanelControl, FCTL_SETNUMERICSORT
-#_
-#_@@@
-#_{fctl_setnumericsort}: http://api.farmanager.com/ru/service_functions/panelcontrol.html#FCTL_SETNUMERICSORT
 #_{panelcontrol}: http://api.farmanager.com/ru/service_functions/panelcontrol.html
 #_
 </article>
