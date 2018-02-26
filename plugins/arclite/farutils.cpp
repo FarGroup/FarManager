@@ -153,10 +153,6 @@ void set_reverse_sort(HANDLE h_panel, bool reverse_sort) {
   g_far.PanelControl(h_panel, FCTL_SETSORTORDER, reverse_sort ? 1 : 0, nullptr);
 }
 
-void set_numeric_sort(HANDLE h_panel, bool numeric_sort) {
-  g_far.PanelControl(h_panel, FCTL_SETNUMERICSORT, numeric_sort ? 1 : 0, nullptr);
-}
-
 void set_directories_first(HANDLE h_panel, bool first) {
   g_far.PanelControl(h_panel, FCTL_SETDIRECTORIESFIRST, first ? 1 : 0, nullptr);
 }
