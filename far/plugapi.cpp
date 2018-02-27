@@ -1947,11 +1947,16 @@ wchar_t WINAPI apiLower(wchar_t Ch) noexcept
 	return Ch;
 }
 
+static int sign(int Value)
+{
+	return (Value > 0) - (Value < 0);
+}
+
 int WINAPI apiStrCmpNI(const wchar_t* Str1, const wchar_t* Str2, intptr_t MaxSize) noexcept
 {
 	try
 	{
-		return string_sort::compare(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize));
+		return sign(string_sort::compare(string_view(Str1).substr(0, MaxSize), string_view(Str2).substr(0, MaxSize)));
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return -1;
@@ -1961,7 +1966,7 @@ int WINAPI apiStrCmpI(const wchar_t* Str1, const wchar_t* Str2) noexcept
 {
 	try
 	{
-		return string_sort::compare(Str1, Str2);
+		return sign(string_sort::compare(Str1, Str2));
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return -1;
