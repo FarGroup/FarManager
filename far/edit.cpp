@@ -1465,16 +1465,16 @@ void Edit::SetString(string_view Str)
 
 	RemoveSelection();
 
-	if (!Str.empty() && !m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
+	if (!m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
 	{
-		if (Str.back() == L'\r')
+		if (!Str.empty() && Str.back() == L'\r')
 		{
 			m_Eol = eol::type::mac;
 			Str.remove_suffix(1);
 		}
 		else
 		{
-			if (Str.back() == L'\n')
+			if (!Str.empty() && Str.back() == L'\n')
 			{
 				Str.remove_suffix(1);
 
