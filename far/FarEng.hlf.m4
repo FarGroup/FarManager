@@ -2866,37 +2866,39 @@ $ #Viewer: control keys#
     #Ctrl+Ins, Ctrl+C#   Copy the text highlighted as a result of
                        the search or manual selection to the clipboard.
     #Ctrl+U#             Remove the highlighting of the selected text.
-    #Shift+Клик мыши#    Manual text selection.
-                       Если курсор находится над текстом, первый
-                       клик задаёт начало области выделения текста,
-                       второй клик - конец области. Между первым и вторым
-                       кликом можно использовать любые клавиши навигации.
-                       Второй коик может быть выше первого.
+    #Shift+Mouse click#  Manual text selection.
+                       If the mouse cursor is over the text, the first
+                       click marks the start of the selection and the
+                       second click marks the end of the selection. Use
+                       navigation keys after the first click to bring
+                       the end position into the view. The end position
+                       may be set earlier than the start.
 
     See also the list of ~macro keys~@KeyMacroViewerList@, available in the viewer.
 
     Notes:
 
-    1. Also to call search dialog you can just start typing the
-       text to be located.
+    1. ^<wrap>To open the ~search~@ViewerSearch@ dialog you also can
+just start typing the search pattern.
 
-    2. When the viewer opens a file, it permits the file to be
-       deleted by other processes. If such a deletion happens,
-       the file is actually deleted from the directory only after
-       the viewer is closed, but any operations on the deleted
-       file fail - this is a Windows feature.
+    2. ^<wrap>The viewer opens a file with the permission to be deleted
+by other processes. If the file is deleted while it is still open in the
+viewer, the file will actually be deleted only after closing the viewer.
+However, any operations on such a file will fail. This is a feature
+of Windows operating system.
 
-    3. You can configure the maximum number of columns in the internal viewer
-       (range is 100..100000, default 10000). If a file contains a line that does not
-       fit in this number of columns, it will be split into several
-       lines, even if the word wrap mode is turned off.
+    3. ^<wrap>The maximum number of columns displayed in the viewer can
+be configured in the ~settings~@ViewerSettings@ dialog. The range
+is from 100 to 100,000, the default is 10,000. Lines longer than the
+maximum will be split into several lines, even if word wrap mode
+is turned off.
 
-    4. Far ~searches~@ViewerSearch@ the first occurrence of the string (#F7#) from
-       the beginning of the area currently displayed.
+    4. ^<wrap>Far starts ~searching~@ViewerSearch@ for the string (#F7#)
+from the beginning of the currently visible file part.
 
-    5. For automatic scrolling of a dynamically updating file,
-       position the "cursor" to the end of the file (End key).
-
+    5. ^<wrap>To auto-scroll a file that is being appended by another
+process (comp. Linux “tail”), set the current position to the end of the
+file (press the #End# key).
 
 @ViewerGotoPos
 $ #Viewer: go to specified position#
@@ -3554,8 +3556,6 @@ will not be analyzed, and only file attributes will be taken into account.
 attributes are valid for NTFS drives only. The #Integrity stream# and
 #No scrub data# attributes only supported on ReFS voumes starting from
 Windows Server 2012.
-
-
 
 @ViewerSettings
 $ #Settings dialog: viewer#
