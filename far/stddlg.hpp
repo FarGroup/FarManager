@@ -121,17 +121,17 @@ int GetSearchReplaceString(
 );
 
 bool GetString(
-    const wchar_t *Title,
-    const wchar_t *SubTitle,
-    const wchar_t *HistoryName,
-    const wchar_t *SrcText,
-    string &strDestText,
-    const wchar_t *HelpTopic = nullptr,
-    DWORD Flags = 0,
-    int *CheckBoxValue = nullptr,
-    const wchar_t *CheckBoxText = nullptr,
-    class Plugin* PluginNumber = nullptr,
-    const GUID* Id = nullptr
+	string_view Title,
+	string_view SubTitle,
+	string_view HistoryName,
+	string_view SrcText,
+	string &strDestText,
+	string_view HelpTopic = {},
+	DWORD Flags = 0,
+	int* CheckBoxValue = {},
+	string_view CheckBoxText = {},
+	class Plugin* PluginNumber = {},
+	const GUID* Id = {}
 );
 
 // для диалога GetNameAndPassword()

@@ -731,16 +731,13 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 			{
 				FileEditor::create(strDizFileName,CP_DEFAULT,FFILEEDIT_ENABLEF6);
 			}
-			else if (!Global->Opt->InfoPanel.strFolderInfoFiles.empty())
+			else
 			{
-				string strArgName;
-				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles.data();
-
-				while ((p = GetCommaWord(p,strArgName)) != nullptr)
+				for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"_sv))
 				{
-					if (strArgName.find_first_of(L"*?") == string::npos)
+					if (i.find_first_of(L"*?"_sv) == string::npos)
 					{
-						FileEditor::create(strArgName, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
+						FileEditor::create(i, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
 						break;
 					}
 				}
@@ -933,28 +930,29 @@ bool InfoList::ShowDirDescription(int YPos)
 {
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
-	string strDizDir(AnotherPanel->GetCurDir());
+	string strFullDizName(AnotherPanel->GetCurDir());
+	
+	if (!strFullDizName.empty())
+		AddEndSlash(strFullDizName);
 
-	if (!strDizDir.empty())
-		AddEndSlash(strDizDir);
+	const auto DirSize = strFullDizName.size();
 
-	string strArgName;
-	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles.data();
-
-	while ((NamePtr=GetCommaWord(NamePtr,strArgName)) != nullptr)
+	for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"_sv))
 	{
-		auto strFullDizName = strDizDir + strArgName;
-		os::fs::find_data FindData;
+		strFullDizName.resize(DirSize);
+		append(strFullDizName, i);
 
+		os::fs::find_data FindData;
 		if (!os::fs::get_find_data(strFullDizName, FindData))
 			continue;
 
 		CutToSlash(strFullDizName, false);
 		strFullDizName += FindData.strFileName;
 
-		if (OpenDizFile(strFullDizName,YPos))
+		if (OpenDizFile(strFullDizName, YPos))
 			return true;
 	}
+
 	return false;
 }
 

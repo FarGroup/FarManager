@@ -135,9 +135,9 @@ public:
 	}
 
 private:
-	bool get(size_t index, value_type& value) const
+	bool get(bool Reset, value_type& value) const
 	{
-		value = index? value->NextSiblingElement(m_name) :
+		value = !Reset? value->NextSiblingElement(m_name) :
 		        m_base? m_base->FirstChildElement(m_name) : nullptr;
 
 		return value != nullptr;
@@ -220,14 +220,14 @@ private:
 		return ExecuteStatement(stmtDelValue, Key, Name);
 	}
 
-	virtual bool EnumValues(const string_view Key, const DWORD Index, string &Name, string &Value) const override
+	virtual bool EnumValues(const string_view Key, const bool Reset, string &Name, string &Value) const override
 	{
-		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColText);
+		return EnumValuesT(Key, Reset, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool EnumValues(const string_view Key, const DWORD Index, string &Name, long long& Value) const override
+	virtual bool EnumValues(const string_view Key, const bool Reset, string &Name, long long& Value) const override
 	{
-		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColInt64);
+		return EnumValuesT(Key, Reset, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
 	virtual void Export(representation_destination& Representation) const override
@@ -328,10 +328,11 @@ private:
 	}
 
 	template<class T, class getter_t>
-	bool EnumValuesT(const string_view Key, const DWORD Index, string& Name, T& Value, const getter_t Getter) const
+	bool EnumValuesT(const string_view Key, bool Reset, string& Name, T& Value, const getter_t Getter) const
 	{
 		auto Stmt = AutoStatement(stmtEnumValues);
-		if (Index == 0)
+
+		if (Reset)
 			Stmt->Reset().Bind(transient(Key));
 
 		if (!Stmt->Step())
@@ -522,10 +523,11 @@ protected:
 		return ExecuteStatement(stmtDelValue, Root.get(), Name);
 	}
 
-	virtual bool EnumKeys(const key& Root, DWORD Index, string& Name) const override
+	virtual bool EnumKeys(const key& Root, const bool Reset, string& Name) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumKeys);
-		if (Index == 0)
+	
+		if (Reset)
 			Stmt->Reset().Bind(Root.get());
 
 		if (!Stmt->Step())
@@ -536,10 +538,11 @@ protected:
 		return true;
 	}
 
-	virtual bool EnumValues(const key& Root, DWORD Index, string& Name, int& Type) const override
+	virtual bool EnumValues(const key& Root, const bool Reset, string& Name, int& Type) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumValues);
-		if (Index == 0)
+
+		if (Reset)
 			Stmt->Reset().Bind(Root.get());
 
 		if (!Stmt->Step())
@@ -922,10 +925,11 @@ private:
 		;
 	}
 
-	virtual bool EnumMasks(DWORD Index, unsigned long long *id, string &strMask) override
+	virtual bool EnumMasks(const bool Reset, unsigned long long* const id, string& strMask) override
 	{
 		auto Stmt = AutoStatement(stmtEnumMasks);
-		if (Index == 0)
+
+		if (Reset)
 			Stmt->Reset();
 
 		if (!Stmt->Step())
@@ -937,10 +941,11 @@ private:
 		return true;
 	}
 
-	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned long long *id, string &strMask) override
+	virtual bool EnumMasksForType(const bool Reset, const int Type, unsigned long long* const id, string& strMask) override
 	{
 		auto Stmt = AutoStatement(stmtEnumMasksForType);
-		if (Index == 0)
+
+		if (Reset)
 			Stmt->Reset().Bind(Type);
 
 		if (!Stmt->Step())
@@ -1813,12 +1818,12 @@ private:
 		return DeleteInternal(id);
 	}
 
-	virtual bool Enum(const DWORD index, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, const bool Reverse) override
+	virtual bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, const bool Reverse) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
 
-		if (index == 0)
+		if (Reset)
 			Stmt->Reset().Bind(TypeHistory, transient(HistoryName));
 
 		if (!Stmt->Step())
@@ -1865,11 +1870,12 @@ private:
 		return ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
-	virtual bool EnumLargeHistories(DWORD index, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) override
+	virtual bool EnumLargeHistories(const bool Reset, const unsigned int TypeHistory, const int MinimumEntries, string& strHistoryName) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(stmtEnumLargeHistories);
-		if (index == 0)
+
+		if (Reset)
 			Stmt->Reset().Bind(TypeHistory, MinimumEntries);
 
 		if (!Stmt->Step())

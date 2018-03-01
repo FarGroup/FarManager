@@ -63,7 +63,7 @@ namespace components
 	private:
 		friend components_list& GetComponentsList();
 
-		bool get(size_t index, value_type& value) const;
+		bool get(bool Reset, value_type& value) const;
 
 		components_list() = default;
 

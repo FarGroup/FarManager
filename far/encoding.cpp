@@ -244,36 +244,36 @@ size_t MultibyteCodepageDecoder::GetChar(const char* Buffer, size_t Size, wchar_
 	}
 }
 
-static size_t get_bytes_impl(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
+static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
 {
-	if (!DataSize)
+	if (Str.empty())
 		return 0;
 
 	switch(Codepage)
 	{
 	case CP_UTF8:
-		return Utf8::get_bytes(Data, DataSize, Buffer, BufferSize);
+		return Utf8::get_bytes(Str, Buffer, BufferSize);
 
 	case CP_UNICODE:
 		if (BufferSize) // paranoid gcc null checks are paranoid
-			memcpy(Buffer, Data, std::min(DataSize * sizeof(wchar_t), BufferSize));
-		return DataSize * sizeof(wchar_t);
+			memcpy(Buffer, Str.raw_data(), std::min(Str.size() * sizeof(wchar_t), BufferSize));
+		return Str.size() * sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
-		swap_bytes(Data, Buffer, std::min(DataSize * sizeof(wchar_t), BufferSize));
-		return DataSize * sizeof(wchar_t);
+		swap_bytes(Str.raw_data(), Buffer, std::min(Str.size() * sizeof(wchar_t), BufferSize));
+		return Str.size() * sizeof(wchar_t);
 
 	default:
 		{
 			BOOL bUsedDefaultChar = FALSE;
-			auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
-			if (!Result && BufferSize < DataSize && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+			auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.raw_data(), static_cast<int>(Str.size()), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
+			if (!Result && BufferSize < Str.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 			{
 				// https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130.aspx
 				// If BufferSize is less than DataSize, this function writes the number of characters specified by BufferSize to the buffer indicated by Buffer.
 
 				// If the function succeeds and BufferSize is 0, the return value is the required size, in bytes, for the buffer indicated by Buffer.
-				Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Data, static_cast<int>(DataSize), nullptr, 0, nullptr, UsedDefaultChar ? &bUsedDefaultChar : nullptr);
+				Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.raw_data(), static_cast<int>(Str.size()), nullptr, 0, nullptr, UsedDefaultChar ? &bUsedDefaultChar : nullptr);
 			}
 
 			if (UsedDefaultChar)
@@ -284,9 +284,9 @@ static size_t get_bytes_impl(uintptr_t const Codepage, const wchar_t* const Data
 	}
 }
 
-size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
+size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, char* const Buffer, size_t const BufferSize, bool* const UsedDefaultChar)
 {
-	const auto Result = get_bytes_impl(Codepage, Data, DataSize, Buffer, BufferSize, UsedDefaultChar);
+	const auto Result = get_bytes_impl(Codepage, Str, Buffer, BufferSize, UsedDefaultChar);
 	if (Result < BufferSize)
 	{
 		Buffer[Result] = '\0';
@@ -294,18 +294,18 @@ size_t encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, 
 	return Result;
 }
 
-std::string encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const Data, size_t const DataSize, bool* const UsedDefaultChar)
+std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str, bool* const UsedDefaultChar)
 {
-	if (!DataSize)
+	if (Str.empty())
 		return {};
 
 	// DataSize is a good estimation for the bytes count.
 	// With this approach we can fill the buffer with only one attempt in many cases.
-	std::string Buffer(DataSize, '\0');
+	std::string Buffer(Str.size(), '\0');
 
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_bytes(Codepage, Data, DataSize, &Buffer[0], Buffer.size(), UsedDefaultChar);
+		const auto Size = get_bytes(Codepage, Str, &Buffer[0], Buffer.size(), UsedDefaultChar);
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
@@ -315,36 +315,36 @@ std::string encoding::get_bytes(uintptr_t const Codepage, const wchar_t* const D
 
 namespace Utf7
 {
-	size_t get_chars(const char* Str, size_t StrSize, wchar_t* Buffer, size_t BufferSize, Utf::errors *Errors);
+	size_t get_chars(basic_string_view<char> Str, wchar_t* Buffer, size_t BufferSize, Utf::errors *Errors);
 }
 
-static size_t get_chars_impl(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize)
+static size_t get_chars_impl(uintptr_t const Codepage, basic_string_view<char> Str, wchar_t* const Buffer, size_t const BufferSize)
 {
 	switch (Codepage)
 	{
 	case CP_UTF8:
-		return Utf8::get_chars(Data, DataSize, Buffer, BufferSize, nullptr);
+		return Utf8::get_chars(Str, Buffer, BufferSize, nullptr);
 
 	case CP_UTF7:
-		return Utf7::get_chars(Data, DataSize, Buffer, BufferSize, nullptr);
+		return Utf7::get_chars(Str, Buffer, BufferSize, nullptr);
 
 	case CP_UNICODE:
 		if (BufferSize) // paranoid gcc null checks are paranoid
-			memcpy(Buffer, Data, std::min(DataSize, BufferSize * sizeof(wchar_t)));
-		return DataSize / sizeof(wchar_t);
+			memcpy(Buffer, Str.raw_data(), std::min(Str.size(), BufferSize * sizeof(wchar_t)));
+		return Str.size() / sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
-		swap_bytes(Data, Buffer, std::min(DataSize, BufferSize * sizeof(wchar_t)));
-		return DataSize / sizeof(wchar_t);
+		swap_bytes(Str.raw_data(), Buffer, std::min(Str.size(), BufferSize * sizeof(wchar_t)));
+		return Str.size() / sizeof(wchar_t);
 
 	default:
-		return MultiByteToWideChar(Codepage, 0, Data, static_cast<int>(DataSize), Buffer, static_cast<int>(BufferSize));
+		return MultiByteToWideChar(Codepage, 0, Str.raw_data(), static_cast<int>(Str.size()), Buffer, static_cast<int>(BufferSize));
 	}
 }
 
-size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize)
+size_t encoding::get_chars(uintptr_t const Codepage, basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize)
 {
-	const auto Result = get_chars_impl(Codepage, Data, DataSize, Buffer, BufferSize);
+	const auto Result = get_chars_impl(Codepage, Str, Buffer, BufferSize);
 	if (Result < BufferSize)
 	{
 		Buffer[Result] = L'\0';
@@ -352,9 +352,9 @@ size_t encoding::get_chars(uintptr_t const Codepage, const char* const Data, siz
 	return Result;
 }
 
-string encoding::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize)
+string encoding::get_chars(uintptr_t const Codepage, basic_string_view<char> const Str)
 {
-	if (!DataSize)
+	if (Str.empty())
 		return {};
 
 	const auto& EstimatedCharsCount = [&]
@@ -363,15 +363,15 @@ string encoding::get_chars(uintptr_t const Codepage, const char* const Data, siz
 		{
 		case CP_UNICODE:
 		case CP_REVERSEBOM:
-			return DataSize / sizeof(wchar_t);
+			return Str.size() / sizeof(wchar_t);
 
 		case CP_UTF7:
 		case CP_UTF8:
 			// Even though DataSize is always >= BufferSize for these guys, we can't use DataSize for estimation - it can be three times larger than necessary.
-			return get_chars_count(Codepage, Data, DataSize);
+			return get_chars_count(Codepage, Str);
 
 		default:
-			return DataSize;
+			return Str.size();
 		}
 	};
 
@@ -379,7 +379,7 @@ string encoding::get_chars(uintptr_t const Codepage, const char* const Data, siz
 	string Buffer(EstimatedCharsCount(), L'\0');
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_chars(Codepage, Data, DataSize, &Buffer[0], Buffer.size());
+		const auto Size = get_chars(Codepage, Str, &Buffer[0], Buffer.size());
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
@@ -440,14 +440,14 @@ void encoding::writer::write(const string_view Str)
 
 //################################################################################################
 
-size_t Utf::get_chars(uintptr_t const Codepage, const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, errors* const Errors)
+size_t Utf::get_chars(uintptr_t const Codepage, basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize, errors* const Errors)
 {
 	switch (Codepage)
 	{
 	case CP_UTF7:
-		return Utf7::get_chars(Data, DataSize, Buffer, BufferSize, Errors);
+		return Utf7::get_chars(Str, Buffer, BufferSize, Errors);
 	case CP_UTF8:
-		return Utf8::get_chars(Data, DataSize, Buffer, BufferSize, Errors);
+		return Utf8::get_chars(Str, Buffer, BufferSize, Errors);
 	default:
 		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage");
 	}
@@ -501,16 +501,16 @@ static const short m7[128] =
 };
 
 // BUGBUG non-BMP range is not supported
-static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_t* const Buffer, bool& ConversionError, int& state)
+static size_t Utf7_GetChar(const char* const Str, size_t const DataSize, wchar_t* const Buffer, bool& ConversionError, int& state)
 {
 	if (!DataSize)
 		return 0;
 
-	auto DataIterator = Data;
+	auto StrIterator = Str;
 
 	size_t BytesConsumed = 1;
 	int m[3];
-	BYTE c = *DataIterator++;
+	BYTE c = *StrIterator++;
 	if (c >= 128)
 	{
 		ConversionError = true;
@@ -544,7 +544,7 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 			return BytesConsumed;
 		}
 
-		c = *DataIterator++;
+		c = *StrIterator++;
 		BytesConsumed = 2;
 		if (c >= 128)
 		{
@@ -576,7 +576,7 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 		return DataSize;
 	}
 
-	if ((c = *DataIterator++) >= 128)
+	if ((c = *StrIterator++) >= 128)
 	{
 		u.s.base64 = false;
 		state = u.state;
@@ -599,7 +599,7 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 	else
 	{
 		++BytesConsumed;
-		if ((c = *DataIterator++) >= 128)
+		if ((c = *StrIterator++) >= 128)
 		{
 			u.s.base64 = false;
 			state = u.state;
@@ -631,7 +631,7 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 	}
 	++BytesConsumed;
 
-	if (DataSize > BytesConsumed && *Data == (BYTE)'-')
+	if (DataSize > BytesConsumed && *Str == (BYTE)'-')
 	{
 		u.s.base64 = false;
 		++BytesConsumed;
@@ -642,19 +642,19 @@ static size_t Utf7_GetChar(const char* const Data, size_t const DataSize, wchar_
 }
 
 static size_t BytesToUnicode(
-	const char* const Str, size_t const StrSize,
+	basic_string_view<char> const Str,
 	wchar_t* const Buffer, size_t const BufferSize,
 	size_t(*GetChar)(const char*, size_t, wchar_t*, bool&, int&),
 	Utf::errors* const Errors)
 {
-	if (!StrSize)
+	if (Str.empty())
 		return 0;
 
 	if (Errors)
 		*Errors = {};
 
-	auto DataIterator = Str;
-	const auto DataEnd = Str + StrSize;
+	auto StrIterator = Str.begin();
+	const auto StrEnd = Str.end();
 
 	auto BufferIterator = Buffer;
 	const auto BufferEnd = Buffer + BufferSize;
@@ -662,11 +662,11 @@ static size_t BytesToUnicode(
 	int State = 0;
 	size_t RequiredSize = 0;
 
-	while (DataIterator != DataEnd)
+	while (StrIterator != StrEnd)
 	{
 		wchar_t TmpBuffer[2]{};
 		auto ConversionError = false;
-		const auto BytesConsumed = GetChar(DataIterator, DataEnd - DataIterator, TmpBuffer, ConversionError, State);
+		const auto BytesConsumed = GetChar(StrIterator, StrEnd - StrIterator, TmpBuffer, ConversionError, State);
 
 		if (!BytesConsumed)
 			break;
@@ -677,7 +677,7 @@ static size_t BytesToUnicode(
 			if (Errors && !Errors->Conversion.Error)
 			{
 				Errors->Conversion.Error = true;
-				Errors->Conversion.Position = DataIterator - Str;
+				Errors->Conversion.Position = StrIterator - Str.begin();
 			}
 		}
 
@@ -697,24 +697,24 @@ static size_t BytesToUnicode(
 			StoreChar(TmpBuffer[1]);
 		}
 
-		DataIterator += BytesConsumed;
+		StrIterator += BytesConsumed;
 	}
 
 	return RequiredSize;
 }
 
-size_t Utf7::get_chars(const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
+size_t Utf7::get_chars(basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
 {
-	return BytesToUnicode(Data, DataSize, Buffer, BufferSize, Utf7_GetChar, Errors);
+	return BytesToUnicode(Str, Buffer, BufferSize, Utf7_GetChar, Errors);
 }
 
-size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wchar_t& First, wchar_t& Second)
+size_t Utf8::get_char(const char*& StrIterator, const char* const StrEnd, wchar_t& First, wchar_t& Second)
 {
 	size_t NumberOfChars = 1;
 
 	const auto& InvalidChar = [](unsigned char c) { return 0xDC00 + c; };
 
-	const unsigned char c1 = *DataIterator++;
+	const unsigned char c1 = *StrIterator++;
 
 	if (c1 < 0x80)
 	{
@@ -735,12 +735,12 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 		};
 
 		// multibyte (2, 3, 4)
-		if (DataIterator == DataEnd)
+		if (StrIterator == StrEnd)
 		{
 			return Unfinished();
 		}
 
-		const auto c2 = *DataIterator;
+		const auto c2 = *StrIterator;
 
 		if ((c2 & 0xC0) != 0x80 ||        // illegal 2-nd byte
 			(c1 == 0xE0 && c2 <= 0x9F) || // illegal 3-byte start (overlaps with 2-byte)
@@ -753,17 +753,17 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 		{
 			// legal 2-byte
 			First = ((c1 & 0x1F) << 6) | (c2 & 0x3F);
-			++DataIterator;
+			++StrIterator;
 		}
 		else
 		{
 			// 3 or 4-byte
-			if (DataIterator + 1 == DataEnd)
+			if (StrIterator + 1 == StrEnd)
 			{
 				return Unfinished();
 			}
 
-			const auto c3 = *(DataIterator + 1);
+			const auto c3 = *(StrIterator + 1);
 			if ((c3 & 0xC0) != 0x80)
 			{
 				// illegal 3-rd byte
@@ -780,18 +780,18 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 				}
 				else
 				{
-					DataIterator += 2;
+					StrIterator += 2;
 				}
 			}
 			else
 			{
 				// 4-byte
-				if (DataIterator + 2 == DataEnd)
+				if (StrIterator + 2 == StrEnd)
 				{
 					return Unfinished();
 				}
 
-				const auto c4 = *(DataIterator + 2);
+				const auto c4 = *(StrIterator + 2);
 				if ((c4 & 0xC0) != 0x80)
 				{
 					// illegal 4-th byte
@@ -804,7 +804,7 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 					First = 0xD800 + (FullChar >> 10);
 					Second = 0xDC00 + (FullChar & 0x3FF);
 					NumberOfChars = 2;
-					DataIterator += 3;
+					StrIterator += 3;
 				}
 			}
 		}
@@ -813,10 +813,10 @@ size_t Utf8::get_char(const char*& DataIterator, const char* const DataEnd, wcha
 	return NumberOfChars;
 }
 
-size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, int& Tail)
+size_t Utf8::get_chars(basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize, int& Tail)
 {
-	auto DataIterator = Data;
-	const auto DataEnd = Data + DataSize;
+	auto StrIterator = Str.begin();
+	const auto StrEnd = Str.end();
 
 	auto BufferIterator = Buffer;
 	const auto BufferEnd = Buffer + BufferSize;
@@ -831,10 +831,10 @@ size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* c
 		return false;
 	};
 
-	while (DataIterator != DataEnd)
+	while (StrIterator != StrEnd)
 	{
 		wchar_t First, Second;
-		const auto NumberOfChars = get_char(DataIterator, DataEnd, First, Second);
+		const auto NumberOfChars = get_char(StrIterator, StrEnd, First, Second);
 
 		if (!StoreChar(NumberOfChars == 1 || BufferIterator + 1 != BufferEnd? First : Utf::REPLACE_CHAR))
 			break;
@@ -846,31 +846,32 @@ size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* c
 		}
 	}
 
-	Tail = DataEnd - DataIterator;
+	Tail = StrEnd - StrIterator;
 	return BufferIterator - Buffer;
 }
 
-size_t Utf8::get_chars(const char* const Data, size_t const DataSize, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
+size_t Utf8::get_chars(basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
 {
-	return BytesToUnicode(Data, DataSize, Buffer, BufferSize, [](const char* Data, size_t DataSize, wchar_t* Buffer, bool&, int&)
+	return BytesToUnicode(Str, Buffer, BufferSize, [](const char* Str, size_t DataSize, wchar_t* Buffer, bool&, int&)
 	{
-		auto Iterator = Data;
-		Utf8::get_char(Iterator, Data + DataSize, Buffer[0], Buffer[1]);
-		return static_cast<size_t>(Iterator - Data);
+		auto Iterator = Str;
+		Utf8::get_char(Iterator, Str + DataSize, Buffer[0], Buffer[1]);
+		return static_cast<size_t>(Iterator - Str);
 	}, Errors);
 }
 
-size_t Utf8::get_bytes(const wchar_t* const Data, size_t const DataSize, char* const Buffer, size_t const BufferSize)
+size_t Utf8::get_bytes(string_view const Str, char* const Buffer, size_t const BufferSize)
 {
-	const auto End = Data + DataSize;
-	auto StrPtr = Data;
-	auto BufferPtr = Buffer;
+	auto StrIterator = Str.begin();
+	const auto StrEnd = Str.end();
+
+	auto BufferIterator = Buffer;
 	size_t RequiredCapacity = 0;
 	auto AvailableCapacity = BufferSize;
 
-	while (StrPtr != End)
+	while (StrIterator != StrEnd)
 	{
-		unsigned int Char = *StrPtr++;
+		unsigned int Char = *StrIterator++;
 
 		size_t BytesNumber;
 
@@ -891,10 +892,10 @@ size_t Utf8::get_bytes(const wchar_t* const Data, size_t const DataSize, char* c
 			BytesNumber = 1;
 			Char &= 0xFF;
 		}
-		else if (InRange(0xD800u, Char, 0xDBFFu) && StrPtr != End && InRange(0xDC00u, *StrPtr, 0xDFFFu)) // valid surrogate pair
+		else if (InRange(0xD800u, Char, 0xDBFFu) && StrIterator != StrEnd && InRange(0xDC00u, *StrIterator, 0xDFFFu)) // valid surrogate pair
 		{
 			BytesNumber = 4;
-			Char = 0x10000u + ((Char - 0xD800u) << 10) + (*StrPtr++ - 0xDC00u);
+			Char = 0x10000u + ((Char - 0xD800u) << 10) + (*StrIterator++ - 0xDC00u);
 		}
 		else
 		{
@@ -914,25 +915,25 @@ size_t Utf8::get_bytes(const wchar_t* const Data, size_t const DataSize, char* c
 		switch (BytesNumber)
 		{
 		case 1:
-			*BufferPtr++ = Char;
+			*BufferIterator++ = Char;
 			break;
 
 		case 2:
-			*BufferPtr++ = 0xC0 | (Char >> 6);
-			*BufferPtr++ = 0x80 | (Char & 0x3F);
+			*BufferIterator++ = 0xC0 | (Char >> 6);
+			*BufferIterator++ = 0x80 | (Char & 0x3F);
 			break;
 
 		case 3:
-			*BufferPtr++ = 0xE0 | (Char >> 12);
-			*BufferPtr++ = 0x80 | (Char >> 6 & 0x3F);
-			*BufferPtr++ = 0x80 | (Char & 0x3F);
+			*BufferIterator++ = 0xE0 | (Char >> 12);
+			*BufferIterator++ = 0x80 | (Char >> 6 & 0x3F);
+			*BufferIterator++ = 0x80 | (Char & 0x3F);
 			break;
 
 		case 4:
-			*BufferPtr++ = 0xF0 | (Char >> 18);
-			*BufferPtr++ = 0x80 | (Char >> 12 & 0x3F);
-			*BufferPtr++ = 0x80 | (Char >> 6 & 0x3F);
-			*BufferPtr++ = 0x80 | (Char & 0x3F);
+			*BufferIterator++ = 0xF0 | (Char >> 18);
+			*BufferIterator++ = 0x80 | (Char >> 12 & 0x3F);
+			*BufferIterator++ = 0x80 | (Char >> 6 & 0x3F);
+			*BufferIterator++ = 0x80 | (Char & 0x3F);
 			break;
 		}
 	}

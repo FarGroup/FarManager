@@ -1103,7 +1103,7 @@ bool background_searcher::LookForString(const string& Name)
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					bufferCount = encoding::get_chars(i.CodePage, readBufferA.data(), readBlockSize, readBuffer);
+					bufferCount = encoding::get_chars(i.CodePage, { readBufferA.data(), readBlockSize }, readBuffer);
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)

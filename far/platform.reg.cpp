@@ -235,9 +235,12 @@ namespace os::reg
 		m_Key.open(Key, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam);
 	}
 
-	bool enum_key::get(size_t Index, value_type& Value) const
+	bool enum_key::get(bool Reset, value_type& Value) const
 	{
-		return m_KeyRef && m_KeyRef.enum_keys(Index, Value);
+		if (Reset)
+			m_Index = 0;
+
+		return m_KeyRef && m_KeyRef.enum_keys(m_Index++, Value);
 	}
 
 	//-------------------------------------------------------------------------
@@ -253,8 +256,11 @@ namespace os::reg
 		m_Key.open(Key, SubKey, KEY_QUERY_VALUE | Sam);
 	}
 
-	bool enum_value::get(size_t Index, value_type& Value) const
+	bool enum_value::get(bool Reset, value_type& Value) const
 	{
-		return m_KeyRef && m_KeyRef.enum_values(Index, Value);
+		if (Reset)
+			m_Index = 0;
+
+		return m_KeyRef && m_KeyRef.enum_values(m_Index++, Value);
 	}
 }

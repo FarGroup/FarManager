@@ -103,10 +103,13 @@ public:
 	auto DeviceInterfacesEnumerator(const GUID& InterfaceClassGuid) const
 	{
 		using value_type = SP_DEVICE_INTERFACE_DATA;
-		return make_inline_enumerator<value_type>([this, &InterfaceClassGuid](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, &InterfaceClassGuid, Index = size_t{}](const bool Reset, value_type& Value) mutable
 		{
+			if (Reset)
+				Index = 0;
+
 			Value.cbSize = sizeof(Value);
-			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, static_cast<DWORD>(Index), &Value) != FALSE;
+			return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassGuid, static_cast<DWORD>(Index++), &Value) != FALSE;
 		});
 	}
 

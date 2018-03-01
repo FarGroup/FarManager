@@ -95,7 +95,7 @@ namespace os::fs
 		explicit enum_drives(drives_set Drives);
 
 	private:
-		bool get(size_t Index, wchar_t& Value) const;
+		bool get(bool Reset, wchar_t& Value) const;
 
 		drives_set m_Drives;
 		mutable size_t m_CurrentIndex{};
@@ -109,7 +109,7 @@ namespace os::fs
 		explicit enum_files(string_view Object, bool ScanSymLink = true);
 
 	private:
-		bool get(size_t Index, find_data& Value) const;
+		bool get(bool Reset, find_data& Value) const;
 
 		string m_Object;
 		bool m_ScanSymlink;
@@ -124,7 +124,7 @@ namespace os::fs
 		explicit enum_names(string_view Object);
 
 	private:
-		bool get(size_t Index, string& Value) const;
+		bool get(bool Reset, string& Value) const;
 
 		string m_Object;
 		mutable find_handle m_Handle;
@@ -138,7 +138,7 @@ namespace os::fs
 		explicit enum_streams(string_view Object);
 
 	private:
-		bool get(size_t Index, WIN32_FIND_STREAM_DATA& Value) const;
+		bool get(bool Reset, WIN32_FIND_STREAM_DATA& Value) const;
 
 		string m_Object;
 		mutable find_file_handle m_Handle;
@@ -152,7 +152,7 @@ namespace os::fs
 		enum_volumes();
 
 	private:
-		bool get(size_t Index, string& Value) const;
+		bool get(bool Reset, string& Value) const;
 
 		string m_Object;
 		mutable find_volume_handle m_Handle;

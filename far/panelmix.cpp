@@ -56,27 +56,27 @@ static const struct column_info
 {
 	PANEL_COLUMN_TYPE Type;
 	int DefaultWidth;
-	const wchar_t* Symbol;
+	const string_view String;
 }
 ColumnInfo[] =
 {
-	{ NAME_COLUMN, 0, L"N" },
-	{ SIZE_COLUMN, 6, L"S" },
-	{ PACKED_COLUMN, 6, L"P" },
-	{ DATE_COLUMN, 8, L"D" },
-	{ TIME_COLUMN, 5, L"T" },
-	{ WDATE_COLUMN, 14, L"DM" },
-	{ CDATE_COLUMN, 14, L"DC" },
-	{ ADATE_COLUMN, 14, L"DA" },
-	{ CHDATE_COLUMN, 14, L"DE" },
-	{ ATTR_COLUMN, 6, L"A" },
-	{ DIZ_COLUMN, 0, L"Z" },
-	{ OWNER_COLUMN, 0, L"O" },
-	{ NUMLINK_COLUMN, 3, L"LN" },
-	{ NUMSTREAMS_COLUMN, 3, L"F" },
-	{ STREAMSSIZE_COLUMN, 6, L"G" },
-	{ EXTENSION_COLUMN, 0, L"X", },
-	{ CUSTOM_COLUMN0, 0, L"C0" },
+	{ NAME_COLUMN, 0, L"N"_sv },
+	{ SIZE_COLUMN, 6, L"S"_sv },
+	{ PACKED_COLUMN, 6, L"P"_sv },
+	{ DATE_COLUMN, 8, L"D"_sv },
+	{ TIME_COLUMN, 5, L"T"_sv },
+	{ WDATE_COLUMN, 14, L"DM"_sv },
+	{ CDATE_COLUMN, 14, L"DC"_sv },
+	{ ADATE_COLUMN, 14, L"DA"_sv },
+	{ CHDATE_COLUMN, 14, L"DE"_sv },
+	{ ATTR_COLUMN, 6, L"A"_sv },
+	{ DIZ_COLUMN, 0, L"Z"_sv },
+	{ OWNER_COLUMN, 0, L"O"_sv },
+	{ NUMLINK_COLUMN, 3, L"LN"_sv },
+	{ NUMSTREAMS_COLUMN, 3, L"F"_sv },
+	{ STREAMSSIZE_COLUMN, 6, L"G"_sv },
+	{ EXTENSION_COLUMN, 0, L"X"_sv, },
+	{ CUSTOM_COLUMN0, 0, L"C0"_sv },
 };
 
 static_assert(std::size(ColumnInfo) == COLUMN_TYPES_COUNT);
@@ -302,27 +302,19 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 	FN_RETURN_TYPE(DeserialiseViewSettings) Columns;
 
-	const wchar_t *TextPtr=ColumnTitles.data();
-
-	for (;;)
+	for (const auto& Type: enum_tokens(ColumnTitles, L","_sv))
 	{
-		string strArgName;
-		TextPtr = GetCommaWord(TextPtr, strArgName);
-
-		if (!TextPtr)
-			break;
-
-		if (strArgName.empty())
+		if (Type.empty())
 			continue;
 
 		column NewColumn;
 
-		const auto strArgOrig = upper(strArgName);
+		const auto TypeOrig = upper(string(Type));
 
-		if (strArgName.front() == L'N')
+		if (Type.front() == L'N')
 		{
 			NewColumn.type = NAME_COLUMN;
-			for (const auto& i: make_range(strArgName.cbegin() + 1, strArgName.cend()))
+			for (const auto& i: Type.substr(1))
 			{
 				switch (i)
 				{
@@ -347,10 +339,15 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				}
 			}
 		}
-		else if (strArgName.front() == L'S' || strArgName.front() == L'P' || strArgName.front() == L'G')
+		else if (Type.front() == L'S' || Type.front() == L'P' || Type.front() == L'G')
 		{
-			NewColumn.type = (strArgName.front() == L'S') ? SIZE_COLUMN : (strArgName.front() == L'P') ? PACKED_COLUMN : STREAMSSIZE_COLUMN;
-			for (const auto& i: make_range(strArgName.cbegin() + 1, strArgName.cend()))
+			NewColumn.type = Type.front() == L'S'?
+				SIZE_COLUMN :
+				Type.front() == L'P'?
+					PACKED_COLUMN :
+					STREAMSSIZE_COLUMN;
+
+			for (const auto& i: Type.substr(1))
 			{
 				switch (i)
 				{
@@ -370,12 +367,12 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 			}
 		}
 		else if (
-			starts_with(strArgName, L"DM"_sv) ||
-			starts_with(strArgName, L"DC"_sv) ||
-			starts_with(strArgName, L"DA"_sv) ||
-			starts_with(strArgName, L"DE"_sv))
+			starts_with(Type, L"DM"_sv) ||
+			starts_with(Type, L"DC"_sv) ||
+			starts_with(Type, L"DA"_sv) ||
+			starts_with(Type, L"DE"_sv))
 		{
-			switch (strArgName[1])
+			switch (Type[1])
 			{
 			case L'M':
 				NewColumn.type = WDATE_COLUMN;
@@ -391,7 +388,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				break;
 			}
 
-			for (const auto& i: make_range(strArgName.cbegin() + 2, strArgName.cend()))
+			for (const auto& i: Type.substr(2))
 			{
 				switch (i)
 				{
@@ -404,34 +401,34 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				}
 			}
 		}
-		else if (strArgName.front() == L'O')
+		else if (Type.front() == L'O')
 		{
 			NewColumn.type = OWNER_COLUMN;
 
-			if (strArgName.size() > 1 && strArgName[1] == L'L')
+			if (Type.size() > 1 && Type[1] == L'L')
 				NewColumn.type |= COLUMN_FULLOWNER;
 		}
-		else if (strArgName.front() == L'X')
+		else if (Type.front() == L'X')
 		{
 			NewColumn.type = EXTENSION_COLUMN;
 
-			if (strArgName.size() > 1 && strArgName[1] == L'R')
+			if (Type.size() > 1 && Type[1] == L'R')
 				NewColumn.type |= COLUMN_RIGHTALIGN;
 		}
-		else if (strArgOrig.size() > 2 && strArgOrig.front() == L'<' && strArgOrig.back() == L'>')
+		else if (Type.size() > 2 && Type.front() == L'<' && Type.back() == L'>')
 		{
-			NewColumn.title = strArgOrig.substr(1, strArgOrig.size() - 2);
+			NewColumn.title = string(Type.substr(1, Type.size() - 2));
 			NewColumn.type = CUSTOM_COLUMN0;
 		}
 		else
 		{
-			const auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return strArgName == i.Symbol; });
+			const auto ItemIterator = std::find_if(CONST_RANGE(ColumnInfo, i) { return Type == i.String; });
 			if (ItemIterator != std::cend(ColumnInfo))
 				NewColumn.type = ItemIterator->Type;
-			else if (strArgOrig.size() >= 2 && strArgOrig.size() <= 3 && strArgOrig.front() == L'C')
+			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
 			{
 				unsigned int num;
-				if (1 == swscanf(strArgOrig.data()+1, L"%u", &num))
+				if (1 == swscanf(TypeOrig.data()+1, L"%u", &num))
 					NewColumn.type = CUSTOM_COLUMN0 + num;
 			}
 			else
@@ -445,25 +442,23 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 		Columns.emplace_back(NewColumn);
 	}
 
-	TextPtr=ColumnWidths.data();
+	const auto EnumWidths = enum_tokens(ColumnWidths, L","_sv);
+	auto EnumWidthsRange = make_range(EnumWidths);
 
 	for (auto& i: Columns)
 	{
-		string strArgName;
-
-		if (TextPtr)
-			TextPtr = GetCommaWord(TextPtr, strArgName);
+		auto Width = EnumWidthsRange.empty()? L""_sv : *EnumWidthsRange.pop_front();
 
 		// "column types" is a determinant here (see the loop header) so we can't break or continue here -
 		// if "column sizes" ends earlier or if user entered two commas we just use default size.
-		if (!TextPtr || strArgName.empty())
+		if (Width.empty())
 		{
-			strArgName = L"0"s;
+			Width = L"0"_sv;
 		}
 
 		try
 		{
-			i.width = std::stoi(strArgName);
+			i.width = std::stoi(string(Width));
 		}
 		catch (const std::exception&)
 		{
@@ -473,9 +468,9 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 		i.width_type = col_width::fixed;
 
-		if (strArgName.size()>1)
+		if (Width.size()>1)
 		{
-			switch (strArgName.back())
+			switch (Width.back())
 			{
 				case L'%':
 					i.width_type = col_width::percent;
@@ -529,7 +524,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 
 		if (ColumnType <= CUSTOM_COLUMN0)
 		{
-			strType = ColumnInfo[ColumnType].Symbol;
+			strType = string(ColumnInfo[ColumnType].String);
 		}
 		else
 		{

@@ -3206,14 +3206,15 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 						int All=BSTATE_UNCHECKED;
 
 						if (GetString(
-							msg(lng::MCopyRenameTitle).data(),
-							msg(lng::MCopyRenameText).data(),
-							nullptr,
-							strDestName.data(),
-							*WFN->Dest,L"CopyAskOverwrite",
-							FIB_BUTTONS|FIB_NOAMPERSAND|FIB_EXPANDENV|FIB_CHECKBOX,
+							msg(lng::MCopyRenameTitle),
+							msg(lng::MCopyRenameText),
+							{},
+							strDestName,
+							*WFN->Dest,
+							L"CopyAskOverwrite"_sv,
+							FIB_BUTTONS | FIB_NOAMPERSAND | FIB_EXPANDENV | FIB_CHECKBOX,
 							&All,
-							msg(lng::MCopyRememberChoice).data()))
+							msg(lng::MCopyRememberChoice)))
 						{
 							if (All!=BSTATE_UNCHECKED)
 							{

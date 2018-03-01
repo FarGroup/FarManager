@@ -63,9 +63,12 @@ public:
 	auto Enumerator()
 	{
 		using value_type = data;
-		return make_inline_enumerator<value_type>([this](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, Index = size_t{}](bool Reset, value_type& Value) mutable
 		{
-			return GetOne(Index, Value);
+			if (Reset)
+				Index = 0;
+
+			return GetOne(Index++, Value);
 		});
 	}
 

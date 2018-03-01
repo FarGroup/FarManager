@@ -545,7 +545,7 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 		for (const auto& AliasToken: enum_substrings(AliasesBuffer.data()))
 		{
 			auto Pair = split_name_value(AliasToken);
-			ExeMap.emplace(std::move(Pair.first), std::move(Pair.second));
+			ExeMap.emplace(string(Pair.first), string(Pair.second));
 		}
 	}
 

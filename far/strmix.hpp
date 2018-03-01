@@ -56,8 +56,6 @@ inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return
 
 size_t ReplaceStrings(string &strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
 
-const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
-
 string& FarFormatText(const string& SrcText, size_t Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
 void PrepareUnitStr();
@@ -159,13 +157,6 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex);
 char* xstrncpy(char* dest, const char* src, size_t DestSize);
 wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
 
-std::pair<string, string> split_name_value(const wchar_t* Line);
-
-template<typename T>
-std::pair<string, string> split_name_value(const T& Line)
-{
-	const auto SeparatorPos = std::find(ALL_CONST_RANGE(Line), L'=');
-	return { { Line.begin(), SeparatorPos }, { SeparatorPos + 1, Line.end() } };
-}
+std::pair<string_view, string_view> split_name_value(string_view Str);
 
 #endif // STRMIX_HPP_66F8DC2A_61A6_4C06_9B54_E0513A9735FA

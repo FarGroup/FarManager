@@ -125,7 +125,7 @@ CONSOLE_CURSOR_INFO InitialCursorInfo;
 static SMALL_RECT windowholder_rect;
 
 WCHAR Oem2Unicode[256];
-WCHAR BoxSymbols[64];
+WCHAR BoxSymbols[BS_COUNT];
 
 COORD InitSize={};
 COORD CurSize={};
@@ -732,8 +732,8 @@ void InitRecodeOutTable()
 		Buffer[BS_H2] = L'=';
 	};
 
-	// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-	xwcsncpy(BoxSymbols, Global->Opt->strBoxSymbols.data(), std::size(BoxSymbols) - 1);
+	// перед [пере]инициализацией восстановим буфер
+	std::copy_n(Global->Opt->strBoxSymbols.Get().begin(), std::min(std::size(BoxSymbols), Global->Opt->strBoxSymbols.size()), BoxSymbols);
 
 	if (Global->Opt->NoGraphics)
 	{

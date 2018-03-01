@@ -305,7 +305,20 @@ intptr_t WINAPI apiInputBox(
 			return FALSE;
 
 		string strDest;
-		const auto Result = GetString(Title, Prompt, HistoryName, SrcText, strDest, HelpTopic, Flags&~FIB_CHECKBOX, nullptr, nullptr, GuidToPlugin(PluginId), Id);
+
+		const auto Result = GetString(
+			NullToEmpty(Title),
+			NullToEmpty(Prompt),
+			NullToEmpty(HistoryName),
+			NullToEmpty(SrcText),
+			strDest,
+			NullToEmpty(HelpTopic),
+			Flags&~FIB_CHECKBOX,
+			{},
+			{},
+			GuidToPlugin(PluginId),
+			Id);
+
 		xwcsncpy(DestText, strDest.data(), DestSize);
 		return Result;
 	}

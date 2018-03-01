@@ -318,7 +318,7 @@ static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepa
 	return false;
 }
 
-fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile)
+fileeditor_ptr FileEditor::create(const string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, EDITOR_FLAGS OpenModeExstFile)
 {
 	auto FileEditorPtr = std::make_shared<FileEditor>(private_tag());
 	FileEditorPtr->ScreenObjectWithShadow::SetPosition(0, 0, ScrX, ScrY);
@@ -328,7 +328,7 @@ fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD 
 	return FileEditorPtr;
 }
 
-fileeditor_ptr FileEditor::create(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile)
+fileeditor_ptr FileEditor::create(const string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile)
 {
 	auto FileEditorPtr = std::make_shared<FileEditor>(private_tag());
 	FileEditorPtr->m_Flags.Set(InitFlags);
@@ -401,14 +401,14 @@ FileEditor::~FileEditor()
 }
 
 void FileEditor::Init(
-    const string& Name,
+    const string_view Name,
     uintptr_t codepage,
     const string* Title,
     int StartLine,
     int StartChar,
     const string* PluginData,
     int DeleteOnClose,
-	const window_ptr& Update,
+    const window_ptr& Update,
     EDITOR_FLAGS OpenModeExstFile
 )
 {
@@ -587,7 +587,7 @@ void FileEditor::Init(
 		if (Message(MSG_WARNING,
 			msg(lng::MEditTitle),
 			{
-				Name,
+				string(Name),
 				msg(lng::MEditRSH),
 				msg(lng::MEditROOpen)
 			},
@@ -1889,7 +1889,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			const auto& SaveStr = Line.GetString();
 			auto LineEol = Line.GetEOL();
 
-			bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr.data(), SaveStr.size(), nullptr, 0, &UsedDefaultCharStr) && UsedDefaultCharStr;
+			bool UsedDefaultCharStr = encoding::get_bytes(codepage, SaveStr, nullptr, 0, &UsedDefaultCharStr) && UsedDefaultCharStr;
 
 			if (Eol != eol::type::none && LineEol != eol::type::none)
 				LineEol = m_editor->GlobalEOL;
@@ -1921,7 +1921,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 						const auto BadCharIterator = std::find_if(CONST_RANGE(SaveStr, i)
 						{
 							bool UseDefChar;
-							return encoding::get_bytes(codepage, &i, 1, nullptr, 0, &UseDefChar) == 1 && UseDefChar;
+							return encoding::get_bytes(codepage, { &i, 1 }, nullptr, 0, &UseDefChar) == 1 && UseDefChar;
 						});
 
 						if (BadCharIterator != SaveStr.cend())
@@ -2131,9 +2131,9 @@ void FileEditor::SetPluginTitle(const string* PluginTitle)
 		strPluginTitle = *PluginTitle;
 }
 
-bool FileEditor::SetFileName(const string& NewFileName)
+bool FileEditor::SetFileName(const string_view NewFileName)
 {
-	strFileName = NewFileName;
+	assign(strFileName, NewFileName);
 
 	if (strFileName != msg(lng::MNewFileName))
 	{
@@ -2271,7 +2271,7 @@ void FileEditor::ShowStatus() const
 			{
 				char Buffer;
 				bool UsedDefaultChar;
-				if (encoding::get_bytes(m_codepage, &Str[CurPos], 1, &Buffer, 1, &UsedDefaultChar) == 1 && !UsedDefaultChar && (CharCode = as_unsigned(Buffer)) != 0 && CharCode != Str[CurPos])
+				if (encoding::get_bytes(m_codepage, { &Str[CurPos], 1 }, &Buffer, 1, &UsedDefaultChar) == 1 && !UsedDefaultChar && (CharCode = as_unsigned(Buffer)) != 0 && CharCode != Str[CurPos])
 				{
 					switch(m_editor->EdOpt.CharCodeBase)
 					{

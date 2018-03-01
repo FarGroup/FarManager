@@ -234,9 +234,9 @@ public:
 	}
 
 private:
-	bool get(size_t Index, string_view& Value) const
+	bool get(bool Reset, string_view& Value) const
 	{
-		if (!Index)
+		if (Reset)
 			m_Iterator = m_View.cbegin();
 		else if (m_Iterator != m_View.cend())
 			++m_Iterator;

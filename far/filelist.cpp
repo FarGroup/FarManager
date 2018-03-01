@@ -4773,17 +4773,18 @@ void FileList::DescribeFiles()
 		   Для Ctrl-Z не нужно брать предыдущее значение!
 		*/
 		string strDizText;
+
 		if (!GetString(
-			msg(lng::MDescribeFiles).data(),
-			strMsg.data(),
-			L"DizText",
+			msg(lng::MDescribeFiles),
+			strMsg,
+			L"DizText"_sv,
 			PrevText,
 			strDizText,
-			L"FileDiz",
-			FIB_ENABLEEMPTY | (!DizCount? FIB_NOUSELASTHISTORY : 0) | FIB_BUTTONS, \
-			nullptr,
-			nullptr,
-			nullptr,
+			L"FileDiz"_sv,
+			FIB_ENABLEEMPTY | (!DizCount? FIB_NOUSELASTHISTORY : 0) | FIB_BUTTONS,
+			{},
+			{},
+			{},
 			&DescribeFileId))
 		{
 			break;
@@ -4835,18 +4836,18 @@ bool FileList::ApplyCommand()
 	string strCommand;
 
 	if (!GetString(
-			msg(lng::MAskApplyCommandTitle).data(),
-			msg(lng::MAskApplyCommand).data(),
-			L"ApplyCmd",
-			strPrevCommand.data(),
-			strCommand,
-			L"ApplyCmd",
-			FIB_BUTTONS|FIB_EDITPATH|FIB_EDITPATHEXEC,
-			nullptr,
-			nullptr,
-			nullptr,
-			&ApplyCommandId) ||
-		!SetCurPath())
+		msg(lng::MAskApplyCommandTitle),
+		msg(lng::MAskApplyCommand),
+		L"ApplyCmd"_sv,
+		strPrevCommand,
+		strCommand,
+		L"ApplyCmd"_sv,
+		FIB_BUTTONS | FIB_EDITPATH | FIB_EDITPATHEXEC,
+		{},
+		{},
+		{},
+		&ApplyCommandId
+	) || !SetCurPath())
 		return false;
 
 	strPrevCommand = strCommand;

@@ -759,7 +759,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 	{
 		std::vector<wchar_t> Buffer(ClientWidth);
 		int dummy_tail;
-		const auto WideCharsNumber = Utf8::get_chars(Src, Size, Buffer.data(), ClientWidth, dummy_tail);
+		const auto WideCharsNumber = Utf8::get_chars({ Src, Size }, Buffer.data(), ClientWidth, dummy_tail);
 		for (size_t iw = 0; OutStr.size() < ClientWidth && iw != WideCharsNumber; ++iw)
 		{
 			if (tail)
@@ -770,7 +770,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 			}
 
 			OutStr.push_back(Buffer[iw] == Utf::BOM_CHAR? Utf::REPLACE_CHAR : Buffer[iw]); // BOM can be Zero Length
-			const auto clen = encoding::utf8::get_bytes_count(Buffer.data() + iw, 1);
+			const auto clen = encoding::utf8::get_bytes_count({ Buffer.data() + iw, 1 });
 			const auto PaddingSize = std::min(clen - 1, static_cast<size_t>(ClientWidth) - OutStr.size());
 			OutStr.append(PaddingSize, Utf::CONTINUE_CHAR);
 			tail = static_cast<int>(clen - 1 - PaddingSize); // char continues on the next line?
@@ -806,7 +806,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 	}
 	else
 	{
-		OutStr = encoding::get_chars(m_Codepage, Src, Size);
+		OutStr = encoding::get_chars(m_Codepage, { Src, Size });
 	}
 
 	OutStr.resize(ClientWidth, L' ');
@@ -2488,13 +2488,13 @@ void Viewer::Up( int nlines, bool adjust )
 	}
 }
 
-int Viewer::GetStrBytesNum(const wchar_t *Str, int Length) const
+int Viewer::GetStrBytesNum(string_view const Str) const
 {
-	int ch_size = getCharSize();
+	const auto ch_size = getCharSize();
 	if (ch_size > 0)
-		return Length * ch_size;
-	else
-		return static_cast<int>(encoding::get_bytes_count(m_Codepage, Str, Length));
+		return static_cast<int>(Str.size() * ch_size);
+
+	return static_cast<int>(encoding::get_bytes_count(m_Codepage, Str));
 }
 
 void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
@@ -2972,7 +2972,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		int nw1 = vread(buff+nw, 3*(slen+ww), t_buff ? t_buff+nw : nullptr);
 		nw1 = std::max(nw1, slen+ww-1);
 		nw += nw1;
-		to1 = to + (t_buff ? GetStrBytesNum(t_buff, nw1) : sd->ch_size * nw1);
+		to1 = to + (t_buff ? GetStrBytesNum({ t_buff, static_cast<size_t>(nw1) }) : sd->ch_size * nw1);
 	}
 
 	int is_eof = (to1 >= FileSize ? 1 : 0), iLast = nw - slen - ww + ww*is_eof;
@@ -2993,8 +2993,8 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		 || (slen > 2 && !std::equal(buff + i + 2, buff + i + slen, search_str + 2))
 		) continue;
 
-		sd->MatchPos = cpos + GetStrBytesNum(t_buff, i);
-		sd->search_len = GetStrBytesNum(t_buff+i, slen);
+		sd->MatchPos = cpos + GetStrBytesNum({ t_buff, static_cast<size_t>(i) });
+		sd->search_len = GetStrBytesNum({ t_buff + i, static_cast<size_t>(slen) });
 		return Search_Found;
 	}
 
@@ -3011,7 +3011,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 	}
 	else
 	{
-		sd->CurPos = to1 - GetStrBytesNum(t_buff+iLast+1, nw-iLast-1);
+		sd->CurPos = to1 - GetStrBytesNum({ t_buff + iLast + 1, static_cast<size_t>(nw - iLast - 1) });
 
 		if (LastSelectPos > 0 && cpos < LastSelectPos && sd->CurPos >= LastSelectPos)
 			return Search_NotFound;
@@ -3050,7 +3050,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 			vseek(to1, FILE_BEGIN);
 			int nw1 = vread(buff, nb1, t_buff);
 			if (nw1 > slen + ww - 1)
-				nb1 = GetStrBytesNum(t_buff + nw1 - (slen + ww - 1), slen + ww - 1);
+				nb1 = GetStrBytesNum({ t_buff + nw1 - (slen + ww - 1), static_cast<size_t>(slen + ww - 1) });
 			nb += nb1;
 		}
 	}
@@ -3076,8 +3076,8 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 		|| (slen > 2 && !std::equal(buff + i + 2, buff + i + slen, search_str + 2))
 		) continue;
 
-		sd->MatchPos = cpos + GetStrBytesNum(t_buff, i);
-		sd->search_len = GetStrBytesNum(t_buff+i, slen);
+		sd->MatchPos = cpos + GetStrBytesNum({ t_buff, static_cast<size_t>(i) });
+		sd->search_len = GetStrBytesNum({ t_buff + i, static_cast<size_t>(slen) });
 		return Search_Found;
 	}
 
@@ -3095,7 +3095,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 	}
 	else
 	{
-		sd->CurPos = cpos + GetStrBytesNum(t_buff,iFirst+slen-1);
+		sd->CurPos = cpos + GetStrBytesNum({ t_buff, static_cast<size_t>(iFirst + slen - 1) });
 
 		if (cpos+nb > LastSelectPos && sd->CurPos <= LastSelectPos)
 			return Search_NotFound;
@@ -3192,7 +3192,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 			break;
 		}
 
-		long long fpos = bpos + GetStrBytesNum(t_line, m[0].start);
+		long long fpos = bpos + GetStrBytesNum({ t_line, static_cast<size_t>(m[0].start) });
 		if ( fpos < cpos )
 		{
 			off = m[0].start + 1; // skip
@@ -3205,7 +3205,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		else // found
 		{
 			sd->MatchPos = fpos;
-			sd->search_len = GetStrBytesNum(t_line + off + m[0].start, m[0].end - m[0].start);
+			sd->search_len = GetStrBytesNum({ t_line + off + m[0].start, static_cast<size_t>(m[0].end - m[0].start) });
 			return Search_Found;
 		}
 	}
@@ -3260,8 +3260,8 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 			break;
 		}
 
-		long long fpos = bpos + GetStrBytesNum(t_line, m[0].start);
-		int flen = GetStrBytesNum(t_line + m[0].start, m[0].end - m[0].start);
+		long long fpos = bpos + GetStrBytesNum({ t_line, static_cast<size_t>(m[0].start) });
+		int flen = GetStrBytesNum({ t_line + m[0].start, static_cast<size_t>(m[0].end - m[0].start) });
 		if (fpos+flen > cpos)
 			break;
 
@@ -3705,7 +3705,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		if (m_Codepage == CP_UTF8)
 		{
 			int tail;
-			ReadSize = Utf8::get_chars(TmpBuf, ConvertSize, Buf, Count, tail);
+			ReadSize = Utf8::get_chars({ TmpBuf, ConvertSize }, Buf, Count, tail);
 
 			if (Buf2)
 			{
@@ -3752,7 +3752,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 		}
 		else
 		{
-			ReadSize = encoding::get_chars(m_Codepage, TmpBuf, ConvertSize, Buf, Count);
+			ReadSize = encoding::get_chars(m_Codepage, { TmpBuf, ConvertSize }, Buf, Count);
 		}
 	}
 
@@ -3881,7 +3881,7 @@ bool Viewer::vgetc(wchar_t *pCh)
 			}
 			else
 			{
-				encoding::get_chars(m_Codepage, vgetc_buffer + vgetc_ib, 1, pCh, 1);
+				encoding::get_chars(m_Codepage, { vgetc_buffer + vgetc_ib, 1 }, pCh, 1);
 				++vgetc_ib;
 			}
 		break;
@@ -3936,7 +3936,7 @@ wchar_t Viewer::vgetc_prev()
 			{
 				int tail = 0;
 				wchar_t CharBuffer[4];
-				const auto Length = Utf8::get_chars(RawBuffer, BytesRead, CharBuffer, std::size(CharBuffer), tail);
+				const auto Length = Utf8::get_chars({ RawBuffer, BytesRead }, CharBuffer, std::size(CharBuffer), tail);
 				if (!tail && Length)
 				{
 					Result = CharBuffer[Length - 1];
@@ -3947,7 +3947,7 @@ wchar_t Viewer::vgetc_prev()
 		default:
 			if (CharSize == 1)
 			{
-				encoding::get_chars(m_Codepage, RawBuffer, 1, &Result, 1);
+				encoding::get_chars(m_Codepage, { RawBuffer, 1 }, &Result, 1);
 			}
 			else
 			{

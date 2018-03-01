@@ -124,9 +124,9 @@ namespace os::fs
 	{
 	}
 
-	bool enum_drives::get(size_t Index, wchar_t& Value) const
+	bool enum_drives::get(bool Reset, wchar_t& Value) const
 	{
-		if (!Index)
+		if (Reset)
 			m_CurrentIndex = 0;
 
 		while (m_CurrentIndex != m_Drives.size() && !m_Drives[m_CurrentIndex])
@@ -334,9 +334,9 @@ namespace os::fs
 		return Result;
 	}
 
-	bool enum_files::get(size_t index, find_data& Value) const
+	bool enum_files::get(bool Reset, find_data& Value) const
 	{
-		if (!index)
+		if (Reset)
 		{
 			// temporarily disable elevation to try the requested name first
 			{
@@ -379,8 +379,7 @@ namespace os::fs
 			// These "virtual" folders either don't have an SFN at all or it's the same as LFN:
 			(Value.strAlternateFileName.empty() || Value.strAlternateFileName == Value.strFileName))
 		{
-			// index is not important here, anything but 0 is fine
-			return get(1, Value);
+			return get(false, Value);
 		}
 
 		return true;
@@ -421,9 +420,9 @@ namespace os::fs
 	{
 	}
 
-	bool enum_names::get(size_t Index, string& Value) const
+	bool enum_names::get(bool Reset, string& Value) const
 	{
-		if (!Index)
+		if (Reset)
 		{
 			m_Handle = FindFirstFileName(m_Object, 0, Value);
 			return m_Handle != nullptr;
@@ -513,9 +512,9 @@ namespace os::fs
 	{
 	}
 
-	bool enum_streams::get(size_t Index, WIN32_FIND_STREAM_DATA& Value) const
+	bool enum_streams::get(bool Reset, WIN32_FIND_STREAM_DATA& Value) const
 	{
-		if (!Index)
+		if (Reset)
 		{
 			m_Handle = FindFirstStream(m_Object, FindStreamInfoStandard, &Value, 0);
 			return m_Handle != nullptr;
@@ -528,11 +527,11 @@ namespace os::fs
 
 	enum_volumes::enum_volumes() = default;
 
-	bool enum_volumes::get(size_t Index, string& Value) const
+	bool enum_volumes::get(bool Reset, string& Value) const
 	{
 		wchar_t VolumeName[50];
 
-		if (!Index)
+		if (Reset)
 		{
 			m_Handle.reset(FindFirstVolume(VolumeName, static_cast<DWORD>(std::size(VolumeName))));
 			if (!m_Handle)

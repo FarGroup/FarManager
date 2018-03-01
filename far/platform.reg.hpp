@@ -111,10 +111,11 @@ namespace os::reg
 		enum_key(const key& Key, string_view SubKey, REGSAM Sam = 0);
 
 	private:
-		bool get(size_t Index, value_type& Value) const;
+		bool get(bool Reset, value_type& Value) const;
 
 		key m_Key;
 		const key& m_KeyRef;
+		mutable size_t m_Index{};
 	};
 
 	class enum_value: noncopyable, public enumerator<enum_value, value>
@@ -126,10 +127,11 @@ namespace os::reg
 		enum_value(const key& Key, string_view SubKey, REGSAM Sam = 0);
 
 	private:
-		bool get(size_t Index, value_type& Value) const;
+		bool get(bool Reset, value_type& Value) const;
 
 		key m_Key;
 		const key& m_KeyRef;
+		mutable size_t m_Index{};
 	};
 }
 

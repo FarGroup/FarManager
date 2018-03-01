@@ -879,12 +879,12 @@ void Options::SetFolderInfoFiles()
 	string strFolderInfoFiles;
 
 	if (GetString(
-		msg(lng::MSetFolderInfoTitle).data(),
-		msg(lng::MSetFolderInfoNames).data(),
-		L"FolderInfoFiles",
-		InfoPanel.strFolderInfoFiles.data(),
+		msg(lng::MSetFolderInfoTitle),
+		msg(lng::MSetFolderInfoNames),
+		L"FolderInfoFiles"_sv,
+		InfoPanel.strFolderInfoFiles,
 		strFolderInfoFiles,
-		L"FolderDiz",
+		L"FolderDiz"_sv,
 		FIB_ENABLEEMPTY | FIB_BUTTONS))
 	{
 		InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
@@ -1368,11 +1368,9 @@ struct FARConfigItem
 	{
 		FarListItem Item{};
 
-		string Type = Value->GetType();
-		Type.resize(std::max(Type.size(), size_t(7)), L' ');
+		const auto Type = fit_to_left(string(Value->GetType()), 7);
+		ListItemString = pad_right(concat(KeyName, L'.', ValName), 42);
 
-		ListItemString = concat(KeyName, L'.', ValName);
-		ListItemString.resize(std::max(ListItemString.size(), size_t(42)), L' ');
 		append(ListItemString, BoxSymbols[BS_V1], Type, BoxSymbols[BS_V1], Value->toString(), Value->ExInfo());
 		if(!Value->IsDefault(Default))
 		{
@@ -1550,7 +1548,7 @@ bool StringOption::Edit(DialogBuilder* Builder, int Width, int Param)
 void StringOption::Export(FarSettingsItem& To) const
 {
 	To.Type = FST_STRING;
-	To.String = Get().data();
+	To.String = data();
 }
 
 
@@ -2071,13 +2069,13 @@ static const Option* GetConfigValuePtr(const container& Config, const pred& Pred
 	return ItemIterator == Config.cend()? nullptr : ItemIterator->Value;
 }
 
-const Option* Options::GetConfigValue(const wchar_t *Key, const wchar_t *Name) const
+const Option* Options::GetConfigValue(const string_view Key, const string_view Name) const
 {
 	// TODO Use local too?
 	return GetConfigValuePtr(GetConfig(config_type::roaming), [&](const auto& i) { return equal_icase(i.KeyName, Key) && equal_icase(i.ValName, Name); });
 }
 
-const Option* Options::GetConfigValue(size_t Root, const wchar_t* Name) const
+const Option* Options::GetConfigValue(size_t Root, const string_view Name) const
 {
 	if (Root == FSSF_PRIVATE)
 		return nullptr;

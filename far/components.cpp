@@ -65,9 +65,9 @@ namespace components
 		++m_size;
 	}
 
-	bool components_list::get(size_t index, value_type& value) const
+	bool components_list::get(bool Reset, value_type& value) const
 	{
-		if (!index)
+		if (Reset)
 			enum_ptr = list;
 
 		if (!enum_ptr)

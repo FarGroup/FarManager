@@ -89,6 +89,18 @@ public:
 	constexpr auto data() const { return &*m_Begin; }
 	constexpr size_t size() const { return m_End - m_Begin; }
 
+	/*constexpr*/ auto pop_front()
+	{
+		assert(!empty());
+		return m_Begin++;
+	}
+
+	/*constexpr*/ auto pop_back()
+	{
+		assert(!empty());
+		return m_End--;
+	}
+
 	void swap(range& Rhs) noexcept
 	{
 		using std::swap;

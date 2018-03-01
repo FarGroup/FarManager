@@ -3051,33 +3051,30 @@ static bool promptFunc(FarMacroCall* Data)
 	TVar& ValTitle(Params[0]);
 	bool Ret=false;
 
-	const wchar_t *history=nullptr;
-	const wchar_t *title=nullptr;
-
+	string_view title;
 	if (!(ValTitle.isInteger() && ValTitle.asInteger() == 0))
-		title=ValTitle.asString().data();
+		title = ValTitle.asString();
 
+	string_view history;
 	if (!(ValHistory.isInteger() && !ValHistory.asInteger()))
-		history=ValHistory.asString().data();
+		history = ValHistory.asString();
 
-	const wchar_t *src=L"";
-
+	string_view src;
 	if (!(ValSrc.isInteger() && ValSrc.asInteger() == 0))
-		src=ValSrc.asString().data();
+		src = ValSrc.asString();
 
-	const wchar_t *prompt=L"";
-
+	string_view prompt;
 	if (!(ValPrompt.isInteger() && ValPrompt.asInteger() == 0))
-		prompt=ValPrompt.asString().data();
+		prompt = ValPrompt.asString();
 
 	string strDest;
 
-	DWORD oldHistoryDisable=GetHistoryDisableMask();
+	const auto oldHistoryDisable = GetHistoryDisableMask();
 
-	if (!(history && *history)) // Mantis#0001743: Возможность отключения истории
+	if (history.empty()) // Mantis#0001743: Возможность отключения истории
 		SetHistoryDisableMask(8); // если не указан history, то принудительно отключаем историю для ЭТОГО prompt()
 
-	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
+	if (GetString(title, prompt, history, src, strDest, {}, (Flags&~FIB_CHECKBOX) | FIB_ENABLEEMPTY))
 	{
 		PassString(strDest,Data);
 		Ret=true;

@@ -52,8 +52,15 @@ public:
 
 		using owner_type = owner;
 
+		enum class position
+		{
+			begin,
+			middle,
+			end
+		};
+
 		iterator_t() = default;
-		iterator_t(owner_type Owner, size_t Index): m_Owner(Owner), m_Index(Index) {}
+		iterator_t(owner_type Owner, position Position): m_Owner(Owner), m_Position(Position) {}
 
 		auto operator->() { return &m_Value; }
 		auto operator->() const { return &m_Value; }
@@ -63,15 +70,22 @@ public:
 
 		auto& operator++()
 		{
-			assert(m_Index != invalid_index);
-			m_Index = m_Owner->get(m_Index, m_Value)? m_Index + 1 : invalid_index;
+			assert(m_Position != position::end);
+			m_Position = m_Owner->get(m_Position == position::begin, m_Value)? position::middle : position::end;
 			return *this;
+		}
+
+		auto operator++(int)
+		{
+			auto Copy = *this;
+			++*this;
+			return Copy;
 		}
 
 		bool operator==(const iterator_t& rhs) const
 		{
 			assert(!m_Owner || !rhs.m_Owner || m_Owner == rhs.m_Owner);
-			return m_Owner == rhs.m_Owner && m_Index == rhs.m_Index;
+			return m_Owner == rhs.m_Owner && m_Position == rhs.m_Position;
 		}
 
 		explicit operator bool() const
@@ -83,17 +97,17 @@ public:
 
 	private:
 		owner_type m_Owner {};
-		size_t m_Index{ invalid_index };
+		position m_Position{ position::end };
 		std::remove_const_t<value_type> m_Value {};
 	};
 
 	using iterator = iterator_t<T, Derived*>;
 	using const_iterator = iterator_t<const T, const Derived*>;
 
-	auto begin() { return std::next(make_iterator<iterator>(this, 0)); }
+	auto begin() { return std::next(make_iterator<iterator>(this, iterator::position::begin)); }
 	auto end() { return make_iterator<iterator>(this); }
 
-	auto begin() const { return std::next(make_iterator<const_iterator>(this, 0)); }
+	auto begin() const { return std::next(make_iterator<const_iterator>(this, const_iterator::position::begin)); }
 	auto end() const { return make_iterator<const_iterator>(this); }
 
 	auto cbegin() const { return begin(); }
@@ -104,7 +118,7 @@ protected:
 
 private:
 	template<typename iterator_type, typename owner_type>
-	static auto make_iterator(owner_type Owner, size_t Index = iterator_type::invalid_index) { return iterator_type{ static_cast<typename iterator_type::owner_type>(Owner), Index }; }
+	static auto make_iterator(owner_type Owner, typename iterator_type::position Position = iterator_type::position::end) { return iterator_type{ static_cast<typename iterator_type::owner_type>(Owner), Position }; }
 };
 
 #define IMPLEMENTS_ENUMERATOR(type) friend typename type::enumerator_type
@@ -121,9 +135,9 @@ public:
 	}
 
 private:
-	bool get(size_t Index, value_type& Value) const
+	bool get(bool Reset, value_type& Value) const
 	{
-		return m_Callable(Index, Value);
+		return m_Callable(Reset, Value);
 	}
 
 	mutable callable m_Callable;

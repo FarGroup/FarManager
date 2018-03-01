@@ -238,7 +238,7 @@ static string FindStr(const void* Data, size_t Size)
 
 	if (std::all_of(ABegin, AEnd, [](char c){ return c > ' ' || std::isspace(c); }))
 	{
-		return encoding::ansi::get_chars(ABegin, AEnd - ABegin);
+		return encoding::ansi::get_chars({ ABegin, static_cast<size_t>(AEnd - ABegin) });
 	}
 
 	const auto WBegin = reinterpret_cast<const wchar_t*>(Data), WEnd = WBegin + Size / sizeof(wchar_t) - 1;

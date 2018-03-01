@@ -222,23 +222,23 @@ int GetSearchReplaceString(
 }
 
 bool GetString(
-	const wchar_t *Title,
-	const wchar_t *Prompt,
-	const wchar_t *HistoryName,
-	const wchar_t *SrcText,
-	string &strDestText,
-	const wchar_t *HelpTopic,
-	DWORD Flags,
-	int *CheckBoxValue,
-	const wchar_t *CheckBoxText,
-	Plugin* PluginNumber,
-	const GUID* Id
+	const string_view Title,
+	const string_view Prompt,
+	const string_view HistoryName,
+	const string_view SrcText,
+	string& strDestText,
+	const string_view HelpTopic,
+	const DWORD Flags,
+	int* const CheckBoxValue,
+	const string_view CheckBoxText,
+	Plugin* const PluginNumber,
+	const GUID* const Id
 )
 {
 	int Substract=5; // дополнительная величина :-)
 	int ExitCode;
-	bool addCheckBox=Flags&FIB_CHECKBOX && CheckBoxValue && CheckBoxText;
-	int offset=addCheckBox?2:0;
+	const auto addCheckBox = Flags&FIB_CHECKBOX && CheckBoxValue && !CheckBoxText.empty();
+	const auto offset = addCheckBox? 2 : 0;
 	FarDialogItem StrDlgData[]=
 	{
 		{DI_DOUBLEBOX, 3, 1, 72, 4, 0, nullptr, nullptr, 0,                                L""},
@@ -257,7 +257,7 @@ bool GetString(
 		Substract-=2;
 		StrDlg[0].Y2+=2;
 		StrDlg[4].Selected = *CheckBoxValue != 0;
-		StrDlg[4].strData = CheckBoxText;
+		StrDlg[4].strData = string(CheckBoxText);
 	}
 
 	if (Flags&FIB_BUTTONS)
@@ -288,36 +288,36 @@ bool GetString(
 		StrDlg[2].Flags|=DIF_EDITPATHEXEC;
 	}
 
-	if (HistoryName)
+	if (!HistoryName.empty())
 	{
-		StrDlg[2].strHistory=HistoryName;
+		StrDlg[2].strHistory = string(HistoryName);
 		StrDlg[2].Flags|=DIF_HISTORY|(Flags&FIB_NOUSELASTHISTORY?0:DIF_USELASTHISTORY);
 	}
 
 	if (Flags&FIB_PASSWORD)
 		StrDlg[2].Type=DI_PSWEDIT;
 
-	if (Title)
-		StrDlg[0].strData = Title;
+	if (!Title.empty())
+		StrDlg[0].strData = string(Title);
 
-	if (Prompt)
+	if (!Prompt.empty())
 	{
-		StrDlg[1].strData = Prompt;
+		StrDlg[1].strData = string(Prompt);
 		TruncStrFromEnd(StrDlg[1].strData, 66);
 
 		if (Flags&FIB_NOAMPERSAND)
 			StrDlg[1].Flags&=~DIF_SHOWAMPERSAND;
 	}
 
-	if (SrcText)
-		StrDlg[2].strData = SrcText;
+	if (!SrcText.empty())
+		StrDlg[2].strData = string(SrcText);
 
 	{
 		const auto Dlg = Dialog::create(make_range(StrDlg.data(), StrDlg.size() - Substract));
 		Dlg->SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 		if(Id) Dlg->SetId(*Id);
 
-		if (HelpTopic)
+		if (!HelpTopic.empty())
 			Dlg->SetHelp(HelpTopic);
 
 		Dlg->SetPluginOwner(PluginNumber);

@@ -6862,7 +6862,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (codepage == CP_UTF8 || codepage == CP_UTF7)
 		{
 			Utf::errors errs;
-			Utf::get_chars(codepage, decoded.data(), length, nullptr, 0, &errs);
+			Utf::get_chars(codepage, { decoded.data(), length }, nullptr, 0, &errs);
 			if (errs.Conversion.Error)
 				Ret |= SETCP_MB2WCERROR;
 		}
@@ -6877,7 +6877,7 @@ DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool che
 		if (check_only)
 			return Ret;
 
-		edit->m_Str.assign(encoding::get_chars(codepage, decoded.data(), length));
+		edit->m_Str.assign(encoding::get_chars(codepage, { decoded.data(), length }));
 	}
 
 	if (!check_only)
@@ -6916,7 +6916,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 				wchar_offsets.emplace_back(total_len);
 				char *s = decoded.data() + total_len;
 
-				const size_t len = encoding::get_bytes(m_codepage, i->m_Str.data() + j, 1, s, 3, p_def);
+				const size_t len = encoding::get_bytes(m_codepage, { &i->m_Str[j], 1 }, s, 3, p_def);
 				if (!len || def)
 				{
 					X = j;
@@ -6929,7 +6929,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 			if (codepage == CP_UTF8 || codepage == CP_UTF7)
 			{
 				Utf::errors errs;
-				Utf::get_chars(codepage, decoded.data(), total_len, nullptr, 0, &errs);
+				Utf::get_chars(codepage, { decoded.data(), total_len }, nullptr, 0, &errs);
 				if (errs.Conversion.Error)
 				{
 					Error.first = true;

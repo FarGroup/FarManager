@@ -331,39 +331,6 @@ string& RemoveUnprintableCharacters(string &strStr)
 	return inplace::trim(strStr);
 }
 
-const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
-{
-	if (!*Src)
-		return nullptr;
-
-	const wchar_t *StartPtr = Src;
-	size_t WordLen;
-	bool SkipBrackets=false;
-
-	for (WordLen=0; *Src; Src++,WordLen++)
-	{
-		if (*Src==L'[' && wcschr(Src+1,L']'))
-			SkipBrackets=true;
-
-		if (*Src==L']')
-			SkipBrackets=false;
-
-		if (*Src==Separator && !SkipBrackets)
-		{
-			Src++;
-
-			while (std::iswblank(*Src))
-				Src++;
-
-			strWord.assign(StartPtr,WordLen);
-			return Src;
-		}
-	}
-
-	strWord.assign(StartPtr,WordLen);
-	return Src;
-}
-
 bool IsCaseMixed(const string_view strSrc)
 {
 	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), is_alpha);
@@ -1181,7 +1148,7 @@ string ConvertHexString(const string& From, uintptr_t Codepage, bool FromHex)
 	if (FromHex)
 	{
 		const auto Blob = HexStringToBlob(ExtractHexString(From), 0);
-		return encoding::get_chars(CompatibleCp, Blob.data(), Blob.size());
+		return encoding::get_chars(CompatibleCp, { Blob.data(), Blob.size() });
 	}
 	else
 	{
@@ -1215,8 +1182,8 @@ wchar_t * xwcsncpy(wchar_t * dest, const wchar_t * src, size_t DestSize)
 	return tmpsrc;
 }
 
-std::pair<string, string> split_name_value(const wchar_t* Line)
+std::pair<string_view, string_view> split_name_value(string_view Str)
 {
-	const auto SeparatorPos = wcschr(Line + 1, L'=');
-	return { { Line, SeparatorPos }, SeparatorPos + 1 };
+	const auto SeparatorPos = Str.find(L'=');
+	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos + 1) };
 }

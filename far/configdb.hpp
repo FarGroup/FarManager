@@ -72,8 +72,8 @@ public:
 	virtual bool GetValue(string_view Key, string_view Name, string& Value, const wchar_t* Default) const = 0;
 
 	virtual bool DeleteValue(string_view Key, string_view Name) = 0;
-	virtual bool EnumValues(string_view Key, DWORD Index, string& strName, string& strValue) const = 0;
-	virtual bool EnumValues(string_view Key, DWORD Index, string& strName, long long& Value) const = 0;
+	virtual bool EnumValues(string_view Key, bool Reset, string& strName, string& strValue) const = 0;
+	virtual bool EnumValues(string_view Key, bool Reset, string& strName, long long& Value) const = 0;
 
 	template<typename T>
 	auto ValuesEnumerator(const string&&) const = delete;
@@ -81,9 +81,9 @@ public:
 	auto ValuesEnumerator(const string& Key) const
 	{
 		using value_type = std::pair<string, T>;
-		return make_inline_enumerator<value_type>([this, &Key](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, &Key](const bool Reset, value_type& Value)
 		{
-			return EnumValues(Key, static_cast<DWORD>(Index), Value.first, Value.second);
+			return EnumValues(Key, Reset, Value.first, Value.second);
 		});
 	}
 
@@ -130,17 +130,17 @@ public:
 
 	virtual bool DeleteKeyTree(const key& Key) = 0;
 	virtual bool DeleteValue(const key& Root, string_view Name) = 0;
-	virtual bool EnumKeys(const key& Root, DWORD Index, string& strName) const = 0;
-	virtual bool EnumValues(const key& Root, DWORD Index, string& strName, int& Type) const = 0;
+	virtual bool EnumKeys(const key& Root, bool Reset, string& strName) const = 0;
+	virtual bool EnumValues(const key& Root, bool Reset, string& strName, int& Type) const = 0;
 	virtual bool Flush() = 0;
 
 	void KeysEnumerator(const key&&) const = delete;
 	auto KeysEnumerator(const key& Root) const
 	{
 		using value_type = string;
-		return make_inline_enumerator<value_type>([this, &Root](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, &Root](const bool Reset, value_type& Value)
 		{
-			return EnumKeys(Root, static_cast<DWORD>(Index), Value);
+			return EnumKeys(Root, Reset, Value);
 		});
 	}
 
@@ -148,9 +148,9 @@ public:
 	auto ValuesEnumerator(const key& Root) const
 	{
 		using value_type = std::pair<string, int>;
-		return make_inline_enumerator<value_type>([this, &Root](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, &Root](const bool Reset, value_type& Value)
 		{
-			return EnumValues(Root, static_cast<DWORD>(Index), Value.first, Value.second);
+			return EnumValues(Root, Reset, Value.first, Value.second);
 		});
 	}
 
@@ -187,8 +187,8 @@ class AssociationsConfig: public representable, virtual public transactional {
 
 public:
 	virtual ~AssociationsConfig() override = default;
-	virtual bool EnumMasks(DWORD Index, unsigned long long *id, string &strMask) = 0;
-	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned long long *id, string &strMask) = 0;
+	virtual bool EnumMasks(bool Reset, unsigned long long *id, string &strMask) = 0;
+	virtual bool EnumMasksForType(bool Reset, int Type, unsigned long long *id, string &strMask) = 0;
 	virtual bool GetMask(unsigned long long id, string &strMask) = 0;
 	virtual bool GetDescription(unsigned long long id, string &strDescription) = 0;
 	virtual bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled=nullptr) = 0;
@@ -201,18 +201,18 @@ public:
 	auto MasksEnumerator()
 	{
 		using value_type = std::pair<unsigned long long, string>;
-		return make_inline_enumerator<value_type>([this](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
 		{
-			return EnumMasks(static_cast<DWORD>(Index), &Value.first, Value.second);
+			return EnumMasks(Reset, &Value.first, Value.second);
 		});
 	}
 
 	auto TypedMasksEnumerator(int Type)
 	{
 		using value_type = std::pair<unsigned long long, string>;
-		return make_inline_enumerator<value_type>([this, Type](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, Type](const bool Reset, value_type& Value)
 		{
-			return EnumMasksForType(Type, static_cast<DWORD>(Index), &Value.first, Value.second);
+			return EnumMasksForType(Reset, Type, &Value.first, Value.second);
 		});
 	}
 
@@ -291,11 +291,11 @@ public:
 	virtual ~HistoryConfig() override = default;
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, string_view HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) = 0;
+	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) = 0;
 	virtual bool Delete(unsigned long long id) = 0;
 	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
 	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, string_view HistoryName, int DaysToKeep, int MinimumEntries) = 0;
-	virtual bool EnumLargeHistories(DWORD index, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;
+	virtual bool EnumLargeHistories(bool Reset, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;
 	virtual bool GetNewest(unsigned int TypeHistory, string_view HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned long long id, string &strName) = 0;
 	virtual bool Get(unsigned long long id, string &strName, history_record_type& Type, string &strGuid, string &strFile, string &strData) = 0;
@@ -334,18 +334,18 @@ public:
 	auto Enumerator(unsigned int HistoryType, const string& HistoryName, bool Reverse = false)
 	{
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([this, HistoryType, &HistoryName, Reverse](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, HistoryType, &HistoryName, Reverse](const bool Reset, value_type& Value)
 		{
-			return Enum(static_cast<DWORD>(Index), HistoryType, HistoryName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
+			return Enum(Reset, HistoryType, HistoryName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
 		});
 	}
 
 	auto LargeHistoriesEnumerator(unsigned int HistoryType, int MinimumEntries)
 	{
 		using value_type = string;
-		return make_inline_enumerator<value_type>([this, HistoryType, MinimumEntries](size_t Index, value_type& Value)
+		return make_inline_enumerator<value_type>([this, HistoryType, MinimumEntries](const bool Reset, value_type& Value)
 		{
-			return EnumLargeHistories(static_cast<DWORD>(Index), HistoryType, MinimumEntries, Value);
+			return EnumLargeHistories(Reset, HistoryType, MinimumEntries, Value);
 		});
 	}
 

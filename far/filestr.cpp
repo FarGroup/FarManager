@@ -101,9 +101,9 @@ enum_file_lines::enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage
 	m_wStr.reserve(DELTA);
 }
 
-bool enum_file_lines::get(size_t Index, file_line& Value) const
+bool enum_file_lines::get(bool Reset, file_line& Value) const
 {
-	if (!Index)
+	if (Reset)
 	{
 		SrcFile.SetPointer(BeginPos, nullptr, FILE_BEGIN);
 	}
@@ -138,7 +138,7 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 
 				for (auto Overflow = true; Overflow;)
 				{
-					const auto Size = Utf::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr.data(), m_wStr.size(), &Errors);
+					const auto Size = Utf::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr.data(), m_wStr.size(), &Errors);
 					Overflow = Size > m_wStr.size();
 					m_wStr.resize(Size);
 				}
@@ -189,7 +189,7 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 
 				if (bGet)
 				{
-					nResultLength = encoding::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr);
+					nResultLength = encoding::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr);
 					if (nResultLength > m_wStr.size())
 					{
 						Result = ERROR_INSUFFICIENT_BUFFER;
@@ -198,9 +198,9 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 
 				if (Result == ERROR_INSUFFICIENT_BUFFER)
 				{
-					nResultLength = encoding::get_chars_count(m_CodePage, CharStr.data(), CharStr.size());
+					nResultLength = encoding::get_chars_count(m_CodePage, { CharStr.data(), CharStr.size() });
 					m_wStr.resize(nResultLength);
-					encoding::get_chars(m_CodePage, CharStr.data(), CharStr.size(), m_wStr);
+					encoding::get_chars(m_CodePage, { CharStr.data(), CharStr.size() }, m_wStr);
 				}
 
 				if (!nResultLength)

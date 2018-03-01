@@ -94,104 +94,90 @@ void DizList::Read(const string& Path, const string* DizName)
 	};
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DizPreRedrawItem>());
-	const wchar_t *NamePtr=Global->Opt->Diz.strListNames.data();
 
-	for (;;)
+	const auto& ReadDizFile = [this](const string_view Name)
 	{
-		if (DizName)
+		const os::fs::file DizFile(Name, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		if (!DizFile)
+			return false;
+
+		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+
+		uintptr_t CodePage = CP_DEFAULT;
+		bool bSigFound = false;
+
+		if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
+			CodePage = Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP;
+
+		auto LastAdded = m_DizData.end();
+		string DizText;
+		for (const auto& i: enum_file_lines(DizFile, CodePage))
 		{
-			m_DizFileName = *DizName;
-		}
-		else
-		{
-			m_DizFileName = Path;
+			assign(DizText, i.Str);
 
-			if (!PathCanHoldRegularFile(m_DizFileName))
-				break;
-
-			string strArgName;
-			NamePtr = GetCommaWord(NamePtr, strArgName);
-
-			if (!NamePtr)
-				break;
-
-			AddEndSlash(m_DizFileName);
-			m_DizFileName += strArgName;
-		}
-
-		if (const auto DizFile = os::fs::file(m_DizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
-		{
-			const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
-			uintptr_t CodePage=CP_DEFAULT;
-			bool bSigFound=false;
-
-			if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
-				CodePage = Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP;
-
-			auto LastAdded = m_DizData.end();
-			string DizText;
-			for (const auto& i: enum_file_lines(DizFile, CodePage))
+			if (TimeCheck)
 			{
-				assign(DizText, i.Str);
+				SetCursorType(false, 0);
+				PR_ReadingMsg();
 
-				if (TimeCheck)
-				{
-					SetCursorType(false, 0);
-					PR_ReadingMsg();
-
-					if (CheckForEsc())
-						break;
-				}
-
-				inplace::trim_right(DizText);
-
-				if (!DizText.empty())
-				{
-					if(!std::iswblank(DizText.front()))
-					{
-						auto NameBegin = DizText.cbegin();
-						auto NameEnd = DizText.cend();
-						auto DescBegin = NameEnd;
-
-						if (DizText.front() == L'"')
-						{
-							++NameBegin;
-							NameEnd = std::find(NameBegin, DizText.cend(), L'"');
-							if (NameEnd != DizText.cend())
-							{
-								DescBegin = NameEnd + 1;
-							}
-						}
-						else
-						{
-							DescBegin = NameEnd = std::find(NameBegin, DizText.cend(), L' ');
-						}
-
-						// Insert unconditionally
-						LastAdded = Insert(string(NameBegin, NameEnd));
-						LastAdded->second.emplace_back(DescBegin, DizText.cend());
-					}
-					else
-					{
-						if (LastAdded != m_DizData.end())
-						{
-							LastAdded->second.emplace_back(DizText);
-						}
-					}
-				}
+				if (CheckForEsc())
+					break;
 			}
 
-			m_CodePage=CodePage;
-			m_Modified = false;
-			return;
+			inplace::trim_right(DizText);
+
+			if (DizText.empty())
+				continue;
+
+			if(!std::iswblank(DizText.front()))
+			{
+				auto NameBegin = DizText.cbegin();
+				auto NameEnd = DizText.cend();
+				auto DescBegin = NameEnd;
+
+				if (DizText.front() == L'"')
+				{
+					++NameBegin;
+					NameEnd = std::find(NameBegin, DizText.cend(), L'"');
+					if (NameEnd != DizText.cend())
+					{
+						DescBegin = NameEnd + 1;
+					}
+				}
+				else
+				{
+					DescBegin = NameEnd = std::find(NameBegin, DizText.cend(), L' ');
+				}
+
+				// Insert unconditionally
+				LastAdded = Insert(string(NameBegin, NameEnd));
+				LastAdded->second.emplace_back(DescBegin, DizText.cend());
+			}
+			else if (LastAdded != m_DizData.end())
+			{
+				LastAdded->second.emplace_back(DizText);
+			}
 		}
 
-		if (DizName)
-			break;
-	}
+		m_CodePage = CodePage;
+		m_Modified = false;
+		assign(m_DizFileName, Name);
 
-	m_Modified = false;
-	m_DizFileName.clear();
+		return true;
+	};
+
+	if (DizName)
+	{
+		ReadDizFile(*DizName);
+	}
+	else
+	{
+		for (const auto& i: enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"_sv))
+		{
+			if (ReadDizFile(i))
+				break;
+		}
+	}
 }
 
 const wchar_t* DizList::Get(const string& Name, const string& ShortName, const long long FileSize) const
@@ -314,11 +300,17 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		if (m_DizData.empty() || Path.empty())
 			return false;
 
-		m_DizFileName = Path;
-		AddEndSlash(m_DizFileName);
-		string strArgName;
-		GetCommaWord(Global->Opt->Diz.strListNames.data(),strArgName);
-		m_DizFileName += strArgName;
+		const auto Enum = enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"_sv);
+		const auto Begin = Enum.begin();
+		if (Begin != Enum.end())
+		{
+			m_DizFileName = Path;
+			AddEndSlash(m_DizFileName);
+			append(m_DizFileName, *Begin);
+		}
+
+		if (m_DizFileName.empty())
+			return false;
 	}
 
 	DWORD FileAttr=os::fs::get_file_attributes(m_DizFileName);

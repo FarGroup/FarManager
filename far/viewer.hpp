@@ -136,7 +136,7 @@ private:
 	bool veof() const;
 	wchar_t vgetc_prev();
 	void SetFileSize();
-	int GetStrBytesNum(const wchar_t *Str, int Length) const;
+	int GetStrBytesNum(string_view Str) const;
 	bool isBinaryFile(uintptr_t cp);
 	void SavePosition();
 	intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);

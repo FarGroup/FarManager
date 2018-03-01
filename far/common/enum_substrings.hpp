@@ -45,11 +45,10 @@ namespace detail
 template<class char_type>
 auto enum_substrings(const char_type* Str)
 {
-	const char_type* Iterator = nullptr;
 	using value_type = basic_string_view<char_type>;
-	return make_inline_enumerator<value_type>([Iterator, Str](size_t Index, value_type& Value) mutable
+	return make_inline_enumerator<value_type>([Iterator = Str, Str](const bool Reset, value_type& Value) mutable
 	{
-		if (!Index)
+		if (Reset)
 			Iterator = Str;
 		else
 			++Iterator;

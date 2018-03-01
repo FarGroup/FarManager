@@ -53,7 +53,7 @@ public:
 	bool conversion_error() const { return m_ConversionError; }
 
 private:
-	bool get(size_t Index, file_line& Value) const;
+	bool get(bool Reset, file_line& Value) const;
 
 	bool GetString(string_view& Str, eol::type& Eol) const;
 

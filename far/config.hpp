@@ -112,7 +112,7 @@ public:
 	virtual string toString() const = 0;
 	virtual bool TryParse(const string& value) = 0;
 	virtual string ExInfo() const = 0;
-	virtual const wchar_t* GetType() const = 0;
+	virtual string_view GetType() const = 0;
 	virtual bool IsDefault(const any& Default) const = 0;
 	virtual void SetDefault(const any& Default) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
@@ -238,7 +238,7 @@ public:
 
 	virtual string toString() const override { return Get() ? L"true"s : L"false"s; }
 	virtual bool TryParse(const string& value) override;
-	virtual const wchar_t* GetType() const override { return L"boolean"; }
+	virtual string_view GetType() const override { return L"boolean"_sv; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -253,7 +253,7 @@ public:
 
 	virtual string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
 	virtual bool TryParse(const string& value) override;
-	virtual const wchar_t* GetType() const override { return L"3-state"; }
+	virtual string_view GetType() const override { return L"3-state"_sv; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -269,7 +269,7 @@ public:
 	virtual string toString() const override { return str(Get()); }
 	virtual bool TryParse(const string& value) override;
 	virtual string ExInfo() const override;
-	virtual const wchar_t* GetType() const override { return L"integer"; }
+	virtual string_view GetType() const override { return L"integer"_sv; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -291,7 +291,7 @@ public:
 
 	virtual string toString() const override { return Get(); }
 	virtual bool TryParse(const string& value) override { Set(value); return true; }
-	virtual const wchar_t* GetType() const override { return L"string"; }
+	virtual string_view GetType() const override { return L"string"_sv; }
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	virtual void Export(FarSettingsItem& To) const override;
 
@@ -323,8 +323,8 @@ public:
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
 	void Load(std::unordered_map<string, string, hash_icase_t, equal_icase_t>&& Overrides);
 	void Save(bool Manual);
-	const Option* GetConfigValue(const wchar_t *Key, const wchar_t *Name) const;
-	const Option* GetConfigValue(size_t Root, const wchar_t* Name) const;
+	const Option* GetConfigValue(string_view Key, string_view Name) const;
+	const Option* GetConfigValue(size_t Root, string_view Name) const;
 	bool AdvancedConfig(config_type Mode = config_type::roaming);
 	void LocalViewerConfig(ViewerOptions &ViOptRef) {return ViewerConfig(ViOptRef, true);}
 	void LocalEditorConfig(EditorOptions &EdOptRef) {return EditorConfig(EdOptRef, true);}
@@ -644,7 +644,7 @@ public:
 		{
 			GUID Id;
 			StringOption StrId;
-			const wchar_t* Default;
+			string_view Default;
 		};
 
 		GuidOption Network;

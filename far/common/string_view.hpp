@@ -117,6 +117,20 @@ public:
 		return find({&Char, 1}, Pos);
 	}
 
+	/*constexpr*/ size_t find_first_of(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
+	{
+		if (Str.empty() || Pos >= this->size())
+			return npos;
+
+		for (auto Iterator = this->begin() + Pos; Iterator != this->end(); ++Iterator)
+		{
+			if (Str.find(*Iterator) != npos)
+				return Iterator - this->begin();
+		}
+
+		return npos;
+	}
+
 	/*
 	ISO/IEC N4659 24.4.2.4 771
 	"Note: Unlike basic_string::data() and string literals, data() may return a pointer to a buffer that
