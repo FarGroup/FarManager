@@ -106,7 +106,7 @@ namespace os::fs
 		IMPLEMENTS_ENUMERATOR(enum_files);
 
 	public:
-		explicit enum_files(const string_view& Object, bool ScanSymLink = true);
+		explicit enum_files(string_view Object, bool ScanSymLink = true);
 
 	private:
 		bool get(size_t Index, find_data& Value) const;
@@ -121,7 +121,7 @@ namespace os::fs
 		IMPLEMENTS_ENUMERATOR(enum_names);
 
 	public:
-		explicit enum_names(const string_view& Object);
+		explicit enum_names(string_view Object);
 
 	private:
 		bool get(size_t Index, string& Value) const;
@@ -135,7 +135,7 @@ namespace os::fs
 		IMPLEMENTS_ENUMERATOR(enum_streams);
 
 	public:
-		explicit enum_streams(const string_view& Object);
+		explicit enum_streams(string_view Object);
 
 	private:
 		bool get(size_t Index, WIN32_FIND_STREAM_DATA& Value) const;
@@ -179,7 +179,7 @@ namespace os::fs
 
 		explicit operator bool() const noexcept;
 		// TODO: half of these should be free functions
-		bool Open(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
+		bool Open(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
 		// TODO: async overloads when needed
 		bool Read(void* Buffer, size_t NumberOfBytesToRead, size_t& NumberOfBytesRead) const;
 		bool Write(const void* Buffer, size_t NumberOfBytesToWrite) const;
@@ -255,7 +255,7 @@ namespace os::fs
 	{
 	public:
 		file_status();
-		explicit file_status(const string_view& Object);
+		explicit file_status(string_view Object);
 
 		bool check(DWORD Data) const;
 
@@ -264,13 +264,13 @@ namespace os::fs
 	};
 
 	bool exists(file_status Status);
-	bool exists(const string_view& Object);
+	bool exists(string_view Object);
 
 	bool is_file(file_status Status);
-	bool is_file(const string_view& Object);
+	bool is_file(string_view Object);
 
 	bool is_directory(file_status Status);
-	bool is_directory(const string_view& Object);
+	bool is_directory(string_view Object);
 
 	bool is_not_empty_directory(const string& Object);
 
@@ -307,15 +307,15 @@ namespace os::fs
 	string GetCurrentDirectory();
 	bool SetCurrentDirectory(const string& PathName, bool Validate = true);
 
-	bool create_directory(const string_view& PathName, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
-	bool create_directory(const string_view& TemplateDirectory, const string_view& NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
-	bool remove_directory(const string_view& DirName);
-	handle create_file(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, HANDLE TemplateFile = nullptr, bool ForceElevation = false);
-	bool delete_file(const string_view& FileName);
-	bool copy_file(const string_view& ExistingFileName, const string_view& NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags);
-	bool move_file(const string_view& ExistingFileName, const string_view& NewFileName, DWORD Flags = 0);
-	DWORD get_file_attributes(const string_view& FileName);
-	bool set_file_attributes(const string_view& FileName, DWORD FileAttributes);
+	bool create_directory(string_view PathName, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
+	bool create_directory(string_view TemplateDirectory, string_view NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
+	bool remove_directory(string_view DirName);
+	handle create_file(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, HANDLE TemplateFile = nullptr, bool ForceElevation = false);
+	bool delete_file(string_view FileName);
+	bool copy_file(string_view ExistingFileName, string_view NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags);
+	bool move_file(string_view ExistingFileName, string_view NewFileName, DWORD Flags = 0);
+	DWORD get_file_attributes(string_view FileName);
+	bool set_file_attributes(string_view FileName, DWORD FileAttributes);
 
 	bool GetLongPathName(const string& ShortPath, string& LongPath);
 	bool GetShortPathName(const string& LongPath, string& ShortPath);
@@ -326,12 +326,12 @@ namespace os::fs
 	bool SearchPath(const wchar_t* Path, const string& FileName, const wchar_t* Extension, string& strDest);
 	bool GetTempPath(string& strBuffer);
 	bool GetModuleFileName(HANDLE hProcess, HMODULE hModule, string& strFileName);
-	security_descriptor get_file_security(const string_view& Object, SECURITY_INFORMATION RequestedInformation);
-	bool set_file_security(const string_view& Object, SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor);
+	security_descriptor get_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation);
+	bool set_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor);
 
-	bool get_disk_size(const string_view& Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
+	bool get_disk_size(string_view Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree);
 
-	bool GetFileTimeSimple(const string_view& FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime);
+	bool GetFileTimeSimple(string_view FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime);
 
 	bool get_find_data(const string& FileName, find_data& FindData, bool ScanSymLink = true);
 
@@ -342,8 +342,8 @@ namespace os::fs
 
 	bool CreateSymbolicLink(const string& SymlinkFileName, const string& TargetFileName, DWORD Flags);
 
-	bool set_file_encryption(const string_view& FileName, bool Encrypt);
-	bool detach_virtual_disk(const string_view& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
+	bool set_file_encryption(string_view FileName, bool Encrypt);
+	bool detach_virtual_disk(string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
 	bool is_directory_symbolic_link(const find_data& Data);
 

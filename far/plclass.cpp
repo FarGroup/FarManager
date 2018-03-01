@@ -197,7 +197,7 @@ plugin_factory::function_address native_plugin_factory::GetFunction(const plugin
 	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->m_Module.GetProcAddress(null_terminated_t<char>(Name.AName).data()) : nullptr;
 }
 
-bool native_plugin_factory::FindExport(const basic_string_view<char>& ExportName) const
+bool native_plugin_factory::FindExport(const basic_string_view<char> ExportName) const
 {
 	// only module with GetGlobalInfoW can be native plugin
 	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;
@@ -1285,7 +1285,7 @@ public:
 		return Result;
 	}
 
-	virtual void ProcessError(const string_view& Function) const override
+	virtual void ProcessError(const string_view Function) const override
 	{
 		if (!m_Imports.pGetError)
 			return;
@@ -1297,7 +1297,7 @@ public:
 		std::vector<string> MessageLines;
 		const string Summary = concat(Info.Summary, L" ("_sv, Function, L')');
 		const auto Enumerator = enum_tokens(Info.Description, L"\n"_sv);
-		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view& View) { return string(View); });
+		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view View) { return string(View); });
 		Message(MSG_WARNING | MSG_LEFTALIGN,
 			Summary,
 			MessageLines,

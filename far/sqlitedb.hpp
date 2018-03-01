@@ -111,7 +111,7 @@ protected:
 		SQLiteStmt& BindImpl(std::nullptr_t);
 		SQLiteStmt& BindImpl(int Value);
 		SQLiteStmt& BindImpl(long long Value);
-		SQLiteStmt& BindImpl(const string_view& Value, bool bStatic = true);
+		SQLiteStmt& BindImpl(string_view Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(const bytes_view& Value, bool bStatic = true);
 		SQLiteStmt& BindImpl(unsigned int Value) { return BindImpl(static_cast<int>(Value)); }
 		SQLiteStmt& BindImpl(unsigned long long Value) { return BindImpl(static_cast<long long>(Value)); }

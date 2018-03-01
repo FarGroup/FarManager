@@ -80,7 +80,7 @@ namespace os::env
 
 	//-------------------------------------------------------------------------
 
-	bool get(const string_view& Name, string& Value)
+	bool get(const string_view Name, string& Value)
 	{
 		GuardLastError ErrorGuard;
 		null_terminated C_Name(Name);
@@ -109,24 +109,24 @@ namespace os::env
 		return false;
 	}
 
-	string get(const string_view& Name)
+	string get(const string_view Name)
 	{
 		string Result;
 		get(Name, Result);
 		return Result;
 	}
 
-	bool set(const string_view& Name, const string_view& Value)
+	bool set(const string_view Name, const string_view Value)
 	{
 		return ::SetEnvironmentVariable(null_terminated(Name).data(), null_terminated(Value).data()) != FALSE;
 	}
 
-	bool del(const string_view& Name)
+	bool del(const string_view Name)
 	{
 		return ::SetEnvironmentVariable(null_terminated(Name).data(), nullptr) != FALSE;
 	}
 
-	string expand(const string_view& Str)
+	string expand(const string_view Str)
 	{
 		null_terminated C_Str(Str);
 

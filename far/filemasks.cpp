@@ -79,7 +79,7 @@ class filemasks::masks
 {
 public:
 	bool assign(string&& Masks, DWORD Flags);
-	bool operator==(const string_view& FileName) const;
+	bool operator==(string_view FileName) const;
 	bool empty() const;
 
 private:
@@ -223,7 +223,7 @@ void filemasks::clear()
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::Compare(const string_view& FileName) const
+bool filemasks::Compare(const string_view FileName) const
 {
 	return contains(Include, FileName) && !contains(Exclude, FileName);
 }
@@ -346,7 +346,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 
 // Путь к файлу в FileName НЕ игнорируется
 
-bool filemasks::masks::operator==(const string_view& FileName) const
+bool filemasks::masks::operator==(const string_view FileName) const
 {
 	if (!m_Regex)
 	{

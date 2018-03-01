@@ -416,7 +416,7 @@ virtual bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const override
 	return true;
 }
 
-virtual bool Write(const string_view& Str) const override
+virtual bool Write(const string_view Str) const override
 {
 	DWORD NumberOfCharsWritten;
 	const auto OutputHandle = GetOutputHandle();
@@ -948,7 +948,7 @@ int consolebuf::sync()
 	return 0;
 }
 
-bool consolebuf::Write(const string_view& Str)
+bool consolebuf::Write(const string_view Str)
 {
 	if (Str.empty())
 		return true;

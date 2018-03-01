@@ -61,9 +61,9 @@ public:
 	virtual bool Close() = 0;
 	virtual bool Clear() = 0;
 
-	bool SetText(const string_view& Str);
-	bool SetVText(const string_view& Str);
-	bool SetHDROP(const string_view& NamesData, bool bMoved);
+	bool SetText(string_view Str);
+	bool SetVText(string_view Str);
+	bool SetHDROP(string_view NamesData, bool bMoved);
 
 	bool GetText(string& data) const;
 	bool GetVText(string& data) const;
@@ -94,8 +94,8 @@ private:
 };
 
 
-bool SetClipboardText(const string_view& Str);
-bool SetClipboardVText(const string_view& Str);
+bool SetClipboardText(string_view Str);
+bool SetClipboardVText(string_view Str);
 
 bool GetClipboardText(string& data);
 bool GetClipboardVText(string& data);

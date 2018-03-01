@@ -37,7 +37,7 @@ template<typename T>
 T GetFunctionPointer(const wchar_t* ModuleName, const char* FunctionName, T Replacement)
 {
 	const auto Address = GetProcAddress(GetModuleHandleW(ModuleName), FunctionName);
-	return Address? reinterpret_cast<T>(Address) : Replacement;
+	return Address? reinterpret_cast<T>(reinterpret_cast<void*>(Address)) : Replacement;
 }
 
 #define CREATE_FUNCTION_POINTER(ModuleName, FunctionName)\
@@ -113,10 +113,13 @@ extern "C" BOOL WINAPI GetModuleHandleExWWrapper(DWORD Flags, LPCWSTR ModuleName
 					wchar_t Buffer[MAX_PATH];
 					if (!GetModuleFileNameW(ModuleValue, Buffer, ARRAYSIZE(Buffer)))
 						return FALSE;
-					LoadLibraryW(Buffer);
+					// It's the same so not really necessary, but analysers report handle leak otherwise.
+					*Module = LoadLibraryW(Buffer);
 				}
-
-				*Module = ModuleValue;
+				else
+				{
+					*Module = ModuleValue;
+				}
 				return TRUE;
 			}
 
@@ -154,6 +157,13 @@ namespace slist
 		public:
 			critical_section() { InitializeCriticalSection(&m_Lock); }
 			~critical_section() { DeleteCriticalSection(&m_Lock); }
+
+			critical_section(const critical_section&) = delete;
+			critical_section(critical_section&&) = default;
+
+			critical_section& operator=(const critical_section&) = delete;
+			critical_section& operator=(critical_section&&) = default;
+
 			void lock() { EnterCriticalSection(&m_Lock); }
 			void unlock() { LeaveCriticalSection(&m_Lock); }
 
@@ -176,7 +186,7 @@ namespace slist
 				free(Ptr);
 			}
 
-			service_entry* ServiceNext;
+			service_entry* ServiceNext{};
 		};
 
 		class slist_lock
@@ -192,6 +202,9 @@ namespace slist
 			{
 				m_Entry.unlock();
 			}
+
+			slist_lock(const slist_lock&) = delete;
+			slist_lock& operator=(const slist_lock&) = delete;
 
 		private:
 			service_entry& m_Entry;

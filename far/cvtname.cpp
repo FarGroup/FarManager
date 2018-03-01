@@ -109,7 +109,7 @@ static void MixToFullPath(string& strPath)
 	}
 }
 
-static void MixToFullPath(const string_view& stPath, string& Dest, const string_view& stCurrentDir)
+static void MixToFullPath(const string_view stPath, string& Dest, const string_view stCurrentDir)
 {
 		string strDest;
 		string_view pstCurrentDir;
@@ -203,7 +203,7 @@ static void MixToFullPath(const string_view& stPath, string& Dest, const string_
 		Dest = std::move(strDest);
 }
 
-string ConvertNameToFull(const string_view& Object)
+string ConvertNameToFull(const string_view Object)
 {
 	string strDest;
 	MixToFullPath(Object, strDest, os::fs::GetCurrentDirectory());
@@ -212,7 +212,7 @@ string ConvertNameToFull(const string_view& Object)
 
 // try to replace volume GUID (if present) with drive letter
 // used by ConvertNameToReal() only
-static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_view& AbsPath = {})
+static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_view AbsPath = {})
 {
 	string Result = Path;
 	size_t DirectoryOffset;

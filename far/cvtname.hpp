@@ -35,7 +35,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-string ConvertNameToFull(const string_view& Object);
+string ConvertNameToFull(string_view Object);
 
 string ConvertNameToReal(const string& Object);
 

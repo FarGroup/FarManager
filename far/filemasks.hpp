@@ -52,7 +52,7 @@ public:
 	filemasks& operator=(filemasks&&);
 
 	bool Set(const string& Masks, DWORD Flags = 0);
-	bool Compare(const string_view& Name) const;
+	bool Compare(string_view Name) const;
 	bool empty() const;
 
 	static void ErrorMessage();

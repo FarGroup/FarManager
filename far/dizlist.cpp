@@ -121,19 +121,19 @@ void DizList::Read(const string& Path, const string* DizName)
 
 		if (const auto DizFile = os::fs::file(m_DizFileName,GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
 		{
-			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+			const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 			uintptr_t CodePage=CP_DEFAULT;
 			bool bSigFound=false;
 
 			if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
 				CodePage = Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP;
 
-			GetFileString GetStr(DizFile, CodePage);
-
 			auto LastAdded = m_DizData.end();
 			string DizText;
-			while (GetStr.GetString(DizText))
+			for (const auto& i: enum_file_lines(DizFile, CodePage))
 			{
+				assign(DizText, i.Str);
+
 				if (TimeCheck)
 				{
 					SetCursorType(false, 0);

@@ -344,7 +344,8 @@ bool Help::ReadHelp(const string& Mask)
 	int MI=0;
 	string strMacroArea;
 
-	GetFileString GetStr(HelpFile, HelpFileCodePage);
+	enum_file_lines EnumFileLines(HelpFile, HelpFileCodePage);
+	auto FileIterator = EnumFileLines.begin();
 	const size_t StartSizeKeyName = 20;
 	size_t SizeKeyName = StartSizeKeyName;
 	string strSplitLine;
@@ -357,8 +358,11 @@ bool Help::ReadHelp(const string& Mask)
 
 		if (!MacroProcess && !RepeatLastLine && !BreakProcess)
 		{
-			if (GetStr.GetString(strReadStr))
+			if (FileIterator != EnumFileLines.end())
 			{
+				assign(strReadStr, FileIterator->Str);
+				++FileIterator;
+
 				if (InHeader)
 				{
 					// Everything up to the first topic is header, we don't care about it here
@@ -748,13 +752,13 @@ m1:
 	return m_TopicFound;
 }
 
-void Help::AddLine(const string_view& Line)
+void Help::AddLine(const string_view Line)
 {
 	const auto Width = StartPos && !Line.empty() && Line[0] == L' '? StartPos - 1 : StartPos;
 	HelpList.emplace_back(string(Width, L' ') + Line);
 }
 
-void Help::AddTitle(const string_view& Title)
+void Help::AddTitle(const string_view Title)
 {
 	AddLine(concat(L"^ #"_sv, Title, L'#'));
 }
@@ -883,7 +887,7 @@ void Help::DrawWindowFrame() const
 	Text(concat(L' ', strHelpTitleBuf, L' '));
 }
 
-static string_view SkipLink(string_view Str, string *Name)
+static string_view SkipLink(string_view Str, string* const Name)
 {
 	for (;;)
 	{
@@ -942,7 +946,7 @@ static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 	return false;
 }
 
-static bool FastParseLine(string_view Str, int *pLen, int x0, int realX, string *pTopic, wchar_t cColor)
+static bool FastParseLine(string_view Str, int* const pLen, const int x0, const int realX, string* const pTopic, const wchar_t cColor)
 {
 	int x = x0, start_topic = -1;
 	bool found = false;
@@ -1045,7 +1049,7 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
 }
 
-int Help::StringLen(const string_view& Str)
+int Help::StringLen(const string_view Str)
 {
 	int len = 0;
 	FastParseLine(Str, &len, 0, -1, nullptr, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
@@ -1905,8 +1909,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	AddTitle(strTitleLine);
 
 	bool TopicFound=false;
-	GetFileString GetStr(HelpFile, nCodePage);
-	string strCurTopic, strEntryName, strReadStr;
+	string strCurTopic, strEntryName;
 
 	std::vector<RegExpMatch> m;
 	MatchHash hm;
@@ -1934,32 +1937,26 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		inplace::lower(strSearchStrLower);
 	}
 
-	for (;;)
+	for (const auto& i: enum_file_lines(HelpFile, nCodePage))
 	{
-		if (!GetStr.GetString(strReadStr))
-		{
-			break;
-		}
+		auto Str = trim_right(i.Str);
 
-		inplace::trim_right(strReadStr);
-
-		if ((!strReadStr.empty() && strReadStr[0] == L'@') &&
-		    !(strReadStr.size() > 1 && (strReadStr[1] == L'+' || strReadStr[1] == L'-')) &&
-		    !contains(strReadStr, L'='))// && !TopicFound)
+		if ((!Str.empty() && Str[0] == L'@') &&
+		    !(Str.size() > 1 && (Str[1] == L'+' || Str[1] == L'-')) &&
+		    !contains(Str, L'='))// && !TopicFound)
 		{
 			strEntryName.clear();
 			strCurTopic.clear();
-			inplace::trim(strReadStr);
-			if (!equal_icase(string_view(strReadStr).substr(1), HelpContents))
+			Str = trim(Str);
+			if (!equal_icase(Str.substr(1), HelpContents))
 			{
-				strCurTopic=strReadStr;
+				assign(strCurTopic, Str);
 				TopicFound=true;
 			}
 		}
-		else if (TopicFound && strReadStr.size() > 1 && strReadStr[0] == L'$' && !strCurTopic.empty())
+		else if (TopicFound && Str.size() > 1 && Str[0] == L'$' && !strCurTopic.empty())
 		{
-			strEntryName = trim(strReadStr.substr(1));
-			strEntryName.erase(std::remove(ALL_RANGE(strEntryName), L'#'), strEntryName.end());
+			std::remove_copy(Str.begin() + 1, Str.end(), std::back_inserter(strEntryName), L'#');
 		}
 
 		if (TopicFound && !strEntryName.empty())
@@ -1968,9 +1965,8 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result = SearchString(strReadStr.data(), (int)strReadStr.size(), strLastSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, ReplaceStr, CurPos, LastSearchCase, LastSearchWholeWords, false, false, LastSearchRegexp, &SearchLength);
 
-			if (Result)
+			if (SearchString(Str, strLastSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, ReplaceStr, CurPos, LastSearchCase, LastSearchWholeWords, false, false, LastSearchRegexp, &SearchLength))
 			{
 				AddLine(concat(L"   ~"_sv, strEntryName, L'~', strCurTopic, L'@'));
 				strCurTopic.clear();

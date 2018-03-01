@@ -93,17 +93,17 @@ public:
 		*this = substr(0, this->size() - Size);
 	}
 
-	constexpr bool starts_with(const basic_string_view<T>& Str) const noexcept
+	constexpr bool starts_with(const basic_string_view<T> Str) const noexcept
 	{
 		return this->size() >= Str.size() && this->substr(0, Str.size()) == Str;
 	}
 
-	constexpr bool ends_with(const basic_string_view<T>& Str) const noexcept
+	constexpr bool ends_with(const basic_string_view<T> Str) const noexcept
 	{
 		return this->size() >= Str.size() && this->substr(this->size() - Str.size()) == Str;
 	}
 
-	/*constexpr*/ size_t find(const basic_string_view<T>& Str, size_t Pos = 0) const noexcept
+	/*constexpr*/ size_t find(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
 	{
 		if (Pos >= this->size())
 			return npos;
@@ -155,61 +155,61 @@ constexpr auto operator "" _sv(const char* Data, size_t Size) noexcept { return 
 constexpr auto operator "" _sv(const wchar_t* Data, size_t Size) noexcept { return basic_string_view<wchar_t>(Data, Size); }
 
 template<typename T>
-auto operator+(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
+auto operator+(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
 {
 	return concat(Lhs, Rhs);
 }
 
 template<typename T>
-auto operator+(const basic_string_view<T>& Lhs, const std::basic_string<T>& Rhs)
+auto operator+(const basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 {
 	return concat(Lhs, Rhs);
 }
 
 template<typename T>
-auto operator+(const basic_string_view<T>& Lhs, const basic_string_view<T>& Rhs)
+auto operator+(const basic_string_view<T> Lhs, basic_string_view<T> Rhs)
 {
 	return concat(Lhs, Rhs);
 }
 
 template<typename T>
-bool operator==(const basic_string_view<T>& Lhs, const basic_string_view<T>& Rhs)
+bool operator==(const basic_string_view<T> Lhs, const basic_string_view<T> Rhs)
 {
 	return std::equal(ALL_CONST_RANGE(Lhs), ALL_CONST_RANGE(Rhs));
 }
 
 template<typename T>
-bool operator==(const basic_string_view<T>& Lhs, const std::basic_string<T>& Rhs)
+bool operator==(const basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 {
 	return Lhs == basic_string_view<T>(Rhs);
 }
 
 template<typename T>
-bool operator==(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
+bool operator==(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
 {
 	return basic_string_view<T>(Lhs) == Rhs;
 }
 
 template<typename T>
-bool operator!=(const basic_string_view<T>& Lhs, const basic_string_view<T>& Rhs)
+bool operator!=(const basic_string_view<T> Lhs, const basic_string_view<T> Rhs)
 {
 	return !(Lhs == Rhs);
 }
 
 template<typename T>
-bool operator!=(const basic_string_view<T>& Lhs, const std::basic_string<T>& Rhs)
+bool operator!=(const basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
 {
 	return !(Lhs == Rhs);
 }
 
 template<typename T>
-bool operator!=(const std::basic_string<T>& Lhs, const basic_string_view<T>& Rhs)
+bool operator!=(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
 {
 	return !(Lhs == Rhs);
 }
 
 template<typename T>
-std::basic_ostream<T>& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T>& Str)
+std::basic_ostream<T>& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T> Str)
 {
 	return Stream.write(Str.raw_data(), Str.size());
 }

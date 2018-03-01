@@ -66,11 +66,11 @@ namespace os::env
 		};
 	}
 
-	bool get(const string_view& Name, string& Value);
-	string get(const string_view& Name);
-	bool set(const string_view& Name, const string_view& Value);
-	bool del(const string_view& Name);
-	string expand(const string_view& Str);
+	bool get(string_view Name, string& Value);
+	string get(string_view Name);
+	bool set(string_view Name, string_view Value);
+	bool del(string_view Name);
+	string expand(string_view Str);
 	string get_pathext();
 }
 

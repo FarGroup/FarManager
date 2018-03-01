@@ -50,7 +50,7 @@ WARNING_PUSH()
 WARNING_DISABLE_MSC(4582) // no page                                                '%$S': constructor is not implicitly called
 WARNING_DISABLE_MSC(4583) // no page                                                '%$S': destructor is not implicitly called
 
-	explicit null_terminated_t(const basic_string_view<T>& Str):
+	explicit null_terminated_t(const basic_string_view<T> Str):
 		m_Terminated(!Str.raw_data()[Str.size()])
 	{
 		if (m_Terminated)
@@ -93,10 +93,10 @@ using null_terminated = null_terminated_t<wchar_t>;
 
 namespace detail
 {
-	inline void append_one(string& Str, wchar_t Arg, size_t) { Str += Arg; }
-	inline void append_one(string& Str, const wchar_t* Arg, size_t Size) { Str.append(Arg, Size); }
+	inline void append_one(string& Str, const wchar_t Arg, size_t) { Str += Arg; }
+	inline void append_one(string& Str, const wchar_t* const Arg, const size_t Size) { Str.append(Arg, Size); }
 	inline void append_one(string& Str, const string& Arg, size_t) { Str += Arg; }
-	inline void append_one(string& Str, const string_view& Arg, size_t) { Str.append(ALL_CONST_RANGE(Arg)); }
+	inline void append_one(string& Str, const string_view Arg, size_t) { Str.append(ALL_CONST_RANGE(Arg)); }
 
 	inline void append_impl(string&, const size_t*) {}
 
@@ -112,7 +112,7 @@ namespace detail
 	// for arrays it is not, as they could have no trailing \0 at all, or (worse) have multiple.
 	// Use string_view literal if you need to.
 	inline size_t size_one(wchar_t) { return 1; }
-	inline size_t size_one(const string_view& Str) { return Str.size(); }
+	inline size_t size_one(const string_view Str) { return Str.size(); }
 
 	inline size_t size_impl(size_t*) { return 0; }
 
@@ -142,7 +142,7 @@ auto concat(args&&... Args)
 }
 
 template<typename char_type>
-void assign(std::basic_string<char_type>& Str, const basic_string_view<char_type>& View)
+void assign(std::basic_string<char_type>& Str, const basic_string_view<char_type> View)
 {
 	Str.assign(ALL_CONST_RANGE(View));
 }
@@ -252,7 +252,7 @@ namespace inplace
 namespace copy
 {
 	template<typename iterator>
-	void unquote(const string_view& Str, iterator Destination)
+	void unquote(const string_view Str, const iterator Destination)
 	{
 		std::remove_copy(ALL_CONST_RANGE(Str), Destination, L'"');
 	}
@@ -341,25 +341,25 @@ inline auto quote_normalise(string Str)
 }
 
 [[nodiscard]]
-inline bool equal(const string_view& Str1, const string_view& Str2)
+inline bool equal(const string_view Str1, const string_view Str2)
 {
 	return Str1 == Str2;
 }
 
 [[nodiscard]]
-inline bool starts_with(const string_view& Str, const string_view& Prefix)
+inline bool starts_with(const string_view Str, const string_view Prefix)
 {
 	return Str.starts_with(Prefix);
 }
 
 [[nodiscard]]
-inline bool ends_with(const string_view& Str, const string_view& Suffix)
+inline bool ends_with(const string_view Str, const string_view Suffix)
 {
 	return Str.ends_with(Suffix);
 }
 
 [[nodiscard]]
-inline bool contains(const string_view& Str, const string_view& Token)
+inline bool contains(const string_view Str, const string_view Token)
 {
 	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token)) != Str.cend();
 }

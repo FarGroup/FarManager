@@ -277,7 +277,7 @@ clipboard& clipboard::GetInstance(clipboard_mode Mode)
 	return internal_clipboard::instance();
 }
 
-bool clipboard::SetText(const string_view& Str)
+bool clipboard::SetText(const string_view Str)
 {
 	if (!Clear())
 		return false;
@@ -296,7 +296,7 @@ bool clipboard::SetText(const string_view& Str)
 	return true;
 }
 
-bool clipboard::SetVText(const string_view& Str)
+bool clipboard::SetVText(const string_view Str)
 {
 	if (!SetText(Str))
 		return false;
@@ -320,7 +320,7 @@ bool clipboard::SetVText(const string_view& Str)
 	return true;
 }
 
-bool clipboard::SetHDROP(const string_view& NamesData, bool bMoved)
+bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 {
 	if (NamesData.empty())
 		return false;
@@ -441,13 +441,13 @@ bool clipboard::GetVText(string& data) const
 }
 
 //-----------------------------------------------------------------------------
-bool SetClipboardText(const string_view& Str)
+bool SetClipboardText(const string_view Str)
 {
 	clipboard_accessor Clip;
 	return Clip->Open() && Clip->SetText(Str);
 }
 
-bool SetClipboardVText(const string_view& Str)
+bool SetClipboardVText(const string_view Str)
 {
 	clipboard_accessor Clip;
 	return Clip->Open() && Clip->SetVText(Str);

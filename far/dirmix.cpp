@@ -57,7 +57,7 @@ static auto env_get_current_dir(wchar_t Drive)
 	return os::env::get(make_curdir_name(Drive));
 }
 
-static auto env_set_current_dir(wchar_t Drive, const string_view& Value)
+static auto env_set_current_dir(wchar_t Drive, const string_view Value)
 {
 	return os::env::set(make_curdir_name(Drive), Value);
 }

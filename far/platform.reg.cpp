@@ -43,7 +43,7 @@ namespace
 		return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
 	}
 
-	static bool query_value(HKEY Key, const string_view& Name, DWORD* Type, void* Data, size_t* Size)
+	static bool query_value(const HKEY Key, const string_view Name, DWORD* const Type, void* const Data, size_t* const Size)
 	{
 		DWORD dwSize = Size? static_cast<DWORD>(*Size) : 0;
 		const auto Result = RegQueryValueEx(Key, null_terminated(Name).data(), nullptr, Type, reinterpret_cast<LPBYTE>(Data), Size? &dwSize : nullptr);
@@ -54,7 +54,7 @@ namespace
 		return Result == ERROR_SUCCESS;
 	}
 
-	static bool query_value(HKEY Key, const string_view& Name, DWORD& Type, std::vector<char>& Value)
+	static bool query_value(const HKEY Key, const string_view Name, DWORD& Type, std::vector<char>& Value)
 	{
 		size_t Size = 0;
 		if (!query_value(Key, Name, nullptr, nullptr, &Size))
@@ -71,7 +71,7 @@ namespace os::reg
 	const key key::current_user = key(HKEY_CURRENT_USER);
 	const key key::local_machine = key(HKEY_LOCAL_MACHINE);
 
-	key key::open(const key& Key, const string_view& SubKey, DWORD SamDesired)
+	key key::open(const key& Key, const string_view SubKey, const DWORD SamDesired)
 	{
 		key Result;
 		HKEY HKey;
@@ -123,12 +123,12 @@ namespace os::reg
 		return ExitCode == ERROR_SUCCESS;
 	}
 
-	bool key::get(const string_view& Name) const
+	bool key::get(const string_view Name) const
 	{
 		return query_value(native_handle(), Name, nullptr, nullptr, nullptr);
 	}
 
-	bool key::get(const string_view& Name, string& Value) const
+	bool key::get(const string_view Name, string& Value) const
 	{
 		std::vector<char> Buffer;
 		DWORD Type;
@@ -143,7 +143,7 @@ namespace os::reg
 		return true;
 	}
 
-	bool key::get(const string_view& Name, unsigned int& Value) const
+	bool key::get(const string_view Name, unsigned int& Value) const
 	{
 		std::vector<char> Buffer;
 		DWORD Type;
@@ -155,7 +155,7 @@ namespace os::reg
 		return true;
 	}
 
-	bool key::get(const string_view& Name, unsigned long long& Value) const
+	bool key::get(const string_view Name, unsigned long long& Value) const
 	{
 		std::vector<char> Buffer;
 		DWORD Type;
@@ -229,7 +229,7 @@ namespace os::reg
 	{
 	}
 
-	enum_key::enum_key(const key& Key, const string_view& SubKey, REGSAM Sam):
+	enum_key::enum_key(const key& Key, const string_view SubKey, const REGSAM Sam):
 		m_KeyRef(m_Key)
 	{
 		m_Key.open(Key, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam);
@@ -247,7 +247,7 @@ namespace os::reg
 	{
 	}
 
-	enum_value::enum_value(const key& Key, const string_view& SubKey, REGSAM Sam):
+	enum_value::enum_value(const key& Key, const string_view SubKey, const REGSAM Sam):
 		m_KeyRef(m_Key)
 	{
 		m_Key.open(Key, SubKey, KEY_QUERY_VALUE | Sam);

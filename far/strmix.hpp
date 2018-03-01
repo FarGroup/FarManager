@@ -54,7 +54,7 @@ string& QuoteSpaceOnly(string &strStr);
 string& QuoteOuterSpace(string &strStr);
 inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return strStr; }
 
-size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_view& ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
+size_t ReplaceStrings(string &strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
@@ -80,11 +80,11 @@ string& TruncStrFromEnd(string &strStr, int MaxLength);
 string& TruncStrFromCenter(string &strStr, int MaxLength);
 string& TruncPathStr(string &strStr, int MaxLength);
 
-bool IsCaseMixed(const string_view& strStr);
+bool IsCaseMixed(string_view strStr);
 
-string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch);
+string ReplaceBrackets(string_view SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch);
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int* SearchLength, const wchar_t* WordDiv = nullptr);
+bool SearchString(string_view Source, const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int* SearchLength, const wchar_t* WordDiv = nullptr);
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 
@@ -109,7 +109,7 @@ auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Sepa
 }
 
 template<class container>
-auto StringToFlags(const string& strFlags, const container& From, const string_view& Separators = L"|;, "_sv)
+auto StringToFlags(const string& strFlags, const container& From, const string_view Separators = L"|;, "_sv)
 {
 	decltype(std::begin(From)->first) Flags {};
 
@@ -131,11 +131,11 @@ int HexToInt(char h);
 
 std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
 std::string BlobToHexString(const bytes_view& Blob, char Separator = ',');
-bytes HexStringToBlob(const basic_string_view<char>& Hex, char Separator = ',');
+bytes HexStringToBlob(basic_string_view<char> Hex, char Separator = ',');
 
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
 string BlobToHexWString(const bytes_view& Blob, char Separator = ',');
-bytes HexStringToBlob(const string_view& Hex, wchar_t Separator = L',');
+bytes HexStringToBlob(string_view Hex, wchar_t Separator = L',');
 
 template<class S, class T>
 auto to_hex_string_t(T Value)

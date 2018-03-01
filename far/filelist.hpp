@@ -188,8 +188,8 @@ public:
 	virtual bool FindPartName(const string& Name, int Next, int Direct = 1) override;
 	virtual bool GetPlainString(string& Dest, int ListPos) const override;
 	virtual bool GoToFile(long idxItem) override;
-	virtual bool GoToFile(const string_view& Name, bool OnlyPartName = false) override;
-	virtual long FindFile(const string_view& Name, bool OnlyPartName = false) override;
+	virtual bool GoToFile(string_view Name, bool OnlyPartName = false) override;
+	virtual long FindFile(string_view Name, bool OnlyPartName = false) override;
 	virtual bool IsSelected(const string& Name) override;
 	virtual bool IsSelected(size_t idxItem) override;
 	virtual long FindFirst(const string& Name) override;
@@ -302,7 +302,7 @@ private:
 	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
-	bool ConvertName(const string_view& SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
+	bool ConvertName(string_view SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD dwFileAttr) const;
 	void Select(FileListItem& SelItem, bool Selection);
 	long SelectFiles(int Mode, const wchar_t *Mask = nullptr);
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);

@@ -114,7 +114,7 @@ struct ListControlBinding: public DialogItemBinding<T>
 class DialogBuilder: noncopyable, public base<DialogBuilderBase<DialogItemEx>>
 {
 public:
-	explicit DialogBuilder(lng TitleMessageId, const string_view& HelpTopic = {}, Dialog::dialog_handler handler = nullptr);
+	explicit DialogBuilder(lng TitleMessageId, string_view HelpTopic = {}, Dialog::dialog_handler handler = nullptr);
 	DialogBuilder();
 	~DialogBuilder();
 

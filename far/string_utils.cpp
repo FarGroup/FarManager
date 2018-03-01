@@ -139,27 +139,27 @@ bool equal_icase_t::operator()(wchar_t Chr1, wchar_t Chr2) const
 	return upper(Chr1) == upper(Chr2);
 }
 
-bool equal_icase_t::operator()(const string_view& Str1, const string_view& Str2) const
+bool equal_icase_t::operator()(const string_view Str1, const string_view Str2) const
 {
 	return equal_icase(Str1, Str2);
 }
 
-bool equal_icase(const string_view& Str1, const string_view& Str2)
+bool equal_icase(const string_view Str1, const string_view Str2)
 {
 	return std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{});
 }
 
-bool starts_with_icase(const string_view& Str, const string_view& Prefix)
+bool starts_with_icase(const string_view Str, const string_view Prefix)
 {
 	return Str.size() >= Prefix.size() && equal_icase(Str.substr(0, Prefix.size()), Prefix);
 }
 
-bool ends_with_icase(const string_view& Str, const string_view& Suffix)
+bool ends_with_icase(const string_view Str, const string_view Suffix)
 {
 	return Str.size() >= Suffix.size() && equal_icase(Str.substr(Str.size() - Suffix.size()), Suffix);
 }
 
-bool contains_icase(const string_view& Str, const string_view& Token)
+bool contains_icase(const string_view Str, const string_view Token)
 {
 	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token), equal_icase_t{}) != Str.cend();
 }

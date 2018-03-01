@@ -496,7 +496,7 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const PluginPanel
 }
 #endif
 
-void FindFiles::SetPluginDirectory(const string_view& DirName, plugin_panel* hPlugin, bool UpdatePanel, UserDataItem *UserData)
+void FindFiles::SetPluginDirectory(const string_view DirName, plugin_panel* const hPlugin, const bool UpdatePanel, UserDataItem* const UserData)
 {
 	if (!DirName.empty())
 	{
@@ -1323,7 +1323,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				SCOPED_ACTION(auto)(m_Messages.scoped_lock());
 				size_t EventsCount = 0;
-				time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+				const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 				while (!m_Messages.empty() && 0 == EventsCount)
 				{
 					if (TimeCheck)

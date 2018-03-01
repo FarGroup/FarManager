@@ -81,7 +81,7 @@ public:
 
 	virtual bool ProcessKey(const Manager::Key& Key) override;
 	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual bool GoToFile(const string_view& Name, bool OnlyPartName = false) override;
+	virtual bool GoToFile(string_view Name, bool OnlyPartName = false) override;
 	virtual bool FindPartName(const string& Name, int Next, int Direct = 1) override;
 	virtual void Update(int Mode) override;
 	virtual const string& GetCurDir() const override;
@@ -91,8 +91,8 @@ public:
 	int GetExitCode() const { return m_ExitCode; }
 	const TreeItem* GetItem(size_t Index) const;
 
-	static void AddTreeName(const string_view& Name);
-	static void DelTreeName(const string_view& Name);
+	static void AddTreeName(string_view Name);
+	static void DelTreeName(string_view Name);
 	static void RenTreeName(const string& SrcName, const string& DestName);
 	static void ReadSubTree(const string& Path);
 	static void ClearCache();
@@ -107,7 +107,7 @@ private:
 	virtual void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	virtual bool GetPlainString(string& Dest, int ListPos) const override;
 	virtual bool GoToFile(long idxItem) override;
-	virtual long FindFile(const string_view& Name, bool OnlyPartName = false) override;
+	virtual long FindFile(string_view Name, bool OnlyPartName = false) override;
 	virtual long FindFirst(const string& Name) override;
 	virtual long FindNext(int StartPos, const string& Name) override;
 	virtual size_t GetFileCount() const override { return m_ListData.size(); }
@@ -123,7 +123,7 @@ private:
 
 	bool ReadTree();
 	void DisplayTree(bool Fast);
-	void DisplayTreeName(const string_view& Name, size_t Pos) const;
+	void DisplayTreeName(string_view Name, size_t Pos) const;
 	void Up(int Count);
 	void Down(int Count);
 	void Scroll(int Count);

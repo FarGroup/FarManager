@@ -127,7 +127,7 @@ public:
 
 private:
 	template<class T>
-	const T* GetValue(const string_view& SubBlock) const
+	const T* GetValue(const string_view SubBlock) const
 	{
 		UINT Length;
 		T* Result;
@@ -235,7 +235,7 @@ public:
 	}
 
 private:
-	virtual bool FindExport(const basic_string_view<char>& ExportName) const override
+	virtual bool FindExport(const basic_string_view<char> ExportName) const override
 	{
 		// module with ANY known export can be OEM plugin
 		return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
@@ -1371,7 +1371,6 @@ static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInf
 		OLDFAR_TO_FAR_MAP(PFLAGS_USESORTGROUPS),
 		OLDFAR_TO_FAR_MAP(PFLAGS_SELECTEDFIRST),
 		OLDFAR_TO_FAR_MAP(PFLAGS_REALNAMES),
-		OLDFAR_TO_FAR_MAP(PFLAGS_NUMERICSORT),
 		OLDFAR_TO_FAR_MAP(PFLAGS_PANELLEFT),
 	};
 
@@ -3451,12 +3450,6 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				PanelRedrawInfo pri = {sizeof(PanelRedrawInfo), static_cast<size_t>(priA->CurrentItem),static_cast<size_t>(priA->TopPanelItem)};
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri));
 			}
-
-		case oldfar::FCTL_SETANOTHERNUMERICSORT:
-			hPlugin = PANEL_PASSIVE;
-			// fallthrough
-		case oldfar::FCTL_SETNUMERICSORT:
-			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETNUMERICSORT, (Param && *static_cast<int*>(Param))? 1 : 0, nullptr));
 
 		case oldfar::FCTL_SETANOTHERPANELDIR:
 				hPlugin = PANEL_PASSIVE;

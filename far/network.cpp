@@ -143,7 +143,7 @@ bool ConnectToNetworkResource(const string& NewDir)
 	return res == NO_ERROR;
 }
 
-string ExtractComputerName(const string_view& CurDir, string* strTail)
+string ExtractComputerName(const string_view CurDir, string* const strTail)
 {
 	string Result;
 

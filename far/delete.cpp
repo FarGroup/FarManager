@@ -235,7 +235,7 @@ static bool WipeFileData(const string& Name, int TotalPercent, bool& Cancel)
 	if (!WipeFile.InitWalk(BufSize))
 		return false;
 
-	time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
+	const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 
 	std::mt19937 mt(clock()); // std::random_device doesn't work in w2k
 	std::uniform_int_distribution<int> CharDist(0, 255);
@@ -588,7 +588,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 		os::fs::find_data SelFindData;
 		SrcPanel->GetSelName(nullptr, FileAttr);
-		time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
+		const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 		bool cannot_recycle_try_delete_folder = false;
 
 		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName, &SelFindData)))
@@ -675,7 +675,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					}
 
 					ScTree.SetFindPath(strSelFullName,L"*", 0);
-					time_check TreeTimeCheck(time_check::mode::immediate, GetRedrawTimeout());
+					const time_check TreeTimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 
 					os::fs::find_data FindData;
 					while (ScTree.GetNextName(FindData,strFullName))

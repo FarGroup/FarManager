@@ -47,7 +47,7 @@ public:
 	};
 
 	static string_view str(type Value);
-	static type parse(const string_view& Value);
+	static type parse(string_view Value);
 };
 
 #endif // EOL_HPP_F17D2D67_EAFD_480A_A1DA_92894204FB5A

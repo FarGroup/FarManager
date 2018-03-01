@@ -159,7 +159,7 @@ namespace os
 
 	string GetErrorString(bool Nt, DWORD Code);
 
-	bool WNetGetConnection(const string_view& LocalName, string &RemoteName);
+	bool WNetGetConnection(string_view LocalName, string &RemoteName);
 
 	void EnableLowFragmentationHeap();
 

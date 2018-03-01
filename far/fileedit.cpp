@@ -1561,18 +1561,16 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 		unsigned long long FileSize = 0;
 		EditFile.GetSize(FileSize);
-		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-		GetFileString GetStr(EditFile, m_codepage);
-		string_view Str;
-		eol::type Eol;
-		while (GetStr.GetString(Str, &Eol))
+		enum_file_lines EnumFileLines(EditFile, m_codepage);
+		for (auto Str: EnumFileLines)
 		{
 			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))
 			{
-				if (!Str.empty() && Str.front() == SIGN_UNICODE)
+				if (!Str.Str.empty() && Str.Str.front() == SIGN_UNICODE)
 				{
-					Str.remove_prefix(1);
+					Str.Str.remove_prefix(1);
 					m_bAddSignature = true;
 				}
 			}
@@ -1603,16 +1601,16 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditReading), Name, Percent);
 			}
 
-			if (m_editor->GlobalEOL == eol::type::none && Eol != eol::type::none)
+			if (m_editor->GlobalEOL == eol::type::none && Str.Eol != eol::type::none)
 			{
-				m_editor->GlobalEOL = Eol;
+				m_editor->GlobalEOL = Str.Eol;
 			}
 
-			m_editor->PushString(Str);
-			m_editor->LastLine()->SetEOL(Eol);
+			m_editor->PushString(Str.Str);
+			m_editor->LastLine()->SetEOL(Str.Eol);
 		}
 
-		BadConversion = !GetStr.IsConversionValid();
+		BadConversion = EnumFileLines.conversion_error();
 		if (BadConversion)
 		{
 			uintptr_t cp = m_codepage;
@@ -2697,13 +2695,14 @@ bool FileEditor::LoadFromCache(EditorPosCache &pc) const
 {
 	string strCacheName;
 
-	if (*GetPluginData())
+	const auto PluginData = GetPluginData();
+	if (!PluginData.empty())
 	{
-		strCacheName = concat(GetPluginData(), PointToName(strFullFileName));
+		strCacheName = concat(PluginData, PointToName(strFullFileName));
 	}
 	else
 	{
-		strCacheName+=strFullFileName;
+		strCacheName = strFullFileName;
 		ReplaceSlashToBackslash(strCacheName);
 	}
 

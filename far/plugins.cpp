@@ -1577,7 +1577,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	return TRUE;
 }
 
-bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, const string_view& DlgPluginTitle)
+bool PluginManager::SetHotKeyDialog(Plugin* const pPlugin, const GUID& Guid, const hotkey_type HotKeyType, const string_view DlgPluginTitle)
 {
 	const auto strPluginKey = GetHotKeyPluginKey(pPlugin);
 	auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);

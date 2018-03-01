@@ -83,7 +83,7 @@ string KernelPath(string&& NtPath)
 }
 
 
-root_type ParsePath(const string_view& Path, size_t* DirectoryOffset, bool* Root)
+root_type ParsePath(const string_view Path, size_t* const DirectoryOffset, bool* const Root)
 {
 	auto Result = root_type::unknown;
 
@@ -145,7 +145,7 @@ root_type ParsePath(const string_view& Path, size_t* DirectoryOffset, bool* Root
 	return Result;
 }
 
-bool IsAbsolutePath(const string_view& Path)
+bool IsAbsolutePath(const string_view Path)
 {
 	const auto Type = ParsePath(Path);
 
@@ -153,7 +153,7 @@ bool IsAbsolutePath(const string_view& Path)
 	       (Type == root_type::drive_letter && (Path.size() > 2 && IsSlash(Path[2])));
 }
 
-bool HasPathPrefix(const string_view& Path)
+bool HasPathPrefix(const string_view Path)
 {
 	/*
 		\\?\
@@ -360,18 +360,18 @@ bool CutToParent(string& Str)
 	return true;
 }
 
-bool ContainsSlash(const string_view& Str)
+bool ContainsSlash(const string_view Str)
 {
 	return FindSlash(Str) != string::npos;
 }
 
-size_t FindSlash(const string_view& Str)
+size_t FindSlash(const string_view Str)
 {
 	const auto SlashPos = std::find_if(ALL_CONST_RANGE(Str), IsSlash);
 	return SlashPos == Str.cend()? string::npos : SlashPos - Str.cbegin();
 }
 
-size_t FindLastSlash(const string_view& Str)
+size_t FindLastSlash(const string_view Str)
 {
 	const auto SlashPos = std::find_if(ALL_CONST_REVERSE_RANGE(Str), IsSlash);
 	return SlashPos == Str.crend()? string::npos : Str.crend() - SlashPos - 1;
@@ -426,14 +426,14 @@ string ExtractFilePath(const string &Path)
 	return string(Path.data(), p);
 }
 
-bool IsRootPath(const string_view& Path)
+bool IsRootPath(const string_view Path)
 {
 	bool IsRoot = false;
 	ParsePath(Path, nullptr, &IsRoot);
 	return IsRoot || IsRelativeRoot(Path);
 }
 
-bool PathStartsWith(const string_view& Path, const string_view& Start)
+bool PathStartsWith(const string_view Path, const string_view Start)
 {
 	auto PathPart = Start;
 	DeleteEndSlash(PathPart);

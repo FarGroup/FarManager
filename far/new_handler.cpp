@@ -79,7 +79,7 @@ new_handler::new_handler():
 		L"Press Enter to retry or Esc to continue..."_sv
 	};
 
-	const auto& Write = [this](const string_view& Str, size_t Y)
+	const auto& Write = [this](const string_view Str, size_t Y)
 	{
 		SetConsoleCursorPosition(m_Screen.native_handle(), { static_cast<short>((m_BufferSize.X - Str.size()) / 2), static_cast<short>(Y) });
 		DWORD Written;

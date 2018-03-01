@@ -142,7 +142,7 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	static string enum_files_prepare(const string_view& Object)
+	static string enum_files_prepare(const string_view Object)
 	{
 		auto PreparedObject = NTPath(Object);
 		auto Root = false;
@@ -158,7 +158,7 @@ namespace os::fs
 		return PreparedObject;
 	}
 
-	enum_files::enum_files(const string_view& Object, bool ScanSymlink):
+	enum_files::enum_files(const string_view Object, const bool ScanSymlink):
 		m_Object(enum_files_prepare(Object)),
 		m_ScanSymlink(ScanSymlink)
 	{
@@ -388,7 +388,7 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	find_handle FindFirstFileName(const string_view& FileName, DWORD Flags, string& LinkName)
+	find_handle FindFirstFileName(const string_view FileName, const DWORD Flags, string& LinkName)
 	{
 		NTPath NtFileName(FileName);
 		find_handle Handle;
@@ -416,7 +416,7 @@ namespace os::fs
 		});
 	}
 
-	enum_names::enum_names(const string_view& Object):
+	enum_names::enum_names(const string_view Object):
 		m_Object(Object)
 	{
 	}
@@ -445,7 +445,7 @@ namespace os::fs
 		return true;
 	}
 
-	find_file_handle FindFirstStream(const string_view& FileName, STREAM_INFO_LEVELS InfoLevel, void* FindStreamData, DWORD Flags)
+	find_file_handle FindFirstStream(const string_view FileName, const STREAM_INFO_LEVELS InfoLevel, void* const FindStreamData, const DWORD Flags)
 	{
 		if (imports::instance().FindFirstStreamW && imports::instance().FindNextStreamW)
 		{
@@ -508,7 +508,7 @@ namespace os::fs
 		return FileStreamInformationToFindStreamData(*StreamInfo, *StreamData);
 	}
 
-	enum_streams::enum_streams(const string_view& Object):
+	enum_streams::enum_streams(const string_view Object):
 		m_Object(Object)
 	{
 	}
@@ -559,7 +559,7 @@ namespace os::fs
 		return m_Handle.operator bool();
 	}
 
-	bool file::Open(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, const file* TemplateFile, bool ForceElevation)
+	bool file::Open(const string_view Object, const DWORD DesiredAccess, const DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, const DWORD CreationDistribution, const DWORD FlagsAndAttributes, const file* TemplateFile, const bool ForceElevation)
 	{
 		assert(!m_Handle);
 
@@ -1123,7 +1123,7 @@ namespace os::fs
 	{
 	}
 
-	file_status::file_status(const string_view& Object):
+	file_status::file_status(const string_view Object):
 		m_Data(fs::get_file_attributes(Object))
 	{
 	}
@@ -1140,7 +1140,7 @@ namespace os::fs
 		return Status.check(~0);
 	}
 
-	bool exists(const string_view& Object)
+	bool exists(const string_view Object)
 	{
 		return exists(file_status(Object));
 	}
@@ -1150,7 +1150,7 @@ namespace os::fs
 		return exists(Status) && !is_directory(Status);
 	}
 
-	bool is_file(const string_view& Object)
+	bool is_file(const string_view Object)
 	{
 		return is_file(file_status(Object));
 	}
@@ -1160,7 +1160,7 @@ namespace os::fs
 		return Status.check(FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	bool is_directory(const string_view& Object)
+	bool is_directory(const string_view Object)
 	{
 		return is_directory(file_status(Object));
 	}
@@ -1366,12 +1366,12 @@ namespace os::fs
 		return true;
 	}
 
-	bool create_directory(const string_view& PathName, SECURITY_ATTRIBUTES* SecurityAttributes)
+	bool create_directory(const string_view PathName, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
 		return create_directory(L""_sv, PathName, SecurityAttributes);
 	}
 
-	bool create_directory(const string_view& TemplateDirectory, const string_view& NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes)
+	bool create_directory(const string_view TemplateDirectory, const string_view NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
 		NTPath NtNewDirectory(NewDirectory);
 
@@ -1394,7 +1394,7 @@ namespace os::fs
 			Create({});
 	}
 
-	bool remove_directory(const string_view& DirName)
+	bool remove_directory(const string_view DirName)
 	{
 		NTPath strNtName(DirName);
 		if (low::remove_directory(strNtName.data()))
@@ -1415,7 +1415,7 @@ namespace os::fs
 		return false;
 	}
 
-	handle create_file(const string_view& Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, bool ForceElevation)
+	handle create_file(const string_view Object, const DWORD DesiredAccess, const DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, const DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, const bool ForceElevation)
 	{
 		NTPath strObject(Object);
 		FlagsAndAttributes |= FILE_FLAG_BACKUP_SEMANTICS;
@@ -1456,7 +1456,7 @@ namespace os::fs
 		return nullptr;
 	}
 
-	bool delete_file(const string_view& FileName)
+	bool delete_file(const string_view FileName)
 	{
 		NTPath strNtName(FileName);
 
@@ -1478,7 +1478,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool copy_file(const string_view& ExistingFileName, const string_view& NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags)
+	bool copy_file(const string_view ExistingFileName, const string_view NewFileName, const LPPROGRESS_ROUTINE ProgressRoutine, void* const Data, BOOL* const Cancel, const DWORD CopyFlags)
 	{
 		NTPath strFrom(ExistingFileName), strTo(NewFileName);
 		if (IsSlash(strTo.back()))
@@ -1507,7 +1507,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool move_file(const string_view& ExistingFileName, const string_view& NewFileName, DWORD dwFlags)
+	bool move_file(const string_view ExistingFileName, const string_view NewFileName, const DWORD dwFlags)
 	{
 		NTPath strFrom(ExistingFileName), strTo(NewFileName);
 		if (IsSlash(strTo.back()))
@@ -1539,7 +1539,7 @@ namespace os::fs
 		return false;
 	}
 
-	DWORD get_file_attributes(const string_view& FileName)
+	DWORD get_file_attributes(const string_view FileName)
 	{
 		NTPath NtName(FileName);
 
@@ -1553,7 +1553,7 @@ namespace os::fs
 		return INVALID_FILE_ATTRIBUTES;
 	}
 
-	bool set_file_attributes(const string_view& FileName, DWORD Attributes)
+	bool set_file_attributes(const string_view FileName, const DWORD Attributes)
 	{
 		NTPath NtName(FileName);
 
@@ -1685,7 +1685,7 @@ namespace os::fs
 		});
 	}
 
-	security_descriptor get_file_security(const string_view& Object, SECURITY_INFORMATION RequestedInformation)
+	security_descriptor get_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation)
 	{
 		security_descriptor Result(default_buffer_size);
 		NTPath NtObject(Object);
@@ -1706,12 +1706,12 @@ namespace os::fs
 		return Result;
 	}
 
-	bool set_file_security(const string_view& Object, SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor)
+	bool set_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor)
 	{
 		return ::SetFileSecurity(NTPath(Object).data(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
 	}
 
-	bool get_disk_size(const string_view& Path, unsigned long long* TotalSize, unsigned long long* TotalFree, unsigned long long* UserFree)
+	bool get_disk_size(const string_view Path, unsigned long long* const TotalSize, unsigned long long* const TotalFree, unsigned long long* const UserFree)
 	{
 		NTPath strPath(Path);
 		AddEndSlash(strPath);
@@ -1725,7 +1725,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool GetFileTimeSimple(const string_view& FileName, chrono::time_point* CreationTime, chrono::time_point* LastAccessTime, chrono::time_point* LastWriteTime, chrono::time_point* ChangeTime)
+	bool GetFileTimeSimple(const string_view FileName, chrono::time_point* const CreationTime, chrono::time_point* const LastAccessTime, chrono::time_point* const LastWriteTime, chrono::time_point* const ChangeTime)
 	{
 		file File;
 		return File.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
@@ -1822,7 +1822,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool set_file_encryption(const string_view& FileName, bool Encrypt)
+	bool set_file_encryption(const string_view FileName, const bool Encrypt)
 	{
 		NTPath NtName(FileName);
 
@@ -1835,7 +1835,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool detach_virtual_disk(const string_view& Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
+	bool detach_virtual_disk(const string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType)
 	{
 		NTPath NtObject(Object);
 

@@ -48,8 +48,8 @@ enum PreserveStyleType
 struct PreserveStyleToken
 {
 	string Token;
-	wchar_t PrependChar;
-	int TypeMask;
+	wchar_t PrependChar{};
+	int TypeMask{};
 };
 
 static bool IsPreserveStyleTokenSeparator(wchar_t C)
@@ -57,14 +57,14 @@ static bool IsPreserveStyleTokenSeparator(wchar_t C)
 	return wcschr(PreserveStyleTokenSeparators, C) != nullptr;
 }
 
-static int GetPeserveCaseStyleMask(const string& strStr)
+static int GetPeserveCaseStyleMask(const string_view strStr)
 {
 	int Result = 15;
 
 	for (size_t I = 0; I < strStr.size(); I++)
 	{
-		int Upper = is_upper(strStr[I]);
-		int Lower = is_lower(strStr[I]);
+		const auto Upper = is_upper(strStr[I]);
+		const auto Lower = is_lower(strStr[I]);
 		if (!Upper)
 			Result &= ~(1 << UPPERCASE_ALL);
 		if (!Lower)
@@ -78,7 +78,7 @@ static int GetPeserveCaseStyleMask(const string& strStr)
 	return Result;
 }
 
-static auto InternalPreserveStyleTokenize(const string& strStr, size_t From, size_t Length)
+static auto InternalPreserveStyleTokenize(const string_view strStr, size_t From, size_t Length)
 {
 	std::list<PreserveStyleToken> Result;
 
@@ -99,8 +99,7 @@ static auto InternalPreserveStyleTokenize(const string& strStr, size_t From, siz
 		if (Seps[I-From])
 		{
 			PreserveStyleToken T;
-			T.Token = strStr.substr(L, I-L);
-			T.PrependChar = 0;
+			assign(T.Token, strStr.substr(L, I - L));
 			if (L >= From + 1 && Seps[L-1-From])
 				T.PrependChar = strStr[L-1];
 			Result.emplace_back(T);
@@ -112,8 +111,7 @@ static auto InternalPreserveStyleTokenize(const string& strStr, size_t From, siz
 		if (!Seps[I-From-1] && is_lower(strStr[I-1]) && is_upper(strStr[I]))
 		{
 			PreserveStyleToken T;
-			T.Token = strStr.substr(L, I-L);
-			T.PrependChar = 0;
+			assign(T.Token, strStr.substr(L, I - L));
 			if (L >= From + 1 && Seps[L-1-From])
 				T.PrependChar = strStr[L-1];
 			Result.emplace_back(T);
@@ -124,8 +122,7 @@ static auto InternalPreserveStyleTokenize(const string& strStr, size_t From, siz
 	if (L < From+Length)
 	{
 		PreserveStyleToken T;
-		T.Token = strStr.substr(L, From+Length-L);
-		T.PrependChar = 0;
+		assign(T.Token, strStr.substr(L, From + Length - L));
 		if (L >= From + 1 && Seps[L-1-From])
 			T.PrependChar = strStr[L-1];
 		Result.emplace_back(T);
@@ -133,15 +130,14 @@ static auto InternalPreserveStyleTokenize(const string& strStr, size_t From, siz
 
 	if (Result.size() > 1)
 	{
-		wchar_t PrependChar = std::next(Result.cbegin())->PrependChar;
+		const auto PrependChar = std::next(Result.cbegin())->PrependChar;
 		for (const auto& i: make_range(std::next(Result.cbegin(), 2), Result.cend()))
 		{
 			if (PrependChar != i.PrependChar)
 			{
 				Result.clear();
 				PreserveStyleToken T;
-				T.Token = strStr.substr(From, Length);
-				T.PrependChar = 0;
+				assign(T.Token, strStr.substr(From, Length));
 				T.TypeMask = 1 << UNKNOWN;
 				Result.emplace_back(T);
 				return Result;
@@ -152,7 +148,7 @@ static auto InternalPreserveStyleTokenize(const string& strStr, size_t From, siz
 	return Result;
 }
 
-static auto PreserveStyleTokenize(const string& strStr, size_t From, size_t Length)
+static auto PreserveStyleTokenize(const string_view strStr, size_t From, size_t Length)
 {
 	auto Tokens = InternalPreserveStyleTokenize(strStr, From, Length);
 
@@ -205,17 +201,17 @@ static PreserveStyleType ChoosePreserveStyleType(int Mask)
 	return Result;
 }
 
-void FindStyleTypeMaskAndPrependCharByExpansion(const wchar_t* Source, const size_t StrSize, const int Begin, const int End, int& TypeMask, wchar_t& PrependChar)
+static void FindStyleTypeMaskAndPrependCharByExpansion(const string_view Source, const int Begin, const int End, int& TypeMask, wchar_t& PrependChar)
 {
 	// Try to expand to the right.
 	{
 		int Right = End;
 
-		if (static_cast<size_t>(Right) < StrSize && (is_alphanumeric(Source[Right]) || IsPreserveStyleTokenSeparator(Source[Right])))
+		if (static_cast<size_t>(Right) < Source.size() && (is_alphanumeric(Source[Right]) || IsPreserveStyleTokenSeparator(Source[Right])))
 		{
 			Right++;
 			
-			while (static_cast<size_t>(Right) < StrSize)
+			while (static_cast<size_t>(Right) < Source.size())
 			{
 				if (!is_alphanumeric(Source[Right]) || (is_lower(Source[Right-1]) && is_upper(Source[Right])))
 					break;
@@ -262,7 +258,7 @@ void FindStyleTypeMaskAndPrependCharByExpansion(const wchar_t* Source, const siz
 	}
 }
 
-bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const string& Str, string& ReplaceStr, int& CurPos, int Case, int WholeWords, const wchar_t *WordDiv, int Reverse, int& SearchLength)
+bool PreserveStyleReplaceString(const string_view Source, const string& Str, string& ReplaceStr, int& CurPos, int Case, int WholeWords, const wchar_t *WordDiv, int Reverse, int& SearchLength)
 {
 	int Position = CurPos;
 	SearchLength = 0;
@@ -271,19 +267,19 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 	{
 		Position--;
 
-		Position = std::min(Position, static_cast<int>(StrSize-1));
+		Position = std::min(Position, static_cast<int>(Source.size() - 1));
 
 		if (Position<0)
 			return false;
 	}
 
-	if (static_cast<size_t>(Position) >= StrSize || Str.empty() || ReplaceStr.empty())
+	if (static_cast<size_t>(Position) >= Source.size() || Str.empty() || ReplaceStr.empty())
 		return false;
 
 
 	const auto StrTokens = PreserveStyleTokenize(Str, 0, Str.size());
 
-	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I)<StrSize); Reverse ? I--:I++)
+	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I) < Source.size()); Reverse? I-- : I++)
 	{
 		if (WholeWords && I && !std::iswblank(Source[I-1]) && !wcschr(WordDiv, Source[I-1]))
 			continue;
@@ -360,7 +356,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 			Idx++;
 		}
 
-		if (WholeWords && !(Idx >= StrSize || std::iswblank(Source[Idx]) || wcschr(WordDiv, Source[Idx])))
+		if (WholeWords && !(Idx >= Source.size() || std::iswblank(Source[Idx]) || wcschr(WordDiv, Source[Idx])))
 			continue;
 		
 		if (Matched && T == j->Token.size() && j == LastItem)
@@ -416,7 +412,7 @@ bool PreserveStyleReplaceString(const wchar_t* Source, size_t StrSize, const str
 						}
 
 						if (AfterFirstCommonTypeMask == -1)
-							FindStyleTypeMaskAndPrependCharByExpansion(Source, StrSize, I, static_cast<int>(Idx), AfterFirstCommonTypeMask, PrependChar);
+							FindStyleTypeMaskAndPrependCharByExpansion(Source, I, static_cast<int>(Idx), AfterFirstCommonTypeMask, PrependChar);
 
 						if (AfterFirstCommonTypeMask == -1)
 						{

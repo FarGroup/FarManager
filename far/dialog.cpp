@@ -4260,7 +4260,7 @@ intptr_t Dialog::CloseDialog()
    установка help topic'а и прочие радости, временно перетащенные сюда
    из SimpleModal
 */
-void Dialog::SetHelp(const string_view& Topic)
+void Dialog::SetHelp(const string_view Topic)
 {
 	assign(HelpTopic, Topic);
 }

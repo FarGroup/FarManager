@@ -1110,7 +1110,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 */
 DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 {
-	time_check TimeCheck(time_check::mode::delayed, std::chrono::milliseconds(delayMS));
+	const time_check TimeCheck(time_check::mode::delayed, std::chrono::milliseconds(delayMS));
 	DWORD Key;
 
 	for (;;)
@@ -2059,7 +2059,7 @@ unsigned int CalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 		return KEY_IDLE;
 	}
 
-	static time_check TimeCheck(time_check::mode::delayed, 50ms);
+	static const time_check TimeCheck(time_check::mode::delayed, 50ms);
 
 	if (!AltValue)
 	{

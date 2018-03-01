@@ -591,7 +591,7 @@ string GetShellActionAndAssociatedApplication(const string& FileName, string& Ap
 	return NullToEmpty(GetShellActionAndAssociatedApplicationImpl(FileName, Action, Application, Error));
 }
 
-bool GetShellType(const string_view& Ext, string& strType, ASSOCIATIONTYPE aType)
+bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE aType)
 {
 	bool bVistaType = false;
 	strType.clear();
@@ -1352,7 +1352,7 @@ bool IsExecutable(const string& Filename)
 	// That means we can't find the associated program etc., so they shall be hard-coded.
 	static const string_view Executables[] = { L"exe"_sv, L"cmd"_sv, L"com"_sv, L"bat"_sv };
 	const auto ExtWithoutDot = Ext.substr(1);
-	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view& Extension)
+	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view Extension)
 	{
 		return equal_icase(Extension, ExtWithoutDot);
 	});

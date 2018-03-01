@@ -141,7 +141,7 @@ private:
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
 	DWORD EditorGetFileAttributes(const string& Name);
 	void SetPluginData(const string* PluginData);
-	const wchar_t *GetPluginData() const { return strPluginData.data(); }
+	string_view GetPluginData() const { return strPluginData; }
 	bool LoadFromCache(EditorPosCache &pc) const;
 	void SaveToCache() const;
 	void ReadEvent(void);

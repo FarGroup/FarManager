@@ -64,7 +64,7 @@ string GetErrorString(bool Nt, DWORD Code)
 	return Result;
 }
 
-bool WNetGetConnection(const string_view& LocalName, string &RemoteName)
+bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 {
 	wchar_t_ptr_n<MAX_PATH> Buffer(MAX_PATH);
 	// MSDN says that call can fail with ERROR_NOT_CONNECTED or ERROR_CONNECTION_UNAVAIL if calling application

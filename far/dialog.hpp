@@ -192,7 +192,7 @@ public:
 	void Process();
 	void SetPluginOwner(Plugin* NewPluginAddress) {PluginOwner = ((NewPluginAddress == INVALID_HANDLE_VALUE)? nullptr : NewPluginAddress);}
 	Plugin* GetPluginOwner() const {return PluginOwner;}
-	void SetHelp(const string_view& Topic);
+	void SetHelp(string_view Topic);
 	void ShowHelp() const;
 	int Done() const { return DialogMode.Check(DMODE_ENDLOOP); }
 	void ClearDone();

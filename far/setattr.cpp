@@ -1420,7 +1420,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					SCOPED_ACTION(wakeful);
 					bool Cancel=false;
 
-					time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
+					const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 					bool SingleFileDone=false;
 					while ((SrcPanel?SrcPanel->GetSelName(&strSelName,FileAttr,nullptr,&FindData):!SingleFileDone) && !Cancel)
 					{
@@ -1561,7 +1561,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								ScanTree ScTree(false);
 								ScTree.SetFindPath(strSelName,L"*");
-								time_check TreeTimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+								const time_check TreeTimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 								string strFullName;
 
 								while (ScTree.GetNextName(FindData,strFullName))

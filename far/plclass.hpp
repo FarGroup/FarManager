@@ -160,7 +160,7 @@ public:
 	virtual bool Destroy(plugin_module_ptr& module) = 0;
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) = 0;
 
-	virtual void ProcessError(const string_view& Function) const {}
+	virtual void ProcessError(string_view Function) const {}
 
 	auto GetOwner() const { return m_owner; }
 	const auto& ExportsNames() const { return m_ExportsNames; }
@@ -196,7 +196,7 @@ public:
 private:
 	// the rest shouldn't be here, just an optimization for OEM plugins
 	bool IsPlugin2(const void* Module) const;
-	virtual bool FindExport(const basic_string_view<char>& ExportName) const;
+	virtual bool FindExport(basic_string_view<char> ExportName) const;
 };
 
 template<EXPORTS_ENUM id, bool Native>

@@ -163,7 +163,7 @@ namespace detail
 	class simple_policy
 	{
 	public:
-		string_view::iterator extract(const string_view& View, const string_view& Separators, string_view& Value) const
+		string_view::iterator extract(const string_view View, const string_view Separators, string_view& Value) const
 		{
 			const auto NewIterator = std::find_first_of(ALL_CONST_RANGE(View), ALL_CONST_RANGE(Separators));
 			Value = View.substr(0, NewIterator - View.cbegin());
@@ -175,7 +175,7 @@ namespace detail
 	class custom_policy
 	{
 	public:
-		string_view::iterator extract(const string_view& View, const string_view& Separators, string_view& Value) const
+		string_view::iterator extract(const string_view View, const string_view Separators, string_view& Value) const
 		{
 			m_Overrider.reset();
 
@@ -210,25 +210,25 @@ class enum_tokens_t: policy, public enumerator<enum_tokens_t<policy>, string_vie
 	IMPLEMENTS_ENUMERATOR(enum_tokens_t);
 
 public:
-	enum_tokens_t(string&& Str, const string_view& Separators):
+	enum_tokens_t(string&& Str, const string_view Separators):
 		m_Storage(std::move(Str)),
 		m_View(m_Storage),
 		m_Separators(Separators)
 	{
 	}
 
-	enum_tokens_t(const string_view& Str, const string_view& Separators):
+	enum_tokens_t(const string_view Str, const string_view Separators):
 		m_View(Str),
 		m_Separators(Separators)
 	{
 	}
 
-	enum_tokens_t(const string& Str, const string_view& Separators) :
+	enum_tokens_t(const string& Str, const string_view Separators) :
 		enum_tokens_t(string_view(Str), Separators)
 	{
 	}
 
-	enum_tokens_t(const wchar_t* Str, const string_view& Separators) :
+	enum_tokens_t(const wchar_t* const Str, const string_view Separators) :
 		enum_tokens_t(string_view(Str), Separators)
 	{
 	}

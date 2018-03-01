@@ -3444,7 +3444,7 @@ bool Editor::Search(bool Next)
 		const auto strSearchStrUpper = Case? strSearchStr : upper(strSearchStr);
 		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
 
-		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		int StartLine = m_it_CurLine.Number();
 		SCOPED_ACTION(IndeterminateTaskbar);
 		SCOPED_ACTION(wakeful);
@@ -6701,7 +6701,7 @@ Editor::EditorPreRedrawItem::EditorPreRedrawItem():
 {
 }
 
-Editor::numbered_iterator Editor::InsertString(const string_view& Str, const numbered_iterator& Where)
+Editor::numbered_iterator Editor::InsertString(const string_view Str, const numbered_iterator& Where)
 {
 	bool Empty = Lines.empty();
 

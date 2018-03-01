@@ -168,8 +168,7 @@ struct CustomSort
 	int                  ListDirectoriesFirst;
 	int                  ListSortMode;
 	int                  RevertSorting;
-	int                  ListNumericSort;
-	int                  ListCaseSensitiveSort;
+	int                  Reserved[2];
 	HANDLE               hSortPlugin;
 };
 
@@ -705,7 +704,7 @@ public:
 		if (Ext2.empty())
 			Ext2 = GetExt(b);
 
-		const auto& GetNameOnly = [](const string_view& NameWithExt, const string_view& Ext)
+		const auto& GetNameOnly = [](const string_view NameWithExt, const string_view Ext)
 		{
 			return NameWithExt.substr(0, NameWithExt.size() - Ext.size());
 		};
@@ -772,7 +771,7 @@ void FileList::SortFileList(bool KeepPosition)
 		}
 		else
 		{
-			custom_sort::CustomSort cs;
+			custom_sort::CustomSort cs{};
 			custom_sort::FileListPtr = this;
 			std::vector<unsigned int> Positions(m_ListData.size());
 			std::iota(ALL_RANGE(Positions), 0);
@@ -785,8 +784,6 @@ void FileList::SortFileList(bool KeepPosition)
 			cs.ListDirectoriesFirst = m_DirectoriesFirst;
 			cs.ListSortMode = static_cast<int>(m_SortMode);
 			cs.RevertSorting = m_ReverseSortOrder;
-			cs.ListNumericSort = Global->Opt->Sort.DigitsAsNumbers;
-			cs.ListCaseSensitiveSort = Global->Opt->Sort.CaseSensitive;
 			cs.hSortPlugin = hSortPlugin;
 
 			if (custom_sort::SortFileList(&cs, CustomSortIndicator))
@@ -3372,13 +3369,13 @@ bool FileList::GoToFile(long idxItem)
 	return false;
 }
 
-bool FileList::GoToFile(const string_view& Name, bool OnlyPartName)
+bool FileList::GoToFile(const string_view Name, const bool OnlyPartName)
 {
 	return GoToFile(FindFile(Name,OnlyPartName));
 }
 
 
-long FileList::FindFile(const string_view& Name, bool OnlyPartName)
+long FileList::FindFile(const string_view Name, const bool OnlyPartName)
 {
 	long II = -1;
 	for (long I=0; I < static_cast<int>(m_ListData.size()); I++)
@@ -6667,7 +6664,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	}
 
 	error_state ErrorState;
-	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+	const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
 	std::all_of(CONST_RANGE(Find, fdata)
 	{
@@ -7535,7 +7532,7 @@ void FileList::ShowFileList(bool Fast)
 	}
 
 	/* <режимы сортировки> */
-	if (/*GetNumericSort() || GetCaseSensitiveSort() || GetSortGroups() || */GetSelectedFirstMode())
+	if (/* GetSortGroups() || */GetSelectedFirstMode())
 	{
 		if (Global->Opt->ShowColumnTitles)
 			GotoXY(NextX1,m_Y1+1);
@@ -7550,12 +7547,8 @@ void FileList::ShowFileList(bool Fast)
 			Indicators.push_back(L'^');
 
 		/*
-		if(GetNumericSort())
-			Indicators.push_back(L'#');
 		if(GetSortGroups())
 			Indicators.push_back(L'@');
-		if(GetCaseSensitiveSort())
-			Indicators.push_back(L'\');
 		*/
 		Text(Indicators);
 	}
@@ -7845,7 +7838,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	}
 }
 
-bool FileList::ConvertName(const string_view& SrcName,string &strDest,int MaxLength,unsigned long long RightAlign,int ShowStatus,DWORD FileAttr) const
+bool FileList::ConvertName(const string_view SrcName, string& strDest, const int MaxLength, const unsigned long long RightAlign, const int ShowStatus, const DWORD FileAttr) const
 {
 	strDest.reserve(MaxLength);
 

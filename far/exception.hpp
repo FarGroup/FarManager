@@ -48,7 +48,7 @@ struct error_state_ex: public error_state
 {
 	error_state_ex() = default;
 
-	error_state_ex(const error_state& State, const string_view& Message = L""_sv) :
+	error_state_ex(const error_state& State, string_view Message = L""_sv) :
 		error_state(State),
 		What(Message)
 	{

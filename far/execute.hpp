@@ -35,7 +35,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool GetShellType(const string_view& Ext, string& strType, ASSOCIATIONTYPE aType = AT_FILEEXTENSION);
+bool GetShellType(string_view Ext, string& strType, ASSOCIATIONTYPE aType = AT_FILEEXTENSION);
 
 void OpenFolderInShell(const string& Folder);
 

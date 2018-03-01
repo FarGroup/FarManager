@@ -177,22 +177,22 @@ private:
 		;
 	}
 
-	virtual bool SetValue(const string_view& Key, const string_view& Name, const string_view& Value) override
+	virtual bool SetValue(const string_view Key, const string_view Name, const string_view Value) override
 	{
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool SetValue(const string_view& Key, const string_view& Name, unsigned long long Value) override
+	virtual bool SetValue(const string_view Key, const string_view Name, const unsigned long long Value) override
 	{
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool SetValue(const string_view& Key, const string_view& Name, const bytes_view& Value) override
+	virtual bool SetValue(const string_view Key, const string_view Name, const bytes_view& Value) override
 	{
 		return SetValueT(Key, Name, Value);
 	}
 
-	virtual bool GetValue(const string_view& Key, const string_view& Name, bool& Value, bool Default) const override
+	virtual bool GetValue(const string_view Key, const string_view Name, bool& Value, const bool Default) const override
 	{
 		long long Data = Default;
 		const auto Result = GetValue(Key, Name, Data, Data);
@@ -200,32 +200,32 @@ private:
 		return Result;
 	}
 
-	virtual bool GetValue(const string_view& Key, const string_view& Name, long long& Value, long long Default) const override
+	virtual bool GetValue(const string_view Key, const string_view Name, long long& Value, const long long Default) const override
 	{
 		return GetValueT<column_type::integer>(Key, Name, Value, Default, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(const string_view& Key, const string_view& Name, string& Value, const wchar_t* Default) const override
+	virtual bool GetValue(const string_view Key, const string_view Name, string& Value, const wchar_t* const Default) const override
 	{
 		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool GetValue(const string_view& Key, const string_view& Name, string& Value, const string& Default) const override
+	virtual bool GetValue(const string_view Key, const string_view Name, string& Value, const string& Default) const override
 	{
 		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool DeleteValue(const string_view& Key, const string_view& Name) override
+	virtual bool DeleteValue(const string_view Key, const string_view Name) override
 	{
 		return ExecuteStatement(stmtDelValue, Key, Name);
 	}
 
-	virtual bool EnumValues(const string_view& Key, DWORD Index, string &Name, string &Value) const override
+	virtual bool EnumValues(const string_view Key, const DWORD Index, string &Name, string &Value) const override
 	{
 		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool EnumValues(const string_view& Key, DWORD Index, string &Name, long long& Value) const override
+	virtual bool EnumValues(const string_view Key, const DWORD Index, string &Name, long long& Value) const override
 	{
 		return EnumValuesT(Key, Index, Name, Value, &SQLiteStmt::GetColInt64);
 	}
@@ -305,7 +305,7 @@ private:
 	virtual const char* GetKeyName() const = 0;
 
 	template<column_type TypeId, class getter_t, class T, class DT>
-	bool GetValueT(const string_view& Key, const string_view& Name, T& Value, const DT& Default, getter_t Getter) const
+	bool GetValueT(const string_view Key, const string_view Name, T& Value, const DT& Default, const getter_t Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Key, Name).Step() || Stmt->GetColType(0) != TypeId)
@@ -319,7 +319,7 @@ private:
 	}
 
 	template<class T>
-	bool SetValueT(const string_view& Key, const string_view& Name, const T Value)
+	bool SetValueT(const string_view Key, const string_view Name, const T Value)
 	{
 		bool b = ExecuteStatement(stmtUpdateValue, Key, Name, Value);
 		if (!b || !Changes())
@@ -328,7 +328,7 @@ private:
 	}
 
 	template<class T, class getter_t>
-	bool EnumValuesT(const string_view& Key, DWORD Index, string& Name, T& Value, getter_t Getter) const
+	bool EnumValuesT(const string_view Key, const DWORD Index, string& Name, T& Value, const getter_t Getter) const
 	{
 		auto Stmt = AutoStatement(stmtEnumValues);
 		if (Index == 0)
@@ -456,7 +456,7 @@ protected:
 		return b;
 	}
 
-	virtual key CreateKey(const key& Root, const string_view& Name, const string* Description) override
+	virtual key CreateKey(const key& Root, const string_view Name, const string* const Description) override
 	{
 		if (ExecuteStatement(stmtCreateKey, Root.get(), Name, Description))
 			return key(LastInsertRowID());
@@ -467,7 +467,7 @@ protected:
 		return Key;
 	}
 
-	virtual key FindByName(const key& Root, const string_view& Name) const override
+	virtual key FindByName(const key& Root, const string_view Name) const override
 	{
 		const auto Stmt = AutoStatement(stmtFindKey);
 		if (!Stmt->Bind(Root.get(), Name).Step())
@@ -476,37 +476,37 @@ protected:
 		return key(Stmt->GetColInt64(0));
 	}
 
-	virtual bool SetKeyDescription(const key& Root, const string_view& Description) override
+	virtual bool SetKeyDescription(const key& Root, const string_view Description) override
 	{
 		return ExecuteStatement(stmtSetKeyDescription, Description, Root.get());
 	}
 
-	virtual bool SetValue(const key& Root, const string_view& Name, const string_view& Value) override
+	virtual bool SetValue(const key& Root, const string_view Name, const string_view Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(const key& Root, const string_view& Name, unsigned long long Value) override
+	virtual bool SetValue(const key& Root, const string_view Name, const unsigned long long Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool SetValue(const key& Root, const string_view& Name, const bytes_view& Value) override
+	virtual bool SetValue(const key& Root, const string_view Name, const bytes_view& Value) override
 	{
 		return SetValueT(Root, Name, Value);
 	}
 
-	virtual bool GetValue(const key& Root, const string_view& Name, unsigned long long& Value) const override
+	virtual bool GetValue(const key& Root, const string_view Name, unsigned long long& Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColInt64);
 	}
 
-	virtual bool GetValue(const key& Root, const string_view& Name, string& Value) const override
+	virtual bool GetValue(const key& Root, const string_view Name, string& Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColText);
 	}
 
-	virtual bool GetValue(const key& Root, const string_view& Name, bytes& Value) const override
+	virtual bool GetValue(const key& Root, const string_view Name, bytes& Value) const override
 	{
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColBlob);
 	}
@@ -517,7 +517,7 @@ protected:
 		return ExecuteStatement(stmtDeleteTree, Key.get());
 	}
 
-	virtual bool DeleteValue(const key& Root, const string_view& Name) override
+	virtual bool DeleteValue(const key& Root, const string_view Name) override
 	{
 		return ExecuteStatement(stmtDelValue, Root.get(), Name);
 	}
@@ -675,7 +675,7 @@ protected:
 	}
 
 	template<class T, class getter_t>
-	bool GetValueT(const key& Root, const string_view& Name, T& Value, getter_t Getter) const
+	bool GetValueT(const key& Root, const string_view Name, T& Value, const getter_t Getter) const
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Root.get(), Name).Step())
@@ -695,7 +695,7 @@ protected:
 	}
 
 	template<class T>
-	bool SetValueT(const key& Root, const string_view& Name, const T& Value)
+	bool SetValueT(const key& Root, const string_view Name, const T& Value)
 	{
 		return ExecuteStatement(stmtSetValue, Root.get(), Name, Value);
 	}
@@ -804,7 +804,7 @@ private:
 		;
 	}
 
-	virtual bool SetValue(const string_view& Name, const FarColor& Value) override
+	virtual bool SetValue(const string_view Name, const FarColor& Value) override
 	{
 		const auto Blob = bytes_view(Value);
 		bool b = ExecuteStatement(stmtUpdateValue, Name, Blob);
@@ -813,7 +813,7 @@ private:
 		return b;
 	}
 
-	virtual bool GetValue(const string_view& Name, FarColor& Value) const override
+	virtual bool GetValue(const string_view Name, FarColor& Value) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetValue);
 		if (!Stmt->Bind(Name).Step())
@@ -984,7 +984,7 @@ private:
 		return true;
 	}
 
-	virtual bool SetCommand(unsigned long long id, int Type, const string_view& Command, bool Enabled) override
+	virtual bool SetCommand(const unsigned long long id, const int Type, const string_view Command, const bool Enabled) override
 	{
 		return ExecuteStatement(stmtSetCommand, id, Type, Enabled, Command);
 	}
@@ -1005,12 +1005,12 @@ private:
 		return ExecuteStatement(stmtSetWeight, weight1, id2) && ExecuteStatement(stmtSetWeight, weight2, id1);
 	}
 
-	virtual unsigned long long AddType(unsigned long long after_id, const string_view& Mask, const string_view& Description) override
+	virtual unsigned long long AddType(const unsigned long long after_id, const string_view Mask, const string_view Description) override
 	{
 		return ExecuteStatement(stmtReorder, after_id) && ExecuteStatement(stmtAddType, after_id, Mask, Description)? LastInsertRowID() : 0;
 	}
 
-	virtual bool UpdateType(unsigned long long id, const string_view& Mask, const string_view& Description) override
+	virtual bool UpdateType(const unsigned long long id, const string_view Mask, const string_view Description) override
 	{
 		return ExecuteStatement(stmtUpdateType, Mask, Description, id);
 	}
@@ -1202,12 +1202,12 @@ private:
 	virtual void Import(const representation_source&) override {}
 	virtual void Export(representation_destination&) const override {}
 
-	virtual unsigned long long CreateCache(const string_view& CacheName) override
+	virtual unsigned long long CreateCache(const string_view CacheName) override
 	{
 		return ExecuteStatement(stmtCreateCache, CacheName)? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned long long GetCacheID(const string_view& CacheName) const override
+	virtual unsigned long long GetCacheID(const string_view CacheName) const override
 	{
 		const auto Stmt = AutoStatement(stmtFindCacheName);
 		return Stmt->Bind(CacheName).Step()?
@@ -1215,7 +1215,7 @@ private:
 		       0;
 	}
 
-	virtual bool DeleteCache(const string_view& CacheName) override
+	virtual bool DeleteCache(const string_view CacheName) override
 	{
 		//All related entries are automatically deleted because of foreign key constraints
 		return ExecuteStatement(stmtDelCache, CacheName);
@@ -1232,7 +1232,7 @@ private:
 		return GetTextFromID(stmtGetSignature, id);
 	}
 
-	virtual bool GetExportState(unsigned long long id, const string_view& ExportName) const override
+	virtual bool GetExportState(const unsigned long long id, const string_view ExportName) const override
 	{
 		if (ExportName.empty())
 			return false;
@@ -1302,27 +1302,27 @@ private:
 		return ExecuteStatement(stmtSetPreloadState, id, Preload);
 	}
 
-	virtual bool SetSignature(unsigned long long id, const string_view& Signature) override
+	virtual bool SetSignature(const unsigned long long id, const string_view Signature) override
 	{
 		return ExecuteStatement(stmtSetSignature, id, Signature);
 	}
 
-	virtual bool SetDiskMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) override
+	virtual bool SetDiskMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetPluginsMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) override
+	virtual bool SetPluginsMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetPluginsConfigMenuItem(unsigned long long id, size_t index, const string_view& Text, const GUID& Guid) override
+	virtual bool SetPluginsConfigMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
 		return SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
-	virtual bool SetCommandPrefix(unsigned long long id, const string_view& Prefix) override
+	virtual bool SetCommandPrefix(const unsigned long long id, const string_view Prefix) override
 	{
 		return ExecuteStatement(stmtSetPrefix, id, Prefix);
 	}
@@ -1332,7 +1332,7 @@ private:
 		return ExecuteStatement(stmtSetFlags, id, Flags);
 	}
 
-	virtual bool SetExportState(unsigned long long id, const string_view& ExportName, bool Exists) override
+	virtual bool SetExportState(const unsigned long long id, const string_view ExportName, const bool Exists) override
 	{
 		return !ExportName.empty() && ExecuteStatement(stmtSetExportState, id, ExportName, Exists);
 	}
@@ -1347,22 +1347,22 @@ private:
 		return ExecuteStatement(stmtSetVersion, id, bytes_view(*Version));
 	}
 
-	virtual bool SetGuid(unsigned long long id, const string_view& Guid) override
+	virtual bool SetGuid(const unsigned long long id, const string_view Guid) override
 	{
 		return ExecuteStatement(stmtSetGuid, id, Guid);
 	}
 
-	virtual bool SetTitle(unsigned long long id, const string_view& Title) override
+	virtual bool SetTitle(const unsigned long long id, const string_view Title) override
 	{
 		return ExecuteStatement(stmtSetTitle, id, Title);
 	}
 
-	virtual bool SetAuthor(unsigned long long id, const string_view& Author) override
+	virtual bool SetAuthor(const unsigned long long id, const string_view Author) override
 	{
 		return ExecuteStatement(stmtSetAuthor, id, Author);
 	}
 
-	virtual bool SetDescription(unsigned long long id, const string_view& Description) override
+	virtual bool SetDescription(const unsigned long long id, const string_view Description) override
 	{
 		return ExecuteStatement(stmtSetDescription, id, Description);
 	}
@@ -1404,7 +1404,7 @@ private:
 		return StrToGuid(Stmt->GetColText(1), Guid);
 	}
 
-	bool SetMenuItem(unsigned long long id, MenuItemTypeEnum type, size_t index, const string_view& Text, const GUID& Guid) const
+	bool SetMenuItem(const unsigned long long id, const MenuItemTypeEnum type, const size_t index, const string_view Text, const GUID& Guid) const
 	{
 		return ExecuteStatement(stmtSetMenuItem, id, type, index, GuidToStr(Guid), Text);
 	}
@@ -1496,7 +1496,7 @@ private:
 		return Stmt->Bind(as_underlying_type(HotKeyType)).Step() && Stmt->GetColInt(0);
 	}
 
-	virtual string GetHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) override
+	virtual string GetHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType) override
 	{
 		const auto Stmt = AutoStatement(stmtGetHotkey);
 		if (!Stmt->Bind(PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType)).Step())
@@ -1505,12 +1505,12 @@ private:
 		return Stmt->GetColText(0);
 	}
 
-	virtual bool SetHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, const string_view& HotKey) override
+	virtual bool SetHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType, const string_view HotKey) override
 	{
 		return ExecuteStatement(stmtSetHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType), HotKey);
 	}
 
-	virtual bool DelHotkey(const string_view& PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) override
+	virtual bool DelHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType) override
 	{
 		return ExecuteStatement(stmtDelHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType));
 	}
@@ -1715,7 +1715,7 @@ private:
 		return ExecuteStatement(stmtDel, id);
 	}
 
-	unsigned long long GetPrevImpl(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string& Name, const std::function<unsigned long long()>& Fallback) const
+	unsigned long long GetPrevImpl(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, const std::function<unsigned long long()>& Fallback) const
 	{
 		WaitAllAsync();
 		Name.clear();
@@ -1813,7 +1813,7 @@ private:
 		return DeleteInternal(id);
 	}
 
-	virtual bool Enum(DWORD index, unsigned int TypeHistory, const string_view& HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse) override
+	virtual bool Enum(const DWORD index, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, const bool Reverse) override
 	{
 		WaitAllAsync();
 		auto Stmt = AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
@@ -1836,7 +1836,7 @@ private:
 		return true;
 	}
 
-	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, const string_view& HistoryName, const string_view& Name, int Type, bool Lock, string &strGuid, string &strFile, string &strData) override
+	virtual bool DeleteAndAddAsync(const unsigned long long DeleteId, const unsigned int TypeHistory, const string_view HistoryName, const string_view Name, const int Type, const bool Lock, string &strGuid, string &strFile, string &strData) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
@@ -1857,7 +1857,7 @@ private:
 		return true;
 	}
 
-	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, const string_view& HistoryName, int DaysToKeep, int MinimumEntries) override
+	virtual bool DeleteOldUnlocked(const unsigned int TypeHistory, const string_view HistoryName, const int DaysToKeep, const int MinimumEntries) override
 	{
 		WaitAllAsync();
 
@@ -1880,7 +1880,7 @@ private:
 		return true;
 	}
 
-	virtual bool GetNewest(unsigned int TypeHistory, const string_view& HistoryName, string& Name) override
+	virtual bool GetNewest(const unsigned int TypeHistory, const string_view HistoryName, string& Name) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetNewestName);
@@ -1917,7 +1917,7 @@ private:
 		return true;
 	}
 
-	virtual DWORD Count(unsigned int TypeHistory, const string_view& HistoryName) override
+	virtual DWORD Count(const unsigned int TypeHistory, const string_view HistoryName) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtCount);
@@ -1937,13 +1937,13 @@ private:
 		return Stmt->Bind(id).Step() && Stmt->GetColInt(0) != 0;
 	}
 
-	virtual bool DeleteAllUnlocked(unsigned int TypeHistory, const string_view& HistoryName) override
+	virtual bool DeleteAllUnlocked(const unsigned int TypeHistory, const string_view HistoryName) override
 	{
 		WaitAllAsync();
 		return ExecuteStatement(stmtDelUnlocked, TypeHistory, HistoryName);
 	}
 
-	virtual unsigned long long GetNext(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string& Name) override
+	virtual unsigned long long GetNext(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override
 	{
 		WaitAllAsync();
 		Name.clear();
@@ -1959,23 +1959,23 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	virtual unsigned long long GetPrev(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string& Name) override
+	virtual unsigned long long GetPrev(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override
 	{
 		return GetPrevImpl(TypeHistory, HistoryName, id, Name, [&]() { return Get(id, Name)? id : 0; });
 	}
 
-	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, const string_view& HistoryName, unsigned long long id, string& Name) override
+	virtual unsigned long long CyclicGetPrev(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override
 	{
 		return GetPrevImpl(TypeHistory, HistoryName, id, Name, [&]() { return 0; });
 	}
 
-	virtual unsigned long long SetEditorPos(const string_view& Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) override
+	virtual unsigned long long SetEditorPos(const string_view Name, const int Line, const int LinePos, const int ScreenLine, const int LeftPos, const uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
 		return ExecuteStatement(stmtSetEditorPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), Line, LinePos, ScreenLine, LeftPos, CodePage)? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned long long GetEditorPos(const string_view& Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage) override
+	virtual unsigned long long GetEditorPos(const string_view Name, int* const Line, int* const LinePos, int* const ScreenLine, int* const LeftPos, uintptr_t* const CodePage) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetEditorPos);
@@ -2010,13 +2010,13 @@ private:
 		return true;
 	}
 
-	virtual unsigned long long SetViewerPos(const string_view& Name, long long FilePos, long long LeftPos, int Hex_Wrap, uintptr_t CodePage) override
+	virtual unsigned long long SetViewerPos(const string_view Name, const long long FilePos, const long long LeftPos, const int Hex_Wrap, uintptr_t const CodePage) override
 	{
 		WaitCommitAsync();
 		return ExecuteStatement(stmtSetViewerPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), FilePos, LeftPos, Hex_Wrap, CodePage)? LastInsertRowID() : 0;
 	}
 
-	virtual unsigned long long GetViewerPos(const string_view& Name, long long *FilePos, long long *LeftPos, int *Hex, uintptr_t *CodePage) override
+	virtual unsigned long long GetViewerPos(const string_view Name, long long* const FilePos, long long* const LeftPos, int* const Hex, uintptr_t* const CodePage) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetViewerPos);
@@ -2219,7 +2219,7 @@ enum dbcheck: int
 	CHECK_PANELMODES = bit(3),
 };
 
-HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view& guid, bool Local)
+HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local)
 {
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, concat(L"PluginsData\\"_sv, guid, L".db"_sv), encoding::utf8::get_bytes(guid).data(), Local, true);
 }

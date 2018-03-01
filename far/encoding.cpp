@@ -409,7 +409,7 @@ encoding::writer::writer(std::ostream& Stream, uintptr_t Codepage, bool AddSigna
 {
 }
 
-void encoding::writer::write(const string_view& Str)
+void encoding::writer::write(const string_view Str)
 {
 	if (m_AddSignature)
 	{

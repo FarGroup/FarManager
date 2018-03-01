@@ -69,13 +69,13 @@ private:
 	virtual string GetTitle() const override { return {}; }
 	void init(const string& Topic, const wchar_t *Mask, unsigned long long Flags);
 	bool ReadHelp(const string& Mask);
-	void AddLine(const string_view& Line);
-	void AddTitle(const string_view& Title);
+	void AddLine(string_view Line);
+	void AddTitle(string_view Title);
 	static void HighlightsCorrection(string &strStr);
 	void FastShow();
 	void DrawWindowFrame() const;
 	void OutString(string_view Str);
-	int  StringLen(const string_view& Str);
+	int  StringLen(string_view Str);
 	void CorrectPosition() const;
 	bool IsReferencePresent();
 	bool GetTopic(int realX, int realY, string& strTopic);

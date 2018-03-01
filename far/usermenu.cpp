@@ -151,13 +151,14 @@ static string SerializeMenu(const UserMenu::menu_container& Menu)
 	return Result;
 }
 
-static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, bool OldFormat)
+static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::iterator> FileStrings, bool OldFormat)
 {
 	UserMenu::menu_container::value_type *MenuItem = nullptr;
 
 	string MenuStr;
-	while (GetStr.GetString(MenuStr))
+	for (auto i = FileStrings.begin(); i != FileStrings.end(); ++i)
 	{
+		assign(MenuStr, i->Str);
 		inplace::trim_right(MenuStr);
 
 		if (MenuStr.empty())
@@ -165,7 +166,8 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 
 		if (MenuStr.front() == L'{' && MenuItem)
 		{
-			ParseMenu(MenuItem->Menu, GetStr, OldFormat);
+			ParseMenu(MenuItem->Menu, { i, FileStrings.end() }, OldFormat);
+			MenuItem->Submenu = true;
 			MenuItem = nullptr;
 			continue;
 		}
@@ -187,20 +189,19 @@ static void ParseMenu(UserMenu::menu_container& Menu, GetFileString& GetStr, boo
 				++ChPos;
 			}
 
-			Menu.resize(Menu.size() + 1);
-			MenuItem = &Menu.back();
+			UserMenu::menu_container::value_type NewItem{};
 
-			MenuItem->strHotKey = MenuStr.substr(0, ChPos);
-			MenuItem->strLabel = trim_left(MenuStr.substr(ChPos + 1));
-
-			string_view Tmp;
-			MenuItem->Submenu = GetStr.PeekString(Tmp) && !Tmp.empty() && Tmp.front() == L'{';
+			NewItem.strHotKey = MenuStr.substr(0, ChPos);
+			NewItem.strLabel = trim_left(MenuStr.substr(ChPos + 1));
 
 			// Support for old 1.x separator format
-			if (OldFormat && MenuItem->strHotKey == L"-" && MenuItem->strLabel.empty())
+			if (OldFormat && NewItem.strHotKey == L"-" && NewItem.strLabel.empty())
 			{
-				MenuItem->strHotKey += L'-';
+				NewItem.strHotKey += L'-';
 			}
+
+			Menu.emplace_back(std::move(NewItem));
+			MenuItem = &Menu.back();
 		}
 		else if (MenuItem)
 		{
@@ -220,8 +221,8 @@ static void DeserializeMenu(UserMenu::menu_container& Menu, const os::fs::file& 
 		OldFormat = true;
 	}
 
-	GetFileString GetStr(File, Codepage);
-	ParseMenu(Menu, GetStr, OldFormat);
+	enum_file_lines EnumFileLines(File, Codepage);
+	ParseMenu(Menu, make_range(EnumFileLines), OldFormat);
 
 	if (!IsUnicodeOrUtfCodePage(Codepage))
 	{

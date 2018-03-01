@@ -829,22 +829,6 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			break;
 		}
 
-		case FCTL_SETNUMERICSORT:
-		{
-			Global->Opt->Sort.DigitsAsNumbers = Param1 != 0;
-			OnSortingChange();
-			Result=TRUE;
-			break;
-		}
-
-		case FCTL_SETCASESENSITIVESORT:
-		{
-			Global->Opt->Sort.CaseSensitive = Param1 != 0;
-			OnSortingChange();
-			Result=TRUE;
-			break;
-		}
-
 		case FCTL_SETSORTORDER:
 		{
 			ChangeSortOrder(Param1 != 0);
@@ -910,8 +894,6 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Info->Flags |= GetSortGroups()? PFLAGS_USESORTGROUPS : 0;
 			Info->Flags |= GetSelectedFirstMode()? PFLAGS_SELECTEDFIRST : 0;
 			Info->Flags |= GetDirectoriesFirst()? PFLAGS_DIRECTORIESFIRST : 0;
-			Info->Flags |= Global->Opt->Sort.DigitsAsNumbers ? PFLAGS_NUMERICSORT : 0;
-			Info->Flags |= Global->Opt->Sort.CaseSensitive? PFLAGS_CASESENSITIVESORT : 0;
 			Info->Flags |= (GetMode() == panel_mode::PLUGIN_PANEL)? PFLAGS_PLUGIN : 0;
 			Info->Flags |= IsVisible()? PFLAGS_VISIBLE : 0;
 			Info->Flags |= IsFocused()? PFLAGS_FOCUS : 0;

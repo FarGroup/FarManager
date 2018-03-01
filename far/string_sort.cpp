@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 
 template<typename comparer>
-static int per_char_compare(string_view Str1, string_view Str2, comparer Comparer)
+static int per_char_compare(const string_view Str1, const string_view Str2, const comparer Comparer)
 {
 	auto Iterator = std::make_pair(Str1.cbegin(), Str2.cbegin());
 	const auto End = std::make_pair(Str1.cend(), Str2.cend());
@@ -99,7 +99,7 @@ static int ordinal_comparer(wchar_t Char1, wchar_t Char2)
 	return static_cast<int>(Char1) - static_cast<int>(Char2);
 }
 
-static int compare_ordinal(string_view Str1, string_view Str2)
+static int compare_ordinal(const string_view Str1, const string_view Str2)
 {
 	return per_char_compare(Str1, Str2, [](const wchar_t*& It1, const wchar_t*, const wchar_t*& It2, const wchar_t*)
 	{
@@ -107,7 +107,7 @@ static int compare_ordinal(string_view Str1, string_view Str2)
 	});
 }
 
-static int compare_ordinal_icase(string_view Str1, string_view Str2)
+static int compare_ordinal_icase(const string_view Str1, const string_view Str2)
 {
 	return per_char_compare(Str1, Str2, [](const wchar_t*& It1, const wchar_t*, const wchar_t*& It2, const wchar_t*)
 	{
@@ -115,7 +115,7 @@ static int compare_ordinal_icase(string_view Str1, string_view Str2)
 	});
 }
 
-static int compare_ordinal_numeric(string_view Str1, string_view Str2)
+static int compare_ordinal_numeric(const string_view Str1, const string_view Str2)
 {
 	return per_char_compare(Str1, Str2, [](const wchar_t*& It1, const wchar_t* End1, const wchar_t*& It2, const wchar_t* End2)
 	{
@@ -125,7 +125,7 @@ static int compare_ordinal_numeric(string_view Str1, string_view Str2)
 	});
 }
 
-static int compare_ordinal_numeric_icase(string_view Str1, string_view Str2)
+static int compare_ordinal_numeric_icase(const string_view Str1, const string_view Str2)
 {
 	return per_char_compare(Str1, Str2, [](const wchar_t*& It1, const wchar_t* End1, const wchar_t*& It2, const wchar_t* End2)
 	{
@@ -193,7 +193,7 @@ static int invariant_comparer(wchar_t Char1, wchar_t Char2)
 	return SortTable[Char1] - SortTable[Char2];
 }
 
-static int compare_invariant(string_view Str1, string_view Str2)
+static int compare_invariant(const string_view Str1, const string_view Str2)
 {
 	return per_char_compare(Str1, Str2, [&](const wchar_t*& It1, const wchar_t*, const wchar_t*& It2, const wchar_t*)
 	{
@@ -201,7 +201,7 @@ static int compare_invariant(string_view Str1, string_view Str2)
 	});
 }
 
-static int compare_invariant_icase(string_view Str1, string_view Str2)
+static int compare_invariant_icase(const string_view Str1, const string_view Str2)
 {
 	return per_char_compare(Str1, Str2, [&](const wchar_t*& It1, const wchar_t*, const wchar_t*& It2, const wchar_t*)
 	{
@@ -209,7 +209,7 @@ static int compare_invariant_icase(string_view Str1, string_view Str2)
 	});
 }
 
-static int compare_invariant_numeric(string_view Str1, string_view Str2)
+static int compare_invariant_numeric(const string_view Str1, const string_view Str2)
 {
 	return per_char_compare(Str1, Str2, [&](const wchar_t*& It1, const wchar_t* End1, const wchar_t*& It2, const wchar_t* End2)
 	{
@@ -219,7 +219,7 @@ static int compare_invariant_numeric(string_view Str1, string_view Str2)
 	});
 }
 
-static int compare_invariant_numeric_icase(string_view Str1, string_view Str2)
+static int compare_invariant_numeric_icase(const string_view Str1, const string_view Str2)
 {
 	return per_char_compare(Str1, Str2, [&](const wchar_t*& It1, const wchar_t* End1, const wchar_t*& It2, const wchar_t* End2)
 	{
@@ -229,7 +229,7 @@ static int compare_invariant_numeric_icase(string_view Str1, string_view Str2)
 	});
 }
 
-static int compare_natural_base(string_view Str1, string_view Str2, bool Numeric, bool CaseSensitive)
+static int compare_natural_base(const string_view Str1, const string_view Str2, const bool Numeric, const bool CaseSensitive)
 {
 	static const auto Windows7OrGreater = IsWindows7OrGreater();
 	static const auto WindowsVistaOrGreater = Windows7OrGreater || IsWindowsVistaOrGreater();
@@ -267,29 +267,29 @@ static int compare_natural_base(string_view Str1, string_view Str2, bool Numeric
 	return FallbackComparers[Numeric][CaseSensitive](Str1, Str2);
 }
 
-static int compare_natural(string_view Str1, string_view Str2)
+static int compare_natural(const string_view Str1, const string_view Str2)
 {
 	return compare_natural_base(Str1, Str2, false, true);
 }
 
-static int compare_natural_icase(string_view Str1, string_view Str2)
+static int compare_natural_icase(const string_view Str1, const string_view Str2)
 {
 	return compare_natural_base(Str1, Str2, false, false);
 }
 
-static int compare_natural_numeric(string_view Str1, string_view Str2)
+static int compare_natural_numeric(const string_view Str1, const string_view Str2)
 {
 	return compare_natural_base(Str1, Str2, true, true);
 }
 
-static int compare_natural_numeric_icase(string_view Str1, string_view Str2)
+static int compare_natural_numeric_icase(const string_view Str1, const string_view Str2)
 {
 	return compare_natural_base(Str1, Str2, true, false);
 }
 
 static auto DefaultComparer = IsWindows7OrGreater()? compare_natural_numeric_icase : compare_natural_icase;
 
-int string_sort::compare(string_view Str1, string_view Str2)
+int string_sort::compare(const string_view Str1, const string_view Str2)
 {
 	return DefaultComparer(Str1, Str2);
 }

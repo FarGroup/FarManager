@@ -2748,7 +2748,7 @@ void ViewerSearchMsg(const string& MsgStr, int Percent, int SearchHex)
 	}
 }
 
-static auto hex2ss(const string_view& from, intptr_t *pos = nullptr)
+static auto hex2ss(const string_view from, intptr_t * const pos = nullptr)
 {
 	if (pos)
 		*pos /= 2;
@@ -3507,7 +3507,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(false, 0);
 
-		time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 		for (;;)
 		{
 			const auto found = std::invoke(searcher, this, &sd);

@@ -278,8 +278,8 @@ private:
 	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
 	DWORD EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
-	numbered_iterator InsertString(const string_view& Str, const numbered_iterator& Where);
-	numbered_iterator PushString(const string_view& Str) { return InsertString(Str, EndIterator()); }
+	numbered_iterator InsertString(string_view Str, const numbered_iterator& Where);
+	numbered_iterator PushString(const string_view Str) { return InsertString(Str, EndIterator()); }
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
 	bool ProcessKeyInternal(const Manager::Key& Key, bool& Refresh);

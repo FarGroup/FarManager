@@ -52,7 +52,7 @@ string_view eol::str(type Value)
 		none_s;
 }
 
-eol::type eol::parse(const string_view& Value)
+eol::type eol::parse(const string_view Value)
 {
 	return
 		Value == win_s? type::win :

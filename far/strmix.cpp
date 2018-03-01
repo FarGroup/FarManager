@@ -364,7 +364,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 	return Src;
 }
 
-bool IsCaseMixed(const string_view& strSrc)
+bool IsCaseMixed(const string_view strSrc)
 {
 	const auto AlphaBegin = std::find_if(ALL_CONST_RANGE(strSrc), is_alpha);
 	if (AlphaBegin == strSrc.cend())
@@ -514,7 +514,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count == npos - заменять "до полной победы"
 // Return - количество замен
-size_t ReplaceStrings(string &strStr, const string_view& FindStr, const string_view& ReplStr, bool IgnoreCase, size_t Count)
+size_t ReplaceStrings(string& strStr, const string_view FindStr, const string_view ReplStr, const bool IgnoreCase, size_t Count)
 {
 	if (strStr.empty() || FindStr.empty() || !Count)
 		return 0;
@@ -851,7 +851,7 @@ unsigned long long ConvertFileSizeString(const string& FileSizeStr)
 	}
 }
 
-string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch)
+string ReplaceBrackets(const string_view SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch)
 {
 	string result;
 	for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
@@ -918,7 +918,7 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 
 					if (Success)
 					{
-						result.append(SearchStr + start, end - start);
+						result.append(SearchStr.raw_data() + start, end - start);
 					}
 				}
 			}
@@ -933,7 +933,7 @@ string ReplaceBrackets(const wchar_t *SearchStr, const string& ReplaceStr, const
 	return result;
 }
 
-bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength, const wchar_t* WordDiv)
+bool SearchString(string_view Source, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength, const wchar_t* WordDiv)
 {
 	int Position = CurPos;
 	*SearchLength = 0;
@@ -941,21 +941,21 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 	if (!WordDiv)
 		WordDiv=Global->Opt->strWordDiv.data();
 
-	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, StrSize, Str, ReplaceStr, CurPos, Case, WholeWords, WordDiv, Reverse, *SearchLength))
+	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, Str, ReplaceStr, CurPos, Case, WholeWords, WordDiv, Reverse, *SearchLength))
 		return true;
 
 	if (Reverse)
 	{
 		Position--;
 
-		if (Position>=StrSize)
-			Position=StrSize-1;
+		if (Position >= static_cast<int>(Source.size()))
+			Position = static_cast<int>(Source.size() - 1);
 
 		if (Position<0)
 			return false;
 	}
 
-	if ((Position<StrSize || (!Position && !StrSize)) && !Str.empty())
+	if ((Position < static_cast<int>(Source.size()) || (!Position && Source.empty())) && !Str.empty())
 	{
 		if (Regexp)
 		{
@@ -964,7 +964,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 			int half = 0;
 			if (!Reverse)
 			{
-				if (re.SearchEx(Source, Source + Position, Source + StrSize, pm, n, hm))
+				if (re.SearchEx(Source.raw_data(), Source.raw_data() + Position, Source.raw_data() + Source.size(), pm, n, hm))
 				{
 					found = true;
 				}
@@ -978,7 +978,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 				int pos = 0;
 				for (;;)
 				{
-					if (!re.SearchEx(Source, Source + pos, Source + StrSize, pm + half, n, hm))
+					if (!re.SearchEx(Source.raw_data(), Source.raw_data() + pos, Source.raw_data() + Source.size(), pm + half, n, hm))
 					{
 						ReMatchErrorMessage(re);
 						break;
@@ -1003,12 +1003,12 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 			return found;
 		}
 
-		if (Position==StrSize)
+		if (Position == static_cast<int>(Source.size()))
 			return false;
 
-		int Length = *SearchLength = (int)Str.size();
+		const int Length = *SearchLength = (int)Str.size();
 
-		for (int I=Position; (Reverse && I>=0) || (!Reverse && I<StrSize); Reverse ? I--:I++)
+		for (int I=Position; (Reverse && I>=0) || (!Reverse && I < static_cast<int>(Source.size())); Reverse ? I--:I++)
 		{
 			for (int J=0;; J++)
 			{
@@ -1032,7 +1032,7 @@ bool SearchString(const wchar_t* Source, int StrSize, const string& Str, const s
 				if (WholeWords)
 				{
 					const auto locResultLeft = I <= 0 || std::iswblank(Source[I - 1]) || wcschr(WordDiv, Source[I - 1]);
-					const auto locResultRight = I + Length >= StrSize || std::iswblank(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
+					const auto locResultRight = I + Length >= static_cast<int>(Source.size()) || std::iswblank(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
 
 					if (!locResultLeft || !locResultRight)
 						break;
@@ -1105,7 +1105,7 @@ static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 }
 
 template<typename char_type>
-static auto HexStringToBlobT(const basic_string_view<char_type>& Hex, char_type Separator)
+static auto HexStringToBlobT(const basic_string_view<char_type> Hex, const char_type Separator)
 {
 	// Size shall be either 3 * N + 2 or even
 	if (!Hex.empty() && (Separator? Hex.size() % 3 != 2 : Hex.size() & 1))
@@ -1139,7 +1139,7 @@ std::string BlobToHexString(const bytes_view& Blob, char Separator)
 	return BlobToHexString(Blob.data(), Blob.size(), Separator);
 }
 
-bytes HexStringToBlob(const basic_string_view<char>& Hex, char Separator)
+bytes HexStringToBlob(const basic_string_view<char> Hex, const char Separator)
 {
 	return HexStringToBlobT(Hex, Separator);
 }
@@ -1154,7 +1154,7 @@ string BlobToHexWString(const bytes_view& Blob, char Separator)
 	return BlobToHexWString(Blob.data(), Blob.size(), Separator);
 }
 
-bytes HexStringToBlob(const string_view& Hex, wchar_t Separator)
+bytes HexStringToBlob(const string_view Hex, const wchar_t Separator)
 {
 	return HexStringToBlobT(Hex, Separator);
 }

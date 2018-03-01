@@ -371,7 +371,7 @@ bool DriveCanBeVirtual(UINT DriveType)
 	return (DriveType == DRIVE_FIXED && IsWindows7OrGreater()) || (IsDriveTypeCDROM(DriveType) && IsWindows8OrGreater());
 }
 
-UINT FAR_GetDriveType(const string_view& RootDir, DWORD Detect)
+UINT FAR_GetDriveType(const string_view RootDir, const DWORD Detect)
 {
 	auto strRootDir = RootDir.empty()? GetPathRoot(os::fs::GetCurrentDirectory()) : string(RootDir);
 	AddEndSlash(strRootDir);

@@ -141,7 +141,7 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 	return true;
 }
 
-bool CmpName(string_view pattern, string_view str, bool skippath, bool CmpNameSearchMode)
+bool CmpName(string_view pattern, string_view str, const bool skippath, const bool CmpNameSearchMode)
 {
 	if (pattern.empty() || str.empty())
 		return false;

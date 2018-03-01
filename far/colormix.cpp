@@ -245,7 +245,7 @@ static const wchar_t* ExtractColor(const wchar_t* Color, COLORREF& Target, FARCO
 	return Color;
 }
 
-string_view ExtractColorInNewFormat(string_view Str, FarColor& Color, bool& Stop)
+string_view ExtractColorInNewFormat(const string_view Str, FarColor& Color, bool& Stop)
 {
 	Stop = false;
 	if (Str[0] != L'(')

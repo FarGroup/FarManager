@@ -5,7 +5,6 @@
 /*
 filestr.hpp
 
-Класс GetFileString
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -38,37 +37,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "eol.hpp"
 
-class GetFileString: noncopyable
+struct file_line
 {
+	string_view Str;
+	eol::type Eol;
+};
+
+// TODO: rename
+class enum_file_lines : public enumerator<enum_file_lines, file_line>
+{
+	IMPLEMENTS_ENUMERATOR(enum_file_lines);
+
 public:
-	GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage);
-	bool PeekString(string_view& Str, eol::type* Eol = nullptr);
-	bool GetString(string_view& Str, eol::type* Eol = nullptr);
-	bool GetString(string& str, eol::type* Eol = nullptr);
-	bool IsConversionValid() const { return !SomeDataLost; }
+	enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage);
+	bool conversion_error() const { return m_ConversionError; }
 
 private:
+	bool get(size_t Index, file_line& Value) const;
+
+	bool GetString(string_view& Str, eol::type& Eol) const;
+
 	template<typename T>
-	bool GetTString(std::vector<T>& From, std::vector<T>& To, eol::type* Eol, bool bBigEndian = false);
+	bool GetTString(std::vector<T>& From, std::vector<T>& To, eol::type& Eol, bool bBigEndian = false) const;
 
 	const os::fs::file& SrcFile;
+	size_t BeginPos;
 	uintptr_t m_CodePage;
-	size_t ReadPos{};
-	size_t ReadSize{};
-
-	bool Peek{};
-	string_view LastStr;
-	bool LastResult{};
-
-	std::vector<char> m_ReadBuf;
-	std::vector<wchar_t> m_wReadBuf;
-	std::vector<wchar_t> m_wStr;
-
 	raw_eol m_Eol;
 
-	bool SomeDataLost{};
-	bool m_CrSeen{};
-	bool bCrCr{};
+	mutable std::vector<char> m_ReadBuf;
+	mutable std::vector<wchar_t> m_wReadBuf;
+	mutable std::vector<wchar_t> m_wStr;
+	mutable size_t ReadPos{};
+	mutable size_t ReadSize{};
+	mutable bool m_ConversionError{};
+	mutable bool m_CrSeen{};
+	mutable bool m_CrCr{};
 };
 
 bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);

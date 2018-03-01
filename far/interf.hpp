@@ -148,20 +148,20 @@ inline void Text(int X, int Y, const FarColor& Color, const wchar_t* Str) { retu
 inline void Text(int X, int Y, const FarColor& Color, const string& Str) { return Text(X, Y, Color, Str.data(), Str.size()); }
 
 void Text(const wchar_t* Str, size_t Size);
-inline void Text(const string_view& Str) { return Text(Str.raw_data(), Str.size()); }
+inline void Text(const string_view Str) { return Text(Str.raw_data(), Str.size()); }
 inline void Text(wchar_t c) { return Text(&c, 1); }
 
 void Text(lng MsgId);
 
 void VText(const wchar_t* Str, size_t Size);
-inline void VText(const string_view& Str) { return VText(Str.raw_data(), Str.size()); }
+inline void VText(const string_view Str) { return VText(Str.raw_data(), Str.size()); }
 
 void HiText(const string& Str,const FarColor& HiColor,int isVertText=0);
 void PutText(int X1,int Y1,int X2,int Y2,const FAR_CHAR_INFO* Src);
 void GetText(int X1, int Y1, int X2, int Y2, matrix<FAR_CHAR_INFO>& Dest);
 
 void BoxText(const wchar_t* Str, size_t Size, bool IsVert = false);
-inline void BoxText(const string_view& Str, bool IsVert = false) { return BoxText(Str.raw_data(), Str.size(), IsVert); }
+inline void BoxText(const string_view Str, const bool IsVert = false) { return BoxText(Str.raw_data(), Str.size(), IsVert); }
 inline void BoxText(wchar_t Chr) { return BoxText(&Chr, 1, false); }
 
 void SetScreen(int X1,int Y1,int X2,int Y2,wchar_t Ch,const FarColor& Color);

@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "nsUniversalDetectorEx.hpp"
 #include "config.hpp"
 #include "codepage_selection.hpp"
-#include "strmix.hpp"
 
 static const size_t DELTA = 1024;
 static const size_t ReadBufCount = 0x2000;
@@ -88,8 +87,9 @@ bool IsTextUTF8(const char* Buffer, size_t Length, bool& PureAscii)
 	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
 }
 
-GetFileString::GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage) :
+enum_file_lines::enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	SrcFile(SrcFile),
+	BeginPos(SrcFile.GetPointer()),
 	m_CodePage(CodePage),
 	m_Eol(m_CodePage)
 {
@@ -101,37 +101,18 @@ GetFileString::GetFileString(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	m_wStr.reserve(DELTA);
 }
 
-bool GetFileString::PeekString(string_view& Str, eol::type* Eol)
+bool enum_file_lines::get(size_t Index, file_line& Value) const
 {
-	if(!Peek)
+	if (!Index)
 	{
-		LastResult = GetString(LastStr);
-		Peek = true;
+		SrcFile.SetPointer(BeginPos, nullptr, FILE_BEGIN);
 	}
 
-	Str = LastStr;
-	return LastResult;
+	return GetString(Value.Str, Value.Eol);
 }
 
-bool GetFileString::GetString(string& Str, eol::type* Eol)
+bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 {
-	string_view Tmp;
-	if (!GetString(Tmp))
-		return false;
-
-	Str.assign(ALL_CONST_RANGE(Tmp));
-	return true;
-}
-
-bool GetFileString::GetString(string_view& Str, eol::type* Eol)
-{
-	if(Peek)
-	{
-		Peek = false;
-		Str = LastStr;
-		return LastResult;
-	}
-
 	switch (m_CodePage)
 	{
 	case CP_UNICODE:
@@ -162,7 +143,7 @@ bool GetFileString::GetString(string_view& Str, eol::type* Eol)
 					m_wStr.resize(Size);
 				}
 
-				SomeDataLost = SomeDataLost || Errors.Conversion.Error;
+				m_ConversionError = m_ConversionError || Errors.Conversion.Error;
 			}
 			else
 			{
@@ -187,16 +168,16 @@ bool GetFileString::GetString(string_view& Str, eol::type* Eol)
 				m_wStr.resize(CharStr.size());
 
 				size_t nResultLength = 0;
-				if (!SomeDataLost)
+				if (!m_ConversionError)
 				{
-					nResultLength = MultiByteToWideChar(m_CodePage, SomeDataLost? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
+					nResultLength = MultiByteToWideChar(m_CodePage, m_ConversionError? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
 
 					if (!nResultLength)
 					{
 						Result = GetLastError();
 						if (Result == ERROR_NO_UNICODE_TRANSLATION || (Result == ERROR_INVALID_FLAGS && IsNoFlagsCodepage(m_CodePage)))
 						{
-							SomeDataLost = true;
+							m_ConversionError = true;
 							bGet = true;
 						}
 					}
@@ -239,17 +220,16 @@ bool GetFileString::GetString(string_view& Str, eol::type* Eol)
 }
 
 template<typename T>
-bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::type* Eol, bool bBigEndian)
+bool enum_file_lines::GetTString(std::vector<T>& From, std::vector<T>& To, eol::type& Eol, bool bBigEndian) const
 {
 	To.clear();
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
 	// В этом случаем считаем \r\r двумя MAC окончаниями строк.
-	if (bCrCr)
+	if (m_CrCr)
 	{
-		bCrCr = false;
-		if (Eol)
-			*Eol = eol::type::mac;
+		m_CrCr = false;
+		Eol = eol::type::mac;
 		return true;
 	}
 
@@ -260,8 +240,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 		{
 			if (!(SrcFile.Read(From.data(), ReadBufCount * sizeof(T), ReadSize) && ReadSize))
 			{
-				if (Eol)
-					*Eol = CurrentEol;
+				Eol = CurrentEol;
 				return !To.empty() || CurrentEol != eol::type::none;
 			}
 
@@ -304,7 +283,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 				else
 				{
 					// Пришёл \r\r, а \n не пришёл, поэтому считаем \r\r двумя MAC окончаниями строк
-					bCrCr = true;
+					m_CrCr = true;
 					break;
 				}
 			}
@@ -337,8 +316,7 @@ bool GetFileString::GetTString(std::vector<T>& From, std::vector<T>& To, eol::ty
 		CurrentEol = eol::type::none;
 	}
 
-	if (Eol)
-		*Eol = CurrentEol;
+	Eol = CurrentEol;
 	return true;
 }
 

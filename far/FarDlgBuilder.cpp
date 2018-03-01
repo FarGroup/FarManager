@@ -234,7 +234,7 @@ static bool IsEditField(DialogItemEx *Item)
 }
 */
 
-DialogBuilder::DialogBuilder(lng TitleMessageId, const string_view& HelpTopic, Dialog::dialog_handler handler):
+DialogBuilder::DialogBuilder(const lng TitleMessageId, const string_view HelpTopic, const Dialog::dialog_handler handler):
 	m_HelpTopic(HelpTopic),
 	m_handler(std::move(handler))
 {

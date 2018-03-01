@@ -92,7 +92,7 @@ public:
 	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const = 0;
 	bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
 	virtual bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const = 0;
-	virtual bool Write(const string_view& Str) const = 0;
+	virtual bool Write(string_view Str) const = 0;
 	virtual bool Commit() const = 0;
 
 	virtual bool GetTextAttributes(FarColor& Attributes) const = 0;
@@ -162,7 +162,7 @@ protected:
 	int sync() override;
 
 private:
-	bool Write(const string_view& Str);
+	bool Write(string_view Str);
 
 	std::vector<wchar_t> m_InBuffer, m_OutBuffer;
 	std::pair<FarColor, bool> m_Colour;

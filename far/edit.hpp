@@ -147,7 +147,7 @@ public:
 
 	void ClearString() { SetString({}); }
 
-	int Search(const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& Position, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength);
+	int Search(const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& Position, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength) const;
 	void SetCurPos(int NewPos) {m_CurPos=NewPos; SetPrevCurPos(NewPos);}
 	void AdjustMarkBlock();
 	void AdjustPersistentMark();

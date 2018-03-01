@@ -2463,8 +2463,8 @@ Far allows to retry the operation using the privileged account.
     #invariant# - invariant collation
     #linguistic# - based on the culture-specific sorting conventions
 
-  #Treat digits as numbers#
-  ^<wrap>When enabled, sequential groups of digits are treated as numbers. The following example shows how the files are sorted:
+    #Treat digits as numbers#
+    ^<wrap>When enabled, sequential groups of digits are treated as numbers. The following example shows how the files are sorted:
 
     Disabled                    Enabled
 
@@ -2478,10 +2478,12 @@ Far allows to retry the operation using the privileged account.
     5.txt                       11.txt
     88.txt                      88.txt
 
-  ^<wrap>Note: treating digits as numbers in linguistic collation is possible in Windows 7 and above. In older systems invariant collation will be used automatically.
+    ^<wrap>Note: treating digits as numbers in linguistic collation is possible in Windows 7 and above. In older systems invariant collation will be used automatically.
 
-  #Case sensitive#
-  ^<wrap>Take into account the case of the characters in the string.
+    #Case sensitive#
+    ^<wrap>Take into account the case of the characters in the string.
+
+    ^<wrap>Note: how exactly the case of the characters in the string will be taken into account depends on the sorting collation.
 
   #Auto save setup#
   If checked, Far will save setup automatically. The current folders for both panels will be also saved.

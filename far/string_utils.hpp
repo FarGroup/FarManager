@@ -76,12 +76,12 @@ struct hash_icase_t
 struct equal_icase_t
 {
 	bool operator()(wchar_t Chr1, wchar_t Chr2) const;
-	bool operator()(const string_view& Str1, const string_view& Str2) const;
+	bool operator()(string_view Str1, string_view Str2) const;
 };
 
-bool equal_icase(const string_view& Str1, const string_view& Str2);
-bool starts_with_icase(const string_view& Str, const string_view& Prefix);
-bool ends_with_icase(const string_view& Str, const string_view& Suffix);
-bool contains_icase(const string_view& Str, const string_view& Token);
+bool equal_icase(string_view Str1, string_view Str2);
+bool starts_with_icase(string_view Str, string_view Prefix);
+bool ends_with_icase(string_view Str, string_view Suffix);
+bool contains_icase(string_view Str, string_view Token);
 
 #endif // STRING_UTILS_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9

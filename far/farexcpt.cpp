@@ -198,7 +198,7 @@ enum reply
 	reply_ignore,
 };
 
-static reply ExcDialog(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view& Function, const Plugin* PluginModule, const std::vector<string>* NestedStack)
+static reply ExcDialog(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view Function, const Plugin* const PluginModule, const std::vector<string>* const NestedStack)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
@@ -249,7 +249,7 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 	}
 }
 
-static reply ExcConsole(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view& Function, const Plugin* Module, const std::vector<string>* NestedStack)
+static reply ExcConsole(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view Function, const Plugin* const Module, const std::vector<string>* const NestedStack)
 {
 	string Address, Name, Source;
 	tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
@@ -350,7 +350,7 @@ static string ExtractObjectName(const EXCEPTION_RECORD* xr)
 	return encoding::ansi::get_chars(Buffer);
 }
 
-static bool ProcessGenericException(const exception_context& Context, const string_view& Function, const Plugin* PluginModule, const char* Message, const std::vector<string>* NestedStack = nullptr)
+static bool ProcessGenericException(const exception_context& Context, const string_view Function, const Plugin* const PluginModule, const char* const Message, const std::vector<string>* const NestedStack = nullptr)
 {
 	if (Global)
 		Global->ProcessException = true;
@@ -565,7 +565,7 @@ static std::string extract_nested_messages(const std::exception& Exception)
 	return Result;
 }
 
-bool ProcessStdException(const std::exception& e, const string_view& Function, Plugin* Module)
+bool ProcessStdException(const std::exception& e, const string_view Function, Plugin* const Module)
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
@@ -592,7 +592,7 @@ bool ProcessStdException(const std::exception& e, const string_view& Function, P
 	return ProcessGenericException(*ContextPtr, Function, Module, e.what());
 }
 
-bool ProcessUnknownException(const string_view& Function, Plugin* Module)
+bool ProcessUnknownException(const string_view Function, Plugin* const Module)
 {
 	// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
 	// It won't work in gcc etc.
@@ -882,7 +882,7 @@ void ResetStackOverflowIfNeeded()
 	}
 }
 
-int SehFilter(int Code, EXCEPTION_POINTERS* Info, const string_view& Function, Plugin* Module)
+int SehFilter(const int Code, EXCEPTION_POINTERS* Info, const string_view Function, Plugin* Module)
 {
 	exception_context Context(Code, Info);
 	if (Code == EXCEPTION_STACK_OVERFLOW)

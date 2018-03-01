@@ -99,17 +99,15 @@ bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string&
 	const auto CurFilePos = LangFile.GetPointer();
 	SCOPE_EXIT{ LangFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN); };
 
-	string ReadStr;
-	GetFileString GetStr(LangFile, nCodePage);
-	while (GetStr.GetString(ReadStr))
+	for (const auto& i: enum_file_lines(LangFile, nCodePage))
 	{
-		if (starts_with_icase(ReadStr, strFullParamName))
+		if (starts_with_icase(i.Str, strFullParamName))
 		{
-			const auto EqPos = ReadStr.find(L'=');
+			const auto EqPos = i.Str.find(L'=');
 
 			if (EqPos != string::npos)
 			{
-				strParam1.assign(ReadStr, EqPos + 1);
+				assign(strParam1, i.Str.substr(EqPos + 1));
 
 				if (strParam2)
 					strParam2->clear();
@@ -130,7 +128,7 @@ bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string&
 				return true;
 			}
 		}
-		else if (!ReadStr.empty() && ReadStr.front() == L'"')
+		else if (!i.Str.empty() && i.Str.front() == L'"')
 		{
 			// '"' indicates some meaningful string.
 			// Parameters can be only in the header, no point to go deeper
@@ -211,72 +209,80 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 bool SelectInterfaceLanguage(string& Dest) {return SelectLanguage(false, Dest);}
 bool SelectHelpLanguage(string& Dest) {return SelectLanguage(true, Dest);}
 
-static string ConvertString(const wchar_t *Src, size_t size)
+static string ConvertString(const string_view Src)
 {
-	string strDest;
-	strDest.reserve(size);
+	string Result;
+	Result.reserve(Src.size());
 
-	while (*Src)
+	for (auto i = Src.begin(); i != Src.end(); ++i)
 	{
-		switch (*Src)
+		switch (*i)
 		{
 		case L'\\':
-			switch (Src[1])
+			if (++i == Src.end())
+				return Result;
+
+			switch (*i)
 			{
 			case L'\\':
-				strDest.push_back(L'\\');
-				Src+=2;
+				Result.push_back(L'\\');
 				break;
+
 			case L'"':
-				strDest.push_back(L'"');
-				Src+=2;
+				Result.push_back(L'"');
 				break;
+
 			case L'n':
-				strDest.push_back(L'\n');
-				Src+=2;
+				Result.push_back(L'\n');
 				break;
+
 			case L'r':
-				strDest.push_back(L'\r');
-				Src+=2;
+				Result.push_back(L'\r');
 				break;
+
 			case L'b':
-				strDest.push_back(L'\b');
-				Src+=2;
+				Result.push_back(L'\b');
 				break;
+
 			case L't':
-				strDest.push_back('\t');
-				Src+=2;
+				Result.push_back('\t');
 				break;
+
 			default:
-				strDest.push_back(L'\\');
-				Src++;
+				Result.push_back(L'\\');
+				--i;
 				break;
 			}
 			break;
+
 		case L'"':
-			strDest.push_back(L'"');
-			Src+=(Src[1]==L'"') ? 2:1;
+			Result.push_back(L'"');
+			if (++i == Src.end())
+				return Result;
+
+			if (*i != L'"')
+				--i;
 			break;
+
 		default:
-			strDest.push_back(*(Src++));
+			Result.push_back(*i);
 			break;
 		}
 	}
 
-	return strDest;
+	return Result;
 }
 
-static void parse_lng_line(const string& str, string& label, string& data, bool& have_data)
+static void parse_lng_line(const string_view str, string& label, string& data, bool& have_data)
 {
 	have_data = false;
 
 	//-- //[Label]
-	if (str.size() > 4 && str[0] == L'/' && str[1] == L'/' && str[2] == L'[' && str.back() == L']')
+	if (str.starts_with(L"//["_sv) && str.ends_with(L"]"_sv))
 	{
-		label.assign(str, 3, str.size() - 4);
-		auto eq_pos = label.find(L'=');
-		if (eq_pos != string::npos)
-			label.erase(eq_pos); //-- //[Label=0]
+		const auto LabelView = str.substr(3, str.size() - 3 - 1);
+		//-- //[Label=0]
+		assign(label, LabelView.substr(0, LabelView.find(L'=')));
 		return;
 	}
 
@@ -284,7 +290,7 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	if (!str.empty() && str.front() == L'"')
 	{
 		have_data = true;
-		data.assign(str, 1);
+		assign(data, str.substr(1));
 		if (!data.empty() && data.back() == L'"')
 			data.pop_back();
 		return;
@@ -294,12 +300,12 @@ static void parse_lng_line(const string& str, string& label, string& data, bool&
 	if (!str.empty() && str.back() == L'"')
 	{
 		const auto eq_pos = str.find(L'=');
-		if (eq_pos != string::npos && upper(str[0]) >= L'A' && upper(str[0]) <= L'Z')
+		if (eq_pos != string::npos && InRange(L'A', upper(str[0]), L'Z'))
 		{
-			assign(data, trim(string_view(str).substr(eq_pos + 1)));
+			assign(data, trim(str.substr(eq_pos + 1)));
 			if (data.size() > 1 && data[0] == L'"')
 			{
-				assign(label, trim(string_view(str).substr(0, eq_pos)));
+				assign(label, trim(str.substr(0, eq_pos)));
 				have_data = true;
 				data.pop_back();
 				data.erase(0, 1);
@@ -341,24 +347,21 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 
 	Data->m_FileName = LangFile.GetName();
 
-	GetFileString GetStr(LangFile, LangFileCodePage);
-
 	if (CountNeed != -1)
 	{
 		Data->reserve(CountNeed);
 	}
 
 	std::unordered_map<string, size_t> id_map;
-	string label, Buffer, text;
-	while (GetStr.GetString(Buffer))
+	string label, text;
+	for (const auto& i: enum_file_lines(LangFile, LangFileCodePage))
 	{
-		inplace::trim(Buffer);
 		bool have_text;
-		parse_lng_line(Buffer, label, text, have_text);
+		parse_lng_line(trim(i.Str), label, text, have_text);
 		if (have_text)
 		{
 			auto idx = Data->size();
-			Data->add(ConvertString(text.data(), text.size()));
+			Data->add(ConvertString(text));
 			if (!label.empty())
 			{
 				id_map[label] = idx;
@@ -385,19 +388,17 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 
 			uintptr_t CustomFileCodePage = CP_OEMCP;
 			GetFileFormat(CustomFile, CustomFileCodePage, nullptr, false);
-			GetFileString get_str(CustomFile, CustomFileCodePage);
 			label.clear();
-			while (get_str.GetString(Buffer))
+			for (const auto& i: enum_file_lines(CustomFile, CustomFileCodePage))
 			{
-				inplace::trim(Buffer);
 				bool have_text;
-				parse_lng_line(Buffer, label, text, have_text);
+				parse_lng_line(trim(i.Str), label, text, have_text);
 				if (have_text && !label.empty())
 				{
 					const auto found = id_map.find(label);
 					if (found != id_map.end())
 					{
-						Data->set_at(found->second, ConvertString(text.data(), text.size()));
+						Data->set_at(found->second, ConvertString(text));
 					}
 					label.clear();
 				}

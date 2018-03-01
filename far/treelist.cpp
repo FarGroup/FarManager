@@ -351,9 +351,7 @@ public:
 
 	bool empty() const { return m_Names.empty(); }
 
-	void add(const wchar_t* Name) { m_Names.emplace(Name); }
-
-	void add(string&& Name) { m_Names.emplace(std::move(Name)); }
+	void add(const string_view Name) { m_Names.emplace(ALL_CONST_RANGE(Name)); }
 
 	void remove(const wchar_t* Name)
 	{
@@ -558,7 +556,7 @@ void TreeList::DisplayTree(bool Fast)
 	RefreshTitle(); // не забудем прорисовать заголовок
 }
 
-void TreeList::DisplayTreeName(const string_view& Name, size_t Pos) const
+void TreeList::DisplayTreeName(const string_view Name, const size_t Pos) const
 {
 	if (WhereX()>m_X2-4)
 		GotoXY(m_X2-4,WhereY());
@@ -740,16 +738,14 @@ static os::fs::file OpenCacheableTreeFile(const string& Root, string& Name, bool
 	return Result;
 }
 
-static void ReadLines(const os::fs::file& TreeFile, const std::function<void(string&)>& Inserter)
+static void ReadLines(const os::fs::file& TreeFile, const std::function<void(string_view)>& Inserter)
 {
-	GetFileString GetStr(TreeFile, CP_UNICODE);
-	string Record;
-	while (GetStr.GetString(Record))
+	for (const auto& i: enum_file_lines(TreeFile, CP_UNICODE))
 	{
-		if (Record.empty() || !IsSlash(Record.front()))
+		if (i.Str.empty() || !IsSlash(i.Str.front()))
 			continue;
 
-		Inserter(Record);
+		Inserter(i.Str);
 	}
 }
 
@@ -1691,7 +1687,7 @@ bool TreeList::ReadTreeFile()
 
 	m_ListData.clear();
 
-	ReadLines(TreeFile, [&](string& Name) { m_ListData.emplace_back(string(m_Root.data(), RootLength) + Name); });
+	ReadLines(TreeFile, [&](const string_view Name) { m_ListData.emplace_back(string_view(m_Root).substr(0, RootLength) + Name); });
 
 	TreeFile.Close();
 
@@ -1788,7 +1784,7 @@ bool TreeList::GetCurName(string &strName, string &strShortName) const
 	return true;
 }
 
-void TreeList::AddTreeName(const string_view& Name)
+void TreeList::AddTreeName(const string_view Name)
 {
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
@@ -1808,7 +1804,7 @@ void TreeList::AddTreeName(const string_view& Name)
 	TreeCache().add(std::move(NamePart));
 }
 
-void TreeList::DelTreeName(const string_view& Name)
+void TreeList::DelTreeName(const string_view Name)
 {
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
@@ -1913,7 +1909,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 
 	TreeCache().SetTreeName(TreeFile.GetName());
 
-	ReadLines(TreeFile, [](string& Name){ TreeCache().add(std::move(Name)); });
+	ReadLines(TreeFile, [](const string_view Name){ TreeCache().add(Name); });
 }
 
 void TreeList::FlushCache()
@@ -1954,12 +1950,12 @@ bool TreeList::GoToFile(long idxItem)
 	return false;
 }
 
-bool TreeList::GoToFile(const string_view& Name, bool OnlyPartName)
+bool TreeList::GoToFile(const string_view Name, const bool OnlyPartName)
 {
 	return GoToFile(FindFile(Name,OnlyPartName));
 }
 
-long TreeList::FindFile(const string_view& Name, bool OnlyPartName)
+long TreeList::FindFile(const string_view Name, const bool OnlyPartName)
 {
 	const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
 	{

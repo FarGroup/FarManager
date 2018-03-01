@@ -1037,7 +1037,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	if (SetPanel->GetType() != panel_type::FILE_PANEL && Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::FILE_PANEL)
 		SetPanel=Global->CtrlObject->Cp()->PassivePanel();
 
-	const auto& IsCommand = [&CmdLine](const string_view& cmd, bool bslash)
+	const auto& IsCommand = [&CmdLine](const string_view cmd, const bool bslash)
 	{
 		const auto n = cmd.size();
 		return starts_with_icase(CmdLine, cmd)
