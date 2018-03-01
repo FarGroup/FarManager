@@ -3,6 +3,40 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 28.02.2018 22:26:27 -0800
+
+1. Translated and edited @Viewer help page (Both English and Russian).
+
+drkns 01.03.2018 00:25:44 +0000 - build 5154
+
+1. Continuation of 5150.3.
+
+2. Refactoring.
+
+zg 28.02.2018 14:24:01 +0200 - build 5153
+
+1. ECTL_SETSTRING did not set eol when the string is empty.
+
+zg 27.02.2018 13:51:24 +0200 - build 5152
+
+1. Correction of 5150.2.
+
+drkns 26.02.2018 00:18:23 +0000 - build 5151
+
+1. fmt v5.
+
+drkns 25.02.2018 23:42:42 +0000 - build 5150
+
+1. Sorting settings (numeric & case-sensitive) are moved to System Settings.
+   Base comparison mode (linguistic / invariant / ordinal) now can be set there as well.
+   Sorting settings are applied globally across the board.
+
+2. The function FSF.CompareStrings is available to plugins. It allows to sort the way Far sorts
+   (exactly how is not specified and depends on the settings).
+   FSF.LStricmp и FSF.LStrnicmp - deprecated; their use is discouraged.
+
+3. FCTL_SETNUMERICSORT, FCTL_SETCASESENSITIVESORT, PFLAGS_NUMERICSORT, PFLAGS_CASESENSITIVESORT do not exist anymore.
+
 MZK 22.02.2018 23:18:21 -0800
 
 1. Edited @CopyFiles help page (English and Russian).
