@@ -170,11 +170,15 @@ void DizList::Read(const string& Path, const string* DizName)
 	{
 		ReadDizFile(*DizName);
 	}
-	else
+	else if (PathCanHoldRegularFile(Path))
 	{
 		for (const auto& i: enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"_sv))
 		{
-			if (ReadDizFile(i))
+			auto FullDizName = Path;
+			AddEndSlash(FullDizName);
+			append(FullDizName, i);
+
+			if (ReadDizFile(FullDizName))
 				break;
 		}
 	}
