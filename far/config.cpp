@@ -2194,7 +2194,7 @@ void Options::Load(std::unordered_map<string, string, hash_icase_t, equal_icase_
 	SetSearchColumns(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth);
 
 	string tmp[2];
-	if (!ConfigProvider().GeneralCfg()->EnumValues(L"Masks", 0, tmp[0], tmp[1]))
+	if (!ConfigProvider().GeneralCfg()->EnumValues(L"Masks", true, tmp[0], tmp[1]))
 	{
 		ApplyDefaultMaskGroups();
 	}
