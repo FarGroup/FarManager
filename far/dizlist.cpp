@@ -70,6 +70,7 @@ void DizList::Reset()
 	m_DizData.clear();
 	m_RemovedEntries.clear();
 	m_OrderForWrite.clear();
+	m_DizFileName.clear();
 	m_Modified = false;
 	m_CodePage = CP_DEFAULT;
 }
