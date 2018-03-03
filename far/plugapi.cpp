@@ -2067,7 +2067,7 @@ const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
 {
 	try
 	{
-		return PointToName(Path).raw_data();
+		return Path?PointToName(Path).raw_data():nullptr;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return Path;
