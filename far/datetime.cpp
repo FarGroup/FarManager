@@ -356,8 +356,8 @@ string StrFTime(const wchar_t* Format, const tm* t)
 				case L'c':
 					// Thu Oct 07 12:37:32 1999
 					strBuf = format(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}",
-						LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Short.data(),
-						LocaleCache().Names(IsLocal).Months[t->tm_mon].Short.data(),
+						LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Short,
+						LocaleCache().Names(IsLocal).Months[t->tm_mon].Short,
 						t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, t->tm_year + 1900);
 					break;
 					// Столетие как десятичное число (00 - 99). Например, 1992 => 19

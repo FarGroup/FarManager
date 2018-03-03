@@ -62,11 +62,7 @@ namespace detail
 	class exception_impl
 	{
 	public:
-		exception_impl(const string& Message, const char* Function, const char* File, int Line):
-			m_FullMessage(format(L"{0} (at {1}, {2}:{3})", Message, Function, File, Line)),
-			m_ErrorState(error_state::fetch(), Message)
-		{
-		}
+		exception_impl(const string& Message, const char* Function, const char* File, int Line);
 
 		const auto& get_message() const noexcept { return m_ErrorState.What; }
 		const auto& get_full_message() const noexcept { return m_FullMessage; }

@@ -50,6 +50,17 @@ bool error_state::engaged() const
 	return m_Engaged;
 }
 
+detail::exception_impl::exception_impl(const string& Message, const char* Function, const char* File, int Line):
+	m_FullMessage(
+		format(
+			L"{0} (at {1}, {2}:{3})",
+			Message,
+			encoding::ansi::get_chars(Function),
+			encoding::ansi::get_chars(File),
+			Line)),
+	m_ErrorState(error_state::fetch(), Message)
+{
+}
 
 far_exception::far_exception(const string& Message, const char* Function, const char* File, int Line):
 	exception_impl(Message, Function, File, Line),

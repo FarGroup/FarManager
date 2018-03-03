@@ -51,9 +51,33 @@ WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 
 WARNING_POP()
 
+namespace detail
+{
+	char get_incompatible_char(wchar_t);
+	char get_incompatible_char(const wchar_t*);
+	char get_incompatible_char(const string&);
+	wchar_t get_incompatible_char(char);
+	wchar_t get_incompatible_char(const char*);
+	wchar_t get_incompatible_char(const std::string&);
+
+	template<typename char_type>
+	void check_char_compatibility(char_type) {}
+
+	template<typename char_type, typename arg, typename... args>
+	void check_char_compatibility(char_type, const arg&, const args&... Args)
+	{
+		static_assert((!std::is_convertible_v<arg, const char_type*>));
+		static_assert((!std::is_convertible_v<arg, std::basic_string<char_type>>));
+		static_assert((!std::is_convertible_v<arg, basic_string_view<char_type>>));
+
+		check_char_compatibility(char_type{}, Args...);
+	}
+}
+
 template<typename F, typename... args>
 auto format(F&& Format, args&&... Args)
 {
+	detail::check_char_compatibility(decltype(detail::get_incompatible_char(Format)){}, Args...);
 	return fmt::format(FWD(Format), FWD(Args)...);
 }
 
