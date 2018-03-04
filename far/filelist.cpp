@@ -1425,8 +1425,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 										inplace::lower(strFileName);
 							}
 
-							strFullName += strFileName;
-							strFileName = strFullName;
+							strFileName.insert(0, strFullName);
 						}
 					}
 
@@ -1879,7 +1878,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								const auto ShellEditor = FileEditor::create(strFileName, codepage, (LocalKey == KEY_SHIFTF4 ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_ENABLEF6);
 								const auto editorExitCode=ShellEditor->GetExitCode();
 
-								if (!(editorExitCode == XC_LOADING_INTERRUPTED || editorExitCode == XC_OPEN_ERROR) && !PluginMode)
+								if (!(editorExitCode == XC_LOADING_INTERRUPTED || editorExitCode == XC_OPEN_ERROR))
 								{
 									NamesList EditList;
 
@@ -2646,7 +2645,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 					{
 						string QuotedName = strFileName;
 						QuoteSpace(QuotedName);
-						Global->CtrlObject->CmdHistory->AddToHistory(QuotedName, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+						Global->CtrlObject->CmdHistory->AddToHistory(QuotedName, HR_DEFAULT, nullptr, {}, m_CurDir);
 					}
 				}
 			}
@@ -2783,9 +2782,11 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 		string strInfoCurDir = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
 		//string strInfoFormat=NullToEmpty(Info.Format);
 		string strInfoHostFile = NullToEmpty(m_CachedOpenPanelInfo.HostFile);
-		string strInfoData = NullToEmpty(m_CachedOpenPanelInfo.ShortcutData);
-		if(m_CachedOpenPanelInfo.Flags&OPIF_SHORTCUT)
-			Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir, HR_DEFAULT, &PluginManager::GetGUID(GetPluginHandle()), strInfoHostFile.data(), strInfoData.data());
+		if (m_CachedOpenPanelInfo.Flags&OPIF_SHORTCUT)
+		{
+			const auto strInfoData = NullToEmpty(m_CachedOpenPanelInfo.ShortcutData);
+			Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir, HR_DEFAULT, &PluginManager::GetGUID(GetPluginHandle()), strInfoHostFile, strInfoData);
+		}
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/
@@ -2890,12 +2891,10 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 
 	if (!FarChDir(strSetDir))
 	{
-		const auto ErrorState = error_state::fetch();
-
 		if (Global->WindowManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
-			Message(MSG_WARNING, ErrorState,
+			Message(MSG_WARNING, error_state::fetch(),
 				msg(lng::MError),
 				{
 					dot2Present ? L".."s : strSetDir
@@ -4498,30 +4497,30 @@ void FileList::EditFilter()
 
 void FileList::SelectSortMode()
 {
-	const MenuDataEx InitSortMenuModes[]=
+	const menu_item InitSortMenuModes[]
 	{
-		{ msg(lng::MMenuSortByName).data(), LIF_SELECTED, KEY_CTRLF3 },
-		{ msg(lng::MMenuSortByExt).data(), 0, KEY_CTRLF4 },
-		{ msg(lng::MMenuSortByWrite).data(), 0, KEY_CTRLF5 },
-		{ msg(lng::MMenuSortBySize).data(), 0, KEY_CTRLF6 },
-		{ msg(lng::MMenuUnsorted).data(), 0, KEY_CTRLF7 },
-		{ msg(lng::MMenuSortByCreation).data(), 0, KEY_CTRLF8 },
-		{ msg(lng::MMenuSortByAccess).data(), 0, KEY_CTRLF9 },
-		{ msg(lng::MMenuSortByChange).data(), 0, 0 },
-		{ msg(lng::MMenuSortByDiz).data(), 0, KEY_CTRLF10 },
-		{ msg(lng::MMenuSortByOwner).data(), 0, KEY_CTRLF11 },
-		{ msg(lng::MMenuSortByAllocatedSize).data(), 0, 0 },
-		{ msg(lng::MMenuSortByNumLinks).data(), 0, 0 },
-		{ msg(lng::MMenuSortByNumStreams).data(), 0, 0 },
-		{ msg(lng::MMenuSortByStreamsSize).data(), 0, 0 },
-		{ msg(lng::MMenuSortByFullName).data(), 0, 0 },
-		{ msg(lng::MMenuSortByCustomData).data(), 0, 0 },
+		{ msg(lng::MMenuSortByName), LIF_SELECTED, KEY_CTRLF3 },
+		{ msg(lng::MMenuSortByExt), 0, KEY_CTRLF4 },
+		{ msg(lng::MMenuSortByWrite), 0, KEY_CTRLF5 },
+		{ msg(lng::MMenuSortBySize), 0, KEY_CTRLF6 },
+		{ msg(lng::MMenuUnsorted), 0, KEY_CTRLF7 },
+		{ msg(lng::MMenuSortByCreation), 0, KEY_CTRLF8 },
+		{ msg(lng::MMenuSortByAccess), 0, KEY_CTRLF9 },
+		{ msg(lng::MMenuSortByChange), 0, 0 },
+		{ msg(lng::MMenuSortByDiz), 0, KEY_CTRLF10 },
+		{ msg(lng::MMenuSortByOwner), 0, KEY_CTRLF11 },
+		{ msg(lng::MMenuSortByAllocatedSize), 0, 0 },
+		{ msg(lng::MMenuSortByNumLinks), 0, 0 },
+		{ msg(lng::MMenuSortByNumStreams), 0, 0 },
+		{ msg(lng::MMenuSortByStreamsSize), 0, 0 },
+		{ msg(lng::MMenuSortByFullName), 0, 0 },
+		{ msg(lng::MMenuSortByCustomData), 0, 0 },
 	};
 	static_assert(std::size(InitSortMenuModes) == static_cast<size_t>(panel_sort::COUNT));
 
-	std::vector<MenuDataEx> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
+	std::vector<menu_item> SortMenu(ALL_CONST_RANGE(InitSortMenuModes));
 
-	static const MenuDataEx MenuSeparator = { L"",LIF_SEPARATOR };
+	static const menu_item MenuSeparator = { {}, LIF_SEPARATOR };
 
 	OpenMacroPluginInfo ompInfo = { MCT_GETCUSTOMSORTMODES,nullptr };
 	MacroPluginReturn* mpr = nullptr;
@@ -4540,8 +4539,7 @@ void FileList::SelectSortMode()
 				SortMenu.emplace_back(MenuSeparator);
 				for (size_t i=0; i < mpr->Count; i += 3)
 				{
-					MenuDataEx item = { mpr->Values[i+2].String };
-					SortMenu.emplace_back(item);
+					SortMenu.emplace_back(menu_item{ mpr->Values[i + 2].String });
 				}
 			}
 			else
@@ -4601,11 +4599,11 @@ void FileList::SelectSortMode()
 
 		SortOptCount
 	};
-	const MenuDataEx InitSortMenuOptions[]=
+	const menu_item InitSortMenuOptions[]=
 	{
-		{ msg(lng::MMenuSortUseGroups).data(), GetSortGroups()? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF11 },
-		{ msg(lng::MMenuSortSelectedFirst).data(), SelectedFirst? (DWORD)MIF_CHECKED : 0, KEY_SHIFTF12 },
-		{ msg(lng::MMenuSortDirectoriesFirst).data(), m_DirectoriesFirst? (DWORD)MIF_CHECKED : 0, 0 },
+		{ msg(lng::MMenuSortUseGroups), GetSortGroups()? MIF_CHECKED : 0, KEY_SHIFTF11 },
+		{ msg(lng::MMenuSortSelectedFirst), SelectedFirst? MIF_CHECKED : 0, KEY_SHIFTF12 },
+		{ msg(lng::MMenuSortDirectoriesFirst), m_DirectoriesFirst? MIF_CHECKED : 0, 0 },
 	};
 	static_assert(std::size(InitSortMenuOptions) == SortOptCount);
 
@@ -4620,7 +4618,7 @@ void FileList::SelectSortMode()
 	{
 		const auto MenuStrings = VMenu::AddHotkeys(make_range(SortMenu.data(), SortMenu.size()));
 
-		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), SortMenu.data(), SortMenu.size(), 0);
+		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), { SortMenu.data(), SortMenu.size() }, 0);
 		SortModeMenu->SetHelp(L"PanelCmdSort");
 		SortModeMenu->SetPosition(m_X1+4,-1,0,0);
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);

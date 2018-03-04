@@ -48,7 +48,7 @@ namespace os::security
 		NONCOPYABLE(privilege);
 		MOVABLE(privilege);
 
-		privilege(const std::initializer_list<const wchar_t*>& Names): privilege(make_range(Names.begin(), Names.size())) {}
+		privilege(const std::initializer_list<const wchar_t*>& Names): privilege(make_range(Names)) {}
 		explicit privilege(const std::vector<const wchar_t*>& Names): privilege(make_range(Names.data(), Names.size())) {}
 		explicit privilege(const range<const wchar_t* const*>& Names);
 		~privilege();

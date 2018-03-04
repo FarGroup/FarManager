@@ -113,23 +113,23 @@ static bool IsEmulatedEditorLine(const DialogItemEx& Item)
 	return Item.Type == DI_EDIT && Item.Flags & DIF_EDITOR;
 }
 
-bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
+bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos)
 {
-	auto Str = str.data();
 	if (AmpPos == -1)
 	{
-		Str = wcschr(Str, L'&');
-		if (!Str)
+		const auto Pos = Str.find(L'&');
+		if (Pos == Str.npos)
 			return false;
 
+		Str = Str.substr(Pos);
 		AmpPos=1;
 	}
 	else
 	{
-		if (static_cast<size_t>(AmpPos) > str.size())
+		if (static_cast<size_t>(AmpPos) > Str.size())
 			return false;
 
-		Str=Str+AmpPos;
+		Str = Str.substr(AmpPos);
 		AmpPos=0;
 
 		if (Str[AmpPos] == L'&')
@@ -152,7 +152,7 @@ bool IsKeyHighlighted(const string& str,int Key,int Translate,int AmpPos)
 			if (std::iswdigit(AltKey))
 				return AltKey==UpperStrKey;
 
-			if ((unsigned int)AltKey > L' ' && AltKey <= 0xFFFF)
+			if ((unsigned int)AltKey > L' ')
 				//         (AltKey=='-'  || AltKey=='/' || AltKey==','  || AltKey=='.' ||
 				//          AltKey=='\\' || AltKey=='=' || AltKey=='['  || AltKey==']' ||
 				//          AltKey==':'  || AltKey=='"' || AltKey=='~'))
@@ -211,7 +211,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			size+=ListBoxSize*sizeof(FarListItem);
 			for(size_t ii=0;ii != ListBoxSize; ++ii)
 			{
-				size += (ListBox->at(ii).strName.size() + 1) * sizeof(wchar_t);
+				size += (ListBox->at(ii).Name.size() + 1) * sizeof(wchar_t);
 			}
 		}
 	}
@@ -237,8 +237,8 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 					auto& item = ListBox->at(ii);
 					listItems[ii].Flags=item.Flags;
 					listItems[ii].Text=text;
-					std::copy_n(item.strName.data(), item.strName.size() + 1, text);
-					text+=item.strName.size()+1;
+					std::copy_n(item.Name.data(), item.Name.size() + 1, text);
+					text+=item.Name.size()+1;
 					listItems[ii].Reserved[0]=listItems[ii].Reserved[1]=0;
 				}
 				list->StructSize=sizeof(*list);
@@ -735,7 +735,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 		{
 			if (!DialogMode.Check(DMODE_OBJECTS_CREATED))
 			{
-				Items[I].ListPtr = VMenu::create({}, nullptr, 0, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, std::static_pointer_cast<Dialog>(shared_from_this()));
+				Items[I].ListPtr = VMenu::create({}, {}, Items[I].Y2 - Items[I].Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, std::static_pointer_cast<Dialog>(shared_from_this()));
 			}
 
 				auto& ListPtr = Items[I].ListPtr;
@@ -783,7 +783,7 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 				if (Type == DI_COMBOBOX)
 				{
-					Items[I].ListPtr = VMenu::create({}, nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, std::static_pointer_cast<Dialog>(shared_from_this()));
+					Items[I].ListPtr = VMenu::create({}, {}, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR, std::static_pointer_cast<Dialog>(shared_from_this()));
 					Items[I].ListPtr->SetVDialogItemID(I);
 				}
 			}
@@ -1600,7 +1600,7 @@ void Dialog::ShowDialog(size_t ID)
 		bool CursorVisible=false;
 		DWORD CursorSize=0;
 
-		if (ID != (size_t)-1 && m_FocusPos != ID)
+		if (m_FocusPos != ID)
 		{
 			if (Items[m_FocusPos].Type == DI_USERCONTROL && Items[m_FocusPos].UCData->CursorPos.X != -1 && Items[m_FocusPos].UCData->CursorPos.Y != -1)
 			{
@@ -1833,7 +1833,7 @@ void Dialog::ShowDialog(size_t ID)
 				strStr = Items[I].strData;
 				LenText=LenStrItem(I,strStr);
 
-				if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1 != -1 && CY1 != -1)
+				if (!(Items[I].Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Items[I].Flags & DIF_CENTERTEXT) && CY1 != -1 && CY2 > CY1)
 				{
 					inplace::fit_to_center(strStr, CY2 - CY1 + 1);
 					LenText = static_cast<int>(strStr.size());
@@ -3028,8 +3028,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 					return true;
 				}
 
-				if (!(Items[m_FocusPos].Flags & DIF_READONLY) ||
-				        ((Items[m_FocusPos].Flags & DIF_READONLY) && IsNavKey(LocalKey())))
+				if (!(Items[m_FocusPos].Flags & DIF_READONLY) || IsNavKey(LocalKey()))
 				{
 					if(LocalKey() == KEY_CTRLSPACE || LocalKey() == KEY_RCTRLSPACE)
 					{
@@ -3919,11 +3918,11 @@ int Dialog::SelectFromComboBox(
 
 		if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
 		{
-			strStr = HiText2Str(ItemPtr.strName);
+			strStr = HiText2Str(ItemPtr.Name);
 			EditLine->SetString(strStr);
 		}
 		else
-			EditLine->SetString(ItemPtr.strName);
+			EditLine->SetString(ItemPtr.Name);
 
 		EditLine->SetLeftPos(0);
 		Redraw();
@@ -3951,7 +3950,7 @@ bool Dialog::SelectFromEditHistory(const DialogItemEx *CurItem,
 	{
 		DlgHist->ResetPosition();
 		// создание пустого вертикального меню
-		const auto HistoryMenu = VMenu2::create({}, nullptr, 0, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR | VMENU_COMBOBOX);
+		const auto HistoryMenu = VMenu2::create({}, {}, Global->Opt->Dialogs.CBoxMaxHeight, VMENU_ALWAYSSCROLLBAR | VMENU_COMBOBOX);
 		HistoryMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		HistoryMenu->SetModeMoving(false);
 		HistoryMenu->SetMenuFlags(VMENU_SHOWAMPERSAND);
@@ -4936,7 +4935,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								FarListItem *Item=&ListItems->Item;
 								*Item = {};
 								Item->Flags=ListMenuItem.Flags;
-								Item->Text=ListMenuItem.strName.data();
+								Item->Text=ListMenuItem.Name.data();
 								/*
 								if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
 								   Item->UserData=ListMenuItem->UserData;
@@ -5084,9 +5083,9 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							const auto& ListMenuItem = ListBox->at(ListBox->GetSelectPos());
 							const auto Edit = static_cast<DlgEdit*>(CurItem->ObjPtr);
 							if (CurItem->Flags & (DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND))
-								Edit->SetHiString(ListMenuItem.strName);
+								Edit->SetHiString(ListMenuItem.Name);
 							else
-								Edit->SetString(ListMenuItem.strName);
+								Edit->SetString(ListMenuItem.Name);
 							Edit->RemoveSelection();
 						}
 					}
@@ -5570,8 +5569,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						if (CurItem->ListPtr->GetShowItemCount())
 						{
 							const auto& ListMenuItem = CurItem->ListPtr->current();
-							Ptr = ListMenuItem.strName.data();
-							Len = ListMenuItem.strName.size();
+							Ptr = ListMenuItem.Name.data();
+							Len = ListMenuItem.Name.size();
 						}
 						InitItemData();
 						break;
@@ -5622,7 +5621,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					Len=0;
 					if (CurItem->ListPtr->GetShowItemCount())
 					{
-						Len = CurItem->ListPtr->current().strName.size();
+						Len = CurItem->ListPtr->current().Name.size();
 					}
 
 					break;
@@ -5869,7 +5868,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			/* $ 09.12.2001 DJ
 			   у DI_PSWEDIT не бывает хистори!
 			*/
-			else if (Param2 && (Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT)
+			if ((Type==DI_COMBOBOX || ((Type==DI_EDIT || Type==DI_FIXEDIT)
 			                    && (CurItem->Flags&DIF_HISTORY)))) /* DJ $ */
 			{
 				// Открываем заданный в Param1 комбобокс или историю

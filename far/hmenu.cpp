@@ -142,7 +142,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			{
 				if (OpCode == MCODE_F_MENU_GETVALUE)
 				{
-					*static_cast<string *>(vParam)=Item[static_cast<size_t>(iParam)].Name;
+					*static_cast<string*>(vParam) = string(Item[static_cast<size_t>(iParam)].Name);
 					return 1;
 				}
 				else
@@ -171,7 +171,7 @@ long long HMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		}
 		case MCODE_V_MENU_VALUE: // Menu.Value
 		{
-			*static_cast<string *>(vParam)=Item[SelectPos].Name;
+			*static_cast<string*>(vParam) = string(Item[SelectPos].Name);
 			return 1;
 		}
 	}
@@ -378,7 +378,7 @@ bool HMenu::ProcessCurrentSubMenu()
 	{
 		UpdateSelectPos();
 
-		if (!Item[SelectPos].SubMenu)
+		if (Item[SelectPos].SubMenu.empty())
 			return false;
 
 		bool SendKey = false, SendMouse = false;
@@ -389,7 +389,7 @@ bool HMenu::ProcessCurrentSubMenu()
 			m_SubmenuOpened = true;
 			SCOPE_EXIT{ m_SubmenuOpened = false; };
 
-			const auto SubMenu = VMenu2::create(L"", Item[SelectPos].SubMenu, Item[SelectPos].SubMenuSize);
+			const auto SubMenu = VMenu2::create(L"", Item[SelectPos].SubMenu);
 			SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
 			SubMenu->SetMenuFlags(VMENU_WRAPMODE);
 			SubMenu->SetHelp(Item[SelectPos].SubMenuHelp);
@@ -466,19 +466,14 @@ void HMenu::ResizeConsole()
 
 wchar_t HMenu::GetHighlights(const HMenuData& MenuItem) const
 {
-	wchar_t Ch=0;
+	const auto Pos = MenuItem.Name.find(L'&');
+	if (Pos == MenuItem.Name.npos)
+		return 0;
 
-	const wchar_t *Name = MenuItem.Name;
+	if (Pos + 1 == MenuItem.Name.size())
+		return 0;
 
-	if (Name && *Name)
-	{
-		const wchar_t *ChPtr=wcschr(Name,L'&');
-
-		if (ChPtr)
-			Ch=ChPtr[1];
-	}
-
-	return Ch;
+	return MenuItem.Name[Pos + 1];
 }
 
 size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const

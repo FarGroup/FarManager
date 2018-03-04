@@ -815,17 +815,17 @@ static int IsReplaceVariable(const wchar_t *str,
 // i = IsReplaceVariable(str) - ведь нам надо только проверять семантику скобок и всяких ?!
 // где  i - тот прыжок, который надо совершить, чтоб прыгнуть на конец ! структуры !??!
 {
-	const wchar_t *s      = str;
-	int count_scob = 0;
-	int second_count_scob = 0;
-	bool was_quest = false;         //  ?
-	bool was_asterics = false;      //  !
-	bool in_firstpart_was_scob = false;
-	const wchar_t *beg_firstpart_scob = nullptr;
-	const wchar_t *end_firstpart_scob = nullptr;
-	bool in_secondpart_was_scob = false;
-	const wchar_t *beg_secondpart_scob = nullptr;
-	const wchar_t *end_secondpart_scob = nullptr;
+	const wchar_t* s = str;
+	int BracketsCount = 0;
+	int SecondBracketsCount = 0;
+	bool Question = false;      //  ?
+	bool Exclamation = false;      //  !
+	bool Bracket1 = false;
+	const wchar_t* BeginBracket1 = nullptr;
+	const wchar_t* EndBracket1 = nullptr;
+	bool Bracket2 = false;
+	const wchar_t* BeginBracket2 = nullptr;
+	const wchar_t* EndBracket2 = nullptr;
 
 	if (!s)
 		return -1;
@@ -836,93 +836,93 @@ static int IsReplaceVariable(const wchar_t *str,
 		return -1;
 
 	//
-	for (;;)   // analize from !? to ?
+	for (;;)   // analyse from !? to ?
 	{
 		if (!*s)
 			return -1;
 
 		if (*s == L'(')
 		{
-			if (in_firstpart_was_scob)
+			if (Bracket1)
 			{
 				//return -1;
 			}
 			else
 			{
-				in_firstpart_was_scob = true;
-				beg_firstpart_scob = s;     //remember where is first break
+				Bracket1 = true;
+				BeginBracket1 = s;     //remember where is first break
 			}
 
-			count_scob += 1;
+			BracketsCount += 1;
 		}
 		else if (*s == L')')
 		{
-			count_scob -= 1;
+			BracketsCount -= 1;
 
-			if (!count_scob)
+			if (!BracketsCount)
 			{
-				if (!end_firstpart_scob)
-					end_firstpart_scob = s;   //remember where is last break
+				if (!EndBracket1)
+					EndBracket1 = s;   //remember where is last break
 			}
-			else if (count_scob < 0)
+			else if (BracketsCount < 0)
 				return -1;
 		}
-		else if ((*s == L'?') && ((!beg_firstpart_scob && !end_firstpart_scob) || (beg_firstpart_scob && end_firstpart_scob)))
+		else if (*s == L'?' && !!BeginBracket1 == !!EndBracket1)
 		{
-			was_quest = true;
+			Question = true;
 		}
 
 		s++;
 
-		if (was_quest) break;
+		if (Question) break;
 	}
 
-	if (count_scob ) return -1;
+	if (BracketsCount) return -1;
 
 	const auto scrtxt = s - 1; //remember s for return
 
-	for (;;)   //analize from ? or !
+	for (;;)   //analyse from ? or !
 	{
 		if (!*s)
 			return -1;
 
 		if (*s == L'(')
 		{
-			if (in_secondpart_was_scob)
+			if (Bracket2)
 			{
 				//return -1;
 			}
 			else
 			{
-				in_secondpart_was_scob = true;
-				beg_secondpart_scob = s;    //remember where is first break
+				Bracket2 = true;
+				BeginBracket2 = s;    //remember where is first break
 			}
 
-			second_count_scob += 1;
+			SecondBracketsCount += 1;
 		}
 		else if (*s == L')')
 		{
-			second_count_scob -= 1;
+			SecondBracketsCount -= 1;
 
-			if (!second_count_scob)
+			if (!SecondBracketsCount)
 			{
-				if (!end_secondpart_scob)
-					end_secondpart_scob = s;  //remember where is last break
+				if (!EndBracket2)
+					EndBracket2 = s;  //remember where is last break
 			}
-			else if (second_count_scob < 0)
+			else if (SecondBracketsCount < 0)
 				return -1;
 		}
-		else if ((*s == L'!') && ((!beg_secondpart_scob && !end_secondpart_scob) || (beg_secondpart_scob && end_secondpart_scob)))
+		else if (*s == L'!' && !!BeginBracket2 == !!EndBracket2)
 		{
-			was_asterics = true;
+			Exclamation = true;
 		}
 
 		s++;
 
-		if (was_asterics) break;
+		if (Exclamation) break;
 	}
 
-	if (second_count_scob ) return -1;
+	if (SecondBracketsCount) return -1;
 
 	//
 	if (scr )
@@ -931,13 +931,13 @@ static int IsReplaceVariable(const wchar_t *str,
 	if (end )
 		*end = (int)(s - str) - 1;
 
-	if (in_firstpart_was_scob)
+	if (Bracket1)
 	{
 		if (beg_scr_break )
-			*beg_scr_break = (int)(beg_firstpart_scob - str);
+			*beg_scr_break = (int)(BeginBracket1 - str);
 
 		if (end_scr_break )
-			*end_scr_break = (int)(end_firstpart_scob - str);
+			*end_scr_break = (int)(EndBracket1 - str);
 	}
 	else
 	{
@@ -948,13 +948,13 @@ static int IsReplaceVariable(const wchar_t *str,
 			*end_scr_break = -1;
 	}
 
-	if (in_secondpart_was_scob)
+	if (Bracket2)
 	{
 		if (beg_txt_break )
-			*beg_txt_break = (int)(beg_secondpart_scob - str);
+			*beg_txt_break = (int)(BeginBracket2 - str);
 
 		if (end_txt_break )
-			*end_txt_break = (int)(end_secondpart_scob - str);
+			*end_txt_break = (int)(EndBracket2 - str);
 	}
 	else
 	{

@@ -1514,8 +1514,7 @@ string __DLGMSG_ToName(DWORD Msg)
 		}
 	}
 
-
-	return str_printf(L"\"%s+[%d/0x%08X]\"",(Msg>=DN_FIRST?L"DN_FIRST":(Msg>=DM_USER?L"DM_USER":L"DM_FIRST")),Msg,Msg);
+	return str_printf(L"\"%s+[%d/0x%08X]\"", (Msg >= DM_USER? L"DM_USER" : (Msg >= DN_FIRST? L"DN_FIRST" : L"DM_FIRST")), Msg, Msg);
 #else
 	return L"";
 #endif
@@ -1771,16 +1770,13 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 
 	if (fp)
 	{
-		if (ReadCount2 > 1)
-		{
-			std::vector<INPUT_RECORD> TmpRec(ReadCount2);
-			size_t ReadCount3;
-			Console().PeekInput(TmpRec.data(), TmpRec.size(), ReadCount3);
+		std::vector<INPUT_RECORD> TmpRec(ReadCount2);
+		size_t ReadCount3;
+		Console().PeekInput(TmpRec.data(), TmpRec.size(), ReadCount3);
 
-			for (DWORD I=0; I < ReadCount3; ++I)
-			{
-				fwprintf(fp,L"             %s%04lu: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(&TmpRec[I]));
-			}
+		for (DWORD I=0; I < ReadCount3; ++I)
+		{
+			fwprintf(fp,L"             %s%04lu: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(&TmpRec[I]));
 		}
 
 		fflush(fp);

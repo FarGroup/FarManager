@@ -900,7 +900,7 @@ string ReplaceBrackets(const string_view SearchStr, const string& ReplaceStr, co
 	return result;
 }
 
-bool SearchString(string_view Source, const string& Str, const string &UpperStr, const string &LowerStr, RegExp &re, RegExpMatch *pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int *SearchLength, const wchar_t* WordDiv)
+bool SearchString(string_view const Source, const string& Str, const string& UpperStr, const string& LowerStr, const RegExp& re, RegExpMatch* const pm, MatchHash* const hm, string& ReplaceStr, int& CurPos, int const Case, int const WholeWords, int const Reverse, int const Regexp, int const PreserveStyle, int* const SearchLength, const wchar_t* WordDiv)
 {
 	int Position = CurPos;
 	*SearchLength = 0;

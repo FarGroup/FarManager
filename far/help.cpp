@@ -616,7 +616,7 @@ m1:
 								continue;
 							}
 						}
-						else if (strReadStr.empty() && strSplitLine.empty())
+						else
 						{
 							AddLine(L"");
 							continue;
@@ -684,13 +684,13 @@ m1:
 
 					for (int I=(int)strSplitLine.size()-1; I > 0; I--)
 					{
-						if (I > 0 && strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
+						if (strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
 						 {
 							I--;
 							continue;
 						}
 
-						if (I > 0 && strSplitLine[I] == L'~' && strSplitLine[I - 1] != L'~')
+						if (strSplitLine[I] == L'~' && strSplitLine[I - 1] != L'~')
 						{
 							do
 							{

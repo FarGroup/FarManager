@@ -126,11 +126,9 @@ bool ConnectToNetworkResource(const string& NewDir)
 			if (res == NO_ERROR)
 				break;
 
-			const auto ErrorState = error_state::fetch();
-
 			if (res != ERROR_ACCESS_DENIED && res != ERROR_INVALID_PASSWORD && res != ERROR_LOGON_FAILURE)
 			{
-				Message(MSG_WARNING, ErrorState,
+				Message(MSG_WARNING, error_state::fetch(),
 					msg(lng::MError),
 					{
 						NewDir

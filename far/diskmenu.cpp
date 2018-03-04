@@ -80,7 +80,7 @@ public:
 	{
 		return (Global->Opt->ChangeDriveMode & DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey != rhs.HotKey)?
 			HotKey < rhs.HotKey :
-			string_sort::less(Item.strName, rhs.Item.strName);
+			string_sort::less(Item.Name, rhs.Item.Name);
 	}
 
 	MenuItemEx& getItem() { return Item; }
@@ -148,7 +148,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				if (pPlugin->IsOemPlugin())
 					OneItem.getItem().Flags = LIF_CHECKED | L'A';
 #endif // NO_WRAPPER
-				OneItem.getItem().strName = strPluginText;
+				OneItem.getItem().Name = strPluginText;
 				OneItem.getHotKey() = HotKey;
 
 				PanelMenuItem item = {};
@@ -180,7 +180,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				SetSelected = DiskCount + static_cast<int>(index)+1 == Pos;
 		}
 		const auto HotKey = i.getHotKey();
-		i.getItem().strName = concat(HotKey ? concat(L'&', HotKey, L"  "_sv) : L"   "s, i.getItem().strName);
+		i.getItem().Name = concat(HotKey ? concat(L'&', HotKey, L"  "_sv) : L"   "s, i.getItem().Name);
 		ChDisk.AddItem(i.getItem());
 	});
 
@@ -637,7 +637,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 	PanelMenuItem Item, *mitem = nullptr;
 	{ // эта скобка надо, см. M#605
-		const auto ChDisk = VMenu2::create(msg(lng::MChangeDriveTitle), nullptr, 0, ScrY - Panel_Y1 - 3);
+		const auto ChDisk = VMenu2::create(msg(lng::MChangeDriveTitle), {}, ScrY - Panel_Y1 - 3);
 		ChDisk->SetBottomTitle(msg(lng::MChangeDriveMenuFooter));
 		ChDisk->SetHelp(L"DriveDlg");
 		ChDisk->SetMenuFlags(VMENU_WRAPMODE);
@@ -845,7 +845,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			item.cDrive = L'A' + DiskNumber;
 			item.nDriveType = i.DriveType;
 
-			ChDiskItem.strName = ItemName;
+			ChDiskItem.Name = ItemName;
 			ChDiskItem.UserData = item;
 			ChDisk->AddItem(ChDiskItem);
 
@@ -967,7 +967,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					}
 					else
 					{
-						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::drive_menu, trim(string_view(ChDisk->at(SelPos).strName).substr(3))))
+						if (Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::drive_menu, trim(string_view(ChDisk->at(SelPos).Name).substr(3))))
 							RetCode = SelPos;
 					}
 				}

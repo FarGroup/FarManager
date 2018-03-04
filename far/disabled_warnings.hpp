@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4738) // https://msdn.microsoft.com/en-us/library/c24hdbz6.aspx storing 32-bit float result in memory, possible loss of performance
 #pragma warning(disable: 4814) // no page                                                in C++14 'constexpr' will not imply 'const'; consider explicitly specifying 'const'
 #pragma warning(disable: 4820) // https://msdn.microsoft.com/en-us/library/t7khkyth.aspx 'bytes' bytes padding added after construct 'member_name'
+#pragma warning(disable: 4868) // https://msdn.microsoft.com/en-us/library/mt656772.aspx file(line_number)' compiler may not enforce left-to-right evaluation order in braced initializer list
 #pragma warning(disable: 5025) // no page                                                'class': move assignment operator was implicitly defined as deleted
 #pragma warning(disable: 5026) // no page                                                'class': move constructor was implicitly defined as deleted because a base class move constructor is inaccessible or deleted
 #pragma warning(disable: 5027) // no page                                                'class': move assignment operator was implicitly defined as deleted because a base class move assignment operator is inaccessible or deleted

@@ -364,7 +364,7 @@ VMenu2::VMenu2(private_tag, int MaxHeight):
 {
 }
 
-vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags)
+vmenu2_ptr VMenu2::create(const string& Title, range<const menu_item*> Data, int MaxHeight, DWORD Flags)
 {
 	auto VMenu2Ptr = std::make_shared<VMenu2>(private_tag(), MaxHeight);
 
@@ -376,14 +376,15 @@ vmenu2_ptr VMenu2::create(const string& Title, const MenuDataEx *Data, size_t It
 	VMenu2Ptr->SetTitle(Title);
 	VMenu2Ptr->SendMessage(DM_SETINPUTNOTIFY, 1, nullptr);
 
-	std::vector<FarListItem> fli(ItemCount);
-	std::transform(Data, Data + ItemCount, fli.begin(), [](const auto& i) { return FarListItem{i.Flags, i.Name}; });
+	std::vector<FarListItem> fli;
+	fli.reserve(Data.size());
+	std::transform(ALL_CONST_RANGE(Data), std::back_inserter(fli), [](const auto& i) { return FarListItem{ i.Flags, i.Name.data() }; });
 
-	FarList fl={sizeof(FarList), ItemCount, fli.data()};
+	FarList fl = { sizeof(FarList), fli.size(), fli.data() };
 
 	VMenu2Ptr->SendMessage(DM_LISTSET, 0, &fl);
 
-	for(size_t i=0; i<ItemCount; ++i)
+	for(size_t i=0; i != Data.size(); ++i)
 		VMenu2Ptr->at(i).AccelKey = Data[i].AccelKey;
 
 	// BUGBUG
@@ -462,7 +463,7 @@ int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 		PosAdd=n;
 
 
-	FarListItem fi={NewItem.Flags, NewItem.strName.data()};
+	FarListItem fi={NewItem.Flags, NewItem.Name.data()};
 	FarListInsert fli={sizeof(FarListInsert), PosAdd, fi};
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;

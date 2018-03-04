@@ -204,7 +204,7 @@ public:
 	void RefreshPluginsList();
 
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
-	static int UseFarCommand(plugin_panel* hPlugin, int CommandType);
+	static int UseFarCommand(const plugin_panel* hPlugin, int CommandType);
 	static const GUID& GetGUID(const plugin_panel* hPlugin);
 	static bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, hotkey_type HotKeyType, string_view DlgPluginTitle);
 	static void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);

@@ -137,7 +137,7 @@ void QuickView::DisplayObject()
 		SetColor(COL_PANELTEXT);
 		GotoXY(m_X1+2,m_Y1+2);
 		auto DisplayName = strCurFileName;
-		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - static_cast<int>(wcslen(msg(lng::MQuickViewFolder).data()) - 5)));
+		TruncPathStr(DisplayName, std::max(0, m_X2 - m_X1 - 1 - static_cast<int>(msg(lng::MQuickViewFolder).size() - 5)));
 		PrintText(format(LR"({0} "{1}")", msg(lng::MQuickViewFolder), DisplayName));
 
 		DWORD currAttr=os::fs::get_file_attributes(strCurFileName); // обламывается, если нет доступа
@@ -407,7 +407,7 @@ void QuickView::Update(int Mode)
 	Redraw();
 }
 
-void QuickView::ShowFile(const string& FileName, bool TempFile, plugin_panel* hDirPlugin)
+void QuickView::ShowFile(const string& FileName, bool const TempFile, const plugin_panel* const hDirPlugin)
 {
 	CloseFile();
 

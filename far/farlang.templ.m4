@@ -27180,7 +27180,7 @@ l:
 "Operazione Interrotta"
 "Дію було перервано"
 
-MDoYouWantToStopWork
+MDoYouWantToCancel
 "Вы действительно хотите отменить действие?"
 "Do you really want to cancel it?"
 "Opravdu chcete operaci stornovat?"
@@ -27192,7 +27192,7 @@ MDoYouWantToStopWork
 "Vuoi Veramente Interrottmperla?"
 "Ви дійсно бажаєте скасувати дію?"
 
-MDoYouWantToStopWork2
+MDoYouWantToContinue
 "Продолжить выполнение?"
 "Continue work? "
 "Pokračovat v práci?"

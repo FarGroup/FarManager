@@ -77,7 +77,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 			Item.SetCheck(TRUE);
 			Item.SetSelect(TRUE);
 		}
-		Item.UserData = Item.strName;
+		Item.UserData = Item.Name;
 		PrinterList->AddItem(Item);
 	}
 
@@ -154,7 +154,7 @@ void PrintFiles(FileList* SrcPanel)
 			strTitle = format(lng::MPrintFilesTo, SelCount);
 		}
 
-		const auto PrinterList = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
+		const auto PrinterList = VMenu2::create(strTitle, {}, ScrY - 4);
 		PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 		PrinterList->SetPosition(-1,-1,0,0);
 		AddToPrintersMenu(PrinterList.get(), pi.get(), Returned);

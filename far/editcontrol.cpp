@@ -144,9 +144,7 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 	{
 		if (Menu.size())
 		{
-			MenuItemEx Item(msg(TitleId));
-			Item.Flags = LIF_SEPARATOR;
-			Menu.AddItem(Item);
+			Menu.AddItem(MenuItemEx(msg(TitleId), LIF_SEPARATOR));
 		}
 		else
 		{
@@ -241,8 +239,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string_view strStart, const stri
 			return Result;
 		};
 
-		MenuItemEx Item;
-		Item.strName = BuildQuotedString(i);
+		MenuItemEx Item(BuildQuotedString(i));
 
 		// Preserve the case of the already entered part
 		if (Global->Opt->AutoComplete.AppendCompletion)
@@ -393,7 +390,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && !m_Str.empty() && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
 	{
 		Reenter++;
-		const auto ComplMenu = VMenu2::create({}, nullptr, 0, 0);
+		const auto ComplMenu = VMenu2::create({}, {}, 0);
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu->SetModeMoving(false);
 		string CurrentInput = m_Str;
@@ -421,7 +418,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						MenuItemEx Item;
 						// Preserve the case of the already entered part
 						Item.UserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + std::get<0>(i).substr(Str.size()) : L""s, std::get<1>(i) };
-						Item.strName = std::move(std::get<0>(i));
+						Item.Name = std::move(std::get<0>(i));
 						Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
 						ComplMenu->AddItem(std::move(Item));
 					}
@@ -472,7 +469,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 		{
 			int SelStart = GetLength();
 
-			const auto& FirstItem = ComplMenu->at(0).strName;
+			const auto& FirstItem = ComplMenu->at(0).Name;
 			const auto Data = ComplMenu->GetUserDataPtr<cmp_user_data>(0);
 
 			// magic
@@ -502,7 +499,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			}
 		};
 
-		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).strName)))
+		if(ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).Name)))
 		{
 			ComplMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
@@ -536,7 +533,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						{
 							PrevPos=CurPos;
 							IsChanged = false;
-							SetString(CurPos? ComplMenu->at(CurPos).strName : CurrentInput);
+							SetString(CurPos? ComplMenu->at(CurPos).Name : CurrentInput);
 							Show();
 						}
 					}
@@ -560,7 +557,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 								Complete(*ComplMenu, CurrentInput);
 
-								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).strName)))
+								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).Name)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{
@@ -713,7 +710,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				{
 					if(Global->Opt->AutoComplete.ModalList)
 					{
-						SetString(ComplMenu->at(ExitCode).strName);
+						SetString(ComplMenu->at(ExitCode).Name);
 						Show();
 					}
 					else

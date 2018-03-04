@@ -44,13 +44,21 @@ public:
 
 	constexpr range() = default;
 
-	constexpr range(iterator Begin, iterator End):
+	template<typename begin_type, typename end_type>
+	constexpr range(begin_type Begin, end_type End):
 		m_Begin(Begin),
 		m_End(End)
 	{}
 
-	constexpr range(iterator Begin, size_t Count):
+	template<typename begin_type>
+	constexpr range(begin_type Begin, size_t Count):
 		range(Begin, Begin + Count)
+	{
+	}
+
+	template<typename compatible_iterator>
+	constexpr range(const range<compatible_iterator>& Rhs):
+		range(ALL_RANGE(Rhs))
 	{
 	}
 
@@ -130,6 +138,12 @@ template<class container>
 constexpr auto make_range(container& Container)
 {
 	return make_range(ALL_RANGE(Container));
+}
+
+template<class container>
+constexpr auto make_const_range(const container& Container)
+{
+	return make_range(ALL_CONST_RANGE(Container));
 }
 
 template<class T>

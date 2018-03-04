@@ -37,8 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Plugin;
 
-bool ProcessStdException(const std::exception& e, string_view Function, Plugin* Module = nullptr);
-bool ProcessUnknownException(string_view Function, Plugin* Module = nullptr);
+bool ProcessStdException(const std::exception& e, string_view Function, const Plugin* Module = nullptr);
+bool ProcessUnknownException(string_view Function, const Plugin* Module = nullptr);
 
 class unhandled_exception_filter
 {
@@ -87,10 +87,13 @@ auto seh_invoke(function&& Callable, filter&& Filter, handler&& Handler)
 }
 
 template<class function, class handler>
-auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const string_view Function, Plugin* const Module = nullptr)
+auto seh_invoke_with_ui(function&& Callable, handler&& Handler, const string_view Function, const Plugin* const Module = nullptr)
 {
-	int SehFilter(int, EXCEPTION_POINTERS*, string_view, Plugin*);
-	return seh_invoke(FWD(Callable), [&](auto Code, auto Info) { return SehFilter(Code, Info, Function, Module); }, FWD(Handler));
+	return seh_invoke(FWD(Callable), [&](auto Code, auto Info)
+	{
+		int SehFilter(int, const EXCEPTION_POINTERS*, string_view, const Plugin*);
+		return SehFilter(Code, Info, Function, Module);
+	}, FWD(Handler));
 }
 
 template<class function, class handler>

@@ -521,7 +521,7 @@ void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 
 void highlight::configuration::HiEdit(int MenuPos)
 {
-	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), nullptr, 0, ScrY - 4);
+	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), {}, ScrY - 4);
 	HiMenu->SetHelp(HLS.HighlightList);
 	HiMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	HiMenu->SetPosition(-1,-1,0,0);
@@ -739,7 +739,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 	}
 }
 
-static void SaveFilter(HierarchicalConfig *cfg, const HierarchicalConfig::key& key, FileFilterParams *CurHiData, bool bSortGroup)
+static void SaveFilter(HierarchicalConfig* const cfg, const HierarchicalConfig::key& key, const FileFilterParams* const CurHiData, bool const bSortGroup)
 {
 	FileFilter::SaveFilter(cfg, key.get(), *CurHiData);
 

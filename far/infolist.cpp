@@ -589,13 +589,13 @@ long long InfoList::VMProcess(int OpCode, void* vParam, long long iParam)
 
 void InfoList::SelectShowMode()
 {
-	MenuDataEx ShowModeMenuItem[]=
+	menu_item ShowModeMenuItem[]
 	{
-		msg(lng::MMenuInfoShowModeDisk).data(),LIF_SELECTED, 0,
-		msg(lng::MMenuInfoShowModeMemory).data(),0, 0,
-		msg(lng::MMenuInfoShowModeDirDiz).data(),0, 0,
-		msg(lng::MMenuInfoShowModePluginDiz).data(),0, 0,
-		msg(lng::MMenuInfoShowModePower).data(), 0, 0,
+		{ msg(lng::MMenuInfoShowModeDisk), LIF_SELECTED },
+		{ msg(lng::MMenuInfoShowModeMemory), 0 },
+		{ msg(lng::MMenuInfoShowModeDirDiz), 0 },
+		{ msg(lng::MMenuInfoShowModePluginDiz), 0 },
+		{ msg(lng::MMenuInfoShowModePower), 0 },
 	};
 
 	for_each_cnt(CONST_RANGE(SectionState, i, size_t index)
@@ -618,12 +618,12 @@ void InfoList::SelectShowMode()
 		//DEFINE_GUID(InfoListSelectShowModeId,0xbfc64a26, 0xf433, 0x4cf3, 0xa1, 0xde, 0x83, 0x61, 0xcf, 0x76, 0x2f, 0x68);
 		// ?????
 
-		const auto ShowModeMenu = VMenu2::create(msg(lng::MMenuInfoShowModeTitle), ShowModeMenuItem, std::size(ShowModeMenuItem), 0);
+		const auto ShowModeMenu = VMenu2::create(msg(lng::MMenuInfoShowModeTitle), make_const_range(ShowModeMenuItem), 0);
 		ShowModeMenu->SetHelp(L"InfoPanelShowMode");
 		ShowModeMenu->SetPosition(m_X1+4,-1,0,0);
 		ShowModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 
-		ShowCode=ShowModeMenu->Run([&](const Manager::Key& RawKey)
+		ShowCode = ShowModeMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			int KeyProcessed = 1;
@@ -657,28 +657,25 @@ void InfoList::SelectShowMode()
 			return;
 	}
 
-	if (ShowCode != -1)
+	switch (ShowMode)
 	{
-		switch (ShowMode)
-		{
-			case 0:
-				SectionState[ShowCode].Show=false;
-				break;
-			case 1:
-				SectionState[ShowCode].Show=true;
-				break;
-			default:
-				SectionState[ShowCode].Show=!SectionState[ShowCode].Show;
-				break;
-		}
-		Global->Opt->InfoPanel.strShowStatusInfo.clear();
-		std::for_each(RANGE(SectionState, i)
-		{
-			Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1" : L"0";
-		});
-
-		Redraw();
+	case 0:
+		SectionState[ShowCode].Show=false;
+		break;
+	case 1:
+		SectionState[ShowCode].Show=true;
+		break;
+	default:
+		SectionState[ShowCode].Show=!SectionState[ShowCode].Show;
+		break;
 	}
+	Global->Opt->InfoPanel.strShowStatusInfo.clear();
+	std::for_each(RANGE(SectionState, i)
+	{
+		Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1" : L"0";
+	});
+
+	Redraw();
 }
 
 bool InfoList::ProcessKey(const Manager::Key& Key)
@@ -899,7 +896,6 @@ void InfoList::PrintInfo(const string& str) const
 	if (WhereY()>m_Y2-1)
 		return;
 
-	FarColor SaveColor=GetColor();
 	int MaxLength=m_X2-WhereX()-2;
 
 	if (MaxLength<0)
@@ -913,6 +909,7 @@ void InfoList::PrintInfo(const string& str) const
 	if (NewX>m_X1 && NewX>WhereX())
 	{
 		GotoXY(NewX,WhereY());
+		const auto SaveColor = GetColor();
 		SetColor(COL_PANELINFOTEXT);
 		Text(strStr + L' ');
 		SetColor(SaveColor);

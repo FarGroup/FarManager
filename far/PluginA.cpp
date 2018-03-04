@@ -1247,11 +1247,14 @@ static void UnicodeDialogItemToAnsiSafe(const FarDialogItem &di, oldfar::FarDial
 	diA.X2 = di.X2;
 	diA.Y2 = di.Y2;
 	diA.Focus = (di.Flags&DIF_FOCUS) != 0;
-	diA.Flags = 0;
 
 	if (diA.Flags&oldfar::DIF_SETCOLOR)
 	{
-		diA.Flags |= oldfar::DIF_SETCOLOR | (diA.Flags&oldfar::DIF_COLORMASK);
+		diA.Flags = oldfar::DIF_SETCOLOR | (diA.Flags & oldfar::DIF_COLORMASK);
+	}
+	else
+	{
+		diA.Flags = 0;
 	}
 
 	if (di.Flags)
@@ -1650,7 +1653,7 @@ static char* WINAPI RemoveTrailingSpacesA(char *Str) noexcept
 {
 	try
 	{
-		if (*Str == '\0')
+		if (!Str || !*Str)
 			return Str;
 
 		size_t I;
@@ -1733,10 +1736,10 @@ static char* WINAPI RemoveLeadingSpacesA(char *Str) noexcept
 {
 	try
 	{
-		auto ChPtr = Str;
+		if (!Str || !*Str)
+			return Str;
 
-		if (!ChPtr)
-			return nullptr;
+		auto ChPtr = Str;
 
 		for (; IsSpaceA(*ChPtr); ChPtr++)
 			;
@@ -2397,8 +2400,9 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		if (BreakKeys)
 		{
 			int BreakKeysCount = 0;
-			while (BreakKeys[BreakKeysCount++])
-				;
+			while (BreakKeys[BreakKeysCount])
+				++BreakKeysCount;
+
 			if (BreakKeysCount)
 			{
 				NewBreakKeys.resize(BreakKeysCount);

@@ -127,7 +127,7 @@ private:
 	void OpenFile(string strSearchFileName, int key, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
 	void ProcessMessage(const AddMenuData& Data);
-	void SetPluginDirectory(string_view DirName, plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
+	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel = false, UserDataItem *UserData = nullptr);
 	bool GetPluginFile(struct ArcListItem* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, UserDataItem *UserData);
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);

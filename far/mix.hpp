@@ -84,7 +84,7 @@ public:
 void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanelItemHolder& Dest);
 
 void FreePluginPanelItem(const PluginPanelItem& Data);
-void FreePluginPanelItems(std::vector<PluginPanelItem>& Items);
+void FreePluginPanelItems(const std::vector<PluginPanelItem>& Items);
 
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
 

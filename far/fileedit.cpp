@@ -1882,7 +1882,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	if (!IsUnicodeOrUtfCodePage(codepage))
 	{
 		int LineNumber=-1;
-		bool BadSaveConfirmed=false;
+
 		for(auto& Line: m_editor->Lines)
 		{
 			++LineNumber;
@@ -1896,7 +1896,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 			bool UsedDefaultCharEOL = encoding::get_bytes(codepage, eol::str(LineEol), nullptr, 0, &UsedDefaultCharEOL) && UsedDefaultCharEOL;
 
-			if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
+			if (UsedDefaultCharStr || UsedDefaultCharEOL)
 			{
 				//SetMessageHelp(L"EditorDataLostWarning")
 				const int Result = Message(MSG_WARNING,
@@ -1908,10 +1908,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 					},
 					{ lng::MCancel, lng::MEditorSaveCPWarnShow, lng::MEditorSave });
 				if (Result == Message::third_button)
-				{
-					BadSaveConfirmed=true;
 					break;
-				}
 
 				if(Result == Message::second_button)
 				{
@@ -2715,12 +2712,11 @@ void FileEditor::SaveToCache() const
 {
 	EditorPosCache pc;
 	m_editor->GetCacheParams(pc);
-	string strCacheName=strPluginData.empty()?strFullFileName:strPluginData+PointToName(strFullFileName);
 
 	if (!m_Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
 		pc.CodePage = BadConversion ? 0 : m_codepage;
-		FilePositionCache::AddPosition(strCacheName, pc);
+		FilePositionCache::AddPosition(strPluginData.empty()? strFullFileName : strPluginData + PointToName(strFullFileName), pc);
 	}
 }
 

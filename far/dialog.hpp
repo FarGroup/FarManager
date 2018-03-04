@@ -113,7 +113,7 @@ struct DialogItemEx: public FarDialogItem
 		FARDIALOGITEMFLAGS Checked3Set, FARDIALOGITEMFLAGS Checked3Skip);
 };
 
-bool IsKeyHighlighted(const string& Str, int Key, int Translate, int AmpPos = -1);
+bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos = -1);
 void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<DialogItemEx*>& ItemsEx, bool Short = false);
 
 template<size_t N>

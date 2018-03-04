@@ -439,7 +439,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 		const int NameWidth = 10;
 		TruncStrFromEnd(DisplayName, NameWidth);
 		DisplayName.resize(NameWidth, L' ');
-		Item.strName = concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', i.second);
+		Item.Name = concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', i.second);
 		Item.UserData = i.first;
 		MasksMenu.AddItem(Item);
 	}
@@ -448,7 +448,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 
 void Options::MaskGroupsSettings()
 {
-	const auto MasksMenu = VMenu2::create(msg(lng::MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	const auto MasksMenu = VMenu2::create(msg(lng::MMenuMaskGroups), {}, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	MasksMenu->SetBottomTitle(msg(lng::MMaskGroupBottom));
 	MasksMenu->SetHelp(L"MaskGroupsSettings");
 	FillMasksMenu(*MasksMenu);
@@ -1106,17 +1106,17 @@ void Options::SetFilePanelModes()
 
 		const auto MenuCount = ViewSettings.size();
 		// +1 for separator
-		std::vector<MenuDataEx> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
+		std::vector<menu_item> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
 
 		for (size_t i = 0; i < ViewSettings.size(); ++i)
 		{
-			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name.data();
+			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
 		}
 
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
 		{
-			if (!*ModeListMenu[i].Name)
-				ModeListMenu[i].Name = msg(PredefinedNames[i]).data();
+			if (ModeListMenu[i].Name.empty())
+				ModeListMenu[i].Name = msg(PredefinedNames[i]);
 		}
 
 		if (MenuCount > predefined_panel_modes_count)
@@ -1132,7 +1132,7 @@ void Options::SetFilePanelModes()
 
 		ModeListMenu[CurMode].SetSelect(1);
 		{
-			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), ModeListMenu.data(), ModeListMenu.size(), ScrY - 4);
+			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), { ModeListMenu.data(), ModeListMenu.size() }, ScrY - 4);
 			ModeList->SetPosition(-1,-1,0,0);
 			ModeList->SetHelp(L"PanelViewModes");
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
@@ -1248,7 +1248,7 @@ void Options::SetFilePanelModes()
 		} ;
 		FarDialogItem ModeDlgData[]=
 		{
-			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name},
+			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name.data()},
 			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MEditPanelModeName).data()},
 			{DI_EDIT,      5, 3,70, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
 			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeTypes).data()},
@@ -2672,7 +2672,7 @@ enum enumOptionsMenu
 	MENU_OPTIONS_SAVESETUP
 };
 
-void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
+void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
 {
 	const auto pPanel = bLeft? Global->CtrlObject->Cp()->LeftPanel() : Global->CtrlObject->Cp()->RightPanel();
 
@@ -2707,148 +2707,148 @@ void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	const auto& ApplyViewModesNames = [this](MenuDataEx* Menu)
+	const auto& ApplyViewModesNames = [this](menu_item* Menu)
 	{
 		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
 		{
 			if (!ViewSettings[i].Name.empty())
-				Menu[RealModeToDisplay(i)].Name = ViewSettings[i].Name.data();
+				Menu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
 		}
 	};
 
 	LISTITEMFLAGS no_tree = Global->Opt->Tree.TurnOffCompletely ? LIF_HIDDEN : 0;
 
-	MenuDataEx LeftMenu[]=
+	menu_item LeftMenu[]
 	{
-		msg(lng::MMenuBriefView).data(), LIF_SELECTED, KEY_CTRL1,
-		msg(lng::MMenuMediumView).data(), 0, KEY_CTRL2,
-		msg(lng::MMenuFullView).data(), 0, KEY_CTRL3,
-		msg(lng::MMenuWideView).data(), 0, KEY_CTRL4,
-		msg(lng::MMenuDetailedView).data(), 0, KEY_CTRL5,
-		msg(lng::MMenuDizView).data(), 0, KEY_CTRL6,
-		msg(lng::MMenuLongDizView).data(), 0, KEY_CTRL7,
-		msg(lng::MMenuOwnersView).data(), 0, KEY_CTRL8,
-		msg(lng::MMenuLinksView).data(), 0, KEY_CTRL9,
-		msg(lng::MMenuAlternativeView).data(), 0, KEY_CTRL0,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuInfoPanel).data(), 0, KEY_CTRLL,
-		msg(lng::MMenuTreePanel).data(), no_tree, KEY_CTRLT,
-		msg(lng::MMenuQuickView).data(), 0, KEY_CTRLQ,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuSortModes).data(), 0, KEY_CTRLF12,
-		msg(lng::MMenuLongNames).data(), 0, KEY_CTRLN,
-		msg(lng::MMenuTogglePanel).data(), 0, KEY_CTRLF1,
-		msg(lng::MMenuReread).data(), 0, KEY_CTRLR,
-		msg(lng::MMenuChangeDrive).data(), 0, KEY_ALTF1,
+		{ msg(lng::MMenuBriefView), LIF_SELECTED, KEY_CTRL1 },
+		{ msg(lng::MMenuMediumView), 0, KEY_CTRL2 },
+		{ msg(lng::MMenuFullView), 0, KEY_CTRL3 },
+		{ msg(lng::MMenuWideView), 0, KEY_CTRL4 },
+		{ msg(lng::MMenuDetailedView), 0, KEY_CTRL5 },
+		{ msg(lng::MMenuDizView), 0, KEY_CTRL6 },
+		{ msg(lng::MMenuLongDizView), 0, KEY_CTRL7 },
+		{ msg(lng::MMenuOwnersView), 0, KEY_CTRL8 },
+		{ msg(lng::MMenuLinksView), 0, KEY_CTRL9 },
+		{ msg(lng::MMenuAlternativeView), 0, KEY_CTRL0 },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuInfoPanel), 0, KEY_CTRLL },
+		{ msg(lng::MMenuTreePanel), no_tree, KEY_CTRLT },
+		{ msg(lng::MMenuQuickView), 0, KEY_CTRLQ },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuSortModes), 0, KEY_CTRLF12 },
+		{ msg(lng::MMenuLongNames), 0, KEY_CTRLN },
+		{ msg(lng::MMenuTogglePanel), 0, KEY_CTRLF1 },
+		{ msg(lng::MMenuReread), 0, KEY_CTRLR },
+		{ msg(lng::MMenuChangeDrive), 0, KEY_ALTF1 },
 	};
 	ApplyViewModesNames(LeftMenu);
 	const auto LeftMenuStrings = VMenu::AddHotkeys(make_range(LeftMenu));
 
-	MenuDataEx FilesMenu[]=
+	menu_item FilesMenu[]
 	{
-		msg(lng::MMenuView).data(), LIF_SELECTED, KEY_F3,
-		msg(lng::MMenuEdit).data(), 0, KEY_F4,
-		msg(lng::MMenuCopy).data(), 0, KEY_F5,
-		msg(lng::MMenuMove).data(), 0, KEY_F6,
-		msg(lng::MMenuLink).data(), 0, KEY_ALTF6,
-		msg(lng::MMenuCreateFolder).data(), 0, KEY_F7,
-		msg(lng::MMenuDelete).data(), 0, KEY_F8,
-		msg(lng::MMenuWipe).data(), 0, KEY_ALTDEL,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuAdd).data(), 0, KEY_SHIFTF1,
-		msg(lng::MMenuExtract).data(), 0, KEY_SHIFTF2,
-		msg(lng::MMenuArchiveCommands).data(), 0, KEY_SHIFTF3,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuAttributes).data(), 0, KEY_CTRLA,
-		msg(lng::MMenuApplyCommand).data(), 0, KEY_CTRLG,
-		msg(lng::MMenuDescribe).data(), 0, KEY_CTRLZ,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuSelectGroup).data(), 0, KEY_ADD,
-		msg(lng::MMenuUnselectGroup).data(), 0, KEY_SUBTRACT,
-		msg(lng::MMenuInvertSelection).data(), 0, KEY_MULTIPLY,
-		msg(lng::MMenuRestoreSelection).data(), 0, KEY_CTRLM,
+		{ msg(lng::MMenuView), LIF_SELECTED, KEY_F3 },
+		{ msg(lng::MMenuEdit), 0, KEY_F4 },
+		{ msg(lng::MMenuCopy), 0, KEY_F5 },
+		{ msg(lng::MMenuMove), 0, KEY_F6 },
+		{ msg(lng::MMenuLink), 0, KEY_ALTF6 },
+		{ msg(lng::MMenuCreateFolder), 0, KEY_F7 },
+		{ msg(lng::MMenuDelete), 0, KEY_F8 },
+		{ msg(lng::MMenuWipe), 0, KEY_ALTDEL },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuAdd), 0, KEY_SHIFTF1 },
+		{ msg(lng::MMenuExtract), 0, KEY_SHIFTF2 },
+		{ msg(lng::MMenuArchiveCommands), 0, KEY_SHIFTF3 },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuAttributes), 0, KEY_CTRLA },
+		{ msg(lng::MMenuApplyCommand), 0, KEY_CTRLG },
+		{ msg(lng::MMenuDescribe), 0, KEY_CTRLZ },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuSelectGroup), 0, KEY_ADD },
+		{ msg(lng::MMenuUnselectGroup), 0, KEY_SUBTRACT },
+		{ msg(lng::MMenuInvertSelection), 0, KEY_MULTIPLY },
+		{ msg(lng::MMenuRestoreSelection), 0, KEY_CTRLM },
 	};
 	const auto FilesMenuStrings = VMenu::AddHotkeys(make_range(FilesMenu));
 
-	MenuDataEx CmdMenu[]=
+	menu_item CmdMenu[]
 	{
-		msg(lng::MMenuFindFile).data(), LIF_SELECTED, KEY_ALTF7,
-		msg(lng::MMenuHistory).data(), 0, KEY_ALTF8,
-		msg(lng::MMenuVideoMode).data(), 0, KEY_ALTF9,
-		msg(lng::MMenuFindFolder).data(), no_tree, KEY_ALTF10,
-		msg(lng::MMenuViewHistory).data(), 0, KEY_ALTF11,
-		msg(lng::MMenuFoldersHistory).data(), 0, KEY_ALTF12,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuSwapPanels).data(), 0, KEY_CTRLU,
-		msg(lng::MMenuTogglePanels).data(), 0, KEY_CTRLO,
-		msg(lng::MMenuCompareFolders).data(), 0, 0,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuUserMenu).data(), 0, 0,
-		msg(lng::MMenuFileAssociations).data(), 0, 0,
-		msg(lng::MMenuFolderShortcuts).data(), 0, 0,
-		msg(lng::MMenuFilter).data(), 0, KEY_CTRLI,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuPluginCommands).data(), 0, KEY_F11,
-		msg(lng::MMenuWindowsList).data(), 0, KEY_F12,
-		msg(lng::MMenuProcessList).data(), 0, KEY_CTRLW,
-		msg(lng::MMenuHotPlugList).data(), 0, 0,
+		{ msg(lng::MMenuFindFile), LIF_SELECTED, KEY_ALTF7 },
+		{ msg(lng::MMenuHistory), 0, KEY_ALTF8 },
+		{ msg(lng::MMenuVideoMode), 0, KEY_ALTF9 },
+		{ msg(lng::MMenuFindFolder), no_tree, KEY_ALTF10 },
+		{ msg(lng::MMenuViewHistory), 0, KEY_ALTF11 },
+		{ msg(lng::MMenuFoldersHistory), 0, KEY_ALTF12 },
+		{ {}, LIF_SEPARATOR, 0 },
+		{ msg(lng::MMenuSwapPanels), 0, KEY_CTRLU },
+		{ msg(lng::MMenuTogglePanels), 0, KEY_CTRLO },
+		{ msg(lng::MMenuCompareFolders), 0, 0 },
+		{ {}, LIF_SEPARATOR, 0 },
+		{ msg(lng::MMenuUserMenu), 0, 0 },
+		{ msg(lng::MMenuFileAssociations), 0, 0 },
+		{ msg(lng::MMenuFolderShortcuts), 0, 0 },
+		{ msg(lng::MMenuFilter), 0, KEY_CTRLI },
+		{ {}, LIF_SEPARATOR, 0 },
+		{ msg(lng::MMenuPluginCommands), 0, KEY_F11 },
+		{ msg(lng::MMenuWindowsList), 0, KEY_F12 },
+		{ msg(lng::MMenuProcessList), 0, KEY_CTRLW },
+		{ msg(lng::MMenuHotPlugList), 0, 0 },
 	};
 	const auto CmdMenuStrings = VMenu::AddHotkeys(make_range(CmdMenu));
 
-	MenuDataEx OptionsMenu[]=
+	menu_item OptionsMenu[]
 	{
-		msg(lng::MMenuSystemSettings).data(), LIF_SELECTED, 0,
-		msg(lng::MMenuPanelSettings).data(), 0, 0,
-		msg(lng::MMenuTreeSettings).data(), no_tree, 0,
-		msg(lng::MMenuInterface).data(), 0, 0,
-		msg(lng::MMenuLanguages).data(), 0, 0,
-		msg(lng::MMenuPluginsConfig).data(), 0, 0,
-		msg(lng::MMenuPluginsManagerSettings).data(), 0, 0,
-		msg(lng::MMenuDialogSettings).data(), 0, 0,
-		msg(lng::MMenuVMenuSettings).data(), 0, 0,
-		msg(lng::MMenuCmdlineSettings).data(), 0, 0,
-		msg(lng::MMenuAutoCompleteSettings).data(), 0, 0,
-		msg(lng::MMenuInfoPanelSettings).data(), 0, 0,
-		msg(lng::MMenuMaskGroups).data(), 0, 0,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuConfirmation).data(), 0, 0,
-		msg(lng::MMenuFilePanelModes).data(), 0, 0,
-		msg(lng::MMenuFileDescriptions).data(), 0, 0,
-		msg(lng::MMenuFolderInfoFiles).data(), 0, 0,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuViewer).data(), 0, 0,
-		msg(lng::MMenuEditor).data(), 0, 0,
-		msg(lng::MMenuCodePages).data(), 0, 0,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuColors).data(), 0, 0,
-		msg(lng::MMenuFilesHighlighting).data(), 0, 0,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuSaveSetup).data(), 0, KEY_SHIFTF9,
+		{ msg(lng::MMenuSystemSettings), LIF_SELECTED },
+		{ msg(lng::MMenuPanelSettings), 0 },
+		{ msg(lng::MMenuTreeSettings), no_tree},
+		{ msg(lng::MMenuInterface), 0 },
+		{ msg(lng::MMenuLanguages), 0 },
+		{ msg(lng::MMenuPluginsConfig), 0 },
+		{ msg(lng::MMenuPluginsManagerSettings), 0 },
+		{ msg(lng::MMenuDialogSettings), 0 },
+		{ msg(lng::MMenuVMenuSettings), 0 },
+		{ msg(lng::MMenuCmdlineSettings), 0 },
+		{ msg(lng::MMenuAutoCompleteSettings), 0 },
+		{ msg(lng::MMenuInfoPanelSettings), 0 },
+		{ msg(lng::MMenuMaskGroups), 0 },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuConfirmation), 0 },
+		{ msg(lng::MMenuFilePanelModes), 0 },
+		{ msg(lng::MMenuFileDescriptions), 0 },
+		{ msg(lng::MMenuFolderInfoFiles), 0 },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuViewer), 0 },
+		{ msg(lng::MMenuEditor), 0 },
+		{ msg(lng::MMenuCodePages), 0 },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuColors), 0 },
+		{ msg(lng::MMenuFilesHighlighting), 0 },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuSaveSetup), 0, KEY_SHIFTF9 },
 	};
 	const auto OptionsMenuStrings = VMenu::AddHotkeys(make_range(OptionsMenu));
 
-	MenuDataEx RightMenu[]=
+	menu_item RightMenu[]=
 	{
-		msg(lng::MMenuBriefView).data(), LIF_SELECTED, KEY_CTRL1,
-		msg(lng::MMenuMediumView).data(), 0, KEY_CTRL2,
-		msg(lng::MMenuFullView).data(), 0, KEY_CTRL3,
-		msg(lng::MMenuWideView).data(), 0, KEY_CTRL4,
-		msg(lng::MMenuDetailedView).data(), 0, KEY_CTRL5,
-		msg(lng::MMenuDizView).data(), 0, KEY_CTRL6,
-		msg(lng::MMenuLongDizView).data(), 0, KEY_CTRL7,
-		msg(lng::MMenuOwnersView).data(), 0, KEY_CTRL8,
-		msg(lng::MMenuLinksView).data(), 0, KEY_CTRL9,
-		msg(lng::MMenuAlternativeView).data(), 0, KEY_CTRL0,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuInfoPanel).data(), 0, KEY_CTRLL,
-		msg(lng::MMenuTreePanel).data(), no_tree, KEY_CTRLT,
-		msg(lng::MMenuQuickView).data(), 0, KEY_CTRLQ,
-		L"", LIF_SEPARATOR, 0,
-		msg(lng::MMenuSortModes).data(), 0, KEY_CTRLF12,
-		msg(lng::MMenuLongNames).data(), 0, KEY_CTRLN,
-		msg(lng::MMenuTogglePanelRight).data(), 0, KEY_CTRLF2,
-		msg(lng::MMenuReread).data(), 0, KEY_CTRLR,
-		msg(lng::MMenuChangeDriveRight).data(), 0, KEY_ALTF2,
+		{ msg(lng::MMenuBriefView), LIF_SELECTED, KEY_CTRL1 },
+		{ msg(lng::MMenuMediumView), 0, KEY_CTRL2 },
+		{ msg(lng::MMenuFullView), 0, KEY_CTRL3 },
+		{ msg(lng::MMenuWideView), 0, KEY_CTRL4 },
+		{ msg(lng::MMenuDetailedView), 0, KEY_CTRL5 },
+		{ msg(lng::MMenuDizView), 0, KEY_CTRL6 },
+		{ msg(lng::MMenuLongDizView), 0, KEY_CTRL7 },
+		{ msg(lng::MMenuOwnersView), 0, KEY_CTRL8 },
+		{ msg(lng::MMenuLinksView), 0, KEY_CTRL9 },
+		{ msg(lng::MMenuAlternativeView), 0, KEY_CTRL0 },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuInfoPanel), 0, KEY_CTRLL },
+		{ msg(lng::MMenuTreePanel), no_tree, KEY_CTRLT },
+		{ msg(lng::MMenuQuickView), 0, KEY_CTRLQ },
+		{ {}, LIF_SEPARATOR },
+		{ msg(lng::MMenuSortModes), 0, KEY_CTRLF12 },
+		{ msg(lng::MMenuLongNames), 0, KEY_CTRLN },
+		{ msg(lng::MMenuTogglePanelRight), 0, KEY_CTRLF2 },
+		{ msg(lng::MMenuReread), 0, KEY_CTRLR },
+		{ msg(lng::MMenuChangeDriveRight), 0, KEY_ALTF2 },
 	};
 	ApplyViewModesNames(RightMenu);
 	const auto RightMenuStrings = VMenu::AddHotkeys(make_range(RightMenu));
@@ -2856,11 +2856,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	HMenuData MainMenu[]=
 	{
-		{msg(lng::MMenuLeftTitle).data(), L"LeftRightMenu", LeftMenu, std::size(LeftMenu), 1},
-		{msg(lng::MMenuFilesTitle).data(), L"FilesMenu", FilesMenu, std::size(FilesMenu), 0},
-		{msg(lng::MMenuCommandsTitle).data(), L"CmdMenu", CmdMenu, std::size(CmdMenu), 0},
-		{msg(lng::MMenuOptionsTitle).data(), L"OptMenu", OptionsMenu, std::size(OptionsMenu), 0},
-		{msg(lng::MMenuRightTitle).data(), L"LeftRightMenu", RightMenu, std::size(RightMenu), 0},
+		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"_sv, make_range(LeftMenu), 1 },
+		{ msg(lng::MMenuFilesTitle), L"FilesMenu"_sv, make_range(FilesMenu) },
+		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"_sv, make_range(CmdMenu) },
+		{ msg(lng::MMenuOptionsTitle), L"OptMenu"_sv, make_range(OptionsMenu) },
+		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"_sv, make_range(RightMenu) },
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
@@ -2876,7 +2876,6 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 		if (LastCommand)
 		{
-			MenuDataEx *VMenuTable[] = {LeftMenu, FilesMenu, CmdMenu, OptionsMenu, RightMenu};
 			int HItemToShow = LastHItem;
 
 			if (HItemToShow == -1)
@@ -2890,8 +2889,8 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 			MainMenu[0].Selected = 0;
 			MainMenu[HItemToShow].Selected = 1;
-			VMenuTable[HItemToShow][0].SetSelect(0);
-			VMenuTable[HItemToShow][LastVItem].SetSelect(1);
+			MainMenu[HItemToShow].SubMenu[0].SetSelect(false);
+			MainMenu[HItemToShow].SubMenu[LastVItem].SetSelect(true);
 			Global->WindowManager->CallbackWindow([&HOptMenu](){HOptMenu->ProcessKey(Manager::Key(KEY_DOWN));});
 		}
 		else

@@ -36,8 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dialog.hpp"
 
+struct menu_item;
 struct MenuItemEx;
-struct MenuDataEx;
 struct SortItemParam;
 
 class VMenu2 : public Dialog
@@ -45,7 +45,7 @@ class VMenu2 : public Dialog
 	struct private_tag {};
 
 public:
-	static vmenu2_ptr create(const string& Title, const MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
+	static vmenu2_ptr create(const string& Title, range<const menu_item*> Data, int MaxHeight=0, DWORD Flags=0);
 
 	VMenu2(private_tag, int MaxHeight);
 

@@ -237,9 +237,9 @@ string_view PointToExt(string_view Path)
 }
 
 
-static int SlashType(const wchar_t *pw, const wchar_t *pe, wchar_t &TypeSlash)
+static size_t SlashType(const wchar_t *pw, const wchar_t *pe, wchar_t &TypeSlash)
 {
-	int Len = 0, Slash = 0, BackSlash = 0;
+	size_t Len = 0, Slash = 0, BackSlash = 0;
 	while ((pe && pw < pe) || (!pe && *pw))
 	{
 		wchar_t c = *pw++;
@@ -261,9 +261,9 @@ bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 	if (!Path)
 		return false;
 
-	int len = IsSlash(TypeSlash)? static_cast<int>(wcslen(Path)) : SlashType(Path, nullptr, TypeSlash);
+	auto len = IsSlash(TypeSlash)? wcslen(Path) : SlashType(Path, nullptr, TypeSlash);
 
-	if (len > 0 && IsSlash(Path[len-1]))
+	if (len && IsSlash(Path[len-1]))
 		--len;
 
 	Path[len++] = TypeSlash;

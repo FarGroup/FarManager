@@ -37,11 +37,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "modal.hpp"
 
+struct menu_item;
+
 struct HMenuData
 {
-	const wchar_t *Name;
-	const wchar_t *SubMenuHelp;
-	struct MenuDataEx *SubMenu;
+	string_view Name;
+	string_view SubMenuHelp;
+	range<menu_item*> SubMenu;
 	size_t SubMenuSize;
 	int Selected;
 	int XPos;

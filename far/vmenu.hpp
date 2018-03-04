@@ -94,32 +94,11 @@ enum VMENU_FLAGS
 class Dialog;
 class SaveScreen;
 
-
-struct MenuItemEx
+struct menu_item
 {
-	NONCOPYABLE(MenuItemEx);
-	MOVABLE(MenuItemEx);
-
-	explicit MenuItemEx(string Text = {}):
-		strName(std::move(Text)),
-		Flags(),
-		ShowPos(),
-		AccelKey(),
-		AmpPos(),
-		Len(),
-		Idx2()
-	{
-	}
-
-	string strName;
-	unsigned long long  Flags;                  // Флаги пункта
-	any UserData;
-	int   ShowPos;
-	DWORD  AccelKey;
-	short AmpPos;                  // Позиция автоназначенной подсветки
-	short Len[2];                  // размеры 2-х частей
-	short Idx2;                    // начало 2-й части
-	std::list<std::pair<int, int>> Annotations;
+	string Name;
+	LISTITEMFLAGS Flags{};
+	DWORD AccelKey{};
 
 	unsigned long long SetCheck(int Value)
 	{
@@ -138,34 +117,35 @@ struct MenuItemEx
 		return Flags;
 	}
 
-	unsigned long long SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-	unsigned long long SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+	LISTITEMFLAGS SetSelect(bool Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
+	LISTITEMFLAGS SetDisable(bool Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
+	LISTITEMFLAGS SetGrayed(bool Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
+
 };
 
-
-struct MenuDataEx
+struct MenuItemEx: menu_item
 {
-	const wchar_t *Name;
+	NONCOPYABLE(MenuItemEx);
+	MOVABLE(MenuItemEx);
 
-	LISTITEMFLAGS Flags;
-	DWORD AccelKey;
+	MenuItemEx() = default;
 
-	DWORD SetCheck(int Value)
+	explicit MenuItemEx(string_view const Text):
+		menu_item{ string(Text) }
 	{
-		if (Value)
-		{
-			Flags &= ~0xFFFF;
-			Flags|=((Value&0xFFFF)|LIF_CHECKED);
-		}
-		else
-			Flags&=~(0xFFFF|LIF_CHECKED);
-
-		return Flags;
 	}
 
-	DWORD SetSelect(int Value) { if (Value) Flags|=LIF_SELECTED; else Flags&=~LIF_SELECTED; return Flags;}
-	DWORD SetDisable(int Value) { if (Value) Flags|=LIF_DISABLE; else Flags&=~LIF_DISABLE; return Flags;}
-	DWORD SetGrayed(int Value) { if (Value) Flags|=LIF_GRAYED; else Flags&=~LIF_GRAYED; return Flags;}
+	MenuItemEx(string_view const Text, LISTITEMFLAGS Flags, DWORD AccelKey = 0):
+		menu_item{ string(Text), Flags, AccelKey }
+	{
+	}
+
+	any UserData;
+	int ShowPos{};
+	short AmpPos{};                  // Позиция автоназначенной подсветки
+	short Len[2]{};                  // размеры 2-х частей
+	short Idx2{};                    // начало 2-й части
+	std::list<std::pair<int, int>> Annotations;
 };
 
 struct SortItemParam
@@ -180,7 +160,7 @@ class VMenu: public SimpleModal
 {
 	struct private_tag {};
 public:
-	static vmenu_ptr create(string Title, const MenuDataEx *Data, int ItemCount, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
+	static vmenu_ptr create(string Title, range<const menu_item*> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
 	VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog);
 	virtual ~VMenu() override;
@@ -230,7 +210,7 @@ public:
 	void FilterUpdateHeight(bool bShrink = false);
 	void SetFilterEnabled(bool bEnabled) { bFilterEnabled = bEnabled; }
 	void SetFilterLocked(bool bLocked) { bFilterEnabled = bLocked; }
-	bool AddToFilter(const wchar_t *str);
+	bool AddToFilter(string_view Str);
 	void SetFilterString(const wchar_t *str);
 	// SelectPos == -1 & non-empty Items - everything is filtered
 	size_t size() const { return SelectPos == -1? 0 : Items.size(); }
@@ -281,10 +261,10 @@ public:
 	}
 
 	static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem, FarListItem *Item);
-	static std::vector<string> AddHotkeys(const range<MenuDataEx*>& MenuItems);
+	static std::vector<string> AddHotkeys(const range<menu_item*>& MenuItems);
 
 private:
-	void init(const MenuDataEx *Data, int ItemsCount, DWORD Flags);
+	void init(range<const menu_item*> Data, DWORD Flags);
 
 	virtual void DisplayObject() override;
 

@@ -155,7 +155,7 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 		Mask=LangFileMask;
 	}
 
-	const auto LangMenu = VMenu2::create(msg(Title), nullptr, 0, ScrY - 4);
+	const auto LangMenu = VMenu2::create(msg(Title), {}, ScrY - 4);
 	LangMenu->SetMenuFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 
@@ -186,7 +186,7 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 				   Если в каталог с ФАРом положить еще один HLF с одноименным
 				   языком, то... фигня получается при выборе языка.
 				*/
-				if (LangMenu->FindItem(0,LangMenuItem.strName,LIFIND_EXACTMATCH) == -1)
+				if (LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_EXACTMATCH) == -1)
 				{
 					LangMenuItem.SetSelect(equal_icase(Dest, strLangName));
 					LangMenuItem.UserData = strLangName;

@@ -417,13 +417,11 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			if (AltF10 != -1)
 			{
 				{
-					string strNewFolder2 = strNewFolder;
-					FolderTree::create(strNewFolder2,
+					FolderTree::create(strNewFolder,
 					                (AltF10==1?MODALTREE_PASSIVE:
 					                 (AltF10==2?MODALTREE_FREE:
 					                  MODALTREE_ACTIVE)),
 					                FALSE, false);
-					strNewFolder = strNewFolder2;
 				}
 
 				if (!strNewFolder.empty())
@@ -439,8 +437,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 						if (!strOldFolder.empty())
 							strOldFolder += L';'; // добавим разделитель к непустому списку
 
-						strOldFolder += strNewFolder;
-						strNewFolder = strOldFolder;
+						strNewFolder.insert(0, strOldFolder);
 					}
 
 					Dlg->SendMessage(DM_SETTEXTPTR,ID_SC_TARGETEDIT, UNSAFE_CSTR(strNewFolder));
@@ -1338,7 +1335,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		bool src_abspath = IsAbsolutePath(strSelName);
 
 		bool dst_abspath = copy_to_null || IsAbsolutePath(strDest);
-		if (!dst_abspath && ((strDest.size() > 2 && strDest[1] == L':') || (!strDest.empty() && IsSlash(strDest[0]))))
+		if (!dst_abspath && ((strDest.size() > 2 && strDest[1] == L':') || IsSlash(strDest[0])))
 		{
 			strDest = ConvertNameToFull(strDest);
 			dst_abspath = true;
@@ -2262,7 +2259,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					IsSetSecuty=FALSE;
 
 					// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
-					if (Rename && !(Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
+					if (!(Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
 					{
 						if (CmpFullPath(Src,strDest)) // в пределах одного каталога ничего не меняем
 							IsSetSecuty=FALSE;
@@ -2694,10 +2691,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 
 	if ((Flags & FCOPY_USESYSTEMCOPY) && !Append)
 	{
-		if (!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) ||
-		        ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
-		        (IsWindowsXPOrGreater() || !(Flags&(FCOPY_DECRYPTED_DESTINATION))))
-		   )
+		if (!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) || (IsWindowsXPOrGreater() || !(Flags&(FCOPY_DECRYPTED_DESTINATION))))
 		{
 			if (!Global->Opt->CMOpt.CopyOpened)
 			{
@@ -3154,22 +3148,11 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 			if (WFN)
 			{
-				LPCWSTR ViewName=nullptr;
-				switch (Param1)
-				{
-					case WDLG_SRCFILEBTN:
-						ViewName=WFN->Src->data();
-						break;
-					case WDLG_DSTFILEBTN:
-						ViewName=WFN->Dest->data();
-						break;
-				}
-
 				NamesList List;
 				List.AddName(*WFN->Src);
 				List.AddName(*WFN->Dest);
-				List.SetCurName(*(Param1 == WDLG_SRCFILEBTN? WFN->Src : WFN->Dest));
-
+				const auto ViewName = *(Param1 == WDLG_SRCFILEBTN ? WFN->Src : WFN->Dest);
+				List.SetCurName(ViewName);
 				const auto Viewer = FileViewer::create(ViewName, false, false, true, -1, nullptr, &List, false);
 				Global->WindowManager->ExecuteModal(Viewer);
 				Global->WindowManager->ResizeAllWindows();

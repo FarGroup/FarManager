@@ -90,7 +90,25 @@ constexpr auto as_underlying_type(T Value)
 
 constexpr auto bit(size_t Number)
 {
-	return 1 << Number;
+	return 1ull << Number;
+}
+
+template<typename value_type, typename bits_type>
+constexpr void bit_set(value_type& Value, bits_type Bits)
+{
+	Value |= Bits;
+}
+
+template<typename value_type, typename bits_type>
+constexpr void bit_clear(value_type& Value, bits_type Bits)
+{
+	Value &= ~static_cast<value_type>(Bits);
+}
+
+template<typename value_type, typename bits_type>
+constexpr void bit_change(value_type& Value, bits_type Bits, bool Set)
+{
+	Set? bit_set(Value, Bits) : bit_clear(Value, Bits);
 }
 
 

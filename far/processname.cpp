@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // каталог dir1, а в нем файл file1. Нужно сгенерировать имя по маске для dir1.
 // Параметры могут быть следующими: Src="dir1", SelectedFolderNameLength=0
 // или Src="dir1\\file1", а SelectedFolderNameLength=4 (длина "dir1")
-bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolderNameLength)
+bool ConvertWildcards(const string& SrcName, string &strDest, int const SelectedFolderNameLength)
 {
 	size_t DestNamePos = strDest.size() - PointToName(strDest).size();
 
@@ -57,7 +57,6 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 	}
 
 	const string strWildName = strDest.substr(DestNamePos);
-	const string strPartAfterFolderName = SelectedFolderNameLength? SrcName.substr(SelectedFolderNameLength) : string{};
 
 	const string strSrc = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
 	const wchar_t *Src = strSrc.data();
@@ -136,7 +135,9 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int SelectedFolder
 	strDest.insert(0, Src, BeforeNameLength);
 
 	if (SelectedFolderNameLength)
-		strDest += strPartAfterFolderName; //BUGBUG???, was src in 1.7x
+	{
+		strDest += SrcName.substr(SelectedFolderNameLength); //BUGBUG???, was src in 1.7x
+	}
 
 	return true;
 }

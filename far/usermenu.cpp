@@ -498,7 +498,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		if (MenuItem->strHotKey == L"--")
 		{
 			FarUserMenuItem.Flags|=LIF_SEPARATOR;
-			FarUserMenuItem.strName=MenuItem->strLabel;
+			FarUserMenuItem.Name = MenuItem->strLabel;
 
 			if (NumLines==MenuPos)
 			{
@@ -515,7 +515,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			bool have_hotkey = !strHotKey.empty();
 			int Offset = have_hotkey && strHotKey.front() == L'&'? 5 : 4;
 			strHotKey.resize(Offset, L' ');
-			FarUserMenuItem.strName = concat(have_hotkey && !FuncNum? L"&"_sv : L""_sv, strHotKey, strLabel);
+			FarUserMenuItem.Name = concat(have_hotkey && !FuncNum? L"&"_sv : L""_sv, strHotKey, strLabel);
 
 			if (MenuItem->Submenu)
 			{
@@ -544,7 +544,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(strName,strShortName);
 		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
 
-		const auto UserMenu = VMenu2::create(Title, nullptr, 0, ScrY - 4);
+		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE);
 		UserMenu->SetHelp(L"UserMenu");
 		UserMenu->SetPosition(-1,-1,0,0);

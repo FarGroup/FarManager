@@ -496,7 +496,7 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const PluginPanel
 }
 #endif
 
-void FindFiles::SetPluginDirectory(const string_view DirName, plugin_panel* const hPlugin, const bool UpdatePanel, UserDataItem* const UserData)
+void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel* const hPlugin, bool const UpdatePanel, UserDataItem* const UserData)
 {
 	if (!DirName.empty())
 	{
@@ -601,7 +601,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		const int TitlePosition = 1;
 		const auto CpEnum = Codepages().GetFavoritesEnumerator();
 		const auto Title = msg(std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; })? lng::MFindFileSelectedCodePages : lng::MFindFileAllCodePages);
-		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->at(TitlePosition).strName = Title;
+		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->at(TitlePosition).Name = Title;
 		FarListPos Position = { sizeof(FarListPos) };
 		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 		if (Position.SelectPos == TitlePosition)

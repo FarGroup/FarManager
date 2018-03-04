@@ -45,8 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class locale_cache
 {
 public:
-	locale_cache():
-		m_Valid()
+	locale_cache()
 	{
 		init();
 	}
@@ -118,12 +117,12 @@ private:
 
 	mutable names m_LocalNames;
 	mutable names m_EnglishNames;
-	mutable int m_DateFormat;
-	mutable wchar_t m_DateSeparator;
-	mutable wchar_t m_TimeSeparator;
-	mutable wchar_t m_DecimalSeparator;
+	mutable int m_DateFormat{};
+	mutable wchar_t m_DateSeparator{};
+	mutable wchar_t m_TimeSeparator{};
+	mutable wchar_t m_DecimalSeparator{};
 
-	mutable bool m_Valid;
+	mutable bool m_Valid{};
 };
 
 locale_cache& LocaleCache()

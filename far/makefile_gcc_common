@@ -16,7 +16,7 @@ endif
  DEBUGLINKFLAGS=-Xlinker -s -Xlinker -x -Xlinker --gc-sections
 else
  DIRNAME=Debug
- DEBUGFLAGS=-g -D_DEBUG
+ DEBUGFLAGS=-g -D_DEBUG -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
  DEBUGLINKFLAGS=
 endif
 

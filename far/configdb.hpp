@@ -293,7 +293,7 @@ public:
 	//command,view,edit,folder,dialog history
 	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) = 0;
 	virtual bool Delete(unsigned long long id) = 0;
-	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
+	virtual bool DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, string_view Guid, string_view File, string_view Data) = 0;
 	virtual bool DeleteOldUnlocked(unsigned int TypeHistory, string_view HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	virtual bool EnumLargeHistories(bool Reset, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;
 	virtual bool GetNewest(unsigned int TypeHistory, string_view HistoryName, string &strName) = 0;
@@ -391,7 +391,7 @@ private:
 	bool Import(const string& File);
 	bool Export(const string& File);
 	void TryImportDatabase(representable* p, const char* NodeName = nullptr, bool IsPlugin = false);
-	void CheckDatabase(class SQLiteDb *pDb);
+	void CheckDatabase(class SQLiteDb const* pDb);
 
 	int m_LoadResult;
 	std::vector<os::thread> m_Threads;

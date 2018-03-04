@@ -528,7 +528,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
 			if ((GArea.Current.Y += 5) > ScrY)
 				GArea.Current.Y = ScrY;
-			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
+			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD2 || LocalKey == KEY_RCTRLSHIFTNUMPAD2)
 				GArea.Begin.Y = GArea.Current.Y;
 			break;
 

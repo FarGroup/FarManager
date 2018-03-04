@@ -449,7 +449,7 @@ int RemoveHotplugDisk(wchar_t Disk, DWORD Flags)
 
 void ShowHotplugDevices()
 {
-	const auto HotPlugList = VMenu2::create(msg(lng::MHotPlugListTitle), nullptr, 0, 0);
+	const auto HotPlugList = VMenu2::create(msg(lng::MHotPlugListTitle), {}, 0);
 	std::vector<DeviceInfo> Info;
 
 	const auto& FillMenu = [&]()
@@ -466,7 +466,7 @@ void ShowHotplugDevices()
 				if (GetDeviceProperty(i.DevInst, SPDRP_DEVICEDESC, strDescription, true) && !strDescription.empty())
 				{
 					inplace::trim(strDescription);
-					ListItem.strName = strDescription;
+					ListItem.Name = strDescription;
 				}
 
 				if (GetDeviceProperty(i.DevInst, SPDRP_FRIENDLYNAME, strFriendlyName, true))
@@ -477,18 +477,18 @@ void ShowHotplugDevices()
 					{
 						if (!strFriendlyName.empty() && !equal_icase(strDescription, strFriendlyName))
 						{
-							append(ListItem.strName, L" \""_sv, strFriendlyName, L"\""_sv);
+							append(ListItem.Name, L" \""_sv, strFriendlyName, L"\""_sv);
 						}
 					}
 					else if (!strFriendlyName.empty())
 					{
-						ListItem.strName = strFriendlyName;
+						ListItem.Name = strFriendlyName;
 					}
 				}
 
-				if (ListItem.strName.empty())
+				if (ListItem.Name.empty())
 				{
-					ListItem.strName = L"UNKNOWN";
+					ListItem.Name = L"UNKNOWN";
 				}
 				HotPlugList->AddItem(ListItem);
 			});
@@ -552,7 +552,7 @@ void ShowHotplugDevices()
 							msg(lng::MError),
 							{
 								msg(lng::MChangeCouldNotEjectHotPlugMedia2),
-								HotPlugList->at(I).strName
+								HotPlugList->at(I).Name
 							},
 							{ lng::MOk });
 					}

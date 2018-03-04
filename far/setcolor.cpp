@@ -97,7 +97,7 @@ struct color_item
 
 static void SetItemColors(const color_item* Items, size_t Size, COORD Position = {})
 {
-	const auto ItemsMenu = VMenu2::create(msg(lng::MSetColorItemsTitle), nullptr, 0);
+	const auto ItemsMenu = VMenu2::create(msg(lng::MSetColorItemsTitle), {});
 
 	for (const auto& i : make_range(Items, Size))
 	{
@@ -359,7 +359,7 @@ void SetColors()
 			{ lng::MSetColorHelp,        make_range(HelpItems) },
 		};
 
-		const auto GroupsMenu = VMenu2::create(msg(lng::MSetColorGroupsTitle), nullptr, 0);
+		const auto GroupsMenu = VMenu2::create(msg(lng::MSetColorGroupsTitle), {});
 
 		for (const auto& i: Groups)
 		{

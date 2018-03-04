@@ -3197,7 +3197,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		strBottom=strTitle.substr(PosLF+1);
 		strTitle=strTitle.substr(0,PosLF);
 	}
-	const auto Menu = VMenu2::create(strTitle, nullptr, 0, ScrY - 4);
+	const auto Menu = VMenu2::create(strTitle, {}, ScrY - 4);
 	Menu->SetBottomTitle(strBottom);
 	Menu->SetMenuFlags(MenuFlags);
 	Menu->SetPosition(X,Y,0,0);
@@ -3214,9 +3214,9 @@ static bool menushowFunc(FarMacroCall* Data)
 		if (SubstrLen==0)
 			SubstrLen=1;
 
-		NewItem.strName=strItems.substr(CurrentPos,SubstrLen);
+		NewItem.Name = strItems.substr(CurrentPos, SubstrLen);
 
-		if (NewItem.strName!=L"\n")
+		if (NewItem.Name != L"\n")
 		{
 			const auto& CharToFlag = [](wchar_t c)
 			{
@@ -3230,22 +3230,22 @@ static bool menushowFunc(FarMacroCall* Data)
 				}
 			};
 
-			const auto NewBegin = std::find_if(CONST_RANGE(NewItem.strName, i)
+			const auto NewBegin = std::find_if(CONST_RANGE(NewItem.Name, i)
 			{
 				auto Flag = CharToFlag(i);
 				NewItem.Flags |= Flag;
 				return !Flag;
 			});
 
-			NewItem.strName.erase(NewItem.strName.cbegin(), NewBegin);
+			NewItem.Name.erase(NewItem.Name.cbegin(), NewBegin);
 		}
 		else
-			NewItem.strName.clear();
+			NewItem.Name.clear();
 
 		if (bAutoNumbering && !(bSorting || bPacking) && !(NewItem.Flags & LIF_SEPARATOR))
 		{
 			LineCount++;
-			NewItem.strName = format(L"{0:{1}} - {2}", LineCount, nLeftShift - 3, NewItem.strName);
+			NewItem.Name = format(L"{0:{1}} - {2}", LineCount, nLeftShift - 3, NewItem.Name);
 		}
 		Menu->AddItem(NewItem);
 		CurrentPos=PosLF+1;
@@ -3260,8 +3260,8 @@ static bool menushowFunc(FarMacroCall* Data)
 			if (a.Flags & LIF_SEPARATOR || b.Flags & LIF_SEPARATOR)
 				return false;
 
-			string strName1(a.strName);
-			string strName2(b.strName);
+			string strName1(a.Name);
+			string strName2(b.Name);
 			RemoveHighlights(strName1);
 			RemoveHighlights(strName2);
 			bool Less = string_sort::less(string_view(strName1).substr(Param.Offset), string_view(strName2).substr(Param.Offset));
@@ -3280,7 +3280,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			if (!(Item.Flags & LIF_SEPARATOR))
 			{
 				LineCount++;
-				Item.strName = format(L"{0:{1}} - {2}", LineCount, nLeftShift - 3, Item.strName);
+				Item.Name = format(L"{0:{1}} - {2}", LineCount, nLeftShift - 3, Item.Name);
 			}
 		}
 	}
@@ -3400,7 +3400,7 @@ static bool menushowFunc(FarMacroCall* Data)
 						Result += TVar(temp);
 					}
 					else
-						Result += TVar(Menu->at(i).strName.data() + nLeftShift);
+						Result += TVar(Menu->at(i).Name.data() + nLeftShift);
 					Result += TVar(L"\n");
 				}
 			}
@@ -3412,12 +3412,12 @@ static bool menushowFunc(FarMacroCall* Data)
 					Result=temp;
 				}
 				else
-					Result = Menu->at(SelectedPos).strName.data() + nLeftShift;
+					Result = Menu->at(SelectedPos).Name.data() + nLeftShift;
 			}
 		}
 		else
 			if(!bResultAsIndex)
-				Result = Menu->at(SelectedPos).strName.data() + nLeftShift;
+				Result = Menu->at(SelectedPos).Name.data() + nLeftShift;
 			else
 				Result=SelectedPos+1;
 	}
@@ -4177,102 +4177,80 @@ static bool clipFunc(FarMacroCall* Data)
 		Val.toString();
 	}
 
-	int Ret=0;
-
 	switch (cmdType)
 	{
-		case 0: // Get from Clipboard, "S" - ignore
+	case 0: // Get from Clipboard, "S" - ignore
 		{
 			string ClipText;
-			if (GetClipboardText(ClipText))
-			{
-				PassString(ClipText, Data);
-				return true;
-			}
+			if (!GetClipboardText(ClipText))
+				return false;
 
-			break;
+			PassString(ClipText, Data);
+			return true;
 		}
-		case 1: // Put "S" into Clipboard
+
+	case 1: // Put "S" into Clipboard
 		{
 			const auto& Str = Val.asString();
-			if (Str.empty())
-			{
-				clipboard_accessor Clip;
-				if (Clip->Open())
-				{
-					Clip->Clear();
-					Ret = 1;
-				}
-			}
-			else
-			{
-				Ret=SetClipboardText(Str);
-			}
+			if (!Str.empty())
+				return SetClipboardText(Str);
 
-			PassNumber(Ret, Data); // 0!  ???
-			return Ret != 0;
-		}
-		case 2: // Add "S" into Clipboard
-		{
-			TVar varClip(Val.asString());
 			clipboard_accessor Clip;
-
-			Ret=FALSE;
-
-			if (Clip->Open())
-			{
-				string CopyData;
-				if (Clip->GetText(CopyData))
-				{
-					varClip = CopyData + Val.asString();
-				}
-
-				Ret = Clip->SetText(varClip.asString());
-			}
-
-			PassNumber(Ret, Data); // 0!  ???
-			return Ret != 0;
+			return Clip->Open() && Clip->Clear();
 		}
-		case 3: // Copy Win to internal, "S" - ignore
-		case 4: // Copy internal to Win, "S" - ignore
+
+	case 2: // Add "S" into Clipboard
+		{
+			clipboard_accessor Clip;
+			if (!Clip->Open())
+				return false;
+
+			string CopyData;
+			if (!Clip->GetText(CopyData))
+				return false;
+
+			return Clip->SetText(CopyData + Val.asString());
+		}
+
+	case 3: // Copy Win to internal, "S" - ignore
+	case 4: // Copy internal to Win, "S" - ignore
 		{
 			clipboard_accessor ClipSystem(clipboard_mode::system);
 			clipboard_accessor ClipInternal(clipboard_mode::internal);
 
-			Ret=FALSE;
-
-			if (ClipSystem->Open() && ClipInternal->Open())
-			{
-				Ret = cmdType == 3? CopyData(ClipSystem, ClipInternal) : CopyData(ClipInternal, ClipSystem);
-			}
-
-			PassNumber(Ret, Data); // 0!  ???
-			return Ret != 0;
+			return ClipSystem->Open() && ClipInternal->Open() && (cmdType == 3? CopyData(ClipSystem, ClipInternal) : CopyData(ClipInternal, ClipSystem));
 		}
-		case 5: // ClipMode
+
+	case 5: // ClipMode
 		{
 			// 0 - flip, 1 - виндовый буфер, 2 - внутренний, -1 - что сейчас?
-			int Action=(int)Val.asInteger();
-
+			const auto Action = Val.asInteger();
 			const auto PreviousMode = default_clipboard_mode::get();
 
-			if (Action >= 0)
+			switch (Action)
 			{
-				auto NewMode = PreviousMode;
-				switch (Action)
-				{
-				case 0: NewMode = NewMode == clipboard_mode::system? clipboard_mode::internal : clipboard_mode::system; break;
-				case 1: NewMode = clipboard_mode::system; break;
-				case 2: NewMode = clipboard_mode::internal; break;
-				}
-				default_clipboard_mode::set(NewMode);
+			case 0:
+				default_clipboard_mode::set(PreviousMode == clipboard_mode::system? clipboard_mode::internal : clipboard_mode::system);
+				break;
+
+			case 1:
+				default_clipboard_mode::set(clipboard_mode::system);
+				break;
+
+			case 2:
+				default_clipboard_mode::set(clipboard_mode::internal);
+				break;
+
+			default:
+				break;
 			}
-			PassNumber((PreviousMode == clipboard_mode::internal? 2 : 1), Data); // 0!  ???
-			return Ret != 0;
+
+			PassNumber(PreviousMode == clipboard_mode::internal? 2 : 1, Data);
+			return true;
 		}
 	}
 
-	return Ret != 0;
+	return false;
 }
 
 

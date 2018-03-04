@@ -1276,14 +1276,8 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			else //расширяем выделение
 			{
 				m_it_CurLine->Select(SelStart,-1);
-				SelStart=0;
-				SelEnd=CurPos;
-
-				if (SelStart!=-1)
-					SelStart = NextLine->TabPosToReal(SelStart);
-
-				if (SelEnd!=-1)
-					SelEnd = NextLine->TabPosToReal(SelEnd);
+				SelStart = NextLine->TabPosToReal(0);
+				SelEnd = NextLine->TabPosToReal(CurPos);
 			}
 
 			if (!EdOpt.CursorBeyondEOL && SelEnd > NextLine->GetLength())
@@ -1338,7 +1332,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				if (SelStart != -1)
 					SelStart = PrevLine->RealPosToTab(SelStart);
 
-				if (SelStart != -1)
+				if (SelEnd != -1)
 					SelEnd = PrevLine->RealPosToTab(SelEnd);
 
 				if (SelStart==-1)
@@ -3384,7 +3378,7 @@ bool Editor::Search(bool Next)
 
 	string QuotedStr;
 
-	const auto FindAllList = VMenu2::create({}, nullptr, 0);
+	const auto FindAllList = VMenu2::create({}, {});
 	UINT AllRefLines = 0;
 	{
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());

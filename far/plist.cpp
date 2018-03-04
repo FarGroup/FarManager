@@ -105,7 +105,7 @@ void ShowProcessList()
 		return;
 	Active = true;
 
-	const auto ProcList = VMenu2::create(msg(lng::MProcessListTitle), nullptr, 0, ScrY - 4);
+	const auto ProcList = VMenu2::create(msg(lng::MProcessListTitle), {}, ScrY - 4);
 	ProcList->SetMenuFlags(VMENU_WRAPMODE);
 	ProcList->SetPosition(-1,-1,0,0);
 	bool ShowImage = false;

@@ -129,7 +129,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 		int ExitCode=0;
 
-		const auto TypesMenu = VMenu2::create(msg(lng::MSelectAssocTitle), nullptr, 0, ScrY - 4);
+		const auto TypesMenu = VMenu2::create(msg(lng::MSelectAssocTitle), {}, ScrY - 4);
 		TypesMenu->SetHelp(L"FileAssoc");
 		TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 		TypesMenu->SetId(SelectAssocMenuId);
@@ -176,7 +176,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		if (AddToHistory && !(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
 		{
 			const auto curDir = Global->CtrlObject->CmdLine()->GetCurDir();
-			Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, nullptr, curDir.data());
+			Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, {}, curDir);
 		}
 	}
 
@@ -429,7 +429,7 @@ bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 				EditDlg[Item-1].Selected = BSTATE_UNCHECKED;
 				EditDlg[Item].Flags |= DIF_DISABLE;
 			}
-			else if (on)
+			else
 			{
 				EditDlg[Item-1].Selected = BSTATE_CHECKED;
 			}
@@ -490,7 +490,7 @@ void EditFileTypes()
 	SCOPED_ACTION(auto)(ConfigProvider().AssocConfig()->ScopedTransaction());
 
 	int MenuPos=0;
-	const auto TypesMenu = VMenu2::create(msg(lng::MAssocTitle), nullptr, 0, ScrY - 4);
+	const auto TypesMenu = VMenu2::create(msg(lng::MAssocTitle), {}, ScrY - 4);
 	TypesMenu->SetHelp(L"FileAssoc");
 	TypesMenu->SetMenuFlags(VMENU_WRAPMODE);
 	TypesMenu->SetBottomTitle(msg(lng::MAssocBottom));

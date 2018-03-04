@@ -565,7 +565,7 @@ static std::string extract_nested_messages(const std::exception& Exception)
 	return Result;
 }
 
-bool ProcessStdException(const std::exception& e, const string_view Function, Plugin* const Module)
+bool ProcessStdException(const std::exception& e, string_view const Function, const Plugin* const Module)
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
@@ -592,12 +592,12 @@ bool ProcessStdException(const std::exception& e, const string_view Function, Pl
 	return ProcessGenericException(*ContextPtr, Function, Module, e.what());
 }
 
-bool ProcessUnknownException(const string_view Function, Plugin* const Module)
+bool ProcessUnknownException(string_view const Function, const Plugin* const Module)
 {
 	// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
 	// It won't work in gcc etc.
 	// Set ExceptionCode manually so ProcessGenericException will at least report it as C++ exception
-	exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS);
+	const exception_context Context(EXCEPTION_MICROSOFT_CPLUSPLUS);
 	return ProcessGenericException(Context, Function, Module, nullptr);
 }
 
@@ -710,7 +710,7 @@ static bool ExceptionTestHook(Manager::Key key)
 
 		static_assert(std::size(Names) == static_cast<size_t>(exception_types::count));
 
-		const auto ModalMenu = VMenu2::create(L"Test Exceptions", nullptr, 0, ScrY - 4);
+		const auto ModalMenu = VMenu2::create(L"Test Exceptions", {}, ScrY - 4);
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1, -1, 0, 0);
 
@@ -882,9 +882,9 @@ void ResetStackOverflowIfNeeded()
 	}
 }
 
-int SehFilter(const int Code, EXCEPTION_POINTERS* Info, const string_view Function, Plugin* Module)
+int SehFilter(int const Code, const EXCEPTION_POINTERS* Info, string_view const Function, const Plugin* Module)
 {
-	exception_context Context(Code, Info);
+	const exception_context Context(Code, Info);
 	if (Code == EXCEPTION_STACK_OVERFLOW)
 	{
 		bool Result = false;

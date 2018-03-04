@@ -153,9 +153,9 @@ void FreePluginPanelItem(const PluginPanelItem& Data)
 	delete[] Data.AlternateFileName;
 }
 
-void FreePluginPanelItems(std::vector<PluginPanelItem>& Items)
+void FreePluginPanelItems(const std::vector<PluginPanelItem>& Items)
 {
-	std::for_each(ALL_RANGE(Items), FreePluginPanelItem);
+	std::for_each(ALL_CONST_RANGE(Items), FreePluginPanelItem);
 }
 
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber)

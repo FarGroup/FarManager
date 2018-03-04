@@ -1493,7 +1493,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		if ((FKey>=L'0' && FKey<=L'9') || (FKey>=L'A' && FKey<=L'Z'))
 		{
 			VirtKey=FKey;
-			if ((FKey>=L'A' && FKey<=L'Z') && !(FShift&0xFF000000))
+			if (FKey >= L'A' && !(FShift & 0xFF000000))
 				FShift |= KEY_SHIFT;
 		}
 		else if (FKey > KEY_FKEY_BEGIN && FKey < KEY_END_FKEY)

@@ -603,7 +603,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 
 		if(!OnlyOne && ShowMenu)
 		{
-			const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+			const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
 			menu->SetPosition(-1, -1, 0, 0);
 			menu->SetHelp(L"ChoosePluginMenu");
 			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
@@ -713,7 +713,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPane
 	{
 		if (items.size()>1)
 		{
-			const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+			const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
 			menu->SetPosition(-1, -1, 0, 0);
 			menu->SetHelp(L"ChoosePluginMenu");
 			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
@@ -1206,14 +1206,15 @@ static string AddHotkey(const string& Item, wchar_t Hotkey)
 */
 void PluginManager::Configure(int StartPos)
 {
-		const auto PluginList = VMenu2::create(msg(lng::MPluginConfigTitle), nullptr, 0, ScrY - 4);
+		const auto PluginList = VMenu2::create(msg(lng::MPluginConfigTitle), {}, ScrY - 4);
 		PluginList->SetMenuFlags(VMENU_WRAPMODE);
 		PluginList->SetHelp(L"PluginsConfig");
 		PluginList->SetId(PluginsConfigMenuId);
 
+		bool NeedUpdateItems = true;
+
 		while (!Global->CloseFAR)
 		{
-			bool NeedUpdateItems = true;
 			bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(hotkey_type::config_menu);
 
 			if (NeedUpdateItems)
@@ -1262,9 +1263,9 @@ void PluginManager::Configure(int StartPos)
 							ListItem.Flags=LIF_CHECKED|L'A';
 #endif // NO_WRAPPER
 						if (!HotKeysPresent)
-							ListItem.strName = strName;
+							ListItem.Name = strName;
 						else
-							ListItem.strName = AddHotkey(strName, Hotkey);
+							ListItem.Name = AddHotkey(strName, Hotkey);
 
 						PluginMenuItemData item = { i, guid };
 
@@ -1315,7 +1316,7 @@ void PluginManager::Configure(int StartPos)
 						if (item)
 						{
 							int nOffset = HotKeysPresent?3:0;
-							if (SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::config_menu, trim(string_view(PluginList->current().strName).substr(nOffset))))
+							if (SetHotKeyDialog(item->pPlugin, item->Guid, hotkey_type::config_menu, trim(string_view(PluginList->current().Name).substr(nOffset))))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
@@ -1362,7 +1363,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	PluginMenuItemData item;
 
 	{
-		const auto PluginList = VMenu2::create(msg(lng::MPluginCommandsMenuTitle), nullptr, 0, ScrY - 4);
+		const auto PluginList = VMenu2::create(msg(lng::MPluginCommandsMenuTitle), {}, ScrY - 4);
 		PluginList->SetMenuFlags(VMENU_WRAPMODE);
 		PluginList->SetHelp(L"PluginCommands");
 		PluginList->SetId(PluginsMenuId);
@@ -1370,10 +1371,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 		while (NeedUpdateItems)
 		{
-			bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(hotkey_type::plugins_menu);
+				bool HotKeysPresent = ConfigProvider().PlHotkeyCfg()->HotkeysPresent(hotkey_type::plugins_menu);
 
-			if (NeedUpdateItems)
-			{
 				PluginList->clear();
 				LoadIfCacheAbsent();
 				string strName;
@@ -1428,9 +1427,9 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							ListItem.Flags=LIF_CHECKED|L'A';
 #endif // NO_WRAPPER
 						if (!HotKeysPresent)
-							ListItem.strName = strName;
+							ListItem.Name = strName;
 						else
-							ListItem.strName = AddHotkey(strName, Hotkey);
+							ListItem.Name = AddHotkey(strName, Hotkey);
 
 						PluginMenuItemData itemdata;
 						itemdata.pPlugin = i;
@@ -1447,7 +1446,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				PluginList->SortItems(false, HotKeysPresent? 3 : 0);
 				PluginList->SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
-			}
+
 
 			PluginList->Run([&](const Manager::Key& RawKey)
 			{
@@ -1475,7 +1474,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						if (ItemPtr)
 						{
 							int nOffset = HotKeysPresent?3:0;
-							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, hotkey_type::plugins_menu, trim(string_view(PluginList->current().strName).substr(nOffset))))
+							if (SetHotKeyDialog(ItemPtr->pPlugin, ItemPtr->Guid, hotkey_type::plugins_menu, trim(string_view(PluginList->current().Name).substr(nOffset))))
 							{
 								NeedUpdateItems = true;
 								StartPos = SelPos;
@@ -1846,7 +1845,7 @@ bool PluginManager::GetDiskMenuItem(Plugin *pPlugin, size_t PluginItem, bool &It
 	return true;
 }
 
-int PluginManager::UseFarCommand(plugin_panel* hPlugin,int CommandType)
+int PluginManager::UseFarCommand(const plugin_panel* const hPlugin, int const CommandType)
 {
 	OpenPanelInfo Info;
 	GetOpenPanelInfo(hPlugin,&Info);
@@ -1948,7 +1947,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 
 	if (items.size() > 1)
 	{
-		const auto Menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), nullptr, 0, ScrY - 4);
+		const auto Menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
 		Menu->SetPosition(-1, -1, 0, 0);
 		Menu->SetHelp(L"ChoosePluginMenu");
 		Menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);

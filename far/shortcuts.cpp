@@ -206,27 +206,27 @@ static string MakeName(const Shortcuts::shortcut& Item)
 	return plugin->GetTitle() + (TechInfo.empty()? TechInfo : concat(L" ("_sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')'));
 }
 
-static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool raw_mode)
+static void FillMenu(VMenu2& Menu, const std::list<Shortcuts::shortcut>& List, bool const raw_mode)
 {
 	Menu.clear();
-	FOR_RANGE(List, i)
+	FOR_CONST_RANGE(List, i)
 	{
 		MenuItemEx ListItem(MakeName(*i));
-		if (ListItem.strName.empty())
+		if (ListItem.Name.empty())
 			continue;
 
 		ListItem.UserData = i;
 		if (!raw_mode && i->PluginGuid == FarGuid && i->Folder.empty())
 		{
-			if (ListItem.strName != SeparatorToken)
+			if (ListItem.Name != SeparatorToken)
 			{
 				if (Menu.empty())
-					Menu.SetTitle(ListItem.strName);
+					Menu.SetTitle(ListItem.Name);
 
 				continue;
 			}
 
-			ListItem.strName.clear();
+			ListItem.Name.clear();
 			ListItem.Flags = LIF_SEPARATOR;
 		}
 		Menu.AddItem(ListItem);
@@ -327,7 +327,7 @@ static bool EditItem(VMenu2& Menu, Shortcuts::shortcut& Item, bool raw)
 		return false;
 
 	auto& MenuItem = Menu.current();
-	MenuItem.strName = MakeName(Item);
+	MenuItem.Name = MakeName(Item);
 	return true;
 }
 
@@ -352,7 +352,7 @@ bool Shortcuts::Get(data& Data)
 
 std::list<Shortcuts::shortcut>::const_iterator Shortcuts::Select(bool Raw)
 {
-	const auto FolderList = VMenu2::create(msg(lng::MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
+	const auto FolderList = VMenu2::create(msg(lng::MFolderShortcutsTitle), {}, ScrY - 4);
 	FolderList->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	FolderList->SetHelp(HelpFolderShortcuts);
 	FolderList->SetBottomTitle(msg(lng::MFolderShortcutBottomSub));
@@ -446,7 +446,7 @@ void Shortcuts::Add(const string& Folder, const GUID& PluginGuid, const string& 
 static void MakeListName(const std::list<Shortcuts::shortcut>& List, const string& Key, MenuItemEx& MenuItem)
 {
 	const auto ItemName = List.empty()? msg(lng::MShortcutNone) : MakeName(List.front());
-	MenuItem.strName = concat(msg(lng::MRightCtrl), L"+&"_sv, Key, L" \x2502 "_sv, ItemName);
+	MenuItem.Name = concat(msg(lng::MRightCtrl), L"+&"_sv, Key, L" \x2502 "_sv, ItemName);
 	if (List.size() > 1)
 	{
 		MenuItem.Flags |= MIF_SUBMENU;
@@ -478,7 +478,7 @@ int Shortcuts::Configure()
 		AllShortcuts.emplace_back(i);
 	}
 
-	const auto FolderList = VMenu2::create(msg(lng::MFolderShortcutsTitle), nullptr, 0, ScrY - 4);
+	const auto FolderList = VMenu2::create(msg(lng::MFolderShortcutsTitle), {}, ScrY - 4);
 	FolderList->SetMenuFlags(VMENU_WRAPMODE);
 	FolderList->SetHelp(HelpFolderShortcuts);
 	FolderList->SetBottomTitle(msg(lng::MFolderShortcutBottom));

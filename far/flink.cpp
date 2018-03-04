@@ -538,7 +538,6 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 		auto strSelOnlyName = Target;
 		DeleteEndSlash(strSelOnlyName);
 		const auto SlashPos = FindLastSlash(strSelOnlyName);
-		const auto SelName = SlashPos != string::npos? string_view(strSelOnlyName).substr(SlashPos + 1) : string_view(strSelOnlyName);
 
 		const auto symlink = LinkType==RP_SYMLINK || LinkType==RP_SYMLINKFILE || LinkType==RP_SYMLINKDIR;
 
@@ -563,8 +562,11 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 
 		if (IsSlash(strFullLink.back()))
 		{
-			if (LinkType!=RP_VOLMOUNT)
+			if (LinkType != RP_VOLMOUNT)
+			{
+				const auto SelName = SlashPos != string::npos? string_view(strSelOnlyName).substr(SlashPos + 1) : string_view(strSelOnlyName);
 				append(strFullLink, SelName);
+			}
 			else
 			{
 				append(strFullLink, L"Disk_"_sv, Target.front());

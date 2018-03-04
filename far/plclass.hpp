@@ -403,8 +403,8 @@ private:
 
 	BitFlags WorkFlags;      // рабочие флаги текущего плагина
 
-	VersionInfo MinFarVersion;
-	VersionInfo PluginVersion;
+	VersionInfo MinFarVersion{};
+	VersionInfo PluginVersion{};
 
 	string VersionString;
 

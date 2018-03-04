@@ -457,7 +457,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 				ActivePanel->SetCurPath();
 
 				if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
-					Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, nullptr, m_CurDir.data());
+					Global->CtrlObject->CmdHistory->AddToHistory(strStr, HR_DEFAULT, nullptr, {}, m_CurDir);
 				TryExecute = !ActivePanel->ProcessPluginEvent(FE_COMMAND, UNSAFE_CSTR(strStr));
 			}
 
@@ -997,7 +997,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 	if (Info.ExecMode != execute_info::exec_mode::direct && Info.SourceMode != execute_info::source_mode::known)
 	{
-		if (!Info.Command.empty() && Info.Command[0] == L'@')
+		if (Info.Command[0] == L'@')
 		{
 			Info.Echo = false;
 			if (Info.DisplayCommand.empty())

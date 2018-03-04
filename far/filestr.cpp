@@ -170,7 +170,7 @@ bool enum_file_lines::GetString(string_view& Str, eol::type& Eol) const
 				size_t nResultLength = 0;
 				if (!m_ConversionError)
 				{
-					nResultLength = MultiByteToWideChar(m_CodePage, m_ConversionError? 0 : MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
+					nResultLength = MultiByteToWideChar(m_CodePage, MB_ERR_INVALID_CHARS, CharStr.data(), static_cast<int>(CharStr.size()), m_wStr.data(), static_cast<int>(m_wStr.size()));
 
 					if (!nResultLength)
 					{

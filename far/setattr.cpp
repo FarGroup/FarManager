@@ -758,7 +758,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			FileAttr=FindData.dwFileAttributes;
 		}
 
-		if (!SelCount || (SelCount==1 && TestParentFolderName(strSelName)))
+		if (SelCount==1 && TestParentFolderName(strSelName))
 			return false;
 
 		wchar_t DateSeparator = locale::GetDateSeparator();
@@ -1064,7 +1064,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{SA_EDIT_XDATE, SA_EDIT_XTIME, &FindData.ChangeTime},
 			};
 
-			if (DlgParam.Plugin || (!DlgParam.Plugin && os::fs::get_find_data(strSelName, FindData)))
+			if (DlgParam.Plugin || os::fs::get_find_data(strSelName, FindData))
 			{
 				std::for_each(CONST_RANGE(Dates, i)
 				{
@@ -1158,7 +1158,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			else
 			{
 				// BUGBUG, copy-paste
-				if (!FolderPresent&&(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+				if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
 					FolderPresent=true;
 					AttrDlg[SA_SEPARATOR4].Flags&=~DIF_HIDDEN;

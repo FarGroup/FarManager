@@ -1841,7 +1841,7 @@ private:
 		return true;
 	}
 
-	virtual bool DeleteAndAddAsync(const unsigned long long DeleteId, const unsigned int TypeHistory, const string_view HistoryName, const string_view Name, const int Type, const bool Lock, string &strGuid, string &strFile, string &strData) override
+	virtual bool DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, string_view const Guid, string_view const File, string_view const Data) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
@@ -1850,9 +1850,9 @@ private:
 		item->strName = string(Name);
 		item->Type=Type;
 		item->Lock=Lock;
-		item->strGuid=strGuid;
-		item->strFile=strFile;
-		item->strData=strData;
+		item->strGuid = string(Guid);
+		item->strFile = string(File);
+		item->strData = string(Data);
 
 		WorkQueue.emplace(std::move(item));
 
@@ -2132,7 +2132,7 @@ static const std::wregex& uuid_regex()
 
 }
 
-void config_provider::CheckDatabase(SQLiteDb *pDb)
+void config_provider::CheckDatabase(const SQLiteDb* const pDb)
 {
 	string pname;
 	const auto Status = pDb->GetInitStatus(pname, m_Mode != mode::m_default);

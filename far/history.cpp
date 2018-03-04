@@ -84,7 +84,7 @@ void History::CompactHistory()
    SaveForbid - принудительно запретить запись добавляемой строки.
                 Используется на панели плагина
 */
-void History::AddToHistory(const string& Str, history_record_type Type, const GUID* Guid, const wchar_t *File, const wchar_t *Data, bool SaveForbid)
+void History::AddToHistory(const string& Str, history_record_type const Type, const GUID* const Guid, string_view const File, string_view const Data, bool const SaveForbid)
 {
 	if (!m_EnableAdd || SaveForbid)
 		return;
@@ -96,8 +96,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		return;
 
 	bool Lock = false;
-	string strName(Str),strGuid,strFile(NullToEmpty(File)),strData(NullToEmpty(Data));
-	if(Guid) strGuid=GuidToStr(*Guid);
+	const auto strGuid = Guid? GuidToStr(*Guid) : L""s;
 
 	unsigned long long DeleteId = 0;
 
@@ -111,10 +110,10 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		{
 			if (EqualType(Type, i.Type))
 			{
-				if (are_equal(strName, i.Name) &&
+				if (are_equal(Str, i.Name) &&
 					are_equal(strGuid, i.Guid) &&
-					are_equal(strFile, i.File) &&
-					(ignore_data || are_equal(strData, i.Data)))
+					are_equal(File, i.File) &&
+					(ignore_data || are_equal(Data, i.Data)))
 				{
 					Lock = Lock || i.Lock;
 					DeleteId = i.Id;
@@ -124,7 +123,7 @@ void History::AddToHistory(const string& Str, history_record_type Type, const GU
 		}
 	}
 
-	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, strName, Type, Lock, strGuid, strFile, strData);  //Async - should never be used in a transaction
+	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, Str, Type, Lock, strGuid, File, Data);  //Async - should never be used in a transaction
 
 	ResetPosition();
 }
@@ -138,7 +137,7 @@ bool History::ReadLastItem(const string& HistoryName, string &strStr) const
 history_return_type History::Select(const string& Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
 {
 	int Height=ScrY-8;
-	const auto HistoryMenu = VMenu2::create(Title, nullptr, 0, Height);
+	const auto HistoryMenu = VMenu2::create(Title, {}, Height);
 	HistoryMenu->SetMenuFlags(VMENU_WRAPMODE);
 
 	if (HelpTopic)
@@ -160,7 +159,7 @@ history_return_type History::Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg
 	return ProcessMenu(strStr,nullptr ,nullptr ,nullptr , nullptr, HistoryMenu, Height, Type, Dlg);
 }
 
-history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *pstrData, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, history_record_type &Type, Dialog *Dlg)
+history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, string* const pstrFile, string* const pstrData, const wchar_t* const Title, VMenu2& HistoryMenu, int const Height, history_record_type& Type, const Dialog* const Dlg)
 {
 	unsigned long long SelectedRecord = 0;
 	string strSelectedRecordName,strSelectedRecordGuid,strSelectedRecordFile,strSelectedRecordData;
@@ -228,7 +227,7 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
 					string strTime;
-					ConvertDate(i.Time, Separator.strName, strTime, 5, FALSE, FALSE, TRUE);
+					ConvertDate(i.Time, Separator.Name, strTime, 5, FALSE, FALSE, TRUE);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += i.Name;
@@ -429,13 +428,13 @@ history_return_type History::ProcessMenu(string &strStr, GUID* Guid, string *pst
 				case KEY_NUMDEL:
 				case KEY_DEL:
 				{
-					if (!HistoryMenu.empty() && (!Global->Opt->Confirm.HistoryClear || (Global->Opt->Confirm.HistoryClear &&
+					if (!HistoryMenu.empty() && (!Global->Opt->Confirm.HistoryClear ||
 						Message(MSG_WARNING,
 							msg((m_TypeHistory==HISTORYTYPE_CMD || m_TypeHistory==HISTORYTYPE_DIALOG? lng::MHistoryTitle: (m_TypeHistory==HISTORYTYPE_FOLDER? lng::MFolderHistoryTitle : lng::MViewHistoryTitle))),
 							{
 								msg(lng::MHistoryClear)
 							},
-							{ lng::MClear, lng::MCancel }) == Message::first_button)))
+							{ lng::MClear, lng::MCancel }) == Message::first_button))
 					{
 						HistoryCfgRef()->DeleteAllUnlocked(m_TypeHistory,m_HistoryName);
 

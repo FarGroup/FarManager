@@ -573,15 +573,12 @@ bool AbortMessage()
 	}
 
 	SCOPED_ACTION(TaskbarPause);
-	int Res = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
+	const auto Result = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
 		msg(lng::MKeyESCWasPressed),
 		{
-			msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToStopWork2 : lng::MDoYouWantToStopWork)
+			msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToContinue : lng::MDoYouWantToCancel)
 		},
 		{ lng::MYes, lng::MNo });
 
-	if (Res == -1) // Set "ESC" equal to "NO" button
-		Res = 1;
-
-	return (Global->Opt->Confirm.EscTwiceToInterrupt && Res) || (!Global->Opt->Confirm.EscTwiceToInterrupt && !Res);
+	return Global->Opt->Confirm.EscTwiceToInterrupt.Get() == (Result != Message::first_button);
 }

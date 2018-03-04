@@ -1139,7 +1139,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 	string strExpandedStr;
 	const wchar_t *PtrCmd=CmdLine.data(), *CmdStart;
-	int Not=FALSE;
+	bool Not = false;
 	int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
 	// > 0 - есть такая конструкция
 
@@ -1176,7 +1176,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 		if (starts_with_icase(PtrCmd, Token_Not))
 		{
-			Not=TRUE;
+			Not = true;
 
 			PtrCmd += Token_Not.size();
 
@@ -1245,7 +1245,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 				}
 
 //_SVS(SysLog(L"%08X FullPath=%s",FileAttr,FullPath));
-				if ((FileExists && !Not) || (!FileExists && Not))
+				if (FileExists != Not)
 				{
 					while (*PtrCmd && std::iswblank(*PtrCmd))
 						++PtrCmd;
@@ -1286,7 +1286,7 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 					const auto ERet = os::env::get(strCmd, strExpandedStr);
 
 //_SVS(SysLog(Cmd));
-					if ((ERet && !Not) || (!ERet && Not))
+					if (ERet != Not)
 					{
 						while (*PtrCmd && std::iswblank(*PtrCmd))
 							++PtrCmd;

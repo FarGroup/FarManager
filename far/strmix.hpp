@@ -82,7 +82,7 @@ bool IsCaseMixed(string_view strStr);
 
 string ReplaceBrackets(string_view SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch);
 
-bool SearchString(string_view Source, const string& Str, const string& UpperStr, const string& LowerStr, RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int* SearchLength, const wchar_t* WordDiv = nullptr);
+bool SearchString(string_view Source, const string& Str, const string& UpperStr, const string& LowerStr, const RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int* SearchLength, const wchar_t* WordDiv = nullptr);
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 

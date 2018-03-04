@@ -911,10 +911,8 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 	auto& LastFilePanel = m_Panels[LeftPosition? panel_left : panel_right].m_LastFilePanel;
 	Current->GetPosition(X1,Y1,X2,Y2);
-	int ChangePosition = ((OldType == panel_type::FILE_PANEL && NewType != panel_type::FILE_PANEL &&
-	                    OldFullScreen) || (NewType==panel_type::FILE_PANEL &&
-	                                    ((OldFullScreen && !FileList::IsModeFullScreen(OldViewMode)) ||
-	                                     (!OldFullScreen && FileList::IsModeFullScreen(OldViewMode)))));
+	const auto ChangePosition = (OldType == panel_type::FILE_PANEL && NewType != panel_type::FILE_PANEL && OldFullScreen) ||
+		(NewType==panel_type::FILE_PANEL && OldFullScreen != FileList::IsModeFullScreen(OldViewMode));
 
 	if (OldFocus) SetPassivePanelInternal(Current);
 	if (!ChangePosition)
@@ -964,8 +962,7 @@ panel_ptr FilePanels::ChangePanel(panel_ptr Current, panel_type NewType, int Cre
 
 		if (!ChangePosition)
 		{
-			if ((NewPanel->IsFullScreen() && !OldFullScreen) ||
-			        (!NewPanel->IsFullScreen() && OldFullScreen))
+			if (NewPanel->IsFullScreen() != OldFullScreen)
 			{
 				const auto AnotherPanel = GetAnotherPanel(Current);
 

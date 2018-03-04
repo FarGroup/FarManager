@@ -1014,7 +1014,6 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 {
 	ProcessedItems++;
-	const auto strFullName = ConvertNameToFull(Name);
 
 	bool Success = false;
 	while(!Success)

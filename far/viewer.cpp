@@ -317,14 +317,12 @@ bool Viewer::OpenFile(const string& Name,int warning)
 
 	if (!ViewFile)
 	{
-		const auto ErrorState = error_state::fetch();
-
 		/* $ 04.07.2000 tran
 		   + 'warning' flag processing, in QuickView it is FALSE
 		     so don't show red message box */
 		if (warning)
 		{
-			Message(MSG_WARNING, ErrorState,
+			Message(MSG_WARNING, error_state::fetch(),
 				msg(lng::MViewerTitle),
 				{
 					msg(lng::MViewerCannotOpenFile),
@@ -1694,15 +1692,15 @@ bool Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_SHIFTF4:
 		{
-			MenuDataEx ModeListMenu[] =
+			const menu_item ModeListMenu[]
 			{
-				{msg(lng::MViewF4Text).data(), 0, 0}, // Text
-				{msg(lng::MViewF4).data(), 0, 0 },     // Hex
-				{msg(lng::MViewF4Dump).data(), 0, 0}  // Dump
+				{ msg(lng::MViewF4Text), 0 },
+				{ msg(lng::MViewF4), 0 },
+				{ msg(lng::MViewF4Dump), 0},
 			};
 			int MenuResult;
 			{
-				const auto vModes = VMenu2::create(msg(lng::MViewMode), ModeListMenu, std::size(ModeListMenu), ScrY - 4);
+				const auto vModes = VMenu2::create(msg(lng::MViewMode), make_range(ModeListMenu), ScrY - 4);
 				vModes->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 				vModes->SetSelectPos(m_DisplayMode, +1);
 				MenuResult = vModes->Run();

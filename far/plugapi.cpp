@@ -822,7 +822,7 @@ intptr_t WINAPI apiMenuFn(
 			if (Flags & FMENU_CHANGECONSOLETITLE)
 				MenuFlags |= VMENU_CHANGECONSOLETITLE;
 
-			const auto FarMenu = VMenu2::create(NullToEmpty(Title), nullptr, 0, MaxHeight, MenuFlags);
+			const auto FarMenu = VMenu2::create(NullToEmpty(Title), {}, MaxHeight, MenuFlags);
 			FarMenu->SetPosition(X,Y,0,0);
 			if(Id)
 			{
@@ -848,7 +848,7 @@ intptr_t WINAPI apiMenuFn(
 			{
 				MenuItemEx CurItem;
 				CurItem.Flags=Item[i].Flags;
-				CurItem.strName.clear();
+				CurItem.Name.clear();
 				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
 				const auto SelCurItem = CurItem.Flags&LIF_SELECTED;
 				CurItem.Flags&=~LIF_SELECTED;
@@ -859,7 +859,7 @@ intptr_t WINAPI apiMenuFn(
 					Selected++;
 				}
 
-				CurItem.strName=NullToEmpty(Item[i].Text);
+				CurItem.Name = NullToEmpty(Item[i].Text);
 				if(CurItem.Flags&LIF_SEPARATOR)
 				{
 					CurItem.AccelKey=0;

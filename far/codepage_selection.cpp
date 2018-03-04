@@ -211,9 +211,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 	else
 	{
 		// Создаём новый элемент меню
-		MenuItemEx item(FormatCodePageString(codePage, codePageName, IsCodePageNameCustom));
-		if (!enabled)
-			item.Flags |= MIF_GRAYED;
+		MenuItemEx item(FormatCodePageString(codePage, codePageName, IsCodePageNameCustom), enabled? 0 : MIF_GRAYED);
 		item.UserData = codePage;
 
 		// Добавляем новый элемент в меню
@@ -284,9 +282,7 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 	}
 	else
 	{
-		MenuItemEx item;
-		item.strName = Label;
-		item.Flags = MIF_SEPARATOR;
+		MenuItemEx item(Label, MIF_SEPARATOR);
 
 		if (position == size_t(-1))
 			CodePagesMenu->AddItem(item);
@@ -441,7 +437,7 @@ void codepages::SetFavorite(bool State)
 			DeleteFavorite(codePage);
 
 		// Создаём новый элемент меню
-		MenuItemEx newItem(CodePagesMenu->current().strName);
+		MenuItemEx newItem(CodePagesMenu->current().Name);
 		newItem.UserData = codePage;
 		// Сохраняем позицию курсора
 		size_t position = CodePagesMenu->GetSelectPos();
@@ -638,7 +634,7 @@ void codepages::EditCodePageName()
 	UINT Position = CodePagesMenu->GetSelectPos();
 	if (IsPositionStandard(Position))
 		return;
-	string CodePageName = CodePagesMenu->at(Position).strName;
+	string CodePageName = CodePagesMenu->at(Position).Name;
 	size_t BoxPosition = CodePageName.find(BoxSymbols[BS_V1]);
 	if (BoxPosition == string::npos)
 		return;
@@ -665,7 +661,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = CodePage;
 	// Создаём меню
-	CodePagesMenu = VMenu2::create(L"", nullptr, 0, ScrY - 4);
+	CodePagesMenu = VMenu2::create(L"", {}, ScrY - 4);
 	CodePagesMenu->SetBottomTitle(msg(!Global->Opt->CPMenuMode? lng::MGetCodePageBottomTitle : lng::MGetCodePageBottomShortTitle));
 	CodePagesMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu");
