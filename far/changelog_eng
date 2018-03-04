@@ -3,6 +3,30 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.03.2018 17:24:57 +0000 - build 5160
+
+1. Do not mix narrow and wide characters in fmt calls.
+
+zg 03.03.2018 17:11:47 +0200 - build 5159
+
+1. correction of 5049: crash after passing null pointer to PointToName.
+
+drkns 02.03.2018 13:57:21 +0000 - build 5158
+
+1. Correction of 5155.
+
+drkns 02.03.2018 09:54:21 +0000 - build 5157
+
+1. Correction of 5155.
+
+drkns 02.03.2018 09:28:54 +0000 - build 5156
+
+1. Correction of 5155.
+
+drkns 01.03.2018 21:45:36 +0000 - build 5155
+
+1. Refactoring.
+
 MZK 28.02.2018 22:26:27 -0800
 
 1. Translated and edited @Viewer help page (Both English and Russian).
