@@ -206,10 +206,11 @@ static string MakeName(const Shortcuts::shortcut& Item)
 	return plugin->GetTitle() + (TechInfo.empty()? TechInfo : concat(L" ("_sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')'));
 }
 
-static void FillMenu(VMenu2& Menu, const std::list<Shortcuts::shortcut>& List, bool const raw_mode)
+// Don't listen to static analysers - List MUST NOT be const. We store non-const iterators in type-erased UserData for further usage.
+static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool const raw_mode)
 {
 	Menu.clear();
-	FOR_CONST_RANGE(List, i)
+	FOR_RANGE(List, i)
 	{
 		MenuItemEx ListItem(MakeName(*i));
 		if (ListItem.Name.empty())
