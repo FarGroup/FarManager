@@ -100,6 +100,20 @@ struct menu_item
 	LISTITEMFLAGS Flags{};
 	DWORD AccelKey{};
 
+	menu_item() = default;
+
+	explicit menu_item(string_view const Text):
+		Name(string(Text))
+	{
+	}
+
+	menu_item(string_view const Text, LISTITEMFLAGS const Flags, DWORD const AccelKey = 0):
+		Name(string(Text)),
+		Flags(Flags),
+		AccelKey(AccelKey)
+	{
+	}
+
 	unsigned long long SetCheck(int Value)
 	{
 		if (Value)
@@ -129,16 +143,7 @@ struct MenuItemEx: menu_item
 	MOVABLE(MenuItemEx);
 
 	MenuItemEx() = default;
-
-	explicit MenuItemEx(string_view const Text):
-		menu_item{ string(Text) }
-	{
-	}
-
-	MenuItemEx(string_view const Text, LISTITEMFLAGS Flags, DWORD AccelKey = 0):
-		menu_item{ string(Text), Flags, AccelKey }
-	{
-	}
+	using menu_item::menu_item;
 
 	any UserData;
 	int ShowPos{};

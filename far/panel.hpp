@@ -44,9 +44,9 @@ class DizList;
 
 struct column
 {
-	unsigned long long type{};
-	int width{};
-	int width_type{};
+	unsigned long long type;
+	int width;
+	int width_type;
 	string title;
 };
 

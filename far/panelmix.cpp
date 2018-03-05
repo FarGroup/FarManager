@@ -307,7 +307,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 		if (Type.empty())
 			continue;
 
-		column NewColumn;
+		column NewColumn{};
 
 		const auto TypeOrig = upper(string(Type));
 

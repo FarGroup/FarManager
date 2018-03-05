@@ -1,3 +1,7 @@
+drkns 05.03.2018 08:01:15 +0000 - build 5162
+
+1. Поправлена сборка в VS2015.
+
 drkns 04.03.2018 22:56:16 +0000 - build 5161
 
 1. Static analysis warnings.
