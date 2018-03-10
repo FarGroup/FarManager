@@ -378,23 +378,23 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	highlight::element item = {};
+	element item = {};
 
 	ApplyDefaultStartingColors(item);
 
-	std::any_of(CONST_RANGE(HiData, i)
+	for (const auto& i: HiData)
 	{
-		if (!(UseAttrHighlighting && i.IsMaskUsed()))
-		{
-			if (i.FileInFilter(&Item, Owner, CurrentTime))
-			{
-				ApplyColors(item, i.GetColors());
-				if (!i.GetContinueProcessing())
-					return true;
-			}
-		}
-		return false;
-	});
+		if (!UseAttrHighlighting || !i.IsMaskUsed())
+			continue;
+
+		if (!i.FileInFilter(&Item, Owner, CurrentTime))
+			continue;
+
+		ApplyColors(item, i.GetColors());
+
+		if (!i.GetContinueProcessing())
+			break;
+	}
 
 	// Called from FileList::GetShowColor dynamically instead
 	//for (const auto& i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);

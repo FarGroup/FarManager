@@ -37,10 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "config.hpp"
 #include "notification.hpp"
+#include "platform.security.hpp"
 
-// TODO: std::optional
-static std::pair<unsigned, bool> SavedLogicalDrives;
-static std::pair<unsigned, bool> SavedVisibilityMask;
+static std::pair<os::fs::drives_set, bool> SavedLogicalDrives;
 
 void UpdateSavedDrives(const any& Payload)
 {
@@ -48,35 +47,20 @@ void UpdateSavedDrives(const any& Payload)
 		return;
 
 	const auto& Message = any_cast<update_devices_message>(Payload);
+	const os::fs::drives_set Drives(Message.Drives);
 
 	if (Message.Arrival)
-		SavedLogicalDrives.first |= Message.Drives;
+		SavedLogicalDrives.first |= Drives;
 	else
-		SavedLogicalDrives.first &= ~Message.Drives;
+		SavedLogicalDrives.first &= ~Drives;
 }
 
-static unsigned GetVisibilityMask()
+os::fs::drives_set allowed_drives_mask()
 {
-	unsigned NoDrivesMask = 0;
-	static const os::reg::key* Roots[] = { &os::reg::key::local_machine, &os::reg::key::current_user };
-	std::any_of(CONST_RANGE(Roots, i)
-	{
-		return i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrivesMask);
-	});
-	return ~NoDrivesMask;
+	return Global->Opt->Policies.ShowHiddenDrives?
+		os::fs::drives_set{}.set() :
+		os::security::allowed_drives_mask();
 }
-
-/*
-  get_logical_drives
-  оболочка вокруг GetLogicalDrives, с учетом скрытых логических дисков
-  <HKCU|HKLM>\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
-  NoDrives:DWORD
-    Последние 26 бит определяют буквы дисков от A до Z (отсчет справа налево).
-    Диск виден при установленном 0 и скрыт при значении 1.
-    Диск A представлен правой последней цифрой при двоичном представлении.
-    Например, значение 00000000000000000000010101(0x7h)
-    скрывает диски A, C, и E
-*/
 
 os::fs::drives_set os::fs::get_logical_drives()
 {
@@ -86,14 +70,7 @@ os::fs::drives_set os::fs::get_logical_drives()
 		SavedLogicalDrives.second = true;
 	}
 
-	// It's good enough to read it once.
-	if (!SavedVisibilityMask.second || (Global && Global->Opt && !Global->Opt->Policies.ShowHiddenDrives))
-	{
-		SavedVisibilityMask.first = GetVisibilityMask();
-		SavedVisibilityMask.second = true;
-	}
-
-	return SavedLogicalDrives.first & SavedVisibilityMask.first;
+	return SavedLogicalDrives.first;
 }
 
 bool IsDriveTypeRemote(UINT DriveType)

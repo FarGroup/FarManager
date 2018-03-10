@@ -1095,8 +1095,12 @@ void WINAPI apiDialogFree(HANDLE hDlg) noexcept
 			if (!FarDialog->GetCanLoseFocus())
 			{
 				const auto Dlg = FarDialog->shared_from_this();
-				const auto& Plugins = Global->CtrlObject->Plugins;
-				std::any_of(RANGE(*Plugins, i) { return i->RemoveDialog(Dlg); });
+
+				for (const auto& i: *Global->CtrlObject->Plugins)
+				{
+					if (i->RemoveDialog(Dlg))
+						break;
+				}
 			}
 		}
 	}

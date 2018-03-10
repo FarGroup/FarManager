@@ -1503,10 +1503,11 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 			short Vk = VkKeyScan(static_cast<WCHAR>(FKey));
 			if (Vk == -1)
 			{
-				std::any_of(CONST_RANGE(Layout(), i)
+				for (const auto& i: Layout())
 				{
-					return (Vk = VkKeyScanEx(static_cast<WCHAR>(FKey), i)) != -1;
-				});
+					if ((Vk = VkKeyScanEx(static_cast<WCHAR>(FKey), i)) != -1)
+						break;
+				}
 			}
 
 			if (Vk == -1)

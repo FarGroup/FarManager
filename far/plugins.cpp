@@ -231,43 +231,32 @@ Plugin* PluginManager::LoadPlugin(const string& FileName, const os::fs::find_dat
 {
 	std::unique_ptr<Plugin> pPlugin;
 
-	std::any_of(CONST_RANGE(PluginFactories, i) { return (pPlugin = i->CreatePlugin(FileName)) != nullptr; });
+	if (!std::any_of(CONST_RANGE(PluginFactories, i) { return (pPlugin = i->CreatePlugin(FileName)) != nullptr; }))
+		return nullptr;
 
-	if (pPlugin)
+	auto Result = LoadToMem? false : pPlugin->LoadFromCache(FindData);
+
+	auto bDataLoaded = false;
+
+	if (!Result && (pPlugin->CheckWorkFlags(PIWF_PRELOADED) || !Global->Opt->LoadPlug.PluginsCacheOnly))
+		Result = bDataLoaded = pPlugin->LoadData();
+
+	if (!Result)
+		return nullptr;
+
+	const auto PluginPtr = AddPlugin(std::move(pPlugin));
+
+	if (!PluginPtr)
+		return nullptr;
+
+	if (bDataLoaded && !PluginPtr->Load())
 	{
-		bool Result = false, bDataLoaded = false;
-
-		if (!LoadToMem)
-		{
-			Result = pPlugin->LoadFromCache(FindData);
-		}
-
-		if (!Result && (pPlugin->CheckWorkFlags(PIWF_PRELOADED) || !Global->Opt->LoadPlug.PluginsCacheOnly))
-		{
-			Result = bDataLoaded = pPlugin->LoadData();
-		}
-
-		if (!Result)
-		{
-			return nullptr;
-		}
-
-		const auto PluginPtr = AddPlugin(std::move(pPlugin));
-
-		if (!PluginPtr)
-		{
-			return nullptr;
-		}
-
-		if (bDataLoaded && !PluginPtr->Load())
-		{
-			PluginPtr->Unload(true);
-			RemovePlugin(PluginPtr);
-			return nullptr;
-		}
-		return PluginPtr;
+		PluginPtr->Unload(true);
+		RemovePlugin(PluginPtr);
+		return nullptr;
 	}
-	return nullptr;
+
+	return PluginPtr;
 }
 
 Plugin* PluginManager::LoadPluginExternal(const string& ModuleName, bool LoadToMem)

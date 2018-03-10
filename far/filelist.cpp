@@ -6665,7 +6665,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	error_state ErrorState;
 	const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-	std::all_of(CONST_RANGE(Find, fdata)
+	for (const auto& fdata: Find)
 	{
 		ErrorState = error_state::fetch();
 
@@ -6741,14 +6741,10 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 				bool check = CheckForEsc();
 				Global->CtrlObject->Macro.SuspendMacros(false);
 				if (check)
-				{
-					// break loop
-					return false;
-				}
+					break;
 			}
 		}
-		return true;
-	});
+	}
 
 	if (!ErrorState.engaged())
 		ErrorState = error_state::fetch();

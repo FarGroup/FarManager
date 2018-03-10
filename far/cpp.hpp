@@ -105,4 +105,28 @@ namespace std
 #define static_assert(...) EXPAND(DETAIL_STATIC_ASSERT_GET_MACRO(__VA_ARGS__, DETAIL_STATIC_ASSERT_2, DETAIL_STATIC_ASSERT_1)(__VA_ARGS__))
 #endif
 
+
+#if defined _MSC_VER && _MSC_VER < 1911
+namespace std
+{
+	namespace detail
+	{
+		template <typename void_type, typename, typename...>
+		struct invoke_result {};
+
+		template <typename callable, typename... args>
+		struct invoke_result<decltype(void(std::invoke(std::declval<callable>(), std::declval<args>()...))), callable, args...>
+		{
+			using type = decltype(std::invoke(std::declval<callable>(), std::declval<args>()...));
+		};
+	}
+
+	template <typename callable, typename... args>
+	struct invoke_result: detail::invoke_result<void, callable, args...> {};
+
+	template <typename callable, typename... args>
+	using invoke_result_t = typename invoke_result<callable, args...>::type;
+}
+#endif
+
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

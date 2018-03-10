@@ -2358,7 +2358,7 @@ void background_searcher::DoPrepareFileList()
 	}
 	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
 	{
-		const auto Drives = os::fs::get_logical_drives();
+		const auto Drives = os::fs::get_logical_drives() & allowed_drives_mask();
 		std::vector<string> Volumes;
 		Volumes.reserve(Drives.count());
 

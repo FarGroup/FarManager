@@ -63,6 +63,8 @@ namespace os::security
 		block_ptr<TOKEN_PRIVILEGES> m_SavedState;
 		bool m_Changed{};
 	};
+
+	fs::drives_set allowed_drives_mask();
 }
 
 #endif // PLATFORM_SECURITY_HPP_08ED45C7_0FD0_43D5_8838_F9B6F8EFD31C

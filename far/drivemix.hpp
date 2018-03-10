@@ -65,6 +65,8 @@ bool IsDriveTypeRemote(UINT DriveType);
 
 void UpdateSavedDrives(const any& Payload);
 
+os::fs::drives_set allowed_drives_mask();
+
 namespace os
 {
 	namespace fs

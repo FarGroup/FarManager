@@ -69,7 +69,7 @@ auto invoke_and_store_exception(callable&& Callable)
 template<typename callable, typename fallback>
 auto invoke_and_store_exception(fallback Result, callable&& Callable)
 {
-	using result_type = std::common_type_t<std::result_of_t<callable()>, fallback>;
+	using result_type = std::common_type_t<std::invoke_result_t<callable>, fallback>;
 	return detail::invoke_and_store_exception(
 		FWD(Callable),
 		[&]() -> result_type { return Result; }
@@ -217,13 +217,13 @@ namespace detail
 		intptr_t Result;
 	};
 
-	template<typename function, typename... args, REQUIRES(std::is_void_v<std::result_of_t<function(args...)>>)>
+	template<typename function, typename... args, REQUIRES(std::is_void_v<std::invoke_result_t<function, args...>>)>
 	void ExecuteFunctionImpl(ExecuteStruct&, const function& Function, args&&... Args)
 	{
 		Function(FWD(Args)...);
 	}
 
-	template<typename function, typename... args, REQUIRES(!std::is_void_v<std::result_of_t<function(args...)>>)>
+	template<typename function, typename... args, REQUIRES(!std::is_void_v<std::invoke_result_t<function, args...>>)>
 	void ExecuteFunctionImpl(ExecuteStruct& es, const function& Function, args&&... Args)
 	{
 		es = Function(FWD(Args)...);

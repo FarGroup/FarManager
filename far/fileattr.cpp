@@ -357,5 +357,9 @@ void enum_attributes(const std::function<bool(DWORD, wchar_t)>& Pred)
 		{FILE_ATTRIBUTE_NO_SCRUB_DATA, L'N'},
 	};
 
-	std::all_of(CONST_RANGE(AttrMap, i) { return Pred(i.first, i.second); });
+	for (const auto& i: AttrMap)
+	{
+		if (!Pred(i.first, i.second))
+			break;
+	}
 }

@@ -1442,20 +1442,21 @@ static int GetEditorCodePageFavA()
 	auto result = -(static_cast<int>(CodePage) + 2);
 	DWORD FavIndex = 2;
 	const auto strCP = str(CodePage);
-	const auto CpEnum = Codepages().GetFavoritesEnumerator();
-	std::any_of(CONST_RANGE(CpEnum, i)
+
+	for (const auto& i: Codepages().GetFavoritesEnumerator())
 	{
-		if (i.second & CPST_FAVORITE)
+		if (!(i.second & CPST_FAVORITE))
+			continue;
+
+		if (i.first == strCP)
 		{
-			if (i.first == strCP)
-			{
-				result = FavIndex;
-				return true;
-			}
-			FavIndex++;
+			result = FavIndex;
+			break;
 		}
-		return false;
-	});
+
+		FavIndex++;
+	}
+
 	return result;
 }
 
@@ -1480,26 +1481,31 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 	{
 		switch (Command)
 		{
-		case 0 /* OEM */: 	nCP = GetOEMCP();	break;
-		case 1 /* ANSI */:	nCP = GetACP(); 	break;
+		case 0: // OEM
+			nCP = GetOEMCP();
+			break;
+
+		case 1: // ANSI
+			nCP = GetACP();
+			break;
+
 		default:
-		{
-			int FavIndex = 2;
-			const auto CpEnum = Codepages().GetFavoritesEnumerator();
-			std::any_of(CONST_RANGE(CpEnum, i)
 			{
-				if (i.second & CPST_FAVORITE)
+				int FavIndex = 2;
+				for (const auto& i: Codepages().GetFavoritesEnumerator())
 				{
+					if (!(i.second & CPST_FAVORITE))
+						continue;
+
 					if (FavIndex == Command)
 					{
 						nCP = std::stoi(i.first);
-						return true;
+						break;
 					}
+
 					FavIndex++;
 				}
-				return false;
-			});
-		}
+			}
 		}
 	}
 

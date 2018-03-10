@@ -632,7 +632,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	const auto LogicalDrives = os::fs::get_logical_drives();
 	const auto SavedNetworkDrives = GetSavedNetworkDrives();
 	const auto DisconnectedNetworkDrives = SavedNetworkDrives & ~LogicalDrives;
-	const auto AllDrives = LogicalDrives | DisconnectedNetworkDrives;
+	const auto AllDrives = (LogicalDrives | DisconnectedNetworkDrives) & allowed_drives_mask();
+
 	const auto DiskCount = AllDrives.count();
 
 	PanelMenuItem Item, *mitem = nullptr;
