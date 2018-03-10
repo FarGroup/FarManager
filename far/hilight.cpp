@@ -384,7 +384,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 
 	for (const auto& i: HiData)
 	{
-		if (!UseAttrHighlighting || !i.IsMaskUsed())
+		if (UseAttrHighlighting && i.IsMaskUsed())
 			continue;
 
 		if (!i.FileInFilter(&Item, Owner, CurrentTime))
