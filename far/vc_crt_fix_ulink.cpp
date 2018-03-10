@@ -52,7 +52,9 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
        && (   !lstrcmpA(pdli->dlp.szProcName, "EncodePointer")
            || !lstrcmpA(pdli->dlp.szProcName, "DecodePointer")))
     {
+#pragma warning(disable: 4191)  // unsafe conversion from...to
       return (FARPROC)no_recode_pointer;
+#pragma warning(default: 4191)
     }
     return nullptr;
 }
