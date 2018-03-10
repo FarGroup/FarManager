@@ -81,4 +81,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 5039) // no page                                                'function': pointer or reference to potentially throwing function passed to extern C function under -EHc. Undefined behavior may occur if this function throws an exception.
 #endif
 
+#if _MSC_VER >= 1913 // may be temporary (VS2017.6+)
+#pragma warning(disable: 4834) // no page                                                discarding return value of function with 'nodiscard' attribute
+#define _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
+#endif
+
 #endif
