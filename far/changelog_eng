@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+yjh 11.03.2018 14:04:57 +0300 - build 5167
+
+1. Corrections for old OS versions support with the use of DelayLoad
+
+drkns 11.03.2018 09:47:19 +0000 - build 5166
+
+1. 0003591: F9 "Right" item is highlighted while "Left" is not
+
+drkns 10.03.2018 21:35:39 +0000 - build 5165
+
+1. Correction of 5164.1.
+
+drkns 10.03.2018 20:23:38 +0000 - build 5164
+
+1. Fix VS2017.6 warnings instead of suppressing them.
+
+2. "NoDrives" OS policy was not applied to detached network volumes.
+
+drkns 05.03.2018 19:15:49 +0000 - build 5163
+
+1. Correction of 5161.
+
+drkns 05.03.2018 08:01:15 +0000 - build 5162
+
+1. Fix VS2015 build.
+
+drkns 04.03.2018 22:56:16 +0000 - build 5161
+
+1. Static analysis warnings.
+
+2. Refactoring.
+
 drkns 03.03.2018 17:24:57 +0000 - build 5160
 
 1. Do not mix narrow and wide characters in fmt calls.
