@@ -1,3 +1,5 @@
 IMPORTS
   kernel32.EncodePointer
   kernel32.DecodePointer
+  kernel32.InitializeSListHead
+  kernel32.GetModuleHandleExW
