@@ -2854,9 +2854,9 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	const auto RightMenuStrings = VMenu::AddHotkeys(make_range(RightMenu));
 
 
-	HMenuData MainMenu[]=
+	HMenuData MainMenu[]
 	{
-		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"_sv, make_range(LeftMenu), 1 },
+		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"_sv, make_range(LeftMenu), true },
 		{ msg(lng::MMenuFilesTitle), L"FilesMenu"_sv, make_range(FilesMenu) },
 		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"_sv, make_range(CmdMenu) },
 		{ msg(lng::MMenuOptionsTitle), L"OptMenu"_sv, make_range(OptionsMenu) },
@@ -2874,32 +2874,28 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		HOptMenu->SetPosition(0,0,ScrX,0);
 		Global->WindowManager->ExecuteWindow(HOptMenu);
 
+		const auto& IsRightPanelActive = []
+		{
+			return Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel() &&
+				Global->CtrlObject->Cp()->ActivePanel()->IsVisible();
+		};
+
 		if (LastCommand)
 		{
-			int HItemToShow = LastHItem;
+			const auto HItemToShow = LastHItem != -1? LastHItem : IsRightPanelActive()? static_cast<int>(std::size(MainMenu) - 1) : 0;
 
-			if (HItemToShow == -1)
-			{
-				if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel() &&
-					Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
-					HItemToShow = 4;
-				else
-					HItemToShow = 0;
-			}
-
-			MainMenu[0].Selected = 0;
-			MainMenu[HItemToShow].Selected = 1;
+			MainMenu[0].Selected = false;
+			MainMenu[HItemToShow].Selected = true;
 			MainMenu[HItemToShow].SubMenu[0].SetSelect(false);
 			MainMenu[HItemToShow].SubMenu[LastVItem].SetSelect(true);
 			Global->WindowManager->CallbackWindow([&HOptMenu](){HOptMenu->ProcessKey(Manager::Key(KEY_DOWN));});
 		}
 		else
 		{
-			if (Global->CtrlObject->Cp()->ActivePanel() == Global->CtrlObject->Cp()->RightPanel() &&
-				Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
+			if (IsRightPanelActive())
 			{
-				MainMenu[0].Selected = 0;
-				MainMenu[4].Selected = 1;
+				MainMenu[0].Selected = false;
+				MainMenu[std::size(MainMenu) - 1].Selected = true;
 			}
 		}
 
