@@ -345,7 +345,7 @@ lv=2
 dt=Text
 nm=Adding panel modules
 ctime=3730113272
-mtime=3730119540
+mtime=3730144030
 <article>
 #_<markdown>
 #_
@@ -368,7 +368,7 @@ mtime=3730119540
 #_**Notes:**
 #_
 #_1. To create a panel from the command line or from the plugins menu, the existing function [`CommandLine`](96.html) and [`MenuItem`](90.html) should be used. Their `action()` should return 2 values: (1) the module table and (2) the panel object (any non-false Lua value).
-#_1. Function `mod.Open` will be called only with `OpenFrom==OPEN_ANALYSE` and only if `mod.Analyse` returned a non-false value.
+#_1. Function `mod.Open` may be called only with the following values of `OpenFrom` parameter: `OPEN_ANALYSE`, `OPEN_FINDLIST` and `OPEN_SHORTCUT`.
 #_
 #_See also: [Demo Example](99.html)
 #_
