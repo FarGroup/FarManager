@@ -340,10 +340,117 @@ mtime=3636460034
 </article>
 </node>
 <node>
+id=98
+lv=2
+dt=Text
+nm=Adding panel modules
+ctime=3730113272
+mtime=3730119540
+<article>
+#_<markdown>
+#_
+#_"Panel module" is a set of Lua functions placed in a table and loaded with `PanelModule` function. Names of those functions and their parameter sets coincide with functions from `export` table (see LuaFAR manual).
+#_
+#_```
+#_-- Create a panel module
+#_local mod  = {}
+#_
+#_-- Add only those "exported" functions that are needed for this panel module
+#_mod.Analyse     = function(...) ...... end
+#_mod.Open        = function(...) ...... end
+#_mod.GetFindData = function(...) ...... end
+#_......
+#_
+#_-- Load the module
+#_PanelModule(mod)
+#_```
+#_
+#_**Notes:**
+#_
+#_1. To create a panel from the command line or from the plugins menu, the existing function [`CommandLine`](96.html) and [`MenuItem`](90.html) should be used. Their `action()` should return 2 values: (1) the module table and (2) the panel object (any non-false Lua value).
+#_1. Function `mod.Open` will be called only with `OpenFrom==OPEN_ANALYSE` and only if `mod.Analyse` returned a non-false value.
+#_
+#_See also: [Demo Example](99.html)
+#_
+</article>
+</node>
+<node>
+id=99
+lv=3
+dt=Text
+nm=Demo example
+ctime=3730114449
+mtime=3730114480
+<article>
+#_<markdown>
+#_```
+#_local F = far.Flags
+#_local Title ="Demo panel in LuaMacro"
+#_local mod = {}
+#_
+#_local function FileToObject(FileName)
+#_  FileName = far.ConvertPath(FileName, "CPM_FULL")
+#_  local fp = io.open(FileName)
+#_  if fp then
+#_    local obj = { HostFile=FileName; List={} }
+#_    table.insert(obj.List, { FileName=".." })
+#_    for line in fp:lines() do
+#_      table.insert(obj.List, {FileName=line})
+#_    end
+#_    fp:close()
+#_    return obj
+#_  end
+#_end
+#_
+#_function mod.Analyse(Data)
+#_  return Data.FileName:sub(-5):lower() == ".abcd"
+#_end
+#_
+#_function mod.Open(OpenFrom, Guid, Item)
+#_  if OpenFrom == F.OPEN_ANALYSE then
+#_    return FileToObject(Item.FileName)
+#_  end
+#_end
+#_
+#_function mod.GetFindData(object, handle, OpMode)
+#_  return object.List
+#_end
+#_
+#_function mod.GetOpenPanelInfo(object, handle)
+#_  return {
+#_    HostFile = object.HostFile;
+#_    PanelTitle = Title;
+#_  }
+#_end
+#_
+#_MenuItem {
+#_  description = Title;
+#_  menu   = "Plugins";
+#_  area   = "Shell";
+#_  guid   = "5E1ECBD6-F6E1-4A02-AC90-DB49DB6E350C";
+#_  text   = Title;
+#_  action = function(OpenFrom, Item)
+#_    return mod, FileToObject(APanel.Current)
+#_  end;
+#_}
+#_
+#_CommandLine {
+#_  description = Title;
+#_  prefixes = "abcd";
+#_  action = function(prefix,text)
+#_    if text then return mod, FileToObject(text); end
+#_  end;
+#_}
+#_
+#_PanelModule(mod)
+#_```
+</article>
+</node>
+<node>
 id=77
 lv=2
 dt=Text
-nm=Modules
+nm=External modules
 ctime=3580139041
 mtime=3710685519
 <article>

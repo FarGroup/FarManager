@@ -342,10 +342,117 @@ mtime=3636460943
 </article>
 </node>
 <node>
+id=98
+lv=2
+dt=Text
+nm=Добавление панельных модулей
+ctime=3730113290
+mtime=3730119588
+<article>
+#_<markdown>
+#_
+#_"Панельный модуль" - это набор Lua-функций, помещённых в таблицу, который загружаеся функцией `PanelModule`. Имена функций модуля и их параметры совпадают с функциями таблицы `export` (см. мануал LuaFAR).
+#_
+#_```
+#_-- Создадим панельный модуль
+#_local mod  = {}
+#_
+#_-- Добавим только те "экспортируемые" функции, которые нужны для работы этого модуля
+#_mod.Analyse     = function(...) ...... end
+#_mod.Open        = function(...) ...... end
+#_mod.GetFindData = function(...) ...... end
+#_......
+#_
+#_-- Загрузим модуль
+#_PanelModule(mod)
+#_```
+#_
+#_**Примечания:**
+#_
+#_1. Для создания панели с командной строки или из меню плагинов, должны использоваться существующие функции [`CommandLine`](96.html) и [`MenuItem`](90.html). Их функция `action()` должна вернуть 2 величины: (1) таблицу панельного модуля и (2) объект панели (любое не ложное значение Lua).
+#_1. Функция `mod.Open` вызывается только со значением параметра `OpenFrom` равным `OPEN_ANALYSE`, и только если `mod.Analyse` вернула не ложное значение.
+#_
+#_См. также: [Пример применения](99.html)
+#_
+</article>
+</node>
+<node>
+id=99
+lv=3
+dt=Text
+nm=Пример применения
+ctime=3730118337
+mtime=3730118407
+<article>
+#_<markdown>
+#_```
+#_local F = far.Flags
+#_local Title ="Demo panel in LuaMacro"
+#_local mod = {}
+#_
+#_local function FileToObject(FileName)
+#_  FileName = far.ConvertPath(FileName, "CPM_FULL")
+#_  local fp = io.open(FileName)
+#_  if fp then
+#_    local obj = { HostFile=FileName; List={} }
+#_    table.insert(obj.List, { FileName=".." })
+#_    for line in fp:lines() do
+#_      table.insert(obj.List, {FileName=line})
+#_    end
+#_    fp:close()
+#_    return obj
+#_  end
+#_end
+#_
+#_function mod.Analyse(Data)
+#_  return Data.FileName:sub(-5):lower() == ".abcd"
+#_end
+#_
+#_function mod.Open(OpenFrom, Guid, Item)
+#_  if OpenFrom == F.OPEN_ANALYSE then
+#_    return FileToObject(Item.FileName)
+#_  end
+#_end
+#_
+#_function mod.GetFindData(object, handle, OpMode)
+#_  return object.List
+#_end
+#_
+#_function mod.GetOpenPanelInfo(object, handle)
+#_  return {
+#_    HostFile = object.HostFile;
+#_    PanelTitle = Title;
+#_  }
+#_end
+#_
+#_MenuItem {
+#_  description = Title;
+#_  menu   = "Plugins";
+#_  area   = "Shell";
+#_  guid   = "5E1ECBD6-F6E1-4A02-AC90-DB49DB6E350C";
+#_  text   = Title;
+#_  action = function(OpenFrom, Item)
+#_    return mod, FileToObject(APanel.Current)
+#_  end;
+#_}
+#_
+#_CommandLine {
+#_  description = Title;
+#_  prefixes = "abcd";
+#_  action = function(prefix,text)
+#_    if text then return mod, FileToObject(text); end
+#_  end;
+#_}
+#_
+#_PanelModule(mod)
+#_```
+</article>
+</node>
+<node>
 id=77
 lv=2
 dt=Text
-nm=Модули
+nm=Внешние модули
 ctime=3580139041
 mtime=3710685784
 <article>
