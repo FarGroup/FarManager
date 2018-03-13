@@ -2140,9 +2140,8 @@ void background_searcher::DoScanTree(const string& strRoot)
 		!(SearchMode==FINDAREA_CURRENT_ONLY||SearchMode==FINDAREA_INPATH),
 		Global->Opt->FindOpt.FindSymLinks
 	);
-	string strSelName;
-	DWORD FileAttr;
 
+	DWORD FileAttr;
 	if (SearchMode==FINDAREA_SELECTED)
 		Global->CtrlObject->Cp()->ActivePanel()->GetSelName(nullptr,FileAttr);
 
@@ -2152,15 +2151,14 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 		if (SearchMode==FINDAREA_SELECTED)
 		{
+			string strSelName;
 			if (!Global->CtrlObject->Cp()->ActivePanel()->GetSelName(&strSelName,FileAttr))
 				break;
 
 			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || TestParentFolderName(strSelName) || strSelName == L".")
 				continue;
 
-			strCurRoot = strRoot;
-			AddEndSlash(strCurRoot);
-			strCurRoot += strSelName;
+			strCurRoot = path::join(strRoot, strSelName);
 		}
 		else
 		{

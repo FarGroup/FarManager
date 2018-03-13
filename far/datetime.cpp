@@ -728,8 +728,8 @@ void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string&
 
 bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)
 {
-	SYSTEMTIME SystemTime;
 	const auto FileTime = os::chrono::nt_clock::to_filetime(UtcTime);
+	SYSTEMTIME SystemTime;
 	return FileTimeToSystemTime(&FileTime, &SystemTime) && SystemTimeToTzSpecificLocalTime(nullptr, &SystemTime, &LocalTime);
 }
 
@@ -740,16 +740,18 @@ static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 		return imports::instance().TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
 	}
 
-	tm ltm;
-	ltm.tm_year = lst.wYear - 1900;
-	ltm.tm_mon  = lst.wMonth - 1;
-	ltm.tm_mday = lst.wDay;
-	ltm.tm_hour = lst.wHour;
-	ltm.tm_min  = lst.wMinute;
-	ltm.tm_sec  = lst.wSecond;
-	ltm.tm_wday = lst.wDayOfWeek;
-	ltm.tm_yday = -1;
-	ltm.tm_isdst = -1;
+	std::tm ltm
+	{
+		lst.wSecond,
+		lst.wMinute,
+		lst.wHour,
+		lst.wDay,
+		lst.wMonth - 1,
+		lst.wYear - 1900,
+		lst.wDayOfWeek,
+		-1,
+		-1
+	};
 
 	const auto gtim = mktime(&ltm);
 	if (gtim == static_cast<time_t>(-1))

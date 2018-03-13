@@ -457,15 +457,7 @@ int Manager::GetWindowCountByType(int Type)
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
 window_ptr Manager::FindWindowByFile(int ModalType,const string& FileName, const wchar_t *Dir)
 {
-	auto strFullFileName = FileName;
-
-	if (Dir)
-	{
-		string strBufFileName = Dir;
-		AddEndSlash(strBufFileName);
-		strBufFileName += FileName;
-		strFullFileName = strBufFileName;
-	}
+	const auto strFullFileName = Dir? path::join(Dir, FileName) : FileName;
 
 	const auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i)
 	{

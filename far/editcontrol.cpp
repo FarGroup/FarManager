@@ -165,7 +165,7 @@ static bool ParseStringWithQuotes(const string& Str, string& Start, string& Toke
 	else
 	{
 		auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
-		static const auto NoQuote = L"\":\\/%.-"s;
+		static const auto NoQuote = L"\":\\/%.-"_sv;
 		WordDiv.erase(std::remove_if(ALL_RANGE(WordDiv), [&](wchar_t i) { return contains(NoQuote, i); }), WordDiv.end());
 
 		for (Pos = Str.size() - 1; Pos != static_cast<size_t>(-1); Pos--)
@@ -296,16 +296,13 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 			{
 				const auto PathExtList = enum_tokens(os::env::get_pathext(), L";"_sv);
 
-				string str;
+				const auto Pattern = Token + L"*"_sv;
 				for (const auto& Path: enum_tokens_with_quotes(strPathEnv, L";"_sv))
 				{
 					if (Path.empty())
 						continue;
 
-					assign(str, Path);
-					AddEndSlash(str);
-					append(str, Token, L'*');
-					for (const auto& FindData: os::fs::enum_files(str))
+					for (const auto& FindData: os::fs::enum_files(path::join(Path, Pattern)))
 					{
 						const auto FindExt = PointToExt(FindData.strFileName);
 						for (const auto& Ext: PathExtList)

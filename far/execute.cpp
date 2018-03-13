@@ -257,17 +257,12 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 		const auto PathEnv = os::env::get(L"PATH"_sv);
 		if (!PathEnv.empty())
 		{
-			string FullName;
 			for (const auto& Path : enum_tokens_with_quotes(PathEnv, L";"_sv))
 			{
 				if (Path.empty())
 					continue;
 
-				assign(FullName, Path);
-				AddEndSlash(FullName);
-				FullName += Module;
-
-				const auto Result = TryWithExtOrPathExt(FullName, [](const string& NameWithExt)
+				const auto Result = TryWithExtOrPathExt(path::join(Path, Module), [](const string& NameWithExt)
 				{
 					return std::make_pair(os::fs::is_file(NameWithExt), NameWithExt);
 				});
@@ -300,9 +295,8 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 		// Look in the App Paths registry keys:
 		if (Global->Opt->Exec.ExecuteUseAppPath && !contains(Module, L'\\'))
 		{
-			static const wchar_t RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
 			static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
-			const auto FullName = RegPath + Module;
+			const auto FullName = concat(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"_sv, Module);
 
 			DWORD samDesired = KEY_QUERY_VALUE;
 

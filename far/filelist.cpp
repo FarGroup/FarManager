@@ -6624,10 +6624,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	const auto Type = ParsePath(m_CurDir, nullptr, &bCurDirRoot);
 	bool NetRoot = bCurDirRoot && (Type == root_type::remote || Type == root_type::unc_remote);
 
-	string strFind(m_CurDir);
-	AddEndSlash(strFind);
-	strFind+=L'*';
-	const auto Find = os::fs::enum_files(strFind, true);
+	const auto Find = os::fs::enum_files(path::join(m_CurDir, L'*'), true);
 	bool UseFilter=m_Filter->IsEnabledOnPanel();
 
 	{

@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "message.hpp"
 #include "config.hpp"
-#include "strmix.hpp"
 #include "filestr.hpp"
 #include "interf.hpp"
 #include "lasterror.hpp"
@@ -55,12 +54,9 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path,cons
 {
 	FN_RETURN_TYPE(OpenLangFile) CurrentFileData, EnglishFileData;
 
-	auto PathWithSlash = Path;
-	AddEndSlash(PathWithSlash);
-
-	for (const auto& FindData: os::fs::enum_files(PathWithSlash + Mask))
+	for (const auto& FindData: os::fs::enum_files(path::join(Path, Mask)))
 	{
-		const auto CurrentFileName = PathWithSlash + FindData.strFileName;
+		const auto CurrentFileName = path::join(Path, FindData.strFileName);
 
 		auto& CurrentFile = std::get<0>(CurrentFileData);
 		auto& CurrentLngName = std::get<1>(CurrentFileData);
@@ -159,11 +155,9 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 	LangMenu->SetMenuFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
 
-	auto PathWithSlash = Global->g_strFarPath;
-	AddEndSlash(PathWithSlash);
-	for (const auto& FindData: os::fs::enum_files(PathWithSlash + Mask))
+	for (const auto& FindData: os::fs::enum_files(path::join(Global->g_strFarPath, Mask)))
 	{
-		os::fs::file LangFile(PathWithSlash + FindData.strFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		const os::fs::file LangFile(path::join(Global->g_strFarPath, FindData.strFileName), FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 		if (!LangFile)
 			continue;
 
@@ -220,7 +214,10 @@ static string ConvertString(const string_view Src)
 		{
 		case L'\\':
 			if (++i == Src.end())
+			{
+				Result.push_back(L'\\');
 				return Result;
+			}
 
 			switch (*i)
 			{

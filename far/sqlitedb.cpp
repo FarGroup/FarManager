@@ -56,14 +56,9 @@ namespace
 
 	static string GetDatabasePath(const string& FileName, bool Local)
 	{
-		if (FileName != L":memory:")
-		{
-			auto Result = Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-			AddEndSlash(Result);
-			return Result + FileName;
-		}
-
-		return FileName;
+		return FileName == L":memory:"?
+			FileName :
+			path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName);
 	}
 }
 

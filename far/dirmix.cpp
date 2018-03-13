@@ -139,13 +139,8 @@ int TestFolder(const string& Path)
 	if (Path.empty())
 		return TSTFLD_ERROR;
 
-	string strFindPath = Path;
-	// сообразим маску для поиска.
-	AddEndSlash(strFindPath);
-	strFindPath += L'*';
-
 	// первая проверка - че-нить считать можем?
-	const auto Find = os::fs::enum_files(strFindPath);
+	const auto Find = os::fs::enum_files(path::join(Path, L'*'));
 	if (Find.begin() != Find.end())
 	{
 		return TSTFLD_NOTEMPTY;
@@ -161,11 +156,11 @@ int TestFolder(const string& Path)
 
 	// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
 	// поэтому посмотрим на Root
-	strFindPath = GetPathRoot(Path);
-	if (strFindPath == Path)
+	const auto Root = GetPathRoot(Path);
+	if (Root == Path)
 	{
 		// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
-		if (os::fs::exists(strFindPath))
+		if (os::fs::exists(Root))
 		{
 			if (LastError == ERROR_ACCESS_DENIED)
 				return TSTFLD_NOTACCESS;
@@ -174,16 +169,14 @@ int TestFolder(const string& Path)
 		}
 	}
 
-	strFindPath = Path;
-
-	if (!os::fs::exists(strFindPath))
+	if (!os::fs::exists(Path))
 	{
 		return TSTFLD_NOTFOUND;
 	}
 
 	{
 		SCOPED_ACTION(elevation::suppress);
-		if (os::fs::is_file(strFindPath))
+		if (os::fs::is_file(Path))
 			return TSTFLD_ERROR;
 	}
 	return TSTFLD_NOTACCESS;

@@ -92,7 +92,7 @@ wchar_t* InsertQuote(wchar_t *Str)
 
 wchar_t* QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Global->Opt->strQuotedSymbols.data()))
+	if (Global->Opt->strQuotedSymbols.Get().find_first_of(Str) != string::npos)
 	{
 		InsertQuote(Str);
 

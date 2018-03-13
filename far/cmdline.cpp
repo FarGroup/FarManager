@@ -1296,8 +1296,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 			if (strExpandedDir.size() > 1)
 			{
-				AddEndSlash(strTemp);
-				strTemp += strExpandedDir.data()+2;
+				path::append(strTemp, string_view(strExpandedDir).substr(2));
 			}
 
 			DeleteEndSlash(strTemp);

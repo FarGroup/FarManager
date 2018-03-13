@@ -351,10 +351,7 @@ namespace os::fs
 					auto strReal = m_Object;
 					// only links in the path should be processed, not the object name itself
 					CutToSlash(strReal);
-					strReal = ConvertNameToReal(strReal);
-					AddEndSlash(strReal);
-					append(strReal, PointToName(m_Object));
-					strReal = NTPath(strReal);
+					strReal = NTPath(path::join(ConvertNameToReal(strReal), PointToName(m_Object)));
 					m_Handle = FindFirstFileInternal(strReal, Value);
 				}
 
@@ -1166,10 +1163,7 @@ namespace os::fs
 
 	bool is_not_empty_directory(const string& Object)
 	{
-		auto Pattern = Object;
-		AddEndSlash(Pattern);
-		Pattern += L"*";
-		const auto Find = enum_files(Pattern);
+		const auto Find = enum_files(path::join(Object, L'*'));
 		return Find.begin() != Find.end();
 	}
 
@@ -1341,13 +1335,10 @@ namespace os::fs
 
 		if (Validate)
 		{
-			string TestDir = PathName;
-			AddEndSlash(TestDir);
-			TestDir += L'*';
 			find_data fd;
-			if (!get_find_data(TestDir, fd))
+			if (!get_find_data(path::join(PathName, L'*'), fd))
 			{
-				DWORD LastError = ::GetLastError();
+				const auto LastError = ::GetLastError();
 				if (!(LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES))
 					return false;
 			}

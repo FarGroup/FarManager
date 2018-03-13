@@ -738,7 +738,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (NewItem.Label.empty())
 				{
 					static const os::reg::key* Roots[] = { &os::reg::key::current_user, &os::reg::key::local_machine };
-					if (!std::any_of(CONST_RANGE(Roots, Root){ return Root->get(string(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\") + NewItem.Letter[1] + L"\\DefaultLabel", L"", NewItem.Label); }) && Absent)
+					if (!std::any_of(CONST_RANGE(Roots, Root){ return Root->get(concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\"_sv, NewItem.Letter[1], L"\\DefaultLabel"_sv), L"", NewItem.Label); }) && Absent)
 					{
 						NewItem.Label = msg(lng::MChangeDriveLabelAbsent);
 					}

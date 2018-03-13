@@ -192,12 +192,12 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 	return SlashPos == string::npos || SlashPos > pos;
 }
 
-bool TestParentFolderName(const string& Name)
+bool TestParentFolderName(string_view const Name)
 {
 	return (Name.size() == 2 && Name[0] == L'.' && Name[1] == L'.') || (Name.size() == 3 && Name[0] == L'.' && Name[1] == L'.' && IsSlash(Name[2]));
 }
 
-bool TestCurrentDirectory(const string& TestDir)
+bool TestCurrentDirectory(string_view const TestDir)
 {
 	return equal_icase(os::fs::GetCurrentDirectory(), TestDir);
 }
@@ -378,35 +378,30 @@ size_t FindLastSlash(const string_view Str)
 }
 
 // find path root component (drive letter / volume name / server share) and calculate its length
-size_t GetPathRootLength(const string &Path)
+size_t GetPathRootLength(string_view const Path)
 {
 	size_t DirOffset = 0;
-	return (ParsePath(Path, &DirOffset) == root_type::unknown)? 0 : DirOffset;
+	return ParsePath(Path, &DirOffset) == root_type::unknown? 0 : DirOffset;
 }
 
-string ExtractPathRoot(const string &Path)
+string ExtractPathRoot(string_view const Path)
 {
-	size_t PathRootLen = GetPathRootLength(Path);
+	const auto PathRootLen = GetPathRootLength(Path);
+	if (!PathRootLen)
+		return{};
 
-	if (PathRootLen)
-	{
-		string result(Path, 0, PathRootLen);
-		AddEndSlash(result);
-		return result;
-	}
-	else
-		return {};
+	return path::join(Path.substr(0, PathRootLen), L""_sv);
 }
 
-string ExtractFileName(const string &Path)
+string ExtractFileName(string_view const Path)
 {
 	auto p = FindLastSlash(Path);
 	p = p == string::npos? 0 : p + 1;
 	p = std::max(p, GetPathRootLength(Path));
-	return Path.substr(p);
+	return string(Path.substr(p));
 }
 
-string ExtractFilePath(const string &Path)
+string ExtractFilePath(string_view const Path)
 {
 	auto p = FindLastSlash(Path);
 	if (p == string::npos)
@@ -417,13 +412,9 @@ string ExtractFilePath(const string &Path)
 	const auto PathRootLen = GetPathRootLength(Path);
 
 	if (p <= PathRootLen && PathRootLen)
-	{
-		string result(Path, 0, PathRootLen);
-		AddEndSlash(result);
-		return result;
-	}
+		return path::join(Path.substr(0, PathRootLen), L""_sv);
 
-	return string(Path.data(), p);
+	return string(Path.substr(0, p));
 }
 
 bool IsRootPath(const string_view Path)
@@ -443,6 +434,22 @@ bool PathStartsWith(const string_view Path, const string_view Start)
 void TestPathParser()
 {
 #ifdef _DEBUG
+	assert(path::join(L"foo"_sv, L""_sv) == L"foo\\"_sv);
+	assert(path::join(L"foo"_sv, L"\\"_sv) == L"foo\\"_sv);
+	assert(path::join(L""_sv, L""_sv) == L""_sv);
+	assert(path::join(L""_sv, L"\\"_sv) == L""_sv);
+	assert(path::join(L""_sv, L"foo"_sv) == L"foo"_sv);
+	assert(path::join(L"\\foo"_sv, L""_sv) == L"\\foo\\"_sv);
+	assert(path::join(L"\\foo"_sv, L"\\"_sv) == L"\\foo\\"_sv);
+	assert(path::join(L"\\"_sv, L"foo\\"_sv) == L"foo"_sv);
+	assert(path::join(L"foo"_sv, L"bar"_sv) == L"foo\\bar"_sv);
+	assert(path::join(L"\\foo"_sv, L"bar\\"_sv) == L"\\foo\\bar"_sv);
+	assert(path::join(L"foo\\"_sv, L"bar"_sv) == L"foo\\bar"_sv);
+	assert(path::join(L"foo\\"_sv, L"\\bar"_sv) == L"foo\\bar"_sv);
+	assert(path::join(L"foo\\"_sv, L'\\', L"\\bar"_sv) == L"foo\\bar"_sv);
+	assert(path::join(L"foo\\"_sv, L""_sv, L"\\bar"_sv) == L"foo\\bar"_sv);
+	assert(path::join(L"\\\\foo\\\\"_sv, L"\\\\bar\\"_sv) == L"\\\\foo\\bar"_sv);
+
     assert(ExtractPathRoot(L"") == L"");
     assert(ExtractPathRoot(L"\\") == L"");
     assert(ExtractPathRoot(L"file") == L"");

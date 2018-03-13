@@ -189,13 +189,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 			break;
 		}
 
-		if (!pstCurrentDir.empty())
-		{
-			append(strDest, pstCurrentDir);
-			AddEndSlash(strDest);
-		}
-
-		append(strDest, stPath.substr(PathOffset));
+		path::append(strDest, pstCurrentDir, stPath.substr(PathOffset));
 
 		if (!blIgnore && !HasPathPrefix(strDest))
 			MixToFullPath(strDest);
@@ -333,10 +327,7 @@ string ConvertNameToReal(const string& Object)
 			DeleteEndSlash(Path);
 
 			if (FullPath.size() > Path.size() + 1)
-			{
-				AddEndSlash(FinalFilePath);
-				FinalFilePath.append(FullPath, Path.size() + 1, string::npos);
-			}
+				path::append(FinalFilePath, string_view(FullPath).substr(Path.size() + 1));
 
 			FinalFilePath = TryConvertVolumeGuidToDrivePath(FinalFilePath);
 			strDest = FinalFilePath;
@@ -445,10 +436,7 @@ string ConvertNameToUNC(const string& Object)
 		{
 			const auto SlashPos = FindSlash(strFileName);
 			if (SlashPos != string::npos)
-			{
-				AddEndSlash(strTemp);
-				strTemp.append(strFileName, SlashPos + 1);
-			}
+				path::append(strTemp, string_view(strFileName).substr(SlashPos + 1));
 
 			strFileName = strTemp;
 		}

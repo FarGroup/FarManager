@@ -50,11 +50,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         |
         +---------- [0A-Z]
 */
-bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, const wchar_t* UserTempPath)
+bool FarMkTempEx(string &strDest, string_view Prefix, bool const WithTempPath, string_view const UserTempPath)
 {
 	static UINT s_shift = 0;
-	if (!(Prefix && *Prefix))
-		Prefix=L"F3T";
+
+	if (Prefix.empty())
+		Prefix = L"F3T"_sv;
 
 	string strPath = L".";
 
@@ -62,23 +63,24 @@ bool FarMkTempEx(string &strDest, const wchar_t* Prefix, bool WithTempPath, cons
 	{
 		os::fs::GetTempPath(strPath);
 	}
-	else if(UserTempPath)
+	else if(!UserTempPath.empty())
 	{
-		strPath=UserTempPath;
+		assign(strPath, UserTempPath);
 	}
 
 	AddEndSlash(strPath);
 
-	wchar_t_ptr_n<MAX_PATH> Buffer(wcslen(Prefix) + strPath.size() + 13);
+	wchar_t_ptr_n<MAX_PATH> Buffer(Prefix.size() + strPath.size() + 13);
 
 	UINT uniq = 23*GetCurrentProcessId() + s_shift, uniq0 = uniq ? uniq : 1;
 	s_shift = (s_shift + 1) % 23;
 
+	null_terminated PrefixStr(Prefix);
 	for (;;)
 	{
 		if (!uniq) ++uniq;
 
-		if (GetTempFileName(strPath.data(), Prefix, uniq, Buffer.get()))
+		if (GetTempFileName(strPath.data(), PrefixStr.data(), uniq, Buffer.get()))
 		{
 			const auto Find = os::fs::enum_files(Buffer.get(), false);
 			if (Find.begin() == Find.end())

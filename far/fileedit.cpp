@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "pathmix.hpp"
 
 enum enumOpenEditor
 {
@@ -1127,7 +1128,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					if (!CheckShortcutFolder(strFullFileNameTemp, true, false))
 						return false;
 
-					strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
+					path::append(strFullFileNameTemp, L'.'); // для вваливания внутрь :-)
 				}
 
 				const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
@@ -2148,9 +2149,7 @@ bool FileEditor::SetFileName(const string_view NewFileName)
 	}
 	else
 	{
-		strFullFileName = strStartDir;
-		AddEndSlash(strFullFileName);
-		strFullFileName += strFileName;
+		strFullFileName = path::join(strStartDir, strFileName);
 	}
 
 	return true;

@@ -303,7 +303,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.empty())
 	{
-		strTemplatePath = GetFarIniString(L"General", L"TemplateProfile", L"%FARHOME%\\Default.farconfig");
+		strTemplatePath = GetFarIniString(L"General", L"TemplateProfile", path::join(L"%FARHOME%"_sv, L"Default.farconfig"_sv));
 	}
 
 	if (!strTemplatePath.empty())
@@ -312,7 +312,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 		DeleteEndSlash(strTemplatePath);
 
 		if (os::fs::is_directory(strTemplatePath))
-			strTemplatePath += L"\\Default.farconfig";
+			path::append(strTemplatePath, L"Default.farconfig"_sv);
 
 		Global->Opt->TemplateProfilePath = strTemplatePath;
 	}
@@ -320,6 +320,9 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
+	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
+		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
+
 	if (!strProfilePath.empty())
 	{
 		strProfilePath = ConvertNameToFull(unquote(os::env::expand(strProfilePath)));
@@ -334,37 +337,24 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		int UseSystemProfiles = GetFarIniInt(L"General", L"UseSystemProfiles", 1);
 		if (UseSystemProfiles)
 		{
+			const auto& GetShellProfilePath = [](int Idl)
+			{
+				wchar_t Buffer[MAX_PATH];
+				SHGetFolderPath(nullptr, Idl | (Global->Opt->ReadOnlyConfig? 0 : CSIDL_FLAG_CREATE), nullptr, SHGFP_TYPE_CURRENT, Buffer);
+				return path::join(Buffer, L"Far Manager"_sv, L"Profile"_sv);
+			};
+
 			// roaming data default path: %APPDATA%\Far Manager\Profile
-			wchar_t Buffer[MAX_PATH];
-			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, Buffer);
-			Global->Opt->ProfilePath = Buffer;
-			AddEndSlash(Global->Opt->ProfilePath);
-			Global->Opt->ProfilePath += L"Far Manager";
+			Global->Opt->ProfilePath = GetShellProfilePath(CSIDL_APPDATA);
 
-			if (UseSystemProfiles == 2)
-			{
-				Global->Opt->LocalProfilePath = Global->Opt->ProfilePath;
-			}
-			else
-			{
+			Global->Opt->LocalProfilePath = UseSystemProfiles == 2?
+				Global->Opt->ProfilePath :
 				// local data default path: %LOCALAPPDATA%\Far Manager\Profile
-				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, Buffer);
-				Global->Opt->LocalProfilePath = Buffer;
-				AddEndSlash(Global->Opt->LocalProfilePath);
-				Global->Opt->LocalProfilePath += L"Far Manager";
-			}
-
-			string* Paths[]={&Global->Opt->ProfilePath, &Global->Opt->LocalProfilePath};
-			std::for_each(RANGE(Paths, i)
-			{
-				AddEndSlash(*i);
-				*i += L"Profile";
-				CreatePath(*i, true);
-			});
+				GetShellProfilePath(CSIDL_LOCAL_APPDATA);
 		}
 		else
 		{
-			const auto strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile");
+			const auto strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", path::join(L"%FARHOME%"_sv, L"Profile"_sv));
 			const auto strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
 			Global->Opt->ProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserProfileDir)));
 			Global->Opt->LocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserLocalProfileDir)));
@@ -373,24 +363,20 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	else
 	{
 		Global->Opt->ProfilePath = strProfilePath;
-		Global->Opt->LocalProfilePath = strLocalProfilePath.empty() ? strProfilePath : strLocalProfilePath;
+		Global->Opt->LocalProfilePath = !strLocalProfilePath.empty()? strLocalProfilePath : strProfilePath;
 	}
 
-	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
+	Global->Opt->LoadPlug.strPersonalPluginsPath = path::join(Global->Opt->ProfilePath, L"Plugins"_sv);
 
 	os::env::set(L"FARPROFILE"_sv, Global->Opt->ProfilePath);
 	os::env::set(L"FARLOCALPROFILE"_sv, Global->Opt->LocalProfilePath);
 
-	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
-		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
-
 	if (!Global->Opt->ReadOnlyConfig)
 	{
-		CreatePath(Global->Opt->ProfilePath + L"\\PluginsData", true);
-		if (Global->Opt->ProfilePath != Global->Opt->LocalProfilePath)
-		{
-			CreatePath(Global->Opt->LocalProfilePath + L"\\PluginsData", true);
-		}
+		CreatePath(path::join(Global->Opt->ProfilePath, L"PluginsData"_sv), true);
+
+		if (Global->Opt->LocalProfilePath != Global->Opt->ProfilePath)
+			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"_sv), true);
 	}
 }
 

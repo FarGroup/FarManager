@@ -116,7 +116,7 @@ class DialogBuilder: noncopyable, public base<DialogBuilderBase<DialogItemEx>>
 public:
 	explicit DialogBuilder(lng TitleMessageId, string_view HelpTopic = {}, Dialog::dialog_handler handler = nullptr);
 	DialogBuilder();
-	~DialogBuilder();
+	~DialogBuilder() override;
 
 	// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
 	virtual DialogItemEx *AddIntEditField(int *Value, int Width) override;

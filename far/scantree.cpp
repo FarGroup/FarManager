@@ -82,8 +82,7 @@ void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD Ne
 	Item.RealPath = strFindPath;
 	Item.ActiveDirectories.emplace(strFindPath);
 
-	AddEndSlash(strFindPath);
-	strFindPath += strFindMask;
+	path::append(strFindPath, strFindMask);
 
 	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
 
@@ -187,9 +186,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 		const auto is_link = os::fs::is_directory_symbolic_link(fdata);
 		if ((fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) && (!is_link || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{
-			string RealPath(ScanItems.back().RealPath);
-			AddEndSlash(RealPath);
-			RealPath += fdata.strFileName;
+			auto RealPath = path::join(ScanItems.back().RealPath, fdata.strFileName);
 
 			if (is_link)
 				RealPath = NTPath(ConvertNameToReal(RealPath));

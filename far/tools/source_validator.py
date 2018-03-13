@@ -7,7 +7,8 @@ import traceback
 def check(filename):
 	#print(filename)
 	with open(filename, encoding="utf-8") as f:
-		content = f.read().splitlines()
+		RawContent = f.read()
+		content = RawContent.splitlines()
 		basename = os.path.basename(filename)
 		name, extension = os.path.splitext(basename)
 		UuidRe = re.compile('_[0-9A-F]{8}_[0-9A-F]{4}_[0-9A-F]{4}_[0-9A-F]{4}_[0-9A-F]{12}\Z', re.I)
@@ -31,6 +32,9 @@ def check(filename):
 			raise Exception(name + extension, LineNumber, content[LineNumber])
 
 		if CheckBom and not IsBom:
+			Raise()
+
+		if RawContent[-1][-1] not in ['\r', '\n']:
 			Raise()
 
 		if extension in [".hpp", ".h"] and CheckIncludeGuards:

@@ -237,8 +237,7 @@ static os::handle create_named_pipe(const string& Name)
 		return nullptr;
 
 	SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
-	const auto strPipe = L"\\\\.\\pipe\\" + Name;
-	return os::handle(CreateNamedPipe(strPipe.data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
+	return os::handle(CreateNamedPipe(concat(L"\\\\.\\pipe\\"_sv, Name).data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
 }
 
 static os::handle create_job_for_current_process()

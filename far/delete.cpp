@@ -292,7 +292,7 @@ static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 		return false;
 
 	string strTempName;
-	if (!FarMkTempEx(strTempName, nullptr, false))
+	if (!FarMkTempEx(strTempName, {}, false))
 		return false;
 
 	if (!os::fs::move_file(Name, strTempName))
@@ -310,7 +310,7 @@ static bool WipeDirectory(const string& Name)
 		strPath.clear();
 	}
 
-	FarMkTempEx(strTempName,nullptr, false, strPath.empty()?nullptr:strPath.data());
+	FarMkTempEx(strTempName, {}, false, strPath);
 
 	if (!os::fs::move_file(Name, strTempName))
 	{
@@ -659,25 +659,17 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 				if (!DirSymLink && (!Global->Opt->DeleteToRecycleBin || Wipe))
 				{
-					string strFullName;
 					ScanTree ScTree(true, true, FALSE);
-					string strSelFullName;
 
-					if (IsAbsolutePath(strSelName))
-					{
-						strSelFullName=strSelName;
-					}
-					else
-					{
-						strSelFullName = SrcPanel->GetCurDir();
-						AddEndSlash(strSelFullName);
-						strSelFullName+=strSelName;
-					}
+					const auto strSelFullName = IsAbsolutePath(strSelName)?
+						strSelName :
+						path::join(SrcPanel->GetCurDir(), strSelName);
 
 					ScTree.SetFindPath(strSelFullName,L"*", 0);
 					const time_check TreeTimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 
 					os::fs::find_data FindData;
+					string strFullName;
 					while (ScTree.GetNextName(FindData,strFullName))
 					{
 						int TreeTotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;

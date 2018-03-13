@@ -2714,7 +2714,7 @@ size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix) n
 	try
 	{
 		string strDest;
-		if (FarMkTempEx(strDest, Prefix, true) && Dest && DestSize)
+		if (FarMkTempEx(strDest, NullToEmpty(Prefix), true) && Dest && DestSize)
 		{
 			xwcsncpy(Dest, strDest.data(), DestSize);
 		}

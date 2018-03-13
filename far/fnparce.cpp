@@ -331,7 +331,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 
 		if (*CurStr==L'!')
 		{
-			if (wcspbrk(SubstData.Default().Normal.Name.data(), L"\\:"))
+			if (SubstData.Default().Normal.Name.find_first_of(L"\\:") != string::npos)
 				strCurDir.clear();
 		}
 
@@ -736,10 +736,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 		{
 			if (contains(Modifers, L'F') && PointToName(strFileName).size() == strFileName.size()) // 'F' - использовать полный путь; //BUGBUG ?
 			{
-				auto strTempFileName = ShortNames? ConvertNameToShort(m_CurDir) : m_CurDir;
-				AddEndSlash(strTempFileName);
-				strTempFileName += strFileName; //BUGBUG ?
-				strFileName = strTempFileName;
+				strFileName = path::join(ShortNames? ConvertNameToShort(m_CurDir) : m_CurDir, strFileName); //BUGBUG ?
 			}
 
 			if (contains(Modifers, L'Q')) // 'Q' - заключать имена с пробелами в кавычки;

@@ -134,7 +134,7 @@ static void EnsureLuaCpuCompatibility()
 	if (IsProcessorFeaturePresent(PF_XMMI64_INSTRUCTIONS_AVAILABLE))
 		return;
 
-	static os::rtdl::module LuaModule(Global->g_strFarPath + L"\\legacy\\lua51.dll");
+	static os::rtdl::module LuaModule(path::join(Global->g_strFarPath, L"legacy"_sv, L"lua51.dll"_sv));
 	// modules are lazy loaded
 	LuaModule.operator bool();
 #endif
@@ -367,7 +367,7 @@ void PluginManager::LoadFactories()
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
 	os::fs::find_data FindData;
-	ScTree.SetFindPath(Global->g_strFarPath + L"\\Adapters", L"*");
+	ScTree.SetFindPath(path::join(Global->g_strFarPath, L"Adapters"_sv), L"*");
 
 	string filename;
 	while (ScTree.GetNextName(FindData, filename))
@@ -970,18 +970,13 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 	Info.DestPath = DestPath.data();
 	Info.OpMode = OpMode;
 
-	int GetCode = hPlugin->plugin()->GetFiles(&Info);
+	const auto GetCode = hPlugin->plugin()->GetFiles(&Info);
 
-	string strFindPath = Info.DestPath;
-	AddEndSlash(strFindPath);
-	strFindPath += L'*';
-	const auto Find = os::fs::enum_files(strFindPath);
+	const auto Find = os::fs::enum_files(path::join(Info.DestPath, L'*'));
 	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{
-		strResultName = Info.DestPath;
-		AddEndSlash(strResultName);
-		strResultName += ItemIterator->strFileName;
+		strResultName = path::join(Info.DestPath, ItemIterator->strFileName);
 
 		if (GetCode!=1)
 		{

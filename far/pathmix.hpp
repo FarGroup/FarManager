@@ -35,6 +35,86 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+namespace path
+{
+	inline auto separators()
+	{
+		return L"\\/"_sv;
+	}
+
+	namespace detail
+	{
+		inline void append_one(string& Str, wchar_t const Arg, size_t const, size_t const Size) { Str.append(&Arg, Size); }
+		inline void append_one(string& Str, const wchar_t* const Arg, size_t const Offset, size_t const Size) { Str.append(Arg + Offset, Size); }
+		inline void append_one(string& Str, const string& Arg, size_t const Offset, size_t const Size) { Str.append(Arg, Offset, Size); }
+		inline void append_one(string& Str, string_view const Arg, size_t const Offset, size_t const Size) { Str.append(Arg.raw_data() + Offset, Size); }
+
+		inline void append_impl(string&, size_t, size_t, const size_t*, const size_t*) {}
+
+		template<typename arg, typename... args>
+		void append_impl(string& Str, size_t const Index, size_t const Count, const size_t* const Offsets, const size_t* const Sizes, arg&& Arg, args&&... Args)
+		{
+			if (!Str.empty() && (*Sizes || Index + 1 == Count))
+				Str += separators().front();
+
+			append_one(Str, FWD(Arg), *Offsets, *Sizes);
+			append_impl(Str, Index + 1, Count, Offsets + 1, Sizes + 1, FWD(Args)...);
+		}
+
+		inline size_t size_one(size_t&, wchar_t const Char)
+		{
+			return separators().find(Char) == string_view::npos? 1 : 0;
+		}
+
+		inline size_t size_one(size_t& Offset, string_view Str)
+		{
+			const auto Begin = Str.find_first_not_of(separators());
+			if (Begin == string_view::npos)
+				return 0;
+
+			Str.remove_prefix(Offset = Begin);
+
+			const auto LastCharPos = Str.find_last_not_of(separators());
+			if (LastCharPos == string_view::npos)
+				return 0;
+
+			Str.remove_suffix(Str.size() - LastCharPos - 1);
+
+			return Str.size();
+		}
+
+		inline size_t size_impl(size_t*, size_t*) { return 0; }
+
+		template<typename arg, typename... args>
+		size_t size_impl(size_t* const Offsets, size_t* const Sizes, arg&& Arg, args&&... Args)
+		{
+			*Sizes = size_one(*Offsets, FWD(Arg));
+			return *Sizes + size_impl(Offsets + 1, Sizes + 1, FWD(Args)...);
+		}
+	}
+
+	template<typename... args>
+	void append(string& Str, args&&... Args)
+	{
+		const auto LastCharPos = string_view(Str).find_last_not_of(separators());
+		Str.resize(LastCharPos == string::npos? 0 : LastCharPos + 1);
+
+		size_t Sizes[sizeof...(Args)];
+		size_t Offsets[sizeof...(Args)]{};
+		reserve_exp_noshrink(Str, Str.size() + detail::size_impl(Offsets, Sizes, FWD(Args)...) + sizeof...(Args) - 1);
+		detail::append_impl(Str, 0, sizeof...(Args), Offsets, Sizes, FWD(Args)...);
+	}
+
+	template<typename arg, typename... args>
+	[[nodiscard]]
+	string join(arg&& Arg, args&&... Args)
+	{
+		auto Str = string(FWD(Arg));
+		path::append(Str, FWD(Args)...);
+		return Str;
+	}
+}
+
 class NTPath:public string
 {
 	void Transform();
@@ -92,12 +172,12 @@ bool ContainsSlash(string_view Str);
 size_t FindSlash(string_view Str);
 size_t FindLastSlash(string_view Str);
 
-bool TestParentFolderName(const string& Name);
-bool TestCurrentDirectory(const string& TestDir);
+bool TestParentFolderName(string_view Name);
+bool TestCurrentDirectory(string_view TestDir);
 
-string ExtractPathRoot(const string &Path);
-string ExtractFileName(const string &Path);
-string ExtractFilePath(const string &Path);
+string ExtractPathRoot(string_view Path);
+string ExtractFileName(string_view Path);
+string ExtractFilePath(string_view Path);
 
 void TestPathParser();
 

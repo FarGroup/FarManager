@@ -377,7 +377,7 @@ private:
 class async_delete_impl: virtual public async_delete
 {
 public:
-	virtual ~async_delete_impl()
+	virtual ~async_delete_impl() override
 	{
 		m_AsyncDone.set();
 	}
@@ -2227,7 +2227,7 @@ enum dbcheck: int
 
 HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, concat(L"PluginsData\\"_sv, guid, L".db"_sv), encoding::utf8::get_bytes(guid).data(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"_sv, guid) + L".db"_sv, encoding::utf8::get_bytes(guid).data(), Local, true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
@@ -2294,7 +2294,7 @@ bool config_provider::Export(const string& File)
 	{
 		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		for(auto& i: os::fs::enum_files(Global->Opt->ProfilePath + L"\\PluginsData\\*.db"))
+		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"_sv, L"*.db"_sv)))
 		{
 			i.strFileName.resize(i.strFileName.size()-3);
 			inplace::upper(i.strFileName);

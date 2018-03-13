@@ -358,19 +358,11 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 	while ((ExitCode != EC_CLOSE_LEVEL) && (ExitCode != EC_CLOSE_MENU) && (ExitCode != EC_COMMAND_SELECTED))
 	{
-		string strMenuFileFullPath;
-		if (MenuFileName.empty())
-		{
-			strMenuFileFullPath = strMenuFilePath;
-			AddEndSlash(strMenuFileFullPath);
-			strMenuFileFullPath += LocalMenuFileName;
-		}
-		else
-		{
-			strMenuFileFullPath = MenuFileName;
-		}
-
 		m_Menu.clear();
+
+		const auto strMenuFileFullPath = !MenuFileName.empty()?
+			MenuFileName :
+			path::join(strMenuFilePath, LocalMenuFileName);
 
 		// Пытаемся открыть файл на локальном диске
 		if (os::fs::is_file(strMenuFileFullPath))

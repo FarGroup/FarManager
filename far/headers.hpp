@@ -94,7 +94,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #undef _W32API_OLD
 
 #ifdef _MSC_VER
-# if _MSC_FULL_VER < 190024210
+# if !defined __clang__ && _MSC_FULL_VER < 190024210
 #  error Visual C++ 2015 Update 3 (or higher) required
 # endif
 # include <sdkddkver.h>

@@ -201,12 +201,12 @@ int CmpFullNames(const string& Src,const string& Dest)
 	return equal_icase(ToFull(Src), ToFull(Dest));
 }
 
-bool CheckNulOrCon(const wchar_t *Src)
+bool CheckNulOrCon(string_view Src)
 {
 	if (HasPathPrefix(Src))
-		Src+=4;
+		Src.remove_prefix(4);
 
-	return (starts_with_icase(Src, L"nul"_sv) || starts_with_icase(Src, L"con"_sv)) && (IsSlash(Src[3]) || !Src[3]);
+	return (starts_with_icase(Src, L"nul"_sv) || starts_with_icase(Src, L"con"_sv)) && (Src.size() == 3 || (Src.size() > 3 && IsSlash(Src[3])));
 }
 
 string GetParentFolder(const string& Src)
@@ -232,11 +232,7 @@ int CmpFullPath(const string& Src, const string& Dest)
 static void GenerateName(string &strName, const string& Path)
 {
 	if (!Path.empty())
-	{
-		auto strTmp = Path;
-		AddEndSlash(strTmp);
-		strName = strTmp + PointToName(strName);
-	}
+		strName = path::join(Path, PointToName(strName));
 
 	// The source string will be altered below so the view must be copied
 	const string Ext(PointToExt(strName));
@@ -659,7 +655,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				strNewDir.resize(pos);
 
 				if (!pos || strNewDir[pos-1]==L':')
-					strNewDir += L'\\';
+					AddEndSlash(strNewDir);
 
 				FarChDir(strNewDir);
 			}
@@ -719,10 +715,9 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	string strDestDir(DestPanel->GetCurDir());
 	if(ToSubdir)
 	{
-		AddEndSlash(strDestDir);
 		string strSubdir, strShort;
 		DestPanel->GetCurName(strSubdir, strShort);
-		strDestDir+=strSubdir;
+		path::append(strDestDir, strSubdir);
 	}
 	string strSrcDir(SrcPanel->GetCurDir());
 
@@ -1114,7 +1109,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				if ((strNameTmp.size() == 2) && is_alpha(strNameTmp[0]) && (strNameTmp[1] == L':'))
 					PrepareDiskPath(strNameTmp);
 
-				if (CheckNulOrCon(strNameTmp.data()))
+				if (CheckNulOrCon(strNameTmp))
 				{
 					Flags|=FCOPY_COPYTONUL;
 					strNameTmp = L"\\\\?\\nul\\";

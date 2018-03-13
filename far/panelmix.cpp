@@ -427,9 +427,14 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				NewColumn.type = ItemIterator->Type;
 			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
 			{
-				unsigned int num;
-				if (1 == swscanf(TypeOrig.data()+1, L"%u", &num))
-					NewColumn.type = CUSTOM_COLUMN0 + num;
+				try
+				{
+					NewColumn.type = CUSTOM_COLUMN0 + std::stoi(TypeOrig.substr(1));
+				}
+				catch (const std::exception&)
+				{
+					// TODO: diagnostics
+				}
 			}
 			else
 			{
@@ -718,13 +723,10 @@ string FormatStr_Size(long long Size, const string& strName,
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
 						lng ID_Msg = lng::MListJunction;
-						if (Global->Opt->PanelDetailedJunction)
+						if (Global->Opt->PanelDetailedJunction && CurDir)
 						{
-							string strLinkName=CurDir?CurDir:L"";
-							AddEndSlash(strLinkName);
-							append(strLinkName, PointToName(strName));
-
-							if (GetReparsePointInfo(strLinkName, strLinkName))
+							string strLinkName;
+							if (GetReparsePointInfo(path::join(CurDir, PointToName(strName)), strLinkName))
 							{
 								NormalizeSymlinkName(strLinkName);
 								bool Root;

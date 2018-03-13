@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "tracer.hpp"
 #include "string_utils.hpp"
+#include "pathmix.hpp"
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
@@ -117,7 +118,7 @@ static bool write_minidump(const exception_context& Context)
 		return false;
 
 	// TODO: subdirectory && timestamp
-	const os::fs::file DumpFile(Global->Opt->LocalProfilePath + L"\\Far.mdmp", GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	const os::fs::file DumpFile(path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
 	if (!DumpFile)
 		return false;
 

@@ -139,19 +139,18 @@ string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, cons
 }
 #endif
 
-string& CreateTreeFileName(const string& Path, string &strDest)
+static string CreateTreeFileName(string_view const Path)
 {
 #if defined(TREEFILE_PROJECT)
 	string strRootDir = ExtractPathRoot(Path);
 	string strTreeFileName;
 	string strPath;
-	strDest = L"";
 
-	for (const auto& i: enum_strings_ex(Global->Opt->Tree.strExceptPath, 0, L";"))
+	for (const auto& i: enum_tokens_with_quotes(Global->Opt->Tree.strExceptPath.Get(), L",;"_sv))
 	{
 		if (equal_icase(strRootDir,  i))
 		{
-			return strDest;
+			return {};
 		}
 	}
 
@@ -239,54 +238,37 @@ string& CreateTreeFileName(const string& Path, string &strDest)
 			break;
 
 		}
-		if ( !strPath.empty() )
-		{
-			strDest = os::env::expand(strPath);
-		}
-		else
-		{
-			strDest = Path;
-		}
-		AddEndSlash(strDest);
-		strDest += strTreeFileName;
+
+		return path::join(!strPath.empty()? os::env::expand(strPath) : Path, strTreeFileName);
 	}
 	else
 	{
-		strDest = Path;
-		AddEndSlash(strDest);
-		strDest += L"tree3.far";
+		return path::join(Path, L"tree3.far"_sv);
 	}
 
 #else
-	strDest = Path;
-	AddEndSlash(strDest);
-	strDest += L"tree3.far";
+	return path::join(Path, L"tree3.far"_sv);
 #endif
-	return strDest;
 }
 
 // TODO: Файлы "Tree3.Far" для локальных дисков должны храниться в "Local AppData\Far Manager"
 // TODO: Файлы "Tree3.Far" для сменных дисков должны храниться на самих "дисках"
 // TODO: Файлы "Tree3.Far" для сетевых дисков должны храниться в "%HOMEDRIVE%\%HOMEPATH%",
 //                        если эти переменные среды не определены, то "%APPDATA%\Far Manager"
-string& MkTreeFileName(const string& RootDir, string &strDest)
+static string MkTreeFileName(const string_view RootDir)
 {
-	CreateTreeFileName(RootDir, strDest);
-	return strDest;
+	return CreateTreeFileName(RootDir);
 }
 
 // этому каталогу (Tree.Cache) место не в FarPath, а в "Local AppData\Far\"
-string& MkTreeCacheFolderName(const string& RootDir, string &strDest)
+static string MkTreeCacheFolderName(const string_view RootDir)
 {
 #if defined(TREEFILE_PROJECT)
 	// в проекте TREEFILE_PROJECT наличие каталога tree3.cache не предполагается
-	CreateTreeFileName(RootDir, strDest);
+	return CreateTreeFileName(RootDir);
 #else
-	strDest = RootDir;
-	AddEndSlash(strDest);
-	strDest += L"tree3.cache";
+	return path::join(RootDir, L"tree3.cache");
 #endif
-	return strDest;
 }
 
 static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
@@ -304,8 +286,7 @@ static bool GetCacheTreeName(const string& Root, string& strName, int CreateDir)
 		))
 		return false;
 
-	string strFolderName;
-	MkTreeCacheFolderName(Global->Opt->LocalProfilePath, strFolderName);
+	const auto strFolderName = MkTreeCacheFolderName(Global->Opt->LocalProfilePath);
 #if defined(TREEFILE_PROJECT)
 	if (strFolderName.empty())
 		return false;
@@ -885,10 +866,8 @@ void TreeList::SaveTreeFile()
 	if (m_ListData.size() < static_cast<size_t>(Global->Opt->Tree.MinTreeCount))
 		return;
 
-	string strName;
-
-	size_t RootLength=m_Root.empty()?0:m_Root.size()-1;
-	MkTreeFileName(m_Root, strName);
+	const auto RootLength = m_Root.empty()? 0 : m_Root.size() - 1;
+	auto strName = MkTreeFileName(m_Root);
 #if defined(TREEFILE_PROJECT)
 	if (strName.empty())
 		return;
@@ -1669,10 +1648,9 @@ bool TreeList::ReadTreeFile()
 	SCOPE_EXIT{ m_ReadingTree = false; };
 
 	size_t RootLength=m_Root.empty()?0:m_Root.size()-1;
-	string strName;
 	//SaveState();
 	FlushCache();
-	MkTreeFileName(m_Root,strName);
+	auto strName = MkTreeFileName(m_Root);
 #if defined(TREEFILE_PROJECT)
 	if (strName.empty())
 		return false;
@@ -1893,8 +1871,8 @@ void TreeList::ReadCache(const string& TreeRoot)
 	if (Global->Opt->Tree.TurnOffCompletely)
 		return;
 
-	string strTreeName;
-	if (MkTreeFileName(TreeRoot, strTreeName) == TreeCache().GetTreeName())
+	auto strTreeName = MkTreeFileName(TreeRoot);
+	if (strTreeName == TreeCache().GetTreeName())
 		return;
 
 	if (!TreeCache().empty())
