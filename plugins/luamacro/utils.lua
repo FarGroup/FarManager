@@ -64,6 +64,7 @@ local EventGroups = {"dialogevent","editorevent","editorinput","exitfar","viewer
 local AddedMenuItems
 local AddedPrefixes
 local IdSet
+local LoadedPanelModules
 
 package.nounload = {lpeg=true}
 local initial_modules = {}
@@ -646,6 +647,7 @@ local function LoadMacros (unload, paths)
   AddedMenuItems = {}
   AddedPrefixes = { [1]="" }
   IdSet = {}
+  LoadedPanelModules = {}
   if Shared.panelsort then Shared.panelsort.DeleteSortModes() end
 
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
@@ -707,7 +709,13 @@ local function LoadMacros (unload, paths)
         Event = function(t) return not not AddEvent(t,FullPath) end;
         MenuItem = function(t) return AddMenuItem(t,FullPath) end;
         CommandLine = function(t) return AddPrefixes(t,FullPath) end;
-        NoMacro=DummyFunc, NoEvent=DummyFunc, NoMenuItem=DummyFunc, NoCommandLine=DummyFunc }
+        PanelModule =
+          function(t)
+            if type(t) == "table" then table.insert(LoadedPanelModules,t) end
+          end;
+        NoMacro=DummyFunc, NoEvent=DummyFunc, NoMenuItem=DummyFunc, NoCommandLine=DummyFunc,
+        NoPanelModule=DummyFunc
+      }
       setmetatable(env,gmeta)
       setfenv(f, env)
       local ok, msg = xpcall(function() return f(FullPath) end, debug.traceback)
@@ -1162,4 +1170,5 @@ return {
   RunStartMacro = RunStartMacro,
   UnloadMacros = InitMacroSystem,
   WriteMacros = WriteMacros,
+  GetPanelModules = function() return LoadedPanelModules end
 }

@@ -389,9 +389,24 @@ local function ProcessCommandLine (strCmdLine)
     end
   else
     local item = utils.GetPrefixes()[prefix]
-    if item then item.action(prefix, text) end
+    if item then return item.action(prefix, text) end
   end
 end
+
+local function ModuleExist(mod)
+  for _,module in ipairs(utils.GetPanelModules()) do
+    if mod == module then return true; end
+  end
+end
+
+local TableCanCreatePanel = {
+  [F.OPEN_LEFTDISKMENU]  = true;
+  [F.OPEN_RIGHTDISKMENU] = true;
+  [F.OPEN_FINDLIST]      = true;
+  [F.OPEN_SHORTCUT]      = true;
+--[F.OPEN_FILEPANEL]     = true; -- does it needed?
+  [F.OPEN_PLUGINSMENU]   = true;
+}
 
 function export.Open (OpenFrom, arg1, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
@@ -426,9 +441,21 @@ function export.Open (OpenFrom, arg1, ...)
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
     local guid, cmdline =  arg1, ...
-    return ProcessCommandLine(cmdline)
+    local mod, obj = ProcessCommandLine(cmdline)
+    if mod and obj and ModuleExist(mod) then
+      return { module=mod; object=obj }
+    end
 
-  elseif OpenFrom == F.OPEN_FROMMACRO then
+  elseif OpenFrom == F.OPEN_ANALYSE then
+    local tbl = ...
+    local module = tbl.Handle.module
+    if type(module.Open) == "function" then
+      tbl.Handle = tbl.Handle.object
+      local obj = module.Open(OpenFrom, arg1, tbl)
+      return obj and { module=module; object=obj }
+    end
+
+  elseif OpenFrom == F.OPEN_FROMMACRO then -- TODO: add panel modules support
     local guid, args =  arg1, ...
     if args[1]=="argtest" then -- argtest: return received arguments
       return unpack(args,2,args.n)
@@ -439,7 +466,10 @@ function export.Open (OpenFrom, arg1, ...)
   else
     local items = utils.GetMenuItems()
     if items[arg1] then
-      items[arg1].action(OpenFrom, ...)
+      local mod, obj = items[arg1].action(OpenFrom, ...)
+      if TableCanCreatePanel[OpenFrom] and mod and obj and ModuleExist(mod) then
+        return { module=mod; object=obj }
+      end
     else
       macrobrowser()
     end
@@ -447,6 +477,7 @@ function export.Open (OpenFrom, arg1, ...)
   end
 end
 
+-- TODO: when called from a module's panel, call that module's Configure()
 function export.Configure (guid)
   local items = utils.GetMenuItems()
   if items[guid] then items[guid].action() end
@@ -538,6 +569,30 @@ local function Init()
     _G.IsLuaStateRecreated = nil
     utils.LoadMacros()
   end
+end
+
+function export.Analyse(Data)
+  for _,module in ipairs(utils.GetPanelModules()) do
+    if type(module.Analyse) == "function" then
+      local datacopy = {}; for k,v in pairs(Data) do datacopy[k]=v; end -- prevent modifying 'Data'
+      local obj = module.Analyse(datacopy)
+      if obj then
+        return { module=module; object=obj }
+      end
+    end
+  end
+end
+
+for _,name in ipairs {"ClosePanel","Compare","DeleteFiles","GetFiles","GetFindData",
+      "GetOpenPanelInfo","MakeDirectory","ProcessHostFile","ProcessPanelEvent","ProcessPanelInput",
+      "PutFiles","SetDirectory","SetFindList"} do
+  export[name] =
+    function(wrapped_object, handle, ...)
+      local func = wrapped_object.module[name]
+      if type(func) == "function" then
+        return func(wrapped_object.object, handle, ...)
+      end
+    end
 end
 
 local ok, msg = pcall(Init) -- pcall is used to handle RunPluginFile() failure in one place only
