@@ -1,4 +1,8 @@
-﻿shmuel 13.03.2018 14:13:29 +0200 - build 639
+﻿shmuel 13.03.2018 22:50:03 +0200 - build 640
+
+1. Fix build 638 (сломались OPEN_FINDLIST и OPEN_SHORTCUT).
+
+shmuel 13.03.2018 14:13:29 +0200 - build 639
 
 1. Функция CloseAnalyseW не экспортировалась.
 

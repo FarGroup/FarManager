@@ -455,6 +455,14 @@ function export.Open (OpenFrom, arg1, ...)
       return obj and { module=module; object=obj }
     end
 
+  elseif OpenFrom == F.OPEN_FINDLIST or OpenFrom == F.OPEN_SHORTCUT then
+    for _,module in ipairs(utils.GetPanelModules()) do
+      if type(module.Open) == "function" then
+        local obj = module.Open(OpenFrom, arg1, ...)
+        if obj then return { module=module; object=obj }; end
+      end
+    end
+
   elseif OpenFrom == F.OPEN_FROMMACRO then -- TODO: add panel modules support
     local guid, args =  arg1, ...
     if args[1]=="argtest" then -- argtest: return received arguments
