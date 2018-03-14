@@ -347,15 +347,25 @@ lv=2
 dt=Text
 nm=Добавление панельных модулей
 ctime=3730113290
-mtime=3730143885
+mtime=3730230600
 <article>
 #_<markdown>
 #_
-#_"Панельный модуль" - это набор Lua-функций, помещённых в таблицу, который загружаеся функцией `PanelModule`. Имена функций модуля и их параметры совпадают с функциями таблицы `export` (см. мануал LuaFAR).
+#_"Панельный модуль" - это набор Lua-функций, помещённых в таблицу, который загружается функцией `PanelModule`.
+#_
+#_- Имена функций модуля и их параметры совпадают с функциями таблицы `export` (см. мануал LuaFAR).
+#_- Каждый панельный модуль должен содержать таблицу `Info` с обязательным полем `Guid`. Прочие поля - опциональны.
 #_
 #_```
 #_-- Создадим панельный модуль
 #_local mod  = {}
+#_mod.Info = {
+#_  Guid        = "FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"; -- обязательное поле
+#_  Version     = "";
+#_  Title       = "";
+#_  Description = "";
+#_  Author      = "";
+#_}
 #_
 #_-- Добавим только те "экспортируемые" функции, которые нужны для работы этого модуля
 #_mod.Analyse     = function(...) ...... end
@@ -382,13 +392,17 @@ lv=3
 dt=Text
 nm=Пример применения
 ctime=3730118337
-mtime=3730118407
+mtime=3730230738
 <article>
 #_<markdown>
 #_```
 #_local F = far.Flags
 #_local Title ="Demo panel in LuaMacro"
+#_
 #_local mod = {}
+#_mod.Info = {
+#_  Guid = "FBBC5FBF-AE9F-46EC-999C-C744F7D898B6";
+#_}
 #_
 #_local function FileToObject(FileName)
 #_  FileName = far.ConvertPath(FileName, "CPM_FULL")
@@ -446,6 +460,7 @@ mtime=3730118407
 #_
 #_PanelModule(mod)
 #_```
+#_
 </article>
 </node>
 <node>

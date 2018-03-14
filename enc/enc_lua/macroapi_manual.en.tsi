@@ -345,15 +345,25 @@ lv=2
 dt=Text
 nm=Adding panel modules
 ctime=3730113272
-mtime=3730144030
+mtime=3730230364
 <article>
 #_<markdown>
 #_
-#_"Panel module" is a set of Lua functions placed in a table and loaded with `PanelModule` function. Names of those functions and their parameter sets coincide with functions from `export` table (see LuaFAR manual).
+#_"Panel module" is a set of Lua functions placed in a table and loaded with `PanelModule` function.
+#_
+#_- Names of those functions and their parameter sets coincide with functions from `export` table (see LuaFAR manual).
+#_- Every panel module must contain a table `Info` with a mandatory field `Guid`. Other fields are optional.
 #_
 #_```
 #_-- Create a panel module
 #_local mod  = {}
+#_mod.Info = {
+#_  Guid        = "FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"; -- mandatory field
+#_  Version     = "";
+#_  Title       = "";
+#_  Description = "";
+#_  Author      = "";
+#_}
 #_
 #_-- Add only those "exported" functions that are needed for this panel module
 #_mod.Analyse     = function(...) ...... end
@@ -380,13 +390,17 @@ lv=3
 dt=Text
 nm=Demo example
 ctime=3730114449
-mtime=3730114480
+mtime=3730230715
 <article>
 #_<markdown>
 #_```
 #_local F = far.Flags
 #_local Title ="Demo panel in LuaMacro"
+#_
 #_local mod = {}
+#_mod.Info = {
+#_  Guid = "FBBC5FBF-AE9F-46EC-999C-C744F7D898B6";
+#_}
 #_
 #_local function FileToObject(FileName)
 #_  FileName = far.ConvertPath(FileName, "CPM_FULL")

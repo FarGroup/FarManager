@@ -455,10 +455,23 @@ function export.Open (OpenFrom, arg1, ...)
       return obj and { module=module; object=obj }
     end
 
-  elseif OpenFrom == F.OPEN_FINDLIST or OpenFrom == F.OPEN_SHORTCUT then
+  elseif OpenFrom == F.OPEN_FINDLIST then
     for _,module in ipairs(utils.GetPanelModules()) do
       if type(module.Open) == "function" then
         local obj = module.Open(OpenFrom, arg1, ...)
+        if obj then return { module=module; object=obj }; end
+      end
+    end
+
+  elseif OpenFrom == F.OPEN_SHORTCUT then
+    local info = ...
+    local guid, data = info.ShortcutData:match(
+      "^(%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x)/(.+)")
+    if guid then
+      local module = utils.GetPanelModules()[guid:lower()]
+      if module and type(module.Open) == "function" then
+        info.ShortcutData = data
+        local obj = module.Open(OpenFrom, arg1, info)
         if obj then return { module=module; object=obj }; end
       end
     end
@@ -591,8 +604,26 @@ function export.Analyse(Data)
   end
 end
 
+function export.GetOpenPanelInfo (wrapped_object, handle, ...)
+  local mod, obj = wrapped_object.module, wrapped_object.object
+  if type(mod.GetOpenPanelInfo) == "function" then
+    local op_info = mod.GetOpenPanelInfo(obj, handle, ...)
+    if type(op_info) == "table" and
+       type(mod.Info) == "table" and
+       type(mod.Info.Guid) == "string"
+    then
+      if type(op_info.ShortcutData) == "string" then
+        info.ShortcutData = mod.Info.Guid .. "/" .. info.ShortcutData
+      end
+      return op_info
+    end
+  end
+  return {} -- Far crashes (silently) if something other than a table is returned, e.g. nil.
+            -- TODO: investigate the crash.
+end
+
 for _,name in ipairs {"ClosePanel","Compare","DeleteFiles","GetFiles","GetFindData",
-      "GetOpenPanelInfo","MakeDirectory","ProcessHostFile","ProcessPanelEvent","ProcessPanelInput",
+      "MakeDirectory","ProcessHostFile","ProcessPanelEvent","ProcessPanelInput",
       "PutFiles","SetDirectory","SetFindList"} do
   export[name] =
     function(wrapped_object, handle, ...)

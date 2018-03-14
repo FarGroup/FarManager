@@ -536,6 +536,21 @@ local function AddPrefixes (srctable, FileName)
   return result
 end
 
+local function AddPanelModule (srctable, FileName)
+  if  type(srctable) == "table" and
+      type(srctable.Info) == "table" and
+      type(srctable.Info.Guid) == "string" and
+      srctable.Info.Guid:match(
+        "^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$")
+  then
+    local LGuid = srctable.Info.Guid:lower()
+    if not LoadedPanelModules[LGuid] then
+      LoadedPanelModules[LGuid] = srctable
+      table.insert(LoadedPanelModules, srctable)
+    end
+  end
+end
+
 local function EnumMacros (strArea, resetEnum)
   local area = strArea:lower()
   if Areas[area] then
@@ -709,10 +724,7 @@ local function LoadMacros (unload, paths)
         Event = function(t) return not not AddEvent(t,FullPath) end;
         MenuItem = function(t) return AddMenuItem(t,FullPath) end;
         CommandLine = function(t) return AddPrefixes(t,FullPath) end;
-        PanelModule =
-          function(t)
-            if type(t) == "table" then table.insert(LoadedPanelModules,t) end
-          end;
+        PanelModule = function(t) return AddPanelModule(t,FullPath) end;
         NoMacro=DummyFunc, NoEvent=DummyFunc, NoMenuItem=DummyFunc, NoCommandLine=DummyFunc,
         NoPanelModule=DummyFunc
       }
