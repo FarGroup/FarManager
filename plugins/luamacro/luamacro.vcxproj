@@ -47,10 +47,8 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -71,187 +69,103 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <PropertyGroup >
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>debug.32W.vc$(VisualStudioVersion)\</OutDir>
-    <IntDir>debug.32W.vc$(VisualStudioVersion)\obj_luamacro\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug.32W.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug.64W.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">final.32W.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">final.64W.vc$(VisualStudioVersion)\</OutDir>
+    <IntDir>$(OutDir)\obj_luamacro\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>debug.64W.vc$(VisualStudioVersion)\</OutDir>
-    <IntDir>debug.64W.vc$(VisualStudioVersion)\obj_luamacro\</IntDir>
-    <EmbedManifest>false</EmbedManifest>
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <IntDir>final.32W.vc$(VisualStudioVersion)\obj_luamacro\</IntDir>
-    <OutDir>final.32W.vc$(VisualStudioVersion)\</OutDir>
-    <EmbedManifest>false</EmbedManifest>
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>final.64W.vc$(VisualStudioVersion)\</OutDir>
-    <IntDir>final.64W.vc$(VisualStudioVersion)\obj_luamacro\</IntDir>
-    <EmbedManifest>false</EmbedManifest>
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup>
     <ClCompile>
+      <PreprocessorDefinitions>EXPORT_OPEN;EXPORT_PROCESSEDITOREVENT;EXPORT_PROCESSEDITORINPUT;EXPORT_PROCESSCONSOLEINPUT;EXPORT_PROCESSVIEWEREVENT;EXPORT_PROCESSDIALOGEVENT;EXPORT_CONFIGURE;EXPORT_ANALYSE;EXPORT_CLOSEPANEL;EXPORT_COMPARE;EXPORT_DELETEFILES;EXPORT_GETFILES;EXPORT_GETFINDDATA;EXPORT_GETOPENPANELINFO;EXPORT_MAKEDIRECTORY;EXPORT_PROCESSHOSTFILE;EXPORT_PROCESSPANELEVENT;EXPORT_PROCESSPANELINPUT;EXPORT_PUTFILES;EXPORT_SETDIRECTORY;EXPORT_SETFINDLIST;RUN_LUAFAR_INIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../common/unicode;luasdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>EXPORT_OPEN;EXPORT_PROCESSEDITOREVENT;EXPORT_PROCESSEDITORINPUT;EXPORT_PROCESSCONSOLEINPUT;EXPORT_PROCESSVIEWEREVENT;EXPORT_PROCESSDIALOGEVENT;EXPORT_CONFIGURE;RUN_LUAFAR_INIT;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/unicode;luasdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DisableSpecificWarnings>4577;4996</DisableSpecificWarnings>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
-      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <EnableEnhancedInstructionSet Condition="'$(Platform)'=='Win32'">NoExtensions</EnableEnhancedInstructionSet>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\far\Debug.32.vc$(VisualStudioVersion);luasdk/32</AdditionalLibraryDirectories>
       <GenerateMapFile>true</GenerateMapFile>
       <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
     </Link>
-    <Manifest>
-      <GenerateCategoryTags>false</GenerateCategoryTags>
-    </Manifest>
     <ResourceCompile>
       <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
     </ResourceCompile>
+    <Manifest>
+      <GenerateCategoryTags>false</GenerateCategoryTags>
+    </Manifest>
     <PostBuildEvent>
       <Command>@for %%s in (_globalinfo.lua api.lua farapi.lua lang.lua luamacro.lua macrotest.lua mbrowser.lua panelsort.lua utils.lua winapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng luamacro.example.ini) do @copy /y %%s $(OutDir) 1&gt;nul</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy .lua scripts</Message>
     </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>../../far/Debug.32.vc$(VisualStudioVersion);luasdk/32</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>EXPORT_OPEN;EXPORT_PROCESSEDITOREVENT;EXPORT_PROCESSEDITORINPUT;EXPORT_PROCESSCONSOLEINPUT;EXPORT_PROCESSVIEWEREVENT;EXPORT_PROCESSDIALOGEVENT;EXPORT_CONFIGURE;RUN_LUAFAR_INIT;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/unicode;luasdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <CallingConvention>Cdecl</CallingConvention>
-      <CompileAs>Default</CompileAs>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../far/Debug.64.vc$(VisualStudioVersion);luasdk/64</AdditionalLibraryDirectories>
-      <GenerateMapFile>true</GenerateMapFile>
-      <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <Manifest>
-      <GenerateCategoryTags>false</GenerateCategoryTags>
-    </Manifest>
-    <ResourceCompile>
-      <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
-    </ResourceCompile>
-    <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo.lua api.lua farapi.lua lang.lua luamacro.lua macrotest.lua mbrowser.lua panelsort.lua utils.lua winapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng luamacro.example.ini) do @copy /y %%s $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy .lua scripts</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>EXPORT_OPEN;EXPORT_PROCESSEDITOREVENT;EXPORT_PROCESSEDITORINPUT;EXPORT_PROCESSCONSOLEINPUT;EXPORT_PROCESSVIEWEREVENT;EXPORT_PROCESSDIALOGEVENT;EXPORT_CONFIGURE;RUN_LUAFAR_INIT;WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/unicode;luasdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <CallingConvention>Cdecl</CallingConvention>
-      <CompileAs>Default</CompileAs>
-      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
-      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>../../far/Release.32.vc$(VisualStudioVersion);luasdk/32</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\far\Release.32.vc$(VisualStudioVersion);luasdk/32</AdditionalLibraryDirectories>
-      <GenerateMapFile>true</GenerateMapFile>
-      <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
     </Link>
-    <Manifest>
-      <GenerateCategoryTags>false</GenerateCategoryTags>
-    </Manifest>
-    <ResourceCompile>
-      <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
-    </ResourceCompile>
-    <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo.lua api.lua farapi.lua lang.lua luamacro.lua macrotest.lua mbrowser.lua panelsort.lua utils.lua winapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng luamacro.example.ini) do @copy /y %%s $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy .lua scripts</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>EXPORT_OPEN;EXPORT_PROCESSEDITOREVENT;EXPORT_PROCESSEDITORINPUT;EXPORT_PROCESSCONSOLEINPUT;EXPORT_PROCESSVIEWEREVENT;EXPORT_PROCESSDIALOGEVENT;EXPORT_CONFIGURE;RUN_LUAFAR_INIT;WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../common/unicode;luasdk/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <CallingConvention>Cdecl</CallingConvention>
-      <CompileAs>Default</CompileAs>
-      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>../../far/Release.64.vc$(VisualStudioVersion);luasdk/64</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>lua51.lib;luafar3.lib;kernel32.lib;user32.lib;advapi32.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\far\Release.64.vc$(VisualStudioVersion);luasdk/64</AdditionalLibraryDirectories>
-      <GenerateMapFile>true</GenerateMapFile>
-      <ModuleDefinitionFile>luamacroW.vc.def</ModuleDefinitionFile>
     </Link>
-    <Manifest>
-      <GenerateCategoryTags>false</GenerateCategoryTags>
-    </Manifest>
-    <ResourceCompile>
-      <AdditionalIncludeDirectories>../common/unicode</AdditionalIncludeDirectories>
-    </ResourceCompile>
-    <PostBuildEvent>
-      <Command>@for %%s in (_globalinfo.lua api.lua farapi.lua lang.lua luamacro.lua macrotest.lua mbrowser.lua panelsort.lua utils.lua winapi.lua moonscript.lua keymacro.lua lm_eng.lng lm_rus.lng lm_sky.lng lm_spa.lng luamacro.example.ini) do @copy /y %%s $(OutDir) 1&gt;nul</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy .lua scripts</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\common\vc_crt_fix_impl.cpp">
