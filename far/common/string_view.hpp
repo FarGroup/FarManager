@@ -150,9 +150,14 @@ public:
 		if (Str.empty())
 			return npos;
 
-		for (auto Iterator = this->begin() + (Pos < this->size()? Pos : this->size() - 1); Iterator != this->begin(); --Iterator)
+		for (auto Iterator = this->begin() + (Pos < this->size()? Pos : this->size() - 1); ; --Iterator)
+		{
 			if (Str.find(*Iterator) != npos)
 				return Iterator - this->begin();
+
+			if (Iterator == this->begin())
+				break;
+		}
 
 		return npos;
 	}
@@ -162,9 +167,14 @@ public:
 		if (Str.empty())
 			return npos;
 
-		for (auto Iterator = this->begin() + (Pos < this->size()? Pos : this->size() - 1); Iterator != this->begin(); --Iterator)
+		for (auto Iterator = this->begin() + (Pos < this->size()? Pos : this->size() - 1); ; --Iterator)
+		{
 			if (Str.find(*Iterator) == npos)
 				return Iterator - this->begin();
+
+			if (Iterator == this->begin())
+				break;
+		}
 
 		return npos;
 	}

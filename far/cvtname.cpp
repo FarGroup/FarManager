@@ -189,7 +189,13 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 			break;
 		}
 
-		path::append(strDest, pstCurrentDir, stPath.substr(PathOffset));
+		if (!pstCurrentDir.empty())
+		{
+			append(strDest, pstCurrentDir);
+			AddEndSlash(strDest);
+		}
+
+		append(strDest, stPath.substr(PathOffset));
 
 		if (!blIgnore && !HasPathPrefix(strDest))
 			MixToFullPath(strDest);
