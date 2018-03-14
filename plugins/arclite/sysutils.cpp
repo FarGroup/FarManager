@@ -132,12 +132,12 @@ File::~File() {
   close();
 }
 
-File::File(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD dlags_and_attributes): h_file(INVALID_HANDLE_VALUE) {
-  open(file_path, desired_access, share_mode, creation_disposition, dlags_and_attributes);
+File::File(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes): h_file(INVALID_HANDLE_VALUE) {
+  open(file_path, desired_access, share_mode, creation_disposition, flags_and_attributes);
 }
 
-void File::open(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD dlags_and_attributes) {
-  CHECK_FILE(open_nt(file_path, desired_access, share_mode, creation_disposition, dlags_and_attributes));
+void File::open(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) {
+  CHECK_FILE(open_nt(file_path, desired_access, share_mode, creation_disposition, flags_and_attributes));
 }
 
 bool File::open_nt(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) {

@@ -178,7 +178,17 @@ private:
     if (current_rec.overwrite == oaOverwrite || current_rec.overwrite == oaAppend)
       File::set_attr_nt(file_path, FILE_ATTRIBUTE_NORMAL);
     RETRY_OR_IGNORE_BEGIN
-    file.open(file_path, FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, current_rec.overwrite == oaAppend ? OPEN_EXISTING : CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY);
+    const DWORD access = FILE_WRITE_DATA | FILE_WRITE_ATTRIBUTES;
+    const DWORD shares = FILE_SHARE_READ;
+    const DWORD attrib = FILE_ATTRIBUTE_TEMPORARY;
+    if (current_rec.overwrite == oaAppend) {
+      file.open(file_path, access, shares, OPEN_EXISTING, attrib);
+    } else {
+      if (!file.open_nt(file_path, access, shares, CREATE_ALWAYS, attrib)) {
+        file.delete_file_nt(file_path); // sometimes can help
+        file.open(file_path, access, shares, CREATE_ALWAYS, attrib);
+      }
+    }
     RETRY_OR_IGNORE_END(*ignore_errors, *error_log, *progress)
     if (error_ignored) error_state = true;
     progress->update_cache_file(current_rec.file_path);
@@ -227,8 +237,8 @@ private:
       if (!error_state) {
         RETRY_OR_IGNORE_BEGIN
         file.set_end(); // ensure end of file is set correctly
-        File::set_attr(current_rec.file_path, archive->get_attr(current_rec.file_id));
-        file.set_time(archive->get_ctime(current_rec.file_id), archive->get_atime(current_rec.file_id), archive->get_mtime(current_rec.file_id));
+        File::set_attr_nt(current_rec.file_path, archive->get_attr(current_rec.file_id));
+        file.set_time_nt(archive->get_ctime(current_rec.file_id), archive->get_atime(current_rec.file_id), archive->get_mtime(current_rec.file_id));
         IGNORE_END(*ignore_errors, *error_log, *progress)
         if (error_ignored) error_state = true;
       }
