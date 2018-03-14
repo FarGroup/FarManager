@@ -483,7 +483,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLT: case KEY_RCTRLT:
 			if (Global->Opt->Tree.TurnOffCompletely)
 				break;
-			// fallthrough
+			[[fallthrough]];
 		case KEY_CTRLL: case KEY_RCTRLL:
 		case KEY_CTRLQ: case KEY_RCTRLQ:
 		{
@@ -1247,7 +1247,7 @@ FARMACROAREA FilePanels::GetMacroArea() const
 	return MACROAREA_INVALID;
 }
 
-Viewer* FilePanels::GetViewer(void)
+Viewer* FilePanels::GetViewer()
 {
 	auto result=ActivePanel()->GetViewer();
 	if (!result) result=PassivePanel()->GetViewer();
@@ -1261,7 +1261,7 @@ Viewer* FilePanels::GetById(int ID)
 	return result;
 }
 
-CommandLine* FilePanels::GetCmdLine(void) const
+CommandLine* FilePanels::GetCmdLine() const
 {
 	return CmdLine.get();
 }

@@ -118,13 +118,15 @@ public:
 	using delete_color_condition = std::function<bool(const ColorItem&)>;
 
 	explicit Edit(window_ptr Owner);
-	virtual ~Edit() override = default;
+
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
+	virtual void Changed(bool DelBlock = false) {}
+	// Получение максимального значения строки для потребностей Dialod API
+	virtual int GetMaxLength() const {return -1;}
 
 	void FastShow(const ShowInfo* Info=nullptr);
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
-	virtual void Changed(bool DelBlock=false){};
 	void SetDelRemovesBlocks(bool Mode) {m_Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
 	int GetDelRemovesBlocks() const {return m_Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
 	void SetPersistentBlocks(bool Mode) {m_Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
@@ -157,8 +159,6 @@ public:
 	int GetLeftPos() const {return LeftPos;}
 	void SetLeftPos(int NewPos) {LeftPos=NewPos;}
 	void SetPasswordMode(bool Mode) {m_Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
-	// Получение максимального значения строки для потребностей Dialod API
-	virtual int GetMaxLength() const {return -1;}
 	void SetOvertypeMode(bool Mode) {m_Flags.Change(FEDITLINE_OVERTYPE, Mode);}
 	bool GetOvertypeMode() const {return m_Flags.Check(FEDITLINE_OVERTYPE);}
 	int RealPosToTab(int Pos) const;
@@ -194,10 +194,10 @@ protected:
 	static int CheckCharMask(wchar_t Chr);
 
 private:
+	void DisplayObject() override;
+
 	virtual void SuppressCallback() {}
 	virtual void RevertCallback() {}
-
-	virtual void DisplayObject() override;
 	virtual const FarColor& GetNormalColor() const;
 	virtual const FarColor& GetSelectedColor() const;
 	virtual const FarColor& GetUnchangedColor() const;
@@ -225,7 +225,7 @@ private:
 	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const;
 	void FixLeftPos(int TabCurPos=-1);
 	void SetRightCoord(int Value) {SetPosition(m_X1, m_Y2, Value, m_Y2);}
-	Editor* GetEditor(void)const;
+	Editor* GetEditor() const;
 
 protected:
 	// BUGBUG: the whole purpose of this class is to avoid zillions of casts in existing code by returning size() as int

@@ -67,20 +67,20 @@ public:
 	BitFlags& Flags() const;
 
 	DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type);
-	virtual ~DlgEdit() override;
+	~DlgEdit() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 
-	virtual void Show() override;
-	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
-	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const override;
+	void Show() override;
+	void SetPosition(int X1,int Y1,int X2,int Y2) override;
+	void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const override;
 
-	virtual void Hide() override;
-	virtual void ShowConsoleTitle() override;
-	virtual void SetScreenPosition() override;
-	virtual void ResizeConsole() override;
-	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
+	void Hide() override;
+	void ShowConsoleTitle() override;
+	void SetScreenPosition() override;
+	void ResizeConsole() override;
+	long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
 
 	void  SetDialogParent(DWORD Sets);
 	void  SetDropDownBox(bool NewDropDownBox);
@@ -153,6 +153,11 @@ public:
 private:
 	friend class SetAutocomplete;
 
+	void DisplayObject() override;
+	static void EditChange(void* aParam);
+	void DoEditChange() const;
+	Dialog* GetDialog() const;
+
 	size_t m_Index;
 	DLGEDITTYPE Type;
 	std::unique_ptr<History> iHistory;
@@ -160,11 +165,6 @@ private:
 #if defined(PROJECT_DI_MEMOEDIT)
 	Editor *multiEdit;
 #endif
-
-	virtual void DisplayObject() override;
-	static void EditChange(void* aParam);
-	void DoEditChange() const;
-	Dialog* GetDialog(void)const;
 };
 
 #endif // DLGEDIT_HPP_976E81C0_DB62_4FC2_8FFD_73529F28E044

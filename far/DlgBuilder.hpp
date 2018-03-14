@@ -65,7 +65,7 @@ struct DialogItemBinding
 
 	virtual ~DialogItemBinding()
 	{
-	};
+	}
 
 	virtual void SaveValue(T *Item, int RadioGroupIndex)
 	{
@@ -82,7 +82,7 @@ struct CheckBoxBinding: public DialogItemBinding<T>
 	public:
 		CheckBoxBinding(int *aValue, int aMask) : Value(aValue), Mask(aMask) { }
 
-		virtual void SaveValue(T *Item, int RadioGroupIndex) override
+		void SaveValue(T *Item, int RadioGroupIndex) override
 		{
 			if (!Mask)
 			{
@@ -107,7 +107,7 @@ struct RadioButtonBinding: public DialogItemBinding<T>
 	public:
 		explicit RadioButtonBinding(int *aValue) : Value(aValue) { }
 
-		virtual void SaveValue(T *Item, int RadioGroupIndex) override
+		void SaveValue(T *Item, int RadioGroupIndex) override
 		{
 			if (Item->Selected)
 				*Value = RadioGroupIndex;
@@ -713,7 +713,7 @@ public:
 	{
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
 		if (!Mask)
@@ -742,7 +742,7 @@ class PluginRadioButtonBinding: public DialogAPIBinding
 		{
 		}
 
-		virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+		void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 		{
 			if (Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr))
 				*Value = RadioGroupIndex;
@@ -761,7 +761,7 @@ public:
 	{
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		lstrcpynW(Value, DataPtr, MaxSize);
@@ -789,7 +789,7 @@ public:
 		Mask[MaskWidth] = L'\0';
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = Info.FSF->atoi(DataPtr);
@@ -827,7 +827,7 @@ public:
 		Mask[MaskWidth] = L'\0';
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = static_cast<unsigned int>(Info.FSF->atoi64(DataPtr));
@@ -871,7 +871,7 @@ public:
 		delete List;
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		if (SelectedIndex)
 		{
@@ -900,23 +900,23 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		void* UserParam;
 		FARDIALOGFLAGS Flags;
 
-		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text) override
+		void InitDialogItem(FarDialogItem *Item, const wchar_t *Text) override
 		{
 			memset(Item, 0, sizeof(FarDialogItem));
 			Item->Data = Text;
 		}
 
-		virtual int TextWidth(const FarDialogItem &Item) override
+		int TextWidth(const FarDialogItem &Item) override
 		{
 			return lstrlenW(Item.Data);
 		}
 
-		virtual const wchar_t *GetLangString(int MessageID) override
+		const wchar_t *GetLangString(int MessageID) override
 		{
 			return Info.GetMsg(&PluginId, MessageID);
 		}
 
-		virtual intptr_t DoShowDialog() override
+		intptr_t DoShowDialog() override
 		{
 			intptr_t Width = m_DialogItems[0].X2+4;
 			intptr_t Height = m_DialogItems[0].Y2+2;
@@ -924,12 +924,12 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return Info.DialogRun(DialogHandle);
 		}
 
-		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(int *Value, int Mask) override
+		DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(int *Value, int Mask) override
 		{
 			return new PluginCheckBoxBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Mask);
 		}
 
-		virtual DialogItemBinding<FarDialogItem> *CreateRadioButtonBinding(BOOL *Value) override
+		DialogItemBinding<FarDialogItem> *CreateRadioButtonBinding(BOOL *Value) override
 		{
 			return new PluginRadioButtonBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value);
 		}
@@ -1001,7 +1001,7 @@ public:
 			Info.DialogFree(DialogHandle);
 		}
 
-		virtual FarDialogItem *AddIntEditField(int *Value, int Width) override
+		FarDialogItem *AddIntEditField(int *Value, int Width) override
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;
@@ -1014,7 +1014,7 @@ public:
 			return Item;
 		}
 
-		virtual FarDialogItem *AddUIntEditField(unsigned int *Value, int Width) override
+		FarDialogItem *AddUIntEditField(unsigned int *Value, int Width) override
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;

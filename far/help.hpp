@@ -47,16 +47,16 @@ public:
 	static help_ptr create(const string& Topic, const wchar_t *Mask = nullptr, unsigned long long Flags=0);
 	explicit Help(private_tag);
 
-	virtual bool  ProcessKey(const Manager::Key& Key) override;
-	virtual bool  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void InitKeyBar() override;
-	virtual void SetScreenPosition() override;
-	virtual void ResizeConsole() override;
-	virtual bool CanFastHide() const override; // Введена для нужд CtrlAltShift
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_help; }
-	virtual long long VMProcess(int OpCode, void* vParam, long long iParam) override;
-	virtual bool IsKeyBarVisible() const override { return true; }
+	bool  ProcessKey(const Manager::Key& Key) override;
+	bool  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	void InitKeyBar() override;
+	void SetScreenPosition() override;
+	void ResizeConsole() override;
+	bool CanFastHide() const override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_help; }
+	long long VMProcess(int OpCode, void* vParam, long long iParam) override;
+	bool IsKeyBarVisible() const override { return true; }
 
 	bool GetError() const {return ErrorHelp;}
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);
@@ -65,8 +65,9 @@ public:
 	struct StackHelpData;
 
 private:
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return {}; }
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
+
 	void init(const string& Topic, const wchar_t *Mask, unsigned long long Flags);
 	bool ReadHelp(const string& Mask);
 	void AddLine(string_view Line);

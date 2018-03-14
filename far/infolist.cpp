@@ -336,8 +336,7 @@ void InfoList::DisplayObject()
 						os::WNetGetConnection(DeviceName, strAssocPath);
 					}
 					// TODO: check result
-					// fall through
-
+					[[fallthrough]];
 				case DRIVE_SUBSTITUTE:
 				case DRIVE_VIRTUAL:
 				{
@@ -1099,7 +1098,7 @@ void InfoList::DynamicUpdateKeyBar() const
 	Keybar.SetCustomLabels(KBA_INFO);
 }
 
-Viewer* InfoList::GetViewer(void)
+Viewer* InfoList::GetViewer()
 {
 	return DizView.get();
 }

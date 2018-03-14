@@ -1248,7 +1248,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_SHIFTSPACE:
 			LocalKey = KEY_SPACE;
-			// fallthrough
+			[[fallthrough]];
 		default:
 		{
 //      _D(SysLog(L"Key=0x%08X",LocalKey));
@@ -2398,7 +2398,7 @@ void Edit::SetLineCursorPos(int Value)
 	return GetEditor()->SetLineCursorPos(Value);
 }
 
-Editor* Edit::GetEditor(void)const
+Editor* Edit::GetEditor() const
 {
 	if (const auto owner = dynamic_cast<EditorContainer*>(GetOwner().get()))
 	{

@@ -741,7 +741,7 @@ bool DlgEdit::HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bApp
 	return iHistory?iHistory->GetSimilar(strStr, LastCmdPartLength, bAppend):false;
 }
 
-Dialog* DlgEdit::GetDialog(void)const
+Dialog* DlgEdit::GetDialog() const
 {
 	return dynamic_cast<Dialog*>(GetOwner().get());
 }

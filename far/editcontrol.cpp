@@ -677,7 +677,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 							case KEY_MSLCLICK:
 								MenuKey = KEY_ENTER;
-								// fallthrough
+								[[fallthrough]];
 							case KEY_ENTER:
 							case KEY_NUMENTER:
 								{

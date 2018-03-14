@@ -230,7 +230,7 @@ struct RegExp::UniSet
 		}
 	};
 
-	bool operator[](wchar_t idx)const
+	bool operator[](wchar_t idx) const
 	{
 		return GetBit(idx);
 	}

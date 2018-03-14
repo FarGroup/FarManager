@@ -224,7 +224,7 @@ bool MakePathForUI(DWORD Key, string &strPathName)
 	case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
 	case KEY_RALTSHIFTBACKBRACKET:
 		RealName = true;
-		// fallthrough
+		[[fallthrough]];
 	case KEY_CTRLBRACKET:          // Вставить путь из левой панели
 	case KEY_RCTRLBRACKET:
 	case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
@@ -253,6 +253,7 @@ bool MakePathForUI(DWORD Key, string &strPathName)
 			case KEY_RCTRLBRACKET:
 				SrcPanel = Cp->LeftPanel();
 				break;
+
 			case KEY_CTRLALTBACKBRACKET:
 			case KEY_RCTRLRALTBACKBRACKET:
 			case KEY_CTRLRALTBACKBRACKET:
@@ -261,6 +262,7 @@ bool MakePathForUI(DWORD Key, string &strPathName)
 			case KEY_RCTRLBACKBRACKET:
 				SrcPanel = Cp->RightPanel();
 				break;
+
 			case KEY_SHIFTNUMENTER:
 			case KEY_SHIFTENTER:
 			case KEY_ALTSHIFTBRACKET:
@@ -269,6 +271,7 @@ bool MakePathForUI(DWORD Key, string &strPathName)
 			case KEY_RCTRLSHIFTBRACKET:
 				SrcPanel = Cp->ActivePanel();
 				break;
+
 			case KEY_CTRLSHIFTNUMENTER:
 			case KEY_RCTRLSHIFTNUMENTER:
 			case KEY_CTRLSHIFTENTER:

@@ -2008,8 +2008,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 			// Перейти на начало файла
 			if (ViewFile)
 				LeftPos=0;
-			// fallthrough
-
+			[[fallthrough]];
 		case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:   case KEY_RCTRLNUMPAD9:
 			if (ViewFile)
@@ -2025,8 +2024,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 			// Перейти на конец файла
 			if (ViewFile)
 				LeftPos=0;
-			// fallthrough
-
+			[[fallthrough]];
 		case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
 		case KEY_RCTRLPGDN:   case KEY_RCTRLNUMPAD3:
 			if (ViewFile)
@@ -3485,7 +3483,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 				break;
 			}
-			// fallthrough
+			[[fallthrough]];
 		case 0:
 		default:
 			assert(Next >= -1 && Next <= +1);
@@ -4268,8 +4266,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			Global->ScrBuf->Flush();
 			return TRUE;
 		}
-		// fallthrough
-
+		[[fallthrough]];
 		// Param2=0
 		case VCTL_QUIT:
 		{
@@ -4293,8 +4290,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				return TRUE;
 			}
 		}
-		// fallthrough
-
+		[[fallthrough]];
 		/* Функция установки режимов
 		     Param2 = ViewerSetMode
 		*/
@@ -4423,13 +4419,13 @@ uintptr_t Viewer::GetDefaultCodePage()
 	return cp;
 }
 
-void Viewer::ReadEvent(void)
+void Viewer::ReadEvent()
 {
 	Global->CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr, this);
 	bVE_READ_Sent = true;
 }
 
-void Viewer::CloseEvent(void)
+void Viewer::CloseEvent()
 {
 	if (!OpenFailed && bVE_READ_Sent)
 	{
@@ -4438,7 +4434,7 @@ void Viewer::CloseEvent(void)
 	}
 }
 
-void Viewer::OnDestroy(void)
+void Viewer::OnDestroy()
 {
 	CloseEvent();
 }

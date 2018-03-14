@@ -49,10 +49,10 @@ public:
 
 	VMenu2(private_tag, int MaxHeight);
 
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_menu; }
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_menu; }
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	void SetPosition(int X1, int Y1, int X2, int Y2) override;
 
 	void Resize(bool force=false);
 	void SetTitle(const string& Title);

@@ -858,7 +858,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					return TRUE;
 			}
 		}
-		// fallthrough
+		[[fallthrough]];
 		case DN_HOTKEY:
 			if (Param1==FAD_TEXT_TEXTHEX)
 			{

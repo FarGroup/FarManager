@@ -154,12 +154,10 @@ public:
 	virtual ~plugin_factory() = default;
 
 	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename);
-
 	virtual bool IsPlugin(const string& filename) const = 0;
 	virtual plugin_module_ptr Create(const string& filename) = 0;
 	virtual bool Destroy(plugin_module_ptr& module) = 0;
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) = 0;
-
 	virtual void ProcessError(string_view Function) const {}
 
 	auto GetOwner() const { return m_owner; }
@@ -177,8 +175,23 @@ class native_plugin_module: public i_plugin_module
 public:
 	NONCOPYABLE(native_plugin_module);
 	explicit native_plugin_module(const string& Name): m_Module(Name, true) {}
-	virtual void* get_opaque() const override { return nullptr; }
 
+	void* get_opaque() const override
+	{
+		return nullptr;
+	}
+
+	auto GetProcAddress(const char* Name) const
+	{
+		return m_Module.GetProcAddress(Name);
+	}
+
+	explicit operator bool() const noexcept
+	{
+		return m_Module.operator bool();
+	}
+
+private:
 	os::rtdl::module m_Module;
 };
 
@@ -188,15 +201,15 @@ public:
 	NONCOPYABLE(native_plugin_factory);
 	using plugin_factory::plugin_factory;
 
-	virtual bool IsPlugin(const string& filename) const override;
-	virtual plugin_module_ptr Create(const string& filename) override;
-	virtual bool Destroy(plugin_module_ptr& module) override;
-	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override;
+	bool IsPlugin(const string& filename) const override;
+	plugin_module_ptr Create(const string& filename) override;
+	bool Destroy(plugin_module_ptr& module) override;
+	function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override;
 
 private:
 	// the rest shouldn't be here, just an optimization for OEM plugins
-	bool IsPlugin2(const void* Module) const;
 	virtual bool FindExport(basic_string_view<char> ExportName) const;
+	bool IsPlugin2(const void* Module) const;
 };
 
 template<EXPORTS_ENUM id, bool Native>

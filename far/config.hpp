@@ -196,13 +196,13 @@ namespace detail
 			return true;
 		}
 
-		virtual string ExInfo() const override { return {}; }
+		string ExInfo() const override { return {}; }
 
-		virtual bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
-		virtual void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
+		bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
+		void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
 
-		virtual bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
-		virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
+		bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
+		bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }
 
@@ -236,11 +236,11 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	virtual string toString() const override { return Get() ? L"true"s : L"false"s; }
-	virtual bool TryParse(const string& value) override;
-	virtual string_view GetType() const override { return L"boolean"_sv; }
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) const override;
+	string toString() const override { return Get() ? L"true"s : L"false"s; }
+	bool TryParse(const string& value) override;
+	string_view GetType() const override { return L"boolean"_sv; }
+	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	void Export(FarSettingsItem& To) const override;
 
 	operator bool() const { return Get(); }
 };
@@ -251,11 +251,11 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	virtual string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
-	virtual bool TryParse(const string& value) override;
-	virtual string_view GetType() const override { return L"3-state"_sv; }
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) const override;
+	string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
+	bool TryParse(const string& value) override;
+	string_view GetType() const override { return L"3-state"_sv; }
+	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	void Export(FarSettingsItem& To) const override;
 
 	operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
 };
@@ -266,12 +266,12 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	virtual string toString() const override { return str(Get()); }
-	virtual bool TryParse(const string& value) override;
-	virtual string ExInfo() const override;
-	virtual string_view GetType() const override { return L"integer"_sv; }
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) const override;
+	string toString() const override { return str(Get()); }
+	bool TryParse(const string& value) override;
+	string ExInfo() const override;
+	string_view GetType() const override { return L"integer"_sv; }
+	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	void Export(FarSettingsItem& To) const override;
 
 	IntOption& operator|=(long long Value){Set(Get()|Value); return *this;}
 	IntOption& operator&=(long long Value){Set(Get()&Value); return *this;}
@@ -289,11 +289,11 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	virtual string toString() const override { return Get(); }
-	virtual bool TryParse(const string& value) override { Set(value); return true; }
-	virtual string_view GetType() const override { return L"string"_sv; }
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
-	virtual void Export(FarSettingsItem& To) const override;
+	string toString() const override { return Get(); }
+	bool TryParse(const string& value) override { Set(value); return true; }
+	string_view GetType() const override { return L"string"_sv; }
+	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	void Export(FarSettingsItem& To) const override;
 
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	wchar_t operator[] (size_t index) const { return Get()[index]; }

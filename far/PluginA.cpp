@@ -202,10 +202,10 @@ public:
 		m_ExportsNames = make_range(ExportsNames);
 	}
 
-	virtual plugin_module_ptr Create(const string& filename) override
+	plugin_module_ptr Create(const string& filename) override
 	{
 		auto Module = std::make_unique<oem_plugin_module>(filename);
-		if (!Module->m_Module)
+		if (!*Module)
 		{
 			const auto ErrorState = error_state::fetch();
 
@@ -223,7 +223,7 @@ public:
 		return Module;
 	}
 
-	virtual std::unique_ptr<Plugin> CreatePlugin(const string& filename) override;
+	std::unique_ptr<Plugin> CreatePlugin(const string& filename) override;
 
 	const std::string& getUserName()
 	{
@@ -235,7 +235,7 @@ public:
 	}
 
 private:
-	virtual bool FindExport(const basic_string_view<char> ExportName) const override
+	bool FindExport(const basic_string_view<char> ExportName) const override
 	{
 		// module with ANY known export can be OEM plugin
 		return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
@@ -3430,7 +3430,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 		case oldfar::FCTL_SETANOTHERSELECTION:
 			hPlugin=PANEL_PASSIVE;
-			// fallthrough
+			[[fallthrough]];
 		case oldfar::FCTL_SETSELECTION:
 			{
 				if (!Param)
@@ -3450,7 +3450,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 		case oldfar::FCTL_REDRAWANOTHERPANEL:
 			hPlugin = PANEL_PASSIVE;
-			// fallthrough
+			[[fallthrough]];
 		case oldfar::FCTL_REDRAWPANEL:
 			{
 				if (!Param)
@@ -3463,7 +3463,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 		case oldfar::FCTL_SETANOTHERPANELDIR:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 		case oldfar::FCTL_SETPANELDIR:
 			{
 				if (!Param)
@@ -3477,7 +3477,7 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 			case oldfar::FCTL_SETANOTHERSORTMODE:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 			case oldfar::FCTL_SETSORTMODE:
 
 				if (!Param)
@@ -3487,19 +3487,19 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 
 			case oldfar::FCTL_SETANOTHERSORTORDER:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 			case oldfar::FCTL_SETSORTORDER:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETSORTORDER, Param && *static_cast<int*>(Param), nullptr));
 
 			case oldfar::FCTL_SETANOTHERVIEWMODE:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 			case oldfar::FCTL_SETVIEWMODE:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETVIEWMODE, Param? *static_cast<int *>(Param) : 0, nullptr));
 
 			case oldfar::FCTL_UPDATEANOTHERPANEL:
 				hPlugin = PANEL_PASSIVE;
-				// fallthrough
+				[[fallthrough]];
 			case oldfar::FCTL_UPDATEPANEL:
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_UPDATEPANEL, Param? 1 : 0, nullptr));
 
@@ -3816,7 +3816,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 								kmA->MacroResult.ErrMsg1 = "";
 								kmA->MacroResult.ErrMsg2 = "";
 								kmA->MacroResult.ErrMsg3 = "";
-								// fall-through
+								[[fallthrough]];
 							case MSSC_POST:
 								delete[] mtW.SequenceText;
 								break;
@@ -4794,7 +4794,7 @@ public:
 	}
 
 private:
-	virtual bool GetGlobalInfo(GlobalInfo *Info) override
+	bool GetGlobalInfo(GlobalInfo *Info) override
 	{
 		Info->StructSize = sizeof(GlobalInfo);
 		Info->Description = L"Far 1.x plugin";
@@ -4859,7 +4859,7 @@ private:
 		return true;
 	}
 
-	virtual bool SetStartupInfo(PluginStartupInfo*) override
+	bool SetStartupInfo(PluginStartupInfo*) override
 	{
 		AnsiExecuteStruct<iSetStartupInfo> es;
 		if (has(es) && !Global->ProcessException)
@@ -4975,7 +4975,7 @@ private:
 		return true;
 	}
 
-	virtual HANDLE Open(OpenInfo* Info) override
+	HANDLE Open(OpenInfo* Info) override
 	{
 		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 
@@ -5067,7 +5067,7 @@ private:
 		return TranslateResult(es);
 	}
 
-	virtual void ClosePanel(ClosePanelInfo* Info) override
+	void ClosePanel(ClosePanelInfo* Info) override
 	{
 		AnsiExecuteStruct<iClosePanel> es;
 		if (has(es) && !Global->ProcessException)
@@ -5077,7 +5077,7 @@ private:
 		FreeOpenPanelInfo();
 	}
 
-	virtual bool GetPluginInfo(PluginInfo *pi) override
+	bool GetPluginInfo(PluginInfo *pi) override
 	{
 		*pi = {};
 
@@ -5097,7 +5097,7 @@ private:
 		return false;
 	}
 
-	virtual void GetOpenPanelInfo(OpenPanelInfo *Info) override
+	void GetOpenPanelInfo(OpenPanelInfo *Info) override
 	{
 		Info->StructSize = sizeof(OpenPanelInfo);
 
@@ -5110,7 +5110,7 @@ private:
 		}
 	}
 
-	virtual int GetFindData(GetFindDataInfo* Info) override
+	int GetFindData(GetFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFindData> es;
 		if (has(es) && !Global->ProcessException)
@@ -5132,7 +5132,7 @@ private:
 		return es;
 	}
 
-	virtual void FreeFindData(FreeFindDataInfo* Info) override
+	void FreeFindData(FreeFindDataInfo* Info) override
 	{
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
@@ -5144,7 +5144,7 @@ private:
 		}
 	}
 
-	virtual int GetVirtualFindData(GetVirtualFindDataInfo* Info) override
+	int GetVirtualFindData(GetVirtualFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetVirtualFindData> es;
 		if (has(es) && !Global->ProcessException)
@@ -5166,7 +5166,7 @@ private:
 		return es;
 	}
 
-	virtual void FreeVirtualFindData(FreeFindDataInfo* Info) override
+	void FreeVirtualFindData(FreeFindDataInfo* Info) override
 	{
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
@@ -5178,7 +5178,7 @@ private:
 		}
 	}
 
-	virtual int SetDirectory(SetDirectoryInfo* Info) override
+	int SetDirectory(SetDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetDirectory> es;
 		if (has(es) && !Global->ProcessException)
@@ -5191,7 +5191,7 @@ private:
 		return es;
 	}
 
-	virtual int GetFiles(GetFilesInfo* Info) override
+	int GetFiles(GetFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFiles> es(-1);
 		if (has(es) && !Global->ProcessException)
@@ -5210,7 +5210,7 @@ private:
 		return es;
 	}
 
-	virtual int PutFiles(PutFilesInfo* Info) override
+	int PutFiles(PutFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iPutFiles> es(-1);
 		if (has(es) && !Global->ProcessException)
@@ -5224,7 +5224,7 @@ private:
 		return es;
 	}
 
-	virtual int DeleteFiles(DeleteFilesInfo* Info) override
+	int DeleteFiles(DeleteFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iDeleteFiles> es;
 		if (has(es) && !Global->ProcessException)
@@ -5238,7 +5238,7 @@ private:
 		return es;
 	}
 
-	virtual int MakeDirectory(MakeDirectoryInfo* Info) override
+	int MakeDirectory(MakeDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iMakeDirectory> es(-1);
 		if (has(es) && !Global->ProcessException)
@@ -5255,7 +5255,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessHostFile(ProcessHostFileInfo* Info) override
+	int ProcessHostFile(ProcessHostFileInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessHostFile> es;
 		if (has(es) && !Global->ProcessException)
@@ -5269,7 +5269,7 @@ private:
 		return es;
 	}
 
-	virtual int SetFindList(SetFindListInfo* Info) override
+	int SetFindList(SetFindListInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetFindList> es;
 		if (has(es) && !Global->ProcessException)
@@ -5281,7 +5281,7 @@ private:
 		return es;
 	}
 
-	virtual int Configure(ConfigureInfo* Info) override
+	int Configure(ConfigureInfo* Info) override
 	{
 		AnsiExecuteStruct<iConfigure> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5291,7 +5291,7 @@ private:
 		return es;
 	}
 
-	virtual void ExitFAR(ExitInfo*) override
+	void ExitFAR(ExitInfo*) override
 	{
 		AnsiExecuteStruct<iExitFAR> es;
 		if (has(es) && !Global->ProcessException)
@@ -5301,7 +5301,7 @@ private:
 		}
 	}
 
-	virtual int ProcessPanelInput(ProcessPanelInputInfo* Info) override
+	int ProcessPanelInput(ProcessPanelInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelInput> es;
 		if (has(es) && !Global->ProcessException)
@@ -5324,7 +5324,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessPanelEvent(ProcessPanelEventInfo* Info) override
+	int ProcessPanelEvent(ProcessPanelEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelEvent> es;
 		if (has(es) && !Global->ProcessException)
@@ -5343,7 +5343,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessEditorEvent(ProcessEditorEventInfo* Info) override
+	int ProcessEditorEvent(ProcessEditorEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5354,7 +5354,7 @@ private:
 			case EE_GOTFOCUS:
 			case EE_KILLFOCUS:
 				Info->Param = &Info->EditorID;
-				// fallthrough
+				[[fallthrough]];
 		case EE_READ:
 			case EE_SAVE:
 			case EE_REDRAW:
@@ -5365,7 +5365,7 @@ private:
 		return es;
 	}
 
-	virtual int Compare(CompareInfo* Info) override
+	int Compare(CompareInfo* Info) override
 	{
 		AnsiExecuteStruct<iCompare> es(-2);
 		if (has(es) && !Global->ProcessException)
@@ -5379,7 +5379,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessEditorInput(ProcessEditorInputInfo* Info) override
+	int ProcessEditorInput(ProcessEditorInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorInput> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5397,7 +5397,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessViewerEvent(ProcessViewerEventInfo* Info) override
+	int ProcessViewerEvent(ProcessViewerEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessViewerEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5408,7 +5408,7 @@ private:
 			case VE_GOTFOCUS:
 			case VE_KILLFOCUS:
 				Info->Param = &Info->ViewerID;
-				// fallthrough
+				[[fallthrough]];
 			case VE_READ:
 				ExecuteFunction(es, Info->Event, Info->Param);
 				break;
@@ -5417,7 +5417,7 @@ private:
 		return es;
 	}
 
-	virtual int ProcessDialogEvent(ProcessDialogEventInfo* Info) override
+	int ProcessDialogEvent(ProcessDialogEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessDialogEvent> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5427,40 +5427,40 @@ private:
 		return es;
 	}
 
-	virtual int ProcessSynchroEvent(ProcessSynchroEventInfo*) override
+	int ProcessSynchroEvent(ProcessSynchroEventInfo*) override
 	{
 		return 0;
 	}
 	
-	virtual int ProcessConsoleInput(ProcessConsoleInputInfo*) override
+	int ProcessConsoleInput(ProcessConsoleInputInfo*) override
 	{
 		return 0;
 	}
 	
-	virtual void* Analyse(AnalyseInfo*) override
+	void* Analyse(AnalyseInfo*) override
 	{
 		return nullptr;
 	}
 	
-	virtual void CloseAnalyse(CloseAnalyseInfo*) override
+	void CloseAnalyse(CloseAnalyseInfo*) override
 	{
 	}
 
-	virtual int GetContentFields(GetContentFieldsInfo*) override
+	int GetContentFields(GetContentFieldsInfo*) override
 	{
 		return 0;
 	}
 	
-	virtual int GetContentData(GetContentDataInfo*) override
+	int GetContentData(GetContentDataInfo*) override
 	{
 		return 0;
 	}
 	
-	virtual void FreeContentData(GetContentDataInfo*) override
+	void FreeContentData(GetContentDataInfo*) override
 	{
 	}
 
-	virtual void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int) override
+	void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int) override
 	{
 		AnsiExecuteStruct<iOpenFilePlugin> es;
 		if (Load() && has(es) && !Global->ProcessException)
@@ -5471,7 +5471,7 @@ private:
 		return TranslateResult(es);
 	}
 
-	virtual bool CheckMinFarVersion() override
+	bool CheckMinFarVersion() override
 	{
 		AnsiExecuteStruct<iGetMinFarVersion> es;
 		if (has(es) && !Global->ProcessException)
@@ -5485,17 +5485,17 @@ private:
 		return true;
 	}
 
-	virtual bool IsOemPlugin() const override
+	bool IsOemPlugin() const override
 	{
 		return true;
 	}
 	
-	virtual const string& GetHotkeyName() const override
+	const string& GetHotkeyName() const override
 	{
 		return GetCacheName();
 	}
 
-	virtual bool InitLang(const string& Path, const string& Language) override
+	bool InitLang(const string& Path, const string& Language) override
 	{
 		bool Result = true;
 		if (!PluginLang)
@@ -5512,14 +5512,14 @@ private:
 		return Result;
 	}
 
-	virtual void Prologue() override
+	void Prologue() override
 	{
 		Plugin::Prologue();
 		SetFileApisToOEM();
 		++OEMApiCnt;
 	}
 
-	virtual void Epilogue() override
+	void Epilogue() override
 	{
 		--OEMApiCnt;
 		if (!OEMApiCnt)
@@ -5728,7 +5728,6 @@ private:
 	{
 	public:
 		std::unique_ptr<i_language_data> create() override { return std::make_unique<ansi_language_data>(); }
-		~ansi_language_data() override = default;
 
 		void reserve(size_t Size) override { return m_Messages.reserve(Size); }
 		void add(string&& Str) override { m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }

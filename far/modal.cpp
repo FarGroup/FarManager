@@ -55,7 +55,7 @@ void SimpleModal::ClearDone()
 	m_EndLoop=false;
 }
 
-void SimpleModal::SetDone(void)
+void SimpleModal::SetDone()
 {
 	m_EndLoop=true;
 }

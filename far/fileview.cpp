@@ -240,19 +240,23 @@ long long FileViewer::VMProcess(int OpCode,void *vParam,long long iParam)
 		{
 			case 0:
 				break;
+
 			case 1:
 				Global->Opt->ViOpt.ShowKeyBar = true;
 				m_windowKeyBar->Show();
 				Show();
 				break;
+
 			case 2:
 				Global->Opt->ViOpt.ShowKeyBar = false;
 				m_windowKeyBar->Hide();
 				Show();
 				break;
+
 			case 3:
 				ProcessKey(Manager::Key(KEY_CTRLB));
 				break;
+
 			default:
 				PrevMode=0;
 				break;
@@ -301,6 +305,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 			RedrawTitle = TRUE;
 			return true;
 		}
+
 		// $ 15.07.2000 tran + CtrlB switch KeyBar
 		case KEY_CTRLB:
 		case KEY_RCTRLB:
@@ -313,13 +318,13 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 
 			Global->WindowManager->RefreshWindow();
 			return true;
+
 		case KEY_CTRLSHIFTB:
 		case KEY_RCTRLSHIFTB:
-		{
 			Global->Opt->ViOpt.ShowTitleBar=!Global->Opt->ViOpt.ShowTitleBar;
 			Show();
 			return true;
-		}
+
 		case KEY_CTRLO:
 		case KEY_RCTRLO:
 			if (Global->WindowManager->ShowBackground())
@@ -328,21 +333,19 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 				WaitKey();
 				Global->WindowManager->RefreshAll();
 			}
-
 			return true;
+
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
-
 			if (F3KeyOnly)
 				return true;
-			// fallthrough
-
+			[[fallthrough]];
 		case KEY_ESC:
 		case KEY_F10:
 			Global->WindowManager->DeleteWindow();
 			return true;
-		case KEY_F6:
 
+		case KEY_F6:
 			if (!DisableEdit)
 			{
 				const auto cp = m_View->m_Codepage;
@@ -378,7 +381,6 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 					SetExitCode(0);
 				}
 			}
-
 			return true;
 
 		case KEY_ALTSHIFTF9:
@@ -391,12 +393,14 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 
 			m_View->Show();
 			return true;
+
 		case KEY_ALTF11:
 		case KEY_RALTF11:
 			if (GetCanLoseFocus())
 				Global->CtrlObject->CmdLine()->ShowViewEditHistory();
 
 			return true;
+
 		default:
 //      Этот кусок - на будущее (по аналогии с редактором :-)
 //      if (Global->CtrlObject->Macro.IsExecuting() || !View.ProcessViewerInput(&ReadRec))
@@ -547,12 +551,12 @@ void FileViewer::OnChangeFocus(bool focus)
 	}
 }
 
-void FileViewer::OnReload(void)
+void FileViewer::OnReload()
 {
 	ReadEvent();
 }
 
-void FileViewer::ReadEvent(void)
+void FileViewer::ReadEvent()
 {
 	Global->WindowManager->CallbackWindow([this]()
 	{
@@ -560,7 +564,7 @@ void FileViewer::ReadEvent(void)
 	});
 }
 
-Viewer* FileViewer::GetViewer(void)
+Viewer* FileViewer::GetViewer()
 {
 	return m_View.get();
 }

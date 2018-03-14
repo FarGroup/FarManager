@@ -53,7 +53,7 @@ namespace detail
 		{
 		}
 
-		virtual std::unique_ptr<any_base> clone() const override { return std::make_unique<any_impl>(m_Data); }
+		std::unique_ptr<any_base> clone() const override { return std::make_unique<any_impl>(m_Data); }
 
 		const T& get() const noexcept { return m_Data; }
 		T& get() noexcept { return m_Data; }

@@ -672,8 +672,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						return 1; // Закрыть меню
 					}
 				}
-				// fallthrough
-
+				[[fallthrough]];
 				/* $ 28.06.2000 tran
 				выход из пользовательского меню по ShiftF10 из любого уровня
 				вложенности просто задаем ExitCode -1, и возвращаем FALSE -
@@ -696,8 +695,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						UserMenu->Close(-1);
 						return 1;
 					}
-					// fallthrough
-
+					[[fallthrough]];
 				default:
 					KeyProcessed = 0;
 					break;
@@ -959,7 +957,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			case -1:
 			case -2:
 				Continue = false;
-				// fallthrough
+				[[fallthrough]];
 			case Message::second_button:
 				SubMenu = true;
 		}

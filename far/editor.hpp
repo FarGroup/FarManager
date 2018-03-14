@@ -51,11 +51,11 @@ class Editor: public SimpleScreenObject
 {
 public:
 	explicit Editor(window_ptr Owner, bool DialogUsed = false);
-	virtual ~Editor() override;
+	~Editor() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void *vParam = nullptr, long long iParam = 0) override;
 
 	void SetCacheParams(EditorPosCache &pc, bool count_bom = false);
 	void GetCacheParams(EditorPosCache &pc) const;
@@ -197,7 +197,8 @@ private:
 	using numbered_iterator = numbered_iterator_t<iterator, const_iterator>;
 	using numbered_const_iterator = numbered_iterator_t<const_iterator>;
 
-	virtual void DisplayObject() override;
+	void DisplayObject() override;
+
 	void ShowEditor();
 	numbered_iterator DeleteString(numbered_iterator DelPtr, bool DeleteLast);
 	void InsertString();
@@ -402,7 +403,7 @@ class EditorContainer
 {
 public:
 	virtual ~EditorContainer() = default;
-	virtual Editor* GetEditor(void) = 0;
+	virtual Editor* GetEditor() = 0;
 };
 
 #endif // EDITOR_HPP_79DE09D5_8F9C_467E_A3BF_8E1BB34E4BD3

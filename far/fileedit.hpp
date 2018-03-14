@@ -80,13 +80,13 @@ public:
 	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose = 0, const window_ptr& Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 
 	explicit FileEditor(private_tag) {}
-	virtual ~FileEditor() override;
+	~FileEditor() override;
 
-	virtual bool IsFileModified() const override { return m_editor->IsFileModified(); }
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void Show() override;
-	virtual Editor* GetEditor(void) override;
+	bool IsFileModified() const override { return m_editor->IsFileModified(); }
+	int GetTypeAndName(string &strType, string &strName) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void Show() override;
+	Editor* GetEditor() override;
 
 	void ShowStatus() const;
 	void SetLockEditor(bool LockMode) const;
@@ -108,20 +108,20 @@ public:
 	void AutoDeleteColors() const { m_editor->AutoDeleteColors(); }
 
 private:
-	virtual void DisplayObject() override;
-	virtual void InitKeyBar() override;
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void ShowConsoleTitle() override;
-	virtual void OnChangeFocus(bool focus) override;
-	virtual void SetScreenPosition() override;
-	virtual int GetType() const override { return windowtype_editor; }
-	virtual void OnDestroy() override;
-	virtual bool GetCanLoseFocus(bool DynamicMode = false) const override;
-	virtual bool CanFastHide() const override; // для нужд CtrlAltShift
-	virtual string GetTitle() const override;
-	virtual bool IsKeyBarVisible() const override;
-	virtual bool IsTitleBarVisible() const override;
+	void DisplayObject() override;
+	void InitKeyBar() override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	void ShowConsoleTitle() override;
+	void OnChangeFocus(bool focus) override;
+	void SetScreenPosition() override;
+	int GetType() const override { return windowtype_editor; }
+	void OnDestroy() override;
+	bool GetCanLoseFocus(bool DynamicMode = false) const override;
+	bool CanFastHide() const override; // для нужд CtrlAltShift
+	string GetTitle() const override;
+	bool IsKeyBarVisible() const override;
+	bool IsTitleBarVisible() const override;
 
 	/* Ret:
 		0 - не удалять ничего
@@ -144,7 +144,7 @@ private:
 	const string& GetPluginData() const { return strPluginData; }
 	bool LoadFromCache(EditorPosCache &pc) const;
 	void SaveToCache() const;
-	void ReadEvent(void);
+	void ReadEvent();
 	bool ProcessQuitKey(int FirstSave, bool NeedQuestion = true, bool DeleteWindow = true);
 	bool UpdateFileList() const;
 

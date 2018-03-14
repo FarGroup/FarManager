@@ -48,7 +48,7 @@ protected:
 class SimpleModal: public Modal
 {
 public:
-	virtual void SetExitCode(int Code) override;
+	void SetExitCode(int Code) override;
 
 	bool Done() const;
 	void ClearDone();
@@ -59,7 +59,7 @@ public:
 protected:
 	SimpleModal() = default;
 
-	void SetDone(void);
+	void SetDone();
 	void Close(int Code);
 
 	string m_HelpTopic;

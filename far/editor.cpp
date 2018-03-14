@@ -741,7 +741,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 				}
 			}
 		}
-		// fallthrough
+		[[fallthrough]];
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
 			*reinterpret_cast<string*>(vParam) = IsVerticalSelection()? VBlock2Text() : Block2Text();
@@ -1478,8 +1478,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_SHIFTNUMDEL:
 		case KEY_SHIFTDECIMAL:
 			Copy(FALSE);
-			// fallthrough
-
+			[[fallthrough]];
 		case KEY_CTRLD:
 		case KEY_RCTRLD:
 		{
@@ -1491,6 +1490,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLV:
 		case KEY_RCTRLV:
 		case KEY_SHIFTINS: case KEY_SHIFTNUMPAD0:
@@ -1515,6 +1515,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_LEFT: case KEY_NUMPAD4:
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
@@ -1532,12 +1533,12 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_INS: case KEY_NUMPAD0:
-		{
 			m_Flags.Swap(FEDITOR_OVERTYPE);
 			Refresh = true;
 			return true;
-		}
+
 		case KEY_NUMDEL:
 		case KEY_DEL:
 		{
@@ -1617,6 +1618,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_BS:
 		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
@@ -1661,6 +1663,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLBS:
 		case KEY_RCTRLBS:
 		{
@@ -1684,6 +1687,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_UP: case KEY_NUMPAD8:
 		case KEY_DOWN: case KEY_NUMPAD2:
 		{
@@ -1710,6 +1714,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
@@ -1718,6 +1723,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			repeat(Roll, [&] { ProcessKeyInternal(Manager::Key(KEY_CTRLUP), Refresh); });
 			return true;
 		}
+
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
@@ -1726,6 +1732,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			repeat(Roll, [&] { ProcessKeyInternal(Manager::Key(KEY_CTRLDOWN), Refresh); });
 			return true;
 		}
+
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
@@ -1734,6 +1741,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			repeat(Roll, [&] { ProcessKeyInternal(Manager::Key(KEY_LEFT), Refresh); });
 			return true;
 		}
+
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
@@ -1742,6 +1750,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			repeat(Roll, [&] { ProcessKeyInternal(Manager::Key(KEY_RIGHT), Refresh); });
 			return true;
 		}
+
 		case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:
 		case KEY_RCTRLUP: case KEY_RCTRLNUMPAD8:
 		{
@@ -1750,6 +1759,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
 		case KEY_RCTRLDOWN: case KEY_RCTRLNUMPAD2:
 		{
@@ -1758,6 +1768,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_PGUP:     case KEY_NUMPAD9:
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
@@ -1768,6 +1779,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_PGDN:    case KEY_NUMPAD3:
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
@@ -1778,6 +1790,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
 		case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
 		case KEY_CTRLPGUP:  case KEY_CTRLNUMPAD9:
@@ -1800,6 +1813,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
 		case KEY_RCTRLEND:  case KEY_RCTRLNUMPAD1:
 		case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
@@ -1831,6 +1845,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
@@ -1843,6 +1858,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLN:
 		case KEY_RCTRLN:
 		{
@@ -1857,6 +1873,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLE:
 		case KEY_RCTRLE:
 		{
@@ -1875,6 +1892,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_CTRLL:
 		case KEY_RCTRLL:
 		{
@@ -1884,6 +1902,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLY:
 		case KEY_RCTRLY:
 		{
@@ -1891,6 +1910,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_F7:
 		{
 			bool ReplaceMode0=ReplaceMode;
@@ -1905,6 +1925,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLF7:
 		case KEY_RCTRLF7:
 		{
@@ -1924,6 +1945,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_SHIFTF7:
 		{
 			/* $ 20.09.2000 SVS
@@ -1938,6 +1960,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Search(true);
 			return true;
 		}
+
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
@@ -1962,6 +1985,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			*/
 			return true;
 		}
+
 		case KEY_CTRLSHIFTZ:
 		case KEY_RCTRLSHIFTZ:
 		case KEY_ALTBS:
@@ -1977,43 +2001,39 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_ALTF8:
 		case KEY_RALTF8:
 		{
-			{
-				GoToPosition();
+			GoToPosition();
 
-				// <GOTO_UNMARK:1>
-				if (!EdOpt.PersistentBlocks)
-					UnmarkBlock();
+			// <GOTO_UNMARK:1>
+			if (!EdOpt.PersistentBlocks)
+				UnmarkBlock();
 
-				// </GOTO_UNMARK>
-				Refresh = true;
-			}
+			// </GOTO_UNMARK>
+			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTU:
 		case KEY_RALTU:
-		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
 				BlockLeft();
 				Refresh = true;
 			}
-
 			return true;
-		}
+
 		case KEY_ALTI:
 		case KEY_RALTI:
-		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
 				BlockRight();
 				Refresh = true;
 			}
-
 			return true;
-		}
+
 		case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
 		case KEY_RALTSHIFTLEFT: case KEY_RALTSHIFTNUMPAD4:
 		case KEY_ALTLEFT:
@@ -2052,6 +2072,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTLEFT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
+
 		case KEY_ALTSHIFTRIGHT:  case KEY_ALTSHIFTNUMPAD6:
 		case KEY_RALTSHIFTRIGHT: case KEY_RALTSHIFTNUMPAD6:
 		case KEY_ALTRIGHT:
@@ -2105,6 +2126,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTRIGHT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
+
 		/* $ 29.06.2000 IG
 		  + CtrlAltLeft, CtrlAltRight для вертикальный блоков
 		*/
@@ -2147,6 +2169,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_CTRLALTRIGHT:   case KEY_CTRLALTNUMPAD6:
 		{
 			{
@@ -2179,6 +2202,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			return true;
 		}
+
 		case KEY_ALTSHIFTUP:    case KEY_ALTSHIFTNUMPAD8:
 		case KEY_RALTSHIFTUP:   case KEY_RALTSHIFTNUMPAD8:
 		case KEY_ALTUP:
@@ -2209,6 +2233,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTSHIFTDOWN:  case KEY_ALTSHIFTNUMPAD2:
 		case KEY_RALTSHIFTDOWN: case KEY_RALTSHIFTNUMPAD2:
 		case KEY_ALTDOWN:
@@ -2240,6 +2265,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			//_D(SysLog(L"~~~~ Key_AltDOWN: VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
+
 		case KEY_ALTSHIFTHOME:  case KEY_ALTSHIFTNUMPAD7:
 		case KEY_RALTSHIFTHOME: case KEY_RALTSHIFTNUMPAD7:
 		case KEY_ALTHOME:
@@ -2252,6 +2278,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTSHIFTEND:  case KEY_ALTSHIFTNUMPAD1:
 		case KEY_RALTSHIFTEND: case KEY_RALTSHIFTNUMPAD1:
 		case KEY_ALTEND:
@@ -2269,6 +2296,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTSHIFTPGUP:  case KEY_ALTSHIFTNUMPAD9:
 		case KEY_RALTSHIFTPGUP: case KEY_RALTSHIFTNUMPAD9:
 		case KEY_ALTPGUP:
@@ -2281,6 +2309,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_ALTSHIFTPGDN:  case KEY_ALTSHIFTNUMPAD3:
 		case KEY_RALTSHIFTPGDN: case KEY_RALTSHIFTNUMPAD3:
 		case KEY_ALTPGDN:
@@ -2293,6 +2322,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLALTPGUP:   case KEY_CTRLALTNUMPAD9:
 		case KEY_CTRLALTHOME:   case KEY_CTRLALTNUMPAD7:
 		{
@@ -2307,6 +2337,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLALTPGDN:   case KEY_CTRLALTNUMPAD3:
 		case KEY_CTRLALTEND:    case KEY_CTRLALTNUMPAD1:
 		{
@@ -2322,6 +2353,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
 		case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
 		case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
@@ -2363,6 +2395,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_CTRLQ:
 		case KEY_RCTRLQ:
 		{
@@ -2391,6 +2424,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		case KEY_OP_SELWORD:
 		{
 			int OldCurPos=CurPos;
@@ -2418,6 +2452,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			Refresh = true;
 			return true;
 		}
+
 		case KEY_OP_PLAINTEXT:
 		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
@@ -2444,6 +2479,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			return true;
 		}
+
 		default:
 		{
 			{

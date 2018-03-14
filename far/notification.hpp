@@ -74,7 +74,7 @@ namespace detail
 		{
 		}
 
-		virtual void operator()(const any&) const override
+		void operator()(const any&) const override
 		{
 			m_Handler();
 		}
@@ -93,7 +93,7 @@ namespace detail
 		{
 		}
 
-		virtual void operator()(const any& Payload) const override
+		void operator()(const any& Payload) const override
 		{
 			m_Handler(Payload);
 		}

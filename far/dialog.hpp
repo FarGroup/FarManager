@@ -158,23 +158,26 @@ public:
 		Construct(make_range(Src.data(), Src.size()));
 	}
 
-	virtual ~Dialog() override;
+	~Dialog() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void *vParam=nullptr, long long iParam = 0) override;
-	virtual void Show() override;
-	virtual void Hide() override;
-	virtual void SetExitCode(int Code) override;
-	virtual void OnChangeFocus(bool focus) override;
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_dialog; }
-	virtual bool CanFastHide() const override;
-	virtual void ResizeConsole() override;
-	virtual void SetPosition(int X1,int Y1,int X2,int Y2) override;
-	virtual void FastShow() {ShowDialog();}
-	virtual void SetDeleting(void) override;
-	virtual void ShowConsoleTitle() override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void *vParam=nullptr, long long iParam = 0) override;
+	void Show() override;
+	void Hide() override;
+	void SetExitCode(int Code) override;
+	void OnChangeFocus(bool focus) override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_dialog; }
+	bool CanFastHide() const override;
+	void ResizeConsole() override;
+	void SetPosition(int X1,int Y1,int X2,int Y2) override;
+	void FastShow() {ShowDialog();}
+	void SetDeleting() override;
+	void ShowConsoleTitle() override;
+	bool ProcessEvents() override;
+
+	static bool IsValid(Dialog* Handle);
 
 	bool InitOK() const {return bInitOK;}
 	void GetDialogObjectsData();
@@ -205,12 +208,10 @@ public:
 
 	intptr_t DlgProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	bool IsInited() const;
-	virtual bool ProcessEvents() override;
 	void SetId(const GUID& Id);
 	const GUID& GetId() const {return m_Id;}
 	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
-	static bool IsValid(Dialog* Handle);
 	int GetDropDownOpened() const { return DropDownOpened; }
 	bool IsRedrawEnabled() const { return m_DisableRedraw == 0; }
 
@@ -230,8 +231,9 @@ private:
 	friend class History;
 	friend class DlgEdit;
 
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override;
+	void DisplayObject() override;
+	string GetTitle() const override;
+
 	void AddToList();
 	void RemoveFromList();
 

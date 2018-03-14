@@ -1,3 +1,11 @@
+drkns 14.03.2018 22:33:55 +0000 - build 5170
+
+1. Нефункциональная косметика:
+   - virtual override -> override
+   - (void) -> ()
+   - // fallthrough -> [[fallthrough]];
+   - --memcpy
+
 drkns 14.03.2018 10:01:32 +0000 - build 5169
 
 1. Пара уточнений 5168.

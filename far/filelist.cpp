@@ -200,6 +200,33 @@ static bool CanSort(int SortMode)
 
 };
 
+struct FileList::PluginsListItem
+{
+	NONCOPYABLE(PluginsListItem);
+	MOVABLE(PluginsListItem);
+
+	PluginsListItem(std::unique_ptr<plugin_panel>&& hPlugin, string HostFile, int Modified, int PrevViewMode, panel_sort PrevSortMode, bool PrevSortOrder, bool PrevDirectoriesFirst, const PanelViewSettings& PrevViewSettings):
+		m_Plugin(std::move(hPlugin)),
+		m_HostFile(std::move(HostFile)),
+		m_Modified(Modified),
+		m_PrevViewMode(PrevViewMode),
+		m_PrevSortMode(PrevSortMode),
+		m_PrevSortOrder(PrevSortOrder),
+		m_PrevDirectoriesFirst(PrevDirectoriesFirst),
+		m_PrevViewSettings(PrevViewSettings.clone())
+	{
+	}
+
+	std::unique_ptr<plugin_panel> m_Plugin;
+	string m_HostFile;
+	int m_Modified;
+	int m_PrevViewMode;
+	panel_sort m_PrevSortMode;
+	bool m_PrevSortOrder;
+	bool m_PrevDirectoriesFirst;
+	PanelViewSettings m_PrevViewSettings;
+};
+
 FileListItem::FileListItem()
 {
 	m_Owner = values::uninitialised(wchar_t());
@@ -1205,75 +1232,77 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			break;
 
 		case KEY_F1:
-		{
-			_ALGO(CleverSysLog clv(L"F1"));
-			_ALGO(SysLog(L"%s, FileCount=%d",(m_PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
+			{
+				_ALGO(CleverSysLog clv(L"F1"));
+				_ALGO(SysLog(L"%s, FileCount=%d", (m_PanelMode == PLUGIN_PANEL?"PluginPanel":"FilePanel"), FileCount));
+				return m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanelHelp(GetPluginHandle());
+			}
 
-			return m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanelHelp(GetPluginHandle());
-		}
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
-		{
 			if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 				Global->CtrlObject->Plugins->ConfigureCurrent(GetPluginHandle()->plugin(), FarGuid);
 			else
 				Global->CtrlObject->Plugins->Configure();
-
 			return true;
-		}
+		
 		case KEY_SHIFTSUBTRACT:
-		{
 			SaveSelection();
 			ClearSelection();
 			Redraw();
 			return true;
-		}
+
 		case KEY_SHIFTADD:
-		{
 			SaveSelection();
+			std::for_each(RANGE(m_ListData, i)
 			{
-				std::for_each(RANGE(m_ListData, i)
-				{
-					if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
-						Select(i, true);
-				});
-			}
+				if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
+					Select(i, true);
+			});
 
 			if (SelectedFirst)
 				SortFileList(true);
 
 			Redraw();
 			return true;
-		}
+
 		case KEY_ADD:
 			SelectFiles(SELECT_ADD);
 			return true;
+
 		case KEY_SUBTRACT:
 			SelectFiles(SELECT_REMOVE);
 			return true;
+
 		case KEY_CTRLADD:
 		case KEY_RCTRLADD:
 			SelectFiles(SELECT_ADDEXT);
 			return true;
+
 		case KEY_CTRLSUBTRACT:
 		case KEY_RCTRLSUBTRACT:
 			SelectFiles(SELECT_REMOVEEXT);
 			return true;
+
 		case KEY_ALTADD:
 		case KEY_RALTADD:
 			SelectFiles(SELECT_ADDNAME);
 			return true;
+
 		case KEY_ALTSUBTRACT:
 		case KEY_RALTSUBTRACT:
 			SelectFiles(SELECT_REMOVENAME);
 			return true;
+
 		case KEY_MULTIPLY:
 			SelectFiles(SELECT_INVERT);
 			return true;
+
 		case KEY_CTRLMULTIPLY:
 		case KEY_RCTRLMULTIPLY:
 			SelectFiles(SELECT_INVERTALL);
 			return true;
+
 		case KEY_ALTLEFT:     // Прокрутка длинных имен и описаний
 		case KEY_RALTLEFT:
 		case KEY_ALTHOME:     // Прокрутка длинных имен и описаний - в начало
@@ -1281,6 +1310,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			LeftPos=(LocalKey == KEY_ALTHOME || LocalKey == KEY_RALTHOME)?-0x7fff:LeftPos-1;
 			Redraw();
 			return true;
+
 		case KEY_ALTRIGHT:    // Прокрутка длинных имен и описаний
 		case KEY_RALTRIGHT:
 		case KEY_ALTEND:     // Прокрутка длинных имен и описаний - в конец
@@ -1288,13 +1318,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			LeftPos=(LocalKey == KEY_ALTEND || LocalKey == KEY_RALTEND)?0x7fff:LeftPos+1;
 			Redraw();
 			return true;
+
 		case KEY_CTRLINS:      case KEY_CTRLNUMPAD0:
 		case KEY_RCTRLINS:     case KEY_RCTRLNUMPAD0:
-
 			if (!IsEmptyCmdline)
 				return false;
-			// fallthrough
-
+			[[fallthrough]];
 		case KEY_CTRLSHIFTINS:  case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
 		case KEY_RCTRLSHIFTINS: case KEY_RCTRLSHIFTNUMPAD0:
 		case KEY_CTRLALTINS:    case KEY_CTRLALTNUMPAD0:    // копировать UNC-имена
@@ -1318,12 +1347,13 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLC:
 			CopyFiles();
 			return true;
-		#if 0
+
+#if 0
 		case KEY_CTRLX: // hdrop cut !!!NEED KEY!!!
 		case KEY_RCTRLX:
 			CopyFiles(true);
 			return true;
-		#endif
+#endif
 			/* $ 14.02.2001 VVM
 			  + Ctrl: вставляет имя файла с пассивной панели.
 			  + CtrlAlt: вставляет UNC-имя файла с пассивной панели */
@@ -1347,6 +1377,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			SetCurPath();
 			return true;
 		}
+
 		case KEY_CTRLNUMENTER:
 		case KEY_RCTRLNUMENTER:
 		case KEY_CTRLSHIFTNUMENTER:
@@ -1449,6 +1480,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+
 		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
 		case KEY_RCTRLRALTBRACKET:
 		case KEY_CTRLRALTBRACKET:
@@ -1477,6 +1509,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+
 		case KEY_CTRLA:
 		case KEY_RCTRLA:
 		{
@@ -1490,6 +1523,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+		
 		case KEY_CTRLG:
 		case KEY_RCTRLG:
 		{
@@ -1512,13 +1546,13 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+
 		case KEY_CTRLZ:
 		case KEY_RCTRLZ:
-
 			if (!m_ListData.empty() && m_PanelMode == panel_mode::NORMAL_PANEL && SetCurPath())
 				DescribeFiles();
-
 			return true;
+
 		case KEY_CTRLH:
 		case KEY_RCTRLH:
 		{
@@ -1530,12 +1564,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			AnotherPanel->Redraw();
 			return true;
 		}
+
 		case KEY_CTRLM:
 		case KEY_RCTRLM:
-		{
 			RestoreSelection();
 			return true;
-		}
+
 		case KEY_CTRLR:
 		case KEY_RCTRLR:
 		{
@@ -1552,13 +1586,13 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			}
 			break;
 		}
+
 		case KEY_CTRLN:
 		case KEY_RCTRLN:
-		{
 			m_ShowShortNames=!m_ShowShortNames;
 			Redraw();
 			return true;
-		}
+
 		case KEY_NUMENTER:
 		case KEY_SHIFTNUMENTER:
 		case KEY_ENTER:
@@ -1587,6 +1621,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			ProcessEnter(true, (LocalKey & KEY_SHIFT) != 0, true, (LocalKey & KEY_CTRL || LocalKey & KEY_RCTRL) && (LocalKey & KEY_ALT || LocalKey & KEY_RALT), OFP_NORMAL);
 			return true;
 		}
+
 		case KEY_CTRLBACKSLASH:
 		case KEY_RCTRLBACKSLASH:
 		{
@@ -1618,6 +1653,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			Parent()->ActivePanel()->Show();
 			return true;
 		}
+
 		case KEY_SHIFTF1:
 		{
 			_ALGO(CleverSysLog clv(L"Shift-F1"));
@@ -1662,6 +1698,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+
 		case KEY_SHIFTF3:
 		{
 			_ALGO(CleverSysLog clv(L"Shift-F3"));
@@ -1669,6 +1706,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			ProcessHostFile();
 			return true;
 		}
+
 		case KEY_F3:
 		case KEY_NUMPAD5:      case KEY_SHIFTNUMPAD5:
 		case KEY_ALTF3:
@@ -2023,6 +2061,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 //			Parent()->Redraw();
 			return true;
 		}
+
 		case KEY_F5:
 		case KEY_F6:
 		case KEY_ALTF6:
@@ -2049,6 +2088,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+
 		case KEY_SHIFTF5:
 		case KEY_SHIFTF6:
 		{
@@ -2095,6 +2135,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+
 		case KEY_F7:
 		{
 			_ALGO(CleverSysLog clv(L"F7"));
@@ -2143,6 +2184,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+
 		case KEY_F8:
 		case KEY_SHIFTDEL:
 		case KEY_SHIFTF8:
@@ -2186,61 +2228,69 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
+
 		// $ 26.07.2001 VVM  С альтом скролим всегда по 1
 		case KEY_MSWHEEL_UP:
-		case(KEY_MSWHEEL_UP | KEY_ALT):
-		case(KEY_MSWHEEL_UP | KEY_RALT):
+		case KEY_MSWHEEL_UP | KEY_ALT:
+		case KEY_MSWHEEL_UP | KEY_RALT:
 			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
 			return true;
+
 		case KEY_MSWHEEL_DOWN:
-		case(KEY_MSWHEEL_DOWN | KEY_ALT):
-		case(KEY_MSWHEEL_DOWN | KEY_RALT):
+		case KEY_MSWHEEL_DOWN | KEY_ALT:
+		case KEY_MSWHEEL_DOWN | KEY_RALT:
 			Scroll(LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
 			return true;
+
 		case KEY_MSWHEEL_LEFT:
-		case(KEY_MSWHEEL_LEFT | KEY_ALT):
-		case(KEY_MSWHEEL_LEFT | KEY_RALT):
+		case KEY_MSWHEEL_LEFT | KEY_ALT:
+		case KEY_MSWHEEL_LEFT | KEY_RALT:
 		{
 			int Roll = LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
-
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_LEFT));
-
 			return true;
 		}
+
 		case KEY_MSWHEEL_RIGHT:
-		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
-		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
+		case KEY_MSWHEEL_RIGHT | KEY_ALT:
+		case KEY_MSWHEEL_RIGHT | KEY_RALT:
 		{
 			int Roll = LocalKey & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
-
 			for (int i=0; i<Roll; i++)
 				ProcessKey(Manager::Key(KEY_RIGHT));
-
 			return true;
 		}
+
 		case KEY_HOME:         case KEY_NUMPAD7:
 			ToBegin();
 			return true;
+
+
 		case KEY_END:          case KEY_NUMPAD1:
 			ToEnd();
 			return true;
+
 		case KEY_UP:           case KEY_NUMPAD8:
 			MoveCursorAndShow(-1);
 			return true;
+
 		case KEY_DOWN:         case KEY_NUMPAD2:
 			MoveCursorAndShow(1);
 			return true;
+
 		case KEY_PGUP:         case KEY_NUMPAD9:
 			N=m_Stripes*m_Height-1;
 			m_CurTopFile-=N;
 			MoveCursorAndShow(-N);
 			return true;
+
 		case KEY_PGDN:         case KEY_NUMPAD3:
 			N=m_Stripes*m_Height-1;
 			m_CurTopFile+=N;
 			MoveCursorAndShow(N);
 			return true;
+
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
 			if ((m_Stripes == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Stripes>1 || IsEmptyCmdline)
@@ -2251,8 +2301,8 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				MoveCursorAndShow(-m_Height);
 				return true;
 			}
-
 			return false;
+
 		case KEY_RIGHT:        case KEY_NUMPAD6:
 
 			if ((m_Stripes == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Stripes>1 || IsEmptyCmdline)
@@ -2265,10 +2315,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			}
 
 			return false;
-			/* $ 25.04.2001 DJ
-			   оптимизация Shift-стрелок для Selected files first: делаем сортировку
-			   один раз
-			*/
+
+		/* $ 25.04.2001 DJ
+			оптимизация Shift-стрелок для Selected files first: делаем сортировку
+			один раз
+		*/
 		case KEY_SHIFTHOME:    case KEY_SHIFTNUMPAD7:
 		{
 			InternalProcessKey++;
@@ -2283,6 +2334,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			ShowFileList();
 			return true;
 		}
+
 		case KEY_SHIFTEND:     case KEY_SHIFTNUMPAD1:
 		{
 			InternalProcessKey++;
@@ -2298,6 +2350,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			ShowFileList();
 			return true;
 		}
+
 		case KEY_SHIFTPGUP:    case KEY_SHIFTNUMPAD9:
 		case KEY_SHIFTPGDN:    case KEY_SHIFTNUMPAD3:
 		{
@@ -2315,6 +2368,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			ShowFileList();
 			return true;
 		}
+
 		case KEY_SHIFTLEFT:    case KEY_SHIFTNUMPAD4:
 		case KEY_SHIFTRIGHT:   case KEY_SHIFTNUMPAD6:
 		{
@@ -2346,14 +2400,13 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return false;
 		}
+
 		case KEY_SHIFTUP:      case KEY_SHIFTNUMPAD8:
 		case KEY_SHIFTDOWN:    case KEY_SHIFTNUMPAD2:
-		{
 			MoveSelection(LocalKey == KEY_SHIFTUP || LocalKey == KEY_SHIFTNUMPAD8 ? up : down);
-
 			ShowFileList();
 			return true;
-		}
+
 		case KEY_INS:          case KEY_NUMPAD0:
 		{
 			if (m_ListData.empty())
@@ -2375,46 +2428,57 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			ShowFileList();
 			return true;
 		}
+
 		case KEY_CTRLF3:
 		case KEY_RCTRLF3:
 			SetSortMode(panel_sort::BY_NAME);
 			return true;
+
 		case KEY_CTRLF4:
 		case KEY_RCTRLF4:
 			SetSortMode(panel_sort::BY_EXT);
 			return true;
+
 		case KEY_CTRLF5:
 		case KEY_RCTRLF5:
 			SetSortMode(panel_sort::BY_MTIME);
 			return true;
+
 		case KEY_CTRLF6:
 		case KEY_RCTRLF6:
 			SetSortMode(panel_sort::BY_SIZE);
 			return true;
+
 		case KEY_CTRLF7:
 		case KEY_RCTRLF7:
 			SetSortMode(panel_sort::UNSORTED);
 			return true;
+
 		case KEY_CTRLF8:
 		case KEY_RCTRLF8:
 			SetSortMode(panel_sort::BY_CTIME);
 			return true;
+
 		case KEY_CTRLF9:
 		case KEY_RCTRLF9:
 			SetSortMode(panel_sort::BY_ATIME);
 			return true;
+
 		case KEY_CTRLF10:
 		case KEY_RCTRLF10:
 			SetSortMode(panel_sort::BY_DIZ);
 			return true;
+
 		case KEY_CTRLF11:
 		case KEY_RCTRLF11:
 			SetSortMode(panel_sort::BY_OWNER);
 			return true;
+
 		case KEY_CTRLF12:
 		case KEY_RCTRLF12:
 			SelectSortMode();
 			return true;
+
 		case KEY_SHIFTF11:
 			m_SortGroups=!m_SortGroups;
 
@@ -2425,12 +2489,14 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 			Show();
 			return true;
+
 		case KEY_SHIFTF12:
 			SelectedFirst=!SelectedFirst;
 			SortFileList(true);
 			ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 			Show();
 			return true;
+
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
@@ -2450,6 +2516,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			}
 			return true;
 		}
+
 		case KEY_CTRLPGDN:
 		case KEY_RCTRLPGDN:
 		case KEY_CTRLNUMPAD3:
@@ -2473,7 +2540,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		}
 
 		default:
-
 			if (((LocalKey>=KEY_ALT_BASE+0x01 && LocalKey<=KEY_ALT_BASE+65535) || (LocalKey>=KEY_RALT_BASE+0x01 && LocalKey<=KEY_RALT_BASE+65535) ||
 			        (LocalKey>=KEY_ALTSHIFT_BASE+0x01 && LocalKey<=KEY_ALTSHIFT_BASE+65535) || (LocalKey>=KEY_RALTSHIFT_BASE+0x01 && LocalKey<=KEY_RALTSHIFT_BASE+65535)) &&
 			        (LocalKey&~(KEY_ALT|KEY_RALT|KEY_SHIFT))!=KEY_BS && (LocalKey&~(KEY_ALT|KEY_RALT|KEY_SHIFT))!=KEY_TAB &&
@@ -3890,6 +3956,21 @@ bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 	return true;
 }
 
+bool FileList::HardlinksSupported() const
+{
+	return m_HardlinksSupported;
+}
+
+bool FileList::StreamsSupported() const
+{
+	return m_StreamsSupported;
+}
+
+const string& FileList::GetComputerName() const
+{
+	return m_ComputerName;
+}
+
 long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 {
 	filemasks FileMask; // Класс для работы с масками
@@ -5185,6 +5266,11 @@ bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 
 	Help::create(Help::MakeLink(strPath, L"Contents"));
 	return true;
+}
+
+void FileList::ResetLastUpdateTime()
+{
+	LastUpdateTime = {};
 }
 
 /* $ 19.11.2001 IS
@@ -8664,6 +8750,16 @@ bool FileList::IsColumnDisplayed(std::function<bool(const column&)> Compare) con
 bool FileList::IsColumnDisplayed(int Type) const
 {
 	return IsColumnDisplayed([&Type](const column& i) {return static_cast<int>(i.type & 0xff) == Type;});
+}
+
+int FileList::GetColumnsCount() const
+{
+	return m_Stripes;
+}
+
+bool FileList::GetSelectedFirstMode() const
+{
+	return SelectedFirst;
 }
 
 content_data_ptr FileList::GetContentData(const string& Item) const

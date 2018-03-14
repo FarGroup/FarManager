@@ -315,7 +315,6 @@ class language_data final: public i_language_data
 {
 public:
 	std::unique_ptr<i_language_data> create() override { return std::make_unique<language_data>(); }
-	~language_data() override = default;
 
 	void reserve(size_t Size) override { return m_Messages.reserve(Size); }
 	void add(string&& Str) override { m_Messages.emplace_back(std::move(Str)); }

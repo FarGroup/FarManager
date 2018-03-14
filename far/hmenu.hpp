@@ -57,22 +57,22 @@ class HMenu: public SimpleModal
 public:
 	static hmenu_ptr create(HMenuData* Item, size_t ItemCount);
 	HMenu(private_tag, HMenuData* Item, size_t ItemCount);
-	virtual ~HMenu() override;
+	~HMenu() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void ResizeConsole() override;
-	virtual int GetType() const override { return windowtype_hmenu; }
-	virtual int GetTypeAndName(string &, string &) override { return windowtype_hmenu; }
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void ResizeConsole() override;
+	int GetType() const override { return windowtype_hmenu; }
+	int GetTypeAndName(string &, string &) override { return windowtype_hmenu; }
 
 	void GetExitCode(int &ExitCode, int &VExitCode) const;
 
 private:
 	void init();
 
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return {}; }
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
 
 	void ShowMenu();
 	bool ProcessCurrentSubMenu();

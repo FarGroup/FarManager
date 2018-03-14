@@ -94,14 +94,14 @@ public:
 		if (data())
 		{
 			if (size() != rhs.size())
-				throw std::runtime_error("Incorrect blob size");
+				throw std::runtime_error("Incorrect blob size: " + std::to_string(rhs.size()) + ", expected " + std::to_string(size()));
 		}
 		else
 		{
 			static_cast<range<char*>&>(*this) = make_range(new char[rhs.size()], rhs.size());
 			*m_Allocated = true;
 		}
-		memcpy(data(), rhs.data(), size());
+		std::copy(ALL_CONST_RANGE(rhs), begin());
 		return *this;
 	}
 
@@ -117,12 +117,8 @@ private:
 template<typename T>
 T deserialise(const bytes_view& Bytes)
 {
-	static_assert(std::is_trivially_copyable_v<T>);
-	if (Bytes.size() != sizeof(T))
-		throw std::runtime_error("Incorrect blob size: " + std::to_string(Bytes.size()) + ", expected " + std::to_string(sizeof(T)));
-
 	T Value;
-	std::memcpy(&Value, Bytes.data(), sizeof(T));
+	bytes::reference(Value) = Bytes;
 	return Value;
 }
 

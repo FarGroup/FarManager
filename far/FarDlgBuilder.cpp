@@ -50,7 +50,7 @@ struct EditFieldBinding: public DialogItemBinding<DialogItemEx>
 	{
 	}
 
-	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
+	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		TextValue = Item->strData;
 	}
@@ -71,7 +71,7 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 		Mask[MaskWidth] = L'\0';
 	}
 
-	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
+	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		try
 		{
@@ -102,7 +102,7 @@ public:
 		*(std::end(Mask) - 1) = L'\0';
 	}
 
-	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
+	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		// Must be converted to unsigned type first regardless of underlying type
 		*IntValue = std::stoull(Item->strData, nullptr, 16);
@@ -128,7 +128,7 @@ private:
 public:
 	explicit FarCheckBoxIntBinding(T& aValue, int aMask=0) : Value(aValue), Mask(aMask) { }
 
-	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
+	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		if (!Mask)
 		{
@@ -153,7 +153,7 @@ private:
 public:
 	explicit FarCheckBoxBool3Binding(T& aValue) : Value(aValue) { }
 
-	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
+	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		Value = Item->Selected;
 	}
@@ -168,7 +168,7 @@ private:
 public:
 	explicit FarCheckBoxBoolBinding(T& aValue) : Value(aValue) { }
 
-	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
+	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		Value = Item->Selected != BSTATE_UNCHECKED;
 	}
@@ -188,7 +188,7 @@ public:
 	{
 	}
 
-	virtual ~FarListControlBinding() override
+	~FarListControlBinding() override
 	{
 		if (List)
 		{
@@ -197,7 +197,7 @@ public:
 		delete List;
 	}
 
-	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
+	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		if (List)
 		{
@@ -220,7 +220,7 @@ private:
 public:
 	explicit FarRadioButtonBinding(T& aValue) : Value(aValue) { }
 
-	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
+	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
 		if (Item->Selected)
 			Value = RadioGroupIndex;

@@ -60,7 +60,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 				{
 				case DBT_DEVICEARRIVAL:
 					Arrival=true;
-					// fallthrough
+					[[fallthrough]];
 				case DBT_DEVICEREMOVECOMPLETE:
 					{
 						const auto BroadcastHeader = reinterpret_cast<const DEV_BROADCAST_HDR*>(lParam);

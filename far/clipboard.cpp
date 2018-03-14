@@ -69,12 +69,12 @@ class system_clipboard: public clipboard, public singleton<system_clipboard>
 	IMPLEMENTS_SINGLETON(system_clipboard);
 
 public:
-	virtual ~system_clipboard() override
+	~system_clipboard() override
 	{
 		system_clipboard::Close();
 	}
 
-	virtual bool Open() override
+	bool Open() override
 	{
 		assert(!m_Opened);
 
@@ -88,7 +88,7 @@ public:
 		return true;
 	}
 
-	virtual bool Close() override
+	bool Close() override
 	{
 		// Closing already closed buffer is OK
 		if (!m_Opened)
@@ -101,7 +101,7 @@ public:
 		return true;
 	}
 
-	virtual bool Clear() override
+	bool Clear() override
 	{
 		assert(m_Opened);
 
@@ -111,14 +111,14 @@ public:
 private:
 	system_clipboard() = default;
 
-	virtual HANDLE GetData(unsigned uFormat) const override
+	HANDLE GetData(unsigned uFormat) const override
 	{
 		assert(m_Opened);
 
 		return GetClipboardData(uFormat);
 	}
 
-	virtual bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
+	bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
 	{
 		assert(m_Opened);
 
@@ -138,7 +138,7 @@ private:
 		return true;
 	}
 
-	virtual unsigned RegisterFormat(clipboard_format Format) const override
+	unsigned RegisterFormat(clipboard_format Format) const override
 	{
 		static std::pair<const wchar_t*, unsigned> FormatNames[] =
 		{
@@ -160,7 +160,7 @@ private:
 		return FormatData.second;
 	}
 
-	virtual bool IsFormatAvailable(unsigned Format) const override
+	bool IsFormatAvailable(unsigned Format) const override
 	{
 		return IsClipboardFormatAvailable(Format) != FALSE;
 	}
@@ -177,12 +177,12 @@ public:
 		return std::unique_ptr<clipboard>(new internal_clipboard);
 	}
 
-	virtual ~internal_clipboard() override
+	~internal_clipboard() override
 	{
 		internal_clipboard::Close();
 	}
 
-	virtual bool Open() override
+	bool Open() override
 	{
 		assert(!m_Opened);
 
@@ -193,14 +193,14 @@ public:
 		return true;
 	}
 
-	virtual bool Close() override
+	bool Close() override
 	{
 		// Closing already closed buffer is OK
 		m_Opened = false;
 		return true;
 	}
 
-	virtual bool Clear() override
+	bool Clear() override
 	{
 		assert(m_Opened);
 
@@ -214,7 +214,7 @@ public:
 private:
 	internal_clipboard() = default;
 
-	virtual HANDLE GetData(unsigned uFormat) const override
+	HANDLE GetData(unsigned uFormat) const override
 	{
 		assert(m_Opened);
 
@@ -225,7 +225,7 @@ private:
 		return ItemIterator != m_InternalData.cend()? ItemIterator->second.get() : nullptr;
 	}
 
-	virtual bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
+	bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) override
 	{
 		assert(m_Opened);
 
@@ -236,13 +236,13 @@ private:
 		return true;
 	}
 
-	virtual unsigned RegisterFormat(clipboard_format Format) const override
+	unsigned RegisterFormat(clipboard_format Format) const override
 	{
 		enum { FarClipboardMagic = 0xFC };
 		return static_cast<unsigned>(Format) + FarClipboardMagic;
 	}
 
-	virtual bool IsFormatAvailable(unsigned Format) const override
+	bool IsFormatAvailable(unsigned Format) const override
 	{
 		return Format && m_InternalData.count(Format);
 	}

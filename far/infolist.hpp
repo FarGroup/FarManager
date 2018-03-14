@@ -48,20 +48,20 @@ class InfoList:public Panel
 public:
 	static info_panel_ptr create(window_ptr Owner);
 	InfoList(private_tag, window_ptr Owner);
-	virtual ~InfoList() override;
+	~InfoList() override;
 
 private:
-	virtual void DisplayObject() override;
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void Update(int Mode) override;
-	virtual string GetTitle() const override;
-	virtual void UpdateKeyBar() override;
-	virtual void CloseFile() override;
-	virtual bool GetCurName(string &strName, string &strShortName) const override;
-	virtual Viewer* GetViewer(void) override;
-	virtual Viewer* GetById(int ID) override;
+	void DisplayObject() override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void Update(int Mode) override;
+	string GetTitle() const override;
+	void UpdateKeyBar() override;
+	void CloseFile() override;
+	bool GetCurName(string &strName, string &strShortName) const override;
+	Viewer* GetViewer() override;
+	Viewer* GetById(int ID) override;
 
 	bool ShowDirDescription(int YPos);
 	bool ShowPluginDescription(int YPos);

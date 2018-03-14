@@ -151,7 +151,8 @@ namespace os::reg
 			return false;
 
 		Value = 0;
-		memcpy(&Value, Buffer.data(), std::min(Buffer.size(), sizeof(Value)));
+		auto ValueBytes = bytes::reference(Value);
+		std::copy_n(Buffer.cbegin(), std::min(Buffer.size(), ValueBytes.size()), ValueBytes.begin());
 		return true;
 	}
 
@@ -163,7 +164,8 @@ namespace os::reg
 			return false;
 
 		Value = 0;
-		memcpy(&Value, Buffer.data(), std::min(Buffer.size(), sizeof(Value)));
+		auto ValueBytes = bytes::reference(Value);
+		std::copy_n(Buffer.cbegin(), std::min(Buffer.size(), ValueBytes.size()), ValueBytes.begin());
 		return true;
 	}
 

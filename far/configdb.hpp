@@ -60,8 +60,6 @@ public:
 class GeneralConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~GeneralConfig() override = default;
-
 	virtual bool SetValue(string_view Key, string_view Name, string_view Value) = 0;
 	virtual bool SetValue(string_view Key, string_view Name, unsigned long long Value) = 0;
 	virtual bool SetValue(string_view Key, string_view Name, const bytes_view& Value) = 0;
@@ -156,7 +154,6 @@ public:
 
 protected:
 	HierarchicalConfig() = default;
-	virtual ~HierarchicalConfig() override = default;
 };
 
 namespace detail
@@ -175,7 +172,6 @@ using HierarchicalConfigUniquePtr = std::unique_ptr<HierarchicalConfig, detail::
 class ColorsConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~ColorsConfig() override = default;
 	virtual bool SetValue(string_view Name, const FarColor& Value) = 0;
 	virtual bool GetValue(string_view Name, FarColor& Value) const = 0;
 
@@ -186,7 +182,6 @@ protected:
 class AssociationsConfig: public representable, virtual public transactional {
 
 public:
-	virtual ~AssociationsConfig() override = default;
 	virtual bool EnumMasks(bool Reset, unsigned long long *id, string &strMask) = 0;
 	virtual bool EnumMasksForType(bool Reset, int Type, unsigned long long *id, string &strMask) = 0;
 	virtual bool GetMask(unsigned long long id, string &strMask) = 0;
@@ -223,7 +218,6 @@ protected:
 class PluginsCacheConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~PluginsCacheConfig() override = default;
 	virtual unsigned long long CreateCache(string_view CacheName) = 0;
 	virtual unsigned long long GetCacheID(string_view CacheName) const = 0;
 	virtual bool DeleteCache(string_view CacheName) = 0;
@@ -273,7 +267,6 @@ enum class hotkey_type: int
 class PluginsHotkeysConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~PluginsHotkeysConfig() override = default;
 	virtual bool HotkeysPresent(hotkey_type HotKeyType) = 0;
 	virtual string GetHotkey(string_view PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType) = 0;
 	virtual bool SetHotkey(string_view PluginKey, const GUID& MenuGuid, hotkey_type HotKeyType, string_view HotKey) = 0;
@@ -288,8 +281,6 @@ enum history_record_type: int;
 class HistoryConfig: public representable, virtual public transactional
 {
 public:
-	virtual ~HistoryConfig() override = default;
-
 	//command,view,edit,folder,dialog history
 	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, bool Reverse = false) = 0;
 	virtual bool Delete(unsigned long long id) = 0;

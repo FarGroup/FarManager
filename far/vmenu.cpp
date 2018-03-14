@@ -1399,7 +1399,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 				ProcessEnter();
 				break;
 			}
-			// fallthrough
+			[[fallthrough]];
 		default:
 		{
 			if (ProcessFilterKey(LocalKey))
@@ -2536,7 +2536,7 @@ void VMenu::ResizeConsole()
 	}
 }
 
-void VMenu::SetDeleting(void)
+void VMenu::SetDeleting()
 {
 }
 

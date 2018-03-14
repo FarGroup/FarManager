@@ -695,7 +695,7 @@ void FileEditor::Init(
 	Global->WindowManager->CallbackWindow([this](){ ReadEvent(); });
 }
 
-void FileEditor::ReadEvent(void)
+void FileEditor::ReadEvent()
 {
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ, nullptr, m_editor.get());
 	bEE_READ_Sent = true;
@@ -872,7 +872,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 								FirstSave=0;
 								break;
 							}
-							// fallthrough
+							[[fallthrough]];
 
 						default:
 							return false;
@@ -1171,11 +1171,11 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 				if (!ProcessKey(Manager::Key(KEY_F2))) // учтем факт того, что могли отказаться от сохранения
 					return false;
-				// fallthrough
+				[[fallthrough]];
 			case KEY_F4:
 				if (F4KeyOnly)
 					return true;
-				// fallthrough
+				[[fallthrough]];
 			case KEY_ESC:
 			case KEY_F10:
 			{
@@ -2787,7 +2787,7 @@ uintptr_t FileEditor::GetDefaultCodePage()
 	return cp;
 }
 
-Editor* FileEditor::GetEditor(void)
+Editor* FileEditor::GetEditor()
 {
 	return m_editor.get();
 }

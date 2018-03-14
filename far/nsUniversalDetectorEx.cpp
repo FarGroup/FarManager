@@ -138,7 +138,7 @@ public:
 	int getCodePage() const { return m_codepage; }
 
 private:
-	virtual void Report(const char* aCharset) override
+	void Report(const char* aCharset) override
 	{
 		const auto i = CpMap().find(aCharset);
 		m_codepage = i != CpMap().end()? i->second : -1;

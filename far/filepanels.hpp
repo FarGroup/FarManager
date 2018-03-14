@@ -51,24 +51,23 @@ public:
 
 	explicit FilePanels(private_tag);
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void SetScreenPosition() override;
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return windowtype_panels; }
-	virtual void RedrawKeyBar() override;
-	virtual void ShowConsoleTitle() override;
-	virtual void ResizeConsole() override;
-	virtual bool CanFastHide() const override;
-	virtual FARMACROAREA GetMacroArea() const override;
-	virtual void Show() override;
-	virtual void DisplayObject() override;
-	virtual string GetTitle() const override { return {}; }
-	virtual bool IsKeyBarVisible() const override { return Global->Opt->ShowKeyBar; }
-
-	virtual Viewer* GetViewer(void) override;
-	virtual Viewer* GetById(int ID) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void SetScreenPosition() override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return windowtype_panels; }
+	void RedrawKeyBar() override;
+	void ShowConsoleTitle() override;
+	void ResizeConsole() override;
+	bool CanFastHide() const override;
+	FARMACROAREA GetMacroArea() const override;
+	void Show() override;
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
+	bool IsKeyBarVisible() const override { return Global->Opt->ShowKeyBar; }
+	Viewer* GetViewer() override;
+	Viewer* GetById(int ID) override;
 
 	panel_ptr LeftPanel() const { return m_Panels[panel_left].m_Panel; }
 	panel_ptr RightPanel() const { return m_Panels[panel_right].m_Panel; }

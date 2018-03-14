@@ -79,8 +79,8 @@ class KeyBar: public SimpleScreenObject
 public:
 	explicit KeyBar(window_ptr Owner);
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 
 	void SetLabels(lng StartIndex);
 	void SetCustomLabels(KEYBARAREA Area);
@@ -103,7 +103,8 @@ public:
 	void RedrawIfChanged();
 
 private:
-	virtual void DisplayObject() override;
+	void DisplayObject() override;
+
 	void ClearKeyTitles(bool Custom);
 
 	// title, custom title

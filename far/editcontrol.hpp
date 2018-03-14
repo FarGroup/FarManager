@@ -48,10 +48,12 @@ class EditControl:public Edit
 	using parent_processkey_t = std::function<int(const Manager::Key& Key)>;
 public:
 	EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey = nullptr, Callback* aCallback = nullptr, History* iHistory = nullptr, FarList* iList = nullptr, DWORD iFlags = 0);
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual void Show() override;
-	virtual void Changed(bool DelBlock=false) override;
+
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	void Show() override;
+	void Changed(bool DelBlock=false) override;
+	int GetMaxLength() const override {return MaxLength;}
 
 	void AutoComplete(bool Manual,bool DelBlock);
 	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
@@ -63,7 +65,6 @@ public:
 	void GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged) const;
 	int GetDropDownBox() const {return m_Flags.Check(FEDITLINE_DROPDOWNBOX);}
 	void SetDropDownBox(bool NewDropDownBox) {m_Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
-	virtual int GetMaxLength() const override {return MaxLength;}
 	void SetMaxLength(int Length) {MaxLength=Length;}
 	void SetClearFlag(bool Flag) { m_Flags.Change(FEDITLINE_CLEARFLAG, Flag); }
 	bool GetClearFlag() const { return m_Flags.Check(FEDITLINE_CLEARFLAG); }
@@ -78,29 +79,29 @@ public:
 	};
 
 protected:
-	virtual void RefreshStrByMask(int InitMode=FALSE) override;
+	void RefreshStrByMask(int InitMode=FALSE) override;
 
 private:
 	friend class DlgEdit;
 
-	virtual const FarColor& GetNormalColor() const override;
-	virtual const FarColor& GetSelectedColor() const override;
-	virtual const FarColor& GetUnchangedColor() const override;
-	virtual size_t GetTabSize() const override;
-	virtual EXPAND_TABS GetTabExpandMode() const override;
-	virtual string GetInputMask() const override {return m_Mask;}
-	virtual void SetInputMask(const string& InputMask) override;
-	virtual const string& WordDiv() const override;
-	virtual int GetPrevCurPos() const override { return PrevCurPos; }
-	virtual void SetPrevCurPos(int Pos) override { PrevCurPos = Pos; }
-	virtual int GetCursorSize() const override { return CursorSize; }
-	virtual void SetCursorSize(int Size) override { CursorSize = Size; }
-	virtual int GetMacroSelectionStart() const override {return MacroSelectionStart;}
-	virtual void SetMacroSelectionStart(int Value) override {MacroSelectionStart = Value;}
-	virtual int GetLineCursorPos() const override {return CursorPos;}
-	virtual void SetLineCursorPos(int Value) override {CursorPos = Value;}
-	virtual void SuppressCallback() override { ++m_CallbackSuppressionsCount; }
-	virtual void RevertCallback() override { --m_CallbackSuppressionsCount; }
+	const FarColor& GetNormalColor() const override;
+	const FarColor& GetSelectedColor() const override;
+	const FarColor& GetUnchangedColor() const override;
+	size_t GetTabSize() const override;
+	EXPAND_TABS GetTabExpandMode() const override;
+	string GetInputMask() const override {return m_Mask;}
+	void SetInputMask(const string& InputMask) override;
+	const string& WordDiv() const override;
+	int GetPrevCurPos() const override { return PrevCurPos; }
+	void SetPrevCurPos(int Pos) override { PrevCurPos = Pos; }
+	int GetCursorSize() const override { return CursorSize; }
+	void SetCursorSize(int Size) override { CursorSize = Size; }
+	int GetMacroSelectionStart() const override {return MacroSelectionStart;}
+	void SetMacroSelectionStart(int Value) override {MacroSelectionStart = Value;}
+	int GetLineCursorPos() const override {return CursorPos;}
+	void SetLineCursorPos(int Value) override {CursorPos = Value;}
+	void SuppressCallback() override { ++m_CallbackSuppressionsCount; }
+	void RevertCallback() override { --m_CallbackSuppressionsCount; }
 
 	void SetMenuPos(VMenu2& menu);
 	int AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKey, FARMACROAREA Area);

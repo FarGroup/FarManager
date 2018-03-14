@@ -297,6 +297,11 @@ void QuickView::DisplayObject()
 	m_Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
+Viewer* QuickView::GetViewer()
+{
+	return QView.get();
+}
+
 
 long long QuickView::VMProcess(int OpCode, void* vParam, long long iParam)
 {

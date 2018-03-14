@@ -45,17 +45,17 @@ public:
 	static grabber_ptr create();
 	explicit Grabber(private_tag);
 
-	virtual int GetType() const override { return windowtype_grabber; }
-	virtual int GetTypeAndName(string &, string &) override { return windowtype_grabber; }
-	virtual void ResizeConsole(void) override;
+	int GetType() const override { return windowtype_grabber; }
+	int GetTypeAndName(string &, string &) override { return windowtype_grabber; }
+	void ResizeConsole() override;
 
 private:
 	struct grabber_tag {};
 
-	virtual void DisplayObject() override;
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual string GetTitle() const override { return {}; }
+	void DisplayObject() override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	string GetTitle() const override { return {}; }
 
 	void init();
 	std::tuple<COORD&, COORD&> GetSelection();

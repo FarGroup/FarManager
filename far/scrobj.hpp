@@ -55,22 +55,21 @@ public:
 	NONCOPYABLE(SimpleScreenObject);
 	virtual ~SimpleScreenObject() = default;
 
-	int ObjWidth() const {return m_X2 - m_X1 + 1;}
-	int ObjHeight() const {return m_Y2 - m_Y1 + 1;}
-
 	virtual bool ProcessKey(const Manager::Key& Key) { return false; }
 	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) { return false; }
 
 	virtual void Hide();
 	virtual void Show();
-	virtual void ShowConsoleTitle() {};
+	virtual void ShowConsoleTitle() {}
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 	virtual void GetPosition(int& X1,int& Y1,int& X2,int& Y2) const;
 	virtual void SetScreenPosition();
-	virtual void ResizeConsole() {};
+	virtual void ResizeConsole() {}
 	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam=0) {return 0;}
-	virtual void Refresh(void);
+	virtual void Refresh();
 
+	int ObjWidth() const {return m_X2 - m_X1 + 1;}
+	int ObjHeight() const {return m_Y2 - m_Y1 + 1;}
 	void Redraw();
 	bool IsVisible() const {return m_Flags.Check(FSCROBJ_VISIBLE);}
 	void SetVisible(bool Visible) {m_Flags.Change(FSCROBJ_VISIBLE,Visible);}
@@ -94,15 +93,16 @@ class ScreenObject:public SimpleScreenObject
 {
 public:
 	NONCOPYABLE(ScreenObject);
-	virtual void SetPosition(int X1, int Y1, int X2, int Y2) override;
-	virtual void Show() override;
-	virtual void Hide() override;
+
+	void SetPosition(int X1, int Y1, int X2, int Y2) override;
+	void Show() override;
+	void Hide() override;
 
 	void HideButKeepSaveScreen();
 
 protected:
 	explicit ScreenObject(window_ptr Owner);
-	virtual ~ScreenObject() override;
+	~ScreenObject() override;
 
 public: // BUGBUG
 	std::unique_ptr<SaveScreen> SaveScr;
@@ -113,11 +113,11 @@ class ScreenObjectWithShadow:public ScreenObject
 {
 public:
 	NONCOPYABLE(ScreenObjectWithShadow);
-	virtual void Hide() override;
+	void Hide() override;
 
 protected:
 	explicit ScreenObjectWithShadow(window_ptr Owner);
-	virtual ~ScreenObjectWithShadow() override;
+	~ScreenObjectWithShadow() override;
 
 	void Shadow(bool Full=false);
 

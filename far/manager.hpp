@@ -48,12 +48,12 @@ public:
 		Key(): m_Event(), m_FarKey(0), m_EventFilled(false) {}
 		explicit Key(int Key);
 		Key(unsigned int Key, const INPUT_RECORD& Event): m_Event(Event), m_FarKey(Key), m_EventFilled(true) {}
-		const INPUT_RECORD& Event(void)const {return m_Event;}
-		bool IsEvent(void)const {return m_EventFilled;}
-		bool IsReal(void)const;
+		const INPUT_RECORD& Event() const {return m_Event;}
+		bool IsEvent() const {return m_EventFilled;}
+		bool IsReal() const;
 		Key& operator=(unsigned int Key);
 		Key& operator&=(unsigned int Key);
-		unsigned int operator()(void) const {return m_FarKey;}
+		unsigned int operator()() const {return m_FarKey;}
 
 	private:
 		INPUT_RECORD m_Event;
@@ -81,7 +81,7 @@ public:
 	void ReplaceWindow(const window_ptr& Old, const window_ptr& New);
 	void ModalDesktopWindow();
 	void UnModalDesktopWindow();
-	void CallbackWindow(const std::function<void(void)>& Callback);
+	void CallbackWindow(const std::function<void()>& Callback);
 	//! Функции для запуска модальных окон.
 	void ExecuteWindow(const window_ptr& Executed);
 	//! Входит в новый цикл обработки событий
@@ -96,7 +96,7 @@ public:
 	Возвращает TRUE, если все закрыли и можно выходить из фара.
 	*/
 	bool ExitAll();
-	size_t GetWindowCount()const { return m_windows.size(); }
+	size_t GetWindowCount() const { return m_windows.size(); }
 	int  GetWindowCountByType(int Type);
 	/*$ 26.06.2001 SKV
 	Для вызова через ACTL_COMMIT
@@ -119,7 +119,7 @@ public:
 	bool ManagerIsDown() const { return EndLoop; }
 	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar() const;
-	bool InModal(void) const { return m_NonModalSize < m_windows.size(); }
+	bool InModal() const { return m_NonModalSize < m_windows.size(); }
 	bool IsModal(size_t Index) const { return Index >= m_NonModalSize; }
 	void ResizeAllWindows();
 
@@ -131,8 +131,8 @@ public:
 	void UpdateMacroArea() const;
 
 	desktop* Desktop() const;
-	Viewer* GetCurrentViewer(void) const;
-	FileEditor* GetCurrentEditor(void) const;
+	Viewer* GetCurrentViewer() const;
+	FileEditor* GetCurrentEditor() const;
 	// BUGBUG, do we need this?
 	void ImmediateHide();
 	bool HaveAnyMessage() const;
@@ -143,7 +143,7 @@ private:
 		bool operator()(const window_ptr& lhs, const window_ptr& rhs) const;
 	};
 	using sorted_windows = std::set<window_ptr, window_comparer>;
-	sorted_windows GetSortedWindows(void) const;
+	sorted_windows GetSortedWindows() const;
 
 #if defined(SYSLOG)
 	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
@@ -152,7 +152,7 @@ private:
 	window_ptr WindowMenu(); //    вместо void SelectWindow(); // show window menu (F12)
 	bool HaveAnyWindow() const;
 	bool OnlyDesktop() const;
-	void Commit(void);         // завершает транзакцию по изменениям в контейнерах окон
+	void Commit();         // завершает транзакцию по изменениям в контейнерах окон
 	// Она в цикле вызывает себя, пока хотябы один из указателей отличен от nullptr
 	// Функции, "подмастерья начальника" - Commit'a
 	// Иногда вызываются не только из него и из других мест

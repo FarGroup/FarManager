@@ -93,7 +93,7 @@ void SimpleScreenObject::Redraw()
 		Show();
 }
 
-void SimpleScreenObject::Refresh(void)
+void SimpleScreenObject::Refresh()
 {
 	if (const auto owner = GetOwner())
 	{

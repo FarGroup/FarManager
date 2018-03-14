@@ -81,7 +81,7 @@ Manager::Key::Key(int Key): m_Event(), m_FarKey(), m_EventFilled(false)
 	Fill(Key);
 }
 
-bool Manager::Key::IsReal(void)const
+bool Manager::Key::IsReal() const
 {
 	return m_FarKey!=KEY_IDLE && m_Event.EventType!=0;
 }
@@ -267,7 +267,7 @@ void Manager::CheckAndPushWindow(const window_ptr& Param, window_callback Callba
 	if (Param&&!Param->IsDeleting()) PushWindow(Param,Callback);
 }
 
-void Manager::CallbackWindow(const std::function<void(void)>& Callback)
+void Manager::CallbackWindow(const std::function<void()>& Callback)
 {
 	m_Queue.emplace(Callback);
 }
@@ -893,7 +893,7 @@ int Manager::IndexOf(const window_ptr& Window) const
 	return ItemIterator != m_windows.cend() ? ItemIterator - m_windows.cbegin() : -1;
 }
 
-void Manager::Commit(void)
+void Manager::Commit()
 {
 	_MANAGER(CleverSysLog clv(L"Manager::Commit()"));
 	_MANAGER(ManagerClass_Dump(L"ManagerClass"));
@@ -1144,7 +1144,6 @@ void Manager::PluginCommit()
 	Commit();
 }
 
-/* $ Введена для нужд CtrlAltShift OT */
 void Manager::ImmediateHide()
 {
 	if (m_windows.empty())
@@ -1200,7 +1199,7 @@ void Manager::UpdateMacroArea() const
 	if (GetCurrentWindow()) Global->CtrlObject->Macro.SetArea(GetCurrentWindow()->GetMacroArea());
 }
 
-Manager::sorted_windows Manager::GetSortedWindows(void) const
+Manager::sorted_windows Manager::GetSortedWindows() const
 {
 	return sorted_windows(m_windows.cbegin(),m_windows.cbegin() + m_NonModalSize);
 }
@@ -1220,7 +1219,7 @@ desktop* Manager::Desktop() const
 	return m_Desktop.get();
 }
 
-Viewer* Manager::GetCurrentViewer(void) const
+Viewer* Manager::GetCurrentViewer() const
 {
 	return reinterpret_cast<Viewer*>(GetCurrent([](windows::const_reverse_iterator Iterator)
 	{
@@ -1230,7 +1229,7 @@ Viewer* Manager::GetCurrentViewer(void) const
 	));
 }
 
-FileEditor* Manager::GetCurrentEditor(void) const
+FileEditor* Manager::GetCurrentEditor() const
 {
 	return reinterpret_cast<FileEditor*>(GetCurrent([](windows::const_reverse_iterator Iterator)
 	{

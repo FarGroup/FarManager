@@ -37,9 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "scrobj.hpp"
 #include "panelfwd.hpp"
-//BUGBUG
-#include "plugins.hpp"
 
+class plugin_panel;
 class DizList;
 
 struct column
@@ -139,7 +138,13 @@ class FilePanels;
 class Panel: public ScreenObject, public std::enable_shared_from_this<Panel>
 {
 public:
-	virtual ~Panel() override;
+	~Panel() override;
+
+	void Show() override;
+	void Hide() override;
+	void DisplayObject() override {}
+	void ShowConsoleTitle() override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 
 	// TODO: make empty methods pure virtual, move empty implementations to dummy_panel class
 	virtual void CloseFile() {}
@@ -170,7 +175,6 @@ public:
 	virtual plugin_panel* GetPluginHandle() const {return nullptr;}
 	virtual void RefreshTitle();
 	virtual string GetTitle() const;
-	virtual long long VMProcess(int OpCode, void* vParam=nullptr, long long iParam=0) override;
 	virtual bool SendKeyToPlugin(DWORD Key,bool Pred=false) {return false;}
 	virtual bool SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated=true);
 	virtual void ChangeDirToCurrent();
@@ -185,10 +189,8 @@ public:
 	virtual bool GetCurBaseName(string &strName, string &strShortName) const;
 	virtual bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return false; }
 	virtual int GetCurrentPos() const {return 0;}
-
 	virtual bool IsFocused() const;
 	virtual void OnFocusChange(bool Get);
-
 	virtual void Update(int Mode) = 0;
 	virtual bool UpdateIfChanged(bool Idle) {return false;}
 	virtual void UpdateIfRequired() {}
@@ -218,12 +220,8 @@ public:
 	virtual void IfGoHome(wchar_t Drive) {}
 	virtual void UpdateKeyBar() = 0;
 	virtual size_t GetFileCount() const { return 0; }
-	virtual void Hide() override;
-	virtual void Show() override;
-	virtual void DisplayObject() override {}
-	virtual Viewer* GetViewer(void) {return nullptr;}
-	virtual Viewer* GetById(int ID) {(void)ID; return nullptr;}
-	virtual void ShowConsoleTitle() override;
+	virtual Viewer* GetViewer() {return nullptr;}
+	virtual Viewer* GetById(int ID) { return nullptr;}
 
 	static void exclude_sets(string& mask);
 
@@ -319,8 +317,8 @@ public:
 	}
 
 private:
-	virtual void Update(int Mode) override {};
-	virtual void UpdateKeyBar() override {}
+	void Update(int Mode) override {};
+	void UpdateKeyBar() override {}
 };
 
 #endif // PANEL_HPP_FFA15B35_5546_4AA9_84B2_B60D8AA904C7

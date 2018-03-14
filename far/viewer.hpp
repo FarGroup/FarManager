@@ -53,11 +53,11 @@ class Viewer:public SimpleScreenObject
 {
 public:
 	explicit Viewer(window_ptr Owner, bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
-	virtual ~Viewer() override;
+	~Viewer() override;
 
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode,void *vParam=nullptr,long long iParam=0) override;
 
 	bool OpenFile(const string& Name, int warning);
 	void SetViewKeyBar(KeyBar *ViewKeyBar);
@@ -91,14 +91,15 @@ public:
 	bool ProcessDisplayMode(VIEWER_MODE_TYPE newMode, bool isRedraw = true);
 	int ProcessWrapMode(int newMode, bool isRedraw = true);
 	int ProcessTypeWrapMode(int newMode, bool isRedraw = true);
-	int GetId(void) const { return ViewerID; }
-	void OnDestroy(void);
+	int GetId() const { return ViewerID; }
+	void OnDestroy();
 
 private:
 	struct ViewerString;
 
+	void DisplayObject() override;
+
 	bool process_key(const Manager::Key& Key);
-	virtual void DisplayObject() override;
 	void ShowPage(int nMode);
 	void Up(int n, bool adjust);
 	void CacheLine(long long start, int length, bool have_eol);
@@ -153,8 +154,8 @@ private:
 	size_t MaxViewLineBufferSize() const { return ViOpt.MaxLineSize + 15; }
 
 protected:
-	void ReadEvent(void);
-	void CloseEvent(void);
+	void ReadEvent();
+	void CloseEvent();
 
 private:
 	friend class FileViewer;
@@ -275,8 +276,9 @@ class ViewerContainer
 {
 public:
 	virtual ~ViewerContainer() = default;
-	virtual Viewer* GetViewer(void)=0;
-	virtual Viewer* GetById(int ID)=0;
+
+	virtual Viewer* GetViewer() = 0;
+	virtual Viewer* GetById(int ID) = 0;
 };
 
 #endif // VIEWER_HPP_D8E79984_1BC4_413A_90BA_3CFE88B613B3

@@ -500,7 +500,7 @@ void Options::MaskGroupsSettings()
 			case KEY_NUMPAD0:
 			case KEY_INS:
 				Item = &EmptyString;
-				// fallthrough
+				[[fallthrough]];
 			case KEY_ENTER:
 			case KEY_NUMENTER:
 			case KEY_F4:

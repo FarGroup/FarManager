@@ -47,42 +47,42 @@ class basic_console: public console, public singleton<basic_console>
 	IMPLEMENTS_SINGLETON(basic_console);
 
 public:
-virtual bool Allocate() const override
+bool Allocate() const override
 {
 	return AllocConsole()!=FALSE;
 }
 
-virtual bool Free() const override
+bool Free() const override
 {
 	return FreeConsole()!=FALSE;
 }
 
-virtual HANDLE GetInputHandle() const override
+HANDLE GetInputHandle() const override
 {
 	return GetStdHandle(STD_INPUT_HANDLE);
 }
 
-virtual HANDLE GetOutputHandle() const override
+HANDLE GetOutputHandle() const override
 {
 	return GetStdHandle(STD_OUTPUT_HANDLE);
 }
 
-virtual HANDLE GetErrorHandle() const override
+HANDLE GetErrorHandle() const override
 {
 	return GetStdHandle(STD_ERROR_HANDLE);
 }
 
-virtual HANDLE GetOriginalInputHandle() const override
+HANDLE GetOriginalInputHandle() const override
 {
 	return m_OriginalInputHandle;
 }
 
-virtual HWND GetWindow() const override
+HWND GetWindow() const override
 {
 	return GetConsoleWindow();
 }
 
-virtual bool GetSize(COORD& Size) const override
+bool GetSize(COORD& Size) const override
 {
 	bool Result = false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
@@ -102,7 +102,7 @@ virtual bool GetSize(COORD& Size) const override
 	return Result;
 }
 
-virtual bool SetSize(COORD Size) const override
+bool SetSize(COORD Size) const override
 {
 	if(!Global->Opt->WindowMode)
 		return SetConsoleScreenBufferSize(GetOutputHandle(), Size) != FALSE;
@@ -132,7 +132,7 @@ virtual bool SetSize(COORD Size) const override
 	return SetWindowRect(csbi.srWindow);
 }
 
-virtual bool GetWindowRect(SMALL_RECT& ConsoleWindow) const override
+bool GetWindowRect(SMALL_RECT& ConsoleWindow) const override
 {
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
@@ -142,12 +142,12 @@ virtual bool GetWindowRect(SMALL_RECT& ConsoleWindow) const override
 	return true;
 }
 
-virtual bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const override
+bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const override
 {
 	return SetConsoleWindowInfo(GetOutputHandle(), true, &ConsoleWindow)!=FALSE;
 }
 
-virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const override
+bool GetWorkingRect(SMALL_RECT& WorkingRect) const override
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
@@ -160,7 +160,7 @@ virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const override
 	return true;
 }
 
-virtual string GetPhysicalTitle() const override
+string GetPhysicalTitle() const override
 {
 	// Don't use GetConsoleTitle here, it's buggy.
 	string Title;
@@ -168,18 +168,18 @@ virtual string GetPhysicalTitle() const override
 	return Title;
 }
 
-virtual string GetTitle() const override
+string GetTitle() const override
 {
 	return m_Title;
 }
 
-virtual bool SetTitle(const string& Title) const override
+bool SetTitle(const string& Title) const override
 {
 	m_Title = Title;
 	return SetConsoleTitle(Title.data())!=FALSE;
 }
 
-virtual bool GetKeyboardLayoutName(string &strName) const override
+bool GetKeyboardLayoutName(string &strName) const override
 {
 	wchar_t Buffer[KL_NAMELENGTH];
 	if (!imports::instance().GetConsoleKeyboardLayoutNameW(Buffer))
@@ -189,37 +189,37 @@ virtual bool GetKeyboardLayoutName(string &strName) const override
 	return true;
 }
 
-virtual uintptr_t GetInputCodepage() const override
+uintptr_t GetInputCodepage() const override
 {
 	return GetConsoleCP();
 }
 
-virtual bool SetInputCodepage(uintptr_t Codepage) const override
+bool SetInputCodepage(uintptr_t Codepage) const override
 {
 	return SetConsoleCP(Codepage)!=FALSE;
 }
 
-virtual uintptr_t GetOutputCodepage() const override
+uintptr_t GetOutputCodepage() const override
 {
 	return GetConsoleOutputCP();
 }
 
-virtual bool SetOutputCodepage(uintptr_t Codepage) const override
+bool SetOutputCodepage(uintptr_t Codepage) const override
 {
 	return SetConsoleOutputCP(Codepage)!=FALSE;
 }
 
-virtual bool SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const override
+bool SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const override
 {
 	return SetConsoleCtrlHandler(HandlerRoutine, Add)!=FALSE;
 }
 
-virtual bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const override
+bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const override
 {
 	return GetConsoleMode(ConsoleHandle, &Mode)!=FALSE;
 }
 
-virtual bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const override
+bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const override
 {
 	return SetConsoleMode(ConsoleHandle, Mode)!=FALSE;
 }
@@ -236,7 +236,7 @@ static void AdjustMouseEvents(INPUT_RECORD* Buffer, size_t Length, short Delta, 
 	}
 }
 
-virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const override
+bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const override
 {
 	DWORD dwNumberOfEventsRead = 0;
 	bool Result=PeekConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead)!=FALSE;
@@ -250,7 +250,7 @@ virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 	return Result;
 }
 
-virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const override
+bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const override
 {
 	DWORD dwNumberOfEventsRead = 0;
 	if (!ReadConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead))
@@ -268,7 +268,7 @@ virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 	return true;
 }
 
-virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const override
+bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const override
 {
 	if(Global->Opt->WindowMode)
 	{
@@ -288,7 +288,7 @@ virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 	return Result;
 }
 
-virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
+bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
 {
 	int Delta=Global->Opt->WindowMode?GetDelta():0;
 	ReadRegion.Top+=Delta;
@@ -340,7 +340,7 @@ virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_
 	return true;
 }
 
-virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
+bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
 {
 	int Delta=Global->Opt->WindowMode?GetDelta():0;
 	WriteRegion.Top+=Delta;
@@ -392,7 +392,7 @@ virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord,
 	return true;
 }
 
-virtual bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const override
+bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const override
 {
 	const auto InputHandle = GetInputHandle();
 
@@ -416,7 +416,7 @@ virtual bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const override
 	return true;
 }
 
-virtual bool Write(const string_view Str) const override
+bool Write(const string_view Str) const override
 {
 	DWORD NumberOfCharsWritten;
 	const auto OutputHandle = GetOutputHandle();
@@ -443,13 +443,13 @@ virtual bool Write(const string_view Str) const override
 	return _write(m_FileHandle, Str.raw_data(), static_cast<unsigned int>(Str.size() * sizeof(wchar_t))) != -1;
 }
 
-virtual bool Commit() const override
+bool Commit() const override
 {
 	// reserved
 	return true;
 }
 
-virtual bool GetTextAttributes(FarColor& Attributes) const override
+bool GetTextAttributes(FarColor& Attributes) const override
 {
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
@@ -459,22 +459,22 @@ virtual bool GetTextAttributes(FarColor& Attributes) const override
 	return true;
 }
 
-virtual bool SetTextAttributes(const FarColor& Attributes) const override
+bool SetTextAttributes(const FarColor& Attributes) const override
 {
 	return SetConsoleTextAttribute(GetOutputHandle(), colors::FarColorToConsoleColor(Attributes))!=FALSE;
 }
 
-virtual bool GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const override
+bool GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const override
 {
 	return GetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo)!=FALSE;
 }
 
-virtual bool SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const override
+bool SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const override
 {
 	return SetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo)!=FALSE;
 }
 
-virtual bool GetCursorPosition(COORD& Position) const override
+bool GetCursorPosition(COORD& Position) const override
 {
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 	if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
@@ -488,7 +488,7 @@ virtual bool GetCursorPosition(COORD& Position) const override
 	return true;
 }
 
-virtual bool SetCursorPosition(COORD Position) const override
+bool SetCursorPosition(COORD Position) const override
 {
 	if(Global->Opt->WindowMode)
 	{
@@ -502,12 +502,12 @@ virtual bool SetCursorPosition(COORD Position) const override
 	return SetConsoleCursorPosition(GetOutputHandle(), Position)!=FALSE;
 }
 
-virtual bool FlushInputBuffer() const override
+bool FlushInputBuffer() const override
 {
 	return FlushConsoleInputBuffer(GetInputHandle())!=FALSE;
 }
 
-virtual bool GetNumberOfInputEvents(size_t& NumberOfEvents) const override
+bool GetNumberOfInputEvents(size_t& NumberOfEvents) const override
 {
 	DWORD dwNumberOfEvents = 0;
 	bool Result = GetNumberOfConsoleInputEvents(GetInputHandle(), &dwNumberOfEvents)!=FALSE;
@@ -515,12 +515,12 @@ virtual bool GetNumberOfInputEvents(size_t& NumberOfEvents) const override
 	return Result;
 }
 
-virtual bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const override
+bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const override
 {
 	return GetConsoleAlias(const_cast<LPWSTR>(Source), TargetBuffer, static_cast<DWORD>(TargetBufferLength), const_cast<LPWSTR>(ExeName))!=0;
 }
 
-virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const override
+std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const override
 {
 	FN_RETURN_TYPE(console::GetAllAliases) Result;
 
@@ -552,7 +552,7 @@ virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAli
 	return Result;
 }
 
-virtual void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const override
+void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const override
 {
 	for (const auto& ExeItem: Aliases)
 	{
@@ -563,12 +563,12 @@ virtual void SetAllAliases(const std::unordered_map<string, std::unordered_map<s
 	}
 }
 
-virtual bool GetDisplayMode(DWORD& Mode) const override
+bool GetDisplayMode(DWORD& Mode) const override
 {
 	return GetConsoleDisplayMode(&Mode)!=FALSE;
 }
 
-virtual COORD GetLargestWindowSize() const override
+COORD GetLargestWindowSize() const override
 {
 	COORD Result = GetLargestConsoleWindowSize(GetOutputHandle());
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -586,12 +586,12 @@ virtual COORD GetLargestWindowSize() const override
 	return Result;
 }
 
-virtual bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const override
+bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const override
 {
 	return SetConsoleActiveScreenBuffer(ConsoleOutput)!=FALSE;
 }
 
-virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const override
+bool ClearExtraRegions(const FarColor& Color, int Mode) const override
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -619,7 +619,7 @@ virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const override
 	return true;
 }
 
-virtual bool ScrollWindow(int Lines,int Columns) const override
+bool ScrollWindow(int Lines,int Columns) const override
 {
 	bool process=false;
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -672,7 +672,7 @@ virtual bool ScrollWindow(int Lines,int Columns) const override
 	return false;
 }
 
-virtual bool ScrollWindowToBegin() const override
+bool ScrollWindowToBegin() const override
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -688,7 +688,7 @@ virtual bool ScrollWindowToBegin() const override
 	return false;
 }
 
-virtual bool ScrollWindowToEnd() const override
+bool ScrollWindowToEnd() const override
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -704,7 +704,7 @@ virtual bool ScrollWindowToEnd() const override
 	return false;
 }
 
-virtual bool IsFullscreenSupported() const override
+bool IsFullscreenSupported() const override
 {
 #ifdef _WIN64
 	return false;
@@ -717,7 +717,7 @@ virtual bool IsFullscreenSupported() const override
 #endif
 }
 
-virtual bool ResetPosition() const override
+bool ResetPosition() const override
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -732,7 +732,7 @@ virtual bool ResetPosition() const override
 	return true;
 }
 
-virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const override
+bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const override
 {
 	return GetColorDialogInternal(Color, Centered, AddTransparent);
 }
@@ -746,7 +746,7 @@ virtual short GetDelta() const
 
 protected:
 
-virtual bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const override
+bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const override
 {
 	const CHAR_INFO SysFill = { Fill.Char, colors::FarColorToConsoleColor(Fill.Attributes) };
 	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, ClipRectangle, DestinationOrigin, &SysFill) != FALSE;
@@ -792,7 +792,7 @@ class extended_console: public basic_console, public singleton<extended_console>
 public:
 	using singleton<extended_console>::instance;
 
-	virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
+	bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const override
 	{
 		if(!Imports.pReadOutput)
 			return basic_console::ReadOutput(Buffer, BufferCoord, ReadRegion);
@@ -801,7 +801,7 @@ public:
 		return Imports.pReadOutput(Buffer.data(), SizeCoord, BufferCoord, &ReadRegion) != FALSE;
 	}
 
-	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
+	bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const override
 	{
 		if(!Imports.pWriteOutput)
 			return basic_console::WriteOutput(Buffer, BufferCoord, WriteRegion);
@@ -810,7 +810,7 @@ public:
 		return Imports.pWriteOutput(Buffer.data(), BufferSize, BufferCoord, &WriteRegion) != FALSE;
 	}
 
-	virtual bool Commit() const override
+	bool Commit() const override
 	{
 		if(!Imports.pCommit)
 			return basic_console::Commit();
@@ -818,7 +818,7 @@ public:
 		return Imports.pCommit() != FALSE;
 	}
 
-	virtual bool GetTextAttributes(FarColor& Attributes) const override
+	bool GetTextAttributes(FarColor& Attributes) const override
 	{
 		if(!Imports.pGetTextAttributes)
 			return basic_console::GetTextAttributes(Attributes);
@@ -826,7 +826,7 @@ public:
 		return Imports.pGetTextAttributes(&Attributes) != FALSE;
 	}
 
-	virtual bool SetTextAttributes(const FarColor& Attributes) const override
+	bool SetTextAttributes(const FarColor& Attributes) const override
 	{
 		if(!Imports.pSetTextAttributes)
 			return basic_console::SetTextAttributes(Attributes);
@@ -834,7 +834,7 @@ public:
 		return Imports.pSetTextAttributes(&Attributes) != FALSE;
 	}
 
-	virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const override
+	bool ClearExtraRegions(const FarColor& Color, int Mode) const override
 	{
 		if(!Imports.pClearExtraRegions)
 			return basic_console::ClearExtraRegions(Color, Mode);
@@ -842,7 +842,7 @@ public:
 		return Imports.pClearExtraRegions(&Color, Mode) != FALSE;
 	}
 
-	virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const override
+	bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const override
 	{
 		if(!Imports.pGetColorDialog)
 			return basic_console::GetColorDialog(Color, Centered, AddTransparent);

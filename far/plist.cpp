@@ -175,7 +175,7 @@ void ShowProcessList()
 						}
 					}
 				}
-				// fallthrough
+				[[fallthrough]];
 				case KEY_CTRLR:
 				case KEY_RCTRLR:
 				{
@@ -183,6 +183,7 @@ void ShowProcessList()
 						ProcList->Close(-1);
 					break;
 				}
+
 				case KEY_F2:
 				{
 					// TODO: change titles, don't enumerate again

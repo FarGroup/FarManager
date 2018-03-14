@@ -167,7 +167,7 @@ bool native_plugin_factory::IsPlugin(const string& filename) const
 plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& filename)
 {
 	auto Module = std::make_unique<native_plugin_module>(filename);
-	if (!Module->m_Module)
+	if (!*Module)
 	{
 		const auto ErrorState = error_state::fetch();
 
@@ -194,7 +194,7 @@ bool native_plugin_factory::Destroy(plugin_factory::plugin_module_ptr& instance)
 
 plugin_factory::function_address native_plugin_factory::GetFunction(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
 {
-	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->m_Module.GetProcAddress(null_terminated_t<char>(Name.AName).data()) : nullptr;
+	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress(null_terminated_t<char>(Name.AName).data()) : nullptr;
 }
 
 bool native_plugin_factory::FindExport(const basic_string_view<char> ExportName) const
@@ -1207,7 +1207,7 @@ class custom_plugin_module: public i_plugin_module
 public:
 	NONCOPYABLE(custom_plugin_module);
 	explicit custom_plugin_module(void* Opaque) : m_Opaque(Opaque) {}
-	virtual void* get_opaque() const override { return m_Opaque; }
+	void* get_opaque() const override { return m_Opaque; }
 
 private:
 	void* m_Opaque;
@@ -1250,14 +1250,14 @@ public:
 
 	bool Success() const { return m_Success; }
 
-	virtual bool IsPlugin(const string& Filename) const override
+	bool IsPlugin(const string& Filename) const override
 	{
 		const auto Result = m_Imports.pIsPlugin(Filename.data()) != FALSE;
 		ProcessError(L"IsPlugin"_sv);
 		return Result;
 	}
 
-	virtual plugin_module_ptr Create(const string& Filename) override
+	plugin_module_ptr Create(const string& Filename) override
 	{
 		auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
 		if (!Module->get_opaque())
@@ -1268,7 +1268,7 @@ public:
 		return Module;
 	}
 
-	virtual bool Destroy(plugin_module_ptr& Module) override
+	bool Destroy(plugin_module_ptr& Module) override
 	{
 		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->get_opaque()) != FALSE;
 		Module.reset();
@@ -1276,7 +1276,7 @@ public:
 		return Result;
 	}
 
-	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
+	function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
 	{
 		if (Name.UName.empty())
 			return nullptr;
@@ -1285,7 +1285,7 @@ public:
 		return Result;
 	}
 
-	virtual void ProcessError(const string_view Function) const override
+	void ProcessError(const string_view Function) const override
 	{
 		if (!m_Imports.pGetError)
 			return;

@@ -46,24 +46,25 @@ class QuickView:public Panel
 public:
 	static qview_panel_ptr create(window_ptr Owner);
 	QuickView(private_tag, window_ptr Owner);
-	virtual ~QuickView() override;
+	~QuickView() override;
+
 	void ShowFile(const string& FileName, bool TempFile, const plugin_panel* hDirPlugin);
 
 private:
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void Update(int Mode) override;
-	virtual void CloseFile() override;
-	virtual void QViewDelTempName() override;
-	virtual bool UpdateIfChanged(bool Idle) override;
-	virtual void RefreshTitle() override;
-	virtual string GetTitle() const override;
-	virtual void UpdateKeyBar() override;
-	virtual bool GetCurName(string &strName, string &strShortName) const override;
-	virtual void DisplayObject() override;
-	virtual Viewer* GetViewer(void) override {return QView.get();}
-	virtual Viewer* GetById(int ID) override;
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void Update(int Mode) override;
+	void CloseFile() override;
+	void QViewDelTempName() override;
+	bool UpdateIfChanged(bool Idle) override;
+	void RefreshTitle() override;
+	string GetTitle() const override;
+	void UpdateKeyBar() override;
+	bool GetCurName(string &strName, string &strShortName) const override;
+	void DisplayObject() override;
+	Viewer* GetViewer() override;
+	Viewer* GetById(int ID) override;
 
 	void PrintText(const string& Str) const;
 	void DynamicUpdateKeyBar() const;

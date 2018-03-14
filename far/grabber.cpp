@@ -738,7 +738,7 @@ void Grabber::Reset()
 	//Show();
 }
 
-void Grabber::ResizeConsole(void)
+void Grabber::ResizeConsole()
 {
 	Close(0);
 }

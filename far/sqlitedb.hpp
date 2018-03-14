@@ -67,6 +67,10 @@ protected:
 
 	SQLiteDb(initialiser Initialiser, const string& DbName, bool Local = false, bool WAL = false);
 
+	bool BeginTransaction() override;
+	bool EndTransaction() override;
+	bool RollbackTransaction() override;
+
 	class SQLiteStmt
 	{
 	public:
@@ -159,10 +163,6 @@ protected:
 	bool EnableForeignKeysConstraints() const;
 	bool Changes() const;
 	unsigned long long LastInsertRowID() const;
-
-	virtual bool BeginTransaction() override;
-	virtual bool EndTransaction() override;
-	virtual bool RollbackTransaction() override;
 
 	// TODO: use in log
 	int GetLastErrorCode() const;

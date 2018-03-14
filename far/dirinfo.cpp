@@ -341,7 +341,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	{
 		const auto RequiredSize = wcslen(CurPanelItem->Description) + 1;
 		auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
-		std::wmemcpy(Buffer.get(), CurPanelItem->Description, RequiredSize);
+		std::copy_n(CurPanelItem->Description, RequiredSize, Buffer.get());
 		NewItem.Description = Buffer.release();
 	}
 
@@ -349,7 +349,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	{
 		const auto RequiredSize = wcslen(CurPanelItem->Owner) + 1;
 		auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
-		std::wmemcpy(Buffer.get(), CurPanelItem->Owner, RequiredSize);
+		std::copy_n(CurPanelItem->Owner, RequiredSize, Buffer.get());
 		NewItem.Owner = Buffer.release();
 	}
 
@@ -362,7 +362,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 			{
 				const auto RequiredSize = wcslen(CurPanelItem->CustomColumnData[ii]) + 1;
 				auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
-				std::wmemcpy(Buffer.get(), CurPanelItem->CustomColumnData[ii], RequiredSize);
+				std::copy_n(CurPanelItem->CustomColumnData[ii], RequiredSize, Buffer.get());
 				CustomColumnData[ii] = Buffer.release();
 			}
 		}

@@ -126,27 +126,29 @@ public:
 
 	Search(private_tag, Panel* Owner, const Manager::Key& FirstKey);
 
-	void Process(void);
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual int GetType() const override { return windowtype_search; }
-	virtual int GetTypeAndName(string &, string &) override { return windowtype_search; }
-	virtual void ResizeConsole(void) override;
-	const Manager::Key& KeyToProcess(void) const { return m_KeyToProcess; }
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	int GetType() const override { return windowtype_search; }
+	int GetTypeAndName(string &, string &) override { return windowtype_search; }
+	void ResizeConsole() override;
+
+	void Process();
+	const Manager::Key& KeyToProcess() const { return m_KeyToProcess; }
 
 private:
-	void InitPositionAndSize(void);
-	void init(void);
+	void DisplayObject() override;
+	string GetTitle() const override { return {}; }
+
+	void InitPositionAndSize();
+	void init();
+	void ProcessName(const string& Src) const;
+	void ShowBorder() const;
+	void Close();
 
 	Panel* m_Owner;
 	Manager::Key m_FirstKey;
 	std::unique_ptr<EditControl> m_FindEdit;
 	Manager::Key m_KeyToProcess;
-	virtual void DisplayObject(void) override;
-	virtual string GetTitle() const override { return {}; }
-	void ProcessName(const string& Src) const;
-	void ShowBorder(void) const;
-	void Close(void);
 };
 
 Search::Search(private_tag, Panel* Owner, const Manager::Key& FirstKey):
@@ -156,7 +158,7 @@ Search::Search(private_tag, Panel* Owner, const Manager::Key& FirstKey):
 {
 }
 
-void Search::InitPositionAndSize(void)
+void Search::InitPositionAndSize()
 {
 	int X1, Y1, X2, Y2;
 	m_Owner->GetPosition(X1, Y1, X2, Y2);
@@ -173,7 +175,7 @@ search_ptr Search::create(Panel* Owner, const Manager::Key& FirstKey)
 	return SearchPtr;
 }
 
-void Search::init(void)
+void Search::init()
 {
 	SetMacroMode(MACROAREA_SEARCH);
 	SetRestoreScreenMode(true);
@@ -185,7 +187,7 @@ void Search::init(void)
 	InitPositionAndSize();
 }
 
-void Search::Process(void)
+void Search::Process()
 {
 	Global->WindowManager->ExecuteWindow(shared_from_this());
 	Global->WindowManager->CallbackWindow([this](){ ProcessKey(m_FirstKey); });
@@ -347,7 +349,7 @@ bool Search::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return true;
 }
 
-void Search::ShowBorder(void) const
+void Search::ShowBorder() const
 {
 	SetColor(COL_DIALOGTEXT);
 	GotoXY(m_X1+1,m_Y1+1);
@@ -360,7 +362,7 @@ void Search::ShowBorder(void) const
 	Text(lng::MSearchFileTitle);
 }
 
-void Search::DisplayObject(void)
+void Search::DisplayObject()
 {
 	ShowBorder();
 	m_FindEdit->Show();
@@ -380,12 +382,12 @@ void Search::ProcessName(const string& Src) const
 	}
 }
 
-void Search::ResizeConsole(void)
+void Search::ResizeConsole()
 {
 	InitPositionAndSize();
 }
 
-void Search::Close(void)
+void Search::Close()
 {
 	Hide();
 	Global->WindowManager->DeleteWindow(shared_from_this());
@@ -1466,7 +1468,7 @@ void Panel::exclude_sets(string& mask)
 	ReplaceStrings(mask, L"<[%>", L"[[]", true);
 }
 
-FilePanels* Panel::Parent(void)const
+FilePanels* Panel::Parent() const
 {
 	return dynamic_cast<FilePanels*>(GetOwner().get());
 }

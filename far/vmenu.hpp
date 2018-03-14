@@ -168,20 +168,20 @@ public:
 	static vmenu_ptr create(string Title, range<const menu_item*> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 
 	VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog);
-	virtual ~VMenu() override;
+	~VMenu() override;
 
-	virtual void Show() override;
-	virtual void Hide() override;
-	virtual string GetTitle() const override;
-	virtual FARMACROAREA GetMacroArea() const override;
-	virtual int GetTypeAndName(string &strType, string &strName) override;
-	virtual int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu; }
-	virtual bool ProcessKey(const Manager::Key& Key) override;
-	virtual bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
-	virtual long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
-	virtual void ResizeConsole() override;
-	virtual void SetDeleting(void) override;
-	virtual void ShowConsoleTitle() override;
+	void Show() override;
+	void Hide() override;
+	string GetTitle() const override;
+	FARMACROAREA GetMacroArea() const override;
+	int GetTypeAndName(string &strType, string &strName) override;
+	int GetType() const override { return CheckFlags(VMENU_COMBOBOX) ? windowtype_combobox : windowtype_menu; }
+	bool ProcessKey(const Manager::Key& Key) override;
+	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
+	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
+	void ResizeConsole() override;
+	void SetDeleting() override;
+	void ShowConsoleTitle() override;
 
 	void FastShow() { ShowMenu(); }
 	void ResetCursor();
@@ -271,7 +271,7 @@ public:
 private:
 	void init(range<const menu_item*> Data, DWORD Flags);
 
-	virtual void DisplayObject() override;
+	void DisplayObject() override;
 
 	void ShowMenu(bool IsParent = false);
 	void DrawTitles() const;

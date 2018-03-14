@@ -65,12 +65,13 @@ class PluginSettings: public AbstractSettings
 {
 public:
 	PluginSettings(const GUID& Guid, bool Local);
-	virtual bool IsValid() const override;
-	virtual bool Set(const FarSettingsItem& Item) override;
-	virtual bool Get(FarSettingsItem& Item) override;
-	virtual bool Enum(FarSettingsEnum& Enum) override;
-	virtual bool Delete(const FarSettingsValue& Value) override;
-	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
+
+	bool IsValid() const override;
+	bool Set(const FarSettingsItem& Item) override;
+	bool Get(FarSettingsItem& Item) override;
+	bool Enum(FarSettingsEnum& Enum) override;
+	bool Delete(const FarSettingsValue& Value) override;
+	int SubKey(const FarSettingsValue& Value, bool bCreate) override;
 
 	class FarSettingsNameItems;
 
@@ -222,12 +223,12 @@ private:
 class FarSettings: public AbstractSettings
 {
 public:
-	virtual bool IsValid() const override { return true; }
-	virtual bool Set(const FarSettingsItem& Item) override;
-	virtual bool Get(FarSettingsItem& Item) override;
-	virtual bool Enum(FarSettingsEnum& Enum) override;
-	virtual bool Delete(const FarSettingsValue& Value) override;
-	virtual int SubKey(const FarSettingsValue& Value, bool bCreate) override;
+	bool IsValid() const override { return true; }
+	bool Set(const FarSettingsItem& Item) override;
+	bool Get(FarSettingsItem& Item) override;
+	bool Enum(FarSettingsEnum& Enum) override;
+	bool Delete(const FarSettingsValue& Value) override;
+	int SubKey(const FarSettingsValue& Value, bool bCreate) override;
 
 	class FarSettingsHistoryItems;
 

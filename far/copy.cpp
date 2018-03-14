@@ -1983,7 +1983,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 									return COPY_SUCCESS;
 								}
 							}
-							// fallthrough
+							[[fallthrough]];
 							default:
 								return COPY_CANCEL;
 						} /* switch */
@@ -2427,14 +2427,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 				case 1:
 					SkipEncMode = 1;
-					// fallthrough
+					[[fallthrough]];
 				case 0:
 					Flags |= FCOPY_DECRYPTED_DESTINATION;
 					break;
 
 				case 3:
 					SkipEncMode = 3;
-					// fallthrough
+					[[fallthrough]];
 				case 2:
 					return COPY_SKIPPED;
 
@@ -3376,21 +3376,21 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 			break;
 		case 3:
 			OvrMode = 2;
-			// fallthrough
+			[[fallthrough]];
 		case 2:
 			RetCode = COPY_SKIPPED;
 			return false;
 		case 5:
 			OvrMode = 5;
 			GenerateName(strDestName, strRenamedFilesPath);
-			// fallthrough
+			[[fallthrough]];
 		case 4:
 			RetCode = COPY_RETRY;
 			strNewName = strDestName;
 			break;
 		case 7:
 			OvrMode = 6;
-			// fallthrough
+			[[fallthrough]];
 		case 6:
 			Append = TRUE;
 			break;
@@ -3470,7 +3470,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 					break;
 				case 3:
 					ReadOnlyOvrMode=2;
-					// fallthrough
+					[[fallthrough]];
 				case 2:
 					RetCode=COPY_SKIPPED;
 					return false;
