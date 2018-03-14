@@ -185,7 +185,7 @@ private:
       file.open(file_path, access, shares, OPEN_EXISTING, attrib);
     } else {
       if (!file.open_nt(file_path, access, shares, CREATE_ALWAYS, attrib)) {
-        file.delete_file_nt(file_path); // sometimes can help
+        File::delete_file_nt(file_path); // sometimes can help
         file.open(file_path, access, shares, CREATE_ALWAYS, attrib);
       }
     }
