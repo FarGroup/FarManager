@@ -613,7 +613,7 @@ function export.GetOpenPanelInfo (wrapped_object, handle, ...)
        type(mod.Info.Guid) == "string"
     then
       if type(op_info.ShortcutData) == "string" then
-        info.ShortcutData = mod.Info.Guid .. "/" .. info.ShortcutData
+        op_info.ShortcutData = mod.Info.Guid .. "/" .. op_info.ShortcutData
       end
       return op_info
     end
