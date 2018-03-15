@@ -1885,7 +1885,7 @@ id=104
 lv=2
 dt=Text
 nm=export.GetOpenPanelInfo
-mtime=3602579547
+mtime=3730308165
 <article>
 #_OPInfo = export.GetOpenPanelInfo (object, handle)
 #_
@@ -1894,7 +1894,7 @@ mtime=3602579547
 #_  handle: panel handle
 #_
 #_**Returns:**
-#_  OPInfo: table, or string "reuse" (if no changes occured)
+#_  OPInfo: table
 #_    fields of OPInfo:
 #_      Flags:            flags
 #_      HostFile:         string

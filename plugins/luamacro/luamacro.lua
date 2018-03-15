@@ -465,14 +465,16 @@ function export.Open (OpenFrom, arg1, ...)
 
   elseif OpenFrom == F.OPEN_SHORTCUT then
     local info = ...
-    local guid, data = info.ShortcutData:match(
-      "^(%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x)/(.+)")
-    if guid then
-      local module = utils.GetPanelModules()[guid:lower()]
-      if module and type(module.Open) == "function" then
-        info.ShortcutData = data
-        local obj = module.Open(OpenFrom, arg1, info)
-        if obj then return { module=module; object=obj }; end
+    if info.ShortcutData then
+      local guid, data = info.ShortcutData:match(
+        "^(%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x)/(.*)")
+      if guid then
+        local module = utils.GetPanelModules()[guid:lower()]
+        if module and type(module.Open) == "function" then
+          info.ShortcutData = data
+          local obj = module.Open(OpenFrom, arg1, info)
+          if obj then return { module=module; object=obj }; end
+        end
       end
     end
 
@@ -618,8 +620,6 @@ function export.GetOpenPanelInfo (wrapped_object, handle, ...)
       return op_info
     end
   end
-  return {} -- Far crashes (silently) if something other than a table is returned, e.g. nil.
-            -- TODO: investigate the crash.
 end
 
 for _,name in ipairs {"ClosePanel","Compare","DeleteFiles","GetFiles","GetFindData",

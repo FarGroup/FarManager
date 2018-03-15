@@ -392,16 +392,18 @@ lv=3
 dt=Text
 nm=Пример применения
 ctime=3730118337
-mtime=3730230738
+mtime=3730314853
 <article>
 #_<markdown>
 #_```
+#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5169 then return end
+#_
 #_local F = far.Flags
 #_local Title ="Demo panel in LuaMacro"
-#_
 #_local mod = {}
+#_
 #_mod.Info = {
-#_  Guid = "FBBC5FBF-AE9F-46EC-999C-C744F7D898B6";
+#_  Guid = "715E5E90-DEB9-470A-84CE-7CF8D92A7B05"
 #_}
 #_
 #_local function FileToObject(FileName)
@@ -409,7 +411,6 @@ mtime=3730230738
 #_  local fp = io.open(FileName)
 #_  if fp then
 #_    local obj = { HostFile=FileName; List={} }
-#_    table.insert(obj.List, { FileName=".." })
 #_    for line in fp:lines() do
 #_      table.insert(obj.List, {FileName=line})
 #_    end
@@ -425,6 +426,12 @@ mtime=3730230738
 #_function mod.Open(OpenFrom, Guid, Item)
 #_  if OpenFrom == F.OPEN_ANALYSE then
 #_    return FileToObject(Item.FileName)
+#_  elseif OpenFrom == F.OPEN_SHORTCUT then
+#_    return FileToObject(Item.HostFile)
+#_  elseif OpenFrom == F.OPEN_FINDLIST then
+#_    -- If we uncomment the line "return {}", then this module will be
+#_    -- used instead of TmpPanel for displaying search results.
+#_    ---- return {}
 #_  end
 #_end
 #_
@@ -436,7 +443,14 @@ mtime=3730230738
 #_  return {
 #_    HostFile = object.HostFile;
 #_    PanelTitle = Title;
+#_    ShortcutData = "";
+#_    Flags = bit64.bor(F.OPIF_SHORTCUT, F.OPIF_ADDDOTS);
 #_  }
+#_end
+#_
+#_function mod.SetFindList (object, handle, Items)
+#_  object.List = Items
+#_  return true
 #_end
 #_
 #_MenuItem {

@@ -584,29 +584,9 @@ void LF_GetOpenPanelInfo(lua_State* L, struct OpenPanelInfo *aInfo)
 	if(pcall_msg(L, 2, 1) != 0)
 		return;
 
-	if(lua_isstring(L,-1) && !strcmp("reuse", lua_tostring(L,-1)))
-	{
-		struct OpenPanelInfo *Info;
-		PushPluginTable(L, aInfo->hPanel);               //+2: reuse,Tbl
-		lua_getfield(L, -1, COLLECTOR_OPI);              //+3: reuse,Tbl,Coll
-
-		if(!lua_istable(L,-1))       // collector either not set, or destroyed
-		{
-			lua_pop(L,3);
-			return;
-		}
-
-		lua_rawgeti(L,-1,1);                             //+4: reuse,Tbl,Coll,OPI
-		Info = (struct OpenPanelInfo*)lua_touserdata(L,-1);
-		*aInfo = *Info;
-		lua_pop(L,4);
-		return;
-	}
-
 	if(!lua_istable(L, -1))                            //+1: Info
 	{
 		lua_pop(L, 1);
-		LF_Error(L, L"GetOpenPanelInfo should return a table");
 		return;
 	}
 
