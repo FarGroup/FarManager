@@ -648,8 +648,8 @@ private:
         {
           File::set_attr(file_path, FILE_ATTRIBUTE_NORMAL);
           File file(file_path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
-          File::set_attr(file_path, archive.get_attr(file_index));
-          file.set_time(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
+          File::set_attr_nt(file_path, archive.get_attr(file_index));
+          file.set_time_nt(archive.get_ctime(file_index), archive.get_atime(file_index), archive.get_mtime(file_index));
         }
         RETRY_OR_IGNORE_END(ignore_errors, error_log, *this)
       }
