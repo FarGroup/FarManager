@@ -390,7 +390,7 @@ lv=3
 dt=Text
 nm=Demo example
 ctime=3730114449
-mtime=3730314958
+mtime=3730470221
 <article>
 #_<markdown>
 #_```
@@ -418,7 +418,7 @@ mtime=3730314958
 #_end
 #_
 #_function mod.Analyse(Data)
-#_  return Data.FileName:sub(-5):lower() == ".abcd"
+#_  return Data.FileName and Data.FileName:sub(-5):lower() == ".abcd"
 #_end
 #_
 #_function mod.Open(OpenFrom, Guid, Item)
