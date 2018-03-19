@@ -15,9 +15,10 @@ changelog_eng   text
 
 # Custom for Visual Studio
 *.sln           text    merge=union  eol=crlf
-*.csproj                merge=union
-*.vcproj                merge=union
-*.vcxproj               merge=union
+*.csproj                merge=union  eol=crlf
+*.vcproj                merge=union  eol=crlf
+*.vcxproj               merge=union  eol=crlf
+*.vcxproj.filters       merge=union  eol=crlf
 
 # These files are binary and should be left untouched
 # (binary is a macro for -text -diff)
