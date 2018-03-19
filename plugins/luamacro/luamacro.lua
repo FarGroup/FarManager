@@ -348,7 +348,7 @@ local function ShowCmdLineHelp()
   end
 end
 
-local function ProcessCommandLine (strCmdLine)
+local function Open_CommandLine (strCmdLine)
   local prefix, text = strCmdLine:match("^%s*([^:%s]+):%s*(.-)%s*$")
   if not prefix then return end -- this can occur with Plugin.Command()
   prefix = prefix:lower()
@@ -393,13 +393,43 @@ local function ProcessCommandLine (strCmdLine)
   end
 end
 
-local function ModuleExist(mod)
+local function PanelModuleExist(mod)
   for _,module in ipairs(utils.GetPanelModules()) do
     if mod == module then return true; end
   end
 end
 
-local TableCanCreatePanel = {
+local function Open_LuaMacro (calltype, ...)
+  if     calltype==F.MCT_KEYMACRO       then return keymacro.Dispatch(...)
+  elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
+  elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(...)
+  elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
+  elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
+  elseif calltype==F.MCT_LOADMACROS     then
+    local InitedRAM,Paths = ...
+    keymacro.InitInternalVars(InitedRAM)
+    return utils.LoadMacros(false,Paths)
+  elseif calltype==F.MCT_RECORDEDMACRO  then return utils.ProcessRecordedMacro(...)
+  elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
+  elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
+  elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
+  elseif calltype==F.MCT_ADDMACRO       then return utils.AddMacroFromFAR(...)
+  elseif calltype==F.MCT_PANELSORT      then
+    if panelsort then
+      TablePanelSort = { panelsort.SortPanelItems(...) }
+      if TablePanelSort[1] then return TablePanelSort end
+    end
+  elseif calltype==F.MCT_GETCUSTOMSORTMODES then
+    if panelsort then
+      TablePanelSort = panelsort.GetSortModes()
+      return TablePanelSort
+    end
+  elseif calltype==F.MCT_CANPANELSORT then
+    return panelsort and panelsort.CanDoPanelSort(...)
+  end
+end
+
+local CanCreatePanel = {
   [F.OPEN_LEFTDISKMENU]  = true;
   [F.OPEN_RIGHTDISKMENU] = true;
   [F.OPEN_FINDLIST]      = true;
@@ -410,87 +440,62 @@ local TableCanCreatePanel = {
 
 function export.Open (OpenFrom, arg1, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
-    local calltype = arg1
-    if     calltype==F.MCT_KEYMACRO       then return keymacro.Dispatch(...)
-    elseif calltype==F.MCT_MACROPARSE     then return MacroParse(...)
-    elseif calltype==F.MCT_DELMACRO       then return utils.DelMacro(...)
-    elseif calltype==F.MCT_ENUMMACROS     then return utils.EnumMacros(...)
-    elseif calltype==F.MCT_GETMACRO       then return utils.GetMacroWrapper(...)
-    elseif calltype==F.MCT_LOADMACROS     then
-      local InitedRAM,Paths = ...
-      keymacro.InitInternalVars(InitedRAM)
-      return utils.LoadMacros(false,Paths)
-    elseif calltype==F.MCT_RECORDEDMACRO  then return utils.ProcessRecordedMacro(...)
-    elseif calltype==F.MCT_RUNSTARTMACRO  then return utils.RunStartMacro()
-    elseif calltype==F.MCT_WRITEMACROS    then return utils.WriteMacros()
-    elseif calltype==F.MCT_EXECSTRING     then return ExecString(...)
-    elseif calltype==F.MCT_ADDMACRO       then return utils.AddMacroFromFAR(...)
-    elseif calltype==F.MCT_PANELSORT      then
-      if panelsort then
-        TablePanelSort = { panelsort.SortPanelItems(...) }
-        if TablePanelSort[1] then return TablePanelSort end
-      end
-    elseif calltype==F.MCT_GETCUSTOMSORTMODES then
-      if panelsort then
-        TablePanelSort = panelsort.GetSortModes()
-        return TablePanelSort
-      end
-    elseif calltype==F.MCT_CANPANELSORT then
-      return panelsort and panelsort.CanDoPanelSort(...)
-    end
+    return Open_LuaMacro(arg1, ...)
+  end
 
-  elseif OpenFrom == F.OPEN_COMMANDLINE then
-    local guid, cmdline =  arg1, ...
-    local mod, obj = ProcessCommandLine(cmdline)
-    if mod and obj and ModuleExist(mod) then
+  local guid = arg1
+  if OpenFrom == F.OPEN_COMMANDLINE then
+    local cmdline =  ...
+    local mod, obj = Open_CommandLine(cmdline)
+    if mod and obj and PanelModuleExist(mod) then
       return { module=mod; object=obj }
     end
 
   elseif OpenFrom == F.OPEN_ANALYSE then
     local tbl = ...
-    local module = tbl.Handle.module
-    if type(module.Open) == "function" then
+    local mod = tbl.Handle.module
+    if type(mod.Open) == "function" then
       tbl.Handle = tbl.Handle.object
-      local obj = module.Open(OpenFrom, arg1, tbl)
-      return obj and { module=module; object=obj }
+      local obj = mod.Open(OpenFrom, guid, tbl)
+      return obj and { module=mod; object=obj }
     end
 
   elseif OpenFrom == F.OPEN_FINDLIST then
-    for _,module in ipairs(utils.GetPanelModules()) do
-      if type(module.Open) == "function" then
-        local obj = module.Open(OpenFrom, arg1, ...)
-        if obj then return { module=module; object=obj }; end
+    for _,mod in ipairs(utils.GetPanelModules()) do
+      if type(mod.Open) == "function" then
+        local obj = mod.Open(OpenFrom, guid, ...)
+        if obj then return { module=mod; object=obj }; end
       end
     end
 
   elseif OpenFrom == F.OPEN_SHORTCUT then
     local info = ...
     if info.ShortcutData then
-      local guid, data = info.ShortcutData:match(
+      local mod_guid, data = info.ShortcutData:match(
         "^(%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x)/(.*)")
-      if guid then
-        local module = utils.GetPanelModules()[guid:lower()]
-        if module and type(module.Open) == "function" then
+      if mod_guid then
+        local mod = utils.GetPanelModules()[win.Uuid(mod_guid)]
+        if mod and type(mod.Open) == "function" then
           info.ShortcutData = data
-          local obj = module.Open(OpenFrom, arg1, info)
-          if obj then return { module=module; object=obj }; end
+          local obj = mod.Open(OpenFrom, guid, info)
+          if obj then return { module=mod; object=obj }; end
         end
       end
     end
 
   elseif OpenFrom == F.OPEN_FROMMACRO then -- TODO: add panel modules support
-    local guid, args =  arg1, ...
-    if args[1]=="argtest" then -- argtest: return received arguments
-      return unpack(args,2,args.n)
-    elseif args[1]=="macropost" then -- test Mantis # 2222
+    local argtable =  ...
+    if argtable[1]=="argtest" then -- argtest: return received arguments
+      return unpack(argtable, 2, argtable.n)
+    elseif argtable[1]=="macropost" then -- test Mantis # 2222
       return far.MacroPost([[far.Message"macropost"]])
     end
 
   else
     local items = utils.GetMenuItems()
-    if items[arg1] then
-      local mod, obj = items[arg1].action(OpenFrom, ...)
-      if TableCanCreatePanel[OpenFrom] and mod and obj and ModuleExist(mod) then
+    if items[guid] then
+      local mod, obj = items[guid].action(OpenFrom, ...)
+      if CanCreatePanel[OpenFrom] and mod and obj and PanelModuleExist(mod) then
         return { module=mod; object=obj }
       end
     else
@@ -606,8 +611,8 @@ function export.Analyse(Data)
   end
 end
 
-function export.GetOpenPanelInfo (wrapped_object, handle, ...)
-  local mod, obj = wrapped_object.module, wrapped_object.object
+function export.GetOpenPanelInfo (wrapped_obj, handle, ...)
+  local mod, obj = wrapped_obj.module, wrapped_obj.object
   if type(mod.GetOpenPanelInfo) == "function" then
     local op_info = mod.GetOpenPanelInfo(obj, handle, ...)
     if type(op_info) == "table" and
@@ -615,7 +620,7 @@ function export.GetOpenPanelInfo (wrapped_object, handle, ...)
        type(mod.Info.Guid) == "string"
     then
       if type(op_info.ShortcutData) == "string" then
-        op_info.ShortcutData = mod.Info.Guid .. "/" .. op_info.ShortcutData
+        op_info.ShortcutData = win.Uuid(mod.Info.Guid) .. "/" .. op_info.ShortcutData
       end
       return op_info
     end
@@ -626,10 +631,10 @@ for _,name in ipairs {"ClosePanel","Compare","DeleteFiles","GetFiles","GetFindDa
       "MakeDirectory","ProcessHostFile","ProcessPanelEvent","ProcessPanelInput",
       "PutFiles","SetDirectory","SetFindList"} do
   export[name] =
-    function(wrapped_object, handle, ...)
-      local func = wrapped_object.module[name]
+    function(wrapped_obj, handle, ...)
+      local func = wrapped_obj.module[name]
       if type(func) == "function" then
-        return func(wrapped_object.object, handle, ...)
+        return func(wrapped_obj.object, handle, ...)
       end
     end
 end

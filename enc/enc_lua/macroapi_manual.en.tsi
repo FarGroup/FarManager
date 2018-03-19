@@ -345,7 +345,7 @@ lv=2
 dt=Text
 nm=Adding panel modules
 ctime=3730113272
-mtime=3730230364
+mtime=3730654035
 <article>
 #_<markdown>
 #_
@@ -358,7 +358,7 @@ mtime=3730230364
 #_-- Create a panel module
 #_local mod  = {}
 #_mod.Info = {
-#_  Guid        = "FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"; -- mandatory field
+#_  Guid        = win.Uuid("FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"); -- mandatory field
 #_  Version     = "";
 #_  Title       = "";
 #_  Description = "";
@@ -390,7 +390,7 @@ lv=3
 dt=Text
 nm=Demo example
 ctime=3730114449
-mtime=3730470221
+mtime=3730653996
 <article>
 #_<markdown>
 #_```
@@ -401,7 +401,7 @@ mtime=3730470221
 #_local mod = {}
 #_
 #_mod.Info = {
-#_  Guid = "715E5E90-DEB9-470A-84CE-7CF8D92A7B05"
+#_  Guid = win.Uuid("715E5E90-DEB9-470A-84CE-7CF8D92A7B05")
 #_}
 #_
 #_local function FileToObject(FileName)

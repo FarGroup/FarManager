@@ -347,7 +347,7 @@ lv=2
 dt=Text
 nm=ƒобавление панельных модулей
 ctime=3730113290
-mtime=3730230600
+mtime=3730654073
 <article>
 #_<markdown>
 #_
@@ -360,7 +360,7 @@ mtime=3730230600
 #_-- —оздадим панельный модуль
 #_local mod  = {}
 #_mod.Info = {
-#_  Guid        = "FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"; -- об€зательное поле
+#_  Guid        = win.Uuid("FBBC5FBF-AE9F-46EC-999C-C744F7D898B6"); -- об€зательное поле
 #_  Version     = "";
 #_  Title       = "";
 #_  Description = "";
@@ -392,7 +392,7 @@ lv=3
 dt=Text
 nm=ѕример применени€
 ctime=3730118337
-mtime=3730470201
+mtime=3730653967
 <article>
 #_<markdown>
 #_```
@@ -403,7 +403,7 @@ mtime=3730470201
 #_local mod = {}
 #_
 #_mod.Info = {
-#_  Guid = "715E5E90-DEB9-470A-84CE-7CF8D92A7B05"
+#_  Guid = win.Uuid("715E5E90-DEB9-470A-84CE-7CF8D92A7B05")
 #_}
 #_
 #_local function FileToObject(FileName)

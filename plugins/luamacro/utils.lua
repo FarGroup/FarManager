@@ -537,16 +537,13 @@ local function AddPrefixes (srctable, FileName)
 end
 
 local function AddPanelModule (srctable, FileName)
-  if  type(srctable) == "table" and
-      type(srctable.Info) == "table" and
-      type(srctable.Info.Guid) == "string" and
-      srctable.Info.Guid:match(
-        "^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$")
-  then
-    local LGuid = srctable.Info.Guid:lower()
-    if not LoadedPanelModules[LGuid] then
-      LoadedPanelModules[LGuid] = srctable
-      table.insert(LoadedPanelModules, srctable)
+  if  type(srctable) == "table" and type(srctable.Info) == "table" then
+    local guid = srctable.Info.Guid
+    if type(guid) == "string" and #guid == 16 then
+      if not LoadedPanelModules[guid] then
+        LoadedPanelModules[guid] = srctable
+        table.insert(LoadedPanelModules, srctable)
+      end
     end
   end
 end
