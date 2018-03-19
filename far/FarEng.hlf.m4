@@ -3068,7 +3068,7 @@ line as a block and copies it to the clipboard.
 
 @EditorSearch
 $ #Editor: search/replace#
-    The following options are available for search and replace in ~editor~@Editor@:
+    The following options are available for search and replace in the ~editor~@Editor@:
 
       #Case sensitive#      - ^<wrap>the case of the characters entered will be taken into account while searching (so, for example,
 #Text# will not be found when searching for #text#).
@@ -3080,64 +3080,149 @@ $ #Editor: search/replace#
       #Regular expressions# - ^<wrap>treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
 Each line is processed individually, so multi-line expressions and line-break characters will not be found.
 
-      ~Preserve style~@PreserveStyle@      - ^<wrap>preserve style (case and code style for program source files) for replaced text.
+      ~Preserve style~@PreserveStyle@      - ^<wrap>preserve style (case and delimiters in program source code) of the replaced text.
 
-    By pressing the #All# button, a ~menu~@FindAllMenu@ with a list of all matching entries will be shown.
+    By pressing the #All# button, the ~menu~@FindAllMenu@ with the list of all matching entries will be shown.
 
 
 @PreserveStyle
-$ #Редактор: Режим замены - Сохранять стиль#
-    В ~редакторе~@Editor@ режим замены #"Сохранять стиль"# позволяет осуществлять замену
-с сохранением регистра заменяемого текста и/или стиля его написания для файлов исходных текстов.
-Например, при замене в этом режиме во фразе #"Tu be or not tu be"# слова #"tu"# на слово #"to"# будет
-получен результат: #"To be or not to be"# (обратите внимание на регистр). Аналогично,
-при замене #"UserName"# на #"PersonLogin"# в следующем фрагменте:
+$ #Editor: Replace mode - Preserve style#
+    The #“Preserve style”# ~replace~@EditorSearch@ mode in the
+~Editor~@Editor@ preserves the style (case, delimiters) of the replaced
+text. This mode may be useful when editing program source code. Some
+examples are below. Note how the style of the replaced strings
+is preserved in each case.
 
-    #String writerUserName = user.name || DEFAULT_USER_NAME || configuration("default-user-name");#
+    ┌────────────────┬────────────────────┬──────────────────────┐
+    │ Find / Replace │ Before             │ After                │
+    ├────────────────┼────────────────────┼──────────────────────┤
+    │ tu / to        │ #Tu# be or not #tu# be │ #To# be or not #to# be   │
+    ├────────────────┼────────────────────┼──────────────────────┤
+    │ UserName       │ writerUserName     │ writerPersonLogin    │
+    │  /             │ user.NAME          │ person.LOGIN         │
+    │ PersonLogin    │ DEFAULT_USER_NAME  │ DEFAULT_PERSON_LOGIN │
+    │                │ default-User-name  │ default-Person-login │
+    └────────────────┴────────────────────┴──────────────────────┘
 
-    будет получен результат:
+    #More formally.#
 
-    #String writerPersonLogin = person.login || DEFAULT_PERSON_LOGIN || configuration("default-person-login");#
+    The main operation used in the algorithm is parsing a string into
+tokens. The tokens are divided at a single separator character
+or between a lowercase and an uppercase letter. Token separator
+characters are #underscore “_”#, #hyphen “-”#, and #dot “.”#. All tokens
+must be divided with the same separator. If the parse is ambiguous, the
+entire string is treated as a single token. For example:
 
-    Обратите внимание, что замена сохранила стиль именования идентификаторов для всех вхождений.
+    ┌──────────────────────┬──────────────────────┬──────────────┐
+    │ Search Pattern       │ Tokens               │ Comments     │
+    ├──────────────────────┼──────────────────────┼──────────────┤
+    │ testMe               │ test Me              │              │
+    │ WhatIsIt             │ What Is It           │              │
+    │ far-manager          │ far manager          │              │
+    │ Contact.Address.Type │ Contact Address Type │              │
+    │ USER_FIRST_NAME      │ USER FIRST NAME      │              │
+    ├──────────────────────┼──────────────────────┼──────────────┤
+    │ test_userName        │ test_userName        │ Ambiguous    │
+    │ one.two-three        │ one.two-three        │ separators   │
+    │ aBc.dEf.gHi          │ aBc.dEf.gHi          │              │
+    ├──────────────────────┼──────────────────────┼──────────────┤
+    │ A..B                 │ A..B                 │ Adjacent     │
+    │                      │                      │ separators   │
+    └──────────────────────┴──────────────────────┴──────────────┘
 
-    Замена с сохранением стиля использует следующий алгоритм:
+    The parse also defines the common separator type and the style of
+each token. There are three token styles: #Title#case, #lower#case, and
+#UPPER#case. If a token has a mix of uppercase and lowercase letters
+or non-letter characters, its style is undefined. A token consisting
+of a single uppercase character is deemed to be both #Title#case and
+#UPPER#case.
 
-    1   ^<wrap>Образец и результат замены разбиваются на части, используя символы #"_-."# в
-качестве разделителей, кроме того разделением считается изменение регистра
-буквы со строчной на прописную. Разбиение осуществляется только по одному из
-вариантов, если существует неоднозначность в выборе правила, то данная строка
-считается одной частью. Например, строки "testMe", "WhatIsIt", "far-manager",
-"USER_FIRST_NAME" будут разбиты на части (две, три, две и три части
-соответственно), а строки «test_userName”, “one.two-three” разбиты не будут
-(остануться одной частью). Все получившиеся части как образца, так и результата
-замены не пусты (кроме тривиальных случаев пустых строк в качестве образца
-и/или текста замены).
+    #The following algorithm is used to replace preserving style.#
 
-    2   ^<wrap>Осуществляется проход по тексту и поиск таких подстрок, которые при разбиении
-на части в соответствии с пунктом 1 дают в точности те же части, что и образец
-(при сравнении частей регистр игнорируется).
+    The search pattern and the replace string are parsed into tokens
+according to the rules above. The text is searched for a string that can
+be parsed into the same tokens as the search pattern. The tokens are
+compared according to the #“Case sensitive”# and #“Whole words”# search
+modes.
 
-    3   ^<wrap>Для всех частей найденной подстроки вычисляется набор правил форматирования
-под которые он подходит. Возможные варианты: "все прописными", "все строчными",
-"первая заглавная, затем все строчными", "произвольный формат". Вариант
-"произвольный формат" добавляется в набор в любом случае. Для первой части подстроки
-набор сохраняется как есть, а остальные наборы (для всех частей кроме первой)
-пересекаются как множества.
+    If the found string and the replace string have the same number
+of tokens and the found tokens have common style (#Title#case
+is preferred over the #UPPER#case), the replace tokens are transformed
+to this common style. If the common style cannot be defined, the replace
+tokens are transformed to the style of the corresponding found tokens.
+After the transformation, the replace tokens are joined with the
+separator of the parse of the found string. The result is used as the
+replace string. Some examples:
 
-    4   ^<wrap>Набор частей результата замены преобразуется так, что первая часть форматируется
-в соответствии с самым сильным из правил в наборе правил первой части строки,
-а остальные - в соответствии с самым сильным из правил в найденном пересечении
-правил.
+    ┌────────────────┬────────────────────┬──────────────────────┐
+    │ Find / Replace │ Before             │ After                │
+    ├────────────────┼────────────────────┼──────────────────────┤
+    │ abc-def-ghi    │ AbcDefGhi          │ PqRstXyz             │
+    │  /             │ ABC_DEF_GHI        │ PQ_RST_XYZ           │
+    │ pq.RST.Xyz     │ abc.def.ghi        │ pq.rst.xyz           │
+    │                │ abcDefGhi          │ pqRstXyz             │
+    │                │ ABC_Def_Ghi        │ PQ_Rst_Xyz           │
+    ├────────────────┼────────────────────┼──────────────────────┤
+    │ AA-B-C         │ Aa_B_C             │ Xxx_Yy_Zz            │
+    │  /             │ aa-b-c             │ xxx-yy-zz            │
+    │ xxx.Yy.ZZ      │ AA_B_C             │ XXX_YY_ZZ            │
+    │                │ aa.B.C             │ xxx.Yy.Zz            │
+    │                │ Aa.B.c             │ Xxx.Yy.zz            │
+    └────────────────┴────────────────────┴──────────────────────┘
 
-    5   ^<wrap>Набор частей замены соединяется в с сохранением того разделителя, которым разделены
-части обрабатываемой подстроки. Результат записывается на место подстроки.
+    If the found string and the replace pattern have different number
+of tokens, the first token is processed separately from the rest of the
+tokens. The first replace token inherits the style of the first found
+token. The rest of the replace tokens are transformed to the common
+style of the rest of the found tokens. If the common style cannot
+be defined, the rest of the replace tokens are not changed. As in the
+previous case, the replace tokens are joined with the separator of the
+parse of the found string and the result is used as the replace string.
+Examples:
 
-    6   ^<wrap>Если таким способом не получилось сделать ни одной замены, то осуществляется
-поиск-замена стандартным способом. При замене, если и в образце и в заменяемом
-тексте первый символ – буква, то регистр этой буквы сохраняется (то есть
-приводится к регистру первой буквы заменяемой подстроки).
+    ┌────────────────┬────────────────────┬──────────────────────┐
+    │ Find / Replace │ Before             │ After                │
+    ├────────────────┼────────────────────┼──────────────────────┤
+    │ abc-def-ghi    │ Abc.def.ghi        │ Pq.rst.uvw.xyz       │
+    │  /             │ ABC.Def.Ghi        │ PQ.Rst.Uvw.Xyz       │
+    │ pq.RST.uvw.Xyz │ abc.Def.ghi        │ pq.RST.uvw.Xyz       │
+    │                │ ABC.DEF.ghi        │ PQ.RST.uvw.Xyz       │
+    ├────────────────┼────────────────────┼──────────────────────┤
+    │ A-B-C          │ A_B_C              │ Aa_Bb_Cc_Dd          │
+    │  /             │ a-b-c              │ aa-bb-cc-dd          │
+    │ aa.Bb.cc.DD    │ A.B.c              │ Aa.Bb.cc.DD          │
+    └────────────────┴────────────────────┴──────────────────────┘
 
+    In the special case when the found string consists of a single token
+but the replace string has several tokens, the first replace token
+inherits the style of the found token. The common style for the rest
+of the replace tokens and the separator type are deduced from the
+context of the found string. If this is not possible, the common style
+is the style of the (single) found token and the separator is empty.
+Again, the transformed replace tokens are joined and used as the replace
+string. More examples:
+
+    ┌────────────────┬────────────────────┬──────────────────────┐
+    │ Find / Replace │ Before             │ After                │
+    ├────────────────┼────────────────────┼──────────────────────┤
+    │ ijk            │ ijk.Zzz            │ mno.Pqr.Stu.Zzz      │
+    │  /             │ AAA-ijk            │ AAA-mno-pqr-stu      │
+    │ MnoPqrStu      │ aaa-ijk_ZZZ        │ aaa-mno_PQR_STU_ZZZ  │
+    │                │ AaaIjk             │ AaaMnoPqrStu         │
+    │                │ 0_ijk_9            │ 0_mno_Pqr_Stu_9      │
+    │                │ >ijk<              │ >mnopqrstu<          │
+    └────────────────┴────────────────────┴──────────────────────┘
+
+    If the search pattern is not found according to the rules above but
+found as an ordinary string, and both the found string and the replace
+string start with letters, the case of the first letter of the replace
+string is changed to that of the found string. For example:
+
+    ┌────────────────┬────────────────────┬──────────────────────┐
+    │ Find / Replace │ Before             │ After                │
+    ├────────────────┼────────────────────┼──────────────────────┤
+    │ ab.cd / wx-yz  │ #A#b.cD              │ #W#x-yz                │
+    └────────────────┴────────────────────┴──────────────────────┘
 
 @FindAllMenu
 $ #Редактор: меню с результатами поиска всех вхождений#
