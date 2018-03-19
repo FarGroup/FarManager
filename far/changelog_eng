@@ -3,6 +3,30 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 18.03.2018 21:30:11 -0700
+
+1. Rewrote @PreserveStyle help page (Both English and Russian).
+
+drkns 14.03.2018 22:33:55 +0000 - build 5170
+
+1. Non-functional cosmetics:
+   - virtual override -> override
+   - (void) -> ()
+   - // fallthrough -> [[fallthrough]];
+   - --memcpy
+
+drkns 14.03.2018 10:01:32 +0000 - build 5169
+
+1. A couple of corrections of 5168.
+
+drkns 13.03.2018 22:40:25 +0000 - build 5168
+
+1. Refactoring.
+
+2. clang warnings.
+
+3. Corrections of 5154.
+
 yjh 11.03.2018 14:04:57 +0300 - build 5167
 
 1. Corrections for old OS versions support with the use of DelayLoad
