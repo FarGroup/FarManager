@@ -211,16 +211,16 @@ static int FnGroup(DWORD ControlState)
 
 void KeyBar::SetCustomLabels(KEYBARAREA Area)
 {
-	static const wchar_t* const Names[] =
+	static const string_view Names[]
 	{
-		L"Shell",
-		L"Info",
-		L"Tree",
-		L"QView",
-		L"FindFolder",
-		L"Editor",
-		L"Viewer",
-		L"Help",
+		L"Shell"_sv,
+		L"Info"_sv,
+		L"Tree"_sv,
+		L"QView"_sv,
+		L"FindFolder"_sv,
+		L"Editor"_sv,
+		L"Viewer"_sv,
+		L"Help"_sv,
 	};
 
 	static_assert(std::size(Names) == KBA_COUNT);

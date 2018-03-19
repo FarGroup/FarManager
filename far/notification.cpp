@@ -35,30 +35,31 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "wm_listener.hpp"
 
-static const wchar_t* EventNames[] =
+static const string_view EventNames[]
 {
-	WSTR(update_intl),
-	WSTR(update_power),
-	WSTR(update_devices),
-	WSTR(update_environment),
-	WSTR(plugin_synchro),
+	WSTRVIEW(update_intl),
+	WSTRVIEW(update_power),
+	WSTRVIEW(update_devices),
+	WSTRVIEW(update_environment),
+	WSTRVIEW(plugin_synchro),
 };
 
 static_assert(std::size(EventNames) == event_id_count);
 
 message_manager::message_manager():
-	m_Window(std::make_unique<wm_listener>()),
-	m_suppressions()
+	m_Window(std::make_unique<wm_listener>())
 {
 }
 
-message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::i_event_handler& EventHandler)
+message_manager::~message_manager() = default;
+
+message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::event_handler& EventHandler)
 {
 	SCOPED_ACTION(os::critical_section_lock)(m_QueueCS);
 	return m_Handlers.emplace(EventNames[EventId], &EventHandler);
 }
 
-message_manager::handlers_map::iterator message_manager::subscribe(const string& EventName, const detail::i_event_handler& EventHandler)
+message_manager::handlers_map::iterator message_manager::subscribe(const string& EventName, const detail::event_handler& EventHandler)
 {
 	SCOPED_ACTION(os::critical_section_lock)(m_QueueCS);
 	return m_Handlers.emplace(EventName, &EventHandler);
@@ -96,23 +97,6 @@ bool message_manager::dispatch()
 	}
 	m_Window->Check();
 	return Result;
-}
-
-message_manager::suppress::suppress():
-	m_owner(MessageManager())
-{
-	++m_owner.m_suppressions;
-}
-
-message_manager::suppress::~suppress()
-{
-	--m_owner.m_suppressions;
-}
-
-message_manager& MessageManager()
-{
-	static message_manager sMessageManager;
-	return sMessageManager;
 }
 
 string detail::CreateEventName()

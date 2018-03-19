@@ -216,7 +216,7 @@ public:
 					filename
 				},
 				{ lng::MOk },
-				L"ErrLoadPlugin");
+				L"ErrLoadPlugin"_sv);
 
 			Module.reset();
 		}

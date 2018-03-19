@@ -180,7 +180,7 @@ plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& fi
 				filename
 			},
 			{ lng::MOk },
-			L"ErrLoadPlugin");
+			L"ErrLoadPlugin"_sv);
 
 	}
 	return Module;

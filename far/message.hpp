@@ -55,20 +55,20 @@ class Message: noncopyable
 public:
 	Message(
 		DWORD Flags,
-		const string& Title,
+		string_view Title,
 		std::vector<string> Strings,
 		const std::vector<lng>& Buttons,
-		const wchar_t* HelpTopic = nullptr,
+		string_view HelpTopic = {},
 		const GUID* Id = nullptr
 	);
 
 	Message(
 		DWORD Flags,
 		const error_state_ex& ErrorState,
-		const string& Title,
+		string_view Title,
 		std::vector<string> Strings,
 		const std::vector<lng>& Buttons,
-		const wchar_t* HelpTopic = nullptr,
+		string_view HelpTopic = {},
 		const GUID* Id = nullptr,
 		const std::vector<string>& Inserts = {}
 	);
@@ -76,10 +76,10 @@ public:
 	Message(
 		DWORD Flags,
 		const error_state_ex* ErrorState,
-		const string& Title,
+		string_view Title,
 		std::vector<string> Strings,
 		std::vector<string> Buttons,
-		const wchar_t* HelpTopic,
+		string_view HelpTopic,
 		const GUID* Id,
 		Plugin* PluginNumber
 	);
@@ -100,12 +100,12 @@ public:
 private:
 	void Init(
 		DWORD Flags,
-		const string& Title,
+		string_view Title,
 		std::vector<string>&& Strings,
 		std::vector<string>&& Buttons,
 		const error_state_ex* ErrorState,
 		const std::vector<string>& Inserts,
-		const wchar_t* HelpTopic,
+		string_view HelpTopic,
 		Plugin* PluginNumber,
 		const GUID* Id
 	);

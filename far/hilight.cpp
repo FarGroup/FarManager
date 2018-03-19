@@ -70,9 +70,10 @@ static const struct
 	MarkCharSelectedCursorColor,
 	MarkChar,
 	ContinueProcessing,
-	HighlightEdit,HighlightList;
+	HighlightEdit,
+	HighlightList;
 }
-HLS =
+HLS
 {
 	L"NormalColor"_sv,
 	L"SelectedColor"_sv,
@@ -84,15 +85,16 @@ HLS =
 	L"MarkCharSelectedCursorColor"_sv,
 	L"MarkChar"_sv,
 	L"ContinueProcessing"_sv,
-	L"HighlightEdit"_sv,L"HighlightList"_sv
+	L"HighlightEdit"_sv,
+	L"HighlightList"_sv
 };
 
-static const wchar_t fmtFirstGroup[]=L"Group";
-static const wchar_t fmtUpperGroup[]=L"UpperGroup";
-static const wchar_t fmtLowerGroup[]=L"LowerGroup";
-static const wchar_t fmtLastGroup[]=L"LastGroup";
-static const wchar_t SortGroupsKeyName[]=L"SortGroups";
-static const wchar_t HighlightKeyName[]=L"Highlight";
+static const auto fmtFirstGroup = L"Group"_sv;
+static const auto fmtUpperGroup = L"UpperGroup"_sv;
+static const auto fmtLowerGroup = L"LowerGroup"_sv;
+static const auto fmtLastGroup = L"LastGroup"_sv;
+static const auto SortGroupsKeyName = L"SortGroups"_sv;
+static const auto HighlightKeyName = L"Highlight"_sv;
 
 static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
@@ -109,58 +111,41 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	if (!root)
 		return;
 
-	static const wchar_t* const Masks[]=
+	const auto MakeFarColor = [](int ConsoleColour)
 	{
-		/* 0 */ L"*.*",
-		/* 1 */ L"<arc>",
-		/* 2 */ L"<temp>",
-		/* $ 25.09.2001  IS
-			Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
-			являются родительскими (их имена - две точки).
-		*/
-		/* 3 */ L"*.*|..", // маска для каталогов
-		/* 4 */ L"..",     // такие каталоги окрашивать как простые файлы
-		/* 5 */ L"<exec>",
+		auto Colour = colors::ConsoleColorToFarColor(ConsoleColour);
+		MAKE_TRANSPARENT(Colour.BackgroundColor);
+		return Colour;
 	};
 
-	static struct
+	static const struct
 	{
-		const wchar_t *Mask;
-		bool IgnoreMask;
-		BYTE InitNC;
-		BYTE InitCC;
+		string_view Mask;
 		DWORD IncludeAttr;
 		FarColor NormalColor;
 		FarColor CursorColor;
 	}
-	StdHighlightData[]=
+	DefaultHighlighting[]
 	{
-		/* 0 */{Masks[0], false, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY, FILE_ATTRIBUTE_HIDDEN },
-		/* 1 */{Masks[0], false, B_BLUE|F_CYAN, B_CYAN|F_DARKGRAY, FILE_ATTRIBUTE_SYSTEM },
-		/* 2 */{Masks[3], false, B_BLUE|F_WHITE, B_CYAN|F_WHITE, FILE_ATTRIBUTE_DIRECTORY },
-		/* 3 */{Masks[4], false, 0, 0, FILE_ATTRIBUTE_DIRECTORY },
-		/* 4 */{Masks[5], false, B_BLUE|F_LIGHTGREEN, B_CYAN|F_LIGHTGREEN, 0},
-		/* 5 */{Masks[1], false, B_BLUE|F_LIGHTMAGENTA, B_CYAN|F_LIGHTMAGENTA, 0 },
-		/* 6 */{Masks[2], false, B_BLUE|F_BROWN, B_CYAN|F_BROWN, 0 },
-		// это настройка для каталогов на тех панелях, которые должны раскрашиваться
-		// без учета масок (например, список хостов в "far navigator")
-		/* 7 */{Masks[0], true, B_BLUE|F_WHITE, B_CYAN|F_WHITE, FILE_ATTRIBUTE_DIRECTORY },
+		{ L"*"_sv,      FILE_ATTRIBUTE_HIDDEN,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
+		{ L"*"_sv,      FILE_ATTRIBUTE_SYSTEM,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
+		{ L"*|.."_sv,   FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
+		{ L".."_sv,     FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLACK | F_BLACK),       MakeFarColor(B_BLACK | F_BLACK) },
+		{ L"<exec>"_sv, 0,                        MakeFarColor(B_BLUE | F_LIGHTGREEN),   MakeFarColor(B_CYAN | F_LIGHTGREEN) },
+		{ L"<arc>"_sv,  0,                        MakeFarColor(B_BLUE | F_LIGHTMAGENTA), MakeFarColor(B_CYAN | F_LIGHTMAGENTA) },
+		{ L"<temp>"_sv, 0,                        MakeFarColor(B_BLUE | F_BROWN),        MakeFarColor(B_CYAN | F_BROWN) },
+		{ {},           FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
 	};
 
 	size_t Index = 0;
-	for (auto& i: StdHighlightData)
+	for (auto& i: DefaultHighlighting)
 	{
-		i.NormalColor = colors::ConsoleColorToFarColor(i.InitNC);
-		MAKE_TRANSPARENT(i.NormalColor.BackgroundColor);
-		i.CursorColor = colors::ConsoleColorToFarColor(i.InitCC);
-		MAKE_TRANSPARENT(i.CursorColor.BackgroundColor);
-
 		const auto Key = cfg->CreateKey(root, L"Group"_sv + str(Index++));
 		if (!Key)
 			break;
 
 		FileFilterParams Params;
-		Params.SetMask(!i.IgnoreMask, i.Mask);
+		Params.SetMask(!i.Mask.empty(), i.Mask);
 		Params.SetAttr(i.IncludeAttr != 0, i.IncludeAttr, 0);
 		FileFilter::SaveFilter(cfg, Key.get(), Params);
 
@@ -227,16 +212,16 @@ void highlight::configuration::InitHighlightFiles(const HierarchicalConfig* cfg)
 	const struct
 	{
 		int Delta;
-		const wchar_t* KeyName;
-		const wchar_t* GroupName;
+		string_view KeyName;
+		string_view GroupName;
 		int* Count;
 	}
-	GroupItems[] =
+	GroupItems[]
 	{
-		{DEFAULT_SORT_GROUP, HighlightKeyName, fmtFirstGroup, &FirstCount},
-		{0, SortGroupsKeyName, fmtUpperGroup, &UpperCount},
-		{DEFAULT_SORT_GROUP+1, SortGroupsKeyName, fmtLowerGroup, &LowerCount},
-		{DEFAULT_SORT_GROUP, HighlightKeyName, fmtLastGroup, &LastCount},
+		{ DEFAULT_SORT_GROUP,     HighlightKeyName,  fmtFirstGroup, &FirstCount },
+		{ 0,                      SortGroupsKeyName, fmtUpperGroup, &UpperCount },
+		{ DEFAULT_SORT_GROUP + 1, SortGroupsKeyName, fmtLowerGroup, &LowerCount },
+		{ DEFAULT_SORT_GROUP,     HighlightKeyName,  fmtLastGroup,  &LastCount },
 	};
 
 	HiData.clear();
@@ -421,14 +406,14 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 	{
 		int from;
 		int to;
-		const wchar_t* next_title;
+		string_view next_title;
 	}
-	Data[] =
+	Data[]
 	{
-		{ 0, FirstCount, msg(lng::MHighlightUpperSortGroup).data() },
-		{ FirstCount, FirstCount+UpperCount, msg(lng::MHighlightLowerSortGroup).data() },
-		{ FirstCount + UpperCount, FirstCount + UpperCount + LowerCount, msg(lng::MHighlightLastGroup).data() },
-		{ FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount, nullptr}
+		{ 0,                                    FirstCount,                                       msg(lng::MHighlightUpperSortGroup) },
+		{ FirstCount,                           FirstCount + UpperCount,                          msg(lng::MHighlightLowerSortGroup) },
+		{ FirstCount + UpperCount,              FirstCount + UpperCount + LowerCount,             msg(lng::MHighlightLastGroup) },
+		{ FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount, {} }
 	};
 
 	std::for_each(CONST_RANGE(Data, i)
@@ -440,7 +425,7 @@ void highlight::configuration::FillMenu(VMenu2 *HiMenu,int MenuPos)
 
 		HiMenu->AddItem(MenuItemEx());
 
-		if (i.next_title)
+		if (!i.next_title.empty())
 		{
 			MenuItemEx HiMenuItem(i.next_title);
 			HiMenuItem.Flags|=LIF_SEPARATOR;
@@ -777,17 +762,17 @@ void highlight::configuration::Save(bool always)
 	const struct
 	{
 		bool IsSort;
-		const wchar_t* KeyName;
-		const wchar_t* GroupName;
+		string_view KeyName;
+		string_view GroupName;
 		int from;
 		int to;
 	}
-	Data[] =
+	Data[]
 	{
-		{false, HighlightKeyName, fmtFirstGroup, 0, FirstCount},
-		{true, SortGroupsKeyName, fmtUpperGroup, FirstCount, FirstCount+UpperCount},
-		{true, SortGroupsKeyName, fmtLowerGroup, FirstCount + UpperCount, FirstCount + UpperCount + LowerCount},
-		{false, HighlightKeyName, fmtLastGroup, FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount},
+		{ false, HighlightKeyName,  fmtFirstGroup, 0,                                    FirstCount },
+		{ true,  SortGroupsKeyName, fmtUpperGroup, FirstCount,                           FirstCount + UpperCount },
+		{ true,  SortGroupsKeyName, fmtLowerGroup, FirstCount + UpperCount,              FirstCount + UpperCount + LowerCount },
+		{ false, HighlightKeyName,  fmtLastGroup,  FirstCount + UpperCount + LowerCount, FirstCount + UpperCount + LowerCount + LastCount },
 	};
 
 	for(const auto& i: Data)

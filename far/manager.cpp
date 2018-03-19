@@ -639,7 +639,7 @@ void Manager::ExitMainLoop(int Ask)
 			msg(lng::MAskQuit)
 		},
 		{ lng::MYes, lng::MNo },
-		nullptr, &FarAskQuitId) == Message::first_button)
+		{}, &FarAskQuitId) == Message::first_button)
 	{
 		/* $ 29.12.2000 IS
 		   + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим

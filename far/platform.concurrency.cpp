@@ -103,9 +103,9 @@ namespace os::concurrency
 	{
 	}
 
-	const wchar_t* mutex::get_namespace()
+	string_view mutex::get_namespace()
 	{
-		return L"Far_Manager_Mutex_";
+		return L"Far_Manager_Mutex_"_sv;
 	}
 
 	bool mutex::lock() const
@@ -124,9 +124,9 @@ namespace os::concurrency
 	{
 	}
 
-	const wchar_t* event::get_namespace()
+	string_view event::get_namespace()
 	{
-		return L"Far_Manager_Event_";
+		return L"Far_Manager_Event_"_sv;
 	}
 
 	bool event::set() const

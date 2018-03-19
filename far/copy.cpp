@@ -2662,7 +2662,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 					msg(lng::MCopyEncryptWarn3)
 				},
 				{ lng::MCopyIgnore, lng::MCopyIgnoreAll, lng::MCopyCancel },
-				L"WarnCopyEncrypt");
+				L"WarnCopyEncrypt"_sv);
 		}
 
 		switch (MsgCode)
@@ -2896,13 +2896,13 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 								SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 							{
 								DestFile.Close();
-								int MsgCode=Message(MSG_WARNING, ErrorState,
+								const int MsgCode=Message(MSG_WARNING, ErrorState,
 									msg(lng::MError),
 									{
 										strDestName
 									},
 									{ lng::MSplit, lng::MSkip, lng::MRetry, lng::MCancel },
-									L"CopyFiles");
+									L"CopyFiles"_sv);
 
 								if (MsgCode==2)
 								{

@@ -748,7 +748,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
 
 	if (AllowSynchro)
-		MessageManager().dispatch();
+		message_manager::instance().dispatch();
 
 	DWORD CalcKey;
 
@@ -901,7 +901,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 		if (!(LoopCount & 3))
 		{
-			if (MessageManager().dispatch())
+			if (message_manager::instance().dispatch())
 			{
 				*rec = {};
 				return KEY_NONE;

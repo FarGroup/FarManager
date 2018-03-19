@@ -466,18 +466,18 @@ void FileEditor::Init(
 								msg(lng::MAskReload)
 							},
 							{ lng::MCurrent, lng::MNewOpen, lng::MReload },
-							L"EditorReload", &EditorReloadId);
+							L"EditorReload"_sv, &EditorReloadId);
 					}
 					else
 					{
-						MsgCode=Message(0,
+						MsgCode = Message(0,
 							msg(lng::MEditTitle),
 							{
 								strFullFileName,
 								msg(lng::MAskReload)
 							},
 							{ lng::MNewOpen, lng::MCancel },
-							L"EditorReload", &EditorReloadModalId);
+							L"EditorReload"_sv, &EditorReloadModalId);
 						if (MsgCode == 0)
 							MsgCode=1;
 						else
@@ -570,7 +570,7 @@ void FileEditor::Init(
 				msg(lng::MEditCanNotEditDirectory)
 			},
 			{ lng::MOk },
-			nullptr, &EditorCanNotEditDirectoryId);
+			{}, &EditorCanNotEditDirectoryId);
 		SetExitCode(XC_OPEN_ERROR);
 		return;
 	}
@@ -593,7 +593,7 @@ void FileEditor::Init(
 				msg(lng::MEditROOpen)
 			},
 			{ lng::MYes, lng::MNo },
-			nullptr, &EditorOpenRSHId) != Message::first_button)
+			{}, &EditorOpenRSHId) != Message::first_button)
 		{
 			SetExitCode(XC_OPEN_ERROR);
 			return;
@@ -863,7 +863,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 							msg(lng::MEditSavedChangedNonFile2)
 						},
 						{ lng::MHYes, lng::MHNo },
-						nullptr, &EditorSaveF6DeletedId))
+						{}, &EditorSaveF6DeletedId))
 					{
 						case 0:
 
@@ -1205,7 +1205,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 									msg(lng::MEditSavedChangedNonFile2)
 								},
 								{ lng::MHYes, lng::MHNo, lng::MHCancel },
-								nullptr, &EditorSaveExitDeletedId);
+								{}, &EditorSaveExitDeletedId);
 						}
 
 						switch (Res)
@@ -1483,7 +1483,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 						msg(lng::MEditROOpen)
 					},
 					{ lng::MYes, lng::MNo },
-					nullptr, &EditorFileLongId) != Message::first_button)
+					{}, &EditorFileLongId) != Message::first_button)
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
@@ -1503,7 +1503,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 					msg(lng::MEditROOpen)
 				},
 				{ lng::MYes, lng::MNo },
-				nullptr, &EditorFileGetSizeErrorId) != Message::first_button)
+				{}, &EditorFileGetSizeErrorId) != Message::first_button)
 			{
 				EditFile.Close();
 				SetLastError(ERROR_OPEN_FAILED); //????
@@ -1733,7 +1733,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			{
 				msg(lng::MEditAskSave)
 			},
-			Buttons, nullptr, &EditAskSaveId);
+			Buttons,
+			{}, &EditAskSaveId);
 		if(Code < 0 && !Global->AllowCancelExit)
 		{
 			Code = 1; // close == not save
@@ -1775,7 +1776,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 							msg(lng::MEditAskSaveExt)
 						},
 						{ lng::MHYes, lng::MEditBtnSaveAs, lng::MHCancel },
-						L"WarnEditorSavedEx", &EditAskSaveExtId))
+						L"WarnEditorSavedEx"_sv, &EditAskSaveExtId))
 					{
 						case -1:
 						case -2:
@@ -1801,7 +1802,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		if (m_FileAttributes & FILE_ATTRIBUTE_READONLY)
 		{
 			//BUGBUG
-			int AskOverwrite=Message(MSG_WARNING,
+			const int AskOverwrite = Message(MSG_WARNING,
 				msg(lng::MEditTitle),
 				{
 					Name,
@@ -1809,7 +1810,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 					msg(lng::MEditOvr)
 				},
 				{ lng::MYes, lng::MNo },
-				nullptr, &EditorSavedROId);
+				{}, &EditorSavedROId);
 
 			if (AskOverwrite)
 				return SAVEFILE_CANCEL;
@@ -2766,7 +2767,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 				msg(lng::MEditOvr)
 			},
 			{ lng::MYes, lng::MNo },
-			nullptr, &EditorAskOverwriteId) != Message::first_button)
+			{}, &EditorAskOverwriteId) != Message::first_button)
 		{
 			result=false;
 		}

@@ -67,7 +67,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 						if (BroadcastHeader->dbch_devicetype == DBT_DEVTYP_VOLUME)
 						{
 							const auto BroadcastVolume = reinterpret_cast<const DEV_BROADCAST_VOLUME*>(BroadcastHeader);
-							MessageManager().notify(update_devices, update_devices_message{ Arrival, BroadcastVolume->dbcv_unitmask });
+							message_manager::instance().notify(update_devices, update_devices_message{ Arrival, BroadcastVolume->dbcv_unitmask });
 						}
 					}
 					break;
@@ -82,12 +82,12 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 				{
 					if (Global->Opt->UpdateEnvironment)
 					{
-						MessageManager().notify(update_environment);
+						message_manager::instance().notify(update_environment);
 					}
 				}
 				else if (equal(reinterpret_cast<const wchar_t*>(lParam), L"intl"_sv))
 				{
-					MessageManager().notify(update_intl);
+					message_manager::instance().notify(update_intl);
 				}
 			}
 			break;
@@ -96,10 +96,10 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 			switch (wParam)
 			{
 			case PBT_APMPOWERSTATUSCHANGE: // change status
-
 			case PBT_POWERSETTINGCHANGE:   // change percent
-				MessageManager().notify(update_power);
+				message_manager::instance().notify(update_power);
 				break;
+
 			// TODO:
 			// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
 

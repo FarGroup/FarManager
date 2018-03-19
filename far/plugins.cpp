@@ -497,8 +497,44 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		ConsoleTitle::SetFarTitle(msg(lng::MCheckingFileInPlugin), true);
 	}
 
-	using PluginInfo = std::pair<plugin_panel, HANDLE>;
-	std::list<PluginInfo> items;
+	class plugin_panel_holder: public plugin_panel
+	{
+	public:
+		MOVABLE(plugin_panel_holder);
+
+		plugin_panel_holder(Plugin* PluginInstance, HANDLE Panel, HANDLE Analyse):
+			plugin_panel(PluginInstance, Panel),
+			m_Analyse(Analyse)
+		{
+		}
+
+		~plugin_panel_holder()
+		{
+			if (!plugin())
+				return;
+
+			if (m_Analyse)
+			{
+				CloseAnalyseInfo Info{ sizeof(Info), m_Analyse };
+				plugin()->CloseAnalyse(&Info);
+			}
+			else
+			{
+				ClosePanelInfo Info{ sizeof(Info), panel() };
+				plugin()->ClosePanel(&Info);
+			}
+		}
+
+		HANDLE analyse() const
+		{
+			return m_Analyse;
+		}
+
+	private:
+		HANDLE m_Analyse;
+	};
+
+	std::vector<plugin_panel_holder> items;
 
 	string strFullName;
 
@@ -508,19 +544,19 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		Name = &strFullName;
 	}
 
-	bool ShowMenu = Global->Opt->PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Global->Opt->PluginConfirm.OpenFilePlugin != 0;
-	bool ShowWarning = OpMode == OPM_NONE;
+	const auto ShowMenu = Global->Opt->PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Global->Opt->PluginConfirm.OpenFilePlugin != 0;
+	const auto ShowWarning = OpMode == OPM_NONE;
 	 //у анси плагинов OpMode нет.
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
 
-	AnalyseInfo Info={sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, OpMode};
+	AnalyseInfo Info{ sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, OpMode };
 	std::vector<BYTE> Buffer(Global->Opt->PluginMaxReadData);
 
 	bool DataRead = false;
 	for (const auto& i: SortedPlugins)
 	{
-		if (!i->has(iOpenFilePlugin) && !(i->has(iAnalyse) && i->has(iOpen)))
+		if (!(i->has(iAnalyse) && i->has(iOpen)) && !i->has(iOpenFilePlugin))
 			continue;
 
 		if(Name && !DataRead)
@@ -543,7 +579,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 					const auto ErrorState = error_state::fetch();
 
 					Message(MSG_WARNING, ErrorState,
-						L"",
+						{},
 						{
 							msg(lng::MOpenPluginCannotOpenFile),
 							*Name
@@ -554,209 +590,175 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			}
 		}
 
-		if (i->has(iOpenFilePlugin))
+		if (i->has(iAnalyse))
 		{
-			if (Global->Opt->ShowCheckingFile)
+			if (const auto analyse = i->Analyse(&Info))
 			{
-				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["_sv, PointToName(i->GetModuleName()), L"]..."_sv), true);
-			}
-
-			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
-			if (hPlugin == PANEL_STOP)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
-			{
-				StopProcessing = true;
-				break;
-			}
-
-			if (hPlugin)
-			{
-				items.emplace_back(plugin_panel{ i, hPlugin }, nullptr);
+				items.emplace_back(i, nullptr, analyse);
 			}
 		}
 		else
 		{
-			if (const auto analyse = i->Analyse(&Info))
+			if (Global->Opt->ShowCheckingFile)
+				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["_sv, PointToName(i->GetModuleName()), L"]..."_sv), true);
+
+			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
+			if (!hPlugin)
+				continue;
+
+			if (hPlugin == PANEL_STOP)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
 			{
-				items.emplace_back(plugin_panel{ i, nullptr }, analyse);
+				StopProcessing = true;
+				return nullptr;
 			}
+
+			items.emplace_back(i, hPlugin, nullptr);
 		}
 
 		if (!items.empty() && !ShowMenu)
 			break;
 	}
 
-	auto pResult = items.end(), pAnalyse = pResult;
-	if (!items.empty())
-	{
-		bool OnlyOne = (items.size() == 1) && !(Name && Global->Opt->PluginConfirm.OpenFilePlugin && Global->Opt->PluginConfirm.StandardAssociation && Global->Opt->PluginConfirm.EvenIfOnlyOnePlugin);
-
-		if(!OnlyOne && ShowMenu)
-		{
-			const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
-			menu->SetPosition(-1, -1, 0, 0);
-			menu->SetHelp(L"ChoosePluginMenu");
-			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
-
-			std::for_each(CONST_RANGE(items, i)
-			{
-				menu->AddItem(i.first.plugin()->GetTitle());
-			});
-
-			if (Global->Opt->PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
-			{
-				MenuItemEx mitem;
-				mitem.Flags |= MIF_SEPARATOR;
-				menu->AddItem(mitem);
-				menu->AddItem(msg(lng::MMenuPluginStdAssociation));
-			}
-
-			const auto ExitCode = menu->Run();
-			if (ExitCode < 0)
-			{
-				StopProcessing = true;
-			}
-			else
-			{
-				pResult = std::next(items.begin(), ExitCode);
-			}
-		}
-		else
-		{
-			pResult = items.begin();
-		}
-
-		if (pResult != items.end() && pResult->first.panel() == nullptr)
-		{
-			pAnalyse = pResult;
-			OpenAnalyseInfo oainfo = { sizeof(OpenAnalyseInfo), &Info, pResult->second };
-
-			OpenInfo oInfo = {sizeof(oInfo)};
-			oInfo.OpenFrom = OPEN_ANALYSE;
-			oInfo.Guid = &FarGuid;
-			oInfo.Data = (intptr_t)&oainfo;
-
-			const auto h = pResult->first.plugin()->Open(&oInfo);
-			if (h == PANEL_STOP)
-			{
-				StopProcessing = true;
-				pResult = items.end();
-			}
-			else if (h)
-			{
-				pResult->first.set_panel(h);
-			}
-			else
-			{
-				pResult = items.end();
-			}
-		}
-	}
-
-	FOR_CONST_RANGE(items, i)
-	{
-		if (i != pResult && i->first.panel())
-		{
-			ClosePanelInfo ci = {sizeof ci, i->first.panel() };
-			i->first.plugin()->ClosePanel(&ci);
-		}
-
-		if (i != pAnalyse && i->second)
-		{
-			CloseAnalyseInfo ci = {sizeof ci, i->second };
-			i->first.plugin()->CloseAnalyse(&ci);
-		}
-	}
-
-	if (pResult == items.end())
+	if (items.empty())
 		return nullptr;
 
-	return std::make_unique<plugin_panel>(std::move(pResult->first));
+	const auto OnlyOne = items.size() == 1 && !(Name && Global->Opt->PluginConfirm.OpenFilePlugin && Global->Opt->PluginConfirm.StandardAssociation && Global->Opt->PluginConfirm.EvenIfOnlyOnePlugin);
+
+	auto PluginIterator = items.begin();
+
+	if (!OnlyOne && ShowMenu)
+	{
+		const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
+		menu->SetPosition(-1, -1, 0, 0);
+		menu->SetHelp(L"ChoosePluginMenu");
+		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
+
+		for (const auto& i: items)
+			menu->AddItem(i.plugin()->GetTitle());
+
+		if (Global->Opt->PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
+		{
+			menu->AddItem(MenuItemEx{ {}, MIF_SEPARATOR });
+			menu->AddItem(msg(lng::MMenuPluginStdAssociation));
+		}
+
+		const auto ExitCode = menu->Run();
+
+		if (ExitCode < 0)
+		{
+			StopProcessing = true;
+			return nullptr;
+		}
+
+		if (static_cast<size_t>(ExitCode) >= items.size())
+		{
+			return nullptr;
+		}
+
+		PluginIterator = items.begin() + ExitCode;
+	}
+
+	if (PluginIterator->analyse())
+	{
+		OpenAnalyseInfo oainfo{ sizeof(OpenAnalyseInfo), &Info, PluginIterator->analyse() };
+
+		OpenInfo oInfo{ sizeof(oInfo) };
+		oInfo.OpenFrom = OPEN_ANALYSE;
+		oInfo.Guid = &FarGuid;
+		oInfo.Data = reinterpret_cast<intptr_t>(&oainfo);
+
+		const auto PanelHandle = PluginIterator->plugin()->Open(&oInfo);
+
+		if (!PanelHandle)
+			return nullptr;
+
+		if (PanelHandle == PANEL_STOP)
+		{
+			StopProcessing = true;
+			return nullptr;
+		}
+
+		PluginIterator->set_panel(PanelHandle);
+	}
+
+	return std::make_unique<plugin_panel>(std::move(*PluginIterator));
 }
 
 std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
-	std::list<plugin_panel> items;
-	auto pResult = items.end();
+
+	class plugin_panel_holder: public plugin_panel
+	{
+	public:
+		MOVABLE(plugin_panel_holder);
+
+		using plugin_panel::plugin_panel;
+
+		~plugin_panel_holder()
+		{
+			if (!plugin())
+				return;
+
+			ClosePanelInfo Info{ sizeof(Info), panel() };
+			plugin()->ClosePanel(&Info);
+		}
+	};
+
+	std::vector<plugin_panel_holder> items;
 
 	for (const auto& i: SortedPlugins)
 	{
 		if (!i->has(iSetFindList))
 			continue;
 
-		OpenInfo Info = {sizeof(Info)};
+		OpenInfo Info{ sizeof(Info) };
 		Info.OpenFrom = OPEN_FINDLIST;
 		Info.Guid = &FarGuid;
 		Info.Data = 0;
 
-		if (const auto hPlugin = i->Open(&Info))
-		{
-			items.emplace_back(i, hPlugin);
-		}
+		const auto PluginHandle = i->Open(&Info);
+		if (!PluginHandle)
+			continue;
 
-		if (!items.empty() && !Global->Opt->PluginConfirm.SetFindList)
+		items.emplace_back(i, PluginHandle);
+
+		if (!Global->Opt->PluginConfirm.SetFindList)
 			break;
 	}
 
-	if (!items.empty())
+	if (items.empty())
+		return nullptr;
+
+	auto PluginIterator = items.begin();
+
+	if (items.size() != 1)
 	{
-		if (items.size()>1)
-		{
-			const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
-			menu->SetPosition(-1, -1, 0, 0);
-			menu->SetHelp(L"ChoosePluginMenu");
-			menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
+		const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
+		menu->SetPosition(-1, -1, 0, 0);
+		menu->SetHelp(L"ChoosePluginMenu");
+		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
-			std::for_each(CONST_RANGE(items, i)
-			{
-				menu->AddItem(i.plugin()->GetTitle());
-			});
+		for (const auto& i: items)
+			menu->AddItem(i.plugin()->GetTitle());
 
-			int ExitCode=menu->Run();
+		const auto ExitCode = menu->Run();
 
-			if (ExitCode>=0)
-			{
-				pResult = std::next(items.begin(), ExitCode);
-			}
-		}
-		else
-		{
-			pResult = items.begin();
-		}
+		if (ExitCode < 0 || static_cast<size_t>(ExitCode) >= items.size())
+			return nullptr;
+
+		PluginIterator = items.begin() + ExitCode;
 	}
 
-	if (pResult != items.end())
-	{
-		SetFindListInfo Info = {sizeof(Info)};
-		Info.hPanel = pResult->panel();
-		Info.PanelItem = PanelItem;
-		Info.ItemsNumber = ItemsNumber;
+	SetFindListInfo Info{ sizeof(Info) };
+	Info.hPanel = PluginIterator->panel();
+	Info.PanelItem = PanelItem;
+	Info.ItemsNumber = ItemsNumber;
 
-		if (!pResult->plugin()->SetFindList(&Info))
-		{
-			pResult = items.end();
-		}
-	}
+	if (!PluginIterator->plugin()->SetFindList(&Info))
+		return nullptr;
 
-	FOR_CONST_RANGE(items, i)
-	{
-		if (i!=pResult)
-		{
-			if (i->panel())
-			{
-				ClosePanelInfo Info = {sizeof(Info)};
-				Info.hPanel = i->panel();
-				i->plugin()->ClosePanel(&Info);
-			}
-		}
-	}
-
-	if (pResult != items.end())
-	{
-		return std::make_unique<plugin_panel>(std::move(*pResult));
-	}
-
-	return nullptr;
+	return std::make_unique<plugin_panel>(std::move(*PluginIterator));
 }
 
 
@@ -2346,7 +2348,7 @@ void PluginManager::UndoRemove(Plugin* plugin)
 
 plugin_panel::plugin_panel(Plugin* PluginInstance, HANDLE Panel):
 	m_Plugin(PluginInstance),
-	m_PluginActivity(m_Plugin->keep_activity()),
+	m_PluginActivity(PluginInstance->keep_activity()),
 	m_Panel(Panel)
 {
 }

@@ -107,11 +107,11 @@ public:
 
 	FileFilterParams Clone() const;
 
-	void SetTitle(const string& Title);
-	void SetMask(bool Used, const string& Mask);
+	void SetTitle(string_view Title);
+	void SetMask(bool Used, string_view Mask);
 	void SetDate(bool Used, enumFDateType DateType, const filter_dates& Dates);
-	void SetSize(bool Used, const string& SizeAbove, const string& SizeBelow);
-	void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
+	void SetSize(bool Used, string_view SizeAbove, string_view SizeBelow);
+	void SetHardLinks(bool Used, DWORD HardLinksAbove, DWORD HardLinksBelow);
 	void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
 	void SetColors(const highlight::element& Colors);
 	void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }

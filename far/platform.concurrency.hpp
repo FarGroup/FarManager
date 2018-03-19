@@ -126,7 +126,7 @@ inline namespace concurrency
 
 		explicit mutex(const wchar_t* Name = nullptr);
 
-		static const wchar_t* get_namespace();
+		static string_view get_namespace();
 
 		bool lock() const;
 		bool unlock() const;
@@ -144,7 +144,7 @@ inline namespace concurrency
 		event() = default;
 		event(type Type, state InitialState, const wchar_t* Name = nullptr);
 
-		static const wchar_t* get_namespace();
+		static string_view get_namespace();
 
 		bool set() const;
 		bool reset() const;

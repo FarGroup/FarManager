@@ -165,7 +165,7 @@ intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id):
+Message::Message(DWORD const Flags, string_view const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id):
 	m_ExitCode(0)
 {
 	std::vector<string> StrButtons;
@@ -174,7 +174,7 @@ Message::Message(DWORD Flags, const string& Title, std::vector<string> Strings, 
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), nullptr, {}, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags, const error_state_ex& ErrorState, const string& Title, std::vector<string> Strings, const std::vector<lng>& Buttons, const wchar_t* HelpTopic, const GUID* Id, const std::vector<string>& Inserts):
+Message::Message(DWORD const Flags, const error_state_ex& ErrorState, string_view  const Title, std::vector<string> Strings, const std::vector<lng>& Buttons, string_view const HelpTopic, const GUID* const Id, const std::vector<string>& Inserts):
 	m_ExitCode(0)
 {
 	std::vector<string> StrButtons;
@@ -183,22 +183,22 @@ Message::Message(DWORD Flags, const error_state_ex& ErrorState, const string& Ti
 	Init(Flags, Title, std::move(Strings), std::move(StrButtons), &ErrorState, Inserts, HelpTopic, nullptr, Id);
 }
 
-Message::Message(DWORD Flags, const error_state_ex* ErrorState, const string& Title, std::vector<string> Strings, std::vector<string> Buttons, const wchar_t* HelpTopic, const GUID* Id, Plugin* PluginNumber):
+Message::Message(DWORD const Flags, const error_state_ex* const ErrorState, string_view const Title, std::vector<string> Strings, std::vector<string> Buttons, string_view const HelpTopic, const GUID* const Id, Plugin* const PluginNumber):
 	m_ExitCode(0)
 {
 	Init(Flags, Title, std::move(Strings), std::move(Buttons), ErrorState, {}, HelpTopic, PluginNumber, Id);
 }
 
 void Message::Init(
-	DWORD Flags,
-	const string& Title,
+	DWORD const Flags,
+	string_view const Title,
 	std::vector<string>&& Strings,
 	std::vector<string>&& Buttons,
-	const error_state_ex* ErrorState,
+	const error_state_ex* const ErrorState,
 	const std::vector<string>& Inserts,
-	const wchar_t* HelpTopic,
-	Plugin* PluginNumber,
-	const GUID* Id
+	string_view const HelpTopic,
+	Plugin* const PluginNumber,
+	const GUID* const Id
 	)
 {
 	IsWarningStyle = (Flags&MSG_WARNING) != 0;
@@ -351,7 +351,7 @@ void Message::Init(
 			Item.Y1 = 1;
 			Item.X2 = X2 - X1 - 3;
 			Item.Y2 = Y2 - Y1 - 1;
-			Item.strData = Title;
+			assign(Item.strData, Title);
 			MsgDlg.emplace_back(std::move(Item));
 		}
 
@@ -440,7 +440,7 @@ void Message::Init(
 		Dlg->SetPosition(X1,Y1,X2,Y2);
 		if(Id) Dlg->SetId(*Id);
 
-		if (HelpTopic)
+		if (!HelpTopic.empty())
 			Dlg->SetHelp(HelpTopic);
 
 		Dlg->SetPluginOwner(PluginNumber); // Запомним номер плагина
@@ -482,10 +482,7 @@ void Message::Init(
 
 	if (!Title.empty())
 	{
-		string strTempTitle = Title;
-
-		if (strTempTitle.size() > MaxLength)
-			strTempTitle.resize(MaxLength);
+		const auto strTempTitle = cut_right(Title, MaxLength);
 
 		GotoXY(X1+(X2-X1-1-(int)strTempTitle.size())/2,Y1+1);
 		Text(concat(L' ', strTempTitle, L' '));

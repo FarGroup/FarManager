@@ -114,6 +114,7 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
 #define STR(x) #x
 #define WSTR(x) L###x
+#define WSTRVIEW(x) L###x##_sv
 
 #define DETAIL_WIDE_IMPL(x) L##x
 #define WIDE(x) DETAIL_WIDE_IMPL(x)

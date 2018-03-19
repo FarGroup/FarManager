@@ -420,7 +420,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					strJuncName
 				},
 				{ lng::MDeleteLinkDelete, lng::MCancel },
-				nullptr, &DeleteLinkId);
+				{}, &DeleteLinkId);
 
 			if (Ret)
 				return;
@@ -640,7 +640,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 									strFullName
 								},
 								{ del, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileCancel },
-								nullptr, guidId);
+								{}, guidId);
 						}
 
 						if (MsgCode<0 || MsgCode==3)
@@ -726,7 +726,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 										strFullName
 									},
 									{ Wipe? lng::MDeleteFileWipe : lng::MDeleteFileDelete, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileCancel },
-									nullptr, Wipe? &WipeFolderId : &DeleteFolderId); // ??? other GUID ???
+									{}, Wipe? &WipeFolderId : &DeleteFolderId); // ??? other GUID ???
 
 								if (MsgCode<0 || MsgCode==3)
 								{
@@ -868,7 +868,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 				msg(Wipe? lng::MAskWipeRO : lng::MAskDeleteRO)
 			},
 			{ Wipe? lng::MDeleteFileWipe : lng::MDeleteFileDelete, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileSkipAll, lng::MDeleteFileCancel },
-			nullptr, Wipe? &DeleteAskWipeROId : &DeleteAskDeleteROId);
+			{}, Wipe? &DeleteAskWipeROId : &DeleteAskDeleteROId);
 	}
 
 	switch (MsgCode)
@@ -924,7 +924,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 						msg(lng::MDeleteHardLink3)
 					},
 					{ lng::MDeleteFileWipe, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileSkipAll, lng::MDeleteCancel },
-					nullptr, &WipeHardLinkId);
+					{}, &WipeHardLinkId);
 			}
 
 			switch (MsgCode)
@@ -1100,7 +1100,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 							msg(lng::MRecycleFolderConfirmDeleteLink4)
 						},
 						{ lng::MYes, lng::MCancel },
-						nullptr, &RecycleFolderConfirmDeleteLinkId
+						{}, &RecycleFolderConfirmDeleteLinkId
 						) != Message::first_button)
 					{
 						ret = DELETE_CANCEL;
@@ -1134,14 +1134,14 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		string qName(strFullName);
 		QuoteOuterSpace(qName);
 
-		int MsgCode = Message(MSG_WARNING, ErrorState,
+		const int MsgCode = Message(MSG_WARNING, ErrorState,
 			msg(lng::MError),
 			{
 				msg(dir? lng::MCannotRecycleFolder : lng::MCannotRecycleFile),
 				qName
 			},
 			{ lng::MDeleteFileDelete, lng::MDeleteSkip, lng::MDeleteSkipAll, lng::MDeleteCancel },
-			nullptr, dir? &CannotRecycleFolderId : &CannotRecycleFileId);
+			{}, dir? &CannotRecycleFolderId : &CannotRecycleFileId);
 
 		switch (MsgCode) {
 		case 3: case -1: case -2:       // [Cancel]

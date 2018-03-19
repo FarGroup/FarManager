@@ -1100,7 +1100,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			msg(lng::MError),
 			std::move(Strings),
 			{ lng::MOk },
-			L"ErrCannotExecute",
+			L"ErrCannotExecute"_sv,
 			nullptr,
 			{ Info.ExecMode == execute_info::exec_mode::direct? strNewCmdStr : strComspec });
 	}

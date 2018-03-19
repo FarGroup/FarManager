@@ -417,7 +417,7 @@ struct EAData: noncopyable
 
 void ElevationApproveDlgSync(const EAData& Data)
 {
-	SCOPED_ACTION(message_manager::suppress);
+	SCOPED_ACTION(auto)(message_manager::instance().suppress());
 
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem ElevationApproveDlgData[]=
@@ -484,12 +484,12 @@ bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 		if(!Global->IsMainThread())
 		{
 			os::event SyncEvent(os::event::type::automatic, os::event::state::nonsignaled);
-			listener_ex Listener([&SyncEvent](const any& Payload)
+			listener Listener([&SyncEvent](const any& Payload)
 			{
 				ElevationApproveDlgSync(*any_cast<EAData*>(Payload));
 				SyncEvent.set();
 			});
-			MessageManager().notify(Listener.GetEventName(), &Data);
+			message_manager::instance().notify(Listener.GetEventName(), &Data);
 			SyncEvent.wait();
 		}
 		else

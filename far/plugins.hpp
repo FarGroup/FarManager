@@ -91,25 +91,25 @@ public:
 
 	auto plugin() const
 	{
-		return m_Plugin;
+		return *m_Plugin;
 	}
 
 	auto panel() const
 	{
-		return m_Panel;
+		return *m_Panel;
 	}
 
 	void set_panel(HANDLE Panel)
 	{
-		m_Panel = Panel;
+		*m_Panel = Panel;
 	}
 
 	void delayed_delete(const string& Name);
 
 private:
-	Plugin* m_Plugin;
+	movable<Plugin*> m_Plugin;
 	FN_RETURN_TYPE(Plugin::keep_activity) m_PluginActivity;
-	HANDLE m_Panel{};
+	movable<HANDLE> m_Panel{};
 	std::list<delayed_deleter> m_DelayedDeleters;
 };
 
@@ -226,7 +226,7 @@ private:
 	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash> m_Plugins;
 	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
-	listener_ex m_PluginSynchro;
+	listener m_PluginSynchro;
 
 #ifndef NO_WRAPPER
 	size_t OemPluginsCount;

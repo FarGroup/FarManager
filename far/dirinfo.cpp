@@ -291,7 +291,7 @@ struct PluginDirInfoPreRedrawItem : public PreRedrawItem
 static void FarGetPluginDirListMsg(const string& Name,DWORD Flags)
 {
 	Message(Flags,
-		L"",
+		{},
 		{
 			msg(lng::MPreparingList),
 			Name

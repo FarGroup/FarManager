@@ -413,7 +413,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 	{
 		if (ACTL_SYNCHRO==Command) //must be first
 		{
-			MessageManager().notify(plugin_synchro, std::make_pair(*PluginId, Param2));
+			message_manager::instance().notify(plugin_synchro, std::make_pair(*PluginId, Param2));
 			return 0;
 		}
 		if (ACTL_GETWINDOWTYPE==Command)
@@ -1227,7 +1227,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 			Title,
 			std::move(MsgItems),
 			std::move(Buttons),
-			EmptyToNull(strTopic.data()), Id, PluginNumber);
+			strTopic, Id, PluginNumber);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return -1;
@@ -1511,7 +1511,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			const auto& PR_FarGetDirListMsg = []
 			{
 				Message(0,
-					L"",
+					{},
 					{
 						msg(lng::MPreparingList)
 					},

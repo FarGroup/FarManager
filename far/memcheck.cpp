@@ -257,7 +257,7 @@ void PrintMemory()
 
 	if (CallNewDeleteVector || CallNewDeleteScalar || AllocatedMemoryBlocks || AllocatedMemorySize)
 	{
-		string Message(L"Memory leaks detected:\n");
+		auto Message = L"Memory leaks detected:\n"s;
 
 		if (CallNewDeleteVector)
 			Message += format(L"  delete[]:   {0}\n", CallNewDeleteVector);
@@ -267,9 +267,8 @@ void PrintMemory()
 			Message += format(L"Total blocks: {0}\n", AllocatedMemoryBlocks);
 		if (AllocatedMemorySize)
 			Message += format(L"Total bytes:  {0} payload, {1} overhead\n", AllocatedMemorySize - AllocatedMemoryBlocks * (sizeof(MEMINFO) + sizeof(EndMarker)), AllocatedMemoryBlocks * sizeof(MEMINFO));
-		Message += L'\n';
 
-		Message += L"Not freed blocks:\n";
+		append(Message, L"\nNot freed blocks:\n"_sv);
 
 		std::wcerr << Message;
 		OutputDebugString(Message.data());

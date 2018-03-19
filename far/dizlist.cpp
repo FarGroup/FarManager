@@ -77,8 +77,8 @@ void DizList::Reset()
 
 static void PR_ReadingMsg()
 {
-	Message(0, 
-		L"",
+	Message(0,
+		{},
 		{
 			msg(lng::MReadingDiz)
 		},

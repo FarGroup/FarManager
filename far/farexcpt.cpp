@@ -675,37 +675,37 @@ static bool ExceptionTestHook(Manager::Key key)
 			count
 		};
 
-		static const wchar_t* Names[] =
+		static const string_view Names[]
 		{
-			L"C++ std::exception",
-			L"C++ std::bad_alloc",
-			L"C++ unknown exception",
-			L"Access Violation (Read)",
-			L"Access Violation (Write)",
-			L"Access Violation (Execute)",
-			L"Divide by zero",
-			L"Illegal instruction",
-			L"Stack Overflow",
-			L"Floating-point divide by zero",
-			L"Floating-point overflow",
-			L"Floating-point underflow",
-			L"Floating-point inexact result",
-			L"Breakpoint",
-			L"Alignment fault",
+			L"C++ std::exception"_sv,
+			L"C++ std::bad_alloc"_sv,
+			L"C++ unknown exception"_sv,
+			L"Access Violation (Read)"_sv,
+			L"Access Violation (Write)"_sv,
+			L"Access Violation (Execute)"_sv,
+			L"Divide by zero"_sv,
+			L"Illegal instruction"_sv,
+			L"Stack Overflow"_sv,
+			L"Floating-point divide by zero"_sv,
+			L"Floating-point overflow"_sv,
+			L"Floating-point underflow"_sv,
+			L"Floating-point inexact result"_sv,
+			L"Breakpoint"_sv,
+			L"Alignment fault"_sv,
 
 			/*
-			L"EXCEPTION_SINGLE_STEP",
-			L"EXCEPTION_ARRAY_BOUNDS_EXCEEDED",
-			L"EXCEPTION_FLT_DENORMAL_OPERAND",
-			L"EXCEPTION_FLT_INVALID_OPERATION",
-			L"EXCEPTION_FLT_STACK_CHECK",
-			L"EXCEPTION_INT_OVERFLOW",
-			L"EXCEPTION_PRIV_INSTRUCTION",
-			L"EXCEPTION_IN_PAGE_ERROR",
-			L"EXCEPTION_NONCONTINUABLE_EXCEPTION",
-			L"EXCEPTION_INVALID_DISPOSITION",
-			L"EXCEPTION_GUARD_PAGE",
-			L"EXCEPTION_INVALID_HANDLE",
+			L"EXCEPTION_SINGLE_STEP"_sv,
+			L"EXCEPTION_ARRAY_BOUNDS_EXCEEDED"_sv,
+			L"EXCEPTION_FLT_DENORMAL_OPERAND"_sv,
+			L"EXCEPTION_FLT_INVALID_OPERATION"_sv,
+			L"EXCEPTION_FLT_STACK_CHECK"_sv,
+			L"EXCEPTION_INT_OVERFLOW"_sv,
+			L"EXCEPTION_PRIV_INSTRUCTION"_sv,
+			L"EXCEPTION_IN_PAGE_ERROR"_sv,
+			L"EXCEPTION_NONCONTINUABLE_EXCEPTION"_sv,
+			L"EXCEPTION_INVALID_DISPOSITION"_sv,
+			L"EXCEPTION_GUARD_PAGE"_sv,
+			L"EXCEPTION_INVALID_HANDLE"_sv,
 			*/
 		};
 
@@ -717,7 +717,7 @@ static bool ExceptionTestHook(Manager::Key key)
 
 		std::for_each(CONST_RANGE(Names, i)
 		{
-			ModalMenu->AddItem(i);
+			ModalMenu->AddItem(string(i));
 		});
 
 		const auto ExitCode = ModalMenu->Run();
@@ -845,11 +845,9 @@ static bool ExceptionTestHook(Manager::Key key)
 		}
 
 		Message(MSG_WARNING,
-			L"Test Exceptions failed",
+			L"Test Exceptions failed"_sv,
 			{
-				L"",
-				Names[ExitCode],
-				L"",
+				string(Names[ExitCode]),
 			},
 			{ lng::MOk });
 		return true;

@@ -107,45 +107,45 @@ FileFilterParams FileFilterParams::Clone() const
 	return Result;
 }
 
-void FileFilterParams::SetTitle(const string& Title)
+void FileFilterParams::SetTitle(string_view const Title)
 {
-	m_strTitle = Title;
+	assign(m_strTitle, Title);
 }
 
-void FileFilterParams::SetMask(bool Used, const string& Mask)
+void FileFilterParams::SetMask(bool const Used, string_view const Mask)
 {
 	FMask.Used = Used;
-	FMask.strMask = Mask;
+	assign(FMask.strMask, Mask);
 	if (Used)
 	{
 		FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);
 	}
 }
 
-void FileFilterParams::SetDate(bool Used, enumFDateType DateType, const filter_dates& Dates)
+void FileFilterParams::SetDate(bool const Used, enumFDateType const DateType, const filter_dates& Dates)
 {
 	FDate.Used=Used;
 	FDate.DateType = DateType < FDATE_COUNT? DateType : FDATE_MODIFIED;
 	FDate.Dates = Dates;
 }
 
-void FileFilterParams::SetSize(bool Used, const string& SizeAbove, const string& SizeBelow)
+void FileFilterParams::SetSize(bool const Used, string_view const SizeAbove, string_view const SizeBelow)
 {
 	FSize.Used=Used;
-	FSize.SizeAbove = SizeAbove;
-	FSize.SizeBelow = SizeBelow;
+	assign(FSize.SizeAbove, SizeAbove);
+	assign(FSize.SizeBelow, SizeBelow);
 	FSize.SizeAboveReal=ConvertFileSizeString(FSize.SizeAbove);
 	FSize.SizeBelowReal=ConvertFileSizeString(FSize.SizeBelow);
 }
 
-void FileFilterParams::SetHardLinks(bool Used, DWORD HardLinksAbove, DWORD HardLinksBelow)
+void FileFilterParams::SetHardLinks(bool const Used, DWORD const HardLinksAbove, DWORD const HardLinksBelow)
 {
 	FHardLinks.Used=Used;
 	FHardLinks.CountAbove=HardLinksAbove;
 	FHardLinks.CountBelow=HardLinksBelow;
 }
 
-void FileFilterParams::SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear)
+void FileFilterParams::SetAttr(bool const Used, DWORD const AttrSet, DWORD const AttrClear)
 {
 	FAttr.Used=Used;
 	FAttr.AttrSet=AttrSet;
@@ -817,13 +817,13 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			}
 			if (!Ok)
 			{
-				intptr_t ColorConfig = Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
+				const auto ColorConfig = Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr);
 				Message(MSG_WARNING,
-				        msg(ColorConfig ? lng::MFileHilightTitle : lng::MFileFilterTitle),
-				        {
-					        msg(lng::MBadFileSizeFormat)
-				        },
-				        { lng::MOk });
+					msg(ColorConfig? lng::MFileHilightTitle : lng::MFileFilterTitle),
+					{
+						msg(lng::MBadFileSizeFormat)
+					},
+					{ lng::MOk });
 				return FALSE;
 			}
 		}

@@ -511,7 +511,7 @@ static int mainImpl(const range<wchar_t**>& Args)
 
 	SCOPED_ACTION(listener)(update_environment, &ReloadEnvironment);
 	SCOPED_ACTION(listener)(update_intl, &OnIntlSettingsChange);
-	SCOPED_ACTION(listener_ex)(update_devices, &UpdateSavedDrives);
+	SCOPED_ACTION(listener)(update_devices, &UpdateSavedDrives);
 
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 

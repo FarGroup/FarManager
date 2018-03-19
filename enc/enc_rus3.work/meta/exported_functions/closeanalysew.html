@@ -17,7 +17,12 @@
 </div>
 
 <div class=shortdescr>
-Функция <code>CloseAnalyseW</code> вызывается Far Manager для передачи плагину данных, которые плагин может удалить.
+Функция <code>CloseAnalyseW</code> вызывается Far Manager для уведомления плагина о том, что результат анализа больше не нужен и его можно удалить.
+Это возможно в том случае, когда пользователь решил открыть файл другим плагином или вовсе передумал его открывать.
+
+<p class=note><img src="../../images/note.gif" alt="внимание" width="10" height="10"> Внимание!</p>
+<UL class=note><LI>Если пользователь выбрал ваш плагин, CloseAnalyseW не будет вызвана. Вы должны удалить данные во время обработки <a href="openw.html">OpenW</a> (OpenInfo.Data, если OpenInfo.OpenFrom == OPEN_ANALYSE).
+
 </div>
 
 <pre class=syntax>

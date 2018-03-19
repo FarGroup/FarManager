@@ -57,89 +57,64 @@ class wm_listener;
 
 namespace detail
 {
-	class i_event_handler
+	class event_handler: public std::function<void(const any&)>
 	{
+		template<typename T>
+		using with_payload = decltype(std::declval<T&>()(std::declval<any>()));
+
+		template<typename T>
+		using without_payload = decltype(std::declval<T&>()());
+
 	public:
-		virtual ~i_event_handler() = default;
-		virtual void operator()(const any&) const = 0;
-	};
-
-	class event_handler: public i_event_handler
-	{
-	public:
-		using handler_type = std::function<void()>;
-
-		explicit event_handler(handler_type Handler):
-			m_Handler(std::move(Handler))
+		template<typename callable_type, REQUIRES(is_valid_v<callable_type, with_payload>)>
+		explicit event_handler(callable_type&& Handler):
+			function(FWD(Handler))
 		{
 		}
 
-		void operator()(const any&) const override
-		{
-			m_Handler();
-		}
-
-	private:
-		handler_type m_Handler;
-	};
-
-	class parametrized_event_handler: public i_event_handler
-	{
-	public:
-		using handler_type = std::function<void(const any&)>;
-
-		explicit parametrized_event_handler(handler_type Handler):
-			m_Handler(std::move(Handler))
+		template<typename callable_type, REQUIRES(is_valid_v<callable_type, without_payload>)>
+		explicit event_handler(callable_type&& Handler):
+			function([Handler = FWD(Handler)](const any&) { Handler(); })
 		{
 		}
-
-		void operator()(const any& Payload) const override
-		{
-			m_Handler(Payload);
-		}
-
-	private:
-		handler_type m_Handler;
 	};
 }
 
-class message_manager: noncopyable
+class message_manager: public singleton<message_manager>
 {
-public:
-	using handlers_map = std::multimap<string, const detail::i_event_handler*>;
+	IMPLEMENTS_SINGLETON(message_manager);
 
-	handlers_map::iterator subscribe(event_id EventId, const detail::i_event_handler& EventHandler);
-	handlers_map::iterator subscribe(const string& EventName, const detail::i_event_handler& EventHandler);
+public:
+	using handlers_map = std::multimap<string, const detail::event_handler*>;
+
+	handlers_map::iterator subscribe(event_id EventId, const detail::event_handler& EventHandler);
+	handlers_map::iterator subscribe(const string& EventName, const detail::event_handler& EventHandler);
 	void unsubscribe(handlers_map::iterator HandlerIterator);
 	void notify(event_id EventId, any&& Payload = any());
 	void notify(const string& EventName, any&& Payload = any());
 	bool dispatch();
 
-	class suppress: noncopyable
+	auto suppress()
 	{
-	public:
-		suppress();
-		~suppress();
-
-	private:
-		message_manager& m_owner;
-	};
+		return make_raii_wrapper(
+			this,
+			[](message_manager* Owner){ ++Owner->m_suppressions; },
+			[](message_manager* Owner){ --Owner->m_suppressions; }
+		);
+	}
 
 private:
-	friend message_manager& MessageManager();
-
 	using message_queue = os::synced_queue<std::pair<string, any>>;
 
 	message_manager();
+	~message_manager();
 
 	os::critical_section m_QueueCS;
 	message_queue m_Messages;
 	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;
-	std::atomic_ulong m_suppressions;
+	std::atomic_ulong m_suppressions{};
 };
-
-message_manager& MessageManager();
 
 namespace detail
 {
@@ -149,21 +124,22 @@ namespace detail
 	class listener_t: noncopyable
 	{
 	public:
-		template<class id_type>
-		listener_t(const id_type& EventId, const typename T::handler_type& EventHandler):
+		template<class id_type, typename callable_type>
+		listener_t(const id_type& EventId, const callable_type& EventHandler):
 			m_Handler(EventHandler),
-			m_Iterator(MessageManager().subscribe(EventId, m_Handler))
+			m_Iterator(message_manager::instance().subscribe(EventId, m_Handler))
 		{
 		}
 
-		explicit listener_t(const typename T::handler_type& EventHandler):
+		template<typename callable_type>
+		explicit listener_t(const callable_type& EventHandler):
 			listener_t(CreateEventName(), EventHandler)
 		{
 		}
 
 		~listener_t()
 		{
-			MessageManager().unsubscribe(m_Iterator);
+			message_manager::instance().unsubscribe(m_Iterator);
 		}
 
 		const string& GetEventName() const
@@ -178,6 +154,5 @@ namespace detail
 }
 
 using listener = detail::listener_t<detail::event_handler>;
-using listener_ex = detail::listener_t<detail::parametrized_event_handler>;
 
 #endif // NOTIFICATION_HPP_B0BB0D31_61E8_49C3_AA4F_E8C1D7D71A25

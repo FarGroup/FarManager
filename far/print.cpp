@@ -192,7 +192,7 @@ void PrintFiles(FileList* SrcPanel)
 
 		const auto& PR_PrintMsg = []
 		{
-			Message(0, 
+			Message(0,
 				msg(lng::MPrintTitle),
 				{
 					msg(lng::MPreparingForPrinting)

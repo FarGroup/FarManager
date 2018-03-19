@@ -899,7 +899,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					Message(MSG_WARNING,
 						msg(lng::MUserMenuTitle),
 						{
-							msg((*Label ? lng::MUserMenuInvalidInputHotKey : lng::MUserMenuInvalidInputLabel))
+							msg(*Label? lng::MUserMenuInvalidInputHotKey : lng::MUserMenuInvalidInputLabel)
 						},
 						{ lng::MOk });
 					Dlg->SendMessage(DM_SETFOCUS, FocusPos, nullptr);
@@ -952,7 +952,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 				msg(lng::MAskInsertMenuOrCommand)
 			},
 			{ lng::MMenuInsertCommand, lng::MMenuInsertMenu },
-			nullptr, &AskInsertMenuOrCommandId))
+			{}, &AskInsertMenuOrCommandId))
 		{
 			case -1:
 			case -2:
