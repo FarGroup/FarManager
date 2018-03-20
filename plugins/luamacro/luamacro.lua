@@ -622,14 +622,21 @@ function export.GetOpenPanelInfo (wrapped_obj, handle, ...)
   end
 end
 
+function export.MakeDirectory (wrapped_obj, ...)
+  local func = wrapped_obj.module.MakeDirectory
+  if type(func) == "function" then return func(wrapped_obj.object, ...)
+  else return 1, "" -- suppress Far error message
+  end
+end
+
 for _,name in ipairs {"ClosePanel","Compare","DeleteFiles","GetFiles","GetFindData",
-      "MakeDirectory","ProcessHostFile","ProcessPanelEvent","ProcessPanelInput",
-      "PutFiles","SetDirectory","SetFindList"} do
+      "ProcessHostFile","ProcessPanelEvent","ProcessPanelInput","PutFiles","SetDirectory",
+      "SetFindList"} do
   export[name] =
-    function(wrapped_obj, handle, ...)
+    function(wrapped_obj, ...)
       local func = wrapped_obj.module[name]
       if type(func) == "function" then
-        return func(wrapped_obj.object, handle, ...)
+        return func(wrapped_obj.object, ...)
       end
     end
 end
