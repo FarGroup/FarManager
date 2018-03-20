@@ -194,9 +194,18 @@ const unsigned c_levels[] = { 0, 1, 3, 5, 7, 9 };
 const wchar_t* c_methods[] = { L"lzma", L"lzma2", L"ppmd" };
 
 UpdateCommand parse_update_command(const CommandArgs& ca) {
+  bool create = ca.cmd == cmdCreate;
+  if (!create) {
+    for (unsigned i = 0; i < ca.args.size(); i++) {
+      if (!is_param(ca.args[i])) {
+        create = !File::exists(Far::get_absolute_path(unquote(ca.args[i])));
+        break;
+      }
+    }
+  }
   UpdateCommand command;
   const vector<wstring>& args = ca.args;
-  command.new_arc = ca.cmd == cmdCreate;
+  command.new_arc = create;
   command.level_defined = false;
   command.method_defined = false;
   command.solid_defined = false;
@@ -205,7 +214,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
   for (unsigned i = 0; i < args.size() && is_param(args[i]); i++) {
     Param param = parse_param(args[i]);
     if (param.name == L"pr") {
-      CHECK_FMT(ca.cmd == cmdCreate);
+      CHECK_FMT(create);
       unsigned prof_idx = g_profiles.find_by_name(param.value);
       CHECK_FMT(prof_idx < g_profiles.size());
       static_cast<ProfileOptions&>(command.options) = g_profiles[prof_idx].options;
@@ -223,7 +232,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     if (param.name == L"pr") {
     }
     else if (param.name == L"t") {
-      CHECK_FMT(ca.cmd == cmdCreate);
+      CHECK_FMT(create);
       arc_type_spec = true;
       ArcTypes arc_types = ArcAPI::formats().find_by_name(param.value);
       CHECK_FMT(!arc_types.empty());
@@ -255,7 +264,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     else if (param.name == L"eh")
       command.options.encrypt_header = parse_tri_state_value(param.value);
     else if (param.name == L"sfx") {
-      CHECK_FMT(ca.cmd == cmdCreate);
+      CHECK_FMT(create);
       command.options.create_sfx = true;
       if (param.value.empty())
         command.options.sfx_options.name = L"7z.sfx";
@@ -263,7 +272,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
         command.options.sfx_options.name = param.value;
     }
     else if (param.name == L"v") {
-      CHECK_FMT(ca.cmd == cmdCreate);
+      CHECK_FMT(create);
       CHECK_FMT(!param.value.empty());
       command.options.enable_volumes = true;
       command.options.volume_size = param.value;
@@ -273,7 +282,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
     else if (param.name == L"ie")
       command.options.ignore_errors = parse_bool_value(param.value);
     else if (param.name == L"o") {
-      CHECK_FMT(ca.cmd == cmdUpdate);
+      CHECK_FMT(!create);
       wstring lcvalue = lc(param.value);
       if (lcvalue.empty())
         command.options.overwrite = oaOverwrite;
@@ -295,7 +304,7 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
   CHECK_FMT(!is_param(args[i]));
   command.options.arc_path = unquote(args[i]);
   i++;
-  if (ca.cmd == cmdCreate && !arc_type_spec) {
+  if (create && !arc_type_spec) {
     ArcTypes arc_types = ArcAPI::formats().find_by_ext(extract_file_ext(command.options.arc_path));
     if (!arc_types.empty())
       command.options.arc_type = arc_types.front();
