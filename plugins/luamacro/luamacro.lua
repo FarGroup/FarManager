@@ -438,25 +438,20 @@ local CanCreatePanel = {
   [F.OPEN_PLUGINSMENU]   = true;
 }
 
-function export.Open (OpenFrom, arg1, ...)
+function export.Open (OpenFrom, guid, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
-    return Open_LuaMacro(arg1, ...)
-  end
+    return Open_LuaMacro(guid, ...)
 
-  local guid = arg1
-  if OpenFrom == F.OPEN_COMMANDLINE then
-    local cmdline =  ...
-    local mod, obj = Open_CommandLine(cmdline)
-    if mod and obj and PanelModuleExist(mod) then
-      return { module=mod; object=obj }
-    end
+  elseif OpenFrom == F.OPEN_COMMANDLINE then
+    local mod, obj = Open_CommandLine(...)
+    return mod and obj and PanelModuleExist(mod) and { module=mod; object=obj }
 
   elseif OpenFrom == F.OPEN_ANALYSE then
-    local tbl = ...
-    local mod = tbl.Handle.module
+    local info = ...
+    local mod = info.Handle.module
     if type(mod.Open) == "function" then
-      tbl.Handle = tbl.Handle.object
-      local obj = mod.Open(OpenFrom, guid, tbl)
+      info.Handle = info.Handle.object
+      local obj = mod.Open(OpenFrom, guid, info)
       return obj and { module=mod; object=obj }
     end
 
@@ -464,7 +459,7 @@ function export.Open (OpenFrom, arg1, ...)
     for _,mod in ipairs(utils.GetPanelModules()) do
       if type(mod.Open) == "function" then
         local obj = mod.Open(OpenFrom, guid, ...)
-        if obj then return { module=mod; object=obj }; end
+        return obj and { module=mod; object=obj }
       end
     end
 
@@ -478,7 +473,7 @@ function export.Open (OpenFrom, arg1, ...)
         if mod and type(mod.Open) == "function" then
           info.ShortcutData = data
           local obj = mod.Open(OpenFrom, guid, info)
-          if obj then return { module=mod; object=obj }; end
+          return obj and { module=mod; object=obj }
         end
       end
     end

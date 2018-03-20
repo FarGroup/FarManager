@@ -347,13 +347,15 @@ lv=2
 dt=Text
 nm=Добавление панельных модулей
 ctime=3730113290
-mtime=3730654073
+mtime=3730701308
 <article>
 #_<markdown>
 #_
 #_"Панельный модуль" - это набор Lua-функций, помещённых в таблицу, который загружается функцией `PanelModule`.
 #_
 #_- Имена функций модуля и их параметры совпадают с функциями таблицы `export` (см. мануал LuaFAR).
+#_- Список экспортируемых функций модуля, поддерживаемых плагином:<br>
+#_`Analyse`, `ClosePanel`, `Compare`, `DeleteFiles`, `GetFiles`, `GetFindData`, `GetOpenPanelInfo`, `MakeDirectory`, `Open`, `ProcessHostFile`, `ProcessPanelEvent`, `ProcessPanelInput`, `PutFiles`, `SetDirectory`, `SetFindList`.
 #_- Каждый панельный модуль должен содержать таблицу `Info` с обязательным полем `Guid`. Прочие поля - опциональны.
 #_
 #_```
@@ -380,7 +382,7 @@ mtime=3730654073
 #_**Примечания:**
 #_
 #_1. Для создания панели с командной строки или из меню плагинов, должны использоваться существующие функции [`CommandLine`](96.html) и [`MenuItem`](90.html). Их функция `action()` должна вернуть 2 величины: (1) таблицу панельного модуля и (2) объект панели (любое не ложное значение Lua).
-#_1. Функция `mod.Open` может вызываться только со следующими значениями параметра `OpenFrom`: `OPEN_ANALYSE`, `OPEN_FINDLIST` и `OPEN_SHORTCUT`.
+#_1. Функция `mod.Open` вызывается плагином только со следующими значениями параметра `OpenFrom`:<br> `OPEN_ANALYSE`, `OPEN_FINDLIST` и `OPEN_SHORTCUT`.
 #_
 #_См. также: [Пример применения](99.html)
 #_
@@ -392,11 +394,11 @@ lv=3
 dt=Text
 nm=Пример применения
 ctime=3730118337
-mtime=3730653967
+mtime=3730692693
 <article>
 #_<markdown>
 #_```
-#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5169 then return end
+#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5171 then return end
 #_
 #_local F = far.Flags
 #_local Title ="Demo panel in LuaMacro"

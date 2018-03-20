@@ -345,13 +345,15 @@ lv=2
 dt=Text
 nm=Adding panel modules
 ctime=3730113272
-mtime=3730654035
+mtime=3730701475
 <article>
 #_<markdown>
 #_
 #_"Panel module" is a set of Lua functions placed in a table and loaded with `PanelModule` function.
 #_
 #_- Names of those functions and their parameter sets coincide with functions from `export` table (see LuaFAR manual).
+#_- Here is the list of module-exported functions that are supported by the plugin:<br>
+#_`Analyse`, `ClosePanel`, `Compare`, `DeleteFiles`, `GetFiles`, `GetFindData`, `GetOpenPanelInfo`, `MakeDirectory`, `Open`, `ProcessHostFile`, `ProcessPanelEvent`, `ProcessPanelInput`, `PutFiles`, `SetDirectory`, `SetFindList`.
 #_- Every panel module must contain a table `Info` with a mandatory field `Guid`. Other fields are optional.
 #_
 #_```
@@ -378,7 +380,8 @@ mtime=3730654035
 #_**Notes:**
 #_
 #_1. To create a panel from the command line or from the plugins menu, the existing function [`CommandLine`](96.html) and [`MenuItem`](90.html) should be used. Their `action()` should return 2 values: (1) the module table and (2) the panel object (any non-false Lua value).
-#_1. Function `mod.Open` may be called only with the following values of `OpenFrom` parameter: `OPEN_ANALYSE`, `OPEN_FINDLIST` and `OPEN_SHORTCUT`.
+#_1. Function `mod.Open` is called by the plugin only with the following values of `OpenFrom` parameter:<br>
+#_`OPEN_ANALYSE`, `OPEN_FINDLIST` and `OPEN_SHORTCUT`.
 #_
 #_See also: [Demo Example](99.html)
 #_
@@ -390,11 +393,11 @@ lv=3
 dt=Text
 nm=Demo example
 ctime=3730114449
-mtime=3730653996
+mtime=3730692714
 <article>
 #_<markdown>
 #_```
-#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5169 then return end
+#_if ({ far.AdvControl("ACTL_GETFARMANAGERVERSION", true) })[4] < 5171 then return end
 #_
 #_local F = far.Flags
 #_local Title ="Demo panel in LuaMacro"
