@@ -994,80 +994,94 @@ void WINAPI GetPluginInfoW(PluginInfo* info) {
   FAR_ERROR_HANDLER_END(return, return, false);
 }
 
-HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
-  FAR_ERROR_HANDLER_BEGIN;
-  if (info->FileName == nullptr) {
-    if (!g_options.handle_create)
+static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
+  GUARD(g_detect_next_time = triUndef);
+  OpenOptions options;
+  options.arc_path = info->FileName;
+  options.arc_types = ArcAPI::formats().get_arc_types();
+  if (g_detect_next_time == triUndef) {
+    options.detect = false;
+    if (!g_options.handle_commands)
       FAIL(E_INVALIDARG);
-    return new Archives();
-  }
-  else {
-    GUARD(g_detect_next_time = triUndef);
-    OpenOptions options;
-    options.arc_path = info->FileName;
-    options.arc_types = ArcAPI::formats().get_arc_types();
-    if (g_detect_next_time == triUndef) {
-      options.detect = false;
-      if (!g_options.handle_commands)
+  	 bool pgdn = (info->OpMode & OPM_PGDN) != 0;
+  	 if (!pgdn || g_options.pgdn_masks) {
+  	   if (g_options.use_include_masks && !Far::match_masks(extract_file_name(info->FileName), g_options.include_masks))
+  	     FAIL(E_INVALIDARG);
+      if (g_options.use_exclude_masks && Far::match_masks(extract_file_name(info->FileName), g_options.exclude_masks))
         FAIL(E_INVALIDARG);
-      bool pgdn = (info->OpMode & OPM_PGDN) != 0;
-      if (!pgdn || g_options.pgdn_masks) {
-        if (g_options.use_include_masks && !Far::match_masks(extract_file_name(info->FileName), g_options.include_masks))
-          FAIL(E_INVALIDARG);
-        if (g_options.use_exclude_masks && Far::match_masks(extract_file_name(info->FileName), g_options.exclude_masks))
-          FAIL(E_INVALIDARG);
-      }
-      if ((g_options.use_enabled_formats || g_options.use_disabled_formats) && (pgdn ? g_options.pgdn_formats : true)) {
-        set<wstring> enabled_formats;
-        if (g_options.use_enabled_formats) {
-          list<wstring> name_list = split(upcase(g_options.enabled_formats), L',');
-          copy(name_list.cbegin(), name_list.cend(), inserter(enabled_formats, enabled_formats.begin()));
-        }
-        set<wstring> disabled_formats;
-        if (g_options.use_disabled_formats) {
-          list<wstring> name_list = split(upcase(g_options.disabled_formats), L',');
-          copy(name_list.cbegin(), name_list.cend(), inserter(disabled_formats, disabled_formats.begin()));
-        }
-
-        const ArcFormats& arc_formats = ArcAPI::formats();
-        ArcTypes::iterator arc_type = options.arc_types.begin();
-        while (arc_type != options.arc_types.end()) {
-          wstring arc_name = upcase(arc_formats.at(*arc_type).name);
-          if (g_options.use_enabled_formats && enabled_formats.count(arc_name) == 0)
-            arc_type = options.arc_types.erase(arc_type);
-          else if (g_options.use_disabled_formats && disabled_formats.count(arc_name) != 0)
-            arc_type = options.arc_types.erase(arc_type);
-          else
-            arc_type++;
-        }
-
-        if (options.arc_types.empty())
-          FAIL(E_INVALIDARG);
-      }
     }
-    else
-      options.detect = g_detect_next_time == triTrue;
-
-    int password_len;
-    options.open_password_len = &password_len;
-    for (;;) {
-      password_len = 0;
-      unique_ptr<Archives> archives(Archive::open(options));
-      if (!archives->empty())
-        return archives.release();
-      if (password_len <= 0)
-        break;
-	 }
-    FAIL(password_len ? E_ABORT : E_FAIL);
+  	 if ((g_options.use_enabled_formats || g_options.use_disabled_formats) && (pgdn ? g_options.pgdn_formats : true)) {
+      set<wstring> enabled_formats;
+      if (g_options.use_enabled_formats) {
+        list<wstring> name_list = split(upcase(g_options.enabled_formats), L',');
+        copy(name_list.cbegin(), name_list.cend(), inserter(enabled_formats, enabled_formats.begin()));
+      }
+      set<wstring> disabled_formats;
+      if (g_options.use_disabled_formats) {
+        list<wstring> name_list = split(upcase(g_options.disabled_formats), L',');
+        copy(name_list.cbegin(), name_list.cend(), inserter(disabled_formats, disabled_formats.begin()));
+      }
+      
+      const ArcFormats& arc_formats = ArcAPI::formats();
+      ArcTypes::iterator arc_type = options.arc_types.begin();
+      while (arc_type != options.arc_types.end()) {
+        wstring arc_name = upcase(arc_formats.at(*arc_type).name);
+        if (g_options.use_enabled_formats && enabled_formats.count(arc_name) == 0)
+          arc_type = options.arc_types.erase(arc_type);
+        else if (g_options.use_disabled_formats && disabled_formats.count(arc_name) != 0)
+          arc_type = options.arc_types.erase(arc_type);
+        else
+          arc_type++;
+      }
+      if (options.arc_types.empty())
+        FAIL(E_INVALIDARG);
+  	 }
   }
-  FAR_ERROR_HANDLER_END(return nullptr, return PANEL_STOP, true);
+  else
+    options.detect = g_detect_next_time == triTrue;
+  
+  int password_len;
+  options.open_password_len = &password_len;
+  for (;;) {
+	  password_len = from_analyse ? -'A' : 0;
+	  unique_ptr<Archives> archives(Archive::open(options));
+	  if (!archives->empty())
+		  return archives.release();
+	  if (from_analyse || password_len <= 0)
+		  break;
+  }
+  FAIL(password_len ? E_ABORT : E_FAIL);
+}
+
+HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
+  try {
+    if (info->FileName == nullptr) {
+      if (!g_options.handle_create)
+        FAIL(E_INVALIDARG);
+      return new Archives();
+    }
+    else {
+      return analyse_open(info, true);
+    }
+  }
+  catch (const Error& e) {
+    return (e.code == E_PENDING) ? INVALID_HANDLE_VALUE : nullptr;
+  }
+  catch (const std::exception& /*e*/) {
+	 return nullptr;
+  }
+  catch (...) {
+    return nullptr;
+  }
 }
 
 void WINAPI CloseAnalyseW(const CloseAnalyseInfo* info) {
-  delete static_cast<Archives*>(info->Handle);
+  if (info->Handle != INVALID_HANDLE_VALUE)
+    delete static_cast<Archives*>(info->Handle);
 }
 
 HANDLE WINAPI OpenW(const OpenInfo* info) {
+  bool delayed_analyse_open = false;
   FAR_ERROR_HANDLER_BEGIN;
   if (info->OpenFrom == OPEN_PLUGINSMENU) {
     Far::MenuItems menu_items;
@@ -1196,9 +1210,10 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
 
   else if (info->OpenFrom == OPEN_ANALYSE) {
     const OpenAnalyseInfo* oai = reinterpret_cast<const OpenAnalyseInfo*>(info->Data);
-    if (oai->Handle == PANEL_STOP)
-      return PANEL_STOP;
-    unique_ptr<Archives> archives(static_cast<Archives*>(oai->Handle));
+    delayed_analyse_open = oai->Handle == INVALID_HANDLE_VALUE;
+	 auto handle = delayed_analyse_open ? analyse_open(oai->Info, false) : oai->Handle;
+	 delayed_analyse_open = false;
+    unique_ptr<Archives> archives(static_cast<Archives*>(handle));
     bool real_panel = true;
     PanelInfo panel_info;
     if (Far::get_panel_info(PANEL_ACTIVE, panel_info) && !Far::is_real_file_panel(panel_info))
@@ -1221,7 +1236,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
   }
 
   return nullptr;
-  FAR_ERROR_HANDLER_END(return nullptr, return nullptr, false);
+  FAR_ERROR_HANDLER_END(return nullptr, return delayed_analyse_open ? PANEL_STOP : nullptr, delayed_analyse_open);
 }
 
 void WINAPI ClosePanelW(const struct ClosePanelInfo* info) {

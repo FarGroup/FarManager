@@ -288,6 +288,8 @@ public:
   STDMETHODIMP CryptoGetTextPassword(BSTR *password) {
     COM_ERROR_HANDLER_BEGIN
     if (archive->password.empty()) {
+      if (archive->open_password == -'A') // open from AnalyzeW
+        FAIL(E_PENDING);
       ProgressSuspend ps(*this);
       if (!password_dialog(archive->password, archive->arc_path)) {
         archive->open_password = -3;
@@ -508,6 +510,8 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
 
   for (ArcEntries::const_iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); ++arc_entry) {
     shared_ptr<Archive> archive(new Archive());
+    if (options.open_password_len && *options.open_password_len == -'A')
+      archive->open_password = *options.open_password_len;
     archive->arc_path = options.arc_path;
     archive->arc_info = arc_info;
     archive->password = options.password;
