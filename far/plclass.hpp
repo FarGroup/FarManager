@@ -370,8 +370,7 @@ protected:
 		seh_invoke_with_ui(
 		[&]
 		{
-			// No FWD macro here - gcc 5.1 crash
-			ExecuteFunctionSeh(es, std::forward<args>(Args)...);
+			ExecuteFunctionSeh(es, FWD(Args)...);
 		},
 		[this]
 		{

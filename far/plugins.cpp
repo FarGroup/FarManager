@@ -518,7 +518,8 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 				CloseAnalyseInfo Info{ sizeof(Info), m_Analyse };
 				plugin()->CloseAnalyse(&Info);
 			}
-			else
+			
+			if (panel())
 			{
 				ClosePanelInfo Info{ sizeof(Info), panel() };
 				plugin()->ClosePanel(&Info);
@@ -528,6 +529,11 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		HANDLE analyse() const
 		{
 			return m_Analyse;
+		}
+
+		void set_analyse(HANDLE Analyse)
+		{
+			m_Analyse = Analyse;
 		}
 
 	private:
@@ -666,6 +672,10 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		oInfo.OpenFrom = OPEN_ANALYSE;
 		oInfo.Guid = &FarGuid;
 		oInfo.Data = reinterpret_cast<intptr_t>(&oainfo);
+
+		// If we have reached this point, the analyse handle will be passed to the plugin
+		// and supposed to be deleted by it, so we should not call CloseAnalyse.
+		PluginIterator->set_analyse(nullptr);
 
 		const auto PanelHandle = PluginIterator->plugin()->Open(&oInfo);
 
