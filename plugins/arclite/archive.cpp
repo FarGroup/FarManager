@@ -304,13 +304,14 @@ ArcAPI* ArcAPI::arc_api = nullptr;
 
 ArcAPI::~ArcAPI() {
   for (auto& arc_lib : arc_libs) {
-    if (arc_lib.SetCodecs)
+    if (arc_lib.h_module && arc_lib.SetCodecs)
       arc_lib.SetCodecs(nullptr); // calls ~MyCompressInfo()
   }
   for (auto& arc_lib = arc_libs.rbegin(); arc_lib != arc_libs.rend(); ++arc_lib) {
-    arc_lib->ComHashers = nullptr;
-    if (arc_lib->h_module)
+    if (arc_lib->h_module) {
+      arc_lib->ComHashers = nullptr;
       FreeLibrary(arc_lib->h_module);
+    }
   }
 }
 
@@ -635,6 +636,7 @@ void ArcAPI::load() {
         arc_formats[format.ClassID] = format;
     }
   }
+#if 0
   // unload unused libraries
   set<unsigned> used_libs;
   for_each(arc_formats.begin(), arc_formats.end(), [&] (const pair<ArcType, ArcFormat>& arc_format) {
@@ -646,6 +648,7 @@ void ArcAPI::load() {
       arc_libs[i].h_module = nullptr;
     }
   }
+#endif
 }
 
 void ArcAPI::create_in_archive(const ArcType& arc_type, IInArchive** in_arc) {
