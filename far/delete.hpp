@@ -45,9 +45,15 @@ class ShellDelete: noncopyable
 public:
 	ShellDelete(panel_ptr SrcPanel, bool Wipe);
 
+	struct progress
+	{
+		size_t Value;
+		size_t Total;
+	};
+
 private:
 	DEL_RESULT AskDeleteReadOnly(const string& Name, DWORD Attr, bool Wipe);
-	DEL_RESULT ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent);
+	DEL_RESULT ShellRemoveFile(const string& Name, bool Wipe, progress Files);
 	DEL_RESULT ERemoveDirectory(const string& Name, DIRDELTYPE Type);
 	bool RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& ret);
 

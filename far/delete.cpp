@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "cvtname.hpp"
 #include "fileattr.hpp"
+#include "copy_progress.hpp"
 
 enum DEL_MODE
 {
@@ -91,29 +92,28 @@ static void PR_ShellDeleteMsg();
 struct DelPreRedrawItem : public PreRedrawItem
 {
 	DelPreRedrawItem():
-		PreRedrawItem(PR_ShellDeleteMsg),
-		Mode(),
-		Percent(),
-		WipePercent()
+		PreRedrawItem(PR_ShellDeleteMsg)
 	{}
 
 	string name;
-	DEL_MODE Mode;
-	int Percent;
-	int WipePercent;
+	DEL_MODE Mode{};
+	ShellDelete::progress Files{};
+	int WipePercent{};
 };
 
-static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int WipePercent)
+static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
 {
 	string strProgress, strWipeProgress;
-	size_t Width=ScrX/2;
+	const auto Width = copy_progress::CanvasWidth();
+
 	if(Mode==DEL_WIPEPROCESS || Mode==DEL_WIPE)
 	{
-		strWipeProgress = make_progressbar(Width, WipePercent, true, Percent == -1);
+		strWipeProgress = make_progressbar(Width, WipePercent, true, !Files.Total);
 	}
 
-	if (Mode!=DEL_SCAN && Percent!=-1)
+	if (Mode!=DEL_SCAN && Files.Total)
 	{
+		const auto Percent = ToPercent(Files.Value, Files.Total);
 		strProgress = make_progressbar(Width, Percent, true, true);
 		ConsoleTitle::SetFarTitle(concat(L'{', str(Percent), L"%} "_sv, msg(Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS? lng::MDeleteWipeTitle : lng::MDeleteTitle)));
 	}
@@ -123,14 +123,17 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 	inplace::fit_to_left(strOutFileName, Width);
 
 	{
-		std::vector<string> MsgItems =
+		std::vector<string> MsgItems
 		{
 			msg(Mode == DEL_SCAN ? lng::MScanningFolder : (Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS) ? lng::MDeletingWiping : lng::MDeleting),
-			strOutFileName
+			std::move(strOutFileName)
 		};
 
 		if (!strWipeProgress.empty())
 			MsgItems.emplace_back(strWipeProgress);
+
+		MsgItems.emplace_back(L"\1"s);
+		MsgItems.emplace_back(copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Files.Value, Files.Total, Files.Total != 0, copy_progress::CanvasWidth() - 5));
 
 		if (!strProgress.empty())
 			MsgItems.emplace_back(strProgress);
@@ -148,7 +151,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 		{
 			item->name = Name;
 			item->Mode = Mode;
-			item->Percent = Percent;
+			item->Files = Files;
 			item->WipePercent = WipePercent;
 		}
 	}
@@ -162,7 +165,7 @@ static void PR_ShellDeleteMsg()
 		assert(item);
 		if (item)
 		{
-			ShellDeleteMsg(item->name, item->Mode, item->Percent, item->WipePercent);
+			ShellDeleteMsg(item->name, item->Mode, item->Files, item->WipePercent);
 		}
 	}
 }
@@ -218,7 +221,7 @@ static bool MoveToRecycleBinInternal(const string& Objects)
 	return Result == ERROR_SUCCESS && !fop.fAnyOperationsAborted;
 }
 
-static bool WipeFileData(const string& Name, int TotalPercent, bool& Cancel)
+static bool WipeFileData(const string& Name, ShellDelete:: progress Files, bool& Cancel)
 {
 	os::fs::file_walker WipeFile;
 	if (!WipeFile.Open(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_WRITE_THROUGH | FILE_FLAG_SEQUENTIAL_SCAN))
@@ -269,7 +272,7 @@ static bool WipeFileData(const string& Name, int TotalPercent, bool& Cancel)
 				return false;
 			}
 
-			ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent());
+			ShellDeleteMsg(Name, DEL_WIPEPROCESS, Files, WipeFile.GetPercent());
 		}
 	}
 	while(WipeFile.Step());
@@ -283,12 +286,12 @@ static bool WipeFileData(const string& Name, int TotalPercent, bool& Cancel)
 	return true;
 }
 
-static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
+static bool WipeFile(const string& Name, ShellDelete::progress Files, bool& Cancel)
 {
 	if (!os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL))
 		return false;
 
-	if (!WipeFileData(Name, TotalPercent, Cancel))
+	if (!WipeFileData(Name, Files, Cancel))
 		return false;
 
 	string strTempName;
@@ -602,7 +605,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			if (strSelName.empty() || IsRelativeRoot(strSelName) || IsRootPath(strSelName))
 				continue;
 
-			int TotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
 			if (TimeCheck)
 			{
 				if (CheckForEscSilent() && ConfirmAbortOp())
@@ -611,7 +613,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					break;
 				}
 
-				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0);
+				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, { ProcessedItems, ItemsCount }, 0);
 			}
 
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -678,7 +680,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					string strFullName;
 					while (ScTree.GetNextName(FindData,strFullName))
 					{
-						int TreeTotalPercent = (Global->Opt->DelOpt.ShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
 						if (TreeTimeCheck)
 						{
 							if (CheckForEscSilent())
@@ -692,7 +693,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 								}
 							}
 
-							ShellDeleteMsg(strFullName,Wipe?DEL_WIPE:DEL_DEL, TreeTotalPercent, 0);
+							ShellDeleteMsg(strFullName, Wipe?DEL_WIPE:DEL_DEL, { ProcessedItems, ItemsCount }, 0);
 						}
 
 						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -782,7 +783,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 							}
 
 							if (AskCode==DELETE_YES)
-								if (ShellRemoveFile(strFullName, Wipe, TreeTotalPercent) == DELETE_CANCEL)
+								if (ShellRemoveFile(strFullName, Wipe, { ProcessedItems, ItemsCount }) == DELETE_CANCEL)
 								{
 									Cancel=true;
 									break;
@@ -833,7 +834,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 				if (AskCode==DELETE_YES)
 				{
-					int DeleteCode = ShellRemoveFile(strSelName, Wipe, TotalPercent);
+					int DeleteCode = ShellRemoveFile(strSelName, Wipe, { ProcessedItems, ItemsCount });
 
 					if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
 					{
@@ -897,7 +898,7 @@ DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wi
 	return DELETE_YES;
 }
 
-DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent)
+DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, progress Files)
 {
 	ProcessedItems++;
 	const auto strFullName = ConvertNameToFull(Name);
@@ -948,7 +949,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int Total
 			case 0:
 				{
 					bool Cancel = false;
-					if (WipeFile(strFullName, TotalPercent, Cancel))
+					if (WipeFile(strFullName, Files, Cancel))
 						return DELETE_SUCCESS;
 					else if(Cancel)
 						return DELETE_CANCEL;
