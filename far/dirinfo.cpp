@@ -38,14 +38,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "scantree.hpp"
 #include "savescr.hpp"
-#include "refreshwindowmanager.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "ctrlobj.hpp"
 #include "filefilter.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "taskbar.hpp"
-#include "constitle.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
@@ -59,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "copy_progress.hpp"
 
 static void PR_DrawGetDirInfoMsg();
 
@@ -69,21 +68,28 @@ struct DirInfoPreRedrawItem : public PreRedrawItem
 		Size()
 	{}
 
-	string Title;
-	string Name;
+	string_view Title;
+	string_view Name;
+	unsigned long long Items;
 	unsigned long long Size;
 };
 
-static void DrawGetDirInfoMsg(const string& Title,const wchar_t *Name, unsigned long long Size)
+void DirInfoMsg(string_view const Title, string_view const Name, unsigned long long const Items, unsigned long long const Size)
 {
-	Message(0,
+	auto TruncatedName = string(Name);
+	TruncStrFromEnd(TruncatedName, static_cast<int>(copy_progress::CanvasWidth()));
+
+	Message(MSG_LEFTALIGN,
 		Title,
 		{
 			msg(lng::MScanningFolder),
-			Name,
-			trim_left(FileSizeToStr(Size, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS))
+			pad_right(std::move(TruncatedName), copy_progress::CanvasWidth()),
+			L"\1"s,
+			copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Items, 0, false, copy_progress::CanvasWidth() - 5),
+			copy_progress::FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, Size, 0, false, copy_progress::CanvasWidth() - 5),
 		},
 		{});
+
 	if (!PreRedrawStack().empty())
 	{
 		const auto item = dynamic_cast<DirInfoPreRedrawItem*>(PreRedrawStack().top());
@@ -92,6 +98,7 @@ static void DrawGetDirInfoMsg(const string& Title,const wchar_t *Name, unsigned 
 		{
 			item->Title = Title;
 			item->Name = Name;
+			item->Items = Items;
 			item->Size = Size;
 		}
 	}
@@ -105,39 +112,33 @@ static void PR_DrawGetDirInfoMsg()
 		assert(item);
 		if (item)
 		{
-			DrawGetDirInfoMsg(item->Title, item->Name.data(), item->Size);
+			DirInfoMsg(item->Title, item->Name, item->Items, item->Size);
 		}
 	}
 }
 
-int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags)
+int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, const dirinfo_callback& Callback, DWORD Flags)
 {
-	SaveScreen SaveScr;
-	SCOPED_ACTION(UndoGlobalSaveScrPtr)(&SaveScr);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DirInfoPreRedrawItem>());
-	SCOPED_ACTION(IndeterminateTaskbar)(MessageDelay != getdirinfo_infinite_delay);
+	SCOPED_ACTION(IndeterminateTaskbar)(false);
 	SCOPED_ACTION(wakeful);
+
 	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? (DWORD)-1 : (Flags & GETDIRINFO_SCANSYMLINK)));
-	auto StartTime = std::chrono::steady_clock::now();
 	SetCursorType(false, 0);
 	/* $ 20.03.2002 DJ
 	   для . - покажем имя родительского каталога
 	*/
-	const wchar_t *ShowDirName = DirName.data();
+	string_view ShowDirName = DirName;
 
 	const auto strFullDirName = ConvertNameToFull(DirName);
-	if (DirName.size() ==1 && DirName[0] == L'.')
+	if (DirName.size() == 1 && DirName[0] == L'.')
 	{
 		const auto pos = FindLastSlash(strFullDirName);
 		if (pos != string::npos)
 		{
-			ShowDirName = strFullDirName.data() + pos + 1;
+			ShowDirName = string_view(strFullDirName).substr(pos + 1);
 		}
 	}
-
-	std::unique_ptr<RefreshWindowManager> frref;
-	if (!(Flags & GETDIRINFO_NOREDRAW))
-		frref = std::make_unique<RefreshWindowManager>(ScrX, ScrY, MessageDelay != getdirinfo_infinite_delay);
 
 	DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
@@ -196,16 +197,7 @@ int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, ge
 			}
 		}
 
-		const auto CurTime = std::chrono::steady_clock::now();
-
-		if (MessageDelay != getdirinfo_infinite_delay && CurTime - StartTime > std::chrono::milliseconds(MessageDelay))
-		{
-			StartTime=CurTime;
-			MessageDelay = getdirinfo_default_delay;
-			ConsoleTitle::SetFarTitle(concat(msg(lng::MScanningFolder), L' ', ShowDirName));
-			SetCursorType(false, 0);
-			DrawGetDirInfoMsg(Title,ShowDirName, Data.FileSize);
-		}
+		Callback(ShowDirName, Data.DirCount + Data.FileCount, Data.FileSize);
 
 		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{

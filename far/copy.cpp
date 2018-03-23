@@ -664,7 +664,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		string strSelNameShort(strSelName);
 		QuoteOuterSpace(strSelNameShort);
 		strCopyStr=msg(Move? lng::MMoveFile : Link? lng::MLinkFile : lng::MCopyFile);
-		TruncPathStr(strSelNameShort,static_cast<int>(CopyDlg[ID_SC_TITLE].X2-CopyDlg[ID_SC_TITLE].X1-strCopyStr.size()-7));
+		TruncStrFromEnd(strSelNameShort,static_cast<int>(CopyDlg[ID_SC_TITLE].X2-CopyDlg[ID_SC_TITLE].X1-strCopyStr.size()-7));
 		append(strCopyStr, L' ', strSelNameShort);
 
 		// Если копируем одиночный файл, то запрещаем использовать фильтр
@@ -3570,13 +3570,13 @@ static bool ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
 		Width=std::max(Width,WidthTemp);
 
 		auto strOutFileName = Name; //??? nullptr ???
-		TruncPathStr(strOutFileName,Width);
+		TruncStrFromEnd(strOutFileName,Width);
 		inplace::fit_to_center(strOutFileName, Width + 4);
 		Message(0,
 			msg(lng::MMoveDlgTitle),
 			{
 				msg(lng::MCopyPrepareSecury),
-				strOutFileName
+				std::move(strOutFileName)
 			},
 			{});
 
@@ -3693,51 +3693,47 @@ DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned 
 
 bool ShellCopy::CalcTotalSize() const
 {
-	string strSelName, strSelShortName;
-	DWORD FileAttr;
-	unsigned long long FileSize;
-	// Для фильтра
-	os::fs::find_data fd;
-
 	CP->m_Bytes.Total = 0;
 	CP->m_Bytes.CurrCopied = 0;
 	CP->m_Files.Total = 0;
-	SrcPanel->GetSelName(nullptr,FileAttr);
 
-	while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName,&fd))
+	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+
+	const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size)
+	{
+		if (TimeCheck)
+			DirInfoMsg(msg(Flags & FCOPY_MOVE? lng::MMoveDlgTitle : lng::MCopyDlgTitle), Name, CP->m_Files.Total + Items, CP->m_Bytes.Total + Size);
+	};
+
+	DWORD FileAttr;
+	string strSelName, strSelShortName;
+	os::fs::find_data fd;
+
+	SrcPanel->GetSelName(nullptr, FileAttr);
+	while (SrcPanel->GetSelName(&strSelName, FileAttr, &strSelShortName, &fd))
 	{
 		if (!(Flags&FCOPY_COPYSYMLINKCONTENTS) && os::fs::is_directory_symbolic_link(fd))
 			continue;
 
 		if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			{
-				DirInfoData Data = {};
-				CP->SetScanName(strSelName);
-				int __Ret = GetDirInfo({}, strSelName, Data, getdirinfo_infinite_delay, m_Filter.get(), (Flags&FCOPY_COPYSYMLINKCONTENTS ? GETDIRINFO_SCANSYMLINK : 0) | (m_UseFilter ? GETDIRINFO_USEFILTER : 0));
-				FileSize = Data.FileSize;
-				if (__Ret <= 0)
-				{
-					return false;
-				}
+			DirInfoData Data{};
+			if (GetDirInfo(strSelName, Data, m_Filter.get(), DirInfoCallback, (Flags&FCOPY_COPYSYMLINKCONTENTS? GETDIRINFO_SCANSYMLINK : 0) | (m_UseFilter? GETDIRINFO_USEFILTER : 0)) <= 0)
+				return false;
 
-				if (Data.FileCount > 0)
-				{
-					CP->m_Bytes.Total += FileSize;
-					CP->m_Files.Total += Data.FileCount;
-				}
+			if (Data.FileCount > 0)
+			{
+				CP->m_Bytes.Total += Data.FileSize;
+				CP->m_Files.Total += Data.DirCount + Data.FileCount;
 			}
 		}
 		else
 		{
 			//  Подсчитаем количество файлов
-			if (m_UseFilter)
-			{
-				if (!m_Filter->FileInFilter(fd, nullptr, &fd.strFileName))
-					continue;
-			}
+			if (m_UseFilter && !m_Filter->FileInFilter(fd, nullptr, &fd.strFileName))
+				continue;
 
-			FileSize = SrcPanel->GetLastSelectedSize();
+			const auto FileSize = SrcPanel->GetLastSelectedSize();
 
 			if (FileSize != (unsigned long long)-1)
 			{

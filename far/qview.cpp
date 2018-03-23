@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "datetime.hpp"
 
 static bool LastMode = false;
 static bool LastWrapMode = false;
@@ -462,9 +463,22 @@ void QuickView::ShowFile(const string& FileName, bool const TempFile, const plug
 		}
 		else
 		{
-			int ExitCode=GetDirInfo(msg(lng::MQuickViewTitle), strCurFileName, Data, getdirinfo_default_delay, nullptr, GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_NOREDRAW);
+			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+
+			const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size) mutable
+			{
+				if (TimeCheck)
+					DirInfoMsg(msg(lng::MQuickViewTitle), Name, Items, Size);
+			};
+
+			const auto ExitCode = GetDirInfo(strCurFileName, Data, nullptr, DirInfoCallback, GETDIRINFO_ENHBREAK | GETDIRINFO_SCANSYMLINKDEF);
 			Directory = (ExitCode == -1 ? 2 : 1); // ExitCode: 1=done; 0=Esc,CtrlBreak; -1=Other
 			uncomplete_dirscan = ExitCode != 1;
+
+			if (const auto Window = m_Owner.lock())
+			{
+				Window->Redraw();
+			}
 		}
 	}
 	else

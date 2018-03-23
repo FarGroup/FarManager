@@ -120,7 +120,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 
 	auto strOutFileName = Name;
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
-	inplace::fit_to_center(strOutFileName, Width);
+	inplace::fit_to_left(strOutFileName, Width);
 
 	{
 		std::vector<string> MsgItems =
@@ -135,7 +135,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, int Percent, int W
 		if (!strProgress.empty())
 			MsgItems.emplace_back(strProgress);
 
-		Message(0,
+		Message(MSG_LEFTALIGN,
 			msg((Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS) ? lng::MDeleteWipeTitle : lng::MDeleteTitle),
 			std::move(MsgItems),
 			{});
@@ -562,7 +562,14 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		if (Global->Opt->DelOpt.ShowTotal)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
-			auto MessageDelay = getdirinfo_default_delay;
+
+			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+
+			const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size)
+			{
+				if (TimeCheck)
+					DirInfoMsg(msg(lng::MDeletingTitle), Name, Items, Size);
+			};
 
 			os::fs::find_data SelFindData;
 			while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName, &SelFindData) && !Cancel)
@@ -573,7 +580,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 				{
 					DirInfoData Data = {};
 
-					if (GetDirInfo(msg(lng::MDeletingTitle), strSelName, Data, MessageDelay, nullptr, GETDIRINFO_NOREDRAW) > 0)
+					if (GetDirInfo(strSelName, Data, nullptr, DirInfoCallback, 0) > 0)
 					{
 						ItemsCount+=Data.FileCount+Data.DirCount+1;
 					}
@@ -581,7 +588,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					{
 						Cancel=true;
 					}
-					MessageDelay = getdirinfo_no_delay;
 				}
 			}
 		}

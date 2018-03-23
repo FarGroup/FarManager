@@ -5030,21 +5030,29 @@ void FileList::CountDirSize(bool IsRealNames)
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
 
-	auto MessageDelay = getdirinfo_default_delay;
+	time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
+	unsigned long long TotalItems = 0;
+
+	const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size)
+	{
+		if (TimeCheck)
+			DirInfoMsg(msg(lng::MDirInfoViewTitle), Name, TotalItems + Items, SelFileSize + Size);
+	};
+
 	for (auto& i: m_ListData)
 	{
 		if (i.Selected && (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			SelDirCount++;
 			if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
-			     (IsRealNames && GetDirInfo(msg(lng::MDirInfoViewTitle), i.strName, Data, MessageDelay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
+			     (IsRealNames && GetDirInfo(i.strName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 			{
 				SelFileSize -= i.FileSize;
 				SelFileSize += Data.FileSize;
 				i.FileSize = Data.FileSize;
 				i.AllocationSize = Data.AllocationSize;
 				i.ShowFolderSize=1;
-				MessageDelay = getdirinfo_no_delay;
+				TotalItems += Data.DirCount + Data.FileCount;
 			}
 			else
 				break;
@@ -5056,8 +5064,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 		auto& CurFile = m_ListData[m_CurFile];
 		if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), CurFile.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
-		     (IsRealNames && GetDirInfo(msg(lng::MDirInfoViewTitle), TestParentFolderName(CurFile.strName)? L"." : CurFile.strName,
-		                    Data, getdirinfo_default_delay, m_Filter.get(), GETDIRINFO_NOREDRAW|GETDIRINFO_SCANSYMLINKDEF)==1))
+		     (IsRealNames && GetDirInfo(TestParentFolderName(CurFile.strName)? L"." : CurFile.strName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 		{
 			CurFile.FileSize = Data.FileSize;
 			CurFile.AllocationSize = Data.AllocationSize;

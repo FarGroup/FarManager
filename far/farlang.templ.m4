@@ -4006,18 +4006,6 @@ MCopyDlgTotal
 "Totale"
 "Усього"
 
-MCopyScanning
-"Сканирование папок..."
-"Scanning folders..."
-"Načítání adresářů..."
-"Scanne Ordner..."
-"Mappák olvasása..."
-"Przeszukuję katalogi..."
-"Explorando directorios..."
-"Načítavam priečinky..."
-"Scansione Direcories..."
-"Сканування папок..."
-
 MCopyPrepareSecury
 "Применение прав доступа..."
 "Applying access rights..."

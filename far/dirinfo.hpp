@@ -40,7 +40,6 @@ class FileFilter;
 enum GETDIRINFOFLAGS
 {
 	GETDIRINFO_ENHBREAK           =0x00000001,
-	GETDIRINFO_NOREDRAW           =0x00000002,
 	GETDIRINFO_SCANSYMLINK        =0x00000004,
 	GETDIRINFO_SCANSYMLINKDEF     =0x00000008,
 	GETDIRINFO_USEFILTER          =0x00000010,
@@ -64,7 +63,9 @@ enum getdirinfo_message_delay
 	getdirinfo_default_delay = 500, // ms
 };
 
-int GetDirInfo(const string& Title, const string& DirName, DirInfoData& Data, getdirinfo_message_delay MessageDelay, FileFilter *Filter, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
+using dirinfo_callback = std::function<void(string_view Name, unsigned long long Items, unsigned long long Size)>;
+int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, const dirinfo_callback& Callback, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
+void DirInfoMsg(string_view Title, string_view Name, unsigned long long Items, unsigned long long Size);
 
 class plugin_panel;
 

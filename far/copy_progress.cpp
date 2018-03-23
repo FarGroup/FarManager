@@ -48,9 +48,9 @@ extern std::chrono::steady_clock::duration WaitUserTime;
 
 copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_Rect(),
-	m_CurrentBarSize(GetCanvasWidth()),
+	m_CurrentBarSize(CanvasWidth()),
 	m_CurrentPercent(0),
-	m_TotalBarSize(GetCanvasWidth()),
+	m_TotalBarSize(CanvasWidth()),
 	m_TotalPercent(0),
 	m_Move(Move),
 	m_Total(Total),
@@ -67,7 +67,7 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_TotalBar = make_progressbar(m_TotalBarSize, 0, false, false);
 }
 
-size_t copy_progress::GetCanvasWidth()
+size_t copy_progress::CanvasWidth()
 {
 	return 52;
 }
@@ -118,19 +118,7 @@ bool copy_progress::CheckEsc()
 	return m_IsCancelled;
 }
 
-void copy_progress::FlushScan()
-{
-	if (!m_TimeCheck || CheckEsc())
-		return;
-
-	CreateScanBackground();
-	GotoXY(m_Rect.Left + 5, m_Rect.Top + 3);
-	Text(fit_to_left(m_ScanName, m_Rect.Right - m_Rect.Left - 9));
-
-	Global->ScrBuf->Flush();
-}
-
-static string FormatCounter(lng CounterId, lng AnotherId, unsigned long long CurrentValue, unsigned long long TotalValue, bool ShowTotal, size_t MaxWidth)
+string copy_progress::FormatCounter(lng CounterId, lng AnotherId, unsigned long long CurrentValue, unsigned long long TotalValue, bool ShowTotal, size_t MaxWidth)
 {
 	string Label = msg(CounterId);
 	const auto PaddedLabelSize = std::max(Label.size(), msg(AnotherId).size()) + 1;
@@ -162,7 +150,7 @@ void copy_progress::Flush()
 	Text(m_Rect.Left + 5, m_Rect.Top + 5, m_Color, m_Dst);
 	Text(m_Rect.Left + 5, m_Rect.Top + 8, m_Color, m_FilesCopied);
 
-	const auto Result = FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, GetBytesDone(), m_Bytes.Total, m_Total, GetCanvasWidth() - 5);
+	const auto Result = FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, GetBytesDone(), m_Bytes.Total, m_Total, CanvasWidth() - 5);
 	Text(m_Rect.Left + 5, m_Rect.Top + 9, m_Color, Result);
 
 	Text(m_Rect.Left + 5, m_Rect.Top + 6, m_Color, m_CurrentBar);
@@ -203,29 +191,6 @@ void copy_progress::SetProgressValue(unsigned long long CompletedSize, unsigned 
 	}
 
 	Flush();
-}
-
-void copy_progress::SetScanName(const string& Name)
-{
-	m_ScanName = Name;
-	FlushScan();
-}
-
-void copy_progress::CreateScanBackground()
-{
-	Message m(MSG_LEFTALIGN | MSG_NOFLUSH,
-		msg(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle),
-			{
-				msg(lng::MCopyScanning),
-				m_CurrentBar
-			},
-			{});
-	int MX1, MY1, MX2, MY2;
-	m.GetMessagePosition(MX1, MY1, MX2, MY2);
-	m_Rect.Left = MX1;
-	m_Rect.Right = MX2;
-	m_Rect.Top = MY1;
-	m_Rect.Bottom = MY2;
 }
 
 void copy_progress::CreateBackground()
@@ -282,12 +247,12 @@ void copy_progress::SetNames(const string& Src, const string& Dst)
 		}
 	}
 
-	const auto NameWidth = static_cast<int>(GetCanvasWidth());
+	const auto NameWidth = static_cast<int>(CanvasWidth());
 	m_Src = Src;
 	TruncPathStr(m_Src, NameWidth);
 	m_Dst = Dst;
 	TruncPathStr(m_Dst, NameWidth);
-	m_FilesCopied = FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, m_Files.Copied, m_Files.Total, m_Total, GetCanvasWidth() - 5);
+	m_FilesCopied = FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, m_Files.Copied, m_Files.Total, m_Total, CanvasWidth() - 5);
 
 	Flush();
 }
