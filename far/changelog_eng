@@ -3,6 +3,27 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.03.2018 19:16:27 +0000 - build 5174
+
+1. Continuation of 5173 - similar changes in deletion progress window.
+
+drkns 23.03.2018 00:15:02 +0000 - build 5173
+
+1. Folder scanning window is rearranged:
+   - now it always looks identical (F3 on a folder, before copying, before deleting)
+   - total size and number of items is displayed
+   - F3 on multiple folders does not flicker any more.
+
+drkns 20.03.2018 21:35:50 +0000 - build 5172
+
+1. Correction of 5171.
+
+drkns 19.03.2018 22:47:53 +0000 - build 5171
+
+1. Choice of standard association in archive plugin choice menu worked incorrectly.
+
+2. Refactoring.
+
 MZK 18.03.2018 21:30:11 -0700
 
 1. Rewrote @PreserveStyle help page (Both English and Russian).
