@@ -56,7 +56,7 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path,cons
 
 	for (const auto& FindData: os::fs::enum_files(path::join(Path, Mask)))
 	{
-		const auto CurrentFileName = path::join(Path, FindData.strFileName);
+		const auto CurrentFileName = path::join(Path, FindData.FileName);
 
 		auto& CurrentFile = std::get<0>(CurrentFileData);
 		auto& CurrentLngName = std::get<1>(CurrentFileData);
@@ -157,7 +157,7 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 
 	for (const auto& FindData: os::fs::enum_files(path::join(Global->g_strFarPath, Mask)))
 	{
-		const os::fs::file LangFile(path::join(Global->g_strFarPath, FindData.strFileName), FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
+		const os::fs::file LangFile(path::join(Global->g_strFarPath, FindData.FileName), FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 		if (!LangFile)
 			continue;
 

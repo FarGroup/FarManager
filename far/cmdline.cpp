@@ -1321,7 +1321,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 			{
 				strExpandedDir.clear();
 			}
-			strExpandedDir += wfd.strFileName;
+			strExpandedDir += wfd.FileName;
 		}
 	}
 

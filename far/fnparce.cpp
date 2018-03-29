@@ -155,9 +155,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	if ((starts_with(CurStr, L"!&~"_sv) && CurStr[3] != L'?') ||
 	        (starts_with(CurStr, L"!&"_sv) && CurStr[2] != L'?'))
 	{
-		string strFileNameL, strShortNameL;
 		const auto WPanel = SubstData.Default().Panel;
-		DWORD FileAttrL;
 		int ShortN0=FALSE;
 		int CntSkip=2;
 
@@ -167,27 +165,34 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 			CntSkip++;
 		}
 
-		WPanel->GetSelName(nullptr,FileAttrL);
 		int First = TRUE;
 
-		while (WPanel->GetSelName(&strFileNameL,FileAttrL,&strShortNameL))
+		for (const auto& i: WPanel->enum_selected())
 		{
+			string Name;
 			if (ShortN0)
-				strFileNameL = strShortNameL;
-			else // в список все же должно попасть имя в кавычках.
-				QuoteSpaceOnly(strFileNameL);
+			{
+				Name = i.AlternateFileName;
+			}
+			else
+			{
+				// в список все же должно попасть имя в кавычках.
+				Name = i.FileName;
+				QuoteSpaceOnly(Name);
+			}
 
-// Вот здесь фиг его знает - нужно/ненужно...
-//   если будет нужно - раскомментируем :-)
-//          if(FileAttrL & FILE_ATTRIBUTE_DIRECTORY)
-//            AddEndSlash(FileNameL);
+			//Вот здесь фиг его знает - нужно/ненужно...
+			//если будет нужно - раскомментируем :-)
+			//if(i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+			//	AddEndSlash(Name);
+
 			// А нужен ли нам пробел в самом начале?
 			if (First)
 				First = FALSE;
 			else
 				strOut += L' ';
 
-			strOut += strFileNameL;
+			strOut += Name;
 		}
 
 		CurStr+=CntSkip;
@@ -762,17 +767,13 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const string& M
 			Stream.exceptions(Stream.badbit | Stream.failbit);
 			encoding::writer Writer(Stream, CodePage);
 
-			DWORD FileAttr;
-			string strFileName, strShortName;
-			GetSelName(nullptr, FileAttr);
-			while (GetSelName(&strFileName, FileAttr, &strShortName))
+			for (const auto& i: enum_selected())
 			{
-				if (ShortNames)
-					strFileName = strShortName;
+				auto Name = ShortNames? i.AlternateFileName : i.FileName;
 
-				transform(strFileName);
+				transform(Name);
 
-				Writer.write(strFileName);
+				Writer.write(Name);
 				Writer.write(L"\r\n"_sv);
 			}
 			

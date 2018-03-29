@@ -831,7 +831,7 @@ bool TreeList::ReadTree()
 		if (AscAbort)
 			break;
 
-		if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 			continue;
 
 		m_ListData.emplace_back(strFullName);
@@ -1751,11 +1751,7 @@ bool TreeList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName
 bool TreeList::GetCurName(string &strName, string &strShortName) const
 {
 	if (m_ListData.empty())
-	{
-		strName.clear();
-		strShortName.clear();
 		return false;
-	}
 
 	strName = m_ListData[m_CurFile].strName;
 	strShortName = strName;
@@ -1842,7 +1838,7 @@ void TreeList::ReadSubTree(const string& Path)
 	int Count = 0;
 	while (ScTree.GetNextName(fdata, strFullName))
 	{
-		if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		if (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			MsgReadTree(Count+1,FirstCall);
 

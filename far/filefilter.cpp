@@ -179,7 +179,7 @@ bool FileFilter::FilterEdit()
 			ScTree.SetFindPath(m_HostPanel->GetCurDir(), L"*");
 
 			while (ScTree.GetNextName(fdata,strFileName))
-				if (!ParseAndAddMasks(Extensions, fdata.strFileName, fdata.dwFileAttributes, 0))
+				if (!ParseAndAddMasks(Extensions, fdata.FileName, fdata.Attributes, 0))
 					break;
 		}
 		else
@@ -589,23 +589,13 @@ void FileFilter::UpdateCurrentTime()
 
 bool FileFilter::FileInFilter(const FileListItem* fli, filter_status* FilterStatus)
 {
-	os::fs::find_data fde;
-	fde.dwFileAttributes=fli->FileAttr;
-	fde.CreationTime = fli->CreationTime;
-	fde.LastAccessTime = fli->AccessTime;
-	fde.LastWriteTime = fli->WriteTime;
-	fde.ChangeTime = fli->ChangeTime;
-	fde.nFileSize=fli->FileSize;
-	fde.nAllocationSize=fli->AllocationSize;
-	fde.strFileName=fli->strName;
-	fde.strAlternateFileName=fli->strShortName;
-	return FileInFilter(fde, FilterStatus, &fli->strName);
+	return FileInFilter(*fli, FilterStatus, &fli->FileName);
 }
 
 bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus, const string* FullName)
 {
 	const auto FFFT = GetFFFT();
-	const auto bFolder = (fde.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+	const auto bFolder = (fde.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
 	auto IsFound = false;
 	auto IsAnyIncludeFound = false;
@@ -728,7 +718,7 @@ bool FileFilter::FileInFilter(const PluginPanelItem& fd, filter_status* FilterSt
 {
 	os::fs::find_data fde;
 	PluginPanelItemToFindDataEx(fd, fde);
-	return FileInFilter(fde, FilterStatus, &fde.strFileName);
+	return FileInFilter(fde, FilterStatus, &fde.FileName);
 }
 
 bool FileFilter::IsEnabledOnPanel()

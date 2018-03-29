@@ -3524,7 +3524,7 @@ static bool fattrFuncImpl(int Type, FarMacroCall* Data)
 		TVar& Str(Params[0]);
 		os::fs::find_data FindData;
 		os::fs::get_find_data(Str.toString(), FindData);
-		FileAttr=FindData.dwFileAttributes;
+		FileAttr=FindData.Attributes;
 		Ret=true;
 	}
 	else // panel.fattr(1) & panel.fexist(3)
@@ -4483,24 +4483,24 @@ static bool panelitemFunc(FarMacroCall* Data)
 		switch (TypeInfo)
 		{
 			case 0:  // Name
-				Ret=TVar(filelistItem->strName);
+				Ret=TVar(filelistItem->FileName);
 				break;
 			case 1:  // ShortName
-				Ret=TVar(filelistItem->strShortName);
+				Ret=TVar(filelistItem->AlternateFileName);
 				break;
 			case 2:  // FileAttr
-				PassNumber((long)filelistItem->FileAttr, Data);
+				PassNumber((long)filelistItem->Attributes, Data);
 				return false;
 			case 3:  // CreationTime
 				ConvertDate(filelistItem->CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE);
 				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 4:  // AccessTime
-				ConvertDate(filelistItem->AccessTime,strDate,strTime,8,FALSE,FALSE,TRUE);
+				ConvertDate(filelistItem->LastAccessTime, strDate, strTime, 8, FALSE, FALSE, TRUE);
 				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 5:  // WriteTime
-				ConvertDate(filelistItem->WriteTime,strDate,strTime,8,FALSE,FALSE,TRUE);
+				ConvertDate(filelistItem->LastWriteTime, strDate, strTime, 8, FALSE, FALSE, TRUE);
 				Ret = concat(strDate, L' ', strTime);
 				break;
 			case 6:  // FileSize
@@ -4534,10 +4534,10 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassInteger(filelistItem->CreationTime.time_since_epoch().count(), Data);
 				return false;
 			case 16:  // AccessTime
-				PassInteger(filelistItem->AccessTime.time_since_epoch().count(), Data);
+				PassInteger(filelistItem->LastAccessTime.time_since_epoch().count(), Data);
 				return false;
 			case 17:  // WriteTime
-				PassInteger(filelistItem->WriteTime.time_since_epoch().count(), Data);
+				PassInteger(filelistItem->LastWriteTime.time_since_epoch().count(), Data);
 				return false;
 			case 18: // NumberOfStreams
 				PassNumber(filelistItem->NumberOfStreams(fileList.get()), Data);

@@ -127,12 +127,12 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 			{
 				if (LastItem.Flags.Check(FSCANTREE_SECONDPASS))
 				{
-					if (!Done && !(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					if (!Done && !(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 						continue;
 				}
 				else
 				{
-					if (!Done && (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+					if (!Done && (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 						continue;
 
 					if (Done)
@@ -184,9 +184,9 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 	else
 	{
 		const auto is_link = os::fs::is_directory_symbolic_link(fdata);
-		if ((fdata.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) && (!is_link || Flags.Check(FSCANTREE_SCANSYMLINK)))
+		if ((fdata.Attributes&FILE_ATTRIBUTE_DIRECTORY) && Flags.Check(FSCANTREE_RECUR) && (!is_link || Flags.Check(FSCANTREE_SCANSYMLINK)))
 		{
-			auto RealPath = path::join(ScanItems.back().RealPath, fdata.strFileName);
+			auto RealPath = path::join(ScanItems.back().RealPath, fdata.FileName);
 
 			if (is_link)
 				RealPath = NTPath(ConvertNameToReal(RealPath));
@@ -195,10 +195,10 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 			if (!ScanItems.back().ActiveDirectories.count(RealPath))
 			{
 				CutToSlash(strFindPath);
-				append(strFindPath, fdata.strFileName, L'\\', strFindMask);
+				append(strFindPath, fdata.FileName, L'\\', strFindMask);
 
 				CutToSlash(strFindPathOriginal);
-				strFindPathOriginal += fdata.strFileName;
+				strFindPathOriginal += fdata.FileName;
 
 				strFullName = strFindPathOriginal;
 				AddEndSlash(strFindPathOriginal);
@@ -225,7 +225,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 
 	strFullName = strFindPathOriginal;
 	CutToSlash(strFullName);
-	strFullName += fdata.strFileName;
+	strFullName += fdata.FileName;
 
 	return true;
 }

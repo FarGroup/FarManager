@@ -885,9 +885,9 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& Fin
 	string strSaveDir = NullToEmpty(Info.CurDir);
 	AddEndSlash(strSaveDir);
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
-	SetPluginDirectory(FindData.strFileName,ArcItem->hPlugin,false,UserData);
-	const auto FileNameToFind = PointToName(FindData.strFileName);
-	const auto FileNameToFindShort = PointToName(FindData.strAlternateFileName);
+	SetPluginDirectory(FindData.FileName,ArcItem->hPlugin,false,UserData);
+	const auto FileNameToFind = PointToName(FindData.FileName);
+	const auto FileNameToFindShort = PointToName(FindData.AlternateFileName);
 	PluginPanelItem *Items;
 	size_t ItemsNumber;
 	bool nResult=false;
@@ -1555,7 +1555,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					string strSearchFileName;
 					string strTempDir;
 
-					if (FindItem->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+					if (FindItem->FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
 						return TRUE;
 					}
@@ -1610,9 +1610,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					if (real_name)
 					{
-						strSearchFileName = FindItem->FindData.strFileName;
-						if (!os::fs::exists(strSearchFileName) && os::fs::exists(FindItem->FindData.strAlternateFileName))
-							strSearchFileName = FindItem->FindData.strAlternateFileName;
+						strSearchFileName = FindItem->FindData.FileName;
+						if (!os::fs::exists(strSearchFileName) && os::fs::exists(FindItem->FindData.AlternateFileName))
+							strSearchFileName = FindItem->FindData.AlternateFileName;
 					}
 
 					OpenFile(strSearchFileName, key, FindItem, Dlg);
@@ -1804,15 +1804,15 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 			{
 				if (!i.Arc || (i.Arc->Flags & OPIF_REALNAMES))
 				{
-					if (!i.FindData.strFileName.empty() && !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+					if (!i.FindData.FileName.empty() && !(i.FindData.Attributes&FILE_ATTRIBUTE_DIRECTORY))
 					{
 						++list_count;
-						ViewList.AddName(i.FindData.strFileName);
+						ViewList.AddName(i.FindData.FileName);
 					}
 				}
 			});
 
-			ViewList.SetCurName(FindItem->FindData.strFileName);
+			ViewList.SetCurName(FindItem->FindData.FileName);
 
 			const auto ShellViewer = FileViewer::create(strSearchFileName, false, false, false, -1, nullptr, (list_count > 1? &ViewList : nullptr));
 			ShellViewer->SetEnableF6(TRUE);
@@ -1870,7 +1870,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 		Dlg->SendMessage( DM_ENABLE, FD_LISTBOX, ToPtr(TRUE));
 	}
 
-	const wchar_t *DisplayName=FindData.strFileName.data();
+	const wchar_t *DisplayName=FindData.FileName.data();
 
 	string MenuText(1, L' ');
 
@@ -1899,7 +1899,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 
 			case ATTR_COLUMN:
 			{
-				append(MenuText, FormatStr_Attribute(FindData.dwFileAttributes, Width), BoxSymbols[BS_V1]);
+				append(MenuText, FormatStr_Attribute(FindData.Attributes, Width), BoxSymbols[BS_V1]);
 				break;
 			}
 			case NUMSTREAMS_COLUMN:
@@ -1914,15 +1914,15 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 				if (Arc)
 				{
 					if (CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == STREAMSSIZE_COLUMN)
-						EnumStreams(FindData.strFileName,StreamsSize,StreamsCount);
+						EnumStreams(FindData.FileName,StreamsSize,StreamsCount);
 					else if(CurColumnType == NUMLINK_COLUMN)
-						StreamsCount=GetNumberOfLinks(FindData.strFileName);
+						StreamsCount=GetNumberOfLinks(FindData.FileName);
 				}
 
 				const auto SizeToDisplay = (CurColumnType == SIZE_COLUMN)
-					? FindData.nFileSize
+					? FindData.FileSize
 					: (CurColumnType == PACKED_COLUMN)
-					? FindData.nAllocationSize
+					? FindData.AllocationSize
 					: (CurColumnType == STREAMSSIZE_COLUMN)
 					? StreamsSize
 					: StreamsCount; // ???
@@ -1930,9 +1930,9 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 				append(MenuText, FormatStr_Size(
 								SizeToDisplay,
 								DisplayName,
-								FindData.dwFileAttributes,
+								FindData.Attributes,
 								0,
-								FindData.dwReserved0,
+								FindData.ReparseTag,
 								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?STREAMSSIZE_COLUMN:CurColumnType,
 								i.type,
 								Width), BoxSymbols[BS_V1]);
@@ -2023,12 +2023,12 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 		// Сбросим данные в FindData. Они там от файла
 		FindItem.FindData = {};
 		// Используем LastDirName, т.к. PathName уже может быть искажена
-		FindItem.FindData.strFileName = m_LastDirName;
+		FindItem.FindData.FileName = m_LastDirName;
 		// Used=0 - Имя не попадёт во временную панель.
 		FindItem.Used=0;
 		// Поставим атрибут у каталога, чтобы он не был файлом :)
-		FindItem.FindData.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
-		FindItem.Arc = Arc;;
+		FindItem.FindData.Attributes = FILE_ATTRIBUTE_DIRECTORY;
+		FindItem.Arc = Arc;
 
 		const auto Ptr = &FindItem;
 		MenuItemEx ListItem(strPathName);
@@ -2037,7 +2037,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 	}
 
 	FindListItem& FindItem = itd->AddFindListItem(FindData,Data,FreeData);
-	FindItem.FindData.strFileName = FullName;
+	FindItem.FindData.FileName = FullName;
 	FindItem.Used=1;
 	FindItem.Arc = Arc;
 
@@ -2054,7 +2054,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 		ListBox->SetSelectPos(ListPos, -1);
 	}
 
-	if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+	if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 	{
 		++m_DirCount;
 	}
@@ -2181,17 +2181,17 @@ void background_searcher::DoScanTree(const string& strRoot)
 				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, &FullStreamName))
 				{
 					// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
-					if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)
+					if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)
 						ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
 					return;
 				}
 
-				if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
 					m_Owner->itd->SetFindMessage(FullStreamName);
 				}
 
-				if (IsFileIncluded(nullptr, FullStreamName, FindData.dwFileAttributes, strFullName))
+				if (IsFileIncluded(nullptr, FullStreamName, FindData.Attributes, strFullName))
 				{
 					m_Owner->m_Messages.emplace(FullStreamName, FindData, nullptr, nullptr, nullptr);
 				}
@@ -2206,7 +2206,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 			// now the rest:
 			if (Global->Opt->FindOpt.FindAlternateStreams)
 			{
-				const auto FindDataFileName = FindData.strFileName;
+				const auto FindDataFileName = FindData.FileName;
 
 				for(const auto& StreamData: os::fs::enum_streams(strFullName))
 				{
@@ -2218,9 +2218,9 @@ void background_searcher::DoScanTree(const string& strRoot)
 						continue;
 
 					const auto FullStreamName = concat(strFullName, L':', StreamName);
-					FindData.strFileName = concat(FindDataFileName, L':', StreamName);
-					FindData.nFileSize = StreamData.StreamSize.QuadPart;
-					FindData.dwFileAttributes &= ~FILE_ATTRIBUTE_DIRECTORY;
+					FindData.FileName = concat(FindDataFileName, L':', StreamName);
+					FindData.FileSize = StreamData.StreamSize.QuadPart;
+					FindData.Attributes &= ~FILE_ATTRIBUTE_DIRECTORY;
 
 					ProcessStream(FullStreamName);
 				}
@@ -2609,7 +2609,7 @@ bool FindFiles::FindFilesProcess()
 
 				itd->ForEachFindItem([&PanelItems, this](FindListItem& i)
 				{
-					if (!i.FindData.strFileName.empty() && i.Used)
+					if (!i.FindData.FileName.empty() && i.Used)
 					{
 					// Добавляем всегда, если имя задано
 						// Для плагинов с виртуальными именами заменим имя файла на имя архива.
@@ -2617,11 +2617,11 @@ bool FindFiles::FindFilesProcess()
 						const auto IsArchive = i.Arc && !(i.Arc->Flags&OPIF_REALNAMES);
 						// Добавляем только файлы или имена архивов или папки когда просили
 						if (IsArchive || (Global->Opt->FindOpt.FindFolders && !SearchHex) ||
-							    !(i.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+							    !(i.FindData.Attributes&FILE_ATTRIBUTE_DIRECTORY))
 						{
 							if (IsArchive)
 							{
-								i.FindData.strFileName = i.Arc->strArcName;
+								i.FindData.FileName = i.Arc->strArcName;
 							}
 							PluginPanelItemHolderNonOwning pi;
 							FindDataExToPluginPanelItemHolder(i.FindData, pi);
@@ -2658,7 +2658,7 @@ bool FindFiles::FindFilesProcess()
 			case FD_BUTTON_GOTO:
 			case FD_LISTBOX:
 			{
-				string strFileName=FindExitItem->FindData.strFileName;
+				string strFileName=FindExitItem->FindData.FileName;
 				auto FindPanel = Global->CtrlObject->Cp()->ActivePanel();
 
 				if (FindExitItem->Arc)

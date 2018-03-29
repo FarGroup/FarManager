@@ -105,7 +105,6 @@ private:
 	int AltF10;
 	int m_CopySecurity;
 	size_t SelCount;
-	DWORD m_FileAttr;
 	bool FolderPresent;
 	bool FilesPresent;
 	bool AskRO;

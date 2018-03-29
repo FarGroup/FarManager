@@ -1121,7 +1121,6 @@ void Options::SetFilePanelModes()
 
 		if (MenuCount > predefined_panel_modes_count)
 		{
-			ModeListMenu[predefined_panel_modes_count].Name = nullptr;
 			ModeListMenu[predefined_panel_modes_count].Flags = LIF_SEPARATOR;
 		}
 

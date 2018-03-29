@@ -100,48 +100,41 @@ bool FarMkTempEx(string &strDest, string_view Prefix, bool const WithTempPath, s
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest)
 {
+	Dest = {};
 	Dest.CreationTime = os::chrono::nt_clock::from_filetime(Src.CreationTime);
 	Dest.LastAccessTime = os::chrono::nt_clock::from_filetime(Src.LastAccessTime);
 	Dest.LastWriteTime = os::chrono::nt_clock::from_filetime(Src.LastWriteTime);
 	Dest.ChangeTime = os::chrono::nt_clock::from_filetime(Src.ChangeTime);
-	Dest.nFileSize = Src.FileSize;
-	Dest.nAllocationSize = Src.AllocationSize;
-	Dest.FileId = 0;
-	Dest.strFileName = NullToEmpty(Src.FileName);
-	Dest.strAlternateFileName = NullToEmpty(Src.AlternateFileName);
-	Dest.dwFileAttributes = Src.FileAttributes;
-	Dest.dwReserved0 = 0;
+	Dest.FileSize = Src.FileSize;
+	Dest.AllocationSize = Src.AllocationSize;
+	Dest.FileName = NullToEmpty(Src.FileName);
+	Dest.AlternateFileName = NullToEmpty(Src.AlternateFileName);
+	Dest.Attributes = Src.FileAttributes;
 }
 
 void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanelItemHolder& Holder)
 {
 	auto& Dest = Holder.Item;
+	Dest = {};
 
 	Dest.CreationTime = os::chrono::nt_clock::to_filetime(Src.CreationTime);
 	Dest.LastAccessTime = os::chrono::nt_clock::to_filetime(Src.LastAccessTime);
 	Dest.LastWriteTime = os::chrono::nt_clock::to_filetime(Src.LastWriteTime);
 	Dest.ChangeTime = os::chrono::nt_clock::to_filetime(Src.ChangeTime);
-	Dest.FileSize = Src.nFileSize;
-	Dest.AllocationSize = Src.nAllocationSize;
-
-	auto Buffer = std::make_unique<wchar_t[]>(Src.strFileName.size() + 1);
-	*std::copy(ALL_CONST_RANGE(Src.strFileName), Buffer.get()) = L'\0';
-	Dest.FileName = Buffer.release();
-
-	Buffer = std::make_unique<wchar_t[]>(Src.strAlternateFileName.size() + 1);
-	*std::copy(ALL_CONST_RANGE(Src.strAlternateFileName), Buffer.get()) = L'\0';
-	Dest.AlternateFileName = Buffer.release();
-
-	Dest.Description = nullptr;
-	Dest.Owner = nullptr;
-	Dest.CustomColumnData = nullptr;
-	Dest.CustomColumnNumber = 0;
-	Dest.Flags = 0;
-	Dest.UserData = {};
-	Dest.FileAttributes = Src.dwFileAttributes;
+	Dest.FileSize = Src.FileSize;
+	Dest.AllocationSize = Src.AllocationSize;
+	Dest.FileAttributes = Src.Attributes;
 	Dest.NumberOfLinks = 1;
-	Dest.CRC32 = 0;
-	std::fill(ALL_RANGE(Dest.Reserved), 0);
+
+	const auto& MakeCopy = [](string_view const Str)
+	{
+		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
+		*std::copy(ALL_CONST_RANGE(Str), Buffer.get()) = L'\0';
+		return Buffer.release();
+	};
+
+	Dest.FileName = MakeCopy(Src.FileName);
+	Dest.AlternateFileName = MakeCopy(Src.AlternateFileName);
 }
 
 PluginPanelItemHolder::~PluginPanelItemHolder()

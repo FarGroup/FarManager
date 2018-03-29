@@ -219,13 +219,13 @@ struct filter_file_object
 bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Owner, os::chrono::time_point CurrentTime) const
 {
 	filter_file_object Object;
-	Object.Attributes = fli->FileAttr;
+	Object.Attributes = fli->Attributes;
 	Object.Size = fli->FileSize;
 	Object.CreationTime = fli->CreationTime;
-	Object.ModificationTime = fli->WriteTime;
-	Object.AccessTime = fli->AccessTime;
+	Object.ModificationTime = fli->LastWriteTime;
+	Object.AccessTime = fli->LastAccessTime;
 	Object.ChangeTime = fli->ChangeTime;
-	Object.Name = fli->strName;
+	Object.Name = fli->FileName;
 
 	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
 	{
@@ -236,13 +236,13 @@ bool FileFilterParams::FileInFilter(const FileListItem* fli, const FileList* Own
 bool FileFilterParams::FileInFilter(const os::fs::find_data& fde, os::chrono::time_point CurrentTime,const string* FullName) const
 {
 	filter_file_object Object;
-	Object.Attributes = fde.dwFileAttributes;
-	Object.Size = fde.nFileSize;
+	Object.Attributes = fde.Attributes;
+	Object.Size = fde.FileSize;
 	Object.CreationTime = fde.CreationTime;
 	Object.ModificationTime = fde.LastWriteTime;
 	Object.AccessTime = fde.LastAccessTime;
 	Object.ChangeTime = fde.ChangeTime;
-	Object.Name = fde.strFileName;
+	Object.Name = fde.FileName;
 
 	return FileInFilter(Object, CurrentTime, [&](filter_file_object& Item)
 	{

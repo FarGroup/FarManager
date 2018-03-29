@@ -199,7 +199,7 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, con
 
 		Callback(ShowDirName, Data.DirCount + Data.FileCount, Data.FileSize);
 
-		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			// Счётчик каталогов наращиваем только если не включен фильтр,
 			// в противном случае это будем делать в подсчёте количества файлов
@@ -242,20 +242,20 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, con
 
 			Data.FileCount++;
 
-			Data.FileSize += FindData.nFileSize;
+			Data.FileSize += FindData.FileSize;
 
 			if (!CheckHardlinks || !FindData.FileId || FileIds.emplace(FindData.FileId).second)
 			{
-				Data.AllocationSize += FindData.nAllocationSize;
-				if(FindData.nAllocationSize > FindData.nFileSize)
+				Data.AllocationSize += FindData.AllocationSize;
+				if(FindData.AllocationSize > FindData.FileSize)
 				{
-					if(FindData.nAllocationSize >= Data.ClusterSize)
+					if(FindData.AllocationSize >= Data.ClusterSize)
 					{
-						Data.FilesSlack += FindData.nAllocationSize - FindData.nFileSize;
+						Data.FilesSlack += FindData.AllocationSize - FindData.FileSize;
 					}
 					else
 					{
-						Data.MFTOverhead += FindData.nAllocationSize - FindData.nFileSize;
+						Data.MFTOverhead += FindData.AllocationSize - FindData.FileSize;
 					}
 				}
 			}

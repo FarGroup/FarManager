@@ -1031,10 +1031,16 @@ int FilePanels::GetTypeAndName(string &strType, string &strName)
 	case panel_type::INFO_PANEL:
 		{
 			string strShortName;
-			ActivePanel()->GetCurName(strName, strShortName);
-			auto Directory = ActivePanel()->GetCurDir();
-			AddEndSlash(Directory);
-			strName.insert(0, Directory);
+			if (ActivePanel()->GetCurName(strName, strShortName))
+			{
+				auto Directory = ActivePanel()->GetCurDir();
+				AddEndSlash(Directory);
+				strName.insert(0, Directory);
+			}
+			else
+			{
+				strName.clear();
+			}
 		}
 		break;
 	}

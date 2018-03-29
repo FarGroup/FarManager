@@ -45,7 +45,7 @@ PreserveLongName::PreserveLongName(const string& ShortName, bool Preserve):
 		os::fs::find_data FindData;
 
 		if (os::fs::get_find_data(ShortName, FindData))
-			m_SaveLongName = FindData.strFileName;
+			m_SaveLongName = FindData.FileName;
 		else
 			m_SaveLongName.clear();
 
@@ -60,7 +60,7 @@ PreserveLongName::~PreserveLongName()
 	{
 		os::fs::find_data FindData;
 
-		if (!os::fs::get_find_data(m_SaveShortName, FindData) || m_SaveLongName != FindData.strFileName)
+		if (!os::fs::get_find_data(m_SaveShortName, FindData) || m_SaveLongName != FindData.FileName)
 		{
 			auto strNewName = m_SaveShortName;
 

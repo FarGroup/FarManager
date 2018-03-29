@@ -372,7 +372,7 @@ void PluginManager::LoadFactories()
 	string filename;
 	while (ScTree.GetNextName(FindData, filename))
 	{
-		if (CmpName(L"*.dll"_sv, filename, false) && !(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		if (CmpName(L"*.dll"_sv, filename, false) && !(FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			if (auto CustomModel = CreateCustomPluginFactory(this, filename))
 			{
@@ -444,7 +444,7 @@ void PluginManager::LoadPlugins()
 
 			while (ScTree.GetNextName(FindData,strFullName))
 			{
-				if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				if (!(FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					LoadPlugin(strFullName, FindData, false);
 				}
@@ -985,10 +985,10 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 	const auto GetCode = hPlugin->plugin()->GetFiles(&Info);
 
 	const auto Find = os::fs::enum_files(path::join(Info.DestPath, L'*'));
-	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
+	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{
-		strResultName = path::join(Info.DestPath, ItemIterator->strFileName);
+		strResultName = path::join(Info.DestPath, ItemIterator->FileName);
 
 		if (GetCode!=1)
 		{

@@ -69,17 +69,17 @@ namespace os::fs
 
 	struct find_data
 	{
+		string FileName;
+		string AlternateFileName;
 		chrono::time_point CreationTime;
 		chrono::time_point LastAccessTime;
 		chrono::time_point LastWriteTime;
 		chrono::time_point ChangeTime;
-		unsigned long long nFileSize{};
-		unsigned long long nAllocationSize{};
+		unsigned long long FileSize{};
+		unsigned long long AllocationSize{};
 		unsigned long long FileId{};
-		string strFileName;
-		string strAlternateFileName;
-		DWORD dwFileAttributes{};
-		DWORD dwReserved0{};
+		DWORD Attributes{};
+		DWORD ReparseTag{};
 	};
 
 	bool is_standard_drive_letter(wchar_t Letter);

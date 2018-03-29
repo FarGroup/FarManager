@@ -164,7 +164,8 @@ bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool Shor
 	if (FilePath)
 	{
 		string strShortFileName;
-		SrcPanel->GetCurName(strPathName,strShortFileName);
+		if (!SrcPanel->GetCurName(strPathName, strShortFileName))
+			return false;
 
 		if (ShortNameAsIs && SrcPanel->GetShowShortNamesMode()) // учтем короткость имен :-)
 			strPathName = strShortFileName;

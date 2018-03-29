@@ -266,11 +266,11 @@ static bool EnumFiles(VMenu2& Menu, const string_view strStart, const string_vie
 
 		for (const auto& i: os::fs::enum_files(os::env::expand(Token) + L'*'))
 		{
-			const auto NameMatch = starts_with_icase(i.strFileName, FileName);
-			const auto AltNameMatch = !NameMatch && starts_with_icase(i.strAlternateFileName, FileName);
+			const auto NameMatch = starts_with_icase(i.FileName, FileName);
+			const auto AltNameMatch = !NameMatch && starts_with_icase(i.AlternateFileName, FileName);
 			if (NameMatch || AltNameMatch)
 			{
-				Inserter(Token.substr(0, Token.size() - FileName.size()) + (NameMatch? i.strFileName : i.strAlternateFileName));
+				Inserter(Token.substr(0, Token.size() - FileName.size()) + (NameMatch? i.FileName : i.AlternateFileName));
 			}
 		}
 	});
@@ -304,12 +304,12 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 
 					for (const auto& FindData: os::fs::enum_files(path::join(Path, Pattern)))
 					{
-						const auto FindExt = PointToExt(FindData.strFileName);
+						const auto FindExt = PointToExt(FindData.FileName);
 						for (const auto& Ext: PathExtList)
 						{
 							if (starts_with_icase(Ext, FindExt))
 							{
-								Inserter(FindData.strFileName);
+								Inserter(FindData.FileName);
 							}
 						}
 					}

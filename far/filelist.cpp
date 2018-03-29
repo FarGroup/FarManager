@@ -127,14 +127,14 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	const auto& fi = arr[index];
 	auto& pi = *ppi;
 
-	pi.FileName = fi.strName.data();               //! CHANGED
-	pi.AlternateFileName = fi.strShortName.data(); //! CHANGED
+	pi.FileName = fi.FileName.data();                   //! CHANGED
+	pi.AlternateFileName = fi.AlternateFileName.data(); //! CHANGED
 	pi.FileSize=fi.FileSize;
 	pi.AllocationSize=fi.AllocationSize;
-	pi.FileAttributes=fi.FileAttr;
-	pi.LastWriteTime = os::chrono::nt_clock::to_filetime(fi.WriteTime);
+	pi.FileAttributes=fi.Attributes;
+	pi.LastWriteTime = os::chrono::nt_clock::to_filetime(fi.LastWriteTime);
 	pi.CreationTime = os::chrono::nt_clock::to_filetime(fi.CreationTime);
-	pi.LastAccessTime = os::chrono::nt_clock::to_filetime(fi.AccessTime);
+	pi.LastAccessTime = os::chrono::nt_clock::to_filetime(fi.LastAccessTime);
 	pi.ChangeTime = os::chrono::nt_clock::to_filetime(fi.ChangeTime);
 	pi.Flags=fi.UserFlags;
 
@@ -234,7 +234,7 @@ FileListItem::FileListItem()
 
 static string GetItemFullName(const FileListItem& Item, const FileList* Owner)
 {
-	return concat(Owner->GetCurDir(), L'\\', TestParentFolderName(Item.strName)? string{} : Item.strName);
+	return concat(Owner->GetCurDir(), L'\\', TestParentFolderName(Item.FileName)? string{} : Item.FileName);
 }
 
 bool FileListItem::IsNumberOfLinksRead() const
@@ -246,7 +246,7 @@ DWORD FileListItem::NumberOfLinks(const FileList* Owner) const
 {
 	if (!IsNumberOfLinksRead())
 	{
-		if (FileAttr & FILE_ATTRIBUTE_DIRECTORY || !Owner->HardlinksSupported())
+		if (Attributes & FILE_ATTRIBUTE_DIRECTORY || !Owner->HardlinksSupported())
 		{
 			m_NumberOfLinks = 1;
 		}
@@ -344,6 +344,11 @@ const content_data_ptr& FileListItem::ContentData(const FileList* Owner) const
 		m_ContentData = Owner->GetContentData(GetItemFullName(*this, Owner));
 	}
 	return m_ContentData;
+}
+
+const string& FileListItem::AlternateOrNormal(bool Alternate) const
+{
+	return Alternate && !AlternateFileName.empty()? AlternateFileName : FileName;
 }
 
 struct FileList::PrevDataItem
@@ -513,7 +518,7 @@ public:
 		{
 			const auto& IsParentDir = [](const FileListItem& Item)
 			{
-				return (Item.FileAttr & FILE_ATTRIBUTE_DIRECTORY) && TestParentFolderName(Item.strName) && (Item.strShortName.empty() || TestParentFolderName(Item.strShortName));
+				return (Item.Attributes & FILE_ATTRIBUTE_DIRECTORY) && TestParentFolderName(Item.FileName) && (Item.AlternateFileName.empty() || TestParentFolderName(Item.AlternateFileName));
 			};
 
 			const auto IsParentDirItem1 = IsParentDir(Item1);
@@ -531,8 +536,8 @@ public:
 
 		if (ListDirectoriesFirst)
 		{
-			const auto IsDirItem1 = (Item1.FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0;
-			const auto IsDirItem2 = (Item2.FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+			const auto IsDirItem1 = (Item1.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+			const auto IsDirItem2 = (Item2.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
 			if (IsDirItem1 != IsDirItem2)
 				return IsDirItem1 > IsDirItem2;
@@ -573,17 +578,17 @@ public:
 			}
 		}
 
-		const auto& CompareTime = [&a, &b](const auto FileListItem::*time)
+		const auto& CompareTime = [&a, &b](const os::chrono::time_point FileListItem::*time)
 		{
 			return ::CompareTime(std::invoke(time, a), std::invoke(time, b));
 		};
 
 		const auto& GetExt = [](const FileListItem& i)
 		{
-			if ((i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !Global->Opt->SortFolderExt)
-				return string_view(i.strName).substr(i.strName.size());
+			if ((i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && !Global->Opt->SortFolderExt)
+				return string_view(i.FileName).substr(i.FileName.size());
 
-			return PointToExt(i.strName);
+			return PointToExt(i.FileName);
 		};
 
 		switch (ListSortMode)
@@ -617,7 +622,7 @@ public:
 			break;
 
 		case panel_sort::BY_MTIME:
-			if (const auto Result = CompareTime(&FileListItem::WriteTime))
+			if (const auto Result = CompareTime(&FileListItem::LastWriteTime))
 				return Result < 0;
 			break;
 
@@ -627,7 +632,7 @@ public:
 			break;
 
 		case panel_sort::BY_ATIME:
-			if (const auto Result = CompareTime(&FileListItem::AccessTime))
+			if (const auto Result = CompareTime(&FileListItem::LastAccessTime))
 				return Result < 0;
 			break;
 
@@ -698,7 +703,7 @@ public:
 
 		case panel_sort::BY_FULLNAME:
 			UseReverseNameSort = true;
-			if (const auto Result = string_sort::compare(a.strName, b.strName))
+			if (const auto Result = string_sort::compare(a.FileName, b.FileName))
 				return Result < 0;
 			break;
 
@@ -736,7 +741,7 @@ public:
 			return NameWithExt.substr(0, NameWithExt.size() - Ext.size());
 		};
 
-		int NameCmp = string_sort::compare(GetNameOnly(PointToName(a.strName), Ext1), GetNameOnly(PointToName(b.strName), Ext2));
+		int NameCmp = string_sort::compare(GetNameOnly(PointToName(a.FileName), Ext1), GetNameOnly(PointToName(b.FileName), Ext2));
 
 		if (!NameCmp)
 		{
@@ -783,7 +788,7 @@ void FileList::SortFileList(bool KeepPosition)
 		if (KeepPosition)
 		{
 			assert(m_CurFile < static_cast<int>(m_ListData.size()));
-			strCurName = m_ListData[m_CurFile].strName;
+			strCurName = m_ListData[m_CurFile].FileName;
 		}
 
 		const auto PluginPanel = GetPluginHandle();
@@ -1256,7 +1261,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			SaveSelection();
 			std::for_each(RANGE(m_ListData, i)
 			{
-				if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
+				if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
 					Select(i, true);
 			});
 
@@ -1410,10 +1415,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					assert(m_CurFile < static_cast<int>(m_ListData.size()));
 					CurPtr = &m_ListData[m_CurFile];
 
-					if (m_ShowShortNames && !CurPtr->strShortName.empty())
-						strFileName = CurPtr->strShortName;
-					else
-						strFileName = CurPtr->strName;
+					strFileName = CurPtr->AlternateOrNormal(m_ShowShortNames);
 
 					if (TestParentFolderName(strFileName))
 					{
@@ -1431,7 +1433,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					if (LocalKey==KEY_CTRLF || LocalKey==KEY_RCTRLF || LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF)
 					{
 						if (m_PanelMode != panel_mode::PLUGIN_PANEL)
-							CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF);
+							CreateFullPathName(CurPtr->FileName, CurPtr->AlternateFileName, CurPtr->Attributes, strFileName, LocalKey == KEY_CTRLALTF || LocalKey == KEY_RCTRLRALTF || LocalKey == KEY_CTRLRALTF || LocalKey == KEY_RCTRLALTF);
 						else
 						{
 							Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
@@ -1448,11 +1450,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							{
 								/* $ 13.10.2000 tran
 								  по Ctrl-f имя должно отвечать условиям на панели */
-								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(CurPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY))
 									inplace::lower(strFileName);
 
 								if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE))
-									if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strFileName))
+									if (!(CurPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strFileName))
 										inplace::lower(strFileName);
 							}
 
@@ -1811,7 +1813,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					assert(m_CurFile < static_cast<int>(m_ListData.size()));
 					CurPtr = &m_ListData[m_CurFile];
 
-					if (CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+					if (CurPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
 						if (Edit)
 							return ProcessKey(Manager::Key(KEY_CTRLA));
@@ -1820,8 +1822,8 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						return true;
 					}
 
-					strFileName = CurPtr->strName;
-					strShortFileName = !CurPtr->strShortName.empty()? CurPtr->strShortName : CurPtr->strName;
+					strFileName = CurPtr->FileName;
+					strShortFileName = CurPtr->AlternateOrNormal();
 				}
 
 				string strTempDir, strTempName;
@@ -1922,8 +1924,8 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 									std::for_each(CONST_RANGE(m_ListData, i)
 									{
-										if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-											EditList.AddName(i.strName);
+										if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+											EditList.AddName(i.FileName);
 									});
 									EditList.SetCurName(strFileName);
 									ShellEditor->SetNamesList(EditList);
@@ -1941,9 +1943,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								auto strPath = strTempName;
 								CutToSlash(strPath, false);
 								const auto Find = os::fs::enum_files(strPath + L'*');
-								const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); });
+								const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
 								if (ItemIterator != Find.cend())
-									strTempName = strPath + ItemIterator->strFileName;
+									strTempName = strPath + ItemIterator->FileName;
 							}
 
 							if (FileNameToPluginItem(strTempName, PanelItem))
@@ -1985,8 +1987,8 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 								{
 									std::for_each(CONST_RANGE(m_ListData, i)
 									{
-										if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-											ViewList.AddName(i.strName);
+										if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+											ViewList.AddName(i.FileName);
 									});
 									ViewList.SetCurName(strFileName);
 								}
@@ -2098,7 +2100,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			if (!m_ListData.empty() && SetCurPath())
 			{
 				assert(m_CurFile < static_cast<int>(m_ListData.size()));
-				string name = m_ListData[m_CurFile].strName;
+				const auto& name = m_ListData[m_CurFile].FileName;
 				const auto selected = m_ListData[m_CurFile].Selected;
 
 				int RealName = m_PanelMode != panel_mode::PLUGIN_PANEL;
@@ -2125,7 +2127,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				if (!m_ListData.empty())
 				{
 					assert(m_CurFile < static_cast<int>(m_ListData.size()));
-					if (LocalKey != KEY_SHIFTF5 && equal_icase(name, m_ListData[m_CurFile].strName) && selected > m_ListData[m_CurFile].Selected)
+					if (LocalKey != KEY_SHIFTF5 && equal_icase(name, m_ListData[m_CurFile].FileName) && selected > m_ListData[m_CurFile].Selected)
 					{
 						Select(m_ListData[m_CurFile], selected);
 						Redraw();
@@ -2561,7 +2563,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 void FileList::Select(FileListItem& SelItem, bool Selection)
 {
-	if (!TestParentFolderName(SelItem.strName) && SelItem.Selected!=Selection)
+	if (!TestParentFolderName(SelItem.FileName) && SelItem.Selected!=Selection)
 	{
 		CacheSelIndex=-1;
 		CacheSelClearIndex=-1;
@@ -2569,13 +2571,13 @@ void FileList::Select(FileListItem& SelItem, bool Selection)
 		if ((SelItem.Selected = Selection) != 0)
 		{
 			m_SelFileCount++;
-			m_SelDirCount += SelItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY? 1 : 0;
+			m_SelDirCount += SelItem.Attributes & FILE_ATTRIBUTE_DIRECTORY? 1 : 0;
 			SelFileSize += SelItem.FileSize;
 		}
 		else
 		{
 			m_SelFileCount--;
-			m_SelDirCount -= SelItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY? 1 : 0;
+			m_SelDirCount -= SelItem.Attributes & FILE_ATTRIBUTE_DIRECTORY? 1 : 0;
 			SelFileSize -= SelItem.FileSize;
 		}
 	}
@@ -2587,11 +2589,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
 		return;
 
-	auto& CurItem = m_ListData[m_CurFile];
-	auto strFileName = CurItem.strName;
-	auto strShortFileName = CurItem.strShortName.empty()? CurItem.strName : CurItem.strShortName;
+	const auto& CurItem = m_ListData[m_CurFile];
+	auto strFileName = CurItem.FileName;
+	auto strShortFileName = CurItem.AlternateOrNormal();
 
-	if (CurItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+	if (CurItem.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 	{
 		auto IsRealName = true;
 
@@ -2606,19 +2608,19 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			string strFullPath;
 
-			if (!IsAbsolutePath(CurItem.strName))
+			if (!IsAbsolutePath(CurItem.FileName))
 			{
 				strFullPath = m_CurDir;
 				AddEndSlash(strFullPath);
 
 				/* 23.08.2001 VVM
 				  ! SHIFT+ENTER на ".." срабатывает для текущего каталога, а не родительского */
-				if (!TestParentFolderName(CurItem.strName))
-					strFullPath += CurItem.strName;
+				if (!TestParentFolderName(CurItem.FileName))
+					strFullPath += CurItem.FileName;
 			}
 			else
 			{
-				strFullPath = CurItem.strName;
+				strFullPath = CurItem.FileName;
 			}
 
 			QuoteSpace(strFullPath);
@@ -2630,7 +2632,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			const auto OldParent = Parent();
 
 			// Don't use CurItem directly: ChangeDir calls PopPlugin, which clears m_ListData
-			const auto DirCopy = CurItem.strName;
+			const auto DirCopy = CurItem.FileName;
 			const auto DataItemCopy = CurItem.UserData;
 			ChangeDir(DirCopy, false, true, &DataItemCopy, Type);
 
@@ -2870,7 +2872,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 
 			if (strFindDir.empty() && (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES) && m_CurFile < static_cast<int>(m_ListData.size()))
 			{
-				strFindDir = m_ListData[m_CurFile].strName;
+				strFindDir = m_ListData[m_CurFile].FileName;
 				GoToPanelFile=true;
 			}
 
@@ -3445,7 +3447,7 @@ long FileList::FindFile(const string_view Name, const bool OnlyPartName)
 	long II = -1;
 	for (long I=0; I < static_cast<int>(m_ListData.size()); I++)
 	{
-		const auto CurPtrName = OnlyPartName? PointToName(m_ListData[I].strName) : m_ListData[I].strName;
+		const auto CurPtrName = OnlyPartName? PointToName(m_ListData[I].FileName) : m_ListData[I].FileName;
 
 		if (Name == CurPtrName)
 			return I;
@@ -3467,8 +3469,8 @@ long FileList::FindNext(int StartPos, const string& Name)
 	if (static_cast<size_t>(StartPos) < m_ListData.size())
 		for (long I=StartPos; I < static_cast<int>(m_ListData.size()); I++)
 		{
-			if (CmpName(Name, m_ListData[I].strName, true))
-				if (!TestParentFolderName(m_ListData[I].strName))
+			if (CmpName(Name, m_ListData[I].FileName, true))
+				if (!TestParentFolderName(m_ListData[I].FileName))
 					return I;
 		}
 
@@ -3516,11 +3518,11 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < static_cast<int>(m_ListData.size()); I+=Direct)
 	{
-		if (CmpName(strMask, m_ListData[I].strName, true, I == m_CurFile))
+		if (CmpName(strMask, m_ListData[I].FileName, true, I == m_CurFile))
 		{
-			if (!TestParentFolderName(m_ListData[I].strName))
+			if (!TestParentFolderName(m_ListData[I].FileName))
 			{
-				if (!DirFind || (m_ListData[I].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					m_CurFile=I;
 					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
@@ -3533,11 +3535,11 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 
 	for (int I=(Direct > 0)?0:static_cast<int>(m_ListData.size()-1); (Direct > 0) ? I < m_CurFile:I > m_CurFile; I+=Direct)
 	{
-		if (CmpName(strMask, m_ListData[I].strName, true))
+		if (CmpName(strMask, m_ListData[I].FileName, true))
 		{
-			if (!TestParentFolderName(m_ListData[I].strName))
+			if (!TestParentFolderName(m_ListData[I].FileName))
 			{
-				if (!DirFind || (m_ListData[I].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					m_CurFile=I;
 					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
@@ -3572,11 +3574,11 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 	for (int I=m_CurFile+(Next?Direct:0); I >= 0 && I < m_ListData.size(); I+=Direct)
 	{
 		if (GetPlainString(Dest,I) && contains(upper(Dest), strMask))
-		//if (CmpName(strMask,ListData[I].strName,true,I==CurFile))
+		//if (CmpName(strMask,ListData[I].FileName,true,I==CurFile))
 		{
-			if (!TestParentFolderName(m_ListData[I].strName))
+			if (!TestParentFolderName(m_ListData[I].FileName))
 			{
-				if (!DirFind || (m_ListData[I].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					m_CurFile=I;
 					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
@@ -3591,9 +3593,9 @@ bool FileList::FindPartName(const string& Name,int Next,int Direct)
 	{
 		if (GetPlainString(Dest,I) && contains(upper(Dest), strMask))
 		{
-			if (!TestParentFolderName(m_ListData[I].strName))
+			if (!TestParentFolderName(m_ListData[I].FileName))
 			{
-				if (!DirFind || (m_ListData[I].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				if (!DirFind || (m_ListData[I].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					m_CurFile=I;
 					m_CurTopFile=m_CurFile-(m_Y2-m_Y1)/2;
@@ -3644,10 +3646,10 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 					case NAME_COLUMN:
 					{
 						unsigned long long ViewFlags=ColumnTypes[K];
-						const wchar_t *NamePtr = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty() ? m_ListData[ListPos].strShortName:m_ListData[ListPos].strName;
+						const wchar_t *NamePtr = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty() ? m_ListData[ListPos].strShortName:m_ListData[ListPos].FileName;
 
 						string strNameCopy;
-						if (!(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
+						if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
 						{
 							const wchar_t *ExtPtr = PointToExt(NamePtr);
 							if (ExtPtr)
@@ -3674,9 +3676,9 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 					case EXTENSION_COLUMN:
 					{
 						const wchar_t *ExtPtr = nullptr;
-						if (!(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+						if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 						{
-							const wchar_t *NamePtr = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty()? m_ListData[ListPos].strShortName:m_ListData[ListPos].strName;
+							const wchar_t *NamePtr = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty()? m_ListData[ListPos].strShortName:m_ListData[ListPos].FileName;
 							ExtPtr = PointToExt(NamePtr);
 						}
 						if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
@@ -3697,8 +3699,8 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 
 						Dest += FormatStr_Size(
 							SizeToDisplay,
-							m_ListData[ListPos].strName,
-							m_ListData[ListPos].FileAttr,
+							m_ListData[ListPos].FileName,
+							m_ListData[ListPos].Attributes,
 							m_ListData[ListPos].ShowFolderSize,
 							m_ListData[ListPos].ReparseTag,
 							ColumnType,
@@ -3742,7 +3744,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 
 					case ATTR_COLUMN:
 					{
-						Dest += FormatStr_Attribute(m_ListData[ListPos].FileAttr,ColumnWidth);
+						Dest += FormatStr_Attribute(m_ListData[ListPos].Attributes,ColumnWidth);
 						break;
 					}
 
@@ -3783,7 +3785,7 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 size_t FileList::GetSelCount() const
 {
 	assert(m_ListData.empty() || !(ReturnCurrentFile||!m_SelFileCount) || (m_CurFile < static_cast<int>(m_ListData.size())));
-	return !m_ListData.empty()? ((ReturnCurrentFile||!m_SelFileCount)?(TestParentFolderName(m_ListData[m_CurFile].strName)?0:1):m_SelFileCount):0;
+	return !m_ListData.empty()? ((ReturnCurrentFile||!m_SelFileCount)?(TestParentFolderName(m_ListData[m_CurFile].FileName)?0:1):m_SelFileCount):0;
 }
 
 size_t FileList::GetRealSelCount() const
@@ -3792,7 +3794,7 @@ size_t FileList::GetRealSelCount() const
 }
 
 
-bool FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName, os::fs::find_data *fde)
+bool FileList::GetSelName(string* strName, DWORD& FileAttr, string* strShortName, os::fs::find_data* fd)
 {
 	if (!strName)
 	{
@@ -3801,79 +3803,40 @@ bool FileList::GetSelName(string *strName, DWORD &FileAttr, string *strShortName
 		return true;
 	}
 
+	const auto& CopyFrom = [&](const FileListItem& Src)
+	{
+		*strName = Src.FileName;
+
+		if (strShortName)
+			*strShortName = Src.AlternateOrNormal();
+
+		FileAttr = Src.Attributes;
+
+		if (fd)
+			*fd = Src;
+	};
+
 	if (!m_SelFileCount || ReturnCurrentFile)
 	{
 		if (!GetSelPosition && m_CurFile < static_cast<int>(m_ListData.size()))
 		{
 			GetSelPosition=1;
-			*strName = m_ListData[m_CurFile].strName;
-
-			if (strShortName)
-			{
-				*strShortName = m_ListData[m_CurFile].strShortName;
-
-				if (strShortName->empty())
-					*strShortName = *strName;
-			}
-
-			FileAttr=m_ListData[m_CurFile].FileAttr;
+			CopyFrom(m_ListData[m_CurFile]);
 			LastSelPosition=m_CurFile;
-
-			if (fde)
-			{
-				fde->dwFileAttributes=m_ListData[m_CurFile].FileAttr;
-				fde->CreationTime = m_ListData[m_CurFile].CreationTime;
-				fde->LastAccessTime = m_ListData[m_CurFile].AccessTime;
-				fde->LastWriteTime = m_ListData[m_CurFile].WriteTime;
-				fde->ChangeTime = m_ListData[m_CurFile].ChangeTime;
-				fde->nFileSize=m_ListData[m_CurFile].FileSize;
-				fde->nAllocationSize=m_ListData[m_CurFile].AllocationSize;
-				fde->strFileName = m_ListData[m_CurFile].strName;
-				fde->strAlternateFileName = m_ListData[m_CurFile].strShortName;
-				if (fde->dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
-				{
-					fde->dwReserved0 = m_ListData[m_CurFile].ReparseTag;
-				}
-			}
-
 			return true;
 		}
-		else
-			return false;
+		return false;
 	}
 
 	while (GetSelPosition < static_cast<int>(m_ListData.size()))
+	{
 		if (m_ListData[GetSelPosition++].Selected)
 		{
-			const auto& PrevItem = m_ListData[GetSelPosition-1];
-			*strName = PrevItem.strName;
-
-			if (strShortName)
-			{
-				*strShortName = PrevItem.strShortName;
-
-				if (strShortName->empty())
-					*strShortName = *strName;
-			}
-
-			FileAttr=PrevItem.FileAttr;
-			LastSelPosition=GetSelPosition-1;
-
-			if (fde)
-			{
-				fde->dwFileAttributes = PrevItem.FileAttr;
-				fde->CreationTime = PrevItem.CreationTime;
-				fde->LastAccessTime = PrevItem.AccessTime;
-				fde->LastWriteTime = PrevItem.WriteTime;
-				fde->ChangeTime = PrevItem.ChangeTime;
-				fde->nFileSize = PrevItem.FileSize;
-				fde->nAllocationSize = PrevItem.AllocationSize;
-				fde->strFileName = PrevItem.strName;
-				fde->strAlternateFileName = PrevItem.strShortName;
-			}
-
+			CopyFrom(m_ListData[GetSelPosition - 1]);
+			LastSelPosition = GetSelPosition - 1;
 			return true;
 		}
+	}
 
 	return false;
 }
@@ -3884,22 +3847,6 @@ void FileList::ClearLastGetSelection()
 	if (LastSelPosition>=0 && LastSelPosition < static_cast<int>(m_ListData.size()))
 		Select(m_ListData[LastSelPosition], false);
 }
-
-
-void FileList::UngetSelName()
-{
-	GetSelPosition=LastSelPosition;
-}
-
-
-unsigned long long FileList::GetLastSelectedSize() const
-{
-	if (LastSelPosition>=0 && LastSelPosition < static_cast<int>(m_ListData.size()))
-		return m_ListData[LastSelPosition].FileSize;
-
-	return -1;
-}
-
 
 const FileListItem* FileList::GetLastSelectedItem() const
 {
@@ -3914,44 +3861,32 @@ const FileListItem* FileList::GetLastSelectedItem() const
 bool FileList::GetCurName(string &strName, string &strShortName) const
 {
 	if (m_ListData.empty())
-	{
-		strName.clear();
-		strShortName.clear();
 		return false;
-	}
 
 	assert(m_CurFile < static_cast<int>(m_ListData.size()));
-	strName = m_ListData[m_CurFile].strName;
-	strShortName = m_ListData[m_CurFile].strShortName;
 
-	if (strShortName.empty())
-		strShortName = strName;
-
+	strName = m_ListData[m_CurFile].FileName;
+	strShortName = m_ListData[m_CurFile].AlternateOrNormal();
 	return true;
 }
 
 bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 {
 	if (m_ListData.empty())
-	{
-		strName.clear();
-		strShortName.clear();
 		return false;
-	}
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty()) // для плагинов
 	{
 		assign(strName, PointToName(PluginsList.front().m_HostFile));
+		strShortName = strName;
 	}
 	else if (m_PanelMode == panel_mode::NORMAL_PANEL)
 	{
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
-		strName = m_ListData[m_CurFile].strName;
-		strShortName = m_ListData[m_CurFile].strShortName;
-	}
 
-	if (strShortName.empty())
-		strShortName = strName;
+		strName = m_ListData[m_CurFile].FileName;
+		strShortName = m_ListData[m_CurFile].AlternateOrNormal();
+	}
 
 	return true;
 }
@@ -4007,7 +3942,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		RawSelection=(m_CachedOpenPanelInfo.Flags & OPIF_RAWSELECTION);
 	}
 
-	string strCurName=(m_ShowShortNames && !m_ListData[m_CurFile].strShortName.empty()? m_ListData[m_CurFile].strShortName : m_ListData[m_CurFile].strName);
+	const auto& strCurName = m_ListData[m_CurFile].AlternateOrNormal(m_ShowShortNames);
 
 	if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
 	{
@@ -4130,7 +4065,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 				if (bUseFilter)
 					Match = Filter.FileInFilter(&i);
 				else
-					Match=FileMask.Compare((m_ShowShortNames && !i.strShortName.empty()) ? i.strShortName : i.strName);
+					Match = FileMask.Compare(i.AlternateOrNormal(m_ShowShortNames));
 			}
 
 			if (Match)
@@ -4155,7 +4090,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 						break;
 				}
 
-				if (bUseFilter || !(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders ||
+				if (bUseFilter || !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders ||
 				        !Selection || RawSelection || Mode==SELECT_INVERTALL || Mode==SELECT_INVERTMASK)
 				{
 					Select(i, Selection);
@@ -4185,12 +4120,12 @@ void FileList::UpdateViewPanel()
 		if (m_PanelMode != panel_mode::PLUGIN_PANEL ||
 			Global->CtrlObject->Plugins->UseFarCommand(GetPluginHandle(), PLUGIN_FARGETFILE))
 		{
-			if (TestParentFolderName(CurPtr->strName))
+			if (TestParentFolderName(CurPtr->FileName))
 				ViewPanel->ShowFile(m_CurDir, false, nullptr);
 			else
-				ViewPanel->ShowFile(CurPtr->strName, false, nullptr);
+				ViewPanel->ShowFile(CurPtr->FileName, false, nullptr);
 		}
-		else if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		else if (!(CurPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			string strTempDir;
 			if (!FarMkTempEx(strTempDir))
@@ -4199,7 +4134,7 @@ void FileList::UpdateViewPanel()
 			os::fs::create_directory(strTempDir);
 			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(*CurPtr, PanelItem);
-			auto strFileName = CurPtr->strName;
+			auto strFileName = CurPtr->FileName;
 			int Result = Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW);
 
 			if (!Result)
@@ -4211,8 +4146,8 @@ void FileList::UpdateViewPanel()
 
 			ViewPanel->ShowFile(strFileName, true, nullptr);
 		}
-		else if (!TestParentFolderName(CurPtr->strName))
-			ViewPanel->ShowFile(CurPtr->strName, false, GetPluginHandle());
+		else if (!TestParentFolderName(CurPtr->FileName))
+			ViewPanel->ShowFile(CurPtr->FileName, false, GetPluginHandle());
 		else
 			ViewPanel->ShowFile(L"", false, nullptr);
 
@@ -4245,14 +4180,14 @@ void FileList::CompareDir()
 	// помечаем ВСЕ, кроме каталогов на активной панели
 	std::for_each(RANGE(m_ListData, i)
 	{
-		if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 			Select(i, true);
 	});
 
 	// помечаем ВСЕ, кроме каталогов на пассивной панели
 	std::for_each(RANGE(Another->m_ListData, i)
 	{
-		if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 			Another->Select(i, true);
 	});
 
@@ -4289,23 +4224,23 @@ void FileList::CompareDir()
 	// каждый элемент активной панели...
 	for (auto& i: m_ListData)
 	{
-		if (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+		if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 			continue;
 
 		// ...сравниваем с элементом пассивной панели...
 		for (auto& j: Another->m_ListData)
 		{
-			if (j.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			if (j.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				continue;
 
-			if (equal_icase(PointToName(i.strName), PointToName(j.strName)))
+			if (equal_icase(PointToName(i.FileName), PointToName(j.FileName)))
 			{
 				int Cmp=0;
 				if (CompareFatTime)
 				{
 					WORD DosDate,DosTime,AnotherDosDate,AnotherDosTime;
-					const auto iTime = os::chrono::nt_clock::to_filetime(i.WriteTime);
-					const auto jTime = os::chrono::nt_clock::to_filetime(j.WriteTime);
+					const auto iTime = os::chrono::nt_clock::to_filetime(i.LastWriteTime);
+					const auto jTime = os::chrono::nt_clock::to_filetime(j.LastWriteTime);
 					FileTimeToDosDateTime(&iTime, &DosDate, &DosTime);
 					FileTimeToDosDateTime(&jTime, &AnotherDosDate, &AnotherDosTime);
 					DWORD FullDosTime = MAKELONG(DosTime, DosDate);
@@ -4319,7 +4254,7 @@ void FileList::CompareDir()
 				}
 				else
 				{
-					Cmp = CompareTime(i.WriteTime, j.WriteTime);
+					Cmp = CompareTime(i.LastWriteTime, j.LastWriteTime);
 				}
 
 				if (!Cmp && (i.FileSize != j.FileSize))
@@ -4368,23 +4303,26 @@ void FileList::CopyFiles(bool bMoved)
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL || RealNames)
 	{
 		string CopyData;
-		string strSelName, strSelShortName;
-		DWORD FileAttr;
-		GetSelName(nullptr,FileAttr);
-		while (GetSelName(&strSelName, FileAttr, &strSelShortName))
+		for (const auto& i: enum_selected())
 		{
-			if (TestParentFolderName(strSelName) && TestParentFolderName(strSelShortName))
+			string_view Name = i.FileName;
+			string_view ShortName = i.AlternateFileName;
+
+			if (TestParentFolderName(Name) && TestParentFolderName(ShortName))
 			{
-				strSelName.resize(1);
-				strSelShortName.resize(1);
+				Name = Name.substr(0, 1);
+				ShortName = ShortName.substr(0, 1);
 			}
-			if (!CreateFullPathName(strSelName, strSelShortName, FileAttr, strSelName, false))
+
+			string FullName;
+			if (!CreateFullPathName(Name, ShortName, i.Attributes, FullName, false))
 			{
 				break;
 			}
-			CopyData += strSelName;
-			CopyData.push_back(L'\0');
+
+			append(CopyData, FullName, L'\0');
 		}
+
 		if(!CopyData.empty())
 		{
 			clipboard_accessor Clip;
@@ -4399,24 +4337,18 @@ void FileList::CopyFiles(bool bMoved)
 void FileList::CopyNames(bool FillPathName, bool UNC)
 {
 	string CopyData;
-	string strSelName, strSelShortName;
-	DWORD FileAttr;
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 	}
 
-	GetSelName(nullptr,FileAttr);
-
-	while (GetSelName(&strSelName,FileAttr,&strSelShortName))
+	for (const auto& i: enum_selected())
 	{
 		if (!CopyData.empty())
-		{
-			CopyData += L"\r\n";
-		}
+			append(CopyData, L"\r\n"_sv);
 
-		auto strQuotedName = m_ShowShortNames && !strSelShortName.empty()? strSelShortName : strSelName;
+		auto strQuotedName = m_ShowShortNames && !i.AlternateFileName.empty()? i.AlternateFileName : i.FileName;
 
 		if (FillPathName)
 		{
@@ -4425,13 +4357,14 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				/* $ 14.02.2002 IS
 				   ".." в текущем каталоге обработаем как имя текущего каталога
 				*/
-				if (TestParentFolderName(strQuotedName) && TestParentFolderName(strSelShortName))
+				string_view ShortName = i.AlternateFileName;
+				if (TestParentFolderName(strQuotedName) && TestParentFolderName(i.AlternateFileName))
 				{
 					strQuotedName.resize(1);
-					strSelShortName.resize(1);
+					ShortName = ShortName.substr(0, 1);
 				}
 
-				if (!CreateFullPathName(strQuotedName,strSelShortName,FileAttr,strQuotedName,UNC))
+				if (!CreateFullPathName(strQuotedName, ShortName, i.Attributes, strQuotedName, UNC))
 				{
 					break;
 				}
@@ -4449,16 +4382,15 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				if (Global->Opt->PanelCtrlFRule)
 				{
 					// имя должно отвечать условиям на панели
-					if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+					if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 						inplace::lower(strQuotedName);
 
 					if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
-						if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strQuotedName))
+						if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(strQuotedName))
 							inplace::lower(strQuotedName);
 				}
 
-				strFullName += strQuotedName;
-				strQuotedName = strFullName;
+				strQuotedName.insert(0, strFullName);
 
 				// добавим первый префикс!
 				if (m_PanelMode == panel_mode::PLUGIN_PANEL && Global->Opt->SubstPluginPrefix)
@@ -4469,7 +4401,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 		}
 		else
 		{
-			if (TestParentFolderName(strQuotedName) && TestParentFolderName(strSelShortName))
+			if (TestParentFolderName(strQuotedName) && TestParentFolderName(i.AlternateFileName))
 			{
 				if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 				{
@@ -4556,8 +4488,8 @@ bool FileList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
 	if (Pos >= static_cast<int>(m_ListData.size()))
 		return false;
 
-	strName = m_ListData[Pos].strName;
-	FileAttr=m_ListData[Pos].FileAttr;
+	strName = m_ListData[Pos].FileName;
+	FileAttr=m_ListData[Pos].Attributes;
 	return true;
 }
 
@@ -4832,19 +4764,15 @@ void FileList::CopyDiz(const string& Name, const string& ShortName,const string&
 
 void FileList::DescribeFiles()
 {
-	string strSelName, strSelShortName;
-	DWORD FileAttr;
 	int DizCount=0;
 	ReadDiz();
 	SaveSelection();
-	GetSelName(nullptr,FileAttr);
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 	const auto AnotherType = AnotherPanel->GetType();
-
-	while (GetSelName(&strSelName,FileAttr,&strSelShortName))
+	for (const auto& i: enum_selected())
 	{
-		const auto PrevText = NullToEmpty(Diz.Get(strSelName,strSelShortName,GetLastSelectedSize()));
-		auto strQuotedName = strSelName;
+		const auto PrevText = NullToEmpty(Diz.Get(i.FileName, i.AlternateFileName, i.FileSize));
+		auto strQuotedName = i.FileName;
 		QuoteSpaceOnly(strQuotedName);
 		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', strQuotedName, L':');
 
@@ -4872,11 +4800,11 @@ void FileList::DescribeFiles()
 
 		if (strDizText.empty())
 		{
-			Diz.Erase(strSelName,strSelShortName);
+			Diz.Erase(i.FileName, i.AlternateFileName);
 		}
 		else
 		{
-			Diz.Set(strSelName,strSelShortName,strDizText);
+			Diz.Set(i.FileName, i.AlternateFileName, strDizText);
 		}
 
 		ClearLastGetSelection();
@@ -4932,27 +4860,26 @@ bool FileList::ApplyCommand()
 	strPrevCommand = strCommand;
 	inplace::trim_left(strCommand);
 
-	string strSelName, strSelShortName;
-	DWORD FileAttr;
-
 	SaveSelection();
 
 	++UpdateDisabled;
-	GetSelName(nullptr,FileAttr);
 	Parent()->GetCmdLine()->LockUpdatePanel(true);
 	{
 		const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
-		while (GetSelName(&strSelName, FileAttr, &strSelShortName) && !CheckForEsc())
+		for (const auto& i: enum_selected())
 		{
+			if (!CheckForEsc())
+				break;
+
 			string strListName, strAnotherListName;
 			string strShortListName, strAnotherShortListName;
 			string strConvertedCommand = strCommand;
-			const auto PreserveLFN = SubstFileName(nullptr, strConvertedCommand, strSelName, strSelShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
+			const auto PreserveLFN = SubstFileName(nullptr, strConvertedCommand, i.FileName, i.AlternateFileName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 			const auto ListFileUsed = !strListName.empty() || !strAnotherListName.empty() || !strShortListName.empty() || !strAnotherShortListName.empty();
 
 			if (!strConvertedCommand.empty())
 			{
-				SCOPED_ACTION(PreserveLongName)(strSelShortName, PreserveLFN);
+				SCOPED_ACTION(PreserveLongName)(i.AlternateFileName, PreserveLFN);
 
 				execute_info Info;
 				Info.Command = strConvertedCommand;
@@ -5000,9 +4927,9 @@ void FileList::CountDirSize(bool IsRealNames)
 	/* $ 09.11.2000 OT
 	  F3 на ".." в плагинах
 	*/
-	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !m_CurFile && TestParentFolderName(m_ListData[0].strName))
+	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !m_CurFile && TestParentFolderName(m_ListData[0].FileName))
 	{
-		if (const auto DoubleDotDir = m_SelFileCount && std::any_of(CONST_RANGE(m_ListData, i) { return i.Selected && i.FileAttr & FILE_ATTRIBUTE_DIRECTORY; })? nullptr : &m_ListData.front())
+		if (const auto DoubleDotDir = m_SelFileCount && std::any_of(CONST_RANGE(m_ListData, i) { return i.Selected && i.Attributes & FILE_ATTRIBUTE_DIRECTORY; })? nullptr : &m_ListData.front())
 		{
 			DoubleDotDir->ShowFolderSize=1;
 			DoubleDotDir->FileSize     = 0;
@@ -5010,9 +4937,9 @@ void FileList::CountDirSize(bool IsRealNames)
 
 			for (const auto& i: make_range(m_ListData.begin() + 1, m_ListData.end()))
 			{
-				if (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
-					if (GetPluginDirInfo(GetPluginHandle(), i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
+					if (GetPluginDirInfo(GetPluginHandle(), i.FileName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 					{
 						DoubleDotDir->FileSize += Data.FileSize;
 						DoubleDotDir->AllocationSize += Data.AllocationSize;
@@ -5041,11 +4968,11 @@ void FileList::CountDirSize(bool IsRealNames)
 
 	for (auto& i: m_ListData)
 	{
-		if (i.Selected && (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if (i.Selected && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			SelDirCount++;
-			if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), i.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
-			     (IsRealNames && GetDirInfo(i.strName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
+			if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), i.FileName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
+			     (IsRealNames && GetDirInfo(i.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 			{
 				SelFileSize -= i.FileSize;
 				SelFileSize += Data.FileSize;
@@ -5063,8 +4990,8 @@ void FileList::CountDirSize(bool IsRealNames)
 	{
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 		auto& CurFile = m_ListData[m_CurFile];
-		if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), CurFile.strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
-		     (IsRealNames && GetDirInfo(TestParentFolderName(CurFile.strName)? L"." : CurFile.strName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
+		if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), CurFile.FileName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
+		     (IsRealNames && GetDirInfo(TestParentFolderName(CurFile.FileName)? L"." : CurFile.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 		{
 			CurFile.FileSize = Data.FileSize;
 			CurFile.AllocationSize = Data.AllocationSize;
@@ -5161,8 +5088,8 @@ void FileList::ProcessCopyKeys(int Key)
 		{
 			assert(AnotherFilePanel->m_ListData.empty() || AnotherFilePanel->m_CurFile < static_cast<int>(AnotherFilePanel->m_ListData.size()));
 			if (!AnotherFilePanel->m_ListData.empty() &&
-			        (AnotherFilePanel->m_ListData[AnotherFilePanel->m_CurFile].FileAttr & FILE_ATTRIBUTE_DIRECTORY) &&
-			        !TestParentFolderName(AnotherFilePanel->m_ListData[AnotherFilePanel->m_CurFile].strName))
+			        (AnotherFilePanel->m_ListData[AnotherFilePanel->m_CurFile].Attributes & FILE_ATTRIBUTE_DIRECTORY) &&
+			        !TestParentFolderName(AnotherFilePanel->m_ListData[AnotherFilePanel->m_CurFile].FileName))
 			{
 				AnotherDir = true;
 			}
@@ -5514,20 +5441,20 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 {
 	auto& pi = Holder.Item;
 
-	auto Buffer = std::make_unique<wchar_t[]>(fi.strName.size() + 1);
-	*std::copy(ALL_CONST_RANGE(fi.strName), Buffer.get()) = L'\0';
+	auto Buffer = std::make_unique<wchar_t[]>(fi.FileName.size() + 1);
+	*std::copy(ALL_CONST_RANGE(fi.FileName), Buffer.get()) = L'\0';
 	pi.FileName = Buffer.release();
 
-	Buffer = std::make_unique<wchar_t[]>(fi.strShortName.size() + 1);
-	*std::copy(ALL_CONST_RANGE(fi.strShortName), Buffer.get()) = L'\0';
+	Buffer = std::make_unique<wchar_t[]>(fi.AlternateFileName.size() + 1);
+	*std::copy(ALL_CONST_RANGE(fi.AlternateFileName), Buffer.get()) = L'\0';
 	pi.AlternateFileName = Buffer.release();
 
 	pi.FileSize=fi.FileSize;
 	pi.AllocationSize=fi.AllocationSize;
-	pi.FileAttributes=fi.FileAttr;
-	pi.LastWriteTime = os::chrono::nt_clock::to_filetime(fi.WriteTime);
+	pi.FileAttributes = fi.Attributes;
+	pi.LastWriteTime = os::chrono::nt_clock::to_filetime(fi.LastWriteTime);
 	pi.CreationTime = os::chrono::nt_clock::to_filetime(fi.CreationTime);
-	pi.LastAccessTime = os::chrono::nt_clock::to_filetime(fi.AccessTime);
+	pi.LastAccessTime = os::chrono::nt_clock::to_filetime(fi.LastAccessTime);
 	pi.ChangeTime = os::chrono::nt_clock::to_filetime(fi.ChangeTime);
 	pi.NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 	pi.Flags=fi.UserFlags;
@@ -5550,8 +5477,8 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 {
 	size_t size = aligned_sizeof<PluginPanelItem>(), offset = size;
 	size+=fi.CustomColumnNumber*sizeof(wchar_t*);
-	size+=sizeof(wchar_t)*(fi.strName.size()+1);
-	size+=sizeof(wchar_t)*(fi.strShortName.size()+1);
+	size+=sizeof(wchar_t)*(fi.FileName.size()+1);
+	size+=sizeof(wchar_t)*(fi.AlternateFileName.size()+1);
 	size+=std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + (i? (wcslen(i) + 1) * sizeof(wchar_t) : 0); });
 	size+=fi.DizText?sizeof(wchar_t)*(wcslen(fi.DizText)+1):0;
 	size += (fi.IsOwnerRead() && !fi.Owner(this).empty())? sizeof(wchar_t) * (fi.Owner(this).size() + 1) : 0;
@@ -5564,10 +5491,10 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 
 			gpi->Item->FileSize=fi.FileSize;
 			gpi->Item->AllocationSize=fi.AllocationSize;
-			gpi->Item->FileAttributes=fi.FileAttr;
-			gpi->Item->LastWriteTime = os::chrono::nt_clock::to_filetime(fi.WriteTime);
+			gpi->Item->FileAttributes=fi.Attributes;
+			gpi->Item->LastWriteTime = os::chrono::nt_clock::to_filetime(fi.LastWriteTime);
 			gpi->Item->CreationTime = os::chrono::nt_clock::to_filetime(fi.CreationTime);
-			gpi->Item->LastAccessTime = os::chrono::nt_clock::to_filetime(fi.AccessTime);
+			gpi->Item->LastAccessTime = os::chrono::nt_clock::to_filetime(fi.LastAccessTime);
 			gpi->Item->ChangeTime = os::chrono::nt_clock::to_filetime(fi.ChangeTime);
 			gpi->Item->NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 			gpi->Item->Flags=fi.UserFlags;
@@ -5582,11 +5509,11 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 
 			gpi->Item->UserData = fi.UserData;
 
-			gpi->Item->FileName=wcscpy((wchar_t*)data,fi.strName.data());
-			data+=sizeof(wchar_t)*(fi.strName.size()+1);
+			gpi->Item->FileName=wcscpy((wchar_t*)data,fi.FileName.data());
+			data+=sizeof(wchar_t)*(fi.FileName.size()+1);
 
-			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi.strShortName.data());
-			data+=sizeof(wchar_t)*(fi.strShortName.size()+1);
+			gpi->Item->AlternateFileName = wcscpy((wchar_t*)data, fi.AlternateFileName.data());
+			data += sizeof(wchar_t)*(fi.AlternateFileName.size() + 1);
 
 			for (size_t ii=0; ii<fi.CustomColumnNumber; ii++)
 			{
@@ -5628,8 +5555,8 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 FileListItem::FileListItem(const PluginPanelItem& pi)
 {
 	CreationTime = os::chrono::nt_clock::from_filetime(pi.CreationTime);
-	AccessTime = os::chrono::nt_clock::from_filetime(pi.LastAccessTime);
-	WriteTime = os::chrono::nt_clock::from_filetime(pi.LastWriteTime);
+	LastAccessTime = os::chrono::nt_clock::from_filetime(pi.LastAccessTime);
+	LastWriteTime = os::chrono::nt_clock::from_filetime(pi.LastWriteTime);
 	ChangeTime = os::chrono::nt_clock::from_filetime(pi.ChangeTime);
 
 	FileSize = pi.FileSize;
@@ -5638,9 +5565,9 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	UserFlags = pi.Flags;
 	UserData = pi.UserData;
 
-	FileAttr = pi.FileAttributes;
+	Attributes = pi.FileAttributes;
 	// we don't really know, but it's better than show it as 'unknown'
-	ReparseTag = (FileAttr & FILE_ATTRIBUTE_REPARSE_POINT)? IO_REPARSE_TAG_SYMLINK : 0;
+	ReparseTag = (Attributes & FILE_ATTRIBUTE_REPARSE_POINT)? IO_REPARSE_TAG_SYMLINK : 0;
 
 	Colors = nullptr;
 
@@ -5678,8 +5605,8 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	ShowFolderSize = 0;
 
 
-	strName = NullToEmpty(pi.FileName);
-	strShortName = NullToEmpty(pi.AlternateFileName);
+	FileName = NullToEmpty(pi.FileName);
+	AlternateFileName = NullToEmpty(pi.AlternateFileName);
 	m_Owner = NullToEmpty(pi.Owner);
 
 	m_NumberOfLinks = pi.NumberOfLinks;
@@ -5699,7 +5626,7 @@ std::unique_ptr<plugin_panel> FileList::OpenPluginForFile(const string& FileName
 }
 
 
-std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
+std::vector<PluginPanelItem> FileList::CreatePluginItemList()
 {
 	std::vector<PluginPanelItem> ItemList;
 
@@ -5708,12 +5635,8 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 
 	long SaveSelPosition=GetSelPosition;
 	long OldLastSelPosition=LastSelPosition;
-	string strSelName;
 
 	ItemList.reserve(m_SelFileCount+1);
-
-	DWORD FileAttr;
-	GetSelName(nullptr,FileAttr);
 
 	const auto& ConvertAndAddToList = [&](const FileListItem& What)
 	{
@@ -5722,17 +5645,21 @@ std::vector<PluginPanelItem> FileList::CreatePluginItemList(bool AddTwoDot)
 		ItemList.emplace_back(NewItem.Item);
 	};
 
-	while (GetSelName(&strSelName,FileAttr))
+	for (const auto& i: enum_selected())
 	{
-		if ((!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(strSelName)) && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < m_ListData.size())
+		if ((!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) || !TestParentFolderName(i.FileName)) && LastSelPosition>=0 && static_cast<size_t>(LastSelPosition) < m_ListData.size())
 		{
 			ConvertAndAddToList(m_ListData[LastSelPosition]);
 		}
 	}
 
-	if (AddTwoDot && ItemList.empty() && (FileAttr & FILE_ATTRIBUTE_DIRECTORY)) // это про ".."
+	if (ItemList.empty() && !m_ListData.empty())
 	{
-		ConvertAndAddToList(m_ListData[0]);
+		const auto& First = m_ListData.front();
+		if (First.Attributes & FILE_ATTRIBUTE_DIRECTORY && TestParentFolderName(First.FileName)) // это про ".."
+		{
+			ConvertAndAddToList(m_ListData.front());
+		}
 	}
 
 	LastSelPosition=OldLastSelPosition;
@@ -5753,7 +5680,6 @@ void FileList::PluginDelete()
 	_ALGO(CleverSysLog clv(L"FileList::PluginDelete()"));
 	SaveSelection();
 	auto ItemList = CreatePluginItemList();
-
 	if (!ItemList.empty())
 	{
 		if (Global->CtrlObject->Plugins->DeleteFiles(GetPluginHandle(), ItemList.data(), ItemList.size(), 0))
@@ -5920,7 +5846,6 @@ void FileList::PluginToPluginFiles(int Move)
 	SaveSelection();
 	os::fs::create_directory(strTempDir);
 	auto ItemList = CreatePluginItemList();
-
 	if (!ItemList.empty())
 	{
 		const wchar_t* TempDir=strTempDir.data();
@@ -5966,33 +5891,34 @@ void FileList::PluginToPluginFiles(int Move)
 void FileList::PluginHostGetFiles()
 {
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-	string strSelName;
-	DWORD FileAttr;
 	SaveSelection();
-	GetSelName(nullptr,FileAttr);
 
-	if (!GetSelName(&strSelName,FileAttr))
+	const auto Enumerator = enum_selected();
+	if (Enumerator.begin() == Enumerator.end())
 		return;
+
+	const auto& Data = *Enumerator.begin();
 
 	auto strDestPath = AnotherPanel->GetCurDir();
 
 	if (((!AnotherPanel->IsVisible() || AnotherPanel->GetType() != panel_type::FILE_PANEL) &&
 	        !m_SelFileCount) || strDestPath.empty())
 	{
-		assign(strDestPath, PointToName(strSelName));
+		assign(strDestPath, PointToName(Data.FileName));
 		// SVS: А зачем здесь велся поиск точки с начала?
 		size_t pos = strDestPath.rfind(L'.');
 		if (pos != string::npos)
 			strDestPath.resize(pos);
 	}
 
-	int ExitLoop=FALSE;
-	GetSelName(nullptr,FileAttr);
+	auto ExitLoop = false;
 	std::unordered_set<Plugin*> UsedPlugins;
-
-	while (!ExitLoop && GetSelName(&strSelName,FileAttr))
+	for (const auto& i : enum_selected())
 	{
-		auto hCurPlugin = OpenPluginForFile(strSelName, FileAttr, OFP_EXTRACT);
+		if (ExitLoop)
+			break;
+
+		auto hCurPlugin = OpenPluginForFile(i.FileName, i.Attributes, OFP_EXTRACT);
 
 		if (hCurPlugin)
 		{
@@ -6067,7 +5993,7 @@ void FileList::PluginPutFilesToNew()
 		int n = 0;
 		std::for_each(CONST_RANGE(m_ListData, i)
 		{
-			if (!(i.FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (!PtrLastPos || PtrLastPos->CreationTime < i.CreationTime))
+			if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && (!PtrLastPos || PtrLastPos->CreationTime < i.CreationTime))
 			{
 				LastPos = n;
 				PtrLastPos = &i;
@@ -6102,7 +6028,6 @@ int FileList::PluginPutFilesToAnother(int Move, panel_ptr AnotherPanel)
 	int PutCode=0;
 	SaveSelection();
 	auto ItemList = CreatePluginItemList();
-
 	if (!ItemList.empty())
 	{
 		SetCurPath();
@@ -6241,7 +6166,7 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;
 
-	auto hNewPlugin = OpenPluginForFile(Item->strName, Item->FileAttr, OFP_COMMANDS);
+	auto hNewPlugin = OpenPluginForFile(Item->FileName, Item->Attributes, OFP_COMMANDS);
 	if (!hNewPlugin)
 		return Done;
 
@@ -6484,7 +6409,7 @@ void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList
 
 		if (!(CurPlugin.Flags & PPIF_SELECTED))
 		{
-			while (!equal_icase(CurPlugin.FileName, m_ListData[FileNumber].strName))
+			while (!equal_icase(CurPlugin.FileName, m_ListData[FileNumber].FileName))
 				if (++FileNumber >= m_ListData.size())
 					return;
 
@@ -6654,14 +6579,14 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if (!m_ListData.empty())
 	{
-		strCurName = m_ListData[m_CurFile].strName;
+		strCurName = m_ListData[m_CurFile].FileName;
 
 		if (m_ListData[m_CurFile].Selected && !ReturnCurrentFile)
 		{
 			const auto NotSelectedIterator = std::find_if(m_ListData.begin() + m_CurFile + 1, m_ListData.end(), [](const auto& i) { return !i.Selected; });
 			if (NotSelectedIterator != m_ListData.cend())
 			{
-				strNextCurName = NotSelectedIterator->strName;
+				strNextCurName = NotSelectedIterator->FileName;
 			}
 		}
 	}
@@ -6759,37 +6684,25 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	{
 		ErrorState = error_state::fetch();
 
-		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
+		if ((Global->Opt->ShowHidden || !(fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || m_Filter->FileInFilter(fdata, nullptr, &fdata.FileName)))
 		{
 			{
 				FileListItem NewItem{};
 
-				NewItem.FileAttr = fdata.dwFileAttributes;
-				NewItem.CreationTime = fdata.CreationTime;
-				NewItem.AccessTime = fdata.LastAccessTime;
-				NewItem.WriteTime = fdata.LastWriteTime;
-				NewItem.ChangeTime = fdata.ChangeTime;
-				NewItem.FileSize = fdata.nFileSize;
-				NewItem.AllocationSize = fdata.nAllocationSize;
-				NewItem.strName = fdata.strFileName;
-				NewItem.strShortName = fdata.strAlternateFileName;
-				NewItem.Position = m_ListData.size();
+				static_cast<os::fs::find_data&>(NewItem) = fdata;
 
-				if (fdata.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
-				{
-					NewItem.ReparseTag = fdata.dwReserved0; //MSDN
-				}
-				if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+				NewItem.Position = m_ListData.size();
+				NewItem.SortGroup = DEFAULT_SORT_GROUP;
+
+				if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
 					TotalFileSize += NewItem.FileSize;
 				}
 
-				NewItem.SortGroup = DEFAULT_SORT_GROUP;
-
 				m_ListData.emplace_back(std::move(NewItem));
 			}
 
-			if (fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			if (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
 				++m_TotalDirCount;
 			}
@@ -6851,11 +6764,17 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network.Id))) // NetWork Plugin
 	{
+		FileListItem NewItem;
+		FillParentPoint(NewItem, m_ListData.size() + 1);
+
 		os::chrono::time_point TwoDotsTimes[4];
 		os::fs::GetFileTimeSimple(m_CurDir, &TwoDotsTimes[0], &TwoDotsTimes[1], &TwoDotsTimes[2], &TwoDotsTimes[3]);
 
-		FileListItem NewItem;
-		FillParentPoint(NewItem, m_ListData.size() + 1, TwoDotsTimes);
+		NewItem.CreationTime = TwoDotsTimes[0];
+		NewItem.LastAccessTime = TwoDotsTimes[1];
+		NewItem.LastWriteTime = TwoDotsTimes[2];
+		NewItem.ChangeTime = TwoDotsTimes[3];
+
 		m_ListData.emplace_back(std::move(NewItem));
 	}
 
@@ -6888,7 +6807,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 				if (!TestParentFolderName(PluginPtr->FileName))
 				{
-					if (i.FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+					if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
 						++m_TotalDirCount;
 					}
@@ -6913,9 +6832,9 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (KeepSelection || PrevSelFileCount>0)
 	{
 		if (LastSelPosition >= 0 && static_cast<size_t>(LastSelPosition) < OldData.size())
-			strLastSel = OldData[LastSelPosition].strName;
+			strLastSel = OldData[LastSelPosition].FileName;
 		if (GetSelPosition >= 0 && static_cast<size_t>(GetSelPosition) < OldData.size())
-			strGetSel = OldData[GetSelPosition].strName;
+			strGetSel = OldData[GetSelPosition].FileName;
 
 		MoveSelection(OldData, m_ListData);
 	}
@@ -6938,7 +6857,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, false);
 
-	if (m_CurFile >= static_cast<int>(m_ListData.size()) || !equal_icase(m_ListData[m_CurFile].strName, strCurName))
+	if (m_CurFile >= static_cast<int>(m_ListData.size()) || !equal_icase(m_ListData[m_CurFile].FileName, strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
@@ -7019,7 +6938,7 @@ struct search_list_less
 {
 	bool operator()(const FileListItem& a, const FileListItem& b) const
 	{
-		return a.strName < b.strName;
+		return a.FileName < b.FileName;
 	}
 }
 SearchListLess;
@@ -7039,7 +6958,7 @@ void FileList::MoveSelection(FileList::list_data& From, FileList::list_data& To)
 		const auto OldItem = std::lower_bound(ALL_CONST_RANGE(From), i, SearchListLess);
 		if (OldItem != From.end())
 		{
-			if (OldItem->strName == i.strName)
+			if (OldItem->FileName == i.FileName)
 			{
 				if (OldItem->ShowFolderSize)
 				{
@@ -7114,14 +7033,14 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 	if (!m_ListData.empty())
 	{
-		strCurName = m_ListData[m_CurFile].strName;
+		strCurName = m_ListData[m_CurFile].FileName;
 
 		if (m_ListData[m_CurFile].Selected)
 		{
 			const auto ItemIterator = std::find_if(m_ListData.cbegin() + m_CurFile + 1, m_ListData.cend(), [](const auto& i) { return !i.Selected; });
 			if (ItemIterator != m_ListData.cend())
 			{
-				strNextCurName = ItemIterator->strName;
+				strNextCurName = ItemIterator->FileName;
 			}
 		}
 	}
@@ -7165,8 +7084,8 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 		NewItem.SortGroup = (m_CachedOpenPanelInfo.Flags & OPIF_DISABLESORTGROUPS)? DEFAULT_SORT_GROUP : Global->CtrlObject->HiFiles->GetGroup(&NewItem, this);
 
-		const auto IsTwoDots = (!TwoDotsPtr || !(TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)) && TestParentFolderName(NewItem.strName);
-		const auto IsDir = (NewItem.FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+		const auto IsTwoDots = (!TwoDotsPtr || !(TwoDotsPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY)) && TestParentFolderName(NewItem.FileName);
+		const auto IsDir = (NewItem.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 		const auto Size = NewItem.FileSize;
 
 		m_ListData.emplace_back(std::move(NewItem));
@@ -7175,7 +7094,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		{
 			// We keep the address of the first encountered ".." element for special treatment.
 			// However, if we found a file and after that we found a directory - it's better to pick a directory.
-			if (!TwoDotsPtr || (IsDir && !(TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+			if (!TwoDotsPtr || (IsDir && !(TwoDotsPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY)))
 			{
 				// We reserve capacity so no reallocation will happen and pointer will stay valid.
 				TwoDotsPtr = &m_ListData.back();
@@ -7199,9 +7118,9 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 
 				if (os::fs::get_find_data(m_CachedOpenPanelInfo.HostFile, FindData))
 				{
-					NewItem.WriteTime = FindData.LastWriteTime;
+					NewItem.LastWriteTime = FindData.LastWriteTime;
 					NewItem.CreationTime = FindData.CreationTime;
-					NewItem.AccessTime = FindData.LastAccessTime;
+					NewItem.LastAccessTime = FindData.LastAccessTime;
 					NewItem.ChangeTime = FindData.ChangeTime;
 				}
 			}
@@ -7210,14 +7129,14 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	}
 	else
 	{
-		if (TwoDotsPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+		if (TwoDotsPtr->Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			--m_TotalDirCount;
 		}
 		else
 		{
 			--m_TotalFileCount;
-			TwoDotsPtr->FileAttr |= FILE_ATTRIBUTE_DIRECTORY;
+			TwoDotsPtr->Attributes |= FILE_ATTRIBUTE_DIRECTORY;
 		}
 		TotalFileSize -= TwoDotsPtr->FileSize;
 	}
@@ -7238,9 +7157,9 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	if (KeepSelection || PrevSelFileCount>0)
 	{
 		if (LastSelPosition >= 0 && LastSelPosition < static_cast<long>(OldData.size()))
-			strLastSel = OldData[LastSelPosition].strName;
+			strLastSel = OldData[LastSelPosition].FileName;
 		if (GetSelPosition >= 0 && GetSelPosition < static_cast<long>(OldData.size()))
-			strGetSel = OldData[GetSelPosition].strName;
+			strGetSel = OldData[GetSelPosition].FileName;
 
 		MoveSelection(OldData, m_ListData);
 		OldData.clear();
@@ -7259,7 +7178,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	if (!strGetSel.empty())
 		GetSelPosition = FindFile(strGetSel, false);
 
-	if (m_CurFile >= static_cast<int>(m_ListData.size()) || !equal_icase(m_ListData[m_CurFile].strName, strCurName))
+	if (m_CurFile >= static_cast<int>(m_ListData.size()) || !equal_icase(m_ListData[m_CurFile].FileName, strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.empty())
 			GoToFile(strNextCurName);
 
@@ -7346,7 +7265,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 	{
 		if (!i.DizText)
 		{
-			i.DizText = Diz.Get(i.strName, i.strShortName, i.FileSize);
+			i.DizText = Diz.Get(i.FileName, i.AlternateFileName, i.FileSize);
 		}
 	}
 }
@@ -7371,20 +7290,11 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 }
 
 // занести предопределенные данные для каталога ".."
-void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos, const os::chrono::time_point* Times)
+void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos)
 {
-	Item.FileAttr = FILE_ATTRIBUTE_DIRECTORY;
-	Item.strName = L"..";
-	Item.strShortName = L"..";
-
-	if (Times)
-	{
-		Item.CreationTime = Times[0];
-		Item.AccessTime = Times[1];
-		Item.WriteTime = Times[2];
-		Item.ChangeTime = Times[3];
-	}
-
+	Item.Attributes = FILE_ATTRIBUTE_DIRECTORY;
+	Item.FileName = L"..";
+	Item.AlternateFileName = Item.FileName;
 	Item.Position = CurFilePos;
 }
 
@@ -7707,9 +7617,9 @@ void FileList::ShowFileList(bool Fast)
 		}
 		else
 		{
-			if (!TestParentFolderName(m_ListData[m_CurFile].strName))
+			if (!TestParentFolderName(m_ListData[m_CurFile].FileName))
 			{
-				m_CurDir=m_ListData[m_CurFile].strName;
+				m_CurDir=m_ListData[m_CurFile].FileName;
 				const auto pos = FindLastSlash(m_CurDir);
 				if (pos != string::npos && pos)
 				{
@@ -8379,10 +8289,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								SetColor(OldColor);
 							}
 
-							string_view Name = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty() && !ShowStatus? m_ListData[ListPos].strShortName : m_ListData[ListPos].strName;
+							string_view Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
 
 							string strNameCopy;
-							if (!(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
+							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
 							{
 								const auto ExtPtr = PointToExt(Name);
 								if (!ExtPtr.empty())
@@ -8444,7 +8354,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							}
 
 							string strName;
-							int TooLong=ConvertName(Name, strName, Width, RightAlign,ShowStatus,m_ListData[ListPos].FileAttr);
+							int TooLong=ConvertName(Name, strName, Width, RightAlign,ShowStatus,m_ListData[ListPos].Attributes);
 
 							if (CurLeftPos)
 								LeftBracket=TRUE;
@@ -8461,13 +8371,13 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (!ShowStatus)
 							{
 								if (m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE)
-									if (!(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
+									if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY) && !IsCaseMixed(NameCopy))
 										inplace::lower(strName);
 
-								if ((m_ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+								if ((m_ViewSettings.Flags&PVS_FOLDERUPPERCASE) && (m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 									inplace::upper(strName);
 
-								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+								if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 									inplace::lower(strName);
 							}
 
@@ -8507,9 +8417,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case EXTENSION_COLUMN:
 						{
 							string_view ExtPtr;
-							if (!(m_ListData[ListPos].FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+							if (!(m_ListData[ListPos].Attributes & FILE_ATTRIBUTE_DIRECTORY))
 							{
-								const auto& Name = m_ShowShortNames && !m_ListData[ListPos].strShortName.empty() && !ShowStatus ? m_ListData[ListPos].strShortName : m_ListData[ListPos].strName;
+								const auto& Name = m_ListData[ListPos].AlternateOrNormal(m_ShowShortNames);
 								ExtPtr = PointToExt(Name);
 							}
 							if (!ExtPtr.empty())
@@ -8549,8 +8459,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							Text(FormatStr_Size(
 								SizeToDisplay,
-								m_ListData[ListPos].strName,
-								m_ListData[ListPos].FileAttr,
+								m_ListData[ListPos].FileName,
+								m_ListData[ListPos].Attributes,
 								m_ListData[ListPos].ShowFolderSize,
 								m_ListData[ListPos].ReparseTag,
 								ColumnType,
@@ -8575,7 +8485,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									FileTime=&m_ListData[ListPos].CreationTime;
 									break;
 								case ADATE_COLUMN:
-									FileTime=&m_ListData[ListPos].AccessTime;
+									FileTime=&m_ListData[ListPos].LastAccessTime;
 									break;
 								case CHDATE_COLUMN:
 									FileTime=&m_ListData[ListPos].ChangeTime;
@@ -8584,7 +8494,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								case TIME_COLUMN:
 								case WDATE_COLUMN:
 								default:
-									FileTime=&m_ListData[ListPos].WriteTime;
+									FileTime=&m_ListData[ListPos].LastWriteTime;
 									break;
 							}
 
@@ -8594,7 +8504,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 						case ATTR_COLUMN:
 						{
-							Text(FormatStr_Attribute(m_ListData[ListPos].FileAttr,ColumnWidth));
+							Text(FormatStr_Attribute(m_ListData[ListPos].Attributes,ColumnWidth));
 							break;
 						}
 
@@ -8791,7 +8701,7 @@ void FileList::MoveSelection(direction Direction)
 	if (ShiftSelection==-1)
 	{
 		// .. is never selected
-		if (m_CurFile < static_cast<int>(m_ListData.size() - 1) && TestParentFolderName(CurPtr->strName))
+		if (m_CurFile < static_cast<int>(m_ListData.size() - 1) && TestParentFolderName(CurPtr->FileName))
 			ShiftSelection = !m_ListData[m_CurFile+1].Selected;
 		else
 			ShiftSelection=!CurPtr->Selected;

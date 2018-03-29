@@ -333,8 +333,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	SCOPED_ACTION(ChangePriority)(Global->Opt->DelThreadPriority);
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DelPreRedrawItem>());
 	string strDeleteFilesMsg;
-	string strSelName;
-	string strSelShortName;
 	bool NeedUpdate = true, NeedSetUpADir = false;
 	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
 	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
@@ -356,28 +354,22 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	if (!SelCount)
 		return;
 
-	DWORD FileAttr;
-	// Удаление в корзину только для  FIXED-дисков
-	{
-		SrcPanel->GetSelName(nullptr,FileAttr);
-		SrcPanel->GetSelName(&strSelName,FileAttr);
+	os::fs::find_data SingleSelData;
 
-		if (Global->Opt->DeleteToRecycleBin && FAR_GetDriveType(GetPathRoot(ConvertNameToFull(strSelName))) != DRIVE_FIXED)
-			Global->Opt->DeleteToRecycleBin = false;
-	}
+	SrcPanel->get_first_selected(SingleSelData);
+
+	if (Global->Opt->DeleteToRecycleBin && FAR_GetDriveType(GetPathRoot(ConvertNameToFull(SingleSelData.FileName))) != DRIVE_FIXED)
+		Global->Opt->DeleteToRecycleBin = false;
 
 	if (SelCount==1)
 	{
-		SrcPanel->GetSelName(nullptr,FileAttr);
-		SrcPanel->GetSelName(&strSelName,FileAttr);
-
-		if (TestParentFolderName(strSelName) || strSelName.empty())
+		if (TestParentFolderName(SingleSelData.FileName) || SingleSelData.FileName.empty())
 		{
 			NeedUpdate = false;
 			return;
 		}
 
-		strDeleteFilesMsg = strSelName;
+		strDeleteFilesMsg = SingleSelData.FileName;
 		QuoteOuterSpace(strDeleteFilesMsg);
 	}
 	else
@@ -400,9 +392,9 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	int Ret = 1;
 
 	//   Обработка "удаления" линков
-	if ((FileAttr & FILE_ATTRIBUTE_REPARSE_POINT) && SelCount==1)
+	if (SelCount == 1 && (SingleSelData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT))
 	{
-		auto strJuncName = ConvertNameToFull(strSelName);
+		auto strJuncName = ConvertNameToFull(SingleSelData.FileName);
 
 		if (GetReparsePointInfo(strJuncName, strJuncName)) // ? SelName ?
 		{
@@ -437,15 +429,15 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		string tText;
 		auto mDBttn = Wipe? lng::MDeleteWipe : Global->Opt->DeleteToRecycleBin? lng::MDeleteRecycle : lng::MDelete;
 		bool bHilite = Global->Opt->DelOpt.HighlightSelected;
-		const auto mshow = std::min(std::max((int)Global->Opt->DelOpt.ShowSelected, 1), ScrY / 2);
+		const size_t mshow = std::min(std::max(static_cast<int>(Global->Opt->DelOpt.ShowSelected), 1), ScrY / 2);
 
 		std::vector<string> items{ strDeleteFilesMsg };
 
 		if (SelCount == 1)
 		{
-			bool folder = (FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0;
+			bool folder = (SingleSelData.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
-			if (Wipe && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+			if (Wipe && !(SingleSelData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT))
 				mDText = folder? lng::MAskWipeFolder : lng::MAskWipeFile;
 			else
 			{
@@ -457,9 +449,11 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			if (bHilite)
 			{
 				string name, sname;
-				SrcPanel->GetCurName(name, sname);
-				QuoteOuterSpace(name);
-				bHilite = strDeleteFilesMsg != name;
+				if (SrcPanel->GetCurName(name, sname))
+				{
+					QuoteOuterSpace(name);
+					bHilite = strDeleteFilesMsg != name;
+				}
 			}
 		}
 		else
@@ -476,20 +470,18 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			{
 				tText = concat(msg(mDText), L' ', strDeleteFilesMsg);
 				items.clear();
-				DWORD attr;
-				string name;
-				SrcPanel->GetSelName(nullptr, attr);
 
-				for (size_t i = 0; i < SelCount; ++i)
+				for (const auto& i: SrcPanel->enum_selected())
 				{
-					if (i == (size_t)mshow-1 && i+1 < SelCount)
+					auto Name = i.FileName;
+					QuoteOuterSpace(Name);
+					items.emplace_back(Name);
+
+					if (items.size() > mshow && items.size() < SelCount)
 					{
 						items.emplace_back(L"...");
 						break;
 					}
-					SrcPanel->GetSelName(&name, attr);
-					QuoteOuterSpace(name);
-					items.emplace_back(name);
 				}
 			}
 		}
@@ -544,7 +536,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	const auto strDizName = SrcPanel->GetDizName();
 	const auto DizPresent = !strDizName.empty() && os::fs::exists(strDizName);
 
-	NeedSetUpADir = CheckUpdateAnotherPanel(SrcPanel, strSelName);
+	NeedSetUpADir = CheckUpdateAnotherPanel(SrcPanel, SingleSelData.FileName);
 
 	if (SrcPanel->GetType() == panel_type::TREE_PANEL)
 		FarChDir(L"\\");
@@ -564,8 +556,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 		if (Global->Opt->DelOpt.ShowTotal)
 		{
-			SrcPanel->GetSelName(nullptr,FileAttr);
-
 			time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
 			const auto& DirInfoCallback = [&](string_view const Name, unsigned long long const Items, unsigned long long const Size)
@@ -574,16 +564,18 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 					DirInfoMsg(msg(lng::MDeletingTitle), Name, Items, Size);
 			};
 
-			os::fs::find_data SelFindData;
-			while (SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName, &SelFindData) && !Cancel)
+			for (const auto& i: SrcPanel->enum_selected())
 			{
+				if (Cancel)
+					break;
+
 				++ItemsCount;
 
-				if (FileAttr&FILE_ATTRIBUTE_DIRECTORY && !os::fs::is_directory_symbolic_link(SelFindData))
+				if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY && !os::fs::is_directory_symbolic_link(i))
 				{
 					DirInfoData Data = {};
 
-					if (GetDirInfo(strSelName, Data, nullptr, DirInfoCallback, 0) > 0)
+					if (GetDirInfo(i.FileName, Data, nullptr, DirInfoCallback, 0) > 0)
 					{
 						ItemsCount+=Data.FileCount+Data.DirCount+1;
 					}
@@ -596,10 +588,16 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		}
 
 		os::fs::find_data SelFindData;
-		SrcPanel->GetSelName(nullptr, FileAttr);
+		SrcPanel->GetSelName(nullptr, SingleSelData.Attributes);
 		const time_check TimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 		bool cannot_recycle_try_delete_folder = false;
 
+		string strSelName;
+		string strSelShortName;
+		DWORD FileAttr = 0;
+
+		// BUGBUGBUG
+		// TODO: enumerator
 		while (!Cancel && (cannot_recycle_try_delete_folder || SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName, &SelFindData)))
 		{
 			if (strSelName.empty() || IsRelativeRoot(strSelName) || IsRootPath(strSelName))
@@ -696,11 +694,11 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 							ShellDeleteMsg(strFullName, Wipe?DEL_WIPE:DEL_DEL, { ProcessedItems, ItemsCount }, 0);
 						}
 
-						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+						if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 						{
 							if (os::fs::is_directory_symbolic_link(FindData))
 							{
-								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+								if (FindData.Attributes & FILE_ATTRIBUTE_READONLY)
 									os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
 								int MsgCode=ERemoveDirectory(strFullName, Wipe? D_WIPE : D_DEL);
@@ -753,7 +751,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 							if (ScTree.IsDirSearchDone())
 							{
-								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+								if (FindData.Attributes & FILE_ATTRIBUTE_READONLY)
 									os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
 								int MsgCode=ERemoveDirectory(strFullName, Wipe? D_WIPE : D_DEL);
@@ -774,7 +772,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 						}
 						else
 						{
-							int AskCode=AskDeleteReadOnly(strFullName,FindData.dwFileAttributes,Wipe);
+							int AskCode=AskDeleteReadOnly(strFullName,FindData.Attributes,Wipe);
 
 							if (AskCode==DELETE_CANCEL)
 							{
@@ -1114,7 +1112,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 						return false;
 					}
 				}
-				EDeleteReparsePoint(strFullName2, FindData.dwFileAttributes, SkipMode);
+				EDeleteReparsePoint(strFullName2, FindData.Attributes, SkipMode);
 			}
 		}
 	}
@@ -1188,7 +1186,7 @@ void DeleteDirTree(const string& Dir)
 	{
 		os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
-		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			if (ScTree.IsDirSearchDone())
 				os::fs::remove_directory(strFullName);

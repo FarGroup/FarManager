@@ -495,17 +495,17 @@ bool Viewer::CheckChanged()
 
 	// Smart file change check -- thanks Dzirt2005
 	//
-	bool changed = ViewFindData.LastWriteTime != NewViewFindData.LastWriteTime || ViewFindData.nFileSize != NewViewFindData.nFileSize;
+	bool changed = ViewFindData.LastWriteTime != NewViewFindData.LastWriteTime || ViewFindData.FileSize != NewViewFindData.FileSize;
 	if (changed)
 	{
 		ViewFindData = NewViewFindData;
 	}
 	else
 	{
-		if (!ViewFile.GetSize(NewViewFindData.nFileSize) || FileSize == static_cast<long long>(NewViewFindData.nFileSize))
+		if (!ViewFile.GetSize(NewViewFindData.FileSize) || FileSize == static_cast<long long>(NewViewFindData.FileSize))
 			return true;
 
-		changed = FileSize > static_cast<long long>(NewViewFindData.nFileSize); // true if file shrank
+		changed = FileSize > static_cast<long long>(NewViewFindData.FileSize); // true if file shrank
 	}
 
 	SetFileSize();

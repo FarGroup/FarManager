@@ -2296,14 +2296,14 @@ bool config_provider::Export(const string& File)
 		auto& e = CreateChild(root, "pluginsconfig");
 		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"_sv, L"*.db"_sv)))
 		{
-			i.strFileName.resize(i.strFileName.size()-3);
-			inplace::upper(i.strFileName);
-			if (std::regex_search(i.strFileName, uuid_regex()))
+			i.FileName.resize(i.FileName.size()-3);
+			inplace::upper(i.FileName);
+			if (std::regex_search(i.FileName, uuid_regex()))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");
-				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.strFileName).data());
+				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.FileName).data());
 				Representation.SetRoot(PluginRoot);
-				CreatePluginsConfig(i.strFileName)->Export(Representation);
+				CreatePluginsConfig(i.FileName)->Export(Representation);
 			}
 		}
 	}

@@ -182,9 +182,7 @@ public:
 	virtual size_t GetSelCount() const { return 0; }
 	virtual size_t GetRealSelCount() const {return 0;}
 	virtual bool GetSelName(string *strName, DWORD &FileAttr, string *ShortName = nullptr, os::fs::find_data *fd = nullptr) { return false; }
-	virtual void UngetSelName() {}
 	virtual void ClearLastGetSelection() {}
-	virtual unsigned long long GetLastSelectedSize() const { return -1; }
 	virtual bool GetCurName(string &strName, string &strShortName) const;
 	virtual bool GetCurBaseName(string &strName, string &strShortName) const;
 	virtual bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return false; }
@@ -253,12 +251,35 @@ public:
 	bool NeedUpdatePanel(const Panel *AnotherPanel) const;
 	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
 	void SetFullScreen() { m_ViewSettings.Flags |= PVS_FULLSCREEN; }
-	bool CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string& strDest, bool UNC, bool ShortNameAsIs = true) const;
+	bool CreateFullPathName(string_view Name, string_view ShortName, DWORD FileAttr, string& strDest, bool UNC, bool ShortNameAsIs = true) const;
 	FilePanels* Parent() const;
 
 	static void EndDrag();
 
 	int ProcessingPluginCommand = 0;
+
+	auto enum_selected()
+	{
+		using value_type = os::fs::find_data;
+		return make_inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
+		{
+			DWORD Attributes;
+
+			if (Reset)
+				GetSelName(nullptr, Attributes);
+
+			string Name;
+			return GetSelName(&Name, Attributes, nullptr, &Value);
+		});
+	}
+
+	bool get_first_selected(os::fs::find_data& Value)
+	{
+		DWORD Attributes;
+		GetSelName(nullptr, Attributes);
+		string Name;
+		return GetSelName(&Name, Attributes, nullptr, &Value);
+	}
 
 protected:
 	explicit Panel(window_ptr Owner);

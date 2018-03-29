@@ -485,11 +485,14 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED && !MouseEvent->dwEventFlags && m_X2 - m_X1<ScrX)
 	{
-		DWORD FileAttr;
 		MoveToMouse(MouseEvent);
-		GetSelName(nullptr,FileAttr);
+		os::fs::find_data Data;
+		if (!get_first_selected(Data))
+			return false;
 
-		if (GetSelName(&strDragName,FileAttr) && !TestParentFolderName(strDragName))
+		strDragName = Data.FileName;
+
+		if (!TestParentFolderName(strDragName))
 		{
 			SrcDragPanel=this;
 			DragX=MouseEvent->dwMousePosition.X;
@@ -517,21 +520,20 @@ void Panel::EndDrag()
 
 void Panel::DragMessage(int X,int Y,int Move)
 {
-	string strSelName;
-	int MsgX,Length;
-
 	const auto SelCount = SrcDragPanel->GetSelCount();
 
 	if (!SelCount)
-	{
 		return;
-	}
-	else if (SelCount == 1)
+
+	string strSelName;
+
+	if (SelCount == 1)
 	{
-		DWORD FileAttr;
-		SrcDragPanel->GetSelName(nullptr,FileAttr);
-		SrcDragPanel->GetSelName(&strSelName,FileAttr);
-		strSelName.erase(0, strSelName.size() - PointToName(strSelName).size());
+		os::fs::find_data Data;
+		if (!SrcDragPanel->get_first_selected(Data))
+			return;
+
+		assign(strSelName, PointToName(Data.FileName));
 		QuoteSpace(strSelName);
 	}
 	else
@@ -541,7 +543,10 @@ void Panel::DragMessage(int X,int Y,int Move)
 
 	auto strDragMsg = format(Move? lng::MDragMove : lng::MDragCopy, strSelName);
 
-	if ((Length=(int)strDragMsg.size())+X>ScrX)
+	auto Length = static_cast<int>(strDragMsg.size());
+	int MsgX = X;
+
+	if (Length + X > ScrX)
 	{
 		MsgX=ScrX-Length;
 
@@ -552,8 +557,6 @@ void Panel::DragMessage(int X,int Y,int Move)
 			Length=(int)strDragMsg.size();
 		}
 	}
-	else
-		MsgX=X;
 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	// Important - the old one must be deleted before creating a new one, not after
@@ -1181,16 +1184,12 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 bool Panel::GetCurName(string &strName, string &strShortName) const
 {
-	strName.clear();
-	strShortName.clear();
 	return false;
 }
 
 
 bool Panel::GetCurBaseName(string &strName, string &strShortName) const
 {
-	strName.clear();
-	strShortName.clear();
 	return false;
 }
 
@@ -1385,7 +1384,7 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 	return true;
 }
 
-bool Panel::CreateFullPathName(const string& Name, const string& ShortName, DWORD FileAttr, string& strDest, bool UNC, bool ShortNameAsIs) const
+bool Panel::CreateFullPathName(string_view const Name, string_view const ShortName, DWORD const FileAttr, string& strDest, bool const UNC, bool const ShortNameAsIs) const
 {
 	string strFileName = strDest;
 	if (FindSlash(Name) == string::npos && FindSlash(ShortName) == string::npos)

@@ -943,7 +943,7 @@ bool InfoList::ShowDirDescription(int YPos)
 			continue;
 
 		CutToSlash(strFullDizName, false);
-		strFullDizName += FindData.strFileName;
+		strFullDizName += FindData.FileName;
 
 		if (OpenDizFile(strFullDizName, YPos))
 			return true;

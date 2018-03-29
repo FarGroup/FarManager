@@ -49,7 +49,7 @@ namespace highlight
 
 using content_data_ptr = std::unique_ptr<std::unordered_map<string, string>>;
 
-class FileListItem
+class FileListItem: public os::fs::find_data
 {
 public:
 	NONCOPYABLE(FileListItem);
@@ -73,20 +73,10 @@ public:
 	bool IsContentDataRead() const;
 	const content_data_ptr& ContentData(const FileList* Owner) const;
 
-	// KEEP ALIGNED!
-	os::chrono::time_point CreationTime;
-	os::chrono::time_point AccessTime;
-	os::chrono::time_point WriteTime;
-	os::chrono::time_point ChangeTime;
-
-	unsigned long long FileSize{};
-	unsigned long long AllocationSize{};
+	const string& AlternateOrNormal(bool Alternate = true) const;
 
 	unsigned long long UserFlags{};
 	UserDataItem UserData{};
-
-	DWORD FileAttr{};
-	DWORD ReparseTag{};
 
 	mutable const highlight::element* Colors{};
 
@@ -102,9 +92,6 @@ public:
 	bool Selected{};
 	bool PrevSelected{};
 	char ShowFolderSize{};
-
-	string strName;
-	string strShortName;
 
 	struct values
 	{
@@ -189,9 +176,7 @@ public:
 	void SetPluginMode(std::unique_ptr<plugin_panel>&& hPlugin, const string& PluginFile, bool SendOnFocus = false) override;
 	size_t GetSelCount() const override;
 	bool GetSelName(string *strName, DWORD &FileAttr, string *strShortName = nullptr, os::fs::find_data *fde = nullptr) override;
-	void UngetSelName() override;
 	void ClearLastGetSelection() override;
-	unsigned long long GetLastSelectedSize() const override;
 	plugin_panel* GetPluginHandle() const override;
 	size_t GetRealSelCount() const override;
 	void SetPluginModified() override;
@@ -276,7 +261,7 @@ private:
 	void SelectSortMode();
 	bool ApplyCommand();
 	void DescribeFiles();
-	std::vector<PluginPanelItem> CreatePluginItemList(bool AddTwoDot = true);
+	std::vector<PluginPanelItem> CreatePluginItemList();
 	std::unique_ptr<plugin_panel> OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
 	void PreparePanelView();
 	void PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen);
@@ -305,7 +290,7 @@ private:
 	void MoveSelection(direction Direction);
 
 	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
-	static void FillParentPoint(FileListItem& Item, size_t CurFilePos, const os::chrono::time_point* Times = nullptr);
+	static void FillParentPoint(FileListItem& Item, size_t CurFilePos);
 
 	std::unique_ptr<FileFilter> m_Filter;
 	DizList Diz;

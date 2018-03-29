@@ -99,17 +99,10 @@ void PrintFiles(FileList* SrcPanel)
 		return;
 	}
 
-	// проверка каталогов
+	for (const auto& i: SrcPanel->enum_selected())
 	{
-		_ALGO(SysLog(L"Check for FILE_ATTRIBUTE_DIRECTORY"));
-		DWORD FileAttr;
-		string strSelName;
-		SrcPanel->GetSelName(nullptr, FileAttr);
-		while (SrcPanel->GetSelName(&strSelName, FileAttr))
-		{
-			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
-				DirsCount++;
-		}
+		if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+			DirsCount++;
 	}
 
 	if (DirsCount==SelCount)
@@ -140,12 +133,12 @@ void PrintFiles(FileList* SrcPanel)
 		string strTitle;
 		if (SelCount==1)
 		{
-			DWORD FileAttr;
-			string strSelName;
-			SrcPanel->GetSelName(nullptr,FileAttr);
-			SrcPanel->GetSelName(&strSelName, FileAttr);
-			strSelName = inplace::quote_unconditional(TruncStr(strSelName, 50));
-			strTitle = format(lng::MPrintTo, strSelName);
+			os::fs::find_data Data;
+			if (!SrcPanel->get_first_selected(Data))
+				return;
+
+			auto Name = Data.FileName;
+			strTitle = format(lng::MPrintTo, inplace::quote_unconditional(TruncStr(Name, 50)));
 		}
 		else
 		{
@@ -207,12 +200,9 @@ void PrintFiles(FileList* SrcPanel)
 		int PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
 		               !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
-		DWORD FileAttr;
-		string strSelName;
-		SrcPanel->GetSelName(nullptr,FileAttr);
-		while (SrcPanel->GetSelName(&strSelName,FileAttr))
+		for (const auto& i: SrcPanel->enum_selected())
 		{
-			if (TestParentFolderName(strSelName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+			if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				continue;
 
 			int Success=FALSE;
@@ -237,7 +227,7 @@ void PrintFiles(FileList* SrcPanel)
 				}
 			}
 			else
-				FileName = strSelName;
+				FileName = i.FileName;
 
 			error_state ErrorState;
 
@@ -278,7 +268,7 @@ void PrintFiles(FileList* SrcPanel)
 					msg(lng::MPrintTitle),
 					{
 						msg(lng::MCannotPrint),
-						strSelName
+						i.FileName
 					},
 					{ lng::MSkip, lng::MCancel }) != Message::first_button)
 					break;

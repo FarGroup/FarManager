@@ -499,8 +499,8 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 							if (os::fs::get_find_data(TmpStr, fd))
 							{
-								strPath.replace(LastPos, i - LastPos, fd.strFileName);
-								i += fd.strFileName.size() - (i - LastPos);
+								strPath.replace(LastPos, i - LastPos, fd.FileName);
+								i += fd.FileName.size() - (i - LastPos);
 							}
 
 							if (i != strPath.size())

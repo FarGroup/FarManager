@@ -166,19 +166,19 @@ namespace os::fs
 
 	static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, find_data& FindData, bool IsExtended)
 	{
-		FindData.dwFileAttributes = DirectoryInfo.FileAttributes;
+		FindData.Attributes = DirectoryInfo.FileAttributes;
 		FindData.CreationTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.CreationTime.QuadPart));
 		FindData.LastAccessTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.LastAccessTime.QuadPart));
 		FindData.LastWriteTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.LastWriteTime.QuadPart));
 		FindData.ChangeTime = os::chrono::time_point(os::chrono::duration(DirectoryInfo.ChangeTime.QuadPart));
-		FindData.nFileSize = DirectoryInfo.EndOfFile.QuadPart;
-		FindData.nAllocationSize = DirectoryInfo.AllocationSize.QuadPart;
-		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
+		FindData.FileSize = DirectoryInfo.EndOfFile.QuadPart;
+		FindData.AllocationSize = DirectoryInfo.AllocationSize.QuadPart;
+		FindData.ReparseTag = FindData.Attributes&FILE_ATTRIBUTE_REPARSE_POINT? DirectoryInfo.EaSize : 0;
 
 		const auto& CopyNames = [&FindData](const auto& DirInfo)
 		{
-			FindData.strFileName.assign(DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t));
-			FindData.strAlternateFileName.assign(DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t));
+			FindData.FileName.assign(DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t));
+			FindData.AlternateFileName.assign(DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t));
 		};
 
 		if (IsExtended)
@@ -211,12 +211,12 @@ namespace os::fs
 		// to the application itself, which, by coincidence, does it correctly, effectively masking the initial error.
 		// So people come to us and claim that Far isn't working properly while other programs are fine.
 
-		RemoveTrailingZeros(FindData.strFileName);
-		RemoveTrailingZeros(FindData.strAlternateFileName);
+		RemoveTrailingZeros(FindData.FileName);
+		RemoveTrailingZeros(FindData.AlternateFileName);
 
 		// Some other buggy implementations just set the first char of AlternateFileName to '\0' to make it "empty", leaving rubbish in others. Double facepalm.
-		if (!FindData.strAlternateFileName.empty() && FindData.strAlternateFileName.front() == L'\0')
-			FindData.strAlternateFileName.clear();
+		if (!FindData.AlternateFileName.empty() && FindData.AlternateFileName.front() == L'\0')
+			FindData.AlternateFileName.clear();
 	}
 
 	static find_file_handle FindFirstFileInternal(const string& Name, find_data& FindData)
@@ -371,10 +371,10 @@ namespace os::fs
 		}
 
 		// skip ".." & "."
-		if (Value.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
-			Value.strFileName[0] == L'.' && ((Value.strFileName.size() == 2 && Value.strFileName[1] == L'.') || Value.strFileName.size() == 1) &&
+		if (Value.Attributes & FILE_ATTRIBUTE_DIRECTORY &&
+			Value.FileName[0] == L'.' && ((Value.FileName.size() == 2 && Value.FileName[1] == L'.') || Value.FileName.size() == 1) &&
 			// These "virtual" folders either don't have an SFN at all or it's the same as LFN:
-			(Value.strAlternateFileName.empty() || Value.strAlternateFileName == Value.strFileName))
+			(Value.AlternateFileName.empty() || Value.AlternateFileName == Value.FileName))
 		{
 			return get(false, Value);
 		}
@@ -1732,31 +1732,31 @@ namespace os::fs
 		}
 
 		FindData = {};
-		FindData.dwFileAttributes = INVALID_FILE_ATTRIBUTES;
+		FindData.Attributes = INVALID_FILE_ATTRIBUTES;
 
 		size_t DirOffset = 0;
 		ParsePath(FileName, &DirOffset);
 		if (FileName.find_first_of(L"*?", DirOffset) != string::npos)
 			return false;
 
-		if ((FindData.dwFileAttributes = get_file_attributes(FileName)) == INVALID_FILE_ATTRIBUTES)
+		if ((FindData.Attributes = get_file_attributes(FileName)) == INVALID_FILE_ATTRIBUTES)
 			return false;
 
 		// Ага, значит файл таки есть. Заполним структуру ручками.
 		if (const auto File = file(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 		{
 			File.GetTime(&FindData.CreationTime, &FindData.LastAccessTime, &FindData.LastWriteTime, &FindData.ChangeTime);
-			File.GetSize(FindData.nFileSize);
+			File.GetSize(FindData.FileSize);
 		}
 
-		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+		if (FindData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)
 		{
 			string strTmp;
-			GetReparsePointInfo(FileName, strTmp, &FindData.dwReserved0); //MSDN
+			GetReparsePointInfo(FileName, strTmp, &FindData.ReparseTag);
 		}
 
-		assign(FindData.strFileName, PointToName(FileName));
-		FindData.strAlternateFileName = ConvertNameToShort(FileName);
+		assign(FindData.FileName, PointToName(FileName));
+		FindData.AlternateFileName = ConvertNameToShort(FileName);
 		return true;
 	}
 
@@ -1841,7 +1841,7 @@ namespace os::fs
 	bool is_directory_symbolic_link(const find_data& Data)
 	{
 		const auto Attributes = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT;
-		return (Data.dwFileAttributes & Attributes) == Attributes && (Data.dwReserved0 == IO_REPARSE_TAG_MOUNT_POINT || Data.dwReserved0 == IO_REPARSE_TAG_SYMLINK);
+		return (Data.Attributes & Attributes) == Attributes && (Data.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT || Data.ReparseTag == IO_REPARSE_TAG_SYMLINK);
 	}
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
