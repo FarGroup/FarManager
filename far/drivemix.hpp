@@ -63,7 +63,7 @@ enum
 
 bool IsDriveTypeRemote(UINT DriveType);
 
-void UpdateSavedDrives(const any& Payload);
+void UpdateSavedDrives(const std::any& Payload);
 
 os::fs::drives_set allowed_drives_mask();
 

@@ -123,7 +123,7 @@ void ShowProcessList()
 
 		ProcList->SortItems([](const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p)
 		{
-			return string_sort::less(any_cast<menu_data>(a.UserData).Title, any_cast<menu_data>(b.UserData).Title);
+			return string_sort::less(std::any_cast<const menu_data&>(a.UserData).Title, std::any_cast<const menu_data&>(b.UserData).Title);
 		});
 
 		return true;

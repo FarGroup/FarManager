@@ -3230,7 +3230,7 @@ static bool menushowFunc(FarMacroCall* Data)
 				}
 			};
 
-			const auto NewBegin = std::find_if(CONST_RANGE(NewItem.Name, i)
+			const auto NewBegin = std::find_if(ALL_CONST_RANGE(NewItem.Name), [&](wchar_t i)
 			{
 				auto Flag = CharToFlag(i);
 				NewItem.Flags |= Flag;

@@ -484,9 +484,9 @@ bool elevation::ElevationApproveDlg(lng Why, const string& Object)
 		if(!Global->IsMainThread())
 		{
 			os::event SyncEvent(os::event::type::automatic, os::event::state::nonsignaled);
-			listener Listener([&SyncEvent](const any& Payload)
+			listener Listener([&SyncEvent](const std::any& Payload)
 			{
-				ElevationApproveDlgSync(*any_cast<EAData*>(Payload));
+				ElevationApproveDlgSync(*std::any_cast<EAData*>(Payload));
 				SyncEvent.set();
 			});
 			message_manager::instance().notify(Listener.GetEventName(), &Data);

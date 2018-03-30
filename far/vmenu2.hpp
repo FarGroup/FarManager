@@ -83,12 +83,21 @@ public:
 	intptr_t GetExitCode();
 	void Close(int ExitCode=-2, bool Force = false);
 
-	any* GetUserData(int Position = -1) const;
+	const std::any* GetUserData(int Position = -1) const;
+	std::any* GetUserData(int Position = -1);
+
 	template<class T>
-	T* GetUserDataPtr(intptr_t Position = -1) const
+	const T* GetUserDataPtr(intptr_t Position = -1) const
 	{
-		return any_cast<T>(GetUserData(Position));
+		return std::any_cast<T>(GetUserData(Position));
 	}
+
+	template<class T>
+	T* GetUserDataPtr(intptr_t Position = -1)
+	{
+		return std::any_cast<T>(GetUserData(Position));
+	}
+
 	void Key(int key);
 	int GetSelectPos(FarListPos* ListPos);
 	int SetSelectPos(const FarListPos* ListPos, int Direct = 0);

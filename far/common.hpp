@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/type_traits.hpp"
 #include "common/function_traits.hpp"
 #include "common/smart_ptr.hpp"
-#include "common/any.hpp"
 #include "common/null_iterator.hpp"
 #include "common/enumerator.hpp"
 #include "common/range.hpp"

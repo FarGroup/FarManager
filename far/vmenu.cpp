@@ -457,7 +457,7 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 	// Освободим память... от ранее занятого ;-)
 	if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 	{
-		Items[NewItem->Index].UserData = any();
+		Items[NewItem->Index].UserData = std::any();
 	}
 
 	MenuItemEx MItem = FarList2MenuItem(NewItem->Item);
@@ -2733,7 +2733,7 @@ MenuItemEx& VMenu::at(size_t n)
 }
 
 // Присовокупить к элементу данные.
-void VMenu::SetUserData(const any& Data, int Position)
+void VMenu::SetUserData(const std::any& Data, int Position)
 {
 	int ItemPos = GetItemPosition(Position);
 
@@ -2741,7 +2741,7 @@ void VMenu::SetUserData(const any& Data, int Position)
 }
 
 // Получить данные
-any* VMenu::GetUserData(int Position)
+std::any* VMenu::GetUserData(int Position)
 {
 	int ItemPos = GetItemPosition(Position);
 	if (ItemPos < 0 || static_cast<size_t>(ItemPos) >= Items.size())

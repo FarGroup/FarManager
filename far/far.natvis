@@ -24,7 +24,7 @@
       </Expand>
   </Type>
 
-  <Type Name="detail::any_impl&lt;*&gt;">
+  <Type Name="any_impl::detail::any_impl&lt;*&gt;">
       <DisplayString>{m_Data}</DisplayString>
       <StringView>m_Data</StringView>
       <Expand>
@@ -32,7 +32,7 @@
       </Expand>
   </Type>
 
-  <Type Name="any">
+  <Type Name="any_impl::any">
       <DisplayString Condition="m_Data._Mypair._Myval2 == 0">empty</DisplayString>
       <DisplayString>{m_Data._Mypair._Myval2,na}</DisplayString>
       <StringView>m_Data._Mypair._Myval2</StringView>

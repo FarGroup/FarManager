@@ -113,8 +113,8 @@ public:
 	virtual bool TryParse(const string& value) = 0;
 	virtual string ExInfo() const = 0;
 	virtual string_view GetType() const = 0;
-	virtual bool IsDefault(const any& Default) const = 0;
-	virtual void SetDefault(const any& Default) = 0;
+	virtual bool IsDefault(const std::any& Default) const = 0;
+	virtual void SetDefault(const std::any& Default) = 0;
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
 	virtual void Export(FarSettingsItem& To) const = 0;
 
@@ -125,7 +125,7 @@ protected:
 	explicit Option(const T& Value): m_Value(Value) {}
 
 	template<class T>
-	const T& GetT() const { return any_cast<T>(m_Value); }
+	const T& GetT() const { return std::any_cast<const T&>(m_Value); }
 
 	template<class T>
 	void SetT(const T& NewValue) { if (GetT<T>() != NewValue) m_Value = NewValue; }
@@ -134,11 +134,11 @@ private:
 	friend class Options;
 
 	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const = 0;
-	virtual bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) = 0;
+	virtual bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const std::any& Default) = 0;
 
 	void MakeUnchanged() { m_Value.forget(); }
 
-	monitored<any> m_Value;
+	monitored<std::any> m_Value;
 };
 
 namespace option
@@ -198,10 +198,10 @@ namespace detail
 
 		string ExInfo() const override { return {}; }
 
-		bool IsDefault(const any& Default) const override { return Get() == any_cast<base_type>(Default); }
-		void SetDefault(const any& Default) override { Set(any_cast<base_type>(Default)); }
+		bool IsDefault(const std::any& Default) const override { return Get() == std::any_cast<base_type>(Default); }
+		void SetDefault(const std::any& Default) override { Set(std::any_cast<base_type>(Default)); }
 
-		bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const any& Default) override;
+		bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const std::any& Default) override;
 		bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }

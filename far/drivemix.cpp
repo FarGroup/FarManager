@@ -41,12 +41,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static std::pair<os::fs::drives_set, bool> SavedLogicalDrives;
 
-void UpdateSavedDrives(const any& Payload)
+void UpdateSavedDrives(const std::any& Payload)
 {
 	if (!SavedLogicalDrives.second)
 		return;
 
-	const auto& Message = any_cast<update_devices_message>(Payload);
+	const auto& Message = std::any_cast<const update_devices_message&>(Payload);
 	const os::fs::drives_set Drives(Message.Drives);
 
 	if (Message.Arrival)

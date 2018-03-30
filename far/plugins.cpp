@@ -115,9 +115,9 @@ bool PluginManager::plugin_less::operator()(const Plugin* a, const Plugin *b) co
 	return string_sort::less(PointToName(a->GetModuleName()), PointToName(b->GetModuleName()));
 }
 
-static void CallPluginSynchroEvent(const any& Payload)
+static void CallPluginSynchroEvent(const std::any& Payload)
 {
-	const auto& Data = any_cast<std::pair<GUID, void*>>(Payload);
+	const auto& Data = std::any_cast<const std::pair<GUID, void*>&>(Payload);
 	if (const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(Data.first))
 	{
 		ProcessSynchroEventInfo Info = { sizeof(Info) };

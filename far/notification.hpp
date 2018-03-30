@@ -57,10 +57,10 @@ class wm_listener;
 
 namespace detail
 {
-	class event_handler: public std::function<void(const any&)>
+	class event_handler: public std::function<void(const std::any&)>
 	{
 		template<typename T>
-		using with_payload = decltype(std::declval<T&>()(std::declval<any>()));
+		using with_payload = decltype(std::declval<T&>()(std::declval<std::any>()));
 
 		template<typename T>
 		using without_payload = decltype(std::declval<T&>()());
@@ -74,7 +74,7 @@ namespace detail
 
 		template<typename callable_type, REQUIRES(is_valid_v<callable_type, without_payload>)>
 		explicit event_handler(callable_type&& Handler):
-			function([Handler = FWD(Handler)](const any&) { Handler(); })
+			function([Handler = FWD(Handler)](const std::any&) { Handler(); })
 		{
 		}
 	};
@@ -90,8 +90,8 @@ public:
 	handlers_map::iterator subscribe(event_id EventId, const detail::event_handler& EventHandler);
 	handlers_map::iterator subscribe(const string& EventName, const detail::event_handler& EventHandler);
 	void unsubscribe(handlers_map::iterator HandlerIterator);
-	void notify(event_id EventId, any&& Payload = any());
-	void notify(const string& EventName, any&& Payload = any());
+	void notify(event_id EventId, std::any&& Payload = {});
+	void notify(const string& EventName, std::any&& Payload = {});
 	bool dispatch();
 
 	auto suppress()
@@ -104,7 +104,7 @@ public:
 	}
 
 private:
-	using message_queue = os::synced_queue<std::pair<string, any>>;
+	using message_queue = os::synced_queue<std::pair<string, std::any>>;
 
 	message_manager();
 	~message_manager();

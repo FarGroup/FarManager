@@ -215,13 +215,13 @@ public:
 	int GetDropDownOpened() const { return DropDownOpened; }
 	bool IsRedrawEnabled() const { return m_DisableRedraw == 0; }
 
-	void SetListItemData(size_t ListId, size_t ItemId, const any& Data);
-	any* GetListItemData(size_t ListId, size_t ItemId);
+	void SetListItemData(size_t ListId, size_t ItemId, const std::any& Data);
+	std::any* GetListItemData(size_t ListId, size_t ItemId);
 
 	template<class T>
-	T* GetListItemDataPtr(size_t ListId, size_t ItemId)
+	const T* GetListItemDataPtr(size_t ListId, size_t ItemId)
 	{
-		return any_cast<T>(GetListItemData(ListId, ItemId));
+		return std::any_cast<T>(GetListItemData(ListId, ItemId));
 	}
 
 protected:

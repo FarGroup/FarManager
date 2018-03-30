@@ -605,12 +605,12 @@ void Dialog::ProcessCenterGroup()
 	}
 }
 
-void Dialog::SetListItemData(size_t ListId, size_t ItemId, const any& Data)
+void Dialog::SetListItemData(size_t ListId, size_t ItemId, const std::any& Data)
 {
 	Items[ListId].ListPtr->SetUserData(Data, static_cast<int>(ItemId));
 }
 
-any* Dialog::GetListItemData(size_t ListId, size_t ItemId)
+std::any* Dialog::GetListItemData(size_t ListId, size_t ItemId)
 {
 	return Items[ListId].ListPtr->GetUserData(static_cast<int>(ItemId));
 }

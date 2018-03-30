@@ -612,7 +612,12 @@ void VMenu2::Close(int ExitCode, bool Force)
 	ForceClosing = Force;
 }
 
-any* VMenu2::GetUserData(int Position) const
+const std::any* VMenu2::GetUserData(int Position) const
+{
+	return ListBox().GetUserData(Position);
+}
+
+std::any* VMenu2::GetUserData(int Position)
 {
 	return ListBox().GetUserData(Position);
 }

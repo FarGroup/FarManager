@@ -129,4 +129,21 @@ namespace std
 }
 #endif
 
+
+#if defined _MSC_VER && _MSC_VER < 1910
+namespace any_impl
+{
+#include "common/any.hpp"
+}
+
+namespace std
+{
+	using ::any_impl::any;
+	using ::any_impl::any_cast;
+	using ::any_impl::bad_any_cast;
+}
+#else
+#include <any>
+#endif
+
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

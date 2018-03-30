@@ -71,12 +71,12 @@ void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 	m_Handlers.erase(std::move(HandlerIterator));
 }
 
-void message_manager::notify(event_id EventId, any&& Payload)
+void message_manager::notify(event_id EventId, std::any&& Payload)
 {
 	m_Messages.emplace(EventNames[EventId], std::move(Payload));
 }
 
-void message_manager::notify(const string& EventName, any&& Payload)
+void message_manager::notify(const string& EventName, std::any&& Payload)
 {
 	m_Messages.emplace(EventName, std::move(Payload));
 }
