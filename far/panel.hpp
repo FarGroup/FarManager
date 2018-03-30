@@ -251,7 +251,7 @@ public:
 	bool NeedUpdatePanel(const Panel *AnotherPanel) const;
 	bool IsFullScreen() const { return (m_ViewSettings.Flags & PVS_FULLSCREEN) != 0; }
 	void SetFullScreen() { m_ViewSettings.Flags |= PVS_FULLSCREEN; }
-	bool CreateFullPathName(string_view Name, string_view ShortName, DWORD FileAttr, string& strDest, bool UNC, bool ShortNameAsIs = true) const;
+	string CreateFullPathName(string_view Name, bool Directory, bool UNC, bool ShortNameAsIs = true) const;
 	FilePanels* Parent() const;
 
 	static void EndDrag();

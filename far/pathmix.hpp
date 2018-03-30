@@ -172,8 +172,10 @@ bool ContainsSlash(string_view Str);
 size_t FindSlash(string_view Str);
 size_t FindLastSlash(string_view Str);
 
-bool TestParentFolderName(string_view Name);
-bool TestCurrentDirectory(string_view TestDir);
+bool IsParentDirectory(string_view Str);
+bool IsParentDirectory(const os::fs::find_data& Data);
+bool IsParentDirectory(const PluginPanelItem& Data);
+bool IsCurrentDirectory(string_view Str);
 
 string ExtractPathRoot(string_view Path);
 string ExtractFileName(string_view Path);

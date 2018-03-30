@@ -405,22 +405,20 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,s
 
 	for (size_t i=0; i<ItemCount && !StopSearch; i++)
 	{
-		PluginPanelItem *CurPanelItem=PanelData+i;
+		const auto& CurPanelItem = PanelData[i];
 
-		if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-		        CurPanelItem->FileName != L"."s &&
-		        !TestParentFolderName(CurPanelItem->FileName))
+		if ((CurPanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !IsCurrentDirectory(CurPanelItem.FileName) && !IsParentDirectory(CurPanelItem))
 		{
 			/* $ 30.11.2001 DJ
 					используем общую функцию для копирования FindData (не забываем
 					обработать PPIF_USERDATA)
 			*/
-			PushPluginDirItem(PluginDirList, CurPanelItem, strPluginSearchPath);
-			string strFileName = CurPanelItem->FileName;
+			PushPluginDirItem(PluginDirList, &CurPanelItem, strPluginSearchPath);
+			string strFileName = CurPanelItem.FileName;
 
-			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND|OpMode,&CurPanelItem->UserData))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, strFileName, OPM_FIND | OpMode, &CurPanelItem.UserData))
 			{
-				strPluginSearchPath += CurPanelItem->FileName;
+				strPluginSearchPath += CurPanelItem.FileName;
 				strPluginSearchPath += L"\x1";
 				ScanPluginDir(hDirListPlugin, OpMode, strPluginSearchPath, PluginDirList, StopSearch);
 				size_t pos = strPluginSearchPath.rfind(L'\x1');
@@ -448,7 +446,7 @@ bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, s
 {
 	Items.clear();
 
-	if (Dir == L"." || TestParentFolderName(Dir))
+	if (IsCurrentDirectory(Dir) || IsParentDirectory(Dir))
 		return false;
 
 	std::unique_ptr<plugin_panel> DirListPlugin;

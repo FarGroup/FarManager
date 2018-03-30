@@ -1047,7 +1047,7 @@ void FileFilter::SwapFilter()
 
 int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, const string& FileName, DWORD FileAttr, int Check)
 {
-	if (FileName == L"." || TestParentFolderName(FileName) || (FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsCurrentDirectory(FileName) || IsParentDirectory(FileName))
 		return -1;
 
 	const auto DotPos = FileName.rfind(L'.');

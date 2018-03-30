@@ -180,7 +180,7 @@ bool MakePath(const panel_ptr& SrcPanel, bool FilePath, bool RealName, bool Shor
 		if (SrcPanel->GetMode() != panel_mode::PLUGIN_PANEL)
 		{
 			if (RealName)
-				SrcPanel->CreateFullPathName(strPathName, strPathName, FILE_ATTRIBUTE_DIRECTORY, strPathName, true, ShortNameAsIs);
+				strPathName = SrcPanel->CreateFullPathName(strPathName, true, true, ShortNameAsIs);
 
 			if (SrcPanel->GetShowShortNamesMode() && ShortNameAsIs)
 				strPathName = ConvertNameToShort(strPathName);
@@ -713,7 +713,7 @@ string FormatStr_Size(long long Size, const string& strName,
 	{
 		auto TypeName = msg(lng::MListFolder);
 
-		if (TestParentFolderName(strName))
+		if (IsParentDirectory(strName))
 		{
 			TypeName = msg(lng::MListUp);
 		}

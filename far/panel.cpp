@@ -492,7 +492,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		strDragName = Data.FileName;
 
-		if (!TestParentFolderName(strDragName))
+		if (!IsParentDirectory(Data))
 		{
 			SrcDragPanel=this;
 			DragX=MouseEvent->dwMousePosition.X;
@@ -583,7 +583,7 @@ bool Panel::SetCurDir(const string& CurDir,bool ClosePanel,bool /*IsUpdated*/)
 
 void Panel::InitCurDir(const string& CurDir)
 {
-	if (!equal_icase(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
 	{
 		m_CurDir = CurDir;
 
@@ -1384,41 +1384,17 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 	return true;
 }
 
-bool Panel::CreateFullPathName(string_view const Name, string_view const ShortName, DWORD const FileAttr, string& strDest, bool const UNC, bool const ShortNameAsIs) const
+string Panel::CreateFullPathName(string_view const Name, bool const Directory, bool const UNC, bool const ShortNameAsIs) const
 {
-	string strFileName = strDest;
-	if (FindSlash(Name) == string::npos && FindSlash(ShortName) == string::npos)
-	{
-		strFileName = ConvertNameToFull(strFileName);
-	}
-
-	/* BUGBUG весь этот if какая то чушь
-	else if (ShowShortNames)
-	{
-	  string strTemp = Name;
-
-	  if (NameLastSlash)
-	    strTemp.SetLength(1+NameLastSlash-Name);
-
-	  const wchar_t *NamePtr = wcsrchr(strFileName, L'\\');
-
-	  if(NamePtr )
-	    NamePtr++;
-	  else
-	    NamePtr=strFileName;
-
-	  strTemp += NameLastSlash?NameLastSlash+1:Name; //??? NamePtr??? BUGBUG
-	  strFileName = strTemp;
-	}
-	*/
+	auto FullName = FindSlash(Name) == string::npos? ConvertNameToFull(Name) : string(Name);
 
 	if (m_ShowShortNames && ShortNameAsIs)
-		strFileName = ConvertNameToShort(strFileName);
+		FullName = ConvertNameToShort(FullName);
 
 	/* $ 29.01.2001 VVM
 	  + По CTRL+ALT+F в командную строку сбрасывается UNC-имя текущего файла. */
 	if (UNC)
-		strFileName = ConvertNameToUNC(strFileName);
+		FullName = ConvertNameToUNC(FullName);
 
 	// $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
 	if (Global->Opt->PanelCtrlFRule)
@@ -1427,37 +1403,36 @@ bool Panel::CreateFullPathName(string_view const Name, string_view const ShortNa
 		  по Ctrl-f имя должно отвечать условиям на панели */
 		if (m_ViewSettings.Flags&PVS_FOLDERUPPERCASE)
 		{
-			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
+			if (Directory)
 			{
-				inplace::upper(strFileName);
+				inplace::upper(FullName);
 			}
 			else
 			{
-				inplace::upper(strFileName, 0, FindLastSlash(strFileName));
+				inplace::upper(FullName, 0, FindLastSlash(FullName));
 			}
 		}
 
-		if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ((m_ViewSettings.Flags&PVS_FILEUPPERTOLOWERCASE) && !Directory)
 		{
-			const auto pos = FindLastSlash(strFileName);
-			if (pos != string::npos && !IsCaseMixed(strFileName.data() + pos))
+			const auto pos = FindLastSlash(FullName);
+			if (pos != string::npos && !IsCaseMixed(string_view(FullName).substr(pos)))
 			{
-				inplace::lower(strFileName, pos);
+				inplace::lower(FullName, pos);
 			}
 		}
 
-		if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+		if ((m_ViewSettings.Flags&PVS_FILELOWERCASE) && !Directory)
 		{
-			const auto pos = FindLastSlash(strFileName);
+			const auto pos = FindLastSlash(FullName);
 			if (pos != string::npos)
 			{
-				inplace::lower(strFileName, pos);
+				inplace::lower(FullName, pos);
 			}
 		}
 	}
 
-	strDest = strFileName;
-	return !strDest.empty();
+	return FullName;
 }
 
 void Panel::exclude_sets(string& mask)

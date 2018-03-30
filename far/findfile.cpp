@@ -2155,7 +2155,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 			if (!Global->CtrlObject->Cp()->ActivePanel()->GetSelName(&strSelName,FileAttr))
 				break;
 
-			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || TestParentFolderName(strSelName) || strSelName == L".")
+			if (!(FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsCurrentDirectory(strSelName) || IsParentDirectory(strSelName))
 				continue;
 
 			strCurRoot = path::join(strRoot, strSelName);
@@ -2260,7 +2260,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 
 			PluginPanelItem *CurPanelItem=PanelData+I;
 			string strCurName=NullToEmpty(CurPanelItem->FileName);
-			if (strCurName.empty() || strCurName == L"." || TestParentFolderName(strCurName))
+			if (strCurName.empty() || IsCurrentDirectory(strCurName) || IsParentDirectory(strCurName))
 				continue;
 
 			string strFullName = strPluginSearchPath;
@@ -2289,7 +2289,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 			PluginPanelItem *CurPanelItem=PanelData+I;
 
 			if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			 && CurPanelItem->FileName != L"."s && !TestParentFolderName(CurPanelItem->FileName)
+			 && !IsCurrentDirectory(CurPanelItem->FileName) && !IsParentDirectory(*CurPanelItem)
 			 && (!UseFilter || m_Owner->GetFilter()->FileInFilter(*CurPanelItem))
 			 && (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 || Global->CtrlObject->Cp()->ActivePanel()->IsSelected(CurPanelItem->FileName))
 			)

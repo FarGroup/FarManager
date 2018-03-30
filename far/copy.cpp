@@ -513,7 +513,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		if (!SrcPanel->get_first_selected(Data))
 			return;
 
-		if (TestParentFolderName(Data.FileName))
+		if (IsParentDirectory(Data))
 			return;
 
 		SingleSelAttributes = Data.Attributes;
@@ -1289,7 +1289,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
 	size_t DestMountLen = 0;
 
-	if (Dest.empty() || Dest == L".")
+	if (Dest.empty() || IsCurrentDirectory(Dest))
 		return COPY_FAILURE; //????
 
 	SetCursorType(false, 0);

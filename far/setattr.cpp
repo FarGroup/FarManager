@@ -762,7 +762,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			SingleSelFileAttr = SingleSelFindData.Attributes;
 		}
 
-		if (SelCount==1 && TestParentFolderName(SingleSelFileName))
+		if (SelCount==1 && IsParentDirectory(SingleSelFindData))
 			return false;
 
 		wchar_t DateSeparator = locale::GetDateSeparator();

@@ -1950,7 +1950,7 @@ long TreeList::FindNext(int StartPos, const string& Name)
 	{
 		const auto ItemIterator = std::find_if(CONST_RANGE(m_ListData, i)
 		{
-			return CmpName(Name, i.strName, true) && !TestParentFolderName(i.strName);
+			return CmpName(Name, i.strName, true) && !IsParentDirectory(i.strName);
 		});
 
 		if (ItemIterator != m_ListData.cend())

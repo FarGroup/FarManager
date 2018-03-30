@@ -192,9 +192,30 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 	return SlashPos == string::npos || SlashPos > pos;
 }
 
-bool TestParentFolderName(string_view const Name)
+bool IsParentDirectory(string_view const Str)
 {
-	return (Name.size() == 2 && Name[0] == L'.' && Name[1] == L'.') || (Name.size() == 3 && Name[0] == L'.' && Name[1] == L'.' && IsSlash(Name[2]));
+	return Str.starts_with(L".."_sv) && (Str.size() == 2 || (Str.size() == 3 && IsSlash(Str[2])));
+}
+
+bool IsParentDirectory(const os::fs::find_data& Data)
+{
+	return
+		Data.Attributes & FILE_ATTRIBUTE_DIRECTORY &&
+		IsParentDirectory(Data.FileName) &&
+		(Data.AlternateFileName.empty() || Data.AlternateFileName == Data.FileName);
+}
+
+bool IsParentDirectory(const PluginPanelItem& Data)
+{
+	return
+		Data.FileAttributes & FILE_ATTRIBUTE_DIRECTORY &&
+		IsParentDirectory(NullToEmpty(Data.FileName)) &&
+		(!Data.AlternateFileName || !*Data.AlternateFileName || equal(Data.AlternateFileName, NullToEmpty(Data.FileName)));
+}
+
+bool IsCurrentDirectory(string_view Str)
+{
+	return Str.starts_with(L"."_sv) && (Str.size() == 1 || (Str.size() == 2 && IsSlash(Str[1])));
 }
 
 bool TestCurrentDirectory(string_view const TestDir)

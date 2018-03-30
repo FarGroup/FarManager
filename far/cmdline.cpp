@@ -561,7 +561,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 void CommandLine::SetCurDir(const string& CurDir)
 {
-	if (!equal_icase(m_CurDir, CurDir) || !TestCurrentDirectory(CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
 	{
 		m_CurDir = CurDir;
 

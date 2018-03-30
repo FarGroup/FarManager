@@ -1686,7 +1686,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				string Filename;
 				SelPanel->GetFileName(Filename, SelPanel->GetCurrentPos(), FileAttr);
 				size_t GetFileCount=SelPanel->GetFileCount();
-				ret = !GetFileCount || (GetFileCount == 1 && TestParentFolderName(Filename));
+				ret = !GetFileCount || (GetFileCount == 1 && IsParentDirectory(Filename));
 			}
 			return PassBoolean(ret, Data);
 		}

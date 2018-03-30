@@ -363,7 +363,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 	if (SelCount==1)
 	{
-		if (TestParentFolderName(SingleSelData.FileName) || SingleSelData.FileName.empty())
+		if (SingleSelData.FileName.empty() || IsParentDirectory(SingleSelData))
 		{
 			NeedUpdate = false;
 			return;
