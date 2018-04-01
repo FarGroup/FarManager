@@ -3,6 +3,22 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 31.03.2018 01:41:08 +0300 - build 5177
+
+1. Use std::any (if present).
+
+drkns 30.03.2018 11:35:45 +0300 - build 5176
+
+1. Continuation of 5175.
+
+drkns 29.03.2018 13:05:45 +0300 - build 5175
+
+1. Forum: crash on File panel modes -> Ins Enter.
+
+2. Incorrect deletion of multiple selected symlinks.
+
+3. Refactoring.
+
 drkns 23.03.2018 19:16:27 +0000 - build 5174
 
 1. Continuation of 5173 - similar changes in deletion progress window.
