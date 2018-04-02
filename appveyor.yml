@@ -43,9 +43,9 @@ after_build:
 
     cd %configuration%.%PlatformArchitecture%.vc
 
-    del ..\far.zip
+    del %APPVEYOR_BUILD_FOLDER%\far*.7z
 
-    7z a ..\far.zip *.exe *.dll *.lng *.hlf *.diz *.ini *.pdb ..\changelog*
+    7z a %APPVEYOR_BUILD_FOLDER%\far.%APPVEYOR_BUILD_VERSION%.7z *.exe *.dll *.lng *.hlf *.diz *.ini *.pdb ..\changelog*
 
 artifacts:
-- path: far\far.zip
+- path: far.$(APPVEYOR_BUILD_VERSION).7z
