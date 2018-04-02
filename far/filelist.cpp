@@ -4853,7 +4853,7 @@ bool FileList::ApplyCommand()
 		const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
 		for (const auto& i: enum_selected())
 		{
-			if (!CheckForEsc())
+			if (CheckForEsc())
 				break;
 
 			string strListName, strAnotherListName;
