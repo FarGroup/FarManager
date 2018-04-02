@@ -36,3 +36,16 @@ build:
   verbosity: minimal
 
 test: off
+
+after_build:
+- cmd: >-
+    set PlatformArchitecture=%platform:~-2%
+
+    cd $(configuration).$(PlatformArchitecture).vc
+
+    del ..\far.zip
+
+    7z a ..\far.zip *.exe *.dll *.lng *.hlf *.diz *.ini *.pdb ..\changelog*
+
+artifacts:
+- path: far.zip
