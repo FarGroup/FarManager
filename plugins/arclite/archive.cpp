@@ -735,6 +735,7 @@ void Archive::make_index() {
   for (UInt32 i = 0; i < num_indices; i++) {
     // is directory?
     file_info.is_dir = in_arc->GetProperty(i, kpidIsDir, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool();
+	 file_info.is_altstream = get_isaltstream(i);
 
     // file name
     if (in_arc->GetProperty(i, kpidPath, prop.ref()) == S_OK && prop.is_str())
@@ -807,6 +808,7 @@ void Archive::make_index() {
       file_info.parent = dir_info.parent;
       file_info.name = dir_info.name;
       file_info.is_dir = true;
+		file_info.is_altstream = false;
       dir_index++;
       file_list.push_back(file_info);
     }
@@ -990,6 +992,16 @@ bool Archive::get_anti(UInt32 index) const {
   if (index >= num_indices)
     return false;
   else if (in_arc->GetProperty(index, kpidIsAnti, prop.ref()) == S_OK && prop.is_bool())
+    return prop.get_bool();
+  else
+    return false;
+}
+
+bool Archive::get_isaltstream(UInt32 index) const {
+  PropVariant prop;
+  if (index >= num_indices)
+    return false;
+  else if (in_arc->GetProperty(index, kpidIsAltStream, prop.ref()) == S_OK && prop.is_bool())
     return prop.get_bool();
   else
     return false;

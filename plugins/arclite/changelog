@@ -1,3 +1,7 @@
+w17 02.04.2018 12:03:07 +0300 - build 282
+
+1. Extract alternate streams from .wim archives
+
 w17 20.03.2018 20:04:31 +0300 - build 281
 
 1. fixed: падение при выгрузке при использовании WinCryptHashers.

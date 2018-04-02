@@ -180,6 +180,7 @@ struct ArcFileInfo {
   UInt32 parent;
   wstring name;
   bool is_dir;
+  bool is_altstream;
   bool operator<(const ArcFileInfo& file_info) const;
 };
 typedef vector<ArcFileInfo> FileList;
@@ -264,6 +265,7 @@ public:
   FILETIME get_atime(UInt32 index) const;
   unsigned get_crc(UInt32 index) const;
   bool get_anti(UInt32 index) const;
+  bool get_isaltstream(UInt32 index) const;
 
   // extract
 private:

@@ -417,11 +417,11 @@ public:
       return S_OK;
 
     const auto cmode = static_cast<int>(g_options.correct_name_mode);
-    file_path = correct_filename(file_info.name, cmode);
+    file_path = correct_filename(file_info.name, cmode, file_info.is_altstream);
     UInt32 parent_index = file_info.parent;
     while (parent_index != src_dir_index && parent_index != c_root_index) {
       const ArcFileInfo& file_info = archive->file_list[parent_index];
-      file_path.insert(0, 1, L'\\').insert(0, correct_filename(file_info.name, cmode & ~(0x10 | 0x40)));
+      file_path.insert(0, 1, L'\\').insert(0, correct_filename(file_info.name, cmode & ~(0x10 | 0x40), false));
       parent_index = file_info.parent;
     }
     file_path.insert(0, add_trailing_slash(dst_dir));
@@ -581,7 +581,7 @@ private:
     for_each(index_range.first, index_range.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive.file_list[file_index];
       if (file_info.is_dir) {
-        wstring dir_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode);
+        wstring dir_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode, file_info.is_altstream);
         update_progress(dir_path);
 
         RETRY_OR_IGNORE_BEGIN
@@ -634,7 +634,7 @@ private:
     const auto cmode = static_cast<int>(g_options.correct_name_mode);
     for_each (index_range.first, index_range.second, [&] (UInt32 file_index) {
       const ArcFileInfo& file_info = archive.file_list[file_index];
-      wstring file_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode);
+      wstring file_path = add_trailing_slash(parent_dir) + correct_filename(file_info.name, cmode, file_info.is_altstream);
       update_progress(file_path);
       if (file_info.is_dir) {
         FileIndexRange dir_list = archive.get_dir_list(file_index);

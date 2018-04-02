@@ -1,3 +1,7 @@
+w17 02.04.2018 12:04:49 +0300 - build 5178
+
+1. Extract alternate streams from .wim archives
+
 drkns 31.03.2018 01:41:08 +0300 - build 5177
 
 1. Используем std::any (если есть).

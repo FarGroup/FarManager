@@ -988,7 +988,10 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{
-		strResultName = path::join(Info.DestPath, ItemIterator->FileName);
+		auto name_len = wcslen(PanelItem->FileName);
+		auto found_len = ItemIterator->FileName.size();
+		bool isADS = GetCode==1 && found_len+1 < name_len && PanelItem->FileName[found_len]==L':' && !wcsncmp(PanelItem->FileName,ItemIterator->FileName.data(),found_len);
+		strResultName = path::join(Info.DestPath, isADS ? PanelItem->FileName : ItemIterator->FileName.data());
 
 		if (GetCode!=1)
 		{
