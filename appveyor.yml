@@ -41,7 +41,7 @@ after_build:
 - cmd: >-
     set PlatformArchitecture=%platform:~-2%
 
-    cd $(configuration).$(PlatformArchitecture).vc
+    cd %configuration%.%PlatformArchitecture%.vc
 
     del ..\far.zip
 
