@@ -3817,7 +3817,7 @@ bool Editor::Search(bool Next)
 						{
 							m_it_CurLine->SetCurPos(coord.Pos + coord.SearchLen);
 						}
-						Show();
+						Refresh();
 					}
 					break;
 
@@ -3840,7 +3840,6 @@ bool Editor::Search(bool Next)
 					{
 						FindAllList->SetPosition(-1, ScrY-20, 0, ScrY-10);
 					}
-					Show();
 					break;
 				default:
 					if ((Key>=KEY_CTRL0 && Key<=KEY_CTRL9) || (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
@@ -4415,7 +4414,7 @@ void Editor::GoToPosition()
 				--Row.value;
 
 			auto NewRow = Row.percent? FromPercent(Row.value, Lines.size()) : Row.value;
-	
+
 			if (Row.relative)
 				NewRow = m_it_CurLine.Number() + NewRow * Row.relative;
 
