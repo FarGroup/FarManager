@@ -48,4 +48,4 @@ after_build:
     7z a ..\far.zip *.exe *.dll *.lng *.hlf *.diz *.ini *.pdb ..\changelog*
 
 artifacts:
-- path: far.zip
+- path: far\far.zip
