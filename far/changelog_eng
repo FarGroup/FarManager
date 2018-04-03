@@ -3,6 +3,22 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 02.04.2018 20:46:14 -0700 - build 5181
+
+1. Fixed buffer overflow in SearchString + refactoring.
+
+drkns 02.04.2018 16:36:26 +0300 - build 5180
+
+1. Correction of 5175.
+
+zg 02.04.2018 13:55:55 +0300 - build 5179
+
+1. ctrlenter in "menu with the list of all matching entries" incorrectly refreshed the screen.
+
+w17 02.04.2018 12:04:49 +0300 - build 5178
+
+1. Extract alternate streams from .wim archives
+
 drkns 31.03.2018 01:41:08 +0300 - build 5177
 
 1. Use std::any (if present).
