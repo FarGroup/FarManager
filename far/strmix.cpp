@@ -818,89 +818,171 @@ unsigned long long ConvertFileSizeString(const string& FileSizeStr)
 	}
 }
 
-string ReplaceBrackets(const string_view SearchStr, const string& ReplaceStr, const RegExpMatch* Match, size_t Count, const MatchHash* HMatch)
+namespace
 {
-	string result;
-	for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
+	string ReplaceBrackets(
+		const string_view SearchStr,
+		const string& ReplaceStr,
+		const RegExpMatch* Match,
+		size_t Count,
+		const MatchHash* HMatch,
+		int& CurPos,
+		int* SearchLength)
 	{
-		const auto CurrentChar = ReplaceStr[i];
-		bool common = true;
-
-		if (CurrentChar == L'$')
+		string result;
+		for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
 		{
-			const auto TokenStart = i + 1;
+			const auto CurrentChar = ReplaceStr[i];
+			bool common = true;
 
-			if (TokenStart < length)
+			if (CurrentChar == L'$')
 			{
-				intptr_t start = 0, end = 0;
-				size_t ShiftLength = 0;
-				auto TokenEnd = TokenStart;
-				bool Success = false;
+				const auto TokenStart = i + 1;
 
-				while (TokenEnd != length && std::iswdigit(ReplaceStr[TokenEnd]))
+				if (TokenStart < length)
 				{
-					++TokenEnd;
-				}
+					intptr_t start = 0, end = 0;
+					size_t ShiftLength = 0;
+					auto TokenEnd = TokenStart;
+					bool Success = false;
 
-				if (TokenEnd != TokenStart)
-				{
-					size_t index = 0;
-					while (TokenEnd != TokenStart && (index = std::stoul(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Count)
+					while (TokenEnd != length && std::iswdigit(ReplaceStr[TokenEnd]))
 					{
-						--TokenEnd;
+						++TokenEnd;
 					}
 
 					if (TokenEnd != TokenStart)
 					{
-						Success = true;
-						start = Match[index].start;
-						end = Match[index].end;
-						ShiftLength = TokenEnd - TokenStart;
-					}
-				}
-				else
-				{
-					static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{") RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
-					std::wcmatch CMatch;
-					if (std::regex_search(ReplaceStr.data() + TokenStart, CMatch, re))
-					{
-						ShiftLength = CMatch[0].length();
-						if (HMatch)
+						size_t index = 0;
+						while (TokenEnd != TokenStart && (index = std::stoul(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Count)
 						{
-							const auto Iterator = HMatch->Matches.find(string(CMatch[1].first, CMatch[1].second));
-							if (Iterator != HMatch->Matches.cend())
+							--TokenEnd;
+						}
+
+						if (TokenEnd != TokenStart)
+						{
+							Success = true;
+							start = Match[index].start;
+							end = Match[index].end;
+							ShiftLength = TokenEnd - TokenStart;
+						}
+					}
+					else
+					{
+						static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{") RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
+						std::wcmatch CMatch;
+						if (std::regex_search(ReplaceStr.data() + TokenStart, CMatch, re))
+						{
+							ShiftLength = CMatch[0].length();
+							if (HMatch)
 							{
-								Success = true;
-								start = Iterator->second.start;
-								end = Iterator->second.end;
+								const auto Iterator = HMatch->Matches.find(string(CMatch[1].first, CMatch[1].second));
+								if (Iterator != HMatch->Matches.cend())
+								{
+									Success = true;
+									start = Iterator->second.start;
+									end = Iterator->second.end;
+								}
 							}
 						}
 					}
-				}
 
-				if (ShiftLength)
-				{
-					i += ShiftLength;
-					common = false;
-
-					if (Success)
+					if (ShiftLength)
 					{
-						result.append(SearchStr.raw_data() + start, end - start);
+						i += ShiftLength;
+						common = false;
+
+						if (Success)
+						{
+							result.append(SearchStr.raw_data() + start, end - start);
+						}
 					}
 				}
 			}
+
+			if (common)
+			{
+				result += CurrentChar;
+			}
 		}
 
-		if (common)
-		{
-			result += CurrentChar;
-		}
+		*SearchLength = Match->end - Match->start;
+		CurPos = Match->start;
+		return result;
 	}
 
-	return result;
+	bool SearchStringRegex(
+		string_view const Source,
+		const RegExp& re,
+		RegExpMatch* const pm,
+		MatchHash* const hm,
+		intptr_t Position,
+		int const Reverse,
+		string& ReplaceStr,
+		int& CurPos,
+		int* SearchLength)
+	{
+		intptr_t n = re.GetBracketsCount();
+
+		if (!Reverse)
+		{
+			if (re.SearchEx(Source.raw_data(), Source.raw_data() + Position, Source.raw_data() + Source.size(), pm, n, hm))
+			{
+				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm, n, hm, CurPos, SearchLength);
+				return true;
+			}
+
+			ReMatchErrorMessage(re);
+			return false;
+		}
+
+		bool found = false;
+		intptr_t half = 0;
+		intptr_t pos = 0;
+
+		for (;;)
+		{
+			if (!re.SearchEx(Source.raw_data(), Source.raw_data() + pos, Source.raw_data() + Source.size(), pm + half, n, hm))
+			{
+				ReMatchErrorMessage(re);
+				break;
+			}
+			pos = pm[half].start;
+			if (pos > Position)
+				break;
+
+			found = true;
+			++pos;
+			half = n - half;
+		}
+
+		if (found)
+		{
+			half = n - half;
+			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm + half, n, hm, CurPos, SearchLength);
+		}
+
+		return found;
+	}
 }
 
-bool SearchString(string_view const Source, const string& Str, const string& UpperStr, const string& LowerStr, const RegExp& re, RegExpMatch* const pm, MatchHash* const hm, string& ReplaceStr, int& CurPos, int const Case, int const WholeWords, int const Reverse, int const Regexp, int const PreserveStyle, int* const SearchLength, const wchar_t* WordDiv)
+bool SearchString(
+	string_view const Source,
+	const string& Str,
+	const string& UpperStr,
+	const string& LowerStr,
+	const RegExp& re,
+	RegExpMatch* const pm,
+	MatchHash* const hm,
+	string& ReplaceStr,
+	int& CurPos,
+	int const Case,
+	int const WholeWords,
+	int const Reverse,
+	int const Regexp,
+	int const PreserveStyle,
+	int* const SearchLength,
+	const wchar_t* WordDiv)
 {
 	int Position = CurPos;
 	*SearchLength = 0;
@@ -911,71 +993,33 @@ bool SearchString(string_view const Source, const string& Str, const string& Upp
 	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, Str, ReplaceStr, CurPos, Case, WholeWords, WordDiv, Reverse, *SearchLength))
 		return true;
 
+	const int SourceSize = static_cast<int>(Source.size());
+
 	if (Reverse)
 	{
+		// MZK 2018-04-01 BUGBUG: regex reverse search: "^$" does not match empty string
 		Position--;
 
-		if (Position >= static_cast<int>(Source.size()))
-			Position = static_cast<int>(Source.size() - 1);
+		if (Position >= SourceSize)
+			Position = SourceSize - 1;
 
-		if (Position<0)
+		if (Position < 0)
 			return false;
 	}
 
-	if ((Position < static_cast<int>(Source.size()) || (!Position && Source.empty())) && !Str.empty())
+	if ((Position < SourceSize || (Position == 0 && Source.empty())) && !Str.empty())
 	{
 		if (Regexp)
 		{
-			intptr_t n = re.GetBracketsCount();
-			bool found = false;
-			int half = 0;
-			if (!Reverse)
-			{
-				if (re.SearchEx(Source.raw_data(), Source.raw_data() + Position, Source.raw_data() + Source.size(), pm, n, hm))
-				{
-					found = true;
-				}
-				else
-				{
-					ReMatchErrorMessage(re);
-				}
-			}
-			else
-			{
-				int pos = 0;
-				for (;;)
-				{
-					if (!re.SearchEx(Source.raw_data(), Source.raw_data() + pos, Source.raw_data() + Source.size(), pm + half, n, hm))
-					{
-						ReMatchErrorMessage(re);
-						break;
-					}
-					pos = static_cast<int>(pm[half].start);
-					if (pos > Position)
-						break;
-
-					found = true;
-					++pos;
-					half = n - half;
-				}
-				half = n - half;
-			}
-			if (found)
-			{
-				*SearchLength = pm[half].end - pm[half].start;
-				CurPos = pm[half].start;
-				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm + half, n, hm);
-			}
-
-			return found;
+			return SearchStringRegex(Source, re, pm, hm, Position, Reverse, ReplaceStr, CurPos, SearchLength);
 		}
 
-		if (Position == static_cast<int>(Source.size()))
+		if (Position == SourceSize)
 			return false;
 
-		const int Length = *SearchLength = (int)Str.size();
+		const int Length = *SearchLength = static_cast<int>(Str.size());
 
-		for (int I=Position; (Reverse && I>=0) || (!Reverse && I < static_cast<int>(Source.size())); Reverse ? I--:I++)
+		for (int I = std::min(Position, SourceSize - Length); 0 <= I && I <= SourceSize - Length; Reverse ? I-- : I++)
 		{
 			for (int J=0;; J++)
 			{
@@ -999,7 +1043,7 @@ bool SearchString(string_view const Source, const string& Str, const string& Upp
 				if (WholeWords)
 				{
 					const auto locResultLeft = I <= 0 || std::iswblank(Source[I - 1]) || wcschr(WordDiv, Source[I - 1]);
-					const auto locResultRight = I + Length >= static_cast<int>(Source.size()) || std::iswblank(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
+					const auto locResultRight = I + Length >= SourceSize || std::iswblank(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
 
 					if (!locResultLeft || !locResultRight)
 						break;
