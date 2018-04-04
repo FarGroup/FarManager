@@ -541,6 +541,7 @@ local function AddPanelModule (srctable, FileName)
     local guid = srctable.Info.Guid
     if type(guid) == "string" and #guid == 16 then
       if not LoadedPanelModules[guid] then
+        if FileName then srctable.FileName=FileName; end
         LoadedPanelModules[guid] = srctable
         table.insert(LoadedPanelModules, srctable)
       end
