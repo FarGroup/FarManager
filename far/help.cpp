@@ -1966,7 +1966,23 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			int CurPos=0;
 			int SearchLength;
 
-			if (SearchString(Str, strLastSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, ReplaceStr, CurPos, LastSearchCase, LastSearchWholeWords, false, false, LastSearchRegexp, &SearchLength))
+			if (SearchString(
+				Str,
+				strLastSearchStr,
+				strSearchStrUpper,
+				strSearchStrLower,
+				re,
+				m.data(),
+				&hm,
+				ReplaceStr,
+				CurPos,
+				LastSearchCase,
+				LastSearchWholeWords,
+				false,
+				LastSearchRegexp,
+				false,
+				&SearchLength
+			))
 			{
 				AddLine(concat(L"   ~"_sv, strEntryName, L'~', strCurTopic, L'@'));
 				strCurTopic.clear();

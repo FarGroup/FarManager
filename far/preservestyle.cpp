@@ -258,7 +258,17 @@ static void FindStyleTypeMaskAndPrependCharByExpansion(const string_view Source,
 	}
 }
 
-bool PreserveStyleReplaceString(const string_view Source, const string& Str, string& ReplaceStr, int& CurPos, int Case, int WholeWords, const wchar_t *WordDiv, int Reverse, int& SearchLength)
+bool PreserveStyleReplaceString(
+	string_view const Source,
+	string_view const Str,
+	string& ReplaceStr,
+	int& CurPos,
+	bool Case,
+	bool WholeWords,
+	string_view const WordDiv,
+	bool Reverse,
+	int& SearchLength
+)
 {
 	int Position = CurPos;
 	SearchLength = 0;
@@ -279,9 +289,14 @@ bool PreserveStyleReplaceString(const string_view Source, const string& Str, str
 
 	const auto StrTokens = PreserveStyleTokenize(Str, 0, Str.size());
 
+	const auto& BlankOrWordDiv = [&WordDiv](wchar_t Ch)
+	{
+		return std::iswblank(Ch) || WordDiv.find(Ch) != WordDiv.npos;
+	};
+
 	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I) < Source.size()); Reverse? I-- : I++)
 	{
-		if (WholeWords && I && !std::iswblank(Source[I-1]) && !wcschr(WordDiv, Source[I-1]))
+		if (WholeWords && I && !BlankOrWordDiv(Source[I - 1]))
 			continue;
 
 		bool Matched = true;
@@ -356,7 +371,7 @@ bool PreserveStyleReplaceString(const string_view Source, const string& Str, str
 			Idx++;
 		}
 
-		if (WholeWords && !(Idx >= Source.size() || std::iswblank(Source[Idx]) || wcschr(WordDiv, Source[Idx])))
+		if (WholeWords && Idx < Source.size() && !BlankOrWordDiv(Source[Idx]))
 			continue;
 		
 		if (Matched && T == j->Token.size() && j == LastItem)

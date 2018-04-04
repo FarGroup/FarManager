@@ -966,101 +966,112 @@ namespace
 	}
 }
 
+static bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
+{
+	const auto& BlankOrWordDiv = [&WordDiv](wchar_t Ch)
+	{
+		return std::iswblank(Ch) || WordDiv.find(Ch) != WordDiv.npos;
+	};
+
+	if (Offset && !BlankOrWordDiv(Haystack[Offset - 1]))
+		return false;
+
+	if (Offset + NeedleSize < Haystack.size() && !BlankOrWordDiv(Haystack[Offset + NeedleSize]))
+		return false;
+
+	return true;
+}
+
 bool SearchString(
-	string_view const Source,
-	const string& Str,
-	const string& UpperStr,
-	const string& LowerStr,
+	string_view const Haystack,
+	string_view const Needle,
+	string_view const NeedleUpper,
+	string_view const NeedleLower,
 	const RegExp& re,
 	RegExpMatch* const pm,
 	MatchHash* const hm,
 	string& ReplaceStr,
 	int& CurPos,
-	int const Case,
-	int const WholeWords,
-	int const Reverse,
-	int const Regexp,
-	int const PreserveStyle,
+	bool const Case,
+	bool const WholeWords,
+	bool const Reverse,
+	bool const Regexp,
+	bool const PreserveStyle,
 	int* const SearchLength,
-	const wchar_t* WordDiv)
+	string_view WordDiv)
 {
-	int Position = CurPos;
 	*SearchLength = 0;
 
-	if (!WordDiv)
-		WordDiv=Global->Opt->strWordDiv.data();
+	if (WordDiv.empty())
+		WordDiv = Global->Opt->strWordDiv;
 
-	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Source, Str, ReplaceStr, CurPos, Case, WholeWords, WordDiv, Reverse, *SearchLength))
+	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, Case, WholeWords, WordDiv, Reverse, *SearchLength))
 		return true;
 
-	const int SourceSize = static_cast<int>(Source.size());
+	if (Needle.empty())
+		return true;
+
+	if (Haystack.empty())
+		return false;
+
+	auto Position = CurPos;
+	const auto HaystackSize = static_cast<int>(Haystack.size());
 
 	if (Reverse)
 	{
 		// MZK 2018-04-01 BUGBUG: regex reverse search: "^$" does not match empty string
-		Position--;
-
-		if (Position >= SourceSize)
-			Position = SourceSize - 1;
+		Position = std::min(Position - 1, HaystackSize - 1);
 
 		if (Position < 0)
 			return false;
 	}
 
-	if ((Position < SourceSize || (Position == 0 && Source.empty())) && !Str.empty())
+	if (Position >= HaystackSize)
+		return false;
+
+	if (Regexp)
+		return SearchStringRegex(Haystack, re, pm, hm, Position, Reverse, ReplaceStr, CurPos, SearchLength);
+
+	const auto NeedleSize = *SearchLength = static_cast<int>(Needle.size());
+
+	for (int HaystackIndex = Position; HaystackIndex != -1 && HaystackIndex != HaystackSize; Reverse? --HaystackIndex : ++HaystackIndex)
 	{
-		if (Regexp)
+		if (WholeWords && !CanContainWholeWord(Haystack, HaystackIndex, NeedleSize, WordDiv))
+			continue;
+
+		for (size_t NeedleIndex = 0; ; ++NeedleIndex)
 		{
-			return SearchStringRegex(Source, re, pm, hm, Position, Reverse, ReplaceStr, CurPos, SearchLength);
-		}
-
-		if (Position == SourceSize)
-			return false;
-
-		const int Length = *SearchLength = static_cast<int>(Str.size());
-
-		for (int I = std::min(Position, SourceSize - Length); 0 <= I && I <= SourceSize - Length; Reverse ? I-- : I++)
-		{
-			for (int J=0;; J++)
+			if (NeedleIndex == Needle.size())
 			{
-				if (!Str[J])
+				CurPos = HaystackIndex;
+
+				// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
+				// то хотя бы сохранить регистр первой буквы.
+				if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Haystack[HaystackIndex]))
 				{
-					CurPos=I;
-
-					// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
-					// то хотя бы сохранить регистр первой буквы.
-					if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Source[I]))
-					{
-						if (is_upper(Source[I]))
-							ReplaceStr.front() = ::upper(ReplaceStr.front());
-						if (is_lower(Source[I]))
-							ReplaceStr.front() = ::lower(ReplaceStr.front());
-					}
-
-					return true;
+					if (is_upper(Haystack[HaystackIndex]))
+						ReplaceStr.front() = ::upper(ReplaceStr.front());
+					else if (is_lower(Haystack[HaystackIndex]))
+						ReplaceStr.front() = ::lower(ReplaceStr.front());
 				}
 
-				if (WholeWords)
-				{
-					const auto locResultLeft = I <= 0 || std::iswblank(Source[I - 1]) || wcschr(WordDiv, Source[I - 1]);
-					const auto locResultRight = I + Length >= SourceSize || std::iswblank(Source[I + Length]) || wcschr(WordDiv, Source[I + Length]);
+				return true;
+			}
 
-					if (!locResultLeft || !locResultRight)
-						break;
-				}
+			if (HaystackIndex + NeedleIndex == Haystack.size())
+				break;
 
-				wchar_t Ch=Source[I+J];
+			const auto Ch = Haystack[HaystackIndex + NeedleIndex];
 
-				if (Case)
-				{
-					if (Ch!=Str[J])
-						break;
-				}
-				else
-				{
-					if (Ch!=UpperStr[J] && Ch!=LowerStr[J])
-						break;
-				}
+			if (Case)
+			{
+				if (Ch != Needle[NeedleIndex])
+					break;
+			}
+			else
+			{
+				if (Ch != NeedleUpper[NeedleIndex] && Ch != NeedleLower[NeedleIndex])
+					break;
 			}
 		}
 	}

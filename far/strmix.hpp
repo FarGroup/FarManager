@@ -80,7 +80,24 @@ string& TruncPathStr(string &strStr, int MaxLength);
 
 bool IsCaseMixed(string_view strStr);
 
-bool SearchString(string_view Source, const string& Str, const string& UpperStr, const string& LowerStr, const RegExp& re, RegExpMatch* pm, MatchHash* hm, string& ReplaceStr, int& CurPos, int Case, int WholeWords, int Reverse, int Regexp, int PreserveStyle, int* SearchLength, const wchar_t* WordDiv = nullptr);
+bool SearchString(
+	string_view Haystack,
+	string_view Needle,
+	string_view NeedleUpper,
+	string_view NeedleLower,
+	const RegExp& re,
+	RegExpMatch* pm,
+	MatchHash* hm,
+	string& ReplaceStr,
+	int& CurPos,
+	bool Case,
+	bool WholeWords,
+	bool Reverse,
+	bool Regexp,
+	bool PreserveStyle,
+	int* SearchLength,
+	string_view WordDiv = {}
+);
 
 inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
 
