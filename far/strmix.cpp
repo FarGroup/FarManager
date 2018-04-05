@@ -1011,9 +1011,6 @@ bool SearchString(
 	if (Needle.empty())
 		return true;
 
-	if (Haystack.empty())
-		return false;
-
 	auto Position = CurPos;
 	const auto HaystackSize = static_cast<int>(Haystack.size());
 
@@ -1026,11 +1023,17 @@ bool SearchString(
 			return false;
 	}
 
+	if (Regexp)
+	{
+		// Empty Haystack is ok for regex search, e.g. ^$
+		if ((Position || HaystackSize) && Position >= HaystackSize)
+			return false;
+
+		return SearchStringRegex(Haystack, re, pm, hm, Position, Reverse, ReplaceStr, CurPos, SearchLength);
+	}
+
 	if (Position >= HaystackSize)
 		return false;
-
-	if (Regexp)
-		return SearchStringRegex(Haystack, re, pm, hm, Position, Reverse, ReplaceStr, CurPos, SearchLength);
 
 	const auto NeedleSize = *SearchLength = static_cast<int>(Needle.size());
 
