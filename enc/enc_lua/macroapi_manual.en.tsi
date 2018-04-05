@@ -393,7 +393,7 @@ lv=3
 dt=Text
 nm=Demo example
 ctime=3730114449
-mtime=3730692714
+mtime=3732100057
 <article>
 #_<markdown>
 #_```
@@ -444,6 +444,8 @@ mtime=3730692714
 #_  return {
 #_    HostFile = object.HostFile;
 #_    PanelTitle = Title;
+#_    StartSortMode = F.SM_UNSORTED;
+#_    StartSortOrder = 0;
 #_    ShortcutData = "";
 #_    Flags = bit64.bor(F.OPIF_SHORTCUT, F.OPIF_ADDDOTS);
 #_  }
