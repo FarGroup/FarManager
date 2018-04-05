@@ -705,6 +705,9 @@ local function LoadMacros (unload, paths)
 
     local moonscript = require "moonscript"
 
+    local FuncList1 = {"Macro",  "Event",  "MenuItem",  "CommandLine",  "PanelModule"}
+    local FuncList2 = {"NoMacro","NoEvent","NoMenuItem","NoCommandLine","NoPanelModule"}
+
     local function LoadRegularFile (FindData, FullPath, macroinit)
       if FindData.FileAttributes:find("d") then return end
       if macroinit and #FullPath==#macroinit and far.LStricmp(FullPath,macroinit)==0 then
@@ -718,20 +721,19 @@ local function LoadMacros (unload, paths)
         return
       end
       local env = {
-        Macro = function(t) return not not AddRegularMacro(t,FullPath) end;
-        Event = function(t) return not not AddEvent(t,FullPath) end;
-        MenuItem = function(t) return AddMenuItem(t,FullPath) end;
+        Macro       = function(t) return not not AddRegularMacro(t,FullPath) end;
+        Event       = function(t) return not not AddEvent(t,FullPath) end;
+        MenuItem    = function(t) return AddMenuItem(t,FullPath) end;
         CommandLine = function(t) return AddPrefixes(t,FullPath) end;
         PanelModule = function(t) return AddPanelModule(t,FullPath) end;
-        NoMacro=DummyFunc, NoEvent=DummyFunc, NoMenuItem=DummyFunc, NoCommandLine=DummyFunc,
-        NoPanelModule=DummyFunc
       }
+      for _,name in ipairs(FuncList2) do env[name]=DummyFunc; end
       setmetatable(env,gmeta)
       setfenv(f, env)
       local ok, msg = xpcall(function() return f(FullPath) end, debug.traceback)
       if ok then
-        env.Macro, env.Event, env.MenuItem, env.CommandLine,
-        env.NoMacro, env.NoEvent, env.NoMenuItem, env.NoCommandLine = nil
+        for _,name in ipairs(FuncList1) do env[name]=nil; end
+        for _,name in ipairs(FuncList2) do env[name]=nil; end
       else
         numerrors=numerrors+1
         msg = msg:gsub("\n\t","\n   ")
