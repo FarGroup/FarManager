@@ -1780,18 +1780,6 @@ MConfigRegisteredTypes
 "Usa &Associazioni Di Sistema Per I Files"
 "Використовувати стандартні &типи файлів"
 
-MConfigCloseCDGate
-"Автоматически монтироват&ь CDROM"
-"CD drive auto &mount"
-"Automatické př&ipojení CD jednotek"
-"CD-Laufwerk auto&matisch schließen"
-"CD tálca a&utomatikus behúzása"
-"&Montuj CD automatycznie"
-"CD\DVD\BD-ROM: automontar unidad"
-"Automaticky pr&ipojiť jednotku CD"
-"Carica Automaticamente &CD/DVD"
-"Автоматично монтуват&и CD/DVD"
-
 MConfigUpdateEnvironment
 "Автообновл&ение переменных окружения"
 "Automatic update of environment variables"

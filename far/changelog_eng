@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 08.04.2018 13:30:30 +0100 - build 5186
+
+1. Removed 'System settings / CD drive auto mount' (Windows 9x artefact, forgotten in 662).
+
 MZK 07.04.2018 21:20:12 -0700 - build 5185
 
 1. Find-all menu disappeared after go to a bookmark (LeftCtrl+0..9).

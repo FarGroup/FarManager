@@ -851,7 +851,6 @@ public:
 	Bool3Option PgUpChangeDisk;
 	BoolOption ShowDotsInRoot;
 	BoolOption ShowCheckingFile;
-	BoolOption CloseCDGate;       // автомонтирование CD
 	BoolOption UpdateEnvironment;
 
 	ExecuteOptions Exec;

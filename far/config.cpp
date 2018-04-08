@@ -164,7 +164,6 @@ void Options::SystemSettings()
 	Builder.AddCheckbox(lng::MConfigSaveFoldersHistory, SaveFoldersHistory);
 	Builder.AddCheckbox(lng::MConfigSaveViewHistory, SaveViewHistory);
 	Builder.AddCheckbox(lng::MConfigRegisteredTypes, UseRegisteredTypes);
-	Builder.AddCheckbox(lng::MConfigCloseCDGate, CloseCDGate);
 	Builder.AddCheckbox(lng::MConfigUpdateEnvironment, UpdateEnvironment);
 	Builder.AddText(lng::MConfigElevation);
 	Builder.AddCheckbox(lng::MConfigElevationModify, StoredElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
@@ -1914,7 +1913,6 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,       NKeySystem,L"AutoUpdateRemoteDrive", OPT_DEF(AutoUpdateRemoteDrive, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"BoxSymbols", OPT_DEF(strBoxSymbols, DefaultBoxSymbols)},
 		{FSSF_PRIVATE,       NKeySystem,L"CASRule", OPT_DEF(CASRule, -1)},
-		{FSSF_PRIVATE,       NKeySystem,L"CloseCDGate", OPT_DEF(CloseCDGate, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"CmdHistoryRule", OPT_DEF(CmdHistoryRule, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"ConsoleDetachKey", OPT_DEF(ConsoleDetachKey, L"CtrlShiftTab")},
 		{FSSF_PRIVATE,       NKeySystem,L"CopyBufferSize", OPT_DEF(CMOpt.BufferSize, 0)},

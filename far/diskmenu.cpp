@@ -1130,7 +1130,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		}
 	} // эта скобка надо, см. M#605
 
-	if (Global->Opt->CloseCDGate && mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType))
+	if (mitem && !mitem->bIsPlugin && IsDriveTypeCDROM(mitem->nDriveType))
 	{
 		if (!os::fs::IsDiskInDrive(os::fs::get_drive(mitem->cDrive)))
 		{
