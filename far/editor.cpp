@@ -860,7 +860,12 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 	// работа с закладками
 	if (LocalKey()>=KEY_CTRL0 && LocalKey()<=KEY_CTRL9)
-		return GotoBookmark(LocalKey()-KEY_CTRL0);
+	{
+		auto KeyProcessed = GotoBookmark(LocalKey() - KEY_CTRL0);
+		if (KeyProcessed)
+			Refresh = true;
+		return KeyProcessed;
+	}
 
 	if (LocalKey()>=KEY_CTRLSHIFT0 && LocalKey()<=KEY_CTRLSHIFT9)
 		LocalKey=LocalKey()-KEY_CTRLSHIFT0+KEY_RCTRL0;
@@ -3787,7 +3792,7 @@ bool Editor::Search(bool Next)
 
 		bool MenuZoomed=true;
 
-		int ExitCode=FindAllList->Run([&](const Manager::Key& RawKey)
+		int ExitCode=FindAllList->Run([this, &FindAllList, &MenuZoomed](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			int SelectedPos=FindAllList->GetSelectPos();
@@ -3798,6 +3803,7 @@ bool Editor::Search(bool Next)
 				case KEY_ADD:
 					AddSessionBookmark();
 					break;
+
 				case KEY_CTRLENTER:
 				case KEY_RCTRLENTER:
 					{
@@ -3823,10 +3829,13 @@ bool Editor::Search(bool Next)
 
 				case KEY_CTRLUP: case KEY_RCTRLUP:
 				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
-					ProcessKeyInternal(Manager::Key(Key), RefreshMe);
-					if (RefreshMe)
 					{
-						Refresh();
+						bool RefreshMe = false;
+						KeyProcessed = ProcessKeyInternal(Manager::Key(Key), RefreshMe);
+						if (RefreshMe)
+						{
+							Refresh();
+						}
 					}
 					break;
 
@@ -3841,11 +3850,17 @@ bool Editor::Search(bool Next)
 						FindAllList->SetPosition(-1, ScrY-20, 0, ScrY-10);
 					}
 					break;
+
 				default:
 					if ((Key>=KEY_CTRL0 && Key<=KEY_CTRL9) || (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
 					   (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9))
 					{
-						ProcessKeyInternal(Manager::Key(Key), RefreshMe);
+						bool RefreshMe = false;
+						KeyProcessed = ProcessKeyInternal(Manager::Key(Key), RefreshMe);
+						if (RefreshMe)
+						{
+							Refresh();
+						}
 					}
 					else
 					{
