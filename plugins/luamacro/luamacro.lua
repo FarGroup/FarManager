@@ -558,6 +558,7 @@ local function Init()
   Shared.keymacro = keymacro
   mf.mmode, _G.mmode = keymacro.mmode, keymacro.mmode
   mf.akey, _G.akey = keymacro.akey, keymacro.akey
+  mf.AddExitHandler = keymacro.AddExitHandler
 
   macrobrowser = RunPluginFile("mbrowser.lua", Shared)
 

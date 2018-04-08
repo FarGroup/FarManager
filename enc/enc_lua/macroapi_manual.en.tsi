@@ -864,7 +864,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3659609153
+mtime=3732331643
 <article>
 #_**Properties:** none.
 #_
@@ -872,30 +872,31 @@ mtime=3659609153
 #_
 #_  abs                len
 #_  `acall`              max
-#_  akey               `mdelete`
-#_  asc                min
-#_  atoi               `mload`
-#_  beep               mmode
-#_  chr                mod
-#_  clip               `msave`
-#_  date               msgbox
-#_  env                `postmacro`
-#_  `eval`               print
-#_  `exit`               prompt
-#_  fattr              replace
-#_  fexist             rindex
-#_  float              size2str
-#_  flock              sleep
-#_  fmatch             string
-#_  fsplit             strpad
-#_  `GetMacroCopy`       strwrap
-#_  iif                substr
-#_  index              testfolder
-#_  int                trim
-#_  itoa               ucase
-#_  key                `usermenu`
-#_  `Keys`               waitkey
-#_  lcase              xlat
+#_  `AddExitHandler`     `mdelete`
+#_  akey               min
+#_  asc                `mload`
+#_  atoi               mmode
+#_  beep               mod
+#_  chr                `msave`
+#_  clip               msgbox
+#_  date               `postmacro`
+#_  env                print
+#_  `eval`               prompt
+#_  `exit`               replace
+#_  fattr              rindex
+#_  fexist             size2str
+#_  float              sleep
+#_  flock              string
+#_  fmatch             strpad
+#_  fsplit             strwrap
+#_  `GetMacroCopy`       substr
+#_  iif                testfolder
+#_  index              trim
+#_  int                ucase
+#_  itoa               `usermenu`
+#_  key                waitkey
+#_  `Keys`               xlat
+#_  lcase
 #_
 #_@@@
 #_[acall]: 91.html
@@ -908,6 +909,7 @@ mtime=3659609153
 #_[msave]: 12.html
 #_[postmacro]: 85.html
 #_[usermenu]: 69.html
+#_[AddExitHandler]: 100.html
 #_
 #_
 #_{abs}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#abs
@@ -993,6 +995,43 @@ mtime=3717266648
 #_[Restrictions in the use of some functions]: 62.html
 #_[Plugin.Call]: 65.html
 #_[LuaMacro]: 7.html
+#_
+</article>
+</node>
+<node>
+id=100
+lv=3
+dt=Text
+nm=AddExitHandler
+ctime=3732331676
+mtime=3732332270
+<article>
+#_mf.AddExitHandler (handler)
+#_
+#_**Parameters:**
+#_  handler:  function
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  1. This function adds a handler that will be called at the end
+#_     of the macro execution.
+#_  2. The handler will be called both in the case of normal macro
+#_     completion and in the case of error completion.
+#_  3. If multiple handlers were added during macro execution then they
+#_     will be called in the order reverse to the order of their adding.
+#_
+#_**Usage example:**
+#_  local fp = assert(io.open("some file.txt"))
+#_  mf.AddExitHandler(function() fp:close() end)
+#_  -- *use fp; return from multiple places; do not care about closing fp*
+#_
+#_**See also:**
+#_`Restrictions in the use of some functions`
+#_
+#_@@@
+#_[Restrictions in the use of some functions]: 62.html
 #_
 </article>
 </node>
@@ -2251,13 +2290,14 @@ lv=2
 dt=Text
 nm=Restrictions in the use of some functions
 ctime=3557323094
-mtime=3664364330
+mtime=3732332374
 <article>
 #_<markdown>
 #_The following functions have certain restrictions on their use in macros: 
 #_
 #_* [`exit`][exit]
 #_* [`mf.acall`][acall]
+#_* [`mf.AddExitHandler`][AddExitHandler]
 #_* [`mf.usermenu`][usermenu] (in the "asynchronous" call mode)
 #_* [`Keys`][keys]
 #_* [`Plugin.Call`][plugincall]
@@ -2288,6 +2328,7 @@ mtime=3664364330
 #_[plugincall]: 65.html
 #_[exit]: 61.html
 #_[keys]: 4.html
+#_[AddExitHandler]: 100.html
 #_
 #_@@@
 #_{plugin.command}: http://api.farmanager.com/ru/macro/macrocmd/prop_func/general.html#plugin.command

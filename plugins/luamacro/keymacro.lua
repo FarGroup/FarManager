@@ -284,6 +284,9 @@ local function GetInputFromMacro()
       if not GetCurMacro() then
         Import.RestoreMacroChar()
       end
+      for k = #macro,1,-1 do -- exit handlers
+        macro[k]()
+      end
     elseif r1 == MPRT_PLUGINCALL then
       KeyMacro.CallPlugin(r2, true)
     elseif r1 == "acall" then
@@ -408,6 +411,15 @@ function KeyMacro.CallPlugin (Params, AsyncCall)
     end
   end
   return Result
+end
+
+function KeyMacro.AddExitHandler (func)
+  if type(func) == "function" then
+    local TopMacro = GetTopMacro()
+    if TopMacro then
+      TopMacro[#TopMacro+1] = func
+    end
+  end
 end
 
 local OP_ISEXECUTING              = 1
