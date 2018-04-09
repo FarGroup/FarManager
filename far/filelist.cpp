@@ -2101,7 +2101,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			if (!m_ListData.empty() && SetCurPath())
 			{
 				assert(m_CurFile < static_cast<int>(m_ListData.size()));
-				const auto& name = m_ListData[m_CurFile].FileName;
+				const auto name = m_ListData[m_CurFile].FileName; // must be a copy
 				const auto selected = m_ListData[m_CurFile].Selected;
 
 				int RealName = m_PanelMode != panel_mode::PLUGIN_PANEL;
