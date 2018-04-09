@@ -3784,7 +3784,7 @@ bool Editor::Search(bool Next)
 	if(FindAllReferences && Match)
 	{
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-		FindAllList->SetPosition(-1, -1, 0, 0);
+		FindAllList->SetPosition(-1, -1, 0, std::min(ScrY/2, static_cast<int>(FindAllList->size()) + 2));
 		FindAllList->SetTitle(format(lng::MEditSearchStatistics, FindAllList->size(), AllRefLines));
 		FindAllList->SetBottomTitle(msg(lng::MEditFindAllMenuFooter));
 		FindAllList->SetHelp(L"FindAllMenu");
