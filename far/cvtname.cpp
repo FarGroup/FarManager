@@ -151,12 +151,12 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 				}
 				else
 				{
-					const auto DriveVar = L'=' + os::fs::get_drive(stPath[0]);
-					const auto strValue(os::env::get(DriveVar));
+					const auto Drive = os::fs::get_drive(stPath[0]);
+					const auto Value = os::env::get(L'=' + Drive);
 
-					if (!strValue.empty())
+					if (!Value.empty())
 					{
-						strDest=strValue;
+						strDest = Value;
 					}
 					else
 					{
@@ -166,7 +166,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 						}
 						else
 						{
-							strDest.assign(DriveVar, 1);
+							strDest = Drive;
 						}
 					}
 					AddEndSlash(strDest);

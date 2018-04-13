@@ -3783,16 +3783,18 @@ bool Editor::Search(bool Next)
 
 	if(FindAllReferences && Match)
 	{
+		const auto MenuY1 = ScrY - 20;
+		const auto MenuY2 = ScrY - 10;
 		FindAllList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
-		FindAllList->SetPosition(-1, -1, 0, std::min(ScrY/2, static_cast<int>(FindAllList->size()) + 2));
+		FindAllList->SetPosition(-1, MenuY1, 0, MenuY2);
 		FindAllList->SetTitle(format(lng::MEditSearchStatistics, FindAllList->size(), AllRefLines));
 		FindAllList->SetBottomTitle(msg(lng::MEditFindAllMenuFooter));
 		FindAllList->SetHelp(L"FindAllMenu");
 		FindAllList->SetId(EditorFindAllListId);
 
-		bool MenuZoomed=true;
+		bool MenuZoomed = false;
 
-		int ExitCode=FindAllList->Run([this, &FindAllList, &MenuZoomed](const Manager::Key& RawKey)
+		const auto ExitCode = FindAllList->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
 			int SelectedPos=FindAllList->GetSelectPos();
@@ -3847,7 +3849,7 @@ bool Editor::Search(bool Next)
 					}
 					else
 					{
-						FindAllList->SetPosition(-1, ScrY-20, 0, ScrY-10);
+						FindAllList->SetPosition(-1, MenuY1, 0, MenuY2);
 					}
 					break;
 
@@ -4848,7 +4850,7 @@ void Editor::BlockLeft()
 			else if (CurStr.front() == L'\t')
 			{
 				TmpStr.assign(EdOpt.TabSize - 1, L' ');
-				TmpStr.append(CurStr, 1);
+				TmpStr.append(CurStr, 1, string::npos); // gcc 7.3 bug, npos required
 			}
 
 			if ((EndSel == -1 || EndSel > StartSel) && std::iswblank(CurStr.front()))

@@ -257,7 +257,16 @@ IsWindowsServer()
 }
 #endif
 
-#if !defined _WIN32_WINNT_WIN10 || defined __GNUC__ // mingw defines the constant, but not the helper below. Awesome.
+#define GCC_72_OR_OLDER 0
+
+#ifdef __GNUC__
+#if _GCC_VER < GCC_VER_(7,3,0)
+#undef GCC_72_OR_OLDER
+#define GCC_72_OR_OLDER 1
+#endif
+#endif
+
+#if !defined _WIN32_WINNT_WIN10 || GCC_72_OR_OLDER // mingw defines the constant, but not the helper below. Awesome.
 
 #ifndef _WIN32_WINNT_WIN10
 #define _WIN32_WINNT_WIN10 0xA00

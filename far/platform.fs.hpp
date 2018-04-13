@@ -323,7 +323,7 @@ namespace os::fs
 	bool GetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint, string& VolumeName);
 	bool GetVolumePathNamesForVolumeName(const string& VolumeName, string& VolumePathNames);
 	bool QueryDosDevice(const string& DeviceName, string& Path);
-	bool SearchPath(const wchar_t* Path, const string& FileName, const wchar_t* Extension, string& strDest);
+	bool SearchPath(const wchar_t* Path, string_view FileName, const wchar_t* Extension, string& strDest);
 	bool GetTempPath(string& strBuffer);
 	bool GetModuleFileName(HANDLE hProcess, HMODULE hModule, string& strFileName);
 	security_descriptor get_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation);

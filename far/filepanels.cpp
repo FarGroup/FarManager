@@ -81,6 +81,7 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 	{
 		FilePanelsPtr->m_Panels[panel_left].m_Panel = std::make_unique<dummy_panel>(FilePanelsPtr);
 		FilePanelsPtr->m_Panels[panel_right].m_Panel = std::make_unique<dummy_panel>(FilePanelsPtr);
+		FilePanelsPtr->CmdLine = std::make_unique<CommandLine>(FilePanelsPtr);
 	}
 	return FilePanelsPtr;
 }

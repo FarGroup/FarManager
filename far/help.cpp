@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "string_sort.hpp"
 #include "cvtname.hpp"
+#include "cmdline.hpp"
 
 static const wchar_t* FoundContents = L"__FoundContents__";
 static const wchar_t* PluginContents = L"__PluginContents__";
@@ -100,7 +101,7 @@ public:
 	}
 };
 
-static int RunURL(const string& Protocol, const string& URLPath);
+static bool OpenURL(const string& URLPath);
 
 static const wchar_t HelpFormatLink[] = L"<{0}\\>{1}";
 static const wchar_t HelpFormatLinkModule[] = L"<{0}>{1}";
@@ -245,7 +246,7 @@ bool Help::ReadHelp(const string& Mask)
 		if (pos == string::npos)
 			return false;
 
-		StackData->strHelpTopic.assign(strPath, pos + 1);
+		StackData->strHelpTopic.assign(strPath, pos + 1, string::npos); // gcc 7.3 bug, npos required
 		strPath.resize(pos);
 		DeleteEndSlash(strPath);
 		AddEndSlash(strPath);
@@ -533,7 +534,7 @@ bool Help::ReadHelp(const string& Mask)
 				size_t n2 = strReadStr.size();
 				if (1 + n1 + 1 < n2 && starts_with_icase(strReadStr.data() + 1, StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
 				{
-					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1);
+					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1, string::npos); // gcc 7.3 bug, npos required
 					continue;
 				}
 			}
@@ -1526,11 +1527,9 @@ bool Help::JumpTopic()
 		strNewTopic = StackData->strSelTopic;
 		pos = strNewTopic.find(L':');
 
-		if (pos != string::npos && strNewTopic.front() != L':') // наверное подразумевается URL
+		if (pos && pos != string::npos) // наверное подразумевается URL
 		{
-			string Protocol(strNewTopic, 0, pos);
-
-			if (RunURL(Protocol, StackData->strSelTopic))
+			if (OpenURL(StackData->strSelTopic))
 			{
 				return false;
 			}
@@ -2154,110 +2153,39 @@ void Help::InitKeyBar()
 	m_windowKeyBar->SetCustomLabels(KBA_HELP);
 }
 
-/* $ 25.08.2000 SVS
-   Запуск URL-ссылок... ;-)
-   Это ведь так просто... ась?
-   Вернет:
-     0 - это не URL ссылка (не похожа)
-     1 - CreateProcess вернул FALSE
-     2 - Все Ок
-
-   Параметры (например):
-     Protocol="mailto"
-     URLPath ="mailto:vskirdin@mail.ru?Subject=Reversi"
-*/
-static int RunURL(const string& Protocol, const string& URLPath)
+static bool OpenURL(const string& URLPath)
 {
-	int EditCode=0;
+	if (!Global->Opt->HelpURLRules)
+		return false;
 
-	if (!URLPath.empty() && (Global->Opt->HelpURLRules&0xFF))
+	string FilteredURLPath(URLPath);
+	// удалим два идущих подряд ~~
+	ReplaceStrings(FilteredURLPath, L"~~", L"~");
+	// удалим два идущих подряд ##
+	ReplaceStrings(FilteredURLPath, L"##", L"#");
+
+	if (FilteredURLPath.empty())
+		return false;
+
+	if (Global->Opt->HelpURLRules > 1)
 	{
-		string strType;
-
-		if (GetShellType(Protocol,strType,AT_URLPROTOCOL))
-		{
-			string strAction;
-			bool Success;
-			if (strType.find(L"%1") != string::npos)
+		if (Message(MSG_WARNING,
+			msg(lng::MHelpTitle),
 			{
-				strAction = strType;
-				Success = true;
-			}
-			else
-			{
-				strType += L"\\shell\\open\\command";
-				Success = os::reg::key::classes_root.get(strType, L"", strAction);
-			}
-
-			if (Success)
-			{
-				strAction = os::env::expand(strAction);
-
-				string FilteredURLPath(URLPath);
-				// удалим два идущих подряд ~~
-				ReplaceStrings(FilteredURLPath, L"~~", L"~");
-				// удалим два идущих подряд ##
-				ReplaceStrings(FilteredURLPath, L"##", L"#");
-
-				int Disposition=0;
-
-				if (Global->Opt->HelpURLRules == 2 || Global->Opt->HelpURLRules == 2+256)
-				{
-					Disposition=Message(MSG_WARNING,
-						msg(lng::MHelpTitle),
-						{
-							msg(lng::MHelpActivatorURL),
-							strAction,
-							msg(lng::MHelpActivatorFormat),
-							FilteredURLPath,
-							L"\x01"s,
-							msg(lng::MHelpActivatorQ)
-						},
-						{ lng::MYes, lng::MNo });
-				}
-
-				EditCode=2; // Все Ok!
-
-				if (!Disposition)
-				{
-					/*
-					СЮДЫ НУЖНО ВПИНДЮЛИТЬ МЕНЮХУ С ВОЗМОЖНОСТЬЮ ВЫБОРА
-					ТОГО ИЛИ ИНОГО АКТИВАТОРА - ИХ МОЖЕТ БЫТЬ НЕСКОЛЬКО!!!!!
-					*/
-					const auto strCurDir = os::fs::GetCurrentDirectory();
-
-					if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
-					{
-						strAction=FilteredURLPath;
-						EditCode = ShellExecute(nullptr, nullptr, inplace::trim(strAction).data(), nullptr, strCurDir.data(), SW_SHOWNORMAL) ? 1 : 2;
-					}
-					else
-					{
-						STARTUPINFO si={sizeof(si)};
-						PROCESS_INFORMATION pi={};
-
-						if (ReplaceStrings(strAction, L"%1", FilteredURLPath, false, 1) == 0) //if %1 not found
-						{
-							strAction += L' ';
-							strAction += FilteredURLPath;
-						}
-
-						if (!CreateProcess(nullptr, UNSAFE_CSTR(strAction),nullptr,nullptr,TRUE,0,nullptr,strCurDir.data(),&si,&pi))
-						{
-							EditCode=1;
-						}
-						else
-						{
-							CloseHandle(pi.hThread);
-							CloseHandle(pi.hProcess);
-						}
-					}
-				}
-			}
-		}
+				msg(lng::MHelpActivatorURL),
+				msg(lng::MHelpActivatorFormat),
+				FilteredURLPath,
+				L"\x01"s,
+				msg(lng::MHelpActivatorQ)
+			},
+			{ lng::MYes, lng::MNo }) != Message::first_button)
+			return false;
 	}
 
-	return EditCode;
+	execute_info Info;
+	Info.Command = FilteredURLPath;
+	Global->CtrlObject->CmdLine()->ExecString(Info);
+	return true;
 }
 
 void Help::ResizeConsole()

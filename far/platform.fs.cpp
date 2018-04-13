@@ -1631,11 +1631,11 @@ namespace os::fs
 		});
 	}
 
-	bool SearchPath(const wchar_t* Path, const string& FileName, const wchar_t* Extension, string& strDest)
+	bool SearchPath(const wchar_t* Path, string_view const FileName, const wchar_t* Extension, string& strDest)
 	{
 		return os::detail::ApiDynamicStringReceiver(strDest, [&](wchar_t* Buffer, size_t Size)
 		{
-			return ::SearchPath(Path, FileName.data(), Extension, static_cast<DWORD>(Size), Buffer, nullptr);
+			return ::SearchPath(Path, null_terminated(FileName).data(), Extension, static_cast<DWORD>(Size), Buffer, nullptr);
 		});
 	}
 

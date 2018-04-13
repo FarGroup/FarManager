@@ -41,7 +41,7 @@ void OpenFolderInShell(const string& Folder);
 
 void Execute(struct execute_info& Info, bool FolderRun, bool Silent, const std::function<void(bool)>& ConsoleActivator = nullptr);
 
-bool IsExecutable(const string& Filename);
+bool IsExecutable(string_view Filename);
 
 bool ExpandOSAliases(string& strStr);
 

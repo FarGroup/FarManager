@@ -174,7 +174,7 @@ static bool SearchExtHandlerFromList(const os::reg::key& ExtKey, string& strType
 	return false;
 }
 
-static bool FindObject(const string& Module, string& strDest, bool* Internal)
+static bool FindObject(string_view const Module, string& strDest, bool* Internal)
 {
 	if (Module.empty())
 		return false;
@@ -182,7 +182,7 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 	const auto ModuleExt = PointToExt(Module);
 	const auto PathExtList = enum_tokens(lower(os::env::get_pathext()), L";"_sv);
 
-	const auto& TryWithExtOrPathExt = [&](const string& Name, const auto& Predicate)
+	const auto& TryWithExtOrPathExt = [&](string_view const Name, const auto& Predicate)
 	{
 		if (!ModuleExt.empty())
 		{
@@ -213,9 +213,9 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 	{
 		// If absolute path has been specified it makes no sense to walk through the %PATH%, App Paths etc.
 		// Just try all the extensions and we are done here:
-		const auto Result = TryWithExtOrPathExt(Module, [](const string& NameWithExt)
+		const auto Result = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
 		{
-			return std::make_pair(os::fs::is_file(NameWithExt), NameWithExt);
+			return std::make_pair(os::fs::is_file(NameWithExt), string(NameWithExt));
 		});
 
 		if (Result.first)
@@ -240,9 +240,9 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 	{
 		// Look in the current directory:
 		const auto FullName = ConvertNameToFull(Module);
-		const auto Result = TryWithExtOrPathExt(FullName, [](const string& NameWithExt)
+		const auto Result = TryWithExtOrPathExt(FullName, [](string_view const NameWithExt)
 		{
-			return std::make_pair(os::fs::is_file(NameWithExt), NameWithExt);
+			return std::make_pair(os::fs::is_file(NameWithExt), string(NameWithExt));
 		});
 
 		if (Result.first)
@@ -262,9 +262,9 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 				if (Path.empty())
 					continue;
 
-				const auto Result = TryWithExtOrPathExt(path::join(Path, Module), [](const string& NameWithExt)
+				const auto Result = TryWithExtOrPathExt(path::join(Path, Module), [](string_view const NameWithExt)
 				{
-					return std::make_pair(os::fs::is_file(NameWithExt), NameWithExt);
+					return std::make_pair(os::fs::is_file(NameWithExt), string(NameWithExt));
 				});
 
 				if (Result.first)
@@ -278,7 +278,7 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 
 	{
 		// Use SearchPath:
-		const auto Result = TryWithExtOrPathExt(Module, [](const string& NameWithExt)
+		const auto Result = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
 		{
 			string Result;
 			return std::make_pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Result), Result);
@@ -314,7 +314,7 @@ static bool FindObject(const string& Module, string& strDest, bool* Internal)
 					}
 				}
 
-				const auto Result = TryWithExtOrPathExt(FullName, [&](const string& NameWithExt)
+				const auto Result = TryWithExtOrPathExt(FullName, [&](string_view const NameWithExt)
 				{
 					string RealName;
 					if (RootFindKey[i]->get(NameWithExt, L"", RealName, samDesired))
@@ -430,15 +430,82 @@ static bool RunAsSupported(const wchar_t* Name)
 		os::reg::key::open(os::reg::key::classes_root, Type.append(L"\\shell\\runas\\command"), KEY_QUERY_VALUE);
 }
 
-// TODO: rewrite
-static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& FileName, string& strAction, string& Application, DWORD& Error)
-{
-	string strValue;
-	string strNewValue;
-	const wchar_t *RetPtr;
-	const wchar_t command_action[]=L"\\command";
-	Error = ERROR_SUCCESS;
+const auto CommandName = L"command"_sv;
 
+static bool IsShortcutType(string_view const Type)
+{
+	const auto Key = os::reg::key::open(os::reg::key::classes_root, Type, KEY_QUERY_VALUE);
+	if (!Key)
+		return false;
+
+	return Key.get(L"IsShortcut");
+}
+
+static string GetShellActionForType(string_view const TypeName, string& KeyName)
+{
+	if (TypeName.empty())
+		return {};
+
+	KeyName = concat(TypeName, L"\\shell"_sv);
+
+	const auto Key = os::reg::key::open(os::reg::key::classes_root, KeyName, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
+	if (!Key)
+		return {};
+
+	string Action;
+	if (Key.get(L"", Action) && !Action.empty())
+	{
+		bool ItemFound = false;
+
+		// Need to clarify if we need to support quotes here
+		for (const auto& i : enum_tokens_with_quotes(Action, L","_sv))
+		{
+			if (i.empty())
+				continue;
+
+			if (os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', i, L'\\', CommandName), KEY_QUERY_VALUE))
+			{
+				append(KeyName, L'\\', i);
+				assign(Action, i);
+				ItemFound = true;
+				break;
+			}
+		}
+
+		if (!ItemFound)
+		{
+			append(KeyName, L'\\', Action);
+		}
+	}
+	else
+	{
+		// Сначала проверим "open"...
+		const auto OpenAction = L"open"_sv;
+		if (os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', OpenAction, L'\\', CommandName), KEY_QUERY_VALUE))
+		{
+			append(KeyName, L'\\', Action);
+			assign(Action, OpenAction);
+		}
+		else
+		{
+			// ... а теперь все остальное, если "open" нету
+			for (const auto& i : os::reg::enum_key(Key))
+			{
+				if (os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', i, L'\\', CommandName), KEY_QUERY_VALUE))
+				{
+					append(KeyName, L'\\', Action);
+					assign(Action, OpenAction);
+					break;
+				}
+			}
+		}
+	}
+
+	return Action;
+}
+
+string GetShellTypeFromExtension(string_view const FileName)
+{
 	auto Ext = PointToExt(FileName);
 	if (Ext.empty())
 	{
@@ -446,143 +513,74 @@ static const wchar_t* GetShellActionAndAssociatedApplicationImpl(const string& F
 		Ext = L"."_sv;
 	}
 
-	if (!GetShellType(Ext, strValue))
+	string Type;
+	if (!GetShellType(Ext, Type))
 	{
 		// Type is absent, however, verbs could be specified right in the extension key
-		assign(strValue, Ext);
+		assign(Type, Ext);
 	}
 
-	if (const auto Key = os::reg::key::open(os::reg::key::classes_root, strValue, KEY_QUERY_VALUE))
+	return Type;
+}
+
+static string GetAssociatedApplicationFromType(string_view const TypeName, string& Action)
+{
+	string KeyName;
+	Action = GetShellActionForType(TypeName, KeyName);
+	if (Action.empty())
+		return {};
+
+	string Application;
+	if (!os::reg::key::classes_root.get(concat(KeyName, L'\\', CommandName), L"", Application) || Application.empty())
+		return {};
+
+	Application = os::env::expand(Application);
+
+	// Выделяем имя модуля
+	if (Application.front() == L'"')
 	{
-		if (Key.get(L"IsShortcut"))
-			return nullptr;
-	}
+		const auto QuotePos = Application.find(L'"', 1);
 
-	strValue += L"\\shell";
-
-	const auto Key = os::reg::key::open(os::reg::key::classes_root, strValue, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
-	if (!Key)
-		return nullptr;
-
-	strValue += L'\\';
-
-	if (Key.get(L"", strAction))
-	{
-		RetPtr = EmptyToNull(strAction.data());
-		bool ItemFound = false;
-		if (RetPtr)
+		if (QuotePos != string::npos)
 		{
-			// Need to clarify if we need to support quotes here
-			for (const auto& i: enum_tokens_with_quotes(strAction, L","_sv))
-			{
-				if (i.empty())
-					continue;
-
-				strNewValue = concat(strValue, i, command_action);
-
-				if (os::reg::key::open(os::reg::key::classes_root, strNewValue, KEY_QUERY_VALUE))
-				{
-					append(strValue, i);
-					assign(strAction, i);
-					RetPtr = strAction.data();
-					ItemFound = true;
-					break;
-				}
-			}
-		}
-
-		if (!ItemFound)
-		{
-			strValue += strAction;
-			RetPtr = nullptr;
+			Application.resize(QuotePos);
+			Application.erase(0, 1);
 		}
 	}
 	else
 	{
-		// This member defaults to "Open" if no verb is specified.
-		// Т.е. если мы вернули nullptr, то подразумевается команда "Open"
-		RetPtr=nullptr;
+		const auto pos = Application.find_first_of(L" \t/");
+		if (pos != string::npos)
+			Application.resize(pos);
 	}
 
-	// Если RetPtr==nullptr - мы не нашли default action.
-	// Посмотрим - есть ли вообще что-нибудь у этого расширения
-	if (!RetPtr)
-	{
-		// Сначала проверим "open"...
-		strAction = L"open";
-		strNewValue = strValue;
-		strNewValue += strAction;
-		strNewValue += command_action;
-
-		if (os::reg::key::open(os::reg::key::classes_root, strNewValue, KEY_QUERY_VALUE))
-		{
-			strValue += strAction;
-			RetPtr = strAction.data();
-		}
-		else
-		{
-			// ... а теперь все остальное, если "open" нету
-			for (const auto& i: os::reg::enum_key(Key))
-			{
-				strAction = i;
-
-				// Проверим наличие "команды" у этого ключа
-				strNewValue = strValue;
-				strNewValue += strAction;
-				strNewValue += command_action;
-
-				if (os::reg::key::open(os::reg::key::classes_root, strNewValue, KEY_QUERY_VALUE))
-				{
-					strValue += strAction;
-					RetPtr = strAction.data();
-					break;
-				}
-			}
-		}
-	}
-
-	if (RetPtr)
-	{
-		strValue += command_action;
-
-		if (os::reg::key::classes_root.get(strValue, L"", strNewValue) && !strNewValue.empty())
-		{
-			strNewValue = os::env::expand(strNewValue);
-
-			// Выделяем имя модуля
-			if (strNewValue.front() == L'"')
-			{
-				size_t QuotePos = strNewValue.find(L'"', 1);
-
-				if (QuotePos != string::npos)
-				{
-					strNewValue.resize(QuotePos);
-					strNewValue.erase(0, 1);
-				}
-			}
-			else
-			{
-				const auto pos = strNewValue.find_first_of(L" \t/");
-				if (pos != string::npos)
-					strNewValue.resize(pos);
-			}
-
-			Application = strNewValue;
-		}
-		else
-		{
-			Error=ERROR_NO_ASSOCIATION;
-			RetPtr=nullptr;
-		}
-	}
-
-	return RetPtr;
+	return Application;
 }
 
-string GetShellActionAndAssociatedApplication(const string& FileName, string& Application, DWORD& Error)
+static bool ResolveShortcut(string_view const ShortcutPath, string& FilePath, bool& IsDirectory)
 {
-	string Action;
-	return NullToEmpty(GetShellActionAndAssociatedApplicationImpl(FileName, Action, Application, Error));
+	os::com::ptr<IShellLinkW> ShellLink;
+	if (FAILED(CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLinkW, IID_PPV_ARGS_Helper(&ptr_setter(ShellLink)))))
+		return false;
+
+	os::com::ptr<IPersistFile> PersistFile;
+	if (FAILED(ShellLink->QueryInterface(IID_IPersistFile, IID_PPV_ARGS_Helper(&ptr_setter(PersistFile)))))
+		return false;
+
+	if (FAILED(PersistFile->Load(null_terminated(ShortcutPath).data(), STGM_READ)))
+		return false;
+
+	if (FAILED(ShellLink->Resolve(nullptr, SLR_UPDATE)))
+		return false;
+
+	wchar_t Path[MAX_PATH];
+	WIN32_FIND_DATA Data;
+	if (FAILED(ShellLink->GetPath(Path, MAX_PATH, &Data, SLGP_RAWPATH)))
+		return false;
+
+	FilePath = os::env::expand(Path);
+	IsDirectory = (Data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+	return true;
 }
 
 bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE aType)
@@ -658,6 +656,79 @@ void OpenFolderInShell(const string& Folder)
 	Execute(Info, true, true);
 }
 
+static bool GetAssociatedImageTypeForBatCmd(string_view const Str, image_type& ImageType)
+{
+	if (!IsExecutable(Str))
+		return false;
+
+	ImageType = image_type::console;
+	return true;
+}
+
+static bool FindAndGetApplicationType(string_view const Application, image_type& ImageType)
+{
+	if (Application.empty())
+		return false;
+
+	string FoundApplication;
+	if (!FindObject(Application, FoundApplication, nullptr))
+		return false;
+
+	return GetImageType(FoundApplication, ImageType) || GetAssociatedImageTypeForBatCmd(FoundApplication, ImageType);
+}
+
+static bool GetAssociatedImageType(string_view const FileName, image_type& ImageType, string& Action)
+{
+	if (GetAssociatedImageTypeForBatCmd(FileName, ImageType))
+		return true;
+
+	const auto Type = GetShellTypeFromExtension(FileName);
+	if (IsShortcutType(Type))
+	{
+		string ShortcutPath;
+		bool IsDirectory = false;
+		if (ResolveShortcut(FileName, ShortcutPath, IsDirectory))
+		{
+			// Or shall we try to go there? :)
+			if (IsDirectory)
+			{
+				ImageType = image_type::graphical;
+				return true;
+			}
+
+			return GetImageType(ShortcutPath, ImageType) || GetAssociatedImageType(ShortcutPath, ImageType, Action);
+		}
+	}
+
+	return FindAndGetApplicationType(GetAssociatedApplicationFromType(Type, Action), ImageType);
+}
+
+static bool GetProtocolType(string_view const Str, image_type& ImageType)
+{
+	auto Unquoted = unquote(string(Str));
+	const auto SemicolonPos = Unquoted.find(L':');
+	if (!SemicolonPos || SemicolonPos == Str.npos)
+		return false;
+
+	const auto Protocol = string_view(Unquoted).substr(0, SemicolonPos);
+	string Type;
+	if (!GetShellType(Protocol, Type, AT_URLPROTOCOL))
+		return false;
+
+	string Action;
+	if (FindAndGetApplicationType(GetAssociatedApplicationFromType(Type, Action), ImageType))
+		return true;
+
+	if (equal_icase(Type, L"file"_sv))
+	{
+		// file protocol is handled by IE but cannot be detected using conventional approach
+		ImageType = image_type::graphical;
+		return true;
+	}
+
+	return false;
+}
+
 void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::function<void(bool)>& ConsoleActivator)
 {
 	bool Result = false;
@@ -667,6 +738,26 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	// Info.NewWindow may be changed later
 	const auto IgnoreInternalAssociations = Info.NewWindow;
 
+	const auto& TryProtocolOrFallToComspec = [&]
+	{
+		auto ImageType = image_type::unknown;
+		if (GetProtocolType(Info.Command, ImageType))
+		{
+			Info.ExecMode = execute_info::exec_mode::direct;
+
+			if (ImageType == image_type::graphical)
+			{
+				Silent = true;
+				Info.NewWindow = true;
+			}
+		}
+		else
+		{
+			Info.ExecMode = execute_info::exec_mode::external;
+		}
+		strNewCmdStr = Info.Command;
+	};
+
 	if (Info.SourceMode == execute_info::source_mode::known)
 	{
 		strNewCmdStr = Info.Command;
@@ -674,8 +765,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	else if (!PartCmdLine(Info.Command, strNewCmdStr, strNewCmdPar))
 	{
 		// Complex expression (pipe or redirection): fallback to comspec as is
-		strNewCmdStr = Info.Command;
-		Info.ExecMode = execute_info::exec_mode::external;
+		TryProtocolOrFallToComspec();
 	}
 
 	bool IsDirectory = false;
@@ -714,39 +804,6 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 	else if (Info.ExecMode == execute_info::exec_mode::detect)
 	{
-		const auto& GetAssociatedImageType = [&Verb](const string& Str, image_type& ImageType)
-		{
-			const auto& GetAssociatedImageTypeForBatCmd = [](const string& BatCmdStr, image_type& BatCmdImageType)
-			{
-				if (IsExecutable(BatCmdStr))
-				{
-					// We shouldn't get here if it's a PE image - only if bat / cmd
-					BatCmdImageType = image_type::console;
-					return true;
-				}
-				return false;
-			};
-
-			if (GetAssociatedImageTypeForBatCmd(Str, ImageType))
-			{
-				return true;
-			}
-			else
-			{
-				DWORD SaError = 0;
-				string Application;
-				Verb = GetShellActionAndAssociatedApplication(Str, Application, SaError);
-
-				if (!Verb.empty() && !Application.empty() && SaError != ERROR_NO_ASSOCIATION)
-				{
-					string FoundApplication;
-					if (FindObject(Application, FoundApplication, nullptr))
-						return GetImageType(FoundApplication, ImageType) || GetAssociatedImageTypeForBatCmd(FoundApplication, ImageType);
-				}
-			}
-			return false;
-		};
-
 		const auto& GetImageTypeFallback = [](image_type& ImageType)
 		{
 			// Object is found, but its type is unknown.
@@ -808,7 +865,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					GotoXY(LastX, LastY);
 				}
 
-				if (GetImageType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType) || GetImageTypeFallback(ImageType))
+				if (GetImageType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType, Verb) || GetImageTypeFallback(ImageType))
 				{
 					// We can run it directly
 					Info.ExecMode = execute_info::exec_mode::direct;
@@ -826,8 +883,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		else
 		{
 			// Found nothing: fallback to comspec as is
-			Info.ExecMode = execute_info::exec_mode::external;
-			strNewCmdStr = Info.Command;
+			TryProtocolOrFallToComspec();
 		}
 	}
 
@@ -897,14 +953,8 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			seInfo.lpParameters = strNewCmdPar.data();
 		}
 
-		const auto& GetVerb = [](const string& Str)
-		{
-			DWORD DummyError;
-			string DummyString;
-			return GetShellActionAndAssociatedApplication(Str, DummyString, DummyError);
-		};
-
-		seInfo.lpVerb = IsDirectory? nullptr : EmptyToNull((Verb.empty()? Verb = GetVerb(strNewCmdStr) : Verb).data());
+		string DummyKeyName;
+		seInfo.lpVerb = IsDirectory? nullptr : EmptyToNull((Verb.empty()? Verb = GetShellActionForType(GetShellTypeFromExtension(strNewCmdStr), DummyKeyName) : Verb).data());
 	}
 	else
 	{
@@ -1336,7 +1386,7 @@ bool ExtractIfExistCommand(string& strCommandText)
 	return Result;
 }
 
-bool IsExecutable(const string& Filename)
+bool IsExecutable(string_view const Filename)
 {
 	const auto Ext = PointToExt(Filename);
 	if (Ext.empty())

@@ -153,7 +153,8 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 	}
 }
 
-using enumerator_type = void(VMenu2&, const string_view, const std::function<void(string_view)>&);
+// No raw function pointer - gcc bug
+using enumerator_type = std::function<void(VMenu2&, string_view, const std::function<void(string_view)>&)>;
 
 static bool ParseStringWithQuotes(const string& Str, string& Start, string& Token, bool& StartQuote)
 {

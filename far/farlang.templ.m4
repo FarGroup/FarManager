@@ -22337,16 +22337,16 @@ l:
 "Допомога"
 
 MHelpActivatorURL
-"Эта ссылка запускает внешнее приложение:"
-"This reference starts the external application:"
-"Tento odkaz spouští externí aplikaci:"
-"Diese Referenz startet folgendes externes Programm:"
-"A hivatkozás által indított program:"
-"To wywołanie uruchomi aplikację zewnętrzną:"
-"Esta referencia inicia la aplicación externa:"
-"Tento odkaz spúšťa externú aplikáciu:"
-"Questa Voce Avvia Una Applicazione Esterna:"
-"Це посилання запускає зовнішній додаток:"
+"Эта ссылка запускает внешнее приложение"
+"This reference starts an external application"
+"Tento odkaz spouští externí aplikaci"
+"Diese Referenz startet folgendes externes Programm"
+"A hivatkozás által indított program"
+"To wywołanie uruchomi aplikację zewnętrzną"
+"Esta referencia inicia una aplicación externa"
+"Tento odkaz spúšťa externú aplikáciu"
+"Questa Voce Avvia Una Applicazione Esterna"
+"Це посилання запускає зовнішній додаток"
 
 MHelpActivatorFormat
 "с параметром:"
