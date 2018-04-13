@@ -10,36 +10,6 @@
 OpenOptions::OpenOptions() : detect(false), open_password_len(nullptr)
 {}
 
-class ArchiveSubStream : public IInStream, private ComBase {
-private:
-  ComObject<IInStream> base_stream;
-  size_t start_offset;
-
-public:
-  ArchiveSubStream(IInStream* stream, size_t offset) : base_stream(stream), start_offset(offset) {
-    base_stream->Seek(static_cast<Int64>(start_offset), STREAM_SEEK_SET, nullptr);
-  }
-
-  UNKNOWN_IMPL_BEGIN
-  UNKNOWN_IMPL_ITF(ISequentialInStream)
-  UNKNOWN_IMPL_ITF(IInStream)
-  UNKNOWN_IMPL_END
-
-  STDMETHODIMP Read(void *data, UInt32 size, UInt32 *processedSize) {
-    return base_stream->Read(data, size, processedSize);
-  }
-
-  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
-    if (seekOrigin == STREAM_SEEK_SET)
-      offset += start_offset;
-    UInt64 newPos = 0;
-    auto res = base_stream->Seek(offset, seekOrigin, &newPos);
-    if (res == S_OK && newPosition)
-      *newPosition = newPos - start_offset;
-    return res;
-  }
-};
-
 class ArchiveOpenStream: public IInStream, private ComBase, private File {
 private:
   bool device_file;
@@ -327,42 +297,10 @@ bool Archive::get_stream(UInt32 index, IInStream** stream) {
   return true;
 }
 
-HRESULT Archive::copy_prologue(IOutStream *out_stream)
-{
-  auto prologue_size = arc_chain.back().sig_pos;
-  if (prologue_size <= 0)
-    return S_OK;
-
-  if (!base_stream)
-    return E_FAIL;
-
-  auto res = base_stream->Seek(0, STREAM_SEEK_SET, nullptr);
-  if (res != S_OK)
-    return res;
-
-  while (prologue_size > 0) {
-    char buf[16 * 1024];
-    UInt32 nr = 0, nw = 0, nb = static_cast<UInt32>(sizeof(buf));
-    if (prologue_size < nb) nb = static_cast<UInt32>(prologue_size);
-      res = base_stream->Read(buf, nb, &nr);
-    if (res != S_OK || nr == 0)
-      break;
-    res = out_stream->Write(buf, nr, &nw);
-    if (res != S_OK || nr != nw)
-      break;
-    prologue_size -= nr;
-  }
-
-  if (res == S_OK && prologue_size > 0)
-    res = E_FAIL;
-  return res;
-}
-
 bool Archive::open(IInStream* stream, const ArcType& type) {
   ArcAPI::create_in_archive(type, in_arc.ref());
-  CHECK_COM(stream->Seek(0, STREAM_SEEK_SET, nullptr));
   ComObject<IArchiveOpenCallback> opener(new ArchiveOpener(shared_from_this()));
-  const UInt64 max_check_start_position = max_check_size;
+  const UInt64 max_check_start_position = 0;
   HRESULT res;
   COM_ERROR_CHECK(res = in_arc->Open(stream, &max_check_start_position, opener));
   return res == S_OK;
@@ -442,17 +380,6 @@ UInt64 Archive::get_physize()
   return physize;
 }
 
-#if 0
-UInt32 Archive::get_nitems()
-{
-  UInt32 nitems = 0;
-  auto res = in_arc->GetNumberOfItems(&nitems);
-  if (res != S_OK)
-    nitems = 0;
-  return nitems;
-}
-#endif
-
 UInt64 Archive::get_skip_header(IInStream *stream, const ArcType& type)
 {
   if (ArcAPI::formats().at(type).Flags_PreArc()) {
@@ -520,6 +447,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
 
     bool opened = false;
     if (!arc_entry->sig_pos) {
+      CHECK_COM(stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr));
       opened = archive->open(stream, arc_entry->type);
       if (archive->open_password && options.open_password_len)
         *options.open_password_len = archive->open_password;
@@ -532,13 +460,10 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
       }
     }
     else if (arc_entry->sig_pos >= skip_header) {
-      archive->arc_info.set_size(arc_info.size() - arc_entry->sig_pos);
-      ComObject<IInStream> substream(new ArchiveSubStream(stream, arc_entry->sig_pos));
-      opened = archive->open(substream, arc_entry->type);
+      CHECK_COM(stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr));
+      opened = archive->open(stream, arc_entry->type);
       if (archive->open_password && options.open_password_len)
         *options.open_password_len = archive->open_password;
-      if (opened)
-        archive->base_stream = stream;
     }
     if (opened /*&& archive->get_nitems() > 0*/) {
       if (parent_idx != -1)
@@ -574,17 +499,9 @@ void Archive::reopen() {
   ComObject<IInStream> stream(stream_impl);
   arc_info = stream_impl->get_info();
   ArcChain::const_iterator arc_entry = arc_chain.begin();
-  if (arc_entry->sig_pos > 0) {
-    auto opened = open(new ArchiveSubStream(stream, arc_entry->sig_pos), arc_entry->type);
-    if (opened)
-      base_stream = stream;
-    else
-      FAIL(E_FAIL);
-  }
-  else {
-    if (!open(stream, arc_entry->type))
-      FAIL(E_FAIL);
-  }
+  stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr);
+  if (!open(stream, arc_entry->type))
+    FAIL(E_FAIL);
   arc_entry++;
   while (arc_entry != arc_chain.end()) {
     UInt32 main_file;
@@ -592,13 +509,13 @@ void Archive::reopen() {
     ComObject<IInStream> sub_stream;
     CHECK(get_stream(main_file, sub_stream.ref()))
     arc_info = get_file_info(main_file);
+	 sub_stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr);
     CHECK(open(sub_stream, arc_entry->type));
     arc_entry++;
   }
 }
 
 void Archive::close() {
-  base_stream = nullptr;
   if (in_arc) {
     in_arc->Close();
     in_arc.Release();

@@ -1,3 +1,7 @@
+w17 13.04.2018 18:08:27 +0300 - build 283
+
+1. M#3598: Отвалился детект некоторых SFX архивов формата ZIP
+
 w17 02.04.2018 12:03:07 +0300 - build 282
 
 1. Extract alternate streams from .wim archives
