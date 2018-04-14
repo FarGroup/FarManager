@@ -452,56 +452,44 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 	if (!Key)
 		return {};
 
+	const auto& TryAction = [&](string_view const Action)
+	{
+		if (!os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', Action, L'\\', CommandName), KEY_QUERY_VALUE))
+			return false;
+
+		append(KeyName, L'\\', Action);
+		return true;
+	};
+
 	string Action;
 	if (Key.get(L"", Action) && !Action.empty())
 	{
-		bool ItemFound = false;
-
 		// Need to clarify if we need to support quotes here
 		for (const auto& i : enum_tokens_with_quotes(Action, L","_sv))
 		{
-			if (i.empty())
-				continue;
-
-			if (os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', i, L'\\', CommandName), KEY_QUERY_VALUE))
-			{
-				append(KeyName, L'\\', i);
-				assign(Action, i);
-				ItemFound = true;
-				break;
-			}
+			if (!i.empty() && TryAction(i))
+				return string(i);
 		}
 
-		if (!ItemFound)
-		{
-			append(KeyName, L'\\', Action);
-		}
+		if (TryAction(Action))
+			return Action;
 	}
 	else
 	{
 		// Сначала проверим "open"...
 		const auto OpenAction = L"open"_sv;
-		if (os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', OpenAction, L'\\', CommandName), KEY_QUERY_VALUE))
+		if (TryAction(OpenAction))
+			return string(OpenAction);
+
+		// ... а теперь все остальное, если "open" нету
+		for (const auto& i : os::reg::enum_key(Key))
 		{
-			append(KeyName, L'\\', Action);
-			assign(Action, OpenAction);
-		}
-		else
-		{
-			// ... а теперь все остальное, если "open" нету
-			for (const auto& i : os::reg::enum_key(Key))
-			{
-				if (os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', i, L'\\', CommandName), KEY_QUERY_VALUE))
-				{
-					append(KeyName, L'\\', Action);
-					assign(Action, OpenAction);
-					break;
-				}
-			}
+			if (TryAction(i))
+				return string(i);
 		}
 	}
 
-	return Action;
+	return {};
 }
 
 string GetShellTypeFromExtension(string_view const FileName)
@@ -707,10 +695,11 @@ static bool GetProtocolType(string_view const Str, image_type& ImageType)
 {
 	auto Unquoted = unquote(string(Str));
 	const auto SemicolonPos = Unquoted.find(L':');
-	if (!SemicolonPos || SemicolonPos == Str.npos)
+	if (!SemicolonPos || SemicolonPos == 1 || SemicolonPos == Str.npos)
 		return false;
 
 	const auto Protocol = string_view(Unquoted).substr(0, SemicolonPos);
+
 	string Type;
 	if (!GetShellType(Protocol, Type, AT_URLPROTOCOL))
 		return false;
