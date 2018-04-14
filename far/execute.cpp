@@ -865,7 +865,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					GotoXY(LastX, LastY);
 				}
 
-				if (GetImageType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType, Verb) || GetImageTypeFallback(ImageType))
+				if (GetImageType(FoundModuleName, ImageType) || GetProtocolType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType, Verb) || GetImageTypeFallback(ImageType))
 				{
 					// We can run it directly
 					Info.ExecMode = execute_info::exec_mode::direct;
