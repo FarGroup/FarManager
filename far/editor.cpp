@@ -3808,6 +3808,12 @@ bool Editor::Search(bool Next)
 
 				case KEY_CTRLENTER:
 				case KEY_RCTRLENTER:
+				// TODO: Need to handle mouse events with ProcessMouse(). This implementation is accpetable,
+				// but a click on the border jumps to the currently selected item without changing the item.
+				// Normally, mouse click on the border frame does nothing. Mouse click on the border
+				// ouside of the frame starts dragging the dialog.
+				case KEY_CTRL|KEY_MSLCLICK:
+				case KEY_RCTRL|KEY_MSLCLICK:
 					{
 						const auto& coord = *FindAllList->GetUserDataPtr<FindCoord>(SelectedPos);
 						GoToLine(coord.Line);
