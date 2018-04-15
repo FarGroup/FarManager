@@ -3073,7 +3073,7 @@ $ #Editor: search/replace#
       #Case sensitive#      - ^<wrap>the case of the characters entered will be taken into account while searching (so, for example,
 #Text# will not be found when searching for #text#).
 
-      #Whole words#         - the given text will be found only if it occurs in the text as a whole word.
+      #Whole words#         - ^<wrap>the given text will be found only if it occurs in the text as a whole word.
 
       #Reverse search#      - ^<wrap>change the direction of search (from the end of file towards the beginning)
 
@@ -3082,7 +3082,7 @@ Each line is processed individually, so multi-line expressions and line-break ch
 
       ~Preserve style~@PreserveStyle@      - ^<wrap>preserve style (case and delimiters in program source code) of the replaced text.
 
-    By pressing the #All# button, the ~menu~@FindAllMenu@ with the list of all matching entries will be shown.
+    The #All# button will show All matching entries ~menu~@FindAllMenu@.
 
 
 @PreserveStyle
@@ -3225,58 +3225,52 @@ string is changed to that of the found string. For example:
     └────────────────┴────────────────────┴──────────────────────┘
 
 @FindAllMenu
-$ #Редактор: меню с результатами поиска всех вхождений#
-    В этом меню доступны следующие сочетания клавиш:
+$ #Editor: All matching entries menu#
+  The following key combination are available in this menu:
 
-      #F5#                   - переключить размер меню
+    #F5#              - Toggle menu size.
 
-      #Ctrl+Up, Ctrl+Down#   - скроллировать текст редактора
+    #Ctrl+Up#         - Scroll the text in the editor.
+    #Ctrl+Down#
 
-      #Ctrl+Enter#           - перейти к позиции найденного текста
+    #Ctrl+Enter#      - Go to the position of the found text.
+    #Ctrl+Left#
+      #mouse click#
 
-      #Add#                  - добавить стековую закладку с текущей позицией
+    #Gray +#          - ^<wrap>Add stack bookmark with the current position.
 
-      #ПравыйCtrl+0..9#      - установить закладку 0..9 в текущей позиции
+    #RightCtrl+0..9#  - Set bookmark 0..9 at the current position.
+    #Ctrl+Shift+0..9#
 
-      #Ctrl+Shift+0..9#      - установить закладку 0..9 в текущей позиции
-
-      #ЛевыйCtrl+0..9#       - перейти к позиции закладки 0..9
-
+    #LeftCtrl+0..9#   - Go to the bookmark 0..9.
 
 @FileOpenCreate
 $ #Editor: Open/Create file#
-    With #Shift+F4#, one can open the existing file or create a new file.
 
-    Если файл с заданным именем не найден, то создаётся новый.
-По умолчанию используется кодовая страница ANSI, кодовую страницу по умолчанию можно изменить
-в ~настройках редактора~@EditorSettings@).
-При необходимости из #списка# можно выбрать другую кодовую страницу.
+    The #Shift+F4# key combination opens an existing file or creates
+a new file.
 
-    При открытии существующего файла кодовая страница выбирается
-по ряду правил (см. Примечания).
-При необходимости требуемую кодовую страницу можно задать явно, выбрав её из #списка#.
-Там же доступно и "~Автоматическое определение~@CodePageAuto@".
+    If the specified file does not exist, a new file will be created.
+The code page for the new file is specified in the #Code page# list.
+If #default# is selected in the list, the code page specified in the
+~Editor settings~@EditorSettings@ dialog is used.
 
-    Примечания.
+    The code page for an existing file is defined according to the
+#Code page# list selection.
 
-    Если при открытии существующего файла не задавать кодовую страницу явно (активен пункт "По умолчанию"),
-то кодовая страница будет выбрана исходя из следующих правил:
+    #Default#   - ^<wrap>If the file has already been opened and its
+code page was saved (depends on the #Save file position# option of the
+~Editor settings~@EditorSettings@ dialog), the saved code page is used.
+Otherwise, if the file has the Byte Order Mark, the corresponding
+Unicode code page -- UTF-8, UTF-16 (Little endian), or UTF-16 (Big
+endian) -- is used. Otherwise, the code page
+is ~automatically~@CodePageAuto@ detected.
 
-    1) Если файл открывался ранее, то возможно для него уже сохранена информация о
-кодовой странице (зависит от состояния параметра "[x] Сохранять позицию файла"
-в ~настройках редактора~@EditorSettings@).
-В этом случае используется запомненная ранее кодовая страница.
+    #Automatic# - An attempt is made to ~automatically~@CodePageAuto@ detect
+    #detection#   code page based on the file contents.
 
-    2) Если запомненной кодовой страницы нет, то файл проверяется на
-юникодность по наличию Byte Order Mark. Таким образом могут быть определены
-страницы UTF-8, UTF-16 (Little endian), UTF-16 (big endian).
-
-    3) Если BOM отсутствует, то будет произведена попытка определить определить кодовую
-страницу ~автоматически~@CodePageAuto@.
-
-    4) Если автоматическое определение кодовой страницы отключено,
-то используется кодировка по умолчанию выбранная в ~настройках редактора~@EditorSettings@).
-
+    #Specific#  - The selected code page is used.
+    #code page#
 
 @FileSaveAs
 $ #Editor: save file as...#

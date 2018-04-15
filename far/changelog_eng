@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 14.04.2018 14:38:52 -0700 - build 5193
+
+1. Reworked @FindAllMenu and @FileOpenCreate help pages.
+
+2. Minor improvement of the Find-all menu.
+
+svs 12.04.2018 20:41:01 +0300 - build 5189
+
+1. SQLite 3.23.1
+
+drkns 09.04.2018 07:48:13 +0100 - build 5188
+
+1. Limit the Find-All menu hight to the half of the window heigh.
+
+drkns 09.04.2018 07:28:34 +0100 - build 5187
+
+1. Forum: Bug in renaming (Shift-F6) a file on a network share.
+
 drkns 08.04.2018 13:30:30 +0100 - build 5186
 
 1. Removed 'System settings / CD drive auto mount' (Windows 9x artefact, forgotten in 662).
