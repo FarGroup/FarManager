@@ -958,6 +958,7 @@ public:
 
 
 void WINAPI GetGlobalInfoW(GlobalInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   info->StructSize = sizeof(GlobalInfo);
   info->MinFarVersion = FARMANAGERVERSION;
   info->Version = PLUGIN_VERSION;
@@ -968,6 +969,7 @@ void WINAPI GetGlobalInfoW(GlobalInfo* info) {
 }
 
 void WINAPI SetStartupInfoW(const PluginStartupInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   enable_lfh();
   Far::init(info);
   g_options.load();
@@ -977,6 +979,7 @@ void WINAPI SetStartupInfoW(const PluginStartupInfo* info) {
 }
 
 void WINAPI GetPluginInfoW(PluginInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   static const wchar_t* plugin_menu[1];
   static const wchar_t* config_menu[1];
@@ -1054,6 +1057,7 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
 }
 
 HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   try {
     if (info->FileName == nullptr) {
       if (!g_options.handle_create)
@@ -1076,11 +1080,13 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
 }
 
 void WINAPI CloseAnalyseW(const CloseAnalyseInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   if (info->Handle != INVALID_HANDLE_VALUE)
     delete static_cast<Archives*>(info->Handle);
 }
 
 HANDLE WINAPI OpenW(const OpenInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   bool delayed_analyse_open = false;
   FAR_ERROR_HANDLER_BEGIN;
   if (info->OpenFrom == OPEN_PLUGINSMENU) {
@@ -1240,6 +1246,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
 }
 
 void WINAPI ClosePanelW(const struct ClosePanelInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   Plugin* plugin = reinterpret_cast<Plugin*>(info->hPanel);
   IGNORE_ERRORS(plugin->close());
@@ -1248,12 +1255,14 @@ void WINAPI ClosePanelW(const struct ClosePanelInfo* info) {
 }
 
 void WINAPI GetOpenPanelInfoW(OpenPanelInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->info(info);
   FAR_ERROR_HANDLER_END(return, return, false);
 }
 
 intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->set_dir(info->Dir);
   return TRUE;
@@ -1261,6 +1270,7 @@ intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* info) {
 }
 
 intptr_t WINAPI GetFindDataW(GetFindDataInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->list(&info->PanelItem, &info->ItemsNumber);
   return TRUE;
@@ -1268,12 +1278,14 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* info) {
 }
 
 void WINAPI FreeFindDataW(const FreeFindDataInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   delete[] info->PanelItem;
   FAR_ERROR_HANDLER_END(return, return, false);
 }
 
 intptr_t WINAPI GetFilesW(GetFilesInfo *info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->get_files(info->PanelItem, info->ItemsNumber, info->Move, &info->DestPath, info->OpMode);
   return 1;
@@ -1281,6 +1293,7 @@ intptr_t WINAPI GetFilesW(GetFilesInfo *info) {
 }
 
 intptr_t WINAPI PutFilesW(const PutFilesInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->put_files(info->PanelItem, info->ItemsNumber, info->Move, info->SrcPath, info->OpMode);
   return 2;
@@ -1288,6 +1301,7 @@ intptr_t WINAPI PutFilesW(const PutFilesInfo* info) {
 }
 
 intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->delete_files(info->PanelItem, info->ItemsNumber, info->OpMode);
   return TRUE;
@@ -1295,6 +1309,7 @@ intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo* info) {
 }
 
 intptr_t WINAPI MakeDirectoryW(MakeDirectoryInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->create_dir(&info->Name, info->OpMode);
   return 1;
@@ -1302,6 +1317,7 @@ intptr_t WINAPI MakeDirectoryW(MakeDirectoryInfo* info) {
 }
 
 intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   Far::MenuItems menu_items;
   menu_items.add(Far::get_msg(MSG_TEST_MENU));
@@ -1319,6 +1335,7 @@ intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
 }
 
 intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
+  CriticalSectionLock lock(GetExportSync());
   FAR_ERROR_HANDLER_BEGIN;
   if (info->Rec.EventType == KEY_EVENT) {
     const KEY_EVENT_RECORD& key_event = info->Rec.Event.KeyEvent;
@@ -1381,5 +1398,6 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* info) {
 }
 
 void WINAPI ExitFARW(ExitInfo* Info) {
+  CriticalSectionLock lock(GetExportSync());
   ArcAPI::free();
 }

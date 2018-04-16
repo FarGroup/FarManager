@@ -29,6 +29,7 @@ public:
 };
 
 CriticalSection& GetSync();
+CriticalSection& GetExportSync();
 
 class CriticalSectionLock: private NonCopyable {
 private:
