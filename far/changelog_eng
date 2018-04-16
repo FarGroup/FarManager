@@ -9,6 +9,24 @@ MZK 14.04.2018 14:38:52 -0700 - build 5193
 
 2. Minor improvement of the Find-all menu.
 
+drkns 14.04.2018 19:18:53 +0100 - build 5192
+
+1. Continuation of 5190.
+
+drkns 14.04.2018 11:34:11 +0100 - build 5191
+
+1. Continuation of 5190.
+
+drkns 13.04.2018 23:41:30 +0100 - build 5190
+
+1. Continue experimenting with launcher - now it is also used to launch links from help pages.
+   Side effect - one can launch http://example.com etc. from command line.
+   Also trying to define console-ness for the specified of associated program if shortcuts are launched.
+
+2. GCC 7.3.
+
+3. Correction of 5188.
+
 svs 12.04.2018 20:41:01 +0300 - build 5189
 
 1. SQLite 3.23.1
