@@ -211,6 +211,7 @@ class Archive: public enable_shared_from_this<Archive> {
   // open
 private:
   ComObject<IInArchive> in_arc;
+  IInStream *base_stream;
   bool open(IInStream* in_stream, const ArcType& type);
   UInt64 get_physize();
   UInt64 get_skip_header(IInStream *stream, const ArcType& type);
@@ -242,7 +243,9 @@ public:
     return arc_chain.size() == 1 && arc_chain.back().type == c_7z && arc_chain.back().sig_pos == 0;
   }
 
-// archive contents
+  HRESULT copy_prologue(IOutStream *out_stream);
+
+  // archive contents
 public:
   UInt32 num_indices;
   FileList file_list;
@@ -308,7 +311,7 @@ public:
 
 public:
   Archive()
-   : num_indices(0)
+   : base_stream(nullptr), num_indices(0)
    , level(0), solid(false), encrypted(false), open_password(0), update_props_defined(false), has_crc(false)
   {}
 };
