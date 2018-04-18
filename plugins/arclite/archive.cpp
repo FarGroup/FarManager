@@ -364,20 +364,22 @@ void ArcAPI::load_codecs(const wstring& path) {
     return;
 
   auto& add_codecs = [this](ArcLib &arc_lib, size_t lib_index) {
-    UInt32 numMethods = 1;
-    bool ok = true;
-    if (arc_lib.GetNumberOfMethods)
-      ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
-    for (UInt32 i = 0; ok && i < numMethods; ++i) {
-      CDllCodecInfo info;
-      info.LibIndex = static_cast<UInt32>(lib_index);
-      info.CodecIndex = i;
-      if (!GetCoderInfo(arc_lib.GetMethodProperty, i, info))
-        return;
-      for (const auto& codec : arc_codecs)
-        if (codec.Name == info.Name)
+    if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
+      UInt32 numMethods = 1;
+      bool ok = true;
+      if (arc_lib.GetNumberOfMethods)
+        ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
+      for (UInt32 i = 0; ok && i < numMethods; ++i) {
+        CDllCodecInfo info;
+        info.LibIndex = static_cast<UInt32>(lib_index);
+        info.CodecIndex = i;
+        if (!GetCoderInfo(arc_lib.GetMethodProperty, i, info))
           return;
-      arc_codecs.push_back(info);
+        for (const auto& codec : arc_codecs)
+          if (codec.Name == info.Name)
+            return;
+        arc_codecs.push_back(info);
+      }
     }
   };
 
@@ -396,7 +398,7 @@ void ArcAPI::load_codecs(const wstring& path) {
   for (size_t ii = 1; ii < n_format_libs; ++ii) { // all but 7z.dll
     auto& arc_lib = arc_libs[ii];
 	 add_codecs(arc_lib, ii);
-	 add_hashers(arc_lib, ii);
+    add_hashers(arc_lib, ii);
   }
 
   FileEnum codecs_enum(path);
