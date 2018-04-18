@@ -192,18 +192,13 @@ static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index,
 class MyCompressCodecsInfo : public ICompressCodecsInfo, public IHashers, private ComBase {
 private:
   const ArcLibs& libs_;
-  const ArcCodecs &x_codecs_;
-  ArcCodecs base_codecs_;
-  const ArcHashers &x_hashers_;
-  ArcHashers base_hashers_;
-  UInt32 n_base_codecs_;
-  UInt32 n_base_hashers_;
+  ArcCodecs codecs_;
+  ArcHashers hashers_;
 public:
   MyCompressCodecsInfo(const ArcLibs& libs, const ArcCodecs& codecs, const ArcHashers& hashers, size_t skip_lib_index)
-   : libs_(libs), x_codecs_(codecs), x_hashers_(hashers), n_base_codecs_(0), n_base_hashers_(0)
+   : libs_(libs)
   {
-    size_t n_formats = codecs.empty() ? libs.size() : codecs[0].LibIndex;
-    for (size_t ilib = 0; ilib < n_formats; ++ilib) {
+    for (size_t ilib = 0; ilib < 1; ++ilib) { // 7z.dll only
       if (ilib == skip_lib_index)
         continue;
       const auto& arc_lib = libs[ilib];
@@ -216,10 +211,8 @@ public:
           CDllCodecInfo info;
           info.LibIndex = static_cast<UInt32>(ilib);
           info.CodecIndex = i;
-          if (GetCoderInfo(arc_lib.GetMethodProperty, i, info)) {
-            base_codecs_.push_back(info);
-            ++n_base_codecs_;
-          }
+          if (GetCoderInfo(arc_lib.GetMethodProperty, i, info))
+            codecs_.push_back(info);
         }
       }
       if (arc_lib.ComHashers) {
@@ -228,10 +221,17 @@ public:
           CDllHasherInfo info;
           info.LibIndex = static_cast<UInt32>(ilib);
           info.HasherIndex = i;
-          base_hashers_.push_back(info);
-          ++n_base_hashers_;
+          hashers_.push_back(info);
         }
       }
+    }
+    for (const auto& codec : codecs) {
+      if (codec.LibIndex != skip_lib_index)
+        codecs_.push_back(codec);
+    }
+    for (const auto& hasher : hashers) {
+      if (hasher.LibIndex != skip_lib_index)
+        hashers_.push_back(hasher);
     }
   }
 
@@ -243,28 +243,28 @@ public:
   UNKNOWN_IMPL_END
 
   STDMETHODIMP_(UInt32) GetNumHashers() {
-    return static_cast<UInt32>(base_hashers_.size() + x_hashers_.size());
+    return static_cast<UInt32>(hashers_.size());
   }
 
   STDMETHODIMP GetHasherProp(UInt32 index, PROPID propID, PROPVARIANT *value) {
-    const CDllHasherInfo &hi = index < n_base_hashers_ ? base_hashers_[index] : x_hashers_[index-n_base_hashers_];
+    const CDllHasherInfo &hi = hashers_[index];
     const auto &lib = libs_[hi.LibIndex];
     return lib.ComHashers->GetHasherProp(hi.HasherIndex, propID, value);
   }
 
   STDMETHODIMP CreateHasher(UInt32 index, IHasher **hasher) {
-    const CDllHasherInfo &hi = index < n_base_hashers_ ? base_hashers_[index] : x_hashers_[index-n_base_hashers_];
+    const CDllHasherInfo &hi = hashers_[index];
     const auto &lib = libs_[hi.LibIndex];
     return lib.ComHashers->CreateHasher(hi.HasherIndex, hasher);
   }
 
   STDMETHODIMP GetNumMethods(UInt32 *numMethods) {
-    *numMethods = static_cast<UInt32>(base_codecs_.size() + x_codecs_.size());
+    *numMethods = static_cast<UInt32>(codecs_.size());
     return S_OK;
   }
 
   STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) {
-    const CDllCodecInfo &ci = index < n_base_codecs_ ? base_codecs_[index] : x_codecs_[index-n_base_codecs_];
+    const CDllCodecInfo &ci = codecs_[index];
     if (propID == NMethodPropID::kDecoderIsAssigned || propID == NMethodPropID::kEncoderIsAssigned) {
       PropVariant prop;
       prop = (bool)((propID == NMethodPropID::kDecoderIsAssigned) ? ci.DecoderIsAssigned : ci.EncoderIsAssigned);
@@ -276,7 +276,7 @@ public:
   }
 
   STDMETHODIMP CreateDecoder(UInt32 index, const GUID *iid, void **coder) {
-    const CDllCodecInfo &ci = index < n_base_codecs_ ? base_codecs_[index] : x_codecs_[index-n_base_codecs_];
+    const CDllCodecInfo &ci = codecs_[index];
     if (ci.DecoderIsAssigned) {
       const auto &lib = libs_[ci.LibIndex];
       if (lib.CreateDecoder)
@@ -288,7 +288,7 @@ public:
   }
 
   STDMETHODIMP CreateEncoder(UInt32 index, const GUID *iid, void **coder) {
-    const CDllCodecInfo &ci = index < n_base_codecs_ ? base_codecs_[index] : x_codecs_[index-n_base_codecs_];
+    const CDllCodecInfo &ci = codecs_[index];
     if (ci.EncoderIsAssigned) {
       const auto &lib = libs_[ci.LibIndex];
       if (lib.CreateEncoder)
@@ -363,6 +363,42 @@ void ArcAPI::load_codecs(const wstring& path) {
   if (n_base_format_libs <= 0)
     return;
 
+  auto& add_codecs = [this](ArcLib &arc_lib, size_t lib_index) {
+    UInt32 numMethods = 1;
+    bool ok = true;
+    if (arc_lib.GetNumberOfMethods)
+      ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
+    for (UInt32 i = 0; ok && i < numMethods; ++i) {
+      CDllCodecInfo info;
+      info.LibIndex = static_cast<UInt32>(lib_index);
+      info.CodecIndex = i;
+      if (!GetCoderInfo(arc_lib.GetMethodProperty, i, info))
+        return;
+      for (const auto& codec : arc_codecs)
+        if (codec.Name == info.Name)
+          return;
+      arc_codecs.push_back(info);
+    }
+  };
+
+  auto& add_hashers = [this](ArcLib &arc_lib, size_t lib_index) {
+    if (arc_lib.ComHashers) {
+      UInt32 numHashers = arc_lib.ComHashers->GetNumHashers();
+      for (UInt32 i = 0; i < numHashers; i++) {
+        CDllHasherInfo info;
+        info.LibIndex = static_cast<UInt32>(lib_index);
+        info.HasherIndex = i;
+        arc_hashers.push_back(info);
+      }
+    }
+  };
+
+  for (size_t ii = 1; ii < n_format_libs; ++ii) { // all but 7z.dll
+    auto& arc_lib = arc_libs[ii];
+	 add_codecs(arc_lib, ii);
+	 add_hashers(arc_lib, ii);
+  }
+
   FileEnum codecs_enum(path);
   wstring dir = extract_file_path(path);
   bool more;
@@ -385,34 +421,15 @@ void ArcAPI::load_codecs(const wstring& path) {
     arc_lib.version = 0;
     auto n_start_codecs = arc_codecs.size();
     auto n_start_hashers = arc_hashers.size();
-    if ((arc_lib.CreateObject || arc_lib.CreateDecoder || arc_lib.CreateEncoder) && arc_lib.GetMethodProperty) {
-      UInt32 numMethods = 1;
-      bool ok = true;
-      if (arc_lib.GetNumberOfMethods)
-        ok = S_OK == arc_lib.GetNumberOfMethods(&numMethods);
-      for (UInt32 i = 0; ok && i < numMethods; ++i) {
-        CDllCodecInfo info;
-        info.LibIndex = static_cast<UInt32>(arc_libs.size());
-        info.CodecIndex = i;
-        if (GetCoderInfo(arc_lib.GetMethodProperty, i, info))
-          arc_codecs.push_back(info);
-      }
-    }
+	 add_codecs(arc_lib, arc_libs.size());
     Func_GetHashers getHashers = reinterpret_cast<Func_GetHashers>(GetProcAddress(arc_lib.h_module, "GetHashers"));
     if (getHashers) {
       IHashers *hashers = nullptr;
       if (S_OK == getHashers(&hashers) && hashers) {
         arc_lib.ComHashers = hashers;
-        UInt32 numHashers = hashers->GetNumHashers();
-        for (UInt32 i = 0; i < numHashers; i++) {
-          CDllHasherInfo info;
-          info.LibIndex = static_cast<UInt32>(arc_libs.size());
-          info.HasherIndex = i;
-          arc_hashers.push_back(info);
-        }
+		  add_hashers(arc_lib, arc_libs.size());
       }
     }
-
     if (n_start_codecs < arc_codecs.size() || n_start_hashers < arc_hashers.size())
       arc_libs.push_back(arc_lib);
     else
