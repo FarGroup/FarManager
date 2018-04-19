@@ -655,19 +655,6 @@ void ArcAPI::load() {
         arc_formats[format.ClassID] = format;
     }
   }
-#if 0
-  // unload unused libraries
-  set<unsigned> used_libs;
-  for_each(arc_formats.begin(), arc_formats.end(), [&] (const pair<ArcType, ArcFormat>& arc_format) {
-    used_libs.insert(arc_format.second.lib_index);
-  });
-  for (unsigned i = 0; i < n_format_libs; i++) {
-    if (used_libs.count(i) == 0) {
-      FreeLibrary(arc_libs[i].h_module);
-      arc_libs[i].h_module = nullptr;
-    }
-  }
-#endif
 }
 
 void ArcAPI::create_in_archive(const ArcType& arc_type, IInArchive** in_arc) {

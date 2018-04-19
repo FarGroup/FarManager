@@ -789,9 +789,16 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
   ComObject<ISetProperties> set_props;
   if (SUCCEEDED(out_arc->QueryInterface(IID_ISetProperties, reinterpret_cast<void**>(&set_props)))) {
     static const ExternalCodec defopts { L"", 1,9,0, 1,3,5,7,9, false };
+
+    wstring method;
+    if (options.arc_type == c_7z)
+      method = options.method;
+	 else if (ArcAPI::formats().count(options.arc_type))
+      method = ArcAPI::formats().at(options.arc_type).name;
+
     auto method_params = &defopts;
     for (size_t i = 0; i < g_options.codecs.size(); ++i) {
-      if (options.method == g_options.codecs[i].name) {
+      if (method == g_options.codecs[i].name) {
         method_params = &g_options.codecs[i];
         break;
       }
@@ -883,13 +890,8 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         }
       }
     }
-    else if (options.arc_type == c_zip || options.arc_type == c_gzip || options.arc_type == c_xz) {
+    else if (options.arc_type != c_bzip2 || level != 0) {
       names.push_back(L"x"); values.push_back(level);
-    }
-    else if (options.arc_type == c_bzip2) {
-      if (level != 0) {
-        names.push_back(L"x"); values.push_back(level);
-      }
     }
 
     int n_shift = (adv_have_0 || adv_have_1) ? n_01 : 0;
