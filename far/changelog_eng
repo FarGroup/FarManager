@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+MZK 15.04.2018 18:17:41 -0700
+
+1. Reworked @CodePagesMenu and @EditCodePageNameDlg help pages.
+
 MZK 14.04.2018 14:38:52 -0700 - build 5193
 
 1. Reworked @FindAllMenu and @FileOpenCreate help pages.
