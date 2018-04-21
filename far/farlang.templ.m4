@@ -13287,16 +13287,16 @@ MGetCodePageBottomShortTitle
 "Ctrl+H, Del, F4"
 
 MGetCodePageEditCodePageName
-"Изменить имя кодовой страницы"
-"Edit code page name"
-"Upravit název kódové stránky"
-"Codepagename bearbeiten"
-upd:"Edit code page name"
-upd:"Edit code page name"
-"Editar nombre de página de códigos"
-"Upraviť názov tabuľky znakov"
-"Modifica Nome Codepage"
-"Змінити ім'я кодової сторінки"
+"Переименование кодовой страницы"
+"Rename the code page"
+upd:"Upravit název kódové stránky"
+upd:"Codepagename bearbeiten"
+upd:"Rename the code page"
+upd:"Rename the code page"
+upd:"Editar nombre de página de códigos"
+upd:"Upraviť názov tabuľky znakov"
+upd:"Modifica Nome Codepage"
+upd:"Змінити ім'я кодової сторінки"
 
 MGetCodePageResetCodePageName
 "&Сбросить"

@@ -3226,23 +3226,23 @@ string is changed to that of the found string. For example:
 
 @FindAllMenu
 $ #Editor: All matching entries menu#
-  The following key combination are available in this menu:
+    The following key combinations are available in this menu:
 
-    #F5#              - Toggle menu size.
+        #F5#              - Toggle menu size.
 
-    #Ctrl+Up#         - Scroll the text in the editor.
-    #Ctrl+Down#
+        #Ctrl+Up#         - Scroll the text in the editor.
+        #Ctrl+Down#
 
-    #Ctrl+Enter#      - Go to the position of the found text.
-    #Ctrl+Left#
-      #mouse click#
+        #Ctrl+Enter#      - Go to the position of the found text.
+        #Ctrl+Left#
+          #mouse click#
 
-    #Gray +#          - ^<wrap>Add stack bookmark with the current position.
+        #Gray +#          - ^<wrap>Add session bookmark with the current position.
 
-    #RightCtrl+0..9#  - Set bookmark 0..9 at the current position.
-    #Ctrl+Shift+0..9#
+        #RightCtrl+0..9#  - Set bookmark 0..9 at the current position.
+        #Ctrl+Shift+0..9#
 
-    #LeftCtrl+0..9#   - Go to the bookmark 0..9.
+        #LeftCtrl+0..9#   - Go to the bookmark 0..9.
 
 @FileOpenCreate
 $ #Editor: Open/Create file#
@@ -3364,47 +3364,49 @@ the contents of the file on the disk.
 the external program will be lost.
 
 @CodePagesMenu
-$ #Code pages menu#
-    This menu allows code page selection in the editor and viewer.
+$ #Code page selection menu#
+    This menu allows to select code page in the editor and viewer.
 
-    The menu is divided into several parts:
+    The menu is divided into several sections:
 
-    #Automatic detection# - Far tries to autodetect the code page of the text;
+        #Automatic# - Far will try to ~autodetect~@CodePageAuto@
+        #detection#   the code page of the text;
 
-    #System# - main 8-bit system code pages - ANSI and OEM;
+        #System#    - ^<wrap>main single-byte system code pages - ANSI
+and OEM;
 
-    #Unicode# - Unicode code pages;
+        #Unicode#   - ^<wrap>Unicode code pages;
 
-    #Favorites# - user controlled list of code pages;
+        #Favorites# - ^<wrap>code pages selected by the user;
 
-    #Other# - the rest of code pages installed in the system.
+        #Other#     - ^<wrap>the rest of code pages installed
+in the system.
 
-    The menu has two modes: full mode with visible #Other# section and brief
-mode with hidden #Other# section. The modes can be switched by pressing #Ctrl+H#.
+    The following key combinations are available in this menu:
 
-    Current menu mode state corresponds to ~far:config~@FarConfig@ parameter #Codepages.CPMenuMode#.
-It can alter the way of ~code page autodetect~@CodePageAuto@ in builtin Editor/Viewer.
-See also ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@ parameter.
+        #Ctrl+H# - ^<wrap>Shows or hides the #Other# menu section.
 
-    #Ins# keypress moves code page from #Other# to #Favorites#, #Del# moves the
-code page back. #F4# allows to rename #Favorites# and #Other# code pages (renamed code pages will be marked with the #*#).
+        #Ins#    - ^<wrap>Moves the code page from the #Other#
+section to the #Favorites# section.
 
-    Диалог ~Изменение имени кодовой страницы~@EditCodePageNameDlg@
+        #Del#    - ^<wrap>Moves the code page from the #Favorites#
+section back to the #Other# section.
 
-    See also: common ~menu~@MenuCmd@ keyboard commands.
+        #F4#     - ^<wrap>Opens the
+~Rename the code page~@EditCodePageNameDlg@ dialog. Only #Favorites# and
+#Other# code pages can be renamed. The renamed code pages are indicated
+with the #*# symbol.
+
+    See also common ~menu keyboard commands~@MenuCmd@.
 
 @EditCodePageNameDlg
-$ #Изменение имени кодовой страницы#
-    Диалог #Изменение имени кодовой страницы# позволяет изменить отображаемое имя для
-#избранных# и #прочих# кодовых страниц.
+$ #Rename code page#
+    This dialog allows to rename the #Favorites# and #Other# code pages.
+Far will display new code page names in the ~Code pages~@CodePagesMenu@
+menu.
 
-    Примечания:
-
-    - ^<wrap>Если ввести пустое имя кодовой страницы, то после подтверждения ввода
-отображаемое имя кодовой страницы примет значение по умолчанию, то есть имя полученное
-от системы.
-    - ^<wrap>Также отображаемое имя кодовой страницы принимает значение по умолчанию
-после нажатия кнопки #Сбросить#.
+    The #Reset# button sets the code page name to the default system
+name. Another way to reset the name is to leave it empty and press #OK#.
 
 @DriveDlg
 $ #Change drive#
