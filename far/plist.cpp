@@ -60,42 +60,76 @@ struct ProcInfo
 	std::exception_ptr ExceptionPtr;
 };
 
-static BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM Param)
+// https://blogs.msdn.microsoft.com/oldnewthing/20071008-00/?p=24863/
+static bool is_alttab_window(HWND const Window)
 {
-	const auto pi = reinterpret_cast<ProcInfo*>(Param);
+	if (!IsWindowVisible(Window))
+		return false;
+
+	auto Try = GetAncestor(Window, GA_ROOTOWNER);
+	HWND Walk = nullptr;
+	while (Try != Walk)
+	{
+		Walk = Try;
+		Try = GetLastActivePopup(Walk);
+		if (IsWindowVisible(Try))
+			break;
+	}
+	if (Walk != Window)
+		return false;
+
+	// the following removes some task tray programs and "Program Manager"
+	TITLEBARINFO Info{sizeof(Info)};
+	GetTitleBarInfo(Window, &Info);
+	if (Info.rgstate[0] & STATE_SYSTEM_INVISIBLE)
+		return false;
+
+	// Tool windows should not be displayed either, these do not appear in the task bar
+	if (GetWindowLongPtr(Window, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)
+		return false;
+
+	return true;
+}
+static BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM Param)
+{
+	const auto Info = reinterpret_cast<ProcInfo*>(Param);
 
 	try
 	{
-		if (IsWindowVisible(hwnd) || (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd, GWL_STYLE) & WS_DISABLED)))
-		{
-			DWORD ProcID;
-			GetWindowThreadProcessId(hwnd, &ProcID);
-			string WindowTitle, MenuItem;
-			if (os::GetWindowText(hwnd, WindowTitle) && !WindowTitle.empty())
-			{
-				if (pi->ShowImage)
-				{
-					if (const auto Process = os::handle(OpenProcess(imports::instance().QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, ProcID)))
-					{
-						os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
-					}
-				}
-				else
-				{
-					MenuItem = WindowTitle;
-				}
+		if (!is_alttab_window(Window))
+			return true;
 
-				MenuItemEx NewItem(format(L"{0:9} {1} {2}", ProcID, BoxSymbols[BS_V1], MenuItem));
-				NewItem.UserData = menu_data{ WindowTitle, ProcID, hwnd };
-				pi->procList->AddItem(NewItem);
-			}
+		string WindowTitle;
+		os::GetWindowText(Window, WindowTitle);
+
+		DWORD ProcID;
+		GetWindowThreadProcessId(Window, &ProcID);
+
+		string MenuItem;
+
+		if (Info->ShowImage)
+		{
+			if (const auto Process = os::handle(OpenProcess(imports::instance().QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, ProcID)))
+				os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
+			
+			if (MenuItem.empty())
+				MenuItem = L"???";
+		}
+		else
+		{
+			MenuItem = WindowTitle;
 		}
 
-		return TRUE;
-	}
-	CATCH_AND_SAVE_EXCEPTION_TO(pi->ExceptionPtr)
+		MenuItemEx NewItem(format(L"{0:9} {1} {2}", ProcID, BoxSymbols[BS_V1], MenuItem));
+		// for sorting
+		NewItem.UserData = menu_data{ WindowTitle, ProcID, Window };
+		Info->procList->AddItem(NewItem);
 
-	return FALSE;
+		return true;
+	}
+	CATCH_AND_SAVE_EXCEPTION_TO(Info->ExceptionPtr)
+
+	return false;
 }
 
 void ShowProcessList()
@@ -114,10 +148,10 @@ void ShowProcessList()
 	{
 		ProcList->clear();
 
-		ProcInfo pi = { ProcList.get(), ShowImage };
-		if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&pi)))
+		ProcInfo Info = { ProcList.get(), ShowImage };
+		if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&Info)))
 		{
-			RethrowIfNeeded(pi.ExceptionPtr);
+			RethrowIfNeeded(Info.ExceptionPtr);
 			return false;
 		}
 

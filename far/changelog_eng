@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.04.2018 20:29:10 +0100 - build 5194
+
+1. Show less rubbish in Task List.
+
 MZK 15.04.2018 18:17:41 -0700
 
 1. Reworked @CodePagesMenu and @EditCodePageNameDlg help pages.
