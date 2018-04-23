@@ -168,7 +168,7 @@ PerfThread::PerfThread(Plist& plist, LPCTSTR hostname, LPCTSTR pUser, LPCTSTR pP
 	}
 
 	delete[] buf;
-	hEvtBreak = CreateEvent(0, 0, 0, 0);
+	hEvtBreak = CreateEvent(nullptr, TRUE, FALSE, nullptr);
 	hEvtRefresh = CreateEvent(0, 0, 0, 0);
 	hEvtRefreshDone = CreateEvent(0, 0, 0, 0);
 	Refresh();
@@ -422,6 +422,9 @@ void PerfThread::RefreshWMIData()
 {
 	for (unsigned i=0; i<pData->length(); i++)
 	{
+		if (WaitForSingleObject(hEvtBreak, 0) == WAIT_OBJECT_0)
+			break;
+
 		if (*HostName && LastChar((*pData)[i].FullPath)!='*')
 		{
 			WMI.GetProcessExecutablePath((*pData)[i].dwProcessId, (*pData)[i].FullPath);

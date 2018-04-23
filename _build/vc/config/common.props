@@ -20,6 +20,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.14393.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
   <PropertyGroup Label="UserMacros">
     <SrcRoot>$(MSBuildThisFileDirectory)..\..\..\</SrcRoot>
     <CurPath>$(Configuration).$(Platform).vc$(VisualStudioVersion)\$(OutDir)</CurPath>
@@ -30,6 +33,7 @@
     <Keyword>Win32Proj</Keyword>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <OutDir>$(OutputsRoot)product\$(CurPath)\</OutDir>
     <IntDir>$(OutputsRoot)intermediate\$(CurPath)\</IntDir>
     <GenerateManifest>false</GenerateManifest>

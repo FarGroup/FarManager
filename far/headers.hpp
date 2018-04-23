@@ -153,6 +153,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <shellapi.h>
 #include <userenv.h>
 #include <DbgHelp.h>
+#include <dwmapi.h>
 
 #ifdef _MSC_VER
 # include <ntstatus.h>

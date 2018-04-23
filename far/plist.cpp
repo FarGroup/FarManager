@@ -46,8 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "exception.hpp"
 
-#include <dwmapi.h>
-
 struct menu_data
 {
 	string Title;
