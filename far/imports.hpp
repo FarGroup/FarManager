@@ -50,7 +50,8 @@ private:
 		m_virtdisk,
 		m_rstrtmgr,
 		m_netapi32,
-		m_dbghelp;
+		m_dbghelp,
+		m_dwmapi;
 
 	template<typename T, class Y, T stub>
 	class unique_function_pointer
@@ -142,6 +143,8 @@ public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NA
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymGetLineFromAddr64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SymGetModuleInfoW64, HANDLE Process, DWORD64 Addr, PIMAGEHLP_MODULEW64 ModuleInfo);
 	DECLARE_IMPORT_FUNCTION(DWORD,WINAPI, UnDecorateSymbolName, PCSTR Name, PSTR OutputString, DWORD MaxStringLength, DWORD Flags);
+
+	DECLARE_IMPORT_FUNCTION(HRESULT, WINAPI, DwmGetWindowAttribute, HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
 
 #undef DECLARE_IMPORT_FUNCTION
 };

@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "exception.hpp"
 
+#include <dwmapi.h>
+
 struct menu_data
 {
 	string Title;
@@ -87,6 +89,12 @@ static bool is_alttab_window(HWND const Window)
 	// Tool windows should not be displayed either, these do not appear in the task bar
 	if (GetWindowLongPtr(Window, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)
 		return false;
+
+	if (IsWindows8OrGreater()) {
+		int Cloaked = 0;
+		if (S_OK == imports::instance().DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked)) && Cloaked)
+			return false;
+	}
 
 	return true;
 }

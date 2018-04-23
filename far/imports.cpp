@@ -47,6 +47,7 @@ imports::imports():
 	INIT_MODULE(rstrtmgr),
 	INIT_MODULE(netapi32),
 	INIT_MODULE(dbghelp),
+	INIT_MODULE(dwmapi),
 
 #undef INIT_MODULE
 
@@ -107,7 +108,9 @@ imports::imports():
 	INIT_IMPORT(m_dbghelp, SymSetOptions),
 	INIT_IMPORT(m_dbghelp, SymGetLineFromAddr64),
 	INIT_IMPORT(m_dbghelp, SymGetModuleInfoW64),
-	INIT_IMPORT(m_dbghelp, UnDecorateSymbolName)
+	INIT_IMPORT(m_dbghelp, UnDecorateSymbolName),
+
+	INIT_IMPORT(m_dwmapi, DwmGetWindowAttribute)
 
 #undef INIT_IMPORT
 {
@@ -437,4 +440,10 @@ DWORD WINAPI imports::stub_UnDecorateSymbolName(PCSTR Name, PSTR OutputString, D
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return 0;
+}
+
+HRESULT WINAPI imports::stub_DwmGetWindowAttribute(HWND  hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
+{
+	// TODO: log
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
