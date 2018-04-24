@@ -2779,7 +2779,7 @@ struct Viewer::search_data
 	int InitRegEx(const string& str, int flags)
 	{
 		pRex = std::make_unique<RegExp>();
-		return pRex->Compile(str.data(), flags);
+		return pRex->Compile(str.c_str(), flags);
 	}
 };
 
@@ -3329,20 +3329,20 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 	{
 		FarDialogItem SearchDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,msg(lng::MViewSearchTitle).data()},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MViewSearchFor).data()},
+			{DI_DOUBLEBOX,3,1,72,11,0,nullptr,nullptr,0,msg(lng::MViewSearchTitle).c_str()},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MViewSearchFor).c_str()},
 			{DI_EDIT,5,3,70,3,0,L"SearchText",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
 			{DI_FIXEDIT,5,3,70,3,0,nullptr,L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH ",DIF_MASKEDIT,L""},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,msg(lng::MViewSearchForText).data()},
-			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchForHex).data()},
-			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,msg(lng::MViewSearchCase).data()},
-			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchWholeWords).data()},
-			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,msg(lng::MViewSearchReverse).data()},
-			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,msg(lng::MViewSearchRegexp).data()},
+			{DI_RADIOBUTTON,5,5,0,5,1,nullptr,nullptr,DIF_GROUP,msg(lng::MViewSearchForText).c_str()},
+			{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchForHex).c_str()},
+			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,msg(lng::MViewSearchCase).c_str()},
+			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,msg(lng::MViewSearchWholeWords).c_str()},
+			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,msg(lng::MViewSearchReverse).c_str()},
+			{DI_CHECKBOX,40,8,0,8,0,nullptr,nullptr,DIF_DISABLE,msg(lng::MViewSearchRegexp).c_str()},
 			{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MViewSearchSearch).data()},
-			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MViewSearchCancel).data()},
+			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MViewSearchSearch).c_str()},
+			{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MViewSearchCancel).c_str()},
 		};
 		auto SearchDlg = MakeDialogItemsEx(SearchDlgData);
 
@@ -3418,7 +3418,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 	else
 	{
 		sd.ch_size = getCharSize();
-		sd.search_text = strSearchStr.data();
+		sd.search_text = strSearchStr.c_str();
 
 		if (SearchRegexp)
 		{
@@ -3447,7 +3447,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 	if (!Case && !SearchRegexp)
 	{
 		inplace::upper(strSearchStr);
-		sd.search_text = strSearchStr.data();
+		sd.search_text = strSearchStr.c_str();
 	}
 
 	int search_direction = ReverseSearch ? -1 : +1;

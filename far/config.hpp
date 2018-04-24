@@ -297,7 +297,7 @@ public:
 
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	wchar_t operator[] (size_t index) const { return Get()[index]; }
-	const wchar_t* data() const { return Get().data(); }
+	const wchar_t* c_str() const { return Get().c_str(); }
 	void clear() { Set({}); }
 	bool empty() const { return Get().empty(); }
 	size_t size() const { return Get().size(); }

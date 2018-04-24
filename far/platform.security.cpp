@@ -59,7 +59,7 @@ namespace
 
 		if (Result.second)
 		{
-			MapValue.second = LookupPrivilegeValue(nullptr, MapKey.data(), &MapValue.first) != FALSE;
+			MapValue.second = LookupPrivilegeValue(nullptr, MapKey.c_str(), &MapValue.first) != FALSE;
 		}
 
 		Value = MapValue.first;

@@ -99,7 +99,7 @@ bool SearchString(
 	string_view WordDiv = {}
 );
 
-inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.data());}
+inline wchar_t* UNSAFE_CSTR(const string& s) {return const_cast<wchar_t*>(s.c_str());}
 
 template<class container>
 auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Separator = L' ')

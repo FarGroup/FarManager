@@ -474,7 +474,7 @@ static void SetMacroValue(bool Value)
 
 static bool TryToPostMacro(FARMACROAREA Area,const string& TextKey,DWORD IntKey)
 {
-	FarMacroValue values[] = {10.0,(double)Area,TextKey.data(),(double)IntKey};
+	FarMacroValue values[] = { 10.0, (double)Area, TextKey.c_str(), (double)IntKey };
 	FarMacroCall fmc={sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={MCT_KEYMACRO,&fmc};
 	return CallMacroPlugin(&info);
@@ -1158,29 +1158,29 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_
 	FarDialogItem MacroSettingsDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,69,19,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MMacroSequence).data()},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MMacroSequence).c_str()},
 		{DI_EDIT,5,3,67,3,0,L"MacroSequence",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
-		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MMacroDescription).data()},
+		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,msg(lng::MMacroDescription).c_str()},
 		{DI_EDIT,5,5,67,5,0,L"MacroDescription",nullptr,DIF_HISTORY,L""},
 
 		{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MMacroSettingsEnableOutput).data()},
-		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,msg(lng::MMacroSettingsRunAfterStart).data()},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MMacroSettingsEnableOutput).c_str()},
+		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,msg(lng::MMacroSettingsRunAfterStart).c_str()},
 		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsActivePanel).data()},
-		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel).data()},
-		{DI_CHECKBOX,7,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders).data()},
-		{DI_CHECKBOX,7,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent).data()},
-		{DI_CHECKBOX,37,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsPassivePanel).data()},
-		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel).data()},
-		{DI_CHECKBOX,39,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders).data()},
-		{DI_CHECKBOX,39,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent).data()},
+		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsActivePanel).c_str()},
+		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel).c_str()},
+		{DI_CHECKBOX,7,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders).c_str()},
+		{DI_CHECKBOX,7,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent).c_str()},
+		{DI_CHECKBOX,37,10,0,10,0,nullptr,nullptr,0,msg(lng::MMacroSettingsPassivePanel).c_str()},
+		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsPluginPanel).c_str()},
+		{DI_CHECKBOX,39,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsFolders).c_str()},
+		{DI_CHECKBOX,39,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MMacroSettingsSelectionPresent).c_str()},
 		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,15,0,15,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsCommandLine).data()},
-		{DI_CHECKBOX,5,16,0,16,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsSelectionBlockPresent).data()},
+		{DI_CHECKBOX,5,15,0,15,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsCommandLine).c_str()},
+		{DI_CHECKBOX,5,16,0,16,2,nullptr,nullptr,DIF_3STATE,msg(lng::MMacroSettingsSelectionBlockPresent).c_str()},
 		{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
-		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 	};
 	auto MacroSettingsDlg = MakeDialogItemsEx(MacroSettingsDlgData);
 	string strKeyText;
@@ -1207,7 +1207,10 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_
 		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=m_RecCode;
 	}
 
-	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:m_RecDescription.data();
+	if (Descr && *Descr)
+		MacroSettingsDlg[MS_EDIT_DESCR].strData = Descr;
+	else
+		MacroSettingsDlg[MS_EDIT_DESCR].strData = m_RecDescription;
 
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
 	const auto Dlg = Dialog::create(MacroSettingsDlg, &KeyMacro::ParamMacroDlgProc, this, &Param);
@@ -1415,7 +1418,7 @@ static int PassString (const wchar_t *str, FarMacroCall* Data)
 
 static int PassString(const string& str, FarMacroCall* Data)
 {
-	return PassString(str.data(), Data);
+	return PassString(str.c_str(), Data);
 }
 
 static int PassNumber (double dbl, FarMacroCall* Data)
@@ -2401,7 +2404,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (const auto f = Global->WindowManager->GetCurrentWindow())
 				{
-					Result = f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString().data()), tmpMode);
+					Result = f->VMProcess(CheckCode, const_cast<wchar_t*>(Params[0].toString().c_str()), tmpMode);
 				}
 			}
 
@@ -2561,9 +2564,9 @@ static bool SplitFileName(const string& lpFullName, string& strDest, int nFlags)
 		FLAG_NAME = 4,
 		FLAG_EXT  = 8,
 	};
-	const wchar_t *s = lpFullName.data(); //start of sub-string
-	const wchar_t *p = s; //current string pointer
-	const wchar_t *es = s + lpFullName.size(); //end of string
+	auto s = lpFullName.c_str(); //start of sub-string
+	auto p = s; //current string pointer
+	auto es = s + lpFullName.size(); //end of string
 	const wchar_t *e = nullptr; //end of sub-string
 
 	if (!*p)
@@ -2920,7 +2923,7 @@ static bool dateFunc(FarMacroCall* Data)
 	if (Params[0].isInteger() && !Params[0].asInteger())
 		Params[0]=L"";
 
-	const auto strTStr = MkStrFTime(Params[0].toString().data());
+	const auto strTStr = MkStrFTime(Params[0].toString().c_str());
 	const auto Ret = !strTStr.empty();
 	PassString(strTStr, Data);
 	return Ret;
@@ -2936,8 +2939,9 @@ static bool dateFunc(FarMacroCall* Data)
 static bool xlatFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
-	wchar_t* Str = const_cast<wchar_t*>(Params[0].toString().data());
-	bool Ret = Xlat(Str, 0, static_cast<int>(wcslen(Str)), Params[1].asInteger()) != nullptr;
+	const auto StrParam = Params[0].toString();
+	const auto Str = UNSAFE_CSTR(StrParam);
+	const auto Ret = Xlat(Str, 0, static_cast<int>(StrParam.size()), Params[1].asInteger()) != nullptr;
 	PassString(Str, Data);
 	return Ret;
 }
@@ -3005,7 +3009,7 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	if (Console().GetKeyboardLayoutName(LayoutName))
 	{
 		wchar_t *endptr;
-		DWORD res = std::wcstoul(LayoutName.data(), &endptr, 16);
+		DWORD res = std::wcstoul(LayoutName.c_str(), &endptr, 16);
 		RetLayout=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 	}
 
@@ -3095,12 +3099,12 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	auto& ValT = Params[0];
 	string_view title;
 	if (!(ValT.isInteger() && !ValT.asInteger()))
-		title = ValT.toString().data();
+		title = ValT.toString().c_str();
 
 	auto& ValB = Params[1];
 	string_view text;
 	if (!(ValB.isInteger() && !ValB.asInteger()))
-		text = ValB.toString().data();
+		text = ValB.toString().c_str();
 
 	auto Flags = static_cast<DWORD>(Params[2].asInteger());
 	Flags&=~(FMSG_KEEPBACKGROUND|FMSG_ERRORTYPE);
@@ -3112,7 +3116,7 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	//_KEYMACRO(SysLog(L"title='%s'",title));
 	//_KEYMACRO(SysLog(L"text='%s'",text));
 	const auto TempBuf = concat(title, L'\n', text);
-	int Result = pluginapi::apiMessageFn(&FarGuid, &FarGuid, Flags, nullptr, reinterpret_cast<const wchar_t* const*>(TempBuf.data()), 0, 0) + 1;
+	const auto Result = pluginapi::apiMessageFn(&FarGuid, &FarGuid, Flags, nullptr, reinterpret_cast<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
 	PassNumber(Result, Data);
 	return true;
 }
@@ -3400,7 +3404,7 @@ static bool menushowFunc(FarMacroCall* Data)
 						Result += TVar(temp);
 					}
 					else
-						Result += TVar(Menu->at(i).Name.data() + nLeftShift);
+						Result += TVar(Menu->at(i).Name.c_str() + nLeftShift);
 					Result += TVar(L"\n");
 				}
 			}
@@ -3412,12 +3416,12 @@ static bool menushowFunc(FarMacroCall* Data)
 					Result=temp;
 				}
 				else
-					Result = Menu->at(SelectedPos).Name.data() + nLeftShift;
+					Result = Menu->at(SelectedPos).Name.c_str() + nLeftShift;
 			}
 		}
 		else
 			if(!bResultAsIndex)
-				Result = Menu->at(SelectedPos).Name.data() + nLeftShift;
+				Result = Menu->at(SelectedPos).Name.c_str() + nLeftShift;
 			else
 				Result=SelectedPos+1;
 	}
@@ -3660,7 +3664,7 @@ static bool farcfggetFunc(FarMacroCall* Data)
 	TVar& Name(Params[1]);
 	TVar& Key(Params[0]);
 
-	const auto option = Global->Opt->GetConfigValue(Key.asString().data(), Name.asString().data());
+	const auto option = Global->Opt->GetConfigValue(Key.asString().c_str(), Name.asString().data());
 	option ? PassString(option->toString(), Data) : PassBoolean(0, Data);
 	return option != nullptr;
 }
@@ -3828,7 +3832,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					if (IsEdit(ItemType))
 					{
 						if (const auto EditPtr = static_cast<const DlgEdit*>(Item.ObjPtr))
-							Ret=EditPtr->GetString().data();
+							Ret=EditPtr->GetString().c_str();
 					}
 
 					break;
@@ -3866,7 +3870,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 
 				case vtString:
 					fgv.Value.Type = FMVT_STRING;
-					fgv.Value.String=Ret.asString().data();
+					fgv.Value.String=Ret.asString().c_str();
 					break;
 
 				case vtDouble:
@@ -4656,7 +4660,7 @@ static bool strpadFunc(FarMacroCall* Data)
 				break;
 			}
 
-			strDest = concat(string_view(NewFill.data(), CntL), strDest, string_view(NewFill.data(), CntR));
+			strDest = concat(string_view(NewFill.c_str(), CntL), strDest, string_view(NewFill.data(), CntR));
 		}
 	}
 
@@ -4680,7 +4684,7 @@ static bool strwrapFunc(FarMacroCall* Data)
 	}
 
 	string strDest;
-	FarFormatText(Text.asString(), Width,strDest, EmptyToNull(Break.asString().data()), Flags);
+	FarFormatText(Text.asString(), Width,strDest, EmptyToNull(Break.asString().c_str()), Flags);
 	PassString(strDest, Data);
 	return true;
 }
@@ -4721,7 +4725,7 @@ static bool ascFunc(FarMacroCall* Data)
 	TVar& tmpVar(Params[0]);
 
 	if (tmpVar.isString())
-		PassNumber((DWORD)(WORD)*tmpVar.toString().data(), Data);
+		PassNumber((DWORD)(WORD)*tmpVar.toString().c_str(), Data);
 	else
 		PassValue(tmpVar, Data);
 
@@ -4843,7 +4847,7 @@ static bool editorsettitleFunc(FarMacroCall* Data)
 			Title=L"";
 			Title.toString();
 		}
-		Ret = Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_SETTITLE, 0, const_cast<wchar_t*>(Title.asString().data()));
+		Ret = Global->WindowManager->GetCurrentEditor()->EditorControl(ECTL_SETTITLE, 0, UNSAFE_CSTR(Title.asString()));
 	}
 
 	PassValue(Ret, Data);
@@ -4887,7 +4891,7 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 				S.toString();
 			}
 
-			Ret = Global->WindowManager->GetCurrentEditor()->VMProcess(MCODE_F_EDITOR_INSSTR, const_cast<wchar_t*>(S.asString().data()), Line.asInteger()-1);
+			Ret = Global->WindowManager->GetCurrentEditor()->VMProcess(MCODE_F_EDITOR_INSSTR, UNSAFE_CSTR(S.asString()), Line.asInteger()-1);
 		}
 	}
 
@@ -4913,7 +4917,7 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 				S.toString();
 			}
 
-			Ret = Global->WindowManager->GetCurrentEditor()->VMProcess(MCODE_F_EDITOR_SETSTR, const_cast<wchar_t*>(S.asString().data()), Line.asInteger()-1);
+			Ret = Global->WindowManager->GetCurrentEditor()->VMProcess(MCODE_F_EDITOR_SETSTR, UNSAFE_CSTR(S.asString()), Line.asInteger()-1);
 		}
 	}
 
@@ -4940,7 +4944,7 @@ static bool pluginloadFunc(FarMacroCall* Data)
 	auto Params = parseParams(2, Data);
 	TVar& ForceLoad(Params[1]);
 	const auto& DllPath = Params[0].asString();
-	TVar Ret(pluginapi::apiPluginsControl(nullptr, !ForceLoad.asInteger()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, const_cast<wchar_t*>(DllPath.data())));
+	TVar Ret(pluginapi::apiPluginsControl(nullptr, !ForceLoad.asInteger()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, UNSAFE_CSTR(DllPath)));
 	PassValue(Ret, Data);
 	return Ret.asInteger()!=0;
 }
@@ -5162,7 +5166,7 @@ M1:
 					if ( *Data.Description )
 						strDescription=Data.Description;
 
-					if (GetMacroSettings(key,Data.Flags,strBufKey.data(),strDescription.data()))
+					if (GetMacroSettings(key, Data.Flags, strBufKey.c_str(), strDescription.c_str()))
 					{
 						KMParam->Flags = Data.Flags;
 						KMParam->Changed = true;
@@ -5200,8 +5204,8 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	*/
 	FarDialogItem MacroAssignDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,msg(lng::MDefineMacroTitle).data()},
-		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MDefineMacro).data()},
+		{DI_DOUBLEBOX,3,1,30,4,0,nullptr,nullptr,0,msg(lng::MDefineMacroTitle).c_str()},
+		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MDefineMacro).c_str()},
 		{DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
 	};
 	auto MacroAssignDlg = MakeDialogItemsEx(MacroAssignDlgData);

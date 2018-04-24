@@ -223,16 +223,14 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 			string VolumePathNames;
 			if (os::fs::GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), VolumePathNames))
 			{
-				for(const auto& i: enum_substrings(VolumePathNames.data()))
+				for(const auto& i: enum_substrings(VolumePathNames.c_str()))
 				{
-					const string VolumePathName(i);
+					if (!AbsPath.empty() && starts_with_icase(AbsPath, i))
+						return string(i);
 
-					if (!AbsPath.empty() && starts_with_icase(AbsPath, VolumePathName))
-						return VolumePathName;
-
-					if (IsRootPath(VolumePathName))
+					if (IsRootPath(i))
 					{
-						Result.replace(0, DirectoryOffset, VolumePathName);
+						Result.replace(0, DirectoryOffset, i.data(), i.size());
 						break;
 					}
 				}
@@ -251,7 +249,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 			const os::fs::enum_drives Enumerator(os::fs::get_logical_drives());
 			const auto ItemIterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const auto& i)
 			{
-				return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) && starts_with(Path, { strVolumeGuid.data(), DirectoryOffset });
+				return os::fs::GetVolumeNameForVolumeMountPoint(os::fs::get_root_directory(i), strVolumeGuid) && starts_with(Path, string_view(strVolumeGuid).substr(0, DirectoryOffset));
 			});
 			if (ItemIterator != Enumerator.cend())
 			{
@@ -416,9 +414,7 @@ string ConvertNameToUNC(const string& Object)
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
 	if (!equal_icase(strFileSystemName, L"NWFS"_sv))
 	{
-		DWORD dwRet=WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize);
-
-		switch (dwRet)
+		switch (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.get(), &uniSize))
 		{
 			case NO_ERROR:
 				strFileName = uni->lpUniversalName;
@@ -426,7 +422,7 @@ string ConvertNameToUNC(const string& Object)
 
 			case ERROR_MORE_DATA:
 				uni.reset(uniSize);
-				if (WNetGetUniversalName(strFileName.data(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
+				if (WNetGetUniversalName(strFileName.c_str(),UNIVERSAL_NAME_INFO_LEVEL,uni.get(),&uniSize)==NO_ERROR)
 					strFileName = uni->lpUniversalName;
 				break;
 		}

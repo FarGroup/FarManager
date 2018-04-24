@@ -213,24 +213,24 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 
 	FarDialogItem EditDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,76,10,0,nullptr,nullptr,0,msg(lng::MExcTrappedException).data()},
-		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,msg(lng::MExcException).data()},
-		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception.data()},
-		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcDetails).data()},
-		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Details.data()},
-		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcAddress).data()},
-		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Address.data()},
-		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcSource).data()},
-		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Source.data()},
-		{DI_TEXT,     5,6, 17,6,0,nullptr,nullptr,0,msg(lng::MExcFunction).data()},
-		{DI_EDIT,    18,6, 75,6,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY, FunctionName.data()},
-		{DI_TEXT,     5,7, 17,7,0,nullptr,nullptr,0,msg(lng::MExcModule).data()},
-		{DI_EDIT,    18,7, 75,7,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.data()},
+		{DI_DOUBLEBOX,3,1,76,10,0,nullptr,nullptr,0,msg(lng::MExcTrappedException).c_str()},
+		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,msg(lng::MExcException).c_str()},
+		{DI_EDIT,    18,2, 75,2,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Exception.c_str()},
+		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,msg(lng::MExcDetails).c_str()},
+		{DI_EDIT,    18,3, 75,3,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Details.c_str()},
+		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,msg(lng::MExcAddress).c_str()},
+		{DI_EDIT,    18,4, 75,4,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Address.c_str()},
+		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,msg(lng::MExcSource).c_str()},
+		{DI_EDIT,    18,5, 75,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,Source.c_str()},
+		{DI_TEXT,     5,6, 17,6,0,nullptr,nullptr,0,msg(lng::MExcFunction).c_str()},
+		{DI_EDIT,    18,6, 75,6,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY, FunctionName.c_str()},
+		{DI_TEXT,     5,7, 17,7,0,nullptr,nullptr,0,msg(lng::MExcModule).c_str()},
+		{DI_EDIT,    18,7, 75,7,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName.c_str()},
 		{DI_TEXT,    -1,8,  0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).data()},
-		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcStack).data()},
-		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcMinidump).data()},
-		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore).data()},
+		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP, msg(PluginModule? lng::MExcUnload : lng::MExcTerminate).c_str()},
+		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcStack).c_str()},
+		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MExcMinidump).c_str()},
+		{DI_BUTTON,   0,9,  0,9,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MIgnore).c_str()},
 	};
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	auto DlgData = dialog_data_type(&Context, NestedStack);
@@ -384,7 +384,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 				static FarStandardFunctions LocalStandardFunctions;
 				LocalStandardFunctions = {};
 				CreatePluginStartupInfo(&LocalStartupInfo, &LocalStandardFunctions);
-				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.data();
+				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.c_str();
 				static PLUGINRECORD PlugRec;
 
 				if (PluginModule)
@@ -392,7 +392,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 					PlugRec = {};
 					PlugRec.TypeRec=RTYPE_PLUGIN;
 					PlugRec.SizeRec=sizeof(PLUGINRECORD);
-					PlugRec.ModuleName = PluginModule->GetModuleName().data();
+					PlugRec.ModuleName = PluginModule->GetModuleName().c_str();
 				}
 
 				DWORD dummy;
@@ -587,7 +587,7 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 	if (const auto FarException = dynamic_cast<const far_exception*>(&e))
 	{
 		const auto Message = extract_nested_messages(e);
-		return ProcessGenericException(*ContextPtr, Function, Module, Message.data(), &FarException->get_stack());
+		return ProcessGenericException(*ContextPtr, Function, Module, Message.c_str(), &FarException->get_stack());
 	}
 
 	return ProcessGenericException(*ContextPtr, Function, Module, e.what());

@@ -46,7 +46,7 @@ namespace
 	static bool query_value(const HKEY Key, const string_view Name, DWORD* const Type, void* const Data, size_t* const Size)
 	{
 		DWORD dwSize = Size? static_cast<DWORD>(*Size) : 0;
-		const auto Result = RegQueryValueEx(Key, null_terminated(Name).data(), nullptr, Type, reinterpret_cast<LPBYTE>(Data), Size? &dwSize : nullptr);
+		const auto Result = RegQueryValueEx(Key, null_terminated(Name).c_str(), nullptr, Type, reinterpret_cast<LPBYTE>(Data), Size? &dwSize : nullptr);
 		if (Size)
 		{
 			*Size = dwSize;
@@ -75,7 +75,7 @@ namespace os::reg
 	{
 		key Result;
 		HKEY HKey;
-		Result.m_Key.reset(RegOpenKeyEx(Key.native_handle(), null_terminated(SubKey).data(), 0, SamDesired, &HKey) == ERROR_SUCCESS? HKey : nullptr);
+		Result.m_Key.reset(RegOpenKeyEx(Key.native_handle(), null_terminated(SubKey).c_str(), 0, SamDesired, &HKey) == ERROR_SUCCESS? HKey : nullptr);
 		return Result;
 	}
 

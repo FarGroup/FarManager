@@ -42,22 +42,24 @@ static const auto
 	mac_s = L"\r"_sv,         // Mac
 	bad_win_s = L"\r\r\n"_sv; // result of <CR><LF> text mode conversion
 
-string_view eol::str(type Value)
+string_view eol::str(type const Value)
 {
-	return
-		Value == type::win? win_s :
-		Value == type::unix? unix_s :
-		Value == type::mac? mac_s :
-		Value == type::bad_win? bad_win_s :
-		none_s;
+	switch (Value)
+	{
+	case type::win:     return win_s;
+	case type::unix:    return unix_s;
+	case type::mac:     return mac_s;
+	case type::bad_win: return bad_win_s;
+	default:            return none_s;
+	}
 }
 
-eol::type eol::parse(const string_view Value)
+eol::type eol::parse(string_view const Value)
 {
 	return
-		Value == win_s? type::win :
-		Value == unix_s? type::unix :
-		Value == mac_s? type::mac :
+		Value == win_s?     type::win :
+		Value == unix_s?    type::unix :
+		Value == mac_s?     type::mac :
 		Value == bad_win_s? type::bad_win :
-		type::none;
+		                    type::none;
 }

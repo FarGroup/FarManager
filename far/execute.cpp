@@ -361,7 +361,7 @@ static bool PartCmdLine(const string& CmdStr, string& strNewCmdStr, string& strN
 		if (Re.Pattern != Condition)
 		{
 			Re.Re = std::make_unique<RegExp>();
-			if (!Re.Re->Compile(Condition.data(), OP_OPTIMIZE))
+			if (!Re.Re->Compile(Condition.c_str(), OP_OPTIMIZE))
 			{
 				Re.Re.reset();
 			}
@@ -555,7 +555,7 @@ static bool ResolveShortcut(string_view const ShortcutPath, string& FilePath, bo
 	if (FAILED(ShellLink->QueryInterface(IID_IPersistFile, IID_PPV_ARGS_Helper(&ptr_setter(PersistFile)))))
 		return false;
 
-	if (FAILED(PersistFile->Load(null_terminated(ShortcutPath).data(), STGM_READ)))
+	if (FAILED(PersistFile->Load(null_terminated(ShortcutPath).c_str(), STGM_READ)))
 		return false;
 
 	if (FAILED(ShellLink->Resolve(nullptr, SLR_UPDATE)))
@@ -582,7 +582,7 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 		if (SUCCEEDED(imports::instance().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
 		{
 			wchar_t *p;
-			if (AAR->QueryCurrentDefault(null_terminated(Ext).data(), aType, AL_EFFECTIVE, &p) == S_OK)
+			if (AAR->QueryCurrentDefault(null_terminated(Ext).c_str(), aType, AL_EFFECTIVE, &p) == S_OK)
 			{
 				bVistaType = true;
 				strType = p;
@@ -893,7 +893,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
 	const auto strCurDir = os::fs::GetCurrentDirectory();
-	seInfo.lpDirectory=strCurDir.data();
+	seInfo.lpDirectory = strCurDir.c_str();
 	seInfo.nShow = SW_SHOWNORMAL;
 
 	if (ConsoleActivator)
@@ -936,14 +936,14 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	if (Info.ExecMode == execute_info::exec_mode::direct)
 	{
-		seInfo.lpFile = strNewCmdStr.data();
+		seInfo.lpFile = strNewCmdStr.c_str();
 		if(!strNewCmdPar.empty())
 		{
-			seInfo.lpParameters = strNewCmdPar.data();
+			seInfo.lpParameters = strNewCmdPar.c_str();
 		}
 
 		string DummyKeyName;
-		seInfo.lpVerb = IsDirectory? nullptr : EmptyToNull((Verb.empty()? Verb = GetShellActionForType(GetShellTypeFromExtension(strNewCmdStr), DummyKeyName) : Verb).data());
+		seInfo.lpVerb = IsDirectory? nullptr : EmptyToNull((Verb.empty()? Verb = GetShellActionForType(GetShellTypeFromExtension(strNewCmdStr), DummyKeyName) : Verb).c_str());
 	}
 	else
 	{
@@ -965,8 +965,8 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 		ComSpecParams = format(os::env::expand(Global->Opt->Exec.ComspecArguments), Info.Command);
 
-		seInfo.lpFile = strComspec.data();
-		seInfo.lpParameters = ComSpecParams.data();
+		seInfo.lpFile = strComspec.c_str();
+		seInfo.lpParameters = ComSpecParams.c_str();
 		seInfo.lpVerb = nullptr;
 	}
 
@@ -1171,7 +1171,8 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 		return nullptr;
 
 	string strExpandedStr;
-	const wchar_t *PtrCmd=CmdLine.data(), *CmdStart;
+	auto PtrCmd = CmdLine.c_str();
+	const wchar_t* CmdStart;
 	bool Not = false;
 	int Exist=0; // признак наличия конструкции "IF [NOT] EXIST filename command"
 	// > 0 - есть такая конструкция
@@ -1249,7 +1250,6 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 			if (*PtrCmd == L' ')
 			{
-//_SVS(SysLog(L"Cmd='%s'", strCmd.data()));
 				string strCmd(CmdStart, PtrCmd - CmdStart);
 				inplace::unquote(strCmd);
 				strExpandedStr = os::env::expand(strCmd);
@@ -1401,7 +1401,7 @@ bool ExpandOSAliases(string& strStr)
 
 	auto ExeName = PointToName(Global->g_strFarModuleName);
 	wchar_t_ptr Buffer(4096);
-	int ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t), null_terminated(ExeName).data());
+	int ret = Console().GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
 
 	if (!ret)
 	{
@@ -1409,7 +1409,7 @@ bool ExpandOSAliases(string& strStr)
 		if (!strComspec.empty())
 		{
 			ExeName=PointToName(strComspec);
-			ret = Console().GetAlias(strNewCmdStr.data(), Buffer.get(), Buffer.size() * sizeof(wchar_t) , null_terminated(ExeName).data());
+			ret = Console().GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
 		}
 	}
 

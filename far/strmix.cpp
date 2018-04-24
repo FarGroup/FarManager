@@ -64,9 +64,9 @@ string GroupDigits(unsigned long long Value)
 	Fmt.NegativeOrder = 1;
 
 	string strSrc = str(Value);
-	const size_t Size = GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.data(), &Fmt, nullptr, 0);
+	const size_t Size = GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.c_str(), &Fmt, nullptr, 0);
 	wchar_t_ptr_n<MAX_PATH> Dest(Size);
-	GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.data(), &Fmt, Dest.get(), static_cast<int>(Size));
+	GetNumberFormat(LOCALE_USER_DEFAULT, 0, strSrc.c_str(), &Fmt, Dest.get(), static_cast<int>(Size));
 	return { Dest.get(), Size - 1 };
 }
 
@@ -494,7 +494,7 @@ size_t ReplaceStrings(string& strStr, const string_view FindStr, const string_vi
 		if (!AreEqual(string_view(strStr).substr(I, FindStr.size()), FindStr))
 			continue;
 
-		strStr.replace(I, FindStr.size(), ReplStr.raw_data(), ReplStr.size());
+		strStr.replace(I, FindStr.size(), ReplStr.data(), ReplStr.size());
 
 		L += ReplStr.size();
 		L -= FindStr.size();
@@ -579,10 +579,10 @@ string& FarFormatText(const string& SrcText,      // источник
 
 	long l=0, pgr=0;
 	string newtext;
-	const wchar_t *text= SrcText.data();
-	long linelength = static_cast<long>(Width);
-	size_t breakcharlen = wcslen(breakchar);
-	int docut = Flags&FFTM_BREAKLONGWORD?1:0;
+	const auto text= SrcText.c_str();
+	const long linelength = static_cast<long>(Width);
+	const size_t breakcharlen = wcslen(breakchar);
+	const int docut = Flags&FFTM_BREAKLONGWORD?1:0;
 	/* Special case for a single-character break as it needs no
 	   additional storage space */
 
@@ -871,7 +871,7 @@ namespace
 					{
 						static const std::wregex re(RE_BEGIN RE_ESCAPE(L"{") RE_C_GROUP(RE_ANY_OF(L"\\w\\s") RE_ZERO_OR_MORE_LAZY) RE_ESCAPE(L"}"), std::regex::optimize);
 						std::wcmatch CMatch;
-						if (std::regex_search(ReplaceStr.data() + TokenStart, CMatch, re))
+						if (std::regex_search(ReplaceStr.c_str() + TokenStart, CMatch, re))
 						{
 							ShiftLength = CMatch[0].length();
 							if (HMatch)
@@ -894,7 +894,7 @@ namespace
 
 						if (Success)
 						{
-							result.append(SearchStr.raw_data() + start, end - start);
+							result.append(SearchStr.data() + start, end - start);
 						}
 					}
 				}
@@ -926,7 +926,7 @@ namespace
 
 		if (!Reverse)
 		{
-			if (re.SearchEx(Source.raw_data(), Source.raw_data() + Position, Source.raw_data() + Source.size(), pm, n, hm))
+			if (re.SearchEx(Source.data(), Source.data() + Position, Source.data() + Source.size(), pm, n, hm))
 			{
 				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm, n, hm, CurPos, SearchLength);
 				return true;
@@ -942,7 +942,7 @@ namespace
 
 		for (;;)
 		{
-			if (!re.SearchEx(Source.raw_data(), Source.raw_data() + pos, Source.raw_data() + Source.size(), pm + half, n, hm))
+			if (!re.SearchEx(Source.data(), Source.data() + pos, Source.data() + Source.size(), pm + half, n, hm))
 			{
 				ReMatchErrorMessage(re);
 				break;

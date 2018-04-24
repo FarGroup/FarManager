@@ -74,12 +74,12 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 	Buffer[0] = L'\0';
 	auto Size = static_cast<DWORD>(Buffer.size());
 	null_terminated C_LocalName(LocalName);
-	auto Result = ::WNetGetConnection(C_LocalName.data(), Buffer.get(), &Size);
+	auto Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.get(), &Size);
 
 	while (Result == ERROR_MORE_DATA)
 	{
 		Buffer.reset(Size);
-		Result = ::WNetGetConnection(C_LocalName.data(), Buffer.get(), &Size);
+		Result = ::WNetGetConnection(C_LocalName.c_str(), Buffer.get(), &Size);
 	}
 
 	const auto& IsReceived = [](int Code) { return Code == NO_ERROR || Code == ERROR_NOT_CONNECTED || Code == ERROR_CONNECTION_UNAVAIL; };
@@ -135,8 +135,8 @@ string GetLocaleValue(LCID lcid, LCTYPE id)
 string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName)
 {
 	wchar_t_ptr Buffer(NT_MAX_PATH);
-	DWORD size = ::GetPrivateProfileString(AppName.data(), KeyName.data(), Default.data(), Buffer.get(), static_cast<DWORD>(Buffer.size()), FileName.data());
-	return string(Buffer.get(), size);
+	const auto Size = ::GetPrivateProfileString(AppName.c_str(), KeyName.c_str(), Default.c_str(), Buffer.get(), static_cast<DWORD>(Buffer.size()), FileName.c_str());
+	return { Buffer.get(), Size };
 }
 
 bool GetWindowText(HWND Hwnd, string& Text)
@@ -267,11 +267,11 @@ handle OpenConsoleActiveScreenBuffer()
 			if (!m_tried && !m_module && !m_name.empty())
 			{
 				m_tried = true;
-				m_module.reset(LoadLibrary(m_name.data()));
+				m_module.reset(LoadLibrary(m_name.c_str()));
 
 				if (!m_module && m_AlternativeLoad && IsAbsolutePath(m_name))
 				{
-					m_module.reset(LoadLibraryEx(m_name.data(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH));
+					m_module.reset(LoadLibraryEx(m_name.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH));
 				}
 				// TODO: log if nullptr
 			}

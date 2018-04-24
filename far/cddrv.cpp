@@ -376,7 +376,7 @@ UINT FAR_GetDriveType(const string_view RootDir, const DWORD Detect)
 	auto strRootDir = RootDir.empty()? GetPathRoot(os::fs::GetCurrentDirectory()) : string(RootDir);
 	AddEndSlash(strRootDir);
 
-	UINT DrvType = GetDriveType(strRootDir.data());
+	UINT DrvType = GetDriveType(strRootDir.c_str());
 
 	// анализ CD-привода
 	if ((Detect&1) && DrvType == DRIVE_CDROM)
@@ -391,7 +391,7 @@ UINT FAR_GetDriveType(const string_view RootDir, const DWORD Detect)
 		else
 		{
 			constexpr auto UncDevicePrefix = L"\\\\.\\"_sv;
-			VolumePath.insert(0, UncDevicePrefix.raw_data(), UncDevicePrefix.size());
+			VolumePath.insert(0, UncDevicePrefix.data(), UncDevicePrefix.size());
 		}
 
 		if(const auto Device = os::fs::file(VolumePath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))

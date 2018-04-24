@@ -1285,7 +1285,7 @@ int KeyNameToKey(const string& Name)
 	if (Pos < Len)
 	{
 		// сначала - FKeys1 - Вариант (1)
-		const wchar_t* Ptr=Name.data()+Pos;
+		const auto Ptr = Name.c_str() + Pos;
 		const auto PtrLen = Len-Pos;
 
 		const auto ItemIterator = std::find_if(CONST_REVERSE_RANGE(FKeys1, i)

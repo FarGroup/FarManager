@@ -125,7 +125,7 @@ static void FarOutputDebugString(const wchar_t* Str)
 
 static void FarOutputDebugString(const string& Str)
 {
-	return FarOutputDebugString(Str.data());
+	return FarOutputDebugString(Str.c_str());
 }
 
 static const wchar_t *MakeSpace()
@@ -168,7 +168,7 @@ FILE * OpenLogStream(const string& file)
 {
 #if defined(SYSLOG)
 	const auto st = get_local_time();
-	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log",file.data(),st.wYear,st.wMonth,st.wDay,FAR_VERSION.Build).data(),L"a+t,ccs=UTF-8",_SH_DENYWR);
+	return _wfsopen(str_printf(L"%s\\Far.%04d%02d%02d.%05d.log", file.c_str(), st.wYear, st.wMonth, st.wDay, FAR_VERSION.Build).data(), L"a+t,ccs=UTF-8", _SH_DENYWR);
 #else
 	return nullptr;
 #endif
@@ -303,7 +303,7 @@ void SysLog(const wchar_t *fmt,...)
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),msg.data());
+		fwprintf(LogStream, L"%s %s%s\n", PrintTime(timebuf, std::size(timebuf)), MakeSpace(), msg.c_str());
 		fflush(LogStream);
 	}
 
@@ -365,7 +365,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 		if (l < 0) SysLog(l);
 
 		wchar_t timebuf[64];
-		fwprintf(LogStream,L"%s %s%s\n",PrintTime(timebuf,std::size(timebuf)),MakeSpace(),msg.data());
+		fwprintf(LogStream, L"%s %s%s\n", PrintTime(timebuf, std::size(timebuf)), MakeSpace(), msg.c_str());
 		fflush(LogStream);
 
 		if (l > 0) SysLog(l);
@@ -552,7 +552,7 @@ void PluginsStackItem_Dump(const wchar_t *Title,const PluginsListItem *ListItems
 				         (ListItems[I].m_PrevSortMode < panel_sort::BY_CUSTOMDATA? __SORT[static_cast<int>(ListItems[I].m_PrevSortMode)].Name : L"<Unknown>"),
 				         ListItems[I].m_PrevSortOrder,
 				         ListItems[I].m_PrevDirectoriesFirst,
-				         ListItems[I].m_HostFile.data());
+				         ListItems[I].m_HostFile.c_str());
 		}
 
 		fwprintf(fp,L"\n");
@@ -624,9 +624,9 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 			}
 		}
 
-		fwprintf(fp,L"\tStartPanelMode   =%s\n",std::to_wstring(Info->StartPanelMode).data());
+		fwprintf(fp,L"\tStartPanelMode   =%s\n",std::to_wstring(Info->StartPanelMode).c_str());
 		fwprintf(fp,L"\tStartSortMode    =%d\n",Info->StartSortMode);
-		fwprintf(fp,L"\tStartSortOrder   =%s\n",std::to_wstring(Info->StartSortOrder).data());
+		fwprintf(fp,L"\tStartSortOrder   =%s\n",std::to_wstring(Info->StartSortOrder).c_str());
 		fwprintf(fp,L"\tKeyBar           =%p\n",Info->KeyBar);
 		fwprintf(fp,L"\tShortcutData     =%p\n",Info->ShortcutData);
 		fwprintf(fp,L"\tFreeSize         =%I64u (0x%I64X)\n",Info->FreeSize,Info->FreeSize);
@@ -671,7 +671,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 			if (i)
 			{
 				i->GetTypeAndName(Type,Name);
-				fwprintf(fp,L"\twindow: %p  Type='%s' Name='%s'\n", i.get(), Type.data(), Name.data());
+				fwprintf(fp,L"\twindow: %p  Type='%s' Name='%s'\n", i.get(), Type.c_str(), Name.c_str());
 			}
 			else
 				fwprintf(fp,L"\twindow nullptr\n");
@@ -684,7 +684,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 		else
 			Man->GetCurrentWindow()->GetTypeAndName(Type,Name);
 
-		fwprintf(fp,L"\tCurrentWindow=%p (Type='%s' Name='%s')\n", Man->GetCurrentWindow().get(), Type.data(), Name.data());
+		fwprintf(fp,L"\tCurrentWindow=%p (Type='%s' Name='%s')\n", Man->GetCurrentWindow().get(), Type.c_str(), Name.c_str());
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}
@@ -712,7 +712,7 @@ void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
 	if (LogStream)
 	{
 		wchar_t timebuf[64];
-		fwprintf(LogStream, L"%s %s%s:: %s\n", PrintTime(timebuf, std::size(timebuf)), MakeSpace(), null_terminated(PointToName(ModuleName)).data(), msg.data());
+		fwprintf(LogStream, L"%s %s%s:: %s\n", PrintTime(timebuf, std::size(timebuf)), MakeSpace(), null_terminated(PointToName(ModuleName)).c_str(), msg.c_str());
 		fflush(LogStream);
 	}
 
@@ -1313,7 +1313,7 @@ string __FARKEY_ToName(int Key)
 	if (!(far_key_code(Key) >= KEY_MACRO_BASE && far_key_code(Key) <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name))
 	{
 		inplace::quote_unconditional(Name);
-		return str_printf(L"%s [%u/0x%08X]",Name.data(),Key,Key);
+		return str_printf(L"%s [%u/0x%08X]", Name.c_str(), Key, Key);
 	}
 
 	return str_printf(L"\"KEY_????\" [%u/0x%08X]",Key,Key);

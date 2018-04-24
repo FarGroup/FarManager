@@ -299,7 +299,7 @@ bool AddEndSlash(wchar_t *Path)
 
 void AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
-	const wchar_t *Path = strPath.data();
+	const auto Path = strPath.c_str();
 	auto len = strPath.size();
 	if (!IsSlash(TypeSlash))
 		SlashType(Path, Path+len, TypeSlash);

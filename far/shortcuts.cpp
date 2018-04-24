@@ -275,7 +275,7 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 	if (Item.PluginGuid != FarGuid)
 	{
 		const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid);
-		Builder.AddSeparator(plugin? plugin->GetTitle().data() : GuidToStr(Item.PluginGuid).data());
+		Builder.AddSeparator(plugin? plugin->GetTitle().c_str() : GuidToStr(Item.PluginGuid).c_str());
 		Builder.AddText(lng::MFSShortcutPluginFile);
 		Builder.AddEditField(NewItem.PluginFile, 50, L"FS_PluginFile", DIF_EDITPATH);
 		Builder.AddText(lng::MFSShortcutPluginData);

@@ -232,7 +232,7 @@ bool tracer::SymInitialise()
 {
 	if (!m_SymInitialised)
 	{
-		m_SymInitialised = imports::instance().SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.data()), TRUE) != FALSE;
+		m_SymInitialised = imports::instance().SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.c_str()), TRUE) != FALSE;
 	}
 	return m_SymInitialised;
 }

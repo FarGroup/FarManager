@@ -319,7 +319,7 @@ intptr_t WINAPI apiInputBox(
 			GuidToPlugin(PluginId),
 			Id);
 
-		xwcsncpy(DestText, strDest.data(), DestSize);
+		xwcsncpy(DestText, strDest.c_str(), DestSize);
 		return Result;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -398,7 +398,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 				return FALSE;
 		}
 
-		return !Help::create(strTopic, strMask.data(), OFlags)->GetError();
+		return !Help::create(strTopic, strMask.c_str(), OFlags)->GetError();
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -616,7 +616,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 				if (wi->TypeNameSize && wi->TypeName)
 				{
-					xwcsncpy(wi->TypeName,strType.data(),wi->TypeNameSize);
+					xwcsncpy(wi->TypeName, strType.c_str(), wi->TypeNameSize);
 				}
 				else
 				{
@@ -625,7 +625,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 				if (wi->NameSize && wi->Name)
 				{
-					xwcsncpy(wi->Name,strName.data(),wi->NameSize);
+					xwcsncpy(wi->Name, strName.c_str(), wi->NameSize);
 				}
 				else
 				{
@@ -1349,7 +1349,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			const auto& Str = CmdLine->GetString();
 			if (Param1&&Param2)
 			{
-				xwcsncpy(static_cast<wchar_t*>(Param2), Str.data(), Param1);
+				xwcsncpy(static_cast<wchar_t*>(Param2), Str.c_str(), Param1);
 			}
 
 			return Str.size() + 1;
@@ -2071,7 +2071,7 @@ const wchar_t* WINAPI apiPointToName(const wchar_t* Path) noexcept
 {
 	try
 	{
-		return Path?PointToName(Path).raw_data():nullptr;
+		return Path? PointToName(Path).data() : nullptr;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return Path;
@@ -2086,7 +2086,7 @@ size_t WINAPI apiGetFileOwner(const wchar_t *Computer, const wchar_t *Name, wcha
 			return 0;
 
 		if (Owner && Size)
-			xwcsncpy(Owner, strOwner.data(), Size);
+			xwcsncpy(Owner, strOwner.c_str(), Size);
 
 		return strOwner.size() + 1;
 	}
@@ -2118,7 +2118,7 @@ size_t WINAPI apiConvertPath(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t 
 		}
 
 		if (Dest && DestSize)
-			xwcsncpy(Dest, strDest.data(), DestSize);
+			xwcsncpy(Dest, strDest.c_str(), DestSize);
 
 		return strDest.size() + 1;
 	}
@@ -2137,7 +2137,7 @@ size_t WINAPI apiGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 			return 0;
 
 		if (DestSize && Dest)
-			xwcsncpy(Dest,strDest.data(),DestSize);
+			xwcsncpy(Dest,strDest.c_str(),DestSize);
 
 		return strDest.size()+1;
 	}
@@ -2162,7 +2162,7 @@ size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 		const auto strRoot = GetPathRoot(Path);
 
 		if (DestSize && Root)
-			xwcsncpy(Root,strRoot.data(),DestSize);
+			xwcsncpy(Root,strRoot.c_str(),DestSize);
 
 		return strRoot.size()+1;
 	}
@@ -2353,7 +2353,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = ErrPos;
 					Result->ErrSrc = reinterpret_cast<const wchar_t*>(static_cast<char*>(Param2) + stringOffset);
-					std::copy_n(ErrSrc.data(), ErrSrc.size() + 1, const_cast<wchar_t*>(Result->ErrSrc));
+					*std::copy(ALL_CONST_RANGE(ErrSrc), const_cast<wchar_t*>(Result->ErrSrc)) = L'\0';
 				}
 
 				return Size;
@@ -2642,7 +2642,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 
 		if (Buffer && Size)
 		{
-			xwcsncpy(Buffer, strCurDir.data(), Size);
+			xwcsncpy(Buffer, strCurDir.c_str(), Size);
 		}
 
 		return strCurDir.size() + 1;
@@ -2671,7 +2671,7 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 
 		if (Dest && DestSize)
 		{
-			xwcsncpy(Dest,strDestStr.data(),DestSize);
+			xwcsncpy(Dest,strDestStr.c_str(),DestSize);
 		}
 
 		return strDestStr.size()+1;
@@ -2701,7 +2701,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 			{
 				PluginPanelItemHolder fdata;
 				FindDataExToPluginPanelItemHolder(FindData, fdata);
-				Found = !Func(&fdata.Item, strFullName.data(), Param);
+				Found = !Func(&fdata.Item, strFullName.c_str(), Param);
 			}
 		}
 	}
@@ -2715,7 +2715,7 @@ size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix) n
 		string strDest;
 		if (FarMkTempEx(strDest, NullToEmpty(Prefix), true) && Dest && DestSize)
 		{
-			xwcsncpy(Dest, strDest.data(), DestSize);
+			xwcsncpy(Dest, strDest.c_str(), DestSize);
 		}
 		return strDest.size() + 1;
 	}
@@ -2771,7 +2771,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 			string strResult = NullToEmpty(param2);
 			// Result deliberately ignored as strResult might already contain something
 			ConvertWildcards(NullToEmpty(param1), strResult, Length);
-			xwcsncpy(param2, strResult.data(), size);
+			xwcsncpy(param2, strResult.c_str(), size);
 			return strResult.size() + 1;
 		}
 

@@ -271,7 +271,7 @@ void PrintMemory()
 		append(Message, L"\nNot freed blocks:\n"_sv);
 
 		std::wcerr << Message;
-		OutputDebugString(Message.data());
+		OutputDebugString(Message.c_str());
 		Message.clear();
 
 		for(auto i = FirstMemBlock.next; i; i = i->next)
@@ -284,7 +284,7 @@ void PrintMemory()
 				L"\nText: "_sv, FindStr(UserAddress, std::min(BlockSize, Width * 3)), L'\n');
 
 			std::wcerr << Message;
-			OutputDebugString(Message.data());
+			OutputDebugString(Message.c_str());
 		}
 	}
 	MonitoringEnabled = MonitoringState;

@@ -204,7 +204,7 @@ int ESetFileTime(const string& Name, const os::chrono::time_point* LastWriteTime
 
 			if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) && LastError==ERROR_NOT_SUPPORTED)   // FIX: Mantis#223
 			{
-				if (GetDriveType(GetPathRoot(Name).data()) == DRIVE_REMOTE)
+				if (GetDriveType(GetPathRoot(Name).c_str()) == DRIVE_REMOTE)
 					break;
 			}
 		}

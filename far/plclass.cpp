@@ -194,7 +194,7 @@ bool native_plugin_factory::Destroy(plugin_factory::plugin_module_ptr& instance)
 
 plugin_factory::function_address native_plugin_factory::GetFunction(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
 {
-	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress(null_terminated_t<char>(Name.AName).data()) : nullptr;
+	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress(null_terminated_t<char>(Name.AName).c_str()) : nullptr;
 }
 
 bool native_plugin_factory::FindExport(const basic_string_view<char> ExportName) const
@@ -402,7 +402,7 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 {
 	CreatePluginStartupInfo(PSI, FSF);
 
-	PSI->ModuleName = pPlugin->GetModuleName().data();
+	PSI->ModuleName = pPlugin->GetModuleName().c_str();
 	if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Arclite.Id)
 	{
 		PSI->Private = &ArcliteInfo;
@@ -1252,14 +1252,14 @@ public:
 
 	bool IsPlugin(const string& Filename) const override
 	{
-		const auto Result = m_Imports.pIsPlugin(Filename.data()) != FALSE;
+		const auto Result = m_Imports.pIsPlugin(Filename.c_str()) != FALSE;
 		ProcessError(L"IsPlugin"_sv);
 		return Result;
 	}
 
 	plugin_module_ptr Create(const string& Filename) override
 	{
-		auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.data()));
+		auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.c_str()));
 		if (!Module->get_opaque())
 		{
 			Module.reset();
@@ -1280,7 +1280,7 @@ public:
 	{
 		if (Name.UName.empty())
 			return nullptr;
-		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), null_terminated(Name.UName).data());
+		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), null_terminated(Name.UName).c_str());
 		ProcessError(L"GetFunction"_sv);
 		return Result;
 	}

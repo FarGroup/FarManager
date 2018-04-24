@@ -1,3 +1,18 @@
+drkns 24.04.2018 23:29:12 +0100 - build 5196
+
+1. В связи с появлением в C++17 string_view::data() без завершающего нуля
+   и потенциальными багами при замене string на string_view там, где \0 важен -
+   изпользуем string::c_str() вместо string::data() там, где это логически оправдано.
+
+   Rule of thumb: если где-то рядом используется string::size() - data() ok, иначе c_str().
+
+   Примеры:
+   auto RawPointer = string.c_str();               // тут c_str
+   WinapiFunction1(string.c_str());                // тут тоже c_str
+   WinapiFunction2(string.data(), string.size());  // тут data
+
+2. Связанный с #1 мелкий рефакторинг.
+
 w17 23.04.2018 23:42:59 +0300 - build 5195
 
 1. Уточнение 5194.

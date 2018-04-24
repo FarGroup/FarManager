@@ -170,7 +170,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 
 			CutToSlash(strFindPath);
 			strFindPath += strFindMask;
-			_SVS(SysLog(L"1. FullName='%s'",strFullName.data()));
+			_SVS(SysLog(L"1. FullName='%s'",strFullName.c_str()));
 
 			if (Flags.Check(FSCANTREE_RETUPDIR))
 			{

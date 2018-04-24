@@ -176,7 +176,7 @@ string GetTitle() const override
 bool SetTitle(const string& Title) const override
 {
 	m_Title = Title;
-	return SetConsoleTitle(Title.data())!=FALSE;
+	return SetConsoleTitle(Title.c_str()) != FALSE;
 }
 
 bool GetKeyboardLayoutName(string &strName) const override
@@ -423,7 +423,7 @@ bool Write(const string_view Str) const override
 
 	DWORD Mode;
 	if (GetMode(OutputHandle, Mode))
-		return WriteConsole(OutputHandle, Str.raw_data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr) != FALSE;
+		return WriteConsole(OutputHandle, Str.data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr) != FALSE;
 
 	// Redirected output
 
@@ -440,7 +440,7 @@ bool Write(const string_view Str) const override
 		_setmode(m_FileHandle, _O_U8TEXT);
 	}
 
-	return _write(m_FileHandle, Str.raw_data(), static_cast<unsigned int>(Str.size() * sizeof(wchar_t))) != -1;
+	return _write(m_FileHandle, Str.data(), static_cast<unsigned int>(Str.size() * sizeof(wchar_t))) != -1;
 }
 
 bool Commit() const override
@@ -515,9 +515,9 @@ bool GetNumberOfInputEvents(size_t& NumberOfEvents) const override
 	return Result;
 }
 
-bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const override
+bool GetAlias(string_view const Source, wchar_t* TargetBuffer, size_t TargetBufferLength, string_view const ExeName) const override
 {
-	return GetConsoleAlias(const_cast<LPWSTR>(Source), TargetBuffer, static_cast<DWORD>(TargetBufferLength), const_cast<LPWSTR>(ExeName))!=0;
+	return GetConsoleAlias(const_cast<LPWSTR>(null_terminated(Source).c_str()), TargetBuffer, static_cast<DWORD>(TargetBufferLength), const_cast<LPWSTR>(null_terminated(ExeName).c_str()))!=0;
 }
 
 std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const override
@@ -535,7 +535,8 @@ std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() c
 	std::vector<wchar_t> AliasesBuffer;
 	for (const auto& ExeToken: enum_substrings(ExeBuffer.data()))
 	{
-		const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.raw_data());
+		// It's ok, ExeToken is guaranteed to be null-terminated
+		const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.data());
 		const auto AliasesLength = GetConsoleAliasesLength(ExeNamePtr);
 		AliasesBuffer.resize(AliasesLength / sizeof(wchar_t) + 1); // +1 for double \0
 		if (!GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
@@ -544,7 +545,7 @@ std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() c
 		auto& ExeMap = Result[ExeNamePtr];
 		for (const auto& AliasToken: enum_substrings(AliasesBuffer.data()))
 		{
-			auto Pair = split_name_value(AliasToken);
+			const auto Pair = split_name_value(AliasToken);
 			ExeMap.emplace(string(Pair.first), string(Pair.second));
 		}
 	}
@@ -558,7 +559,7 @@ void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, s
 	{
 		for (const auto& AliasesItem: ExeItem.second)
 		{
-			AddConsoleAlias(const_cast<wchar_t*>(AliasesItem.first.data()), const_cast<wchar_t*>(AliasesItem.second.data()), const_cast<wchar_t*>(ExeItem.first.data()));
+			AddConsoleAlias(const_cast<wchar_t*>(AliasesItem.first.c_str()), const_cast<wchar_t*>(AliasesItem.second.c_str()), const_cast<wchar_t*>(ExeItem.first.c_str()));
 		}
 	}
 }

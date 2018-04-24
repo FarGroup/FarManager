@@ -233,7 +233,7 @@ void Message::Init(
 
 	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
 	{
-		return Result + HiStrlen(i.data()) + 2 + 2 + 1; // "[ ", " ]", " "
+		return Result + HiStrlen(i.c_str()) + 2 + 2 + 1; // "[ ", " ]", " "
 	});
 
 	if (BtnLength)

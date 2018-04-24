@@ -958,7 +958,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strTemp.data(),Param1);
+				xwcsncpy((wchar_t*)Param2, strTemp.c_str(), Param1);
 
 			Result=(int)strTemp.size()+1;
 			break;
@@ -996,7 +996,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			}
 
 			if (Param1&&Param2)
-				xwcsncpy((wchar_t*)Param2,strTemp.data(),Param1);
+				xwcsncpy((wchar_t*)Param2, strTemp.c_str(), Param1);
 
 			Result=(int)strTemp.size()+1;
 			break;
@@ -1024,9 +1024,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
 					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
 					dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
-					std::copy_n(Info.ShortcutFolder.data(), Info.ShortcutFolder.size() + 1, const_cast<wchar_t*>(dirInfo->Name));
-					std::copy_n(Info.PluginData.data(), Info.PluginData.size() + 1, const_cast<wchar_t*>(dirInfo->Param));
-					std::copy_n(Info.PluginFile.data(), Info.PluginFile.size() + 1, const_cast<wchar_t*>(dirInfo->File));
+					*std::copy(ALL_CONST_RANGE(Info.ShortcutFolder), const_cast<wchar_t*>(dirInfo->Name)) = L'\0';
+					*std::copy(ALL_CONST_RANGE(Info.PluginData), const_cast<wchar_t*>(dirInfo->Param)) = L'\0';
+					*std::copy(ALL_CONST_RANGE(Info.PluginFile), const_cast<wchar_t*>(dirInfo->File)) = L'\0';
 				}
 				Reenter--;
 			}
@@ -1044,14 +1044,14 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				if (Command==FCTL_GETCOLUMNTYPES)
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnTypes.data(),Param1);
+						xwcsncpy((wchar_t*)Param2,strColumnTypes.c_str(),Param1);
 
 					Result=(int)strColumnTypes.size()+1;
 				}
 				else
 				{
 					if (Param1&&Param2)
-						xwcsncpy((wchar_t*)Param2,strColumnWidths.data(),Param1);
+						xwcsncpy((wchar_t*)Param2,strColumnWidths.c_str(),Param1);
 
 					Result=(int)strColumnWidths.size()+1;
 				}
@@ -1351,8 +1351,8 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 					OpenShortcutInfo info=
 					{
 						sizeof(OpenShortcutInfo),
-						strPluginFile.empty()?nullptr:strPluginFile.data(),
-						strPluginData.empty()?nullptr:strPluginData.data(),
+						strPluginFile.empty()? nullptr : strPluginFile.c_str(),
+						strPluginData.empty()? nullptr : strPluginData.c_str(),
 						IsActive? FOSF_ACTIVE : FOSF_NONE
 					};
 

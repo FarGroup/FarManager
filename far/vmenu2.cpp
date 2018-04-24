@@ -377,7 +377,7 @@ vmenu2_ptr VMenu2::create(const string& Title, range<const menu_item*> Data, int
 
 	std::vector<FarListItem> fli;
 	fli.reserve(Data.size());
-	std::transform(ALL_CONST_RANGE(Data), std::back_inserter(fli), [](const auto& i) { return FarListItem{ i.Flags, i.Name.data() }; });
+	std::transform(ALL_CONST_RANGE(Data), std::back_inserter(fli), [](const auto& i) { return FarListItem{ i.Flags, i.Name.c_str() }; });
 
 	FarList fl = { sizeof(FarList), fli.size(), fli.data() };
 
@@ -397,8 +397,8 @@ void VMenu2::SetTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
 	string t=GetMenuTitle(true);
-	titles.Bottom=t.data();
-	titles.Title=Title.data();
+	titles.Bottom=t.c_str();
+	titles.Title=Title.c_str();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
@@ -406,8 +406,8 @@ void VMenu2::SetBottomTitle(const string& Title)
 {
 	FarListTitles titles={sizeof(FarListTitles)};
 	string t=GetMenuTitle();
-	titles.Bottom=Title.data();
-	titles.Title=t.data();
+	titles.Bottom=Title.c_str();
+	titles.Title=t.c_str();
 	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
@@ -462,7 +462,7 @@ int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 		PosAdd=n;
 
 
-	FarListItem fi={NewItem.Flags, NewItem.Name.data()};
+	FarListItem fi{ NewItem.Flags, NewItem.Name.c_str() };
 	FarListInsert fli={sizeof(FarListInsert), PosAdd, fi};
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
@@ -491,7 +491,7 @@ int VMenu2::AddItem(const string& NewStrItem)
 
 int VMenu2::FindItem(int StartIndex, const string& Pattern, unsigned long long Flags)
 {
-	FarListFind flf={sizeof(FarListFind), StartIndex, Pattern.data(), Flags};
+	FarListFind flf{sizeof(FarListFind), StartIndex, Pattern.c_str(), Flags};
 	return SendMessage(DM_LISTFINDSTRING, 0, &flf);
 }
 

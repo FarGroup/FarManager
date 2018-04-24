@@ -89,7 +89,7 @@ public:
 private:
 	void DisplayObject() override;
 	size_t DrawPrompt();
-	bool ProcessOSCommands(const string& CmdLine, const std::function<void(bool)>& ConsoleActivatior);
+	bool ProcessOSCommands(string_view CmdLine, const std::function<void(bool)>& ConsoleActivatior);
 	struct segment
 	{
 		string Text;
@@ -97,7 +97,7 @@ private:
 		bool Collapsible;
 	};
 	std::list<segment> GetPrompt();
-	static bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
+	static bool IntChDir(string_view CmdLine, bool ClosePanel, bool Silent = false);
 
 	friend class SetAutocomplete;
 

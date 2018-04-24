@@ -92,7 +92,7 @@ namespace os::env
 
 		if (detail::ApiDynamicStringReceiver(Value, [&](wchar_t* Buffer, size_t Size)
 		{
-			return ::GetEnvironmentVariable(C_Name.data(), Buffer, static_cast<DWORD>(Size));
+			return ::GetEnvironmentVariable(C_Name.c_str(), Buffer, static_cast<DWORD>(Size));
 		}))
 		{
 			return true;
@@ -118,12 +118,12 @@ namespace os::env
 
 	bool set(const string_view Name, const string_view Value)
 	{
-		return ::SetEnvironmentVariable(null_terminated(Name).data(), null_terminated(Value).data()) != FALSE;
+		return ::SetEnvironmentVariable(null_terminated(Name).c_str(), null_terminated(Value).c_str()) != FALSE;
 	}
 
 	bool del(const string_view Name)
 	{
-		return ::SetEnvironmentVariable(null_terminated(Name).data(), nullptr) != FALSE;
+		return ::SetEnvironmentVariable(null_terminated(Name).c_str(), nullptr) != FALSE;
 	}
 
 	string expand(const string_view Str)
@@ -133,7 +133,7 @@ namespace os::env
 		string Result;
 		if (!detail::ApiDynamicStringReceiver(Result, [&](wchar_t* Buffer, size_t Size)
 		{
-			const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.data(), Buffer, static_cast<DWORD>(Size));
+			const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.c_str(), Buffer, static_cast<DWORD>(Size));
 			// This pesky function includes a terminating null character even upon success, breaking the usual pattern
 			return ReturnedSize <= Size? ReturnedSize - 1 : ReturnedSize;
 		}))

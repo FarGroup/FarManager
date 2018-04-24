@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
 	string VolumeName;
-	return os::fs::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.data(), VolumeName.data());
+	return os::fs::GetVolumeNameForVolumeMountPoint(TargetVolume, VolumeName) && SetVolumeMountPoint(Object.c_str(), VolumeName.c_str());
 }
 
 static bool FillREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER* rdb, const string& PrintName, const string& SubstituteName)
@@ -377,7 +377,7 @@ bool DelSubstDrive(const string& DeviceName)
 {
 	string strTargetPath;
 	return os::fs::QueryDosDevice(DeviceName, strTargetPath) &&
-		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, DeviceName.data(), strTargetPath.data()) != FALSE;
+		DefineDosDevice(DDD_RAW_TARGET_PATH | DDD_REMOVE_DEFINITION | DDD_EXACT_MATCH_ON_REMOVE, DeviceName.c_str(), strTargetPath.c_str()) != FALSE;
 }
 
 bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)

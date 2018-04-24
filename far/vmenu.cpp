@@ -1369,8 +1369,8 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		{
 			if (bFilterEnabled && !bFilterLocked)
 			{
-				const wchar_t *FilterString=strFilter.data();
-				int start = static_cast<int>(wcslen(FilterString));
+				const auto FilterString = strFilter.c_str();
+				int start = static_cast<int>(strFilter.size());
 				bool DoXlat = true;
 
 				if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]))
@@ -1385,7 +1385,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 						start--;
 
 					start++;
-					::Xlat(const_cast<wchar_t*>(FilterString), start, static_cast<int>(wcslen(FilterString)), Global->Opt->XLat.Flags);
+					::Xlat(const_cast<wchar_t*>(FilterString), start, static_cast<int>(strFilter.size()), Global->Opt->XLat.Flags);
 					SetFilterString(FilterString);
 					FilterStringUpdated();
 					DisplayObject();
@@ -2413,16 +2413,16 @@ void VMenu::AssignHighlights(int Reverse)
 	// TODO:  ЭТОТ цикл нужно уточнить - возможно вылезут артефакты (хотя не уверен)
 	for (I = Reverse ? static_cast<int>(Items.size()-1) : 0; I>=0 && I<static_cast<int>(Items.size()); I+=Delta)
 	{
-		int ShowPos = HiFindRealPos(Items[I].Name, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const wchar_t *Name = Items[I].Name.data() + ShowPos;
-		const wchar_t *ChPtr = wcschr(Name, L'&');
+		const int ShowPos = HiFindRealPos(Items[I].Name, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
+		const auto Name = Items[I].Name.c_str() + ShowPos;
+		const auto ChPtr = wcschr(Name, L'&');
 
 		if (!ChPtr || CheckFlags(VMENU_SHOWAMPERSAND))
 		{
 			// TODO: проверка на LIF_HIDDEN
 			for (int J=0; Name[J]; J++)
 			{
-				wchar_t Ch = Name[J];
+				const auto Ch = Name[J];
 
 				if ((Ch == L'&' || is_alpha(Ch) || std::iswdigit(Ch)) && !Used[upper(Ch)] && !Used[lower(Ch)])
 				{
@@ -2755,7 +2755,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 	{
 		*FItem = {};
 		FItem->Flags = MItem->Flags;
-		FItem->Text = MItem->Name.data();
+		FItem->Text = MItem->Name.c_str();
 		return FItem;
 	}
 

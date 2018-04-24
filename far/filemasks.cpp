@@ -331,7 +331,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 
 	m_Regex = std::make_unique<RegExp>();
 
-	if (!m_Regex->Compile(Masks.data(), OP_PERLSTYLE | OP_OPTIMIZE))
+	if (!m_Regex->Compile(Masks.c_str(), OP_PERLSTYLE | OP_OPTIMIZE))
 	{
 		if (!(Flags & FMF_SILENT))
 		{

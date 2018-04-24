@@ -108,7 +108,7 @@ public:
 
 	virtual bool GetNumberOfInputEvents(size_t& NumberOfEvents) const = 0;
 
-	virtual bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const = 0;
+	virtual bool GetAlias(string_view Source, wchar_t* TargetBuffer, size_t TargetBufferLength, string_view ExeName) const = 0;
 
 	virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const = 0;
 

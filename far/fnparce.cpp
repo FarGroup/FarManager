@@ -136,12 +136,12 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 
 		if (CurStr[2] == L'~')
 		{
-			Ext=wcsrchr(SubstData.Default().Short.Name.data(), L'.');
+			Ext=wcsrchr(SubstData.Default().Short.Name.c_str(), L'.');
 			CurStr+=3;
 		}
 		else
 		{
-			Ext=wcsrchr(SubstData.Default().Normal.Name.data(), L'.');
+			Ext=wcsrchr(SubstData.Default().Normal.Name.c_str(), L'.');
 			CurStr+=2;
 		}
 
@@ -438,7 +438,7 @@ bool SubstFileName(const wchar_t *DlgTitle,
 	SubstData.PreserveLFN = false;
 	SubstData.PassivePanel = false; // первоначально речь идет про активную панель!
 
-	const wchar_t *CurStr = strStr.data();
+	auto CurStr = strStr.c_str();
 	string strOut;
 
 	while (*CurStr)
@@ -465,8 +465,8 @@ bool SubstFileName(const wchar_t *DlgTitle,
 
 int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstData)
 {
-	const wchar_t *Str=strStr.data();
-	const wchar_t * const StartStr=Str;
+	auto Str=strStr.c_str();
+	const auto StartStr = Str;
 
 	// TODO: use DialogBuilder
 
@@ -553,8 +553,8 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 		{
 			if (strTitle[0] == L'$')        // begin of history name
 			{
-				const wchar_t *p = strTitle.data() + 1;
-				const wchar_t *p1 = wcschr(p,L'$');
+				const auto p = strTitle.c_str() + 1;
+				auto p1 = wcschr(p, L'$');
 
 				if (p1)
 				{
@@ -584,7 +584,7 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 			strTitle.resize(beg_t - 2 - hist_correct);
 
 			string strTmp;
-			const wchar_t *CurStr = strTitle3.data();
+			auto CurStr = strTitle3.c_str();
 
 			while (*CurStr)
 			{
@@ -630,7 +630,7 @@ int ReplaceVariables(const string& DlgTitle, string &strStr, subst_data& SubstDa
 			strTxt.resize(beg_s - scr - 1);
 
 			string strTmp;
-			const wchar_t *CurStr = strTxt3.data();
+			auto CurStr = strTxt3.c_str();
 
 			while (*CurStr)
 			{

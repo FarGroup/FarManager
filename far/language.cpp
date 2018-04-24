@@ -443,7 +443,7 @@ plugin_language::plugin_language(const string & Path, const string& Language):
 
 const wchar_t* plugin_language::GetMsg(intptr_t Id) const
 {
-	return m_Data->validate(Id)? m_Data->at(Id).data() : L"";
+	return m_Data->validate(Id)? m_Data->at(Id).c_str() : L"";
 }
 
 

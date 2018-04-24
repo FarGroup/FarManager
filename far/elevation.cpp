@@ -237,7 +237,7 @@ static os::handle create_named_pipe(const string& Name)
 		return nullptr;
 
 	SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
-	return os::handle(CreateNamedPipe(concat(L"\\\\.\\pipe\\"_sv, Name).data(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
+	return os::handle(CreateNamedPipe(concat(L"\\\\.\\pipe\\"_sv, Name).c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
 }
 
 static os::handle create_job_for_current_process()
@@ -276,9 +276,9 @@ static os::handle create_elevated_process(const string& Parameters)
 		SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
 		nullptr,
 		L"runas",
-		Global->g_strFarModuleName.data(),
-		Parameters.data(),
-		Global->g_strFarPath.data(),
+		Global->g_strFarModuleName.c_str(),
+		Parameters.c_str(),
+		Global->g_strFarPath.c_str(),
 	};
 
 	if (!ShellExecuteEx(&info))
@@ -422,15 +422,15 @@ void ElevationApproveDlgSync(const EAData& Data)
 	enum {DlgX=64,DlgY=12};
 	FarDialogItem ElevationApproveDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MAccessDenied).data()},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired).data()},
-		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,msg(Data.Why).data()},
-		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data.Object.data()},
-		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,msg(lng::MElevationDoForAll).data()},
-		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MElevationDoNotAskAgainInTheCurrentSession).data()},
+		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MAccessDenied).c_str()},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired).c_str()},
+		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,msg(Data.Why).c_str()},
+		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data.Object.c_str()},
+		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,msg(lng::MElevationDoForAll).c_str()},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,msg(lng::MElevationDoNotAskAgainInTheCurrentSession).c_str()},
 		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,msg(lng::MOk).data()},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSkip).data()},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_SETSHIELD|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MSkip).c_str()},
 	};
 	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
 	const auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
@@ -507,7 +507,7 @@ bool elevation::create_directory(const string& TemplateObject, const string& Obj
 		false,
 		[&]
 		{
-			return os::fs::low::create_directory(TemplateObject.data(), Object.data(), Attributes);
+			return os::fs::low::create_directory(TemplateObject.c_str(), Object.c_str(), Attributes);
 		},
 		[&]
 		{
@@ -523,7 +523,7 @@ bool elevation::remove_directory(const string& Object)
 		false,
 		[&]
 		{
-			return os::fs::low::remove_directory(Object.data());
+			return os::fs::low::remove_directory(Object.c_str());
 		},
 		[&]
 		{
@@ -538,7 +538,7 @@ bool elevation::delete_file(const string& Object)
 		false,
 		[&]
 		{
-			return os::fs::low::delete_file(Object.data());
+			return os::fs::low::delete_file(Object.c_str());
 		},
 		[&]
 		{
@@ -572,7 +572,7 @@ bool elevation::copy_file(const string& From, const string& To, LPPROGRESS_ROUTI
 		false,
 		[&]
 		{
-			return os::fs::low::copy_file(From.data(), To.data(), ProgressRoutine, Data, Cancel, Flags);
+			return os::fs::low::copy_file(From.c_str(), To.c_str(), ProgressRoutine, Data, Cancel, Flags);
 		},
 		[&]
 		{
@@ -594,7 +594,7 @@ bool elevation::move_file(const string& From, const string& To, DWORD Flags)
 		false,
 		[&]
 		{
-			return os::fs::low::move_file(From.data(), To.data(), Flags);
+			return os::fs::low::move_file(From.c_str(), To.c_str(), Flags);
 		},
 		[&]
 		{
@@ -609,7 +609,7 @@ DWORD elevation::get_file_attributes(const string& Object)
 		INVALID_FILE_ATTRIBUTES,
 		[&]
 		{
-			return os::fs::low::get_file_attributes(Object.data());
+			return os::fs::low::get_file_attributes(Object.c_str());
 		},
 		[&]
 		{
@@ -624,7 +624,7 @@ bool elevation::set_file_attributes(const string& Object, DWORD FileAttributes)
 		false,
 		[&]
 		{
-			return os::fs::low::set_file_attributes(Object.data(), FileAttributes);
+			return os::fs::low::set_file_attributes(Object.c_str(), FileAttributes);
 		},
 		[&]
 		{
@@ -639,7 +639,7 @@ bool elevation::create_hard_link(const string& Object, const string& Target, SEC
 		false,
 		[&]
 		{
-			return os::fs::low::create_hard_link(Object.data(), Target.data(), SecurityAttributes);
+			return os::fs::low::create_hard_link(Object.c_str(), Target.c_str(), SecurityAttributes);
 		},
 		[&]
 		{
@@ -706,7 +706,7 @@ HANDLE elevation::create_file(const string& Object, DWORD DesiredAccess, DWORD S
 		INVALID_HANDLE_VALUE,
 		[&]
 		{
-			return os::fs::low::create_file(Object.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+			return os::fs::low::create_file(Object.c_str(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 		},
 		[&]
 		{
@@ -722,7 +722,7 @@ bool elevation::set_file_encryption(const string& Object, bool Encrypt)
 		false,
 		[&]
 		{
-			return os::fs::low::set_file_encryption(Object.data(), Encrypt);
+			return os::fs::low::set_file_encryption(Object.c_str(), Encrypt);
 		},
 		[&]
 		{
@@ -737,7 +737,7 @@ bool elevation::detach_virtual_disk(const string& Object, VIRTUAL_STORAGE_TYPE& 
 		false,
 		[&]
 		{
-			return os::fs::low::detach_virtual_disk(Object.data(), VirtualStorageType);
+			return os::fs::low::detach_virtual_disk(Object.c_str(), VirtualStorageType);
 		},
 		[&]
 		{
@@ -752,7 +752,7 @@ bool elevation::get_disk_free_space(const string& Object, unsigned long long* Fr
 		false,
 		[&]
 		{
-			return os::fs::low::get_disk_free_space(Object.data(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes);
+			return os::fs::low::get_disk_free_space(Object.c_str(), FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes);
 		},
 		[&]
 		{
@@ -810,8 +810,8 @@ public:
 		SCOPED_ACTION(privilege)(Privileges);
 
 		const auto PipeName = concat(L"\\\\.\\pipe\\"_sv, guid);
-		WaitNamedPipe(PipeName.data(), NMPWAIT_WAIT_FOREVER);
-		m_Pipe.reset(os::fs::low::create_file(PipeName.data(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
+		WaitNamedPipe(PipeName.c_str(), NMPWAIT_WAIT_FOREVER);
+		m_Pipe.reset(os::fs::low::create_file(PipeName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
 		if (!m_Pipe)
 			return GetLastError();
 
@@ -896,7 +896,7 @@ private:
 		const auto Object = Read<string>();
 		// BUGBUG, SecurityAttributes ignored
 
-		const auto Result = os::fs::low::create_directory(TemplateObject.data(), Object.data(), nullptr);
+		const auto Result = os::fs::low::create_directory(TemplateObject.c_str(), Object.c_str(), nullptr);
 
 		Write(error_state::fetch(), Result);
 	}
@@ -905,7 +905,7 @@ private:
 	{
 		const auto Object = Read<string>();
 
-		const auto Result = os::fs::low::remove_directory(Object.data());
+		const auto Result = os::fs::low::remove_directory(Object.c_str());
 
 		Write(error_state::fetch(), Result);
 	}
@@ -914,7 +914,7 @@ private:
 	{
 		const auto Object = Read<string>();
 
-		const auto Result = os::fs::low::delete_file(Object.data());
+		const auto Result = os::fs::low::delete_file(Object.c_str());
 
 		Write(error_state::fetch(), Result);
 	}
@@ -929,7 +929,7 @@ private:
 		// BUGBUG: Cancel ignored
 
 		callback_param Param{ this, reinterpret_cast<void*>(Data) };
-		const auto Result = os::fs::low::copy_file(From.data(), To.data(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
+		const auto Result = os::fs::low::copy_file(From.c_str(), To.c_str(), UserCopyProgressRoutine? CopyProgressRoutineWrapper : nullptr, &Param, nullptr, Flags);
 
 		Write(0 /* not CallbackMagic */, error_state::fetch(), Result);
 
@@ -942,7 +942,7 @@ private:
 		const auto To = Read<string>();
 		const auto Flags = Read<DWORD>();
 
-		const auto Result = os::fs::low::move_file(From.data(), To.data(), Flags);
+		const auto Result = os::fs::low::move_file(From.c_str(), To.c_str(), Flags);
 
 		Write(error_state::fetch(), Result);
 	}
@@ -951,7 +951,7 @@ private:
 	{
 		const auto Object = Read<string>();
 
-		const auto Result = os::fs::low::get_file_attributes(Object.data());
+		const auto Result = os::fs::low::get_file_attributes(Object.c_str());
 
 		Write(error_state::fetch(), Result);
 	}
@@ -961,7 +961,7 @@ private:
 		const auto Object = Read<string>();
 		const auto Attributes = Read<DWORD>();
 
-		const auto Result = os::fs::low::set_file_attributes(Object.data(), Attributes);
+		const auto Result = os::fs::low::set_file_attributes(Object.c_str(), Attributes);
 
 		Write(error_state::fetch(), Result);
 	}
@@ -972,7 +972,7 @@ private:
 		const auto Target = Read<string>();
 		// BUGBUG: SecurityAttributes ignored.
 
-		const auto Result = os::fs::low::create_hard_link(Object.data(), Target.data(), nullptr);
+		const auto Result = os::fs::low::create_hard_link(Object.c_str(), Target.c_str(), nullptr);
 
 		Write(error_state::fetch(), Result);
 	}
@@ -994,8 +994,8 @@ private:
 		const auto From = Read<string>();
 		const auto To = Read<string>();
 
-		Struct.pFrom = From.data();
-		Struct.pTo = To.data();
+		Struct.pFrom = From.c_str();
+		Struct.pTo = To.c_str();
 
 		const auto Result = SHFileOperation(&Struct);
 
@@ -1038,7 +1038,7 @@ private:
 		const auto Object = Read<string>();
 		const auto Encrypt = Read<bool>();
 
-		const auto Result = os::fs::low::set_file_encryption(Object.data(), Encrypt);
+		const auto Result = os::fs::low::set_file_encryption(Object.c_str(), Encrypt);
 
 		Write(error_state::fetch(), Result);
 	}
@@ -1048,7 +1048,7 @@ private:
 		const auto Object = Read<string>();
 		auto VirtualStorageType = Read<VIRTUAL_STORAGE_TYPE>();
 
-		const auto Result = os::fs::low::detach_virtual_disk(Object.data(), VirtualStorageType);
+		const auto Result = os::fs::low::detach_virtual_disk(Object.c_str(), VirtualStorageType);
 
 		Write(error_state::fetch(), Result);
 	}
@@ -1058,7 +1058,7 @@ private:
 		const auto Object = Read<string>();
 
 		unsigned long long FreeBytesAvailableToCaller, TotalNumberOfBytes, TotalNumberOfFreeBytes;
-		const auto Result = os::fs::low::get_disk_free_space(Object.data(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
+		const auto Result = os::fs::low::get_disk_free_space(Object.c_str(), &FreeBytesAvailableToCaller, &TotalNumberOfBytes, &TotalNumberOfFreeBytes);
 
 		Write(error_state::fetch(), Result);
 

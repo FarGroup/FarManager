@@ -256,24 +256,24 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, ch
 
 	case CP_UNICODE:
 		if (BufferSize) // paranoid gcc null checks are paranoid
-			memcpy(Buffer, Str.raw_data(), std::min(Str.size() * sizeof(wchar_t), BufferSize));
+			memcpy(Buffer, Str.data(), std::min(Str.size() * sizeof(wchar_t), BufferSize));
 		return Str.size() * sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
-		swap_bytes(Str.raw_data(), Buffer, std::min(Str.size() * sizeof(wchar_t), BufferSize));
+		swap_bytes(Str.data(), Buffer, std::min(Str.size() * sizeof(wchar_t), BufferSize));
 		return Str.size() * sizeof(wchar_t);
 
 	default:
 		{
 			BOOL bUsedDefaultChar = FALSE;
-			auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.raw_data(), static_cast<int>(Str.size()), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
+			auto Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.data(), static_cast<int>(Str.size()), Buffer, static_cast<int>(BufferSize), nullptr, UsedDefaultChar? &bUsedDefaultChar : nullptr);
 			if (!Result && BufferSize < Str.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 			{
 				// https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130.aspx
 				// If BufferSize is less than DataSize, this function writes the number of characters specified by BufferSize to the buffer indicated by Buffer.
 
 				// If the function succeeds and BufferSize is 0, the return value is the required size, in bytes, for the buffer indicated by Buffer.
-				Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.raw_data(), static_cast<int>(Str.size()), nullptr, 0, nullptr, UsedDefaultChar ? &bUsedDefaultChar : nullptr);
+				Result = WideCharToMultiByte(Codepage, GetNoBestFitCharsFlag(Codepage), Str.data(), static_cast<int>(Str.size()), nullptr, 0, nullptr, UsedDefaultChar ? &bUsedDefaultChar : nullptr);
 			}
 
 			if (UsedDefaultChar)
@@ -330,15 +330,15 @@ static size_t get_chars_impl(uintptr_t const Codepage, basic_string_view<char> S
 
 	case CP_UNICODE:
 		if (BufferSize) // paranoid gcc null checks are paranoid
-			memcpy(Buffer, Str.raw_data(), std::min(Str.size(), BufferSize * sizeof(wchar_t)));
+			memcpy(Buffer, Str.data(), std::min(Str.size(), BufferSize * sizeof(wchar_t)));
 		return Str.size() / sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
-		swap_bytes(Str.raw_data(), Buffer, std::min(Str.size(), BufferSize * sizeof(wchar_t)));
+		swap_bytes(Str.data(), Buffer, std::min(Str.size(), BufferSize * sizeof(wchar_t)));
 		return Str.size() / sizeof(wchar_t);
 
 	default:
-		return MultiByteToWideChar(Codepage, 0, Str.raw_data(), static_cast<int>(Str.size()), Buffer, static_cast<int>(BufferSize));
+		return MultiByteToWideChar(Codepage, 0, Str.data(), static_cast<int>(Str.size()), Buffer, static_cast<int>(BufferSize));
 	}
 }
 

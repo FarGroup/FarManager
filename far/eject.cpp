@@ -59,7 +59,7 @@ bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 	string RootName=L"\\\\.\\ :\\";
 	RootName[4] = Letter;
 	// OpenVolume
-	const auto DriveType = FAR_GetDriveType(RootName.data()+4);
+	const auto DriveType = FAR_GetDriveType(string_view(RootName).substr(4));
 	RootName.pop_back();
 
 	bool ReadOnly;

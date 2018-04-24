@@ -1337,7 +1337,7 @@ struct FarMacroValue
 	FarMacroValue(const GUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<GUID&>(v); Binary.Size=sizeof(GUID); }
 	FarMacroValue(FarMacroValue* arr,size_t count) { Type=FMVT_ARRAY; Array.Values=arr; Array.Count=count; }
 #ifdef FAR_USE_INTERNALS
-	FarMacroValue(const string& v)    { Type=FMVT_STRING; String=v.data(); }
+	FarMacroValue(const string& v)    { Type=FMVT_STRING; String=v.c_str(); }
 #endif // END FAR_USE_INTERNALS
 #endif
 };

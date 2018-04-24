@@ -51,7 +51,7 @@ WARNING_DISABLE_MSC(4582) // no page                                            
 WARNING_DISABLE_MSC(4583) // no page                                                '%$S': destructor is not implicitly called
 
 	explicit null_terminated_t(const basic_string_view<T> Str):
-		m_Terminated(!Str.raw_data()[Str.size()])
+		m_Terminated(!Str.data()[Str.size()])
 	{
 		if (m_Terminated)
 			placement::construct(m_View, Str);
@@ -69,9 +69,9 @@ WARNING_DISABLE_MSC(4583) // no page                                            
 
 WARNING_POP()
 
-	auto data() const
+	auto c_str() const
 	{
-		return m_Terminated? m_View.raw_data() : m_Str.data();
+		return m_Terminated? m_View.data() : m_Str.c_str();
 	}
 
 	auto size() const
@@ -237,13 +237,30 @@ namespace inplace
 		return Str;
 	}
 
+	inline auto& trim_left(string_view& Str)
+	{
+		Str.remove_prefix(detail::get_space_count(ALL_CONST_RANGE(Str)));
+		return Str;
+	}
+
 	inline auto& trim_right(string& Str)
 	{
 		Str.resize(Str.size() - detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
 		return Str;
 	}
 
+	inline auto& trim_right(string_view& Str)
+	{
+		Str.remove_suffix(detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
+		return Str;
+	}
+
 	inline auto& trim(string& Str)
+	{
+		return trim_left(trim_right(Str));
+	}
+
+	inline auto& trim(string_view& Str)
 	{
 		return trim_left(trim_right(Str));
 	}
@@ -371,7 +388,19 @@ inline auto trim_left(string Str)
 }
 
 [[nodiscard]]
+inline auto trim_left(string_view Str)
+{
+	return inplace::trim_left(Str);
+}
+
+[[nodiscard]]
 inline auto trim_right(string Str)
+{
+	return inplace::trim_right(Str);
+}
+
+[[nodiscard]]
+inline auto trim_right(string_view Str)
 {
 	return inplace::trim_right(Str);
 }
@@ -383,23 +412,9 @@ inline auto trim(string Str)
 }
 
 [[nodiscard]]
-inline auto trim_left(string_view Str)
-{
-	Str.remove_prefix(detail::get_space_count(ALL_CONST_RANGE(Str)));
-	return Str;
-}
-
-[[nodiscard]]
-inline auto trim_right(string_view Str)
-{
-	Str.remove_suffix(detail::get_space_count(ALL_CONST_REVERSE_RANGE(Str)));
-	return Str;
-}
-
-[[nodiscard]]
 inline auto trim(string_view Str)
 {
-	return trim_left(trim_right(Str));
+	return inplace::trim(Str);
 }
 
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8

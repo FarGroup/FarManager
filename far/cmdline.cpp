@@ -1030,7 +1030,7 @@ void CommandLine::ExecString(execute_info& Info)
 	IsUpdateNeeded = true;
 }
 
-bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<void(bool)>& ConsoleActivatior)
+bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::function<void(bool)>& ConsoleActivatior)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 
@@ -1073,32 +1073,33 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	if (FindHelpKey())
 		return false;
 
+	const auto CommandSet = L"SET"_sv;
 	// SET [variable=[value]]
-	if (IsCommand(L"SET"_sv, false))
+	if (IsCommand(CommandSet, false))
 	{
 		if (FindKey(L'A') || FindKey(L'P'))
 			return false; //todo: /p - dialog, /a - calculation; then set variable ...
 
 		size_t pos;
-		auto strCmdLine = trim_left(CmdLine.substr(3));
+		const auto SetParams = trim_left(CmdLine.substr(CommandSet.size()));
 
 		// "set" (display all) or "set var" (display all that begin with "var")
-		if (strCmdLine.empty() || ((pos = strCmdLine.find(L'=')) == string::npos) || !pos)
+		if (SetParams.empty() || ((pos = SetParams.find(L'=')) == string::npos) || !pos)
 		{
 			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
 			static const wchar_t CharsToFind[] = L"|>";
-			if (std::find_first_of(ALL_CONST_RANGE(strCmdLine), ALL_CONST_RANGE(CharsToFind)) != strCmdLine.cend())
+			if (std::find_first_of(ALL_CONST_RANGE(SetParams), ALL_CONST_RANGE(CharsToFind)) != SetParams.cend())
 				return false;
 
 			string strOut;
-			inplace::unquote(strCmdLine);
+			const auto UnquotedSetParams = unquote(string(SetParams));
 
 			{
 				const os::env::provider::strings EnvStrings;
 				const auto EnvStringsPtr = EnvStrings.data();
 				for (const auto& i: enum_substrings(EnvStringsPtr))
 				{
-					if (starts_with_icase(i, strCmdLine))
+					if (starts_with_icase(i, UnquotedSetParams))
 					{
 						append(strOut, i, L'\n');
 					}
@@ -1116,28 +1117,28 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 		ConsoleActivatior(false);
 
-		const auto Value = strCmdLine.substr(pos + 1);
-		strCmdLine.resize(pos);
-		inplace::unquote(strCmdLine);
+		const auto VariableValue = SetParams.substr(pos + 1);
+		const auto VariableName = unquote(string(SetParams.substr(0, pos)));
 
-		if (Value.empty()) //set var=
+		if (VariableValue.empty()) //set var=
 		{
-			os::env::del(strCmdLine);
+			os::env::del(VariableName);
 		}
 		else
 		{
-			os::env::set(strCmdLine, os::env::expand(Value));
+			os::env::set(VariableName, os::env::expand(VariableValue));
 		}
 
 		return true;
 	}
 
-	if (IsCommand(L"CLS"_sv, false))
+	const auto CommandCls = L"CLS"_sv;
+	if (IsCommand(CommandCls, false))
 	{
-		if (!trim_left(string_view(CmdLine).substr(3)).empty())
+		if (!trim_left(CmdLine.substr(CommandCls.size())).empty())
 		{
 			// Theoretically, in cmd "cls" and "cls blablabla" are the same things.
-			// But, if user passed some parameters to cls it's quite probably
+			// But, if the user passed some parameters to cls it's quite probably
 			// some chained command rather than parameters, e. g. "cls & dir".
 			// We have more complex logic in execute::PartCmdLine, but using it here isn't worth the effort.
 			return false;
@@ -1149,13 +1150,14 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	}
 
 	// PUSHD путь | ..
-	if (IsCommand(L"PUSHD"_sv, false))
+	const auto CommandPushd = L"PUSHD"_sv;
+	if (IsCommand(CommandPushd, false))
 	{
 		ConsoleActivatior(false);
 
 		const auto PushDir = m_CurDir;
 
-		if (IntChDir(trim(CmdLine.substr(5)), true))
+		if (IntChDir(trim(CmdLine.substr(CommandPushd.size())), true))
 		{
 			ppstack.push(PushDir);
 			os::env::set(L"FARDIRSTACK"_sv, PushDir);
@@ -1208,13 +1210,14 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 			nnn   Specifies a code page number (Dec or Hex).
 		Type CHCP without a parameter to display the active code page number.
 	*/
-	if (IsCommand(L"CHCP"_sv, false))
+	const auto CommandChcp = L"CHCP"_sv;
+	if (IsCommand(CommandChcp, false))
 	{
-		const auto strCmdLine = trim(CmdLine.substr(4));
+		const auto ChcpParams = trim(CmdLine.substr(CommandChcp.size()));
 		uintptr_t cp;
 		try
 		{
-			cp = std::stoul(strCmdLine);
+			cp = std::stoul(string(ChcpParams));
 		}
 		catch (const std::exception&)
 		{
@@ -1226,41 +1229,42 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 
 		ConsoleActivatior(false);
 
-		Text(strCmdLine);
+		Text(ChcpParams);
 		ScrollScreen(1);
 		return true;
 	}
 
-	if (IsCommand(L"CD"_sv, true) || IsCommand(L"CHDIR"_sv, true))
+	const auto CommandCd = L"CD"_sv;
+	const auto CommandChdir = L"CHDIR"_sv;
+	const auto IsCommandCd = IsCommand(CommandCd, true);
+	if (IsCommandCd || IsCommand(CommandChdir, true))
 	{
-		const int Length = IsCommand(L"CD"_sv, true)? 2 : 5;
-
-		auto strCmdLine = trim(CmdLine.substr(Length));
+		auto CdParams = trim(CmdLine.substr(IsCommandCd? CommandCd.size() : CommandChdir.size()));
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (starts_with_icase(strCmdLine, L"/D"_sv) && IsBlankOrEos(strCmdLine[2]))
+		if (starts_with_icase(CdParams, L"/D"_sv) && IsBlankOrEos(CdParams[2]))
 		{
-			strCmdLine.erase(0, 2);
-			inplace::trim_left(strCmdLine);
+			inplace::trim_left(CdParams);
 		}
 
-		if (strCmdLine.empty())
+		if (CdParams.empty())
 			return false;
 
 		ConsoleActivatior(false);
 
-		IntChDir(strCmdLine, Length == 5);
+		IntChDir(CdParams, !IsCommandCd);
 		return true;
 	}
 
-	if (IsCommand(L"TITLE"_sv, false))
+	const auto CommandTitle = L"TITLE"_sv;
+	if (IsCommand(CommandTitle, false))
 	{
 		ConsoleActivatior(false);
 
-		const auto Title = CmdLine.data() + 5; // wcslen(L"title")
+		const auto Title = CmdLine.substr(CommandTitle.size());
 
-		ConsoleTitle::SetUserTitle(*Title? Title + 1 : Title);
+		ConsoleTitle::SetUserTitle(Title.empty()? Title : Title.substr(1));
 
 		if (!(Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible()))
 		{
@@ -1279,7 +1283,7 @@ bool CommandLine::ProcessOSCommands(const string& CmdLine, const std::function<v
 	return false;
 }
 
-bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
+bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, bool const Silent)
 {
 	auto SetPanel = Global->CtrlObject->Cp()->ActivePanel();
 
@@ -1338,7 +1342,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 	if (SetPanel->GetType() == panel_type::FILE_PANEL && SetPanel->GetMode() == panel_mode::PLUGIN_PANEL)
 	{
-		SetPanel->SetCurDir(strExpandedDir,ClosePanel!=0);
+		SetPanel->SetCurDir(strExpandedDir, ClosePanel);
 		return true;
 	}
 
@@ -1351,7 +1355,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	}
 	else
 	{
-		if (!Selent)
+		if (!Silent)
 		{
 			const auto ErrorState = error_state::fetch();
 

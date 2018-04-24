@@ -629,63 +629,63 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	short DlgX=74,DlgY=25;
 	FarDialogItem AttrDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MSetAttrTitle).data()},
-		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MSetAttrFor).data()},
+		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,msg(lng::MSetAttrTitle).c_str()},
+		{DI_TEXT,-1,2,0,2,0,nullptr,nullptr,0,msg(lng::MSetAttrFor).c_str()},
 		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L""},
 		{DI_COMBOBOX,5,3,DlgX-6,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,L""},
 		{DI_TEXT,5,3,17,3,0,nullptr,nullptr,DIF_HIDDEN,L""},
 		{DI_EDIT,18,3,DlgX-6,3,0,nullptr,nullptr,DIF_HIDDEN|DIF_EDITPATH,L""},
 		{DI_COMBOBOX,18,3,DlgX-6,3,0,nullptr,nullptr,DIF_SHOWAMPERSAND|DIF_DROPDOWNLIST|DIF_LISTWRAPMODE|DIF_HIDDEN,L""},
 		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,5,5,17,5,0,nullptr,nullptr,0,msg(lng::MSetAttrOwner).data()},
+		{DI_TEXT,5,5,17,5,0,nullptr,nullptr,0,msg(lng::MSetAttrOwner).c_str()},
 		{DI_EDIT,18,5,DlgX-6,5,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,-1,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
-		{DI_CHECKBOX,5, 7,0,7,0,nullptr,nullptr,DIF_FOCUS|DIF_3STATE,msg(lng::MSetAttrRO).data()},
-		{DI_CHECKBOX,5, 8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrArchive).data()},
-		{DI_CHECKBOX,5, 9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrHidden).data()},
-		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSystem).data()},
-		{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrCompressed).data()},
-		{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrEncrypted).data()},
-		{DI_CHECKBOX,5,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNotIndexed).data()},
+		{DI_CHECKBOX,5, 7,0,7,0,nullptr,nullptr,DIF_FOCUS|DIF_3STATE,msg(lng::MSetAttrRO).c_str()},
+		{DI_CHECKBOX,5, 8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrArchive).c_str()},
+		{DI_CHECKBOX,5, 9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrHidden).c_str()},
+		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSystem).c_str()},
+		{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrCompressed).c_str()},
+		{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrEncrypted).c_str()},
+		{DI_CHECKBOX,5,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNotIndexed).c_str()},
 
-		{DI_CHECKBOX,DlgX/2,7,0,7,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSparse).data()},
-		{DI_CHECKBOX,DlgX/2,8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrTemp).data()},
-		{DI_CHECKBOX,DlgX/2,9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrOffline).data()},
-		{DI_CHECKBOX,DlgX/2,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrReparsePoint).data()},
-		{DI_CHECKBOX,DlgX/2,11,0,11,0,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MSetAttrVirtual).data()},
-		{DI_CHECKBOX,DlgX/2,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrIntegrityStream).data()},
-		{DI_CHECKBOX,DlgX/2,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNoScrubData).data()},
+		{DI_CHECKBOX,DlgX/2,7,0,7,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrSparse).c_str()},
+		{DI_CHECKBOX,DlgX/2,8,0,8,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrTemp).c_str()},
+		{DI_CHECKBOX,DlgX/2,9,0,9,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrOffline).c_str()},
+		{DI_CHECKBOX,DlgX/2,10,0,10,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrReparsePoint).c_str()},
+		{DI_CHECKBOX,DlgX/2,11,0,11,0,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,msg(lng::MSetAttrVirtual).c_str()},
+		{DI_CHECKBOX,DlgX/2,12,0,12,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrIntegrityStream).c_str()},
+		{DI_CHECKBOX,DlgX/2,13,0,13,0,nullptr,nullptr,DIF_3STATE,msg(lng::MSetAttrNoScrubData).c_str()},
 
 		{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,DlgX-29,15,0,15,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,DlgX-17,15,0,15,0,nullptr,nullptr,0,L""},
-		{DI_TEXT,    5,16,0,16,0,nullptr,nullptr,0,msg(lng::MSetAttrModification).data()},
+		{DI_TEXT,    5,16,0,16,0,nullptr,nullptr,0,msg(lng::MSetAttrModification).c_str()},
 		{DI_FIXEDIT,DlgX-29,16,DlgX-19,16,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,16,DlgX-6,16,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,17,0,17,0,nullptr,nullptr,0,msg(lng::MSetAttrCreation).data()},
+		{DI_TEXT,    5,17,0,17,0,nullptr,nullptr,0,msg(lng::MSetAttrCreation).c_str()},
 		{DI_FIXEDIT,DlgX-29,17,DlgX-19,17,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,17,DlgX-6,17,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,18,0,18,0,nullptr,nullptr,0,msg(lng::MSetAttrLastAccess).data()},
+		{DI_TEXT,    5,18,0,18,0,nullptr,nullptr,0,msg(lng::MSetAttrLastAccess).c_str()},
 		{DI_FIXEDIT,DlgX-29,18,DlgX-19,18,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,18,DlgX-6,18,0,nullptr,nullptr,DIF_MASKEDIT,L""},
-		{DI_TEXT,    5,19,0,19,0,nullptr,nullptr,0,msg(lng::MSetAttrChange).data()},
+		{DI_TEXT,    5,19,0,19,0,nullptr,nullptr,0,msg(lng::MSetAttrChange).c_str()},
 		{DI_FIXEDIT,DlgX-29,19,DlgX-19,19,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 		{DI_FIXEDIT,DlgX-17,19,DlgX-6,19,0,nullptr,nullptr,DIF_MASKEDIT,L""},
 
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrOriginal).data()},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrCurrent).data()},
-		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrBlank).data()},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrOriginal).c_str()},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrCurrent).c_str()},
+		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,msg(lng::MSetAttrBlank).c_str()},
 		{DI_TEXT,-1,21,0,21,0,nullptr,nullptr,DIF_SEPARATOR|DIF_HIDDEN,L""},
-		{DI_CHECKBOX,5,22,0,22,0,nullptr,nullptr,DIF_DISABLE|DIF_HIDDEN,msg(lng::MSetAttrSubfolders).data()},
+		{DI_CHECKBOX,5,22,0,22,0,nullptr,nullptr,DIF_DISABLE|DIF_HIDDEN,msg(lng::MSetAttrSubfolders).c_str()},
 		{DI_TEXT,-1,DlgY-4,0,DlgY-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetAttrSet).data()},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MSetAttrSystemDialog).data()},
-		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MSetAttrSet).c_str()},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MSetAttrSystemDialog).c_str()},
+		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 	};
 	auto AttrDlg = MakeDialogItemsEx(AttrDlgData);
 	SetAttrDlgParam DlgParam={};
-	size_t SelCount=SrcPanel?SrcPanel->GetSelCount():1;
+	const size_t SelCount = SrcPanel? SrcPanel->GetSelCount() : 1;
 
 	if (!SelCount)
 	{
@@ -927,7 +927,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										const auto& Storage = std::get<2>(i);
 
 										Link = concat(L"\\\\"_sv, Storage.ServerName, L'\\', Storage.ShareName);
-										Item.Text = Link.data();
+										Item.Text = Link.c_str();
 										Item.Flags =
 											((Storage.State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
 											((Storage.State & DFS_STORAGE_STATE_OFFLINE)? LIF_GRAYED : LIF_NONE);
@@ -1027,7 +1027,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					if (!Links.empty())
 					{
 						ListItems.reserve(Links.size());
-						std::transform(ALL_CONST_RANGE(Links), std::back_inserter(ListItems), [&](const auto& i) { return FarListItem{ 0, i.data() }; });
+						std::transform(ALL_CONST_RANGE(Links), std::back_inserter(ListItems), [&](const string& i) { return FarListItem{ 0, i.c_str() }; });
 
 						NameList.Items = ListItems.data();
 						AttrDlg[SA_COMBO_HARDLINK].ListItems = &NameList;
@@ -1748,14 +1748,14 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				{
 					AddEndSlash(strFullName);
 				}
-				seInfo.lpFile = strFullName.data();
+				seInfo.lpFile = strFullName.c_str();
 				if (!IsWindowsVistaOrGreater() && ParsePath(seInfo.lpFile) == root_type::unc_drive_letter)
 				{	// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
 				}
 				seInfo.lpVerb = L"properties";
 				const auto strCurDir = os::fs::GetCurrentDirectory();
-				seInfo.lpDirectory=strCurDir.data();
+				seInfo.lpDirectory=strCurDir.c_str();
 				ShellExecuteExW(&seInfo);
 			}
 			break;

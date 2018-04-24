@@ -426,7 +426,7 @@ void PluginManager::LoadPlugins()
 				if (i.empty())
 					continue;
 
-				PluginDirectories.emplace_back(i.raw_data(), i.size());
+				PluginDirectories.emplace_back(i.data(), i.size());
 			}
 		}
 
@@ -556,7 +556,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
 
-	AnalyseInfo Info{ sizeof(Info), Name? Name->data() : nullptr, nullptr, 0, OpMode };
+	AnalyseInfo Info{ sizeof(Info), Name? Name->c_str() : nullptr, nullptr, 0, OpMode };
 	std::vector<BYTE> Buffer(Global->Opt->PluginMaxReadData);
 
 	bool DataRead = false;
@@ -608,7 +608,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			if (Global->Opt->ShowCheckingFile)
 				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["_sv, PointToName(i->GetModuleName()), L"]..."_sv), true);
 
-			const auto hPlugin = i->OpenFilePlugin(Name? Name->data() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
+			const auto hPlugin = i->OpenFilePlugin(Name? Name->c_str() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 			if (!hPlugin)
 				continue;
 
@@ -929,8 +929,8 @@ int PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, PluginPanelIt
 
 	GetVirtualFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
-	Info.Path = Path.data();
-	int Result = hPlugin->plugin()->GetVirtualFindData(&Info);
+	Info.Path = Path.c_str();
+	const auto Result = hPlugin->plugin()->GetVirtualFindData(&Info);
 	*pPanelData = Info.PanelItem;
 	*pItemsNumber = Info.ItemsNumber;
 	return Result;
@@ -952,7 +952,7 @@ int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, 
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	SetDirectoryInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();
-	Info.Dir = Dir.data();
+	Info.Dir = Dir.c_str();
 	Info.OpMode = OpMode;
 	if (UserData)
 	{
@@ -979,7 +979,7 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 	Info.PanelItem = PanelItem;
 	Info.ItemsNumber = 1;
 	Info.Move = 0;
-	Info.DestPath = DestPath.data();
+	Info.DestPath = DestPath.c_str();
 	Info.OpMode = OpMode;
 
 	const auto GetCode = hPlugin->plugin()->GetFiles(&Info);
@@ -988,10 +988,10 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{
-		auto name_len = wcslen(PanelItem->FileName);
-		auto found_len = ItemIterator->FileName.size();
-		bool isADS = GetCode==1 && found_len+1 < name_len && PanelItem->FileName[found_len]==L':' && !wcsncmp(PanelItem->FileName,ItemIterator->FileName.data(),found_len);
-		strResultName = path::join(Info.DestPath, isADS ? PanelItem->FileName : ItemIterator->FileName.data());
+		const auto name_len = wcslen(PanelItem->FileName);
+		const auto found_len = ItemIterator->FileName.size();
+		const auto isADS = GetCode == 1 && found_len + 1 < name_len && PanelItem->FileName[found_len] == L':' && !wcsncmp(PanelItem->FileName, ItemIterator->FileName.c_str(), found_len);
+		strResultName = path::join(Info.DestPath, isADS? string_view(PanelItem->FileName) : string_view(ItemIterator->FileName));
 
 		if (GetCode!=1)
 		{
@@ -1099,14 +1099,14 @@ int PluginManager::PutFiles(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 	Info.PanelItem = PanelItem;
 	Info.ItemsNumber = ItemsNumber;
 	Info.Move = Move;
-	Info.SrcPath = strCurrentDirectory.data();
+	Info.SrcPath = strCurrentDirectory.c_str();
 	Info.OpMode = OpMode;
 
-	int Code = hPlugin->plugin()->PutFiles(&Info);
+	const auto Result = hPlugin->plugin()->PutFiles(&Info);
 
 	ReadUserBackgound(&SaveScr);
 
-	return Code;
+	return Result;
 }
 
 void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo *Info)
@@ -1296,10 +1296,10 @@ void PluginManager::Configure(int StartPos)
 						if (item)
 						{
 							strPluginModuleName = item->pPlugin->GetModuleName();
-							if (!pluginapi::apiShowHelp(strPluginModuleName.data(),L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
-							        !pluginapi::apiShowHelp(strPluginModuleName.data(),L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+							if (!pluginapi::apiShowHelp(strPluginModuleName.c_str(), L"Config", FHELP_SELFHELP | FHELP_NOSHOWERROR) &&
+								!pluginapi::apiShowHelp(strPluginModuleName.c_str(), L"Configure", FHELP_SELFHELP | FHELP_NOSHOWERROR))
 							{
-								pluginapi::apiShowHelp(strPluginModuleName.data(),nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+								pluginapi::apiShowHelp(strPluginModuleName.c_str(), nullptr, FHELP_SELFHELP | FHELP_NOSHOWERROR);
 							}
 						}
 						break;
@@ -1459,7 +1459,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					case KEY_SHIFTF1:
 						// Вызываем нужный топик, который передали в CommandsMenu()
 						if (ItemPtr)
-							pluginapi::apiShowHelp(ItemPtr->pPlugin->GetModuleName().data(), HistoryName, FHELP_SELFHELP | FHELP_NOSHOWERROR | FHELP_USECONTENTS);
+							pluginapi::apiShowHelp(ItemPtr->pPlugin->GetModuleName().c_str(), HistoryName, FHELP_SELFHELP | FHELP_NOSHOWERROR | FHELP_USECONTENTS);
 						break;
 
 					case KEY_F3:
@@ -1582,7 +1582,7 @@ bool PluginManager::SetHotKeyDialog(Plugin* const pPlugin, const GUID& Guid, con
 
 	DialogBuilder Builder(lng::MPluginHotKeyTitle, L"SetHotKeyDialog");
 	Builder.AddText(lng::MPluginHotKey);
-	Builder.AddTextAfter(Builder.AddFixEditField(strHotKey, 1), null_terminated(DlgPluginTitle).data());
+	Builder.AddTextAfter(Builder.AddFixEditField(strHotKey, 1), null_terminated(DlgPluginTitle).c_str());
 	Builder.AddOKCancel();
 	if(Builder.ShowDialog())
 	{
@@ -1666,7 +1666,7 @@ wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 	const auto Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
 	if (Res)
 	{
-		wcscpy(Res, Str.data());
+		wcscpy(Res, Str.c_str());
 	}
 	return Res;
 }
@@ -1966,7 +1966,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 
 	// Copy instead of string_view as it goes into the wild
 	const auto PluginCommand = Command.substr(PluginIterator->PluginFlags & PF_FULLCMDLINE? 0 : Prefix.size() + 1);
-	const OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), PluginCommand.data() };
+	const OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), PluginCommand.c_str() };
 	if (auto hPlugin = Global->CtrlObject->Plugins->Open(PluginIterator->pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info)))
 	{
 		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
@@ -2226,7 +2226,7 @@ bool PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 		{
 			ActivePanel=Global->CtrlObject->Cp()->ActivePanel();
 			string command=Data->Command; // Нужна копия строки
-			OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),command.data()};
+			OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), command.c_str() };
 			hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
 			Result = true;
 		}
@@ -2311,7 +2311,7 @@ void PluginManager::GetContentData(
 	size_t Count = ColNames.size();
 	std::for_each(CONST_RANGE(Plugins, i)
 	{
-		GetContentDataInfo GetInfo = { sizeof(GetContentDataInfo), FilePath.data(), Count, ColNames.data(), ColValues.data() };
+		GetContentDataInfo GetInfo{ sizeof(GetContentDataInfo), FilePath.c_str(), Count, ColNames.data(), ColValues.data() };
 		ColValues.assign(ColValues.size(), nullptr);
 
 		if (i->GetContentData(&GetInfo) && GetInfo.Values)

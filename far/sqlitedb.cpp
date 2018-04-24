@@ -115,7 +115,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(long long Value)
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value, const bool bStatic)
 {
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.raw_data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
+	sqlite::sqlite3_bind_text16(m_Stmt.get(), m_Param++, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
 	return *this;
 }
 
@@ -185,12 +185,12 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 {
 	const auto& v1_opener = [](const string& Name, database_ptr& Db)
 	{
-		return sqlite::sqlite3_open16(Name.data(), &ptr_setter(Db)) == SQLITE_OK;
+		return sqlite::sqlite3_open16(Name.c_str(), &ptr_setter(Db)) == SQLITE_OK;
 	};
 
 	const auto& v2_opener = [WAL](const string& Name, database_ptr& Db)
 	{
-		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).data(), &ptr_setter(Db), WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK;
+		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), &ptr_setter(Db), WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK;
 	};
 
 	m_Path = GetDatabasePath(DbFile, Local);
@@ -266,7 +266,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 void SQLiteDb::Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL)
 {
-	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data());
+	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).c_str());
 	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
 
 	m_Name = DbName;

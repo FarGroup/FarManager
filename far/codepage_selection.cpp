@@ -163,7 +163,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 		FarListInsert item = { sizeof(FarListInsert), static_cast<intptr_t>(position) };
 
 		string name = FormatCodePageString(codePage, codePageName, IsCodePageNameCustom);
-		item.Item.Text = name.data();
+		item.Item.Text = name.c_str();
 
 		if (selectedCodePages && checked)
 		{
@@ -258,7 +258,7 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 		}
 
 		FarListInsert item = { sizeof(FarListInsert), static_cast<intptr_t>(position) };
-		item.Item.Text = Label.data();
+		item.Item.Text = Label.c_str();
 		item.Item.Flags = LIF_SEPARATOR;
 		dialog->SendMessage(DM_LISTINSERT, control, &item);
 	}
@@ -641,12 +641,12 @@ void codepages::EditCodePageName()
 	CodePageName.erase(0, BoxPosition + 2);
 	FarDialogItem EditDialogData[] =
 	{
-		{ DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, msg(lng::MGetCodePageEditCodePageName).data() },
-		{ DI_EDIT, 5, 2, 48, 2, 0, L"CodePageName", nullptr, DIF_FOCUS | DIF_HISTORY, CodePageName.data() },
+		{ DI_DOUBLEBOX, 3, 1, 50, 5, 0, nullptr, nullptr, 0, msg(lng::MGetCodePageEditCodePageName).c_str() },
+		{ DI_EDIT, 5, 2, 48, 2, 0, L"CodePageName", nullptr, DIF_FOCUS | DIF_HISTORY, CodePageName.c_str() },
 		{ DI_TEXT, -1, 3, 0, 3, 0, nullptr, nullptr, DIF_SEPARATOR, L"" },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MOk).data() },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel).data() },
-		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MGetCodePageResetCodePageName).data() }
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_DEFAULTBUTTON | DIF_CENTERGROUP, msg(lng::MOk).c_str() },
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MCancel).c_str() },
+		{ DI_BUTTON, 0, 4, 0, 3, 0, nullptr, nullptr, DIF_CENTERGROUP, msg(lng::MGetCodePageResetCodePageName).c_str() }
 	};
 	auto EditDialog = MakeDialogItemsEx(EditDialogData);
 	const auto Dlg = Dialog::create(EditDialog, &codepages::EditDialogProc, this);

@@ -3464,7 +3464,7 @@ bool Editor::Search(bool Next)
 			QuotedStr = strSlash;
 
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash.data(), OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
+			if (!re.Compile(strSlash.c_str(), OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
 			{
 				ReCompileErrorMessage(re, strSlash);
 				return false; //BUGBUG
@@ -5255,7 +5255,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				const auto& Str = CurPtr->GetString();
 				GetString->StringText = Str.data();
-				GetString->StringEOL = eol::str(CurPtr->GetEOL()).raw_data();
+				GetString->StringEOL = eol::str(CurPtr->GetEOL()).data();
 				GetString->StringLength = Str.size();
 				GetString->SelStart=-1;
 				GetString->SelEnd=0;
@@ -5828,13 +5828,13 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						_ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->wszParam));
 
 						if (espar->wszParam && espar->Size)
-							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.data(),espar->Size);
+							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.c_str(), espar->Size);
 
 						rc=(int)EdOpt.strWordDiv.Get().size()+1;
 						break;
 					case ESPT_SETWORDDIV:
 						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
-						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->EdOpt.strWordDiv.data():espar->wszParam);
+						SetWordDiv((!espar->wszParam || !*espar->wszParam)? Global->Opt->EdOpt.strWordDiv.c_str() : espar->wszParam);
 						break;
 					case ESPT_TABSIZE:
 						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));

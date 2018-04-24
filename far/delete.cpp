@@ -207,7 +207,7 @@ static bool MoveToRecycleBinInternal(const string& Objects)
 {
 	SHFILEOPSTRUCT fop={};
 	fop.wFunc=FO_DELETE;
-	fop.pFrom = Objects.data();
+	fop.pFrom = Objects.c_str();
 	fop.pTo = L"\0\0";
 	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT|FOF_ALLOWUNDO;
 
@@ -501,7 +501,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		if (tText.empty())
 			tText = msg(mDText);
 
-		Builder.AddText(tText.data())->Flags = DIF_CENTERTEXT;
+		Builder.AddText(tText.c_str())->Flags = DIF_CENTERTEXT;
 
 		if (bHilite || (mshow > 1 && SelCount > 1))
 			Builder.AddSeparator();
@@ -509,7 +509,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 		std::for_each(RANGE(items, i)
 		{
 			TruncStrFromCenter(i, ScrX+1-6*2);
-			const auto dx = Builder.AddText(i.data());
+			const auto dx = Builder.AddText(i.c_str());
 			dx->Flags = (SelCount <= 1 || mshow <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
 			size_t index = Builder.GetLastID();
 			end_hilite = index;

@@ -83,7 +83,7 @@ new_handler::new_handler():
 	{
 		SetConsoleCursorPosition(m_Screen.native_handle(), { static_cast<short>((m_BufferSize.X - Str.size()) / 2), static_cast<short>(Y) });
 		DWORD Written;
-		return WriteConsole(m_Screen.native_handle(), Str.raw_data(), static_cast<DWORD>(Str.size()), &Written, nullptr) && Written == Str.size();
+		return WriteConsole(m_Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &Written, nullptr) && Written == Str.size();
 	};
 
 	auto InitialY = (m_BufferSize.Y - std::size(Strings)) / 2;

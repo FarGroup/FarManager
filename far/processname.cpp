@@ -58,19 +58,18 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int const Selected
 
 	const string strWildName = strDest.substr(DestNamePos);
 
-	const string strSrc = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
-	const wchar_t *Src = strSrc.data();
+	const auto strSrc = SelectedFolderNameLength? SrcName.substr(0, SelectedFolderNameLength) : SrcName;
+	const auto Src = strSrc.c_str();
 	auto SrcNamePtr = PointToName(strSrc);
 
 	strDest.resize(strDest.size() + SrcName.size());
 
-	size_t BeforeNameLength = DestNamePos? 0 : strSrc.size() - SrcNamePtr.size();
+	const auto BeforeNameLength = DestNamePos? 0 : strSrc.size() - SrcNamePtr.size();
 
 	const auto SrcNameRDot = std::find(ALL_CONST_REVERSE_RANGE(SrcNamePtr), L'.');
 	const auto SrcNameDot = SrcNameRDot == SrcNamePtr.crend()? SrcNamePtr.cend() : (SrcNameRDot + 1).base();
 
-	const wchar_t *CurWildPtr = strWildName.data();
-
+	auto CurWildPtr = strWildName.c_str();
 	while (*CurWildPtr)
 	{
 		switch (*CurWildPtr)

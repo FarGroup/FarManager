@@ -1653,7 +1653,7 @@ void Edit::InsertString(string_view Str)
 				m_Str.resize(m_CurPos, L' ');
 			}
 
-			m_Str.insert(m_CurPos, Str.raw_data(), Str.size());
+			m_Str.insert(m_CurPos, Str.data(), Str.size());
 
 			SetPrevCurPos(m_CurPos);
 			m_CurPos += static_cast<int>(Str.size());

@@ -66,7 +66,7 @@ public:
 	constexpr basic_string_view substr(size_t Pos = 0, size_t Count = npos) const
 	{
 		assert(Pos <= this->size());
-		return { this->raw_data() + Pos, std::min(Count, this->size() - Pos) };
+		return { this->data() + Pos, std::min(Count, this->size() - Pos) };
 	}
 
 	constexpr const auto& front() const
@@ -131,6 +131,11 @@ public:
 		return npos;
 	}
 
+	/*constexpr*/ size_t find_first_of(T Char, const size_t Pos = 0) const noexcept
+	{
+		return find_first_of({ &Char, 1 }, Pos);
+	}
+
 	/*constexpr*/ size_t find_first_not_of(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
 	{
 		if (Str.empty() || Pos >= this->size())
@@ -143,6 +148,11 @@ public:
 		}
 
 		return npos;
+	}
+
+	/*constexpr*/ size_t find_first_not_of(T Char, const size_t Pos = 0) const noexcept
+	{
+		return find_first_not_of({ &Char, 1 }, Pos);
 	}
 
 	/*constexpr*/ size_t find_last_of(const basic_string_view<T> Str, size_t Pos = npos) const noexcept
@@ -162,6 +172,11 @@ public:
 		return npos;
 	}
 
+	/*constexpr*/ size_t find_last_of(T Char, const size_t Pos = npos) const noexcept
+	{
+		return find_last_of({ &Char, 1 }, Pos);
+	}
+
 	/*constexpr*/ size_t find_last_not_of(const basic_string_view<T> Str, size_t Pos = npos) const noexcept
 	{
 		if (Str.empty())
@@ -179,33 +194,9 @@ public:
 		return npos;
 	}
 
-	/*
-	ISO/IEC N4659 24.4.2.4 771
-	"Note: Unlike basic_string::data() and string literals, data() may return a pointer to a buffer that
-	is not null-terminated. Therefore it is typically a mistake to pass data() to a function that takes just a
-	const charT* and expects a null-terminated string."
-
-	- Another splendid design decision from the committee.
-	If it's "typically a mistake", why didn't you give some other, "less-similar-to-basic_string::data()" name?
-
-	For now, our implementation intentionally does not provide data() member function -
-	we heavily rely on the platform API which requires C strings in about 99% of the cases and it's too easy to make a mistake
-	and "rescue the Princess, her dog, her entire wardrobe & everything she has ever eaten...".
-	Hopefully we will thin out C strings numbers enough by the time we switch to a C++17-conformant compiler.
-	*/
-private:
-	constexpr auto data() const
+	/*constexpr*/ size_t find_last_not_of(T Char, const size_t Pos = npos) const noexcept
 	{
-		return range<const T*>::data();
-	}
-
-	template<typename container>
-	friend constexpr auto std::data(const container& Container) -> decltype(Container.data());
-
-public:
-	constexpr auto raw_data() const
-	{
-		return data();
+		return find_last_not_of({ &Char, 1 }, Pos);
 	}
 
 private:
@@ -273,7 +264,7 @@ bool operator!=(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
 template<typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& Stream, const basic_string_view<T> Str)
 {
-	return Stream.write(Str.raw_data(), Str.size());
+	return Stream.write(Str.data(), Str.size());
 }
 
 using string_view = basic_string_view<wchar_t>;

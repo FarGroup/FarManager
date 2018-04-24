@@ -148,7 +148,7 @@ history_return_type History::Select(const string& Title, const wchar_t *HelpTopi
 	if (m_TypeHistory == HISTORYTYPE_CMD || m_TypeHistory == HISTORYTYPE_FOLDER || m_TypeHistory == HISTORYTYPE_VIEW)
 		HistoryMenu->SetId(m_TypeHistory == HISTORYTYPE_CMD?HistoryCmdId:(m_TypeHistory == HISTORYTYPE_FOLDER?HistoryFolderId:HistoryEditViewId));
 
-	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title.data(), *HistoryMenu, Height, Type, nullptr);
+	const auto ret = ProcessMenu(strStr, Guid, File, Data, Title.c_str(), *HistoryMenu, Height, Type, nullptr);
 	Global->ScrBuf->Flush();
 	return ret;
 }

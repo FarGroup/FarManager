@@ -526,7 +526,7 @@ string MkStrFTime(const wchar_t *Format)
 	const auto Time = os::chrono::nt_clock::to_time_t(os::chrono::nt_clock::now());
 
 	if (!Format || !*Format)
-		Format = Global->Opt->Macro.strDateFormat.data();
+		Format = Global->Opt->Macro.strDateFormat.c_str();
 
 	_tzset();
 	return StrFTime(Format, std::localtime(&Time));

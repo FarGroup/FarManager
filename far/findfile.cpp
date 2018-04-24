@@ -359,10 +359,10 @@ void background_searcher::InitInFileSearch()
 			if (!CmpCase)
 			{
 				findStringBuffer = upper(strFindStr) + lower(strFindStr);
-				findString = findStringBuffer.data();
+				findString = findStringBuffer.c_str();
 			}
 			else
-				findString = strFindStr.data();
+				findString = strFindStr.c_str();
 
 			// Инициализируем данные для алгоритма поиска
 			skipCharsTable.assign(std::numeric_limits<wchar_t>::max() + 1, findStringCount);
@@ -521,7 +521,7 @@ void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel
 			DeleteEndSlash(Dir);
 
 			SCOPED_ACTION(os::critical_section_lock)(PluginCS);
-			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\" : null_terminated(Dir).data(), OPM_SILENT, Dir.empty()? nullptr : UserData);
+			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\" : null_terminated(Dir).c_str(), OPM_SILENT, Dir.empty()? nullptr : UserData);
 		}
 
 		// Отрисуем панель при необходимости.
@@ -568,17 +568,17 @@ void FindFiles::AdvancedDialog()
 {
 	FarDialogItem AdvancedDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,52,11,0,nullptr,nullptr,0,msg(lng::MFindFileAdvancedTitle).data()},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MFindFileSearchFirst).data()},
-		{DI_EDIT,5,3,50,3,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchInFirstSize.data()},
+		{DI_DOUBLEBOX,3,1,52,11,0,nullptr,nullptr,0,msg(lng::MFindFileAdvancedTitle).c_str()},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MFindFileSearchFirst).c_str()},
+		{DI_EDIT,5,3,50,3,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchInFirstSize.c_str()},
 		{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_TEXT,5,5, 0, 5,0,nullptr,nullptr,0,msg(lng::MFindAlternateModeTypes).data()},
-		{DI_EDIT,5,6,50, 6,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormat.data()},
-		{DI_TEXT,5,7, 0, 7,0,nullptr,nullptr,0,msg(lng::MFindAlternateModeWidths).data()},
-		{DI_EDIT,5,8,50, 8,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormatWidth.data()},
+		{DI_TEXT,5,5, 0, 5,0,nullptr,nullptr,0,msg(lng::MFindAlternateModeTypes).c_str()},
+		{DI_EDIT,5,6,50, 6,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormat.c_str()},
+		{DI_TEXT,5,7, 0, 7,0,nullptr,nullptr,0,msg(lng::MFindAlternateModeWidths).c_str()},
+		{DI_EDIT,5,8,50, 8,0,nullptr,nullptr,0,Global->Opt->FindOpt.strSearchOutFormatWidth.c_str()},
 		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
-		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
+		{DI_BUTTON,0,10,0,10,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 	};
 	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
 	const auto Dlg = Dialog::create(AdvancedDlg, &FindFiles::AdvancedDlgProc);
@@ -605,7 +605,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		FarListPos Position = { sizeof(FarListPos) };
 		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 		if (Position.SelectPos == TitlePosition)
-			Dlg->SendMessage(DM_SETTEXTPTR, FAD_COMBOBOX_CP, const_cast<wchar_t*>(Title.data()));
+			Dlg->SendMessage(DM_SETTEXTPTR, FAD_COMBOBOX_CP, UNSAFE_CSTR(Title));
 	};
 
 	switch (Msg)
@@ -622,10 +622,10 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!Hex));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,ToPtr(1));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(1));
-			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,const_cast<wchar_t*>(msg(Hex? lng::MFindFileHex : lng::MFindFileText).data()));
-			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_CP,const_cast<wchar_t*>(msg(lng::MFindFileCodePage).data()));
+			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,const_cast<wchar_t*>(msg(Hex? lng::MFindFileHex : lng::MFindFileText).c_str()));
+			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_CP,const_cast<wchar_t*>(msg(lng::MFindFileCodePage).c_str()));
 			Dlg->SendMessage(DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,ToPtr(CBET_KEY));
-			FarListTitles Titles={sizeof(FarListTitles),0,nullptr,0,msg(lng::MFindFileCodePageBottom).data()};
+			FarListTitles Titles={sizeof(FarListTitles),0,nullptr,0,msg(lng::MFindFileCodePageBottom).c_str()};
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
@@ -664,7 +664,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					PrepareDriveNameStr(strSearchFromRoot);
 					FarListGetItem item={sizeof(FarListGetItem),FADC_ROOT};
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
-					item.Item.Text=strSearchFromRoot.data();
+					item.Item.Text=strSearchFromRoot.c_str();
 					Dlg->SendMessage(DM_LISTUPDATE,FAD_COMBOBOX_WHERE,&item);
 					PluginMode = Global->CtrlObject->Cp()->ActivePanel()->GetMode() == panel_mode::PLUGIN_PANEL;
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!PluginMode));
@@ -726,7 +726,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_CASE,ToPtr(!iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,ToPtr(!iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!iParam));
-					Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX, const_cast<wchar_t*>(msg(Param2? lng::MFindFileHex : lng::MFindFileText).data()));
+					Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX, UNSAFE_CSTR(msg(Param2? lng::MFindFileHex : lng::MFindFileText)));
 
 					if (!strDataStr.empty())
 					{
@@ -1392,7 +1392,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
-		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindCancel).data()));
+		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindCancel).c_str()));
 		Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 		ConsoleTitle::SetFarTitle(strMessage);
 		TB.reset();
@@ -1870,7 +1870,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 		Dlg->SendMessage( DM_ENABLE, FD_LISTBOX, ToPtr(TRUE));
 	}
 
-	const wchar_t *DisplayName=FindData.FileName.data();
+	auto DisplayName = FindData.FileName.c_str();
 
 	string MenuText(1, L' ');
 
@@ -2504,17 +2504,17 @@ bool FindFiles::FindFilesProcess()
 	int DlgHeight = ScrY + 1 - 2;
 	FarDialogItem FindDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strTitle.data()},
+		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,strTitle.c_str()},
 		{DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-7,0,nullptr,nullptr,DIF_LISTNOBOX|DIF_DISABLE,L""},
 		{DI_TEXT,-1,DlgHeight-6,0,DlgHeight-6,0,nullptr,nullptr,DIF_SEPARATOR2,L""},
 		{DI_TEXT,5,DlgHeight-5,DlgWidth-(strFindStr.empty()?6:12),DlgHeight-5,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L"..."},
 		{DI_TEXT,DlgWidth-9,DlgHeight-5,DlgWidth-6,DlgHeight-5,0,nullptr,nullptr,(strFindStr.empty()?DIF_HIDDEN:0),L""},
 		{DI_TEXT,-1,DlgHeight-4,0,DlgHeight-4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MFindNewSearch).data()},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindGoTo).data()},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindView).data()},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindPanel).data()},
-		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindStop).data()},
+		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MFindNewSearch).c_str()},
+		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindGoTo).c_str()},
+		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindView).c_str()},
+		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_DISABLE,msg(lng::MFindPanel).c_str()},
+		{DI_BUTTON,0,DlgHeight-3,0,DlgHeight-3,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindStop).c_str()},
 	};
 	auto FindDlg = MakeDialogItemsEx(FindDlgData);
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
@@ -2831,8 +2831,8 @@ FindFiles::FindFiles():
 		const wchar_t VSeparator[] = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1], 0 };
 		FarDialogItem FindAskDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,76,19,0,nullptr,nullptr,0,msg(lng::MFindFileTitle).data()},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MFindFileMasks).data()},
+			{DI_DOUBLEBOX,3,1,76,19,0,nullptr,nullptr,0,msg(lng::MFindFileTitle).c_str()},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,msg(lng::MFindFileMasks).c_str()},
 			{DI_EDIT,5,3,74,3,0,MasksHistoryName,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
 			{DI_TEXT,-1,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,L""},
@@ -2841,25 +2841,25 @@ FindFiles::FindFiles():
 			{DI_TEXT,5,7,0,7,0,nullptr,nullptr,0,L""},
 			{DI_COMBOBOX,5,8,74,8,0,nullptr,nullptr,DIF_DROPDOWNLIST,L""},
 			{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MFindFileCase).data()},
-			{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,0,msg(lng::MFindFileWholeWords).data()},
-			{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,0,msg(lng::MSearchForHex).data()},
-			{DI_CHECKBOX,5,13,0,13,NotContaining,nullptr,nullptr,0,msg(lng::MSearchNotContaining).data()},
-			{DI_CHECKBOX,41,10,0,10,0,nullptr,nullptr,0,msg(lng::MFindArchives).data()},
-			{DI_CHECKBOX,41,11,0,11,0,nullptr,nullptr,0,msg(lng::MFindFolders).data()},
-			{DI_CHECKBOX,41,12,0,12,0,nullptr,nullptr,0,msg(lng::MFindSymLinks).data()},
-			{DI_CHECKBOX,41,13,0,13,0,nullptr,nullptr,0,msg(lng::MFindAlternateStreams).data()},
+			{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,msg(lng::MFindFileCase).c_str()},
+			{DI_CHECKBOX,5,11,0,11,0,nullptr,nullptr,0,msg(lng::MFindFileWholeWords).c_str()},
+			{DI_CHECKBOX,5,12,0,12,0,nullptr,nullptr,0,msg(lng::MSearchForHex).c_str()},
+			{DI_CHECKBOX,5,13,0,13,NotContaining,nullptr,nullptr,0,msg(lng::MSearchNotContaining).c_str()},
+			{DI_CHECKBOX,41,10,0,10,0,nullptr,nullptr,0,msg(lng::MFindArchives).c_str()},
+			{DI_CHECKBOX,41,11,0,11,0,nullptr,nullptr,0,msg(lng::MFindFolders).c_str()},
+			{DI_CHECKBOX,41,12,0,12,0,nullptr,nullptr,0,msg(lng::MFindSymLinks).c_str()},
+			{DI_CHECKBOX,41,13,0,13,0,nullptr,nullptr,0,msg(lng::MFindAlternateStreams).c_str()},
 			{DI_TEXT,-1,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_VTEXT,39,9,0,9,0,nullptr,nullptr,DIF_BOXCOLOR,VSeparator},
-			{DI_TEXT,5,15,0,15,0,nullptr,nullptr,0,msg(lng::MSearchWhere).data()},
+			{DI_TEXT,5,15,0,15,0,nullptr,nullptr,0,msg(lng::MSearchWhere).c_str()},
 			{DI_COMBOBOX,5,16,36,16,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND,L""},
-			{DI_CHECKBOX,41,16,0,16,(int)(UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED),nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFindUseFilter).data()},
+			{DI_CHECKBOX,41,16,0,16,(int)(UseFilter?BSTATE_CHECKED:BSTATE_UNCHECKED),nullptr,nullptr,DIF_AUTOMATION,msg(lng::MFindUseFilter).c_str()},
 			{DI_TEXT,-1,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MFindFileFind).data()},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindFileDrive).data()},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),msg(lng::MFindFileSetFilter).data()},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindFileAdvanced).data()},
-			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MFindFileFind).c_str()},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindFileDrive).c_str()},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_AUTOMATION|(UseFilter?0:DIF_DISABLE),msg(lng::MFindFileSetFilter).c_str()},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MFindFileAdvanced).c_str()},
+			{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 		};
 		auto FindAskDlg = MakeDialogItemsEx(FindAskDlgData);
 
@@ -2868,13 +2868,13 @@ FindFiles::FindFiles():
 
 		FarListItem li[]=
 		{
-			{ 0, msg(lng::MSearchAllDisks).data() },
-			{ 0, msg(lng::MSearchAllButNetwork).data() },
-			{ 0, msg(lng::MSearchInPATH).data() },
-			{ 0, strSearchFromRoot.data() },
-			{ 0, msg(lng::MSearchFromCurrent).data() },
-			{ 0, msg(lng::MSearchInCurrent).data() },
-			{ 0, msg(lng::MSearchInSelected).data() },
+			{ 0, msg(lng::MSearchAllDisks).c_str() },
+			{ 0, msg(lng::MSearchAllButNetwork).c_str() },
+			{ 0, msg(lng::MSearchInPATH).c_str() },
+			{ 0, strSearchFromRoot.c_str() },
+			{ 0, msg(lng::MSearchFromCurrent).c_str() },
+			{ 0, msg(lng::MSearchInCurrent).c_str() },
+			{ 0, msg(lng::MSearchInSelected).c_str() },
 		};
 		li[FADC_ALLDISKS+SearchMode].Flags|=LIF_SELECTED;
 		FarList l={sizeof(FarList),std::size(li),li};

@@ -54,7 +54,7 @@ public:
 	{
 		const auto RootName = "farconfig";
 
-		const auto XmlFile = file_ptr(_wfopen(NTPath(File).data(), L"rb"));
+		const auto XmlFile = file_ptr(_wfopen(NTPath(File).c_str(), L"rb"));
 		if (!XmlFile)
 			return;
 
@@ -107,7 +107,7 @@ public:
 
 	bool Save(const string& File)
 	{
-		const file_ptr XmlFile(_wfopen(NTPath(File).data(), L"w"));
+		const file_ptr XmlFile(_wfopen(NTPath(File).c_str(), L"w"));
 		return XmlFile && m_Document.SaveFile(XmlFile.get()) == tinyxml::XML_SUCCESS;
 	}
 
@@ -247,7 +247,7 @@ private:
 			{
 			case column_type::integer:
 				e.SetAttribute("type", "qword");
-				e.SetAttribute("value", to_hex_string(stmtEnumAllValues.GetColInt64(2)).data());
+				e.SetAttribute("value", to_hex_string(stmtEnumAllValues.GetColInt64(2)).c_str());
 				break;
 
 			case column_type::string:
@@ -260,7 +260,7 @@ private:
 				{
 					e.SetAttribute("type", "hex");
 					const auto Blob = stmtEnumAllValues.GetColBlob(2);
-					e.SetAttribute("value", BlobToHexString(Blob.data(), Blob.size()).data());
+					e.SetAttribute("value", BlobToHexString(Blob.data(), Blob.size()).c_str());
 				}
 			}
 		}
@@ -409,7 +409,7 @@ class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig,
 {
 public:
 	explicit HierarchicalConfigDb(const string& DbName, bool Local):
-		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).data()),
+		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).c_str()),
 		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
 	{
 		HierarchicalConfigDb::BeginTransaction();
@@ -557,7 +557,7 @@ protected:
 	virtual void SerializeBlob(const char* Name, const bytes_view& Blob, tinyxml::XMLElement& e) const
 	{
 		e.SetAttribute("type", "hex");
-		e.SetAttribute("value", BlobToHexString(Blob).data());
+		e.SetAttribute("value", BlobToHexString(Blob).c_str());
 	}
 
 	void Export(representation_destination& Representation) const override
@@ -595,7 +595,7 @@ protected:
 				{
 				case column_type::integer:
 					e.SetAttribute("type", "qword");
-					e.SetAttribute("value", to_hex_string(Stmt->GetColInt64(1)).data());
+					e.SetAttribute("value", to_hex_string(Stmt->GetColInt64(1)).c_str());
 					break;
 
 				case column_type::string:
@@ -748,9 +748,9 @@ private:
 		{
 			const auto Color = deserialise<FarColor>(Blob);
 			e.SetAttribute("type", "color");
-			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
-			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
-			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).data());
+			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).c_str());
+			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).c_str());
+			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
 		}
 		else
 		{
@@ -838,9 +838,9 @@ private:
 
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
 			const auto Color = deserialise<FarColor>(stmtEnumAllValues.GetColBlob(1));
-			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).data());
-			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).data());
-			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).data());
+			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).c_str());
+			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).c_str());
+			e.SetAttribute("flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)).c_str());
 		}
 	}
 
@@ -1657,8 +1657,8 @@ private:
 		{
 			EventName = os::make_name<os::event>(GetPath(), GetName());
 		}
-		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Delete").data());
-		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Commit").data());
+		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Delete").c_str());
+		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Commit").c_str());
 		AllWaiter.add(AsyncDeleteAddDone);
 		AllWaiter.add(AsyncCommitDone);
 		AsyncWork = os::event(os::event::type::automatic, os::event::state::nonsignaled);
@@ -2227,7 +2227,7 @@ enum dbcheck: int
 
 HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"_sv, guid) + L".db"_sv, encoding::utf8::get_bytes(guid).data(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"_sv, guid) + L".db"_sv, encoding::utf8::get_bytes(guid).c_str(), Local, true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
@@ -2275,7 +2275,7 @@ bool config_provider::Export(const string& File)
 {
 	representation_destination Representation;
 	auto& root = Representation.GetRoot();
-	root.SetAttribute("version", format("{0}.{1}.{2}", FAR_VERSION.Major, FAR_VERSION.Minor, FAR_VERSION.Build).data());
+	root.SetAttribute("version", format("{0}.{1}.{2}", FAR_VERSION.Major, FAR_VERSION.Minor, FAR_VERSION.Build).c_str());
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);
@@ -2301,7 +2301,7 @@ bool config_provider::Export(const string& File)
 			if (std::regex_search(i.FileName, uuid_regex()))
 			{
 				auto& PluginRoot = CreateChild(e, "plugin");
-				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.FileName).data());
+				PluginRoot.SetAttribute("guid", encoding::utf8::get_bytes(i.FileName).c_str());
 				Representation.SetRoot(PluginRoot);
 				CreatePluginsConfig(i.FileName)->Export(Representation);
 			}

@@ -88,7 +88,8 @@ static bool is_alttab_window(HWND const Window)
 	if (GetWindowLongPtr(Window, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)
 		return false;
 
-	if (IsWindows8OrGreater()) {
+	if (IsWindows8OrGreater())
+	{
 		int Cloaked = 0;
 		if (S_OK == imports::instance().DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked)) && Cloaked)
 			return false;
@@ -96,6 +97,7 @@ static bool is_alttab_window(HWND const Window)
 
 	return true;
 }
+
 static BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM Param)
 {
 	const auto Info = reinterpret_cast<ProcInfo*>(Param);

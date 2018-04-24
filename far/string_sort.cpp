@@ -255,7 +255,7 @@ static int compare_natural_base(const string_view Str1, const string_view Str2, 
 		}
 	}
 
-	if (const auto Result = CompareString(LOCALE_USER_DEFAULT, Flags, Str1.raw_data(), static_cast<int>(Str1.size()), Str2.raw_data(), static_cast<int>(Str2.size())))
+	if (const auto Result = CompareString(LOCALE_USER_DEFAULT, Flags, Str1.data(), static_cast<int>(Str1.size()), Str2.data(), static_cast<int>(Str2.size())))
 		return Result - 2;
 
 	static const decltype(&string_sort::compare) FallbackComparers[2][2] =

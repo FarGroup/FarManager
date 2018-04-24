@@ -185,7 +185,7 @@ static string CreateTreeFileName(string_view const Path)
 		case DRIVE_REMOVABLE:
 			if (Global->Opt->Tree.RemovableDisk)
 			{
-				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strRemovableDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strRemovableDisk, strRootDir.c_str(), VolumeNumber, strVolumeName.c_str(), nullptr, nullptr);
 				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
@@ -193,7 +193,7 @@ static string CreateTreeFileName(string_view const Path)
 		case DRIVE_FIXED:
 			if (Global->Opt->Tree.LocalDisk)
 			{
-				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strLocalDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strLocalDisk, strRootDir.c_str(), VolumeNumber, strVolumeName.c_str(), nullptr, nullptr);
 				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
@@ -208,7 +208,7 @@ static string CreateTreeFileName(string_view const Path)
 					DeleteEndSlash(strShare);
 				}
 
-				ConvertTemplateTreeName(strTreeFileName, PathType == root_type::drive_letter ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.data(), VolumeNumber, strVolumeName.data(), strServer.data(), strShare.data());
+				ConvertTemplateTreeName(strTreeFileName, PathType == root_type::drive_letter ? Global->Opt->Tree.strNetDisk : Global->Opt->Tree.strNetPath, strRootDir.c_str(), VolumeNumber, strVolumeName.c_str(), strServer.c_str(), strShare.c_str());
 				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveNetPath;
 			}
@@ -225,7 +225,7 @@ static string CreateTreeFileName(string_view const Path)
 		case DRIVE_CDROM:
 			if (Global->Opt->Tree.CDDisk)
 			{
-				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strCDDisk, strRootDir.data(), VolumeNumber, strVolumeName.data(), nullptr, nullptr);
+				ConvertTemplateTreeName(strTreeFileName, Global->Opt->Tree.strCDDisk, strRootDir.c_str(), VolumeNumber, strVolumeName.c_str(), nullptr, nullptr);
 				// TODO: Global->Opt->ProfilePath / Global->Opt->LocalProfilePath
 				strPath = Global->Opt->Tree.strSaveLocalPath;
 			}
@@ -1787,7 +1787,7 @@ void TreeList::DelTreeName(const string_view Name)
 
 	const auto strFullName = ConvertNameToFull(Name);
 	const auto strRoot = ExtractPathRoot(strFullName);
-	const auto NamePtr = strFullName.data() + strRoot.size() - 1;
+	const auto NamePtr = strFullName.c_str() + strRoot.size() - 1;
 
 	ReadCache(strRoot);
 	TreeCache().remove(NamePtr);
@@ -1807,10 +1807,8 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 		ReadSubTree(strSrcName);
 	}
 
-	const wchar_t* SrcName = strSrcName.data();
-	SrcName += strSrcRoot.size() - 1;
-	const wchar_t* DestName = strDestName.data();
-	DestName += strDestRoot.size() - 1;
+	const auto SrcName = strSrcName.c_str() + strSrcRoot.size() - 1;
+	const auto DestName = strDestName.c_str() + strDestRoot.size() - 1;
 	ReadCache(strSrcRoot);
 
 	TreeCache().rename(SrcName, DestName);

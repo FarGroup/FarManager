@@ -98,13 +98,13 @@ class file_version: noncopyable
 public:
 	bool Read(const string& Filename)
 	{
-		const auto Size = GetFileVersionInfoSize(Filename.data(), nullptr);
+		const auto Size = GetFileVersionInfoSize(Filename.c_str(), nullptr);
 		if (!Size)
 			return false;
 
 		m_Buffer.reset(Size);
 
-		if (!GetFileVersionInfo(Filename.data(), 0, Size, m_Buffer.get()))
+		if (!GetFileVersionInfo(Filename.c_str(), 0, Size, m_Buffer.get()))
 			return false;
 
 		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"_sv);
@@ -131,7 +131,7 @@ private:
 	{
 		UINT Length;
 		T* Result;
-		return VerQueryValue(m_Buffer.get(), null_terminated(SubBlock).data(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
+		return VerQueryValue(m_Buffer.get(), null_terminated(SubBlock).c_str(), reinterpret_cast<void**>(&Result), &Length) && Length? Result : nullptr;
 	}
 
 	string m_BlockPath;
@@ -1464,8 +1464,7 @@ static void MultiByteRecode(UINT nCPin, UINT nCPout, char *Buffer, size_t Buffer
 {
 	if (Buffer && BufferSize)
 	{
-		const auto TempTable(encoding::get_chars(nCPin, { Buffer, BufferSize }));
-		encoding::get_bytes(nCPout, { TempTable.data(), BufferSize }, Buffer, BufferSize);
+		encoding::get_bytes(nCPout, encoding::get_chars(nCPin, { Buffer, BufferSize }), Buffer, BufferSize);
 	}
 };
 
@@ -1889,7 +1888,7 @@ static void WINAPI GetPathRootA(const char *Path, char *Root) noexcept
 	try
 	{
 		wchar_t Buffer[MAX_PATH];
-		const auto Size = NativeFSF.GetPathRoot(encoding::oem::get_chars(Path).data(), Buffer, std::size(Buffer));
+		const auto Size = NativeFSF.GetPathRoot(encoding::oem::get_chars(Path).c_str(), Buffer, std::size(Buffer));
 		if (Size)
 			encoding::oem::get_bytes({ Buffer, Size - 1 }, Root, std::size(Buffer));
 	}
@@ -1900,7 +1899,7 @@ static int WINAPI CopyToClipboardA(const char *Data) noexcept
 {
 	try
 	{
-		return NativeFSF.CopyToClipboard(FCT_STREAM, Data? encoding::oem::get_chars(Data).data() : nullptr);
+		return NativeFSF.CopyToClipboard(FCT_STREAM, Data? encoding::oem::get_chars(Data).c_str() : nullptr);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -1958,7 +1957,7 @@ static int WINAPI ProcessNameA(const char *Param1, char *Param2, DWORD Flags) no
 			newFlags |= PN_GENERATENAME | (Flags & 0xFF);
 		}
 
-		int ret = static_cast<int>(NativeFSF.ProcessName(strP1.data(), p.get(), size, newFlags));
+		int ret = static_cast<int>(NativeFSF.ProcessName(strP1.c_str(), p.get(), size, newFlags));
 
 		if (ret && (newFlags & PN_GENERATENAME))
 			encoding::oem::get_bytes({ p.get(), static_cast<size_t>(ret - 1) }, Param2, size);
@@ -2010,7 +2009,7 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
 	try
 	{
 		wchar_t D[oldfar::NM]{};
-		const auto Size = NativeFSF.MkTemp(D, std::size(D), encoding::oem::get_chars(Prefix).data());
+		const auto Size = NativeFSF.MkTemp(D, std::size(D), encoding::oem::get_chars(Prefix).c_str());
 		if (Size)
 			encoding::oem::get_bytes({ D, Size - 1 }, Dest, std::size(D));
 		return Dest;
@@ -2041,7 +2040,7 @@ static int WINAPI FarMkLinkA(const char *Src, const char *Dest, DWORD OldFlags) 
 		if (OldFlags&oldfar::FLINK_DONOTUPDATEPANEL)
 			Flags |= MLF_DONOTUPDATEPANEL;
 
-		return NativeFSF.MkLink(encoding::oem::get_chars(Src).data(), encoding::oem::get_chars(Dest).data(), Type, Flags);
+		return NativeFSF.MkLink(encoding::oem::get_chars(Src).c_str(), encoding::oem::get_chars(Dest).data(), Type, Flags);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2051,7 +2050,7 @@ static int WINAPI GetNumberOfLinksA(const char *Name) noexcept
 {
 	try
 	{
-		return static_cast<int>(NativeFSF.GetNumberOfLinks(encoding::oem::get_chars(Name).data()));
+		return static_cast<int>(NativeFSF.GetNumberOfLinks(encoding::oem::get_chars(Name).c_str()));
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return 0;
@@ -2079,13 +2078,13 @@ static int WINAPI FarGetReparsePointInfoA(const char *Src, char *Dest, int DestS
 	{
 		const auto strSrc = encoding::oem::get_chars(Src);
 		wchar_t Buffer[MAX_PATH];
-		auto Result = NativeFSF.GetReparsePointInfo(strSrc.data(), Buffer, std::size(Buffer));
+		auto Result = NativeFSF.GetReparsePointInfo(strSrc.c_str(), Buffer, std::size(Buffer));
 		if (Result && DestSize && Dest)
 		{
 			if (Result > MAX_PATH)
 			{
 				std::vector<wchar_t> Tmp(DestSize);
-				Result = NativeFSF.GetReparsePointInfo(strSrc.data(), Tmp.data(), Tmp.size());
+				Result = NativeFSF.GetReparsePointInfo(strSrc.c_str(), Tmp.data(), Tmp.size());
 				encoding::oem::get_bytes({ Tmp.data(), Result - 1 }, Dest, DestSize);
 			}
 			else
@@ -2139,7 +2138,7 @@ static void WINAPI FarRecursiveSearchA(const char *InitDir, const char *Mask, ol
 		auto NewFlags = FRS_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, FlagsMap);
 
-		NativeFSF.FarRecursiveSearch(encoding::oem::get_chars(InitDir).data(), encoding::oem::get_chars(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, static_cast<void *>(&CallbackParam));
+		NativeFSF.FarRecursiveSearch(encoding::oem::get_chars(InitDir).c_str(), encoding::oem::get_chars(Mask).data(), FarRecursiveSearchA_Callback, NewFlags, static_cast<void *>(&CallbackParam));
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -2161,7 +2160,7 @@ static int WINAPI FarViewerA(const char *FileName, const char *Title, int X1, in
 {
 	try
 	{
-		return NativeInfo.Viewer(encoding::oem::get_chars(FileName).data(), encoding::oem::get_chars(Title).data(), X1, Y1, X2, Y2, Flags, CP_DEFAULT);
+		return NativeInfo.Viewer(encoding::oem::get_chars(FileName).c_str(), encoding::oem::get_chars(Title).c_str(), X1, Y1, X2, Y2, Flags, CP_DEFAULT);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2171,7 +2170,7 @@ static int WINAPI FarEditorA(const char *FileName, const char *Title, int X1, in
 {
 	try
 	{
-		return NativeInfo.Editor(encoding::oem::get_chars(FileName).data(), encoding::oem::get_chars(Title).data(), X1, Y1, X2, Y2, Flags, StartLine, StartChar, CP_DEFAULT);
+		return NativeInfo.Editor(encoding::oem::get_chars(FileName).c_str(), encoding::oem::get_chars(Title).c_str(), X1, Y1, X2, Y2, Flags, StartLine, StartChar, CP_DEFAULT);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return EEC_OPEN_ERROR;
@@ -2188,7 +2187,7 @@ static void WINAPI FarTextA(int X, int Y, int ConColor, const char *Str) noexcep
 	try
 	{
 		const auto Color = colors::ConsoleColorToFarColor(ConColor);
-		return NativeInfo.Text(X, Y, &Color, Str? encoding::oem::get_chars(Str).data() : nullptr);
+		return NativeInfo.Text(X, Y, &Color, Str? encoding::oem::get_chars(Str).c_str() : nullptr);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -2197,7 +2196,7 @@ static BOOL WINAPI FarShowHelpA(const char *ModuleName, const char *HelpTopic, D
 {
 	try
 	{
-		return NativeInfo.ShowHelp(encoding::oem::get_chars(ModuleName).data(), (HelpTopic ? encoding::oem::get_chars(HelpTopic).data() : nullptr), Flags);
+		return NativeInfo.ShowHelp(encoding::oem::get_chars(ModuleName).c_str(), (HelpTopic ? encoding::oem::get_chars(HelpTopic).c_str() : nullptr), Flags);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 	return FALSE;
@@ -2223,12 +2222,12 @@ static int WINAPI FarInputBoxA(const char *Title, const char *Prompt, const char
 		wchar_t_ptr_n<256> Buffer(DestLength);
 
 		int ret = NativeInfo.InputBox(&FarGuid, &FarGuid,
-			Title? encoding::oem::get_chars(Title).data() : nullptr,
-			Prompt? encoding::oem::get_chars(Prompt).data() : nullptr,
-			HistoryName? encoding::oem::get_chars(HistoryName).data() : nullptr,
-			SrcText? encoding::oem::get_chars(SrcText).data() : nullptr,
+			Title? encoding::oem::get_chars(Title).c_str() : nullptr,
+			Prompt? encoding::oem::get_chars(Prompt).c_str() : nullptr,
+			HistoryName? encoding::oem::get_chars(HistoryName).c_str() : nullptr,
+			SrcText? encoding::oem::get_chars(SrcText).c_str() : nullptr,
 			Buffer.get(), Buffer.size(),
-			HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr,
+			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
 			NewFlags);
 
 		if (ret && DestText)
@@ -2294,8 +2293,8 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 		}
 
 		return NativeInfo.Message(GetPluginGuid(PluginNumber), &FarGuid, NewFlags,
-			HelpTopic ? encoding::oem::get_chars(HelpTopic).data() : nullptr,
-			AnsiItems.empty() ? reinterpret_cast<const wchar_t* const *>(AllInOneAnsiItem.get()) : reinterpret_cast<const wchar_t* const *>(AnsiItems.data()),
+			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
+			AnsiItems.empty()? reinterpret_cast<const wchar_t* const *>(AllInOneAnsiItem.get()) : reinterpret_cast<const wchar_t* const *>(AnsiItems.data()),
 			ItemsNumber, ButtonsNumber);
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -2429,9 +2428,9 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 		intptr_t NewBreakCode;
 
 		int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber), &FarGuid, X, Y, MaxHeight, NewFlags,
-			Title? encoding::oem::get_chars(Title).data() : nullptr,
-			Bottom? encoding::oem::get_chars(Bottom).data() : nullptr,
-			HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr,
+			Title? encoding::oem::get_chars(Title).c_str() : nullptr,
+			Bottom? encoding::oem::get_chars(Bottom).c_str() : nullptr,
+			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
 			BreakKeys? NewBreakKeys.data() : nullptr,
 			&NewBreakCode, mi.data(), ItemsNumber);
 
@@ -3213,7 +3212,7 @@ static int WINAPI FarDialogExA(intptr_t PluginNumber, int X1, int Y1, int X2, in
 			DlgFlags|=FDLG_NONMODAL;
 
 		int ret = -1;
-		HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? encoding::oem::get_chars(HelpTopic).data() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
+		HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr), di.data(), di.size(), 0, DlgFlags, DlgProcA, Param);
 		DialogData NewDialogData;
 		NewDialogData.DlgProc=DlgProc;
 		NewDialogData.hDlg=hDlg;
@@ -3469,10 +3468,9 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				if (!Param)
 					return FALSE;
 
-				string Dir(encoding::oem::get_chars(static_cast<const char*>(Param)));
-				FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir.data(),nullptr,FarGuid,nullptr};
-				int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY,0,&dirInfo));
-				return ret;
+				const auto Dir = encoding::oem::get_chars(static_cast<const char*>(Param));
+				FarPanelDirectory dirInfo = { sizeof(FarPanelDirectory), Dir.c_str(), nullptr, FarGuid, nullptr };
+				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY, 0, &dirInfo));
 			}
 
 			case oldfar::FCTL_SETANOTHERSORTMODE:
@@ -3637,10 +3635,10 @@ static int WINAPI FarGetDirListA(const char *Dir, oldfar::PluginPanelItem **pPan
 	{
 		return GetDirListGeneric(*pPanelItem, *pItemsNumber, [Dir](PluginPanelItem*& Items, size_t& Size, size_t& PathOffset)
 		{
-			string strDir = encoding::oem::get_chars(Dir);
+			auto strDir = encoding::oem::get_chars(Dir);
 			DeleteEndSlash(strDir);
 			PathOffset = ExtractFilePath(strDir).size() + 1;
-			return NativeInfo.GetDirList(strDir.data(), &Items, &Size);
+			return NativeInfo.GetDirList(strDir.c_str(), &Items, &Size);
 		});
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -3654,7 +3652,7 @@ static int WINAPI FarGetPluginDirListA(intptr_t PluginNumber, HANDLE hPlugin, co
 		return GetDirListGeneric(*pPanelItem, *pItemsNumber, [&](PluginPanelItem*& Items, size_t& Size, size_t& PathOffset)
 		{
 			PathOffset = 0;
-			return NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, encoding::oem::get_chars(Dir).data(), &Items, &Size);
+			return NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, encoding::oem::get_chars(Dir).c_str(), &Items, &Size);
 		});
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
@@ -3734,7 +3732,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 			case oldfar::ACTL_GETARRAYCOLOR:
 				{
-					size_t PaletteSize = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);
+					const auto PaletteSize = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, nullptr);
 					if(Param)
 					{
 						std::vector<FarColor> Color(PaletteSize);
@@ -3855,9 +3853,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				}
 				append(strSequence, L"\")");
 
-				intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(strSequence.data(), Flags);
-
-				return ret;
+				return Global->CtrlObject->Macro.PostNewMacro(strSequence.c_str(), Flags);
 			}
 			case oldfar::ACTL_GETSHORTWINDOWINFO:
 			case oldfar::ACTL_GETWINDOWINFO:
@@ -4157,12 +4153,12 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					if (*oldsf->FileName)
 					{
 						FileName = encoding::oem::get_chars(oldsf->FileName);
-						newsf.FileName = FileName.data();
+						newsf.FileName = FileName.c_str();
 					}
 					if (oldsf->FileEOL)
 					{
 						EOL = encoding::oem::get_chars(oldsf->FileEOL);
-						newsf.FileEOL = EOL.data();
+						newsf.FileEOL = EOL.c_str();
 					}
 					newsf.CodePage = CP_DEFAULT;
 				}
@@ -4692,7 +4688,7 @@ static int WINAPI GetFileOwnerA(const char *Computer, const char *Name, char *Ow
 	try
 	{
 		wchar_t wOwner[MAX_PATH];
-		const auto Ret = NativeFSF.GetFileOwner(encoding::oem::get_chars(Computer).data(), encoding::oem::get_chars(Name).data(), wOwner, std::size(wOwner));
+		const auto Ret = NativeFSF.GetFileOwner(encoding::oem::get_chars(Computer).c_str(), encoding::oem::get_chars(Name).c_str(), wOwner, std::size(wOwner));
 		if (Ret)
 		{
 			encoding::oem::get_bytes({ wOwner, Ret - 1 }, Owner, oldfar::NM);
@@ -4957,8 +4953,8 @@ private:
 			// скорректируем адреса и плагино-зависимые поля
 			InfoCopy.ModuleNumber = reinterpret_cast<intptr_t>(this);
 			InfoCopy.FSF = &FsfCopy;
-			encoding::oem::get_bytes(GetModuleName().data(), InfoCopy.ModuleName);
-			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().data();
+			encoding::oem::get_bytes(GetModuleName().c_str(), InfoCopy.ModuleName);
+			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().c_str();
 
 			if (Global->strRegUser.empty())
 				os::env::del(L"FARUSER"_sv);
@@ -5753,7 +5749,7 @@ private:
 
 		const char* GetMsgA(int Id) const
 		{
-			return m_Data->validate(Id)? static_cast<const ansi_language_data&>(*m_Data).ansi_at(Id).data() : "";
+			return m_Data->validate(Id)? static_cast<const ansi_language_data&>(*m_Data).ansi_at(Id).c_str() : "";
 		}
 
 	private:

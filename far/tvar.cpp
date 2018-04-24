@@ -56,7 +56,7 @@ static TypeString checkTypeString(const string& TestStr)
 
 	if (!TestStr.empty())
 	{
-		const wchar_t *ptrTestStr=TestStr.data();
+		auto ptrTestStr = TestStr.c_str();
 		wchar_t ch, ch2;
 		bool isNum     = true;
 //		bool isDec     = false;
@@ -110,7 +110,7 @@ static TypeString checkTypeString(const string& TestStr)
 				case L'-':
 				case L'+':
 
-					if (ptrTestStr == TestStr.data() + 1)
+					if (ptrTestStr == TestStr.c_str() + 1)
 						isSign=true;
 					else if (isSign)
 					{
@@ -502,7 +502,7 @@ bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 				{
 					switch (checkTypeString(b.asString()))
 					{
-						case tsStr:   r = fcmp(vtString,a.asString().data(),b.str.data()); break;
+						case tsStr:   r = fcmp(vtString,a.asString().c_str(),b.str.data()); break;
 						case tsInt:   bi=b.asInteger(); r = fcmp(vtInteger,&a.inum,&bi);  break;
 						case tsFloat: bd=b.asDouble(); r = fcmp(vtDouble,&a.inum,&bd);   break;
 					}
@@ -523,7 +523,7 @@ bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 				{
 					switch (checkTypeString(b.str))
 					{
-						case tsStr:   r = fcmp(vtString,a.asString().data(),b.str.data()); break;
+						case tsStr:   r = fcmp(vtString,a.asString().c_str(),b.str.data()); break;
 						case tsInt:
 						case tsFloat: bd=b.asDouble(); r = fcmp(vtDouble,&a.inum,&bd);   break;
 					}
@@ -535,7 +535,7 @@ bool CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp)
 			break;
 		case vtString:
 		{
-			r = fcmp(vtString,a.asString().data(),b.asString().data());
+			r = fcmp(vtString,a.asString().c_str(),b.asString().data());
 			break;
 		}
 	}

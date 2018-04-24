@@ -47,7 +47,7 @@ namespace path
 		inline void append_one(string& Str, wchar_t const Arg, size_t const, size_t const Size) { Str.append(&Arg, Size); }
 		inline void append_one(string& Str, const wchar_t* const Arg, size_t const Offset, size_t const Size) { Str.append(Arg + Offset, Size); }
 		inline void append_one(string& Str, const string& Arg, size_t const Offset, size_t const Size) { Str.append(Arg, Offset, Size); }
-		inline void append_one(string& Str, string_view const Arg, size_t const Offset, size_t const Size) { Str.append(Arg.raw_data() + Offset, Size); }
+		inline void append_one(string& Str, string_view const Arg, size_t const Offset, size_t const Size) { Str.append(Arg.data() + Offset, Size); }
 
 		inline void append_impl(string&, size_t, size_t, const size_t*, const size_t*) {}
 

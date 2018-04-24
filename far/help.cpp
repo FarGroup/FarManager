@@ -460,7 +460,7 @@ bool Help::ReadHelp(const string& Mask)
 				strReadStr[PosTab] = L' ';
 
 				if (CtrlTabSize > 1) // заменим табулятор по всем правилам
-					strReadStr.insert(PosTab, strTabSpace.data(), CtrlTabSize - (PosTab % CtrlTabSize));
+					strReadStr.insert(PosTab, strTabSpace.c_str(), CtrlTabSize - (PosTab % CtrlTabSize));
 			}
 		}
 
@@ -532,7 +532,7 @@ bool Help::ReadHelp(const string& Mask)
 			{
 				size_t n1 = StackData->strHelpTopic.size();
 				size_t n2 = strReadStr.size();
-				if (1 + n1 + 1 < n2 && starts_with_icase(strReadStr.data() + 1, StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
+				if (1 + n1 + 1 < n2 && starts_with_icase(string_view(strReadStr).substr(1), StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
 				{
 					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1, string::npos); // gcc 7.3 bug, npos required
 					continue;
@@ -582,7 +582,7 @@ m1:
 
 				if ((!strReadStr.empty() && strReadStr[0]==L'$') && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@'))
 				{
-					AddLine(strReadStr.data()+1);
+					AddLine(string_view(strReadStr).substr(1));
 					FixCount++;
 				}
 				else
@@ -1035,7 +1035,7 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	if (y < 0 || y >= static_cast<int>(HelpList.size()))
 		return false;
 
-	const wchar_t *Str = HelpList[y].HelpStr.data();
+	auto Str = HelpList[y].HelpStr.c_str();
 
 	if (!*Str)
 		return false;
@@ -1397,8 +1397,8 @@ bool Help::ProcessKey(const Manager::Key& Key)
 				//int RetCode = GetString(msg(lng::MHelpSearchTitle),msg(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
 				int RetCode = GetSearchReplaceString(
 					false,
-					msg(lng::MHelpSearchTitle).data(),
-					msg(lng::MHelpSearchingFor).data(),
+					msg(lng::MHelpSearchTitle).c_str(),
+					msg(lng::MHelpSearchingFor).c_str(),
 					strLastSearchStr0,
 					strTempStr,
 					L"HelpSearch",
@@ -1506,7 +1506,7 @@ bool Help::JumpTopic()
 	// вычислить абсолютный путь, то сделаем это
 	if (StackData->strSelTopic.front()==HelpBeginLink
 	        && (pos = StackData->strSelTopic.find(HelpEndLink,2)) != string::npos
-	        && !IsAbsolutePath(StackData->strSelTopic.data()+1)
+	        && !IsAbsolutePath(string_view(StackData->strSelTopic).substr(1))
 	        && !StackData->strHelpPath.empty())
 	{
 		strNewTopic = StackData->strSelTopic.substr(1, pos);
@@ -1517,7 +1517,7 @@ bool Help::JumpTopic()
 		const auto EndSlash = IsSlash(strFullPath.back());
 		DeleteEndSlash(strFullPath);
 		strNewTopic = ConvertNameToFull(strFullPath);
-		strFullPath = format(EndSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic, wcschr(StackData->strSelTopic.data() + 2, HelpEndLink) + 1);
+		strFullPath = format(EndSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic, wcschr(StackData->strSelTopic.c_str() + 2, HelpEndLink) + 1);
 		StackData->strSelTopic = strFullPath;
 	}
 
@@ -1596,7 +1596,7 @@ bool Help::JumpTopic()
 	        (!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))
 	   )
 	{
-		if (!(StackData->Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic.data(),HelpEndLink))
+		if (!(StackData->Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic.c_str(), HelpEndLink))
 		{
 			StackData->strHelpMask.clear();
 		}
@@ -1919,7 +1919,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		const auto strSlash = InsertRegexpQuote(strLastSearchStr);
 
 		// Q: что важнее: опция диалога или опция RegExp`а?
-		if (!re.Compile(strSlash.data(), OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
+		if (!re.Compile(strSlash.c_str(), OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
 		{
 			ReCompileErrorMessage(re, strSlash);
 			return; //BUGBUG
@@ -2010,7 +2010,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	switch (TypeIndex)
 	{
 		case HIDX_PLUGINS:
-			PtrTitle = msg(lng::MPluginsHelpTitle).data();
+			PtrTitle = msg(lng::MPluginsHelpTitle).c_str();
 			ContentsName=L"PluginContents";
 			break;
 		default:

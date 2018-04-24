@@ -200,7 +200,7 @@ bool FileFilter::FilterEdit()
 		wchar_t h = L'1';
 		for (const auto& i: Extensions)
 		{
-			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.data(), msg(lng::MPanelFileType).data()));
+			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first.c_str(), msg(lng::MPanelFileType).c_str()));
 			ListItem.SetCheck(i.second);
 			ListItem.UserData = i.first;
 			FilterList->AddItem(ListItem);

@@ -1221,7 +1221,7 @@ int HiFindRealPos(const string& str, int Pos, bool ShowAmp)
 
 	int VisPos = 0;
 
-	const wchar_t* Str = str.data();
+	auto Str = str.c_str();
 
 	while (VisPos < Pos && *Str)
 	{

@@ -37,8 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace ConsoleTitle
 {
-	void SetFarTitle(const string& Title, bool Flush = false);
-	void SetUserTitle(const string& Title);
+	void SetFarTitle(string_view Title, bool Flush = false);
+	void SetUserTitle(string_view Title);
 	const string& GetTitle();
 }
 

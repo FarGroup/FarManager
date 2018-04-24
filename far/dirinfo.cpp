@@ -142,7 +142,7 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, con
 
 	DWORD SectorsPerCluster=0,BytesPerSector=0,FreeClusters=0,Clusters=0;
 
-	if (GetDiskFreeSpace(GetPathRoot(strFullDirName).data(),&SectorsPerCluster,&BytesPerSector,&FreeClusters,&Clusters))
+	if (GetDiskFreeSpace(GetPathRoot(strFullDirName).c_str(), &SectorsPerCluster, &BytesPerSector, &FreeClusters, &Clusters))
 		Data.ClusterSize=SectorsPerCluster*BytesPerSector;
 
 	Data.DirCount=Data.FileCount=0;

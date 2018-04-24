@@ -250,11 +250,11 @@ namespace os::fs
 		const auto NamePart = PointToName(Name);
 		Handle->Extended = true;
 
-		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).data(), true);
+		bool QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).c_str(), true);
 		if (QueryResult) // try next read immediately to avoid M#2128 bug
 		{
 			block_ptr<BYTE> Buffer2(Handle->BufferBase.size());
-			if (Handle->Object.NtQueryDirectoryFile(Buffer2.get(), Buffer2.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).data(), false))
+			if (Handle->Object.NtQueryDirectoryFile(Buffer2.get(), Buffer2.size(), FileIdBothDirectoryInformation, false, null_terminated(NamePart).c_str(), false))
 			{
 				Handle->Buffer2 = std::move(Buffer2);
 			}
@@ -275,7 +275,7 @@ namespace os::fs
 			Handle->Object.Close();
 			if (OpenDirectory())
 			{
-				QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, null_terminated(NamePart).data(), true);
+				QueryResult = Handle->Object.NtQueryDirectoryFile(Handle->BufferBase.get(), Handle->BufferBase.size(), FileBothDirectoryInformation, false, null_terminated(NamePart).c_str(), true);
 			}
 		}
 
@@ -391,7 +391,7 @@ namespace os::fs
 		os::detail::ApiDynamicStringReceiver(LinkName, [&](wchar_t* Buffer, size_t Size)
 		{
 			auto BufferSize = static_cast<DWORD>(Size);
-			Handle.reset(imports::instance().FindFirstFileNameW(NtFileName.data(), Flags, &BufferSize, Buffer));
+			Handle.reset(imports::instance().FindFirstFileNameW(NtFileName.c_str(), Flags, &BufferSize, Buffer));
 			if (Handle)
 				// FindFirstFileNameW always includes terminating \0 in the returned size
 				return BufferSize - 1;
@@ -445,7 +445,7 @@ namespace os::fs
 	{
 		if (imports::instance().FindFirstStreamW && imports::instance().FindNextStreamW)
 		{
-			os_find_file_handle_impl Handle(imports::instance().FindFirstStreamW(NTPath(FileName).data(), InfoLevel, FindStreamData, Flags));
+			os_find_file_handle_impl Handle(imports::instance().FindFirstStreamW(NTPath(FileName).c_str(), InfoLevel, FindStreamData, Flags));
 			return find_file_handle(Handle? std::make_unique<os_find_file_handle_impl>(Handle.release()).release() : nullptr);
 		}
 
@@ -861,7 +861,7 @@ namespace os::fs
 			if (!starts_with(NtPath, OldRoot))
 				return false;
 
-			FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.raw_data(), NewRoot.size());
+			FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot.data(), NewRoot.size());
 			return true;
 		};
 
@@ -1289,7 +1289,7 @@ namespace os::fs
 
 	bool SetProcessRealCurrentDirectory(const string& Directory)
 	{
-		return ::SetCurrentDirectory(Directory.data()) != FALSE;
+		return ::SetCurrentDirectory(Directory.c_str()) != FALSE;
 	}
 
 	void InitCurrentDirectory()
@@ -1367,7 +1367,7 @@ namespace os::fs
 
 		const auto& Create = [&](const string& Template)
 		{
-			if (low::create_directory(Template.data(), NtNewDirectory.data(), SecurityAttributes))
+			if (low::create_directory(Template.c_str(), NtNewDirectory.c_str(), SecurityAttributes))
 				return true;
 
 			if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1387,7 +1387,7 @@ namespace os::fs
 	bool remove_directory(const string_view DirName)
 	{
 		NTPath strNtName(DirName);
-		if (low::remove_directory(strNtName.data()))
+		if (low::remove_directory(strNtName.c_str()))
 			return true;
 
 		const auto IsElevationRequired = ElevationRequired(ELEVATION_MODIFY_REQUEST);
@@ -1422,7 +1422,7 @@ namespace os::fs
 		if (ForceElevation)
 			return create_elevated();
 
-		if (auto Handle = handle(low::create_file(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
+		if (auto Handle = handle(low::create_file(strObject.c_str(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
 			return Handle;
 
 		const auto LastError = GetLastError();
@@ -1436,7 +1436,7 @@ namespace os::fs
 		if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_PATH_NOT_FOUND)
 		{
 			FlagsAndAttributes &= ~FILE_FLAG_POSIX_SEMANTICS;
-			if (auto Handle = handle(low::create_file(strObject.data(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
+			if (auto Handle = handle(low::create_file(strObject.c_str(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
 				return Handle;
 		}
 
@@ -1450,7 +1450,7 @@ namespace os::fs
 	{
 		NTPath strNtName(FileName);
 
-		if (low::delete_file(strNtName.data()))
+		if (low::delete_file(strNtName.c_str()))
 			return true;
 
 		const auto IsElevationRequired = ElevationRequired(ELEVATION_MODIFY_REQUEST);
@@ -1476,7 +1476,7 @@ namespace os::fs
 			append(strTo, PointToName(strFrom));
 		}
 
-		if (low::copy_file(strFrom.data(), strTo.data(), ProgressRoutine, Data, Cancel, CopyFlags))
+		if (low::copy_file(strFrom.c_str(), strTo.c_str(), ProgressRoutine, Data, Cancel, CopyFlags))
 			return true;
 
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
@@ -1505,7 +1505,7 @@ namespace os::fs
 			append(strTo, PointToName(strFrom));
 		}
 
-		if (low::move_file(strFrom.data(), strTo.data(), dwFlags))
+		if (low::move_file(strFrom.c_str(), strTo.c_str(), dwFlags))
 			return true;
 
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
@@ -1533,7 +1533,7 @@ namespace os::fs
 	{
 		NTPath NtName(FileName);
 
-		const auto Result = low::get_file_attributes(NtName.data());
+		const auto Result = low::get_file_attributes(NtName.c_str());
 		if (Result != INVALID_FILE_ATTRIBUTES)
 			return Result;
 
@@ -1547,7 +1547,7 @@ namespace os::fs
 	{
 		NTPath NtName(FileName);
 
-		if (low::set_file_attributes(NtName.data(), Attributes))
+		if (low::set_file_attributes(NtName.c_str(), Attributes))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1560,7 +1560,7 @@ namespace os::fs
 	{
 		return os::detail::ApiDynamicStringReceiver(LongPath, [&](wchar_t* Buffer, size_t Size)
 		{
-			return ::GetLongPathName(ShortPath.data(), Buffer, static_cast<DWORD>(Size));
+			return ::GetLongPathName(ShortPath.c_str(), Buffer, static_cast<DWORD>(Size));
 		});
 	}
 
@@ -1568,7 +1568,7 @@ namespace os::fs
 	{
 		return os::detail::ApiDynamicStringReceiver(ShortPath, [&](wchar_t* Buffer, size_t Size)
 		{
-			return ::GetShortPathName(LongPath.data(), Buffer, static_cast<DWORD>(Size));
+			return ::GetShortPathName(LongPath.c_str(), Buffer, static_cast<DWORD>(Size));
 		});
 	}
 
@@ -1584,7 +1584,7 @@ namespace os::fs
 			FileSystemNameBuffer[0] = L'\0';
 		}
 
-		if (!::GetVolumeInformation(RootPathName.data(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer)), VolumeSerialNumber,
+		if (!::GetVolumeInformation(RootPathName.c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer)), VolumeSerialNumber,
 			MaximumComponentLength, FileSystemFlags, FileSystemNameBuffer, static_cast<DWORD>(std::size(FileSystemNameBuffer))))
 			return false;
 
@@ -1602,7 +1602,7 @@ namespace os::fs
 		WCHAR VolumeNameBuffer[50];
 		NTPath strVolumeMountPoint(VolumeMountPoint);
 		AddEndSlash(strVolumeMountPoint);
-		if (!::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.data(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
+		if (!::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
 			return false;
 
 		VolumeName = VolumeNameBuffer;
@@ -1614,7 +1614,7 @@ namespace os::fs
 		return os::detail::ApiDynamicStringReceiver(VolumePathNames, [&](wchar_t* Buffer, size_t Size)
 		{
 			DWORD ReturnLength = 0;
-			return imports::instance().GetVolumePathNamesForVolumeNameW(VolumeName.data(), Buffer, static_cast<DWORD>(Size), &ReturnLength) || !ReturnLength?
+			return imports::instance().GetVolumePathNamesForVolumeNameW(VolumeName.c_str(), Buffer, static_cast<DWORD>(Size), &ReturnLength) || !ReturnLength?
 				ReturnLength :
 				ReturnLength + 1;
 		});
@@ -1622,7 +1622,7 @@ namespace os::fs
 
 	bool QueryDosDevice(const string& DeviceName, string &Path)
 	{
-		const auto DeviceNamePtr = EmptyToNull(DeviceName.data());
+		const auto DeviceNamePtr = EmptyToNull(DeviceName.c_str());
 		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Path, [&](wchar_t* Buffer, size_t Size)
 		{
 			const auto ReturnedSize = ::QueryDosDevice(DeviceNamePtr, Buffer, static_cast<DWORD>(Size));
@@ -1635,7 +1635,7 @@ namespace os::fs
 	{
 		return os::detail::ApiDynamicStringReceiver(strDest, [&](wchar_t* Buffer, size_t Size)
 		{
-			return ::SearchPath(Path, null_terminated(FileName).data(), Extension, static_cast<DWORD>(Size), Buffer, nullptr);
+			return ::SearchPath(Path, null_terminated(FileName).c_str(), Extension, static_cast<DWORD>(Size), Buffer, nullptr);
 		});
 	}
 
@@ -1682,7 +1682,7 @@ namespace os::fs
 		os::detail::ApiDynamicReceiver(Result, [&](SECURITY_DESCRIPTOR* Buffer, size_t Size)
 		{
 			DWORD LengthNeeded = 0;
-			if (!::GetFileSecurity(NtObject.data(), RequestedInformation, Buffer, static_cast<DWORD>(Size), &LengthNeeded))
+			if (!::GetFileSecurity(NtObject.c_str(), RequestedInformation, Buffer, static_cast<DWORD>(Size), &LengthNeeded))
 				return static_cast<size_t>(LengthNeeded);
 			return Size;
 		},
@@ -1698,7 +1698,7 @@ namespace os::fs
 
 	bool set_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation, const security_descriptor& SecurityDescriptor)
 	{
-		return ::SetFileSecurity(NTPath(Object).data(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
+		return ::SetFileSecurity(NTPath(Object).c_str(), RequestedInformation, SecurityDescriptor.get()) != FALSE;
 	}
 
 	bool get_disk_size(const string_view Path, unsigned long long* const TotalSize, unsigned long long* const TotalFree, unsigned long long* const UserFree)
@@ -1706,11 +1706,11 @@ namespace os::fs
 		NTPath strPath(Path);
 		AddEndSlash(strPath);
 
-		if (low::get_disk_free_space(strPath.data(), UserFree, TotalSize, TotalFree))
+		if (low::get_disk_free_space(strPath.c_str(), UserFree, TotalSize, TotalFree))
 			return true;
 
 		if (ElevationRequired(ELEVATION_READ_REQUEST))
-			return elevation::instance().get_disk_free_space(strPath.data(), UserFree, TotalSize, TotalFree);
+			return elevation::instance().get_disk_free_space(strPath.c_str(), UserFree, TotalSize, TotalFree);
 
 		return false;
 	}
@@ -1762,7 +1762,7 @@ namespace os::fs
 
 	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter)
 	{
-		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).data(), WatchSubtree, NotifyFilter));
+		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).c_str(), WatchSubtree, NotifyFilter));
 	}
 
 	bool IsDiskInDrive(const string& Root)
@@ -1780,7 +1780,7 @@ namespace os::fs
 	{
 		const auto& Create = [](const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes)
 		{
-			if (low::create_hard_link(Object.data(), Target.data(), SecurityAttributes))
+			if (low::create_hard_link(Object.c_str(), Target.c_str(), SecurityAttributes))
 				return true;
 
 			if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1816,7 +1816,7 @@ namespace os::fs
 	{
 		NTPath NtName(FileName);
 
-		if (low::set_file_encryption(NtName.data(), Encrypt))
+		if (low::set_file_encryption(NtName.c_str(), Encrypt))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // Encryption implemented in adv32, NtStatus is not affected
@@ -1829,7 +1829,7 @@ namespace os::fs
 	{
 		NTPath NtObject(Object);
 
-		if (low::detach_virtual_disk(NtObject.data(), VirtualStorageType))
+		if (low::detach_virtual_disk(NtObject.c_str(), VirtualStorageType))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST))
@@ -1868,6 +1868,6 @@ namespace os::fs
 			return 0;
 		}();
 
-		return imports::instance().CreateSymbolicLinkW(Object.data(), Target.data(), dwFlags | unpriv_flag) != FALSE;
+		return imports::instance().CreateSymbolicLinkW(Object.c_str(), Target.c_str(), dwFlags | unpriv_flag) != FALSE;
 	}
 }

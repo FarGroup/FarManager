@@ -237,8 +237,8 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 					auto& item = ListBox->at(ii);
 					listItems[ii].Flags=item.Flags;
 					listItems[ii].Text=text;
-					std::copy_n(item.Name.data(), item.Name.size() + 1, text);
-					text+=item.Name.size()+1;
+					text = std::copy(ALL_CONST_RANGE(item.Name), text);
+					*text++ = L'\0';
 					listItems[ii].Reserved[0]=listItems[ii].Reserved[1]=0;
 				}
 				list->StructSize=sizeof(*list);
@@ -248,13 +248,14 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			}
 			wchar_t* p=(wchar_t*)((char*)(Item->Item)+offsetStrings);
 			Item->Item->Data = p;
-			std::copy_n(str.data(), sz + 1, p);
-			p+=sz+1;
+			p = std::copy_n(str.data(), sz, p);
+			*p++ = L'\0';
 			Item->Item->History = p;
-			std::copy_n(ItemEx->strHistory.data(), ItemEx->strHistory.size() + 1, p);
-			p+=ItemEx->strHistory.size()+1;
+			p = std::copy(ALL_CONST_RANGE(ItemEx->strHistory), p);
+			*p++ = L'\0';
 			Item->Item->Mask = p;
-			std::copy_n(ItemEx->strMask.data(), ItemEx->strMask.size() + 1, p);
+			p = std::copy(ALL_CONST_RANGE(ItemEx->strMask), p);
+			*p++ = L'\0';
 		}
 	}
 	return size;
@@ -1773,8 +1774,8 @@ void Dialog::ShowDialog(size_t ID)
 						GotoXY(m_X1+((Items[I].Flags&DIF_SEPARATORUSER)?XS:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),m_Y1+Y); //????
 						ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?CX2-CX1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
 						                  (Items[I].Flags&DIF_SEPARATORUSER)?12:(Items[I].Flags&DIF_SEPARATOR2?3:1),
-					    	              Items[I].strMask.data()
-					        	         );
+					                       Items[I].strMask.c_str()
+					                     );
 					}
 
 					GotoXY(m_X1+X,m_Y1+Y);
@@ -1885,7 +1886,7 @@ void Dialog::ShowDialog(size_t ID)
 					GotoXY(m_X1+X,m_Y1+ ((Items[I].Flags&DIF_SEPARATORUSER)?YS:(!DialogMode.Check(DMODE_SMALLDIALOG)?1:0)));  //????
 					ShowUserSeparator((Items[I].Flags&DIF_SEPARATORUSER)?CY2-CY1+1:RealHeight-(!DialogMode.Check(DMODE_SMALLDIALOG)?2:0),
 					                  (Items[I].Flags&DIF_SEPARATORUSER)?13:(Items[I].Flags&DIF_SEPARATOR2?7:5),
-					                  Items[I].strMask.data()
+					                  Items[I].strMask.c_str()
 					                 );
 				}
 
@@ -2564,7 +2565,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
-			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.data())))), strStr))
+			if (Help::MkTopic(PluginOwner, NullToEmpty((const wchar_t*)DlgProc(DN_HELP,m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic.c_str())))), strStr))
 			{
 				Help::create(strStr);
 			}
@@ -4777,8 +4778,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			auto Len = strTitleDialog.size();
 			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
 			{
-				const auto Ptr = strTitleDialog.data();
-				//Len = wcslen(Ptr);
 				if (!did->PtrLength)
 					did->PtrLength = Len;
 				else if (Len > did->PtrLength)
@@ -4786,7 +4785,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (did->PtrData)
 				{
-					std::copy_n(Ptr, Len, did->PtrData);
+					std::copy_n(strTitleDialog.data(), Len, did->PtrData);
 					did->PtrData[Len] = L'\0';
 				}
 			}
@@ -4815,10 +4814,10 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 	const auto CurItem=&Items[Param1];
 	const auto Type = CurItem->Type;
-	const auto* Ptr= CurItem->strData.data();
+	const auto* Ptr= CurItem->strData.c_str();
 
 	if (IsEdit(Type) && CurItem->ObjPtr)
-		Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetString().data();
+		Ptr = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetString().c_str();
 
 	switch (Msg)
 	{
@@ -4929,7 +4928,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								FarListItem *Item=&ListItems->Item;
 								*Item = {};
 								Item->Flags=ListMenuItem.Flags;
-								Item->Text=ListMenuItem.Name.data();
+								Item->Text=ListMenuItem.Name.c_str();
 								/*
 								if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
 								   Item->UserData=ListMenuItem->UserData;
@@ -5012,12 +5011,12 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							if (CheckStructSize(ListTitle)&&(!strTitle.empty()||!strBottomTitle.empty()))
 							{
 								if (ListTitle->Title&&ListTitle->TitleSize)
-									xwcsncpy(const_cast<wchar_t*>(ListTitle->Title), strTitle.data(), ListTitle->TitleSize);
+									xwcsncpy(const_cast<wchar_t*>(ListTitle->Title), strTitle.c_str(), ListTitle->TitleSize);
 								else
 									ListTitle->TitleSize=strTitle.size()+1;
 
 								if (ListTitle->Bottom&&ListTitle->BottomSize)
-									xwcsncpy(const_cast<wchar_t*>(ListTitle->Bottom), strBottomTitle.data(), ListTitle->BottomSize);
+									xwcsncpy(const_cast<wchar_t*>(ListTitle->Bottom), strBottomTitle.c_str(), ListTitle->BottomSize);
 								else
 									ListTitle->BottomSize=strBottomTitle.size()+1;
 								return TRUE;
@@ -5722,7 +5721,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							LUpdate.Index=ListBox->GetSelectPos();
 							auto& ListMenuItem = ListBox->at(LUpdate.Index);
 							LUpdate.Item.Flags = ListMenuItem.Flags;
-							LUpdate.Item.Text = CurItem->strData.data();
+							LUpdate.Item.Text = CurItem->strData.c_str();
 							SendMessage(DM_LISTUPDATE, Param1, &LUpdate);
 
 							break;

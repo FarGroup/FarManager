@@ -1246,28 +1246,28 @@ void Options::SetFilePanelModes()
 		} ;
 		FarDialogItem ModeDlgData[]=
 		{
-			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name.data()},
-			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MEditPanelModeName).data()},
+			{DI_DOUBLEBOX, 3, 1,72,17,0,nullptr,nullptr,0,AddNewMode? nullptr : ModeListMenu[CurMode].Name.c_str()},
+			{DI_TEXT,      5, 2, 0, 2,0,nullptr,nullptr,0,msg(lng::MEditPanelModeName).c_str()},
 			{DI_EDIT,      5, 3,70, 3,0,nullptr,nullptr,DIF_FOCUS,L""},
-			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeTypes).data()},
+			{DI_TEXT,      5, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeTypes).c_str()},
 			{DI_EDIT,      5, 5,35, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,      5, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeWidths).data()},
+			{DI_TEXT,      5, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeWidths).c_str()},
 			{DI_EDIT,      5, 7,35, 7,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusTypes).data()},
+			{DI_TEXT,     38, 4, 0, 4,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusTypes).c_str()},
 			{DI_EDIT,     38, 5,70, 5,0,nullptr,nullptr,0,L""},
-			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusWidths).data()},
+			{DI_TEXT,     38, 6, 0, 6,0,nullptr,nullptr,0,msg(lng::MEditPanelModeStatusWidths).c_str()},
 			{DI_EDIT,     38, 7,70, 7,0,nullptr,nullptr,0,L""},
 			{DI_TEXT,     -1, 8, 0, 8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFullscreen).data()},
-			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignExtensions).data()},
-			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignFolderExtensions).data()},
-			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFoldersUpperCase).data()},
-			{DI_CHECKBOX,  5,13, 0,13,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFilesLowerCase).data()},
-			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,msg(lng::MEditPanelModeUpperToLowerCase).data()},
+			{DI_CHECKBOX,  5, 9, 0, 9,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFullscreen).c_str()},
+			{DI_CHECKBOX,  5,10, 0,10,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignExtensions).c_str()},
+			{DI_CHECKBOX,  5,11, 0,11,0,nullptr,nullptr,0,msg(lng::MEditPanelModeAlignFolderExtensions).c_str()},
+			{DI_CHECKBOX,  5,12, 0,12,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFoldersUpperCase).c_str()},
+			{DI_CHECKBOX,  5,13, 0,13,0,nullptr,nullptr,0,msg(lng::MEditPanelModeFilesLowerCase).c_str()},
+			{DI_CHECKBOX,  5,14, 0,14,0,nullptr,nullptr,0,msg(lng::MEditPanelModeUpperToLowerCase).c_str()},
 			{DI_TEXT,     -1,15, 0,15,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).data()},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < static_cast<int>(predefined_panel_modes_count)? 0 : DIF_DISABLE),msg(lng::MReset).data()},
-			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).data()},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,msg(lng::MOk).c_str()},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP|(ModeNumber < static_cast<int>(predefined_panel_modes_count)? 0 : DIF_DISABLE),msg(lng::MReset).c_str()},
+			{DI_BUTTON,    0,16, 0,16,0,nullptr,nullptr,DIF_CENTERGROUP,msg(lng::MCancel).c_str()},
 		};
 		auto ModeDlg = MakeDialogItemsEx(ModeDlgData);
 
@@ -1374,14 +1374,14 @@ struct FARConfigItem
 		{
 			Item.Flags = LIF_CHECKED|L'*';
 		}
-		Item.Text = ListItemString.data();
+		Item.Text = ListItemString.c_str();
 		return Item;
 	}
 
 	bool Edit(bool Hex) const
 	{
 		DialogBuilder Builder;
-		Builder.AddText(concat(KeyName, L'.', ValName, L" ("_sv, Value->GetType(), L"):"_sv).data());
+		Builder.AddText(concat(KeyName, L'.', ValName, L" ("_sv, Value->GetType(), L"):"_sv).c_str());
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
@@ -1546,7 +1546,7 @@ bool StringOption::Edit(DialogBuilder* Builder, int Width, int Param)
 void StringOption::Export(FarSettingsItem& To) const
 {
 	To.Type = FST_STRING;
-	To.String = data();
+	To.String = c_str();
 }
 
 
@@ -2131,7 +2131,7 @@ void Options::Load(std::unordered_map<string, string, hash_icase_t, equal_icase_
 		auto& b = std::get<1>(i);
 
 		a.second = GuidToStr(a.first);
-		b->Default = a.second.data();
+		b->Default = a.second.c_str();
 		b->Id = a.first;
 		b->StrId = a.second;
 	}
@@ -3214,7 +3214,7 @@ string GetFarIniString(const string& AppName, const string& KeyName, const strin
 
 int GetFarIniInt(const string& AppName, const string& KeyName, int Default)
 {
-	return GetPrivateProfileInt(AppName.data(), KeyName.data(), Default, Global->g_strFarINI.data());
+	return GetPrivateProfileInt(AppName.c_str(), KeyName.c_str(), Default, Global->g_strFarINI.c_str());
 }
 
 std::chrono::steady_clock::duration GetRedrawTimeout()

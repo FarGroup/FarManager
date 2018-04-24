@@ -204,14 +204,14 @@ public:
 	void add(FarSettingsName& Item, string&& String)
 	{
 		m_Strings.emplace_front(std::move(String));
-		Item.Name = m_Strings.front().data();
+		Item.Name = m_Strings.front().c_str();
 		m_Items.emplace_back(Item);
 	}
 
 	void get(FarSettingsEnum& e) const
 	{
 		e.Count = m_Items.size();
-		e.Items = e.Count ? m_Items.data() : nullptr;
+		e.Items = e.Count? m_Items.data() : nullptr;
 	}
 
 private:
@@ -258,9 +258,9 @@ public:
 		m_Names.emplace_front(std::move(Name));
 		m_Params.emplace_front(std::move(Param));
 		m_Files.emplace_front(std::move(File));
-		Item.Name = m_Names.front().data();
-		Item.Param = m_Params.front().data();
-		Item.File = m_Files.front().data();
+		Item.Name = m_Names.front().c_str();
+		Item.Param = m_Params.front().c_str();
+		Item.File = m_Files.front().c_str();
 		Item.PluginId = Guid;
 		m_Items.emplace_back(Item);
 	}
@@ -268,7 +268,7 @@ public:
 	void get(FarSettingsEnum& e) const
 	{
 		e.Count = m_Items.size();
-		e.Histories = e.Count ? m_Items.data() : nullptr;
+		e.Histories = e.Count? m_Items.data() : nullptr;
 	}
 
 private:
