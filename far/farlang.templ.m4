@@ -13296,7 +13296,7 @@ upd:"Rename the code page"
 upd:"Editar nombre de página de códigos"
 upd:"Upraviť názov tabuľky znakov"
 upd:"Modifica Nome Codepage"
-upd:"Змінити ім'я кодової сторінки"
+"Перейменування кодової сторінки"
 
 MGetCodePageResetCodePageName
 "&Сбросить"
@@ -28077,6 +28077,18 @@ upd:"opened"
 "aperto"
 "відкритий"
 
+MObjectLockedAndMore
+"и ещё {0} процессах"
+"and {0} more processes."
+upd:"and {0} more processes."
+upd:"and {0} more processes."
+upd:"and {0} more processes."
+upd:"and {0} more processes."
+upd:"and {0} more processes."
+upd:"and {0} more processes."
+upd:"and {0} more processes."
+"i ще {0} процесах"
+
 MObjectLockedSwitchTo
 "Переключиться"
 "Switch to"
@@ -28100,6 +28112,54 @@ upd:"Close file"
 "Zatvoriť súbor"
 "Chiudi File"
 "Закрити файл"
+
+MObjectLockedReasonSessionMismatch
+"Один или несколько процессов выполняются в другом сеансе служб терминалов."
+"One or more processes are running in another Terminal Services session."
+upd:"One or more processes are running in another Terminal Services session."
+upd:"One or more processes are running in another Terminal Services session."
+upd:"One or more processes are running in another Terminal Services session."
+upd:"One or more processes are running in another Terminal Services session."
+upd:"One or more processes are running in another Terminal Services session."
+upd:"One or more processes are running in another Terminal Services session."
+upd:"One or more processes are running in another Terminal Services session."
+"Один або кілька процесів виконуються у іншому сеансі служб терміналів"
+
+MObjectLockedReasonCriticalProcess
+"Один или несколько процессов являются критическими процессами."
+"One or more processes are critical processes."
+upd:"One or more processes are critical processes."
+upd:"One or more processes are critical processes."
+upd:"One or more processes are critical processes."
+upd:"One or more processes are critical processes."
+upd:"One or more processes are critical processes."
+upd:"One or more processes are critical processes."
+upd:"One or more processes are critical processes."
+"Один або кілька процесів є критичними процесами."
+
+MObjectLockedReasonCriticalService
+"Одна или несколько служб являются критическими службами."
+"One or more services are critical services."
+upd:"One or more services are critical services."
+upd:"One or more services are critical services."
+upd:"One or more services are critical services."
+upd:"One or more services are critical services."
+upd:"One or more services are critical services."
+upd:"One or more services are critical services."
+upd:"One or more services are critical services."
+"Одна або кілька служб є критичними службами."
+
+MObjectLockedReasonDetectedSelf
+"Файл открыт текущим процессом."
+"The file is opened by the current process."
+upd:"The file is opened by the current process."
+upd:"The file is opened by the current process."
+upd:"The file is opened by the current process."
+upd:"The file is opened by the current process."
+upd:"The file is opened by the current process."
+upd:"The file is opened by the current process."
+upd:"The file is opened by the current process."
+"Файл відкрито поточним процесом."
 
 MProblemDb
 "Проблемы с БД настроек"

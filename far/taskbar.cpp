@@ -67,16 +67,17 @@ TBPFLAG taskbar::GetProgressState() const
 
 void taskbar::Flash()
 {
-	WINDOWINFO WI={sizeof(WI)};
+	const auto ConsoleWindow = Console().GetWindow();
+	WINDOWINFO WindowInfo{ sizeof(WindowInfo)};
 
-	if (!GetWindowInfo(Console().GetWindow(), &WI))
+	if (!GetWindowInfo(ConsoleWindow, &WindowInfo))
 		return;
 
-	if (WI.dwWindowStatus == WS_ACTIVECAPTION)
+	if (WindowInfo.dwWindowStatus == WS_ACTIVECAPTION)
 		return;
 
-	FLASHWINFO FWI={sizeof(FWI),Console().GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
-	FlashWindowEx(&FWI);
+	FLASHWINFO FlashInfo{sizeof(FlashInfo), ConsoleWindow, FLASHW_ALL | FLASHW_TIMERNOFG, 5, 0};
+	FlashWindowEx(&FlashInfo);
 }
 
 

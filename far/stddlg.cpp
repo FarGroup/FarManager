@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "FarDlgBuilder.hpp"
 #include "config.hpp"
+#include "plist.hpp"
+#include "notification.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -409,50 +411,106 @@ bool GetNameAndPassword(const string& Title, string &strUserName, string &strPas
 
 static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 {
-	os::com::ptr<IRunningObjectTable> rot;
-	if (FAILED(GetRunningObjectTable(0, &ptr_setter(rot))))
+	os::com::ptr<IRunningObjectTable> RunningObjectTable;
+	if (FAILED(GetRunningObjectTable(0, &ptr_setter(RunningObjectTable))))
 		return nullptr;
 
-	os::com::ptr<IMoniker> mkFile;
-	if (FAILED(CreateFileMoniker(File.c_str(), &ptr_setter(mkFile))))
+	os::com::ptr<IMoniker> FileMoniker;
+	if (FAILED(CreateFileMoniker(File.c_str(), &ptr_setter(FileMoniker))))
 		return nullptr;
 
-	os::com::ptr<IEnumMoniker> enumMk;
-	if (FAILED(rot->EnumRunning(&ptr_setter(enumMk))))
+	os::com::ptr<IEnumMoniker> EnumMoniker;
+	if (FAILED(RunningObjectTable->EnumRunning(&ptr_setter(EnumMoniker))))
 		return nullptr;
 
 	for(;;)
 	{
-		os::com::ptr<IMoniker> mk;
-		ULONG celt;
-		if (enumMk->Next(1, &ptr_setter(mk), &celt) != S_OK)
+		os::com::ptr<IMoniker> Moniker;
+		if (EnumMoniker->Next(1, &ptr_setter(Moniker), nullptr) == S_FALSE)
 			return nullptr;
 
-		DWORD dwType;
-		if (FAILED(mk->IsSystemMoniker(&dwType)) || dwType != MKSYS_FILEMONIKER)
+		DWORD Type;
+		if (FAILED(Moniker->IsSystemMoniker(&Type)) || Type != MKSYS_FILEMONIKER)
 			continue;
 
-		os::com::ptr<IMoniker> mkPrefix;
-		if (FAILED(mkFile->CommonPrefixWith(mk.get(), &ptr_setter(mkPrefix))))
+		os::com::ptr<IMoniker> PrefixMoniker;
+		if (FAILED(FileMoniker->CommonPrefixWith(Moniker.get(), &ptr_setter(PrefixMoniker))))
 			continue;
 
-		if (mkFile->IsEqual(mkPrefix.get()) != S_OK)
+		if (FileMoniker->IsEqual(PrefixMoniker.get()) == S_FALSE)
 			continue;
 
-		os::com::ptr<IUnknown> unk;
-		if (rot->GetObject(mk.get(), &ptr_setter(unk)) != S_OK)
+		os::com::ptr<IUnknown> Unknown;
+		if (RunningObjectTable->GetObject(Moniker.get(), &ptr_setter(Unknown)) == S_FALSE)
 			continue;
 
-		FN_RETURN_TYPE(CreateIFileIsInUse) fiu;
-		if (SUCCEEDED(unk->QueryInterface(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(fiu)))))
-			return fiu;
+		FN_RETURN_TYPE(CreateIFileIsInUse) FileIsInUse;
+		if (SUCCEEDED(Unknown->QueryInterface(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(FileIsInUse)))))
+			return FileIsInUse;
 	}
+}
+
+static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, const std::function<bool(string&&)>& Handler)
+{
+	DWORD Session;
+	WCHAR SessionKey[CCH_RM_SESSION_KEY + 1] = {};
+	if (imports::instance().RmStartSession(&Session, 0, SessionKey) != ERROR_SUCCESS)
+		return 0;
+
+	SCOPE_EXIT{ imports::instance().RmEndSession(Session); };
+	auto FilenamePtr = Filename.c_str();
+	if (imports::instance().RmRegisterResources(Session, 1, &FilenamePtr, 0, nullptr, 0, nullptr) != ERROR_SUCCESS)
+		return 0;
+
+	DWORD RmGetListResult;
+	UINT ProceccInfoSizeNeeded;
+	UINT ProcessInfoSize = 1;
+	std::vector<RM_PROCESS_INFO> ProcessInfos(ProcessInfoSize);
+	while ((RmGetListResult = imports::instance().RmGetList(Session, &ProceccInfoSizeNeeded, &ProcessInfoSize, ProcessInfos.data(), &Reasons)) == ERROR_MORE_DATA)
+	{
+		ProcessInfoSize = ProceccInfoSizeNeeded;
+		ProcessInfos.resize(ProcessInfoSize);
+	}
+
+	if (RmGetListResult != ERROR_SUCCESS)
+		return 0;
+
+	for (const auto& Info : ProcessInfos)
+	{
+		string Str = *Info.strAppName? Info.strAppName : L"Unknown";
+
+		if (*Info.strServiceShortName)
+			append(Str, L" ["_sv, Info.strServiceShortName, L']');
+
+		append(Str, L" (PID: "_sv, str(Info.Process.dwProcessId));
+
+		if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, Info.Process.dwProcessId)))
+		{
+			os::chrono::time_point CreationTime;
+			if (os::chrono::get_process_creation_time(Process.native_handle(), CreationTime) &&
+				os::chrono::nt_clock::from_filetime(Info.Process.ProcessStartTime) == CreationTime)
+			{
+				string Name;
+				if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))
+				{
+					append(Str, L", "_sv, Name);
+				}
+			}
+		}
+
+		Str += L')';
+
+		if (!Handler(std::move(Str)))
+			break;
+	}
+
+	return ProcessInfos.size();
 }
 
 operation OperationFailed(const error_state_ex& ErrorState, const string& Object, lng Title, const string& Description, bool AllowSkip)
 {
 	std::vector<string> Msg;
-	os::com::ptr<IFileIsInUse> fiu;
+	os::com::ptr<IFileIsInUse> FileIsInUse;
 	lng Reason = lng::MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
 	const auto Error = ErrorState.Win32Error;
@@ -462,12 +520,14 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 		Error == ERROR_DRIVE_LOCKED)
 	{
 		const auto FullName = ConvertNameToFull(Object);
-		fiu = CreateIFileIsInUse(FullName);
-		if (fiu)
+		FileIsInUse = CreateIFileIsInUse(FullName);
+		if (FileIsInUse)
 		{
-			auto UsageType = FUT_GENERIC;
-			fiu->GetUsage(&UsageType);
-			switch(UsageType)
+			FILE_USAGE_TYPE UsageType;
+			if (FAILED(FileIsInUse->GetUsage(&UsageType)))
+				UsageType = FUT_GENERIC;
+
+			switch (UsageType)
 			{
 			case FUT_PLAYING:
 				Reason = lng::MObjectLockedReasonPlayed;
@@ -479,66 +539,57 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 				Reason = lng::MObjectLockedReasonOpened;
 				break;
 			}
-			DWORD Capabilities = 0;
-			fiu->GetCapabilities(&Capabilities);
-			
-			SwitchBtn = (Capabilities & OF_CAP_CANSWITCHTO) != 0;
-			CloseBtn = (Capabilities & OF_CAP_CANCLOSE) != 0;
 
-			wchar_t* AppName = nullptr;
-			if(SUCCEEDED(fiu->GetAppName(&AppName)))
+			DWORD Capabilities;
+			if (SUCCEEDED(FileIsInUse->GetCapabilities(&Capabilities)))
+			{
+				SwitchBtn = (Capabilities & OF_CAP_CANSWITCHTO) != 0;
+				CloseBtn = (Capabilities & OF_CAP_CANCLOSE) != 0;
+			}
+
+			wchar_t* AppName;
+			if(SUCCEEDED(FileIsInUse->GetAppName(&AppName)))
 			{
 				Msg.emplace_back(AppName);
 			}
 		}
 		else
 		{
-			DWORD dwSession;
-			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
-			if (imports::instance().RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
+			const size_t MaxRmProcesses = 5;
+			DWORD Reasons = RmRebootReasonNone;
+			const auto ProcessCount = enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
 			{
-				SCOPE_EXIT{ imports::instance().RmEndSession(dwSession); };
-				auto pszFile = FullName.c_str();
-				if (imports::instance().RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
-				{
-					DWORD dwReason;
-					DWORD RmGetListResult;
-					UINT nProcInfoNeeded;
-					UINT nProcInfo = 1;
-					std::vector<RM_PROCESS_INFO> rgpi(nProcInfo);
-					while((RmGetListResult = imports::instance().RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi.data(), &dwReason)) == ERROR_MORE_DATA)
-					{
-						nProcInfo = nProcInfoNeeded;
-						rgpi.resize(nProcInfo);
-					}
-					if(RmGetListResult ==ERROR_SUCCESS)
-					{
-						for (const auto& i: rgpi)
-						{
-							string tmp = *i.strAppName? i.strAppName : L"Unknown";
+				Msg.emplace_back(std::move(Str));
+				return Msg.size() != MaxRmProcesses;
+			});
 
-							if (*i.strServiceShortName)
-							{
-								append(tmp, L" ["_sv, i.strServiceShortName, L']');
-							}
-							append(tmp, L" (PID: "_sv, str(i.Process.dwProcessId));
-							if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, i.Process.dwProcessId)))
-							{
-								os::chrono::time_point CreationTime;
-								if (os::chrono::get_process_creation_time(Process.native_handle(), CreationTime) &&
-									os::chrono::nt_clock::from_filetime(i.Process.ProcessStartTime) == CreationTime)
-								{
-									string Name;
-									if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))
-									{
-										append(tmp, L", "_sv, Name);
-									}
-								}
-							}
-							tmp += L')';
-							Msg.emplace_back(tmp);
-						}
+			if (ProcessCount > MaxRmProcesses)
+			{
+				Msg.emplace_back(format(msg(lng::MObjectLockedAndMore), ProcessCount - MaxRmProcesses));
+			}
+
+			static const std::pair<DWORD, lng> Mappings[] =
+			{
+				// We don't handle RmRebootReasonPermissionDenied here as we don't try to close anything.
+				{RmRebootReasonSessionMismatch, lng::MObjectLockedReasonSessionMismatch },
+				{RmRebootReasonCriticalProcess, lng::MObjectLockedReasonCriticalProcess },
+				{RmRebootReasonCriticalService, lng::MObjectLockedReasonCriticalService },
+				{RmRebootReasonDetectedSelf,    lng::MObjectLockedReasonDetectedSelf },
+			};
+
+			bool SeparatorAdded = false;
+
+			for (const auto& i: Mappings)
+			{
+				if (Reasons & i.first)
+				{
+					if (!SeparatorAdded)
+					{
+						Msg.emplace_back(L"\1"_sv);
+						SeparatorAdded = true;
 					}
+
+					Msg.emplace_back(msg(i.second));
 				}
 			}
 		}
@@ -565,6 +616,14 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 	}
 	Buttons.emplace_back(lng::MDeleteCancel);
 
+	listener Listener([](const std::any& Payload)
+	{
+		// Switch asynchroniously after the message is reopened,
+		// otherwise Far will lose the focus too early
+		// and reopened message will cause window flashing.
+		SwitchToWindow(std::any_cast<HWND>(Payload));
+	});
+
 	int Result;
 	for(;;)
 	{
@@ -577,12 +636,10 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 		{
 			if(Result == Message::first_button)
 			{
-				HWND Wnd = nullptr;
-				if (fiu && SUCCEEDED(fiu->GetSwitchToHWND(&Wnd)))
+				HWND Window = nullptr;
+				if (FileIsInUse && SUCCEEDED(FileIsInUse->GetSwitchToHWND(&Window)))
 				{
-					SetForegroundWindow(Wnd);
-					if (IsIconic(Wnd))
-						ShowWindow(Wnd, SW_RESTORE);
+					message_manager::instance().notify(Listener.GetEventName(), Window);
 				}
 				continue;
 			}
@@ -595,9 +652,9 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 		if(CloseBtn && Result == Message::first_button)
 		{
 			// close & retry
-			if (fiu)
+			if (FileIsInUse)
 			{
-				fiu->CloseFile();
+				FileIsInUse->CloseFile();
 			}
 		}
 		break;

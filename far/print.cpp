@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "print.hpp"
 #include "delete.hpp"
-#include "pathmix.hpp"
 #include "mix.hpp"
 #include "lang.hpp"
 #include "plugins.hpp"

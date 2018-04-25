@@ -146,6 +146,7 @@ void ShowProcessList()
 	if (Active)
 		return;
 	Active = true;
+	SCOPE_EXIT{ Active = false; };
 
 	const auto ProcList = VMenu2::create(msg(lng::MProcessListTitle), {}, ScrY - 4);
 	ProcList->SetMenuFlags(VMENU_WRAPMODE);
@@ -171,105 +172,99 @@ void ShowProcessList()
 		return true;
 	};
 
-	if (FillProcList())
+	if (!FillProcList())
+		return;
+
+	ProcList->AssignHighlights(FALSE);
+	ProcList->SetBottomTitle(msg(lng::MProcessListBottom));
+
+	ProcList->Run([&](const Manager::Key& RawKey)
 	{
-		ProcList->AssignHighlights(FALSE);
-		ProcList->SetBottomTitle(msg(lng::MProcessListBottom));
-
-		ProcList->Run([&](const Manager::Key& RawKey)
+		const auto Key=RawKey();
+		int KeyProcessed = 1;
+		switch (Key)
 		{
-			const auto Key=RawKey();
-			int KeyProcessed = 1;
-			switch (Key)
+			case KEY_F1:
 			{
-				case KEY_F1:
-				{
-					Help::create(L"TaskList");
-					break;
-				}
+				Help::create(L"TaskList");
+				break;
+			}
 
-				case KEY_NUMDEL:
-				case KEY_DEL:
+			case KEY_NUMDEL:
+			case KEY_DEL:
+			{
+				if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
 				{
-					if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
-					{
-						if (Message(MSG_WARNING,
-							msg(lng::MKillProcessTitle),
-							{
-								msg(lng::MAskKillProcess),
-								MenuData->Title,
-								msg(lng::MKillProcessWarning)
-							},
-							{ lng::MKillProcessKill, lng::MCancel }) == Message::first_button)
+					if (Message(MSG_WARNING,
+						msg(lng::MKillProcessTitle),
 						{
-							const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
-							if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
-							{
-								const auto ErrorState = error_state::fetch();
+							msg(lng::MAskKillProcess),
+							MenuData->Title,
+							msg(lng::MKillProcessWarning)
+						},
+						{ lng::MKillProcessKill, lng::MCancel }) == Message::first_button)
+					{
+						const auto Process = os::handle(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
+						if (!Process || !TerminateProcess(Process.native_handle(), 0xFFFFFFFF))
+						{
+							const auto ErrorState = error_state::fetch();
 
-								Message(MSG_WARNING, ErrorState,
-									msg(lng::MKillProcessTitle),
-									{
-										msg(lng::MCannotKillProcess)
-									},
-									{ lng::MOk });
-							}
+							Message(MSG_WARNING, ErrorState,
+								msg(lng::MKillProcessTitle),
+								{
+									msg(lng::MCannotKillProcess)
+								},
+								{ lng::MOk });
 						}
 					}
 				}
-				[[fallthrough]];
-				case KEY_CTRLR:
-				case KEY_RCTRLR:
-				{
-					if (!FillProcList())
-						ProcList->Close(-1);
-					break;
-				}
-
-				case KEY_F2:
-				{
-					// TODO: change titles, don't enumerate again
-					ShowImage = !ShowImage;
-					int SelectPos=ProcList->GetSelectPos();
-					if (!FillProcList())
-					{
-						ProcList->Close(-1);
-					}
-					else
-					{
-						ProcList->SetSelectPos(SelectPos);
-					}
-					break;
-				}
-
-
-				default:
-					KeyProcessed = 0;
 			}
-			return KeyProcessed;
-		});
-
-		if (ProcList->GetExitCode()>=0)
-		{
-			if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
+			[[fallthrough]];
+			case KEY_CTRLR:
+			case KEY_RCTRLR:
 			{
-				DWORD dwMs;
-				// Remember the current value.
-				auto bSPI = SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, &dwMs, 0) != FALSE;
-
-				if (bSPI) // Reset foreground lock timeout
-					bSPI = SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, nullptr, 0) != FALSE;
-
-				SetForegroundWindow(MenuData->Hwnd);
-
-				if (bSPI) // Restore old value
-					SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, ToPtr(dwMs), 0);
-
-				WINDOWPLACEMENT wp = { sizeof(wp) };
-				if (!GetWindowPlacement(MenuData->Hwnd, &wp) || wp.showCmd != SW_SHOWMAXIMIZED)
-					ShowWindowAsync(MenuData->Hwnd, SW_RESTORE);
+				if (!FillProcList())
+					ProcList->Close(-1);
+				break;
 			}
+
+			case KEY_F2:
+			{
+				// TODO: change titles, don't enumerate again
+				ShowImage = !ShowImage;
+				int SelectPos=ProcList->GetSelectPos();
+				if (!FillProcList())
+				{
+					ProcList->Close(-1);
+				}
+				else
+				{
+					ProcList->SetSelectPos(SelectPos);
+				}
+				break;
+			}
+
+
+			default:
+				KeyProcessed = 0;
 		}
-	}
-	Active = false;
+		return KeyProcessed;
+	});
+
+	if (ProcList->GetExitCode() < 0)
+		return;
+
+	const auto MenuData = ProcList->GetUserDataPtr<menu_data>();
+	if (!MenuData)
+		return;
+
+	SwitchToWindow(MenuData->Hwnd);
+}
+
+void SwitchToWindow(HWND Window)
+{
+	SetForegroundWindow(Window);
+
+	if (IsIconic(Window))
+		ShowWindowAsync(Window, SW_RESTORE);
 }
