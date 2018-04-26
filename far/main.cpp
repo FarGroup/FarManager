@@ -831,6 +831,12 @@ static int wmain_seh(int Argc, wchar_t *Argv[])
 	{
 		return mainImpl(make_range(Argv + 1, Argv + Argc));
 	}
+	catch(const language::exception& e)
+	{
+		// *.lng read failure. It is pretty clear what is wrong, no need to show the stack etc.
+		std::wcerr << e.what() << std::endl;
+		return 1;
+	}
 	catch (const std::exception& e)
 	{
 		if (ProcessStdException(e, L"wmain"_sv))

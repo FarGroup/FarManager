@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "exception.hpp"
+
 enum class lng;
 
 class i_language_data
@@ -60,6 +62,11 @@ public:
 	NONCOPYABLE(language);
 
 	virtual ~language() = default;
+
+	class exception: public far_exception
+	{
+		using far_exception::far_exception;
+	};
 
 protected:
 	explicit language(std::unique_ptr<i_language_data>& Data): m_Data(Data) {}
