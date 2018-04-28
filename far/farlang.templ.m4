@@ -1537,7 +1537,7 @@ MCtrlAltShiftF11
 ""
 
 MCtrlAltShiftF12
-le://End of functional keys
+l://End of functional keys
 ""
 ""
 ""
@@ -4356,8 +4356,8 @@ MCopyDecrypt
 "&Titk. felold"
 "&Deszyfruj"
 "&Descifrar"
-"upd:Decrypt"
-"upd:Decrypt"
+upd:"Decrypt"
+upd:"Decrypt"
 "Роз&шифрувати"
 
 MCopyDecryptAll
@@ -4368,8 +4368,8 @@ MCopyDecryptAll
 "&Mind"
 "Deszyfruj ws&zystkie"
 "Desci&frar todo"
-"upd:Decrypt all"
-"upd:Decrypt all"
+upd:"Decrypt all"
+upd:"Decrypt all"
 "&Все"
 
 MCopyCannotCreateLink
@@ -7639,8 +7639,8 @@ MEditCtrlAltShiftF12
 ""
 
 MEditF8DOS
-le:// End of functional keys (Editor)
-le:// it's a F8 another text
+l:// End of functional keys (Editor)
+l:// it's a F8 another text
 "OEM"
 "OEM"
 "OEM"
@@ -8822,8 +8822,8 @@ MSingleEditCtrlAltShiftF12
 ""
 
 MSingleEditF8DOS
-le:// End of functional keys (Single Editor)
-le:// it's a F8 another text
+l:// End of functional keys (Single Editor)
+l:// it's a F8 another text
 "OEM"
 "OEM"
 "OEM"
@@ -10072,7 +10072,7 @@ l://Viewer: functional keys, 12 keys, except F2 - 2 keys, and F8 - 2 keys
 "Допом."
 
 MViewF2
-le:// this is another text for F2
+l:// this is another text for F2
 "Сверн"
 "Wrap"
 "Zalomit"
@@ -11266,7 +11266,7 @@ upd:"Dump"
 
 MViewF8DOS
 l:// this is another text for F8
-le:// end of functional keys (Viewer)
+l:// end of functional keys (Viewer)
 "OEM"
 "OEM"
 "OEM"
@@ -12474,7 +12474,7 @@ l:// this is another text for F4
 
 MSingleViewF8DOS
 l:// this is another text for F4
-le:// end of functional keys (Single Viewer)
+l:// end of functional keys (Single Viewer)
 "OEM"
 "OEM"
 "OEM"
@@ -29446,7 +29446,7 @@ MKeyRAlt
 ""
 
 MKeyAlt
-le:// keys end
+l:// keys end
 ""
 ""
 ""
