@@ -1540,7 +1540,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		}
 
 		case KEY_INS: case KEY_NUMPAD0:
-			m_Flags.Swap(FEDITOR_OVERTYPE);
+			m_Flags.Invert(FEDITOR_OVERTYPE);
 			Refresh = true;
 			return true;
 
@@ -1901,7 +1901,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_CTRLL:
 		case KEY_RCTRLL:
 		{
-			m_Flags.Swap(FEDITOR_LOCKMODE);
+			m_Flags.Invert(FEDITOR_LOCKMODE);
 
 			if (HostFileEditor) HostFileEditor->ShowStatus();
 
@@ -3593,7 +3593,7 @@ bool Editor::Search(bool Next)
 							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
 							CurPtr->AddColor(newcol);
 
-							if (!SearchLength && !strReplaceStrCurrent.length())
+							if (!SearchLength && strReplaceStrCurrent.empty())
 								ZeroLength = true;
 
 							MsgCode = Message(0,

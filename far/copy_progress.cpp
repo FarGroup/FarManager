@@ -165,7 +165,7 @@ void copy_progress::Flush()
 	if (m_Total || (m_Files.Total == 1))
 	{
 		ConsoleTitle::SetFarTitle(concat(
-			L'{', str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_Total? m_TotalPercent : m_CurrentPercent), L"%} "_sv,
+			L'{', str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_CurrentPercent), L"%} "_sv,
 			msg(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle))
 		);
 	}

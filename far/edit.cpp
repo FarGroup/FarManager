@@ -577,7 +577,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 	if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX) && (LocalKey==KEY_CTRLL || LocalKey==KEY_RCTRLL))
 	{
-		m_Flags.Swap(FEDITLINE_READONLY);
+		m_Flags.Invert(FEDITLINE_READONLY);
 	}
 
 	if ((((LocalKey==KEY_BS || LocalKey==KEY_DEL || LocalKey==KEY_NUMDEL) && m_Flags.Check(FEDITLINE_DELREMOVESBLOCKS)) || LocalKey==KEY_CTRLD || LocalKey==KEY_RCTRLD) &&
@@ -1055,7 +1055,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_INS:         case KEY_NUMPAD0:
 		{
-			m_Flags.Swap(FEDITLINE_OVERTYPE);
+			m_Flags.Invert(FEDITLINE_OVERTYPE);
 			Show();
 			return true;
 		}

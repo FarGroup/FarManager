@@ -56,7 +56,7 @@ public:
 	{
 	}
 
-	template<typename compatible_iterator>
+	template<typename compatible_iterator, REQUIRES((std::is_convertible_v<compatible_iterator, iterator_type>))>
 	constexpr range(const range<compatible_iterator>& Rhs):
 		range(ALL_RANGE(Rhs))
 	{

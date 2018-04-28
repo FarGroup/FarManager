@@ -66,18 +66,27 @@ private:
 	Viewer* GetViewer() override;
 	Viewer* GetById(int ID) override;
 
-	void PrintText(const string& Str) const;
+	void PrintText(string_view Str) const;
 	void DynamicUpdateKeyBar() const;
 
 	unique_ptr_with_ondestroy<Viewer> QView;
 	string strCurFileName;
 	string strCurFileType;
-	int Directory;
 	DirInfoData Data;
 	bool OldWrapMode;
 	bool OldWrapType;
 	bool m_TemporaryFile;
 	bool uncomplete_dirscan;
+
+	enum class scan_status
+	{
+		none = 0,
+		real_ok = 1,
+		real_fail = 2,
+		plugin_fail = 3,
+		plugin_ok = 4,
+	}
+	m_DirectoryScanStatus{ scan_status::none };
 };
 
 #endif // QVIEW_HPP_944492CA_F3F6_49F8_854A_2C5D30567B9E

@@ -284,7 +284,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr, subst_data& SubstDat
 	{
 		string strCurDir;
 
-		if (SubstData.This.Normal.Name.length() > 1 && SubstData.This.Normal.Name[1]==L':')
+		if (SubstData.This.Normal.Name.size() > 1 && SubstData.This.Normal.Name[1]==L':')
 			strCurDir = SubstData.This.Normal.Name;
 		else if (SubstData.PassivePanel)
 			strCurDir = SubstData.Another.Panel->GetCurDir();

@@ -256,11 +256,11 @@ namespace os
 		class initialize: noncopyable
 		{
 		public:
-			initialize(): m_hr(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)) {}
-			~initialize() { if (SUCCEEDED(m_hr)) CoUninitialize(); }
+			initialize(): m_Initialised(SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED))) {}
+			~initialize() { if (m_Initialised) CoUninitialize(); }
 
 		private:
-			const HRESULT m_hr;
+			const bool m_Initialised;
 		};
 
 		namespace detail
@@ -273,10 +273,21 @@ namespace os
 					Object->Release();
 				}
 			};
+
+			struct memory_releaser
+			{
+				void operator()(const void* Object) const
+				{
+					CoTaskMemFree(const_cast<void*>(Object));
+				}
+			};
 		}
 
 		template<typename T>
 		using ptr = std::unique_ptr<T, detail::releaser<T>>;
+
+		template<typename T>
+		using memory = std::unique_ptr<std::remove_pointer_t<T>, detail::memory_releaser>;
 	}
 }
 

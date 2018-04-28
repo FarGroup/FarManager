@@ -711,11 +711,19 @@ string FormatStr_Size(long long Size, const string& strName,
 
 	if (!Streams && !Packed && !have_size && !ShowFolderSize)
 	{
-		auto TypeName = msg(lng::MListFolder);
+		static const lng FolderLabels[] =
+		{
+			lng::MListUp,
+			lng::MListFolder,
+		};
+
+		const auto LabelSize = msg(*std::max_element(ALL_CONST_RANGE(FolderLabels), [](lng a, lng b) { return msg(a).size() < msg(b).size(); })).size();
+
+		string TypeName;
 
 		if (IsParentDirectory(strName))
 		{
-			TypeName = msg(lng::MListUp);
+			TypeName = fit_to_center(msg(lng::MListUp), LabelSize);
 		}
 		else
 		{
@@ -796,9 +804,13 @@ string FormatStr_Size(long long Size, const string& strName,
 					}
 				}
 			}
+			else if (dir)
+			{
+				TypeName = fit_to_center(msg(lng::MListFolder), LabelSize);
+			}
 		}
 
-		if (static_cast<int>(TypeName.size()) <= Width-2 && msg(lng::MListBrackets)[0] && msg(lng::MListBrackets)[1])
+		if (static_cast<int>(TypeName.size()) <= Width-2 && msg(lng::MListBrackets).size() > 1)
 		{
 			TypeName = concat(msg(lng::MListBrackets)[0], TypeName, msg(lng::MListBrackets)[1]);
 		}

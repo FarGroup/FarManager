@@ -36,12 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Enumerator for string1\0string2\0string3\0...stringN\0\0
 
-namespace detail
-{
-	inline auto length(const char* Str) { return strlen(Str); }
-	inline auto length(const wchar_t* Str) { return wcslen(Str); }
-}
-
 template<class char_type>
 auto enum_substrings(const char_type* Str)
 {
@@ -53,7 +47,7 @@ auto enum_substrings(const char_type* Str)
 		else
 			++Iterator;
 
-		const auto NewIterator = Iterator + detail::length(Iterator);
+		const auto NewIterator = Iterator + std::char_traits<char_type>::length(Iterator);
 
 		if (NewIterator == Iterator)
 			return false;

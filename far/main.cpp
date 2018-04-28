@@ -380,7 +380,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	}
 }
 
-static bool ProcessServiceModes(const range<wchar_t**>& Args, int& ServiceResult)
+static bool ProcessServiceModes(const range<const wchar_t**>& Args, int& ServiceResult)
 {
 	const auto& isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
@@ -459,7 +459,7 @@ static void SetDriveMenuHotkeys()
 	}
 }
 
-static int mainImpl(const range<wchar_t**>& Args)
+static int mainImpl(const range<const wchar_t**>& Args)
 {
 	setlocale(LC_ALL, "");
 
@@ -815,7 +815,7 @@ void override_stream_buffers()
 		Log(std::wclog, BufLog);
 }
 
-static int wmain_seh(int Argc, wchar_t *Argv[])
+static int wmain_seh(int Argc, const wchar_t* Argv[])
 {
 #if defined(SYSLOG)
 	atexit(PrintSysLogStat);
@@ -870,7 +870,7 @@ int main()
 	{
 		// wmain is a non-standard extension and not available in gcc.
 		int Argc;
-		const os::memory::local::ptr<wchar_t*> Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+		const os::memory::local::ptr<const wchar_t*> Argv(const_cast<const wchar_t**>(CommandLineToArgvW(GetCommandLine(), &Argc)));
 		return wmain_seh(Argc, Argv.get());
 	},
 	[]() -> int

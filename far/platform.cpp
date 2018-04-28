@@ -289,15 +289,13 @@ UUID CreateUuid()
 
 string GuidToStr(const GUID& Guid)
 {
-	string result;
-	RPC_WSTR str;
+	RPC_WSTR Str;
 	// declared as non-const in GCC headers :(
-	if (UuidToString(const_cast<GUID*>(&Guid), &str) == RPC_S_OK)
-	{
-		SCOPE_EXIT{ RpcStringFree(&str); };
-		result = reinterpret_cast<const wchar_t*>(str);
-	}
-	return upper(result);
+	if (UuidToString(const_cast<GUID*>(&Guid), &Str) != RPC_S_OK)
+		throw std::bad_alloc{};
+
+	SCOPE_EXIT{ RpcStringFree(&Str); };
+	return upper(reinterpret_cast<const wchar_t*>(Str));
 }
 
 bool StrToGuid(const wchar_t* Value, GUID& Guid)

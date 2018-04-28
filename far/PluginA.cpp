@@ -527,63 +527,58 @@ static InfoPanelLine* ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, 
 	return Result.release();
 }
 
-static void FreeUnicodeInfoPanelLines(const InfoPanelLine *iplW, size_t InfoLinesNumber)
+static void FreeUnicodeInfoPanelLines(range<const InfoPanelLine*> Lines)
 {
-	std::for_each(iplW, iplW + InfoLinesNumber, [](const InfoPanelLine& Item)
+	for (const auto& i: Lines)
 	{
-		delete[] Item.Text;
-		delete[] Item.Data;
-	});
-
-	delete[] iplW;
-}
-
-static PanelMode* ConvertPanelModesA(const oldfar::PanelMode *pnmA, size_t iCount)
-{
-	if (!pnmA || !iCount)
-		return nullptr;
-
-	auto Result = std::make_unique<PanelMode[]>(iCount);
-	const auto SrcRange = make_range(pnmA, iCount);
-	auto DstRange = make_range(Result.get(), iCount);
-	for (const auto& i: zip(SrcRange, DstRange))
-	{
-		const auto& Src = std::get<0>(i);
-		auto& Dest = std::get<1>(i);
-
-		size_t iColumnCount = 0; 
-		if (Src.ColumnTypes)
-		{
-			const auto Iterator = null_iterator(Src.ColumnTypes);
-			iColumnCount = std::count(Iterator, Iterator.end(), ',') + 1;
-		}
-
-		Dest.ColumnTypes = AnsiToUnicode(Src.ColumnTypes);
-		Dest.ColumnWidths = AnsiToUnicode(Src.ColumnWidths);
-		Dest.ColumnTitles = AnsiArrayToUnicodeMagic(Src.ColumnTitles, iColumnCount);
-		Dest.StatusColumnTypes = AnsiToUnicode(Src.StatusColumnTypes);
-		Dest.StatusColumnWidths = AnsiToUnicode(Src.StatusColumnWidths);
-		Dest.Flags = 0;
-		if (Src.FullScreen) Dest.Flags |= PMFLAGS_FULLSCREEN;
-		if (Src.DetailedStatus) Dest.Flags |= PMFLAGS_DETAILEDSTATUS;
-		if (Src.AlignExtensions) Dest.Flags |= PMFLAGS_ALIGNEXTENSIONS;
-		if (Src.CaseConversion) Dest.Flags |= PMFLAGS_CASECONVERSION;
+		delete[] i.Text;
+		delete[] i.Data;
 	}
 
-	return Result.release();
+	delete[] Lines.data();
 }
 
-static void FreeUnicodePanelModes(const PanelMode *pnmW, size_t iCount)
+static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& UnicodeMode)
 {
-	std::for_each(pnmW, pnmW + iCount, [](const PanelMode& Item)
+	size_t iColumnCount = 0;
+	if (Mode.ColumnTypes)
 	{
-		delete[] Item.ColumnTypes;
-		delete[] Item.ColumnWidths;
-		FreeUnicodeArrayMagic(Item.ColumnTitles);
-		delete[] Item.StatusColumnTypes;
-		delete[] Item.StatusColumnWidths;
-	});
-	delete[] pnmW;
+		const auto Iterator = null_iterator(Mode.ColumnTypes);
+		iColumnCount = std::count(Iterator, Iterator.end(), ',') + 1;
+	}
+
+	UnicodeMode.ColumnTypes = AnsiToUnicode(Mode.ColumnTypes);
+	UnicodeMode.ColumnWidths = AnsiToUnicode(Mode.ColumnWidths);
+	UnicodeMode.ColumnTitles = AnsiArrayToUnicodeMagic(Mode.ColumnTitles, iColumnCount);
+	UnicodeMode.StatusColumnTypes = AnsiToUnicode(Mode.StatusColumnTypes);
+	UnicodeMode.StatusColumnWidths = AnsiToUnicode(Mode.StatusColumnWidths);
+
+	UnicodeMode.Flags = 
+		(Mode.FullScreen? PMFLAGS_FULLSCREEN : 0) |
+		(Mode.DetailedStatus? PMFLAGS_DETAILEDSTATUS : 0) |
+		(Mode.AlignExtensions? PMFLAGS_ALIGNEXTENSIONS : 0) |
+		(Mode.CaseConversion? PMFLAGS_CASECONVERSION : 0);
+}
+
+static void ConvertPanelModesToUnicode(range<const oldfar::PanelMode*> Modes, range<PanelMode*> UnicodeModes)
+{
+	for (const auto& i: zip(Modes, UnicodeModes))
+	{
+		std::apply(ConvertPanelModeToUnicode, i);
+	}
+}
+
+static void FreeUnicodePanelModes(range<const PanelMode*> Modes)
+{
+	for (const auto& i : Modes)
+	{
+		delete[] i.ColumnTypes;
+		delete[] i.ColumnWidths;
+		FreeUnicodeArrayMagic(i.ColumnTitles);
+		delete[] i.StatusColumnTypes;
+		delete[] i.StatusColumnWidths;
+	}
+	delete[] Modes.data();
 }
 
 static void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct = true)
@@ -794,7 +789,7 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 	{
 		delete[] i.Description;
 		delete[] i.Owner;
-		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
+		DeleteRawArray(make_range(i.CustomColumnData, i.CustomColumnNumber));
 		FreePluginPanelItem(i);
 	});
 
@@ -808,7 +803,7 @@ static void FreePanelItemA(const oldfar::PluginPanelItem *PanelItem, size_t Item
 		delete[] Item.Description;
 		delete[] Item.Owner;
 
-		DeleteRawArray(Item.CustomColumnData, Item.CustomColumnNumber);
+		DeleteRawArray(make_range(Item.CustomColumnData, Item.CustomColumnNumber));
 
 		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
@@ -3922,54 +3917,53 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_COMMIT, 0, nullptr);
 			case oldfar::ACTL_GETFARHWND:
 				return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETFARHWND, 0, nullptr);
+
 			case oldfar::ACTL_GETSYSTEMSETTINGS:
 			{
-				intptr_t ret = oldfar::FSS_CLEARROATTRIBUTE;
-
-				if (GetSetting(FSSF_SYSTEM,L"DeleteToRecycleBin")) ret|=oldfar::FSS_DELETETORECYCLEBIN;
-				if (GetSetting(FSSF_SYSTEM,L"CopyOpened")) ret|=oldfar::FSS_COPYFILESOPENEDFORWRITING;
-				if (GetSetting(FSSF_SYSTEM,L"ScanJunction")) ret|=oldfar::FSS_SCANSYMLINK;
-
-				return ret;
+				return oldfar::FSS_CLEARROATTRIBUTE |
+					(GetSetting(FSSF_SYSTEM, L"DeleteToRecycleBin")? oldfar::FSS_DELETETORECYCLEBIN : 0) |
+					(GetSetting(FSSF_SYSTEM, L"CopyOpened")? oldfar::FSS_COPYFILESOPENEDFORWRITING : 0) |
+					(GetSetting(FSSF_SYSTEM, L"ScanJunction")? oldfar::FSS_SCANSYMLINK : 0);
 			}
+
 			case oldfar::ACTL_GETPANELSETTINGS:
 			{
-				intptr_t ret = 0;
-
-				if (GetSetting(FSSF_PANEL,L"ShowHidden")) ret|=oldfar::FPS_SHOWHIDDENANDSYSTEMFILES;
-				if (GetSetting(FSSF_PANELLAYOUT,L"ColumnTitles")) ret|=oldfar::FPS_SHOWCOLUMNTITLES;
-				if (GetSetting(FSSF_PANELLAYOUT,L"StatusLine")) ret|=oldfar::FPS_SHOWSTATUSLINE;
-				if (GetSetting(FSSF_PANELLAYOUT,L"SortMode")) ret|=oldfar::FPS_SHOWSORTMODELETTER;
-
-				return ret;
+				return
+					(GetSetting(FSSF_PANEL, L"ShowHidden")? oldfar::FPS_SHOWHIDDENANDSYSTEMFILES : 0) |
+					(GetSetting(FSSF_PANELLAYOUT, L"ColumnTitles")? oldfar::FPS_SHOWCOLUMNTITLES : 0) |
+					(GetSetting(FSSF_PANELLAYOUT, L"StatusLine")? oldfar::FPS_SHOWSTATUSLINE : 0) |
+					(GetSetting(FSSF_PANELLAYOUT, L"SortMode")? oldfar::FPS_SHOWSORTMODELETTER : 0);
 			}
+
 			case oldfar::ACTL_GETINTERFACESETTINGS:
 			{
-				intptr_t ret = 0;
-				if (GetSetting(FSSF_SCREEN,L"KeyBar")) ret|=oldfar::FIS_SHOWKEYBAR;
-				if (GetSetting(FSSF_INTERFACE,L"ShowMenuBar")) ret|=oldfar::FIS_ALWAYSSHOWMENUBAR;
-				return ret;
+				return
+					(GetSetting(FSSF_SCREEN, L"KeyBar")? oldfar::FIS_SHOWKEYBAR : 0) |
+					(GetSetting(FSSF_INTERFACE, L"ShowMenuBar")? oldfar::FIS_ALWAYSSHOWMENUBAR : 0);
 			}
+
 			case oldfar::ACTL_GETCONFIRMATIONS:
 			{
-				intptr_t ret = 0;
-
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Copy")) ret|=oldfar::FCS_COPYOVERWRITE;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Move")) ret|=oldfar::FCS_MOVEOVERWRITE;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Drag")) ret|=oldfar::FCS_DRAGANDDROP;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Delete")) ret|=oldfar::FCS_DELETE;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"DeleteFolder")) ret|=oldfar::FCS_DELETENONEMPTYFOLDERS;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Esc")) ret|=oldfar::FCS_INTERRUPTOPERATION;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"RemoveConnection")) ret|=oldfar::FCS_DISCONNECTNETWORKDRIVE;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"HistoryClear")) ret|=oldfar::FCS_CLEARHISTORYLIST;
-				if (GetSetting(FSSF_CONFIRMATIONS,L"Exit")) ret|=oldfar::FCS_EXIT;
-
-				return ret;
+				return
+					(GetSetting(FSSF_CONFIRMATIONS, L"Copy")? oldfar::FCS_COPYOVERWRITE : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Move")? oldfar::FCS_MOVEOVERWRITE : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Drag")? oldfar::FCS_DRAGANDDROP : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Delete")? oldfar::FCS_DELETE : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"DeleteFolder")? oldfar::FCS_DELETENONEMPTYFOLDERS : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Esc")? oldfar::FCS_INTERRUPTOPERATION : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"RemoveConnection")? oldfar::FCS_DISCONNECTNETWORKDRIVE : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"HistoryClear")? oldfar::FCS_CLEARHISTORYLIST : 0) |
+					(GetSetting(FSSF_CONFIRMATIONS, L"Exit")? oldfar::FCS_EXIT : 0);
 			}
+
 			case oldfar::ACTL_GETDESCSETTINGS:
 			{
-				intptr_t ret = 0;
-				return ret;
+				const auto& DizSettings = Global->Opt->Diz;
+				return
+					(DizSettings.SetHidden? oldfar::FDS_SETHIDDEN : 0) |
+					(DizSettings.UpdateMode == DIZ_UPDATE_ALWAYS? oldfar::FDS_UPDATEALWAYS : 0) |
+					(DizSettings.UpdateMode == DIZ_UPDATE_IF_DISPLAYED? oldfar::FDS_UPDATEIFDISPLAYED : 0) |
+					(DizSettings.ROUpdate? oldfar::FDS_UPDATEREADONLY : 0);
 			}
 			case oldfar::ACTL_SETARRAYCOLOR:
 			{
@@ -4986,7 +4980,7 @@ private:
 
 			int OpenFromA = oldfar::OPEN_PLUGINSMENU;
 
-			oldfar::OpenDlgPluginData DlgData;
+			oldfar::OpenDlgPluginData DlgData{};
 
 			switch (Info->OpenFrom)
 			{
@@ -5598,9 +5592,9 @@ private:
 		delete[] OPI.HostFile;
 		delete[] OPI.Format;
 		delete[] OPI.PanelTitle;
-		FreeUnicodeInfoPanelLines(OPI.InfoLines, OPI.InfoLinesNumber);
-		DeleteRawArray(OPI.DescrFiles, OPI.DescrFilesNumber);
-		FreeUnicodePanelModes(OPI.PanelModesArray, OPI.PanelModesNumber);
+		FreeUnicodeInfoPanelLines(make_range(OPI.InfoLines, OPI.InfoLinesNumber));
+		DeleteRawArray(make_range(OPI.DescrFiles, OPI.DescrFilesNumber));
+		FreeUnicodePanelModes(make_range(OPI.PanelModesArray, OPI.PanelModesNumber));
 		FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
 		delete OPI.KeyBar;
 		delete[] OPI.ShortcutData;
@@ -5661,7 +5655,9 @@ private:
 
 		if (Src.PanelModesArray && Src.PanelModesNumber)
 		{
-			OPI.PanelModesArray = ConvertPanelModesA(Src.PanelModesArray, Src.PanelModesNumber);
+			auto UnicodeModes = std::make_unique<PanelMode[]>(Src.PanelModesNumber);
+			ConvertPanelModesToUnicode(make_range(Src.PanelModesArray, Src.PanelModesNumber), make_range(UnicodeModes.get(), Src.PanelModesNumber));
+			OPI.PanelModesArray = UnicodeModes.release();
 			OPI.PanelModesNumber = Src.PanelModesNumber;
 			OPI.StartPanelMode = Src.StartPanelMode;
 

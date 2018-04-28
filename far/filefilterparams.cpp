@@ -871,6 +871,22 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	// Маска времени
 	const auto strTimeMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
+
+	std::pair<lng, string> NameLabels[] =
+	{
+		{lng::MHighlightFileName1, {}},
+		{lng::MHighlightFileName2, {}},
+		{lng::MHighlightFileName3, {}},
+		{lng::MHighlightFileName4, {}},
+	};
+
+	const auto ColumnSize = msg(std::max_element(ALL_CONST_RANGE(NameLabels), [](const auto& a, const auto& b) { return msg(a.first).size() < msg(b.first).size(); })->first).size() + 1;
+
+	for (auto& i: NameLabels)
+	{
+		i.second = pad_right(msg(i.first), ColumnSize);
+	}
+
 	FarDialogItem FilterDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,76,23,0,nullptr,nullptr,DIF_SHOWAMPERSAND,msg(lng::MFileFilterTitle).c_str()},
@@ -931,13 +947,13 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_FIXEDIT,5,18,5,18,0,nullptr,nullptr,0,L""},
 		{DI_CHECKBOX,0,18,0,18,0,nullptr,nullptr,0,msg(lng::MHighlightTransparentMarkChar).c_str()},
 
-		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName1).c_str()},
+		{DI_BUTTON,5,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[0].second.c_str()},
 		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking1).c_str()},
-		{DI_BUTTON,5,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName2).c_str()},
+		{DI_BUTTON,5,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[1].second.c_str()},
 		{DI_BUTTON,0,20,0,20,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking2).c_str()},
-		{DI_BUTTON,5,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName3).c_str()},
+		{DI_BUTTON,5,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[2].second.c_str()},
 		{DI_BUTTON,0,21,0,21,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking3).c_str()},
-		{DI_BUTTON,5,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightFileName4).c_str()},
+		{DI_BUTTON,5,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,NameLabels[3].second.c_str()},
 		{DI_BUTTON,0,22,0,22,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,msg(lng::MHighlightMarking4).c_str()},
 
 		{DI_USERCONTROL,73-15-1,19,73-2,22,0,nullptr,nullptr,DIF_NOFOCUS,L""},

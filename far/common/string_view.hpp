@@ -47,7 +47,7 @@ public:
 	}
 
 	constexpr basic_string_view(const T* Str) :
-		basic_string_view(Str, length(Str))
+		basic_string_view(Str, std::char_traits<T>::length(Str))
 	{
 	}
 
@@ -198,10 +198,6 @@ public:
 	{
 		return find_last_not_of({ &Char, 1 }, Pos);
 	}
-
-private:
-	static auto length(const char* Str) { return strlen(Str); }
-	static auto length(const wchar_t* Str) { return wcslen(Str); }
 };
 
 constexpr auto operator "" _sv(const char* Data, size_t Size) noexcept { return basic_string_view<char>(Data, Size); }

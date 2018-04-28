@@ -81,7 +81,7 @@ public:
 	}
 };
 
-void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanelItemHolder& Dest);
+void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanelItemHolder& Holder);
 
 void FreePluginPanelItem(const PluginPanelItem& Data);
 void FreePluginPanelItems(const std::vector<PluginPanelItem>& Items);
@@ -89,10 +89,14 @@ void FreePluginPanelItems(const std::vector<PluginPanelItem>& Items);
 void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
 
 template<class T>
-void DeleteRawArray(const T* const* Data, size_t Size)
+void DeleteRawArray(range<T> Data)
 {
-	std::for_each(Data, Data + Size, std::default_delete<const T[]>());
-	delete[] Data;
+	for (const auto& i : Data)
+	{
+		delete[] i;
+	}
+	
+	delete[] Data.data();
 }
 
 WINDOWINFO_TYPE WindowTypeToPluginWindowType(int fType);

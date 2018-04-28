@@ -122,7 +122,7 @@ static bool write_minidump(const exception_context& Context)
 	if (!DumpFile)
 		return false;
 
-	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.GetThreadId(), Context.GetPointers() };
+	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), Context.pointers() };
 	return imports::instance().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
@@ -205,7 +205,7 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 	// replace with something trivial
 
 	string Address, Name, Source;
-	tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 	if (!Name.empty())
 		append(Address, L" - "_sv, Name);
 
@@ -253,7 +253,7 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 static reply ExcConsole(const string& ModuleName, const string& Exception, const string& Details, const exception_context& Context, const string_view Function, const Plugin* const Module, const std::vector<string>* const NestedStack)
 {
 	string Address, Name, Source;
-	tracer::get_one(Context.GetPointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 	if (!Name.empty())
 		append(Address, L" - "_sv, Name);
 
@@ -396,7 +396,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 				}
 
 				DWORD dummy;
-				Result = p(Context.GetPointers(), PluginModule? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
+				Result = p(Context.pointers(), PluginModule? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
 			}
 		}
 	}
@@ -448,7 +448,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 	string strFileName;
 	auto ShowMessages = false;
 
-	const auto xr = Context.GetPointers()->ExceptionRecord;
+	const auto xr = Context.pointers()->ExceptionRecord;
 
 	if (!PluginModule)
 	{
@@ -471,11 +471,11 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 		const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return i.second == Code; });
 		const auto Name = ItemIterator != std::cend(KnownExceptions)? ItemIterator->first : L"Unknown exception"s;
 		return format(L"0x{0:0>8X} - {1}", static_cast<DWORD>(Code), Name);
-	}(Context.GetCode());
+	}(Context.code());
 
 	string Details;
 
-	switch(static_cast<NTSTATUS>(Context.GetCode()))
+	switch(static_cast<NTSTATUS>(Context.code()))
 	{
 	case EXCEPTION_ACCESS_VIOLATION:
 	case EXCEPTION_IN_PAGE_ERROR:
@@ -503,7 +503,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 		break;
 
 	default:
-		Details = os::GetErrorString(true, Context.GetCode());
+		Details = os::GetErrorString(true, Context.code());
 		break;
 	}
 
@@ -570,27 +570,25 @@ bool ProcessStdException(const std::exception& e, string_view const Function, co
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
-		return ProcessGenericException(SehException->GetContext(), Function, Module, e.what());
+		return ProcessGenericException(SehException->context(), Function, Module, e.what());
 	}
 
-	std::unique_ptr<exception_context> Context;
-	auto ContextPtr = tracer::get_exception_context(&e);
-	if (!ContextPtr)
+	auto Context = tracer::get_exception_context(&e);
+	if (!Context)
 	{
 		// C++ exception to EXCEPTION_POINTERS translation relies on Microsoft implementation.
 		// It won't work in gcc etc.
 		// Set ExceptionCode manually so ProcessGenericException will at least report it as std::exception and display what()
 		Context = std::make_unique<exception_context>(EXCEPTION_MICROSOFT_CPLUSPLUS);
-		ContextPtr = Context.get();
 	}
 
 	if (const auto FarException = dynamic_cast<const far_exception*>(&e))
 	{
 		const auto Message = extract_nested_messages(e);
-		return ProcessGenericException(*ContextPtr, Function, Module, Message.c_str(), &FarException->get_stack());
+		return ProcessGenericException(*Context, Function, Module, Message.c_str(), &FarException->get_stack());
 	}
 
-	return ProcessGenericException(*ContextPtr, Function, Module, e.what());
+	return ProcessGenericException(*Context, Function, Module, e.what());
 }
 
 bool ProcessUnknownException(string_view const Function, const Plugin* const Module)
@@ -605,7 +603,7 @@ bool ProcessUnknownException(string_view const Function, const Plugin* const Mod
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
 	SetFloatingPointExceptions(false);
-	exception_context Context(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo);
+	const exception_context Context(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo);
 	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"_sv, nullptr, nullptr))
 	{
 		std::terminate();

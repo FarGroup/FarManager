@@ -384,11 +384,13 @@ void PluginManager::LoadFactories()
 
 void PluginManager::LoadPlugins()
 {
+	const auto& PluginLoadOptions = Global->Opt->LoadPlug;
+
 	const auto AnyPluginsPossible =
-		Global->Opt->LoadPlug.PluginsCacheOnly ||
-		Global->Opt->LoadPlug.MainPluginDir ||
-		Global->Opt->LoadPlug.PluginsPersonal ||
-		!Global->Opt->LoadPlug.strCustomPluginsPath.empty();
+		PluginLoadOptions.PluginsCacheOnly ||
+		PluginLoadOptions.MainPluginDir ||
+		PluginLoadOptions.PluginsPersonal ||
+		!PluginLoadOptions.strCustomPluginsPath.empty();
 
 	if (!AnyPluginsPossible)
 		return;
@@ -401,27 +403,27 @@ void PluginManager::LoadPlugins()
 
 	LoadFactories();
 
-	if (Global->Opt->LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
+	if (PluginLoadOptions.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
 	{
 		LoadPluginsFromCache();
 	}
 	else
 	{
-		ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
+		ScanTree ScTree(false, true, PluginLoadOptions.ScanSymlinks);
 		std::vector<string> PluginDirectories;
 		os::fs::find_data FindData;
 
 		// сначала подготовим список
-		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
+		if (PluginLoadOptions.MainPluginDir) // только основные и персональные?
 		{
 			PluginDirectories = { Global->g_strFarPath + PluginsFolderName };
 			// ...а персональные есть?
-			if (Global->Opt->LoadPlug.PluginsPersonal)
-				PluginDirectories.emplace_back(Global->Opt->LoadPlug.strPersonalPluginsPath);
+			if (PluginLoadOptions.PluginsPersonal)
+				PluginDirectories.emplace_back(PluginLoadOptions.strPersonalPluginsPath);
 		}
-		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())  // только "заказные" пути?
+		else if (!PluginLoadOptions.strCustomPluginsPath.empty())  // только "заказные" пути?
 		{
-			for (const auto& i: enum_tokens_with_quotes_t<with_trim>(Global->Opt->LoadPlug.strCustomPluginsPath, L";"_sv))
+			for (const auto& i: enum_tokens_with_quotes_t<with_trim>(PluginLoadOptions.strCustomPluginsPath, L";"_sv))
 			{
 				if (i.empty())
 					continue;

@@ -1776,6 +1776,13 @@ void Dialog::ShowDialog(size_t ID)
 						                  (Items[I].Flags&DIF_SEPARATORUSER)?12:(Items[I].Flags&DIF_SEPARATOR2?3:1),
 					                       Items[I].strMask.c_str()
 					                     );
+						if (!strStr.empty())
+						{
+							if (!starts_with(strStr, L" "_sv))
+								strStr.insert(0, L" ", 1);
+							if (!ends_with(strStr, L" "_sv))
+								strStr.push_back(L' ');
+						}
 					}
 
 					GotoXY(m_X1+X,m_Y1+Y);
@@ -3258,8 +3265,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				if (Items[I].Type == DI_SINGLEBOX || Items[I].Type == DI_DOUBLEBOX)
 				{
 					// если на рамке, то...
-					if (((MsX == Rect.Left || MsX == Rect.Right) && MsY >= Rect.Top && MsY <= Rect.Bottom) || // vert
-					        ((MsY == Rect.Top  || MsY == Rect.Bottom) && MsX >= Rect.Left && MsX <= Rect.Right))    // hor
+					if (MsX == Rect.Left || MsX == Rect.Right || MsY == Rect.Top  || MsY == Rect.Bottom)
 					{
 						if (DlgProc(DN_CONTROLINPUT,I,&mouse))
 							return true;

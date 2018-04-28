@@ -359,7 +359,9 @@ void Search::ShowBorder() const
 	Box(m_X1,m_Y1,m_X1+21,m_Y1+2,colors::PaletteColorToFarColor(COL_DIALOGBOX),DOUBLE_BOX);
 	GotoXY(m_X1+7,m_Y1);
 	SetColor(COL_DIALOGBOXTITLE);
+	Text(L' ');
 	Text(lng::MSearchFileTitle);
+	Text(L' ');
 }
 
 void Search::DisplayObject()

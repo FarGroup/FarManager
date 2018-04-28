@@ -64,14 +64,13 @@ static void PR_DrawGetDirInfoMsg();
 struct DirInfoPreRedrawItem : public PreRedrawItem
 {
 	DirInfoPreRedrawItem():
-		PreRedrawItem(PR_DrawGetDirInfoMsg),
-		Size()
+		PreRedrawItem(PR_DrawGetDirInfoMsg)
 	{}
 
 	string_view Title;
 	string_view Name;
-	unsigned long long Items;
-	unsigned long long Size;
+	unsigned long long Items{};
+	unsigned long long Size{};
 };
 
 void DirInfoMsg(string_view const Title, string_view const Name, unsigned long long const Items, unsigned long long const Size)
@@ -251,7 +250,7 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, con
 				{
 					if(FindData.AllocationSize >= Data.ClusterSize)
 					{
-						Data.FilesSlack += FindData.AllocationSize - FindData.FileSize;
+					Data.FilesSlack += FindData.AllocationSize - FindData.FileSize;
 					}
 					else
 					{
@@ -534,7 +533,7 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 		FreePluginPanelItem(i);
 		delete[] i.Description;
 		delete[] i.Owner;
-		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
+		DeleteRawArray(make_range(i.CustomColumnData, i.CustomColumnNumber));
 	});
 
 	Items.clear();

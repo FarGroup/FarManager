@@ -46,12 +46,12 @@ public:
 	static std::vector<string> get(const exception_context& Context);
 	static void get_one(const void* Ptr, string& Address, string& Name, string& Source);
 
-	static const exception_context* get_exception_context(const void* CppObject);
+	static std::unique_ptr<exception_context> get_exception_context(const void* CppObject);
 
 private:
 	friend class with_symbols;
 
-	const exception_context* get_context(const void* CppObject) const;
+	std::unique_ptr<exception_context> get_context(const void* CppObject);
 
 	bool SymInitialise();
 	void SymCleanup();

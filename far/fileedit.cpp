@@ -1523,7 +1523,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		const os::fs::file_status FileStatus(Name);
 		if ((m_editor->EdOpt.ReadOnlyLock & bit(0)) && FileStatus.check(FILE_ATTRIBUTE_READONLY | (m_editor->EdOpt.ReadOnlyLock & 0b0110'0000) >> 4))
 		{
-			m_editor->m_Flags.Swap(Editor::FEDITOR_LOCKMODE);
+			m_editor->m_Flags.Invert(Editor::FEDITOR_LOCKMODE);
 		}
 
 		if (Cached && pc.CodePage && !codepages::IsCodePageSupported(pc.CodePage))
@@ -2229,7 +2229,7 @@ void FileEditor::ShowStatus() const
 	const auto StatusWidth = std::max(0, ObjWidth() - ClockSize);
 
 	Text(fit_to_left(StatusLine, StatusWidth - 1));
-	Text(L" "_sv); // Separator before the clock
+	Text(L' '); // Separator before the clock
 
 	if (auto SpaceLeft = std::max(0, StatusWidth - static_cast<int>(StatusLine.size()) - 1 - 1)) // 1 for the separator after the main status
 	{

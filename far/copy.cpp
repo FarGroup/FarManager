@@ -155,7 +155,6 @@ enum enumShellCopy
 	ID_SC_BTNTREE,
 	ID_SC_BTNFILTER,
 	ID_SC_BTNCANCEL,
-	ID_SC_SOURCEFILENAME,
 };
 
 enum CopyMode
@@ -537,7 +536,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	FarDialogItem CopyDlgData[]=
 	{
 		{DI_DOUBLEBOX,   3, 1,DLG_WIDTH-4,DLG_HEIGHT-2,0,nullptr,nullptr,0,msg(lng::MCopyDlgTitle).c_str()},
-		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,0,msg(Link? lng::MCMLTargetIN : lng::MCMLTargetTO).c_str()},
+		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,0,L""},
 		{DI_EDIT,        5, 3,70, 3,0,L"Copy",nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
 		{DI_TEXT,       -1, 4, 0, 4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_TEXT,        5, 5, 0, 5,0,nullptr,nullptr,0,msg(lng::MCopySecurity).c_str()},
@@ -665,11 +664,10 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			}
 		}
 
-		auto strSelNameShort = SingleSelName;
-		QuoteOuterSpace(strSelNameShort);
-		strCopyStr=msg(Move? lng::MMoveFile : Link? lng::MLinkFile : lng::MCopyFile);
-		TruncStrFromEnd(strSelNameShort,static_cast<int>(CopyDlg[ID_SC_TITLE].X2-CopyDlg[ID_SC_TITLE].X1-strCopyStr.size()-7));
-		append(strCopyStr, L' ', strSelNameShort);
+		auto SelNameQouted = SingleSelName;
+		QuoteOuterSpace(SelNameQouted);
+		strCopyStr = format(Move? lng::MMoveFile : Link? lng::MLinkFile : lng::MCopyFile, SelNameQouted, msg(Link? lng::MCMLTargetIN : lng::MCMLTargetTO));
+		TruncStrFromEnd(SelNameQouted, static_cast<int>(CopyDlg[ID_SC_TITLE].X2 - CopyDlg[ID_SC_TITLE].X1 - strCopyStr.size() - 7));
 
 		// Если копируем одиночный файл, то запрещаем использовать фильтр
 		if (!(SingleSelAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -695,10 +693,13 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			else if (StrItems[LenItems-1] == '1')
 				NItems = lng::MCMLItems0;
 		}
-		strCopyStr = format(Move? lng::MMoveFiles : Link? lng::MLinkFiles : lng::MCopyFiles, SelCount, msg(NItems));
+		strCopyStr = format(Move? lng::MMoveFiles : Link? lng::MLinkFiles : lng::MCopyFiles,
+			SelCount,
+			msg(NItems),
+			msg(Link? lng::MCMLTargetIN : lng::MCMLTargetTO));
 	}
 
-	CopyDlg[ID_SC_SOURCEFILENAME].strData=strCopyStr;
+	CopyDlg[ID_SC_TARGETTITLE].strData=strCopyStr;
 	CopyDlg[ID_SC_TITLE].strData = msg(Move? lng::MMoveDlgTitle : Link? lng::MLinkDlgTitle : lng::MCopyDlgTitle);
 	CopyDlg[ID_SC_BTNCOPY].strData = msg(Move? lng::MCopyDlgRename: Link? lng::MCopyDlgLink : lng::MCopyDlgCopy);
 
@@ -816,9 +817,6 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		CopyDlg[ID_SC_TITLE].Y2-=3;
 		DLG_HEIGHT-=3;
 	}
-
-	// корректируем позицию " to"
-	CopyDlg[ID_SC_TARGETTITLE].X1=CopyDlg[ID_SC_TARGETTITLE].X2=CopyDlg[ID_SC_SOURCEFILENAME].X1+CopyDlg[ID_SC_SOURCEFILENAME].strData.size();
 
 	/* $ 15.06.2002 IS
 	   Обработка копирования мышкой - в этом случае диалог не показывается,

@@ -91,7 +91,7 @@ static bool is_alttab_window(HWND const Window)
 	if (IsWindows8OrGreater())
 	{
 		int Cloaked = 0;
-		if (S_OK == imports::instance().DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked)) && Cloaked)
+		if (SUCCEEDED(imports::instance().DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked))) && Cloaked)
 			return false;
 	}
 

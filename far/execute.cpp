@@ -581,12 +581,11 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 		os::com::ptr<IApplicationAssociationRegistration> AAR;
 		if (SUCCEEDED(imports::instance().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
 		{
-			wchar_t *p;
-			if (AAR->QueryCurrentDefault(null_terminated(Ext).c_str(), aType, AL_EFFECTIVE, &p) == S_OK)
+			os::com::memory<wchar_t*> Association;
+			if (SUCCEEDED(AAR->QueryCurrentDefault(null_terminated(Ext).c_str(), aType, AL_EFFECTIVE, &ptr_setter(Association))))
 			{
 				bVistaType = true;
-				strType = p;
-				CoTaskMemFree(p);
+				strType = Association.get();
 			}
 		}
 	}

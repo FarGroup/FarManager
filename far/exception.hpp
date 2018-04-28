@@ -48,7 +48,7 @@ struct error_state_ex: public error_state
 {
 	error_state_ex() = default;
 
-	error_state_ex(const error_state& State, string_view Message = L""_sv) :
+	error_state_ex(const error_state& State, string_view const Message = {}):
 		error_state(State),
 		What(Message)
 	{
@@ -96,10 +96,10 @@ public:
 	explicit exception_context(DWORD Code = 0, const EXCEPTION_POINTERS* Pointers = nullptr, bool ResumeThread = false);
 	~exception_context();
 
-	auto GetCode() const { return m_Code; }
-	auto GetPointers() const { return const_cast<EXCEPTION_POINTERS*>(&m_Pointers); }
-	auto GetThreadHandle() const { return m_ThreadHandle.native_handle(); }
-	auto GetThreadId() const { return m_ThreadId; }
+	auto code() const { return m_Code; }
+	auto pointers() const { return const_cast<EXCEPTION_POINTERS*>(&m_Pointers); }
+	auto thread_handle() const { return m_ThreadHandle.native_handle(); }
+	auto thread_id() const { return m_ThreadId; }
 
 private:
 	DWORD m_Code;
@@ -120,7 +120,7 @@ public:
 	{
 	}
 
-	const auto& GetContext() const { return *m_Context; }
+	const auto& context() const { return *m_Context; }
 
 private:
 	std::shared_ptr<exception_context> m_Context;

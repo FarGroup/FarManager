@@ -52,7 +52,7 @@ public:
 	// изменить состояние набора флагов в заивисмости от Status
 	const T& Change(const T& FlagsToChange, bool set) { return set? Set(FlagsToChange) : Clear(FlagsToChange); }
 	// инвертировать состояние флагов
-	const T& Swap(const T& FlagsToSwap) { return Check(FlagsToSwap)? Clear(FlagsToSwap) : Set(FlagsToSwap); }
+	const T& Invert(const T& FlagsToSwap) { return Check(FlagsToSwap)? Clear(FlagsToSwap) : Set(FlagsToSwap); }
 	//сбросить все флаги
 	void ClearAll() { m_Flags = 0; }
 private:

@@ -42,7 +42,7 @@ static auto GetBackTrace(const exception_context& Context)
 	std::vector<const void*> Result;
 
 	// StackWalk64() may modify context record passed to it, so we will use a copy.
-	auto ContextRecord = *Context.GetPointers()->ContextRecord;
+	auto ContextRecord = *Context.pointers()->ContextRecord;
 	STACKFRAME64 StackFrame{};
 #if defined(_WIN64)
 	const DWORD MachineType = IMAGE_FILE_MACHINE_AMD64;
@@ -59,7 +59,7 @@ static auto GetBackTrace(const exception_context& Context)
 	StackFrame.AddrFrame.Mode = AddrModeFlat;
 	StackFrame.AddrStack.Mode = AddrModeFlat;
 
-	while (imports::instance().StackWalk64(MachineType, GetCurrentProcess(), Context.GetThreadHandle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
+	while (imports::instance().StackWalk64(MachineType, GetCurrentProcess(), Context.thread_handle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
 	{
 		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}
@@ -171,14 +171,18 @@ void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInf
 	m_CppMap.emplace(CppObject, std::make_unique<exception_context>(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo));
 }
 
-const exception_context* tracer::get_context(const void* CppObject) const
+std::unique_ptr<exception_context> tracer::get_context(const void* CppObject)
 {
 	SCOPED_ACTION(os::critical_section_lock)(m_CS);
-	auto Iter = m_CppMap.find(CppObject);
-	return Iter == m_CppMap.end()? nullptr : Iter->second.get();
+	auto Iterator = m_CppMap.find(CppObject);
+	if (Iterator == m_CppMap.end())
+		return nullptr;
+	auto Result = std::move(Iterator->second);
+	m_CppMap.erase(Iterator);
+	return Result;
 }
 
-const exception_context* tracer::get_exception_context(const void* CppObject)
+std::unique_ptr<exception_context> tracer::get_exception_context(const void* CppObject)
 {
 	return StaticInstance? StaticInstance->get_context(CppObject) : nullptr;
 }

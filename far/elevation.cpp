@@ -821,7 +821,7 @@ public:
 			if (imports::instance().GetNamedPipeServerProcessId && (!imports::instance().GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) || ServerProcessId != PID))
 				return GetLastError();
 
-			auto ParentProcess = os::handle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID));
+			const auto ParentProcess = os::handle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID));
 			if (!ParentProcess)
 				return GetLastError();
 

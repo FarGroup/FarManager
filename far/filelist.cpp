@@ -431,7 +431,7 @@ void FileList::list_data::clear()
 			}
 			delete[] i.DizText;
 		}
-		DeleteRawArray(i.CustomColumnData, i.CustomColumnNumber);
+		DeleteRawArray(make_range(i.CustomColumnData, i.CustomColumnNumber));
 	});
 
 	Items.clear();
@@ -7731,18 +7731,21 @@ void FileList::ShowSelectedSize()
 	{
 		auto strFormStr = size2str(SelFileSize, 6, false, false);
 		auto strSelStr = format(lng::MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
-		auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
-		if (strSelStr.size() > avail_width)
+		const auto BorderSize = 1;
+		const auto MarginSize = 1;
+		const auto AvailableWidth = static_cast<size_t>(std::max(0, ObjWidth() - BorderSize * 2 - MarginSize * 2));
+		if (strSelStr.size() > AvailableWidth)
 		{
 			strFormStr = size2str(SelFileSize, 6, false, true);
 			strSelStr = format(lng::MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
-			if (strSelStr.size() > avail_width)
-				TruncStrFromEnd(strSelStr, static_cast<int>(avail_width));
+			if (strSelStr.size() > AvailableWidth)
+				TruncStrFromEnd(strSelStr, static_cast<int>(AvailableWidth));
 		}
-		auto Length = static_cast<int>(strSelStr.size());
 		SetColor(COL_PANELSELECTEDINFO);
-		GotoXY(m_X1+(m_X2-m_X1+1-Length)/2,m_Y2-2*Global->Opt->ShowPanelStatus);
+		GotoXY(static_cast<int>(m_X1 + BorderSize + (AvailableWidth - strSelStr.size()) / 2), m_Y2 - 2 * Global->Opt->ShowPanelStatus);
+		Text(L' ');
 		Text(strSelStr);
+		Text(L' ');
 	}
 }
 
@@ -7778,24 +7781,25 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		return strTotalSize;
 	};
 
-	const auto TotalStr = [&]
+	const auto BorderSize = 1;
+	const auto MarginSize = 1;
+	const auto AvailableWidth = static_cast<size_t>(std::max(0, ObjWidth() - BorderSize * 2 - MarginSize * 2));
+
+	auto TotalStr = calc_total_string(!Global->Opt->ShowBytes);
+	if (TotalStr.size() > AvailableWidth)
 	{
-		const auto avail_width = static_cast<size_t>(std::max(0, m_X2 - m_X1 - 1));
-		auto Str = calc_total_string(!Global->Opt->ShowBytes);
-		if (Str.size() > avail_width)
-		{
-			if (Global->Opt->ShowBytes)
-				Str = calc_total_string(true);
-			TruncStrFromEnd(Str, static_cast<int>(avail_width));
-		}
-		return Str;
-	}();
+		if (Global->Opt->ShowBytes)
+			TotalStr = calc_total_string(true);
+		TruncStrFromEnd(TotalStr, static_cast<int>(AvailableWidth));
+	}
 
 	const string_view TotalStrView = TotalStr;
 
 	SetColor(COL_PANELTOTALINFO);
-	GotoXY(m_X1 + (m_X2 - m_X1 + 1 - static_cast<int>(TotalStrView.size()))/2, m_Y2);
+	GotoXY(static_cast<int>(m_X1 + BorderSize + (AvailableWidth - TotalStrView.size()) / 2), m_Y2);
 	const auto BoxPos = TotalStrView.find(BoxSymbols[BS_H2]);
+
+	Text(L' ');
 	if (const auto BoxLength = BoxPos == string::npos? 0 : std::count(TotalStrView.begin() + BoxPos, TotalStrView.end(), BoxSymbols[BS_H2]))
 	{
 		Text(TotalStrView.substr(0, BoxPos));
@@ -7808,6 +7812,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	{
 		Text(TotalStrView);
 	}
+	Text(L' ');
 }
 
 bool FileList::ConvertName(const string_view SrcName, string& strDest, const int MaxLength, const unsigned long long RightAlign, const int ShowStatus, const DWORD FileAttr) const
