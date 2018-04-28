@@ -3059,7 +3059,7 @@ id=65
 lv=2
 dt=Text
 nm=far.Message
-mtime=3602539082
+mtime=3734089847
 <article>
 #_result = far.Message (Msg, [Title], [Buttons], [Flags], [HelpTopic], [Id])
 #_
@@ -3092,10 +3092,15 @@ mtime=3602539082
 #_**Returns:**
 #_  *result:* integer (1-based)
 #_
-#_**Note:**
+#_**Note 1:**
 #_  Before calling FAR function *Message*, the function:
 #_    a) wraps long lines (unless the flag 'n' is present), and
 #_    b) limits the maximal number of lines and buttons.
+#_
+#_**Note 2:**
+#_  As in the original `Message` function, every line in **Msg** parameter
+#_  that starts with \1 is treated as a single delimiter line;
+#_  a line starting with \2 as a double delimiter line.
 #_
 #_**Far API used:**
 #_  `Message`
