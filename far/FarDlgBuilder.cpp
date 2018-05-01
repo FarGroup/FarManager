@@ -699,6 +699,8 @@ int DialogBuilder::AddTextWrap(const wchar_t *text, bool center, int width)
 	string str(text);
 	FarFormatText(str, width <= 0 ? ScrX-1-10 : width, str, L"\n", 0);
 	std::replace(ALL_RANGE(str), L'\n', L'\0');
+	// enum_substrings expects two trailing zeros
+	str.push_back(L'\0');
 	int LineCount = 0;
 	for (const auto& i: enum_substrings(str.c_str()))
 	{
