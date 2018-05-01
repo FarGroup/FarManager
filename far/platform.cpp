@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "imports.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
@@ -49,7 +46,7 @@ namespace os
 
 NTSTATUS GetLastNtStatus()
 {
-	return imports::instance().RtlGetLastNtStatus? imports::instance().RtlGetLastNtStatus() : STATUS_SUCCESS;
+	return imports.RtlGetLastNtStatus? imports.RtlGetLastNtStatus() : STATUS_SUCCESS;
 }
 
 string GetErrorString(bool Nt, DWORD Code)
@@ -101,7 +98,7 @@ void EnableLowFragmentationHeap()
 	if (IsWindowsVistaOrGreater())
 		return;
 
-	if (!imports::instance().HeapSetInformation)
+	if (!imports.HeapSetInformation)
 		return;
 
 	std::vector<HANDLE> Heaps(10);
@@ -117,7 +114,7 @@ void EnableLowFragmentationHeap()
 	for (const auto i: Heaps)
 	{
 		ULONG HeapFragValue = 2;
-		imports::instance().HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+		imports.HeapSetInformation(i, HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
 	}
 }
 
@@ -160,7 +157,7 @@ bool IsWow64Process()
 #ifdef _WIN64
 	return false;
 #else
-	static const auto Wow64Process = []{ BOOL Value = FALSE; return imports::instance().IsWow64Process(GetCurrentProcess(), &Value) && Value; }();
+	static const auto Wow64Process = []{ BOOL Value = FALSE; return imports.IsWow64Process(GetCurrentProcess(), &Value) && Value; }();
 	return Wow64Process;
 #endif
 }

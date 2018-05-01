@@ -33,9 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "editcontrol.hpp"
 #include "config.hpp"
 #include "keys.hpp"
@@ -384,7 +381,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 	int Result=0;
 	static int Reenter=0;
 	size_t EventsCount = 0;
-	Console().GetNumberOfInputEvents(EventsCount);
+	console.GetNumberOfInputEvents(EventsCount);
 	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && !m_Str.empty() && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
 	{
 		Reenter++;

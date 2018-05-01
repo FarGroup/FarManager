@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "platform.security.hpp"
 #include "keys.hpp"
 #include "chgprior.hpp"
@@ -136,7 +133,7 @@ static int MainProcess(
 {
 		SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 		FarColor InitAttributes={};
-		Console().GetTextAttributes(InitAttributes);
+		console.GetTextAttributes(InitAttributes);
 		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 		string ename(EditName),vname(ViewName), apanel(DestName1),ppanel(DestName2);
@@ -292,7 +289,7 @@ static int MainProcess(
 
 		// очистим за собой!
 		SetScreen(0,0,ScrX,ScrY,L' ',colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
-		Console().SetTextAttributes(InitAttributes);
+		console.SetTextAttributes(InitAttributes);
 		Global->ScrBuf->ResetLockCount();
 		Global->ScrBuf->Flush();
 
@@ -380,7 +377,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	}
 }
 
-static bool ProcessServiceModes(const range<const wchar_t**>& Args, int& ServiceResult)
+static bool ProcessServiceModes(const range<const wchar_t* const*>& Args, int& ServiceResult)
 {
 	const auto& isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
@@ -459,7 +456,7 @@ static void SetDriveMenuHotkeys()
 	}
 }
 
-static int mainImpl(const range<const wchar_t**>& Args)
+static int mainImpl(const range<const wchar_t* const*>& Args)
 {
 	setlocale(LC_ALL, "");
 
@@ -478,10 +475,10 @@ static int mainImpl(const range<const wchar_t**>& Args)
 
 	os::EnableLowFragmentationHeap();
 
-	if(!Console().IsFullscreenSupported())
+	if(!console.IsFullscreenSupported())
 	{
 		const BYTE ReserveAltEnter = 0x8;
-		imports::instance().SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
+		imports.SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
 	}
 
 	os::fs::InitCurrentDirectory();
@@ -794,34 +791,11 @@ static int mainImpl(const range<const wchar_t**>& Args)
 
 }
 
-void override_stream_buffers()
-{
-	std::ios::sync_with_stdio(false);
-
-	static consolebuf
-		BufIn,
-		BufOut,
-		BufErr,
-		BufLog;
-
-	auto Color = colors::ConsoleColorToFarColor(F_LIGHTRED);
-	MAKE_TRANSPARENT(Color.BackgroundColor);
-	BufErr.color(Color);
-
-	static const io::wstreambuf_override
-		In(std::wcin, BufIn),
-		Out(std::wcout, BufOut),
-		Err(std::wcerr, BufErr),
-		Log(std::wclog, BufLog);
-}
-
-static int wmain_seh(int Argc, const wchar_t* Argv[])
+static int wmain_seh(int Argc, const wchar_t* const Argv[])
 {
 #if defined(SYSLOG)
 	atexit(PrintSysLogStat);
 #endif
-
-	override_stream_buffers();
 
 	SCOPED_ACTION(tracer);
 	SCOPED_ACTION(unhandled_exception_filter);
@@ -870,7 +844,7 @@ int main()
 	{
 		// wmain is a non-standard extension and not available in gcc.
 		int Argc;
-		const os::memory::local::ptr<const wchar_t*> Argv(const_cast<const wchar_t**>(CommandLineToArgvW(GetCommandLine(), &Argc)));
+		const os::memory::local::ptr<const wchar_t* const> Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
 		return wmain_seh(Argc, Argv.get());
 	},
 	[]() -> int

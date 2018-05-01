@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "plist.hpp"
 #include "keys.hpp"
 #include "help.hpp"
@@ -91,7 +88,7 @@ static bool is_alttab_window(HWND const Window)
 	if (IsWindows8OrGreater())
 	{
 		int Cloaked = 0;
-		if (SUCCEEDED(imports::instance().DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked))) && Cloaked)
+		if (SUCCEEDED(imports.DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked))) && Cloaked)
 			return false;
 	}
 
@@ -117,7 +114,7 @@ static BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM Param)
 
 		if (Info->ShowImage)
 		{
-			if (const auto Process = os::handle(OpenProcess(imports::instance().QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, ProcID)))
+			if (const auto Process = os::handle(OpenProcess(imports.QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, ProcID)))
 				os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
 			
 			if (MenuItem.empty())

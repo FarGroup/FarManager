@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "cvtname.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
@@ -218,7 +215,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 	size_t DirectoryOffset;
 	if (ParsePath(Path, &DirectoryOffset) == root_type::volume)
 	{
-		if (imports::instance().GetVolumePathNamesForVolumeNameW)
+		if (imports.GetVolumePathNamesForVolumeNameW)
 		{
 			string VolumePathNames;
 			if (os::fs::GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), VolumePathNames))

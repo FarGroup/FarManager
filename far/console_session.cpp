@@ -30,9 +30,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "desktop.hpp"
 #include "global.hpp"
 #include "manager.hpp"
@@ -106,7 +103,7 @@ public:
 		Global->ScrBuf->SetLockCount(LockCount);
 
 		if (SetTextColour)
-			Console().SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
+			console.SetTextAttributes(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 	}
 
 	void DoPrologue() override

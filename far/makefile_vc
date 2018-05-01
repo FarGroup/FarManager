@@ -436,7 +436,7 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 
 .cpp{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPPFLAGS) /Yuheaders.hpp /Fp"$(PCH_FILE)" $<
+	$(CPPFLAGS) /Yuheaders.hpp /Fp"$(PCH_FILE)" /FI headers.hpp /FI memcheck.hpp $<
 <<
 
 #Do not use $(AS) here - nmake incorrectly substitutes ml64 when compiling in amd64_x86 environment

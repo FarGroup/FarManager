@@ -54,7 +54,7 @@ inline namespace concurrency
 	{
 	public:
 		NONCOPYABLE(critical_section);
-		MOVABLE(critical_section);
+		NONMOVABLE(critical_section);
 
 		critical_section();
 		~critical_section();

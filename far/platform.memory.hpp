@@ -95,7 +95,7 @@ namespace os::memory
 		{
 			struct deleter
 			{
-				void operator()(HLOCAL MemoryBlock) const;
+				void operator()(const void* MemoryBlock) const;
 			};
 		};
 

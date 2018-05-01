@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "farcolor.hpp"
 #include "chgprior.hpp"
 #include "savescr.hpp"
@@ -158,7 +155,7 @@ int ScreenSaver()
 
 	Global->ScreenSaverActive = true;
 	CONSOLE_CURSOR_INFO CursorInfo;
-	Console().GetCursorInfo(CursorInfo);
+	console.GetCursorInfo(CursorInfo);
 	{
 		SCOPED_ACTION(SaveScreen);
 		SetCursorType(false, 10);

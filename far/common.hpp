@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/singleton.hpp"
 #include "common/chrono.hpp"
 #include "common/multifunction.hpp"
+#include "common/nifty_counter.hpp"
 
 // TODO: clean up & split
 

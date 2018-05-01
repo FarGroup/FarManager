@@ -222,14 +222,29 @@ namespace os
 		{
 		public:
 			function_pointer(const module& Module, const char* Name):
-				m_module(Module),
-				m_pointer(reinterpret_cast<T>(m_module.GetProcAddress(Name)))
+				m_Module(&Module),
+				m_Name(Name)
 			{}
-			operator T() const { return m_pointer; }
+
+			operator T() const { return get_pointer(); }
+			explicit operator bool() const noexcept { return get_pointer() != nullptr; }
 
 		private:
-			const module& m_module;
-			mutable T m_pointer;
+			T get_pointer() const
+			{
+				if (!m_Tried)
+				{
+					m_Pointer = reinterpret_cast<T>(m_Module->GetProcAddress(m_Name));
+					m_Tried = true;
+				}
+
+				return m_Pointer;
+			}
+
+			const module* m_Module;
+			const char* m_Name;
+			mutable T m_Pointer{};
+			mutable bool m_Tried{};
 		};
 	}
 

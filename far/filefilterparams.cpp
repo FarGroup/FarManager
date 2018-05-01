@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "farcolor.hpp"
 #include "filemasks.hpp"
 #include "dialog.hpp"
@@ -767,7 +764,7 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 			}
 
 			//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
-			Console().GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? EditData->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : EditData->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, true);
+			console.GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? EditData->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : EditData->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, true);
 
 			size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 			block_ptr<FarDialogItem> Buffer(Size);

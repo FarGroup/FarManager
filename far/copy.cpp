@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "copy.hpp"
 #include "keys.hpp"
 #include "flink.hpp"
@@ -247,7 +244,7 @@ static void GenerateName(string &strName, const string& Path)
 
 void CheckAndUpdateConsole()
 {
-	const auto hWnd = Console().GetWindow();
+	const auto hWnd = console.GetWindow();
 	if (ZoomedState != (IsZoomed(hWnd) != FALSE) && IconicState == (IsIconic(hWnd) != FALSE))
 	{
 		ZoomedState = !ZoomedState;
@@ -520,8 +517,8 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		SingleSelectedFileSize = Data.FileSize;
 	}
 
-	ZoomedState = IsZoomed(Console().GetWindow()) != FALSE;
-	IconicState = IsIconic(Console().GetWindow()) != FALSE;
+	ZoomedState = IsZoomed(console.GetWindow()) != FALSE;
+	IconicState = IsIconic(console.GetWindow()) != FALSE;
 	bool ShowTotalCopySize = Global->Opt->CMOpt.CopyShowTotal;
 	auto DestPlugin = ToPlugin;
 	ToPlugin = 0;

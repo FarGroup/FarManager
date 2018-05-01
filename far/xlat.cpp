@@ -43,9 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "Rules3"="^::ЖЖ^$;;жж$@\"\"ЭЭ@&??,,бб&/..юю/"
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "config.hpp"
 #include "xlat.hpp"
 #include "console.hpp"
@@ -135,7 +132,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	bool ProcessLayoutName=false;
 	StringOption RulesNamed;
 
-	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && Console().GetKeyboardLayoutName(strLayoutName))
+	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && console.GetKeyboardLayoutName(strLayoutName))
 	{
 		/*
 			Уточнение по поводу этого куска, чтобы потом не вспоминать ;-)
@@ -275,7 +272,7 @@ wchar_t* Xlat(wchar_t *Line, int StartPos, int EndPos, unsigned long long Flags)
 	// переключаем раскладку клавиатуры?
 	if (Flags & XLAT_SWITCHKEYBLAYOUT)
 	{
-		if (const auto hWnd = Console().GetWindow())
+		if (const auto hWnd = console.GetWindow())
 		{
 			HKL Next = nullptr;
 

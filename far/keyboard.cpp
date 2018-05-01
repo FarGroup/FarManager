@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -591,7 +588,7 @@ static void DropConsoleInputEvent()
 {
 	INPUT_RECORD rec;
 	size_t ReadCount;
-	Console().ReadInput(&rec, 1, ReadCount);
+	console.ReadInput(&rec, 1, ReadCount);
 }
 
 static void UpdateIntKeyState(DWORD CtrlState)
@@ -626,7 +623,7 @@ static DWORD ProcessFocusEvent(bool Got)
 
 static DWORD ProcessBufferSizeEvent(COORD Size)
 {
-	if (!IsZoomed(Console().GetWindow()))
+	if (!IsZoomed(console.GetWindow()))
 	{
 		SaveNonMaximisedBufferSize(Size);
 	}
@@ -635,7 +632,7 @@ static DWORD ProcessBufferSizeEvent(COORD Size)
 	static auto StoredConsoleFullscreen = false;
 
 	DWORD DisplayMode = 0;
-	const auto CurrentConsoleFullscreen = IsWindows10OrGreater() && Console().GetDisplayMode(DisplayMode) && DisplayMode & CONSOLE_FULLSCREEN;
+	const auto CurrentConsoleFullscreen = IsWindows10OrGreater() && console.GetDisplayMode(DisplayMode) && DisplayMode & CONSOLE_FULLSCREEN;
 	const auto TransitionFromFullScreen = StoredConsoleFullscreen && !CurrentConsoleFullscreen;
 	StoredConsoleFullscreen = CurrentConsoleFullscreen;
 
@@ -800,8 +797,8 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	LastEventIdle = false;
 
-	auto ZoomedState = IsZoomed(Console().GetWindow());
-	auto IconicState = IsIconic(Console().GetWindow());
+	auto ZoomedState = IsZoomed(console.GetWindow());
+	auto IconicState = IsIconic(console.GetWindow());
 
 	auto FullscreenState = IsConsoleFullscreen();
 
@@ -809,7 +806,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	for (;;)
 	{
 		// "Реакция" на максимизацию/восстановление окна консоли
-		if (ZoomedState!=IsZoomed(Console().GetWindow()) && IconicState==IsIconic(Console().GetWindow()))
+		if (ZoomedState!=IsZoomed(console.GetWindow()) && IconicState==IsIconic(console.GetWindow()))
 		{
 			ZoomedState=!ZoomedState;
 			ChangeVideoMode(ZoomedState != FALSE);
@@ -831,7 +828,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		}
 
 		size_t ReadCount;
-		Console().PeekInput(rec, 1, ReadCount);
+		console.PeekInput(rec, 1, ReadCount);
 		if (ReadCount)
 		{
 			//check for flock
@@ -979,7 +976,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	{
 		size_t ReadCount;
-		Console().ReadInput(rec, 1, ReadCount);
+		console.ReadInput(rec, 1, ReadCount);
 	}
 
 	if (EnableShowTime)
@@ -994,7 +991,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	{
 		// Do not use rec->Event.WindowBufferSizeEvent.dwSize here - we need a 'virtual' size
 		COORD Size;
-		return Console().GetSize(Size)? ProcessBufferSizeEvent(Size) : static_cast<DWORD>(KEY_CONSOLE_BUFFER_RESIZE);
+		return console.GetSize(Size)? ProcessBufferSizeEvent(Size) : static_cast<DWORD>(KEY_CONSOLE_BUFFER_RESIZE);
 	}
 
 	if (rec->EventType==KEY_EVENT)
@@ -1095,7 +1092,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	}
 	else
 	{
-		Console().PeekInput(rec, 1, ReadCount);
+		console.PeekInput(rec, 1, ReadCount);
 	}
 
 	if (!ReadCount)

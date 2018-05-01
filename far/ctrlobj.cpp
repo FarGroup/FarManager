@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "cmdline.hpp"
@@ -146,8 +143,8 @@ void ControlObject::ShowCopyright(DWORD Flags)
 	else
 	{
 		COORD Size, CursorPosition;
-		Console().GetSize(Size);
-		Console().GetCursorPosition(CursorPosition);
+		console.GetSize(Size);
+		console.GetCursorPosition(CursorPosition);
 		int FreeSpace=Size.Y-CursorPosition.Y-1;
 
 		if (FreeSpace<5)

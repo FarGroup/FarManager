@@ -35,13 +35,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-class imports: public singleton<imports>
+namespace imports_detail
 {
-	IMPLEMENTS_SINGLETON(imports);
 
-private:
+class imports
+{
+public:
 	imports();
 
+private:
 	const os::rtdl::module
 		m_ntdll,
 		m_kernel32,
@@ -59,20 +61,20 @@ private:
 	public:
 		NONCOPYABLE(unique_function_pointer);
 
-		explicit unique_function_pointer(const os::rtdl::module& Module): m_module(Module) {}
+		explicit unique_function_pointer(const os::rtdl::module& Module): m_module(&Module) {}
 		operator T() const { return get_pointer(); }
 		explicit operator bool() const noexcept { return get_pointer() != stub; }
 
 	private:
 		T get_pointer() const
 		{
-			static const T dyn_pointer = reinterpret_cast<T>(m_module.GetProcAddress(Y::get()));
+			static const T dyn_pointer = reinterpret_cast<T>(m_module->GetProcAddress(Y::get()));
 			// TODO: log if nullptr
 			static const T pointer = dyn_pointer? dyn_pointer : stub;
 			return pointer;
 		}
 
-		const os::rtdl::module& m_module;
+		const os::rtdl::module* m_module;
 	};
 
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ...)\
@@ -98,7 +100,7 @@ public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NA
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, FindNextFileNameW, HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName);
 	DECLARE_IMPORT_FUNCTION(HANDLE, WINAPI, FindFirstStreamW, LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, FindNextStreamW, HANDLE FindStream, LPVOID FindStreamData);
-	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetFinalPathNameByHandleW, HANDLE file, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags);
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetFinalPathNameByHandleW, HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetVolumePathNamesForVolumeNameW, LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes);
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, HeapSetInformation, HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength);
@@ -131,7 +133,7 @@ public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NA
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmGetList, DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons);
 
 	// netapi32
-	DECLARE_IMPORT_FUNCTION(NET_API_STATUS, NET_API_FUNCTION, NetDfsGetInfo, LPWSTR path, LPWSTR reserved_serv, LPWSTR reserved_share, DWORD level, LPBYTE *buff);
+	DECLARE_IMPORT_FUNCTION(NET_API_STATUS, NET_API_FUNCTION, NetDfsGetInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer);
 
 	// dbghelp
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, MiniDumpWriteDump, HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
@@ -148,5 +150,9 @@ public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NA
 
 #undef DECLARE_IMPORT_FUNCTION
 };
+
+}
+
+NIFTY_DECLARE(imports_detail::imports, imports);
 
 #endif // IMPORTS_HPP_0589C56B_4071_48EE_B07F_312C2E392280

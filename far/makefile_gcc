@@ -234,7 +234,7 @@ $(OBJDIR)initguid.o: initguid.cpp
 
 $(OBJDIR)%.o: %.cpp
 	@echo $<
-	$(CXX) $(CCFLAGS) -c -include $(OBJDIR)headers -o $@ $<
+	$(CXX) $(CCFLAGS) -c -include $(OBJDIR)headers -include headers.hpp -include memcheck.hpp -o $@ $<
 
 $(OBJDIR)headers.gch: headers.cpp headers.hpp
 	@echo Making precompiled headers

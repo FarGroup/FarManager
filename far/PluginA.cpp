@@ -29,10 +29,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-
-#pragma hdrstop
-
 #ifndef NO_WRAPPER
 
 #include "plugins.hpp"
@@ -4666,11 +4662,9 @@ char* WINAPI XlatA(
 		auto NewFlags = XLAT_NONE;
 		FirstFlagsToSecond(Flags, NewFlags, PluginFlagsMap);
 
-		const auto strLine = encoding::oem::get_chars(Line);
-		// XLat expects null-terminated string
-		std::vector<wchar_t> Buffer(strLine.data(), strLine.data() + strLine.size() + 1);
-		NativeFSF.XLat(Buffer.data(), StartPos, EndPos, NewFlags);
-		encoding::oem::get_bytes({ Buffer.data(), strLine.size() }, Line, strLine.size());
+		auto WideLine = encoding::oem::get_chars(Line);
+		NativeFSF.XLat(WideLine.data(), StartPos, EndPos, NewFlags);
+		encoding::oem::get_bytes(WideLine, Line, WideLine.size());
 		return Line;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())

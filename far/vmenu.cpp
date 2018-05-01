@@ -35,9 +35,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "vmenu.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
@@ -1369,24 +1366,22 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		{
 			if (bFilterEnabled && !bFilterLocked)
 			{
-				const auto FilterString = strFilter.c_str();
 				int start = static_cast<int>(strFilter.size());
 				bool DoXlat = true;
 
-				if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]))
+				if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat, strFilter[start]))
 				{
 					if (start) start--;
-					DoXlat=(!IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]));
+					DoXlat = !IsWordDiv(Global->Opt->XLat.strWordDivForXlat, strFilter[start]);
 				}
 
 				if (DoXlat)
 				{
-					while (start>=0 && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]))
+					while (start >= 0 && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat, strFilter[start]))
 						start--;
 
 					start++;
-					::Xlat(const_cast<wchar_t*>(FilterString), start, static_cast<int>(strFilter.size()), Global->Opt->XLat.Flags);
-					SetFilterString(FilterString);
+					::Xlat(strFilter.data(), start, static_cast<int>(strFilter.size()), Global->Opt->XLat.Flags);
 					FilterStringUpdated();
 					DisplayObject();
 				}

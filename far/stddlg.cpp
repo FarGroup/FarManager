@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "stddlg.hpp"
 #include "dialog.hpp"
 #include "strmix.hpp"
@@ -454,19 +451,19 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, con
 {
 	DWORD Session;
 	WCHAR SessionKey[CCH_RM_SESSION_KEY + 1] = {};
-	if (imports::instance().RmStartSession(&Session, 0, SessionKey) != ERROR_SUCCESS)
+	if (imports.RmStartSession(&Session, 0, SessionKey) != ERROR_SUCCESS)
 		return 0;
 
-	SCOPE_EXIT{ imports::instance().RmEndSession(Session); };
+	SCOPE_EXIT{ imports.RmEndSession(Session); };
 	auto FilenamePtr = Filename.c_str();
-	if (imports::instance().RmRegisterResources(Session, 1, &FilenamePtr, 0, nullptr, 0, nullptr) != ERROR_SUCCESS)
+	if (imports.RmRegisterResources(Session, 1, &FilenamePtr, 0, nullptr, 0, nullptr) != ERROR_SUCCESS)
 		return 0;
 
 	DWORD RmGetListResult;
 	UINT ProceccInfoSizeNeeded;
 	UINT ProcessInfoSize = 1;
 	std::vector<RM_PROCESS_INFO> ProcessInfos(ProcessInfoSize);
-	while ((RmGetListResult = imports::instance().RmGetList(Session, &ProceccInfoSizeNeeded, &ProcessInfoSize, ProcessInfos.data(), &Reasons)) == ERROR_MORE_DATA)
+	while ((RmGetListResult = imports.RmGetList(Session, &ProceccInfoSizeNeeded, &ProcessInfoSize, ProcessInfos.data(), &Reasons)) == ERROR_MORE_DATA)
 	{
 		ProcessInfoSize = ProceccInfoSizeNeeded;
 		ProcessInfos.resize(ProcessInfoSize);

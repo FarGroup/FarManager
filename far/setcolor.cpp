@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "setcolor.hpp"
 #include "farcolor.hpp"
 #include "vmenu.hpp"
@@ -54,7 +51,7 @@ void GetColor(PaletteColors PaletteIndex)
 {
 	auto NewColor = Global->Opt->Palette[PaletteIndex];
 
-	if (!Console().GetColorDialog(NewColor))
+	if (!console.GetColorDialog(NewColor))
 		return;
 
 	Global->Opt->Palette.Set(PaletteIndex, &NewColor, 1);

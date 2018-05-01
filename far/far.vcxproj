@@ -23,7 +23,7 @@
     <ProjectGuid>{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}</ProjectGuid>
     <RootNamespace>far</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)' == '15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -81,7 +81,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <Cpp0xSupport>true</Cpp0xSupport>
       <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
-      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
+      <ForcedIncludeFiles>disabled_warnings.hpp;headers.hpp;memcheck.hpp</ForcedIncludeFiles>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
     </ClCompile>
@@ -242,12 +242,14 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="hmenu.cpp" />
     <ClCompile Include="hook_wow64.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="hotplug.cpp" />
     <ClCompile Include="imports.cpp" />
     <ClCompile Include="initguid.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="infolist.cpp" />
     <ClCompile Include="interf.cpp" />
@@ -303,9 +305,11 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="setcolor.cpp" />
     <ClCompile Include="sqlite.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="sqlite_unicode.c">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="sqlitedb.cpp" />
     <ClCompile Include="stddlg.cpp" />
@@ -321,6 +325,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="usermenu.cpp" />
     <ClCompile Include="vc_crt_fix_impl.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
       <AdditionalOptions>/Zc:threadSafeInit- $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <ClCompile Include="viewer.cpp" />
@@ -339,6 +344,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\enum_tokens.hpp" />
     <ClInclude Include="common\movable.hpp" />
     <ClInclude Include="common\multifunction.hpp" />
+    <ClInclude Include="common\nifty_counter.hpp" />
     <ClInclude Include="common\null_iterator.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
     <ClInclude Include="common\function_traits.hpp" />

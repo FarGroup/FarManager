@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "editor.hpp"
 #include "edit.hpp"
 #include "keyboard.hpp"
@@ -6478,9 +6475,7 @@ void Editor::Xlat()
 {
 	const auto& XLatStr = [&](Edit::edit_string& Str, int StartPos, int EndPos)
 	{
-		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(Str));
-		::Xlat(Buffer.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
-		Str.assign(Buffer.data(), Buffer.size());
+		::Xlat(Str.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
 	};
 
 	bool DoXlat = false;

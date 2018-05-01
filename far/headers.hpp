@@ -195,8 +195,6 @@ using string = std::wstring;
 using namespace std::string_literals;
 using namespace std::chrono_literals;
 
-#include "memcheck.hpp"
-
 #include "common.hpp"
 
 #include "format.hpp"

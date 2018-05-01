@@ -31,10 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "imports.hpp"
+
+namespace imports_detail
+{
 
 imports::imports():
 #define INIT_MODULE(module) m_ ## module(L## #module)
@@ -372,7 +372,7 @@ DWORD WINAPI imports::stub_RmGetList(DWORD dwSessionHandle, UINT *pnProcInfoNeed
 }
 
 // netapi32
-NET_API_STATUS NET_API_FUNCTION imports::stub_NetDfsGetInfo(LPWSTR path, LPWSTR reserved1, LPWSTR reserved2, DWORD level, LPBYTE *buff)
+NET_API_STATUS NET_API_FUNCTION imports::stub_NetDfsGetInfo(LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer)
 {
 	// TODO: log
 	return NERR_InvalidAPI;
@@ -447,3 +447,7 @@ HRESULT WINAPI imports::stub_DwmGetWindowAttribute(HWND  hwnd, DWORD dwAttribute
 	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;
 }
+
+}
+
+NIFTY_DEFINE(imports_detail::imports, imports);

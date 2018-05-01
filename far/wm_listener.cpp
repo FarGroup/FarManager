@@ -30,9 +30,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "wm_listener.hpp"
 #include "config.hpp"
 #include "imports.hpp"
@@ -159,8 +156,8 @@ void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 		return;
 
 	// for PBT_POWERSETTINGCHANGE
-	const auto hpn = imports::instance().RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
-	SCOPE_EXIT{ if (hpn) imports::instance().UnregisterPowerSettingNotification(hpn); };
+	const auto hpn = imports.RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+	SCOPE_EXIT{ if (hpn) imports.UnregisterPowerSettingNotification(hpn); };
 
 	MSG Msg;
 	WndProcExceptionPtr = &m_ExceptionPtr;

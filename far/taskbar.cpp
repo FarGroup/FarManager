@@ -30,9 +30,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "taskbar.hpp"
 #include "console.hpp"
 
@@ -48,7 +45,7 @@ void taskbar::SetProgressState(TBPFLAG tbpFlags)
 		return;
 
 	m_State=tbpFlags;
-	m_TaskbarList->SetProgressState(Console().GetWindow(),tbpFlags);
+	m_TaskbarList->SetProgressState(console.GetWindow(),tbpFlags);
 }
 
 void taskbar::SetProgressValue(unsigned long long Completed, unsigned long long Total)
@@ -57,7 +54,7 @@ void taskbar::SetProgressValue(unsigned long long Completed, unsigned long long 
 		return;
 
 	m_State=TBPF_NORMAL;
-	m_TaskbarList->SetProgressValue(Console().GetWindow(),Completed,Total);
+	m_TaskbarList->SetProgressValue(console.GetWindow(),Completed,Total);
 }
 
 TBPFLAG taskbar::GetProgressState() const
@@ -67,7 +64,7 @@ TBPFLAG taskbar::GetProgressState() const
 
 void taskbar::Flash()
 {
-	const auto ConsoleWindow = Console().GetWindow();
+	const auto ConsoleWindow = console.GetWindow();
 	WINDOWINFO WindowInfo{ sizeof(WindowInfo)};
 
 	if (!GetWindowInfo(ConsoleWindow, &WindowInfo))

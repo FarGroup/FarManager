@@ -28,9 +28,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "tracer.hpp"
 #include "imports.hpp"
 #include "farexcpt.hpp"
@@ -59,7 +56,7 @@ static auto GetBackTrace(const exception_context& Context)
 	StackFrame.AddrFrame.Mode = AddrModeFlat;
 	StackFrame.AddrStack.Mode = AddrModeFlat;
 
-	while (imports::instance().StackWalk64(MachineType, GetCurrentProcess(), Context.thread_handle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
+	while (imports.StackWalk64(MachineType, GetCurrentProcess(), Context.thread_handle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
 	{
 		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}
@@ -75,7 +72,7 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 	Symbol->MaxNameLen = MaxNameLen;
 
-	imports::instance().SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
+	imports.SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
 
 	IMAGEHLP_MODULEW64 Module{ static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8)) }; // use the pre-07-Jun-2002 struct size, aligned to 8
 	IMAGEHLP_LINE64 Line{ sizeof(Line) };
@@ -86,9 +83,9 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	for (const auto i: BackTrace)
 	{
 		const auto Address = reinterpret_cast<DWORD_PTR>(i);
-		const auto GotName = imports::instance().SymFromAddr(Process, Address, nullptr, Symbol.get()) != FALSE;
-		const auto GotModule = imports::instance().SymGetModuleInfoW64(Process, Address, &Module) != FALSE;
-		const auto GotSource = imports::instance().SymGetLineFromAddr64(Process, Address, &Displacement, &Line) != FALSE;
+		const auto GotName = imports.SymFromAddr(Process, Address, nullptr, Symbol.get()) != FALSE;
+		const auto GotModule = imports.SymGetModuleInfoW64(Process, Address, &Module) != FALSE;
+		const auto GotSource = imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line) != FALSE;
 
 		Consumer(format(L"0x{0:0{1}X}", Address, MaxAddressSize),
 			format(L"{0}!{1}", GotModule? PointToName(Module.ImageName) : L""_sv, GotName? encoding::ansi::get_chars(Symbol->Name) : L""s),
@@ -129,13 +126,13 @@ static LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 }
 
 tracer::veh_handler::veh_handler(PVECTORED_EXCEPTION_HANDLER Handler):
-	m_Handler(imports::instance().AddVectoredExceptionHandler(TRUE, Handler))
+	m_Handler(imports.AddVectoredExceptionHandler(TRUE, Handler))
 {
 }
 
 tracer::veh_handler::~veh_handler()
 {
-	imports::instance().RemoveVectoredExceptionHandler(m_Handler);
+	imports.RemoveVectoredExceptionHandler(m_Handler);
 }
 
 tracer::tracer():
@@ -236,7 +233,7 @@ bool tracer::SymInitialise()
 {
 	if (!m_SymInitialised)
 	{
-		m_SymInitialised = imports::instance().SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.c_str()), TRUE) != FALSE;
+		m_SymInitialised = imports.SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.c_str()), TRUE) != FALSE;
 	}
 	return m_SymInitialised;
 }
@@ -245,6 +242,6 @@ void tracer::SymCleanup()
 {
 	if (m_SymInitialised)
 	{
-		m_SymInitialised = !imports::instance().SymCleanup(GetCurrentProcess());
+		m_SymInitialised = !imports.SymCleanup(GetCurrentProcess());
 	}
 }

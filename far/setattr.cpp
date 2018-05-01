@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "flink.hpp"
 #include "dialog.hpp"
 #include "chgprior.hpp"
@@ -912,7 +909,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								string path(SrcPanel->GetCurDir() + L'\\' + SingleSelFileName);
 								os::netapi::ptr<DFS_INFO_3> DfsInfo;
-								if (imports::instance().NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
+								if (imports.NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
 								{
 									KnownReparsePoint = true;
 

@@ -29,9 +29,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "platform.memory.hpp"
 
 namespace os::memory
@@ -76,9 +73,9 @@ namespace os::memory
 	{
 		namespace detail
 		{
-			void deleter::operator()(HLOCAL MemoryBlock) const
+			void deleter::operator()(const void* MemoryBlock) const
 			{
-				LocalFree(MemoryBlock);
+				LocalFree(const_cast<HLOCAL>(MemoryBlock));
 			}
 		}
 	}

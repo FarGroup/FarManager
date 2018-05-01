@@ -39,6 +39,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #ifdef MEMCHECK
+
+#include "common/nifty_counter.hpp"
+
+namespace memcheck
+{
+	class checker;
+}
+
+NIFTY_DECLARE(memcheck::checker, Checker);
+
 void* operator new(size_t size, const char* Function, const char* File, int Line);
 void* operator new(size_t size, const std::nothrow_t& nothrow_value, const char* Function, const char* File, int Line) noexcept;
 void* operator new[](size_t size, const char* Function, const char* File, int Line);

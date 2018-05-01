@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "syslog.hpp"
 #include "filelist.hpp"
 #include "manager.hpp"
@@ -1752,7 +1749,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	int InternalLog = !fp;
 	size_t ReadCount2;
 	// берем количество оставшейся порции эвентов
-	Console().GetNumberOfInputEvents(ReadCount2);
+	console.GetNumberOfInputEvents(ReadCount2);
 
 	if (ReadCount2 <= 1)
 		return;
@@ -1773,7 +1770,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	{
 		std::vector<INPUT_RECORD> TmpRec(ReadCount2);
 		size_t ReadCount3;
-		Console().PeekInput(TmpRec.data(), TmpRec.size(), ReadCount3);
+		console.PeekInput(TmpRec.data(), TmpRec.size(), ReadCount3);
 
 		for (DWORD I=0; I < ReadCount3; ++I)
 		{

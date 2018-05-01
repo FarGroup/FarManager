@@ -105,6 +105,10 @@ Type& operator=(__VA_ARGS__ rhs) { return *this = Type(rhs); }
 COPY_AND_MOVE(Type, const Type&) \
 Type(const Type&) = default
 
+#define NONMOVABLE(Type) \
+Type(Type&&) = delete; \
+Type& operator=(Type&&) = delete
+
 #define MOVABLE(Type) \
 Type(Type&&) = default; \
 Type& operator=(Type&&) = default

@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "plugapi.hpp"
 #include "keys.hpp"
 #include "help.hpp"
@@ -691,7 +688,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return TRUE;
 
 		case ACTL_GETFARHWND:
-			return reinterpret_cast<intptr_t>(Console().GetWindow());
+			return reinterpret_cast<intptr_t>(console.GetWindow());
 
 		case ACTL_REDRAWALL:
 		{
@@ -729,12 +726,12 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					auto& Rect = *static_cast<PSMALL_RECT>(Param2);
 					if(Global->Opt->WindowMode)
 					{
-						Result=Console().GetWorkingRect(Rect);
+						Result=console.GetWorkingRect(Rect);
 					}
 					else
 					{
 						COORD Size;
-						if(Console().GetSize(Size))
+						if(console.GetSize(Size))
 						{
 							Rect.Left=0;
 							Rect.Top=0;
@@ -753,7 +750,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if(Param2)
 				{
 					auto& Pos = *static_cast<PCOORD>(Param2);
-					Result=Console().GetCursorPosition(Pos);
+					Result=console.GetCursorPosition(Pos);
 				}
 				return Result;
 			}
@@ -764,7 +761,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if(Param2)
 				{
 					auto& Pos = *static_cast<PCOORD>(Param2);
-					Result=Console().SetCursorPosition(Pos);
+					Result=console.SetCursorPosition(Pos);
 				}
 				return Result;
 			}
@@ -2788,7 +2785,7 @@ BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, FarColo
 	try
 	{
 		return !Global->WindowManager->ManagerIsDown()?
-			Console().GetColorDialog(*Color, true, false):
+			console.GetColorDialog(*Color, true, false):
 			FALSE;
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())

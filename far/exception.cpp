@@ -28,9 +28,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "exception.hpp"
 #include "imports.hpp"
 #include "encoding.hpp"
@@ -40,7 +37,7 @@ error_state error_state::fetch()
 {
 	error_state State;
 	State.Win32Error = GetLastError();
-	State.NtError = imports::instance().RtlGetLastNtStatus();
+	State.NtError = imports.RtlGetLastNtStatus();
 	State.m_Engaged = true;
 	return State;
 }

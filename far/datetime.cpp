@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "datetime.hpp"
 #include "config.hpp"
 #include "strmix.hpp"
@@ -735,9 +732,9 @@ bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)
 
 static bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 {
-	if (imports::instance().TzSpecificLocalTimeToSystemTime)
+	if (imports.TzSpecificLocalTimeToSystemTime)
 	{
-		return imports::instance().TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
+		return imports.TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
 	}
 
 	std::tm ltm

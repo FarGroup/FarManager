@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "execute.hpp"
 #include "keyboard.hpp"
 #include "ctrlobj.hpp"
@@ -579,7 +576,7 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 	if (IsWindowsVistaOrGreater())
 	{
 		os::com::ptr<IApplicationAssociationRegistration> AAR;
-		if (SUCCEEDED(imports::instance().SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
+		if (SUCCEEDED(imports.SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
 		{
 			os::com::memory<wchar_t*> Association;
 			if (SUCCEEDED(AAR->QueryCurrentDefault(null_terminated(Ext).c_str(), aType, AL_EFFECTIVE, &ptr_setter(Association))))
@@ -902,12 +899,12 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	if(!Silent)
 	{
-		ConsoleCP = Console().GetInputCodepage();
-		ConsoleOutputCP = Console().GetOutputCodepage();
+		ConsoleCP = console.GetInputCodepage();
+		ConsoleOutputCP = console.GetOutputCodepage();
 		FlushInputBuffer();
-		ChangeConsoleMode(Console().GetInputHandle(), InitialConsoleMode);
-		Console().GetWindowRect(ConsoleWindowRect);
-		Console().GetSize(ConsoleSize);
+		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode);
+		console.GetWindowRect(ConsoleWindowRect);
+		console.GetSize(ConsoleSize);
 
 		if (Global->Opt->Exec.ExecuteFullTitle)
 		{
@@ -1012,8 +1009,8 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					  Отделение фаровской консоли от неинтерактивного процесса.
 					  Задаётся кнопкой в System/ConsoleDetachKey
 					*/
-					HANDLE hOutput = Console().GetOutputHandle();
-					HANDLE hInput = Console().GetInputHandle();
+					HANDLE hOutput = console.GetOutputHandle();
+					HANDLE hInput = console.GetInputHandle();
 					INPUT_RECORD ir[256];
 					size_t rd;
 					int vkey=0,ctrl=0;
@@ -1025,7 +1022,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
 					while (!Process.wait(100ms))
 					{
-						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console().PeekInput(ir, 256, rd) && rd)
+						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && console.PeekInput(ir, 256, rd) && rd)
 						{
 							int stop=0;
 
@@ -1045,11 +1042,11 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 									        (ctrl ?bCtrl:!bCtrl) &&
 									        (shift ?bShift:!bShift))
 									{
-										const auto Aliases = Console().GetAllAliases();
+										const auto Aliases = console.GetAllAliases();
 
 										consoleicons::instance().restorePreviousIcons();
 
-										Console().ReadInput(ir, 256, rd);
+										console.ReadInput(ir, 256, rd);
 										/*
 										  Не будем вызывать CloseConsole, потому, что она поменяет
 										  ConsoleMode на тот, что был до запуска Far'а,
@@ -1058,20 +1055,20 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 										CloseHandle(hInput);
 										CloseHandle(hOutput);
 										ClearKeyQueue();
-										Console().Free();
-										Console().Allocate();
+										console.Free();
+										console.Allocate();
 
-										if (const auto hWnd = Console().GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
+										if (const auto hWnd = console.GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
 											SendMessage(hWnd, WM_SETHOTKEY, 0, 0);
 
-										Console().SetSize(ConsoleSize);
-										Console().SetWindowRect(ConsoleWindowRect);
-										Console().SetSize(ConsoleSize);
+										console.SetSize(ConsoleSize);
+										console.SetWindowRect(ConsoleWindowRect);
+										console.SetSize(ConsoleSize);
 										Sleep(100);
 										InitConsole(0);
 
 										consoleicons::instance().setFarIcons();
-										Console().SetAllAliases(Aliases);
+										console.SetAllAliases(Aliases);
 										stop=1;
 										break;
 									}
@@ -1110,11 +1107,11 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	}
 
 	CONSOLE_CURSOR_INFO cci = { CursorSize, Visible };
-	Console().SetCursorInfo(cci);
+	console.SetCursorInfo(cci);
 
 	{
 		COORD ConSize;
-		if (Console().GetSize(ConSize) && (ConSize.X != ScrX + 1 || ConSize.Y != ScrY + 1))
+		if (console.GetSize(ConSize) && (ConSize.X != ScrX + 1 || ConSize.Y != ScrY + 1))
 		{
 			ChangeVideoMode(ConSize.Y, ConSize.X);
 		}
@@ -1122,8 +1119,8 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	if (Global->Opt->Exec.RestoreCPAfterExecute)
 	{
-		Console().SetInputCodepage(ConsoleCP);
-		Console().SetOutputCodepage(ConsoleOutputCP);
+		console.SetInputCodepage(ConsoleCP);
+		console.SetOutputCodepage(ConsoleOutputCP);
 	}
 
 	if (!Result)
@@ -1400,7 +1397,7 @@ bool ExpandOSAliases(string& strStr)
 
 	auto ExeName = PointToName(Global->g_strFarModuleName);
 	wchar_t_ptr Buffer(4096);
-	int ret = Console().GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
+	int ret = console.GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
 
 	if (!ret)
 	{
@@ -1408,7 +1405,7 @@ bool ExpandOSAliases(string& strStr)
 		if (!strComspec.empty())
 		{
 			ExeName=PointToName(strComspec);
-			ret = Console().GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
+			ret = console.GetAlias(strNewCmdStr, Buffer.get(), Buffer.size() * sizeof(wchar_t), ExeName);
 		}
 	}
 

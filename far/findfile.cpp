@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "findfile.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
@@ -1336,7 +1333,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					{
 						ProcessMessage(Data);
 					}
-					Console().GetNumberOfInputEvents(EventsCount);
+					console.GetNumberOfInputEvents(EventsCount);
 				}
 			}
 		}
@@ -1783,7 +1780,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 	if (!isKnownKey)
 		return;
 
-	const auto strOldTitle = Console().GetTitle();
+	const auto strOldTitle = console.GetTitle();
 	const auto shortFileName = ExtractFileName(strSearchFileName);
 
 	if (shouldForceInternal || !ProcessLocalFileTypes(strSearchFileName, shortFileName, openMode, PluginMode))
@@ -1849,7 +1846,7 @@ void FindFiles::OpenFile(string strSearchFileName, int openKey, const FindListIt
 		}
 	}
 
-	Console().SetTitle(strOldTitle);
+	console.SetTitle(strOldTitle);
 }
 
 void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc)

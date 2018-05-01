@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "cmdline.hpp"
 #include "platform.security.hpp"
 #include "execute.hpp"
@@ -1224,7 +1221,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 			return false;
 		}
 
-		if (!Console().SetInputCodepage(cp) || !Console().SetOutputCodepage(cp))
+		if (!console.SetInputCodepage(cp) || !console.SetOutputCodepage(cp))
 			return false;
 
 		ConsoleActivatior(false);

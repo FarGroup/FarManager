@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "encoding.hpp"
 #include "strmix.hpp"
 #include "exception.hpp"
@@ -305,7 +302,7 @@ std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str,
 
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_bytes(Codepage, Str, &Buffer[0], Buffer.size(), UsedDefaultChar);
+		const auto Size = get_bytes(Codepage, Str, Buffer.data(), Buffer.size(), UsedDefaultChar);
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
@@ -379,7 +376,7 @@ string encoding::get_chars(uintptr_t const Codepage, basic_string_view<char> con
 	string Buffer(EstimatedCharsCount(), L'\0');
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_chars(Codepage, Str, &Buffer[0], Buffer.size());
+		const auto Size = get_chars(Codepage, Str, Buffer.data(), Buffer.size());
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}

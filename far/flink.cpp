@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "flink.hpp"
 #include "platform.security.hpp"
 #include "imports.hpp"
@@ -180,7 +177,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 					{
 						Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
 					}
-					if (imports::instance().CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
+					if (imports.CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
 					{
 						Result=os::fs::CreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}

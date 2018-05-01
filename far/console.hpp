@@ -43,109 +43,115 @@ enum CLEAR_REGION
 	CR_BOTH=CR_TOP|CR_RIGHT,
 };
 
-class console: noncopyable
+namespace console_detail
 {
-public:
-	virtual ~console() = default;
+	class console
+	{
+	public:
+		NONCOPYABLE(console);
 
-	virtual bool Allocate() const = 0;
-	virtual bool Free() const = 0;
+		console();
+		~console();
 
-	virtual HANDLE GetInputHandle() const = 0;
-	virtual HANDLE GetOutputHandle() const = 0;
-	virtual HANDLE GetErrorHandle() const = 0;
+		bool Allocate() const;
+		bool Free() const;
 
-	virtual HANDLE GetOriginalInputHandle() const = 0;
+		HANDLE GetInputHandle() const;
+		HANDLE GetOutputHandle() const;
+		HANDLE GetErrorHandle() const;
 
-	virtual HWND GetWindow() const = 0;
+		HANDLE GetOriginalInputHandle() const;
 
-	virtual bool GetSize(COORD& Size) const = 0;
-	virtual bool SetSize(COORD Size) const = 0;
+		HWND GetWindow() const;
 
-	virtual bool GetWindowRect(SMALL_RECT& ConsoleWindow) const = 0;
-	virtual bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const = 0;
+		bool GetSize(COORD& Size) const;
+		bool SetSize(COORD Size) const;
 
-	virtual bool GetWorkingRect(SMALL_RECT& WorkingRect) const = 0;
+		bool GetWindowRect(SMALL_RECT& ConsoleWindow) const;
+		bool SetWindowRect(const SMALL_RECT& ConsoleWindow) const;
 
-	virtual string GetPhysicalTitle() const = 0;
-	virtual string GetTitle() const = 0;
-	virtual bool SetTitle(const string& Title) const = 0;
+		bool GetWorkingRect(SMALL_RECT& WorkingRect) const;
 
-	virtual bool GetKeyboardLayoutName(string &strName) const = 0;
+		string GetPhysicalTitle() const;
+		string GetTitle() const;
+		bool SetTitle(const string& Title) const;
 
-	virtual uintptr_t GetInputCodepage() const = 0;
-	virtual bool SetInputCodepage(uintptr_t Codepage) const = 0;
+		bool GetKeyboardLayoutName(string &strName) const;
 
-	virtual uintptr_t GetOutputCodepage() const = 0;
-	virtual bool SetOutputCodepage(uintptr_t Codepage) const = 0;
+		uintptr_t GetInputCodepage() const;
+		bool SetInputCodepage(uintptr_t Codepage) const;
 
-	virtual bool SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const = 0;
+		uintptr_t GetOutputCodepage() const;
+		bool SetOutputCodepage(uintptr_t Codepage) const;
 
-	virtual bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const = 0;
-	virtual bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const = 0;
+		bool SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const;
 
-	virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const = 0;
-	virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const = 0;
-	virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const = 0;
-	virtual bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const = 0;
-	bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
-	virtual bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const = 0;
-	bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
-	virtual bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const = 0;
-	virtual bool Write(string_view Str) const = 0;
-	virtual bool Commit() const = 0;
+		bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const;
+		bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const;
 
-	virtual bool GetTextAttributes(FarColor& Attributes) const = 0;
-	virtual bool SetTextAttributes(const FarColor& Attributes) const = 0;
+		bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
+		bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
+		bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const;
+		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& ReadRegion) const;
+		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
+		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, COORD BufferCoord, SMALL_RECT& WriteRegion) const;
+		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, SMALL_RECT& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
+		bool Read(std::vector<wchar_t>& Buffer, size_t& Size) const;
+		bool Write(string_view Str) const;
+		bool Commit() const;
 
-	virtual bool GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const = 0;
-	virtual bool SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const = 0;
+		bool GetTextAttributes(FarColor& Attributes) const;
+		bool SetTextAttributes(const FarColor& Attributes) const;
 
-	virtual bool GetCursorPosition(COORD& Position) const = 0;
-	virtual bool SetCursorPosition(COORD Position) const = 0;
+		bool GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const;
+		bool SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const;
 
-	virtual bool FlushInputBuffer() const = 0;
+		bool GetCursorPosition(COORD& Position) const;
+		bool SetCursorPosition(COORD Position) const;
 
-	virtual bool GetNumberOfInputEvents(size_t& NumberOfEvents) const = 0;
+		bool FlushInputBuffer() const;
 
-	virtual bool GetAlias(string_view Source, wchar_t* TargetBuffer, size_t TargetBufferLength, string_view ExeName) const = 0;
+		bool GetNumberOfInputEvents(size_t& NumberOfEvents) const;
 
-	virtual std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const = 0;
+		bool GetAlias(string_view Source, wchar_t* TargetBuffer, size_t TargetBufferLength, string_view ExeName) const;
 
-	virtual void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const = 0;
+		std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const;
 
-	virtual bool GetDisplayMode(DWORD& Mode) const = 0;
+		void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const;
 
-	virtual COORD GetLargestWindowSize() const = 0;
+		bool GetDisplayMode(DWORD& Mode) const;
 
-	virtual bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const = 0;
+		COORD GetLargestWindowSize() const;
 
-	virtual bool ClearExtraRegions(const FarColor& Color, int Mode) const = 0;
+		bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const;
 
-	virtual bool ScrollWindow(int Lines,int Columns=0) const = 0;
+		bool ClearExtraRegions(const FarColor& Color, int Mode) const;
 
-	virtual bool ScrollWindowToBegin() const = 0;
+		bool ScrollWindow(int Lines, int Columns = 0) const;
 
-	virtual bool ScrollWindowToEnd() const = 0;
+		bool ScrollWindowToBegin() const;
 
-	virtual bool IsFullscreenSupported() const = 0;
+		bool ScrollWindowToEnd() const;
 
-	virtual bool ResetPosition() const = 0;
+		bool IsFullscreenSupported() const;
 
-	virtual bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const = 0;
+		bool ResetPosition() const;
 
-	bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const;
+		bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const;
 
-protected:
-	console() = default;
+		bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const;
 
-private:
-	virtual bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const = 0;
+	private:
+		short GetDelta() const;
+		bool ScrollScreenBuffer(const SMALL_RECT& ScrollRectangle, const SMALL_RECT* ClipRectangle, COORD DestinationOrigin, const FAR_CHAR_INFO& Fill) const;
 
-	friend console& Console();
-};
+		HANDLE m_OriginalInputHandle;
+		mutable string m_Title;
+		mutable int m_FileHandle{ -1 };
+	};
+}
 
-console& Console();
+NIFTY_DECLARE(console_detail::console, console);
 
 class consolebuf : public std::wstreambuf
 {

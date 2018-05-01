@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "farexcpt.hpp"
 #include "plugins.hpp"
 #include "filepanels.hpp"
@@ -114,7 +111,7 @@ static void ShowStackTrace(std::vector<string>&& Symbols, const std::vector<stri
 
 static bool write_minidump(const exception_context& Context)
 {
-	if (!imports::instance().MiniDumpWriteDump)
+	if (!imports.MiniDumpWriteDump)
 		return false;
 
 	// TODO: subdirectory && timestamp
@@ -123,7 +120,7 @@ static bool write_minidump(const exception_context& Context)
 		return false;
 
 	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), Context.pointers() };
-	return imports::instance().MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
+	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
 using dialog_data_type = std::pair<const exception_context*, const std::vector<string>*>;
@@ -345,7 +342,7 @@ static string ExtractObjectName(const EXCEPTION_RECORD* xr)
 
 	char Buffer[MAX_SYM_NAME];
 	// https://stackoverflow.com/a/19637731
-	if (imports::instance().UnDecorateSymbolName(DataPtr + 1, Buffer, static_cast<DWORD>(std::size(Buffer)), UNDNAME_32_BIT_DECODE | UNDNAME_NO_ARGUMENTS))
+	if (imports.UnDecorateSymbolName(DataPtr + 1, Buffer, static_cast<DWORD>(std::size(Buffer)), UNDNAME_32_BIT_DECODE | UNDNAME_NO_ARGUMENTS))
 		DataPtr = Buffer;
 
 	return encoding::ansi::get_chars(Buffer);

@@ -30,9 +30,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "elevation.hpp"
 #include "config.hpp"
 #include "lang.hpp"
@@ -160,7 +157,7 @@ void elevation::RetrieveLastError() const
 {
 	const auto ErrorState = Read<error_state>();
 	SetLastError(ErrorState.Win32Error);
-	imports::instance().RtlNtStatusToDosError(ErrorState.NtError);
+	imports.RtlNtStatusToDosError(ErrorState.NtError);
 }
 
 template<typename T>
@@ -446,7 +443,7 @@ void ElevationApproveDlgSync(const EAData& Data)
 	// So we do it manually.
 	const auto OldTitle = ConsoleTitle::GetTitle();
 
-	Console().FlushInputBuffer();
+	console.FlushInputBuffer();
 
 	Dlg->Process();
 	ConsoleTitle::SetFarTitle(OldTitle);
@@ -782,7 +779,7 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	if (!Global || !Global->Opt || !(Global->Opt->ElevationMode & Mode))
 		return false;
 
-	if(UseNtStatus && imports::instance().RtlGetLastNtStatus)
+	if(UseNtStatus && imports.RtlGetLastNtStatus)
 	{
 		const auto LastNtStatus = os::GetLastNtStatus();
 		return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
@@ -818,7 +815,7 @@ public:
 		{
 			// basic security checks
 			ULONG ServerProcessId;
-			if (imports::instance().GetNamedPipeServerProcessId && (!imports::instance().GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) || ServerProcessId != PID))
+			if (imports.GetNamedPipeServerProcessId && (!imports.GetNamedPipeServerProcessId(m_Pipe.native_handle(), &ServerProcessId) || ServerProcessId != PID))
 				return GetLastError();
 
 			const auto ParentProcess = os::handle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, PID));

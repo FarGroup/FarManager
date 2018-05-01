@@ -1,10 +1,12 @@
-﻿/*
-lasterror.cpp
+﻿#ifndef NIFTY_COUNTER_HPP_81EED24A_897B_4E3E_A23D_4117272E29D9
+#define NIFTY_COUNTER_HPP_81EED24A_897B_4E3E_A23D_4117272E29D9
+#pragma once
 
-Сохрание/восстановление LastError
+/*
+nifty_counter.hpp
 */
 /*
-Copyright © 2017 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,21 +32,39 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "lasterror.hpp"
-#include "imports.hpp"
+#define NIFTY_DECLARE(Type, Instance)\
+namespace Instance##_nifty_objects\
+{\
+	static struct initialiser\
+	{\
+		initialiser();\
+		~initialiser();\
+	}\
+	Initialiser;\
+}\
+\
+extern Type& Instance;
 
-GuardLastError::GuardLastError():
-	m_LastError(GetLastError()),
-	m_LastStatus(imports.RtlGetLastNtStatus()),
-	m_Active(true)
-{
-}
 
-GuardLastError::~GuardLastError()
-{
-	if (!m_Active)
-		return;
+#define NIFTY_DEFINE(Type, Instance)\
+namespace Instance##_nifty_objects\
+{\
+	static int InitCounter;\
+	static std::aligned_storage_t<sizeof(Type), alignof(Type)> InitBuffer;\
+\
+	initialiser::initialiser()\
+	{\
+		if (!InitCounter++)\
+			placement::construct(Instance);\
+	}\
+\
+	initialiser::~initialiser()\
+	{\
+		if (!--InitCounter)\
+			placement::destruct(Instance);\
+	}\
+}\
+\
+Type& Instance = reinterpret_cast<Type&>(Instance##_nifty_objects::InitBuffer)
 
-	SetLastError(m_LastError);
-	imports.RtlNtStatusToDosError(m_LastStatus);
-}
+#endif // NIFTY_COUNTER_HPP_81EED24A_897B_4E3E_A23D_4117272E29D9

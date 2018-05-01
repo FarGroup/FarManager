@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "scrbuf.hpp"
 #include "farcolor.hpp"
 #include "ctrlobj.hpp"
@@ -107,10 +104,10 @@ void ScreenBuf::FillBuf()
 	SCOPED_ACTION(os::critical_section_lock)(CS);
 
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1)};
-	Console().ReadOutput(Buf, ReadRegion);
+	console.ReadOutput(Buf, ReadRegion);
 	Shadow = Buf;
 	COORD CursorPosition;
-	Console().GetCursorPosition(CursorPosition);
+	console.GetCursorPosition(CursorPosition);
 	CurX=CursorPosition.X;
 	CurY=CursorPosition.Y;
 }
@@ -322,7 +319,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			Console().SetCursorInfo(cci);
+			console.SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
@@ -474,9 +471,9 @@ void ScreenBuf::Flush(flush_type FlushType)
 					{
 						COORD BufferCoord = { i.Left, i.Top };
 						SMALL_RECT WriteRegion = i;
-						Console().WriteOutput(Buf, BufferCoord, WriteRegion);
+						console.WriteOutput(Buf, BufferCoord, WriteRegion);
 					});
-					Console().Commit();
+					console.Commit();
 					Shadow = Buf;
 				}
 
@@ -499,7 +496,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 			if (is_visible(CurX, CurY, CurX, CurY))
 			{
 				COORD C={CurX,CurY};
-				Console().SetCursorPosition(C);
+				console.SetCursorPosition(C);
 			}
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
@@ -507,13 +504,13 @@ void ScreenBuf::Flush(flush_type FlushType)
 		if (FlushType & flush_type::cursor && !SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
 		{
 			CONSOLE_CURSOR_INFO cci = { CurSize, CurVisible && is_visible(CurX, CurY, CurX, CurY) };
-			Console().SetCursorInfo(cci);
+			console.SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
 		if (FlushType & flush_type::title && !SBFlags.Check(SBFLAGS_FLUSHEDTITLE))
 		{
-			Console().SetTitle(m_Title);
+			console.SetTitle(m_Title);
 			SBFlags.Set(SBFLAGS_FLUSHEDTITLE);
 		}
 	}
@@ -623,11 +620,11 @@ void ScreenBuf::Scroll(size_t Count)
 		matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);
 		Read(Region.Left, Region.Top, Region.Right, Region.Bottom, BufferBlock);
 
-		Console().ScrollNonClientArea(Count, Fill);
+		console.ScrollNonClientArea(Count, Fill);
 
 		Region.Top = static_cast<SHORT>(-static_cast<SHORT>(Count));
 		Region.Bottom = -1;
-		Console().WriteOutput(BufferBlock, Region);
+		console.WriteOutput(BufferBlock, Region);
 	}
 
 	if (Count && Count < Buf.height())

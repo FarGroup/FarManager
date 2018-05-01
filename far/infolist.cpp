@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "imports.hpp"
 #include "infolist.hpp"
 #include "macroopcode.hpp"
@@ -416,7 +413,7 @@ void InfoList::DisplayObject()
 			PrintInfo(str(ms.dwMemoryLoad) + L'%');
 
 			ULONGLONG TotalMemoryInKilobytes=0;
-			if(imports::instance().GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+			if(imports.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 			{
 				GotoXY(m_X1+2,CurY++);
 				PrintText(lng::MInfoMemoryInstalled);

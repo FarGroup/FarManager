@@ -37,9 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "tvar.hpp"
 #include "string_sort.hpp"
 

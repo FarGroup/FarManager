@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "viewer.hpp"
 #include "encoding.hpp"
 #include "macroopcode.hpp"
@@ -300,7 +297,7 @@ bool Viewer::OpenFile(const string& Name,int warning)
 		}
 
 		DWORD ReadSize = 0;
-		while (ReadFile(Console().GetOriginalInputHandle(),vread_buffer.data(),(DWORD)vread_buffer.size(),&ReadSize,nullptr) && ReadSize)
+		while (ReadFile(console.GetOriginalInputHandle(),vread_buffer.data(),(DWORD)vread_buffer.size(),&ReadSize,nullptr) && ReadSize)
 		{
 			ViewFile.Write(vread_buffer.data(), ReadSize);
 		}
@@ -746,7 +743,7 @@ int Viewer::txt_dump(const char *Src, size_t Size, size_t ClientWidth, string& O
 		OutStr.assign(reinterpret_cast<const wchar_t*>(Src), Size / sizeof(wchar_t));
 		if (m_Codepage == CP_REVERSEBOM)
 		{
-			swap_bytes(&OutStr[0], &OutStr[0], OutStr.size() * sizeof(wchar_t));
+			swap_bytes(OutStr.data(), OutStr.data(), OutStr.size() * sizeof(wchar_t));
 		}
 		if (Size & 1)
 		{

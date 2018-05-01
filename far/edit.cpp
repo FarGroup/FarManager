@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "edit.hpp"
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
@@ -2258,9 +2255,7 @@ void Edit::Xlat(bool All)
 {
 	const auto& XLatStr = [&](int StartPos, int EndPos)
 	{
-		std::vector<wchar_t> Buffer(ALL_CONST_RANGE(m_Str));
-		::Xlat(Buffer.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
-		m_Str.assign(Buffer.data(), Buffer.size());
+		::Xlat(m_Str.data(), StartPos, EndPos, Global->Opt->XLat.Flags);
 	};
 
 	//   Для CmdLine - если нет выделения, преобразуем всю строку

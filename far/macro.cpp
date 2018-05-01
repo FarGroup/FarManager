@@ -31,9 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "macro.hpp"
 #include "platform.security.hpp"
 #include "FarGuid.hpp"
@@ -1534,7 +1531,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return ScrY + 1;
 
 		case MCODE_V_FAR_TITLE:
-			return PassString(Console().GetTitle(), Data);
+			return PassString(console.GetTitle(), Data);
 
 		case MCODE_V_FAR_PID:
 			return PassNumber(GetCurrentProcessId(), Data);
@@ -2721,7 +2718,7 @@ static bool windowscrollFunc(FarMacroCall* Data)
 			Lines=0;
 		}
 
-		if (Console().ScrollWindow(Lines, Columns))
+		if (console.ScrollWindow(Lines, Columns))
 		{
 			Ret=true;
 		}
@@ -2939,10 +2936,9 @@ static bool dateFunc(FarMacroCall* Data)
 static bool xlatFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
-	const auto StrParam = Params[0].toString();
-	const auto Str = UNSAFE_CSTR(StrParam);
-	const auto Ret = Xlat(Str, 0, static_cast<int>(StrParam.size()), Params[1].asInteger()) != nullptr;
-	PassString(Str, Data);
+	auto StrParam = Params[0].toString();
+	const auto Ret = Xlat(StrParam.data(), 0, static_cast<int>(StrParam.size()), Params[1].asInteger()) != nullptr;
+	PassString(StrParam.c_str(), Data);
 	return Ret;
 }
 
@@ -3006,14 +3002,14 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	HKL RetLayout = nullptr;
 
 	string LayoutName;
-	if (Console().GetKeyboardLayoutName(LayoutName))
+	if (console.GetKeyboardLayoutName(LayoutName))
 	{
 		wchar_t *endptr;
 		DWORD res = std::wcstoul(LayoutName.c_str(), &endptr, 16);
 		RetLayout=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 	}
 
-	HWND hWnd = Console().GetWindow();
+	HWND hWnd = console.GetWindow();
 
 	if (hWnd && dwLayout)
 	{
