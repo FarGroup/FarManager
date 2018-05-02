@@ -661,10 +661,15 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 			}
 		}
 
-		auto SelNameQouted = SingleSelName;
-		QuoteOuterSpace(SelNameQouted);
-		strCopyStr = format(Move? lng::MMoveFile : Link? lng::MLinkFile : lng::MCopyFile, SelNameQouted, msg(Link? lng::MCMLTargetIN : lng::MCMLTargetTO));
-		TruncStrFromEnd(SelNameQouted, static_cast<int>(CopyDlg[ID_SC_TITLE].X2 - CopyDlg[ID_SC_TITLE].X1 - strCopyStr.size() - 7));
+		const auto Format = Move? lng::MMoveFile : Link? lng::MLinkFile : lng::MCopyFile;
+		const auto& ToOrIn = msg(Link? lng::MCMLTargetIN : lng::MCMLTargetTO);
+		const auto SpaceAvailable = std::max(0, static_cast<int>(CopyDlg[ID_SC_TITLE].X2 - CopyDlg[ID_SC_TITLE].X1 - 1 - 1));
+		if (const auto MaxLength = std::max(0, SpaceAvailable - static_cast<int>(HiStrlen(format(Format, L""_sv, ToOrIn)))))
+		{
+			strCopyStr = SingleSelName;
+			TruncStrFromEnd(strCopyStr, MaxLength);
+		}
+		strCopyStr = format(Format, strCopyStr, ToOrIn);
 
 		// Если копируем одиночный файл, то запрещаем использовать фильтр
 		if (!(SingleSelAttributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -677,19 +682,15 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 	{
 
 		// коррекция языка - про окончания
-		auto StrItems = str(SelCount);
-		size_t LenItems=StrItems.size();
+		const auto StrItems = str(SelCount);
+		const auto LenItems = StrItems.size();
 		auto NItems = lng::MCMLItemsA;
 
-		if (LenItems > 0)
-		{
-			if ((LenItems >= 2 && StrItems[LenItems-2] == '1') ||
-			        StrItems[LenItems-1] >= '5' ||
-			        StrItems[LenItems-1] == '0')
-				NItems = lng::MCMLItemsS;
-			else if (StrItems[LenItems-1] == '1')
-				NItems = lng::MCMLItems0;
-		}
+		if ((LenItems >= 2 && StrItems[LenItems-2] == '1') || StrItems[LenItems-1] >= '5' || StrItems[LenItems-1] == '0')
+			NItems = lng::MCMLItemsS;
+		else if (StrItems[LenItems-1] == '1')
+			NItems = lng::MCMLItems0;
+
 		strCopyStr = format(Move? lng::MMoveFiles : Link? lng::MLinkFiles : lng::MCopyFiles,
 			SelCount,
 			msg(NItems),

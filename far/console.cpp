@@ -102,7 +102,7 @@ namespace console_detail
 		Imports;
 	};
 
-	std::aligned_storage_t<sizeof(external_console), alignof(external_console)> Storage;
+	static nifty_counter::buffer<external_console> Storage;
 	static auto& ExternalConsole = reinterpret_cast<external_console&>(Storage);
 
 	console::console():
