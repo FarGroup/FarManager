@@ -9,7 +9,7 @@ skip_non_tags: false
 
 max_jobs: 8
 
-image: Visual Studio 2015
+image: Visual Studio 2017
 
 init:
 
