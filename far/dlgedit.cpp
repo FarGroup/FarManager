@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "editcontrol.hpp"
 #include "config.hpp"
 #include "syslog.hpp"
+#include "global.hpp"
 
 DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 	SimpleScreenObject(std::move(Owner)),

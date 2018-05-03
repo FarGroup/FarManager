@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "regex_helpers.hpp"
 #include "platform.concurrency.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 class representation_source
 {

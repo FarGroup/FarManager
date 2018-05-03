@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileattr.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "global.hpp"
 
 static const struct column_info
 {

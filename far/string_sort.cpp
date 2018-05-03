@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "string_utils.hpp"
 #include "config.hpp"
+#include "global.hpp"
 
 template<typename comparer>
 static int per_char_compare(const string_view Str1, const string_view Str2, const comparer Comparer)

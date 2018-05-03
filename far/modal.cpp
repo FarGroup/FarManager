@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "modal.hpp"
 #include "help.hpp"
+#include "global.hpp"
 
 void SimpleModal::Process()
 {

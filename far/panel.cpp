@@ -61,6 +61,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "pathmix.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;

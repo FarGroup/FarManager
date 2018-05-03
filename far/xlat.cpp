@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "configdb.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
 
 void xlat_initialize()
 {

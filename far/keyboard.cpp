@@ -53,6 +53,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "datetime.hpp"
 #include "string_utils.hpp"
+#include "platform.reg.hpp"
+#include "global.hpp"
 
 /* start Глобальные переменные */
 

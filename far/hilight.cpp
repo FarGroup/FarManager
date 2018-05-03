@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "elevation.hpp"
 #include "filefilter.hpp"
+#include "global.hpp"
 
 static const struct
 {

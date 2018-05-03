@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 

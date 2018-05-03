@@ -49,6 +49,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.security.hpp"
+#include "platform.memory.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 using namespace os::security;
 
@@ -771,6 +774,19 @@ bool elevation::get_disk_free_space(const string& Object, unsigned long long* Fr
 			}
 			return Result;
 		});
+}
+
+elevation::suppress::suppress():
+	m_owner(Global? &instance() : nullptr)
+{
+	if (m_owner)
+		++m_owner->m_Suppressions;
+}
+
+elevation::suppress::~suppress()
+{
+	if (m_owner)
+		--m_owner->m_Suppressions;
 }
 
 

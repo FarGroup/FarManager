@@ -199,15 +199,6 @@ using namespace std::chrono_literals;
 
 #include "format.hpp"
 
-#include "platform.hpp"
-#include "platform.chrono.hpp"
-#include "platform.env.hpp"
-#include "platform.fs.hpp"
-#include "platform.memory.hpp"
-#include "platform.reg.hpp"
-
 #include "plugin.hpp"
-
-#include "global.hpp"
 
 #endif // HEADERS_HPP_9A02D08B_02BB_4240_845F_36ED60ED2647

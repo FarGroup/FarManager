@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "plist.hpp"
 #include "notification.hpp"
+#include "platform.fs.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,

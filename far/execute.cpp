@@ -50,6 +50,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "RegExp.hpp"
 #include "scrbuf.hpp"
+#include "platform.reg.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 enum class image_type
 {

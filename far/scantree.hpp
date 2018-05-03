@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "bitflags.hpp"
+#include "platform.fwd.hpp"
 
 enum
 {

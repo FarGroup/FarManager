@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "fileattr.hpp"
 #include "DlgGuid.hpp"
+#include "platform.fs.hpp"
 
 filter_dates::filter_dates(os::chrono::duration After, os::chrono::duration Before):
 	m_After(After),

@@ -31,7 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "platform.security.hpp"
 #include "keys.hpp"
 #include "chgprior.hpp"
 #include "farcolor.hpp"
@@ -67,6 +66,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "drivemix.hpp"
 #include "new_handler.hpp"
+#include "platform.security.hpp"
+#include "platform.memory.hpp"
+#include "platform.env.hpp"
+#include "global.hpp"
 
 global *Global = nullptr;
 

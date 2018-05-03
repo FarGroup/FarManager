@@ -53,8 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "menubar.hpp"
 #include "strmix.hpp"
-#include "colormix.hpp"
 #include "diskmenu.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 FilePanels::FilePanels(private_tag):
 	m_ActivePanelIndex(panel_left)
@@ -1249,6 +1251,11 @@ FARMACROAREA FilePanels::GetMacroArea() const
 		return MACROAREA_INFOPANEL;
 	}
 	return MACROAREA_INVALID;
+}
+
+bool FilePanels::IsKeyBarVisible() const
+{
+	return Global->Opt->ShowKeyBar;
 }
 
 Viewer* FilePanels::GetViewer()

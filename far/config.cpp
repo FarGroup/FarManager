@@ -75,6 +75,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filemasks.hpp"
 #include "RegExp.hpp"
 #include "string_sort.hpp"
+#include "platform.env.hpp"
+#include "global.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 

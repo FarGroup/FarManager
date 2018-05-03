@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "string_sort.hpp"
 #include "exception.hpp"
+#include "platform.fs.hpp"
 
 struct menu_data
 {

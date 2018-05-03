@@ -60,12 +60,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "manager.hpp"
 #include "lang.hpp"
-#include "language.hpp"
 #include "desktop.hpp"
 #include "PluginA.hpp"
 #include "string_sort.hpp"
 #include "cvtname.hpp"
 #include "delete.hpp"
+#include "platform.memory.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 static const wchar_t PluginsFolderName[] = L"Plugins";
 

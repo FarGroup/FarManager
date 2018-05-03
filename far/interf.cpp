@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.security.hpp"
+#include "global.hpp"
 
 static HICON load_icon(int IconId, bool Big)
 {

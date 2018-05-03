@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "windowsfwd.hpp"
 #include "farexcpt.hpp"
 #include "exception.hpp"
+#include "platform.fwd.hpp"
 
 enum class lng : int;
 class PluginManager;
@@ -247,7 +248,7 @@ class Plugin: noncopyable
 {
 public:
 	Plugin(plugin_factory* Factory, const string& ModuleName);
-	virtual ~Plugin() = default;
+	virtual ~Plugin();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
 	virtual bool SetStartupInfo(PluginStartupInfo *Info);

@@ -32,7 +32,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "macro.hpp"
-#include "platform.security.hpp"
 #include "FarGuid.hpp"
 #include "cmdline.hpp"
 #include "config.hpp"
@@ -74,6 +73,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "string_sort.hpp"
 #include "tvar.hpp"
+#include "platform.security.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 #if 0
 void print_opcodes()

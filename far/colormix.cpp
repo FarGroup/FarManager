@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "config.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
 
 enum
 {

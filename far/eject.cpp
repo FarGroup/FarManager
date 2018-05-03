@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "stddlg.hpp"
 #include "exception.hpp"
+#include "platform.fs.hpp"
 
 #if 0
 static bool DismountVolume(HANDLE hVolume)

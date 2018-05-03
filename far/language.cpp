@@ -44,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "pathmix.hpp"
 #include "exception.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 static const wchar_t LangFileMask[] = L"*.lng";
 

@@ -65,7 +65,8 @@ public:
 	void Show() override;
 	void DisplayObject() override;
 	string GetTitle() const override { return {}; }
-	bool IsKeyBarVisible() const override { return Global->Opt->ShowKeyBar; }
+
+	bool IsKeyBarVisible() const override;
 	Viewer* GetViewer() override;
 	Viewer* GetById(int ID) override;
 

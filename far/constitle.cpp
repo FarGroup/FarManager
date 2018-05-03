@@ -39,6 +39,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.security.hpp"
+#include "platform.env.hpp"
+#include "global.hpp"
 
 static const string& GetFarTitleAddons()
 {

@@ -54,6 +54,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "constitle.hpp"
 #include "pathmix.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 FileViewer::FileViewer(private_tag, int DisableEdit, const wchar_t *Title):
 	RedrawTitle(),

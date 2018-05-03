@@ -54,6 +54,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "message.hpp"
 #include "lang.hpp"
+#include "platform.memory.hpp"
+#include "platform.env.hpp"
+#include "global.hpp"
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
 

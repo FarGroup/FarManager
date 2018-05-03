@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "string_sort.hpp"
 #include "exception.hpp"
+#include "global.hpp"
 
 MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 {

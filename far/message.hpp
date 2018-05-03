@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "exception.hpp"
 
+enum class lng;
+
 enum
 {
 	MSG_WARNING        =0x00000001,

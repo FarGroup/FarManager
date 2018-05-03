@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "manager.hpp"
 #include "string_utils.hpp"
+#include "global.hpp"
 
 HMenu::HMenu(private_tag, HMenuData *Item,size_t ItemCount):
 	Item(Item, Item + ItemCount),

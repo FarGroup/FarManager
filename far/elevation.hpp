@@ -79,8 +79,8 @@ public:
 	public:
 		NONCOPYABLE(suppress);
 
-		suppress(): m_owner(Global? &instance() : nullptr) { if (m_owner) ++m_owner->m_Suppressions; }
-		~suppress() { if (m_owner) --m_owner->m_Suppressions; }
+		suppress();
+		~suppress();
 
 	private:
 		elevation* m_owner;

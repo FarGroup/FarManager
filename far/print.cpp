@@ -47,6 +47,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "plugins.hpp"
 #include "strmix.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 #define PRINTER_INFO_LEVEL 4
 #define DETAIL_PRINTER_INFO_N_IMPL(level) PRINTER_INFO_##level##W

@@ -83,6 +83,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filemasks.hpp"
 #include "desktop.hpp"
 #include "string_sort.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 static Plugin* GuidToPlugin(const GUID* Id)
 {

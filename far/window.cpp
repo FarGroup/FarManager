@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "syslog.hpp"
 #include "savescr.hpp"
+#include "global.hpp"
 
 static int windowID=0;
 

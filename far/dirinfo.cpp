@@ -55,6 +55,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "copy_progress.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 static void PR_DrawGetDirInfoMsg();
 

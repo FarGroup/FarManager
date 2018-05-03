@@ -478,6 +478,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="platform.concurrency.hpp" />
     <ClInclude Include="platform.env.hpp" />
     <ClInclude Include="platform.fs.hpp" />
+    <ClInclude Include="platform.fwd.hpp" />
     <ClInclude Include="platform.memory.hpp" />
     <ClInclude Include="platform.reg.hpp" />
     <ClInclude Include="platform.security.hpp" />

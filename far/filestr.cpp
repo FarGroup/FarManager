@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "nsUniversalDetectorEx.hpp"
 #include "config.hpp"
 #include "codepage_selection.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 static const size_t DELTA = 1024;
 static const size_t ReadBufCount = 0x2000;

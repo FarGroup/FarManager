@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "syslog.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
 
 void VMenu2::Pack()
 {

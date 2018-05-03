@@ -45,6 +45,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "strmix.hpp"
 #include "drivemix.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 /*
 A device is considered a HotPlug device if the following are TRUE:

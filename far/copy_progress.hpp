@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "datetime.hpp"
 
+enum class lng;
+
 class copy_progress: noncopyable
 {
 public:

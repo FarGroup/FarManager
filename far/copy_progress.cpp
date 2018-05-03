@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "message.hpp"
 #include "scrbuf.hpp"
+#include "global.hpp"
 
 /* Общее время ожидания пользователя */
 extern std::chrono::steady_clock::duration WaitUserTime;

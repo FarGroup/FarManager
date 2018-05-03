@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "notification.hpp"
 #include "platform.security.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 static std::pair<os::fs::drives_set, bool> SavedLogicalDrives;
 

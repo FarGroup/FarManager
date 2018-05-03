@@ -44,6 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "configdb.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 std::exception_ptr& GlobalExceptionPtr()
 {
@@ -512,6 +515,8 @@ Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
 	ReplaceBackslashToSlash(m_strCacheName);
 	SetGuid(FarGuid);
 }
+
+Plugin::~Plugin() = default;
 
 void Plugin::SetGuid(const GUID& Guid)
 {

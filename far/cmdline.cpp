@@ -32,7 +32,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "cmdline.hpp"
-#include "platform.security.hpp"
 #include "execute.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -67,6 +66,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "keybar.hpp"
 #include "string_utils.hpp"
+#include "platform.security.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 enum
 {

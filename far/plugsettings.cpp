@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "sqlitedb.hpp"
 #include "configdb.hpp"
+#include "global.hpp"
 
 const wchar_t* AbstractSettings::Add(const string& String)
 {

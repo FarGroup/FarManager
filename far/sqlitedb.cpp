@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "components.hpp"
 #include "encoding.hpp"
 #include "platform.concurrency.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 namespace
 {

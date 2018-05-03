@@ -754,6 +754,9 @@
     <ClInclude Include="platform.fs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="platform.fwd.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="platform.memory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

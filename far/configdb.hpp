@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "transactional.hpp"
 #include "bitflags.hpp"
+#include "platform.chrono.hpp"
 
 struct VersionInfo;
 class representation_source;

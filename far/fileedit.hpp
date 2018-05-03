@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "namelist.hpp"
 #include "codepage_selection.hpp"
+#include "platform.fs.hpp"
 
 struct error_state_ex;
 

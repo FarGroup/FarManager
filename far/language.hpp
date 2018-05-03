@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "exception.hpp"
+#include "platform.fs.hpp"
 
 enum class lng;
 

@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "filemasks.hpp"
 #include "hilight.hpp"
+#include "platform.chrono.hpp"
 
 enum
 {

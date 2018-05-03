@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "strmix.hpp"
 #include "string_utils.hpp"
+#include "platform.env.hpp"
 
 static const wchar_t ExcludeMaskSeparator = L'|';
 static const wchar_t RE_start = L'/', RE_end = L'/';

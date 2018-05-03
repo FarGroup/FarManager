@@ -77,6 +77,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "drivemix.hpp"
 #include "platform.concurrency.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem

@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "locale.hpp"
 #include "config.hpp"
+#include "global.hpp"
 
 int locale::GetDateFormat()
 {

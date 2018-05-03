@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "lang.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
 
 static string GetWin32ErrorString(const error_state_ex& ErrorState)
 {

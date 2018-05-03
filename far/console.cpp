@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setcolor.hpp"
 #include "strmix.hpp"
 #include "exception.hpp"
+#include "global.hpp"
 
 void override_stream_buffers()
 {

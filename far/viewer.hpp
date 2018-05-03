@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cache.hpp"
 #include "encoding.hpp"
 #include "codepage_selection.hpp"
+#include "platform.fs.hpp"
 
 class FileViewer;
 class KeyBar;

@@ -61,22 +61,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "pathmix.hpp"
 #include "processname.hpp"
-#include "cache.hpp"
 #include "filestr.hpp"
 #include "wakeful.hpp"
 #include "colormix.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
-#if defined(TREEFILE_PROJECT)
-#include "cddrv.hpp"
-#include "drivemix.hpp"
-#include "network.hpp"
-#endif
 #include "lang.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"
 #include "string_sort.hpp"
 #include "cvtname.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
+
+#if defined(TREEFILE_PROJECT)
+#include "drivemix.hpp"
+#include "network.hpp"
+#include "platform.env.hpp"
+#endif
 
 static std::chrono::steady_clock::time_point TreeStartTime;
 static int LastScrX = -1;

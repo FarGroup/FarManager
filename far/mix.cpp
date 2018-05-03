@@ -34,10 +34,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "pathmix.hpp"
 #include "window.hpp"
-
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
 #include "strmix.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
 
 /*
              v - точка

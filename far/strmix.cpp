@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "bitflags.hpp"
 #include "exception.hpp"
+#include "global.hpp"
 
 string GroupDigits(unsigned long long Value)
 {

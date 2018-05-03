@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "lang.hpp"
 #include "manager.hpp"
+#include "global.hpp"
 
 void GetColor(PaletteColors PaletteIndex)
 {

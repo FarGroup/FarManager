@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.env.hpp"
 
+#include "platform.hpp"
 #include "lasterror.hpp"
 
 namespace os::env

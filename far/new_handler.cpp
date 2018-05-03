@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "new_handler.hpp"
+#include "global.hpp"
 
 static new_handler* NewHandler;
 

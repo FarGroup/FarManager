@@ -29,9 +29,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "platform.security.hpp"
+
 #include "lasterror.hpp"
 #include "platform.concurrency.hpp"
-#include "platform.security.hpp"
+#include "platform.reg.hpp"
 
 namespace
 {

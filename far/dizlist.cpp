@@ -45,6 +45,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "exception.hpp"
 #include "datetime.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 DizList::DizList():
 	m_CodePage(CP_DEFAULT),

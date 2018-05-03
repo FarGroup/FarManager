@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrsaver.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
+#include "global.hpp"
 
 enum {STAR_NONE,STAR_NORMAL,STAR_PLANET};
 

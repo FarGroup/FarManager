@@ -43,6 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "elevation.hpp"
 #include "cvtname.hpp"
+#include "platform.fs.hpp"
+#include "global.hpp"
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {

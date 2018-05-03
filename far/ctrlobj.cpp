@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "plugins.hpp"
 #include "scrbuf.hpp"
+#include "global.hpp"
 
 ControlObject::ControlObject()
 {

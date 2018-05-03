@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "configdb.hpp"
 #include "cvtname.hpp"
+#include "global.hpp"
 
 static auto GetFullName(const string& Name)
 {

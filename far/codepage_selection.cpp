@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "strmix.hpp"
 #include "vmenu.hpp"
+#include "global.hpp"
 
 codepages& Codepages()
 {
