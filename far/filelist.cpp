@@ -1241,7 +1241,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			else
 				Global->CtrlObject->Plugins->Configure();
 			return true;
-		
+
 		case KEY_SHIFTSUBTRACT:
 			SaveSelection();
 			ClearSelection();
@@ -1520,7 +1520,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			return true;
 		}
-		
+
 		case KEY_CTRLG:
 		case KEY_RCTRLG:
 		{
@@ -5870,10 +5870,11 @@ void FileList::PluginHostGetFiles()
 	SaveSelection();
 
 	const auto Enumerator = enum_selected();
-	if (Enumerator.begin() == Enumerator.end())
+	const auto it = Enumerator.begin();
+	if (it == Enumerator.end())
 		return;
 
-	const auto& Data = *Enumerator.begin();
+	const auto& Data = *it;
 
 	auto strDestPath = AnotherPanel->GetCurDir();
 
@@ -5889,7 +5890,7 @@ void FileList::PluginHostGetFiles()
 
 	auto ExitLoop = false;
 	std::unordered_set<Plugin*> UsedPlugins;
-	for (const auto& i : enum_selected())
+	for (const auto& i : Enumerator)
 	{
 		if (ExitLoop)
 			break;
