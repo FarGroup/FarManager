@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "message.hpp"
+
 #include "ctrlobj.hpp"
 #include "farcolor.hpp"
 #include "dialog.hpp"
@@ -47,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static string GetWin32ErrorString(const error_state_ex& ErrorState)
 {

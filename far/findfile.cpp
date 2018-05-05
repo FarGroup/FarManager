@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "findfile.hpp"
+
 #include "flink.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -80,6 +81,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
@@ -1346,7 +1348,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 		if (!m_Searcher->Stopped())
 		{
-			const auto strDataStr = format(lng::MFindFound, m_FileCount, m_DirCount);
+			const auto strDataStr = format(msg(lng::MFindFound), m_FileCount, m_DirCount);
 			Dlg->SendMessage(DM_SETTEXTPTR,FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
 
 			string strSearchStr;
@@ -1355,7 +1357,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				string strFStr(strFindStr);
 				TruncStrFromEnd(strFStr,10);
-				strSearchStr = format(lng::MFindSearchingIn, quote_unconditional(strFStr));
+				strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(strFStr));
 			}
 
 			auto strFM = itd->GetFindMessage();
@@ -1387,7 +1389,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	if(!Recurse && !Finalized && m_Searcher->Stopped() && m_Messages.empty())
 	{
 		Finalized=true;
-		const auto strMessage = format(lng::MFindDone, m_FileCount, m_DirCount);
+		const auto strMessage = format(msg(lng::MFindDone), m_FileCount, m_DirCount);
 		Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
@@ -2783,7 +2785,7 @@ void FindFiles::ProcessMessage(const AddMenuData& Data)
 		break;
 
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Unknown message type");
+		throw MAKE_FAR_EXCEPTION(L"Unknown message type"_sv);
 	}
 }
 

@@ -31,6 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "usermenu.hpp"
+
 #include "keys.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -43,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "message.hpp"
-#include "usermenu.hpp"
 #include "fnparce.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
@@ -295,7 +296,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			}
 			else
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't open file");
+				throw MAKE_FAR_EXCEPTION(L"Can't open file"_sv);
 			}
 
 			if (FileAttr != INVALID_FILE_ATTRIBUTES)
@@ -309,7 +310,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			// если файл FarMenu.ini пуст, то удалим его
 			if (!os::fs::delete_file(MenuFileName))
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file");
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file"_sv);
 			}
 		}
 	}

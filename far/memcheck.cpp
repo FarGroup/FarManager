@@ -31,10 +31,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "memcheck.hpp"
+
 #include "strmix.hpp"
 #include "encoding.hpp"
 #include "exception.hpp"
 #include "platform.concurrency.hpp"
+#include "format.hpp"
 
 #ifdef MEMCHECK
 
@@ -200,7 +202,7 @@ static std::string FormatLine(const char* File, int Line, const char* Function, 
 		break;
 
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Unknown allocation type");
+		throw MAKE_FAR_EXCEPTION(L"Unknown allocation type"_sv);
 	};
 
 	return format("{0}:{1} -> {2}:{3} ({4} bytes)", File, Line, Function, sType, Size);

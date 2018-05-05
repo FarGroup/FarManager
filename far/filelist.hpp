@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "dizlist.hpp"
 #include "filesystemwatcher.hpp"
+#include "plugin.hpp"
 
 class FileFilter;
 class Plugin;

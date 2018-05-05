@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "exception.hpp"
 #include "platform.fwd.hpp"
+#include "plugin.hpp"
 
 enum class lng : int;
 class PluginManager;

@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "farcolor.hpp"
 
+struct FarColor;
 class History;
 class EditControl;
 

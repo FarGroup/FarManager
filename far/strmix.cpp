@@ -31,8 +31,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "RegExp.hpp"
 #include "strmix.hpp"
+
+#include "RegExp.hpp"
 #include "lang.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
@@ -42,9 +43,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
-#include "bitflags.hpp"
 #include "exception.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 string GroupDigits(unsigned long long Value)
 {
@@ -1083,7 +1084,7 @@ bool SearchString(
 char IntToHex(int h)
 {
 	if (h > 15)
-		throw MAKE_FAR_EXCEPTION(L"Not a hex char");
+		throw MAKE_FAR_EXCEPTION(L"Not a hex char"_sv);
 	if (h >= 10)
 		return 'A' + h - 10;
 	return '0' + h;
@@ -1100,7 +1101,7 @@ int HexToInt(char h)
 	if (std::iswdigit(h))
 		return h - '0';
 
-	throw MAKE_FAR_EXCEPTION(L"Not a hex char");
+	throw MAKE_FAR_EXCEPTION(L"Not a hex char"_sv);
 }
 
 template<class S, class C>
@@ -1132,7 +1133,7 @@ static auto HexStringToBlobT(const basic_string_view<char_type> Hex, const char_
 {
 	// Size shall be either 3 * N + 2 or even
 	if (!Hex.empty() && (Separator? Hex.size() % 3 != 2 : Hex.size() & 1))
-		throw MAKE_FAR_EXCEPTION(L"Incomplete hex string");
+		throw MAKE_FAR_EXCEPTION(L"Incomplete hex string"_sv);
 
 	const auto SeparatorSize = Separator? 1 : 0;
 	const auto StepSize = 2 + SeparatorSize;

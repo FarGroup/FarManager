@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "desktop.hpp"
+
 #include "global.hpp"
 #include "manager.hpp"
 #include "savescr.hpp"

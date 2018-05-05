@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "dlgedit.hpp"
+
 #include "dialog.hpp"
 #include "history.hpp"
 #include "editcontrol.hpp"

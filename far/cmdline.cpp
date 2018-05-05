@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "cmdline.hpp"
+
 #include "execute.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"

@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "cache.hpp"
+
 #include "platform.fs.hpp"
 
 CachedRead::CachedRead(os::fs::file& File, size_t BufferSize):

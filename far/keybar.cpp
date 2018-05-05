@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "keybar.hpp"
+
 #include "farcolor.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
@@ -43,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
+#include "plugin.hpp"
+#include "format.hpp"
 
 enum
 {

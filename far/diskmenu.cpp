@@ -29,6 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "diskmenu.hpp"
+
 #include "global.hpp"
 #include "config.hpp"
 #include "vmenu.hpp"
@@ -64,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "platform.reg.hpp"
 #include "platform.fs.hpp"
+#include "format.hpp"
 
 class ChDiskPluginItem
 {
@@ -279,8 +281,8 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	};
 	auto DCDlg = MakeDialogItemsEx(DCDlgData);
 
-	DCDlg[1].strData = format(lng::MChangeDriveDisconnectQuestion, Letter);
-	DCDlg[2].strData = format(lng::MChangeDriveDisconnectMapped, Letter);
+	DCDlg[1].strData = format(msg(lng::MChangeDriveDisconnectQuestion), Letter);
+	DCDlg[2].strData = format(msg(lng::MChangeDriveDisconnectMapped), Letter);
 
 	size_t Len1 = DCDlg[0].strData.size();
 	size_t Len2 = DCDlg[1].strData.size();
@@ -342,8 +344,8 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		{
 			if (Global->Opt->Confirm.RemoveSUBST)
 			{
-				const auto Question = format(lng::MChangeSUBSTDisconnectDriveQuestion, DiskLetter);
-				const auto MappedTo = format(lng::MChangeDriveDisconnectMapped, DiskLetter.front());
+				const auto Question = format(msg(lng::MChangeSUBSTDisconnectDriveQuestion), DiskLetter);
+				const auto MappedTo = format(msg(lng::MChangeDriveDisconnectMapped), DiskLetter.front());
 				string SubstitutedPath;
 				GetSubstName(DriveType, DiskLetter, SubstitutedPath);
 				if (Message(MSG_WARNING,
@@ -368,7 +370,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			const auto ErrorState = error_state::fetch();
 
 			const auto LastError = ErrorState.Win32Error;
-			const auto strMsgText = format(lng::MChangeDriveCannotDelSubst, DiskLetter);
+			const auto strMsgText = format(msg(lng::MChangeDriveCannotDelSubst), DiskLetter);
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
 				if (Message(MSG_WARNING, ErrorState,
@@ -425,7 +427,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 
 			const auto ErrorState = error_state::fetch();
 
-			const auto strMsgText = format(lng::MChangeDriveCannotDisconnect, DiskLetter);
+			const auto strMsgText = format(msg(lng::MChangeDriveCannotDisconnect), DiskLetter);
 			const auto LastError = ErrorState.Win32Error;
 			if (LastError == ERROR_OPEN_FILES || LastError == ERROR_DEVICE_IN_USE)
 			{
@@ -468,7 +470,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 		{
 			if (Global->Opt->Confirm.DetachVHD)
 			{
-				const auto Question = format(lng::MChangeVHDDisconnectDriveQuestion, DiskLetter);
+				const auto Question = format(msg(lng::MChangeVHDDisconnectDriveQuestion), DiskLetter);
 				if (Message(MSG_WARNING,
 					msg(lng::MChangeVHDDisconnectDriveTitle),
 					{
@@ -502,7 +504,7 @@ static int ProcessDelDisk(panel_ptr Owner, wchar_t Drive, int DriveType)
 			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
 				{
-					format(lng::MChangeDriveCannotDetach, DiskLetter)
+					format(msg(lng::MChangeDriveCannotDetach), DiskLetter)
 				},
 				{ lng::MOk },
 				{}, &VHDDisconnectDriveErrorId);
@@ -553,7 +555,7 @@ static int DisconnectDrive(panel_ptr Owner, const PanelMenuItem *item, VMenu2 &C
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 					const auto ErrorState = error_state::fetch();
 
-					DoneEject = OperationFailed(ErrorState, os::fs::get_drive(item->cDrive), lng::MError, format(lng::MChangeCouldNotEjectMedia, item->cDrive), false) != operation::retry;
+					DoneEject = OperationFailed(ErrorState, os::fs::get_drive(item->cDrive), lng::MError, format(msg(lng::MChangeCouldNotEjectMedia), item->cDrive), false) != operation::retry;
 				}
 				else
 					DoneEject = true;
@@ -604,7 +606,7 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 				DoneEject = Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
 					{
-						format(lng::MChangeCouldNotEjectHotPlugMedia, item->cDrive)
+						format(msg(lng::MChangeCouldNotEjectHotPlugMedia), item->cDrive)
 					},
 					{ lng::MHRetry, lng::MHCancel },
 					{}, &EjectHotPlugMediaErrorId) != Message::first_button;

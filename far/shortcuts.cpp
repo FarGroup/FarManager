@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "shortcuts.hpp"
+
 #include "keys.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -51,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static const auto
 	FolderShortcutsKey = L"Shortcuts"_sv,

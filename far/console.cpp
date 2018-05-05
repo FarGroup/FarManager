@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "console.hpp"
+
 #include "imports.hpp"
 #include "config.hpp"
 #include "colormix.hpp"
@@ -891,7 +892,7 @@ consolebuf::int_type consolebuf::underflow()
 {
 	size_t Read;
 	if (!console.Read(m_InBuffer, Read))
-		throw MAKE_FAR_EXCEPTION(L"Console read error");
+		throw MAKE_FAR_EXCEPTION(L"Console read error"_sv);
 
 	if (!Read)
 		return traits_type::eof();

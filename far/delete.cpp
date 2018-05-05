@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "delete.hpp"
+
 #include "flink.hpp"
 #include "chgprior.hpp"
 #include "scantree.hpp"
@@ -62,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "copy_progress.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 enum DEL_MODE
 {
@@ -385,7 +387,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 			else if (StrItems[LenItems-1] == L'1')
 				Ends=msg(lng::MAskDeleteItems0);
 		}
-		strDeleteFilesMsg = format(lng::MAskDeleteItems, SelCount, Ends);
+		strDeleteFilesMsg = format(msg(lng::MAskDeleteItems), SelCount, Ends);
 	}
 
 	int Ret = 1;

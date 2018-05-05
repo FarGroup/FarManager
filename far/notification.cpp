@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "notification.hpp"
+
 #include "wm_listener.hpp"
 
 static const string_view EventNames[]

@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "lockscrn.hpp"
+
 #include "scrbuf.hpp"
 #include "global.hpp"
 

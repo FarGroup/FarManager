@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "history.hpp"
+
 #include "lang.hpp"
 #include "keys.hpp"
 #include "message.hpp"

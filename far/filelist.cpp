@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "filelist.hpp"
+
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
@@ -96,6 +97,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 int CompareTime(os::chrono::time_point First, os::chrono::time_point Second)
 {
@@ -6702,7 +6704,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 						}
 					}
 
-					auto strReadMsg = format(lng::MReadingFiles, m_ListData.size());
+					auto strReadMsg = format(msg(lng::MReadingFiles), m_ListData.size());
 
 					if (DrawMessage)
 					{
@@ -7730,14 +7732,14 @@ void FileList::ShowSelectedSize()
 	if (m_SelFileCount)
 	{
 		auto strFormStr = size2str(SelFileSize, 6, false, false);
-		auto strSelStr = format(lng::MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
+		auto strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
 		const auto BorderSize = 1;
 		const auto MarginSize = 1;
 		const auto AvailableWidth = static_cast<size_t>(std::max(0, ObjWidth() - BorderSize * 2 - MarginSize * 2));
 		if (strSelStr.size() > AvailableWidth)
 		{
 			strFormStr = size2str(SelFileSize, 6, false, true);
-			strSelStr = format(lng::MListFileSize, strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
+			strSelStr = format(msg(lng::MListFileSize), strFormStr, m_SelFileCount-m_SelDirCount, m_SelDirCount);
 			if (strSelStr.size() > AvailableWidth)
 				TruncStrFromEnd(strSelStr, static_cast<int>(AvailableWidth));
 		}
@@ -7766,17 +7768,17 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		{
 			if (!Global->Opt->ShowPanelFree || strFreeSize.empty())
 			{
-				strTotalSize = format(lng::MListFileSize, strFormSize, m_TotalFileCount, m_TotalDirCount);
+				strTotalSize = format(msg(lng::MListFileSize), strFormSize, m_TotalFileCount, m_TotalDirCount);
 			}
 			else
 			{
 				const string DHLine(3, BoxSymbols[BS_H2]);
-				strTotalSize = format(lng::MListFileSizeStatus, strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
+				strTotalSize = format(msg(lng::MListFileSizeStatus), strFormSize, m_TotalFileCount, m_TotalDirCount, DHLine, strFreeSize);
 			}
 		}
 		else
 		{
-			strTotalSize = format(lng::MListFreeSize, strFreeSize.empty() ? L"?" : strFreeSize);
+			strTotalSize = format(msg(lng::MListFreeSize), strFreeSize.empty() ? L"?" : strFreeSize);
 		}
 		return strTotalSize;
 	};

@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "sqlitedb.hpp"
+
 #include "sqlite.hpp"
 #include "sqlite_unicode.hpp"
 #include "pathmix.hpp"
@@ -40,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 namespace
 {

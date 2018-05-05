@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "setcolor.hpp"
+
 #include "farcolor.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"

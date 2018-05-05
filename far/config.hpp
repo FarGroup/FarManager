@@ -36,7 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "palette.hpp"
+#include "plugin.hpp"
 
+struct FarSettingsItem;
 class GeneralConfig;
 class RegExp;
 struct PanelViewSettings;
@@ -266,7 +268,7 @@ public:
 	using impl_type::OptionImpl;
 	using impl_type::operator=;
 
-	string toString() const override { return str(Get()); }
+	string toString() const override;
 	bool TryParse(const string& value) override;
 	string ExInfo() const override;
 	string_view GetType() const override { return L"integer"_sv; }

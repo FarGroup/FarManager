@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "preservestyle.hpp"
+
 #include "string_utils.hpp"
 
 static const wchar_t PreserveStyleTokenSeparators[] = L"_-.";

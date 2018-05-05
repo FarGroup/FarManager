@@ -31,12 +31,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "scrsaver.hpp"
+
 #include "farcolor.hpp"
 #include "chgprior.hpp"
 #include "savescr.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "scrsaver.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
 #include "global.hpp"

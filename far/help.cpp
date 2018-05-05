@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "help.hpp"
+
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farcolor.hpp"
@@ -59,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static const wchar_t* FoundContents = L"__FoundContents__";
 static const wchar_t* PluginContents = L"__PluginContents__";
@@ -2013,7 +2015,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			ContentsName=L"PluginContents";
 			break;
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unsupported index");
+			throw MAKE_FAR_EXCEPTION(L"Unsupported index"_sv);
 	}
 
 	AddTitle(PtrTitle);
@@ -2053,7 +2055,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			break;
 		}
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unsupported index");
+			throw MAKE_FAR_EXCEPTION(L"Unsupported index"_sv);
 	}
 
 	// сортируем по алфавиту

@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "matrix.hpp"
 
+struct FAR_CHAR_INFO;
+struct FarColor;
 enum class lng : int;
 extern WCHAR Oem2Unicode[];
 extern WCHAR BoxSymbols[];
@@ -188,10 +190,7 @@ void InitRecodeOutTable();
 
 void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2);
 
-inline void SetVidChar(FAR_CHAR_INFO& CI,wchar_t Chr)
-{
-	CI.Char = (Chr<L'\x20'||Chr==L'\x7f')?Oem2Unicode[Chr]:Chr;
-}
+void SetVidChar(FAR_CHAR_INFO& CI, wchar_t Chr);
 
 size_t HiStrlen(const string& Str);
 int HiFindRealPos(const string& Str, int Pos, bool ShowAmp);

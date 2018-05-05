@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "vmenu2.hpp"
+
 #include "vmenu.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"

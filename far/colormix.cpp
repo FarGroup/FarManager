@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "colormix.hpp"
+
 #include "config.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
@@ -46,6 +47,15 @@ enum
 
 namespace colors
 {
+	size_t color_hash::operator()(const FarColor& Key) const
+	{
+		return
+			make_hash(Key.Flags) ^
+			make_hash(Key.BackgroundColor) ^
+			make_hash(Key.ForegroundColor) ^
+			make_hash(Key.Reserved);
+	}
+
 	FarColor merge(const FarColor& Bottom, const FarColor& Top)
 	{
 		FarColor Result = Bottom;
@@ -193,7 +203,7 @@ const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
 
 const FarColor* StoreColor(const FarColor& Value)
 {
-	static std::unordered_set<FarColor> ColorSet;
+	static std::unordered_set<FarColor, color_hash> ColorSet;
 	return &*ColorSet.emplace(Value).first;
 }
 

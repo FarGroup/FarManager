@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "fileedit.hpp"
+
 #include "keyboard.hpp"
 #include "encoding.hpp"
 #include "macroopcode.hpp"
@@ -76,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 enum enumOpenEditor
 {
@@ -1339,7 +1341,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 		Message(MSG_WARNING,
 			msg(lng::MEditTitle),
 			{
-				format(lng::MEditorCPNotSupported, cp)
+				format(msg(lng::MEditorCPNotSupported), cp)
 			},
 			{ lng::MOk });
 		return EC_CP_NOT_SUPPORTED;
@@ -1477,8 +1479,8 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 					{
 						Name,
 						// Ширина = 8 - это будет... в Kb и выше...
-						format(lng::MEditFileLong, trim(FileSizeToStr(FileSize, 8))),
-						format(lng::MEditFileLong2, trim(FileSizeToStr(Global->Opt->EdOpt.FileSizeLimit, 8))),
+						format(msg(lng::MEditFileLong), trim(FileSizeToStr(FileSize, 8))),
+						format(msg(lng::MEditFileLong2), trim(FileSizeToStr(Global->Opt->EdOpt.FileSizeLimit, 8))),
 						msg(lng::MEditROOpen)
 					},
 					{ lng::MYes, lng::MNo },
@@ -1947,7 +1949,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
 		if(!EditFile)
 		{
-			throw MAKE_FAR_EXCEPTION(L"Can't open file");
+			throw MAKE_FAR_EXCEPTION(L"Can't open file"_sv);
 		}
 
 		m_editor->UndoSavePos=m_editor->UndoPos;
@@ -2731,7 +2733,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 			msg(lng::MWarning),
 			{
 				msg(lng::MEditorSwitchCPWarn1),
-				format(lng::MEditorSwitchCPWarn2, codepage),
+				format(msg(lng::MEditorSwitchCPWarn2), codepage),
 				msg(lng::MEditorSwitchCPConfirm)
 			},
 			{ lng::MCancel, lng::MEditorSaveCPWarnShow, lng::MOk });

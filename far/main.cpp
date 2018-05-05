@@ -1,4 +1,5 @@
-﻿/*
+﻿// validator: no-self-include
+/*
 main.cpp
 
 Функция main.
@@ -380,7 +381,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	}
 }
 
-static bool ProcessServiceModes(const range<const wchar_t* const*>& Args, int& ServiceResult)
+static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& ServiceResult)
 {
 	const auto& isArg = [](const wchar_t* Arg, const wchar_t* Name)
 	{
@@ -459,7 +460,7 @@ static void SetDriveMenuHotkeys()
 	}
 }
 
-static int mainImpl(const range<const wchar_t* const*>& Args)
+static int mainImpl(range<const wchar_t* const*> const Args)
 {
 	setlocale(LC_ALL, "");
 

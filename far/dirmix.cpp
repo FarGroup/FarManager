@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "dirmix.hpp"
+
 #include "cvtname.hpp"
 #include "message.hpp"
 #include "lang.hpp"
@@ -45,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+#include "format.hpp"
 
 static auto make_curdir_name(wchar_t Drive)
 {

@@ -36,7 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-
+struct FAR_CHAR_INFO;
+struct OpenPanelInfo;
 void SysLog(int l);
 void SysLog(const wchar_t *fmt,...);
 void SysLog(int l,const wchar_t *fmt,...); ///

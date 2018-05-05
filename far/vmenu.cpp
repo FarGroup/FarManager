@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "vmenu.hpp"
+
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"
@@ -2723,7 +2724,7 @@ MenuItemEx& VMenu::at(size_t n)
 	int ItemPos = GetItemPosition(static_cast<int>(n));
 
 	if (ItemPos < 0)
-		throw MAKE_FAR_EXCEPTION(L"menu index out of range");
+		throw MAKE_FAR_EXCEPTION(L"menu index out of range"_sv);
 
 	return Items[ItemPos];
 }
@@ -2852,7 +2853,7 @@ const GUID& VMenu::Id() const
 	return MenuId;
 }
 
-std::vector<string> VMenu::AddHotkeys(const range<menu_item*>& MenuItems)
+std::vector<string> VMenu::AddHotkeys(range<menu_item*> const MenuItems)
 {
 	FN_RETURN_TYPE(VMenu::AddHotkeys) Result(MenuItems.size());
 

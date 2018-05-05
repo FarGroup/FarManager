@@ -32,8 +32,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.concurrency.hpp"
 
-namespace os::concurrency
+#include "pathmix.hpp"
+#include "format.hpp"
+
+namespace os
 {
+	string detail::make_name(string_view const Namespace, const string& HashPart, string_view const TextPart)
+	{
+		auto Str = concat(Namespace, str(make_hash(HashPart)), L'_', TextPart);
+		ReplaceBackslashToSlash(Str);
+		return Str;
+	}
+
+// TODO: remove inline
+inline namespace concurrency
+{
+
 	critical_section::critical_section()
 	{
 		InitializeCriticalSection(&m_Object);
@@ -91,7 +105,7 @@ namespace os::concurrency
 	void thread::check_joinable() const
 	{
 		if (!joinable())
-			throw MAKE_FAR_EXCEPTION(L"Thread is not joinable");
+			throw MAKE_FAR_EXCEPTION(L"Thread is not joinable"_sv);
 	}
 
 
@@ -148,7 +162,7 @@ namespace os::concurrency
 	{
 		if (!*this)
 		{
-			throw MAKE_FAR_EXCEPTION(L"Event not initialized properly");
+			throw MAKE_FAR_EXCEPTION(L"Event not initialized properly"_sv);
 		}
 	}
 
@@ -186,4 +200,5 @@ namespace os::concurrency
 	{
 		m_Objects.clear();
 	}
+}
 }

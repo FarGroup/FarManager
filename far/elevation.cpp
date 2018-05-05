@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "elevation.hpp"
+
 #include "config.hpp"
 #include "lang.hpp"
 #include "dialog.hpp"
@@ -52,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.memory.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 using namespace os::security;
 
@@ -132,7 +134,7 @@ T elevation::Read() const
 {
 	T Data;
 	if (!pipe::Read(m_Pipe, Data))
-		throw MAKE_FAR_EXCEPTION(L"Pipe read error");
+		throw MAKE_FAR_EXCEPTION(L"Pipe read error"_sv);
 	return Data;
 }
 
@@ -147,13 +149,13 @@ template<typename T>
 void elevation::WriteArg(const T& Data) const
 {
 	if (!pipe::Write(m_Pipe, Data))
-		throw MAKE_FAR_EXCEPTION(L"Pipe write error");
+		throw MAKE_FAR_EXCEPTION(L"Pipe write error"_sv);
 }
 
 void elevation::WriteArg(const bytes_view& Data) const
 {
 	if (!pipe::Write(m_Pipe, Data.data(), Data.size()))
-		throw MAKE_FAR_EXCEPTION(L"Pipe write error");
+		throw MAKE_FAR_EXCEPTION(L"Pipe write error"_sv);
 }
 
 void elevation::RetrieveLastError() const
@@ -876,7 +878,7 @@ private:
 	void Write(const void* Data, size_t DataSize) const
 	{
 		if (!pipe::Write(m_Pipe, Data, DataSize))
-			throw MAKE_FAR_EXCEPTION(L"Pipe write error");
+			throw MAKE_FAR_EXCEPTION(L"Pipe write error"_sv);
 	}
 
 	template<typename T>
@@ -884,7 +886,7 @@ private:
 	{
 		T Data;
 		if (!pipe::Read(m_Pipe, Data))
-			throw MAKE_FAR_EXCEPTION(L"Pipe read error");
+			throw MAKE_FAR_EXCEPTION(L"Pipe read error"_sv);
 		return Data;
 	}
 
@@ -894,7 +896,7 @@ private:
 	void Write(const T& Data, args&&... Args) const
 	{
 		if (!pipe::Write(m_Pipe, Data))
-			throw MAKE_FAR_EXCEPTION(L"Pipe write error");
+			throw MAKE_FAR_EXCEPTION(L"Pipe write error"_sv);
 		Write(FWD(Args)...);
 	}
 

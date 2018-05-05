@@ -38,7 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "bitflags.hpp"
 #include "eol.hpp"
+#include "plugin.hpp"
 
+struct FarColor;
 class RegExp;
 struct RegExpMatch;
 struct MatchHash;

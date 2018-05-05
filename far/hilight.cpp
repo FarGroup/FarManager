@@ -31,8 +31,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "farcolor.hpp"
 #include "hilight.hpp"
+
+#include "farcolor.hpp"
 #include "keys.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -53,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "filefilter.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static const struct
 {
@@ -453,7 +455,7 @@ size_t highlight::configuration::element_hash::operator()(const element& item) c
 {
 	return make_hash(item.Mark.Char) ^ make_hash(item.Mark.Transparent) ^ std::accumulate(ALL_CONST_RANGE(item.Color), size_t(0), [](auto Value, const auto& i)
 	{
-		return Value ^ make_hash(i.FileColor) ^ make_hash(i.MarkColor);
+		return Value ^ colors::color_hash{}(i.FileColor) ^ colors::color_hash{}(i.MarkColor);
 	});
 }
 

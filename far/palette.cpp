@@ -32,9 +32,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "palette.hpp"
+
 #include "farcolor.hpp"
 #include "colormix.hpp"
 #include "configdb.hpp"
+#include "plugin.hpp"
 
 static const struct ColorsInit
 {

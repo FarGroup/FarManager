@@ -29,6 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "copy_progress.hpp"
+
 #include "colormix.hpp"
 #include "lang.hpp"
 #include "config.hpp"
@@ -40,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "scrbuf.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 /* Общее время ожидания пользователя */
 extern std::chrono::steady_clock::duration WaitUserTime;
@@ -305,5 +307,5 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 		tmp[0] = tmp[1] = tmp[2] = string(8, L' ');
 	}
 
-	m_Time = format(lng::MCopyTimeInfo, tmp[0], tmp[1], tmp[2]);
+	m_Time = format(msg(lng::MCopyTimeInfo), tmp[0], tmp[1], tmp[2]);
 }

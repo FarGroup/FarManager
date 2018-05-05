@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "macro.hpp"
+
 #include "FarGuid.hpp"
 #include "cmdline.hpp"
 #include "config.hpp"
@@ -77,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 #if 0
 void print_opcodes()
@@ -1185,7 +1187,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_
 	auto MacroSettingsDlg = MakeDialogItemsEx(MacroSettingsDlgData);
 	string strKeyText;
 	KeyToText(Key,strKeyText);
-	MacroSettingsDlg[MS_DOUBLEBOX].strData = format(lng::MMacroSettingsTitle, strKeyText);
+	MacroSettingsDlg[MS_DOUBLEBOX].strData = format(msg(lng::MMacroSettingsTitle), strKeyText);
 	//if(!(Key&0x7F000000))
 	//MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_ENABLEOUTPUT?1:0;
@@ -5133,7 +5135,7 @@ M1:
 					MessageTemplate = SetChange? lng::MMacroDeleteKey : lng::MMacroReDefinedKey;
 					//"Макроклавиша '{0}'   будет удалена : уже определена."
 				}
-				const auto strBuf = format(MessageTemplate, strKeyText);
+				const auto strBuf = format(msg(MessageTemplate), strKeyText);
 
 				const std::vector<lng> ChangeButtons = { lng::MYes, lng::MMacroEditKey, lng::MNo };
 				const std::vector<lng> NoChangeButtons = { lng::MYes, lng::MNo };

@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "viewer.hpp"
+
 #include "encoding.hpp"
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
@@ -74,6 +75,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 enum SHOW_MODES
 {
@@ -2316,7 +2318,7 @@ static int process_back(int BufferSize, int pos, long long& fpos, const F& Reade
 
 	if (nr != static_cast<int>(BufferSize / sizeof(T)))
 	{
-		throw MAKE_FAR_EXCEPTION(L"Wrong size");
+		throw MAKE_FAR_EXCEPTION(L"Wrong size"_sv);
 	}
 
 	if (!pos)

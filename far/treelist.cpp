@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "treelist.hpp"
+
 #include "keyboard.hpp"
 #include "farcolor.hpp"
 #include "keys.hpp"
@@ -79,6 +80,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "platform.env.hpp"
 #endif
+
+#include "format.hpp"
 
 static std::chrono::steady_clock::time_point TreeStartTime;
 static int LastScrX = -1;

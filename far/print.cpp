@@ -31,6 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "print.hpp"
+
 #include "panel.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -41,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "interf.hpp"
 #include "message.hpp"
-#include "print.hpp"
 #include "delete.hpp"
 #include "mix.hpp"
 #include "lang.hpp"
@@ -49,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 #define PRINTER_INFO_LEVEL 4
 #define DETAIL_PRINTER_INFO_N_IMPL(level) PRINTER_INFO_##level##W
@@ -136,13 +138,13 @@ void PrintFiles(FileList* SrcPanel)
 				return;
 
 			auto Name = Data.FileName;
-			strTitle = format(lng::MPrintTo, inplace::quote_unconditional(TruncStr(Name, 50)));
+			strTitle = format(msg(lng::MPrintTo), inplace::quote_unconditional(TruncStr(Name, 50)));
 		}
 		else
 		{
 			_ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
 			SelCount-=DirsCount;
-			strTitle = format(lng::MPrintFilesTo, SelCount);
+			strTitle = format(msg(lng::MPrintFilesTo), SelCount);
 		}
 
 		const auto PrinterList = VMenu2::create(strTitle, {}, ScrY - 4);

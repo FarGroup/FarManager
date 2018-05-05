@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error C++ only
 #endif
 
+#include "plugin.hpp"
+
 // Элемент выпадающего списка в диалоге.
 struct DialogBuilderListItem
 {

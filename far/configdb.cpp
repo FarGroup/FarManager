@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "configdb.hpp"
+
 #include "sqlitedb.hpp"
 #include "strmix.hpp"
 #include "encoding.hpp"
@@ -44,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 class representation_source
 {
@@ -2312,7 +2314,7 @@ bool config_provider::Export(const string& File)
 
 bool config_provider::ServiceMode(const string& Filename)
 {
-	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION(L"Unexpected service mode");
+	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION(L"Unexpected service mode"_sv);
 }
 
 bool config_provider::Import(const string& Filename)

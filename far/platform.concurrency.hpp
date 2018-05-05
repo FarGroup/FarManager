@@ -39,15 +39,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os
 {
+	namespace detail
+	{
+		string make_name(string_view Namespace, const string& HashPart, string_view TextPart);
+	}
+
 // TODO: remove inline
 inline namespace concurrency
 {
-	template<class T, class S>
-	auto make_name(const S& HashPart, const S& TextPart)
+	template<class T>
+	string make_name(const string& HashPart, string_view const TextPart)
 	{
-		auto Str = concat(T::get_namespace(), str(make_hash(HashPart)), L'_', TextPart);
-		ReplaceBackslashToSlash(Str);
-		return Str;
+		return detail::make_name(T::get_namespace(), HashPart, TextPart);
 	}
 
 	class critical_section
@@ -102,7 +105,7 @@ inline namespace concurrency
 			reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, wrapper<T>, Param.get(), 0, &m_ThreadId)));
 
 			if (!*this)
-				throw MAKE_FAR_EXCEPTION(L"Can't create thread");
+				throw MAKE_FAR_EXCEPTION(L"Can't create thread"_sv);
 
 			Param.release();
 		}

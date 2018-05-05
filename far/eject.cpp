@@ -32,11 +32,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "eject.hpp"
+
 #include "lang.hpp"
 #include "cddrv.hpp"
 #include "stddlg.hpp"
 #include "exception.hpp"
 #include "platform.fs.hpp"
+#include "plugin.hpp"
+#include "format.hpp"
 
 #if 0
 static bool DismountVolume(HANDLE hVolume)
@@ -156,7 +159,7 @@ bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 				{
 					const auto ErrorState = error_state::fetch();
 
-					if(OperationFailed(ErrorState, RootName, lng::MError, format(lng::MChangeCouldNotEjectMedia, Letter), false) != operation::retry)
+					if(OperationFailed(ErrorState, RootName, lng::MError, format(msg(lng::MChangeCouldNotEjectMedia), Letter), false) != operation::retry)
 						Retry = false;
 				}
 				else

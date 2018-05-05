@@ -64,7 +64,7 @@ namespace detail
 	class exception_impl
 	{
 	public:
-		exception_impl(const string& Message, const char* Function, const char* File, int Line);
+		exception_impl(string_view Message, const char* Function, const char* File, int Line);
 
 		const auto& get_message() const noexcept { return m_ErrorState.What; }
 		const auto& get_full_message() const noexcept { return m_FullMessage; }
@@ -79,8 +79,8 @@ namespace detail
 class far_exception: public detail::exception_impl, public std::runtime_error
 {
 public:
-	far_exception(const string& Message, const char* Function, const char* File, int Line);
-	far_exception(const string& Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line);
+	far_exception(string_view Message, const char* Function, const char* File, int Line);
+	far_exception(string_view Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line);
 	const std::vector<string>& get_stack() const;
 
 private:

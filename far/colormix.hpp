@@ -36,8 +36,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "farcolor.hpp"
 
+struct FarColor;
+
 namespace colors
 {
+	struct color_hash
+	{
+		size_t operator()(const FarColor& Key) const;
+	};
+
 	FarColor merge(const FarColor& Bottom, const FarColor& Top);
 	WORD FarColorToConsoleColor(const FarColor& Color);
 	FarColor ConsoleColorToFarColor(WORD Color);
@@ -45,21 +52,6 @@ namespace colors
 	const FarColor* StoreColor(const FarColor& Value);
 	// ([[T]FFFFFFFF][:[T]BBBBBBBB])
 	string_view ExtractColorInNewFormat(string_view Str, FarColor& Color, bool& Stop);
-}
-
-namespace std
-{
-	template<>
-	struct hash<FarColor>
-	{
-		size_t operator()(const FarColor& Key) const
-		{
-			return make_hash(Key.Flags)
-			     ^ make_hash(Key.BackgroundColor)
-			     ^ make_hash(Key.ForegroundColor)
-			     ^ make_hash(Key.Reserved);
-		}
-	};
 }
 
 #endif // COLORMIX_HPP_2A689A10_E8AA_4B87_B167_FAAF812AC90F

@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "wm_listener.hpp"
+
 #include "config.hpp"
 #include "imports.hpp"
 #include "notification.hpp"

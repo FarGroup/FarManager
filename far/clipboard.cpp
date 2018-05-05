@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "clipboard.hpp"
+
 #include "console.hpp"
 #include "encoding.hpp"
 

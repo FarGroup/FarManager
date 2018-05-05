@@ -20,17 +20,20 @@ def check(filename):
 
 		CheckBom = True
 		CheckIncludeGuards = True
+		CheckSelfInclude = True
 
 		if content[0].startswith("// validator: "):
 			if "no-bom" in content[0]:
 				CheckBom = False
 			if "no-include-guards" in content[0]:
 				CheckIncludeGuards = False
+			if "no-self-include" in content[0]:
+				CheckSelfInclude = False
 			content = content[1:]
 
 		def Raise(Message, Line=-1):
 			RealLine = LineNumber if Line==-1 else Line
-			raise Exception(name + extension, RealLine + 1, Message, content[RealLine])
+			raise Exception(RealLine + 1, Message, content[RealLine])
 
 		if CheckBom and not IsBom:
 			Raise("No BOM")
@@ -138,6 +141,18 @@ def check(filename):
 			Raise("No empty line")
 		LineNumber += 1
 
+		if CheckSelfInclude and extension in [".cpp"]:
+			include = "#include "
+			if content[LineNumber].startswith(include):
+				incName, incExt = os.path.splitext(content[LineNumber][len(include):].strip('"'))
+				if name != incName or extension != incExt.replace('h', 'c'):
+					Raise("#Corresponding header must be included first")
+				LineNumber += 1
+
+				if LineNumber < len(content) and content[LineNumber] != "":
+					Raise("No empty line")
+				LineNumber += 1
+
 
 def get_list(dir):
 	return [ os.path.join(dir, f) for f in os.listdir(dir)]
@@ -150,5 +165,9 @@ if __name__ == "__main__":
 		if ext in extensions:
 			try:
 				check(file)
-			except:
+			except Exception as e:
+				print(file)
 				traceback.print_exc()
+				#print(e)
+				print()
+

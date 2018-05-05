@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "dizlist.hpp"
+
 #include "lang.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "interf.hpp"
@@ -47,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 DizList::DizList():
 	m_CodePage(CP_DEFAULT),
@@ -369,7 +371,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 			}
 			else
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't open file");
+				throw MAKE_FAR_EXCEPTION(L"Can't open file"_sv);
 			}
 
 			if (FileAttr == INVALID_FILE_ATTRIBUTES)
@@ -383,7 +385,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if (!os::fs::delete_file(m_DizFileName))
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file");
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file"_sv);
 			}
 		}
 	}

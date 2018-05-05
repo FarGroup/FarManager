@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "interf.hpp"
+
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farcolor.hpp"
@@ -51,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 #include "platform.security.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static HICON load_icon(int IconId, bool Big)
 {
@@ -1315,6 +1317,11 @@ void fix_coordinates(int& X1, int& Y1, int& X2, int& Y2)
 	X2 = std::clamp(X2, 0, static_cast<int>(ScrX));
 	Y1 = std::clamp(Y1, 0, static_cast<int>(ScrY));
 	Y2 = std::clamp(Y2, 0, static_cast<int>(ScrY));
+}
+
+void SetVidChar(FAR_CHAR_INFO& CI, wchar_t Chr)
+{
+	CI.Char = (Chr < L'\x20' || Chr == L'\x7f')? Oem2Unicode[Chr] : Chr;
 }
 
 void AdjustConsoleScreenBufferSize(bool TransitionFromFullScreen)

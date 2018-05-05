@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "syslog.hpp"
+
 #include "filelist.hpp"
 #include "manager.hpp"
 #include "window.hpp"

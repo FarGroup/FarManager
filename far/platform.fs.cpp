@@ -1070,7 +1070,7 @@ namespace os::fs
 	{
 		//if (!(m_Mode & std::ios::in) == !(m_Mode & std::ios::out))
 		if (m_Mode != std::ios::out)
-			throw MAKE_FAR_EXCEPTION(L"Unsupported mode");
+			throw MAKE_FAR_EXCEPTION(L"Unsupported mode"_sv);
 
 		reset_put_area();
 	}
@@ -1078,15 +1078,15 @@ namespace os::fs
 	filebuf::int_type filebuf::overflow(int_type Ch)
 	{
 		if (!m_File)
-			throw MAKE_FAR_EXCEPTION(L"File not opened");
+			throw MAKE_FAR_EXCEPTION(L"File not opened"_sv);
 
 		if (!(m_Mode && std::ios::out))
-			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for writing");
+			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for writing"_sv);
 
 		if (pptr() != pbase())
 		{
 			if (!m_File.Write(pbase(), static_cast<size_t>(pptr() - pbase()) * sizeof(char)))
-				throw MAKE_FAR_EXCEPTION(L"Write error");
+				throw MAKE_FAR_EXCEPTION(L"Write error"_sv);
 		}
 
 		reset_put_area();

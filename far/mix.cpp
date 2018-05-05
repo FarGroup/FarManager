@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "mix.hpp"
+
 #include "pathmix.hpp"
 #include "window.hpp"
 #include "cmdline.hpp"

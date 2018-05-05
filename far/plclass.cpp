@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plclass.hpp"
+
 #include "plugins.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
@@ -47,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 std::exception_ptr& GlobalExceptionPtr()
 {
@@ -429,8 +431,8 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 		{
 			msg(lng::MPlgBadVers),
 			plg,
-			format(lng::MPlgRequired, str(required)),
-			format(lng::MPlgRequired2, str(FAR_VERSION))
+			format(msg(lng::MPlgRequired), str(required)),
+			format(msg(lng::MPlgRequired2), str(FAR_VERSION))
 		},
 		{ lng::MOk }
 	);

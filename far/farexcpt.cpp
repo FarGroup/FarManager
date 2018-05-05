@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "farexcpt.hpp"
+
 #include "plugins.hpp"
 #include "filepanels.hpp"
 #include "manager.hpp"
@@ -54,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
@@ -724,7 +726,7 @@ static bool ExceptionTestHook(Manager::Key key)
 		switch (static_cast<exception_types>(ExitCode))
 		{
 		case exception_types::cpp_std:
-			throw MAKE_FAR_EXCEPTION(L"Test error");
+			throw MAKE_FAR_EXCEPTION(L"Test error"_sv);
 
 		case exception_types::cpp_std_bad_alloc:
 			// Less than the physical limit to leave some space for a service block, if any

@@ -32,8 +32,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "encoding.hpp"
+
 #include "strmix.hpp"
 #include "exception.hpp"
+#include "plugin.hpp"
 
 class installed_codepages
 {
@@ -446,7 +448,7 @@ size_t Utf::get_chars(uintptr_t const Codepage, basic_string_view<char> const St
 	case CP_UTF8:
 		return Utf8::get_chars(Str, Buffer, BufferSize, Errors);
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage");
+		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage"_sv);
 	}
 }
 
@@ -947,4 +949,37 @@ void swap_bytes(const void* const Src, void* const Dst, const size_t SizeInBytes
 		return;
 	}
 	_swab(reinterpret_cast<char*>(const_cast<void*>(Src)), reinterpret_cast<char*>(Dst), static_cast<int>(SizeInBytes));
+}
+
+bool IsVirtualCodePage(uintptr_t cp)
+{
+	return cp == CP_DEFAULT || cp == CP_REDETECT || cp == CP_SET;
+}
+
+bool IsUnicodeCodePage(uintptr_t cp)
+{
+	return cp == CP_UNICODE || cp == CP_REVERSEBOM;
+}
+
+bool IsStandardCodePage(uintptr_t cp)
+{
+	return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == GetOEMCP() || cp == GetACP();
+}
+
+bool IsUnicodeOrUtfCodePage(uintptr_t cp)
+{
+	return IsUnicodeCodePage(cp) || cp == CP_UTF8 || cp == CP_UTF7;
+}
+
+// See https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072.aspx
+bool IsNoFlagsCodepage(uintptr_t cp)
+{
+	return
+		(cp >= 50220 && cp <= 50222) ||
+		cp == 50225 ||
+		cp == 50227 ||
+		cp == 50229 ||
+		(cp >= 57002 && cp <= 57011) ||
+		cp == CP_UTF7 ||
+		cp == CP_SYMBOL;
 }

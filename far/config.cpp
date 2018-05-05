@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "config.hpp"
+
 #include "keys.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
@@ -77,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "platform.env.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static const size_t predefined_panel_modes_count = 10;
 
@@ -569,7 +571,7 @@ void Options::MaskGroupsSettings()
 						}
 						MasksMenu->SetPosition(-1, -1, -1, -1);
 						MasksMenu->SetTitle(Value);
-						MasksMenu->SetBottomTitle(format(lng::MMaskGroupTotal, MasksMenu->GetShowItemCount()));
+						MasksMenu->SetBottomTitle(format(msg(lng::MMaskGroupTotal), MasksMenu->GetShowItemCount()));
 						Filter = true;
 					}
 				}
@@ -895,7 +897,7 @@ void Options::SetFolderInfoFiles()
 	}
 }
 
-static void ResetViewModes(const range<PanelViewSettings*>& Modes, int Index = -1)
+static void ResetViewModes(range<PanelViewSettings*> const Modes, int const Index = -1)
 {
 	static const struct
 	{
@@ -1504,6 +1506,11 @@ void Bool3Option::Export(FarSettingsItem& To) const
 }
 
 
+string IntOption::toString() const
+{
+	return str(Get());
+}
+
 bool IntOption::TryParse(const string& value)
 {
 	long long iValue;
@@ -1559,25 +1566,23 @@ public:
 	using const_iterator = iterator;
 	using value_type = FARConfigItem;
 
-	farconfig(const FARConfigItem* Items, size_t Size, GeneralConfig* cfg):
+	farconfig(range<const FARConfigItem*> Items, GeneralConfig* cfg):
 		m_items(Items),
-		m_size(Size),
 		m_cfg(cfg)
 	{
 	}
 
-	iterator begin() const { return m_items; }
-	iterator end() const { return m_items + m_size; }
-	const_iterator cbegin() const { return begin(); }
-	const_iterator cend() const { return end(); }
-	size_t size() const { return m_size; }
-	auto& operator[](size_t i) const { return m_items[i]; }
+	decltype(auto) begin() const { return m_items.begin(); }
+	decltype(auto) end() const { return m_items.end(); }
+	decltype(auto) cbegin() const { return begin(); }
+	decltype(auto) cend() const { return end(); }
+	decltype(auto) size() const { return m_items.size(); }
+	decltype(auto) operator[](size_t i) const { return m_items[i]; }
 
 	GeneralConfig* GetConfig() const { return m_cfg; }
 
 private:
-	const FARConfigItem* m_items;
-	size_t m_size;
+	range<const FARConfigItem*> m_items;
 	GeneralConfig* m_cfg;
 };
 
@@ -2045,8 +2050,8 @@ void Options::InitConfigsData()
 
 	};
 
-	m_Configs.emplace_back(RoamingData, std::size(RoamingData), ConfigProvider().GeneralCfg().get());
-	m_Configs.emplace_back(LocalData, std::size(LocalData), ConfigProvider().LocalGeneralCfg().get());
+	m_Configs.emplace_back(make_range(RoamingData), ConfigProvider().GeneralCfg().get());
+	m_Configs.emplace_back(make_range(LocalData), ConfigProvider().LocalGeneralCfg().get());
 }
 
 Options::farconfig& Options::GetConfig(config_type Type)

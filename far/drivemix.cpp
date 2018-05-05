@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "drivemix.hpp"
+
 #include "config.hpp"
 #include "notification.hpp"
 #include "platform.security.hpp"

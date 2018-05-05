@@ -1,4 +1,5 @@
-﻿/*
+﻿// validator: no-self-include
+/*
 vc_crt_fix_impl.cpp
 
 Workaround for Visual C++ CRT incompatibility with old Windows versions

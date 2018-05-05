@@ -32,23 +32,23 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/*
-[HKEY_CURRENT_USER\Software\Far2\XLat]
-"Flags"=dword:00000001
-"Layouts"="04090409;04190419"
-"Table1"="№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ"
-"Table2"="#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>"
-"Rules1"=",??&./б,ю.:^Ж:ж;;$\"@Э\""
-"Rules2"="?,&?/.,б.ю^::Ж;ж$;@\"\"Э"
-"Rules3"="^::ЖЖ^$;;жж$@\"\"ЭЭ@&??,,бб&/..юю/"
-*/
+#include "xlat.hpp"
 
 #include "config.hpp"
-#include "xlat.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
+
+/*
+Flags: 1
+Layouts: "04090409;04190419"
+Table1: "№АВГДЕЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЯавгдезийклмнопрстуфхцчшщъыьэяёЁБЮ"
+Table2: "#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>"
+Rules1: ",??&./б,ю.:^Ж:ж;;$\"@Э\""
+Rules2: "?,&?/.,б.ю^::Ж;ж$;@\"\"Э"
+Rules3: "^::ЖЖ^$;;жж$@\"\"ЭЭ@&??,,бб&/..юю/"
+*/
 
 void xlat_initialize()
 {

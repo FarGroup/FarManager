@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "lasterror.hpp"
+
 #include "imports.hpp"
 
 GuardLastError::GuardLastError():

@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrbuf.hpp"
+
 #include "farcolor.hpp"
 #include "ctrlobj.hpp"
 #include "interf.hpp"

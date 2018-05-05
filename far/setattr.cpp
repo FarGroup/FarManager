@@ -31,6 +31,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "setattr.hpp"
+
 #include "flink.hpp"
 #include "dialog.hpp"
 #include "chgprior.hpp"
@@ -46,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "datetime.hpp"
 #include "fileattr.hpp"
-#include "setattr.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "network.hpp"
@@ -61,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 enum SETATTRDLG
 {
@@ -774,22 +776,22 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		{
 			case 0:
 				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
-				DateFormat = format(lng::MSetAttrDateTitle1, DateSeparator);
+				DateFormat = format(msg(lng::MSetAttrDateTitle1), DateSeparator);
 				break;
 
 			case 1:
 				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
-				DateFormat = format(lng::MSetAttrDateTitle2, DateSeparator);
+				DateFormat = format(msg(lng::MSetAttrDateTitle2), DateSeparator);
 				break;
 
 			default:
 				DateMask = format(L"N9999{0}99{0}99", DateSeparator);
-				DateFormat = format(lng::MSetAttrDateTitle3, DateSeparator);
+				DateFormat = format(msg(lng::MSetAttrDateTitle3), DateSeparator);
 				break;
 		}
 
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
-		AttrDlg[SA_TEXT_TITLETIME].strData = format(lng::MSetAttrTimeTitle, TimeSeparator, DecimalSeparator);
+		AttrDlg[SA_TEXT_TITLETIME].strData = format(msg(lng::MSetAttrTimeTitle), TimeSeparator, DecimalSeparator);
 
 		AttrDlg[SA_EDIT_WDATE].strMask = AttrDlg[SA_EDIT_CDATE].strMask = AttrDlg[SA_EDIT_ADATE].strMask = AttrDlg[SA_EDIT_XDATE].strMask = DateMask;
 		AttrDlg[SA_EDIT_WTIME].strMask = AttrDlg[SA_EDIT_CTIME].strMask = AttrDlg[SA_EDIT_ATIME].strMask = AttrDlg[SA_EDIT_XTIME].strMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);

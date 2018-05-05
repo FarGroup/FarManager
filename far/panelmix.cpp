@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panelmix.hpp"
+
 #include "strmix.hpp"
 #include "filepanels.hpp"
 #include "config.hpp"
@@ -49,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static const struct column_info
 {
@@ -520,7 +522,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLUMN_NOEXTENSION:     return L'N';
 		case COLUMN_RIGHTALIGNFORCE: return L'F';
 		case COLUMN_MARK_DYNAMIC:    return L'D';
-		default:                     throw MAKE_FAR_EXCEPTION(L"Unexpected mode");
+		default:                     throw MAKE_FAR_EXCEPTION(L"Unexpected mode"_sv);
 		}
 	};
 

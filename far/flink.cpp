@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "flink.hpp"
+
 #include "platform.security.hpp"
 #include "imports.hpp"
 #include "config.hpp"
@@ -45,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
@@ -677,8 +679,8 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 					Message(MSG_WARNING, ErrorState,
 						msg(lng::MError),
 						{
-							format(lng::MCopyMountVolFailed, Target),
-							format(lng::MCopyMountVolFailed2, strFullLink)
+							format(msg(lng::MCopyMountVolFailed), Target),
+							format(msg(lng::MCopyMountVolFailed2), strFullLink)
 						},
 						{ lng::MOk });
 				}

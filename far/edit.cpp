@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "edit.hpp"
+
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "ctrlobj.hpp"

@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "dialog.hpp"
+
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -261,7 +262,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 	return size;
 }
 
-void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<DialogItemEx*>& ItemsEx, bool Short)
+void ItemsToItemsEx(range<const FarDialogItem*> const Items, range<DialogItemEx*> const ItemsEx, bool const Short)
 {
 	for (const auto& i: zip(Items, ItemsEx))
 	{
@@ -342,7 +343,7 @@ bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
 }
 
 
-void Dialog::Construct(const range<DialogItemEx*>& SrcItems)
+void Dialog::Construct(range<DialogItemEx*> const SrcItems)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 1"));
 	SavedItems = SrcItems.data();
@@ -366,7 +367,7 @@ void Dialog::Construct(const range<DialogItemEx*>& SrcItems)
 	Init();
 }
 
-void Dialog::Construct(const range<const FarDialogItem*>& SrcItems)
+void Dialog::Construct(const range<const FarDialogItem*> SrcItems)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 2"));
 	SavedItems = nullptr;

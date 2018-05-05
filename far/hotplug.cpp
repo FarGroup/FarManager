@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "hotplug.hpp"
+
 #include "lang.hpp"
 #include "keys.hpp"
 #include "help.hpp"
@@ -47,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 /*
 A device is considered a HotPlug device if the following are TRUE:
@@ -382,7 +384,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 			MessageItems.emplace_back(strFriendlyName);
 
 		if (!DisksStr.empty())
-			MessageItems.emplace_back(format(lng::MHotPlugDisks, DisksStr));
+			MessageItems.emplace_back(format(msg(lng::MHotPlugDisks), DisksStr));
 
 		MessageResult = Message(MSG_WARNING,
 			msg(lng::MChangeHotPlugDisconnectDriveTitle),

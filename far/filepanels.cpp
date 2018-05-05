@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "filepanels.hpp"
+
 #include "keys.hpp"
 #include "macroopcode.hpp"
 #include "filelist.hpp"

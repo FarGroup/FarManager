@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "matrix.hpp"
+#include "plugin.hpp"
 
 class SaveScreen: noncopyable
 {

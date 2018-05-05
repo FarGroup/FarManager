@@ -32,12 +32,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "datetime.hpp"
+
 #include "config.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
 #include "imports.hpp"
 #include "locale.hpp"
 #include "encoding.hpp"
+#include "format.hpp"
 
 class locale_cache
 {
@@ -529,7 +531,7 @@ string MkStrFTime(const wchar_t *Format)
 	return StrFTime(Format, std::localtime(&Time));
 }
 
-void ParseDateComponents(const string& Src, const range<WORD*>& Dst, wchar_t Separator, WORD Default)
+void ParseDateComponents(const string& Src, range<WORD*> const Dst, wchar_t const Separator, WORD const Default)
 {
 	const auto Components = enum_tokens(trim(Src), string_view(&Separator, 1));
 	std::transform(ALL_CONST_RANGE(Components), Dst.begin(), [&](const string_view i)

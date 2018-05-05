@@ -114,7 +114,7 @@ struct DialogItemEx: public FarDialogItem
 };
 
 bool IsKeyHighlighted(string_view Str, int Key, int Translate, int AmpPos = -1);
-void ItemsToItemsEx(const range<const FarDialogItem*>& Items, const range<DialogItemEx*>& ItemsEx, bool Short = false);
+void ItemsToItemsEx(range<const FarDialogItem*> Items, range<DialogItemEx*> ItemsEx, bool Short = false);
 
 template<size_t N>
 auto MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
@@ -237,8 +237,8 @@ private:
 	void AddToList();
 	void RemoveFromList();
 
-	void Construct(const range<DialogItemEx*>& SrcItems);
-	void Construct(const range<const FarDialogItem*>& SrcItems);
+	void Construct(range<DialogItemEx*> SrcItems);
+	void Construct(range<const FarDialogItem*> SrcItems);
 	void Init();
 	void DeleteDialogObjects();
 	int LenStrItem(size_t ID, const string& Str) const;

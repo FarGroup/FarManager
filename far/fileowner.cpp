@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "fileowner.hpp"
+
 #include "pathmix.hpp"
 #include "elevation.hpp"
 #include "mix.hpp"

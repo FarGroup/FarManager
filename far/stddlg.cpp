@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "stddlg.hpp"
+
 #include "dialog.hpp"
 #include "strmix.hpp"
 #include "imports.hpp"
@@ -48,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plist.hpp"
 #include "notification.hpp"
 #include "platform.fs.hpp"
+#include "format.hpp"
 
 int GetSearchReplaceString(
 	bool IsReplaceMode,
@@ -596,7 +598,7 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 	std::vector<string> Msgs{Description, QuoteOuterSpace(string(Object))};
 	if(!Msg.empty())
 	{
-		Msgs.emplace_back(format(lng::MObjectLockedReason, msg(Reason)));
+		Msgs.emplace_back(format(msg(lng::MObjectLockedReason), msg(Reason)));
 		Msgs.insert(Msgs.end(), ALL_CONST_RANGE(Msg));
 	}
 

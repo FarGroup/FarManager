@@ -29,11 +29,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "tracer.hpp"
+
 #include "imports.hpp"
 #include "farexcpt.hpp"
 #include "encoding.hpp"
 #include "pathmix.hpp"
 #include "platform.fs.hpp"
+#include "format.hpp"
 
 static auto GetBackTrace(const exception_context& Context)
 {

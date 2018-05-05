@@ -141,14 +141,6 @@ namespace os
 		{
 			void operator()(HANDLE Handle) const;
 		};
-
-		struct sid_deleter
-		{
-			void operator()(PSID Sid) const noexcept
-			{
-				FreeSid(Sid);
-			}
-		};
 	}
 
 	using handle = detail::handle_t<detail::handle_closer>;

@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "plist.hpp"
+
 #include "keys.hpp"
 #include "help.hpp"
 #include "vmenu.hpp"
@@ -43,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "exception.hpp"
 #include "platform.fs.hpp"
+#include "format.hpp"
 
 struct menu_data
 {

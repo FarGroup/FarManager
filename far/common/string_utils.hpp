@@ -128,8 +128,8 @@ template<typename... args>
 void append(string& Str, args&&... Args)
 {
 	size_t Sizes[sizeof...(Args)];
-	reserve_exp_noshrink(Str, Str.size() + detail::size_impl(Sizes, FWD(Args)...));
-	detail::append_impl(Str, Sizes, FWD(Args)...);
+	reserve_exp_noshrink(Str, Str.size() + ::detail::size_impl(Sizes, FWD(Args)...));
+	::detail::append_impl(Str, Sizes, FWD(Args)...);
 }
 
 template<typename... args>

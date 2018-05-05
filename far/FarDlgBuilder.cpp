@@ -30,12 +30,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "lang.hpp"
 #include "FarDlgBuilder.hpp"
+
+#include "lang.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
 #include "config.hpp"
+#include "format.hpp"
 
 template<class T>
 struct EditFieldBinding: public DialogItemBinding<DialogItemEx>
@@ -684,7 +686,7 @@ void DialogBuilder::AddOKCancel(lng OKMessageId, lng CancelMessageId)
 	base::AddOKCancel(static_cast<int>(OKMessageId), static_cast<int>(CancelMessageId));
 }
 
-void DialogBuilder::AddButtons(const range<const lng*>& Buttons, size_t OkIndex, size_t CancelIndex)
+void DialogBuilder::AddButtons(range<const lng*> const Buttons, size_t const OkIndex, size_t const CancelIndex)
 {
 	base::AddButtons(static_cast<int>(Buttons.size()), reinterpret_cast<const int*>(Buttons.data()), static_cast<int>(OkIndex), static_cast<int>(CancelIndex));
 }

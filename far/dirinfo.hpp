@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 class FileFilter;
+struct PluginPanelItem;
 
 enum GETDIRINFOFLAGS
 {

@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "matrix.hpp"
+#include "plugin.hpp"
 
 enum CLEAR_REGION
 {

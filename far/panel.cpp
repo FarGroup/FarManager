@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panel.hpp"
+
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
@@ -64,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -540,10 +542,10 @@ void Panel::DragMessage(int X,int Y,int Move)
 	}
 	else
 	{
-		strSelName = format(lng::MDragFiles, SelCount);
+		strSelName = format(msg(lng::MDragFiles), SelCount);
 	}
 
-	auto strDragMsg = format(Move? lng::MDragMove : lng::MDragCopy, strSelName);
+	auto strDragMsg = format(msg(Move? lng::MDragMove : lng::MDragCopy), strSelName);
 
 	auto Length = static_cast<int>(strDragMsg.size());
 	int MsgX = X;

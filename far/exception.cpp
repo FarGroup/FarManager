@@ -29,9 +29,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "exception.hpp"
+
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "tracer.hpp"
+#include "format.hpp"
 
 error_state error_state::fetch()
 {
@@ -47,7 +49,7 @@ bool error_state::engaged() const
 	return m_Engaged;
 }
 
-detail::exception_impl::exception_impl(const string& Message, const char* Function, const char* File, int Line):
+detail::exception_impl::exception_impl(string_view const Message, const char* const Function, const char* const File, int const Line):
 	m_FullMessage(
 		format(
 			L"{0} (at {1}, {2}:{3})",
@@ -59,13 +61,13 @@ detail::exception_impl::exception_impl(const string& Message, const char* Functi
 {
 }
 
-far_exception::far_exception(const string& Message, const char* Function, const char* File, int Line):
+far_exception::far_exception(string_view const Message, const char* const Function, const char* const File, int const Line):
 	exception_impl(Message, Function, File, Line),
 	std::runtime_error(encoding::utf8::get_bytes(get_full_message()))
 {
 }
 
-far_exception::far_exception(const string& Message, std::vector<string>&& Stack, const char* Function, const char* File, int Line):
+far_exception::far_exception(string_view const Message, std::vector<string>&& Stack, const char* const Function, const char* const File, int const Line):
 	exception_impl(Message, Function, File, Line),
 	std::runtime_error(encoding::utf8::get_bytes(get_full_message())),
 	m_Stack(std::move(Stack))
@@ -118,7 +120,7 @@ std::exception_ptr CurrentException(const std::exception& e)
 {
 	try
 	{
-		std::throw_with_nested(MAKE_FAR_EXCEPTION(L"->", tracer::get(&e)));
+		std::throw_with_nested(MAKE_FAR_EXCEPTION(L"->"_sv, tracer::get(&e)));
 	}
 	catch (...)
 	{

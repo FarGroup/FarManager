@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "filesystemwatcher.hpp"
+
 #include "flink.hpp"
 #include "elevation.hpp"
 #include "farexcpt.hpp"

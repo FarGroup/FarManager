@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "language.hpp"
+
 #include "lang.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
@@ -46,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "platform.fs.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static const wchar_t LangFileMask[] = L"*.lng";
 

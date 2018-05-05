@@ -44,7 +44,7 @@ DWORD ConvertYearToFull(DWORD ShortYear);
 
 void OnIntlSettingsChange();
 
-void ParseDateComponents(const string& Src, const range<WORD*>& Dst, wchar_t Separator, WORD Default = -1);
+void ParseDateComponents(const string& Src, range<WORD*> Dst, wchar_t Separator, WORD Default = -1);
 os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
 os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
 void ConvertDate(os::chrono::time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);

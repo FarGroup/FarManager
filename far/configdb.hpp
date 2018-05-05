@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "platform.chrono.hpp"
 
+struct FarColor;
 struct VersionInfo;
 class representation_source;
 class representation_destination;

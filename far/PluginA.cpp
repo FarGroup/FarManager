@@ -29,6 +29,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "PluginA.hpp"
+
 #ifndef NO_WRAPPER
 
 #include "plugins.hpp"
@@ -38,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "panel.hpp"
 #include "plclass.hpp"
-#include "PluginA.hpp"
 #include "keyboard.hpp"
 #include "interf.hpp"
 #include "pathmix.hpp"
@@ -57,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.memory.hpp"
 #include "platform.env.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 #define OLDFAR_TO_FAR_MAP(x) { oldfar::x, x }
 
@@ -670,7 +672,7 @@ static void WINAPI FreeUserData(void* UserData, const FarPanelItemFreeInfo*)
 	delete[] static_cast<char*>(UserData);
 }
 
-static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(const range<oldfar::PluginPanelItem*>& PanelItemA)
+static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(range<oldfar::PluginPanelItem*> const PanelItemA)
 {
 	auto Result = std::make_unique<PluginPanelItem[]>(PanelItemA.size());
 	auto DstRange = make_range(Result.get(), PanelItemA.size());
@@ -5721,7 +5723,7 @@ private:
 		void reserve(size_t Size) override { return m_Messages.reserve(Size); }
 		void add(string&& Str) override { m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }
 		void set_at(size_t Index, string&& Str) override { m_Messages[Index] = encoding::oem::get_bytes(Str); }
-		const string& at(size_t Index) const override { throw MAKE_FAR_EXCEPTION(L"Not supported"); }
+		const string& at(size_t Index) const override { throw MAKE_FAR_EXCEPTION(L"Not supported"_sv); }
 		size_t size() const override { return m_Messages.size(); }
 
 		const std::string& ansi_at(size_t Index) const { return m_Messages[Index]; }

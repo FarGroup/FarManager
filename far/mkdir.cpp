@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "mkdir.hpp"
+
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "treelist.hpp"

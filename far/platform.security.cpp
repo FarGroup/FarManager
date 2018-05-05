@@ -73,6 +73,11 @@ namespace
 
 namespace os::security
 {
+	void detail::sid_deleter::operator()(PSID Sid) const noexcept
+	{
+		FreeSid(Sid);
+	}
+
 	sid_ptr make_sid(PSID_IDENTIFIER_AUTHORITY IdentifierAuthority, BYTE SubAuthorityCount, DWORD SubAuthority0, DWORD SubAuthority1, DWORD SubAuthority2, DWORD SubAuthority3, DWORD SubAuthority4, DWORD SubAuthority5, DWORD SubAuthority6, DWORD SubAuthority7)
 	{
 		PSID Sid;
@@ -95,7 +100,7 @@ namespace os::security
 		return Result;
 	}
 
-	privilege::privilege(const range<const wchar_t* const*>& Names)
+	privilege::privilege(range<const wchar_t* const*> const Names)
 	{
 		if (Names.empty())
 			return;
@@ -140,7 +145,7 @@ namespace os::security
 		// TODO: log if failed
 	}
 
-	bool privilege::check(const range<const wchar_t* const*>& Names)
+	bool privilege::check(range<const wchar_t* const*> const Names)
 	{
 		const auto Token = OpenCurrentProcessToken(TOKEN_QUERY);
 		if (!Token)

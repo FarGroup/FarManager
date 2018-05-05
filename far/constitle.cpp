@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "constitle.hpp"
+
 #include "lang.hpp"
 #include "config.hpp"
 #include "farversion.hpp"
@@ -41,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 #include "platform.env.hpp"
 #include "global.hpp"
+#include "format.hpp"
 
 static const string& GetFarTitleAddons()
 {

@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "platform.fwd.hpp"
+#include "plugin.hpp"
 
 template<class T>
 auto ToPercent(T Value, T Base)

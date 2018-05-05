@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.fwd.hpp"
 
+struct PluginPanelItem;
+
 namespace path
 {
 	inline auto separators()

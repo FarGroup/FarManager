@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "platform.chrono.hpp"
+#include "plugin.hpp"
 
 class FileFilterParams;
 class FileList;

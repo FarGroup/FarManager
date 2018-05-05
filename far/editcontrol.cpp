@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "editcontrol.hpp"
+
 #include "config.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"

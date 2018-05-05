@@ -32,13 +32,15 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "tvar.hpp"
+
+#include "string_sort.hpp"
+#include "format.hpp"
+
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
 //---------------------------------------------------------------
-
-#include "tvar.hpp"
-#include "string_sort.hpp"
 
 enum TypeString
 {
