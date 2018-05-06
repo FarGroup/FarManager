@@ -3,6 +3,89 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 06.05.2018 17:39:35 +0300 - build 5208
+
+1. AltF1 F4 Enter - the dialog disappears and appears again after cursor move.
+
+zg 06.05.2018 14:57:28 +0300 - build 5207
+
+1. forum: Invoke Options->File panel modes dialog, then proceed to, say, Long descriptions and press Ctrl+Enter - the dialog disappears.
+
+drkns 05.05.2018 17:04:38 +0100 - build 5206
+
+1. Remove unwanted things from headers.hpp. Part 2.
+
+w17 04.05.2018 15:40:01 +0300 - build 5205
+
+1. forum: crash while parsing a date out of spaces if the date separator is also a space.
+
+zg 04.05.2018 12:57:28 +0300 - build 5204
+
+1. forum: unpacking an archive on Shift-F2: the name of the archive is not substituted as a folder for unpacking.
+
+drkns 03.05.2018 21:55:10 +0100 - build 5203
+
+1. Remove unwanted things from headers.hpp. Part 1.
+
+drkns 02.05.2018 21:03:29 +0100 - build 5202
+
+1. GCC 7.1 warning.
+
+2. Possible truncation of a file name in copy dialog.
+
+drkns 02.05.2018 00:54:38 +0100 - build 5201
+
+1. Possible garbage in drive change error dialog.
+
+drkns 01.05.2018 22:48:34 +0100 - build 5200
+
+1. For some global objects independent of the rest of code and potentially required everywhere
+   (imports, console, memcheck), use Nifty Counters to guarantee their availability at any time.
+
+2. Incluse precompiled headers and memcheck with the compiler tools.
+
+3. Other refactoring.
+
+drkns 28.04.2018 17:04:23 +0100 - build 5199
+
+1. Remove formatting with spaces from *.lng finally.
+
+2. GCC.
+
+3. Warnings.
+
+4. Refactoring.
+
+drkns 26.04.2018 23:49:40 +0100 - build 5198
+
+1. Do not show stack on *.lng reading errors.
+
+drkns 25.04.2018 20:44:36 +0100 - build 5197
+
+1. Show no more than 5 processes in blocked file dialog.
+   Also show additional information on the processes.
+
+2. Refactoring.
+
+drkns 24.04.2018 23:29:12 +0100 - build 5196
+
+1. Because of introduction string_view::data() without terminating zero in C++17 
+   and potential bugs while replacing string to string_view where \0 is important, 
+   use string::c_str() instead string::data() where it is justified.
+
+   A rule of thumb: if string::size() is used somewhere nearby then data() is ok, else use c_str().
+
+   Examples:
+   auto RawPointer = string.c_str();               // c_str here
+   WinapiFunction1(string.c_str());                // c_str too
+   WinapiFunction2(string.data(), string.size());  // data here
+
+2. Minor refactoring related to #1.
+
+w17 23.04.2018 23:42:59 +0300 - build 5195
+
+1. Correction of 5194.
+
 drkns 21.04.2018 20:29:10 +0100 - build 5194
 
 1. Show less rubbish in Task List.
