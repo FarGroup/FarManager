@@ -189,7 +189,7 @@ void Options::SystemSettings()
 	if (Builder.ShowDialog())
 	{
 		ElevationMode = StoredElevationMode;
-		
+
 		if (CurrentSortingState != GetSortingState())
 		{
 			Global->CtrlObject->Cp()->ActivePanel()->OnSortingChange();
@@ -1158,7 +1158,7 @@ void Options::SetFilePanelModes()
 							PanelPtr = Global->CtrlObject->Cp()->PassivePanel();
 						}
 						PanelPtr->SetViewMode(static_cast<int>(DisplayModeToReal(ModeList->GetSelectPos())));
-						Global->CtrlObject->Cp()->Redraw();
+						Global->WindowManager->RefreshWindow(Global->CtrlObject->Panels());
 					}
 					return 1;
 
@@ -2404,7 +2404,7 @@ bool Options::AdvancedConfig(config_type Mode)
 {
 	m_CurrentConfigType = Mode;
 	auto& CurrentConfig = GetConfig(m_CurrentConfigType);
-		
+
 	int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
 	FarDialogItem AdvancedConfigDlgData[]=
 	{
