@@ -1772,6 +1772,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		SrcPanel->ClearSelection();
 		Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	}
-	Global->CtrlObject->Cp()->Redraw();
+	Global->WindowManager->RefreshWindow(Global->CtrlObject->Panels());
 	return true;
 }
