@@ -67,10 +67,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "drivemix.hpp"
 #include "new_handler.hpp"
-#include "platform.security.hpp"
-#include "platform.memory.hpp"
-#include "platform.env.hpp"
 #include "global.hpp"
+
+#include "platform.env.hpp"
+#include "platform.memory.hpp"
+#include "platform.security.hpp"
+
+#include "common/range.hpp"
+#include "common/scope_exit.hpp"
 
 global *Global = nullptr;
 

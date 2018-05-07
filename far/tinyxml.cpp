@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tinyxml.hpp"
 
 #include "components.hpp"
+
 #include "format.hpp"
 
 namespace tinyxml_impl

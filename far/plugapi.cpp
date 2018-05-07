@@ -84,8 +84,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filemasks.hpp"
 #include "desktop.hpp"
 #include "string_sort.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/null_iterator.hpp"
+#include "common/range.hpp"
+#include "common/scope_exit.hpp"
 
 static Plugin* GuidToPlugin(const GUID* Id)
 {

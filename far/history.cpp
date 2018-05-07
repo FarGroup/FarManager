@@ -51,8 +51,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/function_traits.hpp"
 
 History::History(history_type TypeHistory, string HistoryName, const BoolOption& EnableSave):
 	m_TypeHistory(TypeHistory),

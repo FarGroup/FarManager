@@ -61,6 +61,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "global.hpp"
 
+#include "common/function_traits.hpp"
+#include "common/zip_view.hpp"
+
 MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 {
 	MenuItemEx Result;

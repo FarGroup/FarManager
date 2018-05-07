@@ -38,10 +38,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "scrbuf.hpp"
 #include "strmix.hpp"
-#include "platform.concurrency.hpp"
-#include "platform.security.hpp"
-#include "platform.env.hpp"
 #include "global.hpp"
+
+#include "platform.concurrency.hpp"
+#include "platform.env.hpp"
+#include "platform.security.hpp"
+
 #include "format.hpp"
 
 static const string& GetFarTitleAddons()

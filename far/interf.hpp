@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "matrix.hpp"
 
+#include "common/singleton.hpp"
+
 struct FAR_CHAR_INFO;
 struct FarColor;
 enum class lng : int;

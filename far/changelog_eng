@@ -3,6 +3,12 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.05.2018 16:51:02 +0100 - build 5209
+
+1. Remove unwanted things from headers.hpp. Part 3.
+
+2. 0003605: Command 'cd /d' doesn't work in User Menu
+
 zg 06.05.2018 17:39:35 +0300 - build 5208
 
 1. AltF1 F4 Enter - the dialog disappears and appears again after cursor move.

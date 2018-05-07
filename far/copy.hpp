@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dizlist.hpp"
 #include "panelfwd.hpp"
+
 #include "platform.fs.hpp"
 
 class Dialog;

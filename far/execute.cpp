@@ -51,10 +51,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "RegExp.hpp"
 #include "scrbuf.hpp"
-#include "platform.reg.hpp"
+#include "global.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+#include "platform.reg.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
 
 enum class image_type

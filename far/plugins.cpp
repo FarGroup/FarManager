@@ -66,10 +66,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "cvtname.hpp"
 #include "delete.hpp"
-#include "platform.memory.hpp"
+#include "global.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+#include "platform.memory.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/scope_exit.hpp"
 
 static const wchar_t PluginsFolderName[] = L"Plugins";
 

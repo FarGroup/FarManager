@@ -72,7 +72,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "string_sort.hpp"
 #include "cvtname.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
 
 #if defined(TREEFILE_PROJECT)
@@ -80,6 +79,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "platform.env.hpp"
 #endif
+
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/scope_exit.hpp"
 
 #include "format.hpp"
 

@@ -50,6 +50,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/function_traits.hpp"
+
 #include "format.hpp"
 
 static const struct column_info

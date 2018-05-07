@@ -48,7 +48,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "plist.hpp"
 #include "notification.hpp"
+
 #include "platform.fs.hpp"
+
+#include "common/function_traits.hpp"
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
 
 int GetSearchReplaceString(

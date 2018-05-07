@@ -63,8 +63,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "string_sort.hpp"
 #include "pathmix.hpp"
+
 #include "platform.reg.hpp"
 #include "platform.fs.hpp"
+
 #include "format.hpp"
 
 class ChDiskPluginItem

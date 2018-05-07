@@ -37,8 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "bitflags.hpp"
 #include "matrix.hpp"
-#include "platform.concurrency.hpp"
 #include "plugin.hpp"
+
+#include "platform.concurrency.hpp"
 
 enum class flush_type
 {

@@ -37,15 +37,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
-#include "tinyxml.hpp"
 #include "farversion.hpp"
 #include "lang.hpp"
 #include "message.hpp"
 #include "regex_helpers.hpp"
+#include "global.hpp"
+
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+
+#include "common/bytes_view.hpp"
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
+#include "tinyxml.hpp"
 
 class representation_source
 {

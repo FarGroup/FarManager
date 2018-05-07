@@ -49,6 +49,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "global.hpp"
 
+#include "common/range.hpp"
+
 void GetColor(PaletteColors PaletteIndex)
 {
 	auto NewColor = Global->Opt->Palette[PaletteIndex];

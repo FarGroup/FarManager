@@ -77,10 +77,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "farexcpt.hpp"
 #include "drivemix.hpp"
+#include "global.hpp"
+
 #include "platform.concurrency.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
 
 // Список найденных файлов. Индекс из списка хранится в меню.

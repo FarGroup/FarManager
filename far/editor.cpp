@@ -62,9 +62,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
-#include "regex_helpers.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
+
+#include "common/bytes_view.hpp"
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
 
 static bool ReplaceMode, ReplaceAll;

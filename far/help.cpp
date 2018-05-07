@@ -58,8 +58,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "cvtname.hpp"
 #include "cmdline.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
 #include "format.hpp"
 
 static const wchar_t* FoundContents = L"__FoundContents__";

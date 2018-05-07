@@ -37,8 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "stddlg.hpp"
 #include "exception.hpp"
-#include "platform.fs.hpp"
 #include "plugin.hpp"
+
+#include "platform.fs.hpp"
+
 #include "format.hpp"
 
 #if 0

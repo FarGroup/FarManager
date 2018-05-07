@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "transactional.hpp"
 
+class bytes_view;
+
 namespace sqlite
 {
 	struct sqlite3;

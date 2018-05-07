@@ -69,12 +69,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "stddlg.hpp"
 #include "strmix.hpp"
-#include "FarDlgBuilder.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "panel.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/bytes_view.hpp"
+
 #include "format.hpp"
 
 enum SHOW_MODES

@@ -53,8 +53,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgGuid.hpp"
 #include "lang.hpp"
 #include "string_sort.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/bytes_view.hpp"
+
 #include "format.hpp"
 
 static const struct

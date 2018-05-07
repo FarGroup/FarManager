@@ -48,11 +48,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "constitle.hpp"
 #include "string_utils.hpp"
-#include "platform.concurrency.hpp"
-#include "platform.security.hpp"
-#include "platform.memory.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.concurrency.hpp"
+#include "platform.fs.hpp"
+#include "platform.memory.hpp"
+#include "platform.security.hpp"
+
+#include "common/bytes_view.hpp"
+
 #include "format.hpp"
 
 using namespace os::security;

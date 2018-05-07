@@ -55,9 +55,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "menubar.hpp"
 #include "strmix.hpp"
 #include "diskmenu.hpp"
+#include "global.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
 
 FilePanels::FilePanels(private_tag):
 	m_ActivePanelIndex(panel_left)

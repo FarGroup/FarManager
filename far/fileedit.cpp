@@ -74,9 +74,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
+#include "global.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+
 #include "format.hpp"
 
 enum enumOpenEditor

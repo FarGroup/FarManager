@@ -59,8 +59,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keybar.hpp"
 #include "fileedit.hpp"
 #include "scrsaver.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
 #include "format.hpp"
 
 std::atomic_long Manager::CurrentWindowType(-1);

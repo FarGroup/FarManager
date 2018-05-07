@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "modal.hpp"
 
+#include "common/monitored.hpp"
+
 class Grabber: public SimpleModal
 {
 	struct private_tag {};

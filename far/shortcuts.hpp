@@ -35,6 +35,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/enumerator.hpp"
+#include "common/movable.hpp"
+
 class VMenu2;
 struct MenuItemEx;
 

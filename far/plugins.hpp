@@ -38,7 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "mix.hpp"
 #include "notification.hpp"
+
 #include "platform.fwd.hpp"
+
+#include "common/function_traits.hpp"
+#include "common/movable.hpp"
 
 class SaveScreen;
 class FileEditor;

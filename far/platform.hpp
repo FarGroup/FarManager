@@ -263,8 +263,8 @@ namespace os
 		class initialize: noncopyable
 		{
 		public:
-			initialize(): m_Initialised(SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED))) {}
-			~initialize() { if (m_Initialised) CoUninitialize(); }
+			initialize();
+			~initialize();
 
 		private:
 			const bool m_Initialised;
@@ -283,10 +283,7 @@ namespace os
 
 			struct memory_releaser
 			{
-				void operator()(const void* Object) const
-				{
-					CoTaskMemFree(const_cast<void*>(Object));
-				}
+				void operator()(const void* Object) const;
 			};
 		}
 

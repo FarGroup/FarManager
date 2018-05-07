@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "modal.hpp"
 
+#include "common/range.hpp"
+
 class History;
 
 // Флаги текущего режима диалога

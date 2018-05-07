@@ -36,6 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.concurrency.hpp"
 
+#include "common/singleton.hpp"
+
+class bytes_view;
+
 enum class lng : int;
 
 enum ELEVATION_MODE

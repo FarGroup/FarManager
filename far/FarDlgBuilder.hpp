@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DlgBuilder.hpp"
 #include "dialog.hpp"
 
+#include "common/range.hpp"
+
 enum class lng: int;
 struct DialogItemEx;
 class BoolOption;

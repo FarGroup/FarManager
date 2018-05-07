@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panelfwd.hpp"
+
 #include "platform.chrono.hpp"
 
 struct column;

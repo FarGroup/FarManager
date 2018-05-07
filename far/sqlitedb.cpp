@@ -32,16 +32,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "sqlitedb.hpp"
 
-#include "sqlite.hpp"
-#include "sqlite_unicode.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
 #include "components.hpp"
 #include "encoding.hpp"
+#include "global.hpp"
+
 #include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+
+#include "common/bytes_view.hpp"
+
 #include "format.hpp"
+#include "sqlite.hpp"
+#include "sqlite_unicode.hpp"
 
 namespace
 {

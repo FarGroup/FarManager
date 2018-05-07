@@ -38,7 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "fileowner.hpp"
 #include "exception.hpp"
+
 #include "platform.fs.hpp"
+
+#include "common/scope_exit.hpp"
 
 struct response
 {

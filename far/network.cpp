@@ -41,8 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "exception.hpp"
-#include "platform.reg.hpp"
+
 #include "platform.fs.hpp"
+#include "platform.reg.hpp"
+
+#include "common/scope_exit.hpp"
 
 static string GetStoredUserName(wchar_t Drive)
 {

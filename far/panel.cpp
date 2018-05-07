@@ -62,9 +62,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "pathmix.hpp"
+#include "global.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+
 #include "format.hpp"
 
 static int DragX,DragY,DragMove;

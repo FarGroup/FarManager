@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "flink.hpp"
 
-#include "platform.security.hpp"
 #include "imports.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
@@ -44,8 +43,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "elevation.hpp"
 #include "cvtname.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+#include "platform.security.hpp"
+
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
 
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object)

@@ -61,9 +61,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "config.hpp"
 #include "edit.hpp"
-#include "platform.memory.hpp"
-#include "platform.env.hpp"
 #include "global.hpp"
+
+#include "platform.env.hpp"
+#include "platform.memory.hpp"
+
+#include "common/singleton.hpp"
+#include "common/zip_view.hpp"
 
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS

@@ -36,12 +36,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "transactional.hpp"
 #include "bitflags.hpp"
+
 #include "platform.chrono.hpp"
+
+#include "common/enumerator.hpp"
 
 struct FarColor;
 struct VersionInfo;
 class representation_source;
 class representation_destination;
+class bytes;
+class bytes_view;
 
 namespace os
 {

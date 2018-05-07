@@ -38,8 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
 #include "strmix.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+
+#include "common/enum_substrings.hpp"
 
 /*
              v - точка

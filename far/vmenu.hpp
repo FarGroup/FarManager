@@ -43,6 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "bitflags.hpp"
 #include "farcolor.hpp"
 
+#include "common/range.hpp"
+
 // Цветовые атрибуты - индексы в массиве цветов
 enum vmenu_colors
 {

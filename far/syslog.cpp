@@ -44,8 +44,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "farversion.hpp"
 #include "string_utils.hpp"
-#include "platform.memory.hpp"
 #include "global.hpp"
+
+#include "platform.memory.hpp"
+
+#include "common/scope_exit.hpp"
 
 #if !defined(SYSLOG)
 #if defined(SYSLOG_OT)             || \

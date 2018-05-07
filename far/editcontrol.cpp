@@ -51,10 +51,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "strmix.hpp"
 #include "string_sort.hpp"
-#include "platform.reg.hpp"
-#include "platform.env.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.env.hpp"
+#include "platform.reg.hpp"
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/enum_substrings.hpp"
+#include "common/scope_exit.hpp"
 
 EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey, Callback* aCallback, History* iHistory, FarList* iList, DWORD iFlags):
 	Edit(std::move(Owner)),

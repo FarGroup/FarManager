@@ -37,8 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "console.hpp"
 #include "configdb.hpp"
-#include "strmix.hpp"
 #include "global.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/zip_view.hpp"
 
 /*
 Flags: 1

@@ -32,6 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "components.hpp"
 
+#include "common/function_traits.hpp"
+
 namespace components
 {
 	components_list& GetComponentsList()

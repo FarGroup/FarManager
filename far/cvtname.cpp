@@ -41,8 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "string_utils.hpp"
 #include "drivemix.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+
+#include "common/enum_substrings.hpp"
 
 static void MixToFullPath(string& strPath)
 {

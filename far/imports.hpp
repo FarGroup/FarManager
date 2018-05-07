@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.hpp"
 
+#include "common/nifty_counter.hpp"
+
 namespace imports_detail
 {
 

@@ -48,8 +48,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "plugins.hpp"
 #include "strmix.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
 #include "format.hpp"
 
 #define PRINTER_INFO_LEVEL 4

@@ -33,6 +33,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "global.hpp"
 
+#include "common/scope_exit.hpp"
+
 static new_handler* NewHandler;
 
 new_handler::new_handler():

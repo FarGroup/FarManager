@@ -45,6 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 #include "plugin.hpp"
+
+#include "common/enum_tokens.hpp"
+
 #include "format.hpp"
 
 enum

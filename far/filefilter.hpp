@@ -36,9 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panelfwd.hpp"
-#include "platform.fwd.hpp"
-#include "platform.chrono.hpp"
 #include "plugin.hpp"
+
+#include "platform.chrono.hpp"
+#include "platform.fwd.hpp"
 
 enum enumFileFilterFlagsType: int;
 class FileFilterParams;

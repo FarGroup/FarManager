@@ -49,9 +49,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "taskbar.hpp"
+#include "global.hpp"
+
 #include "platform.concurrency.hpp"
 #include "platform.security.hpp"
-#include "global.hpp"
+
 #include "format.hpp"
 
 static HICON load_icon(int IconId, bool Big)

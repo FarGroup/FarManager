@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.fs.hpp"
 
+#include "common/range.hpp"
+
 namespace os::security
 {
 	namespace detail

@@ -43,6 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "eol.hpp"
 
+#include "common/rel_ops.hpp"
+
 class FileEditor;
 class KeyBar;
 class Edit;

@@ -46,8 +46,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "strmix.hpp"
 #include "drivemix.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/enum_substrings.hpp"
+
 #include "format.hpp"
 
 /*

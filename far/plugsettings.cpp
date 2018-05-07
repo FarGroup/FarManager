@@ -44,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "global.hpp"
 
+#include "common/bytes_view.hpp"
+
 const wchar_t* AbstractSettings::Add(const string& String)
 {
 	return static_cast<const wchar_t*>(Add(String.data(), (String.size() + 1) * sizeof(wchar_t)));

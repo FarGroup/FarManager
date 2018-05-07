@@ -67,10 +67,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "desktop.hpp"
 #include "keybar.hpp"
 #include "string_utils.hpp"
-#include "platform.security.hpp"
+#include "global.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+#include "platform.security.hpp"
+
+#include "common/enum_substrings.hpp"
+#include "common/function_traits.hpp"
+#include "common/scope_exit.hpp"
 
 enum
 {
@@ -1042,7 +1047,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 	{
 		const auto n = cmd.size();
 		return starts_with_icase(CmdLine, cmd)
-			&& (n == CmdLine.size() || nullptr != wcschr(L"/ \t", CmdLine[n]) || (bslash && CmdLine[n] == L'\\'));
+			&& (n == CmdLine.size() || contains(L"/ \t"_sv, CmdLine[n]) || (bslash && CmdLine[n] == L'\\'));
 	};
 
 	const auto& FindKey = [&CmdLine](wchar_t Key)
@@ -1244,8 +1249,10 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (starts_with_icase(CdParams, L"/D"_sv) && IsBlankOrEos(CdParams[2]))
+		const auto ParamD = L"/D"_sv;
+		if (starts_with_icase(CdParams, ParamD) && (CdParams.size() == ParamD.size() || std::iswblank(CdParams[2])))
 		{
+			CdParams.remove_prefix(ParamD.size());
 			inplace::trim_left(CdParams);
 		}
 

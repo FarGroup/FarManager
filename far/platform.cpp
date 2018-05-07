@@ -36,8 +36,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
+
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"
+
+#include "common/scope_exit.hpp"
 
 namespace os
 {
@@ -255,6 +258,25 @@ handle OpenConsoleActiveScreenBuffer()
 {
 	return handle(fs::low::create_file(L"CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
 }
+
+	namespace com
+	{
+		initialize::initialize():
+			m_Initialised(SUCCEEDED(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED)))
+		{
+		}
+
+		initialize::~initialize()
+		{
+			if (m_Initialised)
+				CoUninitialize();
+		}
+
+		void detail::memory_releaser::operator()(const void* Object) const
+		{
+			CoTaskMemFree(const_cast<void*>(Object));
+		}
+	}
 
 	namespace rtdl
 	{

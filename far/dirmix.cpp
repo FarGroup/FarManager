@@ -44,8 +44,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "network.hpp"
 #include "string_utils.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+
 #include "format.hpp"
 
 static auto make_curdir_name(wchar_t Drive)

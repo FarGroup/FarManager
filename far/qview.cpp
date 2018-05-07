@@ -53,9 +53,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "datetime.hpp"
-#include "platform.reg.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+#include "platform.reg.hpp"
+
 #include "format.hpp"
 
 static bool LastMode = false;

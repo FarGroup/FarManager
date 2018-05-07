@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "tracer.hpp"
+
 #include "format.hpp"
 
 error_state error_state::fetch()

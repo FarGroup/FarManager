@@ -49,3 +49,8 @@ GuardLastError::~GuardLastError()
 	SetLastError(m_LastError);
 	imports.RtlNtStatusToDosError(m_LastStatus);
 }
+
+void GuardLastError::dismiss()
+{
+	m_Active = false;
+}

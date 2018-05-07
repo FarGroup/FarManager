@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "config.hpp"
 #include "help.hpp"
-#include "strmix.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
 

@@ -36,9 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "elevation.hpp"
 #include "mix.hpp"
-#include "platform.security.hpp"
+
 #include "platform.memory.hpp"
 #include "platform.fs.hpp"
+#include "platform.security.hpp"
 
 // эта часть - перспективная фигня, которая значительно ускоряет получение овнеров
 

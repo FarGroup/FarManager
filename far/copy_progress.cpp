@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "scrbuf.hpp"
 #include "global.hpp"
+
 #include "format.hpp"
 
 /* Общее время ожидания пользователя */

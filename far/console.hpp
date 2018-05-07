@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "matrix.hpp"
 #include "plugin.hpp"
 
+#include "common/nifty_counter.hpp"
+
 enum CLEAR_REGION
 {
 	CR_TOP=0x1,

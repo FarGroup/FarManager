@@ -38,6 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelctype.hpp"
 #include "string_utils.hpp"
 
+#include "common/enum_tokens.hpp"
+
+class bytes;
+class bytes_view;
 class RegExp;
 struct RegExpMatch;
 struct MatchHash;

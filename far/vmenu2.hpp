@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dialog.hpp"
 
+#include "common/range.hpp"
+
 struct menu_item;
 struct MenuItemEx;
 struct SortItemParam;

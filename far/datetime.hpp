@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.chrono.hpp"
 
+#include "common/range.hpp"
+
 inline auto get_local_time() { SYSTEMTIME Time; GetLocalTime(&Time); return Time; }
 inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time; }
 

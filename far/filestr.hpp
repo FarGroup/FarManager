@@ -36,7 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "encoding.hpp"
 #include "eol.hpp"
+
 #include "platform.fwd.hpp"
+
+#include "common/enumerator.hpp"
 
 struct file_line
 {

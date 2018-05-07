@@ -43,7 +43,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "string_sort.hpp"
 #include "exception.hpp"
+
 #include "platform.fs.hpp"
+
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
 
 struct menu_data

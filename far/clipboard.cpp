@@ -36,6 +36,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "encoding.hpp"
 
+#include "common/enum_substrings.hpp"
+#include "common/singleton.hpp"
+
 clipboard_mode default_clipboard_mode::m_Mode = clipboard_mode::system;
 
 void default_clipboard_mode::set(clipboard_mode Mode)

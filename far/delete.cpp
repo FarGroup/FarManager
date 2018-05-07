@@ -61,8 +61,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "fileattr.hpp"
 #include "copy_progress.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
 
 enum DEL_MODE

@@ -37,7 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
+
 #include "platform.fs.hpp"
+
+#include "common/null_iterator.hpp"
 
 enum CDROM_DeviceCapabilities
 {

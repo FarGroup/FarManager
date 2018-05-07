@@ -60,8 +60,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "locale.hpp"
 #include "string_utils.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/zip_view.hpp"
+
 #include "format.hpp"
 
 enum SETATTRDLG

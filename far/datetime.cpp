@@ -39,6 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "locale.hpp"
 #include "encoding.hpp"
+
+#include "common/enum_tokens.hpp"
+
 #include "format.hpp"
 
 class locale_cache

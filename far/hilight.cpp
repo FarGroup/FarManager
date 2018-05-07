@@ -54,6 +54,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "filefilter.hpp"
 #include "global.hpp"
+
+#include "common/bytes_view.hpp"
+#include "common/zip_view.hpp"
+
 #include "format.hpp"
 
 static const struct

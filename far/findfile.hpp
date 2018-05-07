@@ -36,9 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "datetime.hpp"
-#include "platform.fs.hpp"
-#include "platform.concurrency.hpp"
 #include "plugin.hpp"
+
+#include "platform.concurrency.hpp"
+#include "platform.fs.hpp"
+
+#include "common/bytes_view.hpp"
 
 enum FINDAREA
 {

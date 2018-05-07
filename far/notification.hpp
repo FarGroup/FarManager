@@ -35,6 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.concurrency.hpp"
 
+#include "common/singleton.hpp"
+#include "common/type_traits.hpp"
+
 enum event_id
 {
 	update_intl,

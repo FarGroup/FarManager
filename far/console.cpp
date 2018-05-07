@@ -41,6 +41,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "global.hpp"
 
+#include "common/enum_substrings.hpp"
+#include "common/function_traits.hpp"
+#include "common/scope_exit.hpp"
+
 void override_stream_buffers()
 {
 	std::ios::sync_with_stdio(false);

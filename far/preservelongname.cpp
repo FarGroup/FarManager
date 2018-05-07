@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservelongname.hpp"
 
 #include "pathmix.hpp"
+
 #include "platform.fs.hpp"
 
 PreserveLongName::PreserveLongName(const string& ShortName, bool Preserve):

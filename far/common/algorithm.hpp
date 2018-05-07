@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "type_traits.hpp"
+
 // for_each with embedded counter
 template<class I, class F>
 F for_each_cnt(I First, I Last, F Func)

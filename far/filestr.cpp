@@ -36,8 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "nsUniversalDetectorEx.hpp"
 #include "config.hpp"
 #include "codepage_selection.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+
 #include "format.hpp"
 
 static const size_t DELTA = 1024;

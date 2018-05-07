@@ -45,9 +45,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "configdb.hpp"
+#include "global.hpp"
+
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "global.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/scope_exit.hpp"
+#include "common/zip_view.hpp"
+
 #include "format.hpp"
 
 std::exception_ptr& GlobalExceptionPtr()

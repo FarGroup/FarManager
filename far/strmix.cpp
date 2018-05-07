@@ -45,6 +45,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "exception.hpp"
 #include "global.hpp"
+
+#include "common/bytes_view.hpp"
+
 #include "format.hpp"
 
 string GroupDigits(unsigned long long Value)

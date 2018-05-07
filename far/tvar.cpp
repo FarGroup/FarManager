@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tvar.hpp"
 
 #include "string_sort.hpp"
+
 #include "format.hpp"
 
 //---------------------------------------------------------------

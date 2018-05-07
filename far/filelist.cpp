@@ -95,8 +95,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilterparams.hpp"
 #include "desktop.hpp"
 #include "string_sort.hpp"
-#include "platform.fs.hpp"
 #include "global.hpp"
+
+#include "platform.fs.hpp"
+
+#include "common/enum_tokens.hpp"
+#include "common/rel_ops.hpp"
+#include "common/scope_exit.hpp"
+
 #include "format.hpp"
 
 int CompareTime(os::chrono::time_point First, os::chrono::time_point Second)

@@ -38,6 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "plugin.hpp"
 
+#include "common/multifunction.hpp"
+#include "common/monitored.hpp"
+
 struct FarSettingsItem;
 class GeneralConfig;
 class RegExp;

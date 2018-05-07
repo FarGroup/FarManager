@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.hpp"
 
+#include "common/singleton.hpp"
+
 class taskbar: public singleton<taskbar>
 {
 	IMPLEMENTS_SINGLETON(taskbar);

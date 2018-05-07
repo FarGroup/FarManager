@@ -41,8 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "string_utils.hpp"
 #include "strmix.hpp"
-#include "platform.hpp"
 #include "global.hpp"
+
+#include "platform.hpp"
+
+#include "common/scope_exit.hpp"
 
 namespace
 {
