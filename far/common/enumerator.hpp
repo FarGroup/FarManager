@@ -38,8 +38,9 @@ template<typename Derived, typename T>
 class enumerator
 {
 public:
-	NONCOPYABLE(enumerator);
-	MOVABLE(enumerator);
+	// VS2015
+	//NONCOPYABLE(enumerator);
+	//MOVABLE(enumerator);
 
 	using value_type = T;
 	using enumerator_type = enumerator;
