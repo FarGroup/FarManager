@@ -733,8 +733,10 @@ static bool ExceptionTestHook(Manager::Key key)
 			throw MAKE_FAR_EXCEPTION(L"Test error"_sv);
 
 		case exception_types::cpp_std_bad_alloc:
-			// Less than the physical limit to leave some space for a service block, if any
-			std::make_unique<char[]>(std::numeric_limits<size_t>::max() - 1024 * 1024);
+			{
+				// Less than the physical limit to leave some space for a service block, if any
+				const auto Ptr = std::make_unique<char[]>(std::numeric_limits<size_t>::max() - 1024 * 1024);
+			}
 			break;
 
 		case exception_types::cpp_unknown:

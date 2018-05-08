@@ -122,7 +122,7 @@ namespace os
 			constexpr handle_t(std::nullptr_t) {}
 			explicit handle_t(HANDLE Handle): base_type(normalise(Handle)) {}
 			void reset(HANDLE Handle = nullptr) { base_type::reset(normalise(Handle)); }
-			auto native_handle() const { return base_type::get(); }
+			HANDLE native_handle() const { return base_type::get(); }
 			void close() { reset(); }
 			bool wait(std::chrono::milliseconds Timeout) const { return WaitForSingleObject(native_handle(), Timeout.count()) == WAIT_OBJECT_0; }
 			bool wait() const { return WaitForSingleObject(native_handle(), INFINITE) == WAIT_OBJECT_0; }
