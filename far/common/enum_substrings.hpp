@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Enumerator for string1\0string2\0string3\0...stringN\0\0
 
 template<class char_type>
+[[nodiscard]]
 auto enum_substrings(const char_type* Str)
 {
 	using value_type = basic_string_view<char_type>;

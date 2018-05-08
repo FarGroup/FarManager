@@ -150,6 +150,7 @@ private:
 };
 
 template<typename value_type, typename callable>
+[[nodiscard]]
 auto make_inline_enumerator(callable&& Callable)
 {
 	return inline_enumerator<value_type, callable>(FWD(Callable));

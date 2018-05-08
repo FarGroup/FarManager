@@ -34,20 +34,29 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+[[nodiscard]]
 inline bool IsEol(wchar_t x) { return x == L'\r' || x == L'\n'; }
 
+[[nodiscard]]
 inline bool IsBlankOrEos(wchar_t x) { return std::iswblank(x) || !x; }
 
+[[nodiscard]]
 const string& GetSpaces();
 
+[[nodiscard]]
 const string& GetEols();
 
+[[nodiscard]]
 const string& GetSpacesAndEols();
 
+[[nodiscard]]
 bool is_alpha(wchar_t Char);
+[[nodiscard]]
 bool is_alphanumeric(wchar_t Char);
 
+[[nodiscard]]
 bool is_upper(wchar_t Char);
+[[nodiscard]]
 bool is_lower(wchar_t Char);
 
 namespace inplace
@@ -62,10 +71,14 @@ namespace inplace
 	string& lower(string& Str, size_t Pos = 0, size_t Count = string::npos);
 }
 
+[[nodiscard]]
 wchar_t upper(wchar_t Char);
+[[nodiscard]]
 wchar_t lower(wchar_t Char);
 
+[[nodiscard]]
 string upper(string Str);
+[[nodiscard]]
 string lower(string Str);
 
 struct hash_icase_t
@@ -79,9 +92,13 @@ struct equal_icase_t
 	bool operator()(string_view Str1, string_view Str2) const;
 };
 
+[[nodiscard]]
 bool equal_icase(string_view Str1, string_view Str2);
+[[nodiscard]]
 bool starts_with_icase(string_view Str, string_view Prefix);
+[[nodiscard]]
 bool ends_with_icase(string_view Str, string_view Suffix);
+[[nodiscard]]
 bool contains_icase(string_view Str, string_view Token);
 
 #endif // STRING_UTILS_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9

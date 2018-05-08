@@ -292,7 +292,7 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 			}
 
 			m_Speed = FileSizeToStr(CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);
-			if (!m_Speed.empty() && m_Speed.front() == L' ' && std::iswdigit(m_Speed.back()))
+			if (starts_with(m_Speed, L' ') && std::iswdigit(m_Speed.back()))
 			{
 				m_Speed.erase(0, 1);
 				m_Speed += L' ';

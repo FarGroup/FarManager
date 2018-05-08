@@ -894,7 +894,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& Fin
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
 	SetPluginDirectory(FindData.FileName,ArcItem->hPlugin,false,UserData);
 	const auto FileNameToFind = PointToName(FindData.FileName);
-	const auto FileNameToFindShort = PointToName(FindData.AlternateFileName);
+	const auto FileNameToFindShort = PointToName(FindData.AlternateFileName());
 	PluginPanelItem *Items;
 	size_t ItemsNumber;
 	bool nResult=false;
@@ -1618,8 +1618,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (real_name)
 					{
 						strSearchFileName = FindItem->FindData.FileName;
-						if (!os::fs::exists(strSearchFileName) && os::fs::exists(FindItem->FindData.AlternateFileName))
-							strSearchFileName = FindItem->FindData.AlternateFileName;
+						if (!os::fs::exists(strSearchFileName) && os::fs::exists(FindItem->FindData.AlternateFileName()))
+							strSearchFileName = FindItem->FindData.AlternateFileName();
 					}
 
 					OpenFile(strSearchFileName, key, FindItem, Dlg);
@@ -2217,9 +2217,10 @@ void background_searcher::DoScanTree(const string& strRoot)
 
 				for(const auto& StreamData: os::fs::enum_streams(strFullName))
 				{
-					const auto NameBegin = StreamData.cStreamName + 1;
-					const auto NameEnd = wcschr(NameBegin, L':');
-					const string_view StreamName(NameBegin, NameEnd? NameEnd - NameBegin : wcslen(NameBegin));
+					string_view StreamName(StreamData.cStreamName + 1);
+					const auto NameEnd = StreamName.rfind(L':');
+					if (NameEnd != StreamName.npos)
+						StreamName = StreamName.substr(0, NameEnd);
 
 					if (StreamName.empty()) // default stream has already been processed
 						continue;

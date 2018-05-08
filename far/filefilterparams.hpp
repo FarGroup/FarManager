@@ -203,6 +203,6 @@ private:
 bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig=false);
 
 //Централизованная функция для создания строк меню различных фильтров.
-string MenuString(const FileFilterParams* FF, bool bHighlightType=false, wchar_t Hotkey = 0, bool bPanelType=false, const wchar_t *FMask=nullptr, const wchar_t *Title=nullptr);
+string MenuString(const FileFilterParams* FF, bool bHighlightType = false, wchar_t Hotkey = 0, bool bPanelType = false, string_view FMask = {}, string_view Title = {});
 
 #endif // FILEFILTERPARAMS_HPP_E3E125BE_F0C2_4DAC_9582_FE7EDD2DA264

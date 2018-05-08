@@ -402,7 +402,7 @@ static bool PartCmdLine(const string& CmdStr, string& strNewCmdStr, string& strN
 			continue;
 		}
 
-		if (!InQuotes && UseDefaultCondition && wcschr(L"<>|&", *i))
+		if (!InQuotes && UseDefaultCondition && contains(L"<>|&"_sv, *i))
 		{
 			return false;
 		}
@@ -1319,11 +1319,9 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			{
 				PtrCmd=wcschr(PtrCmd,L' ');
 
-				if (PtrCmd && *PtrCmd == L' ')
+				if (PtrCmd)
 				{
-					string strCmd(CmdStart,PtrCmd-CmdStart);
-
-					const auto ERet = os::env::get(strCmd, strExpandedStr);
+					const auto ERet = os::env::get({ CmdStart, static_cast<size_t>(PtrCmd - CmdStart) }, strExpandedStr);
 
 //_SVS(SysLog(Cmd));
 					if (ERet != Not)

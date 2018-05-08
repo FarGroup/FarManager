@@ -206,7 +206,7 @@ namespace detail
 }
 
 template<typename policy>
-class enum_tokens_t: policy, public enumerator<enum_tokens_t<policy>, string_view>
+class [[nodiscard]] enum_tokens_t: policy, public enumerator<enum_tokens_t<policy>, string_view>
 {
 	IMPLEMENTS_ENUMERATOR(enum_tokens_t);
 
@@ -224,12 +224,12 @@ public:
 	{
 	}
 
-	enum_tokens_t(const string& Str, const string_view Separators) :
+	enum_tokens_t(const string& Str, const string_view Separators):
 		enum_tokens_t(string_view(Str), Separators)
 	{
 	}
 
-	enum_tokens_t(const wchar_t* const Str, const string_view Separators) :
+	enum_tokens_t(const wchar_t* const Str, const string_view Separators):
 		enum_tokens_t(string_view(Str), Separators)
 	{
 	}

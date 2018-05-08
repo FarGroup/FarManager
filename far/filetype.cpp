@@ -104,16 +104,17 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			}
 
 			string strCommandText = strCommand;
-			SubstFileName(nullptr,strCommandText,Name, ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
-
-			// все "подставлено", теперь проверим условия "if exist"
-			if (!ExtractIfExistCommand(strCommandText))
+			if (
+				!SubstFileName(strCommandText, Name, ShortName, nullptr, nullptr, true) ||
+				// все "подставлено", теперь проверим условия "if exist"
+				!ExtractIfExistCommand(strCommandText)
+			)
 				continue;
 
 			ActualCmdCount++;
 
 			if (!strDescription.empty())
-				SubstFileName(nullptr,strDescription, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
+				SubstFileName(strDescription, Name, ShortName, nullptr, nullptr, true);
 			else
 				strDescription = strCommandText;
 
@@ -150,26 +151,15 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		strCommand = *TypesMenu->GetUserDataPtr<string>(ExitCode);
 	}
 
-	string strListName, strAnotherListName, strShortListName, strAnotherShortListName;
-
-	const string* ListNames[] =
-	{
-		&strListName,
-		&strAnotherListName,
-		&strShortListName,
-		&strAnotherShortListName
-	};
-
-	const auto PreserveLFN = SubstFileName(nullptr, strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-	const auto ListFileUsed = !std::all_of(ALL_CONST_RANGE(ListNames), [](const string* Str) { return Str->empty(); });
-
-	if (!strCommand.empty())
+	list_names ListNames;
+	bool PreserveLFN;
+	if (SubstFileName(strCommand, Name, ShortName, &ListNames, &PreserveLFN) && !strCommand.empty())
 	{
 		SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
 
 		execute_info Info;
 		Info.Command = strCommand;
-		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 		Info.RunAs = RunAs;
 
 		Launcher? Launcher(Info) : Global->CtrlObject->CmdLine()->ExecString(Info);
@@ -180,12 +170,6 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			Global->CtrlObject->CmdHistory->AddToHistory(strCommand, HR_DEFAULT, nullptr, {}, curDir);
 		}
 	}
-
-	std::for_each(CONST_RANGE(ListNames, i)
-	{
-		if (!i->empty())
-			os::fs::delete_file(*i);
-	});
 
 	return true;
 }
@@ -264,9 +248,12 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish)
 {
 	string strExecStr = Command;
-	std::vector<string> ListNames(4);
-	const auto PreserveLFN = SubstFileName(nullptr, strExecStr, Name, ShortName, &ListNames[0], &ListNames[1], &ListNames[2], &ListNames[3]);
-	const auto ListFileUsed = std::any_of(CONST_RANGE(ListNames, i) { return !i.empty(); });
+	list_names ListNames;
+	bool PreserveLFN;
+	if (!SubstFileName(strExecStr, Name, ShortName, &ListNames, &PreserveLFN) || strExecStr.empty())
+		return;
+
+	const auto ListFileUsed = ListNames.any();
 
 	// It makes no sense at all to add command containing temporary files to the history - they are doomed anyway
 	if (!ListFileUsed)
@@ -274,8 +261,8 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		const auto strFullName = ConvertNameToFull(Name);
 		const auto strFullShortName = ConvertNameToShort(strFullName);
 		string strFullExecStr = Command;
-		SubstFileName(nullptr, strFullExecStr, strFullName, strFullShortName);
-		Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
+		if (SubstFileName(strFullExecStr, strFullName, strFullShortName, nullptr, nullptr, true))
+			Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
 	}
 
 	SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
@@ -285,12 +272,6 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);
-
-	for (const auto& i: ListNames)
-	{
-		if (!i.empty())
-			os::fs::delete_file(i);
-	}
 }
 
 static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)

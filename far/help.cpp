@@ -192,7 +192,7 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 	{
 		StackData->strHelpTopic = Topic;
 
-		if (StackData->strHelpTopic.front() == HelpBeginLink)
+		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
 		{
 			size_t pos = StackData->strHelpTopic.rfind(HelpEndLink);
 
@@ -241,7 +241,7 @@ bool Help::ReadHelp(const string& Mask)
 {
 	string strPath;
 
-	if (StackData->strHelpTopic.front() == HelpBeginLink)
+	if (starts_with(StackData->strHelpTopic, HelpBeginLink))
 	{
 		strPath = StackData->strHelpTopic.substr(1);
 		const auto pos = strPath.find(HelpEndLink);
@@ -405,53 +405,32 @@ bool Help::ReadHelp(const string& Mask)
 				continue;
 			}
 
-			if (!strKeyName.empty() && strKeyName[0] == L'~')
-			{
-				MI++;
-				continue;
-			}
+			++MI;
 
-			strReadStr.clear();
-			if (strKeyName.size() > SizeKeyName)
+			const auto& escape = [](string_view const Str)
 			{
-				FarFormatText(strKeyName, SizeKeyName, strKeyName, L"\n", 0);
+				string Result(Str);
+				ReplaceStrings(Result, L"~", L"~~");
+				ReplaceStrings(Result, L"#", L"##");
+				ReplaceStrings(Result, L"@", L"@@");
+				return Result;
+			};
 
-				size_t nl;
-				while ((nl = strKeyName.find(L'\n')) != string::npos)
+			size_t LastKeySize = 0;
+
+			strReadStr = join(select(enum_tokens(strKeyName, L" "_sv),
+				[&](const auto& i)
 				{
-					string keys = strKeyName.substr(0, nl);
-					strKeyName.erase(0, nl+1);
-
-					ReplaceStrings(keys, L"~", L"~~");
-					ReplaceStrings(keys, L"#", L"##");
-					ReplaceStrings(keys, L"@", L"@@");
-
-					append(strReadStr, L" #"_sv, keys, L"#\n"_sv);
-				}
-
-				if (strKeyName.size() > SizeKeyName)
-					strKeyName.resize(SizeKeyName); // cut key names
-			}
-
-			ReplaceStrings(strKeyName, L"~", L"~~");
-			ReplaceStrings(strKeyName, L"#", L"##");
-			ReplaceStrings(strKeyName, L"@", L"@@");
-
-			if (contains(strKeyName, L'~')) // коррекция размера
-				SizeKeyName++;
-
-			append(strReadStr, L" #"_sv, fit_to_left(strKeyName, SizeKeyName), L"# "_sv);
+					LastKeySize = i.size();
+					return concat(L" #"_sv, escape(i), L'#');
+				}),
+				L"\n");
 
 			if (!strDescription.empty())
 			{
-				ReplaceStrings(strDescription, L"#", L"##");
-				ReplaceStrings(strDescription, L"~", L"~~");
-				ReplaceStrings(strDescription, L"@", L"@@");
-				strReadStr += strCtrlStartPosChar;
-				strReadStr += strDescription;
+				strReadStr.append(std::max(LastKeySize, SizeKeyName) - LastKeySize, L' ');
+				append(strReadStr, strCtrlStartPosChar, escape(strDescription));
 			}
-
-			MI++;
 		}
 
 		RepeatLastLine = false;
@@ -563,7 +542,10 @@ m1:
 					string strDescription,strKeyName;
 					while (Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 					{
-						SizeKeyName = std::min(std::max(SizeKeyName, strKeyName.size()), static_cast<size_t>(MaxLength) / 2);
+						for (const auto& i: enum_tokens(strKeyName, L" "_sv))
+						{
+							SizeKeyName = std::min(std::max(SizeKeyName, i.size()), static_cast<size_t>(MaxLength) / 2);
+						}
 						MI++;
 					}
 					MI=0;
@@ -862,7 +844,7 @@ void Help::FastShow()
 		{
 			string_view OutStr = HelpList[StrPos].HelpStr;
 
-			if (!OutStr.empty() && OutStr.front() == L'^')
+			if (starts_with(OutStr, L'^'))
 			{
 				OutStr.remove_prefix(1);
 				GotoXY(m_X1 + 1 + std::max(0, (CanvasWidth() - StringLen(OutStr)) / 2), m_Y1 + i + 1);
@@ -1497,9 +1479,6 @@ bool Help::JumpTopic(const string& Topic)
 
 bool Help::JumpTopic()
 {
-	string strNewTopic;
-	size_t pos = 0;
-
 	/* $ 14.07.2002 IS
 	     При переходе по ссылкам используем всегда только абсолютные пути,
 	     если это возможно.
@@ -1507,43 +1486,32 @@ bool Help::JumpTopic()
 
 	// Если ссылка на другой файл, путь относительный и есть то, от чего можно
 	// вычислить абсолютный путь, то сделаем это
-	if (StackData->strSelTopic.front()==HelpBeginLink
-	        && (pos = StackData->strSelTopic.find(HelpEndLink,2)) != string::npos
-	        && !IsAbsolutePath(string_view(StackData->strSelTopic).substr(1))
-	        && !StackData->strHelpPath.empty())
+	if (starts_with(StackData->strSelTopic, HelpBeginLink) && !StackData->strHelpPath.empty())
 	{
-		strNewTopic = StackData->strSelTopic.substr(1, pos);
-		string strFullPath = StackData->strHelpPath;
-		// уберем _все_ конечные слеши и добавим один
-		DeleteEndSlash(strFullPath);
-		strFullPath.append(1, L'\\').append(strNewTopic, IsSlash(strNewTopic.front())? 1 : 0, string::npos);
-		const auto EndSlash = IsSlash(strFullPath.back());
-		DeleteEndSlash(strFullPath);
-		strNewTopic = ConvertNameToFull(strFullPath);
-		strFullPath = format(EndSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic, wcschr(StackData->strSelTopic.c_str() + 2, HelpEndLink) + 1);
-		StackData->strSelTopic = strFullPath;
+		const auto pos = StackData->strSelTopic.find(HelpEndLink, 2);
+		if (pos != string::npos)
+		{
+			const auto Path = string_view(StackData->strSelTopic).substr(1, pos - 1);
+			const auto EndSlash = IsSlash(Path.back());
+			const auto FullPath = path::join(StackData->strHelpPath, Path);
+			auto Topic = string_view(StackData->strSelTopic).substr(StackData->strSelTopic.find(HelpEndLink, 2) + 1);
+			StackData->strSelTopic = format(EndSlash? HelpFormatLink : HelpFormatLinkModule, ConvertNameToFull(FullPath), Topic);
+		}
 	}
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData->SelTopic));
 	// URL активатор - это ведь так просто :-)))
-	{
-		strNewTopic = StackData->strSelTopic;
-		pos = strNewTopic.find(L':');
+	// наверное подразумевается URL
+	if (contains(StackData->strSelTopic, L':') && OpenURL(StackData->strSelTopic))
+		return false;
 
-		if (pos && pos != string::npos) // наверное подразумевается URL
-		{
-			if (OpenURL(StackData->strSelTopic))
-			{
-				return false;
-			}
-		}
-	}
 	// а вот теперь попробуем...
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData->HelpPath=%s",StackData->SelTopic,StackData->HelpPath));
+	string strNewTopic;
 	if (!StackData->strHelpPath.empty() && StackData->strSelTopic.front() !=HelpBeginLink && StackData->strSelTopic != HelpOnHelpTopic)
 	{
-		if (StackData->strSelTopic.front()==L':')
+		if (starts_with(StackData->strSelTopic, L':'))
 		{
 			strNewTopic = StackData->strSelTopic.substr(1);
 			StackData->Flags&=~FHELP_CUSTOMFILE;
@@ -1599,7 +1567,7 @@ bool Help::JumpTopic()
 	        (!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))
 	   )
 	{
-		if (!(StackData->Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic.c_str(), HelpEndLink))
+		if (!(StackData->Flags&FHELP_CUSTOMFILE) && contains(strNewTopic, HelpEndLink))
 		{
 			StackData->strHelpMask.clear();
 		}
@@ -1618,9 +1586,10 @@ bool Help::JumpTopic()
 	{
 		StackData->strHelpTopic = strNewTopic;
 
-		if (StackData->strHelpTopic.front() == HelpBeginLink)
+		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
 		{
-			if ((pos = StackData->strHelpTopic.rfind(HelpEndLink)) != string::npos)
+			const auto pos = StackData->strHelpTopic.rfind(HelpEndLink);
+			if (pos != string::npos)
 			{
 				StackData->strHelpTopic.resize(pos+1);
 				StackData->strHelpTopic += HelpContents;
@@ -2088,7 +2057,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 				strTopic = HelpTopic;
 			}
 
-			if (strTopic.front()==HelpBeginLink)
+			if (starts_with(strTopic, HelpBeginLink))
 			{
 				size_t EndPos = strTopic.find(HelpEndLink);
 

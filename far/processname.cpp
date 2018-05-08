@@ -87,7 +87,7 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int const Selected
 			CurWildPtr++;
 			while (!SrcNamePtr.empty())
 			{
-				if (*CurWildPtr==L'.' && SrcNameDot && !wcschr(CurWildPtr+1,L'.'))
+				if (*CurWildPtr == L'.' && SrcNameDot && !contains(CurWildPtr + 1, L'.'))
 				{
 					if (SrcNamePtr.cbegin() == SrcNameDot)
 						break;
@@ -176,7 +176,7 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 				if (pattern.size() == 2 && pattern[1]==L'*')
 					return true;
 
-				if (std::none_of(ALL_CONST_RANGE(pattern), [](wchar_t Char) { return wcschr(L"*?[", Char) != nullptr; }))
+				if (std::none_of(ALL_CONST_RANGE(pattern), [](wchar_t Char) { return contains(L"*?["_sv, Char); }))
 				{
 					const auto RDotIt = std::find(ALL_CONST_REVERSE_RANGE(str), L'.');
 					const auto DotIt = RDotIt == str.crend()? str.cend() : (RDotIt + 1).base();

@@ -74,8 +74,11 @@ namespace os::fs
 
 	struct find_data
 	{
+	public:
 		string FileName;
-		string AlternateFileName;
+	private:
+		string AlternateFileNameData;
+	public:
 		chrono::time_point CreationTime;
 		chrono::time_point LastAccessTime;
 		chrono::time_point LastWriteTime;
@@ -85,6 +88,9 @@ namespace os::fs
 		unsigned long long FileId{};
 		DWORD Attributes{};
 		DWORD ReparseTag{};
+
+		const string& AlternateFileName() const;
+		void SetAlternateFileName(string_view Name);
 	};
 
 	bool is_standard_drive_letter(wchar_t Letter);

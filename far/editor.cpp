@@ -5221,8 +5221,7 @@ void Editor::VBlockShift(int Left)
 			std::rotate(BlockBegin - 1, BlockBegin, BlockBegin + TBlockSizeX);
 		}
 
-		while (!TmpStr.empty() && TmpStr.back() == L' ')
-			TmpStr.pop_back();
+		inplace::trim_right(TmpStr);
 
 		append(TmpStr, eol::str(CurPtr->GetEOL()));
 		CurPtr->SetString(TmpStr);

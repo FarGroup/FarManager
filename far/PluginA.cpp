@@ -1830,7 +1830,7 @@ static char* WINAPI QuoteSpaceOnlyA(char *Str) noexcept
 {
 	try
 	{
-		if (strchr(Str, ' '))
+		if (contains(Str, ' '))
 			InsertQuoteA(Str);
 		return Str;
 	}

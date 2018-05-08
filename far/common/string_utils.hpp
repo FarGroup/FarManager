@@ -69,11 +69,13 @@ WARNING_DISABLE_MSC(4583) // no page                                            
 
 WARNING_POP()
 
+	[[nodiscard]]
 	auto c_str() const
 	{
 		return m_Terminated? m_View.data() : m_Str.c_str();
 	}
 
+	[[nodiscard]]
 	auto size() const
 	{
 		return m_Terminated? m_View.size() : m_Str.size();
@@ -370,15 +372,21 @@ inline bool starts_with(const string_view Str, const string_view Prefix)
 }
 
 [[nodiscard]]
+inline bool starts_with(const string_view Str, wchar_t const Prefix)
+{
+	return Str.starts_with(Prefix);
+}
+
+[[nodiscard]]
 inline bool ends_with(const string_view Str, const string_view Suffix)
 {
 	return Str.ends_with(Suffix);
 }
 
 [[nodiscard]]
-inline bool contains(const string_view Str, const string_view Token)
+inline bool ends_with(const string_view Str, wchar_t const Suffix)
 {
-	return std::search(ALL_CONST_RANGE(Str), ALL_CONST_RANGE(Token)) != Str.cend();
+	return Str.ends_with(Suffix);
 }
 
 [[nodiscard]]
@@ -415,6 +423,34 @@ inline auto trim(string Str)
 inline auto trim(string_view Str)
 {
 	return inplace::trim(Str);
+}
+
+template<typename container>
+void join(string& Str, const container& Container, string_view const Separator)
+{
+	bool First = true;
+
+	for (const auto& i: Container)
+	{
+		if (First)
+		{
+			First = false;
+			append(Str, i);
+		}
+		else
+		{
+			append(Str, Separator, i);
+		}
+	}
+}
+
+template<typename container>
+[[nodiscard]]
+string join(const container& Container, string_view const Separator)
+{
+	string Str;
+	join(Str, Container, Separator);
+	return Str;
 }
 
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8

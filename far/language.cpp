@@ -130,7 +130,7 @@ bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string&
 				return true;
 			}
 		}
-		else if (!i.Str.empty() && i.Str.front() == L'"')
+		else if (starts_with(i.Str, L'"'))
 		{
 			// '"' indicates some meaningful string.
 			// Parameters can be only in the header, no point to go deeper
@@ -281,7 +281,7 @@ static void parse_lng_line(const string_view str, string& label, string& data, b
 	have_data = false;
 
 	//-- //[Label]
-	if (str.starts_with(L"//["_sv) && str.ends_with(L"]"_sv))
+	if (starts_with(str, L"//["_sv) && ends_with(str, L"]"_sv))
 	{
 		const auto LabelView = str.substr(3, str.size() - 3 - 1);
 		//-- //[Label=0]
@@ -290,7 +290,7 @@ static void parse_lng_line(const string_view str, string& label, string& data, b
 	}
 
 	//-- "Text"
-	if (!str.empty() && str.front() == L'"')
+	if (starts_with(str, L'"'))
 	{
 		have_data = true;
 		assign(data, str.substr(1));

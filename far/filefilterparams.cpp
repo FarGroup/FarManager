@@ -385,13 +385,13 @@ bool FileFilterParams::FileInFilter(filter_file_object& Object, os::chrono::time
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
-string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotkey, bool bPanelType, const wchar_t *FMask, const wchar_t *Title)
+string MenuString(const FileFilterParams* const FF, bool const bHighlightType, wchar_t const Hotkey, bool const bPanelType, string_view const FMask, string_view const Title)
 {
 	string strDest;
 
 	const wchar_t DownArrow = L'\x2193';
-	const wchar_t* Name;
-	const wchar_t* Mask = L"";
+	string_view Name;
+	string_view Mask = L"";
 	wchar_t MarkChar[]=L"' '";
 	DWORD IncludeAttr, ExcludeAttr;
 	bool UseSize, UseHardLinks, UseDate, RelativeDate;
@@ -411,10 +411,10 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 		if (!MarkChar[1])
 			*MarkChar=0;
 
-		Name=FF->GetTitle().c_str();
+		Name=FF->GetTitle();
 		
 		if (FF->IsMaskUsed())
-			Mask = FF->GetMask().c_str();
+			Mask = FF->GetMask();
 
 		if (!FF->GetAttr(&IncludeAttr,&ExcludeAttr))
 			IncludeAttr=ExcludeAttr=0;
@@ -484,7 +484,7 @@ string MenuString(const FileFilterParams *FF, bool bHighlightType, wchar_t Hotke
 
 		if (!Hotkey && !bPanelType)
 		{
-			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Name, 21 + (wcschr(Name, L'&')? 1 : 0), Attr, SizeDate, Mask);
+			strDest = format(L"{1:{2}.{2}} {0} {3} {4} {0} {5}", BoxSymbols[BS_V1], Name, 21 + (contains(Name, L'&')? 1 : 0), Attr, SizeDate, Mask);
 		}
 		else
 		{

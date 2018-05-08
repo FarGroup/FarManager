@@ -99,6 +99,16 @@ namespace os::fs
 		}
 	}
 
+	const string& find_data::AlternateFileName() const
+	{
+		return AlternateFileNameData.empty()? FileName : AlternateFileNameData;
+	}
+
+	void find_data::SetAlternateFileName(string_view Name)
+	{
+		assign(AlternateFileNameData, Name);
+	}
+
 	bool is_standard_drive_letter(wchar_t Letter)
 	{
 		return InRange(L'A', upper(Letter), L'Z');
@@ -166,6 +176,30 @@ namespace os::fs
 	{
 	}
 
+	// MSDN verse 2.4.17:
+	// "When working with this field, use FileNameLength to determine the length of the file name
+	// rather than assuming the presence of a trailing null delimiter."
+
+	// Some buggy implementations (e. g. ms sharepoint, rdesktop) set the length incorrectly
+	// (e. g. including the terminating \0 or as ((number of bytes in the source string) * 2) when source is in UTF-8),
+	// so instead of, say, "name" (4) they return "name\0\0\0\0" (8).
+	// Generally speaking, it's their own problems and we shall use it as is, as per the verse above.
+	// However, most of applications use FindFirstFile API, which copies this string
+	// to a fixed-size buffer, WIN32_FIND_DATA.cFileName, leaving the burden of finding its length
+	// to the application itself, which, by coincidence, does it correctly, effectively masking the initial error.
+	// So people come to us and claim that Far isn't working properly while other programs are fine.
+	static auto trim_trailing_zeros(string_view const Str)
+	{
+		const auto Pos = Str.find_last_not_of(L'\0');
+		return Pos != string::npos? Str.substr(0, Pos + 1) : string_view{};
+	}
+
+	// Some other buggy implementations just set the first char of AlternateFileName to '\0' to make it "empty", leaving rubbish in others. Double facepalm.
+	static auto empty_if_zero(string_view const Str)
+	{
+		return starts_with(Str, L'\0')? string_view{} : Str;
+	}
+
 	static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, find_data& FindData, bool IsExtended)
 	{
 		FindData.Attributes = DirectoryInfo.FileAttributes;
@@ -179,8 +213,8 @@ namespace os::fs
 
 		const auto& CopyNames = [&FindData](const auto& DirInfo)
 		{
-			FindData.FileName.assign(DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t));
-			FindData.AlternateFileName.assign(DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t));
+			assign(FindData.FileName, trim_trailing_zeros({ DirInfo.FileName, DirInfo.FileNameLength / sizeof(wchar_t) }));
+			FindData.SetAlternateFileName(trim_trailing_zeros(empty_if_zero({ DirInfo.ShortName, DirInfo.ShortNameLength / sizeof(wchar_t) })));
 		};
 
 		if (IsExtended)
@@ -193,32 +227,6 @@ namespace os::fs
 			FindData.FileId = 0;
 			CopyNames(reinterpret_cast<const FILE_BOTH_DIR_INFORMATION&>(DirectoryInfo));
 		}
-
-		const auto& RemoveTrailingZeros = [](string& Where)
-		{
-			const auto Pos = Where.find_last_not_of(L'\0');
-			Pos != string::npos? Where.resize(Pos + 1) : Where.clear();
-		};
-
-		// MSDN verse 2.4.17:
-		// "When working with this field, use FileNameLength to determine the length of the file name
-		// rather than assuming the presence of a trailing null delimiter."
-
-		// Some buggy implementations (e. g. ms sharepoint, rdesktop) set the length incorrectly
-		// (e. g. including the terminating \0 or as ((number of bytes in the source string) * 2) when source is in UTF-8),
-		// so instead of, say, "name" (4) they return "name\0\0\0\0" (8).
-		// Generally speaking, it's their own problems and we shall use it as is, as per the verse above.
-		// However, most of the applications use FindFirstFile API, which copies this string
-		// to the fixed-size buffer WIN32_FIND_DATA.cFileName, leaving the burden of finding its length
-		// to the application itself, which, by coincidence, does it correctly, effectively masking the initial error.
-		// So people come to us and claim that Far isn't working properly while other programs are fine.
-
-		RemoveTrailingZeros(FindData.FileName);
-		RemoveTrailingZeros(FindData.AlternateFileName);
-
-		// Some other buggy implementations just set the first char of AlternateFileName to '\0' to make it "empty", leaving rubbish in others. Double facepalm.
-		if (!FindData.AlternateFileName.empty() && FindData.AlternateFileName.front() == L'\0')
-			FindData.AlternateFileName.clear();
 	}
 
 	static find_file_handle FindFirstFileInternal(const string& Name, find_data& FindData)
@@ -376,7 +384,7 @@ namespace os::fs
 		if (Value.Attributes & FILE_ATTRIBUTE_DIRECTORY &&
 			Value.FileName[0] == L'.' && ((Value.FileName.size() == 2 && Value.FileName[1] == L'.') || Value.FileName.size() == 1) &&
 			// These "virtual" folders either don't have an SFN at all or it's the same as LFN:
-			(Value.AlternateFileName.empty() || Value.AlternateFileName == Value.FileName))
+			(Value.AlternateFileName().empty() || Value.AlternateFileName() == Value.FileName))
 		{
 			return get(false, Value);
 		}
@@ -1758,7 +1766,7 @@ namespace os::fs
 		}
 
 		assign(FindData.FileName, PointToName(FileName));
-		FindData.AlternateFileName = ConvertNameToShort(FileName);
+		FindData.SetAlternateFileName(ConvertNameToShort(FileName));
 		return true;
 	}
 

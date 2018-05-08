@@ -59,6 +59,7 @@ private:
 };
 
 template <class T>
+[[nodiscard]]
 auto null_iterator(T* Data) { return null_iterator_t<T>(Data); }
 
 #endif // NULL_ITERATOR_HPP_18FC84FA_D7EE_47C4_9979_72EC06E57C37

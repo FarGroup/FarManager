@@ -74,7 +74,7 @@ public:
 	bool IsContentDataRead() const;
 	const content_data_ptr& ContentData(const FileList* Owner) const;
 
-	const string& AlternateOrNormal(bool Alternate = true) const;
+	const string& AlternateOrNormal(bool Alternate) const;
 
 	unsigned long long UserFlags{};
 	UserDataItem UserData{};

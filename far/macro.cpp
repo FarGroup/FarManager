@@ -2559,134 +2559,45 @@ static bool substrFunc(FarMacroCall* Data)
 	return Ret;
 }
 
-static bool SplitFileName(const string& lpFullName, string& strDest, int nFlags)
+static bool SplitPath(string_view const FullPath, string& Dest, int Flags)
 {
-	enum
-	{
-		FLAG_DISK = 1,
-		FLAG_PATH = 2,
-		FLAG_NAME = 4,
-		FLAG_EXT  = 8,
-	};
-	auto s = lpFullName.c_str(); //start of sub-string
-	auto p = s; //current string pointer
-	auto es = s + lpFullName.size(); //end of string
-	const wchar_t *e = nullptr; //end of sub-string
-
-	if (!*p)
+	size_t DirOffset = 0;
+	if (ParsePath(FullPath, &DirOffset) == root_type::unknown)
 		return false;
 
-	if ((*p == L'\\') && (*(p+1) == L'\\'))   //share
+	const auto Root = FullPath.substr(0, DirOffset - 1);
+	auto Path = FullPath.substr(DirOffset - 1);
+	auto Name = PointToName(Path);
+	Path.remove_suffix(Name.size());
+	auto Ext = PointToExt(Name);
+	Name.remove_suffix(Ext.size());
+
+	const std::pair<int, string_view> Mappings[] =
 	{
-		p += 2;
-		p = wcschr(p, L'\\');
+		{ bit(0), Root },
+		{ bit(1), Path },
+		{ bit(2), Name },
+		{ bit(3), Ext  },
+	};
 
-		if (!p)
-			return false; //invalid share (\\server\)
+	Dest.clear();
 
-		p = wcschr(p+1, L'\\');
-
-		if (!p)
-			p = es;
-
-		if ((nFlags & FLAG_DISK) == FLAG_DISK)
-		{
-			strDest=s;
-			strDest.resize(p-s);
-		}
-	}
-	else
+	for (const auto& i: Mappings)
 	{
-		if (*(p+1) == L':')
-		{
-			p += 2;
-
-			if ((nFlags & FLAG_DISK) == FLAG_DISK)
-			{
-				size_t Length=strDest.size()+p-s;
-				strDest+=s;
-				strDest.resize(Length);
-			}
-		}
+		if (Flags & i.first)
+			append(Dest, i.second);
 	}
-
-	s = p;
-
-	while (p)
-	{
-		p = wcschr(p, L'\\');
-
-		if (p)
-		{
-			e = p;
-			p++;
-		}
-	}
-
-	if (e)
-	{
-		if ((nFlags & FLAG_PATH))
-		{
-			size_t Length=strDest.size()+e-s;
-			strDest+=s;
-			strDest.resize(Length);
-		}
-
-		s = e+1;
-		p = s;
-	}
-
-	if (!p)
-		p = s;
-
-	e = nullptr;
-
-	while (p)
-	{
-		p = wcschr(p+1, L'.');
-
-		if (p)
-			e = p;
-	}
-
-	if (!e)
-		e = es;
-
-	if (!strDest.empty())
-		AddEndSlash(strDest);
-
-	if (nFlags & FLAG_NAME)
-	{
-		const wchar_t *ptr = wcschr(s, L':');
-
-		if (ptr)
-			s=ptr+1;
-		if (e < s)
-			e = es;
-		size_t Length=strDest.size()+e-s;
-		strDest+=s;
-		strDest.resize(Length);
-	}
-
-	if (nFlags & FLAG_EXT)
-		strDest+=e;
 
 	return true;
 }
-
 
 // S=fsplit(S,N)
 static bool fsplitFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
-	int m = (int)Params[1].asInteger();
-	bool Ret=false;
-	string strPath;
 
-	if (!SplitFileName(Params[0].toString(), strPath, m))
-		strPath.clear();
-	else
-		Ret=true;
+	string strPath;
+	const auto Ret = SplitPath(Params[0].toString(), strPath, Params[1].asInteger());
 
 	PassString(strPath, Data);
 	return Ret;
@@ -2696,11 +2607,12 @@ static bool fsplitFunc(FarMacroCall* Data)
 static bool atoiFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
-	bool Ret=true;
+	bool Ret = false;
 	long long Value = 0;
 	try
 	{
 		Value = std::stoull(Params[0].toString(), nullptr, (int)Params[1].toInteger());
+		Ret = true;
 	}
 	catch (const std::exception&)
 	{
@@ -4493,7 +4405,7 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar(filelistItem->FileName);
 				break;
 			case 1:  // ShortName
-				Ret=TVar(filelistItem->AlternateFileName);
+				Ret=TVar(filelistItem->AlternateFileName());
 				break;
 			case 2:  // FileAttr
 				PassNumber((long)filelistItem->Attributes, Data);
@@ -4675,20 +4587,16 @@ static bool strpadFunc(FarMacroCall* Data)
 static bool strwrapFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(4, Data);
-	DWORD Flags=(DWORD)Params[3].asInteger();
-	TVar& Break(Params[2]);
+	const auto Flags=static_cast<DWORD>(Params[3].asInteger());
+	auto& Break = Params[2];
 	const size_t Width = Params[1].asInteger();
-	TVar& Text(Params[0]);
+	const auto& Text = Params[0];
 
-	if (Break.isInteger() && !Break.asInteger())
-	{
-		Break=L"";
-		Break.toString();
-	}
+	if (Break.isUnknown())
+		Break = L"\n";
 
-	string strDest;
-	FarFormatText(Text.asString(), Width,strDest, EmptyToNull(Break.asString().c_str()), Flags);
-	PassString(strDest, Data);
+	PassString(join(wrapped_text(Text.asString(), Width, Break.asString(), Flags == 1), Break.asString()), Data);
+
 	return true;
 }
 

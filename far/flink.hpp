@@ -61,7 +61,7 @@ bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
 bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType = nullptr);
 
 bool DelSubstDrive(const string& DeviceName);
-string GetPathRoot(const string& Path);
+string GetPathRoot(string_view Path);
 
 // перечислятель для EnumNTFSStreams
 // в параметре sid поле cStreamName не актуально, т.к. готовое имя потока

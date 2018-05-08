@@ -206,7 +206,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 		Dest = std::move(strDest);
 }
 
-string ConvertNameToFull(const string_view Object)
+string ConvertNameToFull(string_view const Object)
 {
 	string strDest;
 	MixToFullPath(Object, strDest, os::fs::GetCurrentDirectory());
@@ -215,9 +215,9 @@ string ConvertNameToFull(const string_view Object)
 
 // try to replace volume GUID (if present) with drive letter
 // used by ConvertNameToReal() only
-static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_view AbsPath = {})
+static string TryConvertVolumeGuidToDrivePath(string_view const Path, const string_view AbsPath = {})
 {
-	string Result = Path;
+	string Result(Path);
 	size_t DirectoryOffset;
 	if (ParsePath(Path, &DirectoryOffset) == root_type::volume)
 	{
@@ -267,7 +267,7 @@ static string TryConvertVolumeGuidToDrivePath(const string& Path, const string_v
 	return Result;
 }
 
-size_t GetMountPointLen(const string& abs_path, const string& drive_root)
+size_t GetMountPointLen(string_view const abs_path, string_view const drive_root)
 {
 	if (starts_with_icase(abs_path, drive_root))
 		return drive_root.size();
@@ -282,7 +282,7 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
 	case root_type::volume:
 		break;
 	case root_type::drive_letter:
-		if (os::fs::GetVolumeNameForVolumeMountPoint(drive_root, vol_guid))
+		if (os::fs::GetVolumeNameForVolumeMountPoint(null_terminated(drive_root).c_str(), vol_guid))
 			break;
 		[[fallthrough]];
 	default:
@@ -297,7 +297,7 @@ size_t GetMountPointLen(const string& abs_path, const string& drive_root)
   Преобразует Src в полный РЕАЛЬНЫЙ путь с учетом reparse point.
   Note that Src can be partially non-existent.
 */
-string ConvertNameToReal(const string& Object)
+string ConvertNameToReal(string_view const Object)
 {
 	SCOPED_ACTION(elevation::suppress);
 
@@ -342,12 +342,12 @@ string ConvertNameToReal(const string& Object)
 	return strDest;
 }
 
-string ConvertNameToShort(const string& Object)
+string ConvertNameToShort(string_view const  Object)
 {
 	string strDest;
-	if(!os::fs::GetShortPathName(Object, strDest))
+	if(!os::fs::GetShortPathName(null_terminated(Object).c_str(), strDest))
 	{
-		strDest = Object;
+		assign(strDest, Object);
 
 		if (!HasPathPrefix(Object))
 		{
@@ -373,12 +373,12 @@ string ConvertNameToShort(const string& Object)
 	return strDest;
 }
 
-string ConvertNameToLong(const string& Object)
+string ConvertNameToLong(string_view const Object)
 {
 	string strDest;
-	if (!os::fs::GetLongPathName(Object, strDest))
+	if (!os::fs::GetLongPathName(null_terminated(Object).c_str(), strDest))
 	{
-		strDest = Object;
+		assign(strDest, Object);
 
 		if (!HasPathPrefix(Object))
 		{
@@ -404,7 +404,7 @@ string ConvertNameToLong(const string& Object)
 	return strDest;
 }
 
-string ConvertNameToUNC(const string& Object)
+string ConvertNameToUNC(string_view const Object)
 {
 	auto strFileName = ConvertNameToFull(Object);
 	// Посмотрим на тип файловой системы

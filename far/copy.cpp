@@ -1541,16 +1541,16 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					{
 						if (!strRenamedName.empty())
 						{
-							DestDiz.Erase(i.FileName, i.AlternateFileName);
-							SrcPanel->CopyDiz(i.FileName, i.AlternateFileName, strRenamedName, strRenamedName, &DestDiz);
+							DestDiz.Erase(i.FileName, i.AlternateFileName());
+							SrcPanel->CopyDiz(i.FileName, i.AlternateFileName(), strRenamedName, strRenamedName, &DestDiz);
 						}
 						else
 						{
 							if (strCopiedName.empty())
 								strCopiedName = i.FileName;
 
-							SrcPanel->CopyDiz(i.FileName, i.AlternateFileName, strCopiedName, strCopiedName, &DestDiz);
-							SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName);
+							SrcPanel->CopyDiz(i.FileName, i.AlternateFileName(), strCopiedName, strCopiedName, &DestDiz);
+							SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName());
 						}
 					}
 
@@ -1596,7 +1596,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			if (strCopiedName.empty())
 				strCopiedName = i.FileName;
 
-			SrcPanel->CopyDiz(i.FileName, i.AlternateFileName, strCopiedName, strCopiedName, &DestDiz);
+			SrcPanel->CopyDiz(i.FileName, i.AlternateFileName(), strCopiedName, strCopiedName, &DestDiz);
 		}
 
 		// Mantis#44 - Потеря данных при копировании ссылок на папки
@@ -1727,7 +1727,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 					TreeList::DelTreeName(i.FileName);
 
 					if (!strDestDizPath.empty())
-						SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName);
+						SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName());
 				}
 			}
 		}
@@ -1739,7 +1739,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				return COPY_CANCEL;
 
 			if (DeleteCode==COPY_SUCCESS && !strDestDizPath.empty())
-				SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName);
+				SrcPanel->DeleteDiz(i.FileName, i.AlternateFileName());
 		}
 
 		if ((!(Flags&FCOPY_CURRENTONLY)) && (Flags&FCOPY_COPYLASTTIME))

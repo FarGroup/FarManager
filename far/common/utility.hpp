@@ -69,6 +69,7 @@ void node_swap(T& Container, const typename T::const_iterator& a, const typename
 
 
 template<class T>
+[[nodiscard]]
 auto make_hash(const T& value)
 {
 	return std::hash<T>{}(value);
@@ -76,18 +77,20 @@ auto make_hash(const T& value)
 
 
 template<typename T>
+[[nodiscard]]
 constexpr auto as_unsigned(T Value)
 {
 	return static_cast<std::make_unsigned_t<T>>(Value);
 }
 
 template<typename T>
+[[nodiscard]]
 constexpr auto as_underlying_type(T Value)
 {
 	return static_cast<std::underlying_type_t<T>>(Value);
 }
 
-
+[[nodiscard]]
 constexpr auto bit(size_t Number)
 {
 	return 1ull << Number;
@@ -112,12 +115,14 @@ constexpr void bit_change(value_type& Value, bits_type Bits, bool Set)
 }
 
 
+[[nodiscard]]
 constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_ALIGNMENT)
 {
 	return (Size + (Alignment - 1)) & ~(Alignment - 1);
 }
 
 template<typename T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
+[[nodiscard]]
 constexpr auto aligned_sizeof()
 {
 	return aligned_size(sizeof(T), Alignment);
@@ -126,6 +131,7 @@ constexpr auto aligned_sizeof()
 namespace enum_helpers
 {
 	template<class O, class R = void, class T>
+	[[nodiscard]]
 	constexpr auto operation(T a, T b)
 	{
 		return static_cast<std::conditional_t<std::is_same_v<R, void>, T, R>>(O()(as_underlying_type(a), as_underlying_type(b)));
@@ -161,6 +167,7 @@ namespace detail
 }
 
 template<typename... args>
+[[nodiscard]]
 auto overload(args&&... Args)
 {
 	return detail::overload_t<args...>(FWD(Args)...);

@@ -138,7 +138,7 @@ string &QuoteSpace(string &strStr)
 
 wchar_t* QuoteSpaceOnly(wchar_t *Str)
 {
-	if (wcschr(Str,L' '))
+	if (contains(Str, L' '))
 		InsertQuote(Str);
 
 	return Str;
@@ -513,35 +513,24 @@ size_t ReplaceStrings(string& strStr, const string_view FindStr, const string_vi
 }
 
 /*
-From PHP 4.x.x
-Форматирует исходный текст по заданной ширине, используя
-разделительную строку. Возвращает строку SrcText свёрнутую
-в колонке, заданной параметром Width. Строка рубится при
-помощи строки Break.
-
-Разбивает на строки с выравниваением влево.
-
-Если параметр Flahs & FFTM_BREAKLONGWORD, то строка всегда
-сворачивается по заданной ширине. Так если у вас есть слово,
-которое больше заданной ширины, то оно будет разрезано на части.
-
 Example 1.
-FarFormatText("Пример строки, которая будет разбита на несколько строк по ширине в 20 символов.", 20 ,Dest, "\n", 0);
-Этот пример вернет:
----
+Str: "Пример строки, которая будет разбита на несколько строк по ширине в 20 символов."
+Width: 20
+
+Result:
 Пример строки,
 которая будет
 разбита на
 несколько строк по
 ширине в 20
 символов.
----
 
 Example 2.
-FarFormatText( "Эта строка содержит оооооооооооооччччччччеееень длиное слово", 9, Dest, nullptr, FFTM_BREAKLONGWORD);
-Этот пример вернет:
+Str: "Эта строка содержит оооооооооооооччччччччеееень длиное слово"
+Width: 9
+BreakWords: true
 
----
+Result:
 Эта
 строка
 содержит
@@ -550,192 +539,64 @@ FarFormatText( "Эта строка содержит ооооооооооооо�
 чччеееень
 длиное
 слово
----
-
 */
 
-enum FFTMODE
+wrapped_text::wrapped_text(string_view Str, size_t Width, string_view Break, bool BreakWords):
+	m_Str(Str),
+	m_Tail(m_Str),
+	m_Break(Break),
+	m_Width(Width),
+	m_BreakWords(BreakWords)
 {
-	FFTM_BREAKLONGWORD = bit(0),
-};
+}
 
-string& FarFormatText(const string& SrcText,      // источник
-                            size_t Width,         // заданная ширина
-                            string &strDestText,  // приёмник
-                            const wchar_t* Break, // разделитель, если = nullptr, принимается "\n"
-                            DWORD Flags)          // один из FFTM_*
+wrapped_text::wrapped_text(string&& Str, size_t Width, string_view Break, bool BreakWords):
+	m_StrBuffer(std::move(Str)),
+	m_Str(m_StrBuffer),
+	m_Tail(m_Str),
+	m_Break(Break),
+	m_Width(Width),
+	m_BreakWords(BreakWords)
 {
-	const auto breakchar = Break? Break : L"\n";
+}
 
-	if (SrcText.empty())
+bool wrapped_text::get(bool Reset, string_view& Value) const
+{
+	if (Reset)
+		m_Tail = m_Str;
+
+	if (m_Tail.empty())
+		return false;
+
+	const auto& advance = [&](size_t TokenEnd, size_t NextTokenBegin)
 	{
-		strDestText.clear();
-		return strDestText;
-	}
+		Value = m_Tail.substr(0, TokenEnd);
+		m_Tail.remove_prefix(NextTokenBegin);
+		return true;
+	};
 
-	if (SrcText.find_first_of(breakchar) == string::npos && SrcText.size() <= static_cast<size_t>(Width))
-	{
-		strDestText = SrcText;
-		return strDestText;
-	}
+	if (m_Tail.size() <= m_Width)
+		return advance(m_Tail.size(), m_Tail.size());
 
-	long l=0, pgr=0;
-	string newtext;
-	const auto text= SrcText.c_str();
-	const long linelength = static_cast<long>(Width);
-	const size_t breakcharlen = wcslen(breakchar);
-	const int docut = Flags&FFTM_BREAKLONGWORD?1:0;
-	/* Special case for a single-character break as it needs no
-	   additional storage space */
+	// Prescan line to see if it is greater than Width
+	auto TokenEnd = m_Break.empty()? m_Tail.npos : m_Tail.substr(0, m_Width + m_Break.size()).find(m_Break);
+	if (TokenEnd != m_Tail.npos && TokenEnd <= m_Width)
+		return advance(TokenEnd, TokenEnd + m_Break.size());
 
-	if (breakcharlen == 1 && !docut)
-	{
-		newtext = text;
-		size_t i = 0;
+	// Needs breaking; work backwards to find previous word
+	TokenEnd = m_Tail.rfind(L' ', m_Width);
+	if (TokenEnd != m_Tail.npos)
+		return advance(TokenEnd, TokenEnd + 1);
 
-		while (i < newtext.size())
-		{
-			/* prescan line to see if it is greater than linelength */
-			l = 0;
+	// Couldn't break is backwards, try looking forwards
+	if (m_BreakWords)
+		return advance(m_Width, m_Width);
 
-			while (i+l < newtext.size() && newtext[i+l] != breakchar[0])
-			{
-				if (newtext[i+l] == L'\0')
-				{
-					l--;
-					break;
-				}
+	TokenEnd = m_Tail.find(L' ', m_Width);
+	if (TokenEnd != m_Tail.npos)
+		return advance(TokenEnd, TokenEnd + 1);
 
-				l++;
-			}
-
-			if (l >= linelength)
-			{
-				pgr = l;
-				l = linelength;
-
-				/* needs breaking; work backwards to find previous word */
-				while (l >= 0)
-				{
-					if (newtext[i+l] == L' ')
-					{
-						newtext[i+l] = breakchar[0];
-						break;
-					}
-
-					l--;
-				}
-
-				if (l == -1)
-				{
-					/* couldn't break is backwards, try looking forwards */
-					l = linelength;
-
-					while (l <= pgr)
-					{
-						if (newtext[i+l] == L' ')
-						{
-							newtext[i+l] = breakchar[0];
-							break;
-						}
-
-						l++;
-					}
-				}
-			}
-
-			i += l+1;
-		}
-	}
-	else
-	{
-		int last = 0;
-		long i = 0;
-
-		while (text[i] != L'\0')
-		{
-			/* prescan line to see if it is greater than linelength */
-			l = 0;
-
-			while (text[i+l] != L'\0')
-			{
-				if (text[i+l] == breakchar[0])
-				{
-					if (breakcharlen == 1 || starts_with(text + i + l, { breakchar, breakcharlen }))
-						break;
-				}
-
-				l++;
-			}
-
-			if (l >= linelength)
-			{
-				pgr = l;
-				l = linelength;
-
-				/* needs breaking; work backwards to find previous word */
-				while (l >= 0)
-				{
-					if (text[i+l] == L' ')
-					{
-						newtext.append(text+last, i+l-last);
-						newtext += breakchar;
-						last = i + l + 1;
-						break;
-					}
-
-					l--;
-				}
-
-				if (l == -1)
-				{
-					/* couldn't break it backwards, try looking forwards */
-					l = linelength - 1;
-
-					while (l <= pgr)
-					{
-						if (!docut)
-						{
-							if (text[i+l] == L' ')
-							{
-								newtext.append(text+last, i+l-last);
-								newtext += breakchar;
-								last = i + l + 1;
-								break;
-							}
-						}
-
-						if (docut == 1)
-						{
-							if (text[i+l] == L' ' || l > i-last)
-							{
-								newtext.append(text+last, i+l-last+1);
-								newtext += breakchar;
-								last = i + l + 1;
-								break;
-							}
-						}
-
-						l++;
-					}
-				}
-
-				i += l+1;
-			}
-			else
-			{
-				i += (l ? l : 1);
-			}
-		}
-
-		if (i+l > last)
-		{
-			newtext += text+last;
-		}
-	}
-
-	strDestText = newtext;
-	return strDestText;
+	return advance(m_Tail.size(), m_Tail.size());
 }
 
 bool FindWordInString(const string& Str, size_t CurPos, size_t& Begin, size_t& End, const string& WordDiv0)

@@ -2413,25 +2413,24 @@ void VMenu::AssignHighlights(int Reverse)
 	// TODO:  ЭТОТ цикл нужно уточнить - возможно вылезут артефакты (хотя не уверен)
 	for (I = Reverse ? static_cast<int>(Items.size()-1) : 0; I>=0 && I<static_cast<int>(Items.size()); I+=Delta)
 	{
-		const int ShowPos = HiFindRealPos(Items[I].Name, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
-		const auto Name = Items[I].Name.c_str() + ShowPos;
-		const auto ChPtr = wcschr(Name, L'&');
+		const auto ShowPos = HiFindRealPos(Items[I].Name, Items[I].ShowPos, CheckFlags(VMENU_SHOWAMPERSAND));
+		const auto Name = string_view(Items[I].Name).substr(ShowPos);
 
-		if (!ChPtr || CheckFlags(VMENU_SHOWAMPERSAND))
+		if (!contains(Name, L'&') || CheckFlags(VMENU_SHOWAMPERSAND))
 		{
 			// TODO: проверка на LIF_HIDDEN
-			for (int J=0; Name[J]; J++)
+			for (auto It = Name.cbegin(); It != Name.cend(); ++It)
 			{
-				const auto Ch = Name[J];
+				const auto Ch = *It;
 
 				if ((Ch == L'&' || is_alpha(Ch) || std::iswdigit(Ch)) && !Used[upper(Ch)] && !Used[lower(Ch)])
 				{
-					wchar_t ChKey=KeyToKeyLayout(Ch);
+					const wchar_t ChKey=KeyToKeyLayout(Ch);
 					Used[upper(ChKey)] = true;
 					Used[lower(ChKey)] = true;
 					Used[upper(Ch)] = true;
 					Used[lower(Ch)] = true;
-					Items[I].AmpPos = J + ShowPos;
+					Items[I].AmpPos = It - Name.cbegin() + ShowPos;
 					break;
 				}
 			}

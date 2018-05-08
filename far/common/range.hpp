@@ -125,24 +125,28 @@ private:
 };
 
 template<class iterator_type>
+[[nodiscard]]
 constexpr auto make_range(iterator_type i_begin, iterator_type i_end)
 {
 	return range<iterator_type>(i_begin, i_end);
 }
 
 template<class iterator_type>
+[[nodiscard]]
 constexpr auto make_range(iterator_type i_begin, size_t Size)
 {
 	return range<iterator_type>(i_begin, i_begin + Size);
 }
 
 template<class container>
+[[nodiscard]]
 constexpr auto make_range(container& Container)
 {
 	return make_range(ALL_RANGE(Container));
 }
 
 template<class container>
+[[nodiscard]]
 constexpr auto make_const_range(const container& Container)
 {
 	return make_range(ALL_CONST_RANGE(Container));
@@ -181,6 +185,7 @@ private:
 };
 
 template<class T>
+[[nodiscard]]
 auto make_irange(T i_begin, T i_end)
 {
 	using iterator = i_iterator<T>;
@@ -188,10 +193,68 @@ auto make_irange(T i_begin, T i_end)
 }
 
 template<class T>
+[[nodiscard]]
 auto make_irange(T i_end)
 {
 	using iterator = i_iterator<T>;
 	return range<iterator>(iterator(0), iterator(i_end));
+}
+
+namespace detail
+{
+	template<typename T, typename accessor>
+	class select_iterator : public rel_ops<select_iterator<T, accessor>>
+	{
+	public:
+		using iterator_category = typename std::iterator_traits<T>::iterator_category;
+		using difference_type = std::ptrdiff_t;
+		using reference = std::invoke_result_t<accessor, typename std::iterator_traits<T>::value_type>;
+		using value_type = std::remove_reference_t<reference>;
+		using pointer = value_type*;
+
+		explicit select_iterator(const T& Value, const accessor& Accessor):
+			m_Value(Value),
+			m_Accessor(Accessor)
+		{
+		}
+
+		decltype(auto) operator*() { return std::invoke(m_Accessor, *m_Value); }
+		decltype(auto) operator*() const { return &std::invoke(m_Accessor, *m_Value); }
+		auto operator->() { return &**this; }
+		auto operator->() const { return &**this; }
+
+		auto& operator++() { ++m_Value; return *this; }
+		auto& operator--() { --m_Value; return *this; }
+
+		auto& operator+=(size_t n) { m_Value += n; return *this; }
+		auto& operator-=(size_t n) { m_Value -= n; return *this; }
+
+		auto operator+(size_t n) const { return select_iterator(m_Value + n); }
+		auto operator-(size_t n) const { return select_iterator(m_Value - n); }
+
+		auto operator-(const select_iterator& rhs) const { return m_Value - rhs.m_Value; }
+		auto operator==(const select_iterator& rhs) const { return m_Value == rhs.m_Value; }
+		auto operator<(const select_iterator& rhs) const { return m_Value < rhs.m_Value; }
+
+	private:
+		T m_Value;
+		accessor m_Accessor;
+	};
+
+	template<typename T, typename accessor>
+	auto make_select_iterator(T Iterator, const accessor& Accessor)
+	{
+		return select_iterator<T, accessor>(Iterator, Accessor);
+	}
+}
+
+template<typename container, typename accessor>
+[[nodiscard]]
+auto select(container&& Container, const accessor& Selector)
+{
+	return make_range(
+		detail::make_select_iterator(std::begin(Container), Selector),
+		detail::make_select_iterator(std::end(Container), Selector));
 }
 
 #endif // RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3

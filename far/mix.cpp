@@ -110,7 +110,7 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& 
 	Dest.FileSize = Src.FileSize;
 	Dest.AllocationSize = Src.AllocationSize;
 	Dest.FileName = NullToEmpty(Src.FileName);
-	Dest.AlternateFileName = NullToEmpty(Src.AlternateFileName);
+	Dest.SetAlternateFileName(NullToEmpty(Src.AlternateFileName));
 	Dest.Attributes = Src.FileAttributes;
 }
 
@@ -136,7 +136,7 @@ void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanel
 	};
 
 	Dest.FileName = MakeCopy(Src.FileName);
-	Dest.AlternateFileName = MakeCopy(Src.AlternateFileName);
+	Dest.AlternateFileName = MakeCopy(Src.AlternateFileName());
 }
 
 PluginPanelItemHolder::~PluginPanelItemHolder()

@@ -100,9 +100,19 @@ public:
 		return this->size() >= Str.size() && this->substr(0, Str.size()) == Str;
 	}
 
+	constexpr bool starts_with(wchar_t const Char) const noexcept
+	{
+		return !this->empty() && this->front() == Char;
+	}
+
 	constexpr bool ends_with(const basic_string_view<T> Str) const noexcept
 	{
 		return this->size() >= Str.size() && this->substr(this->size() - Str.size()) == Str;
+	}
+
+	constexpr bool ends_with(wchar_t const Char) const noexcept
+	{
+		return !this->empty() && this->back() == Char;
 	}
 
 	/*constexpr*/ size_t find(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
@@ -155,6 +165,11 @@ public:
 	/*constexpr*/ size_t find_first_not_of(T Char, const size_t Pos = 0) const noexcept
 	{
 		return find_first_not_of({ &Char, 1 }, Pos);
+	}
+
+	/*constexpr*/ size_t rfind(T Char, const size_t Pos = npos) const noexcept
+	{
+		return find_last_of(Char, Pos);
 	}
 
 	/*constexpr*/ size_t find_last_of(const basic_string_view<T> Str, size_t Pos = npos) const noexcept

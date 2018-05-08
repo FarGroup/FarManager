@@ -179,9 +179,11 @@ private:
 };
 
 template<typename T>
+[[nodiscard]]
 auto ptr_setter(T& Ptr) { return ptr_setter_t<T>(Ptr); }
 
 template<typename owner, typename acquire, typename release>
+[[nodiscard]]
 auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
 {
 	std::invoke(Acquire, Owner);

@@ -194,15 +194,41 @@ std::enable_if_t<!detail::has_emplace_hint_v<container>> emplace(container& Cont
 
 // strings:
 template<typename find_type, typename... traits>
+[[nodiscard]]
 bool contains(const std::basic_string<traits...>& Str, const find_type& What)
 {
 	return Str.find(What) != Str.npos;
 }
 
 template<typename find_type, typename... traits>
+[[nodiscard]]
 bool contains(const basic_string_view<traits...> Str, const find_type& What)
 {
 	return Str.find(What) != Str.npos;
+}
+
+[[nodiscard]]
+inline bool contains(const wchar_t* const Str, const wchar_t* const What)
+{
+	return wcsstr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const wchar_t* const Str, wchar_t const What)
+{
+	return wcschr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const char* const Str, const char* const What)
+{
+	return strstr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const char* const Str, char const What)
+{
+	return strchr(Str, What) != nullptr;
 }
 
 namespace detail
@@ -212,18 +238,29 @@ namespace detail
 
 	template<class T>
 	constexpr bool has_find_v = is_valid<T, try_find>::value;
+
+	template<typename T>
+	using try_begin = decltype(std::begin(std::declval<T&>()));
+
+	template<typename T>
+	using try_end = decltype(std::end(std::declval<T&>()));
+
+	template<class T>
+	constexpr bool is_range_v = is_valid<T, try_begin>::value && is_valid<T, try_end>::value;
 }
 
 // associative containers
-template<typename container, typename element>
-std::enable_if_t<detail::has_find_v<container>, bool> contains(const container& Container, const element& Element)
+template<typename container, typename element, REQUIRES(detail::is_range_v<container> && detail::has_find_v<container>)>
+[[nodiscard]]
+bool contains(const container& Container, const element& Element)
 {
 	return Container.find(Element) != Container.cend();
 }
 
 // everything else
-template<typename container, typename element>
-std::enable_if_t<!detail::has_find_v<container>, bool> contains(const container& Container, const element& Element)
+template<typename container, typename element, REQUIRES(detail::is_range_v<container> && !detail::has_find_v<container>)>
+[[nodiscard]]
+bool contains(const container& Container, const element& Element)
 {
 	const auto End = std::cend(Container);
 	return std::find(std::cbegin(Container), End, Element) != End;

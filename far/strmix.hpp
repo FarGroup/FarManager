@@ -60,7 +60,24 @@ inline string QuoteOuterSpace(string&& strStr) { QuoteOuterSpace(strStr); return
 
 size_t ReplaceStrings(string &strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
 
-string& FarFormatText(const string& SrcText, size_t Width, string &strDestText, const wchar_t* Break, DWORD Flags);
+class wrapped_text : public enumerator<wrapped_text, string_view>
+{
+	IMPLEMENTS_ENUMERATOR(wrapped_text);
+
+public:
+	explicit wrapped_text(string_view Str, size_t Width, string_view Break = L"\n"_sv, bool BreakWords = true);
+	explicit wrapped_text(string&& Str, size_t Width, string_view Break = L"\n"_sv, bool BreakWords = true);
+
+private:
+	bool get(bool Reset, string_view& Value) const;
+
+	string m_StrBuffer;
+	string_view m_Str;
+	string_view mutable m_Tail;
+	string_view mutable m_Break;
+	size_t m_Width;
+	bool m_BreakWords;
+};
 
 void PrepareUnitStr();
 string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_COMMAS);

@@ -59,6 +59,7 @@ public:
 
 	bytes() = default;
 
+	[[nodiscard]]
 	static bytes copy(const bytes_view& Object)
 	{
 		bytes Bytes;
@@ -67,12 +68,14 @@ public:
 	}
 
 	template<typename T>
+	[[nodiscard]]
 	static bytes copy(const T& Object)
 	{
 		return copy(bytes_view(Object));
 	}
 
 	template<typename T>
+	[[nodiscard]]
 	static bytes reference(T& Object)
 	{
 		static_assert(std::is_trivially_copyable_v<T>);
@@ -118,6 +121,7 @@ private:
 };
 
 template<typename T>
+[[nodiscard]]
 T deserialise(const bytes_view& Bytes)
 {
 	T Value;

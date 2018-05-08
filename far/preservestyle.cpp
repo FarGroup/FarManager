@@ -33,8 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "string_utils.hpp"
 
-static const wchar_t PreserveStyleTokenSeparators[] = L"_-.";
-
 enum PreserveStyleType
 {
 	UPPERCASE_ALL,
@@ -52,7 +50,7 @@ struct PreserveStyleToken
 
 static bool IsPreserveStyleTokenSeparator(wchar_t C)
 {
-	return wcschr(PreserveStyleTokenSeparators, C) != nullptr;
+	return contains(L"_-."_sv, C);
 }
 
 static int GetPeserveCaseStyleMask(const string_view strStr)

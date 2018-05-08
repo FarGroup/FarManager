@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Naive #ifdef _MSC_VER is a BAD WAY to check for Microsoft compiler:
 // both Intel and Clang preserve this macro.
 
-// Use #if COMPILER == C_%NAME% to check for specific compiler.
+// Use #if COMPILER == C_%NAME% to check for a specific compiler.
 // Use _MSC_VER only to find out its specific version or to check for Microsoft standard library / Windows SDK
 
 

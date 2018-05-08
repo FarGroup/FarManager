@@ -143,6 +143,7 @@ private:
 };
 
 template<typename... args>
+[[nodiscard]]
 auto zip(args&&... Args)
 {
 	return zip_view<args...>(FWD(Args)...);

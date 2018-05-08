@@ -460,7 +460,7 @@ bool GetVHDInfo(const string& DeviceName, string &strVolumePath, VIRTUAL_STORAGE
 	return true;
 }
 
-string GetPathRoot(const string& Path)
+string GetPathRoot(string_view const Path)
 {
 	return ExtractPathRoot(ConvertNameToReal(Path));
 }

@@ -1802,14 +1802,11 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					SetScreen(m_X1+CX1,m_Y1+CY1,m_X1+CX2,m_Y1+CY2,L' ',ItemColor[0]);
 
-					string strWrap;
-					FarFormatText(strStr,CW,strWrap,L"\n",0);
 					DWORD CountLine=0;
 
-					for (size_t pos = 0; pos < strWrap.size(); )
+					for (const auto& i: wrapped_text(strStr, CW))
 					{
-						size_t end = std::min(strWrap.find(L'\n', pos), strWrap.size());
-						string strResult = strWrap.substr(pos, end-pos);
+						auto strResult = string(i);
 
 						if (Items[I].Flags & DIF_CENTERTEXT)
 							inplace::fit_to_center(strResult, CW);
@@ -1832,8 +1829,6 @@ void Dialog::ShowDialog(size_t ID)
 
 						if (++CountLine >= (DWORD)CH)
 							break;
-
-						pos = end + 1;
 					}
 				}
 

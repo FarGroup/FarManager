@@ -135,7 +135,7 @@ static void FileListToSortingPanelItem(const FileListItem *arr, int index, Sorti
 	auto& pi = *ppi;
 
 	pi.FileName = fi.FileName.c_str();                   //! CHANGED
-	pi.AlternateFileName = fi.AlternateFileName.c_str(); //! CHANGED
+	pi.AlternateFileName = fi.AlternateFileName().c_str(); //! CHANGED
 	pi.FileSize=fi.FileSize;
 	pi.AllocationSize=fi.AllocationSize;
 	pi.FileAttributes=fi.Attributes;
@@ -355,7 +355,7 @@ const content_data_ptr& FileListItem::ContentData(const FileList* Owner) const
 
 const string& FileListItem::AlternateOrNormal(bool Alternate) const
 {
-	return Alternate && !AlternateFileName.empty()? AlternateFileName : FileName;
+	return Alternate? AlternateFileName() : FileName;
 }
 
 struct FileList::PrevDataItem
@@ -1826,7 +1826,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					}
 
 					strFileName = Current.FileName;
-					strShortFileName = Current.AlternateOrNormal();
+					strShortFileName = Current.AlternateFileName();
 				}
 
 				string strTempDir, strTempName;
@@ -2599,7 +2599,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 	const auto& CurItem = m_ListData[m_CurFile];
 	auto strFileName = CurItem.FileName;
-	auto strShortFileName = CurItem.AlternateOrNormal();
+	auto strShortFileName = CurItem.AlternateFileName();
 
 	if (CurItem.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 	{
@@ -3817,7 +3817,7 @@ bool FileList::GetSelName(string* strName, DWORD& FileAttr, string* strShortName
 		*strName = Src.FileName;
 
 		if (strShortName)
-			*strShortName = Src.AlternateOrNormal();
+			*strShortName = Src.AlternateFileName();
 
 		FileAttr = Src.Attributes;
 
@@ -3875,7 +3875,7 @@ bool FileList::GetCurName(string &strName, string &strShortName) const
 	assert(m_CurFile < static_cast<int>(m_ListData.size()));
 
 	strName = m_ListData[m_CurFile].FileName;
-	strShortName = m_ListData[m_CurFile].AlternateOrNormal();
+	strShortName = m_ListData[m_CurFile].AlternateFileName();
 	return true;
 }
 
@@ -3894,7 +3894,7 @@ bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 
 		strName = m_ListData[m_CurFile].FileName;
-		strShortName = m_ListData[m_CurFile].AlternateOrNormal();
+		strShortName = m_ListData[m_CurFile].AlternateFileName();
 	}
 
 	return true;
@@ -4347,7 +4347,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 		if (!CopyData.empty())
 			append(CopyData, L"\r\n"_sv);
 
-		auto strQuotedName = m_ShowShortNames && !i.AlternateFileName.empty()? i.AlternateFileName : i.FileName;
+		auto strQuotedName = m_ShowShortNames? i.AlternateFileName() : i.FileName;
 
 		if (FillPathName)
 		{
@@ -4763,7 +4763,7 @@ void FileList::DescribeFiles()
 	const auto AnotherType = AnotherPanel->GetType();
 	for (const auto& i: enum_selected())
 	{
-		const auto PrevText = NullToEmpty(Diz.Get(i.FileName, i.AlternateFileName, i.FileSize));
+		const auto PrevText = NullToEmpty(Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize));
 		auto strQuotedName = i.FileName;
 		QuoteSpaceOnly(strQuotedName);
 		const auto strMsg = concat(msg(lng::MEnterDescription), L' ', strQuotedName, L':');
@@ -4792,11 +4792,11 @@ void FileList::DescribeFiles()
 
 		if (strDizText.empty())
 		{
-			Diz.Erase(i.FileName, i.AlternateFileName);
+			Diz.Erase(i.FileName, i.AlternateFileName());
 		}
 		else
 		{
-			Diz.Set(i.FileName, i.AlternateFileName, strDizText);
+			Diz.Set(i.FileName, i.AlternateFileName(), strDizText);
 		}
 
 		ClearLastGetSelection();
@@ -4863,19 +4863,16 @@ bool FileList::ApplyCommand()
 			if (CheckForEsc())
 				break;
 
-			string strListName, strAnotherListName;
-			string strShortListName, strAnotherShortListName;
 			string strConvertedCommand = strCommand;
-			const auto PreserveLFN = SubstFileName(nullptr, strConvertedCommand, i.FileName, i.AlternateFileName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
-			const auto ListFileUsed = !strListName.empty() || !strAnotherListName.empty() || !strShortListName.empty() || !strAnotherShortListName.empty();
-
-			if (!strConvertedCommand.empty())
+			list_names ListNames;
+			bool PreserveLFN;
+			if (SubstFileName(strConvertedCommand, i.FileName, i.AlternateFileName(), &ListNames, &PreserveLFN) && !strConvertedCommand.empty())
 			{
-				SCOPED_ACTION(PreserveLongName)(i.AlternateFileName, PreserveLFN);
+				SCOPED_ACTION(PreserveLongName)(i.AlternateFileName(), PreserveLFN);
 
 				execute_info Info;
 				Info.Command = strConvertedCommand;
-				Info.WaitMode = ListFileUsed ? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+				Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 
 				Parent()->GetCmdLine()->ExecString(Info);
 
@@ -4884,18 +4881,6 @@ bool FileList::ApplyCommand()
 			}
 
 			ClearLastGetSelection();
-
-			if (!strListName.empty())
-				os::fs::delete_file(strListName);
-
-			if (!strAnotherListName.empty())
-				os::fs::delete_file(strAnotherListName);
-
-			if (!strShortListName.empty())
-				os::fs::delete_file(strShortListName);
-
-			if (!strAnotherShortListName.empty())
-				os::fs::delete_file(strAnotherShortListName);
 		}
 	}
 	Parent()->GetCmdLine()->LockUpdatePanel(false);
@@ -5437,8 +5422,8 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	*std::copy(ALL_CONST_RANGE(fi.FileName), Buffer.get()) = L'\0';
 	pi.FileName = Buffer.release();
 
-	Buffer = std::make_unique<wchar_t[]>(fi.AlternateFileName.size() + 1);
-	*std::copy(ALL_CONST_RANGE(fi.AlternateFileName), Buffer.get()) = L'\0';
+	Buffer = std::make_unique<wchar_t[]>(fi.AlternateFileName().size() + 1);
+	*std::copy(ALL_CONST_RANGE(fi.AlternateFileName()), Buffer.get()) = L'\0';
 	pi.AlternateFileName = Buffer.release();
 
 	pi.FileSize=fi.FileSize;
@@ -5470,7 +5455,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	size_t size = aligned_sizeof<PluginPanelItem>(), offset = size;
 	size+=fi.CustomColumnNumber*sizeof(wchar_t*);
 	size+=sizeof(wchar_t)*(fi.FileName.size()+1);
-	size+=sizeof(wchar_t)*(fi.AlternateFileName.size()+1);
+	size+=sizeof(wchar_t)*(fi.AlternateFileName().size()+1);
 	size+=std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + (i? (wcslen(i) + 1) * sizeof(wchar_t) : 0); });
 	size+=fi.DizText?sizeof(wchar_t)*(wcslen(fi.DizText)+1):0;
 	size += (fi.IsOwnerRead() && !fi.Owner(this).empty())? sizeof(wchar_t) * (fi.Owner(this).size() + 1) : 0;
@@ -5504,8 +5489,8 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			gpi->Item->FileName=wcscpy((wchar_t*)data,fi.FileName.c_str());
 			data+=sizeof(wchar_t)*(fi.FileName.size()+1);
 
-			gpi->Item->AlternateFileName = wcscpy((wchar_t*)data, fi.AlternateFileName.c_str());
-			data += sizeof(wchar_t)*(fi.AlternateFileName.size() + 1);
+			gpi->Item->AlternateFileName = wcscpy((wchar_t*)data, fi.AlternateFileName().c_str());
+			data += sizeof(wchar_t)*(fi.AlternateFileName().size() + 1);
 
 			for (size_t ii=0; ii<fi.CustomColumnNumber; ii++)
 			{
@@ -5598,7 +5583,7 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 
 
 	FileName = NullToEmpty(pi.FileName);
-	AlternateFileName = NullToEmpty(pi.AlternateFileName);
+	SetAlternateFileName(NullToEmpty(pi.AlternateFileName));
 	m_Owner = NullToEmpty(pi.Owner);
 
 	m_NumberOfLinks = pi.NumberOfLinks;
@@ -7250,7 +7235,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 	{
 		if (!i.DizText)
 		{
-			i.DizText = Diz.Get(i.FileName, i.AlternateFileName, i.FileSize);
+			i.DizText = Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize);
 		}
 	}
 }
@@ -7279,7 +7264,7 @@ void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos)
 {
 	Item.Attributes = FILE_ATTRIBUTE_DIRECTORY;
 	Item.FileName = L"..";
-	Item.AlternateFileName = Item.FileName;
+	Item.SetAlternateFileName(Item.FileName);
 	Item.Position = CurFilePos;
 }
 
@@ -7463,29 +7448,29 @@ void FileList::ShowFileList(bool Fast)
 		{
 			static const std::pair<panel_sort, lng> ModeNames[] =
 			{
-				{panel_sort::UNSORTED, lng::MMenuUnsorted},
-				{panel_sort::BY_NAME, lng::MMenuSortByName},
-				{panel_sort::BY_EXT, lng::MMenuSortByExt},
-				{panel_sort::BY_MTIME, lng::MMenuSortByWrite},
-				{panel_sort::BY_CTIME, lng::MMenuSortByCreation},
-				{panel_sort::BY_ATIME, lng::MMenuSortByAccess},
-				{panel_sort::BY_CHTIME, lng::MMenuSortByChange},
-				{panel_sort::BY_SIZE, lng::MMenuSortBySize},
-				{panel_sort::BY_DIZ, lng::MMenuSortByDiz},
-				{panel_sort::BY_OWNER, lng::MMenuSortByOwner},
-				{panel_sort::BY_COMPRESSEDSIZE, lng::MMenuSortByAllocatedSize},
-				{panel_sort::BY_NUMLINKS, lng::MMenuSortByNumLinks},
-				{panel_sort::BY_NUMSTREAMS, lng::MMenuSortByNumStreams},
-				{panel_sort::BY_STREAMSSIZE, lng::MMenuSortByStreamsSize},
-				{panel_sort::BY_FULLNAME, lng::MMenuSortByFullName},
-				{panel_sort::BY_CUSTOMDATA, lng::MMenuSortByCustomData},
+				{panel_sort::UNSORTED,                lng::MMenuUnsorted},
+				{panel_sort::BY_NAME,                 lng::MMenuSortByName},
+				{panel_sort::BY_EXT,                  lng::MMenuSortByExt},
+				{panel_sort::BY_MTIME,                lng::MMenuSortByWrite},
+				{panel_sort::BY_CTIME,                lng::MMenuSortByCreation},
+				{panel_sort::BY_ATIME,                lng::MMenuSortByAccess},
+				{panel_sort::BY_CHTIME,               lng::MMenuSortByChange},
+				{panel_sort::BY_SIZE,                 lng::MMenuSortBySize},
+				{panel_sort::BY_DIZ,                  lng::MMenuSortByDiz},
+				{panel_sort::BY_OWNER,                lng::MMenuSortByOwner},
+				{panel_sort::BY_COMPRESSEDSIZE,       lng::MMenuSortByAllocatedSize},
+				{panel_sort::BY_NUMLINKS,             lng::MMenuSortByNumLinks},
+				{panel_sort::BY_NUMSTREAMS,           lng::MMenuSortByNumStreams},
+				{panel_sort::BY_STREAMSSIZE,          lng::MMenuSortByStreamsSize},
+				{panel_sort::BY_FULLNAME,             lng::MMenuSortByFullName},
+				{panel_sort::BY_CUSTOMDATA,           lng::MMenuSortByCustomData},
 			};
 			static_assert(std::size(ModeNames) == static_cast<size_t>(panel_sort::COUNT));
 
-			if (const auto Ptr = wcschr(msg(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second).c_str(), L'&'))
-			{
-				Indicator = m_ReverseSortOrder? upper(Ptr[1]) : lower(Ptr[1]);
-			}
+			const auto& CurrentModeName = msg(std::find_if(CONST_RANGE(ModeNames, i) { return i.first == m_SortMode; })->second);
+			// Owerflow from npos to 0 is ok - pick the first character if & isn't there.
+			const auto Char = CurrentModeName[CurrentModeName.find(L'&') + 1];
+			Indicator = m_ReverseSortOrder? upper(Char) : lower(Char);
 		}
 		else
 		{

@@ -504,7 +504,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		else
 		{
 			string strLabel = MenuItem->strLabel;
-			SubstFileName(nullptr,strLabel,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+			SubstFileName(strLabel, Name, ShortName, nullptr, nullptr, true);
 			strLabel = os::env::expand(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
@@ -720,7 +720,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		{
 			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
 			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
-			SubstFileName(nullptr,strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+			SubstFileName(strSubMenuLabel, strName, strShortName, nullptr, nullptr, true);
 			strSubMenuLabel = os::env::expand(strSubMenuLabel);
 
 			size_t pos = strSubMenuLabel.find(L'&');
@@ -746,9 +746,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		std::for_each(CONST_RANGE((*CurrentMenuItem)->Commands, str)
 		{
 			string strCommand = str;
-
-			string strListName, strAnotherListName;
-			string strShortListName, strAnotherShortListName;
 
 			if (!((starts_with_icase(strCommand, L"REM"_sv) && (strCommand.size() == 3 || std::iswblank(strCommand[3]))) || starts_with_icase(strCommand, L"::"_sv)))
 			{
@@ -781,29 +778,20 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					string strTempStr = (*CurrentMenuItem)->strLabel;
 					ReplaceStrings(strTempStr, L"&", L"");
 
-					const auto PreserveLFN = SubstFileName(strTempStr.c_str(), strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir.c_str());
-					const auto ListFileUsed = !strListName.empty() || !strAnotherListName.empty() || !strShortListName.empty() || !strAnotherShortListName.empty();
-
-					if (!strCommand.empty())
+					list_names ListNames;
+					bool PreserveLFN;
+					if (SubstFileName(strCommand, strName, strShortName, &ListNames, &PreserveLFN, false, strCmdLineDir, strTempStr) && !strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);
 
 						execute_info Info;
 						Info.Command = strCommand;
-						Info.WaitMode = ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+						Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 
 						Global->CtrlObject->CmdLine()->ExecString(Info);
 					}
 				}
 			} // strCommand != "REM"
-
-			const string* Names[] = { &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName };
-
-			for (auto& i: Names)
-			{
-				if (!i->empty())
-					os::fs::delete_file(*i);
-			}
 		});
 
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(false);
