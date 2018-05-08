@@ -252,8 +252,8 @@ local function export_ProcessViewerEvent (ViewerID, Event, Param)
   return EV_Handler(Events.viewerevent, viewer.GetFileName(nil), ViewerID, Event, Param)
 end
 
-local function export_ExitFAR ()
-  return EV_Handler(Events.exitfar)
+local function export_ExitFAR (unload)
+  return EV_Handler(Events.exitfar, nil, not not unload)
 end
 
 local function export_ProcessDialogEvent (Event, Param)
@@ -640,7 +640,7 @@ local function LoadMacros (unload, paths)
   LoadingInProgress = true
 
   if LoadMacrosDone then
-    local ok, msg = pcall(export_ExitFAR)
+    local ok, msg = pcall(export_ExitFAR, true)
     if not ok then ErrMsg(msg) end
     LoadMacrosDone = false
   end

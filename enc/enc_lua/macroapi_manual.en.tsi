@@ -226,7 +226,7 @@ lv=2
 dt=Text
 nm=Event handlers
 ctime=3580139337
-mtime=3678018954
+mtime=3734986328
 <article>
 #_<markdown>
 #_
@@ -255,7 +255,7 @@ mtime=3678018954
 #_When there are multiple event handlers for the same event (i.e. handlers with the same `group` value), these handlers will be called one after one: a handler having higher priority is called first. Priorities are evaluated dynamically accounting for `condition()` results if any, the same way it is done for macros.
 #_
 #_The `ExitFAR` handler is called in the following cases: (a) exit from Far Manager,
-#_(b) unloading LuaMacro plugin, \(c) unloading or reloading macros.
+#_(b) unloading LuaMacro plugin, \(c) unloading or reloading macros. The handler receives one argument of boolean type: `false` for cases (a) and (b); `true` for case \(c).
 #_
 #_[1]: 75.html
 #_
