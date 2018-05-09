@@ -10436,6 +10436,37 @@ nm=win.ExtractKey
 </article>
 </node>
 <node>
+id=526
+lv=3
+dt=Text
+nm=win.ExtractKeyEx
+ctime=3735030822
+mtime=3735031137
+<article>
+#_result = win.ExtractKeyEx ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  result: table `tInputRecord`, or nil
+#_
+#_**Description:**
+#_  If a key was pressed or released, the input record is returned.
+#_  Otherwise, a nil is returned.
+#_
+#_**Windows API used:**
+#_  GetStdHandle, PeekConsoleInput, ReadConsoleInput
+#_
+#_@@@
+#_[tInputRecord]: 187.html
+#_
+#_{peekconsoleinput}: http://api.farmanager.com/ru/winapi/peekconsoleinput.html
+#_{readconsoleinput}: http://api.farmanager.com/ru/winapi/readconsoleinput.html
+#_
+</article>
+</node>
+<node>
 id=359
 lv=3
 dt=Text
