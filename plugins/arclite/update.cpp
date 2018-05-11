@@ -835,7 +835,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       else {
         auto name = param.substr(0, sep);
         auto value = param.substr(sep + 1);
-        if (0 == _wcsicmp(name.data(), L"x")) {
+        if (0 == _wcsicmp(name.c_str(), L"x")) {
           it = adv_params.erase(it);
           if (!value.empty() && value[0] >= L'0' && value[0] <= L'9')
             adv_level = static_cast<int>(str_to_uint(value));
@@ -844,7 +844,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         adv_have_0 = adv_have_0 || name == L"0";
         adv_have_1 = adv_have_0 || name == L"1";
         if (name.size() == 1 && name[0] >= L'0' && name[0] <= '9' && value.size() >= 3)
-          adv_have_bcj = adv_have_bcj || 0 == _wcsicmp(value.substr(0,3).data(), L"BCJ");
+          adv_have_bcj = adv_have_bcj || 0 == _wcsicmp(value.substr(0,3).c_str(), L"BCJ");
       }
       it++;
     }
@@ -904,7 +904,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       bool found = false;
       unsigned i = 0;
       for (const auto& n : names) {
-        if (0 == _wcsicmp(n.data(), name.data())) {
+        if (0 == _wcsicmp(n.c_str(), name.c_str())) {
           found = true;
           values[i] = value;
           break;
@@ -913,7 +913,16 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       }
       if (!found) {
         names.push_back(name);
-        values.push_back(value);
+        wchar_t *endptr = nullptr;
+        UINT64 v64 = _wcstoui64(value.c_str(), &endptr, 10);
+        if (endptr && !*endptr) {
+          if (v64 >=0 && v64 <= UINT_MAX)
+            values.push_back(static_cast<UInt32>(v64));
+			 else
+            values.push_back(v64);
+        }
+		  else
+          values.push_back(value);
       }
     }
 

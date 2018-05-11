@@ -490,7 +490,7 @@ void Archive::load_update_props() {
         { method = known; break; }
       }
       for (const auto known : g_options.codecs) {
-        if (_wcsicmp(m_str->data(), known.name.data()) == 0)
+        if (_wcsicmp(m_str->c_str(), known.name.c_str()) == 0)
         { method = known.name; break; }
       }
       if (!method.empty())

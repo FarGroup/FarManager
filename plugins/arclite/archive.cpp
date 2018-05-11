@@ -446,7 +446,7 @@ void ArcAPI::load_codecs(const wstring& path) {
       if (a_is_zip != b_is_zip)
         return b_is_zip;
       else
-        return _wcsicmp(a.Name.data(), b.Name.data()) < 0;
+        return _wcsicmp(a.Name.c_str(), b.Name.c_str()) < 0;
     });
     for (const auto& c : arc_codecs) { if ((c.CodecId & 0xffffff00U) != 0x040100) ++n_7z_codecs; }
   }

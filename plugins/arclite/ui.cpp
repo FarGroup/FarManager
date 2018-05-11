@@ -117,7 +117,7 @@ void ProgressMonitor::handle_esc() {
 void ProgressMonitor::clean() {
   if (h_scr) {
     Far::restore_screen(h_scr);
-    SetConsoleTitleW(con_title.data());
+    SetConsoleTitleW(con_title.c_str());
     Far::set_progress_state(TBPF_NOPROGRESS);
     h_scr = nullptr;
   }
@@ -155,7 +155,7 @@ const wchar_t** get_suffixes(int start) {
 
   if (Far::get_msg(msg_ids[0]) != msg_texts[0]) {
     for (int i = 0; i < 1 + 5 + 5; ++i)
-      suffixes[i] = (msg_texts[i] = msg_ids[i] ? Far::get_msg(msg_ids[i]) : wstring()).data();
+      suffixes[i] = (msg_texts[i] = msg_ids[i] ? Far::get_msg(msg_ids[i]) : wstring()).c_str();
   }
 
   return suffixes + start;
@@ -1321,7 +1321,7 @@ public:
         if (a_format.lib_index != b_format.lib_index)
           return a_format.lib_index < b_format.lib_index;
         else
-          return _wcsicmp(a_format.name.data(), b_format.name.data()) < 0;
+          return _wcsicmp(a_format.name.c_str(), b_format.name.c_str()) < 0;
       });
       vector<wstring> other_format_names;
       unsigned other_format_index = 0;

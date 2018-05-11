@@ -416,7 +416,7 @@ public:
     for (UInt32 j = 0; j < nf; ++j) {
       auto file_path = archive->get_path(j);
       for (const auto& n : items) {
-        if (lstrcmpiW(file_path.data(),n.data()) == 0 || Far::match_masks(file_path, n)) {
+        if (lstrcmpiW(file_path.c_str(),n.c_str()) == 0 || Far::match_masks(file_path, n)) {
           matched_indices.push_back(j);
 			 break;
         }
@@ -449,7 +449,7 @@ public:
     for (UInt32 j = 0; j < nf; ++j) {
       auto file_path = archive->get_path(j);
       for (const auto& n : items) {
-        if (lstrcmpiW(file_path.data(),n.data()) == 0 || Far::match_masks(file_path, n)) {
+        if (lstrcmpiW(file_path.c_str(),n.c_str()) == 0 || Far::match_masks(file_path, n)) {
           matched_indices.push_back(j);
 			 break;
         }

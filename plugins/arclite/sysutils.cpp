@@ -642,7 +642,7 @@ bool FileEnum::next_nt(bool& more) {
               auto attr = File::attributes(dir);       //
               if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY) && (attr & FILE_ATTRIBUTE_REPARSE_POINT)) {
                 n_far_items = 0;
-                Far::g_fsf.FarRecursiveSearch(long_path(dir).data(), msk.data(), find_cb, FRS_NONE, this);
+                Far::g_fsf.FarRecursiveSearch(long_path(dir).c_str(), msk.c_str(), find_cb, FRS_NONE, this);
                 continue;
               }
             }
