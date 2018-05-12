@@ -48,7 +48,7 @@ lv=1
 dt=Text
 nm=Loading macrofiles
 ctime=3618592117
-mtime=3618593410
+mtime=3735335588
 <article>
 #_<markdown>
 #_
@@ -64,10 +64,13 @@ mtime=3618593410
 #_
 #_* One macrofile can contain arbitrary number of macros and event handlers.
 #_
-#_* When a macrofile is executed it receives one argument - the full pathname of this macrofile.
-#_    If we define a variable at top of the macrofile, e.g.<br>
-#_    `local MacroFileName = ...`<br>
-#_    then this variable will be available to all the macros and event handlers defined in that file.
+#_* When a macrofile is executed it receives 2 arguments:
+#_  (1) the full pathname of this macrofile and
+#_  (2) the value of execution counter in the current session
+#_  of plugin LuaMacro. If we define 2 variables at top of the macrofile, e.g.<br>
+#_  `local MacroFileName, ExeCounter = ...`<br>
+#_  then these variables will be available to all the macros and event handlers
+#_  defined in that file.
 #_
 #_* If macrofiles are loaded from a sequence of trees `root1;root2;...`,
 #_  that means that:

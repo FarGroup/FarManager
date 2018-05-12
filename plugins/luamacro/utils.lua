@@ -8,6 +8,7 @@ local band, bor = bit64.band, bit64.bor
 local MacroCallFar = Shared.MacroCallFar
 local gmeta = { __index=_G }
 local LastMessage = {}
+local LoadCounter = 0
 --------------------------------------------------------------------------------
 local TrueAreaNames = {
   [F.MACROAREA_OTHER]                = "Other",
@@ -694,6 +695,7 @@ local function LoadMacros (unload, paths)
   Areas = newAreas
 
   if not unload then
+    LoadCounter = LoadCounter + 1
     local DummyFunc = function() end
     local DirMacros = win.GetEnv("farprofile").."\\Macros\\"
     if 0 == band(MacroCallFar(MCODE_F_GETOPTIONS),0x10) then -- not ReadOnlyConfig
@@ -730,7 +732,7 @@ local function LoadMacros (unload, paths)
       for _,name in ipairs(FuncList2) do env[name]=DummyFunc; end
       setmetatable(env,gmeta)
       setfenv(f, env)
-      local ok, msg = xpcall(function() return f(FullPath) end, debug.traceback)
+      local ok, msg = xpcall(function() return f(FullPath, LoadCounter) end, debug.traceback)
       if ok then
         for _,name in ipairs(FuncList1) do env[name]=nil; end
         for _,name in ipairs(FuncList2) do env[name]=nil; end
