@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 10.05.2018 23:23:38 +0100 - build 5210
+
+1. 0003606: Pause before displaying result of Ctrl+Q on folder
+
 drkns 07.05.2018 16:51:02 +0100 - build 5209
 
 1. Remove unwanted things from headers.hpp. Part 3.
