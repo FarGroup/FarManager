@@ -47,6 +47,51 @@ enum
 
 namespace colors
 {
+	COLORREF index_value(COLORREF const Colour)
+	{
+		return Colour & INDEXMASK;
+	}
+
+	COLORREF color_value(COLORREF const Colour)
+	{
+		return Colour & COLORMASK;
+	}
+
+	COLORREF alpha_value(COLORREF const Colour)
+	{
+		return Colour & ALPHAMASK;
+	}
+
+	bool is_opaque(COLORREF const Colour)
+	{
+		return alpha_value(Colour) == ALPHAMASK;
+	}
+
+	bool is_transparent(COLORREF const Colour)
+	{
+		return !alpha_value(Colour);
+	}
+
+	COLORREF opaque(COLORREF const Colour)
+	{
+		return Colour | ALPHAMASK;
+	}
+
+	COLORREF transparent(COLORREF const Colour)
+	{
+		return Colour & COLORMASK;
+	}
+
+	void make_opaque(COLORREF& Colour)
+	{
+		Colour = opaque(Colour);
+	}
+
+	void make_transparent(COLORREF& Colour)
+	{
+		Colour = transparent(Colour);
+	}
+
 	size_t color_hash::operator()(const FarColor& Key) const
 	{
 		return
@@ -63,7 +108,7 @@ namespace colors
 		const auto& ApplyColorPart = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 		{
 			const auto TopPart = std::invoke(ColorAccessor, Top);
-			if (IS_OPAQUE(TopPart))
+			if (is_opaque(TopPart))
 			{
 				std::invoke(ColorAccessor, Result) = TopPart;
 				(Top.Flags & Flag)? (Result.Flags |= Flag) : (Result.Flags &= ~Flag);
@@ -171,7 +216,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
 	}
 
-	if (COLORVALUE(data[0].Color) != COLORVALUE(data[1].Color) && IndexColors[0] == IndexColors[1])
+	if (color_value(data[0].Color) != color_value(data[1].Color) && IndexColors[0] == IndexColors[1])
 	{
 		// oops, unreadable
 		IndexColors[0] & IntensityMask? IndexColors[0] &= ~IntensityMask : IndexColors[1] |= IntensityMask;
@@ -187,10 +232,8 @@ FarColor ConsoleColorToFarColor(WORD Color)
 	FarColor NewColor;
 	static_assert(FCF_RAWATTR_MASK == ConsoleExtraMask);
 	NewColor.Flags = FCF_FG_4BIT | FCF_BG_4BIT | (Color & ConsoleExtraMask);
-	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
-	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;
-	MAKE_OPAQUE(NewColor.ForegroundColor);
-	MAKE_OPAQUE(NewColor.BackgroundColor);
+	NewColor.ForegroundColor = opaque((Color >> ConsoleFgShift) & ConsoleMask);
+	NewColor.BackgroundColor = opaque((Color >> ConsoleBgShift) & ConsoleMask);
 	NewColor.Reserved=nullptr;
 	return NewColor;
 }

@@ -118,7 +118,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	const auto MakeFarColor = [](int ConsoleColour)
 	{
 		auto Colour = colors::ConsoleColorToFarColor(ConsoleColour);
-		MAKE_TRANSPARENT(Colour.BackgroundColor);
+		colors::make_transparent(Colour.BackgroundColor);
 		return Colour;
 	};
 
@@ -264,10 +264,10 @@ static void ApplyDefaultStartingColors(highlight::element& Colors)
 {
 	std::for_each(RANGE(Colors.Color, i)
 	{
-		MAKE_OPAQUE(i.FileColor.ForegroundColor);
-		MAKE_TRANSPARENT(i.FileColor.BackgroundColor);
-		MAKE_OPAQUE(i.MarkColor.ForegroundColor);
-		MAKE_TRANSPARENT(i.MarkColor.BackgroundColor);
+		colors::make_opaque(i.FileColor.ForegroundColor);
+		colors::make_transparent(i.FileColor.BackgroundColor);
+		colors::make_opaque(i.MarkColor.ForegroundColor);
+		colors::make_transparent(i.MarkColor.BackgroundColor);
 	});
 
 	Colors.Mark.Transparent = true;
@@ -278,10 +278,10 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 {
 	const auto& InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
-		if (!COLORVALUE(Color.ForegroundColor) && !COLORVALUE(Color.BackgroundColor))
+		if (!colors::color_value(Color.ForegroundColor) && !colors::color_value(Color.BackgroundColor))
 		{
-			Color.BackgroundColor=ALPHAVALUE(Color.BackgroundColor)|COLORVALUE(Base.BackgroundColor);
-			Color.ForegroundColor=ALPHAVALUE(Color.ForegroundColor)|COLORVALUE(Base.ForegroundColor);
+			Color.BackgroundColor = colors::alpha_value(Color.BackgroundColor) | colors::color_value(Base.BackgroundColor);
+			Color.ForegroundColor = colors::alpha_value(Color.ForegroundColor) | colors::color_value(Base.ForegroundColor);
 			Color.Flags &= FCF_EXTENDEDFLAGS;
 			Color.Flags |= Base.Flags;
 			Color.Reserved = Base.Reserved;
@@ -339,10 +339,9 @@ void highlight::configuration::ApplyFinalColor(highlight::element::colors_array:
 	const auto& ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 	{
 		auto& ColorPart = std::invoke(ColorAccessor, i);
-		if(IS_TRANSPARENT(ColorPart))
+		if(colors::is_transparent(ColorPart))
 		{
-			ColorPart = std::invoke(ColorAccessor, PanelColor);
-			MAKE_TRANSPARENT(ColorPart);
+			ColorPart = colors::transparent(std::invoke(ColorAccessor, PanelColor));
 			(PanelColor.Flags & Flag)? (i.Flags |= Flag) : (i.Flags &= ~Flag);
 		}
 	};

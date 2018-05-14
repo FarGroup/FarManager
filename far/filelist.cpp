@@ -4865,7 +4865,7 @@ bool FileList::ApplyCommand()
 
 			string strConvertedCommand = strCommand;
 			list_names ListNames;
-			bool PreserveLFN;
+			bool PreserveLFN = false;
 			if (SubstFileName(strConvertedCommand, i.FileName, i.AlternateFileName(), &ListNames, &PreserveLFN) && !strConvertedCommand.empty())
 			{
 				SCOPED_ACTION(PreserveLongName)(i.AlternateFileName(), PreserveLFN);

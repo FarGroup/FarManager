@@ -683,6 +683,9 @@ bool SubstFileName(
 	string_view const DlgTitle
 )
 {
+	if (PreserveLongName)
+		*PreserveLongName = false;
+
 	/* $ 19.06.2001 SVS
 	  ВНИМАНИЕ! Для альтернативных метасимволов, не основанных на "!",
 	  нужно будет либо убрать эту проверку либо изменить условие (последнее

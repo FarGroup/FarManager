@@ -88,8 +88,8 @@ FileFilterParams::FileFilterParams():
 
 	std::for_each(RANGE(FHighlight.Colors.Color, i)
 	{
-		MAKE_OPAQUE(i.FileColor.ForegroundColor);
-		MAKE_OPAQUE(i.MarkColor.ForegroundColor);
+		colors::make_opaque(i.FileColor.ForegroundColor);
+		colors::make_opaque(i.MarkColor.ForegroundColor);
 	});
 
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
@@ -594,7 +594,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 
 		auto Color = CurColor.FileColor;
 
-		if (!COLORVALUE(Color.BackgroundColor) && !COLORVALUE(Color.ForegroundColor))
+		if (!colors::color_value(Color.BackgroundColor) && !colors::color_value(Color.ForegroundColor))
 		{
 			FARCOLORFLAGS ExFlags = Color.Flags&FCF_EXTENDEDFLAGS;
 			Color=colors::PaletteColorToFarColor(pal);
@@ -615,7 +615,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 			// inherit only color mode, not style
 			VBufColorExample[15*VBufRow+1].Attributes.Flags = Color.Flags&FCF_4BITMASK;
 			VBufColorExample[15*VBufRow+1].Char = Colors.Mark.Char;
-			if (COLORVALUE(CurColor.MarkColor.ForegroundColor) || COLORVALUE(CurColor.MarkColor.BackgroundColor))
+			if (colors::color_value(CurColor.MarkColor.ForegroundColor) || colors::color_value(CurColor.MarkColor.BackgroundColor))
 			{
 				VBufColorExample[15 * VBufRow + 1].Attributes = CurColor.MarkColor;
 			}
@@ -738,12 +738,12 @@ intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* 
 				const auto Colors = reinterpret_cast<highlight::element*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				std::for_each(RANGE(Colors->Color, i)
-			              {
-				              MAKE_TRANSPARENT(i.FileColor.ForegroundColor);
-				              MAKE_TRANSPARENT(i.FileColor.BackgroundColor);
-				              MAKE_TRANSPARENT(i.MarkColor.ForegroundColor);
-				              MAKE_TRANSPARENT(i.MarkColor.BackgroundColor);
-			              });
+				{
+					colors::make_transparent(i.FileColor.ForegroundColor);
+					colors::make_transparent(i.FileColor.BackgroundColor);
+					colors::make_transparent(i.MarkColor.ForegroundColor);
+					colors::make_transparent(i.MarkColor.BackgroundColor);
+				});
 
 				Dlg->SendMessage(DM_SETCHECK,ID_HER_MARKTRANSPARENT,ToPtr(BSTATE_CHECKED));
 				break;

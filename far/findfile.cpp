@@ -894,7 +894,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& Fin
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
 	SetPluginDirectory(FindData.FileName,ArcItem->hPlugin,false,UserData);
 	const auto FileNameToFind = PointToName(FindData.FileName);
-	const auto FileNameToFindShort = PointToName(FindData.AlternateFileName());
+	const auto FileNameToFindShort = FindData.HasAlternateFileName()? PointToName(FindData.AlternateFileName()) : string_view{};
 	PluginPanelItem *Items;
 	size_t ItemsNumber;
 	bool nResult=false;

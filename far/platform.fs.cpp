@@ -101,12 +101,17 @@ namespace os::fs
 
 	const string& find_data::AlternateFileName() const
 	{
-		return AlternateFileNameData.empty()? FileName : AlternateFileNameData;
+		return HasAlternateFileName()? AlternateFileNameData : FileName;
 	}
 
 	void find_data::SetAlternateFileName(string_view Name)
 	{
 		assign(AlternateFileNameData, Name);
+	}
+
+	bool find_data::HasAlternateFileName() const
+	{
+		return !AlternateFileNameData.empty();
 	}
 
 	bool is_standard_drive_letter(wchar_t Letter)
@@ -384,7 +389,7 @@ namespace os::fs
 		if (Value.Attributes & FILE_ATTRIBUTE_DIRECTORY &&
 			Value.FileName[0] == L'.' && ((Value.FileName.size() == 2 && Value.FileName[1] == L'.') || Value.FileName.size() == 1) &&
 			// These "virtual" folders either don't have an SFN at all or it's the same as LFN:
-			(Value.AlternateFileName().empty() || Value.AlternateFileName() == Value.FileName))
+			(!Value.HasAlternateFileName() || Value.AlternateFileName() == Value.FileName))
 		{
 			return get(false, Value);
 		}

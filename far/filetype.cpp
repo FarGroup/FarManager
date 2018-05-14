@@ -152,7 +152,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 	}
 
 	list_names ListNames;
-	bool PreserveLFN;
+	bool PreserveLFN = false;
 	if (SubstFileName(strCommand, Name, ShortName, &ListNames, &PreserveLFN) && !strCommand.empty())
 	{
 		SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
@@ -249,7 +249,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 {
 	string strExecStr = Command;
 	list_names ListNames;
-	bool PreserveLFN;
+	bool PreserveLFN = false;
 	if (!SubstFileName(strExecStr, Name, ShortName, &ListNames, &PreserveLFN) || strExecStr.empty())
 		return;
 

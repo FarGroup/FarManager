@@ -56,7 +56,7 @@ void override_stream_buffers()
 		BufLog;
 
 	auto Color = colors::ConsoleColorToFarColor(F_LIGHTRED);
-	MAKE_TRANSPARENT(Color.BackgroundColor);
+	colors::make_transparent(Color.BackgroundColor);
 	BufErr.color(Color);
 
 	static const io::wstreambuf_override

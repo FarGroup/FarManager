@@ -598,8 +598,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 			ColorDlg[i].X2+=4;
 		}
 
-		ColorDlg[35].Selected=IS_TRANSPARENT(Color.ForegroundColor);
-		ColorDlg[36].Selected=IS_TRANSPARENT(Color.BackgroundColor);
+		ColorDlg[35].Selected = colors::is_transparent(Color.ForegroundColor);
+		ColorDlg[36].Selected = colors::is_transparent(Color.BackgroundColor);
 	}
 	else
 	{
@@ -622,8 +622,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	if (ExitCode==41)
 	{
 		Color=CurColor;
-		ColorDlg[35].Selected? MAKE_TRANSPARENT(Color.ForegroundColor) : MAKE_OPAQUE(Color.ForegroundColor);
-		ColorDlg[36].Selected? MAKE_TRANSPARENT(Color.BackgroundColor) : MAKE_OPAQUE(Color.BackgroundColor);
+		ColorDlg[35].Selected? colors::make_transparent(Color.ForegroundColor) : colors::make_opaque(Color.ForegroundColor);
+		ColorDlg[36].Selected? colors::make_transparent(Color.BackgroundColor) : colors::make_opaque(Color.BackgroundColor);
 		return true;
 	}
 

@@ -779,7 +779,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					ReplaceStrings(strTempStr, L"&", L"");
 
 					list_names ListNames;
-					bool PreserveLFN;
+					bool PreserveLFN = false;
 					if (SubstFileName(strCommand, strName, strShortName, &ListNames, &PreserveLFN, false, strCmdLineDir, strTempStr) && !strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);

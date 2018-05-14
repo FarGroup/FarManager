@@ -91,6 +91,7 @@ namespace os::fs
 
 		const string& AlternateFileName() const;
 		void SetAlternateFileName(string_view Name);
+		bool HasAlternateFileName() const;
 	};
 
 	bool is_standard_drive_letter(wchar_t Letter);

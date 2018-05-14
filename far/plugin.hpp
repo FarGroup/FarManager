@@ -161,6 +161,8 @@ struct FarColor
 #define COLORMASK 0x00ffffff
 #define ALPHAMASK 0xff000000
 
+#ifndef FAR_USE_INTERNALS
+
 #define INDEXVALUE(x) ((x)&INDEXMASK)
 #define COLORVALUE(x) ((x)&COLORMASK)
 #define ALPHAVALUE(x) ((x)&ALPHAMASK)
@@ -169,6 +171,8 @@ struct FarColor
 #define IS_TRANSPARENT(x) (!ALPHAVALUE(x))
 #define MAKE_OPAQUE(x) (x|=ALPHAMASK)
 #define MAKE_TRANSPARENT(x) (x&=COLORMASK)
+
+#endif // END FAR_USE_INTERNALS
 
 typedef unsigned long long COLORDIALOGFLAGS;
 static const COLORDIALOGFLAGS

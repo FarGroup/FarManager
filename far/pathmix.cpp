@@ -205,7 +205,7 @@ bool IsParentDirectory(const os::fs::find_data& Data)
 	return
 		Data.Attributes & FILE_ATTRIBUTE_DIRECTORY &&
 		IsParentDirectory(Data.FileName) &&
-		(Data.AlternateFileName().empty() || Data.AlternateFileName() == Data.FileName);
+		(!Data.HasAlternateFileName() || Data.AlternateFileName() == Data.FileName);
 }
 
 bool IsParentDirectory(const PluginPanelItem& Data)

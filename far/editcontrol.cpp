@@ -275,7 +275,7 @@ static bool EnumFiles(VMenu2& Menu, const string_view strStart, const string_vie
 		for (const auto& i: os::fs::enum_files(os::env::expand(Token) + L'*'))
 		{
 			const auto NameMatch = starts_with_icase(i.FileName, FileName);
-			const auto AltNameMatch = !NameMatch && starts_with_icase(i.AlternateFileName(), FileName);
+			const auto AltNameMatch = !NameMatch && i.HasAlternateFileName() && starts_with_icase(i.AlternateFileName(), FileName);
 			if (NameMatch || AltNameMatch)
 			{
 				Inserter(Token.substr(0, Token.size() - FileName.size()) + (NameMatch? i.FileName : i.AlternateFileName()));
