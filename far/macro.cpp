@@ -2562,11 +2562,9 @@ static bool substrFunc(FarMacroCall* Data)
 static bool SplitPath(string_view const FullPath, string& Dest, int Flags)
 {
 	size_t DirOffset = 0;
-	if (ParsePath(FullPath, &DirOffset) == root_type::unknown)
-		return false;
-
-	const auto Root = FullPath.substr(0, DirOffset - 1);
-	auto Path = FullPath.substr(DirOffset - 1);
+	const auto RootType = ParsePath(FullPath, &DirOffset);
+	const auto Root = FullPath.substr(0, RootType == root_type::unknown? 0 : DirOffset - 1);
+	auto Path = FullPath.substr(Root.size());
 	auto Name = PointToName(Path);
 	Path.remove_suffix(Name.size());
 	auto Ext = PointToExt(Name);
