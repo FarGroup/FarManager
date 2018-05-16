@@ -1,4 +1,8 @@
-﻿shmuel 13.05.2018 00:40:47 +0200 - build 652
+﻿shmuel 16.05.2018 15:01:23 +0200 - build 653
+
+1. LuaFAR: far.SendDlgMessage(DM_LISTDELETE): the 4-th parameter is allowed to be nil or missing.
+
+shmuel 13.05.2018 00:40:47 +0200 - build 652
 
 1. M#3286: Возможность выполнить скрипт только один раз при загрузке
    --> Макрофайлу передаётся вторым аргументом номер текущей загрузки.

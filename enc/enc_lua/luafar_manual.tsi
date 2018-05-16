@@ -3120,7 +3120,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3712149782
+mtime=3735644846
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3210,7 +3210,7 @@ mtime=3712149782
 #_          { Text="added line 2", Flags="LIF_CHECKED" } })
 #_
 #_DM_LISTDELETE:
-#_    Param2:  table
+#_    Param2:  table, or nil
 #_    Result:  integer
 #_    *Example:*
 #_      res = far.SendDlgMessage(hDlg, "DM_LISTDELETE", id,

@@ -3214,10 +3214,15 @@ static int far_SendDlgMessage(lua_State *L)
 		{
 			struct FarListDelete fld;
 			fld.StructSize = sizeof(fld);
-			luaL_checktype(L, 4, LUA_TTABLE);
-			fld.StartIndex = GetOptIntFromTable(L, "StartIndex", 1) - 1;
-			fld.Count = GetOptIntFromTable(L, "Count", 1);
-			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fld));
+			if (lua_isnoneornil(L, 4))
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, NULL));
+			else
+			{
+				luaL_checktype(L, 4, LUA_TTABLE);
+				fld.StartIndex = GetOptIntFromTable(L, "StartIndex", 1) - 1;
+				fld.Count = GetOptIntFromTable(L, "Count", 1);
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fld));
+			}
 			return 1;
 		}
 		case DM_LISTFINDSTRING:
