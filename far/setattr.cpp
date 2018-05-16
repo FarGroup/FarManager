@@ -435,7 +435,7 @@ intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 			{
 				if(Param1 == SA_EDIT_WDATE || Param1 == SA_EDIT_CDATE || Param1 == SA_EDIT_ADATE || Param1 == SA_EDIT_XDATE)
 				{
-					if(locale::GetDateFormat() == 2)
+					if(locale.date_format() == 2)
 					{
 						if (reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param1, nullptr))[0] == L' ')
 						{
@@ -579,16 +579,16 @@ static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& F
 		return false;
 
 	WORD DateN[3]{};
-	ParseDateComponents(OSrcDate, make_range(DateN), locale::GetDateSeparator());
+	ParseDateComponents(OSrcDate, make_range(DateN), locale.date_separator());
 	WORD TimeN[4]{};
-	ParseDateComponents(OSrcTime, make_range(TimeN), locale::GetTimeSeparator());
+	ParseDateComponents(OSrcTime, make_range(TimeN), locale.time_separator());
 
 	SYSTEMTIME st{};
 
 	enum indicies { i_day, i_month, i_year };
 	std::array<indicies, 3> Indicies;
 
-	switch (locale::GetDateFormat())
+	switch (locale.date_format())
 	{
 	case 0:  Indicies = { i_month, i_day, i_year }; break;
 	case 1:  Indicies = { i_day, i_month, i_year }; break;
@@ -770,13 +770,13 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		if (SelCount==1 && IsParentDirectory(SingleSelFindData))
 			return false;
 
-		wchar_t DateSeparator = locale::GetDateSeparator();
-		wchar_t TimeSeparator = locale::GetTimeSeparator();
-		wchar_t DecimalSeparator = locale::GetDecimalSeparator();
+		wchar_t DateSeparator = locale.date_separator();
+		wchar_t TimeSeparator = locale.time_separator();
+		wchar_t DecimalSeparator = locale.decimal_separator();
 
 		string DateMask, DateFormat;
 
-		switch (locale::GetDateFormat())
+		switch (locale.date_format())
 		{
 			case 0:
 				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
@@ -1277,7 +1277,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				std::for_each(CONST_RANGE(Times, i)
 				{
-					AttrDlg[i].strData[8] = locale::GetTimeSeparator();
+					AttrDlg[i].strData[8] = locale.time_separator();
 				});
 
 				SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<AttrPreRedrawItem>());

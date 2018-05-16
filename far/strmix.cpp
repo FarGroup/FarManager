@@ -54,15 +54,20 @@ string GroupDigits(unsigned long long Value)
 {
 	NUMBERFMT Fmt{};
 
-	wchar_t DecimalSeparator[] { locale::GetDecimalSeparator(), L'\0' };
-	wchar_t ThousandSeparator[] { locale::GetThousandSeparator(), L'\0' };
-
-	// TODO pick regional settings
+	// Not needed - can't be decimal
 	Fmt.NumDigits = 0;
+	// Don't care - can't be decimal
 	Fmt.LeadingZero = 1;
-	Fmt.Grouping = 3;
+
+	Fmt.Grouping = locale.digits_grouping();
+
+	wchar_t DecimalSeparator[]{ locale.decimal_separator(), L'\0' };
 	Fmt.lpDecimalSep = DecimalSeparator;
+
+	wchar_t ThousandSeparator[]{ locale.thousand_separator(), L'\0' };
 	Fmt.lpThousandSep = ThousandSeparator;
+
+	// Don't care - can't be negative
 	Fmt.NegativeOrder = 1;
 
 	string strSrc = str(Value);
@@ -376,7 +381,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 	const size_t Width = std::abs(WidthWithSign);
 	const bool LeftAlign = WidthWithSign < 0;
-	const bool UseCommas = (ViewFlags & COLUMN_COMMAS) != 0;
+	const bool UseGroupDigits = (ViewFlags & COLUMN_GROUPDIGITS) != 0;
 	const bool UseFloatSize = (ViewFlags & COLUMN_FLOATSIZE) != 0;
 	const bool UseCompact = (ViewFlags & COLUMN_ECONOMIC) != 0;
 	const bool UseUnit = (ViewFlags & COLUMN_USE_UNIT) != 0;
@@ -442,7 +447,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 					return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
 				}();
 
-				Str = concat(str(AjustedParts.first), locale::GetDecimalSeparator(), pad_left(str(AjustedParts.second), NumDigits, L'0'));
+				Str = concat(str(AjustedParts.first), locale.decimal_separator(), pad_left(str(AjustedParts.second), NumDigits, L'0'));
 			}
 			else
 			{
@@ -453,9 +458,9 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 		return FormatSize(std::move(Str), UnitIndex);
 	}
 
-	const auto& ToStr = [UseCommas](auto Size)
+	const auto& ToStr = [UseGroupDigits](auto Size)
 	{
-		return UseCommas? GroupDigits(Size) : str(Size);
+		return UseGroupDigits? GroupDigits(Size) : str(Size);
 	};
 
 	size_t UnitIndex = 0;

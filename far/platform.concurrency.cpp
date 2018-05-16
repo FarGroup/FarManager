@@ -110,8 +110,8 @@ inline namespace concurrency
 	}
 
 
-	mutex::mutex(const wchar_t* Name):
-		handle(CreateMutex(nullptr, false, EmptyToNull(Name)))
+	mutex::mutex(string_view const Name):
+		handle(CreateMutex(nullptr, false, EmptyToNull(null_terminated(Name).c_str())))
 	{
 	}
 
@@ -131,8 +131,8 @@ inline namespace concurrency
 	}
 
 
-	event::event(type Type, state InitialState, const wchar_t* Name):
-		handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(Name)))
+	event::event(type const Type, state const InitialState, string_view const Name):
+		handle(CreateEvent(nullptr, Type == type::manual, InitialState == state::signaled, EmptyToNull(null_terminated(Name).c_str())))
 	{
 	}
 

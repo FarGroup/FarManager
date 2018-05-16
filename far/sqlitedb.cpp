@@ -271,7 +271,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 void SQLiteDb::Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL)
 {
-	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).c_str());
+	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName));
 	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
 
 	m_Name = DbName;

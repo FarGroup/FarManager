@@ -80,7 +80,7 @@ private:
 };
 
 void PrepareUnitStr();
-string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_COMMAS);
+string FileSizeToStr(unsigned long long Size, int Width = -1, unsigned long long ViewFlags = COLUMN_GROUPDIGITS);
 bool CheckFileSizeStringFormat(const string& FileSizeStr);
 unsigned long long ConvertFileSizeString(const string& FileSizeStr);
 string GroupDigits(unsigned long long Value);

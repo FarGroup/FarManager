@@ -291,7 +291,7 @@ void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long S
 				m_TimeLeft = GetTimeText(std::chrono::seconds(CPS? SizeToGo / CPS : 0));
 			}
 
-			m_Speed = FileSizeToStr(CPS, 8, COLUMN_FLOATSIZE | COLUMN_COMMAS);
+			m_Speed = FileSizeToStr(CPS, 8, COLUMN_FLOATSIZE | COLUMN_GROUPDIGITS);
 			if (starts_with(m_Speed, L' ') && std::iswdigit(m_Speed.back()))
 			{
 				m_Speed.erase(0, 1);

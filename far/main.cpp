@@ -60,7 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "plugins.hpp"
 #include "notification.hpp"
-#include "datetime.hpp"
 #include "tracer.hpp"
 #include "constitle.hpp"
 #include "string_utils.hpp"
@@ -68,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "new_handler.hpp"
 #include "global.hpp"
+#include "locale.hpp"
 
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
@@ -515,7 +515,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 	}
 
 	SCOPED_ACTION(listener)(update_environment, &ReloadEnvironment);
-	SCOPED_ACTION(listener)(update_intl, &OnIntlSettingsChange);
+	SCOPED_ACTION(listener)(update_intl, [] { locale.invalidate(); });
 	SCOPED_ACTION(listener)(update_devices, &UpdateSavedDrives);
 
 	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));

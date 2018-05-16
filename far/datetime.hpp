@@ -44,8 +44,6 @@ inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time;
 
 DWORD ConvertYearToFull(DWORD ShortYear);
 
-void OnIntlSettingsChange();
-
 void ParseDateComponents(const string& Src, range<WORD*> Dst, wchar_t Separator, WORD Default = -1);
 os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
 os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);

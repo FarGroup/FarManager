@@ -50,44 +50,78 @@ WARNING_PUSH()
 WARNING_DISABLE_MSC(4582) // no page                                                '%$S': constructor is not implicitly called
 WARNING_DISABLE_MSC(4583) // no page                                                '%$S': destructor is not implicitly called
 
-	explicit null_terminated_t(const basic_string_view<T> Str):
-		m_Terminated(!Str.data()[Str.size()])
+	explicit null_terminated_t(const basic_string_view<T> Str)
 	{
-		if (m_Terminated)
+		if (Str.data() && !Str.data()[Str.size()])
+		{
+			m_Mode = mode::view;
 			placement::construct(m_View, Str);
+		}
+		else if (Str.size() < std::size(m_Buffer))
+		{
+			m_Mode = mode::buffer;
+			*std::copy(ALL_CONST_RANGE(Str), m_Buffer) = {};
+		}
 		else
+		{
+			m_Mode = mode::string;
 			placement::construct(m_Str, ALL_CONST_RANGE(Str));
+		}
 	}
 
 	~null_terminated_t()
 	{
-		if (m_Terminated)
+		switch(m_Mode)
+		{
+		case mode::view:
 			placement::destruct(m_View);
-		else
+			break;
+
+		case mode::buffer:
+			break;
+
+		case mode::string:
 			placement::destruct(m_Str);
+			break;
+		}
 	}
 
 WARNING_POP()
 
 	[[nodiscard]]
-	auto c_str() const
+	const T* c_str() const
 	{
-		return m_Terminated? m_View.data() : m_Str.c_str();
-	}
+		switch (m_Mode)
+		{
+		case mode::view:
+			return m_View.data();
 
-	[[nodiscard]]
-	auto size() const
-	{
-		return m_Terminated? m_View.size() : m_Str.size();
+		case mode::buffer:
+			return m_Buffer;
+
+		case mode::string:
+			return m_Str.c_str();
+
+		default:
+			throw;
+		}
 	}
 
 private:
 	union
 	{
-		std::basic_string<T> m_Str;
 		basic_string_view<T> m_View;
+		T m_Buffer[MAX_PATH];
+		std::basic_string<T> m_Str;
 	};
-	bool m_Terminated;
+
+	enum class mode: char
+	{
+		view,
+		buffer,
+		string
+	}
+	m_Mode;
 };
 
 using null_terminated = null_terminated_t<wchar_t>;

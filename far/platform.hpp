@@ -170,8 +170,8 @@ namespace os
 	bool GetUserName(string& Name);
 	bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name);
 
-
-	string GetLocaleValue(LCID lcid, LCTYPE id);
+	bool get_locale_value(LCID LcId, LCTYPE Id, string& Value);
+	bool get_locale_value(LCID LcId, LCTYPE Id, int& Value);
 
 	handle OpenCurrentThread();
 

@@ -125,15 +125,18 @@ void EnableLowFragmentationHeap()
 	}
 }
 
-string GetLocaleValue(LCID lcid, LCTYPE id)
+bool get_locale_value(LCID const LcId, LCTYPE const Id, string& Value)
 {
-	string Result;
-	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Result, [&](wchar_t* Buffer, size_t Size)
+	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](wchar_t* Buffer, size_t Size)
 	{
-		const auto ReturnedSize = ::GetLocaleInfo(lcid, id, Buffer, static_cast<int>(Size));
+		const auto ReturnedSize = GetLocaleInfo(LcId, Id, Buffer, static_cast<int>(Size));
 		return ReturnedSize? ReturnedSize - 1 : 0;
-	})?
-	Result : L""s;
+	});
+}
+
+bool get_locale_value(LCID const LcId, LCTYPE const Id, int& Value)
+{
+	return GetLocaleInfo(LcId, Id | LOCALE_RETURN_NUMBER, reinterpret_cast<wchar_t*>(&Value), sizeof(Value) / sizeof(wchar_t)) != 0;
 }
 
 string GetPrivateProfileString(const string& AppName, const string& KeyName, const string& Default, const string& FileName)

@@ -2663,7 +2663,7 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 	{
 		static const std::pair<unsigned long long, unsigned long long> FlagsPair[] =
 		{
-			{FFFS_COMMAS,         COLUMN_COMMAS},         // Вставлять разделитель между тысячами
+			{FFFS_COMMAS,         COLUMN_GROUPDIGITS},    // Вставлять разделитель между тысячами
 			{FFFS_THOUSAND,       COLUMN_THOUSAND},       // Вместо делителя 1024 использовать делитель 1000
 			{FFFS_FLOATSIZE,      COLUMN_FLOATSIZE},      // Показывать размер в виде десятичной дроби, используя наиболее подходящую единицу измерения, например 0,97 К, 1,44 М, 53,2 Г.
 			{FFFS_ECONOMIC,       COLUMN_ECONOMIC},       // Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. 0.97K)

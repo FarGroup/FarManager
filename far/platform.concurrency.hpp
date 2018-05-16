@@ -128,7 +128,7 @@ inline namespace concurrency
 		NONCOPYABLE(mutex);
 		MOVABLE(mutex);
 
-		explicit mutex(const wchar_t* Name = nullptr);
+		explicit mutex(string_view Name = {});
 
 		static string_view get_namespace();
 
@@ -146,7 +146,7 @@ inline namespace concurrency
 		enum class state { nonsignaled, signaled };
 
 		event() = default;
-		event(type Type, state InitialState, const wchar_t* Name = nullptr);
+		event(type Type, state InitialState, string_view Name = {});
 
 		static string_view get_namespace();
 

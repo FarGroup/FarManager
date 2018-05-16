@@ -399,7 +399,7 @@ public:
 	}
 
 protected:
-	explicit async_delete_impl(const wchar_t* Name):
+	explicit async_delete_impl(string_view const Name):
 		// If a thread with same event name is running, we will open that event here
 		m_AsyncDone(os::event::type::manual, os::event::state::signaled, Name)
 	{
@@ -415,7 +415,7 @@ class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig,
 {
 public:
 	explicit HierarchicalConfigDb(const string& DbName, bool Local):
-		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName).c_str()),
+		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName)),
 		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
 	{
 		HierarchicalConfigDb::BeginTransaction();
@@ -1663,8 +1663,8 @@ private:
 		{
 			EventName = os::make_name<os::event>(GetPath(), GetName());
 		}
-		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Delete").c_str());
-		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, (EventName + L"_Commit").c_str());
+		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Delete");
+		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Commit");
 		AllWaiter.add(AsyncDeleteAddDone);
 		AllWaiter.add(AsyncCommitDone);
 		AsyncWork = os::event(os::event::type::automatic, os::event::state::nonsignaled);

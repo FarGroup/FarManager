@@ -360,7 +360,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				switch (i)
 				{
 				case L'C':
-					NewColumn.type |= COLUMN_COMMAS;
+					NewColumn.type |= COLUMN_GROUPDIGITS;
 					break;
 				case L'E':
 					NewColumn.type |= COLUMN_ECONOMIC;
@@ -516,7 +516,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLUMN_MARK:            return L'M';
 		case COLUMN_NAMEONLY:        return L'O';
 		case COLUMN_RIGHTALIGN:      return L'R';
-		case COLUMN_COMMAS:          return L'C';
+		case COLUMN_GROUPDIGITS:     return L'C';
 		case COLUMN_THOUSAND:        return L'T';
 		case COLUMN_BRIEF:           return L'B';
 		case COLUMN_MONTH:           return L'M';
@@ -564,7 +564,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case SIZE_COLUMN:
 		case PACKED_COLUMN:
 		case STREAMSSIZE_COLUMN:
-			AddFlag(COLUMN_COMMAS);
+			AddFlag(COLUMN_GROUPDIGITS);
 			AddFlag(COLUMN_ECONOMIC);
 			AddFlag(COLUMN_FLOATSIZE);
 			AddFlag(COLUMN_THOUSAND);

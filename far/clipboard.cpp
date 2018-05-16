@@ -326,11 +326,11 @@ bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 	if (NamesData.empty())
 		return false;
 
-	auto hMemory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + (NamesData.size() + 1) * sizeof(wchar_t));
-	if (!hMemory)
+	auto Memory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + (NamesData.size() + 1) * sizeof(wchar_t));
+	if (!Memory)
 		return false;
 
-	const auto Drop = os::memory::global::lock<LPDROPFILES>(hMemory);
+	const auto Drop = os::memory::global::lock<LPDROPFILES>(Memory);
 	if (!Drop)
 		return false;
 
@@ -341,7 +341,7 @@ bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 	Drop->fWide = TRUE;
 	*std::copy(ALL_CONST_RANGE(NamesData), reinterpret_cast<wchar_t*>(Drop.get() + 1)) = 0;
 
-	if (!Clear() || !SetData(CF_HDROP, std::move(hMemory)))
+	if (!Clear() || !SetData(CF_HDROP, std::move(Memory)))
 		return false;
 
 	if (!bMoved)

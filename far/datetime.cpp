@@ -44,100 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
-class locale_cache
-{
-public:
-	locale_cache()
-	{
-		init();
-	}
-
-	void Invalidate() const
-	{
-		m_Valid = false;
-	}
-
-	struct names
-	{
-		struct name
-		{
-			string Full;
-			string Short;
-		};
-
-		name Months[12];
-		name Weekdays[7];
-	};
-
-	int DateFormat() const { init(); return m_DateFormat; }
-	wchar_t DateSeparator() const { init(); return m_DateSeparator; }
-	wchar_t TimeSeparator() const { init(); return m_TimeSeparator; }
-	wchar_t DecimalSeparator() const { init(); return m_DecimalSeparator; }
-	const names& LocalNames() const { init(); return m_LocalNames; }
-	const names& EnglishNames() const { init(); return m_EnglishNames; }
-	const names& Names(bool Local) const { init(); return Local? m_LocalNames : m_EnglishNames; }
-
-private:
-	void init() const
-	{
-		if (m_Valid)
-		{
-			return;
-		}
-
-		const auto& InitNames = [](int Language, names& Names)
-		{
-			// LOCALE_S[ABBREV]DAYNAME<1-7> indexes start from Monday, remap to Sunday to make them compatible with tm::tm_wday
-			static const LCTYPE DayIndexes[] = { LOCALE_SDAYNAME7, LOCALE_SDAYNAME1, LOCALE_SDAYNAME2, LOCALE_SDAYNAME3, LOCALE_SDAYNAME4, LOCALE_SDAYNAME5, LOCALE_SDAYNAME6 };
-			static const LCTYPE ShortDayIndexes[] = { LOCALE_SABBREVDAYNAME7, LOCALE_SABBREVDAYNAME1, LOCALE_SABBREVDAYNAME2, LOCALE_SABBREVDAYNAME3, LOCALE_SABBREVDAYNAME4, LOCALE_SABBREVDAYNAME5, LOCALE_SABBREVDAYNAME6 };
-
-			const LCID CurLCID = MAKELCID(MAKELANGID(Language, SUBLANG_DEFAULT), SORT_DEFAULT);
-
-			for_each_cnt(RANGE(Names.Months, i, size_t index)
-			{
-				i.Full = locale::GetValue(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index));
-				i.Short = locale::GetValue(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index));
-			});
-
-			for_each_cnt(RANGE(Names.Weekdays, i, size_t index)
-			{
-				i.Full = locale::GetValue(CurLCID, DayIndexes[index]);
-				i.Short = locale::GetValue(CurLCID, ShortDayIndexes[index]);
-			});
-		};
-
-		InitNames(LANG_NEUTRAL, m_LocalNames);
-		InitNames(LANG_ENGLISH, m_EnglishNames);
-
-		m_DateFormat = locale::GetDateFormat();
-		m_DateSeparator = locale::GetDateSeparator();
-		m_TimeSeparator = locale::GetTimeSeparator();
-		m_DecimalSeparator = locale::GetDecimalSeparator();
-
-		m_Valid = true;
-	}
-
-	mutable names m_LocalNames;
-	mutable names m_EnglishNames;
-	mutable int m_DateFormat{};
-	mutable wchar_t m_DateSeparator{};
-	mutable wchar_t m_TimeSeparator{};
-	mutable wchar_t m_DecimalSeparator{};
-
-	mutable bool m_Valid{};
-};
-
-locale_cache& LocaleCache()
-{
-	static locale_cache sCache;
-	return sCache;
-}
-
-void OnIntlSettingsChange()
-{
-	LocaleCache().Invalidate();
-}
-
 DWORD ConvertYearToFull(DWORD ShortYear)
 {
 	DWORD UpperBoundary = 0;
@@ -148,9 +54,9 @@ DWORD ConvertYearToFull(DWORD ShortYear)
 	return (UpperBoundary/100-(ShortYear<UpperBoundary%100?0:1))*100+ShortYear;
 }
 
-static void st_time(string &strDest, const tm *tmPtr, const locale_cache::names& Names, const wchar_t chr)
+static void st_time(string &strDest, const tm *tmPtr, const locale_names& Names, const wchar_t chr)
 {
-	const auto DateSeparator = LocaleCache().DateSeparator();
+	const auto DateSeparator = locale.date_separator();
 
 	if (chr==L'v')
 	{
@@ -165,7 +71,7 @@ static void st_time(string &strDest, const tm *tmPtr, const locale_cache::names&
 	{
 		const auto& GetFormat = []
 		{
-			switch (LocaleCache().DateFormat())
+			switch (locale.date_format())
 			{
 			case 0: return L"{2:02}{0}{1:02}{0}{3:4}";
 			case 1: return L"{1:02}{0}{2:02}{0}{3:4}";
@@ -334,31 +240,31 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
 					// abbreviated weekday name
 				case L'a':
-					strBuf = LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Short;
+					strBuf = locale.Names(IsLocal).Weekdays[t->tm_wday].Short;
 					break;
 					// Полное имя дня недели
 					// full weekday name
 				case L'A':
-					strBuf = LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Full;
+					strBuf = locale.Names(IsLocal).Weekdays[t->tm_wday].Full;
 					break;
 					// Краткое имя месяца (Jan,Feb,...)
 					// abbreviated month name
 				case L'h':
 				case L'b':
-					strBuf = LocaleCache().Names(IsLocal).Months[t->tm_mon].Short;
+					strBuf = locale.Names(IsLocal).Months[t->tm_mon].Short;
 					break;
 					// Полное имя месяца
 					// full month name
 				case L'B':
-					strBuf = LocaleCache().Names(IsLocal).Months[t->tm_mon].Full;
+					strBuf = locale.Names(IsLocal).Months[t->tm_mon].Full;
 					break;
 					//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
 					//appropriate date and time representation
 				case L'c':
 					// Thu Oct 07 12:37:32 1999
 					strBuf = format(L"{0} {1} {2:02} {3:02}:{4:02}:{5:02} {6:4}",
-						LocaleCache().Names(IsLocal).Weekdays[t->tm_wday].Short,
-						LocaleCache().Names(IsLocal).Months[t->tm_mon].Short,
+						locale.Names(IsLocal).Weekdays[t->tm_wday].Short,
+						locale.Names(IsLocal).Months[t->tm_mon].Short,
 						t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, t->tm_year + 1900);
 					break;
 					// Столетие как десятичное число (00 - 99). Например, 1992 => 19
@@ -456,13 +362,13 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// appropriate date representation
 				case L'D':
 				case L'x':
-					st_time(strBuf, t, LocaleCache().Names(IsLocal), *Format);
+					st_time(strBuf, t, locale.Names(IsLocal), *Format);
 					break;
 					// Время в формате HH:MM:SS
 					// appropriate time representation
 				case L'T':
 				case L'X':
-					strBuf = format(L"{1:02}{0}{2:02}{0}{3:02}", LocaleCache().TimeSeparator(), t->tm_hour, t->tm_min, t->tm_sec);
+					strBuf = format(L"{1:02}{0}{2:02}{0}{3:02}", locale.time_separator(), t->tm_hour, t->tm_min, t->tm_sec);
 					break;
 
 				// Две цифры года без столетия (00 to 99)
@@ -619,10 +525,10 @@ void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strT
 		return;
 	}
 
-	const auto DateFormat = LocaleCache().DateFormat();
-	const auto DateSeparator = LocaleCache().DateSeparator();
-	const auto TimeSeparator = LocaleCache().TimeSeparator();
-	const auto DecimalSeparator = LocaleCache().DecimalSeparator();
+	const auto DateFormat = locale.date_format();
+	const auto DateSeparator = locale.date_separator();
+	const auto TimeSeparator = locale.time_separator();
+	const auto DecimalSeparator = locale.decimal_separator();
 
 	const auto CurDateFormat = Brief && DateFormat == 2? 0 : DateFormat;
 
@@ -667,7 +573,7 @@ void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strT
 			}
 		};
 
-		strDateText = format(GetFormat(), st.wDay, LocaleCache().LocalNames().Months[st.wMonth - 1].Short, Year);
+		strDateText = format(GetFormat(), st.wDay, locale.LocalNames().Months[st.wMonth - 1].Short, Year);
 	}
 	else
 	{
@@ -724,8 +630,8 @@ void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string&
 		std::get<minutes>(Result).count(),
 		std::get<seconds>(Result).count(),
 		std::get<milliseconds>(Result).count(),
-		LocaleCache().TimeSeparator(),
-		LocaleCache().DecimalSeparator());
+		locale.time_separator(),
+		locale.decimal_separator());
 }
 
 bool Utc2Local(os::chrono::time_point UtcTime, SYSTEMTIME& LocalTime)

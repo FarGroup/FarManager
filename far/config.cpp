@@ -77,6 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "RegExp.hpp"
 #include "string_sort.hpp"
 #include "global.hpp"
+#include "locale.hpp"
 
 #include "platform.env.hpp"
 
@@ -915,7 +916,7 @@ static void ResetViewModes(range<PanelViewSettings*> const Modes, int const Inde
 		{
 			{
 				{NAME_COLUMN | COLUMN_MARK},
-				{SIZE_COLUMN | COLUMN_COMMAS, 10},
+				{SIZE_COLUMN | COLUMN_GROUPDIGITS, 10},
 				{DATE_COLUMN},
 			},
 			{
@@ -1663,6 +1664,8 @@ Options::Options():
 	Sort.Collation.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
 	Sort.DigitsAsNumbers.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
 	Sort.CaseSensitive.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
+
+	FormatNumberSeparators.SetCallback(option::notifier([](auto) { locale.invalidate(); }));
 
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;

@@ -120,7 +120,7 @@ size_t global::far_clock::size() const
 
 void global::far_clock::update()
 {
-	m_CurrentTime = locale::GetTimeFormat();
+	m_CurrentTime = locale.time_format();
 }
 
 
