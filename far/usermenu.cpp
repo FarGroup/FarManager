@@ -504,7 +504,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		else
 		{
 			string strLabel = MenuItem->strLabel;
-			SubstFileName(strLabel, Name, ShortName, nullptr, nullptr, true);
+			SubstFileName(strLabel, subst_context(Name, ShortName), nullptr, nullptr, true);
 			strLabel = os::env::expand(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
@@ -536,8 +536,12 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 {
 	for (;;)
 	{
-		string strName,strShortName;
-		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(strName,strShortName);
+		string Names[2];
+		Global->CtrlObject->Cp()->ActivePanel()->GetCurName(Names[0], Names[1]);
+		const auto& strName = Names[0];
+		const auto& strShortName = Names[1];
+		const subst_context Context(strName, strShortName);
+
 		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
 
 		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
@@ -720,7 +724,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		{
 			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
 			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
-			SubstFileName(strSubMenuLabel, strName, strShortName, nullptr, nullptr, true);
+			SubstFileName(strSubMenuLabel, Context, nullptr, nullptr, true);
 			strSubMenuLabel = os::env::expand(strSubMenuLabel);
 
 			size_t pos = strSubMenuLabel.find(L'&');
@@ -739,7 +743,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		//int LeftVisible,RightVisible,PanelsHidden=0;
-		const auto strCmdLineDir = Global->CtrlObject->CmdLine()->GetCurDir();
 		Global->CtrlObject->CmdLine()->LockUpdatePanel(true);
 
 		// Цикл исполнения команд меню (CommandX)
@@ -780,7 +783,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 					list_names ListNames;
 					bool PreserveLFN = false;
-					if (SubstFileName(strCommand, strName, strShortName, &ListNames, &PreserveLFN, false, strCmdLineDir, strTempStr) && !strCommand.empty())
+					if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN, false, strTempStr) && !strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);
 

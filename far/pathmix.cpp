@@ -360,7 +360,7 @@ bool CutToSlash(string &strStr, bool bInclude)
 	return false;
 }
 
-bool CutToParent(string& Str)
+bool CutToParent(string_view& Str)
 {
 	if (Str.empty())
 		return false;
@@ -380,7 +380,17 @@ bool CutToParent(string& Str)
 	if (!NewSize)
 		return false;
 
-	Str.resize(NewSize);
+	Str.remove_suffix(Str.size() - NewSize);
+	return true;
+}
+
+bool CutToParent(string& Str)
+{
+	string_view View(Str);
+	if (!CutToParent(View))
+		return false;
+
+	Str.resize(View.size());
 	return true;
 }
 

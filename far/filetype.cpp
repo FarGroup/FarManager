@@ -70,15 +70,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
 */
-bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, bool RunAs, const std::function<void(execute_info&)>& Launcher)
+bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, bool RunAs, const std::function<void(execute_info&)>& Launcher)
 {
 	string strCommand, strDescription;
+
+	const subst_context Context(Name, ShortName);
+
 	{
 		int ActualCmdCount=0; // отображаемых ассоциаций в меню
 		filemasks FMask; // для работы с масками файлов
 
 		int CommandCount=0;
-		const auto FileName = PointToName(Name);
 
 		std::vector<MenuItemEx> MenuItems;
 
@@ -88,7 +90,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 			if (FMask.Set(i.second, FMF_SILENT))
 			{
-				if (FMask.Compare(FileName))
+				if (FMask.Compare(Context.Name))
 				{
 					ConfigProvider().AssocConfig()->GetCommand(i.first, Mode, strCommand);
 
@@ -105,7 +107,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 			string strCommandText = strCommand;
 			if (
-				!SubstFileName(strCommandText, Name, ShortName, nullptr, nullptr, true) ||
+				!SubstFileName(strCommandText, Context, nullptr, nullptr, true) ||
 				// все "подставлено", теперь проверим условия "if exist"
 				!ExtractIfExistCommand(strCommandText)
 			)
@@ -114,7 +116,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 			ActualCmdCount++;
 
 			if (!strDescription.empty())
-				SubstFileName(strDescription, Name, ShortName, nullptr, nullptr, true);
+				SubstFileName(strDescription, Context, nullptr, nullptr, true);
 			else
 				strDescription = strCommandText;
 
@@ -153,7 +155,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 
 	list_names ListNames;
 	bool PreserveLFN = false;
-	if (SubstFileName(strCommand, Name, ShortName, &ListNames, &PreserveLFN) && !strCommand.empty())
+	if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN) && !strCommand.empty())
 	{
 		SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
 
@@ -161,6 +163,8 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, FILETYPE
 		Info.Command = strCommand;
 		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 		Info.RunAs = RunAs;
+		// We've already processed them!
+		Info.UseAssociations = false;
 
 		Launcher? Launcher(Info) : Global->CtrlObject->CmdLine()->ExecString(Info);
 
@@ -250,26 +254,17 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 	string strExecStr = Command;
 	list_names ListNames;
 	bool PreserveLFN = false;
-	if (!SubstFileName(strExecStr, Name, ShortName, &ListNames, &PreserveLFN) || strExecStr.empty())
+	if (!SubstFileName(strExecStr, subst_context(Name, ShortName), &ListNames, &PreserveLFN) || strExecStr.empty())
 		return;
 
-	const auto ListFileUsed = ListNames.any();
-
-	// It makes no sense at all to add command containing temporary files to the history - they are doomed anyway
-	if (!ListFileUsed)
-	{
-		const auto strFullName = ConvertNameToFull(Name);
-		const auto strFullShortName = ConvertNameToShort(strFullName);
-		string strFullExecStr = Command;
-		if (SubstFileName(strFullExecStr, strFullName, strFullShortName, nullptr, nullptr, true))
-			Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
-	}
+	// If you want your history to be usable - use full paths yourself. We cannot reliably substitute them.
+	Global->CtrlObject->ViewHistory->AddToHistory(strExecStr, AlwaysWaitFinish? HR_EXTERNAL_WAIT : HR_EXTERNAL);
 
 	SCOPED_ACTION(PreserveLongName)(ShortName, PreserveLFN);
 
 	execute_info Info;
 	Info.Command = strExecStr;
-	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListFileUsed? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 }

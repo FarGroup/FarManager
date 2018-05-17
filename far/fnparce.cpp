@@ -67,6 +67,22 @@ list_names::names::~names()
 	Delete(ShortName);
 }
 
+subst_context::subst_context(string_view NameStr, string_view ShortNameStr):
+	Name(NameStr),
+	ShortName(ShortNameStr),
+	Path(NameStr)
+{
+	if (ContainsSlash(Path) && CutToParent(Path))
+	{
+		Name = PointToName(Name);
+		ShortName = PointToName(ShortNameStr);
+	}
+	else
+	{
+		Path = {};
+	}
+}
+
 bool list_names::any() const
 {
 	return !This.Name.empty() || !This.ShortName.empty() || !Another.Name.empty() || !Another.ShortName.empty();
@@ -414,10 +430,6 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 	const auto& GetPath = [](string_view const Tail, const subst_data& Data, bool Short, bool Real)
 	{
-		// nop for !\!.! on TmpPanel
-		if (starts_with(Tail, tokens::name_extension) && IsAbsolutePath(Data.Default().Normal.Name))
-			return string{};
-
 		auto CurDir = Data.PassivePanel? Data.Another.Panel->GetCurDir() : Data.CmdDir;
 
 		if (Real)
@@ -740,3 +752,26 @@ bool SubstFileName(
 
 	return Result;
 }
+
+bool SubstFileName(
+	string& Str,
+	const subst_context& Context,
+	list_names* const ListNames,
+	bool* const PreserveLongName,
+	bool const IgnoreInput,
+	string_view const DlgTitle
+)
+{
+	return SubstFileName(
+		Str,
+		Context.Name,
+		Context.ShortName,
+		ListNames,
+		PreserveLongName,
+		IgnoreInput,
+		Context.Path,
+		DlgTitle
+	);
+}
+
+

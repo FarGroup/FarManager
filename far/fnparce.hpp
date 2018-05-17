@@ -49,14 +49,22 @@ struct list_names
 	This, Another;
 };
 
+class subst_context
+{
+public:
+	subst_context(string_view NameStr, string_view ShortNameStr);
+
+	string_view Name;
+	string_view ShortName;
+	string_view Path;
+};
+
 bool SubstFileName(
-	string &strStr,
-	string_view Name,
-	string_view ShortName,
+	string &Str,
+	const subst_context& Context,
 	list_names* ListNames = nullptr,
 	bool* PreserveLongName = nullptr,
 	bool IgnoreInput = false,
-	string_view CmdLineDir = {},
 	string_view DlgTitle = {}
 );
 

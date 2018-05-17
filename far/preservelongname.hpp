@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class PreserveLongName: noncopyable
 {
 public:
-	PreserveLongName(const string& ShortName, bool Preserve);
+	PreserveLongName(string_view ShortName, bool Preserve);
 	~PreserveLongName();
 
 private:

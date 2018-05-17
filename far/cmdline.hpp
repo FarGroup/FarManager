@@ -53,6 +53,7 @@ struct execute_info
 	source_mode SourceMode{ source_mode::unknown };
 	bool RunAs{};
 	bool Echo{ true };
+	bool UseAssociations{ true };
 };
 
 class CommandLine:public SimpleScreenObject

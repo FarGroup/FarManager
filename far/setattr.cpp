@@ -578,9 +578,9 @@ static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& F
 	if (!Utc2Local(OriginalFileTime, ost))
 		return false;
 
-	WORD DateN[3]{};
+	WORD DateN[3];
 	ParseDateComponents(OSrcDate, make_range(DateN), locale.date_separator());
-	WORD TimeN[4]{};
+	WORD TimeN[4];
 	ParseDateComponents(OSrcTime, make_range(TimeN), locale.time_separator());
 
 	SYSTEMTIME st{};
@@ -595,14 +595,14 @@ static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& F
 	default: Indicies = { i_year, i_month, i_day }; break;
 	}
 
-	st.wDay   = DateN[Indicies[0]] != static_cast<WORD>(-1)? DateN[Indicies[0]] : ost.wDay;
-	st.wMonth = DateN[Indicies[1]] != static_cast<WORD>(-1)? DateN[Indicies[1]] : ost.wMonth;
-	st.wYear  = DateN[Indicies[2]] != static_cast<WORD>(-1)? DateN[Indicies[2]] : ost.wYear;
+	st.wDay   = DateN[Indicies[0]] != date_none? DateN[Indicies[0]] : ost.wDay;
+	st.wMonth = DateN[Indicies[1]] != date_none? DateN[Indicies[1]] : ost.wMonth;
+	st.wYear  = DateN[Indicies[2]] != date_none? DateN[Indicies[2]] : ost.wYear;
 
-	st.wHour         = TimeN[0] != static_cast<WORD>(-1)? TimeN[0] : ost.wHour;
-	st.wMinute       = TimeN[1] != static_cast<WORD>(-1)? TimeN[1] : ost.wMinute;
-	st.wSecond       = TimeN[2] != static_cast<WORD>(-1)? TimeN[2] : ost.wSecond;
-	st.wMilliseconds = TimeN[3] != static_cast<WORD>(-1)? TimeN[3] : ost.wMilliseconds;
+	st.wHour         = TimeN[0] != date_none? TimeN[0] : ost.wHour;
+	st.wMinute       = TimeN[1] != date_none? TimeN[1] : ost.wMinute;
+	st.wSecond       = TimeN[2] != date_none? TimeN[2] : ost.wSecond;
+	st.wMilliseconds = TimeN[3] != date_none? TimeN[3] : ost.wMilliseconds;
 
 	if (st.wYear < 100)
 	{

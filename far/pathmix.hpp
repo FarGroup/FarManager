@@ -157,7 +157,8 @@ bool PathStartsWith(string_view Path, string_view Start);
 bool PathCanHoldRegularFile(const string& Path);
 bool IsPluginPrefixPath(const string &Path);
 bool CutToSlash(string &strStr, bool bInclude = false); // BUGBUG, deprecated. Use CutToParent.
-bool CutToParent(string &strStr);
+bool CutToParent(string_view& Str);
+bool CutToParent(string& Str);
 string_view PointToName(string_view Path);
 string_view PointToFolderNameIfFolder(string_view Path);
 string_view PointToExt(string_view Path);

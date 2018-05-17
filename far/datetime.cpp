@@ -442,6 +442,7 @@ string MkStrFTime(const wchar_t *Format)
 
 void ParseDateComponents(const string& Src, range<WORD*> const Dst, wchar_t const Separator, WORD const Default)
 {
+	std::fill(ALL_RANGE(Dst), Default);
 	const auto Components = enum_tokens(trim(Src), string_view(&Separator, 1));
 	std::transform(ALL_CONST_RANGE(Components), Dst.begin(), [&](const string_view i)
 	{
@@ -452,12 +453,12 @@ void ParseDateComponents(const string& Src, range<WORD*> const Dst, wchar_t cons
 
 os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator)
 {
-	WORD DateN[3]{};
-	ParseDateComponents(Date, make_range(DateN), DateSeparator, 0);
-	WORD TimeN[4]{};
-	ParseDateComponents(Time, make_range(TimeN), TimeSeparator, 0);
+	WORD DateN[3];
+	ParseDateComponents(Date, make_range(DateN), DateSeparator);
+	WORD TimeN[4];
+	ParseDateComponents(Time, make_range(TimeN), TimeSeparator);
 
-	if (!DateN[0] || !DateN[1] || !DateN[2])
+	if (DateN[0] == date_none || DateN[1] == date_none || DateN[2] == date_none)
 	{
 		// Пользователь оставил дату пустой, значит обнулим дату и время.
 		return {};
@@ -503,10 +504,10 @@ os::chrono::time_point ParseDate(const string& Date, const string& Time, int Dat
 
 os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator)
 {
-	WORD DateN[1]{};
+	WORD DateN[1];
 	ParseDateComponents(Date, make_range(DateN), DateSeparator, 0);
 
-	WORD TimeN[4]{};
+	WORD TimeN[4];
 	ParseDateComponents(Time, make_range(TimeN), TimeSeparator, 0);
 
 	using namespace std::chrono;

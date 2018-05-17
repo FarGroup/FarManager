@@ -37,19 +37,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "platform.fs.hpp"
 
-PreserveLongName::PreserveLongName(const string& ShortName, bool Preserve):
+PreserveLongName::PreserveLongName(string_view const ShortName, bool Preserve):
 	m_Preserve(Preserve)
 {
 	if (Preserve)
 	{
+		assign(m_SaveShortName, ShortName);
+
 		os::fs::find_data FindData;
 
-		if (os::fs::get_find_data(ShortName, FindData))
+		if (os::fs::get_find_data(m_SaveShortName, FindData))
 			m_SaveLongName = FindData.FileName;
 		else
 			m_SaveLongName.clear();
-
-		m_SaveShortName = ShortName;
 	}
 }
 

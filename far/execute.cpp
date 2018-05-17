@@ -732,7 +732,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 	string strNewCmdPar;
 
 	// Info.NewWindow may be changed later
-	const auto IgnoreInternalAssociations = Info.NewWindow;
+	const auto IgnoreInternalAssociations = Info.NewWindow || !Info.UseAssociations;
 
 	const auto& TryProtocolOrFallToComspec = [&]
 	{

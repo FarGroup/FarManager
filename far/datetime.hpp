@@ -44,7 +44,8 @@ inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time;
 
 DWORD ConvertYearToFull(DWORD ShortYear);
 
-void ParseDateComponents(const string& Src, range<WORD*> Dst, wchar_t Separator, WORD Default = -1);
+enum { date_none = std::numeric_limits<WORD>::max() };
+void ParseDateComponents(const string& Src, range<WORD*> Dst, wchar_t Separator, WORD Default = date_none);
 os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
 os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
 void ConvertDate(os::chrono::time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);
