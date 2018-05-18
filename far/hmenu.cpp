@@ -96,7 +96,7 @@ void HMenu::ShowMenu()
 
 		SetColor(i.Selected? COL_HMENUSELECTEDTEXT : COL_HMENUTEXT);
 
-		HiText(concat(L"  "_sv, i.Name, L"  "_sv), colors::PaletteColorToFarColor(i.Selected? COL_HMENUSELECTEDHIGHLIGHT : COL_HMENUHIGHLIGHT));
+		HiText(concat(L"  "sv, i.Name, L"  "sv), colors::PaletteColorToFarColor(i.Selected? COL_HMENUSELECTEDHIGHLIGHT : COL_HMENUHIGHLIGHT));
 	}
 }
 

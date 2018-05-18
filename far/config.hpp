@@ -243,7 +243,7 @@ public:
 
 	string toString() const override { return Get() ? L"true"s : L"false"s; }
 	bool TryParse(const string& value) override;
-	string_view GetType() const override { return L"boolean"_sv; }
+	string_view GetType() const override { return L"boolean"sv; }
 	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
@@ -258,7 +258,7 @@ public:
 
 	string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
 	bool TryParse(const string& value) override;
-	string_view GetType() const override { return L"3-state"_sv; }
+	string_view GetType() const override { return L"3-state"sv; }
 	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
@@ -274,7 +274,7 @@ public:
 	string toString() const override;
 	bool TryParse(const string& value) override;
 	string ExInfo() const override;
-	string_view GetType() const override { return L"integer"_sv; }
+	string_view GetType() const override { return L"integer"sv; }
 	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
@@ -296,7 +296,7 @@ public:
 
 	string toString() const override { return Get(); }
 	bool TryParse(const string& value) override { Set(value); return true; }
-	string_view GetType() const override { return L"string"_sv; }
+	string_view GetType() const override { return L"string"sv; }
 	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 

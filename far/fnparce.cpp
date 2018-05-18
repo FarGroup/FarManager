@@ -117,26 +117,26 @@ struct subst_data
 namespace tokens
 {
 	const auto
-		passive_panel                = L"!#"_sv,
-		active_panel                 = L"!^"_sv,
-		exclamation                  = L"!!"_sv,
-		name_extension               = L"!.!"_sv,
-		short_name                   = L"!~"_sv,
-		short_extension              = L"!`~"_sv,
-		extension                    = L"!`"_sv,
-		short_list                   = L"!&~"_sv,
-		list                         = L"!&"_sv,
-		list_file                    = L"!@"_sv,
-		short_list_file              = L"!$"_sv,
-		short_name_extension         = L"!-!"_sv,
-		short_name_extension_safe    = L"!+!"_sv,
-		current_drive                = L"!:"_sv,
-		path                         = L"!\\"_sv,
-		short_path                   = L"!/"_sv,
-		real_path                    = L"!=\\"_sv,
-		real_short_path              = L"!=/"_sv,
-		input                        = L"!?"_sv,
-		name                         = L"!"_sv;
+		passive_panel                = L"!#"sv,
+		active_panel                 = L"!^"sv,
+		exclamation                  = L"!!"sv,
+		name_extension               = L"!.!"sv,
+		short_name                   = L"!~"sv,
+		short_extension              = L"!`~"sv,
+		extension                    = L"!`"sv,
+		short_list                   = L"!&~"sv,
+		list                         = L"!&"sv,
+		list_file                    = L"!@"sv,
+		short_list_file              = L"!$"sv,
+		short_name_extension         = L"!-!"sv,
+		short_name_extension_safe    = L"!+!"sv,
+		current_drive                = L"!:"sv,
+		path                         = L"!\\"sv,
+		short_path                   = L"!/"sv,
+		real_path                    = L"!=\\"sv,
+		real_short_path              = L"!=/"sv,
+		input                        = L"!?"sv,
+		name                         = L"!"sv;
 
 	class skip
 	{
@@ -327,7 +327,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 	const auto CollectNames = [&SubstData](string& Str, auto const Selector)
 	{
-		join(Str, select(SubstData.Default().Panel->enum_selected(), Selector), L" "_sv);
+		join(Str, select(SubstData.Default().Panel->enum_selected(), Selector), L" "sv);
 	};
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::short_list))

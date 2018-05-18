@@ -249,11 +249,11 @@ void filemasks::ErrorMessage()
 
 static void add_pathext(string& Masks)
 {
-	static const auto PathExtName = L"%PATHEXT%"_sv;
+	static const auto PathExtName = L"%PATHEXT%"sv;
 	if (contains_icase(Masks, PathExtName))
 	{
 		string FarPathExt;
-		for (const auto& i : enum_tokens_with_quotes(os::env::get(L"PATHEXT"_sv), L";"_sv))
+		for (const auto& i : enum_tokens_with_quotes(os::env::get(L"PATHEXT"sv), L";"sv))
 		{
 			if (i.empty())
 				continue;
@@ -308,19 +308,19 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 	{
 		add_pathext(Masks);
 
-		for (const auto& Mask: enum_tokens_with_quotes_t<with_brackets, with_trim>(Masks, L",;"_sv))
+		for (const auto& Mask: enum_tokens_with_quotes_t<with_brackets, with_trim>(Masks, L",;"sv))
 		{
 			if (Mask.empty())
 				continue;
 
-			if (equal(Mask, L"*.*"_sv))
+			if (equal(Mask, L"*.*"sv))
 			{
 				m_Masks.emplace_back(1, L'*');
 			}
 			else if (contains(Mask, L"**"))
 			{
 				string NewMask(Mask);
-				ReplaceStrings(NewMask, L"**"_sv, L"*"_sv);
+				ReplaceStrings(NewMask, L"**"sv, L"*"sv);
 				m_Masks.emplace_back(std::move(NewMask));
 			}
 			else

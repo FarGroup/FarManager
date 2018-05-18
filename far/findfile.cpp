@@ -2350,7 +2350,7 @@ void background_searcher::DoPrepareFileList()
 
 	if (SearchMode==FINDAREA_INPATH)
 	{
-		for (const auto& i: enum_tokens_with_quotes(os::env::get(L"PATH"_sv), L";"_sv))
+		for (const auto& i: enum_tokens_with_quotes(os::env::get(L"PATH"sv), L";"sv))
 		{
 			if (i.empty())
 				continue;
@@ -2493,18 +2493,18 @@ bool FindFiles::FindFilesProcess()
 
 	if (!strFindMask.empty())
 	{
-		append(strTitle, L": "_sv, strFindMask);
+		append(strTitle, L": "sv, strFindMask);
 
 		if (UseFilter)
 		{
-			append(strTitle, L" ("_sv, msg(lng::MFindUsingFilter), L')');
+			append(strTitle, L" ("sv, msg(lng::MFindUsingFilter), L')');
 		}
 	}
 	else
 	{
 		if (UseFilter)
 		{
-			append(strTitle, L" ("_sv, msg(lng::MFindUsingFilter), L')');
+			append(strTitle, L" ("sv, msg(lng::MFindUsingFilter), L')');
 		}
 	}
 
@@ -2791,7 +2791,7 @@ void FindFiles::ProcessMessage(const AddMenuData& Data)
 		break;
 
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Unknown message type"_sv);
+		throw MAKE_FAR_EXCEPTION(L"Unknown message type"sv);
 	}
 }
 

@@ -299,7 +299,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			}
 			else
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't open file"_sv);
+				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 			}
 
 			if (FileAttr != INVALID_FILE_ATTRIBUTES)
@@ -313,7 +313,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			// если файл FarMenu.ini пуст, то удалим его
 			if (!os::fs::delete_file(MenuFileName))
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file"_sv);
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
 			}
 		}
 	}
@@ -411,7 +411,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, const string& MenuFileName)
 
 		case menu_mode::global:
 		case menu_mode::user:
-			MenuTitle = concat(msg(lng::MMainMenuTitle), L" ("_sv, msg(m_MenuMode == menu_mode::global? lng::MMainMenuGlobal : lng::MMainMenuUser), L')');
+			MenuTitle = concat(msg(lng::MMainMenuTitle), L" ("sv, msg(m_MenuMode == menu_mode::global? lng::MMainMenuGlobal : lng::MMainMenuUser), L')');
 			break;
 		}
 
@@ -511,7 +511,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			bool have_hotkey = !strHotKey.empty();
 			int Offset = have_hotkey && strHotKey.front() == L'&'? 5 : 4;
 			strHotKey.resize(Offset, L' ');
-			FarUserMenuItem.Name = concat(have_hotkey && !FuncNum? L"&"_sv : L""_sv, strHotKey, strLabel);
+			FarUserMenuItem.Name = concat(have_hotkey && !FuncNum? L"&"sv : L""sv, strHotKey, strLabel);
 
 			if (MenuItem->Submenu)
 			{
@@ -732,7 +732,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				strSubMenuLabel.erase(pos, 1);
 
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Иначе передать управление выше */
-			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, concat(Title, L" \xbb "_sv, strSubMenuLabel));
+			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, concat(Title, L" \xbb "sv, strSubMenuLabel));
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;
@@ -750,7 +750,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		{
 			string strCommand = str;
 
-			if (!((starts_with_icase(strCommand, L"REM"_sv) && (strCommand.size() == 3 || std::iswblank(strCommand[3]))) || starts_with_icase(strCommand, L"::"_sv)))
+			if (!((starts_with_icase(strCommand, L"REM"sv) && (strCommand.size() == 3 || std::iswblank(strCommand[3]))) || starts_with_icase(strCommand, L"::"sv)))
 			{
 				/*
 				  Осталось корректно обработать ситуацию, например:
@@ -869,7 +869,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				const auto Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				int FocusPos=-1;
 
-				if (!equal(HotKey, L"--"_sv))
+				if (!equal(HotKey, L"--"sv))
 				{
 					if (!*Label)
 					{

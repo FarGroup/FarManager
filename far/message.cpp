@@ -67,7 +67,7 @@ string GetErrorString(const error_state_ex& ErrorState)
 {
 	auto Str = ErrorState.What;
 	if (!Str.empty())
-		append(Str, L": "_sv);
+		append(Str, L": "sv);
 
 	const auto UseNtMessages = false;
 
@@ -231,7 +231,7 @@ void Message::Init(
 	if (!Title.empty())
 	{
 		MaxLength = std::max(MaxLength, Title.size() + 2); // 2 for surrounding spaces
-		append(strClipText, Title, L"\r\n\r\n"_sv);
+		append(strClipText, Title, L"\r\n\r\n"sv);
 	}
 
 	size_t BtnLength = std::accumulate(Buttons.cbegin(), Buttons.cend(), size_t(0), [](size_t Result, const auto& i)
@@ -252,13 +252,13 @@ void Message::Init(
 
 	for (const auto& i : Strings)
 	{
-		append(strClipText, i, L"\r\n"_sv);
+		append(strClipText, i, L"\r\n"sv);
 	}
-	append(strClipText, L"\r\n"_sv);
+	append(strClipText, L"\r\n"sv);
 
 	if (!strErrStr.empty())
 	{
-		append(strClipText, strErrStr, L"\r\n\r\n"_sv);
+		append(strClipText, strErrStr, L"\r\n\r\n"sv);
 
 		// вычисление "красивого" размера
 		auto LenErrStr = strErrStr.size();
@@ -288,7 +288,7 @@ void Message::Init(
 		}
 	}
 
-	join(strClipText, Buttons, L" "_sv);
+	join(strClipText, Buttons, L" "sv);
 
 	int X1;
 

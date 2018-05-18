@@ -881,7 +881,7 @@ namespace os::fs
 		};
 
 		// simple way to handle network paths
-		if (ReplaceRoot(L"\\Device\\LanmanRedirector"_sv, L"\\"_sv) || ReplaceRoot(L"\\Device\\Mup"_sv, L"\\"_sv))
+		if (ReplaceRoot(L"\\Device\\LanmanRedirector"sv, L"\\"sv) || ReplaceRoot(L"\\Device\\Mup"sv, L"\\"sv))
 			return true;
 
 		// try to convert NT path (\Device\HarddiskVolume1) to drive letter
@@ -890,7 +890,7 @@ namespace os::fs
 			const auto Device = fs::get_drive(i);
 			if (const auto Len = MatchNtPathRoot(NtPath, Device))
 			{
-				FinalFilePath = starts_with(NtPath, L"\\Device\\WinDfs"_sv)? NtPath.replace(0, Len, 1, L'\\') : NtPath.replace(0, Len, Device);
+				FinalFilePath = starts_with(NtPath, L"\\Device\\WinDfs"sv)? NtPath.replace(0, Len, 1, L'\\') : NtPath.replace(0, Len, Device);
 				return true;
 			}
 		}
@@ -1086,7 +1086,7 @@ namespace os::fs
 	{
 		//if (!(m_Mode & std::ios::in) == !(m_Mode & std::ios::out))
 		if (m_Mode != std::ios::out)
-			throw MAKE_FAR_EXCEPTION(L"Unsupported mode"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Unsupported mode"sv);
 
 		reset_put_area();
 	}
@@ -1094,15 +1094,15 @@ namespace os::fs
 	filebuf::int_type filebuf::overflow(int_type Ch)
 	{
 		if (!m_File)
-			throw MAKE_FAR_EXCEPTION(L"File not opened"_sv);
+			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
 
 		if (!(m_Mode && std::ios::out))
-			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for writing"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for writing"sv);
 
 		if (pptr() != pbase())
 		{
 			if (!m_File.Write(pbase(), static_cast<size_t>(pptr() - pbase()) * sizeof(char)))
-				throw MAKE_FAR_EXCEPTION(L"Write error"_sv);
+				throw MAKE_FAR_EXCEPTION(L"Write error"sv);
 		}
 
 		reset_put_area();
@@ -1373,7 +1373,7 @@ namespace os::fs
 
 	bool create_directory(const string_view PathName, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
-		return create_directory(L""_sv, PathName, SecurityAttributes);
+		return create_directory(L""sv, PathName, SecurityAttributes);
 	}
 
 	bool create_directory(const string_view TemplateDirectory, const string_view NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes)

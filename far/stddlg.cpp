@@ -485,9 +485,9 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, con
 		string Str = *Info.strAppName? Info.strAppName : L"Unknown";
 
 		if (*Info.strServiceShortName)
-			append(Str, L" ["_sv, Info.strServiceShortName, L']');
+			append(Str, L" ["sv, Info.strServiceShortName, L']');
 
-		append(Str, L" (PID: "_sv, str(Info.Process.dwProcessId));
+		append(Str, L" (PID: "sv, str(Info.Process.dwProcessId));
 
 		if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, Info.Process.dwProcessId)))
 		{
@@ -498,7 +498,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, con
 				string Name;
 				if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))
 				{
-					append(Str, L", "_sv, Name);
+					append(Str, L", "sv, Name);
 				}
 			}
 		}
@@ -590,7 +590,7 @@ operation OperationFailed(const error_state_ex& ErrorState, const string& Object
 				{
 					if (!SeparatorAdded)
 					{
-						Msg.emplace_back(L"\1"_sv);
+						Msg.emplace_back(L"\1"sv);
 						SeparatorAdded = true;
 					}
 
@@ -776,22 +776,22 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		auto Radix = 0;
 
 		// он умный - hex код ввел!
-		if (starts_with(Part, L"0x"_sv))
+		if (starts_with(Part, L"0x"sv))
 		{
 			Part.erase(0, 2);
 			Radix = 16;
 		}
-		else if (starts_with(Part, L"$"_sv))
+		else if (starts_with(Part, L"$"sv))
 		{
 			Part.erase(0, 1);
 			Radix = 16;
 		}
-		else if (ends_with(Part, L"h"_sv))
+		else if (ends_with(Part, L"h"sv))
 		{
 			Part.pop_back();
 			Radix = 16;
 		}
-		else if (ends_with(Part, L"m"_sv))
+		else if (ends_with(Part, L"m"sv))
 		{
 			Part.pop_back();
 			Radix = 10;

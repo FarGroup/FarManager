@@ -134,7 +134,7 @@ struct Help::StackHelpData
 
 string Help::MakeLink(const string& path, const string& topic)
 {
-	return concat(L'<', path, L"\\>"_sv, topic);
+	return concat(L'<', path, L"\\>"sv, topic);
 }
 
 bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName, string &strValue, UINT nCodePage)
@@ -418,11 +418,11 @@ bool Help::ReadHelp(const string& Mask)
 
 			size_t LastKeySize = 0;
 
-			strReadStr = join(select(enum_tokens(strKeyName, L" "_sv),
+			strReadStr = join(select(enum_tokens(strKeyName, L" "sv),
 				[&](const auto& i)
 				{
 					LastKeySize = i.size();
-					return concat(L" #"_sv, escape(i), L'#');
+					return concat(L" #"sv, escape(i), L'#');
 				}),
 				L"\n");
 
@@ -529,7 +529,7 @@ m1:
 
 			if (m_TopicFound)
 			{
-				if (starts_with_icase(strReadStr, L"<!Macro:"_sv) && Global->CtrlObject)
+				if (starts_with_icase(strReadStr, L"<!Macro:"sv) && Global->CtrlObject)
 				{
 					const auto PosTab = strReadStr.find(L'>');
 					if (PosTab != string::npos && strReadStr[PosTab - 1] != L'!')
@@ -542,7 +542,7 @@ m1:
 					string strDescription,strKeyName;
 					while (Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 					{
-						for (const auto& i: enum_tokens(strKeyName, L" "_sv))
+						for (const auto& i: enum_tokens(strKeyName, L" "sv))
 						{
 							SizeKeyName = std::min(std::max(SizeKeyName, i.size()), static_cast<size_t>(MaxLength) / 2);
 						}
@@ -746,7 +746,7 @@ void Help::AddLine(const string_view Line)
 
 void Help::AddTitle(const string_view Title)
 {
-	AddLine(concat(L"^ #"_sv, Title, L'#'));
+	AddLine(concat(L"^ #"sv, Title, L'#'));
 }
 
 void Help::HighlightsCorrection(string &strStr)
@@ -867,7 +867,7 @@ void Help::DrawWindowFrame() const
 	SetScreen(m_X1,m_Y1,m_X2,m_Y2,L' ',colors::PaletteColorToFarColor(COL_HELPTEXT));
 	Box(m_X1,m_Y1,m_X2,m_Y2,colors::PaletteColorToFarColor(COL_HELPBOX),DOUBLE_BOX);
 	SetColor(COL_HELPBOXTITLE);
-	auto strHelpTitleBuf = concat(msg(lng::MHelpTitle), L" - "_sv, strCurPluginContents.empty()? L"Far"s : strCurPluginContents);
+	auto strHelpTitleBuf = concat(msg(lng::MHelpTitle), L" - "sv, strCurPluginContents.empty()? L"Far"s : strCurPluginContents);
 	TruncStrFromEnd(strHelpTitleBuf, CanvasWidth() - 2);
 	GotoXY(m_X1 + (ObjWidth() - (int)strHelpTitleBuf.size() - 2) / 2, m_Y1);
 	Text(concat(L' ', strHelpTitleBuf, L' '));
@@ -1546,7 +1546,7 @@ bool Help::JumpTopic()
 					strNewTopic.erase(EndPos, Pos2 - EndPos);
 
 					size_t Pos3 = StackData->strHelpMask.rfind(L'.');
-					if (Pos3 != string::npos && !equal_icase(string_view(StackData->strHelpMask).substr(Pos3), L".hlf"_sv))
+					if (Pos3 != string::npos && !equal_icase(string_view(StackData->strHelpMask).substr(Pos3), L".hlf"sv))
 						StackData->strHelpMask.clear();
 
 					break;
@@ -1955,7 +1955,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				&SearchLength
 			))
 			{
-				AddLine(concat(L"   ~"_sv, strEntryName, L'~', strCurTopic, L'@'));
+				AddLine(concat(L"   ~"sv, strEntryName, L'~', strCurTopic, L'@'));
 				strCurTopic.clear();
 				strEntryName.clear();
 				TopicFound=false;
@@ -1986,7 +1986,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			ContentsName=L"PluginContents";
 			break;
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unsupported index"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Unsupported index"sv);
 	}
 
 	AddTitle(PtrTitle);
@@ -2016,7 +2016,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 						{
 							append(strHelpLine, L',', strSecondParam);
 						}
-						append(strHelpLine, L"~@"_sv, MakeLink(strPath, HelpContents), L'@');
+						append(strHelpLine, L"~@"sv, MakeLink(strPath, HelpContents), L'@');
 
 						AddLine(strHelpLine);
 					}
@@ -2026,7 +2026,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			break;
 		}
 		default:
-			throw MAKE_FAR_EXCEPTION(L"Unsupported index"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Unsupported index"sv);
 	}
 
 	// сортируем по алфавиту

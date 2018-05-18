@@ -75,9 +75,9 @@ new_handler::new_handler():
 	const string_view Strings[] =
 	{
 		global::Version(),
-		L""_sv,
-		L"Not enough memory is available to complete this operation."_sv,
-		L"Press Enter to retry or Esc to continue..."_sv
+		L""sv,
+		L"Not enough memory is available to complete this operation."sv,
+		L"Press Enter to retry or Esc to continue..."sv
 	};
 
 	const auto& Write = [this](const string_view Str, size_t Y)

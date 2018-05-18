@@ -95,7 +95,7 @@ void xlat_initialize()
 	if (!XLat.strLayouts.empty())
 	{
 		size_t I = 0;
-		for (const auto& i: enum_tokens(XLat.strLayouts.Get(), L";"_sv))
+		for (const auto& i: enum_tokens(XLat.strLayouts.Get(), L";"sv))
 		{
 			DWORD res = std::stoul(string(i), nullptr, 16);
 			XLat.Layouts[I] = (HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res, res));

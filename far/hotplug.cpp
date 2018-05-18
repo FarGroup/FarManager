@@ -371,7 +371,7 @@ static int RemoveHotplugDevice(const DeviceInfo& Info, DWORD Flags)
 		for (size_t i = 0; i < Info.Disks.size(); ++i)
 		{
 			if (Info.Disks[i])
-				append(DisksStr, static_cast<wchar_t>(L'A' + i), L":, "_sv);
+				append(DisksStr, static_cast<wchar_t>(L'A' + i), L":, "sv);
 		}
 
 		// remove trailing ", "
@@ -482,7 +482,7 @@ void ShowHotplugDevices()
 					{
 						if (!strFriendlyName.empty() && !equal_icase(strDescription, strFriendlyName))
 						{
-							append(ListItem.Name, L" \""_sv, strFriendlyName, L"\""_sv);
+							append(ListItem.Name, L" \""sv, strFriendlyName, L"\""sv);
 						}
 					}
 					else if (!strFriendlyName.empty())

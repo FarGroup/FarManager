@@ -469,7 +469,7 @@ void FileEditor::Init(
 								msg(lng::MAskReload)
 							},
 							{ lng::MCurrent, lng::MNewOpen, lng::MReload },
-							L"EditorReload"_sv, &EditorReloadId);
+							L"EditorReload"sv, &EditorReloadId);
 					}
 					else
 					{
@@ -480,7 +480,7 @@ void FileEditor::Init(
 								msg(lng::MAskReload)
 							},
 							{ lng::MNewOpen, lng::MCancel },
-							L"EditorReload"_sv, &EditorReloadModalId);
+							L"EditorReload"sv, &EditorReloadModalId);
 						if (MsgCode == 0)
 							MsgCode=1;
 						else
@@ -1779,7 +1779,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 							msg(lng::MEditAskSaveExt)
 						},
 						{ lng::MHYes, lng::MEditBtnSaveAs, lng::MHCancel },
-						L"WarnEditorSavedEx"_sv, &EditAskSaveExtId))
+						L"WarnEditorSavedEx"sv, &EditAskSaveExtId))
 					{
 						case -1:
 						case -2:
@@ -1951,7 +1951,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
 		if(!EditFile)
 		{
-			throw MAKE_FAR_EXCEPTION(L"Can't open file"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 		}
 
 		m_editor->UndoSavePos=m_editor->UndoPos;

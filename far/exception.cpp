@@ -121,7 +121,7 @@ std::exception_ptr CurrentException(const std::exception& e)
 {
 	try
 	{
-		std::throw_with_nested(MAKE_FAR_EXCEPTION(L"->"_sv, tracer::get(&e)));
+		std::throw_with_nested(MAKE_FAR_EXCEPTION(L"->"sv, tracer::get(&e)));
 	}
 	catch (...)
 	{

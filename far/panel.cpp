@@ -750,7 +750,7 @@ bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view cons
 				transform(Name);
 
 				Writer.write(Name);
-				Writer.write(L"\r\n"_sv);
+				Writer.write(L"\r\n"sv);
 			}
 
 			Stream.flush();

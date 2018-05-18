@@ -183,7 +183,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				SetSelected = DiskCount + static_cast<int>(index)+1 == Pos;
 		}
 		const auto HotKey = i.getHotKey();
-		i.getItem().Name = concat(HotKey ? concat(L'&', HotKey, L"  "_sv) : L"   "s, i.getItem().Name);
+		i.getItem().Name = concat(HotKey ? concat(L'&', HotKey, L"  "sv) : L"   "s, i.getItem().Name);
 		ChDisk.AddItem(i.getItem());
 	});
 
@@ -741,7 +741,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				if (NewItem.Label.empty())
 				{
 					static const os::reg::key* Roots[] = { &os::reg::key::current_user, &os::reg::key::local_machine };
-					if (!std::any_of(CONST_RANGE(Roots, Root){ return Root->get(concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\"_sv, NewItem.Letter[1], L"\\DefaultLabel"_sv), L"", NewItem.Label); }) && Absent)
+					if (!std::any_of(CONST_RANGE(Roots, Root){ return Root->get(concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\"sv, NewItem.Letter[1], L"\\DefaultLabel"sv), L"", NewItem.Label); }) && Absent)
 					{
 						NewItem.Label = msg(lng::MChangeDriveLabelAbsent);
 					}

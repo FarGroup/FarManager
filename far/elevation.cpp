@@ -85,7 +85,7 @@ enum ELEVATION_COMMAND: int
 	C_COMMANDS_COUNT
 };
 
-static const auto ElevationArgument = L"/service:elevation"_sv;
+static const auto ElevationArgument = L"/service:elevation"sv;
 
 static auto CreateBackupRestorePrivilege() { return privilege{SE_BACKUP_NAME, SE_RESTORE_NAME}; }
 
@@ -138,7 +138,7 @@ T elevation::Read() const
 {
 	T Data;
 	if (!pipe::Read(m_Pipe, Data))
-		throw MAKE_FAR_EXCEPTION(L"Pipe read error"_sv);
+		throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
 	return Data;
 }
 
@@ -153,13 +153,13 @@ template<typename T>
 void elevation::WriteArg(const T& Data) const
 {
 	if (!pipe::Write(m_Pipe, Data))
-		throw MAKE_FAR_EXCEPTION(L"Pipe write error"_sv);
+		throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
 }
 
 void elevation::WriteArg(const bytes_view& Data) const
 {
 	if (!pipe::Write(m_Pipe, Data.data(), Data.size()))
-		throw MAKE_FAR_EXCEPTION(L"Pipe write error"_sv);
+		throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
 }
 
 void elevation::RetrieveLastError() const
@@ -243,7 +243,7 @@ static os::handle create_named_pipe(const string& Name)
 		return nullptr;
 
 	SECURITY_ATTRIBUTES sa{ sizeof(SECURITY_ATTRIBUTES), pSD.get(), FALSE };
-	return os::handle(CreateNamedPipe(concat(L"\\\\.\\pipe\\"_sv, Name).c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
+	return os::handle(CreateNamedPipe(concat(L"\\\\.\\pipe\\"sv, Name).c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
 }
 
 static os::handle create_job_for_current_process()
@@ -828,7 +828,7 @@ public:
 
 		SCOPED_ACTION(privilege)(Privileges);
 
-		const auto PipeName = concat(L"\\\\.\\pipe\\"_sv, guid);
+		const auto PipeName = concat(L"\\\\.\\pipe\\"sv, guid);
 		WaitNamedPipe(PipeName.c_str(), NMPWAIT_WAIT_FOREVER);
 		m_Pipe.reset(os::fs::low::create_file(PipeName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, nullptr));
 		if (!m_Pipe)
@@ -882,7 +882,7 @@ private:
 	void Write(const void* Data, size_t DataSize) const
 	{
 		if (!pipe::Write(m_Pipe, Data, DataSize))
-			throw MAKE_FAR_EXCEPTION(L"Pipe write error"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
 	}
 
 	template<typename T>
@@ -890,7 +890,7 @@ private:
 	{
 		T Data;
 		if (!pipe::Read(m_Pipe, Data))
-			throw MAKE_FAR_EXCEPTION(L"Pipe read error"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
 		return Data;
 	}
 
@@ -900,7 +900,7 @@ private:
 	void Write(const T& Data, args&&... Args) const
 	{
 		if (!pipe::Write(m_Pipe, Data))
-			throw MAKE_FAR_EXCEPTION(L"Pipe write error"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
 		Write(FWD(Args)...);
 	}
 

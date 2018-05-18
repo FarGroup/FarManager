@@ -404,12 +404,12 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 			string Name;
 			if (os::fs::QueryDosDevice(DeviceName, Name))
 			{
-				if (starts_with(Name, L"\\??\\UNC\\"_sv))
+				if (starts_with(Name, L"\\??\\UNC\\"sv))
 				{
-					strTargetPath = concat(L"\\\\"_sv, string_view(Name).substr(8));
+					strTargetPath = concat(L"\\\\"sv, string_view(Name).substr(8));
 					Ret = true;
 				}
-				else if (starts_with(Name, L"\\??\\"_sv))
+				else if (starts_with(Name, L"\\??\\"sv))
 				{
 					assign(strTargetPath, string_view(Name).substr(4));
 					Ret=true;
@@ -523,7 +523,7 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (!starts_with(strLinkName, L"\\??\\"_sv))
+	if (!starts_with(strLinkName, L"\\??\\"sv))
 		return;
 
 	strLinkName[1] = L'\\';
@@ -574,7 +574,7 @@ int MkSymLink(const string& Target, const string& LinkName, ReparsePointTypes Li
 			}
 			else
 			{
-				append(strFullLink, L"Disk_"_sv, Target.front());
+				append(strFullLink, L"Disk_"sv, Target.front());
 			}
 		}
 

@@ -1783,9 +1783,9 @@ void Dialog::ShowDialog(size_t ID)
 					                     );
 						if (!strStr.empty())
 						{
-							if (!starts_with(strStr, L" "_sv))
+							if (!starts_with(strStr, L" "sv))
 								strStr.insert(0, L" ", 1);
-							if (!ends_with(strStr, L" "_sv))
+							if (!ends_with(strStr, L" "sv))
 								strStr.push_back(L' ');
 						}
 					}

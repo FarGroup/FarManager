@@ -33,11 +33,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "eol.hpp"
 
 static const auto
-	none_s = L""_sv,
-	win_s = L"\r\n"_sv,       // DOS/Windows
-	unix_s = L"\n"_sv,        // Unix
-	mac_s = L"\r"_sv,         // Mac
-	bad_win_s = L"\r\r\n"_sv; // result of <CR><LF> text mode conversion
+	none_s = L""sv,
+	win_s = L"\r\n"sv,       // DOS/Windows
+	unix_s = L"\n"sv,        // Unix
+	mac_s = L"\r"sv,         // Mac
+	bad_win_s = L"\r\r\n"sv; // result of <CR><LF> text mode conversion
 
 string_view eol::str(type const Value)
 {

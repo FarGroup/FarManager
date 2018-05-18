@@ -93,7 +93,7 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 		const auto GotSource = imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line) != FALSE;
 
 		Consumer(format(L"0x{0:0{1}X}", Address, MaxAddressSize),
-			format(L"{0}!{1}", GotModule? PointToName(Module.ImageName) : L""_sv, GotName? encoding::ansi::get_chars(Symbol->Name) : L""s),
+			format(L"{0}!{1}", GotModule? PointToName(Module.ImageName) : L""sv, GotName? encoding::ansi::get_chars(Symbol->Name) : L""s),
 			GotSource? format(L"{0}:{1}", encoding::ansi::get_chars(Line.FileName), Line.LineNumber) : L""s);
 	}
 }
@@ -107,7 +107,7 @@ static auto GetSymbols(const std::vector<const void*>& BackTrace)
 			append(Address, L' ', Name);
 
 		if (!Source.empty())
-			append(Address, L" ("_sv, Source, L')');
+			append(Address, L" ("sv, Source, L')');
 
 		Result.emplace_back(std::move(Address));
 	});

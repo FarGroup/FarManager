@@ -79,14 +79,14 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 		case WM_SETTINGCHANGE:
 			if (lParam)
 			{
-				if (equal(reinterpret_cast<const wchar_t*>(lParam), L"Environment"_sv))
+				if (equal(reinterpret_cast<const wchar_t*>(lParam), L"Environment"sv))
 				{
 					if (Global->Opt->UpdateEnvironment)
 					{
 						message_manager::instance().notify(update_environment);
 					}
 				}
-				else if (equal(reinterpret_cast<const wchar_t*>(lParam), L"intl"_sv))
+				else if (equal(reinterpret_cast<const wchar_t*>(lParam), L"intl"sv))
 				{
 					message_manager::instance().notify(update_intl);
 				}

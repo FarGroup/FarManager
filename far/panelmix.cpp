@@ -64,23 +64,23 @@ static const struct column_info
 }
 ColumnInfo[] =
 {
-	{ NAME_COLUMN, 0, L"N"_sv },
-	{ SIZE_COLUMN, 6, L"S"_sv },
-	{ PACKED_COLUMN, 6, L"P"_sv },
-	{ DATE_COLUMN, 8, L"D"_sv },
-	{ TIME_COLUMN, 5, L"T"_sv },
-	{ WDATE_COLUMN, 14, L"DM"_sv },
-	{ CDATE_COLUMN, 14, L"DC"_sv },
-	{ ADATE_COLUMN, 14, L"DA"_sv },
-	{ CHDATE_COLUMN, 14, L"DE"_sv },
-	{ ATTR_COLUMN, 6, L"A"_sv },
-	{ DIZ_COLUMN, 0, L"Z"_sv },
-	{ OWNER_COLUMN, 0, L"O"_sv },
-	{ NUMLINK_COLUMN, 3, L"LN"_sv },
-	{ NUMSTREAMS_COLUMN, 3, L"F"_sv },
-	{ STREAMSSIZE_COLUMN, 6, L"G"_sv },
-	{ EXTENSION_COLUMN, 0, L"X"_sv, },
-	{ CUSTOM_COLUMN0, 0, L"C0"_sv },
+	{ NAME_COLUMN, 0, L"N"sv },
+	{ SIZE_COLUMN, 6, L"S"sv },
+	{ PACKED_COLUMN, 6, L"P"sv },
+	{ DATE_COLUMN, 8, L"D"sv },
+	{ TIME_COLUMN, 5, L"T"sv },
+	{ WDATE_COLUMN, 14, L"DM"sv },
+	{ CDATE_COLUMN, 14, L"DC"sv },
+	{ ADATE_COLUMN, 14, L"DA"sv },
+	{ CHDATE_COLUMN, 14, L"DE"sv },
+	{ ATTR_COLUMN, 6, L"A"sv },
+	{ DIZ_COLUMN, 0, L"Z"sv },
+	{ OWNER_COLUMN, 0, L"O"sv },
+	{ NUMLINK_COLUMN, 3, L"LN"sv },
+	{ NUMSTREAMS_COLUMN, 3, L"F"sv },
+	{ STREAMSSIZE_COLUMN, 6, L"G"sv },
+	{ EXTENSION_COLUMN, 0, L"X"sv, },
+	{ CUSTOM_COLUMN0, 0, L"C0"sv },
 };
 
 static_assert(std::size(ColumnInfo) == COLUMN_TYPES_COUNT);
@@ -310,7 +310,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 
 	FN_RETURN_TYPE(DeserialiseViewSettings) Columns;
 
-	for (const auto& Type: enum_tokens(ColumnTitles, L","_sv))
+	for (const auto& Type: enum_tokens(ColumnTitles, L","sv))
 	{
 		if (Type.empty())
 			continue;
@@ -375,10 +375,10 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 			}
 		}
 		else if (
-			starts_with(Type, L"DM"_sv) ||
-			starts_with(Type, L"DC"_sv) ||
-			starts_with(Type, L"DA"_sv) ||
-			starts_with(Type, L"DE"_sv))
+			starts_with(Type, L"DM"sv) ||
+			starts_with(Type, L"DC"sv) ||
+			starts_with(Type, L"DA"sv) ||
+			starts_with(Type, L"DE"sv))
 		{
 			switch (Type[1])
 			{
@@ -455,18 +455,18 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 		Columns.emplace_back(NewColumn);
 	}
 
-	const auto EnumWidths = enum_tokens(ColumnWidths, L","_sv);
+	const auto EnumWidths = enum_tokens(ColumnWidths, L","sv);
 	auto EnumWidthsRange = make_range(EnumWidths);
 
 	for (auto& i: Columns)
 	{
-		auto Width = EnumWidthsRange.empty()? L""_sv : *EnumWidthsRange.pop_front();
+		auto Width = EnumWidthsRange.empty()? L""sv : *EnumWidthsRange.pop_front();
 
 		// "column types" is a determinant here (see the loop header) so we can't break or continue here -
 		// if "column sizes" ends earlier or if user entered two commas we just use default size.
 		if (Width.empty())
 		{
-			Width = L"0"_sv;
+			Width = L"0"sv;
 		}
 
 		try
@@ -526,7 +526,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLUMN_NOEXTENSION:     return L'N';
 		case COLUMN_RIGHTALIGNFORCE: return L'F';
 		case COLUMN_MARK_DYNAMIC:    return L'D';
-		default:                     throw MAKE_FAR_EXCEPTION(L"Unexpected mode"_sv);
+		default:                     throw MAKE_FAR_EXCEPTION(L"Unexpected mode"sv);
 		}
 	};
 

@@ -178,7 +178,7 @@ void DizList::Read(const string& Path, const string* DizName)
 	}
 	else if (PathCanHoldRegularFile(Path))
 	{
-		for (const auto& i: enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"_sv))
+		for (const auto& i: enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"sv))
 		{
 			if (ReadDizFile(path::join(Path, i)))
 				break;
@@ -306,7 +306,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		if (m_DizData.empty() || Path.empty())
 			return false;
 
-		const auto Enum = enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"_sv);
+		const auto Enum = enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"sv);
 		const auto Begin = Enum.begin();
 		if (Begin != Enum.end())
 			m_DizFileName = path::join(Path, *Begin);
@@ -367,7 +367,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 					for (const auto& Description : i.second)
 					{
 						Writer.write(Description);
-						Writer.write(L"\r\n"_sv);
+						Writer.write(L"\r\n"sv);
 					}
 				}
 
@@ -375,7 +375,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 			}
 			else
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't open file"_sv);
+				throw MAKE_FAR_EXCEPTION(L"Can't open file"sv);
 			}
 
 			if (FileAttr == INVALID_FILE_ATTRIBUTES)
@@ -389,7 +389,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		{
 			if (!os::fs::delete_file(m_DizFileName))
 			{
-				throw MAKE_FAR_EXCEPTION(L"Can't delete file"_sv);
+				throw MAKE_FAR_EXCEPTION(L"Can't delete file"sv);
 			}
 		}
 	}

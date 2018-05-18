@@ -727,11 +727,11 @@ protected:
 
 static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[] =
 {
-	{FCF_FG_4BIT,      L"fg4bit"_sv    },
-	{FCF_BG_4BIT,      L"bg4bit"_sv    },
-	{FCF_FG_BOLD,      L"bold"_sv      },
-	{FCF_FG_ITALIC,    L"italic"_sv    },
-	{FCF_FG_UNDERLINE, L"underline"_sv },
+	{FCF_FG_4BIT,      L"fg4bit"sv    },
+	{FCF_BG_4BIT,      L"bg4bit"sv    },
+	{FCF_FG_BOLD,      L"bold"sv      },
+	{FCF_FG_ITALIC,    L"italic"sv    },
+	{FCF_FG_UNDERLINE, L"underline"sv },
 };
 
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
@@ -2233,7 +2233,7 @@ enum dbcheck: int
 
 HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"_sv, guid) + L".db"_sv, encoding::utf8::get_bytes(guid).c_str(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"sv, guid) + L".db"sv, encoding::utf8::get_bytes(guid).c_str(), Local, true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
@@ -2300,7 +2300,7 @@ bool config_provider::Export(const string& File)
 	{
 		//TODO: export local plugin settings
 		auto& e = CreateChild(root, "pluginsconfig");
-		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"_sv, L"*.db"_sv)))
+		for(auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, L"*.db"sv)))
 		{
 			i.FileName.resize(i.FileName.size()-3);
 			inplace::upper(i.FileName);
@@ -2319,7 +2319,7 @@ bool config_provider::Export(const string& File)
 
 bool config_provider::ServiceMode(const string& Filename)
 {
-	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION(L"Unexpected service mode"_sv);
+	return m_Mode == mode::m_import? Import(Filename) : m_Mode == mode::m_export? Export(Filename) : throw MAKE_FAR_EXCEPTION(L"Unexpected service mode"sv);
 }
 
 bool config_provider::Import(const string& Filename)

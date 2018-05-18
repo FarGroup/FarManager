@@ -682,7 +682,7 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.empty())
 				{
-					m_RecCode = concat(L"Keys(\""_sv, m_RecCode, L"\")"_sv);
+					m_RecCode = concat(L"Keys(\""sv, m_RecCode, L"\")"sv);
 					// добавим проверку на удаление
 					// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
 					//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)

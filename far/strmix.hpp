@@ -65,8 +65,8 @@ class wrapped_text : public enumerator<wrapped_text, string_view>
 	IMPLEMENTS_ENUMERATOR(wrapped_text);
 
 public:
-	explicit wrapped_text(string_view Str, size_t Width, string_view Break = L"\n"_sv, bool BreakWords = true);
-	explicit wrapped_text(string&& Str, size_t Width, string_view Break = L"\n"_sv, bool BreakWords = true);
+	explicit wrapped_text(string_view Str, size_t Width, string_view Break = L"\n"sv, bool BreakWords = true);
+	explicit wrapped_text(string&& Str, size_t Width, string_view Break = L"\n"sv, bool BreakWords = true);
 
 private:
 	bool get(bool Reset, string_view& Value) const;
@@ -143,7 +143,7 @@ auto FlagsToString(unsigned long long Flags, const container& From, wchar_t Sepa
 }
 
 template<class container>
-auto StringToFlags(const string& strFlags, const container& From, const string_view Separators = L"|;, "_sv)
+auto StringToFlags(const string& strFlags, const container& From, const string_view Separators = L"|;, "sv)
 {
 	decltype(std::begin(From)->first) Flags {};
 

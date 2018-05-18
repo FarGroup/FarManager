@@ -106,7 +106,7 @@ inline namespace concurrency
 	void thread::check_joinable() const
 	{
 		if (!joinable())
-			throw MAKE_FAR_EXCEPTION(L"Thread is not joinable"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Thread is not joinable"sv);
 	}
 
 
@@ -117,7 +117,7 @@ inline namespace concurrency
 
 	string_view mutex::get_namespace()
 	{
-		return L"Far_Manager_Mutex_"_sv;
+		return L"Far_Manager_Mutex_"sv;
 	}
 
 	bool mutex::lock() const
@@ -138,7 +138,7 @@ inline namespace concurrency
 
 	string_view event::get_namespace()
 	{
-		return L"Far_Manager_Event_"_sv;
+		return L"Far_Manager_Event_"sv;
 	}
 
 	bool event::set() const
@@ -163,7 +163,7 @@ inline namespace concurrency
 	{
 		if (!*this)
 		{
-			throw MAKE_FAR_EXCEPTION(L"Event not initialized properly"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Event not initialized properly"sv);
 		}
 	}
 

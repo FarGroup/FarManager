@@ -50,7 +50,7 @@ struct PreserveStyleToken
 
 static bool IsPreserveStyleTokenSeparator(wchar_t C)
 {
-	return contains(L"_-."_sv, C);
+	return contains(L"_-."sv, C);
 }
 
 static int GetPeserveCaseStyleMask(const string_view strStr)

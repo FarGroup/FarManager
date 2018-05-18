@@ -171,7 +171,7 @@ strType - сюда запишется результат, если будет н
 */
 static bool SearchExtHandlerFromList(const os::reg::key& ExtKey, string& strType)
 {
-	for (const auto& i: os::reg::enum_value(ExtKey, L"OpenWithProgIds"_sv, KEY_ENUMERATE_SUB_KEYS))
+	for (const auto& i: os::reg::enum_value(ExtKey, L"OpenWithProgIds"sv, KEY_ENUMERATE_SUB_KEYS))
 	{
 		if (i.type() == REG_SZ && IsProperProgID(i.name()))
 		{
@@ -188,7 +188,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 		return false;
 
 	const auto ModuleExt = PointToExt(Module);
-	const auto PathExtList = enum_tokens(lower(os::env::get_pathext()), L";"_sv);
+	const auto PathExtList = enum_tokens(lower(os::env::get_pathext()), L";"sv);
 
 	const auto& TryWithExtOrPathExt = [&](string_view const Name, const auto& Predicate)
 	{
@@ -236,7 +236,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 	if (Internal && ModuleExt.empty())
 	{
 		// Neither path nor extension has been specified, it could be some internal %COMSPEC% command:
-		const auto ExcludeCmdsList = enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"_sv);
+		const auto ExcludeCmdsList = enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"sv);
 
 		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
 		{
@@ -262,10 +262,10 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 
 	{
 		// Look in the %PATH%:
-		const auto PathEnv = os::env::get(L"PATH"_sv);
+		const auto PathEnv = os::env::get(L"PATH"sv);
 		if (!PathEnv.empty())
 		{
-			for (const auto& Path : enum_tokens_with_quotes(PathEnv, L";"_sv))
+			for (const auto& Path : enum_tokens_with_quotes(PathEnv, L";"sv))
 			{
 				if (Path.empty())
 					continue;
@@ -304,7 +304,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 		if (Global->Opt->Exec.ExecuteUseAppPath && !contains(Module, L'\\'))
 		{
 			static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
-			const auto FullName = concat(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"_sv, Module);
+			const auto FullName = concat(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv, Module);
 
 			DWORD samDesired = KEY_QUERY_VALUE;
 
@@ -402,7 +402,7 @@ static bool PartCmdLine(const string& CmdStr, string& strNewCmdStr, string& strN
 			continue;
 		}
 
-		if (!InQuotes && UseDefaultCondition && contains(L"<>|&"_sv, *i))
+		if (!InQuotes && UseDefaultCondition && contains(L"<>|&"sv, *i))
 		{
 			return false;
 		}
@@ -438,7 +438,7 @@ static bool RunAsSupported(const wchar_t* Name)
 		os::reg::key::open(os::reg::key::classes_root, Type.append(L"\\shell\\runas\\command"), KEY_QUERY_VALUE);
 }
 
-const auto CommandName = L"command"_sv;
+const auto CommandName = L"command"sv;
 
 static bool IsShortcutType(string_view const Type)
 {
@@ -454,7 +454,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 	if (TypeName.empty())
 		return {};
 
-	KeyName = concat(TypeName, L"\\shell"_sv);
+	KeyName = concat(TypeName, L"\\shell"sv);
 
 	const auto Key = os::reg::key::open(os::reg::key::classes_root, KeyName, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
 	if (!Key)
@@ -473,7 +473,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 	if (Key.get(L"", Action) && !Action.empty())
 	{
 		// Need to clarify if we need to support quotes here
-		for (const auto& i : enum_tokens_with_quotes(Action, L","_sv))
+		for (const auto& i : enum_tokens_with_quotes(Action, L","sv))
 		{
 			if (!i.empty() && TryAction(i))
 				return string(i);
@@ -485,7 +485,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 	else
 	{
 		// Сначала проверим "open"...
-		const auto OpenAction = L"open"_sv;
+		const auto OpenAction = L"open"sv;
 		if (TryAction(OpenAction))
 			return string(OpenAction);
 
@@ -506,7 +506,7 @@ string GetShellTypeFromExtension(string_view const FileName)
 	if (Ext.empty())
 	{
 		// Yes, no matter how mad it looks - it is possible to specify actions for empty extension too
-		Ext = L"."_sv;
+		Ext = L"."sv;
 	}
 
 	string Type;
@@ -715,7 +715,7 @@ static bool GetProtocolType(string_view const Str, image_type& ImageType)
 	if (FindAndGetApplicationType(GetAssociatedApplicationFromType(Type, Action), ImageType))
 		return true;
 
-	if (equal_icase(Type, L"file"_sv))
+	if (equal_icase(Type, L"file"sv))
 	{
 		// file protocol is handled by IE but cannot be detected using conventional approach
 		ImageType = image_type::graphical;
@@ -957,7 +957,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 		strComspec = os::env::expand(Global->Opt->Exec.Comspec);
 		if (strComspec.empty())
 		{
-			strComspec = os::env::get(L"COMSPEC"_sv);
+			strComspec = os::env::get(L"COMSPEC"sv);
 			if (strComspec.empty())
 			{
 				Message(MSG_WARNING,
@@ -1146,7 +1146,7 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 			msg(lng::MError),
 			std::move(Strings),
 			{ lng::MOk },
-			L"ErrCannotExecute"_sv,
+			L"ErrCannotExecute"sv,
 			nullptr,
 			{ Info.ExecMode == execute_info::exec_mode::direct? strNewCmdStr : strComspec });
 	}
@@ -1197,10 +1197,10 @@ static const wchar_t *PrepareOSIfExist(const string& CmdLine)
 			++PtrCmd;
 	}
 
-	constexpr auto Token_If = L"IF "_sv;
-	constexpr auto Token_Not = L"NOT "_sv;
-	constexpr auto Token_Exist = L"EXIST "_sv;
-	constexpr auto Token_Defined = L"DEFINED "_sv;
+	constexpr auto Token_If = L"IF "sv;
+	constexpr auto Token_Not = L"NOT "sv;
+	constexpr auto Token_Exist = L"EXIST "sv;
+	constexpr auto Token_Defined = L"DEFINED "sv;
 
 	for (;;)
 	{
@@ -1388,7 +1388,7 @@ bool IsExecutable(string_view const Filename)
 
 	// these guys have specific association in Windows Registry: "%1" %*
 	// That means we can't find the associated program etc., so they shall be hard-coded.
-	static const string_view Executables[] = { L"exe"_sv, L"cmd"_sv, L"com"_sv, L"bat"_sv };
+	static const string_view Executables[] = { L"exe"sv, L"cmd"sv, L"com"sv, L"bat"sv };
 	const auto ExtWithoutDot = Ext.substr(1);
 	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view Extension)
 	{
@@ -1410,7 +1410,7 @@ bool ExpandOSAliases(string& strStr)
 
 	if (!ret)
 	{
-		const auto strComspec(os::env::get(L"COMSPEC"_sv));
+		const auto strComspec(os::env::get(L"COMSPEC"sv));
 		if (!strComspec.empty())
 		{
 			ExeName=PointToName(strComspec);

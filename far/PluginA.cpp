@@ -115,7 +115,7 @@ public:
 		if (!GetFileVersionInfo(Filename.c_str(), 0, Size, m_Buffer.get()))
 			return false;
 
-		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"_sv);
+		const auto Translation = GetValue<DWORD>(L"\\VarFileInfo\\Translation"sv);
 		if (!Translation)
 			return false;
 
@@ -130,7 +130,7 @@ public:
 
 	auto GetFixedInfo() const
 	{
-		return GetValue<VS_FIXEDFILEINFO>(L"\\"_sv);
+		return GetValue<VS_FIXEDFILEINFO>(L"\\"sv);
 	}
 
 private:
@@ -224,7 +224,7 @@ public:
 					filename
 				},
 				{ lng::MOk },
-				L"ErrLoadPlugin"_sv);
+				L"ErrLoadPlugin"sv);
 
 			Module.reset();
 		}
@@ -4957,9 +4957,9 @@ private:
 			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().c_str();
 
 			if (Global->strRegUser.empty())
-				os::env::del(L"FARUSER"_sv);
+				os::env::del(L"FARUSER"sv);
 			else
-				os::env::set(L"FARUSER"_sv, Global->strRegUser);
+				os::env::set(L"FARUSER"sv, Global->strRegUser);
 
 			ExecuteFunction(es, &InfoCopy);
 
@@ -5730,7 +5730,7 @@ private:
 		void reserve(size_t Size) override { return m_Messages.reserve(Size); }
 		void add(string&& Str) override { m_Messages.emplace_back(encoding::oem::get_bytes(Str)); }
 		void set_at(size_t Index, string&& Str) override { m_Messages[Index] = encoding::oem::get_bytes(Str); }
-		const string& at(size_t Index) const override { throw MAKE_FAR_EXCEPTION(L"Not supported"_sv); }
+		const string& at(size_t Index) const override { throw MAKE_FAR_EXCEPTION(L"Not supported"sv); }
 		size_t size() const override { return m_Messages.size(); }
 
 		const std::string& ansi_at(size_t Index) const { return m_Messages[Index]; }

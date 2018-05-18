@@ -128,7 +128,7 @@ string copy_progress::FormatCounter(lng CounterId, lng AnotherId, unsigned long 
 	const auto StrCurrent = GroupDigits(CurrentValue);
 	const auto StrTotal = ShowTotal? GroupDigits(TotalValue) : string();
 
-	auto Value = ShowTotal? concat(StrCurrent, L" / "_sv, StrTotal) : StrCurrent;
+	auto Value = ShowTotal? concat(StrCurrent, L" / "sv, StrTotal) : StrCurrent;
 	if (MaxWidth > PaddedLabelSize)
 	{
 		const auto PaddedValueSize = MaxWidth - PaddedLabelSize;
@@ -166,7 +166,7 @@ void copy_progress::Flush()
 	if (m_Total || (m_Files.Total == 1))
 	{
 		ConsoleTitle::SetFarTitle(concat(
-			L'{', str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_CurrentPercent), L"%} "_sv,
+			L'{', str(m_Total ? ToPercent(GetBytesDone(), m_Bytes.Total) : m_CurrentPercent), L"%} "sv,
 			msg(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle))
 		);
 	}

@@ -1200,7 +1200,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned long l
 		if (Flags & FMSG_ALLINONE)
 		{
 			std::vector<string> Strings;
-			for (const auto& i : enum_tokens(reinterpret_cast<const wchar_t*>(Items), L"\n"_sv))
+			for (const auto& i : enum_tokens(reinterpret_cast<const wchar_t*>(Items), L"\n"sv))
 			{
 				Strings.emplace_back(ALL_CONST_RANGE(i));
 			}

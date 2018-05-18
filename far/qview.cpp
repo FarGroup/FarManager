@@ -574,7 +574,7 @@ void QuickView::RefreshTitle()
 	m_Title = L'{';
 	if (!strCurFileName.empty())
 	{
-		append(m_Title, strCurFileName, L" - "_sv);
+		append(m_Title, strCurFileName, L" - "sv);
 	}
 	append(m_Title, msg(lng::MQuickViewTitle), L'}');
 }

@@ -124,7 +124,7 @@ namespace detail
 						m_DigitsGrouping = m_DigitsGrouping * 10 + i - L'0';
 				}
 
-				if (!ends_with(Grouping, L";0"_sv))
+				if (!ends_with(Grouping, L";0"sv))
 					m_DigitsGrouping *= 10;
 			}
 			else
@@ -138,7 +138,7 @@ namespace detail
 			if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, Value))
 			{
 				size_t pos = 0;
-				if (starts_with(Value, L"ddd"_sv)) // starts with week day
+				if (starts_with(Value, L"ddd"sv)) // starts with week day
 				{
 					pos = Value[3] == L'd'? 4 : 3;
 					// skip separators

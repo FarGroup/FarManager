@@ -116,7 +116,7 @@ void KeyBar::DisplayObject()
 		{
 			string_view Beginning, Ending;
 			auto FirstEntry = true;
-			for (const auto& Part: enum_tokens_with_quotes(Label, L"|"_sv))
+			for (const auto& Part: enum_tokens_with_quotes(Label, L"|"sv))
 			{
 				if (FirstEntry)
 				{
@@ -217,14 +217,14 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 {
 	static const string_view Names[]
 	{
-		L"Shell"_sv,
-		L"Info"_sv,
-		L"Tree"_sv,
-		L"QView"_sv,
-		L"FindFolder"_sv,
-		L"Editor"_sv,
-		L"Viewer"_sv,
-		L"Help"_sv,
+		L"Shell"sv,
+		L"Info"sv,
+		L"Tree"sv,
+		L"QView"sv,
+		L"FindFolder"sv,
+		L"Editor"sv,
+		L"Viewer"sv,
+		L"Help"sv,
 	};
 
 	static_assert(std::size(Names) == KBA_COUNT);
@@ -235,7 +235,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		const auto KeyName = concat(L"KeyBarLabels."_sv, strLanguage, L'.', Names[Area]);
+		const auto KeyName = concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area]);
 		for (auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(KeyName))
 		{
 			DWORD Key = KeyNameToKey(i.first);

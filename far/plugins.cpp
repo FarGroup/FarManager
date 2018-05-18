@@ -139,7 +139,7 @@ static void EnsureLuaCpuCompatibility()
 	if (IsProcessorFeaturePresent(PF_XMMI64_INSTRUCTIONS_AVAILABLE))
 		return;
 
-	static os::rtdl::module LuaModule(path::join(Global->g_strFarPath, L"legacy"_sv, L"lua51.dll"_sv));
+	static os::rtdl::module LuaModule(path::join(Global->g_strFarPath, L"legacy"sv, L"lua51.dll"sv));
 	// modules are lazy loaded
 	LuaModule.operator bool();
 #endif
@@ -372,12 +372,12 @@ void PluginManager::LoadFactories()
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
 	os::fs::find_data FindData;
-	ScTree.SetFindPath(path::join(Global->g_strFarPath, L"Adapters"_sv), L"*");
+	ScTree.SetFindPath(path::join(Global->g_strFarPath, L"Adapters"sv), L"*");
 
 	string filename;
 	while (ScTree.GetNextName(FindData, filename))
 	{
-		if (CmpName(L"*.dll"_sv, filename, false) && !(FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+		if (CmpName(L"*.dll"sv, filename, false) && !(FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			if (auto CustomModel = CreateCustomPluginFactory(this, filename))
 			{
@@ -428,7 +428,7 @@ void PluginManager::LoadPlugins()
 		}
 		else if (!PluginLoadOptions.strCustomPluginsPath.empty())  // только "заказные" пути?
 		{
-			for (const auto& i: enum_tokens_with_quotes_t<with_trim>(PluginLoadOptions.strCustomPluginsPath, L";"_sv))
+			for (const auto& i: enum_tokens_with_quotes_t<with_trim>(PluginLoadOptions.strCustomPluginsPath, L";"sv))
 			{
 				if (i.empty())
 					continue;
@@ -613,7 +613,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		else
 		{
 			if (Global->Opt->ShowCheckingFile)
-				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["_sv, PointToName(i->GetModuleName()), L"]..."_sv), true);
+				ConsoleTitle::SetFarTitle(concat(msg(lng::MCheckingFileInPlugin), L" - ["sv, PointToName(i->GetModuleName()), L"]..."sv), true);
 
 			const auto hPlugin = i->OpenFilePlugin(Name? Name->c_str() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 			if (!hPlugin)
@@ -1930,7 +1930,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 		if (PluginPrefixes.empty())
 			continue;
 
-		const auto Enumerator = enum_tokens(PluginPrefixes, L":"_sv);
+		const auto Enumerator = enum_tokens(PluginPrefixes, L":"sv);
 		if (!std::any_of(ALL_CONST_RANGE(Enumerator), [&](const auto& p) { return equal_icase(p, Prefix); }))
 			continue;
 

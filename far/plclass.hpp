@@ -433,6 +433,6 @@ private:
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);
 
 #define DECLARE_GEN_PLUGIN_FUNCTION(name, is_native, signature) template<> struct prototype<name, is_native>  { using type = signature; };
-#define WA(string) { L##string##_sv, string##_sv }
+#define WA(string) { L##string##sv, string##sv }
 
 #endif // PLCLASS_HPP_E324EC16_24F2_4402_BA87_74212799246D

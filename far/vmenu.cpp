@@ -2726,7 +2726,7 @@ MenuItemEx& VMenu::at(size_t n)
 	int ItemPos = GetItemPosition(static_cast<int>(n));
 
 	if (ItemPos < 0)
-		throw MAKE_FAR_EXCEPTION(L"menu index out of range"_sv);
+		throw MAKE_FAR_EXCEPTION(L"menu index out of range"sv);
 
 	return Items[ItemPos];
 }

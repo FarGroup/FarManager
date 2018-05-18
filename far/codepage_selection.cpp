@@ -820,16 +820,16 @@ F8CP::F8CP(bool viewer):
 	if (cps != L"-1")
 	{
 		std::unordered_set<uintptr_t> used_cps;
-		for(const auto& i: enum_tokens(cps, L",;"_sv))
+		for(const auto& i: enum_tokens(cps, L",;"sv))
 		{
 			uintptr_t cp = 0;
-			if (equal_icase(i, L"ansi"_sv) || equal_icase(i, L"acp"_sv) || equal_icase(i, L"win"_sv))
+			if (equal_icase(i, L"ansi"sv) || equal_icase(i, L"acp"sv) || equal_icase(i, L"win"sv))
 				cp = GetACP();
-			else if (equal_icase(i, L"oem"_sv) || equal_icase(i, L"oemcp"_sv) || equal_icase(i, L"dos"_sv))
+			else if (equal_icase(i, L"oem"sv) || equal_icase(i, L"oemcp"sv) || equal_icase(i, L"dos"sv))
 				cp = GetOEMCP();
-			else if (equal_icase(i, L"utf8"_sv) || equal_icase(i, L"utf-8"_sv))
+			else if (equal_icase(i, L"utf8"sv) || equal_icase(i, L"utf-8"sv))
 				cp = CP_UTF8;
-			else if (equal_icase(i, L"default"_sv))
+			else if (equal_icase(i, L"default"sv))
 				cp = defcp;
 			else
 			{

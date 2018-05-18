@@ -147,7 +147,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		string strOriginalDirName;
 		bool SkipAll = false;
 		auto EmptyList = true;
-		for (const auto& i: enum_tokens_with_quotes_t<with_trim>(std::move(strDirName), L",;"_sv))
+		for (const auto& i: enum_tokens_with_quotes_t<with_trim>(std::move(strDirName), L",;"sv))
 		{
 			if (i.empty())
 				continue;

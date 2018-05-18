@@ -120,7 +120,7 @@ static void ShellDeleteMsg(const string& Name, DEL_MODE Mode, ShellDelete::progr
 	{
 		const auto Percent = ToPercent(Files.Value, Files.Total);
 		strProgress = make_progressbar(Width, Percent, true, true);
-		ConsoleTitle::SetFarTitle(concat(L'{', str(Percent), L"%} "_sv, msg(Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS? lng::MDeleteWipeTitle : lng::MDeleteTitle)));
+		ConsoleTitle::SetFarTitle(concat(L'{', str(Percent), L"%} "sv, msg(Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS? lng::MDeleteWipeTitle : lng::MDeleteTitle)));
 	}
 
 	auto strOutFileName = Name;

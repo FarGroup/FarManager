@@ -415,7 +415,7 @@ string ConvertNameToUNC(string_view const Object)
 	block_ptr<UNIVERSAL_NAME_INFO> uni(uniSize);
 
 	// применяем WNetGetUniversalName для чего угодно, только не для Novell`а
-	if (!equal_icase(strFileSystemName, L"NWFS"_sv))
+	if (!equal_icase(strFileSystemName, L"NWFS"sv))
 	{
 		switch (WNetGetUniversalName(strFileName.c_str(), UNIVERSAL_NAME_INFO_LEVEL, uni.get(), &uniSize))
 		{

@@ -125,7 +125,7 @@ static void show_help()
 		L" -v <filename>\n"
 		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
 		L" -w[-] Stretch to console window instead of console buffer or vise versa.\n"
-		""_sv;
+		""sv;
 
 	std::wcout << HelpMsg << std::flush;
 }
@@ -308,7 +308,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.empty())
 	{
-		strTemplatePath = GetFarIniString(L"General", L"TemplateProfile", path::join(L"%FARHOME%"_sv, L"Default.farconfig"_sv));
+		strTemplatePath = GetFarIniString(L"General", L"TemplateProfile", path::join(L"%FARHOME%"sv, L"Default.farconfig"sv));
 	}
 
 	if (!strTemplatePath.empty())
@@ -317,7 +317,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 		DeleteEndSlash(strTemplatePath);
 
 		if (os::fs::is_directory(strTemplatePath))
-			path::append(strTemplatePath, L"Default.farconfig"_sv);
+			path::append(strTemplatePath, L"Default.farconfig"sv);
 
 		Global->Opt->TemplateProfilePath = strTemplatePath;
 	}
@@ -346,7 +346,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 			{
 				wchar_t Buffer[MAX_PATH];
 				SHGetFolderPath(nullptr, Idl | (Global->Opt->ReadOnlyConfig? 0 : CSIDL_FLAG_CREATE), nullptr, SHGFP_TYPE_CURRENT, Buffer);
-				return path::join(Buffer, L"Far Manager"_sv, L"Profile"_sv);
+				return path::join(Buffer, L"Far Manager"sv, L"Profile"sv);
 			};
 
 			// roaming data default path: %APPDATA%\Far Manager\Profile
@@ -359,7 +359,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		}
 		else
 		{
-			const auto strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", path::join(L"%FARHOME%"_sv, L"Profile"_sv));
+			const auto strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", path::join(L"%FARHOME%"sv, L"Profile"sv));
 			const auto strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
 			Global->Opt->ProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserProfileDir)));
 			Global->Opt->LocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserLocalProfileDir)));
@@ -371,17 +371,17 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		Global->Opt->LocalProfilePath = !strLocalProfilePath.empty()? strLocalProfilePath : strProfilePath;
 	}
 
-	Global->Opt->LoadPlug.strPersonalPluginsPath = path::join(Global->Opt->ProfilePath, L"Plugins"_sv);
+	Global->Opt->LoadPlug.strPersonalPluginsPath = path::join(Global->Opt->ProfilePath, L"Plugins"sv);
 
-	os::env::set(L"FARPROFILE"_sv, Global->Opt->ProfilePath);
-	os::env::set(L"FARLOCALPROFILE"_sv, Global->Opt->LocalProfilePath);
+	os::env::set(L"FARPROFILE"sv, Global->Opt->ProfilePath);
+	os::env::set(L"FARLOCALPROFILE"sv, Global->Opt->LocalProfilePath);
 
 	if (!Global->Opt->ReadOnlyConfig)
 	{
-		CreatePath(path::join(Global->Opt->ProfilePath, L"PluginsData"_sv), true);
+		CreatePath(path::join(Global->Opt->ProfilePath, L"PluginsData"sv), true);
 
 		if (Global->Opt->LocalProfilePath != Global->Opt->ProfilePath)
-			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"_sv), true);
+			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"sv), true);
 	}
 }
 
@@ -500,13 +500,13 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
-	os::env::set(L"FARHOME"_sv, Global->g_strFarPath);
+	os::env::set(L"FARHOME"sv, Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
 	if (os::security::is_admin())
-		os::env::set(L"FARADMINMODE"_sv, L"1"_sv);
+		os::env::set(L"FARADMINMODE"sv, L"1"sv);
 	else
-		os::env::del(L"FARADMINMODE"_sv);
+		os::env::del(L"FARADMINMODE"sv);
 
 	{
 		int ServiceResult;
@@ -602,7 +602,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 
 				case L'S':
 					{
-						constexpr auto SetParam = L"set:"_sv;
+						constexpr auto SetParam = L"set:"sv;
 						if (starts_with_icase(Arg + 1, SetParam))
 						{
 							if (const auto EqualPtr = wcschr(Arg + 1, L'='))
@@ -625,7 +625,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 
 				case L'T':
 					{
-						const auto Title = L"title"_sv;
+						const auto Title = L"title"sv;
 						if (starts_with_icase(Arg + 1, Title))
 						{
 							CustomTitle.second = true;
@@ -761,7 +761,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 
 	far_language::instance().load(Global->g_strFarPath, Global->Opt->strLanguage, static_cast<int>(lng::MNewFileName + 1));
 
-	os::env::set(L"FARLANG"_sv, Global->Opt->strLanguage);
+	os::env::set(L"FARLANG"sv, Global->Opt->strLanguage);
 
 	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
 		Global->Opt->LoadPlug.strCustomPluginsPath = ConvertNameToFull(unquote(os::env::expand(Global->Opt->LoadPlug.strCustomPluginsPath)));
@@ -780,14 +780,14 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"mainImpl"_sv))
+		if (ProcessStdException(e, L"mainImpl"sv))
 			std::terminate();
 		throw;
 	}
 #if COMPILER == C_GCC
 	catch (...)
 	{
-		if (ProcessUnknownException(L"mainImpl"_sv))
+		if (ProcessUnknownException(L"mainImpl"sv))
 			std::terminate();
 		throw;
 	}
@@ -821,7 +821,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 	}
 	catch (const std::exception& e)
 	{
-		if (ProcessStdException(e, L"wmain"_sv))
+		if (ProcessStdException(e, L"wmain"sv))
 			std::terminate();
 
 		unhandled_exception_filter::dismiss();
@@ -831,7 +831,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 #if COMPILER == C_GCC
 	catch (...)
 	{
-		if (ProcessUnknownException(L"mainImpl"_sv))
+		if (ProcessUnknownException(L"mainImpl"sv))
 			std::terminate();
 
 		unhandled_exception_filter::dismiss();

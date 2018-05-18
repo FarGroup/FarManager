@@ -308,10 +308,10 @@ string_view SQLiteDb::GetErrorMessage(int InitStatus)
 {
 	switch (InitStatus)
 	{
-	case 0:  return L"no errors"_sv;
-	case 1:  return L"database file is renamed to *.bad and new one is created"_sv;
-	case 2:  return L"database is opened in memory"_sv;
-	default: return L"unknown error"_sv;
+	case 0:  return L"no errors"sv;
+	case 1:  return L"database file is renamed to *.bad and new one is created"sv;
+	case 2:  return L"database is opened in memory"sv;
+	default: return L"unknown error"sv;
 	}
 }
 

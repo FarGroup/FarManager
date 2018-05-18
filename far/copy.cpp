@@ -211,7 +211,7 @@ bool CheckNulOrCon(string_view Src)
 	if (HasPathPrefix(Src))
 		Src.remove_prefix(4);
 
-	return (starts_with_icase(Src, L"nul"_sv) || starts_with_icase(Src, L"con"_sv)) && (Src.size() == 3 || (Src.size() > 3 && IsSlash(Src[3])));
+	return (starts_with_icase(Src, L"nul"sv) || starts_with_icase(Src, L"con"sv)) && (Src.size() == 3 || (Src.size() > 3 && IsSlash(Src[3])));
 }
 
 string GetParentFolder(const string& Src)
@@ -247,7 +247,7 @@ static void GenerateName(string &strName, const string& Path)
 	for (int i = 2; os::fs::exists(strName); ++i)
 	{
 		strName.resize(NameLength);
-		append(strName, L" ("_sv, str(i), L')', Ext);
+		append(strName, L" ("sv, str(i), L')', Ext);
 	}
 }
 
@@ -399,7 +399,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 
 				if (MultiCopy)
 				{
-					for (const auto& i: enum_tokens_with_quotes_t<with_trim>(strOldFolder, L",;"_sv))
+					for (const auto& i: enum_tokens_with_quotes_t<with_trim>(strOldFolder, L",;"sv))
 					{
 						if (i.empty())
 							continue;
@@ -673,7 +673,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 		const auto Format = msg(Move? lng::MMoveFile : Link? lng::MLinkFile : lng::MCopyFile);
 		const auto& ToOrIn = msg(Link? lng::MCMLTargetIN : lng::MCMLTargetTO);
 		const auto SpaceAvailable = std::max(0, static_cast<int>(CopyDlg[ID_SC_TITLE].X2 - CopyDlg[ID_SC_TITLE].X1 - 1 - 1));
-		if (const auto MaxLength = std::max(0, SpaceAvailable - static_cast<int>(HiStrlen(format(Format, L""_sv, ToOrIn)))))
+		if (const auto MaxLength = std::max(0, SpaceAvailable - static_cast<int>(HiStrlen(format(Format, L""sv, ToOrIn)))))
 		{
 			strCopyStr = SingleSelName;
 			TruncStrFromEnd(strCopyStr, MaxLength);
@@ -925,7 +925,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 					}
 					else
 					{
-						for (const auto& i: enum_tokens_with_quotes_t<with_trim>(strCopyDlgValue, L",;"_sv))
+						for (const auto& i: enum_tokens_with_quotes_t<with_trim>(strCopyDlgValue, L",;"sv))
 						{
 							m_DestList.emplace_back(ALL_CONST_RANGE(i));
 						}
@@ -1849,7 +1849,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		}
 	}
 
-	if (!(Flags&FCOPY_COPYTONUL) && !equal_icase(strDestPath, L"prn"_sv))
+	if (!(Flags&FCOPY_COPYTONUL) && !equal_icase(strDestPath, L"prn"sv))
 		SetDestDizPath(strDestPath);
 
 	CP->SetNames(Src, strDestPath);
@@ -2660,7 +2660,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 					msg(lng::MCopyEncryptWarn3)
 				},
 				{ lng::MCopyIgnore, lng::MCopyIgnoreAll, lng::MCopyCancel },
-				L"WarnCopyEncrypt"_sv);
+				L"WarnCopyEncrypt"sv);
 		}
 
 		switch (MsgCode)
@@ -2900,7 +2900,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcD
 										strDestName
 									},
 									{ lng::MSplit, lng::MSkip, lng::MRetry, lng::MCancel },
-									L"CopyFiles"_sv);
+									L"CopyFiles"sv);
 
 								if (MsgCode==2)
 								{
@@ -3187,7 +3187,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 							{},
 							strDestName,
 							*WFN->Dest,
-							L"CopyAskOverwrite"_sv,
+							L"CopyAskOverwrite"sv,
 							FIB_BUTTONS | FIB_NOAMPERSAND | FIB_EXPANDENV | FIB_CHECKBOX,
 							&All,
 							msg(lng::MCopyRememberChoice)))

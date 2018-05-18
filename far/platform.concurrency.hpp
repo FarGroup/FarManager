@@ -106,7 +106,7 @@ inline namespace concurrency
 			reset(reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, wrapper<T>, Param.get(), 0, &m_ThreadId)));
 
 			if (!*this)
-				throw MAKE_FAR_EXCEPTION(L"Can't create thread"_sv);
+				throw MAKE_FAR_EXCEPTION(L"Can't create thread"sv);
 
 			Param.release();
 		}

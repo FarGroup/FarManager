@@ -59,15 +59,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 static const auto
-	FolderShortcutsKey = L"Shortcuts"_sv,
-	FolderName = L"Shortcut"_sv,
-	NameName = L"Name"_sv,
-	PluginGuidName = L"PluginGuid"_sv,
-	PluginFileName = L"PluginFile"_sv,
-	PluginDataName = L"PluginData"_sv,
+	FolderShortcutsKey = L"Shortcuts"sv,
+	FolderName = L"Shortcut"sv,
+	NameName = L"Name"sv,
+	PluginGuidName = L"PluginGuid"sv,
+	PluginFileName = L"PluginFile"sv,
+	PluginDataName = L"PluginData"sv,
 
-	HelpFolderShortcuts = L"FolderShortcuts"_sv,
-	SeparatorToken = L"--"_sv;
+	HelpFolderShortcuts = L"FolderShortcuts"sv,
+	SeparatorToken = L"--"sv;
 
 class Shortcuts::shortcut: public data, public rel_ops<shortcut>
 {
@@ -197,19 +197,19 @@ static string MakeName(const Shortcuts::shortcut& Item)
 	string TechInfo;
 
 	if (!Item.PluginFile.empty())
-		append(TechInfo, msg(lng::MFSShortcutPluginFile), L' ', Item.PluginFile, L", "_sv);
+		append(TechInfo, msg(lng::MFSShortcutPluginFile), L' ', Item.PluginFile, L", "sv);
 
 	if (!Item.Folder.empty())
-		append(TechInfo, msg(lng::MFSShortcutPath), L' ', Item.Folder, L", "_sv);
+		append(TechInfo, msg(lng::MFSShortcutPath), L' ', Item.Folder, L", "sv);
 
 	if (!Item.PluginData.empty())
 	{
 		const string PrintablePluginData(Item.PluginData.cbegin(), std::find_if(ALL_CONST_RANGE(Item.PluginData), [](const auto i) { return i < L' '; }));
 		if (!PrintablePluginData.empty())
-			append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "_sv);
+			append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "sv);
 	}
 
-	return plugin->GetTitle() + (TechInfo.empty()? TechInfo : concat(L" ("_sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')'));
+	return plugin->GetTitle() + (TechInfo.empty()? TechInfo : concat(L" ("sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')'));
 }
 
 // Don't listen to static analysers - List MUST NOT be const. We store non-const iterators in type-erased UserData for further usage.
@@ -453,7 +453,7 @@ void Shortcuts::Add(const string& Folder, const GUID& PluginGuid, const string& 
 static void MakeListName(const std::list<Shortcuts::shortcut>& List, const string& Key, MenuItemEx& MenuItem)
 {
 	const auto ItemName = List.empty()? msg(lng::MShortcutNone) : MakeName(List.front());
-	MenuItem.Name = concat(msg(lng::MRightCtrl), L"+&"_sv, Key, L" \x2502 "_sv, ItemName);
+	MenuItem.Name = concat(msg(lng::MRightCtrl), L"+&"sv, Key, L" \x2502 "sv, ItemName);
 	if (List.size() > 1)
 	{
 		MenuItem.Flags |= MIF_SUBMENU;

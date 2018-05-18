@@ -79,26 +79,26 @@ static const struct
 }
 HLS
 {
-	L"NormalColor"_sv,
-	L"SelectedColor"_sv,
-	L"CursorColor"_sv,
-	L"SelectedCursorColor"_sv,
-	L"MarkCharNormalColor"_sv,
-	L"MarkCharSelectedColor"_sv,
-	L"MarkCharCursorColor"_sv,
-	L"MarkCharSelectedCursorColor"_sv,
-	L"MarkChar"_sv,
-	L"ContinueProcessing"_sv,
-	L"HighlightEdit"_sv,
-	L"HighlightList"_sv
+	L"NormalColor"sv,
+	L"SelectedColor"sv,
+	L"CursorColor"sv,
+	L"SelectedCursorColor"sv,
+	L"MarkCharNormalColor"sv,
+	L"MarkCharSelectedColor"sv,
+	L"MarkCharCursorColor"sv,
+	L"MarkCharSelectedCursorColor"sv,
+	L"MarkChar"sv,
+	L"ContinueProcessing"sv,
+	L"HighlightEdit"sv,
+	L"HighlightList"sv
 };
 
-static const auto fmtFirstGroup = L"Group"_sv;
-static const auto fmtUpperGroup = L"UpperGroup"_sv;
-static const auto fmtLowerGroup = L"LowerGroup"_sv;
-static const auto fmtLastGroup = L"LastGroup"_sv;
-static const auto SortGroupsKeyName = L"SortGroups"_sv;
-static const auto HighlightKeyName = L"Highlight"_sv;
+static const auto fmtFirstGroup = L"Group"sv;
+static const auto fmtUpperGroup = L"UpperGroup"sv;
+static const auto fmtLowerGroup = L"LowerGroup"sv;
+static const auto fmtLastGroup = L"LastGroup"sv;
+static const auto SortGroupsKeyName = L"SortGroups"sv;
+static const auto HighlightKeyName = L"Highlight"sv;
 
 static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
@@ -131,20 +131,20 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 	}
 	DefaultHighlighting[]
 	{
-		{ L"*"_sv,      FILE_ATTRIBUTE_HIDDEN,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
-		{ L"*"_sv,      FILE_ATTRIBUTE_SYSTEM,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
-		{ L"*|.."_sv,   FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
-		{ L".."_sv,     FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLACK | F_BLACK),       MakeFarColor(B_BLACK | F_BLACK) },
-		{ L"<exec>"_sv, 0,                        MakeFarColor(B_BLUE | F_LIGHTGREEN),   MakeFarColor(B_CYAN | F_LIGHTGREEN) },
-		{ L"<arc>"_sv,  0,                        MakeFarColor(B_BLUE | F_LIGHTMAGENTA), MakeFarColor(B_CYAN | F_LIGHTMAGENTA) },
-		{ L"<temp>"_sv, 0,                        MakeFarColor(B_BLUE | F_BROWN),        MakeFarColor(B_CYAN | F_BROWN) },
+		{ L"*"sv,      FILE_ATTRIBUTE_HIDDEN,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
+		{ L"*"sv,      FILE_ATTRIBUTE_SYSTEM,    MakeFarColor(B_BLUE | F_CYAN),         MakeFarColor(B_CYAN | F_DARKGRAY) },
+		{ L"*|.."sv,   FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
+		{ L".."sv,     FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLACK | F_BLACK),       MakeFarColor(B_BLACK | F_BLACK) },
+		{ L"<exec>"sv, 0,                        MakeFarColor(B_BLUE | F_LIGHTGREEN),   MakeFarColor(B_CYAN | F_LIGHTGREEN) },
+		{ L"<arc>"sv,  0,                        MakeFarColor(B_BLUE | F_LIGHTMAGENTA), MakeFarColor(B_CYAN | F_LIGHTMAGENTA) },
+		{ L"<temp>"sv, 0,                        MakeFarColor(B_BLUE | F_BROWN),        MakeFarColor(B_CYAN | F_BROWN) },
 		{ {},           FILE_ATTRIBUTE_DIRECTORY, MakeFarColor(B_BLUE | F_WHITE),        MakeFarColor(B_CYAN | F_WHITE) },
 	};
 
 	size_t Index = 0;
 	for (auto& i: DefaultHighlighting)
 	{
-		const auto Key = cfg->CreateKey(root, L"Group"_sv + str(Index++));
+		const auto Key = cfg->CreateKey(root, L"Group"sv + str(Index++));
 		if (!Key)
 			break;
 

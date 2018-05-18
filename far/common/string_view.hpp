@@ -217,8 +217,14 @@ public:
 	}
 };
 
-constexpr auto operator "" _sv(const char* Data, size_t Size) noexcept { return basic_string_view<char>(Data, Size); }
-constexpr auto operator "" _sv(const wchar_t* Data, size_t Size) noexcept { return basic_string_view<wchar_t>(Data, Size); }
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4455) // no page                                                'operator ""sv': literal suffix identifiers that do not start with an underscore are reserved
+WARNING_DISABLE_GCC("-Wliteral-suffix")
+
+constexpr auto operator ""sv(const char* Data, size_t Size) noexcept { return basic_string_view<char>(Data, Size); }
+constexpr auto operator ""sv(const wchar_t* Data, size_t Size) noexcept { return basic_string_view<wchar_t>(Data, Size); }
+
+WARNING_POP()
 
 template<typename T>
 auto operator+(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)

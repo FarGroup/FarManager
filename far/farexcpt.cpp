@@ -212,7 +212,7 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 	string Address, Name, Source;
 	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 	if (!Name.empty())
-		append(Address, L" - "_sv, Name);
+		append(Address, L" - "sv, Name);
 
 	const null_terminated FunctionName(Function);
 
@@ -260,7 +260,7 @@ static reply ExcConsole(const string& ModuleName, const string& Exception, const
 	string Address, Name, Source;
 	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 	if (!Name.empty())
-		append(Address, L" - "_sv, Name);
+		append(Address, L" - "sv, Name);
 
 	std::array<string_view, 6> Msg;
 	if (far_language::instance().is_loaded())
@@ -279,12 +279,12 @@ static reply ExcConsole(const string& ModuleName, const string& Exception, const
 	{
 		Msg =
 		{
-			L"Exception:"_sv,
-			L"Details:  "_sv,
-			L"Address:  "_sv,
-			L"Source:   "_sv,
-			L"Function: "_sv,
-			L"Module:   "_sv,
+			L"Exception:"sv,
+			L"Details:  "sv,
+			L"Address:  "sv,
+			L"Source:   "sv,
+			L"Function: "sv,
+			L"Module:   "sv,
 		};
 	}
 
@@ -491,9 +491,9 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 				switch (Code)
 				{
 				default:
-				case 0: return L"read"_sv;
-				case 1: return L"written"_sv;
-				case 8: return L"executed"_sv;
+				case 0: return L"read"sv;
+				case 1: return L"written"sv;
+				case 8: return L"executed"sv;
 				}
 			}(xr->ExceptionInformation[0]);
 
@@ -504,7 +504,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
 		Details = xr->NumberParameters? ExtractObjectName(xr) : L""s;
 		if (Message)
-			append(Details, Details.empty()? L""_sv : L", "_sv, L"what(): ", encoding::utf8::get_chars(Message));
+			append(Details, Details.empty()? L""sv : L", "sv, L"what(): ", encoding::utf8::get_chars(Message));
 		break;
 
 	default:
@@ -609,7 +609,7 @@ static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo
 {
 	SetFloatingPointExceptions(false);
 	const exception_context Context(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo);
-	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"_sv, nullptr, nullptr))
+	if (ProcessGenericException(Context, L"FarUnhandledExceptionFilter"sv, nullptr, nullptr))
 	{
 		std::terminate();
 	}
@@ -680,35 +680,35 @@ static bool ExceptionTestHook(Manager::Key key)
 
 		static const string_view Names[]
 		{
-			L"C++ std::exception"_sv,
-			L"C++ std::bad_alloc"_sv,
-			L"C++ unknown exception"_sv,
-			L"Access Violation (Read)"_sv,
-			L"Access Violation (Write)"_sv,
-			L"Access Violation (Execute)"_sv,
-			L"Divide by zero"_sv,
-			L"Illegal instruction"_sv,
-			L"Stack Overflow"_sv,
-			L"Floating-point divide by zero"_sv,
-			L"Floating-point overflow"_sv,
-			L"Floating-point underflow"_sv,
-			L"Floating-point inexact result"_sv,
-			L"Breakpoint"_sv,
-			L"Alignment fault"_sv,
+			L"C++ std::exception"sv,
+			L"C++ std::bad_alloc"sv,
+			L"C++ unknown exception"sv,
+			L"Access Violation (Read)"sv,
+			L"Access Violation (Write)"sv,
+			L"Access Violation (Execute)"sv,
+			L"Divide by zero"sv,
+			L"Illegal instruction"sv,
+			L"Stack Overflow"sv,
+			L"Floating-point divide by zero"sv,
+			L"Floating-point overflow"sv,
+			L"Floating-point underflow"sv,
+			L"Floating-point inexact result"sv,
+			L"Breakpoint"sv,
+			L"Alignment fault"sv,
 
 			/*
-			L"EXCEPTION_SINGLE_STEP"_sv,
-			L"EXCEPTION_ARRAY_BOUNDS_EXCEEDED"_sv,
-			L"EXCEPTION_FLT_DENORMAL_OPERAND"_sv,
-			L"EXCEPTION_FLT_INVALID_OPERATION"_sv,
-			L"EXCEPTION_FLT_STACK_CHECK"_sv,
-			L"EXCEPTION_INT_OVERFLOW"_sv,
-			L"EXCEPTION_PRIV_INSTRUCTION"_sv,
-			L"EXCEPTION_IN_PAGE_ERROR"_sv,
-			L"EXCEPTION_NONCONTINUABLE_EXCEPTION"_sv,
-			L"EXCEPTION_INVALID_DISPOSITION"_sv,
-			L"EXCEPTION_GUARD_PAGE"_sv,
-			L"EXCEPTION_INVALID_HANDLE"_sv,
+			L"EXCEPTION_SINGLE_STEP"sv,
+			L"EXCEPTION_ARRAY_BOUNDS_EXCEEDED"sv,
+			L"EXCEPTION_FLT_DENORMAL_OPERAND"sv,
+			L"EXCEPTION_FLT_INVALID_OPERATION"sv,
+			L"EXCEPTION_FLT_STACK_CHECK"sv,
+			L"EXCEPTION_INT_OVERFLOW"sv,
+			L"EXCEPTION_PRIV_INSTRUCTION"sv,
+			L"EXCEPTION_IN_PAGE_ERROR"sv,
+			L"EXCEPTION_NONCONTINUABLE_EXCEPTION"sv,
+			L"EXCEPTION_INVALID_DISPOSITION"sv,
+			L"EXCEPTION_GUARD_PAGE"sv,
+			L"EXCEPTION_INVALID_HANDLE"sv,
 			*/
 		};
 
@@ -730,7 +730,7 @@ static bool ExceptionTestHook(Manager::Key key)
 		switch (static_cast<exception_types>(ExitCode))
 		{
 		case exception_types::cpp_std:
-			throw MAKE_FAR_EXCEPTION(L"Test error"_sv);
+			throw MAKE_FAR_EXCEPTION(L"Test error"sv);
 
 		case exception_types::cpp_std_bad_alloc:
 			{
@@ -850,7 +850,7 @@ static bool ExceptionTestHook(Manager::Key key)
 		}
 
 		Message(MSG_WARNING,
-			L"Test Exceptions failed"_sv,
+			L"Test Exceptions failed"sv,
 			{
 				string(Names[ExitCode]),
 			},

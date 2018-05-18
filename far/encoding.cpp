@@ -391,11 +391,11 @@ basic_string_view<char> encoding::get_signature_bytes(uintptr_t Cp)
 	switch (Cp)
 	{
 	case CP_UNICODE:
-		return "\xFF\xFE"_sv;
+		return "\xFF\xFE"sv;
 	case CP_REVERSEBOM:
-		return "\xFE\xFF"_sv;
+		return "\xFE\xFF"sv;
 	case CP_UTF8:
-		return "\xEF\xBB\xBF"_sv;
+		return "\xEF\xBB\xBF"sv;
 	default:
 		return {};
 	}
@@ -448,7 +448,7 @@ size_t Utf::get_chars(uintptr_t const Codepage, basic_string_view<char> const St
 	case CP_UTF8:
 		return Utf8::get_chars(Str, Buffer, BufferSize, Errors);
 	default:
-		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage"_sv);
+		throw MAKE_FAR_EXCEPTION(L"Not a utf codepage"sv);
 	}
 }
 

@@ -89,7 +89,7 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 			{
 				string strFileSystem;
 				if (os::fs::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
-					m_IsFatFilesystem.first = starts_with(strFileSystem, L"FAT"_sv);
+					m_IsFatFilesystem.first = starts_with(strFileSystem, L"FAT"sv);
 			}
 
 			m_IsFatFilesystem.second = true;

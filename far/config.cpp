@@ -887,10 +887,10 @@ void Options::SetFolderInfoFiles()
 	if (GetString(
 		msg(lng::MSetFolderInfoTitle),
 		msg(lng::MSetFolderInfoNames),
-		L"FolderInfoFiles"_sv,
+		L"FolderInfoFiles"sv,
 		InfoPanel.strFolderInfoFiles,
 		strFolderInfoFiles,
-		L"FolderDiz"_sv,
+		L"FolderDiz"sv,
 		FIB_ENABLEEMPTY | FIB_BUTTONS))
 	{
 		InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
@@ -1388,7 +1388,7 @@ struct FARConfigItem
 	bool Edit(bool Hex) const
 	{
 		DialogBuilder Builder;
-		Builder.AddText(concat(KeyName, L'.', ValName, L" ("_sv, Value->GetType(), L"):"_sv).c_str());
+		Builder.AddText(concat(KeyName, L'.', ValName, L" ("sv, Value->GetType(), L"):"sv).c_str());
 		int Result = 0;
 		if (!Value->Edit(&Builder, 40, Hex))
 		{
@@ -1425,19 +1425,19 @@ static bool ParseIntValue(const string& sValue, long long& iValue)
 		}
 		catch (const std::exception&)
 		{
-			if (equal_icase(sValue, L"false"_sv))
+			if (equal_icase(sValue, L"false"sv))
 			{
 				iValue = 0;
 				return true;
 			}
 
-			if (equal_icase(sValue, L"true"_sv))
+			if (equal_icase(sValue, L"true"sv))
 			{
 				iValue = 1;
 				return true;
 			}
 
-			if (equal_icase(sValue, L"other"_sv))
+			if (equal_icase(sValue, L"other"sv))
 			{
 				iValue = 2;
 				return true;
@@ -2324,7 +2324,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						auto HelpTopic = concat(CurrentConfig[ListInfo.SelectPos].KeyName, L'.', CurrentConfig[ListInfo.SelectPos].ValName);
 						if (Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR)->GetError())
 						{
-							HelpTopic = concat(CurrentConfig[ListInfo.SelectPos].KeyName, L"Settings"_sv);
+							HelpTopic = concat(CurrentConfig[ListInfo.SelectPos].KeyName, L"Settings"sv);
 							Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						}
 					}
@@ -2462,13 +2462,13 @@ void Options::DeleteViewSettings(size_t Index)
 	m_ViewSettingsChanged = true;
 }
 
-static const auto CustomModesKeyName = L"CustomModes"_sv;
-static const auto ModesNameName = L"Name"_sv;
-static const auto ModesColumnTitlesName = L"ColumnTitles"_sv;
-static const auto ModesColumnWidthsName = L"ColumnWidths"_sv;
-static const auto ModesStatusColumnTitlesName = L"StatusColumnTitles"_sv;
-static const auto ModesStatusColumnWidthsName = L"StatusColumnWidths"_sv;
-static const auto ModesFlagsName = L"Flags"_sv;
+static const auto CustomModesKeyName = L"CustomModes"sv;
+static const auto ModesNameName = L"Name"sv;
+static const auto ModesColumnTitlesName = L"ColumnTitles"sv;
+static const auto ModesColumnWidthsName = L"ColumnWidths"sv;
+static const auto ModesStatusColumnTitlesName = L"StatusColumnTitles"sv;
+static const auto ModesStatusColumnWidthsName = L"StatusColumnWidths"sv;
+static const auto ModesFlagsName = L"Flags"sv;
 
 void Options::ReadPanelModes()
 {
@@ -2865,11 +2865,11 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 
 	HMenuData MainMenu[]
 	{
-		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"_sv, make_range(LeftMenu), true },
-		{ msg(lng::MMenuFilesTitle), L"FilesMenu"_sv, make_range(FilesMenu) },
-		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"_sv, make_range(CmdMenu) },
-		{ msg(lng::MMenuOptionsTitle), L"OptMenu"_sv, make_range(OptionsMenu) },
-		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"_sv, make_range(RightMenu) },
+		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"sv, make_range(LeftMenu), true },
+		{ msg(lng::MMenuFilesTitle), L"FilesMenu"sv, make_range(FilesMenu) },
+		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"sv, make_range(CmdMenu) },
+		{ msg(lng::MMenuOptionsTitle), L"OptMenu"sv, make_range(OptionsMenu) },
+		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"sv, make_range(RightMenu) },
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
@@ -3133,7 +3133,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 							strHelpLanguage = HelpLanguage;
 						}
 						Global->CtrlObject->Plugins->ReloadLanguage();
-						os::env::set(L"FARLANG"_sv, strLanguage);
+						os::env::set(L"FARLANG"sv, strLanguage);
 						PrepareUnitStr();
 						Global->WindowManager->InitKeyBar();
 						Global->CtrlObject->Cp()->RedrawKeyBar();

@@ -330,7 +330,7 @@ void InfoList::DisplayObject()
 				DriveType=DRIVE_VIRTUAL;
 			}
 
-			SectionTitle = concat(L' ', msg(DiskTypeId), L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" ("_sv, strFileSystemName, L") "_sv);
+			SectionTitle = concat(L' ', msg(DiskTypeId), L' ', msg(lng::MInfoDisk), L' ', strDriveRoot, L" ("sv, strFileSystemName, L") "sv);
 
 			switch(DriveType)
 			{
@@ -734,9 +734,9 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 			}
 			else
 			{
-				for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"_sv))
+				for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"sv))
 				{
-					if (i.find_first_of(L"*?"_sv) == string::npos)
+					if (i.find_first_of(L"*?"sv) == string::npos)
 					{
 						FileEditor::create(i, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
 						break;
@@ -938,7 +938,7 @@ bool InfoList::ShowDirDescription(int YPos)
 
 	const auto DirSize = strFullDizName.size();
 
-	for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"_sv))
+	for (const auto& i: enum_tokens_with_quotes(Global->Opt->InfoPanel.strFolderInfoFiles.Get(), L",;"sv))
 	{
 		strFullDizName.resize(DirSize);
 		append(strFullDizName, i);

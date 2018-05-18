@@ -173,7 +173,7 @@ static bool ParseStringWithQuotes(const string& Str, string& Start, string& Toke
 	else
 	{
 		auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
-		static const auto NoQuote = L"\":\\/%.-"_sv;
+		static const auto NoQuote = L"\":\\/%.-"sv;
 		WordDiv.erase(std::remove_if(ALL_RANGE(WordDiv), [&](wchar_t i) { return contains(NoQuote, i); }), WordDiv.end());
 
 		for (Pos = Str.size() - 1; Pos != static_cast<size_t>(-1); Pos--)
@@ -290,7 +290,7 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string_view Token, const std::function<void(string_view)>& Inserter)
 	{
-		for (const auto& i: enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"_sv))
+		for (const auto& i: enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"sv))
 		{
 			if (starts_with_icase(i, Token))
 			{
@@ -299,13 +299,13 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 		}
 
 		{
-			const auto strPathEnv(os::env::get(L"PATH"_sv));
+			const auto strPathEnv(os::env::get(L"PATH"sv));
 			if (!strPathEnv.empty())
 			{
-				const auto PathExtList = enum_tokens(os::env::get_pathext(), L";"_sv);
+				const auto PathExtList = enum_tokens(os::env::get_pathext(), L";"sv);
 
-				const auto Pattern = Token + L"*"_sv;
-				for (const auto& Path: enum_tokens_with_quotes(strPathEnv, L";"_sv))
+				const auto Pattern = Token + L"*"sv;
+				for (const auto& Path: enum_tokens_with_quotes(strPathEnv, L";"sv))
 				{
 					if (Path.empty())
 						continue;
@@ -325,7 +325,7 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 			}
 		}
 
-		static const auto RegPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"_sv;
+		static const auto RegPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv;
 		static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
 
 		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;

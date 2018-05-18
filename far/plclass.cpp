@@ -153,7 +153,7 @@ plugin_factory::plugin_factory(PluginManager* owner):
 
 bool native_plugin_factory::IsPlugin(const string& filename) const
 {
-	if (!CmpName(L"*.dll"_sv, filename, false))
+	if (!CmpName(L"*.dll"sv, filename, false))
 		return false;
 
 	const auto ModuleFile = os::fs::create_file(filename, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
@@ -188,7 +188,7 @@ plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& fi
 				filename
 			},
 			{ lng::MOk },
-			L"ErrLoadPlugin"_sv);
+			L"ErrLoadPlugin"sv);
 
 	}
 	return Module;
@@ -1245,7 +1245,7 @@ public:
 			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
 			// TODO: store info, show message if version is bad
 		}
-		custom_plugin_factory::ProcessError(L"Initialize"_sv);
+		custom_plugin_factory::ProcessError(L"Initialize"sv);
 	}
 
 	~custom_plugin_factory()
@@ -1255,7 +1255,7 @@ public:
 
 		ExitInfo Info = { sizeof(Info) };
 		m_Imports.pFree(&Info);
-		custom_plugin_factory::ProcessError(L"Free"_sv);
+		custom_plugin_factory::ProcessError(L"Free"sv);
 	}
 
 	bool Success() const { return m_Success; }
@@ -1263,7 +1263,7 @@ public:
 	bool IsPlugin(const string& Filename) const override
 	{
 		const auto Result = m_Imports.pIsPlugin(Filename.c_str()) != FALSE;
-		ProcessError(L"IsPlugin"_sv);
+		ProcessError(L"IsPlugin"sv);
 		return Result;
 	}
 
@@ -1274,7 +1274,7 @@ public:
 		{
 			Module.reset();
 		}
-		ProcessError(L"Create"_sv);
+		ProcessError(L"Create"sv);
 		return Module;
 	}
 
@@ -1282,7 +1282,7 @@ public:
 	{
 		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->get_opaque()) != FALSE;
 		Module.reset();
-		ProcessError(L"Destroy"_sv);
+		ProcessError(L"Destroy"sv);
 		return Result;
 	}
 
@@ -1291,7 +1291,7 @@ public:
 		if (Name.UName.empty())
 			return nullptr;
 		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), null_terminated(Name.UName).c_str());
-		ProcessError(L"GetFunction"_sv);
+		ProcessError(L"GetFunction"sv);
 		return Result;
 	}
 
@@ -1305,8 +1305,8 @@ public:
 			return;
 
 		std::vector<string> MessageLines;
-		const string Summary = concat(Info.Summary, L" ("_sv, Function, L')');
-		const auto Enumerator = enum_tokens(Info.Description, L"\n"_sv);
+		const string Summary = concat(Info.Summary, L" ("sv, Function, L')');
+		const auto Enumerator = enum_tokens(Info.Description, L"\n"sv);
 		std::transform(ALL_CONST_RANGE(Enumerator), std::back_inserter(MessageLines), [](const string_view View) { return string(View); });
 		Message(MSG_WARNING | MSG_LEFTALIGN,
 			Summary,

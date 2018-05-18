@@ -424,7 +424,7 @@ bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignat
 					}
 					else
 					{
-						if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"_sv), str(cp)))
+						if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(cp)))
 						{
 							cp = -1;
 						}

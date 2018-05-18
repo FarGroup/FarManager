@@ -898,28 +898,28 @@ void CommandLine::SetPromptSize(int NewSize)
 
 static bool ProcessFarCommands(const string& Command, const std::function<void(bool)>& ConsoleActivatior)
 {
-	if (equal_icase(Command, L"far:config"_sv))
+	if (equal_icase(Command, L"far:config"sv))
 	{
 		ConsoleActivatior(false);
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
 
-	if (equal_icase(Command, L"far:about"_sv))
+	if (equal_icase(Command, L"far:about"sv))
 	{
 		string strOut = concat(L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n');
 
 		const auto& ComponentsInfo = components::GetComponentsInfo();
 		if (!ComponentsInfo.empty())
 		{
-			append(strOut, L"\nLibraries:\n"_sv);
+			append(strOut, L"\nLibraries:\n"sv);
 
 			for (const auto& i: ComponentsInfo)
 			{
 				strOut += i.first;
 				if (!i.second.empty())
 				{
-					append(strOut, L", version "_sv, i.second);
+					append(strOut, L", version "sv, i.second);
 				}
 				strOut += L'\n';
 			}
@@ -933,7 +933,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
-				append(strOut, i->GetTitle(), L", version "_sv, i->GetVersionString(), L'\n');
+				append(strOut, i->GetTitle(), L", version "sv, i->GetVersionString(), L'\n');
 			}
 		}
 
@@ -1047,7 +1047,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 	{
 		const auto n = cmd.size();
 		return starts_with_icase(CmdLine, cmd)
-			&& (n == CmdLine.size() || contains(L"/ \t"_sv, CmdLine[n]) || (bslash && CmdLine[n] == L'\\'));
+			&& (n == CmdLine.size() || contains(L"/ \t"sv, CmdLine[n]) || (bslash && CmdLine[n] == L'\\'));
 	};
 
 	const auto& FindKey = [&CmdLine](wchar_t Key)
@@ -1079,7 +1079,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 	if (FindHelpKey())
 		return false;
 
-	const auto CommandSet = L"SET"_sv;
+	const auto CommandSet = L"SET"sv;
 	// SET [variable=[value]]
 	if (IsCommand(CommandSet, false))
 	{
@@ -1138,7 +1138,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 		return true;
 	}
 
-	const auto CommandCls = L"CLS"_sv;
+	const auto CommandCls = L"CLS"sv;
 	if (IsCommand(CommandCls, false))
 	{
 		if (!trim_left(CmdLine.substr(CommandCls.size())).empty())
@@ -1156,7 +1156,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 	}
 
 	// PUSHD путь | ..
-	const auto CommandPushd = L"PUSHD"_sv;
+	const auto CommandPushd = L"PUSHD"sv;
 	if (IsCommand(CommandPushd, false))
 	{
 		ConsoleActivatior(false);
@@ -1166,7 +1166,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 		if (IntChDir(trim(CmdLine.substr(CommandPushd.size())), true))
 		{
 			ppstack.push(PushDir);
-			os::env::set(L"FARDIRSTACK"_sv, PushDir);
+			os::env::set(L"FARDIRSTACK"sv, PushDir);
 		}
 		else
 		{
@@ -1178,7 +1178,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 
 	// POPD
 	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
-	if (IsCommand(L"POPD"_sv, false))
+	if (IsCommand(L"POPD"sv, false))
 	{
 		ConsoleActivatior(false);
 
@@ -1189,11 +1189,11 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 			ppstack.pop();
 			if (!ppstack.empty())
 			{
-				os::env::set(L"FARDIRSTACK"_sv, ppstack.top());
+				os::env::set(L"FARDIRSTACK"sv, ppstack.top());
 			}
 			else
 			{
-				os::env::del(L"FARDIRSTACK"_sv);
+				os::env::del(L"FARDIRSTACK"sv);
 			}
 		}
 
@@ -1201,12 +1201,12 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 	}
 
 	// CLRD
-	if (IsCommand(L"CLRD"_sv, false))
+	if (IsCommand(L"CLRD"sv, false))
 	{
 		ConsoleActivatior(false);
 
 		clear_and_shrink(ppstack);
-		os::env::del(L"FARDIRSTACK"_sv);
+		os::env::del(L"FARDIRSTACK"sv);
 		return true;
 	}
 
@@ -1216,7 +1216,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 			nnn   Specifies a code page number (Dec or Hex).
 		Type CHCP without a parameter to display the active code page number.
 	*/
-	const auto CommandChcp = L"CHCP"_sv;
+	const auto CommandChcp = L"CHCP"sv;
 	if (IsCommand(CommandChcp, false))
 	{
 		const auto ChcpParams = trim(CmdLine.substr(CommandChcp.size()));
@@ -1240,8 +1240,8 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 		return true;
 	}
 
-	const auto CommandCd = L"CD"_sv;
-	const auto CommandChdir = L"CHDIR"_sv;
+	const auto CommandCd = L"CD"sv;
+	const auto CommandChdir = L"CHDIR"sv;
 	const auto IsCommandCd = IsCommand(CommandCd, true);
 	if (IsCommandCd || IsCommand(CommandChdir, true))
 	{
@@ -1249,7 +1249,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 
 		//проигнорируем /D
 		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		const auto ParamD = L"/D"_sv;
+		const auto ParamD = L"/D"sv;
 		if (starts_with_icase(CdParams, ParamD) && (CdParams.size() == ParamD.size() || std::iswblank(CdParams[2])))
 		{
 			CdParams.remove_prefix(ParamD.size());
@@ -1265,7 +1265,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 		return true;
 	}
 
-	const auto CommandTitle = L"TITLE"_sv;
+	const auto CommandTitle = L"TITLE"sv;
 	if (IsCommand(CommandTitle, false))
 	{
 		ConsoleActivatior(false);
@@ -1281,7 +1281,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 		return true;
 	}
 
-	if (IsCommand(L"EXIT"_sv, false))
+	if (IsCommand(L"EXIT"sv, false))
 	{
 		ConsoleActivatior(false);
 		Global->WindowManager->ExitMainLoop(FALSE);

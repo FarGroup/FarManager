@@ -152,7 +152,7 @@ static string CreateTreeFileName(string_view const Path)
 	string strTreeFileName;
 	string strPath;
 
-	for (const auto& i: enum_tokens_with_quotes(Global->Opt->Tree.strExceptPath.Get(), L",;"_sv))
+	for (const auto& i: enum_tokens_with_quotes(Global->Opt->Tree.strExceptPath.Get(), L",;"sv))
 	{
 		if (equal_icase(strRootDir,  i))
 		{
@@ -249,11 +249,11 @@ static string CreateTreeFileName(string_view const Path)
 	}
 	else
 	{
-		return path::join(Path, L"tree3.far"_sv);
+		return path::join(Path, L"tree3.far"sv);
 	}
 
 #else
-	return path::join(Path, L"tree3.far"_sv);
+	return path::join(Path, L"tree3.far"sv);
 #endif
 }
 
@@ -494,7 +494,7 @@ void TreeList::DisplayTree(bool Fast)
 
 			if (!J)
 			{
-				DisplayTreeName(L"\\"_sv, J);
+				DisplayTreeName(L"\\"sv, J);
 			}
 			else
 			{
@@ -759,7 +759,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 			for (const auto& i: Container)
 			{
 				Writer.write(string_view(i).substr(offset));
-				Writer.write(L"\n"_sv);
+				Writer.write(L"\n"sv);
 			}
 
 			Stream.flush();
@@ -2000,7 +2000,7 @@ void TreeList::RefreshTitle()
 	m_Title = L'{';
 	if (!m_ListData.empty())
 	{
-		append(m_Title, m_ListData[m_CurFile].strName, L" - "_sv);
+		append(m_Title, m_ListData[m_CurFile].strName, L" - "sv);
 	}
 	append(m_Title, msg(m_ModalMode? lng::MFindFolderTitle : lng::MTreeTitle), L'}');
 }

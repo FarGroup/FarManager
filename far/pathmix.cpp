@@ -197,7 +197,7 @@ bool IsPluginPrefixPath(const string& Path) //Max:
 
 bool IsParentDirectory(string_view const Str)
 {
-	return starts_with(Str, L".."_sv) && (Str.size() == 2 || (Str.size() == 3 && IsSlash(Str[2])));
+	return starts_with(Str, L".."sv) && (Str.size() == 2 || (Str.size() == 3 && IsSlash(Str[2])));
 }
 
 bool IsParentDirectory(const os::fs::find_data& Data)
@@ -218,7 +218,7 @@ bool IsParentDirectory(const PluginPanelItem& Data)
 
 bool IsCurrentDirectory(string_view Str)
 {
-	return starts_with(Str, L"."_sv) && (Str.size() == 1 || (Str.size() == 2 && IsSlash(Str[1])));
+	return starts_with(Str, L"."sv) && (Str.size() == 1 || (Str.size() == 2 && IsSlash(Str[1])));
 }
 
 bool TestCurrentDirectory(string_view const TestDir)
@@ -424,7 +424,7 @@ string ExtractPathRoot(string_view const Path)
 	if (!PathRootLen)
 		return{};
 
-	return path::join(Path.substr(0, PathRootLen), L""_sv);
+	return path::join(Path.substr(0, PathRootLen), L""sv);
 }
 
 string ExtractFileName(string_view const Path)
@@ -446,7 +446,7 @@ string ExtractFilePath(string_view const Path)
 	const auto PathRootLen = GetPathRootLength(Path);
 
 	if (p <= PathRootLen && PathRootLen)
-		return path::join(Path.substr(0, PathRootLen), L""_sv);
+		return path::join(Path.substr(0, PathRootLen), L""sv);
 
 	return string(Path.substr(0, p));
 }
@@ -468,21 +468,21 @@ bool PathStartsWith(const string_view Path, const string_view Start)
 void TestPathParser()
 {
 #ifdef _DEBUG
-	assert(path::join(L"foo"_sv, L""_sv) == L"foo\\"_sv);
-	assert(path::join(L"foo"_sv, L"\\"_sv) == L"foo\\"_sv);
-	assert(path::join(L""_sv, L""_sv) == L""_sv);
-	assert(path::join(L""_sv, L"\\"_sv) == L""_sv);
-	assert(path::join(L""_sv, L"foo"_sv) == L"foo"_sv);
-	assert(path::join(L"\\foo"_sv, L""_sv) == L"\\foo\\"_sv);
-	assert(path::join(L"\\foo"_sv, L"\\"_sv) == L"\\foo\\"_sv);
-	assert(path::join(L"\\"_sv, L"foo\\"_sv) == L"foo"_sv);
-	assert(path::join(L"foo"_sv, L"bar"_sv) == L"foo\\bar"_sv);
-	assert(path::join(L"\\foo"_sv, L"bar\\"_sv) == L"\\foo\\bar"_sv);
-	assert(path::join(L"foo\\"_sv, L"bar"_sv) == L"foo\\bar"_sv);
-	assert(path::join(L"foo\\"_sv, L"\\bar"_sv) == L"foo\\bar"_sv);
-	assert(path::join(L"foo\\"_sv, L'\\', L"\\bar"_sv) == L"foo\\bar"_sv);
-	assert(path::join(L"foo\\"_sv, L""_sv, L"\\bar"_sv) == L"foo\\bar"_sv);
-	assert(path::join(L"\\\\foo\\\\"_sv, L"\\\\bar\\"_sv) == L"\\\\foo\\bar"_sv);
+	assert(path::join(L"foo"sv, L""sv) == L"foo\\"sv);
+	assert(path::join(L"foo"sv, L"\\"sv) == L"foo\\"sv);
+	assert(path::join(L""sv, L""sv) == L""sv);
+	assert(path::join(L""sv, L"\\"sv) == L""sv);
+	assert(path::join(L""sv, L"foo"sv) == L"foo"sv);
+	assert(path::join(L"\\foo"sv, L""sv) == L"\\foo\\"sv);
+	assert(path::join(L"\\foo"sv, L"\\"sv) == L"\\foo\\"sv);
+	assert(path::join(L"\\"sv, L"foo\\"sv) == L"foo"sv);
+	assert(path::join(L"foo"sv, L"bar"sv) == L"foo\\bar"sv);
+	assert(path::join(L"\\foo"sv, L"bar\\"sv) == L"\\foo\\bar"sv);
+	assert(path::join(L"foo\\"sv, L"bar"sv) == L"foo\\bar"sv);
+	assert(path::join(L"foo\\"sv, L"\\bar"sv) == L"foo\\bar"sv);
+	assert(path::join(L"foo\\"sv, L'\\', L"\\bar"sv) == L"foo\\bar"sv);
+	assert(path::join(L"foo\\"sv, L""sv, L"\\bar"sv) == L"foo\\bar"sv);
+	assert(path::join(L"\\\\foo\\\\"sv, L"\\\\bar\\"sv) == L"\\\\foo\\bar"sv);
 
     assert(ExtractPathRoot(L"") == L"");
     assert(ExtractPathRoot(L"\\") == L"");
@@ -549,36 +549,36 @@ void TestPathParser()
     assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\file") == L"file");
     assert(ExtractFileName(L"\\\\?\\UNC\\server\\share\\path\\file") == L"file");
 
-	assert(PointToName(L""_sv) == L""_sv);
-	assert(PointToName(L"\\"_sv) == L""_sv);
-	assert(PointToName(L"\\file"_sv) == L"file"_sv);
-	assert(PointToName(L"file"_sv) == L"file"_sv);
-	assert(PointToName(L"path\\"_sv) == L""_sv);
-	assert(PointToName(L"path\\file"_sv) == L"file"_sv);
-	//assert(PointToName(L"C:"_sv) == L""_sv);
-	assert(PointToName(L"C:\\"_sv) == L""_sv);
-	assert(PointToName(L"C:\\file"_sv) == L"file"_sv);
-	assert(PointToName(L"C:\\path\\file"_sv) == L"file"_sv);
-	//assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"_sv) == L""_sv);
-	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"_sv) == L""_sv);
-	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"_sv) == L"file"_sv);
-	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"_sv) == L"file"_sv);
-	//assert(PointToName(L"\\\\server\\share"_sv) == L""_sv);
-	assert(PointToName(L"\\\\server\\share\\"_sv) == L""_sv);
-	assert(PointToName(L"\\\\server\\share\\file"_sv) == L"file"_sv);
-	assert(PointToName(L"\\\\server\\share\\path\\file"_sv) == L"file"_sv);
-	//assert(PointToName(L"\\\\?\\UNC\\server\\share"_sv) == L""_sv);
-	assert(PointToName(L"\\\\?\\UNC\\server\\share\\"_sv) == L""_sv);
-	assert(PointToName(L"\\\\?\\UNC\\server\\share\\file"_sv) == L"file"_sv);
-	assert(PointToName(L"\\\\?\\UNC\\server\\share\\path\\file"_sv) == L"file"_sv);
+	assert(PointToName(L""sv) == L""sv);
+	assert(PointToName(L"\\"sv) == L""sv);
+	assert(PointToName(L"\\file"sv) == L"file"sv);
+	assert(PointToName(L"file"sv) == L"file"sv);
+	assert(PointToName(L"path\\"sv) == L""sv);
+	assert(PointToName(L"path\\file"sv) == L"file"sv);
+	//assert(PointToName(L"C:"sv) == L""sv);
+	assert(PointToName(L"C:\\"sv) == L""sv);
+	assert(PointToName(L"C:\\file"sv) == L"file"sv);
+	assert(PointToName(L"C:\\path\\file"sv) == L"file"sv);
+	//assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}"sv) == L""sv);
+	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\"sv) == L""sv);
+	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\file"sv) == L"file"sv);
+	assert(PointToName(L"\\\\?\\Volume{01e45c83-9ce4-11db-b27f-806d6172696f}\\path\\file"sv) == L"file"sv);
+	//assert(PointToName(L"\\\\server\\share"sv) == L""sv);
+	assert(PointToName(L"\\\\server\\share\\"sv) == L""sv);
+	assert(PointToName(L"\\\\server\\share\\file"sv) == L"file"sv);
+	assert(PointToName(L"\\\\server\\share\\path\\file"sv) == L"file"sv);
+	//assert(PointToName(L"\\\\?\\UNC\\server\\share"sv) == L""sv);
+	assert(PointToName(L"\\\\?\\UNC\\server\\share\\"sv) == L""sv);
+	assert(PointToName(L"\\\\?\\UNC\\server\\share\\file"sv) == L"file"sv);
+	assert(PointToName(L"\\\\?\\UNC\\server\\share\\path\\file"sv) == L"file"sv);
 
-	assert(PointToExt(L""_sv) == L""_sv);
-	assert(PointToExt(L"file"_sv) == L""_sv);
-	assert(PointToExt(L"path\\file"_sv) == L""_sv);
-	assert(PointToExt(L"file.ext"_sv) == L".ext"_sv);
-	assert(PointToExt(L"path\\file.ext"_sv) == L".ext"_sv);
-	assert(PointToExt(L"file.ext1.ext2"_sv) == L".ext2"_sv);
-	assert(PointToExt(L"path\\file.ext1.ext2"_sv) == L".ext2"_sv);
+	assert(PointToExt(L""sv) == L""sv);
+	assert(PointToExt(L"file"sv) == L""sv);
+	assert(PointToExt(L"path\\file"sv) == L""sv);
+	assert(PointToExt(L"file.ext"sv) == L".ext"sv);
+	assert(PointToExt(L"path\\file.ext"sv) == L".ext"sv);
+	assert(PointToExt(L"file.ext1.ext2"sv) == L".ext2"sv);
+	assert(PointToExt(L"path\\file.ext1.ext2"sv) == L".ext2"sv);
 
     assert(IsRootPath(L"C:"));
     assert(IsRootPath(L"C:\\"));

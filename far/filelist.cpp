@@ -934,7 +934,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 
 			const auto& ApplyToList = [&](const auto& Selector)
 			{
-				for (const auto& i : enum_tokens_with_quotes(mps->Item, L"\r\n"_sv))
+				for (const auto& i : enum_tokens_with_quotes(mps->Item, L"\r\n"sv))
 				{
 					if (i.empty())
 						continue;
@@ -1786,7 +1786,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 												msg(lng::MEditNewPath3)
 											},
 											{ lng::MHYes, lng::MHNo },
-											L"WarnEditorPath"_sv) != Message::first_button)
+											L"WarnEditorPath"sv) != Message::first_button)
 											return false;
 									}
 								}
@@ -1801,7 +1801,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 									msg(lng::MEditNewPath3)
 								},
 								{ lng::MCancel },
-								L"WarnEditorPluginName"_sv) != Message::first_button)
+								L"WarnEditorPluginName"sv) != Message::first_button)
 								return false;
 						}
 						else
@@ -3960,7 +3960,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		if (pos != string::npos)
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask = concat(L'"', L"*."_sv, string_view(strCurName).substr(pos + 1), L'"');
+			strRawMask = concat(L'"', L"*."sv, string_view(strCurName).substr(pos + 1), L'"');
 			WrapBrackets=true;
 		}
 		else
@@ -4345,7 +4345,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 	for (const auto& i: enum_selected())
 	{
 		if (!CopyData.empty())
-			append(CopyData, L"\r\n"_sv);
+			append(CopyData, L"\r\n"sv);
 
 		auto strQuotedName = m_ShowShortNames? i.AlternateFileName() : i.FileName;
 
@@ -4776,10 +4776,10 @@ void FileList::DescribeFiles()
 		if (!GetString(
 			msg(lng::MDescribeFiles),
 			strMsg,
-			L"DizText"_sv,
+			L"DizText"sv,
 			PrevText,
 			strDizText,
-			L"FileDiz"_sv,
+			L"FileDiz"sv,
 			FIB_ENABLEEMPTY | (!DizCount? FIB_NOUSELASTHISTORY : 0) | FIB_BUTTONS,
 			{},
 			{},
@@ -4837,10 +4837,10 @@ bool FileList::ApplyCommand()
 	if (!GetString(
 		msg(lng::MAskApplyCommandTitle),
 		msg(lng::MAskApplyCommand),
-		L"ApplyCmd"_sv,
+		L"ApplyCmd"sv,
 		strPrevCommand,
 		strCommand,
-		L"ApplyCmd"_sv,
+		L"ApplyCmd"sv,
 		FIB_BUTTONS | FIB_EDITPATH | FIB_EDITPATHEXEC,
 		{},
 		{},
@@ -5200,7 +5200,7 @@ string FileList::GetPluginPrefix() const
 			if (GetPluginHandle()->plugin()->GetPluginInfo(&PInfo) && PInfo.CommandPrefix && *PInfo.CommandPrefix)
 			{
 				string_view Prefix = PInfo.CommandPrefix;
-				return Prefix.substr(0, Prefix.find(L':')) + L":"_sv;
+				return Prefix.substr(0, Prefix.find(L':')) + L":"sv;
 			}
 		}
 	}

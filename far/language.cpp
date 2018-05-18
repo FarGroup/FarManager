@@ -81,7 +81,7 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path,cons
 				return CurrentFileData;
 			}
 
-			if (equal_icase(CurrentLngName, L"English"_sv))
+			if (equal_icase(CurrentLngName, L"English"sv))
 			{
 				EnglishFileData = std::move(CurrentFileData);
 			}
@@ -281,7 +281,7 @@ static void parse_lng_line(const string_view str, string& label, string& data, b
 	have_data = false;
 
 	//-- //[Label]
-	if (starts_with(str, L"//["_sv) && ends_with(str, L"]"_sv))
+	if (starts_with(str, L"//["sv) && ends_with(str, L"]"sv))
 	{
 		const auto LabelView = str.substr(3, str.size() - 3 - 1);
 		//-- //[Label=0]

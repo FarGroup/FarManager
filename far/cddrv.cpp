@@ -386,13 +386,13 @@ UINT FAR_GetDriveType(const string_view RootDir, const DWORD Detect)
 		string VolumePath = strRootDir;
 		DeleteEndSlash(VolumePath);
 
-		if (starts_with(VolumePath, L"\\\\?\\"_sv))
+		if (starts_with(VolumePath, L"\\\\?\\"sv))
 		{
 			VolumePath[2] = L'.';
 		}
 		else
 		{
-			constexpr auto UncDevicePrefix = L"\\\\.\\"_sv;
+			constexpr auto UncDevicePrefix = L"\\\\.\\"sv;
 			VolumePath.insert(0, UncDevicePrefix.data(), UncDevicePrefix.size());
 		}
 
@@ -409,7 +409,7 @@ UINT FAR_GetDriveType(const string_view RootDir, const DWORD Detect)
 	{
 		// media have to be inserted!
 		//
-		string drive = HasPathPrefix(strRootDir) ? strRootDir : L"\\\\?\\"_sv + strRootDir;
+		string drive = HasPathPrefix(strRootDir) ? strRootDir : L"\\\\?\\"sv + strRootDir;
 		DeleteEndSlash(drive);
 
 		DrvType = DRIVE_USBDRIVE; // default type if detection failed

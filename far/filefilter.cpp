@@ -79,17 +79,17 @@ static const struct
 }
 Strings =
 {
-	L"Filters"_sv,
-	L"Filter"_sv,
-	L"FFlags"_sv,
-	L"FoldersFilterFFlags"_sv,
+	L"Filters"sv,
+	L"Filter"sv,
+	L"FFlags"sv,
+	L"FoldersFilterFFlags"sv,
 
-	L"Title"_sv,
-	L"UseAttr"_sv, L"AttrSet"_sv, L"AttrClear"_sv,
-	L"UseMask"_sv, L"Mask"_sv,
-	L"UseDate"_sv, L"DateType"_sv, L"DateTimeAfter"_sv, L"DateTimeBefore"_sv, L"DateRelative"_sv,
-	L"UseSize"_sv, L"SizeAboveS"_sv, L"SizeBelowS"_sv,
-	L"UseHardLinks"_sv, L"HardLinksAbove"_sv, L"HardLinksBelow"_sv,
+	L"Title"sv,
+	L"UseAttr"sv, L"AttrSet"sv, L"AttrClear"sv,
+	L"UseMask"sv, L"Mask"sv,
+	L"UseDate"sv, L"DateType"sv, L"DateTimeAfter"sv, L"DateTimeBefore"sv, L"DateRelative"sv,
+	L"UseSize"sv, L"SizeAboveS"sv, L"SizeBelowS"sv,
+	L"UseHardLinks"sv, L"HardLinksAbove"sv, L"HardLinksBelow"sv,
 };
 
 static auto& FilterData()
@@ -126,7 +126,7 @@ bool FileFilter::FilterEdit()
 	bMenuOpen = true;
 	bool bNeedUpdate=false;
 	const auto FilterList = VMenu2::create(msg(lng::MFilterTitle), {}, ScrY - 6);
-	FilterList->SetHelp(L"FiltersMenu"_sv);
+	FilterList->SetHelp(L"FiltersMenu"sv);
 	FilterList->SetPosition(-1,-1,0,0);
 	FilterList->SetBottomTitle(msg(lng::MFilterBottom));
 	FilterList->SetMenuFlags(/*VMENU_SHOWAMPERSAND|*/VMENU_WRAPMODE);
@@ -755,7 +755,7 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	{
 		// TODO 2018 Q4: remove
 		unsigned long long IgnoreMask = 0;
-		if (cfg->GetValue(Key, L"IgnoreMask"_sv, IgnoreMask))
+		if (cfg->GetValue(Key, L"IgnoreMask"sv, IgnoreMask))
 			OldFormat = true;
 		UseMask = !IgnoreMask;
 	}
@@ -768,7 +768,7 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	if (!cfg->GetValue(Key, Strings.DateTimeAfter, DateAfter))
 	{
 		// TODO 2018 Q4: remove
-		if (cfg->GetValue(Key, L"DateAfter"_sv, bytes::reference(DateAfter)))
+		if (cfg->GetValue(Key, L"DateAfter"sv, bytes::reference(DateAfter)))
 			OldFormat = true;
 	}
 
@@ -776,7 +776,7 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	if (!cfg->GetValue(Key, Strings.DateTimeBefore, DateBefore))
 	{
 		// TODO 2018 Q4: remove
-		if (cfg->GetValue(Key, L"DateBefore"_sv, bytes::reference(DateBefore)))
+		if (cfg->GetValue(Key, L"DateBefore"sv, bytes::reference(DateBefore)))
 			OldFormat = true;
 	}
 
@@ -790,7 +790,7 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	if (!cfg->GetValue(Key, Strings.DateRelative, DateRelative))
 	{
 		// TODO 2018 Q4: remove
-		if (cfg->GetValue(Key, L"RelativeDate"_sv, DateRelative))
+		if (cfg->GetValue(Key, L"RelativeDate"sv, DateRelative))
 			OldFormat = true;
 	}
 
@@ -823,7 +823,7 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	if (!cfg->GetValue(Key, Strings.AttrSet, AttrSet))
 	{
 		// TODO 2018 Q4: remove
-		if (cfg->GetValue(Key, L"IncludeAttributes"_sv, AttrSet))
+		if (cfg->GetValue(Key, L"IncludeAttributes"sv, AttrSet))
 			OldFormat = true;
 	}
 
@@ -831,7 +831,7 @@ void FileFilter::LoadFilter(const HierarchicalConfig* cfg, unsigned long long Ke
 	if (!cfg->GetValue(Key, Strings.AttrClear, AttrClear))
 	{
 		// TODO 2018 Q4: remove
-		if (cfg->GetValue(Key, L"ExcludeAttributes"_sv, AttrClear))
+		if (cfg->GetValue(Key, L"ExcludeAttributes"sv, AttrClear))
 			OldFormat = true;
 	}
 
@@ -887,7 +887,7 @@ void FileFilter::InitFilter()
 
 	for (;;)
 	{
-		const auto key = cfg->FindByName(root, L"PanelMask"_sv + str(TempFilterData().size()));
+		const auto key = cfg->FindByName(root, L"PanelMask"sv + str(TempFilterData().size()));
 		if (!key)
 			break;
 
@@ -921,7 +921,7 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 	cfg->SetValue(Key, Strings.UseMask, Item.IsMaskUsed());
 
 	// TODO 2018 Q2: remove
-	cfg->SetValue(Key, L"IgnoreMask"_sv, !Item.IsMaskUsed());
+	cfg->SetValue(Key, L"IgnoreMask"sv, !Item.IsMaskUsed());
 
 	cfg->SetValue(Key, Strings.Mask, Item.GetMask());
 
@@ -939,11 +939,11 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 			cfg->SetValue(Key, Strings.DateRelative, true);
 
 			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"DateAfter"_sv, bytes_view(After.count()));
+			cfg->SetValue(Key, L"DateAfter"sv, bytes_view(After.count()));
 			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"DateBefore"_sv, bytes_view(Before.count()));
+			cfg->SetValue(Key, L"DateBefore"sv, bytes_view(Before.count()));
 			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"RelativeDate"_sv, true);
+			cfg->SetValue(Key, L"RelativeDate"sv, true);
 		},
 		[&](os::chrono::time_point After, os::chrono::time_point Before)
 		{
@@ -952,11 +952,11 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 			cfg->SetValue(Key, Strings.DateRelative, false);
 
 			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"DateAfter"_sv, bytes_view(After.time_since_epoch().count()));
+			cfg->SetValue(Key, L"DateAfter"sv, bytes_view(After.time_since_epoch().count()));
 			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"DateBefore"_sv, bytes_view(Before.time_since_epoch().count()));
+			cfg->SetValue(Key, L"DateBefore"sv, bytes_view(Before.time_since_epoch().count()));
 			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"RelativeDate"_sv, false);
+			cfg->SetValue(Key, L"RelativeDate"sv, false);
 		}
 	));
 
@@ -975,9 +975,9 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 	cfg->SetValue(Key, Strings.AttrClear, AttrClear);
 
 	// TODO 2018 Q2: remove
-	cfg->SetValue(Key, L"IncludeAttributes"_sv, AttrSet);
+	cfg->SetValue(Key, L"IncludeAttributes"sv, AttrSet);
 	// TODO 2018 Q2: remove
-	cfg->SetValue(Key, L"ExcludeAttributes"_sv, AttrClear);
+	cfg->SetValue(Key, L"ExcludeAttributes"sv, AttrClear);
 }
 
 void FileFilter::Save(bool always)
@@ -1021,7 +1021,7 @@ void FileFilter::Save(bool always)
 
 	for (size_t i=0; i<TempFilterData().size(); ++i)
 	{
-		const auto Key = cfg->CreateKey(root, L"PanelMask"_sv + str(i));
+		const auto Key = cfg->CreateKey(root, L"PanelMask"sv + str(i));
 		if (!Key)
 			break;
 
@@ -1066,7 +1066,7 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 	{
 		const auto Ext = string_view(FileName).substr(DotPos);
 		// Если маска содержит разделитель (',' или ';'), то возьмем ее в кавычки
-		strMask = FileName.find_first_of(L",;", DotPos) != string::npos? concat(L"\"*"_sv, Ext, L'"') : concat(L'*', Ext);
+		strMask = FileName.find_first_of(L",;", DotPos) != string::npos? concat(L"\"*"sv, Ext, L'"') : concat(L'*', Ext);
 	}
 
 	if (std::any_of(CONST_RANGE(Extensions, i) { return equal_icase(i.first, strMask); }))

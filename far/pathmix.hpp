@@ -43,7 +43,7 @@ namespace path
 {
 	inline auto separators()
 	{
-		return L"\\/"_sv;
+		return L"\\/"sv;
 	}
 
 	namespace detail

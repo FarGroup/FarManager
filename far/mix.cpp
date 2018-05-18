@@ -57,7 +57,7 @@ bool FarMkTempEx(string &strDest, string_view Prefix, bool const WithTempPath, s
 	static UINT s_shift = 0;
 
 	if (Prefix.empty())
-		Prefix = L"F3T"_sv;
+		Prefix = L"F3T"sv;
 
 	string strPath = L".";
 
