@@ -430,10 +430,12 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 	const auto& GetPath = [](string_view const Tail, const subst_data& Data, bool Short, bool Real)
 	{
+		// TODO: paths on plugin panels are ambiguous
+
 		auto CurDir = Data.PassivePanel? Data.Another.Panel->GetCurDir() : Data.CmdDir;
 
 		if (Real)
-			MakePath(Data.PassivePanel? Global->CtrlObject->Cp()->PassivePanel() : Global->CtrlObject->Cp()->ActivePanel(), false, true, Short, CurDir);
+			CurDir = ConvertNameToReal(CurDir);
 
 		if (Short)
 			CurDir = ConvertNameToShort(CurDir);
