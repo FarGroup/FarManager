@@ -191,8 +191,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cpp.hpp"
 
 using string = std::wstring;
+using string_view = std::wstring_view;
 
 using namespace std::string_literals;
+using namespace std::string_view_literals;
 using namespace std::chrono_literals;
 
 #include "common.hpp"

@@ -64,7 +64,7 @@ namespace colors
 	const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex);
 	const FarColor* StoreColor(const FarColor& Value);
 	// ([[T]FFFFFFFF][:[T]BBBBBBBB])
-	string_view ExtractColorInNewFormat(string_view Str, FarColor& Color, bool& Stop);
+	string_view::const_iterator ExtractColorInNewFormat(string_view::const_iterator Begin, string_view::const_iterator End, FarColor& Color, bool& Stop);
 }
 
 #endif // COLORMIX_HPP_2A689A10_E8AA_4B87_B167_FAAF812AC90F

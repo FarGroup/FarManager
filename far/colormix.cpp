@@ -296,18 +296,19 @@ static const wchar_t* ExtractColor(const wchar_t* Color, COLORREF& Target, FARCO
 	return Color;
 }
 
-string_view ExtractColorInNewFormat(const string_view Str, FarColor& Color, bool& Stop)
+string_view::const_iterator ExtractColorInNewFormat(string_view::const_iterator const Begin, string_view::const_iterator const End, FarColor& Color, bool& Stop)
 {
 	Stop = false;
-	if (Str[0] != L'(')
-		return Str;
 
-	const auto FgColorBegin = Str.cbegin() + 1;
-	const auto ColorEnd = std::find(FgColorBegin, Str.cend(), L')');
-	if (ColorEnd == Str.cend())
+	if (*Begin != L'(')
+		return Begin;
+
+	const auto FgColorBegin = Begin + 1;
+	const auto ColorEnd = std::find(FgColorBegin, End, L')');
+	if (ColorEnd == End)
 	{
 		Stop = true;
-		return Str;
+		return Begin;
 	}
 
 	const auto FgColorEnd = std::find(FgColorBegin, ColorEnd, L':');
@@ -319,10 +320,10 @@ string_view ExtractColorInNewFormat(const string_view Str, FarColor& Color, bool
 		(BgColorBegin == BgColorEnd || ExtractColor(&*BgColorBegin, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_4BIT)))
 	{
 		Color = NewColor;
-		return Str.substr(ColorEnd + 1 - Str.cbegin());
+		return ColorEnd + 1;
 	}
 
-	return Str;
+	return Begin;
 }
 
 }

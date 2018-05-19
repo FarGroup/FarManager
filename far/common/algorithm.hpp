@@ -202,7 +202,7 @@ bool contains(const std::basic_string<traits...>& Str, const find_type& What)
 
 template<typename find_type, typename... traits>
 [[nodiscard]]
-bool contains(const basic_string_view<traits...> Str, const find_type& What)
+bool contains(const std::basic_string_view<traits...> Str, const find_type& What)
 {
 	return Str.find(What) != Str.npos;
 }

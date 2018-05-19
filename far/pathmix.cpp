@@ -129,7 +129,7 @@ root_type ParsePath(const string_view Path, size_t* const DirectoryOffset, bool*
 
 	std::wcmatch Match;
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(PathTypes, i) { return std::regex_search(ALL_CONST_RANGE(Path), Match, i.re); });
+	const auto ItemIterator = std::find_if(CONST_RANGE(PathTypes, i) { return std::regex_search(Path.data(), Path.data() + Path.size(), Match, i.re); });
 
 	if (ItemIterator != std::cend(PathTypes))
 	{

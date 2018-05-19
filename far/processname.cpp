@@ -87,7 +87,7 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int const Selected
 			CurWildPtr++;
 			while (!SrcNamePtr.empty())
 			{
-				if (*CurWildPtr == L'.' && SrcNameDot && !contains(CurWildPtr + 1, L'.'))
+				if (*CurWildPtr == L'.' && SrcNameDot != SrcNamePtr.cend() && !contains(CurWildPtr + 1, L'.'))
 				{
 					if (SrcNamePtr.cbegin() == SrcNameDot)
 						break;
@@ -141,6 +141,7 @@ bool ConvertWildcards(const string& SrcName, string &strDest, int const Selected
 
 bool CmpName(string_view pattern, string_view str, const bool skippath, const bool CmpNameSearchMode)
 {
+	// BUGBUG rewrite
 	if (pattern.empty() || str.empty())
 		return false;
 
@@ -248,10 +249,11 @@ bool CmpName(string_view pattern, string_view str, const bool skippath, const bo
 					if (match)
 						continue;
 
-					if (rangec == L'-' && *(pattern.cbegin() - 2) != L'[' && pattern[0] != L']')
+					// BUGBUG data() - 2 is legal but awful
+					if (rangec == L'-' && *(pattern.data() - 2) != L'[' && pattern[0] != L']')
 					{
 						match = (stringc <= upper(pattern[0]) &&
-									upper(*(pattern.cbegin() - 2)) <= stringc);
+									upper(*(pattern.data() - 2)) <= stringc);
 						pattern.remove_prefix(1);
 					}
 					else

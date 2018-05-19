@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/enum_substrings.hpp"
 #include "common/function_traits.hpp"
+#include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
 void override_stream_buffers()

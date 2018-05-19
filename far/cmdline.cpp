@@ -613,16 +613,15 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 
 	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
-		const auto& Format = Global->Opt->CmdLine.strPromptFormat.Get();
+		const string_view Format = Global->Opt->CmdLine.strPromptFormat.Get();
 		auto Tail = Format.cbegin();
 		auto Color = PrefixColor;
 		FOR_CONST_RANGE(Format, Iterator)
 		{
 			bool Stop;
 			auto NewColor = PrefixColor;
-			const string_view CurrentView(&*Iterator, Format.cend() - Iterator);
-			const auto NextView = colors::ExtractColorInNewFormat(CurrentView, NewColor, Stop);
-			if (NextView.cbegin() == CurrentView.cbegin())
+			const auto NextIterator = colors::ExtractColorInNewFormat(Iterator, Format.cend(), NewColor, Stop);
+			if (NextIterator == Iterator)
 			{
 				if (Stop)
 					break;
@@ -633,7 +632,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 			{
 				Result.emplace_back(segment{ string(Tail, Iterator), Color });
 			}
-			Iterator += NextView.cbegin() - CurrentView.cbegin();
+			Iterator = NextIterator;
 			Tail = Iterator;
 			Color = NewColor;
 		}

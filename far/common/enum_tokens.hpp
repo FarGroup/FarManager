@@ -41,7 +41,7 @@ namespace detail
 	{
 	public:
 		void reset() {}
-		bool active(string_view::iterator i) { return false; }
+		bool active(wchar_t) { return false; }
 		void postprocess(string_view& Value) {}
 	};
 
@@ -55,7 +55,7 @@ namespace detail
 			return reset_impl();
 		}
 
-		bool active(string_view::iterator i)
+		bool active(wchar_t i)
 		{
 			// applied to all args left to right
 			return active_impl(i);
@@ -90,13 +90,13 @@ namespace detail
 		}
 
 		template<class T>
-		using try_active = decltype(std::declval<T&>().active(std::declval<string_view::iterator&>()));
+		using try_active = decltype(std::declval<T&>().active(wchar_t{}));
 
 		template<size_t index, REQUIRES(index >= sizeof...(args) + 1)>
-		bool active_impl(string_view::iterator) { return false; }
+		bool active_impl(wchar_t) { return false; }
 
 		template<size_t index = 1, REQUIRES(index < sizeof...(args) + 1)>
-		bool active_impl(string_view::iterator i)
+		bool active_impl(wchar_t i)
 		{
 			return get_opt<index, try_active>().active(i) || active_impl<index + 1>(i);
 		}
@@ -124,9 +124,9 @@ namespace detail
 			m_MetQuote = false;
 		}
 
-		bool active(string_view::iterator i)
+		bool active(wchar_t i)
 		{
-			if (*i == L'"')
+			if (i == L'"')
 			{
 				m_InQuotes = !m_InQuotes;
 				m_MetQuote = true;
@@ -164,10 +164,10 @@ namespace detail
 	class simple_policy
 	{
 	public:
-		string_view::iterator extract(const string_view View, const string_view Separators, string_view& Value) const
+		string_view::const_iterator extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
 		{
-			const auto NewIterator = std::find_first_of(ALL_CONST_RANGE(View), ALL_CONST_RANGE(Separators));
-			Value = View.substr(0, NewIterator - View.cbegin());
+			const auto NewIterator = std::find_first_of(Begin, End, ALL_CONST_RANGE(Separators));
+			Value = make_string_view(Begin, NewIterator);
 			return NewIterator;
 		}
 	};
@@ -176,24 +176,24 @@ namespace detail
 	class custom_policy
 	{
 	public:
-		string_view::iterator extract(const string_view View, const string_view Separators, string_view& Value) const
+		string_view::const_iterator extract(string_view::const_iterator const Begin, string_view::const_iterator const End, const string_view Separators, string_view& Value) const
 		{
 			m_Overrider.reset();
 
 			const auto NewIterator = [&]
 			{
-				for (auto i = View.cbegin(); i != View.cend(); ++i)
+				for (auto i = Begin; i != End; ++i)
 				{
-					if (m_Overrider.active(i))
+					if (m_Overrider.active(*i))
 						continue;
 
 					if (contains(Separators, *i))
 						return i;
 				}
-				return View.cend();
+				return End;
 			}();
 
-			Value = View.substr(0, NewIterator - View.cbegin());
+			Value = make_string_view(Begin, NewIterator);
 
 			m_Overrider.postprocess(Value);
 
@@ -245,14 +245,14 @@ private:
 		if (m_Iterator == m_View.cend())
 			return false;
 
-		m_Iterator = policy::extract(m_View.substr(m_Iterator - m_View.cbegin()), m_Separators, Value);
+		m_Iterator = policy::extract(m_Iterator, m_View.cend(), m_Separators, Value);
 		return true;
 	}
 
 	string m_Storage;
 	string_view m_View;
 	string_view m_Separators;
-	mutable string_view::iterator m_Iterator{};
+	mutable string_view::const_iterator m_Iterator{};
 };
 
 using enum_tokens = enum_tokens_t<detail::simple_policy>;

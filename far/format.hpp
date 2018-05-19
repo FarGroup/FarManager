@@ -68,7 +68,7 @@ namespace detail
 	{
 		static_assert((!std::is_convertible_v<arg, const char_type*>));
 		static_assert((!std::is_convertible_v<arg, std::basic_string<char_type>>));
-		static_assert((!std::is_convertible_v<arg, basic_string_view<char_type>>));
+		static_assert((!std::is_convertible_v<arg, std::basic_string_view<char_type>>));
 
 		check_char_compatibility(char_type{}, Args...);
 	}

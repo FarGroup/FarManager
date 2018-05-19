@@ -128,7 +128,7 @@ string InsertRegexpQuote(string strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (strStr.find_first_of(Global->Opt->strQuotedSymbols) != string::npos)
+	if (strStr.find_first_of(Global->Opt->strQuotedSymbols.Get()) != string::npos)
 	{
 		inplace::quote(strStr);
 		
@@ -998,7 +998,7 @@ static S BlobToHexStringT(const void* Blob, size_t Size, C Separator)
 }
 
 template<typename char_type>
-static auto HexStringToBlobT(const basic_string_view<char_type> Hex, const char_type Separator)
+static auto HexStringToBlobT(const std::basic_string_view<char_type> Hex, const char_type Separator)
 {
 	// Size shall be either 3 * N + 2 or even
 	if (!Hex.empty() && (Separator? Hex.size() % 3 != 2 : Hex.size() & 1))
@@ -1032,7 +1032,7 @@ std::string BlobToHexString(const bytes_view& Blob, char Separator)
 	return BlobToHexString(Blob.data(), Blob.size(), Separator);
 }
 
-bytes HexStringToBlob(const basic_string_view<char> Hex, const char Separator)
+bytes HexStringToBlob(const std::string_view Hex, const char Separator)
 {
 	return HexStringToBlobT(Hex, Separator);
 }

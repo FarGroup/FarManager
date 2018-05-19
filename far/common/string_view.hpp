@@ -34,12 +34,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "range.hpp"
 
-// TODO: use std::wstring_view
+namespace string_view_impl
+{
 
 template<typename T>
 class basic_string_view : public range<const T*>
 {
 public:
+	using const_iterator = const T*;
+	using iterator = const_iterator;
+
 	constexpr basic_string_view() = default;
 	constexpr basic_string_view(const basic_string_view&) = default;
 
@@ -95,6 +99,8 @@ public:
 		*this = substr(0, this->size() - Size);
 	}
 
+/*
+	// C++20
 	constexpr bool starts_with(const basic_string_view<T> Str) const noexcept
 	{
 		return this->size() >= Str.size() && this->substr(0, Str.size()) == Str;
@@ -114,6 +120,7 @@ public:
 	{
 		return !this->empty() && this->back() == Char;
 	}
+*/
 
 	/*constexpr*/ size_t find(const basic_string_view<T> Str, const size_t Pos = 0) const noexcept
 	{
@@ -217,31 +224,15 @@ public:
 	}
 };
 
+namespace string_view_literals
+{
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4455) // no page                                                'operator ""sv': literal suffix identifiers that do not start with an underscore are reserved
-WARNING_DISABLE_GCC("-Wliteral-suffix")
 
 constexpr auto operator ""sv(const char* Data, size_t Size) noexcept { return basic_string_view<char>(Data, Size); }
 constexpr auto operator ""sv(const wchar_t* Data, size_t Size) noexcept { return basic_string_view<wchar_t>(Data, Size); }
 
 WARNING_POP()
-
-template<typename T>
-auto operator+(const std::basic_string<T>& Lhs, const basic_string_view<T> Rhs)
-{
-	return concat(Lhs, Rhs);
-}
-
-template<typename T>
-auto operator+(const basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
-{
-	return concat(Lhs, Rhs);
-}
-
-template<typename T>
-auto operator+(const basic_string_view<T> Lhs, basic_string_view<T> Rhs)
-{
-	return concat(Lhs, Rhs);
 }
 
 template<typename T>
@@ -286,6 +277,9 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& Stream, const basic_str
 	return Stream.write(Str.data(), Str.size());
 }
 
-using string_view = basic_string_view<wchar_t>;
+using string_view = basic_string_view<char>;
+using wstring_view = basic_string_view<wchar_t>;
+
+} // string_view_impl
 
 #endif // STRING_VIEW_HPP_102EA19D_CDD6_433E_ACD2_6D6E4022C273

@@ -40,7 +40,7 @@ template<class char_type>
 [[nodiscard]]
 auto enum_substrings(const char_type* Str)
 {
-	using value_type = basic_string_view<char_type>;
+	using value_type = std::basic_string_view<char_type>;
 	return make_inline_enumerator<value_type>([Iterator = Str, Str](const bool Reset, value_type& Value) mutable
 	{
 		if (Reset)

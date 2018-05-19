@@ -154,7 +154,7 @@ public:
 	struct export_name
 	{
 		string_view UName;
-		basic_string_view<char> AName;
+		std::string_view AName;
 	};
 
 	virtual ~plugin_factory() = default;
@@ -214,7 +214,7 @@ public:
 
 private:
 	// the rest shouldn't be here, just an optimization for OEM plugins
-	virtual bool FindExport(basic_string_view<char> ExportName) const;
+	virtual bool FindExport(std::string_view ExportName) const;
 	bool IsPlugin2(const void* Module) const;
 };
 

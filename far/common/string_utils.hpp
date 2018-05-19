@@ -50,7 +50,7 @@ WARNING_PUSH()
 WARNING_DISABLE_MSC(4582) // no page                                                '%$S': constructor is not implicitly called
 WARNING_DISABLE_MSC(4583) // no page                                                '%$S': destructor is not implicitly called
 
-	explicit null_terminated_t(const basic_string_view<T> Str)
+	explicit null_terminated_t(const std::basic_string_view<T> Str)
 	{
 		if (Str.data() && !Str.data()[Str.size()])
 		{
@@ -110,7 +110,7 @@ WARNING_POP()
 private:
 	union
 	{
-		basic_string_view<T> m_View;
+		std::basic_string_view<T> m_View;
 		T m_Buffer[MAX_PATH];
 		std::basic_string<T> m_Str;
 	};
@@ -178,7 +178,7 @@ auto concat(args&&... Args)
 }
 
 template<typename char_type>
-void assign(std::basic_string<char_type>& Str, const basic_string_view<char_type> View)
+void assign(std::basic_string<char_type>& Str, const std::basic_string_view<char_type> View)
 {
 	Str.assign(ALL_CONST_RANGE(View));
 }
@@ -402,25 +402,25 @@ inline bool equal(const string_view Str1, const string_view Str2)
 [[nodiscard]]
 inline bool starts_with(const string_view Str, const string_view Prefix)
 {
-	return Str.starts_with(Prefix);
+	return Str.size() >= Prefix.size() && Str.substr(0, Prefix.size()) == Prefix;
 }
 
 [[nodiscard]]
 inline bool starts_with(const string_view Str, wchar_t const Prefix)
 {
-	return Str.starts_with(Prefix);
+	return !Str.empty() && Str.front() == Prefix;
 }
 
 [[nodiscard]]
 inline bool ends_with(const string_view Str, const string_view Suffix)
 {
-	return Str.ends_with(Suffix);
+	return Str.size() >= Suffix.size() && Str.substr(Str.size() - Suffix.size()) == Suffix;
 }
 
 [[nodiscard]]
 inline bool ends_with(const string_view Str, wchar_t const Suffix)
 {
-	return Str.ends_with(Suffix);
+	return !Str.empty() && Str.back() == Suffix;
 }
 
 [[nodiscard]]
@@ -485,6 +485,39 @@ string join(const container& Container, string_view const Separator)
 	string Str;
 	join(Str, Container, Separator);
 	return Str;
+}
+
+
+// std::string_view is a drop-in replacement for const std::string& they say
+template<typename T>
+auto operator+(const std::basic_string<T>& Lhs, const std::basic_string_view<T> Rhs)
+{
+	return concat(Lhs, Rhs);
+}
+
+template<typename T>
+auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string<T>& Rhs)
+{
+	return concat(Lhs, Rhs);
+}
+
+template<typename T>
+auto operator+(const std::basic_string_view<T> Lhs, std::basic_string_view<T> Rhs)
+{
+	return concat(Lhs, Rhs);
+}
+
+
+// string_view has iterators, but you cannot construct it from them
+// "Design by committee" *facepalm*
+template <typename T>
+auto make_string_view(T const Begin, T const End)
+{
+	using char_type = typename std::iterator_traits<T>::value_type;
+	static_assert((std::is_same_v<typename std::basic_string_view<char_type>::const_iterator, T>));
+
+	const auto Size = static_cast<size_t>(End - Begin);
+	return std::basic_string_view<char_type>{ Size ? &*Begin : nullptr, Size };
 }
 
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8

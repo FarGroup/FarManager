@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 
 #include "common/enum_tokens.hpp"
+#include "common/range.hpp"
 
 #include "format.hpp"
 

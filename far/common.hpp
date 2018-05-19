@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/utility.hpp"
 #include "common/noncopyable.hpp"
 #include "common/smart_ptr.hpp"
-#include "common/string_view.hpp"
 #include "common/algorithm.hpp"
 #include "common/string_utils.hpp"
 #include "common/chrono.hpp"

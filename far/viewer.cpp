@@ -3847,10 +3847,10 @@ bool Viewer::vgetc(wchar_t *pCh)
 		case CP_UTF8:
 		{
 			wchar_t w[2];
-			const char* Iterator = vgetc_buffer + vgetc_ib;
-			const char* End = vgetc_buffer + vgetc_cb;
-			const auto WideCharsNumber = Utf8::get_char(Iterator, End, w[0], w[1]);
-			vgetc_ib = Iterator - vgetc_buffer;
+			const std::string_view View(vgetc_buffer, vgetc_cb);
+			auto Iterator = View.cbegin() + vgetc_ib;
+			const auto WideCharsNumber = Utf8::get_char(Iterator, View.cend(), w[0], w[1]);
+			vgetc_ib = Iterator - View.cbegin();
 			*pCh = w[0];
 			if (WideCharsNumber > 1)
 				vgetc_composite = w[1];

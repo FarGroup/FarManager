@@ -34,6 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "preprocessor.hpp"
 
+namespace any_impl
+{
+
 namespace detail
 {
 	class any_base
@@ -164,5 +167,7 @@ T any_cast(const any& Any)
 {
 	return any_cast<T>(const_cast<any&>(Any));
 }
+
+} // any_impl
 
 #endif // ANY_HPP_A07ADDF9_9BA4_4CE8_AE6E_14C3B7A61D35

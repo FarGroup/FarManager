@@ -131,10 +131,7 @@ namespace std
 
 
 #if defined _MSC_VER && _MSC_VER < 1910
-namespace any_impl
-{
 #include "common/any.hpp"
-}
 
 namespace std
 {
@@ -144,6 +141,27 @@ namespace std
 }
 #else
 #include <any>
+#endif
+
+#if defined _MSC_VER && _MSC_VER < 1910
+#include "common/string_view.hpp"
+
+namespace std
+{
+	using ::string_view_impl::basic_string_view;
+	using ::string_view_impl::string_view;
+	using ::string_view_impl::wstring_view;
+
+	namespace literals
+	{
+		inline namespace string_view_literals
+		{
+			using namespace ::string_view_impl::string_view_literals;
+		}
+	}
+}
+#else
+#include <string_view>
 #endif
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

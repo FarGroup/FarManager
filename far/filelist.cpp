@@ -7852,7 +7852,7 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const int
 	}
 	else
 	{
-		strDest.assign(SrcName.cbegin(), std::min(SrcLength, MaxLength));
+		strDest.assign(SrcName.data(), std::min(SrcLength, MaxLength));
 		strDest.resize(MaxLength, L' ');
 	}
 

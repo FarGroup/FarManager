@@ -33,6 +33,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "string_utils.hpp"
 
+#include "common/range.hpp"
+
 enum PreserveStyleType
 {
 	UPPERCASE_ALL,

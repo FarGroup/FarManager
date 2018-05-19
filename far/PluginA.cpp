@@ -243,7 +243,7 @@ public:
 	}
 
 private:
-	bool FindExport(const basic_string_view<char> ExportName) const override
+	bool FindExport(const std::string_view ExportName) const override
 	{
 		// module with ANY known export can be OEM plugin
 		return std::find_if(ALL_RANGE(m_ExportsNames), [&](const export_name& i)
@@ -4797,7 +4797,8 @@ private:
 		Info->Author = L"unknown";
 
 		const string& module = GetModuleName();
-		Info->Title = PointToName(module).cbegin();
+		// Null-terminated, data() is ok
+		Info->Title = PointToName(module).data();
 
 		bool GuidFound = false;
 		GUID PluginGuid = {};

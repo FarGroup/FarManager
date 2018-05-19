@@ -203,7 +203,7 @@ static int ProcessBrackets(string_view const Str, wchar_t const EndMark, bracket
 			if (!Brackets.Bracket)
 			{
 				Brackets.Bracket = true;
-				Brackets.BeginBracket = Iterator;
+				Brackets.BeginBracket = &*Iterator;
 			}
 
 			++Brackets.BracketsCount;
@@ -218,7 +218,7 @@ static int ProcessBrackets(string_view const Str, wchar_t const EndMark, bracket
 			if (!Brackets.BracketsCount)
 			{
 				if (!Brackets.EndBracket)
-					Brackets.EndBracket = Iterator;
+					Brackets.EndBracket = &*Iterator;
 			}
 		}
 		else if (*Iterator == EndMark && !!Brackets.BeginBracket == !!Brackets.EndBracket)

@@ -205,7 +205,7 @@ plugin_factory::function_address native_plugin_factory::GetFunction(const plugin
 	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress(null_terminated_t<char>(Name.AName).c_str()) : nullptr;
 }
 
-bool native_plugin_factory::FindExport(const basic_string_view<char> ExportName) const
+bool native_plugin_factory::FindExport(const std::string_view ExportName) const
 {
 	// only module with GetGlobalInfoW can be native plugin
 	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;

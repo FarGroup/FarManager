@@ -54,17 +54,17 @@ namespace encoding
 
 	//-------------------------------------------------------------------------
 
-	size_t get_chars(uintptr_t Codepage, basic_string_view<char> Str, wchar_t* Buffer, size_t BufferSize);
+	size_t get_chars(uintptr_t Codepage, std::string_view Str, wchar_t* Buffer, size_t BufferSize);
 
 	template<typename T>
-	auto get_chars(uintptr_t const Codepage, basic_string_view<char> const Str, T& Buffer)
+	auto get_chars(uintptr_t const Codepage, std::string_view const Str, T& Buffer)
 	{
 		return get_chars(Codepage, Str, std::data(Buffer), std::size(Buffer));
 	}
 
-	string get_chars(uintptr_t Codepage, basic_string_view<char> Str);
+	string get_chars(uintptr_t Codepage, std::string_view Str);
 
-	inline auto get_chars_count(uintptr_t const Codepage, basic_string_view<char> const Str)
+	inline auto get_chars_count(uintptr_t const Codepage, std::string_view const Str)
 	{
 		return get_chars(Codepage, Str, nullptr, 0);
 	}
@@ -84,10 +84,10 @@ namespace encoding
 			static auto get_bytes(string_view Str, args&&... Args) { return encoding::get_bytes(Codepage, Str, FWD(Args)...); }
 
 			template<class... args>
-			static auto get_chars_count(basic_string_view<char> Str, args&&... Args) { return encoding::get_chars_count(Codepage, Str, FWD(Args)...); }
+			static auto get_chars_count(std::string_view Str, args&&... Args) { return encoding::get_chars_count(Codepage, Str, FWD(Args)...); }
 
 			template<class... args>
-			static auto get_chars(basic_string_view<char> Str, args&&... Args) { return encoding::get_chars(Codepage, Str, FWD(Args)...); }
+			static auto get_chars(std::string_view Str, args&&... Args) { return encoding::get_chars(Codepage, Str, FWD(Args)...); }
 		};
 	}
 
@@ -95,7 +95,7 @@ namespace encoding
 	using ansi = detail::codepage<CP_ACP>;
 	using oem = detail::codepage<CP_OEMCP>;
 
-	basic_string_view<char> get_signature_bytes(uintptr_t Cp);
+	std::string_view get_signature_bytes(uintptr_t Cp);
 
 	class writer
 	{
@@ -158,17 +158,17 @@ namespace Utf
 		Conversion;
 	};
 
-	size_t get_chars(uintptr_t Codepage, basic_string_view<char> Str, wchar_t* Buffer, size_t BufferSize, errors* Errors);
+	size_t get_chars(uintptr_t Codepage, std::string_view Str, wchar_t* Buffer, size_t BufferSize, errors* Errors);
 }
 
 namespace Utf8
 {
 	// returns the number of decoded chars, 1 or 2. Moves the StrIterator forward as required.
-	size_t get_char(const char*& StrIterator, const char* StrEnd, wchar_t& First, wchar_t& Second);
+	size_t get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator StrEnd, wchar_t& First, wchar_t& Second);
 	// returns the number of decoded chars, up to the BufferSize. Stops on buffer overflow. Tail contains the number of unprocessed bytes.
-	size_t get_chars(basic_string_view<char> Str, wchar_t* Buffer, size_t BufferSize, int& Tail);
+	size_t get_chars(std::string_view Str, wchar_t* Buffer, size_t BufferSize, int& Tail);
 	// returns the required buffer size. Fills Buffer up to the BufferSize.
-	size_t get_chars(basic_string_view<char> Str, wchar_t* Buffer, size_t BufferSize, Utf::errors* Errors);
+	size_t get_chars(std::string_view Str, wchar_t* Buffer, size_t BufferSize, Utf::errors* Errors);
 	// returns the required buffer size. Fills Buffer up to the BufferSize.
 	size_t get_bytes(string_view Str, char* Buffer, size_t BufferSize);
 }

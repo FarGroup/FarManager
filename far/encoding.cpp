@@ -314,10 +314,10 @@ std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str,
 
 namespace Utf7
 {
-	size_t get_chars(basic_string_view<char> Str, wchar_t* Buffer, size_t BufferSize, Utf::errors *Errors);
+	size_t get_chars(std::string_view Str, wchar_t* Buffer, size_t BufferSize, Utf::errors *Errors);
 }
 
-static size_t get_chars_impl(uintptr_t const Codepage, basic_string_view<char> Str, wchar_t* const Buffer, size_t const BufferSize)
+static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, wchar_t* const Buffer, size_t const BufferSize)
 {
 	switch (Codepage)
 	{
@@ -341,7 +341,7 @@ static size_t get_chars_impl(uintptr_t const Codepage, basic_string_view<char> S
 	}
 }
 
-size_t encoding::get_chars(uintptr_t const Codepage, basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize)
+size_t encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize)
 {
 	const auto Result = get_chars_impl(Codepage, Str, Buffer, BufferSize);
 	if (Result < BufferSize)
@@ -351,7 +351,7 @@ size_t encoding::get_chars(uintptr_t const Codepage, basic_string_view<char> con
 	return Result;
 }
 
-string encoding::get_chars(uintptr_t const Codepage, basic_string_view<char> const Str)
+string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str)
 {
 	if (Str.empty())
 		return {};
@@ -386,7 +386,7 @@ string encoding::get_chars(uintptr_t const Codepage, basic_string_view<char> con
 	return Buffer;
 }
 
-basic_string_view<char> encoding::get_signature_bytes(uintptr_t Cp)
+std::string_view encoding::get_signature_bytes(uintptr_t Cp)
 {
 	switch (Cp)
 	{
@@ -439,7 +439,7 @@ void encoding::writer::write(const string_view Str)
 
 //################################################################################################
 
-size_t Utf::get_chars(uintptr_t const Codepage, basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize, errors* const Errors)
+size_t Utf::get_chars(uintptr_t const Codepage, std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, errors* const Errors)
 {
 	switch (Codepage)
 	{
@@ -500,12 +500,14 @@ static const short m7[128] =
 };
 
 // BUGBUG non-BMP range is not supported
-static size_t Utf7_GetChar(const char* const Str, size_t const DataSize, wchar_t* const Buffer, bool& ConversionError, int& state)
+static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* const Buffer, bool& ConversionError, int& state)
 {
+	const size_t DataSize = End - Iterator;
+
 	if (!DataSize)
 		return 0;
 
-	auto StrIterator = Str;
+	auto StrIterator = Iterator;
 
 	size_t BytesConsumed = 1;
 	int m[3];
@@ -630,7 +632,7 @@ static size_t Utf7_GetChar(const char* const Str, size_t const DataSize, wchar_t
 	}
 	++BytesConsumed;
 
-	if (DataSize > BytesConsumed && *Str == (BYTE)'-')
+	if (DataSize > BytesConsumed && *Iterator == '-')
 	{
 		u.s.base64 = false;
 		++BytesConsumed;
@@ -641,9 +643,9 @@ static size_t Utf7_GetChar(const char* const Str, size_t const DataSize, wchar_t
 }
 
 static size_t BytesToUnicode(
-	basic_string_view<char> const Str,
+	std::string_view const Str,
 	wchar_t* const Buffer, size_t const BufferSize,
-	size_t(*GetChar)(const char*, size_t, wchar_t*, bool&, int&),
+	size_t(*GetChar)(std::string_view::const_iterator, std::string_view::const_iterator, wchar_t*, bool&, int&),
 	Utf::errors* const Errors)
 {
 	if (Str.empty())
@@ -665,7 +667,7 @@ static size_t BytesToUnicode(
 	{
 		wchar_t TmpBuffer[2]{};
 		auto ConversionError = false;
-		const auto BytesConsumed = GetChar(StrIterator, StrEnd - StrIterator, TmpBuffer, ConversionError, State);
+		const auto BytesConsumed = GetChar(StrIterator, StrEnd, TmpBuffer, ConversionError, State);
 
 		if (!BytesConsumed)
 			break;
@@ -702,12 +704,12 @@ static size_t BytesToUnicode(
 	return RequiredSize;
 }
 
-size_t Utf7::get_chars(basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
+size_t Utf7::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
 {
 	return BytesToUnicode(Str, Buffer, BufferSize, Utf7_GetChar, Errors);
 }
 
-size_t Utf8::get_char(const char*& StrIterator, const char* const StrEnd, wchar_t& First, wchar_t& Second)
+size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator const StrEnd, wchar_t& First, wchar_t& Second)
 {
 	size_t NumberOfChars = 1;
 
@@ -812,7 +814,7 @@ size_t Utf8::get_char(const char*& StrIterator, const char* const StrEnd, wchar_
 	return NumberOfChars;
 }
 
-size_t Utf8::get_chars(basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize, int& Tail)
+size_t Utf8::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, int& Tail)
 {
 	auto StrIterator = Str.begin();
 	const auto StrEnd = Str.end();
@@ -849,13 +851,13 @@ size_t Utf8::get_chars(basic_string_view<char> const Str, wchar_t* const Buffer,
 	return BufferIterator - Buffer;
 }
 
-size_t Utf8::get_chars(basic_string_view<char> const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
+size_t Utf8::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
 {
-	return BytesToUnicode(Str, Buffer, BufferSize, [](const char* Str, size_t DataSize, wchar_t* Buffer, bool&, int&)
+	return BytesToUnicode(Str, Buffer, BufferSize, [](std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* Buffer, bool&, int&)
 	{
-		auto Iterator = Str;
-		Utf8::get_char(Iterator, Str + DataSize, Buffer[0], Buffer[1]);
-		return static_cast<size_t>(Iterator - Str);
+		auto NextIterator = Iterator;
+		Utf8::get_char(NextIterator, End, Buffer[0], Buffer[1]);
+		return static_cast<size_t>(NextIterator - Iterator);
 	}, Errors);
 }
 

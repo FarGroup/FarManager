@@ -165,7 +165,7 @@ int HexToInt(char h);
 
 std::string BlobToHexString(const void* Blob, size_t Size, char Separator = ',');
 std::string BlobToHexString(const bytes_view& Blob, char Separator = ',');
-bytes HexStringToBlob(basic_string_view<char> Hex, char Separator = ',');
+bytes HexStringToBlob(std::string_view Hex, char Separator = ',');
 
 string BlobToHexWString(const void* Blob, size_t Size, wchar_t Separator = L',');
 string BlobToHexWString(const bytes_view& Blob, char Separator = ',');

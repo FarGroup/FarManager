@@ -922,10 +922,10 @@ static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 	}
 
 	bool Stop;
-	const auto Next = colors::ExtractColorInNewFormat(Str.substr(1), color, Stop);
-	if (Next.cbegin() != Str.cbegin() + 1)
+	const auto Next = colors::ExtractColorInNewFormat(Str.cbegin() + 1, Str.cend(), color, Stop);
+	if (Next != Str.cbegin() + 1)
 	{
-		Str = Next;
+		Str = make_string_view(Next, Str.cend());
 		return true;
 	}
 
@@ -964,10 +964,10 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 
 			FarColor Color;
 			bool Stop;
-			const auto Next = colors::ExtractColorInNewFormat(Str, Color, Stop);
-			if (Next.cbegin() != Str.cbegin())
+			const auto Next = colors::ExtractColorInNewFormat(Str.cbegin(), Str.cend(), Color, Stop);
+			if (Next != Str.cbegin())
 			{
-				Str = Next;
+				Str = make_string_view(Next, Str.cend());
 				continue;
 			}
 		}
@@ -1045,7 +1045,7 @@ int Help::StringLen(const string_view Str)
 void Help::OutString(string_view Str)
 {
 	wchar_t OutStr[512]; //BUGBUG
-	auto StartTopic = Str.cbegin();
+	auto StartTopic = Str.data();
 	int OutPos=0,Highlight=0,Topic=0;
 	wchar_t cColor = strCtrlColorChar.empty()? 0 : strCtrlColorChar[0];
 
@@ -1071,7 +1071,7 @@ void Help::OutString(string_view Str)
 			{
 				int RealCurX = m_X1 + StackData->CurX + 1;
 				int RealCurY = m_Y1 + StackData->CurY + HeaderHeight() + 1;
-				bool found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str.cbegin() - StartTopic) - 1;
+				bool found = WhereY() == RealCurY && RealCurX >= WhereX() && RealCurX < WhereX() + (Str.data() - StartTopic) - 1;
 
 				SetColor(found ? COL_HELPSELECTEDTOPIC : COL_HELPTOPIC);
 				if (Str.size() > 1 && Str[1]==L'@')
@@ -1103,7 +1103,7 @@ void Help::OutString(string_view Str)
 		if (Str[0] == L'~')
 		{
 			if (!Topic)
-				StartTopic = Str.cbegin();
+				StartTopic = Str.data();
 			Topic = !Topic;
 			Str.remove_prefix(1);
 		}

@@ -720,19 +720,14 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		// This time CurrentMenuItem shall never be nullptr - for all weird cases ExitCode must be -1
  		const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
 
+		auto CurrentLabel = (*CurrentMenuItem)->strLabel;
+		SubstFileName(CurrentLabel, Context, nullptr, nullptr, true);
+		CurrentLabel = os::env::expand(CurrentLabel);
+
 		if ((*CurrentMenuItem)->Submenu)
 		{
-			/* $ 20.08.2001 VVM + При вложенных меню показывает заголовки предыдущих */
-			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
-			SubstFileName(strSubMenuLabel, Context, nullptr, nullptr, true);
-			strSubMenuLabel = os::env::expand(strSubMenuLabel);
-
-			size_t pos = strSubMenuLabel.find(L'&');
-			if (pos != string::npos)
-				strSubMenuLabel.erase(pos, 1);
-
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Иначе передать управление выше */
-			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, concat(Title, L" \xbb "sv, strSubMenuLabel));
+			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, concat(Title, L" \xbb "sv, CurrentLabel));
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;
@@ -777,13 +772,11 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						PanelsHidden=TRUE;
 					}
 					*/
-					//;
-					string strTempStr = (*CurrentMenuItem)->strLabel;
-					ReplaceStrings(strTempStr, L"&", L"");
 
 					list_names ListNames;
 					bool PreserveLFN = false;
-					if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN, false, strTempStr) && !strCommand.empty())
+					ReplaceStrings(CurrentLabel, L"&"sv, L"&&"sv);
+					if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN, false, CurrentLabel) && !strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strShortName, PreserveLFN);
 
