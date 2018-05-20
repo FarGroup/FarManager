@@ -120,7 +120,7 @@ size_t global::far_clock::size() const
 
 void global::far_clock::update()
 {
-	m_CurrentTime = locale.time_format();
+	m_CurrentTime = os::chrono::format_time();
 }
 
 

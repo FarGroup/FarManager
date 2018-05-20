@@ -74,12 +74,6 @@ namespace detail
 		return m_ThousandSeparator;
 	}
 
-	const string& locale::time_format() const
-	{
-		refresh();
-		return m_TimeFormat;
-	}
-
 	const locale_names& locale::LocalNames() const
 	{
 		refresh();
@@ -186,16 +180,6 @@ namespace detail
 				string Value;
 				m_ThousandSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Value) && !Value.empty()? Value.front() : L',';
 			}
-		}
-
-		{
-			wchar_t TimeBuffer[MAX_PATH];
-			const size_t Size = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, TimeBuffer, static_cast<int>(std::size(TimeBuffer)));
-
-			if (Size)
-				m_TimeFormat.assign(TimeBuffer, Size - 1);
-			else
-				m_TimeFormat.clear();
 		}
 
 		{

@@ -60,7 +60,6 @@ namespace detail
 		wchar_t time_separator() const;
 		wchar_t decimal_separator() const;
 		wchar_t thousand_separator() const;
-		const string& time_format() const;
 		const locale_names& LocalNames() const;
 		const locale_names& EnglishNames() const;
 		const locale_names& Names(bool Local) const;
@@ -75,7 +74,6 @@ namespace detail
 		mutable wchar_t m_TimeSeparator;
 		mutable wchar_t m_DecimalSeparator;
 		mutable wchar_t m_ThousandSeparator;
-		mutable string m_TimeFormat;
 		mutable locale_names m_LocalNames;
 		mutable locale_names m_EnglishNames;
 
