@@ -1502,9 +1502,11 @@ bool Help::JumpTopic()
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData->SelTopic));
 	// URL активатор - это ведь так просто :-)))
 	// наверное подразумевается URL
-	if (contains(StackData->strSelTopic, L':') && OpenURL(StackData->strSelTopic))
-		return false;
-
+	{
+		const auto ColonPos = StackData->strSelTopic.find(L':');
+		if (ColonPos != 0 && ColonPos != string::npos && OpenURL(StackData->strSelTopic))
+			return false;
+	}
 	// а вот теперь попробуем...
 
 	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData->HelpPath=%s",StackData->SelTopic,StackData->HelpPath));
