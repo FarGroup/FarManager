@@ -3,6 +3,59 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 20.05.2018 17:11:57 +0100 - build 5220
+
+1. Links to main help file themes were erroneously considered external.
+
+drkns 20.05.2018 11:51:48 +0100 - build 5219
+
+1. Forum: clock won't refresh.
+
+drkns 19.05.2018 15:06:40 +0100 - build 5218
+
+1. Another odd bug after 5211.
+
+drkns 19.05.2018 13:37:59 +0100 - build 5217
+
+1. Bring interface of handmade string_view closer to the standard one. Part 2 - iterators.
+
+2. Use std::string_view (if present).
+
+3. Metacharacters wouldn't expand in the caption of variable substitution dialog called from user menu.
+
+drkns 18.05.2018 21:42:40 +0100 - build 5216
+
+1. Bring interface of handmade string_view closer to the standard one. Part 1 - _sv -> sv.
+
+drkns 17.05.2018 21:55:24 +0100 - build 5215
+
+1. Continuation of 5211 - odd bugs.
+
+2. #0003608: 3.0.5214 x86 - changing attributes resets year to 2000 in DD.MM.YYYY (should be 5205).
+
+drkns 16.05.2018 23:07:37 +0100 - build 5214
+
+1. Use OS regional settings to group digits in numbers.
+
+2. Refactoring.
+
+drkns 15.05.2018 22:05:12 +0100 - build 5213
+
+1. Another pair of corrections for 5211.
+
+2. Refactoring.
+
+drkns 14.05.2018 19:29:57 +0100 - build 5212
+
+1. Correction of 5211.
+
+drkns 14.05.2018 00:15:53 +0100 - build 5211
+
+1. Refactoring. A lot of changes in fnparse.cpp, possible glitches in processing of metacharacters.
+
+2. In some cases, possiblility of empty short filename returned by OS was ignored.
+   Now it should be checked everywhere.
+
 drkns 10.05.2018 23:23:38 +0100 - build 5210
 
 1. 0003606: Pause before displaying result of Ctrl+Q on folder
