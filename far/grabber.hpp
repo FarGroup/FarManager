@@ -70,7 +70,7 @@ private:
 		COORD End;
 		COORD Current;
 	}
-	PrevArea, GArea;
+	GArea;
 	bool ResetArea;
 	bool m_VerticalBlock;
 	static monitored<bool> m_StreamSelection;
