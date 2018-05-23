@@ -201,7 +201,9 @@ Manager::Manager():
 	EndLoop(false),
 	ModalExitCode(-1),
 	StartManager(false),
-	m_DesktopModalled(0)
+	m_DesktopModalled(0),
+	m_InsideRefresh(0),
+	m_RefreshDone(false)
 {
 	m_windows.reserve(1024);
 	AddGlobalKeyHandler(CASHook);
@@ -254,6 +256,9 @@ void Manager::CloseAll()
 		Commit();
 	}
 	m_windows.clear();
+#ifdef _DEBUG
+	m_windows_changed = true;
+#endif
 	m_Desktop.reset();
 
 	EndLoop = true;
@@ -918,6 +923,9 @@ void Manager::InsertCommit(const window_ptr& Param)
 	{
 		auto CurrentWindow = GetCurrentWindow();
 		m_windows.insert(m_windows.begin()+m_NonModalSize,Param);
+#ifdef _DEBUG
+		m_windows_changed = true;
+#endif
 		++m_NonModalSize;
 		if (InModal())
 		{
@@ -954,6 +962,9 @@ void Manager::DeleteCommit(const window_ptr& Param)
 	if (-1!=WindowIndex)
 	{
 		m_windows.erase(m_windows.begin() + WindowIndex);
+#ifdef _DEBUG
+		m_windows_changed = true;
+#endif
 		if (static_cast<size_t>(WindowIndex) < m_NonModalSize) --m_NonModalSize;
 
 		if (m_windows.empty())
@@ -1018,6 +1029,9 @@ void Manager::DoActivation(const window_ptr& Old, const window_ptr& New)
 		m_windows.erase(m_windows.begin() + WindowIndex);
 		m_windows.emplace_back(New);
 	}
+#ifdef _DEBUG
+	m_windows_changed = true;
+#endif
 
 	DeactivateCommit(Old);
 	CurrentWindowType = GetCurrentWindow()->GetType();
@@ -1039,17 +1053,32 @@ void Manager::RefreshCommit(const window_ptr& Param)
 	if (-1==WindowIndex)
 		return;
 
-	const auto first = std::next(m_windows.begin(), Param->HasSaveScreen()?0:WindowIndex);
-	std::for_each(first, m_windows.end(), [](const auto& i)
+	++m_InsideRefresh;
+	SCOPE_EXIT
 	{
+		m_RefreshDone = true;
+		--m_InsideRefresh;
+		if (!m_InsideRefresh) m_RefreshDone = false;
+	};
+	const auto first = std::next(m_windows.begin(), Param->HasSaveScreen()?0:WindowIndex);
+	std::all_of(first, m_windows.end(), [this](const auto& i)
+	{
+#ifdef _DEBUG
+		m_windows_changed = false;
+#endif
 		i->Refresh();
+		if (m_RefreshDone) return false;
+		assert(!m_windows_changed);
 		if
 		(
 			(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
 			||
 			(Global->IsPanelsActive() && Global->Opt->Clock)
 		)
+		{
 			ShowTimeInBackground();
+		}
+		return true;
 	});
 }
 
@@ -1070,8 +1099,11 @@ void Manager::ExecuteCommit(const window_ptr& Param)
 
 	if (Param && AddWindow(Param))
 	{
-	    auto CurrentWindow = GetCurrentWindow();
+		auto CurrentWindow = GetCurrentWindow();
 		m_windows.emplace_back(Param);
+#ifdef _DEBUG
+		m_windows_changed = true;
+#endif
 		DoActivation(CurrentWindow, Param);
 	}
 }
@@ -1101,6 +1133,9 @@ void Manager::ModalDesktopCommit(const window_ptr& Param)
 		assert(IndexOf(Param) >= 0);
 		const auto Position = m_windows.begin() + IndexOf(Param);
 		std::rotate(Position, Position + 1, m_windows.end());
+#ifdef _DEBUG
+		m_windows_changed = true;
+#endif
 		--m_NonModalSize;
 		DoActivation(Old, Param);
 	}
@@ -1115,6 +1150,9 @@ void Manager::UnModalDesktopCommit(const window_ptr& Param)
 		assert(static_cast<size_t>(IndexOf(Param)) >= m_NonModalSize);
 		const auto Position = m_windows.begin() + IndexOf(Param);
 		std::rotate(m_windows.begin(), Position, Position + 1);
+#ifdef _DEBUG
+		m_windows_changed = true;
+#endif
 		++m_NonModalSize;
 		auto New = GetCurrentWindow();
 		if (Old != New)
