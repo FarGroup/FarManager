@@ -1060,15 +1060,19 @@ void Manager::RefreshCommit(const window_ptr& Param)
 		--m_InsideRefresh;
 		if (!m_InsideRefresh) m_RefreshDone = false;
 	};
-	const auto first = std::next(m_windows.begin(), Param->HasSaveScreen()?0:WindowIndex);
-	std::all_of(first, m_windows.end(), [this](const auto& i)
+
+	for (const auto& i: make_range(std::next(m_windows.begin(), Param->HasSaveScreen()?0:WindowIndex), m_windows.end()))
 	{
 #ifdef _DEBUG
 		m_windows_changed = false;
 #endif
+
 		i->Refresh();
-		if (m_RefreshDone) return false;
+		if (m_RefreshDone)
+			break;
+
 		assert(!m_windows_changed);
+
 		if
 		(
 			(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
@@ -1078,8 +1082,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 		{
 			ShowTimeInBackground();
 		}
-		return true;
-	});
+	}
 }
 
 void Manager::DeactivateCommit(const window_ptr& Param)

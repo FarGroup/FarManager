@@ -44,8 +44,8 @@ WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 #pragma push_macro("static_assert")
 #undef static_assert
 
-#include "thirdparty/fmt/format.h"
-#include "thirdparty/fmt/ostream.h"
+#include "thirdparty/fmt/fmt/format.h"
+#include "thirdparty/fmt/fmt/ostream.h"
 
 #pragma pop_macro("static_assert")
 
