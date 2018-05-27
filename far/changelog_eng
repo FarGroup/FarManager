@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.05.2018 22:50:03 +0100 - build 5223
+
+1. fmt v5.
+
+2. VS2017 warning: std::all_of - nodiscard.
+
+3. "Find all" menu could be bigger than needed.
+
+zg 23.05.2018 16:25:25 +0300 - build 5222
+
+1. crash if help is opened with menu and then the console window is closed with "X".
+
+zg 22.05.2018 21:28:23 +0300 - build 5221
+
+1. forum: If a dialog is redrawing something inside itself regularly (say, once a second)
+   while user is trying to grab (AltIns) the part of console window
+   then the displayed capture area is being reset constantly.
+
 drkns 20.05.2018 17:11:57 +0100 - build 5220
 
 1. Links to main help file themes were erroneously considered external.
