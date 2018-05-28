@@ -141,30 +141,74 @@ void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanel
 
 PluginPanelItemHolder::~PluginPanelItemHolder()
 {
-	FreePluginPanelItem(Item);
+	FreePluginPanelItemNames(Item);
 }
 
-void FreePluginPanelItem(const PluginPanelItem& Data)
+void FreePluginPanelItemNames(const PluginPanelItem& Data)
 {
 	delete[] Data.FileName;
 	delete[] Data.AlternateFileName;
 }
 
-void FreePluginPanelItems(const std::vector<PluginPanelItem>& Items)
+void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data)
 {
-	std::for_each(ALL_CONST_RANGE(Items), FreePluginPanelItem);
+	if (!Data.FreeData)
+		return;
+
+	FarPanelItemFreeInfo info{ sizeof(FarPanelItemFreeInfo), hPlugin };
+	Data.FreeData(Data.Data, &info);
 }
 
-void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber)
+void FreePluginPanelItemDescriptionOwnerAndColumns(const PluginPanelItem & Data)
 {
-	std::for_each(PanelItem, PanelItem + ItemsNumber, [&hPlugin](const PluginPanelItem& i)
-	{
-		if (i.UserData.FreeData)
-		{
-			FarPanelItemFreeInfo info = { sizeof(FarPanelItemFreeInfo), hPlugin };
-			i.UserData.FreeData(i.UserData.Data, &info);
-		}}
-	);
+	delete[] Data.Description;
+	delete[] Data.Owner;
+	DeleteRawArray(make_range(Data.CustomColumnData, Data.CustomColumnNumber));
+}
+
+void FreePluginPanelItemsNames(const std::vector<PluginPanelItem>& Items)
+{
+	std::for_each(ALL_CONST_RANGE(Items), FreePluginPanelItemNames);
+}
+
+plugin_item_list::~plugin_item_list()
+{
+	FreePluginPanelItemsNames(m_Data);
+}
+
+const PluginPanelItem* plugin_item_list::data() const
+{
+	return m_Data.data();
+}
+
+PluginPanelItem* plugin_item_list::data()
+{
+	return m_Data.data();
+}
+
+size_t plugin_item_list::size() const
+{
+	return m_Data.size();
+}
+
+bool plugin_item_list::empty() const
+{
+	return m_Data.empty();
+}
+
+const std::vector<PluginPanelItem>& plugin_item_list::items() const
+{
+	return m_Data;
+}
+
+void plugin_item_list::emplace_back(const PluginPanelItem& Item)
+{
+	m_Data.emplace_back(Item);
+}
+
+void plugin_item_list::reserve(size_t const Size)
+{
+	m_Data.reserve(Size);
 }
 
 WINDOWINFO_TYPE WindowTypeToPluginWindowType(const int fType)

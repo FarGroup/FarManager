@@ -795,10 +795,8 @@ static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
 	std::for_each(PanelItem, PanelItem + ItemsNumber, [](const PluginPanelItem& i)
 	{
-		delete[] i.Description;
-		delete[] i.Owner;
-		DeleteRawArray(make_range(i.CustomColumnData, i.CustomColumnNumber));
-		FreePluginPanelItem(i);
+		FreePluginPanelItemNames(i);
+		FreePluginPanelItemDescriptionOwnerAndColumns(i);
 	});
 
 	delete[] PanelItem;

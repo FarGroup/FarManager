@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileFilter;
 class Plugin;
+class plugin_item_list;
 
 namespace highlight
 {
@@ -262,19 +263,20 @@ private:
 	void SelectSortMode();
 	bool ApplyCommand();
 	void DescribeFiles();
-	std::vector<PluginPanelItem> CreatePluginItemList();
+
+	plugin_item_list CreatePluginItemList();
 	std::unique_ptr<plugin_panel> OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
 	void PreparePanelView();
 	void PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen);
 	void PrepareStripes(const std::vector<column>& Columns);
 	void PrepareViewSettings(int ViewMode);
 	void PluginDelete();
-	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, int Delete, int Move, DizList *SrcDiz);
-	void PluginGetFiles(const wchar_t **DestPath, int Move);
-	void PluginToPluginFiles(int Move);
+	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, bool Delete, bool Move, DizList *SrcDiz);
+	void PluginGetFiles(const wchar_t **DestPath, bool Move);
+	void PluginToPluginFiles(bool Move);
 	void PluginHostGetFiles();
 	void PluginPutFilesToNew();
-	int PluginPutFilesToAnother(int Move, panel_ptr AnotherPanel);
+	int PluginPutFilesToAnother(bool Move, panel_ptr AnotherPanel);
 	void ProcessPluginCommand();
 	void PluginClearSelection(const std::vector<PluginPanelItem>& ItemList);
 	void ProcessCopyKeys(int Key);
@@ -290,7 +292,6 @@ private:
 	};
 	void MoveSelection(direction Direction);
 
-	static void DeletePluginItemList(std::vector<PluginPanelItem> &ItemList);
 	static void FillParentPoint(FileListItem& Item, size_t CurFilePos);
 
 	std::unique_ptr<FileFilter> m_Filter;

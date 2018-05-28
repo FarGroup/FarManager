@@ -89,10 +89,32 @@ public:
 
 void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanelItemHolder& Holder);
 
-void FreePluginPanelItem(const PluginPanelItem& Data);
-void FreePluginPanelItems(const std::vector<PluginPanelItem>& Items);
+void FreePluginPanelItemNames(const PluginPanelItem& Data);
+void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data);
+void FreePluginPanelItemDescriptionOwnerAndColumns(const PluginPanelItem& Data);
+void FreePluginPanelItemsNames(const std::vector<PluginPanelItem>& Items);
 
-void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
+class plugin_item_list
+{
+public:
+	NONCOPYABLE(plugin_item_list);
+	MOVABLE(plugin_item_list);
+
+	plugin_item_list() = default;
+	~plugin_item_list();
+
+	void emplace_back(const PluginPanelItem& Item);
+	void reserve(size_t Size);
+
+	const PluginPanelItem* data() const;
+	PluginPanelItem* data();
+	size_t size() const;
+	bool empty() const;
+	const std::vector<PluginPanelItem>& items() const;
+
+private:
+	std::vector<PluginPanelItem> m_Data;
+};
 
 template<class T>
 void DeleteRawArray(range<T> Data)

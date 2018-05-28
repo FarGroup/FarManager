@@ -94,8 +94,7 @@ struct FindListItem
 	os::fs::find_data FindData;
 	FindFiles::ArcListItem* Arc;
 	DWORD Used;
-	void* Data;
-	FARPANELITEMFREECALLBACK FreeData;
+	UserDataItem UserData;
 };
 
 // TODO BUGBUG DELETE THIS
@@ -172,15 +171,7 @@ public:
 		{
 			std::for_each(CONST_RANGE(FindList, i)
 			{
-				if (i.FreeData)
-				{
-					FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),nullptr};
-					if(i.Arc)
-					{
-						info.hPlugin=i.Arc->hPlugin;
-					}
-					i.FreeData(i.Data,&info);
-				}
+				FreePluginPanelItemUserData(i.Arc? i.Arc->hPlugin : nullptr, i.UserData);
 			});
 			FindList.clear();
 		}
@@ -209,8 +200,7 @@ public:
 		FindListItem NewItem;
 		NewItem.FindData = FindData;
 		NewItem.Arc = nullptr;
-		NewItem.Data = Data;
-		NewItem.FreeData = FreeData;
+		NewItem.UserData = {};
 		FindList.emplace_back(NewItem);
 		return FindList.back();
 	}
@@ -1594,9 +1584,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							}
 							FarMkTempEx(strTempDir);
 							os::fs::create_directory(strTempDir);
-							UserDataItem UserData = {FindItem->Data,FindItem->FreeData};
 
-							const auto bGet = GetPluginFile(FindItem->Arc, FindItem->FindData, strTempDir, strSearchFileName, &UserData);
+							const auto bGet = GetPluginFile(FindItem->Arc, FindItem->FindData, strTempDir, strSearchFileName, &FindItem->UserData);
 
 							if (PluginPanelPtr)
 							{
@@ -2612,7 +2601,7 @@ bool FindFiles::FindFilesProcess()
 			case FD_BUTTON_PANEL:
 			// Отработаем переброску на временную панель
 			{
-				std::vector<PluginPanelItem> PanelItems;
+				plugin_item_list PanelItems;
 				PanelItems.reserve(itd->GetFindListCount());
 
 				itd->ForEachFindItem([&PanelItems, this](FindListItem& i)
@@ -2660,7 +2649,6 @@ bool FindFiles::FindFilesProcess()
 					}
 				}
 
-				FreePluginPanelItems(PanelItems);
 				break;
 			}
 			case FD_BUTTON_GOTO:

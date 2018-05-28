@@ -919,7 +919,12 @@ int PluginManager::GetFindData(const plugin_panel* hPlugin, PluginPanelItem **pP
 void PluginManager::FreeFindData(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool FreeUserData)
 {
 	if (FreeUserData)
-		FreePluginPanelItemsUserData(const_cast<plugin_panel*>(hPlugin),PanelItem,ItemsNumber);
+	{
+		std::for_each(PanelItem, PanelItem + ItemsNumber, [&hPlugin](const PluginPanelItem& i)
+		{
+			FreePluginPanelItemUserData(const_cast<plugin_panel*>(hPlugin), i.UserData);
+		});
+	}
 
 	FreeFindDataInfo Info = {sizeof(Info)};
 	Info.hPanel = hPlugin->panel();

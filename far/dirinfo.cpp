@@ -319,31 +319,24 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	auto strFullName = strPluginSearchPath + CurPanelItem->FileName;
 	std::replace(ALL_RANGE(strFullName), L'\x1', L'\\');
 
+	const auto MakeCopy = [](string_view const Str)
+	{
+		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
+		*std::copy(ALL_CONST_RANGE(Str), Buffer.get()) = {};
+		return Buffer.release();
+	};
+
 	auto NewItem = *CurPanelItem;
 
-	{
-		auto Buffer = std::make_unique<wchar_t[]>(strFullName.size() + 1);
-		*std::copy(ALL_CONST_RANGE(strFullName), Buffer.get()) = L'\0';
-		NewItem.FileName = Buffer.release();
-	}
+	NewItem.FileName = MakeCopy(strFullName);
 
 	NewItem.AlternateFileName=nullptr;
 
 	if (CurPanelItem->Description)
-	{
-		const auto RequiredSize = wcslen(CurPanelItem->Description) + 1;
-		auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
-		std::copy_n(CurPanelItem->Description, RequiredSize, Buffer.get());
-		NewItem.Description = Buffer.release();
-	}
+		NewItem.Description = MakeCopy(CurPanelItem->Description);
 
 	if (CurPanelItem->Owner)
-	{
-		const auto RequiredSize = wcslen(CurPanelItem->Owner) + 1;
-		auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
-		std::copy_n(CurPanelItem->Owner, RequiredSize, Buffer.get());
-		NewItem.Owner = Buffer.release();
-	}
+		NewItem.Owner = MakeCopy(CurPanelItem->Owner);
 
 	if (NewItem.CustomColumnNumber>0)
 	{
@@ -351,12 +344,7 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 		for (size_t ii = 0; ii < NewItem.CustomColumnNumber; ii++)
 		{
 			if (CurPanelItem->CustomColumnData[ii])
-			{
-				const auto RequiredSize = wcslen(CurPanelItem->CustomColumnData[ii]) + 1;
-				auto Buffer = std::make_unique<wchar_t[]>(RequiredSize);
-				std::copy_n(CurPanelItem->CustomColumnData[ii], RequiredSize, Buffer.get());
-				CustomColumnData[ii] = Buffer.release();
-			}
+				CustomColumnData[ii] = MakeCopy(CurPanelItem->CustomColumnData[ii]);
 		}
 		NewItem.CustomColumnData = CustomColumnData.release();
 	}
@@ -526,15 +514,9 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 {
 	std::for_each(RANGE(Items, i)
 	{
-		if(i.UserData.FreeData)
-		{
-			FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
-			i.UserData.FreeData(i.UserData.Data,&info);
-		}
-		FreePluginPanelItem(i);
-		delete[] i.Description;
-		delete[] i.Owner;
-		DeleteRawArray(make_range(i.CustomColumnData, i.CustomColumnNumber));
+		FreePluginPanelItemNames(i);
+		FreePluginPanelItemUserData(hPlugin, i.UserData);
+		FreePluginPanelItemDescriptionOwnerAndColumns(i);
 	});
 
 	Items.clear();
@@ -548,6 +530,8 @@ bool GetPluginDirInfo(const plugin_panel* ph,const string& DirName,unsigned long
 	FileSize=CompressedFileSize=0;
 
 	std::vector<PluginPanelItem> PanelItems;
+	// Must be cleared unconditionally: GetPluginDirList can fill it partially and return false
+	SCOPE_EXIT{ FreePluginDirList(ph->panel(), PanelItems); };
 	if (!GetPluginDirList(ph->plugin(), ph->panel(), DirName, PanelItems)) //intptr_t - BUGBUG
 		return false;
 
@@ -564,8 +548,6 @@ bool GetPluginDirInfo(const plugin_panel* ph,const string& DirName,unsigned long
 			CompressedFileSize += i.AllocationSize? i.AllocationSize : i.FileSize;
 		}
 	});
-
-	FreePluginDirList(ph->panel(), PanelItems);
 
 	return true;
 }
