@@ -456,7 +456,7 @@ void Options::MaskGroupsSettings()
 {
 	const auto MasksMenu = VMenu2::create(msg(lng::MMenuMaskGroups), {}, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	MasksMenu->SetBottomTitle(msg(lng::MMaskGroupBottom));
-	MasksMenu->SetHelp(L"MaskGroupsSettings");
+	MasksMenu->SetHelp(L"MaskGroupsSettings"sv);
 	FillMasksMenu(*MasksMenu);
 	MasksMenu->SetPosition(-1, -1, -1, -1);
 
@@ -815,7 +815,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 		Builder.AddCheckbox(lng::MViewAutoDetectCodePage, ViOpt.AutoDetectCodePage);
 		Builder.EndColumns();
 		Builder.AddText(lng::MViewConfigDefaultCodePage);
-		Codepages().FillCodePagesList(Items, false, false, false, false, true);
+		codepages::instance().FillCodePagesList(Items, false, false, false, false, true);
 		Builder.AddComboBox(ViOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	}
 
@@ -871,7 +871,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 		Builder.AddCheckbox(lng::MEditWarningBeforeOpenROFile, EdOpt.ReadOnlyLock, 2);
 		Builder.AddCheckbox(lng::MEditAutoDetectCodePage, EdOpt.AutoDetectCodePage);
 		Builder.AddText(lng::MEditConfigDefaultCodePage);
-		Codepages().FillCodePagesList(Items, false, false, false, false, false);
+		codepages::instance().FillCodePagesList(Items, false, false, false, false, false);
 		Builder.AddComboBox(EdOpt.DefaultCodePage, nullptr, 64, Items, DIF_LISTAUTOHIGHLIGHT | DIF_LISTWRAPMODE | DIF_DROPDOWNLIST);
 	}
 
@@ -1135,11 +1135,11 @@ void Options::SetFilePanelModes()
 		bool AddNewMode = false;
 		bool DeleteMode = false;
 
-		ModeListMenu[CurMode].SetSelect(1);
+		ModeListMenu[CurMode].SetSelect(true);
 		{
 			const auto ModeList = VMenu2::create(msg(lng::MEditPanelModes), { ModeListMenu.data(), ModeListMenu.size() }, ScrY - 4);
 			ModeList->SetPosition(-1,-1,0,0);
-			ModeList->SetHelp(L"PanelViewModes");
+			ModeList->SetHelp(L"PanelViewModes"sv);
 			ModeList->SetMenuFlags(VMENU_WRAPMODE);
 			ModeList->SetId(PanelViewModesId);
 			ModeList->SetBottomTitle(msg(lng::MEditPanelModesBottom));
@@ -1309,7 +1309,7 @@ void Options::SetFilePanelModes()
 		{
 			const auto Dlg = Dialog::create(ModeDlg);
 			Dlg->SetPosition(-1,-1,76,19);
-			Dlg->SetHelp(L"PanelViewModes");
+			Dlg->SetHelp(L"PanelViewModes"sv);
 			Dlg->SetId(PanelViewModesEditId);
 			Dlg->Process();
 			ExitCode=Dlg->GetExitCode();
@@ -1674,7 +1674,7 @@ Options::Options():
 
 	Macro.DisableMacro=0;
 
-	ResetViewModes(make_range(m_ViewSettings.data(), m_ViewSettings.size()));
+	ResetViewModes(make_span(m_ViewSettings));
 }
 
 Options::~Options() = default;
@@ -1746,7 +1746,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,       NKeyEditor,L"AutoIndent", OPT_DEF(EdOpt.AutoIndent, false)},
 		{FSSF_PRIVATE,       NKeyEditor,L"BSLikeDel", OPT_DEF(EdOpt.BSLikeDel, true)},
 		{FSSF_PRIVATE,       NKeyEditor,L"CharCodeBase", OPT_DEF(EdOpt.CharCodeBase, 1)},
-		{FSSF_PRIVATE,       NKeyEditor,L"DefaultCodePage", OPT_DEF(EdOpt.DefaultCodePage, GetACP())},
+		{FSSF_PRIVATE,       NKeyEditor,L"DefaultCodePage", OPT_DEF(EdOpt.DefaultCodePage, encoding::codepage::ansi())},
 		{FSSF_PRIVATE,       NKeyEditor,L"F8CPs", OPT_DEF(EdOpt.strF8CPs, L"")},
 		{FSSF_PRIVATE,       NKeyEditor,L"DelRemovesBlocks", OPT_DEF(EdOpt.DelRemovesBlocks, true)},
 		{FSSF_PRIVATE,       NKeyEditor,L"EditOpenedForWrite", OPT_DEF(EdOpt.EditOpenedForWrite, true)},
@@ -2009,7 +2009,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,       NKeySystemExecutor,L"ComspecCondition", OPT_DEF(Exec.ComspecCondition, L"")},
 
 		{FSSF_PRIVATE,       NKeyViewer,L"AutoDetectCodePage", OPT_DEF(ViOpt.AutoDetectCodePage, true)},
-		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", OPT_DEF(ViOpt.DefaultCodePage, GetACP())},
+		{FSSF_PRIVATE,       NKeyViewer,L"DefaultCodePage", OPT_DEF(ViOpt.DefaultCodePage, encoding::codepage::ansi())},
 		{FSSF_PRIVATE,       NKeyViewer,L"F8CPs", OPT_DEF(ViOpt.strF8CPs, L"")},
 		{FSSF_PRIVATE,       NKeyViewer,L"ExternalViewerName", OPT_DEF(strExternalViewer, L"")},
 		{FSSF_PRIVATE,       NKeyViewer,L"IsWrap", OPT_DEF(ViOpt.ViewerIsWrap, true)},
@@ -2433,7 +2433,7 @@ bool Options::AdvancedConfig(config_type Mode)
 	AdvancedConfigDlg[0].ListItems = &Items;
 
 	const auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, this);
-	Dlg->SetHelp(L"FarConfig");
+	Dlg->SetHelp(L"FarConfig"sv);
 	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
 	Dlg->SetId(AdvancedConfigId);
 	Dlg->Process();
@@ -2879,7 +2879,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 	// Навигация по меню
 	{
 		const auto HOptMenu = HMenu::create(MainMenu, std::size(MainMenu));
-		HOptMenu->SetHelp(L"Menus");
+		HOptMenu->SetHelp(L"Menus"sv);
 		HOptMenu->SetPosition(0,0,ScrX,0);
 		Global->WindowManager->ExecuteWindow(HOptMenu);
 
@@ -3187,7 +3187,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 			case MENU_OPTIONS_CODEPAGESSETTINGS: // Code pages
 				{
 					uintptr_t CodePage = CP_DEFAULT;
-					Codepages().SelectCodePage(CodePage, true, false, true);
+					codepages::instance().SelectCodePage(CodePage, true, false, true);
 				}
 				break;
 			case MENU_OPTIONS_COLORS:  // Colors

@@ -94,7 +94,7 @@ public:
 	far_clock CurrentTime;
 
 	size_t LastShownTimeSize{};
-	const wchar_t *HelpFileMask;
+	string_view HelpFileMask;
 	bool OnlyEditorViewerUsed; // -e or -v
 #if defined(SYSLOG)
 	bool StartSysLog;

@@ -559,7 +559,7 @@ void ShellSetFileAttributesMsg(const string& Name)
 	}
 }
 
-static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& FileTime, const string& OSrcDate, const string& OSrcTime)
+static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& FileTime, const string& OSrcDate, const date_ranges& DateRanges, const string& OSrcTime, const time_ranges& TimeRanges)
 {
 	os::fs::find_data ffd;
 	if (!os::fs::get_find_data(Name, ffd))
@@ -579,9 +579,9 @@ static bool ReadFileTime(int Type, const string& Name, os::chrono::time_point& F
 		return false;
 
 	WORD DateN[3];
-	ParseDateComponents(OSrcDate, make_range(DateN), locale.date_separator());
+	ParseDateComponents(OSrcDate, make_span(DateRanges), make_span(DateN));
 	WORD TimeN[4];
-	ParseDateComponents(OSrcTime, make_range(TimeN), locale.time_separator());
+	ParseDateComponents(OSrcTime, make_span(TimeRanges), make_span(TimeN));
 
 	SYSTEMTIME st{};
 
@@ -775,30 +775,37 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		wchar_t DecimalSeparator = locale.decimal_separator();
 
 		string DateMask, DateFormat;
+		date_ranges DateRanges;
 
 		switch (locale.date_format())
 		{
 			case 0:
 				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
 				DateFormat = format(msg(lng::MSetAttrDateTitle1), DateSeparator);
+				DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 				break;
 
 			case 1:
 				DateMask = format(L"99{0}99{0}9999N", DateSeparator);
 				DateFormat = format(msg(lng::MSetAttrDateTitle2), DateSeparator);
+				DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 				break;
 
 			default:
 				DateMask = format(L"N9999{0}99{0}99", DateSeparator);
 				DateFormat = format(msg(lng::MSetAttrDateTitle3), DateSeparator);
+				DateRanges = {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 				break;
 		}
+
+		const auto TimeMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
+		const time_ranges TimeRanges{{ {0, 2}, {3, 2}, {6, 2}, {9, 3} }};
 
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
 		AttrDlg[SA_TEXT_TITLETIME].strData = format(msg(lng::MSetAttrTimeTitle), TimeSeparator, DecimalSeparator);
 
 		AttrDlg[SA_EDIT_WDATE].strMask = AttrDlg[SA_EDIT_CDATE].strMask = AttrDlg[SA_EDIT_ADATE].strMask = AttrDlg[SA_EDIT_XDATE].strMask = DateMask;
-		AttrDlg[SA_EDIT_WTIME].strMask = AttrDlg[SA_EDIT_CTIME].strMask = AttrDlg[SA_EDIT_ATIME].strMask = AttrDlg[SA_EDIT_XTIME].strMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
+		AttrDlg[SA_EDIT_WTIME].strMask = AttrDlg[SA_EDIT_CTIME].strMask = AttrDlg[SA_EDIT_ATIME].strMask = AttrDlg[SA_EDIT_XTIME].strMask = TimeMask;
 
 		bool FolderPresent=false,LinkPresent=false;
 		string strLinkName;
@@ -1241,7 +1248,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		DlgParam.OSubfoldersState=static_cast<FARCHECKEDSTATE>(AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected);
 
 		const auto Dlg = Dialog::create(AttrDlg, SetAttrDlgProc, &DlgParam);
-		Dlg->SetHelp(L"FileAttrDlg");                 //  ^ - это одиночный диалог!
+		Dlg->SetHelp(L"FileAttrDlg"sv);                 //  ^ - это одиночный диалог!
 		Dlg->SetId(FileAttrDlgId);
 
 		if (LinkPresent)
@@ -1310,10 +1317,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					}
 
 					os::chrono::time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
-					const auto SetWriteTime = ReadFileTime(0, SingleSelFileName, LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData, AttrDlg[SA_EDIT_WTIME].strData);
-					const auto SetCreationTime = ReadFileTime(1, SingleSelFileName, CreationTime, AttrDlg[SA_EDIT_CDATE].strData, AttrDlg[SA_EDIT_CTIME].strData);
-					const auto SetLastAccessTime = ReadFileTime(2, SingleSelFileName, LastAccessTime, AttrDlg[SA_EDIT_ADATE].strData, AttrDlg[SA_EDIT_ATIME].strData);
-					const auto SetChangeTime = ReadFileTime(3, SingleSelFileName, ChangeTime, AttrDlg[SA_EDIT_XDATE].strData, AttrDlg[SA_EDIT_XTIME].strData);
+					const auto SetWriteTime = ReadFileTime(0, SingleSelFileName, LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData, DateRanges, AttrDlg[SA_EDIT_WTIME].strData, TimeRanges);
+					const auto SetCreationTime = ReadFileTime(1, SingleSelFileName, CreationTime, AttrDlg[SA_EDIT_CDATE].strData, DateRanges, AttrDlg[SA_EDIT_CTIME].strData, TimeRanges);
+					const auto SetLastAccessTime = ReadFileTime(2, SingleSelFileName, LastAccessTime, AttrDlg[SA_EDIT_ADATE].strData, DateRanges, AttrDlg[SA_EDIT_ATIME].strData, TimeRanges);
+					const auto SetChangeTime = ReadFileTime(3, SingleSelFileName, ChangeTime, AttrDlg[SA_EDIT_XDATE].strData, DateRanges, AttrDlg[SA_EDIT_XTIME].strData, TimeRanges);
 					//_SVS(SysLog(L"\n\tSetWriteTime=%d\n\tSetCreationTime=%d\n\tSetLastAccessTime=%d",SetWriteTime,SetCreationTime,SetLastAccessTime));
 
 					if (SetWriteTime || SetCreationTime || SetLastAccessTime || SetChangeTime)
@@ -1466,10 +1473,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 						}
 
 						os::chrono::time_point LastWriteTime, CreationTime, LastAccessTime, ChangeTime;
-						auto SetWriteTime = ReadFileTime(0,SingleSelFileName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
-						auto SetCreationTime = ReadFileTime(1,SingleSelFileName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-						auto SetLastAccessTime = ReadFileTime(2,SingleSelFileName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-						auto SetChangeTime = ReadFileTime(3,SingleSelFileName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
+						auto SetWriteTime = ReadFileTime(0, SingleSelFileName, LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData, DateRanges, AttrDlg[SA_EDIT_WTIME].strData, TimeRanges);
+						auto SetCreationTime = ReadFileTime(1, SingleSelFileName, CreationTime, AttrDlg[SA_EDIT_CDATE].strData, DateRanges, AttrDlg[SA_EDIT_CTIME].strData, TimeRanges);
+						auto SetLastAccessTime = ReadFileTime(2, SingleSelFileName, LastAccessTime, AttrDlg[SA_EDIT_ADATE].strData, DateRanges, AttrDlg[SA_EDIT_ATIME].strData, TimeRanges);
+						auto SetChangeTime = ReadFileTime(3, SingleSelFileName, ChangeTime, AttrDlg[SA_EDIT_XDATE].strData, DateRanges, AttrDlg[SA_EDIT_XTIME].strData, TimeRanges);
 
 						auto RetCode = ESetFileTime(
 							SingleSelFileName,
@@ -1611,10 +1618,10 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 										}
 									}
 
-									SetWriteTime = ReadFileTime(0,strFullName,LastWriteTime,AttrDlg[SA_EDIT_WDATE].strData,AttrDlg[SA_EDIT_WTIME].strData);
-									SetCreationTime = ReadFileTime(1,strFullName,CreationTime,AttrDlg[SA_EDIT_CDATE].strData,AttrDlg[SA_EDIT_CTIME].strData);
-									SetLastAccessTime = ReadFileTime(2,strFullName,LastAccessTime,AttrDlg[SA_EDIT_ADATE].strData,AttrDlg[SA_EDIT_ATIME].strData);
-									SetChangeTime = ReadFileTime(3,strFullName,ChangeTime,AttrDlg[SA_EDIT_XDATE].strData,AttrDlg[SA_EDIT_XTIME].strData);
+									SetWriteTime = ReadFileTime(0, strFullName, LastWriteTime, AttrDlg[SA_EDIT_WDATE].strData, DateRanges, AttrDlg[SA_EDIT_WTIME].strData, TimeRanges);
+									SetCreationTime = ReadFileTime(1, strFullName, CreationTime, AttrDlg[SA_EDIT_CDATE].strData, DateRanges, AttrDlg[SA_EDIT_CTIME].strData, TimeRanges);
+									SetLastAccessTime = ReadFileTime(2, strFullName, LastAccessTime, AttrDlg[SA_EDIT_ADATE].strData, DateRanges, AttrDlg[SA_EDIT_ATIME].strData, TimeRanges);
+									SetChangeTime = ReadFileTime(3, strFullName, ChangeTime, AttrDlg[SA_EDIT_XDATE].strData, DateRanges, AttrDlg[SA_EDIT_XTIME].strData, TimeRanges);
 
 									if (SetWriteTime || SetCreationTime || SetLastAccessTime || SetChangeTime)
 									{

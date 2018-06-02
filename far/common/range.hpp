@@ -147,9 +147,23 @@ constexpr auto make_range(container& Container)
 
 template<class container>
 [[nodiscard]]
-constexpr auto make_const_range(const container& Container)
+constexpr auto make_span(container& Container)
+{
+	return make_range(std::data(Container), std::size(Container));
+}
+
+template<class container>
+[[nodiscard]]
+constexpr auto make_range(const container& Container)
 {
 	return make_range(ALL_CONST_RANGE(Container));
+}
+
+template<class container>
+[[nodiscard]]
+constexpr auto make_span(const container& Container)
+{
+	return make_range(std::data(Container), std::size(Container));
 }
 
 template<class T>

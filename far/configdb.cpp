@@ -122,7 +122,8 @@ private:
 	tinyxml::XMLElement* m_Root;
 };
 
-namespace {
+namespace
+{
 
 class xml_enum: noncopyable, public enumerator<xml_enum, const tinyxml::XMLElement*>
 {

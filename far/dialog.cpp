@@ -378,7 +378,7 @@ void Dialog::Construct(const range<const FarDialogItem*> SrcItems)
 
 	Items.resize(SrcItems.size());
 	//BUGBUG add error check
-	ItemsToItemsEx(SrcItems, make_range(Items.data(), Items.size()));
+	ItemsToItemsEx(SrcItems, make_span(Items));
 	Init();
 }
 

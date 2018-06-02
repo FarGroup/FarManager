@@ -1219,7 +1219,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, const wchar_
 	DlgParam Param={0, 0, MACROAREA_OTHER, 0, false};
 	const auto Dlg = Dialog::create(MacroSettingsDlg, &KeyMacro::ParamMacroDlgProc, this, &Param);
 	Dlg->SetPosition(-1,-1,73,21);
-	Dlg->SetHelp(L"KeyMacroSetting");
+	Dlg->SetHelp(L"KeyMacroSetting"sv);
 	Dlg->Process();
 
 	if (Dlg->GetExitCode()!=MS_BUTTON_OK)
@@ -5123,7 +5123,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	Global->IsProcessAssignMacroKey++;
 	const auto Dlg = Dialog::create(MacroAssignDlg, &KeyMacro::AssignMacroDlgProc, this, &Param);
 	Dlg->SetPosition(-1,-1,34,6);
-	Dlg->SetHelp(L"KeyMacro");
+	Dlg->SetHelp(L"KeyMacro"sv);
 	Dlg->Process();
 	Global->IsProcessAssignMacroKey--;
 

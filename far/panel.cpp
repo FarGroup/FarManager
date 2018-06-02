@@ -158,8 +158,7 @@ private:
 
 Search::Search(private_tag, Panel* Owner, const Manager::Key& FirstKey):
 	m_Owner(Owner),
-	m_FirstKey(FirstKey),
-	m_FindEdit()
+	m_FirstKey(FirstKey)
 {
 }
 

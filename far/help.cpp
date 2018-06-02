@@ -318,7 +318,7 @@ bool Help::ReadHelp(const string& Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!GetLangParam(HelpFile, L"PluginContents", strCurPluginContents, nullptr, HelpFileCodePage))
+	if (!GetLangParam(HelpFile, L"PluginContents"sv, strCurPluginContents, nullptr, HelpFileCodePage))
 		strCurPluginContents.clear();
 
 	string strTabSpace(CtrlTabSize, L' ');

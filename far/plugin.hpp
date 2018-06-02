@@ -73,7 +73,7 @@ struct FAR_INPUT_RECORD
 #define CP_DEFAULT    ((uintptr_t)-1)
 #define CP_REDETECT   ((uintptr_t)-2)
 #ifdef FAR_USE_INTERNALS
-#define CP_SET        ((uintptr_t)-3)
+#define CP_ALL        ((uintptr_t)-3)
 #endif // END FAR_USE_INTERNALS
 
 typedef unsigned long long FARCOLORFLAGS;

@@ -103,7 +103,7 @@ WARNING_POP()
 			return m_Str.c_str();
 
 		default:
-			throw;
+			throw std::runtime_error("unknown mode"s);
 		}
 	}
 

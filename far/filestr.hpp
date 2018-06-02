@@ -79,6 +79,7 @@ private:
 	mutable bool m_CrCr{};
 };
 
-bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true, bool* pPureAscii = nullptr);
+// If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
+uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefautCodepage, bool* SignatureFound = nullptr, bool UseHeuristics = true);
 
 #endif // FILESTR_HPP_1B6BCA12_AFF9_4C80_A59C_B4B92B21F83F

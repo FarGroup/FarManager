@@ -881,7 +881,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 
 		CopyDlg[ID_SC_COMBO].ListItems=&ComboList;
 		const auto Dlg = Dialog::create(CopyDlg, &ShellCopy::CopyDlgProc, this);
-		Dlg->SetHelp(Link?L"HardSymLink":L"CopyFiles");
+		Dlg->SetHelp(Link? L"HardSymLink"sv : L"CopyFiles"sv);
 		Dlg->SetId(Link?HardSymLinkId:(Move?MoveFilesId:CopyFilesId));
 		Dlg->SetPosition(-1,-1,DLG_WIDTH,DLG_HEIGHT);
 		Dlg->SetAutomation(ID_SC_USEFILTER,ID_SC_BTNFILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
@@ -3338,7 +3338,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg->SetPosition(-1, -1, WARN_DLG_WIDTH, WARN_DLG_HEIGHT);
-					WarnDlg->SetHelp(L"CopyAskOverwrite");
+					WarnDlg->SetHelp(L"CopyAskOverwrite"sv);
 					WarnDlg->SetId(CopyOverwriteId);
 					WarnDlg->Process();
 
@@ -3439,7 +3439,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 					const auto WarnDlg = Dialog::create(WarnCopyDlg, &ShellCopy::WarnDlgProc, &WFN);
 					WarnDlg->SetDialogMode(DMODE_WARNINGSTYLE);
 					WarnDlg->SetPosition(-1,-1,WARN_DLG_WIDTH,WARN_DLG_HEIGHT);
-					WarnDlg->SetHelp(L"CopyFiles");
+					WarnDlg->SetHelp(L"CopyFiles"sv);
 					WarnDlg->SetId(CopyReadOnlyId);
 					WarnDlg->Process();
 

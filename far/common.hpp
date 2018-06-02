@@ -85,10 +85,10 @@ inline void* ToPtr(intptr_t Value)
 	return reinterpret_cast<void*>(Value);
 }
 
-template<class T, class Y>
-constexpr bool InRange(const T& from, const Y& what, const T& to)
+template<typename min_type, typename value_type, typename max_type>
+constexpr bool InRange(min_type const Min, value_type const Value, max_type const Max)
 {
-	return from <= what && what <= to;
+	return Min <= Value && Value <= Max;
 }
 
 #ifdef _DEBUG

@@ -47,51 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const size_t DELTA = 1024;
 static const size_t ReadBufCount = 0x2000;
 
-bool IsTextUTF8(const char* Buffer, size_t Length, bool& PureAscii)
-{
-	bool Ascii=true;
-	size_t Octets=0;
-	size_t LastOctetsPos = 0;
-	const size_t MaxCharSize = 4;
-
-	for (size_t i=0; i<Length; i++)
-	{
-		BYTE c=Buffer[i];
-
-		if (c&0x80)
-			Ascii=false;
-
-		if (Octets)
-		{
-			if ((c&0xC0)!=0x80)
-				return false;
-
-			Octets--;
-		}
-		else
-		{
-			LastOctetsPos = i;
-
-			if (c&0x80)
-			{
-				while (c&0x80)
-				{
-					c <<= 1;
-					Octets++;
-				}
-
-				Octets--;
-
-				if (!Octets)
-					return false;
-			}
-		}
-	}
-
-	PureAscii = Ascii;
-	return (!Octets || Length - LastOctetsPos < MaxCharSize) && !Ascii;
-}
-
 enum_file_lines::enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	SrcFile(SrcFile),
 	BeginPos(SrcFile.GetPointer()),
@@ -325,126 +280,152 @@ bool enum_file_lines::GetTString(std::vector<T>& From, std::vector<T>& To, eol::
 	return true;
 }
 
-bool GetFileFormat(const os::fs::file& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics, bool* pPureAscii)
+// If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
+static bool GetUnicodeCpUsingBOM(const os::fs::file& File, uintptr_t& Codepage)
 {
-	DWORD dwTemp = 0;
-	bool bSignatureFound = false;
-	bool bDetect = false;
-	bool bPureAscii = false;
+	char Buffer[3]{};
+	size_t BytesRead = 0;
+	if (!File.Read(Buffer, std::size(Buffer), BytesRead))
+		return false;
 
-	size_t Readed = 0;
-	if (file.Read(&dwTemp, sizeof(dwTemp), Readed) && Readed > 1 ) // minimum signature size is 2 bytes
+	std::string_view Signature(Buffer, std::size(Buffer));
+
+	if (BytesRead >= 2)
 	{
-		if (LOWORD(dwTemp) == SIGN_UNICODE)
+		if (Signature.substr(0, 2) == encoding::get_signature_bytes(CP_UNICODE))
 		{
-			nCodePage = CP_UNICODE;
-			file.SetPointer(2, nullptr, FILE_BEGIN);
-			bSignatureFound = true;
+			Codepage = CP_UNICODE;
+			File.SetPointer(2, nullptr, FILE_BEGIN);
+			return true;
 		}
-		else if (LOWORD(dwTemp) == SIGN_REVERSEBOM)
+
+		if (Signature.substr(0, 2) == encoding::get_signature_bytes(CP_REVERSEBOM))
 		{
-			nCodePage = CP_REVERSEBOM;
-			file.SetPointer(2, nullptr, FILE_BEGIN);
-			bSignatureFound = true;
+			Codepage = CP_REVERSEBOM;
+			File.SetPointer(2, nullptr, FILE_BEGIN);
+			return true;
 		}
-		else if ((dwTemp & 0x00FFFFFF) == SIGN_UTF8)
+	}
+
+	if (BytesRead >= 3 && Signature == encoding::get_signature_bytes(CP_UTF8))
+	{
+		Codepage = CP_UTF8;
+		File.SetPointer(3, nullptr, FILE_BEGIN);
+		return true;
+	}
+
+	File.SetPointer(0, nullptr, FILE_BEGIN);
+	return false;
+}
+
+static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& Codepage)
+{
+	// MSDN documents IS_TEXT_UNICODE_BUFFER_TOO_SMALL but there is no such thing
+	if (Size < 2)
+		return false;
+
+	int Test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_NOT_ASCII_MASK;
+
+	// return value is ignored - only some tests might pass
+	IsTextUnicode(Data, static_cast<int>(Size), &Test);
+
+	if ((Test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) || !(Test & IS_TEXT_UNICODE_NOT_ASCII_MASK))
+		return false;
+
+	if (Test & IS_TEXT_UNICODE_UNICODE_MASK)
+	{
+		Codepage = CP_UNICODE;
+		return true;
+	}
+
+	if (Test & IS_TEXT_UNICODE_REVERSE_MASK)
+	{
+		Codepage = CP_REVERSEBOM;
+		return true;
+	}
+
+	return false;
+}
+
+static bool GetCpUsingUniversalDetectorWithExceptions(const void* Data, size_t Size, uintptr_t& Codepage)
+{
+	if (!GetCpUsingUniversalDetector(Data, Size, Codepage))
+		return false;
+
+	// This whole block shouldn't be here
+	if (Global->Opt->strNoAutoDetectCP.Get() == L"-1")
+	{
+		if (Global->Opt->CPMenuMode && static_cast<UINT>(Codepage) != encoding::codepage::ansi() && static_cast<UINT>(Codepage) != encoding::codepage::oem())
 		{
-			nCodePage = CP_UTF8;
-			file.SetPointer(3, nullptr, FILE_BEGIN);
-			bSignatureFound = true;
+			const auto CodepageType = codepages::GetFavorite(Codepage);
+			if (!(CodepageType & CPST_FAVORITE))
+				return false;
 		}
+	}
+	else
+	{
+		if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Codepage)))
+			return false;
+	}
+
+	return true;
+}
+
+// If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
+static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, uintptr_t& Codepage, bool& SignatureFound, bool UseHeuristics)
+{
+	if (GetUnicodeCpUsingBOM(File, Codepage))
+	{
+		SignatureFound = true;
+		return true;
+	}
+
+	if (!UseHeuristics)
+		return false;
+
+	// TODO: configurable
+	const size_t Size = 32768;
+	char_ptr Buffer(Size);
+	size_t ReadSize = 0;
+
+	const auto ReadResult = File.Read(Buffer.get(), Size, ReadSize);
+	File.SetPointer(0, nullptr, FILE_BEGIN);
+
+	if (!ReadResult || !ReadSize)
+		return false;
+
+	if (GetUnicodeCpUsingWindows(Buffer.get(), ReadSize, Codepage))
+		return true;
+
+	unsigned long long FileSize = 0;
+	const auto WholeFileRead = File.GetSize(FileSize) && ReadSize == FileSize;
+	bool PureAscii = false;
+
+	if (encoding::is_valid_utf8({ Buffer.get(), ReadSize }, !WholeFileRead, PureAscii))
+	{
+		if (!PureAscii)
+			Codepage = CP_UTF8;
+		else if (DefaultCodepage == CP_UTF8 || DefaultCodepage == encoding::codepage::ansi() || DefaultCodepage == encoding::codepage::oem())
+			Codepage = DefaultCodepage;
 		else
-		{
-			file.SetPointer(0, nullptr, FILE_BEGIN);
-		}
+			Codepage = encoding::codepage::ansi();
+
+		return true;
 	}
 
-	if (bSignatureFound)
-	{
-		bDetect = true;
-	}
-	else if (bUseHeuristics)
-	{
-		file.SetPointer(0, nullptr, FILE_BEGIN);
-		size_t Size = 0x8000; // BUGBUG. TODO: configurable
-		char_ptr Buffer(Size);
-		size_t ReadSize = 0;
-		bool ReadResult = file.Read(Buffer.get(), Size, ReadSize);
-		file.SetPointer(0, nullptr, FILE_BEGIN);
+	return GetCpUsingUniversalDetectorWithExceptions(Buffer.get(), ReadSize, Codepage);
+}
 
-		bPureAscii = ReadResult && !ReadSize; // empty file == pure ascii
+uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, bool* SignatureFound, bool UseHeuristics)
+{
+	bool SignatureFoundValue = false;
+	uintptr_t Codepage;
 
-		if (ReadResult && ReadSize)
-		{
-			// BUGBUG MSDN documents IS_TEXT_UNICODE_BUFFER_TOO_SMALL but there is no such thing
-			if (ReadSize > 1)
-			{
-				int test = IS_TEXT_UNICODE_UNICODE_MASK | IS_TEXT_UNICODE_REVERSE_MASK | IS_TEXT_UNICODE_NOT_UNICODE_MASK | IS_TEXT_UNICODE_NOT_ASCII_MASK;
+	if (!GetFileCodepage(File, DefaultCodepage, Codepage, SignatureFoundValue, UseHeuristics))
+		Codepage = DefaultCodepage;
 
-				IsTextUnicode(Buffer.get(), static_cast<int>(ReadSize), &test); // return value is ignored, it's ok.
+	if (SignatureFound)
+		*SignatureFound = SignatureFoundValue;
 
-				if (!(test & IS_TEXT_UNICODE_NOT_UNICODE_MASK) && (test & IS_TEXT_UNICODE_NOT_ASCII_MASK))
-				{
-					if (test & IS_TEXT_UNICODE_UNICODE_MASK)
-					{
-						nCodePage = CP_UNICODE;
-						bDetect = true;
-					}
-					else if (test & IS_TEXT_UNICODE_REVERSE_MASK)
-					{
-						nCodePage = CP_REVERSEBOM;
-						bDetect = true;
-					}
-				}
-
-				if (!bDetect && IsTextUTF8(Buffer.get(), ReadSize, bPureAscii))
-				{
-					nCodePage = CP_UTF8;
-					bDetect = true;
-				}
-			}
-
-			if (!bDetect && !bPureAscii)
-			{
-				int cp = GetCpUsingUniversalDetector(Buffer.get(), ReadSize);
-				// This whole block shouldn't be here
-				if ( cp >= 0 )
-				{
-					if (Global->Opt->strNoAutoDetectCP.Get() == L"-1")
-					{
-						if ( Global->Opt->CPMenuMode )
-						{
-							if ( static_cast<UINT>(cp) != GetACP() && static_cast<UINT>(cp) != GetOEMCP() )
-							{
-								long long selectType = Codepages().GetFavorite(cp);
-								if (0 == (selectType & CPST_FAVORITE))
-									cp = -1;
-							}
-						}
-					}
-					else
-					{
-						if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(cp)))
-						{
-							cp = -1;
-						}
-					}
-				}
-
-				if (cp != -1)
-				{
-					nCodePage = cp;
-					bDetect = true;
-				}
-			}
-		}
-	}
-
-	if (pSignatureFound)
-		*pSignatureFound = bSignatureFound;
-
-	if (pPureAscii)
-		*pPureAscii = bPureAscii;
-
-	return bDetect;
+	return Codepage;
 }

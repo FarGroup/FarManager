@@ -324,7 +324,7 @@ string GuidToStr(const GUID& Guid)
 	return upper(reinterpret_cast<const wchar_t*>(Str));
 }
 
-bool StrToGuid(const wchar_t* Value, GUID& Guid)
+bool StrToGuid(string_view const Value, GUID& Guid)
 {
-	return UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(Value)), &Guid) == RPC_S_OK;
+	return UuidFromString(reinterpret_cast<RPC_WSTR>(const_cast<wchar_t*>(null_terminated(Value).c_str())), &Guid) == RPC_S_OK;
 }

@@ -53,7 +53,7 @@ public:
 	bool Done() const;
 	void ClearDone();
 	void Process();
-	void SetHelp(const wchar_t *Topic);
+	void SetHelp(string_view Topic);
 	void ShowHelp() const;
 
 protected:

@@ -67,7 +67,7 @@ global::global():
 	AllowCancelExit = true;
 	DisablePluginsOutput = false;
 	ProcessException = false;
-	HelpFileMask=L"*.hlf";
+	HelpFileMask = L"*.hlf"sv;
 #if defined(SYSLOG)
 	StartSysLog = false;
 #endif

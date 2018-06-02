@@ -48,7 +48,6 @@ bool SimpleModal::Done() const
 	return m_EndLoop;
 }
 
-
 void SimpleModal::ClearDone()
 {
 	m_EndLoop=false;
@@ -72,11 +71,10 @@ void SimpleModal::Close(int Code)
 	Global->WindowManager->DeleteWindow(shared_from_this());
 }
 
-void SimpleModal::SetHelp(const wchar_t *Topic)
+void SimpleModal::SetHelp(string_view const Topic)
 {
-	m_HelpTopic = Topic;
+	assign(m_HelpTopic, Topic);
 }
-
 
 void SimpleModal::ShowHelp() const
 {

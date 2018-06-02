@@ -1425,7 +1425,7 @@ static uintptr_t GetEditorCodePageA()
 	CPINFO cpi;
 
 	if (!GetCPInfo(static_cast<UINT>(CodePage), &cpi) || cpi.MaxCharSize > 1)
-		CodePage = GetACP();
+		CodePage = encoding::codepage::ansi();
 
 	return CodePage;
 }
@@ -1434,17 +1434,17 @@ static int GetEditorCodePageFavA()
 {
 	const auto CodePage = GetEditorCodePageA();
 
-	if (GetOEMCP() == CodePage)
+	if (encoding::codepage::oem() == CodePage)
 		return 0;
 
-	if (GetACP() == CodePage)
+	if (encoding::codepage::ansi() == CodePage)
 		return 1;
 
 	auto result = -(static_cast<int>(CodePage) + 2);
 	DWORD FavIndex = 2;
 	const auto strCP = str(CodePage);
 
-	for (const auto& i: Codepages().GetFavoritesEnumerator())
+	for (const auto& i: codepages::GetFavoritesEnumerator())
 	{
 		if (!(i.second & CPST_FAVORITE))
 			continue;
@@ -1481,18 +1481,18 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 	{
 		switch (Command)
 		{
-		case 0: // OEM
-			nCP = GetOEMCP();
+		case 0:
+			nCP = encoding::codepage::oem();
 			break;
 
-		case 1: // ANSI
-			nCP = GetACP();
+		case 1:
+			nCP = encoding::codepage::ansi();
 			break;
 
 		default:
 			{
 				int FavIndex = 2;
-				for (const auto& i: Codepages().GetFavoritesEnumerator())
+				for (const auto& i: codepages::GetFavoritesEnumerator())
 				{
 					if (!(i.second & CPST_FAVORITE))
 						continue;
@@ -1914,7 +1914,7 @@ static char* WINAPI PasteFromClipboardA() noexcept
 		{
 			std::vector<wchar_t> p(Size);
 			NativeFSF.PasteFromClipboard(FCT_STREAM, p.data(), p.size());
-			return UnicodeToAnsi(p.data());
+			return UnicodeToAnsiBin(p.data(), p.size());
 		}
 		return nullptr;
 	}
@@ -4268,10 +4268,10 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 							switch (oldsp->iParam)
 							{
 								case 1:
-									newsp.iParam=GetOEMCP();
+									newsp.iParam = encoding::codepage::oem();
 									break;
 								case 2:
-									newsp.iParam=GetACP();
+									newsp.iParam = encoding::codepage::ansi();
 									break;
 								default:
 									newsp.iParam=oldsp->iParam;
@@ -4500,7 +4500,7 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 				viA->TabSize = viW.TabSize;
 				viA->CurMode.UseDecodeTable = 0;
 				viA->CurMode.TableNum       = 0;
-				viA->CurMode.AnsiMode       = viW.CurMode.CodePage == GetACP();
+				viA->CurMode.AnsiMode       = viW.CurMode.CodePage == encoding::codepage::ansi();
 				viA->CurMode.Unicode        = IsUnicodeCodePage(viW.CurMode.CodePage);
 				viA->CurMode.Wrap           = (viW.CurMode.Flags&VMF_WRAP)?1:0;
 				viA->CurMode.WordWrap       = (viW.CurMode.Flags&VMF_WORDWRAP)?1:0;
@@ -4630,7 +4630,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 				return -1;
 
 			string CodepageName(cpiex.CodePageName);
-			Codepages().FormatCodePageName(nCP, CodepageName);
+			codepages::FormatCodePageName(nCP, CodepageName);
 			string sTableName = pad_right(str(nCP), 5);
 			append(sTableName, BoxSymbols[BS_V1], L' ', CodepageName);
 			encoding::oem::get_bytes(sTableName, TableSet->TableName);

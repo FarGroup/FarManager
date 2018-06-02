@@ -9233,18 +9233,6 @@ upd:"Code page {0} is not supported in your system"
 "La Codifica {0} Non è Supportata Nel Tuo Sistema"
 "Кодова сторінка {0} не підтримується вашою системою"
 
-MEditorCPNotDetected
-"Не удалось определить кодовую страницу"
-"Cannot determine the code page"
-"Kódová stránka nebyla detekována"
-"Codepage kann nicht definiert werden"
-upd:"Cannot determine the code page"
-upd:"Cannot determine the code page"
-"No se pudo determinar página de códigos"
-"Nebola zistená tabuľka znakov"
-"Non Riesco A Determinare Il Tipo Di Codifica"
-"Не вдалося визначити кодову сторінку"
-
 MColumnName
 l:
 "Имя"

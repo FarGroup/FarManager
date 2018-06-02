@@ -54,9 +54,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
-static const wchar_t LangFileMask[] = L"*.lng";
+static const auto LangFileMask = L"*.lng"sv;
 
-std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path,const string& Mask,const string& Language)
+std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view const Path, string_view const Mask, string_view const Language)
 {
 	FN_RETURN_TYPE(OpenLangFile) CurrentFileData, EnglishFileData;
 
@@ -71,12 +71,9 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path,cons
 		CurrentFile = os::fs::file(CurrentFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 		if (CurrentFile)
 		{
-			// Default
-			CurrentCodepage = CP_OEMCP;
+			CurrentCodepage = GetFileCodepage(CurrentFile, encoding::codepage::oem(), nullptr, false);
 
-			GetFileFormat(CurrentFile, CurrentCodepage, nullptr, false);
-
-			if (GetLangParam(CurrentFile, L"Language", CurrentLngName, nullptr, CurrentCodepage) && equal_icase(CurrentLngName, Language))
+			if (GetLangParam(CurrentFile, L"Language"sv, CurrentLngName, nullptr, CurrentCodepage) && equal_icase(CurrentLngName, Language))
 			{
 				return CurrentFileData;
 			}
@@ -95,13 +92,13 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(const string& Path,cons
 }
 
 
-bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string& strParam1, string* strParam2, UINT nCodePage)
+bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, string& strParam1, string* strParam2, uintptr_t CodePage)
 {
 	const auto strFullParamName = concat(L'.', ParamName);
 	const auto CurFilePos = LangFile.GetPointer();
 	SCOPE_EXIT{ LangFile.SetPointer(CurFilePos, nullptr, FILE_BEGIN); };
 
-	for (const auto& i: enum_file_lines(LangFile, nCodePage))
+	for (const auto& i: enum_file_lines(LangFile, CodePage))
 	{
 		if (starts_with_icase(i.Str, strFullParamName))
 		{
@@ -144,7 +141,7 @@ bool GetLangParam(const os::fs::file& LangFile, const string& ParamName, string&
 static bool SelectLanguage(bool HelpLanguage, string& Dest)
 {
 	lng Title;
-	const wchar_t* Mask;
+	string_view Mask;
 
 	if (HelpLanguage)
 	{
@@ -167,17 +164,17 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 		if (!LangFile)
 			continue;
 
-		uintptr_t nCodePage=CP_OEMCP;
-		GetFileFormat(LangFile, nCodePage, nullptr, false);
+		const auto Codepage = GetFileCodepage(LangFile, encoding::codepage::oem(), nullptr, false);
+
 		string strLangName, strLangDescr;
 
-		if (GetLangParam(LangFile, L"Language", strLangName, &strLangDescr, nCodePage))
+		if (GetLangParam(LangFile, L"Language"sv, strLangName, &strLangDescr, Codepage))
 		{
 			string strEntryName;
 
 			if (!HelpLanguage || (
-				!GetLangParam(LangFile, L"PluginContents", strEntryName, nullptr, nCodePage) &&
-				!GetLangParam(LangFile, L"DocumentContents", strEntryName, nullptr, nCodePage)))
+				!GetLangParam(LangFile, L"PluginContents"sv, strEntryName, nullptr, Codepage) &&
+				!GetLangParam(LangFile, L"DocumentContents"sv, strEntryName, nullptr, Codepage)))
 			{
 				MenuItemEx LangMenuItem(!strLangDescr.empty()? strLangDescr : strLangName);
 
@@ -388,10 +385,9 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 			if (!CustomFile)
 				return;
 
-			uintptr_t CustomFileCodePage = CP_OEMCP;
-			GetFileFormat(CustomFile, CustomFileCodePage, nullptr, false);
+			const auto CustomFileCodepage = GetFileCodepage(CustomFile, encoding::codepage::oem(), nullptr, false);
 			label.clear();
-			for (const auto& i: enum_file_lines(CustomFile, CustomFileCodePage))
+			for (const auto& i: enum_file_lines(CustomFile, CustomFileCodepage))
 			{
 				bool have_text;
 				parse_lng_line(trim(i.Str), label, text, have_text);

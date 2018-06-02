@@ -186,8 +186,8 @@ protected:
 	ColorsConfig() = default;
 };
 
-class AssociationsConfig: public representable, virtual public transactional {
-
+class AssociationsConfig: public representable, virtual public transactional
+{
 public:
 	virtual bool EnumMasks(bool Reset, unsigned long long *id, string &strMask) = 0;
 	virtual bool EnumMasksForType(bool Reset, int Type, unsigned long long *id, string &strMask) = 0;

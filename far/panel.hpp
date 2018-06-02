@@ -75,7 +75,7 @@ struct PanelViewSettings
 	std::vector<column> PanelColumns;
 	std::vector<column> StatusColumns;
 	string Name;
-	unsigned long long Flags;
+	unsigned Flags;
 };
 
 enum panel_view_settings_flags

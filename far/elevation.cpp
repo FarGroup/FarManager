@@ -90,7 +90,6 @@ static const auto ElevationArgument = L"/service:elevation"sv;
 static auto CreateBackupRestorePrivilege() { return privilege{SE_BACKUP_NAME, SE_RESTORE_NAME}; }
 
 elevation::elevation():
-	m_Suppressions(),
 	m_IsApproved(false),
 	m_AskApprove(true),
 	m_Elevation(false),
@@ -440,7 +439,7 @@ void ElevationApproveDlgSync(const EAData& Data)
 	};
 	auto ElevationApproveDlg = MakeDialogItemsEx(ElevationApproveDlgData);
 	const auto Dlg = Dialog::create(ElevationApproveDlg, ElevationApproveDlgProc);
-	Dlg->SetHelp(L"ElevationDlg");
+	Dlg->SetHelp(L"ElevationDlg"sv);
 	Dlg->SetPosition(-1, -1, DlgX, DlgY);
 	Dlg->SetDialogMode(DMODE_FULLSHADOW | DMODE_NOPLUGINS);
 	const auto Current = Global->WindowManager->GetCurrentWindow();

@@ -372,10 +372,10 @@ void background_searcher::InitInFileSearch()
 					skipCharsTable[findString[index+findStringCount]] = findStringCount-1-index;
 
 			// Формируем список кодовых страниц
-			if (CodePage == CP_SET)
+			if (CodePage == CP_ALL)
 			{
 				// Проверяем наличие выбранных страниц символов
-				const auto CpEnum = Codepages().GetFavoritesEnumerator();
+				const auto CpEnum = codepages::GetFavoritesEnumerator();
 				const auto hasSelected = std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; });
 
 				if (hasSelected)
@@ -385,7 +385,7 @@ void background_searcher::InitInFileSearch()
 				else
 				{
 					// Добавляем стандартные таблицы символов
-					const uintptr_t Predefined[] = { GetOEMCP(), GetACP(), CP_UTF8, CP_UNICODE, CP_REVERSEBOM };
+					const uintptr_t Predefined[] = { encoding::codepage::oem(), encoding::codepage::ansi(), CP_UTF8, CP_UNICODE, CP_REVERSEBOM };
 					m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(Predefined));
 				}
 
@@ -579,7 +579,7 @@ void FindFiles::AdvancedDialog()
 	};
 	auto AdvancedDlg = MakeDialogItemsEx(AdvancedDlgData);
 	const auto Dlg = Dialog::create(AdvancedDlg, &FindFiles::AdvancedDlgProc);
-	Dlg->SetHelp(L"FindFileAdvanced");
+	Dlg->SetHelp(L"FindFileAdvanced"sv);
 	Dlg->SetPosition(-1,-1,52+4,13);
 	Dlg->Process();
 	int ExitCode=Dlg->GetExitCode();
@@ -596,7 +596,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	const auto& SetAllCpTitle = [&]()
 	{
 		const int TitlePosition = 1;
-		const auto CpEnum = Codepages().GetFavoritesEnumerator();
+		const auto CpEnum = codepages::GetFavoritesEnumerator();
 		const auto Title = msg(std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; })? lng::MFindFileSelectedCodePages : lng::MFindFileAllCodePages);
 		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->at(TitlePosition).Name = Title;
 		FarListPos Position = { sizeof(FarListPos) };
@@ -626,7 +626,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
-			favoriteCodePages = Codepages().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, true, false);
+			favoriteCodePages = codepages::instance().FillCodePagesList(Dlg, FAD_COMBOBOX_CP, CodePage, true, true, false, true, false);
 			SetAllCpTitle();
 
 			// Текущее значение в списке выбора кодовых страниц в общем случае может не совпадать с CodePage,
@@ -767,7 +767,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							if (Position.SelectPos > 1)
 							{
 								// Получаем текущее состояние флага в реестре
-								long long SelectType = Codepages().GetFavorite(SelectedCodePage);
+								long long SelectType = codepages::GetFavorite(SelectedCodePage);
 
 								// Отмечаем/разотмечаем таблицу символов
 								if (Item.Item.Flags & LIF_CHECKED)
@@ -775,15 +775,15 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									// Для стандартных таблиц символов просто удаляем значение из реестра, для
 									// избранных же оставляем в реестре флаг, что таблица символов избранная
 									if (SelectType & CPST_FAVORITE)
-										Codepages().SetFavorite(SelectedCodePage, CPST_FAVORITE);
+										codepages::SetFavorite(SelectedCodePage, CPST_FAVORITE);
 									else
-										Codepages().DeleteFavorite(SelectedCodePage);
+										codepages::DeleteFavorite(SelectedCodePage);
 
 									Item.Item.Flags &= ~LIF_CHECKED;
 								}
 								else
 								{
-									Codepages().SetFavorite(SelectedCodePage, CPST_FIND | (SelectType & CPST_FAVORITE ? CPST_FAVORITE : 0));
+									codepages::SetFavorite(SelectedCodePage, CPST_FIND | (SelectType & CPST_FAVORITE ? CPST_FAVORITE : 0));
 									Item.Item.Flags |= LIF_CHECKED;
 								}
 
@@ -970,11 +970,7 @@ bool background_searcher::LookForString(const string& Name)
 
 	if (m_Autodetection)
 	{
-		if (!GetFileFormat(File, m_CodePages.front().CodePage))
-		{
-			// TODO diagnostic message
-			m_CodePages.front().CodePage = GetACP();
-		}
+		m_CodePages.front().CodePage = GetFileCodepage(File, encoding::codepage::ansi());
 		m_CodePages.front().initialize();
 	}
 
@@ -1206,7 +1202,7 @@ bool background_searcher::LookForString(const string& Name)
 				return false;
 
 			// Получаем смещение на которое мы отступили при переходе между блоками
-			offset = (CodePage == CP_SET? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1);
+			offset = (CodePage == CP_ALL? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1);
 		}
 
 		// Если мы потенциально прочитали не весь файл
@@ -2542,7 +2538,7 @@ bool FindFiles::FindFilesProcess()
 	}
 
 	const auto Dlg = Dialog::create(FindDlg, &FindFiles::FindDlgProc, this);
-	Dlg->SetHelp(L"FindFileResult");
+	Dlg->SetHelp(L"FindFileResult"sv);
 	Dlg->SetPosition(-1, -1, DlgWidth, DlgHeight);
 	Dlg->SetId(FindFileResultId);
 
@@ -2919,7 +2915,7 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 		const auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
-		Dlg->SetHelp(L"FindFile");
+		Dlg->SetHelp(L"FindFile"sv);
 		Dlg->SetId(FindFileId);
 		Dlg->SetPosition(-1,-1,80,21);
 		Dlg->Process();

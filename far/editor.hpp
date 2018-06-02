@@ -280,7 +280,7 @@ private:
 	string Block2Text();
 	string VBlock2Text();
 	void Change(EDITOR_CHANGETYPE Type,int StrNum);
-	DWORD EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
+	DWORD SetLineCodePage(const iterator& edit, uintptr_t codepage, bool check_only);
 	numbered_iterator InsertString(string_view Str, const numbered_iterator& Where);
 	numbered_iterator PushString(const string_view Str) { return InsertString(Str, EndIterator()); }
 	void TurnOffMarkingBlock();

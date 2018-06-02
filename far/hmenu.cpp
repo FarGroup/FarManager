@@ -186,7 +186,7 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	switch (LocalKey)
 	{
 	case KEY_TAB:
-		Item[SelectPos].Selected = 0;
+		Item[SelectPos].Selected = false;
 		/* Кусок для "некрайних" меню - прыжок к меню пассивной панели */
 		if (SelectPos && SelectPos != Item.size() - 1)
 		{
@@ -203,7 +203,7 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 				SelectPos = 0;
 		}
 
-		Item[SelectPos].Selected = 1;
+		Item[SelectPos].Selected = true;
 		break;
 
 	case KEY_HOME:
@@ -216,8 +216,8 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	case KEY_RCTRLNUMPAD7:
 	case KEY_CTRLNUMPAD9:
 	case KEY_RCTRLNUMPAD9:
-		Item[SelectPos].Selected = 0;
-		Item[0].Selected = 1;
+		Item[SelectPos].Selected = false;
+		Item[0].Selected = true;
 		SelectPos = 0;
 		break;
 
@@ -231,31 +231,31 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 	case KEY_RCTRLNUMPAD1:
 	case KEY_CTRLNUMPAD3:
 	case KEY_RCTRLNUMPAD3:
-		Item[SelectPos].Selected = 0;
-		Item[Item.size() - 1].Selected = 1;
+		Item[SelectPos].Selected = false;
+		Item[Item.size() - 1].Selected = true;
 		SelectPos = Item.size() - 1;
 		break;
 
 	case KEY_LEFT:
 	case KEY_NUMPAD4:
 	case KEY_MSWHEEL_LEFT:
-		Item[SelectPos].Selected = 0;
+		Item[SelectPos].Selected = false;
 		if (!SelectPos)
 			SelectPos = Item.size() - 1;
 		else
 			--SelectPos;
-		Item[SelectPos].Selected = 1;
+		Item[SelectPos].Selected = true;
 		break;
 
 	case KEY_RIGHT:
 	case KEY_NUMPAD6:
 	case KEY_MSWHEEL_RIGHT:
-		Item[SelectPos].Selected = 0;
+		Item[SelectPos].Selected = false;
 		if (SelectPos == Item.size() - 1)
 			SelectPos = 0;
 		else
 			++SelectPos;
-		Item[SelectPos].Selected = 1;
+		Item[SelectPos].Selected = true;
 		break;
 
 	default:
@@ -320,8 +320,8 @@ bool HMenu::ProcessKey(const Manager::Key& Key)
 				return false;
 		}
 
-		Item[SelectPos].Selected=0;
-		Iterator->Selected=1;
+		Item[SelectPos].Selected = false;
+		Iterator->Selected = true;
 		SelectPos = Iterator - Item.begin();
 		ShowMenu();
 		ProcessCurrentSubMenu();
@@ -354,8 +354,8 @@ bool HMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (m_SubmenuOpened && SelectPos == NewPos)
 			return false;
 
-		Item[SelectPos].Selected = 0;
-		SubmenuIterator->Selected = 1;
+		Item[SelectPos].Selected = false;
+		SubmenuIterator->Selected = true;
 		SelectPos = NewPos;
 		ShowMenu();
 		ProcessCurrentSubMenu();

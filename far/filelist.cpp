@@ -3995,7 +3995,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 				{
 					const auto Dlg = Dialog::create(SelectDlg);
-					Dlg->SetHelp(L"SelectFiles");
+					Dlg->SetHelp(L"SelectFiles"sv);
 					Dlg->SetPosition(-1,-1,55,7);
 					Dlg->SetId(Mode==SELECT_ADD?SelectDialogId:UnSelectDialogId);
 
@@ -4617,10 +4617,10 @@ void FileList::SelectSortMode()
 	bool PlusPressed = false;
 
 	{
-		const auto MenuStrings = VMenu::AddHotkeys(make_range(SortMenu.data(), SortMenu.size()));
+		const auto MenuStrings = VMenu::AddHotkeys(make_span(SortMenu));
 
-		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), { SortMenu.data(), SortMenu.size() }, 0);
-		SortModeMenu->SetHelp(L"PanelCmdSort");
+		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), make_span(SortMenu), 0);
+		SortModeMenu->SetHelp(L"PanelCmdSort"sv);
 		SortModeMenu->SetPosition(m_X1+4,-1,0,0);
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
 		SortModeMenu->SetId(SelectSortModeId);

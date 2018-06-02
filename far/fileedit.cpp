@@ -100,7 +100,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 	if (msg == DN_INITDIALOG)
 	{
 		const auto codepage = *static_cast<uintptr_t*>(param2);
-		Codepages().FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, false, false);
+		codepages::instance().FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, false, false);
 	}
 
 	if (msg == DN_CLOSE)
@@ -135,7 +135,7 @@ bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 	auto EditDlg = MakeDialogItemsEx(EditDlgData);
 	const auto Dlg = Dialog::create(EditDlg, hndOpenEditor, &codepage);
 	Dlg->SetPosition(-1,-1,76,10);
-	Dlg->SetHelp(L"FileOpenCreate");
+	Dlg->SetHelp(L"FileOpenCreate"sv);
 	Dlg->SetId(FileOpenCreateId);
 	Dlg->Process();
 
@@ -156,7 +156,7 @@ static bool dlgBadEditorCodepage(uintptr_t &codepage)
 	{
 		if (msg == DN_INITDIALOG)
 		{
-			Codepages().FillCodePagesList(dlg, id_cp, codepage, true, false, true, false, false);
+			codepages::instance().FillCodePagesList(dlg, id_cp, codepage, true, false, true, false, false);
 		}
 		else if (msg == DN_CLOSE && p1 == id_ok)
 		{
@@ -212,7 +212,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 		case DN_INITDIALOG:
 		{
 			CurrentCodepage = *reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-			Codepages().FillCodePagesList(Dlg, ID_SF_CODEPAGE, CurrentCodepage, false, false, false, false, false);
+			codepages::instance().FillCodePagesList(Dlg, ID_SF_CODEPAGE, CurrentCodepage, false, false, false, false, false);
 			break;
 		}
 		case DN_CLOSE:
@@ -298,7 +298,7 @@ static bool dlgSaveFileAs(string &strFileName, eol::type& Eol, uintptr_t &codepa
 	EditDlg[ID_SF_DONOTCHANGE + static_cast<int>(Eol)].Selected = TRUE;
 	const auto Dlg = Dialog::create(EditDlg, hndSaveFileAs, &codepage);
 	Dlg->SetPosition(-1,-1,76,17);
-	Dlg->SetHelp(L"FileSaveAs");
+	Dlg->SetHelp(L"FileSaveAs"sv);
 	Dlg->SetId(FileSaveAsId);
 	Dlg->Process();
 
@@ -1241,14 +1241,14 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 			case KEY_F8:
 			{
-				SetCodePage(f8cps.NextCP(m_codepage), false,true);
+				SetCodePageEx(f8cps.NextCP(m_codepage));
 				return true;
 			}
 			case KEY_SHIFTF8:
 			{
 				uintptr_t codepage = m_codepage;
-				if (Codepages().SelectCodePage(codepage, true, false, true))
-					SetCodePage(codepage, true,true);
+				if (codepages::instance().SelectCodePage(codepage, true, false, true))
+					SetCodePageEx(codepage == CP_DEFAULT? CP_REDETECT : codepage);
 
 				return true;
 			}
@@ -1283,59 +1283,21 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 	return true;
 }
 
-enum
+bool FileEditor::SetCodePageEx(uintptr_t cp)
 {
-	EC_CP_RELOAD = +2,
-	EC_CP_SET = +1,
-	EC_CP_NOT_CHANGED = 0,
-	EC_CP_NOT_CACHED = -1,
-	EC_CP_NOT_DETECTED = -2,
-	EC_CP_NOT_SUPPORTED = -3,
-	EC_CP_NOTRELOAD_MODIFIED = -4,
-	EC_CP_CANNOT_RELOAD = -5,
-	EC_CP_CANNOT_SET = -6,
-};
-
-int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
-{
-	if (redetect_default && cp == CP_DEFAULT)
-		cp = CP_REDETECT;
-
-	if (cp == CP_DEFAULT) {
+	if (cp == CP_DEFAULT)
+	{
 		EditorPosCache epc;
 		if (!LoadFromCache(epc) || epc.CodePage <= 0 || epc.CodePage > 0xffff)
-			return EC_CP_NOT_CACHED;
-		else
-			cp = epc.CodePage;
+			return false;
+
+		cp = epc.CodePage;
 	}
 	else if (cp == CP_REDETECT)
 	{
-		bool detect = false, sig_found = false, ascii_or_empty = false;
-
-		if (const auto edit_file = os::fs::file(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-		{
-			detect = GetFileFormat(edit_file, cp, &sig_found, true, &ascii_or_empty);
-			if (!detect && ascii_or_empty && ascii2def) {
-				cp = GetDefaultCodePage();
-				if (IsUnicodeCodePage(cp)) {
-					unsigned long long file_size = 0;
-					edit_file.GetSize(file_size);
-					if (file_size > 0)
-						cp = GetACP();
-				}
-				detect = true;
-			}
-		}
-		if (!detect)
-		{
-			Message(MSG_WARNING,
-				msg(lng::MEditTitle),
-				{
-					msg(lng::MEditorCPNotDetected)
-				},
-				{ lng::MOk });
-			return EC_CP_NOT_DETECTED;
-		}
+		const auto EditFile = os::fs::file(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		const auto DefaultCodepage = GetDefaultCodePage();
+		cp = EditFile? GetFileCodepage(EditFile, DefaultCodepage) : DefaultCodepage;
 	}
 
 	if (cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp))
@@ -1346,15 +1308,15 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 				format(msg(lng::MEditorCPNotSupported), cp)
 			},
 			{ lng::MOk });
-		return EC_CP_NOT_SUPPORTED;
+		return false;
 	}
 
 	if (cp == m_codepage)
-		return EC_CP_NOT_CHANGED;
+		return true;
 
-	uintptr_t cp0 = m_codepage;
+	const auto CurrentCodepage = m_codepage;
 
-	bool need_reload = !m_Flags.Check(FFILEEDIT_NEW) // we can't reload non-existing file
+	const auto need_reload = !m_Flags.Check(FFILEEDIT_NEW) // we can't reload non-existing file
 		&& (BadConversion
 		|| IsUnicodeCodePage(m_codepage) || m_codepage == CP_UTF7
 		|| IsUnicodeCodePage(cp));
@@ -1371,7 +1333,7 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 				},
 				{ lng::MOk, lng::MCancel }) != Message::first_button)
 			{
-				return EC_CP_NOTRELOAD_MODIFIED;
+				return false;
 			}
 		}
 		// BUGBUG result check???
@@ -1382,13 +1344,11 @@ int FileEditor::SetCodePage(uintptr_t cp,	bool redetect_default, bool ascii2def)
 		SetCodePage(cp);
 	}
 
-	if (m_codepage != cp0)
-	{
-		InitKeyBar();
-		return need_reload ? EC_CP_RELOAD : EC_CP_SET;
-	}
-	else
-		return need_reload ? EC_CP_CANNOT_RELOAD : EC_CP_CANNOT_SET;
+	if (m_codepage == CurrentCodepage)
+		return false;
+
+	InitKeyBar();
+	return true;
 }
 
 bool FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWindow)
@@ -1456,7 +1416,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 	EditorPosCache pc;
 	UserBreak = 0;
-	os::fs::file EditFile(Name, FILE_READ_DATA, FILE_SHARE_READ | (Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	os::fs::file EditFile(Name, FILE_READ_DATA, FILE_SHARE_READ | (Global->Opt->EdOpt.EditOpenedForWrite? (FILE_SHARE_WRITE | FILE_SHARE_DELETE) : 0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!EditFile)
 	{
 		ErrorState = error_state::fetch();
@@ -1541,20 +1501,15 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		if (m_codepage == CP_DEFAULT)
 		{
 			if (!Redetect && Cached && pc.CodePage)
+			{
 				m_codepage = pc.CodePage;
-
+			}
 			else
 			{
-				uintptr_t dwCP = 0;
+				const auto Cp = GetFileCodepage(EditFile, GetDefaultCodePage(), &m_bAddSignature, Redetect || Global->Opt->EdOpt.AutoDetectCodePage);
 				testBOM = false;
-				bool Detect = GetFileFormat(EditFile, dwCP, &m_bAddSignature, Redetect || Global->Opt->EdOpt.AutoDetectCodePage != 0)
-					&& codepages::IsCodePageSupported(dwCP);
-
-				if (Detect)
-					m_codepage = dwCP;
-
-				if (!IsUnicodeOrUtfCodePage(m_codepage))
-					EditFile.SetPointer(0, nullptr, FILE_BEGIN);
+				if (codepages::IsCodePageSupported(Cp))
+					m_codepage = Cp;
 			}
 
 			if (m_codepage == CP_DEFAULT)
@@ -2787,7 +2742,7 @@ uintptr_t FileEditor::GetDefaultCodePage()
 {
 	intptr_t cp = Global->Opt->EdOpt.DefaultCodePage;
 	if (cp < 0 || !codepages::IsCodePageSupported(cp))
-		cp = GetACP();
+		cp = encoding::codepage::ansi();
 	return cp;
 }
 

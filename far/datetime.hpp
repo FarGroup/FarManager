@@ -45,9 +45,12 @@ inline auto get_utc_time() { SYSTEMTIME Time; GetSystemTime(&Time); return Time;
 DWORD ConvertYearToFull(DWORD ShortYear);
 
 enum { date_none = std::numeric_limits<WORD>::max() };
-void ParseDateComponents(const string& Src, range<WORD*> Dst, wchar_t Separator, WORD Default = date_none);
-os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
-os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator);
+using date_ranges = std::array<std::pair<size_t, size_t>, 3>;
+using time_ranges = std::array<std::pair<size_t, size_t>, 4>;
+
+void ParseDateComponents(string_view Src, range<const std::pair<size_t, size_t>*> Ranges, range<WORD*> Dst, WORD Default = date_none);
+os::chrono::time_point ParseDate(const string& Date, const string& Time, int DateFormat, const date_ranges& DateRanges, const time_ranges& TimeRanges);
+os::chrono::duration ParseDuration(const string& Date, const string& Time, int DateFormat, const time_ranges& TimeRanges);
 void ConvertDate(os::chrono::time_point Point, string& strDateText, string& StrTimeText, int TimeLength, int Brief = FALSE, int TextMonth = FALSE, int FullYear = 0);
 void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string& strTimeText);
 

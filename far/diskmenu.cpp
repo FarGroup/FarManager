@@ -321,7 +321,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	{
 		const auto Dlg = Dialog::create(DCDlg);
 		Dlg->SetPosition(-1, -1, DCDlg[0].X2 + 4, 11);
-		Dlg->SetHelp(L"DisconnectDrive");
+		Dlg->SetHelp(L"DisconnectDrive"sv);
 		Dlg->SetId(DisconnectDriveId);
 		Dlg->SetDialogMode(DMODE_WARNINGSTYLE);
 		Dlg->Process();
@@ -643,7 +643,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 	{ // эта скобка надо, см. M#605
 		const auto ChDisk = VMenu2::create(msg(lng::MChangeDriveTitle), {}, ScrY - Panel_Y1 - 3);
 		ChDisk->SetBottomTitle(msg(lng::MChangeDriveMenuFooter));
-		ChDisk->SetHelp(L"DriveDlg");
+		ChDisk->SetHelp(L"DriveDlg"sv);
 		ChDisk->SetMenuFlags(VMENU_WRAPMODE);
 		ChDisk->SetId(ChangeDiskMenuId);
 

@@ -115,7 +115,6 @@ Editor::Editor(window_ptr Owner, bool DialogUsed):
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchReverse(Global->GlobalSearchReverse),
 	LastSearchRegexp(Global->Opt->EdOpt.SearchRegexp),
-	LastSearchPreserveStyle(false),
 	EditorID(::EditorID++),
 	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
 	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT))
@@ -3791,7 +3790,7 @@ bool Editor::Search(bool Next)
 		FindAllList->SetPosition(-1, MenuY1, 0, MenuY2);
 		FindAllList->SetTitle(format(msg(lng::MEditSearchStatistics), FindAllList->size(), AllRefLines));
 		FindAllList->SetBottomTitle(msg(lng::MEditFindAllMenuFooter));
-		FindAllList->SetHelp(L"FindAllMenu");
+		FindAllList->SetHelp(L"FindAllMenu"sv);
 		FindAllList->SetId(EditorFindAllListId);
 
 		bool MenuZoomed = false;
@@ -5860,14 +5859,15 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					case ESPT_CODEPAGE:
 					{
 						uintptr_t cp = espar->iParam;
-						if (HostFileEditor) {
-							rc = HostFileEditor->SetCodePage(cp, false, true);
-							rc = rc >= 0 ? TRUE : FALSE;
+						if (HostFileEditor)
+						{
+							rc = HostFileEditor->SetCodePageEx(cp);
 						}
-						else {
-							rc = cp != CP_DEFAULT && codepages::IsCodePageSupported(cp) && SetCodePage(cp) ? TRUE : FALSE;
+						else
+						{
+							rc = cp != CP_DEFAULT && codepages::IsCodePageSupported(cp) && SetCodePage(cp);
 						}
-						if (rc > 0)
+						if (rc)
 							Show();
 					}break;
 					/* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
@@ -6887,7 +6887,7 @@ void Editor::GetCacheParams(EditorPosCache &pc) const
 	pc.bm=m_SavePos;
 }
 
-DWORD Editor::EditSetCodePage(const iterator& edit, uintptr_t codepage, bool check_only)
+DWORD Editor::SetLineCodePage(const iterator& edit, uintptr_t codepage, bool check_only)
 {
 	DWORD Ret = SETCP_NOERROR;
 	if (codepage == m_codepage)
@@ -6948,7 +6948,7 @@ bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 
 	FOR_RANGE(Lines, i)
 	{
-		DWORD Result = EditSetCodePage(i, codepage, true);
+		DWORD Result = SetLineCodePage(i, codepage, true);
 		if ( Result )
 		{
 			Y = line;
@@ -7040,7 +7040,7 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 
 	FOR_RANGE(Lines, i)
 	{
-		Result |= EditSetCodePage(i, codepage, false);
+		Result |= SetLineCodePage(i, codepage, false);
 	}
 
 	if (BOM)

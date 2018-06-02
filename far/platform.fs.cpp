@@ -1629,7 +1629,7 @@ namespace os::fs
 		return os::detail::ApiDynamicStringReceiver(VolumePathNames, [&](wchar_t* Buffer, size_t Size)
 		{
 			DWORD ReturnLength = 0;
-			return imports.GetVolumePathNamesForVolumeNameW(VolumeName.c_str(), Buffer, static_cast<DWORD>(Size), &ReturnLength) || !ReturnLength?
+			return (imports.GetVolumePathNamesForVolumeNameW(VolumeName.c_str(), Buffer, static_cast<DWORD>(Size), &ReturnLength) || !ReturnLength)?
 				ReturnLength :
 				ReturnLength + 1;
 		});

@@ -100,7 +100,7 @@ public:
 		if (data())
 		{
 			if (size() != rhs.size())
-				throw std::runtime_error("Incorrect blob size: " + std::to_string(rhs.size()) + ", expected " + std::to_string(size()));
+				throw std::runtime_error("Incorrect blob size: "s + std::to_string(rhs.size()) + ", expected "s + std::to_string(size()));
 		}
 		else
 		{

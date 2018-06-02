@@ -415,7 +415,7 @@ window_ptr Manager::WindowMenu()
 		const auto TypesWidth = std::get<0>(*std::max_element(ALL_CONST_RANGE(Data), [](const auto& a, const auto &b) { return std::get<0>(a).size() < std::get<0>(b).size(); })).size();
 
 		const auto ModalMenu = VMenu2::create(msg(lng::MScreensTitle), {}, ScrY - 4);
-		ModalMenu->SetHelp(L"ScrSwitch");
+		ModalMenu->SetHelp(L"ScrSwitch"sv);
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1, -1, 0, 0);
 		ModalMenu->SetId(ScreensSwitchId);

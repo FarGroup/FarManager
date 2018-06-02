@@ -643,7 +643,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	{
 		const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
 		menu->SetPosition(-1, -1, 0, 0);
-		menu->SetHelp(L"ChoosePluginMenu");
+		menu->SetHelp(L"ChoosePluginMenu"sv);
 		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
 		for (const auto& i: items)
@@ -753,7 +753,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(const PluginPane
 	{
 		const auto menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
 		menu->SetPosition(-1, -1, 0, 0);
-		menu->SetHelp(L"ChoosePluginMenu");
+		menu->SetHelp(L"ChoosePluginMenu"sv);
 		menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
 		for (const auto& i: items)
@@ -1219,7 +1219,7 @@ void PluginManager::Configure(int StartPos)
 {
 		const auto PluginList = VMenu2::create(msg(lng::MPluginConfigTitle), {}, ScrY - 4);
 		PluginList->SetMenuFlags(VMENU_WRAPMODE);
-		PluginList->SetHelp(L"PluginsConfig");
+		PluginList->SetHelp(L"PluginsConfig"sv);
 		PluginList->SetId(PluginsConfigMenuId);
 
 		bool NeedUpdateItems = true;
@@ -1376,7 +1376,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	{
 		const auto PluginList = VMenu2::create(msg(lng::MPluginCommandsMenuTitle), {}, ScrY - 4);
 		PluginList->SetMenuFlags(VMENU_WRAPMODE);
-		PluginList->SetHelp(L"PluginCommands");
+		PluginList->SetHelp(L"PluginCommands"sv);
 		PluginList->SetId(PluginsMenuId);
 		bool NeedUpdateItems = true;
 
@@ -1960,7 +1960,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 	{
 		const auto Menu = VMenu2::create(msg(lng::MPluginConfirmationTitle), {}, ScrY - 4);
 		Menu->SetPosition(-1, -1, 0, 0);
-		Menu->SetHelp(L"ChoosePluginMenu");
+		Menu->SetHelp(L"ChoosePluginMenu"sv);
 		Menu->SetMenuFlags(VMENU_SHOWAMPERSAND | VMENU_WRAPMODE);
 
 		for (const auto& i: items)

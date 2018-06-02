@@ -388,33 +388,24 @@ bool Viewer::OpenFile(const string& Name,int warning)
 		FilePos=0;
 	}
 
-	// Unicode auto-detect ignores ViOpt.AutoDetectTable
+	if (m_Codepage == CP_DEFAULT)
 	{
-		bool Detect=false;
-		uintptr_t CodePage=0;
-
-		if (m_Codepage == CP_DEFAULT || IsUnicodeOrUtfCodePage(m_Codepage))
+		if (CachedCodePage)
 		{
-			Detect = GetFileFormat(ViewFile, CodePage, &Signature, Global->Opt->ViOpt.AutoDetectCodePage!=0)
-			      && IsCodePageSupported(CodePage);
+			m_Codepage = CachedCodePage;
+		}
+		else
+		{
+			const auto DefaultCodepage = GetDefaultCodePage();
+			const auto DetectedCodepage = GetFileCodepage(ViewFile, DefaultCodepage, &Signature, Global->Opt->ViOpt.AutoDetectCodePage);
+			m_Codepage = IsCodePageSupported(DetectedCodepage)? DetectedCodepage : DefaultCodepage;
 		}
 
-		if (m_Codepage == CP_DEFAULT)
-		{
-			if (Detect)
-				m_Codepage = CodePage;
-
-			if (CachedCodePage)
-				m_Codepage = CachedCodePage;
-
-			if (m_Codepage == CP_DEFAULT)
-				m_Codepage = GetDefaultCodePage();
-
-			MB.SetCP(m_Codepage);
-		}
-
-		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
+		MB.SetCP(m_Codepage);
 	}
+
+	ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
+
 	SetFileSize();
 
 	if (!m_DisplayMode.touched())
@@ -1248,7 +1239,8 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 				assert(eol_len == 2); // CRCR...
 				if (vgetc(&ch) && ch == L'\n')
 					++eol_len;         // CRCRLF
-				else {
+				else
+				{
 					assert(ib + 2 <= vgetc_ib);
 					vgetc_ib = ib;     // CR ungetc(2)
 					eol_len = 1;
@@ -1508,7 +1500,8 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 	if (LocalKey != KEY_NONE)
 		m_IdleCheck->reset();
-	else {
+	else
+	{
 		if (*m_IdleCheck)
 			LocalKey = KEY_IDLE;
 		else
@@ -1751,15 +1744,15 @@ bool Viewer::process_key(const Manager::Key& Key)
 		case KEY_SHIFTF8:
 		{
 			uintptr_t nCodePage = m_Codepage;
-			if (Codepages().SelectCodePage(nCodePage, true, true, true))
+			if (codepages::instance().SelectCodePage(nCodePage, true, true, true))
 			{
 				if (nCodePage == CP_DEFAULT)
 				{
-					long long fpos = vtell();
-					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && IsCodePageSupported(nCodePage);
+					const auto DefaultCodepage = GetDefaultCodePage();
+					const auto fpos = vtell();
+					const auto DecectedCodepage = GetFileCodepage(ViewFile, DefaultCodepage, &Signature, true);
 					vseek(fpos, FILE_BEGIN);
-					if (!detect)
-						nCodePage = GetDefaultCodePage();
+					nCodePage = IsCodePageSupported(DecectedCodepage)? DecectedCodepage : DefaultCodepage;
 				}
 				m_Codepage = nCodePage;
 				MB.SetCP(m_Codepage);
@@ -3369,7 +3362,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 		const auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this, const_cast<Manager::Key*>(FirstChar));
 		Dlg->SetPosition(-1,-1,76,13);
-		Dlg->SetHelp(L"ViewerSearch");
+		Dlg->SetHelp(L"ViewerSearch"sv);
 
 		Dlg->Process();
 
@@ -4413,12 +4406,12 @@ uintptr_t Viewer::GetDefaultCodePage()
 {
 	intptr_t cp = Global->Opt->ViOpt.DefaultCodePage;
 	if (cp == CP_ACP)
-		cp = GetACP();
+		cp = encoding::codepage::ansi();
 	else if (cp == CP_OEMCP)
-		cp = GetOEMCP();
+		cp = encoding::codepage::oem();
 
 	if (cp < 0 || !IsCodePageSupported(cp))
-		cp = GetACP();
+		cp = encoding::codepage::ansi();
 
 	return cp;
 }

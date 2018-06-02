@@ -122,7 +122,7 @@ template<size_t N>
 auto MakeDialogItemsEx(const FarDialogItem (&InitData)[N])
 {
 	std::vector<DialogItemEx> Items(N);
-	ItemsToItemsEx(make_range(InitData), make_range(Items.data(), Items.size()));
+	ItemsToItemsEx(make_span(InitData), make_span(Items));
 	return Items;
 }
 
@@ -157,7 +157,7 @@ public:
 		DataDialog(InitParam),
 		m_handler(Handler)
 	{
-		Construct(make_range(Src.data(), Src.size()));
+		Construct(make_span(Src));
 	}
 
 	~Dialog() override;

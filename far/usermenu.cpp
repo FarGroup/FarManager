@@ -217,16 +217,9 @@ static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::ite
 
 static void DeserializeMenu(UserMenu::menu_container& Menu, const os::fs::file& File, uintptr_t& Codepage)
 {
-	bool OldFormat = false;
-
-	if (!GetFileFormat(File, Codepage))
-	{
-		Codepage = GetOEMCP();
-		OldFormat = true;
-	}
-
+	Codepage = GetFileCodepage(File, encoding::codepage::oem());
 	enum_file_lines EnumFileLines(File, Codepage);
-	ParseMenu(Menu, make_range(EnumFileLines), OldFormat);
+	ParseMenu(Menu, make_range(EnumFileLines), Codepage == encoding::codepage::oem());
 
 	if (!IsUnicodeOrUtfCodePage(Codepage))
 	{
@@ -546,7 +539,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 
 		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE);
-		UserMenu->SetHelp(L"UserMenu");
+		UserMenu->SetHelp(L"UserMenu"sv);
 		UserMenu->SetPosition(-1,-1,0,0);
 		UserMenu->SetBottomTitle(msg(lng::MMainMenuBottomTitle));
 		UserMenu->SetMacroMode(MACROAREA_USERMENU);
@@ -1023,7 +1016,7 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		}
 
 		const auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
-		Dlg->SetHelp(L"UserMenu");
+		Dlg->SetHelp(L"UserMenu"sv);
 		Dlg->SetId(EditUserMenuId);
 		Dlg->SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg->Process();

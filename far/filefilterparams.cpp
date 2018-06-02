@@ -857,6 +857,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	wchar_t TimeSeparator = locale.time_separator();
 	wchar_t DecimalSeparator = locale.decimal_separator();
 	const auto DateFormat = locale.date_format();
+	date_ranges DateRanges;
 
 	switch (DateFormat)
 	{
@@ -864,16 +865,19 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	case 1:
 		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
 		strDateMask = format(L"99{0}99{0}9999N", DateSeparator);
+		DateRanges = {{ { 0, 2 }, { 3, 2 }, { 6, 5 } }};
 		break;
 
 	default:
 		// Маска даты для формата YYYYY.MM.DD
 		strDateMask = format(L"N9999{0}99{0}99", DateSeparator);
+		DateRanges = {{ { 0, 5 }, { 6, 2 }, { 9, 2 } }};
 		break;
 	}
 
 	// Маска времени
 	const auto strTimeMask = format(L"99{0}99{0}99{1}999", TimeSeparator, DecimalSeparator);
+	const time_ranges TimeRanges{{ {0, 2}, {3, 2}, {6, 2}, {9, 3} }};
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 
 	std::pair<lng, string> NameLabels[] =
@@ -1121,7 +1125,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	}
 
 	const auto Dlg = Dialog::create(FilterDlg, FileFilterConfigDlgProc, ColorConfig ? &Colors : nullptr);
-	Dlg->SetHelp(ColorConfig?L"HighlightEdit":L"Filter");
+	Dlg->SetHelp(ColorConfig? L"HighlightEdit"sv : L"Filter"sv);
 	Dlg->SetPosition(-1,-1,FilterDlg[ID_FF_TITLE].X2+4,FilterDlg[ID_FF_TITLE].Y2+2);
 	Dlg->SetId(ColorConfig?HighlightConfigId:FiltersConfigId);
 	Dlg->SetAutomation(ID_FF_MATCHMASK,ID_FF_MASKEDIT,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
@@ -1178,13 +1182,13 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			const auto NewDates = IsRelative?
 				filter_dates
 				(
-					ParseDuration(FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, DateSeparator, TimeSeparator),
-					ParseDuration(FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, DateSeparator, TimeSeparator)
+					ParseDuration(FilterDlg[ID_FF_DAYSAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, TimeRanges),
+					ParseDuration(FilterDlg[ID_FF_DAYSBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, TimeRanges)
 				) :
 				filter_dates
 				(
-					ParseDate(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, DateSeparator, TimeSeparator),
-					ParseDate(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, DateSeparator, TimeSeparator)
+					ParseDate(FilterDlg[ID_FF_DATEAFTEREDIT].strData, FilterDlg[ID_FF_TIMEAFTEREDIT].strData, DateFormat, DateRanges, TimeRanges),
+					ParseDate(FilterDlg[ID_FF_DATEBEFOREEDIT].strData, FilterDlg[ID_FF_TIMEBEFOREEDIT].strData, DateFormat, DateRanges, TimeRanges)
 				);
 
 			FF->SetDate(FilterDlg[ID_FF_MATCHDATE].Selected != 0, static_cast<enumFDateType>(FilterDlg[ID_FF_DATETYPE].ListPos), NewDates);

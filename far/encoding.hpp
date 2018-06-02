@@ -37,6 +37,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace encoding
 {
+	namespace codepage
+	{
+		uintptr_t ansi();
+		uintptr_t oem();
+	}
+
 	size_t get_bytes(uintptr_t Codepage, string_view Str, char* Buffer, size_t BufferSize, bool* UsedDefaultChar = nullptr);
 
 	template<typename T>
@@ -110,6 +116,8 @@ namespace encoding
 		uintptr_t m_Codepage;
 		bool m_AddSignature;
 	};
+
+	bool is_valid_utf8(std::string_view Str, bool PartialContent, bool& PureAscii);
 }
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);

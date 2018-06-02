@@ -109,11 +109,7 @@ void DizList::Read(const string& Path, const string* DizName)
 
 		const time_check TimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 
-		uintptr_t CodePage = CP_DEFAULT;
-		bool bSigFound = false;
-
-		if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
-			CodePage = Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP;
+		const auto CodePage = GetFileCodepage(DizFile, Global->Opt->Diz.AnsiByDefault? encoding::codepage::ansi() : encoding::codepage::oem(), nullptr, false);
 
 		auto LastAdded = m_DizData.end();
 		string DizText;
