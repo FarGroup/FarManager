@@ -575,7 +575,7 @@ int ArchivePanel::pPutFiles(
 					for (int i = 0; i < nSelectedCount; i++)
 						info.FreePanelItem(&pItems[i]);
 
-					delete pItems;
+					delete [] pItems;
 				}
 
 				if ( !params.bExactName )

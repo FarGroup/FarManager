@@ -137,6 +137,7 @@ PerfThread::PerfThread(Plist& plist, LPCTSTR hostname, LPCTSTR pUser, LPCTSTR pP
 	                        (BYTE*)buf, &dwSize)))
 	{
 		SetLastError(rc);
+		delete [] buf;
 		return;
 	}
 
