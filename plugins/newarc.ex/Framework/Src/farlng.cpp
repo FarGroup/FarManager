@@ -202,7 +202,7 @@ bool ScanMsgsBuf(
 
 				pMsgs[nCount] = pDest;
 
-				delete pSrc;
+				delete [] pSrc;
 				free(pStr);
 			};
 
@@ -230,7 +230,7 @@ bool ScanMsgsBuf(
 					if ( strcmp(lpLanguage, lpFileLanguage) )
 						bResult = false;
 
-					delete lpFileLanguage;
+					delete [] lpFileLanguage;
 				}
 			}
 		}
@@ -303,7 +303,7 @@ bool LoadLanguageFile (
 
 		OEM_NAME_DELETE_CONST(lpLanguage);
 
-		delete lpBuffer;
+		delete [] lpBuffer;
 
 		CloseHandle (hFile);
 	}
