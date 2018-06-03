@@ -3,6 +3,27 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 03.06.2018 10:21:52 +0100 - build 5225
+
+1. Naive logic "if the file contains ASCII only then open it with default codepage" would not take 
+   into account that user could set the default codepage to UTF-16.
+   Also, simplify the codepage guessing logic.
+
+2. Continuation of 5215, 5205, 5141 : date/time parsing in attributes/filters dialogs does not look for
+   separators - we have got the input mask and know exactly what to search and where.
+
+3. If editor settings have "[x] Allow editing files opened for writing" set then append FILE_SHARE_DELETE.
+
+4. Correct the UTF-8 recognition algorithm.
+
+5. Refactoring.
+
+drkns 28.05.2018 17:48:30 +0100 - build 5224
+
+1. After F3 on plugin panel and cancelling the scanning the allocated memory was not freed.
+
+2. Refactoring.
+
 drkns 23.05.2018 22:50:03 +0100 - build 5223
 
 1. fmt v5.
