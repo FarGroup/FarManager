@@ -774,7 +774,7 @@ private:
 
 void FileList::SortFileList(bool KeepPosition)
 {
-	if (!m_ListData.empty())
+	if (!m_ListData.empty() && !m_InsideGetFindData)
 	{
 		string strCurName;
 
@@ -6978,7 +6978,13 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	PluginPanelItem *PanelData=nullptr;
 	size_t PluginFileCount;
 
-	if (!Global->CtrlObject->Plugins->GetFindData(GetPluginHandle(), &PanelData, &PluginFileCount, 0))
+	int result = FALSE;
+	{
+		++m_InsideGetFindData;
+		SCOPE_EXIT { --m_InsideGetFindData; };
+		result = Global->CtrlObject->Plugins->GetFindData(GetPluginHandle(), &PanelData, &PluginFileCount, 0);
+	}
+	if (!result)
 	{
 		PopPlugin(TRUE);
 		Update(KeepSelection);

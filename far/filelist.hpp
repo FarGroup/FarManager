@@ -387,6 +387,7 @@ private:
 	std::vector<const wchar_t*> m_ContentNamesPtrs;
 	mutable std::vector<const wchar_t*> m_ContentValues;
 	std::vector<Plugin*> m_ContentPlugins;
+	int m_InsideGetFindData{};
 };
 
 #endif // FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777
