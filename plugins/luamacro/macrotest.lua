@@ -294,7 +294,7 @@ end
 
 local function test_mf_fsplit()
   local path="C:\\Program Files\\Far\\Far.exe"
-  assert(mf.fsplit(path,0x01)=="C:\\")
+  assert(mf.fsplit(path,0x01)=="C:")
   assert(mf.fsplit(path,0x02)=="\\Program Files\\Far\\")
   assert(mf.fsplit(path,0x04)=="Far")
   assert(mf.fsplit(path,0x08)==".exe")
