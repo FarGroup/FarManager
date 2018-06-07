@@ -1,4 +1,8 @@
-﻿shmuel 16.05.2018 15:01:23 +0200 - build 653
+﻿shmuel 07.06.2018 17:27:07 +0200 - build 654
+
+1. LuaFAR: добавлена функция far.RunDefaultScript.
+
+shmuel 16.05.2018 15:01:23 +0200 - build 653
 
 1. LuaFAR: far.SendDlgMessage(DM_LISTDELETE): the 4-th parameter is allowed to be nil or missing.
 

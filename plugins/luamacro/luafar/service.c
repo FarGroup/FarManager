@@ -43,6 +43,7 @@ extern int far_FarMacroCallToLua(lua_State *L);
 extern void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroValue* Values);
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 extern int GetExportFunction(lua_State* L, const char* FuncName);
+extern BOOL RunDefaultScript(lua_State* L, int ForFirstTime);
 
 const char FarFileFilterType[] = "FarFileFilter";
 const char FarTimerType[]      = "FarTimer";
@@ -5843,6 +5844,12 @@ static int far_ColorDialog(lua_State *L)
 	return 1;
 }
 
+static int far_RunDefaultScript(lua_State *L)
+{
+	lua_pushboolean(L, RunDefaultScript(L, 0));
+	return 1;
+}
+
 const luaL_Reg timer_methods[] =
 {
 	{"__gc",                timer_gc},
@@ -6058,6 +6065,7 @@ const luaL_Reg far_funcs[] =
 	{"GetFileOwner",        far_GetFileOwner},
 	{"GetNumberOfLinks",    far_GetNumberOfLinks},
 	{"MakeMenuItems",       far_MakeMenuItems},
+	{"RunDefaultScript",    far_RunDefaultScript},
 	{"Show",                far_Show},
 	{"Timer",               far_Timer},
 

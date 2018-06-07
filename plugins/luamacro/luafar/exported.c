@@ -423,7 +423,7 @@ intptr_t LF_GetFiles(lua_State* L, struct GetFilesInfo *Info)
 }
 //---------------------------------------------------------------------------
 
-static BOOL RunDefaultScript(lua_State* L, int ForFirstTime)
+BOOL RunDefaultScript(lua_State* L, int ForFirstTime)
 {
 	int pos = lua_gettop(L);
 	int status = 1, i;

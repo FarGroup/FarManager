@@ -8655,6 +8655,41 @@ mtime=3602448401
 </article>
 </node>
 <node>
+id=527
+lv=2
+dt=Text
+nm=far.RunDefaultScript
+ctime=3737550505
+mtime=3737553919
+<article>
+#_Result = far.RunDefaultScript ()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  Result: boolean (true = success)
+#_
+#_**Description:**
+#_  Runs the default script of the plugin.
+#_  This usually means that all plugin's code is **immediately** reloaded.
+#_  This is different from setting *far.ReloadDefaultScript = true* which causes
+#_  a deferred reload (that occurs when `export.Open` is called the next time).
+#_
+#_**See also:**
+#_`LF_RunDefaultScript`
+#_`far.ReloadDefaultScript`
+#_`RecreateLuaState`
+#_
+#_@@@
+#_[LF_RunDefaultScript]: 130.html
+#_[far.ReloadDefaultScript]: 173.html
+#_[export.Open]: 109.html
+#_[RecreateLuaState]: 495.html
+#_
+</article>
+</node>
+<node>
 id=282
 lv=2
 dt=Text
