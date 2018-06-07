@@ -8660,7 +8660,7 @@ lv=2
 dt=Text
 nm=far.RunDefaultScript
 ctime=3737550505
-mtime=3737553919
+mtime=3737570204
 <article>
 #_Result = far.RunDefaultScript ()
 #_
@@ -8677,9 +8677,9 @@ mtime=3737553919
 #_  a deferred reload (that occurs when `export.Open` is called the next time).
 #_
 #_**See also:**
-#_`LF_RunDefaultScript`
-#_`far.ReloadDefaultScript`
-#_`RecreateLuaState`
+#_  `LF_RunDefaultScript`
+#_  `far.ReloadDefaultScript`
+#_  `RecreateLuaState`
 #_
 #_@@@
 #_[LF_RunDefaultScript]: 130.html
@@ -12069,7 +12069,7 @@ id=130
 lv=2
 dt=Text
 nm=LF_RunDefaultScript
-mtime=3601970286
+mtime=3737570768
 <article>
 #_<markdown>
 #_    BOOL LF_RunDefaultScript(lua_State* L)
@@ -12092,6 +12092,9 @@ mtime=3601970286
 #_
 #_This mechanism allows the default script to be either embedded into the application or external.
 #_
+#_#### See also:
+#_
+#_[`far.RunDefaultScript`](527.html)
 #_
 </article>
 </node>
