@@ -11521,7 +11521,7 @@ id=173
 lv=2
 dt=Text
 nm=LF_Open
-mtime=3601970230
+mtime=3737613834
 <article>
 #_<markdown>
 #_    HANDLE LF_Open (lua_State* L, const struct OpenInfo *Info)
@@ -11534,7 +11534,7 @@ mtime=3601970230
 #_      Value, according to FAR Plugins API.
 #_
 #_#### Description:
-#_If `far.ReloadDefaultScript` is true, then the function runs the default script (see [`LF_RunDefaultScript`](130.html)). Then, if Lua function [`export.Open`](109.html) exists, it is called. Else, `INVALID_HANDLE_VALUE` is returned to FAR.
+#_If `far.ReloadDefaultScript` is true, then the function runs the default script (see [`LF_RunDefaultScript`](130.html)). Then, if Lua function [`export.Open`](109.html) exists, it is called. Else, `NULL` is returned to FAR.
 #_
 #_@@@
 #_{openinfo}: http://api.farmanager.com/ru/structures/openinfo.html
