@@ -1869,12 +1869,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					strShortFileName = ConvertNameToShort(strFileName);
 				}
 
-				/* $ 08.04.2002 IS
-				   Флаг, говорящий о том, что нужно удалить файл, который открывали во
-				   viewer-е. Если файл открыли во внутреннем viewer-е, то DeleteViewedFile
-				   должно быт равно false, т.к. внутренний viewer сам все удалит.
-				*/
-				auto DeleteViewedFile = PluginMode && !Edit;
+				auto DeleteViewedFile = PluginMode && !Edit; // внутренний viewer сам все удалит.
 				auto Modaling = false;
 				auto UploadFile = true;
 				auto RefreshedPanel = true;
@@ -1885,7 +1880,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					{
 						const auto EnableExternal = (((LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4) && Global->Opt->EdOpt.UseExternalEditor) ||
 							((LocalKey == KEY_ALTF4 || LocalKey == KEY_RALTF4) && !Global->Opt->EdOpt.UseExternalEditor)) && !Global->Opt->strExternalEditor.empty();
-						/* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
 						auto Processed = false;
 
 						const auto SavedState = file_state::get(strFileName);
@@ -1904,16 +1898,13 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							{
 								ProcessExternal(Global->Opt->strExternalEditor, strFileName, strShortFileName, PluginMode);
 								UploadFile = file_state::get(strFileName) != SavedState;
+								Modaling = PluginMode; // External editor from plugin panel is Modal!
 							}
 							else if (PluginMode)
 							{
 								RefreshedPanel = Global->WindowManager->GetCurrentWindow()->GetType() != windowtype_editor;
 								const auto ShellEditor = FileEditor::create(strFileName, codepage, (LocalKey == KEY_SHIFTF4 ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_DISABLEHISTORY, -1, -1, &strPluginData);
 								Global->WindowManager->ExecuteModal(ShellEditor);//OT
-								/* $ 24.11.2001 IS
-								     Если мы создали новый файл, то не важно, изменялся он
-								     или нет, все равно добавим его на панель плагина.
-								*/
 								UploadFile=ShellEditor->IsFileChanged() || NewFile;
 								Modaling = true;
 							}
