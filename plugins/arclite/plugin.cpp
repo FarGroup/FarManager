@@ -618,12 +618,16 @@ public:
         }
       }
       archive->load_update_props();
-      options.level = archive->level;
       options.method = archive->method;
       options.solid = archive->solid;
       options.encrypt = archive->encrypted;
       options.encrypt_header = triUndef;
       options.password = archive->password;
+
+		//options.level = archive->level;
+		options.level = g_options.update_level;
+		options.levels = g_options.update_levels;
+
       options.overwrite = g_options.update_overwrite;
       if (op_mode & OPM_EDIT)
         options.overwrite = oaOverwrite;

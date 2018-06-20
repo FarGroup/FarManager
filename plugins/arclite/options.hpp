@@ -5,11 +5,13 @@ struct ExternalCodec {
   unsigned minL, maxL,  mod0L;
   unsigned L1, L3, L5, L7, L9;
   bool bcj_only;
+  wstring adv;
   void reset() {
     name.clear();
     minL = 1; maxL = 9; mod0L = 0;
     L1 = 1; L3 = 3; L5 = 5; L7 = 7; L9 = 9;
     bcj_only = false;
+	 adv.clear();
   }
 };
 

@@ -20,6 +20,7 @@ static const auto qs_by_default_v = "qs_by_default"_v;
 static const auto range_v = "range"_v;
 static const auto std_v = "std"_v;
 static const auto bcj_v = "bcj"_v;
+static const auto adv_v = "adv"_v;
 static const auto true_v = "true"_v;
 
 static wstring utf8_to_wstring(const Sv view) {
@@ -89,6 +90,8 @@ public:
         parse_uints(value, &codec.L1, &codec.L3, &codec.L5, &codec.L7, &codec.L9);
       else if (name == bcj_v)
         codec.bcj_only = value == true_v;
+      else if (name == adv_v)
+        codec.adv = utf8_to_wstring(value);
     }
     else if (top == 1 && path[1] == default_v) {
       if (name == max_check_size_v) {
