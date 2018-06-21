@@ -41,7 +41,11 @@ if len(sys.argv) < 2:
 dirs_exclude = ['.svn', '.git']
 files_exclude = ['*.gif', '*.png', '*.jpg', '*.exe', '*.ico', '*.msi', '*.rar']
 
-ru = re.compile("[à-ÿÀ-ß] *")
+# https://en.wikipedia.org/wiki/Windows-1251
+cp1251 = re.compile(r"[\xA8\xB8\xC0-\xFF]+")
+# by coincidence cp1251 codes match with lower
+# byte of utf-8
+
 skip_mark = "<!-- NLC -->"
 for root,dirs,files in os.walk(sys.argv[1]):
 
@@ -61,7 +65,7 @@ for root,dirs,files in os.walk(sys.argv[1]):
     for l in open(os.path.join(root, f), "r"):
       if l.find(skip_mark) != -1:
         continue
-      rutext = "".join(ru.findall(l))
+      rutext = "".join(cp1251.findall(l))
       rucount += len(rutext)
       #if rutext: print rutext #.decode("cp1251")
     if rucount:
