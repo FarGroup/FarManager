@@ -5,7 +5,7 @@ Files are created in "build" subdirectory in the root of Enc. source tree.
 
 Usage:
 
-python tool.make_chm.py
+    python tool.make_chm.py
 
 Then change dir to /build/chm and build .hhp project file with HCW or hhc.exe
 Use clean.py to remove created files.
@@ -13,10 +13,11 @@ Use clean.py to remove created files.
 
 untranslated.py
 ===============
-Finds files with russian letters in specified directory
+Finds files with russian letters in win-1251 encoding
 
 If files contain Russian letters they are considered untranslated
 unless <!-- NLC --> marker is present at the same line in HTML code
 
 
-techtonik // rainforce.org
+techtonik@gmail.com
+
