@@ -12,6 +12,7 @@ HTML code.
 
 
 import codecs
+import fnmatch
 import os
 import re
 import sys
@@ -38,6 +39,7 @@ if len(sys.argv) < 2:
 #sw.write("sdfôûâÝ")
 
 dirs_exclude = ['.svn', '.git']
+files_exclude = ['*.gif', '*.png', '*.jpg', '*.exe', '*.ico', '*.msi', '*.rar']
 
 ru = re.compile("[à-ÿÀ-ß] *")
 skip_mark = "<!-- NLC -->"
@@ -47,8 +49,14 @@ for root,dirs,files in os.walk(sys.argv[1]):
   dirs[:] = [d for d in dirs if not d in dirs_exclude]
 
   for f in files:
-    if f.endswith(".gif"):
+    # exclude files by skipping them
+    skip = False
+    for pattern in files_exclude:
+      if fnmatch.fnmatch(f.lower(), pattern):
+        skip = True
+    if skip:
       continue
+
     rucount = 0
     for l in open(os.path.join(root, f), "r"):
       if l.find(skip_mark) != -1:
