@@ -204,7 +204,7 @@ public:
 		if (List)
 		{
 			FarListItem &ListItem = List->Items[Item->ListPos];
-			Value = ListItem.Reserved[0];
+			Value = ListItem.UserData;
 		}
 		if (Text)
 		{
@@ -431,7 +431,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value,
 			FarListItem NewItem = {};
 			NewItem.Text = msg(static_cast<lng>(Item.MessageId)).c_str();
 			NewItem.Flags = (Value == Item.ItemValue)? LIF_SELECTED : 0;
-			NewItem.Reserved[0] = Item.ItemValue;
+			NewItem.UserData = Item.ItemValue;
 			return NewItem;
 		});
 	}
@@ -463,7 +463,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& 
 			FarListItem NewItem = {};
 			NewItem.Text = msg(static_cast<lng>(Item.MessageId)).c_str();
 			NewItem.Flags = (Value == Item.ItemValue)? LIF_SELECTED : 0;
-			NewItem.Reserved[0] = Item.ItemValue;
+			NewItem.UserData = Item.ItemValue;
 			return NewItem;
 		});
 	}
@@ -493,7 +493,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value,
 		FarListItem NewItem = {};
 		NewItem.Text = Item.Text.c_str();
 		NewItem.Flags = Item.Flags | ((Value == Item.ItemValue)? LIF_SELECTED : 0);
-		NewItem.Reserved[0] = Item.ItemValue;
+		NewItem.UserData = Item.ItemValue;
 		return NewItem;
 	});
 	const auto List = new FarList;
@@ -522,7 +522,7 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& 
 		FarListItem NewItem = {};
 		NewItem.Text = Item.Text.c_str();
 		NewItem.Flags = Item.Flags | ((Value == Item.ItemValue)? LIF_SELECTED : 0);
-		NewItem.Reserved[0] = Item.ItemValue;
+		NewItem.UserData = Item.ItemValue;
 		return NewItem;
 	});
 	const auto List = new FarList;

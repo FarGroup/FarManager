@@ -446,7 +446,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 		TruncStrFromEnd(DisplayName, NameWidth);
 		DisplayName.resize(NameWidth, L' ');
 		Item.Name = concat(DisplayName, L' ', BoxSymbols[BS_V1], L' ', i.second);
-		Item.UserData = i.first;
+		Item.ComplexUserData = i.first;
 		MasksMenu.AddItem(Item);
 	}
 	MasksMenu.SetSelectPos(SelPos, 0);
@@ -483,7 +483,7 @@ void Options::MaskGroupsSettings()
 				return 1;
 			}
 			int ItemPos = MasksMenu->GetSelectPos();
-			const auto* Item = MasksMenu->GetUserDataPtr<string>(ItemPos);
+			const auto* Item = MasksMenu->GetComplexUserDataPtr<string>(ItemPos);
 			int KeyProcessed = 1;
 			static const string EmptyString;
 			switch (Key)
@@ -567,7 +567,7 @@ void Options::MaskGroupsSettings()
 						for (size_t i = 0, size = MasksMenu->size(); i != size; ++i)
 						{
 							string CurrentMasks;
-							ConfigProvider().GeneralCfg()->GetValue(L"Masks", *MasksMenu->GetUserDataPtr<string>(i), CurrentMasks, L"");
+							ConfigProvider().GeneralCfg()->GetValue(L"Masks", *MasksMenu->GetComplexUserDataPtr<string>(i), CurrentMasks, L"");
 							filemasks Masks;
 							Masks.Set(CurrentMasks);
 							if(!Masks.Compare(Value))
@@ -1382,6 +1382,7 @@ struct FARConfigItem
 			Item.Flags = LIF_CHECKED|L'*';
 		}
 		Item.Text = ListItemString.c_str();
+		Item.UserData = reinterpret_cast<intptr_t>(this);
 		return Item;
 	}
 
@@ -1601,7 +1602,6 @@ Options::Options():
 	WindowMode(-1),
 	ViewSettings(m_ViewSettings),
 	m_ConfigStrings(),
-	m_CurrentConfigType(config_type::roaming),
 	m_ViewSettings(predefined_panel_modes_count),
 	m_ViewSettingsChanged(false)
 {
@@ -2295,10 +2295,17 @@ void Options::Save(bool Manual)
 
 intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	auto& CurrentConfig = GetConfig(m_CurrentConfigType);
+	const auto& GetConfigItem = [Dlg](size_t Index) -> auto&
+	{
+		return *reinterpret_cast<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
+	};
 
 	switch (Msg)
 	{
+	case DN_INITDIALOG:
+		Dlg->SendMessage(DM_LISTSORT, 0, nullptr);
+		break;
+
 	case DN_RESIZECONSOLE:
 		{
 			COORD Size{ static_cast<SHORT>(std::max(ScrX - 4, 60)), static_cast<SHORT>(std::max(ScrY - 2, 20)) };
@@ -2321,10 +2328,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 						FarListInfo ListInfo = {sizeof(ListInfo)};
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
-						auto HelpTopic = concat(CurrentConfig[ListInfo.SelectPos].KeyName, L'.', CurrentConfig[ListInfo.SelectPos].ValName);
+						const auto& CurrentItem = GetConfigItem(ListInfo.SelectPos);
+						auto HelpTopic = concat(CurrentItem.KeyName, L'.', CurrentItem.ValName);
 						if (Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR)->GetError())
 						{
-							HelpTopic = concat(CurrentConfig[ListInfo.SelectPos].KeyName, L"Settings"sv);
+							HelpTopic = concat(CurrentItem.KeyName, L"Settings"sv);
 							Help::create(HelpTopic, nullptr, FHELP_NOSHOWERROR);
 						}
 					}
@@ -2388,11 +2396,12 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			FarListInfo ListInfo = {sizeof(ListInfo)};
 			Dlg->SendMessage(DM_LISTINFO, 0, &ListInfo);
 
-			if (CurrentConfig[ListInfo.SelectPos].Edit(Param1 != 0))
+			const auto& CurrentItem = GetConfigItem(ListInfo.SelectPos);
+			if (CurrentItem.Edit(Param1 != 0))
 			{
 				Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
 				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
-				flu.Item = CurrentConfig[ListInfo.SelectPos].MakeListItem((*m_ConfigStrings)[ListInfo.SelectPos]);
+				flu.Item = CurrentItem.MakeListItem((*m_ConfigStrings)[ListInfo.SelectPos]);
 				Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
 				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
 				Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
@@ -2410,8 +2419,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 bool Options::AdvancedConfig(config_type Mode)
 {
-	m_CurrentConfigType = Mode;
-	auto& CurrentConfig = GetConfig(m_CurrentConfigType);
+	auto& CurrentConfig = GetConfig(Mode);
 
 	int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
 	FarDialogItem AdvancedConfigDlgData[]=

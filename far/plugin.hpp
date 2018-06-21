@@ -450,7 +450,8 @@ struct FarListItem
 {
 	LISTITEMFLAGS Flags;
 	const wchar_t *Text;
-	intptr_t Reserved[2];
+	intptr_t UserData;
+	intptr_t Reserved;
 };
 
 struct FarListUpdate

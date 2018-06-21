@@ -3525,7 +3525,7 @@ bool Editor::Search(bool Next)
 					const auto Location = format(L"{0}:{1}", CurPtr.Number() + 1, CurPos + 1);
 					MenuItemEx Item(format(L"{0:{1}}{2}{3}", Location, service_len, BoxSymbols[BS_V1], CurPtr->GetString()));
 					Item.Annotations.emplace_back(CurPos + service_len + 1, NextPos - CurPos);
-					Item.UserData = FindCoord{ CurPtr.Number(), CurPos, SearchLength };
+					Item.ComplexUserData = FindCoord{ CurPtr.Number(), CurPos, SearchLength };
 					FindAllList->AddItem(Item);
 					CurPos = NextPos;
 					if (CurPtr.Number() != LastCheckedLine)
@@ -3816,7 +3816,7 @@ bool Editor::Search(bool Next)
 				case KEY_CTRL|KEY_MSLCLICK:
 				case KEY_RCTRL|KEY_MSLCLICK:
 					{
-						const auto& coord = *FindAllList->GetUserDataPtr<FindCoord>(SelectedPos);
+						const auto& coord = *FindAllList->GetComplexUserDataPtr<FindCoord>(SelectedPos);
 						GoToLine(coord.Line);
 						m_it_CurLine->SetCurPos(coord.Pos);
 						if (EdOpt.SearchSelFound)
@@ -3882,7 +3882,7 @@ bool Editor::Search(bool Next)
 
 		if(ExitCode >= 0)
 		{
-			const auto& coord = *FindAllList->GetUserDataPtr<FindCoord>(ExitCode);
+			const auto& coord = *FindAllList->GetComplexUserDataPtr<FindCoord>(ExitCode);
 			GoToLine(coord.Line);
 			m_it_CurLine->SetCurPos(coord.Pos);
 			if (EdOpt.SearchSelFound)

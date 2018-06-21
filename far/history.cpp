@@ -240,7 +240,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 
 				MenuItemEx MenuItem(strRecord);
 				MenuItem.SetCheck(i.Lock? 1 : 0);
-				MenuItem.UserData = i.Id;
+				MenuItem.ComplexUserData = i.Id;
 
 				if (!SetUpMenuPos && m_CurrentItem == i.Id)
 				{
@@ -290,7 +290,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
-			const auto CurrentRecordPtr = HistoryMenu.GetUserDataPtr<unsigned long long>(Pos.SelectPos);
+			const auto CurrentRecordPtr = HistoryMenu.GetComplexUserDataPtr<unsigned long long>(Pos.SelectPos);
 			const auto CurrentRecord = CurrentRecordPtr? *CurrentRecordPtr : 0;
 			int KeyProcessed = 1;
 
@@ -462,7 +462,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 
 		if (MenuExitCode >= 0)
 		{
-			SelectedRecord = *HistoryMenu.GetUserDataPtr<unsigned long long>(MenuExitCode);
+			SelectedRecord = *HistoryMenu.GetComplexUserDataPtr<unsigned long long>(MenuExitCode);
 
 			if (!SelectedRecord)
 				return HRT_CANCEL;

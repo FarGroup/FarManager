@@ -635,7 +635,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 			FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 			Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
-			CodePage = *Dlg->GetListItemDataPtr<uintptr_t>(FAD_COMBOBOX_CP, Position.SelectPos);
+			CodePage = Dlg->GetListItemSimpleUserData(FAD_COMBOBOX_CP, Position.SelectPos);
 			return TRUE;
 		}
 		case DN_CLOSE:
@@ -760,7 +760,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							// Получаем номер выбранной таблицы символов
 							FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 							Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
-							const auto SelectedCodePage = *Dlg->GetListItemDataPtr<uintptr_t>(FAD_COMBOBOX_CP, Position.SelectPos);
+							const auto SelectedCodePage = Dlg->GetListItemSimpleUserData(FAD_COMBOBOX_CP, Position.SelectPos);
 							// Разрешаем отмечать только стандартные и избранные таблицы символов
 							int FavoritesIndex = 2 + StandardCPCount + 2;
 
@@ -808,7 +808,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									// Обрабатываем только таблицы символов
 									if (!(CheckItem.Item.Flags&LIF_SEPARATOR))
 									{
-										if (SelectedCodePage == *Dlg->GetListItemDataPtr<uintptr_t>(FAD_COMBOBOX_CP, Index))
+										if (SelectedCodePage == Dlg->GetListItemSimpleUserData(FAD_COMBOBOX_CP, Index))
 										{
 											if (Item.Item.Flags & LIF_CHECKED)
 												CheckItem.Item.Flags |= LIF_CHECKED;
@@ -847,7 +847,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				case FAD_COMBOBOX_CP:
 					// Получаем выбранную в выпадающем списке таблицу символов
-					CodePage = *Dlg->GetListItemDataPtr<uintptr_t>(FAD_COMBOBOX_CP, Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, nullptr));
+					CodePage = Dlg->GetListItemSimpleUserData(FAD_COMBOBOX_CP, Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, nullptr));
 					return TRUE;
 
 				case FAD_COMBOBOX_WHERE:
@@ -1543,7 +1543,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						return TRUE;
 					}
 
-					const auto FindItem = *ListBox->GetUserDataPtr<FindListItem*>();
+					const auto FindItem = *ListBox->GetComplexUserDataPtr<FindListItem*>();
 					bool RemoveTemp=false;
 					string strSearchFileName;
 					string strTempDir;
@@ -1657,7 +1657,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				{
 					return TRUE;
 				}
-				FindExitItem = *ListBox->GetUserDataPtr<FindListItem*>();
+				FindExitItem = *ListBox->GetComplexUserDataPtr<FindListItem*>();
 				TB.reset();
 				return FALSE;
 
@@ -2024,7 +2024,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 
 		const auto Ptr = &FindItem;
 		MenuItemEx ListItem(strPathName);
-		ListItem.UserData = Ptr;
+		ListItem.ComplexUserData = Ptr;
 		ListBox->AddItem(std::move(ListItem));
 	}
 
@@ -2035,8 +2035,8 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 
 	int ListPos;
 	{
-	MenuItemEx ListItem(MenuText);
-	ListItem.UserData = &FindItem;
+		MenuItemEx ListItem(MenuText);
+		ListItem.ComplexUserData = &FindItem;
 		ListPos = ListBox->AddItem(std::move(ListItem));
 	}
 

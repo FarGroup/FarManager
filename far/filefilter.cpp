@@ -207,7 +207,7 @@ bool FileFilter::FilterEdit()
 		{
 			MenuItemEx ListItem(MenuString(nullptr, false, h, true, i.first, msg(lng::MPanelFileType)));
 			ListItem.SetCheck(i.second);
-			ListItem.UserData = i.first;
+			ListItem.ComplexUserData = i.first;
 			FilterList->AddItem(ListItem);
 
 			h == L'9' ? h = L'A' : ((h == L'Z' || !h)? h = 0 : ++h);
@@ -338,7 +338,7 @@ bool FileFilter::FilterEdit()
 					}
 					else if (ListPos > FilterData().size() + 1)
 					{
-						NewFilter.SetMask(true, *FilterList->GetUserDataPtr<string>(ListPos));
+						NewFilter.SetMask(true, *FilterList->GetComplexUserDataPtr<string>(ListPos));
 						//Авто фильтры они только для файлов, папки не должны к ним подходить
 						NewFilter.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 					}
@@ -504,7 +504,7 @@ void FileFilter::ProcessSelection(VMenu2 *FilterList) const
 		}
 		else if (i > FilterData().size() + 1)
 		{
-			const auto& Mask = *FilterList->GetUserDataPtr<string>(i);
+			const auto& Mask = *FilterList->GetComplexUserDataPtr<string>(i);
 			//AY: Так как в меню мы показываем только те выбранные авто фильтры
 			//которые выбраны в области данного меню и TempFilterData вполне
 			//может содержать маску которую тока что выбрали в этом меню но

@@ -186,7 +186,7 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 				if (LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_EXACTMATCH) == -1)
 				{
 					LangMenuItem.SetSelect(equal_icase(Dest, strLangName));
-					LangMenuItem.UserData = strLangName;
+					LangMenuItem.ComplexUserData = strLangName;
 					LangMenu->AddItem(LangMenuItem);
 				}
 			}
@@ -199,7 +199,7 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 	if (LangMenu->GetExitCode()<0)
 		return false;
 
-	Dest = *LangMenu->GetUserDataPtr<string>();
+	Dest = *LangMenu->GetComplexUserDataPtr<string>();
 	return true;
 }
 

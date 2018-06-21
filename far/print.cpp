@@ -79,7 +79,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, const PRINTER_INFO *pi, int P
 			Item.SetCheck(TRUE);
 			Item.SetSelect(TRUE);
 		}
-		Item.UserData = Item.Name;
+		Item.ComplexUserData = Item.Name;
 		PrinterList->AddItem(Item);
 	}
 
@@ -160,7 +160,7 @@ void PrintFiles(FileList* SrcPanel)
 			return;
 		}
 
-		if (const auto NamePtr = PrinterList->GetUserDataPtr<string>())
+		if (const auto NamePtr = PrinterList->GetComplexUserDataPtr<string>())
 			strPrinterName = *NamePtr;
 	}
 

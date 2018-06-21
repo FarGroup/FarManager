@@ -952,7 +952,6 @@ private:
 
 	std::vector<farconfig> m_Configs;
 	std::vector<string>* m_ConfigStrings;
-	config_type m_CurrentConfigType;
 	std::vector<PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged;
 };

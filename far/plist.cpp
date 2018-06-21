@@ -134,7 +134,7 @@ static BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM Param)
 
 		MenuItemEx NewItem(format(L"{0:9} {1} {2}", ProcID, BoxSymbols[BS_V1], MenuItem));
 		// for sorting
-		NewItem.UserData = menu_data{ WindowTitle, ProcID, Window };
+		NewItem.ComplexUserData = menu_data{ WindowTitle, ProcID, Window };
 		Info->procList->AddItem(NewItem);
 
 		return true;
@@ -170,7 +170,7 @@ void ShowProcessList()
 
 		ProcList->SortItems([](const MenuItemEx& a, const MenuItemEx& b, SortItemParam& p)
 		{
-			return string_sort::less(std::any_cast<const menu_data&>(a.UserData).Title, std::any_cast<const menu_data&>(b.UserData).Title);
+			return string_sort::less(std::any_cast<const menu_data&>(a.ComplexUserData).Title, std::any_cast<const menu_data&>(b.ComplexUserData).Title);
 		});
 
 		return true;
@@ -197,7 +197,7 @@ void ShowProcessList()
 			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
-				if (const auto MenuData = ProcList->GetUserDataPtr<menu_data>())
+				if (const auto MenuData = ProcList->GetComplexUserDataPtr<menu_data>())
 				{
 					if (Message(MSG_WARNING,
 						msg(lng::MKillProcessTitle),
@@ -258,7 +258,7 @@ void ShowProcessList()
 	if (ProcList->GetExitCode() < 0)
 		return;
 
-	const auto MenuData = ProcList->GetUserDataPtr<menu_data>();
+	const auto MenuData = ProcList->GetComplexUserDataPtr<menu_data>();
 	if (!MenuData)
 		return;
 

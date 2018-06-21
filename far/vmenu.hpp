@@ -147,7 +147,9 @@ struct MenuItemEx: menu_item
 	MenuItemEx() = default;
 	using menu_item::menu_item;
 
-	std::any UserData;
+	std::any ComplexUserData;
+	intptr_t SimpleUserData{};
+
 	int ShowPos{};
 	short AmpPos{};                  // Позиция автоназначенной подсветки
 	short Len[2]{};                  // размеры 2-х частей
@@ -225,13 +227,17 @@ public:
 	int GetShowItemCount() const { return static_cast<int>(Items.size() - ItemHiddenCount); }
 	int GetVisualPos(int Pos);
 	int VisualPosToReal(int VPos);
-	std::any* GetUserData(int Position = -1);
+
+	intptr_t GetSimpleUserData(int Position = -1) const;
+
+	std::any* GetComplexUserData(int Position = -1);
 	template<class T>
-	T* GetUserDataPtr(int Position = -1)
+	T* GetComplexUserDataPtr(int Position = -1)
 	{
-		return std::any_cast<T>(GetUserData(Position));
+		return std::any_cast<T>(GetComplexUserData(Position));
 	}
-	void SetUserData(const std::any& Data, int Position = -1);
+	void SetComplexUserData(const std::any& Data, int Position = -1);
+
 	int GetSelectPos() const { return SelectPos; }
 	int GetLastSelectPosResult() const { return SelectPosResult; }
 	int GetSelectPos(FarListPos *ListPos) const;

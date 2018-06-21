@@ -466,7 +466,7 @@ int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
 
-	ListBox().SetUserData(NewItem.UserData, PosAdd);
+	ListBox().SetComplexUserData(NewItem.ComplexUserData, PosAdd);
 
 	auto& Item = at(PosAdd);
 	Item.AccelKey=NewItem.AccelKey;
@@ -611,14 +611,19 @@ void VMenu2::Close(int ExitCode, bool Force)
 	ForceClosing = Force;
 }
 
-const std::any* VMenu2::GetUserData(int Position) const
+intptr_t VMenu2::GetSimpleUserData(int Position) const
 {
-	return ListBox().GetUserData(Position);
+	return ListBox().GetSimpleUserData(Position);
 }
 
-std::any* VMenu2::GetUserData(int Position)
+const std::any* VMenu2::GetComplexUserData(int Position) const
 {
-	return ListBox().GetUserData(Position);
+	return ListBox().GetComplexUserData(Position);
+}
+
+std::any* VMenu2::GetComplexUserData(int Position)
+{
+	return ListBox().GetComplexUserData(Position);
 }
 
 void VMenu2::Key(int key)

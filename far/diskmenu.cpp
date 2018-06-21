@@ -158,7 +158,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				item.bIsPlugin = true;
 				item.pPlugin = pPlugin;
 				item.Guid = guid;
-				OneItem.getItem().UserData = item;
+				OneItem.getItem().ComplexUserData = item;
 
 				MPItems.emplace_back(std::move(OneItem));
 			}
@@ -875,7 +875,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			item.nDriveType = i.DriveType;
 
 			ChDiskItem.Name = ItemName;
-			ChDiskItem.UserData = item;
+			ChDiskItem.ComplexUserData = item;
 			ChDisk->AddItem(ChDiskItem);
 
 			MenuLine++;
@@ -919,7 +919,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 
 			int SelPos = ChDisk->GetSelectPos();
-			const auto item = ChDisk->GetUserDataPtr<PanelMenuItem>();
+			const auto item = ChDisk->GetComplexUserDataPtr<PanelMenuItem>();
 
 			int KeyProcessed = 1;
 
@@ -1149,7 +1149,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		if (ChDisk->GetExitCode()<0)
 			return -1;
 
-		mitem = ChDisk->GetUserDataPtr<PanelMenuItem>();
+		mitem = ChDisk->GetComplexUserDataPtr<PanelMenuItem>();
 
 		if (mitem)
 		{

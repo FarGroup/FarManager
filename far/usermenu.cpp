@@ -514,7 +514,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 			FarUserMenuItem.SetSelect(NumLines==MenuPos);
 		}
 
-		FarUserMenuItem.UserData = MenuItem;
+		FarUserMenuItem.ComplexUserData = MenuItem;
 		int ItemPos=FarUserMenu.AddItem(FarUserMenuItem);
 
 		if (FuncNum>0)
@@ -557,7 +557,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			// CurrentMenuItem can be nullptr if:
 			// - menu is empty
 			// - menu is not empty, but insidiously consists only of separators
-			const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(MenuPos);
+			const auto CurrentMenuItem = UserMenu->GetComplexUserDataPtr<ITERATOR(Menu)>(MenuPos);
 			if (Key==KEY_SHIFTF1)
 			{
 				UserMenu->Key(KEY_F1);
@@ -711,7 +711,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			return EC_CLOSE_LEVEL; //  вверх на один уровень
 
 		// This time CurrentMenuItem shall never be nullptr - for all weird cases ExitCode must be -1
- 		const auto CurrentMenuItem = UserMenu->GetUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
+ 		const auto CurrentMenuItem = UserMenu->GetComplexUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
 
 		auto CurrentLabel = (*CurrentMenuItem)->strLabel;
 		SubstFileName(CurrentLabel, Context, nullptr, nullptr, true);

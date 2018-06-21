@@ -110,7 +110,7 @@ intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 			const auto param = reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			FarListPos pos={sizeof(FarListPos)};
 			Dlg->SendMessage(DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
-			*param = *Dlg->GetListItemDataPtr<uintptr_t>(ID_OE_CODEPAGE, pos.SelectPos);
+			*param = Dlg->GetListItemSimpleUserData(ID_OE_CODEPAGE, pos.SelectPos);
 			return TRUE;
 		}
 	}
@@ -162,7 +162,7 @@ static bool dlgBadEditorCodepage(uintptr_t &codepage)
 		{
 			FarListPos pos={sizeof(FarListPos)};
 			dlg->SendMessage(DM_LISTGETCURPOS, id_cp, &pos);
-			codepage = *dlg->GetListItemDataPtr<uintptr_t>(id_cp, pos.SelectPos);
+			codepage = dlg->GetListItemSimpleUserData(id_cp, pos.SelectPos);
 			return TRUE;
 		}
 		return dlg->DefProc(msg, p1, p2);
@@ -222,7 +222,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 				const auto CodepagePtr = reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
-				*CodepagePtr = *Dlg->GetListItemDataPtr<uintptr_t>(ID_SF_CODEPAGE, pos.SelectPos);
+				*CodepagePtr = Dlg->GetListItemSimpleUserData(ID_SF_CODEPAGE, pos.SelectPos);
 				return TRUE;
 			}
 
@@ -234,7 +234,7 @@ intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 			{
 				FarListPos pos={sizeof(FarListPos)};
 				Dlg->SendMessage(DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
-				const auto cp = *Dlg->GetListItemDataPtr<uintptr_t>(ID_SF_CODEPAGE, pos.SelectPos);
+				const uintptr_t cp = Dlg->GetListItemSimpleUserData(ID_SF_CODEPAGE, pos.SelectPos);
 				if (cp != CurrentCodepage)
 				{
 					if (IsUnicodeOrUtfCodePage(cp))

@@ -430,7 +430,7 @@ window_ptr Manager::WindowMenu()
 			ReplaceStrings(Name, L"&", L"&&");
 			/*  добавляется "*" если файл изменен */
 			MenuItemEx ModalMenuItem(format(L"{0}{1}  {2:<{3}} {4} ", Hotkey == L' '? L""s : L"&"s,  Hotkey, Type, TypesWidth, Window->IsFileModified()? L'*' : L' ') + Name);
-			ModalMenuItem.UserData = Window.get();
+			ModalMenuItem.ComplexUserData = Window.get();
 			ModalMenuItem.SetSelect(Window == GetBottomWindow());
 			ModalMenu->AddItem(ModalMenuItem);
 		}
@@ -443,7 +443,7 @@ window_ptr Manager::WindowMenu()
 		{
 			if (ExitCode>=0)
 			{
-				const auto ActivatedWindow = *ModalMenu->GetUserDataPtr<window*>(ExitCode);
+				const auto ActivatedWindow = *ModalMenu->GetComplexUserDataPtr<window*>(ExitCode);
 				ActivateWindow(ActivatedWindow->shared_from_this());
 				return (ActivatedWindow == GetCurrentWindow().get() || !GetCurrentWindow()->GetCanLoseFocus())? nullptr : GetCurrentWindow();
 			}

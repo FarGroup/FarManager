@@ -254,7 +254,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string_view strStart, const stri
 		{
 			if (starts_with_icase(i, Token))
 			{
-				Item.UserData = cmp_user_data{ BuildQuotedString(Token + i.substr(Token.size())) };
+				Item.ComplexUserData = cmp_user_data{ BuildQuotedString(Token + i.substr(Token.size())) };
 			}
 		}
 
@@ -422,7 +422,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					{
 						MenuItemEx Item;
 						// Preserve the case of the already entered part
-						Item.UserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + std::get<0>(i).substr(Str.size()) : L""s, std::get<1>(i) };
+						Item.ComplexUserData = cmp_user_data{ Global->Opt->AutoComplete.AppendCompletion? Str + std::get<0>(i).substr(Str.size()) : L""s, std::get<1>(i) };
 						Item.Name = std::move(std::get<0>(i));
 						Item.Flags |= std::get<2>(i)? LIF_CHECKED : LIF_NONE;
 						ComplMenu->AddItem(std::move(Item));
@@ -440,7 +440,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 						// Preserve the case of the already entered part
 						if (Global->Opt->AutoComplete.AppendCompletion)
 						{
-							Item.UserData = cmp_user_data{ Str + (i.Text + Str.size()) };
+							Item.ComplexUserData = cmp_user_data{ Str + (i.Text + Str.size()) };
 						}
 						ComplMenu->AddItem(i.Text);
 					}
@@ -475,7 +475,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 			int SelStart = GetLength();
 
 			const auto& FirstItem = ComplMenu->at(0).Name;
-			const auto Data = ComplMenu->GetUserDataPtr<cmp_user_data>(0);
+			const auto Data = ComplMenu->GetComplexUserDataPtr<cmp_user_data>(0);
 
 			// magic
 			if (SelStart > 1 && IsSlash(m_Str[SelStart - 1]) && m_Str[SelStart - 2] == L'"' && IsSlash(FirstItem[SelStart - 2]))
@@ -600,7 +600,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 								{
 									if(ComplMenu->size() > 1)
 									{
-										const auto Data = ComplMenu->GetUserDataPtr<cmp_user_data>();
+										const auto Data = ComplMenu->GetComplexUserDataPtr<cmp_user_data>();
 										if(Data && pHistory->DeleteIfUnlocked(Data->HistoryRecordId))
 										{
 											ComplMenu->DeleteItem(ComplMenu->GetSelectPos());

@@ -94,8 +94,7 @@ codepages::~codepages() = default;
 // Получаем кодовую страницу для элемента в меню
 uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
 {
-	const auto DataPtr = CodePagesMenu->GetUserDataPtr<uintptr_t>(Position);
-	return DataPtr? *DataPtr : 0;
+	return CodePagesMenu->GetSimpleUserData(static_cast<int>(Position));
 }
 
 const string& codepages::FavoriteCodePagesKey()
@@ -106,8 +105,7 @@ const string& codepages::FavoriteCodePagesKey()
 
 size_t codepages::GetListItemCodePage(size_t Position) const
 {
-	const auto DataPtr = dialog->GetListItemDataPtr<uintptr_t>(control, Position);
-	return DataPtr? *DataPtr : 0;
+	return dialog->GetListItemSimpleUserData(control, Position);
 }
 
 // Проверяем попадает или нет позиция в диапазон стандартных кодовых страниц (правильность работы для разделителей не гарантируется)
@@ -154,6 +152,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 
 		const auto name = FormatCodePageString(codePage, codePageName, IsCodePageNameCustom);
 		item.Item.Text = name.c_str();
+		item.Item.UserData = codePage;
 
 		if (selectedCodePages && checked)
 		{
@@ -166,7 +165,6 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 		}
 
 		dialog->SendMessage(DM_LISTINSERT, control, &item);
-		dialog->SetListItemData(control, position, codePage);
 	}
 	else if (CallbackCallSource == CodePagesFill2)
 	{
@@ -202,7 +200,7 @@ void codepages::AddCodePage(const string& codePageName, uintptr_t codePage, size
 	{
 		// Создаём новый элемент меню
 		MenuItemEx item(FormatCodePageString(codePage, codePageName, IsCodePageNameCustom), enabled? 0 : MIF_GRAYED);
-		item.UserData = codePage;
+		item.SimpleUserData = codePage;
 
 		// Добавляем новый элемент в меню
 		if (position == size_t(-1))
@@ -248,6 +246,7 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 		}
 
 		FarListInsert item = { sizeof(FarListInsert), static_cast<intptr_t>(position) };
+		item.Item = {};
 		item.Item.Text = Label.c_str();
 		item.Item.Flags = LIF_SEPARATOR;
 		dialog->SendMessage(DM_LISTINSERT, control, &item);
@@ -423,7 +422,7 @@ void codepages::SetFavorite(bool State)
 
 		// Создаём новый элемент меню
 		MenuItemEx newItem(CodePagesMenu->current().Name);
-		newItem.UserData = codePage;
+		newItem.SimpleUserData = codePage;
 		// Сохраняем позицию курсора
 		size_t position = CodePagesMenu->GetSelectPos();
 		// Удаляем старый пункт меню
@@ -602,7 +601,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 				int Position = CodePagesMenu->GetSelectPos();
 				CodePagesMenu->DeleteItem(Position);
 				MenuItemEx NewItem(FormatCodePageString(CodePage, CodepageName, IsCodePageNameCustom));
-				NewItem.UserData = CodePage;
+				NewItem.SimpleUserData = CodePage;
 				CodePagesMenu->AddItem(NewItem, Position);
 				CodePagesMenu->SetSelectPos(Position, 1);
 			}

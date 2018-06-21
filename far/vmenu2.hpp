@@ -85,19 +85,21 @@ public:
 	intptr_t GetExitCode();
 	void Close(int ExitCode=-2, bool Force = false);
 
-	const std::any* GetUserData(int Position = -1) const;
-	std::any* GetUserData(int Position = -1);
+	intptr_t GetSimpleUserData(int Position = -1) const;
+
+	const std::any* GetComplexUserData(int Position = -1) const;
+	std::any* GetComplexUserData(int Position = -1);
 
 	template<class T>
-	const T* GetUserDataPtr(intptr_t Position = -1) const
+	const T* GetComplexUserDataPtr(intptr_t Position = -1) const
 	{
-		return std::any_cast<T>(GetUserData(Position));
+		return std::any_cast<T>(GetComplexUserData(Position));
 	}
 
 	template<class T>
-	T* GetUserDataPtr(intptr_t Position = -1)
+	T* GetComplexUserDataPtr(intptr_t Position = -1)
 	{
-		return std::any_cast<T>(GetUserData(Position));
+		return std::any_cast<T>(GetComplexUserData(Position));
 	}
 
 	void Key(int key);

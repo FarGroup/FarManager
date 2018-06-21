@@ -69,6 +69,7 @@ MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 	MenuItemEx Result;
 	Result.Flags = FItem.Flags;
 	Result.Name = NullToEmpty(FItem.Text);
+	Result.SimpleUserData = FItem.UserData;
 	return Result;
 }
 
@@ -459,14 +460,12 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 	// Освободим память... от ранее занятого ;-)
 	if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 	{
-		Items[NewItem->Index].UserData = std::any();
+		Items[NewItem->Index].ComplexUserData = {};
 	}
 
-	MenuItemEx MItem = FarList2MenuItem(NewItem->Item);
-
-	Items[NewItem->Index].Name = MItem.Name;
-
-	UpdateItemFlags(NewItem->Index, MItem.Flags);
+	Items[NewItem->Index].Name = NullToEmpty(NewItem->Item.Text);
+	UpdateItemFlags(NewItem->Index, NewItem->Item.Flags);
+	Items[NewItem->Index].SimpleUserData = NewItem->Item.UserData;
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
@@ -2731,21 +2730,33 @@ MenuItemEx& VMenu::at(size_t n)
 	return Items[ItemPos];
 }
 
-// Присовокупить к элементу данные.
-void VMenu::SetUserData(const std::any& Data, int Position)
+intptr_t VMenu::GetSimpleUserData(int Position) const
 {
 	int ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0 || static_cast<size_t>(ItemPos) >= Items.size())
+		return 0;
 
-	Items[ItemPos].UserData = Data;
+	return Items[ItemPos].SimpleUserData;
+}
+
+// Присовокупить к элементу данные.
+void VMenu::SetComplexUserData(const std::any& Data, int Position)
+{
+	int ItemPos = GetItemPosition(Position);
+	if (ItemPos < 0 || static_cast<size_t>(ItemPos) >= Items.size())
+		return;
+
+	Items[ItemPos].ComplexUserData = Data;
 }
 
 // Получить данные
-std::any* VMenu::GetUserData(int Position)
+std::any* VMenu::GetComplexUserData(int Position)
 {
 	int ItemPos = GetItemPosition(Position);
 	if (ItemPos < 0 || static_cast<size_t>(ItemPos) >= Items.size())
 		return nullptr;
-	return &Items[ItemPos].UserData;
+
+	return &Items[ItemPos].ComplexUserData;
 }
 
 FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem)
@@ -2755,6 +2766,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 		*FItem = {};
 		FItem->Flags = MItem->Flags;
 		FItem->Text = MItem->Name.c_str();
+		FItem->UserData = MItem->SimpleUserData;
 		return FItem;
 	}
 

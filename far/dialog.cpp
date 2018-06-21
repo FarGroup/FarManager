@@ -244,7 +244,8 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 					listItems[ii].Text=text;
 					text = std::copy(ALL_CONST_RANGE(item.Name), text);
 					*text++ = L'\0';
-					listItems[ii].Reserved[0]=listItems[ii].Reserved[1]=0;
+					listItems[ii].UserData = item.SimpleUserData;
+					listItems[ii].Reserved = 0;
 				}
 				list->StructSize=sizeof(*list);
 				list->ItemsNumber=ListBoxSize;
@@ -611,14 +612,19 @@ void Dialog::ProcessCenterGroup()
 	}
 }
 
-void Dialog::SetListItemData(size_t ListId, size_t ItemId, const std::any& Data)
+intptr_t Dialog::GetListItemSimpleUserData(size_t ListId, size_t ItemId) const
 {
-	Items[ListId].ListPtr->SetUserData(Data, static_cast<int>(ItemId));
+	return Items[ListId].ListPtr->GetSimpleUserData(static_cast<int>(ItemId));
 }
 
-std::any* Dialog::GetListItemData(size_t ListId, size_t ItemId)
+void Dialog::SetListItemComplexUserData(size_t ListId, size_t ItemId, const std::any& Data)
 {
-	return Items[ListId].ListPtr->GetUserData(static_cast<int>(ItemId));
+	Items[ListId].ListPtr->SetComplexUserData(Data, static_cast<int>(ItemId));
+}
+
+std::any* Dialog::GetListItemComplexUserData(size_t ListId, size_t ItemId)
+{
+	return Items[ListId].ListPtr->GetComplexUserData(static_cast<int>(ItemId));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -4931,14 +4937,13 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							{
 								const auto& ListMenuItem = ListBox->at(ListItems->ItemIndex);
 								//ListItems->ItemIndex=1;
-								FarListItem *Item=&ListItems->Item;
-								*Item = {};
-								Item->Flags=ListMenuItem.Flags;
-								Item->Text=ListMenuItem.Name.c_str();
-								/*
-								if(ListMenuItem->UserDataSize <= sizeof(DWORD)) //???
-								   Item->UserData=ListMenuItem->UserData;
-								*/
+								auto& Item = ListItems->Item;
+								Item = {};
+								Item.Flags=ListMenuItem.Flags;
+								Item.Text=ListMenuItem.Name.c_str();
+								Item.UserData = ListMenuItem.SimpleUserData;
+								Item.Reserved = 0;
+
 								return TRUE;
 							}
 
@@ -4948,7 +4953,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 							if (reinterpret_cast<size_t>(Param2) < ListBox->size())
 							{
-								const auto Data = ListBox->GetUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+								const auto Data = ListBox->GetComplexUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
 								return Data? reinterpret_cast<intptr_t>(Data->data()) : 0;
 							}
 							return 0;
@@ -4957,7 +4962,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						{
 							if (reinterpret_cast<size_t>(Param2) < ListBox->size())
 							{
-								const auto Data = ListBox->GetUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+								const auto Data = ListBox->GetComplexUserDataPtr<std::vector<char>>(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
 								return Data? Data->size() : 0;
 							}
 
@@ -4972,7 +4977,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 								const auto Data = static_cast<const char*>(ListItems->Data);
 								const auto Size = ListItems->DataSize? ListItems->DataSize : (wcslen(static_cast<const wchar_t*>(ListItems->Data)) + 1) * sizeof(wchar_t);
 								std::vector<char> DataCopy(Data, Data + Size);
-								ListBox->SetUserData(DataCopy, ListItems->Index);
+								ListBox->SetComplexUserData(DataCopy, ListItems->Index);
 
 								return Ret = 1;
 							}
@@ -5728,6 +5733,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							auto& ListMenuItem = ListBox->at(LUpdate.Index);
 							LUpdate.Item.Flags = ListMenuItem.Flags;
 							LUpdate.Item.Text = CurItem->strData.c_str();
+							LUpdate.Item.UserData = ListMenuItem.SimpleUserData;
 							SendMessage(DM_LISTUPDATE, Param1, &LUpdate);
 
 							break;

@@ -1280,7 +1280,7 @@ void PluginManager::Configure(int StartPos)
 
 						PluginMenuItemData item = { i, guid };
 
-						ListItem.UserData = item;
+						ListItem.ComplexUserData = item;
 
 						PluginList->AddItem(ListItem);
 					}
@@ -1299,7 +1299,7 @@ void PluginManager::Configure(int StartPos)
 			{
 				const auto Key=RawKey();
 				int SelPos=PluginList->GetSelectPos();
-				const auto item = PluginList->GetUserDataPtr<PluginMenuItemData>(SelPos);
+				const auto item = PluginList->GetComplexUserDataPtr<PluginMenuItemData>(SelPos);
 				int KeyProcessed = 1;
 
 				switch (Key)
@@ -1350,7 +1350,7 @@ void PluginManager::Configure(int StartPos)
 				if (StartPos<0)
 					break;
 
-				const auto item = PluginList->GetUserDataPtr<PluginMenuItemData>(StartPos);
+				const auto item = PluginList->GetComplexUserDataPtr<PluginMenuItemData>(StartPos);
 				ConfigureCurrent(item->pPlugin, item->Guid);
 			}
 		}
@@ -1446,7 +1446,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						itemdata.pPlugin = i;
 						itemdata.Guid = guid;
 
-						ListItem.UserData = itemdata;
+						ListItem.ComplexUserData = itemdata;
 
 						PluginList->AddItem(ListItem);
 					}
@@ -1463,7 +1463,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			{
 				const auto Key=RawKey();
 				int SelPos=PluginList->GetSelectPos();
-				const auto ItemPtr = PluginList->GetUserDataPtr<PluginMenuItemData>(SelPos);
+				const auto ItemPtr = PluginList->GetComplexUserDataPtr<PluginMenuItemData>(SelPos);
 				int KeyProcessed = 1;
 
 				switch (Key)
@@ -1538,7 +1538,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 
 		Global->ScrBuf->Flush();
-		item = *PluginList->GetUserDataPtr<PluginMenuItemData>(ExitCode);
+		item = *PluginList->GetComplexUserDataPtr<PluginMenuItemData>(ExitCode);
 	}
 
 	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();

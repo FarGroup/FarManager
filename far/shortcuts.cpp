@@ -222,7 +222,7 @@ static void FillMenu(VMenu2& Menu, std::list<Shortcuts::shortcut>& List, bool co
 		if (ListItem.Name.empty())
 			continue;
 
-		ListItem.UserData = i;
+		ListItem.ComplexUserData = i;
 		if (!raw_mode && i->PluginGuid == FarGuid && i->Folder.empty())
 		{
 			if (ListItem.Name != SeparatorToken)
@@ -370,7 +370,7 @@ std::list<Shortcuts::shortcut>::const_iterator Shortcuts::Select(bool Raw)
 	{
 		const auto Key = RawKey();
 		const auto ItemPos = FolderList->GetSelectPos();
-		const auto Iterator = FolderList->GetUserDataPtr<ITERATOR(m_Items)>(ItemPos);
+		const auto Iterator = FolderList->GetComplexUserDataPtr<ITERATOR(m_Items)>(ItemPos);
 
 		switch (Key)
 		{
@@ -381,7 +381,7 @@ std::list<Shortcuts::shortcut>::const_iterator Shortcuts::Select(bool Raw)
 				const auto newIter = m_Items.emplace(Iterator? *Iterator : m_Items.end(), CreateShortcutFromPanel());
 
 				MenuItemEx NewMenuItem(newIter->Folder);
-				NewMenuItem.UserData = newIter;
+				NewMenuItem.ComplexUserData = newIter;
 				FolderList->AddItem(NewMenuItem, ItemPos);
 				FolderList->SetSelectPos(ItemPos, 1);
 				m_Changed = true;
@@ -432,7 +432,7 @@ std::list<Shortcuts::shortcut>::const_iterator Shortcuts::Select(bool Raw)
 		}
 	});
 
-	return ExitCode < 0? m_Items.end() : *FolderList->GetUserDataPtr<ITERATOR(m_Items)>(ExitCode);
+	return ExitCode < 0? m_Items.end() : *FolderList->GetComplexUserDataPtr<ITERATOR(m_Items)>(ExitCode);
 }
 
 bool Shortcuts::GetOne(size_t Index, data& Data) const

@@ -94,7 +94,7 @@ struct ListControlBinding: public DialogItemBinding<T>
 		if (List)
 		{
 			FarListItem &ListItem = List->Items[Item->ListPos];
-			Value = ListItem.Reserved[0];
+			Value = ListItem.UserData;
 		}
 		if (Text)
 		{

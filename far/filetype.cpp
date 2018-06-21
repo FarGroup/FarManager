@@ -121,7 +121,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 				strDescription = strCommandText;
 
 			MenuItemEx TypesMenuItem(strDescription);
-			TypesMenuItem.UserData = strCommand;
+			TypesMenuItem.ComplexUserData = strCommand;
 			MenuItems.push_back(std::move(TypesMenuItem));
 		}
 
@@ -150,7 +150,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 				return true;
 		}
 
-		strCommand = *TypesMenu->GetUserDataPtr<string>(ExitCode);
+		strCommand = *TypesMenu->GetComplexUserDataPtr<string>(ExitCode);
 	}
 
 	list_names ListNames;
@@ -295,7 +295,7 @@ static auto FillFileTypesMenu(VMenu2* TypesMenu, int MenuPos)
 	{
 		const auto AddLen = i.Description.size() - HiStrlen(i.Description);
 		MenuItemEx TypesMenuItem(concat(fit_to_left(i.Description, MaxElement->Description.size() + AddLen), L' ', BoxSymbols[BS_V1], L' ', i.Mask));
-		TypesMenuItem.UserData = i.Id;
+		TypesMenuItem.ComplexUserData = i.Id;
 		TypesMenu->AddItem(TypesMenuItem);
 	}
 
@@ -490,7 +490,7 @@ void EditFileTypes()
 				case KEY_DEL:
 					if (MenuPos<NumLine)
 					{
-						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned long long>(MenuPos))
+						if (const auto IdPtr = TypesMenu->GetComplexUserDataPtr<unsigned long long>(MenuPos))
 						{
 							Changed = DeleteTypeRecord(*IdPtr);
 						}
@@ -501,7 +501,7 @@ void EditFileTypes()
 				case KEY_INS:
 					if (MenuPos - 1 >= 0)
 					{
-						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned long long>(MenuPos - 1))
+						if (const auto IdPtr = TypesMenu->GetComplexUserDataPtr<unsigned long long>(MenuPos - 1))
 						{
 							Changed = EditTypeRecord(*IdPtr, true);
 						}
@@ -517,7 +517,7 @@ void EditFileTypes()
 				case KEY_F4:
 					if (MenuPos<NumLine)
 					{
-						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned long long>(MenuPos))
+						if (const auto IdPtr = TypesMenu->GetComplexUserDataPtr<unsigned long long>(MenuPos))
 						{
 							Changed = EditTypeRecord(*IdPtr, false);
 						}
@@ -533,9 +533,9 @@ void EditFileTypes()
 						!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && MenuPos == static_cast<int>(TypesMenu->size() - 1)))
 					{
 						int NewMenuPos=MenuPos+((Key==KEY_CTRLUP || Key==KEY_RCTRLUP)?-1:+1);
-						if (const auto IdPtr = TypesMenu->GetUserDataPtr<unsigned long long>(MenuPos))
+						if (const auto IdPtr = TypesMenu->GetComplexUserDataPtr<unsigned long long>(MenuPos))
 						{
-							if (const auto IdPtr2 = TypesMenu->GetUserDataPtr<unsigned long long>(NewMenuPos))
+							if (const auto IdPtr2 = TypesMenu->GetComplexUserDataPtr<unsigned long long>(NewMenuPos))
 							{
 								if (ConfigProvider().AssocConfig()->SwapPositions(*IdPtr, *IdPtr2))
 								{
