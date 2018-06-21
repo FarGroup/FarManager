@@ -1,9 +1,11 @@
+#!/usr/bin/env python2
 # -*- coding:windows-1251 -*-
 
-"""Find files with russian letters in specified directory
+"""Find files with letters in russian windows-1251 encoding.
 
-If files contain Russian letters they are considered untranslated
-unless <!-- NLC --> marker is present at the same line in HTML code
+If English encyclopedia files contain Russian letters they are considered
+untranslated unless <!-- NLC --> marker is present at the same line in
+HTML code.
 
 """
 # pythonized by techtonik // gmail.com
@@ -18,7 +20,7 @@ import sys
 
 if len(sys.argv) < 2:
   print __doc__
-  print "Usage: program <enc_eng_dir>"
+  print "Usage: program <dir>"
   sys.exit()
 
 # set encoding for console output
@@ -35,12 +37,15 @@ if len(sys.argv) < 2:
 #sw = codecs.lookup("cp866")[-1](sys.stdout)
 #sw.write("sdfôûâÝ")
 
+dirs_exclude = ['.svn', '.git']
 
 ru = re.compile("[à-ÿÀ-ß] *")
 skip_mark = "<!-- NLC -->"
 for root,dirs,files in os.walk(sys.argv[1]):
-  if ".svn" in dirs:
-    dirs.remove(".svn")
+
+  # exclude dirs by modifying dirs in place
+  dirs[:] = [d for d in dirs if not d in dirs_exclude]
+
   for f in files:
     if f.endswith(".gif"):
       continue
