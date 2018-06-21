@@ -619,6 +619,34 @@ static void RemoveHotplugDevice(panel_ptr Owner, const PanelMenuItem *item, VMen
 	}
 }
 
+static bool GetShellName(const string& Path, string& Name)
+{
+	// Q: Why not SHCreateItemFromParsingName + IShellItem::GetDisplayName?
+	// A: Not available in WinXP.
+
+	// Q: Why not SHParseDisplayName + SHCreateShellItem + IShellItem::GetDisplayName then?
+	// A: Not available in Win2k.
+
+	os::com::ptr<IShellFolder> ShellFolder;
+	if (FAILED(SHGetDesktopFolder(&ptr_setter(ShellFolder))))
+		return false;
+
+	os::com::memory<PIDLIST_RELATIVE> IdList;
+	if (FAILED(ShellFolder->ParseDisplayName(nullptr, nullptr, UNSAFE_CSTR(Path), nullptr, &ptr_setter(IdList), nullptr)))
+		return false;
+
+	STRRET StrRet;
+	if (FAILED(ShellFolder->GetDisplayNameOf(IdList.get(), SHGDN_FOREDITING, &StrRet)))
+		return false;
+
+	if (StrRet.uType != STRRET_WSTR)
+		return false;
+
+	os::com::memory<wchar_t*> Str(StrRet.pOleStr);
+	Name = Str.get();
+	return true;
+}
+
 static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 {
 	int Panel_X1, Panel_X2, Panel_Y1, Panel_Y2;
@@ -725,26 +753,23 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				}
 			}
 
-			auto ShowDiskInfo = (NewItem.DriveType != DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
+			const auto ShowDiskInfo = (NewItem.DriveType != DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
 				(!IsDriveTypeCDROM(NewItem.DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
 				(!IsDriveTypeRemote(NewItem.DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOTE));
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL | DRIVE_SHOW_FILESYSTEM))
 			{
-				auto Absent = false;
-				if (ShowDiskInfo && !os::fs::GetVolumeInformation(strRootDir, &NewItem.Label, nullptr, nullptr, nullptr, &NewItem.Fs))
-				{
-					Absent = true;
-					ShowDiskInfo = false;
-				}
+				const auto LabelRead = Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL? GetShellName(strRootDir, NewItem.Label) : true;
 
-				if (NewItem.Label.empty())
+				const auto LabelPtr = LabelRead? nullptr : &NewItem.Label;
+				const auto FsPtr = Global->Opt->ChangeDriveMode & DRIVE_SHOW_FILESYSTEM? &NewItem.Fs : nullptr;
+
+				if (ShowDiskInfo && (LabelPtr || FsPtr) && !os::fs::GetVolumeInformation(strRootDir, LabelPtr, nullptr, nullptr, nullptr, FsPtr))
 				{
-					static const os::reg::key* Roots[] = { &os::reg::key::current_user, &os::reg::key::local_machine };
-					if (!std::any_of(CONST_RANGE(Roots, Root){ return Root->get(concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\DriveIcons\\"sv, NewItem.Letter[1], L"\\DefaultLabel"sv), L"", NewItem.Label); }) && Absent)
-					{
-						NewItem.Label = msg(lng::MChangeDriveLabelAbsent);
-					}
+					if (LabelPtr)
+						*LabelPtr = msg(lng::MChangeDriveLabelAbsent);
+
+					// Should we set *FsPtr to something like "Absent" too?
 				}
 			}
 
