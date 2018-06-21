@@ -65,6 +65,6 @@ for root,dirs,files in os.walk(sys.argv[1]):
       rucount += len(rutext)
       #if rutext: print rutext #.decode("cp1251")
     if rucount:
-      print "%s - %d russian symbols" % (os.path.join(root, f), rucount)
-      
+      print "%s - %d russian (cp1251) symbols" % (os.path.join(root, f), rucount)
+
   #print root,dirs,files
