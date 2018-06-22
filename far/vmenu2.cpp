@@ -461,8 +461,7 @@ int VMenu2::AddItem(const MenuItemEx& NewItem, int PosAdd)
 		PosAdd=n;
 
 
-	FarListItem fi{ NewItem.Flags, NewItem.Name.c_str() };
-	FarListInsert fli={sizeof(FarListInsert), PosAdd, fi};
+	FarListInsert fli{ sizeof(FarListInsert), PosAdd, { NewItem.Flags, NewItem.Name.c_str(), NewItem.SimpleUserData } };
 	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
 

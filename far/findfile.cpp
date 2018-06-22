@@ -635,7 +635,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 			FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 			Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
-			CodePage = Dlg->GetListItemSimpleUserData(FAD_COMBOBOX_CP, Position.SelectPos);
+			CodePage = Item.Item.UserData;
 			return TRUE;
 		}
 		case DN_CLOSE:
@@ -760,7 +760,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							// Получаем номер выбранной таблицы символов
 							FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 							Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
-							const auto SelectedCodePage = Dlg->GetListItemSimpleUserData(FAD_COMBOBOX_CP, Position.SelectPos);
+							const auto SelectedCodePage = Item.Item.UserData;
 							// Разрешаем отмечать только стандартные и избранные таблицы символов
 							int FavoritesIndex = 2 + StandardCPCount + 2;
 
@@ -808,7 +808,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									// Обрабатываем только таблицы символов
 									if (!(CheckItem.Item.Flags&LIF_SEPARATOR))
 									{
-										if (SelectedCodePage == Dlg->GetListItemSimpleUserData(FAD_COMBOBOX_CP, Index))
+										if (SelectedCodePage == CheckItem.Item.UserData)
 										{
 											if (Item.Item.Flags & LIF_CHECKED)
 												CheckItem.Item.Flags |= LIF_CHECKED;
