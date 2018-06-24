@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.06.2018 19:39:48 +0100 - build 5231
+
+1. Correction of 5230.2.
+
+drkns 21.06.2018 22:26:50 +0100 - build 5230
+
+1. 0003531: Sort far:config entries.
+
+2. "Eat Your Own Dog Food" - implementation of #1 revealed inconveniences in Dialog API.
+   FarListItem now contains intptr_t UserData in order to bind data to the list item
+   not fiddling with sending messages (unrelated to DM_LIST<G|S>ETDATA, there's other data).
+
+drkns 21.06.2018 18:53:53 +0100 - build 5229
+
+1. 0003621: It would be good to show "volume label" for network devices.
+
+w17 20.06.2018 17:40:35 +0300 - build 5228
+
+1. M#3614: arclite does not update sizes of files inside archive if external editor is used
+
 svs 09.06.2018 18:11:19 +0300 - build 5227
 
 1. SQLite 3.24.0
