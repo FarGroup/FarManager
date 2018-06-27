@@ -177,6 +177,8 @@ private:
 	bool AddWindow(const window_ptr& Param);
 	void SwitchWindow(DirectionType Direction);
 
+	void WindowsChanged() { std::fill(m_windows_changed.begin(), m_windows_changed.end(), true); }
+
 	using windows = std::vector<window_ptr>;
 	void* GetCurrent(const std::function<void*(windows::const_reverse_iterator)>& Check) const;
 	windows m_windows;
@@ -191,11 +193,7 @@ private:
 	std::unordered_map<window_ptr, bool*> m_Executed;
 	std::unordered_set<window_ptr> m_Added;
 	desktop_ptr m_Desktop;
-	int m_InsideRefresh;
-	bool m_RefreshDone;
-#ifdef _DEBUG
-	bool m_windows_changed;
-#endif
+	std::vector<bool> m_windows_changed;
 };
 
 #endif // MANAGER_HPP_C3173B86_845B_4D8D_921F_803EA43A3C8A
