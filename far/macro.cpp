@@ -2605,17 +2605,8 @@ static bool fsplitFunc(FarMacroCall* Data)
 static bool atoiFunc(FarMacroCall* Data)
 {
 	auto Params = parseParams(2, Data);
-	bool Ret = false;
 	long long Value = 0;
-	try
-	{
-		Value = std::stoull(Params[0].toString(), nullptr, (int)Params[1].toInteger());
-		Ret = true;
-	}
-	catch (const std::exception&)
-	{
-		// TODO: log
-	}
+	const auto Ret = from_string(Params[0].toString(), Value, nullptr, static_cast<int>(Params[1].toInteger()));
 	PassInteger(Value, Data);
 	return Ret;
 }

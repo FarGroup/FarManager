@@ -435,11 +435,10 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 				NewColumn.type = ItemIterator->Type;
 			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
 			{
-				try
-				{
-					NewColumn.type = CUSTOM_COLUMN0 + std::stoi(TypeOrig.substr(1));
-				}
-				catch (const std::exception&)
+				int Index;
+				if (from_string(TypeOrig.substr(1), Index))
+					NewColumn.type = CUSTOM_COLUMN0 + Index;
+				else
 				{
 					// TODO: diagnostics
 				}
@@ -469,11 +468,7 @@ std::vector<column> DeserialiseViewSettings(const string& ColumnTitles,const str
 			Width = L"0"sv;
 		}
 
-		try
-		{
-			i.width = std::stoi(string(Width));
-		}
-		catch (const std::exception&)
+		if (!from_string(string(Width), i.width))
 		{
 			// TODO: diagnostics
 			i.width = 0;

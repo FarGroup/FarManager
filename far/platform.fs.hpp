@@ -254,10 +254,19 @@ namespace os::fs
 		filebuf(const file& File, std::ios::openmode Mode, size_t BufferSize = 65536);
 
 	protected:
+		int_type underflow() override;
 		int_type overflow(int_type Ch) override;
 		int sync() override;
+		pos_type seekoff(off_type Offset, std::ios::seekdir Way, std::ios::openmode Which) override;
+		pos_type seekpos(pos_type Pos, std::ios::openmode Which) override;
+		int_type pbackfail(int_type Ch) override;
+
 	private:
+		void reset_get_area();
 		void reset_put_area();
+		bool adjust_pos_in_cache(std::streamoff Offset);
+		unsigned long long set_pointer(unsigned long long Value, int Way);
+
 		const file& m_File;
 		std::ios::openmode m_Mode;
 		std::vector<char> m_Buffer;

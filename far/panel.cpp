@@ -732,9 +732,7 @@ bool Panel::MakeListFile(string& ListFileName, bool ShortNames, string_view cons
 
 	try
 	{
-		if (!FarMkTempEx(ListFileName))
-			throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
-
+		ListFileName = MakeTemp();
 		if (const auto ListFile = os::fs::file(ListFileName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS))
 		{
 			os::fs::filebuf StreamBuffer(ListFile, std::ios::out);

@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "plugin.hpp"
 
+#include "common/io.hpp"
+
 class installed_codepages
 {
 public:

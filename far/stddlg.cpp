@@ -803,16 +803,8 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		if (!Radix)
 			Radix = Hex? 16 : 10;
 
-		try
-		{
-			Dest.value = std::stoull(Part, nullptr, Radix);
-			Dest.exist = true;
-		}
-		catch(const std::exception&)
-		{
-			// TODO: log
-			// maybe we need to display a message in case of an incorrect input
-		}
+		Dest.value = std::stoull(Part, nullptr, Radix);
+		Dest.exist = true;
 	};
 
 	const auto SeparatorPos = Str.find_first_of(L".,;:");

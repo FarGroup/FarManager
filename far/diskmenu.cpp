@@ -286,23 +286,17 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	DCDlg[1].strData = format(msg(lng::MChangeDriveDisconnectQuestion), Letter);
 	DCDlg[2].strData = format(msg(lng::MChangeDriveDisconnectMapped), Letter);
 
-	size_t Len1 = DCDlg[0].strData.size();
-	size_t Len2 = DCDlg[1].strData.size();
-	size_t Len3 = DCDlg[2].strData.size();
-	size_t Len4 = DCDlg[5].strData.size();
-	Len1 = std::max(Len1, std::max(Len2, std::max(Len3, Len4)));
 	string strMsgText;
 	// TODO: check result
 	DriveLocalToRemoteName(DRIVE_REMOTE, Letter, strMsgText);
-	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len1));
+	const auto Len = std::max({ DCDlg[0].strData.size(), DCDlg[1].strData.size(), DCDlg[2].strData.size(), DCDlg[5].strData.size() });
+	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len));
 	// проверяем - это было постоянное соединение или нет?
 	// Если ветка в реестре HKCU\Network\БукваДиска есть - это
 	//   есть постоянное подключение.
 
 	bool IsPersistent = true;
-	const wchar_t KeyName[] = { L'N', L'e', L't', L'w', L'o', L'r', L'k', L'\\', Letter, L'\0' };
-
-	if (os::reg::key::open(os::reg::key::current_user, KeyName, KEY_QUERY_VALUE))
+	if (os::reg::key::open(os::reg::key::current_user, concat(L"Network\\"sv, Letter), KEY_QUERY_VALUE))
 	{
 		DCDlg[5].Selected = Global->Opt->ChangeDriveDisconnectMode;
 	}
@@ -314,7 +308,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	}
 
 	// скорректируем размеры диалога - для дизайнУ
-	DCDlg[0].X2 = DCDlg[0].X1 + Len1 + 3;
+	DCDlg[0].X2 = DCDlg[0].X1 + Len + 3;
 	int ExitCode = 7;
 
 	if (Global->Opt->Confirm.RemoveConnection)

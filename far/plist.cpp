@@ -84,8 +84,7 @@ static bool is_alttab_window(HWND const Window)
 
 	// the following removes some task tray programs and "Program Manager"
 	TITLEBARINFO Info{sizeof(Info)};
-	GetTitleBarInfo(Window, &Info);
-	if (Info.rgstate[0] & STATE_SYSTEM_INVISIBLE)
+	if (GetTitleBarInfo(Window, &Info) && Info.rgstate[0] & STATE_SYSTEM_INVISIBLE)
 		return false;
 
 	// Tool windows should not be displayed either, these do not appear in the task bar
@@ -161,7 +160,7 @@ void ShowProcessList()
 	{
 		ProcList->clear();
 
-		ProcInfo Info = { ProcList.get(), ShowImage };
+		ProcInfo Info{ ProcList.get(), ShowImage };
 		if (!EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&Info)))
 		{
 			RethrowIfNeeded(Info.ExceptionPtr);
@@ -236,7 +235,7 @@ void ShowProcessList()
 			{
 				// TODO: change titles, don't enumerate again
 				ShowImage = !ShowImage;
-				int SelectPos=ProcList->GetSelectPos();
+				const auto SelectPos = ProcList->GetSelectPos();
 				if (!FillProcList())
 				{
 					ProcList->Close(-1);

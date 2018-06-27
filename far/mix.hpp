@@ -63,7 +63,7 @@ T FromPercent(int Percent, T Base)
 		Base / 100 * Percent;
 };
 
-bool FarMkTempEx(string &strDest, string_view Prefix = {}, bool WithTempPath = true, string_view UserTempPath = {});
+string MakeTemp(string_view Prefix = {}, bool WithTempPath = true, string_view UserTempPath = {});
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest);
 

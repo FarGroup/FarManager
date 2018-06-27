@@ -326,8 +326,8 @@ DialogItemEx::~DialogItemEx() = default;
 DialogItemEx::DialogItemEx(const DialogItemEx&) = default;
 DialogItemEx& DialogItemEx::operator=(const DialogItemEx&) = default;
 
-DialogItemEx::DialogItemEx(DialogItemEx&&) = default;
-DialogItemEx& DialogItemEx::operator=(DialogItemEx&&) = default;
+DialogItemEx::DialogItemEx(DialogItemEx&&) noexcept = default;
+DialogItemEx& DialogItemEx::operator=(DialogItemEx&&) noexcept = default;
 
 
 bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,

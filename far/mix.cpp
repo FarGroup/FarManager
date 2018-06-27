@@ -44,22 +44,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/enum_substrings.hpp"
 
-/*
-             v - точка
-   prefXXX X X XXX
-       \ / ^   ^^^\ PID + TID
-        |  \------/
-        |
-        +---------- [0A-Z]
-*/
-bool FarMkTempEx(string &strDest, string_view Prefix, bool const WithTempPath, string_view const UserTempPath)
+string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const UserTempPath)
 {
 	static UINT s_shift = 0;
 
 	if (Prefix.empty())
-		Prefix = L"F3T"sv;
+		Prefix = L"FAR"sv;
 
-	string strPath = L".";
+	auto strPath = L"."s;
 
 	if (WithTempPath)
 	{
@@ -74,30 +66,42 @@ bool FarMkTempEx(string &strDest, string_view Prefix, bool const WithTempPath, s
 
 	wchar_t_ptr_n<MAX_PATH> Buffer(Prefix.size() + strPath.size() + 13);
 
-	UINT uniq = 23*GetCurrentProcessId() + s_shift, uniq0 = uniq ? uniq : 1;
+	auto Unique = 23 * GetCurrentProcessId() + s_shift;
+	const auto UniqueCopy = Unique? Unique : 1;
 	s_shift = (s_shift + 1) % 23;
 
 	null_terminated PrefixStr(Prefix);
+
+	bool UseSystemFunction = true;
+
+	const auto& Generator = [&]()
+	{
+		if (!UseSystemFunction || !GetTempFileName(strPath.c_str(), PrefixStr.c_str(), Unique, Buffer.get()))
+		{
+			// GetTempFileName uses only the last 16 bits of Unique.
+			// We either did a full round trip through them or GetTempFileName failed for whatever reason.
+			// Let's try the full 32-bit range manually.
+			return path::join(strPath, concat(Prefix, to_hex_wstring(Unique), L".tmp"sv));
+		}
+
+		return string(Buffer.get());
+	};
+
 	for (;;)
 	{
-		if (!uniq) ++uniq;
+		if (!Unique) ++Unique;
 
-		if (GetTempFileName(strPath.c_str(), PrefixStr.c_str(), uniq, Buffer.get()))
-		{
-			const auto Find = os::fs::enum_files(Buffer.get(), false);
-			if (Find.begin() == Find.end())
-				break;
-		}
+		const auto Str = Generator();
 
-		if ((++uniq & 0xffff) == (uniq0 & 0xffff))
+		const auto Find = os::fs::enum_files(Str, false);
+		if (Find.begin() == Find.end())
+			return Str;
+
+		if ((++Unique & 0xffff) == (UniqueCopy & 0xffff))
 		{
-			Buffer[0] = L'\0';
-			break;
+			UseSystemFunction = false;
 		}
 	}
-
-	strDest = Buffer.get();
-	return !strDest.empty();
 }
 
 void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& Dest)

@@ -342,6 +342,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\compiler.hpp" />
     <ClInclude Include="common\enum_substrings.hpp" />
     <ClInclude Include="common\enum_tokens.hpp" />
+    <ClInclude Include="common\io.hpp" />
     <ClInclude Include="common\movable.hpp" />
     <ClInclude Include="common\multifunction.hpp" />
     <ClInclude Include="common\nifty_counter.hpp" />

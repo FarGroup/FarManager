@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 static const size_t DELTA = 1024;
-static const size_t ReadBufCount = 0x2000;
+static const size_t ReadBufCount = 65536;
 
 enum_file_lines::enum_file_lines(const os::fs::file& SrcFile, uintptr_t CodePage) :
 	SrcFile(SrcFile),

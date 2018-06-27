@@ -367,11 +367,7 @@ long long TVar::asInteger() const
 	}
 	else if (isString())
 	{
-		try
-		{
-			ret = std::stoll(str);
-		}
-		catch (const std::exception&)
+		if (!from_string(str, ret))
 		{
 			// TODO: log
 		}
@@ -397,11 +393,7 @@ double TVar::asDouble() const
 	}
 	else if (isString())
 	{
-		try
-		{
-			ret = std::stod(str);
-		}
-		catch (const std::exception&)
+		if (!from_string(str, ret))
 		{
 			// TODO: log
 		}

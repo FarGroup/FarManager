@@ -1412,41 +1412,35 @@ struct FARConfigItem
 
 static bool ParseIntValue(const string& sValue, long long& iValue)
 {
-	try
+	if (from_string(sValue, iValue))
+		return true;
+
+	unsigned long long uValue;
+	if (from_string(sValue, uValue))
 	{
-		iValue = std::stoll(sValue);
+		iValue = uValue;
 		return true;
 	}
-	catch (const std::exception&)
+
+	if (equal_icase(sValue, L"false"sv))
 	{
-		try
-		{
-			iValue = std::stoull(sValue);
-			return true;
-		}
-		catch (const std::exception&)
-		{
-			if (equal_icase(sValue, L"false"sv))
-			{
-				iValue = 0;
-				return true;
-			}
-
-			if (equal_icase(sValue, L"true"sv))
-			{
-				iValue = 1;
-				return true;
-			}
-
-			if (equal_icase(sValue, L"other"sv))
-			{
-				iValue = 2;
-				return true;
-			}
-			// TODO: log
-		}
+		iValue = 0;
+		return true;
 	}
 
+	if (equal_icase(sValue, L"true"sv))
+	{
+		iValue = 1;
+		return true;
+	}
+
+	if (equal_icase(sValue, L"other"sv))
+	{
+		iValue = 2;
+		return true;
+	}
+
+	// TODO: log
 	return false;
 }
 

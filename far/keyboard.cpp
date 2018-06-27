@@ -276,16 +276,14 @@ void InitKeysArray()
 				string Value = i.get_string();
 				if (!Value.empty() && std::iswxdigit(Value.front()))
 				{
-					try
+					uintptr_t KbLayout;
+					if (from_string(Value, KbLayout, nullptr, 16) && KbLayout)
 					{
-						if (uintptr_t KbLayout = std::stoul(Value, nullptr, 16))
-						{
-							if (KbLayout <= 0xffff)
-								KbLayout |= KbLayout << 16;
-							Layout().emplace_back(reinterpret_cast<HKL>(KbLayout));
-						}
+						if (KbLayout <= 0xffff)
+							KbLayout |= KbLayout << 16;
+						Layout().emplace_back(reinterpret_cast<HKL>(KbLayout));
 					}
-					catch (const std::exception&)
+					else
 					{
 						// TODO: log
 					}

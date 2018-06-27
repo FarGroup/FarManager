@@ -93,8 +93,8 @@ private:
 
 filemasks::filemasks() = default;
 filemasks::~filemasks() = default;
-filemasks::filemasks(filemasks&&) = default;
-filemasks& filemasks::operator=(filemasks&&) = default;
+filemasks::filemasks(filemasks&&) noexcept = default;
+filemasks& filemasks::operator=(filemasks&&) noexcept = default;
 
 bool filemasks::Set(const string& Masks, DWORD Flags)
 {

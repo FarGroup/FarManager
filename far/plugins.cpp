@@ -974,11 +974,11 @@ int PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, 
 }
 
 
-int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, const string& DestPath, string &strResultName, int OpMode)
+bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, const string& DestPath, string &strResultName, int OpMode)
 {
 	SCOPED_ACTION(ChangePriority)(THREAD_PRIORITY_NORMAL);
 	std::unique_ptr<SaveScreen> SaveScr;
-	int Found=FALSE;
+	bool Found = false;
 	Global->KeepUserScreen=FALSE;
 
 	if (!(OpMode & OPM_FIND))
@@ -1000,18 +1000,20 @@ int PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelIt
 	const auto ItemIterator = std::find_if(CONST_RANGE(Find, i) { return !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY); });
 	if (ItemIterator != Find.cend())
 	{
-		const auto name_len = wcslen(PanelItem->FileName);
-		const auto found_len = ItemIterator->FileName.size();
-		const auto isADS = GetCode == 1 && found_len + 1 < name_len && PanelItem->FileName[found_len] == L':' && !wcsncmp(PanelItem->FileName, ItemIterator->FileName.c_str(), found_len);
-		strResultName = path::join(Info.DestPath, isADS? string_view(PanelItem->FileName) : string_view(ItemIterator->FileName));
+		string_view Name = PanelItem->FileName;
+		const auto isADS = GetCode == 1 && starts_with(Name, ItemIterator->FileName) && starts_with(Name.substr(ItemIterator->FileName.size()), L':');
+		auto Result = path::join(Info.DestPath, isADS? Name : ItemIterator->FileName);
 
-		if (GetCode!=1)
+		if (GetCode == 1)
 		{
-			os::fs::set_file_attributes(strResultName,FILE_ATTRIBUTE_NORMAL);
-			os::fs::delete_file(strResultName); //BUGBUG
+			Found = true;
+			strResultName = std::move(Result);
 		}
 		else
-			Found=TRUE;
+		{
+			os::fs::set_file_attributes(Result,FILE_ATTRIBUTE_NORMAL);
+			os::fs::delete_file(Result); //BUGBUG
+		}
 	}
 
 	ReadUserBackgound(SaveScr.get());
@@ -1674,11 +1676,11 @@ char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 
 wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 {
-	size_t Count = (Str.size() + 1) * sizeof(wchar_t);
+	const auto Count = (Str.size() + 1) * sizeof(wchar_t);
 	const auto Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
 	if (Res)
 	{
-		wcscpy(Res, Str.c_str());
+		*std::copy(ALL_CONST_RANGE(Str), Res) = L'\0';
 	}
 	return Res;
 }

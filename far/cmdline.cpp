@@ -787,17 +787,12 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 							{
 								if (it + 1 != strExpandedDestStr.end())
 								{
-									try
-									{
-										size_t pos = 0;
-										NewPromptSize = std::stoi(string(it+1, strExpandedDestStr.cend()), &pos);
+									size_t pos;
+									if (from_string(string(it + 1, strExpandedDestStr.cend()), NewPromptSize, &pos))
 										it += pos;
-									}
-									catch (const std::exception&)
-									{
+									// else
 										// bad format, NewPromptSize unchanged
 										// TODO: diagnostics
-									}
 								}
 							}
 						}
@@ -1220,14 +1215,8 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, const std::functi
 	{
 		const auto ChcpParams = trim(CmdLine.substr(CommandChcp.size()));
 		uintptr_t cp;
-		try
-		{
-			cp = std::stoul(string(ChcpParams));
-		}
-		catch (const std::exception&)
-		{
+		if (!from_string(string(ChcpParams), cp))
 			return false;
-		}
 
 		if (!console.SetInputCodepage(cp) || !console.SetOutputCodepage(cp))
 			return false;

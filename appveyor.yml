@@ -32,7 +32,7 @@ configuration:
 
 build:
   parallel: true
-  project: far/far.vc14.sln
+  project: far/far.sln
   verbosity: minimal
 
 test: off

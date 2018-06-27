@@ -1258,9 +1258,9 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, const string
 		}
 		else
 		{
-			string strTempDir;
-			FarMkTempEx(strTempDir); // А проверка на nullptr???
-			os::fs::create_directory(strTempDir);
+			const auto strTempDir = MakeTemp();
+			if (!os::fs::create_directory(strTempDir))
+				return false;
 
 			const auto& GetFile = [&]
 			{
@@ -1546,7 +1546,6 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					const auto FindItem = *ListBox->GetComplexUserDataPtr<FindListItem*>();
 					bool RemoveTemp=false;
 					string strSearchFileName;
-					string strTempDir;
 
 					if (FindItem->FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
@@ -1578,8 +1577,10 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 									return TRUE;
 								}
 							}
-							FarMkTempEx(strTempDir);
-							os::fs::create_directory(strTempDir);
+
+							const auto strTempDir = MakeTemp();
+							if (!os::fs::create_directory(strTempDir))
+								return false;
 
 							const auto bGet = GetPluginFile(FindItem->Arc, FindItem->FindData, strTempDir, strSearchFileName, &FindItem->UserData);
 

@@ -259,7 +259,7 @@ public:
 	virtual bool SetStartupInfo(PluginStartupInfo *Info);
 	virtual void* Open(OpenInfo* Info);
 	virtual void ClosePanel(ClosePanelInfo* Info);
-	virtual bool GetPluginInfo(PluginInfo *pi);
+	virtual bool GetPluginInfo(PluginInfo* Info);
 	virtual void GetOpenPanelInfo(OpenPanelInfo *Info);
 	virtual int GetFindData(GetFindDataInfo* Info);
 	virtual void FreeFindData(FreeFindDataInfo* Info);

@@ -280,8 +280,9 @@ void Message::Init(
 
 		MaxLength = std::max(MaxLength, LenErrStr);
 
-		// а теперь проврапим
-		Strings.emplace_back(L"\1"s);
+		if (!Strings.empty())
+			Strings.emplace_back(L"\1"s);
+
 		for (const auto& i : wrapped_text(strErrStr, LenErrStr))
 		{
 			Strings.emplace_back(ALL_CONST_RANGE(i));

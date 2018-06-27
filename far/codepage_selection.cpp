@@ -801,7 +801,7 @@ F8CP::F8CP(bool viewer):
 		std::unordered_set<uintptr_t> used_cps;
 		for(const auto& i: enum_tokens(cps, L",;"sv))
 		{
-			uintptr_t cp = 0;
+			uintptr_t cp;
 			if (equal_icase(i, L"ansi"sv) || equal_icase(i, L"acp"sv) || equal_icase(i, L"win"sv))
 				cp = encoding::codepage::ansi();
 			else if (equal_icase(i, L"oem"sv) || equal_icase(i, L"oemcp"sv) || equal_icase(i, L"dos"sv))
@@ -812,16 +812,10 @@ F8CP::F8CP(bool viewer):
 				cp = defcp;
 			else
 			{
-				try
-				{
-					cp = std::stoul(string(i));
-				}
-				catch (const std::exception&)
-				{
-					// TODO: log
+				if (!from_string(string(i), cp))
 					cp = 0;
-				}
 			}
+
 			if (cp && codepages::IsCodePageSupported(cp, viewer ? 2:20) && !contains(used_cps, cp))
 			{
 				m_F8CpOrder.emplace_back(cp);

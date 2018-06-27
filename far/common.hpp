@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/string_utils.hpp"
 #include "common/chrono.hpp"
 
-
 // TODO: clean up & split
 
 template <typename T>
@@ -119,43 +118,28 @@ protected:
 	using base_type = base;
 };
 
-namespace io
+namespace detail
 {
-	template<typename char_type>
-	class basic_streambuf_override
+	inline void from_string(const string& Str, int& Value, size_t* Pos, int Base) { Value = std::stoi(Str, Pos, Base); }
+	inline void from_string(const string& Str, unsigned int& Value, size_t* Pos, int Base) { Value = std::stoul(Str, Pos, Base); }
+	inline void from_string(const string& Str, long& Value, size_t* Pos, int Base) { Value = std::stol(Str, Pos, Base); }
+	inline void from_string(const string& Str, unsigned long& Value, size_t* Pos, int Base) { Value = std::stoul(Str, Pos, Base); }
+	inline void from_string(const string& Str, long long& Value, size_t* Pos, int Base) { Value = std::stoll(Str, Pos, Base); }
+	inline void from_string(const string& Str, unsigned long long& Value, size_t* Pos, int Base) { Value = std::stoull(Str, Pos, Base); }
+	inline void from_string(const string& Str, double & Value, size_t* Pos, int) { Value = std::stod(Str, Pos); }
+}
+
+template<typename T>
+bool from_string(const string& Str, T& Value, size_t* Pos = nullptr, int Base = 10)
+{
+	try
 	{
-	public:
-		NONCOPYABLE(basic_streambuf_override);
-
-		basic_streambuf_override(std::basic_ios<char_type>& Ios, std::basic_streambuf<char_type>& Buf) :
-			m_Ios(Ios),
-			m_OriginalBuffer(*Ios.rdbuf())
-		{
-			m_Ios.rdbuf(&Buf);
-		}
-
-		~basic_streambuf_override()
-		{
-			m_Ios.rdbuf(&m_OriginalBuffer);
-		}
-
-	private:
-		std::basic_ios<char_type>& m_Ios;
-		std::basic_streambuf<char_type>& m_OriginalBuffer;
-	};
-
-	using wstreambuf_override = basic_streambuf_override<wchar_t>;
-
-	template<typename container>
-	void write(std::ostream& Stream, const container& Container)
+		detail::from_string(Str, Value, Pos, Base);
+		return true;
+	}
+	catch (const std::exception&)
 	{
-		static_assert(std::is_trivially_copyable_v<VALUE_TYPE(Container)>);
-
-		const auto Size = std::size(Container);
-		if (!Size)
-			return;
-
-		Stream.write(static_cast<const char*>(static_cast<const void*>(std::data(Container))), Size * sizeof(*std::data(Container)));
+		return false;
 	}
 }
 

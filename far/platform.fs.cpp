@@ -260,7 +260,7 @@ namespace os::fs
 		}
 
 		// for network paths buffer size must be <= 64k
-		Handle->BufferBase.reset(0x10000);
+		Handle->BufferBase.reset(65536);
 
 		const auto NamePart = PointToName(Name);
 		Handle->Extended = true;
@@ -474,7 +474,7 @@ namespace os::fs
 
 		// for network paths buffer size must be <= 64k
 		// we double it in a first loop, so starting value is 32k
-		size_t BufferSize = 0x8000;
+		size_t BufferSize = 32768;
 		NTSTATUS Result = STATUS_SEVERITY_ERROR;
 		do
 		{
@@ -1084,11 +1084,30 @@ namespace os::fs
 		m_Mode(Mode),
 		m_Buffer(BufferSize)
 	{
-		//if (!(m_Mode & std::ios::in) == !(m_Mode & std::ios::out))
-		if (m_Mode != std::ios::out)
+		if (!(m_Mode & std::ios::in) == !(m_Mode & std::ios::out))
 			throw MAKE_FAR_EXCEPTION(L"Unsupported mode"sv);
 
+		reset_get_area();
 		reset_put_area();
+	}
+
+	filebuf::int_type filebuf::underflow()
+	{
+		if (!m_File)
+			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
+
+		if (!(m_Mode && std::ios::in))
+			throw MAKE_FAR_EXCEPTION(L"Buffer not opened for reading"sv);
+
+		size_t Read;
+		if (!m_File.Read(m_Buffer.data(), m_Buffer.size() * sizeof(char), Read))
+			throw MAKE_FAR_EXCEPTION(L"Read error"sv);
+
+		if (!Read)
+			return traits_type::eof();
+
+		setg(m_Buffer.data(), m_Buffer.data(), m_Buffer.data() + Read / sizeof(char));
+		return m_Buffer[0];
 	}
 
 	filebuf::int_type filebuf::overflow(int_type Ch)
@@ -1115,16 +1134,101 @@ namespace os::fs
 
 	int filebuf::sync()
 	{
+		if (m_Mode & std::ios::in)
+			reset_get_area();
+
 		if (m_Mode & std::ios::out)
 			overflow(traits_type::eof());
 
 		return 0;
 	}
 
+	bool filebuf::adjust_pos_in_cache(std::streamoff Offset)
+	{
+		if (m_Mode & std::ios::in)
+		{
+			if (gptr() + Offset >= eback() && gptr() + Offset < egptr())
+			{
+				gbump(Offset);
+				return true;
+			}
+		}
+		else if (m_Mode & std::ios::out)
+		{
+			if (pptr() + Offset >= pbase() && pptr() + Offset < epptr())
+			{
+				pbump(Offset);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	filebuf::pos_type filebuf::seekoff(off_type Offset, std::ios::seekdir Way, std::ios::openmode Which)
+	{
+		if (!m_File)
+			throw MAKE_FAR_EXCEPTION(L"File not opened"sv);
+
+		switch (Way)
+		{
+		case std::ios::beg:
+			sync();
+			return set_pointer(Offset, FILE_BEGIN);
+
+		case std::ios::end:
+			sync();
+			return set_pointer(Offset, FILE_END);
+
+		case std::ios::cur:
+			{
+				int CacheShift = 0;
+
+				if (m_Mode & std::ios::in)
+					CacheShift = -(egptr() - gptr());
+				else if (m_Mode & std::ios::out)
+					CacheShift = pptr() - pbase();
+
+				if (adjust_pos_in_cache(Offset))
+					return m_File.GetPointer() + CacheShift + Offset;
+			}
+
+			sync();
+			return set_pointer(Offset, FILE_CURRENT);
+
+		default:
+			throw MAKE_FAR_EXCEPTION(L"Unknown seekdir"sv);
+		}
+	}
+
+	filebuf::pos_type filebuf::seekpos(pos_type Pos, std::ios::openmode Which)
+	{
+		return seekoff(Pos, std::ios::beg, Which);
+	}
+
+	filebuf::int_type filebuf::pbackfail(int_type Ch)
+	{
+		throw MAKE_FAR_EXCEPTION(L"Not implemented"sv);
+	}
+
+	void filebuf::reset_get_area()
+	{
+		// buffer is not available for reading
+		setg(m_Buffer.data(), m_Buffer.data() + m_Buffer.size(), m_Buffer.data() + m_Buffer.size());
+	}
+
 	void filebuf::reset_put_area()
 	{
 		// buffer is available for writing
 		setp(m_Buffer.data(), m_Buffer.data() + m_Buffer.size());
+	}
+
+	unsigned long long filebuf::set_pointer(unsigned long long Value, int Way)
+	{
+		unsigned long long Result;
+		if (!m_File.SetPointer(Value, &Result, Way))
+			throw MAKE_FAR_EXCEPTION(L"SetFilePointer error"sv);
+
+		return Result;
 	}
 
 	//-------------------------------------------------------------------------

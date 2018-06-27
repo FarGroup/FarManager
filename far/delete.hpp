@@ -70,7 +70,9 @@ bool DeleteFileWithFolder(const string& FileName);
 class delayed_deleter: noncopyable
 {
 public:
+	delayed_deleter() = default;
 	explicit delayed_deleter(string pathToDelete);
+	void set(string pathToDelete);
 	~delayed_deleter();
 
 private:

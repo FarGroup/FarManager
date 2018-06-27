@@ -100,8 +100,8 @@ struct DialogItemEx: public FarDialogItem
 	~DialogItemEx();
 	DialogItemEx(const DialogItemEx&);
 	DialogItemEx& operator=(const DialogItemEx&);
-	DialogItemEx(DialogItemEx&&);
-	DialogItemEx& operator=(DialogItemEx&&);
+	DialogItemEx(DialogItemEx&&) noexcept;
+	DialogItemEx& operator=(DialogItemEx&&) noexcept;
 
 	void Indent(int Delta)
 	{

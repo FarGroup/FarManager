@@ -880,9 +880,9 @@ void ResetStackOverflowIfNeeded()
 	if (StackOverflowHappened)
 	{
 		if (!_resetstkoflw())
-		{
 			std::terminate();
-		}
+
+		StackOverflowHappened = false;
 	}
 }
 

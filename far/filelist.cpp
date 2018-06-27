@@ -565,8 +565,6 @@ public:
 			PluginPanelItemHolder pi1, pi2;
 			m_Owner->FileListToPluginItem(a, pi1);
 			m_Owner->FileListToPluginItem(b, pi2);
-			pi1.Item.Flags = a.Selected? PPIF_SELECTED : 0;
-			pi2.Item.Flags = b.Selected? PPIF_SELECTED : 0;
 			if (const auto Result = Global->CtrlObject->Plugins->Compare(hSortPlugin, &pi1.Item, &pi2.Item, static_cast<int>(ListSortMode) + (SM_UNSORTED - static_cast<int>(panel_sort::UNSORTED))))
 			{
 				if (Result != -2)
@@ -1825,15 +1823,16 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					strShortFileName = Current.AlternateFileName();
 				}
 
-				string strTempDir, strTempName;
+				string strTempName;
 				bool UploadFailed = false, NewFile = false;
 
 				if (PluginMode)
 				{
-					if (!FarMkTempEx(strTempDir))
+					const auto strTempDir = MakeTemp();
+
+					if (!os::fs::create_directory(strTempDir))
 						return true;
 
-					os::fs::create_directory(strTempDir);
 					strTempName = concat(strTempDir, L'\\', PointToName(strFileName));
 
 					const FileListItem* CurPtr = nullptr;
@@ -2652,10 +2651,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 		if (PluginMode)
 		{
-			string strTempDir;
-			if (!FarMkTempEx(strTempDir))
-				return;
-
+			const auto strTempDir = MakeTemp();
 			os::fs::create_directory(strTempDir);
 			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(CurItem, PanelItem);
@@ -4123,17 +4119,13 @@ void FileList::UpdateViewPanel()
 		}
 		else if (!(Current.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			string strTempDir;
-			if (!FarMkTempEx(strTempDir))
-				return;
-
+			const auto strTempDir = MakeTemp();
 			os::fs::create_directory(strTempDir);
 			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(Current, PanelItem);
-			auto strFileName = Current.FileName;
-			int Result = Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW);
+			string strFileName;
 
-			if (!Result)
+			if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW))
 			{
 				ViewPanel->ShowFile(L"", false, nullptr);
 				os::fs::remove_directory(strTempDir);
@@ -5401,10 +5393,28 @@ bool FileList::FileNameToPluginItem(const string& Name, PluginPanelItemHolder& p
 	return false;
 }
 
+static void FileListItemToPluginPanelItemBasic(const FileListItem& From, PluginPanelItem& To)
+{
+	To.FileSize = From.FileSize;
+	To.AllocationSize = From.AllocationSize;
+	To.FileAttributes = From.Attributes;
+	To.LastWriteTime = os::chrono::nt_clock::to_filetime(From.LastWriteTime);
+	To.CreationTime = os::chrono::nt_clock::to_filetime(From.CreationTime);
+	To.LastAccessTime = os::chrono::nt_clock::to_filetime(From.LastAccessTime);
+	To.ChangeTime = os::chrono::nt_clock::to_filetime(From.ChangeTime);
+	To.Flags = From.UserFlags | (From.Selected? PPIF_SELECTED : 0);
+	To.CustomColumnNumber = From.CustomColumnNumber;
+	To.CRC32 = From.CRC32;
+	To.UserData = From.UserData;
+	To.Reserved[0] = To.Reserved[1] = 0;
+}
 
 void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& Holder) const
 {
 	auto& pi = Holder.Item;
+
+	FileListItemToPluginPanelItemBasic(fi, pi);
+	pi.NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 
 	const auto MakeCopy = [](string_view const Str)
 	{
@@ -5415,105 +5425,57 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 
 	pi.FileName = MakeCopy(fi.FileName);
 	pi.AlternateFileName = MakeCopy(fi.AlternateFileName());
-
-	pi.FileSize=fi.FileSize;
-	pi.AllocationSize=fi.AllocationSize;
-	pi.FileAttributes = fi.Attributes;
-	pi.LastWriteTime = os::chrono::nt_clock::to_filetime(fi.LastWriteTime);
-	pi.CreationTime = os::chrono::nt_clock::to_filetime(fi.CreationTime);
-	pi.LastAccessTime = os::chrono::nt_clock::to_filetime(fi.LastAccessTime);
-	pi.ChangeTime = os::chrono::nt_clock::to_filetime(fi.ChangeTime);
-	pi.NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
-	pi.Flags=fi.UserFlags;
-
-	if (fi.Selected)
-		pi.Flags|=PPIF_SELECTED;
-
 	pi.CustomColumnData=fi.CustomColumnData;
-	pi.CustomColumnNumber=fi.CustomColumnNumber;
 	pi.Description=fi.DizText; //BUGBUG???
-
-	pi.UserData = fi.UserData;
-
-	pi.CRC32=fi.CRC32;
-	pi.Reserved[0]=pi.Reserved[1]=0;
 	pi.Owner = EmptyToNull(fi.IsOwnerRead()? fi.Owner(this).c_str() : L"");
 }
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const
 {
-	size_t size = aligned_sizeof<PluginPanelItem>(), offset = size;
-	size+=fi.CustomColumnNumber*sizeof(wchar_t*);
-	size+=sizeof(wchar_t)*(fi.FileName.size()+1);
-	size+=sizeof(wchar_t)*(fi.AlternateFileName().size()+1);
-	size+=std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [](size_t size, const wchar_t* i) { return size + (i? (wcslen(i) + 1) * sizeof(wchar_t) : 0); });
-	size+=fi.DizText?sizeof(wchar_t)*(wcslen(fi.DizText)+1):0;
-	size += (fi.IsOwnerRead() && !fi.Owner(this).empty())? sizeof(wchar_t) * (fi.Owner(this).size() + 1) : 0;
+	const auto& StringSizeInBytes = [](string_view const Str)
+	{
+		return (Str.size() + 1) * sizeof(wchar_t);
+	};
+
+	const auto size =
+		aligned_sizeof<PluginPanelItem>() +
+		StringSizeInBytes(fi.FileName) +
+		StringSizeInBytes(fi.AlternateFileName()) +
+		fi.CustomColumnNumber * sizeof(wchar_t*) +
+		std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [&](size_t size, const wchar_t* i) { return size + (i? StringSizeInBytes(i) : 0); }) +
+		(fi.DizText? StringSizeInBytes(fi.DizText) : 0) +
+		((fi.IsOwnerRead() && !fi.Owner(this).empty())? StringSizeInBytes(fi.Owner(this)) : 0);
 
 	if (gpi)
 	{
 		if(gpi->Item && gpi->Size >= size)
 		{
-			char* data=(char*)(gpi->Item)+offset;
-
-			gpi->Item->FileSize=fi.FileSize;
-			gpi->Item->AllocationSize=fi.AllocationSize;
-			gpi->Item->FileAttributes=fi.Attributes;
-			gpi->Item->LastWriteTime = os::chrono::nt_clock::to_filetime(fi.LastWriteTime);
-			gpi->Item->CreationTime = os::chrono::nt_clock::to_filetime(fi.CreationTime);
-			gpi->Item->LastAccessTime = os::chrono::nt_clock::to_filetime(fi.LastAccessTime);
-			gpi->Item->ChangeTime = os::chrono::nt_clock::to_filetime(fi.ChangeTime);
+			FileListItemToPluginPanelItemBasic(fi, *gpi->Item);
 			gpi->Item->NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
-			gpi->Item->Flags=fi.UserFlags;
-			if (fi.Selected)
-				gpi->Item->Flags|=PPIF_SELECTED;
-			gpi->Item->CustomColumnNumber=fi.CustomColumnNumber;
-			gpi->Item->CRC32=fi.CRC32;
-			gpi->Item->Reserved[0]=gpi->Item->Reserved[1]=0;
 
-			gpi->Item->CustomColumnData=(wchar_t**)data;
-			data+=fi.CustomColumnNumber*sizeof(wchar_t*);
+			auto data = reinterpret_cast<char*>(gpi->Item) + aligned_sizeof<PluginPanelItem>();
 
-			gpi->Item->UserData = fi.UserData;
-
-			gpi->Item->FileName=wcscpy((wchar_t*)data,fi.FileName.c_str());
-			data+=sizeof(wchar_t)*(fi.FileName.size()+1);
-
-			gpi->Item->AlternateFileName = wcscpy((wchar_t*)data, fi.AlternateFileName().c_str());
-			data += sizeof(wchar_t)*(fi.AlternateFileName().size() + 1);
-
-			for (size_t ii=0; ii<fi.CustomColumnNumber; ii++)
+			const auto& CopyToBuffer = [&](string_view const Str)
 			{
-				if (!fi.CustomColumnData[ii])
-				{
-					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = nullptr;
-				}
-				else
-				{
-					const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[ii] = wcscpy(reinterpret_cast<wchar_t*>(data), fi.CustomColumnData[ii]);
-					data+=sizeof(wchar_t)*(wcslen(fi.CustomColumnData[ii])+1);
-				}
+				const auto Result = reinterpret_cast<const wchar_t*>(data);
+				*std::copy(ALL_CONST_RANGE(Str), reinterpret_cast<wchar_t*>(data)) = L'\0';
+				data += StringSizeInBytes(Str);
+				return Result;
+			};
+
+			gpi->Item->FileName = CopyToBuffer(fi.FileName);
+			gpi->Item->AlternateFileName = CopyToBuffer(fi.AlternateFileName());
+
+			gpi->Item->CustomColumnData = reinterpret_cast<const wchar_t* const*>(data);
+			data += fi.CustomColumnNumber * sizeof(wchar_t*);
+
+			for (size_t i = 0; i != fi.CustomColumnNumber; ++i)
+			{
+				const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[i] = fi.CustomColumnData[i]? CopyToBuffer(fi.CustomColumnData[i]) : nullptr;
 			}
 
-			if (!fi.DizText)
-			{
-				gpi->Item->Description=nullptr;
-			}
-			else
-			{
-				gpi->Item->Description=wcscpy((wchar_t*)data,fi.DizText);
-				data+=sizeof(wchar_t)*(wcslen(fi.DizText)+1);
-			}
-
-
-			if (fi.IsOwnerRead() && !fi.Owner(this).empty())
-			{
-				gpi->Item->Owner = wcscpy((wchar_t*)data, fi.Owner(this).c_str());
-			}
-			else
-			{
-				gpi->Item->Owner = nullptr;
-			}
+			gpi->Item->Description = fi.DizText? CopyToBuffer(fi.DizText) : nullptr;
+			gpi->Item->Owner = (fi.IsOwnerRead() && !fi.Owner(this).empty())? CopyToBuffer(fi.Owner(this)) : nullptr;
 		}
 	}
 	return size;
@@ -5695,9 +5657,8 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 
 		if (DizPresent)
 		{
-			string strTempDir;
-
-			if (FarMkTempEx(strTempDir) && os::fs::create_directory(strTempDir))
+			const auto strTempDir = MakeTemp();
+			if (os::fs::create_directory(strTempDir))
 			{
 				const auto strSaveDir = os::fs::GetCurrentDirectory();
 				auto strDizName = concat(strTempDir, L'\\', DestPanel->strPluginDizName);
@@ -5793,11 +5754,10 @@ void FileList::PluginToPluginFiles(bool Move)
 	{
 		return;
 	}
-	string strTempDir;
-	if (!FarMkTempEx(strTempDir))
-		return;
 
 	SaveSelection();
+	auto strTempDir = MakeTemp();
+	string OriginalTempDir = strTempDir;
 	os::fs::create_directory(strTempDir);
 
 	{
@@ -5836,6 +5796,7 @@ void FileList::PluginToPluginFiles(bool Move)
 		}
 
 		DeleteDirTree(strTempDir);
+		os::fs::remove_directory(OriginalTempDir);
 	}
 
 	Update(UPDATE_KEEP_SELECTION);
@@ -7201,10 +7162,11 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 
 					if (equal_icase(strFileName, m_CachedOpenPanelInfo.DescrFiles[I]))
 					{
-						string strTempDir, strDizName;
+						const auto strTempDir = MakeTemp();
 
-						if (FarMkTempEx(strTempDir) && os::fs::create_directory(strTempDir))
+						if (os::fs::create_directory(strTempDir))
 						{
+							string strDizName;
 							if (Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), CurPanelData, strTempDir, strDizName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW | OPM_DESCR))
 							{
 								strPluginDizName = m_CachedOpenPanelInfo.DescrFiles[I];

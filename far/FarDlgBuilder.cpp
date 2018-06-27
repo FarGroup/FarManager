@@ -75,15 +75,26 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 
 	void SaveValue(DialogItemEx *Item, int RadioGroupIndex) override
 	{
-		try
 		{
-			*IntValue = std::stoull(Item->strData);
+			long long Value;
+			if (from_string(Item->strData, Value))
+			{
+				*IntValue = Value;
+				return;
+			}
 		}
-		catch (const std::exception&)
+
 		{
-			// not changed
-			// TODO: diagnostics
+			unsigned long long Value;
+			if (from_string(Item->strData, Value))
+			{
+				*IntValue = Value;
+				return;
+			}
 		}
+
+		// not changed
+		// TODO: diagnostics
 	}
 
 	const wchar_t *GetMask() const

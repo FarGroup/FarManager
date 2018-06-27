@@ -919,10 +919,6 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 
 	cfg->SetValue(Key, Strings.Title, Item.GetTitle());
 	cfg->SetValue(Key, Strings.UseMask, Item.IsMaskUsed());
-
-	// TODO 2018 Q2: remove
-	cfg->SetValue(Key, L"IgnoreMask"sv, !Item.IsMaskUsed());
-
 	cfg->SetValue(Key, Strings.Mask, Item.GetMask());
 
 	DWORD DateType;
@@ -937,26 +933,12 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 			cfg->SetValue(Key, Strings.DateTimeAfter, After.count());
 			cfg->SetValue(Key, Strings.DateTimeBefore, Before.count());
 			cfg->SetValue(Key, Strings.DateRelative, true);
-
-			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"DateAfter"sv, bytes_view(After.count()));
-			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"DateBefore"sv, bytes_view(Before.count()));
-			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"RelativeDate"sv, true);
 		},
 		[&](os::chrono::time_point After, os::chrono::time_point Before)
 		{
 			cfg->SetValue(Key, Strings.DateTimeAfter, After.time_since_epoch().count());
 			cfg->SetValue(Key, Strings.DateTimeBefore, Before.time_since_epoch().count());
 			cfg->SetValue(Key, Strings.DateRelative, false);
-
-			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"DateAfter"sv, bytes_view(After.time_since_epoch().count()));
-			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"DateBefore"sv, bytes_view(Before.time_since_epoch().count()));
-			// TODO 2018 Q2: remove
-			cfg->SetValue(Key, L"RelativeDate"sv, false);
 		}
 	));
 
@@ -973,11 +955,6 @@ void FileFilter::SaveFilter(HierarchicalConfig *cfg, unsigned long long KeyId, c
 	cfg->SetValue(Key, Strings.UseAttr, Item.GetAttr(&AttrSet, &AttrClear));
 	cfg->SetValue(Key, Strings.AttrSet, AttrSet);
 	cfg->SetValue(Key, Strings.AttrClear, AttrClear);
-
-	// TODO 2018 Q2: remove
-	cfg->SetValue(Key, L"IncludeAttributes"sv, AttrSet);
-	// TODO 2018 Q2: remove
-	cfg->SetValue(Key, L"ExcludeAttributes"sv, AttrClear);
 }
 
 void FileFilter::Save(bool always)

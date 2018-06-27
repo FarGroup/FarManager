@@ -299,9 +299,7 @@ static bool WipeFile(const string& Name, ShellDelete::progress Files, bool& Canc
 	if (!WipeFileData(Name, Files, Cancel))
 		return false;
 
-	string strTempName;
-	if (!FarMkTempEx(strTempName, {}, false))
-		return false;
+	const auto strTempName = MakeTemp({}, false);
 
 	if (!os::fs::move_file(Name, strTempName))
 		return false;;
@@ -311,14 +309,14 @@ static bool WipeFile(const string& Name, ShellDelete::progress Files, bool& Canc
 
 static bool WipeDirectory(const string& Name)
 {
-	string strTempName, strPath = Name;
+	string strPath = Name;
 
 	if (!CutToParent(strPath))
 	{
 		strPath.clear();
 	}
 
-	FarMkTempEx(strTempName, {}, false, strPath);
+	const auto strTempName = MakeTemp({}, false, strPath);
 
 	if (!os::fs::move_file(Name, strTempName))
 	{
@@ -1220,8 +1218,15 @@ delayed_deleter::delayed_deleter(string pathToDelete):
 {
 }
 
+void delayed_deleter::set(string pathToDelete)
+{
+	assert(m_pathToDelete.empty());
+	m_pathToDelete = std::move(pathToDelete);
+}
+
 delayed_deleter::~delayed_deleter()
 {
-	DeleteFileWithFolder(m_pathToDelete);
+	if (!m_pathToDelete.empty())
+		DeleteFileWithFolder(m_pathToDelete);
 }
 

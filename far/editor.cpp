@@ -3013,7 +3013,7 @@ void Editor::InsertString()
 	  AFTER all modifications are made.
 	*/
 //  TextChanged(true);
-	iterator SrcIndent = Lines.end();
+	auto SrcIndent = Lines.end();
 	intptr_t SelStart,SelEnd;
 	int NewLineEmpty=TRUE;
 	const auto NextLine = std::next(m_it_CurLine);
@@ -4084,9 +4084,9 @@ string Editor::Block2Text()
 {
 	size_t TotalChars = 0;
 
-	iterator SelEnd = Lines.end();
+	auto SelEnd = Lines.end();
 
-	for (iterator i = m_it_AnyBlockStart.base(), end = Lines.end(); i != end; ++i)
+	for (auto i = m_it_AnyBlockStart.base(), end = Lines.end(); i != end; ++i)
 	{
 		if (!i->IsSelection())
 		{
@@ -4430,36 +4430,36 @@ void Editor::GoToPosition()
 	goto_coord Row{};
 	goto_coord Col{};
 
-	if (GoToRowCol(Row, Col, m_GotoHex, L"EditorGotoPos"))
+	if (!GoToRowCol(Row, Col, m_GotoHex, L"EditorGotoPos"))
+		return;
+
+	if (Row.exist)
 	{
-		if (Row.exist)
-		{
-			if (!Row.percent && !Row.relative)
-				--Row.value;
+		if (!Row.percent && !Row.relative)
+			--Row.value;
 
-			auto NewRow = Row.percent? FromPercent(Row.value, Lines.size()) : Row.value;
+		auto NewRow = Row.percent? FromPercent(Row.value, Lines.size()) : Row.value;
 
-			if (Row.relative)
-				NewRow = m_it_CurLine.Number() + NewRow * Row.relative;
+		if (Row.relative)
+			NewRow = m_it_CurLine.Number() + NewRow * Row.relative;
 
-			GoToLine(NewRow);
-		}
-
-		if (Col.exist)
-		{
-			if (!Col.percent && !Col.relative)
-				--Col.value;
-
-			auto NewCol = Col.percent? FromPercent(Col.value, m_it_CurLine->m_Str.size()) : Col.value;
-
-			if (Col.relative)
-				NewCol = m_it_CurLine->GetCurPos() + NewCol * Col.relative;
-
-			m_it_CurLine->SetCurPos(static_cast<int>(NewCol));
-		}
-
-		Show();
+		GoToLine(NewRow);
 	}
+
+	if (Col.exist)
+	{
+		if (!Col.percent && !Col.relative)
+			--Col.value;
+
+		auto NewCol = Col.percent? FromPercent(Col.value, m_it_CurLine->m_Str.size()) : Col.value;
+
+		if (Col.relative)
+			NewCol = m_it_CurLine->GetCurPos() + NewCol * Col.relative;
+
+		m_it_CurLine->SetCurPos(static_cast<int>(NewCol));
+	}
+
+	Show();
 }
 
 struct Editor::EditorUndoData
