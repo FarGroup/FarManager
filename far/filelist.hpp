@@ -90,6 +90,7 @@ public:
 	DWORD CRC32{};
 
 	const wchar_t *DizText{};
+	bool DeleteDiz{};
 
 	bool Selected{};
 	bool PrevSelected{};

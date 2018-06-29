@@ -432,7 +432,8 @@ void FileList::list_data::clear()
 		if (m_Plugin)
 		{
 			FreePluginPanelItemUserData(m_Plugin, i.UserData);
-			delete[] i.DizText;
+			if (i.DeleteDiz)
+				delete[] i.DizText;
 		}
 		DeleteRawArray(make_range(i.CustomColumnData, i.CustomColumnNumber));
 	});
@@ -5498,8 +5499,6 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	// we don't really know, but it's better than show it as 'unknown'
 	ReparseTag = (Attributes & FILE_ATTRIBUTE_REPARSE_POINT)? IO_REPARSE_TAG_SYMLINK : 0;
 
-	Colors = nullptr;
-
 	if (pi.CustomColumnData && pi.CustomColumnNumber)
 	{
 		CustomColumnData = new wchar_t*[pi.CustomColumnNumber];
@@ -5514,25 +5513,16 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 		}
 	}
 
-	Position = 0;
 	SortGroup = DEFAULT_SORT_GROUP;
 	CRC32 = pi.CRC32;
 
 	if (pi.Description)
 	{
-		auto Str = new wchar_t[wcslen(pi.Description) + 1];
+		const auto Str = new wchar_t[wcslen(pi.Description) + 1];
 		wcscpy(Str, pi.Description);
 		DizText = Str;
+		DeleteDiz = true;
 	}
-	else
-	{
-		DizText = nullptr;
-	}
-
-	Selected = false;
-	PrevSelected = false;
-	ShowFolderSize = 0;
-
 
 	FileName = NullToEmpty(pi.FileName);
 	SetAlternateFileName(NullToEmpty(pi.AlternateFileName));
@@ -7194,6 +7184,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 	{
 		if (!i.DizText)
 		{
+			i.DeleteDiz = false;
 			i.DizText = Diz.Get(i.FileName, i.AlternateFileName(), i.FileSize);
 		}
 	}
