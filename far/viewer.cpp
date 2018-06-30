@@ -1642,11 +1642,13 @@ bool Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_ADD:
 		case KEY_SUBTRACT:
+		case KEY_SHIFTDOWN:
+		case KEY_SHIFTUP:
 		{
 			if (!ViewNamesList.empty())
 			{
 				string strName;
-				if (LocalKey == KEY_ADD? ViewNamesList.GetNextName(strName) : ViewNamesList.GetPrevName(strName))
+				if ((LocalKey == KEY_ADD || LocalKey == KEY_SHIFTDOWN) ? ViewNamesList.GetNextName(strName) : ViewNamesList.GetPrevName(strName))
 				{
 					SavePosition();
 					BMSavePos.Clear(); //Prepare for new file loading

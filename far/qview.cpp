@@ -345,12 +345,12 @@ bool QuickView::ProcessKey(const Manager::Key& Key)
 		return true;
 	}
 
-	if (LocalKey==KEY_ADD || LocalKey==KEY_SUBTRACT)
+	if (LocalKey==KEY_ADD || LocalKey==KEY_SUBTRACT || LocalKey == KEY_SHIFTDOWN || LocalKey==KEY_SHIFTUP)
 	{
 		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType() == panel_type::FILE_PANEL)
-			AnotherPanel->ProcessKey(Manager::Key(LocalKey==KEY_ADD?KEY_DOWN:KEY_UP));
+			AnotherPanel->ProcessKey(Manager::Key((LocalKey==KEY_ADD||LocalKey==KEY_SHIFTDOWN)?KEY_DOWN:KEY_UP));
 
 		return true;
 	}

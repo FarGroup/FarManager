@@ -1055,7 +1055,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			Show();
 			return true;
 		}
-		case KEY_INS:         case KEY_NUMPAD0:
+		case KEY_INS:         case KEY_NUMPAD0:      case KEY_ALTO:
 		{
 			m_Flags.Invert(FEDITLINE_OVERTYPE);
 			Show();

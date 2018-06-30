@@ -1382,6 +1382,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		}
 		case KEY_CTRLADD:
 		case KEY_RCTRLADD:
+		case KEY_CTRLSHIFTA:
 		{
 			Copy(TRUE);
 			return true;
@@ -1540,7 +1541,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			return true;
 		}
 
-		case KEY_INS: case KEY_NUMPAD0:
+		case KEY_INS: case KEY_NUMPAD0: case KEY_ALTO:
 			m_Flags.Invert(FEDITOR_OVERTYPE);
 			Refresh = true;
 			return true;

@@ -1,3 +1,9 @@
+at 30.06.2018 08:09:00 -0800 - build 5235
+
+1. Added new key-mappings to support laptops with no numeric keypad
+   Added new 'Don't use numeric keypad' option (default off) to toggle some conflicting or changed behavior
+   Changed (English) help to describe changes
+
 drkns 29.06.2018 20:49:29 +0100 - build 5234
 
 1. #54: Far crashes when trying to free up memory used to store Descript.ion file records

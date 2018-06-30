@@ -1266,39 +1266,51 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			return true;
 
 		case KEY_ADD:
+		case KEY_CTRLSHIFTS:    case KEY_RCTRLSHIFTS:
+			if (!Global->Opt->NoNumericPad)
+			{
+				if (LocalKey == KEY_CTRLSHIFTS || LocalKey == KEY_RCTRLSHIFTS) return false;
+			}
 			SelectFiles(SELECT_ADD);
 			return true;
 
 		case KEY_SUBTRACT:
+		case KEY_CTRLSHIFTD:    case KEY_RCTRLSHIFTD:
 			SelectFiles(SELECT_REMOVE);
 			return true;
 
 		case KEY_CTRLADD:
 		case KEY_RCTRLADD:
+		case KEY_CTRLSHIFTA:    case KEY_RCTRLSHIFTA:
 			SelectFiles(SELECT_ADDEXT);
 			return true;
 
 		case KEY_CTRLSUBTRACT:
 		case KEY_RCTRLSUBTRACT:
+		case KEY_CTRLSHIFTF:    case KEY_RCTRLSHIFTF:
 			SelectFiles(SELECT_REMOVEEXT);
 			return true;
 
 		case KEY_ALTADD:
 		case KEY_RALTADD:
+		case KEY_CTRLSHIFTG:    case KEY_RCTRLSHIFTG:
 			SelectFiles(SELECT_ADDNAME);
 			return true;
 
 		case KEY_ALTSUBTRACT:
 		case KEY_RALTSUBTRACT:
+		case KEY_CTRLSHIFTH:    case KEY_RCTRLSHIFTH:
 			SelectFiles(SELECT_REMOVENAME);
 			return true;
 
 		case KEY_MULTIPLY:
+		case KEY_CTRLSHIFTX:    case KEY_RCTRLSHIFTX:
 			SelectFiles(SELECT_INVERT);
 			return true;
 
 		case KEY_CTRLMULTIPLY:
 		case KEY_RCTRLMULTIPLY:
+		case KEY_CTRLSHIFTZ:    case KEY_RCTRLSHIFTZ:
 			SelectFiles(SELECT_INVERTALL);
 			return true;
 
@@ -1318,6 +1330,14 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			Redraw();
 			return true;
 
+		case KEY_CTRLC: // hdrop  copy
+		case KEY_RCTRLC:
+			if (!Global->Opt->NoNumericPad)
+			{
+				CopyFiles();
+				return true;
+			}
+			[[fallthrough]];
 		case KEY_CTRLINS:      case KEY_CTRLNUMPAD0:
 		case KEY_RCTRLINS:     case KEY_RCTRLNUMPAD0:
 			if (!IsEmptyCmdline)
@@ -1331,20 +1351,25 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLALTINS:   case KEY_RCTRLALTNUMPAD0:
 		case KEY_ALTSHIFTINS:   case KEY_ALTSHIFTNUMPAD0:   // копировать полные имена
 		case KEY_RALTSHIFTINS:  case KEY_RALTSHIFTNUMPAD0:
+		case KEY_CTRLSHIFTC:  // копировать имена
+		case KEY_RCTRLSHIFTC:
+		case KEY_CTRLALTC:    // копировать UNC-имена
+		case KEY_RCTRLRALTC:
+		case KEY_CTRLRALTC:
+		case KEY_RCTRLALTC:
+		case KEY_ALTSHIFTC:   // копировать полные имена
+		case KEY_RALTSHIFTC:
 			//if (FileCount>0 && SetCurPath()) // ?????
 			SetCurPath();
 			CopyNames(
 					LocalKey == KEY_CTRLALTINS || LocalKey == KEY_RCTRLRALTINS || LocalKey == KEY_CTRLRALTINS || LocalKey == KEY_RCTRLALTINS ||
 					LocalKey == KEY_ALTSHIFTINS || LocalKey == KEY_RALTSHIFTINS ||
+					LocalKey == KEY_CTRLALTC ||
+					LocalKey == KEY_ALTSHIFTC ||
 					LocalKey == KEY_CTRLALTNUMPAD0 || LocalKey == KEY_RCTRLRALTNUMPAD0 || LocalKey == KEY_CTRLRALTNUMPAD0 || LocalKey == KEY_RCTRLALTNUMPAD0 ||
 					LocalKey == KEY_ALTSHIFTNUMPAD0 || LocalKey == KEY_RALTSHIFTNUMPAD0,
 				(LocalKey&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT) || (LocalKey&(KEY_RCTRL|KEY_RALT))==(KEY_RCTRL|KEY_RALT)
 			);
-			return true;
-
-		case KEY_CTRLC: // hdrop  copy
-		case KEY_RCTRLC:
-			CopyFiles();
 			return true;
 
 #if 0
@@ -2405,6 +2430,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			return true;
 
 		case KEY_INS:          case KEY_NUMPAD0:
+		case KEY_CTRLSHIFTE:   case KEY_RCTRLSHIFTE: // alias for machines with no numeric keypad
 		{
 			if (m_ListData.empty())
 				return true;
