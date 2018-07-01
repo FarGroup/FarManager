@@ -3,6 +3,20 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 29.06.2018 20:49:29 +0100 - build 5234
+
+1. #54: Far crashes when trying to free up memory used to store Descript.ion file records
+
+drkns 27.06.2018 22:31:19 +0100 - build 5233
+
+1. Continuation of 5068: remove storing filters and coloring/sorting groups in the old format.
+
+2. Refactoring.
+
+zg 27.06.2018 13:41:38 +0300 - build 5232
+
+1. correction of 5222.
+
 drkns 22.06.2018 19:39:48 +0100 - build 5231
 
 1. Correction of 5230.2.
