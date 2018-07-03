@@ -525,8 +525,21 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_CTRLSHIFTS:
 		case KEY_RCTRLSHIFTS:
+		case KEY_CTRLALTS:
+		case KEY_RCTRLALTS:
+		case KEY_CTRLRALTS:
+		case KEY_RCTRLRALTS:
 		{
 			process_default = true;
+			// Remap keys for whether we use numeric pads or not
+			if (Global->Opt->NoNumericPad)
+			{
+				if (LocalKey == KEY_CTRLSHIFTS || LocalKey == KEY_RCTRLSHIFTS) break;
+			}
+			else
+			{
+				if (LocalKey == KEY_CTRLALTS || LocalKey == KEY_RCTRLALTS || LocalKey == KEY_CTRLRALTS || LocalKey == KEY_RCTRLRALTS) break;
+			}
 			if (ActivePanel()->IsVisible())
 			{
 				auto atype = ActivePanel()->GetType();

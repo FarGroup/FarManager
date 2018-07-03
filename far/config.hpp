@@ -722,6 +722,7 @@ public:
 	StringOption strQuotedSymbols;
 	IntOption QuotedName;
 	BoolOption AutoSaveSetup;
+	BoolOption NoNumericPad;
 	IntOption ChangeDriveMode;
 	BoolOption ChangeDriveDisconnectMode;
 

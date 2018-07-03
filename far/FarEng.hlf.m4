@@ -339,25 +339,36 @@ $ #Panel control commands#
   Restore default panels width                          #Ctrl+Numpad5#
   Restore default panels height                     #Ctrl+Alt+Numpad5#
   Show/Hide functional key bar at the bottom line.            #Ctrl+B#
-  Toggle total and free size show mode                  #Ctrl+Shift+S#
-   in bytes (if possible) or with size suffices K/M/G/T
+  Toggle total and free size show mode
+    if 'Don't use numeric keypad' is not selected:      #Ctrl+Shift+S#
+    if 'Don't use numeric keypad' is selected:            #Ctrl+Alt+S#
+    in bytes (if possible) or with size suffices K/M/G/T
 
     #File panel commands#
 
   ~Select/deselect file~@SelectFiles@                        #Ins, Shift+Cursor keys#
                                                   #Right mouse button#
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+E#
   Select group                                                #Gray +#
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+S#
   Deselect group                                              #Gray -#
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+D#
   Invert selection                                            #Gray *#
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+X#
   Select files with the same extension as the          #Ctrl+<Gray +>#
     current file
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+A#
   Deselect files with the same extension as the        #Ctrl+<Gray ->#
     current file
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+F#
   Invert selection including folders                   #Ctrl+<Gray *>#
     (ignore command line state)
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+Z#
   Select files with the same name as the current file   #Alt+<Gray +>#
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+G#
   Deselect files with the same name as the current      #Alt+<Gray ->#
     file
+    if 'Don't use numeric keypad' is selected:          #Ctrl+Shift+H#
   Select all files                                    #Shift+<Gray +>#
   Deselect all files                                  #Shift+<Gray ->#
   Restore previous selection                                  #Ctrl+M#
@@ -407,13 +418,17 @@ $ #Panel control commands#
   Copy the files to clipboard                                 #Ctrl+C#
    (ignore command line state)
    ^<wrap>Files, copied from the panels, can be pasted to other applications,
-e.g. Explorer.
+e.g. Explorer. If 'Don't use numeric keypad' mode is selected, #Ctrl+C# acts
+the same way as #Ctrl+Ins# does.
   Copy the names of selected files to the clipboard   #Ctrl+Shift+Ins#
+                                                        #Ctrl+Shift+C#
    (ignore command line state)
   Copy full names of selected files to the clipboard   #Alt+Shift+Ins#
+                                                         #Alt+Shift+C#
    (ignore command line state)
   Copy network (UNC) names of selected files to the     #Ctrl+Alt+Ins#
-   clipboard (ignore command line state)
+   clipboard                                              #Ctrl+Alt+C#
+   (ignore command line state)
 
   See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
@@ -2441,6 +2456,25 @@ correctly (this can happen because of bugs in the drivers of some CD-ROM drives)
   #Automatic update of environment variables#
   Automatically update the environment variables if they have been changed globally.
 
+  #Don't use numeric keypad#
+  For small form-factor laptops, it's quite common to not have a numeric keypad on the keyboard.
+By selecting this option numeric keypad-only actions (#Gray -#, #Gray +#, #Ins#, etc.) are re-mapped
+to other key combinations. The most important changes are:
+  #Ctrl-Shift-E#:                                 ~Select/deselect file~@SelectFiles@
+  #Ctrl+Shift+S#:                                         Select group
+  #Ctrl+Shift+D#:                                       Deselect group
+  #Ctrl+Shift+X#:                                     Invert selection
+  #Ctrl+Shift+A#:                 Select files with the same extension
+                                                 as the current file
+  #Ctrl+Shift+F#:               Deselect files with the same extension
+                                                 as the current file
+  #Ctrl+Shift+Z#:                   Invert selection including folders
+  #Ctrl+Shift+G#:                      Select files with the same name
+                                                 as the current file
+  #Ctrl+Shift+H#:                    Deselect files with the same name
+                                                 as the current file
+  #Ctrl+C#:                              Acts the same way as #Ctrl+Ins#
+
   #Request administrator rights#
   The current user might not always has the required rights to work with certain file system objects.
 Far allows to retry the operation using the privileged account.
@@ -3011,6 +3045,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Shift+Del, Ctrl+X#       Cut block
    #Ctrl+Ins, Ctrl+C#        Copy block to clipboard
    #Ctrl+<Gray +>#           Append block to clipboard
+   #Ctrl+Shift+A#            Append block to clipboard
    #Ctrl+D#                  Delete block
    #Ctrl+P#                  ^<wrap>Copy block to current cursor position (in persistent blocks mode only)
    #Ctrl+M#                  ^<wrap>Move block to current cursor position (in persistent blocks mode only)
@@ -3052,6 +3087,7 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
    #Ctrl+F#                  ^<wrap>Insert the full name of the file being edited at the cursor position.
    #Ctrl+B#                  ^<wrap>Show/Hide functional key bar at the bottom line.
    #Ctrl+Shift+B#            Show/Hide status line
+   #Ins, Ctrl+O#             Toggle between insert and overwrite mode
 
    See also the list of ~macro keys~@KeyMacroEditList@, available in the editor.
 

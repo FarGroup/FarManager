@@ -1792,6 +1792,18 @@ upd:"Automatic update of environment variables"
 "Aggiorna Varia&bili Ambiente Automaticamente"
 "Автооновл&ення змінних оточення"
 
+MConfigNoNumericPad
+upd:"D&on't use numeric keypad"
+"D&on't use numeric keypad"
+upd:"D&on't use numeric keypad"
+upd:"D&on't use numeric keypad"
+"Ne használj numerikus billentyűzetet"
+upd:"D&on't use numeric keypad"
+upd:"D&on't use numeric keypad"
+upd:"D&on't use numeric keypad"
+upd:"D&on't use numeric keypad"
+upd:"D&on't use numeric keypad"
+
 MConfigElevation
 "Запрос прав администратора:"
 "Request administrator rights:"

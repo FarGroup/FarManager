@@ -172,6 +172,7 @@ void Options::SystemSettings()
 	Builder.AddCheckbox(lng::MConfigSaveViewHistory, SaveViewHistory);
 	Builder.AddCheckbox(lng::MConfigRegisteredTypes, UseRegisteredTypes);
 	Builder.AddCheckbox(lng::MConfigUpdateEnvironment, UpdateEnvironment);
+	Builder.AddCheckbox(lng::MConfigNoNumericPad, NoNumericPad);
 	Builder.AddText(lng::MConfigElevation);
 	Builder.AddCheckbox(lng::MConfigElevationModify, StoredElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
 	Builder.AddCheckbox(lng::MConfigElevationRead, StoredElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
@@ -1915,6 +1916,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,       NKeyScreen, L"ViewerEditorClock", OPT_DEF(ViewerEditorClock, true)},
 
 		{FSSF_PRIVATE,       NKeySystem,L"AllCtrlAltShiftRule", OPT_DEF(AllCtrlAltShiftRule, 0x0000FFFF)},
+		{FSSF_PRIVATE,       NKeySystem,L"NoNumericPad", OPT_DEF(NoNumericPad, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"AutoSaveSetup", OPT_DEF(AutoSaveSetup, false)},
 		{FSSF_PRIVATE,       NKeySystem,L"AutoUpdateRemoteDrive", OPT_DEF(AutoUpdateRemoteDrive, true)},
 		{FSSF_PRIVATE,       NKeySystem,L"BoxSymbols", OPT_DEF(strBoxSymbols, DefaultBoxSymbols)},
