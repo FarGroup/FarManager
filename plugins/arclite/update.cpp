@@ -825,8 +825,14 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     };
 
     auto adv = options.advanced;
-    if (!adv.empty() && adv[0] == L'-')
+	 bool ignore_method = false;
+    if (!adv.empty() && adv[0] == L'-') {
       adv.erase(0, 1);
+      if (!adv.empty() && adv[0] == L'-') {
+        adv.erase(0, 1);
+        ignore_method = true; 
+      }
+    }
 	 else
       adv = method_params->adv + L' ' + adv;
 
@@ -903,11 +909,13 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
     int n_01 = 0;
 
     if (options.arc_type == c_7z) {
-      names.push_back(L"0"); values.push_back(method);
-      n_01 = 1;
-      if (method_params->bcj_only && !adv_have_bcj) {
+      if (!ignore_method) {
+        names.push_back(L"0"); values.push_back(method);
+        ++n_01;
+      }
+      if (method_params->bcj_only && !adv_have_bcj && !ignore_method) {
         names.push_back(L"1"); values.push_back(L"BCJ");
-        n_01 = 2;
+        ++n_01;
       }
       names.push_back(L"x"); values.push_back(level);
       if (level != 0) {
@@ -934,7 +942,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       unsigned i = 0;
       for (const auto& n : names) {
         wstring v = values[i].is_str() ? values[i].get_str() : wstring();
-        if (0 == _wcsicmp(n.c_str(), name.c_str()) || (is_digit(n,L'9') && is_digit(name,L'9') && !v.empty() && substr_match(upcase(value), 0, upcase(v).c_str()))) {
+        if (0 == _wcsicmp(n.c_str(), name.c_str()) || ((int)i < n_01 && is_digit(n,L'9') && is_digit(name,L'9') && !v.empty() && substr_match(upcase(value), 0, upcase(v).c_str()))) {
           found = true;
           values[i] = variant(value);
           break;

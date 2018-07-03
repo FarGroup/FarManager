@@ -1192,12 +1192,6 @@ private:
         g_options.update_sfx_options = options.sfx_options;
         g_options.update_enable_volumes = options.enable_volumes;
         g_options.update_volume_size = options.volume_size;
-        g_options.update_level = options.level;
-        g_options.update_levels = options.levels;
-        g_options.update_method = options.method;
-        g_options.update_solid = options.solid;
-        g_options.update_advanced = options.advanced;
-        g_options.update_encrypt = options.encrypt;
         g_options.update_encrypt_header = options.encrypt_header;
         g_options.update_password = options.password;
         g_options.update_append_ext = options.append_ext;
@@ -1206,8 +1200,16 @@ private:
       else {
         g_options.update_overwrite = options.overwrite;
       }
+      g_options.update_level = options.level;
+      g_options.update_levels = options.levels;
+      g_options.update_method = options.method;
+      g_options.update_solid = options.solid;
+      g_options.update_advanced = options.advanced;
+      g_options.update_encrypt = options.encrypt;
+
       g_options.update_show_password = options.show_password;
       g_options.update_ignore_errors = options.ignore_errors;
+
       g_options.save();
       Far::info_dlg(c_update_params_saved_dialog_guid, Far::get_msg(MSG_UPDATE_DLG_TITLE), Far::get_msg(MSG_UPDATE_DLG_PARAMS_SAVED));
       set_focus(ok_ctrl_id);
