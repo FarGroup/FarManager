@@ -455,7 +455,7 @@ os::chrono::time_point ParseDate(const string& Date, const string& Time, int Dat
 	WORD DateN[3];
 	ParseDateComponents(Date, make_span(DateRanges), make_span(DateN));
 	WORD TimeN[4];
-	ParseDateComponents(Time, make_span(TimeRanges), make_span(TimeN));
+	ParseDateComponents(Time, make_span(TimeRanges), make_span(TimeN), 0);
 
 	if (DateN[0] == date_none || DateN[1] == date_none || DateN[2] == date_none)
 	{
