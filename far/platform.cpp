@@ -46,8 +46,15 @@ namespace os
 {
 	namespace detail
 	{
-		void handle_closer::operator()(HANDLE Handle) const { CloseHandle(Handle); }
-		void printer_handle_closer::operator()(HANDLE Handle) const { ClosePrinter(Handle); }
+		void handle_closer::operator()(HANDLE Handle) const
+		{
+			CloseHandle(Handle);
+		}
+
+		void printer_handle_closer::operator()(HANDLE Handle) const
+		{
+			ClosePrinter(Handle);
+		}
 	}
 
 

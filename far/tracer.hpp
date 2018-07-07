@@ -48,8 +48,23 @@ public:
 
 	static std::unique_ptr<exception_context> get_exception_context(const void* CppObject);
 
+	static auto with_symbols()
+	{
+		return make_raii_wrapper(get_instance(),
+			[](tracer* const Tracer)
+			{
+				if (Tracer)
+					Tracer->SymInitialise();
+			},
+			[](tracer* const Tracer)
+			{
+				if (Tracer)
+					Tracer->SymCleanup();
+			});
+	}
+
 private:
-	friend class with_symbols;
+	static tracer* get_instance();
 
 	std::unique_ptr<exception_context> get_context(const void* CppObject);
 
@@ -71,7 +86,7 @@ private:
 		void* m_Handler;
 	}
 	m_Handler;
-	bool m_SymInitialised{};
+	std::atomic_int32_t m_SymInitialised{};
 };
 
 #endif // TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64

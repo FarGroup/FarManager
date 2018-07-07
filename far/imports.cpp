@@ -35,87 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace imports_detail
 {
-
-imports::imports():
-#define INIT_MODULE(module) m_ ## module(L## #module)
-
-	INIT_MODULE(ntdll),
-	INIT_MODULE(kernel32),
-	INIT_MODULE(shell32),
-	INIT_MODULE(user32),
-	INIT_MODULE(virtdisk),
-	INIT_MODULE(rstrtmgr),
-	INIT_MODULE(netapi32),
-	INIT_MODULE(dbghelp),
-	INIT_MODULE(dwmapi),
-
-#undef INIT_MODULE
-
-// just to make it more readable
-#define INIT_IMPORT(module, pointer) pointer(module)
-
-	INIT_IMPORT(m_ntdll, NtQueryDirectoryFile),
-	INIT_IMPORT(m_ntdll, NtQueryInformationFile),
-	INIT_IMPORT(m_ntdll, NtSetInformationFile),
-	INIT_IMPORT(m_ntdll, NtQueryObject),
-	INIT_IMPORT(m_ntdll, NtOpenSymbolicLinkObject),
-	INIT_IMPORT(m_ntdll, NtQuerySymbolicLinkObject),
-	INIT_IMPORT(m_ntdll, NtClose),
-	INIT_IMPORT(m_ntdll, RtlGetLastNtStatus),
-	INIT_IMPORT(m_ntdll, RtlNtStatusToDosError),
-
-	INIT_IMPORT(m_kernel32, GetConsoleKeyboardLayoutNameW),
-	INIT_IMPORT(m_kernel32, CreateSymbolicLinkW),
-	INIT_IMPORT(m_kernel32, FindFirstFileNameW),
-	INIT_IMPORT(m_kernel32, FindNextFileNameW),
-	INIT_IMPORT(m_kernel32, FindFirstStreamW),
-	INIT_IMPORT(m_kernel32, FindNextStreamW),
-	INIT_IMPORT(m_kernel32, GetFinalPathNameByHandleW),
-	INIT_IMPORT(m_kernel32, GetVolumePathNamesForVolumeNameW),
-	INIT_IMPORT(m_kernel32, GetPhysicallyInstalledSystemMemory),
-	INIT_IMPORT(m_kernel32, HeapSetInformation),
-	INIT_IMPORT(m_kernel32, IsWow64Process),
-	INIT_IMPORT(m_kernel32, GetNamedPipeServerProcessId),
-	INIT_IMPORT(m_kernel32, CancelSynchronousIo),
-	INIT_IMPORT(m_kernel32, SetConsoleKeyShortcuts),
-	INIT_IMPORT(m_kernel32, GetConsoleScreenBufferInfoEx),
-	INIT_IMPORT(m_kernel32, QueryFullProcessImageNameW),
-	INIT_IMPORT(m_kernel32, TzSpecificLocalTimeToSystemTime),
-	INIT_IMPORT(m_kernel32, AddVectoredExceptionHandler),
-	INIT_IMPORT(m_kernel32, RemoveVectoredExceptionHandler),
-
-	INIT_IMPORT(m_shell32, SHCreateAssociationRegistration),
-
-	INIT_IMPORT(m_user32, RegisterPowerSettingNotification),
-	INIT_IMPORT(m_user32, UnregisterPowerSettingNotification),
-
-	INIT_IMPORT(m_virtdisk, GetStorageDependencyInformation),
-	INIT_IMPORT(m_virtdisk, OpenVirtualDisk),
-	INIT_IMPORT(m_virtdisk, DetachVirtualDisk),
-
-	INIT_IMPORT(m_rstrtmgr, RmStartSession),
-	INIT_IMPORT(m_rstrtmgr, RmEndSession),
-	INIT_IMPORT(m_rstrtmgr, RmRegisterResources),
-	INIT_IMPORT(m_rstrtmgr, RmGetList),
-
-	INIT_IMPORT(m_netapi32, NetDfsGetInfo),
-
-	INIT_IMPORT(m_dbghelp, MiniDumpWriteDump),
-	INIT_IMPORT(m_dbghelp, StackWalk64),
-	INIT_IMPORT(m_dbghelp, SymInitialize),
-	INIT_IMPORT(m_dbghelp, SymCleanup),
-	INIT_IMPORT(m_dbghelp, SymFromAddr),
-	INIT_IMPORT(m_dbghelp, SymSetOptions),
-	INIT_IMPORT(m_dbghelp, SymGetLineFromAddr64),
-	INIT_IMPORT(m_dbghelp, SymGetModuleInfoW64),
-	INIT_IMPORT(m_dbghelp, UnDecorateSymbolName),
-
-	INIT_IMPORT(m_dwmapi, DwmGetWindowAttribute)
-
-#undef INIT_IMPORT
-{
-}
-
 // ntdll
 NTSTATUS NTAPI imports::stub_NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
 {
@@ -442,7 +361,22 @@ DWORD WINAPI imports::stub_UnDecorateSymbolName(PCSTR Name, PSTR OutputString, D
 	return 0;
 }
 
-HRESULT WINAPI imports::stub_DwmGetWindowAttribute(HWND  hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
+PVOID WINAPI imports::stub_SymFunctionTableAccess64(HANDLE Process, DWORD64 AddrBase)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return nullptr;
+}
+
+DWORD64 WINAPI imports::stub_SymGetModuleBase64(HANDLE Process, DWORD64 Address)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
+}
+
+// dwmapi
+HRESULT WINAPI imports::stub_DwmGetWindowAttribute(HWND Hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
 {
 	// TODO: log
 	return ERROR_CALL_NOT_IMPLEMENTED;

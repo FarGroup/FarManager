@@ -210,6 +210,7 @@ static reply ExcDialog(const string& ModuleName, const string& Exception, const 
 	// replace with something trivial
 
 	string Address, Name, Source;
+	SCOPED_ACTION(auto)(tracer::with_symbols());
 	tracer::get_one(Context.pointers()->ExceptionRecord->ExceptionAddress, Address, Name, Source);
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);

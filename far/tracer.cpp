@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
+
 static auto GetBackTrace(const exception_context& Context)
 {
 	std::vector<const void*> Result;
@@ -61,7 +62,7 @@ static auto GetBackTrace(const exception_context& Context)
 	StackFrame.AddrFrame.Mode = AddrModeFlat;
 	StackFrame.AddrStack.Mode = AddrModeFlat;
 
-	while (imports.StackWalk64(MachineType, GetCurrentProcess(), Context.thread_handle(), &StackFrame, &ContextRecord, nullptr, nullptr, nullptr, nullptr))
+	while (imports.StackWalk64(MachineType, GetCurrentProcess(), Context.thread_handle(), &StackFrame, &ContextRecord, nullptr, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, nullptr))
 	{
 		Result.emplace_back(reinterpret_cast<const void*>(StackFrame.AddrPC.Offset));
 	}
@@ -88,13 +89,24 @@ static void GetSymbols(const std::vector<const void*>& BackTrace, const std::fun
 	for (const auto i: BackTrace)
 	{
 		const auto Address = reinterpret_cast<DWORD_PTR>(i);
-		const auto GotName = imports.SymFromAddr(Process, Address, nullptr, Symbol.get()) != FALSE;
-		const auto GotModule = imports.SymGetModuleInfoW64(Process, Address, &Module) != FALSE;
-		const auto GotSource = imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line) != FALSE;
+		string sFunction, sLocation;
+		if (Address)
+		{
+			sFunction = concat(
+				imports.SymGetModuleInfoW64(Process, Address, &Module)?
+					PointToName(Module.ImageName) :
+					L"<unknown>"sv,
+				L'!',
+				imports.SymFromAddr(Process, Address, nullptr, Symbol.get())?
+					encoding::ansi::get_chars(Symbol->Name) :
+					L"<unknown> (get the pdb)"s);
 
-		Consumer(format(L"0x{0:0{1}X}", Address, MaxAddressSize),
-			format(L"{0}!{1}", GotModule? PointToName(Module.ImageName) : L""sv, GotName? encoding::ansi::get_chars(Symbol->Name) : L""s),
-			GotSource? format(L"{0}:{1}", encoding::ansi::get_chars(Line.FileName), Line.LineNumber) : L""s);
+			sLocation = imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line)?
+				format(L"{0}:{1}", encoding::ansi::get_chars(Line.FileName), Line.LineNumber) :
+				L""s;
+		}
+
+		Consumer(format(L"0x{0:0{1}X}", Address, MaxAddressSize), std::move(sFunction), std::move(sLocation));
 	}
 }
 
@@ -173,6 +185,11 @@ void tracer::store(const void* CppObject, const EXCEPTION_POINTERS* ExceptionInf
 	m_CppMap.emplace(CppObject, std::make_unique<exception_context>(ExceptionInfo->ExceptionRecord->ExceptionCode, ExceptionInfo));
 }
 
+tracer* tracer::get_instance()
+{
+	return StaticInstance;
+}
+
 std::unique_ptr<exception_context> tracer::get_context(const void* CppObject)
 {
 	SCOPED_ACTION(os::critical_section_lock)(m_CS);
@@ -189,43 +206,25 @@ std::unique_ptr<exception_context> tracer::get_exception_context(const void* Cpp
 	return StaticInstance? StaticInstance->get_context(CppObject) : nullptr;
 }
 
-class with_symbols
-{
-public:
-	NONCOPYABLE(with_symbols);
-
-	with_symbols()
-	{
-		if (StaticInstance)
-			StaticInstance->SymInitialise();
-	}
-
-	~with_symbols()
-	{
-		if (StaticInstance)
-			StaticInstance->SymCleanup();
-	}
-};
-
 std::vector<string> tracer::get(const void* CppObject)
 {
 	const auto Context = StaticInstance? StaticInstance->get_context(CppObject) : nullptr;
 	if (!Context)
 		return {};
 
-	SCOPED_ACTION(with_symbols);
+	SCOPED_ACTION(auto)(with_symbols());
 	return GetSymbols(GetBackTrace(*Context));
 }
 
 std::vector<string> tracer::get(const exception_context& Context)
 {
-	SCOPED_ACTION(with_symbols);
+	SCOPED_ACTION(auto)(with_symbols());
 	return GetSymbols(GetBackTrace(Context));
 }
 
 void tracer::get_one(const void* Ptr, string& Address, string& Name, string& Source)
 {
-	SCOPED_ACTION(with_symbols);
+	SCOPED_ACTION(auto)(with_symbols());
 	GetSymbols({Ptr}, [&](string&& StrAddress, string&& StrName, string&& StrSource)
 	{
 		Address = std::move(StrAddress);
@@ -236,17 +235,22 @@ void tracer::get_one(const void* Ptr, string& Address, string& Name, string& Sou
 
 bool tracer::SymInitialise()
 {
-	if (!m_SymInitialised)
+	if (m_SymInitialised)
 	{
-		m_SymInitialised = imports.SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.c_str()), TRUE) != FALSE;
+		++m_SymInitialised;
+		return true;
 	}
-	return m_SymInitialised;
+
+	if (imports.SymInitialize(GetCurrentProcess(), EmptyToNull(m_SymbolSearchPath.c_str()), TRUE))
+		++m_SymInitialised;
+	return m_SymInitialised != 0;
 }
 
 void tracer::SymCleanup()
 {
 	if (m_SymInitialised)
-	{
-		m_SymInitialised = !imports.SymCleanup(GetCurrentProcess());
-	}
+		--m_SymInitialised;
+
+	if (!m_SymInitialised)
+		imports.SymCleanup(GetCurrentProcess());
 }

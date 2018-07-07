@@ -144,7 +144,6 @@ namespace os
 	}
 
 	using handle = detail::handle_t<detail::handle_closer>;
-
 	using printer_handle = detail::handle_t<detail::printer_handle_closer>;
 
 	NTSTATUS GetLastNtStatus();

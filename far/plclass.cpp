@@ -164,12 +164,11 @@ bool native_plugin_factory::IsPlugin(const string& filename) const
 	if (!ModuleMapping)
 		return false;
 
-	const auto Data = MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0);
+	const auto Data = os::fs::file_view(MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0));
 	if (!Data)
 		return false;
 
-	SCOPE_EXIT{ UnmapViewOfFile(Data); };
-	return IsPlugin2(Data);
+	return IsPlugin2(Data.get());
 }
 
 plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& filename)

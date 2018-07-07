@@ -97,6 +97,11 @@ namespace os::fs
 		{
 			FindCloseChangeNotification(Handle);
 		}
+
+		void file_unmapper::operator()(const void* Data) const
+		{
+			UnmapViewOfFile(Data);
+		}
 	}
 
 	const string& find_data::AlternateFileName() const
