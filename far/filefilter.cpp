@@ -104,7 +104,7 @@ static auto& TempFilterData()
 	return sTempFilterData;
 }
 
-FileFilterParams *FoldersFilter;
+static FileFilterParams *FoldersFilter;
 
 static bool bMenuOpen = false;
 
@@ -862,7 +862,7 @@ void FileFilter::InitFilter()
 	if (!root)
 		return;
 
-	const auto& LoadFlags = [](const auto& cfg, const auto& Key, const auto& Name, auto& Item)
+	const auto& LoadFlags = [&cfg](const auto& Key, const auto& Name, auto& Item)
 	{
 		DWORD Flags[FFFT_COUNT]{};
 		cfg->GetValue(Key, Name, bytes::reference(Flags));
@@ -871,7 +871,7 @@ void FileFilter::InitFilter()
 			Item.SetFlags(static_cast<enumFileFilterFlagsType>(i), Flags[i]);
 	};
 
-	LoadFlags(cfg, root, Strings.FoldersFilterFFlags, *FoldersFilter);
+	LoadFlags(root, Strings.FoldersFilterFFlags, *FoldersFilter);
 
 	for (;;)
 	{
@@ -881,7 +881,7 @@ void FileFilter::InitFilter()
 
 		FileFilterParams NewItem;
 		LoadFilter(cfg.get(), key.get(), NewItem, Changed);
-		LoadFlags(cfg, key, Strings.FFlags, NewItem);
+		LoadFlags(key, Strings.FFlags, NewItem);
 		FilterData().emplace_back(std::move(NewItem));
 	}
 
@@ -900,7 +900,7 @@ void FileFilter::InitFilter()
 		//Авто фильтры они только для файлов, папки не должны к ним подходить
 		NewItem.SetAttr(true, 0, FILE_ATTRIBUTE_DIRECTORY);
 
-		LoadFlags(cfg, key, Strings.FFlags, NewItem);
+		LoadFlags(key, Strings.FFlags, NewItem);
 
 		TempFilterData().emplace_back(std::move(NewItem));
 	}
@@ -974,7 +974,7 @@ void FileFilter::Save(bool always)
 	if (!root)
 		return;
 
-	const auto& SaveFlags = [](const auto& cfg, const auto& Key, const auto& Name, const auto& Item)
+	const auto& SaveFlags = [&cfg](const auto& Key, const auto& Name, const auto& Item)
 	{
 		DWORD Flags[FFFT_COUNT];
 
@@ -993,7 +993,7 @@ void FileFilter::Save(bool always)
 		const auto& CurFilterData = FilterData()[i];
 
 		SaveFilter(cfg.get(), Key.get(), CurFilterData);
-		SaveFlags(cfg, Key, Strings.FFlags, CurFilterData);
+		SaveFlags(Key, Strings.FFlags, CurFilterData);
 	}
 
 	for (size_t i=0; i<TempFilterData().size(); ++i)
@@ -1005,16 +1005,16 @@ void FileFilter::Save(bool always)
 		const auto& CurFilterData = TempFilterData()[i];
 
 		cfg->SetValue(Key, Strings.Mask, CurFilterData.GetMask());
-		SaveFlags(cfg, Key, Strings.FFlags, CurFilterData);
+		SaveFlags(Key, Strings.FFlags, CurFilterData);
 	}
 
-	SaveFlags(cfg, root, Strings.FoldersFilterFFlags, *FoldersFilter);
+	SaveFlags(root, Strings.FoldersFilterFFlags, *FoldersFilter);
 }
 
 void FileFilter::SwapPanelFlags(FileFilterParams& CurFilterData)
 {
-	DWORD LPFlags = CurFilterData.GetFlags(FFFT_LEFTPANEL);
-	DWORD RPFlags = CurFilterData.GetFlags(FFFT_RIGHTPANEL);
+	const auto LPFlags = CurFilterData.GetFlags(FFFT_LEFTPANEL);
+	const auto RPFlags = CurFilterData.GetFlags(FFFT_RIGHTPANEL);
 	CurFilterData.SetFlags(FFFT_LEFTPANEL,  RPFlags);
 	CurFilterData.SetFlags(FFFT_RIGHTPANEL, LPFlags);
 }

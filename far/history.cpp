@@ -184,9 +184,9 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 			bool bSelected=false;
 			int LastDay=0, LastMonth = 0, LastYear = 0;
 
-			const auto& GetTitle = [](auto Type)
+			const auto& GetTitle = [](auto RecordType)
 			{
-				switch (Type)
+				switch (RecordType)
 				{
 				case HR_VIEWER:
 					return msg(lng::MHistoryView);

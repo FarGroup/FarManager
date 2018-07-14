@@ -105,7 +105,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
-int CompareTime(os::chrono::time_point First, os::chrono::time_point Second)
+static int CompareTime(os::chrono::time_point First, os::chrono::time_point Second)
 {
 	return First == Second? 0 : First < Second? -1 : 1;
 };
@@ -4566,7 +4566,7 @@ void FileList::SelectSortMode()
 		{
 			for (size_t i=0; i < mpr->Count; i += 3)
 			{
-				if (mpr->Values[i].Double == static_cast<int>(m_SortMode))
+				if (static_cast<int>(mpr->Values[i].Double) == static_cast<int>(m_SortMode))
 				{
 					SortMenu[std::size(SortModes) + 1 + i/3].SetCheck(Check);
 					SortMenu[std::size(SortModes) + 1 + i/3].SetSelect(TRUE);
@@ -5443,7 +5443,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 		StringSizeInBytes(fi.FileName) +
 		StringSizeInBytes(fi.AlternateFileName()) +
 		fi.CustomColumnNumber * sizeof(wchar_t*) +
-		std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [&](size_t size, const wchar_t* i) { return size + (i? StringSizeInBytes(i) : 0); }) +
+		std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [&](size_t s, const wchar_t* i) { return s + (i? StringSizeInBytes(i) : 0); }) +
 		(fi.DizText? StringSizeInBytes(fi.DizText) : 0) +
 		((fi.IsOwnerRead() && !fi.Owner(this).empty())? StringSizeInBytes(fi.Owner(this)) : 0);
 
@@ -6387,7 +6387,7 @@ struct FileListPreRedrawItem : PreRedrawItem
 	string Msg;
 };
 
-void ReadFileNamesMsg(const string& Msg)
+static void ReadFileNamesMsg(const string& Msg)
 {
 	Message(0,
 		msg(lng::MReadingTitleFiles),
@@ -6846,7 +6846,7 @@ void FileList::StopFSWatcher()
 	FSWatcher.Release();
 }
 
-struct search_list_less
+static struct search_list_less
 {
 	bool operator()(const FileListItem& a, const FileListItem& b) const
 	{

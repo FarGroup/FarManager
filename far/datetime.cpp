@@ -386,7 +386,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					{
 						using namespace std::chrono;
 						const auto Offset = split_duration<hours, minutes>(-seconds(_timezone + (t->tm_isdst? _dstbias : 0)));
-						strBuf = format(L"{0:+05}", std::get<hours>(Offset).count() * 100 + std::get<minutes>(Offset).count());
+						strBuf = format(L"{0:+05}", Offset.get<hours>().count() * 100 + Offset.get<minutes>().count());
 					}
 					break;
 					// Timezone name or abbreviation
@@ -625,12 +625,12 @@ void ConvertDuration(os::chrono::duration Duration, string& strDaysText, string&
 
 	const auto Result = split_duration<days, hours, minutes, seconds, milliseconds>(Duration);
 
-	strDaysText = str(std::get<days>(Result).count());
+	strDaysText = str(Result.get<days>().count());
 	strTimeText = format(L"{0:02}{4}{1:02}{4}{2:02}{5}{3:03}",
-		std::get<hours>(Result).count(),
-		std::get<minutes>(Result).count(),
-		std::get<seconds>(Result).count(),
-		std::get<milliseconds>(Result).count(),
+		Result.get<hours>().count(),
+		Result.get<minutes>().count(),
+		Result.get<seconds>().count(),
+		Result.get<milliseconds>().count(),
 		locale.time_separator(),
 		locale.decimal_separator());
 }

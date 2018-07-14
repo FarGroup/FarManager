@@ -1595,7 +1595,7 @@ static void WINAPI LocalUpperBuf(char *Buf, int Length) noexcept
 {
 	try
 	{
-		std::for_each(Buf, Buf + Length, [](char& i){ i = LowerToUpper[i]; });
+		std::for_each(Buf, Buf + Length, [](char& i){ i = LowerToUpper[static_cast<size_t>(i)]; });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1610,7 +1610,7 @@ static void WINAPI LocalLowerBuf(char *Buf, int Length) noexcept
 {
 	try
 	{
-		std::for_each(Buf, Buf + Length, [](char& i){ i = UpperToLower[i]; });
+		std::for_each(Buf, Buf + Length, [](char& i){ i = UpperToLower[static_cast<size_t>(i)]; });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1620,7 +1620,7 @@ static void WINAPI LocalStrupr(char *s1) noexcept
 	try
 	{
 		const auto Iterator = null_iterator(s1);
-		std::for_each(Iterator, Iterator.end(), [](char& i){ i = LowerToUpper[i]; });
+		std::for_each(Iterator, Iterator.end(), [](char& i){ i = LowerToUpper[static_cast<size_t>(i)]; });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -1630,7 +1630,7 @@ static void WINAPI LocalStrlwr(char *s1) noexcept
 	try
 	{
 		const auto Iterator = null_iterator(s1);
-		std::for_each(Iterator, Iterator.end(), [](char& i){ i = UpperToLower[i]; });
+		std::for_each(Iterator, Iterator.end(), [](char& i){ i = UpperToLower[static_cast<size_t>(i)]; });
 	}
 	CATCH_AND_SAVE_EXCEPTION_TO(GlobalExceptionPtr())
 }
@@ -4178,6 +4178,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 							wchar_t res;
 							if (encoding::oem::get_chars({ &pIR->Event.KeyEvent.uChar.AsciiChar, 1 }, &res, 1))
 								pIR->Event.KeyEvent.uChar.UnicodeChar=res;
+							break;
 						}
 						default:
 							break;
@@ -4652,7 +4653,7 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 	return -1;
 }
 
-char* WINAPI XlatA(
+static char* WINAPI XlatA(
 	char *Line,                    // исходная строка
 	int StartPos,                  // начало переконвертирования
 	int EndPos,                    // конец переконвертирования
@@ -4776,7 +4777,7 @@ public:
 		RegisterSendKeyToPluginHook();
 	}
 
-	~PluginA()
+	~PluginA() override
 	{
 		FreePluginInfo();
 		FreeOpenPanelInfo();

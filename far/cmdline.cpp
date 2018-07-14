@@ -77,6 +77,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 
+#include "format.hpp"
+
 enum
 {
 	FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
@@ -901,7 +903,10 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 	if (equal_icase(Command, L"far:about"sv))
 	{
-		string strOut = concat(L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n');
+		auto strOut = concat(
+			L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n',
+			L'\n', L"Compiler: ", format(L"{0} {1}.{2}.{3}", COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH), L'\n'
+		);
 
 		const auto& ComponentsInfo = components::GetComponentsInfo();
 		if (!ComponentsInfo.empty())

@@ -3839,9 +3839,9 @@ bool Editor::Search(bool Next)
 				case KEY_CTRLUP: case KEY_RCTRLUP:
 				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
 					{
-						bool RefreshMe = false;
-						KeyProcessed = ProcessKeyInternal(Manager::Key(Key), RefreshMe);
-						if (RefreshMe)
+						bool RefreshMeLocal = false;
+						KeyProcessed = ProcessKeyInternal(Manager::Key(Key), RefreshMeLocal);
+						if (RefreshMeLocal)
 						{
 							Refresh();
 						}
@@ -3864,9 +3864,9 @@ bool Editor::Search(bool Next)
 					if ((Key>=KEY_CTRL0 && Key<=KEY_CTRL9) || (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
 					   (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9))
 					{
-						bool RefreshMe = false;
-						KeyProcessed = ProcessKeyInternal(Manager::Key(Key), RefreshMe);
-						if (RefreshMe)
+						bool RefreshMeLocal = false;
+						KeyProcessed = ProcessKeyInternal(Manager::Key(Key), RefreshMeLocal);
+						if (RefreshMeLocal)
 						{
 							Refresh();
 						}

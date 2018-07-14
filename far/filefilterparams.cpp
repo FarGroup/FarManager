@@ -582,7 +582,7 @@ enum enumFileFilterConfig
 	ID_FF_MAKETRANSPARENT,
 };
 
-void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
+static void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highlight::element &Colors)
 {
 	const PaletteColors PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 	int VBufRow = 0;
@@ -631,7 +631,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample, const highli
 	}
 }
 
-void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
+static void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 {
 	Dlg->SendMessage(DM_ENABLEREDRAW, FALSE, nullptr);
 
@@ -665,7 +665,7 @@ void FilterDlgRelativeDateItemsUpdate(Dialog* Dlg, bool bClear)
 	Dlg->SendMessage(DM_ENABLEREDRAW, TRUE, nullptr);
 }
 
-intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
+static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{

@@ -87,7 +87,7 @@ private:
 #define DECLARE_IMPORT_FUNCTION(MODULE, RETTYPE, CALLTYPE, NAME, ...)\
 private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
 private: struct name_##NAME { static auto get() { return #NAME; } };\
-public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NAME, imports::stub_##NAME> NAME{m_##MODULE};
+public: const unique_function_pointer<decltype(&imports::stub_##NAME), name_##NAME, imports::stub_##NAME> NAME{m_##MODULE}
 
 	DECLARE_IMPORT_FUNCTION(ntdll, NTSTATUS, NTAPI, NtQueryDirectoryFile, HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTSTATUS, NTAPI, NtQueryInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);

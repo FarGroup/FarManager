@@ -126,7 +126,7 @@ static auto GetSymbols(const std::vector<const void*>& BackTrace)
 	return Result;
 }
 
-tracer* StaticInstance;
+static tracer* StaticInstance;
 
 static LONG WINAPI StackLogger(EXCEPTION_POINTERS *xp)
 {

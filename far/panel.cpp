@@ -1097,20 +1097,20 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				ShortcutInfo Info;
 				GetShortcutInfo(Info);
 				Result = static_cast<int>(aligned_sizeof<FarPanelDirectory>());
-				size_t folderOffset=Result;
+				const auto folderOffset = Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.size()+1));
-				size_t pluginFileOffset=Result;
+				const auto pluginFileOffset = Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginFile.size()+1));
-				size_t pluginDataOffset=Result;
+				const auto pluginDataOffset = Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginData.size()+1));
-				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+				const auto dirInfo = static_cast<FarPanelDirectory*>(Param2);
 				if(Param1>=Result && CheckStructSize(dirInfo))
 				{
 					dirInfo->StructSize=sizeof(FarPanelDirectory);
 					dirInfo->PluginId=Info.PluginGuid;
-					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
-					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
-					dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
+					dirInfo->Name = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + folderOffset));
+					dirInfo->Param = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginDataOffset));
+					dirInfo->File = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginFileOffset));
 					*std::copy(ALL_CONST_RANGE(Info.ShortcutFolder), const_cast<wchar_t*>(dirInfo->Name)) = L'\0';
 					*std::copy(ALL_CONST_RANGE(Info.PluginData), const_cast<wchar_t*>(dirInfo->Param)) = L'\0';
 					*std::copy(ALL_CONST_RANGE(Info.PluginFile), const_cast<wchar_t*>(dirInfo->File)) = L'\0';

@@ -77,7 +77,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if defined(SYSLOG)
 
-string str_vprintf(const wchar_t * format, va_list argptr)
+static string str_vprintf(const wchar_t * format, va_list argptr)
 {
 	wchar_t_ptr buffer;
 	size_t size = 128;
@@ -96,15 +96,13 @@ string str_vprintf(const wchar_t * format, va_list argptr)
 	return string(buffer.get());
 }
 
-string str_printf(const wchar_t * format, ...)
+static string str_printf(const wchar_t * format, ...)
 {
 	va_list argptr;
 	va_start(argptr, format);
 	SCOPE_EXIT{ va_end(argptr); };
 	return str_vprintf(format, argptr);
 }
-
-#define MAX_LOG_LINE 10240
 
 static FILE *LogStream = nullptr;
 static int   LogStreamCount=0;
@@ -392,7 +390,6 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned Size
 	int CY=(SizeBuf+15)/16;
 	int InternalLog = !fp;
 	static wchar_t timebuf[64];
-//  char msg[MAX_LOG_LINE];
 
 	if (InternalLog)
 	{
@@ -683,7 +680,10 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 		fwprintf(fp,L"**** Detail... ***\n");
 
 		if (!Man->GetCurrentWindow())
-			Type.clear(), Name.clear();
+		{
+			Type.clear();
+			Name.clear();
+		}
 		else
 			Man->GetCurrentWindow()->GetTypeAndName(Type,Name);
 
@@ -700,7 +700,7 @@ void ManagerClass_Dump(const wchar_t *Title,FILE *fp)
 
 
 #if defined(SYSLOG_FARSYSLOG)
-void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
+extern "C" void WINAPIV FarSysLog(const wchar_t *ModuleName, int l, const wchar_t *fmt, ...)
 {
 	if (!IsLogON())
 		return;
@@ -724,7 +724,7 @@ void WINAPIV FarSysLog(const wchar_t *ModuleName,int l,const wchar_t *fmt,...)
 	FarOutputDebugString(msg);
 }
 
-void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
+extern "C" void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf)
 {
 	if (!IsLogON())
 		return;
@@ -732,7 +732,7 @@ void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Bu
 	SysLogDump(ModuleName,StartAddress,Buf,SizeBuf,nullptr);
 }
 
-void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName, const INPUT_RECORD *rec)
+extern "C" void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName, const INPUT_RECORD *rec)
 {
 	if (!IsLogON())
 		return;
@@ -873,7 +873,7 @@ string __EE_ToName(int Command)
 string __EEREDRAW_ToName(int Command)
 {
 #if defined(SYSLOG)
-#define DEF_EEREDRAW_(m) { (int)(intptr_t)EEREDRAW_##m , L###m }
+#define DEF_EEREDRAW_(m) { (DWORD)(intptr_t)EEREDRAW_##m , L###m }
 	__XXX_Name EEREDRAW[]=
 	{
 		DEF_EEREDRAW_(ALL),

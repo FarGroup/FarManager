@@ -416,7 +416,7 @@ static bool CallMacroPlugin(OpenMacroPluginInfo* Info)
 	return result && ptr;
 }
 
-bool MacroPluginOp(double OpCode, const FarMacroValue& Param, MacroPluginReturn* Ret = nullptr)
+static bool MacroPluginOp(double OpCode, const FarMacroValue& Param, MacroPluginReturn* Ret = nullptr)
 {
 	FarMacroValue values[]={OpCode,Param};
 	FarMacroCall fmc={sizeof(FarMacroCall),2,values,nullptr,nullptr};
@@ -2233,7 +2233,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				Data->Values[1].Type==FMVT_DOUBLE && Data->Values[2].Type==FMVT_BOOLEAN)
 			{
 				auto panel = Global->CtrlObject->Cp()->ActivePanel();
-				if (panel && Data->Values[0].Double == 1)
+				if (panel && static_cast<int>(Data->Values[0].Double) == 1)
 					panel = Global->CtrlObject->Cp()->GetAnotherPanel(panel);
 
 				if (panel)

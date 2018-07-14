@@ -274,7 +274,7 @@ static void ApplyDefaultStartingColors(highlight::element& Colors)
 	Colors.Mark.Char = 0;
 }
 
-static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Color, DWORD PaletteColor)
+static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Colors, DWORD PaletteColor)
 {
 	const auto& InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
@@ -290,9 +290,9 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 
 	//Применим black on black.
 	//Для файлов возьмем цвета панели не изменяя прозрачность.
-	InheritColor(Color.FileColor, Global->Opt->Palette[PaletteColor]);
+	InheritColor(Colors.FileColor, Global->Opt->Palette[PaletteColor]);
 	//Для пометки возьмем цвета файла включая прозрачность.
-	InheritColor(Color.MarkColor, Color.FileColor);
+	InheritColor(Colors.MarkColor, Colors.FileColor);
 }
 
 static void ApplyBlackOnBlackColors(highlight::element::colors_array& Colors)

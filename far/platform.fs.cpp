@@ -404,7 +404,7 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	find_handle FindFirstFileName(const string_view FileName, const DWORD Flags, string& LinkName)
+	static find_handle FindFirstFileName(const string_view FileName, const DWORD Flags, string& LinkName)
 	{
 		NTPath NtFileName(FileName);
 		find_handle Handle;
@@ -420,7 +420,7 @@ namespace os::fs
 		return Handle;
 	}
 
-	bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
+	static bool FindNextFileName(const find_handle& hFindStream, string& LinkName)
 	{
 		return os::detail::ApiDynamicStringReceiver(LinkName, [&](wchar_t* Buffer, size_t Size)
 		{
@@ -461,7 +461,7 @@ namespace os::fs
 		return true;
 	}
 
-	find_file_handle FindFirstStream(const string_view FileName, const STREAM_INFO_LEVELS InfoLevel, void* const FindStreamData, const DWORD Flags)
+	static find_file_handle FindFirstStream(const string_view FileName, const STREAM_INFO_LEVELS InfoLevel, void* const FindStreamData, const DWORD Flags)
 	{
 		if (imports.FindFirstStreamW && imports.FindNextStreamW)
 		{
@@ -505,7 +505,7 @@ namespace os::fs
 		return find_file_handle(Handle.release());
 	}
 
-	bool FindNextStream(const find_file_handle& hFindStream, void* FindStreamData)
+	static bool FindNextStream(const find_file_handle& hFindStream, void* FindStreamData)
 	{
 		if (imports.FindFirstStreamW && imports.FindNextStreamW)
 		{
@@ -1902,7 +1902,7 @@ namespace os::fs
 
 	bool create_hard_link(const string& FileName, const string& ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
-		const auto& Create = [](const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes)
+		const auto& Create = [SecurityAttributes](const string& Object, const string& Target)
 		{
 			if (low::create_hard_link(Object.c_str(), Target.c_str(), SecurityAttributes))
 				return true;
@@ -1913,12 +1913,12 @@ namespace os::fs
 			return false;
 		};
 
-		if (Create(NTPath(FileName), NTPath(ExistingFileName), SecurityAttributes))
+		if (Create(NTPath(FileName), NTPath(ExistingFileName)))
 			return true;
 
 		// win2k bug: \\?\ fails
 		if (!IsWindowsXPOrGreater())
-			return Create(FileName, ExistingFileName, SecurityAttributes);
+			return Create(FileName, ExistingFileName);
 
 		return false;
 	}

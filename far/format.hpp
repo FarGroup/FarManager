@@ -41,6 +41,8 @@ WARNING_DISABLE_MSC(4702) // https://msdn.microsoft.com/en-us/library/c26da40e.a
 
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 
+WARNING_DISABLE_CLANG("-Weverything")
+
 #pragma push_macro("static_assert")
 #undef static_assert
 

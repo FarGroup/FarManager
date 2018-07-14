@@ -155,7 +155,7 @@ enum
 	DM_SETATTR = DM_USER+1,
 };
 
-intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
+static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	const auto DlgParam = reinterpret_cast<SetAttrDlgParam*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
@@ -526,7 +526,7 @@ struct AttrPreRedrawItem : public PreRedrawItem
 	string Name;
 };
 
-void ShellSetFileAttributesMsg(const string& Name)
+static void ShellSetFileAttributesMsg(const string& Name)
 {
 	static int Width=54;
 	int WidthTemp;

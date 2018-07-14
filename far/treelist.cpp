@@ -374,13 +374,13 @@ private:
 	string m_TreeName;
 };
 
-TreeListCache& TreeCache()
+static TreeListCache& TreeCache()
 {
 	static TreeListCache cache;
 	return cache;
 }
 
-TreeListCache& tempTreeCache()
+static TreeListCache& tempTreeCache()
 {
 	static TreeListCache cache;
 	return cache;

@@ -1650,7 +1650,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	Builder.ShowDialog();
 }
 
-char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
+static char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 {
 	char* Res = nullptr;
 
@@ -1674,7 +1674,7 @@ char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 }
 
 
-wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
+static wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 {
 	const auto Count = (Str.size() + 1) * sizeof(wchar_t);
 	const auto Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
@@ -1686,7 +1686,7 @@ wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 }
 
 
-void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArray, const std::vector<GUID>& GuidsArray, char*& Buf, size_t& Rest, size_t& Size)
+static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArray, const std::vector<GUID>& GuidsArray, char*& Buf, size_t& Rest, size_t& Size)
 {
 	Menu.Count = NamesArray.size();
 	Menu.Strings = nullptr;

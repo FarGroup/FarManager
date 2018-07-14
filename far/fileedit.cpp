@@ -95,7 +95,7 @@ enum enumOpenEditor
 };
 
 
-intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
+static intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 {
 	if (msg == DN_INITDIALOG)
 	{
@@ -203,7 +203,7 @@ enum enumSaveFileAs
 	ID_SF_CANCEL,
 };
 
-intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
+static intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 {
 	static uintptr_t CurrentCodepage = 0;
 

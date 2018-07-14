@@ -107,10 +107,10 @@ static bool CASHook(const Manager::Key& key)
 	if (!key.IsEvent())
 		return false;
 
-	const auto& rec=key.Event().Event.KeyEvent;
-	if (rec.bKeyDown)
+	const auto& KeyRecord = key.Event().Event.KeyEvent;
+	if (KeyRecord.bKeyDown)
 	{
-		switch (rec.wVirtualKeyCode)
+		switch (KeyRecord.wVirtualKeyCode)
 		{
 		case VK_SHIFT:
 		case VK_MENU:
@@ -119,17 +119,17 @@ static bool CASHook(const Manager::Key& key)
 				const auto
 					maskLeft=LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED|SHIFT_PRESSED,
 					maskRight=RIGHT_CTRL_PRESSED|RIGHT_ALT_PRESSED|SHIFT_PRESSED;
-				const auto state = rec.dwControlKeyState;
+				const auto state = KeyRecord.dwControlKeyState;
 				const auto& wait = [](DWORD mask)
 				{
 					for (;;)
 					{
-						INPUT_RECORD rec;
+						INPUT_RECORD Record;
 
-						if (PeekInputRecord(&rec,true))
+						if (PeekInputRecord(&Record, true))
 						{
-							GetInputRecord(&rec,true,true);
-							if ((rec.Event.KeyEvent.dwControlKeyState&mask) != mask)
+							GetInputRecord(&Record, true, true);
+							if ((Record.Event.KeyEvent.dwControlKeyState&mask) != mask)
 								break;
 						}
 

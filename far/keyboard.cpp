@@ -1357,7 +1357,7 @@ bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText)
 	return KeyToText(InputRecordToKey(Rec),strKeyText) != 0;
 }
 
-bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separator AddSeparator)
+static bool KeyToTextImpl(int Key0, string& strKeyText, tfkey_to_text ToText, add_separator AddSeparator)
 {
 	strKeyText.clear();
 
@@ -1858,7 +1858,7 @@ unsigned int ShieldCalcKeyCode(const INPUT_RECORD* rec, bool RealKey, bool* NotM
 	return Ret;
 }
 
-int GetDirectlyMappedKey(int VKey)
+static int GetDirectlyMappedKey(int VKey)
 {
 	switch (VKey)
 	{
@@ -1901,7 +1901,7 @@ int GetDirectlyMappedKey(int VKey)
 }
 
 // These VK_* map to different characters if Shift (and only Shift) is pressed
-int GetMappedCharacter(int VKey)
+static int GetMappedCharacter(int VKey)
 {
 	switch (VKey)
 	{

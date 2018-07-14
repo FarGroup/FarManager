@@ -38,6 +38,8 @@ WARNING_PUSH(3)
 
 WARNING_DISABLE_GCC("-Wformat-nonliteral")
 
+WARNING_DISABLE_CLANG("-Weverything")
+
 #include "thirdparty/fmt/format.cc"
 
 WARNING_POP()

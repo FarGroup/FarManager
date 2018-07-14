@@ -125,7 +125,7 @@ namespace cfunctions
 		return bsearch_comparer(a, b, bsearch_param);
 	}
 
-	void* bsearchex(const void* key, const void* base, size_t nelem, size_t width, comparer user_comparer, void* user_param) noexcept
+	static void* bsearchex(const void* key, const void* base, size_t nelem, size_t width, comparer user_comparer, void* user_param) noexcept
 	{
 		bsearch_comparer = user_comparer;
 		bsearch_param = user_param;
@@ -140,7 +140,7 @@ namespace cfunctions
 		return qsort_comparer(a, b, qsort_param);
 	}
 
-	void qsortex(char *base, size_t nel, size_t width, comparer user_comparer, void *user_param) noexcept
+	static void qsortex(char *base, size_t nel, size_t width, comparer user_comparer, void *user_param) noexcept
 	{
 		qsort_comparer = user_comparer;
 		qsort_param = user_param;
@@ -2671,9 +2671,10 @@ size_t WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORM
 			{FFFS_SHOWBYTESINDEX, COLUMN_SHOWUNIT},       // Показывать суффиксы B,K,M,G,T,P,E
 		};
 
-		const auto FinalFlags = std::accumulate(ALL_CONST_RANGE(FlagsPair), Flags & COLUMN_UNIT_MASK, [Flags](auto FinalFlags, const auto& i){ return FinalFlags | ((Flags & i.first)? i.second : 0); });
-
-		const auto strDestStr = FileSizeToStr(Size, Width, FinalFlags);
+		const auto strDestStr = FileSizeToStr(Size, Width, std::accumulate(ALL_CONST_RANGE(FlagsPair), Flags & COLUMN_UNIT_MASK, [Flags](auto FinalFlags, const auto& i)
+		{
+			return FinalFlags | ((Flags & i.first) ? i.second : 0);
+		}));
 
 		if (Dest && DestSize)
 		{

@@ -384,11 +384,6 @@ void operator delete[](void* block, const char* Function, const char* File, int 
 	return memcheck::DebugDeallocator(block, memcheck::allocation_type::vector);
 }
 
-wchar_t* DuplicateString(const wchar_t * str, const char* Function, const char* File, int Line)
-{
-	return str? wcscpy(new(Function, File, Line) wchar_t[wcslen(str) + 1], str) : nullptr;
-}
-
 NIFTY_DEFINE(memcheck::checker, Checker);
 
 #endif

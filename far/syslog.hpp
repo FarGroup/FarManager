@@ -95,16 +95,12 @@ void GetVolumeInformation_Dump(const wchar_t *Title,LPCWSTR lpRootPathName,LPCWS
 void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &fd,FILE *fp=nullptr);
 
 #if defined(SYSLOG_FARSYSLOG)
-#ifdef __cplusplus
 extern "C"
 {
-#endif
-	void WINAPIV FarSysLog(const wchar_t *ModuleName,int Level,char *fmt,...);
+	void WINAPIV FarSysLog(const wchar_t *ModuleName, int Level, const wchar_t *fmt, ...);
 	void WINAPI FarSysLogDump(const wchar_t *ModuleName,DWORD StartAddress,LPBYTE Buf,int SizeBuf);
-	void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName,INPUT_RECORD *rec);
-#ifdef __cplusplus
+	void WINAPI FarSysLog_INPUT_RECORD_Dump(const wchar_t *ModuleName, const INPUT_RECORD *rec);
 };
-#endif
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG)

@@ -41,6 +41,8 @@ WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wsequence-point")
 WARNING_DISABLE_GCC("-Wsign-compare")
 
+WARNING_DISABLE_CLANG("-Weverything")
+
 #include "thirdparty/sqlite/sqlite3_unicode.c"
 
 const wchar_t SQLite_Unicode_Version[] = WIDE(SQLITE3_UNICODE_VERSION_STRING);

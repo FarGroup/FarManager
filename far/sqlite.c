@@ -44,6 +44,8 @@ WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 WARNING_DISABLE_GCC("-Wunused-but-set-variable")
 
+WARNING_DISABLE_CLANG("-Weverything")
+
 #ifdef _MSC_VER
 #include <windows.h>
 

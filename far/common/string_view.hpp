@@ -228,6 +228,7 @@ namespace string_view_literals
 {
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4455) // no page                                                'operator ""sv': literal suffix identifiers that do not start with an underscore are reserved
+WARNING_DISABLE_CLANG("-Wuser-defined-literals")
 
 constexpr auto operator ""sv(const char* Data, size_t Size) noexcept { return basic_string_view<char>(Data, Size); }
 constexpr auto operator ""sv(const wchar_t* Data, size_t Size) noexcept { return basic_string_view<wchar_t>(Data, Size); }

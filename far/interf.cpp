@@ -122,7 +122,7 @@ void consoleicons::restorePreviousIcons()
 static int CurX,CurY;
 static FarColor CurColor;
 
-CONSOLE_CURSOR_INFO InitialCursorInfo;
+static CONSOLE_CURSOR_INFO InitialCursorInfo;
 
 static SMALL_RECT windowholder_rect;
 
@@ -134,8 +134,8 @@ COORD CurSize={};
 SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
 DWORD InitialConsoleMode=0;
-SMALL_RECT InitWindowRect;
-COORD InitialSize;
+static SMALL_RECT InitWindowRect;
+static COORD InitialSize;
 
 static os::event& CancelIoInProgress()
 {
@@ -143,7 +143,7 @@ static os::event& CancelIoInProgress()
 	return s_CancelIoInProgress;
 }
 
-unsigned int CancelSynchronousIoWrapper(void* Thread)
+static unsigned int CancelSynchronousIoWrapper(void* Thread)
 {
 	// TODO: SEH guard, try/catch, exception_ptr
 	unsigned int Result = imports.CancelSynchronousIo(Thread);
@@ -151,7 +151,7 @@ unsigned int CancelSynchronousIoWrapper(void* Thread)
 	return Result;
 }
 
-BOOL WINAPI CtrlHandler(DWORD CtrlType)
+static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 {
 	switch(CtrlType)
 	{
@@ -264,7 +264,7 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 	return false;
 }
 
-void RegisterConsoleScrollHook()
+static void RegisterConsoleScrollHook()
 {
 	static bool registered = false;
 	if (!registered)

@@ -442,7 +442,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 
 static const auto& HistoryRef(int Type)
 {
-	const auto& IsSave = [](int Type) -> bool
+	const auto& IsSave = [Type]() -> bool
 	{
 		switch (Type)
 		{
@@ -454,7 +454,7 @@ static const auto& HistoryRef(int Type)
 		}
 	};
 
-	return IsSave(Type)? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
+	return IsSave()? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
 }
 
 bool FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum, const std::function<bool(history_record_type)>& Filter)

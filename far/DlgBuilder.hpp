@@ -864,7 +864,7 @@ public:
 	{
 	}
 
-	~PluginListControlBinding()
+	~PluginListControlBinding() override
 	{
 		if (List)
 		{
@@ -998,7 +998,7 @@ public:
 			AddBorder(TitleMessage);
 		}
 
-		~PluginDialogBuilder()
+		~PluginDialogBuilder() override
 		{
 			Info.DialogFree(DialogHandle);
 		}

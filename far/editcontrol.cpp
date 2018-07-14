@@ -160,9 +160,6 @@ static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 	}
 }
 
-// No raw function pointer - gcc bug
-using enumerator_type = std::function<void(VMenu2&, string_view, const std::function<void(string_view)>&)>;
-
 static bool ParseStringWithQuotes(const string& Str, string& Start, string& Token, bool& StartQuote)
 {
 	size_t Pos;
@@ -219,15 +216,8 @@ struct cmp_user_data
 	unsigned long long HistoryRecordId;
 };
 
-static bool EnumWithQuoutes(VMenu2& Menu, const string_view strStart, const string_view Token, const bool StartQuote, const lng Title, enumerator_type Enumerator)
+static bool EnumWithQuoutes(VMenu2& Menu, const string_view strStart, const string_view Token, const bool StartQuote, const lng Title, const std::set<string, string_sort::less_t>& ResultStrings)
 {
-	std::set<string, string_sort::less_t> ResultStrings;
-
-	Enumerator(Menu, Token, [&](const string_view strAdd)
-	{
-		ResultStrings.emplace(ALL_CONST_RANGE(strAdd));
-	});
-
 	if (ResultStrings.empty())
 		return false;
 
@@ -268,122 +258,125 @@ static bool EnumFiles(VMenu2& Menu, const string_view strStart, const string_vie
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string_view Token, const std::function<void(string_view)>& Inserter)
-	{
-		const auto FileName = PointToName(Token);
+	std::set<string, string_sort::less_t> ResultStrings;
 
-		for (const auto& i: os::fs::enum_files(os::env::expand(Token) + L'*'))
+	const auto FileName = PointToName(Token);
+
+	for (const auto& i: os::fs::enum_files(os::env::expand(Token) + L'*'))
+	{
+		const auto NameMatch = starts_with_icase(i.FileName, FileName);
+		const auto AltNameMatch = !NameMatch && i.HasAlternateFileName() && starts_with_icase(i.AlternateFileName(), FileName);
+		if (NameMatch || AltNameMatch)
 		{
-			const auto NameMatch = starts_with_icase(i.FileName, FileName);
-			const auto AltNameMatch = !NameMatch && i.HasAlternateFileName() && starts_with_icase(i.AlternateFileName(), FileName);
-			if (NameMatch || AltNameMatch)
-			{
-				Inserter(Token.substr(0, Token.size() - FileName.size()) + (NameMatch? i.FileName : i.AlternateFileName()));
-			}
+			ResultStrings.emplace(Token.substr(0, Token.size() - FileName.size()) + (NameMatch? i.FileName : i.AlternateFileName()));
 		}
-	});
+	}
+
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, ResultStrings);
 }
 
 static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_view Token, const bool StartQuote)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, [](VMenu2& Menu, const string_view Token, const std::function<void(string_view)>& Inserter)
+	std::set<string, string_sort::less_t> ResultStrings;
+
+	for (const auto& i: enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"sv))
 	{
-		for (const auto& i: enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"sv))
+		if (starts_with_icase(i, Token))
 		{
-			if (starts_with_icase(i, Token))
-			{
-				Inserter(i);
-			}
+			ResultStrings.emplace(i);
 		}
+	}
 
+	{
+		const auto strPathEnv(os::env::get(L"PATH"sv));
+		if (!strPathEnv.empty())
 		{
-			const auto strPathEnv(os::env::get(L"PATH"sv));
-			if (!strPathEnv.empty())
+			const auto PathExtList = enum_tokens(os::env::get_pathext(), L";"sv);
+
+			const auto Pattern = Token + L"*"sv;
+			for (const auto& Path: enum_tokens_with_quotes(strPathEnv, L";"sv))
 			{
-				const auto PathExtList = enum_tokens(os::env::get_pathext(), L";"sv);
+				if (Path.empty())
+					continue;
 
-				const auto Pattern = Token + L"*"sv;
-				for (const auto& Path: enum_tokens_with_quotes(strPathEnv, L";"sv))
+				for (const auto& FindData: os::fs::enum_files(path::join(Path, Pattern)))
 				{
-					if (Path.empty())
-						continue;
-
-					for (const auto& FindData: os::fs::enum_files(path::join(Path, Pattern)))
+					const auto FindExt = PointToExt(FindData.FileName);
+					for (const auto& Ext: PathExtList)
 					{
-						const auto FindExt = PointToExt(FindData.FileName);
-						for (const auto& Ext: PathExtList)
+						if (starts_with_icase(Ext, FindExt))
 						{
-							if (starts_with_icase(Ext, FindExt))
-							{
-								Inserter(FindData.FileName);
-							}
+							ResultStrings.emplace(FindData.FileName);
 						}
 					}
 				}
 			}
 		}
+	}
 
-		static const auto RegPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv;
-		static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
+	static const auto RegPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv;
+	static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
 
-		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
+	DWORD samDesired = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE;
 
-		for (size_t i = 0; i != std::size(RootFindKey); ++i)
+	for (size_t i = 0; i != std::size(RootFindKey); ++i)
+	{
+		if (i == std::size(RootFindKey) - 1)
 		{
-			if (i==std::size(RootFindKey)-1)
+			if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
 			{
-				if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
-				{
-					samDesired|=RedirectionFlag;
-				}
-				else
-				{
-					break;
-				}
+				samDesired |= RedirectionFlag;
 			}
-
-			if (const auto Key = os::reg::key::open(*RootFindKey[i], RegPath, samDesired))
+			else
 			{
-				for (const auto& SubkeyName: os::reg::enum_key(Key))
+				break;
+			}
+		}
+
+		if (const auto Key = os::reg::key::open(*RootFindKey[i], RegPath, samDesired))
+		{
+			for (const auto& SubkeyName: os::reg::enum_key(Key))
+			{
+				if (const auto SubKey = os::reg::key::open(Key, SubkeyName, samDesired))
 				{
-					if (const auto SubKey = os::reg::key::open(Key, SubkeyName, samDesired))
+					if (SubKey.get(L""))
 					{
-						if(SubKey.get(L""))
+						if (starts_with_icase(SubkeyName, Token))
 						{
-							if (starts_with_icase(SubkeyName, Token))
-							{
-								Inserter(SubkeyName);
-							}
+							ResultStrings.emplace(SubkeyName);
 						}
 					}
 				}
 			}
 		}
-	});
+	}
+
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, ResultStrings);
 }
 
 static bool EnumEnvironment(VMenu2& Menu, const string_view strStart, const string_view Token, const bool StartQuote)
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionEnvironmentTitle, [](VMenu2& Menu, const string_view Token, const std::function<void(string_view)>& Inserter)
-	{
-		const os::env::provider::strings EnvStrings;
-		for (const auto& i : enum_substrings(EnvStrings.data()))
-		{
-			auto Name = split_name_value(i).first;
-			if (Name.empty()) // =C: etc.
-				continue;
+	std::set<string, string_sort::less_t> ResultStrings;
 
-			const auto VarName = concat(L'%', Name, L'%');
-			if (starts_with_icase(VarName, Token))
-			{
-				Inserter(VarName);
-			}
+	const os::env::provider::strings EnvStrings;
+	for (const auto& i: enum_substrings(EnvStrings.data()))
+	{
+		auto Name = split_name_value(i).first;
+		if (Name.empty()) // =C: etc.
+			continue;
+
+		const auto VarName = concat(L'%', Name, L'%');
+		if (starts_with_icase(VarName, Token))
+		{
+			ResultStrings.emplace(VarName);
 		}
-	});
+	}
+
+	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionEnvironmentTitle, ResultStrings);
 }
 
 int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKey, FARMACROAREA Area)

@@ -405,7 +405,7 @@ void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF)
 	PSI->FSF = FSF;
 }
 
-void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
+static void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
 {
 	CreatePluginStartupInfo(PSI, FSF);
 
@@ -1247,7 +1247,7 @@ public:
 		custom_plugin_factory::ProcessError(L"Initialize"sv);
 	}
 
-	~custom_plugin_factory()
+	~custom_plugin_factory() override
 	{
 		if (!m_Success)
 			return;

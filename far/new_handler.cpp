@@ -64,8 +64,8 @@ new_handler::new_handler():
 	if (!SetConsoleTextAttribute(m_Screen.native_handle(), WhiteOnBlue))
 		return;
 
-	DWORD Written;
-	if (!FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, BufferSize.X * BufferSize.Y, { 0, 0 }, &Written))
+	DWORD AttrWritten;
+	if (!FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, BufferSize.X * BufferSize.Y, { 0, 0 }, &AttrWritten))
 		return;
 
 	const CONSOLE_CURSOR_INFO cci{ 1 };
@@ -83,8 +83,8 @@ new_handler::new_handler():
 	const auto& Write = [this](const string_view Str, size_t Y)
 	{
 		SetConsoleCursorPosition(m_Screen.native_handle(), { static_cast<short>((m_BufferSize.X - Str.size()) / 2), static_cast<short>(Y) });
-		DWORD Written;
-		return WriteConsole(m_Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &Written, nullptr) && Written == Str.size();
+		DWORD CharWritten;
+		return WriteConsole(m_Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &CharWritten, nullptr) && CharWritten == Str.size();
 	};
 
 	auto InitialY = (m_BufferSize.Y - std::size(Strings)) / 2;

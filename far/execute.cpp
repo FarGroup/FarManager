@@ -288,8 +288,8 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 		// Use SearchPath:
 		const auto Result = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
 		{
-			string Result;
-			return std::make_pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Result), Result);
+			string Str;
+			return std::make_pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Str), Str);
 		});
 
 		if (Result.first)
@@ -500,7 +500,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 	return {};
 }
 
-string GetShellTypeFromExtension(string_view const FileName)
+static string GetShellTypeFromExtension(string_view const FileName)
 {
 	auto Ext = PointToExt(FileName);
 	if (Ext.empty())

@@ -98,7 +98,7 @@ namespace std
 #endif
 
 
-#if defined _MSC_VER && _MSC_VER < 1910
+#if COMPILER == C_CL && _MSC_VER < 1910
 #define DETAIL_STATIC_ASSERT_2(expression, message) static_assert(expression, message)
 #define DETAIL_STATIC_ASSERT_1(expression) DETAIL_STATIC_ASSERT_2(expression, #expression)
 #define DETAIL_STATIC_ASSERT_GET_MACRO(_1, _2, NAME, ...) NAME
@@ -152,7 +152,7 @@ namespace std
 	using ::string_view_impl::string_view;
 	using ::string_view_impl::wstring_view;
 
-	namespace literals
+	inline namespace literals
 	{
 		inline namespace string_view_literals
 		{

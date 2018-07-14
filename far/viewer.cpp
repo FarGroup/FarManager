@@ -4256,7 +4256,6 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 			Global->ScrBuf->Flush();
 			return TRUE;
 		}
-		[[fallthrough]];
 		// Param2=0
 		case VCTL_QUIT:
 		{

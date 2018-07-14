@@ -94,19 +94,19 @@ public:
 	plugin_panel(Plugin* PluginInstance, HANDLE Panel);
 	~plugin_panel();
 
-	auto plugin() const
+	Plugin* plugin() const
 	{
-		return *m_Plugin;
+		return m_Plugin;
 	}
 
-	auto panel() const
+	HANDLE panel() const
 	{
-		return *m_Panel;
+		return m_Panel;
 	}
 
 	void set_panel(HANDLE Panel)
 	{
-		*m_Panel = Panel;
+		m_Panel = Panel;
 	}
 
 	void delayed_delete(const string& Name);

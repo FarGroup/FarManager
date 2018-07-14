@@ -91,7 +91,7 @@ public:
 
 	~bytes()
 	{
-		if (*m_Allocated)
+		if (m_Allocated)
 			delete[] static_cast<const char*>(data());
 	}
 
@@ -105,7 +105,7 @@ public:
 		else
 		{
 			static_cast<range<char*>&>(*this) = make_range(new char[rhs.size()], rhs.size());
-			*m_Allocated = true;
+			m_Allocated = true;
 		}
 		std::copy(ALL_CONST_RANGE(rhs), begin());
 		return *this;

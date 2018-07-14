@@ -192,7 +192,7 @@ enum CopyMode
    dest=path\filename (раньше возвращала 2 - т.е. сигнал об ошибке).
 */
 
-int CmpFullNames(const string& Src,const string& Dest)
+static int CmpFullNames(const string& Src,const string& Dest)
 {
 	const auto& ToFull = [](const string& in)
 	{
@@ -206,7 +206,7 @@ int CmpFullNames(const string& Src,const string& Dest)
 	return equal_icase(ToFull(Src), ToFull(Dest));
 }
 
-bool CheckNulOrCon(string_view Src)
+static bool CheckNulOrCon(string_view Src)
 {
 	if (HasPathPrefix(Src))
 		Src.remove_prefix(4);
@@ -214,14 +214,14 @@ bool CheckNulOrCon(string_view Src)
 	return (starts_with_icase(Src, L"nul"sv) || starts_with_icase(Src, L"con"sv)) && (Src.size() == 3 || (Src.size() > 3 && IsSlash(Src[3])));
 }
 
-string GetParentFolder(const string& Src)
+static string GetParentFolder(const string& Src)
 {
 	auto Result = ConvertNameToReal(Src);
 	CutToSlash(Result, true);
 	return Result;
 }
 
-int CmpFullPath(const string& Src, const string& Dest)
+static int CmpFullPath(const string& Src, const string& Dest)
 {
 	const auto& ToFull = [](const string& in)
 	{
@@ -251,7 +251,7 @@ static void GenerateName(string &strName, const string& Path)
 	}
 }
 
-void CheckAndUpdateConsole()
+static void CheckAndUpdateConsole()
 {
 	const auto hWnd = console.GetWindow();
 	if (ZoomedState != (IsZoomed(hWnd) != FALSE) && IconicState == (IsIconic(hWnd) != FALSE))
@@ -1396,6 +1396,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			{
 			case Message::first_button:
 				AddEndSlash(strDest);
+				[[fallthrough]];
 			case Message::second_button:
 				break;
 			case -2:
@@ -3370,6 +3371,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 		{
 		case 1:
 			OvrMode = 1;
+			[[fallthrough]];
 		case 0:
 			break;
 		case 3:
@@ -3464,6 +3466,7 @@ bool ShellCopy::AskOverwrite(const os::fs::find_data &SrcData,
 			{
 				case 1:
 					ReadOnlyOvrMode=1;
+					[[fallthrough]];
 				case 0:
 					break;
 				case 3:

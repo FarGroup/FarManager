@@ -101,7 +101,7 @@ void ConsoleTitle::SetUserTitle(string_view const Title)
 	assign(UserTitle(), Title);
 }
 
-os::critical_section TitleCS;
+static os::critical_section TitleCS;
 
 void ConsoleTitle::SetFarTitle(string_view const Title, bool Flush)
 {

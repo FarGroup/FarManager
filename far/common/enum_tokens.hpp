@@ -42,7 +42,7 @@ namespace detail
 	public:
 		void reset() {}
 		bool active(wchar_t) { return false; }
-		void postprocess(string_view& Value) {}
+		void postprocess(string_view&) {}
 	};
 
 	template<typename... args>
@@ -73,7 +73,8 @@ namespace detail
 		{
 			using nth_type = std::tuple_element_t<index, std::tuple<null_overrider, args...>>;
 			using is_valid = is_valid<nth_type, operation>;
-			return std::get<is_valid::value? index : 0>(*this);
+			// This idiotic cast to std::tuple is for clang
+			return std::get<is_valid::value? index : 0>(static_cast<std::tuple<null_overrider, args...>&>(*this));
 		}
 
 		template<typename T>

@@ -181,7 +181,7 @@ static void ConvertItemSmall(const DialogItemEx& From, FarDialogItem& To)
 	To.UserData = From.UserData;
 }
 
-size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
+static size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 {
 	//TODO: тут видимо надо сделать поумнее
 	ItemString=Data->strData;
@@ -234,9 +234,9 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 			ConvertItemSmall(*ItemEx, *Item->Item);
 			if (ListBox)
 			{
-				FarList* list=(FarList*)((char*)(Item->Item)+offsetList);
-				FarListItem* listItems=(FarListItem*)((char*)(Item->Item)+offsetListItems);
-				wchar_t* text=(wchar_t*)(listItems+ListBoxSize);
+				const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
+				const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
+				wchar_t* text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
 				for(size_t ii = 0; ii != ListBoxSize; ++ii)
 				{
 					auto& item = ListBox->at(ii);
@@ -252,7 +252,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 				list->Items=listItems;
 				Item->Item->ListItems=list;
 			}
-			wchar_t* p=(wchar_t*)((char*)(Item->Item)+offsetStrings);
+			auto p = static_cast<wchar_t*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetStrings));
 			Item->Item->Data = p;
 			p = std::copy_n(str.data(), sz, p);
 			*p++ = L'\0';
@@ -299,7 +299,7 @@ void ItemsToItemsEx(range<const FarDialogItem*> const Items, range<DialogItemEx*
 	}
 }
 
-intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+static intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
@@ -1514,7 +1514,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 					// Select
 					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITSELECTED);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITUNCHANGED), //???;
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem ? COL_DIALOGEDITDISABLED : COL_DIALOGEDITUNCHANGED);
 					// History
 					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGDISABLED : COL_DIALOGTEXT);
 				}

@@ -300,7 +300,8 @@ struct RegExp::UniSet
 
 enum REOp
 {
-	opLineStart=0x1,        // ^
+	opNone,
+	opLineStart,            // ^
 	opLineEnd,              // $
 	opDataStart,            // \A and ^ in single line mode
 	opDataEnd,              // \Z and $ in signle line mode
@@ -383,7 +384,7 @@ enum REOp
 
 struct REOpCode_data
 {
-	int op;
+	movable<int> op;
 #ifdef RE_DEBUG
 	int    srcpos;
 #endif
@@ -448,9 +449,12 @@ struct REOpCode_data
 
 struct RegExp::REOpCode: public REOpCode_data
 {
-	REOpCode()
+	NONCOPYABLE(REOpCode);
+	MOVABLE(REOpCode);
+
+	REOpCode():
+		REOpCode_data{}
 	{
-		*static_cast<REOpCode_data*>(this) = {};
 	}
 
 	~REOpCode()
@@ -1649,8 +1653,8 @@ int RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int src
 
 				if (src[i+1]=='?')
 				{
-					op->op++;
-					i++;
+					++op->op;
+					++i;
 				}
 
 				continue;
@@ -2483,7 +2487,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [](const wchar_t* str) { return *str != L'\r' && *str != L'\n'; });
+							MinSkip(st, [](const wchar_t* Str) { return *Str != L'\r' && *Str != L'\n'; });
 
 							if (st.max==-1)break;
 						}
@@ -2519,7 +2523,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [](const wchar_t* str) { return true; });
+							MinSkip(st, [](const wchar_t*) { return true; });
 
 							if (st.max==-1)break;
 						}
@@ -2558,7 +2562,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [op](const wchar_t* str) { return TOLOWER(*str) == op->range.symbol; });
+							MinSkip(st, [op](const wchar_t* Str) { return TOLOWER(*Str) == op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2580,7 +2584,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [op](const wchar_t* str) { return *str == op->range.symbol; });
+							MinSkip(st, [op](const wchar_t* Str) { return *Str == op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2619,7 +2623,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [op](const wchar_t* str) { return TOLOWER(*str) != op->range.symbol; });
+							MinSkip(st, [op](const wchar_t* Str) { return TOLOWER(*Str) != op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2641,7 +2645,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 						}
 						else
 						{
-							MinSkip(st, [op](const wchar_t* str) { return *str != op->range.symbol; });
+							MinSkip(st, [op](const wchar_t* Str) { return *Str != op->range.symbol; });
 
 							if (st.max==-1)break;
 						}
@@ -2678,7 +2682,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MinSkip(st, [op](const wchar_t* str) { return op->range.symbolclass->GetBit(*str); });
+						MinSkip(st, [op](const wchar_t* Str) { return op->range.symbolclass->GetBit(*Str); });
 
 						if (st.max==-1)break;
 					}
@@ -2714,7 +2718,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MinSkip(st, [op](const wchar_t* str) { return isType(*str, op->range.type); });
+						MinSkip(st, [op](const wchar_t* Str) { return isType(*Str, op->range.type); });
 
 						if (st.max==-1)break;
 					}
@@ -2750,7 +2754,7 @@ int RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wch
 					}
 					else
 					{
-						MinSkip(st, [op](const wchar_t* str) { return !isType(*str, op->range.type); });
+						MinSkip(st, [op](const wchar_t* Str) { return !isType(*Str, op->range.type); });
 
 						if (st.max==-1)break;
 					}
@@ -3991,7 +3995,7 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 }
 
 #ifdef _DEBUG
-void Test()
+static void Test()
 {
 	RegExp re;
 	auto Result = re.Compile(L"/a*?ca/");

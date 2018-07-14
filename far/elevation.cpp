@@ -388,7 +388,7 @@ enum ELEVATIONAPPROVEDLGITEM
 	AAD_BUTTON_SKIP,
 };
 
-intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+static intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	switch (Msg)
 	{
@@ -420,7 +420,7 @@ struct EAData: noncopyable
 		Object(Object), Why(Why), AskApprove(AskApprove), IsApproved(IsApproved), DontAskAgain(DontAskAgain){}
 };
 
-void ElevationApproveDlgSync(const EAData& Data)
+static void ElevationApproveDlgSync(const EAData& Data)
 {
 	SCOPED_ACTION(auto)(message_manager::instance().suppress());
 

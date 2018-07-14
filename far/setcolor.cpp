@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/range.hpp"
 
-void GetColor(PaletteColors PaletteIndex)
+static void GetColor(PaletteColors PaletteIndex)
 {
 	auto NewColor = Global->Opt->Palette[PaletteIndex];
 
@@ -409,7 +409,7 @@ constexpr auto distinct(T value)
 	return (~value & 0xff) >> 4 | value;
 }
 
-int ColorIndex[] =
+static int ColorIndex[] =
 {
 	distinct(B_BLACK),
 	distinct(B_RED),

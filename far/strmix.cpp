@@ -440,7 +440,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 			{
 				const auto AjustedParts = [&]
 				{
-					const auto Multiplier = std::pow(10, NumDigits);
+					const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
 					const auto Value = Parts[1] * Multiplier;
 					const auto UseRound = true;
 					const auto Fractional = static_cast<unsigned long long>(UseRound? std::round(Value) : Value);

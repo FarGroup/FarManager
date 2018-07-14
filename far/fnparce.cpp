@@ -57,10 +57,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 list_names::names::~names()
 {
-	const auto& Delete = [](string_view const Name)
+	const auto& Delete = [](string_view const Filename)
 	{
-		if (!Name.empty())
-			os::fs::delete_file(Name);
+		if (!Filename.empty())
+			os::fs::delete_file(Filename);
 	};
 
 	Delete(Name);
@@ -354,7 +354,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		}
 	}
 
-	const auto& GetListName = [](string_view const Tail, auto& Data, bool Short, string& Out)
+	const auto& GetListName = [&Out](string_view const Tail, auto& Data, bool Short)
 	{
 		const auto ExclPos = Tail.find(L'!');
 		if (ExclPos == Tail.npos || starts_with(Tail.substr(ExclPos + 1), L'?'))
@@ -384,13 +384,13 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::list_file))
 	{
-		if (const auto Offset = GetListName(Tail, SubstData.Default(), false, Out))
+		if (const auto Offset = GetListName(Tail, SubstData.Default(), false))
 			return string_view(Tail).substr(Offset);
 	}
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::short_list_file))
 	{
-		if (const auto Offset = GetListName(Tail, SubstData.Default(), true, Out))
+		if (const auto Offset = GetListName(Tail, SubstData.Default(), true))
 			return string_view(Tail).substr(Offset);
 	}
 
@@ -686,7 +686,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
   Преобразование метасимволов ассоциации файлов в реальные значения
 
 */
-bool SubstFileName(
+static bool SubstFileName(
 	string &strStr,                  // результирующая строка
 	string_view const Name,
 	string_view const ShortName,

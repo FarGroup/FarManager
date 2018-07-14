@@ -437,12 +437,12 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value,
 	const auto ListItems = Items? new FarListItem[ItemCount] : nullptr;
 	if (Items)
 	{
-		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& Item)
+		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& i)
 		{
 			FarListItem NewItem = {};
-			NewItem.Text = msg(static_cast<lng>(Item.MessageId)).c_str();
-			NewItem.Flags = (Value == Item.ItemValue)? LIF_SELECTED : 0;
-			NewItem.UserData = Item.ItemValue;
+			NewItem.Text = msg(static_cast<lng>(i.MessageId)).c_str();
+			NewItem.Flags = (Value == i.ItemValue)? LIF_SELECTED : 0;
+			NewItem.UserData = i.ItemValue;
 			return NewItem;
 		});
 	}
@@ -469,12 +469,12 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& 
 	const auto ListItems = Items? new FarListItem[ItemCount] : nullptr;
 	if (Items)
 	{
-		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& Item)
+		std::transform(Items, Items + ItemCount, ListItems, [&Value](const auto& i)
 		{
 			FarListItem NewItem = {};
-			NewItem.Text = msg(static_cast<lng>(Item.MessageId)).c_str();
-			NewItem.Flags = (Value == Item.ItemValue)? LIF_SELECTED : 0;
-			NewItem.UserData = Item.ItemValue;
+			NewItem.Text = msg(static_cast<lng>(i.MessageId)).c_str();
+			NewItem.Flags = (Value == i.ItemValue)? LIF_SELECTED : 0;
+			NewItem.UserData = i.ItemValue;
 			return NewItem;
 		});
 	}
@@ -499,12 +499,12 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, int& Value,
 	m_NextY += Height;
 
 	const auto ListItems = new FarListItem[Items.size()];
-	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const auto& Item)
+	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const auto& i)
 	{
 		FarListItem NewItem = {};
-		NewItem.Text = Item.Text.c_str();
-		NewItem.Flags = Item.Flags | ((Value == Item.ItemValue)? LIF_SELECTED : 0);
-		NewItem.UserData = Item.ItemValue;
+		NewItem.Text = i.Text.c_str();
+		NewItem.Flags = i.Flags | ((Value == i.ItemValue)? LIF_SELECTED : 0);
+		NewItem.UserData = i.ItemValue;
 		return NewItem;
 	});
 	const auto List = new FarList;
@@ -528,12 +528,12 @@ DialogItemEx *DialogBuilder::AddListControl(FARDIALOGITEMTYPES Type, IntOption& 
 	m_NextY += Height;
 
 	const auto ListItems = new FarListItem[Items.size()];
-	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const auto& Item)
+	std::transform(ALL_CONST_RANGE(Items), ListItems, [&Value](const auto& i)
 	{
 		FarListItem NewItem = {};
-		NewItem.Text = Item.Text.c_str();
-		NewItem.Flags = Item.Flags | ((Value == Item.ItemValue)? LIF_SELECTED : 0);
-		NewItem.UserData = Item.ItemValue;
+		NewItem.Text = i.Text.c_str();
+		NewItem.Flags = i.Flags | ((Value == i.ItemValue)? LIF_SELECTED : 0);
+		NewItem.UserData = i.ItemValue;
 		return NewItem;
 	});
 	const auto List = new FarList;

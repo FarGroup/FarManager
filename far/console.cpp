@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
 
-void override_stream_buffers()
+static void override_stream_buffers()
 {
 	std::ios::sync_with_stdio(false);
 

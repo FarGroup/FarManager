@@ -1977,7 +1977,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,       NKeySystem,L"WipeSymbol", OPT_DEF(WipeSymbol, 0)},
 		{FSSF_SYSTEM,        NKeySystem,L"WordDiv", OPT_DEF(strWordDiv, WordDiv0)},
 
-		{FSSF_PRIVATE,       NKeySystemSort, L"Collation", OPT_DEF(Sort.Collation, as_underlying_type(Sort.collation::linguistic))},
+		{FSSF_PRIVATE,       NKeySystemSort, L"Collation", OPT_DEF(Sort.Collation, as_underlying_type(SortingOptions::collation::linguistic))},
 		{FSSF_PRIVATE,       NKeySystemSort, L"DigitsAsNumbers", OPT_DEF(Sort.DigitsAsNumbers, IsWindows7OrGreater())},
 		{FSSF_PRIVATE,       NKeySystemSort, L"CaseSensitive", OPT_DEF(Sort.CaseSensitive, false)},
 
@@ -2683,7 +2683,7 @@ enum enumOptionsMenu
 	MENU_OPTIONS_SAVESETUP
 };
 
-void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
+static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
 {
 	const auto pPanel = bLeft? Global->CtrlObject->Cp()->LeftPanel() : Global->CtrlObject->Cp()->RightPanel();
 

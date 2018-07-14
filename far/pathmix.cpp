@@ -221,11 +221,6 @@ bool IsCurrentDirectory(string_view Str)
 	return starts_with(Str, L"."sv) && (Str.size() == 1 || (Str.size() == 2 && IsSlash(Str[1])));
 }
 
-bool TestCurrentDirectory(string_view const TestDir)
-{
-	return equal_icase(os::fs::GetCurrentDirectory(), TestDir);
-}
-
 string_view PointToName(string_view Path)
 {
 	if (Path.empty())
@@ -412,7 +407,7 @@ size_t FindLastSlash(const string_view Str)
 }
 
 // find path root component (drive letter / volume name / server share) and calculate its length
-size_t GetPathRootLength(string_view const Path)
+static size_t GetPathRootLength(string_view const Path)
 {
 	size_t DirOffset = 0;
 	return ParsePath(Path, &DirOffset) == root_type::unknown? 0 : DirOffset;

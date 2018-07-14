@@ -138,7 +138,7 @@ Shortcuts::~Shortcuts()
 
 void Shortcuts::Save()
 {
-	if (!*m_Changed)
+	if (!m_Changed)
 		return;
 
 	const auto Cfg = ConfigProvider().CreateShortcutsConfig();

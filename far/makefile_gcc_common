@@ -84,7 +84,6 @@ CFLAGS += \
 -Winvalid-pch \
 -Wlogical-op \
 -Wno-unknown-pragmas \
--Wno-char-subscripts \
 -Wno-unused-parameter \
 -Wno-missing-field-initializers \
 

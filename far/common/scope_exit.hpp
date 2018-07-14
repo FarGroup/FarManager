@@ -62,7 +62,7 @@ namespace scope_exit
 
 		~scope_guard() noexcept(Type == scope_type::fail)
 		{
-			if (*m_Active && (Type == scope_type::exit || (Type == scope_type::fail) == m_Ec.is_new()))
+			if (m_Active && (Type == scope_type::exit || (Type == scope_type::fail) == m_Ec.is_new()))
 				m_f();
 		}
 

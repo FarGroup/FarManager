@@ -947,10 +947,10 @@ size_t Utf8::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t
 
 size_t Utf8::get_chars(std::string_view const Str, wchar_t* const Buffer, size_t const BufferSize, Utf::errors* const Errors)
 {
-	return BytesToUnicode(Str, Buffer, BufferSize, [](std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* Buffer, bool&, int&)
+	return BytesToUnicode(Str, Buffer, BufferSize, [](std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* CharBuffer, bool&, int&)
 	{
 		auto NextIterator = Iterator;
-		get_char(NextIterator, End, Buffer[0], Buffer[1]);
+		get_char(NextIterator, End, CharBuffer[0], CharBuffer[1]);
 		return static_cast<size_t>(NextIterator - Iterator);
 	}, Errors);
 }

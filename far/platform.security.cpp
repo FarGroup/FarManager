@@ -185,10 +185,7 @@ namespace os::security
 			{
 				unsigned NoDrives;
 				if (i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrives))
-				{
 					return ~NoDrives;
-					break;
-				}
 			}
 
 			return ~0u;

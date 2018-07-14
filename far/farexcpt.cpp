@@ -133,7 +133,7 @@ static bool write_minidump(const exception_context& Context)
 
 using dialog_data_type = std::pair<const exception_context*, const std::vector<string>*>;
 
-intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
+static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -874,7 +874,7 @@ bool IsCppException(const EXCEPTION_POINTERS* e)
 	return e->ExceptionRecord->ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
 }
 
-thread_local bool StackOverflowHappened;
+static thread_local bool StackOverflowHappened;
 
 void ResetStackOverflowIfNeeded()
 {

@@ -863,7 +863,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_TEXT, nullptr); // is active
 				return FALSE;
 			}
-
+		[[fallthrough]];
 		default:
 			break;
 	}

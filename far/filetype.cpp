@@ -329,7 +329,7 @@ enum EDITTYPERECORD
 	ETR_BUTTON_CANCEL,
 };
 
-intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
+static intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -365,7 +365,7 @@ intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
+static bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 {
 	const int DlgX=76,DlgY=23;
 	FarDialogItem EditDlgData[]=
@@ -441,7 +441,7 @@ bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 	return false;
 }
 
-bool DeleteTypeRecord(unsigned long long DeletePos)
+static bool DeleteTypeRecord(unsigned long long DeletePos)
 {
 	string strMask;
 	ConfigProvider().AssocConfig()->GetMask(DeletePos,strMask);

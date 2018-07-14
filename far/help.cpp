@@ -137,7 +137,7 @@ string Help::MakeLink(const string& path, const string& topic)
 	return concat(L'<', path, L"\\>"sv, topic);
 }
 
-bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName, string &strValue, UINT nCodePage)
+static bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName, string &strValue, UINT nCodePage)
 {
 	return GetLangParam(LangFile, L"Options "s + KeyName, strValue, nullptr, nCodePage);
 }

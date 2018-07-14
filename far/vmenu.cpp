@@ -64,7 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/function_traits.hpp"
 #include "common/zip_view.hpp"
 
-MenuItemEx FarList2MenuItem(const FarListItem& FItem)
+static MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 {
 	MenuItemEx Result;
 	Result.Flags = FItem.Flags;
