@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.07.2018 14:42:42 +0100 - build 5238
+
+1. New versions of tinyxml2 and fmt.
+
+2. Adapters are shown in far:about.
+
+drkns 14.07.2018 20:45:49 +0100 - build 5237
+
+1. Clang warnings.
+
+2. Compiler is shown in far:about.
+
 drkns 08.07.2018 14:29:41 +0100 - build 5236
 
 1. Improve exceptions processing.
