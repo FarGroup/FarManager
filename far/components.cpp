@@ -77,7 +77,7 @@ namespace components
 		return true;
 	}
 
-	const std::map<string, string>& GetComponentsInfo()
+	const std::map<string, string, string_sort::less_t>& GetComponentsInfo()
 	{
 		static const auto sList = []
 		{

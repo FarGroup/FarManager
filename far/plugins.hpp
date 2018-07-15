@@ -207,6 +207,7 @@ public:
 	bool CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
 	bool CallPluginItem(const GUID& Guid, CallPluginInfo *Data);
 	void RefreshPluginsList();
+	const auto& Factories() const { return PluginFactories; }
 
 	static void ConfigureCurrent(Plugin *pPlugin, const GUID& Guid);
 	static int UseFarCommand(const plugin_panel* hPlugin, int CommandType);

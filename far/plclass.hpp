@@ -165,6 +165,9 @@ public:
 	virtual bool Destroy(plugin_module_ptr& module) = 0;
 	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) = 0;
 	virtual void ProcessError(string_view Function) const {}
+	virtual bool IsExternal() const { return false; }
+	virtual string GetTitle() const { return {}; }
+	virtual string GetVersionString() const { return {}; }
 
 	auto GetOwner() const { return m_owner; }
 	const auto& ExportsNames() const { return m_ExportsNames; }

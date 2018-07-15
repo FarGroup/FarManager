@@ -1242,6 +1242,11 @@ public:
 			Info.Author && *Info.Author)
 		{
 			m_Success = CheckVersion(&FAR_VERSION, &Info.MinFarVersion) != FALSE;
+			if (m_Success)
+			{
+				m_VersionString = VersionToString(Info.Version);
+				m_Title = Info.Title;
+			}
 			// TODO: store info, show message if version is bad
 		}
 		custom_plugin_factory::ProcessError(L"Initialize"sv);
@@ -1313,6 +1318,21 @@ public:
 			{ lng::MOk });
 	}
 
+	bool IsExternal() const override
+	{
+		return true;
+	}
+
+	string GetTitle() const override
+	{
+		return m_Title;
+	}
+
+	string GetVersionString() const override
+	{
+		return m_VersionString;
+	}
+
 private:
 	os::rtdl::module m_Module;
 	struct ModuleImports
@@ -1345,6 +1365,8 @@ private:
 		bool m_IsValid;
 	}
 	m_Imports;
+	string m_Title;
+	string m_VersionString;
 	bool m_Success;
 };
 

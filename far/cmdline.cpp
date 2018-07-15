@@ -905,7 +905,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 	{
 		auto strOut = concat(
 			L'\n', Global->Version(), L'\n', Global->Copyright(), L'\n',
-			L'\n', L"Compiler: ", format(L"{0} {1}.{2}.{3}", COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH), L'\n'
+			L"\nCompiler:\n"sv, format(L"{0}, version {1}.{2}.{3}", COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH), L'\n'
 		);
 
 		const auto& ComponentsInfo = components::GetComponentsInfo();
@@ -924,7 +924,15 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 			}
 		}
 
-		// TODO: enum model adapters
+		if (Global->CtrlObject->Plugins->Factories().size())
+		{
+			strOut += L"\nPlugin adapters:\n";
+			for (const auto& i: Global->CtrlObject->Plugins->Factories())
+			{
+				if (i->IsExternal())
+					append(strOut, i->GetTitle(), L", version "sv, i->GetVersionString(), L'\n');
+			}
+		}
 
 		if (Global->CtrlObject->Plugins->size())
 		{

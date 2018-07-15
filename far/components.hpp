@@ -34,6 +34,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "string_sort.hpp"
+
 #include "common/enumerator.hpp"
 
 namespace components
@@ -75,7 +77,7 @@ namespace components
 		size_t m_size{};
 	};
 
-	const std::map<string, string>& GetComponentsInfo();
+	const std::map<string, string, string_sort::less_t>& GetComponentsInfo();
 }
 
 #endif // COMPONENTS_HPP_5EB4061D_47B2_4941_8B57_FE405EBD3D83
