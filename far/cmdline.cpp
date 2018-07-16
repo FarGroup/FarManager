@@ -924,10 +924,11 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 			}
 		}
 
-		if (Global->CtrlObject->Plugins->Factories().size())
+		const auto& Factories = Global->CtrlObject->Plugins->Factories();
+		if (std::any_of(ALL_CONST_RANGE(Factories), [](const auto& i) { return i->IsExternal(); }))
 		{
 			strOut += L"\nPlugin adapters:\n";
-			for (const auto& i: Global->CtrlObject->Plugins->Factories())
+			for (const auto& i: Factories)
 			{
 				if (i->IsExternal())
 					append(strOut, i->GetTitle(), L", version "sv, i->GetVersionString(), L'\n');
