@@ -84,7 +84,7 @@ namespace os::env
 		GuardLastError ErrorGuard;
 		null_terminated C_Name(Name);
 
-		// GetEnvironmentVariable might return 0 not only in case of failure, but also when variable is empty.
+		// GetEnvironmentVariable might return 0 not only in case of failure, but also when the variable is empty.
 		// To recognise this, we set LastError to ERROR_SUCCESS manually and check it after the call,
 		// which doesn't change it upon success.
 		SetLastError(ERROR_SUCCESS);
@@ -129,15 +129,35 @@ namespace os::env
 	{
 		null_terminated C_Str(Str);
 
+		bool Failure = false;
+
 		string Result;
 		if (!detail::ApiDynamicStringReceiver(Result, [&](wchar_t* Buffer, size_t Size)
 		{
+			// ExpandEnvironmentStrings return value always includes the terminating null character.
+			// ApiDynamicStringReceiver expects a string length upon success (e.g. without the \0),
+			// but we cannot simply subtract 1 from the returned value - the function can also return 1
+			// when the result exists, but empty, so if we do that, it will be treated as error.
 			const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.c_str(), Buffer, static_cast<DWORD>(Size));
-			// This pesky function includes a terminating null character even upon success, breaking the usual pattern
-			return ReturnedSize <= Size? ReturnedSize - 1 : ReturnedSize;
+			switch (ReturnedSize)
+			{
+			case 0:
+				// Failure
+				Failure = true;
+				return 0ul;
+
+			case 1:
+				// Empty result
+				return 0ul;
+
+			default:
+				// Non-empty result
+				return ReturnedSize - 1;
+			}
 		}))
 		{
-			assign(Result, Str);
+			if (Failure)
+				assign(Result, Str);
 		}
 		return Result;
 	}

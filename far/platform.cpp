@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "pathmix.hpp"
 #include "string_utils.hpp"
+#include "lasterror.hpp"
 
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"
@@ -155,7 +156,13 @@ string GetPrivateProfileString(const string& AppName, const string& KeyName, con
 
 bool GetWindowText(HWND Hwnd, string& Text)
 {
-	return detail::ApiDynamicStringReceiver(Text, [&](wchar_t* Buffer, size_t Size)
+	// GetWindowText[Length] might return 0 not only in case of failure, but also when the window title is empty.
+	// To recognise this, we set LastError to ERROR_SUCCESS manually and check it after the call,
+	// which doesn't change it upon success.
+	GuardLastError ErrorGuard;
+	SetLastError(ERROR_SUCCESS);
+
+	if (detail::ApiDynamicStringReceiver(Text, [&](wchar_t* Buffer, size_t Size)
 	{
 		const size_t Length = ::GetWindowTextLength(Hwnd);
 
@@ -166,7 +173,20 @@ bool GetWindowText(HWND Hwnd, string& Text)
 			return Length + 1;
 
 		return static_cast<size_t>(::GetWindowText(Hwnd, Buffer, static_cast<int>(Size)));
-	});
+	}))
+	{
+		return true;
+	}
+
+	if (GetLastError() == ERROR_SUCCESS)
+	{
+		Text.clear();
+		return true;
+	}
+
+	// Something went wrong, it's better to leave the last error as is
+	ErrorGuard.dismiss();
+	return false;
 }
 
 bool IsWow64Process()
@@ -202,10 +222,13 @@ DWORD GetAppPathsRedirectionFlag()
 
 bool GetDefaultPrinter(string& Printer)
 {
-	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Printer, [&](wchar_t* Buffer, size_t Size)
+	return detail::ApiDynamicStringReceiver(Printer, [&](wchar_t* Buffer, size_t Size)
 	{
-		DWORD dwSize = static_cast<DWORD>(Size);
-		return ::GetDefaultPrinter(Buffer, &dwSize)? dwSize - 1 : 0;
+		auto dwSize = static_cast<DWORD>(Size);
+		if (::GetDefaultPrinter(Buffer, &dwSize))
+			return dwSize - 1;
+
+		return GetLastError() == ERROR_INSUFFICIENT_BUFFER? dwSize : 0;
 	});
 }
 

@@ -93,9 +93,9 @@ namespace os::chrono
 	string format_time()
 	{
 		string Value;
-		os::detail::ApiDynamicStringReceiver(Value, [&](wchar_t* Buffer, size_t const Size)
+		os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](wchar_t* Buffer, size_t const Size)
 		{
-			const auto ReturnedSize = GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, Buffer, static_cast<int>(Size));
+			const auto ReturnedSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, Buffer, static_cast<int>(Size));
 			return ReturnedSize? ReturnedSize - 1 : 0;
 		});
 		return Value;
