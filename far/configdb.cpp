@@ -247,8 +247,8 @@ private:
 		{
 			auto& e = CreateChild(root, "setting");
 
-			e.SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0));
-			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1));
+			e.SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0).c_str());
+			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1).c_str());
 
 			switch (static_cast<column_type>(stmtEnumAllValues.GetColType(2)))
 			{
@@ -259,7 +259,7 @@ private:
 
 			case column_type::string:
 				e.SetAttribute("type", "text");
-				e.SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2));
+				e.SetAttribute("value", stmtEnumAllValues.GetColTextUTF8(2).c_str());
 				break;
 
 			case column_type::blob:
@@ -596,7 +596,7 @@ protected:
 				auto& e = CreateChild(XmlKey, "value");
 
 				const auto name = Stmt->GetColTextUTF8(0);
-				e.SetAttribute("name", name);
+				e.SetAttribute("name", name.c_str());
 
 				switch (static_cast<column_type>(Stmt->GetColType(1)))
 				{
@@ -607,12 +607,12 @@ protected:
 
 				case column_type::string:
 					e.SetAttribute("type", "text");
-					e.SetAttribute("value", Stmt->GetColTextUTF8(1));
+					e.SetAttribute("value", Stmt->GetColTextUTF8(1).c_str());
 					break;
 
 				case column_type::blob:
 				case column_type::unknown:
-					SerializeBlob(name, Stmt->GetColBlob(1), e);
+					SerializeBlob(name.c_str(), Stmt->GetColBlob(1), e);
 					break;
 				}
 			}
@@ -624,9 +624,10 @@ protected:
 		{
 			auto& e = CreateChild(XmlKey, "key");
 
-			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1));
-			if (const auto description = stmtEnumSubKeys.GetColTextUTF8(2))
-				e.SetAttribute("description", description);
+			e.SetAttribute("name", stmtEnumSubKeys.GetColTextUTF8(1).c_str());
+			const auto description = stmtEnumSubKeys.GetColTextUTF8(2);
+			if (!description.empty())
+				e.SetAttribute("description", description.c_str());
 
 			Export(Representation, key(stmtEnumSubKeys.GetColInt64(0)), e);
 		}
@@ -843,7 +844,7 @@ private:
 		{
 			auto& e = CreateChild(root, "object");
 
-			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
+			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0).c_str());
 			const auto Color = deserialise<FarColor>(stmtEnumAllValues.GetColBlob(1));
 			e.SetAttribute("background", to_hex_string(Color.BackgroundColor).c_str());
 			e.SetAttribute("foreground", to_hex_string(Color.ForegroundColor).c_str());
@@ -1043,8 +1044,8 @@ private:
 		{
 			auto& e = CreateChild(root, "filetype");
 
-			e.SetAttribute("mask", stmtEnumAllTypes.GetColTextUTF8(1));
-			e.SetAttribute("description", stmtEnumAllTypes.GetColTextUTF8(2));
+			e.SetAttribute("mask", stmtEnumAllTypes.GetColTextUTF8(1).c_str());
+			e.SetAttribute("description", stmtEnumAllTypes.GetColTextUTF8(2).c_str());
 
 			stmtEnumCommandsPerFiletype.Bind(stmtEnumAllTypes.GetColInt64(0));
 			while (stmtEnumCommandsPerFiletype.Step())
@@ -1053,7 +1054,7 @@ private:
 
 				se.SetAttribute("type", stmtEnumCommandsPerFiletype.GetColInt(0));
 				se.SetAttribute("enabled", stmtEnumCommandsPerFiletype.GetColInt(1));
-				se.SetAttribute("command", stmtEnumCommandsPerFiletype.GetColTextUTF8(2));
+				se.SetAttribute("command", stmtEnumCommandsPerFiletype.GetColTextUTF8(2).c_str());
 			}
 			stmtEnumCommandsPerFiletype.Reset();
 		}
@@ -1538,10 +1539,9 @@ private:
 		{
 			auto& p = CreateChild(root, "plugin");
 
-			string Key = stmtEnumAllPluginKeys.GetColText(0);
-			p.SetAttribute("key", stmtEnumAllPluginKeys.GetColTextUTF8(0));
+			p.SetAttribute("key", stmtEnumAllPluginKeys.GetColTextUTF8(0).c_str());
 
-			stmtEnumAllHotkeysPerKey.Bind(Key);
+			stmtEnumAllHotkeysPerKey.Bind(stmtEnumAllPluginKeys.GetColText(0));
 			while (stmtEnumAllHotkeysPerKey.Step())
 			{
 				const char *type = nullptr;
@@ -1560,9 +1560,8 @@ private:
 
 				auto& e = CreateChild(p, "hotkey");
 				e.SetAttribute("menu", type);
-				e.SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0));
-				const auto hotkey = stmtEnumAllHotkeysPerKey.GetColTextUTF8(2);
-				e.SetAttribute("hotkey", NullToEmpty(hotkey));
+				e.SetAttribute("guid", stmtEnumAllHotkeysPerKey.GetColTextUTF8(0).c_str());
+				e.SetAttribute("hotkey", stmtEnumAllHotkeysPerKey.GetColTextUTF8(2).c_str());
 			}
 			stmtEnumAllHotkeysPerKey.Reset();
 		}

@@ -398,8 +398,6 @@ long long FilePanels::VMProcess(int OpCode, void* vParam, long long iParam)
 bool FilePanels::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
-	if (!LocalKey)
-		return true;
 
 	if ((LocalKey==KEY_CTRLLEFT || LocalKey==KEY_CTRLRIGHT || LocalKey==KEY_CTRLNUMPAD4 || LocalKey==KEY_CTRLNUMPAD6
 		|| LocalKey==KEY_RCTRLLEFT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_RCTRLNUMPAD4 || LocalKey==KEY_RCTRLNUMPAD6

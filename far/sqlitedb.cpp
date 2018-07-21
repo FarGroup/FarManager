@@ -130,14 +130,22 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const bytes_view& Value, bo
 	return *this;
 }
 
-const wchar_t* SQLiteDb::SQLiteStmt::GetColText(int Col) const
+string SQLiteDb::SQLiteStmt::GetColText(int Col) const
 {
-	return static_cast<const wchar_t*>(sqlite::sqlite3_column_text16(m_Stmt.get(), Col));
+	return
+	{
+		static_cast<const wchar_t*>(sqlite::sqlite3_column_text16(m_Stmt.get(), Col)),
+		static_cast<size_t>(sqlite::sqlite3_column_bytes16(m_Stmt.get(), Col) / sizeof(wchar_t))
+	};
 }
 
-const char* SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col) const
+std::string SQLiteDb::SQLiteStmt::GetColTextUTF8(int Col) const
 {
-	return reinterpret_cast<const char*>(sqlite::sqlite3_column_text(m_Stmt.get(), Col));
+	return
+	{
+		reinterpret_cast<const char*>(sqlite::sqlite3_column_text(m_Stmt.get(), Col)),
+		static_cast<size_t>(sqlite::sqlite3_column_bytes(m_Stmt.get(), Col))
+	};
 }
 
 int SQLiteDb::SQLiteStmt::GetColInt(int Col) const

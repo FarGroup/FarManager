@@ -98,8 +98,8 @@ protected:
 			return BindImpl(FWD(Arg)), Bind(FWD(Args)...);
 		}
 
-		const wchar_t *GetColText(int Col) const;
-		const char *GetColTextUTF8(int Col) const;
+		string GetColText(int Col) const;
+		std::string GetColTextUTF8(int Col) const;
 		int GetColInt(int Col) const;
 		unsigned long long GetColInt64(int Col) const;
 		bytes_view GetColBlob(int Col) const;
