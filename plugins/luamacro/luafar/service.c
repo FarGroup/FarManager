@@ -44,6 +44,7 @@ extern void PackMacroValues(lua_State* L, size_t Count, const struct FarMacroVal
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 extern int GetExportFunction(lua_State* L, const char* FuncName);
 extern BOOL RunDefaultScript(lua_State* L, int ForFirstTime);
+extern void PushPluginObject(lua_State* L, HANDLE hPlugin);
 
 const char FarFileFilterType[] = "FarFileFilter";
 const char FarTimerType[]      = "FarTimer";
@@ -2076,12 +2077,12 @@ static int panel_ClosePanel(lua_State *L)
 
 static int panel_GetPanelInfo(lua_State *L)
 {
-	PSInfo *Info = GetPluginData(L)->Info;
+	TPluginData *pd = GetPluginData(L);
 	HANDLE handle = OptHandle2(L);
 	struct PanelInfo pi;
 	pi.StructSize = sizeof(pi);
 
-	if(!Info->PanelControl(handle, FCTL_GETPANELINFO, 0, &pi))
+	if(!pd->Info->PanelControl(handle, FCTL_GETPANELINFO, 0, &pi))
 		return lua_pushnil(L), 1;
 
 	lua_createtable(L, 0, 13);
@@ -2089,6 +2090,12 @@ static int panel_GetPanelInfo(lua_State *L)
 	PutLStrToTable(L, "OwnerGuid", &pi.OwnerGuid, sizeof(GUID));
 	PushPluginHandle(L, pi.PluginHandle);
 	lua_setfield(L, -2, "PluginHandle");
+	//-------------------------------------------------------------------------
+	if (0 == memcmp(&pi.OwnerGuid, pd->PluginId, sizeof(GUID)))
+	{
+		PushPluginObject(L, pi.PluginHandle);
+		lua_setfield(L, -2, "PluginObject");
+	}
 	//-------------------------------------------------------------------------
 	PutIntToTable(L, "PanelType", pi.PanelType);
 	//-------------------------------------------------------------------------

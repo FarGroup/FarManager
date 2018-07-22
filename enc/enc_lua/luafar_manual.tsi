@@ -5699,7 +5699,7 @@ id=7
 lv=2
 dt=Text
 nm=panel.GetPanelInfo
-mtime=3615035351
+mtime=3741443552
 <article>
 #_tPanelInfo = panel.GetPanelInfo (handle, whatpanel)
 #_
@@ -5721,6 +5721,13 @@ mtime=3615035351
 #_      ViewMode:            integer
 #_      SortMode:            integer
 #_      Flags:               flags
+#_      PluginObject:        non-false Lua value
+#_
+#_**Note**
+#_  The *PluginObject* field is LuaFAR-specific. It is only present if OwnerGuid==PluginGuid,
+#_  i.e. when *panel.GetPanelInfo* was called from the same plugin that created the panel.
+#_  The intended use of this field is when a panel plugin processes macro calls for operations
+#_  on an already opened panel.
 #_
 #_**Far API used:**
 #_  PanelControl, FCTL_GETPANELINFO, PanelInfo

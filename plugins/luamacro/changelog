@@ -1,4 +1,8 @@
-﻿shmuel 07.06.2018 17:27:07 +0200 - build 654
+﻿shmuel 22.07.2018 18:23:27 +0200 - build 655
+
+1. LuaFAR: в таблице, возвращаемой panel.GetPanelInfo(), добавлено поле PluginObject.
+
+shmuel 07.06.2018 17:27:07 +0200 - build 654
 
 1. LuaFAR: добавлена функция far.RunDefaultScript.
 

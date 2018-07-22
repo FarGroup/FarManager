@@ -132,11 +132,16 @@ void PushPluginTable(lua_State* L, HANDLE hPlugin)
 	lua_rawgeti(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(L,hPlugin));
 }
 
-void PushPluginPair(lua_State* L, HANDLE hPlugin)
+void PushPluginObject(lua_State* L, HANDLE hPlugin)
 {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, UNTRANSFORM_REF(L,hPlugin));
+	PushPluginTable(L, hPlugin);
 	lua_getfield(L, -1, KEY_OBJECT);
 	lua_remove(L, -2);
+}
+
+void PushPluginPair(lua_State* L, HANDLE hPlugin)
+{
+	PushPluginObject(L, hPlugin);
 	lua_pushinteger(L, (intptr_t)hPlugin);
 }
 
