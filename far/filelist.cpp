@@ -846,7 +846,6 @@ bool FileList::SendKeyToPlugin(DWORD Key, bool Pred)
 	KeyToInputRecord(Key, &rec);
 	const auto ProcessCode = Global->CtrlObject->Plugins->ProcessKey(GetPluginHandle(), &rec, Pred);
 	_ALGO(SysLog(L"} ProcessCode=%d", ProcessCode));
-	ProcessPluginCommand();
 
 	return ProcessCode != 0;
 }
@@ -2881,8 +2880,6 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 			SetDirectorySuccess = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), strSetDir, opmode, DataItem) != FALSE;
 		}
 
-		ProcessPluginCommand();
-
 		// после закрытия панели нужно сразу установить внутренний каталог, иначе будет "Cannot find the file" - Mantis#1731
 		if (m_PanelMode == panel_mode::NORMAL_PANEL)
 			SetCurPath();
@@ -3098,7 +3095,6 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				INPUT_RECORD rec;
 				ProcessKeyToInputRecord(VK_RETURN,IntKeyState.ShiftPressed()? PKF_SHIFT:0,&rec);
 				int ProcessCode = Global->CtrlObject->Plugins->ProcessKey(GetPluginHandle(), &rec, false);
-				ProcessPluginCommand();
 
 				if (ProcessCode)
 					return true;
@@ -6264,28 +6260,6 @@ void FileList::PluginEndSelection()
 	}
 }
 
-void FileList::ProcessPluginCommand()
-{
-	_ALGO(CleverSysLog clv(L"FileList::ProcessPluginCommand"));
-	_ALGO(SysLog(L"PanelMode=%s",(m_PanelMode==PLUGIN_PANEL?"PLUGIN_PANEL":"NORMAL_PANEL")));
-	int Command=m_PluginCommand;
-	m_PluginCommand=-1;
-
-	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
-		switch (Command)
-		{
-			case FCTL_CLOSEPANEL:
-				_ALGO(SysLog(L"Command=FCTL_CLOSEPANEL"));
-				SetCurDir(m_PluginParam,true);
-
-				if (m_PluginParam.empty())
-					Update(UPDATE_KEEP_SELECTION);
-
-				Redraw();
-				break;
-		}
-}
-
 void FileList::SetPluginModified()
 {
 	if(!PluginsList.empty())
@@ -6355,14 +6329,12 @@ void FileList::Update(int Mode)
 		case panel_mode::PLUGIN_PANEL:
 			{
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
-				ProcessPluginCommand();
 
 				if (m_PanelMode != panel_mode::PLUGIN_PANEL)
 					ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE,Mode & UPDATE_DRAW_MESSAGE);
 				else if ((m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES) || Parent()->GetAnotherPanel(this)->GetMode() == panel_mode::PLUGIN_PANEL || !(Mode & UPDATE_SECONDARY))
 					UpdatePlugin(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
 			}
-			ProcessPluginCommand();
 			break;
 		}
 
@@ -7236,11 +7208,8 @@ void FileList::DisplayObject()
 		UpdateRequired = false;
 		Update(UpdateRequiredMode);
 	}
-
-	ProcessPluginCommand();
 	ShowFileList(false);
 }
-
 
 void FileList::ShowFileList(bool Fast)
 {

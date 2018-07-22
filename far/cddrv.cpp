@@ -79,7 +79,7 @@ enum CDROM_DeviceCapabilities
 	CAPABILITIES_GENERIC_DVDROM  = CAPABILITIES_READ_DVDROM | CAPABILITIES_READ_DVDR | CAPABILITIES_READ_DVDRW | CAPABILITIES_READ_DVDRAM,
 	CAPABILITIES_GENERIC_DVDRW   = CAPABILITIES_WRITE_DVDR | CAPABILITIES_WRITE_DVDRW,
 	CAPABILITIES_GENERIC_DVDRAM  = CAPABILITIES_WRITE_DVDRAM,
-	
+
 	CAPABILITIES_GENERIC_BDROM   = CAPABILITIES_READ_BDROM,
 	CAPABILITIES_GENERIC_BDRW    = CAPABILITIES_WRITE_BDROM,
 
@@ -322,7 +322,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Devi
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
 		return CAPABILITIES_NONE;
 
-	const auto devDesc = reinterpret_cast<const PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
+	const auto devDesc = reinterpret_cast<PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
 
 	if (!devDesc->ProductIdOffset || !Buffer[devDesc->ProductIdOffset])
 		return CAPABILITIES_NONE;

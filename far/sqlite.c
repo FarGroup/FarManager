@@ -43,6 +43,7 @@ WARNING_DISABLE_GCC("-Warray-bounds")
 WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 WARNING_DISABLE_GCC("-Wunused-but-set-variable")
+WARNING_DISABLE_GCC("-Wcast-function-type")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
@@ -64,7 +65,7 @@ static int rand_s(unsigned int* randomValue)
 
 	if (RtlGenRandomPtr)
 		return RtlGenRandomPtr(randomValue, sizeof(*randomValue));
-	
+
 	*randomValue = rand();
 	return 0;
 }

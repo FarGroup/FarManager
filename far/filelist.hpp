@@ -278,7 +278,6 @@ private:
 	void PluginHostGetFiles();
 	void PluginPutFilesToNew();
 	int PluginPutFilesToAnother(bool Move, panel_ptr AnotherPanel);
-	void ProcessPluginCommand();
 	void PluginClearSelection(const std::vector<PluginPanelItem>& ItemList);
 	void ProcessCopyKeys(int Key);
 	void ReadSortGroups(bool UpdateFilterCurrentTime = true);

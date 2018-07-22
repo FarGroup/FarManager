@@ -561,7 +561,7 @@ static void ConvertPanelModeToUnicode(const oldfar::PanelMode& Mode, PanelMode& 
 	UnicodeMode.StatusColumnTypes = AnsiToUnicode(Mode.StatusColumnTypes);
 	UnicodeMode.StatusColumnWidths = AnsiToUnicode(Mode.StatusColumnWidths);
 
-	UnicodeMode.Flags = 
+	UnicodeMode.Flags =
 		(Mode.FullScreen? PMFLAGS_FULLSCREEN : 0) |
 		(Mode.DetailedStatus? PMFLAGS_DETAILEDSTATUS : 0) |
 		(Mode.AlignExtensions? PMFLAGS_ALIGNEXTENSIONS : 0) |
@@ -3738,7 +3738,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					{
 						std::vector<FarColor> Color(PaletteSize);
 						NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETARRAYCOLOR, 0, Color.data());
-						const auto OldColors = static_cast<const LPBYTE>(Param);
+						const auto OldColors = static_cast<LPBYTE>(Param);
 						std::transform(ALL_CONST_RANGE(Color), OldColors, colors::FarColorToConsoleColor);
 					}
 					return PaletteSize;
@@ -5427,17 +5427,17 @@ private:
 	{
 		return 0;
 	}
-	
+
 	int ProcessConsoleInput(ProcessConsoleInputInfo*) override
 	{
 		return 0;
 	}
-	
+
 	void* Analyse(AnalyseInfo*) override
 	{
 		return nullptr;
 	}
-	
+
 	void CloseAnalyse(CloseAnalyseInfo*) override
 	{
 	}
@@ -5446,12 +5446,12 @@ private:
 	{
 		return 0;
 	}
-	
+
 	int GetContentData(GetContentDataInfo*) override
 	{
 		return 0;
 	}
-	
+
 	void FreeContentData(GetContentDataInfo*) override
 	{
 	}
@@ -5485,7 +5485,7 @@ private:
 	{
 		return true;
 	}
-	
+
 	const string& GetHotkeyName() const override
 	{
 		return GetCacheName();

@@ -327,8 +327,6 @@ protected:
 	bool m_ShowShortNames = false;
 	bool m_DirectoriesFirst = true;
 	int m_ModalMode = 0;
-	int m_PluginCommand = -1;
-	string m_PluginParam;
 	string m_Title;
 
 private:

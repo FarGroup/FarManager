@@ -936,8 +936,14 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		}
 
 		case FCTL_CLOSEPANEL:
-			m_PluginCommand=Command;
-			m_PluginParam = NullToEmpty((const wchar_t *)Param2);
+			if (m_PanelMode == panel_mode::PLUGIN_PANEL)
+			{
+				string folder=NullToEmpty((const wchar_t *)Param2);
+				SetCurDir(folder,true);
+				if (folder.empty())
+					Update(UPDATE_KEEP_SELECTION);
+				Redraw();
+			}
 			Result=TRUE;
 			break;
 
