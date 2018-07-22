@@ -732,7 +732,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 	{
 		struct FAR_INPUT_RECORD irec = { static_cast<DWORD>(Key()), Key.Event() };
 		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
-			m_ParentProcessKey(Manager::Key(Key));
+			m_ParentProcessKey(Key);
 		int CurWindowType = Global->WindowManager->GetCurrentWindow()->GetType();
 		if (CurWindowType == windowtype_dialog || CurWindowType == windowtype_panels)
 		{

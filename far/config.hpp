@@ -126,6 +126,9 @@ public:
 	bool Changed() const { return m_Value.touched(); }
 
 protected:
+	Option(const Option&) = default;
+	Option& operator=(const Option&) = default;
+
 	template<class T>
 	explicit Option(const T& Value): m_Value(Value) {}
 
@@ -138,8 +141,8 @@ protected:
 private:
 	friend class Options;
 
-	virtual bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const = 0;
-	virtual bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const std::any& Default) = 0;
+	virtual bool StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const = 0;
+	virtual bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) = 0;
 
 	void MakeUnchanged() { m_Value.forget(); }
 
@@ -206,8 +209,8 @@ namespace detail
 		bool IsDefault(const std::any& Default) const override { return Get() == std::any_cast<base_type>(Default); }
 		void SetDefault(const std::any& Default) override { Set(std::any_cast<base_type>(Default)); }
 
-		bool ReceiveValue(const GeneralConfig* Storage, const string& KeyName, const string& ValueName, const std::any& Default) override;
-		bool StoreValue(GeneralConfig* Storage, const string& KeyName, const string& ValueName, bool always) const override;
+		bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) override;
+		bool StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }
 

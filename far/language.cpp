@@ -426,7 +426,7 @@ bool i_language_data::validate(size_t MsgId) const
 		{
 			msg(lng::MBadLanguageFile),
 			m_FileName,
-			format(msg(lng::MLanguageStringNotFound), static_cast<size_t>(MsgId))
+			format(msg(lng::MLanguageStringNotFound), MsgId)
 		},
 		{ lng::MOk, lng::MQuit }) == Message::second_button)
 	{
@@ -443,7 +443,7 @@ plugin_language::plugin_language(const string & Path, const string& Language):
 	load(Path, Language);
 }
 
-const wchar_t* plugin_language::GetMsg(intptr_t Id) const
+const wchar_t* plugin_language::Msg(intptr_t Id) const
 {
 	return m_Data->validate(Id)? m_Data->at(Id).c_str() : L"";
 }
@@ -460,7 +460,7 @@ bool far_language::is_loaded() const
 	return static_cast<const language_data&>(*m_Data).size() != 0;
 }
 
-const string& far_language::GetMsg(lng Id) const
+const string& far_language::Msg(lng Id) const
 {
 	return static_cast<const language_data&>(*m_Data).at(static_cast<size_t>(Id));
 }
@@ -468,5 +468,5 @@ const string& far_language::GetMsg(lng Id) const
 
 const string& msg(lng Id)
 {
-	return far_language::instance().GetMsg(Id);
+	return far_language::instance().Msg(Id);
 }

@@ -322,7 +322,7 @@ static CDROM_DeviceCapabilities getCapsUsingDeviceProps(const os::fs::file& Devi
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &query, sizeof(query), Buffer.data(), static_cast<DWORD>(Buffer.size()), &returnedLength))
 		return CAPABILITIES_NONE;
 
-	const auto devDesc = reinterpret_cast<PSTORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
+	const auto devDesc = reinterpret_cast<const STORAGE_DEVICE_DESCRIPTOR*>(Buffer.data());
 
 	if (!devDesc->ProductIdOffset || !Buffer[devDesc->ProductIdOffset])
 		return CAPABILITIES_NONE;

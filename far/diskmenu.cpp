@@ -1091,7 +1091,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					// Вызываем нужный топик, который передали в CommandsMenu()
 					pluginapi::apiShowHelp(
-						item->pPlugin->GetModuleName().c_str(),
+						item->pPlugin->ModuleName().c_str(),
 						nullptr,
 						FHELP_SELFHELP | FHELP_NOSHOWERROR | FHELP_USECONTENTS
 						);

@@ -122,7 +122,7 @@ public:
 	void SetClearFlag(bool Flag);
 	bool GetClearFlag() const;
 	int GetCurCol() const;
-	int GetCurRow() const { return static_cast<int>(m_it_CurLine.Number()); }
+	int GetCurRow() const { return m_it_CurLine.Number(); }
 	void SetCurPos(int NewCol, int NewRow = -1);
 	void DrawScrollbar();
 	bool EditorControlLocked() const { return EditorControlLock != 0; }

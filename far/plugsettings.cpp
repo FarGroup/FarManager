@@ -97,7 +97,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local)
 
 	const auto strGuid = GuidToStr(Guid);
 	PluginsCfg = ConfigProvider().CreatePluginsConfig(strGuid, Local);
-	m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key(), strGuid, &pPlugin->GetTitle()));
+	m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key(), strGuid, &pPlugin->Title()));
 
 	if (!Global->Opt->ReadOnlyConfig)
 	{
@@ -105,7 +105,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local)
 		const auto DbPath = path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, L"PluginsData");
 		Diz.Read(DbPath);
 		const auto DbName = strGuid + L".db";
-		const auto Description = concat(pPlugin->GetTitle(), L" ("sv, pPlugin->GetDescription(), L')');
+		const auto Description = concat(pPlugin->Title(), L" ("sv, pPlugin->Description(), L')');
 		if (Description != NullToEmpty(Diz.Get(DbName, L"", 0)))
 		{
 			Diz.Set(DbName, L"", Description);

@@ -214,7 +214,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 					if(StrToGuid(i.Guid, HGuid) && HGuid != FarGuid)
 					{
 						const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
-						strRecord = (pPlugin ? pPlugin->GetTitle() : L'{' + i.Guid + L'}') + L':';
+						strRecord = (pPlugin ? pPlugin->Title() : L'{' + i.Guid + L'}') + L':';
 						if(!i.File.empty())
 							strRecord += i.File + L':';
 					}

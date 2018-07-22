@@ -86,7 +86,7 @@ class plugin_language final: public language
 {
 public:
 	explicit plugin_language(const string& Path, const string& Language);
-	const wchar_t* GetMsg(intptr_t Id) const;
+	const wchar_t* Msg(intptr_t Id) const;
 
 private:
 	std::unique_ptr<i_language_data> m_Data;
@@ -99,7 +99,7 @@ class far_language final: private language, public singleton<far_language>
 public:
 	using language::load;
 	bool is_loaded() const;
-	const string& GetMsg(lng Id) const;
+	const string& Msg(lng Id) const;
 
 private:
 	far_language();

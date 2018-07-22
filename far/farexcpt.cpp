@@ -398,7 +398,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 					PlugRec = {};
 					PlugRec.TypeRec=RTYPE_PLUGIN;
 					PlugRec.SizeRec=sizeof(PLUGINRECORD);
-					PlugRec.ModuleName = PluginModule->GetModuleName().c_str();
+					PlugRec.ModuleName = PluginModule->ModuleName().c_str();
 				}
 
 				DWORD dummy;
@@ -469,7 +469,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 	}
 	else
 	{
-		strFileName = PluginModule->GetModuleName();
+		strFileName = PluginModule->ModuleName();
 	}
 
 	const auto Exception = [&](NTSTATUS Code)

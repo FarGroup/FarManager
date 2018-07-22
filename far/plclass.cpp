@@ -199,7 +199,7 @@ bool native_plugin_factory::Destroy(plugin_factory::plugin_module_ptr& instance)
 	return true;
 }
 
-plugin_factory::function_address native_plugin_factory::GetFunction(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
+plugin_factory::function_address native_plugin_factory::Function(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
 {
 	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress(null_terminated_t<char>(Name.AName).c_str()) : nullptr;
 }
@@ -409,16 +409,16 @@ static void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PS
 {
 	CreatePluginStartupInfo(PSI, FSF);
 
-	PSI->ModuleName = pPlugin->GetModuleName().c_str();
-	if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Arclite.Id)
+	PSI->ModuleName = pPlugin->ModuleName().c_str();
+	if (pPlugin->Id() == Global->Opt->KnownIDs.Arclite.Id)
 	{
 		PSI->Private = &ArcliteInfo;
 	}
-	else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Netbox.Id)
+	else if (pPlugin->Id() == Global->Opt->KnownIDs.Netbox.Id)
 	{
 		PSI->Private = &NetBoxInfo;
 	}
-	else if (pPlugin->GetGUID() == Global->Opt->KnownIDs.Luamacro.Id)
+	else if (pPlugin->Id() == Global->Opt->KnownIDs.Luamacro.Id)
 	{
 		PSI->Private = &MacroInfo;
 	}
@@ -488,9 +488,9 @@ bool Plugin::SaveToCache()
 	PlCache->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
 	PlCache->SetFlags(id, Info.Flags);
 
-	PlCache->SetMinFarVersion(id, &MinFarVersion);
+	PlCache->SetMinFarVersion(id, &m_MinFarVersion);
 	PlCache->SetGuid(id, m_strGuid);
-	PlCache->SetVersion(id, &PluginVersion);
+	PlCache->SetVersion(id, &m_PluginVersion);
 	PlCache->SetTitle(id, strTitle);
 	PlCache->SetDescription(id, strDescription);
 	PlCache->SetAuthor(id, strAuthor);
@@ -507,7 +507,7 @@ void Plugin::InitExports()
 {
 	std::transform(ALL_CONST_RANGE(m_Factory->ExportsNames()), Exports.begin(), [&](const auto& i)
 	{
-		const auto Address = m_Factory->GetFunction(m_Instance, i);
+		const auto Address = m_Factory->Function(m_Instance, i);
 		return std::make_pair(Address, Address != nullptr);
 	});
 }
@@ -583,7 +583,7 @@ bool Plugin::LoadData()
 	if(bPendingRemove)
 	{
 		bPendingRemove = false;
-		m_Factory->GetOwner()->UndoRemove(this);
+		m_Factory->Owner()->UndoRemove(this);
 	}
 	InitExports();
 
@@ -595,9 +595,9 @@ bool Plugin::LoadData()
 		Info.Description && *Info.Description &&
  		Info.Author && *Info.Author)
 	{
-		MinFarVersion = Info.MinFarVersion;
-		PluginVersion = Info.Version;
-		VersionString = VersionToString(PluginVersion);
+		m_MinFarVersion = Info.MinFarVersion;
+		m_PluginVersion = Info.Version;
+		m_VersionString = VersionToString(m_PluginVersion);
 		strTitle = Info.Title;
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
@@ -608,7 +608,7 @@ bool Plugin::LoadData()
 		{
 			if (m_Guid != FarGuid && m_Guid != Info.Guid)
 			{
-				ok = m_Factory->GetOwner()->UpdateId(this, Info.Guid);
+				ok = m_Factory->Owner()->UpdateId(this, Info.Guid);
 			}
 			else
 			{
@@ -690,16 +690,17 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 				return false;
 		}
 
-		if (!PlCache->GetMinFarVersion(id, &MinFarVersion))
+		if (!PlCache->GetMinFarVersion(id, &m_MinFarVersion))
 		{
-			MinFarVersion = FAR_VERSION;
+			m_MinFarVersion = FAR_VERSION;
 		}
 
-		if (!PlCache->GetVersion(id, &PluginVersion))
+		if (!PlCache->GetVersion(id, &m_PluginVersion))
 		{
-			PluginVersion = {};
+			m_PluginVersion = {};
 		}
-		VersionString = VersionToString(PluginVersion);
+
+		m_VersionString = VersionToString(m_PluginVersion);
 
 		m_strGuid = PlCache->GetGuid(id);
 		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
@@ -823,9 +824,9 @@ bool Plugin::GetGlobalInfo(GlobalInfo* Info)
 
 bool Plugin::CheckMinFarVersion()
 {
-	if (!CheckVersion(&FAR_VERSION, &MinFarVersion))
+	if (!CheckVersion(&FAR_VERSION, &m_MinFarVersion))
 	{
-		ShowMessageAboutIllegalPluginVersion(m_strModuleName,MinFarVersion);
+		ShowMessageAboutIllegalPluginVersion(m_strModuleName, m_MinFarVersion);
 		return false;
 	}
 
@@ -853,9 +854,9 @@ void Plugin::CloseLang()
 	PluginLang.reset();
 }
 
-const wchar_t* Plugin::GetMsg(intptr_t Id) const
+const wchar_t* Plugin::Msg(intptr_t Id) const
 {
-	return static_cast<const plugin_language&>(*PluginLang).GetMsg(Id);
+	return static_cast<const plugin_language&>(*PluginLang).Msg(Id);
 }
 
 void* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode)
@@ -1207,7 +1208,7 @@ void Plugin::ExitFAR(ExitInfo *Info)
 
 void Plugin::HandleFailure(EXPORTS_ENUM id)
 {
-	m_Factory->GetOwner()->UnloadPlugin(this, id);
+	m_Factory->Owner()->UnloadPlugin(this, id);
 	Global->ProcessException = false;
 }
 
@@ -1216,7 +1217,7 @@ class custom_plugin_module: public i_plugin_module
 public:
 	NONCOPYABLE(custom_plugin_module);
 	explicit custom_plugin_module(void* Opaque) : m_Opaque(Opaque) {}
-	void* get_opaque() const override { return m_Opaque; }
+	void* opaque() const override { return m_Opaque; }
 
 private:
 	void* m_Opaque;
@@ -1246,6 +1247,7 @@ public:
 			{
 				m_VersionString = VersionToString(Info.Version);
 				m_Title = Info.Title;
+				m_Id = Info.Guid;
 			}
 			// TODO: store info, show message if version is bad
 		}
@@ -1274,7 +1276,7 @@ public:
 	plugin_module_ptr Create(const string& Filename) override
 	{
 		auto Module = std::make_unique<custom_plugin_module>(m_Imports.pCreateInstance(Filename.c_str()));
-		if (!Module->get_opaque())
+		if (!Module->opaque())
 		{
 			Module.reset();
 		}
@@ -1284,17 +1286,17 @@ public:
 
 	bool Destroy(plugin_module_ptr& Module) override
 	{
-		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->get_opaque()) != FALSE;
+		const auto Result = m_Imports.pDestroyInstance(static_cast<custom_plugin_module*>(Module.get())->opaque()) != FALSE;
 		Module.reset();
 		ProcessError(L"Destroy"sv);
 		return Result;
 	}
 
-	function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override
+	function_address Function(const plugin_module_ptr& Instance, const export_name& Name) override
 	{
 		if (Name.UName.empty())
 			return nullptr;
-		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->get_opaque(), null_terminated(Name.UName).c_str());
+		const auto Result = m_Imports.pGetFunctionAddress(static_cast<custom_plugin_module*>(Instance.get())->opaque(), null_terminated(Name.UName).c_str());
 		ProcessError(L"GetFunction"sv);
 		return Result;
 	}
@@ -1323,12 +1325,12 @@ public:
 		return true;
 	}
 
-	string GetTitle() const override
+	string Title() const override
 	{
 		return m_Title;
 	}
 
-	string GetVersionString() const override
+	string VersionString() const override
 	{
 		return m_VersionString;
 	}

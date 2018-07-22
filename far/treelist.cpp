@@ -100,15 +100,15 @@ static int LastScrY = -1;
   Global->Opt->Tree.CDDisk             Хранить файл структуры папок для CD/DVD/BD/etc дисков
 
   Global->Opt->Tree.strLocalDisk;      шаблон имени файла-деревяхи для локальных дисков
-     constLocalDiskTemplate=L"LD.%D.%SN.tree"
+     default = L"LD.%D.%SN.tree"
   Global->Opt->Tree.strNetDisk;        шаблон имени файла-деревяхи для сетевых дисков
-     constNetDiskTemplate=L"ND.%D.%SN.tree";
+     default = L"ND.%D.%SN.tree";
   Global->Opt->Tree.strNetPath;        шаблон имени файла-деревяхи для сетевых путей
-     constNetPathTemplate=L"NP.%SR.%SH.tree";
+     default = L"NP.%SR.%SH.tree";
   Global->Opt->Tree.strRemovableDisk;  шаблон имени файла-деревяхи для сменных дисков
-     constRemovableDiskTemplate=L"RD.%SN.tree";
+     default = L"RD.%SN.tree";
   Global->Opt->Tree.strCDDisk;         шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
-     constCDDiskTemplate=L"CD.%L.%SN.tree";
+     default = L"CD.%L.%SN.tree";
 
      %D    - буква диска
      %SN   - серийный номер

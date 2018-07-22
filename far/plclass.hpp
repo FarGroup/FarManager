@@ -140,7 +140,7 @@ class i_plugin_module
 {
 public:
 	virtual ~i_plugin_module() = default;
-	virtual void* get_opaque() const = 0;
+	virtual void* opaque() const = 0;
 };
 
 class plugin_factory
@@ -163,18 +163,20 @@ public:
 	virtual bool IsPlugin(const string& filename) const = 0;
 	virtual plugin_module_ptr Create(const string& filename) = 0;
 	virtual bool Destroy(plugin_module_ptr& module) = 0;
-	virtual function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) = 0;
+	virtual function_address Function(const plugin_module_ptr& Instance, const export_name& Name) = 0;
 	virtual void ProcessError(string_view Function) const {}
 	virtual bool IsExternal() const { return false; }
-	virtual string GetTitle() const { return {}; }
-	virtual string GetVersionString() const { return {}; }
+	virtual string Title() const { return {}; }
+	virtual string VersionString() const { return {}; }
 
-	auto GetOwner() const { return m_owner; }
+	const auto& Id() const { return m_Id; }
+	auto Owner() const { return m_owner; }
 	const auto& ExportsNames() const { return m_ExportsNames; }
 
 protected:
 	range<const export_name*> m_ExportsNames;
 	PluginManager* const m_owner;
+	UUID m_Id{};
 };
 
 using plugin_factory_ptr = std::unique_ptr<plugin_factory>;
@@ -185,7 +187,7 @@ public:
 	NONCOPYABLE(native_plugin_module);
 	explicit native_plugin_module(const string& Name): m_Module(Name, true) {}
 
-	void* get_opaque() const override
+	void* opaque() const override
 	{
 		return nullptr;
 	}
@@ -213,7 +215,7 @@ public:
 	bool IsPlugin(const string& filename) const override;
 	plugin_module_ptr Create(const string& filename) override;
 	bool Destroy(plugin_module_ptr& module) override;
-	function_address GetFunction(const plugin_module_ptr& Instance, const export_name& Name) override;
+	function_address Function(const plugin_module_ptr& Instance, const export_name& Name) override;
 
 private:
 	// the rest shouldn't be here, just an optimization for OEM plugins
@@ -308,17 +310,17 @@ public:
 	bool has(EXPORTS_ENUM id) const { return Exports[id].second; }
 	bool has(const detail::ExecuteStruct& es) const { return has(es.id); }
 
-	const string& GetModuleName() const { return m_strModuleName; }
-	const string& GetCacheName() const  { return m_strCacheName; }
-	const string& GetTitle() const { return strTitle; }
-	const string& GetDescription() const { return strDescription; }
-	const string& GetAuthor() const { return strAuthor; }
-	const VersionInfo& GetVersion() const { return PluginVersion; }
-	const VersionInfo& GetMinFarVersion() const { return MinFarVersion; }
-	const string& GetVersionString() const { return VersionString; }
-	const GUID& GetGUID() const { return m_Guid; }
+	const string& ModuleName() const { return m_strModuleName; }
+	const string& CacheName() const  { return m_strCacheName; }
+	const string& Title() const { return strTitle; }
+	const string& Description() const { return strDescription; }
+	const string& Author() const { return strAuthor; }
+	const VersionInfo& Version() const { return m_PluginVersion; }
+	const VersionInfo& MinFarVersion() const { return m_MinFarVersion; }
+	const string& VersionString() const { return m_VersionString; }
+	const GUID& Id() const { return m_Guid; }
 	bool IsPendingRemove() const { return bPendingRemove; }
-	const wchar_t *GetMsg(intptr_t Id) const;
+	const wchar_t* Msg(intptr_t Id) const;
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags); }
 
@@ -412,7 +414,7 @@ private:
 	template<typename T>
 	void SetInstance(T* Object) const
 	{
-		Object->Instance = m_Instance->get_opaque();
+		Object->Instance = m_Instance->opaque();
 	}
 
 	string strTitle;
@@ -424,10 +426,10 @@ private:
 
 	BitFlags WorkFlags;      // рабочие флаги текущего плагина
 
-	VersionInfo MinFarVersion{};
-	VersionInfo PluginVersion{};
+	VersionInfo m_MinFarVersion{};
+	VersionInfo m_PluginVersion{};
 
-	string VersionString;
+	string m_VersionString;
 
 	GUID m_Guid;
 	string m_strGuid;

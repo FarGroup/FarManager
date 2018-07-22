@@ -83,6 +83,9 @@ CFLAGS += \
 -Wodr \
 -Winvalid-pch \
 -Wlogical-op \
+-Wduplicated-cond \
+-Wduplicated-branches \
+-Wdouble-promotion \
 -Wno-unknown-pragmas \
 -Wno-unused-parameter \
 -Wno-missing-field-initializers \

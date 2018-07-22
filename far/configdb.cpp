@@ -250,7 +250,7 @@ private:
 			e.SetAttribute("key", stmtEnumAllValues.GetColTextUTF8(0).c_str());
 			e.SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(1).c_str());
 
-			switch (static_cast<column_type>(stmtEnumAllValues.GetColType(2)))
+			switch (stmtEnumAllValues.GetColType(2))
 			{
 			case column_type::integer:
 				e.SetAttribute("type", "qword");
@@ -598,7 +598,7 @@ protected:
 				const auto name = Stmt->GetColTextUTF8(0);
 				e.SetAttribute("name", name.c_str());
 
-				switch (static_cast<column_type>(Stmt->GetColType(1)))
+				switch (Stmt->GetColType(1))
 				{
 				case column_type::integer:
 					e.SetAttribute("type", "qword");

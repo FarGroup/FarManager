@@ -1003,7 +1003,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 				if (Info->Flags&PFLAGS_PLUGIN)
 				{
-					Info->OwnerGuid = DestFilePanel->GetPluginHandle()->plugin()->GetGUID();
+					Info->OwnerGuid = DestFilePanel->GetPluginHandle()->plugin()->Id();
 					Info->PluginHandle = DestFilePanel->GetPluginHandle()->panel();
 					static int Reenter=0;
 					if (!Reenter)
@@ -1298,7 +1298,7 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo) const
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		const auto ph = GetPluginHandle();
-		ShortcutInfo.PluginGuid = ph->plugin()->GetGUID();
+		ShortcutInfo.PluginGuid = ph->plugin()->Id();
 		OpenPanelInfo Info;
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(ph, &Info);
 		ShortcutInfo.PluginFile = NullToEmpty(Info.HostFile);

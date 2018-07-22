@@ -5146,7 +5146,7 @@ void FileList::UpdateKeyBar()
 
 bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 {
-	auto strPath = hPlugin->plugin()->GetModuleName();
+	auto strPath = hPlugin->plugin()->ModuleName();
 	CutToSlash(strPath);
 	const auto HelpFileData = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
 	if (!std::get<0>(HelpFileData))
@@ -7497,7 +7497,7 @@ void FileList::ShowFileList(bool Fast)
 		// "exits" to the CurDir, dynamically set by the plugin), so disabling it for the Network plugin only for now.
 		// Yes, it is ugly, I know. It probably would be better to set CurDir in the Network plugin dynamically in this case
 		// as \\server\current_share_under_cursor, but the plugin doesn't keep that information currently.
-		&& GetPluginHandle()->plugin()->GetGUID() != Global->Opt->KnownIDs.Network.Id
+		&& GetPluginHandle()->plugin()->Id() != Global->Opt->KnownIDs.Network.Id
 	)
 	{
 		if (!strInfoCurDir.empty())

@@ -2002,7 +2002,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 		{
 			std::for_each(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 			{
-				auto strPath = i->GetModuleName();
+				auto strPath = i->ModuleName();
 				CutToSlash(strPath);
 				const auto HelpFileData = OpenLangFile(strPath, Global->HelpFileMask, Global->Opt->strHelpLanguage);
 				const auto& HelpFile = std::get<0>(HelpFileData);
@@ -2052,7 +2052,7 @@ bool Help::MkTopic(const Plugin* pPlugin, const string& HelpTopic, string &strTo
 		{
 			if (pPlugin && HelpTopic.front() != HelpBeginLink)
 			{
-				strTopic = format(HelpFormatLinkModule, pPlugin->GetModuleName(), HelpTopic);
+				strTopic = format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic);
 			}
 			else
 			{

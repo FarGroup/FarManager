@@ -838,7 +838,10 @@ static char *InsertQuoteA(char *Str)
 	return Str;
 }
 
-static auto GetPluginGuid(intptr_t n) { return &reinterpret_cast<Plugin*>(n)->GetGUID(); }
+static auto GetPluginGuid(intptr_t n)
+{
+	return &reinterpret_cast<Plugin*>(n)->Id();
+}
 
 struct DialogData
 {
@@ -2308,7 +2311,7 @@ static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexce
 	{
 		//BUGBUG, надо проверять, что PluginHandle - плагин
 		const auto pPlugin = reinterpret_cast<Plugin*>(PluginHandle);
-		string strPath = pPlugin->GetModuleName();
+		string strPath = pPlugin->ModuleName();
 		CutToSlash(strPath);
 
 		if (pPlugin->InitLang(strPath, Global->Opt->strLanguage))
@@ -4795,7 +4798,7 @@ private:
 		Info->Description = L"Far 1.x plugin";
 		Info->Author = L"unknown";
 
-		const string& module = GetModuleName();
+		const string& module = ModuleName();
 		// Null-terminated, data() is ok
 		Info->Title = PointToName(module).data();
 
@@ -4804,7 +4807,7 @@ private:
 
 		auto& FileVersion = static_cast<oem_plugin_module*>(m_Instance.get())->m_FileVersion;
 
-		if (FileVersion.Read(GetModuleName()))
+		if (FileVersion.Read(ModuleName()))
 		{
 			const wchar_t* Value;
 			if (((Value = FileVersion.GetStringValue(L"InternalName")) != nullptr || (Value = FileVersion.GetStringValue(L"OriginalName")) != nullptr) && *Value)
@@ -4953,7 +4956,7 @@ private:
 			// скорректируем адреса и плагино-зависимые поля
 			InfoCopy.ModuleNumber = reinterpret_cast<intptr_t>(this);
 			InfoCopy.FSF = &FsfCopy;
-			encoding::oem::get_bytes(GetModuleName().c_str(), InfoCopy.ModuleName);
+			encoding::oem::get_bytes(ModuleName().c_str(), InfoCopy.ModuleName);
 			InfoCopy.RootKey = static_cast<oem_plugin_factory*>(m_Factory)->getUserName().c_str();
 
 			if (Global->strRegUser.empty())
@@ -5488,7 +5491,7 @@ private:
 
 	const string& GetHotkeyName() const override
 	{
-		return GetCacheName();
+		return CacheName();
 	}
 
 	bool InitLang(const string& Path, const string& Language) override

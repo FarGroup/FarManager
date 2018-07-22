@@ -991,7 +991,7 @@ DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, progress 
 			MsgCode = OperationFailed(ErrorState, strFullName, lng::MError, msg(recycle_bin ? lng::MCannotRecycleFile : lng::MCannotDeleteFile));
 		}
 
-		switch (static_cast<operation>(MsgCode))
+		switch (MsgCode)
 		{
 		case operation::retry:
 			break;

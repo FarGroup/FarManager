@@ -2360,7 +2360,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 		}
 		case MCODE_V_DLGINFOOWNER:        // Dlg->Info.Owner
 		{
-			const auto OwnerId = PluginOwner? PluginOwner->GetGUID() : FarGuid;
+			const auto OwnerId = PluginOwner? PluginOwner->Id() : FarGuid;
 			static string strOwnerId;
 			strOwnerId = GuidToStr(OwnerId);
 			return reinterpret_cast<intptr_t>(UNSAFE_CSTR(strOwnerId));
@@ -4774,7 +4774,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					if (CheckStructSize(di))
 					{
 						di->Id = m_Id;
-						di->Owner = PluginOwner? PluginOwner->GetGUID() : FarGuid;
+						di->Owner = PluginOwner? PluginOwner->Id() : FarGuid;
 						return true;
 					}
 				}

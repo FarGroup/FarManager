@@ -366,7 +366,7 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 				if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const GUID*>(ModuleName)))
 				{
 					OFlags |= FHELP_CUSTOMPATH;
-					strTopic = Help::MakeLink(ExtractFilePath(plugin->GetModuleName()), HelpTopic);
+					strTopic = Help::MakeLink(ExtractFilePath(plugin->ModuleName()), HelpTopic);
 				}
 			}
 		}
@@ -1119,11 +1119,11 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId) noexcept
 	{
 		if (Plugin *pPlugin = GuidToPlugin(PluginId))
 		{
-			string strPath = pPlugin->GetModuleName();
+			string strPath = pPlugin->ModuleName();
 			CutToSlash(strPath);
 
 			if (pPlugin->InitLang(strPath, Global->Opt->strLanguage))
-				return pPlugin->GetMsg(MsgId);
+				return pPlugin->Msg(MsgId);
 		}
 		return L"";
 	}
@@ -2401,7 +2401,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 					const auto strPath = ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2));
 					const auto ItemIterator = std::find_if(CONST_RANGE(*Global->CtrlObject->Plugins, i)
 					{
-						return equal_icase(i->GetModuleName(), strPath);
+						return equal_icase(i->ModuleName(), strPath);
 					});
 					if (ItemIterator != Global->CtrlObject->Plugins->cend())
 					{

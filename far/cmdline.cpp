@@ -782,7 +782,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 							}
 							case L'P': // $P - Current drive and path
 							{
-								AddCollapsible(string(m_CurDir));
+								AddCollapsible(string{ m_CurDir });
 								break;
 							}
 							case L'#': //$#nn - max prompt width in %
@@ -931,7 +931,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 			for (const auto& i: Factories)
 			{
 				if (i->IsExternal())
-					append(strOut, i->GetTitle(), L", version "sv, i->GetVersionString(), L'\n');
+					append(strOut, i->Title(), L", version "sv, i->VersionString(), L'\n');
 			}
 		}
 
@@ -941,7 +941,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 			for (const auto& i: *Global->CtrlObject->Plugins)
 			{
-				append(strOut, i->GetTitle(), L", version "sv, i->GetVersionString(), L'\n');
+				append(strOut, i->Title(), L", version "sv, i->VersionString(), L'\n');
 			}
 		}
 

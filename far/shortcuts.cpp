@@ -209,7 +209,7 @@ static string MakeName(const Shortcuts::shortcut& Item)
 			append(TechInfo, msg(lng::MFSShortcutPluginData), L' ', PrintablePluginData, L", "sv);
 	}
 
-	return plugin->GetTitle() + (TechInfo.empty()? TechInfo : concat(L" ("sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')'));
+	return plugin->Title() + (TechInfo.empty()? TechInfo : concat(L" ("sv, string_view(TechInfo).substr(0, TechInfo.size() - 2), L')'));
 }
 
 // Don't listen to static analysers - List MUST NOT be const. We store non-const iterators in type-erased UserData for further usage.
@@ -262,7 +262,7 @@ static auto CreateShortcutFromPanel()
 	{
 		OpenPanelInfo Info{};
 		ActivePanel->GetOpenPanelInfo(&Info);
-		Shortcut.PluginGuid = ActivePanel->GetPluginHandle()->plugin()->GetGUID();
+		Shortcut.PluginGuid = ActivePanel->GetPluginHandle()->plugin()->Id();
 		Shortcut.PluginFile = NullToEmpty(Info.HostFile);
 		Shortcut.PluginData = NullToEmpty(Info.ShortcutData);
 	}
@@ -281,7 +281,7 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 	if (Item.PluginGuid != FarGuid)
 	{
 		const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid);
-		Builder.AddSeparator(plugin? plugin->GetTitle().c_str() : GuidToStr(Item.PluginGuid).c_str());
+		Builder.AddSeparator(plugin? plugin->Title().c_str() : GuidToStr(Item.PluginGuid).c_str());
 		Builder.AddText(lng::MFSShortcutPluginFile);
 		Builder.AddEditField(NewItem.PluginFile, 50, L"FS_PluginFile", DIF_EDITPATH);
 		Builder.AddText(lng::MFSShortcutPluginData);

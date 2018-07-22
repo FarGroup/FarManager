@@ -44,6 +44,8 @@ WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
 WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
 WARNING_DISABLE_GCC("-Wsuggest-override")
+WARNING_DISABLE_GCC("-Wdouble-promotion")
+WARNING_DISABLE_GCC("-Wuseless-cast")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
