@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.07.2018 23:02:33 +0100 - build 5243
+
+1. Adapter UUID is checked on load, duplicates are ignored.
+
+2. clang & gcc warnings.
+
+3. Some renaming.
+
+zg 22.07.2018 16:11:54 +0300 - build 5242
+
+1. FCTL_CLOSEPANEL closes panel synchronously.
+
+2. gcc warnings.
+
+drkns 21.07.2018 18:41:29 +0100 - build 5241
+
+1. Null character could not be entered in command line for some reason.
+
+2. Strings containing null characters would be correctly added to db and incorrectly read.
+
+drkns 20.07.2018 23:07:50 +0100 - build 5240
+
+1. Fix obtaining strings with winapi functions.
+
+drkns 16.07.2018 18:30:13 +0100 - build 5239
+
+1. Correction of 5238.2.
+
 drkns 15.07.2018 14:42:42 +0100 - build 5238
 
 1. New versions of tinyxml2 and fmt.
