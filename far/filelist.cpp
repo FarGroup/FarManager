@@ -1824,16 +1824,17 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				}
 
 				string strTempName;
+				string TemporaryDirectory;
 				bool UploadFailed = false, NewFile = false;
 
 				if (PluginMode)
 				{
-					const auto strTempDir = MakeTemp();
+					TemporaryDirectory = MakeTemp();
 
-					if (!os::fs::create_directory(strTempDir))
+					if (!os::fs::create_directory(TemporaryDirectory))
 						return true;
 
-					strTempName = concat(strTempDir, L'\\', PointToName(strFileName));
+					strTempName = concat(TemporaryDirectory, L'\\', PointToName(strFileName));
 
 					const FileListItem* CurPtr = nullptr;
 					if (LocalKey==KEY_SHIFTF4)
@@ -1858,9 +1859,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						PluginPanelItemHolder PanelItem;
 						FileListToPluginItem(*CurPtr, PanelItem);
 
-						if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | (Edit?OPM_EDIT:OPM_VIEW)))
+						if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, TemporaryDirectory, strFileName, OPM_SILENT | (Edit? OPM_EDIT : OPM_VIEW)))
 						{
-							os::fs::remove_directory(strTempDir);
+							os::fs::remove_directory(TemporaryDirectory);
 							return true;
 						}
 					}
@@ -1875,6 +1876,12 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 				if (!strFileName.empty())
 				{
+					os::fs::current_directory_guard Guard;
+
+					// We have to set it - users can have associations like !.! which will work funny without this
+					if (PluginMode)
+						Guard = os::fs::current_directory_guard(TemporaryDirectory);
+
 					if (Edit)
 					{
 						const auto EnableExternal = (((LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4) && Global->Opt->EdOpt.UseExternalEditor) ||

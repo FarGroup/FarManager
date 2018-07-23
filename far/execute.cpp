@@ -989,7 +989,11 @@ void Execute(execute_info& Info, bool FolderRun, bool Silent, const std::functio
 
 	{
 		// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
-		SCOPED_ACTION(os::fs::process_current_directory_guard)(os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT), [&strCurDir]{ return ConvertNameToReal(strCurDir); });
+		os::fs::process_current_directory_guard Guard;
+		if (os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
+		{
+			Guard = os::fs::process_current_directory_guard(ConvertNameToReal(strCurDir));
+		}
 
 		Result = ShellExecuteEx(&seInfo) != FALSE;
 

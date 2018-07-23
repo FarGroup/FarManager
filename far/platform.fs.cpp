@@ -1293,11 +1293,22 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	process_current_directory_guard::process_current_directory_guard(bool Active, const std::function<string()>& Provider):
-		m_Active(Active && GetProcessRealCurrentDirectory(m_Directory))
+	current_directory_guard::current_directory_guard(const string& Directory):
+		m_Directory(GetCurrentDirectory()),
+		m_Active(SetCurrentDirectory(Directory))
 	{
-		if (m_Active && Provider)
-			SetProcessRealCurrentDirectory(Provider());
+	}
+
+	current_directory_guard::~current_directory_guard()
+	{
+		// No need to validate, we can trust ourselves
+		if (m_Active)
+			SetCurrentDirectory(m_Directory, false);
+	}
+
+	process_current_directory_guard::process_current_directory_guard(const string& Directory):
+		m_Active(GetProcessRealCurrentDirectory(m_Directory) && SetProcessRealCurrentDirectory(Directory))
+	{
 	}
 
 	process_current_directory_guard::~process_current_directory_guard()
