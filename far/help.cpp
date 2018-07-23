@@ -64,10 +64,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 
-static const wchar_t* FoundContents = L"__FoundContents__";
-static const wchar_t* PluginContents = L"__PluginContents__";
-static const wchar_t* HelpOnHelpTopic = L":Help";
-static const wchar_t* HelpContents = L"Contents";
+static const auto
+	FoundContents = L"__FoundContents__"sv,
+	PluginContents = L"__PluginContents__"sv,
+	HelpOnHelpTopic = L":Help"sv,
+	HelpContents = L"Contents"sv;
 
 static const wchar_t HelpBeginLink = L'<';
 static const wchar_t HelpEndLink = L'>';
@@ -132,14 +133,14 @@ struct Help::StackHelpData
 	int   CurX, CurY;             // координаты (???)
 };
 
-string Help::MakeLink(const string& path, const string& topic)
+string Help::MakeLink(string_view const path, string_view const topic)
 {
 	return concat(L'<', path, L"\\>"sv, topic);
 }
 
-static bool GetOptionsParam(const os::fs::file& LangFile, const wchar_t *KeyName, string &strValue, UINT nCodePage)
+static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, UINT CodePage)
 {
-	return GetLangParam(LangFile, L"Options "s + KeyName, strValue, nullptr, nCodePage);
+	return GetLangParam(LangFile, L"Options "sv + KeyName, Value, nullptr, CodePage);
 }
 
 Help::Help(private_tag):
@@ -1471,9 +1472,9 @@ bool Help::ProcessKey(const Manager::Key& Key)
 	return false;
 }
 
-bool Help::JumpTopic(const string& Topic)
+bool Help::JumpTopic(string_view const Topic)
 {
-	StackData->strSelTopic = Topic;
+	assign(StackData->strSelTopic, Topic);
 	return JumpTopic();
 }
 
@@ -1594,7 +1595,7 @@ bool Help::JumpTopic()
 			if (pos != string::npos)
 			{
 				StackData->strHelpTopic.resize(pos+1);
-				StackData->strHelpTopic += HelpContents;
+				append(StackData->strHelpTopic, HelpContents);
 			}
 		}
 

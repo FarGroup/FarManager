@@ -119,7 +119,7 @@ static int PrepareHotKey(string &strHotKey)
 	return FuncNum;
 }
 
-static const wchar_t LocalMenuFileName[] = L"FarMenu.ini";
+static const auto LocalMenuFileName = L"FarMenu.ini"sv;
 
 struct UserMenu::UserMenuItem
 {
@@ -261,7 +261,7 @@ void UserMenu::SaveMenu(const string& MenuFileName) const
 			if (Message(MSG_WARNING,
 				msg(lng::MUserMenuTitle),
 				{
-					LocalMenuFileName,
+					string(LocalMenuFileName),
 					msg(lng::MEditRO),
 					msg(lng::MEditOvr)
 				},

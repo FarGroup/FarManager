@@ -406,8 +406,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,s
 
 			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, strFileName, OPM_FIND | OpMode, &CurPanelItem.UserData))
 			{
-				strPluginSearchPath += CurPanelItem.FileName;
-				strPluginSearchPath += L"\x1";
+				append(strPluginSearchPath, CurPanelItem.FileName, L'\x1');
 				ScanPluginDir(hDirListPlugin, OpMode, strPluginSearchPath, PluginDirList, StopSearch);
 				size_t pos = strPluginSearchPath.rfind(L'\x1');
 				if (pos != string::npos)
@@ -484,8 +483,7 @@ bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, s
 
 			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT|OpMode,&UserData))
 			{
-				string strPluginSearchPath = Dir;
-				strPluginSearchPath += L"\x1";
+				auto strPluginSearchPath = concat(Dir, L'\x1');
 				ScanPluginDir(hDirListPlugin, OpMode,strPluginSearchPath, Items, StopSearch);
 
 				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT|OpMode);

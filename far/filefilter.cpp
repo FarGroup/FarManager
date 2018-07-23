@@ -1037,7 +1037,7 @@ int FileFilter::ParseAndAddMasks(std::list<std::pair<string, int>>& Extensions, 
 
 	if (DotPos == string::npos)
 	{
-		strMask = L"*.";
+		strMask = L"*."s;
 	}
 	else
 	{

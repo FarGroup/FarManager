@@ -213,7 +213,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 
 		if (AddEol)
 		{
-			CopyBuf += L"\r\n";
+			CopyBuf += L"\r\n"s;
 		}
 	}
 
@@ -228,7 +228,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 			{
 				if (!OldData.empty() && OldData.back() != L'\n')
 				{
-					OldData += L"\r\n";
+					OldData += L"\r\n"s;
 				}
 				CopyBuf.insert(0, OldData);
 			}

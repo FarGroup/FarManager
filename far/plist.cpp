@@ -124,7 +124,7 @@ static BOOL CALLBACK EnumWindowsProc(HWND Window, LPARAM Param)
 				os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
 			
 			if (MenuItem.empty())
-				MenuItem = L"???";
+				MenuItem = L"???"s;
 		}
 		else
 		{

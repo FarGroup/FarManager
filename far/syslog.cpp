@@ -181,7 +181,7 @@ void OpenSysLog()
 
 	if (!LogStream)
 	{
-		string strLogFileName=Global->g_strFarPath+L"$Log";
+		auto strLogFileName = path::join(Global->g_strFarPath, L"$Log");
 		DWORD Attr=os::fs::get_file_attributes(strLogFileName);
 
 		if (Attr == INVALID_FILE_ATTRIBUTES)
@@ -847,7 +847,7 @@ string __ECTL_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"ECTL",ECTL,std::size(ECTL));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -866,7 +866,7 @@ string __EE_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"EE",EE,std::size(EE));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -880,7 +880,7 @@ string __EEREDRAW_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,std::size(EEREDRAW));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -905,7 +905,7 @@ string __ESPT_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"ESPT",ESPT,std::size(ESPT));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -926,7 +926,7 @@ string __MCTL_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"MCTL",MCTL,std::size(MCTL));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -943,7 +943,7 @@ string __VE_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"VE",VE,std::size(VE));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -989,7 +989,7 @@ string __FCTL_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"FCTL",FCTL,std::size(FCTL));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1025,7 +1025,7 @@ string __ACTL_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"ACTL",ACTL,std::size(ACTL));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1046,7 +1046,7 @@ string __VCTL_ToName(int Command)
 	};
 	return _XXX_ToName(Command,L"VCTL",VCTL,std::size(VCTL));
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1302,7 +1302,7 @@ string __MCODE_ToName(DWORD OpCode)
 
 	return str_printf(L"%08X | MCODE_%-20s",OpCode,L"???");
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1310,7 +1310,7 @@ string __FARKEY_ToName(int Key)
 {
 #if defined(SYSLOG)
 	if (!IsLogON())
-		return L"";
+		return {};
 
 	string Name;
 	if (!(far_key_code(Key) >= KEY_MACRO_BASE && far_key_code(Key) <= KEY_MACRO_ENDBASE) && KeyToText(Key,Name))
@@ -1321,7 +1321,7 @@ string __FARKEY_ToName(int Key)
 
 	return str_printf(L"\"KEY_????\" [%u/0x%08X]",Key,Key);
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1385,7 +1385,7 @@ string __DLGDIF_ToName(DWORD Msg)
 
 	return str_printf(L"\"DIF_??? [%I64d/0x%016I64X]\"",Msg,Msg);
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1520,7 +1520,7 @@ string __DLGMSG_ToName(DWORD Msg)
 
 	return str_printf(L"\"%s+[%d/0x%08X]\"", (Msg >= DM_USER? L"DM_USER" : (Msg >= DN_FIRST? L"DN_FIRST" : L"DM_FIRST")), Msg, Msg);
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1528,7 +1528,7 @@ string __VK_KEY_ToName(int VkKey)
 {
 #if defined(SYSLOG)
 	if (!IsLogON())
-		return L"";
+		return {};
 
 #define DEF_VK(k) { VK_##k , L###k }
 	__XXX_Name VK[]=
@@ -1617,7 +1617,7 @@ string __VK_KEY_ToName(int VkKey)
 		return _XXX_ToName(VkKey,L"VK",VK,std::size(VK));
 
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1625,7 +1625,7 @@ string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *rec)
 {
 #if defined(SYSLOG)
 	if (!IsLogON())
-		return L"";
+		return {};
 
 	string Records = str_printf(
 	    L"MOUSE_EVENT_RECORD: [%d,%d], Btn=0x%08X (%c%c%c%c%c), Ctrl=0x%08X (%c%c%c%c%c - %c%c%c%c), Flgs=0x%08X (%s)",
@@ -1661,7 +1661,7 @@ string __MOUSE_EVENT_RECORD_Dump(const MOUSE_EVENT_RECORD *rec)
 
 	return Records;
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1670,12 +1670,12 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 {
 #if defined(SYSLOG)
 	if (!IsLogON())
-		return L"";
+		return {};
 
 	string Records;
 
 	if (!rec)
-		return L"(null)";
+		return L"(null)"s;
 
 	switch (rec->EventType)
 	{
@@ -1741,7 +1741,7 @@ string __INPUT_RECORD_Dump(const INPUT_RECORD *rec)
 	Records.append(L" (").append(IsConsoleFullscreen()? L"Fullscreen" : L"Windowed").append(L")");
 	return Records;
 #else
-	return L"";
+	return {};
 #endif
 }
 
@@ -1805,7 +1805,7 @@ string __SysLog_LinearDump(LPBYTE Buf,int SizeBuf)
 
 	return OutBuf;
 #else
-	return L"";
+	return {};
 #endif
 }
 

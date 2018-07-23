@@ -2116,7 +2116,10 @@ bool FileEditor::SetFileName(const string_view NewFileName)
 
 void FileEditor::SetTitle(const string* Title)
 {
-	strTitle = Title? *Title : L"";
+	if (Title)
+		strTitle = *Title;
+	else
+		strTitle.clear();
 }
 
 string FileEditor::GetTitle() const
@@ -2299,7 +2302,10 @@ bool FileEditor::UpdateFileList() const
 
 void FileEditor::SetPluginData(const string* PluginData)
 {
-	FileEditor::strPluginData = PluginData? *PluginData : L"";
+	if (PluginData)
+		strPluginData = *PluginData;
+	else
+		strPluginData.clear();
 }
 
 /* $ 14.06.2002 IS

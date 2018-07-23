@@ -676,7 +676,7 @@ void InfoList::SelectShowMode()
 	Global->Opt->InfoPanel.strShowStatusInfo.clear();
 	std::for_each(RANGE(SectionState, i)
 	{
-		Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1" : L"0";
+		Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1"s : L"0"s;
 	});
 
 	Redraw();

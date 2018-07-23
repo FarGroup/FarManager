@@ -391,7 +391,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 
 	const wchar_t DownArrow = L'\x2193';
 	string_view Name;
-	string_view Mask = L"";
+	auto Mask = L""sv;
 	wchar_t MarkChar[]=L"' '";
 	DWORD IncludeAttr, ExcludeAttr;
 	bool UseSize, UseHardLinks, UseDate, RelativeDate;

@@ -104,7 +104,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local)
 		DizList Diz;
 		const auto DbPath = path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, L"PluginsData");
 		Diz.Read(DbPath);
-		const auto DbName = strGuid + L".db";
+		const auto DbName = concat(strGuid, L".db");
 		const auto Description = concat(pPlugin->Title(), L" ("sv, pPlugin->Description(), L')');
 		if (Description != NullToEmpty(Diz.Get(DbName, L"", 0)))
 		{

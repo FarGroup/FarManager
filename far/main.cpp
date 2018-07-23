@@ -497,7 +497,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 		PrepareDiskPath(Global->g_strFarModuleName);
 	}
 
-	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
+	Global->g_strFarINI = concat(Global->g_strFarModuleName, L".ini"sv);
 	Global->g_strFarPath = Global->g_strFarModuleName;
 	CutToSlash(Global->g_strFarPath,true);
 	os::env::set(L"FARHOME"sv, Global->g_strFarPath);

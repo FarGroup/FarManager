@@ -59,7 +59,7 @@ bool EjectVolume(wchar_t Letter, unsigned long long Flags)
 	auto fAutoEject = false;
 	auto fRemoveSafely = false;
 
-	string RootName=L"\\\\.\\ :\\";
+	auto RootName = L"\\\\.\\ :\\"s;
 	RootName[4] = Letter;
 	// OpenVolume
 	const auto DriveType = FAR_GetDriveType(string_view(RootName).substr(4));

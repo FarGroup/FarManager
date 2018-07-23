@@ -178,7 +178,7 @@ void KeyBar::SetLabels(lng StartIndex)
 		std::for_each(RANGE(Group, i)
 		{
 			if (no_tree && (StartIndex == lng::MAltF10 || StartIndex == lng::MInfoAltF10 || StartIndex == lng::MQViewAltF10))
-				i.first = L"";
+				i.first.clear();
 			else
 				i.first = msg(StartIndex);
 			StartIndex++;

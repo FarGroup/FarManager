@@ -2792,7 +2792,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 
 	string strFindDir;
 	auto strSetDir = NewDir;
-	bool dot2Present = strSetDir == L"..";
+	bool dot2Present = strSetDir == L".."sv;
 
 	bool RootPath = false;
 	bool NetPath = false;
@@ -3910,7 +3910,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 	auto SelectDlg = MakeDialogItemsEx(SelectDlgData);
 	FileFilter Filter(this, FFT_SELECT);
 	bool bUseFilter = false;
-	static string strPrevMask=L"*.*";
+	static auto strPrevMask = L"*.*"s;
 	/* $ 20.05.2002 IS
 	   При обработке маски, если работаем с именем файла на панели,
 	   берем каждую квадратную скобку в имени при образовании маски в скобки,
@@ -3945,7 +3945,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		}
 		else
 		{
-			strMask = L"*.";
+			strMask = L"*."s;
 		}
 
 		Mode=(Mode==SELECT_ADDEXT) ? SELECT_ADD:SELECT_REMOVE;
@@ -3955,14 +3955,14 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		if (Mode==SELECT_ADDNAME || Mode==SELECT_REMOVENAME)
 		{
 			// Учтем тот момент, что имя может содержать символы-разделители
-			strRawMask=L"\"";
+			strRawMask = L"\""s;
 			strRawMask+=strCurName;
 			size_t pos = strRawMask.rfind(L'.');
 
 			if (pos != string::npos && pos!=strRawMask.size()-1)
 				strRawMask.resize(pos);
 
-			strRawMask += L".*\"";
+			strRawMask += L".*\""s;
 			WrapBrackets=true;
 			Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
 		}
@@ -6936,7 +6936,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	}
 	else if (m_CachedOpenPanelInfo.Flags & OPIF_ADDDOTS)
 	{
-		strCurName = L"..";
+		strCurName = L".."s;
 	}
 
 	if (KeepSelection || PrevSelFileCount>0)
@@ -7185,7 +7185,7 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 void FileList::FillParentPoint(FileListItem& Item, size_t CurFilePos)
 {
 	Item.Attributes = FILE_ATTRIBUTE_DIRECTORY;
-	Item.FileName = L"..";
+	Item.FileName = L".."s;
 	Item.SetAlternateFileName(Item.FileName);
 	Item.Position = CurFilePos;
 }
@@ -7672,7 +7672,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		string strFreeSize, strTotalSize;
 		auto strFormSize = size2str(TotalFileSize, 6, false, short_mode);
 		if (Global->Opt->ShowPanelFree && (m_PanelMode != panel_mode::PLUGIN_PANEL || (Info.Flags & (OPIF_REALNAMES | OPIF_USEFREESIZE))))
-			strFreeSize = (FreeDiskSize != static_cast<unsigned long long>(-1)) ? size2str(FreeDiskSize, 10, true, short_mode) : L"?";
+			strFreeSize = (FreeDiskSize != static_cast<unsigned long long>(-1)) ? size2str(FreeDiskSize, 10, true, short_mode) : L"?"s;
 
 		if (Global->Opt->ShowPanelTotals)
 		{
@@ -8416,7 +8416,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								}
 							}
 
-							string strDizText=m_ListData[ListPos].DizText ? m_ListData[ListPos].DizText+CurLeftPos:L"";
+							string strDizText=m_ListData[ListPos].DizText? m_ListData[ListPos].DizText+CurLeftPos : L""s;
 							size_t pos = strDizText.find(L'\4');
 							if (pos != string::npos)
 								strDizText.resize(pos);

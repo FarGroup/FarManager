@@ -62,7 +62,7 @@ public:
 
 	bool GetError() const {return ErrorHelp;}
 	static bool MkTopic(const class Plugin* pPlugin, const string& HelpTopic, string &strTopic);
-	static string MakeLink(const string& path, const string& topic);
+	static string MakeLink(string_view path, string_view topic);
 
 	struct StackHelpData;
 
@@ -85,7 +85,7 @@ private:
 	void MoveToReference(int Forward,int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
 	void Search(const os::fs::file& HelpFile,uintptr_t nCodePage);
-	bool JumpTopic(const string& JumpTopic);
+	bool JumpTopic(string_view JumpTopic);
 	bool JumpTopic();
 	int CanvasHeight() const { return ObjHeight() - 1 - 1;  }
 	int HeaderHeight() const { return FixCount? FixCount + 1 : 0; }

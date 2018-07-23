@@ -482,7 +482,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, con
 
 	for (const auto& Info : ProcessInfos)
 	{
-		string Str = *Info.strAppName? Info.strAppName : L"Unknown";
+		auto Str = *Info.strAppName? Info.strAppName : L"Unknown"s;
 
 		if (*Info.strServiceShortName)
 			append(Str, L" ["sv, Info.strServiceShortName, L']');
@@ -677,35 +677,35 @@ static string GetReErrorString(int code)
 	switch (code)
 	{
 	case errNone:
-		return L"No errors";
+		return L"No errors"s;
 	case errNotCompiled:
-		return L"RegExp wasn't even tried to compile";
+		return L"RegExp wasn't even tried to compile"s;
 	case errSyntax:
-		return L"Expression contains a syntax error";
+		return L"Expression contains a syntax error"s;
 	case errBrackets:
-		return L"Unbalanced brackets";
+		return L"Unbalanced brackets"s;
 	case errMaxDepth:
-		return L"Max recursive brackets level reached";
+		return L"Max recursive brackets level reached"s;
 	case errOptions:
-		return L"Invalid options combination";
+		return L"Invalid options combination"s;
 	case errInvalidBackRef:
-		return L"Reference to nonexistent bracket";
+		return L"Reference to nonexistent bracket"s;
 	case errInvalidEscape:
-		return L"Invalid escape char";
+		return L"Invalid escape char"s;
 	case errInvalidRange:
-		return L"Invalid range value";
+		return L"Invalid range value"s;
 	case errInvalidQuantifiersCombination:
-		return L"Quantifier applied to invalid object. f.e. lookahead assertion";
+		return L"Quantifier applied to invalid object. f.e. lookahead assertion"s;
 	case errNotEnoughMatches:
-		return L"Size of match array isn't large enough";
+		return L"Size of match array isn't large enough"s;
 	case errNoStorageForNB:
-		return L"Attempt to match RegExp with Named Brackets but no storage class provided";
+		return L"Attempt to match RegExp with Named Brackets but no storage class provided"s;
 	case errReferenceToUndefinedNamedBracket:
-		return L"Reference to undefined named bracket";
+		return L"Reference to undefined named bracket"s;
 	case errVariableLengthLookBehind:
-		return L"Only fixed length look behind assertions are supported";
+		return L"Only fixed length look behind assertions are supported"s;
 	default:
-		return L"Unknown error";
+		return L"Unknown error"s;
 	}
 };
 

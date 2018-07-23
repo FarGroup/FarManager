@@ -927,7 +927,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 		const auto& Factories = Global->CtrlObject->Plugins->Factories();
 		if (std::any_of(ALL_CONST_RANGE(Factories), [](const auto& i) { return i->IsExternal(); }))
 		{
-			strOut += L"\nPlugin adapters:\n";
+			append(strOut, L"\nPlugin adapters:\n"sv);
 			for (const auto& i: Factories)
 			{
 				if (i->IsExternal())
@@ -937,7 +937,7 @@ static bool ProcessFarCommands(const string& Command, const std::function<void(b
 
 		if (Global->CtrlObject->Plugins->size())
 		{
-			strOut += L"\nPlugins:\n";
+			append(strOut, L"\nPlugins:\n"sv);
 
 			for (const auto& i: *Global->CtrlObject->Plugins)
 			{

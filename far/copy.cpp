@@ -1115,7 +1115,7 @@ ShellCopy::ShellCopy(panel_ptr SrcPanel,     // исходная панель (�
 				if (CheckNulOrCon(strNameTmp))
 				{
 					Flags|=FCOPY_COPYTONUL;
-					strNameTmp = L"\\\\?\\nul\\";
+					strNameTmp = L"\\\\?\\nul\\"s;
 				}
 				else
 					Flags&=~FCOPY_COPYTONUL;
@@ -2224,7 +2224,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		}
 	}
 
-	bool NWFS_Attr = Global->Opt->Nowell.MoveRO && strDestFSName == L"NWFS";
+	const auto NWFS_Attr = Global->Opt->Nowell.MoveRO && strDestFSName == L"NWFS"sv;
+
 	{
 		for (;;)
 		{

@@ -210,7 +210,7 @@ protected:
 
 private:
 	void Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL);
-	bool Open(const string& DbName, bool Local, bool WAL);
+	bool Open(string_view DbName, bool Local, bool WAL);
 	void Close();
 
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };

@@ -237,7 +237,7 @@ public:
 	{
 		if (m_userName.empty())
 		{
-			m_userName = "Software\\Far Manager" + (Global->strRegUser.empty()? "" : "\\Users\\" + encoding::oem::get_bytes(Global->strRegUser)) + "\\Plugins";
+			m_userName = "Software\\Far Manager"s + (Global->strRegUser.empty()? ""s : "\\Users\\"s + encoding::oem::get_bytes(Global->strRegUser)) + "\\Plugins"s;
 		}
 		return m_userName;
 	}
@@ -3846,7 +3846,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 				if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
 					Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
-				string strSequence=L"Keys(\"";
+				auto strSequence = L"Keys(\""s;
 				string strKeyText;
 				for (const auto& Key: make_range(ksA->Sequence, ksA->Count))
 				{

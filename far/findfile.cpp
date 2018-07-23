@@ -647,7 +647,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					string Mask((LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR, FAD_EDIT_MASK, nullptr));
 
 					if (Mask.empty())
-						Mask=L"*";
+						Mask = L"*"s;
 
 					return FileMaskForFindFile->Set(Mask);
 				}
@@ -2949,7 +2949,7 @@ FindFiles::FindFiles():
 
 		UseFilter=(FindAskDlg[FAD_CHECKBOX_FILTER].Selected==BSTATE_CHECKED);
 		Global->Opt->FindOpt.UseFilter=UseFilter;
-		strFindMask = !FindAskDlg[FAD_EDIT_MASK].strData.empty() ? FindAskDlg[FAD_EDIT_MASK].strData:L"*";
+		strFindMask = !FindAskDlg[FAD_EDIT_MASK].strData.empty()? FindAskDlg[FAD_EDIT_MASK].strData : L"*"s;
 
 		if (SearchHex)
 		{

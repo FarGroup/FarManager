@@ -403,7 +403,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 			}
 		};
 
-		const auto CustomLngInSameDir = Data->m_FileName + L".custom";
+		const auto CustomLngInSameDir = Data->m_FileName + L".custom"sv;
 		const auto CustomLngInProfileDir = concat(Global->Opt->ProfilePath, L'\\', ExtractFileName(CustomLngInSameDir));
 
 		LoadStrings(CustomLngInSameDir);

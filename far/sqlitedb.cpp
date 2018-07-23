@@ -49,6 +49,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace
 {
+	const auto MemoryDbName = L":memory:"sv;
+
 	SCOPED_ACTION(components::component)([]
 	{
 		return components::component::info{ L"SQLite"s, WIDE(SQLITE_VERSION) };
@@ -59,10 +61,10 @@ namespace
 		return components::component::info{ L"SQLite Unicode extension"s, sqlite_unicode::SQLite_Unicode_Version };
 	});
 
-	static string GetDatabasePath(const string& FileName, bool Local)
+	static string GetDatabasePath(string_view const FileName, bool Local)
 	{
-		return FileName == L":memory:"?
-			FileName :
+		return FileName == MemoryDbName?
+			string(FileName) :
 			path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName);
 	}
 }
@@ -194,20 +196,21 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 	sqlite::sqlite3_close(Object);
 }
 
-bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
+bool SQLiteDb::Open(string_view const DbFile, bool Local, bool WAL)
 {
-	const auto& v1_opener = [](const string& Name, database_ptr& Db)
+	const auto& v1_opener = [](string_view const Name, database_ptr& Db)
 	{
-		return sqlite::sqlite3_open16(Name.c_str(), &ptr_setter(Db)) == SQLITE_OK;
+		return sqlite::sqlite3_open16(null_terminated(Name).c_str(), &ptr_setter(Db)) == SQLITE_OK;
 	};
 
-	const auto& v2_opener = [WAL](const string& Name, database_ptr& Db)
+	const auto& v2_opener = [WAL](string_view const Name, database_ptr& Db)
 	{
 		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), &ptr_setter(Db), WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK;
 	};
 
 	m_Path = GetDatabasePath(DbFile, Local);
-	const auto mem_db = DbFile == L":memory:";
+
+	const auto mem_db = DbFile == MemoryDbName;
 
 	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
@@ -224,7 +227,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 
 	// copy db to memory
 	//
-	if (!v1_opener(L":memory:", m_Db))
+	if (!v1_opener(MemoryDbName, m_Db))
 		return false;
 
 	bool ok = true, copied = false;
@@ -271,7 +274,7 @@ bool SQLiteDb::Open(const string& DbFile, bool Local, bool WAL)
 	if (copied)
 		os::fs::delete_file(m_Path);
 
-	m_Path = L":memory:";
+	assign(m_Path, MemoryDbName);
 	if (!ok)
 		Close();
 	return ok;
@@ -284,7 +287,7 @@ void SQLiteDb::Initialize(initialiser Initialiser, const string& DbName, bool Lo
 
 	m_Name = DbName;
 
-	const auto& OpenAndInitialise = [&](const string& Name)
+	const auto& OpenAndInitialise = [&](string_view const Name)
 	{
 		return Open(Name, Local, WAL) && Initialiser(db_initialiser(this));
 	};
@@ -301,14 +304,14 @@ void SQLiteDb::Initialize(initialiser Initialiser, const string& DbName, bool Lo
 		{
 			Close();
 			++init_status;
-			OpenAndInitialise(L":memory:"s);
+			OpenAndInitialise(MemoryDbName);
 		}
 	}
 }
 
 int SQLiteDb::GetInitStatus(string& name, bool full_name) const
 {
-	name = (full_name && !m_Path.empty() && m_Path != L":memory:") ? m_Path : m_Name;
+	name = (full_name && !m_Path.empty() && m_Path != MemoryDbName)? m_Path : m_Name;
 	return init_status;
 }
 

@@ -512,7 +512,7 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShow
 
 	string title = msg(lng::MGetCodePageTitle);
 	if (Global->Opt->CPMenuMode)
-		title += L" *";
+		append(title, L" *");
 	CodePagesMenu->SetTitle(title);
 
 	// Добавляем таблицы символов

@@ -75,7 +75,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_tokens.hpp"
 #include "common/scope_exit.hpp"
 
-static const wchar_t PluginsFolderName[] = L"Plugins";
 
 static void ReadUserBackgound(SaveScreen *SaveScr)
 {
@@ -422,7 +421,7 @@ void PluginManager::LoadPlugins()
 		// сначала подготовим список
 		if (PluginLoadOptions.MainPluginDir) // только основные и персональные?
 		{
-			PluginDirectories = { Global->g_strFarPath + PluginsFolderName };
+			PluginDirectories = { path::join(Global->g_strFarPath, L"Plugins"sv) };
 			// ...а персональные есть?
 			if (PluginLoadOptions.PluginsPersonal)
 				PluginDirectories.emplace_back(PluginLoadOptions.strPersonalPluginsPath);

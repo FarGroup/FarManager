@@ -326,7 +326,7 @@ string StrFTime(const wchar_t* Format, const tm* t)
 					// AM или PM
 					// am or pm based on 12-hour clock
 				case L'p':
-					strBuf=(t->tm_hour/12)?L"PM":L"AM";
+					strBuf = t->tm_hour / 12? L"PM"s : L"AM"s;
 					break;
 					// Две цифры секунд (00 - 59)
 					// second, 00 - 59
