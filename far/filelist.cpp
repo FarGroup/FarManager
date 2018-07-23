@@ -3866,7 +3866,7 @@ bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty()) // для плагинов
 	{
-		assign(strName, PointToName(PluginsList.front().m_HostFile));
+		assign(strName, PointToName(PluginsList.front()->m_HostFile));
 		strShortName = strName;
 	}
 	else if (m_PanelMode == panel_mode::NORMAL_PANEL)
@@ -4962,24 +4962,24 @@ void FileList::CountDirSize(bool IsRealNames)
 
 int FileList::GetPrevViewMode() const
 {
-	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevViewMode:m_ViewMode;
+	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->m_PrevViewMode:m_ViewMode;
 }
 
 
 panel_sort FileList::GetPrevSortMode() const
 {
-	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevSortMode:m_SortMode;
+	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->m_PrevSortMode:m_SortMode;
 }
 
 
 bool FileList::GetPrevSortOrder() const
 {
-	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevSortOrder : m_ReverseSortOrder;
+	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->m_PrevSortOrder : m_ReverseSortOrder;
 }
 
 bool FileList::GetPrevDirectoriesFirst() const
 {
-	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front().m_PrevDirectoriesFirst:m_DirectoriesFirst;
+	return (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->m_PrevDirectoriesFirst:m_DirectoriesFirst;
 }
 
 plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type, bool* StopProcessing)
@@ -5242,7 +5242,7 @@ void FileList::ClearAllItem()
 
 void FileList::PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin,const string& HostFile)
 {
-	PluginsList.emplace_back(std::move(hPlugin), HostFile, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_DirectoriesFirst, m_ViewSettings);
+	PluginsList.emplace_back(std::make_shared<PluginsListItem>(std::move(hPlugin), HostFile, FALSE, m_ViewMode, m_SortMode, m_ReverseSortOrder, m_DirectoriesFirst, m_ViewSettings));
 	++Global->PluginPanelsCount;
 }
 
@@ -5264,34 +5264,34 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 	// However, ClosePanel provides a notification and plugins might call API functions from it.
 	// So GetPluginHandle() will look into m_ExpiringPluginPanel first.
 	{
-		m_ExpiringPluginPanel = CurPlugin.m_Plugin.get();
+		m_ExpiringPluginPanel = CurPlugin;
 		SCOPE_EXIT{ m_ExpiringPluginPanel = nullptr; };
-		Global->CtrlObject->Plugins->ClosePanel(std::move(CurPlugin.m_Plugin));
+		Global->CtrlObject->Plugins->ClosePanel(std::move(CurPlugin->m_Plugin));
 	}
 
 	if (!PluginsList.empty())
 	{
 		if (EnableRestoreViewMode)
 		{
-			SetViewMode(CurPlugin.m_PrevViewMode);
-			m_SortMode = CurPlugin.m_PrevSortMode;
-			m_ReverseSortOrder = CurPlugin.m_PrevSortOrder;
-			m_DirectoriesFirst = CurPlugin.m_PrevDirectoriesFirst;
+			SetViewMode(CurPlugin->m_PrevViewMode);
+			m_SortMode = CurPlugin->m_PrevSortMode;
+			m_ReverseSortOrder = CurPlugin->m_PrevSortOrder;
+			m_DirectoriesFirst = CurPlugin->m_PrevDirectoriesFirst;
 		}
 
-		if (CurPlugin.m_Modified)
+		if (CurPlugin->m_Modified)
 		{
 			PluginPanelItemHolder PanelItem={};
 			const auto strSaveDir = os::fs::GetCurrentDirectory();
 
-			if (FileNameToPluginItem(CurPlugin.m_HostFile, PanelItem))
+			if (FileNameToPluginItem(CurPlugin->m_HostFile, PanelItem))
 			{
 				Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), &PanelItem.Item, 1, false, 0);
 			}
 			else
 			{
 				PluginPanelItem Item{};
-				Item.FileName = PointToName(CurPlugin.m_HostFile).data();
+				Item.FileName = PointToName(CurPlugin->m_HostFile).data();
 				Global->CtrlObject->Plugins->DeleteFiles(GetPluginHandle(), &Item, 1, 0);
 			}
 
@@ -5303,7 +5303,7 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 
 		if (!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES))
 		{
-			DeleteFileWithFolder(CurPlugin.m_HostFile);  // удаление файла от предыдущего плагина
+			DeleteFileWithFolder(CurPlugin->m_HostFile);  // удаление файла от предыдущего плагина
 		}
 	}
 	else
@@ -5312,10 +5312,10 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 
 		if (EnableRestoreViewMode)
 		{
-			SetViewMode(CurPlugin.m_PrevViewMode);
-			m_SortMode = CurPlugin.m_PrevSortMode;
-			m_ReverseSortOrder = CurPlugin.m_PrevSortOrder;
-			m_DirectoriesFirst = CurPlugin.m_PrevDirectoriesFirst;
+			SetViewMode(CurPlugin->m_PrevViewMode);
+			m_SortMode = CurPlugin->m_PrevSortMode;
+			m_ReverseSortOrder = CurPlugin->m_PrevSortOrder;
+			m_DirectoriesFirst = CurPlugin->m_PrevDirectoriesFirst;
 		}
 	}
 
@@ -5998,7 +5998,7 @@ void FileList::ProcessHostFile()
 		int Done=FALSE;
 		SaveSelection();
 
-		if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.back().m_HostFile.empty())
+		if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.back()->m_HostFile.empty())
 		{
 			{
 				_ALGO(SysLog(L"call CreatePluginItemList"));
@@ -6264,16 +6264,20 @@ void FileList::SetPluginModified()
 {
 	if(!PluginsList.empty())
 	{
-		PluginsList.back().m_Modified = TRUE;
+		PluginsList.back()->m_Modified = TRUE;
 	}
 }
 
-
 plugin_panel* FileList::GetPluginHandle() const
 {
-	return m_ExpiringPluginPanel? m_ExpiringPluginPanel : !PluginsList.empty()? PluginsList.back().m_Plugin.get() : nullptr;
+	return m_ExpiringPluginPanel? m_ExpiringPluginPanel->m_Plugin.get() : !PluginsList.empty()? PluginsList.back()->m_Plugin.get() : nullptr;
 }
 
+std::weak_ptr<FileList::PluginsListItem> FileList::GetPluginItem() const
+{
+	assert(!PluginsList.empty());
+	return m_ExpiringPluginPanel ? std::weak_ptr<FileList::PluginsListItem>(m_ExpiringPluginPanel) : std::weak_ptr<FileList::PluginsListItem>(PluginsList.back());
+}
 
 bool FileList::ProcessPluginEvent(int Event,void *Param)
 {
@@ -6282,7 +6286,6 @@ bool FileList::ProcessPluginEvent(int Event,void *Param)
 
 	return false;
 }
-
 
 void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList)
 {
@@ -6876,7 +6879,9 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	StopFSWatcher();
 	LastCurFile=-1;
 
-	Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
+	const auto Item = GetPluginItem();
+	Global->CtrlObject->Plugins->GetOpenPanelInfo(Item.lock()->m_Plugin.get(), &m_CachedOpenPanelInfo);
+	if (Item.expired()) return;
 
 	FreeDiskSize=-1;
 	if (Global->Opt->ShowPanelFree)
@@ -6896,7 +6901,15 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	{
 		++m_InsideGetFindData;
 		SCOPE_EXIT { --m_InsideGetFindData; };
-		result = Global->CtrlObject->Plugins->GetFindData(GetPluginHandle(), &PanelData, &PluginFileCount, 0);
+		result = Global->CtrlObject->Plugins->GetFindData(Item.lock()->m_Plugin.get(), &PanelData, &PluginFileCount, 0);
+	}
+	if (Item.expired())
+	{
+		Update(0);
+		//панель не сортируется внутри GetFindData, и если плагиновая панель закрыта, то панель - несортированная,
+		//Update сохранил позицию, поэтому переместим курсор в начало.
+		GoToFile(0);
+		return;
 	}
 	if (!result)
 	{
@@ -6944,7 +6957,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		OldData = std::move(m_ListData);
 	}
 
-	m_ListData.initialise(GetPluginHandle());
+	m_ListData.initialise(Item.lock()->m_Plugin.get());
 
 	if (!m_Filter)
 		m_Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
@@ -7040,7 +7053,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		ReadDiz(PanelData,static_cast<int>(PluginFileCount),RDF_NO_UPDATE);
 
 	CorrectPosition();
-	Global->CtrlObject->Plugins->FreeFindData(GetPluginHandle(), PanelData, PluginFileCount, false);
+	Global->CtrlObject->Plugins->FreeFindData(Item.lock()->m_Plugin.get(), PanelData, PluginFileCount, false);
 
 	string strLastSel, strGetSel;
 

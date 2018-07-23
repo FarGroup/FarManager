@@ -348,8 +348,8 @@ private:
 	m_ListData;
 	std::list<PrevDataItem> PrevDataList;
 	struct PluginsListItem;
-	std::list<PluginsListItem> PluginsList;
-	plugin_panel* m_ExpiringPluginPanel{};
+	std::list<std::shared_ptr<PluginsListItem>> PluginsList;
+	std::shared_ptr<PluginsListItem> m_ExpiringPluginPanel{};
 	FileSystemWatcher FSWatcher;
 	long UpperFolderTopFile{}, LastCurFile{ -1 };
 	bool ReturnCurrentFile{};
@@ -388,6 +388,7 @@ private:
 	mutable std::vector<const wchar_t*> m_ContentValues;
 	std::vector<Plugin*> m_ContentPlugins;
 	int m_InsideGetFindData{};
+	std::weak_ptr<PluginsListItem> GetPluginItem() const;
 };
 
 #endif // FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777
