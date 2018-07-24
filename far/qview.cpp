@@ -261,7 +261,7 @@ void QuickView::DisplayObject()
 			const auto ColumnSize = msg(*std::max_element(ALL_CONST_RANGE(TableLabels), [](lng a, lng b) { return msg(a).size() < msg(b).size(); })).size() + 1;
 
 			const auto iColor = uncomplete_dirscan? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
-			const auto prefix = uncomplete_dirscan? L"~" : L"";
+			const auto prefix = uncomplete_dirscan? L"~"sv : L""sv;
 
 			const auto& PrintRow = [&](int Y, lng Id, string_view const Value)
 			{
@@ -412,7 +412,7 @@ void QuickView::Update(int Mode)
 	Redraw();
 }
 
-void QuickView::ShowFile(const string& FileName, bool const TempFile, const plugin_panel* const hDirPlugin)
+void QuickView::ShowFile(string_view const FileName, bool const TempFile, const plugin_panel* const hDirPlugin)
 {
 	CloseFile();
 
@@ -429,8 +429,8 @@ void QuickView::ShowFile(const string& FileName, bool const TempFile, const plug
 
 	m_CurDir = Parent()->GetAnotherPanel(this)->GetCurDir();
 
-	auto FileFullName = hDirPlugin? FileName : ConvertNameToFull(FileName);
-	bool SameFile = strCurFileName == FileFullName;
+	const auto FileFullName = hDirPlugin? string(FileName) : ConvertNameToFull(FileName);
+	const auto SameFile = strCurFileName == FileFullName;
 	strCurFileName = FileFullName;
 
 	size_t pos = strCurFileName.rfind(L'.');
@@ -440,7 +440,7 @@ void QuickView::ShowFile(const string& FileName, bool const TempFile, const plug
 
 		if (GetShellType(string_view(strCurFileName).substr(pos), strValue))
 		{
-			os::reg::key::classes_root.get(strValue, L"", strCurFileType);
+			os::reg::key::classes_root.get(strValue, {}, strCurFileType);
 		}
 	}
 

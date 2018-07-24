@@ -112,7 +112,7 @@ static int PrepareHotKey(string &strHotKey)
 	else
 	{
 		// при наличии "&" продублируем
-		if (strHotKey == L"&")
+		if (strHotKey == L"&"sv)
 			strHotKey.assign(2, L'&');
 	}
 
@@ -199,7 +199,7 @@ static void ParseMenu(UserMenu::menu_container& Menu, range<enum_file_lines::ite
 			NewItem.strLabel = trim_left(MenuStr.substr(ChPos + 1));
 
 			// Support for old 1.x separator format
-			if (OldFormat && NewItem.strHotKey == L"-" && NewItem.strLabel.empty())
+			if (OldFormat && NewItem.strHotKey == L"-"sv && NewItem.strLabel.empty())
 			{
 				NewItem.strHotKey += L'-';
 			}

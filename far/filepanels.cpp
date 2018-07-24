@@ -99,7 +99,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 		strSrc = os::env::expand(strSrc);
 	}
 
-	if (strSrc == L"/")
+	if (strSrc == L"/"sv)
 	{
 		strSrc = Global->g_strFarPath;
 

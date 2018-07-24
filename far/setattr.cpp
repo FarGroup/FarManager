@@ -922,7 +922,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							}
 							else if (ReparseTag == IO_REPARSE_TAG_DFS)
 							{
-								string path(SrcPanel->GetCurDir() + L'\\' + SingleSelFileName);
+								const auto path = path::join(SrcPanel->GetCurDir(), SingleSelFileName);
 								os::netapi::ptr<DFS_INFO_3> DfsInfo;
 								if (imports.NetDfsGetInfo(UNSAFE_CSTR(path), nullptr, nullptr, 3, reinterpret_cast<LPBYTE*>(&ptr_setter(DfsInfo))) == NERR_Success)
 								{
@@ -1588,7 +1588,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							if ((SingleSelFileAttr & FILE_ATTRIBUTE_DIRECTORY) && AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected)
 							{
 								ScanTree ScTree(false);
-								ScTree.SetFindPath(SingleSelFileName, L"*");
+								ScTree.SetFindPath(SingleSelFileName, L"*"sv);
 								const time_check TreeTimeCheck(time_check::mode::delayed, GetRedrawTimeout());
 								string strFullName;
 

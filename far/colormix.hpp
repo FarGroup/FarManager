@@ -67,4 +67,13 @@ namespace colors
 	string_view::const_iterator ExtractColorInNewFormat(string_view::const_iterator Begin, string_view::const_iterator End, FarColor& Color, bool& Stop);
 }
 
+template<>
+struct std::hash<FarColor>
+{
+	std::size_t operator()(const FarColor& Value) const
+	{
+		return colors::color_hash{}(Value);
+	}
+};
+
 #endif // COLORMIX_HPP_2A689A10_E8AA_4B87_B167_FAAF812AC90F

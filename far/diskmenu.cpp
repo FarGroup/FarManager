@@ -1251,7 +1251,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		{
 			const auto IsActive = Owner->IsFocused();
 			const auto NewPanel = Owner->Parent()->ChangePanel(Owner, panel_type::FILE_PANEL, TRUE, TRUE);
-			NewPanel->SetPluginMode(std::move(hPlugin), L"", IsActive || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+			NewPanel->SetPluginMode(std::move(hPlugin), {}, IsActive || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
 			NewPanel->Show();
 

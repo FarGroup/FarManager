@@ -818,7 +818,7 @@ bool TreeList::ReadTree()
 	auto FirstCall = true, AscAbort = false;
 	TreeStartTime = std::chrono::steady_clock::now();
 	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
-	ScTree.SetFindPath(m_Root, L"*", 0);
+	ScTree.SetFindPath(m_Root, L"*"sv, 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
 	SCOPED_ACTION(IndeterminateTaskbar);
@@ -1833,7 +1833,7 @@ void TreeList::ReadSubTree(const string& Path)
 	const auto strDirName = ConvertNameToFull(Path);
 	AddTreeName(strDirName);
 	int FirstCall=TRUE, AscAbort=FALSE;
-	ScTree.SetFindPath(strDirName,L"*",0);
+	ScTree.SetFindPath(strDirName, L"*"sv, 0);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
 

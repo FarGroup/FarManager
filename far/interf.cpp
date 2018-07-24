@@ -818,14 +818,14 @@ static void HiTextBase(const string& Str, const std::function<void(const string&
 				HilightHandler(Str[AmpBegin + 1]);
 
 				string RightPart = Str.substr(AmpBegin + 1);
-				ReplaceStrings(RightPart, L"&&", L"&");
+				ReplaceStrings(RightPart, L"&&"sv, L"&"sv);
 				TextHandler(RightPart.substr(1));
 			}
 		}
 		else
 		{
 			string StrCopy(Str);
-			ReplaceStrings(StrCopy, L"&&", L"&");
+			ReplaceStrings(StrCopy, L"&&"sv, L"&"sv);
 			TextHandler(StrCopy);
 		}
 	}

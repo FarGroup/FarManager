@@ -390,7 +390,7 @@ bool HMenu::ProcessCurrentSubMenu()
 			m_SubmenuOpened = true;
 			SCOPE_EXIT{ m_SubmenuOpened = false; };
 
-			const auto SubMenu = VMenu2::create(L"", Item[SelectPos].SubMenu);
+			const auto SubMenu = VMenu2::create({}, Item[SelectPos].SubMenu);
 			SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
 			SubMenu->SetMenuFlags(VMENU_WRAPMODE);
 			SubMenu->SetHelp(Item[SelectPos].SubMenuHelp);

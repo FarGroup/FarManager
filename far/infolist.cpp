@@ -519,7 +519,7 @@ void InfoList::DisplayObject()
 				string Days, Time;
 				const std::chrono::seconds Seconds(SecondsCount);
 				ConvertDuration(Seconds, Days, Time);
-				if (Days != L"0")
+				if (Days != L"0"sv)
 				{
 					const auto Hours = str(std::chrono::duration_cast<std::chrono::hours>(Seconds).count());
 					Time = Hours + Time.substr(2);

@@ -241,7 +241,7 @@ FileListItem::FileListItem()
 
 static string GetItemFullName(const FileListItem& Item, const FileList* Owner)
 {
-	return concat(Owner->GetCurDir(), L'\\', IsParentDirectory(Item)? string{} : Item.FileName);
+	return path::join(Owner->GetCurDir(), IsParentDirectory(Item)? string{} : Item.FileName);
 }
 
 bool FileListItem::IsNumberOfLinksRead() const
@@ -1834,7 +1834,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					if (!os::fs::create_directory(TemporaryDirectory))
 						return true;
 
-					strTempName = concat(TemporaryDirectory, L'\\', PointToName(strFileName));
+					strTempName = path::join(TemporaryDirectory, PointToName(strFileName));
 
 					const FileListItem* CurPtr = nullptr;
 					if (LocalKey==KEY_SHIFTF4)
@@ -4131,7 +4131,7 @@ void FileList::UpdateViewPanel()
 
 			if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW))
 			{
-				ViewPanel->ShowFile(L"", false, nullptr);
+				ViewPanel->ShowFile({}, false, nullptr);
 				os::fs::remove_directory(strTempDir);
 				return;
 			}
@@ -4141,7 +4141,7 @@ void FileList::UpdateViewPanel()
 		else if (!IsParentDirectory(Current))
 			ViewPanel->ShowFile(Current.FileName, false, GetPluginHandle());
 		else
-			ViewPanel->ShowFile(L"", false, nullptr);
+			ViewPanel->ShowFile({}, false, nullptr);
 
 		RefreshTitle();
 	}
@@ -4952,7 +4952,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 		auto& CurFile = m_ListData[m_CurFile];
 		if ((!IsRealNames && GetPluginDirInfo(GetPluginHandle(), CurFile.FileName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize)) ||
-		     (IsRealNames && GetDirInfo(IsParentDirectory(CurFile)? L"." : CurFile.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
+		     (IsRealNames && GetDirInfo(IsParentDirectory(CurFile)? L"."s : CurFile.FileName, Data, m_Filter.get(), DirInfoCallback, GETDIRINFO_SCANSYMLINKDEF) == 1))
 		{
 			CurFile.FileSize = Data.FileSize;
 			CurFile.AllocationSize = Data.AllocationSize;
@@ -5655,10 +5655,10 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 			{
 				const auto strSaveDir = os::fs::GetCurrentDirectory();
 				auto strDizName = concat(strTempDir, L'\\', DestPanel->strPluginDizName);
-				DestPanel->Diz.Flush(L"", &strDizName);
+				DestPanel->Diz.Flush({}, &strDizName);
 
 				if (Move)
-					SrcDiz->Flush(L"");
+					SrcDiz->Flush({});
 
 				PluginPanelItemHolder PanelItem;
 				if (FileNameToPluginItem(strDizName, PanelItem))
@@ -5883,7 +5883,7 @@ void FileList::PluginPutFilesToNew()
 
 	_ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
 	auto TmpPanel = create(nullptr);
-	TmpPanel->SetPluginMode(std::move(hNewPlugin), L"");  // SendOnFocus??? true???
+	TmpPanel->SetPluginMode(std::move(hNewPlugin), {});  // SendOnFocus??? true???
 	TmpPanel->m_ModalMode = TRUE;
 	const auto PrevFileCount = m_ListData.size();
 	/* $ 12.04.2002 IS
@@ -6283,7 +6283,7 @@ plugin_panel* FileList::GetPluginHandle() const
 std::weak_ptr<FileList::PluginsListItem> FileList::GetPluginItem() const
 {
 	assert(!PluginsList.empty());
-	return m_ExpiringPluginPanel ? std::weak_ptr<FileList::PluginsListItem>(m_ExpiringPluginPanel) : std::weak_ptr<FileList::PluginsListItem>(PluginsList.back());
+	return m_ExpiringPluginPanel? m_ExpiringPluginPanel : PluginsList.back();
 }
 
 bool FileList::ProcessPluginEvent(int Event,void *Param)
@@ -7152,7 +7152,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 							if (Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), CurPanelData, strTempDir, strDizName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW | OPM_DESCR))
 							{
 								strPluginDizName = m_CachedOpenPanelInfo.DescrFiles[I];
-								Diz.Read(L"", &strDizName);
+								Diz.Read({}, &strDizName);
 								DeleteFileWithFolder(strDizName);
 								I = m_CachedOpenPanelInfo.DescrFilesNumber;
 								break;
@@ -7708,7 +7708,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 		}
 		else
 		{
-			strTotalSize = format(msg(lng::MListFreeSize), strFreeSize.empty() ? L"?" : strFreeSize);
+			strTotalSize = format(msg(lng::MListFreeSize), strFreeSize.empty() ? L"?"s : strFreeSize);
 		}
 		return strTotalSize;
 	};
@@ -8187,9 +8187,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if ((ViewFlags & COLUMN_MARK) && Width>2)
 							{
-								const auto Mark = m_ListData[ListPos].Selected? L"\x221A " : ViewFlags & COLUMN_MARK_DYNAMIC ? L"" : L"  ";
+								const auto Mark = m_ListData[ListPos].Selected? L"\x221A "sv : ViewFlags & COLUMN_MARK_DYNAMIC ? L""sv : L"  "sv;
 								Text(Mark);
-								Width -= static_cast<int>(wcslen(Mark));
+								Width -= static_cast<int>(Mark.size());
 							}
 
 							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && m_ListData[ListPos].Colors->Mark.Char && Width>1)

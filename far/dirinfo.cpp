@@ -147,7 +147,7 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, con
 
 	Data.DirCount=Data.FileCount=0;
 	Data.FileSize=Data.AllocationSize=Data.FilesSlack=Data.MFTOverhead=0;
-	ScTree.SetFindPath(DirName,L"*");
+	ScTree.SetFindPath(DirName, L"*"sv);
 	std::unordered_set<unsigned long long> FileIds;
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;

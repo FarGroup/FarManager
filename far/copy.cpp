@@ -1613,7 +1613,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 				KeepPathPos=(int)strSubName.size();
 
 			int NeedRename = !(os::fs::is_directory_symbolic_link(SrcData) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
-			ScTree.SetFindPath(strSubName,L"*",FSCANTREE_FILESFIRST);
+			ScTree.SetFindPath(strSubName, L"*"sv ,FSCANTREE_FILESFIRST);
 
 			while (ScTree.GetNextName(SrcData,strFullName))
 			{
@@ -3600,7 +3600,7 @@ bool ShellCopy::SetRecursiveSecurity(const string& FileName,const os::fs::securi
 	if (os::fs::is_directory(FileName))
 	{
 		ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
-		ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
+		ScTree.SetFindPath(FileName, L"*"sv, FSCANTREE_FILESFIRST);
 
 		string strFullName;
 		os::fs::find_data SrcData;

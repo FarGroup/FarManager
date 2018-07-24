@@ -341,7 +341,7 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 			{
 				if (const auto SubKey = os::reg::key::open(Key, SubkeyName, samDesired))
 				{
-					if (SubKey.get(L""))
+					if (SubKey.get({}))
 					{
 						if (starts_with_icase(SubkeyName, Token))
 						{

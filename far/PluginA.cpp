@@ -3855,7 +3855,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 						append(strSequence, L' ', strKeyText);
 					}
 				}
-				append(strSequence, L"\")");
+				append(strSequence, L"\")"sv);
 
 				return Global->CtrlObject->Macro.PostNewMacro(strSequence.c_str(), Flags);
 			}

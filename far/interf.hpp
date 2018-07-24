@@ -148,8 +148,7 @@ void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
 
 void Text(int X, int Y, const FarColor& Color, const wchar_t* Str, size_t Size);
-inline void Text(int X, int Y, const FarColor& Color, const wchar_t* Str) { return Text(X, Y, Color, Str, wcslen(Str)); }
-inline void Text(int X, int Y, const FarColor& Color, const string& Str) { return Text(X, Y, Color, Str.data(), Str.size()); }
+inline void Text(int X, int Y, const FarColor& Color, string_view const Str) { return Text(X, Y, Color, Str.data(), Str.size()); }
 
 void Text(const wchar_t* Str, size_t Size);
 inline void Text(const string_view Str) { return Text(Str.data(), Str.size()); }

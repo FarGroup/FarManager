@@ -152,7 +152,7 @@ namespace os::env
 
 			default:
 				// Non-empty result
-				return ReturnedSize - 1;
+				return ReturnedSize > Size? ReturnedSize : ReturnedSize - 1;
 			}
 		}))
 		{

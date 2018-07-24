@@ -456,10 +456,18 @@ void highlight::configuration::ProcessGroups()
 
 size_t highlight::configuration::element_hash::operator()(const element& item) const
 {
-	return make_hash(item.Mark.Char) ^ make_hash(item.Mark.Transparent) ^ std::accumulate(ALL_CONST_RANGE(item.Color), size_t(0), [](auto Value, const auto& i)
+	size_t Seed = 0;
+
+	hash_combine(Seed, item.Mark.Char);
+	hash_combine(Seed, item.Mark.Transparent);
+
+	for (const auto& i: item.Color)
 	{
-		return Value ^ colors::color_hash{}(i.FileColor) ^ colors::color_hash{}(i.MarkColor);
-	});
+		hash_combine(Seed, i.FileColor);
+		hash_combine(Seed, i.MarkColor);
+	}
+
+	return Seed;
 }
 
 int highlight::configuration::MenuPosToRealPos(int MenuPos, int*& Count, bool Insert)

@@ -287,7 +287,7 @@ bool Viewer::OpenFile(const string& Name,int warning)
 	SelectSize = -1; // Сбросим выделение
 	strFileName = Name;
 
-	if (Global->OnlyEditorViewerUsed && strFileName == L"-")
+	if (Global->OnlyEditorViewerUsed && strFileName == L"-"sv)
 	{
 		const auto strTempName = MakeTemp();
 		if (!ViewFile.Open(strTempName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_ALWAYS,FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE))

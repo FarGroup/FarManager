@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void ColorItem::SetOwner(const GUID& Value)
 {
-	static std::unordered_set<GUID, uuid_hash> GuidSet;
+	static std::unordered_set<UUID> GuidSet;
 	Owner = &*GuidSet.emplace(Value).first;
 }
 

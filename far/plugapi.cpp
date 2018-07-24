@@ -1529,7 +1529,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			os::fs::find_data FindData;
 			string strFullName;
 			ScanTree ScTree(false);
-			ScTree.SetFindPath(ConvertNameToFull(Dir), L"*");
+			ScTree.SetFindPath(ConvertNameToFull(Dir), L"*"sv);
 			*pItemsNumber=0;
 			*pPanelItem=nullptr;
 
@@ -2699,7 +2699,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0);
 		os::fs::find_data FindData;
 		string strFullName;
-		ScTree.SetFindPath(InitDir,L"*");
+		ScTree.SetFindPath(InitDir, L"*"sv);
 
 		bool Found = false;
 		while (!Found && ScTree.GetNextName(FindData,strFullName))

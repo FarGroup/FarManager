@@ -325,7 +325,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 				const auto Result = TryWithExtOrPathExt(FullName, [&](string_view const NameWithExt)
 				{
 					string RealName;
-					if (RootFindKey[i]->get(NameWithExt, L"", RealName, samDesired))
+					if (RootFindKey[i]->get(NameWithExt, {}, RealName, samDesired))
 					{
 						RealName = unquote(os::env::expand(RealName));
 						return std::make_pair(os::fs::is_file(RealName), RealName);
@@ -470,7 +470,7 @@ static string GetShellActionForType(string_view const TypeName, string& KeyName)
 	};
 
 	string Action;
-	if (Key.get(L"", Action) && !Action.empty())
+	if (Key.get({}, Action) && !Action.empty())
 	{
 		// Need to clarify if we need to support quotes here
 		for (const auto& i : enum_tokens_with_quotes(Action, L","sv))
@@ -527,7 +527,7 @@ static string GetAssociatedApplicationFromType(string_view const TypeName, strin
 		return {};
 
 	string Application;
-	if (!os::reg::key::classes_root.get(concat(KeyName, L'\\', CommandName), L"", Application) || Application.empty())
+	if (!os::reg::key::classes_root.get(concat(KeyName, L'\\', CommandName), {}, Application) || Application.empty())
 		return {};
 
 	Application = os::env::expand(Application);
@@ -624,7 +624,7 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
 		if (strType.empty() && (CRKey = os::reg::key::open(os::reg::key::classes_root, Ext, KEY_QUERY_VALUE)))
 		{
-			if (CRKey.get(L"", strFoundValue) && IsProperProgID(strFoundValue))
+			if (CRKey.get({}, strFoundValue) && IsProperProgID(strFoundValue))
 			{
 				strType = strFoundValue;
 			}

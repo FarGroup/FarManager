@@ -93,7 +93,9 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 
 		size_t get_hash() const
 		{
-			return CRC32(0, m_Data.get(), GetLengthSid(m_Data.get()));
+			const auto Begin = reinterpret_cast<const char*>(m_Data.get());
+			const auto End = Begin + GetLengthSid(m_Data.get());
+			return hash_range(Begin, End);
 		}
 
 	private:

@@ -181,7 +181,7 @@ bool FileFilter::FilterEdit()
 			string strFileName;
 			os::fs::find_data fdata;
 			ScanTree ScTree(false, false);
-			ScTree.SetFindPath(m_HostPanel->GetCurDir(), L"*");
+			ScTree.SetFindPath(m_HostPanel->GetCurDir(), L"*"sv);
 
 			while (ScTree.GetNextName(fdata,strFileName))
 				if (!ParseAndAddMasks(Extensions, fdata.FileName, fdata.Attributes, 0))
@@ -853,7 +853,7 @@ void FileFilter::InitFilter()
 {
 	static FileFilterParams _FoldersFilter;
 	FoldersFilter = &_FoldersFilter;
-	FoldersFilter->SetMask(false, L"*");
+	FoldersFilter->SetMask(false, L"*"sv);
 	FoldersFilter->SetAttr(true, FILE_ATTRIBUTE_DIRECTORY, 0);
 
 	const auto cfg = ConfigProvider().CreateFiltersConfig();

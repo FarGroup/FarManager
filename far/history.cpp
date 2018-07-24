@@ -73,9 +73,9 @@ void History::CompactHistory()
 	const auto& HistoryConfig = ConfigProvider().HistoryCfg();
 	SCOPED_ACTION(auto)(HistoryConfig->ScopedTransaction());
 
-	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
-	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
-	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_CMD, {}, Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_FOLDER, {}, Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
+	HistoryConfig->DeleteOldUnlocked(HISTORYTYPE_VIEW, {}, Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
 
 	for(const auto& i: HistoryConfig->LargeHistoriesEnumerator(HISTORYTYPE_DIALOG, Global->Opt->DialogsHistoryCount))
 	{
@@ -236,7 +236,7 @@ history_return_type History::ProcessMenu(string& strStr, GUID* const Guid, strin
 				strRecord += i.Name;
 
 				if (m_TypeHistory != HISTORYTYPE_DIALOG)
-					ReplaceStrings(strRecord, L"&", L"&&");
+					ReplaceStrings(strRecord, L"&"sv, L"&&"sv);
 
 				MenuItemEx MenuItem(strRecord);
 				MenuItem.SetCheck(i.Lock? 1 : 0);

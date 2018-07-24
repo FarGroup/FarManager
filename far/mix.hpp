@@ -142,12 +142,13 @@ private:
 	bool OldState;
 };
 
-struct uuid_hash
+template<>
+struct std::hash<UUID>
 {
-	size_t operator ()(const GUID& Key) const
+	size_t operator()(const UUID& Value) const
 	{
 		RPC_STATUS Status;
-		return UuidHash(const_cast<UUID*>(&Key), &Status);
+		return UuidHash(const_cast<UUID*>(&Value), &Status);
 	}
 };
 

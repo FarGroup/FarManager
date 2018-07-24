@@ -314,7 +314,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
 
 		if (bPanelPlugin /*&& bUpdatePanels*/)
 		{
-			Global->CtrlObject->Cp()->ActivePanel()->SetCurDir(L".",true);
+			Global->CtrlObject->Cp()->ActivePanel()->SetCurDir(L"."s, true);
 			const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 			ActivePanel->Update(UPDATE_KEEP_SELECTION);
 			ActivePanel->Redraw();
@@ -371,7 +371,7 @@ void PluginManager::LoadFactories()
 
 	ScanTree ScTree(false, true, Global->Opt->LoadPlug.ScanSymlinks);
 	os::fs::find_data FindData;
-	ScTree.SetFindPath(path::join(Global->g_strFarPath, L"Adapters"sv), L"*");
+	ScTree.SetFindPath(path::join(Global->g_strFarPath, L"Adapters"sv), L"*"sv);
 
 	string filename;
 	while (ScTree.GetNextName(FindData, filename))
@@ -447,7 +447,7 @@ void PluginManager::LoadPlugins()
 				strFullName.insert(0, Global->g_strFarPath);
 			}
 
-			ScTree.SetFindPath(ConvertNameToLong(ConvertNameToFull(strFullName)), L"*");
+			ScTree.SetFindPath(ConvertNameToLong(ConvertNameToFull(strFullName)), L"*"sv);
 
 			while (ScTree.GetNextName(FindData,strFullName))
 			{
@@ -825,7 +825,7 @@ int PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor* Edit
 }
 
 
-int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<GUID, uuid_hash>& PluginIds) const
+int PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<UUID>& PluginIds) const
 {
 	int nResult = 0;
 	if (const auto Container = EditorInstance->GetOwner())
@@ -1574,7 +1574,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 
 		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
-		NewPanel->SetPluginMode(std::move(hPlugin), L"", true);
+		NewPanel->SetPluginMode(std::move(hPlugin), {}, true);
 		NewPanel->Update(0);
 		NewPanel->Show();
 	}
@@ -1984,7 +1984,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 	if (auto hPlugin = Global->CtrlObject->Plugins->Open(PluginIterator->pPlugin, OPEN_COMMANDLINE, FarGuid, reinterpret_cast<intptr_t>(&info)))
 	{
 		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
-		NewPanel->SetPluginMode(std::move(hPlugin), L"", true);
+		NewPanel->SetPluginMode(std::move(hPlugin), {}, true);
 		NewPanel->Update(0);
 		NewPanel->Show();
 	}
@@ -2041,7 +2041,7 @@ bool PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void *
 		const auto PluginPanelCopy = PluginPanel.get();
 		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
 
-		NewPanel->SetPluginMode(std::move(PluginPanel), L"", true);
+		NewPanel->SetPluginMode(std::move(PluginPanel), {}, true);
 		if (OpenFrom != OPEN_FROMMACRO)
 		{
 			if (Data && *static_cast<const wchar_t *>(Data))
@@ -2266,7 +2266,7 @@ bool PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data)
 		}
 
 		const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(ActivePanel, panel_type::FILE_PANEL, TRUE, TRUE);
-		NewPanel->SetPluginMode(std::move(hPlugin), L"", true);
+		NewPanel->SetPluginMode(std::move(hPlugin), {}, true);
 		NewPanel->Update(0);
 		NewPanel->Show();
 	}

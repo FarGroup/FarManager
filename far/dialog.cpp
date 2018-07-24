@@ -1790,7 +1790,7 @@ void Dialog::ShowDialog(size_t ID)
 						if (!strStr.empty())
 						{
 							if (!starts_with(strStr, L" "sv))
-								strStr.insert(0, L" ", 1);
+								strStr.insert(0, 1, L' ');
 							if (!ends_with(strStr, L" "sv))
 								strStr.push_back(L' ');
 						}
@@ -4416,10 +4416,10 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 				   2) когда диалог перемещается из угла
 				   сделал вывод красных палочек по углам */
 				FarColor Color = colors::ConsoleColorToFarColor(0xCE);
-				Text(m_X1, m_Y1, Color, L"\\");
-				Text(m_X1, m_Y2, Color, L"/");
-				Text(m_X2, m_Y1, Color, L"/");
-				Text(m_X2, m_Y2, Color, L"\\");
+				Text(m_X1, m_Y1, Color, L"\\"sv);
+				Text(m_X1, m_Y2, Color, L"/"sv);
+				Text(m_X2, m_Y1, Color, L"/"sv);
+				Text(m_X2, m_Y2, Color, L"\\"sv);
 			}
 
 			return TRUE;

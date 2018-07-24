@@ -443,16 +443,16 @@ static void SetDriveMenuHotkeys()
 	{
 		static const struct
 		{
-			const wchar_t* PluginId;
+			string_view PluginId;
 			GUID MenuId;
-			const wchar_t* Hotkey;
+			string_view Hotkey;
 		}
 		DriveMenuHotkeys[] =
 		{
-			{ L"1E26A927-5135-48C6-88B2-845FB8945484", { 0x61026851, 0x2643, 0x4C67, { 0xBF, 0x80, 0xD3, 0xC7, 0x7A, 0x3A, 0xE8, 0x30 } }, L"0" }, // ProcList
-			{ L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", { 0xF98C70B3, 0xA1AE, 0x4896, { 0x93, 0x88, 0xC5, 0xC8, 0xE0, 0x50, 0x13, 0xB7 } }, L"1" }, // TmpPanel
-			{ L"42E4AEB1-A230-44F4-B33C-F195BB654931", { 0xC9FB4F53, 0x54B5, 0x48FF, { 0x9B, 0xA2, 0xE8, 0xEB, 0x27, 0xF0, 0x12, 0xA2 } }, L"2" }, // NetBox
-			{ L"773B5051-7C5F-4920-A201-68051C4176A4", { 0x24B6DD41, 0xDF12, 0x470A, { 0xA4, 0x7C, 0x86, 0x75, 0xED, 0x8D, 0x2E, 0xD4 } }, L"3" }, // Network
+			{ L"1E26A927-5135-48C6-88B2-845FB8945484"sv, { 0x61026851, 0x2643, 0x4C67, { 0xBF, 0x80, 0xD3, 0xC7, 0x7A, 0x3A, 0xE8, 0x30 } }, L"0"sv }, // ProcList
+			{ L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C"sv, { 0xF98C70B3, 0xA1AE, 0x4896, { 0x93, 0x88, 0xC5, 0xC8, 0xE0, 0x50, 0x13, 0xB7 } }, L"1"sv }, // TmpPanel
+			{ L"42E4AEB1-A230-44F4-B33C-F195BB654931"sv, { 0xC9FB4F53, 0x54B5, 0x48FF, { 0x9B, 0xA2, 0xE8, 0xEB, 0x27, 0xF0, 0x12, 0xA2 } }, L"2"sv }, // NetBox
+			{ L"773B5051-7C5F-4920-A201-68051C4176A4"sv, { 0x24B6DD41, 0xDF12, 0x470A, { 0xA4, 0x7C, 0x86, 0x75, 0xED, 0x8D, 0x2E, 0xD4 } }, L"3"sv }, // Network
 		};
 
 		std::for_each(CONST_RANGE(DriveMenuHotkeys, i)
@@ -460,7 +460,7 @@ static void SetDriveMenuHotkeys()
 			ConfigProvider().PlHotkeyCfg()->SetHotkey(i.PluginId, i.MenuId, hotkey_type::drive_menu, i.Hotkey);
 		});
 
-		ConfigProvider().GeneralCfg()->SetValue(L"Interface", L"InitDriveMenuHotkeys", 0ull);
+		ConfigProvider().GeneralCfg()->SetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, 0ull);
 	}
 }
 
@@ -531,7 +531,7 @@ static int mainImpl(range<const wchar_t* const*> const Args)
 	// TODO: std::optional
 	std::pair<string, bool> CustomTitle;
 
-	std::unordered_map<string, string, hash_icase_t, equal_icase_t> Overrides;
+	Options::overrides Overrides;
 	FOR_RANGE(Args, Iter)
 	{
 		const auto& Arg = *Iter;

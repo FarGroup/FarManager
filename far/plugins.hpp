@@ -151,7 +151,7 @@ public:
 	static int Compare(const plugin_panel* hPlugin,const PluginPanelItem *Item1,const PluginPanelItem *Item2,unsigned int Mode);
 	int ProcessEditorInput(const INPUT_RECORD *Rec) const;
 	int ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const;
-	int ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<GUID, uuid_hash>& PluginIds) const;
+	int ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<UUID>& PluginIds) const;
 	int ProcessViewerEvent(int Event, void *Param, const Viewer* ViewerInstance) const;
 	int ProcessDialogEvent(int Event,FarDialogEvent *Param) const;
 	int ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
@@ -229,7 +229,7 @@ private:
 	void LoadPluginsFromCache();
 
 	std::vector<std::unique_ptr<plugin_factory>> PluginFactories;
-	std::unordered_map<GUID, std::unique_ptr<Plugin>, uuid_hash> m_Plugins;
+	std::unordered_map<UUID, std::unique_ptr<Plugin>> m_Plugins;
 	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
 	listener m_PluginSynchro;

@@ -411,9 +411,9 @@ bool Help::ReadHelp(const string& Mask)
 			const auto& escape = [](string_view const Str)
 			{
 				string Result(Str);
-				ReplaceStrings(Result, L"~", L"~~");
-				ReplaceStrings(Result, L"#", L"##");
-				ReplaceStrings(Result, L"@", L"@@");
+				ReplaceStrings(Result, L"~"sv, L"~~"sv);
+				ReplaceStrings(Result, L"#"sv, L"##"sv);
+				ReplaceStrings(Result, L"@"sv, L"@@"sv);
 				return Result;
 			};
 
@@ -425,7 +425,7 @@ bool Help::ReadHelp(const string& Mask)
 					LastKeySize = i.size();
 					return concat(L" #"sv, escape(i), L'#');
 				}),
-				L"\n");
+				L"\n"sv);
 
 			if (!strDescription.empty())
 			{
@@ -605,7 +605,7 @@ m1:
 						}
 						else
 						{
-							AddLine(L"");
+							AddLine({});
 							continue;
 						}
 					}
@@ -727,7 +727,7 @@ m1:
 		PrevSymbol = strReadStr.empty() ? L'\0' : strReadStr[0];
 	}
 
-	AddLine(L"");
+	AddLine({});
 	ErrorHelp = false;
 
 	if (IsNewTopic)
@@ -1966,7 +1966,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		}
 	}
 
-	AddLine(L"");
+	AddLine({});
 	MoveToReference(1,1);
 }
 
@@ -2035,7 +2035,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	// сортируем по алфавиту
 	std::sort(HelpList.begin()+1, HelpList.end());
 	// $ 26.06.2000 IS - Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
-	AddLine(L"");
+	AddLine({});
 }
 
 // Формирование топика с учетом разных факторов
@@ -2135,9 +2135,9 @@ static bool OpenURL(const string& URLPath)
 
 	string FilteredURLPath(URLPath);
 	// удалим два идущих подряд ~~
-	ReplaceStrings(FilteredURLPath, L"~~", L"~");
+	ReplaceStrings(FilteredURLPath, L"~~"sv, L"~"sv);
 	// удалим два идущих подряд ##
-	ReplaceStrings(FilteredURLPath, L"##", L"#");
+	ReplaceStrings(FilteredURLPath, L"##"sv, L"#"sv);
 
 	if (FilteredURLPath.empty())
 		return false;

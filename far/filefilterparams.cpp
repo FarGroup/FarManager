@@ -84,7 +84,7 @@ FileFilterParams::FileFilterParams():
 	FHighlight(),
 	FFlags()
 {
-	SetMask(true, L"*");
+	SetMask(true, L"*"sv);
 
 	std::for_each(RANGE(FHighlight.Colors.Color, i)
 	{

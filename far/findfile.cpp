@@ -2158,7 +2158,7 @@ void background_searcher::DoScanTree(const string& strRoot)
 			strCurRoot = strRoot;
 		}
 
-		ScTree.SetFindPath(strCurRoot,L"*");
+		ScTree.SetFindPath(strCurRoot, L"*"sv);
 		m_Owner->itd->SetFindMessage(strCurRoot);
 		os::fs::find_data FindData;
 		string strFullName;
@@ -2637,7 +2637,7 @@ bool FindFiles::FindFilesProcess()
 					if (auto hNewPlugin = Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems.data(), PanelItems.size()))
 					{
 						const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
-						NewPanel->SetPluginMode(std::move(hNewPlugin), L"", true);
+						NewPanel->SetPluginMode(std::move(hNewPlugin), {}, true);
 						NewPanel->SetVisible(true);
 						NewPanel->Update(0);
 						//if (FindExitItem)

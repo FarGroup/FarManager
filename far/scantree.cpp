@@ -66,13 +66,13 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 
 ScanTree::~ScanTree() = default;
 
-void ScanTree::SetFindPath(const string& Path,const string& Mask, const DWORD NewScanFlags)
+void ScanTree::SetFindPath(const string& Path, string_view const Mask, const DWORD NewScanFlags)
 {
 	ScanItems.clear();
 
 	Flags.Clear(FSCANTREE_FILESFIRST);
 
-	strFindMask = Mask;
+	assign(strFindMask, Mask);
 
 	strFindPathOriginal = Path;
 	AddEndSlash(strFindPathOriginal);

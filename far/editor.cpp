@@ -3506,7 +3506,7 @@ bool Editor::Search(bool Next)
 				taskbar::instance().SetProgressValue(Current,Total);
 			}
 
-			string strReplaceStrCurrent(ReplaceMode ? strReplaceStr : L"");
+			auto strReplaceStrCurrent = ReplaceMode? strReplaceStr : L""s;
 
 			int SearchLength;
 			if (CurPtr->Search(strSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, strReplaceStrCurrent, CurPos, Case, WholeWords, ReverseSearch, Regexp, PreserveStyle, &SearchLength))
@@ -4508,6 +4508,7 @@ public:
 
 	static size_t HashBM(bookmark_list::iterator BM)
 	{
+		// BUGBUG this is some dark magic
 		auto x = reinterpret_cast<size_t>(&*BM);
 		x ^= (BM->Line << 16) ^ (BM->Cursor);
 		return x;

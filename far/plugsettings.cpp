@@ -106,9 +106,9 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local)
 		Diz.Read(DbPath);
 		const auto DbName = concat(strGuid, L".db");
 		const auto Description = concat(pPlugin->Title(), L" ("sv, pPlugin->Description(), L')');
-		if (Description != NullToEmpty(Diz.Get(DbName, L"", 0)))
+		if (Description != NullToEmpty(Diz.Get(DbName, {}, 0)))
 		{
-			Diz.Set(DbName, L"", Description);
+			Diz.Set(DbName, {}, Description);
 			Diz.Flush(DbPath);
 		}
 	}
@@ -377,19 +377,19 @@ bool FarSettings::Enum(FarSettingsEnum& Enum)
 	switch(Enum.Root)
 	{
 	case FSSF_HISTORY_CMD:
-		return FillHistory(HISTORYTYPE_CMD,L"", Enum, FilterNone);
+		return FillHistory(HISTORYTYPE_CMD, {}, Enum, FilterNone);
 	
 	case FSSF_HISTORY_FOLDER:
-		return FillHistory(HISTORYTYPE_FOLDER, L"", Enum, FilterNone);
+		return FillHistory(HISTORYTYPE_FOLDER, {}, Enum, FilterNone);
 	
 	case FSSF_HISTORY_VIEW:
-		return FillHistory(HISTORYTYPE_VIEW, L"", Enum, [](history_record_type Type) { return Type == HR_VIEWER; });
+		return FillHistory(HISTORYTYPE_VIEW, {}, Enum, [](history_record_type Type) { return Type == HR_VIEWER; });
 	
 	case FSSF_HISTORY_EDIT:
-		return FillHistory(HISTORYTYPE_VIEW, L"", Enum, [](history_record_type Type) { return Type == HR_EDITOR || Type == HR_EDITOR_RO; });
+		return FillHistory(HISTORYTYPE_VIEW, {}, Enum, [](history_record_type Type) { return Type == HR_EDITOR || Type == HR_EDITOR_RO; });
 	
 	case FSSF_HISTORY_EXTERNAL:
-		return FillHistory(HISTORYTYPE_VIEW, L"", Enum, [](history_record_type Type) { return Type == HR_EXTERNAL || Type == HR_EXTERNAL_WAIT; });
+		return FillHistory(HISTORYTYPE_VIEW, {}, Enum, [](history_record_type Type) { return Type == HR_EXTERNAL || Type == HR_EXTERNAL_WAIT; });
 	
 	case FSSF_FOLDERSHORTCUT_0:
 	case FSSF_FOLDERSHORTCUT_1:

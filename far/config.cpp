@@ -2073,7 +2073,7 @@ void Options::SetSearchColumns(const string& Columns, const string& Widths)
 	}
 }
 
-void Options::Load(std::unordered_map<string, string, hash_icase_t, equal_icase_t>&& Overrides)
+void Options::Load(overrides&& Overrides)
 {
 	// KnownModulesIDs::GuidOption::Default pointer is used in the static config structure, so it MUST be initialized before calling InitConfig()
 	static std::pair<GUID, string> DefaultKnownGuids[] =

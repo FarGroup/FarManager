@@ -75,6 +75,44 @@ auto make_hash(const T& value)
 	return std::hash<T>{}(value);
 }
 
+template<class type>
+void hash_combine(size_t& Seed, const type& Value)
+{
+	const auto MagicValue =
+#ifdef _WIN64
+		// (sqrt(5) - 1) * 2^63
+		11400714819323198485ull
+#else
+		// (sqrt(5) - 1) * 2^31
+		2654435769ul
+#endif
+	;
+
+	Seed ^= make_hash(Value) + MagicValue + (Seed << 6) + (Seed >> 2);
+}
+
+template<typename iterator>
+[[nodiscard]]
+size_t hash_range(iterator First, iterator Last)
+{
+	size_t Seed = 0;
+
+	for (; First != Last; ++First)
+	{
+		hash_combine(Seed, *First);
+	}
+
+	return Seed;
+}
+
+template<typename iterator>
+void hash_range(size_t& Seed, iterator First, iterator Last)
+{
+	for (; First != Last; ++First)
+	{
+		hash_combine(Seed, *First);
+	}
+}
 
 template<typename T>
 [[nodiscard]]

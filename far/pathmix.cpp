@@ -586,16 +586,16 @@ void TestPathParser()
     assert(PathStartsWith(L"\\", L""));
     assert(!PathStartsWith(L"C:\\path\\file", L""));
 
-	static const wchar_t* TestRoots[] =
+	static const string_view TestRoots[] =
 	{
-		L"",
-		L"C:",
-		L"C:\\",
-		L"\\\\server\\share\\",
-		L"\\\\?\\C:\\",
-		L"\\\\?\\UNC\\server\\share\\",
-		L"\\\\?\\Volume{f26b206c-f912-11e1-b516-806e6f6e6963}\\",
-		L"\\\\?\\pipe\\",
+		L""sv,
+		L"C:"sv,
+		L"C:\\"sv,
+		L"\\\\server\\share\\"sv,
+		L"\\\\?\\C:\\"sv,
+		L"\\\\?\\UNC\\server\\share\\"sv,
+		L"\\\\?\\Volume{f26b206c-f912-11e1-b516-806e6f6e6963}\\"sv,
+		L"\\\\?\\pipe\\"sv,
 	};
 
 	static const struct
@@ -628,7 +628,7 @@ void TestPathParser()
 	{
 		for (const auto& Test: TestCases)
 		{
-			if (!*Root && Test.RootMustExist)
+			if (Root.empty() && Test.RootMustExist)
 				continue;
 
 			Path = format(Test.InputPath, Root);

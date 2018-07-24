@@ -643,7 +643,7 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bVie
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = CodePage;
 	// Создаём меню
-	CodePagesMenu = VMenu2::create(L"", {}, ScrY - 4);
+	CodePagesMenu = VMenu2::create({}, {}, ScrY - 4);
 	CodePagesMenu->SetBottomTitle(msg(!Global->Opt->CPMenuMode? lng::MGetCodePageBottomTitle : lng::MGetCodePageBottomShortTitle));
 	CodePagesMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 	CodePagesMenu->SetHelp(L"CodePagesMenu"sv);

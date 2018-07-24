@@ -1452,7 +1452,7 @@ bool Panel::ExecShortcutFolder(string strShortcutFolder, const GUID& PluginGuid,
 					if (auto hNewPlugin = Global->CtrlObject->Plugins->Open(pPlugin, OPEN_SHORTCUT, FarGuid, reinterpret_cast<intptr_t>(&info)))
 					{
 						const auto NewPanel = Parent()->ChangePanel(SrcPanel, panel_type::FILE_PANEL, TRUE, TRUE);
-						NewPanel->SetPluginMode(std::move(hNewPlugin), L"", IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+						NewPanel->SetPluginMode(std::move(hNewPlugin), {}, IsActive || !Parent()->GetAnotherPanel(NewPanel)->IsVisible());
 						Result = NewPanel->SetPluginDirectory(strShortcutFolder, Silent);
 					}
 				}
@@ -1530,9 +1530,9 @@ string Panel::CreateFullPathName(string_view const Name, bool const Directory, b
 
 void Panel::exclude_sets(string& mask)
 {
-	ReplaceStrings(mask, L"[", L"<[%>", true);
-	ReplaceStrings(mask, L"]", L"[]]", true);
-	ReplaceStrings(mask, L"<[%>", L"[[]", true);
+	ReplaceStrings(mask, L"["s, L"<[%>"s, true);
+	ReplaceStrings(mask, L"]"s, L"[]]"s, true);
+	ReplaceStrings(mask, L"<[%>"s, L"[[]"s, true);
 }
 
 FilePanels* Panel::Parent() const

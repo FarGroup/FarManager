@@ -77,7 +77,7 @@ static string GetTimeText(std::chrono::seconds Seconds)
 {
 	string Days, Time;
 	ConvertDuration(Seconds, Days, Time);
-	if (Days != L"0")
+	if (Days != L"0"sv)
 	{
 		// BUGBUG copy time > 4.166 days (100 hrs) will not be displayed correctly
 		const auto Hours = str(std::min(std::chrono::duration_cast<std::chrono::hours>(Seconds), 99h).count());
@@ -201,13 +201,13 @@ void copy_progress::CreateBackground()
 	std::vector<string> Items =
 	{
 		msg(m_Move? lng::MCopyMoving :lng::MCopyCopying),
-		L"", // source name
+		L""s, // source name
 		msg(lng::MCopyTo),
-		L"", // dest path
+		L""s, // dest path
 		m_CurrentBar,
-		string(L"\x1") + msg(lng::MCopyDlgTotal),
-		L"", // files [total] <processed>
-		L""  // bytes [total] <processed>
+		L"\x1"s + msg(lng::MCopyDlgTotal),
+		L""s, // files [total] <processed>
+		L""s  // bytes [total] <processed>
 	};
 
 	// total progress bar
@@ -219,8 +219,8 @@ void copy_progress::CreateBackground()
 	// time & speed
 	if (m_ShowTime)
 	{
-		Items.emplace_back(L"\x1");
-		Items.emplace_back(L"");
+		Items.emplace_back(L"\x1"s);
+		Items.emplace_back(L""s);
 	}
 
 	Message m(MSG_LEFTALIGN | MSG_NOFLUSH,

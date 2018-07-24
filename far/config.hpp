@@ -329,7 +329,8 @@ public:
 	Options();
 	~Options();
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
-	void Load(std::unordered_map<string, string, hash_icase_t, equal_icase_t>&& Overrides);
+	using overrides = std::unordered_map<string, string, hash_icase_t, equal_icase_t>;
+	void Load(overrides&& Overrides);
 	void Save(bool Manual);
 	const Option* GetConfigValue(string_view Key, string_view Name) const;
 	const Option* GetConfigValue(size_t Root, string_view Name) const;

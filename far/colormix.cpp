@@ -92,13 +92,16 @@ namespace colors
 		Colour = transparent(Colour);
 	}
 
-	size_t color_hash::operator()(const FarColor& Key) const
+	size_t color_hash::operator()(const FarColor& Value) const
 	{
-		return
-			make_hash(Key.Flags) ^
-			make_hash(Key.BackgroundColor) ^
-			make_hash(Key.ForegroundColor) ^
-			make_hash(Key.Reserved);
+		size_t Seed = 0;
+
+		hash_combine(Seed, Value.Flags);
+		hash_combine(Seed, Value.BackgroundColor);
+		hash_combine(Seed, Value.ForegroundColor);
+		hash_combine(Seed, Value.Reserved);
+
+		return Seed;
 	}
 
 	FarColor merge(const FarColor& Bottom, const FarColor& Top)
@@ -246,7 +249,7 @@ const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
 
 const FarColor* StoreColor(const FarColor& Value)
 {
-	static std::unordered_set<FarColor, color_hash> ColorSet;
+	static std::unordered_set<FarColor> ColorSet;
 	return &*ColorSet.emplace(Value).first;
 }
 

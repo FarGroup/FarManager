@@ -1276,7 +1276,7 @@ int KeyNameToKey(const string& Name)
 	{
 		if (!(Key & i.Key))
 		{
-			if (const auto Count = ReplaceStrings(strTmpName, i.UpperName, L"", true))
+			if (const auto Count = ReplaceStrings(strTmpName, i.UpperName, {}, true))
 			{
 				Key |= i.Key;
 				Pos += i.UpperName.size() * Count;

@@ -674,7 +674,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 						strSelName :
 						path::join(SrcPanel->GetCurDir(), strSelName);
 
-					ScTree.SetFindPath(strSelFullName,L"*", 0);
+					ScTree.SetFindPath(strSelFullName, L"*"sv, 0);
 					const time_check TreeTimeCheck(time_check::mode::immediate, GetRedrawTimeout());
 
 					os::fs::find_data FindData;
@@ -1087,7 +1087,7 @@ bool ShellDelete::RemoveToRecycleBin(const string& Name, bool dir, DEL_RESULT& r
 		string strFullName2;
 		os::fs::find_data FindData;
 		ScanTree ScTree(true, true, FALSE);
-		ScTree.SetFindPath(Name,L"*", 0);
+		ScTree.SetFindPath(Name, L"*"sv, 0);
 
 		bool MessageShown = false;
 		int SkipMode = -1;
@@ -1183,7 +1183,7 @@ void DeleteDirTree(const string& Dir)
 	string strFullName;
 	os::fs::find_data FindData;
 	ScanTree ScTree(true, true, FALSE);
-	ScTree.SetFindPath(Dir,L"*",0);
+	ScTree.SetFindPath(Dir, L"*"sv, 0);
 
 	while (ScTree.GetNextName(FindData, strFullName))
 	{

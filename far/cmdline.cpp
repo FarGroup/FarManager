@@ -818,7 +818,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 		Result =
 		{
 			{ m_CurDir, PrefixColor, true },
-			{ L">", PrefixColor, false },
+			{ L">"s, PrefixColor, false },
 		};
 	}
 	SetPromptSize(NewPromptSize);

@@ -60,16 +60,6 @@ DizList::DizList():
 {
 }
 
-size_t DizList::hasher::operator()(const string& Key) const
-{
-	return make_hash(lower(Key));
-}
-
-bool DizList::key_equal::operator()(const string& a, const string& b) const
-{
-	return equal_icase(a, b);
-}
-
 void DizList::Reset()
 {
 	m_DizData.clear();

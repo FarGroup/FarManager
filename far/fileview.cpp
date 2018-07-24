@@ -380,7 +380,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 					ShellEditor->SetNamesList(m_View->GetNamesList());
 
 					// Если переключаемся в редактор, то удалять файл уже не нужно
-					SetTempViewName(L"");
+					SetTempViewName({});
 					SetExitCode(0);
 				}
 			}
@@ -470,7 +470,7 @@ void FileViewer::OnDestroy()
 
 	m_bClosing = true;
 
-	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel() || m_Name != L"-"))
+	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel() || m_Name != L"-"sv))
 	{
 		Global->CtrlObject->ViewHistory->AddToHistory(m_View->GetFileName(), HR_VIEWER);
 	}

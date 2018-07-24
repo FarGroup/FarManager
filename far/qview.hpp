@@ -48,7 +48,7 @@ public:
 	QuickView(private_tag, window_ptr Owner);
 	~QuickView() override;
 
-	void ShowFile(const string& FileName, bool TempFile, const plugin_panel* hDirPlugin);
+	void ShowFile(string_view FileName, bool TempFile, const plugin_panel* hDirPlugin);
 
 private:
 	bool ProcessKey(const Manager::Key& Key) override;
