@@ -308,7 +308,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.empty())
 	{
-		strTemplatePath = GetFarIniString(L"General", L"TemplateProfile", path::join(L"%FARHOME%"sv, L"Default.farconfig"sv));
+		strTemplatePath = GetFarIniString(L"General"s, L"TemplateProfile"s, path::join(L"%FARHOME%"sv, L"Default.farconfig"sv));
 	}
 
 	if (!strTemplatePath.empty())
@@ -326,7 +326,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /ro-'
-		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General", L"ReadOnlyConfig", 0);
+		Global->Opt->ReadOnlyConfig = GetFarIniInt(L"General"s, L"ReadOnlyConfig"s, 0);
 
 	if (!strProfilePath.empty())
 	{
@@ -339,7 +339,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (strProfilePath.empty())
 	{
-		int UseSystemProfiles = GetFarIniInt(L"General", L"UseSystemProfiles", 1);
+		const auto UseSystemProfiles = GetFarIniInt(L"General"s, L"UseSystemProfiles"s, 1);
 		if (UseSystemProfiles)
 		{
 			const auto& GetShellProfilePath = [](int Idl)
@@ -359,8 +359,8 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		}
 		else
 		{
-			const auto strUserProfileDir = GetFarIniString(L"General", L"UserProfileDir", path::join(L"%FARHOME%"sv, L"Profile"sv));
-			const auto strUserLocalProfileDir = GetFarIniString(L"General", L"UserLocalProfileDir", strUserProfileDir);
+			const auto strUserProfileDir = GetFarIniString(L"General"s, L"UserProfileDir"s, path::join(L"%FARHOME%"sv, L"Profile"sv));
+			const auto strUserLocalProfileDir = GetFarIniString(L"General"s, L"UserLocalProfileDir"s, strUserProfileDir);
 			Global->Opt->ProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserProfileDir)));
 			Global->Opt->LocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserLocalProfileDir)));
 		}
@@ -387,7 +387,7 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& ServiceResult)
 {
-	const auto& isArg = [](const wchar_t* Arg, const wchar_t* Name)
+	const auto& isArg = [](const wchar_t* Arg, string_view const Name)
 	{
 		return (*Arg == L'/' || *Arg == L'-') && equal_icase(Arg + 1, Name);
 	};
@@ -398,9 +398,9 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 		return true;
 	}
 
-	if (InRange(2u, Args.size(), 5u) && (isArg(Args[0], L"export") || isArg(Args[0], L"import")))
+	if (InRange(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
 	{
-		const auto Export = isArg(Args[0], L"export");
+		const auto Export = isArg(Args[0], L"export"sv);
 		string strProfilePath(Args.size() > 2 ? Args[2] : L""), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
@@ -409,7 +409,7 @@ static bool ProcessServiceModes(range<const wchar_t* const*> const Args, int& Se
 		return true;
 	}
 
-	if (InRange(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"))
+	if (InRange(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
 	{
 		string strProfilePath(Args.size() > 1 ? Args[1] : L"");
 		string strLocalProfilePath(Args.size() > 2 ? Args[2] : L"");
@@ -426,7 +426,7 @@ static void UpdateErrorMode()
 {
 	Global->ErrorMode |= SEM_NOGPFAULTERRORBOX;
 	long long IgnoreDataAlignmentFaults = 0;
-	ConfigProvider().GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
+	ConfigProvider().GeneralCfg()->GetValue(L"System.Exception"sv, L"IgnoreDataAlignmentFaults"sv, IgnoreDataAlignmentFaults, IgnoreDataAlignmentFaults);
 	if (IgnoreDataAlignmentFaults)
 	{
 		Global->ErrorMode |= SEM_NOALIGNMENTFAULTEXCEPT;
@@ -437,7 +437,7 @@ static void UpdateErrorMode()
 static void SetDriveMenuHotkeys()
 {
 	long long InitDriveMenuHotkeys = 1;
-	ConfigProvider().GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", InitDriveMenuHotkeys, InitDriveMenuHotkeys);
+	ConfigProvider().GeneralCfg()->GetValue(L"Interface"sv, L"InitDriveMenuHotkeys"sv, InitDriveMenuHotkeys, InitDriveMenuHotkeys);
 
 	if (InitDriveMenuHotkeys)
 	{
@@ -859,5 +859,5 @@ int main()
 	{
 		std::terminate();
 	},
-	L"main");
+	L"main"sv);
 }

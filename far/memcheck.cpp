@@ -192,15 +192,15 @@ void checker::UnregisterBlock(MEMINFO *block)
 
 static std::string FormatLine(const char* File, int Line, const char* Function, allocation_type Type, size_t Size)
 {
-	const char* sType;
+	std::string_view sType;
 	switch (Type)
 	{
 	case allocation_type::scalar:
-		sType = "operator new";
+		sType = "operator new"sv;
 		break;
 
 	case allocation_type::vector:
-		sType = "operator new[]";
+		sType = "operator new[]"sv;
 		break;
 
 	default:

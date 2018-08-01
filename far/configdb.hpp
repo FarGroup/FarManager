@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.chrono.hpp"
 
 #include "common/enumerator.hpp"
+#include "common/keep_alive.hpp"
 
 struct FarColor;
 struct VersionInfo;
@@ -64,7 +65,7 @@ public:
 	virtual void Import(const representation_source& Representation) = 0;
 };
 
-class GeneralConfig: public representable, virtual public transactional
+class GeneralConfig : public representable, virtual public transactional
 {
 public:
 	virtual bool SetValue(string_view Key, string_view Name, string_view Value) = 0;
@@ -80,15 +81,13 @@ public:
 	virtual bool EnumValues(string_view Key, bool Reset, string& strName, string& strValue) const = 0;
 	virtual bool EnumValues(string_view Key, bool Reset, string& strName, long long& Value) const = 0;
 
-	template<typename T>
-	auto ValuesEnumerator(const string&&) const = delete;
-	template<typename T>
-	auto ValuesEnumerator(const string& Key) const
+	template<typename T, typename key_type, REQUIRES(std::is_convertible_v<key_type, string_view>)>
+	auto ValuesEnumerator(key_type&& Key) const
 	{
 		using value_type = std::pair<string, T>;
-		return make_inline_enumerator<value_type>([this, &Key](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([this, Key = keep_alive(FWD(Key))](const bool Reset, value_type& Value)
 		{
-			return EnumValues(Key, Reset, Value.first, Value.second);
+			return EnumValues(Key.get(), Reset, Value.first, Value.second);
 		});
 	}
 
@@ -139,21 +138,19 @@ public:
 	virtual bool EnumValues(const key& Root, bool Reset, string& strName, int& Type) const = 0;
 	virtual bool Flush() = 0;
 
-	void KeysEnumerator(const key&&) const = delete;
-	auto KeysEnumerator(const key& Root) const
+	auto KeysEnumerator(key const Root) const
 	{
 		using value_type = string;
-		return make_inline_enumerator<value_type>([this, &Root](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([this, Root](const bool Reset, value_type& Value)
 		{
 			return EnumKeys(Root, Reset, Value);
 		});
 	}
 
-	void ValuesEnumerator(const key&&) const = delete;
-	auto ValuesEnumerator(const key& Root) const
+	auto ValuesEnumerator(key const Root) const
 	{
 		using value_type = std::pair<string, int>;
-		return make_inline_enumerator<value_type>([this, &Root](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([this, Root](const bool Reset, value_type& Value)
 		{
 			return EnumValues(Root, Reset, Value.first, Value.second);
 		});
@@ -328,13 +325,13 @@ public:
 		string Data;
 	};
 
-	void Enumerator(unsigned int, const string&&, bool = false) = delete;
-	auto Enumerator(unsigned int HistoryType, const string& HistoryName, bool Reverse = false)
+	template<typename type, REQUIRES(std::is_convertible_v<type, string_view>)>
+	auto Enumerator(unsigned int HistoryType, type&& HistoryName, bool Reverse = false)
 	{
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([this, HistoryType, &HistoryName, Reverse](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([this, HistoryType, HistoryName = keep_alive(FWD(HistoryName)), Reverse](const bool Reset, value_type& Value)
 		{
-			return Enum(Reset, HistoryType, HistoryName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
+			return Enum(Reset, HistoryType, HistoryName.get(), Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Guid, Value.File, Value.Data, Reverse);
 		});
 	}
 
@@ -385,7 +382,7 @@ public:
 private:
 	template<class T> void CheckAndImportDatabase(T* Database, const char* ImportNodeName, bool IsPlugin);
 	template<class T> std::unique_ptr<T> CreateDatabase();
-	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, const string& DbName, const char* ImportNodeName, bool IsLocal = false, bool IsPlugin = false);
+	template<class T> HierarchicalConfigUniquePtr CreateHierarchicalConfig(dbcheck DbId, string_view DbName, const char* ImportNodeName, bool IsLocal = false, bool IsPlugin = false);
 	bool Import(const string& File);
 	bool Export(const string& File);
 	void TryImportDatabase(representable* p, const char* NodeName = nullptr, bool IsPlugin = false);

@@ -275,17 +275,17 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 
 	DialogBuilder Builder(lng::MFolderShortcutsTitle, HelpFolderShortcuts);
 	Builder.AddText(lng::MFSShortcutName);
-	Builder.AddEditField(NewItem.Name, 50, L"FS_Name", DIF_EDITPATH);
+	Builder.AddEditField(NewItem.Name, 50, L"FS_Name"sv, DIF_EDITPATH);
 	Builder.AddText(lng::MFSShortcutPath);
-	Builder.AddEditField(NewItem.Folder, 50, L"FS_Path", DIF_EDITPATH);
+	Builder.AddEditField(NewItem.Folder, 50, L"FS_Path"sv, DIF_EDITPATH);
 	if (Item.PluginGuid != FarGuid)
 	{
 		const auto plugin = Global->CtrlObject->Plugins->FindPlugin(Item.PluginGuid);
 		Builder.AddSeparator(plugin? plugin->Title().c_str() : GuidToStr(Item.PluginGuid).c_str());
 		Builder.AddText(lng::MFSShortcutPluginFile);
-		Builder.AddEditField(NewItem.PluginFile, 50, L"FS_PluginFile", DIF_EDITPATH);
+		Builder.AddEditField(NewItem.PluginFile, 50, L"FS_PluginFile"sv, DIF_EDITPATH);
 		Builder.AddText(lng::MFSShortcutPluginData);
-		Builder.AddEditField(NewItem.PluginData, 50, L"FS_PluginData", DIF_EDITPATH);
+		Builder.AddEditField(NewItem.PluginData, 50, L"FS_PluginData"sv, DIF_EDITPATH);
 	}
 	Builder.SetId(FolderShortcutsDlgId);
 	Builder.AddOKCancel();

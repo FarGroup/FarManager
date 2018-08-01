@@ -137,14 +137,12 @@ bool History::ReadLastItem(const string& HistoryName, string &strStr) const
 	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
 }
 
-history_return_type History::Select(const string& Title, const wchar_t *HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
+history_return_type History::Select(const string& Title, string_view const HelpTopic, string &strStr, history_record_type &Type, GUID* Guid, string *File, string *Data)
 {
 	int Height=ScrY-8;
 	const auto HistoryMenu = VMenu2::create(Title, {}, Height);
 	HistoryMenu->SetMenuFlags(VMENU_WRAPMODE);
-
-	if (HelpTopic)
-		HistoryMenu->SetHelp(HelpTopic);
+	HistoryMenu->SetHelp(HelpTopic);
 
 	HistoryMenu->SetPosition(-1,-1,0,0);
 

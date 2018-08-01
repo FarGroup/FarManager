@@ -43,18 +43,9 @@ constexpr bool is_valid_v = is_valid<type, operation>::value;
 
 
 template<typename type, typename... args>
-struct is_one_of;
-
-template<typename type>
-struct is_one_of<type>: std::false_type {};
+using is_one_of = std::disjunction<std::is_same<type, args>...>;
 
 template<typename type, typename... args>
-struct is_one_of<type, type, args...>: std::true_type {};
-
-template<typename type1, typename type2, typename... args>
-struct is_one_of<type1, type2, args...>: is_one_of<type1, args...> {};
-
-template<typename... args>
-constexpr bool is_one_of_v = is_one_of<args...>::value;
+constexpr bool is_one_of_v = is_one_of<type, args...>::value;
 
 #endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

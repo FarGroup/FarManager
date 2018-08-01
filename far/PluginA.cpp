@@ -123,7 +123,7 @@ public:
 		return true;
 	}
 
-	auto GetStringValue(const string& Value) const
+	auto GetStringValue(string_view const Value) const
 	{
 		return GetValue<wchar_t>(m_BlockPath + Value);
 	}
@@ -1445,14 +1445,13 @@ static int GetEditorCodePageFavA()
 
 	auto result = -(static_cast<int>(CodePage) + 2);
 	DWORD FavIndex = 2;
-	const auto strCP = str(CodePage);
 
 	for (const auto& i: codepages::GetFavoritesEnumerator())
 	{
 		if (!(i.second & CPST_FAVORITE))
 			continue;
 
-		if (i.first == strCP)
+		if (i.first == CodePage)
 		{
 			result = FavIndex;
 			break;
@@ -1502,7 +1501,7 @@ static uintptr_t ConvertCharTableToCodePage(int Command)
 
 					if (FavIndex == Command)
 					{
-						nCP = std::stoi(i.first);
+						nCP = i.first;
 						break;
 					}
 
@@ -4796,7 +4795,7 @@ private:
 	{
 		Info->StructSize = sizeof(GlobalInfo);
 		Info->Description = L"Far 1.x plugin";
-		Info->Author = L"unknown";
+		Info->Author = L"Unknown";
 
 		const string& module = ModuleName();
 		// Null-terminated, data() is ok
@@ -4810,22 +4809,22 @@ private:
 		if (FileVersion.Read(ModuleName()))
 		{
 			const wchar_t* Value;
-			if (((Value = FileVersion.GetStringValue(L"InternalName")) != nullptr || (Value = FileVersion.GetStringValue(L"OriginalName")) != nullptr) && *Value)
+			if (((Value = FileVersion.GetStringValue(L"InternalName"sv)) != nullptr || (Value = FileVersion.GetStringValue(L"OriginalName"sv)) != nullptr) && *Value)
 			{
 				Info->Title = Value;
 			}
 
-			if (((Value = FileVersion.GetStringValue(L"CompanyName")) != nullptr || (Value = FileVersion.GetStringValue(L"LegalCopyright")) != nullptr) && *Value)
+			if (((Value = FileVersion.GetStringValue(L"CompanyName"sv)) != nullptr || (Value = FileVersion.GetStringValue(L"LegalCopyright"sv)) != nullptr) && *Value)
 			{
 				Info->Author = Value;
 			}
 
-			if ((Value = FileVersion.GetStringValue(L"FileDescription")) != nullptr && *Value)
+			if ((Value = FileVersion.GetStringValue(L"FileDescription"sv)) != nullptr && *Value)
 			{
 				Info->Description = Value;
 			}
 
-			if (const auto Uuid = FileVersion.GetStringValue(L"PluginGUID"))
+			if (const auto Uuid = FileVersion.GetStringValue(L"PluginGUID"sv))
 			{
 				GuidFound = StrToGuid(Uuid, PluginGuid);
 			}
@@ -4839,7 +4838,7 @@ private:
 			}
 		}
 
-		if (equal_icase(Info->Title, L"FarFtp") || equal_icase(Info->Title, L"MultiArc"))
+		if (equal_icase(Info->Title, L"FarFtp"sv) || equal_icase(Info->Title, L"MultiArc"sv))
 			opif_shortcut = true;
 
 		if (GuidFound)

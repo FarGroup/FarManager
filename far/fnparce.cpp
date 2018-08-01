@@ -569,7 +569,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			Item.X2 = 70;
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
 			Item.Flags = DIF_HISTORY | DIF_USELASTHISTORY;
-			Item.strHistory = L"UserVar" + str((DlgData.size() - 1) / 2);
+			Item.strHistory = concat(L"UserVar"sv, str((DlgData.size() - 1) / 2));
 			DlgData.emplace_back(Item);
 		}
 

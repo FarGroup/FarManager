@@ -159,7 +159,7 @@ void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
 	GotoXY(m_X1+(m_X2-m_X1+1-(int)strTitle.size())/2,CurY);
 	PrintText(strTitle);
 	GotoXY(m_X1+1,CurY);
-	PrintText(SectionState[Id].Show?L"[-]":L"[+]");
+	PrintText(SectionState[Id].Show? L"[-]"sv : L"[+]"sv);
 	SectionState[Id].Y=CurY;
 	CurY++;
 }
@@ -698,7 +698,7 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help::create(L"InfoPanel");
+			Help::create(L"InfoPanel"sv);
 			return true;
 		}
 		case KEY_CTRLF12:
@@ -880,7 +880,7 @@ bool InfoList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 }
 
 
-void InfoList::PrintText(const string& Str) const
+void InfoList::PrintText(string_view const Str) const
 {
 	if (WhereY()<=m_Y2-1)
 	{

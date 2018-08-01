@@ -135,11 +135,11 @@ string& ConvertTemplateTreeName(string &strDest, const string &strTemplate, cons
     	 %SH   - share name
 	*/
 	string strDiskLetter(D ? D : L"", 1);
-	ReplaceStrings(strDest, L"%D", strDiskLetter);
-	ReplaceStrings(strDest, L"%SN", strDiskNumber);
-	ReplaceStrings(strDest, L"%L", L && *L? L : L"");
-	ReplaceStrings(strDest, L"%SR", SR && *SR? SR : L"");
-	ReplaceStrings(strDest, L"%SH", SH && *SH? SH : L"");
+	ReplaceStrings(strDest, L"%D"sv, strDiskLetter);
+	ReplaceStrings(strDest, L"%SN"sv, strDiskNumber);
+	ReplaceStrings(strDest, L"%L"sv, L && *L? L : L"");
+	ReplaceStrings(strDest, L"%SR"sv, SR && *SR? SR : L"");
+	ReplaceStrings(strDest, L"%SH"sv, SH && *SH? SH : L"");
 
 	return strDest;
 }
@@ -273,7 +273,7 @@ static string MkTreeCacheFolderName(const string_view RootDir)
 	// в проекте TREEFILE_PROJECT наличие каталога tree3.cache не предполагается
 	return CreateTreeFileName(RootDir);
 #else
-	return path::join(RootDir, L"tree3.cache");
+	return path::join(RootDir, L"tree3.cache"sv);
 #endif
 }
 
@@ -1035,7 +1035,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help::create(L"TreePanel");
+			Help::create(L"TreePanel"sv);
 			return true;
 		}
 		case KEY_SHIFTNUMENTER:

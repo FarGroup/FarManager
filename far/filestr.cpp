@@ -353,7 +353,7 @@ static bool GetCpUsingUniversalDetectorWithExceptions(const void* Data, size_t S
 		return false;
 
 	// This whole block shouldn't be here
-	if (Global->Opt->strNoAutoDetectCP.Get() == L"-1")
+	if (Global->Opt->strNoAutoDetectCP.Get() == L"-1"sv)
 	{
 		if (Global->Opt->CPMenuMode && static_cast<UINT>(Codepage) != encoding::codepage::ansi() && static_cast<UINT>(Codepage) != encoding::codepage::oem())
 		{

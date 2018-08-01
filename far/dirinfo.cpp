@@ -154,7 +154,7 @@ int GetDirInfo(const string& DirName, DirInfoData& Data, FileFilter *Filter, con
 	const auto CheckHardlinks = os::fs::GetVolumeInformation(GetPathRoot(DirName), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName)?
 		IsWindows7OrGreater()?
 			(FileSystemFlags & FILE_SUPPORTS_HARD_LINKS) != 0 :
-			FileSystemName == L"NTFS" :
+			FileSystemName == L"NTFS"sv :
 		false;
 	string strFullName;
 	// Временные хранилища имён каталогов
@@ -417,7 +417,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode,s
 				else
 					strPluginSearchPath.clear();
 
-				if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_FIND|OpMode))
+				if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, L".."s, OPM_FIND | OpMode))
 				{
 					StopSearch = true;
 					break;
@@ -486,7 +486,7 @@ bool GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const string& Dir, s
 				auto strPluginSearchPath = concat(Dir, L'\x1');
 				ScanPluginDir(hDirListPlugin, OpMode,strPluginSearchPath, Items, StopSearch);
 
-				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT|OpMode);
+				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, L".."s, OPM_SILENT | OpMode);
 				OpenPanelInfo NewInfo;
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 

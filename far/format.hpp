@@ -105,5 +105,7 @@ string str(const char*) = delete;
 string str(const wchar_t*) = delete;
 string str(std::string) = delete;
 string str(string) = delete;
+string str(std::string_view) = delete;
+string str(string_view) = delete;
 
 #endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC

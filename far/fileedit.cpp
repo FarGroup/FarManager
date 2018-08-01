@@ -950,7 +950,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 		{
 			case KEY_F1:
 			{
-				Help::create(L"Editor");
+				Help::create(L"Editor"sv);
 				return true;
 			}
 			/* $ 25.04.2001 IS
@@ -2020,8 +2020,8 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 void FileEditor::ShowConsoleTitle()
 {
 	string strEditorTitleFormat=Global->Opt->strEditorTitleFormat.Get();
-	ReplaceStrings(strEditorTitleFormat, L"%Lng", msg(lng::MInEditor), true);
-	ReplaceStrings(strEditorTitleFormat, L"%File", PointToName(strFileName), true);
+	ReplaceStrings(strEditorTitleFormat, L"%Lng"sv, msg(lng::MInEditor), true);
+	ReplaceStrings(strEditorTitleFormat, L"%File"sv, PointToName(strFileName), true);
 	ConsoleTitle::SetFarTitle(strEditorTitleFormat);
 	m_Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }

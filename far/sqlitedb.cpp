@@ -181,7 +181,7 @@ SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
 }
 
 
-SQLiteDb::SQLiteDb(initialiser Initialiser, const string& DbName, bool Local, bool WAL)
+SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool Local, bool WAL)
 {
 	Initialize(Initialiser, DbName, Local, WAL);
 }
@@ -280,25 +280,25 @@ bool SQLiteDb::Open(string_view const DbFile, bool Local, bool WAL)
 	return ok;
 }
 
-void SQLiteDb::Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL)
+void SQLiteDb::Initialize(initialiser Initialiser, string_view const DbName, bool Local, bool WAL)
 {
-	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName));
-	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
+	assign(m_Name, DbName);
 
-	m_Name = DbName;
+	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, m_Name));
+	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
 
 	const auto& OpenAndInitialise = [&](string_view const Name)
 	{
 		return Open(Name, Local, WAL) && Initialiser(db_initialiser(this));
 	};
 
-	if (!OpenAndInitialise(DbName))
+	if (!OpenAndInitialise(m_Name))
 	{
 		Close();
 		++init_status;
 
-		bool in_memory = Global->Opt->ReadOnlyConfig ||
-			!(os::fs::move_file(m_Path, m_Path + L".bad", MOVEFILE_REPLACE_EXISTING) && OpenAndInitialise(DbName));
+		const auto in_memory = Global->Opt->ReadOnlyConfig ||
+			!(os::fs::move_file(m_Path, m_Path + L".bad"sv, MOVEFILE_REPLACE_EXISTING) && OpenAndInitialise(m_Name));
 
 		if (in_memory)
 		{
@@ -346,10 +346,19 @@ bool SQLiteDb::RollbackTransaction()
 	return Exec("ROLLBACK TRANSACTION;");
 }
 
-SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(const wchar_t* Stmt) const
+SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(string_view const Stmt) const
 {
 	sqlite::sqlite3_stmt* pStmt;
-	const auto Result = sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt, -1, &pStmt, nullptr);
+
+	// https://www.sqlite.org/c3ref/prepare.html
+	// If the caller knows that the supplied string is nul-terminated,
+	// then there is a small performance advantage to passing an nByte parameter
+	// that is the number of bytes in the input string *including* the nul-terminator.
+
+	// We use data() instead of operator[] here to bypass any bounds checks in debug mode
+	const auto IsNullTerminated = Stmt.data()[Stmt.size()] == L'\0';
+
+	const auto Result = sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt.data(), static_cast<int>((Stmt.size() + (IsNullTerminated? 1 : 0)) * sizeof(wchar_t)), &pStmt, nullptr);
 	if (Result != SQLITE_OK)
 		throw MAKE_FAR_EXCEPTION(format(L"SQLiteDb::create_stmt error {0} - {1}", Result, GetErrorString(Result)));
 

@@ -482,7 +482,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 
 					if (items.size() > mshow && items.size() < SelCount)
 					{
-						items.emplace_back(L"...");
+						items.emplace_back(L"..."s);
 						break;
 					}
 				}
@@ -542,7 +542,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, bool Wipe):
 	NeedSetUpADir = CheckUpdateAnotherPanel(SrcPanel, SingleSelData.FileName);
 
 	if (SrcPanel->GetType() == panel_type::TREE_PANEL)
-		FarChDir(L"\\");
+		FarChDir(L"\\"sv);
 
 	{
 		ConsoleTitle::SetFarTitle(msg(lng::MDeletingTitle));

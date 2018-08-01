@@ -445,8 +445,8 @@ int FileViewer::GetTypeAndName(string &strType, string &strName)
 void FileViewer::ShowConsoleTitle()
 {
 	string strViewerTitleFormat = Global->Opt->strViewerTitleFormat.Get();
-	ReplaceStrings(strViewerTitleFormat, L"%Lng", msg(lng::MInViewer), true);
-	ReplaceStrings(strViewerTitleFormat, L"%File", PointToName(GetViewer()->strFileName), true);
+	ReplaceStrings(strViewerTitleFormat, L"%Lng"sv, msg(lng::MInViewer), true);
+	ReplaceStrings(strViewerTitleFormat, L"%File"sv, PointToName(GetViewer()->strFileName), true);
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 	RedrawTitle = FALSE;
 }

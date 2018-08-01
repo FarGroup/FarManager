@@ -394,11 +394,9 @@ void background_searcher::InitInFileSearch()
 				{
 					if (i.second & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
-						uintptr_t codePage = std::stoi(i.first);
-
 						// Проверяем дубли
-						if (hasSelected || !std::any_of(CONST_RANGE(m_CodePages, cp) { return cp.CodePage == CodePage; }))
-							m_CodePages.emplace_back(codePage);
+						if (hasSelected || !std::any_of(CONST_RANGE(m_CodePages, cp) { return cp.CodePage == i.first; }))
+							m_CodePages.emplace_back(i.first);
 					}
 				});
 			}
@@ -518,7 +516,7 @@ void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel
 			DeleteEndSlash(Dir);
 
 			SCOPED_ACTION(os::critical_section_lock)(PluginCS);
-			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\" : null_terminated(Dir).c_str(), OPM_SILENT, Dir.empty()? nullptr : UserData);
+			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\"s : string(Dir), OPM_SILENT, Dir.empty()? nullptr : UserData);
 		}
 
 		// Отрисуем панель при необходимости.
@@ -881,7 +879,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& Fin
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
 	string strSaveDir = NullToEmpty(Info.CurDir);
 	AddEndSlash(strSaveDir);
-	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
+	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin, L"\\"s, OPM_SILENT);
 	SetPluginDirectory(FindData.FileName,ArcItem->hPlugin,false,UserData);
 	const auto FileNameToFind = PointToName(FindData.FileName);
 	const auto FileNameToFindShort = FindData.HasAlternateFileName()? PointToName(FindData.AlternateFileName()) : string_view{};
@@ -905,7 +903,7 @@ bool FindFiles::GetPluginFile(ArcListItem* ArcItem, const os::fs::find_data& Fin
 		Global->CtrlObject->Plugins->FreeFindData(ArcItem->hPlugin, Items, ItemsNumber, true);
 	}
 
-	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_SILENT);
+	Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin, L"\\"s, OPM_SILENT);
 	SetPluginDirectory(strSaveDir,ArcItem->hPlugin);
 	return nResult;
 }
@@ -2008,7 +2006,7 @@ void FindFiles::AddMenuRecord(Dialog* Dlg,const string& FullName, const os::fs::
 				if (!IsSlash(strPathName.front()))
 					AddEndSlash(strArcPathName);
 
-				strArcPathName += strPathName == L".\\"? L"\\" : strPathName;
+				strArcPathName += strPathName == L".\\"sv? L"\\"s : strPathName;
 				strPathName = strArcPathName;
 			}
 		}
@@ -2310,7 +2308,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 
 					{
 						SCOPED_ACTION(auto)(m_Owner->ScopedLock());
-						SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin,L"..",OPM_FIND)!=FALSE;
+						SetDirectoryResult = Global->CtrlObject->Plugins->SetDirectory(hPlugin, L".."s, OPM_FIND) != FALSE;
 					}
 
 					if (!SetDirectoryResult)
@@ -2412,7 +2410,7 @@ void background_searcher::DoPreparePluginList(bool Internal)
 		strSaveDir = NullToEmpty(Info.CurDir);
 		if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 		{
-			Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin,L"\\",OPM_FIND);
+			Global->CtrlObject->Plugins->SetDirectory(ArcItem->hPlugin, L"\\"s, OPM_FIND);
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
 		}
 	}
@@ -2682,7 +2680,7 @@ bool FindFiles::FindFilesProcess()
 								SearchMode == FINDAREA_ALL ||
 								SearchMode == FINDAREA_ALL_BUTNETWORK ||
 								SearchMode == FINDAREA_INPATH)
-								Global->CtrlObject->Plugins->SetDirectory(FindExitItem->Arc->hPlugin, L"\\", 0);
+								Global->CtrlObject->Plugins->SetDirectory(FindExitItem->Arc->hPlugin, L"\\"s, OPM_NONE);
 						}
 						SetPluginDirectory(strFileName, FindExitItem->Arc->hPlugin, true); // ??? ,FindItem.Data ???
 					}
@@ -2790,7 +2788,7 @@ FindFiles::FindFiles():
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
 
-	static string strLastFindMask=L"*.*", strLastFindStr;
+	static string strLastFindMask = L"*.*"s, strLastFindStr;
 
 	static string strSearchFromRoot;
 	strSearchFromRoot = msg(lng::MSearchFromRootFolder);

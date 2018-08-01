@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
-#include "locale.hpp"
 
 global::global():
 	OnlyEditorViewerUsed(),

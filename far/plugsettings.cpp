@@ -102,9 +102,9 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local)
 	if (!Global->Opt->ReadOnlyConfig)
 	{
 		DizList Diz;
-		const auto DbPath = path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, L"PluginsData");
+		const auto DbPath = path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, L"PluginsData"sv);
 		Diz.Read(DbPath);
-		const auto DbName = concat(strGuid, L".db");
+		const auto DbName = concat(strGuid, L".db"sv);
 		const auto Description = concat(pPlugin->Title(), L" ("sv, pPlugin->Description(), L')');
 		if (Description != NullToEmpty(Diz.Get(DbName, {}, 0)))
 		{

@@ -537,11 +537,11 @@ void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strT
 	if (!Utc2Local(Point, st))
 		return;
 
-	auto Letter = L"";
+	auto Letter = L""sv;
 
 	if (TimeLength == 6)
 	{
-		Letter = st.wHour < 12 ? L"a" : L"p";
+		Letter = st.wHour < 12 ? L"a"sv : L"p"sv;
 
 		if (st.wHour > 12)
 			st.wHour -= 12;

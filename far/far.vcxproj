@@ -354,6 +354,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\monitored.hpp" />
     <ClInclude Include="common\noncopyable.hpp" />
     <ClInclude Include="common\preprocessor.hpp" />
+    <ClInclude Include="common\keep_alive.hpp" />
     <ClInclude Include="common\rel_ops.hpp" />
     <ClInclude Include="common\scope_exit.hpp" />
     <ClInclude Include="common\singleton.hpp" />

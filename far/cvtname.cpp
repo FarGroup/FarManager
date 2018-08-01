@@ -462,7 +462,7 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 		{
 			ReplaceSlashToBackslash(strPath);
 			bool DoubleSlash = strPath[1]==L'\\';
-			while(ReplaceStrings(strPath,L"\\\\",L"\\"))
+			while(ReplaceStrings(strPath, L"\\\\"sv, L"\\"sv))
 				;
 			if(DoubleSlash)
 			{

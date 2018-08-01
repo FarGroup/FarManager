@@ -64,21 +64,21 @@ static const string& GetFarTitleAddons()
 	static const string strBuild = str(FAR_VERSION.Build);
 	static const string strPID = str(GetCurrentProcessId());
 
-	ReplaceStrings(strTitleAddons, L"%PID", strPID, true);
-	ReplaceStrings(strTitleAddons, L"%Ver", strVer, true);
-	ReplaceStrings(strTitleAddons, L"%Build", strBuild, true);
-	ReplaceStrings(strTitleAddons,L"%Platform",
+	ReplaceStrings(strTitleAddons, L"%PID"sv, strPID, true);
+	ReplaceStrings(strTitleAddons, L"%Ver"sv, strVer, true);
+	ReplaceStrings(strTitleAddons, L"%Build"sv, strBuild, true);
+	ReplaceStrings(strTitleAddons,L"%Platform"sv,
 #ifdef _WIN64
 #ifdef _M_IA64
-	L"IA64",
+	L"IA64"sv,
 #else
-	L"x64",
+	L"x64"sv,
 #endif
 #else
-	L"x86",
+	L"x86"sv,
 #endif
 	true);
-	ReplaceStrings(strTitleAddons, L"%Admin", os::security::is_admin() ? msg(lng::MFarTitleAddonsAdmin) : L"", true);
+	ReplaceStrings(strTitleAddons, L"%Admin"sv, os::security::is_admin() ? msg(lng::MFarTitleAddonsAdmin) : L""sv, true);
 	inplace::trim_right(strTitleAddons);
 
 	return strTitleAddons;

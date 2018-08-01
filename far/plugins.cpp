@@ -1210,7 +1210,7 @@ struct PluginMenuItemData
 
 static string AddHotkey(const string& Item, wchar_t Hotkey)
 {
-	return concat(!Hotkey?  L" "s : Hotkey == L'&'? L"&&&"s : L"&"s + Hotkey, L"  ", Item);
+	return concat(!Hotkey?  L" "s : Hotkey == L'&'? L"&&&"s : L"&"s + Hotkey, L"  "sv, Item);
 }
 
 /* $ 29.05.2001 IS
@@ -1594,7 +1594,7 @@ bool PluginManager::SetHotKeyDialog(Plugin* const pPlugin, const GUID& Guid, con
 	const auto strPluginKey = GetHotKeyPluginKey(pPlugin);
 	auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Guid, HotKeyType);
 
-	DialogBuilder Builder(lng::MPluginHotKeyTitle, L"SetHotKeyDialog");
+	DialogBuilder Builder(lng::MPluginHotKeyTitle, L"SetHotKeyDialog"sv);
 	Builder.AddText(lng::MPluginHotKey);
 	Builder.AddTextAfter(Builder.AddFixEditField(strHotKey, 1), null_terminated(DlgPluginTitle).c_str());
 	Builder.AddOKCancel();
@@ -1628,7 +1628,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 		}
 	}
 	const int Width = 36;
-	DialogBuilder Builder(lng::MPluginInformation, L"ShowPluginInfo");
+	DialogBuilder Builder(lng::MPluginInformation, L"ShowPluginInfo"sv);
 	Builder.SetId(PluginInformationId);
 	Builder.AddText(lng::MPluginModuleTitle);
 	Builder.AddConstEditField(pPlugin->Title(), Width);

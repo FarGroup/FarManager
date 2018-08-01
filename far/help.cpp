@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
-#include "execute.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
 #include "exitcode.hpp"
@@ -153,7 +152,7 @@ Help::Help(private_tag):
 	MsX(-1),
 	MsY(-1),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
-	CtrlTabSize(0),
+	CtrlTabSize(Global->Opt->HelpTabSize),
 	LastStartPos(0),
 	StartPos(0),
 	MouseDown(false),
@@ -166,14 +165,14 @@ Help::Help(private_tag):
 {
 }
 
-help_ptr Help::create(const string& Topic, const wchar_t *Mask, unsigned long long Flags)
+help_ptr Help::create(string_view const Topic, const wchar_t *Mask, unsigned long long Flags)
 {
 	auto HelpPtr = std::make_shared<Help>(private_tag());
 	HelpPtr->init(Topic, Mask, Flags);
 	return HelpPtr;
 }
 
-void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Flags)
+void Help::init(string_view const Topic, const wchar_t *Mask, unsigned long long Flags)
 {
 	m_windowKeyBar = std::make_unique<KeyBar>(shared_from_this());
 
@@ -182,7 +181,7 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 
 	StackData->Flags=Flags;
 	StackData->strHelpMask = NullToEmpty(Mask); // сохраним маску файла
-	StackData->strHelpTopic = Topic;
+	assign(StackData->strHelpTopic, Topic);
 
 	if (Global->Opt->FullScreenHelp)
 		SetPosition(0,0,ScrX,ScrY);
@@ -191,7 +190,7 @@ void Help::init(const string& Topic, const wchar_t *Mask, unsigned long long Fla
 
 	if (!ReadHelp(StackData->strHelpMask) && (Flags&FHELP_USECONTENTS))
 	{
-		StackData->strHelpTopic = Topic;
+		assign(StackData->strHelpTopic, Topic);
 
 		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
 		{
@@ -298,20 +297,32 @@ bool Help::ReadHelp(const string& Mask)
 
 	string strReadStr;
 
-	if (GetOptionsParam(HelpFile, L"TabSize", strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"TabSize"sv, strReadStr, HelpFileCodePage))
 	{
-		CtrlTabSize = std::stoi(strReadStr);
+		int UserTabSize;
+		if (from_string(strReadStr, UserTabSize))
+		{
+			if (InRange(0, UserTabSize, 16))
+			{
+				CtrlTabSize = UserTabSize;
+			}
+			else
+			{
+				// TODO: log tabsize out of range
+			}
+		}
+		else
+		{
+			// TODO: log error reading tabsize
+		}
 	}
 
-	if (CtrlTabSize < 0 || CtrlTabSize > 16)
-		CtrlTabSize=Global->Opt->HelpTabSize;
-
-	if (GetOptionsParam(HelpFile, L"CtrlColorChar", strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"CtrlColorChar"sv, strReadStr, HelpFileCodePage))
 		strCtrlColorChar = strReadStr;
 	else
 		strCtrlColorChar.clear();
 
-	if (GetOptionsParam(HelpFile, L"CtrlStartPosChar", strReadStr, HelpFileCodePage))
+	if (GetOptionsParam(HelpFile, L"CtrlStartPosChar"sv, strReadStr, HelpFileCodePage))
 		strCtrlStartPosChar = strReadStr;
 	else
 		strCtrlStartPosChar.clear();
@@ -471,14 +482,14 @@ bool Help::ReadHelp(const string& Mask)
 		{
 			if (m_TopicFound)
 			{
-				if (strReadStr == L"@+")
+				if (strReadStr == L"@+"sv)
 				{
 					Formatting = true;
 					PrevSymbol=0;
 					continue;
 				}
 
-				if (strReadStr == L"@-")
+				if (strReadStr == L"@-"sv)
 				{
 					Formatting = false;
 					PrevSymbol=0;
@@ -1388,7 +1399,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					strLastSearchStr0,
 					strTempStr,
 					L"HelpSearch",
-					L"",
+					{},
 					&Case,
 					&WholeWords,
 					nullptr,
@@ -1798,7 +1809,7 @@ bool Help::IsReferencePresent()
 		return false;
 	}
 
-	return contains(HelpList[StrPos].HelpStr, L"~@");
+	return contains(HelpList[StrPos].HelpStr, L"~@"sv);
 }
 
 void Help::MoveToReference(int Forward,int CurScreen)
@@ -1980,13 +1991,14 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
 	strCtrlColorChar.clear();
-	const wchar_t *PtrTitle = nullptr, *ContentsName = nullptr;
+	const wchar_t *PtrTitle = nullptr;
+	string_view ContentsName;
 
 	switch (TypeIndex)
 	{
 		case HIDX_PLUGINS:
 			PtrTitle = msg(lng::MPluginsHelpTitle).c_str();
-			ContentsName=L"PluginContents";
+			ContentsName = L"PluginContents"sv;
 			break;
 		default:
 			throw MAKE_FAR_EXCEPTION(L"Unsupported index"sv);
@@ -2014,7 +2026,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 
 					if (GetLangParam(HelpFile, ContentsName, strEntryName, &strSecondParam, HelpFileCodePage))
 					{
-						string strHelpLine = L"   ~" + strEntryName;
+						string strHelpLine = concat(L"   ~"sv, strEntryName);
 						if (!strSecondParam.empty())
 						{
 							append(strHelpLine, L',', strSecondParam);

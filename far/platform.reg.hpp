@@ -62,12 +62,9 @@ namespace os::reg
 		bool get(string_view Name, unsigned int& Value) const;
 		bool get(string_view Name, unsigned long long& Value) const;
 
-		template<class T>
+		template<class T, REQUIRES(is_one_of_v<T, string, unsigned int, unsigned long long>)>
 		bool get(string_view SubKey, string_view Name, T& Value, REGSAM Sam = 0) const
 		{
-			constexpr auto is_supported_type = is_one_of_v<T, string, unsigned int, unsigned long long>;
-			static_assert(is_supported_type);
-
 			const auto NewKey = open(*this, SubKey, KEY_QUERY_VALUE | Sam);
 			if (!NewKey)
 				return false;

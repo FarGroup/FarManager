@@ -820,14 +820,14 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 	}
 }
 
-bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, const wchar_t* HelpTopic)
+bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const HelpTopic)
 {
 	BoolOption HexOption;
 	HexOption.Set(Hex);
 
 	DialogBuilder Builder(lng::MGoTo, HelpTopic);
 	string strData;
-	Builder.AddEditField(strData, 28, L"LineNumber", DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_NOAUTOCOMPLETE);
+	Builder.AddEditField(strData, 28, L"LineNumber"sv, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY | DIF_NOAUTOCOMPLETE);
 	Builder.AddSeparator();
 	Builder.AddCheckbox(lng::MGoToHex, HexOption);
 	Builder.AddOKCancel();

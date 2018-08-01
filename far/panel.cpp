@@ -265,7 +265,7 @@ bool Search::ProcessKey(const Manager::Key& Key)
 		{
 			Hide();
 			{
-				Help::create(L"FastFind");
+				Help::create(L"FastFind"sv);
 			}
 			Show();
 			break;
@@ -1530,9 +1530,9 @@ string Panel::CreateFullPathName(string_view const Name, bool const Directory, b
 
 void Panel::exclude_sets(string& mask)
 {
-	ReplaceStrings(mask, L"["s, L"<[%>"s, true);
-	ReplaceStrings(mask, L"]"s, L"[]]"s, true);
-	ReplaceStrings(mask, L"<[%>"s, L"[[]"s, true);
+	ReplaceStrings(mask, L"["sv, L"<[%>"sv, true);
+	ReplaceStrings(mask, L"]"sv, L"[]]"sv, true);
+	ReplaceStrings(mask, L"<[%>"sv, L"[[]"sv, true);
 }
 
 FilePanels* Panel::Parent() const

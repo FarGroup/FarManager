@@ -77,7 +77,7 @@ namespace console_detail
 	{
 	public:
 		external_console() :
-			Module(L"extendedconsole.dll"),
+			Module(L"extendedconsole.dll"sv),
 			Imports(Module)
 		{
 		}

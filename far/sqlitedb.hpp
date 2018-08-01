@@ -67,7 +67,7 @@ protected:
 
 	using initialiser = bool(const db_initialiser& Db);
 
-	SQLiteDb(initialiser Initialiser, const string& DbName, bool Local = false, bool WAL = false);
+	SQLiteDb(initialiser Initialiser, string_view DbName, bool Local = false, bool WAL = false);
 
 	bool BeginTransaction() override;
 	bool EndTransaction() override;
@@ -137,12 +137,12 @@ protected:
 	using auto_statement = std::unique_ptr<SQLiteStmt, statement_reset>;
 
 	template<typename T>
-	using stmt_init = std::pair<T, const wchar_t*>;
+	using stmt_init = std::pair<T, string_view>;
 
 	template<class T>
 	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
-	SQLiteStmt create_stmt(const wchar_t *Stmt) const;
+	SQLiteStmt create_stmt(string_view Stmt) const;
 
 	template<typename T, size_t N>
 	bool PrepareStatements(const stmt_init<T> (&Init)[N])
@@ -209,7 +209,7 @@ protected:
 	};
 
 private:
-	void Initialize(initialiser Initialiser, const string& DbName, bool Local, bool WAL);
+	void Initialize(initialiser Initialiser, string_view DbName, bool Local, bool WAL);
 	bool Open(string_view DbName, bool Local, bool WAL);
 	void Close();
 

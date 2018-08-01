@@ -135,9 +135,9 @@ void EnableLowFragmentationHeap()
 
 bool get_locale_value(LCID const LcId, LCTYPE const Id, string& Value)
 {
-	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](wchar_t* Buffer, size_t Size)
+	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](range<wchar_t*> Buffer)
 	{
-		const auto ReturnedSize = GetLocaleInfo(LcId, Id, Buffer, static_cast<int>(Size));
+		const auto ReturnedSize = GetLocaleInfo(LcId, Id, Buffer.data(), static_cast<int>(Buffer.size()));
 		return ReturnedSize? ReturnedSize - 1 : 0;
 	});
 }
@@ -162,17 +162,17 @@ bool GetWindowText(HWND Hwnd, string& Text)
 	GuardLastError ErrorGuard;
 	SetLastError(ERROR_SUCCESS);
 
-	if (detail::ApiDynamicStringReceiver(Text, [&](wchar_t* Buffer, size_t Size)
+	if (detail::ApiDynamicStringReceiver(Text, [&](range<wchar_t*> Buffer)
 	{
 		const size_t Length = ::GetWindowTextLength(Hwnd);
 
 		if (!Length)
 			return Length;
 
-		if (Length + 1 > Size)
+		if (Length + 1 > Buffer.size())
 			return Length + 1;
 
-		return static_cast<size_t>(::GetWindowText(Hwnd, Buffer, static_cast<int>(Size)));
+		return static_cast<size_t>(::GetWindowText(Hwnd, Buffer.data(), static_cast<int>(Buffer.size())));
 	}))
 	{
 		return true;
@@ -222,10 +222,10 @@ DWORD GetAppPathsRedirectionFlag()
 
 bool GetDefaultPrinter(string& Printer)
 {
-	return detail::ApiDynamicStringReceiver(Printer, [&](wchar_t* Buffer, size_t Size)
+	return detail::ApiDynamicStringReceiver(Printer, [&](range<wchar_t*> Buffer)
 	{
-		auto dwSize = static_cast<DWORD>(Size);
-		if (::GetDefaultPrinter(Buffer, &dwSize))
+		auto dwSize = static_cast<DWORD>(Buffer.size());
+		if (::GetDefaultPrinter(Buffer.data(), &dwSize))
 			return dwSize - 1;
 
 		return GetLastError() == ERROR_INSUFFICIENT_BUFFER? dwSize : 0;
@@ -245,10 +245,10 @@ bool GetComputerName(string& Name)
 
 bool GetComputerNameEx(COMPUTER_NAME_FORMAT NameFormat, string& Name)
 {
-	return detail::ApiDynamicStringReceiver(Name, [&](wchar_t* Buffer, size_t Size)
+	return detail::ApiDynamicStringReceiver(Name, [&](range<wchar_t*> Buffer)
 	{
-		auto dwSize = static_cast<DWORD>(Size);
-		if (!::GetComputerNameEx(NameFormat, Buffer, &dwSize) && GetLastError() != ERROR_MORE_DATA)
+		auto dwSize = static_cast<DWORD>(Buffer.size());
+		if (!::GetComputerNameEx(NameFormat, Buffer.data(), &dwSize) && GetLastError() != ERROR_MORE_DATA)
 			return 0ul;
 		return dwSize;
 	});
@@ -267,10 +267,10 @@ bool GetUserName(string& Name)
 
 bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name)
 {
-	return detail::ApiDynamicStringReceiver(Name, [&](wchar_t* Buffer, size_t Size)
+	return detail::ApiDynamicStringReceiver(Name, [&](range<wchar_t*> Buffer)
 	{
-		auto dwSize = static_cast<DWORD>(Size);
-		if (!::GetUserNameEx(NameFormat, Buffer, &dwSize) && GetLastError() != ERROR_MORE_DATA)
+		auto dwSize = static_cast<DWORD>(Buffer.size());
+		if (!::GetUserNameEx(NameFormat, Buffer.data(), &dwSize) && GetLastError() != ERROR_MORE_DATA)
 			return 0ul;
 		return dwSize;
 	});

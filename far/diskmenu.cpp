@@ -192,7 +192,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 
 static void ConfigureChangeDriveMode()
 {
-	DialogBuilder Builder(lng::MChangeDriveConfigure, L"ChangeDriveMode");
+	DialogBuilder Builder(lng::MChangeDriveConfigure, L"ChangeDriveMode"sv);
 	Builder.SetId(ChangeDriveModeId);
 	Builder.AddCheckbox(lng::MChangeDriveShowDiskType, Global->Opt->ChangeDriveMode, DRIVE_SHOW_TYPE);
 	Builder.AddCheckbox(lng::MChangeDriveShowLabel, Global->Opt->ChangeDriveMode, DRIVE_SHOW_LABEL);

@@ -949,7 +949,7 @@ void Viewer::ShowHex()
 					else if (X == BytesRead - 1) // half character only
 					{
 						const auto GoodHalf = format(L"{0:02X}", int(RawBuffer[X]));
-						const auto BadHalf = L"xx";
+						const auto BadHalf = L"xx"s;
 						OutStr += (be? GoodHalf : BadHalf) + (be? BadHalf : GoodHalf);
 						OutStr.push_back(L' ');
 						TextStr.push_back(Utf::REPLACE_CHAR);
@@ -1553,7 +1553,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help::create(L"Viewer");
+			Help::create(L"Viewer"sv);
 			return true;
 		}
 		case KEY_CTRLU:
@@ -2303,7 +2303,7 @@ template<typename T, typename F>
 static int process_back(int BufferSize, int pos, long long& fpos, const F& Reader, const raw_eol& eol)
 {
 	T Buffer[portion_size/sizeof(T)];
-	int nr = Reader(Buffer, BufferSize);
+	int nr = Reader(make_range(Buffer, BufferSize));
 
 	if (nr != static_cast<int>(BufferSize / sizeof(T)))
 	{
@@ -2403,10 +2403,10 @@ void Viewer::Up( int nlines, bool adjust )
 
 			if ( ch_size <= 1 )
 			{
-				const auto& BufferReader = [&](char* Buffer, size_t Size)
+				const auto& BufferReader = [&](range<char*> Buffer)
 				{
 					size_t nread = 0;
-					Reader.Read(Buffer, buff_size, &nread);
+					Reader.Read(Buffer.data(), buff_size, &nread);
 					return static_cast<int>(nread);
 				};
 				try
@@ -2421,9 +2421,9 @@ void Viewer::Up( int nlines, bool adjust )
 			}
 			else
 			{
-				const auto& BufferReader = [&](wchar_t* Buffer, size_t Size)
+				const auto& BufferReader = [&](range<wchar_t*> Buffer)
 				{
-					return vread(Buffer, static_cast<int>(Size));
+					return vread(Buffer.data(), static_cast<int>(Buffer.size()));
 				};
 				try
 				{
@@ -3970,7 +3970,7 @@ void Viewer::GoTo(bool ShowDlg, long long Offset, unsigned long long Flags)
 
 		goto_coord Row{};
 		goto_coord Col{};
-		if (!GoToRowCol(Row, Col, m_GotoHex.first, L"ViewerGotoPos"))
+		if (!GoToRowCol(Row, Col, m_GotoHex.first, L"ViewerGotoPos"sv))
 			return;
 
 		if (Row.exist)

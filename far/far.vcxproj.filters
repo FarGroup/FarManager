@@ -1057,6 +1057,9 @@
     <ClInclude Include="common\io.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\keep_alive.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Far.ico">

@@ -69,7 +69,7 @@ bool desktop::ProcessKey(const Manager::Key& Key)
 	{
 	case KEY_F1:
 		{
-			Help::create(L"Contents");
+			Help::create(L"Contents"sv);
 		}
 		break;
 

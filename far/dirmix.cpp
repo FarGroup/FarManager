@@ -65,7 +65,7 @@ static auto env_set_current_dir(wchar_t Drive, const string_view Value)
 	return os::env::set(make_curdir_name(Drive), Value);
 }
 
-bool FarChDir(const string& NewDir, bool ChangeDir)
+bool FarChDir(string_view const NewDir, bool ChangeDir)
 {
 	if (NewDir.empty())
 		return false;
@@ -81,7 +81,7 @@ bool FarChDir(const string& NewDir, bool ChangeDir)
 		strCurDir = env_get_current_dir(NewDir[0]);
 		if (strCurDir.empty())
 		{
-			strCurDir = NewDir;
+			assign(strCurDir, NewDir);
 			AddEndSlash(strCurDir);
 			ReplaceSlashToBackslash(strCurDir);
 		}

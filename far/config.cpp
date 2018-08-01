@@ -160,7 +160,7 @@ void Options::SystemSettings()
 
 	const auto CurrentSortingState = GetSortingState();
 
-	DialogBuilder Builder(lng::MConfigSystemTitle, L"SystemSettings");
+	DialogBuilder Builder(lng::MConfigSystemTitle, L"SystemSettings"sv);
 
 	Builder.AddCheckbox(lng::MConfigRecycleBin, DeleteToRecycleBin);
 	Builder.AddCheckbox(lng::MConfigSystemCopy, CMOpt.UseSystemCopy);
@@ -207,7 +207,7 @@ void Options::SystemSettings()
 
 void Options::PanelSettings()
 {
-	DialogBuilder Builder(lng::MConfigPanelTitle, L"PanelSettings");
+	DialogBuilder Builder(lng::MConfigPanelTitle, L"PanelSettings"sv);
 	BOOL AutoUpdate = AutoUpdateLimit;
 
 	Builder.AddCheckbox(lng::MConfigHidden, ShowHidden);
@@ -252,7 +252,7 @@ void Options::PanelSettings()
 
 void Options::TreeSettings()
 {
-	DialogBuilder Builder(lng::MConfigTreeTitle, L"TreeSettings");
+	DialogBuilder Builder(lng::MConfigTreeTitle, L"TreeSettings"sv);
 
 	Builder.AddCheckbox(lng::MConfigTreeAutoChange, Tree.AutoChangeFolder);
 
@@ -309,7 +309,7 @@ void Options::TreeSettings()
 
 void Options::InterfaceSettings()
 {
-	DialogBuilder Builder(lng::MConfigInterfaceTitle, L"InterfSettings");
+	DialogBuilder Builder(lng::MConfigInterfaceTitle, L"InterfSettings"sv);
 
 	Builder.AddCheckbox(lng::MConfigClock, Clock);
 	Builder.AddCheckbox(lng::MConfigViewerEditorClock, ViewerEditorClock);
@@ -353,7 +353,7 @@ void Options::InterfaceSettings()
 
 void Options::AutoCompleteSettings()
 {
-	DialogBuilder Builder(lng::MConfigAutoCompleteTitle, L"AutoCompleteSettings");
+	DialogBuilder Builder(lng::MConfigAutoCompleteTitle, L"AutoCompleteSettings"sv);
 	DialogItemEx *ListCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteShowList, AutoComplete.ShowList);
 	DialogItemEx *ModalModeCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteModalList, AutoComplete.ModalList);
 	ModalModeCheck->Indent(4);
@@ -389,7 +389,7 @@ void Options::InfoPanelSettings()
 		{ lng::MConfigInfoPanelCNPhysicalDnsFullyQualified, ComputerNamePhysicalDnsFullyQualified }, // The fully-qualified DNS name that uniquely identifies the computer. On a cluster, this is the fully qualified DNS name of the local node on the cluster. The fully qualified DNS name is a combination of the DNS host name and the DNS domain name, using the form HostName.DomainName.
 	};
 
-	DialogBuilder Builder(lng::MConfigInfoPanelTitle, L"InfoPanelSettings");
+	DialogBuilder Builder(lng::MConfigInfoPanelTitle, L"InfoPanelSettings"sv);
 	Builder.AddCheckbox(lng::MConfigInfoPanelShowPowerStatus, InfoPanel.ShowPowerStatus);
 	Builder.AddCheckbox(lng::MConfigInfoPanelShowCDInfo, InfoPanel.ShowCDInfo);
 	Builder.AddText(lng::MConfigInfoPanelCNTitle);
@@ -421,16 +421,16 @@ void Options::InfoPanelSettings()
 
 static void ApplyDefaultMaskGroups()
 {
-	static const std::pair<const wchar_t*, const wchar_t*> Sets[] =
+	static const std::pair<string_view, string_view> Sets[] =
 	{
-		{L"arc", L"*.rar,*.zip,*.[zj],*.[bg7x]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"},
-		{L"temp", L"*.bak,*.tmp"},
-		{L"exec", L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%"},
+		{ L"arc"sv,  L"*.rar,*.zip,*.[zj],*.[bg7x]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"sv },
+		{ L"temp"sv, L"*.bak,*.tmp"sv },
+		{ L"exec"sv, L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%"sv },
 	};
 
 	std::for_each(CONST_RANGE(Sets, i)
 	{
-		ConfigProvider().GeneralCfg()->SetValue(L"Masks", i.first, i.second);
+		ConfigProvider().GeneralCfg()->SetValue(L"Masks"sv, i.first, i.second);
 	});
 }
 
@@ -438,8 +438,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.clear();
 
-	static const string MasksKeyName = L"Masks"s;
-	for(const auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(MasksKeyName))
+	for(const auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(L"Masks"sv))
 	{
 		MenuItemEx Item;
 		string DisplayName(i.first);
@@ -499,7 +498,7 @@ void Options::MaskGroupsSettings()
 					},
 					{ lng::MDelete, lng::MCancel }) == Message::first_button)
 				{
-					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", *Item);
+					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks"sv, *Item);
 					Changed = true;
 				}
 				break;
@@ -519,9 +518,9 @@ void Options::MaskGroupsSettings()
 						if (!Item->empty())
 						{
 							Name = *Item;
-							ConfigProvider().GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
+							ConfigProvider().GeneralCfg()->GetValue(L"Masks"sv, Name, Value, L"");
 						}
-						DialogBuilder Builder(lng::MMenuMaskGroups, L"MaskGroupsSettings");
+						DialogBuilder Builder(lng::MMenuMaskGroups, L"MaskGroupsSettings"sv);
 						Builder.AddText(lng::MMaskGroupName);
 						Builder.AddEditField(Name, 60);
 						Builder.AddText(lng::MMaskGroupMasks);
@@ -531,9 +530,9 @@ void Options::MaskGroupsSettings()
 						{
 							if(!Item->empty())
 							{
-								ConfigProvider().GeneralCfg()->DeleteValue(L"Masks", *Item);
+								ConfigProvider().GeneralCfg()->DeleteValue(L"Masks"sv, *Item);
 							}
-							ConfigProvider().GeneralCfg()->SetValue(L"Masks", Name, Value);
+							ConfigProvider().GeneralCfg()->SetValue(L"Masks"sv, Name, Value);
 							Changed = true;
 						}
 					}
@@ -561,14 +560,14 @@ void Options::MaskGroupsSettings()
 					string Value;
 					DialogBuilder Builder(lng::MFileFilterTitle);
 					Builder.AddText(lng::MMaskGroupFindMask);
-					Builder.AddEditField(Value, 60, L"MaskGroupsFindMask");
+					Builder.AddEditField(Value, 60, L"MaskGroupsFindMask"sv);
 					Builder.AddOKCancel();
 					if(Builder.ShowDialog())
 					{
 						for (size_t i = 0, size = MasksMenu->size(); i != size; ++i)
 						{
 							string CurrentMasks;
-							ConfigProvider().GeneralCfg()->GetValue(L"Masks", *MasksMenu->GetComplexUserDataPtr<string>(i), CurrentMasks, L"");
+							ConfigProvider().GeneralCfg()->GetValue(L"Masks"sv, *MasksMenu->GetComplexUserDataPtr<string>(i), CurrentMasks, L"");
 							filemasks Masks;
 							Masks.Set(CurrentMasks);
 							if(!Masks.Compare(Value))
@@ -608,7 +607,7 @@ void Options::MaskGroupsSettings()
 
 void Options::DialogSettings()
 {
-	DialogBuilder Builder(lng::MConfigDlgSetsTitle, L"DialogSettings");
+	DialogBuilder Builder(lng::MConfigDlgSetsTitle, L"DialogSettings"sv);
 
 	Builder.AddCheckbox(lng::MConfigDialogsEditHistory, Dialogs.EditHistory);
 	Builder.AddCheckbox(lng::MConfigDialogsEditBlock, Dialogs.EditBlock);
@@ -642,7 +641,7 @@ void Options::VMenuSettings()
 		{ lng::MConfigVMenuMBtnClick, &VMenuOptions::MBtnClick },
 	};
 
-	DialogBuilder Builder(lng::MConfigVMenuTitle, L"VMenuSettings");
+	DialogBuilder Builder(lng::MConfigVMenuTitle, L"VMenuSettings"sv);
 
 	std::for_each(CONST_RANGE(DialogItems, i)
 	{
@@ -656,7 +655,7 @@ void Options::VMenuSettings()
 
 void Options::CmdlineSettings()
 {
-	DialogBuilder Builder(lng::MConfigCmdlineTitle, L"CmdlineSettings");
+	DialogBuilder Builder(lng::MConfigCmdlineTitle, L"CmdlineSettings"sv);
 
 	Builder.AddCheckbox(lng::MConfigCmdlineEditBlock, CmdLine.EditBlock);
 	Builder.AddCheckbox(lng::MConfigCmdlineDelRemovesBlocks, CmdLine.DelRemovesBlocks);
@@ -683,7 +682,7 @@ void Options::CmdlineSettings()
 
 void Options::SetConfirmations()
 {
-	DialogBuilder Builder(lng::MSetConfirmTitle, L"ConfirmDlg");
+	DialogBuilder Builder(lng::MSetConfirmTitle, L"ConfirmDlg"sv);
 
 	Builder.AddCheckbox(lng::MSetConfirmCopy, Confirm.Copy);
 	Builder.AddCheckbox(lng::MSetConfirmMove, Confirm.Move);
@@ -706,7 +705,7 @@ void Options::SetConfirmations()
 
 void Options::PluginsManagerSettings()
 {
-	DialogBuilder Builder(lng::MPluginsManagerSettingsTitle, L"PluginsManagerSettings");
+	DialogBuilder Builder(lng::MPluginsManagerSettingsTitle, L"PluginsManagerSettings"sv);
 #ifndef NO_WRAPPER
 	Builder.AddCheckbox(lng::MPluginsManagerOEMPluginsSupport, LoadPlug.OEMPluginsSupport);
 #endif // NO_WRAPPER
@@ -727,7 +726,7 @@ void Options::PluginsManagerSettings()
 
 void Options::SetDizConfig()
 {
-	DialogBuilder Builder(lng::MCfgDizTitle, L"FileDiz");
+	DialogBuilder Builder(lng::MCfgDizTitle, L"FileDiz"sv);
 
 	Builder.AddText(lng::MCfgDizListNames);
 	Builder.AddEditField(Diz.strListNames, 65);
@@ -754,7 +753,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	intptr_t save_pos = 0, save_cp = 0, id = 0;
 	bool prev_save_cp_value = ViOpt.SaveCodepage, inside = false;
 
-	DialogBuilder Builder(lng::MViewConfigTitle, L"ViewerSettings", [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+	DialogBuilder Builder(lng::MViewConfigTitle, L"ViewerSettings"sv, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 	{
 		if (Msg == DN_INITDIALOG && save_pos)
 		{
@@ -787,7 +786,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	{
 		++id; Builder.AddCheckbox(lng::MViewConfigExternalF3, ViOpt.UseExternalViewer);
 		++id; Builder.AddText(lng::MViewConfigExternalCommand);
-		++id; Builder.AddEditField(strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
+		++id; Builder.AddEditField(strExternalViewer, 64, L"ExternalViewer"sv, DIF_EDITPATH|DIF_EDITPATHEXEC);
 		++id; Builder.AddSeparator(lng::MViewConfigInternal);
 	}
 
@@ -827,7 +826,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 
 void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 {
-	DialogBuilder Builder(lng::MEditConfigTitle, L"EditorSettings");
+	DialogBuilder Builder(lng::MEditConfigTitle, L"EditorSettings"sv);
 
 	std::vector<FarDialogBuilderListItem2> Items; //Must live until Dialog end
 
@@ -835,7 +834,7 @@ void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
 	{
 		Builder.AddCheckbox(lng::MEditConfigEditorF4, EdOpt.UseExternalEditor);
 		Builder.AddText(lng::MEditConfigEditorCommand);
-		Builder.AddEditField(strExternalEditor, 64, L"ExternalEditor", DIF_EDITPATH|DIF_EDITPATHEXEC);
+		Builder.AddEditField(strExternalEditor, 64, L"ExternalEditor"sv, DIF_EDITPATH|DIF_EDITPATHEXEC);
 		Builder.AddSeparator(lng::MEditConfigInternal);
 	}
 
@@ -1626,34 +1625,34 @@ Options::Options():
 
 	HelpTabSize.SetCallback(option::validator([](long long Value) { return DefaultTabSize; })); // пока жестко пропишем...
 
-	const auto& MacroKeyValidator = [](const string& Value, DWORD& Key, const string& DefaultValue, DWORD DefaultKey)
+	const auto& MacroKeyValidator = [](const string& Value, DWORD& Key, string_view const DefaultValue, DWORD DefaultKey)
 	{
 		if ((Key = KeyNameToKey(Value)) == static_cast<DWORD>(-1))
 		{
 			Key = DefaultKey;
-			return DefaultValue;
+			return string(DefaultValue);
 		}
 		return Value;
 	};
 
 	Macro.strKeyMacroCtrlDot.SetCallback(option::validator([MacroKeyValidator, this](const string& Value)
 	{
-		return MacroKeyValidator(Value, Macro.KeyMacroCtrlDot, L"Ctrl.", KEY_CTRLDOT);
+		return MacroKeyValidator(Value, Macro.KeyMacroCtrlDot, L"Ctrl."sv, KEY_CTRLDOT);
 	}));
 
 	Macro.strKeyMacroRCtrlDot.SetCallback(option::validator([MacroKeyValidator, this](const string& Value)
 	{
-		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlDot, L"RCtrl.", KEY_RCTRLDOT);
+		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlDot, L"RCtrl."sv, KEY_RCTRLDOT);
 	}));
 
 	Macro.strKeyMacroCtrlShiftDot.SetCallback(option::validator([MacroKeyValidator, this](const string& Value)
 	{
-		return MacroKeyValidator(Value, Macro.KeyMacroCtrlShiftDot, L"CtrlShift.", KEY_CTRLSHIFTDOT);
+		return MacroKeyValidator(Value, Macro.KeyMacroCtrlShiftDot, L"CtrlShift."sv, KEY_CTRLSHIFTDOT);
 	}));
 
 	Macro.strKeyMacroRCtrlShiftDot.SetCallback(option::validator([MacroKeyValidator, this](const string& Value)
 	{
-		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlShiftDot, L"RCtrlShift.", KEY_RCTRL | KEY_SHIFT | KEY_DOT);
+		return MacroKeyValidator(Value, Macro.KeyMacroRCtrlShiftDot, L"RCtrlShift."sv, KEY_RCTRL | KEY_SHIFT | KEY_DOT);
 	}));
 
 	Sort.Collation.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
@@ -1688,7 +1687,7 @@ void Options::InitConfigsData()
 	};
 	static_assert(std::size(DefaultBoxSymbols) == BS_COUNT + 1);
 
-	const auto strDefaultLanguage = GetFarIniString(L"General", L"DefaultLanguage", L"English");
+	const auto strDefaultLanguage = GetFarIniString(L"General"s, L"DefaultLanguage"s, L"English"s);
 
 #define OPT_DEF(option, def) &option, std::remove_reference_t<decltype(option)>::underlying_type{def}
 
@@ -1697,10 +1696,10 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyCmdline,                L"AutoComplete"sv,                  OPT_DEF(CmdLine.AutoComplete, true)},
 		{FSSF_PRIVATE,           NKeyCmdline,                L"EditBlock"sv,                     OPT_DEF(CmdLine.EditBlock, false)},
 		{FSSF_PRIVATE,           NKeyCmdline,                L"DelRemovesBlocks"sv,              OPT_DEF(CmdLine.DelRemovesBlocks, true)},
-		{FSSF_PRIVATE,           NKeyCmdline,                L"PromptFormat"sv,                  OPT_DEF(CmdLine.strPromptFormat, L"$p$g"s)},
+		{FSSF_PRIVATE,           NKeyCmdline,                L"PromptFormat"sv,                  OPT_DEF(CmdLine.strPromptFormat, L"$p$g"sv)},
 		{FSSF_PRIVATE,           NKeyCmdline,                L"UsePromptFormat"sv,               OPT_DEF(CmdLine.UsePromptFormat, false)},
 		{FSSF_PRIVATE,           NKeyCodePages,              L"CPMenuMode"sv,                    OPT_DEF(CPMenuMode, false)},
-		{FSSF_PRIVATE,           NKeyCodePages,              L"NoAutoDetectCP"sv,                OPT_DEF(strNoAutoDetectCP, L""s)},
+		{FSSF_PRIVATE,           NKeyCodePages,              L"NoAutoDetectCP"sv,                OPT_DEF(strNoAutoDetectCP, L""sv)},
 		{FSSF_PRIVATE,           NKeyConfirmations,          L"AllowReedit"sv,                   OPT_DEF(Confirm.AllowReedit, true)},
 		{FSSF_CONFIRMATIONS,     NKeyConfirmations,          L"Copy"sv,                          OPT_DEF(Confirm.Copy, true)},
 		{FSSF_CONFIRMATIONS,     NKeyConfirmations,          L"Delete"sv,                        OPT_DEF(Confirm.Delete, true)},
@@ -1717,7 +1716,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyConfirmations,          L"RemoveSUBST"sv,                   OPT_DEF(Confirm.RemoveSUBST, true)},
 		{FSSF_CONFIRMATIONS,     NKeyConfirmations,          L"RO"sv,                            OPT_DEF(Confirm.RO, true)},
 		{FSSF_PRIVATE,           NKeyDescriptions,           L"AnsiByDefault"sv,                 OPT_DEF(Diz.AnsiByDefault, false)},
-		{FSSF_PRIVATE,           NKeyDescriptions,           L"ListNames"sv,                     OPT_DEF(Diz.strListNames, L"Descript.ion,Files.bbs"s)},
+		{FSSF_PRIVATE,           NKeyDescriptions,           L"ListNames"sv,                     OPT_DEF(Diz.strListNames, L"Descript.ion,Files.bbs"sv)},
 		{FSSF_PRIVATE,           NKeyDescriptions,           L"ROUpdate"sv,                      OPT_DEF(Diz.ROUpdate, false)},
 		{FSSF_PRIVATE,           NKeyDescriptions,           L"SaveInUTF"sv,                     OPT_DEF(Diz.SaveInUTF, false)},
 		{FSSF_PRIVATE,           NKeyDescriptions,           L"SetHidden"sv,                     OPT_DEF(Diz.SetHidden, true)},
@@ -1737,12 +1736,12 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyEditor,                 L"BSLikeDel"sv,                     OPT_DEF(EdOpt.BSLikeDel, true)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"CharCodeBase"sv,                  OPT_DEF(EdOpt.CharCodeBase, 1)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"DefaultCodePage"sv,               OPT_DEF(EdOpt.DefaultCodePage, static_cast<long long>(encoding::codepage::ansi()))},
-		{FSSF_PRIVATE,           NKeyEditor,                 L"F8CPs"sv,                         OPT_DEF(EdOpt.strF8CPs, L""s)},
+		{FSSF_PRIVATE,           NKeyEditor,                 L"F8CPs"sv,                         OPT_DEF(EdOpt.strF8CPs, L""sv)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"DelRemovesBlocks"sv,              OPT_DEF(EdOpt.DelRemovesBlocks, true)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"EditOpenedForWrite"sv,            OPT_DEF(EdOpt.EditOpenedForWrite, true)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"EditorCursorBeyondEOL"sv,         OPT_DEF(EdOpt.CursorBeyondEOL, true)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"ExpandTabs"sv,                    OPT_DEF(EdOpt.ExpandTabs, 0)},
-		{FSSF_PRIVATE,           NKeyEditor,                 L"ExternalEditorName"sv,            OPT_DEF(strExternalEditor, L""s)},
+		{FSSF_PRIVATE,           NKeyEditor,                 L"ExternalEditorName"sv,            OPT_DEF(strExternalEditor, L""sv)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"FileSizeLimit"sv,                 OPT_DEF(EdOpt.FileSizeLimit, 0)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"KeepEditorEOL"sv,                 OPT_DEF(EdOpt.KeepEOL, true)},
 		{FSSF_PRIVATE,           NKeyEditor,                 L"NewFileUnixEOL"sv,                OPT_DEF(EdOpt.NewFileUnixEOL, false)},
@@ -1782,16 +1781,16 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyInterface,              L"CursorSize2"sv,                   OPT_DEF(CursorSize[1], 10)},
 		{FSSF_PRIVATE,           NKeyInterface,              L"CursorSize3"sv,                   OPT_DEF(CursorSize[2], 99)},
 		{FSSF_PRIVATE,           NKeyInterface,              L"CursorSize4"sv,                   OPT_DEF(CursorSize[3], 99)},
-		{FSSF_PRIVATE,           NKeyInterface,              L"EditorTitleFormat"sv,             OPT_DEF(strEditorTitleFormat, L"%Lng %File"s)},
-		{FSSF_PRIVATE,           NKeyInterface,              L"FormatNumberSeparators"sv,        OPT_DEF(FormatNumberSeparators, L""s)},
+		{FSSF_PRIVATE,           NKeyInterface,              L"EditorTitleFormat"sv,             OPT_DEF(strEditorTitleFormat, L"%Lng %File"sv)},
+		{FSSF_PRIVATE,           NKeyInterface,              L"FormatNumberSeparators"sv,        OPT_DEF(FormatNumberSeparators, L""sv)},
 		{FSSF_PRIVATE,           NKeyInterface,              L"Mouse"sv,                         OPT_DEF(Mouse, true)},
 		{FSSF_PRIVATE,           NKeyInterface,              L"SetIcon"sv,                       OPT_DEF(SetIcon, false)},
 		{FSSF_PRIVATE,           NKeyInterface,              L"SetAdminIcon"sv,                  OPT_DEF(SetAdminIcon, true)},
 		{FSSF_PRIVATE,           NKeyInterface,              L"ShowDotsInRoot"sv,                OPT_DEF(ShowDotsInRoot, false)},
 		{FSSF_INTERFACE,         NKeyInterface,              L"ShowMenuBar"sv,                   OPT_DEF(ShowMenuBar, false)},
 		{FSSF_PRIVATE,           NKeyInterface,              L"RedrawTimeout"sv,                 OPT_DEF(RedrawTimeout, 200)},
-		{FSSF_PRIVATE,           NKeyInterface,              L"TitleAddons"sv,                   OPT_DEF(strTitleAddons, L"%Ver.%Build %Platform %Admin"s)},
-		{FSSF_PRIVATE,           NKeyInterface,              L"ViewerTitleFormat"sv,             OPT_DEF(strViewerTitleFormat, L"%Lng %File"s)},
+		{FSSF_PRIVATE,           NKeyInterface,              L"TitleAddons"sv,                   OPT_DEF(strTitleAddons, L"%Ver.%Build %Platform %Admin"sv)},
+		{FSSF_PRIVATE,           NKeyInterface,              L"ViewerTitleFormat"sv,             OPT_DEF(strViewerTitleFormat, L"%Lng %File"sv)},
 		{FSSF_PRIVATE,           NKeyInterfaceCompletion,    L"Append"sv,                        OPT_DEF(AutoComplete.AppendCompletion, false)},
 		{FSSF_PRIVATE,           NKeyInterfaceCompletion,    L"ModalList"sv,                     OPT_DEF(AutoComplete.ModalList, false)},
 		{FSSF_PRIVATE,           NKeyInterfaceCompletion,    L"ShowList"sv,                      OPT_DEF(AutoComplete.ShowList, true)},
@@ -1805,11 +1804,11 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyLayout,                 L"LeftHeightDecrement"sv,           OPT_DEF(LeftHeightDecrement, 0)},
 		{FSSF_PRIVATE,           NKeyLayout,                 L"RightHeightDecrement"sv,          OPT_DEF(RightHeightDecrement, 0)},
 		{FSSF_PRIVATE,           NKeyLayout,                 L"WidthDecrement"sv,                OPT_DEF(WidthDecrement, 0)},
-		{FSSF_PRIVATE,           NKeyKeyMacros,              L"DateFormat"sv,                    OPT_DEF(Macro.strDateFormat, L"%a %b %d %H:%M:%S %z %Y"s)},
-		{FSSF_PRIVATE,           NKeyKeyMacros,              L"KeyRecordCtrlDot"sv,              OPT_DEF(Macro.strKeyMacroCtrlDot, L"Ctrl."s)},
-		{FSSF_PRIVATE,           NKeyKeyMacros,              L"KeyRecordRCtrlDot"sv,             OPT_DEF(Macro.strKeyMacroRCtrlDot, L"RCtrl."s)},
-		{FSSF_PRIVATE,           NKeyKeyMacros,              L"KeyRecordCtrlShiftDot"sv,         OPT_DEF(Macro.strKeyMacroCtrlShiftDot, L"CtrlShift."s)},
-		{FSSF_PRIVATE,           NKeyKeyMacros,              L"KeyRecordRCtrlShiftDot"sv,        OPT_DEF(Macro.strKeyMacroRCtrlShiftDot, L"RCtrlShift."s)},
+		{FSSF_PRIVATE,           NKeyKeyMacros,              L"DateFormat"sv,                    OPT_DEF(Macro.strDateFormat, L"%a %b %d %H:%M:%S %z %Y"sv)},
+		{FSSF_PRIVATE,           NKeyKeyMacros,              L"KeyRecordCtrlDot"sv,              OPT_DEF(Macro.strKeyMacroCtrlDot, L"Ctrl."sv)},
+		{FSSF_PRIVATE,           NKeyKeyMacros,              L"KeyRecordRCtrlDot"sv,             OPT_DEF(Macro.strKeyMacroRCtrlDot, L"RCtrl."sv)},
+		{FSSF_PRIVATE,           NKeyKeyMacros,              L"KeyRecordCtrlShiftDot"sv,         OPT_DEF(Macro.strKeyMacroCtrlShiftDot, L"CtrlShift."sv)},
+		{FSSF_PRIVATE,           NKeyKeyMacros,              L"KeyRecordRCtrlShiftDot"sv,        OPT_DEF(Macro.strKeyMacroRCtrlShiftDot, L"RCtrlShift."sv)},
 		{FSSF_PRIVATE,           NKeyKeyMacros,              L"ShowPlayIndicator"sv,             OPT_DEF(Macro.ShowPlayIndicator, true)},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"AutoUpdateLimit"sv,               OPT_DEF(AutoUpdateLimit, 0)},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"CtrlAltShiftRule"sv,              OPT_DEF(PanelCtrlAltShiftRule, 0)},
@@ -1866,7 +1865,7 @@ void Options::InitConfigsData()
 #if defined(TREEFILE_PROJECT)
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"CDDisk"sv,                        OPT_DEF(Tree.CDDisk, 2)},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"CDDiskTemplate"sv,                OPT_DEF(Tree.strCDDisk, CDDiskTemplate)},
-		{FSSF_PRIVATE,           NKeyPanelTree,              L"ExceptPath"sv,                    OPT_DEF(Tree.strExceptPath, L""s)},
+		{FSSF_PRIVATE,           NKeyPanelTree,              L"ExceptPath"sv,                    OPT_DEF(Tree.strExceptPath, L""sv)},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"LocalDisk"sv,                     OPT_DEF(Tree.LocalDisk, 2)},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"LocalDiskTemplate"sv,             OPT_DEF(Tree.strLocalDisk, LocalDiskTemplate)},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"NetDisk"sv,                       OPT_DEF(Tree.NetDisk, 2)},
@@ -1875,8 +1874,8 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"NetPathTemplate"sv,               OPT_DEF(Tree.strNetPath, NetPathTemplate)},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"RemovableDisk"sv,                 OPT_DEF(Tree.RemovableDisk, 2)},
 		{FSSF_PRIVATE,           NKeyPanelTree,              L"RemovableDiskTemplate,"sv,        OPT_DEF(Tree.strRemovableDisk, RemovableDiskTemplate)},
-		{FSSF_PRIVATE,           NKeyPanelTree,              L"SaveLocalPath"sv,                 OPT_DEF(Tree.strSaveLocalPath, L""s)},
-		{FSSF_PRIVATE,           NKeyPanelTree,              L"SaveNetPath"sv,                   OPT_DEF(Tree.strSaveNetPath, L""s)},
+		{FSSF_PRIVATE,           NKeyPanelTree,              L"SaveLocalPath"sv,                 OPT_DEF(Tree.strSaveLocalPath, L""sv)},
+		{FSSF_PRIVATE,           NKeyPanelTree,              L"SaveNetPath"sv,                   OPT_DEF(Tree.strSaveNetPath, L""sv)},
 #endif
 		{FSSF_PRIVATE,           NKeyPluginConfirmations,    L"EvenIfOnlyOnePlugin"sv,           OPT_DEF(PluginConfirm.EvenIfOnlyOnePlugin, false)},
 		{FSSF_PRIVATE,           NKeyPluginConfirmations,    L"OpenFilePlugin"sv,                OPT_DEF(PluginConfirm.OpenFilePlugin, 0)},
@@ -1897,7 +1896,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"BoxSymbols"sv,                    OPT_DEF(strBoxSymbols, DefaultBoxSymbols)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CASRule"sv,                       OPT_DEF(CASRule, -1)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CmdHistoryRule"sv,                OPT_DEF(CmdHistoryRule, false)},
-		{FSSF_PRIVATE,           NKeySystem,                 L"ConsoleDetachKey"sv,              OPT_DEF(ConsoleDetachKey, L"CtrlShiftTab"s)},
+		{FSSF_PRIVATE,           NKeySystem,                 L"ConsoleDetachKey"sv,              OPT_DEF(ConsoleDetachKey, L"CtrlShiftTab"sv)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopyBufferSize"sv,                OPT_DEF(CMOpt.BufferSize, 0)},
 		{FSSF_SYSTEM,            NKeySystem,                 L"CopyOpened"sv,                    OPT_DEF(CMOpt.CopyOpened, true)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopyTimeRule"sv,                  OPT_DEF(CMOpt.CopyTimeRule, 3)},
@@ -1914,7 +1913,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"FindFolders"sv,                   OPT_DEF(FindOpt.FindFolders, true)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"FindSymLinks"sv,                  OPT_DEF(FindOpt.FindSymLinks, true)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"FlagPosixSemantics"sv,            OPT_DEF(FlagPosixSemantics, true)},
-		{FSSF_PRIVATE,           NKeySystem,                 L"FolderInfo"sv,                    OPT_DEF(InfoPanel.strFolderInfoFiles, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"s)},
+		{FSSF_PRIVATE,           NKeySystem,                 L"FolderInfo"sv,                    OPT_DEF(InfoPanel.strFolderInfoFiles, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"sv)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelDelta"sv,                  OPT_DEF(MsWheelDelta, 1)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelDeltaEdit"sv,              OPT_DEF(MsWheelDeltaEdit, 1)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelDeltaHelp"sv,              OPT_DEF(MsWheelDeltaHelp, 1)},
@@ -1929,18 +1928,18 @@ void Options::InitConfigsData()
 #endif // NO_WRAPPER
 		{FSSF_SYSTEM,            NKeySystem,                 L"PluginMaxReadData"sv,             OPT_DEF(PluginMaxReadData, 0x20000)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"QuotedName"sv,                    OPT_DEF(QuotedName, QUOTEDNAME_INSERT)},
-		{FSSF_PRIVATE,           NKeySystem,                 L"QuotedSymbols"sv,                 OPT_DEF(strQuotedSymbols, L" &()[]{}^=;!'+,`\xA0"s)},
+		{FSSF_PRIVATE,           NKeySystem,                 L"QuotedSymbols"sv,                 OPT_DEF(strQuotedSymbols, L" &()[]{}^=;!'+,`\xA0"sv)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SaveHistory"sv,                   OPT_DEF(SaveHistory, true)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SaveFoldersHistory"sv,            OPT_DEF(SaveFoldersHistory, true)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SaveViewHistory"sv,               OPT_DEF(SaveViewHistory, true)},
 		{FSSF_SYSTEM,            NKeySystem,                 L"ScanJunction"sv,                  OPT_DEF(ScanJunction, true)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ScanSymlinks"sv,                  OPT_DEF(LoadPlug.ScanSymlinks, true)},
-		{FSSF_PRIVATE,           NKeySystem,                 L"SearchInFirstSize"sv,             OPT_DEF(FindOpt.strSearchInFirstSize, L""s)},
-		{FSSF_PRIVATE,           NKeySystem,                 L"SearchOutFormat"sv,               OPT_DEF(FindOpt.strSearchOutFormat, L"D,S,A"s)},
-		{FSSF_PRIVATE,           NKeySystem,                 L"SearchOutFormatWidth"sv,          OPT_DEF(FindOpt.strSearchOutFormatWidth, L"0,0,0"s)},
+		{FSSF_PRIVATE,           NKeySystem,                 L"SearchInFirstSize"sv,             OPT_DEF(FindOpt.strSearchInFirstSize, L""sv)},
+		{FSSF_PRIVATE,           NKeySystem,                 L"SearchOutFormat"sv,               OPT_DEF(FindOpt.strSearchOutFormat, L"D,S,A"sv)},
+		{FSSF_PRIVATE,           NKeySystem,                 L"SearchOutFormatWidth"sv,          OPT_DEF(FindOpt.strSearchOutFormatWidth, L"0,0,0"sv)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SetAttrFolderRules"sv,            OPT_DEF(SetAttrFolderRules, true)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ShowCheckingFile"sv,              OPT_DEF(ShowCheckingFile, false)},
-		{FSSF_PRIVATE,           NKeySystem,                 L"ShowStatusInfo"sv,                OPT_DEF(InfoPanel.strShowStatusInfo, L""s)},
+		{FSSF_PRIVATE,           NKeySystem,                 L"ShowStatusInfo"sv,                OPT_DEF(InfoPanel.strShowStatusInfo, L""sv)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SmartFolderMonitor"sv,            OPT_DEF(SmartFolderMonitor, false)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SubstNameRule"sv,                 OPT_DEF(SubstNameRule, 2)},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SubstPluginPrefix"sv,             OPT_DEF(SubstPluginPrefix, false)},
@@ -1962,21 +1961,21 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystemKnownIDs,         L"Luamacro"sv,                      OPT_DEF(KnownIDs.Luamacro.StrId, KnownIDs.Luamacro.Default)},
 		{FSSF_PRIVATE,           NKeySystemKnownIDs,         L"Netbox"sv,                        OPT_DEF(KnownIDs.Netbox.StrId, KnownIDs.Netbox.Default)},
 		{FSSF_PRIVATE,           NKeySystemNowell,           L"MoveRO"sv,                        OPT_DEF(Nowell.MoveRO, true)},
-		{FSSF_PRIVATE,           NKeySystemException,        L"FarEventSvc"sv,                   OPT_DEF(strExceptEventSvc, L""s)},
+		{FSSF_PRIVATE,           NKeySystemException,        L"FarEventSvc"sv,                   OPT_DEF(strExceptEventSvc, L""sv)},
 		{FSSF_PRIVATE,           NKeySystemException,        L"Used"sv,                          OPT_DEF(ExceptUsed, false)},
-		{FSSF_PRIVATE,           NKeySystemExecutor,         L"~"sv,                             OPT_DEF(Exec.strHomeDir, L"%FARHOME%"s)},
-		{FSSF_PRIVATE,           NKeySystemExecutor,         L"ExcludeCmds"sv,                   OPT_DEF(Exec.strExcludeCmds, L""s)},
+		{FSSF_PRIVATE,           NKeySystemExecutor,         L"~"sv,                             OPT_DEF(Exec.strHomeDir, L"%FARHOME%"sv)},
+		{FSSF_PRIVATE,           NKeySystemExecutor,         L"ExcludeCmds"sv,                   OPT_DEF(Exec.strExcludeCmds, L""sv)},
 		{FSSF_PRIVATE,           NKeySystemExecutor,         L"FullTitle"sv,                     OPT_DEF(Exec.ExecuteFullTitle, false)},
 		{FSSF_PRIVATE,           NKeySystemExecutor,         L"RestoreCP"sv,                     OPT_DEF(Exec.RestoreCPAfterExecute, true)},
 		{FSSF_PRIVATE,           NKeySystemExecutor,         L"UseAppPath"sv,                    OPT_DEF(Exec.ExecuteUseAppPath, true)},
 		{FSSF_PRIVATE,           NKeySystemExecutor,         L"UseHomeDir"sv,                    OPT_DEF(Exec.UseHomeDir, true)},
-		{FSSF_PRIVATE,           NKeySystemExecutor,         L"Comspec"sv,                       OPT_DEF(Exec.Comspec, L"%COMSPEC%"s)},
-		{FSSF_PRIVATE,           NKeySystemExecutor,         L"ComspecArguments"sv,              OPT_DEF(Exec.ComspecArguments, L"/S /C \"{0}\""s)},
-		{FSSF_PRIVATE,           NKeySystemExecutor,         L"ComspecCondition"sv,              OPT_DEF(Exec.ComspecCondition, L""s)},
+		{FSSF_PRIVATE,           NKeySystemExecutor,         L"Comspec"sv,                       OPT_DEF(Exec.Comspec, L"%COMSPEC%"sv)},
+		{FSSF_PRIVATE,           NKeySystemExecutor,         L"ComspecArguments"sv,              OPT_DEF(Exec.ComspecArguments, L"/S /C \"{0}\""sv)},
+		{FSSF_PRIVATE,           NKeySystemExecutor,         L"ComspecCondition"sv,              OPT_DEF(Exec.ComspecCondition, L""sv)},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"AutoDetectCodePage"sv,            OPT_DEF(ViOpt.AutoDetectCodePage, true)},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"DefaultCodePage"sv,               OPT_DEF(ViOpt.DefaultCodePage, static_cast<long long>(encoding::codepage::ansi()))},
-		{FSSF_PRIVATE,           NKeyViewer,                 L"F8CPs"sv,                         OPT_DEF(ViOpt.strF8CPs, L""s)},
-		{FSSF_PRIVATE,           NKeyViewer,                 L"ExternalViewerName"sv,            OPT_DEF(strExternalViewer, L""s)},
+		{FSSF_PRIVATE,           NKeyViewer,                 L"F8CPs"sv,                         OPT_DEF(ViOpt.strF8CPs, L""sv)},
+		{FSSF_PRIVATE,           NKeyViewer,                 L"ExternalViewerName"sv,            OPT_DEF(strExternalViewer, L""sv)},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"IsWrap"sv,                        OPT_DEF(ViOpt.ViewerIsWrap, true)},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"MaxLineSize"sv,                   OPT_DEF(ViOpt.MaxLineSize, ViewerOptions::eDefLineSize)},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"PersistentBlocks"sv,              OPT_DEF(ViOpt.PersistentBlocks, true)},
@@ -2000,21 +1999,21 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyVMenu,                  L"MBtnClick"sv,                     OPT_DEF(VMenu.MBtnClick, VMENUCLICK_APPLY)},
 		{FSSF_PRIVATE,           NKeyVMenu,                  L"RBtnClick"sv,                     OPT_DEF(VMenu.RBtnClick, VMENUCLICK_CANCEL)},
 		{FSSF_PRIVATE,           NKeyXLat,                   L"Flags"sv,                         OPT_DEF(XLat.Flags, XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE)},
-		{FSSF_PRIVATE,           NKeyXLat,                   L"Layouts"sv,                       OPT_DEF(XLat.strLayouts, L""s)},
-		{FSSF_PRIVATE,           NKeyXLat,                   L"Rules1"sv,                        OPT_DEF(XLat.Rules[0], L""s)},
-		{FSSF_PRIVATE,           NKeyXLat,                   L"Rules2"sv,                        OPT_DEF(XLat.Rules[1], L""s)},
-		{FSSF_PRIVATE,           NKeyXLat,                   L"Rules3"sv,                        OPT_DEF(XLat.Rules[2], L""s)},
-		{FSSF_PRIVATE,           NKeyXLat,                   L"Table1"sv,                        OPT_DEF(XLat.Table[0], L""s)},
-		{FSSF_PRIVATE,           NKeyXLat,                   L"Table2"sv,                        OPT_DEF(XLat.Table[1], L""s)},
+		{FSSF_PRIVATE,           NKeyXLat,                   L"Layouts"sv,                       OPT_DEF(XLat.strLayouts, L""sv)},
+		{FSSF_PRIVATE,           NKeyXLat,                   L"Rules1"sv,                        OPT_DEF(XLat.Rules[0], L""sv)},
+		{FSSF_PRIVATE,           NKeyXLat,                   L"Rules2"sv,                        OPT_DEF(XLat.Rules[1], L""sv)},
+		{FSSF_PRIVATE,           NKeyXLat,                   L"Rules3"sv,                        OPT_DEF(XLat.Rules[2], L""sv)},
+		{FSSF_PRIVATE,           NKeyXLat,                   L"Table1"sv,                        OPT_DEF(XLat.Table[0], L""sv)},
+		{FSSF_PRIVATE,           NKeyXLat,                   L"Table2"sv,                        OPT_DEF(XLat.Table[1], L""sv)},
 		{FSSF_PRIVATE,           NKeyXLat,                   L"WordDivForXlat"sv,                OPT_DEF(XLat.strWordDivForXlat, WordDivForXlat0)},
 	};
 
 	static const FARConfigItem LocalData[] =
 	{
-		{FSSF_PRIVATE,           NKeyPanelLeft,              L"CurFile"sv,                       OPT_DEF(LeftPanel.CurFile, L""s)},
-		{FSSF_PRIVATE,           NKeyPanelLeft,              L"Folder"sv,                        OPT_DEF(LeftPanel.Folder, L""s)},
-		{FSSF_PRIVATE,           NKeyPanelRight,             L"CurFile"sv,                       OPT_DEF(RightPanel.CurFile, L""s)},
-		{FSSF_PRIVATE,           NKeyPanelRight,             L"Folder"sv,                        OPT_DEF(RightPanel.Folder, L""s)},
+		{FSSF_PRIVATE,           NKeyPanelLeft,              L"CurFile"sv,                       OPT_DEF(LeftPanel.CurFile, L""sv)},
+		{FSSF_PRIVATE,           NKeyPanelLeft,              L"Folder"sv,                        OPT_DEF(LeftPanel.Folder, L""sv)},
+		{FSSF_PRIVATE,           NKeyPanelRight,             L"CurFile"sv,                       OPT_DEF(RightPanel.CurFile, L""sv)},
+		{FSSF_PRIVATE,           NKeyPanelRight,             L"Folder"sv,                        OPT_DEF(RightPanel.Folder, L""sv)},
 		{FSSF_PRIVATE,           NKeyPanel,                  L"LeftFocus"sv,                     OPT_DEF(LeftFocus, true)},
 	};
 
@@ -2138,7 +2137,7 @@ void Options::Load(overrides&& Overrides)
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 
 	Palette.Load();
-	GlobalUserMenuDir = ConvertNameToFull(os::env::expand(GetFarIniString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath)));
+	GlobalUserMenuDir = ConvertNameToFull(os::env::expand(GetFarIniString(L"General"s, L"GlobalUserMenuDir"s, Global->g_strFarPath)));
 	AddEndSlash(GlobalUserMenuDir);
 
 	if(WindowMode == -1)
@@ -2163,7 +2162,7 @@ void Options::Load(overrides&& Overrides)
 	SetSearchColumns(FindOpt.strSearchOutFormat, FindOpt.strSearchOutFormatWidth);
 
 	string tmp[2];
-	if (!ConfigProvider().GeneralCfg()->EnumValues(L"Masks", true, tmp[0], tmp[1]))
+	if (!ConfigProvider().GeneralCfg()->EnumValues(L"Masks"sv, true, tmp[0], tmp[1]))
 	{
 		ApplyDefaultMaskGroups();
 	}

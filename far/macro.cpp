@@ -3055,7 +3055,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	string strBottom;
 	TVar& Items(Params[0]);
 	string strItems = Items.toString();
-	ReplaceStrings(strItems,L"\r\n",L"\n");
+	ReplaceStrings(strItems, L"\r\n"sv, L"\n"sv);
 
 	if (strItems.back() != L'\n')
 		strItems += L'\n';
@@ -3096,7 +3096,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	int SelectedPos=0;
 	int LineCount=0;
 	size_t CurrentPos=0;
-	ReplaceStrings(strTitle,L"\r\n",L"\n");
+	ReplaceStrings(strTitle, L"\r\n"sv, L"\n"sv);
 	auto PosLF = strTitle.find(L'\n');
 	bool CRFound = PosLF != string::npos;
 
@@ -3124,7 +3124,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		NewItem.Name = strItems.substr(CurrentPos, SubstrLen);
 
-		if (NewItem.Name != L"\n")
+		if (NewItem.Name != L"\n"sv)
 		{
 			const auto& CharToFlag = [](wchar_t c)
 			{
@@ -3309,10 +3309,10 @@ static bool menushowFunc(FarMacroCall* Data)
 					}
 					else
 						Result += TVar(Menu->at(i).Name.c_str() + nLeftShift);
-					Result += TVar(L"\n");
+					Result += TVar(L"\n"sv);
 				}
 			}
-			if(Result == TVar(L""))
+			if(Result == TVar(L""sv))
 			{
 				if (bResultAsIndex)
 				{
@@ -3402,8 +3402,8 @@ static bool panelselectFunc(FarMacroCall* Data)
 		if (Mode == 2 || Mode == 3)
 		{
 			string strStr=ValItems.asString();
-			ReplaceStrings(strStr,L"\r",L"\n");
-			ReplaceStrings(strStr,L"\n\n",L"\n");
+			ReplaceStrings(strStr, L"\r"sv, L"\n"sv);
+			ReplaceStrings(strStr, L"\n\n"sv, L"\n"sv);
 			ValItems=strStr;
 		}
 

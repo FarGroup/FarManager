@@ -189,7 +189,7 @@ void ShowProcessList()
 		{
 			case KEY_F1:
 			{
-				Help::create(L"TaskList");
+				Help::create(L"TaskList"sv);
 				break;
 			}
 

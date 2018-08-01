@@ -291,10 +291,10 @@ TVar::TVar(double v) :
 {
 }
 
-TVar::TVar(string v):
+TVar::TVar(string_view const v):
 	inum(),
 	dnum(),
-	str(std::move(v)),
+	str(ALL_CONST_RANGE(v)),
 	vType(vtString)
 {
 }

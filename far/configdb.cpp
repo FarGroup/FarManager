@@ -157,7 +157,7 @@ private:
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
 {
 protected:
-	iGeneralConfigDb(const string& DbName, bool Local):
+	iGeneralConfigDb(string_view const DbName, bool Local):
 		SQLiteDb(&iGeneralConfigDb::Initialise, DbName, Local)
 	{
 	}
@@ -171,11 +171,11 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtUpdateValue, L"UPDATE general_config SET value=?3 WHERE key=?1 AND name=?2;" },
-			{ stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);" },
-			{ stmtGetValue, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;" },
-			{ stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;" },
-			{ stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;" },
+			{ stmtUpdateValue, L"UPDATE general_config SET value=?3 WHERE key=?1 AND name=?2;"sv },
+			{ stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);"sv },
+			{ stmtGetValue, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;"sv },
+			{ stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;"sv },
+			{ stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;"sv },
 		};
 
 		return
@@ -241,7 +241,7 @@ private:
 	{
 		auto& root = CreateChild(Representation.GetRoot(), GetKeyName());
 
-		auto stmtEnumAllValues = create_stmt(L"SELECT key, name, value FROM general_config ORDER BY key, name;");
+		auto stmtEnumAllValues = create_stmt(L"SELECT key, name, value FROM general_config ORDER BY key, name;"sv);
 
 		while (stmtEnumAllValues.Step())
 		{
@@ -366,7 +366,7 @@ private:
 class GeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db", false) {}
+	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db"sv, false) {}
 
 private:
 	const char* GetKeyName() const override {return "generalconfig";}
@@ -375,7 +375,7 @@ private:
 class LocalGeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db", true) {}
+	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db"sv, true) {}
 
 private:
 	const char* GetKeyName() const override {return "localconfig";}
@@ -415,7 +415,7 @@ private:
 class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig, public SQLiteDb
 {
 public:
-	explicit HierarchicalConfigDb(const string& DbName, bool Local):
+	explicit HierarchicalConfigDb(string_view const DbName, bool Local):
 		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName)),
 		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
 	{
@@ -439,15 +439,15 @@ protected:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);" },
-			{ stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;" },
-			{ stmtSetKeyDescription, L"UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;" },
-			{ stmtSetValue, L"INSERT OR REPLACE INTO table_values VALUES (?1,?2,?3);" },
-			{ stmtGetValue, L"SELECT value FROM table_values WHERE key_id=?1 AND name=?2;" },
-			{ stmtEnumKeys, L"SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;" },
-			{ stmtEnumValues, L"SELECT name, value FROM table_values WHERE key_id=?1;" },
-			{ stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;" },
-			{ stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;" },
+			{ stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
+			{ stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
+			{ stmtSetKeyDescription, L"UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;"sv },
+			{ stmtSetValue, L"INSERT OR REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
+			{ stmtGetValue, L"SELECT value FROM table_values WHERE key_id=?1 AND name=?2;"sv },
+			{ stmtEnumKeys, L"SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;"sv },
+			{ stmtEnumValues, L"SELECT name, value FROM table_values WHERE key_id=?1;"sv },
+			{ stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;"sv },
+			{ stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;"sv },
 		};
 
 		return
@@ -561,7 +561,7 @@ protected:
 		return true;
 	}
 
-	virtual void SerializeBlob(const char* Name, const bytes_view& Blob, tinyxml::XMLElement& e) const
+	virtual void SerializeBlob(std::string_view /*Name*/, const bytes_view& Blob, tinyxml::XMLElement& e) const
 	{
 		e.SetAttribute("type", "hex");
 		e.SetAttribute("value", BlobToHexString(Blob).c_str());
@@ -572,7 +572,7 @@ protected:
 		Export(Representation, root_key(), CreateChild(Representation.GetRoot(), "hierarchicalconfig"));
 	}
 
-	virtual bytes DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e) const
+	virtual bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const
 	{
 		return HexStringToBlob(Value);
 	}
@@ -612,13 +612,13 @@ protected:
 
 				case column_type::blob:
 				case column_type::unknown:
-					SerializeBlob(name.c_str(), Stmt->GetColBlob(1), e);
+					SerializeBlob(name, Stmt->GetColBlob(1), e);
 					break;
 				}
 			}
 		}
 
-		auto stmtEnumSubKeys = create_stmt(L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
+		auto stmtEnumSubKeys = create_stmt(L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;"sv);
 		stmtEnumSubKeys.Bind(Key.get());
 		while (stmtEnumSubKeys.Step())
 		{
@@ -675,7 +675,7 @@ protected:
 			else
 			{
 				// custom types, value is optional
-				SetValue(Key, Name, DeserializeBlob(name, type, value, *e));
+				SetValue(Key, Name, DeserializeBlob(type, value, *e));
 			}
 		}
 
@@ -742,17 +742,17 @@ public:
 	using HierarchicalConfigDb::HierarchicalConfigDb;
 
 private:
-	void SerializeBlob(const char* Name, const bytes_view& Blob, tinyxml::XMLElement& e) const override
+	void SerializeBlob(std::string_view const Name, const bytes_view& Blob, tinyxml::XMLElement& e) const override
 	{
-		static const char* ColorKeys[] =
+		static const std::string_view ColorKeys[] =
 		{
-			"NormalColor", "SelectedColor",
-			"CursorColor", "SelectedCursorColor",
-			"MarkCharNormalColor", "MarkCharSelectedColor",
-			"MarkCharCursorColor", "MarkCharSelectedCursorColor",
+			"NormalColor"sv, "SelectedColor"sv,
+			"CursorColor"sv, "SelectedCursorColor"sv,
+			"MarkCharNormalColor"sv, "MarkCharSelectedColor"sv,
+			"MarkCharCursorColor"sv, "MarkCharSelectedCursorColor"sv,
 		};
 
-		if (std::any_of(CONST_RANGE(ColorKeys, i) { return !strcmp(Name, i); }))
+		if (std::find(ALL_CONST_RANGE(ColorKeys), Name) != std::cend(ColorKeys))
 		{
 			const auto Color = deserialise<FarColor>(Blob);
 			e.SetAttribute("type", "color");
@@ -766,7 +766,7 @@ private:
 		}
 	}
 
-	bytes DeserializeBlob(const char* Name, const char* Type, const char* Value, const tinyxml::XMLElement& e) const override
+	bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const override
 	{
 		if(!strcmp(Type, "color"))
 		{
@@ -782,7 +782,7 @@ private:
 			return bytes::copy(Color);
 		}
 
-		return HierarchicalConfigDb::DeserializeBlob(Name, Type, Value, e);
+		return HierarchicalConfigDb::DeserializeBlob(Type, Value, e);
 	}
 };
 
@@ -790,7 +790,7 @@ class ColorsConfigDb: public ColorsConfig, public SQLiteDb
 {
 public:
 	ColorsConfigDb():
-		SQLiteDb(&ColorsConfigDb::Initialise, L"colors.db")
+		SQLiteDb(&ColorsConfigDb::Initialise, L"colors.db"sv)
 	{
 	}
 
@@ -803,10 +803,10 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtUpdateValue, L"UPDATE colors SET value=?2 WHERE name=?1;" },
-			{ stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);" },
-			{ stmtGetValue, L"SELECT value FROM colors WHERE name=?1;" },
-			{ stmtDelValue, L"DELETE FROM colors WHERE name=?1;" },
+			{ stmtUpdateValue, L"UPDATE colors SET value=?2 WHERE name=?1;"sv },
+			{ stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);"sv },
+			{ stmtGetValue, L"SELECT value FROM colors WHERE name=?1;"sv },
+			{ stmtDelValue, L"DELETE FROM colors WHERE name=?1;"sv },
 		};
 
 		return
@@ -838,7 +838,7 @@ private:
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "colors");
 
-		auto stmtEnumAllValues = create_stmt(L"SELECT name, value FROM colors ORDER BY name;");
+		auto stmtEnumAllValues = create_stmt(L"SELECT name, value FROM colors ORDER BY name;"sv);
 
 		while (stmtEnumAllValues.Step())
 		{
@@ -897,7 +897,7 @@ class AssociationsConfigDb: public AssociationsConfig, public SQLiteDb
 {
 public:
 	AssociationsConfigDb():
-		SQLiteDb(&AssociationsConfigDb::Initialise, L"associations.db")
+		SQLiteDb(&AssociationsConfigDb::Initialise, L"associations.db"sv)
 	{
 	}
 
@@ -911,19 +911,19 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);" },
-			{ stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);" },
-			{ stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;" },
-			{ stmtGetDescription, L"SELECT description FROM filetypes WHERE id=?1;" },
-			{ stmtUpdateType, L"UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;" },
-			{ stmtSetCommand, L"INSERT OR REPLACE INTO commands VALUES (?1,?2,?3,?4);" },
-			{ stmtGetCommand, L"SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;" },
-			{ stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY weight;" },
-			{ stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY weight;" },
-			{ stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;" },
-			{ stmtDelType, L"DELETE FROM filetypes WHERE id=?1;" },
-			{ stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;" },
-			{ stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;" },
+			{ stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);"sv },
+			{ stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);"sv },
+			{ stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;"sv },
+			{ stmtGetDescription, L"SELECT description FROM filetypes WHERE id=?1;"sv },
+			{ stmtUpdateType, L"UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;"sv },
+			{ stmtSetCommand, L"INSERT OR REPLACE INTO commands VALUES (?1,?2,?3,?4);"sv },
+			{ stmtGetCommand, L"SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;"sv },
+			{ stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY weight;"sv },
+			{ stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY weight;"sv },
+			{ stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;"sv },
+			{ stmtDelType, L"DELETE FROM filetypes WHERE id=?1;"sv },
+			{ stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;"sv },
+			{ stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;"sv },
 		};
 
 		return
@@ -1037,8 +1037,8 @@ private:
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "associations");
 
-		auto stmtEnumAllTypes = create_stmt(L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
-		auto stmtEnumCommandsPerFiletype = create_stmt(L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
+		auto stmtEnumAllTypes = create_stmt(L"SELECT id, mask, description FROM filetypes ORDER BY weight;"sv);
+		auto stmtEnumCommandsPerFiletype = create_stmt(L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;"sv);
 
 		while (stmtEnumAllTypes.Step())
 		{
@@ -1142,7 +1142,7 @@ class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb
 {
 public:
 	PluginsCacheConfigDb():
-		SQLiteDb(&PluginsCacheConfigDb::Initialise, L"plugincache" PLATFORM_SUFFIX L".db", true, true)
+		SQLiteDb(&PluginsCacheConfigDb::Initialise, L"plugincache" PLATFORM_SUFFIX L".db"sv, true, true)
 	{
 	}
 
@@ -1173,35 +1173,35 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);," },
-			{ stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;" },
-			{ stmtDelCache, L"DELETE FROM cachename WHERE name=?1;" },
-			{ stmtCountCacheNames, L"SELECT count(name) FROM cachename;" },
-			{ stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;" },
-			{ stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;" },
-			{ stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;" },
-			{ stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;" },
-			{ stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;" },
-			{ stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;" },
-			{ stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;" },
-			{ stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;" },
-			{ stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;" },
-			{ stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;" },
-			{ stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;" },
-			{ stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);" },
-			{ stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);" },
-			{ stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);" },
-			{ stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);" },
-			{ stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);" },
-			{ stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);" },
-			{ stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);" },
-			{ stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);" },
-			{ stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);," },
-			{ stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);" },
-			{ stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);" },
-			{ stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;" },
-			{ stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;" },
-			{ stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);" },
+			{ stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);,"sv },
+			{ stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;"sv },
+			{ stmtDelCache, L"DELETE FROM cachename WHERE name=?1;"sv },
+			{ stmtCountCacheNames, L"SELECT count(name) FROM cachename;"sv },
+			{ stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;"sv },
+			{ stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;"sv },
+			{ stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;"sv },
+			{ stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;"sv },
+			{ stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;"sv },
+			{ stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;"sv },
+			{ stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;"sv },
+			{ stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;"sv },
+			{ stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;"sv },
+			{ stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;"sv },
+			{ stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;"sv },
+			{ stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);"sv },
+			{ stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);"sv },
+			{ stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);"sv },
+			{ stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);"sv },
+			{ stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);"sv },
+			{ stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);"sv },
+			{ stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);"sv },
+			{ stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);"sv },
+			{ stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);,"sv },
+			{ stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);"sv },
+			{ stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);"sv },
+			{ stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;"sv },
+			{ stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;"sv },
+			{ stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);"sv },
 		};
 
 		return
@@ -1478,7 +1478,7 @@ class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public SQLiteDb
 {
 public:
 	PluginsHotkeysConfigDb():
-		SQLiteDb(&PluginsHotkeysConfigDb::Initialise, L"pluginhotkeys.db")
+		SQLiteDb(&PluginsHotkeysConfigDb::Initialise, L"pluginhotkeys.db"sv)
 	{
 	}
 
@@ -1491,10 +1491,10 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
-			{ stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);" },
-			{ stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;" },
-			{ stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;" },
+			{ stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
+			{ stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);"sv },
+			{ stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
+			{ stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;"sv },
 		};
 
 		return
@@ -1532,8 +1532,8 @@ private:
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "pluginhotkeys");
 
-		auto stmtEnumAllPluginKeys = create_stmt(L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
-		auto stmtEnumAllHotkeysPerKey = create_stmt(L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
+		auto stmtEnumAllPluginKeys = create_stmt(L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;"sv);
+		auto stmtEnumAllHotkeysPerKey = create_stmt(L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;"sv);
 
 		while (stmtEnumAllPluginKeys.Step())
 		{
@@ -1617,7 +1617,7 @@ private:
 class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 {
 public:
-	HistoryConfigCustom(const string& DbName, bool Local):
+	HistoryConfigCustom(string_view const DbName, bool Local):
 		SQLiteDb(&HistoryConfigCustom::Initialise, DbName, Local, true)
 	{
 		StartThread();
@@ -1659,12 +1659,12 @@ private:
 	{
 		StopEvent = os::event(os::event::type::automatic, os::event::state::nonsignaled);
 		string EventName;
-		if (GetPath() != L":memory:")
+		if (GetPath() != L":memory:"sv)
 		{
 			EventName = os::make_name<os::event>(GetPath(), GetName());
 		}
-		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Delete");
-		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Commit");
+		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Delete"sv);
+		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Commit"sv);
 		AllWaiter.add(AsyncDeleteAddDone);
 		AllWaiter.add(AsyncCommitDone);
 		AsyncWork = os::event(os::event::type::automatic, os::event::state::nonsignaled);
@@ -1782,32 +1782,32 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;" },
-			{ stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;" },
-			{ stmtDel, L"DELETE FROM history WHERE id=?1;" },
-			{ stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);" },
-			{ stmtEnumLargeHistories, L"SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;" },
-			{ stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);" },
-			{ stmtGetName, L"SELECT name FROM history WHERE id=?1;" },
-			{ stmtGetNameAndType, L"SELECT name, type, guid, file, data FROM history WHERE id=?1;" },
-			{ stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;" },
-			{ stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=?2;" },
-			{ stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;" },
-			{ stmtGetLock, L"SELECT lock FROM history WHERE id=?1;" },
-			{ stmtSetLock, L"UPDATE history SET lock=?1 WHERE id=?2" },
-			{ stmtGetNext, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;" },
-			{ stmtGetPrev, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;" },
-			{ stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;" },
-			{ stmtSetEditorPos, L"INSERT OR REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);" },
-			{ stmtSetEditorBookmark, L"INSERT OR REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);" },
-			{ stmtGetEditorPos, L"SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1 COLLATE NOCASE;" },
-			{ stmtGetEditorBookmark, L"SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;" },
-			{ stmtSetViewerPos, L"INSERT OR REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);" },
-			{ stmtSetViewerBookmark, L"INSERT OR REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);" },
-			{ stmtGetViewerPos, L"SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1 COLLATE NOCASE;" },
-			{ stmtGetViewerBookmark, L"SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;" },
-			{ stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);" },
-			{ stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);" },
+			{ stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;"sv },
+			{ stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;"sv },
+			{ stmtDel, L"DELETE FROM history WHERE id=?1;"sv },
+			{ stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);"sv },
+			{ stmtEnumLargeHistories, L"SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;"sv },
+			{ stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);"sv },
+			{ stmtGetName, L"SELECT name FROM history WHERE id=?1;"sv },
+			{ stmtGetNameAndType, L"SELECT name, type, guid, file, data FROM history WHERE id=?1;"sv },
+			{ stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;"sv },
+			{ stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=?2;"sv },
+			{ stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;"sv },
+			{ stmtGetLock, L"SELECT lock FROM history WHERE id=?1;"sv },
+			{ stmtSetLock, L"UPDATE history SET lock=?1 WHERE id=?2"sv },
+			{ stmtGetNext, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;"sv },
+			{ stmtGetPrev, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;"sv },
+			{ stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;"sv },
+			{ stmtSetEditorPos, L"INSERT OR REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);"sv },
+			{ stmtSetEditorBookmark, L"INSERT OR REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);"sv },
+			{ stmtGetEditorPos, L"SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1 COLLATE NOCASE;"sv },
+			{ stmtGetEditorBookmark, L"SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;"sv },
+			{ stmtSetViewerPos, L"INSERT OR REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);"sv },
+			{ stmtSetViewerBookmark, L"INSERT OR REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);"sv },
+			{ stmtGetViewerPos, L"SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1 COLLATE NOCASE;"sv },
+			{ stmtGetViewerBookmark, L"SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;"sv },
+			{ stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);"sv },
+			{ stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);"sv },
 		};
 
 		return
@@ -2106,7 +2106,7 @@ class HistoryConfigDb: public HistoryConfigCustom
 {
 public:
 	HistoryConfigDb():
-		HistoryConfigCustom(L"history.db", true)
+		HistoryConfigCustom(L"history.db"sv, true)
 	{
 	}
 
@@ -2121,7 +2121,7 @@ class HistoryConfigMemory: public HistoryConfigCustom
 {
 public:
 	HistoryConfigMemory():
-		HistoryConfigCustom(L":memory:", true)
+		HistoryConfigCustom(L":memory:"sv, true)
 	{
 	}
 
@@ -2211,7 +2211,7 @@ std::unique_ptr<T> config_provider::CreateDatabase()
 }
 
 template<class T>
-HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, const string& DbName, const char* ImportNodeName, bool IsLocal, bool IsPlugin)
+HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, string_view const DbName, const char* ImportNodeName, bool IsLocal, bool IsPlugin)
 {
 	auto Database = std::make_unique<T>(DbName, IsLocal);
 	if (!m_CheckedDb.Check(DbId))
@@ -2238,22 +2238,22 @@ HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_vi
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db","filters");
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db"sv, "filters");
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateHighlightConfig()
 {
-	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db","highlight");
+	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db"sv, "highlight");
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateShortcutsConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db"sv, "shortcuts", true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreatePanelModesConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db"sv, "panelmodes");
 }
 
 config_provider::config_provider(mode Mode):
@@ -2330,7 +2330,7 @@ bool config_provider::Import(const string& Filename)
 
 	if (!root.ToNode())
 	{
-		std::wcerr << L"Error importing " << Filename << L":\n " << Representation.GetError() << std::endl;
+		std::wcerr << format(L"Error importing {0}:\n {1}", Filename, Representation.GetError()) << std::endl;
 		return false;
 	}
 

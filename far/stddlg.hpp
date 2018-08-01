@@ -163,6 +163,6 @@ struct goto_coord
 	int relative;
 };
 
-bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, const wchar_t* HelpTopic);
+bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view HelpTopic);
 
 #endif // STDDLG_HPP_D7E3481D_D478_4F57_8C20_7E0A21FAE788

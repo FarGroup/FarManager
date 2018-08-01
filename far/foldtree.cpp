@@ -182,7 +182,7 @@ bool FolderTree::ProcessKey(const Manager::Key& Key)
 	{
 		case KEY_F1:
 		{
-			Help::create(L"FindFolder");
+			Help::create(L"FindFolder"sv);
 		}
 		break;
 		case KEY_ESC:

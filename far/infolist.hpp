@@ -65,7 +65,7 @@ private:
 
 	bool ShowDirDescription(int YPos);
 	bool ShowPluginDescription(int YPos);
-	void PrintText(const string& Str) const;
+	void PrintText(string_view Str) const;
 	void PrintText(lng MsgID) const;
 	void PrintInfo(const string& Str) const;
 	void PrintInfo(lng MsgID) const;

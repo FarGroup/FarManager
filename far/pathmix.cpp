@@ -55,10 +55,10 @@ void NTPath::Transform()
 			if (!HasPathPrefix(Data))
 			{
 				ReplaceSlashToBackslash(Data);
-				string Prefix(ParsePath(Data) == root_type::drive_letter? L"\\\\?\\" : L"\\\\?\\UNC");
-				while(ReplaceStrings(Data,L"\\\\",L"\\"))
+				const auto Prefix = ParsePath(Data) == root_type::drive_letter? L"\\\\?\\"sv : L"\\\\?\\UNC"sv;
+				while (ReplaceStrings(Data, L"\\\\"sv, L"\\"sv))
 					;
-				Data=Prefix+Data;
+				Data.insert(0, Prefix.data(), Prefix.size());
 			}
 		}
 		static const bool is_win2k = !IsWindowsXPOrGreater();

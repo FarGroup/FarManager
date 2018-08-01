@@ -121,7 +121,7 @@ bool filemasks::Set(const string& Masks, DWORD Flags)
 		}
 		else
 		{
-			ConfigProvider().GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
+			ConfigProvider().GeneralCfg()->GetValue(L"Masks"sv, MaskGroupName, MaskGroupValue, L"");
 			UsedGroups.emplace(std::move(MaskGroupName));
 		}
 		ReplaceStrings(ExpMasks, MaskGroupNameWithBrackets, MaskGroupValue);
@@ -317,7 +317,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 			{
 				m_Masks.emplace_back(1, L'*');
 			}
-			else if (contains(Mask, L"**"))
+			else if (contains(Mask, L"**"sv))
 			{
 				string NewMask(Mask);
 				ReplaceStrings(NewMask, L"**"sv, L"*"sv);

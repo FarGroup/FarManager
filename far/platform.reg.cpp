@@ -92,10 +92,10 @@ namespace os::reg
 
 	bool key::enum_keys(size_t Index, string& Name) const
 	{
-		return detail::ApiDynamicErrorBasedStringReceiver(ERROR_MORE_DATA, Name, [&](wchar_t* Buffer, size_t Size)
+		return detail::ApiDynamicErrorBasedStringReceiver(ERROR_MORE_DATA, Name, [&](range<wchar_t*> Buffer)
 		{
-			auto RetSize = static_cast<DWORD>(Size);
-			const auto ExitCode = RegEnumKeyEx(native_handle(), static_cast<DWORD>(Index), Buffer, &RetSize, nullptr, nullptr, nullptr, nullptr);
+			auto RetSize = static_cast<DWORD>(Buffer.size());
+			const auto ExitCode = RegEnumKeyEx(native_handle(), static_cast<DWORD>(Index), Buffer.data(), &RetSize, nullptr, nullptr, nullptr, nullptr);
 			if (ExitCode != ERROR_SUCCESS)
 			{
 				SetLastError(ExitCode);

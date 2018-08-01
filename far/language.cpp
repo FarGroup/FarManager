@@ -341,7 +341,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 
 	if (!LangFile)
 	{
-		throw MAKE_EXCEPTION(exception, L"Cannot find language data");
+		throw MAKE_EXCEPTION(exception, L"Cannot find language data"sv);
 	}
 
 	Data->m_FileName = LangFile.GetName();
@@ -372,7 +372,7 @@ void language::load(const string& Path, const string& Language, int CountNeed)
 	//   Проведем проверку на количество строк в LNG-файлах
 	if (CountNeed != -1 && CountNeed != static_cast<int>(Data->size()))
 	{
-		throw MAKE_EXCEPTION(exception, Data->m_FileName + L": language data is incorrect or damaged");
+		throw MAKE_EXCEPTION(exception, Data->m_FileName + L": language data is incorrect or damaged"sv);
 	}
 
 	// try to load Far<LNG>.lng.custom file(s)

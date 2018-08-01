@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "windowsfwd.hpp"
 
+#include "common/range.hpp"
 #include "common/singleton.hpp"
 
 // Тип выбранной таблицы символов
@@ -74,7 +75,10 @@ public:
 	static void DeleteFavorite(uintptr_t cp);
 	static auto GetFavoritesEnumerator()
 	{
-		return ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey());
+		return select(ConfigProvider().GeneralCfg()->ValuesEnumerator<long long>(FavoriteCodePagesKey()), [](const auto& i)
+		{
+			return std::make_pair(std::stoul(i.first), i.second);
+		});
 	}
 
 private:
@@ -100,7 +104,7 @@ private:
 	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 
-	static const string& FavoriteCodePagesKey();
+	static string_view FavoriteCodePagesKey();
 
 	Dialog* dialog;
 	UINT control;

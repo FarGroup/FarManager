@@ -184,7 +184,7 @@ namespace os::security
 			for (const auto& i: { &os::reg::key::local_machine, &os::reg::key::current_user })
 			{
 				unsigned NoDrives;
-				if (i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", L"NoDrives", NoDrives))
+				if (i->get(L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer"sv, L"NoDrives"sv, NoDrives))
 					return ~NoDrives;
 			}
 

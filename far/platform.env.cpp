@@ -89,9 +89,9 @@ namespace os::env
 		// which doesn't change it upon success.
 		SetLastError(ERROR_SUCCESS);
 
-		if (detail::ApiDynamicStringReceiver(Value, [&](wchar_t* Buffer, size_t Size)
+		if (detail::ApiDynamicStringReceiver(Value, [&](range<wchar_t*> Buffer)
 		{
-			return ::GetEnvironmentVariable(C_Name.c_str(), Buffer, static_cast<DWORD>(Size));
+			return ::GetEnvironmentVariable(C_Name.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 		}))
 		{
 			return true;
@@ -132,13 +132,13 @@ namespace os::env
 		bool Failure = false;
 
 		string Result;
-		if (!detail::ApiDynamicStringReceiver(Result, [&](wchar_t* Buffer, size_t Size)
+		if (!detail::ApiDynamicStringReceiver(Result, [&](range<wchar_t*> Buffer)
 		{
 			// ExpandEnvironmentStrings return value always includes the terminating null character.
 			// ApiDynamicStringReceiver expects a string length upon success (e.g. without the \0),
 			// but we cannot simply subtract 1 from the returned value - the function can also return 1
 			// when the result exists, but empty, so if we do that, it will be treated as error.
-			const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.c_str(), Buffer, static_cast<DWORD>(Size));
+			const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
 			switch (ReturnedSize)
 			{
 			case 0:
@@ -152,7 +152,7 @@ namespace os::env
 
 			default:
 				// Non-empty result
-				return ReturnedSize > Size? ReturnedSize : ReturnedSize - 1;
+				return ReturnedSize > Buffer.size()? ReturnedSize : ReturnedSize - 1;
 			}
 		}))
 		{
@@ -164,7 +164,7 @@ namespace os::env
 
 	string get_pathext()
 	{
-		const auto PathExt = get(L"PATHEXT");
+		const auto PathExt = get(L"PATHEXT"sv);
 		return !PathExt.empty()? PathExt : L".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC"s;
 	}
 }

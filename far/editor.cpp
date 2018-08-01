@@ -3388,17 +3388,33 @@ bool Editor::Search(bool Next)
 			return string{};
 		};
 
-		const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
-		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr,
-					TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, &PreserveStyle, L"EditorSearch", false,
-					ReplaceMode? &EditorReplaceId : &EditorSearchId, Picker);
-		if (!DlgResult)
+		switch (GetSearchReplaceString(
+			ReplaceMode,
+			{},
+			{},
+			strSearchStr,
+			strReplaceStr,
+			{},
+			{},
+			&Case,
+			&WholeWords,
+			&ReverseSearch,
+			&Regexp,
+			&PreserveStyle,
+			L"EditorSearch",
+			false,
+			ReplaceMode? &EditorReplaceId : &EditorSearchId,
+			Picker))
 		{
+		case 0:
 			return false;
-		}
-		else if(DlgResult == 2)
-		{
+
+		case 2:
 			FindAllReferences = true;
+			break;
+
+		default:
+			break;
 		}
 	}
 
@@ -4430,7 +4446,7 @@ void Editor::GoToPosition()
 	goto_coord Row{};
 	goto_coord Col{};
 
-	if (!GoToRowCol(Row, Col, m_GotoHex, L"EditorGotoPos"))
+	if (!GoToRowCol(Row, Col, m_GotoHex, L"EditorGotoPos"sv))
 		return;
 
 	if (Row.exist)

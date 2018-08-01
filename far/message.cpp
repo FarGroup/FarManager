@@ -49,8 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 
-#include "common/enum_tokens.hpp"
-
 #include "format.hpp"
 
 static string GetWin32ErrorString(const error_state_ex& ErrorState)

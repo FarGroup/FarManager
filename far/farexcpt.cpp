@@ -98,7 +98,7 @@ static void ShowStackTrace(std::vector<string>&& Symbols, const std::vector<stri
 		{
 			Symbols.reserve(Symbols.size() + 3 + NestedStack->size());
 			Symbols.emplace_back(40, L'-');
-			Symbols.emplace_back(L"Nested stack:");
+			Symbols.emplace_back(L"Nested stack:"s);
 			Symbols.emplace_back(40, L'-');
 			Symbols.insert(Symbols.end(), ALL_CONST_RANGE(*NestedStack));
 		}
@@ -123,7 +123,7 @@ static bool write_minidump(const exception_context& Context)
 		return false;
 
 	// TODO: subdirectory && timestamp
-	const os::fs::file DumpFile(path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	const os::fs::file DumpFile(path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"sv), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
 	if (!DumpFile)
 		return false;
 
@@ -312,7 +312,7 @@ static reply ExcConsole(const string& ModuleName, const string& Exception, const
 
 	for (;;)
 	{
-		std::wcout << L"Terminate process (Y/N)? " << std::flush;
+		std::wcout << L"Terminate process (Y/N)? "sv << std::flush;
 
 		wchar_t Input;
 		std::wcin.get(Input).ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
@@ -418,9 +418,9 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 		return true;
 	}
 
-	static const std::pair<const wchar_t*, NTSTATUS> KnownExceptions[] =
+	static const std::pair<string_view, NTSTATUS> KnownExceptions[] =
 	{
-		#define TEXTANDCODE(x) L###x, x
+#define TEXTANDCODE(x) L###x##sv, x
 
 		{TEXTANDCODE(EXCEPTION_ACCESS_VIOLATION)},
 		{TEXTANDCODE(EXCEPTION_DATATYPE_MISALIGNMENT)},
@@ -448,7 +448,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 		{TEXTANDCODE(CONTROL_C_EXIT)},
 #undef TEXTANDCODE
 
-		{L"C++ exception", EXCEPTION_MICROSOFT_CPLUSPLUS},
+		{L"C++ exception"sv, EXCEPTION_MICROSOFT_CPLUSPLUS},
 	};
 
 	string strFileName;
@@ -475,7 +475,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 	const auto Exception = [&](NTSTATUS Code)
 	{
 		const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return i.second == Code; });
-		const auto Name = ItemIterator != std::cend(KnownExceptions)? ItemIterator->first : L"Unknown exception"s;
+		const auto Name = ItemIterator != std::cend(KnownExceptions)? ItemIterator->first : L"Unknown exception"sv;
 		return format(L"0x{0:0>8X} - {1}", static_cast<DWORD>(Code), Name);
 	}(Context.code());
 
@@ -505,7 +505,7 @@ static bool ProcessGenericException(const exception_context& Context, const stri
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
 		Details = xr->NumberParameters? ExtractObjectName(xr) : L""s;
 		if (Message)
-			append(Details, Details.empty()? L""sv : L", "sv, L"what(): ", encoding::utf8::get_chars(Message));
+			append(Details, Details.empty()? L""sv : L", "sv, L"what(): "sv, encoding::utf8::get_chars(Message));
 		break;
 
 	default:
@@ -566,7 +566,7 @@ static std::string extract_nested_messages(const std::exception& Exception)
 	}
 	catch (...)
 	{
-		Result.append(" -> "s).append("Unknown exception");
+		Result.append(" -> "s).append("Unknown exception"s);
 	}
 
 	return Result;
@@ -715,7 +715,7 @@ static bool ExceptionTestHook(Manager::Key key)
 
 		static_assert(std::size(Names) == static_cast<size_t>(exception_types::count));
 
-		const auto ModalMenu = VMenu2::create(L"Test Exceptions", {}, ScrY - 4);
+		const auto ModalMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 4);
 		ModalMenu->SetMenuFlags(VMENU_WRAPMODE);
 		ModalMenu->SetPosition(-1, -1, 0, 0);
 

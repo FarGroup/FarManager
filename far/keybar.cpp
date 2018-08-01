@@ -236,8 +236,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		const auto KeyName = concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area]);
-		for (auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(KeyName))
+		for (auto& i: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area])))
 		{
 			DWORD Key = KeyNameToKey(i.first);
 			DWORD fnum = (Key & ~KEY_CTRLMASK) - KEY_F1;

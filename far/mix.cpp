@@ -268,23 +268,23 @@ SetAutocomplete::~SetAutocomplete()
 void ReloadEnvironment()
 {
 	// these are handled incorrectly by CreateEnvironmentBlock
-	std::vector<const wchar_t*> PreservedNames =
+	std::vector<string_view> PreservedNames =
 	{
-		L"USERDOMAIN", // absent
-		L"USERNAME", //absent
+		L"USERDOMAIN"sv, // absent
+		L"USERNAME"sv, //absent
 	};
 
 #ifndef _WIN64
 	if (os::IsWow64Process())
 	{
-		PreservedNames.emplace_back(L"PROCESSOR_ARCHITECTURE"); // Incorrect under WOW64
+		PreservedNames.emplace_back(L"PROCESSOR_ARCHITECTURE"sv); // Incorrect under WOW64
 	}
 #endif
 
-	std::vector<std::pair<const wchar_t*, string>> PreservedVariables;
+	std::vector<std::pair<string_view, string>> PreservedVariables;
 	PreservedVariables.reserve(std::size(PreservedNames));
 
-	std::transform(ALL_CONST_RANGE(PreservedNames), std::back_inserter(PreservedVariables), [](const wchar_t* i)
+	std::transform(ALL_CONST_RANGE(PreservedNames), std::back_inserter(PreservedVariables), [](string_view const i)
 	{
 		return std::make_pair(i, os::env::get(i));
 	});

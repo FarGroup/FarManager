@@ -674,18 +674,25 @@ size_t Dialog::InitDialogObjects(size_t ID)
 
 		if (Type==DI_BUTTON && ItemFlags&DIF_SETSHIELD)
 		{
-			Items[I].strData=L"\x2580\x2584 "+Items[I].strData;
+			static const auto Shield = L"\x2580\x2584 "sv;
+			Items[I].strData.insert(0, Shield.data(), Shield.size());
 		}
 
 		// для кнопок не имеющих стиля "Показывает заголовок кнопки без скобок"
 		//  добавим энти самые скобки
 		if (Type==DI_BUTTON && !(ItemFlags & DIF_NOBRACKETS))
 		{
-			LPCWSTR Brackets[]={L"[ ", L" ]", L"{ ",L" }"};
-			int Start=((Items[I].Flags&DIF_DEFAULTBUTTON)?2:0);
-			if (!Items[I].strData.empty() && Items[I].strData.front() != *Brackets[Start])
+			static const string_view Brackets[] =
 			{
-				Items[I].strData=Brackets[Start]+Items[I].strData+Brackets[Start+1];
+				L"[ "sv, L" ]"sv,
+				L"{ "sv, L" }"sv,
+			};
+
+			const auto Start = Items[I].Flags&DIF_DEFAULTBUTTON? 2 : 0;
+			if (!Items[I].strData.empty() && Items[I].strData.front() != Brackets[Start].front())
+			{
+				Items[I].strData.insert(0, Brackets[Start].data(), Brackets[Start].size());
+				Items[I].strData.append(Brackets[Start + 1].data(), Brackets[Start + 1].size());
 			}
 		}
 		// предварительный поиск фокуса
@@ -2024,7 +2031,7 @@ void Dialog::ShowDialog(size_t ID)
 					int EditX1,EditY1,EditX2,EditY2;
 					EditPtr->GetPosition(EditX1,EditY1,EditX2,EditY2);
 					//Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
-					Text(EditX2+1,EditY1,ItemColor[3],L"\x2193");
+					Text(EditX2 + 1, EditY1, ItemColor[3], L"\x2193"sv);
 				}
 
 				if (Items[I].Type == DI_COMBOBOX && GetDropDownOpened() && Items[I].ListPtr->IsVisible()) // need redraw VMenu?

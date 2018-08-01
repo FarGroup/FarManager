@@ -435,7 +435,7 @@ static bool RunAsSupported(const wchar_t* Name)
 	string Type;
 	return !Extension.empty() &&
 		GetShellType(Extension, Type) &&
-		os::reg::key::open(os::reg::key::classes_root, Type.append(L"\\shell\\runas\\command"), KEY_QUERY_VALUE);
+		os::reg::key::open(os::reg::key::classes_root, concat(Type, L"\\shell\\runas\\command"sv), KEY_QUERY_VALUE);
 }
 
 const auto CommandName = L"command"sv;
@@ -446,7 +446,7 @@ static bool IsShortcutType(string_view const Type)
 	if (!Key)
 		return false;
 
-	return Key.get(L"IsShortcut");
+	return Key.get(L"IsShortcut"sv);
 }
 
 static string GetShellActionForType(string_view const TypeName, string& KeyName)
@@ -612,9 +612,9 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 		if (aType == AT_FILEEXTENSION)
 		{
 			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
-			if ((UserKey = os::reg::key::open(os::reg::key::current_user, concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\", Ext), KEY_QUERY_VALUE)))
+			if ((UserKey = os::reg::key::open(os::reg::key::current_user, concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"sv, Ext), KEY_QUERY_VALUE)))
 			{
-				if (UserKey.get(L"ProgID", strFoundValue) && IsProperProgID(strFoundValue))
+				if (UserKey.get(L"ProgID"sv, strFoundValue) && IsProperProgID(strFoundValue))
 				{
 					strType = strFoundValue;
 				}
@@ -1427,7 +1427,7 @@ bool ExpandOSAliases(string& strStr)
 
 	strNewCmdStr.assign(Buffer.get());
 
-	if (!ReplaceStrings(strNewCmdStr, L"$*", strNewCmdPar) && !strNewCmdPar.empty())
+	if (!ReplaceStrings(strNewCmdStr, L"$*"sv, strNewCmdPar) && !strNewCmdPar.empty())
 		append(strNewCmdStr, L' ', strNewCmdPar);
 
 	strStr=strNewCmdStr;

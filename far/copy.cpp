@@ -1820,7 +1820,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							msg(lng::MCannotCopyFolderToItself2)
 						},
 						{ lng::MOk },
-						L"ErrCopyItSelf");
+						L"ErrCopyItSelf"sv);
 					return COPY_CANCEL;
 				}
 			}
@@ -2235,7 +2235,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				int AskDelete;
 
-				if (strDestFSName == L"NWFS" && !Append &&
+				if (strDestFSName == L"NWFS"sv && !Append &&
 				        DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
 				{
 					os::fs::delete_file(strDestPath); //BUGBUG
@@ -2268,7 +2268,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							IsSetSecuty=TRUE;
 					}
 
-					if (strDestFSName == L"NWFS")
+					if (strDestFSName == L"NWFS"sv)
 						FileMoved = os::fs::move_file(strSrcFullName, strDestPath);
 					else
 						FileMoved = os::fs::move_file(strSrcFullName, strDestPath, SameName ? MOVEFILE_COPY_ALLOWED : MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);

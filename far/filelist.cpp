@@ -1636,7 +1636,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				if (!m_CachedOpenPanelInfo.CurDir || !*m_CachedOpenPanelInfo.CurDir)
 				{
 					const auto OldParent = Parent();
-					ChangeDir(L"..");
+					ChangeDir(L".."sv);
 					NeedChangeDir = false;
 					//"this" мог быть удалён в ChangeDir
 					const auto ActivePanel = OldParent->ActivePanel();
@@ -1647,7 +1647,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			}
 
 			if (NeedChangeDir)
-				ChangeDir(L"\\");
+				ChangeDir(L"\\"sv);
 
 			Parent()->ActivePanel()->Show();
 			return true;
@@ -2508,7 +2508,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				//"this" может быть удалён в ChangeDir
 				const auto CheckFullScreen = IsFullScreen();
 				const auto OldParent = Parent();
-				ChangeDir(L"..");
+				ChangeDir(L".."sv);
 				const auto NewActivePanel = OldParent->ActivePanel();
 				NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
 
@@ -2792,13 +2792,13 @@ bool FileList::SetCurDir(const string& NewDir,bool ClosePanel,bool IsUpdated)
 	return false;
 }
 
-bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE ofp_type)
+bool FileList::ChangeDir(string_view const NewDir,bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE ofp_type)
 {
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::GetCurrentDirectory(), m_CurDir))
 		FarChDir(m_CurDir);
 
 	string strFindDir;
-	auto strSetDir = NewDir;
+	string strSetDir(NewDir);
 	bool dot2Present = strSetDir == L".."sv;
 
 	bool RootPath = false;
@@ -3006,7 +3006,7 @@ bool FileList::ChangeDir(const string& NewDir,bool ResolvePath,bool IsUpdated, c
 	return SetDirectorySuccess;
 }
 
-bool FileList::ChangeDir(const string & NewDir)
+bool FileList::ChangeDir(string_view const NewDir)
 {
 	return ChangeDir(NewDir, false, true, nullptr, OFP_NORMAL);
 }
@@ -3924,7 +3924,8 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 	   чтобы подобные имена захватывались полученной маской - это специфика,
 	   диктуемая CmpName.
 	*/
-	string strMask=L"*.*", strRawMask;
+	auto strMask = L"*.*"s;
+	string strRawMask;
 	bool WrapBrackets=false; // говорит о том, что нужно взять кв.скобки в скобки
 
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
@@ -3962,14 +3963,13 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 		if (Mode==SELECT_ADDNAME || Mode==SELECT_REMOVENAME)
 		{
 			// Учтем тот момент, что имя может содержать символы-разделители
-			strRawMask = L"\""s;
-			strRawMask+=strCurName;
+			strRawMask = concat(L"\""sv, strCurName);
 			size_t pos = strRawMask.rfind(L'.');
 
 			if (pos != string::npos && pos!=strRawMask.size()-1)
 				strRawMask.resize(pos);
 
-			strRawMask += L".*\""s;
+			append(strRawMask, L".*\""sv);
 			WrapBrackets=true;
 			Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
 		}
@@ -5159,7 +5159,7 @@ bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 	if (!std::get<0>(HelpFileData))
 		return false;
 
-	Help::create(Help::MakeLink(strPath, L"Contents"));
+	Help::create(Help::MakeLink(strPath, L"Contents"sv));
 	return true;
 }
 
@@ -6508,7 +6508,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	}
 	else
 	{
-		if (FileSystemName != L"NTFS")
+		if (FileSystemName != L"NTFS"sv)
 		{
 			m_HardlinksSupported = false;
 		}

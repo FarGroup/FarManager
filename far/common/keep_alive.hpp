@@ -1,15 +1,12 @@
-﻿#ifndef DIRMIX_HPP_7386031B_A22B_4851_8BC6_24E90C9798D5
-#define DIRMIX_HPP_7386031B_A22B_4851_8BC6_24E90C9798D5
+﻿#ifndef KEEP_ALIVE_HPP_9C3E665F_56D5_4A21_9950_F1F8F6BFC7A3
+#define KEEP_ALIVE_HPP_9C3E665F_56D5_4A21_9950_F1F8F6BFC7A3
 #pragma once
 
 /*
-dirmix.hpp
-
-Misc functions for working with directories
+keep_alive.hpp
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2018 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,26 +32,39 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-enum TESTFOLDERCONST  // for TestFolder()
+namespace detail
 {
-	TSTFLD_ERROR     = -2,
-	TSTFLD_NOTACCESS = -1,
-	TSTFLD_NOTFOUND  =  0,
-	TSTFLD_EMPTY     =  1,
-	TSTFLD_NOTEMPTY  =  2,
-};
+	template<typename type>
+	class keep_alive_t
+	{
+	public:
+		explicit keep_alive_t(type const& Value):
+			m_Value(Value)
+		{}
 
-/* $ 15.02.2002 IS
-   Установка нужного диска и каталога и установление соответствующей переменной
-   окружения. В случае успеха возвращается не ноль.
-   Если ChangeDir==FALSE, то не меняем текущий  диск, а только устанавливаем
-   переменные окружения.
-*/
-bool FarChDir(string_view NewDir, bool ChangeDir = true);
+		explicit keep_alive_t(std::remove_reference_t<type>&& Value):
+			m_Value(FWD(Value))
+		{}
 
-int TestFolder(const string& Name);
-bool CheckShortcutFolder(string& pTestPath, bool TryClosest, bool Silent);
+		operator const type&() const { return m_Value; }
+		auto operator&() const { return &m_Value; }
+		auto& get() const { return m_Value; }
 
-void CreatePath(const string &Path, bool Simple=false);
+	private:
+		type m_Value;
+	};
+}
 
-#endif // DIRMIX_HPP_7386031B_A22B_4851_8BC6_24E90C9798D5
+template<typename type>
+auto keep_alive(type& Value)
+{
+	return detail::keep_alive_t<type&>(Value);
+}
+
+template<typename type>
+auto keep_alive(type&& Value)
+{
+	return detail::keep_alive_t<type>(FWD(Value));
+}
+
+#endif // KEEP_ALIVE_HPP_9C3E665F_56D5_4A21_9950_F1F8F6BFC7A3

@@ -533,11 +533,11 @@ void Plugin::SetGuid(const GUID& Guid)
 
 static string VersionToString(const VersionInfo& PluginVersion)
 {
-	static const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
+	static const string_view Stage[] = { L" Release"sv, L" Alpha"sv, L" Beta"sv, L" RC"sv };
 	auto strVersion = format(L"{0}.{1}.{2} (build {3})", PluginVersion.Major, PluginVersion.Minor, PluginVersion.Revision, PluginVersion.Build);
 	if(PluginVersion.Stage != VS_RELEASE && static_cast<size_t>(PluginVersion.Stage) < std::size(Stage))
 	{
-		strVersion += Stage[PluginVersion.Stage];
+		append(strVersion, Stage[PluginVersion.Stage]);
 	}
 	return strVersion;
 }
@@ -713,7 +713,7 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 			return std::make_pair(nullptr, PlCache->GetExportState(id, i.UName));
 		});
 
-		WorkFlags.Set(PIWF_CACHED); //too much "cached" flags
+		WorkFlags.Set(PIWF_CACHED); //too many "cached" flags
 		return true;
 	}
 	return false;

@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "filestr.hpp"
 #include "encoding.hpp"
-#include "string_utils.hpp"
 #include "exception.hpp"
 #include "datetime.hpp"
 #include "global.hpp"

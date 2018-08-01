@@ -38,8 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "config.hpp"
 
-#include "common/enum_substrings.hpp"
-
 #include "format.hpp"
 
 template<class T>
@@ -311,14 +309,14 @@ DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(IntOpti
 	return new FarRadioButtonBinding<IntOption>(Value);
 }
 
-DialogItemEx *DialogBuilder::AddEditField(string& Value, int Width, const wchar_t *HistoryID, FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddEditField(string& Value, int Width, string_view const HistoryID, FARDIALOGITEMFLAGS Flags)
 {
 	const auto Item = AddDialogItem(DI_EDIT, Value.c_str());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
-	if (HistoryID)
+	if (!HistoryID.empty())
 	{
-		Item->strHistory = HistoryID;
+		assign(Item->strHistory, HistoryID);
 		Item->Flags |= DIF_HISTORY;
 	}
 	Item->Flags |= Flags;
@@ -327,14 +325,14 @@ DialogItemEx *DialogBuilder::AddEditField(string& Value, int Width, const wchar_
 	return Item;
 }
 
-DialogItemEx *DialogBuilder::AddEditField(StringOption& Value, int Width, const wchar_t *HistoryID, FARDIALOGITEMFLAGS Flags)
+DialogItemEx *DialogBuilder::AddEditField(StringOption& Value, int Width, string_view const HistoryID, FARDIALOGITEMFLAGS Flags)
 {
 	const auto Item = AddDialogItem(DI_EDIT, Value.c_str());
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width;
-	if (HistoryID)
+	if (!HistoryID.empty())
 	{
-		Item->strHistory = HistoryID;
+		assign(Item->strHistory, HistoryID);
 		Item->Flags |= DIF_HISTORY;
 	}
 	Item->Flags |= Flags;

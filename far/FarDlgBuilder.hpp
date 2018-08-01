@@ -126,8 +126,8 @@ public:
 	virtual DialogItemEx *AddHexEditField(IntOption& Value, int Width);
 
 	// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
-	DialogItemEx *AddEditField(string& Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
-	DialogItemEx *AddEditField(StringOption& Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
+	DialogItemEx *AddEditField(string& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
+	DialogItemEx *AddEditField(StringOption& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
 
 	// Добавляет поле типа DI_FIXEDIT для редактирования указанного строкового значения.
 	DialogItemEx *AddFixEditField(string& Value, int Width, const wchar_t *Mask = nullptr);

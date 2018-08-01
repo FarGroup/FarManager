@@ -46,7 +46,7 @@ class Help:public Modal
 	struct private_tag {};
 
 public:
-	static help_ptr create(const string& Topic, const wchar_t *Mask = nullptr, unsigned long long Flags=0);
+	static help_ptr create(string_view Topic, const wchar_t *Mask = nullptr, unsigned long long Flags=0);
 	explicit Help(private_tag);
 
 	bool  ProcessKey(const Manager::Key& Key) override;
@@ -70,7 +70,7 @@ private:
 	void DisplayObject() override;
 	string GetTitle() const override { return {}; }
 
-	void init(const string& Topic, const wchar_t *Mask, unsigned long long Flags);
+	void init(string_view Topic, const wchar_t *Mask, unsigned long long Flags);
 	bool ReadHelp(const string& Mask);
 	void AddLine(string_view Line);
 	void AddTitle(string_view Title);

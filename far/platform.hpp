@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/range.hpp"
+
 namespace os
 {
 	enum
@@ -58,18 +60,18 @@ namespace os
 		template<typename buffer_type, typename receiver, typename condition, typename assigner>
 		bool ApiDynamicReceiver(buffer_type&& Buffer, const receiver& Receiver, const condition& Condition, const assigner& Assigner)
 		{
-			auto Size = Receiver(Buffer.get(), Buffer.size());
+			auto Size = Receiver(make_range(Buffer.get(), Buffer.size()));
 
 			while (Condition(Size, Buffer.size()))
 			{
 				Buffer.reset(Size? Size : Buffer.size() * 2);
-				Size = Receiver(Buffer.get(), Buffer.size());
+				Size = Receiver(make_range(Buffer.get(), Buffer.size()));
 			}
 
 			if (!Size)
 				return false;
 
-			Assigner(Buffer.get(), Size);
+			Assigner(make_range(Buffer.get(), Size));
 			return true;
 		}
 
@@ -88,9 +90,9 @@ namespace os
 					// It's Callable's responsibility to handle and fix that.
 					return ReturnedSize >= AllocatedSize;
 				},
-				[&](const wchar_t* Buffer, size_t Size)
+				[&](range<wchar_t*> Buffer)
 				{
-					Destination.assign(Buffer, Size);
+					Destination.assign(ALL_CONST_RANGE(Buffer));
 				});
 		}
 
@@ -104,9 +106,9 @@ namespace os
 				{
 					return !ReturnedSize && GetLastError() == ExpectedErrorCode;
 				},
-				[&](const wchar_t* Buffer, size_t Size)
+				[&](range<wchar_t*> Buffer)
 				{
-					Destination.assign(Buffer, Size);
+					Destination.assign(ALL_CONST_RANGE(Buffer));
 				});
 		}
 
@@ -187,8 +189,8 @@ namespace os
 			NONCOPYABLE(module);
 			MOVABLE(module);
 
-			explicit module(string name, bool AlternativeLoad = false):
-				m_name(std::move(name)),
+			explicit module(string_view const Name, bool AlternativeLoad = false):
+				m_name(ALL_CONST_RANGE(Name)),
 				m_tried(),
 				m_AlternativeLoad(AlternativeLoad)
 			{}

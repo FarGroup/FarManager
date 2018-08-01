@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 // Ключ где хранятся имена кодовых страниц
-static const wchar_t NamesOfCodePagesKey[] = L"CodePages.Names";
+static const auto NamesOfCodePagesKey = L"CodePages.Names"sv;
 
 // Источник вызова каллбака прохода по кодовым страницам
 enum CodePagesCallbackCallSource: int
@@ -97,10 +97,9 @@ uintptr_t codepages::GetMenuItemCodePage(size_t Position) const
 	return CodePagesMenu->GetSimpleUserData(static_cast<int>(Position));
 }
 
-const string& codepages::FavoriteCodePagesKey()
+string_view codepages::FavoriteCodePagesKey()
 {
-	static const auto sFavourites = L"CodePages.Favorites"s;
-	return sFavourites;
+	return L"CodePages.Favorites"sv;
 }
 
 size_t codepages::GetListItemCodePage(size_t Position) const
@@ -512,7 +511,7 @@ void codepages::FillCodePagesVMenu(bool bShowUnicode, bool bViewOnly, bool bShow
 
 	string title = msg(lng::MGetCodePageTitle);
 	if (Global->Opt->CPMenuMode)
-		append(title, L" *");
+		append(title, L" *"sv);
 	CodePagesMenu->SetTitle(title);
 
 	// Добавляем таблицы символов
