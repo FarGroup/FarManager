@@ -270,15 +270,52 @@ namespace detail
 	{
 		return select_iterator<T, accessor>(Iterator, Accessor);
 	}
+
+	template<typename container, typename container_ref, typename accessor, typename accessor_ref, typename T>
+	class selector
+	{
+	public:
+		selector(container_ref Container, accessor_ref Accessor):
+			m_Container(FWD(Container)),
+			m_Accessor(FWD(Accessor))
+		{
+		}
+
+		auto begin()        { return make(this); }
+		auto end()          { return make(this); }
+		auto begin()  const { return make(this); }
+		auto end()    const { return make(this); }
+		auto cbegin() const { return make(this); }
+		auto cend()   const { return make(this); }
+
+	private:
+		template<typename self>
+		static auto make(self Self)
+		{
+			return make_select_iterator(std::cend(Self->m_Container), Self->m_Accessor);
+		}
+
+		container m_Container;
+		accessor m_Accessor;
+	};
+
+	template<typename arg_type>
+	using stored_type = std::conditional_t<
+		std::is_rvalue_reference_v<arg_type>,
+		std::remove_reference_t<arg_type>,
+		std::add_lvalue_reference_t<std::remove_reference_t<arg_type>>
+	>;
 }
 
 template<typename container, typename accessor>
 [[nodiscard]]
-auto select(container&& Container, const accessor& Selector)
+auto select(container&& Container, accessor&& Accessor)
 {
-	return make_range(
-		detail::make_select_iterator(std::begin(Container), Selector),
-		detail::make_select_iterator(std::end(Container), Selector));
+	return detail::selector<
+		detail::stored_type<decltype(Container)>, decltype(Container),
+		detail::stored_type<decltype(Accessor)>, decltype(Accessor),
+		decltype(std::begin(Container))
+	>(FWD(Container), FWD(Accessor));
 }
 
 #endif // RANGE_HPP_3B87674F_96D1_487D_B83E_43E43EFBA4D3
