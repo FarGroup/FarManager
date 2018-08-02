@@ -219,7 +219,7 @@ static void DeserializeMenu(UserMenu::menu_container& Menu, const os::fs::file& 
 {
 	Codepage = GetFileCodepage(File, encoding::codepage::oem());
 	enum_file_lines EnumFileLines(File, Codepage);
-	ParseMenu(Menu, make_range(EnumFileLines), Codepage == encoding::codepage::oem());
+	ParseMenu(Menu, EnumFileLines, Codepage == encoding::codepage::oem());
 
 	if (!IsUnicodeOrUtfCodePage(Codepage))
 	{

@@ -1825,7 +1825,7 @@ namespace os::fs
 		{
 			return ReturnedSize > AllocatedSize;
 		},
-		[](...)
+		[](range<const SECURITY_DESCRIPTOR*>)
 		{});
 
 		return Result;

@@ -48,4 +48,20 @@ using is_one_of = std::disjunction<std::is_same<type, args>...>;
 template<typename type, typename... args>
 constexpr bool is_one_of_v = is_one_of<type, args...>::value;
 
+namespace detail
+{
+	template<typename type>
+	using try_begin = decltype(std::begin(std::declval<type&>()));
+
+	template<typename type>
+	using try_end = decltype(std::end(std::declval<type&>()));
+}
+
+template<class type>
+using is_range = std::conjunction<is_valid<type, detail::try_begin>, is_valid<type, detail::try_end>>;
+
+template<class type>
+constexpr bool is_range_v = is_range<type>::value;
+
+
 #endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

@@ -1333,7 +1333,7 @@ void Options::SetFilePanelModes()
 			}
 			else
 			{
-				ResetViewModes(make_range(&NewSettings, 1), ModeNumber);
+				ResetViewModes({ &NewSettings, 1 }, ModeNumber);
 			}
 
 			if (AddNewMode)
@@ -1395,7 +1395,7 @@ struct FARConfigItem
 		{
 			static const lng Buttons[] = { lng::MOk, lng::MReset, lng::MCancel };
 			Builder.AddSeparator();
-			Builder.AddButtons(make_range(Buttons), 0, 2);
+			Builder.AddButtons(Buttons, 0, 2);
 			Result = Builder.ShowDialogEx();
 		}
 		if(Result == 0 || Result == 1)
@@ -2017,8 +2017,8 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyPanel,                  L"LeftFocus"sv,                     OPT_DEF(LeftFocus, true)},
 	};
 
-	m_Configs.emplace_back(make_range(RoamingData), ConfigProvider().GeneralCfg().get());
-	m_Configs.emplace_back(make_range(LocalData), ConfigProvider().LocalGeneralCfg().get());
+	m_Configs.emplace_back(RoamingData, ConfigProvider().GeneralCfg().get());
+	m_Configs.emplace_back(LocalData, ConfigProvider().LocalGeneralCfg().get());
 }
 
 Options::farconfig& Options::GetConfig(config_type Type)
@@ -2718,7 +2718,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuChangeDrive), 0, KEY_ALTF1 },
 	};
 	ApplyViewModesNames(LeftMenu);
-	const auto LeftMenuStrings = VMenu::AddHotkeys(make_range(LeftMenu));
+	const auto LeftMenuStrings = VMenu::AddHotkeys(LeftMenu);
 
 	menu_item FilesMenu[]
 	{
@@ -2744,7 +2744,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuInvertSelection), 0, KEY_MULTIPLY },
 		{ msg(lng::MMenuRestoreSelection), 0, KEY_CTRLM },
 	};
-	const auto FilesMenuStrings = VMenu::AddHotkeys(make_range(FilesMenu));
+	const auto FilesMenuStrings = VMenu::AddHotkeys(FilesMenu);
 
 	menu_item CmdMenu[]
 	{
@@ -2769,7 +2769,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuProcessList), 0, KEY_CTRLW },
 		{ msg(lng::MMenuHotPlugList), 0, 0 },
 	};
-	const auto CmdMenuStrings = VMenu::AddHotkeys(make_range(CmdMenu));
+	const auto CmdMenuStrings = VMenu::AddHotkeys(CmdMenu);
 
 	menu_item OptionsMenu[]
 	{
@@ -2801,7 +2801,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ {}, LIF_SEPARATOR },
 		{ msg(lng::MMenuSaveSetup), 0, KEY_SHIFTF9 },
 	};
-	const auto OptionsMenuStrings = VMenu::AddHotkeys(make_range(OptionsMenu));
+	const auto OptionsMenuStrings = VMenu::AddHotkeys(OptionsMenu);
 
 	menu_item RightMenu[]=
 	{
@@ -2827,16 +2827,16 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{ msg(lng::MMenuChangeDriveRight), 0, KEY_ALTF2 },
 	};
 	ApplyViewModesNames(RightMenu);
-	const auto RightMenuStrings = VMenu::AddHotkeys(make_range(RightMenu));
+	const auto RightMenuStrings = VMenu::AddHotkeys(RightMenu);
 
 
 	HMenuData MainMenu[]
 	{
-		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"sv, make_range(LeftMenu), true },
-		{ msg(lng::MMenuFilesTitle), L"FilesMenu"sv, make_range(FilesMenu) },
-		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"sv, make_range(CmdMenu) },
-		{ msg(lng::MMenuOptionsTitle), L"OptMenu"sv, make_range(OptionsMenu) },
-		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"sv, make_range(RightMenu) },
+		{ msg(lng::MMenuLeftTitle), L"LeftRightMenu"sv, LeftMenu, true },
+		{ msg(lng::MMenuFilesTitle), L"FilesMenu"sv, FilesMenu },
+		{ msg(lng::MMenuCommandsTitle), L"CmdMenu"sv, CmdMenu },
+		{ msg(lng::MMenuOptionsTitle), L"OptMenu"sv, OptionsMenu },
+		{ msg(lng::MMenuRightTitle), L"LeftRightMenu"sv, RightMenu },
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;

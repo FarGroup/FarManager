@@ -171,11 +171,10 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtUpdateValue, L"UPDATE general_config SET value=?3 WHERE key=?1 AND name=?2;"sv },
-			{ stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);"sv },
-			{ stmtGetValue, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;"sv },
-			{ stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;"sv },
-			{ stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;"sv },
+			{ stmtSetValue,              "REPLACE INTO general_config VALUES (?1,?2,?3);"sv },
+			{ stmtGetValue,              "SELECT value FROM general_config WHERE key=?1 AND name=?2;"sv },
+			{ stmtDelValue,              "DELETE FROM general_config WHERE key=?1 AND name=?2;"sv },
+			{ stmtEnumValues,            "SELECT name, value FROM general_config WHERE key=?1;"sv },
 		};
 
 		return
@@ -241,7 +240,7 @@ private:
 	{
 		auto& root = CreateChild(Representation.GetRoot(), GetKeyName());
 
-		auto stmtEnumAllValues = create_stmt(L"SELECT key, name, value FROM general_config ORDER BY key, name;"sv);
+		auto stmtEnumAllValues = create_stmt("SELECT key, name, value FROM general_config ORDER BY key, name;"sv);
 
 		while (stmtEnumAllValues.Step())
 		{
@@ -328,10 +327,7 @@ private:
 	template<class T>
 	bool SetValueT(const string_view Key, const string_view Name, const T Value)
 	{
-		bool b = ExecuteStatement(stmtUpdateValue, Key, Name, Value);
-		if (!b || !Changes())
-			b = ExecuteStatement(stmtInsertValue, Key, Name, Value);
-		return b;
+		return ExecuteStatement(stmtSetValue, Key, Name, Value);
 	}
 
 	template<class T, class getter_t>
@@ -353,8 +349,7 @@ private:
 
 	enum statement_id
 	{
-		stmtUpdateValue,
-		stmtInsertValue,
+		stmtSetValue,
 		stmtGetValue,
 		stmtDelValue,
 		stmtEnumValues,
@@ -439,15 +434,15 @@ protected:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
-			{ stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
-			{ stmtSetKeyDescription, L"UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;"sv },
-			{ stmtSetValue, L"INSERT OR REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
-			{ stmtGetValue, L"SELECT value FROM table_values WHERE key_id=?1 AND name=?2;"sv },
-			{ stmtEnumKeys, L"SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;"sv },
-			{ stmtEnumValues, L"SELECT name, value FROM table_values WHERE key_id=?1;"sv },
-			{ stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;"sv },
-			{ stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;"sv },
+			{ stmtCreateKey,             "REPLACE INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
+			{ stmtFindKey,               "SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
+			{ stmtSetKeyDescription,     "UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;"sv },
+			{ stmtSetValue,              "REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
+			{ stmtGetValue,              "SELECT value FROM table_values WHERE key_id=?1 AND name=?2;"sv },
+			{ stmtEnumKeys,              "SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;"sv },
+			{ stmtEnumValues,            "SELECT name, value FROM table_values WHERE key_id=?1;"sv },
+			{ stmtDelValue,              "DELETE FROM table_values WHERE key_id=?1 AND name=?2;"sv },
+			{ stmtDeleteTree,            "DELETE FROM table_keys WHERE id=?1 AND id<>0;"sv },
 		};
 
 		return
@@ -618,7 +613,7 @@ protected:
 			}
 		}
 
-		auto stmtEnumSubKeys = create_stmt(L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;"sv);
+		auto stmtEnumSubKeys = create_stmt("SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;"sv);
 		stmtEnumSubKeys.Bind(Key.get());
 		while (stmtEnumSubKeys.Step())
 		{
@@ -803,10 +798,9 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtUpdateValue, L"UPDATE colors SET value=?2 WHERE name=?1;"sv },
-			{ stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);"sv },
-			{ stmtGetValue, L"SELECT value FROM colors WHERE name=?1;"sv },
-			{ stmtDelValue, L"DELETE FROM colors WHERE name=?1;"sv },
+			{ stmtSetValue,              "REPLACE INTO colors VALUES (?1,?2);"sv },
+			{ stmtGetValue,              "SELECT value FROM colors WHERE name=?1;"sv },
+			{ stmtDelValue,              "DELETE FROM colors WHERE name=?1;"sv },
 		};
 
 		return
@@ -817,11 +811,7 @@ private:
 
 	bool SetValue(const string_view Name, const FarColor& Value) override
 	{
-		const auto Blob = bytes_view(Value);
-		bool b = ExecuteStatement(stmtUpdateValue, Name, Blob);
-		if (!b || !Changes())
-			b = ExecuteStatement(stmtInsertValue, Name, Blob);
-		return b;
+		return ExecuteStatement(stmtSetValue, Name, bytes_view(Value));
 	}
 
 	bool GetValue(const string_view Name, FarColor& Value) const override
@@ -838,7 +828,7 @@ private:
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "colors");
 
-		auto stmtEnumAllValues = create_stmt(L"SELECT name, value FROM colors ORDER BY name;"sv);
+		auto stmtEnumAllValues = create_stmt("SELECT name, value FROM colors ORDER BY name;"sv);
 
 		while (stmtEnumAllValues.Step())
 		{
@@ -884,8 +874,7 @@ private:
 
 	enum statement_id
 	{
-		stmtUpdateValue,
-		stmtInsertValue,
+		stmtSetValue,
 		stmtGetValue,
 		stmtDelValue,
 
@@ -911,19 +900,19 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);"sv },
-			{ stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);"sv },
-			{ stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;"sv },
-			{ stmtGetDescription, L"SELECT description FROM filetypes WHERE id=?1;"sv },
-			{ stmtUpdateType, L"UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;"sv },
-			{ stmtSetCommand, L"INSERT OR REPLACE INTO commands VALUES (?1,?2,?3,?4);"sv },
-			{ stmtGetCommand, L"SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;"sv },
-			{ stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY weight;"sv },
-			{ stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY weight;"sv },
-			{ stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;"sv },
-			{ stmtDelType, L"DELETE FROM filetypes WHERE id=?1;"sv },
-			{ stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;"sv },
-			{ stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;"sv },
+			{ stmtReorder,               "UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);"sv },
+			{ stmtAddType,               "INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);"sv },
+			{ stmtGetMask,               "SELECT mask FROM filetypes WHERE id=?1;"sv },
+			{ stmtGetDescription,        "SELECT description FROM filetypes WHERE id=?1;"sv },
+			{ stmtUpdateType,            "UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;"sv },
+			{ stmtSetCommand,            "REPLACE INTO commands VALUES (?1,?2,?3,?4);"sv },
+			{ stmtGetCommand,            "SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;"sv },
+			{ stmtEnumTypes,             "SELECT id, description FROM filetypes ORDER BY weight;"sv },
+			{ stmtEnumMasks,             "SELECT id, mask FROM filetypes ORDER BY weight;"sv },
+			{ stmtEnumMasksForType,      "SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;"sv },
+			{ stmtDelType,               "DELETE FROM filetypes WHERE id=?1;"sv },
+			{ stmtGetWeight,             "SELECT weight FROM filetypes WHERE id=?1;"sv },
+			{ stmtSetWeight,             "UPDATE filetypes SET weight=?1 WHERE id=?2;"sv },
 		};
 
 		return
@@ -1037,8 +1026,8 @@ private:
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "associations");
 
-		auto stmtEnumAllTypes = create_stmt(L"SELECT id, mask, description FROM filetypes ORDER BY weight;"sv);
-		auto stmtEnumCommandsPerFiletype = create_stmt(L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;"sv);
+		auto stmtEnumAllTypes = create_stmt("SELECT id, mask, description FROM filetypes ORDER BY weight;"sv);
+		auto stmtEnumCommandsPerFiletype = create_stmt("SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;"sv);
 
 		while (stmtEnumAllTypes.Step())
 		{
@@ -1173,35 +1162,35 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);,"sv },
-			{ stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;"sv },
-			{ stmtDelCache, L"DELETE FROM cachename WHERE name=?1;"sv },
-			{ stmtCountCacheNames, L"SELECT count(name) FROM cachename;"sv },
-			{ stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;"sv },
-			{ stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;"sv },
-			{ stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;"sv },
-			{ stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;"sv },
-			{ stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;"sv },
-			{ stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;"sv },
-			{ stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;"sv },
-			{ stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;"sv },
-			{ stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;"sv },
-			{ stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;"sv },
-			{ stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;"sv },
-			{ stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);"sv },
-			{ stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);"sv },
-			{ stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);"sv },
-			{ stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);"sv },
-			{ stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);"sv },
-			{ stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);"sv },
-			{ stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);"sv },
-			{ stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);"sv },
-			{ stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);,"sv },
-			{ stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);"sv },
-			{ stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);"sv },
-			{ stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;"sv },
-			{ stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;"sv },
-			{ stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);"sv },
+			{ stmtCreateCache,           "INSERT INTO cachename VALUES (NULL,?1);,"sv },
+			{ stmtFindCacheName,         "SELECT id FROM cachename WHERE name=?1;"sv },
+			{ stmtDelCache,              "DELETE FROM cachename WHERE name=?1;"sv },
+			{ stmtCountCacheNames,       "SELECT count(name) FROM cachename;"sv },
+			{ stmtGetPreloadState,       "SELECT enabled FROM preload WHERE cid=?1;"sv },
+			{ stmtGetSignature,          "SELECT signature FROM signatures WHERE cid=?1;"sv },
+			{ stmtGetExportState,        "SELECT enabled FROM exports WHERE cid=?1 and export=?2;"sv },
+			{ stmtGetGuid,               "SELECT guid FROM guids WHERE cid=?1;"sv },
+			{ stmtGetTitle,              "SELECT title FROM titles WHERE cid=?1;"sv },
+			{ stmtGetAuthor,             "SELECT author FROM authors WHERE cid=?1;"sv },
+			{ stmtGetPrefix,             "SELECT prefix FROM prefixes WHERE cid=?1;"sv },
+			{ stmtGetDescription,        "SELECT description FROM descriptions WHERE cid=?1;"sv },
+			{ stmtGetFlags,              "SELECT bitmask FROM flags WHERE cid=?1;"sv },
+			{ stmtGetMinFarVersion,      "SELECT version FROM minfarversions WHERE cid=?1;"sv },
+			{ stmtGetVersion,            "SELECT version FROM pluginversions WHERE cid=?1;"sv },
+			{ stmtSetPreloadState,       "REPLACE INTO preload VALUES (?1,?2);"sv },
+			{ stmtSetSignature,          "REPLACE INTO signatures VALUES (?1,?2);"sv },
+			{ stmtSetExportState,        "REPLACE INTO exports VALUES (?1,?2,?3);"sv },
+			{ stmtSetGuid,               "REPLACE INTO guids VALUES (?1,?2);"sv },
+			{ stmtSetTitle,              "REPLACE INTO titles VALUES (?1,?2);"sv },
+			{ stmtSetAuthor,             "REPLACE INTO authors VALUES (?1,?2);"sv },
+			{ stmtSetPrefix,             "REPLACE INTO prefixes VALUES (?1,?2);"sv },
+			{ stmtSetDescription,        "REPLACE INTO descriptions VALUES (?1,?2);"sv },
+			{ stmtSetFlags,              "REPLACE INTO flags VALUES (?1,?2);,"sv },
+			{ stmtSetMinFarVersion,      "REPLACE INTO minfarversions VALUES (?1,?2);"sv },
+			{ stmtSetVersion,            "REPLACE INTO pluginversions VALUES (?1,?2);"sv },
+			{ stmtEnumCache,             "SELECT name FROM cachename ORDER BY name;"sv },
+			{ stmtGetMenuItem,           "SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;"sv },
+			{ stmtSetMenuItem,           "REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);"sv },
 		};
 
 		return
@@ -1491,10 +1480,10 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
-			{ stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);"sv },
-			{ stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
-			{ stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;"sv },
+			{ stmtGetHotkey,             "SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
+			{ stmtSetHotkey,             "REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);"sv },
+			{ stmtDelHotkey,             "DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
+			{ stmtCheckForHotkeys,       "SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;"sv },
 		};
 
 		return
@@ -1532,8 +1521,8 @@ private:
 	{
 		auto& root = CreateChild(Representation.GetRoot(), "pluginhotkeys");
 
-		auto stmtEnumAllPluginKeys = create_stmt(L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;"sv);
-		auto stmtEnumAllHotkeysPerKey = create_stmt(L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;"sv);
+		auto stmtEnumAllPluginKeys = create_stmt("SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;"sv);
+		auto stmtEnumAllHotkeysPerKey = create_stmt("SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;"sv);
 
 		while (stmtEnumAllPluginKeys.Step())
 		{
@@ -1782,32 +1771,32 @@ private:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;"sv },
-			{ stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;"sv },
-			{ stmtDel, L"DELETE FROM history WHERE id=?1;"sv },
-			{ stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);"sv },
-			{ stmtEnumLargeHistories, L"SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;"sv },
-			{ stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);"sv },
-			{ stmtGetName, L"SELECT name FROM history WHERE id=?1;"sv },
-			{ stmtGetNameAndType, L"SELECT name, type, guid, file, data FROM history WHERE id=?1;"sv },
-			{ stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;"sv },
-			{ stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=?2;"sv },
-			{ stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;"sv },
-			{ stmtGetLock, L"SELECT lock FROM history WHERE id=?1;"sv },
-			{ stmtSetLock, L"UPDATE history SET lock=?1 WHERE id=?2"sv },
-			{ stmtGetNext, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;"sv },
-			{ stmtGetPrev, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;"sv },
-			{ stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;"sv },
-			{ stmtSetEditorPos, L"INSERT OR REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);"sv },
-			{ stmtSetEditorBookmark, L"INSERT OR REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);"sv },
-			{ stmtGetEditorPos, L"SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1 COLLATE NOCASE;"sv },
-			{ stmtGetEditorBookmark, L"SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;"sv },
-			{ stmtSetViewerPos, L"INSERT OR REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);"sv },
-			{ stmtSetViewerBookmark, L"INSERT OR REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);"sv },
-			{ stmtGetViewerPos, L"SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1 COLLATE NOCASE;"sv },
-			{ stmtGetViewerBookmark, L"SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;"sv },
-			{ stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);"sv },
-			{ stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);"sv },
+			{ stmtEnum,                  "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;"sv },
+			{ stmtEnumDesc,              "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;"sv },
+			{ stmtDel,                   "DELETE FROM history WHERE id=?1;"sv },
+			{ stmtDeleteOldUnlocked,     "DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);"sv },
+			{ stmtEnumLargeHistories,    "SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;"sv },
+			{ stmtAdd,                   "INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);"sv },
+			{ stmtGetName,               "SELECT name FROM history WHERE id=?1;"sv },
+			{ stmtGetNameAndType,        "SELECT name, type, guid, file, data FROM history WHERE id=?1;"sv },
+			{ stmtGetNewestName,         "SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;"sv },
+			{ stmtCount,                 "SELECT count(id) FROM history WHERE kind=?1 AND key=?2;"sv },
+			{ stmtDelUnlocked,           "DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;"sv },
+			{ stmtGetLock,               "SELECT lock FROM history WHERE id=?1;"sv },
+			{ stmtSetLock,               "UPDATE history SET lock=?1 WHERE id=?2"sv },
+			{ stmtGetNext,               "SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;"sv },
+			{ stmtGetPrev,               "SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;"sv },
+			{ stmtGetNewest,             "SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;"sv },
+			{ stmtSetEditorPos,          "REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);"sv },
+			{ stmtSetEditorBookmark,     "REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);"sv },
+			{ stmtGetEditorPos,          "SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1 COLLATE NOCASE;"sv },
+			{ stmtGetEditorBookmark,     "SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;"sv },
+			{ stmtSetViewerPos,          "REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);"sv },
+			{ stmtSetViewerBookmark,     "REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);"sv },
+			{ stmtGetViewerPos,          "SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1 COLLATE NOCASE;"sv },
+			{ stmtGetViewerBookmark,     "SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;"sv },
+			{ stmtDeleteOldEditor,       "DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);"sv },
+			{ stmtDeleteOldViewer,       "DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);"sv },
 		};
 
 		return

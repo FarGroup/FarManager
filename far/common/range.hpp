@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "rel_ops.hpp"
+#include "type_traits.hpp"
 
 template<class iterator_type>
 class range
@@ -46,14 +47,12 @@ public:
 
 	constexpr range() = default;
 
-	template<typename begin_type, typename end_type>
-	constexpr range(begin_type Begin, end_type End):
+	constexpr range(iterator Begin, iterator End):
 		m_Begin(Begin),
 		m_End(End)
 	{}
 
-	template<typename begin_type>
-	constexpr range(begin_type Begin, size_t Count):
+	constexpr range(pointer Begin, size_t Count):
 		range(Begin, Begin + Count)
 	{
 	}
@@ -61,6 +60,17 @@ public:
 	template<typename compatible_iterator, REQUIRES((std::is_convertible_v<compatible_iterator, iterator_type>))>
 	constexpr range(const range<compatible_iterator>& Rhs):
 		range(ALL_RANGE(Rhs))
+	{
+	}
+
+	template<typename container, REQUIRES(is_range_v<container>)>
+	constexpr range(container& Container):
+		range(ALL_RANGE(Container))
+	{
+	}
+
+	constexpr range(const std::initializer_list<value_type>& List):
+		range(ALL_RANGE(List))
 	{
 	}
 

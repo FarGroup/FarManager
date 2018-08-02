@@ -488,6 +488,56 @@ string join(const container& Container, string_view const Separator)
 }
 
 
+// uniform "contains"
+
+template<typename find_type, typename... traits>
+[[nodiscard]]
+bool contains(const std::basic_string<traits...>& Str, const find_type& What)
+{
+	return Str.find(What) != Str.npos;
+}
+
+template<typename find_type, typename... traits>
+[[nodiscard]]
+bool contains(const std::basic_string_view<traits...> Str, const find_type& What)
+{
+	return Str.find(What) != Str.npos;
+}
+
+#if defined _MSC_VER && _MSC_VER < 1910
+template<typename char_type>
+[[nodiscard]]
+bool contains(const std::basic_string<char_type>& Str, const std::basic_string_view<char_type> What)
+{
+	return Str.find(What.data(), 0, What.size()) != Str.npos;
+}
+#endif
+
+[[nodiscard]]
+inline bool contains(const wchar_t* const Str, const wchar_t* const What)
+{
+	return wcsstr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const wchar_t* const Str, wchar_t const What)
+{
+	return wcschr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const char* const Str, const char* const What)
+{
+	return strstr(Str, What) != nullptr;
+}
+
+[[nodiscard]]
+inline bool contains(const char* const Str, char const What)
+{
+	return strchr(Str, What) != nullptr;
+}
+
+
 // std::string_view is a drop-in replacement for const std::string& they say
 template<typename T>
 auto operator+(const std::basic_string<T>& Lhs, const std::basic_string_view<T> Rhs)

@@ -90,7 +90,7 @@ protected:
 
 		SQLiteStmt& Reset();
 		bool Step() const;
-		bool FinalStep() const;
+		bool Execute() const;
 
 		template<typename arg, typename... args>
 		auto& Bind(arg&& Arg, args&&... Args)
@@ -137,12 +137,12 @@ protected:
 	using auto_statement = std::unique_ptr<SQLiteStmt, statement_reset>;
 
 	template<typename T>
-	using stmt_init = std::pair<T, string_view>;
+	using stmt_init = std::pair<T, std::string_view>;
 
 	template<class T>
 	static auto transient(const T& Value) { return SQLiteStmt::transient_t<T>(Value); }
 
-	SQLiteStmt create_stmt(string_view Stmt) const;
+	SQLiteStmt create_stmt(std::string_view Stmt) const;
 
 	template<typename T, size_t N>
 	bool PrepareStatements(const stmt_init<T> (&Init)[N])
@@ -163,7 +163,6 @@ protected:
 	bool Exec(const char *Command) const;
 	bool SetWALJournalingMode() const;
 	bool EnableForeignKeysConstraints() const;
-	bool Changes() const;
 	unsigned long long LastInsertRowID() const;
 
 	// TODO: use in log
@@ -179,7 +178,7 @@ protected:
 	template<typename... args>
 	auto ExecuteStatement(size_t Index, args&&... Args) const
 	{
-		return AutoStatement(Index)->Bind(FWD(Args)...).FinalStep();
+		return AutoStatement(Index)->Bind(FWD(Args)...).Execute();
 	}
 
 	class db_initialiser

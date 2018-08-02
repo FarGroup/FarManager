@@ -60,18 +60,18 @@ namespace os
 		template<typename buffer_type, typename receiver, typename condition, typename assigner>
 		bool ApiDynamicReceiver(buffer_type&& Buffer, const receiver& Receiver, const condition& Condition, const assigner& Assigner)
 		{
-			auto Size = Receiver(make_range(Buffer.get(), Buffer.size()));
+			size_t Size = Receiver({ Buffer.get(), Buffer.size() });
 
 			while (Condition(Size, Buffer.size()))
 			{
 				Buffer.reset(Size? Size : Buffer.size() * 2);
-				Size = Receiver(make_range(Buffer.get(), Buffer.size()));
+				Size = Receiver({ Buffer.get(), Buffer.size() });
 			}
 
 			if (!Size)
 				return false;
 
-			Assigner(make_range(Buffer.get(), Size));
+			Assigner({ Buffer.get(), Size });
 			return true;
 		}
 
@@ -90,7 +90,7 @@ namespace os
 					// It's Callable's responsibility to handle and fix that.
 					return ReturnedSize >= AllocatedSize;
 				},
-				[&](range<wchar_t*> Buffer)
+				[&](range<const wchar_t*> Buffer)
 				{
 					Destination.assign(ALL_CONST_RANGE(Buffer));
 				});
@@ -106,7 +106,7 @@ namespace os
 				{
 					return !ReturnedSize && GetLastError() == ExpectedErrorCode;
 				},
-				[&](range<wchar_t*> Buffer)
+				[&](range<const wchar_t*> Buffer)
 				{
 					Destination.assign(ALL_CONST_RANGE(Buffer));
 				});

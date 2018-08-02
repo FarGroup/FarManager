@@ -811,7 +811,7 @@ static int wmain_seh(int Argc, const wchar_t* const Argv[])
 
 	try
 	{
-		return mainImpl(make_range(Argv + 1, Argv + Argc));
+		return mainImpl({ Argv + 1, Argv + Argc });
 	}
 	catch(const language::exception& e)
 	{

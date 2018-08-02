@@ -192,54 +192,6 @@ std::enable_if_t<!detail::has_emplace_hint_v<container>> emplace(container& Cont
 
 // uniform "contains"
 
-// strings:
-template<typename find_type, typename... traits>
-[[nodiscard]]
-bool contains(const std::basic_string<traits...>& Str, const find_type& What)
-{
-	return Str.find(What) != Str.npos;
-}
-
-template<typename find_type, typename... traits>
-[[nodiscard]]
-bool contains(const std::basic_string_view<traits...> Str, const find_type& What)
-{
-	return Str.find(What) != Str.npos;
-}
-
-#if defined _MSC_VER && _MSC_VER < 1910
-template<typename char_type>
-[[nodiscard]]
-bool contains(const std::basic_string<char_type>& Str, const std::basic_string_view<char_type> What)
-{
-	return Str.find(What.data(), 0, What.size()) != Str.npos;
-}
-#endif
-
-[[nodiscard]]
-inline bool contains(const wchar_t* const Str, const wchar_t* const What)
-{
-	return wcsstr(Str, What) != nullptr;
-}
-
-[[nodiscard]]
-inline bool contains(const wchar_t* const Str, wchar_t const What)
-{
-	return wcschr(Str, What) != nullptr;
-}
-
-[[nodiscard]]
-inline bool contains(const char* const Str, const char* const What)
-{
-	return strstr(Str, What) != nullptr;
-}
-
-[[nodiscard]]
-inline bool contains(const char* const Str, char const What)
-{
-	return strchr(Str, What) != nullptr;
-}
-
 namespace detail
 {
 	template<typename T>
@@ -247,19 +199,10 @@ namespace detail
 
 	template<class T>
 	constexpr bool has_find_v = is_valid<T, try_find>::value;
-
-	template<typename T>
-	using try_begin = decltype(std::begin(std::declval<T&>()));
-
-	template<typename T>
-	using try_end = decltype(std::end(std::declval<T&>()));
-
-	template<class T>
-	constexpr bool is_range_v = is_valid<T, try_begin>::value && is_valid<T, try_end>::value;
 }
 
 // associative containers
-template<typename container, typename element, REQUIRES(detail::is_range_v<container> && detail::has_find_v<container>)>
+template<typename container, typename element, REQUIRES(is_range_v<container> && detail::has_find_v<container>)>
 [[nodiscard]]
 bool contains(const container& Container, const element& Element)
 {
@@ -267,7 +210,7 @@ bool contains(const container& Container, const element& Element)
 }
 
 // everything else
-template<typename container, typename element, REQUIRES(detail::is_range_v<container> && !detail::has_find_v<container>)>
+template<typename container, typename element, REQUIRES(is_range_v<container> && !detail::has_find_v<container>)>
 [[nodiscard]]
 bool contains(const container& Container, const element& Element)
 {

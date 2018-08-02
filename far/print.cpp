@@ -133,7 +133,7 @@ void PrintFiles(FileList* SrcPanel)
 			const auto PrinterList = VMenu2::create(strTitle, {}, ScrY - 4);
 			PrinterList->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 			PrinterList->SetPosition(-1, -1, 0, 0);
-			AddToPrintersMenu(PrinterList.get(), make_range(pi.get(), Returned));
+			AddToPrintersMenu(PrinterList.get(), { pi.get(), Returned });
 
 			if (PrinterList->Run() < 0)
 				return;
@@ -220,7 +220,7 @@ void PrintFiles(FileList* SrcPanel)
 				for (;;)
 				{
 					char Buffer[8192];
-					const auto Read = io::read(Stream, make_range(Buffer));
+					const auto Read = io::read(Stream, Buffer);
 					if (!Read)
 						break;
 

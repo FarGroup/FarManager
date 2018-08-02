@@ -97,7 +97,7 @@ bool SQLiteDb::SQLiteStmt::Step() const
 	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_ROW;
 }
 
-bool SQLiteDb::SQLiteStmt::FinalStep() const
+bool SQLiteDb::SQLiteStmt::Execute() const
 {
 	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_DONE;
 }
@@ -346,7 +346,7 @@ bool SQLiteDb::RollbackTransaction()
 	return Exec("ROLLBACK TRANSACTION;");
 }
 
-SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(string_view const Stmt) const
+SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt) const
 {
 	sqlite::sqlite3_stmt* pStmt;
 
@@ -358,16 +358,11 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(string_view const Stmt) const
 	// We use data() instead of operator[] here to bypass any bounds checks in debug mode
 	const auto IsNullTerminated = Stmt.data()[Stmt.size()] == L'\0';
 
-	const auto Result = sqlite::sqlite3_prepare16_v2(m_Db.get(), Stmt.data(), static_cast<int>((Stmt.size() + (IsNullTerminated? 1 : 0)) * sizeof(wchar_t)), &pStmt, nullptr);
+	const auto Result = sqlite::sqlite3_prepare_v3(m_Db.get(), Stmt.data(), static_cast<int>(Stmt.size() + (IsNullTerminated? 1 : 0)), SQLITE_PREPARE_PERSISTENT, &pStmt, nullptr);
 	if (Result != SQLITE_OK)
 		throw MAKE_FAR_EXCEPTION(format(L"SQLiteDb::create_stmt error {0} - {1}", Result, GetErrorString(Result)));
 
 	return SQLiteStmt(pStmt);
-}
-
-bool SQLiteDb::Changes() const
-{
-	return sqlite::sqlite3_changes(m_Db.get()) != 0;
 }
 
 unsigned long long SQLiteDb::LastInsertRowID() const

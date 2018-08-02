@@ -455,8 +455,7 @@ static bool DeleteTypeRecord(unsigned long long DeletePos)
 		},
 		{ lng::MDelete, lng::MCancel }) == Message::first_button)
 	{
-		ConfigProvider().AssocConfig()->DelType(DeletePos);
-		return true;
+		return ConfigProvider().AssocConfig()->DelType(DeletePos);
 	}
 
 	return false;

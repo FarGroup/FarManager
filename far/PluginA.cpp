@@ -207,7 +207,7 @@ public:
 			WA("GetMinFarVersion"),
 		};
 		static_assert(std::size(ExportsNames) == ExportsCount);
-		m_ExportsNames = make_range(ExportsNames);
+		m_ExportsNames = ExportsNames;
 	}
 
 	plugin_module_ptr Create(const string& filename) override
@@ -5124,7 +5124,7 @@ private:
 			Info->ItemsNumber = ItemsNumber;
 			if (es && ItemsNumber)
 			{
-				Info->PanelItem = ConvertAnsiPanelItemsToUnicode(make_range(pFDPanelItemA, ItemsNumber));
+				Info->PanelItem = ConvertAnsiPanelItemsToUnicode({ pFDPanelItemA, static_cast<size_t>(ItemsNumber) });
 			}
 		}
 		return es;
@@ -5157,7 +5157,7 @@ private:
 
 			if (es && ItemsNumber)
 			{
-				Info->PanelItem = ConvertAnsiPanelItemsToUnicode(make_range(pVFDPanelItemA, ItemsNumber));
+				Info->PanelItem = ConvertAnsiPanelItemsToUnicode({ pVFDPanelItemA, static_cast<size_t>(ItemsNumber) });
 			}
 		}
 
@@ -5600,9 +5600,9 @@ private:
 		delete[] OPI.HostFile;
 		delete[] OPI.Format;
 		delete[] OPI.PanelTitle;
-		FreeUnicodeInfoPanelLines(make_range(OPI.InfoLines, OPI.InfoLinesNumber));
+		FreeUnicodeInfoPanelLines({ OPI.InfoLines, OPI.InfoLinesNumber });
 		DeleteRawArray(make_range(OPI.DescrFiles, OPI.DescrFilesNumber));
-		FreeUnicodePanelModes(make_range(OPI.PanelModesArray, OPI.PanelModesNumber));
+		FreeUnicodePanelModes({ OPI.PanelModesArray, OPI.PanelModesNumber });
 		FreeUnicodeKeyBarTitles(const_cast<KeyBarTitles*>(OPI.KeyBar));
 		delete OPI.KeyBar;
 		delete[] OPI.ShortcutData;
@@ -5664,7 +5664,10 @@ private:
 		if (Src.PanelModesArray && Src.PanelModesNumber)
 		{
 			auto UnicodeModes = std::make_unique<PanelMode[]>(Src.PanelModesNumber);
-			ConvertPanelModesToUnicode(make_range(Src.PanelModesArray, Src.PanelModesNumber), make_range(UnicodeModes.get(), Src.PanelModesNumber));
+			ConvertPanelModesToUnicode(
+				{ Src.PanelModesArray, static_cast<size_t>(Src.PanelModesNumber) },
+				{ UnicodeModes.get(), static_cast<size_t>(Src.PanelModesNumber) }
+			);
 			OPI.PanelModesArray = UnicodeModes.release();
 			OPI.PanelModesNumber = Src.PanelModesNumber;
 			OPI.StartPanelMode = Src.StartPanelMode;

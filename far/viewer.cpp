@@ -1690,7 +1690,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 			};
 			int MenuResult;
 			{
-				const auto vModes = VMenu2::create(msg(lng::MViewMode), make_range(ModeListMenu), ScrY - 4);
+				const auto vModes = VMenu2::create(msg(lng::MViewMode), ModeListMenu, ScrY - 4);
 				vModes->SetMenuFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
 				vModes->SetSelectPos(m_DisplayMode, +1);
 				MenuResult = vModes->Run();
@@ -2303,7 +2303,7 @@ template<typename T, typename F>
 static int process_back(int BufferSize, int pos, long long& fpos, const F& Reader, const raw_eol& eol)
 {
 	T Buffer[portion_size/sizeof(T)];
-	int nr = Reader(make_range(Buffer, BufferSize));
+	int nr = Reader({ Buffer, static_cast<size_t>(BufferSize) });
 
 	if (nr != static_cast<int>(BufferSize / sizeof(T)))
 	{

@@ -148,7 +148,7 @@ plugin_factory::plugin_factory(PluginManager* owner):
 		WA(""), // GetMinFarVersion not used
 	};
 	static_assert(std::size(ExportsNames) == ExportsCount);
-	m_ExportsNames = make_range(ExportsNames);
+	m_ExportsNames = ExportsNames;
 }
 
 bool native_plugin_factory::IsPlugin(const string& filename) const

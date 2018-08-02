@@ -5812,7 +5812,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (Type != Item->Type) // пока нефига менять тип
 				return FALSE;
 
-			ItemsToItemsEx(make_range(Item, 1), make_range(CurItem, 1), Msg != DM_SETDLGITEM);
+			ItemsToItemsEx({ Item, 1 }, { CurItem, 1 }, Msg != DM_SETDLGITEM);
 
 			CurItem->Type=Type;
 
