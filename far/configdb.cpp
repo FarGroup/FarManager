@@ -434,7 +434,7 @@ protected:
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateKey,             "REPLACE INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
+			{ stmtCreateKey,             "INSERT INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
 			{ stmtFindKey,               "SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
 			{ stmtSetKeyDescription,     "UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;"sv },
 			{ stmtSetValue,              "REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
