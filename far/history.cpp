@@ -618,16 +618,12 @@ std::vector<std::tuple<string, unsigned long long, bool>> History::GetAllSimilar
 
 bool History::DeleteIfUnlocked(unsigned long long id)
 {
-	bool b = false;
-	if (id && !HistoryCfgRef()->IsLocked(id))
-	{
-		if (HistoryCfgRef()->Delete(id))
-		{
-			b = true;
-			ResetPosition();
-		}
-	}
-	return b;
+	if (HistoryCfgRef()->IsLocked(id))
+		return false;
+
+	HistoryCfgRef()->Delete(id);
+	ResetPosition();
+	return true;
 }
 
 void History::SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos)

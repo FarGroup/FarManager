@@ -35,6 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "transactional.hpp"
+#include "exception.hpp"
+
+#include "common/range.hpp"
 
 class bytes_view;
 
@@ -44,15 +47,19 @@ namespace sqlite
 	struct sqlite3_stmt;
 }
 
-class SQLiteDb: noncopyable, virtual transactional
+class far_sqlite_exception : public far_exception
+{
+	using far_exception::far_exception;
+};
+
+class SQLiteDb: noncopyable, virtual protected transactional
 {
 public:
-	int GetInitStatus(string& name, bool full_name) const;
-	static string_view GetErrorMessage(int InitStatus);
-
-	bool IsNew() const { return db_exists <= 0; }
-	static int library_load();
+	static bool library_load();
 	static void library_free();
+
+	const string& GetPath() const { return m_Path; }
+	bool IsNew() const { return db_exists <= 0; }
 
 	enum class column_type
 	{
@@ -62,16 +69,21 @@ public:
 		blob,
 	};
 
+	static auto memory_db_name()
+	{
+		return L":memory:"sv;
+	}
+
 protected:
 	class db_initialiser;
 
-	using initialiser = bool(const db_initialiser& Db);
+	using initialiser = void(const db_initialiser& Db);
 
-	SQLiteDb(initialiser Initialiser, string_view DbName, bool Local = false, bool WAL = false);
+	SQLiteDb(initialiser Initialiser, string_view DbName, bool WAL = false);
 
-	bool BeginTransaction() override;
-	bool EndTransaction() override;
-	bool RollbackTransaction() override;
+	void BeginTransaction() override;
+	void EndTransaction() override;
+	void RollbackTransaction() override;
 
 	class SQLiteStmt
 	{
@@ -90,7 +102,7 @@ protected:
 
 		SQLiteStmt& Reset();
 		bool Step() const;
-		bool Execute() const;
+		void Execute() const;
 
 		template<typename arg, typename... args>
 		auto& Bind(arg&& Arg, args&&... Args)
@@ -126,6 +138,8 @@ protected:
 		template<class T>
 		SQLiteStmt& BindImpl(const transient_t<T>& Value) { return BindImpl(Value.m_Value, false); }
 
+		sqlite::sqlite3* db() const;
+
 		struct stmt_deleter { void operator()(sqlite::sqlite3_stmt*) const; };
 		std::unique_ptr<sqlite::sqlite3_stmt, stmt_deleter> m_Stmt;
 		int m_Param{};
@@ -147,7 +161,7 @@ protected:
 	SQLiteStmt create_stmt(std::string_view Stmt) const;
 
 	template<typename T, size_t N>
-	bool PrepareStatements(const stmt_init<T> (&Init)[N])
+	void PrepareStatements(const stmt_init<T> (&Init)[N])
 	{
 		static_assert(N == T::stmt_count);
 
@@ -159,21 +173,14 @@ protected:
 			assert(static_cast<size_t>(i.first) == m_Statements.size());
 			return create_stmt(i.second);
 		});
-		return true;
 	}
 
-	bool Exec(const char *Command) const;
-	bool SetWALJournalingMode() const;
-	bool EnableForeignKeysConstraints() const;
+	void Exec(range<const std::string_view*> Commands) const;
+	void SetWALJournalingMode() const;
+	void EnableForeignKeysConstraints() const;
+	using busy_handler = int(void*, int);
+	void SetBusyHandler(busy_handler Handler) const;
 	unsigned long long LastInsertRowID() const;
-
-	// TODO: use in log
-	int GetLastErrorCode() const;
-	string GetLastErrorString() const;
-	string GetErrorString(int Code) const;
-
-	const string& GetPath() const { return m_Path; }
-	const string& GetName() const { return m_Name; }
 
 	auto_statement AutoStatement(size_t Index) const { return auto_statement(&m_Statements[Index]); }
 
@@ -203,6 +210,7 @@ protected:
 		FORWARD_FUNCTION(SetWALJournalingMode)
 		FORWARD_FUNCTION(EnableForeignKeysConstraints)
 		FORWARD_FUNCTION(PrepareStatements)
+		FORWARD_FUNCTION(SetBusyHandler)
 
 #undef FORWARD_FUNCTION
 
@@ -211,8 +219,11 @@ protected:
 	};
 
 private:
-	void Initialize(initialiser Initialiser, string_view DbName, bool Local, bool WAL);
-	bool Open(string_view DbName, bool Local, bool WAL);
+	class implementation;
+	friend class implementation;
+
+	void Open(string_view Path, bool WAL);
+	void Initialize(initialiser Initialiser, string_view DbName, bool WAL);
 	void Close();
 
 	struct db_closer { void operator()(sqlite::sqlite3*) const; };
@@ -222,8 +233,6 @@ private:
 	database_ptr m_Db;
 	mutable std::vector<SQLiteStmt> m_Statements;
 	string m_Path;
-	string m_Name;
-	int init_status{};
 	int db_exists{-1};
 };
 

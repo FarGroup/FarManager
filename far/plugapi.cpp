@@ -2643,7 +2643,11 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 			if (!Global->CtrlObject->Plugins->FindPlugin(data->Guid))
 				return FALSE;
 
-			data->Handle = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL).release();
+			auto Settings = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL);
+			if (!Settings)
+				return FALSE;
+
+			data->Handle = Settings.release();
 			return TRUE;
 		}
 

@@ -33,8 +33,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/preprocessor.hpp"
 
+#define SQLITE_CONFIG_ONLY
+#include "sqlite.hpp"
+#undef SQLITE_CONFIG_ONLY
+
 WARNING_PUSH(3)
 
+WARNING_DISABLE_MSC(4555) // https://msdn.microsoft.com/en-us/library/k64a6he5.aspx result of expression not used
 WARNING_DISABLE_MSC(4701) // https://msdn.microsoft.com/en-us/library/1wea5zwe.aspx Potentially uninitialized local variable 'name' used
 WARNING_DISABLE_MSC(4703) // https://msdn.microsoft.com/en-us/library/jj851030.aspx Potentially uninitialized local pointer variable 'name' used
 
@@ -46,8 +51,6 @@ WARNING_DISABLE_GCC("-Wunused-but-set-variable")
 WARNING_DISABLE_GCC("-Wcast-function-type")
 
 WARNING_DISABLE_CLANG("-Weverything")
-
-#define SQLITE_WIN32_NO_ANSI
 
 #include "thirdparty/sqlite/sqlite3.c"
 

@@ -42,11 +42,11 @@ namespace os::concurrency
 {
 	namespace detail
 	{
-		string make_name(string_view Namespace, const string& HashPart, string_view TextPart);
+		string make_name(string_view Namespace, string_view HashPart, string_view TextPart);
 	}
 
 	template<class T>
-	string make_name(const string& HashPart, string_view const TextPart)
+	string make_name(string_view const HashPart, string_view const TextPart)
 	{
 		return detail::make_name(T::get_namespace(), HashPart, TextPart);
 	}

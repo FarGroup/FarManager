@@ -58,29 +58,25 @@ bool FilePositionCache::AddPosition(const string& Name, const EditorPosCache& po
 
 	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
 
-	bool ret = false;
-
-	unsigned long long id = 0;
+	unsigned long long id;
 
 	if (Global->Opt->EdOpt.SavePos)
 		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
 	else if (Global->Opt->EdOpt.SaveShortPos)
 		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, 0, 0, 0, 0, 0);
+	else
+		return false;
 
-	if (id)
+	if (Global->Opt->EdOpt.SaveShortPos)
 	{
-		if (Global->Opt->EdOpt.SaveShortPos)
+		for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
 		{
-			for_each_cnt(CONST_RANGE(poscache.bm, i, size_t index)
-			{
-				if (i.Line != POS_NONE)
-					ConfigProvider().HistoryCfg()->SetEditorBookmark(id, index, i.Line, i.LinePos, i.ScreenLine, i.LeftPos);
-			});
-		}
-		ret = true;
+			if (i.Line != POS_NONE)
+				ConfigProvider().HistoryCfg()->SetEditorBookmark(id, index, i.Line, i.LinePos, i.ScreenLine, i.LeftPos);
+		});
 	}
 
-	return ret;
+	return true;
 }
 
 bool FilePositionCache::GetPosition(const string& Name, EditorPosCache& poscache)

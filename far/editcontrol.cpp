@@ -594,7 +594,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 									if(ComplMenu->size() > 1)
 									{
 										const auto Data = ComplMenu->GetComplexUserDataPtr<cmp_user_data>();
-										if(Data && pHistory->DeleteIfUnlocked(Data->HistoryRecordId))
+										if(Data && Data->HistoryRecordId && pHistory->DeleteIfUnlocked(Data->HistoryRecordId))
 										{
 											ComplMenu->DeleteItem(ComplMenu->GetSelectPos());
 											if(ComplMenu->size() > 1)

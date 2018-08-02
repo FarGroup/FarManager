@@ -382,6 +382,13 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 		if (Global->Opt->LocalProfilePath != Global->Opt->ProfilePath)
 			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"sv), true);
+
+		const auto RandomName = GuidToStr(CreateUuid());
+
+		if (!os::fs::can_create_file(path::join(strProfilePath, RandomName)) || !os::fs::can_create_file(path::join(strLocalProfilePath, RandomName)))
+		{
+			Global->Opt->ReadOnlyConfig = true;
+		}
 	}
 }
 

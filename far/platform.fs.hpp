@@ -394,6 +394,8 @@ namespace os::fs
 
 	bool is_directory_symbolic_link(const find_data& Data);
 
+	bool can_create_file(string_view Name);
+
 
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD Flags);
 }

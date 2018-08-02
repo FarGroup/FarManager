@@ -3,6 +3,17 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 06.11.2018 20:35:22 +0000 - build 5304
+
+1. Major SQLite changes: now instead of returning false or error code (which we almost never checked anyway) on failures
+   exceptions will be thrown. Currently they are handled during db opening (due all the shenanigans we do there)
+   and plugin settings instantiation (for obvious reasons), i.e. SCTL_CREATE, as promised, will return FALSE in case of failure.
+   This should also fix 0002940: SCTL_CREATE: issues when creating multiple instances of settings.
+   In the rest of the code these possible exceptions are (currently) not handled, so you will notice if anything goes wrong.
+   SQLITE_BUSY is processed separately - after a 5-sec timeout it will be possible to either retry or abort the operation
+
+   In other words - these changes are quite experimental, here be dragons.
+
 MZK 05.11.2018 22:34:40 -0800
 
 1. Translated help page @OSCommands into English and reworked the Russian page.

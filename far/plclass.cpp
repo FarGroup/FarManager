@@ -457,7 +457,6 @@ bool Plugin::SaveToCache()
 
 	SCOPED_ACTION(auto)(PlCache->ScopedTransaction());
 
-	PlCache->DeleteCache(m_strCacheName);
 	const auto id = PlCache->CreateCache(m_strCacheName);
 
 	const bool bPreload = (Info.Flags & PF_PRELOAD);

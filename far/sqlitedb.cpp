@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "components.hpp"
 #include "encoding.hpp"
+#include "delete.hpp"
+#include "mix.hpp"
 #include "global.hpp"
 
 #include "platform.concurrency.hpp"
@@ -49,7 +51,61 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace
 {
-	const auto MemoryDbName = L":memory:"sv;
+	class lock
+	{
+	public:
+		NONCOPYABLE(lock);
+
+		explicit lock(sqlite::sqlite3* Db):
+			m_Db(Db)
+		{
+			sqlite::sqlite3_mutex_enter(sqlite::sqlite3_db_mutex(m_Db));
+		}
+
+		~lock()
+		{
+			sqlite::sqlite3_mutex_leave(sqlite::sqlite3_db_mutex(m_Db));
+		}
+
+	private:
+		sqlite::sqlite3* m_Db;
+	};
+
+	int GetLastErrorCode(sqlite::sqlite3* Db)
+	{
+		return sqlite::sqlite3_extended_errcode(Db);
+	}
+
+	string GetErrorString(int ErrorCode)
+	{
+		return encoding::utf8::get_chars(sqlite::sqlite3_errstr(ErrorCode));
+	}
+
+	string GetLastErrorString(sqlite::sqlite3* Db)
+	{
+		return static_cast<const wchar_t*>(sqlite::sqlite3_errmsg16(Db));
+	}
+
+	[[noreturn]]
+	void throw_exception(int ErrorCode, const string& ErrorString = {})
+	{
+		throw MAKE_EXCEPTION(far_sqlite_exception, format(L"SQLite error {0} - {1}", ErrorCode, ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString));
+	}
+
+	[[noreturn]]
+	void throw_exception(sqlite::sqlite3* Db)
+	{
+		throw_exception(GetLastErrorCode(Db), GetLastErrorString(Db));
+	}
+
+	template<typename callable>
+	void invoke(sqlite::sqlite3* Db, const callable& Callable)
+	{
+		SCOPED_ACTION(lock)(Db);
+
+		if (!Callable())
+			throw_exception(Db);
+	}
 
 	SCOPED_ACTION(components::component)([]
 	{
@@ -60,63 +116,73 @@ namespace
 	{
 		return components::component::info{ L"SQLite Unicode extension"s, sqlite_unicode::SQLite_Unicode_Version };
 	});
-
-	static string GetDatabasePath(string_view const FileName, bool Local)
-	{
-		return FileName == MemoryDbName?
-			string(FileName) :
-			path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName);
-	}
 }
 
-int SQLiteDb::library_load()
+bool SQLiteDb::library_load()
 {
-	return sqlite_unicode::sqlite3_unicode_load();
+	return sqlite::sqlite3_initialize() == SQLITE_OK && sqlite_unicode::sqlite3_unicode_load() == SQLITE_OK;
 }
 
 void SQLiteDb::library_free()
 {
-	return sqlite_unicode::sqlite3_unicode_free();
+	sqlite_unicode::sqlite3_unicode_free();
+	sqlite::sqlite3_shutdown();
 }
 
-void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* object) const
+void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object) const
 {
-	sqlite::sqlite3_finalize(object);
+	// https://www.sqlite.org/c3ref/finalize.html
+	// If the most recent evaluation of the statement encountered no errors
+	// or if the statement is never been evaluated, then sqlite3_finalize() returns SQLITE_OK.
+	// If the most recent evaluation of statement S failed, then sqlite3_finalize(S)
+	// returns the appropriate error code or extended error code.
+	invoke(sqlite::sqlite3_db_handle(Object), [&]{ sqlite::sqlite3_finalize(Object); return true; });
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 {
+	invoke(db(), [&]{ return sqlite::sqlite3_clear_bindings(m_Stmt.get()) == SQLITE_OK; });
+	invoke(db(), [&]{ return sqlite::sqlite3_reset(m_Stmt.get()) == SQLITE_OK; });
 	m_Param = 0;
-	sqlite::sqlite3_clear_bindings(m_Stmt.get());
-	sqlite::sqlite3_reset(m_Stmt.get());
 	return *this;
 }
 
 bool SQLiteDb::SQLiteStmt::Step() const
 {
-	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_ROW;
+	bool Result = false;
+	invoke(db(), [&]
+	{
+		const auto StepResult = sqlite::sqlite3_step(m_Stmt.get());
+		Result = StepResult == SQLITE_ROW;
+		return Result || StepResult == SQLITE_DONE;
+	});
+	return Result;
 }
 
-bool SQLiteDb::SQLiteStmt::Execute() const
+void SQLiteDb::SQLiteStmt::Execute() const
 {
-	return sqlite::sqlite3_step(m_Stmt.get()) == SQLITE_DONE;
+	invoke(db(), [&]
+	{
+		const auto StepResult = sqlite::sqlite3_step(m_Stmt.get());
+		return StepResult == SQLITE_DONE || StepResult == SQLITE_ROW;
+	});
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(std::nullptr_t)
 {
-	sqlite::sqlite3_bind_null(m_Stmt.get(), ++m_Param);
+	invoke(db(), [&]{ return sqlite::sqlite3_bind_null(m_Stmt.get(), ++m_Param) == SQLITE_OK; });
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(int Value)
 {
-	sqlite::sqlite3_bind_int(m_Stmt.get(), ++m_Param, Value);
+	invoke(db(), [&]{ return sqlite::sqlite3_bind_int(m_Stmt.get(), ++m_Param, Value) == SQLITE_OK; });
 	return *this;
 }
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(long long Value)
 {
-	sqlite::sqlite3_bind_int64(m_Stmt.get(), ++m_Param, Value);
+	invoke(db(), [&]{ return sqlite::sqlite3_bind_int64(m_Stmt.get(), ++m_Param, Value) == SQLITE_OK; });
 	return *this;
 }
 
@@ -127,7 +193,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(string&& Value)
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const string_view Value, const bool bStatic)
 {
-	sqlite::sqlite3_bind_text16(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
+	invoke(db(), [&]{ return sqlite::sqlite3_bind_text16(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size() * sizeof(wchar_t)), bStatic? sqlite::static_destructor : sqlite::transient_destructor) == SQLITE_OK; });
 	return *this;
 }
 
@@ -138,8 +204,13 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(bytes_view&& Value)
 
 SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::BindImpl(const bytes_view& Value, bool bStatic)
 {
-	sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor);
+	invoke(db(), [&]{ return sqlite::sqlite3_bind_blob(m_Stmt.get(), ++m_Param, Value.data(), static_cast<int>(Value.size()), bStatic? sqlite::static_destructor : sqlite::transient_destructor) == SQLITE_OK; });
 	return *this;
+}
+
+sqlite::sqlite3 * SQLiteDb::SQLiteStmt::db() const
+{
+	return sqlite::sqlite3_db_handle(m_Stmt.get());
 }
 
 string SQLiteDb::SQLiteStmt::GetColText(int Col) const
@@ -191,169 +262,131 @@ SQLiteDb::column_type SQLiteDb::SQLiteStmt::GetColType(int Col) const
 }
 
 
-SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool Local, bool WAL)
+SQLiteDb::SQLiteDb(initialiser Initialiser, string_view const DbName, bool WAL)
 {
-	Initialize(Initialiser, DbName, Local, WAL);
-}
-
-static bool can_create_file(const string& fname)
-{
-	return os::fs::file(fname, GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
+	Initialize(Initialiser, DbName, WAL);
 }
 
 void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const
 {
-	sqlite::sqlite3_close(Object);
+	const auto Result = sqlite::sqlite3_close(Object);
+	(void)Result;
+	assert(Result == SQLITE_OK);
 }
 
-bool SQLiteDb::Open(string_view const DbFile, bool Local, bool WAL)
+class SQLiteDb::implementation
 {
-	const auto& v1_opener = [](string_view const Name, database_ptr& Db)
+public:
+	static database_ptr open(string_view const Name, bool Writable = true)
 	{
-		return sqlite::sqlite3_open16(null_terminated(Name).c_str(), &ptr_setter(Db)) == SQLITE_OK;
-	};
+		database_ptr Db;
+		const auto Result = sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), &ptr_setter(Db), Writable? SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE : SQLITE_OPEN_READONLY, nullptr);
+		if (Result != SQLITE_OK)
+			Db? throw_exception(Db.get()) : throw_exception(Result);
 
-	const auto& v2_opener = [WAL](string_view const Name, database_ptr& Db)
-	{
-		return sqlite::sqlite3_open_v2(encoding::utf8::get_bytes(Name).c_str(), &ptr_setter(Db), WAL? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK;
-	};
-
-	m_Path = GetDatabasePath(DbFile, Local);
-
-	const auto mem_db = DbFile == MemoryDbName;
-
-	if (!Global->Opt->ReadOnlyConfig || mem_db)
-	{
-		if (!mem_db && db_exists < 0)
-		{
-			db_exists = os::fs::is_file(m_Path)? +1 : 0;
-		}
-		if (!v1_opener(m_Path, m_Db))
-			return false;
-
-		sqlite::sqlite3_busy_timeout(m_Db.get(), 1000);
-		return true;
+		return Db;
 	}
 
-	// copy db to memory
-	//
-	if (!v1_opener(MemoryDbName, m_Db))
-		return false;
-
-	bool ok = true, copied = false;
-
-	if (os::fs::is_file(m_Path))
+	static database_ptr copy_db_to_memory(string_view const Path, bool WAL)
 	{
-		database_ptr db_source;
+		auto Destination = open(memory_db_name());
 
-		if (db_exists < 0)
-			db_exists = +1;
+		database_ptr SourceDb;
+		delayed_deleter Deleter;
 
-		if (WAL && !can_create_file(concat(m_Path, L'.', GuidToStr(CreateUuid())))) // can't open db -- copy to %TEMP%
+		if (WAL && !os::fs::can_create_file(concat(Path, L'.', GuidToStr(CreateUuid())))) // can't open db -- copy to %TEMP%
 		{
-			string strTmp;
-			os::fs::GetTempPath(strTmp);
-			append(strTmp, str(GetCurrentProcessId()), L'-', DbFile);
-			ok = copied = os::fs::copy_file(m_Path, strTmp, nullptr, nullptr, nullptr, 0);
-			if (ok)
-			{
-				os::fs::set_file_attributes(strTmp, FILE_ATTRIBUTE_NORMAL);
-				m_Path = strTmp;
-				ok = v1_opener(m_Path, db_source);
-			}
+			const auto TmpDbPath = concat(MakeTemp(), str(GetCurrentProcessId()), L'-', PointToName(Path));
+			if (!os::fs::copy_file(Path, TmpDbPath, nullptr, nullptr, nullptr, 0))
+				throw_exception(SQLITE_READONLY);
+
+			Deleter.set(TmpDbPath);
+			os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL);
+			SourceDb = open(TmpDbPath);
 		}
 		else
 		{
-			ok = v2_opener(m_Path, db_source);
+			SourceDb = open(Path, WAL);
 		}
 
-		if (ok)
+		struct backup_closer
 		{
-			sqlite::sqlite3_busy_timeout(db_source.get(), 1000);
-			const auto db_backup = sqlite::sqlite3_backup_init(m_Db.get(), "main", db_source.get(), "main");
-			ok = (nullptr != db_backup);
-			if (ok)
+			void operator()(sqlite::sqlite3_backup* Backup) const
 			{
-				sqlite::sqlite3_backup_step(db_backup, -1);
-				sqlite::sqlite3_backup_finish(db_backup);
-				ok = sqlite::sqlite3_errcode(m_Db.get()) == SQLITE_OK;
+				const auto Result = sqlite::sqlite3_backup_finish(Backup);
+				(void)Result;
+				assert(Result == SQLITE_OK);
 			}
-		}
+		};
+
+		using backup_ptr = std::unique_ptr<sqlite::sqlite3_backup, backup_closer>;
+
+		backup_ptr DbBackup;
+		invoke(Destination.get(), [&]{ DbBackup.reset(sqlite::sqlite3_backup_init(Destination.get(), "main", SourceDb.get(), "main")); return DbBackup != nullptr; });
+
+		const auto StepResult = sqlite::sqlite3_backup_step(DbBackup.get(), -1);
+		if (StepResult != SQLITE_DONE)
+			throw_exception(StepResult);
+
+		return Destination;
 	}
 
-	if (copied)
-		os::fs::delete_file(m_Path);
-
-	m_Path = MemoryDbName;
-	if (!ok)
-		Close();
-	return ok;
-}
-
-void SQLiteDb::Initialize(initialiser Initialiser, string_view const DbName, bool Local, bool WAL)
-{
-	m_Name = DbName;
-
-	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, m_Name));
-	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
-
-	const auto& OpenAndInitialise = [&](string_view const Name)
+	static database_ptr try_copy_db_to_memory(string_view const Path, bool WAL)
 	{
-		return Open(Name, Local, WAL) && Initialiser(db_initialiser(this));
-	};
+		if (!os::fs::is_file(Path))
+			return open(memory_db_name());
 
-	if (!OpenAndInitialise(m_Name))
-	{
-		Close();
-		++init_status;
-
-		const auto in_memory = Global->Opt->ReadOnlyConfig ||
-			!(os::fs::move_file(m_Path, m_Path + L".bad"sv, MOVEFILE_REPLACE_EXISTING) && OpenAndInitialise(m_Name));
-
-		if (in_memory)
+		try
 		{
-			Close();
-			++init_status;
-			OpenAndInitialise(MemoryDbName);
+			return copy_db_to_memory(Path, WAL);
+		}
+		catch (const far_sqlite_exception&)
+		{
+			return open(memory_db_name());
 		}
 	}
-}
+};
 
-int SQLiteDb::GetInitStatus(string& name, bool full_name) const
+void SQLiteDb::Open(string_view const Path, bool const WAL)
 {
-	name = (full_name && !m_Path.empty() && m_Path != MemoryDbName)? m_Path : m_Name;
-	return init_status;
-}
-
-string_view SQLiteDb::GetErrorMessage(int InitStatus)
-{
-	switch (InitStatus)
+	if (!Global->Opt->ReadOnlyConfig || Path == memory_db_name())
 	{
-	case 0:  return L"no errors"sv;
-	case 1:  return L"database file is renamed to *.bad and new one is created"sv;
-	case 2:  return L"database is opened in memory"sv;
-	default: return L"unknown error"sv;
+		m_Db = implementation::open(Path);
+		m_Path = Path;
+		return;
+	}
+
+	m_Db = implementation::try_copy_db_to_memory(Path, WAL);
+	m_Path = memory_db_name();
+}
+
+void SQLiteDb::Initialize(initialiser Initialiser, string_view const DbName, bool WAL)
+{
+	Open(DbName, WAL);
+	Initialiser(db_initialiser(this));
+}
+
+void SQLiteDb::Exec(range<const std::string_view*> Command) const
+{
+	for (const auto& i: Command)
+	{
+		create_stmt(i).Execute();
 	}
 }
 
-bool SQLiteDb::Exec(const char *Command) const
+void SQLiteDb::BeginTransaction()
 {
-	return sqlite::sqlite3_exec(m_Db.get(), Command, nullptr, nullptr, nullptr) == SQLITE_OK;
+	Exec({ "BEGIN TRANSACTION;"sv });
 }
 
-bool SQLiteDb::BeginTransaction()
+void SQLiteDb::EndTransaction()
 {
-	return Exec("BEGIN TRANSACTION;");
+	Exec({ "END TRANSACTION;"sv });
 }
 
-bool SQLiteDb::EndTransaction()
+void SQLiteDb::RollbackTransaction()
 {
-	return Exec("END TRANSACTION;");
-}
-
-bool SQLiteDb::RollbackTransaction()
-{
-	return Exec("ROLLBACK TRANSACTION;");
+	Exec({ "ROLLBACK TRANSACTION;"sv });
 }
 
 SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt) const
@@ -366,13 +399,16 @@ SQLiteDb::SQLiteStmt SQLiteDb::create_stmt(std::string_view const Stmt) const
 	// that is the number of bytes in the input string *including* the nul-terminator.
 
 	// We use data() instead of operator[] here to bypass any bounds checks in debug mode
-	const auto IsNullTerminated = !Stmt.data()[Stmt.size()];
+	const auto IsNullTerminated = Stmt.data()[Stmt.size()] == L'\0';
 
-	const auto Result = sqlite::sqlite3_prepare_v3(m_Db.get(), Stmt.data(), static_cast<int>(Stmt.size() + (IsNullTerminated? 1 : 0)), SQLITE_PREPARE_PERSISTENT, &pStmt, nullptr);
-	if (Result != SQLITE_OK)
-		throw MAKE_FAR_EXCEPTION(format(L"SQLiteDb::create_stmt error {0} - {1}", Result, GetErrorString(Result)));
+	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_prepare_v3(m_Db.get(), Stmt.data(), static_cast<int>(Stmt.size() + (IsNullTerminated? 1 : 0)), SQLITE_PREPARE_PERSISTENT, &pStmt, nullptr) == SQLITE_OK; });
 
 	return SQLiteStmt(pStmt);
+}
+
+void SQLiteDb::SetBusyHandler(busy_handler Handler) const
+{
+	invoke(m_Db.get(), [&]{ return sqlite::sqlite3_busy_handler(m_Db.get(), Handler, const_cast<SQLiteDb*>(this)) == SQLITE_OK; });
 }
 
 unsigned long long SQLiteDb::LastInsertRowID() const
@@ -388,27 +424,12 @@ void SQLiteDb::Close()
 	m_Db.reset();
 }
 
-bool SQLiteDb::SetWALJournalingMode() const
+void SQLiteDb::SetWALJournalingMode() const
 {
-	return Exec("PRAGMA journal_mode = WAL;");
+	Exec({ "PRAGMA journal_mode = WAL;"sv });
 }
 
-bool SQLiteDb::EnableForeignKeysConstraints() const
+void SQLiteDb::EnableForeignKeysConstraints() const
 {
-	return Exec("PRAGMA foreign_keys = ON;");
-}
-
-int SQLiteDb::GetLastErrorCode() const
-{
-	return sqlite::sqlite3_errcode(m_Db.get());
-}
-
-string SQLiteDb::GetLastErrorString() const
-{
-	return static_cast<const wchar_t*>(sqlite::sqlite3_errmsg16(m_Db.get()));
-}
-
-string SQLiteDb::GetErrorString(int Code) const
-{
-	return encoding::utf8::get_chars(sqlite::sqlite3_errstr(Code));
+	Exec({ "PRAGMA foreign_keys = ON;"sv });
 }

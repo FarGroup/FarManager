@@ -86,14 +86,24 @@ private:
 std::unique_ptr<AbstractSettings> AbstractSettings::CreatePluginSettings(const GUID& Guid, bool const Local)
 {
 	const auto pPlugin = Global->CtrlObject->Plugins->FindPlugin(Guid);
-	return pPlugin? std::make_unique<PluginSettings>(pPlugin, Local) : nullptr;
+	if (!pPlugin)
+		return nullptr;
+
+	try
+	{
+		return std::make_unique<PluginSettings>(pPlugin, Local);
+	}
+	catch(const far_exception&)
+	{
+		return nullptr;
+	}
 }
 
 
 PluginSettings::PluginSettings(const Plugin* const pPlugin, bool const Local)
 {
 	const auto strGuid = GuidToStr(pPlugin->Id());
-	PluginsCfg = ConfigProvider().CreatePluginsConfig(strGuid, Local);
+	PluginsCfg = ConfigProvider().CreatePluginsConfig(strGuid, Local, false);
 	PluginsCfg->BeginTransaction();
 
 	m_Keys.emplace_back(PluginsCfg->CreateKey(HierarchicalConfig::root_key(), strGuid, &pPlugin->Title()));
@@ -130,13 +140,16 @@ bool PluginSettings::Set(const FarSettingsItem& Item)
 		return false;
 
 	case FST_QWORD:
-		return PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, Item.Number);
+		PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, Item.Number);
+		return true;
 
 	case FST_STRING:
-		return PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, Item.String);
+		PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, Item.String);
+		return true;
 
 	case FST_DATA:
-		return PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, bytes_view(Item.Data.Data, Item.Data.Size));
+		PluginsCfg->SetValue(m_Keys[Item.Root], Item.Name, bytes_view(Item.Data.Data, Item.Data.Size));
+		return true;
 
 	default:
 		return false;
@@ -331,9 +344,11 @@ bool PluginSettings::Delete(const FarSettingsValue& Value)
 	if (Value.Root >= m_Keys.size())
 		return false;
 
-	return Value.Value?
+	Value.Value?
 		PluginsCfg->DeleteValue(m_Keys[Value.Root], Value.Value) :
 		PluginsCfg->DeleteKeyTree(m_Keys[Value.Root]);
+
+	return true;
 }
 
 int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)

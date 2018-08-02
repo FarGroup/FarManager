@@ -1465,9 +1465,10 @@ bool detail::OptionImpl<base_type, derived>::ReceiveValue(const GeneralConfig* S
 }
 
 template<class base_type, class derived>
-bool detail::OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, string_view const KeyName, string_view const ValueName, bool always) const
+void detail::OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, string_view const KeyName, string_view const ValueName, bool always) const
 {
-	return (!always && !Changed()) || Storage->SetValue(KeyName, ValueName, Get());
+	if (always || Changed())
+		Storage->SetValue(KeyName, ValueName, Get());
 }
 
 

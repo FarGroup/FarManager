@@ -1980,6 +1980,12 @@ namespace os::fs
 		return (Data.Attributes & Attributes) == Attributes && (Data.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT || Data.ReparseTag == IO_REPARSE_TAG_SYMLINK);
 	}
 
+	bool can_create_file(string_view const Name)
+	{
+		return file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
+	}
+
+
 	bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 	{
 		if (!imports.CreateSymbolicLinkW)

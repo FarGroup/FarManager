@@ -39,9 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::concurrency
 {
-	string detail::make_name(string_view const Namespace, const string& HashPart, string_view const TextPart)
+	string detail::make_name(string_view const Namespace, string_view const HashPart, string_view const TextPart)
 	{
-		auto Str = concat(Namespace, str(make_hash(HashPart)), L'_', TextPart);
+		auto Str = concat(Namespace, str(hash_range(ALL_CONST_RANGE(HashPart))), L'_', TextPart);
 		ReplaceBackslashToSlash(Str);
 		return Str;
 	}

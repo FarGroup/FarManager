@@ -154,20 +154,45 @@ private:
 	const tinyxml::XMLNode* m_base;
 };
 
+int sqlite_busy_handler(void* Param, int Retries)
+{
+	if (Retries < 10)
+	{
+		// Let's retry silently first:
+		std::this_thread::sleep_for(500ms);
+		return 1;
+	}
+
+	const auto& Db = *static_cast<const SQLiteDb*>(Param);
+
+	return Message(FMSG_WARNING,
+		msg(lng::MError),
+		{ 
+			Db.GetPath(),
+			L"Database is busy"s,
+		},
+		{ lng::MRetry, lng::MAbort }) == Message::first_button;
+}
+
 class iGeneralConfigDb: public GeneralConfig, public SQLiteDb
 {
 protected:
-	iGeneralConfigDb(string_view const DbName, bool Local):
-		SQLiteDb(&iGeneralConfigDb::Initialise, DbName, Local)
+	explicit iGeneralConfigDb(string_view const DbName):
+		SQLiteDb(&iGeneralConfigDb::Initialise, DbName)
 	{
 	}
 
 private:
-	static bool Initialise(const db_initialiser& Db)
+	static void Initialise(const db_initialiser& Db)
 	{
-		static const auto Schema =
-			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));"
-		;
+		Db.SetBusyHandler(sqlite_busy_handler);
+
+		static const std::string_view Schema[]
+		{
+			"CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));"sv,
+		};
+
+		Db.Exec(Schema);
 
 		static const stmt_init<statement_id> Statements[] =
 		{
@@ -177,25 +202,22 @@ private:
 			{ stmtEnumValues,            "SELECT name, value FROM general_config WHERE key=?1;"sv },
 		};
 
-		return
-			Db.Exec(Schema) &&
-			Db.PrepareStatements(Statements)
-		;
+		Db.PrepareStatements(Statements);
 	}
 
-	bool SetValue(const string_view Key, const string_view Name, const string_view Value) override
+	void SetValue(const string_view Key, const string_view Name, const string_view Value) override
 	{
-		return SetValueT(Key, Name, Value);
+		SetValueT(Key, Name, Value);
 	}
 
-	bool SetValue(const string_view Key, const string_view Name, const unsigned long long Value) override
+	void SetValue(const string_view Key, const string_view Name, const unsigned long long Value) override
 	{
-		return SetValueT(Key, Name, Value);
+		SetValueT(Key, Name, Value);
 	}
 
-	bool SetValue(const string_view Key, const string_view Name, const bytes_view& Value) override
+	void SetValue(const string_view Key, const string_view Name, const bytes_view& Value) override
 	{
-		return SetValueT(Key, Name, Value);
+		SetValueT(Key, Name, Value);
 	}
 
 	bool GetValue(const string_view Key, const string_view Name, bool& Value, const bool Default) const override
@@ -216,9 +238,9 @@ private:
 		return GetValueT<column_type::string>(Key, Name, Value, Default, &SQLiteStmt::GetColText);
 	}
 
-	bool DeleteValue(const string_view Key, const string_view Name) override
+	void DeleteValue(const string_view Key, const string_view Name) override
 	{
-		return ExecuteStatement(stmtDelValue, Key, Name);
+		ExecuteStatement(stmtDelValue, Key, Name);
 	}
 
 	bool EnumValues(const string_view Key, const bool Reset, string &Name, string &Value) const override
@@ -320,9 +342,9 @@ private:
 	}
 
 	template<class T>
-	bool SetValueT(const string_view Key, const string_view Name, const T Value)
+	void SetValueT(const string_view Key, const string_view Name, const T Value)
 	{
-		return ExecuteStatement(stmtSetValue, Key, Name, Value);
+		ExecuteStatement(stmtSetValue, Key, Name, Value);
 	}
 
 	template<class T, class getter_t>
@@ -356,7 +378,10 @@ private:
 class GeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	GeneralConfigDb():iGeneralConfigDb(L"generalconfig.db"sv, false) {}
+	explicit GeneralConfigDb(string_view const Name):
+		iGeneralConfigDb(Name)
+	{
+	}
 
 private:
 	const char* GetKeyName() const override {return "generalconfig";}
@@ -365,7 +390,10 @@ private:
 class LocalGeneralConfigDb: public iGeneralConfigDb
 {
 public:
-	LocalGeneralConfigDb():iGeneralConfigDb(L"localconfig.db"sv, true) {}
+	explicit LocalGeneralConfigDb(string_view const Name):
+		iGeneralConfigDb(Name)
+	{
+	}
 
 private:
 	const char* GetKeyName() const override {return "localconfig";}
@@ -405,25 +433,32 @@ private:
 class HierarchicalConfigDb: public async_delete_impl, public HierarchicalConfig, public SQLiteDb
 {
 public:
-	explicit HierarchicalConfigDb(string_view const DbName, bool Local):
-		async_delete_impl(os::make_name<os::event>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, DbName)),
-		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName, Local)
+	explicit HierarchicalConfigDb(string_view const DbName):
+		async_delete_impl(os::make_name<os::event>(DbName, PointToName(DbName))),
+		SQLiteDb(&HierarchicalConfigDb::Initialise, DbName)
 	{
 	}
 
 protected:
-	static bool Initialise(const db_initialiser& Db)
+	static void Initialise(const db_initialiser& Db)
 	{
-		static const auto Schema =
-			"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
-			"CREATE TABLE IF NOT EXISTS table_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"
+		Db.SetBusyHandler(sqlite_busy_handler);
+
+		Db.EnableForeignKeysConstraints();
+
+		static const std::string_view Schema[]
+		{
+			"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"sv,
+			"CREATE TABLE IF NOT EXISTS table_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"sv,
 			//root key (needs to be before the transaction start)
-			"INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");"
-		;
+			"INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");"sv,
+		};
+
+		Db.Exec(Schema);
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateKey,             "INSERT INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
+			{ stmtCreateKey,             "INSERT OR IGNORE INTO table_keys VALUES (NULL,?1,?2,?3);"sv },
 			{ stmtFindKey,               "SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
 			{ stmtSetKeyDescription,     "UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;"sv },
 			{ stmtSetValue,              "REPLACE INTO table_values VALUES (?1,?2,?3);"sv },
@@ -434,28 +469,27 @@ protected:
 			{ stmtDeleteTree,            "DELETE FROM table_keys WHERE id=?1 AND id<>0;"sv },
 		};
 
-		return
-			Db.EnableForeignKeysConstraints() &&
-			Db.Exec(Schema) &&
-			Db.PrepareStatements(Statements)
-		;
+		Db.PrepareStatements(Statements);
 	}
 
-	bool Flush() override
+	void Flush() override
 	{
-		const bool b = EndTransaction();
+		EndTransaction();
 		BeginTransaction();
-		return b;
 	}
 
 	key CreateKey(const key& Root, const string_view Name, const string* const Description) override
 	{
-		if (ExecuteStatement(stmtCreateKey, Root.get(), Name, Description))
-			return key(LastInsertRowID());
+		auto Key = FindByName(Root, Name);
+		if (!Key)
+		{
+			ExecuteStatement(stmtCreateKey, Root.get(), Name, Description);
+			Key = key(LastInsertRowID());
+		}
 
-		const auto Key = FindByName(Root, Name);
-		if (Key.get() && Description)
+		if (Description)
 			SetKeyDescription(Key, *Description);
+
 		return Key;
 	}
 
@@ -468,24 +502,24 @@ protected:
 		return key(Stmt->GetColInt64(0));
 	}
 
-	bool SetKeyDescription(const key& Root, const string_view Description) override
+	void SetKeyDescription(const key& Root, const string_view Description) override
 	{
-		return ExecuteStatement(stmtSetKeyDescription, Description, Root.get());
+		ExecuteStatement(stmtSetKeyDescription, Description, Root.get());
 	}
 
-	bool SetValue(const key& Root, const string_view Name, const string_view Value) override
+	void SetValue(const key& Root, const string_view Name, const string_view Value) override
 	{
-		return SetValueT(Root, Name, Value);
+		SetValueT(Root, Name, Value);
 	}
 
-	bool SetValue(const key& Root, const string_view Name, const unsigned long long Value) override
+	void SetValue(const key& Root, const string_view Name, const unsigned long long Value) override
 	{
-		return SetValueT(Root, Name, Value);
+		SetValueT(Root, Name, Value);
 	}
 
-	bool SetValue(const key& Root, const string_view Name, const bytes_view& Value) override
+	void SetValue(const key& Root, const string_view Name, const bytes_view& Value) override
 	{
-		return SetValueT(Root, Name, Value);
+		SetValueT(Root, Name, Value);
 	}
 
 	bool GetValue(const key& Root, const string_view Name, unsigned long long& Value) const override
@@ -503,15 +537,15 @@ protected:
 		return GetValueT(Root, Name, Value, &SQLiteStmt::GetColBlob);
 	}
 
-	bool DeleteKeyTree(const key& Key) override
+	void DeleteKeyTree(const key& Key) override
 	{
 		//All subtree is automatically deleted because of foreign key constraints
-		return ExecuteStatement(stmtDeleteTree, Key.get());
+		ExecuteStatement(stmtDeleteTree, Key.get());
 	}
 
-	bool DeleteValue(const key& Root, const string_view Name) override
+	void DeleteValue(const key& Root, const string_view Name) override
 	{
-		return ExecuteStatement(stmtDelValue, Root.get(), Name);
+		ExecuteStatement(stmtDelValue, Root.get(), Name);
 	}
 
 	bool EnumKeys(const key& Root, const bool Reset, string& Name) const override
@@ -630,8 +664,6 @@ protected:
 			KeyDescription = encoding::utf8::get_chars(key_description);
 		}
 		const auto Key = CreateKey(root, KeyName, key_description? &KeyDescription : nullptr);
-		if (!Key.get())
-			return;
 
 		for (const auto& e: xml_enum(key, "value"))
 		{
@@ -690,9 +722,9 @@ protected:
 	}
 
 	template<class T>
-	bool SetValueT(const key& Root, const string_view Name, const T& Value)
+	void SetValueT(const key& Root, const string_view Name, const T& Value)
 	{
-		return ExecuteStatement(stmtSetValue, Root.get(), Name, Value);
+		ExecuteStatement(stmtSetValue, Root.get(), Name, Value);
 	}
 
 	enum statement_id
@@ -752,7 +784,7 @@ private:
 
 	bytes DeserializeBlob(const char* Type, const char* Value, const tinyxml::XMLElement& e) const override
 	{
-		if(!strcmp(Type, "color"))
+		if(Type == "color"sv)
 		{
 			FarColor Color{};
 
@@ -773,17 +805,22 @@ private:
 class ColorsConfigDb: public ColorsConfig, public SQLiteDb
 {
 public:
-	ColorsConfigDb():
-		SQLiteDb(&ColorsConfigDb::Initialise, L"colors.db"sv)
+	ColorsConfigDb(string_view const Name):
+		SQLiteDb(&ColorsConfigDb::Initialise, Name)
 	{
 	}
 
 private:
-	static bool Initialise(const db_initialiser& Db)
+	static void Initialise(const db_initialiser& Db)
 	{
-		static const auto Schema =
-			"CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);"
-		;
+		Db.SetBusyHandler(sqlite_busy_handler);
+
+		static const std::string_view Schema[]
+		{
+			"CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);"sv,
+		};
+
+		Db.Exec(Schema);
 
 		static const stmt_init<statement_id> Statements[] =
 		{
@@ -792,15 +829,12 @@ private:
 			{ stmtDelValue,              "DELETE FROM colors WHERE name=?1;"sv },
 		};
 
-		return
-			Db.Exec(Schema) &&
-			Db.PrepareStatements(Statements)
-		;
+		Db.PrepareStatements(Statements);
 	}
 
-	bool SetValue(const string_view Name, const FarColor& Value) override
+	void SetValue(const string_view Name, const FarColor& Value) override
 	{
-		return ExecuteStatement(stmtSetValue, Name, bytes_view(Value));
+		ExecuteStatement(stmtSetValue, Name, bytes_view(Value));
 	}
 
 	bool GetValue(const string_view Name, FarColor& Value) const override
@@ -874,18 +908,23 @@ private:
 class AssociationsConfigDb: public AssociationsConfig, public SQLiteDb
 {
 public:
-	AssociationsConfigDb():
-		SQLiteDb(&AssociationsConfigDb::Initialise, L"associations.db"sv)
+	AssociationsConfigDb(string_view const Name):
+		SQLiteDb(&AssociationsConfigDb::Initialise, Name)
 	{
 	}
 
 private:
-	static bool Initialise(const db_initialiser& Db)
+	static void Initialise(const db_initialiser& Db)
 	{
-		static const auto Schema =
-			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER NOT NULL, mask TEXT, description TEXT);"
-			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
-		;
+		Db.EnableForeignKeysConstraints();
+
+		static const std::string_view Schema[]
+		{
+			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER NOT NULL, mask TEXT, description TEXT);"sv,
+			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"sv,
+		};
+
+		Db.Exec(Schema);
 
 		static const stmt_init<statement_id> Statements[] =
 		{
@@ -904,11 +943,7 @@ private:
 			{ stmtSetWeight,             "UPDATE filetypes SET weight=?1 WHERE id=?2;"sv },
 		};
 
-		return
-			Db.EnableForeignKeysConstraints() &&
-			Db.Exec(Schema) &&
-			Db.PrepareStatements(Statements)
-		;
+		Db.PrepareStatements(Statements);
 	}
 
 	bool EnumMasks(const bool Reset, unsigned long long* const id, string& strMask) override
@@ -975,9 +1010,9 @@ private:
 		return true;
 	}
 
-	bool SetCommand(const unsigned long long id, const int Type, const string_view Command, const bool Enabled) override
+	void SetCommand(const unsigned long long id, const int Type, const string_view Command, const bool Enabled) override
 	{
-		return ExecuteStatement(stmtSetCommand, id, Type, Enabled, Command);
+		ExecuteStatement(stmtSetCommand, id, Type, Enabled, Command);
 	}
 
 	bool SwapPositions(unsigned long long id1, unsigned long long id2) override
@@ -985,30 +1020,34 @@ private:
 		const auto Stmt = AutoStatement(stmtGetWeight);
 		if (!Stmt->Bind(id1).Step())
 			return false;
-
 		const auto weight1 = Stmt->GetColInt64(0);
+
 		Stmt->Reset();
 		if (!Stmt->Bind(id2).Step())
 			return false;
-
 		const auto weight2 = Stmt->GetColInt64(0);
-		Stmt->Reset();
-		return ExecuteStatement(stmtSetWeight, weight1, id2) && ExecuteStatement(stmtSetWeight, weight2, id1);
+
+		ExecuteStatement(stmtSetWeight, weight1, id2);
+		ExecuteStatement(stmtSetWeight, weight2, id1);
+
+		return true;
 	}
 
 	unsigned long long AddType(const unsigned long long after_id, const string_view Mask, const string_view Description) override
 	{
-		return ExecuteStatement(stmtReorder, after_id) && ExecuteStatement(stmtAddType, after_id, Mask, Description)? LastInsertRowID() : 0;
+		ExecuteStatement(stmtReorder, after_id);
+		ExecuteStatement(stmtAddType, after_id, Mask, Description);
+		return LastInsertRowID();
 	}
 
-	bool UpdateType(const unsigned long long id, const string_view Mask, const string_view Description) override
+	void UpdateType(const unsigned long long id, const string_view Mask, const string_view Description) override
 	{
-		return ExecuteStatement(stmtUpdateType, Mask, Description, id);
+		ExecuteStatement(stmtUpdateType, Mask, Description, id);
 	}
 
-	bool DelType(unsigned long long id) override
+	void DelType(unsigned long long id) override
 	{
-		return ExecuteStatement(stmtDelType, id);
+		ExecuteStatement(stmtDelType, id);
 	}
 
 	void Export(representation_destination& Representation) const override
@@ -1045,7 +1084,7 @@ private:
 			return;
 
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		Exec("DELETE FROM filetypes;"); //delete all before importing
+		Exec({ "DELETE FROM filetypes;"sv }); //delete all before importing
 		unsigned long long id = 0;
 		for (const auto& e: xml_enum(base, "filetype"))
 		{
@@ -1059,8 +1098,6 @@ private:
 			const auto Description = encoding::utf8::get_chars(NullToEmpty(description));
 
 			id = AddType(id, Mask, Description);
-			if (!id)
-				continue;
 
 			for (const auto& se: xml_enum(*e, "command"))
 			{
@@ -1102,57 +1139,50 @@ private:
 	};
 };
 
-#if 1
-#if defined(_M_IA64)
-#define PLATFORM_SUFFIX L"IA64"
-#elif defined(_M_AMD64)
-#define PLATFORM_SUFFIX L"64"
-#elif defined(_M_ARM)
-#define PLATFORM_SUFFIX L"ARM"
-#elif defined(_M_IX86)
-#define PLATFORM_SUFFIX L"32"
-#endif
-#else
-#define PLATFORM_SUFFIX L""
-#endif
-
 class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb
 {
 public:
-	PluginsCacheConfigDb():
-		SQLiteDb(&PluginsCacheConfigDb::Initialise, L"plugincache" PLATFORM_SUFFIX L".db"sv, true, true)
+	PluginsCacheConfigDb(string_view const Name):
+		SQLiteDb(&PluginsCacheConfigDb::Initialise, Name, true)
 	{
 	}
-#undef PLATFORM_SUFFIX
 
-	bool DiscardCache() override
+	void DiscardCache() override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		return Exec("DELETE FROM cachename;");
+		Exec({ "DELETE FROM cachename;"sv });
 	}
 
 private:
-	static bool Initialise(const db_initialiser& Db)
+	static void Initialise(const db_initialiser& Db)
 	{
-		static const auto Schema =
-			"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
-			"CREATE TABLE IF NOT EXISTS preload(cid INTEGER NOT NULL PRIMARY KEY, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS signatures(cid INTEGER NOT NULL PRIMARY KEY, signature TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS guids(cid INTEGER NOT NULL PRIMARY KEY, guid TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS titles(cid INTEGER NOT NULL PRIMARY KEY, title TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS authors(cid INTEGER NOT NULL PRIMARY KEY, author TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS descriptions(cid INTEGER NOT NULL PRIMARY KEY, description TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS minfarversions(cid INTEGER NOT NULL PRIMARY KEY, version BLOB NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS pluginversions(cid INTEGER NOT NULL PRIMARY KEY, version BLOB NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS flags(cid INTEGER NOT NULL PRIMARY KEY, bitmask INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS prefixes(cid INTEGER NOT NULL PRIMARY KEY, prefix TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
-			"CREATE TABLE IF NOT EXISTS exports(cid INTEGER NOT NULL, export TEXT NOT NULL, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, export));"
-			"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"
-		;
+		Db.SetBusyHandler(sqlite_busy_handler);
+
+		Db.SetWALJournalingMode();
+		Db.EnableForeignKeysConstraints();
+
+		static const std::string_view Schema[]
+		{
+			"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"sv,
+			"CREATE TABLE IF NOT EXISTS preload(cid INTEGER NOT NULL PRIMARY KEY, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS signatures(cid INTEGER NOT NULL PRIMARY KEY, signature TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS guids(cid INTEGER NOT NULL PRIMARY KEY, guid TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS titles(cid INTEGER NOT NULL PRIMARY KEY, title TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS authors(cid INTEGER NOT NULL PRIMARY KEY, author TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS descriptions(cid INTEGER NOT NULL PRIMARY KEY, description TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS minfarversions(cid INTEGER NOT NULL PRIMARY KEY, version BLOB NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS pluginversions(cid INTEGER NOT NULL PRIMARY KEY, version BLOB NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS flags(cid INTEGER NOT NULL PRIMARY KEY, bitmask INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS prefixes(cid INTEGER NOT NULL PRIMARY KEY, prefix TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"sv,
+			"CREATE TABLE IF NOT EXISTS exports(cid INTEGER NOT NULL, export TEXT NOT NULL, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, export));"sv,
+			"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"sv,
+		};
+
+		Db.Exec(Schema);
 
 		static const stmt_init<statement_id> Statements[] =
 		{
-			{ stmtCreateCache,           "INSERT INTO cachename VALUES (NULL,?1);,"sv },
+			{ stmtCreateCache,           "INSERT INTO cachename VALUES (NULL,?1);"sv },
 			{ stmtFindCacheName,         "SELECT id FROM cachename WHERE name=?1;"sv },
 			{ stmtDelCache,              "DELETE FROM cachename WHERE name=?1;"sv },
 			{ stmtCountCacheNames,       "SELECT count(name) FROM cachename;"sv },
@@ -1183,12 +1213,7 @@ private:
 			{ stmtSetMenuItem,           "REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);"sv },
 		};
 
-		return
-			Db.SetWALJournalingMode() &&
-			Db.EnableForeignKeysConstraints() &&
-			Db.Exec(Schema) &&
-			Db.PrepareStatements(Statements)
-		;
+		Db.PrepareStatements(Statements);
 	}
 
 	void Import(const representation_source&) override {}
@@ -1196,7 +1221,10 @@ private:
 
 	unsigned long long CreateCache(const string_view CacheName) override
 	{
-		return ExecuteStatement(stmtCreateCache, CacheName)? LastInsertRowID() : 0;
+		//All related entries are automatically deleted because of foreign key constraints
+		ExecuteStatement(stmtDelCache, CacheName);
+		ExecuteStatement(stmtCreateCache, CacheName);
+		return LastInsertRowID();
 	}
 
 	unsigned long long GetCacheID(const string_view CacheName) const override
@@ -1205,12 +1233,6 @@ private:
 		return Stmt->Bind(CacheName).Step()?
 		       Stmt->GetColInt64(0) :
 		       0;
-	}
-
-	bool DeleteCache(const string_view CacheName) override
-	{
-		//All related entries are automatically deleted because of foreign key constraints
-		return ExecuteStatement(stmtDelCache, CacheName);
 	}
 
 	bool IsPreload(unsigned long long id) const override
@@ -1289,74 +1311,75 @@ private:
 		return Stmt->Bind(id).Step()? Stmt->GetColInt64(0) : 0;
 	}
 
-	bool SetPreload(unsigned long long id, bool Preload) override
+	void SetPreload(unsigned long long id, bool Preload) override
 	{
-		return ExecuteStatement(stmtSetPreloadState, id, Preload);
+		ExecuteStatement(stmtSetPreloadState, id, Preload);
 	}
 
-	bool SetSignature(const unsigned long long id, const string_view Signature) override
+	void SetSignature(const unsigned long long id, const string_view Signature) override
 	{
-		return ExecuteStatement(stmtSetSignature, id, Signature);
+		ExecuteStatement(stmtSetSignature, id, Signature);
 	}
 
-	bool SetDiskMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
+	void SetDiskMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
-		return SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
+		SetMenuItem(id, DRIVE_MENU, index, Text, Guid);
 	}
 
-	bool SetPluginsMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
+	void SetPluginsMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
-		return SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
+		SetMenuItem(id, PLUGINS_MENU, index, Text, Guid);
 	}
 
-	bool SetPluginsConfigMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
+	void SetPluginsConfigMenuItem(const unsigned long long id, const size_t index, const string_view Text, const GUID& Guid) override
 	{
-		return SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
+		SetMenuItem(id, CONFIG_MENU, index, Text, Guid);
 	}
 
-	bool SetCommandPrefix(const unsigned long long id, const string_view Prefix) override
+	void SetCommandPrefix(const unsigned long long id, const string_view Prefix) override
 	{
-		return ExecuteStatement(stmtSetPrefix, id, Prefix);
+		ExecuteStatement(stmtSetPrefix, id, Prefix);
 	}
 
-	bool SetFlags(unsigned long long id, unsigned long long Flags) override
+	void SetFlags(unsigned long long id, unsigned long long Flags) override
 	{
-		return ExecuteStatement(stmtSetFlags, id, Flags);
+		ExecuteStatement(stmtSetFlags, id, Flags);
 	}
 
-	bool SetExportState(const unsigned long long id, const string_view ExportName, const bool Exists) override
+	void SetExportState(const unsigned long long id, const string_view ExportName, const bool Exists) override
 	{
-		return !ExportName.empty() && ExecuteStatement(stmtSetExportState, id, ExportName, Exists);
+		if (!ExportName.empty())
+			ExecuteStatement(stmtSetExportState, id, ExportName, Exists);
 	}
 
-	bool SetMinFarVersion(unsigned long long id, const VersionInfo *Version) override
+	void SetMinFarVersion(unsigned long long id, const VersionInfo *Version) override
 	{
-		return ExecuteStatement(stmtSetMinFarVersion, id, bytes_view(*Version));
+		ExecuteStatement(stmtSetMinFarVersion, id, bytes_view(*Version));
 	}
 
-	bool SetVersion(unsigned long long id, const VersionInfo *Version) override
+	void SetVersion(unsigned long long id, const VersionInfo *Version) override
 	{
-		return ExecuteStatement(stmtSetVersion, id, bytes_view(*Version));
+		ExecuteStatement(stmtSetVersion, id, bytes_view(*Version));
 	}
 
-	bool SetGuid(const unsigned long long id, const string_view Guid) override
+	void SetGuid(const unsigned long long id, const string_view Guid) override
 	{
-		return ExecuteStatement(stmtSetGuid, id, Guid);
+		ExecuteStatement(stmtSetGuid, id, Guid);
 	}
 
-	bool SetTitle(const unsigned long long id, const string_view Title) override
+	void SetTitle(const unsigned long long id, const string_view Title) override
 	{
-		return ExecuteStatement(stmtSetTitle, id, Title);
+		ExecuteStatement(stmtSetTitle, id, Title);
 	}
 
-	bool SetAuthor(const unsigned long long id, const string_view Author) override
+	void SetAuthor(const unsigned long long id, const string_view Author) override
 	{
-		return ExecuteStatement(stmtSetAuthor, id, Author);
+		ExecuteStatement(stmtSetAuthor, id, Author);
 	}
 
-	bool SetDescription(const unsigned long long id, const string_view Description) override
+	void SetDescription(const unsigned long long id, const string_view Description) override
 	{
-		return ExecuteStatement(stmtSetDescription, id, Description);
+		ExecuteStatement(stmtSetDescription, id, Description);
 	}
 
 	bool EnumPlugins(DWORD index, string &CacheName) const override
@@ -1396,9 +1419,9 @@ private:
 		return StrToGuid(Stmt->GetColText(1), Guid);
 	}
 
-	bool SetMenuItem(const unsigned long long id, const MenuItemTypeEnum type, const size_t index, const string_view Text, const GUID& Guid) const
+	void SetMenuItem(const unsigned long long id, const MenuItemTypeEnum type, const size_t index, const string_view Text, const GUID& Guid) const
 	{
-		return ExecuteStatement(stmtSetMenuItem, id, type, index, GuidToStr(Guid), Text);
+		ExecuteStatement(stmtSetMenuItem, id, type, index, GuidToStr(Guid), Text);
 	}
 
 	string GetTextFromID(size_t StatementIndex, unsigned long long id) const
@@ -1456,17 +1479,22 @@ private:
 class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public SQLiteDb
 {
 public:
-	PluginsHotkeysConfigDb():
-		SQLiteDb(&PluginsHotkeysConfigDb::Initialise, L"pluginhotkeys.db"sv)
+	PluginsHotkeysConfigDb(string_view const Name):
+		SQLiteDb(&PluginsHotkeysConfigDb::Initialise, Name)
 	{
 	}
 
 private:
-	static bool Initialise(const db_initialiser& Db)
+	static void Initialise(const db_initialiser& Db)
 	{
-		static const auto Schema =
-			"CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));"
-			;
+		Db.SetBusyHandler(sqlite_busy_handler);
+
+		static const std::string_view Schema[]
+		{
+			"CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));"sv,
+		};
+
+		Db.Exec(Schema);
 
 		static const stmt_init<statement_id> Statements[] =
 		{
@@ -1476,10 +1504,7 @@ private:
 			{ stmtCheckForHotkeys,       "SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1;"sv },
 		};
 
-		return
-			Db.Exec(Schema) &&
-			Db.PrepareStatements(Statements)
-		;
+		Db.PrepareStatements(Statements);
 	}
 
 	bool HotkeysPresent(hotkey_type HotKeyType) override
@@ -1497,14 +1522,14 @@ private:
 		return Stmt->GetColText(0);
 	}
 
-	bool SetHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType, const string_view HotKey) override
+	void SetHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType, const string_view HotKey) override
 	{
-		return ExecuteStatement(stmtSetHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType), HotKey);
+		ExecuteStatement(stmtSetHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType), HotKey);
 	}
 
-	bool DelHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType) override
+	void DelHotkey(const string_view PluginKey, const GUID& MenuGuid, const hotkey_type HotKeyType) override
 	{
-		return ExecuteStatement(stmtDelHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType));
+		ExecuteStatement(stmtDelHotkey, PluginKey, GuidToStr(MenuGuid), as_underlying_type(HotKeyType));
 	}
 
 	void Export(representation_destination& Representation) const override
@@ -1596,8 +1621,8 @@ private:
 class HistoryConfigCustom: public HistoryConfig, public SQLiteDb
 {
 public:
-	HistoryConfigCustom(string_view const DbName, bool Local):
-		SQLiteDb(&HistoryConfigCustom::Initialise, DbName, Local, true)
+	HistoryConfigCustom(string_view const DbName):
+		SQLiteDb(&HistoryConfigCustom::Initialise, DbName, true)
 	{
 		StartThread();
 	}
@@ -1638,9 +1663,10 @@ private:
 	{
 		StopEvent = os::event(os::event::type::automatic, os::event::state::nonsignaled);
 		string EventName;
-		if (GetPath() != L":memory:"sv)
+		const auto& DbPath = GetPath();
+		if (DbPath != L":memory:"sv)
 		{
-			EventName = os::make_name<os::event>(GetPath(), GetName());
+			EventName = os::make_name<os::event>(DbPath, PointToName(DbPath));
 		}
 		AsyncDeleteAddDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Delete"sv);
 		AsyncCommitDone = os::event(os::event::type::manual, os::event::state::signaled, EventName + L"_Commit"sv);
@@ -1695,14 +1721,14 @@ private:
 		}
 	}
 
-	bool AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData) const
+	void AddInternal(unsigned int TypeHistory, const string& HistoryName, const string &Name, int Type, bool Lock, const string &strGuid, const string &strFile, const string &strData) const
 	{
-		return ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::now().time_since_epoch().count(), strGuid, strFile, strData);
+		ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::now().time_since_epoch().count(), strGuid, strFile, strData);
 	}
 
-	bool DeleteInternal(unsigned long long id) const
+	void DeleteInternal(unsigned long long id) const
 	{
-		return ExecuteStatement(stmtDel, id);
+		ExecuteStatement(stmtDel, id);
 	}
 
 	unsigned long long GetPrevImpl(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, const std::function<unsigned long long()>& Fallback) const
@@ -1728,36 +1754,43 @@ private:
 		return GetPrevStmt->GetColInt64(0);
 	}
 
-	bool BeginTransaction() override { WaitAllAsync(); return SQLiteDb::BeginTransaction(); }
+	void BeginTransaction() override { WaitAllAsync(); SQLiteDb::BeginTransaction(); }
 
-	bool EndTransaction() override
+	void EndTransaction() override
 	{
 		WorkQueue.emplace(nullptr);
 		WaitAllAsync();
 		AsyncCommitDone.reset();
 		AsyncWork.set();
-		return true;
 	}
 
-	bool RollbackTransaction() override { WaitAllAsync(); return SQLiteDb::RollbackTransaction(); }
+	void RollbackTransaction() override { WaitAllAsync(); SQLiteDb::RollbackTransaction(); }
 
-	static bool Initialise(const db_initialiser& Db)
+	static void Initialise(const db_initialiser& Db)
 	{
-		static const auto Schema =
+		Db.SetBusyHandler(sqlite_busy_handler);
+
+		Db.SetWALJournalingMode();
+		Db.EnableForeignKeysConstraints();
+
+		static const std::string_view Schema[]
+		{
 			//command,view,edit,folder,dialog history
-			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL, guid TEXT NOT NULL, file TEXT NOT NULL, data TEXT NOT NULL);"
-			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
-			"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"
-			"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"
-			"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"
+			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL, guid TEXT NOT NULL, file TEXT NOT NULL, data TEXT NOT NULL);"sv,
+			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"sv,
+			"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"sv,
+			"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"sv,
+			"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"sv,
 			//view,edit file positions and bookmarks history
-			"CREATE TABLE IF NOT EXISTS editorposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"
-			"CREATE TABLE IF NOT EXISTS editorbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES editorposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"
-			"CREATE INDEX IF NOT EXISTS editorposition_history_idx1 ON editorposition_history (time DESC);"
-			"CREATE TABLE IF NOT EXISTS viewerposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, hex INTEGER NOT NULL, codepage INTEGER NOT NULL);"
-			"CREATE TABLE IF NOT EXISTS viewerbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES viewerposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"
-			"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"
-		;
+			"CREATE TABLE IF NOT EXISTS editorposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"sv,
+			"CREATE TABLE IF NOT EXISTS editorbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES editorposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"sv,
+			"CREATE INDEX IF NOT EXISTS editorposition_history_idx1 ON editorposition_history (time DESC);"sv,
+			"CREATE TABLE IF NOT EXISTS viewerposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, hex INTEGER NOT NULL, codepage INTEGER NOT NULL);"sv,
+			"CREATE TABLE IF NOT EXISTS viewerbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES viewerposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"sv,
+			"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"sv,
+		};
+
+		Db.Exec(Schema);
 
 		static const stmt_init<statement_id> Statements[] =
 		{
@@ -1789,18 +1822,13 @@ private:
 			{ stmtDeleteOldViewer,       "DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);"sv },
 		};
 
-		return
-			Db.SetWALJournalingMode() &&
-			Db.EnableForeignKeysConstraints() &&
-			Db.Exec(Schema) &&
-			Db.PrepareStatements(Statements)
-		;
+		Db.PrepareStatements(Statements);
 	}
 
-	bool Delete(unsigned long long id) override
+	void Delete(unsigned long long id) override
 	{
 		WaitAllAsync();
-		return DeleteInternal(id);
+		DeleteInternal(id);
 	}
 
 	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strGuid, string& strFile, string& strData, const bool Reverse) override
@@ -1847,12 +1875,12 @@ private:
 		return true;
 	}
 
-	bool DeleteOldUnlocked(const unsigned int TypeHistory, const string_view HistoryName, const int DaysToKeep, const int MinimumEntries) override
+	void DeleteOldUnlocked(const unsigned int TypeHistory, const string_view HistoryName, const int DaysToKeep, const int MinimumEntries) override
 	{
 		WaitAllAsync();
 
 		const auto older = (os::chrono::nt_clock::now() - chrono::days(DaysToKeep)).time_since_epoch().count();
-		return ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
+		ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
 	bool EnumLargeHistories(const bool Reset, const unsigned int TypeHistory, const int MinimumEntries, string& strHistoryName) override
@@ -1915,10 +1943,10 @@ private:
 		return Stmt->Bind(TypeHistory, HistoryName).Step()? static_cast<DWORD>(Stmt-> GetColInt(0)) : 0;
 	}
 
-	bool FlipLock(unsigned long long id) override
+	void FlipLock(unsigned long long id) override
 	{
 		WaitAllAsync();
-		return ExecuteStatement(stmtSetLock, !IsLocked(id), id);
+		ExecuteStatement(stmtSetLock, !IsLocked(id), id);
 	}
 
 	bool IsLocked(unsigned long long id) override
@@ -1928,10 +1956,10 @@ private:
 		return Stmt->Bind(id).Step() && Stmt->GetColInt(0) != 0;
 	}
 
-	bool DeleteAllUnlocked(const unsigned int TypeHistory, const string_view HistoryName) override
+	void DeleteAllUnlocked(const unsigned int TypeHistory, const string_view HistoryName) override
 	{
 		WaitAllAsync();
-		return ExecuteStatement(stmtDelUnlocked, TypeHistory, HistoryName);
+		ExecuteStatement(stmtDelUnlocked, TypeHistory, HistoryName);
 	}
 
 	unsigned long long GetNext(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name) override
@@ -1963,7 +1991,8 @@ private:
 	unsigned long long SetEditorPos(const string_view Name, const int Line, const int LinePos, const int ScreenLine, const int LeftPos, const uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
-		return ExecuteStatement(stmtSetEditorPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), Line, LinePos, ScreenLine, LeftPos, CodePage)? LastInsertRowID() : 0;
+		ExecuteStatement(stmtSetEditorPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), Line, LinePos, ScreenLine, LeftPos, CodePage);
+		return LastInsertRowID();
 	}
 
 	unsigned long long GetEditorPos(const string_view Name, int* const Line, int* const LinePos, int* const ScreenLine, int* const LeftPos, uintptr_t* const CodePage) override
@@ -1981,10 +2010,10 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	bool SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
+	void SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
 	{
 		WaitCommitAsync();
-		return ExecuteStatement(stmtSetEditorBookmark, id, i, Line, LinePos, ScreenLine, LeftPos);
+		ExecuteStatement(stmtSetEditorBookmark, id, i, Line, LinePos, ScreenLine, LeftPos);
 	}
 
 	bool GetEditorBookmark(unsigned long long id, size_t i, int *Line, int *LinePos, int *ScreenLine, int *LeftPos) override
@@ -2004,7 +2033,8 @@ private:
 	unsigned long long SetViewerPos(const string_view Name, const long long FilePos, const long long LeftPos, const int Hex_Wrap, uintptr_t const CodePage) override
 	{
 		WaitCommitAsync();
-		return ExecuteStatement(stmtSetViewerPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), FilePos, LeftPos, Hex_Wrap, CodePage)? LastInsertRowID() : 0;
+		ExecuteStatement(stmtSetViewerPos, Name, os::chrono::nt_clock::now().time_since_epoch().count(), FilePos, LeftPos, Hex_Wrap, CodePage);
+		return LastInsertRowID();
 	}
 
 	unsigned long long GetViewerPos(const string_view Name, long long* const FilePos, long long* const LeftPos, int* const Hex, uintptr_t* const CodePage) override
@@ -2022,10 +2052,10 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	bool SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) override
+	void SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) override
 	{
 		WaitCommitAsync();
-		return ExecuteStatement(stmtSetViewerBookmark, id, i, FilePos, LeftPos);
+		ExecuteStatement(stmtSetViewerBookmark, id, i, FilePos, LeftPos);
 	}
 
 	bool GetViewerBookmark(unsigned long long id, size_t i, long long *FilePos, long long *LeftPos) override
@@ -2084,8 +2114,8 @@ private:
 class HistoryConfigDb: public HistoryConfigCustom
 {
 public:
-	HistoryConfigDb():
-		HistoryConfigCustom(L"history.db"sv, true)
+	HistoryConfigDb(string_view const Name):
+		HistoryConfigCustom(Name)
 	{
 	}
 
@@ -2099,8 +2129,8 @@ private:
 class HistoryConfigMemory: public HistoryConfigCustom
 {
 public:
-	HistoryConfigMemory():
-		HistoryConfigCustom(L":memory:"sv, true)
+	HistoryConfigMemory(string_view const Name):
+		HistoryConfigCustom(Name)
 	{
 	}
 
@@ -2115,23 +2145,6 @@ static const std::wregex& uuid_regex()
 	return re;
 }
 
-}
-
-void config_provider::CheckDatabase(const SQLiteDb* const pDb)
-{
-	string pname;
-	const auto Status = pDb->GetInitStatus(pname, m_Mode != mode::m_default);
-	if (!Status)
-		return;
-
-	if (m_Mode != mode::m_default)
-	{
-		std::wcerr << format(L"Problem with {0}:\n  {1}", pname, SQLiteDb::GetErrorMessage(Status)) << std::endl;
-	}
-	else
-	{
-		m_Problems.emplace_back(pname);
-	}
 }
 
 void config_provider::TryImportDatabase(representable* p, const char* NodeName, bool IsPlugin)
@@ -2172,30 +2185,85 @@ void config_provider::TryImportDatabase(representable* p, const char* NodeName, 
 }
 
 template<class T>
-void config_provider::CheckAndImportDatabase(T* Database, const char* ImportNodeName, bool IsPlugin)
+void config_provider::ImportDatabase(T* Database, const char* ImportNodeName, bool IsPlugin)
 {
-	CheckDatabase(Database);
 	if (m_Mode != mode::m_import && Database->IsNew())
 	{
 		TryImportDatabase(Database, ImportNodeName, IsPlugin);
 	}
 }
 
-template<class T>
-std::unique_ptr<T> config_provider::CreateDatabase()
+static string GetDatabasePath(string_view const FileName, bool const Local)
 {
-	auto Database = std::make_unique<T>();
-	CheckAndImportDatabase(Database.get(), nullptr, false);
+	return FileName == SQLiteDb::memory_db_name()?
+		string(FileName) :
+		path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName);
+}
+
+template<class T>
+std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
+{
+	const auto& Report = [&](string_view const Msg)
+	{
+		if (m_Mode != mode::m_default)
+			std::wcerr << Msg << std::endl;
+		else
+			m_Problems.emplace_back(Msg);
+	};
+
+	try
+	{
+		return std::make_unique<T>(Name);
+	}
+	catch (const far_sqlite_exception& e1)
+	{
+		Report(concat(Name, L':'));
+		Report(concat(L"  "sv, e1.get_message()));
+		if (Global->Opt->ReadOnlyConfig || !os::fs::move_file(Name, Name + L".bad"sv, MOVEFILE_REPLACE_EXISTING))
+		{
+			Report(L"  - database is opened in memory"sv);
+			return std::make_unique<T>(L":memory:"sv);
+		}
+
+		try
+		{
+			auto Result = std::make_unique<T>(Name);
+			Report(L"  - database file is renamed to *.bad and new one is created"sv);
+			return Result;
+		}
+		catch (const far_sqlite_exception& e2)
+		{
+			Report(concat(L"  "sv, e2.get_message()));
+			Report(L"  - database is opened in memory"sv);
+			return std::make_unique<T>(L":memory:"sv);
+		}
+	}
+}
+
+template<class T>
+std::unique_ptr<T> config_provider::CreateDatabase(string_view const Name, bool const Local)
+{
+	const auto FullName = GetDatabasePath(Name, Local);
+
+	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, Name));
+	SCOPED_ACTION(std::lock_guard<os::mutex>)(m);
+
+	auto Database = CreateWithFallback<T>(FullName);
+
+	ImportDatabase(Database.get(), nullptr, false);
 	return Database;
 }
 
 template<class T>
-HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, string_view const DbName, const char* ImportNodeName, bool IsLocal, bool IsPlugin)
+HierarchicalConfigUniquePtr config_provider::CreateHierarchicalConfig(dbcheck DbId, string_view const DbName, const char* ImportNodeName, bool Local, bool IsPlugin, bool UseFallback)
 {
-	auto Database = std::make_unique<T>(DbName, IsLocal);
+	const auto FullName = GetDatabasePath(DbName, Local);
+
+	auto Database = UseFallback? CreateWithFallback<T>(FullName) : std::make_unique<T>(FullName);
+
 	if (!m_CheckedDb.Check(DbId))
 	{
-		CheckAndImportDatabase(Database.get(), ImportNodeName, IsPlugin);
+		ImportDatabase(Database.get(), ImportNodeName, IsPlugin);
 		m_CheckedDb.Set(DbId);
 	}
 	return HierarchicalConfigUniquePtr(Database.release());
@@ -2210,9 +2278,9 @@ enum dbcheck: int
 	CHECK_PANELMODES = bit(3),
 };
 
-HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local)
+HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view guid, const bool Local, bool UseFallback)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"sv, guid) + L".db"sv, encoding::utf8::get_bytes(guid).c_str(), Local, true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"sv, guid) + L".db"sv, encoding::utf8::get_bytes(guid).c_str(), Local, true, UseFallback);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
@@ -2235,17 +2303,49 @@ HierarchicalConfigUniquePtr config_provider::CreatePanelModesConfig()
 	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db"sv, "panelmodes");
 }
 
+config_provider::implementation::implementation()
+{
+	SQLiteDb::library_load();
+}
+
+config_provider::implementation::~implementation()
+{
+	SQLiteDb::library_free();
+}
+
+
+static auto pluginscache_db_name()
+{
+#if 1
+#if defined(_M_IA64)
+#define PLATFORM_SUFFIX L"IA64"
+#elif defined(_M_AMD64)
+#define PLATFORM_SUFFIX L"64"
+#elif defined(_M_ARM)
+#define PLATFORM_SUFFIX L"ARM"
+#elif defined(_M_IX86)
+#define PLATFORM_SUFFIX L"32"
+#endif
+#else
+#define PLATFORM_SUFFIX L""
+#endif
+
+	return L"plugincache" PLATFORM_SUFFIX L".db"sv;
+
+#undef PLATFORM_SUFFIX
+}
+
+
 config_provider::config_provider(mode Mode):
-	m_LoadResult(SQLiteDb::library_load()),
 	m_Mode(Mode),
-	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
-	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>()),
-	m_ColorsCfg(CreateDatabase<ColorsConfigDb>()),
-	m_AssocConfig(CreateDatabase<AssociationsConfigDb>()),
-	m_PlCacheCfg(CreateDatabase<PluginsCacheConfigDb>()),
-	m_PlHotkeyCfg(CreateDatabase<PluginsHotkeysConfigDb>()),
-	m_HistoryCfg(CreateDatabase<HistoryConfigDb>()),
-	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>())
+	m_GeneralCfg(CreateDatabase<GeneralConfigDb>(L"generalconfig.db"sv, false)),
+	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>(L"localconfig.db"sv, true)),
+	m_ColorsCfg(CreateDatabase<ColorsConfigDb>(L"colors.db"sv, false)),
+	m_AssocConfig(CreateDatabase<AssociationsConfigDb>(L"associations.db"sv, false)),
+	m_PlCacheCfg(CreateDatabase<PluginsCacheConfigDb>(pluginscache_db_name(), true)),
+	m_PlHotkeyCfg(CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys.db"sv, false)),
+	m_HistoryCfg(CreateDatabase<HistoryConfigDb>(L"history.db"sv, true)),
+	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>(L":memory:"sv, true))
 {
 }
 
@@ -2253,7 +2353,6 @@ config_provider::~config_provider()
 {
 	// Make sure all threads are joined before freeing the library
 	m_Threads.clear();
-	SQLiteDb::library_free();
 }
 
 bool config_provider::Export(const string& File)
@@ -2347,16 +2446,17 @@ bool config_provider::Import(const string& Filename)
 
 void config_provider::ClearPluginsCache()
 {
-	PluginsCacheConfigDb().DiscardCache();
+	PluginsCacheConfigDb(GetDatabasePath(pluginscache_db_name(), true)).DiscardCache();
 }
 
 bool config_provider::ShowProblems() const
 {
 	if (m_Problems.empty())
 		return false;
-	return Message(MSG_WARNING,
+
+	return Message(MSG_WARNING | MSG_LEFTALIGN,
 		msg(lng::MProblemDb),
-		m_Problems,
+		std::move(m_Problems),
 		{ lng::MShowConfigFolders, lng::MIgnore }) == Message::first_button;
 }
 

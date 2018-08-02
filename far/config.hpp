@@ -141,7 +141,7 @@ protected:
 private:
 	friend class Options;
 
-	virtual bool StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const = 0;
+	virtual void StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const = 0;
 	virtual bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) = 0;
 
 	void MakeUnchanged() { m_Value.forget(); }
@@ -210,7 +210,7 @@ namespace detail
 		void SetDefault(const std::any& Default) override { Set(std::any_cast<base_type>(Default)); }
 
 		bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) override;
-		bool StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const override;
+		void StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }
 

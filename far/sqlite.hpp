@@ -35,18 +35,40 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "common/preprocessor.hpp"
+
+#define SQLITE_DEFAULT_MEMSTATUS 0
+#define SQLITE_DEFAULT_WAL_SYNCHRONOUS 1
+
+#define SQLITE_OMIT_AUTHORIZATION 1
+#define SQLITE_OMIT_AUTOINIT 1
+#define SQLITE_OMIT_COMPILEOPTION_DIAGS 1
+#define SQLITE_OMIT_DECLTYPE 1
+#define SQLITE_OMIT_DEPRECATED 1
+#define SQLITE_OMIT_EXPLAIN 1
+#define SQLITE_OMIT_PROGRESS_CALLBACK 1
+#define SQLITE_OMIT_TRACE 1
+
+#define SQLITE_WIN32_NO_ANSI 1
+
+#ifdef _DEBUG
+#define SQLITE_DEBUG 1
+#define SQLITE_MEMDEBUG 1
+#define SQLITE_ENABLE_API_ARMOR 1
+#endif
+
+#ifndef SQLITE_CONFIG_ONLY
 namespace sqlite
 {
 WARNING_PUSH(3)
-
 WARNING_DISABLE_GCC("-Wzero-as-null-pointer-constant")
-
 #include "thirdparty/sqlite/sqlite3.h"
 
-static const auto static_destructor = SQLITE_STATIC;
-static const auto transient_destructor = SQLITE_TRANSIENT;
-
+	static const auto static_destructor = SQLITE_STATIC;
+	static const auto transient_destructor = SQLITE_TRANSIENT;
 WARNING_POP()
 }
+
+#endif // !SQLITE_CONFIG_ONLY
 
 #endif // SQLITE_HPP_83511762_721C_4CB4_A7E3_C98B3605D2E2
