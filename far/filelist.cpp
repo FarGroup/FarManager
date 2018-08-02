@@ -5590,7 +5590,8 @@ void FileList::PluginDelete()
 		if (ItemList.empty())
 			return;
 
-		if (Global->CtrlObject->Plugins->DeleteFiles(GetPluginHandle(), ItemList.data(), ItemList.size(), 0))
+		const auto Item = GetPluginItem();
+		if (Global->CtrlObject->Plugins->DeleteFiles(Item.lock()->m_Plugin.get(), ItemList.data(), ItemList.size(), 0) && !Item.expired())
 		{
 			SetPluginModified();
 			PutDizToPlugin(this, ItemList.items(), true, false, nullptr);
@@ -5690,44 +5691,48 @@ void FileList::PluginGetFiles(const wchar_t **DestPath, bool Move)
 		if (ItemList.empty())
 			return;
 
-		const auto GetCode = Global->CtrlObject->Plugins->GetFiles(GetPluginHandle(), ItemList.data(), ItemList.size(), Move, DestPath, 0);
+		const auto Item = GetPluginItem();
+		const auto GetCode = Global->CtrlObject->Plugins->GetFiles(Item.lock()->m_Plugin.get(), ItemList.data(), ItemList.size(), Move, DestPath, 0);
 
-		if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
-		        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
+		if (!Item.expired())
 		{
-			DizList DestDiz;
-			bool DizFound = false;
-
-			std::for_each(RANGE(ItemList.items(), i)
+			if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
+			        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
 			{
-				if (i.Flags & PPIF_PROCESSDESCR)
+				DizList DestDiz;
+				bool DizFound = false;
+
+				std::for_each(RANGE(ItemList.items(), i)
 				{
-					if (!DizFound)
+					if (i.Flags & PPIF_PROCESSDESCR)
 					{
-						Parent()->LeftPanel()->ReadDiz();
-						Parent()->RightPanel()->ReadDiz();
-						DestDiz.Read(*DestPath);
-						DizFound = true;
+						if (!DizFound)
+						{
+							Parent()->LeftPanel()->ReadDiz();
+							Parent()->RightPanel()->ReadDiz();
+							DestDiz.Read(*DestPath);
+							DizFound = true;
+						}
+						CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.FileName, &DestDiz);
 					}
-					CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.FileName, &DestDiz);
-				}
-			});
-			DestDiz.Flush(*DestPath);
-		}
-
-		if (GetCode==1)
-		{
-			if (!ReturnCurrentFile)
-				ClearSelection();
-
-			if (Move)
-			{
-				SetPluginModified();
-				PutDizToPlugin(this, ItemList.items(), true, false, nullptr);
+				});
+				DestDiz.Flush(*DestPath);
 			}
+
+			if (GetCode==1)
+			{
+				if (!ReturnCurrentFile)
+					ClearSelection();
+
+				if (Move)
+				{
+					SetPluginModified();
+					PutDizToPlugin(this, ItemList.items(), true, false, nullptr);
+				}
+			}
+			else if (!ReturnCurrentFile)
+				PluginClearSelection(ItemList.items());
 		}
-		else if (!ReturnCurrentFile)
-			PluginClearSelection(ItemList.items());
 	}
 
 	Update(UPDATE_KEEP_SELECTION);
