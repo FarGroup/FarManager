@@ -5098,11 +5098,7 @@ void FileList::ProcessCopyKeys(int Key)
 							}
 						}
 
-						auto DestPath = strDestPath.c_str();
-
-						PluginGetFiles(&DestPath,Move);
-						// BUGBUG, never used
-						strDestPath=DestPath;
+						PluginGetFiles(strDestPath, Move);
 					}
 				}
 			}
@@ -5681,7 +5677,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 }
 
 
-void FileList::PluginGetFiles(const wchar_t **DestPath, bool Move)
+void FileList::PluginGetFiles(const string& DestPath, bool Move)
 {
 	_ALGO(CleverSysLog clv(L"FileList::PluginGetFiles()"));
 	SaveSelection();
@@ -5691,36 +5687,37 @@ void FileList::PluginGetFiles(const wchar_t **DestPath, bool Move)
 		if (ItemList.empty())
 			return;
 
+		auto DestPathPtr = DestPath.c_str();
 		const auto Item = GetPluginItem();
-		const auto GetCode = Global->CtrlObject->Plugins->GetFiles(Item.lock()->m_Plugin.get(), ItemList.data(), ItemList.size(), Move, DestPath, 0);
+		const auto GetCode = Global->CtrlObject->Plugins->GetFiles(Item.lock()->m_Plugin.get(), ItemList.data(), ItemList.size(), Move, &DestPathPtr, 0);
 
 		if (!Item.expired())
 		{
-			if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
-			        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
+			if (GetCode == 1)
 			{
-				DizList DestDiz;
-				bool DizFound = false;
-
-				std::for_each(RANGE(ItemList.items(), i)
+				if ((Global->Opt->Diz.UpdateMode == DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) || Global->Opt->Diz.UpdateMode == DIZ_UPDATE_ALWAYS)
 				{
-					if (i.Flags & PPIF_PROCESSDESCR)
-					{
-						if (!DizFound)
-						{
-							Parent()->LeftPanel()->ReadDiz();
-							Parent()->RightPanel()->ReadDiz();
-							DestDiz.Read(*DestPath);
-							DizFound = true;
-						}
-						CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.FileName, &DestDiz);
-					}
-				});
-				DestDiz.Flush(*DestPath);
-			}
+					const auto NewDestPath = DestPathPtr;
+					DizList DestDiz;
+					bool DizFound = false;
 
-			if (GetCode==1)
-			{
+					std::for_each(RANGE(ItemList.items(), i)
+					{
+						if (i.Flags & PPIF_PROCESSDESCR)
+						{
+							if (!DizFound)
+							{
+								Parent()->LeftPanel()->ReadDiz();
+								Parent()->RightPanel()->ReadDiz();
+								DestDiz.Read(NewDestPath);
+								DizFound = true;
+							}
+							CopyDiz(i.FileName, i.AlternateFileName, i.FileName, i.FileName, &DestDiz);
+						}
+					});
+					DestDiz.Flush(NewDestPath);
+				}
+
 				if (!ReturnCurrentFile)
 					ClearSelection();
 

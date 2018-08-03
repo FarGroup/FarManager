@@ -273,7 +273,7 @@ private:
 	void PrepareViewSettings(int ViewMode);
 	void PluginDelete();
 	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, bool Delete, bool Move, DizList *SrcDiz);
-	void PluginGetFiles(const wchar_t **DestPath, bool Move);
+	void PluginGetFiles(const string& DestPath, bool Move);
 	void PluginToPluginFiles(bool Move);
 	void PluginHostGetFiles();
 	void PluginPutFilesToNew();
