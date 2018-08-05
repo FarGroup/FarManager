@@ -281,20 +281,14 @@ namespace detail
 		{
 		}
 
-		auto begin()        { return make(this); }
-		auto end()          { return make(this); }
-		auto begin()  const { return make(this); }
-		auto end()    const { return make(this); }
-		auto cbegin() const { return make(this); }
-		auto cend()   const { return make(this); }
+		auto begin()        { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		auto end()          { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		auto begin()  const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		auto end()    const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
+		auto cbegin() const { return make_select_iterator(std::begin(this->m_Container), this->m_Accessor); }
+		auto cend()   const { return make_select_iterator(std::end(this->m_Container), this->m_Accessor); }
 
 	private:
-		template<typename self>
-		static auto make(self Self)
-		{
-			return make_select_iterator(std::cend(Self->m_Container), Self->m_Accessor);
-		}
-
 		container m_Container;
 		accessor m_Accessor;
 	};
