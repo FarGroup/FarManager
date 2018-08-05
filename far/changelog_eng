@@ -3,6 +3,36 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 05.08.2018 14:05:25 +0100 - build 5254
+
+1. Continuation of 5252.
+
+drkns 03.08.2018 12:13:31 +0100 - build 5253
+
+1. Continuation of 5249.
+
+drkns 03.08.2018 00:28:15 +0100 - build 5252
+
+1. Correction of 5248.
+
+drkns 02.08.2018 19:06:57 +0100 - build 5251
+
+1. Correction of 5250.2.
+
+drkns 02.08.2018 18:08:20 +0100 - build 5250
+
+1. Refactoring.
+
+2. A few small tweaks of interaction with sqlite.
+
+zg 02.08.2018 18:54:18 +0300 - build 5249
+
+1. correction of 5242.1 when the panel is closed in GetFilesW and DeleteFilesW.
+
+drkns 01.08.2018 15:04:37 +0100 - build 5248
+
+1. Refactoring.
+
 drkns 25.07.2018 00:21:37 +0100 - build 5247
 
 1. Correction of 5240.
